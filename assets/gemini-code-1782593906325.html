@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>炉石攻击手感 (修正物理碰撞版) V4</title>
+<style>
+  body {
+    background-color: #1a1a1a;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+    overflow: hidden;
+    font-family: 'Segoe UI', sans-serif;
+  }
+
+  #game-board {
+    width: 400px;
+    height: 600px;
+    background-color: #3b2f2f;
+    border-radius: 12px;
+    position: relative;
+    border: 4px solid #2a1f1f;
+    box-shadow: 0 20px 50px rgba(0,0,0,0.8);
+  }
+
+  .card {
+    width: 100px;
+    height: 140px;
+    border-radius: 8px;
+    position: absolute;
+    left: 50%;
+    margin-left: -50px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: white;
+    font-weight: bold;
+    text-shadow: 1px 1px 2px black;
+    transform: translate(0px, 0px) scale(1); 
+    z-index: 10;
+    user-select: none;
+  }
+
+  #target {
+    top: 50px;
+    background: linear-gradient(135deg, #c0392b, #8e44ad);
+    border: 2px solid #e74c3c;
+    /* 目标也需要硬件加速，准备承受撞击 */
+    will-change: transform;
+  }
+
+  #attacker {
+    bottom: 50px;
+    background: linear-gradient(135deg, #2980b9, #2c3e50);
+    border: 2px solid #3498db;
+    cursor: pointer;
+    box-shadow: 0 5px 15px rgba(41, 128, 185, 0.4);
+    transition: box-shadow 0.2s, filter 0.2s;
+  }
+
+  #attacker:hover {
+    box-shadow: 0 0 25px rgba(52, 152, 219, 1);
+    filter: brightness(1.2);
+  }
+
+  /* 屏幕震动 */
+  @keyframes shake {
+    0% { transform: translate(0, 0); }
+    20% { transform: translate(-5px, 5px) rotate(-1deg); }
+    40% { transform: translate(5px, -5px) rotate(1deg); }
+    60% { transform: translate(-3px, 3px); }
+    80% { transform: translate(3px, -3px); }
+    100% { transform: translate(0, 0); }
+  }
+  .shake-active { animation: shake 0.25s both; }
+
+  /* 物理伤害数字：炉石的数字是红色的水滴/抛物线状 */
+  .damage-text {
+    position: absolute;
+    color: #ff3b30;
+    font-size: 55px;
+    font-family: impact, sans-serif;
+    text-shadow: -2px -2px 0 #000, 2px -2px 0 #000, -2px 2px 0 #000, 2px 2px 0 #000, 0 4px 10px rgba(0,0,0,0.8);
+    z-index: 30;
+    pointer-events: none;
+    top: 10%; 
+    animation: popDamage 0.9s cubic-bezier(0.1, 0.9, 0.2, 1) forwards;
+  }
+
+  @keyframes popDamage {
+    0% { transform: scale(0.3) translateY(0); opacity: 1; }
+    20% { transform: scale(1.5) translateY(-30px); }
+    100% { transform: scale(1) translateY(-60px); opacity: 0; }
+  }
+
+  /* --- 新增：碰撞接触点爆开的星芒/碎屑感 --- */
+  .impact-burst {
+    position: absolute;
+    width: 60px;
+    height: 60px;
+    background: radial-gradient(circle, rgba(255,200,100,1) 0%, rgba(255,100,0,0.8) 40%, rgba(255,0,0,0) 70%);
+    border-radius: 50%;
+    left: 50%;
+    margin-left: -30px;
+    bottom: -10px; /* 撞击发生在下边缘 */
+    z-index: 25;
+    pointer-events: none;
+    mix-blend-mode: screen;
+    animation: burst 0.2s ease-out forwards;
+  }
+  @keyframes burst {
+    0% { transform: scale(0.5); opacity: 1; }
+    100% { transform: scale(2); opacity: 0; }
+  }
+</style>
+</head>
+<body>
+
+<div id="game-board">
+  <div id="target" class="card">敌方随从</div>
+  <div id="attacker" class="card">点击</div>
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const attacker = document.getElementById('attacker');
+    const target = document.getElementById('target');
+    const board = document.getElementById('game-board');
+
+    let isAttacking = false;
+
+    // 真正的炉石特效：接触点的星芒爆发
+    function createImpactEffects(targetElement) {
+      const burst = document.createElement('div');
+      burst.className = 'impact-burst';
+      targetElement.appendChild(burst);
+      setTimeout(() => burst.remove(), 200);
+    }
+
+    attacker.addEventListener('click', () => {
+      if (isAttacking) return; 
+      isAttacking = true;
+
+      const attackerRect = attacker.getBoundingClientRect();
+      const targetRect = target.getBoundingClientRect();
+      
+      const deltaX = targetRect.left - attackerRect.left;
+      const deltaY = targetRect.top - attackerRect.top;
+
+      // 1. 出击
+      attacker.style.transition = 'transform 0.25s cubic-bezier(0.5, -0.3, 0.2, 1)';
+      attacker.style.transform = `translate(${deltaX}px, ${deltaY}px) scale(1.05)`;
+
+      // 2. 碰撞瞬间 (250ms)
+      setTimeout(() => {
+        // 屏幕震动
+        board.classList.add('shake-active');
+        
+        // 播放接触点特效
+        createImpactEffects(target);
+        
+        // 爆出伤害数字 (炉石的红色数字)
+        const dmg = document.createElement('div');
+        dmg.className = 'damage-text';
+        dmg.innerText = '-6';
+        target.appendChild(dmg);
+
+        // --- 核心修正：目标受击后仰 (Recoil) ---
+        // 目标被向着攻击向量的反方向稍微“顶飞”一点
+        target.style.transition = 'transform 0.1s ease-out';
+        target.style.transform = `translate(0px, -15px) scale(0.95) rotate(2deg)`;
+
+        // 清理状态
+        setTimeout(() => {
+          dmg.remove();
+          board.classList.remove('shake-active');
+        }, 900);
+
+        // 3. 顿帧与回弹
+        setTimeout(() => {
+          // 攻击者回弹
+          attacker.style.transition = 'transform 0.4s cubic-bezier(0.1, 0.9, 0.2, 1)';
+          attacker.style.transform = 'translate(0px, 0px) scale(1)';
+          
+          // 目标恢复原位 (被顶飞后掉回来)
+          target.style.transition = 'transform 0.3s cubic-bezier(0.3, 1.5, 0.5, 1)';
+          target.style.transform = 'translate(0px, 0px) scale(1) rotate(0deg)';
+          
+          setTimeout(() => {
+            isAttacking = false;
+          }, 400); 
+        }, 80); // 80ms 的肉感顿帧保持不变
+
+      }, 250); 
+    });
+  });
+</script>
+
+</body>
+</html>

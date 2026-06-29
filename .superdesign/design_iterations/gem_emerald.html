@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>法力宝石 · emerald 镶嵌预览</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;800&family=Oswald:wght@500;600&display=swap" rel="stylesheet" />
+<style>
+  :root{ --bg:#0e0e16; --gold:#c9a35c; --gold-lit:#e8c879; }
+  *{box-sizing:border-box} html,body{margin:0}
+  body{background:var(--bg);color:#f2ead8;font-family:"Oswald",sans-serif;
+    min-height:100vh;display:flex;flex-direction:column;align-items:center;gap:40px;padding:48px 24px}
+  h1{font-family:"Playfair Display",serif;font-weight:700;font-size:22px;margin:0}
+  .row{display:flex;gap:64px;align-items:flex-start;flex-wrap:wrap;justify-content:center}
+  .cell{display:flex;flex-direction:column;align-items:center;gap:14px}
+  .cap{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:rgba(242,234,216,.5)}
+
+  /* 卡壳：胶片机能暖调占位立绘 */
+  .card{position:relative;width:116px;height:164px;border-radius:8px;
+    border:1px solid rgba(216,194,144,.34);background:#0b0a09;isolation:isolate}
+  .card .art{position:absolute;inset:0;border-radius:8px;overflow:hidden}
+  .card .art::before{content:"";position:absolute;inset:0;
+    background:radial-gradient(120% 95% at 50% 14%,#6f4631,#3c2a22 46%,#140f0c)}
+  .card .art::after{content:"";position:absolute;inset:0;
+    background:linear-gradient(180deg,rgba(0,0,0,.55),transparent 30%,transparent 60%,rgba(0,0,0,.75))}
+  .card.big{width:232px;height:328px}
+
+  /* ★ 宝石：镶嵌位置变体 */
+  .gem{position:absolute;z-index:6;width:30px;height:30px}
+  .card.big .gem{width:50px;height:50px}
+  /* 左侧中（现状） */
+  .pos-midL .gem{top:50%;left:0;transform:translate(-50%,-50%)}
+  /* 左上角 */
+  .pos-tl .gem{top:0;left:0;transform:translate(-45%,-45%)}
+  /* 左下角 */
+  .pos-bl .gem{bottom:0;left:0;transform:translate(-45%,45%)}
+  /* 底部居中 */
+  .pos-bc .gem{bottom:0;left:50%;transform:translate(-50%,45%)}
+  /* 右下角 */
+  .pos-br .gem{bottom:0;right:0;transform:translate(45%,45%)}
+  .gem svg{display:block;width:100%;height:100%;overflow:visible;
+    filter:drop-shadow(0 2px 4px rgba(0,0,0,.7))}
+  /* 暖金描边环（衬在宝石后，沿宝石外形描边） */
+  .gem .ring{fill:none;stroke:var(--gold);stroke-width:14}
+  .gem.full .ring{stroke:var(--gold-lit)}
+  .gem .facets{fill:none;stroke:rgba(255,255,255,.45);stroke-width:5;mix-blend-mode:screen}
+  .gem .seat{fill:#0b0a09}
+</style>
+</head>
+<body>
+  <h1>法力宝石 · emerald 切割造型 · 镶嵌位置对比</h1>
+
+  <div class="row" id="positions"></div>
+  <div class="cap">↑ 同一颗双色宝石，5 种镶嵌位置 · 选一个最自然的</div>
+
+  <div class="row" id="big"></div>
+  <div class="cap">↑ 放大（左下角镶嵌）· 单色 / 双色 / 三色 / 六色</div>
+
+<script>
+  const COLOR = {R:'#e8555e',G:'#57c06b',B:'#4f9fe0',Y:'#e8c24a',P:'#a074d4',N:'#c0823f'};
+  const GEM_PATH = "M247 25.076L107.053 130.004l64.996 32.486L247 106.297v-81.22zm18 0v81.22l74.95 56.194 65-32.488L265 25.076zm9.277 22.307l36.63 26.437c-25.125-4.207-29.74 9.2-37.348 28.8l.717-55.237zm-37.79 3.926l-.274 33.362c-22.052 1.182-56.787 14.423-107.893 43.99L236.488 51.31zM256 122.044l-74 55.48v156.948l74 55.482 74-55.482V177.527l-74-55.482zm4.215 17.67c-37.503 33.84-60.642 164.833-63.65 199.094l-.35-151.095 64-48zM99 146.1v219.8l65-32.488V178.588L99 146.1zm314 0l-65 32.488v154.824l65 32.488V146.1zm-301.352 23.31l40.473 20.83c-46.28 38.757-30.79 122.693-41.876 162.572l1.404-183.402zm60.4 180.1l-64.995 32.486L247 486.924v-81.22l-74.95-56.194zm167.903 0L265 405.703v81.22l139.947-104.927-64.996-32.486zm-169.415 17.172c-19.594 16.282-16.745 24.365 4.477 54.412l-44.246-38.018 39.77-16.394z";
+
+  function gemSVG(colors, full){
+    const id = 'm'+Math.random().toString(36).slice(2,7);
+    const n = colors.length;
+    let fills = '';
+    if(n<=1){
+      fills = `<rect x="0" y="0" width="512" height="512" fill="${COLOR[colors[0]||'N']}"/>`;
+    } else {
+      const cx=256, cy=256, R=420;
+      const step=(Math.PI*2)/n;
+      for(let i=0;i<n;i++){
+        const a0=-Math.PI/2 + i*step, a1=-Math.PI/2 + (i+1)*step;
+        const x0=cx+R*Math.cos(a0), y0=cy+R*Math.sin(a0);
+        const x1=cx+R*Math.cos(a1), y1=cy+R*Math.sin(a1);
+        const large = step>Math.PI?1:0;
+        fills += `<path d="M${cx} ${cy} L${x0.toFixed(1)} ${y0.toFixed(1)} A${R} ${R} 0 ${large} 1 ${x1.toFixed(1)} ${y1.toFixed(1)} Z" fill="${COLOR[colors[i]]}"/>`;
+      }
+    }
+    return `<svg viewBox="0 0 512 512" class="${full?'full':''}">
+      <defs><clipPath id="${id}"><path d="${GEM_PATH}"/></clipPath></defs>
+      <path class="ring" d="${GEM_PATH}"/>
+      <path class="seat" d="${GEM_PATH}"/>
+      <g clip-path="url(#${id})">${fills}</g>
+      <path class="facets" d="${GEM_PATH}"/>
+    </svg>`;
+  }
+
+  function card(colors, big, full, pos){
+    return `<div class="card ${big?'big':''} ${pos}">
+      <div class="art"></div>
+      <div class="gem ${full?'full':''}">${gemSVG(colors, full)}</div>
+    </div>`;
+  }
+
+  // 位置对比：同一颗双色宝石
+  const positions = [
+    ['pos-tl','左上角'], ['pos-bl','左下角'], ['pos-bc','底部居中'],
+    ['pos-midL','左侧中(现状)'], ['pos-br','右下角'],
+  ];
+  document.getElementById('positions').innerHTML =
+    positions.map(([p,label])=>`<div class="cell">${card(['B','P'],false,false,p)}<div class="cap">${label}</div></div>`).join('');
+
+  // 放大：左下角镶嵌，展示颜色数
+  const sets = [['R'],['B','P'],['G','Y','R'],['B','G','Y','P','N','R']];
+  const caps = ['单色 · 6','双色 · 12','三色 · 18','六色 · 36'];
+  document.getElementById('big').innerHTML =
+    sets.map((s,i)=>`<div class="cell">${card(s,true,i===3,'pos-bl')}<div class="cap">${caps[i]}</div></div>`).join('');
+</script>
+</body>
+</html>

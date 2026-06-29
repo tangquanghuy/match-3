@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>角色卡 · 方向A 杂志/昆特牌风</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+  :root {
+    --bg: #0e0e16;
+    --line: rgba(255,255,255,0.16);
+    --line-strong: rgba(255,255,255,0.28);
+    --ink-dark: rgba(0,0,0,0.55);
+  }
+  * { -webkit-font-smoothing: antialiased; }
+  html, body {
+    background: var(--bg);
+    color: #fff;
+    font-family: "Inter", "Helvetica Neue", system-ui, -apple-system, sans-serif;
+    font-feature-settings: "tnum" 1;
+  }
+
+  /* ---------- 卡片基础：1px 细描边，立绘铺满 ---------- */
+  .card {
+    position: relative;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    overflow: hidden;
+    background: #14141c;
+    isolation: isolate;
+  }
+  /* 立绘占位：沉稳暗调径向+线性，不饱和 */
+  .art {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+  }
+  /* 顶/底极轻微线性压暗，仅为可读性 */
+  .art::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background:
+      linear-gradient(to bottom, rgba(0,0,0,0.42) 0%, rgba(0,0,0,0) 26%),
+      linear-gradient(to top, rgba(0,0,0,0.48) 0%, rgba(0,0,0,0) 30%);
+  }
+
+  /* 各色：暗调，低饱和，几何剪影做立绘感 */
+  .art-red   { background:
+      radial-gradient(120% 80% at 50% 8%, #7d3338 0%, #3a1c22 48%, #1b1116 100%); }
+  .art-green { background:
+      radial-gradient(120% 80% at 50% 8%, #2f6a40 0%, #1c3826 48%, #11181400 100%),
+      radial-gradient(120% 80% at 50% 8%, #2f6a40 0%, #1c3826 48%, #101714 100%); }
+  .art-blue  { background:
+      radial-gradient(120% 80% at 50% 8%, #2c5e86 0%, #18324a 48%, #0f1620 100%); }
+  .art-purple{ background:
+      radial-gradient(120% 80% at 50% 8%, #523a78 0%, #2b2042 48%, #15101f 100%); }
+
+  /* 立绘几何剪影：肩部/头部暗影，制造人物体量 */
+  .silhouette {
+    position: absolute;
+    left: 50%;
+    bottom: -6%;
+    width: 78%;
+    height: 70%;
+    transform: translateX(-50%);
+    background: rgba(0,0,0,0.30);
+    border-radius: 50% 50% 0 0 / 60% 60% 0 0;
+    z-index: 0;
+  }
+  .silhouette::before {
+    content: "";
+    position: absolute;
+    left: 50%;
+    top: -34%;
+    width: 42%;
+    height: 50%;
+    transform: translateX(-50%);
+    background: rgba(0,0,0,0.34);
+    border-radius: 50%;
+  }
+  .gloss {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    background: radial-gradient(60% 42% at 50% 14%, rgba(255,255,255,0.10), rgba(255,255,255,0) 70%);
+  }
+
+  /* ---------- 四角信息：直接浮在立绘上 ---------- */
+  .corner { position: absolute; z-index: 2; }
+  .tl { top: 0; left: 0; }
+  .tr { top: 0; right: 0; }
+  .bl { bottom: 0; left: 0; }
+  .br { bottom: 0; right: 0; }
+
+  .name {
+    font-size: 10px;
+    font-weight: 500;
+    letter-spacing: 0.26em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.92);
+    text-shadow: 0 1px 3px rgba(0,0,0,0.6);
+  }
+
+  /* 法力点阵 */
+  .pips { display: flex; gap: 3px; }
+  .pip {
+    width: 5px; height: 5px; border-radius: 50%;
+    border: 1px solid rgba(255,255,255,0.7);
+    box-sizing: border-box;
+  }
+  .pip.on { background: #fff; border-color: #fff; }
+  .mana-num {
+    font-size: 9px; letter-spacing: 0.12em;
+    color: rgba(255,255,255,0.78);
+    text-align: right;
+    margin-top: 4px;
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* 攻防数值：超大纤细，浮现在立绘上，不靠底色 */
+  .stat { display: flex; align-items: flex-end; gap: 4px; }
+  .stat .ico { margin-bottom: 5px; opacity: 0.85; }
+  .stat .val {
+    font-weight: 300;
+    line-height: 0.86;
+    letter-spacing: -0.02em;
+    font-variant-numeric: tabular-nums;
+    text-shadow: 0 1px 6px rgba(0,0,0,0.55);
+  }
+  .stat.atk .val { color: #fff; }
+  .stat.hp  .val { color: #fff; }
+
+  /* 护甲：叠在血量上方，极简 */
+  .armor {
+    display: inline-flex; align-items: center; gap: 3px;
+    font-size: 10px; font-weight: 400; letter-spacing: 0.04em;
+    color: rgba(255,255,255,0.88);
+    margin-bottom: 2px;
+    text-shadow: 0 1px 4px rgba(0,0,0,0.6);
+  }
+
+  .hairline-x { stroke: #fff; stroke-width: 1.4; fill: none; }
+</style>
+</head>
+<body class="min-h-screen">
+
+  <div class="max-w-6xl mx-auto px-8 py-14">
+
+    <!-- 页眉：克制杂志排版 -->
+    <header class="mb-12 flex items-end justify-between border-b border-white/10 pb-5">
+      <div>
+        <div class="text-[10px] tracking-[0.42em] uppercase text-white/45">Match-3 Battle · Character Cards</div>
+        <h1 class="mt-2 text-2xl font-light tracking-[0.18em]">方向 A — 克制 · 杂志 / 昆特牌风</h1>
+      </div>
+      <div class="text-[10px] tracking-[0.3em] uppercase text-white/35 text-right leading-5">
+        Team Lineup<br/>04 Units
+      </div>
+    </header>
+
+    <div class="grid grid-cols-1 lg:grid-cols-[auto_1fr] gap-16 items-start">
+
+      <!-- 队伍：4 张竖向排列 -->
+      <section>
+        <div class="text-[10px] tracking-[0.34em] uppercase text-white/40 mb-4">Your Team</div>
+        <div class="flex flex-col gap-4" id="team"></div>
+      </section>
+
+      <!-- 细节放大卡 -->
+      <section>
+        <div class="text-[10px] tracking-[0.34em] uppercase text-white/40 mb-4">Detail · 四角信息排版</div>
+        <div id="hero"></div>
+        <div class="mt-6 text-[11px] leading-6 text-white/45 max-w-sm tracking-wide">
+          左上 角色名 · 右上 法力点阵 · 左下 攻击 · 右下 血量。
+          护甲仅在存在时叠于血量上方。数值以超大纤细字体浮现于立绘之上，无底色信息条。
+        </div>
+      </section>
+
+    </div>
+  </div>
+
+  <!-- 内联 SVG 图标定义（极简单色线性） -->
+  <svg width="0" height="0" style="position:absolute">
+    <defs>
+      <g id="ico-sword">
+        <path class="hairline-x" d="M5 19 L14 10 M12 4 L20 4 L20 12 L14 10 M4 18 L7 21 M3 19 L5 17"/>
+      </g>
+      <g id="ico-heart">
+        <path class="hairline-x" d="M12 20 C 4 14, 4 6, 9 6 C 11 6, 12 8, 12 9 C 12 8, 13 6, 15 6 C 20 6, 20 14, 12 20 Z"/>
+      </g>
+      <g id="ico-shield">
+        <path class="hairline-x" d="M12 3 L19 6 V11 C19 16, 15 19, 12 21 C9 19, 5 16, 5 11 V6 Z"/>
+      </g>
+    </defs>
+  </svg>
+
+<script>
+const sword = (s=14)=>`<svg class="ico" width="${s}" height="${s}" viewBox="0 0 24 24"><use href="#ico-sword"/></svg>`;
+const heart = (s=14)=>`<svg class="ico" width="${s}" height="${s}" viewBox="0 0 24 24"><use href="#ico-heart"/></svg>`;
+const shield = (s=11)=>`<svg width="${s}" height="${s}" viewBox="0 0 24 24" style="display:block"><use href="#ico-shield"/></svg>`;
+
+function pips(cur, need){
+  let html = '';
+  for(let i=0;i<need;i++){
+    html += `<span class="pip ${i<cur?'on':''}"></span>`;
+  }
+  return `<div class="pips">${html}</div><div class="mana-num">${cur}/${need}</div>`;
+}
+
+// 单张卡渲染。scale 控制整体体量（基准 150x132 比例）
+function renderCard(c, scale){
+  const w = Math.round(150*scale), h = Math.round(132*scale);
+  const pad = Math.round(10*scale);
+  const valSize = Math.round(34*scale);
+  const armorHtml = c.armor ? `<div class="armor">${shield(Math.round(11*scale))}<span>${c.armor}</span></div>` : '';
+  return `
+  <div class="card art-${c.color}" style="width:${w}px;height:${h}px">
+    <div class="art art-${c.color}"></div>
+    <div class="silhouette"></div>
+    <div class="gloss"></div>
+
+    <!-- 左上 名字 -->
+    <div class="corner tl" style="padding:${pad}px">
+      <div class="name" style="font-size:${Math.round(10*scale)}px">${c.name}</div>
+    </div>
+
+    <!-- 右上 法力 -->
+    <div class="corner tr" style="padding:${pad}px">
+      ${pips(c.manaCur, c.manaNeed)}
+    </div>
+
+    <!-- 左下 攻击 -->
+    <div class="corner bl" style="padding:${pad}px">
+      <div class="stat atk">
+        ${sword(Math.round(15*scale))}
+        <span class="val" style="font-size:${valSize}px">${c.atk}</span>
+      </div>
+    </div>
+
+    <!-- 右下 血量(含护甲) -->
+    <div class="corner br" style="padding:${pad}px; text-align:right">
+      ${armorHtml}
+      <div class="stat hp" style="justify-content:flex-end">
+        ${heart(Math.round(15*scale))}
+        <span class="val" style="font-size:${valSize}px">${c.hp}</span>
+      </div>
+    </div>
+  </div>`;
+}
+
+const team = [
+  { name:"VEYNE / 薇恩",  color:"red",    atk:7, hp:42, manaCur:8,  manaNeed:12 },
+  { name:"LOAN / 洛安",   color:"green",  atk:5, hp:39, manaCur:5,  manaNeed:8  },
+  { name:"TIA / 缇雅",    color:"blue",   atk:4, hp:44, armor:12, manaCur:3, manaNeed:10 },
+  { name:"KAELO / 凯洛",  color:"purple", atk:9, hp:38, manaCur:11, manaNeed:12 },
+];
+
+document.getElementById('team').innerHTML = team.map(c=>renderCard(c, 1.18)).join('');
+document.getElementById('hero').innerHTML = renderCard(team[2], 2.75);
+</script>
+</body>
+</html>

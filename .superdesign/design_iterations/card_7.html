@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>角色卡 · 方向 G 胶片机能（card3 × card4 融合）</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;600;700;800&family=Oswald:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<style>
+  /* ==================================================================
+     方向 G — 胶片机能 / CINEMATIC-MECHA
+     card_3(暖调胶片 · 衬线大字 · 颗粒暗角 · 暖金) 
+       × card_4(斜切构图线 · 超大数字作主体 · 1px 结构刻度 · OP 编号)
+     冷硬的结构 + 暖旧的电影质感
+     ================================================================== */
+  :root{
+    --bg:#0e0e16;
+    --gold:#c9a35c;          /* 暖金：唯一强调色 */
+    --gold-soft:#d8c290;
+    --line:rgba(216,194,144,.16);
+    --line-strong:rgba(216,194,144,.34);
+    --ink:#f2ead8;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0}
+  body{
+    background:var(--bg);
+    color:var(--ink);
+    font-family:"Oswald","PingFang SC","Microsoft YaHei",sans-serif;
+    -webkit-font-smoothing:antialiased;
+  }
+  .serif{font-family:"Playfair Display",Georgia,serif}
+
+  /* ---------- 页面结构网格（极淡，让卡浮在结构上） ---------- */
+  .stage{
+    position:relative;min-height:100vh;padding:48px 24px;
+    background-image:
+      linear-gradient(var(--line) 1px,transparent 1px),
+      linear-gradient(90deg,var(--line) 1px,transparent 1px);
+    background-size:48px 48px;background-position:center;
+  }
+  .stage::after{
+    content:"";position:absolute;inset:0;pointer-events:none;
+    background:radial-gradient(120% 80% at 50% 0%,transparent 38%,var(--bg) 100%);
+  }
+  .wrap{position:relative;z-index:1;display:flex;gap:48px;justify-content:center;align-items:flex-start;flex-wrap:wrap}
+  .col-label{font-family:"Oswald";font-size:10px;letter-spacing:.42em;text-transform:uppercase;
+    color:var(--gold-soft);margin-bottom:16px;display:flex;align-items:center;gap:8px}
+  .col-label::after{content:"";flex:1;height:1px;background:var(--line)}
+
+  /* ---------- 卡壳：竖向 3:4.15，机能切角 + 1px 暖金细线 ---------- */
+  .card{
+    position:relative;aspect-ratio:3/4.15;overflow:hidden;isolation:isolate;
+    background:#0b0a09;
+    border:1px solid var(--line-strong);
+    /* 右下机能切角 */
+    clip-path:polygon(0 0,100% 0,100% calc(100% - 18px),calc(100% - 18px) 100%,0 100%);
+  }
+
+  /* ---------- 立绘：暖调电影构图 + 斜切结构色块 ---------- */
+  .art{position:absolute;inset:0;z-index:0}
+  /* 真实立绘照片层：cover 铺满、顶部对齐露出头部 */
+  .art .photo{position:absolute;inset:0;background-size:cover;background-position:50% 0%;background-repeat:no-repeat}
+  /* 有照片时隐藏 CSS 占位几何，仅保留电影处理层 */
+  .has-photo .base,.has-photo .mass,.has-photo .shard,.has-photo .focal{display:none}
+  .art .base{position:absolute;inset:0}
+  /* 主体量斜切块（card4 构图）但用暖旧色（card3 调） */
+  .art .mass{
+    position:absolute;inset:-6% -10% -2% -4%;
+    clip-path:polygon(16% 0,100% 0,100% 100%,38% 100%);
+    mix-blend-mode:screen;opacity:.92;
+  }
+  /* 次级斜切碎块 */
+  .art .shard{
+    position:absolute;inset:0;
+    clip-path:polygon(0 56%,52% 32%,72% 100%,0 100%);
+    opacity:.5;mix-blend-mode:screen;
+  }
+  /* 头部/焦点光团（侧光） */
+  .art .focal{
+    position:absolute;left:44%;top:18%;width:38%;aspect-ratio:1;border-radius:50%;
+  }
+  /* 1px 暖金对角构图线（card4 的视线引导，改暖金） */
+  .art .slash{position:absolute;left:-10%;width:140%;height:1px;background:var(--gold);
+    transform:rotate(32deg);transform-origin:left center;top:40%;opacity:.55}
+  .art .slash.b{top:66%;opacity:.28}
+  .art .guide{position:absolute;left:-10%;width:140%;height:1px;background:var(--line-strong);
+    transform:rotate(32deg);transform-origin:left center;top:52%}
+  /* 电影暗角 + 顶/底压暗（card3），保证四角可读，不做实色信息条 */
+  .art .vig{
+    position:absolute;inset:0;
+    background:
+      radial-gradient(122% 90% at 50% 42%, transparent 46%, rgba(0,0,0,.55) 100%),
+      linear-gradient(180deg, rgba(0,0,0,.5) 0%, transparent 26%, transparent 52%, rgba(0,0,0,.72) 100%);
+  }
+  /* 胶片颗粒（card3，克制） */
+  .art .grain{
+    position:absolute;inset:-50%;opacity:.06;mix-blend-mode:overlay;pointer-events:none;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+
+  /* 6 色做旧低饱和（暖旧电影色） */
+  .rust  .base{background:radial-gradient(120% 95% at 50% 14%,#6f4631 0%,#3c2a22 46%,#140f0c 100%)}
+  .rust  .mass{background:linear-gradient(135deg,#9a6b4a,#5a3a28 60%,#241712)}
+  .rust  .shard{background:linear-gradient(135deg,#b3835a,#3c2a22)}
+  .rust  .focal{background:radial-gradient(42% 42% at 38% 34%,#caa06f,#5a3a2800 64%)}
+
+  .teal  .base{background:radial-gradient(120% 95% at 50% 14%,#3c5b59 0%,#1f2e2d 46%,#0c1211 100%)}
+  .teal  .mass{background:linear-gradient(135deg,#5c8480,#34504e 60%,#16201f)}
+  .teal  .shard{background:linear-gradient(135deg,#79a39d,#1f2e2d)}
+  .teal  .focal{background:radial-gradient(42% 42% at 38% 34%,#8fb8b2,#34504e00 64%)}
+
+  .plum  .base{background:radial-gradient(120% 95% at 50% 14%,#573a48 0%,#281a21 46%,#100b0e 100%)}
+  .plum  .mass{background:linear-gradient(135deg,#84566a,#4c333f 60%,#1f151b)}
+  .plum  .shard{background:linear-gradient(135deg,#a06e85,#281a21)}
+  .plum  .focal{background:radial-gradient(42% 42% at 38% 34%,#bd8aa1,#4c333f00 64%)}
+
+  .sand  .base{background:radial-gradient(120% 95% at 50% 14%,#836b46 0%,#3a2f1e 46%,#14100a 100%)}
+  .sand  .mass{background:linear-gradient(135deg,#b39a6e,#6e5a3a 60%,#2c2415)}
+  .sand  .shard{background:linear-gradient(135deg,#cbb083,#3a2f1e)}
+  .sand  .focal{background:radial-gradient(42% 42% at 38% 34%,#dcc290,#6e5a3a00 64%)}
+
+  /* per-card 构图镜像变化 */
+  .v2 .mass{clip-path:polygon(0 0,84% 0,62% 100%,0 100%)}
+  .v2 .shard{clip-path:polygon(100% 52%,48% 30%,100% 100%)}
+  .v2 .focal{left:30%}
+  .v2 .slash,.v2 .guide{transform:rotate(-28deg)}
+  .v2 .slash{top:42%}
+  .v3 .mass{clip-path:polygon(10% 0,100% 0,100% 100%,30% 100%)}
+  .v3 .focal{left:46%;top:22%}
+  .v3 .slash{top:30%}.v3 .slash.b{top:72%}
+  .v4 .mass{clip-path:polygon(0 0,90% 0,68% 100%,0 100%)}
+  .v4 .shard{clip-path:polygon(58% 26%,100% 44%,100% 100%,42% 100%)}
+  .v4 .focal{left:34%;top:20%}
+  .v4 .slash,.v4 .guide{transform:rotate(-26deg)}
+  .v4 .slash{top:46%}
+
+  /* ---------- 角落定位刻度（card4 结构细节，暖金） ---------- */
+  .reg{position:absolute;width:9px;height:9px;z-index:3}
+  .reg::before,.reg::after{content:"";position:absolute;background:var(--line-strong)}
+  .reg::before{width:9px;height:1px}.reg::after{height:9px;width:1px}
+  .reg.tl{top:7px;left:7px}.reg.tl::before{top:0}.reg.tl::after{left:0}
+
+  /* ---------- 四角信息 ---------- */
+  .ov{position:absolute;z-index:4}
+  /* 每个角落一团柔和暗影垫底，保证文字始终从立绘中分离出来 */
+  .ov::before{content:"";position:absolute;z-index:-1;width:190%;height:240%;
+    pointer-events:none;filter:blur(2px)}
+  .c-tl{top:10px;left:11px;right:54px}
+  .c-tl::before{top:-40%;left:-30%;
+    background:radial-gradient(70% 80% at 22% 30%,rgba(0,0,0,.62),transparent 72%)}
+  .c-tr{top:10px;right:11px;text-align:right}
+  .c-tr::before{top:-40%;right:-30%;left:auto;
+    background:radial-gradient(70% 80% at 78% 30%,rgba(0,0,0,.58),transparent 72%)}
+  .c-bl{left:14px;bottom:14px}
+  .c-bl::before{bottom:-50%;left:-30%;top:auto;
+    background:radial-gradient(75% 85% at 20% 78%,rgba(0,0,0,.66),transparent 74%)}
+  .c-br{right:16px;bottom:16px;text-align:right}
+  .c-br::before{bottom:-50%;right:-30%;top:auto;left:auto;
+    background:radial-gradient(75% 85% at 80% 78%,rgba(0,0,0,.66),transparent 74%)}
+
+  /* 名字：编号(Oswald) + 衬线名(Playfair) + hairline */
+  .kicker{font-family:"Oswald";font-size:9px;font-weight:600;letter-spacing:.34em;
+    text-transform:uppercase;color:var(--gold-soft)}
+  .name{font-family:"Playfair Display",serif;font-weight:700;line-height:1;
+    color:#f4ecda;text-shadow:0 1px 6px rgba(0,0,0,.7)}
+  .name-rule{height:1px;width:34px;margin-top:7px;
+    background:linear-gradient(90deg,var(--gold),transparent);opacity:.8}
+
+  /* 法力：暖金钻点（card3 钻形 + card4 满充点睛） */
+  .mana{display:flex;flex-direction:column;align-items:flex-end;gap:4px}
+  .pips{display:flex;gap:2.5px}
+  .pip{width:5px;height:5px;transform:rotate(45deg);background:rgba(216,194,144,.18)}
+  .pip.on{background:var(--gold)}
+  .mana-num{font-family:"Oswald";font-weight:500;letter-spacing:.05em;
+    color:var(--gold-soft);font-variant-numeric:tabular-nums;text-shadow:0 1px 5px rgba(0,0,0,.7)}
+
+  /* 攻防：超大衬线数字作主体（card4 体量 × card3 衬线） */
+  .stat{display:flex;align-items:center;gap:7px}
+  .c-bl .stat,.c-br .stat{flex-direction:row-reverse}
+  .stat svg{flex:none;transform:translateY(28%)}
+  .stat .v{font-family:"Playfair Display",serif;font-weight:800;line-height:1;
+    letter-spacing:-.01em;color:#f6efe0;
+    text-shadow:0 1px 2px rgba(0,0,0,.95),0 2px 14px rgba(0,0,0,.9),0 0 1px rgba(0,0,0,.9)}
+
+  /* 护甲：叠在血量上方，极简 */
+  .armor{display:flex;align-items:center;justify-content:flex-end;gap:5px;margin-bottom:7px}
+  .armor svg{stroke:var(--gold-soft)}
+  .armor .v{font-family:"Oswald";font-weight:600;letter-spacing:.02em;color:#e9e8f0;
+    text-shadow:0 1px 6px rgba(0,0,0,.8)}
+
+  .icon{stroke:#ece1c8;fill:none;filter:drop-shadow(0 1px 2px rgba(0,0,0,.6))}
+</style>
+</head>
+<body>
+  <div class="stage">
+    <div class="wrap">
+      <div>
+        <div class="col-label">Squad · 04</div>
+        <div class="grid grid-cols-2 gap-4" style="width:296px" id="team"></div>
+      </div>
+      <div>
+        <div class="col-label">Featured · 四角排版</div>
+        <div style="width:312px" id="feature"></div>
+        <div class="mt-5 grid grid-cols-2 gap-x-8 gap-y-1.5 text-[11px]" style="width:312px;color:rgba(242,234,216,.45);font-family:Oswald;letter-spacing:.08em">
+          <span>↖ 编号 + 名字</span><span class="text-right">↗ 法力 钻点</span>
+          <span>↙ ⚔ 攻击</span><span class="text-right">↘ ❤ 血量 · 护甲叠上</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 内联单色线性图标 -->
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+    <symbol id="i-sword" viewBox="0 0 24 24"><g class="icon" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M18.5 3.5 21 3.5 21 6 12.5 14.5 10 12 18.5 3.5Z"/>
+      <path d="M3 19.5 4.5 21 8 17.5 M6.5 16 8 17.5 M9.5 13 11 14.5"/>
+      <path d="M5.5 3.5 3 3.5 3 6 11.5 14.5 14 12 5.5 3.5Z"/>
+      <path d="M21 19.5 19.5 21 16 17.5 M17.5 16 16 17.5 M14.5 13 13 14.5"/>
+    </g></symbol>
+    <symbol id="i-heart" viewBox="0 0 24 24"><path class="icon" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" d="M12 19.5C7 16 4 12.8 4 9.6 4 7.3 5.8 5.6 8 5.6c1.4 0 2.8.8 4 2.3 1.2-1.5 2.6-2.3 4-2.3 2.2 0 4 1.7 4 4 0 3.2-3 6.4-8 9.9z"/></symbol>
+    <symbol id="i-shield" viewBox="0 0 24 24"><path class="icon" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" d="M12 3.5 19 6v5c0 4.2-2.9 7.6-7 9-4.1-1.4-7-4.8-7-9V6l7-2.5z"/></symbol>
+  </defs></svg>
+
+<script>
+  const data = [
+    { kicker:'OP-01', name:'法露特',   skin:'rust', v:'',   img:'https://rpg.bolt.qzz.io/%E5%B0%81%E9%9D%A2/%E6%B3%95%E9%9C%B2%E7%89%B9.webp', atk:7, hp:42, mana:8,  manaMax:12, armor:0  },
+    { kicker:'OP-02', name:'维尔汀',   skin:'plum', v:'v2', atk:9, hp:38, mana:12, manaMax:12, armor:0  },
+    { kicker:'OP-03', name:'玛蒂尔达', skin:'teal', v:'v3', atk:4, hp:41, mana:5,  manaMax:12, armor:12 },
+    { kicker:'OP-04', name:'白厅',     skin:'sand', v:'v4', atk:6, hp:40, mana:10, manaMax:12, armor:0  },
+  ];
+
+  function pips(cur,max){
+    // 满充时整排暖金；12 格压缩为 6 钻点以保持精致
+    const segs = 6, per = max/segs, full = cur>=max;
+    let h='';
+    for(let i=0;i<segs;i++){
+      const on = cur >= (i+1)*per - 0.001;
+      h += `<span class="pip ${on?'on':''}"></span>`;
+    }
+    return h;
+  }
+
+  function card(d, big){
+    const s = !!big;
+    const nameSize = s ? 26 : 16;
+    const numSize  = s ? 44 : 21;
+    const icon     = s ? 22 : 14;
+    const armorIc  = s ? 15 : 12;
+    const armor = d.armor>0 ? `
+      <div class="armor">
+        <svg width="${armorIc}" height="${armorIc}"><use href="#i-shield"/></svg>
+        <span class="v" style="font-size:${s?15:12}px">${d.armor}</span>
+      </div>` : '';
+    return `
+    <div class="card ${d.skin} ${d.v} ${d.img?'has-photo':''}">
+      <div class="art">
+        <div class="base"></div>
+        ${d.img?`<div class="photo" style="background-image:url('${d.img}')"></div>`:''}
+        <div class="mass"></div>
+        <div class="shard"></div>
+        <div class="focal"></div>
+        <div class="guide"></div>
+        <div class="slash"></div>
+        <div class="slash b"></div>
+        <div class="vig"></div>
+        <div class="grain"></div>
+      </div>
+      <span class="reg tl"></span>
+
+      <div class="ov c-tl">
+        <div class="name" style="font-size:${nameSize}px">${d.name}</div>
+        <div class="name-rule" style="width:${s?46:30}px"></div>
+      </div>
+
+      <div class="ov c-tr">
+        <div class="mana">
+          <div class="pips">${pips(d.mana,d.manaMax)}</div>
+          <div class="mana-num" style="font-size:${s?11:9}px">${d.mana}/${d.manaMax}</div>
+        </div>
+      </div>
+
+      <div class="ov c-bl">
+        <div class="stat">
+          <svg class="icon" width="${icon}" height="${icon}"><use href="#i-sword"/></svg>
+          <span class="v" style="font-size:${numSize}px">${d.atk}</span>
+        </div>
+      </div>
+
+      <div class="ov c-br">
+        ${armor}
+        <div class="stat">
+          <svg class="icon" width="${icon}" height="${icon}"><use href="#i-heart"/></svg>
+          <span class="v" style="font-size:${numSize}px">${d.hp}</span>
+        </div>
+      </div>
+    </div>`;
+  }
+
+  document.getElementById('team').innerHTML = data.map(d=>card(d,false)).join('');
+  document.getElementById('feature').innerHTML = card(data[2],true); // 带护甲那张放大
+</script>
+</body>
+</html>

@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>法力值 · 方案一 数字优先 · 极简铭牌</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;600;700;800&family=Oswald:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+<style>
+  /* ==================================================================
+     法力值重设计 — 方案一：数字优先 · 极简铭牌
+     Numeric-first / Minimal Plate
+     理念：法力以数字为主角。Playfair 衬线大「当前值」+ 弱化的斜杠上限，
+          仅一条暖金 hairline 作刻度暗示，满充时极轻暖金提亮。
+     —— 不用钻点 / 不用充能条 / 不用环形进度环。
+     ================================================================== */
+  :root{
+    --bg:#0e0e16;
+    --gold:#c9a35c;
+    --gold-soft:#d8c290;
+    --gold-bright:#e8c879;
+    --line:rgba(216,194,144,.16);
+    --line-strong:rgba(216,194,144,.34);
+    --ink:#f2ead8;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0}
+  body{
+    background:var(--bg);
+    color:var(--ink);
+    font-family:"Oswald","PingFang SC","Microsoft YaHei",sans-serif;
+    -webkit-font-smoothing:antialiased;
+  }
+  .serif{font-family:"Playfair Display",Georgia,serif}
+
+  .stage{position:relative;min-height:100vh;padding:56px 32px 72px}
+  .stage::after{
+    content:"";position:absolute;inset:0;pointer-events:none;
+    background:radial-gradient(120% 80% at 50% 0%,transparent 46%,var(--bg) 100%);
+  }
+  .wrap{position:relative;z-index:1;max-width:1080px;margin:0 auto}
+
+  .h-title{font-family:"Playfair Display",serif;font-weight:700;font-size:28px;color:#f4ecda;line-height:1}
+  .h-sub{font-family:"Oswald";font-size:11px;letter-spacing:.34em;text-transform:uppercase;color:var(--gold-soft);margin-top:8px}
+  .col-label{font-family:"Oswald";font-size:10px;letter-spacing:.42em;text-transform:uppercase;
+    color:var(--gold-soft);margin-bottom:16px;display:flex;align-items:center;gap:8px}
+  .col-label::after{content:"";flex:1;height:1px;background:var(--line)}
+
+  /* ---------- 卡壳（沿用胶片机能） ---------- */
+  .card{
+    position:relative;overflow:hidden;isolation:isolate;background:#0b0a09;
+    border:1px solid var(--line-strong);
+    clip-path:polygon(0 0,100% 0,100% calc(100% - 14px),calc(100% - 14px) 100%,0 100%);
+  }
+  .card.sm{width:104px;height:125px}
+  .card.lg{width:270px;height:325px;clip-path:polygon(0 0,100% 0,100% calc(100% - 24px),calc(100% - 24px) 100%,0 100%)}
+
+  /* 立绘：纯 CSS 暗色渐变占位（重点看法力） */
+  .art{position:absolute;inset:0;z-index:0}
+  .art .base{position:absolute;inset:0;
+    background:radial-gradient(120% 95% at 62% 16%,#5a3d2c 0%,#2e2019 48%,#100c09 100%)}
+  .art .mass{position:absolute;inset:-6% -10% -2% -4%;
+    clip-path:polygon(18% 0,100% 0,100% 100%,40% 100%);
+    background:linear-gradient(135deg,#8a5f42,#4c3324 60%,#1e150f);mix-blend-mode:screen;opacity:.9}
+  .art .vig{position:absolute;inset:0;
+    background:
+      radial-gradient(122% 90% at 50% 40%, transparent 44%, rgba(0,0,0,.55) 100%),
+      linear-gradient(180deg, rgba(0,0,0,.5) 0%, transparent 26%, transparent 52%, rgba(0,0,0,.72) 100%);
+  }
+  .art .grain{position:absolute;inset:-50%;opacity:.06;mix-blend-mode:overlay;pointer-events:none;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");}
+
+  /* 角落柔影垫底 */
+  .ov{position:absolute;z-index:4}
+  .ov::before{content:"";position:absolute;z-index:-1;width:200%;height:240%;pointer-events:none;filter:blur(2px)}
+
+  /* 左上 名字（简单占位） */
+  .c-tl{top:9px;left:10px}
+  .c-tl::before{top:-40%;left:-30%;background:radial-gradient(70% 80% at 22% 30%,rgba(0,0,0,.6),transparent 72%)}
+  .kicker{font-family:"Oswald";font-weight:600;letter-spacing:.32em;text-transform:uppercase;color:var(--gold-soft)}
+  .name{font-family:"Playfair Display",serif;font-weight:700;line-height:1;color:#f4ecda;text-shadow:0 1px 6px rgba(0,0,0,.7)}
+
+  /* 左下 攻击 / 右下 血量（简单占位） */
+  .c-bl{left:11px;bottom:11px}
+  .c-bl::before{bottom:-50%;left:-30%;top:auto;background:radial-gradient(75% 85% at 20% 78%,rgba(0,0,0,.66),transparent 74%)}
+  .c-br{right:13px;bottom:11px;text-align:right}
+  .c-br::before{bottom:-50%;right:-30%;top:auto;left:auto;background:radial-gradient(75% 85% at 80% 78%,rgba(0,0,0,.66),transparent 74%)}
+  .stat{display:flex;align-items:center;gap:5px}
+  .c-br .stat{flex-direction:row-reverse}
+  .stat .v{font-family:"Playfair Display",serif;font-weight:800;line-height:1;color:#f6efe0;
+    text-shadow:0 1px 2px rgba(0,0,0,.95),0 2px 14px rgba(0,0,0,.9)}
+  .icon{stroke:#ece1c8;fill:none;filter:drop-shadow(0 1px 2px rgba(0,0,0,.6))}
+
+  /* ==================================================================
+     ★ 右上 法力铭牌 —— 方案一核心
+     结构：极小法力符 kicker  →  斜杠分数（大当前值 / 弱上限）  →  暖金 hairline
+     ================================================================== */
+  .c-tr{top:9px;right:11px;text-align:right}
+  .c-tr::before{top:-44%;right:-34%;left:auto;
+    background:radial-gradient(72% 82% at 80% 28%,rgba(0,0,0,.62),transparent 72%)}
+
+  .mana{display:flex;flex-direction:column;align-items:flex-end;gap:3px}
+
+  /* 极小标签：MANA + 法力符（克制点缀） */
+  .mana-tag{display:flex;align-items:center;gap:4px;font-family:"Oswald";font-weight:600;
+    letter-spacing:.28em;text-transform:uppercase;color:var(--gold-soft);opacity:.85;line-height:1}
+  .mana-tag .glyph{display:inline-block;transform:rotate(45deg);background:var(--gold-soft)}
+
+  /* 斜杠分数：大当前值（衬线）/ 弱上限 */
+  .mana-frac{display:flex;align-items:baseline;line-height:.9;
+    text-shadow:0 1px 3px rgba(0,0,0,.95),0 2px 12px rgba(0,0,0,.85)}
+  .mana-cur{font-family:"Playfair Display",serif;font-weight:800;color:#f6efe0;
+    font-variant-numeric:tabular-nums;letter-spacing:-.01em}
+  .mana-slash{font-family:"Oswald";font-weight:300;color:var(--gold-soft);opacity:.55;
+    transform:translateY(-2px)}
+  .mana-max{font-family:"Oswald";font-weight:500;color:var(--gold-soft);opacity:.6;
+    font-variant-numeric:tabular-nums}
+
+  /* 暖金 hairline：刻度暗示，宽度恒定、克制 */
+  .mana-rule{height:1px;background:linear-gradient(90deg,transparent,var(--gold));opacity:.7}
+
+  /* 空态：当前值更冷、更暗，弱化存在感 */
+  .is-empty .mana-cur{color:#cfc6b4;opacity:.78}
+  .is-empty .mana-rule{background:linear-gradient(90deg,transparent,var(--line-strong));opacity:.9}
+
+  /* 满态：极轻暖金提亮 + 极轻发光（克制，不廉价） */
+  .is-full .mana-cur{color:var(--gold-bright);
+    text-shadow:0 0 1px rgba(232,200,121,.5),0 1px 3px rgba(0,0,0,.9),0 0 10px rgba(232,200,121,.28)}
+  .is-full .mana-slash{color:var(--gold-bright);opacity:.7}
+  .is-full .mana-max{color:var(--gold-bright);opacity:.78}
+  .is-full .mana-tag{color:var(--gold-bright);opacity:1}
+  .is-full .mana-tag .glyph{background:var(--gold-bright)}
+  .is-full .mana-rule{background:linear-gradient(90deg,transparent,var(--gold-bright));opacity:1;
+    box-shadow:0 0 6px rgba(232,200,121,.45)}
+
+  /* 注释卡 */
+  .note{background:rgba(255,255,255,.02);border:1px solid var(--line);border-radius:8px;padding:16px}
+  .note h4{font-family:"Oswald";font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--gold-soft);margin:0 0 8px}
+  .note p{font-size:12.5px;line-height:1.7;color:rgba(242,234,216,.62);margin:0 0 6px}
+  .note b{color:var(--gold-soft);font-weight:600}
+  .state-cap{font-family:"Oswald";font-size:10px;letter-spacing:.22em;text-transform:uppercase;
+    color:rgba(242,234,216,.5);text-align:center;margin-top:12px}
+</style>
+</head>
+<body>
+  <div class="stage">
+    <div class="wrap">
+
+      <div class="h-title serif">法力值 · 极简铭牌</div>
+      <div class="h-sub">方案一 — Numeric-first / Minimal Plate</div>
+
+      <!-- 真实比例 104×125 -->
+      <div class="mt-12">
+        <div class="col-label">真实比例 · 104 × 125px · 三状态</div>
+        <div class="flex flex-wrap gap-8" id="real"></div>
+      </div>
+
+      <!-- 放大版 -->
+      <div class="mt-16">
+        <div class="col-label">放大 · ≈2.6× · 看清右上铭牌细节</div>
+        <div class="flex flex-wrap gap-12 items-start" id="big"></div>
+      </div>
+
+      <!-- 设计要点 -->
+      <div class="mt-16 grid gap-6" style="grid-template-columns:repeat(auto-fit,minmax(240px,1fr))">
+        <div class="note">
+          <h4>数字为主角</h4>
+          <p>当前值用 <b>Playfair 衬线 + 800 字重</b> 大字呈现，是右上角唯一的视觉重心。上限以小一号、低透明的 Oswald 附在斜杠后，<b>8 ∕ 12</b> 一眼读懂「当前/上限」。</p>
+        </div>
+        <div class="note">
+          <h4>克制的暖金点缀</h4>
+          <p>仅两处暖金：顶部 <b>极小菱形法力符 + MANA 标签</b>，底部 <b>一条暖金 hairline</b> 暗示刻度。不用钻点、不用充能条、不用进度环。</p>
+        </div>
+        <div class="note">
+          <h4>三态语义清晰</h4>
+          <p><b>空 0/12</b>：数字转冷灰、压暗，存在感最弱。<b>半 8/12</b>：白数字标准态。<b>满 12/12</b>：数字与符号整体转暖金亮调，hairline 极轻发光 —— 高级而不廉价。</p>
+        </div>
+        <div class="note">
+          <h4>遵循 UI.SKILL</h4>
+          <p>4/8 点间距（gap 3/4/8/16）；文本仅黑白，暖金极少量点缀；不与左上角色名打架（右对齐、独占右上）；无 emoji、无白点高光、无厚边框、无半透明胶囊堆叠。</p>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- 图标 -->
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+    <symbol id="i-sword" viewBox="0 0 24 24"><g class="icon" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M18.5 3.5 21 3.5 21 6 12.5 14.5 10 12 18.5 3.5Z"/><path d="M3 19.5 4.5 21 8 17.5 M6.5 16 8 17.5 M9.5 13 11 14.5"/>
+      <path d="M5.5 3.5 3 3.5 3 6 11.5 14.5 14 12 5.5 3.5Z"/><path d="M21 19.5 19.5 21 16 17.5 M17.5 16 16 17.5 M14.5 13 13 14.5"/>
+    </g></symbol>
+    <symbol id="i-heart" viewBox="0 0 24 24"><path class="icon" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" d="M12 19.5C7 16 4 12.8 4 9.6 4 7.3 5.8 5.6 8 5.6c1.4 0 2.8.8 4 2.3 1.2-1.5 2.6-2.3 4-2.3 2.2 0 4 1.7 4 4 0 3.2-3 6.4-8 9.9z"/></symbol>
+  </defs></svg>
+
+<script>
+  const states = [
+    { mana:0,  max:12, cap:'空 · EMPTY' },
+    { mana:8,  max:12, cap:'半 · CHARGING' },
+    { mana:12, max:12, cap:'满 · FULL CHARGE' },
+  ];
+
+  function card(st, big){
+    const s = !!big;
+    const cls = st.mana>=st.max ? 'is-full' : (st.mana<=0 ? 'is-empty' : 'is-half');
+    // 字号（4/8 节奏感的尺度）
+    const nameSize = s ? 22 : 13;
+    const kickSize = s ? 8  : 6.5;
+    const statSize = s ? 30 : 17;
+    const statIc   = s ? 18 : 12;
+    // 法力铭牌尺寸
+    const tagSize  = s ? 9   : 6.5;
+    const glyph    = s ? 5   : 3.5;
+    const curSize  = s ? 40  : 24;
+    const slashSize= s ? 22  : 14;
+    const maxSize  = s ? 15  : 10;
+    const ruleW    = s ? 46  : 28;
+
+    return `
+    <div>
+      <div class="card ${s?'lg':'sm'} ${cls}">
+        <div class="art">
+          <div class="base"></div><div class="mass"></div><div class="vig"></div><div class="grain"></div>
+        </div>
+
+        <!-- 左上 名字 占位 -->
+        <div class="ov c-tl">
+          <div class="kicker" style="font-size:${kickSize}px">OP-02</div>
+          <div class="name" style="font-size:${nameSize}px;margin-top:${s?4:2}px">维尔汀</div>
+        </div>
+
+        <!-- ★ 右上 法力铭牌 -->
+        <div class="ov c-tr">
+          <div class="mana" style="gap:${s?4:3}px">
+            <div class="mana-tag" style="font-size:${tagSize}px">
+              <span class="glyph" style="width:${glyph}px;height:${glyph}px"></span>MANA
+            </div>
+            <div class="mana-frac">
+              <span class="mana-cur" style="font-size:${curSize}px">${st.mana}</span>
+              <span class="mana-slash" style="font-size:${slashSize}px;margin:0 ${s?2:1}px">/</span>
+              <span class="mana-max" style="font-size:${maxSize}px">${st.max}</span>
+            </div>
+            <div class="mana-rule" style="width:${ruleW}px"></div>
+          </div>
+        </div>
+
+        <!-- 左下 攻击 占位 -->
+        <div class="ov c-bl">
+          <div class="stat">
+            <svg class="icon" width="${statIc}" height="${statIc}"><use href="#i-sword"/></svg>
+            <span class="v" style="font-size:${statSize}px">9</span>
+          </div>
+        </div>
+
+        <!-- 右下 血量 占位 -->
+        <div class="ov c-br">
+          <div class="stat">
+            <svg class="icon" width="${statIc}" height="${statIc}"><use href="#i-heart"/></svg>
+            <span class="v" style="font-size:${statSize}px">38</span>
+          </div>
+        </div>
+      </div>
+      <div class="state-cap" style="width:${s?270:104}px">${st.cap}</div>
+    </div>`;
+  }
+
+  document.getElementById('real').innerHTML = states.map(st=>card(st,false)).join('');
+  document.getElementById('big').innerHTML  = states.map(st=>card(st,true)).join('');
+</script>
+</body>
+</html>

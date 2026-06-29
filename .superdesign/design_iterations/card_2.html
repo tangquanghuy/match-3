@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Character Card — Direction B / Tactical HUD</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0e0e16;
+    --line:rgba(255,255,255,.28);
+    --line-soft:rgba(255,255,255,.12);
+    --accent:#e0a233;          /* 琥珀金，10% 极少量点缀 */
+    --ink-white:#f4f4f6;
+    --ink-black:#0a0a0f;
+  }
+  *{box-sizing:border-box}
+  body{
+    background:var(--bg);
+    font-family:'Rajdhani','Oswald',ui-sans-serif,system-ui,sans-serif;
+    color:var(--ink-white);
+    -webkit-font-smoothing:antialiased;
+  }
+  .num{font-family:'Oswald',ui-monospace,monospace;font-variant-numeric:tabular-nums;letter-spacing:.5px}
+
+  /* ---------- 机能切角卡片 ---------- */
+  .card{
+    position:relative;
+    aspect-ratio:150 / 132;
+    overflow:hidden;
+    /* 双切角：左上 + 右下 */
+    clip-path:polygon(18px 0, 100% 0, 100% calc(100% - 18px), calc(100% - 18px) 100%, 0 100%, 0 18px);
+    background:#15151f;
+    transition:transform .18s ease;
+  }
+  .card:hover{transform:translateY(-2px)}
+
+  /* 1px 冷硬细描边，用伪元素贴合切角形状 */
+  .card::after{
+    content:"";
+    position:absolute;inset:0;
+    clip-path:inherit;
+    border:1px solid var(--line);
+    pointer-events:none;
+  }
+
+  /* ---------- 立绘占位（铺满整张卡，纯 CSS） ---------- */
+  .art{position:absolute;inset:0;}
+  .art::before{ /* 几何剪影示意立绘 */
+    content:"";position:absolute;inset:0;
+    background:
+      radial-gradient(120% 80% at 50% 18%, rgba(255,255,255,.10), transparent 55%),
+      linear-gradient(180deg, rgba(0,0,0,0) 35%, rgba(0,0,0,.55) 100%);
+  }
+  .silhouette{position:absolute;left:50%;top:12%;width:62%;height:88%;transform:translateX(-50%);
+    clip-path:polygon(50% 0,72% 14%,64% 30%,80% 46%,70% 100%,30% 100%,20% 46%,36% 30%,28% 14%);
+    opacity:.9;}
+
+  /* ---------- 结构装饰：极细对齐刻度（扁平，不发光） ---------- */
+  .ticks{position:absolute;left:8px;top:50%;transform:translateY(-50%);display:flex;flex-direction:column;gap:3px;opacity:.5}
+  .ticks i{display:block;width:5px;height:1px;background:var(--line)}
+  .ticks i:nth-child(3n+1){width:9px;background:var(--line);opacity:1}
+
+  /* ---------- 四角信息：直接浮在立绘上 ---------- */
+  .corner{position:absolute;z-index:3}
+  .tl{left:9px;top:8px}
+  .tr{right:9px;top:8px;text-align:right}
+  .bl{left:9px;bottom:8px}
+  .br{right:9px;bottom:8px;text-align:right}
+
+  /* 名字：工业铭牌气质 — 细标签线 + 编号，不做实色块 */
+  .name{font-family:'Oswald';font-weight:600;font-size:13px;letter-spacing:1px;line-height:1;text-shadow:0 1px 3px rgba(0,0,0,.85)}
+  .code{display:inline-flex;align-items:center;gap:5px;margin-top:4px;font-size:9px;letter-spacing:2px;color:rgba(244,244,246,.7)}
+  .code::before{content:"";width:14px;height:1px;background:var(--accent)}
+
+  /* 法力：右上分段竖条充能刻度，单色 */
+  .mana{display:flex;flex-direction:column;align-items:flex-end;gap:4px}
+  .mana .bars{display:flex;gap:2px;align-items:flex-end}
+  .mana .bars span{width:3px;height:11px;background:rgba(255,255,255,.16);transform:skewX(-12deg)}
+  .mana .bars span.on{background:var(--accent)}
+  .mana .val{font-family:'Oswald';font-size:11px;letter-spacing:1px;text-shadow:0 1px 3px rgba(0,0,0,.85)}
+  .mana .val b{font-weight:700}
+  .mana .val small{opacity:.55;font-weight:400}
+
+  /* 攻击 / 血量：特殊样式浮现数值 */
+  .stat{display:inline-flex;align-items:center;gap:5px}
+  .stat svg{width:13px;height:13px;display:block}
+  .stat .v{font-family:'Oswald';font-weight:700;font-size:22px;line-height:.9;text-shadow:0 2px 6px rgba(0,0,0,.9)}
+  .br .stat{flex-direction:row-reverse}
+
+  /* 护甲：仅当有护甲时叠在血量上方 */
+  .armor{display:inline-flex;align-items:center;gap:4px;justify-content:flex-end;margin-bottom:4px}
+  .armor svg{width:11px;height:11px}
+  .armor .v{font-family:'Oswald';font-weight:600;font-size:13px;text-shadow:0 1px 4px rgba(0,0,0,.9)}
+
+  .icon{stroke:var(--ink-white);stroke-width:1.6;fill:none;stroke-linecap:round;stroke-linejoin:round}
+
+  /* 角标编号刻度（右上小结构线） */
+  .frameline{position:absolute;right:0;top:0;width:42px;height:1px;background:var(--line-soft);z-index:2}
+  .frameline.v{width:1px;height:42px;right:0;top:0}
+
+  .panel-label{font-family:'Oswald';letter-spacing:3px;font-size:11px;color:rgba(244,244,246,.45)}
+</style>
+</head>
+<body class="min-h-screen flex items-center justify-center p-8">
+
+  <div class="w-full max-w-5xl">
+    <!-- 头部铭牌 -->
+    <div class="flex items-end justify-between mb-8 border-b border-white/10 pb-3">
+      <div>
+        <div class="panel-label">SQUAD ROSTER // DIRECTION-B</div>
+        <h1 style="font-family:'Oswald'" class="text-2xl font-semibold tracking-wide mt-1">TACTICAL HUD — 角色卡</h1>
+      </div>
+      <div class="panel-label">UNITS 04 / 04</div>
+    </div>
+
+    <div class="flex gap-12 items-start justify-center flex-wrap">
+
+      <!-- ============ 队伍：4 张竖向排列 ============ -->
+      <div class="flex flex-col gap-4" style="width:230px">
+        <div class="panel-label mb-1">TEAM</div>
+
+        <!-- 卡 1 -->
+        <div class="card">
+          <div class="art" style="background:linear-gradient(160deg,#1d2330,#0f1118)">
+            <div class="silhouette" style="background:linear-gradient(180deg,#4a5b78,#222a3a)"></div>
+          </div>
+          <span class="frameline"></span><span class="frameline v"></span>
+          <div class="ticks"><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+          <div class="corner tl">
+            <div class="name">缄默</div>
+            <div class="code num">OP-01</div>
+          </div>
+          <div class="corner tr">
+            <div class="mana">
+              <div class="bars">
+                <span class="on"></span><span class="on"></span><span class="on"></span><span class="on"></span><span class="on"></span><span class="on"></span><span class="on"></span><span class="on"></span><span></span><span></span><span></span><span></span>
+              </div>
+              <div class="val num"><b>8</b><small>/12</small></div>
+            </div>
+          </div>
+          <div class="corner bl">
+            <div class="stat">
+              <svg viewBox="0 0 24 24" class="icon"><path d="M14 6l4-4 2 2-4 4M14 6l-9 9-2 4 4-2 9-9M14 6l-4 4"/></svg>
+              <span class="v num">7</span>
+            </div>
+          </div>
+          <div class="corner br">
+            <div class="stat">
+              <svg viewBox="0 0 24 24" class="icon"><path d="M12 20s-7-4.5-7-9.5A3.5 3.5 0 0112 7a3.5 3.5 0 017 3.5C19 15.5 12 20 12 20z"/></svg>
+              <span class="v num">42</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- 卡 2（带护甲） -->
+        <div class="card">
+          <div class="art" style="background:linear-gradient(160deg,#2a2030,#120f16)">
+            <div class="silhouette" style="background:linear-gradient(180deg,#7a5d86,#352a40)"></div>
+          </div>
+          <span class="frameline"></span><span class="frameline v"></span>
+          <div class="ticks"><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+          <div class="corner tl">
+            <div class="name">炽羽</div>
+            <div class="code num">OP-02</div>
+          </div>
+          <div class="corner tr">
+            <div class="mana">
+              <div class="bars">
+                <span class="on"></span><span class="on"></span><span class="on"></span><span class="on"></span><span class="on"></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span>
+              </div>
+              <div class="val num"><b>5</b><small>/12</small></div>
+            </div>
+          </div>
+          <div class="corner bl">
+            <div class="stat">
+              <svg viewBox="0 0 24 24" class="icon"><path d="M14 6l4-4 2 2-4 4M14 6l-9 9-2 4 4-2 9-9M14 6l-4 4"/></svg>
+              <span class="v num">9</span>
+            </div>
+          </div>
+          <div class="corner br">
+            <div class="armor">
+              <svg viewBox="0 0 24 24" class="icon" style="stroke:var(--accent)"><path d="M12 3l7 3v5c0 4.5-3 7.5-7 10-4-2.5-7-5.5-7-10V6l7-3z"/></svg>
+              <span class="v num">12</span>
+            </div>
+            <div class="stat">
+              <svg viewBox="0 0 24 24" class="icon"><path d="M12 20s-7-4.5-7-9.5A3.5 3.5 0 0112 7a3.5 3.5 0 017 3.5C19 15.5 12 20 12 20z"/></svg>
+              <span class="v num">38</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- 卡 3 -->
+        <div class="card">
+          <div class="art" style="background:linear-gradient(160deg,#1c2a2a,#0e1414)">
+            <div class="silhouette" style="background:linear-gradient(180deg,#4f7d76,#22332f)"></div>
+          </div>
+          <span class="frameline"></span><span class="frameline v"></span>
+          <div class="ticks"><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+          <div class="corner tl">
+            <div class="name">霜锋</div>
+            <div class="code num">OP-03</div>
+          </div>
+          <div class="corner tr">
+            <div class="mana">
+              <div class="bars">
+                <span class="on"></span><span class="on"></span><span class="on"></span><span class="on"></span><span class="on"></span><span class="on"></span><span class="on"></span><span class="on"></span><span class="on"></span><span class="on"></span><span></span><span></span>
+              </div>
+              <div class="val num"><b>10</b><small>/12</small></div>
+            </div>
+          </div>
+          <div class="corner bl">
+            <div class="stat">
+              <svg viewBox="0 0 24 24" class="icon"><path d="M14 6l4-4 2 2-4 4M14 6l-9 9-2 4 4-2 9-9M14 6l-4 4"/></svg>
+              <span class="v num">4</span>
+            </div>
+          </div>
+          <div class="corner br">
+            <div class="stat">
+              <svg viewBox="0 0 24 24" class="icon"><path d="M12 20s-7-4.5-7-9.5A3.5 3.5 0 0112 7a3.5 3.5 0 017 3.5C19 15.5 12 20 12 20z"/></svg>
+              <span class="v num">45</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- 卡 4 -->
+        <div class="card">
+          <div class="art" style="background:linear-gradient(160deg,#2a2622,#141210)">
+            <div class="silhouette" style="background:linear-gradient(180deg,#8a7755,#3a3226)"></div>
+          </div>
+          <span class="frameline"></span><span class="frameline v"></span>
+          <div class="ticks"><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+          <div class="corner tl">
+            <div class="name">夜枭</div>
+            <div class="code num">OP-04</div>
+          </div>
+          <div class="corner tr">
+            <div class="mana">
+              <div class="bars">
+                <span class="on"></span><span class="on"></span><span class="on"></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span>
+              </div>
+              <div class="val num"><b>3</b><small>/12</small></div>
+            </div>
+          </div>
+          <div class="corner bl">
+            <div class="stat">
+              <svg viewBox="0 0 24 24" class="icon"><path d="M14 6l4-4 2 2-4 4M14 6l-9 9-2 4 4-2 9-9M14 6l-4 4"/></svg>
+              <span class="v num">6</span>
+            </div>
+          </div>
+          <div class="corner br">
+            <div class="stat">
+              <svg viewBox="0 0 24 24" class="icon"><path d="M12 20s-7-4.5-7-9.5A3.5 3.5 0 0112 7a3.5 3.5 0 017 3.5C19 15.5 12 20 12 20z"/></svg>
+              <span class="v num">41</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ============ 细节放大：单张大卡 ============ -->
+      <div class="flex flex-col" style="width:430px">
+        <div class="panel-label mb-1">DETAIL // OP-02</div>
+        <div class="card" style="width:430px">
+          <div class="art" style="background:linear-gradient(160deg,#2a2030,#120f16)">
+            <div class="silhouette" style="background:linear-gradient(180deg,#7a5d86,#352a40)"></div>
+          </div>
+          <span class="frameline" style="width:90px"></span><span class="frameline v" style="height:90px"></span>
+
+          <!-- 左侧刻度 -->
+          <div class="ticks" style="left:16px;gap:6px">
+            <i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i>
+          </div>
+
+          <!-- 左上：名字 + 编号 -->
+          <div class="corner tl" style="left:20px;top:18px">
+            <div class="name" style="font-size:26px;letter-spacing:2px">炽羽</div>
+            <div class="code num" style="font-size:12px;margin-top:7px">OP-02 // PYRO</div>
+          </div>
+
+          <!-- 右上：法力分段竖条 -->
+          <div class="corner tr" style="right:20px;top:18px">
+            <div class="mana">
+              <div class="bars" style="gap:3px">
+                <span class="on" style="width:5px;height:22px"></span><span class="on" style="width:5px;height:22px"></span><span class="on" style="width:5px;height:22px"></span><span class="on" style="width:5px;height:22px"></span><span class="on" style="width:5px;height:22px"></span><span style="width:5px;height:22px"></span><span style="width:5px;height:22px"></span><span style="width:5px;height:22px"></span><span style="width:5px;height:22px"></span><span style="width:5px;height:22px"></span><span style="width:5px;height:22px"></span><span style="width:5px;height:22px"></span>
+              </div>
+              <div class="val num" style="font-size:18px;margin-top:6px">MANA <b>5</b><small>/12</small></div>
+            </div>
+          </div>
+
+          <!-- 左下：攻击 -->
+          <div class="corner bl" style="left:20px;bottom:18px">
+            <div class="stat">
+              <svg viewBox="0 0 24 24" class="icon" style="width:24px;height:24px"><path d="M14 6l4-4 2 2-4 4M14 6l-9 9-2 4 4-2 9-9M14 6l-4 4"/></svg>
+              <span class="v num" style="font-size:46px">9</span>
+            </div>
+            <div class="panel-label" style="font-size:9px;margin-top:2px;margin-left:30px">ATK</div>
+          </div>
+
+          <!-- 右下：护甲 + 血量 -->
+          <div class="corner br" style="right:20px;bottom:18px">
+            <div class="armor" style="margin-bottom:6px">
+              <svg viewBox="0 0 24 24" class="icon" style="width:18px;height:18px;stroke:var(--accent)"><path d="M12 3l7 3v5c0 4.5-3 7.5-7 10-4-2.5-7-5.5-7-10V6l7-3z"/></svg>
+              <span class="v num" style="font-size:20px">12</span>
+            </div>
+            <div class="stat">
+              <svg viewBox="0 0 24 24" class="icon" style="width:24px;height:24px"><path d="M12 20s-7-4.5-7-9.5A3.5 3.5 0 0112 7a3.5 3.5 0 017 3.5C19 15.5 12 20 12 20z"/></svg>
+              <span class="v num" style="font-size:46px">38</span>
+            </div>
+            <div class="panel-label" style="font-size:9px;margin-top:2px;margin-right:30px">HP</div>
+          </div>
+        </div>
+
+        <!-- 图例说明 -->
+        <div class="grid grid-cols-2 gap-x-6 gap-y-2 mt-5 text-xs text-white/55" style="font-family:'Rajdhani'">
+          <div>左上 — 角色名 / 编号铭牌</div>
+          <div class="text-right">右上 — 法力充能刻度</div>
+          <div>左下 — ⚔ 攻击力</div>
+          <div class="text-right">右下 — ❤ 血量 (护甲叠上方)</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+</body>
+</html>

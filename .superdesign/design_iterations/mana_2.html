@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>法力值 · 方案二 能量宝珠 · 液面充能</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;600;700;800&family=Oswald:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<style>
+  /* ==================================================================
+     方案二 — 能量宝珠 · 液面充能 (Mana Orb / Liquid Fill)
+     右上角一颗暖金水晶宝珠，内部能量液面按 cur/max 上升填充。
+     菱形水晶切面呼应「胶片机能」暖金菱形 DNA。
+     ================================================================== */
+  :root{
+    --bg:#0e0e16;
+    --gold:#c9a35c;
+    --gold-lit:#e8c879;
+    --gold-soft:#d8c290;
+    --line:rgba(216,194,144,.16);
+    --line-strong:rgba(216,194,144,.34);
+    --ink:#f2ead8;
+    /* 宝珠内部 */
+    --vessel-dark:#15110b;      /* 未充能：暗色容器 */
+    --vessel-rim:rgba(216,194,144,.30);
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0}
+  body{
+    background:var(--bg);color:var(--ink);
+    font-family:"Oswald","PingFang SC","Microsoft YaHei",sans-serif;
+    -webkit-font-smoothing:antialiased;
+  }
+  .serif{font-family:"Playfair Display",Georgia,serif}
+
+  .stage{position:relative;min-height:100vh;padding:48px 24px;
+    background-image:
+      linear-gradient(var(--line) 1px,transparent 1px),
+      linear-gradient(90deg,var(--line) 1px,transparent 1px);
+    background-size:48px 48px;background-position:center;}
+  .stage::after{content:"";position:absolute;inset:0;pointer-events:none;
+    background:radial-gradient(120% 80% at 50% 0%,transparent 38%,var(--bg) 100%);}
+  .wrap{position:relative;z-index:1;max-width:880px;margin:0 auto}
+  .col-label{font-family:"Oswald";font-size:10px;letter-spacing:.42em;text-transform:uppercase;
+    color:var(--gold-soft);margin-bottom:16px;display:flex;align-items:center;gap:8px}
+  .col-label::after{content:"";flex:1;height:1px;background:var(--line)}
+
+  /* ---------- 卡壳 104×125 ---------- */
+  .card{position:relative;width:104px;height:125px;overflow:hidden;isolation:isolate;
+    background:#0b0a09;border:1px solid var(--line-strong);
+    clip-path:polygon(0 0,100% 0,100% calc(100% - 14px),calc(100% - 14px) 100%,0 100%);}
+  .card.big{width:270px;height:325px;
+    clip-path:polygon(0 0,100% 0,100% calc(100% - 30px),calc(100% - 30px) 100%,0 100%);}
+
+  /* 立绘：纯 CSS 暖调暗色渐变占位 */
+  .art{position:absolute;inset:0;z-index:0}
+  .art .base{position:absolute;inset:0;
+    background:radial-gradient(120% 95% at 50% 12%,#6f4631 0%,#3c2a22 46%,#140f0c 100%)}
+  .art .mass{position:absolute;inset:-6% -10% -2% -4%;
+    clip-path:polygon(16% 0,100% 0,100% 100%,38% 100%);mix-blend-mode:screen;opacity:.9;
+    background:linear-gradient(135deg,#9a6b4a,#5a3a28 60%,#241712)}
+  .art .vig{position:absolute;inset:0;
+    background:
+      radial-gradient(122% 90% at 50% 42%, transparent 46%, rgba(0,0,0,.55) 100%),
+      linear-gradient(180deg, rgba(0,0,0,.5) 0%, transparent 26%, transparent 52%, rgba(0,0,0,.72) 100%);}
+
+  /* 角落定位刻度 */
+  .reg{position:absolute;width:9px;height:9px;z-index:3}
+  .reg::before,.reg::after{content:"";position:absolute;background:var(--line-strong)}
+  .reg::before{width:9px;height:1px}.reg::after{height:9px;width:1px}
+  .reg.tl{top:7px;left:7px}.reg.tl::before{top:0}.reg.tl::after{left:0}
+
+  /* ---------- 四角信息 ---------- */
+  .ov{position:absolute;z-index:4}
+  .ov::before{content:"";position:absolute;z-index:-1;width:190%;height:240%;
+    pointer-events:none;filter:blur(2px)}
+  .c-tl{top:9px;left:10px;right:46px}
+  .c-tl::before{top:-40%;left:-30%;
+    background:radial-gradient(70% 80% at 22% 30%,rgba(0,0,0,.62),transparent 72%)}
+  .c-bl{left:11px;bottom:11px}
+  .c-bl::before{bottom:-50%;left:-30%;top:auto;
+    background:radial-gradient(75% 85% at 20% 78%,rgba(0,0,0,.66),transparent 74%)}
+  .c-br{right:13px;bottom:13px;text-align:right}
+  .c-br::before{bottom:-50%;right:-30%;top:auto;left:auto;
+    background:radial-gradient(75% 85% at 80% 78%,rgba(0,0,0,.66),transparent 74%)}
+
+  .kicker{font-family:"Oswald";font-size:8px;font-weight:600;letter-spacing:.3em;
+    text-transform:uppercase;color:var(--gold-soft)}
+  .name{font-family:"Playfair Display",serif;font-weight:700;line-height:1;
+    color:#f4ecda;text-shadow:0 1px 6px rgba(0,0,0,.7)}
+  .name-rule{height:1px;width:28px;margin-top:6px;
+    background:linear-gradient(90deg,var(--gold),transparent);opacity:.8}
+  .stat{display:flex;align-items:center;gap:6px}
+  .c-bl .stat,.c-br .stat{flex-direction:row-reverse}
+  .stat .v{font-family:"Playfair Display",serif;font-weight:800;line-height:1;color:#f6efe0;
+    text-shadow:0 1px 2px rgba(0,0,0,.95),0 2px 14px rgba(0,0,0,.9)}
+  .icon{stroke:#ece1c8;fill:none;filter:drop-shadow(0 1px 2px rgba(0,0,0,.6))}
+
+  /* ==================================================================
+     ★ 法力宝珠 · 液面充能  —— 本方案主角
+     ================================================================== */
+  .c-tr{top:8px;right:9px;z-index:5}
+
+  /* 宝珠外形：菱形水晶切面（圆角菱形，呼应暖金菱形 DNA） */
+  .orb{position:relative;display:grid;place-items:center}
+  .orb-shell{position:relative;overflow:hidden;
+    /* 菱形切面：八边形偏菱形，顶/底尖、左右切 */
+    clip-path:polygon(50% 0%,86% 16%,100% 50%,86% 84%,50% 100%,14% 84%,0 50%,14% 16%);
+    background:var(--vessel-dark);
+    /* 暗色容器底：内凹质感 */
+    box-shadow:inset 0 1px 2px rgba(0,0,0,.8), inset 0 -1px 3px rgba(0,0,0,.6);}
+
+  /* 暗色容器内壁微光（未充能区域质感，克制） */
+  .orb-shell::before{content:"";position:absolute;inset:0;z-index:1;pointer-events:none;
+    background:linear-gradient(160deg,rgba(216,194,144,.07),transparent 45%);}
+
+  /* 能量液面：从底部上升，高度 = cur/max */
+  .fluid{position:absolute;left:0;right:0;bottom:0;z-index:2;
+    background:linear-gradient(180deg,var(--gold-lit) 0%,var(--gold) 55%,#9a7838 100%);
+    transition:height .5s cubic-bezier(.4,0,.2,1);}
+  /* 液面顶端的亮线（界面张力，单像素，非廉价高光点） */
+  .fluid::before{content:"";position:absolute;left:0;right:0;top:0;height:1px;
+    background:rgba(255,247,224,.85);}
+  /* 液体内部缓和的暖光分层 */
+  .fluid::after{content:"";position:absolute;inset:0;
+    background:radial-gradient(120% 60% at 50% 0%,rgba(255,247,224,.30),transparent 60%);}
+
+  /* 宝珠描边：单层 1px 暖金切面轮廓 */
+  .orb-rim{position:absolute;inset:0;z-index:3;pointer-events:none;
+    clip-path:polygon(50% 0%,86% 16%,100% 50%,86% 84%,50% 100%,14% 84%,0 50%,14% 16%);
+    /* 用 drop-shadow 描边会糊，改用内描边渐变 */
+    background:
+      linear-gradient(150deg,rgba(232,200,121,.55),transparent 40%) border-box;
+    box-shadow:inset 0 0 0 1px var(--vessel-rim);}
+
+  /* 切面高光：一条对角线把菱形切成两个明度面（水晶折射感，克制） */
+  .orb-facet{position:absolute;inset:0;z-index:3;pointer-events:none;
+    clip-path:polygon(50% 0%,86% 16%,100% 50%,50% 50%);
+    background:rgba(255,255,255,.06);}
+
+  /* 数字：叠在宝珠中央，tabular 对齐 */
+  .orb-num{position:absolute;inset:0;z-index:4;display:grid;place-items:center;
+    font-family:"Oswald";font-weight:600;
+    line-height:1;letter-spacing:.02em;font-variant-numeric:tabular-nums;
+    color:#fff;text-shadow:0 1px 2px rgba(0,0,0,.9),0 0 4px rgba(0,0,0,.7);}
+  /* 上限标签紧邻宝珠下方 */
+  .orb-max{font-family:"Oswald";font-weight:500;letter-spacing:.08em;
+    color:var(--gold-soft);font-variant-numeric:tabular-nums;
+    text-shadow:0 1px 4px rgba(0,0,0,.8);margin-top:3px;text-align:center}
+
+  /* 满充：宝珠整体暖金发亮（克制，单层柔光） */
+  .orb.full .orb-shell{box-shadow:inset 0 1px 2px rgba(0,0,0,.4), 0 0 8px rgba(232,200,121,.45);}
+  .orb.full .orb-rim{box-shadow:inset 0 0 0 1px rgba(232,200,121,.85);}
+  .orb.full .orb-num{color:#1a1206;text-shadow:0 1px 1px rgba(255,247,224,.5);}
+  .orb.empty .orb-num{color:var(--gold-soft);text-shadow:0 1px 3px rgba(0,0,0,.85);}
+
+  /* 演示用面板 */
+  .panel{display:flex;gap:36px;flex-wrap:wrap;align-items:flex-start}
+  .cell{display:flex;flex-direction:column;align-items:center;gap:10px}
+  .cap{font-family:"Oswald";font-size:10px;letter-spacing:.18em;text-transform:uppercase;
+    color:rgba(242,234,216,.5)}
+  .note{font-size:12px;line-height:1.7;color:rgba(242,234,216,.55);
+    font-family:"Oswald";letter-spacing:.04em;max-width:760px}
+  .note b{color:var(--gold-soft);font-weight:600}
+  .divider{height:1px;background:var(--line);margin:40px 0 32px}
+</style>
+</head>
+<body>
+  <div class="stage">
+    <div class="wrap">
+
+      <div class="col-label">方案二 · 能量宝珠 液面充能 — 真实比例 104×125</div>
+      <div class="panel">
+        <div class="cell">
+          <div id="c-empty"></div>
+          <div class="cap">空 · 0/12</div>
+        </div>
+        <div class="cell">
+          <div id="c-half"></div>
+          <div class="cap">半充 · 8/12</div>
+        </div>
+        <div class="cell">
+          <div id="c-full"></div>
+          <div class="cap">满充 · 12/12</div>
+        </div>
+      </div>
+
+      <div class="divider"></div>
+
+      <div class="col-label">放大 ≈2.6× · 看清宝珠液面切面质感</div>
+      <div class="panel">
+        <div class="cell"><div id="b-empty"></div><div class="cap">0/12</div></div>
+        <div class="cell"><div id="b-half"></div><div class="cap">8/12</div></div>
+        <div class="cell"><div id="b-full"></div><div class="cap">12/12 满充发亮</div></div>
+      </div>
+
+      <div class="divider"></div>
+      <div class="note">
+        ◆ 宝珠取 <b>菱形水晶切面</b>，呼应卡面暖金菱形 DNA，不与左上衬线名字争抢。<br>
+        ◆ 内部 <b>液面高度 = 当前/上限</b>，暖金渐变充能、未满处为暗色容器，像血条但做成容器形态，充能感强。<br>
+        ◆ 数字叠于宝珠中央（当前值），上限 <b>/12</b> 紧邻其下，tabular 对齐保证可读。<br>
+        ◆ 满充时宝珠整体暖金柔光发亮、数字转深色压在金面上，克制不廉价。<br>
+        ◆ 仅 1px 切面描边 + 单条对角切面高光，无白点、无多层发光、无厚边框。
+      </div>
+
+    </div>
+  </div>
+
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+    <symbol id="i-sword" viewBox="0 0 24 24"><g class="icon" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M18.5 3.5 21 3.5 21 6 12.5 14.5 10 12 18.5 3.5Z"/>
+      <path d="M3 19.5 4.5 21 8 17.5 M6.5 16 8 17.5 M9.5 13 11 14.5"/>
+      <path d="M5.5 3.5 3 3.5 3 6 11.5 14.5 14 12 5.5 3.5Z"/>
+      <path d="M21 19.5 19.5 21 16 17.5 M17.5 16 16 17.5 M14.5 13 13 14.5"/></g></symbol>
+    <symbol id="i-heart" viewBox="0 0 24 24"><path class="icon" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" d="M12 19.5C7 16 4 12.8 4 9.6 4 7.3 5.8 5.6 8 5.6c1.4 0 2.8.8 4 2.3 1.2-1.5 2.6-2.3 4-2.3 2.2 0 4 1.7 4 4 0 3.2-3 6.4-8 9.9z"/></symbol>
+  </defs></svg>
+
+<script>
+  // 宝珠尺寸：小卡 30px，大卡 30*2.6 ≈ 78px
+  function orb(cur,max,big){
+    const size   = big ? 78 : 30;
+    const numFs  = big ? 26 : 12;
+    const maxFs  = big ? 12 : 7;
+    const pct    = Math.max(0,Math.min(1,cur/max));
+    const isFull = cur>=max, isEmpty = cur<=0;
+    const cls = isFull?'full':(isEmpty?'empty':'');
+    return `
+      <div class="orb ${cls}">
+        <div class="orb-shell" style="width:${size}px;height:${size}px">
+          <div class="fluid" style="height:${(pct*100).toFixed(1)}%"></div>
+          <div class="orb-facet"></div>
+          <div class="orb-rim"></div>
+        </div>
+        <div class="orb-num" style="font-size:${numFs}px">${cur}</div>
+      </div>
+      <div class="orb-max" style="font-size:${maxFs}px">/${max}</div>`;
+  }
+
+  function card(cur,max,big){
+    const s=!!big;
+    const nameSize=s?24:15, numSize=s?42:20, icon=s?20:13;
+    return `
+    <div class="card ${s?'big':''}">
+      <div class="art"><div class="base"></div><div class="mass"></div><div class="vig"></div></div>
+      <span class="reg tl"></span>
+
+      <div class="ov c-tl">
+        <div class="kicker" style="font-size:${s?10:8}px">OP-01</div>
+        <div class="name" style="font-size:${nameSize}px;margin-top:${s?4:2}px">法露特</div>
+        <div class="name-rule" style="width:${s?44:28}px"></div>
+      </div>
+
+      <div class="ov c-tr">${orb(cur,max,s)}</div>
+
+      <div class="ov c-bl"><div class="stat">
+        <svg class="icon" width="${icon}" height="${icon}"><use href="#i-sword"/></svg>
+        <span class="v" style="font-size:${numSize}px">7</span></div></div>
+
+      <div class="ov c-br"><div class="stat">
+        <svg class="icon" width="${icon}" height="${icon}"><use href="#i-heart"/></svg>
+        <span class="v" style="font-size:${numSize}px">42</span></div></div>
+    </div>`;
+  }
+
+  document.getElementById('c-empty').innerHTML = card(0,12,false);
+  document.getElementById('c-half').innerHTML  = card(8,12,false);
+  document.getElementById('c-full').innerHTML  = card(12,12,false);
+  document.getElementById('b-empty').innerHTML = card(0,12,true);
+  document.getElementById('b-half').innerHTML  = card(8,12,true);
+  document.getElementById('b-full').innerHTML  = card(12,12,true);
+</script>
+</body>
+</html>

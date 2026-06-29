@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>法力值 · 方案三 弧形仪表刻度 / Arc Gauge · Tactical Dial</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;600;700;800&family=Oswald:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+<style>
+  /* ==================================================================
+     方案三 · 弧形仪表刻度 (ARC GAUGE / TACTICAL DIAL)
+     胶片机能：暖金为唯一强调色 · Playfair衬线 + Oswald工业数字
+     法力 = 右上角一段开口弧 (135°→405°, 270°扇形)，沿弧分布离散刻度齿，
+            已充能=暖金实心 / 未充能=暗描边；缺口朝下，工业数字居弧心。
+     ================================================================== */
+  :root{
+    --bg:#0e0e16;
+    --gold:#c9a35c;
+    --gold-hi:#e8c879;
+    --gold-soft:#d8c290;
+    --line:rgba(216,194,144,.16);
+    --line-strong:rgba(216,194,144,.34);
+    --ink:#f2ead8;
+    --tick-off:rgba(216,194,144,.20);
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0}
+  body{
+    background:var(--bg);color:var(--ink);
+    font-family:"Oswald","PingFang SC","Microsoft YaHei",sans-serif;
+    -webkit-font-smoothing:antialiased;
+  }
+  .serif{font-family:"Playfair Display",Georgia,serif}
+
+  .stage{
+    position:relative;min-height:100vh;padding:56px 32px 72px;
+    background-image:
+      linear-gradient(var(--line) 1px,transparent 1px),
+      linear-gradient(90deg,var(--line) 1px,transparent 1px);
+    background-size:48px 48px;background-position:center;
+  }
+  .stage::after{content:"";position:absolute;inset:0;pointer-events:none;
+    background:radial-gradient(120% 80% at 50% 0%,transparent 40%,var(--bg) 100%)}
+  .wrap{position:relative;z-index:1;max-width:1080px;margin:0 auto}
+
+  .doc-title{font-family:"Playfair Display",serif;font-weight:700;font-size:32px;color:#f4ecda;letter-spacing:.01em}
+  .doc-sub{font-family:"Oswald";font-size:11px;letter-spacing:.4em;text-transform:uppercase;color:var(--gold-soft);margin-top:8px}
+  .col-label{font-family:"Oswald";font-size:10px;letter-spacing:.42em;text-transform:uppercase;
+    color:var(--gold-soft);margin-bottom:16px;display:flex;align-items:center;gap:8px}
+  .col-label::after{content:"";flex:1;height:1px;background:var(--line)}
+
+  /* ---------- 卡壳 ---------- */
+  .card{
+    position:relative;overflow:hidden;isolation:isolate;background:#0b0a09;
+    border:1px solid var(--line-strong);
+    clip-path:polygon(0 0,100% 0,100% calc(100% - 16px),calc(100% - 16px) 100%,0 100%);
+  }
+  .card.real{width:104px;height:125px}
+  .card.big{width:270px;height:325px}
+
+  /* ---------- 立绘占位（纯CSS暖暗渐变） ---------- */
+  .art{position:absolute;inset:0;z-index:0}
+  .art .base{position:absolute;inset:0;
+    background:radial-gradient(120% 95% at 50% 14%,#6f4631 0%,#3c2a22 46%,#140f0c 100%)}
+  .art .mass{position:absolute;inset:-6% -10% -2% -4%;
+    clip-path:polygon(16% 0,100% 0,100% 100%,38% 100%);mix-blend-mode:screen;opacity:.9;
+    background:linear-gradient(135deg,#9a6b4a,#5a3a28 60%,#241712)}
+  .art .focal{position:absolute;left:44%;top:16%;width:40%;aspect-ratio:1;border-radius:50%;
+    background:radial-gradient(42% 42% at 38% 34%,#caa06f,#5a3a2800 64%)}
+  .art .slash{position:absolute;left:-10%;width:140%;height:1px;background:var(--gold);
+    transform:rotate(32deg);transform-origin:left center;top:42%;opacity:.4}
+  .art .vig{position:absolute;inset:0;
+    background:
+      radial-gradient(122% 90% at 50% 42%,transparent 46%,rgba(0,0,0,.55) 100%),
+      linear-gradient(180deg,rgba(0,0,0,.5) 0%,transparent 28%,transparent 56%,rgba(0,0,0,.7) 100%)}
+  .art .grain{position:absolute;inset:-50%;opacity:.06;mix-blend-mode:overlay;pointer-events:none;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
+
+  /* 角落定位刻度 */
+  .reg{position:absolute;width:8px;height:8px;z-index:3}
+  .reg::before,.reg::after{content:"";position:absolute;background:var(--line-strong)}
+  .reg::before{width:8px;height:1px}.reg::after{height:8px;width:1px}
+  .reg.tl{top:7px;left:7px}.reg.tl::before{top:0}.reg.tl::after{left:0}
+
+  /* ---------- 四角信息 ---------- */
+  .ov{position:absolute;z-index:4}
+  .ov::before{content:"";position:absolute;z-index:-1;pointer-events:none;filter:blur(2px)}
+  .c-tl{top:9px;left:10px}
+  .c-tl::before{top:-40%;left:-30%;width:200%;height:240%;
+    background:radial-gradient(70% 80% at 22% 30%,rgba(0,0,0,.62),transparent 72%)}
+  .c-bl{left:11px;bottom:12px}
+  .c-bl::before{bottom:-50%;left:-40%;top:auto;width:200%;height:240%;
+    background:radial-gradient(75% 85% at 20% 78%,rgba(0,0,0,.62),transparent 74%)}
+  .c-br{right:13px;bottom:12px;text-align:right}
+  .c-br::before{bottom:-50%;right:-40%;top:auto;left:auto;width:200%;height:240%;
+    background:radial-gradient(75% 85% at 80% 78%,rgba(0,0,0,.62),transparent 74%)}
+
+  .kicker{font-family:"Oswald";font-weight:600;letter-spacing:.3em;text-transform:uppercase;color:var(--gold-soft)}
+  .name{font-family:"Playfair Display",serif;font-weight:700;line-height:1;color:#f4ecda;text-shadow:0 1px 6px rgba(0,0,0,.7)}
+  .name-rule{height:1px;background:linear-gradient(90deg,var(--gold),transparent);opacity:.8;margin-top:6px}
+  .stat{display:flex;align-items:center;gap:5px}
+  .c-bl .stat,.c-br .stat{}
+  .stat .v{font-family:"Playfair Display",serif;font-weight:800;line-height:1;color:#f6efe0;
+    text-shadow:0 1px 2px rgba(0,0,0,.95),0 2px 12px rgba(0,0,0,.9)}
+  .icon{stroke:#ece1c8;fill:none}
+
+  /* ---------- 法力弧形仪表 ---------- */
+  .gauge{position:absolute;z-index:5}
+  .gauge .num{
+    position:absolute;left:0;right:0;top:0;bottom:0;
+    display:flex;flex-direction:column;align-items:center;justify-content:center;
+    font-family:"Oswald";line-height:.9;pointer-events:none;
+  }
+  .gauge .num .cur{font-weight:600;color:var(--ink);font-variant-numeric:tabular-nums;
+    text-shadow:0 1px 4px rgba(0,0,0,.85)}
+  .gauge .num .max{font-weight:400;color:var(--gold-soft);font-variant-numeric:tabular-nums;
+    letter-spacing:.06em;opacity:.85;text-shadow:0 1px 4px rgba(0,0,0,.85)}
+  .gauge .num .bar{height:1px;background:var(--line-strong)}
+  /* 充能齿 */
+  .tk{stroke:var(--tick-off);stroke-linecap:butt;transition:none}
+  .tk.on{stroke:var(--gold)}
+  /* 满充：整弧亮金（克制），数字转金 */
+  .gauge.full .tk{stroke:var(--gold-hi)}
+  .gauge.full .num .cur{color:var(--gold-hi);text-shadow:0 0 6px rgba(232,200,121,.35),0 1px 4px rgba(0,0,0,.85)}
+  .gauge.full .num .max{color:var(--gold-hi)}
+  .track{stroke:var(--line);fill:none}
+  .gauge.full .track{stroke:rgba(232,200,121,.45)}
+  .tip{fill:var(--gold)}              /* 季度大刻度端点 */
+  .gauge.full .tip{fill:var(--gold-hi)}
+  .tip.off{fill:var(--tick-off)}
+
+  .legend{font-family:"Oswald";font-size:11px;letter-spacing:.06em;color:rgba(242,234,216,.5);line-height:1.7}
+  .legend b{color:var(--gold-soft);font-weight:600}
+  .note{font-family:"Oswald";font-size:10px;letter-spacing:.34em;text-transform:uppercase;color:rgba(242,234,216,.42)}
+  .state-cap{font-family:"Oswald";font-size:10px;letter-spacing:.28em;text-transform:uppercase;color:var(--gold-soft);text-align:center;margin-top:12px}
+</style>
+</head>
+<body>
+  <div class="stage">
+    <div class="wrap">
+      <header class="mb-12">
+        <h1 class="doc-title">法力值 · 弧形仪表刻度</h1>
+        <div class="doc-sub">Method 03 — Arc Gauge / Tactical Dial</div>
+      </header>
+
+      <!-- 真实比例 三状态 -->
+      <section class="mb-14">
+        <div class="col-label">真实比例 104×125 · 空 / 半 / 满</div>
+        <div class="flex items-start" style="gap:40px" id="rowReal"></div>
+      </section>
+
+      <!-- 放大 2.6x -->
+      <section class="mb-14">
+        <div class="col-label">放大 2.6× · 看清弧形刻度</div>
+        <div class="flex items-start flex-wrap" style="gap:48px" id="rowBig"></div>
+      </section>
+
+      <!-- 设计要点 -->
+      <section>
+        <div class="col-label">设计要点</div>
+        <div class="legend" style="max-width:760px">
+          · <b>开口弧 270°</b>，缺口朝下不与左上角色名打架，弧体充分占据右上角。<br>
+          · <b>12 段离散刻度齿</b>沿弧均匀排布（每 4 段一个暖金端点）—— 工业精密的战术刻度，区别于点阵 / 充能条 / 单圈进度环。<br>
+          · 已充能齿 = <b>暖金实心</b>，未充能 = <b>暗描边</b>；<b>Oswald 工业数字</b>居弧心读“当前/上限”。<br>
+          · 满充时整条弧亮金（克制发光）+ 数字转金。强调色仅暖金、4/8 点间距、文本近白。
+        </div>
+      </section>
+    </div>
+  </div>
+
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+    <symbol id="i-sword" viewBox="0 0 24 24"><g class="icon" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M18.5 3.5 21 3.5 21 6 12.5 14.5 10 12 18.5 3.5Z"/>
+      <path d="M3 19.5 4.5 21 8 17.5 M6.5 16 8 17.5"/>
+      <path d="M5.5 3.5 3 3.5 3 6 11.5 14.5 14 12 5.5 3.5Z"/></g></symbol>
+    <symbol id="i-heart" viewBox="0 0 24 24"><path class="icon" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" d="M12 19.5C7 16 4 12.8 4 9.6 4 7.3 5.8 5.6 8 5.6c1.4 0 2.8.8 4 2.3 1.2-1.5 2.6-2.3 4-2.3 2.2 0 4 1.7 4 4 0 3.2-3 6.4-8 9.9z"/></symbol>
+  </defs></svg>
+
+<script>
+  const polar=(cx,cy,r,deg)=>{const a=deg*Math.PI/180;return [cx+r*Math.cos(a),cy+r*Math.sin(a)];};
+  function arcPath(cx,cy,r,a0,a1){
+    const [x0,y0]=polar(cx,cy,r,a0), [x1,y1]=polar(cx,cy,r,a1);
+    const large=(a1-a0)>180?1:0;
+    return `M${x0.toFixed(2)} ${y0.toFixed(2)} A ${r} ${r} 0 ${large} 1 ${x1.toFixed(2)} ${y1.toFixed(2)}`;
+  }
+
+  // 弧形仪表 SVG —— S=画布尺寸; cur/max=法力
+  function gauge(cur,max,S){
+    const cx=S/2, cy=S/2;
+    const outerR=S*0.42;
+    const minLen=S*0.155;          // 普通齿长
+    const startA=135, sweep=270;   // 开口朝下
+    const full=cur>=max;
+    let ticks='', tips='';
+    for(let i=0;i<max;i++){
+      const deg=startA+(i+0.5)*(sweep/max);
+      const a=deg*Math.PI/180;
+      const on=i<cur;
+      const isMajor=((i+1)%4===0);            // 4/8/12 段界
+      const len=minLen*(isMajor?1.42:1);
+      const ro=outerR, ri=outerR-len;
+      const [x1,y1]=polar(cx,cy,ri,deg), [x2,y2]=polar(cx,cy,ro,deg);
+      const w=on?(isMajor?S*0.055:S*0.042):S*0.03;
+      ticks+=`<line class="tk ${on?'on':''}" x1="${x1.toFixed(2)}" y1="${y1.toFixed(2)}" x2="${x2.toFixed(2)}" y2="${y2.toFixed(2)}" stroke-width="${w.toFixed(2)}"/>`;
+      if(isMajor){ const [px,py]=polar(cx,cy,outerR+S*0.045,deg);
+        tips+=`<circle class="tip ${on?'':'off'}" cx="${px.toFixed(2)}" cy="${py.toFixed(2)}" r="${(S*0.022).toFixed(2)}"/>`; }
+    }
+    const track=arcPath(cx,cy,outerR-minLen/2,startA,startA+sweep);
+    const numF = (S*0.30).toFixed(1), maxF=(S*0.12).toFixed(1), barW=(S*0.16).toFixed(1), barM=(S*0.03).toFixed(1);
+    return `
+      <div class="gauge ${full?'full':''}" style="width:${S}px;height:${S}px">
+        <svg width="${S}" height="${S}" viewBox="0 0 ${S} ${S}">
+          <path class="track" d="${track}" stroke-width="${(S*0.012).toFixed(2)}"/>
+          ${ticks}${tips}
+        </svg>
+        <div class="num">
+          <span class="cur" style="font-size:${numF}px">${cur}</span>
+          <span class="bar" style="width:${barW}px;margin:${barM}px 0"></span>
+          <span class="max" style="font-size:${maxF}px">${max}</span>
+        </div>
+      </div>`;
+  }
+
+  function card(d, big){
+    const S=big?'big':'real';
+    const gS = big? 120 : 46;
+    const gPos = big? 'top:8px;right:8px' : 'top:5px;right:5px';
+    const nameSize=big?22:14, kickSize=big?9:7, numSize=big?38:20, icon=big?20:13;
+    return `
+    <div>
+      <div class="card ${S}">
+        <div class="art">
+          <div class="base"></div><div class="mass"></div><div class="focal"></div>
+          <div class="slash"></div><div class="vig"></div><div class="grain"></div>
+        </div>
+        <span class="reg tl"></span>
+
+        <!-- ↖ 名字（占位） -->
+        <div class="ov c-tl">
+          <div class="kicker" style="font-size:${kickSize}px">OP-01</div>
+          <div class="name" style="font-size:${nameSize}px;margin-top:${big?4:2}px">法露特</div>
+          <div class="name-rule" style="width:${big?44:28}px"></div>
+        </div>
+
+        <!-- ↗ 法力 弧形仪表 -->
+        <div class="gauge" style="${gPos}"></div>
+        ${gauge(d.mana,d.manaMax,gS).replace('<div class="gauge','<div class="_g').replace('style="width','data-w="').slice(0)}
+
+        <!-- ↙ 攻击（占位） -->
+        <div class="ov c-bl">
+          <div class="stat">
+            <svg class="icon" width="${icon}" height="${icon}"><use href="#i-sword"/></svg>
+            <span class="v" style="font-size:${numSize}px">7</span>
+          </div>
+        </div>
+        <!-- ↘ 血量（占位） -->
+        <div class="ov c-br">
+          <div class="stat" style="flex-direction:row-reverse">
+            <svg class="icon" width="${icon}" height="${icon}"><use href="#i-heart"/></svg>
+            <span class="v" style="font-size:${numSize}px">42</span>
+          </div>
+        </div>
+      </div>
+      <div class="state-cap">${d.cap}</div>
+    </div>`;
+  }
+
+  // 正确做法：直接把 gauge 放到角落，重写 card（上面 replace 太脆，改用干净版）
+  function cardClean(d, big){
+    const S=big?'big':'real';
+    const gS = big? 122 : 47;
+    const gTop = big? 6 : 4, gRight = big? 6 : 4;
+    const nameSize=big?22:14, kickSize=big?9:7, numSize=big?38:20, icon=big?20:13;
+    const g = gauge(d.mana,d.manaMax,gS)
+      .replace('class="gauge', `style="position:absolute;z-index:5;top:${gTop}px;right:${gRight}px" class="gauge`);
+    return `
+    <div>
+      <div class="card ${S}">
+        <div class="art">
+          <div class="base"></div><div class="mass"></div><div class="focal"></div>
+          <div class="slash"></div><div class="vig"></div><div class="grain"></div>
+        </div>
+        <span class="reg tl"></span>
+        <div class="ov c-tl">
+          <div class="kicker" style="font-size:${kickSize}px">OP-01</div>
+          <div class="name" style="font-size:${nameSize}px;margin-top:${big?4:2}px">法露特</div>
+          <div class="name-rule" style="width:${big?44:28}px"></div>
+        </div>
+        ${g}
+        <div class="ov c-bl">
+          <div class="stat">
+            <svg class="icon" width="${icon}" height="${icon}"><use href="#i-sword"/></svg>
+            <span class="v" style="font-size:${numSize}px">7</span>
+          </div>
+        </div>
+        <div class="ov c-br">
+          <div class="stat" style="flex-direction:row-reverse">
+            <svg class="icon" width="${icon}" height="${icon}"><use href="#i-heart"/></svg>
+            <span class="v" style="font-size:${numSize}px">42</span>
+          </div>
+        </div>
+      </div>
+      <div class="state-cap">${d.cap}</div>
+    </div>`;
+  }
+
+  const states=[
+    {mana:0, manaMax:12, cap:'空 · 0 / 12'},
+    {mana:8, manaMax:12, cap:'半 · 8 / 12'},
+    {mana:12,manaMax:12, cap:'满充 · 12 / 12'},
+  ];
+  document.getElementById('rowReal').innerHTML = states.map(s=>cardClean(s,false)).join('');
+  document.getElementById('rowBig').innerHTML  = states.map(s=>cardClean(s,true)).join('');
+</script>
+</body>
+</html>

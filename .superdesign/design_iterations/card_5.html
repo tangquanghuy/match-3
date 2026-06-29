@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>角色卡 · 方向E 明快通透</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap');
+
+  :root {
+    --bg: #0e0e16;
+    --card-radius: 20px;
+  }
+
+  * { -webkit-font-smoothing: antialiased; }
+
+  body {
+    background: var(--bg);
+    font-family: 'Manrope', system-ui, -apple-system, sans-serif;
+    color: #fff;
+  }
+
+  /* ---------- 卡片基础 ---------- */
+  .char-card {
+    position: relative;
+    border-radius: var(--card-radius);
+    overflow: hidden;
+    border: 1px solid rgba(255,255,255,0.10);
+    box-shadow: 0 8px 28px rgba(0,0,0,0.45);
+    isolation: isolate;
+    background: #14141f;
+  }
+
+  /* 立绘铺满层 */
+  .art {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+  }
+
+  /* 极淡主题环境光（顶部柔光 + 底部压暗保证四角文字可读） */
+  .ambient {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    pointer-events: none;
+  }
+  .ambient::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(120% 60% at 50% -10%, var(--glow) 0%, transparent 55%);
+    opacity: 0.5;
+  }
+  .ambient::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background:
+      linear-gradient(180deg, rgba(0,0,0,0.28) 0%, transparent 22%, transparent 55%, rgba(0,0,0,0.55) 100%);
+  }
+
+  /* 四角信息层 */
+  .overlay {
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    pointer-events: none;
+  }
+
+  .corner { position: absolute; }
+  .tl { top: 0; left: 0; }
+  .tr { top: 0; right: 0; text-align: right; }
+  .bl { bottom: 0; left: 0; }
+  .br { bottom: 0; right: 0; text-align: right; }
+
+  .char-name {
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    line-height: 1;
+    text-shadow: 0 1px 8px rgba(0,0,0,0.5);
+  }
+  .char-tag {
+    font-weight: 600;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    opacity: 0.65;
+  }
+
+  /* 法力：分段点阵，单色 */
+  .mana { display: flex; gap: 3px; justify-content: flex-end; }
+  .mana-pip {
+    width: 5px; border-radius: 2px;
+    background: rgba(255,255,255,0.22);
+  }
+  .mana-pip.on { background: #fff; }
+  .mana-pip.full { background: var(--accent); }
+  .mana-label {
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: 0.02em;
+  }
+
+  /* 攻防数值：醒目浮在立绘上 */
+  .stat { display: flex; align-items: center; }
+  .stat svg { display: block; }
+  .stat-num {
+    font-weight: 800;
+    font-variant-numeric: tabular-nums;
+    line-height: 1;
+    letter-spacing: -0.02em;
+    text-shadow: 0 2px 10px rgba(0,0,0,0.55);
+  }
+
+  /* 护甲：叠在血量上方 */
+  .armor {
+    display: inline-flex; align-items: center; gap: 4px;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+    color: #dfe6f0;
+  }
+
+  .icon-shadow { filter: drop-shadow(0 2px 6px rgba(0,0,0,0.5)); }
+</style>
+</head>
+<body class="min-h-screen py-16 px-6">
+
+  <div class="max-w-[1100px] mx-auto">
+    <header class="mb-12 text-center">
+      <p class="text-xs font-semibold tracking-[0.3em] uppercase text-white/40">Direction E · Clean &amp; Vibrant</p>
+      <h1 class="mt-2 text-2xl font-extrabold tracking-tight text-white">角色卡 · 明快通透现代二游</h1>
+    </header>
+
+    <div class="flex flex-col lg:flex-row items-start justify-center gap-16">
+
+      <!-- ===== 队伍：4 张竖向卡 ===== -->
+      <section>
+        <p class="mb-4 text-xs font-semibold tracking-[0.2em] uppercase text-white/35">Team · 04</p>
+        <div id="team" class="grid grid-cols-2 sm:grid-cols-4 gap-4"></div>
+      </section>
+
+      <!-- ===== 放大单卡 ===== -->
+      <section>
+        <p class="mb-4 text-xs font-semibold tracking-[0.2em] uppercase text-white/35">Featured</p>
+        <div id="featured" style="width: 300px;"></div>
+      </section>
+
+    </div>
+  </div>
+
+<script>
+/* ---------- SVG 单色线性图标 ---------- */
+function swordIcon(size){
+  return `<svg class="icon-shadow" width="${size}" height="${size}" viewBox="0 0 24 24" fill="none"
+    stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M14.5 17.5 4 6V3h3l11.5 11.5"/>
+    <path d="m13 19 6-6"/><path d="m16 16 4 4"/><path d="m19 21 2-2"/>
+  </svg>`;
+}
+function heartIcon(size){
+  return `<svg class="icon-shadow" width="${size}" height="${size}" viewBox="0 0 24 24" fill="none"
+    stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/>
+  </svg>`;
+}
+function shieldIcon(size){
+  return `<svg width="${size}" height="${size}" viewBox="0 0 24 24" fill="none"
+    stroke="#dfe6f0" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10Z"/>
+  </svg>`;
+}
+
+/* ---------- 立绘：纯 CSS/SVG 几何人物占位（有构图体量感） ---------- */
+function portrait(theme){
+  // theme: {base, mid, glow, accent, hairA, hairB, skin}
+  return `
+  <svg class="art" viewBox="0 0 300 400" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <linearGradient id="bg-${theme.id}" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="${theme.mid}"/>
+        <stop offset="55%" stop-color="${theme.base}"/>
+        <stop offset="100%" stop-color="${theme.deep}"/>
+      </linearGradient>
+      <radialGradient id="halo-${theme.id}" cx="50%" cy="32%" r="55%">
+        <stop offset="0%" stop-color="${theme.glow}" stop-opacity="0.9"/>
+        <stop offset="100%" stop-color="${theme.glow}" stop-opacity="0"/>
+      </radialGradient>
+      <linearGradient id="hair-${theme.id}" x1="0" y1="0" x2="0.4" y2="1">
+        <stop offset="0%" stop-color="${theme.hairA}"/>
+        <stop offset="100%" stop-color="${theme.hairB}"/>
+      </linearGradient>
+      <linearGradient id="cloth-${theme.id}" x1="0" y1="0" x2="0.6" y2="1">
+        <stop offset="0%" stop-color="${theme.accent}"/>
+        <stop offset="100%" stop-color="${theme.base}"/>
+      </linearGradient>
+    </defs>
+
+    <!-- 背景环境 -->
+    <rect width="300" height="400" fill="url(#bg-${theme.id})"/>
+    <circle cx="150" cy="128" r="150" fill="url(#halo-${theme.id})"/>
+    <!-- 背后装饰几何（体量层次） -->
+    <circle cx="150" cy="120" r="86" fill="none" stroke="${theme.glow}" stroke-opacity="0.25" stroke-width="2"/>
+    <polygon points="150,18 168,60 150,52 132,60" fill="${theme.glow}" opacity="0.35"/>
+
+    <!-- 人物：肩 / 身体大块（占满下半部，构图体量感） -->
+    <path d="M40 400 C 48 300, 84 250, 150 250 C 216 250, 252 300, 260 400 Z" fill="url(#cloth-${theme.id})"/>
+    <path d="M150 250 C 120 270, 116 330, 132 400 L168 400 C 184 330, 180 270, 150 250 Z"
+          fill="#000" opacity="0.12"/>
+    <!-- 颈 -->
+    <rect x="136" y="196" width="28" height="46" rx="12" fill="${theme.skin}"/>
+    <rect x="136" y="196" width="28" height="20" rx="10" fill="#000" opacity="0.12"/>
+    <!-- 后发 -->
+    <path d="M96 150 C 96 96, 204 96, 204 150 L 210 280 C 188 246, 184 232, 150 232
+             C 116 232, 112 246, 90 280 Z" fill="url(#hair-${theme.id})"/>
+    <!-- 头 -->
+    <ellipse cx="150" cy="150" rx="46" ry="52" fill="${theme.skin}"/>
+    <!-- 前发刘海 -->
+    <path d="M104 150 C 100 104, 200 104, 196 150 C 188 128, 176 120, 150 120
+             C 124 120, 112 128, 104 150 Z" fill="url(#hair-${theme.id})"/>
+    <path d="M150 120 C 168 120, 184 132, 188 152 L 176 150 C 170 138, 162 134, 150 134 Z"
+          fill="${theme.hairA}" opacity="0.9"/>
+    <!-- 眼 -->
+    <ellipse cx="133" cy="156" rx="6.5" ry="9" fill="${theme.accent}"/>
+    <ellipse cx="167" cy="156" rx="6.5" ry="9" fill="${theme.accent}"/>
+    <circle cx="135" cy="153" r="2" fill="#fff" opacity="0.85"/>
+    <circle cx="169" cy="153" r="2" fill="#fff" opacity="0.85"/>
+    <!-- 腮红/嘴 -->
+    <path d="M144 176 q6 5 12 0" stroke="#000" stroke-opacity="0.25" stroke-width="2" fill="none" stroke-linecap="round"/>
+  </svg>`;
+}
+
+/* ---------- 卡片渲染 ---------- */
+function renderMana(cur, max, accentFull){
+  let pips = '';
+  for(let i=0;i<max;i++){
+    const full = (cur===max);
+    const on = i < cur;
+    const cls = on ? (full ? 'mana-pip on full' : 'mana-pip on') : 'mana-pip';
+    pips += `<span class="${cls}"></span>`;
+  }
+  return pips;
+}
+
+function cardHTML(d, scale){
+  // scale: 'sm' 队伍卡, 'lg' 放大卡
+  const s = scale === 'lg';
+  const pad      = s ? 16 : 12;
+  const nameSize = s ? 22 : 15;
+  const tagSize  = s ? 10 : 8;
+  const numSize  = s ? 34 : 22;
+  const iconSize = s ? 20 : 14;
+  const pipH     = s ? 14 : 10;
+  const manaLabel= s ? 13 : 10;
+
+  const armorBlock = d.armor ? `
+    <div class="armor mb-1" style="font-size:${s?13:10}px;">
+      ${shieldIcon(s?16:12)}<span>${d.armor}</span>
+    </div>` : '';
+
+  return `
+  <div class="char-card" style="aspect-ratio: 3 / 4; --glow:${d.theme.glow}; --accent:${d.theme.accent};">
+    ${portrait(d.theme)}
+    <div class="ambient"></div>
+    <div class="overlay">
+
+      <!-- 左上：名字 -->
+      <div class="corner tl" style="padding:${pad}px;">
+        <div class="char-tag" style="font-size:${tagSize}px;">${d.tag}</div>
+        <div class="char-name" style="font-size:${nameSize}px; margin-top:${s?4:2}px;">${d.name}</div>
+      </div>
+
+      <!-- 右上：法力（分段点阵 + 数字） -->
+      <div class="corner tr" style="padding:${pad}px;">
+        <div class="mana" style="height:${pipH}px;">
+          ${renderMana(d.mana, d.manaMax)}
+        </div>
+        <div class="mana-label" style="font-size:${manaLabel}px; margin-top:${s?6:4}px; color:${d.mana===d.manaMax? d.theme.accent : 'rgba(255,255,255,0.85)'};">
+          ${d.mana}/${d.manaMax}
+        </div>
+      </div>
+
+      <!-- 左下：攻击 -->
+      <div class="corner bl" style="padding:${pad}px;">
+        <div class="stat" style="gap:${s?7:4}px;">
+          ${swordIcon(iconSize)}
+          <span class="stat-num" style="font-size:${numSize}px;">${d.atk}</span>
+        </div>
+      </div>
+
+      <!-- 右下：护甲(可选) + 血量 -->
+      <div class="corner br" style="padding:${pad}px;">
+        ${armorBlock}
+        <div class="stat" style="gap:${s?7:4}px; justify-content:flex-end;">
+          ${heartIcon(iconSize)}
+          <span class="stat-num" style="font-size:${numSize}px;">${d.hp}</span>
+        </div>
+      </div>
+
+    </div>
+  </div>`;
+}
+
+/* ---------- 数据 ---------- */
+const cards = [
+  {
+    name: 'Aris', tag: 'Vanguard',
+    atk: 7, hp: 42, mana: 8, manaMax: 12, armor: null,
+    theme: { id:'a', base:'#3a4fb0', mid:'#5b78e6', deep:'#1b2350', glow:'#8fa8ff', accent:'#7ee0ff', hairA:'#ffe27a', hairB:'#e8a64c', skin:'#ffe0cf' }
+  },
+  {
+    name: '星野', tag: 'Striker',
+    atk: 9, hp: 38, mana: 12, manaMax: 12, armor: null,
+    theme: { id:'b', base:'#b03a6a', mid:'#e65b8f', deep:'#4a1530', glow:'#ff9fc4', accent:'#ffd24a', hairA:'#ff7eb0', hairB:'#c2456f', skin:'#ffe0cf' }
+  },
+  {
+    name: 'Lumi', tag: 'Guardian',
+    atk: 4, hp: 41, mana: 5, manaMax: 12, armor: 12,
+    theme: { id:'c', base:'#2f8f86', mid:'#3fc2b0', deep:'#0e3b38', glow:'#83f0df', accent:'#9affe0', hairA:'#bff5ec', hairB:'#5cc9bb', skin:'#ffe2d4' }
+  },
+  {
+    name: '千雪', tag: 'Sniper',
+    atk: 6, hp: 40, mana: 10, manaMax: 12, armor: null,
+    theme: { id:'d', base:'#7a4fc0', mid:'#a26ee6', deep:'#2c1750', glow:'#d3acff', accent:'#ffc14a', hairA:'#e6d4ff', hairB:'#9a6fd6', skin:'#ffe0cf' }
+  }
+];
+
+document.getElementById('team').innerHTML = cards.map(c => cardHTML(c,'sm')).join('');
+document.getElementById('featured').innerHTML = cardHTML(cards[2],'lg'); // Lumi 带护甲，展示四角
+</script>
+</body>
+</html>

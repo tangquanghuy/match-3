@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Card 4 · Fashion-Mecha</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+  /* ============================================================
+     DIRECTION D — FASHION-MECHA / HIGH-CONTRAST
+     Graphite base · cold grays · single electric-blue accent
+     Flat 1px lines · diagonal composition · oversized numerals
+     ============================================================ */
+
+  :root{
+    --bg:#0e0e16;
+    --ink:#f4f5f8;
+    --accent:#3b6dff;       /* the ONLY high-saturation color */
+    --line:rgba(244,245,248,.14);
+    --line-strong:rgba(244,245,248,.30);
+  }
+
+  *{box-sizing:border-box}
+  html,body{margin:0}
+  body{
+    background:var(--bg);
+    color:var(--ink);
+    font-family:"Archivo","Helvetica Neue",Arial,"PingFang SC","Microsoft YaHei",sans-serif;
+    -webkit-font-smoothing:antialiased;
+  }
+
+  /* faint grid texture on the page so cards float on structure, not flat void */
+  .stage{
+    position:relative;
+    min-height:100vh;
+    padding:48px 24px;
+    background-image:
+      linear-gradient(var(--line) 1px,transparent 1px),
+      linear-gradient(90deg,var(--line) 1px,transparent 1px);
+    background-size:48px 48px;
+    background-position:center;
+  }
+  .stage::after{
+    content:"";position:absolute;inset:0;pointer-events:none;
+    background:radial-gradient(120% 80% at 50% 0%,transparent 40%,var(--bg) 100%);
+  }
+
+  /* ---------- CARD SHELL ---------- */
+  .card{
+    position:relative;
+    aspect-ratio:3/4.15;
+    border:1px solid var(--line);
+    overflow:hidden;
+    background:#0b0b12;
+    isolation:isolate;
+  }
+  .card .art{position:absolute;inset:0;z-index:0}
+
+  /* base cold gradient body of the splash art */
+  .art .base{
+    position:absolute;inset:0;
+    background:
+      linear-gradient(155deg,#23242e 0%,#15161e 46%,#0a0b11 100%);
+  }
+  /* large skewed structural block = body mass, gives volume not flat fill */
+  .art .mass{
+    position:absolute;inset:-6% -10% -2% -4%;
+    background:
+      radial-gradient(70% 55% at 62% 32%,#3a3d4b 0%,#26283300 60%),
+      linear-gradient(125deg,#2e3140 0%,#1b1d28 55%,#101119 100%);
+    clip-path:polygon(18% 0,100% 0,100% 100%,38% 100%);
+  }
+  /* secondary angular shard catching the accent rim */
+  .art .shard{
+    position:absolute;inset:0;
+    background:linear-gradient(135deg,#42475a 0%,#1d1f2b 70%);
+    clip-path:polygon(0 58%,52% 34%,70% 100%,0 100%);
+    opacity:.9;
+  }
+  .art .shard2{
+    position:absolute;inset:0;
+    background:linear-gradient(200deg,#30333f00 0%,#3b3f4e 60%,#1a1c26 100%);
+    clip-path:polygon(58% 0,100% 0,100% 46%,74% 30%);
+    opacity:.7;
+  }
+  /* head / focal sphere — cold highlight mass */
+  .art .focal{
+    position:absolute;left:46%;top:20%;width:34%;aspect-ratio:1;
+    border-radius:50%;
+    background:radial-gradient(38% 38% at 38% 34%,#5b6075 0%,#2a2c39 62%,#171924 100%);
+  }
+  /* the single 1px ACCENT diagonal slash — the composition line */
+  .art .slash{
+    position:absolute;top:-10%;left:-10%;width:140%;height:1px;
+    background:var(--accent);
+    transform:rotate(34deg);transform-origin:left center;
+    top:38%;
+  }
+  .art .slash.b{top:64%;opacity:.45}
+  /* thin neutral guide lines */
+  .art .guide{
+    position:absolute;width:140%;height:1px;background:var(--line-strong);
+    transform:rotate(34deg);transform-origin:left center;left:-10%;top:50%;
+  }
+  /* tiny accent shard chip embedded in the figure (point of color) */
+  .art .chip{
+    position:absolute;left:54%;top:30%;width:10%;height:3px;background:var(--accent);
+    transform:rotate(34deg);
+  }
+  /* vignette to push figure forward via contrast, not glow */
+  .art .vig{
+    position:absolute;inset:0;
+    background:linear-gradient(180deg,rgba(8,9,14,.55) 0%,transparent 26%,transparent 58%,rgba(8,9,14,.78) 100%);
+  }
+
+  /* per-card composition variants */
+  .v2 .mass{clip-path:polygon(0 0,82% 0,62% 100%,0 100%)}
+  .v2 .shard{clip-path:polygon(100% 50%,48% 30%,100% 100%);background:linear-gradient(225deg,#42475a,#1d1f2b)}
+  .v2 .focal{left:30%}
+  .v2 .slash{transform:rotate(-30deg);top:42%}
+  .v2 .guide{transform:rotate(-30deg)}
+  .v2 .chip{left:40%}
+
+  .v3 .mass{clip-path:polygon(10% 0,100% 0,100% 100%,30% 100%);background:linear-gradient(135deg,#34313c,#1a1820 60%,#0f0d14)}
+  .v3 .focal{left:48%;top:24%}
+  .v3 .slash{top:30%}
+  .v3 .slash.b{top:72%}
+
+  .v4 .mass{clip-path:polygon(0 0,90% 0,70% 100%,0 100%);background:linear-gradient(135deg,#2b2f3d,#16181f 60%,#0c0d13)}
+  .v4 .shard{clip-path:polygon(60% 26%,100% 44%,100% 100%,42% 100%)}
+  .v4 .focal{left:34%;top:22%}
+  .v4 .slash{transform:rotate(-28deg);top:46%}
+  .v4 .guide{transform:rotate(-28deg)}
+  .v4 .chip{left:42%}
+
+  /* ---------- CORNER OVERLAYS ---------- */
+  .ov{position:absolute;z-index:2}
+  .tl{top:16px;left:16px}
+  .tr{top:16px;right:16px;text-align:right}
+  .bl{left:16px;bottom:16px}
+  .br{right:16px;bottom:16px;text-align:right}
+
+  .kicker{
+    font-size:9px;letter-spacing:.42em;text-transform:uppercase;
+    color:var(--accent);font-weight:700;
+  }
+  .name{
+    font-size:22px;font-weight:800;letter-spacing:-.02em;line-height:.92;
+    text-transform:uppercase;color:#fff;
+  }
+  .name .cn{display:block;font-size:11px;font-weight:500;letter-spacing:.32em;
+    color:rgba(255,255,255,.62);margin-top:5px;text-transform:none}
+
+  /* mana — segmented monochrome ticks */
+  .mana{display:flex;flex-direction:column;align-items:flex-end;gap:6px}
+  .mana .lab{font-size:8px;letter-spacing:.34em;color:rgba(255,255,255,.55);text-transform:uppercase}
+  .seg{display:flex;gap:2px}
+  .seg i{width:3px;height:14px;background:rgba(255,255,255,.16);display:block}
+  .seg i.on{background:#fff}
+  .seg i.full{background:var(--accent)}
+  .mana .num{font-size:11px;letter-spacing:.06em;color:rgba(255,255,255,.78);font-weight:700}
+
+  /* big stat numerals */
+  .stat{display:flex;align-items:flex-end;gap:6px;color:#fff}
+  .stat svg{width:16px;height:16px;flex:none;margin-bottom:10px;stroke:#fff}
+  .br .stat{flex-direction:row-reverse}
+  .stat .v{font-size:54px;line-height:.8;font-weight:800;letter-spacing:-.05em}
+  .stat .t{font-size:8px;letter-spacing:.34em;text-transform:uppercase;color:rgba(255,255,255,.5);
+    margin-bottom:4px}
+  .br .stat .v{color:#fff}
+
+  /* armor sits ABOVE hp, only when present */
+  .armor{display:flex;align-items:center;gap:5px;justify-content:flex-end;margin-bottom:8px}
+  .armor svg{width:12px;height:12px;stroke:var(--accent)}
+  .armor .v{font-size:15px;font-weight:800;letter-spacing:-.02em;color:var(--accent)}
+
+  /* corner registration ticks (flat 1px detailing) */
+  .reg{position:absolute;width:10px;height:10px;z-index:2}
+  .reg::before,.reg::after{content:"";position:absolute;background:var(--line-strong)}
+  .reg::before{width:10px;height:1px}.reg::after{height:10px;width:1px}
+  .reg.t-l{top:8px;left:8px}.reg.t-l::after{left:0}.reg.t-l::before{top:0}
+  .reg.b-r{bottom:8px;right:8px}.reg.b-r::after{right:0}.reg.b-r::before{bottom:0}
+
+  /* ---------- LAYOUT ---------- */
+  .wrap{display:flex;gap:48px;justify-content:center;align-items:flex-start;flex-wrap:wrap;position:relative;z-index:1}
+  .team{display:flex;flex-direction:column;gap:16px;width:248px}
+  .feature{width:384px}
+  .col-label{font-size:9px;letter-spacing:.4em;text-transform:uppercase;color:rgba(255,255,255,.4);
+    margin-bottom:16px;display:flex;align-items:center;gap:8px}
+  .col-label::after{content:"";flex:1;height:1px;background:var(--line)}
+</style>
+</head>
+<body>
+  <div class="stage">
+    <div class="wrap">
+
+      <!-- ============ TEAM = 4 cards ============ -->
+      <div>
+        <div class="col-label">Squad / 04</div>
+        <div class="team" id="team"></div>
+      </div>
+
+      <!-- ============ FEATURE CARD ============ -->
+      <div>
+        <div class="col-label">Featured</div>
+        <div class="feature" id="feature"></div>
+      </div>
+
+    </div>
+  </div>
+
+<script>
+  /* inline single-color line icons */
+  const ICON = {
+    sword:'<svg viewBox="0 0 24 24" fill="none" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 4.5 20 4l-.5 5.5-9 9-5 .5.5-5 9-9z"/><path d="M6 18l-2 2"/><path d="M9 15l6-6"/></svg>',
+    heart:'<svg viewBox="0 0 24 24" fill="none" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20s-7-4.6-7-9.6A3.9 3.9 0 0 1 12 7a3.9 3.9 0 0 1 7 3.4C19 15.4 12 20 12 20z"/></svg>',
+    shield:'<svg viewBox="0 0 24 24" fill="none" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l7 3v5c0 4.4-3 7.6-7 9-4-1.4-7-4.6-7-9V6z"/></svg>'
+  };
+
+  const data = [
+    {name:'SEPTEMBER',cn:'九月',atk:7,hp:42,mana:12,manaMax:12,v:''},
+    {name:'VELA',cn:'维拉',atk:9,hp:38,mana:8,manaMax:12,v:'v2'},
+    {name:'WATANABE',cn:'渡边',atk:5,hp:45,armor:12,mana:6,manaMax:12,v:'v3'},
+    {name:'NYX',cn:'倪克斯',atk:6,hp:40,mana:12,manaMax:12,v:'v4'},
+  ];
+
+  function manaSegs(cur,max){
+    let s='';const full = cur>=max;
+    for(let i=0;i<max;i++){
+      const cls = i<cur ? (full?'on full':'on') : '';
+      s+=`<i class="${cls}"></i>`;
+    }
+    return s;
+  }
+
+  function card(d){
+    const armor = d.armor ? `<div class="armor">${ICON.shield}<span class="v">${d.armor}</span></div>` : '';
+    return `
+    <div class="card ${d.v}">
+      <div class="art">
+        <div class="base"></div>
+        <div class="mass"></div>
+        <div class="shard"></div>
+        <div class="shard2"></div>
+        <div class="focal"></div>
+        <div class="guide"></div>
+        <div class="slash"></div>
+        <div class="slash b"></div>
+        <div class="chip"></div>
+        <div class="vig"></div>
+      </div>
+      <span class="reg t-l"></span>
+      <span class="reg b-r"></span>
+
+      <div class="ov tl">
+        <div class="kicker">Unit</div>
+        <div class="name">${d.name}<span class="cn">${d.cn}</span></div>
+      </div>
+
+      <div class="ov tr">
+        <div class="mana">
+          <span class="lab">Mana</span>
+          <div class="seg">${manaSegs(d.mana,d.manaMax)}</div>
+          <span class="num">${d.mana}/${d.manaMax}</span>
+        </div>
+      </div>
+
+      <div class="ov bl">
+        <div class="stat">
+          ${ICON.sword}
+          <div>
+            <div class="t">ATK</div>
+            <div class="v">${d.atk}</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="ov br">
+        ${armor}
+        <div class="stat">
+          ${ICON.heart}
+          <div>
+            <div class="t">HP</div>
+            <div class="v">${d.hp}</div>
+          </div>
+        </div>
+      </div>
+    </div>`;
+  }
+
+  document.getElementById('team').innerHTML = data.map(card).join('');
+  document.getElementById('feature').innerHTML = card(data[2]);
+</script>
+</body>
+</html>
