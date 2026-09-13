@@ -63,7 +63,14 @@ export class GemSprite extends Container {
       this.gfx.clear();
       this.spr.texture = tex;
       // 贴图占格子约 0.96，留一点缝隙
-      const target = this.size * 0.96;
+      let visualScale = 0.96;
+      if (type.kind === 'skull') visualScale = 1.0;
+      if (type.kind === 'color') {
+        if (type.color === BaseColor.Yellow) visualScale = 0.85;
+        else if (type.color === BaseColor.Purple) visualScale = 0.99;
+        else if (type.color === BaseColor.Brown) visualScale = 0.975;
+      }
+      const target = this.size * visualScale;
       const maxDim = Math.max(tex.width, tex.height) || target;
       this.spr.scale.set(target / maxDim);
       this.spr.visible = true;

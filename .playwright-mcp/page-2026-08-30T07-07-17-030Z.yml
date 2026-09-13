@@ -1,0 +1,43 @@
+- generic [ref=e7]:
+  - generic:
+    - generic:
+      - generic [ref=e9] [cursor=pointer]:
+        - generic [ref=e13]: "4"
+        - generic [ref=e18]: "40"
+        - button "法力" [ref=e23]
+        - generic "魔力（法术强度）": "6"
+        - generic "状态"
+      - generic [ref=e32] [cursor=pointer]:
+        - generic [ref=e36]: "4"
+        - generic [ref=e41]: "40"
+        - button "法力" [ref=e46]
+        - generic "魔力（法术强度）": "8"
+        - generic "状态"
+      - generic [ref=e57] [cursor=pointer]:
+        - generic [ref=e61]: "4"
+        - generic [ref=e66]: "40"
+        - button "法力" [ref=e71]
+        - generic "魔力（法术强度）": "10"
+        - generic "状态"
+    - generic:
+      - generic [ref=e84] [cursor=pointer]:
+        - generic [ref=e88]: "4"
+        - generic [ref=e93]: "40"
+        - button "法力" [ref=e98]
+        - generic "魔力（法术强度）": "6"
+        - generic "状态"
+      - generic [ref=e107] [cursor=pointer]:
+        - generic [ref=e111]: "4"
+        - generic [ref=e116]: "40"
+        - button "法力" [ref=e121]
+        - generic "魔力（法术强度）": "8"
+        - generic "状态"
+      - generic [ref=e132] [cursor=pointer]:
+        - generic [ref=e136]: "4"
+        - generic [ref=e141]: "40"
+        - button "法力" [ref=e146]
+        - generic "魔力（法术强度）": "10"
+        - generic "状态"
+  - button "全屏" [ref=e159] [cursor=pointer]
+  - button "3v3" [ref=e162] [cursor=pointer]
+  - generic: TURN 01

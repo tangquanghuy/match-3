@@ -1,0 +1,100 @@
+- generic [ref=e3]:
+  - generic [ref=e5]:
+    - generic:
+      - generic:
+        - generic [ref=e7] [cursor=pointer]:
+          - generic [ref=e11]: "4"
+          - generic [ref=e16]: "40"
+          - button "法力" [ref=e21]
+          - generic "魔力（法术强度）": "6"
+          - generic "状态"
+        - generic [ref=e30] [cursor=pointer]:
+          - generic [ref=e34]: "4"
+          - generic [ref=e39]: "40"
+          - button "法力" [ref=e44]
+          - generic "魔力（法术强度）": "8"
+          - generic "状态"
+        - generic [ref=e55] [cursor=pointer]:
+          - generic [ref=e59]: "4"
+          - generic [ref=e64]: "40"
+          - button "法力" [ref=e69]
+          - generic "魔力（法术强度）": "10"
+          - generic "状态"
+      - generic:
+        - generic [ref=e82] [cursor=pointer]:
+          - generic [ref=e86]: "4"
+          - generic [ref=e91]: "31"
+          - button "法力" [ref=e96]
+          - generic "魔力（法术强度）": "6"
+          - generic "状态"
+        - generic [ref=e105] [cursor=pointer]:
+          - generic [ref=e109]: "4"
+          - generic [ref=e114]: "31"
+          - button "法力" [ref=e119]
+          - generic "魔力（法术强度）": "8"
+          - generic "状态"
+        - generic [ref=e130] [cursor=pointer]:
+          - generic [ref=e134]: "4"
+          - generic [ref=e139]: "31"
+          - button "法力" [ref=e144]
+          - generic "魔力（法术强度）": "10"
+          - generic "状态"
+    - button "全屏" [ref=e157] [cursor=pointer]
+    - button "3v3" [ref=e160] [cursor=pointer]
+    - generic: TURN 01
+  - generic [ref=e161]:
+    - generic [ref=e162]: 技能测试页（主游戏薄壳）
+    - generic [ref=e163]: 先切换我方水晶颜色，再把技能标签拖到角色卡；短按卡释放技能
+    - generic [ref=e164]:
+      - button "法力上限=3" [ref=e165] [cursor=pointer]
+      - button "充满法力" [active] [ref=e166] [cursor=pointer]
+      - button "推进回合" [ref=e167] [cursor=pointer]
+    - generic [ref=e168]:
+      - generic [ref=e169]: 我方水晶颜色（决定属性音效）
+      - combobox "我方水晶颜色（决定属性音效）" [ref=e170] [cursor=pointer]:
+        - option "● 红色" [selected]
+        - option "● 蓝色（水）"
+        - option "● 绿色"
+        - option "● 黄色"
+        - option "● 紫色"
+        - option "● 棕色（土）"
+    - generic [ref=e171]:
+      - generic [ref=e172]: 宝石消除 / 连击 · 新版定稿音效
+      - generic [ref=e173]: 正式战斗固定使用新版音效。可顺序试听「普通消除 → 2~5 连击」，或单独试听每一级。
+      - button "试听新版整套" [ref=e174] [cursor=pointer]
+      - generic [ref=e175]:
+        - button "普通消除" [ref=e176] [cursor=pointer]
+        - button "2 连击" [ref=e177] [cursor=pointer]
+        - button "3 连击" [ref=e178] [cursor=pointer]
+        - button "4 连击" [ref=e179] [cursor=pointer]
+        - button "5 连击" [ref=e180] [cursor=pointer]
+    - generic [ref=e181]: 技能标签（拖到我方角色卡）
+    - generic [ref=e182]:
+      - generic [ref=e183]: 单体伤害
+      - generic [ref=e184]: 群体伤害
+      - generic [ref=e185]: 溅射伤害
+      - generic [ref=e186]: 真实伤害
+      - generic [ref=e187]: 创造宝石(绿)
+      - generic [ref=e188]: 创造骷髅×6
+      - generic [ref=e189]: 转化(选定→蓝)
+      - generic [ref=e190]: ★摧毁选定行
+      - generic [ref=e191]: ★摧毁选定列
+      - generic [ref=e192]: 摧毁指定色
+      - generic [ref=e193]: 随机摧毁6颗
+      - generic [ref=e194]: 爆破指定色
+      - generic [ref=e195]: 随机爆破2行
+      - generic [ref=e196]: ★选宝石引爆
+      - generic [ref=e197]: 治疗自身
+      - generic [ref=e198]: 驱散演示(先自毒)
+      - generic [ref=e199]: 加护甲(全体)
+      - generic [ref=e200]: 加攻击(自身)
+      - generic [ref=e201]: 中毒(队首)
+      - generic [ref=e202]: 燃烧(全体)
+      - generic [ref=e203]: 沉默(队首)
+      - generic [ref=e204]: 冰冻(队首)
+      - generic [ref=e205]: 额外回合
+      - generic [ref=e206]: 召唤(食人魔)
+      - generic [ref=e207]: ★选敌造成伤害
+      - generic [ref=e208]: ★选盟友治疗
+    - generic [ref=e209]: 事件流
+    - generic [ref=e210]: — 测试页就绪：拖技能标签到我方角色卡换技能，短按角色卡释放 — 已充满全体法力 ◆ 角色0 技能 → 群体伤害 · skill-cast (角色0) · skill-damage → 角色4 伤害9 · skill-damage → 角色5 伤害9 · skill-damage → 角色6 伤害9 已充满全体法力

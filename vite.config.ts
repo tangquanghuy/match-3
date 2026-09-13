@@ -11,6 +11,7 @@ export default defineConfig({
     alias: {
       '@engine': fileURLToPath(new URL('./src/engine', import.meta.url)),
       '@render': fileURLToPath(new URL('./src/render', import.meta.url)),
+      '@session': fileURLToPath(new URL('./src/session', import.meta.url)),
     },
   },
   build: {
@@ -18,5 +19,12 @@ export default defineConfig({
     outDir: 'dist',
     assetsDir: 'assets',
     sourcemap: false,
+    rollupOptions: {
+      input: {
+        // 主对局页 + 技能测试台页（多页入口）
+        main: fileURLToPath(new URL('./index.html', import.meta.url)),
+        skillsTest: fileURLToPath(new URL('./skills-test.html', import.meta.url)),
+      },
+    },
   },
 });

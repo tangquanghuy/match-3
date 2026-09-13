@@ -1,0 +1,832 @@
+﻿[
+    {
+        "id":  "0335",
+        "images":  "D:\\迅雷下载\\特效500个【spine】\\特效500个【spine】\\0335\\effect_skill1_hit1.png",
+        "atlases":  "D:\\迅雷下载\\特效500个【spine】\\特效500个【spine】\\0335\\effect_skill1_hit1.atlas"
+    },
+    {
+        "id":  "0336",
+        "images":  "D:\\迅雷下载\\特效500个【spine】\\特效500个【spine】\\0336\\effect_skill1_hit2.png",
+        "atlases":  "D:\\迅雷下载\\特效500个【spine】\\特效500个【spine】\\0336\\effect_skill1_hit2.atlas"
+    },
+    {
+        "id":  "0337",
+        "images":  "D:\\迅雷下载\\特效500个【spine】\\特效500个【spine】\\0337\\effect_skill1_lizi.png",
+        "atlases":  "D:\\迅雷下载\\特效500个【spine】\\特效500个【spine】\\0337\\effect_skill1_lizi.atlas"
+    },
+    {
+        "id":  "0338",
+        "images":  "D:\\迅雷下载\\特效500个【spine】\\特效500个【spine】\\0338\\effect_skill1_long.png",
+        "atlases":  "D:\\迅雷下载\\特效500个【spine】\\特效500个【spine】\\0338\\effect_skill1_long.atlas"
+    },
+    {
+        "id":  "0339",
+        "images":  "D:\\迅雷下载\\特效500个【spine】\\特效500个【spine】\\0339\\effect_skill1_long2.png",
+        "atlases":  "D:\\迅雷下载\\特效500个【spine】\\特效500个【spine】\\0339\\effect_skill1_long2.atlas"
+    },
+    {
+        "id":  "0340",
+        "images":  "D:\\迅雷下载\\特效500个【spine】\\特效500个【spine】\\0340\\effect_di.png",
+        "atlases":  "D:\\迅雷下载\\特效500个【spine】\\特效500个【spine】\\0340\\effect_di.atlas"
+    },
+    {
+        "id":  "0341",
+        "images":  "D:\\迅雷下载\\特效500个【spine】\\特效500个【spine】\\0341\\effect_skill0_attack.png",
+        "atlases":  "D:\\迅雷下载\\特效500个【spine】\\特效500个【spine】\\0341\\effect_skill0_attack.atlas"
+    },
+    {
+        "id":  "0342",
+        "images":  "D:\\迅雷下载\\特效500个【spine】\\特效500个【spine】\\0342\\effect_skill0_fly.png",
+        "atlases":  "D:\\迅雷下载\\特效500个【spine】\\特效500个【spine】\\0342\\effect_skill0_fly.atlas"
+    },
+    {
+        "id":  "0343",
+        "images":  "D:\\迅雷下载\\特效500个【spine】\\特效500个【spine】\\0343\\effect_skill0_fore.png",
+        "atlases":  "D:\\迅雷下载\\特效500个【spine】\\特效500个【spine】\\0343\\effect_skill0_fore.atlas"
+    },
+    {
+        "id":  "0344",
+        "images":  "D:\\迅雷下载\\特效500个【spine】\\特效500个【spine】\\0344\\effect_skill0_hit.png",
+        "atlases":  "D:\\迅雷下载\\特效500个【spine】\\特效500个【spine】\\0344\\effect_skill0_hit.atlas"
+    },
+    {
+        "id":  "0345",
+        "images":  "D:\\迅雷下载\\特效500个【spine】\\特效500个【spine】\\0345\\effect_skill01_fore.png",
+        "atlases":  "D:\\迅雷下载\\特效500个【spine】\\特效500个【spine】\\0345\\effect_skill01_fore.atlas"
+    },
+    {
+        "id":  "0346",
+        "images":  "D:\\迅雷下载\\特效500个【spine】\\特效500个【spine】\\0346\\effect_skill1_BJ.png",
+        "atlases":  "D:\\迅雷下载\\特效500个【spine】\\特效500个【spine】\\0346\\effect_skill1_BJ.atlas"
+    },
+    {
+        "id":  "0347",
+        "images":  "D:\\迅雷下载\\特效500个【spine】\\特效500个【spine】\\0347\\effect_skill1_guangmu.png",
+        "atlases":  "D:\\迅雷下载\\特效500个【spine】\\特效500个【spine】\\0347\\effect_skill1_guangmu.atlas"
+    },
+    {
+        "id":  "0348",
+        "images":  "D:\\迅雷下载\\特效500个【spine】\\特效500个【spine】\\0348\\effect_skill1_hit_back.png",
+        "atlases":  "D:\\迅雷下载\\特效500个【spine】\\特效500个【spine】\\0348\\effect_skill1_hit_back.atlas"
+    },
+    {
+        "id":  "0349",
+        "images":  "D:\\迅雷下载\\特效500个【spine】\\特效500个【spine】\\0349\\effect_skill1_hit_fore.png",
+        "atlases":  "D:\\迅雷下载\\特效500个【spine】\\特效500个【spine】\\0349\\effect_skill1_hit_fore.atlas"
+    },
+    {
+        "id":  "0350",
+        "images":  "D:\\迅雷下载\\特效500个【spine】\\特效500个【spine】\\0350\\effect_skill1_jq.png",
+        "atlases":  "D:\\迅雷下载\\特效500个【spine】\\特效500个【spine】\\0350\\effect_skill1_jq.atlas"
+    },
+    {
+        "id":  "0351",
+        "images":  "D:\\迅雷下载\\特效500个【spine】\\特效500个【spine】\\0351\\effect_skill1_jq_back.png",
+        "atlases":  "D:\\迅雷下载\\特效500个【spine】\\特效500个【spine】\\0351\\effect_skill1_jq_back.atlas"
+    },
+    {
+        "id":  "0352",
+        "images":  "D:\\迅雷下载\\特效500个【spine】\\特效500个【spine】\\0352\\effect_buff1_fore.png",
+        "atlases":  "D:\\迅雷下载\\特效500个【spine】\\特效500个【spine】\\0352\\effect_buff1_fore.atlas"
+    },
+    {
+        "id":  "0353",
+        "images":  "D:\\迅雷下载\\特效500个【spine】\\特效500个【spine】\\0353\\effect_skill1_lizi.png",
+        "atlases":  "D:\\迅雷下载\\特效500个【spine】\\特效500个【spine】\\0353\\effect_skill1_lizi.atlas"
+    },
+    {
+        "id":  "0354",
+        "images":  "D:\\迅雷下载\\特效500个【spine】\\特效500个【spine】\\0354\\effect_skill1_moji_back.png",
+        "atlases":  "D:\\迅雷下载\\特效500个【spine】\\特效500个【spine】\\0354\\effect_skill1_moji_back.atlas"
+    },
+    {
+        "id":  "0355",
+        "images":  "D:\\迅雷下载\\特效500个【spine】\\特效500个【spine】\\0355\\effect_skill1_moji_fore.png",
+        "atlases":  "D:\\迅雷下载\\特效500个【spine】\\特效500个【spine】\\0355\\effect_skill1_moji_fore.atlas"
+    },
+    {
+        "id":  "0356",
+        "images":  "D:\\迅雷下载\\特效500个【spine】\\特效500个【spine】\\0356\\effect_skill02_back.png",
+        "atlases":  "D:\\迅雷下载\\特效500个【spine】\\特效500个【spine】\\0356\\effect_skill02_back.atlas"
+    },
+    {
+        "id":  "0357",
+        "images":  "D:\\迅雷下载\\特效500个【spine】\\特效500个【spine】\\0357\\effect_skill02_changjing.png",
+        "atlases":  "D:\\迅雷下载\\特效500个【spine】\\特效500个【spine】\\0357\\effect_skill02_changjing.atlas"
+    },
+    {
+        "id":  "0358",
+        "images":  "D:\\迅雷下载\\特效500个【spine】\\特效500个【spine】\\0358\\effect_skill02_fore.png",
+        "atlases":  "D:\\迅雷下载\\特效500个【spine】\\特效500个【spine】\\0358\\effect_skill02_fore.atlas"
+    },
+    {
+        "id":  "0359",
+        "images":  "D:\\迅雷下载\\特效500个【spine】\\特效500个【spine】\\0359\\effect_skill0_fore.png",
+        "atlases":  "D:\\迅雷下载\\特效500个【spine】\\特效500个【spine】\\0359\\effect_skill0_fore.atlas"
+    },
+    {
+        "id":  "0360",
+        "images":  "D:\\迅雷下载\\特效500个【spine】\\特效500个【spine】\\0360\\effect_skill0_hit.png",
+        "atlases":  "D:\\迅雷下载\\特效500个【spine】\\特效500个【spine】\\0360\\effect_skill0_hit.atlas"
+    },
+    {
+        "id":  "0361",
+        "images":  "D:\\迅雷下载\\特效500个【spine】\\特效500个【spine】\\0361\\effect_skill02hit_fore.png",
+        "atlases":  "D:\\迅雷下载\\特效500个【spine】\\特效500个【spine】\\0361\\effect_skill02hit_fore.atlas"
+    },
+    {
+        "id":  "0362",
+        "images":  "D:\\迅雷下载\\特效500个【spine】\\特效500个【spine】\\0362\\effect_skill2_fore.png",
+        "atlases":  "D:\\迅雷下载\\特效500个【spine】\\特效500个【spine】\\0362\\effect_skill2_fore.atlas"
+    },
+    {
+        "id":  "0363",
+        "images":  "D:\\迅雷下载\\特效500个【spine】\\特效500个【spine】\\0363\\effect_skill2_HP.png",
+        "atlases":  "D:\\迅雷下载\\特效500个【spine】\\特效500个【spine】\\0363\\effect_skill2_HP.atlas"
+    },
+    {
+        "id":  "0364",
+        "images":  "D:\\迅雷下载\\特效500个【spine】\\特效500个【spine】\\0364\\effect_skill0.png",
+        "atlases":  "D:\\迅雷下载\\特效500个【spine】\\特效500个【spine】\\0364\\effect_skill0.atlas"
+    },
+    {
+        "id":  "0365",
+        "images":  "D:\\迅雷下载\\特效500个【spine】\\特效500个【spine】\\0365\\effect_skill1_back.png",
+        "atlases":  "D:\\迅雷下载\\特效500个【spine】\\特效500个【spine】\\0365\\effect_skill1_back.atlas"
+    },
+    {
+        "id":  "0366",
+        "images":  "D:\\迅雷下载\\特效500个【spine】\\特效500个【spine】\\0366\\effect_skill1_fore.png",
+        "atlases":  "D:\\迅雷下载\\特效500个【spine】\\特效500个【spine】\\0366\\effect_skill1_fore.atlas"
+    },
+    {
+        "id":  "0367",
+        "images":  "D:\\迅雷下载\\特效500个【spine】\\特效500个【spine】\\0367\\effect_skill1_qc.png|D:\\迅雷下载\\特效500个【spine】\\特效500个【spine】\\0367\\effect_skill1_qc2.png",
+        "atlases":  "D:\\迅雷下载\\特效500个【spine】\\特效500个【spine】\\0367\\effect_skill1_qc.atlas"
+    },
+    {
+        "id":  "0368",
+        "images":  "D:\\迅雷下载\\特效500个【spine】\\特效500个【spine】\\0368\\effect_skill1_qishou.png",
+        "atlases":  "D:\\迅雷下载\\特效500个【spine】\\特效500个【spine】\\0368\\effect_skill1_qishou.atlas"
+    },
+    {
+        "id":  "0369",
+        "images":  "D:\\迅雷下载\\特效500个【spine】\\特效500个【spine】\\0369\\effect_skill1_weiyi.png",
+        "atlases":  "D:\\迅雷下载\\特效500个【spine】\\特效500个【spine】\\0369\\effect_skill1_weiyi.atlas"
+    },
+    {
+        "id":  "0370",
+        "images":  "",
+        "atlases":  "D:\\迅雷下载\\特效500个【spine】\\特效500个【spine】\\0370\\skill0_fore.atlas"
+    },
+    {
+        "id":  "0371",
+        "images":  "",
+        "atlases":  "D:\\迅雷下载\\特效500个【spine】\\特效500个【spine】\\0371\\skill0_hit.atlas"
+    },
+    {
+        "id":  "0372",
+        "images":  "",
+        "atlases":  "D:\\迅雷下载\\特效500个【spine】\\特效500个【spine】\\0372\\skill1_back.atlas"
+    },
+    {
+        "id":  "0373",
+        "images":  "",
+        "atlases":  "D:\\迅雷下载\\特效500个【spine】\\特效500个【spine】\\0373\\skill1_fore.atlas"
+    },
+    {
+        "id":  "0374",
+        "images":  "",
+        "atlases":  "D:\\迅雷下载\\特效500个【spine】\\特效500个【spine】\\0374\\skill1_hit1.atlas"
+    },
+    {
+        "id":  "0375",
+        "images":  "",
+        "atlases":  "D:\\迅雷下载\\特效500个【spine】\\特效500个【spine】\\0375\\skill1_hit2.atlas"
+    },
+    {
+        "id":  "0376",
+        "images":  "",
+        "atlases":  "D:\\迅雷下载\\特效500个【spine】\\特效500个【spine】\\0376\\skill1_hit2_back.atlas"
+    },
+    {
+        "id":  "0377",
+        "images":  "D:\\迅雷下载\\特效500个【spine】\\特效500个【spine】\\0377\\effect_skill2_back.png",
+        "atlases":  "D:\\迅雷下载\\特效500个【spine】\\特效500个【spine】\\0377\\effect_skill2_back.atlas"
+    },
+    {
+        "id":  "0378",
+        "images":  "D:\\迅雷下载\\特效500个【spine】\\特效500个【spine】\\0378\\effect_BUFF_yu.png",
+        "atlases":  "D:\\迅雷下载\\特效500个【spine】\\特效500个【spine】\\0378\\effect_BUFF_yu.atlas"
+    },
+    {
+        "id":  "0379",
+        "images":  "D:\\迅雷下载\\特效500个【spine】\\特效500个【spine】\\0379\\effect_jq_fore.png",
+        "atlases":  "D:\\迅雷下载\\特效500个【spine】\\特效500个【spine】\\0379\\effect_jq_fore.atlas"
+    },
+    {
+        "id":  "0380",
+        "images":  "D:\\迅雷下载\\特效500个【spine】\\特效500个【spine】\\0380\\effect_shuangyu.png",
+        "atlases":  "D:\\迅雷下载\\特效500个【spine】\\特效500个【spine】\\0380\\effect_shuangyu.atlas"
+    },
+    {
+        "id":  "0381",
+        "images":  "D:\\迅雷下载\\特效500个【spine】\\特效500个【spine】\\0381\\effect_skill0.png",
+        "atlases":  "D:\\迅雷下载\\特效500个【spine】\\特效500个【spine】\\0381\\effect_skill0.atlas"
+    },
+    {
+        "id":  "0382",
+        "images":  "D:\\迅雷下载\\特效500个【spine】\\特效500个【spine】\\0382\\effect_skill0_fly.png",
+        "atlases":  "D:\\迅雷下载\\特效500个【spine】\\特效500个【spine】\\0382\\effect_skill0_fly.atlas"
+    },
+    {
+        "id":  "0383",
+        "images":  "D:\\迅雷下载\\特效500个【spine】\\特效500个【spine】\\0383\\effect_skill0_hit.png",
+        "atlases":  "D:\\迅雷下载\\特效500个【spine】\\特效500个【spine】\\0383\\effect_skill0_hit.atlas"
+    },
+    {
+        "id":  "0384",
+        "images":  "D:\\迅雷下载\\特效500个【spine】\\特效500个【spine】\\0384\\effect_skill1_back.png",
+        "atlases":  "D:\\迅雷下载\\特效500个【spine】\\特效500个【spine】\\0384\\effect_skill1_back.atlas"
+    },
+    {
+        "id":  "0385",
+        "images":  "D:\\迅雷下载\\特效500个【spine】\\特效500个【spine】\\0385\\effect_skill1_fore.png",
+        "atlases":  "D:\\迅雷下载\\特效500个【spine】\\特效500个【spine】\\0385\\effect_skill1_fore.atlas"
+    },
+    {
+        "id":  "0386",
+        "images":  "D:\\迅雷下载\\特效500个【spine】\\特效500个【spine】\\0386\\effect_skill1_hit_back.png",
+        "atlases":  "D:\\迅雷下载\\特效500个【spine】\\特效500个【spine】\\0386\\effect_skill1_hit_back.atlas"
+    },
+    {
+        "id":  "0387",
+        "images":  "D:\\迅雷下载\\特效500个【spine】\\特效500个【spine】\\0387\\effect_skill1_hit1_fore.png",
+        "atlases":  "D:\\迅雷下载\\特效500个【spine】\\特效500个【spine】\\0387\\effect_skill1_hit1_fore.atlas"
+    },
+    {
+        "id":  "0388",
+        "images":  "D:\\迅雷下载\\特效500个【spine】\\特效500个【spine】\\0388\\effect_skill1_hit2_fore.png",
+        "atlases":  "D:\\迅雷下载\\特效500个【spine】\\特效500个【spine】\\0388\\effect_skill1_hit2_fore.atlas"
+    },
+    {
+        "id":  "0389",
+        "images":  "D:\\迅雷下载\\特效500个【spine】\\特效500个【spine】\\0389\\effect_skill2_fore.png|D:\\迅雷下载\\特效500个【spine】\\特效500个【spine】\\0389\\effect_skill2_fore2.png",
+        "atlases":  "D:\\迅雷下载\\特效500个【spine】\\特效500个【spine】\\0389\\effect_skill2_fore.atlas"
+    },
+    {
+        "id":  "0390",
+        "images":  "D:\\迅雷下载\\特效500个【spine】\\特效500个【spine】\\0390\\effect_skill_qiu.png",
+        "atlases":  "D:\\迅雷下载\\特效500个【spine】\\特效500个【spine】\\0390\\effect_skill_qiu.atlas"
+    },
+    {
+        "id":  "0391",
+        "images":  "D:\\迅雷下载\\特效500个【spine】\\特效500个【spine】\\0391\\effect_skill0_hit.png",
+        "atlases":  "D:\\迅雷下载\\特效500个【spine】\\特效500个【spine】\\0391\\effect_skill0_hit.atlas"
+    },
+    {
+        "id":  "0392",
+        "images":  "D:\\迅雷下载\\特效500个【spine】\\特效500个【spine】\\0392\\effect_skill0_lizi.png",
+        "atlases":  "D:\\迅雷下载\\特效500个【spine】\\特效500个【spine】\\0392\\effect_skill0_lizi.atlas"
+    },
+    {
+        "id":  "0393",
+        "images":  "D:\\迅雷下载\\特效500个【spine】\\特效500个【spine】\\0393\\effect_skill0_shifa.png",
+        "atlases":  "D:\\迅雷下载\\特效500个【spine】\\特效500个【spine】\\0393\\effect_skill0_shifa.atlas"
+    },
+    {
+        "id":  "0394",
+        "images":  "D:\\迅雷下载\\特效500个【spine】\\特效500个【spine】\\0394\\effect_skill2_long.png",
+        "atlases":  "D:\\迅雷下载\\特效500个【spine】\\特效500个【spine】\\0394\\effect_skill2_long.atlas"
+    },
+    {
+        "id":  "0395",
+        "images":  "D:\\迅雷下载\\特效500个【spine】\\特效500个【spine】\\0395\\effect_skill1_hit_a.png",
+        "atlases":  "D:\\迅雷下载\\特效500个【spine】\\特效500个【spine】\\0395\\effect_skill1_hit_a.atlas"
+    },
+    {
+        "id":  "0396",
+        "images":  "D:\\迅雷下载\\特效500个【spine】\\特效500个【spine】\\0396\\effect_skill1_hit_b.png",
+        "atlases":  "D:\\迅雷下载\\特效500个【spine】\\特效500个【spine】\\0396\\effect_skill1_hit_b.atlas"
+    },
+    {
+        "id":  "0397",
+        "images":  "D:\\迅雷下载\\特效500个【spine】\\特效500个【spine】\\0397\\effect_skill1_hit_fore.png",
+        "atlases":  "D:\\迅雷下载\\特效500个【spine】\\特效500个【spine】\\0397\\effect_skill1_hit_fore.atlas"
+    },
+    {
+        "id":  "0398",
+        "images":  "D:\\迅雷下载\\特效500个【spine】\\特效500个【spine】\\0398\\effect_skill1_shifa_a.png",
+        "atlases":  "D:\\迅雷下载\\特效500个【spine】\\特效500个【spine】\\0398\\effect_skill1_shifa_a.atlas"
+    },
+    {
+        "id":  "0399",
+        "images":  "D:\\迅雷下载\\特效500个【spine】\\特效500个【spine】\\0399\\effect_skill1_shifa_b.png",
+        "atlases":  "D:\\迅雷下载\\特效500个【spine】\\特效500个【spine】\\0399\\effect_skill1_shifa_b.atlas"
+    },
+    {
+        "id":  "0400",
+        "images":  "D:\\迅雷下载\\特效500个【spine】\\特效500个【spine】\\0400\\effect_skill1_shifa_c.png",
+        "atlases":  "D:\\迅雷下载\\特效500个【spine】\\特效500个【spine】\\0400\\effect_skill1_shifa_c.atlas"
+    },
+    {
+        "id":  "0401",
+        "images":  "D:\\迅雷下载\\特效500个【spine】\\特效500个【spine】\\0401\\effect_skill1_taiji.png",
+        "atlases":  "D:\\迅雷下载\\特效500个【spine】\\特效500个【spine】\\0401\\effect_skill1_taiji.atlas"
+    },
+    {
+        "id":  "0402",
+        "images":  "D:\\迅雷下载\\特效500个【spine】\\特效500个【spine】\\0402\\effect_skill1_yezi.png",
+        "atlases":  "D:\\迅雷下载\\特效500个【spine】\\特效500个【spine】\\0402\\effect_skill1_yezi.atlas"
+    },
+    {
+        "id":  "0403",
+        "images":  "D:\\迅雷下载\\特效500个【spine】\\特效500个【spine】\\0403\\effect_skill2_zhuanquan2.png",
+        "atlases":  "D:\\迅雷下载\\特效500个【spine】\\特效500个【spine】\\0403\\effect_skill2_zhuanquan2.atlas"
+    },
+    {
+        "id":  "0404",
+        "images":  "D:\\迅雷下载\\特效500个【spine】\\特效500个【spine】\\0404\\effect_skill0.png",
+        "atlases":  "D:\\迅雷下载\\特效500个【spine】\\特效500个【spine】\\0404\\effect_skill0.atlas"
+    },
+    {
+        "id":  "0405",
+        "images":  "D:\\迅雷下载\\特效500个【spine】\\特效500个【spine】\\0405\\effect_skill3_back.png",
+        "atlases":  "D:\\迅雷下载\\特效500个【spine】\\特效500个【spine】\\0405\\effect_skill3_back.atlas"
+    },
+    {
+        "id":  "0406",
+        "images":  "D:\\迅雷下载\\特效500个【spine】\\特效500个【spine】\\0406\\effect_skill0_hit.png",
+        "atlases":  "D:\\迅雷下载\\特效500个【spine】\\特效500个【spine】\\0406\\effect_skill0_hit.atlas"
+    },
+    {
+        "id":  "0407",
+        "images":  "D:\\迅雷下载\\特效500个【spine】\\特效500个【spine】\\0407\\effect_skill1.png",
+        "atlases":  "D:\\迅雷下载\\特效500个【spine】\\特效500个【spine】\\0407\\effect_skill1.atlas"
+    },
+    {
+        "id":  "0408",
+        "images":  "D:\\迅雷下载\\特效500个【spine】\\特效500个【spine】\\0408\\effect_skill1_fly.png",
+        "atlases":  "D:\\迅雷下载\\特效500个【spine】\\特效500个【spine】\\0408\\effect_skill1_fly.atlas"
+    },
+    {
+        "id":  "0409",
+        "images":  "D:\\迅雷下载\\特效500个【spine】\\特效500个【spine】\\0409\\effect_skill1_hit.png",
+        "atlases":  "D:\\迅雷下载\\特效500个【spine】\\特效500个【spine】\\0409\\effect_skill1_hit.atlas"
+    },
+    {
+        "id":  "0410",
+        "images":  "D:\\迅雷下载\\特效500个【spine】\\特效500个【spine】\\0410\\effect_skill1_pingmu.png",
+        "atlases":  "D:\\迅雷下载\\特效500个【spine】\\特效500个【spine】\\0410\\effect_skill1_pingmu.atlas"
+    },
+    {
+        "id":  "0411",
+        "images":  "D:\\迅雷下载\\特效500个【spine】\\特效500个【spine】\\0411\\effect_skill1_xuli.png",
+        "atlases":  "D:\\迅雷下载\\特效500个【spine】\\特效500个【spine】\\0411\\effect_skill1_xuli.atlas"
+    },
+    {
+        "id":  "0412",
+        "images":  "D:\\迅雷下载\\特效500个【spine】\\特效500个【spine】\\0412\\effect_skill2_buff.png",
+        "atlases":  "D:\\迅雷下载\\特效500个【spine】\\特效500个【spine】\\0412\\effect_skill2_buff.atlas"
+    },
+    {
+        "id":  "0413",
+        "images":  "D:\\迅雷下载\\特效500个【spine】\\特效500个【spine】\\0413\\effect_skill2_shifa.png",
+        "atlases":  "D:\\迅雷下载\\特效500个【spine】\\特效500个【spine】\\0413\\effect_skill2_shifa.atlas"
+    },
+    {
+        "id":  "0414",
+        "images":  "D:\\迅雷下载\\特效500个【spine】\\特效500个【spine】\\0414\\effect_buff.png",
+        "atlases":  "D:\\迅雷下载\\特效500个【spine】\\特效500个【spine】\\0414\\effect_buff.atlas"
+    },
+    {
+        "id":  "0415",
+        "images":  "D:\\迅雷下载\\特效500个【spine】\\特效500个【spine】\\0415\\effect_fly.png",
+        "atlases":  "D:\\迅雷下载\\特效500个【spine】\\特效500个【spine】\\0415\\effect_fly.atlas"
+    },
+    {
+        "id":  "0416",
+        "images":  "D:\\迅雷下载\\特效500个【spine】\\特效500个【spine】\\0416\\effect_skill0.png",
+        "atlases":  "D:\\迅雷下载\\特效500个【spine】\\特效500个【spine】\\0416\\effect_skill0.atlas"
+    },
+    {
+        "id":  "0417",
+        "images":  "D:\\迅雷下载\\特效500个【spine】\\特效500个【spine】\\0417\\effect_skill0_hit.png",
+        "atlases":  "D:\\迅雷下载\\特效500个【spine】\\特效500个【spine】\\0417\\effect_skill0_hit.atlas"
+    },
+    {
+        "id":  "0418",
+        "images":  "D:\\迅雷下载\\特效500个【spine】\\特效500个【spine】\\0418\\effect_skill1.png",
+        "atlases":  "D:\\迅雷下载\\特效500个【spine】\\特效500个【spine】\\0418\\effect_skill1.atlas"
+    },
+    {
+        "id":  "0419",
+        "images":  "D:\\迅雷下载\\特效500个【spine】\\特效500个【spine】\\0419\\effect_skill1_back.png",
+        "atlases":  "D:\\迅雷下载\\特效500个【spine】\\特效500个【spine】\\0419\\effect_skill1_back.atlas"
+    },
+    {
+        "id":  "0420",
+        "images":  "D:\\迅雷下载\\特效500个【spine】\\特效500个【spine】\\0420\\effect_skill1_hit.png",
+        "atlases":  "D:\\迅雷下载\\特效500个【spine】\\特效500个【spine】\\0420\\effect_skill1_hit.atlas"
+    },
+    {
+        "id":  "0421",
+        "images":  "D:\\迅雷下载\\特效500个【spine】\\特效500个【spine】\\0421\\effect_skill1_kuosan.png",
+        "atlases":  "D:\\迅雷下载\\特效500个【spine】\\特效500个【spine】\\0421\\effect_skill1_kuosan.atlas"
+    },
+    {
+        "id":  "0422",
+        "images":  "D:\\迅雷下载\\特效500个【spine】\\特效500个【spine】\\0422\\effect_skill1_lizi.png",
+        "atlases":  "D:\\迅雷下载\\特效500个【spine】\\特效500个【spine】\\0422\\effect_skill1_lizi.atlas"
+    },
+    {
+        "id":  "0423",
+        "images":  "D:\\迅雷下载\\特效500个【spine】\\特效500个【spine】\\0423\\effect_skill1_pingmu.png",
+        "atlases":  "D:\\迅雷下载\\特效500个【spine】\\特效500个【spine】\\0423\\effect_skill1_pingmu.atlas"
+    },
+    {
+        "id":  "0424",
+        "images":  "D:\\迅雷下载\\特效500个【spine】\\特效500个【spine】\\0424\\effect_skill2.png",
+        "atlases":  "D:\\迅雷下载\\特效500个【spine】\\特效500个【spine】\\0424\\effect_skill2.atlas"
+    },
+    {
+        "id":  "0425",
+        "images":  "D:\\迅雷下载\\特效500个【spine】\\特效500个【spine】\\0425\\effect_hit.png",
+        "atlases":  "D:\\迅雷下载\\特效500个【spine】\\特效500个【spine】\\0425\\effect_hit.atlas"
+    },
+    {
+        "id":  "0426",
+        "images":  "D:\\迅雷下载\\特效500个【spine】\\特效500个【spine】\\0426\\effect_skill0.png",
+        "atlases":  "D:\\迅雷下载\\特效500个【spine】\\特效500个【spine】\\0426\\effect_skill0.atlas"
+    },
+    {
+        "id":  "0427",
+        "images":  "D:\\迅雷下载\\特效500个【spine】\\特效500个【spine】\\0427\\effect_skill1_back.png",
+        "atlases":  "D:\\迅雷下载\\特效500个【spine】\\特效500个【spine】\\0427\\effect_skill1_back.atlas"
+    },
+    {
+        "id":  "0428",
+        "images":  "D:\\迅雷下载\\特效500个【spine】\\特效500个【spine】\\0428\\effect_skill1_fore.png",
+        "atlases":  "D:\\迅雷下载\\特效500个【spine】\\特效500个【spine】\\0428\\effect_skill1_fore.atlas"
+    },
+    {
+        "id":  "0429",
+        "images":  "D:\\迅雷下载\\特效500个【spine】\\特效500个【spine】\\0429\\effect_skill1_hit_back.png",
+        "atlases":  "D:\\迅雷下载\\特效500个【spine】\\特效500个【spine】\\0429\\effect_skill1_hit_back.atlas"
+    },
+    {
+        "id":  "0430",
+        "images":  "D:\\迅雷下载\\特效500个【spine】\\特效500个【spine】\\0430\\effect_skill1_hit_fore.png",
+        "atlases":  "D:\\迅雷下载\\特效500个【spine】\\特效500个【spine】\\0430\\effect_skill1_hit_fore.atlas"
+    },
+    {
+        "id":  "0431",
+        "images":  "D:\\迅雷下载\\特效500个【spine】\\特效500个【spine】\\0431\\effect_skill1_ready.png",
+        "atlases":  "D:\\迅雷下载\\特效500个【spine】\\特效500个【spine】\\0431\\effect_skill1_ready.atlas"
+    },
+    {
+        "id":  "0432",
+        "images":  "D:\\迅雷下载\\特效500个【spine】\\特效500个【spine】\\0432\\effect_skill2.png",
+        "atlases":  "D:\\迅雷下载\\特效500个【spine】\\特效500个【spine】\\0432\\effect_skill2.atlas"
+    },
+    {
+        "id":  "0433",
+        "images":  "D:\\迅雷下载\\特效500个【spine】\\特效500个【spine】\\0433\\effect_skill3.png",
+        "atlases":  "D:\\迅雷下载\\特效500个【spine】\\特效500个【spine】\\0433\\effect_skill3.atlas"
+    },
+    {
+        "id":  "0434",
+        "images":  "D:\\迅雷下载\\特效500个【spine】\\特效500个【spine】\\0434\\effect_skill0.png",
+        "atlases":  "D:\\迅雷下载\\特效500个【spine】\\特效500个【spine】\\0434\\effect_skill0.atlas"
+    },
+    {
+        "id":  "0435",
+        "images":  "D:\\迅雷下载\\特效500个【spine】\\特效500个【spine】\\0435\\effect_skill0_fly.png",
+        "atlases":  "D:\\迅雷下载\\特效500个【spine】\\特效500个【spine】\\0435\\effect_skill0_fly.atlas"
+    },
+    {
+        "id":  "0436",
+        "images":  "D:\\迅雷下载\\特效500个【spine】\\特效500个【spine】\\0436\\effect_skill0_hit.png",
+        "atlases":  "D:\\迅雷下载\\特效500个【spine】\\特效500个【spine】\\0436\\effect_skill0_hit.atlas"
+    },
+    {
+        "id":  "0437",
+        "images":  "D:\\迅雷下载\\特效500个【spine】\\特效500个【spine】\\0437\\effect_skill1_back.png",
+        "atlases":  "D:\\迅雷下载\\特效500个【spine】\\特效500个【spine】\\0437\\effect_skill1_back.atlas"
+    },
+    {
+        "id":  "0438",
+        "images":  "D:\\迅雷下载\\特效500个【spine】\\特效500个【spine】\\0438\\effect_skill1_fly.png",
+        "atlases":  "D:\\迅雷下载\\特效500个【spine】\\特效500个【spine】\\0438\\effect_skill1_fly.atlas"
+    },
+    {
+        "id":  "0439",
+        "images":  "D:\\迅雷下载\\特效500个【spine】\\特效500个【spine】\\0439\\effect_skill1_fore.png",
+        "atlases":  "D:\\迅雷下载\\特效500个【spine】\\特效500个【spine】\\0439\\effect_skill1_fore.atlas"
+    },
+    {
+        "id":  "0440",
+        "images":  "D:\\迅雷下载\\特效500个【spine】\\特效500个【spine】\\0440\\effect_skill1_hit01.png",
+        "atlases":  "D:\\迅雷下载\\特效500个【spine】\\特效500个【spine】\\0440\\effect_skill1_hit01.atlas"
+    },
+    {
+        "id":  "0441",
+        "images":  "D:\\迅雷下载\\特效500个【spine】\\特效500个【spine】\\0441\\effect_skill1_hit02_back.png",
+        "atlases":  "D:\\迅雷下载\\特效500个【spine】\\特效500个【spine】\\0441\\effect_skill1_hit02_back.atlas"
+    },
+    {
+        "id":  "0442",
+        "images":  "D:\\迅雷下载\\特效500个【spine】\\特效500个【spine】\\0442\\effect_skill1_hit02_fore.png",
+        "atlases":  "D:\\迅雷下载\\特效500个【spine】\\特效500个【spine】\\0442\\effect_skill1_hit02_fore.atlas"
+    },
+    {
+        "id":  "0443",
+        "images":  "D:\\迅雷下载\\特效500个【spine】\\特效500个【spine】\\0443\\effect_skill2_sf.png",
+        "atlases":  "D:\\迅雷下载\\特效500个【spine】\\特效500个【spine】\\0443\\effect_skill2_sf.atlas"
+    },
+    {
+        "id":  "0444",
+        "images":  "D:\\迅雷下载\\特效500个【spine】\\特效500个【spine】\\0444\\effect_skill3_back.png",
+        "atlases":  "D:\\迅雷下载\\特效500个【spine】\\特效500个【spine】\\0444\\effect_skill3_back.atlas"
+    },
+    {
+        "id":  "0445",
+        "images":  "D:\\迅雷下载\\特效500个【spine】\\特效500个【spine】\\0445\\effect_skill3_fore.png",
+        "atlases":  "D:\\迅雷下载\\特效500个【spine】\\特效500个【spine】\\0445\\effect_skill3_fore.atlas"
+    },
+    {
+        "id":  "0446",
+        "images":  "D:\\迅雷下载\\特效500个【spine】\\特效500个【spine】\\0446\\effect_skill0.png",
+        "atlases":  "D:\\迅雷下载\\特效500个【spine】\\特效500个【spine】\\0446\\effect_skill0.atlas"
+    },
+    {
+        "id":  "0447",
+        "images":  "D:\\迅雷下载\\特效500个【spine】\\特效500个【spine】\\0447\\effect_skill1.png",
+        "atlases":  "D:\\迅雷下载\\特效500个【spine】\\特效500个【spine】\\0447\\effect_skill1.atlas"
+    },
+    {
+        "id":  "0448",
+        "images":  "D:\\迅雷下载\\特效500个【spine】\\特效500个【spine】\\0448\\effect_skill1_back.png",
+        "atlases":  "D:\\迅雷下载\\特效500个【spine】\\特效500个【spine】\\0448\\effect_skill1_back.atlas"
+    },
+    {
+        "id":  "0449",
+        "images":  "D:\\迅雷下载\\特效500个【spine】\\特效500个【spine】\\0449\\effect_skill1_bao.png",
+        "atlases":  "D:\\迅雷下载\\特效500个【spine】\\特效500个【spine】\\0449\\effect_skill1_bao.atlas"
+    },
+    {
+        "id":  "0450",
+        "images":  "D:\\迅雷下载\\特效500个【spine】\\特效500个【spine】\\0450\\effect_skill1_buff.png",
+        "atlases":  "D:\\迅雷下载\\特效500个【spine】\\特效500个【spine】\\0450\\effect_skill1_buff.atlas"
+    },
+    {
+        "id":  "0451",
+        "images":  "D:\\迅雷下载\\特效500个【spine】\\特效500个【spine】\\0451\\effect_skill1_huo.png",
+        "atlases":  "D:\\迅雷下载\\特效500个【spine】\\特效500个【spine】\\0451\\effect_skill1_huo.atlas"
+    },
+    {
+        "id":  "0452",
+        "images":  "D:\\迅雷下载\\特效500个【spine】\\特效500个【spine】\\0452\\effect_skill1_huogensui.png",
+        "atlases":  "D:\\迅雷下载\\特效500个【spine】\\特效500个【spine】\\0452\\effect_skill1_huogensui.atlas"
+    },
+    {
+        "id":  "0453",
+        "images":  "D:\\迅雷下载\\特效500个【spine】\\特效500个【spine】\\0453\\effect_skill1_xuli.png",
+        "atlases":  "D:\\迅雷下载\\特效500个【spine】\\特效500个【spine】\\0453\\effect_skill1_xuli.atlas"
+    },
+    {
+        "id":  "0454",
+        "images":  "D:\\迅雷下载\\特效500个【spine】\\特效500个【spine】\\0454\\effect_buff_back.png",
+        "atlases":  "D:\\迅雷下载\\特效500个【spine】\\特效500个【spine】\\0454\\effect_buff_back.atlas"
+    },
+    {
+        "id":  "0455",
+        "images":  "D:\\迅雷下载\\特效500个【spine】\\特效500个【spine】\\0455\\effect_buff_fore.png",
+        "atlases":  "D:\\迅雷下载\\特效500个【spine】\\特效500个【spine】\\0455\\effect_buff_fore.atlas"
+    },
+    {
+        "id":  "0456",
+        "images":  "D:\\迅雷下载\\特效500个【spine】\\特效500个【spine】\\0456\\effect_daocaoren.png",
+        "atlases":  "D:\\迅雷下载\\特效500个【spine】\\特效500个【spine】\\0456\\effect_daocaoren.atlas"
+    },
+    {
+        "id":  "0457",
+        "images":  "D:\\迅雷下载\\特效500个【spine】\\特效500个【spine】\\0457\\effect_dg.png",
+        "atlases":  "D:\\迅雷下载\\特效500个【spine】\\特效500个【spine】\\0457\\effect_dg.atlas"
+    },
+    {
+        "id":  "0458",
+        "images":  "D:\\迅雷下载\\特效500个【spine】\\特效500个【spine】\\0458\\effect_hit.png",
+        "atlases":  "D:\\迅雷下载\\特效500个【spine】\\特效500个【spine】\\0458\\effect_hit.atlas"
+    },
+    {
+        "id":  "0459",
+        "images":  "D:\\迅雷下载\\特效500个【spine】\\特效500个【spine】\\0459\\effect_skill0_back.png",
+        "atlases":  "D:\\迅雷下载\\特效500个【spine】\\特效500个【spine】\\0459\\effect_skill0_back.atlas"
+    },
+    {
+        "id":  "0460",
+        "images":  "D:\\迅雷下载\\特效500个【spine】\\特效500个【spine】\\0460\\effect_skill0_fore.png",
+        "atlases":  "D:\\迅雷下载\\特效500个【spine】\\特效500个【spine】\\0460\\effect_skill0_fore.atlas"
+    },
+    {
+        "id":  "0461",
+        "images":  "D:\\迅雷下载\\特效500个【spine】\\特效500个【spine】\\0461\\effect_skill1_back.png",
+        "atlases":  "D:\\迅雷下载\\特效500个【spine】\\特效500个【spine】\\0461\\effect_skill1_back.atlas"
+    },
+    {
+        "id":  "0462",
+        "images":  "D:\\迅雷下载\\特效500个【spine】\\特效500个【spine】\\0462\\effect_skill1_fore.png",
+        "atlases":  "D:\\迅雷下载\\特效500个【spine】\\特效500个【spine】\\0462\\effect_skill1_fore.atlas"
+    },
+    {
+        "id":  "0463",
+        "images":  "D:\\迅雷下载\\特效500个【spine】\\特效500个【spine】\\0463\\effect_skill1_hit_back.png",
+        "atlases":  "D:\\迅雷下载\\特效500个【spine】\\特效500个【spine】\\0463\\effect_skill1_hit_back.atlas"
+    },
+    {
+        "id":  "0464",
+        "images":  "D:\\迅雷下载\\特效500个【spine】\\特效500个【spine】\\0464\\effect_skill1_hit_fore.png",
+        "atlases":  "D:\\迅雷下载\\特效500个【spine】\\特效500个【spine】\\0464\\effect_skill1_hit_fore.atlas"
+    },
+    {
+        "id":  "0465",
+        "images":  "D:\\迅雷下载\\特效500个【spine】\\特效500个【spine】\\0465\\effect_skill2_back.png",
+        "atlases":  "D:\\迅雷下载\\特效500个【spine】\\特效500个【spine】\\0465\\effect_skill2_back.atlas"
+    },
+    {
+        "id":  "0466",
+        "images":  "D:\\迅雷下载\\特效500个【spine】\\特效500个【spine】\\0466\\effect_skill2_fore.png",
+        "atlases":  "D:\\迅雷下载\\特效500个【spine】\\特效500个【spine】\\0466\\effect_skill2_fore.atlas"
+    },
+    {
+        "id":  "0467",
+        "images":  "D:\\迅雷下载\\特效500个【spine】\\特效500个【spine】\\0467\\effect_sg.png",
+        "atlases":  "D:\\迅雷下载\\特效500个【spine】\\特效500个【spine】\\0467\\effect_sg.atlas"
+    },
+    {
+        "id":  "0468",
+        "images":  "D:\\迅雷下载\\特效500个【spine】\\特效500个【spine】\\0468\\effect_skill0_fore.png",
+        "atlases":  "D:\\迅雷下载\\特效500个【spine】\\特效500个【spine】\\0468\\effect_skill0_fore.atlas"
+    },
+    {
+        "id":  "0469",
+        "images":  "D:\\迅雷下载\\特效500个【spine】\\特效500个【spine】\\0469\\effect_skill2_back.png",
+        "atlases":  "D:\\迅雷下载\\特效500个【spine】\\特效500个【spine】\\0469\\effect_skill2_back.atlas"
+    },
+    {
+        "id":  "0470",
+        "images":  "D:\\迅雷下载\\特效500个【spine】\\特效500个【spine】\\0470\\effect_skill2_fore.png",
+        "atlases":  "D:\\迅雷下载\\特效500个【spine】\\特效500个【spine】\\0470\\effect_skill2_fore.atlas"
+    },
+    {
+        "id":  "0471",
+        "images":  "D:\\迅雷下载\\特效500个【spine】\\特效500个【spine】\\0471\\effect_skill3_fore.png",
+        "atlases":  "D:\\迅雷下载\\特效500个【spine】\\特效500个【spine】\\0471\\effect_skill3_fore.atlas"
+    },
+    {
+        "id":  "0472",
+        "images":  "D:\\迅雷下载\\特效500个【spine】\\特效500个【spine】\\0472\\effect_skill2_hit01_back.png",
+        "atlases":  "D:\\迅雷下载\\特效500个【spine】\\特效500个【spine】\\0472\\effect_skill2_hit01_back.atlas"
+    },
+    {
+        "id":  "0473",
+        "images":  "D:\\迅雷下载\\特效500个【spine】\\特效500个【spine】\\0473\\effect_skill2_hit01_fore.png",
+        "atlases":  "D:\\迅雷下载\\特效500个【spine】\\特效500个【spine】\\0473\\effect_skill2_hit01_fore.atlas"
+    },
+    {
+        "id":  "0474",
+        "images":  "D:\\迅雷下载\\特效500个【spine】\\特效500个【spine】\\0474\\effect_skill2_hit02_back.png",
+        "atlases":  "D:\\迅雷下载\\特效500个【spine】\\特效500个【spine】\\0474\\effect_skill2_hit02_back.atlas"
+    },
+    {
+        "id":  "0475",
+        "images":  "D:\\迅雷下载\\特效500个【spine】\\特效500个【spine】\\0475\\effect_skill2_hit02_fore.png",
+        "atlases":  "D:\\迅雷下载\\特效500个【spine】\\特效500个【spine】\\0475\\effect_skill2_hit02_fore.atlas"
+    },
+    {
+        "id":  "0476",
+        "images":  "D:\\迅雷下载\\特效500个【spine】\\特效500个【spine】\\0476\\effect_skill2_juan.png",
+        "atlases":  "D:\\迅雷下载\\特效500个【spine】\\特效500个【spine】\\0476\\effect_skill2_juan.atlas"
+    },
+    {
+        "id":  "0477",
+        "images":  "D:\\迅雷下载\\特效500个【spine】\\特效500个【spine】\\0477\\effect_hit.png",
+        "atlases":  "D:\\迅雷下载\\特效500个【spine】\\特效500个【spine】\\0477\\effect_hit.atlas"
+    },
+    {
+        "id":  "0478",
+        "images":  "D:\\迅雷下载\\特效500个【spine】\\特效500个【spine】\\0478\\effect_xuanyun.png",
+        "atlases":  "D:\\迅雷下载\\特效500个【spine】\\特效500个【spine】\\0478\\effect_xuanyun.atlas"
+    },
+    {
+        "id":  "0479",
+        "images":  "D:\\迅雷下载\\特效500个【spine】\\特效500个【spine】\\0479\\effect_skill0_daoguang.png",
+        "atlases":  "D:\\迅雷下载\\特效500个【spine】\\特效500个【spine】\\0479\\effect_skill0_daoguang.atlas"
+    },
+    {
+        "id":  "0480",
+        "images":  "D:\\迅雷下载\\特效500个【spine】\\特效500个【spine】\\0480\\effect_skill0_hit.png",
+        "atlases":  "D:\\迅雷下载\\特效500个【spine】\\特效500个【spine】\\0480\\effect_skill0_hit.atlas"
+    },
+    {
+        "id":  "0481",
+        "images":  "D:\\迅雷下载\\特效500个【spine】\\特效500个【spine】\\0481\\effect_skill1_hit.png",
+        "atlases":  "D:\\迅雷下载\\特效500个【spine】\\特效500个【spine】\\0481\\effect_skill1_hit.atlas"
+    },
+    {
+        "id":  "0482",
+        "images":  "D:\\迅雷下载\\特效500个【spine】\\特效500个【spine】\\0482\\effect_skill3_long.png",
+        "atlases":  "D:\\迅雷下载\\特效500个【spine】\\特效500个【spine】\\0482\\effect_skill3_long.atlas"
+    },
+    {
+        "id":  "0483",
+        "images":  "D:\\迅雷下载\\特效500个【spine】\\特效500个【spine】\\0483\\effect_skill1_shifa_a.png",
+        "atlases":  "D:\\迅雷下载\\特效500个【spine】\\特效500个【spine】\\0483\\effect_skill1_shifa_a.atlas"
+    },
+    {
+        "id":  "0484",
+        "images":  "D:\\迅雷下载\\特效500个【spine】\\特效500个【spine】\\0484\\effect_skill1_shifa_b.png",
+        "atlases":  "D:\\迅雷下载\\特效500个【spine】\\特效500个【spine】\\0484\\effect_skill1_shifa_b.atlas"
+    },
+    {
+        "id":  "0485",
+        "images":  "",
+        "atlases":  "D:\\迅雷下载\\特效500个【spine】\\特效500个【spine】\\0485\\skeleton_skill0.atlas"
+    },
+    {
+        "id":  "0486",
+        "images":  "D:\\迅雷下载\\特效500个【spine】\\特效500个【spine】\\0486\\effect_skill1_zhizi.png",
+        "atlases":  "D:\\迅雷下载\\特效500个【spine】\\特效500个【spine】\\0486\\effect_skill1_zhizi.atlas"
+    },
+    {
+        "id":  "0487",
+        "images":  "D:\\迅雷下载\\特效500个【spine】\\特效500个【spine】\\0487\\effect_skill1_zhuye.png",
+        "atlases":  "D:\\迅雷下载\\特效500个【spine】\\特效500个【spine】\\0487\\effect_skill1_zhuye.atlas"
+    },
+    {
+        "id":  "0488",
+        "images":  "D:\\迅雷下载\\特效500个【spine】\\特效500个【spine】\\0488\\effect_skill2_buff.png",
+        "atlases":  "D:\\迅雷下载\\特效500个【spine】\\特效500个【spine】\\0488\\effect_skill2_buff.atlas"
+    },
+    {
+        "id":  "0489",
+        "images":  "D:\\迅雷下载\\特效500个【spine】\\特效500个【spine】\\0489\\effect_skill2_buff_back.png",
+        "atlases":  "D:\\迅雷下载\\特效500个【spine】\\特效500个【spine】\\0489\\effect_skill2_buff_back.atlas"
+    },
+    {
+        "id":  "0490",
+        "images":  "D:\\迅雷下载\\特效500个【spine】\\特效500个【spine】\\0490\\effect_skill2_niao.png",
+        "atlases":  "D:\\迅雷下载\\特效500个【spine】\\特效500个【spine】\\0490\\effect_skill2_niao.atlas"
+    },
+    {
+        "id":  "0491",
+        "images":  "D:\\迅雷下载\\特效500个【spine】\\特效500个【spine】\\0491\\effect_skill2_shifa.png",
+        "atlases":  "D:\\迅雷下载\\特效500个【spine】\\特效500个【spine】\\0491\\effect_skill2_shifa.atlas"
+    },
+    {
+        "id":  "0492",
+        "images":  "D:\\迅雷下载\\特效500个【spine】\\特效500个【spine】\\0492\\effect_skill0.png",
+        "atlases":  "D:\\迅雷下载\\特效500个【spine】\\特效500个【spine】\\0492\\effect_skill0.atlas"
+    },
+    {
+        "id":  "0493",
+        "images":  "D:\\迅雷下载\\特效500个【spine】\\特效500个【spine】\\0493\\effect_ready_hit.png",
+        "atlases":  "D:\\迅雷下载\\特效500个【spine】\\特效500个【spine】\\0493\\effect_ready_hit.atlas"
+    },
+    {
+        "id":  "0494",
+        "images":  "D:\\迅雷下载\\特效500个【spine】\\特效500个【spine】\\0494\\effect_skill0_hit.png",
+        "atlases":  "D:\\迅雷下载\\特效500个【spine】\\特效500个【spine】\\0494\\effect_skill0_hit.atlas"
+    },
+    {
+        "id":  "0495",
+        "images":  "",
+        "atlases":  "D:\\迅雷下载\\特效500个【spine】\\特效500个【spine】\\0495\\skeleton_skill1_shifa.atlas"
+    },
+    {
+        "id":  "0496",
+        "images":  "D:\\迅雷下载\\特效500个【spine】\\特效500个【spine】\\0496\\effect_skill1.png",
+        "atlases":  "D:\\迅雷下载\\特效500个【spine】\\特效500个【spine】\\0496\\effect_skill1.atlas"
+    },
+    {
+        "id":  "0497",
+        "images":  "D:\\迅雷下载\\特效500个【spine】\\特效500个【spine】\\0497\\effect_skill1_hit.png",
+        "atlases":  "D:\\迅雷下载\\特效500个【spine】\\特效500个【spine】\\0497\\effect_skill1_hit.atlas"
+    },
+    {
+        "id":  "0498",
+        "images":  "D:\\迅雷下载\\特效500个【spine】\\特效500个【spine】\\0498\\effect_skill1_ready.png",
+        "atlases":  "D:\\迅雷下载\\特效500个【spine】\\特效500个【spine】\\0498\\effect_skill1_ready.atlas"
+    },
+    {
+        "id":  "0499",
+        "images":  "D:\\迅雷下载\\特效500个【spine】\\特效500个【spine】\\0499\\effect_skill2.png",
+        "atlases":  "D:\\迅雷下载\\特效500个【spine】\\特效500个【spine】\\0499\\effect_skill2.atlas"
+    },
+    {
+        "id":  "0500",
+        "images":  "D:\\迅雷下载\\特效500个【spine】\\特效500个【spine】\\0500\\effect_skill2_hit.png",
+        "atlases":  "D:\\迅雷下载\\特效500个【spine】\\特效500个【spine】\\0500\\effect_skill2_hit.atlas"
+    }
+]

@@ -2,7 +2,7 @@
 <html lang="zh-CN">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
     <title>宝石战争 · 三消战斗</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -13,24 +13,61 @@
         padding: 0;
         width: 100%;
         height: 100%;
+        min-height: 100dvh;
         overflow: hidden;
         background: #0e0e16;
         touch-action: none;
       }
       #app {
+        position: relative;
+        box-sizing: border-box;
         width: 100%;
         height: 100%;
+        min-height: 100dvh;
+        padding: env(safe-area-inset-top) env(safe-area-inset-right)
+          env(safe-area-inset-bottom) env(safe-area-inset-left);
         display: flex;
         align-items: center;
         justify-content: center;
+        overflow: hidden;
       }
-      #app:fullscreen {
-        background: #0e0e16;
+      #app:fullscreen { background: #0e0e16; }
+      #orientation-gate {
+        position: absolute;
+        inset: 0;
+        z-index: 10000;
+        display: none;
+        align-items: center;
+        justify-content: center;
+        flex-direction: column;
+        gap: 12px;
+        padding: max(24px, env(safe-area-inset-top)) max(24px, env(safe-area-inset-right))
+          max(24px, env(safe-area-inset-bottom)) max(24px, env(safe-area-inset-left));
+        box-sizing: border-box;
+        color: #f0e2bf;
+        background: radial-gradient(circle at 50% 42%, #29233d 0%, #0e0e16 66%);
+        text-align: center;
+        font-family: "Oswald", "PingFang SC", "Microsoft YaHei", sans-serif;
+      }
+      #orientation-gate strong { font: 700 22px/1.25 "Playfair Display", Georgia, serif; }
+      #orientation-gate span { max-width: 28em; color: #b9ab84; font-size: 14px; line-height: 1.6; }
+      #app[data-viewport-blocked="true"] #orientation-gate { display: flex; }
+      #app[data-viewport-blocked="true"] > .battle-wrapper {
+        visibility: hidden;
+        pointer-events: none;
+      }
+      @media (orientation: portrait) {
+        #orientation-gate { display: flex; }
       }
     </style>
   </head>
   <body>
-    <div id="app"></div>
+    <div id="app" data-viewport-blocked="true">
+      <div id="orientation-gate" role="status" aria-live="polite">
+        <strong>请将设备旋转为横屏</strong>
+        <span>战斗仅支持横屏显示，以保证棋盘和触控区域清晰可用。</span>
+      </div>
+    </div>
     <script type="module" src="/src/main.ts"></script>
   </body>
 </html>

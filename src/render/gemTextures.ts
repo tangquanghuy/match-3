@@ -23,27 +23,35 @@ const COLOR_URL: Record<BaseColor, string> = {
 const colorTex = new Map<BaseColor, Texture>();
 let skullTex: Texture | null = null;
 let loaded = false;
+let loadPromise: Promise<void> | null = null;
 
 /**
  * 预加载全部宝石贴图（需求 21.4）。
- * 失败不抛出：GemSprite 会回退到程序化绘制，保证可玩。
+ * 失败不抛出：GemSprite 会回退到程序化绘制，保证可玩；重复调用复用同一任务。
  */
-export async function loadGemTextures(): Promise<void> {
-  try {
-    const entries = Object.entries(COLOR_URL) as [BaseColor, string][];
-    await Promise.all([
-      ...entries.map(async ([color, url]) => {
-        colorTex.set(color, await Assets.load(url));
-      }),
-      (async () => {
-        skullTex = await Assets.load(skullUrl);
-      })(),
-    ]);
-    loaded = true;
-  } catch (err) {
-    console.warn('宝石贴图加载失败，回退到程序化绘制：', err);
-    loaded = false;
-  }
+export function loadGemTextures(): Promise<void> {
+  if (loaded) return Promise.resolve();
+  if (loadPromise) return loadPromise;
+  loadPromise = (async () => {
+    try {
+      const entries = Object.entries(COLOR_URL) as [BaseColor, string][];
+      await Promise.all([
+        ...entries.map(async ([color, url]) => {
+          colorTex.set(color, await Assets.load(url));
+        }),
+        (async () => {
+          skullTex = await Assets.load(skullUrl);
+        })(),
+      ]);
+      loaded = true;
+    } catch (err) {
+      console.warn('宝石贴图加载失败，回退到程序化绘制：', err);
+      loaded = false;
+    } finally {
+      loadPromise = null;
+    }
+  })();
+  return loadPromise;
 }
 
 export function gemTexturesReady(): boolean {

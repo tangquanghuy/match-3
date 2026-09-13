@@ -2,13 +2,14 @@ import type { GameState } from './GameState';
 import type { GameEvent } from './events';
 import { PlayerSide, opponentOf } from './types';
 import { CombatResolver } from './CombatResolver';
+import type { SkillPrototype } from './skills/prototypes';
 
 /**
  * 扩展点接口与注册表（需求 20）。
- * 本阶段提供默认实现，具体技能/状态/特殊宝石行为留待后续阶段。
+ * 技能行为由「技能原型」提供（skills/prototypes.ts），经本注册表按 skillId 查表。
  */
 
-/** 技能效果接口（需求 20.2）—— 本阶段无具体实现 */
+/** 技能效果接口（需求 20.2）—— 低层自定义技能可直接实现该接口 */
 export interface SkillEffect {
   apply(state: GameState, casterId: number): GameEvent[];
 }
@@ -36,7 +37,10 @@ export class DefaultFrontTargetSelector implements TargetSelector {
 
 /** 集中注册表 */
 export class ExtensionRegistry {
+  /** 低层自定义技能效果（可选，优先级高于原型） */
   skills = new Map<string, SkillEffect>();
+  /** 技能原型：skillId → 原型（目标 + 效果段），由 castSkill 执行（需求 11.2） */
+  prototypes = new Map<string, SkillPrototype>();
   statuses = new Map<string, StatusEffectHandler>();
   targetSelector: TargetSelector = new DefaultFrontTargetSelector();
 }

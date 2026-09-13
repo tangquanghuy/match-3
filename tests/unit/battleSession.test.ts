@@ -1,0 +1,147 @@
+import { describe, it, expect } from 'vitest';
+import { BoardModel } from '@engine/BoardModel';
+import { TurnEngine } from '@engine/TurnEngine';
+import { createGameState } from '@engine/GameState';
+import { ExtensionRegistry } from '@engine/registry';
+import { SeededRNG } from '@engine/rng';
+import { BaseColor, PlayerSide, colorGem } from '@engine/types';
+import type { Gem, GemType } from '@engine/types';
+import {
+  BATTLE_SCHEMA_VERSION,
+  BattleSession,
+  RULESET_VERSION,
+  mapRequestToTeams,
+} from '@session/index';
+import type { BattleRequest, CombatantSnapshot } from '@session/index';
+
+let gid = 0;
+const g = (type: GemType): Gem => ({ id: gid++, type });
+
+function snapshot(over: Partial<CombatantSnapshot> = {}): CombatantSnapshot {
+  return {
+    externalId: 'x',
+    name: 'C',
+    stats: { hp: 40, attack: 4, armor: 0, magic: 6 },
+    manaColors: [BaseColor.Red],
+    manaCost: 10,
+    skillId: 'plain',
+    traitIds: [],
+    ...over,
+  };
+}
+
+function makeRequest(): BattleRequest {
+  return {
+    schemaVersion: BATTLE_SCHEMA_VERSION,
+    battleId: 'b1',
+    requestId: 'r1',
+    rulesetVersion: RULESET_VERSION,
+    seed: 99,
+    playerTeam: [snapshot({ externalId: 'p1' })],
+    enemyTeam: [snapshot({ externalId: 'e1', stats: { hp: 12, attack: 4, armor: 0, magic: 1 } })],
+  };
+}
+
+/** 造一场可控战斗：静态棋盘 + 底行一处合法交换 + 一个纯伤害技能。 */
+function setup(damage = 3) {
+  const request = makeRequest();
+  const { playerTeam, enemyTeam, idMap } = mapRequestToTeams(request);
+
+  const board = new BoardModel();
+  const palette = [BaseColor.Blue, BaseColor.Green, BaseColor.Yellow, BaseColor.Purple];
+  for (let r = 0; r < 8; r++) {
+    for (let c = 0; c < 8; c++) {
+      board.set({ row: r, col: c }, g(colorGem(palette[(r + c) % palette.length])));
+    }
+  }
+  board.set({ row: 7, col: 0 }, g(colorGem(BaseColor.Red)));
+  board.set({ row: 7, col: 1 }, g(colorGem(BaseColor.Red)));
+  board.set({ row: 6, col: 2 }, g(colorGem(BaseColor.Red)));
+  board.set({ row: 7, col: 2 }, g(colorGem(BaseColor.Green)));
+  board.set({ row: 5, col: 2 }, g(colorGem(BaseColor.Blue)));
+
+  const registry = new ExtensionRegistry();
+  registry.prototypes.set('plain', {
+    segments: [{ kind: 'damage', target: 'enemyFront', scaling: { base: damage, mult: 0 } }],
+  });
+
+  const state = createGameState(board, playerTeam, enemyTeam);
+  let idg = 700000;
+  const engine = new TurnEngine(state, new SeededRNG(request.seed), () => idg++, registry);
+  engine.skullChance = 0;
+
+  const session = new BattleSession({ request, idMap, engine });
+  return { session, state, request };
+}
+
+describe('BattleSession 生命周期（设计 §2）', () => {
+  it('提交行动会累积事件流', () => {
+    const { session } = setup();
+    expect(session.recordedEvents()).toHaveLength(0);
+
+    const events = session.resolve({ type: 'swap', from: { row: 7, col: 2 }, to: { row: 6, col: 2 } });
+    expect(events.length).toBeGreaterThan(0);
+    expect(session.recordedEvents()).toHaveLength(events.length);
+
+    const before = session.recordedEvents().length;
+    session.passTurn();
+    expect(session.recordedEvents().length).toBeGreaterThan(before);
+  });
+
+  it('被拒绝的行动不产生事件也不污染累计', () => {
+    const { session } = setup();
+    // 非相邻交换：引擎直接拒绝
+    expect(session.resolve({ type: 'swap', from: { row: 0, col: 0 }, to: { row: 5, col: 5 } })).toEqual([]);
+    // 法力不足：施法被拒绝
+    expect(session.resolve({ type: 'cast', characterId: 0 })).toEqual([]);
+    expect(session.recordedEvents()).toHaveLength(0);
+    expect(session.getState().actionLog).toHaveLength(0);
+  });
+
+  it('未结束时 isFinished 为假且拒绝导出结果', () => {
+    const { session } = setup();
+    expect(session.isFinished()).toBe(false);
+    expect(() => session.buildResult()).toThrow(/尚未结束/);
+  });
+
+  it('结束后导出结果，并含累积事件的摘要', () => {
+    const { session, state } = setup(999);
+    state.teams[PlayerSide.Left].characters[0].mana = 10;
+    session.resolve({ type: 'cast', characterId: 0 });
+
+    expect(session.isFinished()).toBe(true);
+    const result = session.buildResult();
+    expect(result).toMatchObject({
+      battleId: 'b1',
+      requestId: 'r1',
+      winner: 'player',
+      turns: 1,
+      defeatedExternalIds: ['e1'],
+    });
+    expect(result.eventSummary.find((s) => s.type === 'skill-cast')?.count).toBe(1);
+    expect(result.actionLogDigest).toMatch(/^[0-9a-f]{8}$/);
+  });
+
+  it('结果只算一次：多次导出返回同一份数据', () => {
+    const { session, state } = setup(999);
+    state.teams[PlayerSide.Left].characters[0].mana = 10;
+    session.resolve({ type: 'cast', characterId: 0 });
+
+    const first = session.buildResult();
+    const second = session.buildResult();
+    expect(second).toBe(first);
+  });
+
+  it('多次行动的事件全部计入摘要，回合数不含额外回合', () => {
+    const { session, state } = setup(3);
+    // 一次交换 + 一次施法
+    session.resolve({ type: 'swap', from: { row: 7, col: 2 }, to: { row: 6, col: 2 } });
+    state.teams[PlayerSide.Right].characters[0].mana = 10;
+    session.resolve({ type: 'cast', characterId: 4 });
+
+    const log = session.getState().actionLog;
+    expect(log.map((e) => e.action.type)).toEqual(['swap', 'cast']);
+    const swapEvents = session.recordedEvents().filter((e) => e.type === 'swap');
+    expect(swapEvents).toHaveLength(1);
+  });
+});

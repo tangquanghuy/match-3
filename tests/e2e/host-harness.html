@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <title>AIRP 宿主联调页</title>
+    <style>
+      html, body { margin: 0; height: 100%; background: #0e0e16; color: #e6d6ad;
+        font-family: Oswald, "PingFang SC", sans-serif; }
+      #frame { display: block; border: 0; width: 100%; height: 100%; }
+    </style>
+  </head>
+  <body>
+    <!--
+      开发/自动化用的假宿主：模拟 AIRP 侧的 postMessage 行为。
+      不参与生产构建（vite build 只打包 index.html 与 skills-test.html）。
+    -->
+    <iframe id="frame" data-testid="battle-frame" src="/" title="战斗"></iframe>
+    <script type="module">
+      const SCHEMA_VERSION = 1;
+      const RULESET_VERSION = '1.0.0';
+
+      const combatant = (externalId, name, skillId, magic) => ({
+        externalId,
+        name,
+        portraitUrl: `https://rpg.bolt.qzz.io/封面/${name}.webp`,
+        stats: { hp: 40, attack: 4, armor: 0, magic },
+        manaColors: ['Red'],
+        manaCost: 12,
+        skillId,
+        traitIds: [],
+      });
+
+      // 宿主下发的队伍故意与本地 fixture 不同，便于断言"用的是宿主数据"
+      const buildRequest = (over = {}) => ({
+        schemaVersion: SCHEMA_VERSION,
+        battleId: 'host-battle-1',
+        requestId: 'host-req-1',
+        rulesetVersion: RULESET_VERSION,
+        seed: 4242,
+        playerTeam: [
+          combatant('host-p1', '宿主甲', '7004', 6),
+          combatant('host-p2', '宿主乙', '7155', 8),
+        ],
+        enemyTeam: [
+          combatant('host-e1', '宿主丙', '7004', 6),
+          combatant('host-e2', '宿主丁', '7132', 8),
+        ],
+        ...over,
+      });
+
+      const harness = {
+        messages: [],
+        lastResult: null,
+        lastError: null,
+        ackEnabled: true,
+        request: buildRequest(),
+        startsSent: 0,
+      };
+      window.__harness = harness;
+
+      const frame = document.getElementById('frame');
+      const post = (message) => frame.contentWindow.postMessage(message, window.location.origin);
+
+      harness.sendStart = (over) => {
+        const request = over === undefined ? harness.request : buildRequest(over);
+        harness.request = request;
+        harness.startsSent += 1;
+        post({
+          schemaVersion: SCHEMA_VERSION,
+          type: 'battle:start',
+          battleId: request.battleId,
+          requestId: request.requestId,
+          request,
+        });
+      };
+
+      harness.sendAck = (battleId, requestId) => {
+        post({
+          schemaVersion: SCHEMA_VERSION,
+          type: 'battle:result-ack',
+          battleId,
+          requestId,
+        });
+      };
+
+      window.addEventListener('message', (event) => {
+        if (event.origin !== window.location.origin) return;
+        const data = event.data;
+        if (typeof data !== 'object' || data === null || typeof data.type !== 'string') return;
+        if (!data.type.startsWith('battle:')) return;
+
+        harness.messages.push(data);
+        if (data.type === 'battle:ready') harness.sendStart();
+        if (data.type === 'battle:error') harness.lastError = data.error;
+        if (data.type === 'battle:result') {
+          harness.lastResult = data.result;
+          if (harness.ackEnabled) harness.sendAck(data.battleId, data.requestId);
+        }
+      });
+    </script>
+  </body>
+</html>

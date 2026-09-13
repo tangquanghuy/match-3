@@ -1,6 +1,6 @@
 import { BoardModel } from './BoardModel';
 import { MatchState, PlayerSide } from './types';
-import type { Team } from './types';
+import type { ActionLogEntry, Team } from './types';
 
 /** 全局对局状态（需求） */
 export interface GameState {
@@ -10,6 +10,8 @@ export interface GameState {
   state: MatchState;
   chainCount: number;
   winner: PlayerSide | null;
+  /** 已受理行动的结构化日志，按提交顺序追加（需求 1.5、3.6） */
+  actionLog: ActionLogEntry[];
 }
 
 /** 创建初始对局状态 */
@@ -29,5 +31,6 @@ export function createGameState(
     state: MatchState.AwaitingInput,
     chainCount: 0,
     winner: null,
+    actionLog: [],
   };
 }

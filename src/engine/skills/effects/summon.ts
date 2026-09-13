@@ -1,0 +1,143 @@
+/**
+ * 召唤与额外回合技能效果（战斗技能系统 · 需求 10.2, 10.3, 10.4）。
+ *
+ * - extraTurnEffect：使当前玩家保留回合（复用回合经济，需求 10.2），发 extra-turn 事件。
+ * - summonEffect: fills up to four active slots, then appends further summons to a FIFO bench.
+ *
+ * 纯逻辑：无 pixi/gsap/dom 依赖。
+ */
+import type { GameEvent, ExtraTurnEvent, SummonEvent } from '../../events';
+import type { Character } from '../../types';
+import { MAX_ACTIVE_TEAM_SIZE, summonQueueOf } from '../../teamRoster';
+import type { EffectContext, EffectPrimitive } from './context';
+import { findSide } from './context';
+
+/**
+ * 额外回合效果（需求 10.2）。发 extra-turn 事件并（若引擎注入）保留当前玩家回合。
+ */
+export function extraTurnEffect(): EffectPrimitive {
+  return {
+    apply(ctx: EffectContext): GameEvent[] {
+      const side = findSide(ctx.state, ctx.casterId);
+      if (side === null) return [];
+      ctx.grantExtraTurn?.();
+      const ev: ExtraTurnEvent = { type: 'extra-turn', player: side, source: 'skill' };
+      return [ev];
+    },
+  };
+}
+
+/** 队伍最大容量（与 4 人上限一致；队伍数组长度可小于此值时有空位） */
+export const MAX_TEAM_SIZE = MAX_ACTIVE_TEAM_SIZE;
+
+/** 召唤物属性模板（引擎所需数值属性；不含表现层字段） */
+export type SummonTemplate = Omit<Character, 'id' | 'defeated' | 'statuses'>;
+
+/**
+ * 召唤物来源定义（需求 7.1）。每个召唤技能显式指定召唤谁：
+ *   - template：直接给一份手写属性模板
+ *   - ref：引用一个已有兵种 referenceName（由 resolveRef 映射为模板）
+ *   - randomOf：候选 referenceName 集合，执行期用种子化 RNG 确定性选一个
+ */
+export type SummonSource =
+  | { template: SummonTemplate; troopId?: number }
+  | { ref: string; troopId?: number }
+  | { randomOf: string[]; troopId?: number };
+
+export interface SummonParams {
+  /** 召唤物来源 */
+  source: SummonSource;
+  /**
+   * referenceName → 召唤物模板的映射器（由装配层注入，来自 troops 数据）。
+   * ref/randomOf 需要它；template 来源不需要。缺失或映射失败时安全跳过。
+   */
+  resolveRef?: (referenceName: string) => SummonTemplate | null;
+  /** 被召唤兵种 id（troopId），供表现层取立绘/数据（可选） */
+  troopId?: number;
+}
+
+/** 计算队伍中下一个新角色 id（现有最大 id + 1），保证确定性 */
+function deriveCharId(ctx: EffectContext): number {
+  if (ctx.nextCharId) return ctx.nextCharId();
+  let max = 0;
+  for (const side of ['Left', 'Right'] as const) {
+    const team = ctx.state.teams[side];
+    for (const c of team.characters) {
+      if (c.id > max) max = c.id;
+    }
+    for (const queued of team.summonQueue ?? []) {
+      if (queued.character.id > max) max = queued.character.id;
+    }
+  }
+  return max + 1;
+}
+
+/**
+ * 把召唤来源解析为具体属性模板（需求 7.1, 7.3, 7.4）。
+ * template→直接用；ref→经 resolveRef 映射；randomOf→种子化选一个再映射。
+ * 无法解析返回 null（调用方安全跳过）。
+ */
+function resolveTemplate(params: SummonParams, ctx: EffectContext): SummonTemplate | null {
+  const src = params.source;
+  if ('template' in src) return src.template;
+  if ('ref' in src) return params.resolveRef?.(src.ref) ?? null;
+  // randomOf：确定性选取
+  if (src.randomOf.length === 0) return null;
+  const pick = src.randomOf[ctx.rng.nextInt(src.randomOf.length)];
+  return params.resolveRef?.(pick) ?? null;
+}
+
+/**
+ * Append a summon to the active bottom while below four characters.
+ * A full active roster stores subsequent summons on a FIFO bench.
+ */
+export function summonEffect(params: SummonParams): EffectPrimitive {
+  return {
+    apply(ctx: EffectContext): GameEvent[] {
+      const side = findSide(ctx.state, ctx.casterId);
+      if (side === null) return [];
+
+      const template = resolveTemplate(params, ctx);
+      if (template === null) return []; // 召唤物无法解析，安全跳过
+
+      const team = ctx.state.teams[side];
+      // Keep the active roster free of stale defeated entries. Normal engine flow removes
+      // them at defeat time; this also preserves sane behavior for direct primitive tests.
+      team.characters = team.characters.filter((character) => !character.defeated);
+
+      const id = deriveCharId(ctx);
+      const troopId = params.troopId ?? src_troopId(params.source);
+      const summoned: Character = { ...template, id, defeated: false, statuses: [] };
+
+      if (team.characters.length < MAX_ACTIVE_TEAM_SIZE) {
+        team.characters.push(summoned);
+        const ev: SummonEvent = {
+          type: 'summon',
+          player: side,
+          slot: team.characters.length - 1,
+          troopId,
+          characterId: id,
+          destination: 'field',
+        };
+        return [ev];
+      }
+
+      const queue = summonQueueOf(team);
+      queue.push({ character: summoned, troopId });
+      const ev: SummonEvent = {
+        type: 'summon',
+        player: side,
+        slot: queue.length - 1,
+        troopId,
+        characterId: id,
+        destination: 'queue',
+      };
+      return [ev];
+    },
+  };
+}
+
+/** 从来源取可选 troopId（表现层用） */
+function src_troopId(src: SummonSource): number {
+  return src.troopId ?? -1;
+}

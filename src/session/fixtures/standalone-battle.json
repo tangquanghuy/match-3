@@ -1,0 +1,97 @@
+{
+  "_comment": "独立网页调试用的默认战斗配置。结构就是宿主要下发的 BattleRequest，改这个文件即可换队伍，不需要改代码。宿主接入后由 postMessage 传入同结构的 request 覆盖它。每队写满 4 人，3v3 调试模式取前 3 人。skillId 必须是已注册技能（见 src/engine/skills/library.ts 的 SKILL_LIBRARY key）。",
+  "schemaVersion": 1,
+  "battleId": "standalone-local",
+  "requestId": "standalone-local-1",
+  "rulesetVersion": "1.0.0",
+  "seed": 20260830,
+  "playerTeam": [
+    {
+      "externalId": "player-falute",
+      "name": "法露特",
+      "portraitUrl": "https://rpg.bolt.qzz.io/封面/法露特.webp",
+      "stats": { "hp": 40, "attack": 4, "armor": 0, "magic": 6 },
+      "manaColors": ["Red"],
+      "manaCost": 12,
+      "skillId": "7004",
+      "troopTypes": ["Knight"],
+      "traitIds": ["armored", "fast", "knightbond"]
+    },
+    {
+      "externalId": "player-orchis",
+      "name": "奥契丝",
+      "portraitUrl": "https://rpg.bolt.qzz.io/封面/奥契丝.webp",
+      "stats": { "hp": 40, "attack": 4, "armor": 0, "magic": 8 },
+      "manaColors": ["Blue", "Purple"],
+      "manaCost": 12,
+      "skillId": "7062",
+      "troopTypes": ["Elf"],
+      "traitIds": []
+    },
+    {
+      "externalId": "player-lumiere",
+      "name": "璐米欧儿",
+      "portraitUrl": "https://rpg.bolt.qzz.io/封面/璐米欧儿.webp",
+      "stats": { "hp": 40, "attack": 4, "armor": 0, "magic": 10 },
+      "manaColors": ["Green", "Yellow", "Red"],
+      "manaCost": 12,
+      "skillId": "7063",
+      "troopTypes": ["Knight"],
+      "traitIds": ["regeneration", "spellarmor"]
+    },
+    {
+      "externalId": "player-seiji",
+      "name": "星极",
+      "portraitUrl": "https://rpg.bolt.qzz.io/封面/星极.webp",
+      "stats": { "hp": 40, "attack": 4, "armor": 0, "magic": 12 },
+      "manaColors": ["Blue", "Green", "Yellow", "Purple", "Brown", "Red"],
+      "manaCost": 12,
+      "skillId": "7155",
+      "traitIds": []
+    }
+  ],
+  "enemyTeam": [
+    {
+      "externalId": "enemy-yato",
+      "name": "夜斗",
+      "portraitUrl": "https://rpg.bolt.qzz.io/封面/夜斗.webp",
+      "stats": { "hp": 40, "attack": 4, "armor": 0, "magic": 6 },
+      "manaColors": ["Red"],
+      "manaCost": 12,
+      "skillId": "7004",
+      "troopTypes": ["Daemon"],
+      "traitIds": ["stoneskin", "agile"]
+    },
+    {
+      "externalId": "enemy-hii",
+      "name": "绯",
+      "portraitUrl": "https://rpg.bolt.qzz.io/封面/绯.webp",
+      "stats": { "hp": 40, "attack": 4, "armor": 0, "magic": 8 },
+      "manaColors": ["Blue", "Purple"],
+      "manaCost": 12,
+      "skillId": "7132",
+      "troopTypes": ["Daemon"],
+      "traitIds": ["venomous", "sturdy", "infernalarmor"]
+    },
+    {
+      "externalId": "enemy-cancer-knight",
+      "name": "癌骑士",
+      "portraitUrl": "https://rpg.bolt.qzz.io/封面/癌骑士.webp",
+      "stats": { "hp": 40, "attack": 4, "armor": 0, "magic": 10 },
+      "manaColors": ["Green", "Yellow", "Red"],
+      "manaCost": 12,
+      "skillId": "7155",
+      "traitIds": []
+    },
+    {
+      "externalId": "enemy-moonless-goddess",
+      "name": "亡月女神",
+      "portraitUrl": "https://rpg.bolt.qzz.io/封面/亡月女神.webp",
+      "stats": { "hp": 40, "attack": 4, "armor": 0, "magic": 12 },
+      "manaColors": ["Blue", "Green", "Yellow", "Purple", "Brown", "Red"],
+      "manaCost": 12,
+      "skillId": "7063",
+      "traitIds": []
+    }
+  ]
+}

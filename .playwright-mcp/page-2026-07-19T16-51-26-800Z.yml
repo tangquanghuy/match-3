@@ -1,0 +1,100 @@
+- generic [ref=f1e2]:
+  - generic [ref=f1e3]:
+    - heading "0055 — 冰壳候选" [level=3] [ref=f1e4]
+    - generic [ref=f1e5]:
+      - figure "f0" [ref=f1e6]
+      - figure "f27" [ref=f1e9]
+      - figure "f54" [ref=f1e12]
+      - figure "f81" [ref=f1e15]
+      - figure "f108" [ref=f1e18]
+      - figure "f135" [ref=f1e21]
+  - generic [ref=f1e24]:
+    - heading "0295 — 眩晕候选(闪电)" [level=3] [ref=f1e25]
+    - generic [ref=f1e26]:
+      - figure "f0" [ref=f1e27]
+      - figure "f2" [ref=f1e30]
+      - figure "f4" [ref=f1e33]
+      - figure "f7" [ref=f1e36]
+      - figure "f9" [ref=f1e39]
+      - figure "f11" [ref=f1e42]
+  - generic [ref=f1e45]:
+    - heading "0416 — 眩晕候选" [level=3] [ref=f1e46]
+    - generic [ref=f1e47]:
+      - figure "f0" [ref=f1e48]
+      - figure "f7" [ref=f1e51]
+      - figure "f14" [ref=f1e54]
+      - figure "f20" [ref=f1e57]
+      - figure "f27" [ref=f1e60]
+      - figure "f34" [ref=f1e63]
+  - generic [ref=f1e66]:
+    - heading "0478 — 眩晕候选" [level=3] [ref=f1e67]
+    - generic [ref=f1e68]:
+      - figure "f0" [ref=f1e69]
+      - figure "f4" [ref=f1e72]
+      - figure "f7" [ref=f1e75]
+      - figure "f11" [ref=f1e78]
+      - figure "f14" [ref=f1e81]
+      - figure "f18" [ref=f1e84]
+  - generic [ref=f1e87]:
+    - heading "0332 — 缠绕候选(锁链?)" [level=3] [ref=f1e88]
+    - generic [ref=f1e89]:
+      - figure "f0" [ref=f1e90]
+      - figure "f8" [ref=f1e93]
+      - figure "f16" [ref=f1e96]
+      - figure "f24" [ref=f1e99]
+      - figure "f32" [ref=f1e102]
+      - figure "f40" [ref=f1e105]
+  - generic [ref=f1e108]:
+    - heading "0484 — 缠绕候选" [level=3] [ref=f1e109]
+    - generic [ref=f1e110]:
+      - figure "f0" [ref=f1e111]
+      - figure "f11" [ref=f1e114]
+      - figure "f22" [ref=f1e117]
+      - figure "f32" [ref=f1e120]
+      - figure "f43" [ref=f1e123]
+      - figure "f54" [ref=f1e126]
+  - generic [ref=f1e129]:
+    - heading "0490 — 缠绕候选" [level=3] [ref=f1e130]
+    - generic [ref=f1e131]:
+      - figure "f0" [ref=f1e132]
+      - figure "f9" [ref=f1e135]
+      - figure "f18" [ref=f1e138]
+      - figure "f26" [ref=f1e141]
+      - figure "f35" [ref=f1e144]
+      - figure "f44" [ref=f1e147]
+  - generic [ref=f1e150]:
+    - heading "0491 — 缠绕候选" [level=3] [ref=f1e151]
+    - generic [ref=f1e152]:
+      - figure "f0" [ref=f1e153]
+      - figure "f5" [ref=f1e156]
+      - figure "f9" [ref=f1e159]
+      - figure "f14" [ref=f1e162]
+      - figure "f18" [ref=f1e165]
+      - figure "f23" [ref=f1e168]
+  - generic [ref=f1e171]:
+    - heading "0351 — 沉默候选" [level=3] [ref=f1e172]
+    - generic [ref=f1e173]:
+      - figure "f0" [ref=f1e174]
+      - figure "f4" [ref=f1e177]
+      - figure "f7" [ref=f1e180]
+      - figure "f11" [ref=f1e183]
+      - figure "f14" [ref=f1e186]
+      - figure "f18" [ref=f1e189]
+  - generic [ref=f1e192]:
+    - heading "0402 — 沉默候选" [level=3] [ref=f1e193]
+    - generic [ref=f1e194]:
+      - figure "f0" [ref=f1e195]
+      - figure "f6" [ref=f1e198]
+      - figure "f12" [ref=f1e201]
+      - figure "f17" [ref=f1e204]
+      - figure "f23" [ref=f1e207]
+      - figure "f29" [ref=f1e210]
+  - generic [ref=f1e213]:
+    - heading "0419 — 沉默候选" [level=3] [ref=f1e214]
+    - generic [ref=f1e215]:
+      - figure "f0" [ref=f1e216]
+      - figure "f17" [ref=f1e219]
+      - figure "f34" [ref=f1e222]
+      - figure "f51" [ref=f1e225]
+      - figure "f68" [ref=f1e228]
+      - figure "f85" [ref=f1e231]

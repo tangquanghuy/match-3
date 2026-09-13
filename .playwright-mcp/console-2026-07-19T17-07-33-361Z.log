@@ -1,0 +1,5 @@
+[   10854ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:5173/favicon.ico:0
+[   90114ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:5173/favicon.ico:0
+[  259758ms] ReferenceError: frozenPersistStripUrl is not defined
+    at <static_initializer> (http://localhost:5173/src/render/App.ts?t=1784481112930:200:21)
+    at http://localhost:5173/src/render/App.ts?t=1784481112930:122:24

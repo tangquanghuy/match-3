@@ -1,0 +1,26 @@
+﻿// Legacy gem elimination / chain synth backup.
+// Archived on 2026-07-16 after the sampled gem_chain_1..5 set was finalized.
+// This file is intentionally .txt so it is not included in TypeScript compilation
+// or the production Vite bundle.
+
+export function playLegacyGemChain(
+  context: AudioContext,
+  sfxBus: AudioNode,
+  level: number,
+): void {
+  const normalizedLevel = Math.max(1, Math.floor(level));
+  const frequency = 480 * Math.pow(1.122, Math.max(0, normalizedLevel - 1));
+  const duration = 0.09;
+  const volume = 0.16;
+
+  const oscillator = context.createOscillator();
+  const gain = context.createGain();
+  oscillator.type = 'square';
+  oscillator.frequency.value = frequency;
+  gain.gain.setValueAtTime(volume, context.currentTime);
+  gain.gain.exponentialRampToValueAtTime(0.0001, context.currentTime + duration);
+  oscillator.connect(gain);
+  gain.connect(sfxBus);
+  oscillator.start();
+  oscillator.stop(context.currentTime + duration);
+}

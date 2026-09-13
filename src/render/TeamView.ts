@@ -1,6 +1,11 @@
 import { BaseColor, PlayerSide } from '@engine/types';
 import type { Character, Team } from '@engine/types';
 import { AnimConfig } from './AnimationConfig';
+import { statusBadge, statusBadgeSvg } from './statusBadges';
+import frostBorderUrl from '../assets/fx/frost_border_overlay.png';
+import frostVeinsUrl from '../assets/fx/frost_veins_overlay.png';
+import silenceSealUrl from '../assets/fx/silence_seal_overlay.png';
+import entangleVinesUrl from '../assets/fx/entangle_vines_overlay.png';
 
 /**
  * 方向 G · 胶片机能（Cinematic-Mecha）角色卡 —— DOM 实现。
@@ -32,6 +37,39 @@ export function setTeamSize(n: number, boardPx?: number): void {
 /** 当前队伍人数 */
 export function getTeamSize(): number {
   return TEAM_SIZE;
+}
+
+/**
+ * 卡面覆盖层比例换算。
+ *
+ * 所有徽章/图标/数字的尺寸都是按 512px 棋盘下的 142×164 卡片调的。紧凑横屏基准把棋盘压到
+ * 364px 后卡片只有 101×114（4v4 更小），覆盖层若仍用原始 px 就会明显过大——法力书签会占掉
+ * 四成卡宽、水晶球角标占两成多卡高、攻血数字挤满底边。这里跟 `CARD_W` 用同一个比例，
+ * 让卡内比例回到设计稿状态。
+ */
+function overlayScale(): number {
+  return BOARD_PX / 512;
+}
+
+/** 覆盖层几何尺寸换算（宽高/内缩/间距），至少保留 1px 以免元素塌掉。 */
+function os(base: number): number {
+  return Math.max(1, Math.round(base * overlayScale()));
+}
+
+/** 覆盖层字号换算：同比缩放但不低于 9px，避免小屏上读不清。 */
+function ofs(base: number): number {
+  return Math.max(9, Math.round(base * overlayScale()));
+}
+
+/**
+ * 法力宝石书签边长：按 PC 设计稿的卡宽占比锚定，而不是用 44px 触控区尺寸反推。
+ *
+ * 设计稿 `.superdesign/design_iterations/gem_emerald.html`：小卡 116×164 配 30px 宝石
+ * （占卡宽 25.9%），大卡 232×328 配 50px（21.6%）。原实现的 44px 是触控区下限，
+ * 拿它当比例基准会让书签在紧凑卡上明显偏重。
+ */
+function gemSize(): number {
+  return Math.round(CARD_W * 0.26);
 }
 
 /** 基础色 → card_7 暖旧电影皮肤类名 */
@@ -116,6 +154,9 @@ const ICO_GOLD = '#e6d6ad';
 const SWORD_SVG = `<svg class="ic" viewBox="0 0 512 512" width="14" height="14"><path fill="${ICO_GOLD}" d="M19.75 14.438c59.538 112.29 142.51 202.35 232.28 292.718l3.626 3.75.063-.062c21.827 21.93 44.04 43.923 66.405 66.25-18.856 14.813-38.974 28.2-59.938 40.312l28.532 28.53 68.717-68.717c42.337 27.636 76.286 63.646 104.094 105.81l28.064-28.06c-42.47-27.493-79.74-60.206-106.03-103.876l68.936-68.938-28.53-28.53c-11.115 21.853-24.413 42.015-39.47 60.593-43.852-43.8-86.462-85.842-130.125-125.47-.224-.203-.432-.422-.656-.625C183.624 122.75 108.515 63.91 19.75 14.437zm471.875 0c-83.038 46.28-154.122 100.78-221.97 161.156l22.814 21.562 56.81-56.812 13.22 13.187-56.438 56.44 24.594 23.186c61.802-66.92 117.6-136.92 160.97-218.72zm-329.53 125.906 200.56 200.53a402.965 402.965 0 0 1-13.405 13.032L148.875 153.53l13.22-13.186zm-76.69 113.28-28.5 28.532 68.907 68.906c-26.29 43.673-63.53 76.414-106 103.907l28.063 28.06c27.807-42.164 61.758-78.174 104.094-105.81l68.718 68.717 28.53-28.53c-20.962-12.113-41.08-25.5-59.937-40.313 17.865-17.83 35.61-35.433 53.157-52.97l-24.843-25.655-55.47 55.467c-4.565-4.238-9.014-8.62-13.374-13.062l55.844-55.844-24.53-25.374c-18.28 17.856-36.602 36.06-55.158 54.594-15.068-18.587-28.38-38.758-39.5-60.625z"/></svg>`;
 const HEART_SVG = `<svg class="ic" viewBox="3 4 18 17" width="13" height="13"><path fill="none" stroke="${ICO_GOLD}" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" d="M12 20C6.5 16 3.5 12.8 3.5 9.2 3.5 6.6 5.5 4.7 8 4.7c1.6 0 3.1.8 4 2.2.9-1.4 2.4-2.2 4-2.2 2.5 0 4.5 1.9 4.5 4.5 0 3.6-3 6.8-8.5 10.8z"/></svg>`;
 const SHIELD_SVG = `<svg class="ic-armor" viewBox="0 0 24 24" width="11" height="11"><path fill="none" stroke="${ICO_GOLD}" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" d="M12 3 19 5.5v5.5c0 4.3-3 7.6-7 9-4-1.4-7-4.7-7-9V5.5z"/></svg>`;
+// 魔力（法术强度）图标：水晶球（game-icons.net / lorc «crystal-ball», CC BY 3.0）。
+// 用径向渐变填充做出"发光宝珠"的立体质感（中心亮、边缘深紫），而非扁平色块。
+const MAGIC_SVG = `<svg class="ic-magic" viewBox="0 0 512 512" width="17" height="17"><defs><radialGradient id="mgOrb" cx="38%" cy="30%" r="78%"><stop offset="0%" stop-color="#f7f0ff"/><stop offset="42%" stop-color="#cdaef3"/><stop offset="100%" stop-color="#7c4dbe"/></radialGradient></defs><path fill="url(#mgOrb)" d="M254.563 20.75c-42.96 0-85.918 16.387-118.688 49.156-65.54 65.54-65.852 172.15-.313 237.688 65.54 65.54 172.15 65.226 237.688-.313 65.54-65.538 65.54-171.835 0-237.374-32.77-32.77-75.728-49.156-118.688-49.156zm-.157 18.47a149.284 149.284 0 0 1 74.313 19.968c-13.573-3.984-26.266-2.455-34.22 5.5-14.437 14.437-7.796 44.485 14.813 67.093 22.608 22.61 52.625 29.22 67.062 14.782 8.523-8.522 9.706-22.468 4.594-37.125 36.352 57.684 29.586 134.6-20.69 184.875-29.158 29.16-67.353 43.773-105.56 43.813 9.436-2.3 17.762-6.732 24.436-13.406 28.885-28.886 15.64-88.954-29.594-134.19-45.234-45.233-105.302-58.51-134.187-29.624-4.052 4.052-7.266 8.723-9.688 13.875 3.092-33.537 17.473-66.222 43.157-91.905 29.198-29.2 67.384-43.737 105.562-43.656zM386.97 319.28c-.205.206-.39.422-.595.626-72.78 72.78-191.252 73.155-264.03.375-.278-.275-.54-.565-.814-.842-11.987 9.483-18.81 20.384-18.81 32 0 36.523 67.315 66.125 151.343 66.125 84.027 0 152.093-29.6 152.093-66.125 0-11.68-6.97-22.637-19.187-32.157zm39.717 54.564c-22.225 32.29-91.192 55.906-172.625 55.906-81.172 0-149.954-23.46-172.406-55.594-12.638 11.3-19.72 24.052-19.72 37.563.002 46.928 85.546 85.03 192.064 85.03 106.518 0 192.97-38.1 192.97-85.03 0-13.637-7.313-26.498-20.283-37.876z"/></svg>`;
 
 const GRAIN_URI =
   "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E\")";
@@ -126,19 +167,164 @@ function ensureStyles(): void {
   stylesInjected = true;
   const css = `
   .gcol{position:absolute;display:flex;flex-direction:column;gap:${CARD_GAP}px;pointer-events:none}
-  /* 回合高亮：仅在整列外围加一圈描边光边，行动方才显示；非行动方保持正常（不压暗，避免与阵亡混淆） */
-  .gcol .turn-frame{position:absolute;inset:-7px;border-radius:14px;pointer-events:none;
-    border:2px solid transparent;opacity:0;transition:opacity .35s ease}
-  .gcol.active-ally .turn-frame{opacity:1;border-color:rgba(126,200,236,.9);
-    box-shadow:0 0 9px rgba(126,200,236,.55),inset 0 0 8px rgba(126,200,236,.25);animation:frameBreath 1.8s ease-in-out infinite}
-  .gcol.active-enemy .turn-frame{opacity:1;border-color:rgba(224,121,111,.9);
-    box-shadow:0 0 9px rgba(224,121,111,.55),inset 0 0 8px rgba(224,121,111,.25);animation:frameBreath 1.8s ease-in-out infinite}
-  @keyframes frameBreath{0%,100%{opacity:.7}50%{opacity:1}}
-  .gcard{position:relative;width:${CARD_W}px;height:${CARD_H}px;isolation:isolate;
-    border-radius:8px;background:#0b0a09;border:1px solid rgba(216,194,144,.34);
-    font-family:"Oswald","PingFang SC","Microsoft YaHei",sans-serif;transition:opacity .25s}
-  .gcard.castable{border-color:#c9a35c;box-shadow:0 0 0 1px rgba(201,163,92,.5)}
+  /* ?????????????????????????????? */
+  .gcol .turn-frame{--turn-color:126,200,236;position:absolute;top:-7px;bottom:-7px;width:28px;
+    pointer-events:none;opacity:0;transform:scaleY(.18);transform-origin:center;
+    transition:opacity .22s ease,transform .36s cubic-bezier(.2,.85,.25,1)}
+  .gcol .turn-frame::before{content:"";position:absolute;inset:0;
+    filter:drop-shadow(0 0 4px rgba(var(--turn-color),.42));opacity:.9}
+  .gcol .turn-frame::after{content:"";position:absolute;top:50%;width:7px;height:7px;
+    margin-top:-4px;background:rgba(var(--turn-color),.95);border:1px solid rgba(244,250,255,.72);
+    transform:rotate(45deg);box-shadow:0 0 7px rgba(var(--turn-color),.72)}
+  .gcol.active-ally .turn-frame{--turn-color:126,200,236;left:-5px;opacity:1;transform:scaleY(1)}
+  .gcol.active-ally .turn-frame::before{background:
+    linear-gradient(rgba(var(--turn-color),.96),rgba(var(--turn-color),.96)) left 0 top 10px/2px calc(100% - 20px) no-repeat,
+    linear-gradient(90deg,rgba(var(--turn-color),.96),rgba(var(--turn-color),.18)) left top/18px 2px no-repeat,
+    linear-gradient(90deg,rgba(var(--turn-color),.96),rgba(var(--turn-color),.18)) left bottom/18px 2px no-repeat}
+  .gcol.active-ally .turn-frame::after{left:-3px}
+  .gcol.active-enemy .turn-frame{--turn-color:224,121,111;right:-5px;opacity:1;transform:scaleY(1)}
+  .gcol.active-enemy .turn-frame::before{background:
+    linear-gradient(rgba(var(--turn-color),.96),rgba(var(--turn-color),.96)) right 0 top 10px/2px calc(100% - 20px) no-repeat,
+    linear-gradient(270deg,rgba(var(--turn-color),.96),rgba(var(--turn-color),.18)) right top/18px 2px no-repeat,
+    linear-gradient(270deg,rgba(var(--turn-color),.96),rgba(var(--turn-color),.18)) right bottom/18px 2px no-repeat}
+  .gcol.active-enemy .turn-frame::after{right:-3px}
+
+  /* border-box：1px 边框不得撑大卡片，否则 CARD_W/CARD_H 与实际占位不一致，
+     末位卡片会溢出 wrapper 底边并被视口裁掉（移动横屏 1px 截断）。 */
+  .gcard{position:relative;box-sizing:border-box;width:${CARD_W}px;height:${CARD_H}px;isolation:isolate;
+    border-radius:8px;background:#0b0a09;border:1px solid rgba(38,31,22,.96);
+    box-shadow:0 0 0 1px rgba(8,7,6,.72);
+    font-family:"Oswald","PingFang SC","Microsoft YaHei",sans-serif;transition:opacity .25s,filter .2s ease}
+  .gcard .card-frame{position:absolute;inset:0;z-index:5;border-radius:8px;pointer-events:none;padding:1px;
+    box-sizing:border-box;background:linear-gradient(135deg,rgba(244,226,174,.76) 0%,rgba(151,121,69,.46) 34%,rgba(224,197,132,.7) 68%,rgba(119,92,51,.5) 100%);
+    -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);
+    -webkit-mask-composite:xor;mask-composite:exclude}
+  .gcard .card-frame::before{content:"";position:absolute;inset:3px;border-radius:6px;opacity:.48;
+    background:
+      linear-gradient(90deg,rgba(239,217,158,.82),transparent) left top/20px 1px no-repeat,
+      linear-gradient(180deg,rgba(239,217,158,.82),transparent) left top/1px 20px no-repeat,
+      linear-gradient(270deg,rgba(239,217,158,.82),transparent) right top/20px 1px no-repeat,
+      linear-gradient(180deg,rgba(239,217,158,.82),transparent) right top/1px 20px no-repeat,
+      linear-gradient(90deg,rgba(239,217,158,.7),transparent) left bottom/18px 1px no-repeat,
+      linear-gradient(0deg,rgba(239,217,158,.7),transparent) left bottom/1px 18px no-repeat,
+      linear-gradient(270deg,rgba(239,217,158,.7),transparent) right bottom/18px 1px no-repeat,
+      linear-gradient(0deg,rgba(239,217,158,.7),transparent) right bottom/1px 18px no-repeat}
+  .gcard .frame-ornament{position:absolute;z-index:7;left:50%;bottom:-${os(7)}px;width:${os(48)}px;height:${os(18)}px;
+    transform:translateX(-50%);pointer-events:none;filter:drop-shadow(0 2px 2px rgba(0,0,0,.8))}
+  .gcard .frame-ornament svg{display:block;width:100%;height:100%;overflow:visible}
+  .gcard .frame-ornament .orn-dark{fill:#17120c;stroke:rgba(75,57,31,.95);stroke-width:3;stroke-linejoin:round}
+  .gcard .frame-ornament .orn-gold{fill:none;stroke:url(#ornGold);stroke-width:1.45;stroke-linecap:round;stroke-linejoin:round}
+  .gcard .frame-ornament .orn-core{fill:#241b10;stroke:#d8bd7d;stroke-width:1.2}
+  /* 目标可选：暖金柔和呼吸辉光（呼应卡片金边，不抢准星戏），十字光标 */
+  .gcard.pickable{cursor:crosshair;transition:filter .2s,transform .16s cubic-bezier(.2,.9,.3,1)}
+  .gcard.pickable::after{content:"";position:absolute;inset:-2px;z-index:9;border-radius:10px;pointer-events:none;
+    border:1.5px solid rgba(230,201,121,.5);box-shadow:0 0 10px rgba(230,201,121,.3);
+    animation:pickBreath 1.4s ease-in-out infinite}
+  @keyframes pickBreath{0%,100%{opacity:.5}50%{opacity:1}}
+  /* 悬停锁定（敌人）：赤红描边 + 抬起放大 */
+  .gcard.aim-hover{transform:translateY(-3px) scale(1.05)}
+  .gcard.aim-hover-hostile::after{border:2px solid rgba(255,90,77,.98);opacity:1;animation:none;
+    box-shadow:0 0 16px rgba(255,80,70,.8),inset 0 0 12px rgba(255,80,70,.35)}
+  /* 悬停锁定（盟友）：翠绿描边 */
+  .gcard.aim-hover-friendly::after{border:2px solid rgba(87,212,122,.98);opacity:1;animation:none;
+    box-shadow:0 0 16px rgba(87,212,122,.8),inset 0 0 12px rgba(87,212,122,.35)}
+  /* 施法者施法态：金色浮起 */
+  .gcard.casting-origin{transform:translateY(-4px) scale(1.03);z-index:1210;
+    transition:transform .18s cubic-bezier(.2,.9,.3,1)}
+  .gcard.casting-origin::after{content:"";position:absolute;inset:-2px;z-index:9;border-radius:10px;pointer-events:none;
+    border:2px solid rgba(240,210,130,.95);box-shadow:0 0 16px rgba(240,210,130,.75)}
+  .gcard.castable .card-frame{filter:brightness(1.18)}
+  .gcard.castable .frame-ornament{filter:brightness(1.15) drop-shadow(0 2px 2px rgba(0,0,0,.8))}
+  .gcard:hover .frame-ornament{animation:ornamentGleam .42s ease-out}
+  @keyframes ornamentGleam{0%{filter:brightness(1) drop-shadow(0 2px 2px rgba(0,0,0,.8))}45%{filter:brightness(1.55) drop-shadow(0 0 4px rgba(232,202,132,.45))}100%{filter:brightness(1) drop-shadow(0 2px 2px rgba(0,0,0,.8))}}
   .gcard.defeated{opacity:.32;filter:grayscale(.6)}
+
+  /* 冰冻持续态（程序化冰封）：立绘保持原色，只在四周边缘凝结白霜+冰晶，
+     中间罩极淡冷光。一眼看出"被冻住"但脸仍清楚。status-apply 挂、expire/cleanse 卸。 */
+  .gcard .frost-layer{position:absolute;inset:-1px;z-index:5;border-radius:9px;overflow:hidden;pointer-events:none;
+    opacity:0;transition:opacity .32s ease;isolation:isolate;
+    background:
+      url("${frostBorderUrl}") center/100% 100% no-repeat,
+      radial-gradient(145% 118% at 50% 48%,transparent 58%,rgba(172,226,252,.18) 78%,rgba(220,247,255,.42) 100%);
+    box-shadow:inset 0 0 0 1px rgba(226,249,255,.72),inset 0 0 13px rgba(150,215,246,.28);
+    filter:drop-shadow(0 0 3px rgba(174,229,255,.58));will-change:opacity,filter}
+  /* A finer secondary frost-vein texture breaks up the perimeter and stays legible at card scale. */
+  .gcard .frost-layer::before{content:"";position:absolute;inset:0;border-radius:inherit;
+    background:url("${frostVeinsUrl}") center/100% 100% no-repeat;
+    opacity:.56;mix-blend-mode:screen;filter:saturate(.82) brightness(1.1);
+    transform:scale(1.012);transform-origin:center;will-change:opacity,transform}
+  /* Keep the center clear; only the outer rim receives a cold-white frozen sheen. */
+  .gcard .frost-layer::after{content:"";position:absolute;inset:0;border-radius:inherit;
+    background:
+      linear-gradient(180deg,rgba(238,252,255,.42),transparent 12%,transparent 88%,rgba(218,246,255,.34)),
+      linear-gradient(90deg,rgba(224,249,255,.32),transparent 11%,transparent 89%,rgba(224,249,255,.3)),
+      radial-gradient(100% 72% at 24% 4%,rgba(255,255,255,.32),transparent 20%),
+      radial-gradient(88% 62% at 86% 96%,rgba(210,244,255,.25),transparent 22%);
+    box-shadow:inset 0 0 8px rgba(197,238,255,.18);mix-blend-mode:screen;opacity:.72}
+  .gcard.frozen .frost-layer{opacity:1;animation:frostBreath 3.2s ease-in-out infinite}
+  .gcard.frozen .frost-layer::before{animation:frostCrystalBreath 4.6s ease-in-out infinite alternate}
+  @keyframes frostBreath{
+    0%,100%{filter:drop-shadow(0 0 2px rgba(174,229,255,.46)) brightness(.96)}
+    50%{filter:drop-shadow(0 0 5px rgba(189,237,255,.7)) brightness(1.1)}}
+  @keyframes frostCrystalBreath{
+    0%{opacity:.42;transform:scale(1.006)}
+    100%{opacity:.68;transform:scale(1.022)}}
+  @media (prefers-reduced-motion:reduce){
+    .gcard.frozen .frost-layer,.gcard.frozen .frost-layer::before{animation:none}}
+
+  /* ????????????????????????????????? */
+  .gcard .silence-layer{position:absolute;inset:0;z-index:5;border-radius:8px;overflow:hidden;pointer-events:none;
+    opacity:0;transition:opacity .2s ease;
+    background:radial-gradient(circle at 50% 46%,rgba(35,4,43,.28) 0%,rgba(19,3,28,.12) 34%,transparent 62%)}
+  .gcard .silence-seal{position:absolute;left:50%;top:46%;width:62%;max-width:112px;aspect-ratio:1;
+    background:url("${silenceSealUrl}") center/contain no-repeat;
+    transform:translate(-50%,-50%) scale(.48) rotate(-12deg);transform-origin:center;
+    opacity:.45;filter:drop-shadow(0 0 2px rgba(255,45,150,.35));
+    transition:transform .34s cubic-bezier(.18,.88,.28,1.22),opacity .2s ease,filter .25s ease}
+  .gcard .silence-seal::after{content:"";position:absolute;inset:15%;border-radius:50%;
+    border:1px solid rgba(255,90,186,.6);box-shadow:0 0 7px rgba(211,64,255,.48),inset 0 0 6px rgba(255,65,160,.3);
+    opacity:0;transform:scale(.72);pointer-events:none}
+  .gcard.silenced .silence-layer{opacity:1}
+  .gcard.silenced .silence-seal{opacity:.96;transform:translate(-50%,-50%) scale(1) rotate(0);
+    filter:drop-shadow(0 0 5px rgba(255,42,137,.72)) drop-shadow(0 0 10px rgba(151,56,255,.42));
+    animation:silenceSealGlow 2.15s .34s ease-in-out infinite}
+  .gcard.silenced .silence-seal::after{animation:silenceSealRipple 2.15s .4s ease-out infinite}
+  @keyframes silenceSealGlow{
+    0%,100%{opacity:.88;filter:drop-shadow(0 0 4px rgba(255,42,137,.62)) drop-shadow(0 0 8px rgba(151,56,255,.34))}
+    50%{opacity:1;filter:drop-shadow(0 0 7px rgba(255,70,160,.88)) drop-shadow(0 0 13px rgba(173,76,255,.56))}}
+  @keyframes silenceSealRipple{
+    0%{opacity:.55;transform:scale(.72)}
+    68%,100%{opacity:0;transform:scale(1.42)}}
+  @media (prefers-reduced-motion:reduce){
+    .gcard.silenced .silence-seal,.gcard.silenced .silence-seal::after{animation:none}}
+
+  /* ????????????????????????????????? */
+  .gcard .entangle-layer{position:absolute;inset:0;z-index:5;border-radius:8px;overflow:hidden;pointer-events:none;
+    opacity:0;transition:opacity .24s ease;
+    background:linear-gradient(0deg,rgba(8,25,10,.24),transparent 42%)}
+  .gcard .entangle-vines{position:absolute;inset:0;
+    background:url("${entangleVinesUrl}") center bottom/100% 100% no-repeat;
+    opacity:.58;transform:translateY(17%) scale(.88,.62);transform-origin:50% 100%;
+    filter:brightness(.82) saturate(.9) drop-shadow(0 2px 2px rgba(0,0,0,.7));
+    transition:transform .46s cubic-bezier(.16,.84,.24,1.12),opacity .28s ease,filter .32s ease}
+  .gcard .entangle-layer::after{content:"";position:absolute;left:8%;right:8%;bottom:-4%;height:29%;
+    border-radius:50%;pointer-events:none;opacity:0;transform:scale(.72);
+    background:radial-gradient(ellipse at center,rgba(78,255,111,.34) 0%,rgba(39,166,69,.14) 45%,transparent 73%);
+    filter:blur(2px);mix-blend-mode:screen}
+  .gcard.entangled .entangle-layer{opacity:1}
+  .gcard.entangled .entangle-vines{opacity:.96;transform:translateY(0) scale(1);
+    filter:brightness(.96) saturate(1.08) drop-shadow(0 2px 3px rgba(0,0,0,.8)) drop-shadow(0 0 4px rgba(57,213,89,.28));
+    animation:entangleVineBreath 3s .46s ease-in-out infinite}
+  .gcard.entangled .entangle-layer::after{animation:entangleRootPulse 2.6s .28s ease-in-out infinite}
+  @keyframes entangleVineBreath{
+    0%,100%{filter:brightness(.92) saturate(1.02) drop-shadow(0 2px 3px rgba(0,0,0,.8)) drop-shadow(0 0 3px rgba(57,213,89,.2))}
+    50%{filter:brightness(1.05) saturate(1.18) drop-shadow(0 2px 3px rgba(0,0,0,.8)) drop-shadow(0 0 6px rgba(72,238,105,.4))}}
+  @keyframes entangleRootPulse{
+    0%,100%{opacity:.18;transform:scale(.84)}
+    50%{opacity:.48;transform:scale(1.05)}}
+  @media (prefers-reduced-motion:reduce){
+    .gcard.entangled .entangle-vines,.gcard.entangled .entangle-layer::after{animation:none}}
+
 
   /* 立绘层裁切到圆角；卡本身不裁切，便于宝石出框悬挂 */
   .gcard .art{position:absolute;inset:0;z-index:0;border-radius:8px;overflow:hidden}
@@ -187,31 +373,47 @@ function ensureStyles(): void {
   .v4 .shard{clip-path:polygon(58% 26%,100% 44%,100% 100%,42% 100%)}
   .v4 .focal{left:34%;top:20%}
 
-  .gcard .ov{position:absolute;z-index:4}
-  .gcard .c-tl{top:8px;left:9px;right:14px}
-  .gcard .c-bl{left:9px;bottom:8px}
-  .gcard .c-br{right:9px;bottom:8px;text-align:right}
+  /* ?????????????????????????????? */
+  .gcard .ov{position:absolute;z-index:6}
+  .gcard .c-tl{top:${os(8)}px;left:${os(9)}px;right:${os(14)}px}
+  .gcard .c-bl{left:${os(13)}px;bottom:${os(9)}px}
+  .gcard .c-br{right:${os(13)}px;bottom:${os(9)}px;text-align:right}
+  .gcard.frozen .c-bl,.gcard.frozen .c-br{isolation:isolate}
+  .gcard.frozen .c-bl::before,.gcard.frozen .c-br::before{content:"";position:absolute;z-index:-1;
+    inset:-${os(7)}px -${os(9)}px -${os(6)}px;border-radius:${os(12)}px;pointer-events:none;
+    background:radial-gradient(ellipse at 50% 68%,rgba(3,12,18,.82) 0%,rgba(4,14,21,.48) 50%,transparent 78%);
+    filter:blur(1px)}
 
   .gcard .name{display:none}
   .gcard .name-rule{display:none}
 
   /* 法力：右上仅显示当前充能值（颜色需求交给底部宝石），暖金，满充提亮 */
   .gcard .mana{display:flex;flex-direction:column;align-items:flex-end}
-  .gcard .mana-num{font-family:"Oswald",sans-serif;font-weight:600;letter-spacing:.04em;font-size:12px;
+  .gcard .mana-num{font-family:"Oswald",sans-serif;font-weight:600;letter-spacing:.04em;font-size:${ofs(12)}px;
     color:#d8c290;font-variant-numeric:tabular-nums;text-shadow:0 1px 3px rgba(0,0,0,.9)}
   .gcard.mana-full .mana-num{color:#fff3d2;text-shadow:0 1px 3px rgba(0,0,0,.9),0 0 6px rgba(232,200,121,.6)}
 
   /* 法力宝石：贴着卡片左上角、嵌进边框的"书签式"角标（与立绘卡同源的边框语言）。
      外侧两角与卡片圆角对齐(左上=卡圆角)，仅内侧(右下)收大圆角，像长在边框上而非浮在画面里。 */
+  /* 触控区随视觉一起同比缩小：这是二级信息入口（点开法力进度浮窗），
+     不再计入 44×44 关键控件；全屏、队伍人数与角色卡本身仍保持 ≥44 CSS px。 */
   .gcard .gem{position:absolute;top:0;left:0;z-index:6;
-    width:30px;height:30px;padding:4px;box-sizing:border-box;cursor:pointer;
+    width:${gemSize()}px;height:${gemSize()}px;padding:${Math.round(gemSize() * 0.19)}px;
+    box-sizing:border-box;cursor:pointer;
     background:linear-gradient(135deg,rgba(20,18,15,.92),rgba(11,10,9,.82));
     border:1px solid rgba(216,194,144,.4);border-top-color:rgba(216,194,144,.5);
     border-left-color:rgba(216,194,144,.5);
-    border-radius:8px 0 12px 0;
+    border-radius:${os(8)}px 0 ${os(12)}px 0;
     box-shadow:1px 1px 4px rgba(0,0,0,.5)}
   .gcard .gem svg{display:block;width:100%;height:100%;overflow:visible;
     filter:drop-shadow(0 1px 2px rgba(0,0,0,.85))}
+  .gcard .gem::before{content:"";position:absolute;left:100%;top:-1px;width:${os(15)}px;height:1px;
+    background:linear-gradient(90deg,rgba(225,202,145,.72),transparent);pointer-events:none}
+  .gcard .gem::after{content:"";position:absolute;left:-1px;top:100%;width:1px;height:${os(15)}px;
+    background:linear-gradient(180deg,rgba(225,202,145,.72),transparent);pointer-events:none}
+  .gcard .mana-absorb-flash{position:absolute;inset:-${os(8)}px;z-index:-1;border-radius:50%;pointer-events:none;
+    background:radial-gradient(circle,var(--absorb-color) 0%,color-mix(in srgb,var(--absorb-color) 62%,transparent) 34%,transparent 72%);
+    mix-blend-mode:screen;filter:blur(1px)}
   .gcard .gem .seat{fill:rgba(11,10,9,.25)}             /* 极浅底，仅作轻微衬托 */
   .gcard .gem .dim{opacity:.72}                          /* 未充能：淡，但保留可辨识的颜色 */
   .gcard .gem .facets{fill:none;stroke:rgba(255,255,255,.22);stroke-width:5}
@@ -221,13 +423,21 @@ function ensureStyles(): void {
     box-shadow:1px 1px 4px rgba(0,0,0,.5),0 0 7px rgba(232,200,121,.45)}
   .gcard.mana-full .gem svg{filter:drop-shadow(0 0 4px rgba(232,200,121,.9));
     animation:gemBreath 1.4s ease-in-out infinite}
+  /* 沉默：满法力也放不出技能——法力宝石呼吸暗下去、去暖金光，表达"能量被封" */
+  .gcard.silenced.mana-full .gem{border-color:#5a4a6e;border-top-color:#6a577f;border-left-color:#6a577f;
+    box-shadow:1px 1px 4px rgba(0,0,0,.55)}
+  .gcard.silenced.mana-full .gem svg{filter:grayscale(.5) brightness(.6) drop-shadow(0 0 2px rgba(120,90,150,.5));
+    animation:gemSilenced 2.4s ease-in-out infinite}
+  .gcard.silenced .mana-num{color:#9a86b0;text-shadow:0 1px 3px rgba(0,0,0,.9)}
+  @keyframes gemSilenced{0%,100%{opacity:.5}50%{opacity:.78}}
   @keyframes gemBreath{
     0%,100%{transform:scale(1)}
     50%{transform:scale(1.12)}
   }
 
   /* 法力进度浮窗：跟随书签显示在其下方 */
-  .gcard .gem-tip{position:absolute;top:34px;left:2px;
+  /* 浮窗贴在书签正下方：书签缩小后这里必须跟着上移，否则会悬空盖住立绘中段。 */
+  .gcard .gem-tip{position:absolute;top:${gemSize() + os(4)}px;left:2px;
     z-index:9;display:none;white-space:nowrap;padding:3px 7px;border-radius:5px;
     background:rgba(11,10,9,.92);border:1px solid rgba(216,194,144,.45);
     font-family:"Oswald",sans-serif;font-size:10px;letter-spacing:.04em;color:#f0e2bf;
@@ -237,14 +447,44 @@ function ensureStyles(): void {
   .gcard .gem.show-tip ~ .gem-tip,.gcard .gem:hover ~ .gem-tip{display:block}
 
   /* 攻防：填充图标 + 衬线数字（数字作主体，图标与数字底部对齐并略下沉） */
-  .gcard .stat{display:flex;align-items:flex-end;gap:5px;flex-direction:row-reverse}
-  .gcard .stat .ic{flex:none;filter:drop-shadow(0 1px 2px rgba(0,0,0,.8));transform:translateY(2px)}
-  .gcard .stat .v{font-family:"Playfair Display",Georgia,serif;font-weight:800;line-height:1;font-size:18px;
+  .gcard .stat{display:flex;align-items:flex-end;gap:${os(5)}px;flex-direction:row-reverse}
+  /* SVG 自带的 width/height 属性会被这里的 CSS 覆盖，图标才能跟数字一起缩。 */
+  .gcard .stat .ic{flex:none;width:${os(14)}px;height:${os(14)}px;
+    filter:drop-shadow(0 1px 2px rgba(0,0,0,.8));transform:translateY(1px)}
+  .gcard .stat .v{font-family:"Playfair Display",Georgia,serif;font-weight:800;line-height:1;font-size:${ofs(18)}px;
     letter-spacing:-.01em;color:#f6efe0;text-shadow:0 1px 2px rgba(0,0,0,.95),0 0 4px rgba(0,0,0,.55)}
 
   /* 护甲：并入血量行，紧贴血量左侧，纯暖金数字 + 小盾 */
-  .gcard .armor{display:inline-flex;align-items:center;gap:2px;margin-right:5px}
-  .gcard .armor .v{font-family:"Oswald",sans-serif;font-weight:600;font-size:11px;color:#d8c290;text-shadow:0 1px 3px rgba(0,0,0,.9)}
+  .gcard .armor{display:inline-flex;align-items:center;gap:2px;margin-right:${os(5)}px}
+  .gcard .armor .ic-armor{flex:none;width:${os(11)}px;height:${os(11)}px}
+  .gcard .armor .v{font-family:"Oswald",sans-serif;font-weight:600;font-size:${ofs(11)}px;color:#d8c290;text-shadow:0 1px 3px rgba(0,0,0,.9)}
+
+  /* 魔力（法术强度）：镜像左上法力宝石的"书签式"角标，嵌进右上角边框，与法力成对呼应。
+     深色玻璃底 + 神秘紫边（呼应法力的暖金边），内含发光水晶球 + 高对比数字。 */
+  .gcard .magic{position:absolute;top:0;right:0;z-index:6;
+    height:${os(26)}px;padding:0 ${os(7)}px 0 ${os(6)}px;box-sizing:border-box;
+    display:flex;align-items:center;gap:${os(4)}px;pointer-events:none;
+    background:linear-gradient(225deg,rgba(38,26,54,.94),rgba(16,11,22,.86));
+    border:1px solid rgba(178,140,224,.42);border-top-color:rgba(200,166,240,.6);
+    border-right-color:rgba(200,166,240,.6);
+    border-radius:0 ${os(8)}px 0 ${os(12)}px;
+    box-shadow:-1px 1px 4px rgba(0,0,0,.5),inset 0 0 6px rgba(140,90,200,.22)}
+  .gcard .magic .ic-magic{flex:none;width:${os(17)}px;height:${os(17)}px;filter:drop-shadow(0 0 3px rgba(180,130,240,.7))}
+  .gcard .magic .v{font-family:"Playfair Display",Georgia,serif;font-weight:800;line-height:1;font-size:${ofs(15)}px;
+    letter-spacing:-.01em;color:#f1e9ff;text-shadow:0 1px 2px rgba(0,0,0,.95),0 0 5px rgba(150,100,210,.5)}
+
+  /* 状态图标栏：卡片左下角横排，中毒/燃烧/沉默等各一枚可辨识图标 + 剩余回合 */
+  .gcard .status-strip{position:absolute;z-index:6;left:${os(6)}px;bottom:${os(34)}px;
+    display:flex;flex-wrap:wrap-reverse;gap:${os(3)}px;max-width:${CARD_W - os(12)}px;pointer-events:none}
+  .gcard .status-badge{position:relative;display:inline-flex;align-items:center;justify-content:center;
+    width:${os(20)}px;height:${os(20)}px;border-radius:${os(5)}px;
+    background:rgba(11,10,9,.82);border:1px solid color-mix(in srgb,var(--sb) 55%,rgba(216,194,144,.4));
+    box-shadow:0 1px 3px rgba(0,0,0,.6),0 0 5px color-mix(in srgb,var(--sb) 40%,transparent)}
+  .gcard .status-badge svg{display:block;width:${os(16)}px;height:${os(16)}px;
+    filter:drop-shadow(0 0 2px color-mix(in srgb,var(--sb) 60%,transparent))}
+  .gcard .status-badge .sb-turns{position:absolute;right:-3px;bottom:-3px;min-width:11px;height:11px;
+    padding:0 1px;box-sizing:border-box;border-radius:6px;background:#0b0a09;border:1px solid var(--sb);
+    font-family:"Oswald",sans-serif;font-size:8px;line-height:9px;text-align:center;color:#f0e2bf}
   `;
   const style = document.createElement('style');
   style.id = 'gcard-styles';
@@ -264,24 +504,33 @@ export class CharacterCard {
   private gemEl!: HTMLElement;
   private riseEl!: SVGRectElement; // 充能液面矩形（上涨表示进度）
   private riseRaf: number | null = null;
+  private pressCleanup: (() => void) | null = null;
+  private cancelPress: (() => void) | null = null;
+  private inputEnabled = true;
+  private readonly eventController = new AbortController();
   private tipEl!: HTMLElement;     // 法力进度浮窗
+  private magicEl!: HTMLElement;   // 魔力（法术强度）数值
+  private statusStripEl!: HTMLElement; // 状态图标栏（中毒/燃烧…）
   private gemColors: BaseColor[] = [];
+  private displayedMana = 0;
 
   constructor(char: Character, side: PlayerSide, opts?: { portrait?: string; variant?: string }) {
     ensureStyles();
     this.charId = char.id;
     this.char = char;
+    this.displayedMana = char.mana;
 
     const skin = char.colors[0] !== undefined ? SKIN_CLASS[char.colors[0]] : 'skin-steel';
     const variant = opts?.variant ?? '';
     const hasPhoto = !!opts?.portrait;
     // 敌方（右侧队伍）：法力宝石镜像反转并移到左上角，与我方左右呼应
     const sideClass = side === PlayerSide.Right ? 'enemy' : 'ally';
-    const reqColors = Object.keys(char.manaRequirement) as BaseColor[];
-    const gemColors = reqColors.length > 0 ? reqColors : char.colors;
+    // 单一法力条：宝石展示该角色的关联充能色（Character.colors）
+    const gemColors = char.colors;
 
     const el = document.createElement('div');
     el.className = `gcard ${skin} ${variant} ${sideClass} ${hasPhoto ? 'has-photo' : ''}`.trim();
+    el.dataset.testid = `card-${char.id}`; // 供端到端点选目标定位
     el.innerHTML = `
       <div class="art">
         <div class="base"></div>
@@ -291,6 +540,18 @@ export class CharacterCard {
         <div class="focal"></div>
         <div class="vig"></div>
         <div class="grain"></div>
+      </div>
+      <div class="card-frame" aria-hidden="true"></div>
+      <div class="frost-layer" aria-hidden="true"></div>
+      <div class="silence-layer" aria-hidden="true"><span class="silence-seal"></span></div>
+      <div class="entangle-layer" aria-hidden="true"><span class="entangle-vines"></span></div>
+      <div class="frame-ornament" aria-hidden="true">
+        <svg viewBox="0 0 72 24" role="presentation">
+          <defs><linearGradient id="ornGold" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#8f6c37"/><stop offset=".48" stop-color="#f0d99c"/><stop offset="1" stop-color="#9d763e"/></linearGradient></defs>
+          <path class="orn-dark" d="M1 12h14l10-7 8 5 3-8 3 8 8-5 10 7h14-14l-9 5-9-2-3 7-3-7-9 2-9-5H1z"/>
+          <path class="orn-gold" d="M1 12h14l10-7 8 5 3-8 3 8 8-5 10 7h14M10 14h14l9-3m29 3H48l-9-3"/>
+          <path class="orn-core" d="M36 5l5 7-5 7-5-7z"/>
+        </svg>
       </div>
       <div class="ov c-tl">
         <div class="name"></div>
@@ -302,6 +563,8 @@ export class CharacterCard {
       <div class="ov c-br"></div>
       <div class="gem" tabindex="0" role="button" aria-label="法力">${gemSvg(gemColors)}</div>
       <div class="gem-tip"></div>
+      <div class="magic" title="魔力（法术强度）">${MAGIC_SVG}<span class="v magic-v">0</span></div>
+      <div class="status-strip" aria-label="状态"></div>
     `;
     this.el = el;
     this.nameEl = el.querySelector('.name')!;
@@ -310,23 +573,38 @@ export class CharacterCard {
     this.gemEl = el.querySelector('.gem')!;
     this.riseEl = el.querySelector('.rise')!;
     this.tipEl = el.querySelector('.gem-tip')!;
+    this.magicEl = el.querySelector('.magic-v')!;
+    this.statusStripEl = el.querySelector('.status-strip')!;
     this.gemColors = gemColors;
 
-    // 点击/触摸切换法力进度浮窗（移动端友好），桌面端 hover 由 CSS 处理
+    // 法力宝石在完整 pointer 生命周期中隔离冒泡，避免卡片先进入短按/长按状态。
+    const stopGemPointer = (e: PointerEvent) => e.stopPropagation();
+    this.gemEl.addEventListener('pointerdown', stopGemPointer, { signal: this.eventController.signal });
+    this.gemEl.addEventListener('pointermove', stopGemPointer, { signal: this.eventController.signal });
+    this.gemEl.addEventListener('pointerup', stopGemPointer, { signal: this.eventController.signal });
+    this.gemEl.addEventListener('pointercancel', stopGemPointer, { signal: this.eventController.signal });
+    // 点击/触摸切换法力进度浮窗（移动端友好），桌面端 hover 由 CSS 处理。
     this.gemEl.addEventListener('click', (e) => {
       e.stopPropagation();
       this.gemEl.classList.toggle('show-tip');
-    });
+    }, { signal: this.eventController.signal });
 
     this.nameEl.textContent = char.name;
 
     this.refresh();
   }
 
+  resize(width: number, height: number): void {
+    this.el.style.width = `${width}px`;
+    this.el.style.height = `${height}px`;
+    this.statusStripEl.style.maxWidth = `${Math.max(0, width - 12)}px`;
+  }
+
   refresh(): void {
     const c = this.char;
 
     this.atkEl.textContent = String(c.attack);
+    this.magicEl.textContent = String(c.magic);
 
     // 右下：护甲（可选，并入同一行，紧贴血量左侧）+ 血量
     const armorBlock =
@@ -335,33 +613,103 @@ export class CharacterCard {
         : '';
     this.brEl.innerHTML = `<div class="stat">${HEART_SVG}<span class="v hp">${Math.max(0, c.hp)}</span>${armorBlock}</div>`;
 
-    // 法力：底部上涨液面表进度 + 浮窗显示分色明细
-    const reqColors = Object.keys(c.manaRequirement) as BaseColor[];
-    let curSum = 0;
-    let reqSum = 0;
-    for (const col of reqColors) {
-      reqSum += c.manaRequirement[col] ?? 0;
-      curSum += Math.min(c.manaPool[col] ?? 0, c.manaRequirement[col] ?? 0);
-    }
+    // Normal refresh synchronizes to engine state; absorbMana() advances intermediate visual states.
+    this.displayedMana = Math.min(c.mana, c.manaCost);
+    this.renderMana(this.displayedMana);
+
+    this.renderStatuses();
+
+    this.el.classList.toggle('defeated', c.defeated);
+  }
+
+  /** 渲染状态图标栏：按角色当前 statuses 显示可区分图标（需求 6.1） */
+  private renderStatuses(): void {
+    const statuses = this.char.statuses ?? [];
+    this.statusStripEl.innerHTML = statuses
+      .map((s) => {
+        const b = statusBadge(s.id);
+        const turns = s.turns > 0 ? `<span class="sb-turns">${s.turns}</span>` : '';
+        return `<span class="status-badge" title="${b.label}${s.turns ? ' · ' + s.turns + '回合' : ''}" style="--sb:${b.color}">${statusBadgeSvg(s.id)}${turns}</span>`;
+      })
+      .join('');
+  }
+
+  /** 状态图标出现动效（供 status-apply 事件驱动，需求 6.2） */
+  applyStatusBadge(): void {
+    this.renderStatuses();
+    const last = this.statusStripEl.lastElementChild as HTMLElement | null;
+    last?.animate(
+      [
+        { transform: 'scale(0.2)', opacity: 0 },
+        { transform: 'scale(1.25)', opacity: 1, offset: 0.6 },
+        { transform: 'scale(1)', opacity: 1 },
+      ],
+      { duration: 300, easing: 'cubic-bezier(.2,.8,.25,1)' },
+    );
+  }
+
+  /** 状态图标移除动效（供 status-expire 事件驱动，需求 6.4） */
+  removeStatusBadge(): void {
+    // 状态已从引擎移除，重渲染即消失；给整栏一个轻微淡出提示
+    this.statusStripEl.animate(
+      [{ opacity: 0.4 }, { opacity: 1 }],
+      { duration: 220, easing: 'ease-out' },
+    );
+    this.renderStatuses();
+  }
+
+  /** Advance the displayed mana only when the colored stream reaches this card. */
+  absorbMana(color: BaseColor, amount: number): boolean {
+    const before = this.displayedMana;
+    const wasFull = this.char.manaCost > 0 && before >= this.char.manaCost;
+    this.displayedMana = Math.min(this.char.manaCost, before + Math.max(0, amount));
+
+    const flash = document.createElement('span');
+    flash.className = 'mana-absorb-flash';
+    flash.style.setProperty('--absorb-color', COLOR_HEX[color]);
+    this.gemEl.appendChild(flash);
+    flash.animate(
+      [
+        { opacity: 0, transform: 'scale(.45)' },
+        { opacity: 1, transform: 'scale(1.18)', offset: 0.35 },
+        { opacity: 0, transform: 'scale(.72)' },
+      ],
+      { duration: 340, easing: 'cubic-bezier(.2,.8,.25,1)' },
+    ).onfinish = () => flash.remove();
+
+    this.gemEl.animate(
+      [
+        { filter: 'brightness(1) saturate(1)' },
+        { filter: `brightness(1.75) saturate(1.35) drop-shadow(0 0 5px ${COLOR_HEX[color]})`, offset: 0.35 },
+        { filter: 'brightness(1.12) saturate(1.08)' },
+      ],
+      { duration: 360, easing: 'ease-out' },
+    );
+    this.renderMana(this.displayedMana);
+    return !wasFull && this.char.manaCost > 0 && this.displayedMana >= this.char.manaCost;
+  }
+
+  getManaElement(): HTMLElement {
+    return this.gemEl;
+  }
+
+  private renderMana(value: number): void {
+    const curSum = Math.min(value, this.char.manaCost);
+    const reqSum = this.char.manaCost;
     const ratio = reqSum > 0 ? Math.min(1, curSum / reqSum) : 0;
-    // rise 矩形从底部(512)向上长出 ratio*512；用 rAF 插值（SVG 几何属性 CSS transition 不可靠）
     const newH = Math.round(ratio * 512);
     const prevH = Number(this.riseEl.getAttribute('height') ?? '0');
     if (newH !== prevH) this.animateRise(prevH, newH);
     const full = reqSum > 0 && curSum >= reqSum;
     this.el.classList.toggle('mana-full', full);
 
-    // 浮窗：总进度 + 每色当前/需求（按宝石分色配色）
     const rows = this.gemColors
-      .map((col) => {
-        const need = c.manaRequirement[col] ?? 0;
-        const cur = Math.min(c.manaPool[col] ?? 0, need);
-        return `<div class="gt"><span class="dot" style="background:${COLOR_HEX[col]}"></span>${cur}/${need}</div>`;
-      })
+      .map(
+        (col) =>
+          `<div class="gt"><span class="dot" style="background:${COLOR_HEX[col]}"></span></div>`,
+      )
       .join('');
-    this.tipEl.innerHTML = `<div class="gt" style="color:#e8c879">法力 ${curSum}/${reqSum}</div>${rows}`;
-
-    this.el.classList.toggle('defeated', c.defeated);
+    this.tipEl.innerHTML = `<div class="gt" style="color:#e8c879">?? ${curSum}/${reqSum}</div>${rows}`;
   }
 
   /** 用 requestAnimationFrame 平滑插值充能矩形的 y/height（SVG 几何属性，直接设 attr 最可靠） */
@@ -390,10 +738,176 @@ export class CharacterCard {
     this.el.classList.toggle('castable', on);
   }
 
+  /** 目标可选高亮（玩家手动选目标时，候选卡呼吸描边） */
+  setPickable(on: boolean): void {
+    this.el.classList.toggle('pickable', on);
+  }
+
+  /** 冰冻持续态：整卡程序化冰封蒙层（贴合卡片、静态、不挡脸）。由 status-apply/expire 驱动。 */
+  setFrozen(on: boolean): void {
+    this.el.classList.toggle('frozen', on);
+  }
+
+  /** 沉默持续态：满法力时法力宝石呼吸暗下去（能量满却放不出）。由 status-apply/expire 驱动。 */
+  setSilenced(on: boolean): void {
+    this.el.classList.toggle('silenced', on);
+  }
+
+  /** ???????????????????? status-apply/expire/cleanse ??? */
+  setEntangled(on: boolean): void {
+    this.el.classList.toggle('entangled', on);
+  }
+
+  /**
+   * 绑定短按/长按：单次只跟踪一个 pointer。移动超过 10px、离开卡面、
+   * pointercancel 或丢失 capture 都只取消，不得在抬起时误触短按。
+   */
+  bindPress(onShort?: () => void, onLong?: () => void): void {
+    this.pressCleanup?.();
+
+    const LONG_MS = 475;
+    const MOVE_TOLERANCE = 10;
+    let timer: number | null = null;
+    let activePointerId: number | null = null;
+    let downX = 0;
+    let downY = 0;
+    let movedOrCancelled = false;
+    let longFired = false;
+
+    const clearTimer = () => {
+      if (timer === null) return;
+      window.clearTimeout(timer);
+      timer = null;
+    };
+    const releaseCapture = (pointerId: number) => {
+      try {
+        if (this.el.hasPointerCapture(pointerId)) this.el.releasePointerCapture(pointerId);
+      } catch {
+        // Synthetic events and browsers without an active native pointer may reject capture release.
+      }
+    };
+    const reset = (cancelled: boolean) => {
+      if (activePointerId === null) return;
+      const pointerId = activePointerId;
+      activePointerId = null;
+      movedOrCancelled ||= cancelled;
+      clearTimer();
+      releaseCapture(pointerId);
+    };
+    const onPointerDown = (e: PointerEvent) => {
+      if (!this.inputEnabled || activePointerId !== null || (e.pointerType === 'mouse' && e.button !== 0)) return;
+      activePointerId = e.pointerId;
+      downX = e.clientX;
+      downY = e.clientY;
+      movedOrCancelled = false;
+      longFired = false;
+      try {
+        this.el.setPointerCapture(e.pointerId);
+      } catch {
+        // Pointer capture is an enhancement; document-level pointer routing remains the fallback.
+      }
+      if (onLong) {
+        timer = window.setTimeout(() => {
+          timer = null;
+          if (activePointerId !== e.pointerId || movedOrCancelled) return;
+          longFired = true;
+          onLong();
+        }, LONG_MS);
+      }
+    };
+    const onPointerMove = (e: PointerEvent) => {
+      if (e.pointerId !== activePointerId || movedOrCancelled) return;
+      if (Math.hypot(e.clientX - downX, e.clientY - downY) > MOVE_TOLERANCE) {
+        movedOrCancelled = true;
+        clearTimer();
+      }
+    };
+    const onPointerUp = (e: PointerEvent) => {
+      if (e.pointerId !== activePointerId) return;
+      const rect = this.el.getBoundingClientRect();
+      const inside = e.clientX >= rect.left && e.clientX <= rect.right
+        && e.clientY >= rect.top && e.clientY <= rect.bottom;
+      const shouldShort = !longFired && !movedOrCancelled && inside;
+      reset(!inside);
+      if (shouldShort) onShort?.();
+    };
+    const onPointerCancel = (e: PointerEvent) => {
+      if (e.pointerId === activePointerId) reset(true);
+    };
+
+    this.el.addEventListener('pointerdown', onPointerDown);
+    this.el.addEventListener('pointermove', onPointerMove);
+    this.el.addEventListener('pointerup', onPointerUp);
+    this.el.addEventListener('pointercancel', onPointerCancel);
+    this.el.addEventListener('lostpointercapture', onPointerCancel);
+    this.cancelPress = () => reset(true);
+
+    this.pressCleanup = () => {
+      reset(true);
+      this.el.removeEventListener('pointerdown', onPointerDown);
+      this.el.removeEventListener('pointermove', onPointerMove);
+      this.el.removeEventListener('pointerup', onPointerUp);
+      this.el.removeEventListener('pointercancel', onPointerCancel);
+      this.el.removeEventListener('lostpointercapture', onPointerCancel);
+      this.cancelPress = null;
+      this.pressCleanup = null;
+    };
+  }
+
+  setInputEnabled(enabled: boolean): void {
+    this.inputEnabled = enabled;
+    this.el.style.pointerEvents = enabled ? 'auto' : 'none';
+    if (!enabled) this.cancelPress?.();
+  }
+
+  destroy(): void {
+    this.pressCleanup?.();
+    this.eventController.abort();
+    if (this.riseRaf !== null) {
+      cancelAnimationFrame(this.riseRaf);
+      this.riseRaf = null;
+    }
+  }
+
   pulseManaReady(): void {
     this.el.animate(
       [{ transform: 'scale(1)' }, { transform: 'scale(1.04)' }, { transform: 'scale(1)' }],
       { duration: 280, easing: 'ease-in-out' },
+    );
+  }
+
+  /**
+   * 卡面飘字（伤害/治疗/增益/状态结算用，需求 3.1/5.1/6.3）。
+   * @param text 文本（如 "-12"、"+6"）
+   * @param color 文字颜色
+   */
+  floatText(text: string, color: string): void {
+    const el = document.createElement('div');
+    el.textContent = text;
+    el.style.cssText =
+      `position:absolute;left:50%;top:34%;z-index:12;pointer-events:none;transform:translateX(-50%);` +
+      `font-family:"Playfair Display",Georgia,serif;font-weight:800;font-size:${ofs(22)}px;` +
+      `color:${color};text-shadow:0 1px 3px rgba(0,0,0,.95),0 0 6px ${color}`;
+    this.el.appendChild(el);
+    el.animate(
+      [
+        { opacity: 0, transform: 'translateX(-50%) translateY(6px) scale(.8)' },
+        { opacity: 1, transform: 'translateX(-50%) translateY(-14px) scale(1.1)', offset: 0.4 },
+        { opacity: 0, transform: 'translateX(-50%) translateY(-40px) scale(1)' },
+      ],
+      { duration: 780, easing: 'cubic-bezier(.2,.8,.25,1)' },
+    ).onfinish = () => el.remove();
+  }
+
+  /** 命中一击：卡面短促红闪 + 轻微抖动（技能伤害反馈） */
+  hitFlash(): void {
+    this.el.animate(
+      [
+        { filter: 'brightness(1)' },
+        { filter: 'brightness(1.8) drop-shadow(0 0 6px rgba(255,80,80,.8))', offset: 0.3 },
+        { filter: 'brightness(1)' },
+      ],
+      { duration: 260, easing: 'ease-out' },
     );
   }
 
@@ -476,33 +990,94 @@ export class TeamView {
   readonly el: HTMLDivElement;
   private cards = new Map<number, CharacterCard>();
   private side: PlayerSide;
+  private shortPress?: (charId: number) => void;
+  private longPress?: (charId: number) => void;
+  private leftAnchor = 0;
+  private rightAnchor = 0;
+  private mounted = false;
+  private inputEnabled = true;
 
-  constructor(team: Team, side: PlayerSide, opts?: { portraits?: Record<number, string> }) {
+  constructor(
+    team: Team,
+    side: PlayerSide,
+    opts?: {
+      portraits?: Record<number, string>;
+      /** @deprecated Use onShortPress. */
+      onCardClick?: (charId: number) => void;
+      onShortPress?: (charId: number) => void;
+      onLongPress?: (charId: number) => void;
+    },
+  ) {
     ensureStyles();
     this.side = side;
+    this.shortPress = opts?.onShortPress ?? opts?.onCardClick;
+    this.longPress = opts?.onLongPress;
     this.el = document.createElement('div');
     this.el.className = 'gcol';
     const frame = document.createElement('div');
     frame.className = 'turn-frame';
     this.el.appendChild(frame);
-    team.characters.forEach((ch, i) => {
-      const card = new CharacterCard(ch, side, {
-        portrait: opts?.portraits?.[ch.id],
-        variant: VARIANTS[i % VARIANTS.length],
+
+    team.characters.forEach((char, index) => {
+      const card = new CharacterCard(char, side, {
+        portrait: opts?.portraits?.[char.id],
+        variant: VARIANTS[index % VARIANTS.length],
       });
+      this.bindCard(card, char.id);
       this.el.appendChild(card.el);
-      this.cards.set(ch.id, card);
+      this.cards.set(char.id, card);
     });
+    this.applyLayout();
   }
 
-  /** 设置回合高亮：行动方整列外围描边光边；非行动方正常显示（不压暗） */
+  private bindCard(card: CharacterCard, charId: number): void {
+    if (!this.shortPress && !this.longPress) return;
+    card.el.style.pointerEvents = 'auto';
+    card.el.style.cursor = 'pointer';
+    card.bindPress(
+      this.shortPress ? () => this.shortPress!(charId) : undefined,
+      this.longPress ? () => this.longPress!(charId) : undefined,
+    );
+    card.setInputEnabled(this.inputEnabled);
+  }
+
+  private layoutMetrics(): { slots: 3 | 4; width: number; height: number } {
+    const slots: 3 | 4 = this.cards.size >= 4 ? 4 : 3;
+    const scale = BOARD_PX / 512;
+    return {
+      slots,
+      width: Math.round((slots === 4 ? 132 : 142) * scale),
+      height: Math.floor((BOARD_PX - (slots - 1) * CARD_GAP) / slots),
+    };
+  }
+
+  /** Switch between the three-card and four-card layouts without rebuilding the column. */
+  private applyLayout(): void {
+    const metrics = this.layoutMetrics();
+    this.el.style.width = `${metrics.width}px`;
+    for (const card of this.cards.values()) card.resize(metrics.width, metrics.height);
+    if (!this.mounted) return;
+    const left = this.side === PlayerSide.Left
+      ? this.rightAnchor - metrics.width
+      : this.leftAnchor;
+    this.el.style.left = `${left}px`;
+  }
+
+  setInputEnabled(enabled: boolean): void {
+    this.inputEnabled = enabled;
+    for (const card of this.cards.values()) card.setInputEnabled(enabled);
+  }
+
   setTurnActive(active: boolean): void {
     this.el.classList.toggle('active-ally', active && this.side === PlayerSide.Left);
     this.el.classList.toggle('active-enemy', active && this.side === PlayerSide.Right);
   }
 
-  /** 挂到 DOM 覆盖层，并按画布坐标定位 */
   mount(parent: HTMLElement, left: number, top: number): void {
+    const width = this.layoutMetrics().width;
+    this.leftAnchor = left;
+    this.rightAnchor = left + width;
+    this.mounted = true;
     this.el.style.left = `${left}px`;
     this.el.style.top = `${top}px`;
     parent.appendChild(this.el);
@@ -510,6 +1085,59 @@ export class TeamView {
 
   getCard(charId: number): CharacterCard | undefined {
     return this.cards.get(charId);
+  }
+
+  addCharacterCard(char: Character, opts?: { portrait?: string }): CharacterCard {
+    const existing = this.cards.get(char.id);
+    if (existing) return existing;
+    const card = new CharacterCard(char, this.side, {
+      portrait: opts?.portrait,
+      variant: VARIANTS[this.cards.size % VARIANTS.length],
+    });
+    this.bindCard(card, char.id);
+    this.el.appendChild(card.el);
+    this.cards.set(char.id, card);
+    this.applyLayout();
+    card.el.animate(
+      [
+        { opacity: 0, transform: 'scale(.6)' },
+        { opacity: 1, transform: 'scale(1.06)', offset: 0.7 },
+        { opacity: 1, transform: 'scale(1)' },
+      ],
+      { duration: 360, easing: 'cubic-bezier(.2,.8,.25,1)' },
+    );
+    return card;
+  }
+
+  /** Remove a defeated card from flow so survivors reflow and queued replacements append last. */
+  removeCharacterCard(charId: number): boolean {
+    const card = this.cards.get(charId);
+    if (!card) return false;
+    const top = card.el.offsetTop;
+    const left = card.el.offsetLeft;
+    const width = card.el.offsetWidth;
+    const height = card.el.offsetHeight;
+    this.cards.delete(charId);
+    card.destroy();
+
+    card.el.style.position = 'absolute';
+    card.el.style.left = `${left}px`;
+    card.el.style.top = `${top}px`;
+    card.el.style.width = `${width}px`;
+    card.el.style.height = `${height}px`;
+    card.el.style.zIndex = '24';
+    card.el.style.pointerEvents = 'none';
+    this.applyLayout();
+
+    const departure = card.el.animate(
+      [
+        { opacity: 1, transform: 'scale(1)', filter: 'brightness(1)' },
+        { opacity: 0, transform: 'scale(.72)', filter: 'brightness(.45) grayscale(.7)' },
+      ],
+      { duration: AnimConfig.defeat.cardExitDuration, easing: 'cubic-bezier(.4,0,.8,.3)', fill: 'forwards' },
+    );
+    departure.onfinish = () => card.el.remove();
+    return true;
   }
 
   refreshAll(): void {

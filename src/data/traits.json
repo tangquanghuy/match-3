@@ -1,0 +1,2182 @@
+[
+  {
+    "code": "armored",
+    "name": "全副武装",
+    "description": "降低来自骷髅头的伤害 25%。",
+    "troops": 203,
+    "skullDamageReduction": 0.25
+  },
+  {
+    "code": "undying",
+    "name": "不死不灭",
+    "description": "对中毒、疾病、狼化和死亡标记免疫",
+    "troops": 150,
+    "statusImmunities": [
+      "poison"
+    ]
+  },
+  {
+    "code": "stoneskin",
+    "name": "铁壁铜墙",
+    "description": "降低来自骷髅头的伤害 50%。",
+    "troops": 148,
+    "skullDamageReduction": 0.5
+  },
+  {
+    "code": "spellarmor",
+    "name": "法术铠甲",
+    "description": "降低来自法术的伤害 25%。",
+    "troops": 111,
+    "spellDamageReduction": 0.25
+  },
+  {
+    "code": "agile",
+    "name": "敏捷",
+    "description": "有 20% 的几率闪避骷髅头伤害。",
+    "troops": 110,
+    "dodgeChance": 0.2
+  },
+  {
+    "code": "revered",
+    "name": "崇敬",
+    "description": "所有盟友获得 2 点随机技能值。",
+    "troops": 103,
+    "teamAura": {
+      "scope": "allies",
+      "stat": "magic",
+      "amount": 2
+    }
+  },
+  {
+    "code": "fireproof",
+    "name": "防火",
+    "description": "对燃烧和妖火状态效果免疫。",
+    "troops": 95,
+    "statusImmunities": [
+      "burning"
+    ]
+  },
+  {
+    "code": "impervious",
+    "name": "无坚不摧",
+    "description": "对所有状态效果、吞噬、狼化和法力燃烧免疫",
+    "troops": 85,
+    "statusImmunities": [
+      "*"
+    ]
+  },
+  {
+    "code": "accursed",
+    "name": "诅咒",
+    "description": "所有敌人损失 2 点随机技能值。",
+    "troops": 84,
+    "teamAura": {
+      "scope": "enemies",
+      "stat": "magic",
+      "amount": -2
+    }
+  },
+  {
+    "code": "arcane",
+    "name": "秘法",
+    "description": "当一名盟友施放法术时获得 1 点魔法值。",
+    "troops": 79,
+    "onAllyCastGain": {
+      "stat": "magic",
+      "amount": 1
+    }
+  },
+  {
+    "code": "fast",
+    "name": "快速",
+    "description": "战斗开始时获得 50% 法力。",
+    "troops": 68,
+    "battleStartManaRatio": 0.5
+  },
+  {
+    "code": "inscribed",
+    "name": "铭刻",
+    "description": "当一名敌人施放法术时获得 1 点护甲值。",
+    "troops": 67,
+    "onEnemyCastGain": {
+      "stat": "armor",
+      "amount": 1
+    }
+  },
+  {
+    "code": "alert",
+    "name": "警醒",
+    "description": "对沉默状态免疫。",
+    "troops": 59,
+    "statusImmunities": [
+      "silence"
+    ]
+  },
+  {
+    "code": "toughscales",
+    "name": "坚甲硬鳞",
+    "description": "降低来自骷髅头的伤害 30%。",
+    "troops": 59,
+    "skullDamageReduction": 0.3
+  },
+  {
+    "code": "insulated",
+    "name": "隔热体",
+    "description": "对冻结免疫。",
+    "troops": 56,
+    "statusImmunities": [
+      "frozen"
+    ]
+  },
+  {
+    "code": "big",
+    "name": "庞然",
+    "description": "在配对 4 或 5 颗宝石时，获得 1 点生命值。",
+    "troops": 55,
+    "onBigMatchGain": {
+      "stat": "hp",
+      "amount": 1
+    }
+  },
+  {
+    "code": "empowered",
+    "name": "赐能",
+    "description": "战斗开始时获得全满法力值。",
+    "troops": 46,
+    "battleStartManaRatio": 1
+  },
+  {
+    "code": "beastbond",
+    "name": "野兽族亲",
+    "description": "野兽盟友获得 2 点生命值。",
+    "troops": 45,
+    "typeAura": {
+      "troopType": "Beast",
+      "stat": "hp",
+      "amount": 2
+    }
+  },
+  {
+    "code": "regeneration",
+    "name": "再生",
+    "description": "在每回合开始时恢复 1 点生命值。",
+    "troops": 45,
+    "regen": {
+      "stat": "hp",
+      "amount": 1
+    }
+  },
+  {
+    "code": "fortitude",
+    "name": "坚韧",
+    "description": "对击晕、中毒、疾病、死亡标记、狼化和吞噬免疫",
+    "troops": 43,
+    "statusImmunities": [
+      "poison",
+      "stun"
+    ]
+  },
+  {
+    "code": "frenzy",
+    "name": "狂暴",
+    "description": "在受到攻击时获得 1 点攻击力。",
+    "troops": 38,
+    "onDamagedGain": {
+      "stat": "attack",
+      "amount": 1
+    }
+  },
+  {
+    "code": "infernalarmor",
+    "name": "炼狱护甲",
+    "description": "反弹 25% 的骷髅头伤害。",
+    "troops": 38,
+    "reflectSkullRatio": 0.25
+  },
+  {
+    "code": "invulnerable",
+    "name": "无懈可击",
+    "description": "对所有状态效果、吞噬、法力耗尽、转化、狼化和致命伤害免疫",
+    "troops": 38,
+    "statusImmunities": [
+      "*"
+    ]
+  },
+  {
+    "code": "barkskin",
+    "name": "树皮",
+    "description": "降低来自骷髅头的伤害 33%。",
+    "troops": 36,
+    "skullDamageReduction": 0.33
+  },
+  {
+    "code": "thickhide",
+    "name": "皮粗肉糙",
+    "description": "降低来自骷髅头的伤害 20%。",
+    "troops": 36,
+    "skullDamageReduction": 0.2
+  },
+  {
+    "code": "waterlink",
+    "name": "水系灵链",
+    "description": "在配对蓝色宝石时获得额外的蓝色法力。",
+    "troops": 35,
+    "manaLink": {
+      "color": "Blue",
+      "amount": 1
+    }
+  },
+  {
+    "code": "sturdy",
+    "name": "健壮",
+    "description": "对中毒状态免疫。",
+    "troops": 34,
+    "statusImmunities": [
+      "poison"
+    ]
+  },
+  {
+    "code": "venomous",
+    "name": "毒液",
+    "description": "在造成骷髅头伤害时，使敌人陷入中毒状态。",
+    "troops": 33,
+    "inflictOnSkullHit": {
+      "id": "poison",
+      "turns": 3,
+      "magnitude": 1
+    }
+  },
+  {
+    "code": "magiclink",
+    "name": "魔法灵链",
+    "description": "在配对紫色宝石时获得额外的紫色法力。",
+    "troops": 32,
+    "manaLink": {
+      "color": "Purple",
+      "amount": 1
+    }
+  },
+  {
+    "code": "nimble",
+    "name": "灵巧",
+    "description": "对缠绕效果免疫。",
+    "troops": 32,
+    "statusImmunities": [
+      "entangle"
+    ]
+  },
+  {
+    "code": "huge",
+    "name": "巨型",
+    "description": "在配对 4 或 5 颗宝石时，获得 2 点生命值。",
+    "troops": 32,
+    "onBigMatchGain": {
+      "stat": "hp",
+      "amount": 2
+    }
+  },
+  {
+    "code": "naturelink",
+    "name": "自然灵链",
+    "description": "在配对绿色宝石时获得额外的绿色法力。",
+    "troops": 31,
+    "manaLink": {
+      "color": "Green",
+      "amount": 1
+    }
+  },
+  {
+    "code": "firelink",
+    "name": "火焰灵链",
+    "description": "在配对红色宝石时获得额外的红色法力。",
+    "troops": 30,
+    "manaLink": {
+      "color": "Red",
+      "amount": 1
+    }
+  },
+  {
+    "code": "grudge",
+    "name": "怨恨",
+    "description": "当一名敌人施放法术时获得 1 点攻击力。",
+    "troops": 30,
+    "onEnemyCastGain": {
+      "stat": "attack",
+      "amount": 1
+    }
+  },
+  {
+    "code": "darkancestry",
+    "name": "暗黑血脉",
+    "description": "对法力耗尽、沉默、妖火和织网状态效果免疫。",
+    "troops": 29,
+    "statusImmunities": [
+      "burning",
+      "silence",
+      "entangle"
+    ]
+  },
+  {
+    "code": "holyarmor",
+    "name": "神圣护甲",
+    "description": "降低来自骷髅头的伤害 40%。",
+    "troops": 29,
+    "skullDamageReduction": 0.4
+  },
+  {
+    "code": "swift",
+    "name": "迅疾",
+    "description": "战斗开始时获得 75% 法力。",
+    "troops": 27,
+    "battleStartManaRatio": 0.75
+  },
+  {
+    "code": "foxcunning",
+    "name": "狡猾狐狸",
+    "description": "战斗开始时获得 25% 法力。",
+    "troops": 27,
+    "battleStartManaRatio": 0.25
+  },
+  {
+    "code": "feybond",
+    "name": "妖仙族亲",
+    "description": "妖仙盟友获得 2 点生命值。",
+    "troops": 25,
+    "typeAura": {
+      "troopType": "Fey",
+      "stat": "hp",
+      "amount": 2
+    }
+  },
+  {
+    "code": "airlink",
+    "name": "空气灵链",
+    "description": "从黄色宝石配对中获得额外的黄色法力。",
+    "troops": 24,
+    "manaLink": {
+      "color": "Yellow",
+      "amount": 1
+    }
+  },
+  {
+    "code": "elementalbond",
+    "name": "元素族亲",
+    "description": "元素盟友获得 2 点生命值。",
+    "troops": 24,
+    "typeAura": {
+      "troopType": "Elemental",
+      "stat": "hp",
+      "amount": 2
+    }
+  },
+  {
+    "code": "dragonbond",
+    "name": "龙族族亲",
+    "description": "龙族盟友获得 2 点生命值。",
+    "troops": 24,
+    "typeAura": {
+      "troopType": "Dragon",
+      "stat": "hp",
+      "amount": 2
+    }
+  },
+  {
+    "code": "stonelink",
+    "name": "岩石灵链",
+    "description": "在配对棕色宝石时获得额外的棕色法力。",
+    "troops": 23,
+    "manaLink": {
+      "color": "Brown",
+      "amount": 1
+    }
+  },
+  {
+    "code": "highancestry",
+    "name": "高等血脉",
+    "description": "对法力耗尽、沉默、妖火和死亡标记状态效果免疫。",
+    "troops": 23,
+    "statusImmunities": [
+      "burning",
+      "silence"
+    ]
+  },
+  {
+    "code": "armorpiercing",
+    "name": "穿透护甲",
+    "description": "骷髅头伤害有 50% 的几率略过护甲值。",
+    "troops": 22,
+    "armorPierceChance": 0.5
+  },
+  {
+    "code": "waterheart",
+    "name": "水系之心",
+    "description": "每有一名蓝色盟友则获得 1 点生命值。",
+    "troops": 22,
+    "perAllyColor": {
+      "color": "Blue",
+      "stat": "hp",
+      "amount": 1
+    }
+  },
+  {
+    "code": "humanbond",
+    "name": "人类族亲",
+    "description": "人类盟友获得 2 点生命值。",
+    "troops": 21,
+    "typeAura": {
+      "troopType": "Human",
+      "stat": "hp",
+      "amount": 2
+    }
+  },
+  {
+    "code": "natureheart",
+    "name": "自然之心",
+    "description": "每有一名绿色盟友则获得 1 点生命值。",
+    "troops": 21,
+    "perAllyColor": {
+      "color": "Green",
+      "stat": "hp",
+      "amount": 1
+    }
+  },
+  {
+    "code": "thickhead",
+    "name": "铁头",
+    "description": "对击晕免疫。",
+    "troops": 21,
+    "statusImmunities": [
+      "stun"
+    ]
+  },
+  {
+    "code": "reinforced",
+    "name": "增援",
+    "description": "在每回合开始时恢复 1 点护甲值。",
+    "troops": 20,
+    "regen": {
+      "stat": "armor",
+      "amount": 1
+    }
+  },
+  {
+    "code": "aflame",
+    "name": "燃烧",
+    "description": "在造成骷髅头伤害时燃烧敌人。",
+    "troops": 20,
+    "inflictOnSkullHit": {
+      "id": "burning",
+      "turns": 3,
+      "magnitude": 1
+    }
+  },
+  {
+    "code": "daemonbond",
+    "name": "恶魔族亲",
+    "description": "恶魔盟友获得 2 点生命值。",
+    "troops": 20,
+    "typeAura": {
+      "troopType": "Daemon",
+      "stat": "hp",
+      "amount": 2
+    }
+  },
+  {
+    "code": "waterspirit",
+    "name": "水系之灵",
+    "description": "每有一名蓝色盟友则获得 1 点魔法值。",
+    "troops": 19,
+    "perAllyColor": {
+      "color": "Blue",
+      "stat": "magic",
+      "amount": 1
+    }
+  },
+  {
+    "code": "divinebond",
+    "name": "神祇族亲",
+    "description": "神祇盟友获得 2 点生命值。",
+    "troops": 19,
+    "typeAura": {
+      "troopType": "Divine",
+      "stat": "hp",
+      "amount": 2
+    }
+  },
+  {
+    "code": "chilltouch",
+    "name": "寒霜之触",
+    "description": "在造成骷髅头伤害时冻结敌人。",
+    "troops": 19,
+    "inflictOnSkullHit": {
+      "id": "frozen",
+      "turns": 3,
+      "magnitude": 1
+    }
+  },
+  {
+    "code": "lifedrain",
+    "name": "吸收生命",
+    "description": "当敌人身亡时获得 4 点生命值。",
+    "troops": 18,
+    "onEnemyDeathGain": {
+      "stat": "hp",
+      "amount": 4
+    }
+  },
+  {
+    "code": "stoneheart",
+    "name": "岩石之心",
+    "description": "每有一名棕色盟友则获得 1 点生命值。",
+    "troops": 17,
+    "perAllyColor": {
+      "color": "Brown",
+      "stat": "hp",
+      "amount": 1
+    }
+  },
+  {
+    "code": "firespirit",
+    "name": "火焰之灵",
+    "description": "每有一名红色盟友则获得 1 点魔法值。",
+    "troops": 16,
+    "perAllyColor": {
+      "color": "Red",
+      "stat": "magic",
+      "amount": 1
+    }
+  },
+  {
+    "code": "monsterbond",
+    "name": "怪物族亲",
+    "description": "怪物盟友获得 2 点生命值。",
+    "troops": 16,
+    "typeAura": {
+      "troopType": "Monster",
+      "stat": "hp",
+      "amount": 2
+    }
+  },
+  {
+    "code": "airspirit",
+    "name": "空气之灵",
+    "description": "每有一名黄色盟友则获得 1 点魔法值。",
+    "troops": 16,
+    "perAllyColor": {
+      "color": "Yellow",
+      "stat": "magic",
+      "amount": 1
+    }
+  },
+  {
+    "code": "knightbond",
+    "name": "骑士族亲",
+    "description": "骑士盟友获得 2 点生命值。",
+    "troops": 16,
+    "typeAura": {
+      "troopType": "Knight",
+      "stat": "hp",
+      "amount": 2
+    }
+  },
+  {
+    "code": "constructbond",
+    "name": "建造族亲",
+    "description": "建造盟友获得 2 点生命值。",
+    "troops": 16,
+    "typeAura": {
+      "troopType": "Construct",
+      "stat": "hp",
+      "amount": 2
+    }
+  },
+  {
+    "code": "spellblock",
+    "name": "法术阻碍",
+    "description": "降低来自法术的伤害 50%。",
+    "troops": 16,
+    "spellDamageReduction": 0.5
+  },
+  {
+    "code": "wildfolkbond",
+    "name": "蛮族族亲",
+    "description": "蛮族盟友获得 2 点生命值。",
+    "troops": 15,
+    "typeAura": {
+      "troopType": "Wildfolk",
+      "stat": "hp",
+      "amount": 2
+    }
+  },
+  {
+    "code": "magicheart",
+    "name": "魔法之心",
+    "description": "每有一名紫色盟友则获得 1 点生命值。",
+    "troops": 15,
+    "perAllyColor": {
+      "color": "Purple",
+      "stat": "hp",
+      "amount": 1
+    }
+  },
+  {
+    "code": "trollregeneration",
+    "name": "巨魔再生",
+    "description": "在每回合开始时恢复 3 点生命值。",
+    "troops": 15,
+    "regen": {
+      "stat": "hp",
+      "amount": 3
+    }
+  },
+  {
+    "code": "roguebond",
+    "name": "盗贼族亲",
+    "description": "盗贼盟友获得 2 点生命值。",
+    "troops": 15,
+    "typeAura": {
+      "troopType": "Rogue",
+      "stat": "hp",
+      "amount": 2
+    }
+  },
+  {
+    "code": "naturespirit",
+    "name": "自然之灵",
+    "description": "每有一名绿色盟友则获得 1 点魔法值。",
+    "troops": 14,
+    "perAllyColor": {
+      "color": "Green",
+      "stat": "magic",
+      "amount": 1
+    }
+  },
+  {
+    "code": "woodancestry",
+    "name": "灵木血脉",
+    "description": "对法力耗尽、沉默、妖火和缠绕状态效果免疫。",
+    "troops": 14,
+    "statusImmunities": [
+      "burning",
+      "silence",
+      "entangle"
+    ]
+  },
+  {
+    "code": "elfbond",
+    "name": "精灵族亲",
+    "description": "精灵盟友获得 2 点生命值。",
+    "troops": 14,
+    "typeAura": {
+      "troopType": "Elf",
+      "stat": "hp",
+      "amount": 2
+    }
+  },
+  {
+    "code": "clobber",
+    "name": "痛揍",
+    "description": "对被击晕的敌人造成双倍骷髅头伤害。",
+    "troops": 14,
+    "skullMultVsStatus": {
+      "status": "stun",
+      "mult": 2
+    }
+  },
+  {
+    "code": "magicspirit",
+    "name": "魔法之灵",
+    "description": "每有一名紫色盟友则获得 1 点魔法值。",
+    "troops": 13,
+    "perAllyColor": {
+      "color": "Purple",
+      "stat": "magic",
+      "amount": 1
+    }
+  },
+  {
+    "code": "pyromania",
+    "name": "纵火狂",
+    "description": "对陷入燃烧状态的敌人造成双倍骷髅头伤害。",
+    "troops": 13,
+    "skullMultVsStatus": {
+      "status": "burning",
+      "mult": 2
+    }
+  },
+  {
+    "code": "wargarebond",
+    "name": "狼族族亲",
+    "description": "狼族盟友获得 2 点生命值。",
+    "troops": 13,
+    "typeAura": {
+      "troopType": "Wargare",
+      "stat": "hp",
+      "amount": 2
+    }
+  },
+  {
+    "code": "stonespirit",
+    "name": "岩石之灵",
+    "description": "每有一名棕色盟友则获得 1 点魔法值。",
+    "troops": 12,
+    "perAllyColor": {
+      "color": "Brown",
+      "stat": "magic",
+      "amount": 1
+    }
+  },
+  {
+    "code": "giantbond",
+    "name": "巨人族亲",
+    "description": "巨人盟友获得 2 点生命值。",
+    "troops": 12,
+    "typeAura": {
+      "troopType": "Giant",
+      "stat": "hp",
+      "amount": 2
+    }
+  },
+  {
+    "code": "undeadbond",
+    "name": "不死族族亲",
+    "description": "不死族盟友获得 2 点生命值。",
+    "troops": 12,
+    "typeAura": {
+      "troopType": "Undead",
+      "stat": "hp",
+      "amount": 2
+    }
+  },
+  {
+    "code": "knightshield",
+    "name": "骑士之盾",
+    "description": "骑士盟友获得 2 点护甲值。",
+    "troops": 12,
+    "typeAura": {
+      "troopType": "Knight",
+      "stat": "armor",
+      "amount": 2
+    }
+  },
+  {
+    "code": "centaurbond",
+    "name": "人马族族亲",
+    "description": "人马盟友获得 2 点生命值。",
+    "troops": 11,
+    "typeAura": {
+      "troopType": "Centaur",
+      "stat": "hp",
+      "amount": 2
+    }
+  },
+  {
+    "code": "goblinbond",
+    "name": "哥布林族亲",
+    "description": "哥布林盟友获得 2 点生命值。",
+    "troops": 11,
+    "typeAura": {
+      "troopType": "Goblin",
+      "stat": "hp",
+      "amount": 2
+    }
+  },
+  {
+    "code": "rakshabond",
+    "name": "猫族族亲",
+    "description": "猫族盟友获得 2 点生命值。",
+    "troops": 11,
+    "typeAura": {
+      "troopType": "Raksha",
+      "stat": "hp",
+      "amount": 2
+    }
+  },
+  {
+    "code": "orcarmor",
+    "name": "兽人护甲",
+    "description": "在自身受到伤害时获得 5 点护甲值。",
+    "troops": 11,
+    "onDamagedGain": {
+      "stat": "armor",
+      "amount": 5
+    }
+  },
+  {
+    "code": "mysticbond",
+    "name": "秘士族亲",
+    "description": "秘士盟友获得 2 点生命值。",
+    "troops": 11,
+    "typeAura": {
+      "troopType": "Mystic",
+      "stat": "hp",
+      "amount": 2
+    }
+  },
+  {
+    "code": "stryxbond",
+    "name": "鸟族族亲",
+    "description": "鸟族盟友获得 2 点生命值。",
+    "troops": 11,
+    "typeAura": {
+      "troopType": "Stryx",
+      "stat": "hp",
+      "amount": 2
+    }
+  },
+  {
+    "code": "daemonshield",
+    "name": "恶魔之盾",
+    "description": "恶魔盟友获得 2 点护甲值。",
+    "troops": 11,
+    "typeAura": {
+      "troopType": "Daemon",
+      "stat": "armor",
+      "amount": 2
+    }
+  },
+  {
+    "code": "skyancestry",
+    "name": "天穹血脉",
+    "description": "对法力耗尽、沉默、妖火和法力灼烧免疫。",
+    "troops": 11,
+    "statusImmunities": [
+      "burning",
+      "silence"
+    ]
+  },
+  {
+    "code": "mechbond",
+    "name": "机械族亲",
+    "description": "机械盟友获得 2 点生命值。",
+    "troops": 10,
+    "typeAura": {
+      "troopType": "Mech",
+      "stat": "hp",
+      "amount": 2
+    }
+  },
+  {
+    "code": "orcfury",
+    "name": "兽人之怒",
+    "description": "在自身受到伤害时获得 3 点攻击力。",
+    "troops": 10,
+    "onDamagedGain": {
+      "stat": "attack",
+      "amount": 3
+    }
+  },
+  {
+    "code": "slippery",
+    "name": "滑不溜鳅",
+    "description": "对织网状态免疫。",
+    "troops": 10,
+    "statusImmunities": [
+      "entangle"
+    ]
+  },
+  {
+    "code": "fireheart",
+    "name": "火焰之心",
+    "description": "每有一名红色盟友则获得 1 点生命值。",
+    "troops": 10,
+    "perAllyColor": {
+      "color": "Red",
+      "stat": "hp",
+      "amount": 1
+    }
+  },
+  {
+    "code": "nagabond",
+    "name": "纳迦族亲",
+    "description": "纳迦盟友获得 2 点生命值。",
+    "troops": 10,
+    "typeAura": {
+      "troopType": "Naga",
+      "stat": "hp",
+      "amount": 2
+    }
+  },
+  {
+    "code": "airheart",
+    "name": "空气之心",
+    "description": "每有一名黄色盟友则获得 1 点生命值。",
+    "troops": 10,
+    "perAllyColor": {
+      "color": "Yellow",
+      "stat": "hp",
+      "amount": 1
+    }
+  },
+  {
+    "code": "merfolkbond",
+    "name": "海族族亲",
+    "description": "海族盟友获得 2 点生命值。",
+    "troops": 10,
+    "typeAura": {
+      "troopType": "Merfolk",
+      "stat": "hp",
+      "amount": 2
+    }
+  },
+  {
+    "code": "repair",
+    "name": "修复",
+    "description": "在配对 4 或 5 颗宝石时，获得 1 点护甲值。",
+    "troops": 10,
+    "onBigMatchGain": {
+      "stat": "armor",
+      "amount": 1
+    }
+  },
+  {
+    "code": "dwarfbond",
+    "name": "矮人族亲",
+    "description": "矮人盟友获得 2 点生命值。",
+    "troops": 9,
+    "typeAura": {
+      "troopType": "Dwarf",
+      "stat": "hp",
+      "amount": 2
+    }
+  },
+  {
+    "code": "icearmor",
+    "name": "寒冰护甲",
+    "description": "降低来自骷髅头的伤害 65%。",
+    "troops": 9,
+    "skullDamageReduction": 0.65
+  },
+  {
+    "code": "taurosbond",
+    "name": "牛头族族亲",
+    "description": "牛头族盟友获得 2 点生命值。",
+    "troops": 9,
+    "typeAura": {
+      "troopType": "Tauros",
+      "stat": "hp",
+      "amount": 2
+    }
+  },
+  {
+    "code": "dwarfshield",
+    "name": "矮人之盾",
+    "description": "矮人盟友获得 2 点护甲值。",
+    "troops": 9,
+    "typeAura": {
+      "troopType": "Dwarf",
+      "stat": "armor",
+      "amount": 2
+    }
+  },
+  {
+    "code": "gemscales",
+    "name": "宝石天平",
+    "description": "消除 55% 的骷髅头伤害。",
+    "troops": 8,
+    "skullDamageReduction": 0.55
+  },
+  {
+    "code": "dragonslayer",
+    "name": "龙族杀手",
+    "description": "对龙族军队造成双倍骷髅头伤害。",
+    "troops": 7,
+    "skullMultVsTroopType": {
+      "troopType": "Dragon",
+      "mult": 2
+    }
+  },
+  {
+    "code": "undeadslayer",
+    "name": "不死族杀手",
+    "description": "对不死族造成双倍骷髅头伤害。",
+    "troops": 7,
+    "skullMultVsTroopType": {
+      "troopType": "Undead",
+      "mult": 2
+    }
+  },
+  {
+    "code": "avenger",
+    "name": "复仇者",
+    "description": "当一名盟友身亡时，获得 3 点攻击力。",
+    "troops": 7,
+    "onAllyDeathGain": {
+      "stat": "attack",
+      "amount": 3
+    }
+  },
+  {
+    "code": "daemonslayer",
+    "name": "恶魔杀手",
+    "description": "对恶魔军队造成双倍骷髅头伤害。",
+    "troops": 7,
+    "skullMultVsTroopType": {
+      "troopType": "Daemon",
+      "mult": 2
+    }
+  },
+  {
+    "code": "invigorated",
+    "name": "生气勃勃",
+    "description": "当一名盟友施放法术时获得 1 点生命值。",
+    "troops": 7,
+    "onAllyCastGain": {
+      "stat": "hp",
+      "amount": 1
+    }
+  },
+  {
+    "code": "invention",
+    "name": "发明",
+    "description": "在配对 4 或 5 颗宝石时，获得 2 点护甲值。",
+    "troops": 7,
+    "onBigMatchGain": {
+      "stat": "armor",
+      "amount": 2
+    }
+  },
+  {
+    "code": "cosmicshield",
+    "name": "宇宙盾牌",
+    "description": "降低来自法术的伤害 55%。",
+    "troops": 7,
+    "spellDamageReduction": 0.55
+  },
+  {
+    "code": "waterbrand",
+    "name": "水系之印",
+    "description": "每有一名蓝色盟友则获得 1 点攻击力。",
+    "troops": 6,
+    "perAllyColor": {
+      "color": "Blue",
+      "stat": "attack",
+      "amount": 1
+    }
+  },
+  {
+    "code": "firebrand",
+    "name": "火焰之印",
+    "description": "每有一名红色盟友则获得 1 点攻击力。",
+    "troops": 6,
+    "perAllyColor": {
+      "color": "Red",
+      "stat": "attack",
+      "amount": 1
+    }
+  },
+  {
+    "code": "snare",
+    "name": "天罗地网",
+    "description": "在造成骷髅头伤害时使敌人陷入织网状态。",
+    "troops": 6,
+    "inflictOnSkullHit": {
+      "id": "entangle",
+      "turns": 3,
+      "magnitude": 1
+    }
+  },
+  {
+    "code": "beastslayer",
+    "name": "野兽杀手",
+    "description": "对野兽军队造成双倍骷髅头伤害。",
+    "troops": 6,
+    "skullMultVsTroopType": {
+      "troopType": "Beast",
+      "mult": 2
+    }
+  },
+  {
+    "code": "orccunning",
+    "name": "兽人之狡",
+    "description": "在自身受到伤害时获得 2 点魔法值。",
+    "troops": 6,
+    "onDamagedGain": {
+      "stat": "magic",
+      "amount": 2
+    }
+  },
+  {
+    "code": "monsterslayer",
+    "name": "怪物杀手",
+    "description": "对怪物军队造成双倍骷髅头伤害。",
+    "troops": 6,
+    "skullMultVsTroopType": {
+      "troopType": "Monster",
+      "mult": 2
+    }
+  },
+  {
+    "code": "shatter",
+    "name": "粉碎",
+    "description": "对冻结的敌人造成双倍骷髅头伤害。",
+    "troops": 6,
+    "skullMultVsStatus": {
+      "status": "frozen",
+      "mult": 2
+    }
+  },
+  {
+    "code": "tangle",
+    "name": "纠缠",
+    "description": "在造成骷髅头伤害时缠绕敌人。",
+    "troops": 6,
+    "inflictOnSkullHit": {
+      "id": "entangle",
+      "turns": 3,
+      "magnitude": 1
+    }
+  },
+  {
+    "code": "divineshield",
+    "name": "神祇之盾",
+    "description": "神祇盟友获得 2 点护甲值。",
+    "troops": 6,
+    "typeAura": {
+      "troopType": "Divine",
+      "stat": "armor",
+      "amount": 2
+    }
+  },
+  {
+    "code": "bornoffire",
+    "name": "火生",
+    "description": "在我的回合开始的时候，创建一颗红色宝石。",
+    "troops": 6,
+    "turnStartCreateGem": {
+      "color": "Red"
+    }
+  },
+  {
+    "code": "bornofwater",
+    "name": "水生",
+    "description": "在我的回合开始的时候，创建一颗蓝色宝石。",
+    "troops": 6,
+    "turnStartCreateGem": {
+      "color": "Blue"
+    }
+  },
+  {
+    "code": "bornofstone",
+    "name": "石生",
+    "description": "在我的回合开始的时候，创建一颗棕色宝石。",
+    "troops": 6,
+    "turnStartCreateGem": {
+      "color": "Brown"
+    }
+  },
+  {
+    "code": "knockout",
+    "name": "击倒",
+    "description": "在造成骷髅头伤害时击晕敌人。",
+    "troops": 5,
+    "inflictOnSkullHit": {
+      "id": "stun",
+      "turns": 3,
+      "magnitude": 1
+    }
+  },
+  {
+    "code": "dragonshield",
+    "name": "龙族之盾",
+    "description": "龙族盟友获得 2 点护甲值。",
+    "troops": 5,
+    "typeAura": {
+      "troopType": "Dragon",
+      "stat": "armor",
+      "amount": 2
+    }
+  },
+  {
+    "code": "bornofnature",
+    "name": "自然生",
+    "description": "在我的回合开始的时候，创建一颗绿色宝石。",
+    "troops": 5,
+    "turnStartCreateGem": {
+      "color": "Green"
+    }
+  },
+  {
+    "code": "suitofcups",
+    "name": "圣杯牌组",
+    "description": "在配对 4 或更多宝石的时候，给予所有盟友 4 颗生命值。",
+    "troops": 5,
+    "onBigMatchGain": {
+      "stat": "hp",
+      "amount": 4
+    }
+  },
+  {
+    "code": "suitofswords",
+    "name": "宝剑牌组",
+    "description": "在配对 4 或更多宝石的时候，给予所有盟友 2 颗攻击力。",
+    "troops": 5,
+    "onBigMatchGain": {
+      "stat": "attack",
+      "amount": 2
+    }
+  },
+  {
+    "code": "ogrefury",
+    "name": "食人魔之怒",
+    "description": "在配对红色宝石时获得 1 点攻击力。",
+    "troops": 4,
+    "onColorMatchGain": {
+      "color": "Red",
+      "stat": "attack",
+      "amount": 1
+    }
+  },
+  {
+    "code": "naturebrand",
+    "name": "自然之印",
+    "description": "每有一名绿色盟友则获得 1 点攻击力。",
+    "troops": 4,
+    "perAllyColor": {
+      "color": "Green",
+      "stat": "attack",
+      "amount": 1
+    }
+  },
+  {
+    "code": "feyshield",
+    "name": "妖仙之盾",
+    "description": "妖仙盟友获得 2 点护甲值。",
+    "troops": 4,
+    "typeAura": {
+      "troopType": "Fey",
+      "stat": "armor",
+      "amount": 2
+    }
+  },
+  {
+    "code": "undeadshield",
+    "name": "不死族之盾",
+    "description": "不死族盟友获得 2 点护甲值。",
+    "troops": 4,
+    "typeAura": {
+      "troopType": "Undead",
+      "stat": "armor",
+      "amount": 2
+    }
+  },
+  {
+    "code": "burninghatred",
+    "name": "燃烧仇恨",
+    "description": "对红色军队造成双倍骷髅头伤害。",
+    "troops": 4,
+    "skullMultVsColor": {
+      "color": "Red",
+      "mult": 2
+    }
+  },
+  {
+    "code": "stonebrand",
+    "name": "岩石之印",
+    "description": "每有一名棕色盟友则获得 1 点攻击力。",
+    "troops": 4,
+    "perAllyColor": {
+      "color": "Brown",
+      "stat": "attack",
+      "amount": 1
+    }
+  },
+  {
+    "code": "knightslayer",
+    "name": "骑士杀手",
+    "description": "对骑士军队造成双倍骷髅头伤害。",
+    "troops": 3,
+    "skullMultVsTroopType": {
+      "troopType": "Knight",
+      "mult": 2
+    }
+  },
+  {
+    "code": "mechslayer",
+    "name": "机械杀手",
+    "description": "对机械军队造成双倍骷髅头伤害。",
+    "troops": 3,
+    "skullMultVsTroopType": {
+      "troopType": "Mech",
+      "mult": 2
+    }
+  },
+  {
+    "code": "humanslayer",
+    "name": "人类杀手",
+    "description": "对人类军队造成双倍骷髅头伤害。",
+    "troops": 3,
+    "skullMultVsTroopType": {
+      "troopType": "Human",
+      "mult": 2
+    }
+  },
+  {
+    "code": "divineslayer",
+    "name": "神祇杀手",
+    "description": "对神祇军队造成双倍骷髅头伤害。",
+    "troops": 3,
+    "skullMultVsTroopType": {
+      "troopType": "Divine",
+      "mult": 2
+    }
+  },
+  {
+    "code": "elementalslayer",
+    "name": "元素杀手",
+    "description": "对元素军队造成双倍骷髅头伤害。",
+    "troops": 3,
+    "skullMultVsTroopType": {
+      "troopType": "Elemental",
+      "mult": 2
+    }
+  },
+  {
+    "code": "nagaslayer",
+    "name": "纳迦杀手",
+    "description": "对纳迦军队造成双倍骷髅头伤害。",
+    "troops": 3,
+    "skullMultVsTroopType": {
+      "troopType": "Naga",
+      "mult": 2
+    }
+  },
+  {
+    "code": "feytouch",
+    "name": "妖仙之触",
+    "description": "在造成骷髅头伤害时使敌人陷入妖火状态。",
+    "troops": 3,
+    "inflictOnSkullHit": {
+      "id": "burning",
+      "turns": 3,
+      "magnitude": 1
+    }
+  },
+  {
+    "code": "entrapment",
+    "name": "诱捕",
+    "description": "对被缠绕的敌人造成双倍骷髅头伤害。",
+    "troops": 3,
+    "skullMultVsStatus": {
+      "status": "entangle",
+      "mult": 2
+    }
+  },
+  {
+    "code": "stormyhatred",
+    "name": "风暴仇恨",
+    "description": "对黄色军队造成双倍骷髅头伤害。",
+    "troops": 3,
+    "skullMultVsColor": {
+      "color": "Yellow",
+      "mult": 2
+    }
+  },
+  {
+    "code": "stalker",
+    "name": "跟踪狂",
+    "description": "对陷入织网状态的敌人造成双倍骷髅头伤害。",
+    "troops": 3,
+    "skullMultVsStatus": {
+      "status": "entangle",
+      "mult": 2
+    }
+  },
+  {
+    "code": "orcbond",
+    "name": "兽人族亲",
+    "description": "兽人盟友获得 2 点生命值。",
+    "troops": 3,
+    "typeAura": {
+      "troopType": "Orc",
+      "stat": "hp",
+      "amount": 2
+    }
+  },
+  {
+    "code": "wargareshield",
+    "name": "狼族之盾",
+    "description": "狼族盟友获得 2 点护甲值。",
+    "troops": 3,
+    "typeAura": {
+      "troopType": "Wargare",
+      "stat": "armor",
+      "amount": 2
+    }
+  },
+  {
+    "code": "elementalshield",
+    "name": "元素之盾",
+    "description": "元素盟友获得 2 点护甲值。",
+    "troops": 3,
+    "typeAura": {
+      "troopType": "Elemental",
+      "stat": "armor",
+      "amount": 2
+    }
+  },
+  {
+    "code": "wildfolkshield",
+    "name": "蛮族之盾",
+    "description": "蛮族盟友获得 2 点护甲值。",
+    "troops": 3,
+    "typeAura": {
+      "troopType": "Wildfolk",
+      "stat": "armor",
+      "amount": 2
+    }
+  },
+  {
+    "code": "elfshield",
+    "name": "精灵之盾",
+    "description": "精灵盟友获得 2 点护甲值。",
+    "troops": 3,
+    "typeAura": {
+      "troopType": "Elf",
+      "stat": "armor",
+      "amount": 2
+    }
+  },
+  {
+    "code": "bonepile",
+    "name": "白骨堆",
+    "description": "在我的回合开始时有 25% 的几率将一颗紫色宝石转换成骷髅头。",
+    "troops": 3,
+    "turnStartColorToSkull": {
+      "color": "Purple",
+      "chance": 0.25
+    }
+  },
+  {
+    "code": "constructshield",
+    "name": "建造之盾",
+    "description": "建造盟友获得 2 点护甲值。",
+    "troops": 3,
+    "typeAura": {
+      "troopType": "Construct",
+      "stat": "armor",
+      "amount": 2
+    }
+  },
+  {
+    "code": "suitofrunes",
+    "name": "符文牌组",
+    "description": "在配对 4 或更多宝石的时候，给予所有盟友 4 颗护甲值。",
+    "troops": 3,
+    "onBigMatchGain": {
+      "stat": "armor",
+      "amount": 4
+    }
+  },
+  {
+    "code": "goblinslayer",
+    "name": "哥布林杀手",
+    "description": "对哥布林军队造成双倍骷髅头伤害。",
+    "troops": 2,
+    "skullMultVsTroopType": {
+      "troopType": "Goblin",
+      "mult": 2
+    }
+  },
+  {
+    "code": "giantslayer",
+    "name": "巨人杀手",
+    "description": "对巨人军队造成双倍骷髅头伤害。",
+    "troops": 2,
+    "skullMultVsTroopType": {
+      "troopType": "Giant",
+      "mult": 2
+    }
+  },
+  {
+    "code": "buriedhatred",
+    "name": "仇恨深埋",
+    "description": "对棕色军队造成双倍骷髅头伤害。",
+    "troops": 2,
+    "skullMultVsColor": {
+      "color": "Brown",
+      "mult": 2
+    }
+  },
+  {
+    "code": "magicbrand",
+    "name": "魔法之印",
+    "description": "每有一名紫色盟友则获得 1 点攻击力。",
+    "troops": 2,
+    "perAllyColor": {
+      "color": "Purple",
+      "stat": "attack",
+      "amount": 1
+    }
+  },
+  {
+    "code": "toxichatred",
+    "name": "剧毒仇恨",
+    "description": "对绿色军队造成双倍骷髅头伤害。",
+    "troops": 2,
+    "skullMultVsColor": {
+      "color": "Green",
+      "mult": 2
+    }
+  },
+  {
+    "code": "stryxslayer",
+    "name": "鸟族杀手",
+    "description": "对鸟族军队造成双倍骷髅头伤害。",
+    "troops": 2,
+    "skullMultVsTroopType": {
+      "troopType": "Stryx",
+      "mult": 2
+    }
+  },
+  {
+    "code": "stryxshield",
+    "name": "鸟族之盾",
+    "description": "鸟族盟友获得 2 点护甲值。",
+    "troops": 2,
+    "typeAura": {
+      "troopType": "Stryx",
+      "stat": "armor",
+      "amount": 2
+    }
+  },
+  {
+    "code": "beastshield",
+    "name": "野兽之盾",
+    "description": "野兽盟友获得 2 点护甲值。",
+    "troops": 2,
+    "typeAura": {
+      "troopType": "Beast",
+      "stat": "armor",
+      "amount": 2
+    }
+  },
+  {
+    "code": "merfolkshield",
+    "name": "海族之盾",
+    "description": "海族盟友获得 2 点护甲值。",
+    "troops": 2,
+    "typeAura": {
+      "troopType": "Merfolk",
+      "stat": "armor",
+      "amount": 2
+    }
+  },
+  {
+    "code": "humanshield",
+    "name": "人类之盾",
+    "description": "人类盟友获得 2 点护甲值。",
+    "troops": 2,
+    "typeAura": {
+      "troopType": "Human",
+      "stat": "armor",
+      "amount": 2
+    }
+  },
+  {
+    "code": "aegis",
+    "name": "圣盾",
+    "description": "降低来自骷髅头的伤害 60%。",
+    "troops": 2,
+    "skullDamageReduction": 0.6
+  },
+  {
+    "code": "monstershield",
+    "name": "怪物之盾",
+    "description": "怪物盟友获得 2 点护甲值。",
+    "troops": 2,
+    "typeAura": {
+      "troopType": "Monster",
+      "stat": "armor",
+      "amount": 2
+    }
+  },
+  {
+    "code": "centaurshield",
+    "name": "人马族之盾",
+    "description": "人马盟友获得 2 点护甲值。",
+    "troops": 2,
+    "typeAura": {
+      "troopType": "Centaur",
+      "stat": "armor",
+      "amount": 2
+    }
+  },
+  {
+    "code": "darkhatred",
+    "name": "暗黑仇恨",
+    "description": "对紫色军队造成双倍骷髅头伤害。",
+    "troops": 2,
+    "skullMultVsColor": {
+      "color": "Purple",
+      "mult": 2
+    }
+  },
+  {
+    "code": "frozenhatred",
+    "name": "冰冻仇恨",
+    "description": "对蓝色军队造成双倍骷髅头伤害。",
+    "troops": 2,
+    "skullMultVsColor": {
+      "color": "Blue",
+      "mult": 2
+    }
+  },
+  {
+    "code": "bornofdarkness",
+    "name": "生于黑暗",
+    "description": "在我的回合开始的时候创建一颗紫色宝石。",
+    "troops": 2,
+    "turnStartCreateGem": {
+      "color": "Purple"
+    }
+  },
+  {
+    "code": "bornoflight",
+    "name": "生于光明",
+    "description": "在我的回合开始的时候创建一颗黄色宝石。",
+    "troops": 2,
+    "turnStartCreateGem": {
+      "color": "Yellow"
+    }
+  },
+  {
+    "code": "rakshashield",
+    "name": "猫族之盾",
+    "description": "猫族盟友获得 2 点护甲值。",
+    "troops": 2,
+    "typeAura": {
+      "troopType": "Raksha",
+      "stat": "armor",
+      "amount": 2
+    }
+  },
+  {
+    "code": "lethaltoxin",
+    "name": "致命毒素",
+    "description": "对陷入中毒和织网状态的敌人造成三倍骷髅头伤害。",
+    "troops": 1,
+    "skullMultVsStatus": {
+      "status": "poison",
+      "mult": 3
+    }
+  },
+  {
+    "code": "trueshot",
+    "name": "箭不虚发",
+    "description": "骷髅头伤害有 75% 的几率略过护甲值。",
+    "troops": 1,
+    "armorPierceChance": 0.75
+  },
+  {
+    "code": "thorns",
+    "name": "荆棘",
+    "description": "反弹 50% 的骷髅头伤害。",
+    "troops": 1,
+    "reflectSkullRatio": 0.5
+  },
+  {
+    "code": "silence",
+    "name": "肃静！",
+    "description": "在造成骷髅头伤害时，使敌人陷入沉默状态。",
+    "troops": 1,
+    "inflictOnSkullHit": {
+      "id": "silence",
+      "turns": 3,
+      "magnitude": 1
+    }
+  },
+  {
+    "code": "graniteskin",
+    "name": "钢筋铁骨",
+    "description": "降低来自骷髅头的伤害 75%。",
+    "troops": 1,
+    "skullDamageReduction": 0.75
+  },
+  {
+    "code": "immense",
+    "name": "庞然大物",
+    "description": "在配对 4 或 5 颗宝石时，获得 10 点生命值。",
+    "troops": 1,
+    "onBigMatchGain": {
+      "stat": "hp",
+      "amount": 10
+    }
+  },
+  {
+    "code": "bloodsucking",
+    "name": "吸血",
+    "description": "对受伤的敌人造成双倍骷髅头伤害。",
+    "troops": 1,
+    "skullMultVsWounded": 2
+  },
+  {
+    "code": "darkfall",
+    "name": "暗黑降临",
+    "description": "在配对紫色宝石时获得 1 点攻击力。",
+    "troops": 1,
+    "onColorMatchGain": {
+      "color": "Purple",
+      "stat": "attack",
+      "amount": 1
+    }
+  },
+  {
+    "code": "dwarfslayer",
+    "name": "矮人杀手",
+    "description": "对矮人军队造成双倍骷髅头伤害。",
+    "troops": 1,
+    "skullMultVsTroopType": {
+      "troopType": "Dwarf",
+      "mult": 2
+    }
+  },
+  {
+    "code": "elfslayer",
+    "name": "精灵杀手",
+    "description": "对精灵军队造成双倍骷髅头伤害。",
+    "troops": 1,
+    "skullMultVsTroopType": {
+      "troopType": "Elf",
+      "mult": 2
+    }
+  },
+  {
+    "code": "sunshine",
+    "name": "阳光",
+    "description": "配对黄色宝石时获得 8 点魔法值。",
+    "troops": 1,
+    "onColorMatchGain": {
+      "color": "Yellow",
+      "stat": "magic",
+      "amount": 8
+    }
+  },
+  {
+    "code": "fall",
+    "name": "秋日",
+    "description": "在配对棕色宝石时获得 8 点魔法值。",
+    "troops": 1,
+    "onColorMatchGain": {
+      "color": "Brown",
+      "stat": "magic",
+      "amount": 8
+    }
+  },
+  {
+    "code": "chill",
+    "name": "寒霜",
+    "description": "在配对蓝色宝石时获得 8 点魔法值。",
+    "troops": 1,
+    "onColorMatchGain": {
+      "color": "Blue",
+      "stat": "magic",
+      "amount": 8
+    }
+  },
+  {
+    "code": "kingswill",
+    "name": "国王之意",
+    "description": "在造成骷髅头伤害时获得 8 点生命值。",
+    "troops": 1,
+    "onSkullHitGain": {
+      "stat": "hp",
+      "amount": 8
+    }
+  },
+  {
+    "code": "compassion",
+    "name": "恻隐之心",
+    "description": "在配对红色宝石时获得 8 点魔法值。",
+    "troops": 1,
+    "onColorMatchGain": {
+      "color": "Red",
+      "stat": "magic",
+      "amount": 8
+    }
+  },
+  {
+    "code": "icycloak",
+    "name": "冰雪斗篷",
+    "description": "对冻结的敌人造成三倍骷髅头伤害。",
+    "troops": 1,
+    "skullMultVsStatus": {
+      "status": "frozen",
+      "mult": 3
+    }
+  },
+  {
+    "code": "seedling",
+    "name": "苗木",
+    "description": "在配对绿色宝石时获得 8 点魔法值。",
+    "troops": 1,
+    "onColorMatchGain": {
+      "color": "Green",
+      "stat": "magic",
+      "amount": 8
+    }
+  },
+  {
+    "code": "aspectofwar",
+    "name": "战争样态",
+    "description": "在每回合开始时获得 3 点攻击力。",
+    "troops": 1,
+    "regen": {
+      "stat": "attack",
+      "amount": 3
+    }
+  },
+  {
+    "code": "mysticslayer",
+    "name": "秘士杀手",
+    "description": "对秘士军队造成双倍骷髅头伤害。",
+    "troops": 1,
+    "skullMultVsTroopType": {
+      "troopType": "Mystic",
+      "mult": 2
+    }
+  },
+  {
+    "code": "virtueofjustice",
+    "name": "正义之美德",
+    "description": "当敌人身亡时，所有盟友获得 3 点攻击力和护甲值。",
+    "troops": 1,
+    "teamAura": {
+      "scope": "allies",
+      "stat": "attack",
+      "amount": 3
+    }
+  },
+  {
+    "code": "virtueofloyalty",
+    "name": "忠诚之美德",
+    "description": "当一名盟友施放法术时，所有盟友获得 3 点护甲值和生命值。",
+    "troops": 1,
+    "teamAura": {
+      "scope": "allies",
+      "stat": "armor",
+      "amount": 3
+    }
+  },
+  {
+    "code": "virtueofcourage",
+    "name": "勇气之美德",
+    "description": "在配对骷髅头时，所有盟友获得 2 点攻击力和生命值。",
+    "troops": 1,
+    "teamAura": {
+      "scope": "allies",
+      "stat": "attack",
+      "amount": 2
+    }
+  },
+  {
+    "code": "virtueofhumility",
+    "name": "谦恭之美德",
+    "description": "当自身生命值承受伤害时，所有盟友获得 2 点护甲值和魔法值。",
+    "troops": 1,
+    "teamAura": {
+      "scope": "allies",
+      "stat": "armor",
+      "amount": 2
+    }
+  },
+  {
+    "code": "virtueofsacrifice",
+    "name": "牺牲之美德",
+    "description": "当一名盟友身亡时，所有盟友获得 2 点攻击力和魔法值。",
+    "troops": 1,
+    "teamAura": {
+      "scope": "allies",
+      "stat": "attack",
+      "amount": 2
+    }
+  },
+  {
+    "code": "divineright",
+    "name": "神祇权力",
+    "description": "当一名盟友施放法术时获得 8 点护甲值。",
+    "troops": 1,
+    "onAllyCastGain": {
+      "stat": "armor",
+      "amount": 8
+    }
+  },
+  {
+    "code": "absorbpower",
+    "name": "吸收能量",
+    "description": "当一名敌人施放法术时获得 3 点魔法值。",
+    "troops": 1,
+    "onEnemyCastGain": {
+      "stat": "magic",
+      "amount": 3
+    }
+  },
+  {
+    "code": "constructslayer",
+    "name": "建造杀手",
+    "description": "对建造军队造成双倍骷髅头伤害。",
+    "troops": 1,
+    "skullMultVsTroopType": {
+      "troopType": "Construct",
+      "mult": 2
+    }
+  },
+  {
+    "code": "unbreakable",
+    "name": "牢不可破",
+    "description": "降低来自骷髅头的伤害 80%。",
+    "troops": 1,
+    "skullDamageReduction": 0.8
+  },
+  {
+    "code": "sunsglory",
+    "name": "太阳之荣耀",
+    "description": "配对红色宝石时获得 2 点魔法值。",
+    "troops": 1,
+    "onColorMatchGain": {
+      "color": "Red",
+      "stat": "magic",
+      "amount": 2
+    }
+  },
+  {
+    "code": "dexterous",
+    "name": "轻巧",
+    "description": "有 40% 的几率闪避骷髅头伤害。",
+    "troops": 1,
+    "dodgeChance": 0.4
+  },
+  {
+    "code": "darkness",
+    "name": "暗黑来袭",
+    "description": "在配对 4 或 5 颗宝石时，所有敌人损失 4 点攻击力。",
+    "troops": 1,
+    "teamAura": {
+      "scope": "enemies",
+      "stat": "attack",
+      "amount": -4
+    }
+  },
+  {
+    "code": "rainbowlink",
+    "name": "彩虹灵链",
+    "description": "在配对所有宝石时获得额外的法力。",
+    "troops": 1,
+    "manaLink": {
+      "color": "*",
+      "amount": 1
+    }
+  },
+  {
+    "code": "goblinshield",
+    "name": "哥布林之盾",
+    "description": "哥布林盟友获得 2 点护甲值。",
+    "troops": 1,
+    "typeAura": {
+      "troopType": "Goblin",
+      "stat": "armor",
+      "amount": 2
+    }
+  },
+  {
+    "code": "merfolkslayer",
+    "name": "海族杀手",
+    "description": "对海族军队造成双倍骷髅头伤害。",
+    "troops": 1,
+    "skullMultVsTroopType": {
+      "troopType": "Merfolk",
+      "mult": 2
+    }
+  },
+  {
+    "code": "feyslayer",
+    "name": "妖仙杀手",
+    "description": "对妖仙军队造成双倍骷髅头伤害。",
+    "troops": 1,
+    "skullMultVsTroopType": {
+      "troopType": "Fey",
+      "mult": 2
+    }
+  },
+  {
+    "code": "darkfury",
+    "name": "暗黑怒火",
+    "description": "在自身受到伤害时获得 8 点攻击力和魔法值。",
+    "troops": 1,
+    "onDamagedGain": {
+      "stat": "attack",
+      "amount": 8
+    }
+  },
+  {
+    "code": "soulritual",
+    "name": "灵魂祭礼",
+    "description": "在一名敌人身亡时获得 5 点魔法值。",
+    "troops": 1,
+    "onEnemyDeathGain": {
+      "stat": "magic",
+      "amount": 5
+    }
+  },
+  {
+    "code": "nagashield",
+    "name": "纳迦之盾",
+    "description": "纳迦盟友获得 2 点护甲值。",
+    "troops": 1,
+    "typeAura": {
+      "troopType": "Naga",
+      "stat": "armor",
+      "amount": 2
+    }
+  },
+  {
+    "code": "rogueslayer",
+    "name": "盗贼杀手",
+    "description": "对盗贼军队造成双倍骷髅头伤害。",
+    "troops": 1,
+    "skullMultVsTroopType": {
+      "troopType": "Rogue",
+      "mult": 2
+    }
+  },
+  {
+    "code": "mutantregeneration",
+    "name": "变种再生",
+    "description": "在每回合开始时恢复 6 点生命值。",
+    "troops": 1,
+    "regen": {
+      "stat": "hp",
+      "amount": 6
+    }
+  },
+  {
+    "code": "toxic",
+    "name": "制毒",
+    "description": "对中毒的敌人造成双倍骷髅头伤害。",
+    "troops": 1,
+    "skullMultVsStatus": {
+      "status": "poison",
+      "mult": 2
+    }
+  },
+  {
+    "code": "victorylap",
+    "name": "庆功",
+    "description": "在敌人身亡时获得 8 点法力值。",
+    "troops": 1,
+    "onEnemyDeathGain": {
+      "stat": "mana",
+      "amount": 8
+    }
+  },
+  {
+    "code": "rakshaslayer",
+    "name": "猫族杀手",
+    "description": "对猫族军队造成双倍骷髅头伤害。",
+    "troops": 1,
+    "skullMultVsTroopType": {
+      "troopType": "Raksha",
+      "mult": 2
+    }
+  },
+  {
+    "code": "arcaneresistence",
+    "name": "秘法抗力",
+    "description": "降低来自法术的伤害 75%。",
+    "troops": 1,
+    "spellDamageReduction": 0.75
+  },
+  {
+    "code": "scaldingstrike",
+    "name": "烫烧之击",
+    "description": "对陷入燃烧状态的敌人造成三倍骷髅头伤害。",
+    "troops": 1,
+    "skullMultVsStatus": {
+      "status": "burning",
+      "mult": 3
+    }
+  },
+  {
+    "code": "titanic",
+    "name": "泰坦尼克",
+    "description": "在配对 4 或 5 颗宝石时，获得 10 点生命值。",
+    "troops": 1,
+    "onBigMatchGain": {
+      "stat": "hp",
+      "amount": 10
+    }
+  },
+  {
+    "code": "goldenarmor",
+    "name": "黄金甲",
+    "description": "降低来自骷髅头的伤害 70%。",
+    "troops": 1,
+    "skullDamageReduction": 0.7
+  },
+  {
+    "code": "mechshield",
+    "name": "机械之盾",
+    "description": "机械盟友获得 2 点护甲值。",
+    "troops": 1,
+    "typeAura": {
+      "troopType": "Mech",
+      "stat": "armor",
+      "amount": 2
+    }
+  },
+  {
+    "code": "mithrilarmor",
+    "name": "米提护甲",
+    "description": "反弹 75% 的骷髅头伤害。",
+    "troops": 1,
+    "reflectSkullRatio": 0.75
+  },
+  {
+    "code": "absorbspell",
+    "name": "吸星大法",
+    "description": "在敌人施放法术时获得 10 点生命值",
+    "troops": 1,
+    "onEnemyCastGain": {
+      "stat": "hp",
+      "amount": 10
+    }
+  },
+  {
+    "code": "armorofheaven",
+    "name": "天甲",
+    "description": "在配对黄色宝石时获得 4 点护甲值。",
+    "troops": 1,
+    "onColorMatchGain": {
+      "color": "Yellow",
+      "stat": "armor",
+      "amount": 4
+    }
+  },
+  {
+    "code": "beyondreproach",
+    "name": "无可非议",
+    "description": "降低来自法术的伤害 80%。",
+    "troops": 1,
+    "spellDamageReduction": 0.8
+  },
+  {
+    "code": "voidspirit",
+    "name": "虚空幽灵",
+    "description": "在配对紫色宝石时获得 2 点魔法值。",
+    "troops": 1,
+    "onColorMatchGain": {
+      "color": "Purple",
+      "stat": "magic",
+      "amount": 2
+    }
+  },
+  {
+    "code": "lightningaura",
+    "name": "闪电光环",
+    "description": "在我的回合开始的时候创造 2 颗黄色闪电宝石。",
+    "troops": 1,
+    "turnStartCreateGem": {
+      "color": "Yellow"
+    }
+  }
+]

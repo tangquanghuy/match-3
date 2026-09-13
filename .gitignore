@@ -3,3 +3,6 @@ dist
 *.local
 .DS_Store
 .vite
+
+# 验收/调试产物统一放这里，不进版本库
+artifacts

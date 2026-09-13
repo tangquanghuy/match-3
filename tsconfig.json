@@ -20,7 +20,8 @@
     "baseUrl": ".",
     "paths": {
       "@engine/*": ["src/engine/*"],
-      "@render/*": ["src/render/*"]
+      "@render/*": ["src/render/*"],
+      "@session/*": ["src/session/*"]
     }
   },
   "include": ["src", "tests"]

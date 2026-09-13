@@ -1,0 +1,165 @@
+- generic [ref=f1e3]:
+  - generic [ref=f1e76]:
+    - generic:
+      - generic:
+        - generic [ref=f1e78] [cursor=pointer]:
+          - generic [ref=f1e82]: "4"
+          - generic [ref=f1e87]: "40"
+          - button "法力" [ref=f1e92]
+          - generic "魔力（法术强度）": "6"
+          - generic "状态"
+        - generic [ref=f1e101] [cursor=pointer]:
+          - generic [ref=f1e105]: "4"
+          - generic [ref=f1e110]: "40"
+          - button "法力" [ref=f1e115]
+          - generic "魔力（法术强度）": "8"
+          - generic "状态"
+        - generic [ref=f1e126] [cursor=pointer]:
+          - generic [ref=f1e130]: "4"
+          - generic [ref=f1e135]: "40"
+          - button "法力" [ref=f1e140]
+          - generic "魔力（法术强度）": "10"
+          - generic "状态"
+      - generic:
+        - generic [ref=f1e153] [cursor=pointer]:
+          - generic [ref=f1e157]: "4"
+          - generic [ref=f1e162]: "40"
+          - button "法力" [ref=f1e167]
+          - generic "魔力（法术强度）": "6"
+          - generic "状态"
+        - generic [ref=f1e176] [cursor=pointer]:
+          - generic [ref=f1e180]: "4"
+          - generic [ref=f1e185]: "40"
+          - button "法力" [ref=f1e190]
+          - generic "魔力（法术强度）": "8"
+          - generic "状态"
+        - generic [ref=f1e201] [cursor=pointer]:
+          - generic [ref=f1e205]: "4"
+          - generic [ref=f1e210]: "40"
+          - button "法力" [ref=f1e215]
+          - generic "魔力（法术强度）": "10"
+          - generic "状态"
+    - button "全屏" [ref=f1e228] [cursor=pointer]
+    - button "3v3" [ref=f1e231] [cursor=pointer]
+    - generic: TURN 01
+  - generic [ref=f1e4]:
+    - generic [ref=f1e5]: 技能测试页（主游戏薄壳）
+    - generic [ref=f1e6]: 先切换我方水晶颜色，再把技能标签拖到角色卡；短按卡释放技能
+    - generic [ref=f1e7]:
+      - button "法力上限=3" [ref=f1e8] [cursor=pointer]
+      - button "充满法力" [ref=f1e9] [cursor=pointer]
+      - button "推进回合" [ref=f1e10] [cursor=pointer]
+    - generic [ref=f1e11]:
+      - generic [ref=f1e12]: 我方水晶颜色（决定属性音效）
+      - combobox "我方水晶颜色（决定属性音效）" [ref=f1e13] [cursor=pointer]:
+        - option "● 红色" [selected]
+        - option "● 蓝色（水）"
+        - option "● 绿色"
+        - option "● 黄色"
+        - option "● 紫色"
+        - option "● 棕色（土）"
+    - generic [ref=f1e14]:
+      - generic [ref=f1e15]: 宝石消除 / 连击 · 新版定稿音效
+      - generic [ref=f1e16]: 正式战斗固定使用新版音效。可顺序试听「普通消除 → 2~5 连击」，或单独试听每一级。
+      - button "试听新版整套" [ref=f1e17] [cursor=pointer]
+      - generic [ref=f1e18]:
+        - button "普通消除" [ref=f1e19] [cursor=pointer]
+        - button "2 连击" [ref=f1e20] [cursor=pointer]
+        - button "3 连击" [ref=f1e21] [cursor=pointer]
+        - button "4 连击" [ref=f1e22] [cursor=pointer]
+        - button "5 连击" [ref=f1e23] [cursor=pointer]
+    - generic [ref=f1e24]: 技能标签（拖到我方角色卡）
+    - generic [ref=f1e25]:
+      - generic [ref=f1e26]: 单体伤害
+      - generic [ref=f1e27]: 群体伤害
+      - generic [ref=f1e28]: 溅射伤害
+      - generic [ref=f1e29]: 真实伤害
+      - generic [ref=f1e30]: 创造宝石(绿)
+      - generic [ref=f1e31]: 创造骷髅×6
+      - generic [ref=f1e32]: 转化(选定→蓝)
+      - generic [ref=f1e33]: ★摧毁选定行
+      - generic [ref=f1e34]: ★摧毁选定列
+      - generic [ref=f1e35]: 摧毁指定色
+      - generic [ref=f1e36]: 随机摧毁6颗
+      - generic [ref=f1e37]: 爆破指定色
+      - generic [ref=f1e38]: 随机爆破2行
+      - generic [ref=f1e39]: ★选宝石引爆
+      - generic [ref=f1e40]: 治疗自身
+      - generic [ref=f1e41]: 驱散演示(先自毒)
+      - generic [ref=f1e42]: 加护甲(全体)
+      - generic [ref=f1e43]: 加攻击(自身)
+      - generic [ref=f1e44]: 中毒(队首)
+      - generic [ref=f1e45]: 燃烧(全体)
+      - generic [ref=f1e46]: 沉默(队首)
+      - generic [ref=f1e47]: 冰冻(队首)
+      - generic [ref=f1e48]: 击晕(队首)
+      - generic [ref=f1e49]: 缠绕(队首)
+      - generic [ref=f1e50]: 额外回合
+      - generic [ref=f1e51]: 召唤(食人魔)
+      - generic [ref=f1e52]: ★选敌造成伤害
+      - generic [ref=f1e53]: ★选盟友治疗
+    - generic [ref=f1e54]:
+      - generic [ref=f1e55]: 多段技能组合器
+      - generic [ref=f1e56]: 选段加入 → 排序/删除 → 设为施法者技能；按效果段书写顺序演出。
+      - generic [ref=f1e57]:
+        - button "蓝单体伤害+冰冻" [ref=f1e58] [cursor=pointer]
+        - button "单体伤害+中毒" [ref=f1e59] [cursor=pointer]
+        - button "红单体伤害+燃烧" [ref=f1e60] [cursor=pointer]
+        - button "群体伤害+全体燃烧" [ref=f1e61] [cursor=pointer]
+        - button "伤害+缠绕" [ref=f1e62] [cursor=pointer]
+        - button "伤害+宝石爆破" [ref=f1e63] [cursor=pointer]
+        - button "伤害+额外回合" [active] [ref=f1e64] [cursor=pointer]
+      - generic [ref=f1e65]:
+        - combobox [ref=f1e66] [cursor=pointer]:
+          - option "伤害·队首" [selected]
+          - option "伤害·选敌"
+          - option "群体伤害"
+          - option "溅射伤害"
+          - option "真实伤害"
+          - option "中毒·队首"
+          - option "中毒·全体"
+          - option "燃烧·队首"
+          - option "燃烧·全体"
+          - option "冰冻·队首"
+          - option "沉默·队首"
+          - option "击晕·队首"
+          - option "缠绕·队首"
+          - option "诅咒·队首"
+          - option "爆破指定色"
+          - option "摧毁指定色"
+          - option "选宝石引爆"
+          - option "摧毁选定行"
+          - option "摧毁选定列"
+          - option "随机摧毁6颗"
+          - option "随机爆破2行"
+          - option "创造宝石(绿)"
+          - option "创造骷髅×6"
+          - option "转化(选定→蓝)"
+          - option "治疗自身"
+          - option "治疗选定盟友"
+          - option "加护甲(全体)"
+          - option "加攻击(自身)"
+          - option "加魔法(自身)"
+          - option "加法力(自身)"
+          - option "驱散自身"
+          - option "额外回合"
+          - option "召唤(食人魔)"
+        - button "加入" [ref=f1e67] [cursor=pointer]
+      - generic [ref=f1e68]:
+        - generic [ref=f1e256]:
+          - generic [ref=f1e257]: "1."
+          - generic [ref=f1e258]: 伤害(队首 [魔+4])
+          - button "↑" [ref=f1e259] [cursor=pointer]
+          - button "↓" [ref=f1e260] [cursor=pointer]
+          - button "✕" [ref=f1e261] [cursor=pointer]
+        - generic [ref=f1e262]:
+          - generic [ref=f1e263]: "2."
+          - generic [ref=f1e264]: 额外回合
+          - button "↑" [ref=f1e265] [cursor=pointer]
+          - button "↓" [ref=f1e266] [cursor=pointer]
+          - button "✕" [ref=f1e267] [cursor=pointer]
+      - generic [ref=f1e70]:
+        - button "设为施法者技能" [ref=f1e71] [cursor=pointer]
+        - button "清空" [ref=f1e72] [cursor=pointer]
+    - generic [ref=f1e73]: 事件流
+    - generic [ref=f1e74]: — 测试页就绪：拖技能标签到我方角色卡换技能，短按角色卡释放 — 已充满全体法力 ◆ 载入组合预设 → 伤害+额外回合

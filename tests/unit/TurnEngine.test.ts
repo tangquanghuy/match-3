@@ -22,9 +22,10 @@ function makeChar(id: number, over: Partial<Character> = {}): Character {
     hp: 50,
     attack: 5,
     armor: 0,
+    magic: 0,
     colors: [BaseColor.Red],
-    manaRequirement: { [BaseColor.Red]: 20 },
-    manaPool: {},
+    manaCost: 20,
+    mana: 0,
     skillId: 'none',
     statuses: [],
     defeated: false,
@@ -195,7 +196,7 @@ describe('TurnEngine 骷髅伤害', () => {
 
     const dmg = events.find((e) => e.type === 'skull-damage');
     expect(dmg).toBeDefined();
-    // 攻击者为左队队首 attack=5，骷髅数=3 → 伤害 15
-    expect(right.characters[0].hp).toBe(hpBefore - 15);
+    // GoW 规则：伤害 = 队首攻击者攻击力 5，与骷髅数无关（4/5 连的收益是额外回合）
+    expect(right.characters[0].hp).toBe(hpBefore - 5);
   });
 });

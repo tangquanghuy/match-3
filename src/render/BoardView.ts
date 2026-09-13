@@ -1,6 +1,6 @@
 import { Container, Graphics } from 'pixi.js';
 import { BoardModel } from '@engine/BoardModel';
-import type { CellPos, Gem } from '@engine/types';
+import type { CellPos, Gem, GemType } from '@engine/types';
 import { GemSprite } from './GemSprite';
 import { GemSpritePool } from './GemSpritePool';
 
@@ -41,7 +41,7 @@ export class BoardView extends Container {
           socket,
           socket,
           radius,
-        ).fill(dark ? 0x191926 : 0x1d1d2c);
+        ).fill(dark ? 0x181824 : 0x1b1b29);
         // 槽的内描边：上沿暗、整体一圈淡线，营造下沉凹陷感
         bg.roundRect(
           c * cellSize + inset,
@@ -49,11 +49,16 @@ export class BoardView extends Container {
           socket,
           socket,
           radius,
-        ).stroke({ width: 1, color: 0x0c0c14, alpha: 0.9 });
+        ).stroke({ width: 1, color: 0x0c0c14, alpha: 0.62 });
       }
     }
     // 外框：低调暗描边，不再用亮蓝
-    bg.rect(0, 0, this.gridPixels, this.gridPixels).stroke({ width: 2, color: 0x2a2a40 });
+    bg.moveTo(0, 0).lineTo(this.gridPixels, 0).stroke({ width: 1.5, color: 0x252538, alpha: 0.42 });
+    bg.moveTo(0, 0)
+      .lineTo(0, this.gridPixels)
+      .lineTo(this.gridPixels, this.gridPixels)
+      .lineTo(this.gridPixels, 0)
+      .stroke({ width: 1.5, color: 0x252538, alpha: 0.82 });
     this.addChild(bg);
 
     this.gemLayer = new Container();
@@ -97,6 +102,12 @@ export class BoardView extends Container {
 
   getSprite(gemId: number): GemSprite | undefined {
     return this.sprites.get(gemId);
+  }
+
+  /** 变更某宝石精灵的类型/贴图（技能转化宝石用） */
+  setGemType(gemId: number, type: GemType): void {
+    const s = this.sprites.get(gemId);
+    if (s) s.setType(gemId, type);
   }
 
   /** 取某格当前的精灵（按位置反查） */

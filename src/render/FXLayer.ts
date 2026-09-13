@@ -45,6 +45,24 @@ export class FXLayer extends Container {
     }
   }
 
+  /** 爆破冲击环：一圈从中心向外扩散并淡出的光环（区别于摧毁的就地碎裂） */
+  shockwave(x: number, y: number, color: number): void {
+    const ring = new Graphics();
+    ring.circle(0, 0, 10).stroke({ width: 3, color, alpha: 0.9 });
+    ring.x = x;
+    ring.y = y;
+    this.addChild(ring);
+    const s = ring as unknown as { scale: { set: (v: number) => void }; alpha: number };
+    s.scale.set(0.4);
+    gsap.to(s.scale, { x: 3.2, y: 3.2, duration: 0.34, ease: 'power2.out' });
+    gsap.to(ring, {
+      alpha: 0,
+      duration: 0.34,
+      ease: 'power1.out',
+      onComplete: () => ring.destroy(),
+    });
+  }
+
   /** 连击飘字（需求 19.5） */
   comboText(x: number, y: number, chain: number): void {
     const style = new TextStyle({

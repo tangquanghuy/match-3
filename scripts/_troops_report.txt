@@ -1,0 +1,48 @@
+总兵种数: 1798
+
+稀有度(rarity_idx)分布: {"0":120,"1":242,"2":357,"3":596,"4":252,"5":231}
+
+角色定位(role)分布: {"Generator":320,"Striker":475,"Warmaster":112,"Defender":102,"Mage":210,"Warlock":145,"Support":163,"Warrior":113,"Assassin":158}
+
+种族(troop_type)种类数: 33
+种族分布: {"Giant":74,"Elemental":240,"Beast":262,"Mystic":228,"Human":125,"Mech":43,"Monster":148,"Construct":182,"Daemon":179,"Elf":85,"Centaur":42,"Divine":98,"Naga":42,"Fey":145,"Knight":156,"Wildfolk":70,"Rogue":74,"Undead":163,"Dwarf":54,"Goblin":45,"Raksha":44,"Wargare":62,"Dragon":122,"Urska":37,"Orc":34,"Tauros":31,"Merfolk":45,"Stryx":37,"Gnome":14,"Boss":13,"Doom":6,"Castle":1,"Immortal":29}
+
+法力颜色数量分布: {"1":178,"2":1390,"3":226,"6":4}
+各颜色出现频次: {"ColorBlue":618,"ColorGreen":599,"ColorBrown":618,"ColorRed":617,"ColorYellow":597,"ColorPurple":611}
+
+数值范围:
+  Attack: min=0 max=47 avg=15.6
+  Armor: min=0 max=56 avg=14.2
+  Health: min=3 max=61 avg=23.2
+  Magic: min=0 max=22 avg=7.9
+  ManaCost: min=3 max=50 avg=13.8
+
+不同特质(trait)总数: 785
+Top 30 高频特质: [["armored",203],["undying",150],["stoneskin",148],["spellarmor",111],["agile",110],["revered",103],["fireproof",95],["bountyhunter",93],["stealthy",92],["impervious",85],["accursed",84],["arcane",79],["deepvitality",73],["manashield",69],["godslayer",69],["fast",68],["inscribed",67],["greedy",63],["siegebreaker",61],["alert",59],["toughscales",59],["deepmagic",57],["insulated",56],["big",55],["deepshield",48],["empowered",46],["beastbond",45],["regeneration",45],["fortitude",43],["bloodlust",41]]
+
+技能总数(有描述): 1798
+技能机制模式频次:
+  含[魔法+N]缩放: 1409
+  含[N:M]移除增伤: 362
+  含[xN]倍率: 476
+  造成伤害: 1043
+  创造/转化宝石: 541
+  摧毁行/列/区域: 302
+  治疗/护甲/增益: 491
+
+状态效果关键词出现频次(技能+特质描述):
+  燃烧: 302
+  中毒: 323
+  眩晕: 3
+  沉默: 167
+  冰冻: 10
+  纠缠: 10
+  织网: 102
+  妖火: 196
+  诅咒: 111
+  屏障: 81
+  荆棘: 3
+  法力耗尽: 184
+  狂暴: 1
+  祝福: 10
+  闪避: 111

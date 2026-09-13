@@ -1,0 +1,5 @@
+[   21786ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:5173/favicon.ico:0
+[ 2763850ms] [ERROR] 测试页初始化失败: TypeError: this.buildComposer is not a function
+    at SkillTestPage.buildControls (http://localhost:5173/src/render/SkillTestPage.ts?t=1784194501637:292:28)
+    at SkillTestPage.init (http://localhost:5173/src/render/SkillTestPage.ts?t=1784194501637:130:29)
+    at http://localhost:5173/src/test-main.ts?t=1784194501637:6:8 @ http://localhost:5173/src/test-main.ts?t=1784194501637:6

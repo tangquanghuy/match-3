@@ -1,0 +1,4 @@
+[   18188ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://127.0.0.1:5173/favicon.ico:0
+[  201493ms] [ERROR] 初始化失败: ReferenceError: boardOverlap is not defined
+    at App.createTurnBanner (http://127.0.0.1:5173/src/render/App.ts?t=1788073751701:672:50)
+    at App.init (http://127.0.0.1:5173/src/render/App.ts?t=1788073751701:421:10) @ http://127.0.0.1:5173/src/main.ts?t=1788073751701:37

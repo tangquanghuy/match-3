@@ -17,8 +17,10 @@ export class InputController {
   onInteractStart: (() => void) | null = null;
   /** 交互结束但未发起交换（归位）时触发，用于恢复待机动画 */
   onInteractEnd: (() => void) | null = null;
-  enabled = true;
 
+  private _enabled = true;
+  private destroyed = false;
+  private activePointerId: number | null = null;
   private dragging = false;
   private startCell: CellPos | null = null;
   private startCenter = { x: 0, y: 0 };
@@ -47,13 +49,32 @@ export class InputController {
 
   private selected: CellPos | null = null;
 
-  constructor(private board: BoardView) {
+  private nativeCancel = (e: PointerEvent) => this.cancelPointer(e.pointerId);
+  private nativeLostCapture = (e: PointerEvent) => this.cancelPointer(e.pointerId);
+
+  constructor(
+    private board: BoardView,
+    private captureElement?: HTMLElement,
+  ) {
     board.eventMode = 'static';
     board.hitArea = { contains: () => true } as unknown as BoardView['hitArea'];
     board.on('pointerdown', this.onDown, this);
     board.on('pointermove', this.onMove, this);
     board.on('pointerup', this.onUp, this);
     board.on('pointerupoutside', this.onUp, this);
+    board.on('pointercancel', this.onCancel, this);
+    captureElement?.addEventListener('pointercancel', this.nativeCancel);
+    captureElement?.addEventListener('lostpointercapture', this.nativeLostCapture);
+  }
+
+  get enabled(): boolean {
+    return this._enabled;
+  }
+
+  set enabled(value: boolean) {
+    if (this._enabled === value) return;
+    this._enabled = value;
+    if (!value) this.cancelPointer();
   }
 
   private localPos(e: FederatedPointerEvent): { x: number; y: number } {
@@ -62,30 +83,60 @@ export class InputController {
 
   private spriteAt(pos: CellPos): GemSprite | null {
     const { x, y } = this.board.cellCenter(pos);
+    const tolerance = this.board.cellSize * 0.35;
+    let nearest: GemSprite | null = null;
+    let nearestDist = Number.POSITIVE_INFINITY;
     for (const child of this.board.layer.children) {
-      const s = child as GemSprite;
-      if (Math.abs(s.x - x) < 1 && Math.abs(s.y - y) < 1) return s;
+      const sprite = child as GemSprite;
+      const dist = Math.hypot(sprite.x - x, sprite.y - y);
+      if (dist <= tolerance && dist < nearestDist) {
+        nearest = sprite;
+        nearestDist = dist;
+      }
     }
-    return null;
+    return nearest;
+  }
+
+  private capturePointer(pointerId: number): void {
+    try {
+      this.captureElement?.setPointerCapture(pointerId);
+    } catch {
+      // Synthetic pointer events may not have an active native pointer to capture.
+    }
+  }
+
+  private releasePointer(pointerId: number): void {
+    try {
+      if (this.captureElement?.hasPointerCapture(pointerId)) {
+        this.captureElement.releasePointerCapture(pointerId);
+      }
+    } catch {
+      // The browser may already have released capture after pointerup/cancel.
+    }
   }
 
   private onDown(e: FederatedPointerEvent): void {
-    if (!this.enabled) return;
+    if (!this.enabled || this.destroyed || this.activePointerId !== null) return;
+    if (e.pointerType === 'mouse' && e.button !== 0) return;
     const p = this.localPos(e);
     const cell = this.board.pixelToCell(p.x, p.y);
     if (!cell) return;
 
     // 两步点选：已有选中且点选相邻 → 交换
     if (this.selected && this.isAdjacent(this.selected, cell)) {
-      this.onSwapRequest?.(this.selected, cell);
+      const start = this.selected;
       this.clearSelection();
+      this.onSwapRequest?.(start, cell);
       return;
     }
 
+    // Clear hint movement before lookup so a temporarily displaced gem remains selectable.
     const sprite = this.spriteAt(cell);
     if (!sprite) return;
-
     this.onInteractStart?.();
+
+    this.activePointerId = e.pointerId;
+    this.capturePointer(e.pointerId);
     this.dragging = true;
     this.startCell = cell;
     this.startCenter = this.board.cellCenter(cell);
@@ -102,12 +153,18 @@ export class InputController {
   }
 
   private onMove(e: FederatedPointerEvent): void {
-    if (!this.enabled || !this.dragging || !this.startCell || !this.heldSprite) return;
+    if (
+      e.pointerId !== this.activePointerId
+      || !this.enabled
+      || !this.dragging
+      || !this.startCell
+      || !this.heldSprite
+    ) return;
     const p = this.localPos(e);
 
     // 相对起点中心的原始位移
-    let rawX = p.x - this.grabOffset.x - this.startCenter.x;
-    let rawY = p.y - this.grabOffset.y - this.startCenter.y;
+    const rawX = p.x - this.grabOffset.x - this.startCenter.x;
+    const rawY = p.y - this.grabOffset.y - this.startCenter.y;
 
     const cell = this.board.cellSize;
     // 主轴判定
@@ -266,7 +323,7 @@ export class InputController {
     this.previewCell = null;
   }
 
-  /** 立即把预览宝石复位到原位（无补间），用于换轴瞬间，避免与跟随产生来回跳 */
+  /** 立即把预览宝石复位到原位（无补间），用于换轴或取消，避免与跟随产生来回跳 */
   private clearPreviewImmediate(): void {
     if (this.previewSprite) {
       gsap.killTweensOf(this.previewSprite);
@@ -278,12 +335,12 @@ export class InputController {
   }
 
   private onUp(e: FederatedPointerEvent): void {
+    if (e.pointerId !== this.activePointerId) return;
     if (!this.dragging || !this.startCell || !this.heldSprite) {
-      this.dragging = false;
-      this.stopFollow();
+      this.cancelPointer(e.pointerId);
       return;
     }
-    this.stopFollow();
+
     const p = this.localPos(e);
     const rawX = p.x - this.grabOffset.x - this.startCenter.x;
     const rawY = p.y - this.grabOffset.y - this.startCenter.y;
@@ -303,28 +360,79 @@ export class InputController {
     const held = this.heldSprite;
     const home = this.startCenter;
     const start = this.startCell;
-    this.dragging = false;
-    this.heldSprite = null;
 
     if (dir) {
       const target: CellPos = { row: start.row + dir.row, col: start.col + dir.col };
       if (BoardModel.inBounds(target)) {
         // 越过阈值：保持宝石在当前拖拽位置，不复位，交给事件流接管动画。
         // 合法 → 从当前位置补完交换；非法 → 从当前位置直接弹回原位（单程）。
-        // 仅清除预览引用，不触发归位动画（避免与事件流动画打架）。
         this.previewSprite = null;
         this.previewCell = null;
         this.clearSelection();
+        this.finishPointer();
         this.onSwapRequest?.(start, target);
         return;
       }
     }
 
     // 未过阈值：弹性归位（需求 22.3）
+    this.finishPointer();
     gsap.to(held, { x: home.x, y: home.y, duration: 0.25, ease: 'back.out(2.5)' });
     this.restorePreview();
     this.onInteractEnd?.();
     // 保留选中态用于两步点选
+  }
+
+  private onCancel(e: FederatedPointerEvent): void {
+    this.cancelPointer(e.pointerId);
+  }
+
+  /** 浏览器取消、失去 capture、禁用输入时统一归位，不提交交换。 */
+  private cancelPointer(pointerId?: number): void {
+    if (this.activePointerId === null) return;
+    if (pointerId !== undefined && pointerId !== this.activePointerId) return;
+
+    const held = this.heldSprite;
+    if (held) {
+      gsap.killTweensOf(held);
+      held.x = this.startCenter.x;
+      held.y = this.startCenter.y;
+    }
+    this.clearPreviewImmediate();
+    this.clearSelection();
+    this.finishPointer();
+    this.onInteractEnd?.();
+  }
+
+  /** 清除当前 pointer 的全部拖拽状态；先清所有权再释放 capture，避免 lostcapture 重入。 */
+  private finishPointer(): void {
+    const pointerId = this.activePointerId;
+    this.activePointerId = null;
+    this.dragging = false;
+    this.stopFollow();
+    this.startCell = null;
+    this.heldSprite = null;
+    this.dragAxis = null;
+    this.pendingAxis = null;
+    this.targetOffset = 0;
+    this.heldOffset = 0;
+    if (pointerId !== null) this.releasePointer(pointerId);
+  }
+
+  destroy(): void {
+    if (this.destroyed) return;
+    this.destroyed = true;
+    this.cancelPointer();
+    this.board.off('pointerdown', this.onDown, this);
+    this.board.off('pointermove', this.onMove, this);
+    this.board.off('pointerup', this.onUp, this);
+    this.board.off('pointerupoutside', this.onUp, this);
+    this.board.off('pointercancel', this.onCancel, this);
+    this.captureElement?.removeEventListener('pointercancel', this.nativeCancel);
+    this.captureElement?.removeEventListener('lostpointercapture', this.nativeLostCapture);
+    this.onSwapRequest = null;
+    this.onInteractStart = null;
+    this.onInteractEnd = null;
   }
 
   private isAdjacent(a: CellPos, b: CellPos): boolean {

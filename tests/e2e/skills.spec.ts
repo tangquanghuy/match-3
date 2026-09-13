@@ -1,0 +1,685 @@
+import { test, expect } from '@playwright/test';
+import type { Page } from '@playwright/test';
+
+
+type DebugCell = { row: number; col: number };
+type DebugSprite = {
+  x: number;
+  y: number;
+  alpha: number;
+  visible: boolean;
+};
+type DebugAppWindow = Window & {
+  __testPage: {
+    app: {
+      casting: boolean;
+      triggerCast: (charId: number) => Promise<void>;
+      setDebugSkill: (charId: number, proto: {
+        segments: Array<{
+          kind: 'damage';
+          target: 'allySelf';
+          scaling: { base: number; mult: number };
+        }>;
+      }) => void;
+      board: {
+        sprites: Map<number, DebugSprite>;
+        layer: { children: unknown[] };
+        cellCenter: (pos: DebugCell) => { x: number; y: number };
+      };
+      engine: {
+        getState: () => {
+          board: {
+            forEach: (fn: (gem: { id: number } | null, pos: DebugCell) => void) => void;
+          };
+          teams: Record<string, {
+            summonQueue?: Array<{ character: { id: number } }>;
+            characters: Array<{ id: number; mana: number }>;
+          }>;
+        };
+      };
+    };
+  };
+};
+
+/**
+ * 技能释放端到端验收（需求 9, 2C, 2A.3, 2B.3）。
+ * 测试页是主游戏薄壳：拖技能标签到我方角色卡换技能 → 短按角色卡走主游戏真实释放流程。
+ * 因此验证的是主游戏的 Cast_Flow 与演出。
+ */
+
+/** 短按角色卡（pointerdown→up，间隔 < 长按阈值 475ms） */
+async function shortPressCard(page: Page, charId: number): Promise<void> {
+  const card = page.getByTestId(`card-${charId}`);
+  const box = await card.boundingBox();
+  if (!box) throw new Error(`card-${charId} 无边界`);
+  // Use the upper-right card body; the 44px mana gem occupies the upper-left corner.
+  const x = box.x + box.width * 0.75;
+  const y = box.y + box.height * 0.3;
+  await page.mouse.move(x, y);
+  await page.mouse.down();
+  await page.waitForTimeout(80);
+  await page.mouse.up();
+}
+
+/**
+ * 合成 HTML5 拖放：把技能标签换到目标角色卡。
+ * 不用 Playwright 原生 dragTo——当标签在视口外（列表靠下的中毒/召唤/选敌等），
+ * 原生拖放需把标签滚入视口，反而把顶部的落点角色卡挤出视口，drop 落空，
+ * 角色 skillId 保持 none，释放只发 skill-cast（正是此前 3 个用例卡住的根因）。
+ * 这里复用同一个 DataTransfer 依次派发 dragstart→dragover→drop→dragend，
+ * 与页面真实的拖放处理器（读取 text/plain）完全一致，且与滚动无关。
+ */
+async function assignSkill(page: Page, skillId: string, casterId = 0): Promise<void> {
+  const ok = await page.evaluate(
+    ({ skillId, casterId }) => {
+      const src = document.querySelector(`[data-testid="skill-${skillId}"]`);
+      const tgt = document.querySelector(`[data-testid="card-${casterId}"]`);
+      if (!src || !tgt) return false;
+      const dt = new DataTransfer();
+      src.dispatchEvent(new DragEvent('dragstart', { dataTransfer: dt, bubbles: true, cancelable: true }));
+      tgt.dispatchEvent(new DragEvent('dragover', { dataTransfer: dt, bubbles: true, cancelable: true }));
+      tgt.dispatchEvent(new DragEvent('drop', { dataTransfer: dt, bubbles: true, cancelable: true }));
+      src.dispatchEvent(new DragEvent('dragend', { dataTransfer: dt, bubbles: true, cancelable: true }));
+      return true;
+    },
+    { skillId, casterId },
+  );
+  if (!ok) throw new Error(`换技能失败：skill-${skillId} 或 card-${casterId} 不存在`);
+}
+
+/** 把技能标签换到我方角色卡（id=0 施法者），并短按释放 */
+async function assignAndCast(page: Page, skillId: string, casterId = 0): Promise<void> {
+  await assignSkill(page, skillId, casterId);
+  await page.waitForTimeout(150);
+  await shortPressCard(page, casterId);
+}
+
+/** Wait for the cast flow, then verify every model gem has a sprite at its cell. */
+async function expectBoardViewSettled(page: Page): Promise<void> {
+  await page.waitForFunction(() => !(window as unknown as DebugAppWindow).__testPage.app.casting);
+  const mismatch = await page.evaluate(() => {
+    const app = (window as unknown as DebugAppWindow).__testPage.app;
+    const view = app.board;
+    const model = app.engine.getState().board;
+    let count = 0;
+    model.forEach((gem: { id: number } | null, pos: { row: number; col: number }) => {
+      if (!gem) return;
+      const sprite = view.sprites.get(gem.id);
+      const center = view.cellCenter(pos);
+      if (
+        !sprite ||
+        !sprite.visible ||
+        sprite.alpha < 0.99 ||
+        Math.abs(sprite.x - center.x) > 1 ||
+        Math.abs(sprite.y - center.y) > 1
+      ) {
+        count += 1;
+      }
+    });
+    return { count, children: view.layer.children.length };
+  });
+
+  expect(mismatch).toEqual({ count: 0, children: 64 });
+}
+
+
+test.beforeEach(async ({ page }) => {
+  await page.goto('/skills-test.html');
+  await expect(page.locator('#app')).toHaveAttribute('data-test-ready', 'true');
+  await expect(page.getByTestId('skill-dmg-single')).toBeVisible();
+});
+
+
+
+
+
+
+
+test('frame FX preload is deferred and eventually completes', async ({ page }) => {
+  const readStatus = () => page.evaluate(() => {
+    const app = (window as unknown as DebugAppWindow).__testPage.app;
+    const ctor = app.constructor as unknown as {
+      FRAME_FX_URL: Record<string, string>;
+      frameFXReadyUrls: Set<string>;
+    };
+    const urls = [...new Set(Object.values(ctor.FRAME_FX_URL))];
+    return {
+      total: urls.length,
+      ready: urls.filter((url) => ctor.frameFXReadyUrls.has(url)).length,
+    };
+  });
+
+  const initial = await readStatus();
+  expect(initial.total).toBeGreaterThan(0);
+  expect(initial.ready).toBeLessThanOrEqual(initial.total);
+  await expect.poll(readStatus, { timeout: 25_000 }).toEqual({
+    total: initial.total,
+    ready: initial.total,
+  });
+});
+
+test('mana gem and cancelled card pointers never cast, then a clean short press recovers', async ({ page }) => {
+  await assignSkill(page, 'dmg-single');
+  await page.getByTestId('fill-mana').click();
+  const log = page.getByTestId('event-log');
+  await log.evaluate((element) => { element.textContent = ''; });
+
+  const card = page.getByTestId('card-0');
+  const manaGem = card.locator('.gem');
+  await manaGem.click();
+  await expect(manaGem).toHaveClass(/show-tip/);
+  await expect(log).not.toContainText('skill-cast');
+
+  const box = await card.boundingBox();
+  if (!box) throw new Error('card-0 无边界');
+  const startX = box.x + box.width * 0.75;
+  const startY = box.y + box.height * 0.3;
+  await page.mouse.move(startX, startY);
+  await page.mouse.down();
+  await page.mouse.move(startX + 20, startY, { steps: 3 });
+  await page.mouse.up();
+  await expect(log).not.toContainText('skill-cast');
+
+  await card.evaluate((element) => {
+    const rect = element.getBoundingClientRect();
+    const init = {
+      bubbles: true,
+      cancelable: true,
+      pointerId: 77,
+      pointerType: 'touch',
+      clientX: rect.left + rect.width * 0.75,
+      clientY: rect.top + rect.height * 0.3,
+      button: 0,
+    };
+    element.dispatchEvent(new PointerEvent('pointerdown', init));
+    element.dispatchEvent(new PointerEvent('pointercancel', init));
+    element.dispatchEvent(new PointerEvent('pointerup', init));
+  });
+  await expect(log).not.toContainText('skill-cast');
+
+  await shortPressCard(page, 0);
+  await expect(log).toContainText('skill-cast');
+});
+
+test('healing, cleanse, and armor buffs use their finalized numbered frame FX', async ({ page }) => {
+  await page.evaluate(() => {
+    const state = (window as unknown as DebugAppWindow).__testPage.app.engine.getState() as unknown as {
+      teams: { Left: { characters: Array<{ hp: number }> } };
+    };
+    state.teams.Left.characters[0].hp = Math.max(1, state.teams.Left.characters[0].hp - 10);
+  });
+  await assignSkill(page, 'heal');
+  await page.getByTestId('fill-mana').click();
+  await page.evaluate(() => { void (window as unknown as DebugAppWindow).__testPage.app.triggerCast(0); });
+  await expect(page.locator('[data-fx="heal_cleanse"]')).toBeVisible();
+  await expect(page.getByTestId('event-log')).toContainText('buff');
+  await page.waitForFunction(() => !(window as unknown as DebugAppWindow).__testPage.app.casting);
+
+  await assignSkill(page, 'cleanse');
+  await page.getByTestId('fill-mana').click();
+  await page.evaluate(() => { void (window as unknown as DebugAppWindow).__testPage.app.triggerCast(0); });
+  await expect(page.locator('[data-fx="heal_cleanse"]')).toBeVisible();
+  await expect(page.getByTestId('event-log')).toContainText('status-cleanse');
+  await page.waitForFunction(() => !(window as unknown as DebugAppWindow).__testPage.app.casting);
+
+  await assignSkill(page, 'armor');
+  await page.getByTestId('fill-mana').click();
+  await page.evaluate(() => { void (window as unknown as DebugAppWindow).__testPage.app.triggerCast(0); });
+  await expect(page.locator('[data-fx="armor_up"]').first()).toBeVisible();
+  await expect(page.getByTestId('event-log')).toContainText('buff');
+});
+
+test('poison, frozen, burning, water single-target, and splash attacks use finalized numbered frame FX', async ({ page }) => {
+  await assignSkill(page, 'poison');
+  await page.getByTestId('fill-mana').click();
+  await page.evaluate(() => { void (window as unknown as DebugAppWindow).__testPage.app.triggerCast(0); });
+  const poisonFx = page.locator('[data-fx="poison_apply"]');
+  await expect(poisonFx).toBeVisible();
+  expect((await poisonFx.boundingBox())?.height ?? 0).toBeGreaterThanOrEqual(145);
+  await page.waitForFunction(() => !(window as unknown as DebugAppWindow).__testPage.app.casting);
+
+  await page.evaluate(() => {
+    const app = (window as unknown as DebugAppWindow).__testPage.app as unknown as {
+      audio: { play: (name: string) => void };
+    };
+    const marker = window as unknown as { __frozenAudioCalls: string[] };
+    marker.__frozenAudioCalls = [];
+    const original = app.audio.play.bind(app.audio);
+    app.audio.play = (name) => {
+      marker.__frozenAudioCalls.push(name);
+      original(name);
+    };
+  });
+  await assignSkill(page, 'frozen');
+  await page.getByTestId('fill-mana').click();
+  await page.evaluate(() => { void (window as unknown as DebugAppWindow).__testPage.app.triggerCast(0); });
+  const frozenFx = page.locator('[data-fx="frozen_apply"]');
+  await expect(frozenFx).toBeVisible();
+  expect((await frozenFx.boundingBox())?.height ?? 0).toBeGreaterThanOrEqual(295);
+  expect(await page.evaluate(() =>
+    (window as unknown as { __frozenAudioCalls: string[] }).__frozenAudioCalls,
+  )).toContain('frozen');
+  await page.waitForFunction(() => !(window as unknown as DebugAppWindow).__testPage.app.casting);
+
+  await assignSkill(page, 'burning');
+  await page.getByTestId('fill-mana').click();
+  await page.evaluate(() => { void (window as unknown as DebugAppWindow).__testPage.app.triggerCast(0); });
+  await expect(page.locator('[data-fx="burning_apply"]').first()).toBeVisible();
+  expect(await page.evaluate(() =>
+    (window as unknown as { __frozenAudioCalls: string[] }).__frozenAudioCalls,
+  )).toContain('burning');
+  await page.waitForFunction(() => !(window as unknown as DebugAppWindow).__testPage.app.casting);
+
+  await page.getByTestId('ally-mana-color').selectOption('Blue');
+  await page.evaluate(() => {
+    type ProjectileFn = (
+      from: { x: number; y: number },
+      to: { x: number; y: number },
+      color: string,
+      onArrive: () => void,
+    ) => void;
+    const app = (window as unknown as DebugAppWindow).__testPage.app as unknown as {
+      playProjectile: ProjectileFn;
+      audio: { play: (name: string) => void };
+    };
+    const marker = window as unknown as { __skillProjectileCalls: number; __skillAudioCalls: string[] };
+    marker.__skillProjectileCalls = 0;
+    marker.__skillAudioCalls = [];
+    const originalAudioPlay = app.audio.play.bind(app.audio);
+    app.audio.play = (name) => {
+      marker.__skillAudioCalls.push(name);
+      originalAudioPlay(name);
+    };
+    const original = app.playProjectile.bind(app);
+    app.playProjectile = (...args) => {
+      marker.__skillProjectileCalls += 1;
+      original(...args);
+    };
+  });
+  await assignSkill(page, 'dmg-single');
+  await page.getByTestId('fill-mana').click();
+  await page.evaluate(() => { void (window as unknown as DebugAppWindow).__testPage.app.triggerCast(0); });
+  await expect(page.locator('[data-fx="water_single_hit"]')).toBeVisible();
+  expect(await page.evaluate(() => (window as unknown as { __skillProjectileCalls: number }).__skillProjectileCalls)).toBe(1);
+  expect(await page.evaluate(() =>
+    (window as unknown as { __skillAudioCalls: string[] }).__skillAudioCalls.filter((name) => name === 'skill').length,
+  )).toBe(2);
+  await page.waitForFunction(() => !(window as unknown as DebugAppWindow).__testPage.app.casting);
+
+  await page.evaluate(() => {
+    const marker = window as unknown as { __skillProjectileCalls: number; __skillAudioCalls: string[] };
+    marker.__skillProjectileCalls = 0;
+    marker.__skillAudioCalls = [];
+  });
+  await assignSkill(page, 'dmg-splash');
+  await page.getByTestId('fill-mana').click();
+  await page.evaluate(() => { void (window as unknown as DebugAppWindow).__testPage.app.triggerCast(0); });
+  await page.waitForTimeout(80);
+  await page.getByTestId('card-4').click();
+  await expect(page.locator('[data-fx="splash_chain_cast"]')).toBeVisible();
+  await expect(page.locator('[data-fx="splash_hit"]').first()).toBeVisible();
+  await expect(page.locator('[data-fx="splash_chain_sword"]').first()).toBeVisible({ timeout: 2_000 });
+  expect(await page.evaluate(() => (window as unknown as { __skillProjectileCalls: number }).__skillProjectileCalls)).toBe(0);
+  expect(await page.evaluate(() =>
+    (window as unknown as { __skillAudioCalls: string[] }).__skillAudioCalls.filter((name) => name === 'skill').length,
+  )).toBe(1);
+});
+
+test('single-target hit FX and audio route by caster color', async ({ page }) => {
+  await assignSkill(page, 'dmg-single');
+  await page.evaluate(() => {
+    type FrameFxFn = (name: string, px: number, py: number, opts?: unknown) => void;
+    const app = (window as unknown as DebugAppWindow).__testPage.app as unknown as {
+      audio: { play: (name: string) => void };
+      engine: { getState: () => unknown };
+      playFrameFX: FrameFxFn;
+    };
+    const state = app.engine.getState() as {
+      teams: { Right: { characters: Array<{ hp: number; maxHp: number; armor: number }> } };
+    };
+    state.teams.Right.characters[0].hp = 100;
+    state.teams.Right.characters[0].maxHp = 100;
+    state.teams.Right.characters[0].armor = 0;
+    const marker = window as unknown as {
+      __singleHitAudioCalls: string[];
+      __singleHitAudioAt: Record<string, number>;
+      __singleHitFxAt: Record<string, number>;
+    };
+    marker.__singleHitAudioCalls = [];
+    marker.__singleHitAudioAt = {};
+    marker.__singleHitFxAt = {};
+    const originalAudio = app.audio.play.bind(app.audio);
+    app.audio.play = (name) => {
+      marker.__singleHitAudioCalls.push(name);
+      marker.__singleHitAudioAt[name] = performance.now();
+      originalAudio(name);
+    };
+    const originalFrameFx = app.playFrameFX.bind(app);
+    app.playFrameFX = (...args) => {
+      marker.__singleHitFxAt[args[0]] = performance.now();
+      originalFrameFx(...args);
+    };
+  });
+
+  const cases = [
+    { color: 'Red', fx: 'hit_red', sfx: 'skillHitRedSingle' },
+    { color: 'Purple', fx: 'hit_purple', sfx: 'skillHitPurpleSingle' },
+    { color: 'Yellow', fx: 'yellow_single_hit', sfx: 'skillHitYellowSingle' },
+    { color: 'Blue', fx: 'water_single_hit', sfx: 'skillHitWater' },
+    { color: 'Green', fx: 'green_single_hit', sfx: 'skillHitGreenSingle' },
+  ] as const;
+
+  for (const item of cases) {
+    await page.getByTestId('ally-mana-color').selectOption(item.color);
+    await page.getByTestId('fill-mana').click();
+    await page.evaluate(() => {
+      const marker = window as unknown as {
+        __singleHitAudioCalls: string[];
+        __singleHitAudioAt: Record<string, number>;
+        __singleHitFxAt: Record<string, number>;
+      };
+      marker.__singleHitAudioCalls = [];
+      marker.__singleHitAudioAt = {};
+      marker.__singleHitFxAt = {};
+      void (window as unknown as DebugAppWindow).__testPage.app.triggerCast(0);
+    });
+    await expect(page.locator(`[data-fx="${item.fx}"]`)).toBeVisible();
+    expect(await page.evaluate(() =>
+      (window as unknown as { __singleHitAudioCalls: string[] }).__singleHitAudioCalls,
+    )).toContain(item.sfx);
+    if (item.color === 'Yellow' || item.color === 'Purple') {
+      const lead = await page.evaluate(({ sfx, fx }) => {
+        const marker = window as unknown as {
+          __singleHitAudioAt: Record<string, number>;
+          __singleHitFxAt: Record<string, number>;
+        };
+        return marker.__singleHitFxAt[fx] - marker.__singleHitAudioAt[sfx];
+      }, { sfx: item.sfx, fx: item.fx });
+      expect(lead).toBeGreaterThan(70);
+    }
+    await page.waitForFunction(() => !(window as unknown as DebugAppWindow).__testPage.app.casting);
+  }
+});
+
+test('defeat uses effect 0353 slightly above the card center before removal', async ({ page }) => {
+  const target = page.getByTestId('card-4');
+  const nextCard = page.getByTestId('card-5');
+  const targetBox = await target.boundingBox();
+  const nextBoxBefore = await nextCard.boundingBox();
+  expect(targetBox).not.toBeNull();
+  expect(nextBoxBefore).not.toBeNull();
+  await page.evaluate(() => {
+    const state = (window as unknown as DebugAppWindow).__testPage.app.engine.getState() as unknown as {
+      teams: { Right: { characters: Array<{ hp: number; armor: number }> } };
+    };
+    state.teams.Right.characters[0].hp = 1;
+    state.teams.Right.characters[0].armor = 0;
+  });
+
+  await assignSkill(page, 'dmg-single');
+  await page.getByTestId('fill-mana').click();
+  await page.evaluate(() => { void (window as unknown as DebugAppWindow).__testPage.app.triggerCast(0); });
+  const deathFx = page.locator('[data-fx="death_drift"]');
+  await expect(deathFx).toBeVisible();
+  await expect(target).toBeVisible();
+  await expect(target).toHaveClass(/defeated/);
+  const nextBoxDuringFx = await nextCard.boundingBox();
+  if (nextBoxBefore && nextBoxDuringFx) {
+    expect(Math.abs(nextBoxDuringFx.y - nextBoxBefore.y)).toBeLessThan(2);
+  }
+  const fxBox = await deathFx.boundingBox();
+  expect(fxBox).not.toBeNull();
+  if (targetBox && fxBox) {
+    const expectedX = targetBox.x + targetBox.width / 2;
+    const expectedY = targetBox.y + targetBox.height * 0.43;
+    expect(Math.abs(fxBox.x + fxBox.width / 2 - expectedX)).toBeLessThan(8);
+    expect(Math.abs(fxBox.y + fxBox.height / 2 - expectedY)).toBeLessThan(8);
+  }
+  await expect(page.getByTestId('event-log')).toContainText('defeat');
+  await expect(target).toHaveCount(0);
+  const nextBoxAfter = await nextCard.boundingBox();
+  if (nextBoxBefore && nextBoxAfter) {
+    expect(nextBoxAfter.y).toBeLessThan(nextBoxBefore.y - 10);
+  }
+});
+
+test('final gem chain audio previews the full new set and individual levels', async ({ page }) => {
+  await expect(page.getByTestId('gem-chain-audio-preview')).toBeVisible();
+  await expect(page.getByTestId('gem-chain-mode-legacy')).toHaveCount(0);
+  await expect(page.getByTestId('gem-chain-mode-holy')).toHaveCount(0);
+  await expect(page.getByTestId('gem-chain-preview-set')).toHaveText('\u8bd5\u542c\u65b0\u7248\u6574\u5957');
+  await page.getByTestId('gem-chain-preview-set').click();
+  await expect(page.getByTestId('event-log')).toContainText('\u65b0\u7248\u6574\u5957');
+  await page.getByTestId('gem-chain-sfx-1').click();
+  await expect(page.getByTestId('event-log')).toContainText('1');
+  await page.getByTestId('gem-chain-sfx-5').click();
+  await expect(page.getByTestId('event-log')).toContainText('5');
+  await expect(page.getByTestId('gem-chain-sfx-5')).toHaveAttribute('aria-pressed', 'true');
+});
+
+test('brown mana-crystal selector keeps cast flow working', async ({ page }) => {
+  const selector = page.getByTestId('ally-mana-color');
+  await selector.selectOption('Brown');
+  await expect(selector).toHaveValue('Brown');
+  await assignAndCast(page, 'dmg-single');
+  const log = page.getByTestId('event-log');
+  await expect(log).toContainText('skill-cast');
+  await expect(log).toContainText('skill-damage');
+});
+
+test('拖单体伤害到施法者→短按释放→skill-damage', async ({ page }) => {
+  await assignAndCast(page, 'dmg-single');
+  const log = page.getByTestId('event-log');
+  await expect(log).toContainText('角色0 技能');
+  await expect(log).toContainText('skill-cast');
+  await expect(log).toContainText('skill-damage');
+  await expect(page.locator('[data-fx="hit_red"]')).toBeVisible();
+});
+
+test('群体伤害', async ({ page }) => {
+  await assignAndCast(page, 'dmg-all');
+  await expect(page.getByTestId('event-log')).toContainText('skill-damage');
+});
+
+test('中毒→status-apply；推进回合→tick 与 expire', async ({ page }) => {
+  await assignAndCast(page, 'poison');
+  const log = page.getByTestId('event-log');
+  await expect(log).toContainText('status-apply');
+  for (let i = 0; i < 6; i++) {
+    if ((await log.textContent())?.includes('status-expire')) break;
+    await page.getByTestId('step-turn').click();
+    await page.waitForTimeout(700);
+  }
+  await expect(log).toContainText('status-tick');
+  await expect(log).toContainText('status-expire');
+});
+
+test('创造宝石：gem-create 或（满盘）gem-transform', async ({ page }) => {
+  await assignAndCast(page, 'gem-create');
+  await expect(page.getByTestId('event-log')).toContainText(/gem-(create|transform)/);
+});
+
+test('summon fills a three-card team, then queues while full', async ({ page }) => {
+  const leftCards = page.locator('.gcol').first().locator('.gcard');
+  await expect(leftCards).toHaveCount(3);
+  const before = await leftCards.first().boundingBox();
+
+  await assignSkill(page, 'summon');
+  await page.evaluate(() => {
+    void (window as unknown as DebugAppWindow).__testPage.app.triggerCast(0);
+  });
+  await expect(page.locator('[data-fx="summon_rune"]')).toBeVisible();
+  await expect(leftCards).toHaveCount(4);
+  const after = await leftCards.first().boundingBox();
+  const third = await leftCards.nth(2).boundingBox();
+  const fourth = await leftCards.nth(3).boundingBox();
+  expect(before && after && after.height < before.height).toBe(true);
+  expect(third && fourth && fourth.y > third.y).toBe(true);
+  await expect(page.getByTestId('event-log')).toContainText('summon(field)');
+
+  await page.waitForFunction(() => !(window as unknown as DebugAppWindow).__testPage.app.casting);
+  await page.getByTestId('fill-mana').click();
+  await page.evaluate(() => {
+    void (window as unknown as DebugAppWindow).__testPage.app.triggerCast(0);
+  });
+  await expect(page.getByTestId('event-log')).toContainText('summon(queue)');
+  await expect(leftCards).toHaveCount(4);
+  const queueLength = await page.evaluate(() =>
+    (window as unknown as DebugAppWindow).__testPage.app.engine.getState().teams.Left.summonQueue?.length ?? 0,
+  );
+  expect(queueLength).toBe(1);
+
+  await page.waitForFunction(() => !(window as unknown as DebugAppWindow).__testPage.app.casting);
+  const queuedId = await page.evaluate(() =>
+    (window as unknown as DebugAppWindow).__testPage.app.engine.getState().teams.Left.summonQueue?.[0].character.id,
+  );
+  expect(queuedId).toBeDefined();
+  await page.getByTestId('fill-mana').click();
+  await page.evaluate(() => {
+    const app = (window as unknown as DebugAppWindow).__testPage.app;
+    app.setDebugSkill(0, {
+      segments: [{ kind: 'damage', target: 'allySelf', scaling: { base: 100, mult: 0 } }],
+    });
+    void app.triggerCast(0);
+  });
+  await expect(page.locator('[data-fx="summon_rune"]')).toBeVisible();
+  await expect(page.getByTestId('card-0')).toHaveCount(0);
+  await expect(leftCards).toHaveCount(4);
+  await expect(leftCards.nth(3)).toHaveAttribute('data-testid', `card-${queuedId}`);
+  const remainingQueue = await page.evaluate(() =>
+    (window as unknown as DebugAppWindow).__testPage.app.engine.getState().teams.Left.summonQueue?.length ?? 0,
+  );
+  expect(remainingQueue).toBe(0);
+});
+
+test('随机摧毁6颗：无需选择，直接产出 gem-destroy', async ({ page }) => {
+  await assignAndCast(page, 'gem-destroy-random');
+  await expect(page.getByTestId('event-log')).toContainText('gem-destroy');
+});
+
+test('随机爆破2行：无需选择，直接产出 gem-explode', async ({ page }) => {
+  await assignAndCast(page, 'gem-explode-rows');
+  await expect(page.locator('[data-fx="energy_burst"]').first()).toBeVisible();
+  await expect(page.getByTestId('event-log')).toContainText('gem-explode');
+  await expectBoardViewSettled(page);
+});
+
+test('玩家选目标：拖★选敌伤害→短按释放→点敌方卡→命中该目标', async ({ page }) => {
+  await assignAndCast(page, 'dmg-chosen');
+  // 主游戏 TargetPicker 高亮候选敌方卡；点敌方丙(id=6)
+  await page.getByTestId('card-6').click();
+  await expect(page.getByTestId('event-log')).toContainText('skill-damage → 角色6');
+});
+
+test('玩家选宝石引爆：拖★选宝石→短按→点棋盘→gem-explode', async ({ page }) => {
+  await assignAndCast(page, 'gem-boom');
+  const canvas = page.locator('canvas').first();
+  const box = await canvas.boundingBox();
+  if (box) {
+    // 先移动让 CellPicker 的（延迟 60ms 挂载的）点击处理器就绪，再点选，避免竞态
+    await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2, { steps: 6 });
+    await page.waitForTimeout(150);
+    await page.mouse.click(box.x + box.width / 2, box.y + box.height / 2);
+  }
+  await expect(page.locator('[data-fx="energy_burst"]').first()).toBeVisible();
+  await expect(page.getByTestId('event-log')).toContainText('gem-explode');
+});
+
+test('玩家选一行摧毁：拖选行技能→短按→棋盘点一行→gem-destroy', async ({ page }) => {
+  await assignAndCast(page, 'gem-destroy-row');
+  const canvas = page.locator('canvas').first();
+  const box = await canvas.boundingBox();
+  if (box) {
+    await page.mouse.move(box.x + box.width * 0.5, box.y + box.height * 0.4, { steps: 6 });
+    await page.waitForTimeout(150);
+    await page.mouse.click(box.x + box.width * 0.5, box.y + box.height * 0.4);
+  }
+  await expect(page.getByTestId('event-log')).toContainText('gem-destroy');
+});
+
+test('点选宝石定色摧毁：拖摧毁指定色→短按→点一颗宝石取其色→gem-destroy', async ({ page }) => {
+  await assignAndCast(page, 'gem-destroy-color');
+  const canvas = page.locator('canvas').first();
+  const box = await canvas.boundingBox();
+  const log = page.getByTestId('event-log');
+  // 现在改为"点选一枚宝石取其颜色"（cellaim 选择器）；逐格尝试，点到颜色宝石即摧毁该色
+  if (box) {
+    const spots = [[0.5, 0.3], [0.3, 0.5], [0.7, 0.5], [0.5, 0.7], [0.4, 0.4]];
+    for (const [fx, fy] of spots) {
+      if ((await log.textContent())?.includes('gem-destroy')) break;
+      const x = box.x + box.width * fx;
+      const y = box.y + box.height * fy;
+      // 若不在选宝石态（上一轮点到骷髅被取消）则重新发起
+      const picking = await page.evaluate(() => !!document.querySelector('.cellaim-overlay'));
+      if (!picking) { await assignAndCast(page, 'gem-destroy-color'); await page.waitForTimeout(150); }
+      await page.mouse.move(x, y, { steps: 4 });
+      await page.waitForTimeout(150);
+      await page.mouse.click(x, y);
+      await page.waitForTimeout(300);
+    }
+  }
+  await expect(log).toContainText('gem-destroy');
+});
+
+
+test('多段组合器：载入"蓝单体+冰冻"预设→设为技能→释放选敌→伤害先于冰冻', async ({ page }) => {
+  // 载入预设组合，组合器列表出现两段
+  await page.getByTestId('combo-preset-blue-freeze').click();
+  await expect(page.getByTestId('composer-item-0')).toContainText('伤害');
+  await expect(page.getByTestId('composer-item-1')).toContainText('冰冻');
+  // 组装并设为首个施法者技能，充满法力后短按释放
+  await page.getByTestId('composer-apply').click();
+  await page.getByTestId('fill-mana').click();
+  await page.waitForTimeout(150);
+  await shortPressCard(page, 0);
+  await page.waitForTimeout(300);
+  // 选目标：点敌方队首(id=4)
+  await page.getByTestId('card-4').click();
+  const log = page.getByTestId('event-log');
+  await expect(log).toContainText('skill-damage → 角色4');
+  await expect(log).toContainText('status-apply → 角色4 frozen');
+  // 效果段书写顺序：伤害段先于冰冻状态段
+  const text = (await log.textContent()) ?? '';
+  expect(text.indexOf('skill-damage → 角色4')).toBeLessThan(text.indexOf('frozen'));
+});
+
+test('多段组合器：加段/上移/删除后列表顺序正确', async ({ page }) => {
+  await page.getByTestId('composer-clear').click();
+  const addSeg = async (id: string) => {
+    await page.selectOption('[data-testid="composer-seg-select"]', id);
+    await page.getByTestId('composer-add').click();
+    await page.waitForTimeout(50);
+  };
+  await addSeg('dmg-all');
+  await addSeg('st-burning-all');
+  await addSeg('extra-turn');
+  await expect(page.getByTestId('composer-item-0')).toContainText('群体伤害');
+  await expect(page.getByTestId('composer-item-2')).toContainText('额外回合');
+  // 上移额外回合到第 2 位
+  await page.getByTestId('composer-up-2').click();
+  await expect(page.getByTestId('composer-item-1')).toContainText('额外回合');
+  // 删除第 0 项（群体伤害）
+  await page.getByTestId('composer-del-0').click();
+  await expect(page.getByTestId('composer-item-0')).toContainText('额外回合');
+});
+
+test('多段组合器：释放选敌技能后点空白取消，不消耗法力', async ({ page }) => {
+  await page.getByTestId('composer-clear').click();
+  await page.selectOption('[data-testid="composer-seg-select"]', 'dmg-chosen');
+  await page.getByTestId('composer-add').click();
+  await page.getByTestId('composer-apply').click();
+  await page.getByTestId('fill-mana').click();
+  await page.waitForTimeout(150);
+  const manaBefore = await page.evaluate(
+    () => (window as unknown as DebugAppWindow).__testPage.app.engine.getState().teams.Left.characters[0].mana,
+  );
+  await shortPressCard(page, 0);
+  await page.waitForTimeout(300);
+  // 点空白角落取消选目标
+  await page.mouse.click(5, 5);
+  await page.waitForTimeout(400);
+  const manaAfter = await page.evaluate(
+    () => (window as unknown as DebugAppWindow).__testPage.app.engine.getState().teams.Left.characters[0].mana,
+  );
+  expect(manaAfter).toBe(manaBefore);
+});

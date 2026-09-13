@@ -1,0 +1,80 @@
+- generic [ref=f1e3]:
+  - generic [ref=f1e5]:
+    - generic:
+      - generic:
+        - generic [ref=f1e7] [cursor=pointer]:
+          - generic [ref=f1e11]: "4"
+          - generic [ref=f1e16]: "40"
+          - button "法力" [ref=f1e21]
+          - generic "魔力（法术强度）": "6"
+          - generic "状态"
+        - generic [ref=f1e30] [cursor=pointer]:
+          - generic [ref=f1e34]: "4"
+          - generic [ref=f1e39]: "40"
+          - button "法力" [ref=f1e44]
+          - generic "魔力（法术强度）": "8"
+          - generic "状态"
+        - generic [ref=f1e55] [cursor=pointer]:
+          - generic [ref=f1e59]: "4"
+          - generic [ref=f1e64]: "40"
+          - button "法力" [ref=f1e69]
+          - generic "魔力（法术强度）": "10"
+          - generic "状态"
+      - generic:
+        - generic [ref=f1e82] [cursor=pointer]:
+          - generic [ref=f1e86]: "4"
+          - generic [ref=f1e91]: "40"
+          - button "法力" [ref=f1e96]
+          - generic "魔力（法术强度）": "6"
+          - generic "状态"
+        - generic [ref=f1e105] [cursor=pointer]:
+          - generic [ref=f1e109]: "4"
+          - generic [ref=f1e114]: "40"
+          - button "法力" [ref=f1e119]
+          - generic "魔力（法术强度）": "8"
+          - generic "状态"
+        - generic [ref=f1e130] [cursor=pointer]:
+          - generic [ref=f1e134]: "4"
+          - generic [ref=f1e139]: "40"
+          - button "法力" [ref=f1e144]
+          - generic "魔力（法术强度）": "10"
+          - generic "状态"
+    - button "全屏" [ref=f1e157] [cursor=pointer]
+    - button "3v3" [ref=f1e160] [cursor=pointer]
+    - generic: TURN 01
+  - generic [ref=f1e161]:
+    - generic [ref=f1e162]: 技能测试页（主游戏薄壳）
+    - generic [ref=f1e163]: 把技能标签拖到我方角色卡换技能；短按卡=释放，长按=详情
+    - generic [ref=f1e164]:
+      - button "法力上限=3" [ref=f1e165] [cursor=pointer]
+      - button "充满法力" [ref=f1e166] [cursor=pointer]
+      - button "推进回合" [ref=f1e167] [cursor=pointer]
+    - generic [ref=f1e168]: 技能标签（拖到我方角色卡）
+    - generic [ref=f1e169]:
+      - generic [ref=f1e170]: 单体伤害
+      - generic [ref=f1e171]: 群体伤害
+      - generic [ref=f1e172]: 溅射伤害
+      - generic [ref=f1e173]: 真实伤害
+      - generic [ref=f1e174]: 创造宝石(绿)
+      - generic [ref=f1e175]: 创造骷髅×6
+      - generic [ref=f1e176]: 转化(选定→蓝)
+      - generic [ref=f1e177]: ★摧毁选定行
+      - generic [ref=f1e178]: ★摧毁选定列
+      - generic [ref=f1e179]: 摧毁指定色
+      - generic [ref=f1e180]: 随机摧毁6颗
+      - generic [ref=f1e181]: 爆破指定色
+      - generic [ref=f1e182]: 随机爆破2行
+      - generic [ref=f1e183]: ★选宝石引爆
+      - generic [ref=f1e184]: 治疗自身
+      - generic [ref=f1e185]: 加护甲(全体)
+      - generic [ref=f1e186]: 加攻击(自身)
+      - generic [ref=f1e187]: 中毒(队首)
+      - generic [ref=f1e188]: 燃烧(全体)
+      - generic [ref=f1e189]: 沉默(队首)
+      - generic [ref=f1e190]: 冰冻(队首)
+      - generic [ref=f1e191]: 额外回合
+      - generic [ref=f1e192]: 召唤(食人魔)
+      - generic [ref=f1e193]: ★选敌造成伤害
+      - generic [ref=f1e194]: ★选盟友治疗
+    - generic [ref=f1e195]: 事件流
+    - generic [ref=f1e196]: — 测试页就绪：拖技能标签到我方角色卡换技能，短按角色卡释放 —
