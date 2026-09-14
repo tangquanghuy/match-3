@@ -91,12 +91,12 @@ describe('技能库配置能真实生效', () => {
     expect(hits.length).toBe(3); // 三名敌人
   });
 
-  it('未配置技能 → 仅扣法力并正常结束回合', () => {
+  it('未配置技能 → 仅扣法力，不消耗回合', () => {
     const { engine, state } = setupWithSkill(999999); // 库里没有
     const events = engine.castSkill(0);
     expect(events[0].type).toBe('skill-cast');
-    expect(events.some((event) => event.type === 'turn-end')).toBe(true);
-    expect(state.activePlayer).toBe(PlayerSide.Right);
+    expect(events.some((event) => event.type === 'turn-end')).toBe(false);
+    expect(state.activePlayer).toBe(PlayerSide.Left);
     expect(state.teams[PlayerSide.Left].characters[0].mana).toBe(0);
   });
 });

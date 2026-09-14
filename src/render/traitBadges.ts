@@ -104,20 +104,23 @@ function specOf(trait: TraitDefinition): TraitBadgeSpec {
       svg: SWORD('#ff8a7a') + '<path d="M18.4 4.2l.7 1.6 1.6.7-1.6.7-.7 1.6-.7-1.6-1.6-.7 1.6-.7z" fill="#ff8a7a"/>',
     };
   }
-  // 种族/全队光环：旗
+  // 种族/全队光环：飘扬战旗（旗杆 + 波浪旗面）
   if (trait.typeAura || trait.onBigMatchTypeAura) {
     return {
       label,
       color: '#e6c979',
-      svg: '<path d="M7 21V4" stroke="#e6c979" stroke-width="1.5" stroke-linecap="round"/><path d="M7 5h10l-2.5 3L17 11H7z" fill="rgba(0,0,0,.35)" stroke="#e6c979" stroke-width="1.3"/>',
+      svg: '<path d="M6.2 21.5V3" stroke="#e6c979" stroke-width="1.6" stroke-linecap="round"/>'
+        + '<path d="M6.2 4.6c2.4-1.1 4.9-1.1 7 0 2 1.1 4.3 1.1 6.4 0l-1 7.2c-2.1 1-4.4 1-6.4 0-2.1-1.1-4.6-1.1-7 0z" fill="rgba(0,0,0,.35)" stroke="#e6c979" stroke-width="1.3" stroke-linejoin="round"/>'
+        + '<circle cx="6.2" cy="3" r="1.1" fill="#e6c979"/>',
     };
   }
-  // 法力灵链/开局法力：水晶
+  // 法力灵链/开局法力：切面水晶（顶部台面 + 竖向棱面）
   if (trait.manaLink || trait.battleStartManaRatio !== undefined) {
     return {
       label,
       color: '#8fb8ff',
-      svg: '<path d="M12 3l4.5 5.5L12 21 7.5 8.5z" fill="rgba(0,0,0,.35)" stroke="#8fb8ff" stroke-width="1.4"/><path d="M7.5 8.5h9" stroke="#8fb8ff" stroke-width="1.1"/>',
+      svg: '<path d="M12 2.6l4.6 5-4.6 13.8-4.6-13.8z" fill="rgba(0,0,0,.35)" stroke="#8fb8ff" stroke-width="1.4" stroke-linejoin="round"/>'
+        + '<path d="M7.4 7.6h9.2M12 2.6l-1.9 5L12 21.4l1.9-13.8z" fill="none" stroke="#8fb8ff" stroke-width="1"/>',
     };
   }
   // 攻击/魔法触发增益：剑/星

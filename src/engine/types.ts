@@ -167,8 +167,9 @@ export type BattleAction =
 /**
  * 一次行动在回合尾结算后的回合归属结果。
  * 用于校验「普通技能交出回合、额外回合只保留一次」而不必重新解析事件流。
+ * held：释放技能不消耗回合（用户裁定，对齐 GoW）——行动方未变，也非额外回合。
  */
-export type ActionOutcome = 'switched' | 'extra-turn' | 'game-over';
+export type ActionOutcome = 'switched' | 'extra-turn' | 'held' | 'game-over';
 
 /**
  * 结构化行动日志条目（需求 1.5、3.6）。

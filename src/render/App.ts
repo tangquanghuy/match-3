@@ -2393,7 +2393,8 @@ export class App {
 
   /**
    * 玩家技能释放流程（唯一实现，需求 2C）：短按己方满法力角色卡触发。
-   * 校验 → 按需收集选色/选目标/选宝石（玩家 UI，取消则不释放）→ castSkill → 演出 → 推进回合。
+   * 校验 → 按需收集选色/选目标/选宝石（玩家 UI，取消则不释放）→ castSkill → 演出。
+   * 释放不消耗回合（用户裁定，对齐 GoW）：行动方不变，可继续交换/再次施放。
    */
   private async castPlayerSkill(charId: number): Promise<void> {
     // casting 期间（含选目标/选宝石的点选）屏蔽任何新的短按释放，

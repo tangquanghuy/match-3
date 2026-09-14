@@ -91,17 +91,17 @@ describe('castSkill 执行技能原型（需求 3.1, 3.3, 11.2）', () => {
     expect(state.teams[PlayerSide.Right].characters[0].hp).toBe(40);
   });
 
-  it('无原型注册 → 仅扣法力并正常结束回合（需求 11.4）', () => {
+  it('无原型注册 → 仅扣法力，不消耗回合（需求 11.4）', () => {
     const registry = new ExtensionRegistry();
     const { engine, state } = setup(registry);
     const events = engine.castSkill(0);
     expect(events[0].type).toBe('skill-cast');
-    expect(events.some((event) => event.type === 'turn-end')).toBe(true);
-    expect(state.activePlayer).toBe(PlayerSide.Right);
+    expect(events.some((event) => event.type === 'turn-end')).toBe(false);
+    expect(state.activePlayer).toBe(PlayerSide.Left);
     expect(state.teams[PlayerSide.Left].characters[0].mana).toBe(0);
   });
 
-  it('已注册的普通技能通过统一入口结束回合并切换行动方', () => {
+  it('已注册的普通技能通过统一入口执行，且不消耗回合', () => {
     const registry = new ExtensionRegistry();
     registry.prototypes.set('combo', {
       segments: [{ kind: 'damage', target: 'enemyFront', scaling: { base: 1, mult: 0 } }],
@@ -110,10 +110,10 @@ describe('castSkill 执行技能原型（需求 3.1, 3.3, 11.2）', () => {
 
     const events = engine.resolveAction({ type: 'cast', characterId: 0 });
 
-    expect(events.filter((event) => event.type === 'turn-end')).toHaveLength(1);
+    expect(events.filter((event) => event.type === 'turn-end')).toHaveLength(0);
     expect(events.some((event) => event.type === 'extra-turn')).toBe(false);
     expect(events.some((event) => event.type === 'game-over')).toBe(false);
-    expect(state.activePlayer).toBe(PlayerSide.Right);
+    expect(state.activePlayer).toBe(PlayerSide.Left);
   });
 
   it('击杀敌方全队时 game-over 排在末尾（需求 3.3）', () => {
@@ -148,7 +148,7 @@ describe('castSkill 执行技能原型（需求 3.1, 3.3, 11.2）', () => {
       'defeat',
       'summon',
     ]);
-    expect(events.some((event) => event.type === 'turn-end')).toBe(true);
+    expect(events.some((event) => event.type === 'turn-end')).toBe(false);
     expect(events[3]).toMatchObject({
       type: 'summon',
       destination: 'field',

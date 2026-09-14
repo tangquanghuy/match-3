@@ -131,10 +131,10 @@ describe('结构化行动日志（任务 4 / 需求 1.5、3.6）', () => {
     expect(entry.action).toEqual({ type: 'cast', characterId: 0 });
     expect(entry.skillId).toBe('plain');
     expect(entry.side).toBe(PlayerSide.Left);
-    expect(entry.outcome).toBe('switched');
+    expect(entry.outcome).toBe('held');
   });
 
-  it('额外回合技能记为 extra-turn，普通技能记为 switched', () => {
+  it('施放不消耗回合：普通与额外回合技能都记为 held，行动方不变', () => {
     const registry = new ExtensionRegistry();
     registry.prototypes.set('extra', {
       segments: [
@@ -146,16 +146,16 @@ describe('结构化行动日志（任务 4 / 需求 1.5、3.6）', () => {
     const { engine, state } = setup(registry, { skillId: 'extra' });
 
     engine.castSkill(0);
-    expect(state.actionLog[0].outcome).toBe('extra-turn');
+    expect(state.actionLog[0].outcome).toBe('held');
     expect(state.activePlayer).toBe(PlayerSide.Left);
 
-    // 额外回合只保留一次：同一角色再放普通技能应交出回合
+    // 普通技能同样不交出回合（释放免费）；额外回合标记留到下一次交换行动生效
     state.teams[PlayerSide.Left].characters[0].mana = 10;
     state.teams[PlayerSide.Left].characters[0].skillId = 'plain';
     engine.castSkill(0);
     expect(state.actionLog[1].index).toBe(1);
-    expect(state.actionLog[1].outcome).toBe('switched');
-    expect(state.activePlayer).toBe(PlayerSide.Right);
+    expect(state.actionLog[1].outcome).toBe('held');
+    expect(state.activePlayer).toBe(PlayerSide.Left);
   });
 
   it('致胜行动记为 game-over，优先于回合归属', () => {

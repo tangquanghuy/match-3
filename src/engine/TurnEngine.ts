@@ -167,8 +167,9 @@ export class TurnEngine {
   }
 
   /** 回合尾结算完成后回填回合归属。GameOver 优先于额外回合。 */
-  private endActionLog(entry: ActionLogEntry): void {
+  private endActionLog(entry: ActionLogEntry, freeAction = false): void {
     if (this.state.state === MatchState.GameOver) entry.outcome = 'game-over';
+    else if (freeAction) entry.outcome = 'held'; // 释放技能不消耗回合：行动方未变，也不是额外回合
     else if (this.state.activePlayer === entry.side) entry.outcome = 'extra-turn';
     else entry.outcome = 'switched';
   }
@@ -944,7 +945,7 @@ export class TurnEngine {
       this.state.teams[opponentOf(this.state.activePlayer)].characters,
     ));
 
-    // 优先低层自定义 SkillEffect；否则查技能原型执行；都没有则仅产生空效果技能并正常结束回合。
+    // 优先低层自定义 SkillEffect；否则查技能原型执行；都没有则仅产生空效果技能并照常回到等待输入。
     const effect = this.registry.skills.get(ch.skillId);
     if (effect) {
       events.push(...resolveDefeatEvents(this.state, effect.apply(this.state, ch.id)));
@@ -976,11 +977,25 @@ export class TurnEngine {
       }
     }
 
-    // 技能与交换共用唯一回合出口。致胜时 finishTurn 会安全跳过。
-    this.checkVictory(events);
-    this.finishTurn(events);
+    // 释放技能不消耗回合（用户裁定，对齐 GoW）：不切换行动方、不做回合尾结算
+    // （回合开始被动 / DoT / 风暴递减均属换边后的回合尾流程）。致胜仍立即判定；
+    // 技能可能改写盘面（创造/转化宝石），死局重排检测保留，随后直接回到等待输入。
+    // 「额外回合」技能的 pendingExtraTurnSource 保留到下一次交换行动的回合尾生效——
+    // 即施放免费、下一次行动后仍不换边（再行动一次）。
+    const gameOver = this.checkVictory(events);
+    if (!gameOver) {
+      if (this.state.board.isFull() && !hasLegalSwap(this.state.board)) {
+        const moves = reshuffle(this.state.board, this.rng);
+        events.push({ type: 'reshuffle', moves });
+        if (this.resolver.hasAnyMatch(this.state.board)) {
+          this.runCascades(events);
+          this.checkVictory(events);
+        }
+      }
+      this.state.state = MatchState.AwaitingInput;
+    }
     this.processDeathTriggers(events);
-    this.endActionLog(logEntry);
+    this.endActionLog(logEntry, true);
     return events;
   }
 
