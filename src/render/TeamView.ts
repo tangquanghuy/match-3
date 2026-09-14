@@ -488,10 +488,14 @@ function ensureStyles(): void {
     padding:0 1px;box-sizing:border-box;border-radius:6px;background:#0b0a09;border:1px solid var(--sb);
     font-family:"Oswald",sans-serif;font-size:8px;line-height:9px;text-align:center;color:#f0e2bf}
 
-  /* 特质图标行：卡面底部居中一排小图标（对齐 GoW），按效果族代码绘制；title=特质名 */
-  .gcard .trait-row{position:absolute;z-index:6;left:0;right:0;bottom:${os(5)}px;
-    display:flex;justify-content:center;gap:${os(3)}px;pointer-events:none}
-  .gcard .trait-badge{display:inline-flex;filter:drop-shadow(0 1px 2px rgba(0,0,0,.9))}
+  /* 特质图标列：紧贴立绘左边框竖排（用户反馈：不要底衬、不要空隙、突出立绘）。
+     图标靠自身描边 + 双层投影保证在浅色立绘上的可读性；无特质时整列隐藏 */
+  .gcard .trait-row{position:absolute;z-index:6;left:0;top:50%;transform:translateY(-50%);
+    display:flex;flex-direction:column;align-items:center;gap:${os(5)}px;pointer-events:none;
+    padding:${os(3)}px 0}
+  .gcard .trait-row:empty{display:none}
+  .gcard .trait-badge{display:inline-flex;
+    filter:drop-shadow(0 1px 2px rgba(0,0,0,.95)) drop-shadow(0 0 4px rgba(0,0,0,.65))}
   .gcard .trait-badge svg{display:block;width:100%;height:100%}
   .gcard .trait-badge-off{opacity:.4}
   `;
@@ -608,7 +612,7 @@ export class CharacterCard {
   }
 
   /**
-   * 特质图标行（对齐 GoW 卡面底部小图标）：按效果族代码绘制，title=特质名。
+   * 特质图标列（立绘左侧竖排）：按效果族代码绘制，title=特质名。
    * traitIds 战斗中不变，构造时渲染一次即可；未实现 code 显示暗色占位六边形。
    */
   private renderTraitRow(): void {
@@ -616,7 +620,7 @@ export class CharacterCard {
     const codes = [...new Set(this.char.traitIds ?? [])].slice(0, 4);
     this.traitRowEl.innerHTML = codes
       .map((code) => {
-        const size = `width:${os(13)}px;height:${os(13)}px`;
+        const size = `width:${os(16)}px;height:${os(16)}px`;
         const name = getTrait(code)?.name ?? code;
         const svg = traitBadgeSvg(code);
         return svg
