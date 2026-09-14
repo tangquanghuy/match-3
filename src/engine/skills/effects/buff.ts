@@ -15,6 +15,9 @@ import type { ScalingSpec } from '../scaling';
 import { evaluateScaling } from '../scaling';
 import type { EffectContext, EffectPrimitive } from './context';
 import { casterMagic } from './context';
+import { isWebbed } from './status';
+import { hasTroopType, evaluateWithModifier, DEFAULT_RACE_DOUBLE, condMultiplier, condBonusValue } from './secondary';
+import type { ModifierSpec, CondMult, CondBonus } from './secondary';
 import { effectiveHealing } from '../../healing';
 
 /** 可增益的属性 */
@@ -27,6 +30,27 @@ export interface BuffParams {
   stat: BuffStat;
   /** 数额缩放规格；按施法者魔力求值 */
   scaling: ScalingSpec;
+  /** 全额治疗（stat='hp'）：恢复到 maxHp 上限（「恢复所有生命值」） */
+  full?: boolean;
+  /** 二次缩放（[xN]/[N:M] + 来源），可选 */
+  modifier?: ModifierSpec;
+  /** 种族条件翻倍：目标 troopTypes 含该族时数值 ×2（五机制之一） */
+  raceDouble?: string;
+  /** 种族条件倍率（默认 2；「翻 3 倍」= 3），仅与 raceDouble 同用 */
+  raceTimes?: number;
+  /** 条件倍率（「如果…则造成 N 倍/效果翻倍」） */
+  condMult?: CondMult;
+  /** 条件加成（加算；先加后乘） */
+  condBonus?: CondBonus;
+}
+
+/**
+ * 对单个角色施加增益，返回实际变化量（受上限夹取后可能小于名义值）。
+ * 导出供窃取（debuff.ts）的「自身等量获得」路径复用，保证口径一致
+ * （hp 上限、mana 上限、织网拦截魔法增益、治疗修正）。
+ */
+export function applyBuffGain(target: Character, stat: BuffStat, amount: number): number {
+  return buffOne(target, stat, amount);
 }
 
 /**
@@ -43,6 +67,8 @@ function buffOne(target: Character, stat: BuffStat, amount: number): number {
       return amount;
     }
     case 'magic': {
+      // 织网（GoW Web）期间无法获得魔法值增益；返回 0 则不发 buff 事件
+      if (isWebbed(target)) return 0;
       target.magic += amount;
       return amount;
     }
@@ -68,8 +94,66 @@ function buffOne(target: Character, stat: BuffStat, amount: number): number {
   }
 }
 
+/** 随机属性可投的点（GoW Random Stats：攻/甲/血/魔四维） */
+const RANDOM_STATS: readonly BuffStat[] = ['attack', 'armor', 'hp', 'magic'];
+
+export interface RandomStatParams {
+  /** 目标列表（由 targeting 产出） */
+  targets: Character[];
+  /** 点数缩放规格（「获得 [魔法] 点随机技能值」按施法者魔力求值） */
+  scaling: ScalingSpec;
+  /** 二次缩放（「点数因…而增强」） */
+  modifier?: ModifierSpec;
+  /** 种族条件翻倍 */
+  raceDouble?: string;
+  /** 种族条件倍率（默认 2） */
+  raceTimes?: number;
+  /** 条件倍率（「如果…则造成 N 倍/效果翻倍」） */
+  condMult?: CondMult;
+  /** 条件加成（加算；先加后乘） */
+  condBonus?: CondBonus;
+}
+
 /**
- * 构建增益原语（需求 8.1–8.5）。
+ * 随机属性获得原语（DECISIONS.md「纯逻辑小活顺路处理」）：获得 N 点随机技能值。
+ * 每点经种子化 RNG 随机分给攻/甲/血/魔之一（+1），逐点独立投掷；
+ * 每个目标按属性聚合为一次 buff 事件，避免事件流噪声。
+ */
+export function randomStatEffect(params: RandomStatParams): EffectPrimitive {
+  return {
+    apply(ctx: EffectContext): GameEvent[] {
+      const { targets } = params;
+      if (targets.length === 0) return [];
+      const base = evaluateWithModifier(
+        evaluateScaling(params.scaling, casterMagic(ctx)),
+        params.modifier,
+        ctx,
+      );
+      const events: GameEvent[] = [];
+      for (const target of targets) {
+        if (target.defeated) continue;
+        const raceFactor = params.raceDouble && hasTroopType(target, params.raceDouble) ? (params.raceTimes ?? DEFAULT_RACE_DOUBLE) : 1;
+        const effPoints = (base + condBonusValue(params.condBonus, ctx, target)) * raceFactor * condMultiplier(params.condMult, ctx, target);
+        if (effPoints <= 0) continue;
+        const gains: Partial<Record<BuffStat, number>> = {};
+        for (let i = 0; i < effPoints; i++) {
+          const stat = RANDOM_STATS[ctx.rng.nextInt(RANDOM_STATS.length)];
+          gains[stat] = (gains[stat] ?? 0) + 1;
+        }
+        for (const [stat, amount] of Object.entries(gains) as [BuffStat, number][]) {
+          const applied = buffOne(target, stat, amount);
+          if (applied !== 0) {
+            events.push({ type: 'buff', targetId: target.id, stat, amount: applied });
+          }
+        }
+      }
+      return events;
+    },
+  };
+}
+
+/**
+ * 构建增益原语（需求 8.1–8.5；二次缩放/种族翻倍为窗口 B 增量）。
  */
 export function buffEffect(params: BuffParams): EffectPrimitive {
   return {
@@ -77,11 +161,19 @@ export function buffEffect(params: BuffParams): EffectPrimitive {
       const { targets, stat, scaling } = params;
       if (targets.length === 0) return []; // 无目标安全跳过
 
-      const amount = evaluateScaling(scaling, casterMagic(ctx));
+      const base = evaluateWithModifier(
+        evaluateScaling(scaling, casterMagic(ctx)),
+        params.modifier,
+        ctx,
+      );
       const events: GameEvent[] = [];
 
       for (const target of targets) {
         if (target.defeated) continue; // 阵亡不接受增益
+        // 种族条件翻倍：按受益者逐个判定（群体段中仅该族目标翻倍）
+        const raceFactor = params.raceDouble && hasTroopType(target, params.raceDouble) ? (params.raceTimes ?? DEFAULT_RACE_DOUBLE) : 1;
+        let amount = (base + condBonusValue(params.condBonus, ctx, target)) * raceFactor * condMultiplier(params.condMult, ctx, target);
+        if (params.full && stat === 'hp') amount = Number.POSITIVE_INFINITY;
         const applied = buffOne(target, stat, amount);
         // 仅在实际发生变更时发事件（如满血治疗不产生 0 事件噪声）
         if (applied !== 0) {

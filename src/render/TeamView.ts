@@ -2,6 +2,8 @@ import { BaseColor, PlayerSide } from '@engine/types';
 import type { Character, Team } from '@engine/types';
 import { AnimConfig } from './AnimationConfig';
 import { statusBadge, statusBadgeSvg } from './statusBadges';
+import { traitBadgeSvg } from './traitBadges';
+import { getTrait } from '@engine/traits';
 import frostBorderUrl from '../assets/fx/frost_border_overlay.png';
 import frostVeinsUrl from '../assets/fx/frost_veins_overlay.png';
 import silenceSealUrl from '../assets/fx/silence_seal_overlay.png';
@@ -485,6 +487,13 @@ function ensureStyles(): void {
   .gcard .status-badge .sb-turns{position:absolute;right:-3px;bottom:-3px;min-width:11px;height:11px;
     padding:0 1px;box-sizing:border-box;border-radius:6px;background:#0b0a09;border:1px solid var(--sb);
     font-family:"Oswald",sans-serif;font-size:8px;line-height:9px;text-align:center;color:#f0e2bf}
+
+  /* 特质图标行：卡面底部居中一排小图标（对齐 GoW），按效果族代码绘制；title=特质名 */
+  .gcard .trait-row{position:absolute;z-index:6;left:0;right:0;bottom:${os(5)}px;
+    display:flex;justify-content:center;gap:${os(3)}px;pointer-events:none}
+  .gcard .trait-badge{display:inline-flex;filter:drop-shadow(0 1px 2px rgba(0,0,0,.9))}
+  .gcard .trait-badge svg{display:block;width:100%;height:100%}
+  .gcard .trait-badge-off{opacity:.4}
   `;
   const style = document.createElement('style');
   style.id = 'gcard-styles';
@@ -511,6 +520,7 @@ export class CharacterCard {
   private tipEl!: HTMLElement;     // 法力进度浮窗
   private magicEl!: HTMLElement;   // 魔力（法术强度）数值
   private statusStripEl!: HTMLElement; // 状态图标栏（中毒/燃烧…）
+  private traitRowEl!: HTMLElement; // 特质图标行（卡面底部）
   private gemColors: BaseColor[] = [];
   private displayedMana = 0;
 
@@ -565,6 +575,7 @@ export class CharacterCard {
       <div class="gem-tip"></div>
       <div class="magic" title="魔力（法术强度）">${MAGIC_SVG}<span class="v magic-v">0</span></div>
       <div class="status-strip" aria-label="状态"></div>
+      <div class="trait-row" aria-label="特质"></div>
     `;
     this.el = el;
     this.nameEl = el.querySelector('.name')!;
@@ -575,6 +586,8 @@ export class CharacterCard {
     this.tipEl = el.querySelector('.gem-tip')!;
     this.magicEl = el.querySelector('.magic-v')!;
     this.statusStripEl = el.querySelector('.status-strip')!;
+    this.traitRowEl = el.querySelector('.trait-row')!;
+    this.renderTraitRow();
     this.gemColors = gemColors;
 
     // 法力宝石在完整 pointer 生命周期中隔离冒泡，避免卡片先进入短按/长按状态。
@@ -592,6 +605,25 @@ export class CharacterCard {
     this.nameEl.textContent = char.name;
 
     this.refresh();
+  }
+
+  /**
+   * 特质图标行（对齐 GoW 卡面底部小图标）：按效果族代码绘制，title=特质名。
+   * traitIds 战斗中不变，构造时渲染一次即可；未实现 code 显示暗色占位六边形。
+   */
+  private renderTraitRow(): void {
+    if (!this.traitRowEl) return;
+    const codes = [...new Set(this.char.traitIds ?? [])].slice(0, 4);
+    this.traitRowEl.innerHTML = codes
+      .map((code) => {
+        const size = `width:${os(13)}px;height:${os(13)}px`;
+        const name = getTrait(code)?.name ?? code;
+        const svg = traitBadgeSvg(code);
+        return svg
+          ? `<span class="trait-badge" title="${name}" style="${size}">${svg}</span>`
+          : `<span class="trait-badge trait-badge-off" title="${name}（未生效）" style="${size}"><svg viewBox="0 0 24 24"><path d="M12 3l7.8 4.5v9L12 21l-7.8-4.5v-9z" fill="rgba(0,0,0,.35)" stroke="#8a7c5c" stroke-width="1.4"/></svg></span>`;
+      })
+      .join('');
   }
 
   resize(width: number, height: number): void {

@@ -11,10 +11,36 @@ import type { GameEvent } from '../../events';
 import type { SeededRNG } from '../../rng';
 import type { Character, Team, PlayerSide, GemType, BaseColor, CellPos } from '../../types';
 import { PlayerSide as Side } from '../../types';
+import { isWebbed } from './status';
 
 /** 被技能直接摧毁的宝石（用于法力/骷髅结算，需求 7.5） */
 export interface DestroyedGem {
   gemType: GemType;
+  /**
+   * 被摧毁时所在格（clear 管线填充）。特殊宝石的"被摧毁时"触发（炸弹爆炸/闪电清行列/
+   * 许愿回蓝）需要位置才能连锁；缺省（旧调用方）时特殊宝石摧毁不触发。
+   */
+  pos?: CellPos;
+}
+
+/**
+ * 单次施法的跨段追踪（窗口 B · 五机制）：
+ * 同一次技能内，后续效果段的二次缩放来源（被摧毁/被转化的宝石、耗掉的法力）
+ * 与段间条件（「如果该敌人身亡」）都从这里读。由 executePrototype 创建并挂到 ctx 上，
+ * 效果原语只写不建——纯原语单测（不走 executePrototype）时为 undefined，相关来源按 0 计。
+ */
+export interface CastTracking {
+  /** 本技能效果段直接摧毁的宝石（不含连锁；按执行顺序累积） */
+  destroyed: DestroyedGem[];
+  /** 本技能效果段直接转化的宝石数 */
+  transformed: number;
+  /** 本技能耗掉的敌方法力总和 */
+  drainedMana: number;
+  /**
+   * 最近一个解析出目标的效果段：主目标 id + 该段执行前是否存活。
+   * 「如果该敌人身亡」= 它 aliveBefore 且现在 defeated。
+   */
+  lastTarget?: { id: number; aliveBefore: boolean };
 }
 
 /** 效果原语执行上下文（施法者、状态、随机源、宝石 id 分配器） */
@@ -59,6 +85,12 @@ export interface EffectContext {
    * 召唤段 ref/randomOf 来源用它解析属性；缺省时该来源安全跳过。
    */
   resolveSummonRef?: (referenceName: string) => import('./summon').SummonTemplate | null;
+  /**
+   * 单次施法的跨段追踪（五机制：二次缩放来源 / 段间死亡条件）。
+   * executePrototype 进入段循环前创建；缺省（纯原语单测）时相关来源按 0 计、
+   * ifTargetDied 段按条件不成立跳过。
+   */
+  castTracking?: CastTracking;
 }
 
 /** 效果原语：读写 state 并产出事件流 */
@@ -83,9 +115,14 @@ export function findSide(state: GameState, id: number): PlayerSide | null {
   return null;
 }
 
-/** 施法者魔力；找不到施法者按 0 计 */
+/**
+ * 施法者魔力；找不到施法者按 0 计。
+ * 织网（GoW Web）期间魔力按 0 计——技能数值只剩基础项，基础能力不受影响。
+ */
 export function casterMagic(ctx: EffectContext): number {
-  return findCharacter(ctx.state, ctx.casterId)?.magic ?? 0;
+  const caster = findCharacter(ctx.state, ctx.casterId);
+  if (!caster) return 0;
+  return isWebbed(caster) ? 0 : caster.magic;
 }
 
 /** 取某角色所在队伍与其在队伍中的索引 */

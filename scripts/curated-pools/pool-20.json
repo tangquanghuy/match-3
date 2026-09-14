@@ -1,0 +1,572 @@
+[
+ {
+  "troopId": 6327,
+  "troop": "银甲女卫",
+  "spellId": 7477,
+  "spellName": "光荣黎明",
+  "desc": "净化自身并给自己赋予屏障效果。摧毁 1 行，获得 [魔法 + 1] 点护甲值和生命值，所获得的点数因摧毁的黄色宝石数而增强。 [1:1]",
+  "scalings": [
+   {
+    "base": 1,
+    "mult": 1
+   }
+  ],
+  "modifier": {
+   "kind": "ratio",
+   "a": 1,
+   "b": 1
+  }
+ },
+ {
+  "troopId": 6333,
+  "troop": "风精灵",
+  "spellId": 7483,
+  "spellName": "羽毛之怒",
+  "desc": "造成散射伤害，伤害值等同于自身的攻击力，并因棕色敌军数量而增强。 [x10]",
+  "scalings": [],
+  "modifier": {
+   "kind": "multiplier",
+   "a": 10
+  }
+ },
+ {
+  "troopId": 6351,
+  "troop": "主教",
+  "spellId": 7503,
+  "spellName": "神祇之力",
+  "desc": "给予一名盟友 [(魔法 / 2) + 4] 点护甲值以及 1 点魔法值。如果盟友是一名神祇军队，则效果翻倍。",
+  "scalings": [
+   {
+    "base": 4,
+    "mult": 0.5
+   }
+  ],
+  "modifier": null
+ },
+ {
+  "troopId": 6354,
+  "troop": "塞喀玛",
+  "spellId": 7506,
+  "spellName": "太阳的召唤",
+  "desc": "将蓝色宝石转换为骷髅头，并将棕色宝石转换为黄色宝石。对 1 名敌人造成 [魔法 + 1] 点伤害，伤害值因其他盟友的魔法值而增强。 [2:1]",
+  "scalings": [
+   {
+    "base": 1,
+    "mult": 1
+   }
+  ],
+  "modifier": {
+   "kind": "ratio",
+   "a": 2,
+   "b": 1
+  }
+ },
+ {
+  "troopId": 6356,
+  "troop": "沙漠巨魔",
+  "spellId": 7508,
+  "spellName": "埋葬",
+  "desc": "将板面上的黄色宝石数翻倍。再创造 3 颗黄色宝石。 [1:1]",
+  "scalings": [],
+  "modifier": {
+   "kind": "ratio",
+   "a": 1,
+   "b": 1
+  }
+ },
+ {
+  "troopId": 6359,
+  "troop": "兽人老兵",
+  "spellId": 7511,
+  "spellName": "战吼",
+  "desc": "对 1 名敌人造成 [(魔法 / 2) + 6] – [魔法 + 13] 到 {2} 点伤害。如果自身攻击力较高，则创造 8 颗红色宝石。",
+  "scalings": [
+   {
+    "base": 6,
+    "mult": 0.5
+   },
+   {
+    "base": 13,
+    "mult": 1
+   }
+  ],
+  "modifier": null
+ },
+ {
+  "troopId": 6364,
+  "troop": "艾尔茅格林",
+  "spellId": 7516,
+  "spellName": "末日暗影",
+  "desc": "对所有敌人造成 [魔法 + 3] 点伤害。创造 9 颗紫色宝石，创造的宝石数因陷入燃烧状态的敌军数量而增强。 [1:1]",
+  "scalings": [
+   {
+    "base": 3,
+    "mult": 1
+   }
+  ],
+  "modifier": {
+   "kind": "ratio",
+   "a": 1,
+   "b": 1
+  }
+ },
+ {
+  "troopId": 6369,
+  "troop": "多摩莫伊",
+  "spellId": 7521,
+  "spellName": "捣蛋鬼",
+  "desc": "给予所有盟友 [魔法 + 1] 点生命值，点数因棕色宝石数而增强。赋予一名随机盟友一项随机状态效果。 [3:1]",
+  "scalings": [
+   {
+    "base": 1,
+    "mult": 1
+   }
+  ],
+  "modifier": {
+   "kind": "ratio",
+   "a": 3,
+   "b": 1
+  }
+ },
+ {
+  "troopId": 6378,
+  "troop": "蚕茧",
+  "spellId": 7533,
+  "spellName": "孵仔",
+  "desc": "使一名随机敌人陷入织网状态。召唤一只随机蜘蛛。",
+  "scalings": [],
+  "modifier": null
+ },
+ {
+  "troopId": 6380,
+  "troop": "耍蛇者",
+  "spellId": 7535,
+  "spellName": "催眠",
+  "desc": "创造 9 颗紫色宝石。召唤一只沙地眼镜蛇。",
+  "scalings": [],
+  "modifier": null
+ },
+ {
+  "troopId": 6394,
+  "troop": "锤头鲨",
+  "spellId": 7549,
+  "spellName": "鲨鱼攻击",
+  "desc": "对最后一名敌人造成 [魔法 + 3] 点伤害，伤害值因蓝色的盟友数而增强。若敌人已受伤，则造成两倍伤害。 [x3]",
+  "scalings": [
+   {
+    "base": 3,
+    "mult": 1
+   }
+  ],
+  "modifier": {
+   "kind": "multiplier",
+   "a": 3
+  }
+ },
+ {
+  "troopId": 6396,
+  "troop": "矮人之门",
+  "spellId": 7551,
+  "spellName": "密码",
+  "desc": "获得 [魔法 + 3] 点护甲值，点数因矮人盟友数而增强。赋予所有其他盟友屏障效果并给予 5 点法力值。 [1:1]",
+  "scalings": [
+   {
+    "base": 3,
+    "mult": 1
+   }
+  ],
+  "modifier": {
+   "kind": "ratio",
+   "a": 1,
+   "b": 1
+  }
+ },
+ {
+  "troopId": 6403,
+  "troop": "鱼尾狮",
+  "spellId": 7558,
+  "spellName": "怒啸之海",
+  "desc": "对 1 名敌人和一个随机敌人造成 [魔法 + 2] 点伤害。如果敌人已陷入沉默状态，则造成的双倍伤害。再使敌人陷入沉默状态。",
+  "scalings": [
+   {
+    "base": 2,
+    "mult": 1
+   }
+  ],
+  "modifier": null
+ },
+ {
+  "troopId": 6408,
+  "troop": "雅思敏选使",
+  "spellId": 7564,
+  "spellName": "自然之灵",
+  "desc": "对所有敌人造成 [魔法 + 20] 点散射伤害，伤害值因被缠绕的敌军数量而增强。创造 10 颗绿色宝石。 [x10]",
+  "scalings": [
+   {
+    "base": 20,
+    "mult": 1
+   }
+  ],
+  "modifier": {
+   "kind": "multiplier",
+   "a": 10
+  }
+ },
+ {
+  "troopId": 6415,
+  "troop": "枪圣",
+  "spellId": 7573,
+  "spellName": "凌空一击",
+  "desc": "摧毁 1 列。对最虚弱的敌人造成 [魔法 + 2] 点真实伤害，伤害值因被摧毁的红色宝石数而增强。 [x2]",
+  "scalings": [
+   {
+    "base": 2,
+    "mult": 1
+   }
+  ],
+  "modifier": {
+   "kind": "multiplier",
+   "a": 2
+  }
+ },
+ {
+  "troopId": 6419,
+  "troop": "森林巨魔",
+  "spellId": 7584,
+  "spellName": "窒息",
+  "desc": "将板面上的绿色宝石数翻倍。再创造 3 颗绿色宝石。 [1:1]",
+  "scalings": [],
+  "modifier": {
+   "kind": "ratio",
+   "a": 1,
+   "b": 1
+  }
+ },
+ {
+  "troopId": 6449,
+  "troop": "火巨人",
+  "spellId": 7627,
+  "spellName": "心灵之火",
+  "desc": "对 1 名敌人造成 [魔法 + 3] 点伤害。敌人陷入燃烧状态，则造成三倍伤害。若敌人身亡，则创造 10 颗红宝石。",
+  "scalings": [
+   {
+    "base": 3,
+    "mult": 1
+   }
+  ],
+  "modifier": null
+ },
+ {
+  "troopId": 6454,
+  "troop": "雌人鹿",
+  "spellId": 7632,
+  "spellName": "自然之矛",
+  "desc": "对 1 名敌人造成 [魔法 + 2] 点伤害。获得 2 点法力值。每个被缠绕的敌人可增加 25% 获得额外回合的几率。",
+  "scalings": [
+   {
+    "base": 2,
+    "mult": 1
+   }
+  ],
+  "modifier": null
+ },
+ {
+  "troopId": 6456,
+  "troop": "火焰巨魔",
+  "spellId": 7634,
+  "spellName": "燃烧的拳头",
+  "desc": "将板面上的红色宝石数翻倍。再创造 3 颗红色宝石。 [1:1]",
+  "scalings": [],
+  "modifier": {
+   "kind": "ratio",
+   "a": 1,
+   "b": 1
+  }
+ },
+ {
+  "troopId": 6458,
+  "troop": "珊瑚魔像",
+  "spellId": 7636,
+  "spellName": "暗礁",
+  "desc": "爆破一颗宝石。每摧毁一颗绿色宝石则随机使一名盟友下潜。获得 [魔法] 点生命值和护甲值。 [1:1]",
+  "scalings": [
+   {
+    "base": 0,
+    "mult": 1
+   }
+  ],
+  "modifier": {
+   "kind": "ratio",
+   "a": 1,
+   "b": 1
+  }
+ },
+ {
+  "troopId": 6462,
+  "troop": "爪牙舞者",
+  "spellId": 7640,
+  "spellName": "旋转之刃",
+  "desc": "对 1 名敌人造成  [(魔法 / 2) + 4] – [魔法 + 8] 到 {2} 点伤害。如果敌人身亡，则获得多一回合。 ",
+  "scalings": [
+   {
+    "base": 4,
+    "mult": 0.5
+   },
+   {
+    "base": 8,
+    "mult": 1
+   }
+  ],
+  "modifier": null
+ },
+ {
+  "troopId": 6463,
+  "troop": "厄里倪厄斯",
+  "spellId": 7641,
+  "spellName": "永恒的惩罚",
+  "desc": "召唤两名夸赛魔。将指定的法力颜色转换为紫色。",
+  "scalings": [],
+  "modifier": null
+ },
+ {
+  "troopId": 6467,
+  "troop": "长毛象",
+  "spellId": 7645,
+  "spellName": "原始之力",
+  "desc": "对 1 名敌人的生命值和护甲值造成 [魔法 + 1] 点伤害。移出所有蓝色宝石以增强伤害效果值。 [3:1]",
+  "scalings": [
+   {
+    "base": 1,
+    "mult": 1
+   }
+  ],
+  "modifier": {
+   "kind": "ratio",
+   "a": 3,
+   "b": 1
+  }
+ },
+ {
+  "troopId": 6507,
+  "troop": "海恩德拉·冰冠",
+  "spellId": 7697,
+  "spellName": "凛冬之召唤",
+  "desc": "对一名敌人造成 [魔法 + 7] 点溅射伤害。冻结所有敌人。召唤一名随机巨人。",
+  "scalings": [
+   {
+    "base": 7,
+    "mult": 1
+   }
+  ],
+  "modifier": null
+ },
+ {
+  "troopId": 6508,
+  "troop": "骸骨之墙",
+  "spellId": 7698,
+  "spellName": "断骨残骸",
+  "desc": "获得 [魔法 + 1] 点护甲值，点数因敌我双方的不死族军队数量而增强。所有其他盟友获得 5 点攻击力和法力值。 [x2]",
+  "scalings": [
+   {
+    "base": 1,
+    "mult": 1
+   }
+  ],
+  "modifier": {
+   "kind": "multiplier",
+   "a": 2
+  }
+ },
+ {
+  "troopId": 6520,
+  "troop": "狂野女王",
+  "spellId": 7713,
+  "spellName": "野蛮之舞",
+  "desc": "窃取一名敌人上限为 [魔法 + 5] 点的攻击力，并将之给予你第一位盟友。创造 22 颗宝石，所创造的宝石混合骷髅头和绿色宝石。 [20:1]",
+  "scalings": [
+   {
+    "base": 5,
+    "mult": 1
+   }
+  ],
+  "modifier": {
+   "kind": "ratio",
+   "a": 20,
+   "b": 1
+  }
+ },
+ {
+  "troopId": 6529,
+  "troop": "祖尔格特",
+  "spellId": 7723,
+  "spellName": "歼灭",
+  "desc": "杀掉一名敌人。燃烧并冻结所有剩余的敌人。创造 12 颗骷髅头。",
+  "scalings": [],
+  "modifier": null
+ },
+ {
+  "troopId": 6538,
+  "troop": "灵魂舞者",
+  "spellId": 7732,
+  "spellName": "通灵",
+  "desc": "将指定的法力颜色转换为绿色。召唤一只灵之狐。",
+  "scalings": [],
+  "modifier": null
+ },
+ {
+  "troopId": 6553,
+  "troop": "兀芭斯特",
+  "spellId": 7747,
+  "spellName": "残暴至极",
+  "desc": "对最虚弱的两名敌人造成 [魔法 + 2] 点伤害，伤害值因所有盟友和敌人的攻击力而增强。若其中一名敌人身亡，则击杀另一名敌人。 [6:1]",
+  "scalings": [
+   {
+    "base": 2,
+    "mult": 1
+   }
+  ],
+  "modifier": {
+   "kind": "ratio",
+   "a": 6,
+   "b": 1
+  }
+ },
+ {
+  "troopId": 6555,
+  "troop": "蛛形织网者",
+  "spellId": 7749,
+  "spellName": "深渊丝缕",
+  "desc": "使所有敌人陷入织网状态。对最后两名敌人造成 [魔法 + 5] 点真实伤害。若有一名敌人身亡，则爆破 15 颗宝石。",
+  "scalings": [
+   {
+    "base": 5,
+    "mult": 1
+   }
+  ],
+  "modifier": null
+ },
+ {
+  "troopId": 6556,
+  "troop": "魔宠地精",
+  "spellId": 7750,
+  "spellName": "抢了就跑",
+  "desc": "召唤一名随机野兽。有 30% 的几率跑掉。",
+  "scalings": [],
+  "modifier": null
+ },
+ {
+  "troopId": 6559,
+  "troop": "矮人丧尸",
+  "spellId": 7761,
+  "spellName": "破铜烂铁",
+  "desc": "将所有绿色宝石转换成棕色。减除一名敌人 [魔法 + 3] 点护甲值，数量因被转换的宝石数而增强。 [2:1]",
+  "scalings": [
+   {
+    "base": 3,
+    "mult": 1
+   }
+  ],
+  "modifier": {
+   "kind": "ratio",
+   "a": 2,
+   "b": 1
+  }
+ },
+ {
+  "troopId": 6561,
+  "troop": "寒冰哥布林",
+  "spellId": 7763,
+  "spellName": "寒冰炸弹",
+  "desc": "随机爆破 2 颗宝石。随机冻结一名敌人。获得一个额外回合。",
+  "scalings": [],
+  "modifier": null
+ },
+ {
+  "troopId": 6562,
+  "troop": "骨连者",
+  "spellId": 7764,
+  "spellName": "祖先的召唤",
+  "desc": "创造 7 颗末日骷髅头。召唤一名矮人丧尸，或一名杀手鬼魂。",
+  "scalings": [],
+  "modifier": null
+ },
+ {
+  "troopId": 6564,
+  "troop": "寒冰巨魔",
+  "spellId": 7765,
+  "spellName": "白霜",
+  "desc": "创造等同于目前板面上蓝色和棕色宝石数的混合蓝色和棕色的宝石。 [1:1]",
+  "scalings": [],
+  "modifier": {
+   "kind": "ratio",
+   "a": 1,
+   "b": 1
+  }
+ },
+ {
+  "troopId": 6568,
+  "troop": "梦魇马",
+  "spellId": 7772,
+  "spellName": "火焰马蹄",
+  "desc": "创造 5 颗红色宝石，宝石数量因陷入燃烧状态的敌军数量而增强。 [x3]",
+  "scalings": [],
+  "modifier": {
+   "kind": "multiplier",
+   "a": 3
+  }
+ },
+ {
+  "troopId": 6571,
+  "troop": "海巨龙魅卡佛",
+  "spellId": 7775,
+  "spellName": "深渊恶魔",
+  "desc": "减除所有敌人全部护甲值。对一名敌人造成 [(魔法 x 2) + 7] 点伤害。使自身下潜。",
+  "scalings": [
+   {
+    "base": 7,
+    "mult": 2
+   }
+  ],
+  "modifier": null
+ },
+ {
+  "troopId": 6586,
+  "troop": "暗巴西斯",
+  "spellId": 7790,
+  "spellName": "暗域",
+  "desc": "对一名敌人造成[魔法 + 4]点伤害。如果是Boss，则根据我的升华效果造成3-5倍伤害。同时沉默上方和下方的敌人。",
+  "scalings": [
+   {
+    "base": 4,
+    "mult": 1
+   }
+  ],
+  "modifier": null
+ },
+ {
+  "troopId": 6588,
+  "troop": "厄什库拉",
+  "spellId": 7792,
+  "spellName": "狂怒之击",
+  "desc": "造成  [魔法 + 10] 点散射伤害，伤害值因狂怒的盟友数而增强。赋予所有盟友狂怒效果，并给予他们 6 点攻击力。 [x8]",
+  "scalings": [
+   {
+    "base": 10,
+    "mult": 1
+   }
+  ],
+  "modifier": {
+   "kind": "multiplier",
+   "a": 8
+  }
+ },
+ {
+  "troopId": 6592,
+  "troop": "妮妙",
+  "spellId": 7796,
+  "spellName": "海妖之歌",
+  "desc": "将黄色宝石转换成骷髅头和红色宝石转换成紫色。使最强大的两名敌人陷入沉默状态。",
+  "scalings": [],
+  "modifier": null
+ }
+]

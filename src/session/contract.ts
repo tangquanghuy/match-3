@@ -47,10 +47,23 @@ export interface CombatantSnapshot {
   manaColors: BaseColor[];
   /** 释放技能所需法力总量 */
   manaCost: number;
-  /** 必须是客户端已注册的技能 id（决策 6） */
-  skillId: string;
-  /** 必须是客户端已注册的特质 id；特质系统未上线前只接受空数组 */
-  traitIds: string[];
+  /**
+   * 敌我阶级（AIRP 分拣用）：杂兵 / 精英 / 首领 / 领主 / 传奇。
+   * 接受中文原文或英文键（minion/elite/boss/lord/legendary）。
+   * 提供了 tier 时，分拣引擎会自动补齐缺失的 skillId / traitIds（按阶级+种族的规则池）；
+   * 显式给出的 skillId / traitIds 优先，分拣不覆盖。
+   */
+  tier?: string;
+  /**
+   * 技能 id（必须是客户端已注册的技能）。**与 tier 二选一**：
+   * 显式给出时按它执行；省略时必须给 tier，由分拣引擎按阶级分配。
+   */
+  skillId?: string;
+  /**
+   * 被动特质 code 列表（必须是客户端已注册的特质）。可选：
+   * 省略时若提供了 tier，由分拣引擎按阶级+种族自动编配；显式给出的优先。
+   */
+  traitIds?: string[];
 }
 
 /** 宿主发起一场战斗的请求。 */

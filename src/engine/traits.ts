@@ -31,8 +31,8 @@
  */
 import traitTable from '../data/traits.json';
 import { effectiveHealing } from './healing';
-import type { BuffEvent } from './events';
-import type { BaseColor, Character, PassiveModifiers, StatGains } from './types';
+import type { BuffEvent, GameEvent } from './events';
+import type { BaseColor, Character, PassiveModifiers, StatGains, PlayerSide } from './types';
 
 /** 状态免疫通配符：免疫所有状态 */
 export const ALL_STATUSES = '*';
@@ -71,6 +71,10 @@ export interface TraitDefinition {
   onBigMatchGain?: { stat: PassiveStat; amount: number };
   /** 自己造成骷髅伤害时给目标施加的状态 */
   inflictOnSkullHit?: { id: string; turns: number; magnitude?: number };
+  /** 承受骷髅伤害时给攻击者施加的状态（毒孢子族） */
+  inflictOnSkullDamaged?: { id: string; turns: number; magnitude?: number };
+  /** 自己一方匹配 4/5 连时，给同队指定种族（或全队）盟友的增益 */
+  onBigMatchTypeAura?: { troopType: string; gains: Partial<StatGains> };
   /** 战斗开始时对全体盟友/敌人的固定增减 */
   teamAura?: { scope: 'allies' | 'enemies'; stat: PassiveStat; amount: number };
   /** 战斗开始时给同队指定种族的盟友加值（族亲 / 之盾） */
@@ -101,6 +105,12 @@ export interface TraitDefinition {
   armorPierceChance?: number;
   /** 无法成为技能指定目标（隐匿） */
   untargetable?: boolean;
+  /** 自己身亡时按概率召唤（daemonicpact/terrorpact 族；summon 为兵种中文名，由生成器解析成 referenceName） */
+  summonOnDeath?: { chance: number; troopId: number; referenceName: string; displayName: string };
+  /** 一名盟友（含自己）身亡时召唤（fromdark/fromashes 族） */
+  summonOnAllyDeath?: { chance: number; troopId: number; referenceName: string; displayName: string };
+  /** 敌方角色身亡时召唤（darkdeath/icydeath 族） */
+  summonOnEnemyDeath?: { chance: number; troopId: number; referenceName: string; displayName: string };
 }
 
 export const TRAIT_LIBRARY: readonly TraitDefinition[] = traitTable as TraitDefinition[];
@@ -145,6 +155,7 @@ export function neutralPassives(): PassiveModifiers {
     armorPierceChance: 0,
     gainOnColorMatch: {},
     untargetable: false,
+    bigMatchTypeAura: {},
   };
 }
 
@@ -178,6 +189,7 @@ export function resolvePassives(
   const multByStatus: Record<string, number> = {};
   const multByColor: Record<string, number> = {};
   const colorMatchGains: Record<string, StatGains> = {};
+  const bigMatchAura = new Map<string, StatGains>();
 
   for (const code of traitIds) {
     const trait = lookup(code);
@@ -241,6 +253,28 @@ export function resolvePassives(
         || trait.inflictOnSkullHit.turns > passive.inflictOnSkullHit.turns)) {
       passive.inflictOnSkullHit = { ...trait.inflictOnSkullHit };
     }
+    // 受击附带状态同口径（取回合数更长的一条）
+    if (trait.inflictOnSkullDamaged
+      && (passive.inflictOnSkullDamaged === undefined
+        || trait.inflictOnSkullDamaged.turns > passive.inflictOnSkullDamaged.turns)) {
+      passive.inflictOnSkullDamaged = { ...trait.inflictOnSkullDamaged };
+    }
+    // 4/5 连种族光环：同种族数值叠加，异种族并存
+    if (trait.onBigMatchTypeAura) {
+      const k = trait.onBigMatchTypeAura.troopType;
+      const merged = bigMatchAura.get(k) ?? noGains();
+      for (const stat of ['hp', 'armor', 'attack', 'magic', 'mana'] as const) {
+        merged[stat] += trait.onBigMatchTypeAura.gains[stat] ?? 0;
+      }
+      bigMatchAura.set(k, merged);
+    }
+    // 死亡召唤：同字段取概率更高的一条（多个持有不叠加多次召唤，与"同类取最强"口径一致）
+    for (const key of ['summonOnDeath', 'summonOnAllyDeath', 'summonOnEnemyDeath'] as const) {
+      const s = trait[key];
+      if (s && (passive[key] === undefined || s.chance > passive[key]!.chance)) {
+        passive[key] = { ...s };
+      }
+    }
   }
 
   passive.skullDamageTaken = 1 - Math.min(0.95, skullReduction);
@@ -251,6 +285,7 @@ export function resolvePassives(
   passive.skullMultVsStatus = multByStatus;
   passive.skullMultVsColor = multByColor;
   passive.gainOnColorMatch = colorMatchGains;
+  passive.bigMatchTypeAura = Object.fromEntries(bigMatchAura);
   return passive;
 }
 
@@ -301,6 +336,11 @@ export function manaLinkBonus(char: Character, color: BaseColor): number {
 /** 就地给角色某项数值加值，hp/armor 同时抬上限，返回实际变化量。 */
 function grantStat(char: Character, stat: PassiveStat, amount: number): number {
   if (amount === 0 || char.defeated) return 0;
+  if (stat === 'magic') {
+    // 织网（GoW Web）期间无法获得魔法值增益。字面量与 status.ts 的 WEB_STATUS_ID 一致；
+    // 不直接 import 是为避免 traits ↔ status 的运行时循环依赖（status 依赖本模块）。
+    if (char.statuses.some((s) => s.id === 'web' && s.turns > 0)) return 0;
+  }
   if (stat === 'mana') {
     const before = char.mana;
     char.mana = Math.max(0, Math.min(char.manaCost, char.mana + amount));
@@ -368,6 +408,64 @@ export function applyDeathTriggers(
   ];
 }
 
+/** 死亡召唤特质的定义字段（summonOnDeath / summonOnAllyDeath / summonOnEnemyDeath 共用） */
+export type DeathSummonSpec = NonNullable<TraitDefinition['summonOnDeath']>;
+
+/** 死亡召唤的执行环境：由 TurnEngine 注入，避免 traits 直接依赖 GameState/编队容量逻辑 */
+export interface DeathSummonContext {
+  /** 阵亡者 id（供宿主侧判定等） */
+  deadId: number;
+  /** 分配新角色 id（TurnEngine 注入，确定性）；缺省时该次召唤跳过 */
+  nextCharId?: () => number;
+  /** 召唤物入队：side 为**持有者**所在方（召唤物跟随持有者，而非死者），填空位或进 FIFO 队列 */
+  enqueue: (summoned: Character, troopId: number, side: PlayerSide) => GameEvent[];
+  /** 种子化随机源（概率判定）；缺省时概率 <1 的召唤不生效（纯逻辑单测可省略） */
+  rng?: { next(): number };
+}
+
+/**
+ * 死亡召唤结算（daemonicpact/terrorpact/fromdark/darkdeath 族，35 个 code）。
+ *
+ * @param specs 调用方（TurnEngine.resolveDeathSummons）已按持有者语义预筛的召唤规格，
+ *              每项携带持有者所在方（召唤物跟随持有者入队），顺序即入队顺序（确定性）。
+ * 由 TurnEngine 在行动末尾统一扫 defeat 事件时调用（与 applyDeathTriggers 同一时机）。
+ * 概率判定经种子化 rng（确定性）；召唤物模板由生成器按兵种数据预解析（troopId/referenceName）。
+ */
+export function applyDeathSummons(
+  specs: { spec: DeathSummonSpec; side: PlayerSide }[],
+  ctx: DeathSummonContext,
+): GameEvent[] {
+  const events: GameEvent[] = [];
+  for (const { spec, side } of specs) {
+    if (ctx.rng && ctx.rng.next() >= spec.chance) continue;
+    if (!ctx.nextCharId) continue; // 无 id 分配器则安全跳过（纯单测环境）
+    const template = resolveSummonTemplate(spec);
+    if (!template) continue;
+    const id = ctx.nextCharId();
+    events.push(...ctx.enqueue({ ...template, id, defeated: false, statuses: [] }, spec.troopId, side));
+  }
+  return events;
+}
+
+/**
+ * 从召唤描述构造召唤物模板。生成器已把中文名解析成 troopId + referenceName，
+ * 但属性数值在引擎侧拿不到（traits.ts 不 import 兵种数据，避免数据层依赖）——
+ * TurnEngine 注入的 enqueue 回调负责查兵种数据装配真实属性；这里只提供兜底骨架，
+ * 让"解析失败但troopId 有效"的场景也能以占位属性进场（AI 对局不因数据缺口崩溃）。
+ */
+let summonTemplateResolver: ((spec: DeathSummonSpec) => Omit<Character, 'id' | 'defeated' | 'statuses'> | null) | null = null;
+
+/** 由装配层（TurnEngine/App）注入召唤模板解析器：兵种数据 → 属性模板 */
+export function setSummonTemplateResolver(
+  resolver: (spec: DeathSummonSpec) => Omit<Character, 'id' | 'defeated' | 'statuses'> | null,
+): void {
+  summonTemplateResolver = resolver;
+}
+
+function resolveSummonTemplate(spec: DeathSummonSpec): Omit<Character, 'id' | 'defeated' | 'statuses'> | null {
+  return summonTemplateResolver ? summonTemplateResolver(spec) : null;
+}
+
 /** 配色触发（食人魔之怒/阳光…）：匹配到某色时给该队加值。 */
 export function applyColorMatchTriggers(
   team: readonly Character[],
@@ -386,9 +484,28 @@ export function applyColorMatchTriggers(
   return events;
 }
 
-/** 4 或 5 连响应（庞然/巨型/修理…）：只作用于匹配方自己一队。 */
+/**
+ * 4 或 5 连响应（庞然/巨型/修理…）：只作用于匹配方自己一队。
+ * 另含种族光环（firstwargare/overclock…）：持有者所在方配对 4/5 连时，
+ * 给同队该族盟友（或 troopType 'all' 的全队）套用光环增益，按队伍序确定性结算。
+ */
 export function applyBigMatchTriggers(matchingTeam: readonly Character[]): BuffEvent[] {
-  return applyTrigger(matchingTeam, 'gainOnBigMatch');
+  const events = applyTrigger(matchingTeam, 'gainOnBigMatch');
+  for (const holder of matchingTeam) {
+    if (holder.defeated) continue;
+    const aura = passivesOf(holder).bigMatchTypeAura;
+    for (const [troopType, gains] of Object.entries(aura)) {
+      for (const member of matchingTeam) {
+        if (member.defeated) continue;
+        if (troopType !== 'all' && !member.troopTypes?.includes(troopType)) continue;
+        for (const stat of ['hp', 'armor', 'attack', 'magic', 'mana'] as const) {
+          const actual = grantStat(member, stat, gains[stat]);
+          if (actual !== 0) events.push({ type: 'buff', targetId: member.id, stat, amount: actual });
+        }
+      }
+    }
+  }
+  return events;
 }
 
 /**

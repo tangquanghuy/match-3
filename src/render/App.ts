@@ -7,10 +7,12 @@ import { pickHintSwap } from '@engine/boardUtils';
 import { chooseEnemySwap } from '@engine/ai';
 import { createGameState } from '@engine/GameState';
 import { SeededRNG } from '@engine/rng';
+import { TRAIT_LIBRARY } from '@engine/traits';
 import { MatchState, PlayerSide, BaseColor } from '@engine/types';
-import type { Character } from '@engine/types';
+import type { Character, GemType } from '@engine/types';
 import {
   BattleSession,
+  assignBattleRequest,
   loadStandaloneRequest,
   mapRequestToTeams,
   resizeRequestTeams,
@@ -35,6 +37,7 @@ import { CellPicker } from './CellPicker';
 import type { CellAimCoords } from './CellPicker';
 
 import { TROOPS, troopToSummonTemplate } from '../data/troops';
+import { setSummonTemplateResolver } from '@engine/traits';
 import { ManaDistributor } from '@engine/ManaDistributor';
 import { ExtensionRegistry } from '@engine/registry';
 import { registerSkillLibrary } from '@engine/skills/library';
@@ -371,6 +374,11 @@ export class App {
   private battleResultEmitted = false;
   /** 技能注册表（主游戏拥有全部技能原型） */
   private registry!: ExtensionRegistry;
+  /**
+   * 棋盘逻辑格基准像素（init 时生效，夹取 [40,96]）。默认 40 = 手机横屏紧凑基准；
+   * 测试台等大屏嵌入方在 init 前调大，使画布原生放大而非靠 transform 拉伸变糊。
+   */
+  baseCellSize = 40;
   /** 玩家选择 UI（选目标/选宝石），技能释放时按需调用 */
   private targetPicker = new TargetPicker();
   private cellPicker!: CellPicker;
@@ -423,10 +431,22 @@ export class App {
       ...this.registry.skills.keys(),
       ...this.registry.prototypes.keys(),
     ]);
+    // 特质/种族白名单：校验器按客户端注册表放行（种族集合与 scripts/build_traits.mjs
+    // 的 TROOP_TYPE_MAP 值集合同源——那是客户端认识的 GoW 种族规范表）
+    const knownTraitIds = new Set(TRAIT_LIBRARY.map((t) => t.code));
+    const knownTroopTypes = new Set([
+      'Beast', 'Fey', 'Elemental', 'Dragon', 'Human', 'Daemon', 'Divine', 'Monster',
+      'Knight', 'Construct', 'Wildfolk', 'Rogue', 'Elf', 'Wargare', 'Giant', 'Undead',
+      'Centaur', 'Goblin', 'Raksha', 'Mystic', 'Stryx', 'Naga', 'Merfolk', 'Urska',
+      'Dwarf', 'Tauros', 'Orc', 'Mech', 'Gnome', 'Immortal',
+    ]);
 
     // 队伍来源：宿主注入优先，否则读独立模式配置并应用 3v3/4v4 调试开关。
     const battleRequest = request
-      ?? resizeRequestTeams(loadStandaloneRequest({ knownSkillIds }), readTeamSize());
+      ?? resizeRequestTeams(loadStandaloneRequest({ knownSkillIds, knownTraitIds, knownTroopTypes }), readTeamSize());
+    // AIRP 分拣：tier 提供而 skillId/traitIds 省略的快照，在此按阶级+种族自动编配。
+    // 只填空缺，显式值不动；必须在映射成引擎队伍之前执行。
+    assignBattleRequest(battleRequest);
     const { playerTeam, enemyTeam, idMap } = mapRequestToTeams(battleRequest);
     this.battleRequest = battleRequest;
     this.idMap = idMap;
@@ -441,9 +461,10 @@ export class App {
     // 队伍人数影响卡片尺寸，需在读取 CARD_W 前设置
     const teamSize = Math.max(playerTeam.characters.length, enemyTeam.characters.length);
 
-    // 手机横屏紧凑基准：逻辑格固定 40px，最低 667×375 安全内容盒中不再缩小。
+    // 手机横屏紧凑基准：逻辑格默认 40px，最低 667×375 安全内容盒中不再缩小。
     // Pixi 与 DOM 仍共享同一逻辑坐标系，视口变化仅调整 wrapper 等比缩放。
-    const cellSize = 40;
+    // 嵌入方（测试台等大屏场景）可在 init 前调大 baseCellSize，让画布原生变大而非拉伸变糊。
+    const cellSize = Math.max(40, Math.min(96, Math.round(this.baseCellSize)));
     // Reserve a compact 44px HUD lane so the turn frame never covers the first gem row.
     const boardTopInset = 44;
     const gridPx = cellSize * BoardModel.COLS;
@@ -518,6 +539,8 @@ export class App {
     const state = createGameState(genBoard, playerTeam, enemyTeam);
     this.engine = new TurnEngine(state, rng, idGen, this.registry);
     this.engine.setSummonResolver((ref) => troopToSummonTemplate(ref));
+    // 死亡召唤特质（summonOnDeath 族）的召唤物装配：按生成器预解析的 referenceName 查兵种数据
+    setSummonTemplateResolver((spec) => troopToSummonTemplate(spec.referenceName));
     this.engine.skullChance = 0.16; // 骷髅为棋盘常驻成分（Gems of War 风格）
     // 表现层一律通过 session 提交行动，事件流才会被完整累积进结果摘要与 digest
     this.session = new BattleSession({ request: battleRequest, idMap, engine: this.engine });
@@ -2416,6 +2439,11 @@ export class App {
     return this.engine;
   }
 
+  /** 测试页布局用：基准内容尺寸（wrapper 未缩放的逻辑宽高） */
+  getBaseSize(): { w: number; h: number } {
+    return { w: this.baseW, h: this.baseH };
+  }
+
   /** 把某角色的技能临时设为指定原型（测试页拖拽换技能用）：注册到调试键并指向它，不动法力 */
   setDebugSkill(charId: number, proto: SkillPrototype): void {
     const key = `__debug_${charId}`;
@@ -2426,6 +2454,29 @@ export class App {
       if (ch) ch.skillId = key;
     }
     this.refreshTeams();
+  }
+
+  /**
+   * 测试辅助：把棋盘上若干格就地替换为指定宝石类型（特殊宝石测试入口用）。
+   * 走 gem-transform 演出管线（贴图切换 + 高光脉冲），不改宝石 id；仅等待输入时受理。
+   * @returns 是否实际生效（解析中/无可改格时为 false）
+   */
+  async debugSetGems(changes: { pos: CellPos; type: GemType }[]): Promise<boolean> {
+    const state = this.engine.getState();
+    if (state.state !== MatchState.AwaitingInput) return false;
+    const transformed: Extract<GameEvent, { type: 'gem-transform' }>['changes'] = [];
+    for (const c of changes) {
+      const gem = state.board.get(c.pos);
+      if (!gem) continue;
+      const from = gem.type;
+      gem.type = c.type;
+      transformed.push({ pos: c.pos, gemId: gem.id, from, to: c.type });
+    }
+    if (transformed.length === 0) return false;
+    const events: GameEvent[] = [{ type: 'gem-transform', changes: transformed }];
+    this.onEventsProduced?.(events);
+    await this.player.play(events);
+    return true;
   }
 
   /** Temporary skill-test hook: preview the finalized elimination/chain set. */

@@ -6,3 +6,6 @@ dist
 
 # 验收/调试产物统一放这里，不进版本库
 artifacts
+
+# ZCode 本地会话状态
+.zcode/

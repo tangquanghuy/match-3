@@ -16,7 +16,8 @@ import {
   heal, armor, attack, magic, mana, inflict, cleanse, extraTurn, summonRef, CHOSEN, CELL,
 } from '@engine/skills/builders';
 import type { SkillPrototype, EffectSegment } from '@engine/skills/prototypes';
-import { BaseColor } from '@engine/types';
+import { BaseColor, specialGem } from '@engine/types';
+import type { CellPos, GemType, SpecialGemKind } from '@engine/types';
 import type { GameEvent } from '@engine/events';
 
 interface PresetSkill {
@@ -138,6 +139,21 @@ const TEST_MANA_COLORS: ReadonlyArray<{ color: BaseColor; label: string; hex: st
   { color: BaseColor.Brown, label: '棕色（土）', hex: '#8a6040' },
 ];
 
+/** 特殊宝石测试投放清单（kind → 按钮文案；幽灵无行为仅看贴图） */
+const SPECIAL_TEST_GEMS: ReadonlyArray<{ kind: SpecialGemKind; tier?: number; label: string }> = [
+  { kind: 'doomSkull', label: '末日骷髅' },
+  { kind: 'uberDoomSkull', label: '至尊末日' },
+  { kind: 'bomb', label: '炸弹' },
+  { kind: 'web', label: '织网' },
+  { kind: 'ghost', label: '幽魂' },
+  { kind: 'wildcard', tier: 2, label: '通配×2' },
+  { kind: 'wildcard', tier: 4, label: '通配×4' },
+  { kind: 'wish', label: '许愿' },
+  { kind: 'lightningCol', label: '闪电·黄(清列)' },
+  { kind: 'lightningRow', label: '闪电·蓝(清行)' },
+  { kind: 'hourglass', label: '沙漏' },
+];
+
 
 const GEM_CHAIN_LEVELS = [
   { level: 1, label: '普通消除' },
@@ -166,8 +182,20 @@ export class SkillTestPage {
     layout.appendChild(this.buildControls());
     mount.appendChild(layout);
 
-    // 启动主游戏（真实释放流程与演出全在这里）
+    // 启动主游戏（真实释放流程与演出全在这里）。
+    // 大屏测试台：按视口自适应放大棋盘逻辑格基准（画布原生变大而非 transform 拉伸变糊）：
+    //   高度向：dimH ≈ 52 + 8×cell ≤ 视口高 - 页边距；
+    //   宽度向：dimW ≈ 28 + 2×CARD_W + 8×cell ≤ 视口宽 - 控制面板(300) - 间距/边距(~90)。
+    const byH = Math.floor((window.innerHeight - 100) / 8);
+    const byW = Math.floor((window.innerWidth - 90 - 300 - 2 * 142) / 8);
+    this.app.baseCellSize = Math.max(48, Math.min(88, byH, byW));
     await this.app.init(gameMount);
+    // 给足棋盘空间：宽度不小于基准宽（不足时页面横向滚动而不是缩小棋盘），
+    // 高度与基准一致——refreshLayout 只在窗口比基准更小时才向下缩放。
+    const base = this.app.getBaseSize();
+    gameMount.style.flex = '0 0 auto';
+    gameMount.style.minWidth = `${base.w}px`;
+    gameMount.style.minHeight = `${base.h}px`;
     this.app.onEventsProduced = (events) => this.logEvents(events);
 
     // 默认把法力上限调到 3，方便快速攒满测试
@@ -259,6 +287,9 @@ export class SkillTestPage {
     });
     colorTool.append(colorLabel, colorSelect);
     panel.appendChild(colorTool);
+
+    // 特殊宝石测试区：随机换上指定宝石，走主游戏游玩流程触发其效果
+    panel.appendChild(this.buildSpecialGemTool());
 
     const chainAudioTool = document.createElement('div');
     chainAudioTool.dataset.testid = 'gem-chain-audio-preview';
@@ -511,6 +542,100 @@ export class SkillTestPage {
     this.log(`◆ 角色${casterId} 技能 → 组合[${desc}]（短按该卡释放）`);
   }
 
+  /**
+   * 特殊宝石测试区：把随机格子替换为指定特殊宝石（走 gem-transform 演出管线）。
+   * 投放后照常游玩——三消/技能清除触发对应效果（炸弹/许愿需被摧毁，末日骷髅需被匹配）。
+   */
+  private buildSpecialGemTool(): HTMLElement {
+    const box = document.createElement('div');
+    box.dataset.testid = 'special-gem-tool';
+    box.style.cssText = 'display:flex;flex-direction:column;gap:6px;padding:8px;border:1px solid rgba(216,194,144,.28);border-radius:6px;background:#100d09';
+
+    const title = document.createElement('div');
+    title.textContent = '特殊宝石（点击随机换上一颗）';
+    title.style.cssText = 'font-size:12px;color:#c9a35c';
+    box.appendChild(title);
+
+    const help = document.createElement('div');
+    help.textContent = '末日骷髅被三消触发；炸弹/许愿/幽魂只能被爆破类效果引爆；闪电匹配或被摧毁皆触发；通配可凭空凑出三连，属正常现象。';
+    help.style.cssText = 'font-size:10px;line-height:1.45;color:#8f826b';
+    box.appendChild(help);
+
+    const grid = document.createElement('div');
+    grid.style.cssText = 'display:grid;grid-template-columns:1fr 1fr 1fr;gap:5px';
+    for (const item of SPECIAL_TEST_GEMS) {
+      const b = document.createElement('button');
+      b.type = 'button';
+      b.textContent = item.label;
+      b.dataset.testid = `special-gem-${item.kind}${item.tier ? '-' + item.tier : ''}`;
+      b.style.cssText = 'padding:6px 4px;border-radius:5px;border:1px solid rgba(216,194,144,.35);background:#171208;color:#e0d2ac;cursor:pointer;font-size:11px';
+      b.addEventListener('click', () => void this.placeSpecialGems([item]));
+      grid.appendChild(b);
+    }
+    box.appendChild(grid);
+
+    const opRow = document.createElement('div');
+    opRow.style.cssText = 'display:flex;gap:6px';
+    const allBtn = document.createElement('button');
+    allBtn.type = 'button';
+    allBtn.textContent = '全部种类各一颗';
+    allBtn.dataset.testid = 'special-gem-all';
+    allBtn.style.cssText = 'flex:1;padding:7px;border-radius:5px;border:1px solid #e4bc68;background:#49351a;color:#fff1c7;cursor:pointer;font-size:11px';
+    allBtn.addEventListener('click', () => void this.placeSpecialGems([...SPECIAL_TEST_GEMS]));
+    const clearBtn = document.createElement('button');
+    clearBtn.type = 'button';
+    clearBtn.textContent = '清除特殊宝石';
+    clearBtn.dataset.testid = 'special-gem-clear';
+    clearBtn.style.cssText = 'flex:1;padding:7px;border-radius:5px;border:1px solid rgba(216,194,144,.4);background:#2a2013;color:#f0e2bf;cursor:pointer;font-size:11px';
+    clearBtn.addEventListener('click', () => void this.clearSpecialGems());
+    opRow.append(allBtn, clearBtn);
+    box.appendChild(opRow);
+
+    return box;
+  }
+
+  /** 把若干特殊宝石投到随机互不重复的格子上（经 App 调试钩子走演出管线） */
+  private async placeSpecialGems(specs: ReadonlyArray<{ kind: SpecialGemKind; tier?: number }>): Promise<void> {
+    const cells: CellPos[] = [];
+    for (let r = 0; r < 8; r++) {
+      for (let c = 0; c < 8; c++) cells.push({ row: r, col: c });
+    }
+    for (let i = cells.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [cells[i], cells[j]] = [cells[j], cells[i]];
+    }
+    const changes = specs.slice(0, cells.length).map((sp, i) => ({
+      pos: cells[i],
+      type: specialGem(sp.kind, sp.tier),
+    }));
+    const ok = await this.app.debugSetGems(changes);
+    if (!ok) {
+      this.log('⚠ 解析中，稍后再投放特殊宝石');
+      return;
+    }
+    const names = specs.map((sp) => SPECIAL_TEST_GEMS.find((x) => x.kind === sp.kind && x.tier === sp.tier)?.label ?? sp.kind);
+    this.log(`◆ 投放特殊宝石 ×${changes.length}：${names.join('、')}`);
+  }
+
+  /** 把棋盘上全部特殊宝石换回随机基础色 */
+  private async clearSpecialGems(): Promise<void> {
+    const board = this.app.getEngine().getState().board;
+    const colors = Object.values(BaseColor);
+    const changes: { pos: CellPos; type: GemType }[] = [];
+    board.forEach((gem, pos) => {
+      if (gem && gem.type.kind === 'special') {
+        const color = colors[Math.floor(Math.random() * colors.length)];
+        changes.push({ pos, type: { kind: 'color', color } });
+      }
+    });
+    if (changes.length === 0) {
+      this.log('盘面上没有特殊宝石');
+      return;
+    }
+    const ok = await this.app.debugSetGems(changes);
+    if (ok) this.log(`◆ 清除特殊宝石 ×${changes.length} → 随机基础色`);
+  }
+
   /** 推进回合：走主游戏 App.passTurn（引擎真实回合流程，含状态结算），不另写逻辑 */
   private async stepTurn(): Promise<void> {
     this.log('⏭ 推进回合');
@@ -539,6 +664,12 @@ export class SkillTestPage {
       case 'gem-transform': return `gem-transform × ${ev.changes.length}`;
       case 'gem-destroy': return `gem-destroy × ${ev.cells.length}`;
       case 'gem-explode': return `gem-explode × ${ev.cells.length}`;
+      case 'special-gem-trigger': {
+        const at = `@(${ev.pos.row},${ev.pos.col})`;
+        const line = ev.line !== undefined ? ` 线${ev.line}` : '';
+        const wish = ev.wish ? ` 选项${ev.wish.option}` : '';
+        return `★特殊宝石触发 ${ev.kind} ${at}${line}${wish}`;
+      }
       case 'summon': return `summon(${ev.destination}) -> character ${ev.characterId}`;
       case 'extra-turn': return `extra-turn (${ev.player})`;
       case 'game-over': return `game-over 胜者${ev.winner}`;

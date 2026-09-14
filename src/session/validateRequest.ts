@@ -6,6 +6,7 @@
  */
 import { ALL_BASE_COLORS } from '@engine/types';
 import { MAX_ACTIVE_TEAM_SIZE } from '@engine/teamRoster';
+import { normalizeTier } from './assigner';
 import { BATTLE_SCHEMA_VERSION, RULESET_VERSION } from './contract';
 import type { BattleRequest, CombatantSnapshot } from './contract';
 
@@ -32,7 +33,8 @@ export type ValidationCode =
   | 'mana-colors'
   | 'unknown-skill'
   | 'unknown-trait'
-  | 'unknown-troop-type';
+  | 'unknown-troop-type'
+  | 'unknown-tier';
 
 export interface ValidationIssue {
   /** 出问题的字段路径，如 `playerTeam[1].stats.hp` */
@@ -154,8 +156,32 @@ function validateCombatant(
     });
   }
 
+  // 阶级（AIRP 分拣）：可选；给了就必须可识别（中英文别名均收）。
+  // skillId 与 tier 二选一：都没有就无法确定技能，属于硬错误。
+  let tierProvided = false;
+  if (c.tier !== undefined) {
+    if (!isNonEmptyString(c.tier)) {
+      issues.push({ path: `${path}.tier`, code: 'bad-type', message: '必须是非空字符串' });
+    } else if (normalizeTier(c.tier) === null) {
+      issues.push({
+        path: `${path}.tier`,
+        code: 'unknown-tier',
+        message: `阶级「${c.tier}」不可识别，可用：杂兵/精英/首领/领主/传奇`,
+      });
+    } else {
+      tierProvided = true;
+    }
+  }
+
   if (!isNonEmptyString(c.skillId)) {
-    issues.push({ path: `${path}.skillId`, code: 'missing-field', message: '必须是非空字符串' });
+    // 分拣引擎会在校验通过后按 tier 补齐 skillId，因此 tier 有效时允许省略
+    if (!tierProvided) {
+      issues.push({
+        path: `${path}.skillId`,
+        code: 'missing-field',
+        message: '必须是非空字符串；省略时必须提供 tier（杂兵/精英/首领/领主/传奇）',
+      });
+    }
   } else if (!opts.knownSkillIds.has(c.skillId)) {
     // 需求 2.6：未注册技能必须开战前报错，不得进场后静默无效果
     issues.push({
@@ -183,19 +209,22 @@ function validateCombatant(
     }
   }
 
-  if (!Array.isArray(c.traitIds)) {
-    issues.push({ path: `${path}.traitIds`, code: 'missing-field', message: '必须是数组（可为空）' });
-  } else {
-    const known = opts.knownTraitIds ?? new Set<string>();
-    c.traitIds.forEach((trait, i) => {
-      if (!isNonEmptyString(trait) || !known.has(trait)) {
-        issues.push({
-          path: `${path}.traitIds[${i}]`,
-          code: 'unknown-trait',
-          message: `特质「${String(trait)}」未在客户端注册`,
-        });
-      }
-    });
+  // traitIds 可选：省略时若有 tier 由分拣引擎按阶级+种族编配；显式给了就逐个校验
+  if (c.traitIds !== undefined) {
+    if (!Array.isArray(c.traitIds)) {
+      issues.push({ path: `${path}.traitIds`, code: 'bad-type', message: '必须是数组（可为空）' });
+    } else {
+      const known = opts.knownTraitIds ?? new Set<string>();
+      c.traitIds.forEach((trait, i) => {
+        if (!isNonEmptyString(trait) || !known.has(trait)) {
+          issues.push({
+            path: `${path}.traitIds[${i}]`,
+            code: 'unknown-trait',
+            message: `特质「${String(trait)}」未在客户端注册`,
+          });
+        }
+      });
+    }
   }
 }
 

@@ -1,6 +1,8 @@
 import { Container } from 'pixi.js';
 import { gsap } from 'gsap';
 import type { GameEvent } from '@engine/events';
+import { computeClearEventBatches, mergeClearBatch } from './clearEventBatches';
+import type { ClearEvent } from './clearEventBatches';
 import type { CellPos } from '@engine/types';
 import { BoardView } from './BoardView';
 import { FXLayer, screenShake } from './FXLayer';
@@ -17,6 +19,7 @@ type BoardPoint = { x: number; y: number };
  * 把引擎产出的事件流编排为 GSAP 时间线，按因果顺序逐段播放。
  * 集中控制动画速度与跳过（需求 25）。
  */
+
 export class EventStreamPlayer {
   private timeline: gsap.core.Timeline | null = null;
 
@@ -54,6 +57,11 @@ export class EventStreamPlayer {
     this.extraTurnComboLevel = extraActionComboLevel(events);
     // 群体攻击批次：连续 range='all' 的 skill-damage 归为一批（首下标 → 整批事件）
     this.groupAttackBatches = this.computeGroupAttackBatches(events);
+    // 特殊宝石清除批次：连续的 gem-explode / gem-destroy 归为一批同时引爆
+    // （末日骷髅环、至尊环、炸弹连环会产出多个清除事件，逐个播会"一颗颗慢慢爆"）
+    const clearBatches = computeClearEventBatches(events);
+    this.clearBatches = clearBatches.leaders;
+    this.clearBatchMembers = clearBatches.members;
     const manaSources = this.computeManaSources(events);
 
     events.forEach((ev, i) => this.appendSegment(tl, ev, i, manaSources.get(i) ?? []));
@@ -80,6 +88,10 @@ export class EventStreamPlayer {
   /** 群体攻击批次：首事件下标 → 该批全部 skill-damage(range='all') 事件；非首下标 → null（跳过） */
   private groupAttackBatches = new Map<number, Extract<GameEvent, { type: 'skill-damage' }>[]>();
   private groupAttackConsumed = new Set<number>();
+  /** 特殊宝石清除批次（见 clearEventBatches.ts）：批首下标 → 整批同类清除事件 */
+  private clearBatches = new Map<number, ClearEvent[]>();
+  /** 批内非首事件下标：播放时跳过（已随批首合并；批首不在其中，由它播放整批） */
+  private clearBatchMembers = new Set<number>();
 
   /**
    * 把连续的 range='all' skill-damage 事件聚合成批（同一次群攻的所有目标同时命中）。
@@ -174,6 +186,8 @@ export class EventStreamPlayer {
   ): void {
     // 只有紧跟在 gravity 后面的 refill 才与其并行；被其他事件隔开则各自独立
     if (ev.type !== 'refill') this.pendingFallLabel = null;
+    // 特殊宝石清除批次：批内非首事件已随批首合并播放，直接跳过
+    if (this.clearBatchMembers.has(index)) return;
     switch (ev.type) {
       case 'swap':
         this.appendSwap(tl, ev.gemIdA, ev.gemIdB, ev.a, ev.b, false);
@@ -294,12 +308,26 @@ export class EventStreamPlayer {
       case 'gem-transform':
         this.appendGemTransform(tl, ev);
         break;
-      case 'gem-destroy':
-        this.appendGemDestroy(tl, ev);
+      case 'gem-destroy': {
+        // 特殊宝石清除批次：首事件承接整批（连环/多环一次轰）；单事件走原路径
+        const batch = this.clearBatches.get(index);
+        if (batch) {
+          this.appendGemDestroy(tl, mergeClearBatch(batch as Extract<GameEvent, { type: 'gem-destroy' }>[]));
+        } else {
+          this.appendGemDestroy(tl, ev);
+        }
         break;
-      case 'gem-explode':
-        this.appendGemExplode(tl, ev);
+      }
+      case 'gem-explode': {
+        // 特殊宝石清除批次：首事件承接整批（末日环/至尊环/炸弹连环一次轰）；单事件走原路径
+        const batch = this.clearBatches.get(index);
+        if (batch) {
+          this.appendGemExplode(tl, mergeClearBatch(batch as Extract<GameEvent, { type: 'gem-explode' }>[]));
+        } else {
+          this.appendGemExplode(tl, ev);
+        }
         break;
+      }
       case 'summon':
         tl.add(() => this.onBattleEvent?.(ev));
         if (ev.destination === 'field') {

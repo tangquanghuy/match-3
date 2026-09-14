@@ -2,13 +2,21 @@
  * 技能原型组合器（战斗技能系统 · 需求 11）。
  *
  * 一个「技能原型」= 一至多个「效果段」的有序数组。每个效果段声明：
- *   目标模式 + 效果类型（伤害/宝石/增益/状态/召唤/额外回合）+ 参数（含已解析的缩放）。
+ *   目标模式 + 效果类型（伤害/宝石/增益/状态/召唤/额外回合/削减）+ 参数（含已解析的缩放）。
  * 执行器 executePrototype 按描述顺序解释各段：选目标 → 调对应效果原语 → 汇集事件（需求 11.1, 11.3）。
  *
  * 回退策略：未被支持的效果段被安全跳过、不崩溃；空原型 = 仅扣法力无战斗效果（需求 11.4）。
  *
  * 确定性：段顺序固定、目标选择/随机经 ctx.rng，相同状态 + 种子 → 相同事件流（需求 11.5, 12.4）。
  * 纯逻辑：无 pixi/gsap/dom 依赖。
+ *
+ * 窗口 B · 五机制（详见 `scripts/spell-rules.md`）：
+ *   - 二次缩放：段级 modifier 字段，来源计数在效果执行时读棋盘/跨段追踪（effects/secondary.ts）；
+ *   - 概率子句：段级 chance 字段，执行循环统一掷签（ctx.rng）；
+ *   - 敌方削弱：新段 kind 'reduce'（减攻/减甲/减魔/耗蓝/窃取，effects/debuff.ts）；
+ *   - 死亡条件：段级 ifTargetDied 字段（前一个产目标段的主目标身亡才生效）；
+ *   - 种族翻倍：段级 raceDouble 字段（目标含该族时数值 ×2）。
+ * 全部自包含在本文件与效果原语内，不动行动生命周期（TurnEngine 无改动）。
  */
 import type { GameEvent } from '../events';
 import { resolveDefeatEvents } from '../teamRoster';
@@ -16,19 +24,51 @@ import type { Character } from '../types';
 import type { ScalingSpec } from './scaling';
 import type { TargetMode } from './targeting';
 import { selectTargets } from './targeting';
-import type { EffectContext, EffectPrimitive } from './effects/context';
+import type { EffectContext, EffectPrimitive, CastTracking } from './effects/context';
+import { findCharacter } from './effects/context';
+import { modifierBonus, conditionMet, isTargetCondition } from './effects/secondary';
 import { damageEffect } from './effects/damage';
 import type { DamageRange } from './effects/damage';
-import { buffEffect } from './effects/buff';
+import { buffEffect, randomStatEffect } from './effects/buff';
 import type { BuffStat } from './effects/buff';
+import { reduceEffect } from './effects/debuff';
+import type { ReduceStat } from './effects/debuff';
+import type { ModifierSpec } from './effects/secondary';
 import { gemEffect } from './effects/gems';
 import type { GemParams } from './effects/gems';
 import { cleanseEffect, statusEffect } from './effects/status';
 import { summonEffect, extraTurnEffect } from './effects/summon';
 import type { SummonParams } from './effects/summon';
 
+/** 段级通用可选项（概率子句 / 死亡条件，五机制之二、之四） */
+export interface SegmentOptions {
+  /**
+   * 概率子句（「有 20% 几率…」）：0~1。执行循环统一掷签 `ctx.rng.next() < chance`，
+   * 不通过则整段跳过（不发事件、不更新跨段追踪）。缺省必发；0 = 恸不发、1 = 必发。
+   */
+  chance?: number;
+  /**
+   * 死亡/阵亡条件（「如果该敌人身亡，获得…」）：
+   * 指最近一个解析出目标的效果段的**主目标**（其首个目标），且该段执行前存活、
+   * 执行后阵亡——被此前已阵亡的目标不满足。缺省无条件执行。
+   */
+  ifTargetDied?: boolean;
+  /**
+   * 通用条件触发（「如果敌人已被冻结，则窃取 5 点法力值」「如果板面上有 13 颗红宝石，则…」）：
+   * 目标相对条件（targetRace/targetColor/targetStatus/targetHpDamaged）按**该段自己的目标**
+   * 逐个过滤（无目标段挂这类条件 → 整段跳过）；全局条件（selfHpDamaged/boardAtLeast/
+   * enemyRacePresent）整段判定。不成立 → 静默跳过（同 chance 语义）。
+   */
+  ifCond?: import('./effects/secondary').Condition;
+  /**
+   * 概率随来源增强（「每有一颗X宝石，就有 7% 的几率…」「几率因X而增强 [xN]」）：
+   * 生效概率 = chance（缺省 0）+ 加成（百分点）/ 100，夹在 [0,1]。
+   */
+  chanceBoost?: import('./effects/secondary').ModifierSpec;
+}
+
 /** 伤害段 */
-export interface DamageSegment {
+export interface DamageSegment extends SegmentOptions {
   kind: 'damage';
   target: TargetMode;
   scaling: ScalingSpec;
@@ -36,48 +76,136 @@ export interface DamageSegment {
   trueDamage?: boolean;
   /** enemyFirstN/allyFirstN 的 N */
   n?: number;
+  /** 种族限定目标：只作用于 troopTypes 含该族的目标（「所有恶魔盟友」） */
+  targetRace?: string;
+  /** 二次缩放（[xN]/[N:M] + 来源），叠加在基础数值上（五机制之一） */
+  modifier?: ModifierSpec;
+  /** 种族条件翻倍：受击者 troopTypes 含该族时其所受伤害 ×2（五机制之五） */
+  raceDouble?: string;
+  /** 种族条件倍率（默认 2；「翻 3 倍」= 3），仅与 raceDouble 同用 */
+  raceTimes?: number;
+  /** 条件倍率（「如果敌人是X族/使用X色法力/已陷入X状态，则造成 N 倍伤害」） */
+  condMult?: import('./effects/secondary').CondMult;
+  /** 条件加成（「若…则增加 N 点」，加算） */
+  condBonus?: import('./effects/secondary').CondBonus;
+  /** 伤害区间（[A] – [B]）：与 scaling 二选一，区间内均匀取整 */
+  rangeSpec?: { min: ScalingSpec; max: ScalingSpec };
+  /** 生命窃取：实际伤害总额治疗施法者（「窃取 X 点生命值」） */
+  drain?: boolean;
+  /** 即杀（「摧毁/消灭该敌人」）：伤害额 = 目标当前有效耐久 */
+  execute?: boolean;
 }
 
 /** 增益段（作用己方目标） */
-export interface BuffSegment {
+export interface BuffSegment extends SegmentOptions {
   kind: 'buff';
   target: TargetMode;
   stat: BuffStat;
   scaling: ScalingSpec;
   n?: number;
+  /** 种族限定目标（「所有恶魔盟友」） */
+  targetRace?: string;
+  /** 全额治疗（stat='hp' 且 full：恢复全部生命，「恢复所有生命值」） */
+  full?: boolean;
+  /** 二次缩放 */
+  modifier?: ModifierSpec;
+  /** 种族条件翻倍：受益者 troopTypes 含该族时数值 ×2 */
+  raceDouble?: string;
+  /** 种族条件倍率（默认 2；「翻 3 倍」= 3），仅与 raceDouble 同用 */
+  raceTimes?: number;
+  /** 条件倍率（「如果敌人是X族/使用X色法力/已陷入X状态，则数值 ×N」） */
+  condMult?: import('./effects/secondary').CondMult;
+  /** 条件加成（「若…则增加 N 点」，加算；叠加顺序见 SOP） */
+  condBonus?: import('./effects/secondary').CondBonus;
+}
+
+/**
+ * 削减段（敌方削弱家族，五机制之三）：减攻/减甲/减魔/耗蓝/窃取。
+ * 数值夹零（属性不会变负、mana 不为负）；窃取 = gainStat 指定自身获得的属性。
+ */
+export interface ReduceSegment extends SegmentOptions {
+  kind: 'reduce';
+  target: TargetMode;
+  stat: ReduceStat;
+  scaling: ScalingSpec;
+  /** 耗尽全部法力（stat='mana'）：数值取目标当前法力（「耗尽法力值」） */
+  drainAll?: boolean;
+  /** 窃取：目标削减的同时自身获得该属性（同额 ×gainRatio） */
+  gainStat?: BuffStat;
+  /** 自身获得比例，默认 1（「获得其中半数」= 0.5） */
+  gainRatio?: number;
+  n?: number;
+  /** 种族限定目标 */
+  targetRace?: string;
+  /** 二次缩放（如「数值因被摧毁的棕色宝石而增强 [1:1]」） */
+  modifier?: ModifierSpec;
+  /** 种族条件翻倍 */
+  raceDouble?: string;
+  /** 种族条件倍率（默认 2；「翻 3 倍」= 3），仅与 raceDouble 同用 */
+  raceTimes?: number;
+  /** 条件倍率（「如果敌人是X族/使用X色法力/已陷入X状态，则数值 ×N」） */
+  condMult?: import('./effects/secondary').CondMult;
+  /** 条件加成（「若…则增加 N 点」，加算；叠加顺序见 SOP） */
+  condBonus?: import('./effects/secondary').CondBonus;
 }
 
 /** 宝石操作段（不经目标选择） */
-export interface GemSegment {
+export interface GemSegment extends SegmentOptions {
   kind: 'gem';
   params: GemParams;
 }
 
+/** 随机属性获得段（「获得 [魔法] 点随机技能值」，DECISIONS「顺路」小活） */
+export interface RandomStatSegment extends SegmentOptions {
+  kind: 'randomStat';
+  target: TargetMode;
+  scaling: ScalingSpec;
+  n?: number;
+  /** 种族限定目标 */
+  targetRace?: string;
+  /** 二次缩放（「点数因…而增强」） */
+  modifier?: ModifierSpec;
+  /** 种族条件翻倍 */
+  raceDouble?: string;
+  /** 种族条件倍率（默认 2；「翻 3 倍」= 3），仅与 raceDouble 同用 */
+  raceTimes?: number;
+  /** 条件倍率（「如果敌人是X族/使用X色法力/已陷入X状态，则数值 ×N」） */
+  condMult?: import('./effects/secondary').CondMult;
+  /** 条件加成（「若…则增加 N 点」，加算；叠加顺序见 SOP） */
+  condBonus?: import('./effects/secondary').CondBonus;
+}
+
 /** 状态施加段 */
-export interface StatusSegment {
+export interface StatusSegment extends SegmentOptions {
   kind: 'status';
   target: TargetMode;
   statusId: string;
   turns: number;
   magnitude?: number;
+  /** 叠加层数（「陷入 2 层流血」）：最终 magnitude = 每层值 × 层数 */
+  stacks?: number;
   n?: number;
+  /** 种族限定目标（「所有恶魔盟友」） */
+  targetRace?: string;
 }
 
 /** Remove statuses from selected allies. */
-export interface CleanseSegment {
+export interface CleanseSegment extends SegmentOptions {
   kind: 'cleanse';
   target: TargetMode;
   n?: number;
+  /** 种族限定目标 */
+  targetRace?: string;
 }
 
 /** 召唤段 */
-export interface SummonSegment {
+export interface SummonSegment extends SegmentOptions {
   kind: 'summon';
   params: SummonParams;
 }
 
 /** 额外回合段 */
-export interface ExtraTurnSegment {
+export interface ExtraTurnSegment extends SegmentOptions {
   kind: 'extraTurn';
 }
 
@@ -85,7 +213,9 @@ export interface ExtraTurnSegment {
 export type EffectSegment =
   | DamageSegment
   | BuffSegment
+  | ReduceSegment
   | GemSegment
+  | RandomStatSegment
   | StatusSegment
   | CleanseSegment
   | SummonSegment
@@ -103,11 +233,11 @@ export function fallbackPrototype(): SkillPrototype {
 
 /** 为需要目标选择的段解析目标 */
 function resolveTargets(
-  segment: { target: TargetMode; n?: number },
+  segment: { target: TargetMode; n?: number; targetRace?: string; ifCond?: import('./effects/secondary').Condition },
   ctx: EffectContext,
   overrideMode?: TargetMode,
 ): Character[] {
-  return selectTargets(
+  const picked = selectTargets(
     overrideMode ?? segment.target,
     ctx.state,
     ctx.casterId,
@@ -115,6 +245,41 @@ function resolveTargets(
     segment.n ?? 1,
     ctx.chosenTargetId,
   );
+  let result = picked;
+  // 种族限定目标：命中不了的段整体跳过（空列表由调用方安全跳过）
+  if (segment.targetRace) {
+    result = result.filter((c) => (c.troopTypes ?? []).includes(segment.targetRace!));
+  }
+  // 通用条件（目标相对类）：按该段自己的目标逐个过滤（「如果敌人已被冻结，则窃取…」）
+  if (segment.ifCond && isTargetCondition(segment.ifCond)) {
+    result = result.filter((c) => conditionMet(segment.ifCond!, ctx, c));
+  }
+  return result;
+}
+
+/**
+ * 解析目标并更新跨段追踪（死亡条件的「该敌人」指向这里的首个目标）。
+ * aliveBefore 必须在效果执行前取值。
+ */
+function resolveTargetsTracked(
+  segment: { target: TargetMode; n?: number },
+  ctx: EffectContext,
+  overrideMode?: TargetMode,
+): Character[] {
+  const targets = resolveTargets(segment, ctx, overrideMode);
+  if (targets.length > 0 && ctx.castTracking) {
+    ctx.castTracking.lastTarget = { id: targets[0].id, aliveBefore: !targets[0].defeated };
+  }
+  return targets;
+}
+
+/** 死亡条件判定：最近产目标段的主目标此前存活、现在阵亡。
+ * 阵亡者会被 resolveDefeatEvents 从队伍移除——「找不到」同样视为身亡。 */
+function lastTargetDied(ctx: EffectContext): boolean {
+  const last = ctx.castTracking?.lastTarget;
+  if (!last || !last.aliveBefore) return false;
+  const ch = findCharacter(ctx.state, last.id);
+  return ch === undefined || ch.defeated;
 }
 
 /**
@@ -124,28 +289,70 @@ function compileSegment(segment: EffectSegment, ctx: EffectContext): EffectPrimi
   switch (segment.kind) {
     case 'damage':
       return damageEffect({
-        targets: resolveTargets(segment, ctx, segment.range === 'splash' ? 'enemyChosen' : undefined),
+        // 溅射的主目标 = 段自己的 target 模式（enemyChosen 时由选择器给 id；
+        // enemyFront/enemyRandomN 等按各自模式解析，不再强制覆写——覆写会让
+        // 「对 N 名随机敌人溅射」在无手动目标时整段落空）
+        targets: resolveTargetsTracked(segment, ctx),
         scaling: segment.scaling,
         range: segment.range,
         trueDamage: segment.trueDamage,
+        modifier: segment.modifier,
+        raceDouble: segment.raceDouble,
+        raceTimes: segment.raceTimes,
+        condMult: segment.condMult,
+        condBonus: segment.condBonus,
+        rangeSpec: segment.rangeSpec,
+        drain: segment.drain,
+        execute: segment.execute,
       });
     case 'buff':
       return buffEffect({
-        targets: resolveTargets(segment, ctx),
+        targets: resolveTargetsTracked(segment, ctx),
         stat: segment.stat,
         scaling: segment.scaling,
+        full: segment.full,
+        modifier: segment.modifier,
+        raceDouble: segment.raceDouble,
+        raceTimes: segment.raceTimes,
+        condMult: segment.condMult,
+        condBonus: segment.condBonus,
+      });
+    case 'reduce':
+      return reduceEffect({
+        targets: resolveTargetsTracked(segment, ctx),
+        stat: segment.stat,
+        scaling: segment.scaling,
+        drainAll: segment.drainAll,
+        gainStat: segment.gainStat,
+        gainRatio: segment.gainRatio,
+        modifier: segment.modifier,
+        raceDouble: segment.raceDouble,
+        raceTimes: segment.raceTimes,
+        condMult: segment.condMult,
+        condBonus: segment.condBonus,
       });
     case 'gem':
       return gemEffect(segment.params);
+    case 'randomStat':
+      return randomStatEffect({
+        targets: resolveTargetsTracked(segment, ctx),
+        scaling: segment.scaling,
+        modifier: segment.modifier,
+        raceDouble: segment.raceDouble,
+        raceTimes: segment.raceTimes,
+        condMult: segment.condMult,
+        condBonus: segment.condBonus,
+      });
     case 'status':
       return statusEffect({
-        targets: resolveTargets(segment, ctx),
+        targets: resolveTargetsTracked(segment, ctx),
         statusId: segment.statusId,
         turns: segment.turns,
         magnitude: segment.magnitude,
+        stacks: segment.stacks,
       });
     case 'cleanse':
-      return cleanseEffect({ targets: resolveTargets(segment, ctx) });
+      return cleanseEffect({ targets: resolveTargetsTracked(segment, ctx) });
     case 'summon':
       // 注入上下文的召唤物解析器（ref/randomOf 来源需要）
       return summonEffect({ ...segment.params, resolveRef: ctx.resolveSummonRef });
@@ -158,13 +365,41 @@ function compileSegment(segment: EffectSegment, ctx: EffectContext): EffectPrimi
   }
 }
 
+/** 新建一段施法的跨段追踪（已挂在 ctx 上则复用） */
+function ensureCastTracking(ctx: EffectContext): CastTracking {
+  if (!ctx.castTracking) {
+    ctx.castTracking = { destroyed: [], transformed: 0, drainedMana: 0 };
+  }
+  return ctx.castTracking;
+}
+
 /**
  * 执行技能原型：按段顺序解释，汇集事件流（需求 11.3, 11.5）。
  * 空原型或全部段不支持 → 返回空事件（仅扣法力回退由 castSkill 处理，需求 11.4）。
+ *
+ * 段级 chance / ifTargetDied 在编译前统一裁决：跳过的段不发事件、
+ * 不消耗目标选择、也不更新跨段追踪（lastTarget 保持上一有效段）。
  */
 export function executePrototype(proto: SkillPrototype, ctx: EffectContext): GameEvent[] {
+  ensureCastTracking(ctx);
   const events: GameEvent[] = [];
   for (const segment of proto.segments) {
+    // 概率子句：掷签不通过 → 整段跳过（rng 消耗固定发生，保证同种子同事件流）
+    if (segment.chance !== undefined || segment.chanceBoost) {
+      const boost = modifierBonus(segment.chanceBoost, ctx) / 100;
+      const p = Math.min(1, Math.max(0, (segment.chance ?? 0) + boost));
+      if (!(ctx.rng.next() < p)) continue;
+    }
+    // 通用条件（全局类）：整段判定，不成立 → 静默跳过（目标相对类在目标解析处过滤）
+    if (segment.ifCond && !isTargetCondition(segment.ifCond) && !conditionMet(segment.ifCond, ctx)) {
+      continue;
+    }
+    // 目标相对条件挂在无目标段（gem/extraTurn/summon）→ 无从判定，整段跳过
+    if (segment.ifCond && isTargetCondition(segment.ifCond) && !('target' in segment)) {
+      continue;
+    }
+    // 死亡条件：前一个产目标段的主目标确实身亡才执行
+    if (segment.ifTargetDied === true && !lastTargetDied(ctx)) continue;
     const primitive = compileSegment(segment, ctx);
     if (primitive) {
       events.push(...resolveDefeatEvents(ctx.state, primitive.apply(ctx)));

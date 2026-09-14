@@ -9,6 +9,8 @@
  */
 import { BaseColor } from '@engine/types';
 import type { Character } from '@engine/types';
+import { getTrait } from '@engine/traits';
+import { skillDisplayOf } from '@session/assigner';
 import type { TroopData } from '../data/troops';
 
 /** 面板展示用的纯数据模型（与 DOM 无关，便于测试） */
@@ -31,8 +33,12 @@ export interface DetailViewModel {
     /** 法力消耗（等于角色 manaCost） */
     manaCost: number;
   } | null;
-  /** 特质列表；无对应 TroopData 时为空数组 */
-  traits: { name: string; description: string }[];
+  /**
+   * 特质列表。以 Character.traitIds 为权威来源（宿主注入的角色没有 TroopData 也可见），
+   * TroopData.traits 只作官方描述补充。implemented=false 表示引擎尚未实现该特质，
+   * 战斗中不生效——如实展示而不是藏掉。
+   */
+  traits: { name: string; description: string; implemented: boolean }[];
 }
 
 /**
@@ -43,17 +49,43 @@ export function buildDetailViewModel(
   char: Character,
   troop?: TroopData,
 ): DetailViewModel {
+  // 技能：TroopData 优先（官方全文）；宿主角色没有兵种数据时，
+  // 从分拣技能池取该 skillId 的名称/描述（分拣分配的技能都在池内）。
   const skill = troop
     ? {
         name: troop.spell.name,
         description: troop.spell.description,
         manaCost: char.manaCost,
       }
-    : null;
+    : (() => {
+        const pool = skillDisplayOf(char.skillId ?? '');
+        return pool
+          ? { name: pool.name, description: pool.description, manaCost: char.manaCost }
+          : null;
+      })();
 
-  const traits = troop
-    ? troop.traits.map((t) => ({ name: t.name, description: t.description }))
-    : [];
+  // 特质合并：traitIds（引擎权威）→ 特质库取名称/描述；库里没有的（未实现 code）
+  // 回落到 TroopData 的官方文本并标注未生效。TroopData 里多出的条目也列出。
+  const traits: DetailViewModel['traits'] = [];
+  const seen = new Set<string>();
+  for (const code of char.traitIds ?? []) {
+    seen.add(code);
+    const lib = getTrait(code);
+    const official = troop?.traits.find((t) => t.code === code);
+    traits.push({
+      name: official?.name ?? lib?.name ?? code,
+      description: official?.description ?? lib?.description ?? '',
+      implemented: !!lib,
+    });
+  }
+  for (const t of troop?.traits ?? []) {
+    if (seen.has(t.code)) continue;
+    traits.push({
+      name: t.name,
+      description: t.description,
+      implemented: !!getTrait(t.code),
+    });
+  }
 
   return {
     name: char.name,
@@ -131,6 +163,10 @@ function ensureStyles(): void {
     border-left:2px solid rgba(216,194,144,.4)}
   .cdp-trait-name{font-size:13px;font-weight:600;color:#f0e2bf}
   .cdp-trait-desc{font-size:12px;line-height:1.5;color:#b9ab84;margin-top:2px}
+  .cdp-trait-off{opacity:.55}
+  .cdp-trait-off .cdp-trait-name{color:#a89974}
+  .cdp-trait-tag{display:inline-block;margin-left:6px;padding:0 5px;font-size:10px;font-weight:400;
+    color:#c9a35c;border:1px solid rgba(201,163,92,.5);border-radius:3px;vertical-align:1px}
   .cdp-empty{font-size:12px;color:#8a7c5c;font-style:italic}
   `;
   const style = document.createElement('style');
@@ -218,9 +254,11 @@ export class CharacterDetailPanel {
       ? `<div class="cdp-traits">${vm.traits
           .map(
             (t) =>
-              `<div class="cdp-trait"><div class="cdp-trait-name">${esc(
+              `<div class="cdp-trait${t.implemented ? '' : ' cdp-trait-off'}"><div class="cdp-trait-name">${esc(
                 t.name,
-              )}</div><div class="cdp-trait-desc">${esc(t.description)}</div></div>`,
+              )}${t.implemented ? '' : '<span class="cdp-trait-tag">未生效</span>'}</div><div class="cdp-trait-desc">${esc(
+                t.description,
+              )}</div></div>`,
           )
           .join('')}</div>`
       : '<div class="cdp-empty">无特质</div>';

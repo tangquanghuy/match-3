@@ -24,20 +24,31 @@ export type TargetMode =
   // —— 敌方 ——
   | 'enemyFront' // 敌方队首存活（默认普攻/多数指定技能）
   | 'enemyRandom' // 随机单体
+  | 'enemyRandomN' // 随机 N 名（不重复，「对 3 名随机敌人」）
   | 'enemyWeakest' // 最低生命
+  | 'enemyWeakestN' // 最低生命 N 名（「两名最虚弱的敌人」，升序取）
   | 'enemyHealthiest' // 最高生命
+  | 'enemyHealthiestN' // 最高生命 N 名（降序取）
   | 'enemyFirstN' // 前 N 名
+  | 'enemyNth' // 第 N 位（1-based，n=3 → 队伍第 3 个）
   | 'enemyLast' // 最后一名
+  | 'enemyLastN' // 最后 N 名（「最后两名敌人」）
   | 'enemyAll' // 全体
   | 'enemyChosen' // 施法方（玩家/AI）手动选定的敌方单体
   // —— 己方 ——
   | 'allySelf' // 施法者自身
   | 'allyFront'
   | 'allyRandom'
+  | 'allyRandomN' // 随机 N 名盟友（不重复）
   | 'allyWeakest'
+  | 'allyWeakestN'
   | 'allyHealthiest'
+  | 'allyHealthiestN'
   | 'allyFirstN'
+  | 'allyNth' // 第 N 位盟友（1-based）
+  | 'allyOthers' // 其他盟友（除施法者外全体存活）
   | 'allyLast'
+  | 'allyLastN'
   | 'allyAll'
   | 'allyChosen'; // 施法方手动选定的己方单体
 
@@ -163,17 +174,57 @@ export function selectTargets(
     case 'allyFirstN':
       return alive.slice(0, Math.max(0, n));
 
+    case 'enemyNth':
+    case 'allyNth': {
+      // 第 N 位（1-based）；越界返回空（该段安全跳过）
+      const idx = Math.max(1, n) - 1;
+      return idx < alive.length ? [alive[idx]] : [];
+    }
+
     case 'enemyRandom':
     case 'allyRandom':
       return [alive[rng.nextInt(alive.length)]];
+
+    case 'enemyRandomN':
+    case 'allyRandomN': {
+      // 随机 N 名、不重复（「对 3 名随机敌人」）；候选不足时有多少取多少
+      const pool = alive.slice();
+      const picked: Character[] = [];
+      const k = Math.max(1, n);
+      for (let i = 0; i < k && pool.length > 0; i++) {
+        picked.push(pool.splice(rng.nextInt(pool.length), 1)[0]);
+      }
+      return picked;
+    }
+
+    case 'allyOthers':
+      // 其他盟友：己方全体存活、除施法者本人
+      return aliveAll.filter((c) => c.id !== casterId);
 
     case 'enemyWeakest':
     case 'allyWeakest':
       return pickExtreme(alive, (c, best) => c.hp < best.hp);
 
+    case 'enemyWeakestN':
+    case 'allyWeakestN': {
+      // 生命升序取前 N（并列按队伍索引，确定性）
+      const sorted = alive.slice().sort((a, b) => a.hp - b.hp);
+      return sorted.slice(0, Math.max(1, n));
+    }
+
     case 'enemyHealthiest':
     case 'allyHealthiest':
       return pickExtreme(alive, (c, best) => c.hp > best.hp);
+
+    case 'enemyHealthiestN':
+    case 'allyHealthiestN': {
+      const sorted = alive.slice().sort((a, b) => b.hp - a.hp);
+      return sorted.slice(0, Math.max(1, n));
+    }
+
+    case 'enemyLastN':
+    case 'allyLastN':
+      return alive.slice(-Math.max(1, n));
 
     default: {
       // 穷尽性检查：新增模式若未处理会在编译期报错

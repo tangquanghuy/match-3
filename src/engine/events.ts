@@ -1,4 +1,4 @@
-import type { CellPos, GemType, BaseColor, PlayerSide } from './types';
+import type { CellPos, GemType, BaseColor, PlayerSide, SpecialGemKind } from './types';
 import type { MatchShape } from './MatchResolver';
 import type { GemMove, GemSpawn } from './GravitySystem';
 
@@ -192,6 +192,22 @@ export interface SpecialGemHookEvent {
   reason: 'match5' | 'L' | 'T';
 }
 
+/**
+ * 特殊宝石触发（需求 20.1）：末日骷髅匹配引爆、炸弹爆炸、闪电清行列、织网施网、
+ * 沙漏额外回合、许愿回蓝。表现层据此放触发特效/飘字；实际被清除的格子随后经
+ * 既有 gem-explode / gem-destroy 事件下发，法力经 buff、状态经 status-apply。
+ */
+export interface SpecialGemTriggerEvent {
+  type: 'special-gem-trigger';
+  kind: SpecialGemKind;
+  /** 触发宝石所在格 */
+  pos: CellPos;
+  /** 闪电：被清空的行号（lightningRow）或列号（lightningCol） */
+  line?: number;
+  /** 许愿：抽中选项（0..2=随机 1/2/3 名己方，3=己方全员，4=双方全员）与受益角色 */
+  wish?: { option: number; targetIds: number[] };
+}
+
 export interface ExtraTurnEvent {
   type: 'extra-turn';
   player: PlayerSide;
@@ -234,6 +250,7 @@ export type GameEvent =
   | RefillEvent
   | ReshuffleEvent
   | SpecialGemHookEvent
+  | SpecialGemTriggerEvent
   | ExtraTurnEvent
   | TurnEndEvent
   | GameOverEvent;

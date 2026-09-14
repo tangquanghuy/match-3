@@ -1,0 +1,562 @@
+[
+ {
+  "troopId": 6026,
+  "troop": "枭熊",
+  "spellId": 7026,
+  "spellName": "刺耳尖叫",
+  "desc": "对一名敌人造成 [魔法 + 3] 点伤害，并减除其 2 点攻击力",
+  "scalings": [
+   {
+    "base": 3,
+    "mult": 1
+   }
+  ],
+  "modifier": null
+ },
+ {
+  "troopId": 6004,
+  "troop": "火枪手",
+  "spellId": 7004,
+  "spellName": "狙击",
+  "desc": "对 1 名敌人造成 [魔法 + 2] 点伤害。",
+  "scalings": [
+   {
+    "base": 2,
+    "mult": 1
+   }
+  ],
+  "modifier": null
+ },
+ {
+  "troopId": 6016,
+  "troop": "人马斥候",
+  "spellId": 7016,
+  "spellName": "一马当先",
+  "desc": "摧毁 1 行，并对第 1 名敌人造成 [魔法 + 1] 点伤害。",
+  "scalings": [
+   {
+    "base": 1,
+    "mult": 1
+   }
+  ],
+  "modifier": null
+ },
+ {
+  "troopId": 6028,
+  "troop": "女祭司",
+  "spellId": 7028,
+  "spellName": "佑护之力",
+  "desc": "净化一名盟友，并为他提供 [魔法 + 1] 点护甲值和屏障效果。",
+  "scalings": [
+   {
+    "base": 1,
+    "mult": 1
+   }
+  ],
+  "modifier": null
+ },
+ {
+  "troopId": 6033,
+  "troop": "水泽仙女",
+  "spellId": 7033,
+  "spellName": "缠绕",
+  "desc": "缠绕一名敌人并减除他 [魔法 + 1] 点护甲值。",
+  "scalings": [
+   {
+    "base": 1,
+    "mult": 1
+   }
+  ],
+  "modifier": null
+ },
+ {
+  "troopId": 6048,
+  "troop": "雄狮猎手",
+  "spellId": 7048,
+  "spellName": "獅吼",
+  "desc": "对第 一名敌人造成 [魔法 + 2] 点伤害，并使其陷入沉默状态。",
+  "scalings": [
+   {
+    "base": 2,
+    "mult": 1
+   }
+  ],
+  "modifier": null
+ },
+ {
+  "troopId": 6001,
+  "troop": "犀首兽",
+  "spellId": 7132,
+  "spellName": "杀戮节庆",
+  "desc": "对 1 名敌人造成 [魔法 + 2] 点轻微溅射伤害。",
+  "scalings": [
+   {
+    "base": 2,
+    "mult": 1
+   }
+  ],
+  "modifier": null
+ },
+ {
+  "troopId": 6071,
+  "troop": "悲叶老树",
+  "spellId": 7141,
+  "spellName": "腐朽",
+  "desc": "窃取所有敌人的 [魔法] 护甲值和 5 点攻击力。",
+  "scalings": [
+   {
+    "base": 0,
+    "mult": 1
+   }
+  ],
+  "modifier": null
+ },
+ {
+  "troopId": 6075,
+  "troop": "高戈塔",
+  "spellId": 7145,
+  "spellName": "厄运之石",
+  "desc": "随机爆破 [魔法 + 3] 颗宝石并净化自身。",
+  "scalings": [
+   {
+    "base": 3,
+    "mult": 1
+   }
+  ],
+  "modifier": null
+ },
+ {
+  "troopId": 6083,
+  "troop": "费里特",
+  "spellId": 7153,
+  "spellName": "背后一刀",
+  "desc": "对最后一名敌人造成 [魔法 + 5] 点伤害，并耗尽其法力值。",
+  "scalings": [
+   {
+    "base": 5,
+    "mult": 1
+   }
+  ],
+  "modifier": null
+ },
+ {
+  "troopId": 6085,
+  "troop": "亚特兰大",
+  "spellId": 7155,
+  "spellName": "箭雨",
+  "desc": "对所有敌人造成 [魔法 + 2] 点伤害。",
+  "scalings": [
+   {
+    "base": 2,
+    "mult": 1
+   }
+  ],
+  "modifier": null
+ },
+ {
+  "troopId": 6091,
+  "troop": "埃佩里娜",
+  "spellId": 7161,
+  "spellName": "生命气息",
+  "desc": "为 1 名盟友提供 [魔法] 生命值和攻击力，然后净化和治疗他。",
+  "scalings": [
+   {
+    "base": 0,
+    "mult": 1
+   }
+  ],
+  "modifier": null
+ },
+ {
+  "troopId": 6092,
+  "troop": "幸运的布莱恩",
+  "spellId": 7162,
+  "spellName": "干杯！",
+  "desc": "所有盟友获得 [魔法 + 1] 点随机技能值。",
+  "scalings": [
+   {
+    "base": 1,
+    "mult": 1
+   }
+  ],
+  "modifier": null
+ },
+ {
+  "troopId": 6105,
+  "troop": "拉格纳戈德",
+  "spellId": 7171,
+  "spellName": "闪电攻击",
+  "desc": "随机爆破 [魔法 + 2] 颗选定颜色的宝石。",
+  "scalings": [
+   {
+    "base": 2,
+    "mult": 1
+   }
+  ],
+  "modifier": null
+ },
+ {
+  "troopId": 6107,
+  "troop": "坟墓骑士",
+  "spellId": 7175,
+  "spellName": "惊天重击",
+  "desc": "减除一名敌人全部护甲值，并造成 [魔法 + 4] 点伤害。",
+  "scalings": [
+   {
+    "base": 4,
+    "mult": 1
+   }
+  ],
+  "modifier": null
+ },
+ {
+  "troopId": 6116,
+  "troop": "德鲁伊教团员",
+  "spellId": 7208,
+  "spellName": "荆棘鞭击",
+  "desc": "对 2 名随机敌人造成 [魔法 + 2] 点轻微溅射伤害。",
+  "scalings": [
+   {
+    "base": 2,
+    "mult": 1
+   }
+  ],
+  "modifier": null
+ },
+ {
+  "troopId": 6136,
+  "troop": "蜘蛛群",
+  "spellId": 7238,
+  "spellName": "蜘蛛噬咬",
+  "desc": "使 1 名敌人陷入中毒状态并造成 [魔法 + 2] 点伤害。",
+  "scalings": [
+   {
+    "base": 2,
+    "mult": 1
+   }
+  ],
+  "modifier": null
+ },
+ {
+  "troopId": 6164,
+  "troop": "火蝾螈",
+  "spellId": 7290,
+  "spellName": "灼热冲击",
+  "desc": "对 1 名敌人造成 [魔法 + 4] 点伤害，并将其燃烧。",
+  "scalings": [
+   {
+    "base": 4,
+    "mult": 1
+   }
+  ],
+  "modifier": null
+ },
+ {
+  "troopId": 6169,
+  "troop": "德拉古力斯",
+  "spellId": 7302,
+  "spellName": "吸血鬼之刃",
+  "desc": "窃取所有敌人 [魔法 + 5] 点生命值。",
+  "scalings": [
+   {
+    "base": 5,
+    "mult": 1
+   }
+  ],
+  "modifier": null
+ },
+ {
+  "troopId": 6178,
+  "troop": "夸赛魔",
+  "spellId": 7319,
+  "spellName": "魔咒",
+  "desc": "减除一名敌人 [魔法 + 1] 点随机技能值。",
+  "scalings": [
+   {
+    "base": 1,
+    "mult": 1
+   }
+  ],
+  "modifier": null
+ },
+ {
+  "troopId": 6186,
+  "troop": "雪妖仙",
+  "spellId": 7327,
+  "spellName": "寒气侵骨",
+  "desc": "对 1 名敌人造成 [魔法 + 1] 点伤害并将其冻结。",
+  "scalings": [
+   {
+    "base": 1,
+    "mult": 1
+   }
+  ],
+  "modifier": null
+ },
+ {
+  "troopId": 6206,
+  "troop": "怨灵",
+  "spellId": 7348,
+  "spellName": "怨灵之触",
+  "desc": "窃取 1 名敌人 [魔法 + 2] 点生命值，或窃取其法力值。",
+  "scalings": [
+   {
+    "base": 2,
+    "mult": 1
+   }
+  ],
+  "modifier": null
+ },
+ {
+  "troopId": 6209,
+  "troop": "蜘蛛骑士",
+  "spellId": 7351,
+  "spellName": "盘丝之剑",
+  "desc": "对 1 名敌人造成 [魔法 + 2] 点伤害并使其陷入织网状态。",
+  "scalings": [
+   {
+    "base": 2,
+    "mult": 1
+   }
+  ],
+  "modifier": null
+ },
+ {
+  "troopId": 6219,
+  "troop": "摩亚鸟",
+  "spellId": 7361,
+  "spellName": "踩在脚下",
+  "desc": "对 1 名敌人造成 [魔法 + 3] 点伤害并将之击晕。",
+  "scalings": [
+   {
+    "base": 3,
+    "mult": 1
+   }
+  ],
+  "modifier": null
+ },
+ {
+  "troopId": 6220,
+  "troop": "熔岩元素",
+  "spellId": 7362,
+  "spellName": "熔岩之怒",
+  "desc": "对所有敌人造成 [魔法 + 2] 点伤害，再使他们陷入燃烧状态。",
+  "scalings": [
+   {
+    "base": 2,
+    "mult": 1
+   }
+  ],
+  "modifier": null
+ },
+ {
+  "troopId": 6247,
+  "troop": "残败者",
+  "spellId": 7390,
+  "spellName": "痛心切骨",
+  "desc": "随机爆破两颗宝石并获得 [魔法 + 1] 点随机技能值。",
+  "scalings": [
+   {
+    "base": 1,
+    "mult": 1
+   }
+  ],
+  "modifier": null
+ },
+ {
+  "troopId": 6258,
+  "troop": "旅店老板",
+  "spellId": 7401,
+  "spellName": "店家请客",
+  "desc": "给予其他盟友 [魔法 + 1] 点攻击力，但减除他们 1 点魔法值。",
+  "scalings": [
+   {
+    "base": 1,
+    "mult": 1
+   }
+  ],
+  "modifier": null
+ },
+ {
+  "troopId": 6272,
+  "troop": "船舰大炮",
+  "spellId": 7418,
+  "spellName": "舷侧炮击",
+  "desc": "对 3 名随机敌人造成 [魔法 + 1] 点伤害。",
+  "scalings": [
+   {
+    "base": 1,
+    "mult": 1
+   }
+  ],
+  "modifier": null
+ },
+ {
+  "troopId": 6293,
+  "troop": "巨蟾蜍",
+  "spellId": 7439,
+  "spellName": "闪电舌击",
+  "desc": "对 1 名敌人造成 [魔法 + 1] 点伤害并将其拉至首位。",
+  "scalings": [
+   {
+    "base": 1,
+    "mult": 1
+   }
+  ],
+  "modifier": null
+ },
+ {
+  "troopId": 6312,
+  "troop": "沼泽行者",
+  "spellId": 7462,
+  "spellName": "泥沼粘液",
+  "desc": "摧毁 [魔法 + 1] 颗宝石并缠绕一名随机敌人。",
+  "scalings": [
+   {
+    "base": 1,
+    "mult": 1
+   }
+  ],
+  "modifier": null
+ },
+ {
+  "troopId": 6379,
+  "troop": "裂谷山猫",
+  "spellId": 7534,
+  "spellName": "眨眼",
+  "desc": "对一名敌人造成 [魔法 + 2] 点真实伤害并将之击至末位。",
+  "scalings": [
+   {
+    "base": 2,
+    "mult": 1
+   }
+  ],
+  "modifier": null
+ },
+ {
+  "troopId": 6393,
+  "troop": "龙龟",
+  "spellId": 7548,
+  "spellName": "突然出击",
+  "desc": "对第一名敌人造成  [魔法 + 6] 点伤害，再使自己下潜。",
+  "scalings": [
+   {
+    "base": 6,
+    "mult": 1
+   }
+  ],
+  "modifier": null
+ },
+ {
+  "troopId": 6406,
+  "troop": "乘浪者",
+  "spellId": 7561,
+  "spellName": "护甲之壳",
+  "desc": "增加一个盟友 [魔法 + 3] 点护甲值，赋予其屏障效果，并使其下潜。",
+  "scalings": [
+   {
+    "base": 3,
+    "mult": 1
+   }
+  ],
+  "modifier": null
+ },
+ {
+  "troopId": 6546,
+  "troop": "舍尼塔",
+  "spellId": 7740,
+  "spellName": "倒刺",
+  "desc": "对最后一名敌人造成 [魔法 + 6] 点真实伤害，并使其获得狂怒状态。",
+  "scalings": [
+   {
+    "base": 6,
+    "mult": 1
+   }
+  ],
+  "modifier": null
+ },
+ {
+  "troopId": 6574,
+  "troop": "蚊群",
+  "spellId": 7778,
+  "spellName": "万千叮蜇",
+  "desc": "对所有敌人造成两次 [魔法 + 8] 点散射伤害。",
+  "scalings": [
+   {
+    "base": 8,
+    "mult": 1
+   }
+  ],
+  "modifier": null
+ },
+ {
+  "troopId": 6646,
+  "troop": "鬼牙",
+  "spellId": 7978,
+  "spellName": "毒牙之刃",
+  "desc": "对最虚弱的敌人造成 [魔法 + 2] 点伤害，并使之陷入中毒状态。",
+  "scalings": [
+   {
+    "base": 2,
+    "mult": 1
+   }
+  ],
+  "modifier": null
+ },
+ {
+  "troopId": 6681,
+  "troop": "贝尔",
+  "spellId": 8027,
+  "spellName": "混乱一跳",
+  "desc": "造成 [魔法 + 12] 点散射伤害，再打乱敌方队伍顺序。",
+  "scalings": [
+   {
+    "base": 12,
+    "mult": 1
+   }
+  ],
+  "modifier": null
+ },
+ {
+  "troopId": 6750,
+  "troop": "水元素",
+  "spellId": 8128,
+  "spellName": "洪水",
+  "desc": "对所有敌人造成  [魔法 + 2] 点伤害，并将他们击晕。",
+  "scalings": [
+   {
+    "base": 2,
+    "mult": 1
+   }
+  ],
+  "modifier": null
+ },
+ {
+  "troopId": 6859,
+  "troop": "妮莎之意",
+  "spellId": 8278,
+  "spellName": "秘法以太",
+  "desc": "窃取所有敌人 3 点魔法值，再对他们造成 [魔法 + 1] 伤害。",
+  "scalings": [
+   {
+    "base": 1,
+    "mult": 1
+   }
+  ],
+  "modifier": null
+ },
+ {
+  "troopId": 7003,
+  "troop": "俄勒冈尼亚",
+  "spellId": 8531,
+  "spellName": "漫天飞针",
+  "desc": "对所有敌人造成 [魔法 + 2] 点伤害，并使他们陷入出血状态。",
+  "scalings": [
+   {
+    "base": 2,
+    "mult": 1
+   }
+  ],
+  "modifier": null
+ }
+]

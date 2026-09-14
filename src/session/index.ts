@@ -1,6 +1,7 @@
 /** 战斗会话层统一导出：宿主契约、校验、id 映射与结果导出。 */
 export * from './contract';
 export * from './validateRequest';
+export * from './assigner';
 export * from './combatantMapping';
 export * from './battleResult';
 export * from './standaloneRequest';

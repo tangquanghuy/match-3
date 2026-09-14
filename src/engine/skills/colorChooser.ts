@@ -65,7 +65,7 @@ export function prototypeNeedsColor(proto: { segments: readonly unknown[] }): bo
     if (seg.kind !== 'gem') continue;
     const params = seg.params as {
       op?: string;
-      gem?: { kind?: string; color?: unknown };
+      gem?: { kind?: string; color?: unknown; colors?: unknown[] };
       from?: unknown;
       to?: unknown;
       target?: { kind?: string; color?: unknown };
@@ -73,10 +73,12 @@ export function prototypeNeedsColor(proto: { segments: readonly unknown[] }): bo
     if (!params) continue;
     if (params.op === 'create') {
       if (params.gem?.kind === 'color' && params.gem.color === 'CHOSEN') return true;
+      if (params.gem?.kind === 'mix' && (params.gem.colors ?? []).includes('CHOSEN')) return true;
     } else if (params.op === 'transform') {
       if (params.from === 'CHOSEN' || params.to === 'CHOSEN') return true;
     } else if (params.op === 'clear') {
       if (params.target?.kind === 'color' && params.target.color === 'CHOSEN') return true;
+      if (params.target?.kind === 'randomGems' && params.target.color === 'CHOSEN') return true;
     }
   }
   return false;

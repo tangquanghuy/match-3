@@ -20,7 +20,9 @@ export const STANDALONE_FIXTURE: unknown = fixture;
  * 与其带着坏数据进场，不如在这里直接失败并指出字段。
  */
 export function loadStandaloneRequest(opts: ValidateOptions): BattleRequest {
-  const result = validateBattleRequest(fixture, opts);
+  // structuredClone：分拣引擎会就地填充 skillId/traitIds，克隆避免污染模块级 fixture，
+  // 保证同一页面多次 init 的配置视图一致。
+  const result = validateBattleRequest(structuredClone(fixture), opts);
   if (!result.ok) {
     throw new Error(
       `独立模式战斗配置不合法（src/session/fixtures/standalone-battle.json）：${formatValidationIssues(result.issues)}`,

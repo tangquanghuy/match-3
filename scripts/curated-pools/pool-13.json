@@ -1,0 +1,553 @@
+[
+ {
+  "troopId": 6278,
+  "troop": "鼻涕爵士",
+  "spellId": 7424,
+  "spellName": "哈啾！",
+  "desc": "对 1 名敌人造成 [魔法 + 3] 点伤害。使其陷入织网和缠绕状态。获得一个额外回合。",
+  "scalings": [
+   {
+    "base": 3,
+    "mult": 1
+   }
+  ],
+  "modifier": null
+ },
+ {
+  "troopId": 6280,
+  "troop": "象兽",
+  "spellId": 7426,
+  "spellName": "战争长牙",
+  "desc": "对 1 名敌人造成 [魔法 + 1] 点伤害，伤害值因自身生命值而增强。获得 5 点生命值。 [2:1]",
+  "scalings": [
+   {
+    "base": 1,
+    "mult": 1
+   }
+  ],
+  "modifier": {
+   "kind": "ratio",
+   "a": 2,
+   "b": 1
+  }
+ },
+ {
+  "troopId": 6290,
+  "troop": "厄什卡流浪者",
+  "spellId": 7436,
+  "spellName": "寒心",
+  "desc": "对 1 名敌人造成 [魔法 + 1] 点伤害，伤害值因敌方攻击力而增强。冻结敌人。 [2:1]",
+  "scalings": [
+   {
+    "base": 1,
+    "mult": 1
+   }
+  ],
+  "modifier": {
+   "kind": "ratio",
+   "a": 2,
+   "b": 1
+  }
+ },
+ {
+  "troopId": 6295,
+  "troop": "村民",
+  "spellId": 7441,
+  "spellName": "化身为狼",
+  "desc": "将黄色宝石转换为棕色。转化为一名狼人。",
+  "scalings": [],
+  "modifier": null
+ },
+ {
+  "troopId": 6298,
+  "troop": "森林守卫",
+  "spellId": 7448,
+  "spellName": "森林之友",
+  "desc": "将紫色宝石转换为骷髅头，并将棕色宝石转换为绿色。赋予野兽盟友屏障效果。",
+  "scalings": [],
+  "modifier": null
+ },
+ {
+  "troopId": 6301,
+  "troop": "游荡的僧侣",
+  "spellId": 7451,
+  "spellName": "雄狮真言",
+  "desc": "对 1 名敌人造成 [魔法 + 4] 点伤害。如果敌人已被击晕，则造成两倍伤害。击晕敌人。",
+  "scalings": [
+   {
+    "base": 4,
+    "mult": 1
+   }
+  ],
+  "modifier": null
+ },
+ {
+  "troopId": 6303,
+  "troop": "巨石之灵",
+  "spellId": 7453,
+  "spellName": "地震",
+  "desc": "摧毁一组行跟列。对所有敌人造成 [魔法 + 4] 点散射伤害，并因被摧毁的棕色宝石数而增强。 [x4]",
+  "scalings": [
+   {
+    "base": 4,
+    "mult": 1
+   }
+  ],
+  "modifier": {
+   "kind": "multiplier",
+   "a": 4
+  }
+ },
+ {
+  "troopId": 6308,
+  "troop": "铁须夫人",
+  "spellId": 7458,
+  "spellName": "盾击",
+  "desc": "对 1 名敌人造成 [魔法 + 6] 点伤害。若自身护甲值较高，则造成三倍伤害。获得 5 点护甲值。",
+  "scalings": [
+   {
+    "base": 6,
+    "mult": 1
+   }
+  ],
+  "modifier": null
+ },
+ {
+  "troopId": 6320,
+  "troop": "特斯拉",
+  "spellId": 7470,
+  "spellName": "超载",
+  "desc": "造成 8 点真实散射伤害，伤害值因敌我双方的护甲值而增强。 [3:1]",
+  "scalings": [],
+  "modifier": {
+   "kind": "ratio",
+   "a": 3,
+   "b": 1
+  }
+ },
+ {
+  "troopId": 6335,
+  "troop": "泰兹卡",
+  "spellId": 7485,
+  "spellName": "红宝石法杖",
+  "desc": "给予一名盟友 [魔法 + 1] 点生命值和攻击力。净化该盟友。如果盟友使用红色法力，给予 3 点魔法值。",
+  "scalings": [
+   {
+    "base": 1,
+    "mult": 1
+   }
+  ],
+  "modifier": null
+ },
+ {
+  "troopId": 6339,
+  "troop": "红牛凯崔斯",
+  "spellId": 7489,
+  "spellName": "血之饥渴",
+  "desc": "对一名敌人造成 [魔法 + 4] 点溅射伤害。伤害值因自身的攻击力、生命力和护甲值而增强。 [2:1]",
+  "scalings": [
+   {
+    "base": 4,
+    "mult": 1
+   }
+  ],
+  "modifier": {
+   "kind": "ratio",
+   "a": 2,
+   "b": 1
+  }
+ },
+ {
+  "troopId": 6340,
+  "troop": "石大锤",
+  "spellId": 7490,
+  "spellName": "远古之怒",
+  "desc": "击晕并燃烧所有敌人。创造 22 颗红色和棕色宝石。获得 [魔法 + 5] 点生命值。",
+  "scalings": [
+   {
+    "base": 5,
+    "mult": 1
+   }
+  ],
+  "modifier": null
+ },
+ {
+  "troopId": 6358,
+  "troop": "蔼堤玛",
+  "spellId": 7510,
+  "spellName": "扫清道路",
+  "desc": "爆破一行。对两名最虚弱的敌人造成 [魔法 + 5] 点伤害，伤害值因人马盟友数而增强。 [x6]",
+  "scalings": [
+   {
+    "base": 5,
+    "mult": 1
+   }
+  ],
+  "modifier": {
+   "kind": "multiplier",
+   "a": 6
+  }
+ },
+ {
+  "troopId": 6360,
+  "troop": "地龙",
+  "spellId": 7512,
+  "spellName": "神龙摆尾",
+  "desc": "对一名敌人造成 [魔法 + 2] 点溅射伤害。伤害值因红色宝石数而增强。 [3:1]",
+  "scalings": [
+   {
+    "base": 2,
+    "mult": 1
+   }
+  ],
+  "modifier": {
+   "kind": "ratio",
+   "a": 3,
+   "b": 1
+  }
+ },
+ {
+  "troopId": 6362,
+  "troop": "图腾守护者",
+  "spellId": 7514,
+  "spellName": "图腾防卫",
+  "desc": "创造 7 颗指定颜色的宝石。盟友狼族获得屏障效果。",
+  "scalings": [],
+  "modifier": null
+ },
+ {
+  "troopId": 6367,
+  "troop": "雷西",
+  "spellId": 7519,
+  "spellName": "森林防卫",
+  "desc": "缠绕所有盟友和敌军。摧毁所有绿色宝石。",
+  "scalings": [],
+  "modifier": null
+ },
+ {
+  "troopId": 6368,
+  "troop": "厄什卡泰尔",
+  "spellId": 7520,
+  "spellName": "最后一搏",
+  "desc": "获得 [魔法 + 1] 点生命值和攻击力，点数因红色宝石数而增强。赋予自身狂怒状态。 [3:1]",
+  "scalings": [
+   {
+    "base": 1,
+    "mult": 1
+   }
+  ],
+  "modifier": {
+   "kind": "ratio",
+   "a": 3,
+   "b": 1
+  }
+ },
+ {
+  "troopId": 6374,
+  "troop": "芭芭雅嘎",
+  "spellId": 7526,
+  "spellName": "别嚼舌根",
+  "desc": "对最后两名敌人造成 [魔法 + 4] 点伤害，并使其陷入沉默状态。然后召唤雅嘎的小屋。",
+  "scalings": [
+   {
+    "base": 4,
+    "mult": 1
+   }
+  ],
+  "modifier": null
+ },
+ {
+  "troopId": 6381,
+  "troop": "瓦尔乌鸦",
+  "spellId": 7536,
+  "spellName": "吃完就走",
+  "desc": "爆破 5 颗宝石。有 30% 的几率跑掉。",
+  "scalings": [],
+  "modifier": null
+ },
+ {
+  "troopId": 6383,
+  "troop": "纳克斯",
+  "spellId": 7538,
+  "spellName": "潘之眼",
+  "desc": "净化一名盟友。给予 [魔法 + 1] 点随机技能值和 2 点魔法值。如果盟友是蛮族，则效果两倍。",
+  "scalings": [
+   {
+    "base": 1,
+    "mult": 1
+   }
+  ],
+  "modifier": null
+ },
+ {
+  "troopId": 6387,
+  "troop": "太阳鸟",
+  "spellId": 7542,
+  "spellName": "浴火重生",
+  "desc": "对所有敌人造成 [魔法 + 6] 点散射伤害，伤害值因自身生命值而增强。凤凰涅槃浴火重生。 [1:1]",
+  "scalings": [
+   {
+    "base": 6,
+    "mult": 1
+   }
+  ],
+  "modifier": {
+   "kind": "ratio",
+   "a": 1,
+   "b": 1
+  }
+ },
+ {
+  "troopId": 6390,
+  "troop": "菲砰公主",
+  "spellId": 7545,
+  "spellName": "嗖嗖碰碰",
+  "desc": "获得额外的一回合。爆破所有绿色宝石或为一名随机盟友的一项技能增加 [魔法 + 1] 点（若盟友为哥布林则增加两倍）。",
+  "scalings": [
+   {
+    "base": 1,
+    "mult": 1
+   }
+  ],
+  "modifier": null
+ },
+ {
+  "troopId": 6391,
+  "troop": "抓锅女王",
+  "spellId": 7546,
+  "spellName": "哥布林派对",
+  "desc": "对所有敌人造成 [魔法 + 1] 点伤害，伤害值因我方和敌方的哥布林数而增强。获得额外的一回合。 [x3]",
+  "scalings": [
+   {
+    "base": 1,
+    "mult": 1
+   }
+  ],
+  "modifier": {
+   "kind": "multiplier",
+   "a": 3
+  }
+ },
+ {
+  "troopId": 6392,
+  "troop": "厄什卡野人",
+  "spellId": 7547,
+  "spellName": "战利品猎人",
+  "desc": "对一名敌人造成 [魔法 + 3] 点溅射伤害。伤害值因敌方龙族军队数而增强。 [x5]",
+  "scalings": [
+   {
+    "base": 3,
+    "mult": 1
+   }
+  ],
+  "modifier": {
+   "kind": "multiplier",
+   "a": 5
+  }
+ },
+ {
+  "troopId": 6395,
+  "troop": "蜘蛛魔",
+  "spellId": 7550,
+  "spellName": "阴影交织",
+  "desc": "对所有敌人造成  [(魔法 / 2) + 7] 点伤害。随机使一名敌人陷入织网状态。",
+  "scalings": [
+   {
+    "base": 7,
+    "mult": 0.5
+   }
+  ],
+  "modifier": null
+ },
+ {
+  "troopId": 6420,
+  "troop": "小花仙",
+  "spellId": 7593,
+  "spellName": "燃烧之翼",
+  "desc": "使一名敌人陷入妖火状态。获得一个额外回合。",
+  "scalings": [],
+  "modifier": null
+ },
+ {
+  "troopId": 6421,
+  "troop": "棕仙",
+  "spellId": 7594,
+  "spellName": "捣鼓",
+  "desc": "随机摧毁 7 颗宝石。创造 7 颗紫色宝石。",
+  "scalings": [],
+  "modifier": null
+ },
+ {
+  "troopId": 6460,
+  "troop": "斯库拉",
+  "spellId": 7638,
+  "spellName": "涡流",
+  "desc": "对最后一名敌人造成 [魔法 + 8] 点伤害。有 25% 几率造成致命伤害。使所有其他盟友下潜。",
+  "scalings": [
+   {
+    "base": 8,
+    "mult": 1
+   }
+  ],
+  "modifier": null
+ },
+ {
+  "troopId": 6465,
+  "troop": "土狼",
+  "spellId": 7643,
+  "spellName": "桀桀笑声",
+  "desc": "对 1 名敌人造成 [魔法 + 4] 伤害。如果敌人身亡，则召唤 3 只土狼。",
+  "scalings": [
+   {
+    "base": 4,
+    "mult": 1
+   }
+  ],
+  "modifier": null
+ },
+ {
+  "troopId": 6502,
+  "troop": "寒霜弓箭手",
+  "spellId": 7690,
+  "spellName": "寒霜之箭",
+  "desc": "对一名敌人造成[魔法 + 3]点伤害并将其冻结。如果该敌人已被冻结，则再造成5点伤害，并冻结其上下左右的敌人。",
+  "scalings": [
+   {
+    "base": 3,
+    "mult": 1
+   }
+  ],
+  "modifier": null
+ },
+ {
+  "troopId": 6504,
+  "troop": "齿轮狮身人面像",
+  "spellId": 7693,
+  "spellName": "幻彩冲击",
+  "desc": "摧毁所有指定颜色的宝石。给予所有盟友 [魔法 + 2] 点护甲值，点数因被摧毁的宝石数而增强。 [2:1]",
+  "scalings": [
+   {
+    "base": 2,
+    "mult": 1
+   }
+  ],
+  "modifier": {
+   "kind": "ratio",
+   "a": 2,
+   "b": 1
+  }
+ },
+ {
+  "troopId": 6506,
+  "troop": "高尚的斯克里米尔",
+  "spellId": 7696,
+  "spellName": "云之歌",
+  "desc": "净化一名盟友并赋予其屏障效果，同时给予其 [(魔法 x 2) + 2] 点生命值。将其移至队伍首位。",
+  "scalings": [
+   {
+    "base": 2,
+    "mult": 2
+   }
+  ],
+  "modifier": null
+ },
+ {
+  "troopId": 6510,
+  "troop": "法老猎犬",
+  "spellId": 7700,
+  "spellName": "皇家守卫",
+  "desc": "创造 8 颗紫色和红色宝石。赋予一名随机盟友屏障效果。",
+  "scalings": [],
+  "modifier": null
+ },
+ {
+  "troopId": 6516,
+  "troop": "战神官",
+  "spellId": 7708,
+  "spellName": "击溃邪恶",
+  "desc": "给予所有盟友 6 点攻击力。对亡灵和恶魔敌人造成 [魔法 + 6] 点伤害。创造 2 颗天使宝石。",
+  "scalings": [
+   {
+    "base": 6,
+    "mult": 1
+   }
+  ],
+  "modifier": null
+ },
+ {
+  "troopId": 6528,
+  "troop": "柳树马",
+  "spellId": 7721,
+  "spellName": "荆棘之击",
+  "desc": "摧毁 1 行。对所有敌人造成 [魔法 + 2] 点伤害，伤害值因被摧毁的棕色宝石数而增强。 [x3]",
+  "scalings": [
+   {
+    "base": 2,
+    "mult": 1
+   }
+  ],
+  "modifier": {
+   "kind": "multiplier",
+   "a": 3
+  }
+ },
+ {
+  "troopId": 6532,
+  "troop": "俄里翁传令官",
+  "spellId": 7726,
+  "spellName": "俄里翁号角",
+  "desc": "召唤俄里翁。给予所有盟友 [(魔法 / 2) + 1] 点生命值。",
+  "scalings": [
+   {
+    "base": 1,
+    "mult": 0.5
+   }
+  ],
+  "modifier": null
+ },
+ {
+  "troopId": 6535,
+  "troop": "太攀",
+  "spellId": 7729,
+  "spellName": "剧毒长枪",
+  "desc": "将所有棕色宝石转换成红色。使一名随机敌人陷入中毒状态。",
+  "scalings": [],
+  "modifier": null
+ },
+ {
+  "troopId": 6541,
+  "troop": "火烬领主",
+  "spellId": 7735,
+  "spellName": "龙族之光",
+  "desc": "将指定的法力颜色转换为红色。给予所有其他盟友 1 点魔法值。",
+  "scalings": [],
+  "modifier": null
+ },
+ {
+  "troopId": 6549,
+  "troop": "吹笛者",
+  "spellId": 7743,
+  "spellName": "欢乐吉格舞",
+  "desc": "对一名敌人造成 [魔法 + 2] 点真实伤害。窃取 3 点护甲值并将之转换成魔法值。 [1:1]",
+  "scalings": [
+   {
+    "base": 2,
+    "mult": 1
+   }
+  ],
+  "modifier": {
+   "kind": "ratio",
+   "a": 1,
+   "b": 1
+  }
+ },
+ {
+  "troopId": 6565,
+  "troop": "格雷西暗",
+  "spellId": 7767,
+  "spellName": "闪冻",
+  "desc": "将黄色宝石转换为蓝色，并将红色宝石转换为末日骷髅头。冻结最强大的敌人。",
+  "scalings": [],
+  "modifier": null
+ }
+]

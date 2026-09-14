@@ -36,9 +36,60 @@ export const COLOR_ELEMENT: Record<BaseColor, Element> = {
   [BaseColor.Brown]: 'Earth',
 };
 
-/** 特殊宝石规格（需求 20.1）—— 本阶段已定义，未启用行为 */
+/**
+ * 特殊宝石种类（官方语义见 `.kiro/specs/combat-mechanics/GEMS-SEMANTICS.md`）。
+ * 触发时机分两条入口：被匹配（MatchResolver 匹配组）与被摧毁（clear 管线）。
+ */
+export type SpecialGemKind =
+  /** 末日骷髅：被匹配时骷髅伤害 +5 并引爆相邻一圈（不响应"被摧毁"） */
+  | 'doomSkull'
+  /** 至尊末日骷髅（Uber，官方 4.1 更强变体，仅特定兵种/武器生成）：被匹配时 +10 并引爆一圈 */
+  | 'uberDoomSkull'
+  /** 炸弹：不可匹配；被摧毁时爆炸摧毁相邻一圈 */
+  | 'bomb'
+  /** 织网：可匹配（紫色）；被匹配时随机一名敌人获得 web 状态 */
+  | 'web'
+  /** 闪电·蓝：可匹配（蓝色）；被匹配或被摧毁时清空整行 */
+  | 'lightningRow'
+  /** 闪电·黄：可匹配（黄色）；被匹配或被摧毁时清空整列 */
+  | 'lightningCol'
+  /** 通配：可与任意颜色直线匹配；tier 为该次匹配法力收益倍率（2/4） */
+  | 'wildcard'
+  /** 许愿：不可匹配；被摧毁时 5 选 1 随机回蓝（20% 是"双方全员回满"的坑） */
+  | 'wish'
+  /** 沙漏：可匹配（黄色）；被匹配时获得一次额外回合 */
+  | 'hourglass'
+  /**
+   * 幽魂：官方语义为"被摧毁时获得 10 灵魂"（战斗外货币，已裁定暂不实现，语义改造待定）。
+   * 当前无任何行为、不可匹配、无自然掉落——仅素材先行接入，引擎遇到时按普通移除处理。
+   */
+  | 'ghost';
+
+/** 特殊宝石规格（需求 20.1）。tier 仅通配宝石使用（法力倍率）。 */
 export interface SpecialGemSpec {
-  kind: 'lightning' | 'bomb' | 'giantSkull' | string;
+  kind: SpecialGemKind;
+  tier?: number;
+}
+
+/** 末日骷髅被匹配时的额外骷髅伤害（官方 +5） */
+export const DOOMSKULL_BONUS_DAMAGE = 5;
+/** 至尊末日骷髅被匹配时的额外骷髅伤害（官方更强变体，双倍于末日骷髅） */
+export const UBER_DOOMSKULL_BONUS_DAMAGE = 10;
+/** 织网宝石对随机敌人施加 web 状态的回合数（与特质表 web 时长约定一致） */
+export const WEB_GEM_TURNS = 3;
+
+/** 可匹配特殊宝石参与匹配时视作的颜色（不可匹配的炸弹/许愿不在表内） */
+export const SPECIAL_MATCH_COLOR: Partial<Record<SpecialGemKind, BaseColor>> = {
+  web: BaseColor.Purple,
+  hourglass: BaseColor.Yellow,
+  lightningCol: BaseColor.Yellow,
+  lightningRow: BaseColor.Blue,
+};
+
+/** 便捷构造：特殊宝石 */
+export function specialGem(kind: SpecialGemKind, tier?: number): GemType {
+  const spec: SpecialGemSpec = tier === undefined ? { kind } : { kind, tier };
+  return { kind: 'special', spec };
 }
 
 /**
@@ -60,11 +111,37 @@ export function skullGem(): GemType {
   return { kind: 'skull', variant: 'normal' };
 }
 
-/** 判断两个宝石类型是否"可匹配同类"（同色，或同为骷髅） */
+/**
+ * 匹配连接键：颜色返回色名，骷髅族（普通/末日）返回 'skull'，通配返回 'wildcard'，
+ * 不可匹配（炸弹/许愿）返回 null。MatchResolver 的 run 级扫描与 isSameMatchType 共用。
+ */
+export function matchJoinKey(type: GemType): string | null {
+  switch (type.kind) {
+    case 'color':
+      return type.color;
+    case 'skull':
+      return 'skull';
+    case 'special': {
+      if (type.spec.kind === 'wildcard') return 'wildcard';
+      if (type.spec.kind === 'doomSkull' || type.spec.kind === 'uberDoomSkull') return 'skull';
+      return SPECIAL_MATCH_COLOR[type.spec.kind] ?? null;
+    }
+  }
+}
+
+/**
+ * 判断两个宝石类型是否"可匹配同类"。
+ * 颜色按色名；末日骷髅与普通骷髅同族；织网/沙漏/闪电按各自归属色；
+ * 通配与任意颜色同类（不与骷髅族相连）；炸弹/许愿与任何宝石都不同类（只能被消除管线触发）。
+ */
 export function isSameMatchType(a: GemType, b: GemType): boolean {
-  if (a.kind === 'color' && b.kind === 'color') return a.color === b.color;
-  if (a.kind === 'skull' && b.kind === 'skull') return true;
-  return false;
+  const ka = matchJoinKey(a);
+  const kb = matchJoinKey(b);
+  if (ka === null || kb === null) return false;
+  if (ka === 'wildcard' || kb === 'wildcard') {
+    return ka !== 'skull' && kb !== 'skull';
+  }
+  return ka === kb;
 }
 
 /** 宝石实例。id 稳定唯一，供表现层追踪同一宝石的移动（下落动画依赖此） */
@@ -228,6 +305,10 @@ export interface PassiveModifiers {
   /** 自己造成骷髅伤害时获得的数值 */
   gainOnSkullHit: StatGains;
   inflictOnSkullHit?: { id: string; turns: number; magnitude?: number };
+  /** 承受骷髅伤害时给攻击者施加的状态（毒孢子族：被打时反手让敌人中毒） */
+  inflictOnSkullDamaged?: { id: string; turns: number; magnitude?: number };
+  /** 自己一方匹配 4/5 连时，给同队指定种族盟友的增益（firstwargare/overclock 族）；键为种族或 'all'（全队） */
+  bigMatchTypeAura: Readonly<Record<string, StatGains>>;
   /** 匹配某色宝石时的额外法力；键为颜色或 '*'（全色） */
   manaLink: Readonly<Record<string, number>>;
   /** 反弹给攻击者的骷髅伤害比例（0～1） */
@@ -261,6 +342,12 @@ export interface PassiveModifiers {
    * 全员都不可指定时由目标选择器退化为可指定，避免技能空放。
    */
   untargetable: boolean;
+  /** 自己身亡时按概率召唤（daemonicpact 族；数据由生成器预解析到兵种） */
+  summonOnDeath?: { chance: number; troopId: number; referenceName: string; displayName: string };
+  /** 一名盟友（含自己）身亡时召唤（fromdark 族） */
+  summonOnAllyDeath?: { chance: number; troopId: number; referenceName: string; displayName: string };
+  /** 敌方角色身亡时召唤（darkdeath 族） */
+  summonOnEnemyDeath?: { chance: number; troopId: number; referenceName: string; displayName: string };
 }
 
 /** A summoned character waiting off-field for the next open active slot. */

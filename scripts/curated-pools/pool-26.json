@@ -1,0 +1,616 @@
+[
+ {
+  "troopId": 6397,
+  "troop": "高炉国王",
+  "spellId": 7552,
+  "spellName": "千年宿怨",
+  "desc": "击晕最后两名敌人并对其造成 [魔法 + 3] 点伤害，伤害值因矮人盟友数而增强。召唤一名随机矮人。 [x6]",
+  "scalings": [
+   {
+    "base": 3,
+    "mult": 1
+   }
+  ],
+  "modifier": {
+   "kind": "multiplier",
+   "a": 6
+  }
+ },
+ {
+  "troopId": 6401,
+  "troop": "海马",
+  "spellId": 7556,
+  "spellName": "大浪滔滔",
+  "desc": "摧毁 1 行。给一个随机的盟友增加 [魔法 + 1] 点生命值，点数因被摧毁的黄色宝石数而增强。如果盟友使用蓝色法力则效果双倍。 [x3]",
+  "scalings": [
+   {
+    "base": 1,
+    "mult": 1
+   }
+  ],
+  "modifier": {
+   "kind": "multiplier",
+   "a": 3
+  }
+ },
+ {
+  "troopId": 6409,
+  "troop": "幽莱雅莉",
+  "spellId": 7565,
+  "spellName": "死亡之云",
+  "desc": "对所有敌人造成 [魔法 + 2] 点真实伤害，伤害值因纳迦和不死族盟友数而增强。召唤一名骸骨纳迦。 [x3]",
+  "scalings": [
+   {
+    "base": 2,
+    "mult": 1
+   }
+  ],
+  "modifier": {
+   "kind": "multiplier",
+   "a": 3
+  }
+ },
+ {
+  "troopId": 6418,
+  "troop": "刑天",
+  "spellId": 7576,
+  "spellName": "黯然之刃",
+  "desc": "对前两名敌人造成 [魔法 + 2] 点伤害，伤害值因自身生命值而增强。窃取这两名敌人 4 点魔法值。将所有紫色宝石转换成红色。 [3:1]",
+  "scalings": [
+   {
+    "base": 2,
+    "mult": 1
+   }
+  ],
+  "modifier": {
+   "kind": "ratio",
+   "a": 3,
+   "b": 1
+  }
+ },
+ {
+  "troopId": 6423,
+  "troop": "猫精",
+  "spellId": 7596,
+  "spellName": "猫之诅咒",
+  "desc": "移除选定颜色的宝石。减除最后一名敌人 [魔法 + 1] 点随机技能值，数量因被移除的宝石数量而增强。窃取 4 点法力值。 [3:1]",
+  "scalings": [
+   {
+    "base": 1,
+    "mult": 1
+   }
+  ],
+  "modifier": {
+   "kind": "ratio",
+   "a": 3,
+   "b": 1
+  }
+ },
+ {
+  "troopId": 6424,
+  "troop": "弗若莲",
+  "spellId": 7597,
+  "spellName": "致命花卉",
+  "desc": "耗尽一名敌人上至 12 点法力值。创造绿色宝石，数量与所耗尽的法力值等同。 [1:1]",
+  "scalings": [],
+  "modifier": {
+   "kind": "ratio",
+   "a": 1,
+   "b": 1
+  }
+ },
+ {
+  "troopId": 6425,
+  "troop": "易多拉斯王子",
+  "spellId": 7598,
+  "spellName": "魔宠",
+  "desc": "对一名敌人造成 [魔法 + 2] 点伤害，伤害值因敌军的妖仙数量而增强。召唤一名银天龙或克里斯坦纳斯。 [x8]",
+  "scalings": [
+   {
+    "base": 2,
+    "mult": 1
+   }
+  ],
+  "modifier": {
+   "kind": "multiplier",
+   "a": 8
+  }
+ },
+ {
+  "troopId": 6426,
+  "troop": "耀眼爪龙",
+  "spellId": 7599,
+  "spellName": "妖仙冲击",
+  "desc": "对一名随机敌人造成 [魔法 + 5] 点伤害。将所有蓝色宝石转换成绿色以增强效果。使所有敌人陷入妖火状态。 [2:1]",
+  "scalings": [
+   {
+    "base": 5,
+    "mult": 1
+   }
+  ],
+  "modifier": {
+   "kind": "ratio",
+   "a": 2,
+   "b": 1
+  }
+ },
+ {
+  "troopId": 6427,
+  "troop": "提泰妮娅仙后",
+  "spellId": 7600,
+  "spellName": "仲夏夜之梦",
+  "desc": "对所有敌人造成 [魔法 + 2] 点伤害，伤害值因敌我双方的红色军队数量而增强。如果板面上有 13 颗或更多红色宝石，则获得一个额外回合。 [x4]",
+  "scalings": [
+   {
+    "base": 2,
+    "mult": 1
+   }
+  ],
+  "modifier": {
+   "kind": "multiplier",
+   "a": 4
+  }
+ },
+ {
+  "troopId": 6428,
+  "troop": "萨瑟诺斯",
+  "spellId": 7602,
+  "spellName": "暗黑祭礼",
+  "desc": "窃取 1 名敌人的  [魔法 + 12]  点生命值和一半魔法值。如果敌人身亡，则召唤 1 到 3 名随机的不死族。 [2:1]",
+  "scalings": [
+   {
+    "base": 12,
+    "mult": 1
+   }
+  ],
+  "modifier": {
+   "kind": "ratio",
+   "a": 2,
+   "b": 1
+  }
+ },
+ {
+  "troopId": 6473,
+  "troop": "奥菲斯之声",
+  "spellId": 7651,
+  "spellName": "圣歌",
+  "desc": "对一名敌人造成 [魔法 + 8] 点伤害，伤害值因其他所有盟友的法力值而增强。净化所有盟友。然后使其他所有盟友获得 5 点法力值。 [1:1]",
+  "scalings": [
+   {
+    "base": 8,
+    "mult": 1
+   }
+  ],
+  "modifier": {
+   "kind": "ratio",
+   "a": 1,
+   "b": 1
+  }
+ },
+ {
+  "troopId": 6514,
+  "troop": "先锋",
+  "spellId": 7705,
+  "spellName": "比武作战",
+  "desc": "摧毁 1 行。创造 6 颗黄色宝石，创造的宝石数因被摧毁的蓝色宝石数而增强。 [x2]",
+  "scalings": [],
+  "modifier": {
+   "kind": "multiplier",
+   "a": 2
+  }
+ },
+ {
+  "troopId": 6519,
+  "troop": "水神昂汀",
+  "spellId": 7712,
+  "spellName": "海洋之帝",
+  "desc": "对一名敌人和其下方的敌人造成  [魔法 + 5] 点伤害，伤害值因已方海族和下潜的盟友数而增强。下潜所有蓝色盟友，并使所有敌方蓝色军队陷入沉默状态。 [x8]",
+  "scalings": [
+   {
+    "base": 5,
+    "mult": 1
+   }
+  ],
+  "modifier": {
+   "kind": "multiplier",
+   "a": 8
+  }
+ },
+ {
+  "troopId": 6536,
+  "troop": "飞头蛮",
+  "spellId": 7730,
+  "spellName": "致命尖叫",
+  "desc": "随机爆破 4 颗宝石。击晕一名敌人。如果敌人是一名神祇军队，则窃取 8 点生命值。",
+  "scalings": [],
+  "modifier": null
+ },
+ {
+  "troopId": 6572,
+  "troop": "贝格拉",
+  "spellId": 7776,
+  "spellName": "繁殖",
+  "desc": "创造 7 颗红色宝石。再爆破 [(魔法 / 2) + 1] 颗红色宝石。有 30% 的几率召唤一只贝格拉。",
+  "scalings": [
+   {
+    "base": 1,
+    "mult": 0.5
+   }
+  ],
+  "modifier": null
+ },
+ {
+  "troopId": 6589,
+  "troop": "厄什卡德鲁伊",
+  "spellId": 7793,
+  "spellName": "德鲁伊技艺",
+  "desc": "缠绕一名敌人。创造 6 颗绿宝石，宝石数量因被缠绕的敌人数量而增强。 [x3]",
+  "scalings": [],
+  "modifier": {
+   "kind": "multiplier",
+   "a": 3
+  }
+ },
+ {
+  "troopId": 6593,
+  "troop": "坠天使瓦蒂斯",
+  "spellId": 7797,
+  "spellName": "毁灭上苍",
+  "desc": "对所有敌人造成 [魔法 + 7] 点伤害。爆破 3 颗末日骷髅头，数量因神祗敌军数量而增强。使所有神祗敌军陷入沉默效果。 [1:1]",
+  "scalings": [
+   {
+    "base": 7,
+    "mult": 1
+   }
+  ],
+  "modifier": {
+   "kind": "ratio",
+   "a": 1,
+   "b": 1
+  }
+ },
+ {
+  "troopId": 6594,
+  "troop": "附魔之王",
+  "spellId": 7798,
+  "spellName": "暗黑附魔",
+  "desc": "对所有敌人造成 [魔法 + 2] 点伤害，伤害值因敌我双方的恶魔军队数量而增强。有各别 3 次 20% 的几率将 1 名随机敌人转化成一名恶魔。 [x2]",
+  "scalings": [
+   {
+    "base": 2,
+    "mult": 1
+   }
+  ],
+  "modifier": {
+   "kind": "multiplier",
+   "a": 2
+  }
+ },
+ {
+  "troopId": 6598,
+  "troop": "怠惰",
+  "spellId": 7807,
+  "spellName": "嗜眠",
+  "desc": "耗尽所有盟友和敌军的法力值。获得等同于所耗尽的法力值的生命值。 [1:1]",
+  "scalings": [],
+  "modifier": {
+   "kind": "ratio",
+   "a": 1,
+   "b": 1
+  }
+ },
+ {
+  "troopId": 6606,
+  "troop": "监视之母",
+  "spellId": 7930,
+  "spellName": "眼中有你",
+  "desc": "给予所有其他盟友 [魔法 + 1] 点生命值，数值因绿色宝石和骷髅头数而增强。召唤一名奥眼能血蛭或一名奥眼能。 [3:1]",
+  "scalings": [
+   {
+    "base": 1,
+    "mult": 1
+   }
+  ],
+  "modifier": {
+   "kind": "ratio",
+   "a": 3,
+   "b": 1
+  }
+ },
+ {
+  "troopId": 6645,
+  "troop": "龟炮",
+  "spellId": 7977,
+  "spellName": "炮弹！",
+  "desc": "爆破一颗宝石。创造 4 颗绿色宝石，数量因被摧毁的骷髅头数而增强。 [x3]",
+  "scalings": [],
+  "modifier": {
+   "kind": "multiplier",
+   "a": 3
+  }
+ },
+ {
+  "troopId": 6651,
+  "troop": "天意",
+  "spellId": 7985,
+  "spellName": "天击",
+  "desc": "对一名敌人造成 [魔法 + 15] 点严重的溅射伤害，并击晕所有受到伤害的敌人。若自身攻击力较高，则造成双倍伤害。召唤 1-3 个美猴王。",
+  "scalings": [
+   {
+    "base": 15,
+    "mult": 1
+   }
+  ],
+  "modifier": null
+ },
+ {
+  "troopId": 6685,
+  "troop": "阿瓦荣大王",
+  "spellId": 8031,
+  "spellName": "林地统治者",
+  "desc": "对所有敌人造成 [魔法 + 1] 点伤害，伤害值因精灵、元素和野兽盟友数而增强。召唤一名荆棘森林军队。 [x3]",
+  "scalings": [
+   {
+    "base": 1,
+    "mult": 1
+   }
+  ],
+  "modifier": {
+   "kind": "multiplier",
+   "a": 3
+  }
+ },
+ {
+  "troopId": 6689,
+  "troop": "雪豹",
+  "spellId": 8035,
+  "spellName": "雪视",
+  "desc": "冻结一名敌人。创造 6 颗蓝色宝石，数量因被冻结的敌军数而增强。 [x3]",
+  "scalings": [],
+  "modifier": {
+   "kind": "multiplier",
+   "a": 3
+  }
+ },
+ {
+  "troopId": 6693,
+  "troop": "宫廷弄臣",
+  "spellId": 8039,
+  "spellName": "抛刀杂耍",
+  "desc": "摧毁 1 行和 1 列。创造 5 颗红色宝石，数量因被摧毁的骷髅头数而增强。 [x2]",
+  "scalings": [],
+  "modifier": {
+   "kind": "multiplier",
+   "a": 2
+  }
+ },
+ {
+  "troopId": 6699,
+  "troop": "缇娜-9000",
+  "spellId": 8055,
+  "spellName": "雷电之火",
+  "desc": "对 3 名随机敌人造成 [魔法 + 4] – [(魔法 x 2) + 8] 点真实伤害。获得 [魔法 + 4] – [(魔法 x 2) + 8] 点护甲值。 ",
+  "scalings": [
+   {
+    "base": 4,
+    "mult": 1
+   },
+   {
+    "base": 8,
+    "mult": 2
+   },
+   {
+    "base": 4,
+    "mult": 1
+   },
+   {
+    "base": 8,
+    "mult": 2
+   }
+  ],
+  "modifier": null
+ },
+ {
+  "troopId": 6703,
+  "troop": "蛇塔里",
+  "spellId": 8059,
+  "spellName": "骷髅头猛击",
+  "desc": "创造 6 颗骷髅头，数量因陷入出血状态的敌人而增强。使一名随机敌人陷入出血状态。 [x2]",
+  "scalings": [],
+  "modifier": {
+   "kind": "multiplier",
+   "a": 2
+  }
+ },
+ {
+  "troopId": 6710,
+  "troop": "尸鬼",
+  "spellId": 8068,
+  "spellName": "附骨疽",
+  "desc": "耗尽一名敌人上至 12 点法力值。创造紫色宝石，数量与所耗尽的法力值等同。 [1:1]",
+  "scalings": [],
+  "modifier": {
+   "kind": "ratio",
+   "a": 1,
+   "b": 1
+  }
+ },
+ {
+  "troopId": 6729,
+  "troop": "挖掘师",
+  "spellId": 8099,
+  "spellName": "往下钻",
+  "desc": "摧毁一列。创建 5 颗红宝石，创建数因被摧毁的棕色宝石数而增强。 [x2]",
+  "scalings": [],
+  "modifier": {
+   "kind": "multiplier",
+   "a": 2
+  }
+ },
+ {
+  "troopId": 6731,
+  "troop": "兔兔探险家",
+  "spellId": 8101,
+  "spellName": "刁钻一击",
+  "desc": "摧毁一行和一列。将位于前方的两名敌人的其中一名打回后方，再对前方两位敌人造成 [魔法 + 4] 点伤害，伤害值因被摧毁的绿色宝石数而增强。 [x4]",
+  "scalings": [
+   {
+    "base": 4,
+    "mult": 1
+   }
+  ],
+  "modifier": {
+   "kind": "multiplier",
+   "a": 4
+  }
+ },
+ {
+  "troopId": 6738,
+  "troop": "灾齿",
+  "spellId": 8108,
+  "spellName": "挥舞手骨",
+  "desc": "对一名敌人造成 [魔法 + 5] 点伤害，有 50% 的几率伤害值会打中另一名随机敌人。若敌人使用紫色的法力颜色，则造成 3 倍伤害。若敌人身亡，则创造 8 颗骷髅头。",
+  "scalings": [
+   {
+    "base": 5,
+    "mult": 1
+   }
+  ],
+  "modifier": null
+ },
+ {
+  "troopId": 6745,
+  "troop": "加尔德神将",
+  "spellId": 8115,
+  "spellName": "神级防御",
+  "desc": "获得 [(魔法 x 2) + 8] 点护甲值。若有 13 或更多颗骷髅头，则护甲值翻倍。创造 22 颗混合蓝色和红色的宝石。",
+  "scalings": [
+   {
+    "base": 8,
+    "mult": 2
+   }
+  ],
+  "modifier": null
+ },
+ {
+  "troopId": 6746,
+  "troop": "黑曜魔头",
+  "spellId": 8116,
+  "spellName": "炸裂大地",
+  "desc": "对一名随机敌人造成 [魔法 + 8] 点严重的溅射伤害。摧毁一整块大小为 5x5 的宝石。有 50% 的几率对一名随机敌人造成 [魔法 + 8] 点轻微的溅射伤害。",
+  "scalings": [
+   {
+    "base": 8,
+    "mult": 1
+   },
+   {
+    "base": 8,
+    "mult": 1
+   }
+  ],
+  "modifier": null
+ },
+ {
+  "troopId": 6747,
+  "troop": "卓恩影",
+  "spellId": 8117,
+  "spellName": "不死怒火",
+  "desc": "对一名敌人造成 [魔法 + 5] 点伤害，伤害值因红色盟友和骷髅头数而增强。若敌人身亡，则召唤两名卓恩拳。 [x4]",
+  "scalings": [
+   {
+    "base": 5,
+    "mult": 1
+   }
+  ],
+  "modifier": {
+   "kind": "multiplier",
+   "a": 4
+  }
+ },
+ {
+  "troopId": 6772,
+  "troop": "克里斯狼犬",
+  "spellId": 8163,
+  "spellName": "水晶一啃",
+  "desc": "将敌人的护甲值和生命值减半。创造 9 - 13 颗蓝色宝石。 [2:1]",
+  "scalings": [],
+  "modifier": {
+   "kind": "ratio",
+   "a": 2,
+   "b": 1
+  }
+ },
+ {
+  "troopId": 6778,
+  "troop": "战狼",
+  "spellId": 8168,
+  "spellName": "战火咆哮",
+  "desc": "爆破一颗宝石。创造 4 颗红色宝石，数量因被摧毁的骷髅头数量而增强。 [x3]",
+  "scalings": [],
+  "modifier": {
+   "kind": "multiplier",
+   "a": 3
+  }
+ },
+ {
+  "troopId": 6792,
+  "troop": "普卡",
+  "spellId": 8183,
+  "spellName": "妖仙恶作剧",
+  "desc": "耗掉一名敌人最多 12 点法力值。创造红色宝石，数量等同于所耗掉的法力值。 [1:1]",
+  "scalings": [],
+  "modifier": {
+   "kind": "ratio",
+   "a": 1,
+   "b": 1
+  }
+ },
+ {
+  "troopId": 6793,
+  "troop": "狂野骑士",
+  "spellId": 8184,
+  "spellName": "狂野铠甲",
+  "desc": "爆破一颗宝石。获得 [魔法 + 1] 点生命值和攻击力，数值因被摧毁的绿色宝石而增强。获得屏障效果。  [x3]",
+  "scalings": [
+   {
+    "base": 1,
+    "mult": 1
+   }
+  ],
+  "modifier": {
+   "kind": "multiplier",
+   "a": 3
+  }
+ },
+ {
+  "troopId": 6786,
+  "troop": "柯步拉",
+  "spellId": 8193,
+  "spellName": "贪婪之灵",
+  "desc": "对一名敌人造成 [魔法 + 4] 点伤害，伤害值因陷入中毒状态的敌人数而增强。召唤 1 到 2 位鳞雾沼泽军队。 [x3]",
+  "scalings": [
+   {
+    "base": 4,
+    "mult": 1
+   }
+  ],
+  "modifier": {
+   "kind": "multiplier",
+   "a": 3
+  }
+ },
+ {
+  "troopId": 6817,
+  "troop": "莎巴奴·魏培拉",
+  "spellId": 8216,
+  "spellName": "三个愿望",
+  "desc": "给予一名盟友 [(魔法 / 2) + 1] 点随机技能值。创造 9 颗其法力颜色的宝石。为另外 2 名盟友重复相同操作。",
+  "scalings": [
+   {
+    "base": 1,
+    "mult": 0.5
+   }
+  ],
+  "modifier": null
+ }
+]

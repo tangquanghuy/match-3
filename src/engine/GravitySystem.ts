@@ -1,7 +1,8 @@
 import { BoardModel } from './BoardModel';
 import type { Gem, CellPos, GemType } from './types';
 import type { SeededRNG } from './rng';
-import { colorGem, ALL_BASE_COLORS } from './types';
+import { colorGem, specialGem, ALL_BASE_COLORS } from './types';
+import type { SpecialGemKind } from './types';
 
 /** 重力造成的单个宝石移动（需求 8.3） */
 export interface GemMove {
@@ -29,6 +30,22 @@ export interface GravityResult {
  * - 补充：列顶剩余空格用新生成的宝石填满。
  */
 export class GravitySystem {
+  /**
+   * 补充时生成特殊宝石的概率（0～1，默认 0 = 关闭）。
+   * 自然掉落暂不启用（任务书：留配置开关）；只掉可匹配的特殊宝石，
+   * 避免不可匹配的炸弹/许愿淤积棋盘。关闭时不消耗额外随机数，不影响既有确定性。
+   */
+  specialSpawnChance = 0;
+
+  /** 可自然掉落的特殊宝石（都是可匹配的） */
+  private static readonly SPAWNABLE_SPECIALS: readonly SpecialGemKind[] = [
+    'doomSkull',
+    'web',
+    'lightningRow',
+    'lightningCol',
+    'hourglass',
+  ];
+
   constructor(
     private rng: SeededRNG,
     private nextGemId: () => number,
@@ -80,6 +97,9 @@ export class GravitySystem {
   }
 
   private randomGemType(skullChance: number): GemType {
+    if (this.specialSpawnChance > 0 && this.rng.next() < this.specialSpawnChance) {
+      return specialGem(this.rng.pick(GravitySystem.SPAWNABLE_SPECIALS));
+    }
     if (skullChance > 0 && this.rng.next() < skullChance) {
       return { kind: 'skull', variant: 'normal' };
     }

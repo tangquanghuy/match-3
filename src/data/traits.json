@@ -57,6 +57,13 @@
     ]
   },
   {
+    "code": "stealthy",
+    "name": "隐匿",
+    "description": "无法成为法术指定攻击目标（除非场上已无任何其他目标）。",
+    "troops": 92,
+    "untargetable": true
+  },
+  {
     "code": "impervious",
     "name": "无坚不摧",
     "description": "对所有状态效果、吞噬、狼化和法力燃烧免疫",
@@ -313,7 +320,7 @@
     "statusImmunities": [
       "burning",
       "silence",
-      "entangle"
+      "web"
     ]
   },
   {
@@ -399,6 +406,18 @@
       "burning",
       "silence"
     ]
+  },
+  {
+    "code": "daemonicpact",
+    "name": "恶魔契约",
+    "description": "在身亡时有 25% 的几率召唤一只远古恐惧。",
+    "troops": 22,
+    "summonOnDeath": {
+      "chance": 0.25,
+      "troopId": 6011,
+      "referenceName": "AncientHorror",
+      "displayName": "远古恐惧"
+    }
   },
   {
     "code": "armorpiercing",
@@ -510,8 +529,7 @@
     "troops": 19,
     "inflictOnSkullHit": {
       "id": "frozen",
-      "turns": 3,
-      "magnitude": 1
+      "turns": 3
     }
   },
   {
@@ -872,7 +890,7 @@
     "description": "对织网状态免疫。",
     "troops": 10,
     "statusImmunities": [
-      "entangle"
+      "web"
     ]
   },
   {
@@ -930,6 +948,17 @@
     }
   },
   {
+    "code": "urskabond",
+    "name": "厄什卡族亲",
+    "description": "厄什卡盟友获得 2 点生命值。",
+    "troops": 10,
+    "typeAura": {
+      "troopType": "Urska",
+      "stat": "hp",
+      "amount": 2
+    }
+  },
+  {
     "code": "dwarfbond",
     "name": "矮人族亲",
     "description": "矮人盟友获得 2 点生命值。",
@@ -975,6 +1004,18 @@
     "description": "消除 55% 的骷髅头伤害。",
     "troops": 8,
     "skullDamageReduction": 0.55
+  },
+  {
+    "code": "terrorpact",
+    "name": "惊魂协议",
+    "description": "在我身亡时，有 25% 的几率召唤一名暗夜惊魂。",
+    "troops": 7,
+    "summonOnDeath": {
+      "chance": 0.25,
+      "troopId": 6014,
+      "referenceName": "NightTerror",
+      "displayName": "暗夜惊魂"
+    }
   },
   {
     "code": "dragonslayer",
@@ -1044,6 +1085,13 @@
     "spellDamageReduction": 0.55
   },
   {
+    "code": "flowershield",
+    "name": "花盾",
+    "description": "反射 35% 的骷髅伤害。",
+    "troops": 7,
+    "reflectSkullRatio": 0.35
+  },
+  {
     "code": "waterbrand",
     "name": "水系之印",
     "description": "每有一名蓝色盟友则获得 1 点攻击力。",
@@ -1071,9 +1119,8 @@
     "description": "在造成骷髅头伤害时使敌人陷入织网状态。",
     "troops": 6,
     "inflictOnSkullHit": {
-      "id": "entangle",
-      "turns": 3,
-      "magnitude": 1
+      "id": "web",
+      "turns": 3
     }
   },
   {
@@ -1123,8 +1170,7 @@
     "troops": 6,
     "inflictOnSkullHit": {
       "id": "entangle",
-      "turns": 3,
-      "magnitude": 1
+      "turns": 3
     }
   },
   {
@@ -1136,6 +1182,17 @@
       "troopType": "Divine",
       "stat": "armor",
       "amount": 2
+    }
+  },
+  {
+    "code": "poisonspores",
+    "name": "毒孢子",
+    "description": "在承受骷髅头伤害时，使敌人中毒。",
+    "troops": 6,
+    "inflictOnSkullDamaged": {
+      "id": "poison",
+      "turns": 3,
+      "magnitude": 1
     }
   },
   {
@@ -1172,8 +1229,7 @@
     "troops": 5,
     "inflictOnSkullHit": {
       "id": "stun",
-      "turns": 3,
-      "magnitude": 1
+      "turns": 3
     }
   },
   {
@@ -1261,6 +1317,17 @@
     }
   },
   {
+    "code": "urskashield",
+    "name": "厄什卡之盾",
+    "description": "厄什卡盟友获得 2 点护甲值。",
+    "troops": 4,
+    "typeAura": {
+      "troopType": "Urska",
+      "stat": "armor",
+      "amount": 2
+    }
+  },
+  {
     "code": "burninghatred",
     "name": "燃烧仇恨",
     "description": "对红色军队造成双倍骷髅头伤害。",
@@ -1279,6 +1346,18 @@
       "color": "Brown",
       "stat": "attack",
       "amount": 1
+    }
+  },
+  {
+    "code": "suitofwands",
+    "name": "魔法套装",
+    "description": "在配对 4 颗或更多宝石时，给予所有盟友 1 点魔法值。",
+    "troops": 4,
+    "onBigMatchTypeAura": {
+      "troopType": "all",
+      "gains": {
+        "magic": 1
+      }
     }
   },
   {
@@ -1378,7 +1457,7 @@
     "description": "对陷入织网状态的敌人造成双倍骷髅头伤害。",
     "troops": 3,
     "skullMultVsStatus": {
-      "status": "entangle",
+      "status": "web",
       "mult": 2
     }
   },
@@ -1520,6 +1599,30 @@
     }
   },
   {
+    "code": "packmaster",
+    "name": "狼群老大",
+    "description": "在身亡时有 25% 的几率召唤一只恐狼。",
+    "troops": 2,
+    "summonOnDeath": {
+      "chance": 0.25,
+      "troopId": 6113,
+      "referenceName": "DireWolf",
+      "displayName": "恐狼"
+    }
+  },
+  {
+    "code": "naturepact",
+    "name": "自然契约",
+    "description": "在身亡时有 25% 的几率召唤一只树神。",
+    "troops": 2,
+    "summonOnDeath": {
+      "chance": 0.25,
+      "troopId": 6025,
+      "referenceName": "Dryad",
+      "displayName": "树神"
+    }
+  },
+  {
     "code": "stryxslayer",
     "name": "鸟族杀手",
     "description": "对鸟族军队造成双倍骷髅头伤害。",
@@ -1652,6 +1755,13 @@
     }
   },
   {
+    "code": "mudsplash",
+    "name": "泥浆飞溅",
+    "description": "反射 30% 的骷髅伤害",
+    "troops": 2,
+    "reflectSkullRatio": 0.3
+  },
+  {
     "code": "lethaltoxin",
     "name": "致命毒素",
     "description": "对陷入中毒和织网状态的敌人造成三倍骷髅头伤害。",
@@ -1682,8 +1792,19 @@
     "troops": 1,
     "inflictOnSkullHit": {
       "id": "silence",
-      "turns": 3,
-      "magnitude": 1
+      "turns": 3
+    }
+  },
+  {
+    "code": "soullegion",
+    "name": "灵魂军团",
+    "description": "当敌人身亡时有 50% 的几率召唤一只幽魂。",
+    "troops": 1,
+    "summonOnEnemyDeath": {
+      "chance": 0.5,
+      "troopId": 6037,
+      "referenceName": "Wight",
+      "displayName": "幽魂"
     }
   },
   {
@@ -1732,6 +1853,18 @@
     }
   },
   {
+    "code": "gateguardian",
+    "name": "传送门守卫",
+    "description": "当敌人身亡时有 50% 的几率召唤一只瓦格。",
+    "troops": 1,
+    "summonOnEnemyDeath": {
+      "chance": 0.5,
+      "troopId": 6282,
+      "referenceName": "Warg",
+      "displayName": "瓦格"
+    }
+  },
+  {
     "code": "elfslayer",
     "name": "精灵杀手",
     "description": "对精灵军队造成双倍骷髅头伤害。",
@@ -1750,6 +1883,18 @@
       "color": "Yellow",
       "stat": "magic",
       "amount": 8
+    }
+  },
+  {
+    "code": "loyalmount",
+    "name": "忠诚坐骑",
+    "description": "在身亡时有 100% 的几率召唤一只地龙。",
+    "troops": 1,
+    "summonOnDeath": {
+      "chance": 1,
+      "troopId": 6360,
+      "referenceName": "Drake",
+      "displayName": "地龙"
     }
   },
   {
@@ -1824,6 +1969,18 @@
     "regen": {
       "stat": "attack",
       "amount": 3
+    }
+  },
+  {
+    "code": "spawn",
+    "name": "幼卵",
+    "description": "在身亡时有 25% 的几率召唤一只幼龙。",
+    "troops": 1,
+    "summonOnDeath": {
+      "chance": 0.25,
+      "troopId": 6231,
+      "referenceName": "BabyDragon",
+      "displayName": "幼龙"
     }
   },
   {
@@ -1902,6 +2059,19 @@
     }
   },
   {
+    "code": "firstwargare",
+    "name": "狼族老大",
+    "description": "在配对 4 或更多颗宝石时给予狼族盟友 2 点攻击力和魔法值。",
+    "troops": 1,
+    "onBigMatchTypeAura": {
+      "troopType": "Wargare",
+      "gains": {
+        "attack": 2,
+        "magic": 2
+      }
+    }
+  },
+  {
     "code": "absorbpower",
     "name": "吸收能量",
     "description": "当一名敌人施放法术时获得 3 点魔法值。",
@@ -1919,6 +2089,19 @@
     "skullMultVsTroopType": {
       "troopType": "Construct",
       "mult": 2
+    }
+  },
+  {
+    "code": "overclock",
+    "name": "超频",
+    "description": "在配对 4 颗或更多宝石时，给予所有机械盟友 2 点攻击力和护甲值。",
+    "troops": 1,
+    "onBigMatchTypeAura": {
+      "troopType": "Mech",
+      "gains": {
+        "attack": 2,
+        "armor": 2
+      }
     }
   },
   {
@@ -2019,6 +2202,18 @@
     }
   },
   {
+    "code": "creepingdoom",
+    "name": "末日将临",
+    "description": "在一名敌人身亡时，有 75% 的几率召唤一只盘丝魔蛛。",
+    "troops": 1,
+    "summonOnEnemyDeath": {
+      "chance": 0.75,
+      "troopId": 6068,
+      "referenceName": "Webspinner",
+      "displayName": "盘丝魔蛛"
+    }
+  },
+  {
     "code": "nagashield",
     "name": "纳迦之盾",
     "description": "纳迦盟友获得 2 点护甲值。",
@@ -2030,6 +2225,18 @@
     }
   },
   {
+    "code": "darkcovenant",
+    "name": "暗黑契约",
+    "description": "在身亡时有 25% 的几率召唤嫉妒。",
+    "troops": 1,
+    "summonOnDeath": {
+      "chance": 0.25,
+      "troopId": 6599,
+      "referenceName": "Envy",
+      "displayName": "嫉妒"
+    }
+  },
+  {
     "code": "rogueslayer",
     "name": "盗贼杀手",
     "description": "对盗贼军队造成双倍骷髅头伤害。",
@@ -2037,6 +2244,18 @@
     "skullMultVsTroopType": {
       "troopType": "Rogue",
       "mult": 2
+    }
+  },
+  {
+    "code": "celestialsage",
+    "name": "天界大圣",
+    "description": "在配对 4 或 5 颗宝石时，给予所有盟友 1 点魔法值。",
+    "troops": 1,
+    "onBigMatchTypeAura": {
+      "troopType": "all",
+      "gains": {
+        "magic": 1
+      }
     }
   },
   {
@@ -2070,6 +2289,18 @@
     }
   },
   {
+    "code": "deadlyflock",
+    "name": "鸟穷则啄",
+    "description": "在一名敌人身亡时，有 25% 的几率召唤一只刃飞羽。",
+    "troops": 1,
+    "summonOnEnemyDeath": {
+      "chance": 0.25,
+      "troopId": 6753,
+      "referenceName": "Bladewing",
+      "displayName": "刃飞羽"
+    }
+  },
+  {
     "code": "rakshaslayer",
     "name": "猫族杀手",
     "description": "对猫族军队造成双倍骷髅头伤害。",
@@ -2080,11 +2311,48 @@
     }
   },
   {
+    "code": "headhunter",
+    "name": "猎头",
+    "description": "在一名敌人身亡时，有 50% 的几率召唤一个飞头蛮。",
+    "troops": 1,
+    "summonOnEnemyDeath": {
+      "chance": 0.5,
+      "troopId": 6536,
+      "referenceName": "Vargouille",
+      "displayName": "飞头蛮"
+    }
+  },
+  {
+    "code": "masterofbeasts",
+    "name": "野兽之主",
+    "description": "在配对 4 或更多宝石时，给予野兽盟友 2 点护甲值和攻击力。",
+    "troops": 1,
+    "onBigMatchTypeAura": {
+      "troopType": "Beast",
+      "gains": {
+        "armor": 2,
+        "attack": 2
+      }
+    }
+  },
+  {
     "code": "arcaneresistence",
     "name": "秘法抗力",
     "description": "降低来自法术的伤害 75%。",
     "troops": 1,
     "spellDamageReduction": 0.75
+  },
+  {
+    "code": "spidermount",
+    "name": "蜘蛛架",
+    "description": "在自身身亡时，有 100% 的几率召唤一名陵墓蜘蛛。",
+    "troops": 1,
+    "summonOnDeath": {
+      "chance": 1,
+      "troopId": 6512,
+      "referenceName": "TombSpider",
+      "displayName": "陵墓蜘蛛"
+    }
   },
   {
     "code": "scaldingstrike",
@@ -2094,6 +2362,19 @@
     "skullMultVsStatus": {
       "status": "burning",
       "mult": 3
+    }
+  },
+  {
+    "code": "emperinasblessing",
+    "name": "埃佩里娜赐福",
+    "description": "在配对 4 或更多宝石时，给予所有盟友 2 点生命值和魔法值。",
+    "troops": 1,
+    "onBigMatchTypeAura": {
+      "troopType": "all",
+      "gains": {
+        "hp": 2,
+        "magic": 2
+      }
     }
   },
   {
@@ -2107,11 +2388,47 @@
     }
   },
   {
+    "code": "ivegotadoor",
+    "name": "有门",
+    "description": "在自身身亡时召唤堡垒大门。",
+    "troops": 1,
+    "summonOnDeath": {
+      "chance": 1,
+      "troopId": 6097,
+      "referenceName": "FortressGate",
+      "displayName": "堡垒大门"
+    }
+  },
+  {
     "code": "goldenarmor",
     "name": "黄金甲",
     "description": "降低来自骷髅头的伤害 70%。",
     "troops": 1,
     "skullDamageReduction": 0.7
+  },
+  {
+    "code": "dragonking",
+    "name": "龙王",
+    "description": "在配对 4 颗或更多宝石时，给予所有龙族盟友 3 点魔法值。",
+    "troops": 1,
+    "onBigMatchTypeAura": {
+      "troopType": "Dragon",
+      "gains": {
+        "magic": 3
+      }
+    }
+  },
+  {
+    "code": "parrotcry",
+    "name": "鹦鹉鸣叫",
+    "description": "当我身亡时，有 25% 的几率召唤一只鹦鹉。",
+    "troops": 1,
+    "summonOnDeath": {
+      "chance": 0.25,
+      "troopId": 6377,
+      "referenceName": "Parrot",
+      "displayName": "鹦鹉"
+    }
   },
   {
     "code": "mechshield",
@@ -2177,6 +2494,42 @@
     "troops": 1,
     "turnStartCreateGem": {
       "color": "Yellow"
+    }
+  },
+  {
+    "code": "blightmaster",
+    "name": "荒芜大师",
+    "description": "当我身亡时，有 25% 的几率召唤一只荒芜猎犬。",
+    "troops": 1,
+    "summonOnDeath": {
+      "chance": 0.25,
+      "troopId": 7555,
+      "referenceName": "BlightHound",
+      "displayName": "荒芜猎犬"
+    }
+  },
+  {
+    "code": "breathofpower",
+    "name": "能量之气",
+    "description": "在配对 4 或更多宝石时，给予所有龙族盟友 2 点魔法值。",
+    "troops": 1,
+    "onBigMatchTypeAura": {
+      "troopType": "Dragon",
+      "gains": {
+        "magic": 2
+      }
+    }
+  },
+  {
+    "code": "desertmount",
+    "name": "沙漠山",
+    "description": "死亡时有100%几率召唤商队骆驼。",
+    "troops": 1,
+    "summonOnDeath": {
+      "chance": 1,
+      "troopId": 7784,
+      "referenceName": "CaravanCamel",
+      "displayName": "商队骆驼"
     }
   }
 ]

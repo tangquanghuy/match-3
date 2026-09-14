@@ -1,0 +1,593 @@
+[
+ {
+  "troopId": 6485,
+  "troop": "梁帝",
+  "spellId": 7672,
+  "spellName": "皇帝诏曰",
+  "desc": "摧毁所有指定颜色的宝石。给予所有拥有此颜色法力值的盟友 [魔法 + 1] 点生命值和 4 点魔法值。",
+  "scalings": [
+   {
+    "base": 1,
+    "mult": 1
+   }
+  ],
+  "modifier": null
+ },
+ {
+  "troopId": 6487,
+  "troop": "熊猫族守卫",
+  "spellId": 7674,
+  "spellName": "棒棒竹！",
+  "desc": "爆破 2 颗宝石。对第一名和最后一名敌人造成 [魔法 + 2] 点伤害。",
+  "scalings": [
+   {
+    "base": 2,
+    "mult": 1
+   }
+  ],
+  "modifier": null
+ },
+ {
+  "troopId": 6499,
+  "troop": "神狮鬃",
+  "spellId": 7686,
+  "spellName": "预言",
+  "desc": "给予一名盟友 [魔法 + 1] 点攻击力和 2 点魔法值。若盟友是一名猫族军队，则效果翻倍。",
+  "scalings": [
+   {
+    "base": 1,
+    "mult": 1
+   }
+  ],
+  "modifier": null
+ },
+ {
+  "troopId": 6526,
+  "troop": "寒冰怨灵",
+  "spellId": 7719,
+  "spellName": "冰冷之触",
+  "desc": "对一名敌人造成 [魔法 + 4] 点伤害并将之冻结。若敌人已被冻结，则窃取 5 点法力值。",
+  "scalings": [
+   {
+    "base": 4,
+    "mult": 1
+   }
+  ],
+  "modifier": null
+ },
+ {
+  "troopId": 6547,
+  "troop": "巨人柱",
+  "spellId": 7741,
+  "spellName": "肉质植物",
+  "desc": "对最弱的两名敌人造成 [魔法 + 4] 点伤害。获得 10 点生命值和攻击力。",
+  "scalings": [
+   {
+    "base": 4,
+    "mult": 1
+   }
+  ],
+  "modifier": null
+ },
+ {
+  "troopId": 6548,
+  "troop": "龙舌兰",
+  "spellId": 7742,
+  "spellName": "沙漠花卉",
+  "desc": "对一名敌人造成 [魔法 + 4] 点伤害。若敌人身处狂怒状态，则造成双倍伤害。",
+  "scalings": [
+   {
+    "base": 4,
+    "mult": 1
+   }
+  ],
+  "modifier": null
+ },
+ {
+  "troopId": 6560,
+  "troop": "杀手鬼魂",
+  "spellId": 7762,
+  "spellName": "坟墓之斧",
+  "desc": "对最虚弱的敌人造成 [魔法 + 3] 点伤害。将所有骷髅头转换成末日骷髅头。",
+  "scalings": [
+   {
+    "base": 3,
+    "mult": 1
+   }
+  ],
+  "modifier": null
+ },
+ {
+  "troopId": 6563,
+  "troop": "珍榔头",
+  "spellId": 7766,
+  "spellName": "击杀怪兽",
+  "desc": "对一名敌人造成 [魔法 + 4] 点伤害，并减除其 5 点攻击力。若敌人是怪兽，则造成 3 倍伤害。",
+  "scalings": [
+   {
+    "base": 4,
+    "mult": 1
+   }
+  ],
+  "modifier": null
+ },
+ {
+  "troopId": 6566,
+  "troop": "血榔头大王",
+  "spellId": 7768,
+  "spellName": "王者之风",
+  "desc": "对最强大的两名敌人造成 [魔法 + 4] 点伤害，并将所有蓝色宝石转换成末日骷髅头以增强效果。 [3:1]",
+  "scalings": [
+   {
+    "base": 4,
+    "mult": 1
+   }
+  ],
+  "modifier": {
+   "kind": "ratio",
+   "a": 3,
+   "b": 1
+  }
+ },
+ {
+  "troopId": 6570,
+  "troop": "螳螂虾",
+  "spellId": 7774,
+  "spellName": "挥抓",
+  "desc": "对一名敌人造成 [魔法 + 1] 点真实伤害并将之击至末位。使自身下潜。",
+  "scalings": [
+   {
+    "base": 1,
+    "mult": 1
+   }
+  ],
+  "modifier": null
+ },
+ {
+  "troopId": 6576,
+  "troop": "节庆圣牛",
+  "spellId": 7780,
+  "spellName": "哞！",
+  "desc": "给予所有其他盟友 [魔法 + 1] 点生命值、5 点护甲值、3 点攻击力和 2 点魔法值。献祭自身。",
+  "scalings": [
+   {
+    "base": 1,
+    "mult": 1
+   }
+  ],
+  "modifier": null
+ },
+ {
+  "troopId": 6587,
+  "troop": "厄什卡骑兵",
+  "spellId": 7791,
+  "spellName": "血之狂暴",
+  "desc": "对一名敌人造成 [魔法 + 4] 点伤害。若敌人生命值受损，则获得狂怒效果并再造成 10 点伤害。",
+  "scalings": [
+   {
+    "base": 4,
+    "mult": 1
+   }
+  ],
+  "modifier": null
+ },
+ {
+  "troopId": 6590,
+  "troop": "锐眼·风暴酒酿",
+  "spellId": 7794,
+  "spellName": "石酿",
+  "desc": "将所有绿色宝石转换成棕色。赋予第一名盟友狂怒效果，并给予其 [魔法 + 1] 点生命值。",
+  "scalings": [
+   {
+    "base": 1,
+    "mult": 1
+   }
+  ],
+  "modifier": null
+ },
+ {
+  "troopId": 6599,
+  "troop": "嫉妒",
+  "spellId": 7808,
+  "spellName": "眼冒绿光",
+  "desc": "对最强大的两名敌人造成 [魔法 + 2] 点伤害，伤害值因生命值和法力值满值的敌军数而增强。 [x4]",
+  "scalings": [
+   {
+    "base": 2,
+    "mult": 1
+   }
+  ],
+  "modifier": {
+   "kind": "multiplier",
+   "a": 4
+  }
+ },
+ {
+  "troopId": 6602,
+  "troop": "巴盖斯",
+  "spellId": 7811,
+  "spellName": "双火焰",
+  "desc": "对一名敌人及其下方军队造成 [魔法 + 3] 点伤害。使两名敌人都陷入燃烧和妖火状态。",
+  "scalings": [
+   {
+    "base": 3,
+    "mult": 1
+   }
+  ],
+  "modifier": null
+ },
+ {
+  "troopId": 6603,
+  "troop": "傲慢",
+  "spellId": 7812,
+  "spellName": "狂妄自大",
+  "desc": "对一名敌人造成 [魔法 + 3] 点伤害。自身每高于敌方一个技能即可窃取敌方 3 点魔法值。",
+  "scalings": [
+   {
+    "base": 3,
+    "mult": 1
+   }
+  ],
+  "modifier": null
+ },
+ {
+  "troopId": 6595,
+  "troop": "虎奇勇士",
+  "spellId": 7817,
+  "spellName": "瓦解士气",
+  "desc": "对一名敌人造成 [魔法 + 1] 点真实伤害，伤害值因其护甲值而增强。 [3:1]",
+  "scalings": [
+   {
+    "base": 1,
+    "mult": 1
+   }
+  ],
+  "modifier": {
+   "kind": "ratio",
+   "a": 3,
+   "b": 1
+  }
+ },
+ {
+  "troopId": 6596,
+  "troop": "荣耀地精",
+  "spellId": 7818,
+  "spellName": "刺了就撤",
+  "desc": "摧毁一行。有 30% 的几率跑掉。",
+  "scalings": [],
+  "modifier": null
+ },
+ {
+  "troopId": 6608,
+  "troop": "奥眼能",
+  "spellId": 7932,
+  "spellName": "注视",
+  "desc": "对最弱的两名敌人造成 [魔法 + 2] 点伤害，并将所有棕色宝石转换成绿色以增强效果。 [1:1]",
+  "scalings": [
+   {
+    "base": 2,
+    "mult": 1
+   }
+  ],
+  "modifier": {
+   "kind": "ratio",
+   "a": 1,
+   "b": 1
+  }
+ },
+ {
+  "troopId": 6609,
+  "troop": "希罗达",
+  "spellId": 7933,
+  "spellName": "目不转睛",
+  "desc": "对前两名敌人造成 [魔法 + 3] 点伤害，并将所有黄色宝石转换成骷髅头以增强效果。 [1:1]",
+  "scalings": [
+   {
+    "base": 3,
+    "mult": 1
+   }
+  ],
+  "modifier": {
+   "kind": "ratio",
+   "a": 1,
+   "b": 1
+  }
+ },
+ {
+  "troopId": 6611,
+  "troop": "幽灵骑士",
+  "spellId": 7935,
+  "spellName": "幽灵之力",
+  "desc": "对一名敌人造成 [魔法 + 1] 点真实伤害。若敌人身负状态效果，则造成双倍伤害。",
+  "scalings": [
+   {
+    "base": 1,
+    "mult": 1
+   }
+  ],
+  "modifier": null
+ },
+ {
+  "troopId": 6624,
+  "troop": "海鲨",
+  "spellId": 7942,
+  "spellName": "捕鲨叉",
+  "desc": "对一名敌人造成 [魔法 + 2]  点真实溅射伤害，伤害值因下潜的盟友数而增强。 [x2]",
+  "scalings": [
+   {
+    "base": 2,
+    "mult": 1
+   }
+  ],
+  "modifier": {
+   "kind": "multiplier",
+   "a": 2
+  }
+ },
+ {
+  "troopId": 6626,
+  "troop": "海巫",
+  "spellId": 7944,
+  "spellName": "暗黑海域",
+  "desc": "创造 8 颗蓝色宝石和 8 颗棕色宝石。使一名盟友下潜并给予其狂怒效果和 [魔法 + 1] 点生命值。",
+  "scalings": [
+   {
+    "base": 1,
+    "mult": 1
+   }
+  ],
+  "modifier": null
+ },
+ {
+  "troopId": 6627,
+  "troop": "深渊之王",
+  "spellId": 7945,
+  "spellName": "海底偷袭",
+  "desc": "对两名随机敌人造成 [魔法 + 2] 点真实溅射伤害。使自身和一名随机盟友下潜。",
+  "scalings": [
+   {
+    "base": 2,
+    "mult": 1
+   }
+  ],
+  "modifier": null
+ },
+ {
+  "troopId": 6635,
+  "troop": "狮半鬃",
+  "spellId": 7960,
+  "spellName": "猫爪",
+  "desc": "对一名敌人造成 [魔法 + 2] 点伤害。若其攻击力比较大，则造成双倍伤害。",
+  "scalings": [
+   {
+    "base": 2,
+    "mult": 1
+   }
+  ],
+  "modifier": null
+ },
+ {
+  "troopId": 6636,
+  "troop": "犀首巨兽",
+  "spellId": 7962,
+  "spellName": "大开杀戒",
+  "desc": "对一名敌人造成 [魔法 + 4] 点严重的溅射伤害。若敌人身亡，则获得 12 点法力值。",
+  "scalings": [
+   {
+    "base": 4,
+    "mult": 1
+   }
+  ],
+  "modifier": null
+ },
+ {
+  "troopId": 6640,
+  "troop": "凌风弓箭手",
+  "spellId": 7969,
+  "spellName": "凌空狙击",
+  "desc": "对一名敌人造成 [魔法 + 2] 点真实伤害。摧毁与此军队法力颜色相同的 5 颗宝石。",
+  "scalings": [
+   {
+    "base": 2,
+    "mult": 1
+   }
+  ],
+  "modifier": null
+ },
+ {
+  "troopId": 6643,
+  "troop": "愤怒的战士",
+  "spellId": 7974,
+  "spellName": "深渊一击",
+  "desc": "对一名敌人造成 [魔法 + 1] 点真实伤害，伤害值因红色宝石数而增强。 [3:1]",
+  "scalings": [
+   {
+    "base": 1,
+    "mult": 1
+   }
+  ],
+  "modifier": {
+   "kind": "ratio",
+   "a": 3,
+   "b": 1
+  }
+ },
+ {
+  "troopId": 6652,
+  "troop": "暗黑树神",
+  "spellId": 7987,
+  "spellName": "腐坏之卉",
+  "desc": "窃取一名敌人 [魔法 + 1] 点护甲值，再将其转换成一个随机的技能值并给予第一位盟友。 [100:1]",
+  "scalings": [
+   {
+    "base": 1,
+    "mult": 1
+   }
+  ],
+  "modifier": {
+   "kind": "ratio",
+   "a": 100,
+   "b": 1
+  }
+ },
+ {
+  "troopId": 6654,
+  "troop": "红刺",
+  "spellId": 7989,
+  "spellName": "玫瑰鞭",
+  "desc": "对一名敌人造成 [魔法 + 4] 点溅射伤害，伤害值因被缠绕的敌人数而增强。 [x6]",
+  "scalings": [
+   {
+    "base": 4,
+    "mult": 1
+   }
+  ],
+  "modifier": {
+   "kind": "multiplier",
+   "a": 6
+  }
+ },
+ {
+  "troopId": 6658,
+  "troop": "兔族骑士",
+  "spellId": 7994,
+  "spellName": "聪明一击",
+  "desc": "对一名敌人造成 [魔法 + 4] 点伤害。赋予所有盟友一个随机状态效果。",
+  "scalings": [
+   {
+    "base": 4,
+    "mult": 1
+   }
+  ],
+  "modifier": null
+ },
+ {
+  "troopId": 6677,
+  "troop": "月兔",
+  "spellId": 8023,
+  "spellName": "月蚀",
+  "desc": "将所有蓝色宝石转换成黄色。给予所有其他盟友 [魔法 + 1] 点生命值，再赐福第一位盟友。",
+  "scalings": [
+   {
+    "base": 1,
+    "mult": 1
+   }
+  ],
+  "modifier": null
+ },
+ {
+  "troopId": 6679,
+  "troop": "沙地赛跑者",
+  "spellId": 8025,
+  "spellName": "双爪一咬",
+  "desc": "对第一位和最后一位敌人造成 [(魔法 / 2) + 4] 点伤害，再对一名随机敌人造成双倍伤害。",
+  "scalings": [
+   {
+    "base": 4,
+    "mult": 0.5
+   }
+  ],
+  "modifier": null
+ },
+ {
+  "troopId": 6695,
+  "troop": "士兵",
+  "spellId": 8041,
+  "spellName": "防护链",
+  "desc": "给予一名盟友 [(魔法 / 2) + 1] 点攻击力和护甲值，在赋予其屏障效果。",
+  "scalings": [
+   {
+    "base": 1,
+    "mult": 0.5
+   }
+  ],
+  "modifier": null
+ },
+ {
+  "troopId": 6702,
+  "troop": "角蝰蛇",
+  "spellId": 8058,
+  "spellName": "毒液飞溅",
+  "desc": "对一名敌人造成 [魔法 + 4] 点溅射伤害。使所有被我的法术击到敌人陷入中毒和出血状态。",
+  "scalings": [
+   {
+    "base": 4,
+    "mult": 1
+   }
+  ],
+  "modifier": null
+ },
+ {
+  "troopId": 6705,
+  "troop": "大根酋长",
+  "spellId": 8061,
+  "spellName": "战吼",
+  "desc": "给予自身和自身下方的所有盟友 [魔法 + 6] 点攻击力。爆破 1 行。",
+  "scalings": [
+   {
+    "base": 6,
+    "mult": 1
+   }
+  ],
+  "modifier": null
+ },
+ {
+  "troopId": 6706,
+  "troop": "鼠倜哥",
+  "spellId": 8063,
+  "spellName": "狂劈狂砍",
+  "desc": "对 2 名随机敌人造成 [魔法 + 1] 点伤害。并使二者各陷入一个随机负面状态。",
+  "scalings": [
+   {
+    "base": 1,
+    "mult": 1
+   }
+  ],
+  "modifier": null
+ },
+ {
+  "troopId": 6719,
+  "troop": "血淋丽娅",
+  "spellId": 8089,
+  "spellName": "吸血之触",
+  "desc": "窃取一名敌人 [魔法 + 1] 点生命值，数量因紫色的盟友和敌军数量而增强。  [x4]",
+  "scalings": [
+   {
+    "base": 1,
+    "mult": 1
+   }
+  ],
+  "modifier": {
+   "kind": "multiplier",
+   "a": 4
+  }
+ },
+ {
+  "troopId": 6728,
+  "troop": "雷霆锻造器",
+  "spellId": 8098,
+  "spellName": "百炼钢",
+  "desc": "给予一名盟友 [魔法 + 4] 点护甲值和 4 点攻击力。若盟友是一名矮人，则效果翻倍。",
+  "scalings": [
+   {
+    "base": 4,
+    "mult": 1
+   }
+  ],
+  "modifier": null
+ },
+ {
+  "troopId": 6740,
+  "troop": "卡迪塔河",
+  "spellId": 8110,
+  "spellName": "安努神恩典",
+  "desc": "给予一名盟友 [魔法 + 1] 点生命值和 5 点攻击力。若盟友是一名人类，则效果翻倍。",
+  "scalings": [
+   {
+    "base": 1,
+    "mult": 1
+   }
+  ],
+  "modifier": null
+ }
+]

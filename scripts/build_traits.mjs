@@ -13,13 +13,14 @@ import path from 'node:path';
 const IN = 'data/raw/troops.gow.zh.json';
 const OUT = 'src/data/traits.json';
 
-/** 中文状态名 → 引擎状态 id。引擎没有的（疾病/狼化/吞噬…）不映射。 */
+/** 中文状态名 → 引擎状态 id。缠绕（攻击归零）与织网（魔力归零）是两个状态，按官方拆分。 */
 const STATUS_MAP = [
   [/中毒/, 'poison'],
   [/燃烧|妖火/, 'burning'],
   [/冻结|冰冻/, 'frozen'],
   [/沉默/, 'silence'],
-  [/缠绕|织网/, 'entangle'],
+  [/缠绕|纠缠/, 'entangle'],
+  [/织网/, 'web'],
   [/击晕|眩晕/, 'stun'],
 ];
 /** 引擎尚未实现的状态/机制关键词，用于报告 */
@@ -49,6 +50,7 @@ const TROOP_TYPE_MAP = {
   鸟族: 'Stryx', 纳迦: 'Naga', 海族: 'Merfolk', 厄仑卡: 'Urska', 矮人: 'Dwarf',
   牛头族: 'Tauros', 兽人: 'Orc', 机械: 'Mech', 石人: 'Construct', 侏儒: 'Gnome',
   半人马: 'Centaur', 罗刹: 'Raksha', 不朽: 'Immortal',
+  厄什卡: 'Urska', 罗格: 'Rogue',
 };
 
 const num = (s) => Number(s);
@@ -111,8 +113,33 @@ function parse(desc) {
       return { effects: { onSkullHitGain: { stat: pickStat(m[2]) ?? 'hp', amount: num(m[1]) } } };
     }
     const hit = STATUS_MAP.find(([re]) => re.test(desc));
-    if (hit) return { effects: { inflictOnSkullHit: { id: hit[1], turns: 3, magnitude: 1 } } };
+    if (hit) {
+      // magnitude 语义按状态而异：DoT 是每回合伤害；web 是挣脱几率（缺省 10%，由引擎管理）。
+      // 因此只给 DoT 带 magnitude，其余状态不带。
+      const isDot = hit[1] === 'poison' || hit[1] === 'burning';
+      return {
+        effects: {
+          inflictOnSkullHit: isDot
+            ? { id: hit[1], turns: 3, magnitude: 1 }
+            : { id: hit[1], turns: 3 },
+        },
+      };
+    }
     return null;
+  }
+  // 承受骷髅伤害附状态（毒孢子族）：被打时反手给攻击者上状态。
+  // 句式有「使敌人中毒」「使敌人陷入X状态」两种；DoT 带 magnitude:1，其余不带
+  if (/^在承受骷髅头伤害时[，,]?使敌人/.test(desc)) {
+    const hit = STATUS_MAP.find(([re]) => re.test(desc));
+    if (!hit) return null;
+    const isDot = hit[1] === 'poison' || hit[1] === 'burning';
+    return {
+      effects: {
+        inflictOnSkullDamaged: isDot
+          ? { id: hit[1], turns: 3, magnitude: 1 }
+          : { id: hit[1], turns: 3 },
+      },
+    };
   }
   // 队伍光环·全体：所有盟友获得 N 点 X / 所有敌人损失 N 点 X
   if ((m = /所有(盟友|敌人)(获得|损失)\s*(\d+)\s*点?(随机技能值|生命值|护甲值|攻击力|魔法值)/.exec(desc))) {
@@ -190,6 +217,25 @@ function parse(desc) {
     if (!stat) return null;
     return { effects: { onBigMatchGain: { stat, amount: num(m[1]) } } };
   }
+  // 4/5 连给予盟友（firstwargare/overclock/celestialsage…）：种族限定或全队，
+  // 支持「N 点 X 和 Y」双属性共享数值（两个属性各得 N）。种族查表失败按未实现归类，不硬猜。
+  if ((m = /^[当在]?配对\s*4\s*颗?\s*或\s*(?:更?多|5)\s*颗?宝石的?时?候?[，,]?\s*给予(.+?)盟友\s*(\d+)\s*点(生命值|护甲值|攻击力|魔法值)(?:和(?:\s*(\d+)\s*点)?(生命值|护甲值|攻击力|魔法值))?[，,]?。?$/.exec(desc))) {
+    const scopeName = m[1];
+    // 「所有」= 全队；「所有机械」= 先剥掉「所有」再查种族映射
+    const lookupName = scopeName === '所有' ? null : scopeName.replace(/^所有/, '');
+    const troopType = lookupName === null
+      ? 'all'
+      : (TROOP_TYPE_MAP[lookupName] ?? TROOP_TYPE_MAP[`${lookupName}族`] ?? TROOP_TYPE_MAP[lookupName.replace(/族$/, '')]);
+    const stat1 = pickStat(m[3]);
+    if (!troopType || !stat1) return null;
+    const gains = { [stat1]: num(m[2]) };
+    if (m[5]) {
+      const stat2 = pickStat(m[5]);
+      if (!stat2) return null;
+      gains[stat2] = num(m[4] ?? m[2]);
+    }
+    return { effects: { onBigMatchTypeAura: { troopType, gains } } };
+  }
   // 配色触发：在配对<色>宝石时获得 N 点 X
   if ((m = /^在?配对(.+?)宝石时获得\s*(\d+)\s*点(生命值|护甲值|攻击力|魔法值)。?$/.exec(desc))) {
     const color = pickColor(m[1]);
@@ -197,8 +243,8 @@ function parse(desc) {
     if (!color || !stat) return null;
     return { effects: { onColorMatchGain: { color, stat, amount: num(m[2]) } } };
   }
-  // 反弹 N% 的骷髅头伤害
-  if ((m = /^反弹\s*(\d+)%\s*的骷髅头伤害/.exec(desc))) {
+  // 反弹 N% 的骷髅（头）伤害——"反弹/反射"、"骷髅头/骷髅"两种译法都收
+  if ((m = /^(?:反弹|反射)\s*(\d+)%\s*的骷髅(?:头)?伤害。?$/.exec(desc))) {
     return { effects: { reflectSkullRatio: num(m[1]) / 100 } };
   }
   // 有 N% 的几率闪避骷髅头伤害
@@ -230,10 +276,64 @@ function parse(desc) {
     if (!color) return null;
     return { effects: { manaLink: { color, amount: 1 } } };
   }
+  // 隐匿（stealthy）：无法被法术指定为目标。引擎 untargetable 已支持
+  // （targeting.ts 的 targetableFrom，全员不可指定时退化为可指定）。
+  if (/^无法成为法术指定攻击目标（除非场上已无任何其他目标）。?$/.test(desc)) {
+    return { effects: { untargetable: true } };
+  }
+  // 死亡召唤三族（daemonicpact/terrorpact/fromdark/darkdeath…）。
+  // 触发主体：自己身亡 / 盟友身亡 / 敌人身亡；概率可省略（=100%，如 loyalmount/desertmount）。
+  // 召唤物名必须能解析到兵种数据，解析不到（风暴系列查无此兵）留在未实现桶。
+  if (/身亡时|死亡时/.test(desc) && /召唤/.test(desc)) {
+    if (/当?一?名?敌人(?:死亡|身亡)时/.test(desc)) {
+      const hit = parseDeathSummon(desc, 'summonOnEnemyDeath', true);
+      if (hit) return hit;
+      return null; // 敌人身亡但召唤名解析失败，不再尝试其它字段
+    }
+    if (/当一名盟友身亡时/.test(desc)) {
+      const hit = parseDeathSummon(desc, 'summonOnAllyDeath', false);
+      if (hit) return hit;
+      return null;
+    }
+    const hit = parseDeathSummon(desc, 'summonOnDeath', true);
+    if (hit) return hit;
+    return null;
+  }
   return null;
 }
 
 const raw = JSON.parse(fs.readFileSync(IN, 'utf8'));
+// 兵种中文名 → 精简 troops.json 的 { troopId, referenceName }，供死亡召唤特质解析召唤物。
+// 精简表（src/data/troops.json）由 build_troops.mjs 产出，与官方 dump 同源，中文名可直接对上。
+const troopsSlim = JSON.parse(fs.readFileSync('src/data/troops.json', 'utf8'));
+const TROOP_BY_NAME = new Map(
+  (Array.isArray(troopsSlim) ? troopsSlim : troopsSlim.raw_data ?? []).map((t) => [t.name, { troopId: t.id, referenceName: t.referenceName }]),
+);
+
+/** 解析「召唤一只/名/个 X」里的 X 为兵种数据；解析不到返回 null（该特质继续留在未实现桶） */
+function resolveSummonedTroop(desc) {
+  const name = (/(?:召唤|召唤出)一?[名只个头]?(.+?)[。.？?]?$/.exec(desc) ?? [])[1]?.trim();
+  if (!name) return null;
+  return TROOP_BY_NAME.get(name) ?? null;
+}
+
+/** 死亡召唤共同解析：触发主体 + 概率 + 召唤物。触发字段由调用方指定 */
+function parseDeathSummon(desc, field, withChance) {
+  const chance = withChance ? (/(?:有|时)\s*(\d+)%\s*的?几率/.exec(desc) ?? [])[1] : undefined;
+  const troop = resolveSummonedTroop(desc);
+  if (!troop) return null;
+  return {
+    effects: {
+      [field]: {
+        chance: chance !== undefined ? num(chance) / 100 : 1,
+        troopId: troop.troopId,
+        referenceName: troop.referenceName,
+        displayName: (/(?:召唤|召唤出)一?[名只个头]?(.+?)[。.？?]?$/.exec(desc) ?? [])[1]?.trim(),
+      },
+    },
+  };
+}
+
 const info = new Map();
 for (const r of raw.troops) {
   for (const t of r.stats?.traits ?? []) {

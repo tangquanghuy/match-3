@@ -44,7 +44,8 @@ describe('独立模式战斗配置（需求 2.5）', () => {
     const known = knownSkillIds();
     const request = loadStandaloneRequest({ knownSkillIds: known, knownTraitIds: knownTraitIds(), knownTroopTypes: knownTroopTypes() });
     for (const c of [...request.playerTeam, ...request.enemyTeam]) {
-      expect(known.has(c.skillId)).toBe(true);
+      // fixture 全部显式给出 skillId（config 不用分拣），非空断言满足类型收窄
+      expect(known.has(c.skillId!)).toBe(true);
     }
   });
 

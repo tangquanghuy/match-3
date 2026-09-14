@@ -1,17 +1,18 @@
 /**
- * 技能库（手写配置）。
+ * 技能库（窗口 B · 组装器消费端）。
  *
- * 理念：技能 = 效果段的有序组合，逐条手写、配一个准一个。中文描述只作注释参考，
- * 不参与运行逻辑。key = 兵种 spell.id（troops.json 里 spell.id），值 = 技能原型。
+ * 组成（优先级从高到低）：
+ *   1. SKILL_OVERRIDES —— 早期逐条手写的条目（行为保持不变，测试覆盖）；
+ *   2. curated 批次 —— 人工核对组装结果（src/engine/skills/curated/，
+ *      SOP 见 scripts/spell-assembler.md，语义依据 scripts/spell-rules.md）。
  *
- * 数值用 builder 表达：dmg/heal/... 的 (base, mult) 对应 [魔法 × mult + base]，
- * mult 省略默认 1，纯常数用第三参 0。范围/真实伤害等用可选项或专用函数。
- *
- * 这份表会随开发逐步扩充。运行时由 registry 按 skillId 载入执行；未配置的技能
- * 自动回退"仅扣法力"（引擎既有契约），不崩溃。
+ * key = 兵种 spell.id（troops.json）。校验测试（tests/unit/spellData.test.ts）保证：
+ * 批内 desc 与 troops.json 逐字一致、枚举白名单、护栏、全量烟雾执行。
+ * 未配置的技能运行时回退"仅扣法力"（引擎既有契约），不崩溃。
  */
 import { BaseColor } from '../types';
 import type { SkillPrototype } from './prototypes';
+import { collectCurated } from './curated';
 import {
   skill,
   dmg,
@@ -25,10 +26,9 @@ import {
 } from './builders';
 
 /**
- * skillId(=spell.id) → 技能原型。
- * 分组按兵种，注释写明中文原文，方便对照校对。手写、配一条准一条。
+ * 早期手写条目（skillId → 原型）。优先级最高；新内容请进 curated 批次，别再加这里。
  */
-export const SKILL_LIBRARY: Record<number, SkillPrototype> = {
+export const SKILL_OVERRIDES: Record<number, SkillPrototype> = {
   // 狙击手「狙击」：对 1 名敌人造成 [魔法 + 2] 点伤害。
   7004: skill(dmg('enemyFront', 2)),
 
@@ -49,6 +49,23 @@ export const SKILL_LIBRARY: Record<number, SkillPrototype> = {
     heal('allySelf', 1), // 获得 [魔法 + 1] 点生命值
   ),
 };
+
+const curated = collectCurated();
+
+/** 组装器全表：overrides 覆盖 curated（key = String(spellId)） */
+export const SKILL_LIBRARY: Record<number, SkillPrototype> = {};
+for (const [id, proto] of curated.byId) SKILL_LIBRARY[id] = proto;
+for (const [id, proto] of Object.entries(SKILL_OVERRIDES)) SKILL_LIBRARY[Number(id)] = proto;
+
+/** 核对后放弃的条目（覆盖率报告用） */
+export function curatedSkipped(): { id: number; batch: string; reason: string }[] {
+  return curated.skipped;
+}
+
+/** 已核对批次号 */
+export function curatedBatches(): string[] {
+  return curated.batches;
+}
 
 /**
  * 技能库里全部已配置的 skillId（字符串形式，与注册表 key 一致）。

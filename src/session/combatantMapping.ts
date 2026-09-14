@@ -51,11 +51,13 @@ export function snapshotToCharacter(snapshot: CombatantSnapshot, internalId: num
     colors: [...snapshot.manaColors],
     manaCost: snapshot.manaCost,
     mana: 0,
-    skillId: snapshot.skillId,
+    // 分拣引擎已在 App.init 里对 tier 快照补齐 skillId/traitIds；'' 仅为类型兜底，
+    // 带着空 skillId 进场会在校验层（missing-field / unknown-skill）被拦截。
+    skillId: snapshot.skillId ?? '',
     statuses: [],
     defeated: false,
     // 特质透传；被动修正由 TurnEngine 在战斗开始时编译（见 engine/traits.ts）
-    traitIds: [...snapshot.traitIds],
+    traitIds: [...(snapshot.traitIds ?? [])],
     // 种族透传；族亲光环按它筛选受益对象
     troopTypes: [...(snapshot.troopTypes ?? [])],
   };

@@ -76,11 +76,11 @@ describe('buildDetailViewModel（需求 4.1-4.3）', () => {
     expect(vm.skill!.manaCost).toBe(12);
   });
 
-  it('全部特质（名称 + 描述）（需求 4.3）', () => {
+  it('全部特质（名称 + 描述 + 实现状态）（需求 4.3）', () => {
     const vm = buildDetailViewModel(makeChar(), makeTroop());
     expect(vm.traits).toEqual([
-      { name: '狂暴', description: '受击时获得攻击力。' },
-      { name: '庞然', description: '匹配 4/5 获得生命。' },
+      { name: '狂暴', description: '受击时获得攻击力。', implemented: true },
+      { name: '庞然', description: '匹配 4/5 获得生命。', implemented: true },
     ]);
   });
 
@@ -90,6 +90,50 @@ describe('buildDetailViewModel（需求 4.1-4.3）', () => {
     expect(vm.attack).toBe(12);
     expect(vm.skill).toBeNull();
     expect(vm.traits).toEqual([]);
+  });
+
+  it('宿主角色没有 TroopData：特质从 char.traitIds + 特质库读取', () => {
+    // armored / regeneration 都是已实现特质（见 src/data/traits.json）
+    const host = makeChar({ traitIds: ['armored', 'regeneration'] });
+    const vm = buildDetailViewModel(host);
+    expect(vm.traits.length).toBe(2);
+    expect(vm.traits[0].implemented).toBe(true);
+    expect(vm.traits[1].implemented).toBe(true);
+    expect(vm.traits.every((t) => t.name.length > 0 && t.description.length > 0)).toBe(true);
+  });
+
+  it('未实现特质照常展示但标注未生效；官方文本优先于特质库', () => {
+    // 未实现 code 库里查不到：回落 TroopData 官方名/描述并标注 implemented=false
+    const c = makeChar({ traitIds: ['not-implemented-yet', 'armored'] });
+    const vm = buildDetailViewModel(c, makeTroop({
+      traits: [
+        { code: 'not-implemented-yet', name: '疾病免疫', description: '对疾病免疫。' },
+        { code: 'armored', name: '全副武装', description: '官方描述。' },
+      ],
+    }));
+    expect(vm.traits[0]).toEqual({
+      name: '疾病免疫',
+      description: '对疾病免疫。',
+      implemented: false,
+    });
+    // traitIds 里已实现的：官方文本（TroopData）优先展示
+    expect(vm.traits[1]).toEqual({
+      name: '全副武装',
+      description: '官方描述。',
+      implemented: true,
+    });
+  });
+
+  it('TroopData 多出的特质条目也列出（按其实现状态标注）', () => {
+    const c = makeChar({ traitIds: ['armored'] });
+    const vm = buildDetailViewModel(c, makeTroop({
+      traits: [
+        { code: 'armored', name: '全副武装', description: '官方描述。' },
+        { code: 'big', name: '庞然', description: '匹配 4/5 获得生命。' },
+      ],
+    }));
+    expect(vm.traits.map((t) => t.name)).toEqual(['全副武装', '庞然']);
+    expect(vm.traits.map((t) => t.implemented)).toEqual([true, true]);
   });
 
   it('hp 夹在 [0, maxHp]、mana 夹在 [0, manaCost]，避免越界展示', () => {

@@ -22,6 +22,7 @@ export {
   effectiveHealing,
 } from '../../healing';
 import type { Character, StatusInstance } from '../../types';
+import type { SeededRNG } from '../../rng';
 import type {
   GameEvent,
   StatusApplyEvent,
@@ -55,13 +56,30 @@ export const BARRIER_STATUS_ID = 'barrier';
 export const MARK_STATUS_ID = 'marked';
 
 /**
- * 控制类状态 id 及各自限制（本作规则，强度：缠绕 < 击晕 < 冰冻/沉默）：
- *   - entangle 缠绕（最轻）：不可攻击；可释放技能、可充能。
- *   - frozen   冰冻（强）：不可攻击、不可释放技能；仍可充能（锁行动但蓄力）。
- *   - silence  沉默（强）：不可释放技能、不可充能（充能跳过他给下一个能吃该色的队友）；可攻击。
- *   - stun     击晕：本作定位为"禁用被动特质"，被动系统尚未实现，故引擎侧暂无效果，仅表现层呈现。
+ * 控制类状态 id 及各自限制（对齐 GoW 官方语义，见 `.kiro/specs/combat-mechanics/GEMS-SEMANTICS.md`）：
+ *   - entangle 缠绕：官方=攻击力归零（骷髅匹配无伤害，仍可行动/施法/充能）。
+ *     本作以 canAttack=false（攻击落空）表达，净效果一致。
+ *   - frozen   冰冻：官方=不可施法、（法力色被冻结时）4/5 连不给额外回合。
+ *     本作从紧：另加不可攻击，仍可充能（已知偏差，待对齐清单处理）。
+ *   - silence  沉默：官方=不可施法、不可获得法力。一致。
+ *   - stun     击晕：官方=禁用全部特质。本作被动系统尚无"禁用"分支，暂无效果（偏差）。
+ * 织网（web）不是控制类——不禁行动，只锁魔力，见 WEB_STATUS_ID。
  */
 export const CONTROL_STATUS_IDS = new Set(['silence', 'frozen', 'entangle']);
+
+/**
+ * 织网状态 id（GoW Web，官方语义）：
+ *   - 魔力归零：技能数值只剩基础项（`casterMagic()` 对织网角色按 0 计）；
+ *   - 无法获得魔法值增益（buff/特质触发在施加口拦截）；
+ *   - 每回合**累计** 10% 几率自行挣脱（首回合 10%，之后每回合 +10%）；
+ *   - 存续回合数照常递减，到期自然解除。
+ * 与缠绕（entangle，攻击归零）是两个状态——中文数据里"织网/缠绕"曾混用，已按官方拆分。
+ */
+export const WEB_STATUS_ID = 'web';
+/** 织网首回合挣脱几率（%） */
+export const WEB_RECOVERY_BASE = 10;
+/** 每多过一回合，挣脱几率累计增量（%） */
+export const WEB_RECOVERY_STEP = 10;
 
 /** 某角色是否带有指定状态且仍存续 */
 export function hasStatus(char: Character, id: string): boolean {
@@ -86,6 +104,11 @@ export function isFrozen(char: Character): boolean {
 /** 是否被缠绕 */
 export function isEntangled(char: Character): boolean {
   return hasStatus(char, 'entangle');
+}
+
+/** 是否被织网（魔力归零，GoW Web） */
+export function isWebbed(char: Character): boolean {
+  return hasStatus(char, WEB_STATUS_ID);
 }
 
 /** 是否带有屏障（可吸收下一次伤害） */
@@ -144,12 +167,15 @@ export function canGainMana(char: Character): boolean {
 
 /**
  * 对角色施加一个状态（需求 9.1）。
- * 若已存在同 id 状态：刷新为「更长的存续回合」并叠加/取更大的 magnitude（简单合并，确定性）。
+ * 若已存在同 id 状态：刷新为「更长的存续回合」并按 opts.stack 选择合并方式——
+ *   - stack: true（技能的「N 层」叠层施加）：magnitude **累加**（GoW 叠层语义，2 层+3 层=5 层）；
+ *   - 默认（特质/普通施加）：magnitude 取更大值（web 的挣脱几率语义依赖 max，行为不变）。
  * 返回 status-apply 事件。
  */
 export function applyStatus(
   char: Character,
   status: StatusInstance,
+  opts: { stack?: boolean } = {},
 ): GameEvent[] {
   if (char.defeated) return [];
   // 免疫特质（防火/隔热/警醒/健壮/灵巧/无坚不摧…）：不施加、不发事件
@@ -159,7 +185,9 @@ export function applyStatus(
   if (existing) {
     existing.turns = Math.max(existing.turns, status.turns);
     if (status.magnitude !== undefined) {
-      existing.magnitude = Math.max(existing.magnitude ?? 0, status.magnitude);
+      existing.magnitude = opts.stack
+        ? (existing.magnitude ?? 0) + status.magnitude
+        : Math.max(existing.magnitude ?? 0, status.magnitude);
     }
   } else {
     const inst: StatusInstance = { id: status.id, turns: status.turns };
@@ -178,14 +206,33 @@ export function applyStatus(
 
 /**
  * 结算单个角色的全部状态（需求 9.2, 9.4, 9.5）：
+ *   0. 织网挣脱判定（GoW Web：累计 10%/回合；未传 rng 时不判定不累计，只走正常到期）
  *   1. DoT 状态扣血 → status-tick（含伤害量）；hp≤0 标记阵亡 → defeat
  *   2. 全部状态 turns 递减；归零移除 → status-expire
  * 直接修改角色。返回事件（tick / defeat / expire 按序）。
  */
-export function tickStatuses(char: Character): GameEvent[] {
+export function tickStatuses(char: Character, rng?: SeededRNG): GameEvent[] {
   if (char.defeated || char.statuses.length === 0) return [];
 
   const events: GameEvent[] = [];
+
+  // 0. 织网挣脱（官方：累计 10%/回合；至多存在一个 web 实例，applyStatus 按 id 合并）
+  if (rng) {
+    const web = char.statuses.find((s) => s.id === WEB_STATUS_ID && s.turns > 0);
+    if (web) {
+      const chance = web.magnitude ?? WEB_RECOVERY_BASE;
+      if (rng.next() * 100 < chance) {
+        char.statuses = char.statuses.filter((s) => s !== web);
+        events.push({
+          type: 'status-expire',
+          targetId: char.id,
+          statusId: WEB_STATUS_ID,
+        });
+      } else {
+        web.magnitude = Math.min(100, chance + WEB_RECOVERY_STEP);
+      }
+    }
+  }
 
   // 1. DoT 结算（按状态数组既有顺序，确定性）
   for (const s of char.statuses) {
@@ -233,10 +280,10 @@ export function tickStatuses(char: Character): GameEvent[] {
 }
 
 /** 结算整队每个存活角色的状态，按队伍索引顺序（确定性，需求 9.4） */
-export function tickTeamStatuses(characters: Character[]): GameEvent[] {
+export function tickTeamStatuses(characters: Character[], rng?: SeededRNG): GameEvent[] {
   const events: GameEvent[] = [];
   for (const ch of characters) {
-    events.push(...tickStatuses(ch));
+    events.push(...tickStatuses(ch, rng));
   }
   return events;
 }
@@ -252,27 +299,34 @@ export interface StatusApplyParams {
   statusId: string;
   /** 存续回合 */
   turns: number;
-  /** DoT 伤害量等（可选） */
+  /** 每层伤害/效果量（可选；最终 magnitude = 每层值 × 层数） */
   magnitude?: number;
+  /** 叠加层数（「陷入 2 层流血」「3 次叠加中毒」）：≥2 时同 id 再施加按累加合并 */
+  stacks?: number;
 }
 
 /**
- * 构建「施加状态」效果原语（需求 9.1）。
+ * 构建「施加状态」效果原语（需求 9.1；叠层为窗口 B 增量）。
  * 对每个存活目标施加状态并发 status-apply。
+ * 叠层语义（SOP 裁定）：最终 magnitude = 每层值 × 层数（bleed 无显式值时每层 1）；
+ * 同 id 已存在时按**累加**合并（仅 stacks 路径），非 stacks 施加维持 max 合并。
  */
 export function statusEffect(params: StatusApplyParams): EffectPrimitive {
   return {
     apply(_ctx: EffectContext): GameEvent[] {
-      const { targets, statusId, turns, magnitude } = params;
+      const { targets, statusId, turns, magnitude, stacks } = params;
       if (targets.length === 0) return [];
+      const layers = Math.max(1, stacks ?? 1);
+      const mag = magnitude !== undefined ? magnitude * layers : undefined;
+      const stack = stacks !== undefined && stacks > 1;
       const events: GameEvent[] = [];
       for (const target of targets) {
         if (target.defeated) continue;
         const status: StatusInstance =
-          magnitude !== undefined
-            ? { id: statusId, turns, magnitude }
+          mag !== undefined
+            ? { id: statusId, turns, magnitude: mag }
             : { id: statusId, turns };
-        events.push(...applyStatus(target, status));
+        events.push(...applyStatus(target, status, { stack }));
       }
       return events;
     },

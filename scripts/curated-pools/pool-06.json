@@ -1,0 +1,563 @@
+[
+ {
+  "troopId": 6223,
+  "troop": "献身者",
+  "spellId": 7365,
+  "spellName": "奥菲斯的意志",
+  "desc": "创造 7 颗选定类型的宝石。净化所有盟友并给予其 [魔法 + 1] 点护甲值。",
+  "scalings": [
+   {
+    "base": 1,
+    "mult": 1
+   }
+  ],
+  "modifier": null
+ },
+ {
+  "troopId": 6227,
+  "troop": "寇维许大帝",
+  "spellId": 7369,
+  "spellName": "安努神之冠",
+  "desc": "对前两名敌人造成 [魔法 + 3] 点真实伤害。将其击晕并耗尽其法力值。",
+  "scalings": [
+   {
+    "base": 3,
+    "mult": 1
+   }
+  ],
+  "modifier": null
+ },
+ {
+  "troopId": 6228,
+  "troop": "雄狮守卫",
+  "spellId": 7370,
+  "spellName": "突破防线",
+  "desc": "对 1 名敌人造成 [魔法 + 2] 点伤害，伤害值因所有盟友护甲值而增强。 [4:1]",
+  "scalings": [
+   {
+    "base": 2,
+    "mult": 1
+   }
+  ],
+  "modifier": {
+   "kind": "ratio",
+   "a": 4,
+   "b": 1
+  }
+ },
+ {
+  "troopId": 6232,
+  "troop": "小飞龙",
+  "spellId": 7374,
+  "spellName": "龙之螫",
+  "desc": "对 1 名敌人造成 [魔法 + 2] 点伤害。造成 1 到 5 项随机状态效果。",
+  "scalings": [
+   {
+    "base": 2,
+    "mult": 1
+   }
+  ],
+  "modifier": null
+ },
+ {
+  "troopId": 6234,
+  "troop": "龙蛾",
+  "spellId": 7375,
+  "spellName": "红外线",
+  "desc": "对 1 名敌人造成 [魔法 + 1] 点伤害。如果有 13 颗或更多红色宝石，则将其全部爆破。",
+  "scalings": [
+   {
+    "base": 1,
+    "mult": 1
+   }
+  ],
+  "modifier": null
+ },
+ {
+  "troopId": 6239,
+  "troop": "安娜莉尔夫人",
+  "spellId": 7382,
+  "spellName": "精灵之星",
+  "desc": "创造 8 颗蓝色宝石和 8 颗绿色宝石。所有盟友获得 [魔法 + 1] 点生命值。",
+  "scalings": [
+   {
+    "base": 1,
+    "mult": 1
+   }
+  ],
+  "modifier": null
+ },
+ {
+  "troopId": 6252,
+  "troop": "龙型-1337",
+  "spellId": 7395,
+  "spellName": "分崩离析",
+  "desc": "使一名敌人陷入沉默和击晕状态，并耗掉他 [魔法 + 1] 点法力值。有 30% 的几率摧毁他。",
+  "scalings": [
+   {
+    "base": 1,
+    "mult": 1
+   }
+  ],
+  "modifier": null
+ },
+ {
+  "troopId": 6253,
+  "troop": "萨梯音乐家",
+  "spellId": 7396,
+  "spellName": "奏鸣曲",
+  "desc": "对两名随机敌人造成 [魔法 + 2] 点伤害，窃取 2 点魔法值并使其陷入沉默状态。。",
+  "scalings": [
+   {
+    "base": 2,
+    "mult": 1
+   }
+  ],
+  "modifier": null
+ },
+ {
+  "troopId": 6254,
+  "troop": "战山羊",
+  "spellId": 7397,
+  "spellName": "角抵",
+  "desc": "摧毁 1 行并将第一名敌人击退至末位。",
+  "scalings": [],
+  "modifier": null
+ },
+ {
+  "troopId": 6255,
+  "troop": "铁须领主",
+  "spellId": 7398,
+  "spellName": "英雄所为",
+  "desc": "对 1 名敌人造成 [魔法 + 6] 点伤害。如果对方使用红色法力，则造成三倍伤害。",
+  "scalings": [
+   {
+    "base": 6,
+    "mult": 1
+   }
+  ],
+  "modifier": null
+ },
+ {
+  "troopId": 6257,
+  "troop": "龙骑士",
+  "spellId": 7400,
+  "spellName": "龙之刃",
+  "desc": "对 1 名敌人造成 [魔法 + 4] 点伤害。如果敌方有龙族军队，则对所有敌人造成 6 点伤害。",
+  "scalings": [
+   {
+    "base": 4,
+    "mult": 1
+   }
+  ],
+  "modifier": null
+ },
+ {
+  "troopId": 6268,
+  "troop": "万圣小鬼",
+  "spellId": 7413,
+  "spellName": "不给糖就捣蛋",
+  "desc": "对所有敌人造成 [魔法 + 9] 点散射伤害，并获得下列其一：将一名随机敌人转化为怨灵，或所有盟友获得 3 点魔法值。",
+  "scalings": [
+   {
+    "base": 9,
+    "mult": 1
+   }
+  ],
+  "modifier": null
+ },
+ {
+  "troopId": 6270,
+  "troop": "甲板水手",
+  "spellId": 7416,
+  "spellName": "打扫甲板",
+  "desc": "创造 5 颗紫色宝石，然后将所有紫色宝石转换为蓝色。",
+  "scalings": [],
+  "modifier": null
+ },
+ {
+  "troopId": 6291,
+  "troop": "雪鸱鸮",
+  "spellId": 7437,
+  "spellName": "夜视",
+  "desc": "摧毁所有紫色宝石，并创造 7 颗指定颜色的宝石。",
+  "scalings": [],
+  "modifier": null
+ },
+ {
+  "troopId": 6302,
+  "troop": "沙漠螳螂",
+  "spellId": 7452,
+  "spellName": "目瞪口呆",
+  "desc": "创造 8 颗黄色宝石和 8 颗蓝色宝石。",
+  "scalings": [],
+  "modifier": null
+ },
+ {
+  "troopId": 6306,
+  "troop": "暗黑巨像",
+  "spellId": 7456,
+  "spellName": "恶意",
+  "desc": "对两名最虚弱的敌人造成 [魔法 + 2] 点伤害。若自身的生命值受损，则造成两倍伤害。",
+  "scalings": [
+   {
+    "base": 2,
+    "mult": 1
+   }
+  ],
+  "modifier": null
+ },
+ {
+  "troopId": 6311,
+  "troop": "沼泽扼杀者",
+  "spellId": 7461,
+  "spellName": "绞杀",
+  "desc": "对 1 名敌人造成 [魔法 + 1] 点伤害，伤害值因被缠绕的敌军数量而增强。 [x5]",
+  "scalings": [
+   {
+    "base": 1,
+    "mult": 1
+   }
+  ],
+  "modifier": {
+   "kind": "multiplier",
+   "a": 5
+  }
+ },
+ {
+  "troopId": 6315,
+  "troop": "德鲁伊教士长",
+  "spellId": 7465,
+  "spellName": "自然生长",
+  "desc": "给予一名盟友 [魔法 + 1] 点生命值和 2 点魔法值。如果盟友是一名元素军队，则效果翻倍。",
+  "scalings": [
+   {
+    "base": 1,
+    "mult": 1
+   }
+  ],
+  "modifier": null
+ },
+ {
+  "troopId": 6321,
+  "troop": "银天龙",
+  "spellId": 7471,
+  "spellName": "冰片",
+  "desc": "对第一名敌人造成 [魔法 + 1] 点伤害并将其冻结。如果敌人的魔法值高于自身，则创造 8 颗蓝色宝石。",
+  "scalings": [
+   {
+    "base": 1,
+    "mult": 1
+   }
+  ],
+  "modifier": null
+ },
+ {
+  "troopId": 6322,
+  "troop": "大剑师",
+  "spellId": 7472,
+  "spellName": "剑刃华尔兹",
+  "desc": "对第一名敌人造成 [魔法 + 1] 点伤害，伤害值因敌人所需的法力值而增强。 [1:1]",
+  "scalings": [
+   {
+    "base": 1,
+    "mult": 1
+   }
+  ],
+  "modifier": {
+   "kind": "ratio",
+   "a": 1,
+   "b": 1
+  }
+ },
+ {
+  "troopId": 6329,
+  "troop": "乔纳·风暴之盾",
+  "spellId": 7479,
+  "spellName": "雷霆标枪",
+  "desc": "对 1 名敌人造成 [魔法 + 5] 点真实伤害，伤害值因具有屏障效果的盟友和巨人盟友数而增强。 [x7]",
+  "scalings": [
+   {
+    "base": 5,
+    "mult": 1
+   }
+  ],
+  "modifier": {
+   "kind": "multiplier",
+   "a": 7
+  }
+ },
+ {
+  "troopId": 6334,
+  "troop": "美洲豹勇士",
+  "spellId": 7484,
+  "spellName": "仪式杀戮",
+  "desc": "对 1 名敌人造成 [魔法 + 5] 点伤害。如果敌人身亡，则恢复自身原有生命值，并获得 8 点攻击力。",
+  "scalings": [
+   {
+    "base": 5,
+    "mult": 1
+   }
+  ],
+  "modifier": null
+ },
+ {
+  "troopId": 6348,
+  "troop": "寒霜蜥蜴",
+  "spellId": 7500,
+  "spellName": "冰之碎片",
+  "desc": "对 1 名随机敌人造成 [魔法 + 5] 点伤害并将其冻结。创造 7 颗蓝色宝石。",
+  "scalings": [
+   {
+    "base": 5,
+    "mult": 1
+   }
+  ],
+  "modifier": null
+ },
+ {
+  "troopId": 6352,
+  "troop": "高等圣骑士",
+  "spellId": 7504,
+  "spellName": "神祇荣光",
+  "desc": "对两名最强大的敌人造成 [魔法 + 1] 点伤害，伤害值因自身护甲值而增强。 [2:1]",
+  "scalings": [
+   {
+    "base": 1,
+    "mult": 1
+   }
+  ],
+  "modifier": {
+   "kind": "ratio",
+   "a": 2,
+   "b": 1
+  }
+ },
+ {
+  "troopId": 6355,
+  "troop": "暗黑女祭司",
+  "spellId": 7507,
+  "spellName": "尖叫骷髅",
+  "desc": "净化一名盟友，减除其 [魔法 + 2] 点生命值并将之转化为攻击力，赋予其屏障效果。创造 8 颗骷髅头。",
+  "scalings": [
+   {
+    "base": 2,
+    "mult": 1
+   }
+  ],
+  "modifier": null
+ },
+ {
+  "troopId": 6365,
+  "troop": "极光女王",
+  "spellId": 7517,
+  "spellName": "彩虹之灵",
+  "desc": "赋予所有其他盟友屏障效果并给予 [魔法 + 1] 点生命值。创造 10 颗指定颜色宝石。",
+  "scalings": [
+   {
+    "base": 1,
+    "mult": 1
+   }
+  ],
+  "modifier": null
+ },
+ {
+  "troopId": 6366,
+  "troop": "炼狱魔头",
+  "spellId": 7518,
+  "spellName": "爆发",
+  "desc": "对 2 名随机敌人造成 [魔法 + 10] 点溅射伤害。爆破 5 颗随机宝石。",
+  "scalings": [
+   {
+    "base": 10,
+    "mult": 1
+   }
+  ],
+  "modifier": null
+ },
+ {
+  "troopId": 6370,
+  "troop": "弗帝亚诺伊",
+  "spellId": 7522,
+  "spellName": "潮湿之爪",
+  "desc": "对 1 名敌人造成 [魔法 + 1] 点伤害。如果敌人使用蓝色法力，则造成三倍伤害。",
+  "scalings": [
+   {
+    "base": 1,
+    "mult": 1
+   }
+  ],
+  "modifier": null
+ },
+ {
+  "troopId": 6373,
+  "troop": "雅嘎的小屋",
+  "spellId": 7525,
+  "spellName": "狠狠一抓",
+  "desc": "对 1 名敌人造成 [魔法 + 4] 点伤害。如果敌人已陷入沉默状态，则造成三倍伤害。",
+  "scalings": [
+   {
+    "base": 4,
+    "mult": 1
+   }
+  ],
+  "modifier": null
+ },
+ {
+  "troopId": 6377,
+  "troop": "鹦鹉",
+  "spellId": 7532,
+  "spellName": "鸟鸣",
+  "desc": "对一名敌人造成[魔法 + 2]点伤害并使其沉默。有50%的几率使上方和下方的敌人沉默。",
+  "scalings": [
+   {
+    "base": 2,
+    "mult": 1
+   }
+  ],
+  "modifier": null
+ },
+ {
+  "troopId": 6411,
+  "troop": "鸩鸟",
+  "spellId": 7569,
+  "spellName": "毒气",
+  "desc": "对一名敌人造成 [魔法 + 1] 点伤害并使其陷入中毒状态。创造 7 颗绿色宝石。",
+  "scalings": [
+   {
+    "base": 1,
+    "mult": 1
+   }
+  ],
+  "modifier": null
+ },
+ {
+  "troopId": 6413,
+  "troop": "美猴王",
+  "spellId": 7571,
+  "spellName": "神圣赐礼",
+  "desc": "创造 7 颗红色和 7 颗黄色宝石。给予所有盟友 [魔法 + 1] 点生命值。",
+  "scalings": [
+   {
+    "base": 1,
+    "mult": 1
+   }
+  ],
+  "modifier": null
+ },
+ {
+  "troopId": 6452,
+  "troop": "蝙蝠群",
+  "spellId": 7630,
+  "spellName": "吸血鬼恶群",
+  "desc": "对所有敌人造成  [(魔法 / 2) + 1]  点真实伤害，再转化成诺斯费拉图。",
+  "scalings": [
+   {
+    "base": 1,
+    "mult": 0.5
+   }
+  ],
+  "modifier": null
+ },
+ {
+  "troopId": 6457,
+  "troop": "火炸弹",
+  "spellId": 7635,
+  "spellName": "自爆",
+  "desc": "爆破 4 颗红宝石。对 1 名随机敌人造成 [魔法 + 5] 点伤害，摧毁自身。",
+  "scalings": [
+   {
+    "base": 5,
+    "mult": 1
+   }
+  ],
+  "modifier": null
+ },
+ {
+  "troopId": 6470,
+  "troop": "天蝎王",
+  "spellId": 7648,
+  "spellName": "皇室剧毒",
+  "desc": "对最后两名敌人造成 [魔法 + 15] 点伤害。若敌人已中毒，则此伤害为致命。",
+  "scalings": [
+   {
+    "base": 15,
+    "mult": 1
+   }
+  ],
+  "modifier": null
+ },
+ {
+  "troopId": 6472,
+  "troop": "轧刚托",
+  "spellId": 7650,
+  "spellName": "恶魔之矛",
+  "desc": "对 1 名敌人造成 [魔法 + 13] 点伤害，伤害值因被杀掉盟友和敌人数量而增强。 [x15]",
+  "scalings": [
+   {
+    "base": 13,
+    "mult": 1
+   }
+  ],
+  "modifier": {
+   "kind": "multiplier",
+   "a": 15
+  }
+ },
+ {
+  "troopId": 6476,
+  "troop": "仓鴞骑手",
+  "spellId": 7663,
+  "spellName": "凌空长枪",
+  "desc": "对最虚弱的敌人造成 [魔法 + 3] 点伤害。若敌人身亡，则摧毁所有紫色宝石。",
+  "scalings": [
+   {
+    "base": 3,
+    "mult": 1
+   }
+  ],
+  "modifier": null
+ },
+ {
+  "troopId": 6477,
+  "troop": "暗影姐妹",
+  "spellId": 7664,
+  "spellName": "双刃",
+  "desc": "对最虚弱的两名敌人造成 [魔法 + 3] 伤害。若敌人身亡，则获得一个额外回合。",
+  "scalings": [
+   {
+    "base": 3,
+    "mult": 1
+   }
+  ],
+  "modifier": null
+ },
+ {
+  "troopId": 6481,
+  "troop": "安努神神将",
+  "spellId": 7668,
+  "spellName": "正义之刃",
+  "desc": "耗尽一名敌人的法力值，并将其击晕和使其陷入沉默状态。对其和其下方的所有敌人造成 [魔法 + 6] 点伤害。",
+  "scalings": [
+   {
+    "base": 6,
+    "mult": 1
+   }
+  ],
+  "modifier": null
+ },
+ {
+  "troopId": 6482,
+  "troop": "电子八爪鱼",
+  "spellId": 7669,
+  "spellName": "八角电",
+  "desc": "摧毁 8 颗选定颜色的珠宝。对每一个使用其颜色的敌人造成 [魔法 + 5] 点伤害。",
+  "scalings": [
+   {
+    "base": 5,
+    "mult": 1
+   }
+  ],
+  "modifier": null
+ }
+]

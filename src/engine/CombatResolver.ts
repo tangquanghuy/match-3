@@ -53,8 +53,12 @@ export class CombatResolver {
     // 保留参数以稳定签名：GoW 规则下骷髅数不参与伤害乘算，
     // 4/5 连的收益是额外回合。将来若要加「每多一颗 +1」可直接在此启用。
     _skullCount: number,
-    /** 闪避判定用的随机源；缺省时闪避特质不生效（纯逻辑单测可省略） */
+    /**
+     * 闪避判定用的随机源；缺省时闪避特质不生效（纯逻辑单测可省略）
+     */
     rng?: Pick<SeededRNG, 'next'>,
+    /** 附加固定伤害（末日骷髅匹配 +5）：计入攻击方倍率之后、目标减伤之前 */
+    bonusDamage = 0,
   ): CombatOutcome {
     const events: GameEvent[] = [];
 
@@ -80,8 +84,9 @@ export class CombatResolver {
     // 伤害公式对齐 Gems of War：一次骷髅匹配只触发一次普攻，伤害等于队首攻击者的攻击力，
     // 多消的骷髅不参与乘算（4/5 连的收益体现为额外回合，见 grantsExtraTurn）。
     // 原先用「攻击力 × 骷髅数」，在接入官方兵种数值后会让三连就打死满级角色。
-    // 屠戮类倍率（龙族杀手/纵火狂/痛揍…）先放大，再由目标的减伤特质折算
-    const raw = attacker.attack * skullDamageMultiplier(attacker, target);
+    // 屠戮类倍率（龙族杀手/纵火狂/痛揍…）先放大，附加固定伤害（末日骷髅 +5）随后叠加，
+    // 再由目标的减伤特质折算
+    const raw = attacker.attack * skullDamageMultiplier(attacker, target) + bonusDamage;
     const damage = Math.max(0, Math.round(raw * passivesOf(target).skullDamageTaken));
 
     // 屏障：整发吸收后消失。等同于攻击落空，故与闪避走同一条出口——
@@ -127,6 +132,17 @@ export class CombatResolver {
           : {}),
       });
       events.push(...inflicted);
+    }
+
+    // 承受骷髅伤害附状态（毒孢子族）：被打时反手给攻击者上状态。
+    // 与受击增益同口径：闪避/屏障/挣扎路径在上面已提前返回，走到这里说明伤害实际成立。
+    if (targetPassive.inflictOnSkullDamaged && !attacker.defeated) {
+      const s = targetPassive.inflictOnSkullDamaged;
+      events.push(...applyStatus(attacker, {
+        id: s.id,
+        turns: s.turns,
+        ...(s.magnitude !== undefined ? { magnitude: s.magnitude } : {}),
+      }));
     }
 
     // 反弹特质（炼狱护甲/荆棘/米提护甲）：按减伤后的实际伤害折算反打攻击者。

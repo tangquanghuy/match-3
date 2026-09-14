@@ -14,8 +14,8 @@
  * 纯逻辑：无 pixi/gsap/dom；随机经 ctx.rng（需求 12.1, 12.2）。
  */
 import { BoardModel } from '../../BoardModel';
-import { colorGem, skullGem, isSameMatchType, posKey } from '../../types';
-import type { BaseColor, CellPos, Gem, GemType } from '../../types';
+import { colorGem, skullGem, isSameMatchType, posKey, specialGem } from '../../types';
+import type { BaseColor, CellPos, Gem, GemType, SpecialGemKind, SpecialGemSpec } from '../../types';
 import type {
   GameEvent,
   GemCreateEvent,
@@ -25,35 +25,70 @@ import type {
 import type { ScalingSpec } from '../scaling';
 import { evaluateScaling } from '../scaling';
 import type { EffectContext, EffectPrimitive, DestroyedGem } from './context';
-import { casterMagic } from './context';
+import { casterMagic, findCharacter } from './context';
+import { evaluateWithModifier } from './secondary';
+import type { ModifierSpec } from './secondary';
 
 /**
- * 颜色规格：具体基础色，或占位符 'CHOSEN'（运行时由 ctx.chosenColor 解析，需求 2）。
- * 无法解析（chosenColor 为空）时，宝石段安全跳过。
+ * 颜色规格：具体基础色，或运行时占位符——
+ *   'CHOSEN'：释放时由玩家/AI 选色（ctx.chosenColor 解析，需求 2）；
+ *   'CASTER'：施法者的军队法力颜色（取施法者首个关联色，「该军队法力颜色的宝石」）；
+ *   'SKULL'：骷髅端点（仅 transform 用：「将所有棕色宝石转换成骷髅头」「骷髅转换成X色」）。
+ * 无法解析（占位符无值）时，宝石段安全跳过。
  */
-export type ColorSpec = BaseColor | 'CHOSEN';
+export type ColorSpec = BaseColor | 'CHOSEN' | 'CASTER' | 'SKULL';
 
-/** 把 ColorSpec 解析为具体基础色；'CHOSEN' 取 ctx.chosenColor，缺省返回 null */
+/** 把 ColorSpec 解析为具体基础色；占位符取 ctx，缺省返回 null（'SKULL' 无对应基色） */
 function resolveColor(spec: ColorSpec, ctx: EffectContext): BaseColor | null {
   if (spec === 'CHOSEN') return ctx.chosenColor ?? null;
+  if (spec === 'SKULL') return null;
+  if (spec === 'CASTER') {
+    return findCharacter(ctx.state, ctx.casterId)?.colors[0] ?? null;
+  }
   return spec;
+}
+
+/** 转化端点 → 目标宝石类型（'SKULL' → 骷髅；基色/占位符 → 色宝石；无法解析 → null） */
+function transformEndpoint(spec: ColorSpec, ctx: EffectContext): GemType | null {
+  if (spec === 'SKULL') return skullGem();
+  const color = resolveColor(spec, ctx);
+  return color === null ? null : colorGem(color);
+}
+
+/** doTransform 的端点解析：优先特殊宝石端点（「将所有红色宝石转换成极度末日骷髅头」） */
+function transformEndpointOf(params: TransformGemParams, side: 'from' | 'to', ctx: EffectContext): GemType | null {
+  const special = side === 'from' ? params.fromSpecial : params.toSpecial;
+  if (special) return specialGem(special);
+  return transformEndpoint(side === 'from' ? params.from : params.to, ctx);
 }
 
 // —— 创造 / 转化 ——
 
-/** 创造：指定颜色（可为 'CHOSEN'）或骷髅宝石 */
+/** 创造宝石类型：指定颜色（可占位符）/ 骷髅 / 混合多色（逐颗随机取色）/ 特殊宝石（窗口 C spec） */
+export type CreateGemSpec =
+  | { kind: 'color'; color: ColorSpec }
+  | { kind: 'skull' }
+  | { kind: 'mix'; colors: ColorSpec[] }
+  | { kind: 'special'; spec: SpecialGemSpec };
+
 export interface CreateGemParams {
   op: 'create';
-  gem: { kind: 'color'; color: ColorSpec } | { kind: 'skull' };
+  gem: CreateGemSpec;
   /** 数量缩放规格（按施法者魔力求值；至少产出 0） */
   count: ScalingSpec;
+  /** 二次缩放（如「每摧毁一颗紫色宝石，则创造 4 颗骷髅头 [x4]」） */
+  modifier?: ModifierSpec;
 }
 
-/** 转化：某颜色 → 另一颜色（均可为 'CHOSEN'） */
+/** 转化：某颜色 → 另一颜色（均可为 'CHOSEN'/'SKULL'）；端点亦可为特殊宝石种类 */
 export interface TransformGemParams {
   op: 'transform';
   from: ColorSpec;
   to: ColorSpec;
+  /** to 端点为特殊宝石时给出（优先于 to 的基色解析） */
+  toSpecial?: SpecialGemKind;
+  /** from 端点为特殊宝石时给出（优先于 from） */
+  fromSpecial?: SpecialGemKind;
 }
 
 // —— 清除目标集（destroy / explode 共用） ——
@@ -76,7 +111,8 @@ export type ClearTarget =
   | { kind: 'color'; color: ColorSpec }
   | { kind: 'allColors' }
   | { kind: 'skulls' }
-  | { kind: 'randomGems'; count: ScalingSpec; include?: 'color' | 'all' }
+  | { kind: 'special'; gem: SpecialGemKind }
+  | { kind: 'randomGems'; count: ScalingSpec; include?: 'color' | 'all'; color?: ColorSpec; special?: SpecialGemKind }
   | { kind: 'cell'; cell: CellPos | 'CELL' };
 
 /** 清除操作：destroy=仅目标本身；explode=目标并入每颗 8 邻格 */
@@ -84,6 +120,8 @@ export interface ClearGemParams {
   op: 'clear';
   mode: 'destroy' | 'explode';
   target: ClearTarget;
+  /** 二次缩放（随机 N 行列/颗的数量因来源而增强：「爆破 [M+1] 颗宝石，数量因X而增强」） */
+  modifier?: ModifierSpec;
 }
 
 export type GemParams = CreateGemParams | TransformGemParams | ClearGemParams;
@@ -96,12 +134,6 @@ function emptyCells(board: BoardModel): CellPos[] {
     if (gem === null) cells.push(pos);
   });
   return cells;
-}
-
-function gemTypeOf(spec: CreateGemParams['gem'], ctx: EffectContext): GemType | null {
-  if (spec.kind === 'skull') return skullGem();
-  const color = resolveColor(spec.color, ctx);
-  return color === null ? null : colorGem(color);
 }
 
 /** 从若干候选位随机取 n 个（不放回，种子化） */
@@ -132,12 +164,26 @@ function cellsOfCol(col: number): CellPos[] {
 
 // —— 创造 ——
 
+/** 创造型宝石的每颗取色：单一类型直接解析；混合型逐颗从候选色随机取（种子化）；特殊宝石按 spec 构造 */
+function pickCreateGemType(spec: CreateGemSpec, ctx: EffectContext): GemType | null {
+  if (spec.kind === 'skull') return skullGem();
+  if (spec.kind === 'special') return specialGem(spec.spec.kind, spec.spec.tier);
+  const colors = spec.kind === 'mix' ? spec.colors : [spec.color];
+  if (colors.length === 0) return null;
+  const resolved = colors.map((c) => resolveColor(c, ctx));
+  if (resolved.some((c) => c === null)) return null; // 任一占位符无法解析 → 整段跳过
+  const pool = resolved as BaseColor[];
+  const color = pool.length === 1 ? pool[0] : pool[ctx.rng.nextInt(pool.length)];
+  return colorGem(color);
+}
+
 function doCreate(params: CreateGemParams, ctx: EffectContext): GameEvent[] {
   const board = ctx.state.board;
-  const gemType = gemTypeOf(params.gem, ctx);
-  if (gemType === null) return [];
+  // 骷髅/单色可提前判跳过；混合色逐颗取色，先确认全部占位符可解析
+  const probe = pickCreateGemType(params.gem, ctx);
+  if (probe === null) return [];
 
-  const n = evaluateScaling(params.count, casterMagic(ctx));
+  const n = evaluateWithModifier(evaluateScaling(params.count, casterMagic(ctx)), params.modifier, ctx);
   if (n <= 0) return [];
 
   const events: GameEvent[] = [];
@@ -146,6 +192,7 @@ function doCreate(params: CreateGemParams, ctx: EffectContext): GameEvent[] {
   const slots = pickN(emptyCells(board), n, ctx);
   const spawns: GemCreateEvent['spawns'] = [];
   for (const pos of slots) {
+    const gemType = pickCreateGemType(params.gem, ctx)!;
     const gem: Gem = { id: ctx.nextGemId(), type: gemType };
     board.set(pos, gem);
     spawns.push({ pos, gemId: gem.id, gemType: gem.type });
@@ -157,15 +204,16 @@ function doCreate(params: CreateGemParams, ctx: EffectContext): GameEvent[] {
   if (remaining > 0) {
     const convertible: CellPos[] = [];
     board.forEach((gem, pos) => {
-      if (gem && !isSameMatchType(gem.type, gemType)) convertible.push(pos);
+      if (gem && probe && !isSameMatchType(gem.type, probe)) convertible.push(pos);
     });
     const targets = pickN(convertible, remaining, ctx);
     const changes: GemTransformEvent['changes'] = [];
     for (const pos of targets) {
       const gem = board.get(pos)!;
       const from = gem.type;
-      gem.type = gemType;
-      changes.push({ pos, gemId: gem.id, from, to: gemType });
+      const to = pickCreateGemType(params.gem, ctx)!;
+      gem.type = to;
+      changes.push({ pos, gemId: gem.id, from, to });
     }
     if (changes.length > 0) events.push({ type: 'gem-transform', changes });
   }
@@ -174,16 +222,13 @@ function doCreate(params: CreateGemParams, ctx: EffectContext): GameEvent[] {
   ctx.resolveBoardChange?.([], events);
   return events;
 }
-
 // —— 转化 ——
 
 function doTransform(params: TransformGemParams, ctx: EffectContext): GameEvent[] {
   const board = ctx.state.board;
-  const from = resolveColor(params.from, ctx);
-  const to = resolveColor(params.to, ctx);
-  if (from === null || to === null || from === to) return [];
-  const fromType = colorGem(from);
-  const toType = colorGem(to);
+  const fromType = transformEndpointOf(params, 'from', ctx);
+  const toType = transformEndpointOf(params, 'to', ctx);
+  if (fromType === null || toType === null || (params.from === params.to && !params.toSpecial && !params.fromSpecial)) return [];
   const changes: GemTransformEvent['changes'] = [];
   board.forEach((gem, pos) => {
     if (gem && isSameMatchType(gem.type, fromType)) {
@@ -193,6 +238,7 @@ function doTransform(params: TransformGemParams, ctx: EffectContext): GameEvent[
     }
   });
   if (changes.length === 0) return [];
+  if (ctx.castTracking) ctx.castTracking.transformed += changes.length;
   const events: GameEvent[] = [{ type: 'gem-transform', changes }];
   ctx.resolveBoardChange?.([], events);
   return events;
@@ -203,7 +249,7 @@ function doTransform(params: TransformGemParams, ctx: EffectContext): GameEvent[
 /**
  * 解析目标集为一组格子（去重、限界）。无法解析（选色/选行列/选格缺失）时返回 null，调用方安全跳过。
  */
-function resolveTargetCells(target: ClearTarget, ctx: EffectContext): CellPos[] | null {
+function resolveTargetCells(target: ClearTarget, ctx: EffectContext, modifier?: ModifierSpec): CellPos[] | null {
   const board = ctx.state.board;
 
   switch (target.kind) {
@@ -219,7 +265,7 @@ function resolveTargetCells(target: ClearTarget, ctx: EffectContext): CellPos[] 
       return target.orientation === 'row' ? cellsOfRow(ctx.chosenCell.row) : cellsOfCol(ctx.chosenCell.col);
     }
     case 'randomLines': {
-      const n = evaluateScaling(target.count, casterMagic(ctx));
+      const n = evaluateWithModifier(evaluateScaling(target.count, casterMagic(ctx)), modifier, ctx);
       if (n <= 0) return [];
       const idxs = pickN(target.orientation === 'row' ? allRows() : allCols(), n, ctx);
       const cells: CellPos[] = [];
@@ -244,13 +290,25 @@ function resolveTargetCells(target: ClearTarget, ctx: EffectContext): CellPos[] 
       board.forEach((gem, pos) => { if (gem && gem.type.kind === 'skull') cells.push(pos); });
       return cells;
     }
+    case 'special': {
+      // 按特殊宝石种类全量清除（「摧毁所有末日骷髅头」）；末日族与普通骷髅分属不同 kind
+      const cells: CellPos[] = [];
+      board.forEach((gem, pos) => { if (gem && gem.type.kind === 'special' && gem.type.spec.kind === target.gem) cells.push(pos); });
+      return cells;
+    }
     case 'randomGems': {
-      const n = evaluateScaling(target.count, casterMagic(ctx));
+      const n = evaluateWithModifier(evaluateScaling(target.count, casterMagic(ctx)), modifier, ctx);
       if (n <= 0) return [];
+      // 可选限定色：「爆破 [魔法 + 1] 颗紫色宝石」从紫色的池子里随机取；可选限定特殊宝石种类
+      const colorFilter = target.color === undefined ? null : resolveColor(target.color, ctx);
+      if (target.color !== undefined && colorFilter === null) return null;
+      const filterType = colorFilter === null ? null : colorGem(colorFilter);
       const pool: CellPos[] = [];
       board.forEach((gem, pos) => {
         if (!gem) return;
+        if (target.special !== undefined && !(gem.type.kind === 'special' && gem.type.spec.kind === target.special)) return;
         if (target.include === 'color' && gem.type.kind !== 'color') return;
+        if (filterType && !isSameMatchType(gem.type, filterType)) return;
         pool.push(pos);
       });
       return pickN(pool, n, ctx);
@@ -286,7 +344,7 @@ function radiate(cells: CellPos[]): CellPos[] {
 }
 
 function doClear(params: ClearGemParams, ctx: EffectContext): GameEvent[] {
-  const targetCells = resolveTargetCells(params.target, ctx);
+  const targetCells = resolveTargetCells(params.target, ctx, params.modifier);
   if (targetCells === null) return []; // 选色/选行列/选格缺失，安全跳过
   const positions = params.mode === 'explode' ? radiate(targetCells) : targetCells;
 
@@ -301,10 +359,13 @@ function doClear(params: ClearGemParams, ctx: EffectContext): GameEvent[] {
     const gem = board.get(pos);
     if (!gem) continue;
     cells.push({ pos, gemId: gem.id, gemType: gem.type });
-    destroyed.push({ gemType: gem.type });
+    destroyed.push({ gemType: gem.type, pos });
     board.set(pos, null);
   }
   if (cells.length === 0) return [];
+
+  // 记入跨段追踪：后续段的二次缩放来源「因被摧毁的 X 色宝石而增强」读这里
+  if (ctx.castTracking) ctx.castTracking.destroyed.push(...destroyed);
 
   // 事件按模式区分，供表现层放不同动画；两者都结算法力/骷髅 + 重力连锁
   const events: GameEvent[] =

@@ -1,0 +1,614 @@
+[
+ {
+  "troopId": 7631,
+  "troop": "宝剑十",
+  "spellId": 9531,
+  "spellName": "抽到宝剑十",
+  "desc": "给予 3 名盟友 4 点攻击力。板面上每有一颗黄色宝石则有 7% 的几率获得一个额外回合。 [x7]",
+  "scalings": [],
+  "modifier": {
+   "kind": "multiplier",
+   "a": 7
+  }
+ },
+ {
+  "troopId": 7624,
+  "troop": "格里姆博恩·血眼",
+  "spellId": 9533,
+  "spellName": "寒冰愤怒",
+  "desc": "对一名敌人造成 [(魔法 x 2) + 4] 点伤害。有 20% 的几率杀死对方，几率因陷入冻结和出血状态的敌人数而增强。  [x5]",
+  "scalings": [
+   {
+    "base": 4,
+    "mult": 2
+   }
+  ],
+  "modifier": {
+   "kind": "multiplier",
+   "a": 5
+  }
+ },
+ {
+  "troopId": 7632,
+  "troop": "腐朽的女王",
+  "spellId": 9536,
+  "spellName": "枯萎的王冠",
+  "desc": "造成 [(魔法 x 1.5) + 12] 点散射伤害，因腐烂宝石数量而增强。然后将 6 颗绿宝石转换为腐烂宝石。 [x10]",
+  "scalings": [
+   {
+    "base": 12,
+    "mult": 1.5
+   }
+  ],
+  "modifier": {
+   "kind": "multiplier",
+   "a": 10
+  }
+ },
+ {
+  "troopId": 7633,
+  "troop": "宝剑皇后",
+  "spellId": 9537,
+  "spellName": "画出宝剑皇后",
+  "desc": "给予所有盟友 4 次攻击力。棋盘上每颗黄色宝石有 7% 的几率获得额外回合。 [x7]",
+  "scalings": [],
+  "modifier": {
+   "kind": "multiplier",
+   "a": 7
+  }
+ },
+ {
+  "troopId": 7640,
+  "troop": "墓穴之赫尔德",
+  "spellId": 9544,
+  "spellName": "墓震",
+  "desc": "对敌人造成 [魔法 + 2] 点伤害。如果敌人是塔，则根据我的升天造成 3 倍 - 5 倍伤害。召唤一条腐烂的蛇。",
+  "scalings": [
+   {
+    "base": 2,
+    "mult": 1
+   }
+  ],
+  "modifier": null
+ },
+ {
+  "troopId": 7643,
+  "troop": "泥行者",
+  "spellId": 9547,
+  "spellName": "泥石流",
+  "desc": "对敌人造成 [魔法 + 4] 点伤害，伤害值会因腐烂宝石和石像鬼宝石而增强。如果敌人是 Boss，则根据我的升级，造成 3 倍 - 5 倍伤害。 [3:1]",
+  "scalings": [
+   {
+    "base": 4,
+    "mult": 1
+   }
+  ],
+  "modifier": {
+   "kind": "ratio",
+   "a": 3,
+   "b": 1
+  }
+ },
+ {
+  "troopId": 7660,
+  "troop": "杜加尔·拉姆霍恩",
+  "spellId": 9588,
+  "spellName": "锤子冲锋",
+  "desc": "对敌人造成 [魔法 + 4] 点伤害，伤害值因 Dhrak-Zum 盟友数量而增强。如果敌人是 Boss，则根据我的升级造成 3 倍 - 5 倍伤害。 [x4]",
+  "scalings": [
+   {
+    "base": 4,
+    "mult": 1
+   }
+  ],
+  "modifier": {
+   "kind": "multiplier",
+   "a": 4
+  }
+ },
+ {
+  "troopId": 7662,
+  "troop": "圣杯国王",
+  "spellId": 9590,
+  "spellName": "画圣杯国王",
+  "desc": "给予所有盟友 10 点生命。棋盘上每颗绿宝石都有 7% 的几率获得额外回合。 [x7]",
+  "scalings": [],
+  "modifier": {
+   "kind": "multiplier",
+   "a": 7
+  }
+ },
+ {
+  "troopId": 7676,
+  "troop": "典范雕像",
+  "spellId": 9604,
+  "spellName": "石击",
+  "desc": "摧毁一个 5x5 的方块。每摧毁一颗棕色宝石，所有盟友将获得 3 点护甲。 [x3]",
+  "scalings": [],
+  "modifier": {
+   "kind": "multiplier",
+   "a": 3
+  }
+ },
+ {
+  "troopId": 7688,
+  "troop": "不朽的安格拉克",
+  "spellId": 9646,
+  "spellName": "怒斥诸神",
+  "desc": "对4名随机敌人造成[(魔法 x 0.7) + 2]真实伤害，伤害值因被激怒的盟友和敌人数量而增强。在破碎之地使用时，造成双倍伤害。 [x2]",
+  "scalings": [
+   {
+    "base": 2,
+    "mult": 0.7
+   }
+  ],
+  "modifier": {
+   "kind": "multiplier",
+   "a": 2
+  }
+ },
+ {
+  "troopId": 7689,
+  "troop": "不朽的德拉肯",
+  "spellId": 9648,
+  "spellName": "翠绿色的火焰",
+  "desc": "对所有敌人造成[(魔法 x 0.8) + 2]真实伤害。在南荒使用时，造成双倍伤害。然后将6颗黄宝石转换为绿龙宝石。",
+  "scalings": [
+   {
+    "base": 2,
+    "mult": 0.8
+   }
+  ],
+  "modifier": null
+ },
+ {
+  "troopId": 7701,
+  "troop": "符文之王",
+  "spellId": 9662,
+  "spellName": "绘制符文之王",
+  "desc": "为所有盟友提供 10 点护甲。棋盘上每增加一颗蓝宝石，就有 7% 的几率额外获得一回合。 [x7]",
+  "scalings": [],
+  "modifier": {
+   "kind": "multiplier",
+   "a": 7
+  }
+ },
+ {
+  "troopId": 7719,
+  "troop": "棘轮螺栓",
+  "spellId": 9711,
+  "spellName": "疯狂大炮",
+  "desc": "对一名敌人和 2 名随机敌人造成 [魔法 + 4] 点伤害，伤害值因友方机甲数量而增强。召唤 2 个随机机甲。 [x7]",
+  "scalings": [
+   {
+    "base": 4,
+    "mult": 1
+   }
+  ],
+  "modifier": {
+   "kind": "multiplier",
+   "a": 7
+  }
+ },
+ {
+  "troopId": 7720,
+  "troop": "扎格的爆炸堆",
+  "spellId": 9712,
+  "spellName": "大爆炸！",
+  "desc": "摧毁一个5x5的圆圈。造成[魔法 + 12]点散射伤害，伤害值因摧毁的红色宝石数量而增强。获得一个额外回合。 [x15]",
+  "scalings": [
+   {
+    "base": 12,
+    "mult": 1
+   }
+  ],
+  "modifier": {
+   "kind": "multiplier",
+   "a": 15
+  }
+ },
+ {
+  "troopId": 7726,
+  "troop": "不朽的扎卡利尔",
+  "spellId": 9719,
+  "spellName": "荣誉的召唤",
+  "desc": "对3名随机敌人造成[(魔法 x 0.6) + 2]点真实重度溅射伤害，伤害值因屏障石数量而增强。在艾达尼亚使用时，伤害加倍。 [x2]",
+  "scalings": [
+   {
+    "base": 2,
+    "mult": 0.6
+   }
+  ],
+  "modifier": {
+   "kind": "multiplier",
+   "a": 2
+  }
+ },
+ {
+  "troopId": 7728,
+  "troop": "拉奎尔",
+  "spellId": 9723,
+  "spellName": "刺眼的光芒",
+  "desc": "驱散一名敌人。对其造成[魔法 + 2]真实伤害，伤害值因屏障宝石数量而增强。然后创造5颗屏障宝石。 [x4]",
+  "scalings": [
+   {
+    "base": 2,
+    "mult": 1
+   }
+  ],
+  "modifier": {
+   "kind": "multiplier",
+   "a": 4
+  }
+ },
+ {
+  "troopId": 7743,
+  "troop": "宝剑国王",
+  "spellId": 9728,
+  "spellName": "画出宝剑国王",
+  "desc": "赋予所有盟友 5 点攻击力。棋盘上每颗黄色宝石有 7% 的概率额外获得一回合。 [x7]",
+  "scalings": [],
+  "modifier": {
+   "kind": "multiplier",
+   "a": 7
+  }
+ },
+ {
+  "troopId": 7744,
+  "troop": "战争先驱",
+  "spellId": 9729,
+  "spellName": "宣战",
+  "desc": "摧毁一行。对前 2 名敌人造成 [魔法 + 3] 点伤害，伤害值因摧毁的红色宝石数量而增强。然后对其施加 2 层流血效果。 [x3]",
+  "scalings": [
+   {
+    "base": 3,
+    "mult": 1
+   }
+  ],
+  "modifier": {
+   "kind": "multiplier",
+   "a": 3
+  }
+ },
+ {
+  "troopId": 7753,
+  "troop": "西沃恩",
+  "spellId": 9738,
+  "spellName": "水晶指挥部",
+  "desc": "对一名敌人造成 [魔法 + 2] 点伤害，伤害值因我的生命值而增强。如果敌人是防御塔，则造成 3 倍 - 5 倍伤害，伤害值取决于我的升华值。 [10:1]",
+  "scalings": [
+   {
+    "base": 2,
+    "mult": 1
+   }
+  ],
+  "modifier": {
+   "kind": "ratio",
+   "a": 10,
+   "b": 1
+  }
+ },
+ {
+  "troopId": 7768,
+  "troop": "腐烂冠军",
+  "spellId": 9774,
+  "spellName": "胆汁河",
+  "desc": "对所有敌人造成[(魔法 x 1.5) + 3]点伤害。创造16颗绿色和红色宝石，伤害值会因敌人患病和中毒数量而增强。 [1:1]",
+  "scalings": [
+   {
+    "base": 3,
+    "mult": 1.5
+   }
+  ],
+  "modifier": {
+   "kind": "ratio",
+   "a": 1,
+   "b": 1
+  }
+ },
+ {
+  "troopId": 7772,
+  "troop": "圣杯皇后",
+  "spellId": 9778,
+  "spellName": "画出圣杯皇后。",
+  "desc": "为所有友军恢复8点生命值。场上每有一颗绿色宝石，就有7%的几率获得额外回合。 [x7]",
+  "scalings": [],
+  "modifier": {
+   "kind": "multiplier",
+   "a": 7
+  }
+ },
+ {
+  "troopId": 7777,
+  "troop": "拉沙·乌尔钦",
+  "spellId": 9783,
+  "spellName": "猫科动物小径",
+  "desc": "对随机一名敌人造成1点伤害，伤害值由我的金币加成。然后窃取5枚金币。 [10:1]",
+  "scalings": [],
+  "modifier": {
+   "kind": "ratio",
+   "a": 10,
+   "b": 1
+  }
+ },
+ {
+  "troopId": 7791,
+  "troop": "不朽的考马尼",
+  "spellId": 9808,
+  "spellName": "优雅的九条命",
+  "desc": "对所有敌人造成[(魔法 x 0.75) + 2]点真实伤害，受到其他友方和受祝福的敌人的加成。在夏日岛使用时，伤害翻倍。 [x1.5]",
+  "scalings": [
+   {
+    "base": 2,
+    "mult": 0.75
+   }
+  ],
+  "modifier": {
+   "kind": "multiplier",
+   "a": 1.5
+  }
+ },
+ {
+  "troopId": 7792,
+  "troop": "不朽的龟背竹",
+  "spellId": 9810,
+  "spellName": "自然守护",
+  "desc": "获得 [(魔法 x 0.8) + 1] 点攻击力、生命值和护甲值，数值因缠绕宝石和被缠绕的敌人数量而增强。在南方荒野使用，效果翻倍。 [x2]",
+  "scalings": [
+   {
+    "base": 1,
+    "mult": 0.8
+   }
+  ],
+  "modifier": {
+   "kind": "multiplier",
+   "a": 2
+  }
+ },
+ {
+  "troopId": 7795,
+  "troop": "墓穴之王",
+  "spellId": 9815,
+  "spellName": "打破陵墓",
+  "desc": "消除敌人最多14点护甲。生成5颗紫色宝石，宝石数量根据消除的护甲值提升。 [2:1]",
+  "scalings": [],
+  "modifier": {
+   "kind": "ratio",
+   "a": 2,
+   "b": 1
+  }
+ },
+ {
+  "troopId": 7801,
+  "troop": "不朽的马拉图斯",
+  "spellId": 9841,
+  "spellName": "痛苦之网",
+  "desc": "造成[(魔法 x 2.5) + 8]点真实散射伤害，受蛛网宝石加成。若在格赫隆使用，则造成双倍伤害。 [x2]",
+  "scalings": [
+   {
+    "base": 8,
+    "mult": 2.5
+   }
+  ],
+  "modifier": {
+   "kind": "multiplier",
+   "a": 2
+  }
+ },
+ {
+  "troopId": 7816,
+  "troop": "符文女王",
+  "spellId": 9860,
+  "spellName": "画出符文女王",
+  "desc": "为所有友军增加8点护甲。场上每有一颗蓝色宝石，就有7%的几率获得额外回合。 [x7]",
+  "scalings": [],
+  "modifier": {
+   "kind": "multiplier",
+   "a": 7
+  }
+ },
+ {
+  "troopId": 7835,
+  "troop": "奥努里斯",
+  "spellId": 9879,
+  "spellName": "血月狂喜",
+  "desc": "对两名最强敌人造成[(魔法 x 1.5) + 4]点伤害，伤害值受所有敌方魔法加成。然后对他们施加4层流血效果。 [2:1]",
+  "scalings": [
+   {
+    "base": 4,
+    "mult": 1.5
+   }
+  ],
+  "modifier": {
+   "kind": "ratio",
+   "a": 2,
+   "b": 1
+  }
+ },
+ {
+  "troopId": 7860,
+  "troop": "不朽的克维尔杜尔夫",
+  "spellId": 9933,
+  "spellName": "狂野之月",
+  "desc": "对 4 个敌人造成 [(魔法 x 0.6) + 2] 点真实光溅射伤害，受狼人宝石加成。若在凛冬之境使用，则造成双倍伤害。 [x2]",
+  "scalings": [
+   {
+    "base": 2,
+    "mult": 0.6
+   }
+  ],
+  "modifier": {
+   "kind": "multiplier",
+   "a": 2
+  }
+ },
+ {
+  "troopId": 7861,
+  "troop": "不朽的陶拉乌斯",
+  "spellId": 9935,
+  "spellName": "惩罚尖塔",
+  "desc": "对 3 个随机敌人造成 [(魔法 x 0.67) + 2] 点真实溅射伤害。若在中央尖塔内使用，则造成双倍伤害。引爆一排敌人。",
+  "scalings": [
+   {
+    "base": 2,
+    "mult": 0.67
+   }
+  ],
+  "modifier": null
+ },
+ {
+  "troopId": 7868,
+  "troop": "圣杯骑士",
+  "spellId": 9943,
+  "spellName": "画出圣杯骑士",
+  "desc": "为所有友方单位恢复6点生命值。场上每有一颗绿色宝石，就有7%的几率获得额外回合。 [x7]",
+  "scalings": [],
+  "modifier": {
+   "kind": "multiplier",
+   "a": 7
+  }
+ },
+ {
+  "troopId": 7874,
+  "troop": "矿车",
+  "spellId": 9949,
+  "spellName": "铁路收费",
+  "desc": "摧毁一排。对随机一名敌人造成[魔法 + 2]点伤害。然后生成3颗棕色宝石，宝石数量受摧毁的骷髅数量加成。 [x3]",
+  "scalings": [
+   {
+    "base": 2,
+    "mult": 1
+   }
+  ],
+  "modifier": {
+   "kind": "multiplier",
+   "a": 3
+  }
+ },
+ {
+  "troopId": 7875,
+  "troop": "洞穴爬行者",
+  "spellId": 9950,
+  "spellName": "黑暗伏击",
+  "desc": "对敌人造成[魔法 + 3]点伤害，伤害值受蛛网宝石加成。如果敌人已被蛛网束缚，则造成双倍伤害。然后将其蛛网束缚。 [x2]",
+  "scalings": [
+   {
+    "base": 3,
+    "mult": 1
+   }
+  ],
+  "modifier": {
+   "kind": "multiplier",
+   "a": 2
+  }
+ },
+ {
+  "troopId": 7877,
+  "troop": "DRIDR-8000",
+  "spellId": 9952,
+  "spellName": "机械网",
+  "desc": "摧毁一行和一列。生成 1 个蛛网宝石，其数量会根据被摧毁的黄色宝石的数量进行加成。 [1:1]",
+  "scalings": [],
+  "modifier": {
+   "kind": "ratio",
+   "a": 1,
+   "b": 1
+  }
+ },
+ {
+  "troopId": 6061,
+  "troop": "狂战士",
+  "spellId": 7061,
+  "spellName": "丧心病狂！",
+  "desc": "对 1 名敌人造成 [(魔法 / 2) + 4] – [魔法 + 8] 到 {2} 点伤害，伤害值因自身减损的生命值而增强。自身承受 2 点伤害并获得 4 点攻击力。 [2:1]",
+  "scalings": [
+   {
+    "base": 4,
+    "mult": 0.5
+   },
+   {
+    "base": 8,
+    "mult": 1
+   }
+  ],
+  "modifier": {
+   "kind": "ratio",
+   "a": 2,
+   "b": 1
+  }
+ },
+ {
+  "troopId": 6079,
+  "troop": "暗影巨龙",
+  "spellId": 7149,
+  "spellName": "永恒之夜",
+  "desc": "使所有敌人陷入中毒状态，并对 1 名随机的敌人造成 [魔法 + 1] 点真实伤害。将所有黄色的宝石转换成紫色宝石。伤害值因转换的宝石数而增强。 [x3]",
+  "scalings": [
+   {
+    "base": 1,
+    "mult": 1
+   }
+  ],
+  "modifier": {
+   "kind": "multiplier",
+   "a": 3
+  }
+ },
+ {
+  "troopId": 6148,
+  "troop": "暗黑大师",
+  "spellId": 7262,
+  "spellName": "九尾鞭",
+  "desc": "对 1 名敌人造成 [(魔法 / 2) + 9] 点伤害。召唤一名奴隶。如果敌人死亡，为所有盟友增加 2 点攻击力。",
+  "scalings": [
+   {
+    "base": 9,
+    "mult": 0.5
+   }
+  ],
+  "modifier": null
+ },
+ {
+  "troopId": 6210,
+  "troop": "安努拜勇士",
+  "spellId": 7352,
+  "spellName": "封锁陵墓",
+  "desc": "召唤一个堡垒大门。所有盟友获得 1 点护甲值，并移除所有骷髅头以增强效果。 [1:1]",
+  "scalings": [],
+  "modifier": {
+   "kind": "ratio",
+   "a": 1,
+   "b": 1
+  }
+ },
+ {
+  "troopId": 6242,
+  "troop": "有翅野牛",
+  "spellId": 7385,
+  "spellName": "迁徙",
+  "desc": "将所有紫色宝石转换为红色。有 40% 的几率召唤一只有翅野牛，几率因转换的宝石数而增强。 [x2]",
+  "scalings": [],
+  "modifier": {
+   "kind": "multiplier",
+   "a": 2
+  }
+ },
+ {
+  "troopId": 6259,
+  "troop": "伊莎贝拉女王",
+  "spellId": 7402,
+  "spellName": "皇家旨意",
+  "desc": "对第一名敌人造成伤害，伤害值等同于一名盟友的攻击力。给予盟友 [魔法 + 1] 点攻击力和护甲值。除了自身之外，所有盟友获得 3 到 8 点法力值。 [1:1]",
+  "scalings": [
+   {
+    "base": 1,
+    "mult": 1
+   }
+  ],
+  "modifier": {
+   "kind": "ratio",
+   "a": 1,
+   "b": 1
+  }
+ }
+]

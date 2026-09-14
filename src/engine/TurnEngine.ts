@@ -7,9 +7,9 @@ import { CombatResolver } from './CombatResolver';
 import { ExtensionRegistry } from './registry';
 import { SeededRNG } from './rng';
 import { reshuffle, hasLegalSwap } from './boardUtils';
-import { tickTeamStatuses, canCastSkill } from './skills/effects/status';
+import { tickTeamStatuses, canCastSkill, applyStatus, canGainMana, WEB_STATUS_ID } from './skills/effects/status';
 import { executePrototype } from './skills/prototypes';
-import type { EffectContext } from './skills/effects/context';
+import type { EffectContext, DestroyedGem } from './skills/effects/context';
 import type { SummonTemplate } from './skills/effects/summon';
 import { AiColorChooser, prototypeNeedsColor } from './skills/colorChooser';
 import type { ColorChooser } from './skills/colorChooser';
@@ -17,25 +17,29 @@ import { AiTargetChooser, prototypeChosenTargetMode } from './skills/targetChoos
 import type { TargetChooser } from './skills/targetChooser';
 import { AiCellChooser, prototypeNeedsCell } from './skills/cellChooser';
 import type { CellChooser } from './skills/cellChooser';
-import { MatchState, PlayerSide, opponentOf, colorGem } from './types';
-import type { ActionLogEntry, BattleAction, CellPos, GemType, BaseColor } from './types';
+import { MatchState, PlayerSide, opponentOf, colorGem, WEB_GEM_TURNS } from './types';
+import type { ActionLogEntry, BattleAction, CellPos, GemType, BaseColor, Character } from './types';
 import type { GameState } from './GameState';
-import { resolveDefeatEvents } from './teamRoster';
+import { resolveDefeatEvents, summonQueueOf, MAX_ACTIVE_TEAM_SIZE } from './teamRoster';
 import {
   applyBattleStartTraits,
   applyBigMatchTriggers,
   applyCastTriggers,
   applyColorMatchTriggers,
+  applyDeathSummons,
   applyDeathTriggers,
   applyTurnStartPassives,
   attachPassives,
   getTrait,
+  passivesOf,
 } from './traits';
+import type { DeathSummonSpec } from './traits';
 import type {
   GameEvent,
   EliminationEvent,
   SpecialGemHookEvent,
   GemTransformEvent,
+  GemClearEvent,
 } from './events';
 
 /**
@@ -63,6 +67,8 @@ export class TurnEngine {
   private summonResolver: ((referenceName: string) => SummonTemplate | null) | null = null;
   /** 行动开始时的「角色 id → 所属方」快照，供阵亡响应在角色离场后仍能判定归属 */
   private readonly rosterSideAtActionStart = new Map<number, PlayerSide>();
+  /** 行动开始时的角色引用快照：阵亡者被移出编队后，死亡召唤仍需读它编译过的被动 */
+  private readonly rosterCharAtActionStart = new Map<number, Character>();
 
   constructor(
     private state: GameState,
@@ -134,12 +140,15 @@ export class TurnEngine {
    * 因此 index 恒等于「本场第 n 次真实行动」。
    */
   private beginActionLog(action: BattleAction, skillId?: string): ActionLogEntry {
-    // 行动受理的同一时刻记下编队归属：阵亡者会在结算过程中被移出编队，
-    // 到行动末尾结算阵亡响应特质时只能靠这份快照判定它属于哪一方。
+    // 行动受理的同一时刻记下编队归属与角色引用：阵亡者会在结算过程中被移出编队，
+    // 到行动末尾结算阵亡响应特质/死亡召唤时只能靠这份快照拿到它属于哪一方、
+    // 以及它身上编译过的被动（summonOnDeath 等随对象走）。
     this.rosterSideAtActionStart.clear();
+    this.rosterCharAtActionStart.clear();
     for (const side of [PlayerSide.Left, PlayerSide.Right]) {
       for (const ch of this.state.teams[side].characters) {
         this.rosterSideAtActionStart.set(ch.id, side);
+        this.rosterCharAtActionStart.set(ch.id, ch);
       }
     }
     const entry: ActionLogEntry = {
@@ -208,7 +217,8 @@ export class TurnEngine {
       this.state.chainCount += 1;
       const chain = this.state.chainCount;
 
-      // 1. 消除：发出 elimination 事件，并按组结算效果
+      // 1. 消除：发出 elimination 事件，并按组结算效果；登记特殊宝石"被匹配"触发
+      const destroyTriggers: { gemType: GemType; pos: CellPos; viaMatch: boolean }[] = [];
       for (const group of matches) {
         events.push(this.makeEliminationEvent(group, chain));
         if (grantsExtraTurn(group.shape)) grantedExtra = true;
@@ -230,8 +240,12 @@ export class TurnEngine {
           events.push(hook);
         }
 
-        // 结算法力 / 骷髅伤害
+        // 结算法力 / 骷髅伤害（颜色组含通配倍率；骷髅组含末日骷髅加伤）
         this.applyGroupEffects(group, events);
+
+        // 特殊宝石"被匹配"触发：织网/沙漏即时结算；末日骷髅/闪电的破坏登记到
+        // destroyTriggers，统一在全部组移除后引爆（避免提前清掉同迭代其他组的宝石造成双重结算）
+        this.collectMatchTriggers(group, destroyTriggers, events);
       }
 
       // 2. 从棋盘移除被消除的宝石
@@ -241,10 +255,14 @@ export class TurnEngine {
         }
       }
 
-      // 3. 胜负检查：某队全灭即结束（需求 15.3）
+      // 3. 特殊宝石破坏链：末日骷髅引爆相邻一圈 / 闪电清整行整列，
+      //    以及连带的炸弹/闪电/许愿连锁；链上摧毁照常结算法力/骷髅
+      this.settleDestroyed(this.expandSpecialDestruction(destroyTriggers, events), events);
+
+      // 4. 胜负检查：某队全灭即结束（需求 15.3）
       if (this.checkVictory(events)) return;
 
-      // 4. 重力 + 补充（需求 8.1-8.4）
+      // 5. 重力 + 补充（需求 8.1-8.4）
       const result = this.gravity.apply(this.state.board, this.skullChance);
       events.push({ type: 'gravity', chainCount: chain, moves: result.moves });
       events.push({ type: 'refill', chainCount: chain, spawns: result.spawns });
@@ -272,9 +290,230 @@ export class TurnEngine {
     };
   }
 
-  /** 结算一个消除组的法力或骷髅伤害（需求 11, 12, 14） */
+  /**
+   * 结算一个消除组的法力或骷髅伤害（需求 11, 12, 14）：
+   *   - 颜色组：法力量 = 消除宝石数 × 组内通配倍率乘积
+   *   - 骷髅族组：一次普攻，末日骷髅每颗 +5 加伤
+   *   - 全通配组：无归属色，只消除不结算
+   */
   private applyGroupEffects(group: MatchGroup, events: GameEvent[]): void {
-    this.settleGems(group.gemType, group.cells.length, events);
+    const settle = group.settle;
+    const activeTeam = this.state.teams[this.state.activePlayer];
+    if (settle.kind === 'color') {
+      // 颜色 → 产生法力，数量 = 宝石数 × 通配倍率（需求 11.1）
+      events.push(
+        ...this.mana.distribute(activeTeam, this.state.activePlayer, settle.color, group.cells.length * settle.manaMultiplier),
+      );
+      // 配色触发特质（食人魔之怒/阳光…）：匹配到关联色时给匹配方全队加值。
+      // 每次结算算一次，与消除的宝石数无关——描述是「在配对X色宝石时」，不是「每颗」。
+      events.push(...applyColorMatchTriggers(activeTeam.characters, settle.color));
+    } else if (settle.kind === 'skull') {
+      // 骷髅 → 物理伤害（需求 14），不产生法力（需求 11.2）
+      const enemyTeam = this.state.teams[opponentOf(this.state.activePlayer)];
+      // 传入 rng：闪避特质（敏捷/轻巧）需要随机判定，且必须走同一条确定性随机源
+      const outcome = this.combat.resolveSkullDamage(
+        activeTeam,
+        enemyTeam,
+        group.cells.length,
+        this.rng,
+        settle.bonusDamage,
+      );
+      events.push(...resolveDefeatEvents(this.state, outcome.events));
+    }
+    // 'wildOnly'：全通配组无归属色，只消除不结算
+  }
+
+  /**
+   * 特殊宝石"被匹配"触发（宝石此刻仍在盘上，移除发生在组循环之后）：
+   *   - 末日骷髅 / 闪电：破坏型，登记到 destroyTriggers 统一引爆（见 runCascades 步骤 3）
+   *   - 织网：随机一名存活敌人获得 web 状态
+   *   - 沙漏：本方获得一次额外回合
+   *   - 通配无匹配触发（倍率在组结算里）；炸弹/许愿不可匹配，不会出现在组里
+   */
+  private collectMatchTriggers(
+    group: MatchGroup,
+    destroyTriggers: { gemType: GemType; pos: CellPos; viaMatch: boolean }[],
+    events: GameEvent[],
+  ): void {
+    for (const cell of group.cells) {
+      const gem = this.state.board.get(cell);
+      if (!gem || gem.type.kind !== 'special') continue;
+      const kind = gem.type.spec.kind;
+      if (kind === 'doomSkull' || kind === 'uberDoomSkull' || kind === 'lightningRow' || kind === 'lightningCol') {
+        destroyTriggers.push({ gemType: gem.type, pos: cell, viaMatch: true });
+      } else if (kind === 'web') {
+        events.push(...this.applyWebGem(cell));
+      } else if (kind === 'hourglass') {
+        events.push({ type: 'special-gem-trigger', kind: 'hourglass', pos: cell });
+        if (this.pendingExtraTurnSource === null) this.pendingExtraTurnSource = 'match';
+      }
+    }
+  }
+
+  /** 织网宝石（被匹配时）：随机一名存活敌人获得 web 状态（魔力归零，见 status.ts） */
+  private applyWebGem(pos: CellPos): GameEvent[] {
+    const events: GameEvent[] = [{ type: 'special-gem-trigger', kind: 'web', pos }];
+    const enemies = this.state.teams[opponentOf(this.state.activePlayer)].characters
+      .filter((c) => !c.defeated);
+    if (enemies.length === 0) return events;
+    const target = enemies[this.rng.nextInt(enemies.length)];
+    events.push(...applyStatus(target, { id: WEB_STATUS_ID, turns: WEB_GEM_TURNS }));
+    return events;
+  }
+
+  /**
+   * 特殊宝石"被摧毁"触发链（clear 管线路径 + 匹配路径共用的引爆引擎）。
+   * 队列 FIFO：炸弹→引爆相邻一圈（gem-explode）、闪电→清空整行/列（gem-destroy）、
+   * 许愿→5 选 1 随机回蓝；末日骷髅仅在 viaMatch（匹配路径登记）时引爆相邻一圈。
+   * 链上新摧毁的宝石继续入队（炸弹可连环引爆）。
+   *
+   * `initial` 里 viaMatch 的宝石视为匹配触发的登记（已被随组移除并结算，只触发其效果），
+   * 其余视为已被调用方移除且已结算；返回链上新摧毁的宝石，由调用方统一结算法力/骷髅。
+   * 确定性：处理顺序与格子遍历序固定，随机只走 this.rng（需求 17.3）。
+   */
+  private expandSpecialDestruction(
+    initial: ReadonlyArray<{ gemType: GemType; pos?: CellPos; viaMatch?: boolean }>,
+    events: GameEvent[],
+  ): DestroyedGem[] {
+    const chain: DestroyedGem[] = [];
+    const queue = initial.slice();
+    while (queue.length > 0) {
+      const d = queue.shift()!;
+      if (d.gemType.kind !== 'special' || d.pos === undefined) continue;
+      const kind = d.gemType.spec.kind;
+      if (kind === 'bomb') {
+        events.push({ type: 'special-gem-trigger', kind: 'bomb', pos: d.pos });
+        this.clearCellsForSpecial(this.ringCells(d.pos), 'gem-explode', events, queue, chain);
+      } else if (kind === 'doomSkull' || kind === 'uberDoomSkull') {
+        // 末日骷髅/至尊末日骷髅只在"被匹配"时引爆；被摧毁（炸弹波及等）静默移除
+        if (!d.viaMatch) continue;
+        events.push({ type: 'special-gem-trigger', kind, pos: d.pos });
+        this.clearCellsForSpecial(this.ringCells(d.pos), 'gem-explode', events, queue, chain);
+      } else if (kind === 'lightningRow' || kind === 'lightningCol') {
+        events.push({
+          type: 'special-gem-trigger',
+          kind,
+          pos: d.pos,
+          line: kind === 'lightningRow' ? d.pos.row : d.pos.col,
+        });
+        const cells = kind === 'lightningRow'
+          ? this.cellsOfRow(d.pos.row)
+          : this.cellsOfCol(d.pos.col);
+        this.clearCellsForSpecial(cells, 'gem-destroy', events, queue, chain);
+      } else if (kind === 'wish') {
+        this.applyWish(d.pos, events);
+      }
+      // ghost/wildcard：无"被摧毁"触发（wildcard 倍率在组结算里；ghost 语义待定无行为）
+    }
+    return chain;
+  }
+
+  /** 清除一批仍在盘上的格子并发一个清除事件；被清宝石入队继续触发、入链等待结算 */
+  private clearCellsForSpecial(
+    cells: CellPos[],
+    eventType: 'gem-explode' | 'gem-destroy',
+    events: GameEvent[],
+    queue: { gemType: GemType; pos?: CellPos }[],
+    chain: DestroyedGem[],
+  ): void {
+    const cleared: GemClearEvent['cells'] = [];
+    for (const pos of cells) {
+      const gem = this.state.board.get(pos);
+      if (!gem) continue;
+      this.state.board.set(pos, null);
+      cleared.push({ pos, gemId: gem.id, gemType: gem.type });
+      const d: DestroyedGem = { gemType: gem.type, pos };
+      queue.push(d);
+      chain.push(d);
+    }
+    if (cleared.length > 0) {
+      events.push(
+        eventType === 'gem-explode'
+          ? { type: 'gem-explode', cells: cleared }
+          : { type: 'gem-destroy', cells: cleared },
+      );
+    }
+  }
+
+  /**
+   * 许愿宝石（被摧毁时）：5 选 1 随机回蓝，各 20%（官方）。
+   * 0..2 = 随机 1/2/3 名己方，3 = 己方全员，4 = 双方全员（20% 的坑）。
+   * 沉默者不可充能（与法力分配器同口径），阵亡不受益。
+   */
+  private applyWish(pos: CellPos, events: GameEvent[]): void {
+    const option = Math.min(4, Math.floor(this.rng.next() * 5));
+    const myTeam = this.state.teams[this.state.activePlayer].characters;
+    const enemyTeam = this.state.teams[opponentOf(this.state.activePlayer)].characters;
+
+    let targets: Character[];
+    if (option <= 2) {
+      const pool = myTeam.filter((c) => !c.defeated);
+      targets = [];
+      for (let i = 0; i <= option && pool.length > 0; i++) {
+        targets.push(pool.splice(this.rng.nextInt(pool.length), 1)[0]);
+      }
+    } else if (option === 3) {
+      targets = myTeam.filter((c) => !c.defeated);
+    } else {
+      targets = [...myTeam, ...enemyTeam].filter((c) => !c.defeated);
+    }
+
+    events.push({
+      type: 'special-gem-trigger',
+      kind: 'wish',
+      pos,
+      wish: { option, targetIds: targets.map((t) => t.id) },
+    });
+    for (const t of targets) {
+      if (!canGainMana(t)) continue;
+      const gain = t.manaCost - t.mana;
+      if (gain <= 0) continue;
+      t.mana += gain;
+      events.push({ type: 'buff', targetId: t.id, stat: 'mana', amount: gain });
+    }
+  }
+
+  /** 8 邻格（行优先序，限界） */
+  private ringCells(pos: CellPos): CellPos[] {
+    const cells: CellPos[] = [];
+    for (let dr = -1; dr <= 1; dr++) {
+      for (let dc = -1; dc <= 1; dc++) {
+        if (dr === 0 && dc === 0) continue;
+        const p = { row: pos.row + dr, col: pos.col + dc };
+        if (BoardModel.inBounds(p)) cells.push(p);
+      }
+    }
+    return cells;
+  }
+
+  private cellsOfRow(row: number): CellPos[] {
+    return Array.from({ length: BoardModel.COLS }, (_, col) => ({ row, col }));
+  }
+
+  private cellsOfCol(col: number): CellPos[] {
+    return Array.from({ length: BoardModel.ROWS }, (_, row) => ({ row, col }));
+  }
+
+  /** 被摧毁宝石的法力/骷髅结算：颜色按色归并、骷髅合计一次普攻；特殊宝石自身不参与 */
+  private settleDestroyed(
+    destroyed: ReadonlyArray<{ gemType: GemType }>,
+    events: GameEvent[],
+  ): void {
+    if (destroyed.length === 0) return;
+    const colorCounts = new Map<string, { type: GemType; n: number }>();
+    let skullCount = 0;
+    for (const d of destroyed) {
+      if (d.gemType.kind === 'color') {
+        const key = d.gemType.color;
+        const cur = colorCounts.get(key) ?? { type: d.gemType, n: 0 };
+        cur.n += 1;
+        colorCounts.set(key, cur);
+      } else if (d.gemType.kind === 'skull') {
+        skullCount += 1;
+      }
+    }
+    for (const { type, n } of colorCounts.values()) this.settleGems(type, n, events);
+    if (skullCount > 0) this.settleGems({ kind: 'skull', variant: 'normal' }, skullCount, events);
   }
 
   /**
@@ -308,24 +547,12 @@ export class TurnEngine {
    *   3. 解析由此产生的新匹配作为连锁（含其法力/骷髅结算）
    * 直接把事件追加进传入的 events。
    */
-  resolveBoardChange(destroyed: { gemType: GemType }[], events: GameEvent[]): void {
-    // 1. 被直接摧毁宝石的法力/骷髅结算：按类型归并数量
-    if (destroyed.length > 0) {
-      const colorCounts = new Map<string, { type: GemType; n: number }>();
-      let skullCount = 0;
-      for (const d of destroyed) {
-        if (d.gemType.kind === 'color') {
-          const key = d.gemType.color;
-          const cur = colorCounts.get(key) ?? { type: d.gemType, n: 0 };
-          cur.n += 1;
-          colorCounts.set(key, cur);
-        } else if (d.gemType.kind === 'skull') {
-          skullCount += 1;
-        }
-      }
-      for (const { type, n } of colorCounts.values()) this.settleGems(type, n, events);
-      if (skullCount > 0) this.settleGems({ kind: 'skull', variant: 'normal' }, skullCount, events);
-    }
+  resolveBoardChange(destroyed: DestroyedGem[], events: GameEvent[]): void {
+    // 1. 特殊宝石"被摧毁"触发链（炸弹/闪电/许愿；末日骷髅只在被匹配时引爆）
+    const chain = this.expandSpecialDestruction(destroyed, events);
+
+    // 2. 被直接摧毁宝石的法力/骷髅结算：按类型归并数量（含链上新摧毁的）
+    this.settleDestroyed([...destroyed, ...chain], events);
 
     // 2. 重力 + 补充
     const result = this.gravity.apply(this.state.board, this.skullChance);
@@ -429,7 +656,7 @@ export class TurnEngine {
    * 代价是增益落在回合尾之后：本回合被 DoT 打死的角色不会因队友的吸血而复活，这是有意的。
    */
   private processDeathTriggers(events: GameEvent[]): void {
-    const deadIds = events.filter((e) => e.type === 'defeat').map((e) => e.characterId);
+    const deadIds = [...new Set(events.filter((e) => e.type === 'defeat').map((e) => e.characterId))];
     for (const id of deadIds) {
       const side = this.sideOfCharacter(id);
       if (side === null) continue; // 已不在编队里，无法判定归属，跳过
@@ -437,7 +664,89 @@ export class TurnEngine {
         this.state.teams[side].characters,
         this.state.teams[opponentOf(side)].characters,
       ));
+      // 死亡召唤（daemonicpact/terrorpact/fromdark/darkdeath 族）：与阵亡响应同一时机。
+      // 事件顺序：增益 buff → 召唤 summon，都落在引发阵亡的行动事件之后。
+      events.push(...this.resolveDeathSummons(id, side));
     }
+  }
+
+  /**
+   * 结算一次阵亡触发的召唤特质。
+   *
+   * 三个字段各有明确的持有者范围（在此预筛，applyDeathSummons 只管概率与入队）：
+   *   - summonOnDeath 只由死者本人持有触发；
+   *   - summonOnAllyDeath 由死者队伍的存活持有者触发（持有者自己阵亡不算）；
+   *   - summonOnEnemyDeath 由死者的对方队伍存活持有者触发。
+   * 顺序：死者本人 → 本队存活 → 对方存活，即召唤入队顺序（确定性）。
+   * 概率判定走本引擎同一条种子化 rng；召唤物属性经模板解析器按兵种数据装配
+   * （setSummonTemplateResolver，由装配层注入）；入队复用容量/FIFO 队列规则。
+   */
+  private resolveDeathSummons(deadId: number, deadSide: PlayerSide): GameEvent[] {
+    const ownerTeam = this.state.teams[deadSide];
+    const enemyTeam = this.state.teams[opponentOf(deadSide)];
+    const specs: { spec: DeathSummonSpec; side: PlayerSide }[] = [];
+
+    // 死者本人：summonOnDeath 唯一有效来源。resolveDefeatEvents 已把它移出编队，
+    // 编译被动随对象走，从行动开始的引用快照取。召唤物归死者一方（本人持有）。
+    const dead = this.rosterCharAtActionStart.get(deadId);
+    if (dead) {
+      const p = passivesOf(dead);
+      if (p.summonOnDeath) specs.push({ spec: p.summonOnDeath, side: deadSide });
+    }
+    // 本队存活者：summonOnAllyDeath。召唤物归持有者一方（=死者一方）
+    for (const c of ownerTeam.characters) {
+      if (c.defeated || c.id === deadId) continue;
+      const p = passivesOf(c);
+      if (p.summonOnAllyDeath) specs.push({ spec: p.summonOnAllyDeath, side: deadSide });
+    }
+    // 对方存活者：summonOnEnemyDeath。召唤物归持有者一方（=死者对方）
+    for (const c of enemyTeam.characters) {
+      if (c.defeated) continue;
+      const p = passivesOf(c);
+      if (p.summonOnEnemyDeath) specs.push({ spec: p.summonOnEnemyDeath, side: opponentOf(deadSide) });
+    }
+
+    if (specs.length === 0) return [];
+
+    return applyDeathSummons(specs, {
+      deadId,
+      nextCharId: () => this.nextCharId(),
+      rng: this.rng,
+      enqueue: (summoned, troopId, side) => this.enqueueSummon(summoned, troopId, side),
+    });
+  }
+
+  /** 下一角色 id（场上+队列最大值+1，与 summon 效果的 deriveCharId 同口径） */
+  private nextCharId(): number {
+    let max = 0;
+    for (const side of [PlayerSide.Left, PlayerSide.Right]) {
+      for (const c of this.state.teams[side].characters) {
+        if (c.id > max) max = c.id;
+      }
+      for (const q of this.state.teams[side].summonQueue ?? []) {
+        if (q.character.id > max) max = q.character.id;
+      }
+    }
+    return max + 1;
+  }
+
+  /** 已完成 id 分配的召唤物入队：有空位进场上，否则进 FIFO 队列（与 summon 技能效果同一语义） */
+  private enqueueSummon(summoned: Character, troopId: number, side: PlayerSide): GameEvent[] {
+    const team = this.state.teams[side];
+    team.characters = team.characters.filter((c) => !c.defeated);
+    if (team.characters.length < MAX_ACTIVE_TEAM_SIZE) {
+      team.characters.push(summoned);
+      return [{
+        type: 'summon', player: side, slot: team.characters.length - 1,
+        troopId, characterId: summoned.id, destination: 'field',
+      }];
+    }
+    const queue = summonQueueOf(team);
+    queue.push({ character: summoned, troopId });
+    return [{
+      type: 'summon', player: side, slot: queue.length - 1,
+      troopId, characterId: summoned.id, destination: 'queue',
+    }];
   }
 
   /** 检查胜负，若结束则发出 game-over 并置状态（需求 15.3, 15.4） */
@@ -474,11 +783,11 @@ export class TurnEngine {
     // 回合开始的被动恢复（再生）：先于 DoT 结算，顺序固定以保证确定性
     events.push(...applyTurnStartPassives(this.state.teams[this.state.activePlayer].characters));
 
-    // 状态结算：对「即将行动方」的角色触发（DoT 扣血 / 到期移除，需求 9.2, 9.4, 9.5）
+    // 状态结算：对「即将行动方」的角色触发（DoT 扣血 / 织网挣脱 / 到期移除，需求 9.2, 9.4, 9.5）
     events.push(
       ...resolveDefeatEvents(
         this.state,
-        tickTeamStatuses(this.state.teams[this.state.activePlayer].characters),
+        tickTeamStatuses(this.state.teams[this.state.activePlayer].characters, this.rng),
       ),
     );
     // DoT 可能致死，重新判定胜负（game-over 仍排在末尾）

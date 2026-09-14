@@ -63,7 +63,8 @@ export function prototypeChosenTargetMode(
   proto: SkillPrototype,
 ): 'enemyChosen' | 'allyChosen' | null {
   for (const seg of proto.segments) {
-    if (seg.kind === 'damage' && seg.range === 'splash') return 'enemyChosen';
+    // 溅射仅当主目标本身就是手动指定时才需要选目标（enemyFront/enemyRandomN 等自带模式）
+    if (seg.kind === 'damage' && seg.range === 'splash' && seg.target === 'enemyChosen') return 'enemyChosen';
     if ('target' in seg && seg.target === 'enemyChosen') return 'enemyChosen';
     if ('target' in seg && seg.target === 'allyChosen') return 'allyChosen';
   }

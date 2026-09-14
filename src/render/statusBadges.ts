@@ -52,6 +52,12 @@ const BADGES: Record<string, StatusBadgeSpec> = {
     color: '#5bbf57',
     svg: '<path d="M8 3c-3 3-3 6 0 9s3 6 0 9M16 3c3 3 3 6 0 9s-3 6 0 9" fill="none" stroke="#5bbf57" stroke-width="1.7" stroke-linecap="round"/><path d="M8 7.5c2 .5 6 .5 8 0M8 16.5c2-.5 6-.5 8 0" stroke="#8fe08a" stroke-width="1.2" stroke-linecap="round"/>',
   },
+  // 织网：紫色蛛网（魔力归零，GoW Web；与缠绕的绿藤蔓区分）
+  web: {
+    label: '织网',
+    color: '#b07ae0',
+    svg: '<circle cx="12" cy="12" r="8.5" fill="none" stroke="#b07ae0" stroke-width="1.3"/><circle cx="12" cy="12" r="5.2" fill="none" stroke="#b07ae0" stroke-width="1.1"/><circle cx="12" cy="12" r="2" fill="none" stroke="#b07ae0" stroke-width="1"/><path d="M12 3.5v17M3.5 12h17M6 6l12 12M18 6L6 18" stroke="#d0b0ee" stroke-width="0.9"/>',
+  },
   // 屏障：青色护盾（一次性挡下整发伤害）
   barrier: {
     label: '屏障',

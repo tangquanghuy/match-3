@@ -1,0 +1,537 @@
+[
+ {
+  "troopId": 6225,
+  "troop": "蝎狮",
+  "spellId": 7367,
+  "spellName": "无尽之歌",
+  "desc": "击晕一名敌人并耗掉其 7 点法力值。获得 [魔法 + 1] 点攻击力。",
+  "scalings": [
+   {
+    "base": 1,
+    "mult": 1
+   }
+  ],
+  "modifier": null
+ },
+ {
+  "troopId": 6231,
+  "troop": "幼龙",
+  "spellId": 7373,
+  "spellName": "小小火球",
+  "desc": "对 1 名随机敌人造成 [魔法 + 1] 点伤害。转化为一只随机龙族。",
+  "scalings": [
+   {
+    "base": 1,
+    "mult": 1
+   }
+  ],
+  "modifier": null
+ },
+ {
+  "troopId": 6237,
+  "troop": "考托",
+  "spellId": 7378,
+  "spellName": "多彩飓风",
+  "desc": "创造 12 颗随机单色的宝石。",
+  "scalings": [],
+  "modifier": null
+ },
+ {
+  "troopId": 6241,
+  "troop": "塞凡尼莫拉",
+  "spellId": 7384,
+  "spellName": "震颤",
+  "desc": "爆破一列。对所有敌人造成 [魔法 + 3] 点伤害。",
+  "scalings": [
+   {
+    "base": 3,
+    "mult": 1
+   }
+  ],
+  "modifier": null
+ },
+ {
+  "troopId": 6382,
+  "troop": "拾荒怪",
+  "spellId": 7537,
+  "spellName": "油墨之云",
+  "desc": "对一名敌人造成 [魔法 + 2] 点伤害。创造 7 颗紫色宝石。",
+  "scalings": [
+   {
+    "base": 2,
+    "mult": 1
+   }
+  ],
+  "modifier": null
+ },
+ {
+  "troopId": 6400,
+  "troop": "巨蟹",
+  "spellId": 7555,
+  "spellName": "蟹钳",
+  "desc": "对第一名和最后一名敌人造成  [魔法 + 1] 点伤害，再使他们交换位置。",
+  "scalings": [
+   {
+    "base": 1,
+    "mult": 1
+   }
+  ],
+  "modifier": null
+ },
+ {
+  "troopId": 6402,
+  "troop": "枯塔妮",
+  "spellId": 7557,
+  "spellName": "三叉戟之击",
+  "desc": "对一名敌人造成 [魔法 + 3] 点溅射伤害。再使自己下潜。",
+  "scalings": [
+   {
+    "base": 3,
+    "mult": 1
+   }
+  ],
+  "modifier": null
+ },
+ {
+  "troopId": 6450,
+  "troop": "赛天鹅",
+  "spellId": 7628,
+  "spellName": "保护弱小",
+  "desc": "给自身增加 [魔法 + 5] 点生命值和屏障，再对 1 名敌人造成 8 点伤害。",
+  "scalings": [
+   {
+    "base": 5,
+    "mult": 1
+   }
+  ],
+  "modifier": null
+ },
+ {
+  "troopId": 6471,
+  "troop": "世界毁灭者",
+  "spellId": 7649,
+  "spellName": "斩首之刃",
+  "desc": "爆破 18 颗板面上的宝石。对所有敌人造成 [魔法 + 5] 点伤害。",
+  "scalings": [
+   {
+    "base": 5,
+    "mult": 1
+   }
+  ],
+  "modifier": null
+ },
+ {
+  "troopId": 6486,
+  "troop": "沙地疾驰虫",
+  "spellId": 7673,
+  "spellName": "沙堡",
+  "desc": "获得 [魔法 + 20] 点生命值和护甲值。只能施放一次。",
+  "scalings": [
+   {
+    "base": 20,
+    "mult": 1
+   }
+  ],
+  "modifier": null
+ },
+ {
+  "troopId": 6540,
+  "troop": "迪维纳",
+  "spellId": 7734,
+  "spellName": "龙族灵丹",
+  "desc": "爆破所有红色宝石。净化所有盟友，并给予他们 [魔法 + 1] 生命值。",
+  "scalings": [
+   {
+    "base": 1,
+    "mult": 1
+   }
+  ],
+  "modifier": null
+ },
+ {
+  "troopId": 6544,
+  "troop": "恐猪",
+  "spellId": 7738,
+  "spellName": "致命一顶",
+  "desc": "摧毁一行。对前两名敌人造成 [魔法 + 3] 点伤害。",
+  "scalings": [
+   {
+    "base": 3,
+    "mult": 1
+   }
+  ],
+  "modifier": null
+ },
+ {
+  "troopId": 6554,
+  "troop": "苏娜",
+  "spellId": 7748,
+  "spellName": "沐浴晨光",
+  "desc": "窃取最虚弱的两名敌人 [魔法 + 3] 点生命值，并窃取最强大的两名敌人 8 点魔法值。",
+  "scalings": [
+   {
+    "base": 3,
+    "mult": 1
+   }
+  ],
+  "modifier": null
+ },
+ {
+  "troopId": 6557,
+  "troop": "灵魂地精",
+  "spellId": 7751,
+  "spellName": "偷了就溜",
+  "desc": "窃取一名敌人 [魔法 + 2] 点生命值。有 30% 的几率跑掉。",
+  "scalings": [
+   {
+    "base": 2,
+    "mult": 1
+   }
+  ],
+  "modifier": null
+ },
+ {
+  "troopId": 6558,
+  "troop": "冰虫",
+  "spellId": 7760,
+  "spellName": "钻掘",
+  "desc": "对最后一名敌人造成 [魔法 + 2] 点伤害。创造 7 颗蓝色宝石。",
+  "scalings": [
+   {
+    "base": 2,
+    "mult": 1
+   }
+  ],
+  "modifier": null
+ },
+ {
+  "troopId": 6585,
+  "troop": "刽子手",
+  "spellId": 7789,
+  "spellName": "处决",
+  "desc": "对一名敌人造成 [魔法 + 4] 点伤害。有 10% 的几率处死敌人。",
+  "scalings": [
+   {
+    "base": 4,
+    "mult": 1
+   }
+  ],
+  "modifier": null
+ },
+ {
+  "troopId": 6597,
+  "troop": "美人鱼",
+  "spellId": 7927,
+  "spellName": "暗之歌",
+  "desc": "对一名敌人造成 [魔法 + 2] 点伤害。爆破 2 颗蓝色宝石。",
+  "scalings": [
+   {
+    "base": 2,
+    "mult": 1
+   }
+  ],
+  "modifier": null
+ },
+ {
+  "troopId": 6607,
+  "troop": "奥眼能血蛭",
+  "spellId": 7931,
+  "spellName": "吸血",
+  "desc": "爆破 4 颗宝石。窃取第一名敌人 [魔法 + 1] 点攻击力。",
+  "scalings": [
+   {
+    "base": 1,
+    "mult": 1
+   }
+  ],
+  "modifier": null
+ },
+ {
+  "troopId": 6674,
+  "troop": "马族领主",
+  "spellId": 8020,
+  "spellName": "背后一脚",
+  "desc": "对最后一位敌人造成 [魔法 + 4] 点伤害并将其击晕，再将其拉至首位。",
+  "scalings": [
+   {
+    "base": 4,
+    "mult": 1
+   }
+  ],
+  "modifier": null
+ },
+ {
+  "troopId": 6676,
+  "troop": "短毛蹦蹦鼠",
+  "spellId": 8022,
+  "spellName": "腾空一踢",
+  "desc": "摧毁 8 颗宝石。对第一位敌人造成 [魔法 + 3] 点伤害。",
+  "scalings": [
+   {
+    "base": 3,
+    "mult": 1
+   }
+  ],
+  "modifier": null
+ },
+ {
+  "troopId": 6687,
+  "troop": "阿波菲斯",
+  "spellId": 8033,
+  "spellName": "蛇杖",
+  "desc": "将绿色宝石转换成骷髅头。给予第一位盟友 [魔法 + 1] 点生命值。",
+  "scalings": [
+   {
+    "base": 1,
+    "mult": 1
+   }
+  ],
+  "modifier": null
+ },
+ {
+  "troopId": 6742,
+  "troop": "萨卡比",
+  "spellId": 8112,
+  "spellName": "双蛰",
+  "desc": "对 2 个随机敌人造成 [魔法 + 3] 点伤害，再击晕他们并使他们陷入中毒状态。",
+  "scalings": [
+   {
+    "base": 3,
+    "mult": 1
+   }
+  ],
+  "modifier": null
+ },
+ {
+  "troopId": 6748,
+  "troop": "蟹人",
+  "spellId": 8126,
+  "spellName": "蟹钳",
+  "desc": "对第一位和最后一位敌人造成  [魔法 + 4] 点伤害，再使其陷入出血状态。",
+  "scalings": [
+   {
+    "base": 4,
+    "mult": 1
+   }
+  ],
+  "modifier": null
+ },
+ {
+  "troopId": 6799,
+  "troop": "机械地精",
+  "spellId": 8196,
+  "spellName": "磨完就走",
+  "desc": "窃取一名敌人 [魔法 + 2]  点护甲值。有 30%  的几率跑掉。",
+  "scalings": [
+   {
+    "base": 2,
+    "mult": 1
+   }
+  ],
+  "modifier": null
+ },
+ {
+  "troopId": 6802,
+  "troop": "萨梯猎手",
+  "spellId": 8205,
+  "spellName": "羊眼",
+  "desc": "以 X 形摧毁宝石。给予第一位盟友 [魔法 + 1] 点攻击力。",
+  "scalings": [
+   {
+    "base": 1,
+    "mult": 1
+   }
+  ],
+  "modifier": null
+ },
+ {
+  "troopId": 6845,
+  "troop": "摄魂蝎狮",
+  "spellId": 8250,
+  "spellName": "深歌",
+  "desc": "耗尽一名敌人所有法力值，或窃取一名敌人 [魔法 + 1] 点攻击力，或使一名敌人陷入沉默状态。",
+  "scalings": [
+   {
+    "base": 1,
+    "mult": 1
+   }
+  ],
+  "modifier": null
+ },
+ {
+  "troopId": 6847,
+  "troop": "莱拉斯扎",
+  "spellId": 8252,
+  "spellName": "熊猫狂症",
+  "desc": "对所有敌人造成 [魔法 + 3] 点伤害，或打乱板面并获得一个额外回合，或爆破 7 颗宝石。",
+  "scalings": [
+   {
+    "base": 3,
+    "mult": 1
+   }
+  ],
+  "modifier": null
+ },
+ {
+  "troopId": 6866,
+  "troop": "千手怪",
+  "spellId": 8288,
+  "spellName": "十二鞭",
+  "desc": "对 6 名随机敌人造成 [(魔法 / 2) + 4] 点伤害。",
+  "scalings": [
+   {
+    "base": 4,
+    "mult": 0.5
+   }
+  ],
+  "modifier": null
+ },
+ {
+  "troopId": 6911,
+  "troop": "惫懒瘾者",
+  "spellId": 8372,
+  "spellName": "慢慢死亡",
+  "desc": "耗掉所有敌人 4 点法力值。获得 [魔法 + 1] 点护甲值和生命值。",
+  "scalings": [
+   {
+    "base": 1,
+    "mult": 1
+   }
+  ],
+  "modifier": null
+ },
+ {
+  "troopId": 6921,
+  "troop": "美德",
+  "spellId": 8387,
+  "spellName": "治愈恩典",
+  "desc": "给予一名盟友[魔法 + 1]生命，并赋予其一半的法力值。然后祝福他们。",
+  "scalings": [
+   {
+    "base": 1,
+    "mult": 1
+   }
+  ],
+  "modifier": null
+ },
+ {
+  "troopId": 6924,
+  "troop": "怒火之心",
+  "spellId": 8393,
+  "spellName": "狂怒之心",
+  "desc": "赋予所有敌人和盟友狂怒效果。",
+  "scalings": [],
+  "modifier": null
+ },
+ {
+  "troopId": 6944,
+  "troop": "沙漠小虫",
+  "spellId": 8425,
+  "spellName": "流沙",
+  "desc": "对最后一位敌人造成 [魔法 + 6] 点伤害。创造 7 颗黄色宝石。",
+  "scalings": [
+   {
+    "base": 6,
+    "mult": 1
+   }
+  ],
+  "modifier": null
+ },
+ {
+  "troopId": 6947,
+  "troop": "深渊精灵盗贼",
+  "spellId": 8428,
+  "spellName": "暗黑耳语",
+  "desc": "消除一名敌人 [魔法 + 1] 点攻击力，再使其陷入 3 个随机状态效果。",
+  "scalings": [
+   {
+    "base": 1,
+    "mult": 1
+   }
+  ],
+  "modifier": null
+ },
+ {
+  "troopId": 6980,
+  "troop": "牛角守卫",
+  "spellId": 8483,
+  "spellName": "守护迷宫",
+  "desc": "获得 [魔法 + 1] 点护甲值和屏障效果。再将一名随机敌人击回末位。",
+  "scalings": [
+   {
+    "base": 1,
+    "mult": 1
+   }
+  ],
+  "modifier": null
+ },
+ {
+  "troopId": 7030,
+  "troop": "维纳图斯",
+  "spellId": 8557,
+  "spellName": "圣火",
+  "desc": "将所有红色宝石转换成黄龙宝石。",
+  "scalings": [],
+  "modifier": null
+ },
+ {
+  "troopId": 7092,
+  "troop": "纱雅乐",
+  "spellId": 8627,
+  "spellName": "大地祭礼",
+  "desc": "将一颗法力宝石转换成一颗元素星。",
+  "scalings": [],
+  "modifier": null
+ },
+ {
+  "troopId": 7136,
+  "troop": "独角鲸巨角",
+  "spellId": 8685,
+  "spellName": "分割大海",
+  "desc": "摧毁一行。对末位敌人造成 [魔法 + 2] 点真实伤害，再使自身下潜。",
+  "scalings": [
+   {
+    "base": 2,
+    "mult": 1
+   }
+  ],
+  "modifier": null
+ },
+ {
+  "troopId": 7140,
+  "troop": "带角女巫",
+  "spellId": 8689,
+  "spellName": "咯咯邪笑",
+  "desc": "对一名敌人造成 [魔法 + 4] 点真实伤害，再召唤一名随机女巫。",
+  "scalings": [
+   {
+    "base": 4,
+    "mult": 1
+   }
+  ],
+  "modifier": null
+ },
+ {
+  "troopId": 7163,
+  "troop": "游戏管理员",
+  "spellId": 8738,
+  "spellName": "侦察兵",
+  "desc": " 将绿色宝石转换成骷髅头。",
+  "scalings": [],
+  "modifier": null
+ },
+ {
+  "troopId": 7164,
+  "troop": "月亮法师",
+  "spellId": 8739,
+  "spellName": "月光呼唤",
+  "desc": "对所有敌人造成 [(魔法 / 2) + 4] 点伤害。",
+  "scalings": [
+   {
+    "base": 4,
+    "mult": 0.5
+   }
+  ],
+  "modifier": null
+ }
+]

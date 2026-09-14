@@ -10,17 +10,42 @@ import type { Character } from '../../types';
 import type { ScalingSpec } from '../scaling';
 import { evaluateScaling } from '../scaling';
 import type { EffectContext, EffectPrimitive } from './context';
-import { casterMagic, locate } from './context';
+import { casterMagic, locate, findCharacter } from './context';
+import { hasTroopType, evaluateWithModifier, DEFAULT_RACE_DOUBLE, condMultiplier, condBonusValue } from './secondary';
+import type { ModifierSpec, CondMult, CondBonus } from './secondary';
 import { passivesOf } from '../../traits';
 import { consumeBarrier } from './status';
+import { applyBuffGain } from './buff';
 
 export type DamageRange = 'single' | 'all' | 'splash';
+
+/** 伤害区间（DECISIONS「顺路」小活）：「造成 [A] – [B] 点伤害」在 [min, max] 内均匀取整 */
+export interface DamageRangeSpec {
+  min: ScalingSpec;
+  max: ScalingSpec;
+}
 
 export interface DamageParams {
   targets: Character[];
   scaling: ScalingSpec;
   range?: DamageRange;
   trueDamage?: boolean;
+  /** 二次缩放（[xN]/[N:M] + 来源），叠加在基础伤害上 */
+  modifier?: ModifierSpec;
+  /** 种族条件翻倍：目标 troopTypes 含该族时其所受伤害 ×2（五机制之一） */
+  raceDouble?: string;
+  /** 种族条件倍率（默认 2；「翻 3 倍」= 3），仅与 raceDouble 同用 */
+  raceTimes?: number;
+  /** 条件倍率：条件成立时该目标所受数值 ×times（「如果敌人是恶魔，则造成 3 倍伤害」） */
+  condMult?: CondMult;
+  /** 条件加成：条件成立时该目标所受数值 +n（加算；先加后乘） */
+  condBonus?: CondBonus;
+  /** 伤害区间（[A] – [B]）：min/max 分别求值后随机取整 */
+  rangeSpec?: DamageRangeSpec;
+  /** 生命窃取：本次伤害实际打出的总额（各 skill-damage 事件 damage 之和）治疗施法者 */
+  drain?: boolean;
+  /** 即杀（「摧毁/消灭该敌人」）：伤害额 = 目标当前有效耐久（屏障/法术减伤照常结算） */
+  execute?: boolean;
 }
 
 interface ChainMeta {
@@ -161,13 +186,37 @@ export function damageEffect(params: DamageParams): EffectPrimitive {
       const { targets, scaling, range = 'single', trueDamage = false } = params;
       if (targets.length === 0) return [];
 
-      const amount = evaluateScaling(scaling, casterMagic(ctx));
+      // 一次缩放（[魔法+N]）+ 二次缩放（[xN]/[N:M] 随战场资源）共同决定名义伤害；
+      // 伤害区间（[A] – [B]）在区间内均匀取整（种子化，每段一次）
+      let amount: number;
+      if (params.rangeSpec) {
+        const lo = evaluateWithModifier(evaluateScaling(params.rangeSpec.min, casterMagic(ctx)), params.modifier, ctx);
+        const hi = evaluateWithModifier(evaluateScaling(params.rangeSpec.max, casterMagic(ctx)), params.modifier, ctx);
+        amount = hi <= lo ? lo : lo + ctx.rng.nextInt(hi - lo + 1);
+      } else {
+        amount = evaluateWithModifier(evaluateScaling(scaling, casterMagic(ctx)), params.modifier, ctx);
+      }
+      // 种族翻倍：单体/群体按受击者逐个判定；溅射为共享伤害池，
+      // 简化为「主目标属该族则整池翻倍」（当前数据中溅射×种族组合为零，规则手册已注明）
+      const doubled = (victim: Character): number => {
+        if (params.execute) {
+          return trueDamage ? victim.hp : victim.hp + victim.armor;
+        }
+        const times = params.raceTimes ?? DEFAULT_RACE_DOUBLE;
+        const raceFactor = params.raceDouble && hasTroopType(victim, params.raceDouble) ? times : 1;
+        // 叠加顺序（SOP 裁定）：(基础值 + 条件加成) × 种族倍率 × 条件倍率
+        const based = amount + condBonusValue(params.condBonus, ctx, victim);
+        return based * raceFactor * condMultiplier(params.condMult, ctx, victim);
+      };
 
       if (range === 'splash') {
         const primary = targets[0];
         const located = locate(ctx.state, primary.id);
         const ordered = located ? orderedSplashTargets(located.team.characters, primary.id) : [primary];
-        const allocations = allocateSplashChainDamage(amount, ordered, trueDamage);
+        const pool = params.execute
+          ? (trueDamage ? primary.hp : primary.hp + primary.armor)
+          : doubled(primary);
+        const allocations = allocateSplashChainDamage(pool, ordered, trueDamage);
         const hits = ordered
           .map((target, index) => ({ target, amount: allocations[index] }))
           .filter((entry) => entry.amount > 0);
@@ -188,7 +237,7 @@ export function damageEffect(params: DamageParams): EffectPrimitive {
         });
 
         // Let the complete chain play before gray/death removal events begin.
-        return [...damageEvents, ...tailEvents];
+        return params.drain ? settleDrain(ctx, [...damageEvents, ...tailEvents]) : [...damageEvents, ...tailEvents];
       }
 
       if (range === 'all') {
@@ -198,20 +247,34 @@ export function damageEffect(params: DamageParams): EffectPrimitive {
         const damageEvents: SkillDamageEvent[] = [];
         const tailEvents: GameEvent[] = [];
         for (const victim of targets) {
-          const produced = damageOne(victim, ctx.casterId, amount, trueDamage, range);
+          const produced = damageOne(victim, ctx.casterId, doubled(victim), trueDamage, range);
           for (const event of produced) {
             if (event.type === 'skill-damage') damageEvents.push(event);
             else tailEvents.push(event);
           }
         }
-        return [...damageEvents, ...tailEvents];
+        return params.drain ? settleDrain(ctx, [...damageEvents, ...tailEvents]) : [...damageEvents, ...tailEvents];
       }
 
       const events: GameEvent[] = [];
       for (const victim of targets.slice(0, 1)) {
-        events.push(...damageOne(victim, ctx.casterId, amount, trueDamage, range));
+        events.push(...damageOne(victim, ctx.casterId, doubled(victim), trueDamage, range));
       }
-      return events;
+      return params.drain ? settleDrain(ctx, events) : events;
     },
   };
+}
+
+/** 生命窃取收尾：把本次伤害事件的实际总额折算为对施法者的治疗（buff 事件，走 buffOne 口径） */
+function settleDrain(ctx: EffectContext, produced: GameEvent[]): GameEvent[] {
+  let total = 0;
+  for (const e of produced) {
+    if (e.type === 'skill-damage') total += e.damage;
+  }
+  if (total <= 0) return produced;
+  const caster = findCharacter(ctx.state, ctx.casterId);
+  if (!caster || caster.defeated) return produced;
+  const healed = applyBuffGain(caster, 'hp', total);
+  if (healed === 0) return produced;
+  return [...produced, { type: 'buff', targetId: caster.id, stat: 'hp', amount: healed }];
 }
