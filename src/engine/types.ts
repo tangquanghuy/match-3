@@ -343,11 +343,22 @@ export interface PassiveModifiers {
    */
   untargetable: boolean;
   /** 自己身亡时按概率召唤（daemonicpact 族；数据由生成器预解析到兵种） */
-  summonOnDeath?: { chance: number; troopId: number; referenceName: string; displayName: string };
+  summonOnDeath?: { chance: number; troopId: number; referenceName: string; displayName: string; storm?: StormSummon };
   /** 一名盟友（含自己）身亡时召唤（fromdark 族） */
-  summonOnAllyDeath?: { chance: number; troopId: number; referenceName: string; displayName: string };
+  summonOnAllyDeath?: { chance: number; troopId: number; referenceName: string; displayName: string; storm?: StormSummon };
   /** 敌方角色身亡时召唤（darkdeath 族） */
-  summonOnEnemyDeath?: { chance: number; troopId: number; referenceName: string; displayName: string };
+  summonOnEnemyDeath?: { chance: number; troopId: number; referenceName: string; displayName: string; storm?: StormSummon };
+}
+
+/**
+ * 死亡召唤的风暴变体载荷（阶段 1.3）：spec 带 storm 时该召唤**不产出兵种**
+ * （referenceName/displayName 仅作展示，troopId 为虚拟风暴号段 9001~9009），
+ * 改为设置持有者一方的全局风暴（Team.storm），持续 turns 回合。
+ * 颜色映射与查证来源见 DECISIONS.md「风暴（Storm）全局掉落修正」。
+ */
+export interface StormSummon {
+  color: BaseColor;
+  turns: number;
 }
 
 /** A summoned character waiting off-field for the next open active slot. */

@@ -158,18 +158,33 @@ describe('TurnEngine 集成：真实对局中的死亡召唤', () => {
     expect(triggered, '80 个种子内 25% 召唤应至少触发一次').toBe(true);
   });
 
-  it('敌方持有 summonOnEnemyDeath：我方角色阵亡时敌方补位（darkdeath 召唤名不可解析 → 安全跳过）', () => {
-    // darkdeath 的「暗风暴」在兵种数据中不存在，模板解析返回 null → 不召唤不崩溃。
-    // 本用例锁定：不可解析的召唤名走安全跳过路径，且 90 个种子内绝不误召其它单位。
+  it('敌方持有 summonOnEnemyDeath：我方角色阵亡时设风暴而非召唤兵种（darkdeath → 暗风暴变体）', () => {
+    // 生成器两段式解析后，darkdeath 的「暗风暴」解析为风暴变体 spec：不入队兵种，
+    // 改设持有者（敌方）一方的 team.storm。本用例锁定：90 个种子内绝不误召其它单位，
+    // 且首个我方阵亡后敌方风暴出现（chance=1）。风暴持续 8 回合会到期，因此须在
+    // 驱动过程中捕获在场状态，不能等整局跑完再看。
+    let stormSeen = false;
     for (let seed = 1; seed < 90; seed++) {
       const { engine, state, rng } = buildEngine(
         [makeChar(0, { hp: 1, maxHp: 1 }), makeChar(1), makeChar(2), makeChar(3)],
         [makeChar(4, { attack: 60, traitIds: ['darkdeath'] }), makeChar(5)],
         seed,
       );
-      drive(engine, state, rng);
+      let stormHere: { color: BaseColor; turns: number; troopId: number } | undefined;
+      for (let i = 0; i < 60 && !stormHere; i++) {
+        if (state.state === 'GameOver') break;
+        const swap = chooseEnemySwap(state.board, rng);
+        if (!swap) break;
+        engine.resolveAction({ type: 'swap', from: swap.a, to: swap.b });
+        stormHere = state.teams[PlayerSide.Right].storm;
+      }
       expect(state.teams[PlayerSide.Right].characters.some((c) => c.name !== 'C4' && c.name !== 'C5' && c.name.startsWith('C') === false && c.id !== 4 && c.id !== 5)).toBe(false);
+      if (stormHere) {
+        stormSeen = true;
+        expect(stormHere).toEqual({ color: BaseColor.Purple, turns: 8, troopId: 9001 });
+      }
     }
+    expect(stormSeen, '90 个种子内 darkdeath 应至少设置一次暗风暴').toBe(true);
   });
 
   it('召唤名可解析的敌方死亡召唤（soullegion → 幽魂）触发时补位正确', () => {

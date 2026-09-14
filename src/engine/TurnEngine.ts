@@ -1,7 +1,7 @@
 import { BoardModel } from './BoardModel';
 import { MatchResolver, grantsExtraTurn } from './MatchResolver';
 import type { MatchGroup } from './MatchResolver';
-import { GravitySystem } from './GravitySystem';
+import { GravitySystem, STORM_DROP_WEIGHT } from './GravitySystem';
 import { ManaDistributor } from './ManaDistributor';
 import { CombatResolver } from './CombatResolver';
 import { ExtensionRegistry } from './registry';
@@ -40,6 +40,7 @@ import type {
   SpecialGemHookEvent,
   GemTransformEvent,
   GemClearEvent,
+  StormChangeEvent,
 } from './events';
 
 /**
@@ -262,8 +263,8 @@ export class TurnEngine {
       // 4. 胜负检查：某队全灭即结束（需求 15.3）
       if (this.checkVictory(events)) return;
 
-      // 5. 重力 + 补充（需求 8.1-8.4）
-      const result = this.gravity.apply(this.state.board, this.skullChance);
+      // 5. 重力 + 补充（需求 8.1-8.4）；风暴激活时对应色按 STORM_DROP_WEIGHT 加权
+      const result = this.gravity.apply(this.state.board, this.skullChance, this.stormDropWeights());
       events.push({ type: 'gravity', chainCount: chain, moves: result.moves });
       events.push({ type: 'refill', chainCount: chain, spawns: result.spawns });
       // 循环：再次检测匹配（需求 8.5, 8.6）
@@ -554,8 +555,8 @@ export class TurnEngine {
     // 2. 被直接摧毁宝石的法力/骷髅结算：按类型归并数量（含链上新摧毁的）
     this.settleDestroyed([...destroyed, ...chain], events);
 
-    // 2. 重力 + 补充
-    const result = this.gravity.apply(this.state.board, this.skullChance);
+    // 2. 重力 + 补充（风暴激活时对应色加权）
+    const result = this.gravity.apply(this.state.board, this.skullChance, this.stormDropWeights());
     if (result.moves.length > 0 || result.spawns.length > 0) {
       const chain = this.state.chainCount;
       events.push({ type: 'gravity', chainCount: chain, moves: result.moves });
@@ -713,7 +714,81 @@ export class TurnEngine {
       nextCharId: () => this.nextCharId(),
       rng: this.rng,
       enqueue: (summoned, troopId, side) => this.enqueueSummon(summoned, troopId, side),
+      setStorm: (spec, side) => this.setStormFromSummon(spec, side),
     });
+  }
+
+  /**
+   * 风暴召唤结算（死亡召唤的风暴变体，darkdeath/fromdark 族）：不入队，改设持有者一方
+   * `team.storm`。风暴是**全场唯一**的全局修正（用户裁定：后召顶替先召，不分敌我）：
+   *   - 己方已有风暴 → 顶替，发一条 reason:'replaced'（prevColor=旧色）；
+   *   - 对方有风暴 → 先给对方发 color:null 的 'replaced'（表现层撤指示器），再给己方发
+   *     'replaced'（prevColor=被顶掉的对方风暴色）；
+   *   - 全场无风暴 → reason:'set'。
+   * 同回合多个风暴 spec 按 applyDeathSummons 的传入顺序逐个走到这里，后者顶前者。
+   */
+  private setStormFromSummon(spec: DeathSummonSpec, side: PlayerSide): GameEvent[] {
+    const payload = spec.storm;
+    if (!payload) return [];
+    const own = this.state.teams[side];
+    const other = this.state.teams[opponentOf(side)];
+    const events: GameEvent[] = [];
+
+    const ownPrevColor = own.storm?.color;
+    const otherPrevColor = other.storm?.color;
+    // 全场唯一：先顶掉对方的风暴（若有），对方收 color=null 的 replaced
+    if (other.storm) {
+      const evicted: StormChangeEvent = {
+        type: 'storm-change', player: opponentOf(side), color: null,
+        reason: 'replaced', prevColor: otherPrevColor!,
+      };
+      events.push(evicted);
+      other.storm = undefined;
+    }
+    const prevColor = ownPrevColor ?? otherPrevColor;
+    own.storm = { color: payload.color, turns: payload.turns, troopId: spec.troopId };
+    const ev: StormChangeEvent = {
+      type: 'storm-change', player: side, color: payload.color,
+      reason: prevColor === undefined ? 'set' : 'replaced',
+    };
+    if (prevColor !== undefined) ev.prevColor = prevColor;
+    events.push(ev);
+    return events;
+  }
+
+  /**
+   * 风暴持续回合递减（回合尾，DoT 结算之后）：双方各递减 1，归零清除并发
+   * reason:'expired'（color=null，prevColor=被清除的颜色）。全场唯一风暴下
+   * 每次循环至多产生一条事件；双方都扫是为将来放开"每方一个风暴"留兼容。
+   */
+  private tickStorms(): GameEvent[] {
+    const events: GameEvent[] = [];
+    for (const side of [PlayerSide.Left, PlayerSide.Right]) {
+      const team = this.state.teams[side];
+      if (!team.storm) continue;
+      team.storm.turns -= 1;
+      if (team.storm.turns <= 0) {
+        const prevColor = team.storm.color;
+        team.storm = undefined;
+        const ev: StormChangeEvent = { type: 'storm-change', player: side, color: null, reason: 'expired' };
+        ev.prevColor = prevColor;
+        events.push(ev);
+      }
+    }
+    return events;
+  }
+
+  /**
+   * 当前生效的风暴掉落权重（供 GravitySystem.refill 加权）：全场唯一风暴，
+   * 对应色权重 ×STORM_DROP_WEIGHT。无风暴返回 undefined——掉落路径与旧版逐字节一致
+   * （不进加权分支、随机数消耗序列不变）。
+   */
+  private stormDropWeights(): Map<BaseColor, number> | undefined {
+    for (const side of [PlayerSide.Left, PlayerSide.Right]) {
+      const storm = this.state.teams[side].storm;
+      if (storm) return new Map([[storm.color, STORM_DROP_WEIGHT]]);
+    }
+    return undefined;
   }
 
   /** 下一角色 id（场上+队列最大值+1，与 summon 效果的 deriveCharId 同口径） */
@@ -792,6 +867,9 @@ export class TurnEngine {
     );
     // DoT 可能致死，重新判定胜负（game-over 仍排在末尾）
     if (this.checkVictory(events)) return;
+
+    // 风暴持续回合递减（回合尾，DoT 结算附近）：归零清除并发 expired（阶段 1.3）
+    events.push(...this.tickStorms());
 
     // 回合开始的棋盘写入类特质（火生/水生/白骨堆…）。放在死局检测之前：
     // 新宝石可能正好造出一步合法交换，也可能自己就凑成三连——后者必须立刻结算，

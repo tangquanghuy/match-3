@@ -1185,6 +1185,22 @@
     }
   },
   {
+    "code": "darkdeath",
+    "name": "暗黑之死",
+    "description": "当敌人身亡时召唤一个暗风暴。",
+    "troops": 6,
+    "summonOnEnemyDeath": {
+      "chance": 1,
+      "troopId": 9001,
+      "referenceName": "Darkstorm",
+      "displayName": "暗风暴",
+      "storm": {
+        "color": "Purple",
+        "turns": 8
+      }
+    }
+  },
+  {
     "code": "poisonspores",
     "name": "毒孢子",
     "description": "在承受骷髅头伤害时，使敌人中毒。",
@@ -1233,6 +1249,22 @@
     }
   },
   {
+    "code": "icydeath",
+    "name": "冰雪之死",
+    "description": "当敌人身亡时召唤一个冰风暴。",
+    "troops": 5,
+    "summonOnEnemyDeath": {
+      "chance": 1,
+      "troopId": 9003,
+      "referenceName": "Icestorm",
+      "displayName": "冰风暴",
+      "storm": {
+        "color": "Blue",
+        "turns": 8
+      }
+    }
+  },
+  {
     "code": "dragonshield",
     "name": "龙族之盾",
     "description": "龙族盟友获得 2 点护甲值。",
@@ -1241,6 +1273,22 @@
       "troopType": "Dragon",
       "stat": "armor",
       "amount": 2
+    }
+  },
+  {
+    "code": "rockydeath",
+    "name": "岩石之死",
+    "description": "当敌人身亡时召唤一个尘风暴。",
+    "troops": 5,
+    "summonOnEnemyDeath": {
+      "chance": 1,
+      "troopId": 9006,
+      "referenceName": "Duststorm",
+      "displayName": "尘风暴",
+      "storm": {
+        "color": "Brown",
+        "turns": 8
+      }
     }
   },
   {
@@ -1495,6 +1543,38 @@
     }
   },
   {
+    "code": "fierydeath",
+    "name": "燃焰之死",
+    "description": "当敌人身亡时召唤一个火风暴。",
+    "troops": 3,
+    "summonOnEnemyDeath": {
+      "chance": 1,
+      "troopId": 9002,
+      "referenceName": "Firestorm",
+      "displayName": "火风暴",
+      "storm": {
+        "color": "Red",
+        "turns": 8
+      }
+    }
+  },
+  {
+    "code": "fromdark",
+    "name": "源自暗黑",
+    "description": "当一名盟友身亡时，召唤一个暗风暴。",
+    "troops": 3,
+    "summonOnAllyDeath": {
+      "chance": 1,
+      "troopId": 9001,
+      "referenceName": "Darkstorm",
+      "displayName": "暗风暴",
+      "storm": {
+        "color": "Purple",
+        "turns": 8
+      }
+    }
+  },
+  {
     "code": "wildfolkshield",
     "name": "蛮族之盾",
     "description": "蛮族盟友获得 2 点护甲值。",
@@ -1503,6 +1583,22 @@
       "troopType": "Wildfolk",
       "stat": "armor",
       "amount": 2
+    }
+  },
+  {
+    "code": "naturesdeath",
+    "name": "自然之死",
+    "description": "当敌人身亡时召唤一个叶风暴。",
+    "troops": 3,
+    "summonOnEnemyDeath": {
+      "chance": 1,
+      "troopId": 9005,
+      "referenceName": "Leafstorm",
+      "displayName": "叶风暴",
+      "storm": {
+        "color": "Green",
+        "turns": 8
+      }
     }
   },
   {
@@ -1692,6 +1788,38 @@
       "troopType": "Monster",
       "stat": "armor",
       "amount": 2
+    }
+  },
+  {
+    "code": "brightdeath",
+    "name": "光明之死",
+    "description": "当敌人身亡时召唤一个光风暴。",
+    "troops": 2,
+    "summonOnEnemyDeath": {
+      "chance": 1,
+      "troopId": 9004,
+      "referenceName": "Lightstorm",
+      "displayName": "光风暴",
+      "storm": {
+        "color": "Yellow",
+        "turns": 8
+      }
+    }
+  },
+  {
+    "code": "skulldeath",
+    "name": "骸骨之死",
+    "description": "当敌人身亡时召唤一个骸骨风暴。",
+    "troops": 2,
+    "summonOnEnemyDeath": {
+      "chance": 1,
+      "troopId": 9007,
+      "referenceName": "Bonestorm",
+      "displayName": "骸骨风暴",
+      "storm": {
+        "color": "Brown",
+        "turns": 8
+      }
     }
   },
   {
@@ -2151,6 +2279,22 @@
     }
   },
   {
+    "code": "fromashes",
+    "name": "源自灰烬",
+    "description": "当一名盟友身亡时，召唤一个火风暴。",
+    "troops": 1,
+    "summonOnAllyDeath": {
+      "chance": 1,
+      "troopId": 9002,
+      "referenceName": "Firestorm",
+      "displayName": "火风暴",
+      "storm": {
+        "color": "Red",
+        "turns": 8
+      }
+    }
+  },
+  {
     "code": "goblinshield",
     "name": "哥布林之盾",
     "description": "哥布林盟友获得 2 点护甲值。",
@@ -2202,6 +2346,22 @@
     }
   },
   {
+    "code": "frombones",
+    "name": "源自骸骨",
+    "description": "当一名盟友身亡时，召唤一个骸骨风暴。",
+    "troops": 1,
+    "summonOnAllyDeath": {
+      "chance": 1,
+      "troopId": 9007,
+      "referenceName": "Bonestorm",
+      "displayName": "骸骨风暴",
+      "storm": {
+        "color": "Brown",
+        "turns": 8
+      }
+    }
+  },
+  {
     "code": "creepingdoom",
     "name": "末日将临",
     "description": "在一名敌人身亡时，有 75% 的几率召唤一只盘丝魔蛛。",
@@ -2211,6 +2371,22 @@
       "troopId": 6068,
       "referenceName": "Webspinner",
       "displayName": "盘丝魔蛛"
+    }
+  },
+  {
+    "code": "dwarvendoom",
+    "name": "矮人末日",
+    "description": "当敌人身亡时召唤一个末日风暴。",
+    "troops": 1,
+    "summonOnEnemyDeath": {
+      "chance": 1,
+      "troopId": 9008,
+      "referenceName": "Doomstorm",
+      "displayName": "末日风暴",
+      "storm": {
+        "color": "Purple",
+        "turns": 8
+      }
     }
   },
   {
@@ -2244,6 +2420,22 @@
     "skullMultVsTroopType": {
       "troopType": "Rogue",
       "mult": 2
+    }
+  },
+  {
+    "code": "fromlight",
+    "name": "源自光明",
+    "description": "当一名盟友身亡时，召唤一个光风暴。",
+    "troops": 1,
+    "summonOnAllyDeath": {
+      "chance": 1,
+      "troopId": 9004,
+      "referenceName": "Lightstorm",
+      "displayName": "光风暴",
+      "storm": {
+        "color": "Yellow",
+        "turns": 8
+      }
     }
   },
   {
@@ -2447,6 +2639,22 @@
     "description": "反弹 75% 的骷髅头伤害。",
     "troops": 1,
     "reflectSkullRatio": 0.75
+  },
+  {
+    "code": "doomofarachnaea",
+    "name": "阿拉科尼亚的厄运",
+    "description": "当敌人死亡时召唤超级末日风暴。",
+    "troops": 1,
+    "summonOnEnemyDeath": {
+      "chance": 1,
+      "troopId": 9009,
+      "referenceName": "UberDoomstorm",
+      "displayName": "超级末日风暴",
+      "storm": {
+        "color": "Purple",
+        "turns": 8
+      }
+    }
   },
   {
     "code": "absorbspell",

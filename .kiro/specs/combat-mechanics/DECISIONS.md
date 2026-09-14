@@ -90,7 +90,80 @@
 
 **调试中抓到并修掉的三个自身 bug**（都有用例锁定）：① resolvePassives 漏拷贝三字段（编译结果 undefined）；② 模板对象被当工厂函数调用；③ 召唤物错误地入队到死者一方而非持有者一方（daemonicpact 掩盖了它——持有者=死者本人）。
 
+## 风暴（Storm）全局掉落修正（窗口 D，2026-09-15）
+
+### 官方语义（查证结论）
+
+风暴**不是兵种**：不占编队位、无血量、不可被攻击，是挂在战斗上的全局掉落修正器——
+"When a Mana Storm is active in battle, Gems of the Storm's color are more likely to drop onto the board."
+（官方术语表，Infinity Plus 2 support）。TrueTrophies：掉率提升持续到计数器归零（有持续回合数）。
+
+三个待定项查证结果（原任务书括号内默认值仅在此标注，被查证结论取代/修正之处注明）：
+
+1. **持续回合数 = 8 回合（双方各 4）**。官方 3.0 补丁说明原文：
+   "a board affect that lasts 8 Turns (4 for each side)"。任务书默认值 5 查证后弃用。
+   引擎按「每行动回合尾递减 1」实现：8 次行动（双方交替即各 4 次）后到期。
+2. **9 种风暴颜色映射**。官方 3.0 补丁说明给出七行对照（Blue: Icestorm / Green: Leafstorm /
+   Red: Firestorm / Yellow: Lightstorm / Purple: Darkstorm / Brown: Duststorm / Skulls: Bonestorm，
+   社区帖同口径复核）；骸骨风暴与尘风暴**不是**同色——骸骨风暴官方提升的是**骷髅头**掉率、
+   尘风暴提升棕色宝石掉率；末日风暴/超级末日风暴官方提升**（至尊）末日骷髅**掉率
+   （4.0 补丁说明曾专门下调 Doomstorm 的末日骷髅掉率以平衡）：
+
+   | 风暴 | referenceName | 颜色（引擎） | 虚拟 troopId | 与官方差异 |
+   |---|---|---|---|---|
+   | 暗风暴 | Darkstorm | Purple | 9001 | 一致 |
+   | 火风暴 | Firestorm | Red | 9002 | 一致 |
+   | 冰风暴 | Icestorm | Blue | 9003 | 一致 |
+   | 光风暴 | Lightstorm | Yellow | 9004 | 一致 |
+   | 叶风暴 | Leafstorm | Green | 9005 | 一致 |
+   | 尘风暴 | Duststorm | Brown | 9006 | 一致 |
+   | 骸骨风暴 | Bonestorm | **Brown（近似）** | 9007 | 官方提升骷髅头掉率；引擎风暴契约只支持 BaseColor 加权，按骷髅头棕色系近似 |
+   | 末日风暴 | Doomstorm | **Purple（近似）** | 9008 | 官方提升末日骷髅掉率；按 doom 黑紫色系近似（BaseColor 无 Black） |
+   | 超级末日风暴 | UberDoomstorm | **Purple（近似）** | 9009 | 官方提升至尊末日骷髅掉率；同上近似 |
+
+   **假设标注**：后三行的色系近似是引擎契约（`Team.storm.color: BaseColor`，阶段 1.2 已定）
+   下的折衷——若将来把契约扩展为「风暴可指向骷髅/末日骷髅掉率」（如 `dropKind` 字段），
+   这三个风暴应改回官方语义。生成器映射表 `STORM_MAP`（scripts/build_traits.mjs）已按此注释。
+3. **掉落加成 ×1.9**。引擎常量 `STORM_DROP_WEIGHT = 1.9`（GravitySystem.ts，可调）。
+   加权实现下风暴色新宝石概率 = 1.9/(5+1.9) ≈ 27.5%，与 Steam 社区实测的 ~27.1%（基线 14.3% = 1/7）吻合。
+
+**来源链接**：
+- 官方 3.0 补丁说明（风暴→颜色表 + 持续 8 回合）：https://gemsofwar.com/3-0-patch-notes/
+- 官方术语表（Mana Storm 定义）：https://infinityplus2.freshdesk.com/support/solutions/articles/150000208267-gems-of-war-glossary-of-terms
+- Steam 社区实测（×1.9 / 27.1%）：https://steamcommunity.com/app/329110/discussions/0/3201496371571406154/
+- TrueTrophies（持续到计数器归零）：https://www.truetrophies.com/game/Gems-of-War/walkthrough/4
+- 官方 4.0 补丁说明（Doomstorm 掉末日骷髅 + 平衡性下调）：https://gemsofwar.com/4-0-patch-notes/
+- 官方社区帖（颜色表复核）：https://community.gemsofwar.com/t/timer-countdown/22802
+
+### 实现落点（阶段 1.3）
+
+- **数据**：`DeathSummonSpec`（summonOnDeath/AllyDeath/EnemyDeath 三字段）新增可选
+  `storm: { color: BaseColor; turns: number }`（types.ts `StormSummon` + traits.ts 定义区段）。
+  spec 带 storm 时**不产出兵种**（referenceName/displayName 仅展示、troopId 为虚拟号段 9001~9009），
+  改设持有者一方 `team.storm`。`resolvePassives` 编译行为不变（同字段取概率最高，storm 随对象拷贝）。
+- **生成器**：`resolveSummonedTroop` 两段式——先查兵种数据（现状），未命中查 `STORM_MAP`
+  （9 风暴名映射表）。traits.json 重生成：250 → **263** code（+13 风暴变体：
+  fierydeath/fromdark/fromashes/icydeath/rockydeath/naturesdeath/darkdeath/brightdeath/
+  skulldeath/frombones/dwarvendoom/fromlight/doomofarachnaea，覆盖 3703 → 3737 次）。
+  herdspirit（召唤「半人马侦察兵」）**未**被风暴批解锁——它不是风暴，是兵种召唤，
+  且该兵种名不在当前 1798 条精简兵种表内，仍留未实现桶（兵种数据缺口，另案处理）。
+- **TurnEngine**：spec 带风暴时不入队，`setStormFromSummon` 执行**全场唯一**裁定
+  （用户裁定：后召顶替先召，不分敌我；己方已有→replaced；对方有→先给对方发 color=null 的
+  replaced 撤指示器再设己方；同回合多 spec 按 specs 顺序结算，后者顶前者）。
+  `finishTurn` 回合尾（DoT 结算后）双方 `storm.turns` 递减，归零清除发
+  `storm-change`（color=null, reason:'expired', prevColor=旧色）。
+- **GravitySystem**：refill 颜色分布读双方 `team.storm`，对应色权重 ×`STORM_DROP_WEIGHT`。
+  无风暴时走旧均匀 pick 分支，随机数消耗序列与现状逐字节一致（既有测试零改动通过）。
+  窗口 C 的 `specialSpawnChance`/`SPAWNABLE_SPECIALS` 白名单未动。
+- **验证**：`tests/unit/stormEngine.test.ts`（8 用例：设置/己方替换/顶掉对方/到期/无风暴静默 +
+  applyDeathSummons 风暴分支 4 例）、`tests/unit/stormDrop.test.ts`（5 用例：权重常量 +
+  2000 次 refill 统计断言 ±3% + 无风暴均匀性/序列一致性 + fromdark 集成紫色占比上升）、
+  `tests/unit/traitsAudit.test.ts` 扩展（storm spec color/turns/号段校验 + 描述↔风暴变体双向对账 +
+  接线完整性两条）、`tests/unit/traitDeathSummon.test.ts` darkdeath 用例按新行为更新
+  （原「召唤名不可解析安全跳过」→「设风暴不召唤兵种」，预期变化非回归）。
+
 ## 语义对齐记录
+
 
 ### ✅ 织网/缠绕拆分（2026-09-14，已完成）
 

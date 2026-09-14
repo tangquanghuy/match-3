@@ -25,6 +25,7 @@ import combatResolverSrc from '../../src/engine/CombatResolver.ts?raw';
 import targetingSrc from '../../src/engine/skills/targeting.ts?raw';
 import damageSrc from '../../src/engine/skills/effects/damage.ts?raw';
 import manaDistributorSrc from '../../src/engine/ManaDistributor.ts?raw';
+import gravitySystemSrc from '../../src/engine/GravitySystem.ts?raw';
 
 const ALL = traitsJson as (TraitDefinition & { troops: number })[];
 const META_KEYS = new Set(['code', 'name', 'description', 'troops']);
@@ -136,9 +137,16 @@ describe('A · 数据完整性', () => {
         const s = t[field];
         if (!s) continue;
         if (!(s.chance > 0 && s.chance <= 1)) report(`${tag} ${field}.chance=${s.chance} 异常`);
-        if (!s.troopId || !s.referenceName || !s.displayName) report(`${tag} ${field} 缺 troopId/referenceName/displayName`);
-        if (s.displayName && !s.displayName.includes(s.referenceName) && !OFFICIAL_TROOP_NAMES.has(s.displayName)) {
-          report(`${tag} ${field}.displayName「${s.displayName}」在兵种数据中不存在`);
+        if (s.storm) {
+          // 风暴变体（阶段 1.3）：不产出兵种，color 合法 + turns ∈ [1,20] + 虚拟号段
+          if (!BASE_COLORS.has(s.storm.color as BaseColor)) report(`${tag} ${field}.storm.color「${s.storm.color}」非法`);
+          if (!(s.storm.turns >= 1 && s.storm.turns <= 20)) report(`${tag} ${field}.storm.turns=${s.storm.turns} 超出 [1,20]`);
+          if (!(s.troopId >= 9001 && s.troopId <= 9009)) report(`${tag} ${field}.troopId=${s.troopId} 不在风暴虚拟号段 9001~9009`);
+        } else {
+          if (!s.troopId || !s.referenceName || !s.displayName) report(`${tag} ${field} 缺 troopId/referenceName/displayName`);
+          if (s.displayName && !s.displayName.includes(s.referenceName) && !OFFICIAL_TROOP_NAMES.has(s.displayName)) {
+            report(`${tag} ${field}.displayName「${s.displayName}」在兵种数据中不存在`);
+          }
         }
       }
       if (t.onBigMatchTypeAura && t.onBigMatchTypeAura.troopType !== 'all'
@@ -310,6 +318,25 @@ describe('C · 描述↔数值一致性（从官方文本重新抽数对账）',
       if (t.onAllyDeathGain && !/盟友身亡/.test(d)) report(`${tag(t)} onAllyDeathGain 但描述没有「盟友身亡」`);
       if (t.onAllyCastGain && !/盟友施/.test(d)) report(`${tag(t)} onAllyCastGain 但描述没有「盟友施法」`);
       if (t.onEnemyCastGain && !/敌人施/.test(d)) report(`${tag(t)} onEnemyCastGain 但描述没有「敌人施法」`);
+
+      // 风暴变体对账（阶段 1.3）：描述「召唤一个暗风暴」→ 必须编译为带 storm 的召唤 spec，
+      // 且 displayName 与描述中的风暴名逐字一致；反向：storm spec 的描述必须真的在召唤风暴
+      const stormName = /召唤一?[名只个头]?((?:超级)?末日|暗|火|冰|光|叶|尘|骸骨)风暴/.exec(d)?.[1];
+      if (stormName) {
+        const expected = `${stormName}风暴`;
+        const spec = t.summonOnDeath ?? t.summonOnAllyDeath ?? t.summonOnEnemyDeath;
+        if (!spec || !spec.storm) {
+          report(`${tag(t)} 描述「召唤${expected}」但未编译为风暴变体`);
+        } else if (spec.displayName !== expected) {
+          report(`${tag(t)} 风暴 displayName「${spec.displayName}」与描述「${expected}」不符`);
+        }
+      }
+      for (const field of ['summonOnDeath', 'summonOnAllyDeath', 'summonOnEnemyDeath'] as const) {
+        const s = t[field];
+        if (s?.storm && !/召唤一?[名只个头]?(?:超级)?(?:末日|暗|火|冰|光|叶|尘|骸骨)风暴/.test(d)) {
+          report(`${tag(t)} ${field} 是风暴变体但描述没有「召唤…风暴」句式`);
+        }
+      }
     }
   });
   it('生成器写入的数值与官方描述文本逐条对账', () => expectNoProblems(problems, '描述↔数值一致性'));
@@ -330,6 +357,8 @@ describe('D · 接线完整性（钩子存在但没人调用 = 死角）', () =>
     ['法术减伤', /spellDamageTaken/, () => damageSrc],
     ['法力灵链', /manaLink/, () => manaDistributorSrc],
     ['死亡召唤', /applyDeathSummons|summonOnDeath/, () => turnEngineSrc],
+    ['风暴设置/顶替/回合递减', /setStormFromSummon|tickStorms|stormDropWeights/, () => turnEngineSrc],
+    ['风暴掉落加权', /STORM_DROP_WEIGHT/, () => gravitySystemSrc],
   ];
   it.each(cases)('%s 有真实消费点', (_name, re, src) => {
     expect(re.test(src())).toBe(true);

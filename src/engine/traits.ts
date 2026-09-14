@@ -32,7 +32,7 @@
 import traitTable from '../data/traits.json';
 import { effectiveHealing } from './healing';
 import type { BuffEvent, GameEvent } from './events';
-import type { BaseColor, Character, PassiveModifiers, StatGains, PlayerSide } from './types';
+import type { BaseColor, Character, PassiveModifiers, StatGains, PlayerSide, StormSummon } from './types';
 
 /** 状态免疫通配符：免疫所有状态 */
 export const ALL_STATUSES = '*';
@@ -105,12 +105,12 @@ export interface TraitDefinition {
   armorPierceChance?: number;
   /** 无法成为技能指定目标（隐匿） */
   untargetable?: boolean;
-  /** 自己身亡时按概率召唤（daemonicpact/terrorpact 族；summon 为兵种中文名，由生成器解析成 referenceName） */
-  summonOnDeath?: { chance: number; troopId: number; referenceName: string; displayName: string };
+  /** 自己身亡时按概率召唤（daemonicpact/terrorpact 族；summon 为兵种中文名，由生成器解析成 referenceName；带 storm 时为风暴变体，不产出兵种） */
+  summonOnDeath?: { chance: number; troopId: number; referenceName: string; displayName: string; storm?: StormSummon };
   /** 一名盟友（含自己）身亡时召唤（fromdark/fromashes 族） */
-  summonOnAllyDeath?: { chance: number; troopId: number; referenceName: string; displayName: string };
+  summonOnAllyDeath?: { chance: number; troopId: number; referenceName: string; displayName: string; storm?: StormSummon };
   /** 敌方角色身亡时召唤（darkdeath/icydeath 族） */
-  summonOnEnemyDeath?: { chance: number; troopId: number; referenceName: string; displayName: string };
+  summonOnEnemyDeath?: { chance: number; troopId: number; referenceName: string; displayName: string; storm?: StormSummon };
 }
 
 export const TRAIT_LIBRARY: readonly TraitDefinition[] = traitTable as TraitDefinition[];
@@ -268,7 +268,8 @@ export function resolvePassives(
       }
       bigMatchAura.set(k, merged);
     }
-    // 死亡召唤：同字段取概率更高的一条（多个持有不叠加多次召唤，与"同类取最强"口径一致）
+    // 死亡召唤：同字段取概率更高的一条（多个持有不叠加多次召唤，与"同类取最强"口径一致）。
+    // 风暴变体（storm）随对象整体拷贝，编译层不感知其差异——风暴入队/顶替裁定在 TurnEngine。
     for (const key of ['summonOnDeath', 'summonOnAllyDeath', 'summonOnEnemyDeath'] as const) {
       const s = trait[key];
       if (s && (passive[key] === undefined || s.chance > passive[key]!.chance)) {
@@ -419,12 +420,21 @@ export interface DeathSummonContext {
   nextCharId?: () => number;
   /** 召唤物入队：side 为**持有者**所在方（召唤物跟随持有者，而非死者），填空位或进 FIFO 队列 */
   enqueue: (summoned: Character, troopId: number, side: PlayerSide) => GameEvent[];
+  /**
+   * 风暴召唤结算（spec 带 storm 变体时调用，不入队）：side 为持有者所在方，
+   * 宿主负责顶替裁定（全场唯一）并产出 storm-change 事件；缺省时风暴召唤跳过。
+   */
+  setStorm?: (spec: DeathSummonSpec, side: PlayerSide) => GameEvent[];
   /** 种子化随机源（概率判定）；缺省时概率 <1 的召唤不生效（纯逻辑单测可省略） */
   rng?: { next(): number };
 }
 
 /**
- * 死亡召唤结算（daemonicpact/terrorpact/fromdark/darkdeath 族，35 个 code）。
+ * 死亡召唤结算（daemonicpact/terrorpact/fromdark/darkdeath 族）。
+ *
+ * spec 带风暴变体（storm）时**不入队**：改走 ctx.setStorm 设置持有者一方的
+ * 全局风暴（Team.storm，见 TurnEngine.setStormFromSummon 的顶替裁定），
+ * 概率判定与兵种召唤同口径。多个 spec 按传入顺序结算，后召顶先召。
  *
  * @param specs 调用方（TurnEngine.resolveDeathSummons）已按持有者语义预筛的召唤规格，
  *              每项携带持有者所在方（召唤物跟随持有者入队），顺序即入队顺序（确定性）。
@@ -438,6 +448,11 @@ export function applyDeathSummons(
   const events: GameEvent[] = [];
   for (const { spec, side } of specs) {
     if (ctx.rng && ctx.rng.next() >= spec.chance) continue;
+    // 风暴变体：不是兵种，不入队——交给宿主设置 team.storm（不需要 nextCharId/模板）
+    if (spec.storm) {
+      if (ctx.setStorm) events.push(...ctx.setStorm(spec, side));
+      continue;
+    }
     if (!ctx.nextCharId) continue; // 无 id 分配器则安全跳过（纯单测环境）
     const template = resolveSummonTemplate(spec);
     if (!template) continue;

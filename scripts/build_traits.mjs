@@ -283,7 +283,8 @@ function parse(desc) {
   }
   // 死亡召唤三族（daemonicpact/terrorpact/fromdark/darkdeath…）。
   // 触发主体：自己身亡 / 盟友身亡 / 敌人身亡；概率可省略（=100%，如 loyalmount/desertmount）。
-  // 召唤物名必须能解析到兵种数据，解析不到（风暴系列查无此兵）留在未实现桶。
+  // 召唤物两段式解析：先查兵种数据，未命中查风暴映射表（骸骨风暴/末日风暴等 9 种，
+  // 产出 storm 变体 spec，不产出兵种）；两者都查不到留在未实现桶。
   if (/身亡时|死亡时/.test(desc) && /召唤/.test(desc)) {
     if (/当?一?名?敌人(?:死亡|身亡)时/.test(desc)) {
       const hit = parseDeathSummon(desc, 'summonOnEnemyDeath', true);
@@ -310,11 +311,47 @@ const TROOP_BY_NAME = new Map(
   (Array.isArray(troopsSlim) ? troopsSlim : troopsSlim.raw_data ?? []).map((t) => [t.name, { troopId: t.id, referenceName: t.referenceName }]),
 );
 
-/** 解析「召唤一只/名/个 X」里的 X 为兵种数据；解析不到返回 null（该特质继续留在未实现桶） */
+/**
+ * 风暴映射表（阶段 1.1 查证收尾，来源与假设详见 DECISIONS.md「风暴（Storm）全局掉落修正」）。
+ *
+ * 官方语义：风暴不是兵种，是挂在战斗上的全局掉落修正器。六色风暴提升对应色宝石掉率；
+ * **骸骨风暴提升骷髅掉率、末日/超级末日风暴提升（至尊）末日骷髅掉率**——而引擎的风暴契约
+ * （Team.storm.color: BaseColor，阶段 1.2 已定）只支持按 BaseColor 加权颜色掉落，因此
+ * 骷髅族风暴按最近色系近似（查证结论 + 任务书兜底口径）：
+ *   - 骸骨风暴 Bonestorm → Brown（骷髅头的棕色系）
+ *   - 末日风暴 Doomstorm / 超级末日风暴 Uber Doomstorm → Purple（doom 黑紫色系；BaseColor 无 Black）
+ * troopId 用虚拟号段 9001~9009（真实兵种 id 不会撞上，表现层可据此区分风暴与兵种）。
+ */
+const STORM_TURNS = 8; // 官方 3.0 补丁说明："a board affect that lasts 8 Turns (4 for each side)"
+const STORM_MAP = {
+  暗风暴: { color: 'Purple', troopId: 9001, referenceName: 'Darkstorm' },
+  火风暴: { color: 'Red', troopId: 9002, referenceName: 'Firestorm' },
+  冰风暴: { color: 'Blue', troopId: 9003, referenceName: 'Icestorm' },
+  光风暴: { color: 'Yellow', troopId: 9004, referenceName: 'Lightstorm' },
+  叶风暴: { color: 'Green', troopId: 9005, referenceName: 'Leafstorm' },
+  尘风暴: { color: 'Brown', troopId: 9006, referenceName: 'Duststorm' },
+  骸骨风暴: { color: 'Brown', troopId: 9007, referenceName: 'Bonestorm' },
+  末日风暴: { color: 'Purple', troopId: 9008, referenceName: 'Doomstorm' },
+  超级末日风暴: { color: 'Purple', troopId: 9009, referenceName: 'UberDoomstorm' },
+};
+
+/**
+ * 解析「召唤一只/名/个 X」里的 X，两段式：
+ *   1. 查兵种数据（现状）→ { troopId, referenceName }；
+ *   2. 未命中查风暴映射表 → 兵种召唤变体为风暴：附 storm: { color, turns }，
+ *      troopId 为虚拟风暴号段（引擎据此不产出兵种、改设全局风暴）。
+ * 都查不到返回 null（该特质继续留在未实现桶）。
+ */
 function resolveSummonedTroop(desc) {
   const name = (/(?:召唤|召唤出)一?[名只个头]?(.+?)[。.？?]?$/.exec(desc) ?? [])[1]?.trim();
   if (!name) return null;
-  return TROOP_BY_NAME.get(name) ?? null;
+  const troop = TROOP_BY_NAME.get(name);
+  if (troop) return { troopId: troop.troopId, referenceName: troop.referenceName };
+  const storm = STORM_MAP[name];
+  if (storm) {
+    return { troopId: storm.troopId, referenceName: storm.referenceName, storm: { color: storm.color, turns: STORM_TURNS } };
+  }
+  return null;
 }
 
 /** 死亡召唤共同解析：触发主体 + 概率 + 召唤物。触发字段由调用方指定 */
@@ -329,6 +366,7 @@ function parseDeathSummon(desc, field, withChance) {
         troopId: troop.troopId,
         referenceName: troop.referenceName,
         displayName: (/(?:召唤|召唤出)一?[名只个头]?(.+?)[。.？?]?$/.exec(desc) ?? [])[1]?.trim(),
+        ...(troop.storm ? { storm: troop.storm } : {}),
       },
     },
   };
