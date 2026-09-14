@@ -25,6 +25,7 @@ import type { GemSprite } from './GemSprite';
 import { FXLayer } from './FXLayer';
 import { impactShake } from './FXLayer';
 import { EventStreamPlayer } from './EventStreamPlayer';
+import { StormIndicator, stormChangePlan } from './StormIndicator';
 import { InputController } from './InputController';
 import { AudioManager, type SfxName } from './AudioManager';
 import { AnimConfig } from './AnimationConfig';
@@ -361,6 +362,11 @@ export class App {
   private persistPending = new Set<string>();
   /** 角色/技能详情面板（点击角色卡打开，需求 4） */
   private detailPanel!: CharacterDetailPanel;
+  /**
+   * 顶部风暴指示器（阶段 2）：与回合 HUD 共用棋盘顶部 44px 通道的另一侧，
+   * 按施放风暴的一方贴其队伍列上沿；storm-change 事件驱动弹入/淡出。
+   */
+  private stormIndicator = new StormIndicator();
   /** 胜负结算面板（game-over 事件弹出，需求 15.4） */
   private gameOverPanel!: GameOverPanel;
   /**
@@ -523,6 +529,15 @@ export class App {
       gridPx,
       topMargin + boardTopInset,
     );
+    // 风暴指示器：顶部 44px HUD 通道的另一侧——回合 HUD 居中占棋盘上沿，
+    // 指示器按施放方贴其队伍列上沿（左队 → 左列、右队 → 右列）。
+    this.stormIndicator.mount(wrapper, {
+      leftColumnX: gemSpace,
+      rightColumnX: gemSpace + sideColW + gridPx + colGap,
+      columnWidth: sideColW - colGap,
+      laneTop: topMargin,
+      laneHeight: boardTopInset,
+    });
 
     // Critical 宝石贴图与 Pixi renderer 并行加载；同步棋盘前等待，失败时自动使用程序化回退。
     await gemTexturesPromise;
@@ -594,6 +609,7 @@ export class App {
     this.player.onGroupAttack = (events) => this.playGroupAttack(events);
     this.player.onManaFlow = (ev, origins) => this.playManaFlow(ev, origins);
     this.player.onComboPulse = (level) => this.playTurnHudCombo(level);
+    this.player.onStormChange = (ev) => this.onStormChangePresentation(ev);
 
     // 输入
     this.input = new InputController(this.board, this.app.canvas);
@@ -1518,6 +1534,23 @@ export class App {
         break;
     }
     void state;
+  }
+
+  /**
+   * 风暴演出（storm-change，阶段 2）：EventStreamPlayer 在时间线上到达该事件时调用。
+   * - set / replaced 新风暴：指示器弹入 + 指示器中心播对应色 group_hit_* 一次性爆发 FX
+   *   （召唤音效由 EventStreamPlayer 在同一时间点复用 'summon'，不经此处）
+   * - replaced 被顶方（color=null）/ expired：该方指示器淡出
+   */
+  private onStormChangePresentation(ev: Extract<GameEvent, { type: 'storm-change' }>): void {
+    const plan = stormChangePlan(ev);
+    if (plan.action === 'show' && plan.color !== null) {
+      this.stormIndicator.show(plan.color, ev.player);
+      const center = this.stormIndicator.activeCenter();
+      if (center && plan.burstFx) this.playFrameFX(plan.burstFx, center.x, center.y);
+    } else {
+      this.stormIndicator.hide(ev.player);
+    }
   }
 
   private playManaFlow(
@@ -2477,6 +2510,16 @@ export class App {
     this.onEventsProduced?.(events);
     await this.player.play(events);
     return true;
+  }
+
+  /**
+   * 调试辅助：喂一条合成 storm-change 事件走完整演出管线（时间线预留 + 指示器 + 爆发 FX + 音效）。
+   * 引擎侧风暴机制（d-storm-engine 分支）合并前的表现层走查入口；合并后可直接用死亡召唤特质端到端触发。
+   */
+  async debugStormChange(ev: Extract<GameEvent, { type: 'storm-change' }>): Promise<void> {
+    const events: GameEvent[] = [ev];
+    this.onEventsProduced?.(events);
+    await this.player.play(events);
   }
 
   /** Temporary skill-test hook: preview the finalized elimination/chain set. */

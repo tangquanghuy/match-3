@@ -10,9 +10,21 @@ import { AnimConfig, fallDuration } from './AnimationConfig';
 import { colorOf } from './GemSprite';
 import type { AudioManager } from './AudioManager';
 import { extraActionComboLevel } from './turnHudLogic';
+import { stormChangePlan } from './StormIndicator';
 
 type ManaOriginRef = { gemId: number; pos: CellPos };
 type BoardPoint = { x: number; y: number };
+
+/**
+ * 召唤演出的时间线占位（秒），按 summon 事件的 destination 查表。
+ * field → 棋盘上播 0011 召唤法阵（summon_rune）；queue → 仅入队，无棋盘演出。
+ * 新增召唤演出路径时在此加键，勿再硬编码单个特效的时长。
+ * （frameFX 时长为毫秒，GSAP 用秒。）
+ */
+const SUMMON_HOLD_SECONDS: Record<Extract<GameEvent, { type: 'summon' }>['destination'], number> = {
+  field: AnimConfig.frameFX.summon_rune.duration / 1000,
+  queue: 0.08,
+};
 
 /**
  * 事件流播放器（需求 18, 23, 25）。
@@ -33,6 +45,11 @@ export class EventStreamPlayer {
   onManaFlow: ((ev: Extract<GameEvent, { type: 'mana-gain' }>, origins: BoardPoint[]) => void) | null = null;
   /** Fired for cascade levels 2+ and once more when an extra action is awarded. */
   onComboPulse: ((level: number) => void) | null = null;
+  /**
+   * 风暴演出回调（storm-change，阶段 2）：App 负责顶部指示器的弹入/淡出与
+   * 对应色一次性爆发 FX；召唤音效由本类按 stormChangePlan 在同一时间点播放。
+   */
+  onStormChange: ((ev: Extract<GameEvent, { type: 'storm-change' }>) => void) | null = null;
   private extraTurnComboLevel = 2;
   private manaOriginCache = new Map<number, BoardPoint>();
 
@@ -330,13 +347,22 @@ export class EventStreamPlayer {
       }
       case 'summon':
         tl.add(() => this.onBattleEvent?.(ev));
-        if (ev.destination === 'field') {
-          // App plays effect 0011; frameFX durations are ms while GSAP uses seconds.
-          tl.to({}, { duration: AnimConfig.frameFX.summon_rune.duration / 1000 });
-        } else {
-          tl.to({}, { duration: 0.08 });
-        }
+        // 占位时长按召唤事件的 destination 查表（SUMMON_HOLD_SECONDS）：
+        // field 才有棋盘上的 0011 法阵演出，queue 仅入队不白等。
+        tl.to({}, { duration: SUMMON_HOLD_SECONDS[ev.destination] });
         break;
+      case 'storm-change': {
+        // 风暴演出（阶段 2）：set/replaced 新风暴 → 召唤音效（仅 set）+ 指示器弹入
+        // + 对应色一次性爆发 FX，时间线预留爆发时长；被顶方（color=null）/到期 →
+        // 指示器淡出，预留淡出时长。指示器与爆发 FX 由 App 接管（onStormChange）。
+        const plan = stormChangePlan(ev);
+        tl.add(() => {
+          if (plan.summonSfx) this.audio.play('summon');
+          this.onStormChange?.(ev);
+        });
+        tl.to({}, { duration: plan.holdSeconds });
+        break;
+      }
       default:
         break;
     }
