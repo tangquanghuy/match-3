@@ -816,17 +816,21 @@ export class App {
     wrapper.appendChild(btn);
   }
 
-  /** 回合提示：仅靠行动方队伍外围描边高亮（无顶部条、无横幅） */
+  /** 回合横幅：星落素材按自然纵横比渲染，波浪底缘沉入棋盘首行上方，宽度与棋盘精确对齐 */
   private createTurnBanner(
     wrapper: HTMLDivElement,
     boardLeft: number,
     gridPx: number,
     boardTop: number,
   ): void {
-    // Keep the wide crest, but compress it into the reserved HUD lane so every gem remains visible.
-    const hudWidth = Math.round(gridPx * 1.045);
-    const hudHeight = 44;
-    const hudTop = Math.max(0, boardTop - hudHeight);
+    // 素材 1425×310：顶部金冠 + 星空主体 + 底部波浪羽化。宽度与棋盘对齐（不再外溢边框）；
+    // 高度取自然纵横比，受「棋盘上方空间 + 羽化沉入深度」约束，空间不足时整体等比压缩。
+    // 金冠保持在棋盘上方的预留车道内；宝石自夜幕后方落下、经半透明波谷显现（本层 z-index 高于画布）。
+    const hudWidth = gridPx;
+    const dipIntoBoard = Math.round((gridPx / BoardModel.COLS) * 0.42);
+    const naturalHeight = Math.round((gridPx * 310) / 1425);
+    const hudHeight = Math.min(naturalHeight, boardTop + dipIntoBoard);
+    const hudTop = Math.max(0, boardTop + dipIntoBoard - hudHeight);
     const hud = document.createElement('div');
     hud.className = 'turn-hud';
     hud.style.cssText = [
