@@ -408,6 +408,8 @@ export class App {
   private turnHudNodeGlowEls: HTMLSpanElement[] = [];
   private turnHudStreakEls: HTMLSpanElement[] = [];
   private turnHudParticleEls: HTMLSpanElement[] = [];
+  /** 横幅底缘相对棋盘顶的下沉量（棋盘局部 px）：refill 生成线据此让宝石从夜幕下方出现 */
+  private turnBannerDipPx = 0;
   /** CS2 击杀风格彗星尾光的头部亮核（左右各一），跟随尾光头端飞出 */
   private turnHudCometHeadEls: HTMLSpanElement[] = [];
   private turnHudAnimations: Animation[] = [];
@@ -605,6 +607,7 @@ export class App {
 
     this.board.syncFromBoard(genBoard);
     this.player = new EventStreamPlayer(this.board, this.fx, this.root, this.audio);
+    this.player.setRefillSpawnTopPx(this.turnBannerDipPx);
     this.player.onBattleEvent = (ev) => this.onBattleEvent(ev);
     this.player.onGroupAttack = (events) => this.playGroupAttack(events);
     this.player.onManaFlow = (ev, origins) => this.playManaFlow(ev, origins);
@@ -831,6 +834,7 @@ export class App {
     const naturalHeight = Math.round((gridPx * 310) / 1425);
     const hudHeight = Math.min(naturalHeight, boardTop + dipIntoBoard);
     const hudTop = Math.max(0, boardTop + dipIntoBoard - hudHeight);
+    this.turnBannerDipPx = Math.max(0, hudTop + hudHeight - boardTop);
     const hud = document.createElement('div');
     hud.className = 'turn-hud';
     hud.style.cssText = [

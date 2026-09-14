@@ -35,6 +35,17 @@ const SUMMON_HOLD_SECONDS: Record<Extract<GameEvent, { type: 'summon' }>['destin
 export class EventStreamPlayer {
   private timeline: gsap.core.Timeline | null = null;
 
+  /**
+   * refill 下落动画的生成线（棋盘局部 y，px）。null = 维持旧行为（新宝石堆紧贴棋盘顶上方）；
+   * App 在创建顶部横幅后注入横幅底缘，使新宝石从夜幕下方才出现、不再穿过横幅。
+   */
+  private refillSpawnTopPx: number | null = null;
+
+  /** 注入 refill 生成线（横幅底缘，棋盘局部坐标）。 */
+  setRefillSpawnTopPx(px: number): void {
+    this.refillSpawnTopPx = px;
+  }
+
   /** 战斗事件回调：在时间线推进到该事件时触发，供 App 更新卡面（需求 19.6, 19.7） */
   onBattleEvent: ((ev: GameEvent) => void) | null = null;
   /**
@@ -800,7 +811,11 @@ export class EventStreamPlayer {
     for (const sp of ev.spawns) {
       const stack = perCol.get(sp.to.col) ?? 1;
       const to = this.center(sp.to);
-      const startY = to.y - this.board.cellSize * stack;
+      // 生成线以下才允许出现：列顶新宝石不高于横幅底缘（从夜幕下方开始下落）
+      const startY = Math.max(
+        to.y - this.board.cellSize * stack,
+        this.refillSpawnTopPx ?? Number.NEGATIVE_INFINITY,
+      );
       const duration = fallDuration(stack);
       const delay = sp.to.col * AnimConfig.gravity.columnStagger;
       const progress = { value: 0 };
