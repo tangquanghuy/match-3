@@ -208,6 +208,22 @@ export interface SpecialGemTriggerEvent {
   wish?: { option: number; targetIds: number[] };
 }
 
+/**
+ * 风暴全局掉落修正变更。风暴不是兵种：不占编队位、无血量、不可被攻击，
+ * 仅按颜色修正 refill 掉落权重。全场同时最多一个风暴（后召顶替先召）。
+ * - set：风暴首次生效（color 非 null）
+ * - replaced：新风暴顶替旧风暴（prevColor 为被顶掉的颜色；被顶方若是另一方，
+ *   该方也会收到一条 color=null 的 replaced，供表现层撤除其指示器）
+ * - expired：持续计数器归零清除（color=null）
+ */
+export interface StormChangeEvent {
+  type: 'storm-change';
+  player: PlayerSide;
+  color: BaseColor | null;
+  reason: 'set' | 'replaced' | 'expired';
+  prevColor?: BaseColor;
+}
+
 export interface ExtraTurnEvent {
   type: 'extra-turn';
   player: PlayerSide;
@@ -251,6 +267,7 @@ export type GameEvent =
   | ReshuffleEvent
   | SpecialGemHookEvent
   | SpecialGemTriggerEvent
+  | StormChangeEvent
   | ExtraTurnEvent
   | TurnEndEvent
   | GameOverEvent;

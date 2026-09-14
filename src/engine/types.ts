@@ -362,4 +362,11 @@ export interface Team {
   characters: Character[];
   /** FIFO summon bench. Entries promote to the bottom when an active character is defeated. */
   summonQueue?: QueuedSummon[];
+  /**
+   * 风暴全局掉落修正（Storm / Mana Storm）。不是 Character：不占编队位、无血量、
+   * 不可被攻击，仅按 color 修正 refill 掉落权重。字段挂在持有方 Team 上；
+   * 全场同时只允许一个风暴（后召顶替先召），将来放开为每方一个时天然兼容。
+   * turns 为剩余回合数，回合尾递减，归零清除。
+   */
+  storm?: { color: BaseColor; turns: number; troopId: number };
 }
