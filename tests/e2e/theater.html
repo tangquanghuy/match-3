@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>放映厅 · 定制对局入口</title>
+    <style>
+      html, body { margin: 0; padding: 0; min-height: 100%; background: #0e0e16; color: #f0e2bf; }
+      #app { display: flex; justify-content: center; padding: 8px; }
+    </style>
+  </head>
+  <body>
+    <div id="app"></div>
+    <script type="module">
+      // 放映厅（窗口 G）定制对局入口：?req=<base64url(BattleRequest)>。
+      // 复用主游戏 App 的真实装配/释放/演出链路，本页只做「请求解码 + init」；
+      // 不带 req 时与 skills-test.html 一样走独立模式默认配置。
+      // 驱动见 scripts/theater/inject-driver.js（window.__theater）。
+      import { App } from '/src/render/App.ts';
+
+      function decodeRequest(b64url) {
+        const b64 = b64url.replace(/-/g, '+').replace(/_/g, '/');
+        const bin = atob(b64);
+        const bytes = Uint8Array.from(bin, (c) => c.charCodeAt(0));
+        return JSON.parse(new TextDecoder().decode(bytes));
+      }
+
+      const mount = document.getElementById('app');
+      const params = new URLSearchParams(location.search);
+      let request;
+      const raw = params.get('req');
+      if (raw) {
+        try {
+          request = decodeRequest(raw);
+        } catch (err) {
+          mount.textContent = 'theater: req 解码失败: ' + (err && err.message || err);
+          throw err;
+        }
+      }
+
+      const app = new App();
+      window.__theaterApp = app;
+      // 大屏基准（与 SkillTestPage 同式）：棋盘原生渲染不缩放，截图才清晰。
+      const byH = Math.floor((window.innerHeight - 80) / 8);
+      const byW = Math.floor((window.innerWidth - 60 - 2 * 142) / 8);
+      app.baseCellSize = Math.max(48, Math.min(88, byH, byW));
+
+      app.init(mount, request).then(() => {
+        mount.dataset.testReady = 'true';
+      }).catch((err) => {
+        console.error('theater init failed:', err);
+        mount.dataset.testReady = 'error';
+        mount.textContent = 'theater init failed: ' + (err && err.message || err);
+      });
+    </script>
+  </body>
+</html>
