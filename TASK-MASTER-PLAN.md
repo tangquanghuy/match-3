@@ -62,7 +62,7 @@ UI/演出细节由**程序自动截图审查迭代**推进，不依赖人工逐�
 
 - **基线**：特殊状态批**已提交**（2026-09-16 窗口E 三块：`6b1079a` 引擎+数据 / `2cd8e3e` 渲染+音效 / `5ced37c` 测试+文档；提交前门槛复跑：lint 0 错、57 文件/613 用例全绿、build 通过）。工作区仅剩 `assets/prompt/` + `scripts/build_portrait_prompts.mjs`（F 名下，随 F 首次波次提交入库）。
 - **特质**：main 268/785 code（70% 出场）；含开局风暴 5 code（songoflight/darkness/bones/fire/ice）。
-- **技能**：521 编译 / 722 放弃 / 555 待核对 = 1798 行（唯一 spell 1793）。两处「必须修」：spell-rules.md 滞后实现；多伤害段 modifier 挂载未裁定（3 条）。
+- **技能**：573 已核对组装 / 750 核对后放弃 / 475 待核对 = 1798 行（唯一 spell 1793）。窗口E 阶段1~4b 完成（spell-rules 对齐+modifier 辖域裁定、回收批 20 条 batch-33、特殊宝石接线核验、增量建池 pool-34~40 + batch-34/35 两波）；spell-rules 四处滞后与多伤害段 modifier 辖域已裁定修复；新引擎缺口建议（createStorm 原语 / stormPresent 条件 / 被摧毁特殊宝石计数）见 DECISIONS「技能侧新引擎缺口建议」。
 - **立绘提示词**：脚手架完成（`scripts/build_portrait_prompts.mjs`，6 标签极简模板，单文件 ~1070 字符）；破碎尖塔 47/47 样板已过四轮修正并按 2026-09-16 用户更正重渲（风格行去 dark fantasy、侧面视角锚改 `, from side`，见 `artifacts/prompt-overrides/_authoring-guidelines.md`）；风格行 `wlopk2style, western fantasy style, DnD monster manual illustration, painterly fantasy,`（wlopk2style 是管线必需 tag，不许删）。剩 41 王国 ~1743 名。CDN 存量抽样 0/30 → 按全量新生产规划。
 - **音效**：战斗基础音齐（35 wav + 变体）。缺口：状态施加音、特殊宝石触发音、胜负结算 stinger、BGM（零音乐文件）、黄色技能音。`assets/音效/` 已盘点（窗口E → `artifacts/audio-inventory.txt`）：仅 `中毒.wav` 一个文件、未接线、命名不合既有约定。
 - **测试台**：面板过长不可收起、区块名英文、状态/特质图标不可点击、技能释放与详情粗糙。
