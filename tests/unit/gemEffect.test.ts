@@ -218,9 +218,14 @@ describe('gemEffect 摧毁（接入 TurnEngine 连锁）', () => {
     };
 
     const hpBefore = right.characters[0].hp;
+    const armorBefore = right.characters[0].armor;
     const events = gemEffect({ op: 'clear', mode: 'destroy', target: { kind: 'lines', cols: [0] } }).apply(ctx);
-    // col 0 含 1 颗骷髅(0,0) → 骷髅伤害 = attack(5) * 1 = 5
-    expect(events.some((e) => e.type === 'skull-damage')).toBe(true);
-    expect(right.characters[0].hp).toBeLessThan(hpBefore);
+    // col 0 含 1 颗骷髅(0,0) → 官方"炸毁骷髅"规则：法术伤害 1 点/颗打敌方队首
+    // （不吃攻击力、不可闪避，与三消骷髅是两条规则；查证结论见 DECISIONS「骷髅爆炸」）。
+    // attack=5 只用于验证旧攻击力口径确实不再参与。
+    const dmg = events.find((e) => e.type === 'skill-damage');
+    expect(dmg).toBeDefined();
+    expect(dmg && 'damage' in dmg ? dmg.damage : undefined).toBe(1);
+    expect(right.characters[0].hp + right.characters[0].armor).toBeLessThan(hpBefore + armorBefore);
   });
 });

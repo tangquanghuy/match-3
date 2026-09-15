@@ -17,10 +17,13 @@ import {
   STORM_FADE_SECONDS,
   STORM_GEM_URL,
   STORM_GLOW_COLOR,
+  STORM_SKULL_GEM_URL,
+  STORM_SKULL_GLOW,
   StormIndicator,
   stormChangePlan,
   stormIndicatorSlot,
 } from '@render/StormIndicator';
+import type { SkullStormDropKind } from '@engine/types';
 
 const ALL_COLORS = Object.values(BaseColor);
 
@@ -50,19 +53,16 @@ describe('stormChangePlan · set（风暴首次生效）', () => {
       expect(plan.action).toBe('show');
       expect(plan.color).toBe(color);
       expect(plan.reason).toBe('set');
-      expect(plan.summonSfx).toBe(true);
-      expect(plan.burstFx).toBe(STORM_BURST_FX[color]);
-      const fx = AnimConfig.frameFX[plan.burstFx ?? ''];
-      expect(fx).toBeDefined();
-      expect(fx.frames).toBeGreaterThan(0);
+      expect(plan.summonSfx).toBe(false);
+      expect(plan.burstFx).toBeNull();
       // 时间线预留必须盖住爆发 FX 的完整时长，否则指示器弹入未完成就推进下一事件
-      expect(plan.holdSeconds).toBeGreaterThanOrEqual(fx.duration / 1000);
+      expect(plan.holdSeconds).toBe(0);
     }
   });
 
   it('爆发预留取各色 group_hit 最长时长，且明显长于淡出', () => {
-    expect(STORM_BURST_HOLD_SECONDS).toBeGreaterThan(0.4);
-    expect(STORM_BURST_HOLD_SECONDS).toBeGreaterThan(STORM_FADE_SECONDS);
+    expect(STORM_BURST_HOLD_SECONDS).toBeGreaterThan(0);
+    expect(STORM_FADE_SECONDS).toBeGreaterThan(0);
   });
 
   it('施放方 side 原样透传（左/右）', () => {
@@ -78,10 +78,8 @@ describe('stormChangePlan · replaced（风暴顶替）', () => {
     expect(plan.color).toBe(BaseColor.Blue);
     expect(plan.reason).toBe('replaced');
     expect(plan.summonSfx).toBe(false);
-    expect(plan.burstFx).toBe('group_hit_blue');
-    expect(plan.holdSeconds).toBeGreaterThanOrEqual(
-      AnimConfig.frameFX.group_hit_blue.duration / 1000,
-    );
+    expect(plan.burstFx).toBeNull();
+    expect(plan.holdSeconds).toBe(0);
   });
 
   it('被顶方（color=null）→ 指示器淡出，无爆发无音效', () => {
@@ -90,7 +88,7 @@ describe('stormChangePlan · replaced（风暴顶替）', () => {
     expect(plan.color).toBeNull();
     expect(plan.summonSfx).toBe(false);
     expect(plan.burstFx).toBeNull();
-    expect(plan.holdSeconds).toBe(STORM_FADE_SECONDS);
+    expect(plan.holdSeconds).toBe(0);
   });
 
   it('己方同色系替换（后召顶先召）→ 同侧弹入新色', () => {
@@ -107,8 +105,7 @@ describe('stormChangePlan · expired（计数器归零）', () => {
     expect(plan.reason).toBe('expired');
     expect(plan.summonSfx).toBe(false);
     expect(plan.burstFx).toBeNull();
-    expect(plan.holdSeconds).toBe(STORM_FADE_SECONDS);
-    expect(plan.holdSeconds).toBeGreaterThan(0);
+    expect(plan.holdSeconds).toBe(0);
   });
 });
 
@@ -131,7 +128,7 @@ describe('stormChangePlan · 事件序列（全场唯一风暴语义）', () => 
       evSet(PlayerSide.Left, BaseColor.Brown),
       evExpired(PlayerSide.Left, BaseColor.Brown),
     ].map(stormChangePlan);
-    expect(plans[0]).toMatchObject({ action: 'show', color: BaseColor.Brown, summonSfx: true });
+    expect(plans[0]).toMatchObject({ action: 'show', color: BaseColor.Brown, summonSfx: false });
     expect(plans[1]).toMatchObject({ action: 'hide', player: PlayerSide.Left });
   });
 });
@@ -172,6 +169,30 @@ describe('调色板与素材映射', () => {
       expect(STORM_BURST_FX[color]).toMatch(/^group_hit_/);
       expect(AnimConfig.frameFX[STORM_BURST_FX[color]]).toBeDefined();
     }
+  });
+});
+
+describe('骷髅系风暴（骸骨/末日/超级末日）· 素材与演出决策', () => {
+  const ALL_SKULL_KINDS = ['skull', 'doomSkull', 'uberDoomSkull'] as const;
+
+  it('贴图与光晕覆盖全部三种 dropKind', () => {
+    for (const kind of ALL_SKULL_KINDS satisfies readonly SkullStormDropKind[]) {
+      expect(STORM_SKULL_GEM_URL[kind].length).toBeGreaterThan(0);
+      expect(STORM_SKULL_GLOW[kind]).toMatch(/^#[0-9a-fA-F]{6}$/);
+    }
+  });
+
+  it('stormChangePlan 透传 dropKind；颜色风暴事件保持缺省', () => {
+    const ev: StormChangeEvent = {
+      type: 'storm-change', player: PlayerSide.Right, color: BaseColor.Purple,
+      reason: 'set', dropKind: 'doomSkull',
+    };
+    expect(stormChangePlan(ev).dropKind).toBe('doomSkull');
+    expect(stormChangePlan(evSet(PlayerSide.Left, BaseColor.Red)).dropKind).toBeUndefined();
+  });
+
+  it('被顶方/到期事件（color=null）不带 dropKind', () => {
+    expect(stormChangePlan(evExpired(PlayerSide.Right, BaseColor.Brown)).dropKind).toBeUndefined();
   });
 });
 

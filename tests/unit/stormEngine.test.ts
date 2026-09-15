@@ -163,6 +163,51 @@ describe('TurnEngine 集成：风暴设置 / 替换 / 顶替 / 到期', () => {
     return { engine, state, rng };
   }
 
+  it('战斗初始化触发 Song of Light，并把开局 storm-change 记录为一次性事件', () => {
+    const idGen = (() => { let n = 900; return () => ++n; })();
+    const rng = new SeededRNG(17);
+    const board = new BoardGenerator(rng, idGen, 0.16).generate();
+    const state = createGameState(
+      board,
+      { player: PlayerSide.Left, characters: [makeChar(0, { traitIds: ['songoflight'] })] },
+      { player: PlayerSide.Right, characters: [makeChar(4)] },
+    );
+    const engine = new TurnEngine(state, rng, idGen, new ExtensionRegistry());
+
+    expect(state.teams[PlayerSide.Left].storm).toEqual({
+      color: BaseColor.Yellow,
+      turns: 8,
+      troopId: 9004,
+    });
+    expect(engine.takeInitialEvents()).toEqual([
+      { type: 'storm-change', player: PlayerSide.Left, color: BaseColor.Yellow, reason: 'set' },
+    ]);
+    expect(engine.takeInitialEvents()).toEqual([]);
+  });
+
+  it('多份开局风暴按队伍/特质顺序顶替，最终只保留最后一份', () => {
+    const idGen = (() => { let n = 950; return () => ++n; })();
+    const rng = new SeededRNG(23);
+    const board = new BoardGenerator(rng, idGen, 0.16).generate();
+    const state = createGameState(
+      board,
+      { player: PlayerSide.Left, characters: [makeChar(0, { traitIds: ['songoflight', 'songofdarkness'] })] },
+      { player: PlayerSide.Right, characters: [makeChar(4)] },
+    );
+    const engine = new TurnEngine(state, rng, idGen, new ExtensionRegistry());
+    const events = engine.takeInitialEvents().filter(isStormChange);
+
+    expect(events.map((event) => [event.player, event.color, event.reason])).toEqual([
+      [PlayerSide.Left, BaseColor.Yellow, 'set'],
+      [PlayerSide.Left, BaseColor.Purple, 'replaced'],
+    ]);
+    expect(state.teams[PlayerSide.Left].storm).toMatchObject({
+      color: BaseColor.Purple,
+      turns: 8,
+      troopId: 9001,
+    });
+  });
+
   it('同回合两个风暴 spec 按顺序结算：己方后召顶先召（Purple set → Red replaced）', () => {
     let tested = false;
     for (let seed = 1; seed < 60 && !tested; seed++) {

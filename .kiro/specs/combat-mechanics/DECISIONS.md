@@ -118,13 +118,13 @@
    | 光风暴 | Lightstorm | Yellow | 9004 | 一致 |
    | 叶风暴 | Leafstorm | Green | 9005 | 一致 |
    | 尘风暴 | Duststorm | Brown | 9006 | 一致 |
-   | 骸骨风暴 | Bonestorm | **Brown（近似）** | 9007 | 官方提升骷髅头掉率；引擎风暴契约只支持 BaseColor 加权，按骷髅头棕色系近似 |
-   | 末日风暴 | Doomstorm | **Purple（近似）** | 9008 | 官方提升末日骷髅掉率；按 doom 黑紫色系近似（BaseColor 无 Black） |
-   | 超级末日风暴 | UberDoomstorm | **Purple（近似）** | 9009 | 官方提升至尊末日骷髅掉率；同上近似 |
+   | 骸骨风暴 | Bonestorm | Brown（主色） | 9007 | **官方语义已回填（2026-09-16）**：dropKind 'skull' 提升骷髅头掉率，Brown 仅作指示器主色 |
+   | 末日风暴 | Doomstorm | Purple（主色） | 9008 | **官方语义已回填**：dropKind 'doomSkull'，末日骷髅开始从顶部掉落，Purple 仅作主色 |
+   | 超级末日风暴 | UberDoomstorm | Purple（主色） | 9009 | **官方语义已回填**：dropKind 'uberDoomSkull'，至尊末日骷髅开始掉落 |
 
-   **假设标注**：后三行的色系近似是引擎契约（`Team.storm.color: BaseColor`，阶段 1.2 已定）
-   下的折衷——若将来把契约扩展为「风暴可指向骷髅/末日骷髅掉率」（如 `dropKind` 字段），
-   这三个风暴应改回官方语义。生成器映射表 `STORM_MAP`（scripts/build_traits.mjs）已按此注释。
+   **回填（2026-09-16）**：原「假设标注」预言的契约扩展已落地——`Team.storm.dropKind`
+   （'skull' / 'doomSkull' / 'uberDoomSkull'），这三个风暴改回官方语义，原色系近似降级为
+   指示器主色。详见下方「骷髅系风暴回填 + 骷髅爆炸规则」。
 3. **掉落加成 ×1.9**。引擎常量 `STORM_DROP_WEIGHT = 1.9`（GravitySystem.ts，可调）。
    加权实现下风暴色新宝石概率 = 1.9/(5+1.9) ≈ 27.5%，与 Steam 社区实测的 ~27.1%（基线 14.3% = 1/7）吻合。
 
@@ -162,6 +162,40 @@
   `tests/unit/traitsAudit.test.ts` 扩展（storm spec color/turns/号段校验 + 描述↔风暴变体双向对账 +
   接线完整性两条）、`tests/unit/traitDeathSummon.test.ts` darkdeath 用例按新行为更新
   （原「召唤名不可解析安全跳过」→「设风暴不召唤兵种」，预期变化非回归）。
+
+### 骷髅系风暴回填 + 骷髅爆炸规则（2026-09-16）
+
+**风暴契约扩展（兑现上节假设标注）**：
+- `Team.storm` / `StormSummon` / `StormChangeEvent` 新增可选
+  `dropKind: 'skull' | 'doomSkull' | 'uberDoomSkull'`：设置后掉落加权作用于骷髅系宝石，
+  color 降级为表现层主色（事件仍带 color，表现层按 dropKind 换贴图/光晕）。
+- `GravitySystem.apply` 新增第 4 参 `skullDrop?: SkullDropBoost`：骸骨风暴把骷髅判定阈值
+  抬到 `skullChance × STORM_DROP_WEIGHT`（与颜色风暴同 ×1.9 口径）；末日/超级末日风暴在
+  骷髅判定前多掷一次掉落（常量 `STORM_DOOMSKULL_DROP = 0.04` /
+  `STORM_UBER_DOOMSKULL_DROP = 0.02`，官方未公开数值，设计值可调）。
+  无骷髅系风暴时不进该分支，随机数消耗序列与旧版逐字节一致（回归护栏）。
+- 数据：`STORM_MAP`（build_traits.mjs）与开局风暴 songofbones 带 dropKind，traits.json 重生成。
+- 表现：StormIndicator 增 `STORM_SKULL_GEM_URL` / `STORM_SKULL_GLOW`（骨白 #e6ddc8 /
+  血红 #ff2f68 / 熔岩橙 #ff8a2a；贴图复用 skull.png 与 special/ 末日系素材）；
+  技能测试台风暴区新增骸骨/末日/超级末日三个按钮（debugSetStorm 第 4 参）。
+- 验证：`tests/unit/skullStorm.test.ts`（11 用例：炸毁骷髅 1/5/10 + 三种风暴掉落统计 +
+  契约）与 `stormIndicator.test.ts` 扩展（16 用例）。
+
+**骷髅爆炸规则（用户查证请求：炸毁骷髅 ≠ 三消骷髅）**：
+- 官方规则（TrueTrophies 官方攻略 Heroic Gems 节 + Steam 社区专家帖交叉复核）：
+  法术/爆炸**炸毁**的骷髅宝石不算骷髅伤害，改为对**敌方队首**结算**法术伤害**——
+  普通骷髅 **1 点**/颗、末日骷髅 **5 点**/颗、至尊末日骷髅 **10 点**/颗；
+  不吃攻击力、不可被闪避/骷髅减伤。三消连线的骷髅（队首攻击力、可闪避、末日骷髅 +5 并
+  引爆邻格）维持原实现不变。
+- 引擎修正：`settleDestroyed` 原把炸毁骷髅并进三消管线（resolveSkullDamage，攻击力口径
+  可被闪避），且末日/至尊被炸时静默移除（0 伤害）——均改为官方口径
+  （`TurnEngine.settleExplodedSkulls`，复用 `skills/effects/damage.damageOne`：
+  法术铠甲/屏障/护甲照常减免，阵亡走既有事件流）。
+- 记录在案（未改）：官方 Explode 类摧毁只给**一半法力**（Destroy 类给全量）；
+  本引擎被摧毁宝石统一给全量法力，如需对齐另开小项。
+
+**来源**：TrueTrophies（炸毁骷髅 1/5/10）：https://www.truetrophies.com/game/Gems-of-War/walkthrough/4 ·
+Steam 社区专家帖（炸毁骷髅=法术伤害打队首）：https://steamcommunity.com/app/329110/discussions/0/1741090666216344226/
 
 ## 语义对齐记录
 

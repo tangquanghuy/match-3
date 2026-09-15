@@ -180,7 +180,7 @@ describe('B · 编译契约', () => {
    */
   const DEFINITION_READ_KEYS = new Set([
     'teamAura', 'typeAura', 'perAllyColor', 'battleStartManaRatio',
-    'turnStartCreateGem', 'turnStartColorToSkull',
+    'turnStartCreateGem', 'turnStartColorToSkull', 'battleStartStorm',
   ]);
 
   it('生成器产出的每个效果键都被引擎消费（编译器或定义直读，二者其一）', () => {
@@ -319,16 +319,39 @@ describe('C · 描述↔数值一致性（从官方文本重新抽数对账）',
       if (t.onAllyCastGain && !/盟友施/.test(d)) report(`${tag(t)} onAllyCastGain 但描述没有「盟友施法」`);
       if (t.onEnemyCastGain && !/敌人施/.test(d)) report(`${tag(t)} onEnemyCastGain 但描述没有「敌人施法」`);
 
-      // 风暴变体对账（阶段 1.3）：描述「召唤一个暗风暴」→ 必须编译为带 storm 的召唤 spec，
+      /** 中文风暴名 → 生成器写入的英文 referenceName 词干（开局风暴对账用） */
+const CN_STORM_TO_REFERENCE: Record<string, string> = {
+  光: 'Light',
+  暗: 'Dark',
+  火: 'Fire',
+  冰: 'Ice',
+  叶: 'Leaf',
+  尘: 'Dust',
+  骸骨: 'Bone',
+  末日: 'Doom',
+  超级末日: 'UberDoom',
+};
+// 风暴变体对账（阶段 1.3）：描述「召唤一个暗风暴」→ 必须编译为带 storm 的召唤 spec，
       // 且 displayName 与描述中的风暴名逐字一致；反向：storm spec 的描述必须真的在召唤风暴
       const stormName = /召唤一?[名只个头]?((?:超级)?末日|暗|火|冰|光|叶|尘|骸骨)风暴/.exec(d)?.[1];
       if (stormName) {
         const expected = `${stormName}风暴`;
-        const spec = t.summonOnDeath ?? t.summonOnAllyDeath ?? t.summonOnEnemyDeath;
-        if (!spec || !spec.storm) {
-          report(`${tag(t)} 描述「召唤${expected}」但未编译为风暴变体`);
-        } else if (spec.displayName !== expected) {
-          report(`${tag(t)} 风暴 displayName「${spec.displayName}」与描述「${expected}」不符`);
+        if (t.battleStartStorm) {
+          // 开局风暴：描述「在战斗开始的时候召唤X风暴」→ 编译为 battleStartStorm。
+          // 生成器写入的 displayName/referenceName 是英文官方名（Lightstorm 等），按映射对上
+          const refName = CN_STORM_TO_REFERENCE[stormName];
+          const bs = t.battleStartStorm;
+          const named = `${bs.displayName ?? ''}${bs.referenceName ?? ''}`;
+          if (!refName || !named.includes(refName)) {
+            report(`${tag(t)} 开局风暴「${named}」与描述「${expected}」不符`);
+          }
+        } else {
+          const spec = t.summonOnDeath ?? t.summonOnAllyDeath ?? t.summonOnEnemyDeath;
+          if (!spec || !spec.storm) {
+            report(`${tag(t)} 描述「召唤${expected}」但未编译为风暴变体`);
+          } else if (spec.displayName !== expected) {
+            report(`${tag(t)} 风暴 displayName「${spec.displayName}」与描述「${expected}」不符`);
+          }
         }
       }
       for (const field of ['summonOnDeath', 'summonOnAllyDeath', 'summonOnEnemyDeath'] as const) {
@@ -344,6 +367,7 @@ describe('C · 描述↔数值一致性（从官方文本重新抽数对账）',
 
 describe('D · 接线完整性（钩子存在但没人调用 = 死角）', () => {
   const cases: [string, RegExp, () => string][] = [
+    ['battle-start storm', /collectBattleStartStorms|battleStartStorm/, () => turnEngineSrc],
     ['战斗开始光环', /applyBattleStartTraits/, () => turnEngineSrc],
     ['回合开始再生', /applyTurnStartPassives/, () => turnEngineSrc],
     ['阵亡响应', /applyDeathTriggers/, () => turnEngineSrc],
