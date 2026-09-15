@@ -40,3 +40,52 @@
 
 - 全部门槛绿；工作区只剩 `assets/prompt/`（立绘，归 TASK-PORTRAITS）。
 - 台账登记完成；验收记录节列出：实现了哪些状态（含各自测试数）、必须修/可顺延清单、audio-inventory 路径。
+
+## 验收记录（窗口 E · 2026-09-16）
+
+### 结论
+
+**通过，主树已解冻。** 三块提交：`6b1079a`（引擎+数据）→ `2cd8e3e`(渲染+音效资产) → `5ced37c`（测试+研究文档+任务书）；阶段3口径修正随后一笔 docs 提交。门槛提交前复跑全绿：lint 0 错、57 文件 / 613 用例、build 通过。
+
+### 实际落地内容（比任务书清单多两族，均已深审）
+
+1. **状态五件**（研究文档 `GOW-STATUS-RESEARCH.md` 六行，风暴单列）：
+   - 疾病 disease —— 获得法力减半（ManaDistributor 取整），1 测试（ManaDistributor.test）。
+   - 诅咒 curse —— 剥正面状态、自动解除基准/步长减半（5%）、穿普通免疫留 Invulnerable；**引擎语义无直接单测（可顺延①）**。
+   - 死亡标记 death-mark —— tickStatuses 内 10%/回合即死（status-tick + defeat）；**该 tick 无直接单测（可顺延②）**。
+   - 狂怒 rage/enraged —— 骷髅 1.5x、无视受击方特质（减伤/受击增益/附状态/反弹全跳过）、攻击后逐实例发 status-expire，1 测试（combatSpecialStatus）。
+   - 魅惑 charm —— 骷髅改打己方下一名存活（无己方目标回退敌方队首），1 测试（combatSpecialStatus）。
+   - 附带：自动解除循环从织网泛化为全状态 `recoveryChance` 累计（首 10%、每败 +10%、100% 封顶）；web 语义不变（webStatus 既有用例未动仍绿）。
+2. **开局风暴**：`battleStartStorm`（songoflight/darkness/bones/fire/ice 五 code，traits.json 重生成 268 code），TurnEngine 构造期结算 + `takeInitialEvents()` 一次性消费；2 测试（stormEngine）。
+3. **骷髅系风暴回填**：`dropKind` 契约（skull/doomSkull/uberDoomSkull）+ GravitySystem 骷髅掉落加成 + 指示器三贴图三光晕 + 测试台按钮；11 测试（skullStorm 新文件）+ 3 测试（stormIndicator 扩展）。
+4. **炸毁骷髅官方口径**：法术伤害 1/5/10 打敌方队首（`settleExplodedSkulls` 复用 damageOne），与三消骷髅（攻击力/可闪避）分流；gemEffect 用例改写 + skullStorm 内含。
+5. **演出**：七种状态 CSS 持续光晕、新徽记 5 枚（+别名归一）、特殊宝石触发反馈（环/标签/闪电扫光）、骷髅爆炸专用弹体 + skullHit 音。
+
+### 窗口 D 资产核查（任务书阶段1.3）
+
+- `createTurnBanner` 完好（App.ts，签名改为返回几何供指示器对位，行为增强）。
+- `setRefillSpawnTopPx` **被有意替换**为 `pendingFallMaxCells`（整列刚体同落）：旧钳制会让补充堆压到还在下落的幸存宝石；配套 `scripts/verify-fall.mjs` 逐帧验证（已随块2入库）。非误伤。
+- stormEngine/stormIndicator 测试改动 = 骷髅系风暴新增用例 + 风暴 set 演出时机迁移（不占时间线，plan 的 summonSfx/burstFx/holdSeconds 归零）；风暴指示器重设计为全域天色。演出取舍，非遗漏。
+- `assets/音效/` 盘点 → **`artifacts/audio-inventory.txt`**：目录仅 `中毒.wav`（PCM 16bit/48kHz，113KB），未被 AudioManager 引用，命名不合既有英文约定；既有库 src/assets/audio/ 31 wav 完好。
+- `tests/unit/controlStatus.test.ts` 经查为**幻影改动**（无内容 diff，行尾/统计脏标记），已随批归一，无实质变化。
+
+### 问题分级
+
+**必须修（阻塞提交）**：无。
+
+**可顺延（记录在案，内容批消化）**：
+1. 诅咒引擎语义缺直接单测（剥正面/解除减半/穿免疫边界）——建议 TASK-CONTENT 阶段5 接线特质时补。
+2. 死亡标记 10% 即死 tick 缺直接单测（同上）。
+3. Explode 类摧毁只给一半法力的官方规则未对齐（DECISIONS「骷髅爆炸」节已记录在案，需另开小项）。
+4. 狼化/法力燃烧为半成品：状态生命周期/施加入口/图标/光晕已有，狼化缺 transform 事件+兵种模板解析；法力燃烧官方非持续状态（drainMana 可表达）。
+5. 既有语义偏差清单不变（燃烧先扣甲/下潮/击晕/冰冻/屏障，DECISIONS 已列）。
+
+### 口径修正（阶段3）
+
+- ASSET-GAPS.md：已实现 11→16 状态 + 风暴全套；缺失表改「待接线」表；P1 打勾并新增 P1′（特质钩子接线，归 TASK-CONTENT）。
+- DECISIONS.md：新增「覆盖率对账更新（窗口E）」快照（268/785、缺状态机制 106/397、风暴族 18 code=13 死亡召唤+5 开局）；「不做清单」中特殊状态家族条目作废移除。
+- 总纲：主树冻结令标记已解除；基线快照改为已提交三块；音效行更新盘点结论。
+
+### 工作区遗留（按防撞规则不归 E）
+
+`assets/prompt/` + `scripts/build_portrait_prompts.mjs`（F 名下立绘脚手架，随 F 首次波次提交入库）。
