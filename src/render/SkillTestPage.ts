@@ -382,6 +382,52 @@ export class SkillTestPage {
     chainAudioTool.append(chainAudioTitle, chainAudioHelp, previewSetButton, chainAudioGrid);
     panel.appendChild(chainAudioTool);
 
+    // 状态施加音试听区（窗口 I · 8bit 合成）：18 键 = 15 合成 + 3 既有采样
+    const statusAudioTool = document.createElement('div');
+    statusAudioTool.style.cssText = 'border:1px solid rgba(216,194,144,.25);border-radius:7px;padding:7px;background:rgba(23,18,8,.6);margin-top:7px';
+    const statusAudioTitle = document.createElement('div');
+    statusAudioTitle.textContent = '状态施加音效（8bit 合成）';
+    statusAudioTitle.style.cssText = 'font-size:12px;color:#e4bc68;margin-bottom:4px';
+    const statusAudioHelp = document.createElement('div');
+    statusAudioHelp.textContent = '按状态试听施加音；中毒/燃烧/冰冻为既有采样，其余为 8bit 程序合成。';
+    statusAudioHelp.style.cssText = 'font-size:10px;line-height:1.45;color:#8f826b';
+    const statusAudioGrid = document.createElement('div');
+    statusAudioGrid.style.cssText = 'display:grid;grid-template-columns:1fr 1fr 1fr;gap:5px';
+    const STATUS_SFX_PREVIEWS: Array<{ id: string; label: string }> = [
+      { id: 'bleed', label: '流血' },
+      { id: 'silence', label: '沉默' },
+      { id: 'stun', label: '击晕' },
+      { id: 'entangle', label: '缠绕' },
+      { id: 'web', label: '织网' },
+      { id: 'barrier', label: '屏障' },
+      { id: 'submerged', label: '下潮' },
+      { id: 'marked', label: '猎人标记' },
+      { id: 'disease', label: '疾病' },
+      { id: 'curse', label: '诅咒' },
+      { id: 'death-mark', label: '死亡标记' },
+      { id: 'rage', label: '狂怒' },
+      { id: 'charm', label: '魅惑' },
+      { id: 'mana-burn', label: '法力燃烧' },
+      { id: 'wolf', label: '狼化' },
+      { id: 'poison', label: '中毒(采样)' },
+      { id: 'burning', label: '燃烧(采样)' },
+      { id: 'frozen', label: '冰冻(采样)' },
+    ];
+    for (const item of STATUS_SFX_PREVIEWS) {
+      const button = document.createElement('button');
+      button.type = 'button';
+      button.textContent = item.label;
+      button.dataset.testid = `status-sfx-${item.id}`;
+      button.style.cssText = 'padding:6px 5px;border-radius:5px;border:1px solid rgba(216,194,144,.35);background:#171208;color:#cfc1a0;cursor:pointer;font-size:11px';
+      button.addEventListener('click', () => {
+        this.app.previewDebugStatusApply(item.id);
+        this.log(`♫ 状态施加音 → ${item.label}`);
+      });
+      statusAudioGrid.appendChild(button);
+    }
+    statusAudioTool.append(statusAudioTitle, statusAudioHelp, statusAudioGrid);
+    panel.appendChild(statusAudioTool);
+
     const tagTitle = document.createElement('div');
     tagTitle.textContent = '技能标签（拖到我方角色卡）';
     tagTitle.style.cssText = 'font-size:13px;color:#c9a35c;margin-top:4px';

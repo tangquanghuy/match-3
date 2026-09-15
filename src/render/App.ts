@@ -2686,6 +2686,11 @@ export class App {
     this.audio.previewGemChainLevel(level);
   }
 
+  /** Test-console hook: preview one status-apply sound by raw statusId. */
+  previewDebugStatusApply(statusId: string): void {
+    this.audio.playStatusApply(statusId);
+  }
+
   /** Set every allied character to one primary mana-crystal color for testing. */
   setAllyManaColor(color: BaseColor): void {
     const allies = this.engine.getState().teams[PlayerSide.Left].characters;
