@@ -11,6 +11,7 @@ import { reshuffle, hasLegalSwap } from './boardUtils';
 import { tickTeamStatuses, canCastSkill, applyStatus, canGainMana, WEB_STATUS_ID } from './skills/effects/status';
 import { executePrototype } from './skills/prototypes';
 import { damageOne } from './skills/effects/damage';
+import { applyStormToTeam } from './skills/effects/storm';
 import type { EffectContext, DestroyedGem } from './skills/effects/context';
 import type { SummonTemplate } from './skills/effects/summon';
 import { AiColorChooser, prototypeNeedsColor } from './skills/colorChooser';
@@ -827,45 +828,19 @@ export class TurnEngine {
 
   /**
    * 风暴召唤结算（死亡召唤的风暴变体，darkdeath/fromdark 族）：不入队，改设持有者一方
-   * `team.storm`。风暴是**全场唯一**的全局修正（用户裁定：后召顶替先召，不分敌我）：
-   *   - 己方已有风暴 → 顶替，发一条 reason:'replaced'（prevColor=旧色）；
-   *   - 对方有风暴 → 先给对方发 color:null 的 'replaced'（表现层撤指示器），再给己方发
-   *     'replaced'（prevColor=被顶掉的对方风暴色）；
-   *   - 全场无风暴 → reason:'set'。
-   * 同回合多个风暴 spec 按 applyDeathSummons 的传入顺序逐个走到这里，后者顶前者。
+   * `team.storm`。裁定本体已抽到 `skills/effects/storm.ts` 的 `applyStormToTeam`
+   * （与开局风暴/技能 createStorm/debugSetStorm 共用同一份「全场唯一、后召顶替先召」
+   * 实现与 storm-change 事件形态，避免两套规则）；此处只做 spec → 载荷的翻译。
    */
   private setStormFromSummon(spec: DeathSummonSpec, side: PlayerSide): GameEvent[] {
     const payload = spec.storm;
     if (!payload) return [];
-    const own = this.state.teams[side];
-    const other = this.state.teams[opponentOf(side)];
-    const events: GameEvent[] = [];
-
-    const ownPrevColor = own.storm?.color;
-    const otherPrevColor = other.storm?.color;
-    // 全场唯一：先顶掉对方的风暴（若有），对方收 color=null 的 replaced
-    if (other.storm) {
-      const evicted: StormChangeEvent = {
-        type: 'storm-change', player: opponentOf(side), color: null,
-        reason: 'replaced', prevColor: otherPrevColor!,
-      };
-      events.push(evicted);
-      other.storm = undefined;
-    }
-    const prevColor = ownPrevColor ?? otherPrevColor;
-    own.storm = {
-      color: payload.color, turns: payload.turns, troopId: spec.troopId,
+    return applyStormToTeam(this.state, side, {
+      color: payload.color,
+      turns: payload.turns,
+      troopId: spec.troopId,
       dropKind: payload.dropKind,
-    };
-    const ev: StormChangeEvent = {
-      type: 'storm-change', player: side, color: payload.color,
-      reason: prevColor === undefined ? 'set' : 'replaced',
-    };
-    if (prevColor !== undefined) ev.prevColor = prevColor;
-    // 骷髅系风暴（骸骨/末日/超级末日）：事件带掉落目标，表现层据此换贴图/光晕色
-    if (payload.dropKind) ev.dropKind = payload.dropKind;
-    events.push(ev);
-    return events;
+    });
   }
 
   /** Test-console entry point: set a real battle storm through the same rule path as traits. */

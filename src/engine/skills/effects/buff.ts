@@ -32,6 +32,11 @@ export interface BuffParams {
   scaling: ScalingSpec;
   /** 全额治疗（stat='hp'）：恢复到 maxHp 上限（「恢复所有生命值」） */
   full?: boolean;
+  /**
+   * 比例获得（引擎原语批，stat='mana' 专用）：「获得半数法力值」= 获得
+   * floor(manaCost / 2)（半条法力，逐目标按各自法力条现算）；给出时忽略 scaling。
+   */
+  halve?: boolean;
   /** 二次缩放（[xN]/[N:M] + 来源），可选 */
   modifier?: ModifierSpec;
   /** 种族条件翻倍：目标 troopTypes 含该族时数值 ×2（五机制之一） */
@@ -170,6 +175,14 @@ export function buffEffect(params: BuffParams): EffectPrimitive {
 
       for (const target of targets) {
         if (target.defeated) continue; // 阵亡不接受增益
+        // 比例获得（半条法力）：按受益者各自的 manaCost 现算，覆盖缩放数值
+        if (params.halve && stat === 'mana') {
+          const applied = buffOne(target, 'mana', Math.floor(target.manaCost / 2));
+          if (applied !== 0) {
+            events.push({ type: 'buff', targetId: target.id, stat, amount: applied });
+          }
+          continue;
+        }
         // 种族条件翻倍：按受益者逐个判定（群体段中仅该族目标翻倍）
         const raceFactor = params.raceDouble && hasTroopType(target, params.raceDouble) ? (params.raceTimes ?? DEFAULT_RACE_DOUBLE) : 1;
         let amount = (base + condBonusValue(params.condBonus, ctx, target)) * raceFactor * condMultiplier(params.condMult, ctx, target);

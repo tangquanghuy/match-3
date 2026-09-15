@@ -410,3 +410,31 @@ export function cleanseEffect(params: CleanseParams): EffectPrimitive {
     },
   };
 }
+
+export interface DispelStatusParams {
+  /** 目标列表（由 targeting 产出） */
+  targets: Character[];
+  /** 要驱散的单一状态 id（「驱散其流血效果」） */
+  statusId: string;
+}
+
+/**
+ * 定向驱散单一状态（引擎原语批）：只移除目标身上该 id 的状态，其余状态不动——
+ * 与 cleanse（净化全部状态）互补。正面/负面皆可驱（语义由技能文本指定状态决定）。
+ * 事件复用既有 status-expire（表现层撤徽章，与到期/挣脱同一路径）；目标没有该状态
+ * 时无事发生（无事件）。
+ */
+export function dispelStatusEffect(params: DispelStatusParams): EffectPrimitive {
+  return {
+    apply(_ctx: EffectContext): GameEvent[] {
+      const events: GameEvent[] = [];
+      for (const target of params.targets) {
+        if (target.defeated) continue;
+        if (!hasStatus(target, params.statusId)) continue;
+        target.statuses = target.statuses.filter((s) => s.id !== params.statusId);
+        events.push({ type: 'status-expire', targetId: target.id, statusId: params.statusId });
+      }
+      return events;
+    },
+  };
+}

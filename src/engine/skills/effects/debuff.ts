@@ -38,6 +38,11 @@ export interface ReduceParams {
   scaling: ScalingSpec;
   /** 耗尽全部法力（stat='mana'）：数值取目标当前法力，「耗尽法力值」 */
   drainAll?: boolean;
+  /**
+   * 比例减半（引擎原语批，「将敌方攻击力减半」「耗掉一半法力」）：削减额 =
+   * 该属性当前值的 50% 下取整（逐目标现算）；给出时忽略 scaling/condBonus/condMult。
+   */
+  halve?: boolean;
   /** 窃取：目标削减的同时，施法者获得同额（×gainRatio）的该属性 */
   gainStat?: BuffStat;
   /** 自身获得比例，默认 1（「获得其中半数」= 0.5，向下取整） */
@@ -80,8 +85,15 @@ export function reduceEffect(params: ReduceParams): EffectPrimitive {
 
       for (const target of targets) {
         if (target.defeated) continue;
-        const raceFactor = params.raceDouble && hasTroopType(target, params.raceDouble) ? (params.raceTimes ?? DEFAULT_RACE_DOUBLE) : 1;
-        const cAmount = (base + condBonusValue(params.condBonus, ctx, target)) * raceFactor * condMultiplier(params.condMult, ctx, target);
+        let cAmount: number;
+        if (params.halve) {
+          // 比例减半：按该属性当前值 50% 下取整（逐目标现算，不走缩放/条件修饰）
+          const cur = stat === 'mana' ? target.mana : stat === 'hp' ? target.hp : Math.max(0, target[stat]);
+          cAmount = Math.floor(cur / 2);
+        } else {
+          const raceFactor = params.raceDouble && hasTroopType(target, params.raceDouble) ? (params.raceTimes ?? DEFAULT_RACE_DOUBLE) : 1;
+          cAmount = (base + condBonusValue(params.condBonus, ctx, target)) * raceFactor * condMultiplier(params.condMult, ctx, target);
+        }
 
         let removed: number;
         if (stat === 'mana') {

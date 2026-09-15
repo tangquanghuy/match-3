@@ -5,12 +5,12 @@
  * 语义裁定备注：
  * - 「使他们」指回前段 enemyWeakestN 等状态性目标 → 跨段绑定 SKIP（前段伤害会改变
  *   「最弱」集合，重算语义拿不准，8752）；指回 enemyFront/enemyLast/chosen 等静态目标合法。
- * - 「X 或 Y 状态/宝石」二选一仍 SKIP（8429 绿或紫爆破/8472/8675）；「A 和 B 状态」加算
- *   sources[] 或双 inflict 段合法。
+ * - 「X 或 Y 状态/宝石」二选一：~~仍 SKIP~~ **2026-09-16 原语批已落 oneOf**（spell-rules §9.3，
+ *   8472/8675/7934 已移入 batch-37）；多色池（「绿色或紫色宝石」并集随机取）不是二选一（8429 维持）。
+ *   「A 和 B 状态」加算 sources[] 或双 inflict 段合法。
  * - 「被摧毁的织网宝石数」来源不支持：destroyedGems 仅按色筛，特殊宝石无色不可计（7014）。
- * - ⚠️ 本波最大新缺口：**「创造/发起一场X风暴」无技能原语**（引擎 storm-change 基建全在，
- *   缺一个 createStorm 效果段 + 事件），卡掉 7494-7499 六色风暴族 6 条 + 7530 + 8718 + 7482
- *   共 9 条。建议入 DECISIONS 下一引擎批（连同「风暴在场」条件 kind，见 batch-34 头注）。
+ * - ~~「创造/发起一场X风暴」无技能原语~~ → **2026-09-16 原语批已落 createStorm**（spell-rules §9.1），
+ *   7494-7499/7530/7934/8718 共 8 条移入 batch-37；7482 因「随机一项技能值降低」维持 SKIP。
  * - 「承受 3 点伤害」= 对自身 reduce hp（直接扣血夹零，7392）。
  */
 import { skill, dmg, dmgAll, heal, armor, mana, inflict, reduce, summonRandom, createSpecialGems, transformToSpecial, transform } from '../builders';
@@ -18,32 +18,21 @@ import { BaseColor } from '../../types';
 import type { CuratedBatch } from './index';
 
 const SKIPPED: { id: number; reason: string }[] = [
-  { id: 8429, reason: '「爆破…绿色或紫色宝石」多色二选一随机爆破无对应原语（destroyRandomGems 仅单色）' },
-  { id: 8472, reason: '「或摧毁所有炸弹宝石」「或…」二选一语义无法表达（「窃取生命，或窃取法力」同款）' },
-  { id: 8675, reason: '「陷入冻结或死亡标记状态」二选一语义无法表达' },
+  { id: 8429, reason: '「爆破…绿色或紫色宝石」是多色池随机取（并集池），不是二选一分支——oneOf 不适用（count 池仅单色，destroyRandomGems 仅单色）' },
   { id: 8710, reason: '「燃烧宝石」不在窗口 C 已实现特殊宝石清单（等美术/裁定）' },
   { id: 8712, reason: '「燃烧宝石的数量」来源不在窗口 C 十种内' },
-  { id: 8718, reason: '「发起一场烈火风暴」创造风暴无技能原语（batch-35 头注建议）；「施魔法于精灵同盟」本可表达，整条受阻' },
   { id: 8752, reason: '「使他们」指回前段 enemyWeakestN——状态性目标跨段绑定（前段窃取改变最弱集合），语义拿不准' },
   { id: 8760, reason: '「燃烧宝石」来源不在窗口 C 十种内（燃烧盟友/敌人计数本身可表达，整条受阻）' },
-  { id: 8943, reason: '「对上下相邻的敌人」位置目标无对应模式（隐匿/位置操作族）' },
+  { id: 8943, reason: '「对上下相邻的敌人」=「前后各一名」的相邻语义与「其下方」（enemyChosenAndBelow，原语批已落）不同读法，且主语混乱（「对…也获得」），语义拿不准' },
   { id: 9675, reason: '「诅咒宝石」不在窗口 C 已实现特殊宝石清单（等美术/裁定）' },
   { id: 9844, reason: '「潜入」状态语义不明（submerged 为己方下潜，此处施于敌人语义拿不准）；「已处于潜入状态」自身状态条件亦不在 condMult 域' },
   { id: 7014, reason: '「因被摧毁的织网宝石数而增强」——destroyedGems 仅按色筛，特殊宝石无色不可计（来源不支持）' },
-  { id: 7469, reason: '「给予他们 3-8 点法力值」数值区间无法表达，数值不明' },
-  { id: 7482, reason: '「召唤暗风暴」创造风暴无技能原语（batch-35 头注建议）；「随机一项技能值降低」亦无削减版随机原语' },
-  { id: 7494, reason: '「创造冰风暴」创造风暴无技能原语（batch-35 头注建议）；boardAtLeast 条件三倍本可表达，整条受阻' },
-  { id: 7495, reason: '「创造叶风暴」创造风暴无技能原语（batch-35 头注建议）' },
-  { id: 7496, reason: '「创造火风暴」创造风暴无技能原语（batch-35 头注建议）' },
-  { id: 7497, reason: '「创造光风暴」创造风暴无技能原语（batch-35 头注建议）' },
-  { id: 7498, reason: '「创造暗风暴」创造风暴无技能原语（batch-35 头注建议）' },
-  { id: 7499, reason: '「创造尘风暴」创造风暴无技能原语（batch-35 头注建议）' },
-  { id: 7530, reason: '「创造骸骨风暴」创造风暴无技能原语（batch-35 头注建议）；「如果现有骸骨风暴」风暴在场条件亦缺（batch-34 头注）' },
+  { id: 7469, reason: '「给予他们 3-8 点法力值」数值型区间（非数量区间），nRange/countRange 不辖，数值不明' },
+  { id: 7482, reason: '「召唤暗风暴」已由 createStorm 落地（batch-37 口径）；「将所有敌人的随机一项技能值降低」削减版随机原语仍缺，整条维持' },
   { id: 7541, reason: '「则再加 10 点伤害并获得一个额外回合」——条件化额外回合（ifCond 目标相对条件挂无目标段整段跳过）不可表达' },
-  { id: 7629, reason: '「转化成暗魄狼或蝙蝠群」兵种转化无对应原语（SOP 措辞裁定）' },
+  { id: 7629, reason: '「再转化成暗魄狼或蝙蝠群」兵种转化无对应原语（SOP 措辞裁定；「若现有暗风暴」已由 stormPresent 落地，仅剩此卡点）' },
   { id: 7631, reason: '「再转化成诺斯费拉图」兵种转化无对应原语' },
   { id: 7814, reason: '「转化成一名魅妖或魅魔」兵种转化 + 二选一双重受阻' },
-  { id: 7934, reason: '「召唤暗风暴」创造风暴无技能原语；「或冻结…或击晕」三选一亦无法表达' },
 ];
 
 const SPELLS: CuratedBatch['spells'] = [

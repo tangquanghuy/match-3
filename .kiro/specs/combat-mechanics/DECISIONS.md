@@ -37,6 +37,19 @@
 > - 以上与翻案①（灵魂/黄金/位置/晋升度）合并为一个引擎原语批，随后回收 batch-33~36 及既有放弃桶的
 >   受阻条目。
 >
+> **原语批执行记录（2026-09-16，窗口 E 原语批子agent）**：P1~P10 已全部落地——
+> createStorm 效果段（`skills/effects/storm.ts` 的 `applyStormToTeam` 为唯一裁定本体，
+> TurnEngine.setStormFromSummon/debugSetStorm/技能段三方共用；默认 8 回合）、stormPresent{color?,dropKind?}、
+> anyEnemyStatus/anyAllyStatus、oneOf（分支化随机多选一）、定量转换（transform count/'ANY'+toSpecial）、
+> dispelStatus（status-expire）、reduce/buff halve（减半=当前值 50% 下取整；「获得半数法力值」=
+> floor(manaCost/2) 裁定）、目标 nRange 与创造/爆破 countRange、shuffleBoard（复用 boardUtils.reshuffle
+> + 既有 reshuffle 事件）、enemyChosenAndBelow（「其下方的所有敌人」= 编队更靠后全部存活，
+> 8065 口径；「上下相邻」读法仍 SKIP）。语义细则落 `scripts/spell-rules.md` §9 + SOP 词汇表。
+> 回收：新建 `curated/batch-37.ts` 收 32 条（原 batch-34×8 / 35×11 / 36×13，原 SKIPPED 行同步删除，
+> 留桶条目理由已改写为真实剩余卡点）；编译 587 → 619。测试：新增 `tests/unit/spellPrimitives.test.ts`
+> 33 用例（每原语行为+种子确定性），全量 60 文件 / 685 用例全绿，lint / build 通过。
+> P11「有 N% 几率跑掉」未实现（待战斗流设计拍板：fled 状态 vs 移出编队 vs 击杀结算，见批报告）。
+>
 > **翻案记录（2026-09-16）**：用户明确「灵魂相关要做，加个数值维度就行」「位置操作要做进引擎」，
 > 并询问晋升度含义后认可其可行性。三族从不做清单移除，实施设计如下（并入下一个引擎小批，
 > 与「技能侧新引擎缺口建议」的 createStorm/stormPresent 打包）：

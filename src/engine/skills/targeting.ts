@@ -35,6 +35,7 @@ export type TargetMode =
   | 'enemyLastN' // 最后 N 名（「最后两名敌人」）
   | 'enemyAll' // 全体
   | 'enemyChosen' // 施法方（玩家/AI）手动选定的敌方单体
+  | 'enemyChosenAndBelow' // 指定敌人与其纵队「下方」（编队中更靠后）的全部存活敌人
   // —— 己方 ——
   | 'allySelf' // 施法者自身
   | 'allyFront'
@@ -53,13 +54,16 @@ export type TargetMode =
   | 'allyChosen'; // 施法方手动选定的己方单体
 
 /** 手动选定类模式（需运行时由 TargetChooser 解析出具体 id） */
+export type ChosenTargetMode = 'enemyChosen' | 'allyChosen' | 'enemyChosenAndBelow';
+
 export function isChosenMode(mode: TargetMode): mode is 'enemyChosen' | 'allyChosen' {
   return mode === 'enemyChosen' || mode === 'allyChosen';
 }
 
-/** 列出某模式对应的候选存活角色（供玩家 UI 展示可点选项 / AI 决策） */
+/** 列出某模式对应的候选存活角色（供玩家 UI 展示可点选项 / AI 决策）。
+ * enemyChosenAndBelow 的候选集与 enemyChosen 相同（「下方」集合由选定结果派生）。 */
 export function candidatesFor(
-  mode: 'enemyChosen' | 'allyChosen',
+  mode: ChosenTargetMode,
   state: GameState,
   casterId: number,
 ): Character[] {
@@ -156,6 +160,14 @@ export function selectTargets(
       if (chosenId === undefined) return [];
       const picked = alive.find((c) => c.id === chosenId);
       return picked ? [picked] : [];
+    }
+
+    case 'enemyChosenAndBelow': {
+      // 「对一名敌人和其下方的所有敌人」：选定者 + 编队中更靠后的全部存活敌人
+      //（GoW 纵队 0=顶；「下方」= 更大的队伍索引）。未提供/越界 → 安全返回空。
+      if (chosenId === undefined) return [];
+      const start = alive.findIndex((c) => c.id === chosenId);
+      return start < 0 ? [] : alive.slice(start);
     }
 
     case 'enemyFront':

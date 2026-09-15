@@ -11,27 +11,23 @@
 import type { GameState } from '../GameState';
 import type { SeededRNG } from '../rng';
 import { candidatesFor } from './targeting';
+import type { ChosenTargetMode } from './targeting';
 import type { SkillPrototype } from './prototypes';
 
 /** 目标选择器：为一次手动选定技能返回目标角色 id；无候选返回 null */
 export interface TargetChooser {
-  choose(
-    mode: 'enemyChosen' | 'allyChosen',
-    state: GameState,
-    casterId: number,
-    rng: SeededRNG,
-  ): number | null;
+  choose(mode: ChosenTargetMode, state: GameState, casterId: number, rng: SeededRNG): number | null;
 }
 
 /**
  * AI 目标策略（确定性）：
- *   - enemyChosen：选存活敌人中 hp 最低者（平局取队伍索引更前者）；
+ *   - enemyChosen / enemyChosenAndBelow：选存活敌人中 hp 最低者（平局取队伍索引更前者）；
  *   - allyChosen：选存活己方中 hp 最低者（治疗/净化倾向救最危者）。
  * 无候选返回 null。
  */
 export class AiTargetChooser implements TargetChooser {
   choose(
-    mode: 'enemyChosen' | 'allyChosen',
+    mode: ChosenTargetMode,
     state: GameState,
     casterId: number,
     _rng: SeededRNG,
@@ -56,17 +52,16 @@ export class FixedTargetChooser implements TargetChooser {
 }
 
 /**
- * 判断一个技能原型是否含手动选目标段，返回其模式（enemyChosen/allyChosen）或 null。
+ * 判断一个技能原型是否含手动选目标段，返回其模式或 null。
  * 供 TurnEngine 决定是否调用 TargetChooser；取首个手动选目标段的模式。
  */
-export function prototypeChosenTargetMode(
-  proto: SkillPrototype,
-): 'enemyChosen' | 'allyChosen' | null {
+export function prototypeChosenTargetMode(proto: SkillPrototype): ChosenTargetMode | null {
   for (const seg of proto.segments) {
     // 溅射仅当主目标本身就是手动指定时才需要选目标（enemyFront/enemyRandomN 等自带模式）
     if (seg.kind === 'damage' && seg.range === 'splash' && seg.target === 'enemyChosen') return 'enemyChosen';
     if ('target' in seg && seg.target === 'enemyChosen') return 'enemyChosen';
     if ('target' in seg && seg.target === 'allyChosen') return 'allyChosen';
+    if ('target' in seg && seg.target === 'enemyChosenAndBelow') return 'enemyChosenAndBelow';
   }
   return null;
 }

@@ -20,7 +20,7 @@
  */
 import type { GameEvent } from '../events';
 import { resolveDefeatEvents } from '../teamRoster';
-import type { Character } from '../types';
+import type { Character, BaseColor } from '../types';
 import type { ScalingSpec } from './scaling';
 import type { TargetMode } from './targeting';
 import { selectTargets } from './targeting';
@@ -36,8 +36,10 @@ import type { ReduceStat } from './effects/debuff';
 import type { ModifierSpec } from './effects/secondary';
 import { gemEffect } from './effects/gems';
 import type { GemParams } from './effects/gems';
-import { cleanseEffect, statusEffect } from './effects/status';
+import { cleanseEffect, statusEffect, dispelStatusEffect } from './effects/status';
 import { summonEffect, extraTurnEffect } from './effects/summon';
+import { stormEffect } from './effects/storm';
+import { shuffleBoardEffect } from './effects/gems';
 import type { SummonParams } from './effects/summon';
 
 /** 段级通用可选项（概率子句 / 死亡条件，五机制之二、之四） */
@@ -67,6 +69,12 @@ export interface SegmentOptions {
   chanceBoost?: import('./effects/secondary').ModifierSpec;
 }
 
+/** 目标数量区间（引擎原语批）：给出时忽略 n，在 [min, max] 内均匀掷选（种子化，每段一次） */
+export interface NRangeSpec {
+  min: number;
+  max: number;
+}
+
 /** 伤害段 */
 export interface DamageSegment extends SegmentOptions {
   kind: 'damage';
@@ -76,6 +84,8 @@ export interface DamageSegment extends SegmentOptions {
   trueDamage?: boolean;
   /** enemyFirstN/allyFirstN 的 N */
   n?: number;
+  /** 目标数量区间（「使 1 到 4 名敌人中毒」）：给出时忽略 n，rng 掷选 */
+  nRange?: NRangeSpec;
   /** 种族限定目标：只作用于 troopTypes 含该族的目标（「所有恶魔盟友」） */
   targetRace?: string;
   /** 二次缩放（[xN]/[N:M] + 来源），叠加在基础数值上（五机制之一） */
@@ -103,10 +113,14 @@ export interface BuffSegment extends SegmentOptions {
   stat: BuffStat;
   scaling: ScalingSpec;
   n?: number;
+  /** 目标数量区间：给出时忽略 n，rng 掷选 */
+  nRange?: NRangeSpec;
   /** 种族限定目标（「所有恶魔盟友」） */
   targetRace?: string;
   /** 全额治疗（stat='hp' 且 full：恢复全部生命，「恢复所有生命值」） */
   full?: boolean;
+  /** 比例获得（仅 stat='mana'）：「获得半数法力值」= 获得 floor(manaCost/2) */
+  halve?: boolean;
   /** 二次缩放 */
   modifier?: ModifierSpec;
   /** 种族条件翻倍：受益者 troopTypes 含该族时数值 ×2 */
@@ -135,6 +149,10 @@ export interface ReduceSegment extends SegmentOptions {
   /** 自身获得比例，默认 1（「获得其中半数」= 0.5） */
   gainRatio?: number;
   n?: number;
+  /** 目标数量区间：给出时忽略 n，rng 掷选 */
+  nRange?: NRangeSpec;
+  /** 比例减半：「将敌方攻击力减半」= 按该属性当前值 50% 下取整削减 */
+  halve?: boolean;
   /** 种族限定目标 */
   targetRace?: string;
   /** 二次缩放（如「数值因被摧毁的棕色宝石而增强 [1:1]」） */
@@ -161,6 +179,8 @@ export interface RandomStatSegment extends SegmentOptions {
   target: TargetMode;
   scaling: ScalingSpec;
   n?: number;
+  /** 目标数量区间：给出时忽略 n，rng 掷选 */
+  nRange?: NRangeSpec;
   /** 种族限定目标 */
   targetRace?: string;
   /** 二次缩放（「点数因…而增强」） */
@@ -185,6 +205,8 @@ export interface StatusSegment extends SegmentOptions {
   /** 叠加层数（「陷入 2 层流血」）：最终 magnitude = 每层值 × 层数 */
   stacks?: number;
   n?: number;
+  /** 目标数量区间：给出时忽略 n，rng 掷选 */
+  nRange?: NRangeSpec;
   /** 种族限定目标（「所有恶魔盟友」） */
   targetRace?: string;
 }
@@ -194,8 +216,51 @@ export interface CleanseSegment extends SegmentOptions {
   kind: 'cleanse';
   target: TargetMode;
   n?: number;
+  /** 目标数量区间：给出时忽略 n，rng 掷选 */
+  nRange?: NRangeSpec;
   /** 种族限定目标 */
   targetRace?: string;
+}
+
+/**
+ * 定向驱散单一状态（引擎原语批）：只移除目标身上 statusId 这一个状态，
+ * 发既有 status-expire 事件；与 cleanse（净化全部状态）互补。
+ */
+export interface DispelSegment extends SegmentOptions {
+  kind: 'dispel';
+  target: TargetMode;
+  statusId: string;
+  n?: number;
+  /** 目标数量区间：给出时忽略 n，rng 掷选 */
+  nRange?: NRangeSpec;
+  /** 种族限定目标 */
+  targetRace?: string;
+}
+
+/** 创造风暴段（引擎原语批）：施法方获得风暴（全场唯一/顶替裁定与 TurnEngine 共用） */
+export interface StormSegment extends SegmentOptions {
+  kind: 'storm';
+  color: BaseColor;
+  /** 持续回合；缺省 8（官方口径，effects/storm.ts DEFAULT_STORM_TURNS） */
+  turns: number;
+  /** 骷髅系风暴（骸骨/末日/超级末日）：掉落加权目标；缺省 = 颜色风暴 */
+  dropKind?: import('../types').SkullStormDropKind;
+}
+
+/** 打乱板面段（引擎原语批）：复用 boardUtils.reshuffle + 既有 reshuffle 事件 */
+export interface ShuffleBoardSegment extends SegmentOptions {
+  kind: 'shuffleBoard';
+}
+
+/**
+ * 随机多选一段（引擎原语批）：执行时 rng 掷选一个分支，只执行该分支的段序列；
+ * 未选中分支完全不执行、不发事件、不消耗其随机数。分支内各段仍走完整的
+ * 段级管线（chance/ifCond/ifTargetDied/目标解析）。
+ */
+export interface OneOfSegment extends SegmentOptions {
+  kind: 'oneOf';
+  /** 分支列表；每支为一至多个段（单段分支序列化为长度 1 的数组） */
+  options: EffectSegment[][];
 }
 
 /** 召唤段 */
@@ -218,6 +283,10 @@ export type EffectSegment =
   | RandomStatSegment
   | StatusSegment
   | CleanseSegment
+  | DispelSegment
+  | StormSegment
+  | ShuffleBoardSegment
+  | OneOfSegment
   | SummonSegment
   | ExtraTurnSegment;
 
@@ -233,16 +302,23 @@ export function fallbackPrototype(): SkillPrototype {
 
 /** 为需要目标选择的段解析目标 */
 function resolveTargets(
-  segment: { target: TargetMode; n?: number; targetRace?: string; ifCond?: import('./effects/secondary').Condition },
+  segment: { target: TargetMode; n?: number; nRange?: NRangeSpec; targetRace?: string; ifCond?: import('./effects/secondary').Condition },
   ctx: EffectContext,
   overrideMode?: TargetMode,
 ): Character[] {
+  // 目标数量区间（「使 1 到 4 名敌人中毒」）：掷选一次 n（种子化），随后照常走目标模式
+  let n = segment.n ?? 1;
+  if (segment.nRange) {
+    const lo = Math.max(0, Math.floor(Math.min(segment.nRange.min, segment.nRange.max)));
+    const hi = Math.max(lo, Math.floor(Math.max(segment.nRange.min, segment.nRange.max)));
+    n = lo + ctx.rng.nextInt(hi - lo + 1);
+  }
   const picked = selectTargets(
     overrideMode ?? segment.target,
     ctx.state,
     ctx.casterId,
     ctx.rng,
-    segment.n ?? 1,
+    n,
     ctx.chosenTargetId,
   );
   let result = picked;
@@ -262,7 +338,7 @@ function resolveTargets(
  * aliveBefore 必须在效果执行前取值。
  */
 function resolveTargetsTracked(
-  segment: { target: TargetMode; n?: number },
+  segment: { target: TargetMode; n?: number; nRange?: NRangeSpec },
   ctx: EffectContext,
   overrideMode?: TargetMode,
 ): Character[] {
@@ -311,6 +387,7 @@ function compileSegment(segment: EffectSegment, ctx: EffectContext): EffectPrimi
         stat: segment.stat,
         scaling: segment.scaling,
         full: segment.full,
+        halve: segment.halve,
         modifier: segment.modifier,
         raceDouble: segment.raceDouble,
         raceTimes: segment.raceTimes,
@@ -323,6 +400,7 @@ function compileSegment(segment: EffectSegment, ctx: EffectContext): EffectPrimi
         stat: segment.stat,
         scaling: segment.scaling,
         drainAll: segment.drainAll,
+        halve: segment.halve,
         gainStat: segment.gainStat,
         gainRatio: segment.gainRatio,
         modifier: segment.modifier,
@@ -353,6 +431,15 @@ function compileSegment(segment: EffectSegment, ctx: EffectContext): EffectPrimi
       });
     case 'cleanse':
       return cleanseEffect({ targets: resolveTargetsTracked(segment, ctx) });
+    case 'dispel':
+      return dispelStatusEffect({
+        targets: resolveTargetsTracked(segment, ctx),
+        statusId: segment.statusId,
+      });
+    case 'storm':
+      return stormEffect({ color: segment.color, turns: segment.turns, dropKind: segment.dropKind });
+    case 'shuffleBoard':
+      return shuffleBoardEffect();
     case 'summon':
       // 注入上下文的召唤物解析器（ref/randomOf 来源需要）
       return summonEffect({ ...segment.params, resolveRef: ctx.resolveSummonRef });
@@ -374,36 +461,52 @@ function ensureCastTracking(ctx: EffectContext): CastTracking {
 }
 
 /**
+ * 单段的完整裁决管线（概率掷签 → 全局条件 → 目标相对条件 × 无目标段 → 死亡条件 →
+ * 编译执行），供主循环与 oneOf 选中分支共用。跳过的段返回空事件、不消耗目标选择、
+ * 不更新跨段追踪（lastTarget 保持上一有效段）。
+ */
+function runSegment(segment: EffectSegment, ctx: EffectContext): GameEvent[] {
+  // 概率子句：掷签不通过 → 整段跳过（rng 消耗固定发生，保证同种子同事件流）
+  if (segment.chance !== undefined || segment.chanceBoost) {
+    const boost = modifierBonus(segment.chanceBoost, ctx) / 100;
+    const p = Math.min(1, Math.max(0, (segment.chance ?? 0) + boost));
+    if (!(ctx.rng.next() < p)) return [];
+  }
+  // 通用条件（全局类）：整段判定，不成立 → 静默跳过（目标相对类在目标解析处过滤）
+  if (segment.ifCond && !isTargetCondition(segment.ifCond) && !conditionMet(segment.ifCond, ctx)) {
+    return [];
+  }
+  // 目标相对条件挂在无目标段（gem/extraTurn/summon/storm/oneOf）→ 无从判定，整段跳过
+  if (segment.ifCond && isTargetCondition(segment.ifCond) && !('target' in segment)) {
+    return [];
+  }
+  // 死亡条件：前一个产目标段的主目标确实身亡才执行
+  if (segment.ifTargetDied === true && !lastTargetDied(ctx)) return [];
+
+  // 随机多选一：rng 掷选一个分支，只执行该分支（未选中分支零执行、零事件、零随机消耗）
+  if (segment.kind === 'oneOf') {
+    const branches = segment.options;
+    if (branches.length === 0) return [];
+    const picked = branches[ctx.rng.nextInt(branches.length)];
+    const events: GameEvent[] = [];
+    for (const sub of picked) events.push(...runSegment(sub, ctx));
+    return events;
+  }
+
+  const primitive = compileSegment(segment, ctx);
+  if (!primitive) return [];
+  return resolveDefeatEvents(ctx.state, primitive.apply(ctx));
+}
+
+/**
  * 执行技能原型：按段顺序解释，汇集事件流（需求 11.3, 11.5）。
  * 空原型或全部段不支持 → 返回空事件（仅扣法力回退由 castSkill 处理，需求 11.4）。
- *
- * 段级 chance / ifTargetDied 在编译前统一裁决：跳过的段不发事件、
- * 不消耗目标选择、也不更新跨段追踪（lastTarget 保持上一有效段）。
  */
 export function executePrototype(proto: SkillPrototype, ctx: EffectContext): GameEvent[] {
   ensureCastTracking(ctx);
   const events: GameEvent[] = [];
   for (const segment of proto.segments) {
-    // 概率子句：掷签不通过 → 整段跳过（rng 消耗固定发生，保证同种子同事件流）
-    if (segment.chance !== undefined || segment.chanceBoost) {
-      const boost = modifierBonus(segment.chanceBoost, ctx) / 100;
-      const p = Math.min(1, Math.max(0, (segment.chance ?? 0) + boost));
-      if (!(ctx.rng.next() < p)) continue;
-    }
-    // 通用条件（全局类）：整段判定，不成立 → 静默跳过（目标相对类在目标解析处过滤）
-    if (segment.ifCond && !isTargetCondition(segment.ifCond) && !conditionMet(segment.ifCond, ctx)) {
-      continue;
-    }
-    // 目标相对条件挂在无目标段（gem/extraTurn/summon）→ 无从判定，整段跳过
-    if (segment.ifCond && isTargetCondition(segment.ifCond) && !('target' in segment)) {
-      continue;
-    }
-    // 死亡条件：前一个产目标段的主目标确实身亡才执行
-    if (segment.ifTargetDied === true && !lastTargetDied(ctx)) continue;
-    const primitive = compileSegment(segment, ctx);
-    if (primitive) {
-      events.push(...resolveDefeatEvents(ctx.state, primitive.apply(ctx)));
-    }
+    events.push(...runSegment(segment, ctx));
   }
   return events;
 }

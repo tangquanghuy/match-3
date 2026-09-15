@@ -14,6 +14,7 @@
  * 纯逻辑：无 pixi/gsap/dom；随机经 ctx.rng（需求 12.1, 12.2）。
  */
 import { BoardModel } from '../../BoardModel';
+import { reshuffle } from '../../boardUtils';
 import { colorGem, skullGem, isSameMatchType, posKey, specialGem } from '../../types';
 import type { BaseColor, CellPos, Gem, GemType, SpecialGemKind, SpecialGemSpec } from '../../types';
 import type {
@@ -55,11 +56,14 @@ function transformEndpoint(spec: ColorSpec, ctx: EffectContext): GemType | null 
   return color === null ? null : colorGem(color);
 }
 
-/** doTransform 的端点解析：优先特殊宝石端点（「将所有红色宝石转换成极度末日骷髅头」） */
+/** doTransform 的端点解析：优先特殊宝石端点（「将所有红色宝石转换成极度末日骷髅头」）。
+ *  from 侧遇 'ANY'/缺省返回 null（由 doTransform 按「不限来源」分支处理，不走这里）。 */
 function transformEndpointOf(params: TransformGemParams, side: 'from' | 'to', ctx: EffectContext): GemType | null {
   const special = side === 'from' ? params.fromSpecial : params.toSpecial;
   if (special) return specialGem(special);
-  return transformEndpoint(side === 'from' ? params.from : params.to, ctx);
+  const spec = side === 'from' ? params.from : params.to;
+  if (spec === undefined || spec === 'ANY') return null;
+  return transformEndpoint(spec, ctx);
 }
 
 // —— 创造 / 转化 ——
@@ -76,19 +80,33 @@ export interface CreateGemParams {
   gem: CreateGemSpec;
   /** 数量缩放规格（按施法者魔力求值；至少产出 0） */
   count: ScalingSpec;
+  /**
+   * 数量区间（引擎原语批：「创造 8-12 颗紫色宝石」）：给出时忽略 count，
+   * 在 [min, max] 内均匀掷选（种子化，每段一次）。
+   */
+  countRange?: { min: number; max: number };
   /** 二次缩放（如「每摧毁一颗紫色宝石，则创造 4 颗骷髅头 [x4]」） */
   modifier?: ModifierSpec;
 }
 
+/** 转化来源端点：颜色/占位符之外，'ANY' = 不限来源（任意非目标类型宝石，定量转换用） */
+export type TransformFrom = ColorSpec | 'ANY';
+
 /** 转化：某颜色 → 另一颜色（均可为 'CHOSEN'/'SKULL'）；端点亦可为特殊宝石种类 */
 export interface TransformGemParams {
   op: 'transform';
-  from: ColorSpec;
+  /** 来源端点；'ANY' = 不限色（排除已是目标类型的宝石）。缺省按 'ANY' 处理（既有构造器恒显式传入） */
+  from?: TransformFrom;
   to: ColorSpec;
   /** to 端点为特殊宝石时给出（优先于 to 的基色解析） */
   toSpecial?: SpecialGemKind;
   /** from 端点为特殊宝石时给出（优先于 from） */
   fromSpecial?: SpecialGemKind;
+  /**
+   * 定量转换（引擎原语批）：随机转换 N 颗（种子化、不放回）；缺省 = 全部匹配。
+   * 「将一颗宝石转换成炸弹宝石」「将 2 颗紫色宝石转换成X」。
+   */
+  count?: ScalingSpec;
 }
 
 // —— 清除目标集（destroy / explode 共用） ——
@@ -112,7 +130,7 @@ export type ClearTarget =
   | { kind: 'allColors' }
   | { kind: 'skulls' }
   | { kind: 'special'; gem: SpecialGemKind }
-  | { kind: 'randomGems'; count: ScalingSpec; include?: 'color' | 'all'; color?: ColorSpec; special?: SpecialGemKind }
+  | { kind: 'randomGems'; count: ScalingSpec; include?: 'color' | 'all'; color?: ColorSpec; special?: SpecialGemKind; countRange?: { min: number; max: number } }
   | { kind: 'cell'; cell: CellPos | 'CELL' };
 
 /** 清除操作：destroy=仅目标本身；explode=目标并入每颗 8 邻格 */
@@ -149,6 +167,13 @@ function pickN<T>(items: T[], n: number, ctx: EffectContext): T[] {
   return chosen;
 }
 
+/** 在 [min, max] 内均匀掷选一个整数（种子化；区间非法时夹取为单点）。每段至多掷一次 */
+export function rollInRange(range: { min: number; max: number }, ctx: EffectContext): number {
+  const lo = Math.max(0, Math.floor(Math.min(range.min, range.max)));
+  const hi = Math.max(lo, Math.floor(Math.max(range.min, range.max)));
+  return lo + ctx.rng.nextInt(hi - lo + 1);
+}
+
 function allRows(): number[] {
   return Array.from({ length: BoardModel.ROWS }, (_, i) => i);
 }
@@ -183,7 +208,10 @@ function doCreate(params: CreateGemParams, ctx: EffectContext): GameEvent[] {
   const probe = pickCreateGemType(params.gem, ctx);
   if (probe === null) return [];
 
-  const n = evaluateWithModifier(evaluateScaling(params.count, casterMagic(ctx)), params.modifier, ctx);
+  // 数量区间（「创造 8-12 颗」）优先于缩放规格；两者互斥，缺省走缩放（旧路径随机序列不变）
+  const n = params.countRange
+    ? rollInRange(params.countRange, ctx)
+    : evaluateWithModifier(evaluateScaling(params.count, casterMagic(ctx)), params.modifier, ctx);
   if (n <= 0) return [];
 
   const events: GameEvent[] = [];
@@ -224,19 +252,50 @@ function doCreate(params: CreateGemParams, ctx: EffectContext): GameEvent[] {
 }
 // —— 转化 ——
 
+/** 宝石类型精确相等（ANY 来源排除「已是目标类型」用；isSameMatchType 对不可匹配宝石恒 false） */
+function gemTypeEquals(a: GemType, b: GemType): boolean {
+  if (a.kind !== b.kind) return false;
+  if (a.kind === 'color' && b.kind === 'color') return a.color === b.color;
+  if (a.kind === 'skull' && b.kind === 'skull') return true;
+  if (a.kind === 'special' && b.kind === 'special') {
+    return a.spec.kind === b.spec.kind && a.spec.tier === b.spec.tier;
+  }
+  return false;
+}
+
 function doTransform(params: TransformGemParams, ctx: EffectContext): GameEvent[] {
   const board = ctx.state.board;
-  const fromType = transformEndpointOf(params, 'from', ctx);
   const toType = transformEndpointOf(params, 'to', ctx);
-  if (fromType === null || toType === null || (params.from === params.to && !params.toSpecial && !params.fromSpecial)) return [];
-  const changes: GemTransformEvent['changes'] = [];
+  if (toType === null) return [];
+  // from = 'ANY'/缺省 → 不限来源（「将一颗宝石转换成炸弹宝石」）；否则解析来源端点
+  const fromAny = params.from === undefined || params.from === 'ANY';
+  const fromType = fromAny ? null : transformEndpointOf(params, 'from', ctx);
+  if (!fromAny && fromType === null) return [];
+  if (!fromAny && params.from === params.to && !params.toSpecial && !params.fromSpecial) return [];
+
+  // 收集匹配来源的宝石格；'ANY' 时排除「已是目标类型」的宝石（转了等于没转）
+  const pool: CellPos[] = [];
   board.forEach((gem, pos) => {
-    if (gem && isSameMatchType(gem.type, fromType)) {
-      const prev = gem.type;
-      gem.type = toType;
-      changes.push({ pos, gemId: gem.id, from: prev, to: toType });
+    if (!gem) return;
+    if (fromType !== null) {
+      if (!isSameMatchType(gem.type, fromType)) return;
+    } else if (gemTypeEquals(gem.type, toType)) {
+      return;
     }
+    pool.push(pos);
   });
+  // 定量转换：随机取 N 颗（种子化、不放回）；缺省 = 全部（既有全棋盘转化路径不变）
+  const targets = params.count
+    ? pickN(pool, Math.max(0, evaluateScaling(params.count, casterMagic(ctx))), ctx)
+    : pool;
+
+  const changes: GemTransformEvent['changes'] = [];
+  for (const pos of targets) {
+    const gem = board.get(pos)!;
+    const prev = gem.type;
+    gem.type = toType;
+    changes.push({ pos, gemId: gem.id, from: prev, to: toType });
+  }
   if (changes.length === 0) return [];
   if (ctx.castTracking) ctx.castTracking.transformed += changes.length;
   const events: GameEvent[] = [{ type: 'gem-transform', changes }];
@@ -297,7 +356,10 @@ function resolveTargetCells(target: ClearTarget, ctx: EffectContext, modifier?: 
       return cells;
     }
     case 'randomGems': {
-      const n = evaluateWithModifier(evaluateScaling(target.count, casterMagic(ctx)), modifier, ctx);
+      // 数量区间（「爆破 1-2 颗宝石」）优先于缩放规格；缺省走缩放（旧路径随机序列不变）
+      const n = target.countRange
+        ? rollInRange(target.countRange, ctx)
+        : evaluateWithModifier(evaluateScaling(target.count, casterMagic(ctx)), modifier, ctx);
       if (n <= 0) return [];
       // 可选限定色：「爆破 [魔法 + 1] 颗紫色宝石」从紫色的池子里随机取；可选限定特殊宝石种类
       const colorFilter = target.color === undefined ? null : resolveColor(target.color, ctx);
@@ -394,6 +456,27 @@ export function gemEffect(params: GemParams): EffectPrimitive {
           return _exhaustive;
         }
       }
+    },
+  };
+}
+
+/**
+ * 打乱板面（引擎原语批 ·「Shuffle the Board」）：复用 boardUtils.reshuffle——同一组宝石
+ * （id 与类型不变）重排到「无预成匹配且存在合法交换」的布局，发既有 reshuffle 事件
+ * （moves 携带 from→to，表现层按 id 做洗牌动画，与死局重排同一演出路径）。
+ * 洗牌可能摆出现成三连：交回 ctx.resolveBoardChange 结算连锁（与死局重排后 runCascades
+ * 同一条规则——三连就该被消掉，不滞留）。非满盘（部分逻辑单测/在途解析）安全跳过：
+ * reshuffle 按全部格位写入，缺格会丢宝石。
+ */
+export function shuffleBoardEffect(): EffectPrimitive {
+  return {
+    apply(ctx: EffectContext): GameEvent[] {
+      const board = ctx.state.board;
+      if (!board.isFull()) return [];
+      const moves = reshuffle(board, ctx.rng);
+      const events: GameEvent[] = [{ type: 'reshuffle', moves }];
+      ctx.resolveBoardChange?.([], events);
+      return events;
     },
   };
 }

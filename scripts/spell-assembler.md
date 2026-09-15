@@ -67,6 +67,7 @@ export const BATCH_XX: CuratedBatch = { batch: 'XX', spells: SPELLS, skipped: SK
 | 最虚弱的敌人 | `'enemyWeakest'`；「两名最虚弱的敌人」→ `'enemyWeakestN'` + `n` |
 | 最健康的敌人 | `'enemyHealthiest'`；「N 名最健康」→ `'enemyHealthiestN'` + `n` |
 | 所有敌人 | `'enemyAll'`（伤害段要 `range:'all'`，或直接 `dmgAll`） |
+| 「1 名/一名敌人和其下方的所有敌人」 | `'enemyChosenAndBelow'`（指定者 + 编队更靠后的全部存活敌人；spell-rules §9.10） |
 | 盟友同理（`allyChosen/allyRandom/allyRandomN/allyFront/allyFirstN/allyLast/allyLastN/allyAll/allyWeakest(N)/allyHealthiest(N)`）；自身 `'allySelf'`；「其他盟友」`'allyOthers'` | |
 
 ### 措辞裁定（本仓库引擎词汇的固定口径）
@@ -121,18 +122,26 @@ cleanse(target, n?, opts?)            // 净化全部状态
 ### 敌方削弱（stat: 'attack'|'armor'|'magic'|'mana'）
 ```ts
 reduce(target, stat, base, mult?, opts?)  // 减攻/减甲/减魔；stat='mana' 即耗蓝
+// opts.halve = true：「将敌方攻击力减半」（按当前值 50% 下取整，原语批 §9.6）
 drainMana(target, opts?)                  // 「耗尽法力值」
 steal(target, stat, gainStat, base, mult, opts)  // 窃取；「窃取 2 护甲转为魔法」= steal(t,'armor','magic',2,0)
-// opts 额外: { drainAll?, gainRatio? (「获得其中半数」=0.5), n?, chance, ifTargetDied, modifier, raceDouble }
-// 「将攻击力减半」暂无原语 → SKIP
+// opts 额外: { drainAll?, halve?, gainRatio? (「获得其中半数」=0.5), n?, nRange?, chance, ifTargetDied, modifier, raceDouble }
+```
+
+### 增益侧比例法力（原语批 §9.6）
+```ts
+// 「获得半数法力值」= 获得 floor(manaCost / 2)（半条法力，逐目标按各自 manaCost 现算）
+mana('allySelf', 0, 0, { halve: true, ifCond?: … })
 ```
 
 ### 宝石
 ```ts
 createGems(color, base, mult=0, opts?)   // color 可 'Red'…/'CHOSEN'（指定色）/'CASTER'（该军队法力颜色）
+//   opts.countRange: { min, max }（「创造 8-12 颗紫色宝石」，rng 掷选，spell-rules §9.8）
 createSkulls(base, mult=0, opts?)        // 创造骷髅头；opts.modifier 支持「每摧毁一颗X宝石 [xN]」
 createMix([color, 'CHOSEN'], base, mult, opts)  // 「混合绿色和一种选定类型」
-transform(from, to)                      // 「将所有黄色宝石转换成紫色」= transform('Yellow','Purple')
+transform(from, to, opts?)               // 「将所有黄色宝石转换成紫色」= transform('Yellow','Purple')
+//   opts.count = N（定量随机转换：「将 2 颗紫色宝石转换成X」，spell-rules §9.4）
 destroyChosenCol() / destroyChosenRow()  // 摧毁一列/一行（chosen）
 explodeAt('CELL')                        // 爆破选定宝石（含周围一圈）
 destroyColor(color) / explodeColor(color)   // 移除/爆破所有某色（color 可 'CHOSEN'）
@@ -146,10 +155,13 @@ destroyRandomCols(base, mult) / destroyRandomRows(base, mult)  // 随机 N 列/�
 // poison 中毒 / burning 燃烧 / bleed 出血(每层1点) / silence 沉默 / frozen 冰冻冻结 / stun 眩晕击晕 /
 // entangle 纠缠缠绕 / web 织网 / barrier 屏障 / submerged 下潜 / marked 猎人标记(纯标记态) /
 // disease 疾病 / curse 诅咒 / death-mark 死亡标记 / rage 狂怒 / charm 魅惑（后五者 2026-09-16 落地）
-inflict(statusId, target, opts?)  // opts: { turns?（默认3）, magnitude?（DoT 每回合伤害，默认3；bleed 默认1）, stacks?, n?, chance, ifTargetDied }
+inflict(statusId, target, opts?)  // opts: { turns?（默认3）, magnitude?（DoT 每回合伤害，默认3；bleed 默认1）, stacks?, n?, nRange?, chance, ifTargetDied }
 // 「获得屏障」= inflict('barrier','allySelf')；「陷入 2 层流血」= inflict('bleed', t, { stacks: 2 })
+// 「使 1 到 4 名敌人中毒」= inflict('poison', 'enemyRandomN', { nRange: { min: 1, max: 4 } })
+dispelStatus(statusId, target, opts?)   // 定向驱散单一状态（原语批 §9.5）：
+// 「驱散其流血效果」= dispelStatus('bleed', 'enemyChosen')——只移除该 id，发 status-expire
 // 仍 SKIP（缺失状态）：狼化（缺变形机制）、法力燃烧（非持续状态，耗蓝句式走 reduce 族）、
-// 石化/恐怖/附魔/ 下潮技能句式 等；风暴（技能侧无创造风暴原语）。
+// 石化/恐怖/附魔/ 下潮技能句式 等。
 // 白名单以 tests/unit/spellData.test.ts STATUS_WHITELIST 为准，扩容随回收批同步。
 ```
 
@@ -158,6 +170,32 @@ inflict(statusId, target, opts?)  // opts: { turns?（默认3）, magnitude?（D
 summonRef(referenceName, troopId?)   // 召唤指定兵种（referenceName 是英文名，用 §6 的命令查）
 summonRandom(refs, troopId?)         // 「召唤一名随机哥布林」→ 同族兵种 referenceName 列表
 extraTurn(opts?)                     // 「获得一个额外回合」；可挂 { ifTargetDied: true }
+```
+
+### 风暴 / 打乱板面 / 随机多选一（引擎原语批，spell-rules §9）
+
+```ts
+createStorm(color, opts?)            // 「召唤冰风暴」= createStorm(BaseColor.Blue)（持续缺省 8 回合）
+// 骷髅系风暴：骸骨 = createStorm(BaseColor.Brown, { dropKind: 'skull' })；
+// 末日/超级末日 = dropKind 'doomSkull' / 'uberDoomSkull'。文本明示回合数 → { turns: N }
+shuffleBoard(opts?)                  // 「打乱板面」（满盘重排，发 reshuffle 事件）
+oneOf(分支…)                         // 「X 或 Y」随机多选一：掷选一支，未选支零执行零事件
+// 每支可为一至多个段：「造成真实伤害，再陷入燃烧。或摧毁所有炸弹宝石」
+//   = oneOf([trueDmg('enemyChosen',1,1), inflict('burning','enemyChosen')], destroySpecialGems('bomb'))
+// 裁定（spell-rules §9.3）：「或」= 掷签二/三选一；多色池（「绿色或紫色宝石」随机取）不是二选一 → SKIP
+```
+
+### 风暴在场 / 聚合存在判定条件（原语批，条件域新增叶子）
+
+```ts
+// 「若存在/正在进行(一种/任何)风暴」
+{ ifCond: { kind: 'stormPresent' } }
+// 「若存在冰风暴」= { kind: 'stormPresent', color: BaseColor.Blue }
+// 「如果现有骸骨风暴」= { kind: 'stormPresent', dropKind: 'skull' }（末日系同理）
+// 「若风暴生效，效果加倍」= condMult: { times: 2, cond: { kind: 'stormPresent' } }
+// 「若有(一名)敌人陷入诅咒状态」= { kind: 'anyEnemyStatus', statusId: 'curse' }（全局存在判定）
+// 「若有盟友陷入下潜状态」= { kind: 'anyAllyStatus', statusId: 'submerged' }
+// 与 targetStatus 区分：target* 是逐目标过滤；any* 是「存在即整段生效」
 ```
 
 ### 二次缩放（`meta.modifier` 非空时，来源必须人工判读后显式挂到对应段）
@@ -195,9 +233,9 @@ createSpecialGems({ kind: 'bomb' }, 2)             // bomb/doomSkull/uberDoomSku
 createSpecialGems({ kind: 'wildcard', tier: 4 }, 1) // 「x4 通配宝石」带 tier；未写倍率 → SKIP（数值不明）
 // 全量清除/爆破：「摧毁所有末日骷髅头」
 destroySpecialGems('doomSkull') / explodeSpecialGems('doomSkull')
-// 定量随机：「摧毁 3 颗末日骷髅头」「引爆 3 个末日骷髅」
+// 定量随机：「摧毁 3 颗末日骷髅头」「引爆 3 个末日骷髅」（countRange 区间见 spell-rules §9.8）
 destroyRandomSpecialGems('doomSkull', 3, 0) / explodeRandomSpecialGems('doomSkull', 3, 0, { chance?… })
-// 转化端点：「将所有骷髅头转换成末日骷髅头」「转换成极度末日骷髅头」
+// 转化端点：「将所有骷髅头转换成末日骷髅头」「转换成极度末日骷髅头」；可定量（opts.count）
 transformToSpecial('SKULL', 'doomSkull') / transformToSpecial('Red', 'uberDoomSkull')
 // 来源计数：「因炸弹宝石数而增强」「因织网宝石数而增强」
 modifier: { mod: …, source: { kind: 'boardSpecial', gem: 'bomb' } }
@@ -254,7 +292,9 @@ dmg('enemyChosen', 4, 1, { condBonus: { n: 8, cond: { kind: 'selfHpDamaged' } } 
 ```
 
 **裁定**：
-- 条件域 = condMult 的全部 7 种：`targetRace / targetColor / targetStatus / targetHpDamaged / selfHpDamaged / boardAtLeast / enemyRacePresent`。
+- 条件域（condMult/ifCond/condBonus 通用）：`targetRace / targetColor / targetStatus / targetHpDamaged /
+  selfHpDamaged / boardAtLeast / enemyRacePresent / allyRacePresent / anyEnemyStatus / anyAllyStatus /
+  stormPresent`（后三者为 2026-09-16 原语批新增，见「风暴在场 / 聚合存在判定条件」节）+ 组合器 anyOf/allOf。
 - **目标相对条件**（target* 四种）按**该段自己的目标**逐个判定过滤；**全局条件**（selfHpDamaged/boardAtLeast/enemyRacePresent）整段判定。
 - 不成立 → 静默跳过（不发事件，与 chance 同语义）。
 - 目标相对条件挂在**无目标段**（gem/extraTurn/summon）→ 整段跳过（无从判定）。
@@ -288,7 +328,8 @@ extraTurn({ chanceBoost: { mod: { kind: 'multiplier', a: 7 }, source: { kind: 'b
 // 概率 = chance（缺省 0）+ 加成百分点 / 100，夹在 [0,1]
 ```
 
-条件域白名单：`targetRace / targetColor / targetStatus / selfHpDamaged / boardAtLeast / enemyRacePresent`。
+条件域白名单：`targetRace / targetColor / targetStatus / targetHpDamaged / selfHpDamaged /
+boardAtLeast / enemyRacePresent / allyRacePresent / anyEnemyStatus / anyAllyStatus / stormPresent`。
 **只有「倍率」句式（N 倍/双倍/翻倍）用 condMult**；「+N 点」条件加成、属性比较、法力满值/幸存、
 王国条件、打错敌人/弹射、随机状态 → 仍 SKIP。
 

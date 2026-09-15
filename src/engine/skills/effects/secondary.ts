@@ -13,7 +13,7 @@
  * 纯逻辑：无 pixi/gsap/dom 依赖。
  */
 import { isSameMatchType, colorGem, skullGem } from '../../types';
-import type { SpecialGemKind } from '../../types';
+import type { SpecialGemKind, SkullStormDropKind } from '../../types';
 import type { BaseColor, Character } from '../../types';
 import type { SecondaryModifier } from '../scaling';
 import type { EffectContext } from './context';
@@ -86,6 +86,17 @@ export type Condition =
   | { kind: 'boardAtLeast'; color?: BaseColor; n: number }
   | { kind: 'enemyRacePresent'; race: string }
   | { kind: 'allyRacePresent'; race: string }
+  /** 任一存活敌人带有该状态即真（「若有(一名)敌人陷入X状态」，全局条件整段判定） */
+  | { kind: 'anyEnemyStatus'; statusId: string }
+  /** 任一存活盟友（含施法者）带有该状态即真（全局条件） */
+  | { kind: 'anyAllyStatus'; statusId: string }
+  /**
+   * 风暴在场（「若存在/正在进行(冰/骸骨…)风暴」，全局条件）：读双方 team.storm。
+   * color 筛颜色风暴（骷髅系风暴的 color 仅是指示器主色，按 dropKind 判定更准）；
+   * dropKind 筛骷髅系（骸骨='skull'/末日='doomSkull'/超级末日='uberDoomSkull'）；
+   * 两者都缺省 = 任意风暴在场。两者同给时需同时满足。
+   */
+  | { kind: 'stormPresent'; color?: BaseColor; dropKind?: SkullStormDropKind }
   /** 析取（「若敌人是兽人或恶魔」）：任一子条件成立即成立 */
   | { kind: 'anyOf'; of: Condition[] }
   /** 合取：全部子条件成立才成立 */
@@ -135,6 +146,32 @@ export function conditionMet(
       const side = findSide(ctx.state, ctx.casterId);
       if (side === null) return false;
       return ctx.state.teams[side].characters.some((c) => !c.defeated && hasTroopType(c, cond.race));
+    }
+    case 'anyEnemyStatus': {
+      const side = findSide(ctx.state, ctx.casterId);
+      if (side === null) return false;
+      const enemySide = side === 'Left' ? 'Right' : 'Left';
+      return ctx.state.teams[enemySide].characters.some(
+        (c) => !c.defeated && c.statuses.some((s) => s.id === cond.statusId && s.turns > 0),
+      );
+    }
+    case 'anyAllyStatus': {
+      const side = findSide(ctx.state, ctx.casterId);
+      if (side === null) return false;
+      return ctx.state.teams[side].characters.some(
+        (c) => !c.defeated && c.statuses.some((s) => s.id === cond.statusId && s.turns > 0),
+      );
+    }
+    case 'stormPresent': {
+      // 全场唯一风暴挂在某一方 Team.storm 上；双方都扫（将来放开每方一个时天然兼容）
+      for (const side of ['Left', 'Right'] as const) {
+        const storm = ctx.state.teams[side].storm;
+        if (!storm) continue;
+        if (cond.dropKind !== undefined && storm.dropKind !== cond.dropKind) continue;
+        if (cond.color !== undefined && storm.color !== cond.color) continue;
+        return true;
+      }
+      return false;
     }
     case 'anyOf':
       return cond.of.some((c) => conditionMet(c, ctx, target));

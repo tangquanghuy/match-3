@@ -13,14 +13,14 @@
  * 纯逻辑：无 pixi/gsap/dom 依赖。所有数值以 [魔法 x mult + base] 表达（mult 默认 1，
  * 纯常数用 mult=0）。
  */
-import type { CellPos, SpecialGemKind, SpecialGemSpec } from '../types';
+import type { BaseColor, CellPos, SkullStormDropKind, SpecialGemKind, SpecialGemSpec } from '../types';
 import type { ScalingSpec } from './scaling';
 import type { TargetMode } from './targeting';
 import type { DamageRange } from './effects/damage';
 import type { BuffStat } from './effects/buff';
 import type { ReduceStat } from './effects/debuff';
 import type { ModifierSpec } from './effects/secondary';
-import type { ColorSpec, ClearTarget, ClearGemParams, CreateGemParams } from './effects/gems';
+import type { ColorSpec, ClearTarget, ClearGemParams, CreateGemParams, TransformFrom } from './effects/gems';
 import type { SummonSource, SummonTemplate } from './effects/summon';
 import type {
   SkillPrototype,
@@ -30,8 +30,14 @@ import type {
   GemSegment,
   StatusSegment,
   CleanseSegment,
+  DispelSegment,
+  StormSegment,
+  ShuffleBoardSegment,
+  OneOfSegment,
+  EffectSegment,
   ExtraTurnSegment,
   SummonSegment,
+  NRangeSpec,
 } from './prototypes';
 
 /** 选色占位符：技能文本"指定/选定颜色"，运行时由 ColorChooser 解析（需求 2） */
@@ -106,8 +112,14 @@ export function flat(n: number): ScalingSpec {
 
 // —— 伤害 ——
 
+/** 目标数量区间（「使 1 到 4 名敌人中毒」）：带 n 的段可改用区间，rng 掷选 */
+export interface NRangeOpts {
+  /** 目标数量区间 { min, max }；给出时忽略 n */
+  nRange?: NRangeSpec;
+}
+
 /** 伤害段公共选项：范围/真实伤害之外，还支持概率、二次缩放、种族翻倍、死亡条件 */
-export interface DmgOpts extends SegmentOpts {
+export interface DmgOpts extends SegmentOpts, NRangeOpts {
   range?: DamageRange;
   trueDamage?: boolean;
   /** enemyFirstN/allyFirstN/allyRandomN/enemyRandomN 的 N */
@@ -131,6 +143,7 @@ export function dmg(
   if (opts.range) seg.range = opts.range;
   if (opts.trueDamage) seg.trueDamage = true;
   if (opts.n !== undefined) seg.n = opts.n;
+  if (opts.nRange !== undefined) seg.nRange = opts.nRange;
   if (opts.rangeSpec) seg.rangeSpec = opts.rangeSpec;
   if (opts.drain) seg.drain = true;
   if (opts.execute) seg.execute = true;
@@ -154,58 +167,75 @@ export function trueDmg(target: TargetMode, base: number, mult = 1, opts: DmgOpt
 
 // —— 增益（作用己方） ——
 
-function buff(target: TargetMode, stat: BuffStat, base: number, mult: number, opts?: SegmentOpts & { n?: number }): BuffSegment {
+type BuffOpts = SegmentOpts & NRangeOpts & { n?: number; full?: boolean; halve?: boolean };
+
+function buff(target: TargetMode, stat: BuffStat, base: number, mult: number, opts?: BuffOpts): BuffSegment {
   const seg: BuffSegment = { kind: 'buff', target, stat, scaling: scale(base, mult) };
   if (opts?.n !== undefined) seg.n = opts.n;
+  if (opts?.nRange !== undefined) seg.nRange = opts.nRange;
+  if (opts?.full) seg.full = true;
+  if (opts?.halve) seg.halve = true;
   return attach(seg, opts);
 }
 /** 治疗（opts.full = 全额治疗：「恢复所有生命值」；opts.n = N 目标：「前 2 位盟友」） */
-export function heal(target: TargetMode, base: number, mult = 1, opts: SegmentOpts & { full?: boolean; n?: number } = {}): BuffSegment {
-  const seg = buff(target, 'hp', base, mult, opts);
-  if (opts.full) seg.full = true;
-  return seg;
+export function heal(target: TargetMode, base: number, mult = 1, opts: BuffOpts = {}): BuffSegment {
+  return buff(target, 'hp', base, mult, opts);
 }
 /** 加护甲 */
-export function armor(target: TargetMode, base: number, mult = 1, opts: SegmentOpts & { n?: number } = {}): BuffSegment {
+export function armor(target: TargetMode, base: number, mult = 1, opts: BuffOpts = {}): BuffSegment {
   return buff(target, 'armor', base, mult, opts);
 }
 /** 加攻击力 */
-export function attack(target: TargetMode, base: number, mult = 1, opts: SegmentOpts & { n?: number } = {}): BuffSegment {
+export function attack(target: TargetMode, base: number, mult = 1, opts: BuffOpts = {}): BuffSegment {
   return buff(target, 'attack', base, mult, opts);
 }
 /** 加魔法值 */
-export function magic(target: TargetMode, base: number, mult = 1, opts: SegmentOpts & { n?: number } = {}): BuffSegment {
+export function magic(target: TargetMode, base: number, mult = 1, opts: BuffOpts = {}): BuffSegment {
   return buff(target, 'magic', base, mult, opts);
 }
-/** 加法力 */
-export function mana(target: TargetMode, base: number, mult = 1, opts: SegmentOpts & { n?: number } = {}): BuffSegment {
+/** 加法力（opts.halve = 「获得半数法力值」：获得 floor(manaCost/2)，忽略数值） */
+export function mana(target: TargetMode, base: number, mult = 1, opts: BuffOpts = {}): BuffSegment {
   return buff(target, 'mana', base, mult, opts);
 }
 
 /** Remove all current statuses from selected allies. */
-export function cleanse(target: TargetMode, n?: number, opts?: SegmentOpts): CleanseSegment {
+export function cleanse(target: TargetMode, n?: number, opts: SegmentOpts & NRangeOpts = {}): CleanseSegment {
   const segment: CleanseSegment = { kind: 'cleanse', target };
   if (n !== undefined) segment.n = n;
+  if (opts.nRange !== undefined) segment.nRange = opts.nRange;
+  return attach(segment, opts);
+}
+
+/**
+ * 定向驱散单一状态（引擎原语批）：只移除目标身上 statusId 这一个状态（「驱散其流血效果」），
+ * 发既有 status-expire 事件；与 cleanse（净化全部状态）互补。
+ */
+export function dispelStatus(statusId: string, target: TargetMode, opts: SegmentOpts & NRangeOpts = {}): DispelSegment {
+  const segment: DispelSegment = { kind: 'dispel', target, statusId };
+  if (opts.nRange !== undefined) segment.nRange = opts.nRange;
   return attach(segment, opts);
 }
 
 /** 随机属性获得（「获得 [魔法] 点随机技能值」：每点随机分给攻/甲/血/魔） */
-export function randomStat(target: TargetMode, base: number, mult = 1, opts?: SegmentOpts): import('./prototypes').RandomStatSegment {
+export function randomStat(target: TargetMode, base: number, mult = 1, opts: SegmentOpts & NRangeOpts = {}): import('./prototypes').RandomStatSegment {
   const seg: import('./prototypes').RandomStatSegment = { kind: 'randomStat', target, scaling: scale(base, mult) };
+  if (opts.nRange !== undefined) seg.nRange = opts.nRange;
   return attach(seg, opts);
 }
 
 // —— 敌方削弱家族（减攻/减甲/减魔/耗蓝/窃取，窗口 B 五机制之三） ——
 
-export interface ReduceOpts extends SegmentOpts {
+export interface ReduceOpts extends SegmentOpts, NRangeOpts {
   /** enemyFirstN/allyFirstN/randomN 的 N */
   n?: number;
   /** 耗尽目标该属性的全部当前值（「减除全部护甲值」「耗尽法力值」） */
   drainAll?: boolean;
+  /** 比例减半：「将敌方攻击力减半」= 按当前值 50% 下取整削减（忽略数值） */
+  halve?: boolean;
 }
 
 /**
- * 削减段：目标属性扣减（夹零）。stat='mana' 即耗蓝。
+ * 削减段：目标属性扣减（夹零）。stat='mana' 即耗蓝；opts.halve = 按当前值减半。
  */
 export function reduce(
   target: TargetMode,
@@ -216,7 +246,9 @@ export function reduce(
 ): ReduceSegment {
   const seg: ReduceSegment = { kind: 'reduce', target, stat, scaling: scale(base, mult) };
   if (opts.n !== undefined) seg.n = opts.n;
+  if (opts.nRange !== undefined) seg.nRange = opts.nRange;
   if (opts.drainAll) seg.drainAll = true;
+  if (opts.halve) seg.halve = true;
   return attach(seg, opts);
 }
 
@@ -224,6 +256,7 @@ export function reduce(
 export function drainMana(target: TargetMode, opts: ReduceOpts = {}): ReduceSegment {
   const seg: ReduceSegment = { kind: 'reduce', target, stat: 'mana', scaling: scale(0, 0), drainAll: true };
   if (opts.n !== undefined) seg.n = opts.n;
+  if (opts.nRange !== undefined) seg.nRange = opts.nRange;
   return attach(seg, opts);
 }
 
@@ -242,6 +275,7 @@ export function steal(
   const seg: ReduceSegment = { kind: 'reduce', target, stat, scaling: scale(base, mult), gainStat };
   if (opts.gainRatio !== undefined && opts.gainRatio !== 1) seg.gainRatio = opts.gainRatio;
   if (opts.n !== undefined) seg.n = opts.n;
+  if (opts.nRange !== undefined) seg.nRange = opts.nRange;
   return attach(seg, opts);
 }
 
@@ -250,6 +284,8 @@ export function steal(
 export interface CreateOpts extends SegmentOpts {
   /** 创造数量可带二次缩放（如「每摧毁一颗紫色宝石，则创造 4 颗骷髅头 [x4]」） */
   n?: number;
+  /** 数量区间（「创造 8-12 颗紫色宝石」）：给出时忽略 base/mult，rng 在 [min, max] 掷选 */
+  countRange?: { min: number; max: number };
 }
 
 /** 创造指定颜色宝石（颜色可为 CHOSEN/CASTER），数量 = [魔法 × mult + base]（默认常数） */
@@ -300,20 +336,43 @@ export function explodeRandomSpecialGems(gem: SpecialGemKind, base: number, mult
   return clearSeg('explode', { kind: 'randomGems', count: scale(base, mult), include: 'all', special: gem }, opts);
 }
 
-/** 转化：from 色（或 SKULL）→ 指定特殊宝石（「将所有骷髅头转换成末日骷髅头」「转换成极度末日骷髅头」） */
-export function transformToSpecial(from: ColorSpec, gem: SpecialGemKind): GemSegment {
-  return { kind: 'gem', params: { op: 'transform', from, to: 'SKULL', toSpecial: gem } };
-}
-
 /** 包一层段并透传创造段选项 */
 function createSeg(params: CreateGemParams, opts: CreateOpts): GemSegment {
   if (opts.modifier) params.modifier = opts.modifier;
+  if (opts.countRange !== undefined) params.countRange = opts.countRange;
   const seg: GemSegment = { kind: 'gem', params };
   return attach(seg, opts);
 }
-/** 转化：某色 → 另一色（全棋盘；任一端可为 CHOSEN） */
-export function transform(from: ColorSpec, to: ColorSpec): GemSegment {
-  return { kind: 'gem', params: { op: 'transform', from, to } };
+/** 转化：某色 → 另一色（全棋盘；任一端可为 CHOSEN）。opts.count = 定量随机转换 N 颗 */
+export function transform(from: ColorSpec, to: ColorSpec, opts: SegmentOpts & { count?: number } = {}): GemSegment {
+  const params: TransformGemParamsLike = { op: 'transform', from, to };
+  if (opts.count !== undefined) params.count = flat(opts.count);
+  return gemSegWithOpts(params, opts);
+}
+
+/** 定量转换的段选项（count 为常数颗数；概率/条件等公共选项照常） */
+export interface TransformOpts extends SegmentOpts {
+  /** 随机转换颗数（「将一颗宝石转换成炸弹宝石」「将 2 颗紫色宝石转换成X」） */
+  count?: number;
+}
+
+/**
+ * 转化：来源（色/'ANY' 不限）→ 指定特殊宝石，可定量（opts.count，随机取 N 颗）。
+ * 「将一颗宝石转换成炸弹宝石」= transformToSpecial('ANY', 'bomb', { count: 1 })。
+ */
+export function transformToSpecial(from: TransformFrom, gem: SpecialGemKind, opts: TransformOpts = {}): GemSegment {
+  const params: TransformGemParamsLike = { op: 'transform', from, to: 'SKULL', toSpecial: gem };
+  if (opts.count !== undefined) params.count = flat(opts.count);
+  return gemSegWithOpts(params, opts);
+}
+
+/** 只为规避循环引用的别名：与 effects/gems.ts TransformGemParams 同形（结构性兼容） */
+type TransformGemParamsLike = import('./effects/gems').TransformGemParams;
+
+/** transform 族通用收尾：拷公共选项、包成段 */
+function gemSegWithOpts(params: TransformGemParamsLike, opts: SegmentOpts): GemSegment {
+  const seg: GemSegment = { kind: 'gem', params };
+  return attach(seg, opts);
 }
 
 // —— 宝石：清除（destroy 只清目标 / explode 目标+辐射一圈） ——
@@ -391,15 +450,41 @@ const BLEED_IDS = new Set(['bleed']);
 export function inflict(
   statusId: string,
   target: TargetMode,
-  opts: { turns?: number; magnitude?: number; stacks?: number; n?: number } & SegmentOpts = {},
+  opts: { turns?: number; magnitude?: number; stacks?: number; n?: number } & SegmentOpts & NRangeOpts = {},
 ): StatusSegment {
   const turns = opts.turns ?? DEFAULT_STATUS_TURNS;
   const seg: StatusSegment = { kind: 'status', target, statusId, turns };
   const mag = opts.magnitude ?? (DOT_IDS.has(statusId) ? DEFAULT_DOT : BLEED_IDS.has(statusId) ? BLEED_DOT : undefined);
   if (mag !== undefined) seg.magnitude = mag;
   if (opts.n !== undefined) seg.n = opts.n;
+  if (opts.nRange !== undefined) seg.nRange = opts.nRange;
   if (opts.stacks !== undefined && opts.stacks > 1) seg.stacks = opts.stacks;
   return attach(seg, opts);
+}
+
+// —— 风暴 / 打乱板面 / 随机多选一（引擎原语批，DECISIONS 翻案记录②） ——
+
+/** 风暴段选项：颜色必填；骷髅系风暴（骸骨/末日/超级末日）给 dropKind；持续回合缺省 8 */
+export function createStorm(
+  color: BaseColor,
+  opts: SegmentOpts & { turns?: number; dropKind?: SkullStormDropKind } = {},
+): StormSegment {
+  const seg: StormSegment = { kind: 'storm', color, turns: opts.turns ?? 8 };
+  if (opts.dropKind !== undefined) seg.dropKind = opts.dropKind;
+  return attach(seg, opts);
+}
+
+/** 打乱板面（「Shuffle the Board」）：满盘时把现有宝石重排到无现成三连且有解的布局 */
+export function shuffleBoard(opts?: SegmentOpts): ShuffleBoardSegment {
+  return attach({ kind: 'shuffleBoard' }, opts);
+}
+
+/**
+ * 随机多选一（「X 或 Y」「或 A 或 B 或 C」）：执行时 rng 掷选一支，只执行该支。
+ * 每支可为一至多个段（「造成真实伤害，再陷入燃烧」整支算一个选项）。
+ */
+export function oneOf(...branches: (EffectSegment | EffectSegment[])[]): OneOfSegment {
+  return { kind: 'oneOf', options: branches.map((b) => (Array.isArray(b) ? b : [b])) };
 }
 
 // —— 召唤 ——
