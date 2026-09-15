@@ -4,6 +4,7 @@
 
 - `skills/`：技能施放、弹道、命中
 - `gems/`：宝石交换、消除、爆炸
+- `status/`：状态施加音（采样；其余状态走 `src/render/StatusSynth.ts` 程序合成，零素材）
 - `ui/`：按钮、提示和界面反馈
 
 命名规则：`用途_阶段_属性[_变体].扩展名`，全部使用小写 snake_case。
@@ -75,3 +76,9 @@ Source: `621206__eminyildirim__holy-protection-skill-buff.wav`. The five detecte
 5. `gems/chains/gem_chain_5.wav` <- source clip 2 (`2.16-2.91s`)
 
 Chain levels above 5 reuse level 5 with a small playback-rate increase. The finalized runtime uses only this sampled set. The skill test page provides a full-set preview plus per-level preview buttons. The removed legacy square-wave synth is archived at `archive/legacy_gem_chain_synth.ts.txt` and is not imported into the runtime bundle.
+
+## Status application sounds (状态施加音批 · 窗口 I)
+
+- `status/poison_dot.wav`: poison status landing cue, wired via `AudioManager.playStatusApply`. User-provided `中毒.wav` renamed on import; `skills/poison_spell_short.wav` stays on the status-tick path.
+- Burning / frozen reuse `skills/burning_tree.wav` / `skills/frozen.wav`.
+- All other landed statuses (bleed, silence, stun, entangle, web, barrier, submerged, marked, disease, curse, death-mark, rage, charm, mana-burn, wolf) are procedurally synthesized at runtime by `src/render/StatusSynth.ts` — zero sample assets. The statusId→sound mapping is snapshot-locked in `tests/unit/audioStatusSynth.test.ts` against the engine status id sets.

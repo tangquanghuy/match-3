@@ -1466,17 +1466,17 @@ export class App {
           card.setStatusAccent(ev.statusId, true);
         }
         const center = card ? this.cardCenterInOverlay(card) : null;
+        // 施加音统一走状态音映射（poison/burning/frozen 采样 + 其余状态程序合成，未知状态静默）；
+        // status-tick 的既有掉血音不在此路径，保持原样。
+        this.audio.playStatusApply(ev.statusId);
         switch (ev.statusId) {
           case 'poison':
-            this.audio.play('poison');
             if (center) this.playFrameFX('poison_flash', center.x, center.y);
             break;
           case 'burning':
-            this.audio.play('burning');
             if (center) this.playFrameFX('burning_flash', center.x, center.y);
             break;
           case 'frozen':
-            this.audio.play('frozen');
             if (center) this.playFrameFX('frozen_flash', center.x, center.y);
             // 冰冻持续态用程序化冰封蒙层（贴卡、静态、不挡脸），不用序列帧
             card?.setFrozen(true);
