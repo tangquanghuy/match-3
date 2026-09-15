@@ -490,6 +490,19 @@
     }
   },
   {
+    "code": "songoflight",
+    "name": "光之歌",
+    "description": "在战斗开始的时候召唤光风暴。",
+    "troops": 20,
+    "battleStartStorm": {
+      "color": "Yellow",
+      "turns": 8,
+      "troopId": 9004,
+      "referenceName": "Lightstorm",
+      "displayName": "Lightstorm"
+    }
+  },
+  {
     "code": "daemonbond",
     "name": "恶魔族亲",
     "description": "恶魔盟友获得 2 点生命值。",
@@ -699,6 +712,19 @@
     "skullMultVsStatus": {
       "status": "stun",
       "mult": 2
+    }
+  },
+  {
+    "code": "songofdarkness",
+    "name": "暗之歌",
+    "description": "在战斗开始的时候召唤暗风暴。",
+    "troops": 14,
+    "battleStartStorm": {
+      "color": "Purple",
+      "turns": 8,
+      "troopId": 9001,
+      "referenceName": "Darkstorm",
+      "displayName": "Darkstorm"
     }
   },
   {
@@ -959,6 +985,20 @@
     }
   },
   {
+    "code": "songofbones",
+    "name": "骸骨之歌",
+    "description": "在战斗开始的时候召唤骸骨风暴。",
+    "troops": 10,
+    "battleStartStorm": {
+      "color": "Brown",
+      "turns": 8,
+      "troopId": 9007,
+      "referenceName": "Bonestorm",
+      "displayName": "Bonestorm",
+      "dropKind": "skull"
+    }
+  },
+  {
     "code": "dwarfbond",
     "name": "矮人族亲",
     "description": "矮人盟友获得 2 点生命值。",
@@ -996,6 +1036,32 @@
       "troopType": "Dwarf",
       "stat": "armor",
       "amount": 2
+    }
+  },
+  {
+    "code": "songoffire",
+    "name": "火之歌",
+    "description": "在战斗开始的时候召唤火风暴。",
+    "troops": 8,
+    "battleStartStorm": {
+      "color": "Red",
+      "turns": 8,
+      "troopId": 9002,
+      "referenceName": "Firestorm",
+      "displayName": "Firestorm"
+    }
+  },
+  {
+    "code": "songofice",
+    "name": "冰之歌",
+    "description": "在战斗开始的时候召唤冰风暴。",
+    "troops": 8,
+    "battleStartStorm": {
+      "color": "Blue",
+      "turns": 8,
+      "troopId": 9003,
+      "referenceName": "Icestorm",
+      "displayName": "Icestorm"
     }
   },
   {
@@ -1818,7 +1884,8 @@
       "displayName": "骸骨风暴",
       "storm": {
         "color": "Brown",
-        "turns": 8
+        "turns": 8,
+        "dropKind": "skull"
       }
     }
   },
@@ -2357,7 +2424,8 @@
       "displayName": "骸骨风暴",
       "storm": {
         "color": "Brown",
-        "turns": 8
+        "turns": 8,
+        "dropKind": "skull"
       }
     }
   },
@@ -2385,7 +2453,8 @@
       "displayName": "末日风暴",
       "storm": {
         "color": "Purple",
-        "turns": 8
+        "turns": 8,
+        "dropKind": "doomSkull"
       }
     }
   },
@@ -2652,7 +2721,8 @@
       "displayName": "超级末日风暴",
       "storm": {
         "color": "Purple",
-        "turns": 8
+        "turns": 8,
+        "dropKind": "uberDoomSkull"
       }
     }
   },

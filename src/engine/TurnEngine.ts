@@ -1,7 +1,8 @@
 import { BoardModel } from './BoardModel';
 import { MatchResolver, grantsExtraTurn } from './MatchResolver';
 import type { MatchGroup } from './MatchResolver';
-import { GravitySystem, STORM_DROP_WEIGHT } from './GravitySystem';
+import { GravitySystem, STORM_DROP_WEIGHT, STORM_DOOMSKULL_DROP, STORM_UBER_DOOMSKULL_DROP } from './GravitySystem';
+import type { SkullDropBoost } from './GravitySystem';
 import { ManaDistributor } from './ManaDistributor';
 import { CombatResolver } from './CombatResolver';
 import { ExtensionRegistry } from './registry';
@@ -9,6 +10,7 @@ import { SeededRNG } from './rng';
 import { reshuffle, hasLegalSwap } from './boardUtils';
 import { tickTeamStatuses, canCastSkill, applyStatus, canGainMana, WEB_STATUS_ID } from './skills/effects/status';
 import { executePrototype } from './skills/prototypes';
+import { damageOne } from './skills/effects/damage';
 import type { EffectContext, DestroyedGem } from './skills/effects/context';
 import type { SummonTemplate } from './skills/effects/summon';
 import { AiColorChooser, prototypeNeedsColor } from './skills/colorChooser';
@@ -17,12 +19,21 @@ import { AiTargetChooser, prototypeChosenTargetMode } from './skills/targetChoos
 import type { TargetChooser } from './skills/targetChooser';
 import { AiCellChooser, prototypeNeedsCell } from './skills/cellChooser';
 import type { CellChooser } from './skills/cellChooser';
-import { MatchState, PlayerSide, opponentOf, colorGem, WEB_GEM_TURNS } from './types';
-import type { ActionLogEntry, BattleAction, CellPos, GemType, BaseColor, Character } from './types';
+import { MatchState, PlayerSide, BaseColor, opponentOf, colorGem, WEB_GEM_TURNS } from './types';
+import type { SkullStormDropKind } from './types';
+
+/**
+ * 被炸毁骷髅的法术伤害表（官方口径，区别于三消骷髅的攻击力结算）：
+ * 普通骷髅 1 / 末日骷髅 5 / 至尊末日骷髅 10。
+ * 查证来源：TrueTrophies 官方攻略（Heroic Gems 节）+ Steam 社区专家帖复核。
+ */
+const EXPLODED_SKULL_DAMAGE = { normal: 1, doom: 5, uber: 10 } as const;
+import type { ActionLogEntry, BattleAction, CellPos, GemType, Character } from './types';
 import type { GameState } from './GameState';
 import { resolveDefeatEvents, summonQueueOf, MAX_ACTIVE_TEAM_SIZE } from './teamRoster';
 import {
   applyBattleStartTraits,
+  collectBattleStartStorms,
   applyBigMatchTriggers,
   applyCastTriggers,
   applyColorMatchTriggers,
@@ -70,6 +81,8 @@ export class TurnEngine {
   private readonly rosterSideAtActionStart = new Map<number, PlayerSide>();
   /** 行动开始时的角色引用快照：阵亡者被移出编队后，死亡召唤仍需读它编译过的被动 */
   private readonly rosterCharAtActionStart = new Map<number, Character>();
+  /** 构造阶段产生的开局事件，交给 BattleSession 记录并由表现层首屏消费。 */
+  private readonly initialEvents: GameEvent[] = [];
 
   constructor(
     private state: GameState,
@@ -92,6 +105,19 @@ export class TurnEngine {
       state.teams[PlayerSide.Left].characters,
       state.teams[PlayerSide.Right].characters,
     );
+    // 开局风暴与死亡召唤共享同一套全局唯一/后者顶替前者裁定。
+    const startupStorms = [
+      ...collectBattleStartStorms(state.teams[PlayerSide.Left].characters, PlayerSide.Left),
+      ...collectBattleStartStorms(state.teams[PlayerSide.Right].characters, PlayerSide.Right),
+    ];
+    for (const { spec, side } of startupStorms) {
+      this.initialEvents.push(...this.setStormFromSummon(spec, side));
+    }
+  }
+
+  /** 取出构造阶段的开局事件；只消费一次。 */
+  takeInitialEvents(): GameEvent[] {
+    return this.initialEvents.splice(0, this.initialEvents.length);
   }
 
   /** 注入选色器（玩家已选色时传 FixedColorChooser；AI 用默认） */
@@ -265,7 +291,7 @@ export class TurnEngine {
       if (this.checkVictory(events)) return;
 
       // 5. 重力 + 补充（需求 8.1-8.4）；风暴激活时对应色按 STORM_DROP_WEIGHT 加权
-      const result = this.gravity.apply(this.state.board, this.skullChance, this.stormDropWeights());
+      const result = this.gravity.apply(this.state.board, this.skullChance, this.stormDropWeights(), this.stormSkullDrop());
       events.push({ type: 'gravity', chainCount: chain, moves: result.moves });
       events.push({ type: 'refill', chainCount: chain, spawns: result.spawns });
       // 循环：再次检测匹配（需求 8.5, 8.6）
@@ -496,14 +522,20 @@ export class TurnEngine {
     return Array.from({ length: BoardModel.ROWS }, (_, row) => ({ row, col }));
   }
 
-  /** 被摧毁宝石的法力/骷髅结算：颜色按色归并、骷髅合计一次普攻；特殊宝石自身不参与 */
+  /**
+   * 被摧毁宝石的法力/骷髅结算：颜色按色归并；骷髅系宝石按官方"炸毁骷髅"规则合计
+   * 一次法术伤害（见 settleExplodedSkulls）；其余特殊宝石自身不参与。
+   */
   private settleDestroyed(
-    destroyed: ReadonlyArray<{ gemType: GemType }>,
+    destroyed: ReadonlyArray<{ gemType: GemType; pos?: CellPos }>,
     events: GameEvent[],
   ): void {
     if (destroyed.length === 0) return;
     const colorCounts = new Map<string, { type: GemType; n: number }>();
     let skullCount = 0;
+    let doomCount = 0;
+    let uberCount = 0;
+    const skullCells: CellPos[] = [];
     for (const d of destroyed) {
       if (d.gemType.kind === 'color') {
         const key = d.gemType.color;
@@ -512,10 +544,61 @@ export class TurnEngine {
         colorCounts.set(key, cur);
       } else if (d.gemType.kind === 'skull') {
         skullCount += 1;
+        if (d.pos) skullCells.push(d.pos);
+      } else if (d.gemType.kind === 'special') {
+        // 被炸毁的末日/至尊末日骷髅：不引爆（引爆环只在被匹配时触发），
+        // 但按官方口径造成炸毁伤害（5/10 点，见 settleExplodedSkulls）
+        if (d.gemType.spec.kind === 'doomSkull') {
+          doomCount += 1;
+          if (d.pos) skullCells.push(d.pos);
+        } else if (d.gemType.spec.kind === 'uberDoomSkull') {
+          uberCount += 1;
+          if (d.pos) skullCells.push(d.pos);
+        }
       }
     }
     for (const { type, n } of colorCounts.values()) this.settleGems(type, n, events);
-    if (skullCount > 0) this.settleGems({ kind: 'skull', variant: 'normal' }, skullCount, events);
+    this.settleExplodedSkulls(skullCount, doomCount, uberCount, skullCells, events);
+  }
+
+  /**
+   * 被炸毁骷髅的官方结算（区别于三消骷髅，查证结论见 DECISIONS「骷髅爆炸」）：
+   * 不吃攻击力、不可被闪避，按**法术伤害**打敌方队首——普通骷髅 1 点/颗、
+   * 末日骷髅 5 点/颗、至尊末日骷髅 10 点/颗（TrueTrophies 官方攻略 + Steam 社区复核）。
+   * 走 damageOne（法术铠甲/屏障/护甲照常减免），施法者记为行动方队首（表现层定位用）。
+   */
+  private settleExplodedSkulls(
+    normalCount: number,
+    doomCount: number,
+    uberCount: number,
+    skullCells: ReadonlyArray<CellPos>,
+    events: GameEvent[],
+  ): void {
+    const total = normalCount * EXPLODED_SKULL_DAMAGE.normal
+      + doomCount * EXPLODED_SKULL_DAMAGE.doom
+      + uberCount * EXPLODED_SKULL_DAMAGE.uber;
+    if (total <= 0) return;
+    const enemyTeam = this.state.teams[opponentOf(this.state.activePlayer)];
+    const target = CombatResolver.frontAlive(enemyTeam);
+    if (!target || target.defeated) return;
+    const sourceId = CombatResolver.frontAlive(this.state.teams[this.state.activePlayer])?.id ?? 0;
+    const produced = damageOne(target, sourceId, total, false, 'single');
+    // 演出元数据：爆炸源 = 被炸骷髅的质心格（表现层从该点发射骷髅弹体）；无格位信息时退化为棋盘中心
+    const origin: CellPos = skullCells.length > 0
+      ? {
+          row: Math.max(0, Math.min(BoardModel.ROWS - 1,
+            Math.round(skullCells.reduce((s, c) => s + c.row, 0) / skullCells.length))),
+          col: Math.max(0, Math.min(BoardModel.COLS - 1,
+            Math.round(skullCells.reduce((s, c) => s + c.col, 0) / skullCells.length))),
+        }
+      : { row: Math.floor(BoardModel.ROWS / 2), col: Math.floor(BoardModel.COLS / 2) };
+    for (const e of produced) {
+      if (e.type === 'skill-damage') {
+        e.originCell = origin;
+        e.skullBurst = { normal: normalCount, doom: doomCount, uber: uberCount };
+      }
+    }
+    events.push(...produced);
   }
 
   /**
@@ -557,7 +640,7 @@ export class TurnEngine {
     this.settleDestroyed([...destroyed, ...chain], events);
 
     // 2. 重力 + 补充（风暴激活时对应色加权）
-    const result = this.gravity.apply(this.state.board, this.skullChance, this.stormDropWeights());
+    const result = this.gravity.apply(this.state.board, this.skullChance, this.stormDropWeights(), this.stormSkullDrop());
     if (result.moves.length > 0 || result.spawns.length > 0) {
       const chain = this.state.chainCount;
       events.push({ type: 'gravity', chainCount: chain, moves: result.moves });
@@ -747,14 +830,31 @@ export class TurnEngine {
       other.storm = undefined;
     }
     const prevColor = ownPrevColor ?? otherPrevColor;
-    own.storm = { color: payload.color, turns: payload.turns, troopId: spec.troopId };
+    own.storm = {
+      color: payload.color, turns: payload.turns, troopId: spec.troopId,
+      dropKind: payload.dropKind,
+    };
     const ev: StormChangeEvent = {
       type: 'storm-change', player: side, color: payload.color,
       reason: prevColor === undefined ? 'set' : 'replaced',
     };
     if (prevColor !== undefined) ev.prevColor = prevColor;
+    // 骷髅系风暴（骸骨/末日/超级末日）：事件带掉落目标，表现层据此换贴图/光晕色
+    if (payload.dropKind) ev.dropKind = payload.dropKind;
     events.push(ev);
     return events;
+  }
+
+  /** Test-console entry point: set a real battle storm through the same rule path as traits. */
+  debugSetStorm(color: BaseColor, side: PlayerSide, turns = 8, dropKind?: SkullStormDropKind): GameEvent[] {
+    const safeTurns = Math.max(1, Math.floor(turns));
+    return this.setStormFromSummon({
+      chance: 1,
+      troopId: 9900 + Object.values(BaseColor).indexOf(color as BaseColor),
+      referenceName: dropKind ? `${dropKind}storm` : `${color}storm`,
+      displayName: dropKind ? `${dropKind} storm` : `${color} storm`,
+      storm: { color, turns: safeTurns, dropKind },
+    }, side);
   }
 
   /**
@@ -780,14 +880,35 @@ export class TurnEngine {
   }
 
   /**
-   * 当前生效的风暴掉落权重（供 GravitySystem.refill 加权）：全场唯一风暴，
-   * 对应色权重 ×STORM_DROP_WEIGHT。无风暴返回 undefined——掉落路径与旧版逐字节一致
-   * （不进加权分支、随机数消耗序列不变）。
+   * 当前生效的**颜色风暴**掉落权重（供 GravitySystem.refill 加权）：全场唯一风暴，
+   * 对应色权重 ×STORM_DROP_WEIGHT。无风暴或骷髅系风暴（dropKind，见 stormSkullDrop）
+   * 返回 undefined——掉落路径与旧版逐字节一致（不进加权分支、随机数消耗序列不变）。
    */
   private stormDropWeights(): Map<BaseColor, number> | undefined {
     for (const side of [PlayerSide.Left, PlayerSide.Right]) {
       const storm = this.state.teams[side].storm;
-      if (storm) return new Map([[storm.color, STORM_DROP_WEIGHT]]);
+      if (storm && !storm.dropKind) return new Map([[storm.color, STORM_DROP_WEIGHT]]);
+    }
+    return undefined;
+  }
+
+  /**
+   * 当前生效的**骷髅系风暴**掉落修正（骸骨/末日/超级末日，DECISIONS 官方语义回填）：
+   * - 骸骨风暴：骷髅判定阈值 ×STORM_DROP_WEIGHT（与颜色风暴同一倍率口径）；
+   * - 末日/超级末日风暴：末日骷髅/至尊末日骷髅开始掉落（概率为设计值，官方未公开）。
+   * 无骷髅系风暴返回 undefined——随机数消耗序列与旧版一致。
+   */
+  private stormSkullDrop(): SkullDropBoost | undefined {
+    for (const side of [PlayerSide.Left, PlayerSide.Right]) {
+      const storm = this.state.teams[side].storm;
+      if (!storm?.dropKind) continue;
+      if (storm.dropKind === 'skull') {
+        return { kind: 'skull', chance: this.skullChance * STORM_DROP_WEIGHT };
+      }
+      if (storm.dropKind === 'doomSkull') {
+        return { kind: 'doomSkull', chance: STORM_DOOMSKULL_DROP };
+      }
+      return { kind: 'uberDoomSkull', chance: STORM_UBER_DOOMSKULL_DROP };
     }
     return undefined;
   }

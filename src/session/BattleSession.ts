@@ -32,6 +32,7 @@ export class BattleSession {
     this.request = init.request;
     this.idMap = init.idMap;
     this.engine = init.engine;
+    this.record(this.engine.takeInitialEvents());
   }
 
   getState(): GameState {

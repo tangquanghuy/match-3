@@ -1,4 +1,4 @@
-import type { CellPos, GemType, BaseColor, PlayerSide, SpecialGemKind } from './types';
+import type { CellPos, GemType, BaseColor, PlayerSide, SpecialGemKind, SkullStormDropKind } from './types';
 import type { MatchShape } from './MatchResolver';
 import type { GemMove, GemSpawn } from './GravitySystem';
 
@@ -79,6 +79,13 @@ export interface SkillDamageEvent {
   chainIndex?: number;
   chainCount?: number;
   chainFromId?: number;
+  /**
+   * 骷髅爆炸演出元数据（炸毁骷髅结算，TurnEngine.settleExplodedSkulls）：
+   * 爆炸源格位（被炸骷髅的质心，表现层从该点向目标发射骷髅弹体）+ 被炸构成
+   * （普通/末日/至尊数量，决定弹体数量与贴图）。普通技能伤害缺省。
+   */
+  originCell?: CellPos;
+  skullBurst?: { normal: number; doom: number; uber: number };
   damage: number;
   resultingHp: number;
   resultingArmor: number;
@@ -222,6 +229,8 @@ export interface StormChangeEvent {
   color: BaseColor | null;
   reason: 'set' | 'replaced' | 'expired';
   prevColor?: BaseColor;
+  /** 骷髅系风暴（骸骨/末日/超级末日）的掉落目标；颜色风暴缺省 */
+  dropKind?: SkullStormDropKind;
 }
 
 export interface ExtraTurnEvent {

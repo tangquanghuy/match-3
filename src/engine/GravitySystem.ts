@@ -12,6 +12,22 @@ import type { SpecialGemKind } from './types';
  */
 export const STORM_DROP_WEIGHT = 1.9;
 
+/**
+ * 骷髅系风暴的掉落参数（TurnEngine 由 Team.storm.dropKind 换算，GravitySystem 只认数值）：
+ * - kind 'skull'：chance = 加成后的骷髅生成概率（骸骨风暴 = skullChance × STORM_DROP_WEIGHT）；
+ * - kind 'doomSkull' | 'uberDoomSkull'：chance = 骷髅判定前的一次额外掉落判定概率
+ *   （官方未公开末日系掉率，设计值取"可感知但克制"，可调）。
+ */
+export interface SkullDropBoost {
+  kind: 'skull' | 'doomSkull' | 'uberDoomSkull';
+  chance: number;
+}
+
+/** 末日风暴：末日骷髅从顶部掉落的概率（官方未公开数值，设计值） */
+export const STORM_DOOMSKULL_DROP = 0.04;
+/** 超级末日风暴：至尊末日骷髅从顶部掉落的概率（官方未公开数值，设计值） */
+export const STORM_UBER_DOOMSKULL_DROP = 0.02;
+
 /** 重力造成的单个宝石移动（需求 8.3） */
 export interface GemMove {
   gemId: number;
@@ -64,8 +80,15 @@ export class GravitySystem {
    * @param skullChance 补充时生成骷髅宝石的概率（默认 0，本阶段三消主线不掺骷髅；战斗阶段调高）
    * @param stormWeights 风暴掉落权重（颜色 → 权重，>1 的色更容易掉落）。
    *                     缺省/空表时颜色分布与旧版完全一致（均匀 pick，随机数消耗序列不变）。
+   * @param skullDrop 骷髅系风暴的掉落修正（骸骨/末日/超级末日，见 SkullDropBoost）。
+   *                  缺省时不进骷髅系分支——随机数消耗序列与旧版一致（回归护栏）。
    */
-  apply(board: BoardModel, skullChance = 0, stormWeights?: ReadonlyMap<BaseColor, number>): GravityResult {
+  apply(
+    board: BoardModel,
+    skullChance = 0,
+    stormWeights?: ReadonlyMap<BaseColor, number>,
+    skullDrop?: SkullDropBoost,
+  ): GravityResult {
     const moves: GemMove[] = [];
     const spawns: GemSpawn[] = [];
 
@@ -95,7 +118,7 @@ export class GravitySystem {
 
       // 4. 顶部剩余空格补充新宝石（writeRow 及以上）
       for (let row = writeRow; row >= 0; row--) {
-        const gemType = this.randomGemType(skullChance, stormWeights);
+        const gemType = this.randomGemType(skullChance, stormWeights, skullDrop);
         const gem: Gem = { id: this.nextGemId(), type: gemType };
         const to: CellPos = { row, col };
         board.set(to, gem);
@@ -106,11 +129,22 @@ export class GravitySystem {
     return { moves, spawns };
   }
 
-  private randomGemType(skullChance: number, stormWeights?: ReadonlyMap<BaseColor, number>): GemType {
+  private randomGemType(
+    skullChance: number,
+    stormWeights?: ReadonlyMap<BaseColor, number>,
+    skullDrop?: SkullDropBoost,
+  ): GemType {
     if (this.specialSpawnChance > 0 && this.rng.next() < this.specialSpawnChance) {
       return specialGem(this.rng.pick(GravitySystem.SPAWNABLE_SPECIALS));
     }
-    if (skullChance > 0 && this.rng.next() < skullChance) {
+    // 末日/超级末日风暴：骷髅判定前先掷一次末日骷髅掉落。仅风暴激活时才消耗这次
+    // 随机数，无骷髅风暴的既有对局随机数序列逐字节不变（回归护栏）。
+    if (skullDrop && skullDrop.kind !== 'skull' && this.rng.next() < skullDrop.chance) {
+      return specialGem(skullDrop.kind);
+    }
+    // 骸骨风暴：骷髅判定阈值整体抬升（skullChance × STORM_DROP_WEIGHT），消耗随机数次数不变
+    const effectiveSkullChance = skullDrop?.kind === 'skull' ? skullDrop.chance : skullChance;
+    if (effectiveSkullChance > 0 && this.rng.next() < effectiveSkullChance) {
       return { kind: 'skull', variant: 'normal' };
     }
     return colorGem(this.pickColor(stormWeights));

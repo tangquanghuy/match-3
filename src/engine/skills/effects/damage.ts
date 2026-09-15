@@ -126,7 +126,8 @@ export function allocateSplashChainDamage(
   return allocations;
 }
 
-function damageOne(
+/** 单目标法术伤害核心（TurnEngine 炸毁骷髅结算复用：法术铠甲/屏障/护甲/阵亡同口径） */
+export function damageOne(
   target: Character,
   casterId: number,
   /** 减免前的伤害；函数内会按目标的法术减伤特质折算 */

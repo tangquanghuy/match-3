@@ -35,6 +35,23 @@ import type {
 /** 持续伤害类状态 id（结算时扣血）。出血与中毒/燃烧同为 DoT，只在治疗互动上不同。 */
 export const DOT_STATUS_IDS = new Set(['poison', 'burning', 'bleed']);
 
+/** GoW 状态别名：数据里既有英文正式名，也有早期调试/中文映射名。 */
+export const DEATH_MARK_STATUS_IDS = new Set(['death-mark', 'death_mark']);
+export const CURSE_STATUS_IDS = new Set(['curse', 'cursed']);
+export const RAGE_STATUS_IDS = new Set(['rage', 'enraged']);
+export const CHARM_STATUS_IDS = new Set(['charm', 'charmed']);
+export const WOLF_STATUS_IDS = new Set(['wolf', 'wolf-form', 'lycanthropy']);
+export const MANA_BURN_STATUS_IDS = new Set(['mana-burn', 'mana_burn']);
+
+/** GoW 自动解除：中毒是唯一不会自行解除的负面状态。 */
+const AUTO_RECOVER_STATUS_IDS = new Set([
+  'burning', 'bleed', 'silence', 'frozen', 'stun', 'entangle', 'web', 'disease',
+  'marked', 'submerged', 'curse', 'cursed', 'death-mark', 'death_mark',
+  'wolf', 'wolf-form', 'lycanthropy', 'charm', 'charmed', 'mana-burn', 'mana_burn',
+]);
+const RECOVERY_BASE = 10;
+const RECOVERY_CURSED = 5;
+
 /**
  * 不可被技能「指定」为目标的状态（GoW Submerged 下潮）。
  * 与 `stealthy`（隐匿）特质同一机制，见 `PassiveModifiers.untargetable`。
@@ -111,6 +128,18 @@ export function isWebbed(char: Character): boolean {
   return hasStatus(char, WEB_STATUS_ID);
 }
 
+export function isCursed(char: Character): boolean {
+  return char.statuses.some((s) => s.turns > 0 && CURSE_STATUS_IDS.has(s.id));
+}
+
+export function isEnraged(char: Character): boolean {
+  return char.statuses.some((s) => s.turns > 0 && RAGE_STATUS_IDS.has(s.id));
+}
+
+export function isCharmed(char: Character): boolean {
+  return char.statuses.some((s) => s.turns > 0 && CHARM_STATUS_IDS.has(s.id));
+}
+
 /** 是否带有屏障（可吸收下一次伤害） */
 export function hasBarrier(char: Character): boolean {
   return hasStatus(char, BARRIER_STATUS_ID);
@@ -179,9 +208,21 @@ export function applyStatus(
 ): GameEvent[] {
   if (char.defeated) return [];
   // 免疫特质（防火/隔热/警醒/健壮/灵巧/无坚不摧…）：不施加、不发事件
-  if (isImmuneToStatus(char, status.id)) return [];
+  // GoW Curse penetrates ordinary immunities. Invulnerable remains the one
+  // exception; its trait id is retained on Character for this distinction.
+  const invulnerable = char.traitIds?.includes('invulnerable') ?? false;
+  if (isImmuneToStatus(char, status.id) && (!isCursed(char) || invulnerable)) return [];
 
   const existing = char.statuses.find((s) => s.id === status.id);
+  const events: GameEvent[] = [];
+  // Curse removes positive statuses and resets their recovery chance.
+  if (CURSE_STATUS_IDS.has(status.id)) {
+    const positives = char.statuses.filter((s) => ['barrier', 'blessed', 'enchanted', 'enraged', 'rage', 'reflect', 'submerged'].includes(s.id));
+    if (positives.length > 0) {
+      char.statuses = char.statuses.filter((s) => !positives.includes(s));
+      for (const positive of positives) events.push({ type: 'status-expire', targetId: char.id, statusId: positive.id });
+    }
+  }
   if (existing) {
     existing.turns = Math.max(existing.turns, status.turns);
     if (status.magnitude !== undefined) {
@@ -201,7 +242,7 @@ export function applyStatus(
     statusId: status.id,
     turns: status.turns,
   };
-  return [ev];
+  return [...events, ev];
 }
 
 /**
@@ -216,20 +257,24 @@ export function tickStatuses(char: Character, rng?: SeededRNG): GameEvent[] {
 
   const events: GameEvent[] = [];
 
-  // 0. 织网挣脱（官方：累计 10%/回合；至多存在一个 web 实例，applyStatus 按 id 合并）
+  // 0. 自动解除：首次 10%，之后每回合累计 +10%；诅咒下固定按 5% 基准累计。
   if (rng) {
-    const web = char.statuses.find((s) => s.id === WEB_STATUS_ID && s.turns > 0);
-    if (web) {
-      const chance = web.magnitude ?? WEB_RECOVERY_BASE;
+    for (const status of [...char.statuses]) {
+      if (status.turns <= 0 || !AUTO_RECOVER_STATUS_IDS.has(status.id)) continue;
+      const isWeb = status.id === WEB_STATUS_ID;
+      const cursed = isCursed(char);
+      const base = cursed || CURSE_STATUS_IDS.has(status.id) ? RECOVERY_CURSED : RECOVERY_BASE;
+      const chance = isWeb ? (status.magnitude ?? base) : (status.recoveryChance ?? base);
       if (rng.next() * 100 < chance) {
-        char.statuses = char.statuses.filter((s) => s !== web);
+        char.statuses = char.statuses.filter((s) => s !== status);
         events.push({
           type: 'status-expire',
           targetId: char.id,
-          statusId: WEB_STATUS_ID,
+          statusId: status.id,
         });
       } else {
-        web.magnitude = Math.min(100, chance + WEB_RECOVERY_STEP);
+        if (isWeb) status.magnitude = Math.min(100, chance + (cursed ? 5 : 10));
+        else status.recoveryChance = Math.min(100, chance + (cursed ? 5 : 10));
       }
     }
   }
@@ -256,6 +301,13 @@ export function tickStatuses(char: Character, rng?: SeededRNG): GameEvent[] {
         events.push(def);
         break; // 已阵亡，停止后续 DoT
       }
+    }
+    if (DEATH_MARK_STATUS_IDS.has(s.id) && rng && !char.defeated && rng.next() < 0.1) {
+      char.hp = 0;
+      char.defeated = true;
+      events.push({ type: 'status-tick', targetId: char.id, statusId: s.id });
+      events.push({ type: 'defeat', characterId: char.id });
+      break;
     }
   }
 

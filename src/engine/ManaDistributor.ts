@@ -1,7 +1,7 @@
 import type { Team, BaseColor } from './types';
 import type { ManaGainEvent } from './events';
 import { PlayerSide } from './types';
-import { canGainMana } from './skills/effects/status';
+import { canGainMana, hasStatus } from './skills/effects/status';
 import { manaLinkBonus } from './traits';
 
 /**
@@ -40,7 +40,12 @@ export class ManaDistributor {
       if (need <= 0) continue; // 已满，流向下一个（需求 12.4）
 
       const give = Math.min(remaining, need);
-      ch.mana += give; // 不超过上限 manaCost（需求 10.4）
+      // Disease halves mana gained. The matched gems are still consumed; only
+      // the recipient's actual gain is reduced (floor, matching GoW's integer stats).
+      const actualGive = hasStatus(ch, 'disease')
+        ? Math.floor(give / 2)
+        : give;
+      ch.mana += actualGive; // 不超过上限 manaCost（需求 10.4）
       remaining -= give;
 
       // 法力灵链特质：匹配该色时额外充能。额外量不从 remaining 里扣——
@@ -51,7 +56,7 @@ export class ManaDistributor {
       events.push({
         type: 'mana-gain',
         color,
-        amount: give + bonus,
+        amount: actualGive + bonus,
         characterId: ch.id,
         player,
       });

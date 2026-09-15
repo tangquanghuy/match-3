@@ -53,6 +53,12 @@ export interface TraitDefinition {
   statusImmunities?: readonly string[];
   /** 战斗开始时获得的法力占需求的比例（1 = 满） */
   battleStartManaRatio?: number;
+  /** 战斗开始时召唤的风暴。风暴不是兵种，仍走 TurnEngine 的全局顶替裁定。 */
+  battleStartStorm?: StormSummon & {
+    troopId: number;
+    referenceName: string;
+    displayName: string;
+  };
   /** 每回合开始恢复 */
   regen?: { stat: PassiveStat; amount: number };
   /** 自身受到伤害后获得 */
@@ -427,6 +433,39 @@ export interface DeathSummonContext {
   setStorm?: (spec: DeathSummonSpec, side: PlayerSide) => GameEvent[];
   /** 种子化随机源（概率判定）；缺省时概率 <1 的召唤不生效（纯逻辑单测可省略） */
   rng?: { next(): number };
+}
+
+/** 战斗开始时由特质召唤风暴的已解析请求。 */
+export interface BattleStartStormSpec {
+  spec: DeathSummonSpec;
+  side: PlayerSide;
+}
+
+/** 收集开局风暴，保持队伍和特质声明顺序以保证多风暴时的确定性。 */
+export function collectBattleStartStorms(
+  characters: readonly Character[],
+  side: PlayerSide,
+  lookup: TraitLookup = getTrait,
+): BattleStartStormSpec[] {
+  const specs: BattleStartStormSpec[] = [];
+  for (const char of characters) {
+    if (char.defeated) continue;
+    for (const code of char.traitIds ?? []) {
+      const storm = lookup(code)?.battleStartStorm;
+      if (!storm) continue;
+      specs.push({
+        side,
+        spec: {
+          chance: 1,
+          troopId: storm.troopId,
+          referenceName: storm.referenceName,
+          displayName: storm.displayName,
+          storm,
+        },
+      });
+    }
+  }
+  return specs;
 }
 
 /**

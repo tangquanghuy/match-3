@@ -316,10 +316,11 @@ const TROOP_BY_NAME = new Map(
  *
  * 官方语义：风暴不是兵种，是挂在战斗上的全局掉落修正器。六色风暴提升对应色宝石掉率；
  * **骸骨风暴提升骷髅掉率、末日/超级末日风暴提升（至尊）末日骷髅掉率**——而引擎的风暴契约
- * （Team.storm.color: BaseColor，阶段 1.2 已定）只支持按 BaseColor 加权颜色掉落，因此
- * 骷髅族风暴按最近色系近似（查证结论 + 任务书兜底口径）：
- *   - 骸骨风暴 Bonestorm → Brown（骷髅头的棕色系）
- *   - 末日风暴 Doomstorm / 超级末日风暴 Uber Doomstorm → Purple（doom 黑紫色系；BaseColor 无 Black）
+ * （Team.storm.color: BaseColor，阶段 1.2 已定）只支持按 BaseColor 加权颜色掉落。
+ * 骷髅族风暴已回填官方语义：storm.dropKind 指向骷髅系掉落（skull/doomSkull/uberDoomSkull），
+ * color 降级为表现层主色（近似色系，供指示器/法力配色使用）：
+ *   - 骸骨风暴 Bonestorm → dropKind 'skull'，主色 Brown（骷髅头的棕色系）
+ *   - 末日风暴 Doomstorm / 超级末日风暴 Uber Doomstorm → dropKind 'doomSkull'/'uberDoomSkull'，主色 Purple
  * troopId 用虚拟号段 9001~9009（真实兵种 id 不会撞上，表现层可据此区分风暴与兵种）。
  */
 const STORM_TURNS = 8; // 官方 3.0 补丁说明："a board affect that lasts 8 Turns (4 for each side)"
@@ -330,9 +331,9 @@ const STORM_MAP = {
   光风暴: { color: 'Yellow', troopId: 9004, referenceName: 'Lightstorm' },
   叶风暴: { color: 'Green', troopId: 9005, referenceName: 'Leafstorm' },
   尘风暴: { color: 'Brown', troopId: 9006, referenceName: 'Duststorm' },
-  骸骨风暴: { color: 'Brown', troopId: 9007, referenceName: 'Bonestorm' },
-  末日风暴: { color: 'Purple', troopId: 9008, referenceName: 'Doomstorm' },
-  超级末日风暴: { color: 'Purple', troopId: 9009, referenceName: 'UberDoomstorm' },
+  骸骨风暴: { color: 'Brown', troopId: 9007, referenceName: 'Bonestorm', dropKind: 'skull' },
+  末日风暴: { color: 'Purple', troopId: 9008, referenceName: 'Doomstorm', dropKind: 'doomSkull' },
+  超级末日风暴: { color: 'Purple', troopId: 9009, referenceName: 'UberDoomstorm', dropKind: 'uberDoomSkull' },
 };
 
 /**
@@ -349,7 +350,15 @@ function resolveSummonedTroop(desc) {
   if (troop) return { troopId: troop.troopId, referenceName: troop.referenceName };
   const storm = STORM_MAP[name];
   if (storm) {
-    return { troopId: storm.troopId, referenceName: storm.referenceName, storm: { color: storm.color, turns: STORM_TURNS } };
+    return {
+      troopId: storm.troopId,
+      referenceName: storm.referenceName,
+      storm: {
+        color: storm.color,
+        turns: STORM_TURNS,
+        ...(storm.dropKind ? { dropKind: storm.dropKind } : {}),
+      },
+    };
   }
   return null;
 }
@@ -382,10 +391,26 @@ for (const r of raw.troops) {
 
 const out = [];
 const skipped = [];
+// 开局风暴的原始描述只有少量固定特质。按 code 显式映射，避免依赖多语言描述文本的正则匹配。
+const BATTLE_START_STORMS = {
+  songoflight: { color: 'Yellow', turns: STORM_TURNS, troopId: 9004, referenceName: 'Lightstorm', displayName: 'Lightstorm' },
+  songofdarkness: { color: 'Purple', turns: STORM_TURNS, troopId: 9001, referenceName: 'Darkstorm', displayName: 'Darkstorm' },
+  songofbones: { color: 'Brown', turns: STORM_TURNS, troopId: 9007, referenceName: 'Bonestorm', displayName: 'Bonestorm', dropKind: 'skull' },
+  songoffire: { color: 'Red', turns: STORM_TURNS, troopId: 9002, referenceName: 'Firestorm', displayName: 'Firestorm' },
+  songofice: { color: 'Blue', turns: STORM_TURNS, troopId: 9003, referenceName: 'Icestorm', displayName: 'Icestorm' },
+};
 for (const [code, v] of [...info].sort((a, b) => b[1].troops - a[1].troops)) {
   const parsed = parse(v.description);
-  if (parsed) {
-    out.push({ code, name: v.name, description: v.description, troops: v.troops, ...parsed.effects });
+  const startupStorm = BATTLE_START_STORMS[code];
+  if (parsed || startupStorm) {
+    out.push({
+      code,
+      name: v.name,
+      description: v.description,
+      troops: v.troops,
+      ...(parsed?.effects ?? {}),
+      ...(startupStorm ? { battleStartStorm: startupStorm } : {}),
+    });
   } else {
     skipped.push({ code, ...v });
   }

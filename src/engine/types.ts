@@ -235,6 +235,8 @@ export interface StatusInstance {
   turns: number;
   /** DoT 类每回合伤害量等（可选） */
   magnitude?: number;
+  /** 自动解除的累计概率（百分比）；与 DoT/web 的 magnitude 分开存储。 */
+  recoveryChance?: number;
 }
 
 /** @deprecated 旧空壳别名，保留以兼容早期引用；等价于 StatusInstance。 */
@@ -352,6 +354,17 @@ export interface PassiveModifiers {
 }
 
 /**
+ * 骷髅系风暴的掉落目标（官方 Bonestorm / Doomstorm / Uber Doomstorm 语义，查证结论
+ * 见 DECISIONS.md「风暴（Storm）全局掉落修正」第 2 节）：
+ * - 'skull'         骸骨风暴：骷髅头掉率提升（skullChance × STORM_DROP_WEIGHT）；
+ * - 'doomSkull'     末日风暴：末日骷髅开始从顶部掉落；
+ * - 'uberDoomSkull' 超级末日风暴：至尊末日骷髅开始从顶部掉落。
+ * 颜色风暴契约（Team.storm.color: BaseColor）只支持颜色加权，dropKind 是预留的扩展位：
+ * 设置后掉落加权作用于骷髅系宝石，color 仅作表现层主色（近似色系）。
+ */
+export type SkullStormDropKind = 'skull' | 'doomSkull' | 'uberDoomSkull';
+
+/**
  * 死亡召唤的风暴变体载荷（阶段 1.3）：spec 带 storm 时该召唤**不产出兵种**
  * （referenceName/displayName 仅作展示，troopId 为虚拟风暴号段 9001~9009），
  * 改为设置持有者一方的全局风暴（Team.storm），持续 turns 回合。
@@ -360,6 +373,8 @@ export interface PassiveModifiers {
 export interface StormSummon {
   color: BaseColor;
   turns: number;
+  /** 骷髅系风暴（骸骨/末日/超级末日）：掉落加权目标；缺省 = 颜色风暴（加权 color） */
+  dropKind?: SkullStormDropKind;
 }
 
 /** A summoned character waiting off-field for the next open active slot. */
@@ -379,6 +394,8 @@ export interface Team {
    * 不可被攻击，仅按 color 修正 refill 掉落权重。字段挂在持有方 Team 上；
    * 全场同时只允许一个风暴（后召顶替先召），将来放开为每方一个时天然兼容。
    * turns 为剩余回合数，回合尾递减，归零清除。
+   * dropKind 设置时为骷髅系风暴（骸骨/末日/超级末日）：加权作用于骷髅系掉落，
+   * color 仅作表现层主色（见 SkullStormDropKind）。
    */
-  storm?: { color: BaseColor; turns: number; troopId: number };
+  storm?: { color: BaseColor; turns: number; troopId: number; dropKind?: SkullStormDropKind };
 }

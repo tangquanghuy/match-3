@@ -1,7 +1,10 @@
 import type { Team, Character, StatGains } from './types';
 import type { GameEvent } from './events';
 import type { SeededRNG } from './rng';
-import { canAttack, isFrozen, isEntangled, applyStatus, consumeBarrier } from './skills/effects/status';
+import {
+  canAttack, isFrozen, isEntangled, isEnraged, isCharmed,
+  applyStatus, consumeBarrier, RAGE_STATUS_IDS,
+} from './skills/effects/status';
 import { passivesOf, skullDamageMultiplier } from './traits';
 
 /** 战斗结算产出的事件 */
@@ -41,6 +44,13 @@ export class CombatResolver {
     return null;
   }
 
+  private static frontAliveExcept(team: Team, excludedId: number): Character | null {
+    for (const ch of team.characters) {
+      if (ch.id !== excludedId && !ch.defeated) return ch;
+    }
+    return null;
+  }
+
   /**
    * 结算一次骷髅匹配造成的伤害。
    * @param attackerTeam 当前玩家队伍（攻击方）
@@ -63,7 +73,11 @@ export class CombatResolver {
     const events: GameEvent[] = [];
 
     const attacker = CombatResolver.frontAlive(attackerTeam);
-    const target = CombatResolver.frontAlive(defenderTeam);
+    // Charm makes the front troop attack its own next living ally. If it is
+    // alone, fall back to the opposing front troop so the match can resolve.
+    const target = attacker && isCharmed(attacker)
+      ? (CombatResolver.frontAliveExcept(attackerTeam, attacker.id) ?? CombatResolver.frontAlive(defenderTeam))
+      : CombatResolver.frontAlive(defenderTeam);
     if (!attacker || !target) return { events };
 
     // 队首攻击者被控（冰冻/缠绕/击晕）→ 攻击落空、不造成伤害，只发"挣扎"事件（需求：只有队首能攻击）
@@ -86,8 +100,10 @@ export class CombatResolver {
     // 原先用「攻击力 × 骷髅数」，在接入官方兵种数值后会让三连就打死满级角色。
     // 屠戮类倍率（龙族杀手/纵火狂/痛揍…）先放大，附加固定伤害（末日骷髅 +5）随后叠加，
     // 再由目标的减伤特质折算
-    const raw = attacker.attack * skullDamageMultiplier(attacker, target) + bonusDamage;
-    const damage = Math.max(0, Math.round(raw * passivesOf(target).skullDamageTaken));
+    const enraged = isEnraged(attacker);
+    const raw = attacker.attack * skullDamageMultiplier(attacker, target) * (enraged ? 1.5 : 1) + bonusDamage;
+    // Enraged ignores enemy traits, including skull damage reduction.
+    const damage = Math.max(0, Math.round(raw * (enraged ? 1 : passivesOf(target).skullDamageTaken)));
 
     // 屏障：整发吸收后消失。等同于攻击落空，故与闪避走同一条出口——
     // 受击触发（狂暴）、命中触发（毒液）、反弹（荆棘）一律不启动。
@@ -119,7 +135,7 @@ export class CombatResolver {
 
     // 受击触发（狂暴/兽人报甲…）：落空不触发，因此放在实际扣血之后
     const targetPassive = passivesOf(target);
-    if (!target.defeated) applyStatGains(target, targetPassive.gainOnDamaged, events);
+    if (!enraged && !target.defeated) applyStatGains(target, targetPassive.gainOnDamaged, events);
     // 命中触发：自身增益（国王之意…）+ 给目标附状态（毒液…）
     const attackerPassive = passivesOf(attacker);
     applyStatGains(attacker, attackerPassive.gainOnSkullHit, events);
@@ -136,7 +152,7 @@ export class CombatResolver {
 
     // 承受骷髅伤害附状态（毒孢子族）：被打时反手给攻击者上状态。
     // 与受击增益同口径：闪避/屏障/挣扎路径在上面已提前返回，走到这里说明伤害实际成立。
-    if (targetPassive.inflictOnSkullDamaged && !attacker.defeated) {
+    if (!enraged && targetPassive.inflictOnSkullDamaged && !attacker.defeated) {
       const s = targetPassive.inflictOnSkullDamaged;
       events.push(...applyStatus(attacker, {
         id: s.id,
@@ -147,7 +163,7 @@ export class CombatResolver {
 
     // 反弹特质（炼狱护甲/荆棘/米提护甲）：按减伤后的实际伤害折算反打攻击者。
     // 反弹伤害不再触发攻击者身上的反弹，避免两个反弹角色互相弹到死循环。
-    const reflectRatio = targetPassive.reflectSkullRatio;
+    const reflectRatio = enraged ? 0 : targetPassive.reflectSkullRatio;
     if (reflectRatio > 0) {
       const reflected = Math.max(0, Math.round(damage * reflectRatio));
       if (reflected > 0 && !attacker.defeated) {
@@ -172,6 +188,16 @@ export class CombatResolver {
     if (target.hp <= 0 && !target.defeated) {
       target.defeated = true;
       events.push({ type: 'defeat', characterId: target.id });
+    }
+
+    if (enraged) {
+      // Capture the active rage aliases before removing them so the presentation
+      // layer receives one expiry event for every status instance that ended.
+      const consumed = attacker.statuses.filter((s) => RAGE_STATUS_IDS.has(s.id));
+      attacker.statuses = attacker.statuses.filter((s) => !RAGE_STATUS_IDS.has(s.id));
+      for (const status of consumed) {
+        events.push({ type: 'status-expire', targetId: attacker.id, statusId: status.id });
+      }
     }
 
     return { events };
