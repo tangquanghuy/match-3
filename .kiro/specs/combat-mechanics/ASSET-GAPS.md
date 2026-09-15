@@ -39,7 +39,7 @@ FX 序列帧现状（相当齐，24+ 条 strip）：六色单体/群体命中、
 
 ## 三、音效缺口
 
-> **2026-09-16 用户裁定 + 窗口 I 状态施加音批落地**：黄色技能音已有（`skill_hit_yellow_single.mp3` 已接线，下表「缺黄色」为过期口径）；特殊宝石触发音、风暴环境音 **明确不做**；状态施加音已补齐——`AudioManager.playStatusApply` 统一接线，poison（存量 `中毒.wav` → `status/poison_dot.wav`）/burning/frozen 走采样，其余 15 状态（流血/沉默/击晕/缠绕/织网/屏障/下潮/猎人标记/疾病/诅咒/死亡标记/狂怒/魅惑/法力燃烧/狼化）走 `src/render/StatusSynth.ts` 程序合成（零素材），映射被 `tests/unit/audioStatusSynth.test.ts` 快照锁定。仍开放：胜负结算 stinger、战斗 BGM、UI 点击音（用户未裁定，待需要时再议）。
+> **2026-09-16 用户裁定 + 窗口 I 状态施加音批落地**：黄色技能音已有（`skill_hit_yellow_single.mp3` 已接线，下表「缺黄色」为过期口径）；特殊宝石触发音、风暴环境音 **明确不做**；状态施加音已补齐——`AudioManager.playStatusApply` 统一接线，poison **维持既有采样不变**（`poison_spell_short.wav`；用户裁定中毒原音效保留，存量 `assets/音效/中毒.wav` 撤回原位不接线），burning/frozen 复用既有采样，其余 15 状态（流血/沉默/击晕/缠绕/织网/屏障/下潮/猎人标记/疾病/诅咒/死亡标记/狂怒/魅惑/法力燃烧/狼化）走 `src/render/StatusSynth.ts` 程序合成（零素材），映射被 `tests/unit/audioStatusSynth.test.ts` 快照锁定。仍开放：胜负结算 stinger、战斗 BGM、UI 点击音（用户未裁定，待需要时再议）。
 
 现有 **35 个 wav**：骷髅命中 + 8 变体、消除 + 5 连击链、爆炸 + 5 变体、技能组 14（armor_iron / burning_tree / frozen / healing / poison / skill_cast_earth / skill_hit_green·purple·red·water 等）。AudioManager 通道：armor/burning/damage/eliminate/frozen/healing/hit/impact/poison/skill/summon/swap/whoosh。
 

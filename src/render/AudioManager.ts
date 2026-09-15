@@ -18,7 +18,6 @@ import redSingleHitUrl from '../assets/audio/skills/skill_hit_red_single.wav?url
 import purpleSingleHitUrl from '../assets/audio/skills/skill_hit_purple_single.wav?url';
 import yellowSingleHitUrl from '../assets/audio/skills/skill_hit_yellow_single.mp3?url';
 import greenSingleHitUrl from '../assets/audio/skills/skill_hit_green_single.wav?url';
-import poisonDotUrl from '../assets/audio/status/poison_dot.wav?url';
 import { canonicalStatusSoundId, STATUS_SYNTHS } from './StatusSynth';
 
 /**
@@ -84,8 +83,6 @@ export class AudioManager {
   private frozenSkillBytePromise: Promise<ArrayBuffer | null> | null = null;
   private burningTreeBytePromise: Promise<ArrayBuffer | null> | null = null;
   private splashChainHitBytePromise: Promise<ArrayBuffer | null> | null = null;
-  private poisonDotBytePromise: Promise<ArrayBuffer | null> | null = null;
-  private poisonDotBuffer: AudioBuffer | null = null;
   private lastStatusApplyAt: Record<string, number> = {};
   private lastSkullHitAt = -Infinity;
   private lastEarthSkillCastAt = -Infinity;
@@ -129,7 +126,6 @@ export class AudioManager {
       void this.loadFrozenSkill();
       void this.loadBurningTree();
       void this.loadSplashChainHit();
-      void this.loadPoisonDot();
       void this.loadColoredSingleHits();
     } catch {
       // 音频不可用时降级为静音，不阻塞游戏（需求 26.5）
@@ -152,7 +148,6 @@ export class AudioManager {
     this.frozenSkillBytePromise ??= this.fetchAudioBytes(frozenSkillUrl);
     this.burningTreeBytePromise ??= this.fetchAudioBytes(burningTreeUrl);
     this.splashChainHitBytePromise ??= this.fetchAudioBytes(splashChainHitUrl);
-    this.poisonDotBytePromise ??= this.fetchAudioBytes(poisonDotUrl);
   }
 
   async resume(): Promise<void> {
@@ -251,8 +246,9 @@ export class AudioManager {
   }
 
   /**
-   * 状态施加音（status-apply 事件专用接线点）：poison/burning/frozen 走既有采样，
-   * 其余落地状态走 StatusSynth 程序合成；未知/未落地状态静默。
+   * 状态施加音（status-apply 事件专用接线点）：poison/burning/frozen 维持既有采样
+   * （poison 即原 poison_spell 链，行为与接线前一致），其余落地状态走 StatusSynth
+   * 程序合成；未知/未落地状态静默。
    * 同键 0.18s 节流——全队施加同一状态只响一次。
    */
   playStatusApply(statusId: string): void {
@@ -264,7 +260,7 @@ export class AudioManager {
     this.lastStatusApplyAt[key] = now;
     switch (key) {
       case 'poison':
-        this.poisonDot();
+        this.poisonSpell();
         break;
       case 'burning':
         this.burningTree();
@@ -276,26 +272,6 @@ export class AudioManager {
         STATUS_SYNTHS[key]?.(this.ctx, this.sfxBus, now);
         break;
     }
-  }
-
-  private async loadPoisonDot(): Promise<void> {
-    this.poisonDotBuffer = await this.decodePrefetched(this.poisonDotBytePromise);
-  }
-
-  /** 中毒状态施加：特殊状态批带入的 poison_dot 采样；缺缓冲时退回既有毒系采样。 */
-  private poisonDot(): void {
-    if (!this.ctx || !this.sfxBus) return;
-    if (!this.poisonDotBuffer) {
-      this.poisonSpell();
-      return;
-    }
-    const source = this.ctx.createBufferSource();
-    const gain = this.ctx.createGain();
-    source.buffer = this.poisonDotBuffer;
-    gain.gain.value = 0.7;
-    source.connect(gain);
-    gain.connect(this.sfxBus);
-    source.start(this.ctx.currentTime);
   }
 
   private async fetchAudioBytes(url: string): Promise<ArrayBuffer | null> {
