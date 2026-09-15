@@ -619,6 +619,22 @@ describe('特殊宝石创造（createSpecialGems）', () => {
     expect(bombs).toBe(2);
   });
 
+  it('创造织网/闪电/许愿各走同一 gem-create 管线（TASK-CONTENT 阶段3 引擎级单测）', () => {
+    for (const kind of ['web', 'lightningRow', 'wish'] as const) {
+      const { ctx, state } = setup({});
+      state.board.set({ row: 0, col: 0 }, null);
+      const events = executePrototype({ segments: [createSpecialGems({ kind }, 1)] }, ctx);
+      const create = events.find((e) => e.type === 'gem-create');
+      expect(create).toBeDefined();
+      const spawns = (create as { spawns: { gemType: { kind: string; spec?: { kind: string } } }[] }).spawns;
+      expect(spawns).toHaveLength(1);
+      expect(spawns[0].gemType.kind).toBe('special');
+      expect(spawns[0].gemType.spec?.kind).toBe(kind);
+      const placed = state.board.get({ row: 0, col: 0 });
+      expect(placed && placed.type.kind === 'special' && placed.type.spec.kind).toBe(kind);
+    }
+  });
+
   it('末日骷髅计入 boardSkulls 二次缩放来源（isSameMatchType 同族）', () => {
     const { ctx, state } = setup({ right: [{ hp: 60, armor: 0 }] });
     executePrototype({
