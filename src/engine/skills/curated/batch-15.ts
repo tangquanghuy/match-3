@@ -59,8 +59,7 @@ const SKIPPED: { id: number; reason: string }[] = [
   { id: 8695, reason: '隐匿/位置操作（「将其拉到前方」，batch-01 7439 同款）' },
   { id: 8723, reason: '二次缩放来源不支持（「因荆棘森林盟友数而加强」按王国计数无对应 kind，batch-08 8365 同款；「造成散射伤害」未指明目标亦句子式不明，batch-09 8639 同款）' },
   { id: 8737, reason: '语义拿不准（「盟友对应法力颜色」为所选盟友的动态颜色，CASTER 仅指施法者军队法力色，动态颜色不做，batch-12 7182 同款）' },
-  { id: 8750, reason: '缺失状态（狂怒，batch-01 7740 同款）' },
-  { id: 8784, reason: '二次缩放来源不支持（「每有一名绿色盟友或敌人」——敌方侧种族/颜色计数无对应 kind，仅 alliesOfColor 己方，batch-16 8838 同款）' },
+    { id: 8784, reason: '二次缩放来源不支持（「每有一名绿色盟友或敌人」——敌方侧种族/颜色计数无对应 kind，仅 alliesOfColor 己方，batch-16 8838 同款）' },
 ];
 
 const SPELLS: CuratedBatch['spells'] = [

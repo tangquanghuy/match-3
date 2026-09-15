@@ -34,11 +34,12 @@ const RACES = knownTroopTypes();
 
 /**
  * 组装侧状态白名单（spell-rules.md §6 词表的规范拼写）。
- * 引擎另已实现 disease/curse/death-mark/rage/charm/marked 的语义（2026-09-16 特殊状态批），
- * 待回收批实际组装到对应状态时随批扩容本表。
+ * 引擎已实现 disease/curse/death-mark/rage/charm/marked 的语义（2026-09-16 特殊状态批）；
+ * 白名单随回收批扩容——batch-33 起组装侧使用 rage/disease（allyStatusCount/enemyStatusCount 来源同验）。
  */
 const STATUS_WHITELIST = new Set([
   'poison', 'burning', 'bleed', 'silence', 'frozen', 'stun', 'entangle', 'web', 'barrier', 'submerged',
+  'rage', 'disease',
 ]);
 
 const { byId: curatedById, skipped } = collectCurated();
