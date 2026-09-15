@@ -43,11 +43,31 @@ export const CHARM_STATUS_IDS = new Set(['charm', 'charmed']);
 export const WOLF_STATUS_IDS = new Set(['wolf', 'wolf-form', 'lycanthropy']);
 export const MANA_BURN_STATUS_IDS = new Set(['mana-burn', 'mana_burn']);
 
+/**
+ * 妖火状态（GoW Faerie Fire，官方语义已核实——官方论坛 + wiki 状态表，
+ * 见 GEMS-SEMANTICS-2 ⭐官方数据核验节）：受术者受到的**法术**伤害 +50%
+ *（钩在 damageOne 口径：骷髅/普攻不吃，DoT 直扣血也不吃）；每回合累计 10% 自行消退。
+ * 施加来源：faerieFireGem 精灵火宝石（被摧毁时）与后续技能桶。
+ */
+export const FAERIE_FIRE_STATUS_ID = 'faerie-fire';
+/** 妖火状态对所受法术伤害的放大倍率（官方 +50%） */
+export const FAERIE_FIRE_SPELL_MULT = 1.5;
+
+/**
+ * 恐怖状态（GoW Terror，官方状态表语义：每回合开始 10% 几率使目标在队伍列表中
+ * 下移一位）。施加来源：terrorGem 恐怖宝石（被匹配时）与后续技能桶。
+ * 位次交换在 tickTeamStatuses 落地（那里持有编队数组引用）；无后位则空过不掷签。
+ */
+export const TERROR_STATUS_ID = 'terror';
+/** 恐怖状态每回合使目标下移一位的概率（官方 10%） */
+export const TERROR_DROP_CHANCE = 0.1;
+
 /** GoW 自动解除：中毒是唯一不会自行解除的负面状态。 */
 const AUTO_RECOVER_STATUS_IDS = new Set([
   'burning', 'bleed', 'silence', 'frozen', 'stun', 'entangle', 'web', 'disease',
   'marked', 'submerged', 'curse', 'cursed', 'death-mark', 'death_mark',
   'wolf', 'wolf-form', 'lycanthropy', 'charm', 'charmed', 'mana-burn', 'mana_burn',
+  'faerie-fire', 'terror',
 ]);
 const RECOVERY_BASE = 10;
 const RECOVERY_CURSED = 5;
@@ -331,9 +351,33 @@ export function tickStatuses(char: Character, rng?: SeededRNG): GameEvent[] {
   return events;
 }
 
+/**
+ * 恐怖状态的队伍位次 tick（官方语义：每回合开始 10% 几率使目标下移一位）：
+ * 按编队数组序逐个判定，命中即与后一位交换（下移=靠后，骷髅伤害/队首目标更晚打到他）。
+ * 无后位、或后位已阵亡则空过**不掷签**（与织网挣脱同款护栏：状态不在场零随机消耗）。
+ * 事件复用既有 status-tick（无 damage 字段 = 表现层按状态徽记闪动处理），不新增事件类型。
+ */
+function tickTerrorRoster(characters: Character[], rng: SeededRNG): GameEvent[] {
+  const events: GameEvent[] = [];
+  for (let i = 0; i < characters.length - 1; i++) {
+    const ch = characters[i];
+    if (ch.defeated || !hasStatus(ch, TERROR_STATUS_ID)) continue;
+    const next = characters[i + 1];
+    if (!next || next.defeated) continue;
+    if (rng.next() < TERROR_DROP_CHANCE) {
+      characters[i] = next;
+      characters[i + 1] = ch;
+      events.push({ type: 'status-tick', targetId: ch.id, statusId: TERROR_STATUS_ID });
+    }
+  }
+  return events;
+}
+
 /** 结算整队每个存活角色的状态，按队伍索引顺序（确定性，需求 9.4） */
 export function tickTeamStatuses(characters: Character[], rng?: SeededRNG): GameEvent[] {
   const events: GameEvent[] = [];
+  // 恐怖位次交换先于逐角色 DoT/到期结算（同一回合窗口内，顺序固定保证确定性）
+  if (rng) events.push(...tickTerrorRoster(characters, rng));
   for (const ch of characters) {
     events.push(...tickStatuses(ch, rng));
   }

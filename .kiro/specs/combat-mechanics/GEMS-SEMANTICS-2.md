@@ -32,6 +32,34 @@ SpellSteps——游戏本体数据，非文本翻译），提取全部宝石操�
 
 **用户已裁定（2026-09）**：本批宝石**不制作独立贴图**——一律用既有普通宝石贴图（六色 `src/assets/gems/{color}.png` / `skull.png`）加**程序化动画/滤镜**表达（色调、边缘辉光、符环叠层、脉冲）。视觉方案按此口径编写；窗口 C 十种的既有贴图不动。
 
+## ✅ 实现状态（2026-09-16 波A · 窗口E 状态宝石批）
+
+**波A = 纯「状态搬运」宝石 13 颗 + 前置状态 2 个（用户裁定：免贴图，程序化视觉；只由技能创造，不进 SPAWNABLE_SPECIALS 白名单）**：
+
+| 组 | 宝石 | kind | 触发 | 施加 |
+|---|---|---|---|---|
+| A1 | 冻结 | `freezeGem` | 匹配 | frozen 3回合 → 随机敌人 |
+| A2 | 燃烧 | `burningGem` | 匹配 | burning 3回合×3 → 敌方全体 |
+| A3 | 诅咒 | `curseGem` | 匹配 | curse 4回合 → 随机敌人 |
+| A4 | 恐怖 | `terrorGem` | 匹配 | terror 4回合 → 随机敌人（状态本体随波A落地，见下） |
+| A5 | 流血 | `bleedGem` | 摧毁（含匹配） | bleed 3回合×1 → 随机敌人 |
+| A6 | 毒 | `poisonGem` | 匹配 | poison 3回合 → 敌方全体（按 A6 原文不带 magnitude） |
+| A7 | 精灵火 | `faerieFireGem` | 摧毁（含匹配） | faerie-fire 3回合 → 随机敌人 |
+| A8 | 激怒 | `enrageGem` | 摧毁（含匹配） | enraged 2回合 → 随机己方 |
+| A9 | 沉没 | `submergeGem` | 摧毁（含匹配） | submerged 2回合 → 随机己方 |
+| A10 | 缠绕 | `entangleGem` | 摧毁（含匹配） | entangle 3回合 → 随机敌人 |
+| A11 | 打昏 | `stunGem` | 摧毁（含匹配） | stun 1回合 → 随机敌人 |
+| A12 | 屏障 | `barrierGem` | 摧毁（含匹配） | barrier 3回合 → 随机己方 |
+| B1 | 死亡标记 | `deathMarkGem` | 摧毁（不可匹配） | death-mark 3回合 → 随机敌人 |
+
+- **前置状态**：`faerie-fire`（妖火，法术伤害 +50% 挂 damageOne 口径，AUTO_RECOVER 累计 10% 自愈）；`terror`（恐怖，**完整语义**：每回合 10% 与后一位交换编队位次 + AUTO_RECOVER，开放问题4按「官方语义可确认则照做」落完整版）。
+- **引擎落点**：types.ts（13 kind + STATUS_GEM_EFFECTS 规格表 + MATCH/DESTROY_STATUS_GEMS + SPECIAL_MATCH_COLOR 基色归属）、MatchResolver.resolveSettle（归属色泛化为 matchJoinKey 查询）、TurnEngine（collectMatchTriggers/expandSpecialDestruction 双路径 + applyStatusGem，织网先例）、status.ts（faerie-fire/terror + 恐怖位次 tick）、damage.ts（妖火放大）。
+- **渲染**：基图=归属色贴图（gemTextures SPECIAL_URL 映射）+ `statusGemOverlays.ts` 程序化叠层（gsap 补间待机动效，prefers-reduced-motion 静态化，无逐帧滤镜）。
+- **未做（等后续波）**：A13 腐朽（回合钩子）、B2~B6（天使/传送门/石像鬼/石块/赃物）、C/D 组全族、闪电双色对齐修正。
+- **验证**：tests/unit/statusGems.test.ts（21 例，含不携带新宝石的黄金序列护栏）、statusFaerieFire.test.ts（11 例）、statusTerror.test.ts（9 例）；batch-38 回收 13 条技能。
+
+---
+
 **考证口径**：每颗宝石标注三级确认度——
 - **官方原文**：官方帮助中心/官网公告/官方论坛 Dev 发言的直引；
 - **官方数据**：游戏数据文本（gowhead 英文 dump，含全部兵种/武器法术原文）中的使用证据，无官方规则句；
@@ -68,7 +96,7 @@ SpellSteps——游戏本体数据，非文本翻译），提取全部宝石操�
 
 共性：宝石本身等同归属色宝石参与三消与法力结算（`SPECIAL_MATCH_COLOR`），触发时机分"被匹配"（`collectMatchTriggers` 即时施加）与"被摧毁"（`expandSpecialDestruction`，被匹配也视为被摧毁，两种路径都触发）。施加的状态走 `applyStatus`，与特质/技能状态同一套状态表。
 
-### A1. 冻结宝石（Freeze Gem）✅ 官方原文 ｜ 解锁 10 技能
+### A1. 冻结宝石（Freeze Gem）✅ 官方原文 ｜ 解锁 10 技能 ｜ ✅ 已实现（波A `freezeGem`）
 
 - **官方语义**："Freeze Gems are Blue Gems… These are matched with Blue Gems for Blue Mana. When matched, Freeze Gems will Freeze a random Enemy."（蓝色；与蓝色同类匹配得蓝法力；**被匹配时**冻结一名随机敌人。）来源：[官方 Heroic Gems](https://gemsofwar.zendesk.com/hc/en-us/articles/360004543635-Heroic-Gems)。
 - 冻结状态官方定义："prevents any Troop with the Mana colors frozen from having extra turns … and from any Spells cast"（禁施法/禁额外回合）。引擎已有 `frozen` 状态（`CONTROL_STATUS_IDS`、`isFrozen` 拦行动）。
@@ -77,7 +105,7 @@ SpellSteps——游戏本体数据，非文本翻译），提取全部宝石操�
 - **程序化视觉**：基图 `blue.png`。叠层：六片冰晶（Graphics 等边三角，白 `#e8f6ff` α0.75，绕中心呈放射状，尖长 0.45r）+ 外圈霜环（描边 1.5px `#a6d4ff` α0.6）。待机：呼吸幅度 ×1.5（scaleAmp 0.20），叠层 alpha 在 0.55~0.85 间 1.6s 正弦摆动。触发反馈：label「冻结」color `#8fd0ff`，触发环之后播既有 `frozen_apply_strip`。
 - **开放问题**：冻结回合数定值（3？）需拍板。
 
-### A2. 燃烧宝石（Burning Gem）✅ 官方原文 ｜ 解锁 9 技能
+### A2. 燃烧宝石（Burning Gem）✅ 官方原文 ｜ 解锁 9 技能 ｜ ✅ 已实现（波A `burningGem`）
 
 - **官方语义**："Burning Gems are Red Gems… matched with Red Gems for Red Mana. When matched, Burning Gems will Burn **all** Enemies."（红色；被匹配时燃烧**敌方全体**——注意是全体，与 A1 的随机单体不同。）来源：[Heroic Gems]；"对全队生效"另见[社区机制帖](https://community.gemsofwar.com/t/some-thoughts-and-suggestions-for-the-devs-about-special-gems/76601)。
 - 燃烧状态官方定义：每回合 3 点伤害，先扣甲，可致死（官方[状态表](https://infinityplus2.freshdesk.com/support/solutions/articles/150000208274-all-status-effects-and-immunity-traits)）。引擎已有 `burning` DoT。
@@ -86,7 +114,7 @@ SpellSteps——游戏本体数据，非文本翻译），提取全部宝石操�
 - **程序化视觉**：基图 `red.png`。叠层：底部一圈跳动的火舌（Graphics 3~4 个圆角三角，色 `#ff8c3a`→`#ffd24a` 渐变用两段 alpha 模拟，α0.8），右上角一粒火星（`#ffd24a` r=0.08r）。待机：火舌层整体 y 微颤 ±0.02 格、0.7s 周期（模拟摇曳），叠层 tint 在 `#ff6a3a` 与 `#ffb03a` 间 1.2s 摆动。触发反馈：label「燃烧」color `#ff9c5c`，播既有 `burning_apply_strip`。
 - **开放问题**：无。
 
-### A3. 诅咒宝石（Cursed Gem）✅ 官方原文 ｜ 解锁 6 技能（另有诅咒状态类技能 3 条联动）
+### A3. 诅咒宝石（Cursed Gem）✅ 官方原文 ｜ 解锁 6 技能（另有诅咒状态类技能 3 条联动） ｜ ✅ 已实现（波A `curseGem`）
 
 - **官方语义**："Cursed Gems are Brown Gems… matched with Brown Gems for Brown Mana. When matched, Cursed Gems will Curse a random Enemy."（棕色；被匹配时诅咒一名随机敌人。）来源：[Heroic Gems]。
 - 诅咒状态官方定义：驱散目标全部正面状态 + 之后无视免疫施加负面状态。引擎已有 `CURSE_STATUS_IDS`（curse/cursed）与诅咒恢复减半逻辑。
@@ -95,16 +123,16 @@ SpellSteps——游戏本体数据，非文本翻译），提取全部宝石操�
 - **程序化视觉**：基图 `brown.png`。叠层：暗紫符文圆环（半径 0.62r，描边 2px `#9a5cff` α0.85）+ 环上 3 个小骷髅点（`#c77dff` r=0.06r 均布）+ 中心倒十字（2px `#b46cff` α0.7）。待机：符环绕中心自转 8s/圈（tween 旋转，非逐帧重绘）。触发反馈：label「诅咒」color `#b46cff`。
 - **开放问题**：无。
 
-### A4. 恐怖宝石（Terror Gem）✅ 官方原文 ｜ 解锁 6 技能（另恐怖状态类 9 条联动）
+### A4. 恐怖宝石（Terror Gem）✅ 官方原文 ｜ 解锁 6 技能（另恐怖状态类 9 条联动） ｜ ✅ 已实现（波A `terrorGem`，恐怖状态为完整语义版）
 
 - **官方语义**："Terror Gems… matched with Purple Gems… give 1 Mana when matched, destroyed, or exploded. When matched, Terror Gems will inflict Terror Status on a random Enemy. Terror Gems appear in battles against the Nightmare Circus Faction."（紫色；被匹配时恐怖一名随机敌人；来源战役=夜魇马戏团。）来源：[Heroic Gems]。
 - 恐怖状态官方定义：每回合开始 10% 几率使目标在队伍列表中**下移一位**（官方状态表）。
 - **引擎行为设计**：kind `terrorGem`；Purple；被匹配 → 随机敌人施加**新状态 `terror`**。状态系统需新增 tick：每回合 10% 概率把目标在 `characters[]` 中与后一位交换（`teamRoster` 已有位次概念；无后位则空过）。
 - 生成来源：Ringmaster/Mydnight Innovator（夜魇马戏团系）、Jezebel、Sinister Reaper、Bone Whip、Watchers Cleaver、Crom Cruach 等 12 处。
 - **程序化视觉**：基图 `purple.png`。叠层：一只抽象眼（Graphics：外椭圆描边 `#e0b6ff` 2px，瞳孔圆 `#ff4d8f` r=0.16r，瞳孔高光白点）+ 眼外三道短促"惊悚线"（顶部放射短线 `#d9b6ff` α0.7）。待机：瞳孔在椭圆内左右缓移 ±0.1r、2.4s 周期（tween x）。触发反馈：label「恐怖」color `#e07bff`。
-- **开放问题**：terror 状态需要新的回合 tick（队伍位次交换）——实现量比普通状态大，是否本期做完整位次移动，还是先做"状态挂上+图标"空壳（技能计数来源可用），**需拍板**。
+- **开放问题（已裁定）**：波A 按官方语义可确认落**完整版**——`tickTeamStatuses` 新增恐怖位次 tick（每回合 10% 与后一位交换、后位阵亡或无后位空过不掷签、事件复用 status-tick）；持续 4 回合（设计默认）。
 
-### A5. 流血宝石（Bleed Gem）✅ 官方原文（2025-12 战役公告）｜ 解锁 9 技能
+### A5. 流血宝石（Bleed Gem）✅ 官方原文（2025-12 战役公告）｜ 解锁 9 技能 ｜ ✅ 已实现（波A `bleedGem`，单值 magnitude 1）
 
 - **官方语义**："**Bleed Gems are Purple Gems that when destroyed, will inflict Bleed on a random Enemy.**"（紫色；**被摧毁时**（含被匹配）流血一名随机敌人。）来源：[官方战役公告 Wilhelmina's Rose](https://gemsofwar.com/campaign-begins-wilhelminas-rose/)（官方论坛镜像：[topic 88966](https://community.gemsofwar.com/t/campaign-begins-wilhelminas-rose/88966)）；战役期间"偶尔（低概率）像普通宝石一样掉落"。
 - 流血状态（Wiki 状态页，社区）：每回合损生命，叠层 1/2/3/4 = 每回合 1/3/6/10 点，累计 10% 恢复。引擎已有 `bleed`（`DOT_STATUS_IDS`）。
@@ -113,7 +141,7 @@ SpellSteps——游戏本体数据，非文本翻译），提取全部宝石操�
 - **程序化视觉**：基图 `purple.png`。叠层：两道交叉的"抓痕"（Graphics 弧线 3px `#ff4d6e` α0.85，从左上到右下与右上到左下，端点渐细用三段递减线宽模拟）+ 中心一滴血（`#c22040` r=0.1r）。待机：血滴 1.8s 周期轻微下坠-回弹（tween y ±0.04 格）。触发反馈：label「流血」color `#ff6b8a`。
 - **开放问题**：引擎 bleed 的 magnitude 表是否采用官方叠层梯度（1/3/6/10）——现状 DoT magnitude 单值，先取单值 1，叠层梯度列入后续。
 
-### A6. 毒宝石（Poison Gem）✅ 官方原文（2026-02 战役公告）｜ 解锁 6 技能
+### A6. 毒宝石（Poison Gem）✅ 官方原文（2026-02 战役公告）｜ 解锁 6 技能 ｜ ✅ 已实现（波A `poisonGem`）
 
 - **官方语义**："**Poison Gems are Green Gem that when matched will inflict Poison on all enemies.**"（绿色；被匹配时毒**敌方全体**。）来源：[官方战役公告 Campaign 27 / Altar of Malice](https://gemsofwar.com/campaign-begins-campaign-27/)（镜像 [topic 89254](https://community.gemsofwar.com/t/campaign-begins-campaign-27/89254)）。
 - 毒状态官方定义：每回合 50% 几率 -1 生命，无视护甲（官方状态表）。引擎已有 `poison`。
@@ -122,14 +150,14 @@ SpellSteps——游戏本体数据，非文本翻译），提取全部宝石操�
 - **程序化视觉**：基图 `green.png`。叠层：三颗气泡（`#b8ffd9` 描边圆 α0.7，r=0.10/0.07/0.05r，错位分布）+ 一滴垂落的粘液（`#7dffa8` 水滴形 α0.85）。待机：气泡依次上浮循环（各自 2s/2.6s/3.2s 相位错开，tween y -0.08 格后复位 alpha 渐隐）。触发反馈：label「中毒」color `#7dffa8`。
 - **开放问题**：无。
 
-### A7. 精灵火宝石（Faerie Fire Gem）⚠️ 语义未证实（触发句缺失）｜ 解锁 6 技能
+### A7. 精灵火宝石（Faerie Fire Gem）⚠️ 语义未证实（触发句缺失）｜ 解锁 6 技能 ｜ ✅ 已实现（波A `faerieFireGem`，按 A 组默认：摧毁触发 + 绿色 + faerie-fire 3回合）
 
 - **考证**：宝石本体确凿存在（官方数据 22 处法术引用：Muireann「创造 3 冻结+3 精灵火」、Ctharrasque、MapleGoldbark、Virago's Branch「全绿转换」、Hollioke、Forest Gremlin、Firenza 等；中文本地化作"精灵火/妖火/妖精之火宝石"）。但**官方公告/帮助中心未给出它的触发规则句**（未检索到对应战役公告；社区亦只在机制讨论中顺带提及）。同名的 **Faerie Fire 状态**官方有定义：受术者受到的法术伤害 +50%，每回合累计 10% 恢复（Wiki 状态页）。
 - **建议默认行为**（按 A 组家族模式推断）：kind `faerieFireGem`；**Green**（生成证据一致：所有转换均以绿色宝石为源）；被摧毁时对随机敌人 `applyStatus({id:'faerie-fire', turns:3})`；状态效果 = 受法术伤害 ×1.5（挂到 `spellDamageTaken` 乘数口径，与特质同通道）。
 - **程序化视觉**：基图 `green.png`。叠层：一团蝶形光晕（Graphics 4 片花瓣椭圆，`#d6ff8a` α0.55，绕中心成十字花）+ 中心亮点（`#fbffe0` r=0.09r）+ 2 粒环绕光尘（r=0.04r）。待机：光尘绕环公转 3s/圈（tween 旋转容器），光晕 alpha 0.4~0.7 / 1.5s 呼吸。触发反馈：label「妖火」color `#d6ff8a`。
 - **开放问题**：触发时机（matched vs destroyed）与归属色需用户裁定；建议照 A 组默认（destroyed + Green）。
 
-### A8. 激怒宝石（Enrage Gem）✅ 官方原文（2025-09 战役公告）｜ 解锁 4 技能
+### A8. 激怒宝石（Enrage Gem）✅ 官方原文（2025-09 战役公告）｜ 解锁 4 技能 ｜ ✅ 已实现（波A `enrageGem`）
 
 - **官方语义**："**Enrage Gems are Red Gems that when destroyed, will Enrage a random Ally.**"（红色；**被摧毁时激怒一名随机己方**——正面效果，目标是自己人。）来源：[官方战役公告 Axe of the Horde](https://gemsofwar.com/campaign-begins-axe-of-the-horde/)（镜像 [topic 88623](https://community.gemsofwar.com/t/campaign-begins-axe-of-the-horde/88623)，含"战役期间偶尔掉落"条款）。注意：中文数据里"激怒宝石/愤怒宝石"是同一 Enrage Gem 的两个译名。
 - 激怒状态官方定义：骷髅攻击伤害 ×1.5 且无视特质（官方状态表）；引擎已有 `RAGE_STATUS_IDS`（rage/enraged）。
@@ -138,7 +166,7 @@ SpellSteps——游戏本体数据，非文本翻译），提取全部宝石操�
 - **程序化视觉**：基图 `red.png`。叠层：两道怒气斜杠（Graphics 粗折线 3px `#ff5c3a` α0.9，位于宝石上半部，如"//"）+ 下缘一圈红色余焰（α0.4）。待机：斜杠组整体 0.9s 周期 x 抖动 ±0.03 格。触发反馈：label「激怒」color `#ff7a5c`。
 - **开放问题**：无。
 
-### A9. 沉没宝石（Submerge Gem）✅ 官方原文（2025-04 战役公告）｜ 解锁 3 技能
+### A9. 沉没宝石（Submerge Gem）✅ 官方原文（2025-04 战役公告）｜ 解锁 3 技能 ｜ ✅ 已实现（波A `submergeGem`）
 
 - **官方语义**："**Submerge Gems are Blue Gems that when destroyed, will Submerge a random Ally.**"（蓝色；被摧毁时使一名随机己方下潜。）来源：[官方战役公告 Trident of Dago'Nath](https://gemsofwar.com/campaign-begins-trident-of-dagonath/)（镜像 [topic 87530](https://community.gemsofwar.com/t/campaign-begins-trident-of-dagonath/87530)）。
 - 下潜状态（Wiki 状态页）：下潜者回避所有指定全队的伤害/效果；其施法或受到骷髅伤害后结束。引擎已有 `UNTARGETABLE_STATUS_IDS = {'submerged'}`（隐匿同通道）。
@@ -147,7 +175,7 @@ SpellSteps——游戏本体数据，非文本翻译），提取全部宝石操�
 - **程序化视觉**：基图 `blue.png`。叠层：三条横贯波浪线（Graphics 正弦短线 2px `#9adfff` α0.8，分上中下三段）+ 右下角一串上升气泡（3 粒 r=0.05r）。待机：波浪线相位横移（tween x ±0.06 格，1.8s 周期）。触发反馈：label「下潜」color `#9adfff`。
 - **开放问题**：无。
 
-### A10. 缠绕宝石（Entangle Gem）✅ 官方原文（2024-08 战役公告；考证新增，清单外发现）
+### A10. 缠绕宝石（Entangle Gem）✅ 官方原文（2024-08 战役公告；考证新增，清单外发现） ｜ ✅ 已实现（波A `entangleGem`）
 
 - **官方语义**："**Entangle Gems are Green Gems that when destroyed, will Entangle a random Enemy.**"（绿色；被摧毁时缠绕一名随机敌人。）来源：[官方战役公告 The Primeval Tome]（镜像 [topic 84999](https://community.gemsofwar.com/t/campaign-begins-the-primeval-tome/84999)，含掉落条款全文）。
 - 缠绕状态官方定义：攻击归零（官方状态表）；引擎已有 `entangle`。放弃桶未点名，但与恐怖宝石同批出现（trait 表 entangle/web 拆分直接相关），一并收录。
@@ -156,14 +184,14 @@ SpellSteps——游戏本体数据，非文本翻译），提取全部宝石操�
 - **程序化视觉**：基图 `green.png`。叠层：两圈藤蔓弧（Graphics 贝塞尔弧线 2.5px `#4bd66a` α0.85，交叉缠绕感）+ 3 片小叶（椭圆 `#a6f0b4` α0.8）。待机：藤蔓弧端点生长-回缩循环（scale 0.96~1.04，2.2s）。触发反馈：label「缠绕」color `#7de08f`。
 - **开放问题**：无。
 
-### A11. 打昏宝石（Stun Gem）⚠️ 语义未证实（触发句缺失）｜ 解锁 0~2 技能
+### A11. 打昏宝石（Stun Gem）⚠️ 语义未证实（触发句缺失）｜ 解锁 0~2 技能 ｜ ✅ 已实现（波A `stunGem`，按建议默认：棕 + 摧毁触发 + stun 1回合）
 
 - **考证**：宝石本体存在（官方数据：Orchidius「5 棕转打昏」、Terra's Jewel「引爆所有打昏宝石」；官方论坛确认 in-game 英雄宝石指南已收录 Entangle/Stun/Barrier 一批：[topic 84398](https://community.gemsofwar.com/t/now-you-can-use-the-in-battle-chat-and-see-the-heroic-gems-guide/84398)），但无官方触发规则句。
 - **建议默认行为**：kind `stunGem`；Brown（唯一转换证据为棕色源）；被摧毁 → 随机敌人 `applyStatus({id:'stun', turns:1})`（打昏在 GoW 里通常 1 回合）。引擎已有 `stun`（`isStunned` 拒绝行动）。
 - **程序化视觉**：基图 `brown.png`。叠层：星星眩晕环（Graphics 3 颗四角星 `#ffe9a6` r=0.09r 绕顶排布）+ 一条"8"字形虚线轨迹。待机：三星绕环公转 2.5s/圈。触发反馈：label「打昏」color `#ffd98a`。
 - **开放问题**：归属色与回合数；优先级最低（仅 2 处法术引用，放弃桶 0 条硬卡）。
 
-### A12. 屏障宝石（Barrier Gem）⚠️ 语义未证实（触发句缺失）｜ 解锁 0~2 技能
+### A12. 屏障宝石（Barrier Gem）⚠️ 语义未证实（触发句缺失）｜ 解锁 0~2 技能 ｜ ✅ 已实现（波A `barrierGem`，按建议默认：黄 + 摧毁触发 + barrier 3回合 → 随机己方）
 
 - **考证**：宝石本体存在（官方数据：Maned Wolf「4 紫转屏障」、Narcithus「5 黄转屏障」、Raquel「创造 5」、The Soul Knight；Xbox 成就"matching … Barrier gems"证明**可匹配**：[topic 88154](https://community.gemsofwar.com/t/are-the-3-new-achievements-for-matching-burning-barrier-and-freeze-gems/88154)）。无官方触发规则句。
 - **建议默认行为**：kind `barrierGem`；Yellow（正面效果贴金色系；转换证据紫/黄混合，存疑）；被摧毁 → 随机己方 `applyStatus({id:'barrier', turns:3})`。引擎已有 `BARRIER_STATUS_ID`。
@@ -184,7 +212,7 @@ SpellSteps——游戏本体数据，非文本翻译），提取全部宝石操�
 
 共性：不参与三消、不进 `SPECIAL_MATCH_COLOR`；只能被技能/爆破摧毁（`expandSpecialDestruction` / `settleDestroyed` 已天然支持——同 wish）。官方 Dev 发言确认此族集合："non-matching gem types (Stone Blocks, Wish, Bomb, Gargoyle, and Death Mark Gems) can only be selected by spells that explicitly select for them"（[官方论坛 topic 79832](https://community.gemsofwar.com/t/bug-with-the-new-weapons-of-grimnir-and-fomor-the-vinthian/79832)）。
 
-### B1. 死亡标记宝石（Death Mark Gem）✅ 官方原文 ｜ 解锁 1 技能（另死亡标记状态类 4 条联动）
+### B1. 死亡标记宝石（Death Mark Gem）✅ 官方原文 ｜ 解锁 1 技能（另死亡标记状态类 4 条联动） ｜ ✅ 已实现（波A `deathMarkGem`，不可匹配）
 
 - **官方语义**："Death Mark Gems are Colorless. When destroyed, Death Mark Gems will inflict Death Mark on a random Enemy."（无色不可匹配；被摧毁时死亡标记一名随机敌人。）来源：[Heroic Gems] + 上 Dev 发言（不可匹配清单成员）。
 - 死亡标记状态官方定义：每回合开始 10% 直接死亡（官方状态表）。引擎已有 `DEATH_MARK_STATUS_IDS` + 10% 处决 tick（`status.ts` 305 行）。

@@ -32,7 +32,12 @@ const COLOR_URL: Record<BaseColor, string> = {
   [BaseColor.Brown]: brownUrl,
 };
 
-/** 特殊宝石贴图（按 kind；通配按倍率分两张，见 WILDCARD_TIER_URL） */
+/**
+ * 特殊宝石贴图（按 kind；通配按倍率分两张，见 WILDCARD_TIER_URL）。
+ * 状态搬运宝石族（GEMS-SEMANTICS-2 波A，用户裁定免贴图）：基图直接复用归属色
+ * 宝石贴图（deathMarkGem 无色 → 骷髅贴图打底），状态主题表现由 GemSprite 的
+ * 程序化叠层绘制，引擎与贴图管线零特殊分支。
+ */
 const SPECIAL_URL: Record<Exclude<SpecialGemKind, 'wildcard'>, string> = {
   doomSkull: doomSkullUrl,
   uberDoomSkull: uberDoomSkullUrl,
@@ -43,6 +48,19 @@ const SPECIAL_URL: Record<Exclude<SpecialGemKind, 'wildcard'>, string> = {
   wish: wishUrl,
   hourglass: hourglassUrl,
   ghost: ghostUrl,
+  burningGem: redUrl,
+  freezeGem: blueUrl,
+  curseGem: brownUrl,
+  bleedGem: purpleUrl,
+  poisonGem: greenUrl,
+  deathMarkGem: skullUrl,
+  terrorGem: purpleUrl,
+  entangleGem: greenUrl,
+  enrageGem: redUrl,
+  submergeGem: blueUrl,
+  faerieFireGem: greenUrl,
+  stunGem: brownUrl,
+  barrierGem: yellowUrl,
 };
 
 /** 通配宝石按 tier（法力倍率）区分贴图；未知 tier 回退 ×2 */

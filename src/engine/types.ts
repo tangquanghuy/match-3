@@ -63,7 +63,54 @@ export type SpecialGemKind =
    * 幽魂：官方语义为"被摧毁时获得 10 灵魂"（战斗外货币，已裁定暂不实现，语义改造待定）。
    * 当前无任何行为、不可匹配、无自然掉落——仅素材先行接入，引擎遇到时按普通移除处理。
    */
-  | 'ghost';
+  | 'ghost'
+  // ── 状态搬运宝石族（GEMS-SEMANTICS-2 A/B 组 · 波A，2026-09-16）──
+  // 共性：无独立贴图，基图=归属色宝石贴图 + 程序化叠层；只由技能创造（不进 SPAWNABLE_SPECIALS）。
+  // 触发时机两条入口（织网/末日骷髅先例）：被匹配（collectMatchTriggers）/ 被摧毁（expandSpecialDestruction）。
+  /** 燃烧宝石：可匹配（红）；被匹配时燃烧敌方全体（官方 Heroic Gems 原文） */
+  | 'burningGem'
+  /** 冻结宝石：可匹配（蓝）；被匹配时冻结一名随机敌人（官方 Heroic Gems 原文） */
+  | 'freezeGem'
+  /** 诅咒宝石：可匹配（棕）；被匹配时诅咒一名随机敌人（官方 Heroic Gems 原文） */
+  | 'curseGem'
+  /** 流血宝石：可匹配（紫）；被摧毁时（含被匹配）流血一名随机敌人（官方战役公告 Wilhelmina's Rose） */
+  | 'bleedGem'
+  /** 毒宝石：可匹配（绿）；被匹配时毒敌方全体（官方战役公告 Campaign 27） */
+  | 'poisonGem'
+  /** 死亡标记宝石：无色不可匹配（官方 Dev 发言不可匹配集合成员）；被摧毁时死亡标记一名随机敌人 */
+  | 'deathMarkGem'
+  /** 恐怖宝石：可匹配（紫）；被匹配时恐怖一名随机敌人（官方 Heroic Gems 原文；夜魇马戏团战役） */
+  | 'terrorGem'
+  /** 缠绕宝石：可匹配（绿）；被摧毁时（含被匹配）缠绕一名随机敌人（官方战役公告 The Primeval Tome） */
+  | 'entangleGem'
+  /** 激怒宝石：可匹配（红）；被摧毁时（含被匹配）激怒一名随机己方（官方战役公告 Axe of the Horde） */
+  | 'enrageGem'
+  /** 沉没宝石：可匹配（蓝）；被摧毁时（含被匹配）下潜一名随机己方（官方战役公告 Trident of Dago'Nath） */
+  | 'submergeGem'
+  /** 精灵火宝石：可匹配（绿）；被摧毁时（含被匹配）妖火一名随机敌人（状态语义官方已核实，宝石触发句为建议默认） */
+  | 'faerieFireGem'
+  /** 打昏宝石：可匹配（棕）；被摧毁时（含被匹配）打昏一名随机敌人（触发句未证实，建议默认行为） */
+  | 'stunGem'
+  /** 屏障宝石：可匹配（黄）；被摧毁时（含被匹配）屏障一名随机己方（触发句未证实，建议默认行为） */
+  | 'barrierGem';
+
+/**
+ * 状态搬运宝石族（波A 13 颗）的 kind 子集。用于渲染基图映射与触发路径判定。
+ */
+export type StatusGemKind =
+  | 'burningGem'
+  | 'freezeGem'
+  | 'curseGem'
+  | 'bleedGem'
+  | 'poisonGem'
+  | 'deathMarkGem'
+  | 'terrorGem'
+  | 'entangleGem'
+  | 'enrageGem'
+  | 'submergeGem'
+  | 'faerieFireGem'
+  | 'stunGem'
+  | 'barrierGem';
 
 /** 特殊宝石规格（需求 20.1）。tier 仅通配宝石使用（法力倍率）。 */
 export interface SpecialGemSpec {
@@ -78,13 +125,90 @@ export const UBER_DOOMSKULL_BONUS_DAMAGE = 10;
 /** 织网宝石对随机敌人施加 web 状态的回合数（与特质表 web 时长约定一致） */
 export const WEB_GEM_TURNS = 3;
 
-/** 可匹配特殊宝石参与匹配时视作的颜色（不可匹配的炸弹/许愿不在表内） */
+/** 可匹配特殊宝石参与匹配时视作的颜色（不可匹配的炸弹/许愿/幽魂/死亡标记不在表内） */
 export const SPECIAL_MATCH_COLOR: Partial<Record<SpecialGemKind, BaseColor>> = {
   web: BaseColor.Purple,
   hourglass: BaseColor.Yellow,
   lightningCol: BaseColor.Yellow,
   lightningRow: BaseColor.Blue,
+  // 状态搬运族（GEMS-SEMANTICS-2 各节考证归属色；deathMarkGem 无色不可匹配，不入表）
+  burningGem: BaseColor.Red,
+  freezeGem: BaseColor.Blue,
+  curseGem: BaseColor.Brown,
+  bleedGem: BaseColor.Purple,
+  poisonGem: BaseColor.Green,
+  terrorGem: BaseColor.Purple,
+  entangleGem: BaseColor.Green,
+  enrageGem: BaseColor.Red,
+  submergeGem: BaseColor.Blue,
+  faerieFireGem: BaseColor.Green,
+  stunGem: BaseColor.Brown,
+  barrierGem: BaseColor.Yellow,
 };
+
+/**
+ * 单颗状态搬运宝石的施加规格（GEMS-SEMANTICS-2 A/B 组波A）。
+ * statusId/turns/magnitude 与目标侧（side）、施加人数（scope）逐节按文档考证落定。
+ */
+export interface StatusGemTriggerSpec {
+  /** 施加的状态 id（与 skills/effects/status.ts 的状态表一致） */
+  statusId: string;
+  /** 存续回合数 */
+  turns: number;
+  /** DoT 每回合量（仅文档明示的 burning/bleed 携带） */
+  magnitude?: number;
+  /** 目标侧：enemy=施加方（行动方）的敌方 / ally=施加方己方 */
+  side: 'enemy' | 'ally';
+  /** 施加人数：random=随机一名存活 / all=全部存活 */
+  scope: 'random' | 'all';
+}
+
+/**
+ * 状态搬运宝石 → 施加规格（考证来源见各 kind 注释与 GEMS-SEMANTICS-2）。
+ * poison 按文档 A6 不带 magnitude（引擎 tick 产出 0 伤 status-tick，仅作表现占位）；
+ * terror 的 turns 文档未定值，取与 curse 同档 4（设计默认）。
+ */
+export const STATUS_GEM_EFFECTS: Record<StatusGemKind, StatusGemTriggerSpec> = {
+  burningGem: { statusId: 'burning', turns: 3, magnitude: 3, side: 'enemy', scope: 'all' },
+  freezeGem: { statusId: 'frozen', turns: 3, side: 'enemy', scope: 'random' },
+  curseGem: { statusId: 'curse', turns: 4, side: 'enemy', scope: 'random' },
+  bleedGem: { statusId: 'bleed', turns: 3, magnitude: 1, side: 'enemy', scope: 'random' },
+  poisonGem: { statusId: 'poison', turns: 3, side: 'enemy', scope: 'all' },
+  deathMarkGem: { statusId: 'death-mark', turns: 3, side: 'enemy', scope: 'random' },
+  terrorGem: { statusId: 'terror', turns: 4, side: 'enemy', scope: 'random' },
+  entangleGem: { statusId: 'entangle', turns: 3, side: 'enemy', scope: 'random' },
+  enrageGem: { statusId: 'enraged', turns: 2, side: 'ally', scope: 'random' },
+  submergeGem: { statusId: 'submerged', turns: 2, side: 'ally', scope: 'random' },
+  faerieFireGem: { statusId: 'faerie-fire', turns: 3, side: 'enemy', scope: 'random' },
+  stunGem: { statusId: 'stun', turns: 1, side: 'enemy', scope: 'random' },
+  barrierGem: { statusId: 'barrier', turns: 3, side: 'ally', scope: 'random' },
+};
+
+/** 「被匹配」路径施加的状态宝石（collectMatchTriggers 即时施加，织网先例） */
+export const MATCH_STATUS_GEMS: ReadonlySet<StatusGemKind> = new Set([
+  'burningGem',
+  'freezeGem',
+  'curseGem',
+  'poisonGem',
+  'terrorGem',
+]);
+
+/** 「被摧毁」路径施加的状态宝石（expandSpecialDestruction；被匹配同样视为被摧毁——A 组共性） */
+export const DESTROY_STATUS_GEMS: ReadonlySet<StatusGemKind> = new Set([
+  'bleedGem',
+  'entangleGem',
+  'stunGem',
+  'barrierGem',
+  'enrageGem',
+  'submergeGem',
+  'faerieFireGem',
+  'deathMarkGem',
+]);
+
+/** 类型守卫：该特殊宝石 kind 是否属于状态搬运族（波A 13 颗） */
+export function isStatusGemKind(kind: SpecialGemKind): kind is StatusGemKind {
+  return kind in STATUS_GEM_EFFECTS;
+}
 
 /** 便捷构造：特殊宝石 */
 export function specialGem(kind: SpecialGemKind, tier?: number): GemType {

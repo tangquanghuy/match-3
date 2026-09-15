@@ -41,7 +41,7 @@ const SKIPPED: { id: number; reason: string }[] = [
   { id: 8787, reason: '缺失状态（狂怒）' },
   { id: 8803, reason: '特殊宝石（恶石像鬼宝石）' },
   { id: 8813, reason: '特殊宝石（随机石像鬼宝石，且数量「1-2 颗」为区间创造）' },
-  { id: 8815, reason: '二次缩放来源不支持（石像鬼宝石与石块数量，特殊宝石来源）' },
+  { id: 8815, reason: '二次缩放来源不支持（石像鬼宝石与石块数量——GEMS-SEMANTICS-2 B4/B5，状态宝石波A未含，等后续波）' },
 ];
 
 const SPELLS: CuratedBatch['spells'] = [

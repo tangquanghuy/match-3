@@ -138,6 +138,20 @@ const SPECIAL_GEM_FEEDBACK: Record<SpecialGemKind, { label: string; color: strin
   wish: { label: '许愿', color: '#ffe06b' },
   hourglass: { label: '额外回合', color: '#ffd36b' },
   ghost: { label: '幽魂', color: '#b7e5ff' },
+  // 状态搬运族（GEMS-SEMANTICS-2 波A）：触发环 + 飘字沿用既有反馈动画
+  burningGem: { label: '燃烧', color: '#ff9c5c' },
+  freezeGem: { label: '冻结', color: '#8fd0ff' },
+  curseGem: { label: '诅咒', color: '#b46cff' },
+  bleedGem: { label: '流血', color: '#ff6b8a' },
+  poisonGem: { label: '中毒', color: '#7dffa8' },
+  deathMarkGem: { label: '死亡标记', color: '#ff5c6e' },
+  terrorGem: { label: '恐怖', color: '#e07bff' },
+  entangleGem: { label: '缠绕', color: '#7de08f' },
+  enrageGem: { label: '激怒', color: '#ff7a5c' },
+  submergeGem: { label: '下潜', color: '#9adfff' },
+  faerieFireGem: { label: '妖火', color: '#d6ff8a' },
+  stunGem: { label: '打昏', color: '#ffd98a' },
+  barrierGem: { label: '屏障', color: '#ffe06b' },
 };
 
 const SINGLE_HIT_FX: Partial<Record<BaseColor, string>> = {

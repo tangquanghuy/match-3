@@ -1,7 +1,10 @@
 import { Container, Graphics, Sprite, Text } from 'pixi.js';
 import { BaseColor } from '@engine/types';
 import type { GemType, SpecialGemKind } from '@engine/types';
+import { isStatusGemKind } from '@engine/types';
 import { textureFor } from './gemTextures';
+import { attachStatusGemOverlay, disposeStatusGemOverlay } from './statusGemOverlays';
+import type { StatusGemOverlay } from './statusGemOverlays';
 
 /** 六色占位配色（带高光的水晶感，后续可替换为贴图，需求 21.4） */
 const COLOR_HEX: Record<BaseColor, number> = {
@@ -34,6 +37,20 @@ const SPECIAL_HEX: Record<SpecialGemKind, number> = {
   wish: 0xffd24a,
   hourglass: 0xffc94a,
   ghost: 0x9ec8ef,
+  // 状态搬运族（GEMS-SEMANTICS-2 波A）：主色 = 归属基色（贴图缺失回退程序化绘制时用）
+  burningGem: 0xff4d5e,
+  freezeGem: 0x4aa8ff,
+  curseGem: 0xc8864b,
+  bleedGem: 0xb46cff,
+  poisonGem: 0x4bd66a,
+  deathMarkGem: 0xdfe3ea,
+  terrorGem: 0xb46cff,
+  entangleGem: 0x4bd66a,
+  enrageGem: 0xff4d5e,
+  submergeGem: 0x4aa8ff,
+  faerieFireGem: 0x4bd66a,
+  stunGem: 0xc8864b,
+  barrierGem: 0xffd24a,
 };
 
 export function colorOf(type: GemType): number {
@@ -58,6 +75,8 @@ export class GemSprite extends Container {
   private spr: Sprite;
   /** 通配宝石的倍率数字（×2/×4），仅 wildcard 显示（惰性创建，避免精灵池开销） */
   private multiplierLabel: Text | null = null;
+  /** 状态搬运宝石的程序化叠层（GEMS-SEMANTICS-2 波A）；setType 时销毁重建 */
+  private statusOverlay: StatusGemOverlay | null = null;
   private size: number;
 
   constructor(size: number) {
@@ -76,7 +95,15 @@ export class GemSprite extends Container {
   setType(gemId: number, type: GemType): void {
     this.gemId = gemId;
     if (this.multiplierLabel) this.multiplierLabel.visible = false;
+    // 旧状态叠层先销毁（对象池复用时残留的补间/图层不能带到新宝石上）
+    disposeStatusGemOverlay(this.statusOverlay);
+    this.statusOverlay = null;
+
     const tex = textureFor(type);
+    // 状态搬运宝石：基图（归属色贴图，见 gemTextures SPECIAL_URL）之上叠状态主题层
+    const statusKind = type.kind === 'special' && isStatusGemKind(type.spec.kind)
+      ? type.spec.kind
+      : null;
     if (tex) {
       // 有贴图：用贴图渲染，清空程序化绘制
       this.gfx.clear();
@@ -87,6 +114,8 @@ export class GemSprite extends Container {
       if (type.kind === 'special') {
         // 末日族在美术上更大更狰狞，贴图铺满格子；其余特殊宝石与颜色宝石一致
         if (type.spec.kind === 'doomSkull' || type.spec.kind === 'uberDoomSkull') visualScale = 1.0;
+        // 死亡标记宝石（GEMS-SEMANTICS-2 B1）：骷髅贴图缩小打底，让红 × 叠层成为视觉主体
+        if (type.spec.kind === 'deathMarkGem') visualScale = 0.82;
       }
       if (type.kind === 'color') {
         if (type.color === BaseColor.Yellow) visualScale = 0.85;
@@ -97,11 +126,14 @@ export class GemSprite extends Container {
       const maxDim = Math.max(tex.width, tex.height) || target;
       this.spr.scale.set(target / maxDim);
       this.spr.visible = true;
-      return;
+    } else {
+      // 无贴图：回退程序化绘制
+      this.spr.visible = false;
+      this.draw(type);
     }
-    // 无贴图：回退程序化绘制
-    this.spr.visible = false;
-    this.draw(type);
+    if (statusKind) {
+      this.statusOverlay = attachStatusGemOverlay(this, statusKind, this.size);
+    }
   }
 
   private draw(type: GemType): void {
@@ -282,6 +314,33 @@ export class GemSprite extends Container {
         g.circle(0, r * 0.42, r * 0.1).fill(0xb8860b);
         break;
       }
+      // 状态搬运族（GEMS-SEMANTICS-2 波A）：贴图缺失时的兜底 = 归属色菱形 + 描边。
+      // 正常路径走 SPECIAL_URL 归属色贴图 + statusGemOverlays 叠层，这里只保证可玩。
+      case 'burningGem':
+      case 'freezeGem':
+      case 'curseGem':
+      case 'bleedGem':
+      case 'poisonGem':
+      case 'deathMarkGem':
+      case 'terrorGem':
+      case 'entangleGem':
+      case 'enrageGem':
+      case 'submergeGem':
+      case 'faerieFireGem':
+      case 'stunGem':
+      case 'barrierGem': {
+        this.drawStatusGemFallback(kind, r);
+        break;
+      }
     }
+  }
+
+  /** 状态宝石兜底剪影：归属色菱形（SPECIAL_HEX 已登记），正常路径不走到 */
+  private drawStatusGemFallback(kind: SpecialGemKind, r: number): void {
+    const g = this.gfx;
+    const k = r * 0.92;
+    const hex = SPECIAL_HEX[kind] ?? 0x8a8f9c;
+    g.poly([0, -k, k, 0, 0, k, -k, 0]).fill(hex);
+    g.poly([0, -k, k, 0, 0, k, -k, 0]).stroke({ width: 2, color: 0x1a1a28, alpha: 0.45 });
   }
 }

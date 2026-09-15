@@ -61,7 +61,12 @@ export class GravitySystem {
    */
   specialSpawnChance = 0;
 
-  /** 可自然掉落的特殊宝石（都是可匹配的） */
+  /**
+   * 可自然掉落的特殊宝石（都是可匹配的）。
+   * 状态搬运宝石族（GEMS-SEMANTICS-2 A/B 组波A：burningGem/freezeGem/…/barrierGem）
+   * **有意不入白名单**——官方先例是"战役期间偶尔掉落"，本作无战役系统，只由技能创造；
+   * 不可匹配类（炸弹/许愿/死亡标记）也永不入表，避免淤积棋盘。
+   */
   private static readonly SPAWNABLE_SPECIALS: readonly SpecialGemKind[] = [
     'doomSkull',
     'web',

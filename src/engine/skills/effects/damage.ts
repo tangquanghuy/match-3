@@ -14,7 +14,7 @@ import { casterMagic, locate, findCharacter } from './context';
 import { hasTroopType, evaluateWithModifier, DEFAULT_RACE_DOUBLE, condMultiplier, condBonusValue } from './secondary';
 import type { ModifierSpec, CondMult, CondBonus } from './secondary';
 import { passivesOf } from '../../traits';
-import { consumeBarrier } from './status';
+import { consumeBarrier, hasStatus, FAERIE_FIRE_STATUS_ID, FAERIE_FIRE_SPELL_MULT } from './status';
 import { applyBuffGain } from './buff';
 
 export type DamageRange = 'single' | 'all' | 'splash';
@@ -139,9 +139,14 @@ export function damageOne(
   const events: GameEvent[] = [];
   if (target.defeated || amount <= 0) return events;
 
+  // 妖火状态（GoW Faerie Fire）：目标受到的法术伤害 +50%。damageOne 即本引擎的
+  // 「法术伤害」统一口径（技能伤害、炸毁骷髅的真伤弹体都走这里），骷髅普攻
+  // （resolveSkullDamage）与 DoT 直扣血不经此处，天然不吃妖火。
+  const amplified = hasStatus(target, FAERIE_FIRE_STATUS_ID) ? amount * FAERIE_FIRE_SPELL_MULT : amount;
+
   // 法术减伤特质（法术铠甲）。真实伤害同样受它影响：这里减的是"法术"来源，
   // 真实伤害只是绕过护甲，不代表绕过法术抗性。
-  const reduced = Math.max(0, Math.round(amount * passivesOf(target).spellDamageTaken));
+  const reduced = Math.max(0, Math.round(amplified * passivesOf(target).spellDamageTaken));
   if (reduced <= 0) return events;
   amount = reduced;
 

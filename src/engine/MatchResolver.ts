@@ -38,8 +38,8 @@ interface LineRun {
  *
  * 匹配性按 `matchJoinKey` 的 run 级连接键判定（逐对比较不足以表达通配语义）：
  *   - 通配加入任意颜色 run（含纯通配前缀），但不与骷髅族相连；
- *   - 末日骷髅与普通骷髅同族；织网/沙漏/闪电按各自归属色；
- *   - 炸弹/许愿不可匹配，截断任何 run。
+ *   - 末日骷髅与普通骷髅同族；织网/沙漏/闪电/状态搬运族（GEMS-SEMANTICS-2）按各自归属色；
+ *   - 炸弹/许愿/幽魂/死亡标记宝石不可匹配，截断任何 run。
  */
 export class MatchResolver {
   /** 检测棋盘上的全部消除组 */
@@ -234,17 +234,13 @@ export class MatchResolver {
             skullish = true;
             bonusDamage += UBER_DOOMSKULL_BONUS_DAMAGE;
             break;
-          case 'web':
-          case 'hourglass':
-          case 'lightningCol':
-          case 'lightningRow': {
+          default: {
+            // 织网/沙漏/闪电/状态搬运族（GEMS-SEMANTICS-2）：凡 matchJoinKey 归属基色的
+            // 特殊宝石都计入组归属色；不可匹配类（炸弹/许愿/幽魂/死亡标记）键为 null，保守跳过
             const c = matchJoinKey(t);
-            if (color === null && c !== null) color = c as BaseColor;
+            if (color === null && c !== null && c !== 'skull' && c !== 'wildcard') color = c as BaseColor;
             break;
           }
-          default:
-            // 炸弹/许愿/幽魂不可匹配，理论上不会出现在组里；保守跳过
-            break;
         }
       }
     }

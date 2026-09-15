@@ -20,8 +20,9 @@ import { AiTargetChooser, prototypeChosenTargetMode } from './skills/targetChoos
 import type { TargetChooser } from './skills/targetChooser';
 import { AiCellChooser, prototypeNeedsCell } from './skills/cellChooser';
 import type { CellChooser } from './skills/cellChooser';
-import { MatchState, PlayerSide, BaseColor, opponentOf, colorGem, WEB_GEM_TURNS } from './types';
-import type { SkullStormDropKind } from './types';
+import { MatchState, PlayerSide, BaseColor, opponentOf, colorGem, WEB_GEM_TURNS,
+  MATCH_STATUS_GEMS, DESTROY_STATUS_GEMS, STATUS_GEM_EFFECTS, isStatusGemKind } from './types';
+import type { SkullStormDropKind, StatusGemKind, StatusInstance } from './types';
 
 /**
  * 被炸毁骷髅的法术伤害表（官方口径，区别于三消骷髅的攻击力结算）：
@@ -373,7 +374,10 @@ export class TurnEngine {
    *   - 末日骷髅 / 闪电：破坏型，登记到 destroyTriggers 统一引爆（见 runCascades 步骤 3）
    *   - 织网：随机一名存活敌人获得 web 状态
    *   - 沙漏：本方获得一次额外回合
-   *   - 通配无匹配触发（倍率在组结算里）；炸弹/许愿不可匹配，不会出现在组里
+   *   - 「被匹配」型状态宝石（燃烧/冻结/诅咒/毒/恐怖）：即时施加（GEMS-SEMANTICS-2 A 组）
+   *   - 「被摧毁」型状态宝石（流血/缠绕/打昏/屏障/激怒/沉没/精灵火）：被匹配同样视为
+   *     被摧毁（A 组共性），登记到 destroyTriggers 走摧毁链统一施加
+   *   - 通配无匹配触发（倍率在组结算里）；炸弹/许愿/死亡标记不可匹配，不会出现在组里
    */
   private collectMatchTriggers(
     group: MatchGroup,
@@ -391,7 +395,35 @@ export class TurnEngine {
       } else if (kind === 'hourglass') {
         events.push({ type: 'special-gem-trigger', kind: 'hourglass', pos: cell });
         if (this.pendingExtraTurnSource === null) this.pendingExtraTurnSource = 'match';
+      } else if (isStatusGemKind(kind)) {
+        if (MATCH_STATUS_GEMS.has(kind)) {
+          this.applyStatusGem(kind, cell, events);
+        } else {
+          // 「被摧毁」型被匹配同样视为被摧毁（GEMS-SEMANTICS-2 A 组共性）：登记进摧毁链统一施加
+          destroyTriggers.push({ gemType: gem.type, pos: cell, viaMatch: true });
+        }
       }
+    }
+  }
+
+  /**
+   * 状态搬运宝石（GEMS-SEMANTICS-2 A/B 组波A）：按 STATUS_GEM_EFFECTS 的考证规格施加状态。
+   * 织网宝石先例的推广：special-gem-trigger 事件在前、status-apply 在后（表现层触发环 +
+   * 状态施加演出全套白得）；随机目标经本引擎同一条 rng，且仅宝石实际触发时消耗。
+   */
+  private applyStatusGem(kind: StatusGemKind, pos: CellPos, events: GameEvent[]): void {
+    events.push({ type: 'special-gem-trigger', kind, pos });
+    const spec = STATUS_GEM_EFFECTS[kind];
+    const side = spec.side === 'enemy'
+      ? opponentOf(this.state.activePlayer)
+      : this.state.activePlayer;
+    const pool = this.state.teams[side].characters.filter((c) => !c.defeated);
+    if (pool.length === 0) return;
+    const targets = spec.scope === 'all' ? pool : [pool[this.rng.nextInt(pool.length)]];
+    for (const target of targets) {
+      const status: StatusInstance = { id: spec.statusId, turns: spec.turns };
+      if (spec.magnitude !== undefined) status.magnitude = spec.magnitude;
+      events.push(...applyStatus(target, status));
     }
   }
 
@@ -447,6 +479,11 @@ export class TurnEngine {
         this.clearCellsForSpecial(cells, 'gem-destroy', events, queue, chain);
       } else if (kind === 'wish') {
         this.applyWish(d.pos, events);
+      } else if (isStatusGemKind(kind) && DESTROY_STATUS_GEMS.has(kind)) {
+        // 「被摧毁」型状态宝石（流血/缠绕/打昏/屏障/激怒/沉没/精灵火/死亡标记）：
+        // 被技能清除/爆破波及/匹配三路都汇到这里，按考证规格施加状态（不清相邻格）。
+        // 「被匹配」型（燃烧/冻结/诅咒/毒/恐怖）被普通摧毁不触发——官方文本只写 When matched。
+        this.applyStatusGem(kind, d.pos, events);
       }
       // ghost/wildcard：无"被摧毁"触发（wildcard 倍率在组结算里；ghost 语义待定无行为）
     }

@@ -190,6 +190,20 @@ const SPECIAL_TEST_GEMS: ReadonlyArray<{ kind: SpecialGemKind; tier?: number; la
   { kind: 'lightningCol', label: '闪电·黄(清列)' },
   { kind: 'lightningRow', label: '闪电·蓝(清行)' },
   { kind: 'hourglass', label: '沙漏' },
+  // 状态搬运族（GEMS-SEMANTICS-2 波A）：基色贴图 + 程序化叠层
+  { kind: 'burningGem', label: '燃烧' },
+  { kind: 'freezeGem', label: '冻结' },
+  { kind: 'curseGem', label: '诅咒' },
+  { kind: 'bleedGem', label: '流血' },
+  { kind: 'poisonGem', label: '毒' },
+  { kind: 'deathMarkGem', label: '死亡标记' },
+  { kind: 'terrorGem', label: '恐怖' },
+  { kind: 'entangleGem', label: '缠绕' },
+  { kind: 'enrageGem', label: '激怒' },
+  { kind: 'submergeGem', label: '下潜' },
+  { kind: 'faerieFireGem', label: '精灵火' },
+  { kind: 'stunGem', label: '打昏' },
+  { kind: 'barrierGem', label: '屏障' },
 ];
 
 
@@ -697,7 +711,7 @@ export class SkillTestPage {
     box.appendChild(title);
 
     const help = document.createElement('div');
-    help.textContent = '末日骷髅被三消触发；炸弹/许愿/幽魂只能被爆破类效果引爆；闪电匹配或被摧毁皆触发；通配可凭空凑出三连，属正常现象。';
+    help.textContent = '末日骷髅被三消触发；炸弹/许愿/幽魂只能被爆破类效果引爆；闪电匹配或被摧毁皆触发；通配可凭空凑出三连，属正常现象。状态宝石（燃烧/冻结/诅咒/流血/毒/死亡标记/恐怖/缠绕/激怒/下潜/精灵火/打昏/屏障）按各自考证：匹配型=三消时施加（燃烧/毒全体、其余随机），摧毁型=被摧毁时施加（屏障/激怒/下潜给己方，其余给敌方）。';
     help.style.cssText = 'font-size:10px;line-height:1.45;color:#8f826b';
     box.appendChild(help);
 

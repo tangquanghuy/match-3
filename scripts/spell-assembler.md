@@ -160,8 +160,10 @@ inflict(statusId, target, opts?)  // opts: { turns?（默认3）, magnitude?（D
 // 「使 1 到 4 名敌人中毒」= inflict('poison', 'enemyRandomN', { nRange: { min: 1, max: 4 } })
 dispelStatus(statusId, target, opts?)   // 定向驱散单一状态（原语批 §9.5）：
 // 「驱散其流血效果」= dispelStatus('bleed', 'enemyChosen')——只移除该 id，发 status-expire
+// 波A 新增状态本体（引擎已实现）：恐怖 terror / 妖火 faerie-fire——技能侧 inflict 待
+// spellData STATUS_WHITELIST 扩容后开放（随用随扩）。
 // 仍 SKIP（缺失状态）：狼化（缺变形机制）、法力燃烧（非持续状态，耗蓝句式走 reduce 族）、
-// 石化/恐怖/附魔/ 下潮技能句式 等。
+// 石化/附魔/ 下潮技能句式 等。
 // 白名单以 tests/unit/spellData.test.ts STATUS_WHITELIST 为准，扩容随回收批同步。
 ```
 
@@ -223,9 +225,10 @@ modifier: { mod: { kind: 'ratio', a: 2, b: 1 }, source: { kind: 'destroyedGems' 
 // buff 族 opts 支持 n：「给予前 2 位盟友 [M+3] 攻击力」= attack('allyFirstN', 3, 1, { n: 2 })
 ```
 
-### 特殊宝石（窗口 C 已落地，第六遍回收用）
+### 特殊宝石（窗口 C 十种 + 状态宝石批波A 13 颗已落地，回收用）
 
-窗口 C 已实现 10 种特殊宝石（`SpecialGemKind`，见 `types.ts`；台账 09-14）。组装词汇：
+已实现 23 种特殊宝石（`SpecialGemKind`，见 `types.ts`；窗口 C 台账 09-14 + 状态宝石批·波A
+GEMS-SEMANTICS-2 A/B 组 13 颗 2026-09-16）。组装词汇：
 
 ```ts
 // 创造：「创造 2 颗炸弹宝石」「创造一颗织网宝石」
@@ -246,10 +249,17 @@ modifier: { mod: …, source: { kind: 'boardSpecial', gem: 'bomb' } }
 **词表对照**：炸弹宝石=bomb、末日/厄运骷髅头=doomSkull、极度/超级/至尊末日骷髅头=uberDoomSkull、
 织网宝石=web、闪电宝石=lightningRow/lightningCol（文本须区分行列，未区分 → SKIP）、
 通配/万能牌宝石=wildcard、许愿宝石=wish、沙漏宝石=hourglass、幽魂宝石=ghost（无行为，创造可、
-涉灵魂的子句仍 blocked）、厄运头骨=doomSkull（同物异名）。
+涉灵魂的子句仍 blocked）、厄运头骨=doomSkull（同物异名）；
+**波A 状态宝石 13 颗**：燃烧宝石=burningGem（红）、冻结/冰冻宝石=freezeGem（蓝）、诅咒宝石=curseGem（棕）、
+流血宝石=bleedGem（紫）、毒宝石=poisonGem（绿）、死亡标记宝石=deathMarkGem（**无色不可匹配**）、
+恐怖宝石=terrorGem（紫）、缠绕宝石=entangleGem（绿）、激怒/愤怒宝石=enrageGem（红）、
+沉没宝石=submergeGem（蓝）、精灵火/妖火/妖精之火/**妖仙宝石**=faerieFireGem（绿；妖仙=官方 SpellSteps
+Color1 "FaerieFire" 实锤，spell 9221）、打昏宝石=stunGem（棕）、屏障宝石=barrierGem（黄）。
 
-**仍 SKIP**：石像鬼/龙/巨人/天使/元素星/恐怖/流血/妖火/冻结/灵力/赃物/恶魔传送门等宝石
-（不在 C 的 10 种内，等美术/裁定）；「随机的特殊宝石」；幽灵宝石涉灵魂收益的句子。
+**仍 SKIP**：石像鬼/龙/巨人/天使/元素星/暗影之星/灵力/法力药水/赃物/恶魔传送门/腐朽/狼人宝石等
+（GEMS-SEMANTICS-2 后续波）；「随机的特殊宝石」；幽灵宝石涉灵魂收益的句子；
+「创造 N 颗混合X宝石和Y宝石」当 X/Y 为**特殊宝石**时仍 SKIP（createMix 仅支持颜色混合，
+batch-36 9312 口径）。
 
 ### 条件组合 / 己方种族在场 / 状态叠层（第四遍回收用）
 

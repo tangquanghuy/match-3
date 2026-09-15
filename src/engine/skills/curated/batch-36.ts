@@ -21,18 +21,10 @@ import type { CuratedBatch } from './index';
 
 const SKIPPED: { id: number; reason: string }[] = [
   { id: 8133, reason: '「召唤尘风暴」已由 createStorm 落地（batch-37 口径）；「爆破…盟友其中一个法力颜色」动态颜色仍不做（batch-11 9540 同款），整条维持' },
-  { id: 8683, reason: '「诅咒宝石」不在窗口 C 已实现特殊宝石清单（等美术/裁定，batch-35 9675 同款）；「有 20% 的几率跑掉」逃跑机制待战斗流设计拍板，维持 SKIP' },
-  { id: 8882, reason: '「诅咒宝石」不在窗口 C 已实现特殊宝石清单（等美术/裁定，batch-35 9675 同款）；伤害段+enemyStatusCount curse 本可表达，整条受阻' },
+  { id: 8683, reason: '「创建 6 颗诅咒宝石」本可表达（createSpecialGems curseGem，batch-38 口径）；剩余卡点=「有 20% 的几率跑掉」逃跑机制待战斗流设计拍板，维持 SKIP' },
   { id: 8941, reason: '「消除 4 点魔法值或耗掉 4 点法力值，或窃取…」多重二选一虽已有一选一原语（oneOf），但前两支未点名目标（目标归属不明），语义拿不准维持 SKIP' },
-  { id: 8975, reason: '「将 2 颗紫色宝石转换成」定量转换已落地（batch-37 口径）；剩余卡点=「死亡标记宝石」不在窗口 C 已实现特殊宝石清单（等 GEMS-SEMANTICS-2）' },
-  { id: 9012, reason: '「诅咒宝石」不在窗口 C 已实现特殊宝石清单（等美术/裁定，batch-35 9675 同款）；前段耗蓝本可表达，整条受阻' },
-  { id: 9050, reason: '「燃烧宝石」不在窗口 C 已实现特殊宝石清单（等美术/裁定，batch-34 8746 同款）' },
-  { id: 9124, reason: '「冻结宝石」不在窗口 C 已实现特殊宝石清单（SOP 特殊宝石节仍 SKIP 清单明列「冻结」）' },
   { id: 9198, reason: '「打乱板面」已由 shuffleBoard 落地（batch-37 口径）；剩余卡点=「创造 5 颗闪电宝石」文本未区分行列（batch-34 9908 同款）' },
-  { id: 9312, reason: '「混合诅咒和冻结宝石」两种特殊宝石均不在窗口 C 十种内（createMix 仅支持颜色，batch-21 8219 口径）' },
-  { id: 9548, reason: '「精灵火宝石」「燃烧宝石」均不在窗口 C 十种内（妖火/燃烧，等美术/裁定）' },
-  { id: 9637, reason: '「引爆4颗燃烧宝石」燃烧宝石不在窗口 C 已实现特殊宝石清单（batch-34 8757 同款）；伤害段+enemyStatusCount burning 本可表达，整条受阻' },
-  { id: 9677, reason: '「诅咒宝石」数量来源与创造均不在窗口 C 十种内（batch-35 8712 同款，boardSpecial 仅十种内 kind）' },
+  { id: 9312, reason: '诅咒/冻结宝石本体均已实现（状态宝石波A）；剩余卡点=「创造 16 颗混合诅咒和冻结宝石」混合特殊宝石创造无原语（createMix 仅颜色，batch-21 8219 口径）' },
 ];
 
 const SPELLS: CuratedBatch['spells'] = [
