@@ -839,7 +839,7 @@ export class CharacterCard {
    */
   setStatusAccent(statusId: string, on: boolean): void {
     const rawKey = statusId.toLowerCase().replace(/_/g, '-');
-    const key = rawKey === 'wolf-form' ? 'wolf' : rawKey;
+    const key = rawKey === 'wolf-form' || rawKey === 'lycanthropy' ? 'wolf' : rawKey;
     const supported = new Set(['death-mark', 'curse', 'disease', 'mana-burn', 'charm', 'rage', 'wolf']);
     if (!supported.has(key)) return;
     this.el.classList.toggle(`status-accent-${key}`, on);

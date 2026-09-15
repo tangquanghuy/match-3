@@ -140,10 +140,13 @@ const FALLBACK: StatusBadgeSpec = {
   svg: '<circle cx="12" cy="12" r="8.5" fill="#26282b" stroke="#9aa0a6" stroke-width="1.3"/><text x="12" y="16" text-anchor="middle" font-size="11" fill="#cfd2d6">?</text>',
 };
 
-/** 取某状态的图标规格；未知状态返回兜底（需求 6.5） */
+/** 取某状态的图标规格；未知状态返回兜底（需求 6.5）。
+ *  别名归一：连字符/下划线互转（death-mark↔death_mark）；狼化族同物异名
+ *  （wolf / wolf_form / wolf-form / lycanthropy 官方特质名）共用一枚。 */
 export function statusBadge(statusId: string): StatusBadgeSpec {
   const normalized = statusId.toLowerCase().replace(/-/g, '_');
-  return BADGES[statusId] ?? BADGES[normalized] ?? FALLBACK;
+  const aliased = normalized === 'lycanthropy' ? 'wolf' : normalized;
+  return BADGES[statusId] ?? BADGES[aliased] ?? FALLBACK;
 }
 
 /** 生成完整的内联 SVG 字符串（24x24），供直接插入 DOM */

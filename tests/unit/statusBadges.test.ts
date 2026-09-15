@@ -31,7 +31,7 @@ describe('statusBadge 映射（需求 6.5）', () => {
   });
 
   it('覆盖代码状态的新增图标，并兼容连字符别名', () => {
-    for (const id of ['death_mark', 'death-mark', 'wolf', 'rage', 'mana_burn', 'mana-burn', 'charm']) {
+    for (const id of ['death_mark', 'death-mark', 'wolf', 'rage', 'mana_burn', 'mana-burn', 'charm', 'lycanthropy']) {
       const b = statusBadge(id);
       expect(b.label).not.toBe('状态');
       expect(b.svg).not.toContain('?');
