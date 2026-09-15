@@ -157,6 +157,64 @@ describe('二次缩放（[xN]=每来源+N，[N:M]=每N来源+M）', () => {
   });
 });
 
+describe('多同类段 modifier 辖域（spell-rules §1 · 2026-09-16 裁定）', () => {
+  it('点名「伤害效果」：同子句两段伤害都吃加成（7059/9344 锁死）', () => {
+    // 首行 4 颗紫色；摧毁后来源 4 → [2:1] 每段 bonus = floor(4/2)×1 = 2
+    // 两段 [M+1] = 7+2 = 9：front 与 last 各扣 9，中间不吃
+    const { ctx, state } = setup({
+      board: (r, c) => (r === 0 && c < 4 ? colorGem(BaseColor.Purple) : colorGem(BaseColor.Red)),
+      right: [{ hp: 50, armor: 0 }, { hp: 50, armor: 0 }, { hp: 50, armor: 0 }],
+    });
+    const mod = { mod: { kind: 'ratio', a: 2, b: 1 }, source: { kind: 'destroyedGems', color: BaseColor.Purple } } as const;
+    executePrototype({
+      segments: [
+        { kind: 'gem', params: { op: 'clear', mode: 'destroy', target: { kind: 'color', color: BaseColor.Purple } } },
+        { kind: 'damage', target: 'enemyFront', scaling: { base: 1, mult: 1 }, modifier: mod },
+        { kind: 'damage', target: 'enemyLast', scaling: { base: 1, mult: 1 }, modifier: mod },
+      ],
+    }, ctx);
+    expect(rightTeam(state)[0].hp).toBe(41);
+    expect(rightTeam(state)[1].hp).toBe(50);
+    expect(rightTeam(state)[2].hp).toBe(41);
+  });
+
+  it('对照：modifier 只挂一段时按段独立（未挂段吃基础值，8181 窃取段语义）', () => {
+    // 同上但 front 段不挂 modifier：front = 7，last = 9
+    const { ctx, state } = setup({
+      board: (r, c) => (r === 0 && c < 4 ? colorGem(BaseColor.Purple) : colorGem(BaseColor.Red)),
+      right: [{ hp: 50, armor: 0 }, { hp: 50, armor: 0 }, { hp: 50, armor: 0 }],
+    });
+    executePrototype({
+      segments: [
+        { kind: 'gem', params: { op: 'clear', mode: 'destroy', target: { kind: 'color', color: BaseColor.Purple } } },
+        { kind: 'damage', target: 'enemyFront', scaling: { base: 1, mult: 1 } },
+        { kind: 'damage', target: 'enemyLast', scaling: { base: 1, mult: 1 }, modifier: { mod: { kind: 'ratio', a: 2, b: 1 }, source: { kind: 'destroyedGems', color: BaseColor.Purple } } },
+      ],
+    }, ctx);
+    expect(rightTeam(state)[0].hp).toBe(43);
+    expect(rightTeam(state)[2].hp).toBe(41);
+  });
+
+  it('drainedMana 双方都计：耗尽盟友与敌军法力按总量结算（7807 口径锁死）', () => {
+    // 盟友 5+3（allyAll 含施法者）、敌军 7 → 总 15；施法者 hp 30 → 治 [1:1]×15 = 15 → 45
+    const { ctx, state } = setup({
+      left: [{ hp: 30, mana: 5 }, { hp: 50, mana: 3 }],
+      right: [{ mana: 7, manaCost: 20 }],
+    });
+    executePrototype({
+      segments: [
+        { kind: 'reduce', target: 'allyAll', stat: 'mana', scaling: { base: 0, mult: 0 }, drainAll: true },
+        { kind: 'reduce', target: 'enemyAll', stat: 'mana', scaling: { base: 0, mult: 0 }, drainAll: true },
+        { kind: 'buff', target: 'allySelf', stat: 'hp', scaling: { base: 0, mult: 0 }, modifier: { mod: { kind: 'ratio', a: 1, b: 1 }, source: { kind: 'drainedMana' } } },
+      ],
+    }, ctx);
+    expect(leftTeam(state)[0].mana).toBe(0);
+    expect(leftTeam(state)[1].mana).toBe(0);
+    expect(rightTeam(state)[0].mana).toBe(0);
+    expect(leftTeam(state)[0].hp).toBe(45);
+  });
+});
+
 // ───────────────────────── 2. 概率子句 ─────────────────────────
 
 describe('概率子句（chance）', () => {

@@ -32,7 +32,11 @@ const TROOP_BY_SPELL_ID = new Map<number, (typeof TROOPS)[number]>(
 );
 const RACES = knownTroopTypes();
 
-/** 引擎已实现的状态 id 白名单（spell-rules.md §6 词表 + 出血 bleed） */
+/**
+ * 组装侧状态白名单（spell-rules.md §6 词表的规范拼写）。
+ * 引擎另已实现 disease/curse/death-mark/rage/charm/marked 的语义（2026-09-16 特殊状态批），
+ * 待回收批实际组装到对应状态时随批扩容本表。
+ */
 const STATUS_WHITELIST = new Set([
   'poison', 'burning', 'bleed', 'silence', 'frozen', 'stun', 'entangle', 'web', 'barrier', 'submerged',
 ]);

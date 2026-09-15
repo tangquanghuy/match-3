@@ -9,7 +9,8 @@
  * - 「爆破一颗宝石」（无颜色、无选定/随机字样）→ explodeRandomGems(1,0,'color')
  *   （batch-03 头注 + batch-07 7674「爆破 2 颗宝石」同口径）。
  * - 「对首位和末位敌人」= enemyFront + enemyLast 两段共用同一缩放（batch-05 7059/
- *   batch-07 7674「第一名和最后一名敌人」同款）；modifier 挂最近数值段（batch-05 7059 口径）。
+ *   batch-07 7674「第一名和最后一名敌人」同款）；修饰子句辖本子句内全部同类段
+ *   （spell-rules §1 多同类段辖域，2026-09-16 裁定，9344 两段都挂 modifier）。
  * - 多来源 modifier（「纠缠和流血敌人」「红色和黄色宝石」）用 sources 数组计数相加
  *   （SOP §3 + secondary.ts ModifierSpec.sources；本仓库批文件首次使用，请复核 9938/9852）。
  * - 「对敌人造成…」=「对(一名)敌人」，官方汉化省略量词 → enemyChosen
@@ -191,8 +192,11 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '对首位和末位敌人造成 [魔法 + 2] 点伤害，伤害值因紫色宝石数而增强。 [3:1]',
     build: skill(
       // 「首位和末位」= enemyFront + enemyLast 两段共用同一缩放（batch-05 7059 同款）；
-      // modifier 挂最近数值段（batch-05 7059 口径）
-      dmg('enemyFront', 2),
+      // 修饰子句辖本子句内全部同类段（spell-rules §1 多同类段辖域，2026-09-16 裁定）：
+      // 两段伤害都挂同一 modifier（boardGems 无跨段棋盘变化，同源同值）
+      dmg('enemyFront', 2, 1, {
+        modifier: { mod: { kind: 'ratio', a: 3, b: 1 }, source: { kind: 'boardGems', color: BaseColor.Purple } },
+      }),
       dmg('enemyLast', 2, 1, {
         modifier: { mod: { kind: 'ratio', a: 3, b: 1 }, source: { kind: 'boardGems', color: BaseColor.Purple } },
       }),

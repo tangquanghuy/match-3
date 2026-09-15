@@ -161,6 +161,8 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 8181,
     desc: '对一名敌人造成 [魔法 + 8] 点严重的溅射伤害，伤害值因被缠绕和出血的敌人而增强。窃取所有敌人 10 点生命值。 [x8]',
     build: skill(
+      // 修饰子句辖域以子句为界（spell-rules §1 多同类段辖域，2026-09-16 裁定）：
+      // 「伤害值因…增强」只包着溅射段；后续「窃取所有敌人 10 点生命值。」是独立子句，不吃 [x8]
       dmgSplash('enemyChosen', 8, 1, {
         modifier: {
           mod: { kind: 'multiplier', a: 8 },

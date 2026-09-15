@@ -141,10 +141,16 @@ destroyRandomGems(base, mult, include?, color?) / explodeRandomGems(…)  // 随
 destroyRandomCols(base, mult) / destroyRandomRows(base, mult)  // 随机 N 列/行
 ```
 
-### 状态（只允许：`poison 中毒 / burning 燃烧 / silence 沉默 / frozen 冰冻冻结 / stun 眩晕击晕 / entangle 纠缠缠绕 / web 织网 / barrier 屏障 / submerged 下潜`）
+### 状态（引擎已实现的可组装词表，2026-09-16 特殊状态批后扩容；规范拼写如下）
 ```ts
-inflict(statusId, target, opts?)  // opts: { turns?（默认3）, magnitude?（DoT 每回合伤害，默认3）, n?, chance, ifTargetDied }
-// 「获得屏障」= inflict('barrier','allySelf')；其余状态（诅咒/死亡标记/猎人标记…）一律 SKIP（缺失状态）
+// poison 中毒 / burning 燃烧 / bleed 出血(每层1点) / silence 沉默 / frozen 冰冻冻结 / stun 眩晕击晕 /
+// entangle 纠缠缠绕 / web 织网 / barrier 屏障 / submerged 下潜 / marked 猎人标记(纯标记态) /
+// disease 疾病 / curse 诅咒 / death-mark 死亡标记 / rage 狂怒 / charm 魅惑（后五者 2026-09-16 落地）
+inflict(statusId, target, opts?)  // opts: { turns?（默认3）, magnitude?（DoT 每回合伤害，默认3；bleed 默认1）, stacks?, n?, chance, ifTargetDied }
+// 「获得屏障」= inflict('barrier','allySelf')；「陷入 2 层流血」= inflict('bleed', t, { stacks: 2 })
+// 仍 SKIP（缺失状态）：狼化（缺变形机制）、法力燃烧（非持续状态，耗蓝句式走 reduce 族）、
+// 石化/恐怖/附魔/ 下潮技能句式 等；风暴（技能侧无创造风暴原语）。
+// 白名单以 tests/unit/spellData.test.ts STATUS_WHITELIST 为准，扩容随回收批同步。
 ```
 
 ### 其它

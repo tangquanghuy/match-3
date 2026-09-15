@@ -79,9 +79,10 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 7059,
     desc: '对第一名和最后一名敌人造成 [魔法 + 1] 点伤害，并移除所有紫色宝石以增强伤害效果。 [2:1]',
     build: skill(
-      // 清除段先行（batch-04 口径）；两段伤害共用同一方括号，modifier 挂最近数值段
+      // 清除段先行（batch-04 口径）；修饰子句辖本子句内全部同类段（spell-rules §1 多同类段辖域，
+      // 2026-09-16 裁定）：front/last 两段伤害都挂同一 modifier（各段执行时各自读 destroyedGems，同源同值）
       destroyColor(BaseColor.Purple),
-      dmg('enemyFront', 1),
+      dmg('enemyFront', 1, 1, { modifier: { mod: { kind: 'ratio', a: 2, b: 1 }, source: { kind: 'destroyedGems' } } }),
       dmg('enemyLast', 1, 1, { modifier: { mod: { kind: 'ratio', a: 2, b: 1 }, source: { kind: 'destroyedGems' } } }),
     ),
   },
