@@ -1,5 +1,32 @@
 # 特殊宝石 · 语义考证与设计 第二批（2026-09-16）
 
+## ⭐ 官方数据核验（2026-09-16 窗口E 追加 · 决定性证据，凌驾于下文推断）
+
+**背景**：用户质疑「这些宝石是不是把技能效果误看成宝石」。为此从中文库的同源上游
+gowhead.com 拉取**英文版游戏结构化数据**（`data/raw/spells.gow.en.json`，3207 条技能的
+SpellSteps——游戏本体数据，非文本翻译），提取全部宝石操作步骤
+（ConvertGems/CreateGems/ExplodeGems/DestroyGems…）的 `Color1/Color2` 枚举值。
+**官方数据里「宝石类型」与颜色共用同一枚举字段**（实例：`{"Color1":"Brown","Color2":"Stun","Type":"ConvertGems"}`），
+非六色基色的取值即官方承认的宝石类型全集——机翻无法造出这些枚举值。
+
+**结论**：
+1. 下文绝大多数宝石**确为官方类型，非误读**：Burning×29、Cursed×24、Freeze×27、DeathMark×8、
+   Bleed×24、Poison×23、Terror×13、Dragon{Blue/Green/Purple/Red/Yellow/Brown}、
+   GoodGargoyle×29/BadGargoyle×29、ElementalStar×21、Angel×20、**Spirit×19（灵力宝石官方名
+   =Spirit，非 Mana）**、**Booty×14（赃物宝石官方数据确有）**、Giant 六色、DaemonicPortal×27、
+   Decay×16、Submerge×9、Entangle×12、Enrage×12、Lycanthropy×20、Block×21、LightDarkStar×9。
+   它们「看着像技能效果」是因为**本来就只由技能创造**（无其它来源）。
+2. **修正**：闪电宝石官方为 **LightningYellow×13 / LightningBlue×10 两色变体**，非本引擎的
+   lightningRow/lightningCol 行列建模——行为是否等价（黄=列/蓝=行？）待核对，列入窗口C对齐修正；
+   通配官方有 WildCard2/3/4 三档倍率（C 只实现 2/4）。
+3. **考证漏收，需补设计**：Volcano 火山宝石×15、Trap 陷阱宝石×16、ManaPotion 法力药水六色×19、
+   Candy 糖果六色×6、Enchant 附魔×3、Mimic×1。
+4. **用户裁定不做（2026-09-16）**：精灵火/打昏/屏障。注：三者「查无官方语义文档」属实，
+   但**官方数据类型确实存在**（FaerieFire×15 / Stun×4 / Barrier×9）——若日后想恢复，语义可从
+   SpellSteps 的伴随字段反推。
+
+---
+
 本文是 `GEMS-SEMANTICS.md`（窗口 C 十种：bomb/doomSkull/uberDoomSkull/web/lightningRow/lightningCol/wildcard/wish/hourglass/ghost）的**续篇**，覆盖技能放弃桶反复出现的其余特殊宝石。
 
 **用户已裁定（2026-09）**：本批宝石**不制作独立贴图**——一律用既有普通宝石贴图（六色 `src/assets/gems/{color}.png` / `skull.png`）加**程序化动画/滤镜**表达（色调、边缘辉光、符环叠层、脉冲）。视觉方案按此口径编写；窗口 C 十种的既有贴图不动。
