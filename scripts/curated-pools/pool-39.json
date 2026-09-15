@@ -1,0 +1,595 @@
+[
+ {
+  "troopId": 7421,
+  "troop": "隐士",
+  "spellId": 9115,
+  "spellName": "抽到隐士",
+  "desc": "创造 2 颗沙漏宝石。板面上每有一颗黄色宝石，则有 7% 的几率获得一个额外回合。 [x7]",
+  "scalings": [],
+  "modifier": {
+   "kind": "multiplier",
+   "a": 7
+  }
+ },
+ {
+  "troopId": 7457,
+  "troop": "莎拉曼蒂拉",
+  "spellId": 9174,
+  "spellName": "燃烧赤牙",
+  "desc": "爆破所有燃烧宝石。对首 2 位敌人造成 [(魔法 x 1.5) + 2] 点真实伤害，伤害值因被摧毁的燃烧宝石数而增强。 [x5]",
+  "scalings": [
+   {
+    "base": 2,
+    "mult": 1.5
+   }
+  ],
+  "modifier": {
+   "kind": "multiplier",
+   "a": 5
+  }
+ },
+ {
+  "troopId": 7476,
+  "troop": "黄铜龙",
+  "spellId": 9193,
+  "spellName": "雷霆一嗝",
+  "desc": "将所有紫色宝石转换成了蓝色闪电宝石。若队伍有龙族指挥官，则爆破一颗宝石。 [1:1]",
+  "scalings": [],
+  "modifier": {
+   "kind": "ratio",
+   "a": 1,
+   "b": 1
+  }
+ },
+ {
+  "troopId": 7566,
+  "troop": "库库尔坎",
+  "spellId": 9362,
+  "spellName": "风雪交加",
+  "desc": "对所有敌人造成 [魔法 + 2] 点伤害，伤害值因冻结宝石数而增强。若存在风暴，则造成双倍伤害。再创造 3 颗冻结宝石。 [x2]",
+  "scalings": [
+   {
+    "base": 2,
+    "mult": 1
+   }
+  ],
+  "modifier": {
+   "kind": "multiplier",
+   "a": 2
+  }
+ },
+ {
+  "troopId": 7613,
+  "troop": "枯萎的外壳",
+  "spellId": 9513,
+  "spellName": "凋零风暴",
+  "desc": "吸取一名敌人的 4 点法力值，因患病敌人而增强。对他们造成疾病。 [x2]",
+  "scalings": [],
+  "modifier": {
+   "kind": "multiplier",
+   "a": 2
+  }
+ },
+ {
+  "troopId": 7667,
+  "troop": "风暴弩炮",
+  "spellId": 9595,
+  "spellName": "原始闪电",
+  "desc": "对一名敌人造成[魔法 + 2]点伤害。如果敌人是塔，则根据我的升华值造成3-5倍伤害。然后召唤一场随机风暴。",
+  "scalings": [
+   {
+    "base": 2,
+    "mult": 1
+   }
+  ],
+  "modifier": null
+ },
+ {
+  "troopId": 7762,
+  "troop": "博特罗斯",
+  "spellId": 9755,
+  "spellName": "迷雾之王",
+  "desc": "对一名敌人造成[(魔法 x 2) + 4]点伤害。有20%的几率将其击杀，中毒或带有死亡标记的敌人的几率会增强该几率。 [x5]",
+  "scalings": [
+   {
+    "base": 4,
+    "mult": 2
+   }
+  ],
+  "modifier": {
+   "kind": "multiplier",
+   "a": 5
+  }
+ },
+ {
+  "troopId": 7764,
+  "troop": "WEEZL-300",
+  "spellId": 9771,
+  "spellName": "哨声",
+  "desc": "选择一种法力颜色。将 6 颗该颜色的宝石转化为炸弹宝石。然后引爆一颗宝石。",
+  "scalings": [],
+  "modifier": null
+ },
+ {
+  "troopId": 7800,
+  "troop": "不朽的穴居人",
+  "spellId": 9839,
+  "spellName": "猩红刃咒",
+  "desc": "对 3 个随机敌人造成 [魔法 + 2] 点真实伤害，受许愿宝石加成。若在破碎之地使用，则造成双倍伤害。然后获得额外回合。 [x2]",
+  "scalings": [
+   {
+    "base": 2,
+    "mult": 1
+   }
+  ],
+  "modifier": {
+   "kind": "multiplier",
+   "a": 2
+  }
+ },
+ {
+  "troopId": 7901,
+  "troop": "不朽的拜布利奥斯",
+  "spellId": 9984,
+  "spellName": "禁止访问的页面",
+  "desc": "造成[(魔法 x 2.5) + 8]点真实散射伤害，受诅咒敌人加成。若在远古凯特使用，则造成双倍伤害。 [x3]",
+  "scalings": [
+   {
+    "base": 8,
+    "mult": 2.5
+   }
+  ],
+  "modifier": {
+   "kind": "multiplier",
+   "a": 3
+  }
+ },
+ {
+  "troopId": 6336,
+  "troop": "加鲁达",
+  "spellId": 7487,
+  "spellName": "火焰之雨",
+  "desc": "召唤火风暴。对所有敌人造成 [魔法 + 4] 点伤害。获得 1 点魔法值，点数因红色宝石数而增强。 [3:1]",
+  "scalings": [
+   {
+    "base": 4,
+    "mult": 1
+   }
+  ],
+  "modifier": {
+   "kind": "ratio",
+   "a": 3,
+   "b": 1
+  }
+ },
+ {
+  "troopId": 6498,
+  "troop": "塞德里克·闪烁布袋",
+  "spellId": 7685,
+  "spellName": "闪闪惹人爱",
+  "desc": "将最后一名敌人拉至首位。魅惑一名随机敌人。召唤 1 到 3 个炸弹机器人。",
+  "scalings": [],
+  "modifier": null
+ },
+ {
+  "troopId": 6661,
+  "troop": "寒冰劫数",
+  "spellId": 7998,
+  "spellName": "寒冰符象",
+  "desc": "对一名敌人造成 [魔法 + 4] 点伤害，伤害值因陷入死亡标记状态的敌军数量而增强。使所有敌人都陷入死亡标记状态。创造 8 颗蓝色宝石。 [x6]",
+  "scalings": [
+   {
+    "base": 4,
+    "mult": 1
+   }
+  ],
+  "modifier": {
+   "kind": "multiplier",
+   "a": 6
+  }
+ },
+ {
+  "troopId": 6662,
+  "troop": "自然劫数",
+  "spellId": 7999,
+  "spellName": "自然符象",
+  "desc": "对一名敌人造成 [魔法 + 4] 点伤害，伤害值因陷入死亡标记状态的敌军数量而增强。使所有敌人都陷入死亡标记状态。创造 8 颗绿色宝石。 [x6]",
+  "scalings": [
+   {
+    "base": 4,
+    "mult": 1
+   }
+  ],
+  "modifier": {
+   "kind": "multiplier",
+   "a": 6
+  }
+ },
+ {
+  "troopId": 6663,
+  "troop": "火焰劫数",
+  "spellId": 8000,
+  "spellName": "火焰符象",
+  "desc": "对一名敌人造成 [魔法 + 4] 点伤害，伤害值因陷入死亡标记状态的敌军数量而增强。使所有敌人都陷入死亡标记状态。创造 8 颗红色宝石。 [x6]",
+  "scalings": [
+   {
+    "base": 4,
+    "mult": 1
+   }
+  ],
+  "modifier": {
+   "kind": "multiplier",
+   "a": 6
+  }
+ },
+ {
+  "troopId": 6664,
+  "troop": "光明劫数",
+  "spellId": 8001,
+  "spellName": "光明符象",
+  "desc": "对一名敌人造成 [魔法 + 4] 点伤害，伤害值因陷入死亡标记状态的敌军数量而增强。使所有敌人都陷入死亡标记状态。创造 8 颗黄色宝石。 [x6]",
+  "scalings": [
+   {
+    "base": 4,
+    "mult": 1
+   }
+  ],
+  "modifier": {
+   "kind": "multiplier",
+   "a": 6
+  }
+ },
+ {
+  "troopId": 6665,
+  "troop": "暗黑劫数",
+  "spellId": 8002,
+  "spellName": "暗黑符象",
+  "desc": "对一名敌人造成 [魔法 + 4] 点伤害，伤害值因陷入死亡标记状态的敌军数量而增强。使所有敌人都陷入死亡标记状态。创造 8 颗紫色宝石。 [x6]",
+  "scalings": [
+   {
+    "base": 4,
+    "mult": 1
+   }
+  ],
+  "modifier": {
+   "kind": "multiplier",
+   "a": 6
+  }
+ },
+ {
+  "troopId": 6666,
+  "troop": "岩石劫数",
+  "spellId": 8003,
+  "spellName": "岩石符象",
+  "desc": "对一名敌人造成 [魔法 + 4] 点伤害，伤害值因陷入死亡标记状态的敌军数量而增强。使所有敌人都陷入死亡标记状态。创造 8 颗棕色宝石。 [x6]",
+  "scalings": [
+   {
+    "base": 4,
+    "mult": 1
+   }
+  ],
+  "modifier": {
+   "kind": "multiplier",
+   "a": 6
+  }
+ },
+ {
+  "troopId": 6749,
+  "troop": "溺水海员",
+  "spellId": 8127,
+  "spellName": "淋水暴击",
+  "desc": "将黄色宝石转换成蓝色。有 20% 的几率使最后两名敌人陷入死亡标记状态，几率因被转换的宝石数而增强。 [1:1]",
+  "scalings": [],
+  "modifier": {
+   "kind": "ratio",
+   "a": 1,
+   "b": 1
+  }
+ },
+ {
+  "troopId": 6830,
+  "troop": "野兽领主杜尔本",
+  "spellId": 8232,
+  "spellName": "野性的呼唤",
+  "desc": "将蓝色宝石转换成红色，棕色宝石转换成骷髅头。使前 2 位敌人陷入猎人标记状态。有 25% 的几率将其转化成一只狼人森林野兽。",
+  "scalings": [],
+  "modifier": null
+ },
+ {
+  "troopId": 6890,
+  "troop": "杀戮领主",
+  "spellId": 8316,
+  "spellName": "末日流星锤",
+  "desc": "创造 6 颗棕色宝石。再将所有棕色宝石转换成末日骷髅头。再随机使 1-2 个敌人陷入出血状态和 1-2 个敌人陷入死亡标记状态。",
+  "scalings": [],
+  "modifier": null
+ },
+ {
+  "troopId": 6918,
+  "troop": "酷燃达拉",
+  "spellId": 8380,
+  "spellName": "恶魔失忆",
+  "desc": "对一名敌人造成 [魔法 + 5] 点伤害，伤害值因末日骷髅头数而加强。将黄色宝石转换成末日骷髅头。召唤末日风暴。 [x10]",
+  "scalings": [
+   {
+    "base": 5,
+    "mult": 1
+   }
+  ],
+  "modifier": {
+   "kind": "multiplier",
+   "a": 10
+  }
+ },
+ {
+  "troopId": 6963,
+  "troop": "暗夜蜘蛛",
+  "spellId": 8466,
+  "spellName": "午夜毒液",
+  "desc": "创造 3 颗蓝色宝石和 3 颗织网宝石，数量因盗贼盟友数而增强。使一名随机敌人陷入中毒和织网状态。 [x3]",
+  "scalings": [],
+  "modifier": {
+   "kind": "multiplier",
+   "a": 3
+  }
+ },
+ {
+  "troopId": 6975,
+  "troop": "梅兹特利",
+  "spellId": 8478,
+  "spellName": "夜来香",
+  "desc": "耗掉一名敌人所有法力值。若存在风暴，则使他陷入死亡标记效果。在召唤暗风暴。",
+  "scalings": [],
+  "modifier": null
+ },
+ {
+  "troopId": 7073,
+  "troop": "守卫者贾卡尔",
+  "spellId": 8601,
+  "spellName": "冰冷的厄运",
+  "desc": "死亡标记一名随机敌人。制作1-3瓶蓝色法力药水。如果任何一名敌人被冻结，有 50% 的几率可获得一个额外回合。",
+  "scalings": [],
+  "modifier": null
+ },
+ {
+  "troopId": 7076,
+  "troop": "守卫者魔舒",
+  "spellId": 8604,
+  "spellName": "神秘的视野",
+  "desc": "对一名随机盟友施魔法。制作 1-3 瓶紫色法力药水。如果有任何敌人被诅咒，有 50% 的几率可获得一个额外回合。",
+  "scalings": [],
+  "modifier": null
+ },
+ {
+  "troopId": 7128,
+  "troop": "嫉妒之魂",
+  "spellId": 8672,
+  "spellName": "令人羡慕的挑战",
+  "desc": "对一名敌人造成[魔法 + 3]点伤害，红色宝石可提升伤害。如果我的攻击力较低，则使其陷入纠缠状态。如果我的护甲值较低，则使其陷入疾病状态。 [3:1]",
+  "scalings": [
+   {
+    "base": 3,
+    "mult": 1
+   }
+  ],
+  "modifier": {
+   "kind": "ratio",
+   "a": 3,
+   "b": 1
+  }
+ },
+ {
+  "troopId": 7260,
+  "troop": "死亡锁·德利拉克",
+  "spellId": 8894,
+  "spellName": "祭祀符文",
+  "desc": "使一名盟友陷入诅咒和死亡标记状态。再对其下位所有敌人造成 [(魔法 x 1.5) + 3] 点伤害。再召唤阿伯拉瑟。",
+  "scalings": [
+   {
+    "base": 3,
+    "mult": 1.5
+   }
+  ],
+  "modifier": null
+ },
+ {
+  "troopId": 7546,
+  "troop": "麻雀骑士",
+  "spellId": 9321,
+  "spellName": "羽毛长枪",
+  "desc": "摧毁一列。对一名随机敌人造成 [魔法 + 3] 点伤害，伤害值因被摧毁的黄色宝石数而增强。再召唤光风暴。 [1:1]",
+  "scalings": [
+   {
+    "base": 3,
+    "mult": 1
+   }
+  ],
+  "modifier": {
+   "kind": "ratio",
+   "a": 1,
+   "b": 1
+  }
+ },
+ {
+  "troopId": 7571,
+  "troop": "永生神天界",
+  "spellId": 9367,
+  "spellName": "岩浆之门",
+  "desc": "对 3 名随机敌人造成 [(魔法 x 0.67) + 2] 点真实溅射伤害，伤害值因燃烧宝石数而增强。若在中央尖塔内使用，则伤害翻倍。 [x2]",
+  "scalings": [
+   {
+    "base": 2,
+    "mult": 0.67
+   }
+  ],
+  "modifier": {
+   "kind": "multiplier",
+   "a": 2
+  }
+ },
+ {
+  "troopId": 7604,
+  "troop": "不朽的拉基亚",
+  "spellId": 9483,
+  "spellName": "沙之尖塔",
+  "desc": "对 3 名随机敌人造成 [(魔法 x 0.67) + 2] 点真实溅射伤害，伤害值因沙漏宝石而增强。如果在玛拉吉扩张区使用，则造成双倍伤害。 [x2]",
+  "scalings": [
+   {
+    "base": 2,
+    "mult": 0.67
+   }
+  ],
+  "modifier": {
+   "kind": "multiplier",
+   "a": 2
+  }
+ },
+ {
+  "troopId": 7790,
+  "troop": "约霍尔蒂塞特尔",
+  "spellId": 9807,
+  "spellName": "夜爪",
+  "desc": "造成[(魔法 x 1.5) + 12]点散射伤害，紫色宝石可提升伤害。若存在风暴，则生成4颗黄色宝石，然后将所有黄色宝石转化为紫色宝石。 [x5]",
+  "scalings": [
+   {
+    "base": 12,
+    "mult": 1.5
+   }
+  ],
+  "modifier": {
+   "kind": "multiplier",
+   "a": 5
+  }
+ },
+ {
+  "troopId": 7839,
+  "troop": "克拉基诺斯",
+  "spellId": 9895,
+  "spellName": "触须迷雾",
+  "desc": "对所有敌人造成[(魔法 x 2) + 3]点伤害，蓝色宝石可提升伤害，并附加诅咒和冰冻效果。有10%的几率获得额外回合，蓝色宝石可提升额外回合数。 [x2]",
+  "scalings": [
+   {
+    "base": 3,
+    "mult": 2
+   }
+  ],
+  "modifier": {
+   "kind": "multiplier",
+   "a": 2
+  }
+ },
+ {
+  "troopId": 7843,
+  "troop": "德米泽留斯",
+  "spellId": 9896,
+  "spellName": "死亡迷雾",
+  "desc": "对所有敌人造成[(魔法 x 2) + 3]点伤害，紫色宝石可提升伤害，并附加诅咒和死亡标记。有10%的几率获得额外回合，紫色宝石可提升额外回合数。 [x2]",
+  "scalings": [
+   {
+    "base": 3,
+    "mult": 2
+   }
+  ],
+  "modifier": {
+   "kind": "multiplier",
+   "a": 2
+  }
+ },
+ {
+  "troopId": 7841,
+  "troop": "赫马特拉克斯",
+  "spellId": 9897,
+  "spellName": "血雾",
+  "desc": "对所有敌人造成[(魔法 x 2) + 3]点伤害，红色宝石可提升伤害，并附加诅咒和2层流血效果。有10%的几率获得额外回合，红色宝石可提升额外回合数。 [x2]",
+  "scalings": [
+   {
+    "base": 3,
+    "mult": 2
+   }
+  ],
+  "modifier": {
+   "kind": "multiplier",
+   "a": 2
+  }
+ },
+ {
+  "troopId": 7842,
+  "troop": "维齐尼姆",
+  "spellId": 9898,
+  "spellName": "眼中的迷雾",
+  "desc": "对所有敌人造成[(魔法 x 2) + 3]点伤害，黄色宝石可提升伤害，并附加诅咒和沉默效果。有10%的几率获得额外回合，黄色宝石可提升额外回合数。 [x2]",
+  "scalings": [
+   {
+    "base": 3,
+    "mult": 2
+   }
+  ],
+  "modifier": {
+   "kind": "multiplier",
+   "a": 2
+  }
+ },
+ {
+  "troopId": 7844,
+  "troop": "阿门霍特雷克斯",
+  "spellId": 9899,
+  "spellName": "骨之迷雾",
+  "desc": "对所有敌人造成[(魔法 x 2) + 3]点伤害，棕色宝石可提升伤害，并附加诅咒和疾病效果。有10%的几率获得额外回合，棕色宝石可提升额外回合数。 [x2]",
+  "scalings": [
+   {
+    "base": 3,
+    "mult": 2
+   }
+  ],
+  "modifier": {
+   "kind": "multiplier",
+   "a": 2
+  }
+ },
+ {
+  "troopId": 7840,
+  "troop": "鲁内修斯",
+  "spellId": 9900,
+  "spellName": "锁链迷雾",
+  "desc": "对所有敌人造成[(魔法 x 2) + 3]点伤害，绿色宝石可提升伤害，并附加诅咒和眩晕效果。有10%的几率获得额外回合，绿色宝石可提升额外回合数。 [x2]",
+  "scalings": [
+   {
+    "base": 3,
+    "mult": 2
+   }
+  ],
+  "modifier": {
+   "kind": "multiplier",
+   "a": 2
+  }
+ },
+ {
+  "troopId": 6919,
+  "troop": "狂怒酷燃达拉",
+  "spellId": 8381,
+  "spellName": "终极毁灭",
+  "desc": "对所有敌人造成 [魔法 + 5] 点伤害。数值因末日骷髅头数而增强。将黄色宝石转换成末日骷髅头。召唤末日骷髅头风暴。 [x10]",
+  "scalings": [
+   {
+    "base": 5,
+    "mult": 1
+   }
+  ],
+  "modifier": {
+   "kind": "multiplier",
+   "a": 10
+  }
+ },
+ {
+  "troopId": 6942,
+  "troop": "骨裂掘者",
+  "spellId": 8423,
+  "spellName": "死不瞑目",
+  "desc": "摧毁一列。每摧毁一颗绿色宝石则创造 2 可末日骷髅头。召唤骷髅头风暴。 [x2]",
+  "scalings": [],
+  "modifier": {
+   "kind": "multiplier",
+   "a": 2
+  }
+ }
+]

@@ -1,0 +1,545 @@
+[
+ {
+  "troopId": 6893,
+  "troop": "恶龙",
+  "spellId": 8319,
+  "spellName": "毒焰",
+  "desc": "对一名敌人造成 [魔法 + 5] 点伤害，伤害值因陷入燃烧和疾病状态的敌人数而增强。 [x6]",
+  "scalings": [
+   {
+    "base": 5,
+    "mult": 1
+   }
+  ],
+  "modifier": {
+   "kind": "multiplier",
+   "a": 6
+  }
+ },
+ {
+  "troopId": 6948,
+  "troop": "深渊猎人",
+  "spellId": 8429,
+  "spellName": "碎步来袭",
+  "desc": "爆破 [魔法 + 1] 颗绿色或紫色宝石。再使第一位敌人陷入诅咒和织网状态。",
+  "scalings": [
+   {
+    "base": 1,
+    "mult": 1
+   }
+  ],
+  "modifier": null
+ },
+ {
+  "troopId": 6949,
+  "troop": "深渊曼克奈斯",
+  "spellId": 8430,
+  "spellName": "暗影符象",
+  "desc": "对所有敌人造成 [(魔法 / 2) + 1] 点伤害，再使他们全部陷入诅咒和织网状态。",
+  "scalings": [
+   {
+    "base": 1,
+    "mult": 0.5
+   }
+  ],
+  "modifier": null
+ },
+ {
+  "troopId": 6969,
+  "troop": "S.O.L.A.R",
+  "spellId": 8472,
+  "spellName": "太阳耀斑",
+  "desc": "对一名敌人造成 [魔法 + 1] 点真实伤害，再使他们陷入燃烧状态。或摧毁所有炸弹宝石。",
+  "scalings": [
+   {
+    "base": 1,
+    "mult": 1
+   }
+  ],
+  "modifier": null
+ },
+ {
+  "troopId": 7106,
+  "troop": "提哈玛塔",
+  "spellId": 8649,
+  "spellName": "火焰冠冕",
+  "desc": "对所有敌人造成 [魔法 + 6] 点伤害。再创建 3 颗 x4 通配宝石。",
+  "scalings": [
+   {
+    "base": 6,
+    "mult": 1
+   }
+  ],
+  "modifier": null
+ },
+ {
+  "troopId": 7131,
+  "troop": "藏宝库守卫",
+  "spellId": 8675,
+  "spellName": "冰冷之触",
+  "desc": "对一名敌人造成 [魔法 + 2] 点伤害。再使他们陷入冻结或死亡标记状态。",
+  "scalings": [
+   {
+    "base": 2,
+    "mult": 1
+   }
+  ],
+  "modifier": null
+ },
+ {
+  "troopId": 7151,
+  "troop": "火灵",
+  "spellId": 8710,
+  "spellName": "火焰跳跃",
+  "desc": "将所有选定颜色的宝石转换成燃烧宝石。",
+  "scalings": [],
+  "modifier": null
+ },
+ {
+  "troopId": 7153,
+  "troop": "怒火纳迦",
+  "spellId": 8712,
+  "spellName": "燃烧三叉戟",
+  "desc": "对一名敌人造成 [魔法 + 3] 点溅射伤害，数值因燃烧宝石的数量而增强。 [x3]",
+  "scalings": [
+   {
+    "base": 3,
+    "mult": 1
+   }
+  ],
+  "modifier": {
+   "kind": "multiplier",
+   "a": 3
+  }
+ },
+ {
+  "troopId": 7150,
+  "troop": "奥伯伦国王",
+  "spellId": 8718,
+  "spellName": "夏日之冠",
+  "desc": "给所有同盟[魔法 + 3]点生命值和5点魔法。然后发起一场烈火风暴并施魔法于所有的精灵同盟。",
+  "scalings": [
+   {
+    "base": 3,
+    "mult": 1
+   }
+  ],
+  "modifier": null
+ },
+ {
+  "troopId": 7182,
+  "troop": "双子座",
+  "spellId": 8752,
+  "spellName": "双子星座",
+  "desc": "窃取最弱的 2 名敌人 [魔法 + 1] 点生命值。并使他们陷入诅咒和叠加 3 倍的出血状态。",
+  "scalings": [
+   {
+    "base": 1,
+    "mult": 1
+   }
+  ],
+  "modifier": null
+ },
+ {
+  "troopId": 7190,
+  "troop": "俳洛飞慕斯",
+  "spellId": 8760,
+  "spellName": "燃烧之眼",
+  "desc": "对一名敌人造成 [魔法 + 2] 点伤害，伤害值因燃烧宝石、燃烧盟友和燃烧敌人数而增强。 [x3]",
+  "scalings": [
+   {
+    "base": 2,
+    "mult": 1
+   }
+  ],
+  "modifier": {
+   "kind": "multiplier",
+   "a": 3
+  }
+ },
+ {
+  "troopId": 7230,
+  "troop": "爱迪生将军",
+  "spellId": 8825,
+  "spellName": "火药",
+  "desc": "对所有敌人造成 [魔法 + 2] 点伤害，伤害值因炸弹宝石数而增强。 [1:1]",
+  "scalings": [
+   {
+    "base": 2,
+    "mult": 1
+   }
+  ],
+  "modifier": {
+   "kind": "ratio",
+   "a": 1,
+   "b": 1
+  }
+ },
+ {
+  "troopId": 7314,
+  "troop": "茹珂",
+  "spellId": 8926,
+  "spellName": "黑翼",
+  "desc": "对一名敌人造成 [魔法 + 2] 点真实伤害，再使他陷入诅咒状态。若敌人使用紫色法力，则造成双倍伤害。",
+  "scalings": [
+   {
+    "base": 2,
+    "mult": 1
+   }
+  ],
+  "modifier": null
+ },
+ {
+  "troopId": 7323,
+  "troop": "火蘑菇",
+  "spellId": 8935,
+  "spellName": "医药蘑菇",
+  "desc": "给予前 2 位盟友 [魔法 + 1] 点生命值。使后 2 位敌人陷入疾病状态。",
+  "scalings": [
+   {
+    "base": 1,
+    "mult": 1
+   }
+  ],
+  "modifier": null
+ },
+ {
+  "troopId": 7331,
+  "troop": "鹦鹉骷髅",
+  "spellId": 8943,
+  "spellName": "死亡呱唧",
+  "desc": "对一名敌人造成[魔法 + 2]点伤害，并使其获得死亡标记。有25%的几率对上下相邻的敌人也获得死亡标记。",
+  "scalings": [
+   {
+    "base": 2,
+    "mult": 1
+   }
+  ],
+  "modifier": null
+ },
+ {
+  "troopId": 7420,
+  "troop": "科纳斯",
+  "spellId": 9114,
+  "spellName": "时间变数",
+  "desc": "对所有敌人造成 [魔法 + 5] 点伤害。再将所有蓝色宝石转换成沙漏宝石。",
+  "scalings": [
+   {
+    "base": 5,
+    "mult": 1
+   }
+  ],
+  "modifier": null
+ },
+ {
+  "troopId": 7541,
+  "troop": "尸鬼骑士",
+  "spellId": 9298,
+  "spellName": "长埋水底",
+  "desc": "下潜自身，并使 2 名随机敌人陷入死亡标记状态。",
+  "scalings": [],
+  "modifier": null
+ },
+ {
+  "troopId": 7714,
+  "troop": "沙漠牛",
+  "spellId": 9675,
+  "spellName": "腐烂凝视",
+  "desc": "混合使用10颗诅咒宝石和末日骷髅头，获得额外回合。",
+  "scalings": [],
+  "modifier": null
+ },
+ {
+  "troopId": 7803,
+  "troop": "西罗尼亚",
+  "spellId": 9844,
+  "spellName": "溺水之歌",
+  "desc": "魅惑、潜入并窃取敌人的[魔法 + 1]点生命值。如果敌人已经处于潜入状态，则有50%的几率将其杀死。",
+  "scalings": [
+   {
+    "base": 1,
+    "mult": 1
+   }
+  ],
+  "modifier": null
+ },
+ {
+  "troopId": 6014,
+  "troop": "暗夜惊魂",
+  "spellId": 7014,
+  "spellName": "厉声尖叫",
+  "desc": "摧毁所有织网宝石。对最弱的敌人造成 [魔法 + 1] 点伤害，伤害值因被摧毁的织网宝石数而增强。 [x2]",
+  "scalings": [
+   {
+    "base": 1,
+    "mult": 1
+   }
+  ],
+  "modifier": {
+   "kind": "multiplier",
+   "a": 2
+  }
+ },
+ {
+  "troopId": 6023,
+  "troop": "拉弥亚",
+  "spellId": 7023,
+  "spellName": "魅惑",
+  "desc": "魅惑一名随机敌人。若敌人身亡，则获得 8 点法力值。",
+  "scalings": [],
+  "modifier": null
+ },
+ {
+  "troopId": 6038,
+  "troop": "亡魂",
+  "spellId": 7038,
+  "spellName": "复仇",
+  "desc": "对最后一名敌人造成 [魔法 + 5] 点伤害，伤害值因骷髅头数而增强。使敌人陷入死亡标记状态。 [3:1]",
+  "scalings": [
+   {
+    "base": 5,
+    "mult": 1
+   }
+  ],
+  "modifier": {
+   "kind": "ratio",
+   "a": 3,
+   "b": 1
+  }
+ },
+ {
+  "troopId": 6249,
+  "troop": "忏悔者",
+  "spellId": 7392,
+  "spellName": "鞭笞",
+  "desc": "使第一个和最后一个敌人陷入死亡标记状态。承受 3 点伤害。",
+  "scalings": [],
+  "modifier": null
+ },
+ {
+  "troopId": 6250,
+  "troop": "皇家工程师",
+  "spellId": 7393,
+  "spellName": "齿轮锁",
+  "desc": "给予所有盟友 [魔法 + 5] 点护甲值。召唤一名随机机械军队，再创造 3 颗炸弹宝石。",
+  "scalings": [
+   {
+    "base": 5,
+    "mult": 1
+   }
+  ],
+  "modifier": null
+ },
+ {
+  "troopId": 6318,
+  "troop": "齿轮骑士",
+  "spellId": 7468,
+  "spellName": "小工具",
+  "desc": "获得 [魔法 + 5] 点护甲值，数值因炸弹宝石数而增强。将所有绿色宝石转换成黄色宝石。 [x3]",
+  "scalings": [
+   {
+    "base": 5,
+    "mult": 1
+   }
+  ],
+  "modifier": {
+   "kind": "multiplier",
+   "a": 3
+  }
+ },
+ {
+  "troopId": 6319,
+  "troop": "哨兵机器人",
+  "spellId": 7469,
+  "spellName": "警报！警报！",
+  "desc": "净化所有其他盟友，再给予他们 3-8 点法力值。创造 3 颗炸弹宝石。",
+  "scalings": [],
+  "modifier": null
+ },
+ {
+  "troopId": 6332,
+  "troop": "奥力",
+  "spellId": 7482,
+  "spellName": "暗黑预兆",
+  "desc": "召唤暗风暴。将所有敌人的随机一项技能值降低 [(魔法 / 2)] 点。",
+  "scalings": [
+   {
+    "base": 0,
+    "mult": 0.5
+   }
+  ],
+  "modifier": null
+ },
+ {
+  "troopId": 6342,
+  "troop": "企鹅",
+  "spellId": 7494,
+  "spellName": "反鳍一拍",
+  "desc": "对 1 名敌人造成 [魔法 + 3] 点伤害。如果有 13 颗或更多蓝色宝石，则造成三倍伤害。创造冰风暴。",
+  "scalings": [
+   {
+    "base": 3,
+    "mult": 1
+   }
+  ],
+  "modifier": null
+ },
+ {
+  "troopId": 6343,
+  "troop": "奥莱",
+  "spellId": 7495,
+  "spellName": "神圣之舞",
+  "desc": "对 1 名敌人造成 [魔法 + 3] 点伤害。如果有 13 颗或更多绿色宝石，则造成三倍伤害。创造叶风暴。",
+  "scalings": [
+   {
+    "base": 3,
+    "mult": 1
+   }
+  ],
+  "modifier": null
+ },
+ {
+  "troopId": 6344,
+  "troop": "欧格林",
+  "spellId": 7496,
+  "spellName": "横冲直撞",
+  "desc": "对 1 名敌人造成 [魔法 + 3] 点伤害。如果有 13 颗或更多红色宝石，则造成三倍伤害。创造火风暴。",
+  "scalings": [
+   {
+    "base": 3,
+    "mult": 1
+   }
+  ],
+  "modifier": null
+ },
+ {
+  "troopId": 6345,
+  "troop": "派里顿",
+  "spellId": 7497,
+  "spellName": "凌空一击",
+  "desc": "对 1 名敌人造成 [魔法 + 3] 点伤害。如果有 13 颗或更多黄色宝石，则造成三倍伤害。创造光风暴。",
+  "scalings": [
+   {
+    "base": 3,
+    "mult": 1
+   }
+  ],
+  "modifier": null
+ },
+ {
+  "troopId": 6346,
+  "troop": "麦兹默",
+  "spellId": 7498,
+  "spellName": "催眠",
+  "desc": "对 1 名敌人造成 [魔法 + 3] 点伤害。如果有 13 颗或更多紫色宝石，则造成三倍伤害。创造暗风暴。",
+  "scalings": [
+   {
+    "base": 3,
+    "mult": 1
+   }
+  ],
+  "modifier": null
+ },
+ {
+  "troopId": 6347,
+  "troop": "穴居小魔",
+  "spellId": 7499,
+  "spellName": "上钩",
+  "desc": "对 1 名敌人造成 [魔法 + 3] 点伤害。如果有 13 颗或更多棕色宝石，则造成三倍伤害。创造尘风暴。",
+  "scalings": [
+   {
+    "base": 3,
+    "mult": 1
+   }
+  ],
+  "modifier": null
+ },
+ {
+  "troopId": 6376,
+  "troop": "骸骨恶魔",
+  "spellId": 7530,
+  "spellName": "骨钉",
+  "desc": "对 1 名敌人造成 [魔法 + 4] 点伤害。如果现有骸骨风暴则伤害双倍。创造骸骨风暴。",
+  "scalings": [
+   {
+    "base": 4,
+    "mult": 1
+   }
+  ],
+  "modifier": null
+ },
+ {
+  "troopId": 6386,
+  "troop": "战鹰",
+  "spellId": 7541,
+  "spellName": "飞鹰扑食",
+  "desc": "对 1 名敌人造成 [魔法 + 4] 点伤害。如果敌人已陷入猎人标记状态，则再加 10 点伤害并获得一个额外回合。",
+  "scalings": [
+   {
+    "base": 4,
+    "mult": 1
+   }
+  ],
+  "modifier": null
+ },
+ {
+  "troopId": 6389,
+  "troop": "地狱再生魔",
+  "spellId": 7544,
+  "spellName": "蠕动挣扎",
+  "desc": "对 1 名敌人造成 [魔法 + 2] 点伤害并和使其陷入疾病状态。如果他已陷入死亡标记状态，则造成三倍伤害。",
+  "scalings": [
+   {
+    "base": 2,
+    "mult": 1
+   }
+  ],
+  "modifier": null
+ },
+ {
+  "troopId": 6451,
+  "troop": "诺斯费拉图",
+  "spellId": 7629,
+  "spellName": "鲜血祭礼",
+  "desc": "对 1 名敌人造成 [魔法 + 1] 点真实伤害。若现有暗风暴，则伤害双倍。再转化成暗魄狼或蝙蝠群。",
+  "scalings": [
+   {
+    "base": 1,
+    "mult": 1
+   }
+  ],
+  "modifier": null
+ },
+ {
+  "troopId": 6453,
+  "troop": "暗魄狼",
+  "spellId": 7631,
+  "spellName": "暗影猎杀",
+  "desc": "对前两名敌人造成  [魔法 + 4]  点伤害。使他们陷入猎人标记和死亡标记状态。再转化成诺斯费拉图。",
+  "scalings": [
+   {
+    "base": 4,
+    "mult": 1
+   }
+  ],
+  "modifier": null
+ },
+ {
+  "troopId": 6605,
+  "troop": "色欲",
+  "spellId": 7814,
+  "spellName": "暗黑欲望",
+  "desc": "魅惑一名敌人。有 40% 的几率将其转化成一名魅妖或魅魔。",
+  "scalings": [],
+  "modifier": null
+ },
+ {
+  "troopId": 6610,
+  "troop": "龙葵",
+  "spellId": 7934,
+  "spellName": "混乱时刻",
+  "desc": "召唤暗风暴，并使所有敌人陷入疾病状态，或冻结所有敌人，或击晕所有敌人。",
+  "scalings": [],
+  "modifier": null
+ }
+]

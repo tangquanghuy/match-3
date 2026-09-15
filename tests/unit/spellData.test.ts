@@ -39,7 +39,7 @@ const RACES = knownTroopTypes();
  */
 const STATUS_WHITELIST = new Set([
   'poison', 'burning', 'bleed', 'silence', 'frozen', 'stun', 'entangle', 'web', 'barrier', 'submerged',
-  'rage', 'disease',
+  'rage', 'disease', 'curse', 'death-mark', 'charm', 'marked',
 ]);
 
 const { byId: curatedById, skipped } = collectCurated();

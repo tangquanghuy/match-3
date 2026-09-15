@@ -1,0 +1,453 @@
+[
+ {
+  "troopId": 6657,
+  "troop": "独角兔",
+  "spellId": 7993,
+  "spellName": "萌萌一顶",
+  "desc": "创造 7 颗黄色宝石。魅惑一名随机敌人。",
+  "scalings": [],
+  "modifier": null
+ },
+ {
+  "troopId": 6708,
+  "troop": "妖咒鼠",
+  "spellId": 8065,
+  "spellName": "混乱暴击",
+  "desc": "对一名敌人和其下方的所有敌人造成 [魔法 + 2] 点伤害。若敌人已陷入诅咒状态，则对其造成双倍伤害并再使其陷入死亡标记状态。",
+  "scalings": [
+   {
+    "base": 2,
+    "mult": 1
+   }
+  ],
+  "modifier": null
+ },
+ {
+  "troopId": 6721,
+  "troop": "漫游号-300",
+  "spellId": 8091,
+  "spellName": "枪口焰",
+  "desc": "爆破 1 颗宝石。对 2 名随机敌人造成 [魔法 + 3] 点伤害。再创造 2 颗炸弹宝石。",
+  "scalings": [
+   {
+    "base": 3,
+    "mult": 1
+   }
+  ],
+  "modifier": null
+ },
+ {
+  "troopId": 6723,
+  "troop": "冰之女",
+  "spellId": 8093,
+  "spellName": "冰舞",
+  "desc": "将红色宝石转换成蓝色。召唤冰风暴。",
+  "scalings": [],
+  "modifier": null
+ },
+ {
+  "troopId": 6751,
+  "troop": "迈纳杰女王",
+  "spellId": 8129,
+  "spellName": "受诅浪潮",
+  "desc": "诅咒所有敌人。将所有绿色宝石转换成骷髅头。",
+  "scalings": [],
+  "modifier": null
+ },
+ {
+  "troopId": 6754,
+  "troop": "鸟妖法师",
+  "spellId": 8133,
+  "spellName": "秘法之爪",
+  "desc": "召唤尘风暴。再选一名盟友，爆破 [魔法 + 1] 颗盟友其中一个法力颜色的宝石。",
+  "scalings": [
+   {
+    "base": 1,
+    "mult": 1
+   }
+  ],
+  "modifier": null
+ },
+ {
+  "troopId": 6758,
+  "troop": "爆毒菌",
+  "spellId": 8138,
+  "spellName": "引爆孢子",
+  "desc": "爆破 [(魔法 / 2) + 1] 颗宝石。若有一名敌人陷入疾病状态，则使 1 到 4 名敌人中毒。",
+  "scalings": [
+   {
+    "base": 1,
+    "mult": 0.5
+   }
+  ],
+  "modifier": null
+ },
+ {
+  "troopId": 6769,
+  "troop": "龙狗",
+  "spellId": 8159,
+  "spellName": "垂涎",
+  "desc": "魅惑一名随机敌人。创造 9 颗蓝色宝石。",
+  "scalings": [],
+  "modifier": null
+ },
+ {
+  "troopId": 6779,
+  "troop": "朗月者",
+  "spellId": 8169,
+  "spellName": "狼刃",
+  "desc": "将紫色宝石转换成绿色。使第一名敌人陷入猎人标记状态。",
+  "scalings": [],
+  "modifier": null
+ },
+ {
+  "troopId": 6818,
+  "troop": "时髦小狮",
+  "spellId": 8222,
+  "spellName": "花粉狮吼",
+  "desc": "召唤叶风暴，再使所有敌人陷入或疾病或缠绕或中毒效果。",
+  "scalings": [],
+  "modifier": null
+ },
+ {
+  "troopId": 6858,
+  "troop": "夏之子",
+  "spellId": 8277,
+  "spellName": "夏日召唤",
+  "desc": "将棕色宝石转换成红色。召唤火风暴。",
+  "scalings": [],
+  "modifier": null
+ },
+ {
+  "troopId": 6891,
+  "troop": "不死地龙",
+  "spellId": 8317,
+  "spellName": "死气",
+  "desc": "爆破 4 颗宝石并召唤一个骸骨风暴。",
+  "scalings": [],
+  "modifier": null
+ },
+ {
+  "troopId": 6955,
+  "troop": "永罪预示",
+  "spellId": 8462,
+  "spellName": "地狱之视",
+  "desc": "将蓝色宝石转换成紫色。诅咒和燃烧最强的敌人。",
+  "scalings": [],
+  "modifier": null
+ },
+ {
+  "troopId": 7010,
+  "troop": "痘痘兔",
+  "spellId": 8542,
+  "spellName": "血腥丰收",
+  "desc": "对一名敌人造成 [魔法 + 2] 点伤害，数值因板面上的绿宝石数而增强。再使其陷入疾病状态。 [3:1]",
+  "scalings": [
+   {
+    "base": 2,
+    "mult": 1
+   }
+  ],
+  "modifier": {
+   "kind": "ratio",
+   "a": 3,
+   "b": 1
+  }
+ },
+ {
+  "troopId": 7037,
+  "troop": "地狱爪法师",
+  "spellId": 8561,
+  "spellName": "暗夜之火",
+  "desc": "创造 9 颗红色宝石和 9 颗紫色宝石。诅咒并燃烧第一个敌人。",
+  "scalings": [],
+  "modifier": null
+ },
+ {
+  "troopId": 7072,
+  "troop": "冰冻的破盾者",
+  "spellId": 8600,
+  "spellName": "冻结的光环",
+  "desc": "诅咒并冻结一名敌人。并对敌人造成[魔法 + 1]点伤害，由蓝宝石激发。 [3:1]",
+  "scalings": [
+   {
+    "base": 1,
+    "mult": 1
+   }
+  ],
+  "modifier": {
+   "kind": "ratio",
+   "a": 3,
+   "b": 1
+  }
+ },
+ {
+  "troopId": 7082,
+  "troop": "大代理伊文德拉",
+  "spellId": 8610,
+  "spellName": "厄运交织",
+  "desc": "将所有黄宝石变成超级末日骷髅。诅咒、布网并毒害最强的敌人。",
+  "scalings": [],
+  "modifier": null
+ },
+ {
+  "troopId": 7112,
+  "troop": "德西斯",
+  "spellId": 8655,
+  "spellName": "一字致命",
+  "desc": "将所有棕色宝石转换成骷髅头。使所有矮人陷入诅咒和死亡标记状态。",
+  "scalings": [],
+  "modifier": null
+ },
+ {
+  "troopId": 7133,
+  "troop": "诅咒地精",
+  "spellId": 8683,
+  "spellName": "下了咒就挪走",
+  "desc": "创建 6 颗诅咒宝石。有 20% 的几率跑掉。",
+  "scalings": [],
+  "modifier": null
+ },
+ {
+  "troopId": 7167,
+  "troop": "斯帕呐德",
+  "spellId": 8719,
+  "spellName": "AI 故障",
+  "desc": "窃取所有敌人 [魔法 + 1] 点护甲值。创造 10 颗炸弹宝石。再随机爆破一颗宝石。",
+  "scalings": [
+   {
+    "base": 1,
+    "mult": 1
+   }
+  ],
+  "modifier": null
+ },
+ {
+  "troopId": 7169,
+  "troop": "粘人小机",
+  "spellId": 8722,
+  "spellName": "连环爆炸",
+  "desc": "将一颗宝石转换成炸弹宝石。再创造 3 颗炸弹宝石或爆破所有炸弹宝石。",
+  "scalings": [],
+  "modifier": null
+ },
+ {
+  "troopId": 7172,
+  "troop": "邪老爪牙",
+  "spellId": 8743,
+  "spellName": "臣服",
+  "desc": "将所有棕色宝石转换成紫色。若有敌人陷入诅咒状态，则获得半数法力值。",
+  "scalings": [],
+  "modifier": null
+ },
+ {
+  "troopId": 7186,
+  "troop": "墓葬猎犬",
+  "spellId": 8756,
+  "spellName": "死亡嚎叫",
+  "desc": "耗掉一名盟友 7 点法力值，再使所有敌人陷入死亡标记，或沉默，或诅咒状态。",
+  "scalings": [],
+  "modifier": null
+ },
+ {
+  "troopId": 7191,
+  "troop": "托泰克",
+  "spellId": 8772,
+  "spellName": "智慧盾牌",
+  "desc": "获得 [(魔法 x 1.5) + 2] 点护甲值，和屏障效果。若有风暴进行中，则给予其他盟友屏障效果。",
+  "scalings": [
+   {
+    "base": 2,
+    "mult": 1.5
+   }
+  ],
+  "modifier": null
+ },
+ {
+  "troopId": 7195,
+  "troop": "提克娜拉",
+  "spellId": 8782,
+  "spellName": "追逐不休",
+  "desc": "使首位敌人陷入猎人标记状态。再将所有绿色宝石转换成骷髅头。",
+  "scalings": [],
+  "modifier": null
+ },
+ {
+  "troopId": 7263,
+  "troop": "龙族长老",
+  "spellId": 8882,
+  "spellName": "长老风暴",
+  "desc": "对所有敌人造成 [魔法 + 3] 点伤害。创造 9 颗诅咒宝石，数量因被诅咒的敌人数而增强。 [1:1]",
+  "scalings": [
+   {
+    "base": 3,
+    "mult": 1
+   }
+  ],
+  "modifier": {
+   "kind": "ratio",
+   "a": 1,
+   "b": 1
+  }
+ },
+ {
+  "troopId": 7273,
+  "troop": "束缚法师",
+  "spellId": 8892,
+  "spellName": "死亡织网",
+  "desc": "将所有黄色宝石转换成织网宝石。再召蜘蛛群。",
+  "scalings": [],
+  "modifier": null
+ },
+ {
+  "troopId": 7329,
+  "troop": "丝绸女皇",
+  "spellId": 8941,
+  "spellName": "梦魇视觉",
+  "desc": "消除 4 点魔法值或耗掉 4 点法力值，或窃取一名敌人 [魔法 + 1] 点生命值，数值因织网宝石数而增强。 [x2]",
+  "scalings": [
+   {
+    "base": 1,
+    "mult": 1
+   }
+  ],
+  "modifier": {
+   "kind": "multiplier",
+   "a": 2
+  }
+ },
+ {
+  "troopId": 7347,
+  "troop": "马哈特审核员",
+  "spellId": 8975,
+  "spellName": "与死人对话",
+  "desc": "将 2 颗紫色宝石转换成死亡标记宝石。将所有黄色宝石转换成末日骷髅头。",
+  "scalings": [],
+  "modifier": null
+ },
+ {
+  "troopId": 7353,
+  "troop": "雅思敏之女",
+  "spellId": 8981,
+  "spellName": "春芽",
+  "desc": "将红色宝石转换成绿色。召唤叶风暴。",
+  "scalings": [],
+  "modifier": null
+ },
+ {
+  "troopId": 7372,
+  "troop": "海婆",
+  "spellId": 9012,
+  "spellName": "浪涛诅咒",
+  "desc": "耗掉一名敌人 7 点法力值。再将所有蓝色宝石转换成诅咒宝石。",
+  "scalings": [],
+  "modifier": null
+ },
+ {
+  "troopId": 7400,
+  "troop": "火手哥布林",
+  "spellId": 9050,
+  "spellName": "烧了就忘",
+  "desc": "将 5 颗绿色宝石转换成燃烧宝石。获得一个额外回合。",
+  "scalings": [],
+  "modifier": null
+ },
+ {
+  "troopId": 7430,
+  "troop": "时间之女",
+  "spellId": 9124,
+  "spellName": "冻结时间",
+  "desc": "创造 5 颗沙漏宝石和 5 颗冻结宝石。再获得一个额外回合。",
+  "scalings": [],
+  "modifier": null
+ },
+ {
+  "troopId": 7475,
+  "troop": "暗黑传令官",
+  "spellId": 9192,
+  "spellName": "闪电结界",
+  "desc": "获得屏障效果。创造 11 颗蓝色闪电宝石或 11 颗黄色闪电宝石。",
+  "scalings": [],
+  "modifier": null
+ },
+ {
+  "troopId": 7481,
+  "troop": "雌性狮身人面像",
+  "spellId": 9198,
+  "spellName": "困惑谜题",
+  "desc": "打乱板面。创造 5 颗闪电宝石并获得一个额外回合。",
+  "scalings": [],
+  "modifier": null
+ },
+ {
+  "troopId": 7522,
+  "troop": "仲冬狼人",
+  "spellId": 9312,
+  "spellName": "暴风雪啸",
+  "desc": "对所有敌人造成 [(魔法 x 1.25) + 2] 点伤害。创造 16 颗混合诅咒和冻结宝石。",
+  "scalings": [
+   {
+    "base": 2,
+    "mult": 1.25
+   }
+  ],
+  "modifier": null
+ },
+ {
+  "troopId": 7644,
+  "troop": "枫金皮",
+  "spellId": 9548,
+  "spellName": "落叶低语",
+  "desc": "创造 5 颗精灵火宝石和 5 颗燃烧宝石。然后获得额外回合。",
+  "scalings": [],
+  "modifier": null
+ },
+ {
+  "troopId": 7682,
+  "troop": "熔岩巨人",
+  "spellId": 9637,
+  "spellName": "火热冲突",
+  "desc": "对一名敌人造成[魔法 + 2]点伤害，伤害值因燃烧敌人数量而增强。然后引爆4颗燃烧宝石。 [x4]",
+  "scalings": [
+   {
+    "base": 2,
+    "mult": 1
+   }
+  ],
+  "modifier": {
+   "kind": "multiplier",
+   "a": 4
+  }
+ },
+ {
+  "troopId": 7716,
+  "troop": "被遗忘的守护者",
+  "spellId": 9677,
+  "spellName": "忘记钥匙",
+  "desc": "对2名随机敌人造成[魔法 + 3]点伤害，伤害值因诅咒宝石数量而增强。然后制造4颗诅咒宝石。 [x3]",
+  "scalings": [
+   {
+    "base": 3,
+    "mult": 1
+   }
+  ],
+  "modifier": {
+   "kind": "multiplier",
+   "a": 3
+  }
+ },
+ {
+  "troopId": 7778,
+  "troop": "血孢子",
+  "spellId": 9784,
+  "spellName": "血符印",
+  "desc": "对一名敌人造成[魔法 + 4]点伤害。如果该敌人处于流血状态，则驱散其流血效果，施加诅咒并吸取其3点法力值。",
+  "scalings": [
+   {
+    "base": 4,
+    "mult": 1
+   }
+  ],
+  "modifier": null
+ }
+]
