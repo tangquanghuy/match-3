@@ -21,6 +21,18 @@ import greenSingleHitUrl from '../assets/audio/skills/skill_hit_green_single.wav
 import { canonicalStatusSoundId, STATUS_SYNTHS } from './StatusSynth';
 
 /**
+ * 状态施加音 AI 素材自动接线（窗口 I）：扫描 src/assets/audio/status/status_*.wav，
+ * 文件放入即生效（键取自文件名 status_<键>.wav 的 <键> 段，与 StatusSynth 规范键一致），
+ * 无需改代码。目录为空/缺某状态时回退 StatusSynth 占位合成。
+ * 生成提示词：assets/音效/提示词/状态施加音效-AI生成提示词.md。
+ */
+const STATUS_SAMPLE_URLS: Record<string, string> = Object.fromEntries(
+  Object.entries(
+    import.meta.glob('../assets/audio/status/status_*.wav', { query: '?url', import: 'default', eager: true }) as Record<string, string>,
+  ).map(([path, url]) => [path.replace(/^.*[/\\]status_(.+)\.wav$/, '$1'), url]),
+);
+
+/**
  * 音频管理器（需求 26）。
  * Web Audio API 统一管理程序化合成音效和预解码采样资源。
  * 三条音量总线（主/音效/音乐），首次用户交互后初始化以规避自动播放策略（需求 26.5）。
@@ -83,6 +95,8 @@ export class AudioManager {
   private frozenSkillBytePromise: Promise<ArrayBuffer | null> | null = null;
   private burningTreeBytePromise: Promise<ArrayBuffer | null> | null = null;
   private splashChainHitBytePromise: Promise<ArrayBuffer | null> | null = null;
+  private statusSampleBuffers: Record<string, AudioBuffer | null> = {};
+  private statusSampleBytePromises: Record<string, Promise<ArrayBuffer | null>> = {};
   private lastStatusApplyAt: Record<string, number> = {};
   private lastSkullHitAt = -Infinity;
   private lastEarthSkillCastAt = -Infinity;
@@ -126,6 +140,7 @@ export class AudioManager {
       void this.loadFrozenSkill();
       void this.loadBurningTree();
       void this.loadSplashChainHit();
+      void this.loadStatusSamples();
       void this.loadColoredSingleHits();
     } catch {
       // 音频不可用时降级为静音，不阻塞游戏（需求 26.5）
@@ -148,6 +163,9 @@ export class AudioManager {
     this.frozenSkillBytePromise ??= this.fetchAudioBytes(frozenSkillUrl);
     this.burningTreeBytePromise ??= this.fetchAudioBytes(burningTreeUrl);
     this.splashChainHitBytePromise ??= this.fetchAudioBytes(splashChainHitUrl);
+    for (const [key, url] of Object.entries(STATUS_SAMPLE_URLS)) {
+      this.statusSampleBytePromises[key] ??= this.fetchAudioBytes(url);
+    }
   }
 
   async resume(): Promise<void> {
@@ -246,9 +264,9 @@ export class AudioManager {
   }
 
   /**
-   * 状态施加音（status-apply 事件专用接线点）：poison/burning/frozen 维持既有采样
-   * （poison 即原 poison_spell 链，行为与接线前一致），其余落地状态走 StatusSynth
-   * 程序合成；未知/未落地状态静默。
+   * 状态施加音（status-apply 事件专用接线点）：status/ 目录里有的 AI 采样直接播放；
+   * 缺采样时 poison/burning/frozen 维持既有采样（poison 即原 poison_spell 链，行为与
+   * 接线前一致），其余落地状态走 StatusSynth 占位合成；未知/未落地状态静默。
    * 同键 0.18s 节流——全队施加同一状态只响一次。
    */
   playStatusApply(statusId: string): void {
@@ -258,6 +276,17 @@ export class AudioManager {
     const now = this.ctx.currentTime;
     if (now - (this.lastStatusApplyAt[key] ?? -Infinity) < 0.18) return;
     this.lastStatusApplyAt[key] = now;
+    const sample = this.statusSampleBuffers[key];
+    if (sample) {
+      const source = this.ctx.createBufferSource();
+      const gain = this.ctx.createGain();
+      source.buffer = sample;
+      gain.gain.value = 0.72;
+      source.connect(gain);
+      gain.connect(this.sfxBus);
+      source.start(now);
+      return;
+    }
     switch (key) {
       case 'poison':
         this.poisonSpell();
@@ -272,6 +301,12 @@ export class AudioManager {
         STATUS_SYNTHS[key]?.(this.ctx, this.sfxBus, now);
         break;
     }
+  }
+
+  private async loadStatusSamples(): Promise<void> {
+    await Promise.all(Object.entries(this.statusSampleBytePromises).map(async ([key, bytes]) => {
+      this.statusSampleBuffers[key] = await this.decodePrefetched(bytes);
+    }));
   }
 
   private async fetchAudioBytes(url: string): Promise<ArrayBuffer | null> {
