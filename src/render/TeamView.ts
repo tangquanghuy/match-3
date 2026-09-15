@@ -64,14 +64,14 @@ function ofs(base: number): number {
 }
 
 /**
- * 法力宝石书签边长：按 PC 设计稿的卡宽占比锚定，而不是用 44px 触控区尺寸反推。
+ * 法力宝石书签边长：按卡宽占比锚定，而不是用 44px 触控区尺寸反推。
  *
  * 设计稿 `.superdesign/design_iterations/gem_emerald.html`：小卡 116×164 配 30px 宝石
- * （占卡宽 25.9%），大卡 232×328 配 50px（21.6%）。原实现的 44px 是触控区下限，
- * 拿它当比例基准会让书签在紧凑卡上明显偏重。
+ * （占卡宽 25.9%），大卡 232×328 配 50px（21.6%）。游戏内 25.9% 压立绘太狠（用户反馈），
+ * 先收到 21.6%；但空法力时宝石只填书签一半、黑底衬喧宾夺主，再收一档并让底衬贴住宝石。
  */
 function gemSize(): number {
-  return Math.round(CARD_W * 0.26);
+  return Math.round(CARD_W * 0.18);
 }
 
 /** 基础色 → card_7 暖旧电影皮肤类名 */
@@ -327,6 +327,43 @@ function ensureStyles(): void {
   @media (prefers-reduced-motion:reduce){
     .gcard.entangled .entangle-vines,.gcard.entangled .entangle-layer::after{animation:none}}
 
+  /* 状态持续层：缺少专属序列帧的状态用 CSS 纹理表达，不遮挡立绘。 */
+  .gcard .status-accent-layer{position:absolute;inset:0;z-index:4;border-radius:8px;pointer-events:none;
+    opacity:0;overflow:hidden;transition:opacity .24s ease;mix-blend-mode:screen}
+  .gcard .status-accent-layer::before,.gcard .status-accent-layer::after{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none}
+  .gcard.status-accent-death-mark .status-accent-layer{opacity:1;
+    box-shadow:inset 0 0 0 1px rgba(255,74,76,.85),inset 0 0 18px rgba(173,21,36,.38);
+    animation:statusDeathMarkPulse 1.8s ease-in-out infinite}
+  .gcard.status-accent-death-mark .status-accent-layer::before{background:radial-gradient(circle at 50% 45%,transparent 42%,rgba(255,45,56,.16) 72%,rgba(120,10,24,.4) 100%)}
+  .gcard.status-accent-curse .status-accent-layer{opacity:1;
+    box-shadow:inset 0 0 0 1px rgba(170,107,255,.72),inset 0 0 15px rgba(94,36,148,.38)}
+  .gcard.status-accent-curse .status-accent-layer::before{inset:14%;border:1px dashed rgba(206,155,255,.54);transform:rotate(12deg);animation:statusRuneSpin 5s linear infinite}
+  .gcard.status-accent-curse .status-accent-layer::after{background:radial-gradient(circle at 50% 24%,rgba(191,125,255,.2),transparent 40%)}
+  .gcard.status-accent-disease .status-accent-layer{opacity:1;
+    box-shadow:inset 0 0 0 1px rgba(191,202,74,.66),inset 0 0 18px rgba(113,123,28,.3)}
+  .gcard.status-accent-disease .status-accent-layer::before{background:radial-gradient(circle at 22% 26%,rgba(218,239,111,.3) 0 2%,transparent 3%),radial-gradient(circle at 74% 64%,rgba(185,208,65,.25) 0 1.5%,transparent 2.5%),radial-gradient(circle at 48% 82%,rgba(218,239,111,.22) 0 1%,transparent 2%);animation:statusDiseaseDrift 3.8s ease-in-out infinite}
+  .gcard.status-accent-mana-burn .status-accent-layer{opacity:1;
+    box-shadow:inset 0 0 0 1px rgba(104,126,255,.62),inset 0 0 18px rgba(40,49,151,.38)}
+  .gcard.status-accent-mana-burn .status-accent-layer::before{background:linear-gradient(155deg,transparent 30%,rgba(91,113,255,.2) 48%,transparent 66%);animation:statusManaBurnSweep 1.7s ease-in-out infinite}
+  .gcard.status-accent-charm .status-accent-layer{opacity:1;box-shadow:inset 0 0 0 1px rgba(255,133,214,.62),inset 0 0 18px rgba(168,53,131,.24)}
+  .gcard.status-accent-charm .status-accent-layer::before{background:radial-gradient(ellipse at 50% 18%,rgba(255,166,226,.28),transparent 54%);animation:statusCharmPulse 2.4s ease-in-out infinite}
+  .gcard.status-accent-rage .status-accent-layer{opacity:1;box-shadow:inset 0 0 0 1px rgba(255,142,83,.62),inset 0 0 18px rgba(169,51,28,.28)}
+  .gcard.status-accent-rage .status-accent-layer::before{background:linear-gradient(180deg,rgba(255,98,46,.22),transparent 48%);animation:statusRagePulse 1.1s ease-in-out infinite}
+  .gcard.status-accent-wolf .status-accent-layer{opacity:1;box-shadow:inset 0 0 0 1px rgba(187,216,255,.62),inset 0 0 18px rgba(101,132,181,.28)}
+  .gcard.status-accent-wolf .status-accent-layer::before{background:linear-gradient(135deg,rgba(222,240,255,.2),transparent 42%,rgba(115,161,215,.18));animation:statusWolfSheen 2.8s ease-in-out infinite}
+  @keyframes statusDeathMarkPulse{0%,100%{opacity:.68}50%{opacity:1}}
+  @keyframes statusRuneSpin{to{transform:rotate(372deg)}}
+  @keyframes statusDiseaseDrift{0%,100%{transform:translate(0,0)}50%{transform:translate(2%, -2%)}}
+  @keyframes statusManaBurnSweep{0%,100%{transform:translateX(-18%);opacity:.45}50%{transform:translateX(18%);opacity:1}}
+  @keyframes statusCharmPulse{0%,100%{opacity:.45;transform:scale(.94)}50%{opacity:1;transform:scale(1.04)}}
+  @keyframes statusRagePulse{0%,100%{opacity:.45}50%{opacity:1}}
+  @keyframes statusWolfSheen{0%,100%{transform:translateX(-12%);opacity:.45}50%{transform:translateX(12%);opacity:1}}
+  @media (prefers-reduced-motion:reduce){
+    .gcard.status-accent-death-mark .status-accent-layer,.gcard.status-accent-curse .status-accent-layer::before,
+    .gcard.status-accent-disease .status-accent-layer::before,.gcard.status-accent-mana-burn .status-accent-layer::before,
+    .gcard.status-accent-charm .status-accent-layer::before,.gcard.status-accent-rage .status-accent-layer::before,
+    .gcard.status-accent-wolf .status-accent-layer::before{animation:none}}
+
 
   /* 立绘层裁切到圆角；卡本身不裁切，便于宝石出框悬挂 */
   .gcard .art{position:absolute;inset:0;z-index:0;border-radius:8px;overflow:hidden}
@@ -400,7 +437,8 @@ function ensureStyles(): void {
   /* 触控区随视觉一起同比缩小：这是二级信息入口（点开法力进度浮窗），
      不再计入 44×44 关键控件；全屏、队伍人数与角色卡本身仍保持 ≥44 CSS px。 */
   .gcard .gem{position:absolute;top:0;left:0;z-index:6;
-    width:${gemSize()}px;height:${gemSize()}px;padding:${Math.round(gemSize() * 0.19)}px;
+    width:${gemSize()}px;height:${gemSize()}px;padding:${Math.round(gemSize() * 0.12)}px;
+    /* 底衬贴住宝石：留白过大会在空法力（暗态）时读成一大块黑板 */
     box-sizing:border-box;cursor:pointer;
     background:linear-gradient(135deg,rgba(20,18,15,.92),rgba(11,10,9,.82));
     border:1px solid rgba(216,194,144,.4);border-top-color:rgba(216,194,144,.5);
@@ -464,15 +502,15 @@ function ensureStyles(): void {
   /* 魔力（法术强度）：镜像左上法力宝石的"书签式"角标，嵌进右上角边框，与法力成对呼应。
      深色玻璃底 + 神秘紫边（呼应法力的暖金边），内含发光水晶球 + 高对比数字。 */
   .gcard .magic{position:absolute;top:0;right:0;z-index:6;
-    height:${os(26)}px;padding:0 ${os(7)}px 0 ${os(6)}px;box-sizing:border-box;
-    display:flex;align-items:center;gap:${os(4)}px;pointer-events:none;
+    height:${os(21)}px;padding:0 ${os(6)}px 0 ${os(5)}px;box-sizing:border-box;
+    display:flex;align-items:center;gap:${os(3)}px;pointer-events:none;
     background:linear-gradient(225deg,rgba(38,26,54,.94),rgba(16,11,22,.86));
     border:1px solid rgba(178,140,224,.42);border-top-color:rgba(200,166,240,.6);
     border-right-color:rgba(200,166,240,.6);
     border-radius:0 ${os(8)}px 0 ${os(12)}px;
     box-shadow:-1px 1px 4px rgba(0,0,0,.5),inset 0 0 6px rgba(140,90,200,.22)}
-  .gcard .magic .ic-magic{flex:none;width:${os(17)}px;height:${os(17)}px;filter:drop-shadow(0 0 3px rgba(180,130,240,.7))}
-  .gcard .magic .v{font-family:"Playfair Display",Georgia,serif;font-weight:800;line-height:1;font-size:${ofs(15)}px;
+  .gcard .magic .ic-magic{flex:none;width:${os(14)}px;height:${os(14)}px;filter:drop-shadow(0 0 3px rgba(180,130,240,.7))}
+  .gcard .magic .v{font-family:"Playfair Display",Georgia,serif;font-weight:800;line-height:1;font-size:${ofs(13)}px;
     letter-spacing:-.01em;color:#f1e9ff;text-shadow:0 1px 2px rgba(0,0,0,.95),0 0 5px rgba(150,100,210,.5)}
 
   /* 状态图标栏：卡片左下角横排，中毒/燃烧/沉默等各一枚可辨识图标 + 剩余回合 */
@@ -559,6 +597,7 @@ export class CharacterCard {
       <div class="frost-layer" aria-hidden="true"></div>
       <div class="silence-layer" aria-hidden="true"><span class="silence-seal"></span></div>
       <div class="entangle-layer" aria-hidden="true"><span class="entangle-vines"></span></div>
+      <div class="status-accent-layer" aria-hidden="true"></div>
       <div class="frame-ornament" aria-hidden="true">
         <svg viewBox="0 0 72 24" role="presentation">
           <defs><linearGradient id="ornGold" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#8f6c37"/><stop offset=".48" stop-color="#f0d99c"/><stop offset="1" stop-color="#9d763e"/></linearGradient></defs>
@@ -792,6 +831,24 @@ export class CharacterCard {
   /** ???????????????????? status-apply/expire/cleanse ??? */
   setEntangled(on: boolean): void {
     this.el.classList.toggle('entangled', on);
+  }
+
+  /**
+   * 为没有专属序列帧的状态挂载程序化持续层。
+   * 状态 id 统一转成 CSS class，未知状态安全忽略，不影响状态栏本身。
+   */
+  setStatusAccent(statusId: string, on: boolean): void {
+    const rawKey = statusId.toLowerCase().replace(/_/g, '-');
+    const key = rawKey === 'wolf-form' ? 'wolf' : rawKey;
+    const supported = new Set(['death-mark', 'curse', 'disease', 'mana-burn', 'charm', 'rage', 'wolf']);
+    if (!supported.has(key)) return;
+    this.el.classList.toggle(`status-accent-${key}`, on);
+  }
+
+  clearStatusAccents(): void {
+    for (const key of ['death-mark', 'curse', 'disease', 'mana-burn', 'charm', 'rage', 'wolf']) {
+      this.el.classList.remove(`status-accent-${key}`);
+    }
   }
 
   /**

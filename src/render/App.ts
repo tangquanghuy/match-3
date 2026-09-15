@@ -9,7 +9,7 @@ import { createGameState } from '@engine/GameState';
 import { SeededRNG } from '@engine/rng';
 import { TRAIT_LIBRARY } from '@engine/traits';
 import { MatchState, PlayerSide, BaseColor } from '@engine/types';
-import type { Character, GemType } from '@engine/types';
+import type { Character, GemType, SpecialGemKind, SkullStormDropKind } from '@engine/types';
 import {
   BattleSession,
   assignBattleRequest,
@@ -125,6 +125,19 @@ const BUFF_COLOR: Record<string, string> = {
   attack: '#ff9a5a',
   magic: '#c69bff',
   mana: '#8fb8ff',
+};
+
+const SPECIAL_GEM_FEEDBACK: Record<SpecialGemKind, { label: string; color: string }> = {
+  doomSkull: { label: '末日骷髅', color: '#c58cff' },
+  uberDoomSkull: { label: '至尊末日', color: '#e2a7ff' },
+  bomb: { label: '爆破', color: '#ff9c5c' },
+  web: { label: '织网', color: '#c58cff' },
+  lightningRow: { label: '闪电·行', color: '#68c7ff' },
+  lightningCol: { label: '闪电·列', color: '#ffe06b' },
+  wildcard: { label: '通配变形', color: '#ffffff' },
+  wish: { label: '许愿', color: '#ffe06b' },
+  hourglass: { label: '额外回合', color: '#ffd36b' },
+  ghost: { label: '幽魂', color: '#b7e5ff' },
 };
 
 const SINGLE_HIT_FX: Partial<Record<BaseColor, string>> = {
@@ -409,7 +422,6 @@ export class App {
   private turnHudStreakEls: HTMLSpanElement[] = [];
   private turnHudParticleEls: HTMLSpanElement[] = [];
   /** 横幅底缘相对棋盘顶的下沉量（棋盘局部 px）：refill 生成线据此让宝石从夜幕下方出现 */
-  private turnBannerDipPx = 0;
   /** CS2 击杀风格彗星尾光的头部亮核（左右各一），跟随尾光头端飞出 */
   private turnHudCometHeadEls: HTMLSpanElement[] = [];
   private turnHudAnimations: Animation[] = [];
@@ -525,20 +537,24 @@ export class App {
 
     this.createFullscreenButton(wrapper);
     this.createTeamSizeToggle(wrapper, teamSize);
-    this.createTurnBanner(
+    const banner = this.createTurnBanner(
       wrapper,
       gemSpace + sideColW,
       gridPx,
       topMargin + boardTopInset,
     );
-    // 风暴指示器：顶部 44px HUD 通道的另一侧——回合 HUD 居中占棋盘上沿，
-    // 指示器按施放方贴其队伍列上沿（左队 → 左列、右队 → 右列）。
+    // 风暴指示器：天色铺满棋盘上沿，宝石压在星落横幅的冠饰星位（素材纵向 19% 处的紫钻石）。
+    const stormWidth = gridPx;
+    const stormLeft = gemSpace + sideColW;
     this.stormIndicator.mount(wrapper, {
-      leftColumnX: gemSpace,
-      rightColumnX: gemSpace + sideColW + gridPx + colGap,
-      columnWidth: sideColW - colGap,
+      // Storm is a battlefield-wide effect: keep the gem centered over the board,
+      // while the color wash covers the entire top banner.
+      leftColumnX: stormLeft,
+      rightColumnX: stormLeft,
+      columnWidth: stormWidth,
       laneTop: topMargin,
       laneHeight: boardTopInset,
+      gemCenterY: banner.top + Math.round(banner.height * 0.19),
     });
 
     // Critical 宝石贴图与 Pixi renderer 并行加载；同步棋盘前等待，失败时自动使用程序化回退。
@@ -607,12 +623,15 @@ export class App {
 
     this.board.syncFromBoard(genBoard);
     this.player = new EventStreamPlayer(this.board, this.fx, this.root, this.audio);
-    this.player.setRefillSpawnTopPx(this.turnBannerDipPx);
     this.player.onBattleEvent = (ev) => this.onBattleEvent(ev);
     this.player.onGroupAttack = (events) => this.playGroupAttack(events);
     this.player.onManaFlow = (ev, origins) => this.playManaFlow(ev, origins);
     this.player.onComboPulse = (level) => this.playTurnHudCombo(level);
     this.player.onStormChange = (ev) => this.onStormChangePresentation(ev);
+    // 开局风暴在引擎构造时已写入状态并由 BattleSession 记录；首屏直接补放一次指示器。
+    for (const ev of this.session.recordedEvents()) {
+      if (ev.type === 'storm-change') this.onStormChangePresentation(ev);
+    }
 
     // 输入
     this.input = new InputController(this.board, this.app.canvas);
@@ -819,13 +838,14 @@ export class App {
     wrapper.appendChild(btn);
   }
 
-  /** 回合横幅：星落素材按自然纵横比渲染，波浪底缘沉入棋盘首行上方，宽度与棋盘精确对齐 */
+  /** 回合横幅：星落素材按自然纵横比渲染，波浪底缘沉入棋盘首行上方，宽度与棋盘精确对齐。
+   *  返回横幅几何（top/height，wrapper 坐标），供风暴指示器对位冠饰星位。 */
   private createTurnBanner(
     wrapper: HTMLDivElement,
     boardLeft: number,
     gridPx: number,
     boardTop: number,
-  ): void {
+  ): { top: number; height: number } {
     // 素材 1425×310：顶部金冠 + 星空主体 + 底部波浪羽化。宽度与棋盘对齐（不再外溢边框）；
     // 高度取自然纵横比，受「棋盘上方空间 + 羽化沉入深度」约束，空间不足时整体等比压缩。
     // 金冠保持在棋盘上方的预留车道内；宝石自夜幕后方落下、经半透明波谷显现（本层 z-index 高于画布）。
@@ -834,7 +854,6 @@ export class App {
     const naturalHeight = Math.round((gridPx * 310) / 1425);
     const hudHeight = Math.min(naturalHeight, boardTop + dipIntoBoard);
     const hudTop = Math.max(0, boardTop + dipIntoBoard - hudHeight);
-    this.turnBannerDipPx = Math.max(0, hudTop + hudHeight - boardTop);
     const hud = document.createElement('div');
     hud.className = 'turn-hud';
     hud.style.cssText = [
@@ -1019,6 +1038,7 @@ export class App {
     this.turnHudStreakEls = streaks;
     this.turnHudParticleEls = particles;
     this.turnHudCometHeadEls = cometHeads;
+    return { top: hudTop, height: hudHeight };
   }
 
   private playTurnHudCombo(chain: number): void {
@@ -1304,6 +1324,7 @@ export class App {
         card.setFrozen(false);
         card.setSilenced(false);
         card.setEntangled(false);
+        card.clearStatusAccents();
         // Keep the defeated card in the team column and gray it before the particles start.
         card.refresh();
         const removeDefeatedCard = () => {
@@ -1342,6 +1363,11 @@ export class App {
       case 'skill-damage': {
         const card = this.cardOfChar(ev.targetId);
         if (!card) break;
+        // 骷髅爆炸（炸毁骷髅）：从爆炸点发射骷髅弹体打向敌方队首卡，不走技能弹道
+        if (ev.skullBurst) {
+          this.playSkullExplosion(ev, card);
+          break;
+        }
         if (ev.range === 'splash') {
           this.playSplashChainDamage(ev, card);
           break;
@@ -1435,7 +1461,10 @@ export class App {
         // DoT(中毒/燃烧) 的完整大动画留到每回合 tick 掉血时爆发；
         // 硬控/软控(冰冻/眩晕/缠绕/沉默) 施加后挂"持续层"循环动画，直到状态解除。
         const card = this.cardOfChar(ev.targetId);
-        if (card) card.applyStatusBadge();
+        if (card) {
+          card.applyStatusBadge();
+          card.setStatusAccent(ev.statusId, true);
+        }
         const center = card ? this.cardCenterInOverlay(card) : null;
         switch (ev.statusId) {
           case 'poison':
@@ -1473,6 +1502,7 @@ export class App {
         const card = this.cardOfChar(ev.targetId);
         if (card) {
           card.removeStatusBadge();
+          card.clearStatusAccents();
           card.refresh();
           const center = this.cardCenterInOverlay(card);
           this.audio.play('healing');
@@ -1507,7 +1537,10 @@ export class App {
       }
       case 'status-expire': {
         const card = this.cardOfChar(ev.targetId);
-        if (card) card.removeStatusBadge();
+        if (card) {
+          card.removeStatusBadge();
+          card.setStatusAccent(ev.statusId, false);
+        }
         // 状态到期：移除其持续层（序列帧）或冰封卡面态
         if (ev.statusId === 'frozen') card?.setFrozen(false);
         else if (ev.statusId === 'silence') card?.setSilenced(false);
@@ -1529,6 +1562,9 @@ export class App {
         }
         break;
       }
+      case 'special-gem-trigger':
+        this.showSpecialGemTrigger(ev);
+        break;
       case 'extra-turn': {
         // 额外回合（ANIMATION_HANDOFF §19 P0-2）：仅"技能主动给的"额外回合(source=skill)
         // 在棋盘中央播放 0082 祝福动画；常规三消(4/5连·L/T形)给的额外回合(source=match)
@@ -1553,12 +1589,91 @@ export class App {
   private onStormChangePresentation(ev: Extract<GameEvent, { type: 'storm-change' }>): void {
     const plan = stormChangePlan(ev);
     if (plan.action === 'show' && plan.color !== null) {
-      this.stormIndicator.show(plan.color, ev.player);
-      const center = this.stormIndicator.activeCenter();
-      if (center && plan.burstFx) this.playFrameFX(plan.burstFx, center.x, center.y);
+      this.stormIndicator.show(plan.color, ev.player, plan.dropKind);
     } else {
       this.stormIndicator.hide(ev.player);
     }
+  }
+
+  /** 特殊宝石触发的程序化反馈：触发环、标签，以及闪电的整行/整列扫光。 */
+  private showSpecialGemTrigger(
+    ev: Extract<GameEvent, { type: 'special-gem-trigger' }>,
+  ): void {
+    const center = this.cellsCenterInOverlay([ev.pos]);
+    if (!center) return;
+    const feedback = SPECIAL_GEM_FEEDBACK[ev.kind];
+    if (!feedback) return;
+
+    const ring = document.createElement('div');
+    ring.dataset.specialGemFeedback = ev.kind;
+    ring.style.cssText = [
+      'position:absolute', `left:${center.x}px`, `top:${center.y}px`,
+      'width:52px', 'height:52px', 'z-index:36', 'pointer-events:none',
+      'border:2px solid', `border-color:${feedback.color}`, 'border-radius:50%',
+      'box-sizing:border-box', `box-shadow:0 0 8px ${feedback.color},0 0 22px ${feedback.color}`,
+      'transform:translate(-50%,-50%) scale(.34)', 'opacity:0',
+    ].join(';');
+    this.overlay.appendChild(ring);
+    const ringAnim = ring.animate(
+      [
+        { opacity: 0, transform: 'translate(-50%,-50%) scale(.34)' },
+        { opacity: 1, transform: 'translate(-50%,-50%) scale(.82)', offset: .28 },
+        { opacity: 0, transform: 'translate(-50%,-50%) scale(1.5)' },
+      ],
+      { duration: 440, easing: 'cubic-bezier(.16,.8,.24,1)' },
+    );
+    ringAnim.onfinish = () => ring.remove();
+
+    const label = document.createElement('div');
+    label.textContent = feedback.label;
+    label.style.cssText = [
+      'position:absolute', `left:${center.x}px`, `top:${center.y - 28}px`,
+      'z-index:37', 'pointer-events:none', 'transform:translate(-50%,-50%)',
+      'font-family:"Oswald","Microsoft YaHei",sans-serif', 'font-size:13px',
+      'font-weight:700', 'letter-spacing:.08em', 'white-space:nowrap',
+      `color:${feedback.color}`, `text-shadow:0 1px 3px rgba(0,0,0,.95),0 0 8px ${feedback.color}`,
+    ].join(';');
+    this.overlay.appendChild(label);
+    const labelAnim = label.animate(
+      [
+        { opacity: 0, transform: 'translate(-50%, -35%) scale(.82)' },
+        { opacity: 1, transform: 'translate(-50%, -50%) scale(1)', offset: .24 },
+        { opacity: 0, transform: 'translate(-50%, -92%) scale(1.04)' },
+      ],
+      { duration: 520, easing: 'ease-out' },
+    );
+    labelAnim.onfinish = () => label.remove();
+
+    if (ev.kind !== 'lightningRow' && ev.kind !== 'lightningCol') return;
+    const boardOrigin = this.board.toGlobal(new PixiPoint(0, 0));
+    const sweep = document.createElement('div');
+    const horizontal = ev.kind === 'lightningRow';
+    const line = ev.line ?? ev.pos.row;
+    sweep.style.cssText = horizontal
+      ? [
+          'position:absolute', `left:${boardOrigin.x}px`,
+          `top:${boardOrigin.y + (line + .5) * this.board.cellSize}px`,
+          `width:${this.board.gridPixels}px`, 'height:3px', 'z-index:35', 'pointer-events:none',
+          `background:linear-gradient(90deg,transparent,${feedback.color},#fff,${feedback.color},transparent)`,
+          `box-shadow:0 0 8px ${feedback.color},0 0 18px ${feedback.color}`,
+          'transform:translateX(-100%)',
+        ].join(';')
+      : [
+          `left:${boardOrigin.x + (line + .5) * this.board.cellSize}px`,
+          `top:${boardOrigin.y}px`, 'width:3px', `height:${this.board.gridPixels}px`,
+          'position:absolute', 'z-index:35', 'pointer-events:none',
+          `background:linear-gradient(180deg,transparent,${feedback.color},#fff,${feedback.color},transparent)`,
+          `box-shadow:0 0 8px ${feedback.color},0 0 18px ${feedback.color}`,
+          'transform:translateY(-100%)',
+        ].join(';');
+    this.overlay.appendChild(sweep);
+    const sweepAnim = sweep.animate(
+      horizontal
+        ? [{ transform: 'translateX(-100%)' }, { transform: 'translateX(100%)' }]
+        : [{ transform: 'translateY(-100%)' }, { transform: 'translateY(100%)' }],
+      { duration: 360, easing: 'cubic-bezier(.2,.75,.3,1)' },
+    );
+    sweepAnim.onfinish = () => sweep.remove();
   }
 
   private playManaFlow(
@@ -1810,6 +1925,27 @@ export class App {
     ].join(';');
     this.overlay.appendChild(el);
     window.setTimeout(() => el.remove(), cfg.duration + 30);
+  }
+
+  /**
+   * 骷髅爆炸演出（炸毁骷髅的官方规则，DECISIONS「骷髅爆炸」）：
+   * 所有被炸骷髅**合并为一枚**骨白色能量弹，与单体技能共用同一条 playProjectile
+   * 匀速直线弹道，从被炸骷髅的质心格射向敌方队首卡。到达即 skullHit 音效 +
+   * 飘伤害数字 + 卡面受击刷新——不放任何额外爆炸/迸溅特效层，干脆利落。
+   */
+  private playSkullExplosion(
+    ev: Extract<GameEvent, { type: 'skill-damage' }>,
+    card: CharacterCard,
+  ): void {
+    const to = this.cardCenterInOverlay(card);
+    if (!to) return;
+    const from = this.cellsCenterInOverlay([ev.originCell ?? { row: 3, col: 3 }]) ?? to;
+    this.playProjectile(from, to, '#e8e0cf', () => {
+      this.audio.play('skullHit');
+      card.floatText(`-${ev.damage}`, '#ffb37a');
+      card.hitFlash();
+      card.refresh();
+    });
   }
 
   private playSplashChainDamage(
@@ -2529,6 +2665,15 @@ export class App {
     const events: GameEvent[] = [ev];
     this.onEventsProduced?.(events);
     await this.player.play(events);
+  }
+
+  /** Test-console helper: mutate storm state through TurnEngine and play its events. */
+  async debugSetStorm(color: BaseColor, side: PlayerSide, turns = 8, dropKind?: SkullStormDropKind): Promise<void> {
+    const events = this.engine.debugSetStorm(color, side, turns, dropKind);
+    if (events.length === 0) return;
+    this.onEventsProduced?.(events);
+    await this.player.play(events);
+    this.refreshTeams();
   }
 
   /** Temporary skill-test hook: preview the finalized elimination/chain set. */

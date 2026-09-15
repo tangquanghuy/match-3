@@ -16,8 +16,8 @@ import {
   heal, armor, attack, magic, mana, inflict, cleanse, extraTurn, summonRef, CHOSEN, CELL,
 } from '@engine/skills/builders';
 import type { SkillPrototype, EffectSegment } from '@engine/skills/prototypes';
-import { BaseColor, specialGem } from '@engine/types';
-import type { CellPos, GemType, SpecialGemKind } from '@engine/types';
+import { BaseColor, PlayerSide, specialGem } from '@engine/types';
+import type { CellPos, GemType, SpecialGemKind, SkullStormDropKind } from '@engine/types';
 import type { GameEvent } from '@engine/events';
 
 interface PresetSkill {
@@ -55,6 +55,16 @@ const PRESETS: PresetSkill[] = [
   { id: 'dmg-chosen', label: '★选敌造成伤害', proto: skill(dmg('enemyChosen', 5)) },
   { id: 'heal-chosen', label: '★选盟友治疗', proto: skill(heal('allyChosen', 8)) },
 ];
+
+PRESETS.push(
+  { id: 'disease', label: 'Disease', proto: skill(inflict('disease', 'enemyFront')) },
+  { id: 'death-mark', label: 'Death Mark', proto: skill(inflict('death-mark', 'enemyFront')) },
+  { id: 'curse', label: 'Curse', proto: skill(inflict('curse', 'enemyFront')) },
+  { id: 'charm', label: 'Charm', proto: skill(inflict('charm', 'enemyFront')) },
+  { id: 'rage', label: 'Enraged', proto: skill(inflict('rage', 'allySelf')) },
+  { id: 'wolf', label: 'Lycanthropy', proto: skill(inflict('lycanthropy', 'enemyFront')) },
+  { id: 'mana-burn', label: 'Mana Burn', proto: skill(inflict('mana-burn', 'enemyFront')) },
+);
 
 const PRESET_BY_ID = new Map(PRESETS.map((p) => [p.id, p]));
 
@@ -112,6 +122,15 @@ const SEGMENT_TEMPLATES: SegmentTemplate[] = [
   { id: 'summon', label: '召唤(食人魔)', make: () => ({ label: '召唤(食人魔)', seg: summonRef('Ogre') }) },
 ];
 
+SEGMENT_TEMPLATES.push(
+  { id: 'st-disease', label: 'Disease', make: () => ({ label: 'Disease', seg: inflict('disease', 'enemyFront') }) },
+  { id: 'st-death-mark', label: 'Death Mark', make: () => ({ label: 'Death Mark', seg: inflict('death-mark', 'enemyFront') }) },
+  { id: 'st-charm', label: 'Charm', make: () => ({ label: 'Charm', seg: inflict('charm', 'enemyFront') }) },
+  { id: 'st-rage', label: 'Enraged', make: () => ({ label: 'Enraged', seg: inflict('rage', 'allySelf') }) },
+  { id: 'st-wolf', label: 'Lycanthropy', make: () => ({ label: 'Lycanthropy', seg: inflict('lycanthropy', 'enemyFront') }) },
+  { id: 'st-mana-burn', label: 'Mana Burn', make: () => ({ label: 'Mana Burn', seg: inflict('mana-burn', 'enemyFront') }) },
+);
+
 const SEGMENT_TEMPLATE_BY_ID = new Map(SEGMENT_TEMPLATES.map((t) => [t.id, t]));
 
 /** 预设多段组合（点一下即填入组合器编辑区，可再改） */
@@ -137,6 +156,25 @@ const TEST_MANA_COLORS: ReadonlyArray<{ color: BaseColor; label: string; hex: st
   { color: BaseColor.Yellow, label: '黄色', hex: '#d6ae39' },
   { color: BaseColor.Purple, label: '紫色', hex: '#8e5ad7' },
   { color: BaseColor.Brown, label: '棕色（土）', hex: '#8a6040' },
+];
+
+const TEST_STORMS: ReadonlyArray<{
+  color: BaseColor;
+  label: string;
+  hex: string;
+  /** 骷髅系风暴（骸骨/末日/超级末日）的掉落目标；颜色风暴缺省 */
+  dropKind?: SkullStormDropKind;
+}> = [
+  { color: BaseColor.Red, label: '火风暴', hex: '#d94a4a' },
+  { color: BaseColor.Blue, label: '冰风暴', hex: '#3f8fe8' },
+  { color: BaseColor.Green, label: '叶风暴', hex: '#43a85c' },
+  { color: BaseColor.Yellow, label: '光风暴', hex: '#d6ae39' },
+  { color: BaseColor.Purple, label: '暗风暴', hex: '#8e5ad7' },
+  { color: BaseColor.Brown, label: '尘风暴', hex: '#8a6040' },
+  // 骷髅系风暴（官方 Bonestorm/Doomstorm/Uber Doomstorm）：color 仅作表现主色
+  { color: BaseColor.Brown, label: '骸骨风暴', hex: '#e6ddc8', dropKind: 'skull' },
+  { color: BaseColor.Purple, label: '末日风暴', hex: '#ff2f68', dropKind: 'doomSkull' },
+  { color: BaseColor.Purple, label: '超级末日风暴', hex: '#ff8a2a', dropKind: 'uberDoomSkull' },
 ];
 
 /** 特殊宝石测试投放清单（kind → 按钮文案；幽灵无行为仅看贴图） */
@@ -288,6 +326,8 @@ export class SkillTestPage {
     colorTool.append(colorLabel, colorSelect);
     panel.appendChild(colorTool);
 
+    panel.appendChild(this.buildStormTool());
+
     // 特殊宝石测试区：随机换上指定宝石，走主游戏游玩流程触发其效果
     panel.appendChild(this.buildSpecialGemTool());
 
@@ -380,6 +420,60 @@ export class SkillTestPage {
     panel.appendChild(this.logEl);
 
     return panel;
+  }
+
+  /** 风暴测试区：通过 TurnEngine 的真实 storm-change 事件测试开局、替换、对手顶替与到期。 */
+  private buildStormTool(): HTMLElement {
+    const box = document.createElement('div');
+    box.dataset.testid = 'storm-tool';
+    box.style.cssText = 'display:flex;flex-direction:column;gap:6px;padding:8px;border:1px solid rgba(216,194,144,.28);border-radius:6px;background:#100d09';
+    const title = document.createElement('div');
+    title.textContent = '风暴测试（真实掉落修正）';
+    title.style.cssText = 'font-size:12px;color:#c9a35c';
+    const help = document.createElement('div');
+    help.textContent = '风暴是全场唯一效果；后设置的风暴会顶替先设置的。设置 1 回合后点“推进回合”可测到期。';
+    help.style.cssText = 'font-size:10px;line-height:1.45;color:#8f826b';
+    box.append(title, help);
+
+    const sideRow = document.createElement('div');
+    sideRow.style.cssText = 'display:flex;gap:5px';
+    const sideSelect = document.createElement('select');
+    sideSelect.dataset.testid = 'storm-side';
+    sideSelect.style.cssText = 'flex:1;padding:6px;border-radius:5px;border:1px solid rgba(216,194,144,.45);background:#171208;color:#f0e2bf;font-size:11px';
+    sideSelect.innerHTML = '<option value="Left">我方</option><option value="Right">敌方</option>';
+    const turnsSelect = document.createElement('select');
+    turnsSelect.dataset.testid = 'storm-turns';
+    turnsSelect.style.cssText = 'flex:1;padding:6px;border-radius:5px;border:1px solid rgba(216,194,144,.45);background:#171208;color:#f0e2bf;font-size:11px';
+    for (const turns of [1, 2, 4, 8]) {
+      const option = document.createElement('option');
+      option.value = String(turns);
+      option.textContent = `${turns} 回合`;
+      if (turns === 8) option.selected = true;
+      turnsSelect.appendChild(option);
+    }
+    sideRow.append(sideSelect, turnsSelect);
+    box.appendChild(sideRow);
+
+    const grid = document.createElement('div');
+    grid.style.cssText = 'display:grid;grid-template-columns:1fr 1fr 1fr;gap:5px';
+    for (const storm of TEST_STORMS) {
+      const button = document.createElement('button');
+      button.type = 'button';
+      button.textContent = storm.label;
+      // 骷髅系风暴与对应色风暴共用 BaseColor（两个紫），testid 以 dropKind 区分
+      button.dataset.testid = storm.dropKind ? `storm-${storm.dropKind}` : `storm-${storm.color}`;
+      button.style.cssText = `padding:6px 4px;border-radius:5px;border:1px solid ${storm.hex};background:#171208;color:${storm.hex};cursor:pointer;font-size:11px`;
+      button.addEventListener('click', () => {
+        const side = sideSelect.value === 'Right' ? PlayerSide.Right : PlayerSide.Left;
+        const turns = Number(turnsSelect.value) || 8;
+        void this.app.debugSetStorm(storm.color, side, turns, storm.dropKind).then(() => {
+          this.log(`风暴 ${storm.label} → ${side === PlayerSide.Left ? '我方' : '敌方'}，${turns} 回合`);
+        });
+      });
+      grid.appendChild(button);
+    }
+    box.appendChild(grid);
+    return box;
   }
 
   /**

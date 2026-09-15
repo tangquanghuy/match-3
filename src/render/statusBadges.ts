@@ -94,6 +94,43 @@ const BADGES: Record<string, StatusBadgeSpec> = {
     color: '#9a6bd4',
     svg: '<path d="M12 3a7 7 0 0 0-7 7c0 2.5 1.3 4 3 5v3h8v-3c1.7-1 3-2.5 3-5a7 7 0 0 0-7-7z" fill="#2a1e3d" stroke="#9a6bd4" stroke-width="1.3"/><circle cx="9.3" cy="10.5" r="1.6" fill="#c9a8ee"/><circle cx="14.7" cy="10.5" r="1.6" fill="#c9a8ee"/>',
   },
+  // 死亡标记：红色裂纹准星，状态本身不造成伤害，由倍率钩子消费
+  death_mark: {
+    label: '死亡标记',
+    color: '#ff4f62',
+    svg: '<circle cx="12" cy="12" r="7.2" fill="#3b1420" stroke="#ff4f62" stroke-width="1.4"/><path d="M12 2.7v4M12 17.3v4M2.7 12h4M17.3 12h4" stroke="#ff8b91" stroke-width="1.5" stroke-linecap="round"/><path d="M8 8l8 8M16 8l-8 8" stroke="#ff4f62" stroke-width="1.2" stroke-linecap="round"/>',
+  },
+  deathmark: {
+    label: '死亡标记',
+    color: '#ff4f62',
+    svg: '<circle cx="12" cy="12" r="7.2" fill="#3b1420" stroke="#ff4f62" stroke-width="1.4"/><path d="M12 2.7v4M12 17.3v4M2.7 12h4M17.3 12h4" stroke="#ff8b91" stroke-width="1.5" stroke-linecap="round"/><path d="M8 8l8 8M16 8l-8 8" stroke="#ff4f62" stroke-width="1.2" stroke-linecap="round"/>',
+  },
+  // 狼化：冷白獠牙轮廓
+  wolf: {
+    label: '狼化',
+    color: '#b9d8f5',
+    svg: '<path d="M5 5.5l3.8 2.2A7.4 7.4 0 0 1 12 7a7.4 7.4 0 0 1 3.2.7L19 5.5l-.9 5.3a7.2 7.2 0 0 1 .9 3.5c0 3.6-3.1 6.2-7 6.2s-7-2.6-7-6.2a7.2 7.2 0 0 1 .9-3.5z" fill="#25364a" stroke="#b9d8f5" stroke-width="1.2"/><circle cx="9.3" cy="12" r="1" fill="#e9f5ff"/><circle cx="14.7" cy="12" r="1" fill="#e9f5ff"/><path d="M9 15.2c1.8 1.2 4.2 1.2 6 0" fill="none" stroke="#b9d8f5" stroke-width="1.1" stroke-linecap="round"/>',
+  },
+  wolf_form: {
+    label: '狼化',
+    color: '#b9d8f5',
+    svg: '<path d="M5 5.5l3.8 2.2A7.4 7.4 0 0 1 12 7a7.4 7.4 0 0 1 3.2.7L19 5.5l-.9 5.3a7.2 7.2 0 0 1 .9 3.5c0 3.6-3.1 6.2-7 6.2s-7-2.6-7-6.2a7.2 7.2 0 0 1 .9-3.5z" fill="#25364a" stroke="#b9d8f5" stroke-width="1.2"/><circle cx="9.3" cy="12" r="1" fill="#e9f5ff"/><circle cx="14.7" cy="12" r="1" fill="#e9f5ff"/><path d="M9 15.2c1.8 1.2 4.2 1.2 6 0" fill="none" stroke="#b9d8f5" stroke-width="1.1" stroke-linecap="round"/>',
+  },
+  rage: {
+    label: '狂怒',
+    color: '#ff8d55',
+    svg: '<path d="M12 2.8c2.2 3.7 4.8 5.4 4.8 9.2a4.8 4.8 0 1 1-9.6 0c0-2.2 1.1-4.2 3.2-6.2-.1 1.9.4 2.8 1.3 3.6.4-2.1.4-3.9.3-6.6z" fill="#7d241d" stroke="#ff8d55" stroke-width="1.2"/><path d="M12 11c1.5 1.5 1.8 2.4 1.8 3.3a1.8 1.8 0 1 1-3.6 0c0-.8.4-1.6 1.8-3.3z" fill="#ffd0a8"/>',
+  },
+  mana_burn: {
+    label: '法力燃烧',
+    color: '#718cff',
+    svg: '<path d="M13.2 2.8L5.5 13h5.1l-.8 8.2L18.5 11h-5.2z" fill="#2a367f" stroke="#718cff" stroke-width="1.3" stroke-linejoin="round"/><path d="M12.2 6.5l-2.8 5.2h2.7" fill="none" stroke="#c2cbff" stroke-width="1.1" stroke-linecap="round"/>',
+  },
+  charm: {
+    label: '魅惑',
+    color: '#f08bd4',
+    svg: '<path d="M12 20.5S4.5 16.3 4.5 10.2A3.7 3.7 0 0 1 12 8.6a3.7 3.7 0 0 1 7.5 1.6c0 6.1-7.5 10.3-7.5 10.3z" fill="#5c244f" stroke="#f08bd4" stroke-width="1.3"/><path d="M8.4 12.2h2M13.6 12.2h2M9.3 15c1.6 1 3.8 1 5.4 0" fill="none" stroke="#ffd3f2" stroke-width="1.1" stroke-linecap="round"/>',
+  },
 };
 
 /** 兜底图标（未知状态）：灰色问号盾 */
@@ -105,7 +142,8 @@ const FALLBACK: StatusBadgeSpec = {
 
 /** 取某状态的图标规格；未知状态返回兜底（需求 6.5） */
 export function statusBadge(statusId: string): StatusBadgeSpec {
-  return BADGES[statusId] ?? FALLBACK;
+  const normalized = statusId.toLowerCase().replace(/-/g, '_');
+  return BADGES[statusId] ?? BADGES[normalized] ?? FALLBACK;
 }
 
 /** 生成完整的内联 SVG 字符串（24x24），供直接插入 DOM */

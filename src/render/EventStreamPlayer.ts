@@ -10,7 +10,6 @@ import { AnimConfig, fallDuration } from './AnimationConfig';
 import { colorOf } from './GemSprite';
 import type { AudioManager } from './AudioManager';
 import { extraActionComboLevel } from './turnHudLogic';
-import { stormChangePlan } from './StormIndicator';
 
 type ManaOriginRef = { gemId: number; pos: CellPos };
 type BoardPoint = { x: number; y: number };
@@ -36,15 +35,11 @@ export class EventStreamPlayer {
   private timeline: gsap.core.Timeline | null = null;
 
   /**
-   * refill 下落动画的生成线（棋盘局部 y，px）。null = 维持旧行为（新宝石堆紧贴棋盘顶上方）；
-   * App 在创建顶部横幅后注入横幅底缘，使新宝石从夜幕下方才出现、不再穿过横幅。
+   * 同一波重力里幸存宝石的最大下落格数（appendGravity 记录，appendRefill 消费）：
+   * 补充堆的下落距离必须 ≥ 它——新宝石从"整列刚体"的顶端跟着一起落（起点在棋盘
+   * 上方、从横幅后面钻出来），否则生成线钳制会让补充堆压在还在下落的幸存宝石上。
    */
-  private refillSpawnTopPx: number | null = null;
-
-  /** 注入 refill 生成线（横幅底缘，棋盘局部坐标）。 */
-  setRefillSpawnTopPx(px: number): void {
-    this.refillSpawnTopPx = px;
-  }
+  private pendingFallMaxCells = 0;
 
   /** 战斗事件回调：在时间线推进到该事件时触发，供 App 更新卡面（需求 19.6, 19.7） */
   onBattleEvent: ((ev: GameEvent) => void) | null = null;
@@ -213,7 +208,7 @@ export class EventStreamPlayer {
     manaOrigins: ManaOriginRef[],
   ): void {
     // 只有紧跟在 gravity 后面的 refill 才与其并行；被其他事件隔开则各自独立
-    if (ev.type !== 'refill') this.pendingFallLabel = null;
+    if (ev.type !== 'refill') { this.pendingFallLabel = null; this.pendingFallMaxCells = 0; }
     // 特殊宝石清除批次：批内非首事件已随批首合并播放，直接跳过
     if (this.clearBatchMembers.has(index)) return;
     switch (ev.type) {
@@ -330,6 +325,12 @@ export class EventStreamPlayer {
         tl.add(() => this.onBattleEvent?.(ev));
         tl.to({}, { duration: AnimConfig.frameFX.heal_cleanse.duration / 1000 });
         break;
+      case 'special-gem-trigger':
+        // 触发本身没有独立序列帧：交给 App 播放 CSS 高亮/行列扫光，
+        // 这里保留一个短时间段，确保后续 gem-destroy/gem-explode 不抢在反馈前发生。
+        tl.add(() => this.onBattleEvent?.(ev));
+        tl.to({}, { duration: 0.24 });
+        break;
       case 'gem-create':
         this.appendGemCreate(tl, ev);
         break;
@@ -366,12 +367,7 @@ export class EventStreamPlayer {
         // 风暴演出（阶段 2）：set/replaced 新风暴 → 召唤音效（仅 set）+ 指示器弹入
         // + 对应色一次性爆发 FX，时间线预留爆发时长；被顶方（color=null）/到期 →
         // 指示器淡出，预留淡出时长。指示器与爆发 FX 由 App 接管（onStormChange）。
-        const plan = stormChangePlan(ev);
-        tl.add(() => {
-          if (plan.summonSfx) this.audio.play('summon');
-          this.onStormChange?.(ev);
-        });
-        tl.to({}, { duration: plan.holdSeconds });
+        tl.add(() => this.onStormChange?.(ev));
         break;
       }
       default:
@@ -415,13 +411,16 @@ export class EventStreamPlayer {
   ): void {
     tl.add(() => {
       // Splash is an immediate area impact; do not play the generic projectile whoosh.
-      if (ev.range !== 'splash') this.audio.play('skill');
+      // 骷髅爆炸（炸毁骷髅）命中时播 skullHit 专用音效，也不走技能弹道音。
+      if (ev.range !== 'splash' && !ev.skullBurst) this.audio.play('skill');
       this.onBattleEvent?.(ev);
     });
     // 留出弹道飞行→命中的时间（App 侧 playProjectile 约 340ms + 命中演出），
     // 避免时间线在弹体到达前就推进到下一事件。
     // Splash has no projectile; other hits reserve worst-case flight plus impact frames.
-    const hold = ev.range === 'splash'
+    const hold = ev.skullBurst
+      ? 0.34 // 骨白能量弹：飞行 ≤240ms + 飘字/卡面反馈一拍，不叠任何爆炸层
+      : ev.range === 'splash'
       ? (ev.chainIndex ?? 0) === 0
         ? AnimConfig.frameFX.splash_chain_cast.duration / 1000
         : AnimConfig.frameFX.splash_chain_sword.duration / 1000
@@ -743,10 +742,12 @@ export class EventStreamPlayer {
     const label = `gravity_${tl.getChildren().length}`;
     tl.addLabel(label);
     let maxEnd = 0;
+    let maxCells = 0;
 
     for (const mv of ev.moves) {
       const to = this.center(mv.to);
       const cells = Math.abs(mv.to.row - mv.from.row);
+      maxCells = Math.max(maxCells, cells);
       const duration = fallDuration(cells);
       const delay = mv.to.col * AnimConfig.gravity.columnStagger;
       const progress = { value: 0 };
@@ -787,6 +788,7 @@ export class EventStreamPlayer {
     tl.to({}, { duration: maxEnd + 0.05 }, label);
     // 紧随其后的 refill 挂到同一 label：新宝石与幸存宝石同时开始下落，无缝续上
     this.pendingFallLabel = label;
+    this.pendingFallMaxCells = maxCells;
   }
 
   private appendRefill(
@@ -799,24 +801,24 @@ export class EventStreamPlayer {
     // timeScale, skip, and onComplete all include the full refill animation.
     // 若前一段是 gravity，则复用其 label 并行播放：新宝石是同一列"更上面"的宝石，
     // 与幸存宝石同时起落（匀加速下二者间距恒定，不会穿插）。
+    const sameWave = this.pendingFallLabel !== null;
     const label = this.pendingFallLabel ?? `refill_${tl.getChildren().length}`;
-    if (this.pendingFallLabel === null) tl.addLabel(label);
+    if (!sameWave) tl.addLabel(label);
+    // travelCells 必须在清空 pendingFallLabel 之前读（同波标记与最大下落格数一起消费）
+    const travelCells = Math.max(1, sameWave ? this.pendingFallMaxCells : 0);
     this.pendingFallLabel = null;
     let maxEnd = 0;
 
-    // 每列补充数：整列新宝石按堆叠顺序紧贴棋盘顶上方，作为一个刚性堆整体下落
-    const perCol = new Map<number, number>();
-    for (const sp of ev.spawns) perCol.set(sp.to.col, (perCol.get(sp.to.col) ?? 0) + 1);
-
+    // 每列补充数：整列新宝石从目标格正上方同一距离（travel）处刚性下落（间距恒 1 格）。
+    // travel 必须覆盖**同波幸存宝石的最大下落格数**：补充堆是"整列刚体"的顶端，
+    // 与幸存宝石同速同拍落下（√ 律下 moved_cells 只与时间有关、与距离无关），
+    // 初相零重叠 → 全程零重叠。若按生成线把 travel 钳短，补充堆会压在还在下落的
+    // 幸存宝石的出发格上（互相覆盖着下落，落地后才分开——即"下坠穿模"）。
+    // 新宝石从棋盘上方入场、从横幅后面钻出（横幅 DOM 盖在画布之上）。
     for (const sp of ev.spawns) {
-      const stack = perCol.get(sp.to.col) ?? 1;
       const to = this.center(sp.to);
-      // 生成线以下才允许出现：列顶新宝石不高于横幅底缘（从夜幕下方开始下落）
-      const startY = Math.max(
-        to.y - this.board.cellSize * stack,
-        this.refillSpawnTopPx ?? Number.NEGATIVE_INFINITY,
-      );
-      const duration = fallDuration(stack);
+      const startY = to.y - this.board.cellSize * travelCells;
+      const duration = fallDuration(travelCells);
       const delay = sp.to.col * AnimConfig.gravity.columnStagger;
       const progress = { value: 0 };
       let sprite: ReturnType<BoardView['getSprite']>;
@@ -840,7 +842,7 @@ export class EventStreamPlayer {
             if (!sprite) return;
             sprite.x = to.x;
             sprite.y = to.y;
-            this.landSquash(sprite, stack);
+            this.landSquash(sprite, travelCells);
           },
         },
         `${label}+=${delay}`,
