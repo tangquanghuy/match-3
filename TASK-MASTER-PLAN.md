@@ -62,7 +62,7 @@ UI/演出细节由**程序自动截图审查迭代**推进，不依赖人工逐�
 
 - **基线**：特殊状态批**已提交**（2026-09-16 窗口E 三块：`6b1079a` 引擎+数据 / `2cd8e3e` 渲染+音效 / `5ced37c` 测试+文档；提交前门槛复跑：lint 0 错、57 文件/613 用例全绿、build 通过）。工作区仅剩 `assets/prompt/` + `scripts/build_portrait_prompts.mjs`（F 名下，随 F 首次波次提交入库）。
 - **特质**：main 357/785 code（72% 出场，3886/5394 次）；含开局风暴 5 code。E 阶段5.1 条件光环批已落（65→4 code，余为经济待原语批）+ 连带收编 28 code；缺状态桶 93、其它未归类 279、特殊宝石 20。
-- **技能**：587 已核对组装 / 776 放弃 / 435 待核对 = 1798 行（唯一 spell 1793）。E 阶段1~4c 完成（batch-33~36，池 37~40 剩 ~129 条待组）；新引擎缺口建议与用户翻案（灵魂/位置/晋升度+createStorm/stormPresent）见 DECISIONS，建议打包一个引擎小批后放开两大桶。
+- **技能**：619 已核对组装 / 744 放弃 / 435 待核对 = 1798 行（唯一 spell 1793）。E 阶段1~4d 完成（batch-33~37；原语批 10 新原语已落地——createStorm/stormPresent/oneOf/定量转换/定向驱散/减半/存在判定/数量区间/打乱板面/位置复合目标）。剩余放弃大头：十种外特殊宝石 ~171 条（GEMS-SEMANTICS-2.md 已考证待实现）、动态颜色、散射无目标、跨段随机绑定。
 - **立绘提示词**：脚手架完成（`scripts/build_portrait_prompts.mjs`，6 标签极简模板，单文件 ~1070 字符）；破碎尖塔 47/47 样板已过四轮修正并按 2026-09-16 用户更正重渲（风格行去 dark fantasy、侧面视角锚改 `, from side`，见 `artifacts/prompt-overrides/_authoring-guidelines.md`）；风格行 `wlopk2style, western fantasy style, DnD monster manual illustration, painterly fantasy,`（wlopk2style 是管线必需 tag，不许删）。剩 41 王国 ~1743 名。CDN 存量抽样 0/30 → 按全量新生产规划。
 - **音效**：战斗基础音齐（35 wav + 变体）。缺口：状态施加音、特殊宝石触发音、胜负结算 stinger、BGM（零音乐文件）、黄色技能音。`assets/音效/` 已盘点（窗口E → `artifacts/audio-inventory.txt`）：仅 `中毒.wav` 一个文件、未接线、命名不合既有约定。
 - **测试台**：面板过长不可收起、区块名英文、状态/特质图标不可点击、技能释放与详情粗糙。
