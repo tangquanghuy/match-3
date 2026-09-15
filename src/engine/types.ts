@@ -312,6 +312,36 @@ export interface PassiveModifiers {
   inflictOnSkullDamaged?: { id: string; turns: number; magnitude?: number };
   /** 自己一方匹配 4/5 连时，给同队指定种族盟友的增益（firstwargare/overclock 族）；键为种族或 'all'（全队） */
   bigMatchTypeAura: Readonly<Record<string, StatGains>>;
+  /**
+   * 自己一方匹配 4/5 连时施加状态（条件光环批：屏障/狂怒/下潜/反射/赐福…）。
+   * scope 指受益范围：self=持有者 / randomAlly=随机一名存活盟友 / allAllies=全队存活 /
+   * allEnemies=敌方全队存活（bloodmark「使所有敌人陷入出血状态」）/
+   * randomEnemy=随机一名存活敌人（winterveil「冻结一名随机敌人」）。
+   * statuses 逐条施加（bloodcoldrage 一条特质带冻结+出血两条）；DoT 才带 magnitude。
+   * chance 为触发概率（lotusblessing 50%），缺省必定；minSize 限定触发的大连颗数（缺省 4）。
+   */
+  onBigMatchStatus?: {
+    scope: 'self' | 'randomAlly' | 'allAllies' | 'allEnemies' | 'randomEnemy';
+    statuses: readonly { id: string; magnitude?: number }[];
+    turns: number;
+    chance?: number;
+    randomPositive?: boolean;
+    minSize?: number;
+  };
+  /** 配对 N 连限定自身增益（insanegrowth「配对 5 或 5 颗」只认 5 连），键为 minSize */
+  gainOnBigMatchSized: Readonly<Record<string, StatGains>>;
+  /**
+   * 匹配某色宝石时给同队指定范围盟友加值（celestial/powerof/各色 aura 族）。
+   * 外层键为颜色或 'skull'（骷髅匹配）；内层 scope 为 'all'（全队）/种族名（查 troopTypes）/
+   * 颜色名（查 colors，如「所有红色盟友」）。
+   */
+  colorMatchTypeAura: Readonly<Record<string, Readonly<Record<string, StatGains>>>>;
+  /** 匹配列内颜色时净化全队（adagio）：移除全部负面状态 */
+  cleanseOnColorMatch: readonly string[];
+  /** 自己一方 4+ 连时净化全队（royalhoney） */
+  cleanseOnBigMatch: boolean;
+  /** 敌方配对某色/骷髅时自身获得（rancor），色键同 colorMatchTypeAura */
+  gainOnEnemyColorMatch: Readonly<Record<string, StatGains>>;
   /** 匹配某色宝石时的额外法力；键为颜色或 '*'（全色） */
   manaLink: Readonly<Record<string, number>>;
   /** 反弹给攻击者的骷髅伤害比例（0～1） */

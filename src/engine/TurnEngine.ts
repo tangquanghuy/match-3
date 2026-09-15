@@ -251,10 +251,17 @@ export class TurnEngine {
         events.push(this.makeEliminationEvent(group, chain));
         if (grantsExtraTurn(group.shape)) grantedExtra = true;
 
-        // 4/5 连响应特质（庞然/巨型/修理…）：只给匹配方自己一队，按组结算
+        // 4/5 连响应特质（庞然/巨型/修理…）：只给匹配方自己一队，按组结算。
+        // ctx 只服务条件光环批新键（施加状态/5 连限定/净化）；旧特质路径零随机消耗、事件序不变。
         if (group.cells.length >= 4) {
           events.push(...applyBigMatchTriggers(
             this.state.teams[this.state.activePlayer].characters,
+            {
+              size: group.cells.length,
+              rng: this.rng,
+              applyStatus: (char, status) => applyStatus(char, status),
+              enemyTeam: this.state.teams[opponentOf(this.state.activePlayer)].characters,
+            },
           ));
         }
 
@@ -334,7 +341,10 @@ export class TurnEngine {
       );
       // 配色触发特质（食人魔之怒/阳光…）：匹配到关联色时给匹配方全队加值。
       // 每次结算算一次，与消除的宝石数无关——描述是「在配对X色宝石时」，不是「每颗」。
-      events.push(...applyColorMatchTriggers(activeTeam.characters, settle.color));
+      // enemyTeam 供敌方配色触发（rancor「在敌人配对骷髅头时…」族，颜色键同理）。
+      events.push(...applyColorMatchTriggers(activeTeam.characters, settle.color, {
+        enemyTeam: this.state.teams[opponentOf(this.state.activePlayer)].characters,
+      }));
     } else if (settle.kind === 'skull') {
       // 骷髅 → 物理伤害（需求 14），不产生法力（需求 11.2）
       const enemyTeam = this.state.teams[opponentOf(this.state.activePlayer)];
@@ -347,6 +357,12 @@ export class TurnEngine {
         settle.bonusDamage,
       );
       events.push(...resolveDefeatEvents(this.state, outcome.events));
+      // 配对骷髅触发（diamondaura/powerofstars 配色光环、rancor 敌方触发）：
+      // 在骷髅伤害结算之后触发，避免同一次命中被本次新增的护甲/生命减免——
+      // 炸毁骷髅（settleExplodedSkulls）不算「配对」，不在此列。
+      events.push(...applyColorMatchTriggers(activeTeam.characters, 'skull', {
+        enemyTeam: enemyTeam.characters,
+      }));
     }
     // 'wildOnly'：全通配组无归属色，只消除不结算
   }
@@ -615,13 +631,20 @@ export class TurnEngine {
       );
       // 配色触发特质（食人魔之怒/阳光…）：匹配到关联色时给匹配方全队加值。
       // 每次结算算一次，与消除的宝石数无关——描述是「在配对X色宝石时」，不是「每颗」。
-      events.push(...applyColorMatchTriggers(activeTeam.characters, gemType.color));
+      // enemyTeam 供敌方配色触发（rancor 族）。
+      events.push(...applyColorMatchTriggers(activeTeam.characters, gemType.color, {
+        enemyTeam: this.state.teams[opponentOf(this.state.activePlayer)].characters,
+      }));
     } else if (gemType.kind === 'skull') {
       // 骷髅 → 物理伤害（需求 14），不产生法力（需求 11.2）
       const enemyTeam = this.state.teams[opponentOf(this.state.activePlayer)];
       // 传入 rng：闪避特质（敏捷/轻巧）需要随机判定，且必须走同一条确定性随机源
       const outcome = this.combat.resolveSkullDamage(activeTeam, enemyTeam, count, this.rng);
       events.push(...resolveDefeatEvents(this.state, outcome.events));
+      // 配对骷髅触发（diamondaura/powerofstars/rancor 族），在伤害结算之后（同 applyGroupEffects 口径）
+      events.push(...applyColorMatchTriggers(activeTeam.characters, 'skull', {
+        enemyTeam: enemyTeam.characters,
+      }));
     }
   }
 

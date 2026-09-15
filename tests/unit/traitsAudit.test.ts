@@ -40,8 +40,13 @@ const OFFICIAL_TROOP_NAMES = new Set<string>(
   (troopsJson as { name?: string }[]).map((t) => t.name ?? '').filter((n) => n !== ''),
 );
 
-/** 引擎认识的状态 id（免疫/命中附状态只允许这些；与 build_traits.mjs STATUS_MAP 对齐） */
-const ENGINE_STATUS_IDS = new Set(['poison', 'burning', 'frozen', 'silence', 'entangle', 'web', 'stun']);
+/** 引擎认识的状态 id（免疫/命中附状态/大连施加状态只允许这些；与 build_traits.mjs STATUS_MAP + AURA_STATUS_MAP 对齐） */
+const ENGINE_STATUS_IDS = new Set([
+  'poison', 'burning', 'frozen', 'silence', 'entangle', 'web', 'stun',
+  // 条件光环批可施加的状态本体（barrier/bleed 等已在引擎落地，见 skills/effects/status.ts）
+  'barrier', 'bleed', 'rage', 'submerged', 'reflect', 'blessed', 'enchanted',
+  'curse', 'charm', 'disease', 'death-mark',
+]);
 
 const BASE_COLORS = new Set(Object.values(BaseColor));
 
@@ -113,6 +118,48 @@ describe('A · 数据完整性', () => {
           report(`${tag} onBigMatchTypeAura.gains 异常`);
         }
       }
+      // 条件光环批（窗口 E）：结构合法性
+      if (t.onBigMatchStatus) {
+        const s = t.onBigMatchStatus;
+        if (!['self', 'randomAlly', 'allAllies', 'allEnemies', 'randomEnemy'].includes(s.scope)) report(`${tag} onBigMatchStatus.scope「${s.scope}」非法`);
+        if (!s.statuses || s.statuses.length === 0) report(`${tag} onBigMatchStatus 缺 statuses`);
+        for (const st of s.statuses ?? []) {
+          if (!ENGINE_STATUS_IDS.has(st.id)) report(`${tag} 大连施加状态「${st.id}」引擎未实现`);
+          if (st.magnitude !== undefined && !['poison', 'burning', 'bleed'].includes(st.id)) {
+            report(`${tag} 非 DoT 状态不应带 magnitude（${st.id}）`);
+          }
+        }
+        if (!(s.turns >= 1 && s.turns <= 9)) report(`${tag} onBigMatchStatus.turns=${s.turns} 异常`);
+        if (s.chance !== undefined && !(s.chance > 0 && s.chance <= 1)) report(`${tag} onBigMatchStatus.chance=${s.chance} 异常`);
+        if (s.minSize !== undefined && ![4, 5].includes(s.minSize)) report(`${tag} onBigMatchStatus.minSize=${s.minSize} 异常`);
+        if (s.randomPositive && (s.scope !== 'randomAlly' || (s.statuses?.length ?? 0) < 2)) {
+          report(`${tag} randomPositive 必须 randomAlly + 多状态池`);
+        }
+      }
+      if (t.onBigMatchSizedGain) {
+        const s = t.onBigMatchSizedGain;
+        if (![4, 5].includes(s.minSize)) report(`${tag} onBigMatchSizedGain.minSize=${s.minSize} 异常`);
+        if (!(s.amount >= 1 && s.amount <= 20)) report(`${tag} onBigMatchSizedGain.amount=${s.amount} 异常`);
+      }
+      if (t.onColorMatchTypeAura) {
+        const s = t.onColorMatchTypeAura;
+        const colorOk = s.color === 'skull' || BASE_COLORS.has(s.color as BaseColor);
+        if (!colorOk) report(`${tag} onColorMatchTypeAura.color「${s.color}」非法`);
+        const scopeOk = s.scope === 'all' || /^[A-Z]/.test(s.scope) || BASE_COLORS.has(s.scope as BaseColor);
+        if (!scopeOk) report(`${tag} onColorMatchTypeAura.scope「${s.scope}」不是全队/规范族名/颜色`);
+        const vals = Object.values(s.gains).filter((v) => v !== 0);
+        if (vals.length === 0 || vals.some((v) => v < 0 || Math.abs(v) > 20)) {
+          report(`${tag} onColorMatchTypeAura.gains 异常`);
+        }
+      }
+      if (t.onEnemyColorMatchGain) {
+        const s = t.onEnemyColorMatchGain;
+        if (s.color !== 'skull' && !BASE_COLORS.has(s.color as BaseColor)) report(`${tag} onEnemyColorMatchGain.color「${s.color}」非法`);
+        if (!(s.amount >= 1 && s.amount <= 20)) report(`${tag} onEnemyColorMatchGain.amount=${s.amount} 异常`);
+      }
+      if (t.onColorMatchCleanse && !BASE_COLORS.has(t.onColorMatchCleanse.color as BaseColor)) {
+        report(`${tag} onColorMatchCleanse.color「${t.onColorMatchCleanse.color}」非法`);
+      }
 
       // 引用真实性
       for (const id of t.statusImmunities ?? []) {
@@ -168,6 +215,9 @@ describe('B · 编译契约', () => {
     'armorPierceChance', 'untargetable', 'inflictOnSkullHit', 'inflictOnSkullDamaged',
     'onBigMatchTypeAura',
     'summonOnDeath', 'summonOnAllyDeath', 'summonOnEnemyDeath',
+    // 条件光环批（窗口 E）
+    'onBigMatchStatus', 'onBigMatchSizedGain', 'onColorMatchTypeAura',
+    'onBigMatchCleanse', 'onColorMatchCleanse', 'onEnemyColorMatchGain',
   ]);
 
   /**
@@ -285,9 +335,17 @@ describe('C · 描述↔数值一致性（从官方文本重新抽数对账）',
         }
       }
       if (t.onColorMatchGain) {
-        const m = /宝石时获得\s*(\d+)\s*点(生命值|护甲值|攻击力|魔法值)/.exec(d);
-        if (!m || num(m[1]) !== t.onColorMatchGain.amount || statOf(m[2]) !== t.onColorMatchGain.stat) {
-          report(`${tag(t)} 配色触发与描述不符`);
+        // boo/firewall 族带逗号、royalfire「点 攻击力」带空格，一并收
+        const m = /宝石时[，,]?\s*获得\s*(\d+)\s*点\s*(生命值|护甲值|攻击力|魔法值)/.exec(d);
+        const headOk = !!m && num(m[1]) === t.onColorMatchGain.amount && statOf(m[2]) === t.onColorMatchGain.stat;
+        const also = t.onColorMatchGain.alsoStats ?? [];
+        if (also.length === 0) {
+          if (!headOk) report(`${tag(t)} 配色触发与描述不符`);
+        } else {
+          // ragingbull 共享数值多属性：附加属性必须逐个出现在同一句「、和」列表里
+          const wordOf: Record<string, string> = { hp: '生命值', armor: '护甲值', attack: '攻击力', magic: '魔法值', mana: '法力值' };
+          const listOk = !!m && also.every((s) => wordOf[s] !== undefined && new RegExp(`[、和]\\s*(?:\\d+\\s*点)?${wordOf[s]}`).test(d));
+          if (!headOk || !listOk) report(`${tag(t)} 配色触发与描述不符（共享数值多属性）`);
         }
       }
       // 屠戮倍率：双/三/数字 → N 倍；「基于晋升稀有度」取区间下限 3
@@ -301,14 +359,68 @@ describe('C · 描述↔数值一致性（从官方文本重新抽数对账）',
       if (t.skullMultVsWounded !== undefined && t.skullMultVsWounded < 1) {
         report(`${tag(t)} 对受伤目标倍率 ${t.skullMultVsWounded} 不大于 1`);
       }
-      // 4/5 连给予盟友：共享数值（所有非零 gains 必须等于描述里的 N）
+      // 4/5 连给予盟友：共享数值（所有非零 gains 必须等于描述里的 N）。
+      // 条件光环批扩展句式：「所有X盟友获得 N 点…」（获）、「全部技能值」（四项各 N）、「随机技能值」（→magic）
       if (t.onBigMatchTypeAura) {
-        const m = /给予.*?(\d+)\s*点(生命值|护甲值|攻击力|魔法值)/.exec(d);
+        const m = /[给予获][予]?.*?(\d+)\s*点(生命值|护甲值|攻击力|魔法值|全部技能值|随机技能值)/.exec(d);
         if (!m) { report(`${tag(t)} onBigMatchTypeAura 找不到描述数值`); continue; }
         const n = num(m[1]);
         const vals = Object.values(t.onBigMatchTypeAura.gains).filter((v) => v !== 0);
-        if (vals.some((v) => v !== n)) report(`${tag(t)} 共享数值光环 gains=${JSON.stringify(t.onBigMatchTypeAura.gains)} 与「${n}」不符`);
+        // 「全部技能值」= 四项各 N；其余句式的属性个数不限（共享数值双/三属性），只对数值
+        const expectedCount = m[2] === '全部技能值' ? 4 : null;
+        if (vals.some((v) => v !== n) || (expectedCount !== null && vals.length !== expectedCount)) {
+          report(`${tag(t)} 共享数值光环 gains=${JSON.stringify(t.onBigMatchTypeAura.gains)} 与「${n} ${m[2]}」不符`);
+        }
       }
+      // 配色团队光环（celestial/powerof 族）：单属性或「所有技能组」四项各 N
+      if (t.onColorMatchTypeAura) {
+        const m = /[给予提赋].*?(\d+)\s*点?\s*(生命值|护甲值?|攻击力|魔法值|所有技能组)/.exec(d);
+        if (!m) { report(`${tag(t)} onColorMatchTypeAura 找不到描述数值`); continue; }
+        const n = num(m[1]);
+        const vals = Object.values(t.onColorMatchTypeAura.gains).filter((v) => v !== 0);
+        const expectedCount = m[2] === '所有技能组' ? 4 : null;
+        if (vals.some((v) => v !== n) || (expectedCount !== null && vals.length !== expectedCount)) {
+          report(`${tag(t)} 配色光环 gains=${JSON.stringify(t.onColorMatchTypeAura.gains)} 与「${n} ${m[2]}」不符`);
+        }
+        // 骷髅键必须来自骷髅句式；颜色键必须真的在描述里
+        if (t.onColorMatchTypeAura.color === 'skull' && !/配对骷髅头/.test(d)) {
+          report(`${tag(t)} 配色光环色键 skull 但描述没有「配对骷髅头」`);
+        }
+      }
+      // 5 连限定自身增益（insanegrowth「配对 5 或 5 颗」）
+      if (t.onBigMatchSizedGain) {
+        const m = /配对\s*(\d+)\s*或\s*(\d+)\s*颗宝石时[，,]?\s*获得\s*(\d+)\s*点(随机技能值|生命值|护甲值|攻击力|魔法值|法力值)/.exec(d);
+        if (!m || num(m[1]) !== t.onBigMatchSizedGain.minSize || num(m[1]) !== num(m[2])
+          || num(m[3]) !== t.onBigMatchSizedGain.amount || statOf(m[4]) !== t.onBigMatchSizedGain.stat) {
+          report(`${tag(t)} onBigMatchSizedGain 与描述不符`);
+        }
+      }
+      // 敌方配色触发（rancor）
+      if (t.onEnemyColorMatchGain) {
+        const m = /在敌人配对骷髅头(?:宝石)?时[，,]?获得\s*(\d+)\s*点(生命值|护甲值|攻击力|魔法值)/.exec(d);
+        if (!m || num(m[1]) !== t.onEnemyColorMatchGain.amount || statOf(m[2]) !== t.onEnemyColorMatchGain.stat) {
+          report(`${tag(t)} onEnemyColorMatchGain 与描述不符`);
+        }
+      }
+      // 大连施加状态：概率句对账 + scope 方向粗校验
+      if (t.onBigMatchStatus) {
+        const s = t.onBigMatchStatus;
+        const chanceM = /有\s*(\d+)%\s*的?几率/.exec(d);
+        const expectChance = chanceM ? num(chanceM[1]) / 100 : undefined;
+        if (s.chance !== expectChance) report(`${tag(t)} onBigMatchStatus.chance=${s.chance} 与描述不符`);
+        if (s.scope === 'allAllies' && !/所有盟友|获得屏障/.test(d)) report(`${tag(t)} onBigMatchStatus.scope=allAllies 但描述没有「所有盟友」`);
+        if (s.scope === 'allEnemies' && !/所有敌人/.test(d)) report(`${tag(t)} onBigMatchStatus.scope=allEnemies 但描述没有「所有敌人」`);
+        if (s.scope === 'randomEnemy' && !/敌人/.test(d)) report(`${tag(t)} onBigMatchStatus.scope=randomEnemy 但描述没有「敌人」`);
+        if ((s.scope === 'randomAlly' || s.scope === 'allAllies' || s.scope === 'self') && /敌人/.test(d)) {
+          report(`${tag(t)} onBigMatchStatus.scope=${s.scope} 指向己方但描述提到「敌人」`);
+        }
+        if (s.scope === 'self' && !/自己|获得屏障/.test(d)) report(`${tag(t)} onBigMatchStatus.scope=self 但描述没有「自己/获得」`);
+        // stormshield 官方文本「一名随盟友」漏了「机」字，按「随机」容忍
+        if (s.scope === 'randomAlly' && !/随机|一名随/.test(d)) report(`${tag(t)} onBigMatchStatus.scope=randomAlly 但描述没有「随机」`);
+      }
+      // 净化族方向校验
+      if (t.onBigMatchCleanse && !/净化所有盟友/.test(d)) report(`${tag(t)} onBigMatchCleanse 但描述没有「净化所有盟友」`);
+      if (t.onColorMatchCleanse && !/净化所有盟友/.test(d)) report(`${tag(t)} onColorMatchCleanse 但描述没有「净化所有盟友」`);
       // 灵链固定 +1（对象含 color/amount，只查 amount）
       if (t.manaLink && t.manaLink.amount !== 1) {
         report(`${tag(t)} manaLink 增量应为 1`);

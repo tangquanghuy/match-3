@@ -32,7 +32,8 @@
 import traitTable from '../data/traits.json';
 import { effectiveHealing } from './healing';
 import type { BuffEvent, GameEvent } from './events';
-import type { BaseColor, Character, PassiveModifiers, StatGains, PlayerSide, StormSummon } from './types';
+import type { BaseColor, Character, PassiveModifiers, StatGains, PlayerSide, StatusInstance, StormSummon } from './types';
+import type { SeededRNG } from './rng';
 
 /** 状态免疫通配符：免疫所有状态 */
 export const ALL_STATUSES = '*';
@@ -93,8 +94,31 @@ export interface TraitDefinition {
   dodgeChance?: number;
   /** 匹配该色宝石时额外法力 */
   manaLink?: { color: string; amount: number };
-  /** 匹配该色宝石时获得数值 */
-  onColorMatchGain?: { color: string; stat: PassiveStat; amount: number };
+  /** 匹配该色宝石时获得数值；alsoStats 为共享数值的附加属性（ragingbull「N 点攻击力、护甲值和生命值」） */
+  onColorMatchGain?: { color: string; stat: PassiveStat; amount: number; alsoStats?: PassiveStat[] };
+  /**
+   * 自己一方匹配 4/5 连时施加状态（条件光环批：celestialshield 屏障 / provocation 狂怒 /
+   * tsunami 下潜 / mirrorimage 反射 / dragonsblessing 随机正面增益 / lotusblessing 50% 赐福全队）。
+   * 施加经 BigMatchTriggerContext.applyStatus 注入（TurnEngine 传 status.applyStatus），DoT 带 magnitude。
+   */
+  onBigMatchStatus?: {
+    scope: 'self' | 'randomAlly' | 'allAllies' | 'allEnemies' | 'randomEnemy';
+    statuses: readonly { id: string; magnitude?: number }[];
+    turns: number;
+    chance?: number;
+    randomPositive?: boolean;
+    minSize?: number;
+  };
+  /** 配对 N 连限定自身增益（insanegrowth「配对 5 或 5 颗」官方文本只认 5 连） */
+  onBigMatchSizedGain?: { minSize: number; stat: PassiveStat; amount: number };
+  /** 匹配某色宝石时给同队指定范围盟友加值（celestial/powerof/各色 aura 族）；scope 为 'all'/种族/颜色；色可为 'skull' */
+  onColorMatchTypeAura?: { color: string; scope: string; gains: Partial<StatGains> };
+  /** 自己一方 4+ 连时净化全队（royalhoney）：移除全部负面状态 */
+  onBigMatchCleanse?: { minSize?: number };
+  /** 匹配某色宝石时净化全队（adagio） */
+  onColorMatchCleanse?: { color: string };
+  /** 敌方配对某色/骷髅时自身获得（rancor「在敌人配对骷髅头时，获得 3 点攻击力」） */
+  onEnemyColorMatchGain?: { color: string; stat: PassiveStat; amount: number };
   /** 回合开始时把棋盘上随机一格变成该色宝石 */
   turnStartCreateGem?: { color: string };
   /** 回合开始时按概率把一颗该色宝石转成骷髅头 */
@@ -162,6 +186,11 @@ export function neutralPassives(): PassiveModifiers {
     gainOnColorMatch: {},
     untargetable: false,
     bigMatchTypeAura: {},
+    gainOnBigMatchSized: {},
+    colorMatchTypeAura: {},
+    cleanseOnColorMatch: [],
+    cleanseOnBigMatch: false,
+    gainOnEnemyColorMatch: {},
   };
 }
 
@@ -196,6 +225,12 @@ export function resolvePassives(
   const multByColor: Record<string, number> = {};
   const colorMatchGains: Record<string, StatGains> = {};
   const bigMatchAura = new Map<string, StatGains>();
+  const sizedBigMatchGains: Record<string, StatGains> = {};
+  const colorMatchAura: Record<string, Record<string, StatGains>> = {};
+  const enemyColorGains: Record<string, StatGains> = {};
+  const cleanseColors = new Set<string>();
+  let cleanseBigMatch = false;
+  let bigMatchStatus: PassiveModifiers['onBigMatchStatus'];
 
   for (const code of traitIds) {
     const trait = lookup(code);
@@ -228,6 +263,10 @@ export function resolvePassives(
       const k = trait.onColorMatchGain.color;
       colorMatchGains[k] ??= noGains();
       colorMatchGains[k][trait.onColorMatchGain.stat] += trait.onColorMatchGain.amount;
+      // 共享数值附加属性（ragingbull「2 点攻击力、护甲值和生命值」）
+      for (const stat of trait.onColorMatchGain.alsoStats ?? []) {
+        colorMatchGains[k][stat] += trait.onColorMatchGain.amount;
+      }
     }
     if (trait.manaLink) {
       manaLink[trait.manaLink.color] = (manaLink[trait.manaLink.color] ?? 0) + trait.manaLink.amount;
@@ -274,6 +313,37 @@ export function resolvePassives(
       }
       bigMatchAura.set(k, merged);
     }
+    // —— 条件光环批（窗口 E）——
+    // 5 连限定自身增益：同 minSize 数值叠加（与触发增益同类累加口径一致）
+    if (trait.onBigMatchSizedGain) {
+      const k = String(trait.onBigMatchSizedGain.minSize);
+      sizedBigMatchGains[k] ??= noGains();
+      sizedBigMatchGains[k][trait.onBigMatchSizedGain.stat] += trait.onBigMatchSizedGain.amount;
+    }
+    // 配色团队光环：色→scope 双层表，同键叠加（与 bigMatchTypeAura 同口径）
+    if (trait.onColorMatchTypeAura) {
+      const { color, scope, gains } = trait.onColorMatchTypeAura;
+      const byScope = (colorMatchAura[color] ??= {});
+      const merged = byScope[scope] ?? noGains();
+      for (const stat of ['hp', 'armor', 'attack', 'magic', 'mana'] as const) {
+        merged[stat] += gains[stat] ?? 0;
+      }
+      byScope[scope] = merged;
+    }
+    // 敌方配色触发：同色叠加
+    if (trait.onEnemyColorMatchGain) {
+      const k = trait.onEnemyColorMatchGain.color;
+      enemyColorGains[k] ??= noGains();
+      enemyColorGains[k][trait.onEnemyColorMatchGain.stat] += trait.onEnemyColorMatchGain.amount;
+    }
+    // 净化：颜色并集、布尔取或
+    if (trait.onColorMatchCleanse) cleanseColors.add(trait.onColorMatchCleanse.color);
+    if (trait.onBigMatchCleanse) cleanseBigMatch = true;
+    // 大连施加状态：同字段取回合更长的一条（与命中附状态同口径）；statuses 随对象拷贝
+    if (trait.onBigMatchStatus
+      && (bigMatchStatus === undefined || trait.onBigMatchStatus.turns > bigMatchStatus.turns)) {
+      bigMatchStatus = { ...trait.onBigMatchStatus, statuses: [...trait.onBigMatchStatus.statuses] };
+    }
     // 死亡召唤：同字段取概率更高的一条（多个持有不叠加多次召唤，与"同类取最强"口径一致）。
     // 风暴变体（storm）随对象整体拷贝，编译层不感知其差异——风暴入队/顶替裁定在 TurnEngine。
     for (const key of ['summonOnDeath', 'summonOnAllyDeath', 'summonOnEnemyDeath'] as const) {
@@ -293,6 +363,12 @@ export function resolvePassives(
   passive.skullMultVsColor = multByColor;
   passive.gainOnColorMatch = colorMatchGains;
   passive.bigMatchTypeAura = Object.fromEntries(bigMatchAura);
+  passive.gainOnBigMatchSized = sizedBigMatchGains;
+  passive.colorMatchTypeAura = colorMatchAura;
+  passive.gainOnEnemyColorMatch = enemyColorGains;
+  passive.cleanseOnColorMatch = [...cleanseColors];
+  passive.cleanseOnBigMatch = cleanseBigMatch;
+  passive.onBigMatchStatus = bigMatchStatus;
   return passive;
 }
 
@@ -520,31 +596,140 @@ function resolveSummonTemplate(spec: DeathSummonSpec): Omit<Character, 'id' | 'd
   return summonTemplateResolver ? summonTemplateResolver(spec) : null;
 }
 
-/** 配色触发（食人魔之怒/阳光…）：匹配到某色时给该队加值。 */
+/**
+ * 配色触发（食人魔之怒/阳光…）：匹配到某色时给匹配方全队加值。
+ *
+ * 条件光环批扩展（均要求特质带对应新键，旧特质零事件、零随机消耗）：
+ *   - colorMatchTypeAura：配色团队光环（celestial/powerof/各色 aura 族），scope 为
+ *     'all'/种族/颜色；color 传 'skull' 时结算骷髅匹配触发（diamondaura/powerofstars/rancor）
+ *   - cleanseOnColorMatch：配色净化（adagio）
+ *   - opts.enemyTeam：敌方配色触发（rancor）——敌方配对骷髅/某色时敌方持有者自身获得
+ */
 export function applyColorMatchTriggers(
   team: readonly Character[],
-  color: BaseColor,
-): BuffEvent[] {
-  const events: BuffEvent[] = [];
+  color: BaseColor | 'skull',
+  opts: { enemyTeam?: readonly Character[] } = {},
+): GameEvent[] {
+  const events: GameEvent[] = [];
   for (const char of team) {
     if (char.defeated) continue;
     const gains = passivesOf(char).gainOnColorMatch[color];
     if (!gains) continue;
-    for (const stat of ['hp', 'armor', 'attack', 'magic', 'mana'] as const) {
+    for (const stat of GAIN_STAT_ORDER) {
       const actual = grantStat(char, stat, gains[stat]);
       if (actual !== 0) events.push({ type: 'buff', targetId: char.id, stat, amount: actual });
     }
   }
+  // 配色团队光环：任意存活持有者 → 同队 scope 范围内成员（按持有者序 × 队伍序确定性结算）
+  for (const holder of team) {
+    if (holder.defeated) continue;
+    const byScope = passivesOf(holder).colorMatchTypeAura[color];
+    if (!byScope) continue;
+    for (const [scope, gains] of Object.entries(byScope)) {
+      for (const member of team) {
+        if (member.defeated) continue;
+        if (!scopeMatches(member, scope)) continue;
+        for (const stat of GAIN_STAT_ORDER) {
+          const actual = grantStat(member, stat, gains[stat]);
+          if (actual !== 0) events.push({ type: 'buff', targetId: member.id, stat, amount: actual });
+        }
+      }
+    }
+  }
+  // 配色净化（adagio）：任一存活持有者的净化色命中本次颜色即全队去负面状态
+  if (team.some((c) => !c.defeated && passivesOf(c).cleanseOnColorMatch.includes(color))) {
+    for (const member of team) events.push(...cleanseNegative(member));
+  }
+  // 敌方配色触发（rancor）：敌方持有者自身获得（不动敌方的 gainOnColorMatch——那是他们自己配对时才吃的）
+  if (opts.enemyTeam) {
+    for (const char of opts.enemyTeam) {
+      if (char.defeated) continue;
+      const gains = passivesOf(char).gainOnEnemyColorMatch[color];
+      if (!gains) continue;
+      for (const stat of GAIN_STAT_ORDER) {
+        const actual = grantStat(char, stat, gains[stat]);
+        if (actual !== 0) events.push({ type: 'buff', targetId: char.id, stat, amount: actual });
+      }
+    }
+  }
   return events;
+}
+
+/** 触发增益循环的属性序（统一 hp→armor→attack→magic→mana，保证事件顺序确定性） */
+const GAIN_STAT_ORDER = ['hp', 'armor', 'attack', 'magic', 'mana'] as const;
+
+/**
+ * 正面状态清单（净化时保留）。与 skills/effects/status.ts 诅咒剥正面的清单一致；
+ * 不直接 import——status 依赖本模块（passivesOf/isImmuneToStatus），反向 import 会成环。
+ */
+const POSITIVE_STATUS_IDS = new Set(['barrier', 'blessed', 'enchanted', 'enraged', 'rage', 'reflect', 'submerged']);
+
+/** 净化（adagio/royalhoney「净化所有盟友」）：移除全部负面状态，正面状态保留。 */
+function cleanseNegative(char: Character): GameEvent[] {
+  if (char.defeated || char.statuses.length === 0) return [];
+  const removed = char.statuses.filter((s) => !POSITIVE_STATUS_IDS.has(s.id)).map((s) => s.id);
+  if (removed.length === 0) return [];
+  char.statuses = char.statuses.filter((s) => POSITIVE_STATUS_IDS.has(s.id));
+  const event: GameEvent = { type: 'status-cleanse', targetId: char.id, statusIds: removed };
+  return [event];
+}
+
+/**
+ * 大连触发的执行环境（条件光环批）：由 TurnEngine 注入，traits 不反向依赖 status。
+ * 全部可选——缺省时新效果跳过，不含新键特质的对局行为与随机数消耗逐字节不变。
+ */
+export interface BigMatchTriggerContext {
+  /** 本次触发的匹配组宝石数（4/5…）；缺省按 4 处理（旧行为：>=4 全触发） */
+  size?: number;
+  /** 随机目标选择 / 概率判定；缺省时概率 <1 不生效、随机目标退化为首个存活（纯逻辑单测可省略） */
+  rng?: Pick<SeededRNG, 'next'>;
+  /** 状态施加口（TurnEngine 注入 skills/effects/status 的 applyStatus）；缺省时不施加状态 */
+  applyStatus?: (char: Character, status: StatusInstance) => GameEvent[];
+  /** 敌方存活队列（scope 'allEnemies' 的施加目标，bloodmark 族）；缺省时该 scope 跳过 */
+  enemyTeam?: readonly Character[];
+}
+
+/** 把编译好的状态规格逐条施加到目标（ctx.applyStatus 由 TurnEngine 注入；缺省时跳过） */
+function applySpecStatuses(
+  target: Character,
+  statuses: readonly { id: string; magnitude?: number }[],
+  turns: number,
+  ctx: BigMatchTriggerContext,
+): GameEvent[] {
+  if (!ctx.applyStatus) return [];
+  const events: GameEvent[] = [];
+  for (const spec of statuses) {
+    const status: StatusInstance = spec.magnitude !== undefined
+      ? { id: spec.id, turns, magnitude: spec.magnitude }
+      : { id: spec.id, turns };
+    events.push(...ctx.applyStatus(target, status));
+  }
+  return events;
+}
+
+/** 触发循环里的成员匹配：scope 为 'all'（全队）/种族名（troopTypes）/颜色名（colors） */
+function scopeMatches(member: Character, scope: string): boolean {
+  if (scope === 'all') return true;
+  return (member.troopTypes ?? []).includes(scope) || member.colors.includes(scope as BaseColor);
 }
 
 /**
  * 4 或 5 连响应（庞然/巨型/修理…）：只作用于匹配方自己一队。
  * 另含种族光环（firstwargare/overclock…）：持有者所在方配对 4/5 连时，
  * 给同队该族盟友（或 troopType 'all' 的全队）套用光环增益，按队伍序确定性结算。
+ *
+ * 条件光环批扩展（均要求特质带对应新键，旧特质行为与随机消耗逐字节不变）：
+ *   - gainOnBigMatchSized：minSize 限定自身增益（insanegrowth 只认 5 连）
+ *   - onBigMatchStatus：施加状态（屏障/狂怒/下潜/反射/赐福…）；随机目标与概率经 ctx.rng 判定，
+ *     施加经 ctx.applyStatus（TurnEngine 注入）；无 rng 时概率 <1 的不生效、随机目标退化为首个存活
+ *   - cleanseOnBigMatch：任一存活持有者带此键即全队净化（移除负面状态）
  */
-export function applyBigMatchTriggers(matchingTeam: readonly Character[]): BuffEvent[] {
-  const events = applyTrigger(matchingTeam, 'gainOnBigMatch');
+export function applyBigMatchTriggers(
+  matchingTeam: readonly Character[],
+  ctx: BigMatchTriggerContext = {},
+): GameEvent[] {
+  const events: GameEvent[] = [...applyTrigger(matchingTeam, 'gainOnBigMatch')];
+  const size = ctx.size ?? 4;
   for (const holder of matchingTeam) {
     if (holder.defeated) continue;
     const aura = passivesOf(holder).bigMatchTypeAura;
@@ -552,12 +737,72 @@ export function applyBigMatchTriggers(matchingTeam: readonly Character[]): BuffE
       for (const member of matchingTeam) {
         if (member.defeated) continue;
         if (troopType !== 'all' && !member.troopTypes?.includes(troopType)) continue;
-        for (const stat of ['hp', 'armor', 'attack', 'magic', 'mana'] as const) {
+        for (const stat of GAIN_STAT_ORDER) {
           const actual = grantStat(member, stat, gains[stat]);
           if (actual !== 0) events.push({ type: 'buff', targetId: member.id, stat, amount: actual });
         }
       }
     }
+  }
+
+  // 5 连限定自身增益（insanegrowth）
+  for (const char of matchingTeam) {
+    if (char.defeated) continue;
+    const sized = passivesOf(char).gainOnBigMatchSized;
+    for (const [minSize, gains] of Object.entries(sized)) {
+      if (size < Number(minSize)) continue;
+      for (const stat of GAIN_STAT_ORDER) {
+        const actual = grantStat(char, stat, gains[stat]);
+        if (actual !== 0) events.push({ type: 'buff', targetId: char.id, stat, amount: actual });
+      }
+    }
+  }
+
+  // 施加状态（celestialshield/provocation/tsunami/lotusblessing…）
+  if (ctx.applyStatus) {
+    for (const holder of matchingTeam) {
+      if (holder.defeated) continue;
+      const spec = passivesOf(holder).onBigMatchStatus;
+      if (!spec) continue;
+      if ((spec.minSize ?? 4) > size) continue;
+      if (spec.chance !== undefined) {
+        // 概率判定走种子化 rng；纯逻辑环境（无 rng）按召唤口径不生效
+        if (!ctx.rng || ctx.rng.next() >= spec.chance) continue;
+      }
+      const alive = matchingTeam.filter((c) => !c.defeated);
+      if (spec.scope === 'self') {
+        events.push(...applySpecStatuses(holder, spec.statuses, spec.turns, ctx));
+      } else if (spec.scope === 'allEnemies') {
+        // 敌方全队（bloodmark「使所有敌人陷入出血状态」）：目标为对方存活队列
+        const foes = (ctx.enemyTeam ?? []).filter((c) => !c.defeated);
+        for (const foe of foes) {
+          events.push(...applySpecStatuses(foe, spec.statuses, spec.turns, ctx));
+        }
+      } else if (spec.scope === 'randomEnemy') {
+        // 随机一名敌人（winterveil「冻结一名随机敌人」）：消耗一次随机数，无 rng 退化为首个存活
+        const foes = (ctx.enemyTeam ?? []).filter((c) => !c.defeated);
+        if (foes.length === 0) continue;
+        const foe = ctx.rng ? foes[Math.floor(ctx.rng.next() * foes.length)] : foes[0];
+        events.push(...applySpecStatuses(foe, spec.statuses, spec.turns, ctx));
+      } else if (spec.scope === 'allAllies') {
+        for (const member of alive) {
+          events.push(...applySpecStatuses(member, spec.statuses, spec.turns, ctx));
+        }
+      } else {
+        // randomAlly：有 rng 随机取（只在此消耗一次随机数），无 rng 退化为首个存活
+        if (alive.length === 0) continue;
+        const target = ctx.rng ? alive[Math.floor(ctx.rng.next() * alive.length)] : alive[0];
+        const picks = spec.randomPositive && ctx.rng
+          ? [spec.statuses[Math.floor(ctx.rng.next() * spec.statuses.length)]]
+          : spec.statuses;
+        events.push(...applySpecStatuses(target, picks, spec.turns, ctx));
+      }
+    }
+  }
+
+  // 净化（royalhoney）：任一存活持有者带键即全队去负面状态
+  if (matchingTeam.some((c) => !c.defeated && passivesOf(c).cleanseOnBigMatch)) {
+    for (const member of matchingTeam) events.push(...cleanseNegative(member));
   }
   return events;
 }

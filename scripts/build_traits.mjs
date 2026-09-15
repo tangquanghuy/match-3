@@ -33,6 +33,39 @@ const COLOR_MAP = [
 
 const STAT_MAP = [
   [/生命值/, 'hp'], [/护甲值/, 'armor'], [/攻击力/, 'attack'], [/魔法值/, 'magic'], [/技能值/, 'magic'],
+  // 「提供 4 点护甲」（celestialbarrier）不带「值」：放最后兜底，避免抢走「护甲值」的匹配
+  [/护甲/, 'armor'],
+];
+
+/**
+ * 条件光环可施加的状态 = 引擎已落地的状态本体全集（**不**并入全局 STATUS_MAP——
+ * 免疫/命中附状态等其它规则的接线属于状态批，不在本批范围）。
+ * bleed 等攻击性 DoT 施加时带 magnitude:1（与命中附状态口径一致）。
+ */
+const AURA_STATUS_MAP = [
+  [/冻结|冰冻/, 'frozen'],
+  [/出血/, 'bleed'],
+  [/中毒/, 'poison'],
+  [/燃烧|妖火/, 'burning'],
+  [/屏障/, 'barrier'],
+  [/狂怒/, 'rage'],
+  [/下潜|下潮/, 'submerged'],
+  [/反射/, 'reflect'],
+  [/赐福|祝福/, 'blessed'],
+  [/诅咒/, 'curse'],
+  [/魅惑/, 'charm'],
+  [/疾病/, 'disease'],
+  [/死亡标记/, 'death-mark'],
+  [/缠绕|纠缠/, 'entangle'],
+  [/织网/, 'web'],
+  [/击晕|眩晕/, 'stun'],
+  [/沉默/, 'silence'],
+];
+/** 引擎尚无对应状态本体：含这些词的条件光环句子整体不收（不做缺状态的半解析） */
+const AURA_UNKNOWN_STATUS = /恐怖|法印|猎人标记|狼化|风暴|石化|催眠|惑乱|迷惑|变羊|吞噬|受诅|嘲讽/;
+/** 「随机的正面增益状态效果」（dragonsblessing）的候选池 */
+const POSITIVE_STATUS_POOL = [
+  { id: 'barrier' }, { id: 'rage' }, { id: 'reflect' }, { id: 'blessed' }, { id: 'enchanted' },
 ];
 
 /**
@@ -51,6 +84,7 @@ const TROOP_TYPE_MAP = {
   牛头族: 'Tauros', 兽人: 'Orc', 机械: 'Mech', 石人: 'Construct', 侏儒: 'Gnome',
   半人马: 'Centaur', 罗刹: 'Raksha', 不朽: 'Immortal',
   厄什卡: 'Urska', 罗格: 'Rogue',
+  怪兽: 'Monster', // 「怪兽盟友」与「怪物」同义（psychicpulse）
 };
 
 const num = (s) => Number(s);
@@ -66,6 +100,27 @@ function parseDamageCondition(text) {
 }
 const pickColor = (desc) => COLOR_MAP.find(([re]) => re.test(desc))?.[1];
 const pickStat = (desc) => STAT_MAP.find(([re]) => re.test(desc))?.[1];
+
+/** 触发类特质的属性词 → 引擎 stat（含随机技能值→magic、法力值→mana 的既有约定） */
+const pickTriggerStat = (word) => (word === '随机技能值' ? 'magic' : word === '法力值' ? 'mana' : pickStat(word));
+
+/**
+ * 解析共享数值的属性列表（条件光环族）：「攻击力、护甲值和生命值」「生命值和魔法值」
+ * 「全部技能值」（四项各 N）「随机技能值」（→ magic）。解析不了返回 null。
+ */
+function parseGainsList(text, value) {
+  const gains = {};
+  for (const part of text.split(/[、和，]/).map((s) => s.trim()).filter(Boolean)) {
+    if (/^全部技能/.test(part)) {
+      gains.hp ??= value; gains.armor ??= value; gains.attack ??= value; gains.magic ??= value;
+      continue;
+    }
+    const stat = pickTriggerStat(part);
+    if (!stat) return null;
+    gains[stat] ??= value;
+  }
+  return Object.keys(gains).length > 0 ? gains : null;
+}
 
 /** 把一条描述解析成引擎效果；无法完整表达返回 null 并给出原因。 */
 function parse(desc) {
@@ -236,8 +291,134 @@ function parse(desc) {
     }
     return { effects: { onBigMatchTypeAura: { troopType, gains } } };
   }
-  // 配色触发：在配对<色>宝石时获得 N 点 X
-  if ((m = /^在?配对(.+?)宝石时获得\s*(\d+)\s*点(生命值|护甲值|攻击力|魔法值)。?$/.exec(desc))) {
+  // —— 条件光环批（窗口 E）新句式，接在上面的 4/5 连规则之后 ——
+
+  // 4+ 连自身增益·长尾：「在配对 4 颗或更多宝石时，获得 4 点攻击力」（huntress，句尾无句号）
+  // 「在配对 4 或更多宝石时， 获得 3 点法力值」（crystallizedmana，法力值→mana）。
+  // 「在配对 5 或 5 颗宝石时」（insanegrowth，官方文本如此）→ 两个数字相同 = 只认 5 连，走 minSize 限定字段。
+  if ((m = /^在?配对\s*(\d+)\s*颗?\s*或\s*(?:(\d+)\s*颗?|更?多)\s*[颗个]?宝石的?时?候?[，,]?\s*获得\s*(\d+)\s*点?(随机技能值|生命值|护甲值|攻击力|魔法值|法力值)\s*。?$/.exec(desc))) {
+    const stat = pickTriggerStat(m[4]);
+    if (!stat) return null;
+    const n1 = num(m[1]);
+    const n2 = m[2] !== undefined ? num(m[2]) : null; // null =「或更多」
+    if (n2 !== null && n1 === n2) {
+      return { effects: { onBigMatchSizedGain: { minSize: n1, stat, amount: num(m[3]) } } };
+    }
+    return { effects: { onBigMatchGain: { stat, amount: num(m[3]) } } };
+  }
+  // 4+ 连团队增益·长尾（条件光环主体，16 code）：两种动词都收——
+  //   「所有哥布林盟友获得 5 点生命值」（获得）/「给所有牛头族盟友 1 点攻击力、护甲值和生命值」（给/给予）
+  //   「所有野兽军队获得 …」（军队后缀）/「当配对4个或更多宝石时，所有罗格盟友获得2点魔法值」（个、无空格）
+  //   「在配对 4 或更多宝石是，给予怪兽盟友 2 点随机技能值」（官方文本「是」为「时」之误）
+  // 属性表支持共享数值多属性与「全部技能值」（giftof* 族 = 四项各 N）。
+  if ((m = /^[当在]?配对\s*4\s*[颗个]?\s*或\s*(?:更?多|5)\s*[颗个]?宝石的?[时是]候?[，,]?\s*(.+)$/.exec(desc))) {
+    const bm = /^(?:给予?|使)?\s*所有(.+?)(?:盟友|军队)?获得\s*(\d+)\s*点(.+?)[，,]?。?$/.exec(m[1])
+      ?? /^(?:给予?)\s*(?:所有)?(.+?)(?:盟友|军队)?\s*(\d+)\s*点(.+?)[，,]?。?$/.exec(m[1]);
+    if (bm) {
+      const scopeName = bm[1];
+      const troopType = scopeName === ''
+        ? 'all'
+        : (TROOP_TYPE_MAP[scopeName] ?? TROOP_TYPE_MAP[`${scopeName}族`] ?? TROOP_TYPE_MAP[scopeName.replace(/族$/, '')]);
+      const gains = parseGainsList(bm[3], num(bm[2]));
+      if (troopType && gains) {
+        return { effects: { onBigMatchTypeAura: { troopType, gains } } };
+      }
+    }
+  }
+  // 条件光环·净化：「净化所有盟友」= 移除全部负面状态（正面清单与 status.ts 诅咒剥正面一致）。
+  //   4+ 连版（royalhoney）/ 配色版（adagio「在配对黄色宝石时净化所有盟友」）。
+  if (/净化所有盟友/.test(desc)) {
+    if (/^在?配对\s*4\s*[颗个]?\s*或\s*(?:更?多|5)\s*[颗个]?宝石的?时?候?[，,]?净化所有盟友。?$/.test(desc)) {
+      return { effects: { onBigMatchCleanse: { minSize: 4 } } };
+    }
+    if ((m = /^在?配对(.+?)宝石时[，,]?净化所有盟友。?$/.exec(desc))) {
+      const color = pickColor(m[1]);
+      if (color) return { effects: { onColorMatchCleanse: { color } } };
+    }
+  }
+  // 条件光环·施加状态（屏障/狂怒/下潜/反射/赐福/冻结+出血…）：状态本体均已落地。
+  //   DoT（出血/中毒/燃烧）带 magnitude:1；概率句（lotusblessing 50%）收进 chance。
+  //   范围按描述词判定：「获得屏障效果」=self / 所有敌人=allEnemies / 一名随机敌人=randomEnemy /
+  //   自己=self / 所有盟友=allAllies / 其余（「一名（随机）盟友」）=randomAlly。
+  //   含引擎没有的状态本体（恐怖/法印…）的句子整体不收，不做缺状态的半解析；
+  //   「创造 N 颗X宝石」是特殊宝石域不在此收（twinfires）；「第一名敌人」非随机目标不硬猜（dragonvines）；
+  //   未命中任何已知状态的（如「获得额外 N 黄金」）同样落回后续规则留在未实现桶。
+  if (/^在?配对\s*4/.test(desc) && !AURA_UNKNOWN_STATUS.test(desc) && !/创造|创建/.test(desc)) {
+    const chanceM = /有\s*(\d+)%\s*的?几率/.exec(desc);
+    const enemyTargeted = /敌人/.test(desc) && !/所有敌人/.test(desc);
+    // 敌人指定但非随机/全体（「缠绕第一名敌人」）→ null，不硬猜
+    const scope = /获得屏障效果/.test(desc) ? 'self'
+      : /所有敌人/.test(desc) ? 'allEnemies'
+        : (enemyTargeted && /随机|任意/.test(desc)) ? 'randomEnemy'
+          : enemyTargeted ? null
+            : /自己/.test(desc) ? 'self'
+              : /所有盟友/.test(desc) ? 'allAllies'
+                : 'randomAlly';
+    let statuses = null;
+    let randomPositive = false;
+    if (/屏障效果/.test(desc)) statuses = [{ id: 'barrier' }];
+    else if (/反射效果/.test(desc)) statuses = [{ id: 'reflect' }];
+    else if (/下潜/.test(desc)) statuses = [{ id: 'submerged' }];
+    else if (/正面增益状态效果/.test(desc)) { statuses = POSITIVE_STATUS_POOL; randomPositive = true; }
+    else if (/赐福/.test(desc)) statuses = [{ id: 'blessed' }];
+    else if (/狂怒/.test(desc)) statuses = [{ id: 'rage' }];
+    else {
+      // 复合状态（bloodcoldrage「陷入冻结和出血状态」/ bloodmark「所有敌人陷入出血」）：按映射表收全部命中
+      const found = AURA_STATUS_MAP.filter(([re]) => re.test(desc)).map(([, id]) => id);
+      if (found.length > 0) {
+        statuses = [...new Set(found)].map((id) => (id === 'poison' || id === 'burning' || id === 'bleed' ? { id, magnitude: 1 } : { id }));
+      }
+    }
+    if (scope !== null && statuses) {
+      return {
+        effects: {
+          onBigMatchStatus: {
+            scope,
+            statuses,
+            turns: 3,
+            ...(chanceM ? { chance: num(chanceM[1]) / 100 } : {}),
+            ...(randomPositive ? { randomPositive: true } : {}),
+          },
+        },
+      };
+    }
+  }
+  // 敌方配色触发（rancor）：「在敌人配对骷髅头时，获得 3 点攻击力」→ 敌方配对骷髅时自己获得
+  if ((m = /^在敌人配对骷髅头(?:宝石)?时[，,]?获得\s*(\d+)\s*点(生命值|护甲值|攻击力|魔法值)。?$/.exec(desc))) {
+    const stat = pickStat(m[2]);
+    if (!stat) return null;
+    return { effects: { onEnemyColorMatchGain: { color: 'skull', stat, amount: num(m[1]) } } };
+  }
+  // 配色团队光环（celestial*/powerof*/*aura 族，28 code）：「在配对红色宝石时，给予所有红色盟友 4 点攻击力」。
+  // 受益范围：同色盟友（查 colors）/ 种族（查 troopTypes）/「所有盟友」= 全队；
+  // 骷髅头匹配以 'skull' 为色键（diamondaura/powerofstars）。动词 给予/为…提供/赋予 都收。
+  if ((m = /^在?配对(骷髅头(?:宝石)?|.+?宝石)的?时[，,]?\s*(?:给予|为|赋予)?所有(盟友|.+?盟友)(?:给予|提供|赋予)?\s*(\d+)\s*点?\s*(生命值|护甲值?|攻击力|魔法值|所有技能组)[，,]?。?$/.exec(desc))) {
+    let gemColor;
+    if (m[1].startsWith('骷髅头')) gemColor = 'skull';
+    else {
+      gemColor = pickColor(m[1]);
+      if (!gemColor) return null;
+    }
+    // 「所有盟友」= 全队；「所有棕色盟友」= 先剥「盟友」再查颜色/种族映射
+    const scopeRaw = m[2];
+    const scopeName = scopeRaw === '盟友' ? '' : scopeRaw.replace(/盟友$/, '');
+    const scope = scopeName === '' ? 'all' : (pickColor(scopeName) ?? TROOP_TYPE_MAP[scopeName] ?? TROOP_TYPE_MAP[`${scopeName}族`]);
+    const gains = m[4] === '所有技能组'
+      ? { hp: num(m[3]), armor: num(m[3]), attack: num(m[3]), magic: num(m[3]) }
+      : (() => { const stat = pickStat(m[4]); return stat ? { [stat]: num(m[3]) } : null; })();
+    if (!scope || !gains) return null;
+    return { effects: { onColorMatchTypeAura: { color: gemColor, scope, gains } } };
+  }
+  // 配色触发·共享数值多属性（ragingbull）：「在配对红色宝石时获得 2 点攻击力、护甲值和生命值」
+  if ((m = /^在?配对(.+?)宝石时[，,]?获得\s*(\d+)\s*点((?:生命值|护甲值?|攻击力|魔法值)(?:[、和](?:\d+\s*点)?(?:生命值|护甲值?|攻击力|魔法值))+)[，,]?。?$/.exec(desc))) {
+    const color = pickColor(m[1]);
+    const gains = parseGainsList(m[3], num(m[2]));
+    if (!color || !gains) return null;
+    const stats = Object.keys(gains);
+    return { effects: { onColorMatchGain: { color, stat: stats[0], amount: num(m[2]), alsoStats: stats.slice(1) } } };
+  }
+  // 配色触发：在配对<色>宝石时获得 N 点 X（boo/firewall 族带逗号；royalfire「点 攻击力」带空格）
+  if ((m = /^在?配对(.+?)宝石时[，,]?\s*获得\s*(\d+)\s*点\s*(生命值|护甲值|攻击力|魔法值)。?$/.exec(desc))) {
     const color = pickColor(m[1]);
     const stat = pickStat(m[3]);
     if (!color || !stat) return null;
