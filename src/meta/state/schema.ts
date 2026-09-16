@@ -80,6 +80,8 @@ export interface ArenaState {
   activeDraft: ActiveDraft | null;
   seasonWins: number;
   bestRun: number;
+  /** 最近一次使用本周免费票的时刻（epoch ms）；< weekStart 即本周免费可用。加性字段 */
+  lastFreeEntryAt: number;
 }
 
 export interface KingdomState {
@@ -185,7 +187,7 @@ export function newSave(options: NewSaveOptions = {}): MetaSave {
     collection: {},
     teams: [],
     activeTeamIndex: 0,
-    arena: { activeDraft: null, seasonWins: 0, bestRun: 0 },
+    arena: { activeDraft: null, seasonWins: 0, bestRun: 0, lastFreeEntryAt: 0 },
     kingdoms: {},
     stats: { battlesWon: 0, battlesLost: 0, soulsEarned: 0, goldEarned: 0 },
     dailyFirstWinAt: 0,

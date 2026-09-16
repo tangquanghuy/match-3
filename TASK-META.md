@@ -33,12 +33,14 @@
 | M4 抽卡（逻辑部分） | gacha 权重+种子化+十连保底 Epic+、金钥匙宝箱、gachaLog 对账 | 权重表万分比单源；3000 次固定种子审计频率与权重一致；40 种子保底无一漏发；重复卡进 copies | ✅ 已落（2026-09-17） |
 | M5 主角系统（逻辑部分） | 等级曲线落地、8 职业（天赋=既有特质 code）、20 武器（builders DSL，注册进 meta 桥接注册表）、主角入队出战 | 武器技能过校验可施放；主角可编入队伍出战；任务 8 关解锁职业 | ✅ 已落（2026-09-17） |
 | M6 王国经营与旗帜 | 旗帜法力加成（**动 ManaDistributor，先登记台账**）、金钥匙经济收口（金宝箱已于 M4 落地，余产出阀门=竞技场 M7） | 旗帜加成有单测；引擎内可见 | ⬜ 未开工（王国升级/10 级加成已提前至 M3 完成） |
-| M7 竞技场 draft | 报名/三轮 3 选 1/限定编队/3 连战/按胜场发奖；draft 卡不进收藏 | 全流程 headless 可玩；中途退出可恢复 activeDraft | ⬜ 未开工 |
+| M7 竞技场 draft | 报名/三轮 3 选 1/限定编队/3 连战/按胜场发奖；draft 卡不进收藏 | 全流程 headless 可玩；中途退出可恢复 activeDraft | ✅ 已落（2026-09-17）。免费票=本地周历 weekStart 判定；「中途退出可恢复」按保守口径简化为弃赛按已得胜场结算（activeDraft 存续期间可续打，崩溃后 draft 作废——hydrate 不恢复半成品） |
 | M8 打磨 | 数值平衡、结屏明细对齐视觉稿、截图审查 | 与视觉窗口联合验收 | ⬜ 持续 |
 
 ## 4. 工作记录（新记录追加在顶部）
 
 | 日期 | 提交 | 内容 | 验证 |
+|---|---|---|---|
+| 2026-09-17 | （本次） | **M7 竞技场 · 现开赛（逻辑部分）**：①`economy.ts` 增 ARENA 常量（报名费 150/本周首场免费、三轮 3 选 1、每轮保底 1 张 UR+（idx≥3）、选项档位权重比正常抽卡肥、对手等级 10/14/18 规模 3/3/4 递增）与 ARENA_REWARDS 奖表（1 胜回本黄金、2 胜 +宝石、3 胜 💎大奖+🔑×2，裁定④口径）；②`systems/arena.ts`——报名（免费票按 weekStart 判定，schema 加性字段 arena.lastFreeEntryAt）、draft 三选一（同 seed 复现同一届、各轮不重复、保底抬档）、限定编队（站位列必须是 draft 卡重排，主角不出战）、连战计划（对手王国从推进序掷取、draft 卡按**基础稀有度档等级上限**满配出战、请求过会话校验）、按胜场收官发奖（胜满 3 场或败北即终止）、弃赛按已得胜场结算；**卡即用即弃**：全程不进 collection、不动预设队。**实现复用**：draft 卡快照走 troopToSnapshot（合成满配 TroopRecord）、对手快照走导出的 enemyToSnapshot、选人复用 encounter.pickEnemies、注册表复用 buildMetaRegistry | 新增 tests/unit/metaArena.test.ts 9 用例：免费票周历/收费/不足拒绝、draft 确定性+20 种子保底全中+不重复、站位列校验、对手递增、3 胜大奖、败北收官、弃赛、收藏与预设队零污染；全量 84 文件/886 用例绿、lint 零错。**门槛备注**：窗口 E 当日在 engine/skills 域高频在途保存，`npm run build` 的 tsc 随其保存状态间歇变红（batch-r4→damage/summon→builders 轮动）；本窗口全部路径曾在 E 安静窗口经全量 tsc 验证零错误，此后未再改动引擎域 |
 |---|---|---|---|
 | 2026-09-17 | （本次） | **M5 主角系统（逻辑部分）**——HERO_UNAVAILABLE 占位转正：①`data/hero.ts`——主角四维锚点（复用官方成长形状 statAtLevel，20 级 62/24/15/27）+ 主角/职业经验曲线 + 8 职业定义（骑士~游侠，按王国推进序绑前 8 个王国，天赋 5 档 5/20/40/60/80 全部复用**已实现特质 code**，不动 traits.json）；②`data/weapons.ts`——首批 20 把武器（通用 4 按主角等级 + 每职业 10 级/20 级毕业各 2），每把 = builders DSL 的 SkillPrototype + 法力色/耗蓝；**原型注册进 meta 桥接注册表**（buildMetaRegistry），不改 engine 技能库（窗口 E 正在该域作业）；③`systems/hero.ts`——加经验（多级连升）/职业经验/装备校验/天赋输出（过滤已实现 code）；④`data/traitIndex.ts`——KNOWN_TRAIT_CODES 提为共享数据（battleBridge 与 hero 同源）；⑤桥接：主角快照（武器=唯一施法手段，无武器时 skillId 'none' 走兜底原型、耗蓝按校验下限 1；王国 10 级加成对主角生效）；⑥settlement：胜利 +60 主角经验（会升级）、职业经验 25 仅计主角编队胜场、任务链 8 关通关解锁绑定职业（unlockedClasses）；⑦schema 加性字段 hero.classXp，新档默认装备学徒法杖。**门槛备注**：提交时全量测试 82 文件/877 用例绿、lint 零错；`npm run build` 的 tsc 红灯**仅**来自窗口 E 在途未提交文件 `src/engine/skills/curated/batch-r4.ts`（4 处类型错误，防撞规则约定 meta 窗口不可代改），`src/meta/**` 类型检查干净（tsc 错误清单中无本窗口路径） | 新增 tests/unit/metaHero.test.ts（13 用例：曲线锚点/多级连升/职业定义合法性/天赋按档生效/装备校验链/武器解锁/主角快照/无武器兜底/结算升级/任务 8 关解锁）；metaBattleBridge 占位用例改造为正例；metaSettlement 旧断言升级为 M5 口径；meta 域 105 用例全绿 |
 |---|---|---|---|

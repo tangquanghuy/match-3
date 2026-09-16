@@ -20,3 +20,4 @@ export * from './systems/tribute';
 export * from './systems/kingdomOps';
 export * from './systems/gacha';
 export * from './systems/hero';
+export * from './systems/arena';

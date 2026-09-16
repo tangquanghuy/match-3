@@ -70,7 +70,8 @@ export function troopToSnapshot(
   };
 }
 
-function enemyToSnapshot(troop: TroopData, enemy: EncounterEnemy, index: number): CombatantSnapshot {
+/** 敌方快照：满配特质（过滤已实现）、带 tier 标（AI 满配，对齐 GoW 敌方行为）；竞技场对手复用 */
+export function enemyToSnapshot(troop: TroopData, enemy: EncounterEnemy, index: number): CombatantSnapshot {
   const stats = troopStatsAtLevel(troop, enemy.level);
   return {
     externalId: `e${index}-${troop.id}`,

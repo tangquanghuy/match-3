@@ -77,7 +77,8 @@ function exploreTierPlan(tier: number): EnemyTier[] {
   return [...Array.from({ length: size - 1 }, () => 'elite' as const), 'boss' as const];
 }
 
-function pickEnemies(
+/** 按层级表从王国池选人（稀有度带逐档放宽）；供 encounter 与竞技场对手共用 */
+export function pickEnemies(
   kingdom: string,
   level: number,
   tiers: readonly EnemyTier[],

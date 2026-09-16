@@ -254,3 +254,36 @@ export const GACHA_PITY_MIN_IDX = 4;
 export const HERO_XP_PER_WIN = 60;
 /** 主角编入队伍的胜场：当前职业经验 */
 export const CLASS_XP_PER_WIN = 25;
+
+// ---------------------------------------------------------------------------
+// 竞技场 · 现开赛（M7 设计值，流程口径 = ASSETS-NEEDED §4.9）
+// ---------------------------------------------------------------------------
+
+export const ARENA = {
+  /** 宝石报名费（本周首场免费，裁定④） */
+  entryFeeGems: 150,
+  /** 三轮 3 选 1 */
+  rounds: 3,
+  choicesPerRound: 3,
+  /** 每轮选项必含 1 张 UR+（稀有度 idx ≥ 3，ASSETS-NEEDED §4.9 保底文案） */
+  guaranteeMinIdx: 3,
+  /** draft 选项的档位权重（万分比，比正常抽卡肥——现场组队的公平性来源） */
+  optionWeights: [2000, 2200, 2600, 2400, 600, 200],
+  /** 三场对手的敌人等级（递增，设计值） */
+  opponentLevels: [10, 14, 18],
+  /** 三场对手的队伍规模（递增，设计值） */
+  opponentSizes: [3, 3, 4],
+} as const;
+
+/** 按最终胜场的奖励（0~3 胜；1 胜回本口径、3 胜大奖，裁定④） */
+export const ARENA_REWARDS: ReadonlyArray<{ gold: number; gems: number; goldKeys: number }> = [
+  { gold: 50, gems: 0, goldKeys: 0 },
+  { gold: 3000, gems: 0, goldKeys: 0 },
+  { gold: 6000, gems: 120, goldKeys: 0 },
+  { gold: 12000, gems: 400, goldKeys: 2 },
+];
+
+/** draft 部队的等级口径：按基础稀有度档的等级上限（公平卡组、满配特质） */
+export function arenaDraftLevel(rarityIdx: number): number {
+  return levelCapFor(rarityIdx, 0);
+}

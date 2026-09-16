@@ -160,6 +160,7 @@ export function hydrateSave(raw: Record<string, unknown>): MetaSave {
   if (isObject(raw.arena)) {
     arena.seasonWins = num(raw.arena.seasonWins, 0, 0);
     arena.bestRun = num(raw.arena.bestRun, 0, 0);
+    arena.lastFreeEntryAt = num(raw.arena.lastFreeEntryAt, 0, 0);
     arena.activeDraft = null; // 中途崩溃不恢复 draft 半成品（计划 §4.8 的保守口径）
   }
 
