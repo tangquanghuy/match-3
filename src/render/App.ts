@@ -30,6 +30,7 @@ import { InputController } from './InputController';
 import { AudioManager, type SfxName } from './AudioManager';
 import { AnimConfig } from './AnimationConfig';
 import { TeamView, CARD_W, setTeamSize, getTeamSize } from './TeamView';
+import { installStatusTooltips } from './statusTooltip';
 import type { CharacterCard } from './TeamView';
 import { CharacterDetailPanel } from './CharacterDetailPanel';
 import { GameOverPanel } from './GameOverPanel';
@@ -551,6 +552,7 @@ export class App {
     wrapper.appendChild(overlay);
     this.overlay = overlay;
 
+    installStatusTooltips();
     this.createFullscreenButton(wrapper);
     this.createTeamSizeToggle(wrapper, teamSize);
     const banner = this.createTurnBanner(
