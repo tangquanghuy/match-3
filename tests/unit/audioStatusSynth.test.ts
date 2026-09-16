@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import {
   canonicalStatusSoundId,
+  normalizeStatusKey,
   SAMPLE_STATUS_KEYS,
   STATUS_SYNTHS,
 } from '../../src/render/StatusSynth';
@@ -11,14 +12,16 @@ import {
   CURSE_STATUS_IDS,
   DEATH_MARK_STATUS_IDS,
   DOT_STATUS_IDS,
+  FAERIE_FIRE_STATUS_ID,
   MANA_BURN_STATUS_IDS,
   MARK_STATUS_ID,
   RAGE_STATUS_IDS,
+  TERROR_STATUS_ID,
   UNTARGETABLE_STATUS_IDS,
   WEB_STATUS_ID,
   WOLF_STATUS_IDS,
 } from '../../src/engine/skills/effects/status';
-import { AudioManager } from '../../src/render/AudioManager';
+import { AudioManager, STATUS_SAMPLE_URLS } from '../../src/render/AudioManager';
 
 /** 最小 Web Audio mock：只实现合成路径用到的方法；指数包络喂非正值时抛错（锁包络合法性）。 */
 class FakeParam {
@@ -76,7 +79,11 @@ function makeCtx(): {
 }
 
 describe('状态施加音映射（status-apply 事件 → 音效）', () => {
-  it('覆盖引擎已落地的全部状态 id（含别名形态）', () => {
+  /** 实际覆盖判定：占位合成表命中，或 status/ 目录 glob 采样命中（采样优先于合成）。 */
+  const covered = (id: string): boolean =>
+    canonicalStatusSoundId(id) !== null || normalizeStatusKey(id) in STATUS_SAMPLE_URLS;
+
+  it('覆盖引擎已落地的全部状态 id（含别名形态与 E 新状态妖火/恐怖）', () => {
     const landedIds = [
       ...DOT_STATUS_IDS,
       ...CONTROL_STATUS_IDS,
@@ -90,19 +97,46 @@ describe('状态施加音映射（status-apply 事件 → 音效）', () => {
       WEB_STATUS_ID,
       BARRIER_STATUS_ID,
       MARK_STATUS_ID,
+      FAERIE_FIRE_STATUS_ID,
+      TERROR_STATUS_ID,
       'stun',
       'disease',
     ];
     expect(landedIds.length).toBeGreaterThan(15);
     for (const id of landedIds) {
-      expect(canonicalStatusSoundId(id), `状态 ${id} 缺施加音`).not.toBeNull();
+      expect(covered(id), `状态 ${id} 缺施加音`).toBe(true);
     }
+  });
+
+  it('status/ 目录 17 个 AI 采样全部就位且键名规范', () => {
+    expect(Object.keys(STATUS_SAMPLE_URLS).sort()).toEqual(
+      [
+        'barrier',
+        'bleed',
+        'charm',
+        'curse',
+        'death_mark',
+        'disease',
+        'entangle',
+        'faerie_fire',
+        'mana_burn',
+        'marked',
+        'rage',
+        'silence',
+        'stun',
+        'submerged',
+        'terror',
+        'web',
+        'wolf',
+      ].sort(),
+    );
   });
 
   it('未知/未落地状态返回 null（静默）', () => {
     expect(canonicalStatusSoundId('nonexistent')).toBeNull();
     expect(canonicalStatusSoundId('fear')).toBeNull();
     expect(canonicalStatusSoundId('')).toBeNull();
+    expect('nonexistent' in STATUS_SAMPLE_URLS).toBe(false);
   });
 
   it('别名收敛为规范键', () => {
@@ -164,14 +198,14 @@ describe('状态施加音合成（mock AudioContext）', () => {
 });
 
 describe('AudioManager.playStatusApply 接线', () => {
-  function wiredManager(): { am: AudioManager; created: () => number } {
+  function wiredManager(): { am: AudioManager; created: () => number; ctx: { currentTime: number } } {
     const am = new AudioManager();
     const { ctx, created } = makeCtx();
     const slot = am as unknown as Record<string, unknown>;
     slot.ctx = ctx;
     slot.sfxBus = (ctx as { createGain: () => unknown }).createGain();
     const baseline = created();
-    return { am, created: () => created() - baseline };
+    return { am, created: () => created() - baseline, ctx: ctx as { currentTime: number } };
   }
 
   it('合成状态触发节点创建', () => {
@@ -181,9 +215,11 @@ describe('AudioManager.playStatusApply 接线', () => {
   });
 
   it('采样状态缺缓冲时回退合成/既有采样链，不抛错', () => {
-    const { am, created } = wiredManager();
+    const { am, created, ctx } = wiredManager();
     expect(() => am.playStatusApply('poison')).not.toThrow();
+    ctx.currentTime = 0.5;
     expect(() => am.playStatusApply('burning')).not.toThrow();
+    ctx.currentTime = 1.0;
     expect(() => am.playStatusApply('frozen')).not.toThrow();
     expect(created()).toBeGreaterThan(0);
   });
@@ -197,12 +233,23 @@ describe('AudioManager.playStatusApply 接线', () => {
     expect(created()).toBe(0);
   });
 
-  it('同键 0.18s 内节流（全队施加只响一次），异键不受影响', () => {
+  it('同键 0.18s 节流：全队施加同一状态只响一次', () => {
     const { am, created } = wiredManager();
     am.playStatusApply('curse');
     const afterFirst = created();
     am.playStatusApply('curse');
     expect(created()).toBe(afterFirst);
+  });
+
+  it('全局 0.12s 间隔：AoE 批量施加多个不同状态也只响一声（防混响）', () => {
+    const { am, created, ctx } = wiredManager();
+    am.playStatusApply('curse');
+    const afterFirst = created();
+    am.playStatusApply('charm');
+    am.playStatusApply('bleed');
+    expect(created()).toBe(afterFirst);
+    // 间隔之外的新状态正常发声
+    ctx.currentTime = 0.5;
     am.playStatusApply('charm');
     expect(created()).toBeGreaterThan(afterFirst);
   });

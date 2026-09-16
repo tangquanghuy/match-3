@@ -122,7 +122,8 @@ Fantasy RPG battle game sound effect, single one-shot, no music, no ambience, pu
 | 织网 | `status_web.wav` | 法力燃烧 | `status_mana_burn.wav` |
 | 屏障 | `status_barrier.wav` | 狼化 | `status_wolf.wav` |
 | 下潮 | `status_submerged.wav` | 猎人标记 | `status_marked.wav` |
-| 疾病 | `status_disease.wav` | （中毒/燃烧/冰冻沿用既有采样，不必生成） | |
+| 疾病 | `status_disease.wav` | 妖火 | `status_faerie_fire.wav` |
+| 恐怖 | `status_terror.wav` | （中毒/燃烧/冰冻沿用既有采样，不必生成） | |
 
 键名即代码里的规范 statusId（下划线形态）；`status-death-mark.wav` 这类连字符名也能被别名归一认出，但推荐统一用下划线。
 

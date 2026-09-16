@@ -316,22 +316,26 @@ export const STATUS_SYNTHS: Readonly<Record<string, StatusSynthFn>> = {
 export const SAMPLE_STATUS_KEYS: readonly string[] = ['poison', 'burning', 'frozen'];
 
 /**
- * statusId → 归一化音效键；无对应音效（未落地/未知状态）返回 null。
- * 归一规则与 statusBadges 一致：小写、连字符/下划线互转，别名收敛
+ * statusId → 规范键：小写、连字符/下划线互转、别名收敛
  * （cursed→curse、enraged→rage、charmed→charm、lycanthropy/wolf-form→wolf）。
+ * 只做字符串归一，不查表——AudioManager 用它优先匹配 status/ 目录的 glob 采样键
+ * （目录里的文件全集可以超出下方合成表，例如 faerie_fire / terror）。
+ */
+export function normalizeStatusKey(statusId: string): string {
+  const normalized = statusId.toLowerCase().replace(/-/g, '_');
+  if (normalized === 'cursed') return 'curse';
+  if (normalized === 'enraged') return 'rage';
+  if (normalized === 'charmed') return 'charm';
+  if (normalized === 'lycanthropy' || normalized === 'wolf_form') return 'wolf';
+  return normalized;
+}
+
+/**
+ * statusId → 占位合成映射键；无对应占位合成（未落地/未知状态）返回 null。
+ * 采样路径不经此表——AudioManager 先用 normalizeStatusKey 查 status/ 目录。
  */
 export function canonicalStatusSoundId(statusId: string): string | null {
-  const normalized = statusId.toLowerCase().replace(/-/g, '_');
-  const aliased =
-    normalized === 'cursed'
-      ? 'curse'
-      : normalized === 'enraged'
-        ? 'rage'
-        : normalized === 'charmed'
-          ? 'charm'
-          : normalized === 'lycanthropy' || normalized === 'wolf_form'
-            ? 'wolf'
-            : normalized;
+  const aliased = normalizeStatusKey(statusId);
   if (SAMPLE_STATUS_KEYS.includes(aliased)) return aliased;
   return aliased in STATUS_SYNTHS ? aliased : null;
 }

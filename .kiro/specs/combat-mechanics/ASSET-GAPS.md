@@ -39,7 +39,7 @@ FX 序列帧现状（相当齐，24+ 条 strip）：六色单体/群体命中、
 
 ## 三、音效缺口
 
-> **2026-09-16 用户裁定 + 窗口 I 状态施加音批落地**：黄色技能音已有（`skill_hit_yellow_single.mp3` 已接线，下表「缺黄色」为过期口径）；特殊宝石触发音、风暴环境音 **明确不做**；状态施加音已全部接线（`AudioManager.playStatusApply` 统一入口，同键 0.18s 节流）——**素材方向为 AI 生成采样**（用户裁定弃用程序合成作为交付；英文提示词见 `assets/音效/提示词/状态施加音效-AI生成提示词.md`，生成文件按 `status_<id>.wav` 放入 `src/assets/audio/status/` 即自动接线），采样就位前：poison 维持既有 `poison_spell_short.wav`（用户裁定原音效保留）、burning/frozen 复用既有采样，其余 15 状态暂以 `StatusSynth.ts` 占位合成顶上。映射被 `tests/unit/audioStatusSynth.test.ts` 快照锁定。仍开放：胜负结算 stinger、战斗 BGM、UI 点击音（用户未裁定，待需要时再议）。
+> **2026-09-16/17 用户裁定 + 窗口 I 状态施加音批落地**：黄色技能音已有（`skill_hit_yellow_single.mp3` 已接线，下表「缺黄色」为过期口径）；特殊宝石触发音、风暴环境音 **明确不做**；状态施加音已全部接线（`AudioManager.playStatusApply` 统一入口）——**素材为用户 AI 生成的 17 个采样**（15 状态 + E 新落地妖火/恐怖；提示词见 `assets/音效/提示词/`，经 `scripts/trim_status_sfx.mjs` 双端裁剪+淡出+峰值归一 -1.5dB 后以 `status_<id>.wav` 入 `src/assets/audio/status/`，glob 自动接线零代码改动），采样源文件保留 `assets/音效/` 不动；poison 维持既有 `poison_spell_short.wav`（用户裁定原音效保留）。防混响：全局 0.12s 最小间隔（AoE 批量施加只响一声）+ 采样 newest-wins（新采样 70ms 淡出顶掉旧采样）。采样缺席状态暂以 `StatusSynth.ts` 占位合成顶上（非交付方向）。映射被 `tests/unit/audioStatusSynth.test.ts` 快照锁定。仍开放：胜负结算 stinger、战斗 BGM、UI 点击音（用户未裁定，待需要时再议）。
 
 现有 **35 个 wav**：骷髅命中 + 8 变体、消除 + 5 连击链、爆炸 + 5 变体、技能组 14（armor_iron / burning_tree / frozen / healing / poison / skill_cast_earth / skill_hit_green·purple·red·water 等）。AudioManager 通道：armor/burning/damage/eliminate/frozen/healing/hit/impact/poison/skill/summon/swap/whoosh。
 

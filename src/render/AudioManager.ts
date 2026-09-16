@@ -18,15 +18,16 @@ import redSingleHitUrl from '../assets/audio/skills/skill_hit_red_single.wav?url
 import purpleSingleHitUrl from '../assets/audio/skills/skill_hit_purple_single.wav?url';
 import yellowSingleHitUrl from '../assets/audio/skills/skill_hit_yellow_single.mp3?url';
 import greenSingleHitUrl from '../assets/audio/skills/skill_hit_green_single.wav?url';
-import { canonicalStatusSoundId, STATUS_SYNTHS } from './StatusSynth';
+import { canonicalStatusSoundId, normalizeStatusKey, STATUS_SYNTHS } from './StatusSynth';
 
 /**
  * 状态施加音 AI 素材自动接线（窗口 I）：扫描 src/assets/audio/status/status_*.wav，
- * 文件放入即生效（键取自文件名 status_<键>.wav 的 <键> 段，与 StatusSynth 规范键一致），
- * 无需改代码。目录为空/缺某状态时回退 StatusSynth 占位合成。
- * 生成提示词：assets/音效/提示词/状态施加音效-AI生成提示词.md。
+ * 文件放入即生效（键取自文件名 status_<键>.wav 的 <键> 段，经 normalizeStatusKey 归一后
+ * 直接作为状态键——目录即状态音全集事实源，可超出 StatusSynth 占位表，如 faerie_fire/terror），
+ * 无需改代码。目录为空/缺某状态时回退既有采样链或 StatusSynth 占位合成。
+ * 裁剪脚本：scripts/trim_status_sfx.mjs；生成提示词：assets/音效/提示词/。
  */
-const STATUS_SAMPLE_URLS: Record<string, string> = Object.fromEntries(
+export const STATUS_SAMPLE_URLS: Record<string, string> = Object.fromEntries(
   Object.entries(
     import.meta.glob('../assets/audio/status/status_*.wav', { query: '?url', import: 'default', eager: true }) as Record<string, string>,
   ).map(([path, url]) => [path.replace(/^.*[/\\]status_(.+)\.wav$/, '$1'), url]),
@@ -98,6 +99,9 @@ export class AudioManager {
   private statusSampleBuffers: Record<string, AudioBuffer | null> = {};
   private statusSampleBytePromises: Record<string, Promise<ArrayBuffer | null>> = {};
   private lastStatusApplyAt: Record<string, number> = {};
+  private lastAnyStatusApplyAt = -Infinity;
+  private activeStatusSampleSource: AudioBufferSourceNode | null = null;
+  private activeStatusSampleGain: GainNode | null = null;
   private lastSkullHitAt = -Infinity;
   private lastEarthSkillCastAt = -Infinity;
   private lastWaterSkillHitAt = -Infinity;
@@ -264,27 +268,25 @@ export class AudioManager {
   }
 
   /**
-   * 状态施加音（status-apply 事件专用接线点）：status/ 目录里有的 AI 采样直接播放；
-   * 缺采样时 poison/burning/frozen 维持既有采样（poison 即原 poison_spell 链，行为与
-   * 接线前一致），其余落地状态走 StatusSynth 占位合成；未知/未落地状态静默。
-   * 同键 0.18s 节流——全队施加同一状态只响一次。
+   * 状态施加音（status-apply 事件专用接线点）。
+   * 键解析：normalizeStatusKey 先查 status/ 目录 glob 采样（事实源，含 faerie_fire/terror），
+   * 未命中再走 canonicalStatusSoundId 的既有采样链/占位合成；两端都没有（未知状态）静默。
+   * 防混响两层节流：全局 0.12s 最小间隔（AoE 批量施加多状态只响一声）+ 同键 0.18s；
+   * 采样源 newest-wins——新采样起播时旧的 70ms 快速淡出后停止。
    */
   playStatusApply(statusId: string): void {
     if (!this.ctx || !this.sfxBus || this.muted) return;
-    const key = canonicalStatusSoundId(statusId);
+    const normalized = normalizeStatusKey(statusId);
+    const key = normalized in STATUS_SAMPLE_URLS ? normalized : canonicalStatusSoundId(statusId);
     if (!key) return;
     const now = this.ctx.currentTime;
+    if (now - this.lastAnyStatusApplyAt < 0.12) return;
+    this.lastAnyStatusApplyAt = now;
     if (now - (this.lastStatusApplyAt[key] ?? -Infinity) < 0.18) return;
     this.lastStatusApplyAt[key] = now;
     const sample = this.statusSampleBuffers[key];
     if (sample) {
-      const source = this.ctx.createBufferSource();
-      const gain = this.ctx.createGain();
-      source.buffer = sample;
-      gain.gain.value = 0.72;
-      source.connect(gain);
-      gain.connect(this.sfxBus);
-      source.start(now);
+      this.startStatusSample(this.ctx, this.sfxBus, sample, now);
       return;
     }
     switch (key) {
@@ -301,6 +303,37 @@ export class AudioManager {
         STATUS_SYNTHS[key]?.(this.ctx, this.sfxBus, now);
         break;
     }
+  }
+
+  /** 播放状态采样；同一时刻只保留一个状态采样源，新的顶掉旧的（70ms 淡出防爆音）。 */
+  private startStatusSample(ctx: AudioContext, bus: AudioNode, buffer: AudioBuffer, at: number): void {
+    const prevSource = this.activeStatusSampleSource;
+    const prevGain = this.activeStatusSampleGain;
+    this.activeStatusSampleSource = null;
+    this.activeStatusSampleGain = null;
+    if (prevSource && prevGain) {
+      try {
+        prevGain.gain.cancelScheduledValues(at);
+        prevGain.gain.setValueAtTime(Math.max(prevGain.gain.value, 0.0001), at);
+        prevGain.gain.exponentialRampToValueAtTime(0.0001, at + 0.07);
+        prevSource.stop(at + 0.08);
+      } catch { /* already stopped */ }
+    }
+    const source = ctx.createBufferSource();
+    const gain = ctx.createGain();
+    source.buffer = buffer;
+    gain.gain.value = 0.72;
+    source.connect(gain);
+    gain.connect(bus);
+    source.start(at);
+    this.activeStatusSampleSource = source;
+    this.activeStatusSampleGain = gain;
+    source.addEventListener('ended', () => {
+      if (this.activeStatusSampleSource === source) {
+        this.activeStatusSampleSource = null;
+        this.activeStatusSampleGain = null;
+      }
+    });
   }
 
   private async loadStatusSamples(): Promise<void> {
