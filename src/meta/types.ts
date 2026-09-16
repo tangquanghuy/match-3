@@ -25,7 +25,9 @@ export type MetaErrorCode =
   | 'BAD_SLOT' // 特质槽位号非法
   | 'PREREQ_LOCKED' // 前置特质未解锁
   | 'ALREADY_UNLOCKED' // 特质已解锁
-  | 'LOCKED'; // 分解保护中
+  | 'LOCKED' // 分解保护中
+  | 'NO_TEAM' // 没有可用出战队伍
+  | 'HERO_UNAVAILABLE'; // 主角出战尚未接入（M5 职业/武器落地后放开）
 
 /** 失败结果：code 供程序分支，message 供界面直接展示 */
 export interface MetaFailure {

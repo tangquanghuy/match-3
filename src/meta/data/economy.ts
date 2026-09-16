@@ -128,3 +128,34 @@ export function starterTroopIds(): number[] {
     .map((t) => t.id)
     .sort((a, b) => a - b);
 }
+
+// ---------------------------------------------------------------------------
+// 战斗结算（M2 设计值）——击杀奖励 / 胜负 / 每日首胜 / 经验
+// ---------------------------------------------------------------------------
+
+/** 击杀灵魂（设计值）：(8 + 4×稀有度档) × (1 + 敌人等级/10)，就近取整 */
+export function killSoulReward(rarityIdx: number, level: number): number {
+  return Math.round((8 + 4 * Math.max(rarityIdx, 0)) * (1 + Math.max(level, 1) / 10));
+}
+
+/** 击杀黄金（设计值）：(5 + 3×稀有度档) × (1 + 敌人等级/12)，就近取整 */
+export function killGoldReward(rarityIdx: number, level: number): number {
+  return Math.round((5 + 3 * Math.max(rarityIdx, 0)) * (1 + Math.max(level, 1) / 12));
+}
+
+/** 胜利额外奖励（设计值，固定值） */
+export const VICTORY_BONUS = { gold: 60, souls: 30 } as const;
+
+/** 战败保底（设计值；防「打不过就彻底卡死」） */
+export const DEFEAT_CONSOLATION = { gold: 20, souls: 10 } as const;
+
+/** 每日首胜宝石（设计值；宝石=抽卡货币只产出于玩法，裁定③） */
+export const DAILY_FIRST_WIN_GEMS = 50;
+
+/** 击杀经验（设计值）：敌人等级×10 + 稀有度档×20 */
+export function xpForEnemy(rarityIdx: number, level: number): number {
+  return Math.max(level, 1) * 10 + Math.max(rarityIdx, 0) * 20;
+}
+
+/** 胜利额外经验（设计值） */
+export const WIN_BONUS_XP = 40;

@@ -118,6 +118,8 @@ export interface MetaSave {
   /** key = 王国名（troops.json 的 kingdom 字段口径） */
   kingdoms: Record<string, KingdomState>;
   stats: MetaStats;
+  /** 最近一次领取每日首胜的「当日零点」epoch ms；0 = 从未领取。加性字段，version 仍为 1 */
+  dailyFirstWinAt: number;
   settings: MetaSettings;
 }
 
@@ -168,6 +170,7 @@ export function newSave(options: NewSaveOptions = {}): MetaSave {
     arena: { activeDraft: null, seasonWins: 0, bestRun: 0 },
     kingdoms: {},
     stats: { battlesWon: 0, battlesLost: 0, soulsEarned: 0, goldEarned: 0 },
+    dailyFirstWinAt: 0,
     settings: { language: 'zh', battleDebug: false },
   };
   const starters = options.starterTroopIds ?? [];

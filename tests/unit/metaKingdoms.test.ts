@@ -1,0 +1,66 @@
+import { describe, it, expect } from 'vitest';
+import { TROOPS } from '../../src/data/troops';
+import {
+  allKingdoms,
+  EXPLORE_TEAM_SIZES,
+  exploreEnemyLevel,
+  KINGDOM_ORDER,
+  kingdomBaseLevel,
+  kingdomQuestRewardTroop,
+  kingdomTroopPool,
+  QUESTS_PER_KINGDOM,
+  QUEST_TEAM_SIZES,
+  questEnemyLevel,
+} from '../../src/meta';
+
+describe('王国元数据首版（kingdoms.ts）', () => {
+  it('42 个王国全部入表，与 troops.json 的 kingdom 字段一一对应', () => {
+    const dataKingdoms = new Set(TROOPS.map((t) => t.kingdom).filter((k): k is string => !!k));
+    expect(allKingdoms().length).toBe(dataKingdoms.size);
+    expect(new Set(allKingdoms())).toEqual(dataKingdoms);
+  });
+
+  it('推进序稳定：破碎尖塔第一（其 6000 是全数据最小兵种 id），基数等级单调不减且封顶 50', () => {
+    expect(KINGDOM_ORDER[0]).toBe('破碎尖塔');
+    expect(kingdomBaseLevel('破碎尖塔')).toBe(1);
+    for (let i = 1; i < KINGDOM_ORDER.length; i++) {
+      expect(kingdomBaseLevel(KINGDOM_ORDER[i])).toBeGreaterThanOrEqual(
+        kingdomBaseLevel(KINGDOM_ORDER[i - 1]),
+      );
+    }
+    expect(kingdomBaseLevel(KINGDOM_ORDER[KINGDOM_ORDER.length - 1])).toBeLessThanOrEqual(50);
+  });
+
+  it('任务/探索敌人等级表（设计值）', () => {
+    expect(questEnemyLevel('破碎尖塔', 1)).toBe(1);
+    expect(questEnemyLevel('破碎尖塔', 8)).toBe(8);
+    expect(exploreEnemyLevel('破碎尖塔', 1)).toBe(1);
+    expect(exploreEnemyLevel('破碎尖塔', 5)).toBe(21);
+  });
+
+  it('任务 8 关规模 2/3/3/3/3/4/4/4，探索 5 档 2/3/3/4/4', () => {
+    expect([...QUEST_TEAM_SIZES]).toEqual([2, 3, 3, 3, 3, 4, 4, 4]);
+    expect([...EXPLORE_TEAM_SIZES]).toEqual([2, 3, 3, 4, 4]);
+  });
+
+  it('任务 4/8 关奖励取该王国普通卡（按 id 序第 1/2 张）', () => {
+    const reward4 = kingdomQuestRewardTroop('破碎尖塔', 4);
+    const troop4 = TROOPS.find((t) => t.id === reward4);
+    expect(troop4).toMatchObject({ kingdom: '破碎尖塔', rarityIdx: 0 });
+    const reward8 = kingdomQuestRewardTroop('破碎尖塔', 8);
+    expect(reward8).not.toBeNull();
+    const troop8 = TROOPS.find((t) => t.id === reward8);
+    expect(troop8).toMatchObject({ kingdom: '破碎尖塔', rarityIdx: 0 });
+  });
+
+  it('每个王国都能给出任务奖励与兵种池（稀有度带过滤生效）', () => {
+    for (const kingdom of allKingdoms()) {
+      expect(kingdomQuestRewardTroop(kingdom, 4)).not.toBeNull();
+      expect(kingdomTroopPool(kingdom).length).toBeGreaterThan(0);
+      for (const troop of kingdomTroopPool(kingdom, { min: 4, max: 5 })) {
+        expect(troop.rarityIdx).toBeGreaterThanOrEqual(4);
+      }
+    }
+    expect(QUESTS_PER_KINGDOM).toBe(8);
+  });
+});

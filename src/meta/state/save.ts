@@ -175,6 +175,7 @@ export function hydrateSave(raw: Record<string, unknown>): MetaSave {
     arena,
     kingdoms,
     stats,
+    dailyFirstWinAt: num(raw.dailyFirstWinAt, 0, 0),
     settings: { ...base.settings },
   };
 }
