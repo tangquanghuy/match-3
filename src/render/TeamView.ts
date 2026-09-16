@@ -1,7 +1,7 @@
 import { BaseColor, PlayerSide } from '@engine/types';
 import type { Character, Team } from '@engine/types';
 import { AnimConfig } from './AnimationConfig';
-import { statusBadge, statusBadgeSvg } from './statusBadges';
+import { statusBadge, statusBadgeIcon } from './statusBadges';
 import { traitBadgeSvg } from './traitBadges';
 import { getTrait } from '@engine/traits';
 import frostBorderUrl from '../assets/fx/frost_border_overlay.png';
@@ -572,8 +572,11 @@ function ensureStyles(): void {
     width:${os(20)}px;height:${os(20)}px;border-radius:${os(5)}px;
     background:rgba(11,10,9,.82);border:1px solid color-mix(in srgb,var(--sb) 55%,rgba(216,194,144,.4));
     box-shadow:0 1px 3px rgba(0,0,0,.6),0 0 5px color-mix(in srgb,var(--sb) 40%,transparent)}
-  .gcard .status-badge svg{display:block;width:${os(16)}px;height:${os(16)}px;
-    filter:drop-shadow(0 0 2px color-mix(in srgb,var(--sb) 60%,transparent))}
+  .gcard .status-badge img,.gcard .status-badge .status-icon-fallback{
+    display:block;width:${os(17)}px;height:${os(17)}px;object-fit:contain;
+    filter:drop-shadow(0 0 2px color-mix(in srgb,var(--sb) 70%,transparent))}
+  .gcard .status-badge .status-icon-fallback{font:700 ${ofs(12)}px/1 "Oswald",sans-serif;
+    text-align:center;color:#cfd2d6}
   .gcard .status-badge .sb-turns{position:absolute;right:-3px;bottom:-3px;min-width:11px;height:11px;
     padding:0 1px;box-sizing:border-box;border-radius:6px;background:#0b0a09;border:1px solid var(--sb);
     font-family:"Oswald",sans-serif;font-size:8px;line-height:9px;text-align:center;color:#f0e2bf}
@@ -756,7 +759,7 @@ export class CharacterCard {
       .map((s) => {
         const b = statusBadge(s.id);
         const turns = s.turns > 0 ? `<span class="sb-turns">${s.turns}</span>` : '';
-        return `<span class="status-badge" title="${b.label}${s.turns ? ' · ' + s.turns + '回合' : ''}" style="--sb:${b.color}">${statusBadgeSvg(s.id)}${turns}</span>`;
+        return `<span class="status-badge" title="${b.label}${s.turns ? ' · ' + s.turns + '回合' : ''}" style="--sb:${b.color}">${statusBadgeIcon(s.id)}${turns}</span>`;
       })
       .join('');
   }
