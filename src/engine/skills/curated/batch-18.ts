@@ -24,11 +24,9 @@ import { BaseColor } from '../../types';
 import type { CuratedBatch } from './index';
 
 const SKIPPED: { id: number; reason: string }[] = [
-  { id: 7035, reason: '句子式不明（「造成…散射伤害」未指明目标，batch-02 7265 同款）' },
   { id: 9643, reason: '语义拿不准（「野蛮人盟友」无 troopTypes 白名单对应；蛮族=Wildfolk 先例措辞不同，禁止猜）' },
   { id: 9656, reason: '特殊宝石（邪恶石像鬼宝石/剧毒宝石）' },
   { id: 9666, reason: '特殊宝石（网状宝石）' },
-  { id: 9673, reason: '句子式不明（「造成…散射伤害」未指明目标，batch-02 7265 同款）' },
   { id: 9717, reason: '二次缩放来源不支持（「因暗影星辰而增强」——暗影之星/Umbral Star 为 GEMS-SEMANTICS-2 D2，状态宝石波A未含）；「赋予所有盟友1-3个随机增益效果」亦无对应原语' },
   { id: 9737, reason: '特殊宝石（愤怒宝石）' },
   { id: 9740, reason: '语义拿不准（[100:1] 二次缩放在描述中无来源子句，来源无法判读）' },

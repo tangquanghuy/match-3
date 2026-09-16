@@ -69,6 +69,7 @@ import { BATCH_36 } from './batch-36';
 import { BATCH_37 } from './batch-37';
 import { BATCH_38 } from './batch-38';
 import { BATCH_39 } from './batch-39';
+import { BATCH_R1 } from './batch-r1';
 
 /** 全部批次（新批次在此追加注册） */
 const BATCHES: CuratedBatch[] = [
@@ -111,6 +112,7 @@ const BATCHES: CuratedBatch[] = [
   BATCH_37,
   BATCH_38,
   BATCH_39,
+  BATCH_R1,
 ];
 
 /** 合并全部批次的组装结果（id → 原型），并给出跳过清单 */

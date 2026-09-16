@@ -75,6 +75,8 @@ export const BATCH_XX: CuratedBatch = { batch: 'XX', spells: SPELLS, skipped: SK
 - **「对所有敌人…散射伤害」**：散射只是伤害类型词，目标是全体 → `dmg('enemyAll', …, { range: 'all' })`；
   **「对 1 名敌人…散射/溅射」**才是溅射链 → `dmgSplash('enemyChosen', …)`。
 - 「摧毁/消灭该敌人」（即杀）→ `dmg(target, 0, 0, { execute: true })`。
+- **裸伤害句式（2026-09-17 用户裁定）**：「造成…点(真实/散射)伤害」无目标词 = 对 1 名敌人
+  （`enemyChosen`；散射类型词走溅射链 `dmgSplash`/`dmg range:'splash'`）。此前「句子式不明」SKIP 的该族照此回收。
 - 「减除(全部)生命值」「减血」→ `reduce(target, 'hp', …)`（直接扣血夹零，击杀会走 defeat）；
   「减除全部护甲值」→ `reduce(target, 'armor', 0, 0, { drainAll: true })`。
 - 「恢复所有生命值」（全额治疗）→ `heal(target, 0, 0, { full: true })`。
