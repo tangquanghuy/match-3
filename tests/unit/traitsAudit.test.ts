@@ -480,17 +480,30 @@ describe('C · 描述↔数值一致性（从官方文本重新抽数对账）',
         }
       }
       if (t.onColorMatchGain) {
-        // boo/firewall 族带逗号、royalfire「点 攻击力」带空格，一并收
-        const m = /宝石时[，,]?\s*获得\s*(\d+)\s*点\s*(生命值|护甲值|攻击力|魔法值)/.exec(d);
-        const headOk = !!m && num(m[1]) === t.onColorMatchGain.amount && statOf(m[2]) === t.onColorMatchGain.stat;
-        const also = t.onColorMatchGain.alsoStats ?? [];
-        if (also.length === 0) {
-          if (!headOk) report(`${tag(t)} 配色触发与描述不符`);
+        if (t.onColorMatchGain.color === 'skull') {
+          // 骷髅键（T5 批 manifestation/hunger）：「配对骷髅头（宝石）时全部/所有技能值
+          // （将）增加 N 点」= 持有者四项各 N；色键必须来自骷髅句式（配色光环同款防呆）
+          const m = /配对骷髅头(?:宝石)?时[，,]?(?:全部|所有)技能值?(?:将)?增加\s*(\d+)\s*点/.exec(d);
+          const g = t.onColorMatchGain;
+          const four = ['hp', 'armor', 'attack', 'magic'] as const;
+          const statsOk = (g.alsoStats?.length ?? 0) === 3
+            && four.every((s) => s === g.stat || g.alsoStats?.includes(s));
+          if (!m || num(m[1]) !== g.amount || !statsOk) {
+            report(`${tag(t)} 骷髅配色触发与描述不符`);
+          }
         } else {
-          // ragingbull 共享数值多属性：附加属性必须逐个出现在同一句「、和」列表里
-          const wordOf: Record<string, string> = { hp: '生命值', armor: '护甲值', attack: '攻击力', magic: '魔法值', mana: '法力值' };
-          const listOk = !!m && also.every((s) => wordOf[s] !== undefined && new RegExp(`[、和]\\s*(?:\\d+\\s*点)?${wordOf[s]}`).test(d));
-          if (!headOk || !listOk) report(`${tag(t)} 配色触发与描述不符（共享数值多属性）`);
+          // boo/firewall 族带逗号、royalfire「点 攻击力」带空格，一并收
+          const m = /宝石时[，,]?\s*获得\s*(\d+)\s*点\s*(生命值|护甲值|攻击力|魔法值)/.exec(d);
+          const headOk = !!m && num(m[1]) === t.onColorMatchGain.amount && statOf(m[2]) === t.onColorMatchGain.stat;
+          const also = t.onColorMatchGain.alsoStats ?? [];
+          if (also.length === 0) {
+            if (!headOk) report(`${tag(t)} 配色触发与描述不符`);
+          } else {
+            // ragingbull 共享数值多属性：附加属性必须逐个出现在同一句「、和」列表里
+            const wordOf: Record<string, string> = { hp: '生命值', armor: '护甲值', attack: '攻击力', magic: '魔法值', mana: '法力值' };
+            const listOk = !!m && also.every((s) => wordOf[s] !== undefined && new RegExp(`[、和]\\s*(?:\\d+\\s*点)?${wordOf[s]}`).test(d));
+            if (!headOk || !listOk) report(`${tag(t)} 配色触发与描述不符（共享数值多属性）`);
+          }
         }
       }
       // 屠戮倍率：双/三/数字 → N 倍；「基于晋升稀有度」取区间下限 3

@@ -1979,6 +1979,22 @@
     }
   },
   {
+    "code": "manifestation",
+    "name": "现身",
+    "description": "在配对骷髅头时，所有技能值增加 5 点。",
+    "troops": 3,
+    "onColorMatchGain": {
+      "color": "skull",
+      "stat": "hp",
+      "amount": 5,
+      "alsoStats": [
+        "armor",
+        "attack",
+        "magic"
+      ]
+    }
+  },
+  {
     "code": "omenofice",
     "name": "寒冰预兆",
     "description": "在战斗开始的时候爆破一颗蓝色宝石。",
@@ -2509,6 +2525,22 @@
       "color": "Brown",
       "stat": "magic",
       "amount": 8
+    }
+  },
+  {
+    "code": "hunger",
+    "name": "饥饿",
+    "description": "在配对骷髅头宝石时全部技能值将增加 2 点。",
+    "troops": 1,
+    "onColorMatchGain": {
+      "color": "skull",
+      "stat": "hp",
+      "amount": 2,
+      "alsoStats": [
+        "armor",
+        "attack",
+        "magic"
+      ]
     }
   },
   {
@@ -4317,6 +4349,21 @@
     }
   },
   {
+    "code": "terrorqueen",
+    "name": "恐怖女王",
+    "description": "在配对 4 或更多宝石时使一名随机敌人陷入恐怖状态。",
+    "troops": 1,
+    "onBigMatchStatus": {
+      "scope": "randomEnemy",
+      "statuses": [
+        {
+          "id": "terror"
+        }
+      ],
+      "turns": 3
+    }
+  },
+  {
     "code": "royalfury",
     "name": "皇室怒火",
     "description": "在配对紫色宝石时给予所有秘士盟友 3 点攻击力。",
@@ -4569,6 +4616,43 @@
     "troops": 1,
     "turnStartCreateGem": {
       "color": "Yellow"
+    }
+  },
+  {
+    "code": "gapingwounds",
+    "name": "身受重伤",
+    "description": "在配对 4 或更多宝石时，使一名随机敌人陷入出血与恐怖状态。",
+    "troops": 1,
+    "onBigMatchStatus": {
+      "scope": "randomEnemy",
+      "statuses": [
+        {
+          "id": "bleed",
+          "magnitude": 1
+        },
+        {
+          "id": "terror"
+        }
+      ],
+      "turns": 3
+    }
+  },
+  {
+    "code": "icyterror",
+    "name": "背后一凉",
+    "description": "在配对 4 或更多宝石时，使一名随机敌人陷入冻结和恐怖状态。",
+    "troops": 1,
+    "onBigMatchStatus": {
+      "scope": "randomEnemy",
+      "statuses": [
+        {
+          "id": "frozen"
+        },
+        {
+          "id": "terror"
+        }
+      ],
+      "turns": 3
     }
   },
   {

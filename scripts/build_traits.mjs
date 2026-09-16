@@ -90,9 +90,12 @@ const AURA_STATUS_MAP = [
   [/织网/, 'web'],
   [/击晕|眩晕/, 'stun'],
   [/沉默/, 'silence'],
+  // T5 批补收：恐怖本体在 T1/T3 批已落地（status.ts TERROR_STATUS_ID），当时条件光环
+  // 映射表没收是历史时序问题；terrorqueen/gapingwounds/icyterror 三条靠它入大连施加。
+  [/恐怖/, 'terror'],
 ];
 /** 引擎尚无对应状态本体：含这些词的条件光环句子整体不收（不做缺状态的半解析） */
-const AURA_UNKNOWN_STATUS = /恐怖|法印|猎人标记|狼化|风暴|石化|催眠|惑乱|迷惑|变羊|吞噬|受诅|嘲讽/;
+const AURA_UNKNOWN_STATUS = /法印|猎人标记|狼化|风暴|石化|催眠|惑乱|迷惑|变羊|吞噬|受诅|嘲讽/;
 /** 「随机的正面增益状态效果」（dragonsblessing）的候选池 */
 const POSITIVE_STATUS_POOL = [
   { id: 'barrier' }, { id: 'rage' }, { id: 'reflect' }, { id: 'blessed' }, { id: 'enchanted' },
@@ -583,6 +586,18 @@ function parse(desc) {
     const stat = pickStat(m[3]);
     if (!color || !stat) return null;
     return { effects: { onColorMatchGain: { color, stat, amount: num(m[2]) } } };
+  }
+  // 骷髅匹配全技能增益（T5 批，manifestation「在配对骷髅头时，所有技能值增加 5 点」/
+  // hunger「在配对骷髅头宝石时全部技能值将增加 2 点」）：TurnEngine 骷髅结算处以 'skull'
+  // 色键调 applyColorMatchTriggers（与 diamondaura/powerofstars 光环同一触发点），故落
+  // onColorMatchGain 的 'skull' 键、持有者自身获益。「全部/所有技能值」沿用 giftof* 族
+  // 的四项各 N 口径展开（hp/armor/attack/magic，共享同一 amount 走 alsoStats）。
+  if ((m = /^在?配对骷髅头(?:宝石)?时[，,]?(?:全部|所有)技能值?(?:将)?增加\s*(\d+)\s*点。?$/.exec(desc))) {
+    return {
+      effects: {
+        onColorMatchGain: { color: 'skull', stat: 'hp', amount: num(m[1]), alsoStats: ['armor', 'attack', 'magic'] },
+      },
+    };
   }
   // 反弹 N% 的骷髅（头）伤害——"反弹/反射"、"骷髅头/骷髅"两种译法都收
   if ((m = /^(?:反弹|反射)\s*(\d+)%\s*的骷髅(?:头)?伤害。?$/.exec(desc))) {

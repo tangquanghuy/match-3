@@ -122,6 +122,29 @@ describe('编译正确性（代表 code → resolvePassives 产物）', () => {
     expect(mark?.statuses).toEqual([{ id: 'bleed', magnitude: 1 }]);
   });
 
+  it('terrorqueen / gapingwounds / icyterror：4+ 连给随机敌人恐怖（T5 批：恐怖入条件光环状态表）', () => {
+    expect(getTrait('terrorqueen')?.onBigMatchStatus).toEqual({
+      scope: 'randomEnemy', statuses: [{ id: 'terror' }], turns: 3,
+    });
+    // 双状态族条目序与描述一致（出血与恐怖 / 冻结和恐怖）；DoT 段带 magnitude
+    expect(getTrait('gapingwounds')?.onBigMatchStatus?.statuses).toEqual([
+      { id: 'bleed', magnitude: 1 }, { id: 'terror' },
+    ]);
+    expect(getTrait('icyterror')?.onBigMatchStatus?.statuses).toEqual([
+      { id: 'frozen' }, { id: 'terror' },
+    ]);
+    expect(getTrait('icyterror')?.onBigMatchStatus?.scope).toBe('randomEnemy');
+  });
+
+  it('manifestation / hunger：配对骷髅头 → 持有者四项各 N（onColorMatchGain skull 键）', () => {
+    expect(getTrait('manifestation')?.onColorMatchGain).toEqual({
+      color: 'skull', stat: 'hp', amount: 5, alsoStats: ['armor', 'attack', 'magic'],
+    });
+    expect(resolvePassives(['hunger']).gainOnColorMatch.skull).toEqual({
+      hp: 2, armor: 2, attack: 2, magic: 2, mana: 0,
+    });
+  });
+
   it('新键编译后与中性被动有差异且编译为纯函数', () => {
     const codes = ['celestialshield', 'secondhelping', 'tsunami', 'huntress', 'crystallizedmana', 'boo'];
     for (const code of codes) {
@@ -219,6 +242,23 @@ describe('applyBigMatchTriggers + ctx（纯函数层）', () => {
     expect(allies.every((a) => a.statuses.length === 0)).toBe(true);
     expect(events.some((e) => e.type === 'status-apply')).toBe(true);
     // 敌方全灭时安全跳过
+    const dead = makeChar(11, { defeated: true });
+    expect(() => applyBigMatchTriggers([holder], { size: 4, rng: new SeededRNG(3), ...statusCtx, enemyTeam: [dead] })).not.toThrow();
+  });
+
+  it('terrorqueen：4+ 连使随机一名敌人陷入恐怖（terror 本体，randomEnemy）', () => {
+    const holder = makeChar(0, { traitIds: ['terrorqueen'] });
+    attachPassives(holder);
+    const allies = [holder, makeChar(1)];
+    const foes = [makeChar(9), makeChar(10)];
+    const events = applyBigMatchTriggers(allies, { size: 4, rng: new SeededRNG(3), ...statusCtx, enemyTeam: foes });
+    const terrorFoes = foes.filter((f) => f.statuses.some((s) => s.id === 'terror'));
+    expect(terrorFoes.length).toBe(1);
+    expect(allies.every((a) => a.statuses.length === 0)).toBe(true);
+    expect(events.some((e) => e.type === 'status-apply' && e.statusId === 'terror')).toBe(true);
+    // size=3（非大连）不触发；敌方全灭安全跳过
+    applyBigMatchTriggers(allies, { size: 3, rng: new SeededRNG(3), ...statusCtx, enemyTeam: foes });
+    expect(terrorFoes.length).toBe(1);
     const dead = makeChar(11, { defeated: true });
     expect(() => applyBigMatchTriggers([holder], { size: 4, rng: new SeededRNG(3), ...statusCtx, enemyTeam: [dead] })).not.toThrow();
   });
@@ -361,6 +401,37 @@ describe('TurnEngine 集成：真实对局中的条件光环', () => {
     const events = engine.resolveSwap({ row: 7, col: 1 }, { row: 6, col: 1 });
     expect(rancor.attack).toBe(8);
     expect(events.some((e) => e.type === 'buff' && e.stat === 'attack' && e.amount === 3)).toBe(true);
+  });
+
+  it('配对骷髅 → hunger 持有者四项各 +2（onColorMatchGain skull 键，真实对局）', () => {
+    const hungry = makeChar(0, { traitIds: ['hunger'], hp: 50, maxHp: 50, attack: 5, armor: 0, magic: 8 });
+    attachPassives(hungry);
+    const board = new BoardModel();
+    const palette = [BaseColor.Green, BaseColor.Blue, BaseColor.Yellow, BaseColor.Purple];
+    for (let r = 0; r < 8; r++) {
+      for (let c = 0; c < 8; c++) {
+        board.set({ row: r, col: c }, { id: r * 8 + c + 1, type: colorGem(palette[(r + c) % 4]) });
+      }
+    }
+    // 与 rancor 用例同款底行骷髅布局：交换 (7,1)<->(6,1) 后底行三骷髅，由当前行动方（左队）匹配
+    board.set({ row: 7, col: 0 }, { id: 70, type: skullGem() });
+    board.set({ row: 7, col: 2 }, { id: 72, type: skullGem() });
+    board.set({ row: 7, col: 1 }, { id: 71, type: colorGem(BaseColor.Green) });
+    board.set({ row: 6, col: 1 }, { id: 61, type: skullGem() });
+    const idGen = (() => { let n = 900; return () => ++n; })();
+    const rng = new SeededRNG(11);
+    const state = createGameState(
+      board,
+      makeTeam(PlayerSide.Left, [hungry, makeChar(1)]),
+      makeTeam(PlayerSide.Right, [makeChar(4), makeChar(5)]),
+    );
+    const engine = new TurnEngine(state, rng, idGen, new ExtensionRegistry());
+    const events = engine.resolveSwap({ row: 7, col: 1 }, { row: 6, col: 1 });
+    expect(hungry.attack).toBe(7);
+    expect(hungry.magic).toBe(10);
+    expect(hungry.armor).toBe(2);
+    expect(hungry.maxHp).toBe(52);
+    expect(events.some((e) => e.type === 'buff' && e.targetId === hungry.id && e.stat === 'attack' && e.amount === 2)).toBe(true);
   });
 
   it('royalhoney：4 连净化全队的中毒（真实对局）', () => {
