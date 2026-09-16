@@ -37,8 +37,6 @@ const SKIPPED: { id: number; reason: string }[] = [
   { id: 9171, reason: '特殊宝石（「黄色巨人宝石」，9168 同款）' },
   { id: 9172, reason: '特殊宝石（「紫色巨人宝石」，9168 同款）' },
   { id: 9173, reason: '特殊宝石（「棕色巨人宝石」，9168 同款）' },
-  { id: 9184, reason: '特殊宝石（「爆破所有闪电宝石」未区分行/列，按词汇表未区分即 SKIP；若裁定可拆 destroySpecialGems lightningRow+lightningCol 两段则可回收；[3:1] 因攻击/生命/护甲 sources selfStat×3 可表达）' },
-  { id: 9567, reason: '语义拿不准（「如果发生风暴，则再造成 10 点伤害」目标范围两读——承前「所有敌人」整体追加（dmg enemyAll range all + ifCond stormPresent 可表达）vs §0 裸伤害单目标，需裁定；风暴条件原语已具备）' },
   { id: 9598, reason: '晋升度条件（「如果敌人是 Boss，则根据我的升级造成 3 倍 - 5 倍伤害」）' },
   { id: 9730, reason: '晋升度条件（「如果敌人是塔，则根据我的升华效果造成3-5倍伤害」）' },
   { id: 9909, reason: '语义拿不准（「随机减少一名敌人的[魔法+1]点技能点数」——随机技能值仅有获得原语 randomStat，无随机削减原语；「诅咒和蛛网束缚的敌人可提升」modifier enemyStatusCount curse+web 可表达，仅缺主体）' },

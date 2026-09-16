@@ -19,7 +19,6 @@ import { BaseColor } from '../../types';
 
 const SKIPPED: { id: number; reason: string }[] = [
   { id: 9017, reason: '语义拿不准（「对其他所有敌人」无 enemyOthers 目标模式，enemyAll 会重复命中选定敌人）' },
-  { id: 9185, reason: '特殊宝石（蓝色/黄色闪电宝石未区分行/列，lightningRow/lightningCol 无法定夺）' },
   { id: 9193, reason: '特殊宝石（「蓝色闪电宝石」行列与颜色均无法表达）' },
   { id: 9367, reason: '语义拿不准（「若在中央尖塔内使用」地点/王国条件族）' },
   { id: 9473, reason: '晋升度条件（「根据我的升天数造成 3 倍 - 5 倍伤害」）' },
