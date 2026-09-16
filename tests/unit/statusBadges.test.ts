@@ -37,4 +37,15 @@ describe('statusBadge 映射（需求 6.5）', () => {
       expect(b.svg).not.toContain('?');
     }
   });
+
+  it('妖火/恐怖/织网有专属徽记（UX 审查 P1#5/P1#7 回归：不得落到灰?占位）', () => {
+    for (const id of ['faerie-fire', 'faerie_fire', 'terror', 'web']) {
+      const b = statusBadge(id);
+      expect(b.label).not.toBe('状态');
+      expect(b.svg).not.toContain('?');
+    }
+    // 三者图标互不相同（可区分）
+    const set = new Set(['faerie-fire', 'terror', 'web'].map((id) => statusBadge(id).svg));
+    expect(set.size).toBe(3);
+  });
 });

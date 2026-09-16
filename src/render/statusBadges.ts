@@ -131,6 +131,18 @@ const BADGES: Record<string, StatusBadgeSpec> = {
     color: '#f08bd4',
     svg: '<path d="M12 20.5S4.5 16.3 4.5 10.2A3.7 3.7 0 0 1 12 8.6a3.7 3.7 0 0 1 7.5 1.6c0 6.1-7.5 10.3-7.5 10.3z" fill="#5c244f" stroke="#f08bd4" stroke-width="1.3"/><path d="M8.4 12.2h2M13.6 12.2h2M9.3 15c1.6 1 3.8 1 5.4 0" fill="none" stroke="#ffd3f2" stroke-width="1.1" stroke-linecap="round"/>',
   },
+  // 精灵火（妖火）：紫色火苗（经典妖火=紫焰；受法术伤害 +50%）。此前缺徽记走灰?占位（UX 审查 P1#7）。
+  faerie_fire: {
+    label: '精灵火',
+    color: '#c98bff',
+    svg: '<path d="M12 2.6c1.8 3.4-2 4.6-2 7.4 0 1.5.9 2.4 2 2.4s2-.9 2-2.4c0-.9-.3-1.6-.7-2.3 2.5 1.6 4.2 4 4.2 6.9a5.5 5.5 0 1 1-11 0c0-4.6 3.3-7.4 5.5-12z" fill="#5a2d8a" stroke="#c98bff" stroke-width="1.2"/><circle cx="12" cy="16.6" r="2.2" fill="#e3c6ff"/>',
+  },
+  // 恐怖：邪眼（每回合 10% 与后位交换位次；与测试台恐怖宝石的邪眼主题同源）。
+  terror: {
+    label: '恐怖',
+    color: '#b07ae0',
+    svg: '<path d="M2.6 12C5 7.4 8.3 5.2 12 5.2S19 7.4 21.4 12C19 16.6 15.7 18.8 12 18.8S5 16.6 2.6 12z" fill="#2a1e3d" stroke="#b07ae0" stroke-width="1.3"/><circle cx="12" cy="12" r="3.4" fill="#c98bff"/><circle cx="12" cy="12" r="1.5" fill="#1c1230"/><circle cx="13.1" cy="10.8" r=".7" fill="#f0e4ff"/>',
+  },
 };
 
 /** 兜底图标（未知状态）：灰色问号盾 */

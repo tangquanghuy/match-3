@@ -8,8 +8,15 @@ import { BoardView } from './BoardView';
 import { FXLayer, screenShake } from './FXLayer';
 import { AnimConfig, fallDuration } from './AnimationConfig';
 import { colorOf } from './GemSprite';
+import type { GemSprite } from './GemSprite';
 import type { AudioManager } from './AudioManager';
 import { extraActionComboLevel } from './turnHudLogic';
+import { buildReshufflePlan, gatherPointAt, gatherRotationAt, gatherScaleAt, scatterPoseAt } from './reshufflePlan';
+import type { ReshufflePlanItem } from './reshufflePlan';
+import {
+  RESHUFFLE_SCATTER_WINDOW,
+  RESHUFFLE_TIMING,
+} from './reshufflePlan';
 
 type ManaOriginRef = { gemId: number; pos: CellPos };
 type BoardPoint = { x: number; y: number };
@@ -652,68 +659,96 @@ export class EventStreamPlayer {
     });
   }
 
+  /**
+   * 全盘重排（UX 审查 P0 修复）：旧实现把「聚拢」交给脱离时间线的 gsap 补间（0.3s 墙钟），
+   * 而「瞬移到新位」是时间线回调（+0.32s）——20ms 边距不足一帧，同一帧内瞬移被未结束的
+   * 聚拢补间 onUpdate 覆写回聚集点，宝石永久悬停棋盘中央（逻辑棋盘已结算、表现不可玩）。
+   * 现在位移/缩放/旋转全部由主时间线上的 proxy tween 驱动（插值纯函数在 reshufflePlan.ts，
+   * 端点精确），末尾再加「终态强制归位」回调兜底：skip/快进/中断后宝石必然落在逻辑位。
+   */
   private appendReshuffle(
     tl: gsap.core.Timeline,
     ev: Extract<GameEvent, { type: 'reshuffle' }>,
   ): void {
     if (ev.moves.length === 0) return;
 
-    // 棋盘中心（聚拢点）
-    const cx = (this.board.gridPixels) / 2;
-    const cy = (this.board.gridPixels) / 2;
-
-    // 位置变动的宝石 → 新格中心
-    const newCenter = new Map<number, { x: number; y: number }>();
-    for (const mv of ev.moves) newCenter.set(mv.gemId, this.center(mv.to));
-
-    // 收集全部宝石精灵及其最终落位（变动的用新位，未变动的用当前位）
-    const all: { sprite: ReturnType<BoardView['getSprite']>; finalX: number; finalY: number }[] = [];
-
-    // 阶段一：全部宝石朝中心聚拢 + 缩小淡出 + 轻微旋转
+    // 段开始时快照全部活精灵并构建计划（变动与未变动的宝石都收，漏掉的会滞留原地）
+    const items: ReshufflePlanItem[] = [];
     tl.add(() => {
-      for (const child of this.board.layer.children) {
-        const sprite = child as unknown as {
-          gemId: number; x: number; y: number; rotation: number;
-          scale: { x: number; y: number };
-        };
-        const fin = newCenter.get(sprite.gemId) ?? { x: sprite.x, y: sprite.y };
-        all.push({ sprite: this.board.getSprite(sprite.gemId), finalX: fin.x, finalY: fin.y });
-
-        // 朝中心收拢的中途点（带一点随机散布，更自然）
-        const gx = cx + (sprite.x - cx) * 0.25 + (Math.random() - 0.5) * 30;
-        const gy = cy + (sprite.y - cy) * 0.25 + (Math.random() - 0.5) * 30;
-        gsap.to(sprite, { x: gx, y: gy, rotation: (Math.random() - 0.5) * 1.2, duration: 0.3, ease: 'power2.in' });
-        gsap.to(sprite.scale, { x: 0.45, y: 0.45, duration: 0.3, ease: 'power2.in' });
-      }
+      const snapshot = this.board.layer.children.map((child) => {
+        const s = child as GemSprite;
+        return { gemId: s.gemId, x: s.x, y: s.y };
+      });
+      items.push(
+        ...buildReshufflePlan({
+          moves: ev.moves,
+          sprites: snapshot,
+          centerOf: (pos) => this.center(pos),
+          gridPixels: this.board.gridPixels,
+        }),
+      );
     });
-    tl.to({}, { duration: 0.32 });
 
-    // 阶段二：瞬移到各自最终位置（此时已缩小，不易察觉跳变）
-    tl.add(() => {
-      for (const item of all) {
-        const s = item.sprite as unknown as { x: number; y: number } | undefined;
-        if (s) {
-          s.x = item.finalX;
-          s.y = item.finalY;
+    // 阶段一：朝棋盘中心聚拢（位移 + 缩小 + 旋转，全部时间线驱动；ease 在纯函数内）
+    const spriteOf = (it: ReshufflePlanItem) => this.board.getSprite(it.gemId);
+    const gather = { p: 0 };
+    tl.to(gather, {
+      p: 1,
+      duration: RESHUFFLE_TIMING.gather,
+      ease: 'none',
+      onUpdate: () => {
+        for (const it of items) {
+          const s = spriteOf(it);
+          if (!s) continue;
+          const pt = gatherPointAt(it, gather.p);
+          s.x = pt.x;
+          s.y = pt.y;
+          s.scale.set(gatherScaleAt(gather.p));
+          s.rotation = gatherRotationAt(it, gather.p);
         }
+      },
+    });
+
+    // 阶段二：瞬移到各自逻辑终点（已缩小，跳变不显眼）
+    tl.add(() => {
+      for (const it of items) {
+        const s = spriteOf(it);
+        if (!s) continue;
+        s.x = it.finalX;
+        s.y = it.finalY;
+        s.scale.set(RESHUFFLE_TIMING.gatherScale);
+        s.rotation = it.rotTarget;
       }
     });
 
-    // 阶段三：错落散开、缩放弹回、旋转归位
+    // 阶段三：错落散开、缩放弹回、旋转归位（窗口覆盖最大错峰延迟，尾颗不被截断）
+    const scatter = { t: 0 };
+    tl.to(scatter, {
+      t: RESHUFFLE_SCATTER_WINDOW,
+      duration: RESHUFFLE_SCATTER_WINDOW,
+      ease: 'none',
+      onUpdate: () => {
+        for (const it of items) {
+          const s = spriteOf(it);
+          if (!s) continue;
+          const pose = scatterPoseAt(it, scatter.t);
+          s.scale.set(pose.scale);
+          s.rotation = pose.rotation;
+        }
+      },
+    });
+
+    // 终态保底（审查建议「onComplete 强制归位」）：宝石精确落在逻辑位，无任何悬挂状态
     tl.add(() => {
-      let i = 0;
-      for (const item of all) {
-        const s = item.sprite as unknown as {
-          rotation: number; scale: { x: number; y: number };
-        } | undefined;
+      for (const it of items) {
+        const s = spriteOf(it);
         if (!s) continue;
-        const delay = (i % 12) * 0.012;
-        gsap.to(s, { rotation: 0, duration: 0.4, delay, ease: 'power2.out' });
-        gsap.to(s.scale, { x: 1, y: 1, duration: 0.45, delay, ease: 'back.out(2)' });
-        i++;
+        s.x = it.finalX;
+        s.y = it.finalY;
+        s.scale.set(1);
+        s.rotation = 0;
       }
     });
-    tl.to({}, { duration: 0.5 });
   }
 
   /**

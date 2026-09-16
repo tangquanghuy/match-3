@@ -351,6 +351,48 @@ function ensureStyles(): void {
   .gcard.status-accent-rage .status-accent-layer::before{background:linear-gradient(180deg,rgba(255,98,46,.22),transparent 48%);animation:statusRagePulse 1.1s ease-in-out infinite}
   .gcard.status-accent-wolf .status-accent-layer{opacity:1;box-shadow:inset 0 0 0 1px rgba(187,216,255,.62),inset 0 0 18px rgba(101,132,181,.28)}
   .gcard.status-accent-wolf .status-accent-layer::before{background:linear-gradient(135deg,rgba(222,240,255,.2),transparent 42%,rgba(115,161,215,.18));animation:statusWolfSheen 2.8s ease-in-out infinite}
+  /* 织网（UX 审查 P1#5）：蛛网主题——双角蛛网环纹 + 紫晕，事件 status-apply/expire 驱动 */
+  .gcard.status-accent-web .status-accent-layer{opacity:1;
+    box-shadow:inset 0 0 0 1px rgba(176,122,224,.72),inset 0 0 16px rgba(94,36,148,.36)}
+  .gcard.status-accent-web .status-accent-layer::before{background:
+    repeating-radial-gradient(circle at 16% 6%,transparent 0 8px,rgba(208,176,238,.34) 8px 9.5px,transparent 9.5px 18px),
+    repeating-radial-gradient(circle at 88% 94%,transparent 0 8px,rgba(208,176,238,.26) 8px 9.5px,transparent 9.5px 18px);
+    animation:statusWebShimmer 3.2s ease-in-out infinite}
+  .gcard.status-accent-web .status-accent-layer::after{background:
+    radial-gradient(circle at 18% 8%,rgba(191,125,255,.24),transparent 44%),
+    radial-gradient(circle at 86% 92%,rgba(191,125,255,.18),transparent 40%)}
+  /* 出血：暗红下渗（DoT 无专属 tick 帧动画，徽记之外给一条持续血渍层） */
+  .gcard.status-accent-bleed .status-accent-layer{opacity:1;
+    box-shadow:inset 0 0 0 1px rgba(224,67,90,.6),inset 0 0 14px rgba(122,10,26,.34)}
+  .gcard.status-accent-bleed .status-accent-layer::before{background:linear-gradient(180deg,transparent 58%,rgba(224,67,90,.26) 80%,rgba(122,10,26,.52));animation:statusBleedSeep 2.8s ease-in-out infinite}
+  .gcard.status-accent-bleed .status-accent-layer::after{background:radial-gradient(ellipse at 50% 104%,rgba(224,67,90,.24),transparent 56%)}
+  /* 屏障：青盾斜光（吸收态无专属帧动画，给盾面光扫） */
+  .gcard.status-accent-barrier .status-accent-layer{opacity:1;
+    box-shadow:inset 0 0 0 1px rgba(102,217,232,.66),inset 0 0 16px rgba(20,94,110,.3)}
+  .gcard.status-accent-barrier .status-accent-layer::before{background:linear-gradient(145deg,transparent 34%,rgba(140,236,247,.22) 50%,transparent 66%);animation:statusBarrierSweep 2.4s ease-in-out infinite}
+  .gcard.status-accent-barrier .status-accent-layer::after{background:radial-gradient(ellipse at 50% 6%,rgba(140,236,247,.2),transparent 42%)}
+  /* 下潮：水面线 + 波光（不可指定目标的持续语义可见化） */
+  .gcard.status-accent-submerged .status-accent-layer{opacity:1;
+    box-shadow:inset 0 0 0 1px rgba(74,168,216,.62),inset 0 0 18px rgba(16,70,96,.32)}
+  .gcard.status-accent-submerged .status-accent-layer::before{background:linear-gradient(180deg,rgba(74,168,216,.3) 0%,rgba(74,168,216,.1) 18%,transparent 40%);animation:statusSubmergeSway 3.4s ease-in-out infinite}
+  .gcard.status-accent-submerged .status-accent-layer::after{background:radial-gradient(ellipse at 50% 0%,rgba(159,216,239,.26),transparent 46%)}
+  /* 猎人标记：红色准星晕（纯标记状态的在场提示） */
+  .gcard.status-accent-marked .status-accent-layer{opacity:1;
+    box-shadow:inset 0 0 0 1px rgba(255,107,74,.6),inset 0 0 14px rgba(140,32,12,.3)}
+  .gcard.status-accent-marked .status-accent-layer::before{background:radial-gradient(circle at 50% 44%,transparent 30%,rgba(255,107,74,.14) 62%,rgba(120,22,8,.4) 100%);animation:statusMarkedPulse 2s ease-in-out infinite}
+  .gcard.status-accent-marked .status-accent-layer::after{background:
+    linear-gradient(180deg,transparent calc(44% - 1px),rgba(255,139,121,.4) 44%,transparent calc(44% + 1px)),
+    linear-gradient(90deg,transparent calc(50% - 1px),rgba(255,139,121,.4) 50%,transparent calc(50% + 1px))}
+  /* 精灵火：紫色焰晕（妖火=紫光，受法术伤害 +50% 的在场提示） */
+  .gcard.status-accent-faerie-fire .status-accent-layer{opacity:1;
+    box-shadow:inset 0 0 0 1px rgba(201,139,255,.66),inset 0 0 16px rgba(90,45,138,.36)}
+  .gcard.status-accent-faerie-fire .status-accent-layer::before{background:radial-gradient(ellipse at 50% 88%,rgba(201,139,255,.3),rgba(122,60,190,.14) 48%,transparent 72%);animation:statusFaerieFlicker 1.9s ease-in-out infinite}
+  .gcard.status-accent-faerie-fire .status-accent-layer::after{background:radial-gradient(circle at 50% 30%,rgba(227,198,255,.16),transparent 40%)}
+  /* 恐怖：暗紫压迫晕（邪眼主题的持续层，位次交换事件另有演出） */
+  .gcard.status-accent-terror .status-accent-layer{opacity:1;
+    box-shadow:inset 0 0 0 1px rgba(176,122,224,.6),inset 0 0 18px rgba(42,20,64,.44)}
+  .gcard.status-accent-terror .status-accent-layer::before{background:radial-gradient(ellipse at 50% 16%,rgba(176,122,224,.22),transparent 52%);animation:statusTerrorDread 2.6s ease-in-out infinite}
+  .gcard.status-accent-terror .status-accent-layer::after{background:linear-gradient(180deg,transparent 60%,rgba(28,18,48,.5))}
   @keyframes statusDeathMarkPulse{0%,100%{opacity:.68}50%{opacity:1}}
   @keyframes statusRuneSpin{to{transform:rotate(372deg)}}
   @keyframes statusDiseaseDrift{0%,100%{transform:translate(0,0)}50%{transform:translate(2%, -2%)}}
@@ -358,11 +400,21 @@ function ensureStyles(): void {
   @keyframes statusCharmPulse{0%,100%{opacity:.45;transform:scale(.94)}50%{opacity:1;transform:scale(1.04)}}
   @keyframes statusRagePulse{0%,100%{opacity:.45}50%{opacity:1}}
   @keyframes statusWolfSheen{0%,100%{transform:translateX(-12%);opacity:.45}50%{transform:translateX(12%);opacity:1}}
+  @keyframes statusWebShimmer{0%,100%{opacity:.45}50%{opacity:1}}
+  @keyframes statusBleedSeep{0%,100%{opacity:.55}50%{opacity:1}}
+  @keyframes statusBarrierSweep{0%,100%{transform:translateX(-14%);opacity:.5}50%{transform:translateX(14%);opacity:1}}
+  @keyframes statusSubmergeSway{0%,100%{transform:translateY(0);opacity:.6}50%{transform:translateY(3%);opacity:1}}
+  @keyframes statusMarkedPulse{0%,100%{opacity:.6}50%{opacity:1}}
+  @keyframes statusFaerieFlicker{0%,100%{opacity:.55}50%{opacity:1}}
+  @keyframes statusTerrorDread{0%,100%{opacity:.5}50%{opacity:1}}
   @media (prefers-reduced-motion:reduce){
     .gcard.status-accent-death-mark .status-accent-layer,.gcard.status-accent-curse .status-accent-layer::before,
     .gcard.status-accent-disease .status-accent-layer::before,.gcard.status-accent-mana-burn .status-accent-layer::before,
     .gcard.status-accent-charm .status-accent-layer::before,.gcard.status-accent-rage .status-accent-layer::before,
-    .gcard.status-accent-wolf .status-accent-layer::before{animation:none}}
+    .gcard.status-accent-wolf .status-accent-layer::before,.gcard.status-accent-web .status-accent-layer::before,
+    .gcard.status-accent-bleed .status-accent-layer::before,.gcard.status-accent-barrier .status-accent-layer::before,
+    .gcard.status-accent-submerged .status-accent-layer::before,.gcard.status-accent-marked .status-accent-layer::before,
+    .gcard.status-accent-faerie-fire .status-accent-layer::before,.gcard.status-accent-terror .status-accent-layer::before{animation:none}}
 
 
   /* 立绘层裁切到圆角；卡本身不裁切，便于宝石出框悬挂 */
@@ -840,13 +892,20 @@ export class CharacterCard {
   setStatusAccent(statusId: string, on: boolean): void {
     const rawKey = statusId.toLowerCase().replace(/_/g, '-');
     const key = rawKey === 'wolf-form' || rawKey === 'lycanthropy' ? 'wolf' : rawKey;
-    const supported = new Set(['death-mark', 'curse', 'disease', 'mana-burn', 'charm', 'rage', 'wolf']);
+    const supported = new Set([
+      'death-mark', 'curse', 'disease', 'mana-burn', 'charm', 'rage', 'wolf',
+      // UX 审查 P1#5 + 状态核对批：织网此前零演出；下列状态同样只有徽记无持续层
+      'web', 'bleed', 'barrier', 'submerged', 'marked', 'faerie-fire', 'terror',
+    ]);
     if (!supported.has(key)) return;
     this.el.classList.toggle(`status-accent-${key}`, on);
   }
 
   clearStatusAccents(): void {
-    for (const key of ['death-mark', 'curse', 'disease', 'mana-burn', 'charm', 'rage', 'wolf']) {
+    for (const key of [
+      'death-mark', 'curse', 'disease', 'mana-burn', 'charm', 'rage', 'wolf',
+      'web', 'bleed', 'barrier', 'submerged', 'marked', 'faerie-fire', 'terror',
+    ]) {
       this.el.classList.remove(`status-accent-${key}`);
     }
   }

@@ -4,6 +4,7 @@ import { TurnEngine } from '@engine/TurnEngine';
 import { MatchResolver } from '@engine/MatchResolver';
 import { createGameState } from '@engine/GameState';
 import { SeededRNG } from '@engine/rng';
+import { tickStatuses } from '@engine/skills/effects/status';
 import {
   BaseColor,
   PlayerSide,
@@ -256,6 +257,49 @@ describe('「被匹配」型状态宝石（GEMS-SEMANTICS-2 A 组）', () => {
     expect([10, 11]).toContain(applies[0].targetId);
     const enemy = state.teams[PlayerSide.Right].characters.find((c) => c.id === applies[0].targetId)!;
     expect(enemy.statuses.some((s) => s.id === 'curse' && s.turns === 4)).toBe(true);
+  });
+
+  it('诅咒存续：三连触发（有回合尾换边结算）诅咒不被自动解除清掉——诅咒无自愈通道（GOW-STATUS-RESEARCH 诅咒行）', () => {
+    // 三连（非四连）→ 行动后正常换边，回合尾 tickTeamStatuses 结算敌方状态。
+    // 回归背景（UX 审查 P1#6）：诅咒自身被误入 AUTO_RECOVER 集合时，首个回合尾就有
+    // 5% 概率（此复现场景确定性）立即 status-expire——「上靶即蒸发」，场上零痕迹。
+    for (const seed of [1, 2, 3, 4, 5, 6, 7, 8]) {
+      const layout = [
+        '........',
+        '........',
+        '........',
+        '....k...',
+        '...WRW..',
+        '........',
+        '........',
+        '........',
+      ];
+      const { engine, state } = makeEngine(layout, { seed, rightCount: 3 });
+      const events = engine.resolveSwap({ row: 3, col: 4 }, { row: 4, col: 4 });
+
+      const applies = eventsOf('status-apply', events).filter((e) => e.statusId === 'curse');
+      expect(applies).toHaveLength(1); // 已上靶
+      const expires = eventsOf('status-expire', events).filter((e) => e.statusId === 'curse');
+      expect(expires).toHaveLength(0); // 回合尾不得被自愈通道清掉
+      const victim = state.teams[PlayerSide.Right].characters.find((c) => c.id === applies[0].targetId)!;
+      expect(victim.statuses.some((s) => s.id === 'curse')).toBe(true);
+    }
+  });
+
+  it('诅咒无自愈通道：tickStatuses 掷中自愈区间的种子也不得清掉诅咒（确定性回归）', () => {
+    // GOW-STATUS-RESEARCH 诅咒行只赋予「他状态减半 / 剥正面 / 穿透普通免疫」，
+    // 诅咒本身不在自动解除集合（对齐燃烧同类语义修订前的织网例外思路）。
+    // 种子 1/3/6 的第二次 next() 落在 <5% 区间——修正前这里会 status-expire。
+    for (const seed of [1, 3, 6]) {
+      const victim = makeChar(10);
+      victim.statuses = [{ id: 'curse', turns: 4 }];
+      const rng = new SeededRNG(seed);
+      rng.next(); // 对齐既有事件的消耗节奏，取第二次抽取作为自愈骰
+      const events = tickStatuses(victim, rng);
+      const expired = events.filter((e) => e.type === 'status-expire' && e.statusId === 'curse');
+      expect(expired).toHaveLength(0);
+      expect(victim.statuses.some((s) => s.id === 'curse')).toBe(true);
+    }
   });
 
   it('毒宝石：绿色三连含毒宝石 → 敌方全体获得 poison 3 回合', () => {

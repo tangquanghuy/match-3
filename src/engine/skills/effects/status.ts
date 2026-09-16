@@ -63,9 +63,12 @@ export const TERROR_STATUS_ID = 'terror';
 export const TERROR_DROP_CHANCE = 0.1;
 
 /** GoW 自动解除：中毒是唯一不会自行解除的负面状态。 */
+/** GoW 自动解除（GOW-STATUS-RESEARCH 逐状态核对）：中毒与诅咒不会自行解除——
+ *  诅咒只「使他状态自愈概率减半」，自身无自愈通道（UX 审查 P1#6 回归：
+ *  误入本集合时诅咒宝石上靶会在首个回合尾被 5% 骰立即清掉，场上零痕迹）。 */
 const AUTO_RECOVER_STATUS_IDS = new Set([
   'burning', 'bleed', 'silence', 'frozen', 'stun', 'entangle', 'web', 'disease',
-  'marked', 'submerged', 'curse', 'cursed', 'death-mark', 'death_mark',
+  'marked', 'submerged', 'death-mark', 'death_mark',
   'wolf', 'wolf-form', 'lycanthropy', 'charm', 'charmed', 'mana-burn', 'mana_burn',
   'faerie-fire', 'terror',
 ]);
@@ -283,7 +286,8 @@ export function tickStatuses(char: Character, rng?: SeededRNG): GameEvent[] {
       if (status.turns <= 0 || !AUTO_RECOVER_STATUS_IDS.has(status.id)) continue;
       const isWeb = status.id === WEB_STATUS_ID;
       const cursed = isCursed(char);
-      const base = cursed || CURSE_STATUS_IDS.has(status.id) ? RECOVERY_CURSED : RECOVERY_BASE;
+      // 诅咒在场 → 其他状态的自愈基准减半（诅咒本身已不在 AUTO_RECOVER 集合）
+      const base = cursed ? RECOVERY_CURSED : RECOVERY_BASE;
       const chance = isWeb ? (status.magnitude ?? base) : (status.recoveryChance ?? base);
       if (rng.next() * 100 < chance) {
         char.statuses = char.statuses.filter((s) => s !== status);
