@@ -132,3 +132,22 @@ git worktree add ../match-3-gems -b special-gems
 | 09-16 | E-经济对齐逃跑子agent | `src/engine/traits.ts`（仅 resolvePassives 编译一个新键 `battleEconomyGain`→passive 聚合，本批唯一特质钩子点）+ `scripts/build_traits.mjs`+`src/data/traits.json`（重生成：新解析「从战斗中获得 N% 额外灵魂/黄金」「在战斗中获得 N% 黄金加成」= merchant/necromancy/necromaster/moneybags 四 code；晋升度族 bountyhunter/godslayer 不做）+ `render/gemTextures.ts`/`GemSprite.ts`/`statusGemOverlays.ts`（bootyGem 黄贴图+钱袋金币程序化叠层、wildcard tier3 贴图 key 与程序化兜底）+ `render/App.ts`（SPECIAL_GEM_FEEDBACK 增赃物；flee 事件消费=阵亡退场管线的轻量淡出版）+ `render/SkillTestPage.ts`（投放清单增通配×3/赃物） | **①特质战后经济钩子 + Booty 表现（DECISIONS 四项拍板①）**：TurnEngine 构造期汇总玩家侧（Left）开局编队的 battleEconomyGain 比率，GameOver 时对共用池 gold/souls 一次性乘 (1+Σratio)（gems 不放大）；中性特质不出现在 passive，无经济对局零分支零事件 | ✅ 已落 |
 | 09-17 | I | `scripts/trim_status_sfx.mjs`(新) + `render/AudioManager.ts` + `render/StatusSynth.ts`（仅导出 normalizeStatusKey）+ `src/assets/audio/status/**` + `assets/音效/**` + `tests/unit/audio*` | **AI 采样裁剪接线 + 多状态并发整治**（用户提供 17 个 AI 生成 wav 于 `assets/音效/`，尾部大量静音；含 E 新落地状态妖火/恐怖共 17 键）：①新脚本 `trim_status_sfx.mjs`（ffmpeg 双端 silenceremove 保留头 0.03s/尾 0.09s + 5ms 淡入 + 80ms 指数淡出 + 峰值归一 -1.5dB；`assets/音效/` 源文件不动），17 个状态输出 `src/assets/audio/status/status_<键>.wav` 自动接线（妖火=faerie_fire、恐怖=terror）；②AudioManager：状态键解析改为「normalizeStatusKey 命中 glob 采样键优先，其次 canonicalStatusSoundId」——glob 目录即状态全集事实源，新状态丢文件即通；多状态防混响=新增全局 0.12s 最小间隔（间隔内任何状态音丢弃，AoE 批量施加只响一声）+ 采样单声道源 newest-wins（新采样起播时旧采样 70ms 快速淡出停止；synth 占位不可停只靠间隔）；③单测同步：快照集补 faerie-fire/terror（经 glob 键覆盖）、「异键同刻」预期改全局间隔丢弃并补用例（本窗音频用例 13/13 绿；全量中 statusBadges 5 例红为 E 在途未提交改动所致，非本批文件） | ✅ 已落 |
 | 09-17 | E | `render/statusTooltip.ts`(新) + `render/App.ts`（仅 init 一行安装调用） | **状态徽记点击说明（用户需求：点击徽记向下浮现效果文本）**：零侵入设计——不动设计窗口在途重构的 statusBadges/TeamView，新建独立模块：①STATUS_DESCRIPTIONS 按 BADGES 中文名给全 21 状态官方语义一句话；②document 级点击委托（.status-badge 命中即开、再点/点外关闭），tooltip 挂 body 固定定位（徽记 getBoundingClientRect 下方、视口夹取），样式自注入 style 标签（暗底/主题色边框取 --sb/reduced-motion 适配），徽记加 pointer 光标 | ✅ 已落 |
+
+---
+
+## 窗口 J · Meta 主线（2026-09-17 开工）
+
+任务书：`META-GAME-PLAN.md`（里程碑 M0–M8）。前后端分离口径：meta 数值逻辑全部在 `src/meta/systems`（纯逻辑、零 DOM、vitest 全覆盖），视觉屏（用户手上的 `design/meta-mockups-v4/v5` 等）只做消费方，后续经 `meta/screens` 接逻辑核心。
+
+| 范围 | 文件 |
+|---|---|
+| J 独占 | `src/meta/**`、`tests/unit/meta*`、`tests/e2e/meta*`、`game.html`（未来入口，未建） |
+| 只读消费 | `src/data/troops.json`（只读）、`src/data/leveling.ts`、`src/data/traits.json`、`src/session/contract.ts` |
+| 未来共享（动前必须登记台账） | `src/session/contract.ts`（banner 字段）、`ManaDistributor.ts`（旗帜法力加成）、`App.ts`（战斗挂载导出）、`vite.config.ts`（game.html 多页入口） |
+| 不碰 | `design/meta-mockups*`（用户的视觉小样，J 只读参考）、引擎/渲染域 |
+
+### 台账登记
+
+| 日期 | 窗口 | 文件 | 动机与形态 | 状态 |
+|---|---|---|---|---|
+| 09-17 | J | `src/meta/**`（新增）、`tests/unit/meta*`（新增） | M0/M1 逻辑核心无前端落地：MetaSave v1 schema + 迁移链 + 双槽防损存档（StorageLike 抽象，浏览器 localStorage/测试内存通用）、货币账本（原子扣费）、部队养成（灵魂升级/升阶 5-10-25 不耗本体/特质裁定②/分解保护）、编队 3~4 校验（主角可选、汇总 issues 供 UI 可视化）。数值单源 `src/meta/data/economy.ts`。零 DOM、零引擎反向依赖 | ✅ 已落 |
