@@ -23,7 +23,6 @@ import { BaseColor } from '../../types';
 import type { CuratedBatch } from './index';
 
 const SKIPPED: { id: number; reason: string }[] = [
-  { id: 8863, reason: '语义拿不准（「召唤 1-3 名」数量区间无原语，batch-26 8193 同款）；「随所有敌人造成伤害」句式亦不明' },
   { id: 8885, reason: '语义拿不准（「每摧毁一颗黄色宝石，则使一名随机敌人陷入沉默」按来源数量重复施加状态无原语——status 段无数值缩放，modifier 无法驱动施加次数）' },
   { id: 8886, reason: '特殊宝石（绿色龙宝石，batch-10 8887 龙宝石同款）；「若我的队伍有克里斯坦纳斯」队伍含特定兵种条件亦不支持（batch-10 8841 同款）' },
   { id: 8917, reason: '特殊宝石（灵力宝石，batch-04 8918 同款）' },

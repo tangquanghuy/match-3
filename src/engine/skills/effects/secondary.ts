@@ -114,6 +114,13 @@ export type Condition =
   | { kind: 'troopPresent'; side?: 'ally' | 'enemy'; name: string }
   /** 施法者自身带有该状态（「若自身身处狂怒状态」，全局条件） */
   | { kind: 'selfStatus'; statusId: string }
+  /**
+   * 属性比较（「若自身攻击力较高」，全局条件）：施法者该属性 > 跨段追踪目标该属性。
+   * stat 可选 attack/armor/magic/hp；无追踪目标 → false。
+   */
+  | { kind: 'casterStatBeatsTarget'; stat: 'attack' | 'armor' | 'magic' | 'hp' }
+  /** 任一存活敌人带该法力色（「若其中一个使用蓝色法力」的聚合判定，全局条件） */
+  | { kind: 'anyEnemyColor'; color: BaseColor }
   /** 否定（「板面上没有一颗紫色宝石」，2026-09-17 回收批）：子条件不成立即成立 */
   | { kind: 'not'; cond: Condition }
   /** 析取（「若敌人是兽人或恶魔」）：任一子条件成立即成立 */
@@ -194,6 +201,23 @@ export function conditionMet(
     }
     case 'not':
       return !conditionMet(cond.cond, ctx, target);
+    case 'casterStatBeatsTarget': {
+      const me = findCharacter(ctx.state, ctx.casterId);
+      const foe = (() => {
+        const last = ctx.castTracking?.lastTarget;
+        return last ? findCharacter(ctx.state, last.id) : undefined;
+      })();
+      if (!me || !foe) return false;
+      return statOf(me, cond.stat) > statOf(foe, cond.stat);
+    }
+    case 'anyEnemyColor': {
+      const mySide = findSide(ctx.state, ctx.casterId);
+      if (mySide === null) return false;
+      const enemySide = mySide === PlayerSide.Left ? PlayerSide.Right : PlayerSide.Left;
+      return ctx.state.teams[enemySide].characters.some(
+        (c) => !c.defeated && c.colors.includes(cond.color),
+      );
+    }
     case 'selfStatus': {
       const caster = findCharacter(ctx.state, ctx.casterId);
       return !!caster && caster.statuses.some((st) => st.id === cond.statusId && st.turns > 0);
