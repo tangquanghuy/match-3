@@ -23,6 +23,28 @@ const STATUS_MAP = [
   [/织网/, 'web'],
   [/击晕|眩晕/, 'stun'],
 ];
+
+/**
+ * 特质可救批（T1 免疫 + T3 骷髅命中）扩展状态映射：这些状态本体在引擎里已落地
+ * （skills/effects/status.ts：death-mark/marked/curse/disease/bleed/terror 均有结算），
+ * 只是 STATUS_MAP 当年没收。只并入免疫与骷髅命中/受击附状态三类规则；
+ * **不**并入屠戮条件（parseDamageCondition）与大连光环（AURA_STATUS_MAP）——
+ * 那两类在本批范围外，避免越批实现（恐怖/猎人标记的大连施加仍是 T5 欠账）。
+ */
+const RESCUE_STATUS_MAP = [
+  [/死亡标记/, 'death-mark'],
+  [/猎人标记/, 'marked'],
+  [/受诅|诅咒/, 'curse'],
+  [/疾病/, 'disease'],
+  [/出血/, 'bleed'],
+  [/恐怖/, 'terror'],
+];
+
+/** 免疫 / 骷髅命中附状态规则的完整查找表：基础表在前（保持既有命中次序），扩展表在后 */
+const RESCUE_FULL_STATUS_MAP = [...STATUS_MAP, ...RESCUE_STATUS_MAP];
+
+/** DoT 状态施加时带 magnitude:1（bleed 与 poison/burning 同为每回合跳伤的攻击性 DoT） */
+const isDotStatus = (id) => id === 'poison' || id === 'burning' || id === 'bleed';
 /** 引擎尚未实现的状态/机制关键词，用于报告 */
 const UNSUPPORTED_STATUS = /疾病|狼化|死亡标记|吞噬|法力燃烧|法力耗尽|法力窃取|恐怖|出血|猎人标记|受诅|转化|屏障|下潮|狂怒|法印|风暴/;
 
@@ -138,10 +160,11 @@ function parse(desc) {
   if ((m = /降低来自法术的伤害\s*(\d+)%/.exec(desc))) {
     return { effects: { spellDamageReduction: num(m[1]) / 100 } };
   }
-  // 免疫：对 X、Y 免疫
+  // 免疫：对 X、Y 免疫（T1 批：warded/cunning/brave/immune——「对疾病和狼化免疫」的
+  // 狼化引擎未实现，按映射表只收疾病，不做缺状态半解析）
   if (/免疫/.test(desc)) {
     if (/所有状态效果/.test(desc)) return { effects: { statusImmunities: ['*'] } };
-    const ids = STATUS_MAP.filter(([re]) => re.test(desc)).map(([, id]) => id);
+    const ids = RESCUE_FULL_STATUS_MAP.filter(([re]) => re.test(desc)).map(([, id]) => id);
     if (ids.length > 0) return { effects: { statusImmunities: [...new Set(ids)] } };
     return null; // 全是引擎没有的状态
   }
@@ -167,11 +190,16 @@ function parse(desc) {
     if ((m = /获得\s*(\d+)\s*点(生命值|护甲值|攻击力|魔法值)/.exec(desc))) {
       return { effects: { onSkullHitGain: { stat: pickStat(m[2]) ?? 'hp', amount: num(m[1]) } } };
     }
-    const hit = STATUS_MAP.find(([re]) => re.test(desc));
+    // 忽略护甲（savagestrike「…有 100% 的几率忽略护甲值」）：与 armorpiercing/trueshot 的
+    // 「略过护甲值」同一引擎机制，按语义映射到 armorPierceChance（T3 批逐条核对）。
+    if ((m = /有\s*(\d+)%\s*的?几率忽略护甲值/.exec(desc))) {
+      return { effects: { armorPierceChance: num(m[1]) / 100 } };
+    }
+    const hit = RESCUE_FULL_STATUS_MAP.find(([re]) => re.test(desc));
     if (hit) {
       // magnitude 语义按状态而异：DoT 是每回合伤害；web 是挣脱几率（缺省 10%，由引擎管理）。
       // 因此只给 DoT 带 magnitude，其余状态不带。
-      const isDot = hit[1] === 'poison' || hit[1] === 'burning';
+      const isDot = isDotStatus(hit[1]);
       return {
         effects: {
           inflictOnSkullHit: isDot
@@ -185,9 +213,31 @@ function parse(desc) {
   // 承受骷髅伤害附状态（毒孢子族）：被打时反手给攻击者上状态。
   // 句式有「使敌人中毒」「使敌人陷入X状态」两种；DoT 带 magnitude:1，其余不带
   if (/^在承受骷髅头伤害时[，,]?使敌人/.test(desc)) {
-    const hit = STATUS_MAP.find(([re]) => re.test(desc));
+    const hit = RESCUE_FULL_STATUS_MAP.find(([re]) => re.test(desc));
     if (!hit) return null;
-    const isDot = hit[1] === 'poison' || hit[1] === 'burning';
+    const isDot = isDotStatus(hit[1]);
+    return {
+      effects: {
+        inflictOnSkullDamaged: isDot
+          ? { id: hit[1], turns: 3, magnitude: 1 }
+          : { id: hit[1], turns: 3 },
+      },
+    };
+  }
+  // 骷髅受击附状态·变体句式（T3 批逐条核对官方描述）：毒孢子句式之外的三种译法——
+  //   revenge/magmahide「在自身受到骷髅头伤害时，使对方陷入X状态」
+  //   serenity/scalding「在敌方/敌人对自身造成骷髅头伤害时，使对方陷入X状态」
+  //   frozensoul「当承受骷髅头伤害时冻结敌人」（动词句，无「陷入…状态」）
+  // 与毒孢子同一字段（inflictOnSkullDamaged）。
+  // 双状态诅咒族（frozencurse 等「使其陷入诅咒和X状态」）要一次施加两条状态，
+  // 现有字段是单状态，不做半解析——捕获组带「和」或「其」时整体拒绝，留在未实现桶。
+  if (/^(?:在自身受到|在敌[方人]对自身造成|当承受)骷髅头伤害时/.test(desc)) {
+    const captured = /使对方陷入(.+?)状态/.exec(desc) ?? /当承受骷髅头伤害时(.+?)敌人/.exec(desc);
+    const text = captured?.[1];
+    if (!text || /和/.test(text)) return null;
+    const hit = RESCUE_FULL_STATUS_MAP.find(([re]) => re.test(text));
+    if (!hit) return null;
+    const isDot = isDotStatus(hit[1]);
     return {
       effects: {
         inflictOnSkullDamaged: isDot

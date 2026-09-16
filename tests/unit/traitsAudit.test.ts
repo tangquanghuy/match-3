@@ -46,6 +46,9 @@ const ENGINE_STATUS_IDS = new Set([
   // 条件光环批可施加的状态本体（barrier/bleed 等已在引擎落地，见 skills/effects/status.ts）
   'barrier', 'bleed', 'rage', 'submerged', 'reflect', 'blessed', 'enchanted',
   'curse', 'charm', 'disease', 'death-mark',
+  // 特质可救批（T1 免疫 + T3 骷髅命中）：marked/terror 本体已在 status.ts 落地
+  // （MARK_STATUS_ID / TERROR_STATUS_ID），build_traits.mjs RESCUE_STATUS_MAP 开始产出
+  'marked', 'terror',
 ]);
 
 const BASE_COLORS = new Set(Object.values(BaseColor));
@@ -92,7 +95,8 @@ describe('A · 数据完整性', () => {
       if (t.spellDamageReduction !== undefined) range(t.spellDamageReduction, 0, 0.8, 'spellDamageReduction');
       if (t.dodgeChance !== undefined) range(t.dodgeChance, 0, 0.6, 'dodgeChance');
       if (t.reflectSkullRatio !== undefined) range(t.reflectSkullRatio, 0, 0.75, 'reflectSkullRatio');
-      if (t.armorPierceChance !== undefined) range(t.armorPierceChance, 0, 0.75, 'armorPierceChance');
+      // 穿甲率上限 1：savagestrike「有 100% 的几率忽略护甲值」官方数值即 100%
+      if (t.armorPierceChance !== undefined) range(t.armorPierceChance, 0, 1, 'armorPierceChance');
       if (t.battleStartManaRatio !== undefined) range(t.battleStartManaRatio, 0, 1, 'battleStartManaRatio');
       if (t.regen) {
         if (!['hp', 'armor', 'attack', 'magic'].includes(t.regen.stat)) report(`${tag} regen.stat 非法`);
@@ -299,7 +303,9 @@ describe('C · 描述↔数值一致性（从官方文本重新抽数对账）',
         if (!m || num(m[1]) / 100 !== t.reflectSkullRatio) report(`${tag(t)} 反弹比例与描述不符`);
       }
       if (t.armorPierceChance !== undefined) {
-        const m = /骷髅头伤害有\s*(\d+)%\s*的?几率略过护甲值/.exec(d);
+        // armorpiercing/trueshot「略过护甲值」/ savagestrike「忽略护甲值」两种译法都认
+        const m = /骷髅头伤害有\s*(\d+)%\s*的?几率略过护甲值/.exec(d)
+          ?? /有\s*(\d+)%\s*的?几率忽略护甲值/.exec(d);
         if (!m || num(m[1]) / 100 !== t.armorPierceChance) report(`${tag(t)} 穿甲率与描述不符`);
       }
       if (t.battleStartManaRatio !== undefined) {

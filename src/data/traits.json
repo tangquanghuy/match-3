@@ -12,7 +12,9 @@
     "description": "对中毒、疾病、狼化和死亡标记免疫",
     "troops": 150,
     "statusImmunities": [
-      "poison"
+      "poison",
+      "death-mark",
+      "disease"
     ]
   },
   {
@@ -180,7 +182,9 @@
     "troops": 43,
     "statusImmunities": [
       "poison",
-      "stun"
+      "stun",
+      "death-mark",
+      "disease"
     ]
   },
   {
@@ -341,6 +345,15 @@
     "skullDamageReduction": 0.4
   },
   {
+    "code": "warded",
+    "name": "辟邪",
+    "description": "对死亡标记状态效果免疫。",
+    "troops": 29,
+    "statusImmunities": [
+      "death-mark"
+    ]
+  },
+  {
     "code": "swift",
     "name": "迅疾",
     "description": "战斗开始时获得 75% 法力。",
@@ -414,7 +427,8 @@
     "troops": 23,
     "statusImmunities": [
       "burning",
-      "silence"
+      "silence",
+      "death-mark"
     ]
   },
   {
@@ -513,6 +527,16 @@
     }
   },
   {
+    "code": "deathtouch",
+    "name": "死亡之触",
+    "description": "在造成骷髅头伤害时使敌人陷入死亡标记状态。",
+    "troops": 20,
+    "inflictOnSkullHit": {
+      "id": "death-mark",
+      "turns": 3
+    }
+  },
+  {
     "code": "daemonbond",
     "name": "恶魔族亲",
     "description": "恶魔盟友获得 2 点生命值。",
@@ -574,6 +598,15 @@
       "stat": "hp",
       "amount": 4
     }
+  },
+  {
+    "code": "immune",
+    "name": "免疫",
+    "description": "对疾病和狼化免疫",
+    "troops": 18,
+    "statusImmunities": [
+      "disease"
+    ]
   },
   {
     "code": "stoneheart",
@@ -681,6 +714,16 @@
     }
   },
   {
+    "code": "eagleeye",
+    "name": "鹰眼",
+    "description": "在造成骷髅头伤害时，使敌人陷入猎人标记状态。",
+    "troops": 15,
+    "inflictOnSkullHit": {
+      "id": "marked",
+      "turns": 3
+    }
+  },
+  {
     "code": "roguebond",
     "name": "盗贼族亲",
     "description": "盗贼盟友获得 2 点生命值。",
@@ -732,6 +775,16 @@
     "skullMultVsStatus": {
       "status": "stun",
       "mult": 2
+    }
+  },
+  {
+    "code": "cursedtouch",
+    "name": "受诅之触",
+    "description": "在造成骷髅头伤害时使对方陷入受诅状态。",
+    "troops": 14,
+    "inflictOnSkullHit": {
+      "id": "curse",
+      "turns": 3
     }
   },
   {
@@ -864,6 +917,16 @@
     "onDamagedGain": {
       "stat": "armor",
       "amount": 5
+    }
+  },
+  {
+    "code": "plaguetouch",
+    "name": "瘟疫之触",
+    "description": "在造成骷髅头伤害时使敌人陷入疾病状态。",
+    "troops": 11,
+    "inflictOnSkullHit": {
+      "id": "disease",
+      "turns": 3
     }
   },
   {
@@ -1030,6 +1093,15 @@
     }
   },
   {
+    "code": "cunning",
+    "name": "狡诈",
+    "description": "对猎人标记状态效果免疫。",
+    "troops": 9,
+    "statusImmunities": [
+      "marked"
+    ]
+  },
+  {
     "code": "icearmor",
     "name": "寒冰护甲",
     "description": "降低来自骷髅头的伤害 65%。",
@@ -1056,6 +1128,17 @@
       "troopType": "Dwarf",
       "stat": "armor",
       "amount": 2
+    }
+  },
+  {
+    "code": "razorteeth",
+    "name": "利齿",
+    "description": "在造成骷髅头伤害时使对方陷入出血状态。",
+    "troops": 9,
+    "inflictOnSkullHit": {
+      "id": "bleed",
+      "turns": 3,
+      "magnitude": 1
     }
   },
   {
@@ -1298,6 +1381,16 @@
     }
   },
   {
+    "code": "revenge",
+    "name": "复仇",
+    "description": "在自身受到骷髅头伤害时，使对方陷入猎人标记状态。",
+    "troops": 6,
+    "inflictOnSkullDamaged": {
+      "id": "marked",
+      "turns": 3
+    }
+  },
+  {
     "code": "bornoffire",
     "name": "火生",
     "description": "在我的回合开始的时候，创建一颗红色宝石。",
@@ -1405,6 +1498,15 @@
       "stat": "attack",
       "amount": 2
     }
+  },
+  {
+    "code": "brave",
+    "name": "勇敢",
+    "description": "对恐怖状态免疫",
+    "troops": 5,
+    "statusImmunities": [
+      "terror"
+    ]
   },
   {
     "code": "ogrefury",
@@ -2148,6 +2250,16 @@
     }
   },
   {
+    "code": "frozensoul",
+    "name": "冻结灵魂",
+    "description": "当承受骷髅头伤害时冻结敌人。",
+    "troops": 1,
+    "inflictOnSkullDamaged": {
+      "id": "frozen",
+      "turns": 3
+    }
+  },
+  {
     "code": "loyalmount",
     "name": "忠诚坐骑",
     "description": "在身亡时有 100% 的几率召唤一只地龙。",
@@ -2866,6 +2978,16 @@
     }
   },
   {
+    "code": "serenity",
+    "name": "宁静",
+    "description": "在敌方对自身造成骷髅头伤害时，使对方陷入沉默状态。",
+    "troops": 1,
+    "inflictOnSkullDamaged": {
+      "id": "silence",
+      "turns": 3
+    }
+  },
+  {
     "code": "jaws",
     "name": "巨颚",
     "description": "在配对 4 或 5 颗宝石时，所有海族获得 3 点攻击力。",
@@ -3241,6 +3363,13 @@
     "spellDamageReduction": 0.75
   },
   {
+    "code": "savagestrike",
+    "name": "野蛮之击",
+    "description": "在造成骷髅头伤害时，有 100% 的几率忽略护甲值",
+    "troops": 1,
+    "armorPierceChance": 1
+  },
+  {
     "code": "psychicpulse",
     "name": "精神脉搏",
     "description": "在配对 4 或更多宝石是，给予怪兽盟友 2 点随机技能值。",
@@ -3437,6 +3566,17 @@
     }
   },
   {
+    "code": "scalding",
+    "name": "烫伤",
+    "description": "在敌人对自身造成骷髅头伤害时，使对方陷入燃烧状态。",
+    "troops": 1,
+    "inflictOnSkullDamaged": {
+      "id": "burning",
+      "turns": 3,
+      "magnitude": 1
+    }
+  },
+  {
     "code": "goldenarmor",
     "name": "黄金甲",
     "description": "降低来自骷髅头的伤害 70%。",
@@ -3510,6 +3650,17 @@
     "onEnemyCastGain": {
       "stat": "hp",
       "amount": 10
+    }
+  },
+  {
+    "code": "magmahide",
+    "name": "岩浆厚皮",
+    "description": "在自身受到骷髅头伤害时，使对方陷入燃烧状态。",
+    "troops": 1,
+    "inflictOnSkullDamaged": {
+      "id": "burning",
+      "turns": 3,
+      "magnitude": 1
     }
   },
   {
