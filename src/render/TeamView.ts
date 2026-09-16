@@ -759,7 +759,9 @@ export class CharacterCard {
       .map((s) => {
         const b = statusBadge(s.id);
         const turns = s.turns > 0 ? `<span class="sb-turns">${s.turns}</span>` : '';
-        return `<span class="status-badge" title="${b.label}${s.turns ? ' · ' + s.turns + '回合' : ''}" style="--sb:${b.color}">${statusBadgeIcon(s.id)}${turns}</span>`;
+        // data-status-id / data-magnitude：状态点击说明浮层读取实例实际数值
+        const mag = s.magnitude !== undefined ? ` data-magnitude="${s.magnitude}"` : '';
+        return `<span class="status-badge" data-status-id="${s.id}" data-turns="${s.turns}"${mag} title="${b.label}${s.turns ? ' · ' + s.turns + '回合' : ''}" style="--sb:${b.color}">${statusBadgeIcon(s.id)}${turns}</span>`;
       })
       .join('');
   }

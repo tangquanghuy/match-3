@@ -9,22 +9,23 @@
  * 官方查证见 `.kiro/specs/combat-mechanics/GOW-STATUS-RESEARCH.md` 与 GEMS-SEMANTICS-2.md。
  */
 
-/** 状态效果说明（键 = BADGES 中文名） */
+/** 状态效果说明（键 = BADGES 中文名）。数值为引擎默认口径（spell-rules §6 / GEMS-SEMANTICS-2），
+ *  技能文本明示时以技能为准；浮层会在下方追加该实例的实际数值行。 */
 export const STATUS_DESCRIPTIONS: Record<string, string> = {
-  中毒: '每回合结束时受到毒素伤害（跳过护甲），可叠加层数。',
-  燃烧: '每回合结束时受到火焰伤害。',
-  沉默: '无法施放技能。',
+  中毒: '每回合受到 3 点毒素伤害（跳过护甲），默认 3 回合，可叠加；具体数值以施加技能为准。',
+  燃烧: '每回合受到 3 点火焰伤害，默认 3 回合；具体数值以施加技能为准。',
+  沉默: '无法施放技能，默认 3 回合。',
   冰冻: '无法攻击、无法施法，且无法充能。',
   击晕: '跳过行动，且禁用全部特质。',
   缠绕: '无法攻击（仍可施法与充能）。',
-  织网: '魔法值视为 0，技能数值只剩基础项；每回合 10% 概率挣脱。',
+  织网: '魔法值视为 0，技能数值只剩基础项；每回合 10% 概率挣脱（失败则 +10%，上限 100%）。',
   屏障: '完全吸收下一次受到的伤害，吸收后消失。',
-  出血: '每回合结束时每层受到 1 点伤害，可叠加。',
+  出血: '每层每回合受到 1 点伤害，层数可叠加。',
   疾病: '获得的法力减半；每回合 10% 概率自愈。',
   猎人标记: '受到的骷髅伤害会被施术方的屠戮类特质放大。',
-  下潮: '潜入水下，不可被技能指定为目标。',
-  诅咒: '施加时移除目标全部正面状态；其它状态的自愈概率减半；可穿透普通免疫（无敌不可穿透）。',
-  死亡标记: '每回合 10% 概率立即死亡。',
+  下潮: '不可被技能指定为目标。',
+  诅咒: '施加时移除目标全部正面状态；其它状态的自愈概率减半（5% 起步累计）；可穿透普通免疫（无敌不可穿透）。',
+  死亡标记: '每回合 10% 概率立即死亡；同时每回合 10% 概率自行解除。',
   狼化: '每回合 15% 概率变成随机野兽（变形机制待实装）。',
   狂怒: '骷髅伤害 ×1.5 且无视对方特质；攻击一次后消失。',
   激怒: '骷髅伤害 ×1.5 且无视对方特质；攻击一次后消失。',
@@ -78,12 +79,27 @@ function openTipFor(badge: HTMLElement): void {
     return;
   }
   closeTip();
+
+  // 实例实际数值行（TeamView renderStatuses 注入的 data-*）：
+  // 带 magnitude 的（DoT 类）显示每回合伤害，其余显示剩余回合
+  const turns = badge.dataset.turns ?? '';
+  const magnitude = badge.dataset.magnitude;
+  const live: string[] = [];
+  if (magnitude !== undefined) live.push(`每回合 ${magnitude} 点`);
+  if (turns && turns !== '0') live.push(`剩余 ${turns} 回合`);
+  const liveLine = live.length > 0 ? `<div class="st-live"></div>` : '';
+
   const tip = document.createElement('div');
   tip.className = 'status-tooltip';
   tip.style.setProperty('--stc', color);
-  tip.innerHTML = `<div class="st-title"></div><div class="st-desc"></div>`;
+  tip.innerHTML = `<div class="st-title"></div><div class="st-desc"></div>${liveLine}`;
   (tip.querySelector('.st-title') as HTMLElement).textContent = title || '状态';
   (tip.querySelector('.st-desc') as HTMLElement).textContent = desc;
+  if (liveLine) {
+    const el = tip.querySelector('.st-live') as HTMLElement;
+    el.style.opacity = '.8';
+    el.textContent = `当前：${live.join(' · ')}`;
+  }
   document.body.appendChild(tip);
 
   // 定位：徽记正下方居中，左右按视口夹取，底部放不下时翻转到上方
