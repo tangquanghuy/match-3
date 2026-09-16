@@ -41,6 +41,7 @@
 >      补 WildCard3 档。
 >   ③ **逃跑机制批准**：fled 方案（标记+移出编队、不算击杀不触发挥金/灵魂、全队逃光算负）。
 >   ④ **恐怖 4 回合 / 妖火 3 回合维持现状**；毒宝石 0 伤占位 tick 维持，查到官方值再改常量。
+> - **✅ 执行记录（2026-09-16）**：经济三币种（GameState.economy 共用池 + gainGold/Souls/Gems 效果段 + battleGold/Souls/Gems 来源 kind + BattleResult.economy 结算上报）、赃物宝石（不可匹配、摧毁→+10 金币、程序化视觉）、特质战后钩子 4/13 code（merchant/necromancy/necromaster/moneybags，traits.json 357→361；其余 9 code 为战斗内触发型，待特质触发语义批）、web 双路径、通配乘改加 + WildCard3 档、逃跑 fled 方案全套（batch-39 回收 15 条）。敌人比率不计入战后放大（GoW 奖励归玩家）；「窃取 N 枚金币」实现为 gainGold 入账不扣敌方。
 > - **配套句式原语转做**：createStorm 效果段、stormPresent 条件、oneOf 随机多选一（二选一/三选一）、
 >   定量转换（transform 带 count，端点可特殊宝石）、定向驱散单一状态、比例法力（reduce halve）、
 >   聚合存在判定（若有敌人陷入X状态）、目标数量区间（1~4 名，种子化）、打乱板面（board shuffle）、
