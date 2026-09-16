@@ -96,7 +96,7 @@ describe('buildBattleRequest（存档 → BattleRequest）', () => {
     expect(outcome.request.enemyTeam).toHaveLength(3);
   });
 
-  it('编队含主角 → HERO_UNAVAILABLE（M5 占位）', () => {
+  it('编队含主角 → 主角快照正常组装（M5 转正，旧 HERO_UNAVAILABLE 占位移除）', () => {
     const s = save();
     const r = setTeamPreset(s, 0, {
       name: '混编',
@@ -105,7 +105,12 @@ describe('buildBattleRequest（存档 → BattleRequest）', () => {
     });
     expect(r.ok).toBe(true);
     const outcome = buildBattleRequest(s, planQuestEncounter(KINGDOM, 1, 7));
-    expect(outcome).toMatchObject({ ok: false, code: 'HERO_UNAVAILABLE' });
+    if (!outcome.ok) throw new Error(outcome.message);
+    expect(outcome.request.playerTeam).toHaveLength(3);
+    const hero = outcome.request.playerTeam.find((c) => c.externalId.endsWith('-hero'))!;
+    expect(hero.name).toBe('法露特');
+    // 新档默认装备学徒法杖
+    expect(hero.skillId).toBe('w_univ_apprentice');
   });
 
   it('没有预设队 → NO_TEAM', () => {

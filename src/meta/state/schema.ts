@@ -10,6 +10,7 @@
  */
 
 import { STARTING_CURRENCIES } from '../data/economy';
+import { STARTER_WEAPON_ID } from '../data/weapons';
 
 export const META_SAVE_VERSION = 1;
 
@@ -58,6 +59,8 @@ export interface HeroState {
   xp: number;
   classId: string | null;
   classLevels: Record<string, number>;
+  /** 职业当前经验（加性字段，version 仍为 1） */
+  classXp: Record<string, number>;
   unlockedClasses: string[];
   unlockedWeapons: string[];
   equippedWeapon: string | null;
@@ -154,9 +157,10 @@ function newHero(): HeroState {
     xp: 0,
     classId: null,
     classLevels: {},
+    classXp: {},
     unlockedClasses: [],
-    unlockedWeapons: [],
-    equippedWeapon: null,
+    unlockedWeapons: [STARTER_WEAPON_ID],
+    equippedWeapon: STARTER_WEAPON_ID,
     talentSpent: {},
   };
 }

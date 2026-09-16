@@ -5,6 +5,9 @@
 export * from './types';
 export * from './data/economy';
 export * from './data/kingdoms';
+export * from './data/traitIndex';
+export * from './data/hero';
+export * from './data/weapons';
 export * from './state/schema';
 export * from './state/save';
 export * from './systems/wallet';
@@ -16,3 +19,4 @@ export * from './systems/settlement';
 export * from './systems/tribute';
 export * from './systems/kingdomOps';
 export * from './systems/gacha';
+export * from './systems/hero';

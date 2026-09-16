@@ -140,13 +140,20 @@ export function hydrateSave(raw: Record<string, unknown>): MetaSave {
     }
   }
 
-  const hero = { ...base.hero };
+  const hero = { ...base.hero, classXp: { ...(base.hero.classXp ?? {}) } };
   if (isObject(raw.hero)) {
     hero.level = num(raw.hero.level, hero.level, 1);
     hero.xp = num(raw.hero.xp, hero.xp, 0);
     hero.classId = typeof raw.hero.classId === 'string' ? raw.hero.classId : null;
     hero.equippedWeapon =
       typeof raw.hero.equippedWeapon === 'string' ? raw.hero.equippedWeapon : null;
+    if (isObject(raw.hero.classXp)) {
+      for (const [key, value] of Object.entries(raw.hero.classXp)) {
+        if (typeof value === 'number' && Number.isFinite(value) && value >= 0) {
+          hero.classXp[key] = Math.floor(value);
+        }
+      }
+    }
   }
 
   const arena = { ...base.arena };

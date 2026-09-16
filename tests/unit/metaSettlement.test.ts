@@ -11,6 +11,7 @@ import {
   planQuestEncounter,
   WIN_BONUS_XP,
   xpForEnemy,
+  HERO_XP_PER_WIN,
 } from '../../src/meta';
 import type { EncounterPlan } from '../../src/meta';
 
@@ -89,13 +90,13 @@ describe('结算入账（胜利 · 任务）', () => {
     expect(save.currencies.gems).toBe(150 + 50);
     expect(save.dailyFirstWinAt).toBe(DAY1);
 
-    // stats 与 xp
+    // stats 与 xp（M5：胜利加 60 主角经验，100 ≥ 首级 80 → 升 1 级）
     expect(save.stats.battlesWon).toBe(1);
     expect(save.stats.goldEarned).toBe(kills.gold + 60);
     expect(save.stats.soulsEarned).toBe(kills.souls + 30);
-    expect(detail.xpGained).toBe(kills.xp + WIN_BONUS_XP);
-    expect(save.hero.xp).toBe(kills.xp + WIN_BONUS_XP);
-    expect(save.hero.level).toBe(1); // M5 前只累积不升级
+    expect(detail.xpGained).toBe(kills.xp + WIN_BONUS_XP + HERO_XP_PER_WIN);
+    expect(detail.heroLevelsGained).toBe(1);
+    expect(save.hero.level).toBe(2);
     expect(save.kingdoms[KINGDOM]?.questsDone).toBe(1);
   });
 

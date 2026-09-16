@@ -12,7 +12,7 @@
  */
 import { getTroopById, knownTroopTypes, type TroopData } from '../../data/troops';
 import { troopStatsAtLevel } from '../../data/leveling';
-import { TRAIT_LIBRARY } from '../../engine/traits';
+import { BaseColor } from '../../engine/types';
 import type { TroopRecord } from '../state/schema';
 import type { MetaSave } from '../state/schema';
 import { BATTLE_SCHEMA_VERSION, RULESET_VERSION } from '../../session/contract';
@@ -26,18 +26,20 @@ import { activeTeam } from './teamRules';
 import { getRecord } from './troopProgress';
 import { kingdomBonusOf } from './kingdomOps';
 import type { KingdomStatBonus } from './kingdomOps';
+import { activeTalentCodes, equippedWeaponOf, heroStatsOf } from './hero';
+import { WEAPONS } from '../data/weapons';
+import { KNOWN_TRAIT_CODES } from '../data/traitIndex';
 import type { EncounterEnemy, EncounterPlan } from './encounter';
 
 /**
- * 已实现特质白名单（同 App 的校验口径：TRAIT_LIBRARY = traits.json 编译产物）。
+ * 已实现特质白名单（见 data/traitIndex.ts；与 App 的校验口径同源）。
  * troops.json 引用 785 种 code、引擎实现其中 361 种：快照组装时把未实现 code
  * 过滤掉（引擎本就安全忽略），既保住严格校验的意义，也不放行「假特质」。
  */
-const KNOWN_TRAIT_IDS: ReadonlySet<string> = new Set(TRAIT_LIBRARY.map((t) => t.code));
 
 /** 按槽位开关过滤到客户端已实现的特质 code */
 function knownTraits(troop: TroopData, enabled: (index: number) => boolean): string[] {
-  return troop.traits.filter((t, i) => enabled(i) && KNOWN_TRAIT_IDS.has(t.code)).map((t) => t.code);
+  return troop.traits.filter((t, i) => enabled(i) && KNOWN_TRAIT_CODES.has(t.code)).map((t) => t.code);
 }
 
 /** 玩家部队 → 战斗快照（养成等级决定四维；特质只带已解锁槽；statBonus = 王国 10 级加成） */
@@ -87,12 +89,17 @@ function enemyToSnapshot(troop: TroopData, enemy: EncounterEnemy, index: number)
 }
 
 /**
- * meta 桥接专用注册表：全量技能库 + 本场出场法术的兜底原型。
+ * meta 桥接专用注册表：全量技能库 + 主角武器原型 + 未收录法术的兜底原型。
+ * 武器原型是 meta 层自有的真实技能（data/weapons.ts，builders DSL），
+ * 注册在兜底循环之前，永远不会被 fallbackPrototype 覆盖。
  * headless 驱动与未来战斗层挂载共用同一份（App.init 的注入模式）。
  */
 export function buildMetaRegistry(extraSkillIds: Iterable<string>): ExtensionRegistry {
   const registry = new ExtensionRegistry();
   registerSkillLibrary(registry.prototypes);
+  for (const weapon of WEAPONS) {
+    registry.prototypes.set(weapon.id, weapon.skill);
+  }
   for (const id of extraSkillIds) {
     if (!registry.prototypes.has(id)) registry.prototypes.set(id, fallbackPrototype());
   }
@@ -115,13 +122,35 @@ export function buildBattleRequest(save: MetaSave, plan: EncounterPlan): BridgeO
 
   const team = activeTeam(save);
   if (!team) return fail('NO_TEAM', '没有可用队伍：先在编队页保存一支 3~4 人队');
-  if (team.members.some((m) => m.kind === 'hero')) {
-    return fail('HERO_UNAVAILABLE', '主角出战将在 M5（职业/武器）接入，当前请用纯部队队');
-  }
 
   const playerTeam: CombatantSnapshot[] = [];
   const statBonus = kingdomBonusOf(save);
+  const weapon = equippedWeaponOf(save);
+  const talentCodes = activeTalentCodes(save);
+  const heroBase = heroStatsOf(save);
   for (const [position, member] of team.members.entries()) {
+    if (member.kind === 'hero') {
+      // 主角快照（M5）：武器=唯一施法手段，无武器时 skillId 'none'（注册表兜底，仅扣法力）；
+      // 王国 10 级加成对主角同样生效（全体部队口径）
+      playerTeam.push({
+        externalId: `p${position}-hero`,
+        name: '法露特',
+        levelLabel: `Lv.${save.hero.level}`,
+        stats: {
+          hp: heroBase.health + statBonus.health,
+          attack: heroBase.attack + statBonus.attack,
+          armor: heroBase.armor + statBonus.armor,
+          magic: heroBase.magic + statBonus.magic,
+        },
+        troopTypes: ['Human'],
+        manaColors: weapon?.manaColors.length ? [...weapon.manaColors] : [BaseColor.Brown],
+        // 会话校验要求耗蓝 1~100：无武器按「1 蓝耗的空施法」处理（skillId 'none' 走兜底原型）
+        manaCost: weapon?.manaCost ?? 1,
+        traitIds: talentCodes,
+        skillId: weapon?.id ?? 'none',
+      });
+      continue;
+    }
     if (member.kind !== 'troop') continue;
     const troop = getTroopById(member.troopId);
     const rec = getRecord(save, member.troopId);
@@ -157,7 +186,7 @@ export function buildBattleRequest(save: MetaSave, plan: EncounterPlan): BridgeO
   );
   const check = validateBattleRequest(request, {
     knownSkillIds: new Set([...registry.skills.keys(), ...registry.prototypes.keys()]),
-    knownTraitIds: KNOWN_TRAIT_IDS,
+    knownTraitIds: KNOWN_TRAIT_CODES,
     knownTroopTypes: knownTroopTypes(),
   });
   if (!check.ok) {

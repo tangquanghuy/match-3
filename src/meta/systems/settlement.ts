@@ -9,8 +9,8 @@
  *  - 击杀奖励只在胜利时发放（战败只拿保底）；
  *  - 战斗内收集（BattleResult.economy，幽魂宝石等）单列一行并入账；
  *  - 每日首胜按「当日零点」判定，一天只领一次；
- *  - 任务只线性推进（打赢 questsDone+1 关才推进），4/8 关发王国部队奖励；
- *  - 经验一律累积，升级曲线 M5 落地（当前 hero.level 不动）。
+ *  - 任务只线性推进（打赢 questsDone+1 关才推进），4/8 关发王国部队奖励，8 关解锁职业；
+ *  - 主角/职业经验在胜利时结算（M5）：多级一次连升，职业经验只在主角编队时积累。
  */
 import { getTroopById } from '../../data/troops';
 import type { BattleResult } from '../../session/contract';
@@ -24,10 +24,15 @@ import {
   VICTORY_BONUS,
   WIN_BONUS_XP,
   xpForEnemy,
+  HERO_XP_PER_WIN,
+  CLASS_XP_PER_WIN,
 } from '../data/economy';
 import { kingdomQuestRewardTroop, QUESTS_PER_KINGDOM } from '../data/kingdoms';
 import { earn } from './wallet';
 import { grantTroop } from './troopProgress';
+import { activeTeam } from './teamRules';
+import { addClassXp, addHeroXp } from './hero';
+import { classByKingdom } from '../data/hero';
 import type { EncounterEnemy, EncounterPlan } from './encounter';
 
 export interface SettlementContext {
@@ -58,6 +63,12 @@ export interface SettlementDetail {
   victory: boolean;
   lines: SettlementLine[];
   xpGained: number;
+  /** 主角本次升级数（M5：经验会真正升级，解锁王国门槛） */
+  heroLevelsGained: number;
+  /** 主角编队且有职业时的职业升级 */
+  classLevelUp: { classId: string; newLevel: number } | null;
+  /** 任务链全通解锁的职业 */
+  classUnlocked: string | null;
   questProgress: { from: number; to: number } | null;
   troopRewards: { troopId: number; note: string }[];
   firstWinClaimed: boolean;
@@ -133,6 +144,7 @@ export function applySettlement(
   }
 
   let questProgress: { from: number; to: number } | null = null;
+  let classUnlocked: string | null = null;
   const troopRewards: { troopId: number; note: string }[] = [];
   if (victory && ctx.plan.source.kind === 'quest') {
     const node = ctx.plan.source.node;
@@ -156,14 +168,44 @@ export function applySettlement(
           troopRewards.push({ troopId: rewardId, note: `${ctx.plan.kingdom} 任务 ${node}/8 首通` });
         }
       }
+      if (node === QUESTS_PER_KINGDOM) {
+        // 全链通关 → 解锁该王国绑定职业（M5）
+        const cls = classByKingdom(ctx.plan.kingdom);
+        if (cls && !save.hero.unlockedClasses.includes(cls.id)) {
+          save.hero.unlockedClasses.push(cls.id);
+          classUnlocked = cls.id;
+        }
+      }
     }
   }
 
-  save.hero.xp += xpGained; // M5 前只累积不升级（曲线未定）
+  // 主角与职业成长（M5）：胜利有额外经验加成，多级一次连升；
+  // 职业经验只在「主角编入队伍」的胜场里积累
+  if (victory) xpGained += HERO_XP_PER_WIN;
+  const heroXpResult = addHeroXp(save, xpGained);
+  let classLevelUp: { classId: string; newLevel: number } | null = null;
+  if (victory && save.hero.classId) {
+    const team = activeTeam(save);
+    if (team?.members.some((m) => m.kind === 'hero')) {
+      const r = addClassXp(save, save.hero.classId, CLASS_XP_PER_WIN);
+      if (r && r.levelsGained > 0) classLevelUp = { classId: save.hero.classId, newLevel: r.newLevel };
+    }
+  }
+
   if (victory) save.stats.battlesWon += 1;
   else save.stats.battlesLost += 1;
   save.stats.goldEarned += goldEarned;
   save.stats.soulsEarned += soulsEarned;
 
-  return { victory, lines, xpGained, questProgress, troopRewards, firstWinClaimed };
+  return {
+    victory,
+    lines,
+    xpGained,
+    heroLevelsGained: heroXpResult.levelsGained,
+    classLevelUp,
+    classUnlocked,
+    questProgress,
+    troopRewards,
+    firstWinClaimed,
+  };
 }
