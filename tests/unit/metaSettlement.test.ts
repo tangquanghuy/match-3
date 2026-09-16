@@ -7,6 +7,7 @@ import {
   killGoldReward,
   killSoulReward,
   newSave,
+  planExploreEncounter,
   planQuestEncounter,
   WIN_BONUS_XP,
   xpForEnemy,
@@ -171,9 +172,43 @@ describe('结算入账（胜利 · 任务）', () => {
   });
 });
 
-describe('结算入账（战败）', () => {
-  it('战败只拿保底：不推进任务、不领首胜、stats 记败场', () => {
+describe('结算入账（探索首胜双倍）', () => {
+  it('当日首场探索胜利：击杀奖励双倍并标注；首胜宝石照领', () => {
     const save = newSave({ now: 0, starterTroopIds: [6000, 6097, 6457] });
+    const plan = planExploreEncounter(KINGDOM, 1, 21);
+    const detail = applySettlement(save, mkResult('player', allDefeated(plan)), {
+      plan,
+      enemyByExternalId: mapOf(plan),
+      todayStart: DAY1,
+    });
+    const kills = expectedKills(plan);
+    const line = detail.lines.find((l) => l.key === 'kills')!;
+    expect(line.deltas.souls).toBe(kills.souls * 2);
+    expect(line.deltas.gold).toBe(kills.gold * 2);
+    expect(line.note).toBe('每日首胜双倍');
+    expect(detail.firstWinClaimed).toBe(true);
+    expect(save.currencies.gems).toBe(200);
+  });
+
+  it('当日已领过首胜：探索击杀不双倍', () => {
+    const save = newSave({ now: 0, starterTroopIds: [6000, 6097, 6457] });
+    save.dailyFirstWinAt = DAY1;
+    const plan = planExploreEncounter(KINGDOM, 1, 21);
+    const detail = applySettlement(save, mkResult('player', allDefeated(plan)), {
+      plan,
+      enemyByExternalId: mapOf(plan),
+      todayStart: DAY1,
+    });
+    const kills = expectedKills(plan);
+    const line = detail.lines.find((l) => l.key === 'kills')!;
+    expect(line.deltas.souls).toBe(kills.souls);
+    expect(line.note).toBeUndefined();
+    expect(detail.firstWinClaimed).toBe(false);
+  });
+});
+
+describe('结算入账（战败）', () => {
+  it('战败只拿保底：不推进任务、不领首胜、stats 记败场', () => {    const save = newSave({ now: 0, starterTroopIds: [6000, 6097, 6457] });
     const plan = planQuestEncounter(KINGDOM, 1, 5);
     const detail = applySettlement(save, mkResult('enemy'), {
       plan,

@@ -29,16 +29,18 @@
 | M0 存档与账本 | MetaSave v1、迁移链、双槽防损、导入导出、货币账本（原子扣费） | 往返一致；主槽损坏回退备份；双槽皆损重建新档；账本原子性 | ✅ 已落（2026-09-17） |
 | M1 养成与编队（逻辑部分） | 灵魂升级、升阶 5/10/25、特质解锁（裁定②）、分解保护、入册 grantTroop、编队 3~4 校验 | 官方口径对表（上限 15..20、升阶不耗本体、特质顺序前置）；非法队伍存档不动 | ✅ 已落（2026-09-17） |
 | M2 战斗闭环（逻辑部分） | 王国元数据（kingdoms.ts）、encounter 出敌（任务 8 关/探索 5 档）、battleBridge（存档→BattleRequest+注册表兜底）、settlement（击杀/胜利/首胜/任务推进/战败保底入账） | 请求过会话校验；headless 真实对局整环跑通；结算逐行可解释（明细行供结算屏）；同 seed 可复现 | ✅ 已落（2026-09-17） |
-| M3 地图与王国（逻辑部分） | 世界地图节点状态、进贡离线结算、探索入口、任务链收口 | 进贡按小时概率+离线结算正确；锁定王国门槛=主角等级 | ⬜ 未开工 |
-| M4 抽卡（逻辑部分） | gacha 权重+种子化+十连保底 Epic+、金钥匙宝箱、概率对账脚本 | 抽卡频率统计与权重表一致（对账脚本） | ⬜ 未开工 |
+| M3 地图与王国（逻辑部分） | 进贡离线结算、探索解锁/档位、地图节点状态、42 王国元数据、任务链（M2 已落） | 进贡按小时概率+离线结算正确（确定性可复算）；节点状态含解锁门槛/任务/气泡/探索 | ✅ 已落（2026-09-17）。王国黄金升级与 10 级加成**提前至此**（进贡依赖等级，拆开不成环）；加成已接线战斗快照 |
+| M4 抽卡（逻辑部分） | gacha 权重+种子化+十连保底 Epic+、金钥匙宝箱、gachaLog 对账 | 权重表万分比单源；3000 次固定种子审计频率与权重一致；40 种子保底无一漏发；重复卡进 copies | ✅ 已落（2026-09-17） |
 | M5 主角系统（逻辑部分） | 等级曲线落地（目前 xp 只累积不升级）、8 职业、20 武器（SkillPrototype）、天赋、hero 入编队桥接 | 武器技能过校验可施放；主角可编入队伍出战 | ⬜ 未开工（M2 桥接遇主角成员返回 HERO_UNAVAILABLE 占位） |
-| M6 王国经营与旗帜 | 王国黄金升级、10 级全局 +1、旗帜法力加成（**动 ManaDistributor，先登记台账**） | 加成在战斗四维/法力可见并有单测 | ⬜ 未开工 |
+| M6 王国经营与旗帜 | 旗帜法力加成（**动 ManaDistributor，先登记台账**）、金钥匙经济收口（金宝箱已于 M4 落地，余产出阀门=竞技场 M7） | 旗帜加成有单测；引擎内可见 | ⬜ 未开工（王国升级/10 级加成已提前至 M3 完成） |
 | M7 竞技场 draft | 报名/三轮 3 选 1/限定编队/3 连战/按胜场发奖；draft 卡不进收藏 | 全流程 headless 可玩；中途退出可恢复 activeDraft | ⬜ 未开工 |
 | M8 打磨 | 数值平衡、结屏明细对齐视觉稿、截图审查 | 与视觉窗口联合验收 | ⬜ 持续 |
 
 ## 4. 工作记录（新记录追加在顶部）
 
 | 日期 | 提交 | 内容 | 验证 |
+|---|---|---|---|
+| 2026-09-17 | （本次） | **M3 王国经营 + M4 抽卡（逻辑部分，含 GoW 官方调研）**。M3：①`systems/tribute.ts`——进贡按小时掷概率、离线累积 12 小时封顶、收取幂等（种子=王国名+绝对小时序号的 fnv1a32，任何时刻收取结果一致、可独立复算）；②`systems/kingdomOps.ts`——王国黄金升级（成本表 9 档、末级 4 万对齐计划口径）、探索解锁（8/8 通关）与档位设置、10 级绑定属性加成聚合 `kingdomBonusOf`、地图节点状态 `kingdomNodeState`（解锁门槛=主角等级、任务进度、进贡气泡、探索标记）；③`settlement.ts` 增探索每日首胜双倍（击杀行翻倍+note 标注）；④`battleBridge.troopToSnapshot` 接王国 10 级加成（玩家侧 +1，敌人不吃）。**里程碑口径调整：王国升级与 10 级加成从 M6 提前到 M3**（进贡概率依赖等级，不拆不成环），M6 余旗帜加成与金钥匙经济收口。M4：⑤`systems/gacha.ts`——宝石宝箱单抽 150/十连 1500（裁定③价格不动，官方十连仅 5% 折扣无保底，本作保底 Epic+ 为既定裁定）、保底在最后一抽结算（先判定再入册，无撤回账目问题）、金钥匙宝箱池偏低稀有度、重复卡进 copies（与官方「重复卡进升阶」语义一致）、`gachaLog` 存最近 50 次供审计（schema 加性字段）；⑥权重表万分比单源 `economy.ts`：宝石箱 [5200,2400,1700,500,180,20]（顶两档 2.0% 对齐计划 §4.2、顶档 0.2% 对齐社区实测 1/1000 量级）、金箱 [5600,3000,1200,200,0,0]（官方金箱只出 Common/Rare，本作放宽到 UR）。**GoW 官方调研结论见 §7** | 新增测试 3 文件 + 2 文件补例，+25 用例：进贡确定性复算/幂等/封顶、升级原子性/满级、探索解锁链、节点状态、10 级加成进快照；gacha 40 种子保底全中、3000 次固定种子频率审计±25%（小样本档宽区间）、重复语义、日志容量；全量 79 文件/864 用例绿，lint 零错，build 通过 |
 |---|---|---|---|
 | 2026-09-17 | （本次） | **M2 战斗闭环逻辑**：①`data/kingdoms.ts`——42 王国元数据首版（按王国最小 troops.json id 定序、基数=1+序号×2 封顶 50、任务 8 关队伍规模/等级表、任务 4/8 关王国部队奖励选取）；②`data/economy.ts` 增结算数值（击杀灵魂/黄金按稀有度×等级、胜利奖励、战败保底、每日首胜宝石、经验公式）；③`state/schema.ts` 加性字段 `dailyFirstWinAt`（version 仍为 1）+ hydrate 兼容；④`systems/encounter.ts`——任务/探索出敌计划（种子化、按稀有度带分层、重复去除、任务节点解锁校验）；⑤`systems/battleBridge.ts`——`troopToSnapshot`（只带已解锁特质）、`buildMetaRegistry`（全量技能库+未收录法术 fallbackPrototype 兜底，需求 11.4）、`buildBattleRequest`（过 `validateBattleRequest`，敌人带 tier，主角成员占位报 HERO_UNAVAILABLE）；⑥`systems/settlement.ts`——`applySettlement` 按行入账（击杀/胜利/战斗内收集 economy/每日首胜/任务推进+王国部队奖励/战败保底），更新 stats 与 xp。**实施中定案的三个口径**：(a) 快照特质过滤到 `TRAIT_LIBRARY`（引擎实现 361/785 code，未实现 code 引擎虽安全忽略但严格校验会拒，桥接统一过滤不放行假特质）；(b) `TurnEngine.skullChance` 默认 0（重填骷髅率由宿主设，App 实战自配），集成测试设 0.18；(c) 测试 AI 驱动用「骷髅优先」交换策略——引擎自带 chooseEnemySwap 偏好 4/5 连，会把「庞然」类成长特质喂成不收敛镜像局 | 新增测试 5 文件（metaKingdoms/metaEncounter/metaBattleBridge/metaSettlement/metaBattleLoop）+29 用例——含 **headless 真实对局整环集成**（starter 队练到 10 级→出敌→桥接→TurnEngine 驱动→BattleResult→结算入账）与**同 seed 复现断言**；门槛：lint 零错、全量 77 文件/839 用例绿、build 通过 |
 | 2026-09-17 | `5d6d4a5` | **M0+M1 逻辑核心**：`src/meta/` 立层——MetaSave v1 schema+迁移链+双槽防损 SaveStore（StorageLike 抽象）、货币账本（多币种原子扣费）、部队养成（升级/升阶/特质②/分解/入册）、编队 3~4 校验（主角可选、汇总 issues）；数值单源 economy.ts；PARALLEL-WORK.md 登记窗口 J | tests/unit/meta* 5 文件 +43 用例；全量 72 文件/810 用例绿、lint 零错、build 通过 |
@@ -58,4 +60,18 @@
 
 1. 结算屏「战斗终局画面截帧做背景」需视觉/桥接配合，M8 对齐 ASSETS-NEEDED §4.8。
 2. `BattleRequest.banner` 字段（旗帜）未进契约；M6 动 `contract.ts` 前先在台账登记。
-3. 十连保底 Epic+ 的「Epic 及以上权重再分配」细则在 M4 写 gacha 时与用户对一次数值。
+3. ~~十连保底 Epic+ 的「Epic 及以上权重再分配」细则~~ 已定案（2026-09-17）：保底在最后一抽结算——前 9 抽无 Epic+ 时，第 10 抽直接从 Epic 档取人（Legendary 不因保底贬值）。
+
+## 7. GoW 官方调研结论（2026-09-17，抽卡/进贡口径依据）
+
+**宝箱（官方文档 Infinity Plus 2 Support：Chests, Keys and Chest Rarity）**
+- 官方**不公布**具体掉率（原文明示 unable to disclose），且「不保证特定部队必得」；社区实测：宝石箱神话 ≈0.1%（1/1000 量级）、传说约 1/50；官方口径：宝石箱的传说/神话权重为荣耀箱的 **4×/10×**（相对倍率）。
+- 现行 GoW 定价：Gem 箱 10 宝石/张（UR+池）、Gold 箱 300 金或金钥匙（只出 Common/Rare）、Glory 箱 20 荣耀；十连 **5% 折扣、50 连 10% 折扣；无任何保底机制**。
+- 本作裁定（ASSETS-NEEDED §1.3）优先于现行官方定价：150/1500、十连保底 Epic+；官方「无保底、只折扣」作为差异记录在案。权重表为设计值单源（economy.ts），要跟官方节奏调只改那里。
+- 重复卡：官方语义=进升阶材料（与本项目 copies 语义一致，直接对齐）。
+
+**进贡（Gems of War Fandom · Kingdoms + 社区攻略）**
+- 官方：每王国等级 **+1%** 命中概率、上限 **10%**，每小时判定；王国 power level 另有金/天与概率倍数加成。
+- 本作裁定（计划 §4.5）：min(等级×5%, 75%)、离线累积 12 小时封顶——单机节奏口径，两者差异已记入 `TRIBUTE` 常量注释，切换只改常量。
+
+**来源**：[官方 · Chests, Keys and Chest Rarity](https://infinityplus2.freshdesk.com/support/solutions/articles/150000208282-chests-keys-and-chest-rarity) · [Fandom · Kingdoms](https://gems-of-war.fandom.com/wiki/Kingdoms) · [官方 · Kingdoms Overview](https://infinityplus2.freshdesk.com/support/solutions/articles/150000208254-kingdoms-overview) · [论坛 · Mythic Drop Rates](https://community.gemsofwar.com/t/mythic-drop-rates/42699) · [Reddit · Gem chests and VIP](https://www.reddit.com/r/GemsofWar/comments/95xlll/so_gem_chests_and_what_about_vip/) · [TruTrophies · Kingdoms Guide](https://www.truetrophies.com/game/Gems-of-War/walkthrough/6)

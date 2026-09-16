@@ -24,6 +24,8 @@ import { registerSkillLibrary } from '../../engine/skills/library';
 import { fail, type MetaFailure } from '../types';
 import { activeTeam } from './teamRules';
 import { getRecord } from './troopProgress';
+import { kingdomBonusOf } from './kingdomOps';
+import type { KingdomStatBonus } from './kingdomOps';
 import type { EncounterEnemy, EncounterPlan } from './encounter';
 
 /**
@@ -38,13 +40,20 @@ function knownTraits(troop: TroopData, enabled: (index: number) => boolean): str
   return troop.traits.filter((t, i) => enabled(i) && KNOWN_TRAIT_IDS.has(t.code)).map((t) => t.code);
 }
 
-/** 玩家部队 → 战斗快照（养成等级决定四维；特质只带已解锁槽） */
+/** 玩家部队 → 战斗快照（养成等级决定四维；特质只带已解锁槽；statBonus = 王国 10 级加成） */
 export function troopToSnapshot(
   troop: TroopData,
   rec: TroopRecord,
   externalId: string,
+  statBonus?: KingdomStatBonus,
 ): CombatantSnapshot {
   const stats = troopStatsAtLevel(troop, rec.level);
+  if (statBonus) {
+    stats.health += statBonus.health;
+    stats.armor += statBonus.armor;
+    stats.attack += statBonus.attack;
+    stats.magic += statBonus.magic;
+  }
   return {
     externalId,
     templateId: String(troop.id),
@@ -111,6 +120,7 @@ export function buildBattleRequest(save: MetaSave, plan: EncounterPlan): BridgeO
   }
 
   const playerTeam: CombatantSnapshot[] = [];
+  const statBonus = kingdomBonusOf(save);
   for (const [position, member] of team.members.entries()) {
     if (member.kind !== 'troop') continue;
     const troop = getTroopById(member.troopId);
@@ -118,7 +128,7 @@ export function buildBattleRequest(save: MetaSave, plan: EncounterPlan): BridgeO
     if (!troop || !rec) {
       return fail('NOT_OWNED', `队伍第 ${position + 1} 号位的部队不在收藏中`);
     }
-    playerTeam.push(troopToSnapshot(troop, rec, `p${position}-${troop.id}`));
+    playerTeam.push(troopToSnapshot(troop, rec, `p${position}-${troop.id}`, statBonus));
   }
 
   const enemyByExternalId = new Map<string, EncounterEnemy>();

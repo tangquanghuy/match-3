@@ -100,6 +100,18 @@ export interface MetaSettings {
   battleDebug: boolean;
 }
 
+/** 一次开箱记录（计划 §4.7：存最近 N 次供对账审计；上限由 gacha 系统维护） */
+export interface GachaLogEntry {
+  /** 开箱时刻 epoch ms（调用方传入） */
+  at: number;
+  kind: 'gem' | 'gold';
+  seed: number;
+  troops: number[];
+}
+
+/** 抽卡日志容量：超出即丢最旧的 */
+export const GACHA_LOG_CAP = 50;
+
 // ---------------------------------------------------------------------------
 // 存档根对象
 // ---------------------------------------------------------------------------
@@ -120,6 +132,8 @@ export interface MetaSave {
   stats: MetaStats;
   /** 最近一次领取每日首胜的「当日零点」epoch ms；0 = 从未领取。加性字段，version 仍为 1 */
   dailyFirstWinAt: number;
+  /** 最近开箱记录（新的在前，最多 GACHA_LOG_CAP 条）。加性字段，version 仍为 1 */
+  gachaLog: GachaLogEntry[];
   settings: MetaSettings;
 }
 
@@ -171,6 +185,7 @@ export function newSave(options: NewSaveOptions = {}): MetaSave {
     kingdoms: {},
     stats: { battlesWon: 0, battlesLost: 0, soulsEarned: 0, goldEarned: 0 },
     dailyFirstWinAt: 0,
+    gachaLog: [],
     settings: { language: 'zh', battleDebug: false },
   };
   const starters = options.starterTroopIds ?? [];

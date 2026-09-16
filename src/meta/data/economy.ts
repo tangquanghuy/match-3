@@ -159,3 +159,89 @@ export function xpForEnemy(rarityIdx: number, level: number): number {
 
 /** 胜利额外经验（设计值） */
 export const WIN_BONUS_XP = 40;
+
+// ---------------------------------------------------------------------------
+// 王国经营（M3 设计值）
+// ---------------------------------------------------------------------------
+
+/**
+ * 进贡（计划 §4.5 裁定口径）：每王国每小时掷 min(等级×5%, 75%)，命中产黄金+灵魂、
+ * 概率金钥匙；离线累积上限 12 小时。
+ * GoW 官方对照（gems-of-war.fandom/wiki Kingdoms）：每等级 +1%、上限 10%、无离线上限
+ * ——官方节奏为长线网游设计，单机版按本表执行；要切换口径只改这里的常量。
+ */
+export const TRIBUTE = {
+  /** 每王国等级的每小时命中概率 */
+  chancePerLevel: 0.05,
+  /** 概率封顶 */
+  maxChance: 0.75,
+  /** 离线累积上限（小时） */
+  capHours: 12,
+  /** 命中一次的黄金：60 + 40×等级（设计值） */
+  goldBase: 60,
+  goldPerLevel: 40,
+  /** 命中一次的灵魂：15 + 10×等级（设计值） */
+  soulsBase: 15,
+  soulsPerLevel: 10,
+  /** 每次命中的金钥匙概率 */
+  goldKeyChance: 0.08,
+} as const;
+
+/** 每小时命中一次进贡的黄金 */
+export function tributeGold(level: number): number {
+  return TRIBUTE.goldBase + TRIBUTE.goldPerLevel * Math.max(level, 1);
+}
+
+/** 每小时命中一次进贡的灵魂 */
+export function tributeSouls(level: number): number {
+  return TRIBUTE.soulsBase + TRIBUTE.soulsPerLevel * Math.max(level, 1);
+}
+
+/** 每小时进贡命中概率 */
+export function tributeChance(level: number): number {
+  return Math.min(Math.max(level, 0) * TRIBUTE.chancePerLevel, TRIBUTE.maxChance);
+}
+
+/**
+ * 王国黄金升级成本（设计值，lv2..lv10 共 9 档）：
+ * 末级 4 万对齐计划 §1.2「末级约 4 万黄金量级」，总投入约 10.9 万（宁紧勿松）。
+ */
+export const KINGDOM_UPGRADE_COSTS = [
+  1000, 2000, 3500, 5000, 7500, 10000, 15000, 25000, 40000,
+] as const;
+
+/** 王国从当前等级升到下一级的黄金成本（已满级抛 RangeError） */
+export function kingdomUpgradeCost(currentLevel: number): number {
+  if (currentLevel < 1 || currentLevel >= 10) {
+    throw new RangeError(`王国等级越界: ${currentLevel}`);
+  }
+  return KINGDOM_UPGRADE_COSTS[currentLevel - 1];
+}
+
+// ---------------------------------------------------------------------------
+// 抽卡（M4）——官方调研结论见 TASK-META.md §7，权重为设计值单源
+// ---------------------------------------------------------------------------
+
+/** 宝石宝箱：单抽 150 / 十连 1500（裁定③，价格不随官方变动）；十连保底 Epic+ */
+export const GEM_CHEST = {
+  singleCost: 150,
+  multiCount: 10,
+  multiCost: 1500,
+} as const;
+
+/** 金宝箱：1 把金钥匙一开（金钥匙来自进贡/任务/成就/竞技场） */
+export const GOLD_CHEST = { keyCost: 1 } as const;
+
+/**
+ * 稀有度权重表（万分比，idx 0..5 = Common..Legendary）。
+ * 依据：计划 §4.2「顶两档 2.0%」+ 社区实测顶档 ~1/1000 量级
+ * （GoW 官方不公布概率；gem chest 顶档实测 ≈0.1%，见 TASK-META.md §7 来源）。
+ * 本数据无 Mythic，顶档即 Legendary。
+ */
+export const GEM_CHEST_WEIGHTS = [5200, 2400, 1700, 500, 180, 20] as const;
+
+/** 金宝箱权重（万分比）：官方口径金宝箱只出 Common/Rare，本作放宽到 UR（裁定池偏低稀有度） */
+export const GOLD_CHEST_WEIGHTS = [5600, 3000, 1200, 200, 0, 0] as const;
+
+/** 十连保底档：稀有度 idx ≥ 4（Epic/Legendary）至少一张 */
+export const GACHA_PITY_MIN_IDX = 4;

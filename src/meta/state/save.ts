@@ -6,7 +6,8 @@
  *  - 版本迁移链：schema 不兼容变化时在 MIGRATIONS 追加 `v→v+1` 步骤；
  *  - 节级降级重建：单节损坏只丢该节、其余保留（hydrateSave），彻底损坏才回退新档。
  */
-import { META_SAVE_VERSION, newSave, type KingdomState, type MetaSave, type TeamMember, type TeamPreset, type TroopRecord } from './schema';
+import { META_SAVE_VERSION, newSave, type GachaLogEntry, type KingdomState, type MetaSave, type TeamMember, type TeamPreset, type TroopRecord } from './schema';
+import { GACHA_LOG_CAP } from './schema';
 import { starterTroopIds } from '../data/economy';
 
 export interface StorageLike {
@@ -163,6 +164,22 @@ export function hydrateSave(raw: Record<string, unknown>): MetaSave {
     stats.goldEarned = num(raw.stats.goldEarned, 0, 0);
   }
 
+  const gachaLog: GachaLogEntry[] = [];
+  if (Array.isArray(raw.gachaLog)) {
+    for (const entry of raw.gachaLog) {
+      if (!isObject(entry) || typeof entry.seed !== 'number') continue;
+      if (entry.kind !== 'gem' && entry.kind !== 'gold') continue;
+      if (!Array.isArray(entry.troops)) continue;
+      gachaLog.push({
+        at: num(entry.at, 0, 0),
+        kind: entry.kind,
+        seed: entry.seed,
+        troops: entry.troops.filter((t): t is number => typeof t === 'number'),
+      });
+      if (gachaLog.length >= GACHA_LOG_CAP) break;
+    }
+  }
+
   return {
     version: META_SAVE_VERSION,
     createdAt: num(raw.createdAt, now, 0),
@@ -176,6 +193,7 @@ export function hydrateSave(raw: Record<string, unknown>): MetaSave {
     kingdoms,
     stats,
     dailyFirstWinAt: num(raw.dailyFirstWinAt, 0, 0),
+    gachaLog,
     settings: { ...base.settings },
   };
 }

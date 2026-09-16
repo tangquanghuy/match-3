@@ -87,3 +87,24 @@ export function kingdomQuestRewardTroop(kingdom: string, node: 4 | 8): number | 
   const pick = node === 4 ? source[0] : (source[1] ?? source[0]);
   return pick.id;
 }
+
+// ---------------------------------------------------------------------------
+// 王国加成 / 解锁门槛（M3）
+// ---------------------------------------------------------------------------
+
+/** 王国 10 级绑定属性（计划 §4.5「每王国固定一项」）：按推进序轮转分配（设计值） */
+const BONUS_STATS = ['health', 'armor', 'attack', 'magic'] as const;
+
+/** 某王国 10 级时给全体部队 +1 的属性项 */
+export function kingdomBonusStat(kingdom: string): (typeof BONUS_STATS)[number] {
+  const idx = KINGDOM_ORDER.indexOf(kingdom);
+  return BONUS_STATS[Math.max(idx, 0) % BONUS_STATS.length];
+}
+
+/**
+ * 王国解锁所需主角等级（设计值）：直接复用敌人基数等级表——越靠后的王国
+ * 敌人越硬、解锁门槛越高，两张表天然一致，免维护第二份。
+ */
+export function kingdomUnlockLevel(kingdom: string): number {
+  return kingdomBaseLevel(kingdom);
+}

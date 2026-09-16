@@ -86,6 +86,8 @@ export function applySettlement(
     soulsEarned += applied.souls ?? 0;
   };
 
+  const firstWinClaimable = save.dailyFirstWinAt < ctx.todayStart;
+
   if (victory) {
     let souls = 0;
     let gold = 0;
@@ -100,7 +102,15 @@ export function applySettlement(
       xpGained += xpForEnemy(troop.rarityIdx, enemy.level);
       kills += 1;
     }
-    earnLine('kills', `击杀 ×${kills}`, { souls, gold });
+    // 探索模式的每日首胜：当日首场探索胜利的击杀奖励双倍（计划 §4.5）
+    const exploreFirstWin = ctx.plan.source.kind === 'explore' && firstWinClaimable;
+    const mult = exploreFirstWin ? 2 : 1;
+    earnLine(
+      'kills',
+      `击杀 ×${kills}`,
+      { souls: souls * mult, gold: gold * mult },
+      exploreFirstWin && kills > 0 ? '每日首胜双倍' : undefined,
+    );
     earnLine('victory', '胜利奖励', { ...VICTORY_BONUS });
     xpGained += WIN_BONUS_XP;
   } else {
@@ -116,7 +126,7 @@ export function applySettlement(
   }
 
   let firstWinClaimed = false;
-  if (victory && save.dailyFirstWinAt < ctx.todayStart) {
+  if (victory && firstWinClaimable) {
     save.dailyFirstWinAt = ctx.todayStart;
     earnLine('first-win', '每日首胜', { gems: DAILY_FIRST_WIN_GEMS });
     firstWinClaimed = true;
