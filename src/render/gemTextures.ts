@@ -110,10 +110,10 @@ let skullTex: Texture | null = null;
 let loaded = false;
 let loadPromise: Promise<void> | null = null;
 
-/** 特殊宝石的贴图缓存键（通配和赃物链带 tier） */
+/** 特殊宝石的贴图缓存键（通配和赃物链带 tier；赃物用户裁定默认金币档） */
 function specialKey(kind: SpecialGemKind, tier?: number): string {
   if (kind === 'wildcard') return `wildcard:${tier ?? 2}`;
-  if (kind === 'bootyGem') return `bootyGem:${tier ?? 4}`;
+  if (kind === 'bootyGem') return `bootyGem:${tier ?? 3}`;
   return kind;
 }
 
