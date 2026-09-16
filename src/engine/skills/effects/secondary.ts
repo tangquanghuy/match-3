@@ -112,6 +112,8 @@ export type Condition =
    * name 用 troops.json 的 name 字段（不是 referenceName）；side 缺省 = 己方。
    */
   | { kind: 'troopPresent'; side?: 'ally' | 'enemy'; name: string }
+  /** 施法者自身带有该状态（「若自身身处狂怒状态」，全局条件） */
+  | { kind: 'selfStatus'; statusId: string }
   /** 析取（「若敌人是兽人或恶魔」）：任一子条件成立即成立 */
   | { kind: 'anyOf'; of: Condition[] }
   /** 合取：全部子条件成立才成立 */
@@ -187,6 +189,10 @@ export function conditionMet(
         return true;
       }
       return false;
+    }
+    case 'selfStatus': {
+      const caster = findCharacter(ctx.state, ctx.casterId);
+      return !!caster && caster.statuses.some((st) => st.id === cond.statusId && st.turns > 0);
     }
     case 'troopPresent': {
       const mySide = findSide(ctx.state, ctx.casterId);

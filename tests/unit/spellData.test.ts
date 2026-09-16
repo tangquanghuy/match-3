@@ -40,6 +40,8 @@ const RACES = knownTroopTypes();
 const STATUS_WHITELIST = new Set([
   'poison', 'burning', 'bleed', 'silence', 'frozen', 'stun', 'entangle', 'web', 'barrier', 'submerged',
   'rage', 'disease', 'curse', 'death-mark', 'charm', 'marked',
+  // 波A 状态本体（2026-09-16 落地），回收批随用随扩：
+  'terror', 'faerie-fire',
 ]);
 
 const { byId: curatedById, skipped } = collectCurated();

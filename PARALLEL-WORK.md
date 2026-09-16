@@ -153,4 +153,5 @@ git worktree add ../match-3-gems -b special-gems
 
 | 日期 | 窗口 | 文件 | 动机与形态 | 状态 |
 |---|---|---|---|---|
+| 09-17 | G（回收批·R4） | `effects/secondary.ts`（selfStatus 条件叶子）+ `curated/batch-r4.ts`(新，59 条)+旧 skipped 剪除（24 文件） | **三大族二次过筛**：几率/状态/经典宝石族按现有词汇全量回收。新裁定：selfStatus 条件叶子；并列数值段共用单一 scaling；裸单颗宝石操作=随机；「N%几率自毁」=sacrifice allySelf；「等同自身魔法值的几率」=chanceBoost selfStat magic；50/50 二选一伤害=oneOf 双支。状态白名单扩 terror/faerie-fire | ✅ 已落 |
 | 09-17 | J | `src/meta/**`（新增）、`tests/unit/meta*`（新增） | M0/M1 逻辑核心无前端落地：MetaSave v1 schema + 迁移链 + 双槽防损存档（StorageLike 抽象，浏览器 localStorage/测试内存通用）、货币账本（原子扣费）、部队养成（灵魂升级/升阶 5-10-25 不耗本体/特质裁定②/分解保护）、编队 3~4 校验（主角可选、汇总 issues 供 UI 可视化）。数值单源 `src/meta/data/economy.ts`。零 DOM、零引擎反向依赖 | ✅ 已落 |

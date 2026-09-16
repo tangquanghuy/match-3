@@ -19,20 +19,15 @@ import type { CuratedBatch } from './index';
 
 const SKIPPED: { id: number; reason: string }[] = [
   { id: 8429, reason: '「爆破…绿色或紫色宝石」是多色池随机取（并集池），不是二选一分支——oneOf 不适用（count 池仅单色，destroyRandomGems 仅单色）' },
-  { id: 8710, reason: '「燃烧宝石」不在窗口 C 已实现特殊宝石清单（等美术/裁定）' },
-  { id: 8712, reason: '「燃烧宝石的数量」来源不在窗口 C 十种内' },
   { id: 8752, reason: '「使他们」指回前段 enemyWeakestN——状态性目标跨段绑定（前段窃取改变最弱集合），语义拿不准' },
-  { id: 8760, reason: '「燃烧宝石」来源不在窗口 C 十种内（燃烧盟友/敌人计数本身可表达，整条受阻）' },
   { id: 8943, reason: '「对上下相邻的敌人」=「前后各一名」的相邻语义与「其下方」（enemyChosenAndBelow，原语批已落）不同读法，且主语混乱（「对…也获得」），语义拿不准' },
   { id: 9675, reason: '「诅咒宝石」不在窗口 C 已实现特殊宝石清单（等美术/裁定）' },
   { id: 9844, reason: '「潜入」状态语义不明（submerged 为己方下潜，此处施于敌人语义拿不准）；「已处于潜入状态」自身状态条件亦不在 condMult 域' },
-  { id: 7014, reason: '「因被摧毁的织网宝石数而增强」——destroyedGems 仅按色筛，特殊宝石无色不可计（来源不支持）' },
   { id: 7469, reason: '「给予他们 3-8 点法力值」数值型区间（非数量区间），nRange/countRange 不辖，数值不明' },
   { id: 7482, reason: '「召唤暗风暴」已由 createStorm 落地（batch-37 口径）；「将所有敌人的随机一项技能值降低」削减版随机原语仍缺，整条维持' },
   { id: 7541, reason: '「则再加 10 点伤害并获得一个额外回合」——条件化额外回合（ifCond 目标相对条件挂无目标段整段跳过）不可表达' },
   { id: 7629, reason: '「再转化成暗魄狼或蝙蝠群」兵种转化无对应原语（SOP 措辞裁定；「若现有暗风暴」已由 stormPresent 落地，仅剩此卡点）' },
   { id: 7631, reason: '「再转化成诺斯费拉图」兵种转化无对应原语' },
-  { id: 7814, reason: '「转化成一名魅妖或魅魔」兵种转化 + 二选一双重受阻' },
 ];
 
 const SPELLS: CuratedBatch['spells'] = [

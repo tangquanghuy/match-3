@@ -267,3 +267,15 @@
 - **敌方颜色动态取色**：ColorSpec 新增 `'ENEMY'`（随机存活敌人的一种法力色，多色 rng 掷选）
   与 `'LAST_TARGET'`（跨段追踪目标的一种法力色）。「创造指定敌人的法力颜色宝石」= `createGems('ENEMY', N)`；
   「将该敌人的一种法力颜色的所有宝石转化为X」= `transformToSpecial('LAST_TARGET', X)`。
+
+### §11 追加（R4 批，2026-09-17）
+
+- **selfStatus 条件**：「若自身身处狂怒状态」→ `{ kind: 'selfStatus', statusId: 'rage' }`（全局条件）。
+- **并列数值段共用 scaling**：「获得 [M+1] 点护甲值和攻击力」单方括号管两段 → 两段同值
+  （meta.scalings 仅 1 条时的固定口径）。
+- **裸单颗宝石操作**：「爆破/摧毁一颗宝石」无 随机/选定 修饰词 = 随机一颗
+  （与裸伤害句式同理，汉化省略修饰词）。
+- **「有 N% 几率自毁」** = `sacrifice('allySelf', { chance: N })`。
+- **「有等同于自身魔法值的几率摧毁敌人」** = execute 段 `chance: 0` +
+  `chanceBoost { multiplier 1, selfStat magic }`（概率 = chance + boost）。
+- **50/50 二选一伤害**：「有 50% 的几率造成三倍伤害」= `oneOf([三倍段], [一倍段])`（两支必走一支）。

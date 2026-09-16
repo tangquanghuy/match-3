@@ -46,7 +46,6 @@ const SKIPPED: { id: number; reason: string }[] = [
   { id: 7600, reason: '二次缩放来源不支持（「因敌我双方的红色军队数量而增强」——alliesOfColor 仅己方、无敌方色计数 kind）' },
   { id: 7602, reason: '语义拿不准（「窃取…一半魔法值」按当前值减半无原语，batch-11 9816 同款）；「召唤 1 到 3 名」数量区间亦无原语（batch-22 8546 同款）' },
   { id: 7651, reason: '语义拿不准（「因其他所有盟友的法力值而增强」——allyStatSum 为己方全体含自身，手册未覆盖「其他盟友」句式，batch-20 7506 同款）' },
-  { id: 7712, reason: '句子式不明（「一名敌人和其下方的敌人」位置目标无对应模式，batch-08 8365 同款）；「蓝色盟友/敌方蓝色军队」法力色限定目标亦无对应 TargetMode（batch-14 8273 同款）' },
   { id: 7797, reason: '二次缩放来源「神祗敌军数量」无对应 kind（敌方侧种族计数不支持，仅 alliesOfRace 己方，batch-13 7546/7547 同款）；「爆破 3 颗末日骷髅头」与沉默段现可表达（explodeRandomSpecialGems doomSkull / targetRace Divine）' },
   { id: 7798, reason: '二次缩放来源不支持（「因敌我双方的恶魔军队数量而增强」无敌方种族计数 kind）；「转化成一名恶魔」兵种转化亦不做（SOP 措辞裁定）' },
   { id: 7977, reason: '二次缩放来源不支持（「因被摧毁的骷髅头数而增强」——爆破段混色无法筛骷髅，batch-14 8090 同款）' },
