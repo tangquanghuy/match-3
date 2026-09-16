@@ -10,6 +10,7 @@ import type { GameEvent, ExtraTurnEvent, SummonEvent } from '../../events';
 import type { Character } from '../../types';
 import { MAX_ACTIVE_TEAM_SIZE, summonQueueOf } from '../../teamRoster';
 import type { EffectContext, EffectPrimitive } from './context';
+import { attachPassives } from '../../traits';
 import { findSide } from './context';
 
 /**
@@ -23,6 +24,62 @@ export function extraTurnEffect(): EffectPrimitive {
       ctx.grantExtraTurn?.();
       const ev: ExtraTurnEvent = { type: 'extra-turn', player: side, source: 'skill' };
       return [ev];
+    },
+  };
+}
+
+
+/** 兵种转化参数（「将一名随机敌人转化为怨灵」）：ref 经 resolveRef 映射模板，目标就地替换 */
+export interface TransformTroopParams {
+  targets: Character[];
+  /** 目标兵种 referenceName（英文，同召唤引用）；与 randomOf 二选一 */
+  ref?: string;
+  /** 兵种族随机（「转化为一只随机龙族」）：候选集，rng 掷选后再映射 */
+  randomOf?: string[];
+  /** 被转化成兵种 id（可选，供表现层取立绘） */
+  troopId?: number;
+  /** referenceName → 模板映射（由装配层注入；缺省用 ctx.resolveSummonRef） */
+  resolveRef?: (referenceName: string) => SummonTemplate | null;
+}
+
+/**
+ * 兵种转化：目标角色**就地替换**为模板兵种——保留 id 与编队位（不触发阵亡/召唤钩子，
+ * 对齐官方「转化不是死亡」语义）；数值/技能/特质/法力色取模板，血量满、法力清零。
+ * 无可解析模板或目标全灭时安全跳过。
+ */
+export function transformTroopEffect(params: TransformTroopParams): EffectPrimitive {
+  return {
+    apply(ctx: EffectContext): GameEvent[] {
+      const resolve = params.resolveRef ?? ctx.resolveSummonRef;
+      if (!resolve) return [];
+      // ref / randomOf 二选一：randomOf 先种子化掷选再映射（与 summon.randomOf 同语义）
+      const refName = params.ref ?? (params.randomOf && params.randomOf.length > 0
+        ? params.randomOf[ctx.rng.nextInt(params.randomOf.length)]
+        : undefined);
+      if (!refName) return [];
+      const template = resolve(refName);
+      if (!template) return [];
+      const events: GameEvent[] = [];
+      for (const target of params.targets) {
+        if (target.defeated) continue;
+        target.name = template.name;
+        target.maxHp = template.maxHp;
+        target.hp = template.hp;
+        target.attack = template.attack;
+        target.armor = template.armor;
+        target.magic = template.magic;
+        target.colors = [...template.colors];
+        target.manaCost = template.manaCost;
+        target.mana = 0;
+        target.skillId = template.skillId;
+        target.traitIds = [...(template.traitIds ?? [])];
+        target.troopTypes = [...(template.troopTypes ?? [])];
+        attachPassives(target);
+        const ev: GameEvent = { type: 'troop-transform', targetId: target.id, name: template.name };
+        if (params.troopId !== undefined) ev.troopId = params.troopId;
+        events.push(ev);
+      }
+      return events;
     },
   };
 }

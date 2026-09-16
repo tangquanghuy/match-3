@@ -13,6 +13,8 @@ export interface BattleEconomy {
   gold: number;
   souls: number;
   gems: number;
+  /** 藏宝图（「有 20% 几率获得一张藏宝图」「每张藏宝图额外…」） */
+  maps: number;
 }
 
 /** 全局对局状态（需求） */
@@ -47,6 +49,6 @@ export function createGameState(
     chainCount: 0,
     winner: null,
     actionLog: [],
-    economy: { gold: 0, souls: 0, gems: 0 },
+    economy: { gold: 0, souls: 0, gems: 0, maps: 0 },
   };
 }

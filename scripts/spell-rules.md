@@ -243,3 +243,18 @@
    晋升度缩放族（bountyhunter/godslayer 等）仍 blocked，待晋升批。
 5. **「藏宝图」仍 blocked**：战斗外收集物，本作无对应系统（9002/7420/7466/7279/8555 维持
    blocked，理由已按本节口径改写）。
+
+## 11. 回收原语五件套（2026-09-17 用户裁定：献祭/兵种转化/随机状态/藏宝图/特定兵种在场）
+
+1. **献祭**：「献祭一名盟友」= 随机**其他**盟友（不含施法者，官方手感）→ `sacrifice('allyOthers')`。
+   即杀走 execute 管线（defeat/阵亡钩子照常，含死亡召唤）；「因献祭军队的攻击力而增强」→
+   modifier 来源 `sacrificedStat{stat}`（跨段追踪被献祭者属性快照）。
+2. **兵种转化**：「将一名(随机)敌人转化为怨灵」→ `transformTroop(target, 'Banshee')`（ref=referenceName）。
+   目标**就地替换**（保留 id/编队位），数值/技能/特质取模板，血量满、法力清零；不触发阵亡/召唤钩子
+   （官方「转化不是死亡」）。发 `troop-transform` 事件（表现层刷新卡面）。
+3. **随机状态**：「造成随机状态效果」→ `inflictRandom(target)`，每目标独立掷签负面池
+   （poison/burning/bleed/silence/frozen/stun/entangle/web/disease/curse/death-mark/charm）。
+4. **藏宝图**：战场经济第四币种。`gainMaps(n)`（「有 20% 几率获得一张」= `gainMaps(1,0,{chance:0.2})`）；
+   来源 `battleMaps`（「每收集到一张藏宝图，额外创造 4 颗 [x4]」= createSkulls 挂 modifier）。
+5. **特定兵种在场**：「若自身队伍有梁帝」→ `ifCond: { kind: 'troopPresent', side: 'ally', name: '梁帝' }`
+   （**中文名**匹配存活者，与召唤引用的 referenceName 体系区分；side 缺省=己方，全局条件整段判定）。

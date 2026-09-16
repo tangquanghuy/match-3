@@ -197,7 +197,7 @@ export interface FleeEvent {
  */
 export interface EconomyGainEvent {
   type: 'economy-gain';
-  currency: 'gold' | 'souls' | 'gems';
+  currency: 'gold' | 'souls' | 'gems' | 'maps';
   /** 本次获得量（恒为正整数） */
   amount: number;
   /** 获得发生时的行动方（归因字段，池本身共用） */
@@ -280,6 +280,18 @@ export interface GameOverEvent {
   winner: PlayerSide;
 }
 
+
+/** 兵种转化（「将一名敌人转化为怨灵」）：目标角色就地替换为模板兵种（保留 id/编队位）。
+ *  表现层据此刷新卡面（立绘/名称/数值）；引擎侧同刻生效。 */
+export interface TroopTransformEvent {
+  type: 'troop-transform';
+  targetId: number;
+  /** 转化后的兵种名（中文名，来自模板） */
+  name: string;
+  /** 转化后兵种 id（可选，供表现层取立绘） */
+  troopId?: number;
+}
+
 /** 全部事件的可辨识联合 */
 export type GameEvent =
   | SwapEvent
@@ -303,6 +315,7 @@ export type GameEvent =
   | DefeatEvent
   | FleeEvent
   | EconomyGainEvent
+  | TroopTransformEvent
   | GravityEvent
   | RefillEvent
   | ReshuffleEvent

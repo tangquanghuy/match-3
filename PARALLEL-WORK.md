@@ -151,4 +151,5 @@ git worktree add ../match-3-gems -b special-gems
 
 | 日期 | 窗口 | 文件 | 动机与形态 | 状态 |
 |---|---|---|---|---|
+| 09-17 | G（回收批·引擎五件套） | `skills/prototypes.ts`+`builders.ts`+`effects/{context,secondary,status,summon,economy}.ts`+`engine/events.ts`+`GameState.ts`（均按台账协议登记）+ `curated/batch-r2.ts`(新)+旧批次 skipped 剪除 20 行 + `tests/unit/spellRecyclePrimitives.test.ts`(新)+`economyEngine.test.ts`（适配第四币种） | **五原语落地 + 回收波2（20 条）**：①献祭 sacrifice（=随机其他盟友，走 execute 管线，属性快照入跨段追踪供 sacrificedStat 来源）②随机状态 inflictRandom（12 负面池逐目标掷签）③兵种转化 transformTroop(+RandomOf)（就地替换保留 id/编队位，不触发阵亡钩子，新事件 troop-transform，表现层 default 容忍）④藏宝图 = 经济第四币种 maps（gainMaps + battleMaps 来源）⑤特定兵种在场 ifCond troopPresent（中文名匹配存活者）。R2 收 20 条（五族 13 + 状态宝石族 7）。仍弃清单更新见 batch-r2 头注 | ✅ 已落 |
 | 09-17 | J | `src/meta/**`（新增）、`tests/unit/meta*`（新增） | M0/M1 逻辑核心无前端落地：MetaSave v1 schema + 迁移链 + 双槽防损存档（StorageLike 抽象，浏览器 localStorage/测试内存通用）、货币账本（原子扣费）、部队养成（灵魂升级/升阶 5-10-25 不耗本体/特质裁定②/分解保护）、编队 3~4 校验（主角可选、汇总 issues 供 UI 可视化）。数值单源 `src/meta/data/economy.ts`。零 DOM、零引擎反向依赖 | ✅ 已落 |

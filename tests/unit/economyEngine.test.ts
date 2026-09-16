@@ -66,7 +66,7 @@ describe('gainEconomy 效果段（金币/灵魂/宝石）', () => {
   it('三币种各自独立计数', () => {
     const { ctx, state } = primitiveCtx();
     executePrototype({ segments: [gainGold(3), gainSouls(5), gainGems(2)] } as SkillPrototype, ctx);
-    expect(state.economy).toEqual({ gold: 3, souls: 5, gems: 2 });
+    expect(state.economy).toEqual({ gold: 3, souls: 5, gems: 2, maps: 0 }); // 2026-09-17 回收批：经济池新增第四币种藏宝图
   });
 
   it('数值经魔法缩放：gainSouls(2,1) 且 magic=6 → +8', () => {
@@ -289,7 +289,7 @@ describe('护栏：无经济内容的对局零经济事件', () => {
     const { engine, state } = makeEngineHarness({ setGems: layout });
     const events = engine.resolveAction({ type: 'swap', from: { row: 7, col: 1 }, to: { row: 7, col: 2 } });
     expect(events.some((e) => e.type === 'economy-gain' || e.type === 'flee')).toBe(false);
-    expect(state.economy).toEqual({ gold: 0, souls: 0, gems: 0 });
+    expect(state.economy).toEqual({ gold: 0, souls: 0, gems: 0, maps: 0 });
     const { engine: engine2, state: state2 } = makeEngineHarness({ seed: 11, setGems: layout });
     const events2 = engine2.resolveAction({ type: 'swap', from: { row: 7, col: 1 }, to: { row: 7, col: 2 } });
     expect(JSON.stringify(events2)).toBe(JSON.stringify(events));

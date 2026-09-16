@@ -36,8 +36,8 @@ import type { ReduceStat } from './effects/debuff';
 import type { ModifierSpec } from './effects/secondary';
 import { gemEffect } from './effects/gems';
 import type { GemParams } from './effects/gems';
-import { cleanseEffect, statusEffect, dispelStatusEffect } from './effects/status';
-import { summonEffect, extraTurnEffect } from './effects/summon';
+import { cleanseEffect, statusEffect, dispelStatusEffect, randomStatusEffect } from './effects/status';
+import { summonEffect, extraTurnEffect, transformTroopEffect } from './effects/summon';
 import { stormEffect } from './effects/storm';
 import { escapeEffect } from './effects/escape';
 import { economyGainEffect } from './effects/economy';
@@ -285,9 +285,33 @@ export interface EscapeChanceSegment extends SegmentOptions {
 }
 
 /** 战场经济获得段（DECISIONS 四项拍板①）：金币/灵魂/宝石三币种 */
+/** 献祭（「献祭一名盟友」）：即杀己方目标；属性快照入跨段追踪供 sacrificedStat 来源 */
+export interface SacrificeSegment extends SegmentOptions {
+  kind: 'sacrifice';
+  target: TargetMode;
+}
+
+/** 随机状态（「造成随机状态效果」）：每目标独立掷签负面池 */
+export interface RandomStatusSegment extends SegmentOptions {
+  kind: 'randomStatus';
+  target: TargetMode;
+  turns?: number;
+}
+
+/** 兵种转化（「将一名敌人转化为怨灵」）：目标就地替换为模板兵种，不触发阵亡钩子 */
+export interface TransformTroopSegment extends SegmentOptions {
+  kind: 'transformTroop';
+  target: TargetMode;
+  /** 目标兵种 referenceName（英文，同召唤引用）；与 randomOf 二选一 */
+  ref?: string;
+  /** 兵种族随机（「转化为一只随机龙族」）：候选 referenceName 集合，rng 掷选 */
+  randomOf?: string[];
+  troopId?: number;
+}
+
 export interface GainEconomySegment extends SegmentOptions {
   kind: 'gainEconomy';
-  currency: 'gold' | 'souls' | 'gems';
+  currency: 'gold' | 'souls' | 'gems' | 'maps';
   scaling: ScalingSpec;
   /** 二次缩放（「数量因本战斗收集的灵魂数而增强」） */
   modifier?: ModifierSpec;
@@ -314,7 +338,10 @@ export type EffectSegment =
   | SummonSegment
   | ExtraTurnSegment
   | EscapeChanceSegment
-  | GainEconomySegment;
+  | GainEconomySegment
+  | SacrificeSegment
+  | RandomStatusSegment
+  | TransformTroopSegment;
 
 /** 技能原型：有序效果段数组 */
 export interface SkillPrototype {
@@ -478,6 +505,33 @@ function compileSegment(segment: EffectSegment, ctx: EffectContext): EffectPrimi
         currency: segment.currency,
         scaling: segment.scaling,
         modifier: segment.modifier,
+      });
+    case 'sacrifice': {
+      // 献祭 = 即杀己方目标（走 execute 管线：defeat/阵亡钩子照常），
+      // 属性快照入跨段追踪供 sacrificedStat 来源（「因献祭军队的攻击力而增强」）
+      const targets = resolveTargetsTracked(segment, ctx);
+      const first = targets.find((t) => !t.defeated);
+      if (first && ctx.castTracking) {
+        ctx.castTracking.sacrificed = { attack: first.attack, armor: first.armor, magic: first.magic, hp: first.hp };
+      }
+      return damageEffect({
+        targets,
+        scaling: { base: 0, mult: 0 },
+        trueDamage: true,
+        execute: true,
+      });
+    }
+    case 'randomStatus':
+      return randomStatusEffect({
+        targets: resolveTargetsTracked(segment, ctx),
+        turns: segment.turns,
+      });
+    case 'transformTroop':
+      return transformTroopEffect({
+        targets: resolveTargetsTracked(segment, ctx),
+        ref: segment.ref,
+        randomOf: segment.randomOf,
+        troopId: segment.troopId,
       });
     default: {
       // 未知段：安全跳过（回退，需求 11.4）

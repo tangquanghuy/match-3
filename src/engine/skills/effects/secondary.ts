@@ -12,7 +12,7 @@
  *
  * 纯逻辑：无 pixi/gsap/dom 依赖。
  */
-import { isSameMatchType, colorGem, skullGem } from '../../types';
+import { isSameMatchType, colorGem, skullGem, PlayerSide } from '../../types';
 import type { SpecialGemKind, SkullStormDropKind } from '../../types';
 import type { BaseColor, Character } from '../../types';
 import type { SecondaryModifier } from '../scaling';
@@ -53,6 +53,10 @@ export type ModifierSource =
   | { kind: 'targetStat'; stat: 'attack' | 'armor' | 'hp' | 'magic' }
   /** 本技能前序段耗掉的敌方法力总和 */
   | { kind: 'drainedMana' }
+  /** 本场收集的藏宝图数（四项拍板①延伸，2026-09-17） */
+  | { kind: 'battleMaps' }
+  /** 最近被献祭盟友的属性（「因献祭军队的攻击力而增强」，跨段追踪） */
+  | { kind: 'sacrificedStat'; stat: 'attack' | 'armor' | 'magic' | 'hp' }
   /** 战场经济池当前金币总数（「伤害因我的金币而增强」「数量等于我的金币」） */
   | { kind: 'battleGold' }
   /** 战场经济池当前灵魂总数（「因本战斗收集的灵魂数而增强」） */
@@ -103,6 +107,11 @@ export type Condition =
    * 两者都缺省 = 任意风暴在场。两者同给时需同时满足。
    */
   | { kind: 'stormPresent'; color?: BaseColor; dropKind?: SkullStormDropKind }
+  /**
+   * 特定兵种在场（「若自身队伍有梁帝」，全局条件）：按角色名（中文兵种名）匹配存活者。
+   * name 用 troops.json 的 name 字段（不是 referenceName）；side 缺省 = 己方。
+   */
+  | { kind: 'troopPresent'; side?: 'ally' | 'enemy'; name: string }
   /** 析取（「若敌人是兽人或恶魔」）：任一子条件成立即成立 */
   | { kind: 'anyOf'; of: Condition[] }
   /** 合取：全部子条件成立才成立 */
@@ -178,6 +187,14 @@ export function conditionMet(
         return true;
       }
       return false;
+    }
+    case 'troopPresent': {
+      const mySide = findSide(ctx.state, ctx.casterId);
+      if (mySide === null) return false;
+      const side = cond.side === 'enemy'
+        ? mySide === PlayerSide.Left ? PlayerSide.Right : PlayerSide.Left
+        : mySide;
+      return ctx.state.teams[side].characters.some((c) => !c.defeated && c.name === cond.name);
     }
     case 'anyOf':
       return cond.of.some((c) => conditionMet(c, ctx, target));
@@ -342,6 +359,10 @@ export function resolveModifierCount(source: ModifierSource, ctx: EffectContext)
       return ctx.state.economy.gold;
     case 'battleSouls':
       return ctx.state.economy.souls;
+    case 'battleMaps':
+      return ctx.state.economy.maps;
+    case 'sacrificedStat':
+      return tracking?.sacrificed ? tracking.sacrificed[source.stat] : 0;
     case 'battleGems':
       return ctx.state.economy.gems;
     default: {

@@ -16,7 +16,7 @@ import { findSide, casterMagic } from './context';
 import { evaluateWithModifier } from './secondary';
 import type { ModifierSpec } from './secondary';
 
-export type EconomyCurrency = 'gold' | 'souls' | 'gems';
+export type EconomyCurrency = 'gold' | 'souls' | 'gems' | 'maps';
 
 export interface EconomyGainParams {
   currency: EconomyCurrency;

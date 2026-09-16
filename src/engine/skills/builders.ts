@@ -39,6 +39,9 @@ import type {
   SummonSegment,
   EscapeChanceSegment,
   GainEconomySegment,
+  SacrificeSegment,
+  RandomStatusSegment,
+  TransformTroopSegment,
   NRangeSpec,
 } from './prototypes';
 
@@ -546,6 +549,43 @@ export function gainSouls(base: number, mult = 0, opts: SegmentOpts = {}): GainE
 }
 export function gainGems(base: number, mult = 0, opts: SegmentOpts = {}): GainEconomySegment {
   return attach({ kind: 'gainEconomy', currency: 'gems', scaling: scale(base, mult) }, opts);
+}
+
+
+// —— 放弃桶回收原语（2026-09-17 用户裁定：献祭/随机状态/兵种转化/藏宝图/特定兵种在场） ——
+
+/** 献祭（「献祭一名盟友」= 随机一名盟友，GoW 官方口径）：即杀己方目标（走 execute 管线，
+ *  阵亡钩子照常触发）；属性快照入跨段追踪，供 modifier 来源 sacrificedStat。 */
+export function sacrifice(target: TargetMode, opts?: SegmentOpts): SacrificeSegment {
+  return attach({ kind: 'sacrifice', target }, opts);
+}
+
+/** 随机状态（「造成随机状态效果」）：每目标独立掷签负面池（池见 effects/status.ts） */
+export function inflictRandom(target: TargetMode, opts?: SegmentOpts & { turns?: number }): RandomStatusSegment {
+  const seg = attach({ kind: 'randomStatus', target } as RandomStatusSegment, opts);
+  if (opts?.turns !== undefined) seg.turns = opts.turns;
+  return seg;
+}
+
+/** 兵种转化（「将一名随机敌人转化为怨灵」）：ref 为 troops.json 的 referenceName（英文）。
+ *  就地替换、保留编队位，不触发阵亡钩子（官方「转化不是死亡」）。 */
+export function transformTroop(target: TargetMode, ref: string, opts?: SegmentOpts & { troopId?: number }): TransformTroopSegment {
+  const seg = attach({ kind: 'transformTroop', target, ref } as TransformTroopSegment, opts);
+  if (opts?.troopId !== undefined) seg.troopId = opts.troopId;
+  return seg;
+}
+
+/** 兵种族随机转化（「转化为一只随机龙族」）：候选 referenceName 集合，rng 掷选 */
+export function transformTroopRandom(target: TargetMode, refs: string[], opts?: SegmentOpts & { troopId?: number }): TransformTroopSegment {
+  const seg = attach({ kind: 'transformTroop', target, randomOf: refs } as TransformTroopSegment, opts);
+  if (opts?.troopId !== undefined) seg.troopId = opts.troopId;
+  return seg;
+}
+
+/** 获得藏宝图（「有 20% 的几率获得一张藏宝图」= gainMaps(1, 0, { chance: 0.2 })）。
+ *  战场经济第四币种；来源计数 battleMaps 供二次缩放（「每张藏宝图额外创造 4 颗 [x4]」）。 */
+export function gainMaps(base: number, mult = 0, opts?: SegmentOpts): GainEconomySegment {
+  return attach({ kind: 'gainEconomy', currency: 'maps', scaling: scale(base, mult) }, opts);
 }
 
 function clamp01(n: number): number {

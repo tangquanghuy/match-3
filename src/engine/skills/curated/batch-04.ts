@@ -34,7 +34,6 @@ const SKIPPED: { id: number; reason: string }[] = [
   { id: 9292, reason: '特殊宝石（鬼魂宝石）' },
   { id: 9664, reason: '缺失状态（附魔）' },
   { id: 9725, reason: '「爆破 2-4 颗宝石」数量区间无法表达，数值不明' },
-  { id: 9779, reason: '特殊宝石（流血宝石）' },
   { id: 9906, reason: '「随机颜色的宝石」选色语义不明（随机单色 vs 随机宝石），语义拿不准' },
 ];
 

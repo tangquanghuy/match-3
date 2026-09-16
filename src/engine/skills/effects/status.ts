@@ -434,6 +434,37 @@ export function statusEffect(params: StatusApplyParams): EffectPrimitive {
 }
 
 
+
+/** 随机状态效果（「造成随机状态效果」）的可抽取池：全部为可施加的负面状态（2026-09-17 回收批裁定）。 */
+export const RANDOM_NEGATIVE_STATUS_POOL: readonly string[] = [
+  'poison', 'burning', 'bleed', 'silence', 'frozen', 'stun', 'entangle', 'web', 'disease', 'curse', 'death-mark', 'charm',
+];
+
+export interface RandomStatusParams {
+  targets: Character[];
+  /** 存续回合数（缺省 3，与 statusEffect 同口径） */
+  turns?: number;
+}
+
+/**
+ * 随机状态：对每个存活目标独立掷签从负面池选一种施加（种子化 rng，确定性）。
+ * DoT 量级走引擎默认（中毒/燃烧 3、出血 1，由 tick 结算侧的缺省口径接管）。
+ */
+export function randomStatusEffect(params: RandomStatusParams): EffectPrimitive {
+  return {
+    apply(ctx: EffectContext): GameEvent[] {
+      const events: GameEvent[] = [];
+      for (const target of params.targets) {
+        if (target.defeated) continue;
+        const statusId = RANDOM_NEGATIVE_STATUS_POOL[ctx.rng.nextInt(RANDOM_NEGATIVE_STATUS_POOL.length)];
+        const status: StatusInstance = { id: statusId, turns: params.turns ?? 3 };
+        events.push(...applyStatus(target, status));
+      }
+      return events;
+    },
+  };
+}
+
 export interface CleanseParams {
   targets: Character[];
 }

@@ -192,6 +192,15 @@ oneOf(分支…)                         // 「X 或 Y」随机多选一：掷�
 ### 逃跑 / 战场经济（四项拍板①③，spell-rules §10，批次 39 起可组装）
 
 ```ts
+sacrifice('allyOthers')              // 「献祭一名盟友」= 随机其他盟友（不含施法者）；即杀走 execute 管线
+inflictRandom(target, opts?)         // 「造成随机状态效果」：每目标掷签负面池（turns 缺省 3）
+transformTroop(target, ref, opts?)   // 「将一名随机敌人转化为怨灵」= transformTroop('enemyRandom','Banshee')
+gainMaps(1, 0, { chance: 0.2 })      // 「有 20% 的几率获得一张藏宝图」；modifier 来源 battleMaps
+// 条件：{ ifCond: { kind: 'troopPresent', side: 'ally', name: '梁帝' } }（中文名匹配存活者）
+// sacrifice 的二次缩放：「因献祭军队的攻击力而增强 [1:1]」→ source: { kind: 'sacrificedStat', stat: 'attack' }
+// 详见 spell-rules §11。
+
+```ts
 escape(0.3)                          // 「有 30% 的几率跑掉」：恒作用于施法者（判定成功=fled+移出编队，
                                      //  不算阵亡、不触发死亡召唤/阵亡响应；全队逃光判负）
 gainGold(10) / gainSouls(5) / gainGems(2)

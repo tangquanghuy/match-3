@@ -36,6 +36,8 @@ export interface CastTracking {
   transformed: number;
   /** 本技能耗掉的敌方法力总和 */
   drainedMana: number;
+  /** 最近被献祭的盟友属性快照（「因献祭军队的攻击力而增强」跨段追踪） */
+  sacrificed?: { attack: number; armor: number; magic: number; hp: number };
   /**
    * 最近一个解析出目标的效果段：主目标 id + 该段执行前是否存活。
    * 「如果该敌人身亡」= 它 aliveBefore 且现在 defeated。
