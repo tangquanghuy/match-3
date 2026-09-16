@@ -96,6 +96,16 @@
     }
   },
   {
+    "code": "manashield",
+    "name": "法力之盾",
+    "description": "对法力灼烧、法力耗尽和法力窃取免疫。",
+    "troops": 69,
+    "manaOpsImmunity": true,
+    "statusImmunities": [
+      "mana-burn"
+    ]
+  },
+  {
     "code": "fast",
     "name": "快速",
     "description": "战斗开始时获得 50% 法力。",
@@ -428,6 +438,16 @@
       "troopType": "Dragon",
       "stat": "hp",
       "amount": 2
+    }
+  },
+  {
+    "code": "aquatic",
+    "name": "水栖",
+    "description": "在自身受到伤害时使自身下潜。",
+    "troops": 24,
+    "onDamagedStatus": {
+      "statusId": "submerged",
+      "turns": 3
     }
   },
   {
@@ -1267,6 +1287,26 @@
     }
   },
   {
+    "code": "omenofdark",
+    "name": "暗黑预兆",
+    "description": "在战斗开始的时候爆破一颗紫色宝石。",
+    "troops": 7,
+    "battleStartDestroy": {
+      "kind": "color",
+      "color": "Purple"
+    }
+  },
+  {
+    "code": "valuable",
+    "name": "价高可得",
+    "description": "在自身身亡时获得 25 黄金。",
+    "troops": 7,
+    "onDeathEconomy": {
+      "currency": "gold",
+      "amount": 25
+    }
+  },
+  {
     "code": "cosmicshield",
     "name": "宇宙盾牌",
     "description": "降低来自法术的伤害 55%。",
@@ -1647,6 +1687,25 @@
     }
   },
   {
+    "code": "omenofstone",
+    "name": "岩石预兆",
+    "description": "在战斗开始的时候爆破一颗棕色宝石。",
+    "troops": 4,
+    "battleStartDestroy": {
+      "kind": "color",
+      "color": "Brown"
+    }
+  },
+  {
+    "code": "omenofdeath",
+    "name": "死亡预兆",
+    "description": "在战斗开始的时候爆破一颗骷髅头。",
+    "troops": 4,
+    "battleStartDestroy": {
+      "kind": "skull"
+    }
+  },
+  {
     "code": "songofstone",
     "name": "岩石之歌",
     "description": "在战斗开始的时候召唤尘风暴。",
@@ -1917,6 +1976,36 @@
     "skullMultVsStatus": {
       "status": "submerged",
       "mult": 2
+    }
+  },
+  {
+    "code": "omenofice",
+    "name": "寒冰预兆",
+    "description": "在战斗开始的时候爆破一颗蓝色宝石。",
+    "troops": 3,
+    "battleStartDestroy": {
+      "kind": "color",
+      "color": "Blue"
+    }
+  },
+  {
+    "code": "omenofnature",
+    "name": "自然预兆",
+    "description": "在战斗开始的时候爆破一颗绿色宝石。",
+    "troops": 3,
+    "battleStartDestroy": {
+      "kind": "color",
+      "color": "Green"
+    }
+  },
+  {
+    "code": "omenoffire",
+    "name": "火焰预兆",
+    "description": "在战斗开始的时候爆破一颗红色宝石。",
+    "troops": 3,
+    "battleStartDestroy": {
+      "kind": "color",
+      "color": "Red"
     }
   },
   {

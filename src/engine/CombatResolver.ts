@@ -136,6 +136,13 @@ export class CombatResolver {
     // 受击触发（狂暴/兽人报甲…）：落空不触发，因此放在实际扣血之后
     const targetPassive = passivesOf(target);
     if (!enraged && !target.defeated) applyStatGains(target, targetPassive.gainOnDamaged, events);
+    // 受击附状态（aquatic「在自身受到伤害时使自身下潜」）：与受击增益同一触发口径
+    //（同为落空不触发），施加走 applyStatus（免疫在施加口拦截）；下潜=不可被指定
+    //（UNTARGETABLE_STATUS_IDS），回合尾随持有者方状态结算递减。
+    if (!enraged && !target.defeated && targetPassive.onDamagedStatus) {
+      const s = targetPassive.onDamagedStatus;
+      events.push(...applyStatus(target, { id: s.statusId, turns: s.turns }));
+    }
     // 命中触发：自身增益（国王之意…）+ 给目标附状态（毒液…）
     const attackerPassive = passivesOf(attacker);
     applyStatGains(attacker, attackerPassive.gainOnSkullHit, events);

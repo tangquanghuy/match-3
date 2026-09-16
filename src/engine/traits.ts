@@ -65,6 +65,12 @@ export interface TraitDefinition {
   regen?: { stat: PassiveStat; amount: number };
   /** 自身受到伤害后获得 */
   onDamagedGain?: { stat: PassiveStat; amount: number };
+  /** 自身受到伤害后自身获得状态（aquatic「在自身受到伤害时使自身下潜」）；施加走 applyStatus，免疫在施加口拦截 */
+  onDamagedStatus?: { statusId: string; turns: number };
+  /** 自己身亡时向战场经济池入账（valuable「在自身身亡时获得 25 黄金」） */
+  onDeathEconomy?: { currency: keyof TraitEconomyGain; amount: number };
+  /** 法力操作免疫（manashield「对法力灼烧、法力耗尽和法力窃取免疫」）：reduce 原语 stat='mana' 的执行入口跳过 */
+  manaOpsImmunity?: boolean;
   /** 自己造成骷髅伤害时获得 */
   onSkullHitGain?: { stat: PassiveStat; amount: number };
   /** 同队任一角色施法时获得 */
@@ -165,6 +171,13 @@ export interface TraitDefinition {
   onBigMatchEconomy?: { currency: keyof TraitEconomyGain; amount: number; minSize?: number };
   /** 条件经济光环·骷髅版（darkensouls「在配对骷髅头时，获得 3 个灵魂」），骷髅匹配触发点结算 */
   onSkullMatchEconomy?: { currency: keyof TraitEconomyGain; amount: number };
+  /**
+   * 战斗开始时爆破一颗指定基础色的宝石或骷髅头（omenof* 族）。定义直读字段
+   * （同 battleStartStorm 族，TurnEngine 构造期读 getTrait，不进 passive）：命中格从
+   * 棋盘移除后走既有 resolveBoardChange 清除管线（法力/骷髅伤害/重力/连锁照常），
+   * 直接结算归持有者一方；候选唯一不掷骰、无候选安全跳过。
+   */
+  battleStartDestroy?: { kind: 'color'; color: string } | { kind: 'skull' };
 }
 
 export const TRAIT_LIBRARY: readonly TraitDefinition[] = traitTable as TraitDefinition[];
@@ -199,6 +212,7 @@ export function neutralPassives(): PassiveModifiers {
     gainOnEnemyDeath: noGains(),
     gainOnAllyDeath: noGains(),
     gainOnBigMatch: noGains(),
+    manaOpsImmunity: false,
     manaLink: {},
     reflectSkullRatio: 0,
     dodgeChance: 0,
@@ -319,8 +333,13 @@ export function resolvePassives(
     if (trait.armorPierceChance !== undefined) {
       passive.armorPierceChance = Math.max(passive.armorPierceChance, trait.armorPierceChance);
     }
-    // 布尔项取并集：任一条特质给了隐匿即生效
+    // 布尔项取并集：任一条特质给了隐匿/法力操作免疫即生效
     if (trait.untargetable) passive.untargetable = true;
+    if (trait.manaOpsImmunity) passive.manaOpsImmunity = true;
+    // 受击附状态（aquatic）：同类取先声明的一条（同一角色持有多条时后续不覆盖）
+    if (trait.onDamagedStatus && passive.onDamagedStatus === undefined) {
+      passive.onDamagedStatus = { ...trait.onDamagedStatus };
+    }
     // 命中附带状态取回合数更长的一条
     if (trait.inflictOnSkullHit
       && (passive.inflictOnSkullHit === undefined
@@ -350,6 +369,10 @@ export function resolvePassives(
     }
     if (trait.onEnemyDeathEnemyStatus && passive.onEnemyDeathEnemyStatus === undefined) {
       passive.onEnemyDeathEnemyStatus = { ...trait.onEnemyDeathEnemyStatus };
+    }
+    // 身亡经济（valuable）：同类取先声明的一条（与上方死亡变体同口径）
+    if (trait.onDeathEconomy && passive.onDeathEconomy === undefined) {
+      passive.onDeathEconomy = { ...trait.onDeathEconomy };
     }
     // 4/5 连种族光环：同种族数值叠加，异种族并存
     if (trait.onBigMatchTypeAura) {

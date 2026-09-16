@@ -445,6 +445,16 @@ export interface PassiveModifiers {
   regenArmorPerTurn: number;
   /** 自身受到伤害后获得的数值 */
   gainOnDamaged: StatGains;
+  /**
+   * 自身受到伤害后获得的**状态**（aquatic「在自身受到伤害时使自身下潜」）。
+   * 与 gainOnDamaged 同一触发点（骷髅受击结算处，闪避/屏障/挣扎路径不触发），
+   * 施加经 applyStatus（免疫在 applyStatus 内拦截）。
+   */
+  onDamagedStatus?: { statusId: string; turns: number };
+  /** 法力操作免疫（manashield「对法力灼烧、法力耗尽和法力窃取免疫」）：
+   *  法力耗（耗蓝/耗尽/减半）与窃取（stat='mana' 的 reduce 原语，含窃取回灌）在执行
+   *  入口对带此被动的目标整体跳过。灼烧另有 mana-burn 状态免疫（statusImmunities）。 */
+  manaOpsImmunity: boolean;
   /** 自己造成骷髅伤害时获得的数值 */
   gainOnSkullHit: StatGains;
   inflictOnSkullHit?: { id: string; turns: number; magnitude?: number };
@@ -515,6 +525,12 @@ export interface PassiveModifiers {
   onEnemyDeathEnemyStatus?: { id: string; turns: number };
   /** 同队角色阵亡时获得（复仇者…） */
   gainOnAllyDeath: StatGains;
+  /**
+   * 自己身亡时向战场经济池入账（valuable「在自身身亡时获得 25 黄金」）。
+   * 由 TurnEngine.processDeathTriggers 按行动开始的角色引用快照结算（阵亡者已移出
+   * 编队），复用 creditEconomy 入账口（economy-gain 事件，side 记行动方）。
+   */
+  onDeathEconomy?: { currency: keyof TraitEconomyGain; amount: number };
   /** 自己一方匹配 4 或 5 连时获得（庞然/巨型/修理…） */
   gainOnBigMatch: StatGains;
   /** 对特定种族的骷髅伤害倍率（屠戮类，如龙族杀手 ×2） */

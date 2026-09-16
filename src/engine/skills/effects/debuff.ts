@@ -23,6 +23,7 @@ import type { EffectContext, EffectPrimitive } from './context';
 import { casterMagic, findCharacter } from './context';
 import { hasTroopType, evaluateWithModifier, DEFAULT_RACE_DOUBLE, condMultiplier, condBonusValue } from './secondary';
 import type { ModifierSpec, CondMult, CondBonus } from './secondary';
+import { passivesOf } from '../../traits';
 import { applyBuffGain } from './buff';
 import type { BuffStat } from './buff';
 
@@ -85,6 +86,10 @@ export function reduceEffect(params: ReduceParams): EffectPrimitive {
 
       for (const target of targets) {
         if (target.defeated) continue;
+        // 法力操作免疫（manashield「对法力灼烧、法力耗尽和法力窃取免疫」）：
+        // 三动词共用本入口（stat='mana' 的耗蓝/耗尽/减半与 stat='mana'+gainStat 的窃取），
+        // 免疫目标整体跳过——不削减、不回事件、窃取者也不进账。
+        if (stat === 'mana' && passivesOf(target).manaOpsImmunity) continue;
         let cAmount: number;
         if (params.halve) {
           // 比例减半：按该属性当前值 50% 下取整（逐目标现算，不走缩放/条件修饰）

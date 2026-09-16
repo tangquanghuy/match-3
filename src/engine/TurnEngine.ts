@@ -142,11 +142,56 @@ export class TurnEngine {
     for (const { spec, side } of startupStorms) {
       this.initialEvents.push(...this.setStormFromSummon(spec, side));
     }
+    // 开局爆破（omenof* 族「在战斗开始的时候爆破一颗X宝石/骷髅头」）：棋盘已生成、
+    // 事件流未开始，事件交由 takeInitialEvents 供表现层首屏消费。
+    this.initialEvents.push(...this.applyBattleStartDestroyTraits());
   }
 
   /** 取出构造阶段的开局事件；只消费一次。 */
   takeInitialEvents(): GameEvent[] {
     return this.initialEvents.splice(0, this.initialEvents.length);
+  }
+
+  /**
+   * 开局爆破（omenof* 族「在战斗开始的时候爆破一颗X宝石/骷髅头」）。
+   *
+   * 双方存活队伍按序收集 battleStartDestroy（Left 全队 → Right 全队 → 队伍序 → 特质
+   * 声明序，确定性），命中格从棋盘移除后走既有 resolveBoardChange 清除管线——法力/
+   * 骷髅伤害结算、重力补充、连锁照常；直接结算经 side 显式传参归**持有者一方**
+   * （与官方「该特质爆破的宝石为其队伍充能」一致），连锁归当前行动方（开局恒为 Left）。
+   * 候选唯一时不掷骰；无候选安全跳过——无新键特质零事件、零随机消耗（既有对局
+   * 与 rng 终态逐字节不变）。
+   */
+  private applyBattleStartDestroyTraits(): GameEvent[] {
+    const events: GameEvent[] = [];
+    for (const side of [PlayerSide.Left, PlayerSide.Right]) {
+      for (const char of this.state.teams[side].characters) {
+        if (char.defeated) continue;
+        for (const code of char.traitIds ?? []) {
+          const spec = getTrait(code)?.battleStartDestroy;
+          if (!spec) continue;
+          const candidates: CellPos[] = [];
+          for (let row = 0; row < BoardModel.ROWS; row++) {
+            for (let col = 0; col < BoardModel.COLS; col++) {
+              const gem = this.state.board.get({ row, col });
+              if (!gem) continue;
+              const hit = spec.kind === 'skull'
+                ? gem.type.kind === 'skull'
+                : gem.type.kind === 'color' && gem.type.color === spec.color;
+              if (hit) candidates.push({ row, col });
+            }
+          }
+          if (candidates.length === 0) continue;
+          const pos = candidates.length === 1
+            ? candidates[0]
+            : candidates[this.rng.nextInt(candidates.length)];
+          const gem = this.state.board.get(pos)!;
+          this.state.board.set(pos, null);
+          this.resolveBoardChange([{ gemType: gem.type, pos }], events, side);
+        }
+      }
+    }
+    return events;
   }
 
   /** 注入选色器（玩家已选色时传 FixedColorChooser；AI 用默认） */
@@ -625,6 +670,7 @@ export class TurnEngine {
   private settleDestroyed(
     destroyed: ReadonlyArray<{ gemType: GemType; pos?: CellPos }>,
     events: GameEvent[],
+    side: PlayerSide = this.state.activePlayer,
   ): void {
     if (destroyed.length === 0) return;
     const colorCounts = new Map<string, { type: GemType; n: number }>();
@@ -653,15 +699,16 @@ export class TurnEngine {
         }
       }
     }
-    for (const { type, n } of colorCounts.values()) this.settleGems(type, n, events);
-    this.settleExplodedSkulls(skullCount, doomCount, uberCount, skullCells, events);
+    for (const { type, n } of colorCounts.values()) this.settleGems(type, n, events, side);
+    this.settleExplodedSkulls(skullCount, doomCount, uberCount, skullCells, events, side);
   }
 
   /**
    * 被炸毁骷髅的官方结算（区别于三消骷髅，查证结论见 DECISIONS「骷髅爆炸」）：
    * 不吃攻击力、不可被闪避，按**法术伤害**打敌方队首——普通骷髅 1 点/颗、
    * 末日骷髅 5 点/颗、至尊末日骷髅 10 点/颗（TrueTrophies 官方攻略 + Steam 社区复核）。
-   * 走 damageOne（法术铠甲/屏障/护甲照常减免），施法者记为行动方队首（表现层定位用）。
+   * 走 damageOne（法术铠甲/屏障/护甲照常减免），施法者记为**结算归属方**队首（表现层
+   * 定位用；缺省=行动方，开局爆破传持有者一方）。
    */
   private settleExplodedSkulls(
     normalCount: number,
@@ -669,15 +716,16 @@ export class TurnEngine {
     uberCount: number,
     skullCells: ReadonlyArray<CellPos>,
     events: GameEvent[],
+    side: PlayerSide = this.state.activePlayer,
   ): void {
     const total = normalCount * EXPLODED_SKULL_DAMAGE.normal
       + doomCount * EXPLODED_SKULL_DAMAGE.doom
       + uberCount * EXPLODED_SKULL_DAMAGE.uber;
     if (total <= 0) return;
-    const enemyTeam = this.state.teams[opponentOf(this.state.activePlayer)];
+    const enemyTeam = this.state.teams[opponentOf(side)];
     const target = CombatResolver.frontAlive(enemyTeam);
     if (!target || target.defeated) return;
-    const sourceId = CombatResolver.frontAlive(this.state.teams[this.state.activePlayer])?.id ?? 0;
+    const sourceId = CombatResolver.frontAlive(this.state.teams[side])?.id ?? 0;
     const produced = damageOne(target, sourceId, total, false, 'single');
     // 演出元数据：爆炸源 = 被炸骷髅的质心格（表现层从该点发射骷髅弹体）；无格位信息时退化为棋盘中心
     const origin: CellPos = skullCells.length > 0
@@ -701,23 +749,29 @@ export class TurnEngine {
    * 按宝石类型与数量结算法力/骷髅伤害（消除组与技能直接摧毁共用，需求 11, 12, 14）。
    * @param gemType 该批宝石的类型（同色或骷髅）
    * @param count   宝石数量
+   * @param side    结算归属方（法力入账/骷髅出手）；缺省=当前行动方
    */
-  private settleGems(gemType: GemType, count: number, events: GameEvent[]): void {
-    const activeTeam = this.state.teams[this.state.activePlayer];
+  private settleGems(
+    gemType: GemType,
+    count: number,
+    events: GameEvent[],
+    side: PlayerSide = this.state.activePlayer,
+  ): void {
+    const activeTeam = this.state.teams[side];
     if (gemType.kind === 'color') {
       // 颜色 → 产生法力，数量 = 宝石数（需求 11.1）
       events.push(
-        ...this.mana.distribute(activeTeam, this.state.activePlayer, gemType.color, count),
+        ...this.mana.distribute(activeTeam, side, gemType.color, count),
       );
-      // 配色触发特质（食人魔之怒/阳光…）：匹配到关联色时给匹配方全队加值。
+      // 配色触发特质（食人魔之怒/阳光…）：匹配到关联色时给结算归属方全队加值。
       // 每次结算算一次，与消除的宝石数无关——描述是「在配对X色宝石时」，不是「每颗」。
       // enemyTeam 供敌方配色触发（rancor 族）。
       events.push(...applyColorMatchTriggers(activeTeam.characters, gemType.color, {
-        enemyTeam: this.state.teams[opponentOf(this.state.activePlayer)].characters,
+        enemyTeam: this.state.teams[opponentOf(side)].characters,
       }));
     } else if (gemType.kind === 'skull') {
       // 骷髅 → 物理伤害（需求 14），不产生法力（需求 11.2）
-      const enemyTeam = this.state.teams[opponentOf(this.state.activePlayer)];
+      const enemyTeam = this.state.teams[opponentOf(side)];
       // 传入 rng：闪避特质（敏捷/轻巧）需要随机判定，且必须走同一条确定性随机源
       const outcome = this.combat.resolveSkullDamage(activeTeam, enemyTeam, count, this.rng);
       events.push(...resolveDefeatEvents(this.state, outcome.events));
@@ -735,13 +789,20 @@ export class TurnEngine {
    *   2. 重力下落 + 顶部补充
    *   3. 解析由此产生的新匹配作为连锁（含其法力/骷髅结算）
    * 直接把事件追加进传入的 events。
+   *
+   * side 为**直接摧毁**的归属方（法力入账/骷髅伤害的出手方）；缺省=当前行动方
+   *（技能路径），开局爆破（omenof*）显式传持有者一方。连锁结算仍按行动方口径。
    */
-  resolveBoardChange(destroyed: DestroyedGem[], events: GameEvent[]): void {
+  resolveBoardChange(
+    destroyed: DestroyedGem[],
+    events: GameEvent[],
+    side: PlayerSide = this.state.activePlayer,
+  ): void {
     // 1. 特殊宝石"被摧毁"触发链（炸弹/闪电/许愿；末日骷髅只在被匹配时引爆）
     const chain = this.expandSpecialDestruction(destroyed, events);
 
     // 2. 被直接摧毁宝石的法力/骷髅结算：按类型归并数量（含链上新摧毁的）
-    this.settleDestroyed([...destroyed, ...chain], events);
+    this.settleDestroyed([...destroyed, ...chain], events, side);
 
     // 2. 重力 + 补充（风暴激活时对应色加权）
     const result = this.gravity.apply(this.state.board, this.skullChance, this.stormDropWeights(), this.stormSkullDrop());
@@ -849,6 +910,12 @@ export class TurnEngine {
     for (const id of deadIds) {
       const side = this.sideOfCharacter(id);
       if (side === null) continue; // 已不在编队里，无法判定归属，跳过
+      // 身亡经济（valuable「在自身身亡时获得 25 黄金」）：死者本人持有的战场经济入账。
+      // 死者已移出编队，编译被动随对象走，从行动开始的引用快照取；入账复用 creditEconomy
+      //（战场经济池全场共用，economy-gain 的 side 记行动方），每名死者至多入账一次。
+      const dead = this.rosterCharAtActionStart.get(id);
+      const deathEco = dead ? passivesOf(dead).onDeathEconomy : undefined;
+      if (deathEco) events.push(...this.creditEconomy(deathEco.currency, deathEco.amount));
       events.push(...applyDeathTriggers(
         this.state.teams[side].characters,
         this.state.teams[opponentOf(side)].characters,

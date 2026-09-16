@@ -177,6 +177,15 @@ function parse(desc) {
   if ((m = /降低来自法术的伤害\s*(\d+)%/.exec(desc))) {
     return { effects: { spellDamageReduction: num(m[1]) / 100 } };
   }
+  // 法力操作免疫（manashield「对法力灼烧、法力耗尽和法力窃取免疫」，O 桶判读批）：
+  // 三个动词都是**效果操作**不是状态——引擎唯一的法力削减入口是 skills/effects/debuff.ts
+  // 的 reduceEffect（stat='mana' 同时覆盖耗蓝/耗尽/减半/窃取），落 manaOpsImmunity 在执行
+  // 入口对带此被动的目标整体跳过。「灼烧」另对应引擎已识别的 mana-burn 状态 id
+  // （status.ts MANA_BURN_STATUS_IDS，自动消退集合成员），一并挂 statusImmunities：
+  // 现在就挡技能施加端，将来有 DoT 式法力燃烧结算也自动免疫。
+  if (/^对法力灼烧、法力耗尽和法力窃取免疫。?$/.test(desc)) {
+    return { effects: { manaOpsImmunity: true, statusImmunities: ['mana-burn'] } };
+  }
   // 免疫：对 X、Y 免疫（T1 批：warded/cunning/brave/immune——「对疾病和狼化免疫」的
   // 狼化引擎未实现，按映射表只收疾病，不做缺状态半解析）
   if (/免疫/.test(desc)) {
@@ -201,6 +210,13 @@ function parse(desc) {
   // 受击触发：在自身受到伤害时获得 N 点 X / 在受到攻击时获得 N 点 X
   if ((m = /(?:在自身受到伤害时|在受到攻击时)获得\s*(\d+)\s*点(攻击力|护甲值|魔法值|生命值)/.exec(desc))) {
     return { effects: { onDamagedGain: { stat: pickStat(m[2]) ?? 'attack', amount: num(m[1]) } } };
+  }
+  // 受击下潜（aquatic「在自身受到伤害时使自身下潜」，O 桶判读批）：与 onDamagedGain
+  // 同一触发点（骷髅受击结算处），落新字段 onDamagedStatus。下潜本体已落地
+  // （status.ts UNTARGETABLE_STATUS_IDS）；回合数与特质批大连施加的下潜（tsunami 族
+  // onBigMatchStatus turns:3）同口径取 3。
+  if (/^在自身受到伤害时使自身下潜。?$/.test(desc)) {
+    return { effects: { onDamagedStatus: { statusId: 'submerged', turns: 3 } } };
   }
   // 命中附带：在造成骷髅头伤害时 …状态
   if (/在造成骷髅头伤害时/.test(desc)) {
@@ -373,6 +389,12 @@ function parse(desc) {
     const hit = RESCUE_FULL_STATUS_MAP.find(([re]) => re.test(m[1]));
     if (!hit) return null;
     return { effects: { onEnemyDeathEnemyStatus: { id: hit[1], turns: 3 } } };
+  }
+  // 身亡经济（valuable「在自身身亡时获得 25 黄金」，O 桶判读批）：死者本人持有的
+  // 战场经济入账，复用条件经济批的 creditEconomy 口径（economy[currency] += amount
+  // 并发 economy-gain 事件）；持有者币种超出黄金/灵魂句式的（宝石）不硬猜，不收。
+  if ((m = /^在自身身亡时获得\s*(\d+)\s*(黄金|灵魂)。?$/.exec(desc))) {
+    return { effects: { onDeathEconomy: { currency: m[2] === '黄金' ? 'gold' : 'souls', amount: num(m[1]) } } };
   }
   // sacrifice「当一名敌人身亡时，所有技能增加 3 点」：技能值按既有约定映射 magic
   // （STAT_MAP「技能值→magic」/ pickTriggerStat「随机技能值→magic」同源的 randomStat 口径）。
@@ -629,6 +651,16 @@ function parse(desc) {
         },
       },
     };
+  }
+  // 开局爆破（omenof* 族「在战斗开始的时候爆破一颗X宝石/骷髅头」，O 桶判读批）：
+  // 定义直读字段 battleStartDestroy（与 battleStartStorm 同族，TurnEngine 构造期读
+  // getTrait），命中格经既有 resolveBoardChange 清除管线结算（法力/骷髅伤害/重力/连锁
+  // 照常，直接结算归持有者一方）。「爆破」目标必须是基础色宝石或骷髅头，其余不收。
+  if ((m = /^在战斗开始的时候爆破一颗(.+?)。?$/.exec(desc))) {
+    if (m[1] === '骷髅头') return { effects: { battleStartDestroy: { kind: 'skull' } } };
+    const color = pickColor(m[1]);
+    if (!color) return null;
+    return { effects: { battleStartDestroy: { kind: 'color', color } } };
   }
   // 死亡召唤三族（daemonicpact/terrorpact/fromdark/darkdeath…）。
   // 触发主体：自己身亡 / 盟友身亡 / 敌人身亡；概率可省略（=100%，如 loyalmount/desertmount）。

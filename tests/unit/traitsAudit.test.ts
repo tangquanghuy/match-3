@@ -24,6 +24,7 @@ import turnEngineSrc from '../../src/engine/TurnEngine.ts?raw';
 import combatResolverSrc from '../../src/engine/CombatResolver.ts?raw';
 import targetingSrc from '../../src/engine/skills/targeting.ts?raw';
 import damageSrc from '../../src/engine/skills/effects/damage.ts?raw';
+import debuffSrc from '../../src/engine/skills/effects/debuff.ts?raw';
 import manaDistributorSrc from '../../src/engine/ManaDistributor.ts?raw';
 import gravitySystemSrc from '../../src/engine/GravitySystem.ts?raw';
 
@@ -49,6 +50,9 @@ const ENGINE_STATUS_IDS = new Set([
   // 特质可救批（T1 免疫 + T3 骷髅命中）：marked/terror 本体已在 status.ts 落地
   // （MARK_STATUS_ID / TERROR_STATUS_ID），build_traits.mjs RESCUE_STATUS_MAP 开始产出
   'marked', 'terror',
+  // O 桶判读批：mana-burn 状态 id 引擎已识别（status.ts MANA_BURN_STATUS_IDS，
+  // 自动消退集合成员；技能施加端已存在），manashield 免疫句按此挂 statusImmunities
+  'mana-burn',
 ]);
 
 const BASE_COLORS = new Set(Object.values(BaseColor));
@@ -62,6 +66,11 @@ const TRIGGER_FIELDS = [
 const STAT_OF_WORD: Record<string, string> = {
   生命值: 'hp', 护甲值: 'armor', 攻击力: 'attack', 魔法值: 'magic',
   随机技能值: 'magic', 法力值: 'mana',
+};
+
+/** 中文颜色词（可带「色」尾）→ 引擎 BaseColor 名（开局爆破对账用） */
+const COLOR_OF_WORD: Record<string, string> = {
+  红: 'Red', 绿: 'Green', 蓝: 'Blue', 黄: 'Yellow', 紫: 'Purple', 棕: 'Brown',
 };
 
 /** 收集器：把同族断言的全部违例攒起来一次性报告，避免逐条失败掩盖其余问题 */
@@ -205,6 +214,23 @@ describe('A · 数据完整性', () => {
         if (!ENGINE_STATUS_IDS.has(t.onEnemyDeathEnemyStatus.id)) report(`${tag} onEnemyDeathEnemyStatus「${t.onEnemyDeathEnemyStatus.id}」引擎未实现`);
         if (!(t.onEnemyDeathEnemyStatus.turns >= 1 && t.onEnemyDeathEnemyStatus.turns <= 9)) report(`${tag} onEnemyDeathEnemyStatus.turns=${t.onEnemyDeathEnemyStatus.turns} 异常`);
       }
+      // O 桶判读批：受击下潜 / 身亡经济 / 法力操作免疫 / 开局爆破的结构合法性
+      if (t.onDamagedStatus) {
+        if (!ENGINE_STATUS_IDS.has(t.onDamagedStatus.statusId)) report(`${tag} onDamagedStatus「${t.onDamagedStatus.statusId}」引擎未实现`);
+        if (!(t.onDamagedStatus.turns >= 1 && t.onDamagedStatus.turns <= 9)) report(`${tag} onDamagedStatus.turns=${t.onDamagedStatus.turns} 异常`);
+      }
+      if (t.onDeathEconomy) {
+        if (!['gold', 'souls', 'gems'].includes(t.onDeathEconomy.currency)) report(`${tag} onDeathEconomy.currency「${t.onDeathEconomy.currency}」非法`);
+        if (!(t.onDeathEconomy.amount >= 1 && t.onDeathEconomy.amount <= 50)) report(`${tag} onDeathEconomy.amount=${t.onDeathEconomy.amount} 异常`);
+      }
+      if (t.battleStartDestroy) {
+        const s = t.battleStartDestroy;
+        if (s.kind === 'skull') { /* 骷髅头无附加字段 */ } else if (s.kind === 'color') {
+          if (!BASE_COLORS.has(s.color as BaseColor)) report(`${tag} battleStartDestroy.color「${s.color}」非法`);
+        } else {
+          report(`${tag} battleStartDestroy.kind「${(s as { kind: string }).kind}」非法`);
+        }
+      }
       if (t.onEnemyDeathTypeAura) {
         if (t.onEnemyDeathTypeAura.troopType !== 'all' && !/^[A-Z]/.test(t.onEnemyDeathTypeAura.troopType)) {
           report(`${tag} onEnemyDeathTypeAura.troopType「${t.onEnemyDeathTypeAura.troopType}」不是规范族名`);
@@ -265,6 +291,8 @@ describe('B · 编译契约', () => {
     'inflictOnSkullDamagedList', 'onEnemyDeathStatus', 'onEnemyDeathTypeAura', 'onEnemyDeathEnemyStatus',
     // 条件经济光环批（greedy/extremegreed/pillageandplunder/darkensouls）
     'onBigMatchEconomy', 'onSkullMatchEconomy',
+    // O 桶判读批：受击下潜 / 身亡经济 / 法力操作免疫（battleStartDestroy 为定义直读）
+    'onDamagedStatus', 'onDeathEconomy', 'manaOpsImmunity',
   ]);
 
   /**
@@ -278,6 +306,8 @@ describe('B · 编译契约', () => {
   const DEFINITION_READ_KEYS = new Set([
     'teamAura', 'typeAura', 'perAllyColor', 'battleStartManaRatio',
     'turnStartCreateGem', 'turnStartColorToSkull', 'battleStartStorm',
+    // O 桶判读批：开局爆破（omenof* 族，TurnEngine 构造期读 getTrait）
+    'battleStartDestroy',
   ]);
 
   it('生成器产出的每个效果键都被引擎消费（编译器或定义直读，二者其一）', () => {
@@ -321,6 +351,7 @@ describe('C · 描述↔数值一致性（从官方文本重新抽数对账）',
   const problems = collect((report) => {
     const tag = (t: TraitDefinition) => `${t.code}(${t.troops}次)`;
     const statOf = (w: string) => STAT_OF_WORD[w] ?? `?${w}`;
+    const pickColorOf = (w: string) => COLOR_OF_WORD[w.replace(/色$/, '')] ?? null;
 
     for (const t of ALL) {
       const d = t.description;
@@ -394,6 +425,37 @@ describe('C · 描述↔数值一致性（从官方文本重新抽数对账）',
       }
       if (t.onEnemyDeathEnemyStatus && !/敌人身亡/.test(d)) {
         report(`${tag(t)} onEnemyDeathEnemyStatus 但描述没有「敌人身亡」`);
+      }
+      // O 桶判读批：四新键描述↔数值对账
+      if (t.onDamagedStatus) {
+        const wordOf: Record<string, string> = { 下潜: 'submerged' };
+        const m = /在自身受到伤害时使自身(.+?)。?$/.exec(d);
+        if (!m || wordOf[m[1]] !== t.onDamagedStatus.statusId) {
+          report(`${tag(t)} onDamagedStatus 与描述「${d}」不符`);
+        }
+      }
+      if (t.onDeathEconomy) {
+        const m = /在自身身亡时获得\s*(\d+)\s*(黄金|灵魂)。?$/.exec(d);
+        const currency = m ? (m[2] === '黄金' ? 'gold' : 'souls') : null;
+        if (!m || num(m[1]) !== t.onDeathEconomy.amount || currency !== t.onDeathEconomy.currency) {
+          report(`${tag(t)} onDeathEconomy 与描述不符`);
+        }
+      }
+      if (t.manaOpsImmunity && !/对法力灼烧、法力耗尽和法力窃取免疫/.test(d)) {
+        report(`${tag(t)} manaOpsImmunity 但描述不是法力操作免疫句式`);
+      }
+      if (t.battleStartDestroy) {
+        const m = /在战斗开始的时候爆破一颗(.+?)。?$/.exec(d);
+        if (!m) {
+          report(`${tag(t)} battleStartDestroy 但描述没有开局爆破句式`);
+        } else if (t.battleStartDestroy.kind === 'skull') {
+          if (m[1] !== '骷髅头') report(`${tag(t)} battleStartDestroy=skull 但描述是「${m[1]}」`);
+        } else {
+          const color = pickColorOf(m[1].replace(/宝石$/, ''));
+          if (color === null || color !== t.battleStartDestroy.color) {
+            report(`${tag(t)} battleStartDestroy.color「${t.battleStartDestroy.color}」与描述「${m[1]}」不符`);
+          }
+        }
       }
       // 双状态诅咒族：描述必须是「陷入X和Y状态」句式，条目数与描述段数一致
       if (t.inflictOnSkullDamagedList) {
@@ -573,6 +635,10 @@ describe('D · 接线完整性（钩子存在但没人调用 = 死角）', () =>
     ['回合开始棋盘写入', /turnStartCreateGem/, () => turnEngineSrc],
     ['骷髅减伤/受击/命中/反弹/穿甲', /skullDamageTaken|inflictOnSkullHit|reflectSkullRatio/, () => combatResolverSrc],
     ['受击附状态', /inflictOnSkullDamaged/, () => combatResolverSrc],
+    ['受击下潜', /onDamagedStatus/, () => combatResolverSrc],
+    ['身亡经济', /onDeathEconomy/, () => turnEngineSrc],
+    ['开局爆破', /battleStartDestroy/, () => turnEngineSrc],
+    ['法力操作免疫', /manaOpsImmunity/, () => debuffSrc],
     ['隐匿目标过滤', /targetableFrom|isUntargetable/, () => targetingSrc],
     ['法术减伤', /spellDamageTaken/, () => damageSrc],
     ['法力灵链', /manaLink/, () => manaDistributorSrc],
