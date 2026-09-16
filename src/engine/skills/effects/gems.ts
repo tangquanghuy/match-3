@@ -17,6 +17,7 @@ import { BoardModel } from '../../BoardModel';
 import { reshuffle } from '../../boardUtils';
 import { colorGem, skullGem, isSameMatchType, posKey, specialGem } from '../../types';
 import type { BaseColor, CellPos, Gem, GemType, SpecialGemKind, SpecialGemSpec } from '../../types';
+import { PlayerSide } from '../../types';
 import type {
   GameEvent,
   GemCreateEvent,
@@ -26,7 +27,7 @@ import type {
 import type { ScalingSpec } from '../scaling';
 import { evaluateScaling } from '../scaling';
 import type { EffectContext, EffectPrimitive, DestroyedGem } from './context';
-import { casterMagic, findCharacter } from './context';
+import { casterMagic, findCharacter, findSide } from './context';
 import { evaluateWithModifier } from './secondary';
 import type { ModifierSpec } from './secondary';
 
@@ -37,7 +38,7 @@ import type { ModifierSpec } from './secondary';
  *   'SKULL'：骷髅端点（仅 transform 用：「将所有棕色宝石转换成骷髅头」「骷髅转换成X色」）。
  * 无法解析（占位符无值）时，宝石段安全跳过。
  */
-export type ColorSpec = BaseColor | 'CHOSEN' | 'CASTER' | 'SKULL';
+export type ColorSpec = BaseColor | 'CHOSEN' | 'CASTER' | 'SKULL' | 'ENEMY' | 'LAST_TARGET';
 
 /** 把 ColorSpec 解析为具体基础色；占位符取 ctx，缺省返回 null（'SKULL' 无对应基色） */
 function resolveColor(spec: ColorSpec, ctx: EffectContext): BaseColor | null {
@@ -45,6 +46,23 @@ function resolveColor(spec: ColorSpec, ctx: EffectContext): BaseColor | null {
   if (spec === 'SKULL') return null;
   if (spec === 'CASTER') {
     return findCharacter(ctx.state, ctx.casterId)?.colors[0] ?? null;
+  }
+  // 「指定/该敌人的一种法力颜色」（2026-09-17 回收批）：随机存活敌方 / 跨段追踪目标，
+  // 多法力色时 rng 掷选其一（确定性）
+  if (spec === 'ENEMY' || spec === 'LAST_TARGET') {
+    let char = undefined;
+    if (spec === 'LAST_TARGET') {
+      const last = ctx.castTracking?.lastTarget;
+      char = last ? findCharacter(ctx.state, last.id) : undefined;
+    } else {
+      const mySide = findSide(ctx.state, ctx.casterId);
+      if (mySide === null) return null;
+      const enemySide = mySide === PlayerSide.Left ? PlayerSide.Right : PlayerSide.Left;
+      const alive = ctx.state.teams[enemySide].characters.filter((c) => !c.defeated && c.colors.length > 0);
+      char = alive[ctx.rng.nextInt(alive.length)];
+    }
+    if (!char || char.colors.length === 0) return null;
+    return char.colors[ctx.rng.nextInt(char.colors.length)];
   }
   return spec;
 }

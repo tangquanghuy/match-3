@@ -561,9 +561,10 @@ export function sacrifice(target: TargetMode, opts?: SegmentOpts): SacrificeSegm
 }
 
 /** 随机状态（「造成随机状态效果」）：每目标独立掷签负面池（池见 effects/status.ts） */
-export function inflictRandom(target: TargetMode, opts?: SegmentOpts & { turns?: number }): RandomStatusSegment {
+export function inflictRandom(target: TargetMode, opts?: SegmentOpts & { turns?: number; times?: number }): RandomStatusSegment {
   const seg = attach({ kind: 'randomStatus', target } as RandomStatusSegment, opts);
   if (opts?.turns !== undefined) seg.turns = opts.turns;
+  if (opts?.times !== undefined) seg.times = opts.times;
   return seg;
 }
 

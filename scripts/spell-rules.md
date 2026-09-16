@@ -258,3 +258,12 @@
    来源 `battleMaps`（「每收集到一张藏宝图，额外创造 4 颗 [x4]」= createSkulls 挂 modifier）。
 5. **特定兵种在场**：「若自身队伍有梁帝」→ `ifCond: { kind: 'troopPresent', side: 'ally', name: '梁帝' }`
    （**中文名**匹配存活者，与召唤引用的 referenceName 体系区分；side 缺省=己方，全局条件整段判定）。
+
+### §11 补充（2026-09-17 第二次裁定）
+
+- **随机状态阵营分池**：赋予盟友 = 正面池（barrier/rage/submerged，引擎已实现施加管线者）、
+  赋予敌人 = 负面池（12 种）。`inflictRandom(target, { times: N })` 支持「陷入 N 个随机状态效果」
+  （逐次独立掷签，同状态走 applyStatus 合并口径）。
+- **敌方颜色动态取色**：ColorSpec 新增 `'ENEMY'`（随机存活敌人的一种法力色，多色 rng 掷选）
+  与 `'LAST_TARGET'`（跨段追踪目标的一种法力色）。「创造指定敌人的法力颜色宝石」= `createGems('ENEMY', N)`；
+  「将该敌人的一种法力颜色的所有宝石转化为X」= `transformToSpecial('LAST_TARGET', X)`。

@@ -391,6 +391,7 @@ export function tickTeamStatuses(characters: Character[], rng?: SeededRNG): Game
 // —— 状态施加效果原语（供技能原型编排） ——
 
 import type { EffectContext, EffectPrimitive } from './context';
+import { findSide } from './context';
 
 export interface StatusApplyParams {
   /** 目标列表（由 targeting 产出） */
@@ -435,30 +436,44 @@ export function statusEffect(params: StatusApplyParams): EffectPrimitive {
 
 
 
-/** 随机状态效果（「造成随机状态效果」）的可抽取池：全部为可施加的负面状态（2026-09-17 回收批裁定）。 */
+/** 随机状态效果（「造成随机状态效果」）的负面池：施加给敌方阵营（2026-09-17 回收批裁定）。 */
 export const RANDOM_NEGATIVE_STATUS_POOL: readonly string[] = [
   'poison', 'burning', 'bleed', 'silence', 'frozen', 'stun', 'entangle', 'web', 'disease', 'curse', 'death-mark', 'charm',
+];
+
+/** 随机状态的正面池：施加给盟友阵营（引擎已实现施加管线的正面状态）。 */
+export const RANDOM_POSITIVE_STATUS_POOL: readonly string[] = [
+  'barrier', 'rage', 'submerged',
 ];
 
 export interface RandomStatusParams {
   targets: Character[];
   /** 存续回合数（缺省 3，与 statusEffect 同口径） */
   turns?: number;
+  /** 每目标连续施加的随机状态个数（「使其陷入 3 个随机状态效果」= 3；缺省 1） */
+  times?: number;
 }
 
 /**
- * 随机状态：对每个存活目标独立掷签从负面池选一种施加（种子化 rng，确定性）。
+ * 随机状态（用户裁定 2026-09-17：盟友=正面池、敌方=负面池）：对每个存活目标掷签施加。
+ * times > 1 时逐次独立掷签（可重复同一状态，走 applyStatus 合并口径）。
  * DoT 量级走引擎默认（中毒/燃烧 3、出血 1，由 tick 结算侧的缺省口径接管）。
  */
 export function randomStatusEffect(params: RandomStatusParams): EffectPrimitive {
   return {
     apply(ctx: EffectContext): GameEvent[] {
       const events: GameEvent[] = [];
+      const mySide = findSide(ctx.state, ctx.casterId);
       for (const target of params.targets) {
         if (target.defeated) continue;
-        const statusId = RANDOM_NEGATIVE_STATUS_POOL[ctx.rng.nextInt(RANDOM_NEGATIVE_STATUS_POOL.length)];
-        const status: StatusInstance = { id: statusId, turns: params.turns ?? 3 };
-        events.push(...applyStatus(target, status));
+        const negative = mySide !== null && findSide(ctx.state, target.id) !== mySide;
+        const pool = negative ? RANDOM_NEGATIVE_STATUS_POOL : RANDOM_POSITIVE_STATUS_POOL;
+        const times = Math.max(1, params.times ?? 1);
+        for (let i = 0; i < times; i++) {
+          const statusId = pool[ctx.rng.nextInt(pool.length)];
+          const status: StatusInstance = { id: statusId, turns: params.turns ?? 3 };
+          events.push(...applyStatus(target, status));
+        }
       }
       return events;
     },

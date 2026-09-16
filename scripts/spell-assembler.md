@@ -193,7 +193,10 @@ oneOf(分支…)                         // 「X 或 Y」随机多选一：掷�
 
 ```ts
 sacrifice('allyOthers')              // 「献祭一名盟友」= 随机其他盟友（不含施法者）；即杀走 execute 管线
-inflictRandom(target, opts?)         // 「造成随机状态效果」：每目标掷签负面池（turns 缺省 3）
+inflictRandom(target, opts?)         // 「造成随机状态效果」：按目标阵营分池（盟友=正面 barrier/rage/submerged，
+                                     //  敌方=负面 12 种）；opts { turns?, times? }（times=「陷入 N 个随机状态」）
+createGems('ENEMY', N)               // 「创造 N 颗指定敌人的法力颜色的宝石」（敌方颜色动态占位符）
+transformToSpecial('LAST_TARGET', X) // 「将该敌人的一种法力颜色的所有宝石转化为X」（跨段该敌人）
 transformTroop(target, ref, opts?)   // 「将一名随机敌人转化为怨灵」= transformTroop('enemyRandom','Banshee')
 gainMaps(1, 0, { chance: 0.2 })      // 「有 20% 的几率获得一张藏宝图」；modifier 来源 battleMaps
 // 条件：{ ifCond: { kind: 'troopPresent', side: 'ally', name: '梁帝' } }（中文名匹配存活者）

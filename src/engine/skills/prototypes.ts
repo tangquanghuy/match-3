@@ -296,6 +296,8 @@ export interface RandomStatusSegment extends SegmentOptions {
   kind: 'randomStatus';
   target: TargetMode;
   turns?: number;
+  /** 每目标连续施加个数（「陷入 3 个随机状态效果」） */
+  times?: number;
 }
 
 /** 兵种转化（「将一名敌人转化为怨灵」）：目标就地替换为模板兵种，不触发阵亡钩子 */
@@ -525,6 +527,7 @@ function compileSegment(segment: EffectSegment, ctx: EffectContext): EffectPrimi
       return randomStatusEffect({
         targets: resolveTargetsTracked(segment, ctx),
         turns: segment.turns,
+        times: segment.times,
       });
     case 'transformTroop':
       return transformTroopEffect({
