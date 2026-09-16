@@ -23,7 +23,6 @@ import { BaseColor } from '../../types';
 import type { CuratedBatch } from './index';
 
 const SKIPPED: { id: number; reason: string }[] = [
-  { id: 7061, reason: '伤害区间（「[(魔法 / 2) + 4] – [魔法 + 8] 到 {2} 点伤害」区间伤害无原语，待「顺路」批次）' },
   { id: 7402, reason: '二次缩放来源不支持（「伤害值等同于一名盟友的攻击力」无对应来源 kind，仅支持自身 selfStat，SOP §3）；「3 到 8 点法力值」区间数值亦无法表达' },
   { id: 9531, reason: '语义拿不准（几率部分现可用 chanceBoost 表达；但「给予 3 名盟友 4 点攻击力」裸复数未指明选择口径（首 3 位/随机 3 名），SOP 目标表无此措辞裁定）' },
   { id: 9536, reason: '特殊宝石（「腐烂宝石」：散射伤害增强来源与「转换为腐烂宝石」目标均不支持）' },

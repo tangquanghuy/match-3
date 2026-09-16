@@ -23,7 +23,6 @@ const SKIPPED: { id: number; reason: string }[] = [
   { id: 7348, reason: '「窃取生命，或窃取法力」二选一语义无法表达，语义拿不准' },
   { id: 7439, reason: '「拉至首位」隐匿/位置操作（不做清单）' },
   { id: 7534, reason: '「击至末位」隐匿/位置操作（不做清单）' },
-    { id: 8027, reason: '「打乱敌方队伍顺序」隐匿/位置操作（不做清单）' },
 ];
 
 const SPELLS: CuratedBatch['spells'] = [

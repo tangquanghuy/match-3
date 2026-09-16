@@ -18,7 +18,6 @@ import type { CuratedBatch } from './index';
 
 const SKIPPED: { id: number; reason: string }[] = [
   { id: 7000, reason: '「摧毁 1 颗宝石和其两侧的宝石」无对应原语（仅两侧邻格、目标未指明），语义拿不准' },
-  { id: 7043, reason: '「使其」指回前段随机敌人——跨段随机目标绑定仍不做（第五遍裁定仍 SKIP 项「再给予其」同款），维持跳过' },
   { id: 7057, reason: '首句「造成…真实伤害」未指明目标（batch-02 7265 同款先例，句子式不明）；「敌人受伤则 +6」条件加成现已可用 condBonus targetHpDamaged 表达，但目标措辞仍缺' },
   { id: 7137, reason: '「恢复所有生命值」无全额治疗原语，语义拿不准' },
   { id: 7158, reason: '特殊宝石（天使宝石）' },

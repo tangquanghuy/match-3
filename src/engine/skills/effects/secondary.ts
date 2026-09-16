@@ -34,7 +34,7 @@ export type ModifierSource =
   /** 当前棋盘上指定种类的特殊宝石数（「因炸弹宝石数而增强」） */
   | { kind: 'boardSpecial'; gem: SpecialGemKind }
   /** 施法者自身属性（hp=当前生命；missingHp=已损失生命） */
-  | { kind: 'selfStat'; stat: 'attack' | 'armor' | 'hp' | 'missingHp' | 'magic' }
+  | { kind: 'selfStat'; stat: 'attack' | 'armor' | 'hp' | 'missingHp' | 'magic' | 'manaCost' }
   /** 某方存活人数（ally=施法方含自身；enemy=敌方） */
   | { kind: 'teamSize'; side: 'ally' | 'enemy' }
   /** 施法方指定种族的存活盟友数 */
@@ -114,6 +114,8 @@ export type Condition =
   | { kind: 'troopPresent'; side?: 'ally' | 'enemy'; name: string }
   /** 施法者自身带有该状态（「若自身身处狂怒状态」，全局条件） */
   | { kind: 'selfStatus'; statusId: string }
+  /** 否定（「板面上没有一颗紫色宝石」，2026-09-17 回收批）：子条件不成立即成立 */
+  | { kind: 'not'; cond: Condition }
   /** 析取（「若敌人是兽人或恶魔」）：任一子条件成立即成立 */
   | { kind: 'anyOf'; of: Condition[] }
   /** 合取：全部子条件成立才成立 */
@@ -190,6 +192,8 @@ export function conditionMet(
       }
       return false;
     }
+    case 'not':
+      return !conditionMet(cond.cond, ctx, target);
     case 'selfStatus': {
       const caster = findCharacter(ctx.state, ctx.casterId);
       return !!caster && caster.statuses.some((st) => st.id === cond.statusId && st.turns > 0);
@@ -234,6 +238,9 @@ export function isTargetCondition(cond: Condition): boolean {
   if (cond.kind === 'anyOf' || cond.kind === 'allOf') {
     return cond.of.some((c) => isTargetCondition(c));
   }
+  if (cond.kind === 'not') {
+    return isTargetCondition(cond.cond);
+  }
   return false;
 }
 
@@ -253,13 +260,14 @@ export function condBonusValue(
   return conditionMet(bonus.cond, ctx, target) ? bonus.n : 0;
 }
 
-function statOf(char: Character, stat: 'attack' | 'armor' | 'hp' | 'magic' | 'missingHp'): number {
+function statOf(char: Character, stat: 'attack' | 'armor' | 'hp' | 'magic' | 'missingHp' | 'manaCost'): number {
   switch (stat) {
     case 'attack': return char.attack;
     case 'armor': return char.armor;
     case 'hp': return char.hp;
     case 'magic': return char.magic;
     case 'missingHp': return Math.max(0, char.maxHp - char.hp);
+    case 'manaCost': return char.manaCost;
   }
 }
 

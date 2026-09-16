@@ -42,6 +42,8 @@ import type {
   SacrificeSegment,
   RandomStatusSegment,
   TransformTroopSegment,
+  RepositionSegment,
+  ShuffleTeamSegment,
   NRangeSpec,
 } from './prototypes';
 
@@ -131,6 +133,8 @@ export interface DmgOpts extends SegmentOpts, NRangeOpts {
   n?: number;
   /** 伤害区间（[A] – [B]）：设置后忽略 base/mult */
   rangeSpec?: { min: ScalingSpec; max: ScalingSpec };
+  /** 分摊（「伤害分摊给至多 {N} 名敌人」）：掷一次总额均分给前 N 名存活敌人 */
+  split?: number;
   /** 生命窃取：实际伤害总额治疗施法者（「窃取 X 点生命值」） */
   drain?: boolean;
   /** 即杀（「摧毁/消灭该敌人」）：伤害额 = 目标当前有效耐久 */
@@ -150,6 +154,7 @@ export function dmg(
   if (opts.n !== undefined) seg.n = opts.n;
   if (opts.nRange !== undefined) seg.nRange = opts.nRange;
   if (opts.rangeSpec) seg.rangeSpec = opts.rangeSpec;
+  if (opts.split !== undefined) seg.split = opts.split;
   if (opts.drain) seg.drain = true;
   if (opts.execute) seg.execute = true;
   return attach(seg, opts);
@@ -500,17 +505,19 @@ export function oneOf(...branches: (EffectSegment | EffectSegment[])[]): OneOfSe
  *   summonRandom(['Goblin', ...])    随机族（种子化选一个）
  *   summonTemplate({ name, maxHp,... }) 手写模板
  */
-export function summonRef(referenceName: string, troopId?: number): SummonSegment {
+export function summonRef(referenceName: string, troopId?: number, opts?: SegmentOpts & { countRange?: { min: number; max: number } }): SummonSegment {
   const source: SummonSource = troopId !== undefined
     ? { ref: referenceName, troopId }
     : { ref: referenceName };
-  return { kind: 'summon', params: { source } };
+  const seg = attach({ kind: 'summon', params: { source, countRange: opts?.countRange } } as SummonSegment, opts);
+  return seg;
 }
-export function summonRandom(refs: string[], troopId?: number): SummonSegment {
+export function summonRandom(refs: string[], troopId?: number, opts?: SegmentOpts & { countRange?: { min: number; max: number } }): SummonSegment {
   const source: SummonSource = troopId !== undefined
     ? { randomOf: refs, troopId }
     : { randomOf: refs };
-  return { kind: 'summon', params: { source } };
+  const seg = attach({ kind: 'summon', params: { source, countRange: opts?.countRange } } as SummonSegment, opts);
+  return seg;
 }
 export function summonTemplate(template: SummonTemplate, troopId?: number): SummonSegment {
   const source: SummonSource = troopId !== undefined
@@ -587,6 +594,22 @@ export function transformTroopRandom(target: TargetMode, refs: string[], opts?: 
  *  战场经济第四币种；来源计数 battleMaps 供二次缩放（「每张藏宝图额外创造 4 颗 [x4]」）。 */
 export function gainMaps(base: number, mult = 0, opts?: SegmentOpts): GainEconomySegment {
   return attach({ kind: 'gainEconomy', currency: 'maps', scaling: scale(base, mult) }, opts);
+}
+
+
+/** 调位（「将一名敌人击回末位」「移至队伍首位」）：改编队顺序，影响前 N 名类目标序 */
+export function reposition(target: TargetMode, to: 'front' | 'back', opts?: SegmentOpts): RepositionSegment {
+  return attach({ kind: 'reposition', target, to }, opts);
+}
+
+/** 队伍乱序（「打乱敌方队伍」）：整队种子化重排 */
+export function shuffleTeam(side: 'ally' | 'enemy', opts?: SegmentOpts): ShuffleTeamSegment {
+  return attach({ kind: 'shuffleTeam', side }, opts);
+}
+
+/** once-per-battle 原型（「此咒语只能使用一次」）：本场重复释放会被引擎拒绝（不占号） */
+export function skillOnce(...segments: SkillPrototype['segments']): SkillPrototype {
+  return { segments, oncePerBattle: true };
 }
 
 function clamp01(n: number): number {

@@ -192,6 +192,17 @@ oneOf(分支…)                         // 「X 或 Y」随机多选一：掷�
 ### 逃跑 / 战场经济（四项拍板①③，spell-rules §10，批次 39 起可组装）
 
 ```ts
+reposition(target, 'front'|'back')   // 「击回末位/拉至首位」改编队顺序
+shuffleTeam('enemy')                 // 「打乱敌方队伍」
+dmg(…, { split: 2 })                 // 「伤害分摊给至多 {2} 名敌人」
+inflict(…, 'lastTarget')             // 跨段绑定：「再使他…」的目标
+summonRef(ref, undefined, { countRange: { min: 1, max: 3 } })  // 「召唤 1-3 名X」
+skillOnce(...段)                     // 「此咒语只能使用一次」
+{ ifCond: { kind: 'not', cond: … } } // 否定条件（「板面上没有一颗X宝石」）
+mana(…, { modifier: { mod: { kind: 'multiplier', a: 1 }, source: { kind: 'selfStat', stat: 'manaCost' } } })
+                                     // 「重新获得消耗的法力值」
+
+```ts
 sacrifice('allyOthers')              // 「献祭一名盟友」= 随机其他盟友（不含施法者）；即杀走 execute 管线
 inflictRandom(target, opts?)         // 「造成随机状态效果」：按目标阵营分池（盟友=正面 barrier/rage/submerged，
                                      //  敌方=负面 12 种）；opts { turns?, times? }（times=「陷入 N 个随机状态」）

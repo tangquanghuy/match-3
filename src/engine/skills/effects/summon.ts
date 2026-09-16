@@ -6,8 +6,9 @@
  *
  * 纯逻辑：无 pixi/gsap/dom 依赖。
  */
-import type { GameEvent, ExtraTurnEvent, SummonEvent } from '../../events';
+import type { GameEvent, ExtraTurnEvent } from '../../events';
 import type { Character } from '../../types';
+import { PlayerSide } from '../../types';
 import { MAX_ACTIVE_TEAM_SIZE, summonQueueOf } from '../../teamRoster';
 import type { EffectContext, EffectPrimitive } from './context';
 import { attachPassives } from '../../traits';
@@ -104,6 +105,8 @@ export type SummonSource =
 export interface SummonParams {
   /** 召唤物来源 */
   source: SummonSource;
+  /** 召唤数量区间（「召唤 1-3 名X」，rng 掷选；缺省 1。超额进召唤队列） */
+  countRange?: { min: number; max: number };
   /**
    * referenceName → 召唤物模板的映射器（由装配层注入，来自 troops 数据）。
    * ref/randomOf 需要它；template 来源不需要。缺失或映射失败时安全跳过。
@@ -162,34 +165,39 @@ export function summonEffect(params: SummonParams): EffectPrimitive {
       // them at defeat time; this also preserves sane behavior for direct primitive tests.
       team.characters = team.characters.filter((character) => !character.defeated);
 
-      const id = deriveCharId(ctx);
-      const troopId = params.troopId ?? src_troopId(params.source);
-      const summoned: Character = { ...template, id, defeated: false, statuses: [] };
+      const count = params.countRange
+        ? params.countRange.min + ctx.rng.nextInt(Math.max(1, params.countRange.max - params.countRange.min + 1))
+        : 1;
+      const events: GameEvent[] = [];
+      for (let i = 0; i < count; i++) {
+        const id = deriveCharId(ctx);
+        const troopId = params.troopId ?? src_troopId(params.source);
+        const summoned: Character = { ...template, id, defeated: false, statuses: [] };
 
-      if (team.characters.length < MAX_ACTIVE_TEAM_SIZE) {
-        team.characters.push(summoned);
-        const ev: SummonEvent = {
-          type: 'summon',
-          player: side,
-          slot: team.characters.length - 1,
-          troopId,
-          characterId: id,
-          destination: 'field',
-        };
-        return [ev];
+        if (team.characters.length < MAX_ACTIVE_TEAM_SIZE) {
+          team.characters.push(summoned);
+          events.push({
+            type: 'summon',
+            player: side,
+            slot: team.characters.length - 1,
+            troopId,
+            characterId: id,
+            destination: 'field',
+          });
+        } else {
+          const queue = summonQueueOf(team);
+          queue.push({ character: summoned, troopId });
+          events.push({
+            type: 'summon',
+            player: side,
+            slot: queue.length - 1,
+            troopId,
+            characterId: id,
+            destination: 'queue',
+          });
+        }
       }
-
-      const queue = summonQueueOf(team);
-      queue.push({ character: summoned, troopId });
-      const ev: SummonEvent = {
-        type: 'summon',
-        player: side,
-        slot: queue.length - 1,
-        troopId,
-        characterId: id,
-        destination: 'queue',
-      };
-      return [ev];
+      return events;
     },
   };
 }
@@ -197,4 +205,61 @@ export function summonEffect(params: SummonParams): EffectPrimitive {
 /** 从来源取可选 troopId（表现层用） */
 function src_troopId(src: SummonSource): number {
   return src.troopId ?? -1;
+}
+
+/** 调位参数（「将一名敌人击回末位」「移至队伍首位」） */
+export interface RepositionParams {
+  targets: Character[];
+  to: 'front' | 'back';
+}
+
+/**
+ * 调位：改编队顺序（front=插到队首、back=移到队尾），影响 enemyFront/enemyFirstN 等
+ * 目标序。多目标按倒序处理保持下标稳定。发 troop-reposition 事件供表现层调卡面顺序。
+ */
+export function repositionEffect(params: RepositionParams): EffectPrimitive {
+  return {
+    apply(ctx: EffectContext): GameEvent[] {
+      const events: GameEvent[] = [];
+      for (const target of [...params.targets].reverse()) {
+        if (target.defeated) continue;
+        const side = findSide(ctx.state, target.id);
+        if (side === null) continue;
+        const team = ctx.state.teams[side];
+        const idx = team.characters.indexOf(target);
+        if (idx < 0) continue;
+        team.characters.splice(idx, 1);
+        if (params.to === 'front') team.characters.unshift(target);
+        else team.characters.push(target);
+        events.push({ type: 'troop-reposition', targetId: target.id, to: params.to });
+      }
+      return events.reverse();
+    },
+  };
+}
+
+/** 乱序参数（「打乱敌方队伍」）：整队 Fisher-Yates 重排（种子化确定性） */
+export interface TeamShuffleParams {
+  side: 'ally' | 'enemy';
+}
+
+export function shuffleTeamEffect(params: TeamShuffleParams): EffectPrimitive {
+  return {
+    apply(ctx: EffectContext): GameEvent[] {
+      const mySide = findSide(ctx.state, ctx.casterId);
+      if (mySide === null) return [];
+      const side = params.side === 'enemy'
+        ? mySide === PlayerSide.Left ? PlayerSide.Right : PlayerSide.Left
+        : mySide;
+      const team = ctx.state.teams[side];
+      if (team.characters.length < 2) return [];
+      for (let i = team.characters.length - 1; i > 0; i--) {
+        const j = ctx.rng.nextInt(i + 1);
+        const tmp = team.characters[i];
+        team.characters[i] = team.characters[j];
+        team.characters[j] = tmp;
+      }
+      return [{ type: 'team-shuffle', player: side }];
+    },
+  };
 }

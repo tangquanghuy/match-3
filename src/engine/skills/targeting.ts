@@ -36,6 +36,7 @@ export type TargetMode =
   | 'enemyAll' // 全体
   | 'enemyChosen' // 施法方（玩家/AI）手动选定的敌方单体
   | 'enemyChosenAndBelow' // 指定敌人与其纵队「下方」（编队中更靠后）的全部存活敌人
+  | 'lastTarget' // 跨段追踪目标（「对随机敌人造成伤害，再使他陷入X」的「他」；2026-09-17 回收批）
   // —— 己方 ——
   | 'allySelf' // 施法者自身
   | 'allyFront'
@@ -139,6 +140,9 @@ export function selectTargets(
 ): Character[] {
   const casterSide = sideOf(state, casterId);
   if (casterSide === null) return [];
+
+  // lastTarget 特例：由 prototypes.resolveTargetsTracked 基于跨段追踪解析（此处兜底为空）
+  if (mode === 'lastTarget') return [];
 
   // allySelf 特例：施法者存活才返回自身
   if (mode === 'allySelf') {

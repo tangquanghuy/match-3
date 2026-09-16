@@ -7,10 +7,11 @@
  */
 import type { GameEvent, SkillDamageEvent } from '../../events';
 import type { Character } from '../../types';
+import { PlayerSide } from '../../types';
 import type { ScalingSpec } from '../scaling';
 import { evaluateScaling } from '../scaling';
 import type { EffectContext, EffectPrimitive } from './context';
-import { casterMagic, locate, findCharacter } from './context';
+import { casterMagic, locate, findCharacter, findSide } from './context';
 import { hasTroopType, evaluateWithModifier, DEFAULT_RACE_DOUBLE, condMultiplier, condBonusValue } from './secondary';
 import type { ModifierSpec, CondMult, CondBonus } from './secondary';
 import { passivesOf } from '../../traits';
@@ -46,6 +47,8 @@ export interface DamageParams {
   drain?: boolean;
   /** 即杀（「摧毁/消灭该敌人」）：伤害额 = 目标当前有效耐久（屏障/法术减伤照常结算） */
   execute?: boolean;
+  /** 分摊（「伤害分摊给至多 {N} 名敌人」）：掷一次总额，均分给前 N 名存活敌人（余数给靠前者） */
+  split?: number;
 }
 
 interface ChainMeta {
@@ -214,6 +217,25 @@ export function damageEffect(params: DamageParams): EffectPrimitive {
         const based = amount + condBonusValue(params.condBonus, ctx, victim);
         return based * raceFactor * condMultiplier(params.condMult, ctx, victim);
       };
+
+      if (params.split !== undefined && params.split > 0) {
+        const mySide = findSide(ctx.state, ctx.casterId);
+        if (mySide === null) return [];
+        const enemySide = mySide === PlayerSide.Left ? PlayerSide.Right : PlayerSide.Left;
+        const victims = ctx.state.teams[enemySide].characters.filter((c) => !c.defeated).slice(0, params.split);
+        if (victims.length === 0) return [];
+        const total = evaluateWithModifier(evaluateScaling(scaling, casterMagic(ctx)), params.modifier, ctx);
+        const per = Math.floor(total / victims.length);
+        let rem = total - per * victims.length;
+        const events: GameEvent[] = [];
+        for (const victim of victims) {
+          const deal = per + (rem > 0 ? 1 : 0);
+          if (rem > 0) rem -= 1;
+          if (deal <= 0) continue;
+          events.push(...damageOne(victim, ctx.casterId, deal, trueDamage, 'single'));
+        }
+        return events;
+      }
 
       if (range === 'splash') {
         const primary = targets[0];

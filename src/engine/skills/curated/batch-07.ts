@@ -25,7 +25,6 @@ import type { CuratedBatch } from './index';
 
 const SKIPPED: { id: number; reason: string }[] = [
   { id: 7672, reason: '语义拿不准（「所有拥有此颜色法力值的盟友」为法力色过滤目标，不在目标措辞表）' },
-  { id: 7774, reason: '隐匿/位置操作（「击至末位」，同 batch-01 7534）' },
   { id: 7791, reason: '缺失状态（狂怒）：「若敌人生命值受损，则获得狂怒效果并再造成 10 点伤害」——「再 +10」条件加成现可用 condBonus targetHpDamaged 表达，但「狂怒」仍不在状态白名单（batch-01 7740 同款）' },
     { id: 7808, reason: '二次缩放来源不支持（「生命值和法力值满值的敌军数」无对应来源 kind）' },
   { id: 7812, reason: '语义拿不准（「自身每高于敌方一个技能即窃取 3 点法力」属性比较条件量无对应机制）' },

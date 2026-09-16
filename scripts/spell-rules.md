@@ -279,3 +279,16 @@
 - **「有等同于自身魔法值的几率摧毁敌人」** = execute 段 `chance: 0` +
   `chanceBoost { multiplier 1, selfStat magic }`（概率 = chance + boost）。
 - **50/50 二选一伤害**：「有 50% 的几率造成三倍伤害」= `oneOf([三倍段], [一倍段])`（两支必走一支）。
+
+## §12 位置/分摊/跨段绑定/召唤区间/once-per-battle/否定（2026-09-17 用户裁定）
+
+1. **位置**：`reposition(target, 'front'|'back')`（「击回末位/拉至首位/移至队伍首位」）改编队顺序；
+   `shuffleTeam('enemy')`（「打乱敌方队伍」）整队种子化重排。发 troop-reposition / team-shuffle 事件。
+2. **分摊**：「造成 [A]–[B] 点伤害 到 {N}」= `dmg(target, …, { rangeSpec, split: N })`——
+   掷一次总额，均分给前 N 名存活敌人（余数给靠前者）。
+3. **跨段绑定**：目标模式 `'lastTarget'`（「对随机敌人伤害，再使他陷入X」的「他」）——
+   指向最近产目标段的主目标，不重抽 rng。
+4. **召唤数量区间**：`summonRef(ref, undefined, { countRange: { min, max } })`（超额进队列）。
+5. **once-per-battle**：`skillOnce(...段)`——本场重复释放被引擎拒绝（不占号）。
+6. **否定条件**：`{ kind: 'not', cond: … }`（「板面上没有一颗紫色宝石」）。
+7. **重获消耗法力**：mana 段挂 `modifier { multiplier 1, selfStat manaCost }`。

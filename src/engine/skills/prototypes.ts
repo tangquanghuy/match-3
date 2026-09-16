@@ -37,7 +37,7 @@ import type { ModifierSpec } from './effects/secondary';
 import { gemEffect } from './effects/gems';
 import type { GemParams } from './effects/gems';
 import { cleanseEffect, statusEffect, dispelStatusEffect, randomStatusEffect } from './effects/status';
-import { summonEffect, extraTurnEffect, transformTroopEffect } from './effects/summon';
+import { summonEffect, extraTurnEffect, transformTroopEffect, repositionEffect, shuffleTeamEffect } from './effects/summon';
 import { stormEffect } from './effects/storm';
 import { escapeEffect } from './effects/escape';
 import { economyGainEffect } from './effects/economy';
@@ -102,6 +102,8 @@ export interface DamageSegment extends SegmentOptions {
   condBonus?: import('./effects/secondary').CondBonus;
   /** 伤害区间（[A] – [B]）：与 scaling 二选一，区间内均匀取整 */
   rangeSpec?: { min: ScalingSpec; max: ScalingSpec };
+  /** 分摊（「伤害分摊给至多 {N} 名敌人」）：掷一次总额均分给前 N 名存活敌人（余数给靠前者） */
+  split?: number;
   /** 生命窃取：实际伤害总额治疗施法者（「窃取 X 点生命值」） */
   drain?: boolean;
   /** 即杀（「摧毁/消灭该敌人」）：伤害额 = 目标当前有效耐久 */
@@ -311,6 +313,19 @@ export interface TransformTroopSegment extends SegmentOptions {
   troopId?: number;
 }
 
+/** 调位（「将一名敌人击回末位」「移至队伍首位」）：改编队顺序 */
+export interface RepositionSegment extends SegmentOptions {
+  kind: 'reposition';
+  target: TargetMode;
+  to: 'front' | 'back';
+}
+
+/** 队伍乱序（「打乱敌方队伍」）：整队随机重排（种子化） */
+export interface ShuffleTeamSegment extends SegmentOptions {
+  kind: 'shuffleTeam';
+  side: 'ally' | 'enemy';
+}
+
 export interface GainEconomySegment extends SegmentOptions {
   kind: 'gainEconomy';
   currency: 'gold' | 'souls' | 'gems' | 'maps';
@@ -343,11 +358,15 @@ export type EffectSegment =
   | GainEconomySegment
   | SacrificeSegment
   | RandomStatusSegment
-  | TransformTroopSegment;
+  | TransformTroopSegment
+  | RepositionSegment
+  | ShuffleTeamSegment;
 
 /** 技能原型：有序效果段数组 */
 export interface SkillPrototype {
   segments: EffectSegment[];
+  /** 一场战斗只能释放一次（「此咒语只能使用一次」）：TurnEngine 按 actionLog 拒绝重复 */
+  oncePerBattle?: boolean;
 }
 
 /** 空原型：仅扣法力、无战斗效果（回退用，需求 11.4） */
@@ -397,6 +416,17 @@ function resolveTargetsTracked(
   ctx: EffectContext,
   overrideMode?: TargetMode,
 ): Character[] {
+  const mode = overrideMode ?? segment.target;
+  // 跨段绑定：'lastTarget' 指向最近一个产目标段的主目标（不再消耗 rng 重抽）
+  if (mode === 'lastTarget') {
+    const last = ctx.castTracking?.lastTarget;
+    const ch = last ? findCharacter(ctx.state, last.id) : undefined;
+    const targets = ch && !ch.defeated ? [ch] : [];
+    if (targets.length > 0 && ctx.castTracking) {
+      ctx.castTracking.lastTarget = { id: targets[0].id, aliveBefore: targets[0].defeated === false };
+    }
+    return targets;
+  }
   const targets = resolveTargets(segment, ctx, overrideMode);
   if (targets.length > 0 && ctx.castTracking) {
     ctx.castTracking.lastTarget = { id: targets[0].id, aliveBefore: !targets[0].defeated };
@@ -536,6 +566,13 @@ function compileSegment(segment: EffectSegment, ctx: EffectContext): EffectPrimi
         randomOf: segment.randomOf,
         troopId: segment.troopId,
       });
+    case 'reposition':
+      return repositionEffect({
+        targets: resolveTargetsTracked(segment, ctx),
+        to: segment.to,
+      });
+    case 'shuffleTeam':
+      return shuffleTeamEffect({ side: segment.side });
     default: {
       // 未知段：安全跳过（回退，需求 11.4）
       return null;

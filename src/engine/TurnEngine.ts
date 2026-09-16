@@ -1122,6 +1122,12 @@ export class TurnEngine {
     // 控制类状态：沉默/冰冻禁用技能释放。
     if (!canCastSkill(ch)) return [];
 
+    // once-per-battle（「此咒语只能使用一次」）：本场行动日志里已释放过同 id → 拒绝（不占号）
+    if (this.registry.prototypes.get(ch.skillId)?.oncePerBattle
+      && this.state.actionLog.some((entry) => entry.skillId === ch.skillId)) {
+      return [];
+    }
+
     // 所有前置校验通过后才进入解析态和消费法力。
     this.state.state = MatchState.Resolving;
     this.pendingExtraTurnSource = null;

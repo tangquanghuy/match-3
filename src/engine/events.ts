@@ -292,6 +292,22 @@ export interface TroopTransformEvent {
   troopId?: number;
 }
 
+
+/** 兵种调位（「将一名敌人击回末位」「移至队伍首位」，2026-09-17 回收批）：
+ *  引擎即改编队顺序（前/后决定 enemyFront/enemyFirstN 等目标序）；
+ *  表现层据此调整卡面列顺序（未接前由 refreshTeams 兜底数值刷新）。 */
+export interface TroopRepositionEvent {
+  type: 'troop-reposition';
+  targetId: number;
+  to: 'front' | 'back';
+}
+
+/** 队伍乱序（「打乱敌方队伍」）：整队随机重排（种子化）。 */
+export interface TeamShuffleEvent {
+  type: 'team-shuffle';
+  player: PlayerSide;
+}
+
 /** 全部事件的可辨识联合 */
 export type GameEvent =
   | SwapEvent
@@ -316,6 +332,8 @@ export type GameEvent =
   | FleeEvent
   | EconomyGainEvent
   | TroopTransformEvent
+  | TroopRepositionEvent
+  | TeamShuffleEvent
   | GravityEvent
   | RefillEvent
   | ReshuffleEvent
