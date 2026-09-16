@@ -163,8 +163,7 @@
 - 隐匿/位置操作（~~打乱板面~~ → 原语批已落地；「上下相邻敌人」等其余位置措辞仍 blocked）、
   驱散敌方全部增益（7 条）、伤害区间（32 条，待「顺路」批次）、动态颜色/混合色（31 条，待「顺路」批次）。
 - 「随机发生任何情况」类混沌技能、识别不出效果的 20 条 → 永久排除。
-- 「有 N% 的几率跑掉」逃跑机制：**待战斗流设计拍板**（fled 状态 vs 移出编队 vs 击杀结算，
-  设计建议见窗口 E 原语批报告），拍板前相关条目维持 blocked。
+- ~~「有 N% 的几率跑掉」逃跑机制~~ → **2026-09-16 四项拍板③落地**（§10.1 escapeChance 效果段，fled 方案），批次 39 起可组装。
 
 ## 8. 构建期护栏（断言失败 = 构建失败）
 
@@ -214,3 +213,32 @@
 10. **位置复合目标 enemyChosenAndBelow**：「对一名敌人和其下方的所有敌人」→ 指定敌人 +
     编队中更靠后（纵队下方，索引更大）的全部存活敌人。GoW 编队 0=顶；「下方」即更靠后的站位。
     「上下相邻的敌人」（前后各一名）语义另一读法，暂 blocked（8943）。
+
+## 10. 逃跑与战场经济（2026-09-16 · DECISIONS 四项拍板①③，批次 39 起可组装）
+
+1. **逃跑 escapeChance**：「有 N% 的几率跑掉」→ `escape(N/100)`（`{ kind: 'escapeChance', escapeChance }`）。
+   恒作用于**施法者本人**（官方语义：兵种自己逃出战斗）。判定成功 → 标 `fled` 并发 `flee` 事件
+   （带 hp/armor 快照），编队移出复用 defeat 的 splice+队列补位管线，但**不置 defeated、不发
+   defeat**——死亡召唤/阵亡响应（挥金/灵魂类）一律不触发。全队逃光 → 编队空 → isWipedOut
+   判定败北。判定失败零事件（rng 照常消耗，保证同种子同事件流）。**不**走段级 chance 管线
+   （escapeChance 字段独立命名，避免"段是否执行"+"是否逃跑"双重掷签）。
+2. **战场经济三币种**：金币 gold / 灵魂 souls / 宝石 gems 战斗内计数，挂在
+   `GameState.economy` **共用池**（GoW 战斗奖励归玩家，敌我施法的获得都进同一池；
+   `economy-gain` 事件的 side 字段记录获得发生时的行动方，仅作归因）。
+   - 获得段 `gainGold(base, mult)` / `gainSouls` / `gainGems`：「获得 10 金币」「获得 [魔法+2]
+     点灵魂」；数值走一次缩放 + modifier 二次缩放，照常。
+   - 二次缩放来源 `battleGold` / `battleSouls` / `battleGems`：「伤害值由我的金币加成 [10:1]」=
+     `{ mod: { kind: 'ratio', a: 10, b: 1 }, source: { kind: 'battleGold' } }`——读池子当前总额。
+   - 结算上报：BattleSession 结果新增 `economy`（三币总额）与 `fledExternalIds`（逃跑者，
+     不计入 defeatedExternalIds、不按击杀记账）。
+3. **赃物宝石 Booty Gem**（「战利品宝石」为同物译名）：不可匹配、无法力色；被摧毁时给
+   摧毁方（当时行动方）+10 金币（`BOOTY_GEM_GOLD`）。创造 `createSpecialGems({ kind: 'bootyGem' }, n)`；
+   技能清除/爆破/末日骷髅爆炸圈摧毁均结算金币。不自然掉落。
+4. **战后经济特质钩子**（traits 侧，merchant/necromancy/necromaster/moneybags 四 code）：
+   「从战斗中获得 N% 额外灵魂/黄金」「在战斗中获得 N% 黄金加成」→ `battleEconomyGain`
+   （traits.json 生成键）→ 编译进 `PassiveModifiers.battleEconomyGain`（同类比率累加）；
+   TurnEngine 在本场**首次**判出胜负时对玩家侧（Left）开局编队的比率合计 Σratio 放大共用池
+   （gold/souls 各自 `floor(总额 × (1+Σratio))`）。敌方比率不放大（奖励归玩家）。
+   晋升度缩放族（bountyhunter/godslayer 等）仍 blocked，待晋升批。
+5. **「藏宝图」仍 blocked**：战斗外收集物，本作无对应系统（9002/7420/7466/7279/8555 维持
+   blocked，理由已按本节口径改写）。

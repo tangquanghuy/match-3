@@ -408,6 +408,38 @@ describe('「被摧毁」型状态宝石（GEMS-SEMANTICS-2 A/B 组）', () => {
   });
 });
 
+// ───────────────────────── 方向对称性（Right 为行动方） ─────────────────────────
+
+describe('敌方匹配的方向对称性（activePlayer = Right）', () => {
+  /** 回归背景：用户报告「匹配时正面效果上到了对面」。side 解析对称于 activePlayer，
+   *  此处锁定 Right 行动时增益归 Right、负面归 Left，与 Left 行动互为镜像。 */
+  it('沉没宝石由敌方匹配 → 敌方自己一队获得 submerged（增益归匹配方）', () => {
+    const { engine, state } = matchViaSwap('u', 'B');
+    state.activePlayer = PlayerSide.Right;
+    const events = engine.resolveSwap({ row: 3, col: 5 }, { row: 3, col: 6 });
+    const applies = eventsOf('status-apply', events).filter((e) => e.statusId === 'submerged');
+    expect(applies).toHaveLength(1);
+    const rightIds = state.teams[PlayerSide.Right].characters.map((c) => c.id);
+    const leftIds = state.teams[PlayerSide.Left].characters.map((c) => c.id);
+    expect(rightIds).toContain(applies[0].targetId);
+    expect(leftIds).not.toContain(applies[0].targetId);
+  });
+
+  it('毒宝石由敌方匹配 → 我方全体获得 poison（负面归对家）', () => {
+    const { engine, state } = matchViaSwap('v', 'G');
+    state.activePlayer = PlayerSide.Right;
+    const events = engine.resolveSwap({ row: 3, col: 5 }, { row: 3, col: 6 });
+    const applies = eventsOf('status-apply', events).filter((e) => e.statusId === 'poison');
+    expect(applies).toHaveLength(2);
+    const leftIds = state.teams[PlayerSide.Left].characters.map((c) => c.id);
+    for (const apply of applies) {
+      expect(leftIds).toContain(apply.targetId);
+      const victim = state.teams[PlayerSide.Left].characters.find((c) => c.id === apply.targetId)!;
+      expect(victim.statuses.some((s) => s.id === 'poison')).toBe(true);
+    }
+  });
+});
+
 // ───────────────────────── 白名单与护栏 ─────────────────────────
 
 describe('自然掉落白名单与随机序列护栏', () => {

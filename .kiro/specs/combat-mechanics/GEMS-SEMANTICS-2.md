@@ -253,13 +253,13 @@ SpellSteps——游戏本体数据，非文本翻译），提取全部宝石操�
 - **程序化视觉**：基图 `brown.png` 去饱和（tint `#8a8f9c`，即引擎防御灰）。叠层：岩块棱线（Graphics 不规则五边形描边 2.5px `#5c6068` α0.9）+ 两道凿痕短线。**无任何待机动画**（惰性物）；高亮态用描边变白表达。触发反馈：label「石块」color `#a8adb8`（仅摧毁时）。
 - **开放问题**：无。
 
-### B6. 赃物宝石（Booty Gem）✅ 官方原文，但语义需重定 ｜ 解锁 5 技能
+### B6. 赃物宝石（Booty Gem）✅ 已实现（四项拍板①，2026-09-16 窗口 E）｜ 解锁 5 技能
 
-- **官方语义**："Booty Gems can not be matched. They have no mana color and will not give mana when destroyed. Booty Gems are destroyed when targeted by a Spell, or exploded by a Doomskull or Uber Doomskull. When destroyed, Booty Gems will give **10 Gold**."（不可匹配；被摧毁给 10 金币——**战斗外货币**。）来源：[Heroic Gems]。放弃桶里"赃物宝石/战利品宝石"是同一物两个译名（官方数据均为 Booty Gems：Dread Captain Grim、The Hanged Man、Boatswain Bart、Commodore Maryka、Lodestar、The Ruby Macaque 等）。
-- **语义冲突**：同幽魂宝石的先例——金币是元经济，本作战斗内无效果。建议**重定语义**为「被摧毁时随机一名己方 +5 法力」（对齐 Giant Gem 的数值档），或最低优先级仅做计数燃料（Grim 的"因赃物宝石数而增强"用 boardSpecialCount 即可表达）。
-- **引擎行为设计**：kind `bootyGem`；无归属色；`expandSpecialDestruction` →（若采纳重定语义）随机己方 +5 法力，事件带 `mana:{targetId, amount}`。
-- **程序化视觉**：基图 `yellow.png`。叠层：麻布袋口扎绳（Graphics 顶部交叉两笔 2px `#b8860b`）+ 一枚金币探出（圆 `#ffd24a` 描边 `#8a6b1a`，r=0.14r，中央方孔）。待机：金币 1.6s 周期轻微弹跳（y ±0.03 格）。触发反馈：label「赃物」color `#ffd24a`。
-- **开放问题**：语义重定方案（+5 法力 or 纯计数）**需拍板**。
+- **官方语义**："Booty Gems can not be matched. They have no mana color and will not give mana when destroyed. Booty Gems are destroyed when targeted by a Spell, or exploded by a Doomskull or Uber Doomskull. When destroyed, Booty Gems will give **10 Gold**."（不可匹配；被摧毁给 10 金币。）来源：[Heroic Gems]。放弃桶里"赃物宝石/战利品宝石"是同一物两个译名（官方数据均为 Booty Gems：Dread Captain Grim、The Hanged Man、Boatswain Bart、Commodore Maryka、Lodestar、The Ruby Macaque 等）。
+- **语义裁定（四项拍板①）**：~~重定为 +5 法力/计数燃料~~ **否**——经济三币种开工后按**官方原文**落：摧毁 → 摧毁方（当时行动方）+10 金币（`BOOTY_GEM_GOLD`），进战场经济池（`GameState.economy`），发 `economy-gain` 事件；金币为三币种之一（战后经济特质可放大），不再视作纯战斗外货币。
+- **引擎行为**：kind `bootyGem`；无归属色不可匹配（`SPECIAL_MATCH_COLOR` 无键，与炸弹/许愿/死亡标记同族）；`expandSpecialDestruction` 分支（技能清除/爆破波及/末日骷髅爆炸圈三路汇入）；不自然掉落。技能侧 `createSpecialGems({ kind: 'bootyGem' }, n)` 可创造（batch-39 · 9736 首用）；二次缩放 `boardSpecial { gem: 'bootyGem' }` 可计数。
+- **程序化视觉**（已落）：基图 `yellow.png` + 叠层：麻布袋口扎绳（Graphics 顶部交叉两笔 `#b8860b`）+ 一枚金币探出（圆 `#ffd24a` 描边 `#8a6b1a`，中央方孔），金币 1.6s 周期轻微弹跳。触发反馈：label「赃物 +10 金币」color `#ffd24a`。
+- **开放问题**：无。
 
 ---
 
@@ -350,7 +350,7 @@ SpellSteps——游戏本体数据，非文本翻译），提取全部宝石操�
 | 13 | 毒宝石 Poison Gem | `poisonGem` | 官方原文 | 绿 | 匹配→毒敌方全体 | **6** | 绿贴图+气泡上浮 |
 | 14 | 恐怖宝石 Terror Gem | `terrorGem` | 官方原文 | 紫 | 匹配→恐怖随机敌人 | **6** | 紫贴图+魔眼游移 |
 | 15 | 精灵火 Faerie Fire Gem | `faerieFireGem` | **未证实**（建议默认） | 绿（建议） | 摧毁→法伤 +50% 状态（建议） | **6** | 绿贴图+蝶形光晕 |
-| 16 | 赃物宝石 Booty Gem | `bootyGem` | 官方原文（需重定语义） | 不可匹配 | 摧毁→10 金币（战斗外） | **5** | 黄贴图+钱袋金币 |
+| 16 | 赃物宝石 Booty Gem | `bootyGem` | 官方原文 ✅ **已实现** | 不可匹配 | 摧毁→+10 金币（战场经济池） | **5** | 黄贴图+钱袋金币 |
 | 17 | 激怒宝石 Enrage Gem | `enrageGem` | 官方原文 | 红 | 摧毁→激怒随机己方 | **4** | 红贴图+怒气斜杠 |
 | 18 | 暗影之星 Umbral Star | `umbralStar` | 官方原文 | 黄紫（star2 键） | 匹配→两色法力+炸行列 | **4** | 紫底暗色五角星 |
 | 19 | 沉没宝石 Submerge Gem | `submergeGem` | 官方原文 | 蓝 | 摧毁→下潜随机己方 | **3** | 蓝贴图+波浪气泡 |
@@ -381,7 +381,7 @@ SpellSteps——游戏本体数据，非文本翻译），提取全部宝石操�
 - **SPAWNABLE_SPECIALS 白名单默认不扩**：官方先例是"战役期间偶尔掉落、战役结束停止"，本作无战役系统；自然掉落一旦开启会稀释骷髅/颜色分布并改变既有对局随机数序列。若要开启，只允许加入 A 组可匹配类，且 `specialSpawnChance` 建议上限 0.02（官方口径"rarely"）。不可匹配类（B 组）**禁止**入白名单——会淤积棋盘（同 bomb/wish当初的设计理由）。
 - **随机数序列**：新触发分支若引入 `rng.next()`（随机目标、随机状态池、药水数量），只在"对应宝石实际在场"时消耗——保证无新宝石的存量对局逐字节可复现（GravitySystem 骷髅风暴的同款护栏）。
 - **`settleDestroyed` 记账**：巨人 +5 法力、灵力 -2 法力都发生在摧毁结算之后；星的多色法力在组结算处加发。三处都要走 `ManaDistributor`/`canGainMana`（沉默拦截）同口径，别直接改 `mana` 字段（`applyWish` 的 buff 事件先例）。
-- **对齐修正（窗口 C 遗留，顺路修）**：① web 官方是"matched **or destroyed**"都触发，引擎现仅匹配路径（`collectMatchTriggers`），应把 web 移入摧毁管线双路径；② 通配倍率官方是**相加**（x2+x3=x5），引擎 `resolveSettle` 是相乘——官方口径见 [Heroic Gems]；③ 闪电/沙漏官方有"matched/destroyed/exploded 均给 1 法力"，引擎靠宝石数天然结算、无差额，无需改但文档要记。①② 属行为变更，会动已过验收的对局结果，**需用户点头后单独做**。
+- **对齐修正（窗口 C 遗留）——①② 已于 2026-09-16 四项拍板②落地（窗口 E）**：① web 双路径（匹配路径 `collectMatchTriggers` + 新增摧毁路径 `expandSpecialDestruction` 分支；匹配宝石不入摧毁队列，管线天然去重）；② 通配倍率相加（`resolveSettle` 累加器初值 0、逐颗 += tier，无通配组回落 1；x2+x3=x5）。③ 闪电/沙漏官方有"matched/destroyed/exploded 均给 1 法力"，引擎靠宝石数天然结算、无差额，无需改但文档要记。
 - **`boardSpecialCount` 计数 API**：技能二次缩放"因 X 宝石数而增强"依赖它；六色族按 kind 计数即可（不细分颜色，除非技能文本要求"蓝色巨人宝石数"——放弃桶暂无此句式）。
 - **性能**：24 种新宝石全部免贴图；每格叠层 ≤2、无逐帧滤镜、触发反馈 ≤450ms——见 §0 预算。GemSpritePool 复用不受影响（叠层随 `setType` 重绘）。
 
@@ -389,10 +389,10 @@ SpellSteps——游戏本体数据，非文本翻译），提取全部宝石操�
 
 1. **六色族存储**：`SpecialGemSpec` 加 `color?: BaseColor`（推荐） vs 每色一个 kind（dragonRed/dragonBlue… 共 12 个 kind，词表爆炸）。
 2. **灵力宝石的归属色集合**与"汲取法力是否转移给触发方"（建议：六色、不转移）。
-3. **赃物宝石重定语义**（建议：摧毁 → 随机己方 +5 法力；或降级为纯计数燃料）。
+3. ~~**赃物宝石重定语义**~~ → **已裁定（四项拍板①，2026-09-16）**：按官方原文落（摧毁 → 摧毁方 +10 金币，进战场经济池），已实现（kind `bootyGem`，窗口 E）。
 4. **恐怖状态的完整度**：做完整"队伍位次下移 10%/回合"还是先做状态挂载空壳（技能计数可用）。
 5. **恶魔传送门的召唤模板**：随机恶魔的等级/属性缩放口径。
-6. **窗口 C 对齐修正**（web 双路径、通配倍率相加）是否随本批一并做——涉及既有对局回归。
+6. ~~**窗口 C 对齐修正**~~ → **已拍板执行（四项拍板②）**：web 双路径 + 通配倍率相加均已落地，gemSpecial.test.ts 乘法口径断言已按官方相加口径更新（×8 → ×6）。
 7. **未证实三宝石**（精灵火/打昏/屏障）的建议默认行为是否照单全收。
 8. **腐朽光环的结算频率**（建议回合尾一次扫描）与同数兵员时"双方都扣"的确认。
 

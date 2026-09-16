@@ -7,7 +7,8 @@ export type MatchShape = 'line3' | 'line4plus' | 'L' | 'T';
 
 /**
  * 一个消除组的结算类别（特殊宝石引入后，组的归属不再等于"组内第一个宝石的类型"）：
- *   - color：颜色组。通配按解析色计入；manaMultiplier 为组内通配倍率乘积（无通配 = 1）
+ *   - color：颜色组。通配按解析色计入；manaMultiplier 为组内通配倍率**相加**合计
+ *     （官方 Heroic Gems 口径：同一次匹配多颗通配倍率相加，x2+x3=x5；无通配 = 1）
  *   - skull：骷髅族组（普通骷髅/末日骷髅/至尊末日骷髅）。bonusDamage 为末日族加伤合计
  *   - wildOnly：全通配组。无归属色，只消除不结算（3 颗通配互连且无颜色可依附的极小概率局面）
  */
@@ -203,13 +204,15 @@ export class MatchResolver {
   }
 
   /**
-   * 解析一个消除组的结算类别：颜色归属（组内首个非通配颜色）、通配倍率乘积、末日骷髅计数。
+   * 解析一个消除组的结算类别：颜色归属（组内首个非通配颜色）、通配倍率相加、末日骷髅计数。
+   * 官方口径（Heroic Gems，DECISIONS 四项拍板②）：同一次匹配中多颗通配的倍率**相加**
+   * （x2+x3=x5；单颗 x2 仍是 ×2），因此累加器从 0 起，结算时无通配回落 1。
    * 骷髅族与颜色不会混在一组（共享格的宝石只可能属于一侧），极小概率的交叉通配局面
    * （一个通配同时被红蓝两个方向依附）按扫描序首个颜色计，全部消除的宝石数计法力量。
    */
   private resolveSettle(board: BoardModel, cells: CellPos[]): MatchSettle {
     let color: BaseColor | null = null;
-    let multiplier = 1;
+    let multiplier = 0;
     let skullish = false;
     let bonusDamage = 0;
 
@@ -224,7 +227,8 @@ export class MatchResolver {
       } else if (t.kind === 'special') {
         switch (t.spec.kind) {
           case 'wildcard':
-            multiplier *= t.spec.tier ?? 2;
+            // 官方相加口径：x2+x3=x5（乘法旧口径为 ×6，已按拍板改）
+            multiplier += t.spec.tier ?? 2;
             break;
           case 'doomSkull':
             skullish = true;
@@ -247,7 +251,7 @@ export class MatchResolver {
 
     if (skullish) return { kind: 'skull', bonusDamage };
     if (color !== null) {
-      return { kind: 'color', color, manaMultiplier: multiplier };
+      return { kind: 'color', color, manaMultiplier: Math.max(1, multiplier) };
     }
     return { kind: 'wildOnly' };
   }

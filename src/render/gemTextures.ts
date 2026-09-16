@@ -17,11 +17,35 @@ import bombUrl from '../assets/gems/special/bomb.png';
 import webUrl from '../assets/gems/special/web.png';
 import ghostUrl from '../assets/gems/special/ghost.png';
 import wildcard2Url from '../assets/gems/special/wildcard2.png';
+import wildcard3Url from '../assets/gems/special/wildcard3.png';
 import wildcard4Url from '../assets/gems/special/wildcard4.png';
 import wishUrl from '../assets/gems/special/wish.png';
 import lightningColUrl from '../assets/gems/special/lightningCol.png';
 import lightningRowUrl from '../assets/gems/special/lightningRow.png';
 import hourglassUrl from '../assets/gems/special/hourglass.png';
+// 状态宝石：独立生成美术，主体语义直接烘焙进宝石，不再复用六色底图。
+import burningGemUrl from '../assets/gems/status/burningGem.png';
+import freezeGemUrl from '../assets/gems/status/freezeGem.png';
+import curseGemUrl from '../assets/gems/status/curseGem.png';
+import bleedGemUrl from '../assets/gems/status/bleedGem.png';
+import poisonGemUrl from '../assets/gems/status/poisonGem.png';
+import deathMarkGemUrl from '../assets/gems/status/deathMarkGem.png';
+import terrorGemUrl from '../assets/gems/status/terrorGem.png';
+import entangleGemUrl from '../assets/gems/status/entangleGem.png';
+import enrageGemUrl from '../assets/gems/status/enrageGem.png';
+import submergeGemUrl from '../assets/gems/status/submergeGem.png';
+import faerieFireGemUrl from '../assets/gems/status/faerieFireGem.png';
+import stunGemUrl from '../assets/gems/status/stunGem.png';
+import barrierGemUrl from '../assets/gems/status/barrierGem.png';
+// 赃物宝石 8 级视觉链（tier 1-8）：纯物件，不使用宝石底座。
+import copperCoinUrl from '../assets/gems/loot/copperCoin.png';
+import silverCoinUrl from '../assets/gems/loot/silverCoin.png';
+import goldCoinUrl from '../assets/gems/loot/goldCoin.png';
+import moneyBagUrl from '../assets/gems/loot/moneyBag.png';
+import brownChestUrl from '../assets/gems/loot/brownChest.png';
+import greenChestUrl from '../assets/gems/loot/greenChest.png';
+import redChestUrl from '../assets/gems/loot/redChest.png';
+import vaultUrl from '../assets/gems/loot/vault.png';
 
 const COLOR_URL: Record<BaseColor, string> = {
   [BaseColor.Red]: redUrl,
@@ -34,11 +58,9 @@ const COLOR_URL: Record<BaseColor, string> = {
 
 /**
  * 特殊宝石贴图（按 kind；通配按倍率分两张，见 WILDCARD_TIER_URL）。
- * 状态搬运宝石族（GEMS-SEMANTICS-2 波A，用户裁定免贴图）：基图直接复用归属色
- * 宝石贴图（deathMarkGem 无色 → 骷髅贴图打底），状态主题表现由 GemSprite 的
- * 程序化叠层绘制，引擎与贴图管线零特殊分支。
+ * 状态搬运宝石族使用独立 256×256 透明贴图；GemSprite 上的程序化层只补环境光尘。
  */
-const SPECIAL_URL: Record<Exclude<SpecialGemKind, 'wildcard'>, string> = {
+const SPECIAL_URL: Record<Exclude<SpecialGemKind, 'wildcard' | 'bootyGem'>, string> = {
   doomSkull: doomSkullUrl,
   uberDoomSkull: uberDoomSkullUrl,
   bomb: bombUrl,
@@ -48,25 +70,38 @@ const SPECIAL_URL: Record<Exclude<SpecialGemKind, 'wildcard'>, string> = {
   wish: wishUrl,
   hourglass: hourglassUrl,
   ghost: ghostUrl,
-  burningGem: redUrl,
-  freezeGem: blueUrl,
-  curseGem: brownUrl,
-  bleedGem: purpleUrl,
-  poisonGem: greenUrl,
-  deathMarkGem: skullUrl,
-  terrorGem: purpleUrl,
-  entangleGem: greenUrl,
-  enrageGem: redUrl,
-  submergeGem: blueUrl,
-  faerieFireGem: greenUrl,
-  stunGem: brownUrl,
-  barrierGem: yellowUrl,
+  burningGem: burningGemUrl,
+  freezeGem: freezeGemUrl,
+  curseGem: curseGemUrl,
+  bleedGem: bleedGemUrl,
+  poisonGem: poisonGemUrl,
+  deathMarkGem: deathMarkGemUrl,
+  terrorGem: terrorGemUrl,
+  entangleGem: entangleGemUrl,
+  enrageGem: enrageGemUrl,
+  submergeGem: submergeGemUrl,
+  faerieFireGem: faerieFireGemUrl,
+  stunGem: stunGemUrl,
+  barrierGem: barrierGemUrl,
 };
 
-/** 通配宝石按 tier（法力倍率）区分贴图；未知 tier 回退 ×2 */
+/** 通配宝石按 tier（法力倍率）区分贴图（官方 2/3/4 三档，DECISIONS 四项拍板②）；未知 tier 回退 ×2 */
 const WILDCARD_TIER_URL: Record<number, string> = {
   2: wildcard2Url,
+  3: wildcard3Url,
   4: wildcard4Url,
+};
+
+/** 赃物价值链；未传 tier 时保持旧版“钱袋”外观。 */
+const BOOTY_TIER_URL: Record<number, string> = {
+  1: copperCoinUrl,
+  2: silverCoinUrl,
+  3: goldCoinUrl,
+  4: moneyBagUrl,
+  5: brownChestUrl,
+  6: greenChestUrl,
+  7: redChestUrl,
+  8: vaultUrl,
 };
 
 const colorTex = new Map<BaseColor, Texture>();
@@ -75,9 +110,11 @@ let skullTex: Texture | null = null;
 let loaded = false;
 let loadPromise: Promise<void> | null = null;
 
-/** 特殊宝石的贴图缓存键（通配带 tier） */
+/** 特殊宝石的贴图缓存键（通配和赃物链带 tier） */
 function specialKey(kind: SpecialGemKind, tier?: number): string {
-  return kind === 'wildcard' ? `wildcard:${tier ?? 2}` : kind;
+  if (kind === 'wildcard') return `wildcard:${tier ?? 2}`;
+  if (kind === 'bootyGem') return `bootyGem:${tier ?? 4}`;
+  return kind;
 }
 
 /**
@@ -90,8 +127,9 @@ export function loadGemTextures(): Promise<void> {
   loadPromise = (async () => {
     try {
       const colorEntries = Object.entries(COLOR_URL) as [BaseColor, string][];
-      const specialEntries = Object.entries(SPECIAL_URL) as [Exclude<SpecialGemKind, 'wildcard'>, string][];
+      const specialEntries = Object.entries(SPECIAL_URL) as [Exclude<SpecialGemKind, 'wildcard' | 'bootyGem'>, string][];
       const wildcardEntries = Object.entries(WILDCARD_TIER_URL) as [string, string][];
+      const bootyEntries = Object.entries(BOOTY_TIER_URL) as [string, string][];
       await Promise.all([
         ...colorEntries.map(async ([color, url]) => {
           colorTex.set(color, await Assets.load(url));
@@ -101,6 +139,9 @@ export function loadGemTextures(): Promise<void> {
         }),
         ...wildcardEntries.map(async ([tier, url]) => {
           specialTex.set(`wildcard:${tier}`, await Assets.load(url));
+        }),
+        ...bootyEntries.map(async ([tier, url]) => {
+          specialTex.set(`bootyGem:${tier}`, await Assets.load(url));
         }),
         (async () => {
           skullTex = await Assets.load(skullUrl);

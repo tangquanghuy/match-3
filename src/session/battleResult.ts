@@ -93,10 +93,34 @@ export function buildBattleResult(input: BuildResultInput): BattleResult {
 
   const combatants: CombatantResult[] = [];
   const defeatedExternalIds: string[] = [];
+  const fledExternalIds: string[] = [];
+  // 逃跑者离场后已不在编队里，只能从事件流辨认；带最后一次 flee 快照的 hp/armor 回传
+  const fleeSnapshots = new Map<number, { hp: number; armor: number }>();
+  for (const event of events) {
+    if (event.type === 'flee') {
+      fleeSnapshots.set(event.characterId, { hp: event.hp, armor: event.armor });
+    }
+  }
 
   for (const { internalId, snapshot, side } of idMap.entries()) {
     const enginePlayer: PlayerSide = side === 'player' ? PlayerSide.Left : PlayerSide.Right;
     const character = state.teams[enginePlayer].characters.find((c) => c.id === internalId);
+    // 逃跑者：已按 fled 标记离场，不按击杀记账（照实回传逃跑瞬间数值）
+    const flee = fleeSnapshots.get(internalId);
+    if (flee) {
+      combatants.push({
+        externalId: snapshot.externalId,
+        side,
+        hp: flee.hp,
+        maxHp: snapshot.stats.hp,
+        armor: flee.armor,
+        defeated: false,
+        fled: true,
+        statuses: [],
+      });
+      fledExternalIds.push(snapshot.externalId);
+      continue;
+    }
     // 角色可能已被移出在场编队（阵亡后被召唤物顶替），此时回落到下发时的数值并标记阵亡。
     const result: CombatantResult = character
       ? {
@@ -134,7 +158,13 @@ export function buildBattleResult(input: BuildResultInput): BattleResult {
     turns: countCompletedTurns(state.actionLog),
     combatants,
     defeatedExternalIds,
+    fledExternalIds,
     summonedCount: events.filter((event) => event.type === 'summon').length,
+    economy: {
+      gold: state.economy.gold,
+      souls: state.economy.souls,
+      gems: state.economy.gems,
+    },
     actionLogDigest: digestString(encodeActionLog(state.actionLog)),
     eventSummary: summarizeEvents(events),
   };

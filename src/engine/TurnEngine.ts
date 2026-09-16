@@ -21,7 +21,7 @@ import type { TargetChooser } from './skills/targetChooser';
 import { AiCellChooser, prototypeNeedsCell } from './skills/cellChooser';
 import type { CellChooser } from './skills/cellChooser';
 import { MatchState, PlayerSide, BaseColor, opponentOf, colorGem, WEB_GEM_TURNS,
-  MATCH_STATUS_GEMS, DESTROY_STATUS_GEMS, STATUS_GEM_EFFECTS, isStatusGemKind } from './types';
+  MATCH_STATUS_GEMS, DESTROY_STATUS_GEMS, STATUS_GEM_EFFECTS, isStatusGemKind, BOOTY_GEM_GOLD } from './types';
 import type { SkullStormDropKind, StatusGemKind, StatusInstance } from './types';
 
 /**
@@ -85,6 +85,13 @@ export class TurnEngine {
   private readonly rosterCharAtActionStart = new Map<number, Character>();
   /** 构造阶段产生的开局事件，交给 BattleSession 记录并由表现层首屏消费。 */
   private readonly initialEvents: GameEvent[] = [];
+  /**
+   * 玩家侧（Left）战后经济加成比率合计（merchant/necromancy 族特质，DECISIONS 四项拍板①）。
+   * 构造期从开局编队的编译被动汇总一次（阵亡移出编队后读不到，快照保住全场效力）；
+   * GameOver 时对共用经济池 gold/souls 一次性乘 (1 + Σratio)。敌方（Right）比率不计入：
+   * GoW 的战斗奖励归玩家，共用池只按玩家侧特质放大。
+   */
+  private readonly economyGainRatios: { gold: number; souls: number };
 
   constructor(
     private state: GameState,
@@ -101,6 +108,16 @@ export class TurnEngine {
       ...state.teams[PlayerSide.Right].characters,
     ];
     for (const char of all) attachPassives(char);
+    // 战后经济加成快照（玩家侧开局编队）：GameOver 时放大共用经济池。
+    const gainRatios = { gold: 0, souls: 0 };
+    for (const char of state.teams[PlayerSide.Left].characters) {
+      const g = char.passive?.battleEconomyGain;
+      if (g) {
+        gainRatios.gold += g.gold;
+        gainRatios.souls += g.souls;
+      }
+    }
+    this.economyGainRatios = gainRatios;
     // 战斗开始的一次性特质（全体光环、按颜色计数光环、开局法力）。
     // 事件流此时还没开始，交由表现层首次刷新卡面时读取。
     applyBattleStartTraits(
@@ -477,8 +494,21 @@ export class TurnEngine {
           ? this.cellsOfRow(d.pos.row)
           : this.cellsOfCol(d.pos.col);
         this.clearCellsForSpecial(cells, 'gem-destroy', events, queue, chain);
+      } else if (kind === 'web') {
+        // 织网双路径（官方 matched **or destroyed**，DECISIONS 四项拍板②）：
+        // 匹配路径在 collectMatchTriggers 已结算（匹配宝石不入本队列），此处只接摧毁路径
+        //（技能清除/爆破波及/炸弹圈/闪电行列链上摧毁）——同一次操作内两路互斥，不会重复施加。
+        events.push(...this.applyWebGem(d.pos));
       } else if (kind === 'wish') {
         this.applyWish(d.pos, events);
+      } else if (kind === 'bootyGem') {
+        // 赃物宝石（官方 Booty Gem）：被摧毁时给摧毁方 +10 金币（战场经济池）。
+        // 不可匹配（SPECIAL_MATCH_COLOR 无键），只能经清除管线/末日骷髅爆炸圈抵达这里。
+        events.push({ type: 'special-gem-trigger', kind: 'bootyGem', pos: d.pos });
+        this.state.economy.gold += BOOTY_GEM_GOLD;
+        events.push({
+          type: 'economy-gain', currency: 'gold', amount: BOOTY_GEM_GOLD, side: this.state.activePlayer,
+        });
       } else if (isStatusGemKind(kind) && DESTROY_STATUS_GEMS.has(kind)) {
         // 「被摧毁」型状态宝石（流血/缠绕/打昏/屏障/激怒/沉没/精灵火/死亡标记）：
         // 被技能清除/爆破波及/匹配三路都汇到这里，按考证规格施加状态（不清相邻格）。
@@ -981,10 +1011,18 @@ export class TurnEngine {
     }];
   }
 
-  /** 检查胜负，若结束则发出 game-over 并置状态（需求 15.3, 15.4） */
+  /** 检查胜负，若结束则发出 game-over 并置状态（需求 15.3, 15.4）。
+   * 全队 fled 的判定由移出管线天然覆盖：逃跑者已 splice 出编队，全逃光的队伍
+   * characters 为空 → isWipedOut 成立 → 按败北结算（DECISIONS 四项拍板③）。 */
   private checkVictory(events: GameEvent[]): boolean {
     for (const side of [PlayerSide.Left, PlayerSide.Right]) {
       if (CombatResolver.isWipedOut(this.state.teams[side])) {
+        // 战后经济钩子（merchant/necromancy 族）：只在本场首次判出胜负时放大一次。
+        if (this.state.winner === null) {
+          const { gold, souls } = this.economyGainRatios;
+          if (gold > 0) this.state.economy.gold = Math.floor(this.state.economy.gold * (1 + gold));
+          if (souls > 0) this.state.economy.souls = Math.floor(this.state.economy.souls * (1 + souls));
+        }
         const winner = opponentOf(side);
         this.state.state = MatchState.GameOver;
         this.state.winner = winner;

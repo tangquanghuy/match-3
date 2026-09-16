@@ -218,6 +218,8 @@ describe('B · 编译契约', () => {
     // 条件光环批（窗口 E）
     'onBigMatchStatus', 'onBigMatchSizedGain', 'onColorMatchTypeAura',
     'onBigMatchCleanse', 'onColorMatchCleanse', 'onEnemyColorMatchGain',
+    // 战后经济批（窗口 E，merchant/necromancy 族）
+    'battleEconomyGain',
   ]);
 
   /**

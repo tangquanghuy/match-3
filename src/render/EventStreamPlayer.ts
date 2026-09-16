@@ -257,6 +257,11 @@ export class EventStreamPlayer {
           duration: (AnimConfig.frameFX.death_drift.duration + 40 + AnimConfig.defeat.cardExitDuration) / 1000,
         });
         break;
+      case 'flee':
+        // 逃跑：轻量退场（removeCharacterCard 的收缩淡出），只预留退场时长
+        tl.add(() => this.onBattleEvent?.(ev));
+        tl.to({}, { duration: AnimConfig.defeat.cardExitDuration / 1000 });
+        break;
       case 'skull-damage':
         // 音效与震屏改由 App 在冲撞命中瞬间触发（卡肉同步），此处只派发事件
         tl.add(() => {

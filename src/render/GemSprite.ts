@@ -51,6 +51,8 @@ const SPECIAL_HEX: Record<SpecialGemKind, number> = {
   faerieFireGem: 0x4bd66a,
   stunGem: 0xc8864b,
   barrierGem: 0xffd24a,
+  // 赃物宝石（窗口 E 经济批）：黄底（贴图）+ 钱袋金币程序化叠层
+  bootyGem: 0xffd24a,
 };
 
 export function colorOf(type: GemType): number {
@@ -100,7 +102,7 @@ export class GemSprite extends Container {
     this.statusOverlay = null;
 
     const tex = textureFor(type);
-    // 状态搬运宝石：基图（归属色贴图，见 gemTextures SPECIAL_URL）之上叠状态主题层
+    // 状态搬运宝石：独立贴图之上只叠轻量环境粒子。
     const statusKind = type.kind === 'special' && isStatusGemKind(type.spec.kind)
       ? type.spec.kind
       : null;
@@ -114,8 +116,6 @@ export class GemSprite extends Container {
       if (type.kind === 'special') {
         // 末日族在美术上更大更狰狞，贴图铺满格子；其余特殊宝石与颜色宝石一致
         if (type.spec.kind === 'doomSkull' || type.spec.kind === 'uberDoomSkull') visualScale = 1.0;
-        // 死亡标记宝石（GEMS-SEMANTICS-2 B1）：骷髅贴图缩小打底，让红 × 叠层成为视觉主体
-        if (type.spec.kind === 'deathMarkGem') visualScale = 0.82;
       }
       if (type.kind === 'color') {
         if (type.color === BaseColor.Yellow) visualScale = 0.85;
@@ -315,7 +315,7 @@ export class GemSprite extends Container {
         break;
       }
       // 状态搬运族（GEMS-SEMANTICS-2 波A）：贴图缺失时的兜底 = 归属色菱形 + 描边。
-      // 正常路径走 SPECIAL_URL 归属色贴图 + statusGemOverlays 叠层，这里只保证可玩。
+      // 正常路径走 SPECIAL_URL 独立贴图 + 轻量 statusGemOverlays 粒子，这里只保证可玩。
       case 'burningGem':
       case 'freezeGem':
       case 'curseGem':

@@ -53,12 +53,17 @@ export type SpecialGemKind =
   | 'lightningRow'
   /** 闪电·黄：可匹配（黄色）；被匹配或被摧毁时清空整列 */
   | 'lightningCol'
-  /** 通配：可与任意颜色直线匹配；tier 为该次匹配法力收益倍率（2/4） */
+  /** 通配：可与任意颜色直线匹配；tier 为该次匹配法力收益倍率（官方 2/3/4 三档，同次匹配相加：x2+x3=x5） */
   | 'wildcard'
   /** 许愿：不可匹配；被摧毁时 5 选 1 随机回蓝（20% 是"双方全员回满"的坑） */
   | 'wish'
   /** 沙漏：可匹配（黄色）；被匹配时获得一次额外回合 */
   | 'hourglass'
+  /**
+   * 赃物（Booty，官方 Heroic Gems 原文）：不可匹配、无法力色；被摧毁时给摧毁方 +10 金币
+   * （战场经济，DECISIONS 四项拍板①）。只由技能创造/末日骷髅爆炸波及摧毁，不自然掉落。
+   */
+  | 'bootyGem'
   /**
    * 幽魂：官方语义为"被摧毁时获得 10 灵魂"（战斗外货币，已裁定暂不实现，语义改造待定）。
    * 当前无任何行为、不可匹配、无自然掉落——仅素材先行接入，引擎遇到时按普通移除处理。
@@ -112,7 +117,10 @@ export type StatusGemKind =
   | 'stunGem'
   | 'barrierGem';
 
-/** 特殊宝石规格（需求 20.1）。tier 仅通配宝石使用（法力倍率）。 */
+/**
+ * 特殊宝石规格（需求 20.1）。
+ * wildcard 的 tier 表示法力倍率；bootyGem 的 tier 1-8 仅选择价值链外观。
+ */
 export interface SpecialGemSpec {
   kind: SpecialGemKind;
   tier?: number;
@@ -124,6 +132,8 @@ export const DOOMSKULL_BONUS_DAMAGE = 5;
 export const UBER_DOOMSKULL_BONUS_DAMAGE = 10;
 /** 织网宝石对随机敌人施加 web 状态的回合数（与特质表 web 时长约定一致） */
 export const WEB_GEM_TURNS = 3;
+/** 赃物宝石被摧毁时给摧毁方的金币数（官方 Heroic Gems 原文：10 Gold） */
+export const BOOTY_GEM_GOLD = 10;
 
 /** 可匹配特殊宝石参与匹配时视作的颜色（不可匹配的炸弹/许愿/幽魂/死亡标记不在表内） */
 export const SPECIAL_MATCH_COLOR: Partial<Record<SpecialGemKind, BaseColor>> = {
@@ -386,6 +396,12 @@ export interface Character {
   statuses: StatusInstance[];
   defeated: boolean;
   /**
+   * 逃跑标记（DECISIONS 四项拍板③）：escape 效果段判定成功时置位，随后角色从编队
+   * splice 移出（复用 defeat 的移出管线，但不置 defeated、不触发死亡召唤/阵亡响应）。
+   * 结算侧据此与阵亡区分（fled 者不按击杀记账）。
+   */
+  fled?: boolean;
+  /**
    * 被动特质 code 列表（对齐 GoW 官方 trait code）。未实现的 code 安全忽略。
    * 可选：手写夹具可省略，等价于无特质。
    */
@@ -505,6 +521,12 @@ export interface PassiveModifiers {
   summonOnAllyDeath?: { chance: number; troopId: number; referenceName: string; displayName: string; storm?: StormSummon };
   /** 敌方角色身亡时召唤（darkdeath 族） */
   summonOnEnemyDeath?: { chance: number; troopId: number; referenceName: string; displayName: string; storm?: StormSummon };
+  /**
+   * 战后经济加成（merchant/necromancy/necromaster/moneybags 族，DECISIONS 四项拍板①）：
+   * 战斗结束时对战场经济池的 gold/souls 总额按 (1 + Σratio) 一次性放大。
+   * 多条特质同类比率相加；gems 无对应官方句式不设键。
+   */
+  battleEconomyGain?: { gold: number; souls: number };
 }
 
 /**

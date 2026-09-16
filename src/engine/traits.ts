@@ -141,6 +141,13 @@ export interface TraitDefinition {
   summonOnAllyDeath?: { chance: number; troopId: number; referenceName: string; displayName: string; storm?: StormSummon };
   /** 敌方角色身亡时召唤（darkdeath/icydeath 族） */
   summonOnEnemyDeath?: { chance: number; troopId: number; referenceName: string; displayName: string; storm?: StormSummon };
+  /**
+   * 战后经济加成（merchant/necromancy/necromaster/moneybags 族，DECISIONS 四项拍板①）：
+   * 「从战斗中获得 N% 额外灵魂/黄金」「在战斗中获得 N% 黄金加成」。
+   * 战斗结束时对战场经济池的对应币种总额按 (1 + ratio) 放大；多条特质比率累加
+   * （编译进 PassiveModifiers.battleEconomyGain）。
+   */
+  battleEconomyGain?: { currency: 'gold' | 'souls'; ratio: number };
 }
 
 export const TRAIT_LIBRARY: readonly TraitDefinition[] = traitTable as TraitDefinition[];
@@ -351,6 +358,11 @@ export function resolvePassives(
       if (s && (passive[key] === undefined || s.chance > passive[key]!.chance)) {
         passive[key] = { ...s };
       }
+    }
+    // 战后经济加成（merchant/necromancy 族）：同类比率累加（与增益类"累加"口径一致）。
+    if (trait.battleEconomyGain) {
+      passive.battleEconomyGain ??= { gold: 0, souls: 0 };
+      passive.battleEconomyGain[trait.battleEconomyGain.currency] += trait.battleEconomyGain.ratio;
     }
   }
 

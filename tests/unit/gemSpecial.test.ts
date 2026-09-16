@@ -84,7 +84,9 @@ const CHAR_MAP: Record<string, GemType> = {
   A: specialGem('wish'),
   O: specialGem('ghost'),
   2: specialGem('wildcard', 2),
+  3: specialGem('wildcard', 3),
   4: specialGem('wildcard', 4),
+  T: specialGem('bootyGem'),
 };
 
 function layoutBoard(layout: string[]): BoardModel {
@@ -303,7 +305,7 @@ describe('MatchResolver 特殊宝石匹配', () => {
     expect(wishes).toHaveLength(0);
   });
 
-  it('通配与颜色成组并携带倍率：[2,R,R]=×2、[4,R,R]=×4、[2,4,R]=×8', () => {
+  it('通配与颜色成组并携带倍率：[2,R,R]=×2、[4,R,R]=×4、[2,3,R]=×5（官方相加口径）', () => {
     // 全显式棋盘（B/G 棋盘格 + 骷髅隔断），三连同含通配
     const base = [
       'BGBGBGBG',
@@ -323,18 +325,19 @@ describe('MatchResolver 特殊宝石匹配', () => {
     expect(g4).not.toBeNull();
     expect(g4!.settle).toEqual({ kind: 'color', color: BaseColor.Red, manaMultiplier: 4 });
 
+    // DECISIONS 四项拍板②：同一次匹配多颗通配倍率**相加**（x2+x3=x5，旧乘法口径为 ×6）
     const both = oneGroup([
       'BGBGBGBG',
       'GBGBGBGB',
       'BGBSSGBG',   // (2,3)=S (2,4)=S
-      'GBR24RGB',   // (3,2)=R (3,3)=2 (3,4)=4 (3,5)=R
+      'GBR23RGB',   // (3,2)=R (3,3)=2 (3,4)=3 (3,5)=R
       'BGBSSGBG',
       'BGBGBGBG',
       'GBGBGBGB',
       'BGBGBGBG',
     ]);
     expect(both).not.toBeNull();
-    expect(both!.settle).toEqual({ kind: 'color', color: BaseColor.Red, manaMultiplier: 8 });
+    expect(both!.settle).toEqual({ kind: 'color', color: BaseColor.Red, manaMultiplier: 5 });
   });
 
   it('通配不跨色依附：[R,2,B] 不成组；不与骷髅相连：[S,2,S] 不成组', () => {

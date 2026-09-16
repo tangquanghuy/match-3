@@ -462,6 +462,15 @@ function parse(desc) {
   if (/^无法成为法术指定攻击目标（除非场上已无任何其他目标）。?$/.test(desc)) {
     return { effects: { untargetable: true } };
   }
+  // 战后经济加成（窗口 E 经济批，DECISIONS 四项拍板①）：merchant/necromancy/necromaster/moneybags 族。
+  // 「从战斗中获得 N% 额外灵魂/黄金」「在战斗中获得 N% 黄金加成」→ battleEconomyGain，
+  // 战斗结束时对战场经济池对应币种按 (1 + ratio) 放大（traits.ts 编译 / TurnEngine 结算）。
+  if ((m = /从战斗中获得\s*(\d+)%\s*额外(灵魂|黄金)/.exec(desc))) {
+    return { effects: { battleEconomyGain: { currency: m[2] === '黄金' ? 'gold' : 'souls', ratio: num(m[1]) / 100 } } };
+  }
+  if ((m = /^在战斗中获得\s*(\d+)%\s*黄金加成。?$/.exec(desc))) {
+    return { effects: { battleEconomyGain: { currency: 'gold', ratio: num(m[1]) / 100 } } };
+  }
   // 死亡召唤三族（daemonicpact/terrorpact/fromdark/darkdeath…）。
   // 触发主体：自己身亡 / 盟友身亡 / 敌人身亡；概率可省略（=100%，如 loyalmount/desertmount）。
   // 召唤物两段式解析：先查兵种数据，未命中查风暴映射表（骸骨风暴/末日风暴等 9 种，

@@ -39,6 +39,8 @@ import type { GemParams } from './effects/gems';
 import { cleanseEffect, statusEffect, dispelStatusEffect } from './effects/status';
 import { summonEffect, extraTurnEffect } from './effects/summon';
 import { stormEffect } from './effects/storm';
+import { escapeEffect } from './effects/escape';
+import { economyGainEffect } from './effects/economy';
 import { shuffleBoardEffect } from './effects/gems';
 import type { SummonParams } from './effects/summon';
 
@@ -269,6 +271,28 @@ export interface SummonSegment extends SegmentOptions {
   params: SummonParams;
 }
 
+/**
+ * 逃跑段（DECISIONS 四项拍板③）：官方句式「有 N% 的几率跑掉」。
+ * 字段独立命名 escapeChance——SegmentOptions.chance 是"整段是否执行"的通用概率管线，
+ * 与逃跑判定语义冲突（会双重掷签）；**组装词汇 escape() 不接受 opts**，chance/ifCond 等
+ * 段级通用项在逃跑段上恒缺省（继承 SegmentOptions 仅为满足段联合的统一访问）。
+ * 判定成功 → 施法者 fled + 发 flee 事件（编队移出走 defeat 同款管线）。
+ */
+export interface EscapeChanceSegment extends SegmentOptions {
+  kind: 'escapeChance';
+  /** 逃跑几率 0~1（「有 30% 的几率跑掉」= 0.3） */
+  escapeChance: number;
+}
+
+/** 战场经济获得段（DECISIONS 四项拍板①）：金币/灵魂/宝石三币种 */
+export interface GainEconomySegment extends SegmentOptions {
+  kind: 'gainEconomy';
+  currency: 'gold' | 'souls' | 'gems';
+  scaling: ScalingSpec;
+  /** 二次缩放（「数量因本战斗收集的灵魂数而增强」） */
+  modifier?: ModifierSpec;
+}
+
 /** 额外回合段 */
 export interface ExtraTurnSegment extends SegmentOptions {
   kind: 'extraTurn';
@@ -288,7 +312,9 @@ export type EffectSegment =
   | ShuffleBoardSegment
   | OneOfSegment
   | SummonSegment
-  | ExtraTurnSegment;
+  | ExtraTurnSegment
+  | EscapeChanceSegment
+  | GainEconomySegment;
 
 /** 技能原型：有序效果段数组 */
 export interface SkillPrototype {
@@ -445,6 +471,14 @@ function compileSegment(segment: EffectSegment, ctx: EffectContext): EffectPrimi
       return summonEffect({ ...segment.params, resolveRef: ctx.resolveSummonRef });
     case 'extraTurn':
       return extraTurnEffect();
+    case 'escapeChance':
+      return escapeEffect({ escapeChance: segment.escapeChance });
+    case 'gainEconomy':
+      return economyGainEffect({
+        currency: segment.currency,
+        scaling: segment.scaling,
+        modifier: segment.modifier,
+      });
     default: {
       // 未知段：安全跳过（回退，需求 11.4）
       return null;

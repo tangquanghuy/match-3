@@ -63,7 +63,6 @@ const SKIPPED: { id: number; reason: string }[] = [
   { id: 7698, reason: '二次缩放来源不支持（「因敌我双方的不死族军队数量」双侧种族计数无对应 kind，batch-13 7546/7547 同款）' },
   { id: 7713, reason: '语义拿不准（「窃取……并将之给予你第一位盟友」窃取所得无法重定向给施法者以外目标，steal 仅支持施法者获得）' },
   { id: 7747, reason: '语义拿不准（「若其中一名敌人身亡，则击杀另一名敌人」：ifTargetDied 仅判定最近段主目标，「其中一名/另一名」目标绑定无对应原语；首句现可完整表达——enemyWeakestN n:2 + sources allyStatSum/enemyStatSum attack，仅剩死亡绑定卡点）' },
-  { id: 7750, reason: '语义拿不准（「有 30% 的几率跑掉」跑掉无对应机制，batch-03 7751 / batch-13 7536 同款）' },
   { id: 7790, reason: '晋升度条件（「如果是Boss，则根据我的升华效果造成3-5倍伤害」）；「沉默上方和下方的敌人」位置目标亦不支持' },
   { id: 7792, reason: '缺失状态（狂怒，batch-13 7520 / batch-17 9280 同款；「狂怒的盟友数」来源亦不可表达）' },
 ];

@@ -37,6 +37,8 @@ import type {
   EffectSegment,
   ExtraTurnSegment,
   SummonSegment,
+  EscapeChanceSegment,
+  GainEconomySegment,
   NRangeSpec,
 } from './prototypes';
 
@@ -519,4 +521,33 @@ export function summonTemplate(template: SummonTemplate, troopId?: number): Summ
 /** 获得额外回合（可带死亡条件：「如果敌人身亡，则获得一个额外回合」） */
 export function extraTurn(opts?: SegmentOpts): ExtraTurnSegment {
   return attach({ kind: 'extraTurn' }, opts);
+}
+
+// —— 逃跑 / 战场经济（DECISIONS 四项拍板①③） ——
+
+/**
+ * 逃跑（「有 N% 的几率跑掉」）：判定成功 → 施法者逃出战斗（标 fled、移出编队，
+ * 不算阵亡——不触发死亡召唤/阵亡响应；全队逃光判负）。
+ */
+export function escape(chance: number): EscapeChanceSegment {
+  return { kind: 'escapeChance', escapeChance: clamp01(chance) };
+}
+
+/**
+ * 战场经济获得（金币/灵魂/宝石）：数值 = [魔法 × mult + base]，opts.modifier 支持
+ * 二次缩放（来源可为 battleGold/battleSouls/battleGems 等）。
+ * 「获得 10 金币」= gainGold(10)；「获得 [魔法 + 2] 点灵魂」= gainSouls(2)。
+ */
+export function gainGold(base: number, mult = 0, opts: SegmentOpts = {}): GainEconomySegment {
+  return attach({ kind: 'gainEconomy', currency: 'gold', scaling: scale(base, mult) }, opts);
+}
+export function gainSouls(base: number, mult = 0, opts: SegmentOpts = {}): GainEconomySegment {
+  return attach({ kind: 'gainEconomy', currency: 'souls', scaling: scale(base, mult) }, opts);
+}
+export function gainGems(base: number, mult = 0, opts: SegmentOpts = {}): GainEconomySegment {
+  return attach({ kind: 'gainEconomy', currency: 'gems', scaling: scale(base, mult) }, opts);
+}
+
+function clamp01(n: number): number {
+  return Math.min(1, Math.max(0, n));
 }

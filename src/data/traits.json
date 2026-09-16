@@ -303,6 +303,16 @@
     }
   },
   {
+    "code": "necromancy",
+    "name": "死灵法术",
+    "description": "从战斗中获得 50% 额外灵魂。",
+    "troops": 30,
+    "battleEconomyGain": {
+      "currency": "souls",
+      "ratio": 0.5
+    }
+  },
+  {
     "code": "grudge",
     "name": "怨恨",
     "description": "当一名敌人施放法术时获得 1 点攻击力。",
@@ -511,6 +521,16 @@
       "troopType": "Daemon",
       "stat": "hp",
       "amount": 2
+    }
+  },
+  {
+    "code": "merchant",
+    "name": "商人",
+    "description": "从战斗中获得 25% 额外黄金。",
+    "troops": 19,
+    "battleEconomyGain": {
+      "currency": "gold",
+      "ratio": 0.25
     }
   },
   {
@@ -2342,6 +2362,16 @@
     }
   },
   {
+    "code": "necromaster",
+    "name": "死灵大师",
+    "description": "从战斗中获得 150% 额外灵魂。",
+    "troops": 1,
+    "battleEconomyGain": {
+      "currency": "souls",
+      "ratio": 1.5
+    }
+  },
+  {
     "code": "firstwargare",
     "name": "狼族老大",
     "description": "在配对 4 或更多颗宝石时给予狼族盟友 2 点攻击力和魔法值。",
@@ -2652,6 +2682,16 @@
     "onEnemyDeathGain": {
       "stat": "magic",
       "amount": 5
+    }
+  },
+  {
+    "code": "moneybags",
+    "name": "钱包鼓鼓",
+    "description": "在战斗中获得 100% 黄金加成。",
+    "troops": 1,
+    "battleEconomyGain": {
+      "currency": "gold",
+      "ratio": 1
     }
   },
   {

@@ -20,7 +20,6 @@ import type { CuratedBatch } from './index';
 const SKIPPED: { id: number; reason: string }[] = [
   { id: 9244, reason: '特殊宝石（「黄龙宝石」无法创造/引用）' },
   { id: 9245, reason: '二次缩放来源不支持（「狮心帝国盟友数」按王国计数，非种族）' },
-  { id: 9255, reason: '「有 30% 的几率跑掉」逃离语义无对应机制，语义拿不准' },
     { id: 9285, reason: '特殊宝石（「鬼魂宝石」）' },
   { id: 9287, reason: '特殊宝石（「鬼魂宝石」板面计数与触发均不可表达）' },
   { id: 9295, reason: '特殊宝石（「鬼魂宝石」计数与创造均不可表达）' },

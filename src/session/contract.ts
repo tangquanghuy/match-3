@@ -87,6 +87,8 @@ export interface CombatantResult {
   maxHp: number;
   armor: number;
   defeated: boolean;
+  /** 逃跑离场（DECISIONS 四项拍板③）：不按击杀记账、不进 defeatedExternalIds */
+  fled?: boolean;
   /** 结束时仍存续的状态与剩余回合 */
   statuses: { id: string; turns: number }[];
 }
@@ -111,8 +113,15 @@ export interface BattleResult {
   /** 只包含 request 下发的角色；场上召唤物不属于宿主资产，见 summonedCount */
   combatants: CombatantResult[];
   defeatedExternalIds: string[];
+  /** 逃跑离场的角色（DECISIONS 四项拍板③）：与阵亡区分，不计入 defeatedExternalIds */
+  fledExternalIds?: string[];
   /** 本场召唤物数量，供宿主核对战斗过程而无需完整事件流 */
   summonedCount: number;
+  /**
+   * 战场经济三币总额（DECISIONS 四项拍板①）：金币/灵魂/宝石共用池的最终值
+   * （战后经济特质加成已放大）。可选字段，老宿主忽略即可。
+   */
+  economy?: { gold: number; souls: number; gems: number };
   /** 行动序列摘要，用于复现校验：同 seed + 同 digest 应得到同一场战斗 */
   actionLogDigest: string;
   eventSummary: BattleEventSummary[];

@@ -26,14 +26,17 @@ function findActiveCharacter(state: GameState, characterId: number): {
 }
 
 /**
- * Remove defeated active characters and promote queued summons FIFO to the bottom.
- * Promotion events are inserted immediately after their corresponding defeat event.
+ * Remove defeated (or fled) active characters and promote queued summons FIFO to the bottom.
+ * Promotion events are inserted immediately after their corresponding removal event.
+ *
+ * 逃跑（flee）复用同一移出/补位管线，但不置 defeated：死亡扫描（TurnEngine.processDeathTriggers
+ * 只认 defeat 事件）因此天然跳过逃跑者——不触发挥金/灵魂类阵亡响应，也不触发死亡召唤。
  */
 export function resolveDefeatEvents(state: GameState, produced: readonly GameEvent[]): GameEvent[] {
   const resolved: GameEvent[] = [];
   for (const event of produced) {
     resolved.push(event);
-    if (event.type !== 'defeat') continue;
+    if (event.type !== 'defeat' && event.type !== 'flee') continue;
 
     const found = findActiveCharacter(state, event.characterId);
     if (!found) continue;

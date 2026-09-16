@@ -52,7 +52,13 @@ export type ModifierSource =
   /** 最近目标段的当前主目标属性 */
   | { kind: 'targetStat'; stat: 'attack' | 'armor' | 'hp' | 'magic' }
   /** 本技能前序段耗掉的敌方法力总和 */
-  | { kind: 'drainedMana' };
+  | { kind: 'drainedMana' }
+  /** 战场经济池当前金币总数（「伤害因我的金币而增强」「数量等于我的金币」） */
+  | { kind: 'battleGold' }
+  /** 战场经济池当前灵魂总数（「因本战斗收集的灵魂数而增强」） */
+  | { kind: 'battleSouls' }
+  /** 战场经济池当前宝石（钻石）总数 */
+  | { kind: 'battleGems' };
 
 /** 二次缩放规格：解析出的 [xN]/[N:M] + 来源，段定义里以纯数据存在（可 JSON 化） */
 export interface ModifierSpec {
@@ -332,6 +338,12 @@ export function resolveModifierCount(source: ModifierSource, ctx: EffectContext)
     }
     case 'drainedMana':
       return tracking?.drainedMana ?? 0;
+    case 'battleGold':
+      return ctx.state.economy.gold;
+    case 'battleSouls':
+      return ctx.state.economy.souls;
+    case 'battleGems':
+      return ctx.state.economy.gems;
     default: {
       const _exhaustive: never = source;
       return _exhaustive;

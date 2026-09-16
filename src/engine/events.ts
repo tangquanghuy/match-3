@@ -174,6 +174,36 @@ export interface DefeatEvent {
   characterId: number;
 }
 
+/**
+ * 逃跑（DECISIONS 四项拍板③）：escape 效果段判定成功后发出。
+ * 表现层按"轻量退场"处理（残影/淡出，不做阵亡粒子）；编队移出复用 defeat 的
+ * resolveDefeatEvents 管线（splice + 队列补位），但不置 defeated、不进死亡扫描——
+ * 死亡召唤/阵亡响应都不触发。hp/armor 快照供结果上报照实回传（fled 不按击杀记账）。
+ */
+export interface FleeEvent {
+  type: 'flee';
+  characterId: number;
+  /** 逃跑者所在方 */
+  player: PlayerSide;
+  /** 逃跑瞬间的生命/护甲快照（结果上报用） */
+  hp: number;
+  armor: number;
+}
+
+/**
+ * 战场经济获得（DECISIONS 四项拍板①）：金币/灵魂/宝石三币种共用一个战场经济池
+ * （GameState.economy），side 记录获得发生时的行动方（GoW 奖励归玩家，全场共用）。
+ * 来源：gainGold/gainSouls/gainGems 效果段、赃物宝石被摧毁（+10 金币）。
+ */
+export interface EconomyGainEvent {
+  type: 'economy-gain';
+  currency: 'gold' | 'souls' | 'gems';
+  /** 本次获得量（恒为正整数） */
+  amount: number;
+  /** 获得发生时的行动方（归因字段，池本身共用） */
+  side: PlayerSide;
+}
+
 export interface GravityEvent {
   type: 'gravity';
   chainCount: number;
@@ -271,6 +301,8 @@ export type GameEvent =
   | StatusCleanseEvent
   | SummonEvent
   | DefeatEvent
+  | FleeEvent
+  | EconomyGainEvent
   | GravityEvent
   | RefillEvent
   | ReshuffleEvent

@@ -152,6 +152,8 @@ const SPECIAL_GEM_FEEDBACK: Record<SpecialGemKind, { label: string; color: strin
   faerieFireGem: { label: '妖火', color: '#d6ff8a' },
   stunGem: { label: '打昏', color: '#ffd98a' },
   barrierGem: { label: '屏障', color: '#ffe06b' },
+  // 赃物宝石（窗口 E 经济批）：摧毁时 +10 金币
+  bootyGem: { label: '赃物 +10 金币', color: '#ffd24a' },
 };
 
 const SINGLE_HIT_FX: Partial<Record<BaseColor, string>> = {
@@ -1356,6 +1358,23 @@ export class App {
         }
         break;
       }
+      case 'flee': {
+        // 逃跑（DECISIONS 四项拍板③）：阵亡退场管线的轻量版——不播死亡粒子，
+        // 只清状态层后复用 removeCharacterCard 的收缩淡出退场（幸存者回流、替补入列）。
+        const leftCard = this.leftTeamView.getCard(ev.characterId);
+        const rightCard = this.rightTeamView.getCard(ev.characterId);
+        const card = leftCard ?? rightCard;
+        if (!card) break;
+        this.removeAllStatusPersist(ev.characterId);
+        card.setFrozen(false);
+        card.setSilenced(false);
+        card.setEntangled(false);
+        card.clearStatusAccents();
+        card.refresh();
+        if (leftCard) this.leftTeamView.removeCharacterCard(ev.characterId);
+        else if (rightCard) this.rightTeamView.removeCharacterCard(ev.characterId);
+        break;
+      }
       case 'game-over': {
         // 结算：锁输入、停演出，稍候片刻让阵亡动画收尾后弹出结算面板（需求 15.4）
         this.input.enabled = false;
@@ -1481,7 +1500,7 @@ export class App {
         }
         const center = card ? this.cardCenterInOverlay(card) : null;
         // 施加音统一走状态音映射（poison/burning/frozen 采样 + 其余状态程序合成，未知状态静默）；
-        // status-tick 的既有掉血音不在此路径，保持原样。
+        // status-tick 不发音效（2026-09-17 裁定），掉血反馈只有帧动画 + 飘字。
         this.audio.playStatusApply(ev.statusId);
         switch (ev.statusId) {
           case 'poison':
@@ -1531,15 +1550,15 @@ export class App {
       }
       case 'status-tick': {
         // DoT 每回合掉血：此刻才播放完整大动画（毒 0340 / 火 0450）+ 飘扣血字。
+        // 跳血不发音效（2026-09-17 裁定）：施加音已在 status-apply 响过，同一采样
+        // 回合尾再响一次听感即"攻击后重复"；掉血反馈由帧动画 + 飘字承担。
         const card = this.cardOfChar(ev.targetId);
         if (card) {
           const center = this.cardCenterInOverlay(card);
           if (ev.statusId === 'poison') {
-            this.audio.play('poison');
             if (center) this.playFrameFX('poison_apply', center.x, center.y);
             if (ev.damage && ev.damage > 0) card.floatText(`-${ev.damage}`, '#7bd88f');
           } else if (ev.statusId === 'burning') {
-            this.audio.play('burning');
             if (center) this.playFrameFX('burning_apply', center.x, center.y);
             if (ev.damage && ev.damage > 0) card.floatText(`-${ev.damage}`, '#ff9a5a');
           } else if (ev.damage && ev.damage > 0) {

@@ -187,6 +187,20 @@ oneOf(分支…)                         // 「X 或 Y」随机多选一：掷�
 // 裁定（spell-rules §9.3）：「或」= 掷签二/三选一；多色池（「绿色或紫色宝石」随机取）不是二选一 → SKIP
 ```
 
+### 逃跑 / 战场经济（四项拍板①③，spell-rules §10，批次 39 起可组装）
+
+```ts
+escape(0.3)                          // 「有 30% 的几率跑掉」：恒作用于施法者（判定成功=fled+移出编队，
+                                     //  不算阵亡、不触发死亡召唤/阵亡响应；全队逃光判负）
+gainGold(10) / gainSouls(5) / gainGems(2)
+                                     // 「获得 10 金币 / 5 灵魂 / 2 颗宝石」：数值走 [魔法×mult+base] 照常
+// 二次缩放新来源（不再因「黄金/灵魂」来源 SKIP）：
+//   「伤害值由我的金币加成 [10:1]」= modifier: { mod: { kind:'ratio', a:10, b:1 }, source: { kind:'battleGold' } }
+//   battleSouls / battleGems 同理（读战场经济池当前总额）
+createSpecialGems({ kind: 'bootyGem' }, 3)  // 「创造 N 颗赃物/战利品宝石」：不可匹配，被摧毁 +10 金币
+// 「窃取 N 枚金币」= gainGold(N)（不减敌方，官方为元经济句式，落战场经济入账）
+```
+
 ### 风暴在场 / 聚合存在判定条件（原语批，条件域新增叶子）
 
 ```ts
@@ -220,7 +234,8 @@ modifier: { mod: { kind: 'ratio', a: 2, b: 1 }, source: { kind: 'destroyedGems' 
 // 多来源句式（「因蓝色宝石和盟友数而增强」）用 sources（计数相加，与 source 二选一）：
 //   modifier: { mod: { kind: 'multiplier', a: 2 }, sources: [{ kind: 'boardGems', color: 'Blue' }, { kind: 'teamSize', side: 'ally' }] }
 // 伤害值等同于自身攻击力 → dmg(target, 0, 0, { modifier: { mod:{kind:'multiplier',a:1}, source:{kind:'selfStat',stat:'attack'} } })
-// 来源属于黄金/灵魂/藏宝图/炸弹宝石/献祭/被减除的护甲值 → SKIP（原因：二次缩放来源不支持）
+// 来源「我的金币/本战斗灵魂/宝石」→ battleGold / battleSouls / battleGems（四项拍板①已落地，见上节）
+// 来源属于藏宝图/献祭/被减除的护甲值 → SKIP（原因：二次缩放来源不支持）
 // 「几率因X而增强」→ 用 chanceBoost（见下文「条件倍率 / 概率增强」节），不再 SKIP
 // buff 族 opts 支持 n：「给予前 2 位盟友 [M+3] 攻击力」= attack('allyFirstN', 3, 1, { n: 2 })
 ```
@@ -249,14 +264,14 @@ modifier: { mod: …, source: { kind: 'boardSpecial', gem: 'bomb' } }
 **词表对照**：炸弹宝石=bomb、末日/厄运骷髅头=doomSkull、极度/超级/至尊末日骷髅头=uberDoomSkull、
 织网宝石=web、闪电宝石=lightningRow/lightningCol（文本须区分行列，未区分 → SKIP）、
 通配/万能牌宝石=wildcard、许愿宝石=wish、沙漏宝石=hourglass、幽魂宝石=ghost（无行为，创造可、
-涉灵魂的子句仍 blocked）、厄运头骨=doomSkull（同物异名）；
+涉灵魂的子句仍 blocked）、厄运头骨=doomSkull（同物异名）、赃物/战利品宝石=bootyGem（**不可匹配**，被摧毁 +10 金币——四项拍板①落地）；
 **波A 状态宝石 13 颗**：燃烧宝石=burningGem（红）、冻结/冰冻宝石=freezeGem（蓝）、诅咒宝石=curseGem（棕）、
 流血宝石=bleedGem（紫）、毒宝石=poisonGem（绿）、死亡标记宝石=deathMarkGem（**无色不可匹配**）、
 恐怖宝石=terrorGem（紫）、缠绕宝石=entangleGem（绿）、激怒/愤怒宝石=enrageGem（红）、
 沉没宝石=submergeGem（蓝）、精灵火/妖火/妖精之火/**妖仙宝石**=faerieFireGem（绿；妖仙=官方 SpellSteps
 Color1 "FaerieFire" 实锤，spell 9221）、打昏宝石=stunGem（棕）、屏障宝石=barrierGem（黄）。
 
-**仍 SKIP**：石像鬼/龙/巨人/天使/元素星/暗影之星/灵力/法力药水/赃物/恶魔传送门/腐朽/狼人宝石等
+**仍 SKIP**：石像鬼/龙/巨人/天使/元素星/暗影之星/灵力/法力药水/恶魔传送门/腐朽/狼人宝石等
 （GEMS-SEMANTICS-2 后续波）；「随机的特殊宝石」；幽灵宝石涉灵魂收益的句子；
 「创造 N 颗混合X宝石和Y宝石」当 X/Y 为**特殊宝石**时仍 SKIP（createMix 仅支持颜色混合，
 batch-36 9312 口径）。

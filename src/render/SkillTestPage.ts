@@ -185,12 +185,22 @@ const SPECIAL_TEST_GEMS: ReadonlyArray<{ kind: SpecialGemKind; tier?: number; la
   { kind: 'web', label: '织网' },
   { kind: 'ghost', label: '幽魂' },
   { kind: 'wildcard', tier: 2, label: '通配×2' },
+  { kind: 'wildcard', tier: 3, label: '通配×3' },
   { kind: 'wildcard', tier: 4, label: '通配×4' },
   { kind: 'wish', label: '许愿' },
   { kind: 'lightningCol', label: '闪电·黄(清列)' },
   { kind: 'lightningRow', label: '闪电·蓝(清行)' },
   { kind: 'hourglass', label: '沙漏' },
-  // 状态搬运族（GEMS-SEMANTICS-2 波A）：基色贴图 + 程序化叠层
+  // 赃物价值链：同一 bootyGem 触发语义，tier 仅切换棋盘美术。
+  { kind: 'bootyGem', tier: 1, label: '铜币' },
+  { kind: 'bootyGem', tier: 2, label: '银币' },
+  { kind: 'bootyGem', tier: 3, label: '金币' },
+  { kind: 'bootyGem', tier: 4, label: '钱袋' },
+  { kind: 'bootyGem', tier: 5, label: '棕木宝箱' },
+  { kind: 'bootyGem', tier: 6, label: '绿宝箱' },
+  { kind: 'bootyGem', tier: 7, label: '红宝箱' },
+  { kind: 'bootyGem', tier: 8, label: '宝库' },
+  // 状态搬运族（GEMS-SEMANTICS-2 波A）：独立贴图 + 轻量环境粒子。
   { kind: 'burningGem', label: '燃烧' },
   { kind: 'freezeGem', label: '冻结' },
   { kind: 'curseGem', label: '诅咒' },
