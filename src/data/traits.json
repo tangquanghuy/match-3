@@ -113,6 +113,16 @@
     }
   },
   {
+    "code": "greedy",
+    "name": "贪婪",
+    "description": "在配对 4 或 5 颗宝石时，获得额外 2 黄金。",
+    "troops": 63,
+    "onBigMatchEconomy": {
+      "currency": "gold",
+      "amount": 2
+    }
+  },
+  {
     "code": "alert",
     "name": "警醒",
     "description": "对沉默状态免疫。",
@@ -186,6 +196,16 @@
       "death-mark",
       "disease"
     ]
+  },
+  {
+    "code": "bloodlust",
+    "name": "嗜杀",
+    "description": "在敌人身亡时获得狂怒效果。",
+    "troops": 41,
+    "onEnemyDeathStatus": {
+      "id": "rage",
+      "turns": 3
+    }
   },
   {
     "code": "frenzy",
@@ -1381,6 +1401,29 @@
     }
   },
   {
+    "code": "extremegreed",
+    "name": "极度贪婪",
+    "description": "在配对 4 或 5 颗宝石时，获得额外 4 黄金。",
+    "troops": 6,
+    "onBigMatchEconomy": {
+      "currency": "gold",
+      "amount": 4
+    }
+  },
+  {
+    "code": "songofnature",
+    "name": "自然之歌",
+    "description": "在战斗开始的时候召唤叶风暴。",
+    "troops": 6,
+    "battleStartStorm": {
+      "color": "Green",
+      "turns": 8,
+      "troopId": 9005,
+      "referenceName": "Leafstorm",
+      "displayName": "叶风暴"
+    }
+  },
+  {
     "code": "revenge",
     "name": "复仇",
     "description": "在自身受到骷髅头伤害时，使对方陷入猎人标记状态。",
@@ -1415,6 +1458,26 @@
     "troops": 6,
     "turnStartCreateGem": {
       "color": "Brown"
+    }
+  },
+  {
+    "code": "cursehunter",
+    "name": "诅咒猎人",
+    "description": "对受诅咒的敌人造成双倍骷髅头伤害",
+    "troops": 6,
+    "skullMultVsStatus": {
+      "status": "curse",
+      "mult": 2
+    }
+  },
+  {
+    "code": "virulence",
+    "name": "剧毒",
+    "description": "对陷入疾病状态的敌人造成双倍骷髅头伤害。",
+    "troops": 5,
+    "skullMultVsStatus": {
+      "status": "disease",
+      "mult": 2
     }
   },
   {
@@ -1500,6 +1563,16 @@
     }
   },
   {
+    "code": "feartouch",
+    "name": "恐惧之触",
+    "description": "在配对骷髅头使使敌人陷入恐怖状态",
+    "troops": 5,
+    "inflictOnSkullHit": {
+      "id": "terror",
+      "turns": 3
+    }
+  },
+  {
     "code": "brave",
     "name": "勇敢",
     "description": "对恐怖状态免疫",
@@ -1528,6 +1601,16 @@
       "color": "Green",
       "stat": "attack",
       "amount": 1
+    }
+  },
+  {
+    "code": "doom",
+    "name": "末日",
+    "description": "对陷入死亡标记状态的敌人造成双倍骷髅头伤害。",
+    "troops": 4,
+    "skullMultVsStatus": {
+      "status": "death-mark",
+      "mult": 2
     }
   },
   {
@@ -1564,6 +1647,19 @@
     }
   },
   {
+    "code": "songofstone",
+    "name": "岩石之歌",
+    "description": "在战斗开始的时候召唤尘风暴。",
+    "troops": 4,
+    "battleStartStorm": {
+      "color": "Brown",
+      "turns": 8,
+      "troopId": 9006,
+      "referenceName": "Duststorm",
+      "displayName": "尘风暴"
+    }
+  },
+  {
     "code": "burninghatred",
     "name": "燃烧仇恨",
     "description": "对红色军队造成双倍骷髅头伤害。",
@@ -1571,6 +1667,20 @@
     "skullMultVsColor": {
       "color": "Red",
       "mult": 2
+    }
+  },
+  {
+    "code": "songofdoom",
+    "name": "末日之歌",
+    "description": "在战斗开始的时候召唤末日风暴。",
+    "troops": 4,
+    "battleStartStorm": {
+      "color": "Purple",
+      "turns": 8,
+      "troopId": 9008,
+      "referenceName": "Doomstorm",
+      "displayName": "末日风暴",
+      "dropKind": "doomSkull"
     }
   },
   {
@@ -1774,6 +1884,16 @@
     }
   },
   {
+    "code": "focus",
+    "name": "专注",
+    "description": "对中了猎人标记的敌人造成双倍骷髅头伤害。",
+    "troops": 3,
+    "skullMultVsStatus": {
+      "status": "marked",
+      "mult": 2
+    }
+  },
+  {
     "code": "naturesdeath",
     "name": "自然之死",
     "description": "当敌人身亡时召唤一个叶风暴。",
@@ -1787,6 +1907,16 @@
         "color": "Green",
         "turns": 8
       }
+    }
+  },
+  {
+    "code": "depthcharge",
+    "name": "深层攻击",
+    "description": "对已下潜的敌人造成双倍骷髅头伤害。",
+    "troops": 3,
+    "skullMultVsStatus": {
+      "status": "submerged",
+      "mult": 2
     }
   },
   {
@@ -2077,6 +2207,16 @@
     "description": "反射 30% 的骷髅伤害",
     "troops": 2,
     "reflectSkullRatio": 0.3
+  },
+  {
+    "code": "sacrifice",
+    "name": "献祭",
+    "description": "当一名敌人身亡时，所有技能增加 3 点。",
+    "troops": 1,
+    "onEnemyDeathGain": {
+      "stat": "magic",
+      "amount": 3
+    }
   },
   {
     "code": "lethaltoxin",
@@ -2517,6 +2657,16 @@
     }
   },
   {
+    "code": "pillageandplunder",
+    "name": "抢劫和掠夺",
+    "description": "在配对 4 或 5 颗宝石时，获得额外 20 黄金。",
+    "troops": 1,
+    "onBigMatchEconomy": {
+      "currency": "gold",
+      "amount": 20
+    }
+  },
+  {
     "code": "overclock",
     "name": "超频",
     "description": "在配对 4 颗或更多宝石时，给予所有机械盟友 2 点攻击力和护甲值。",
@@ -2740,6 +2890,19 @@
         }
       ],
       "turns": 3
+    }
+  },
+  {
+    "code": "lordofdeath",
+    "name": "死亡领主",
+    "description": "所有不死族在一名敌人身亡时获得 5 点生命值和魔法值。",
+    "troops": 1,
+    "onEnemyDeathTypeAura": {
+      "troopType": "Undead",
+      "gains": {
+        "hp": 5,
+        "magic": 5
+      }
     }
   },
   {
@@ -3363,6 +3526,16 @@
     "spellDamageReduction": 0.75
   },
   {
+    "code": "darkensouls",
+    "name": "黑暗灵魂",
+    "description": "在配对骷髅头时，获得 3 个灵魂。",
+    "troops": 1,
+    "onSkullMatchEconomy": {
+      "currency": "souls",
+      "amount": 3
+    }
+  },
+  {
     "code": "savagestrike",
     "name": "野蛮之击",
     "description": "在造成骷髅头伤害时，有 100% 的几率忽略护甲值",
@@ -3894,6 +4067,16 @@
     }
   },
   {
+    "code": "sharedfate",
+    "name": "生死与共",
+    "description": "在一名敌人身亡时，使另一名敌人陷入死亡标记状态。",
+    "troops": 1,
+    "onEnemyDeathEnemyStatus": {
+      "id": "death-mark",
+      "turns": 3
+    }
+  },
+  {
     "code": "captainsorders",
     "name": "队长的命令",
     "description": "当配对4个或更多宝石时，所有罗格盟友获得2点魔法值。",
@@ -4192,6 +4375,103 @@
         "magic": 1
       }
     }
+  },
+  {
+    "code": "frozencurse",
+    "name": "冻结诅咒",
+    "description": "在敌人对自身造成骷髅头伤害时，使其陷入诅咒和冻结状态。",
+    "troops": 1,
+    "inflictOnSkullDamagedList": [
+      {
+        "id": "curse",
+        "turns": 3
+      },
+      {
+        "id": "frozen",
+        "turns": 3
+      }
+    ]
+  },
+  {
+    "code": "entanglingcurse",
+    "name": "缠绕诅咒",
+    "description": "在敌人对自身造成骷髅头伤害时，使其陷入诅咒和缠绕状态。",
+    "troops": 1,
+    "inflictOnSkullDamagedList": [
+      {
+        "id": "curse",
+        "turns": 3
+      },
+      {
+        "id": "entangle",
+        "turns": 3
+      }
+    ]
+  },
+  {
+    "code": "flamingcurse",
+    "name": "燃烧诅咒",
+    "description": "在敌人对自身造成骷髅头伤害时，使其陷入诅咒和燃烧状态。",
+    "troops": 1,
+    "inflictOnSkullDamagedList": [
+      {
+        "id": "curse",
+        "turns": 3
+      },
+      {
+        "id": "burning",
+        "turns": 3,
+        "magnitude": 1
+      }
+    ]
+  },
+  {
+    "code": "stunningcurse",
+    "name": "击晕诅咒",
+    "description": "在敌人对自身造成骷髅头伤害时，使其陷入诅咒和击晕状态。",
+    "troops": 1,
+    "inflictOnSkullDamagedList": [
+      {
+        "id": "curse",
+        "turns": 3
+      },
+      {
+        "id": "stun",
+        "turns": 3
+      }
+    ]
+  },
+  {
+    "code": "diseasedcurse",
+    "name": "疾病诅咒",
+    "description": "在敌人对自身造成骷髅头伤害时，使其陷入诅咒和击败状态。",
+    "troops": 1,
+    "inflictOnSkullDamagedList": [
+      {
+        "id": "curse",
+        "turns": 3
+      },
+      {
+        "id": "disease",
+        "turns": 3
+      }
+    ]
+  },
+  {
+    "code": "webbedcurse",
+    "name": "织网诅咒",
+    "description": "在敌人对自身造成骷髅头伤害时，使其陷入诅咒和织网状态。",
+    "troops": 1,
+    "inflictOnSkullDamagedList": [
+      {
+        "id": "curse",
+        "turns": 3
+      },
+      {
+        "id": "web",
+        "turns": 3
+      }
+    ]
   },
   {
     "code": "lightningaura",

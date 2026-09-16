@@ -33,7 +33,7 @@
 import traitTable from '../data/traits.json';
 import { effectiveHealing } from './healing';
 import type { BuffEvent, GameEvent } from './events';
-import type { BaseColor, Character, PassiveModifiers, StatGains, PlayerSide, StatusInstance, StormSummon } from './types';
+import type { BaseColor, Character, PassiveModifiers, StatGains, PlayerSide, StatusInstance, StormSummon, TraitEconomyGain } from './types';
 import type { SeededRNG } from './rng';
 
 /** 状态免疫通配符：免疫所有状态 */
@@ -73,6 +73,12 @@ export interface TraitDefinition {
   onEnemyCastGain?: { stat: PassiveStat; amount: number };
   /** 敌方角色阵亡时获得 */
   onEnemyDeathGain?: { stat: PassiveStat; amount: number };
+  /** 敌方角色阵亡时自身获得状态（bloodlust「在敌人身亡时获得狂怒效果」） */
+  onEnemyDeathStatus?: { id: string; turns: number };
+  /** 敌方角色阵亡时同队指定种族盟友获得数值（lordofdeath「所有不死族在一名敌人身亡时获得 5 点生命值和魔法值」） */
+  onEnemyDeathTypeAura?: { troopType: string; gains: Partial<StatGains> };
+  /** 敌方角色阵亡时使死者一方仍存活的另一名角色陷入状态（sharedfate「使另一名敌人陷入死亡标记状态」） */
+  onEnemyDeathEnemyStatus?: { id: string; turns: number };
   /** 同队角色阵亡时获得 */
   onAllyDeathGain?: { stat: PassiveStat; amount: number };
   /** 自己一方匹配 4 或 5 连时获得 */
@@ -81,6 +87,8 @@ export interface TraitDefinition {
   inflictOnSkullHit?: { id: string; turns: number; magnitude?: number };
   /** 承受骷髅伤害时给攻击者施加的状态（毒孢子族） */
   inflictOnSkullDamaged?: { id: string; turns: number; magnitude?: number };
+  /** 承受骷髅伤害时给攻击者施加的多条状态（双状态诅咒族 frozencurse 等「陷入诅咒和X状态」） */
+  inflictOnSkullDamagedList?: readonly { id: string; turns: number; magnitude?: number }[];
   /** 自己一方匹配 4/5 连时，给同队指定种族（或全队）盟友的增益 */
   onBigMatchTypeAura?: { troopType: string; gains: Partial<StatGains> };
   /** 战斗开始时对全体盟友/敌人的固定增减 */
@@ -149,6 +157,14 @@ export interface TraitDefinition {
    * （编译进 PassiveModifiers.battleEconomyGain）。
    */
   battleEconomyGain?: { currency: 'gold' | 'souls'; ratio: number };
+  /**
+   * 条件经济光环·大连版（条件经济批：greedy/extremegreed/pillageandplunder
+   * 「在配对 4 或 5 颗宝石时，获得额外 N 黄金」）：自己一方配对 N 连时向战场经济池
+   * 入账。minSize 缺省 4（官方「4 或 5 颗」口径 = 任意大连，与 onBigMatchStatus 同款）。
+   */
+  onBigMatchEconomy?: { currency: keyof TraitEconomyGain; amount: number; minSize?: number };
+  /** 条件经济光环·骷髅版（darkensouls「在配对骷髅头时，获得 3 个灵魂」），骷髅匹配触发点结算 */
+  onSkullMatchEconomy?: { currency: keyof TraitEconomyGain; amount: number };
 }
 
 export const TRAIT_LIBRARY: readonly TraitDefinition[] = traitTable as TraitDefinition[];
@@ -199,6 +215,8 @@ export function neutralPassives(): PassiveModifiers {
     cleanseOnColorMatch: [],
     cleanseOnBigMatch: false,
     gainOnEnemyColorMatch: {},
+    bigMatchEconomyGain: {},
+    skullMatchEconomyGain: { gold: 0, souls: 0, gems: 0 },
   };
 }
 
@@ -239,6 +257,9 @@ export function resolvePassives(
   const cleanseColors = new Set<string>();
   let cleanseBigMatch = false;
   let bigMatchStatus: PassiveModifiers['onBigMatchStatus'];
+  const damagedStatusList: { id: string; turns: number; magnitude?: number }[] = [];
+  const bigMatchEconomy: Record<string, TraitEconomyGain> = {};
+  const skullEconomy: TraitEconomyGain = { gold: 0, souls: 0, gems: 0 };
 
   for (const code of traitIds) {
     const trait = lookup(code);
@@ -312,6 +333,24 @@ export function resolvePassives(
         || trait.inflictOnSkullDamaged.turns > passive.inflictOnSkullDamaged.turns)) {
       passive.inflictOnSkullDamaged = { ...trait.inflictOnSkullDamaged };
     }
+    // 受击附带状态·多条版（双状态诅咒族）：条目按声明顺序拼接保留，结算侧逐条施加
+    if (trait.inflictOnSkullDamagedList) {
+      damagedStatusList.push(...trait.inflictOnSkullDamagedList.map((s) => ({ ...s })));
+    }
+    // 敌人身亡触发的状态/种族光环变体（bloodlust/lordofdeath/sharedfate）：
+    // 单值字段同类取先声明的一条（同一角色持有多条时后续不覆盖）。
+    if (trait.onEnemyDeathStatus && passive.onEnemyDeathStatus === undefined) {
+      passive.onEnemyDeathStatus = { ...trait.onEnemyDeathStatus };
+    }
+    if (trait.onEnemyDeathTypeAura && passive.onEnemyDeathTypeAura === undefined) {
+      passive.onEnemyDeathTypeAura = {
+        ...trait.onEnemyDeathTypeAura,
+        gains: { ...trait.onEnemyDeathTypeAura.gains },
+      };
+    }
+    if (trait.onEnemyDeathEnemyStatus && passive.onEnemyDeathEnemyStatus === undefined) {
+      passive.onEnemyDeathEnemyStatus = { ...trait.onEnemyDeathEnemyStatus };
+    }
     // 4/5 连种族光环：同种族数值叠加，异种族并存
     if (trait.onBigMatchTypeAura) {
       const k = trait.onBigMatchTypeAura.troopType;
@@ -365,6 +404,16 @@ export function resolvePassives(
       passive.battleEconomyGain ??= { gold: 0, souls: 0 };
       passive.battleEconomyGain[trait.battleEconomyGain.currency] += trait.battleEconomyGain.ratio;
     }
+    // 条件经济光环（条件经济批）：大连版按 minSize 分桶累加、骷髅版直接累加
+    // （多持有者各自入账由结算侧按角色循环保证，与 gainOnBigMatch 同口径）。
+    if (trait.onBigMatchEconomy) {
+      const k = String(trait.onBigMatchEconomy.minSize ?? 4);
+      const bucket = (bigMatchEconomy[k] ??= { gold: 0, souls: 0, gems: 0 });
+      bucket[trait.onBigMatchEconomy.currency] += trait.onBigMatchEconomy.amount;
+    }
+    if (trait.onSkullMatchEconomy) {
+      skullEconomy[trait.onSkullMatchEconomy.currency] += trait.onSkullMatchEconomy.amount;
+    }
   }
 
   passive.skullDamageTaken = 1 - Math.min(0.95, skullReduction);
@@ -382,6 +431,9 @@ export function resolvePassives(
   passive.cleanseOnColorMatch = [...cleanseColors];
   passive.cleanseOnBigMatch = cleanseBigMatch;
   passive.onBigMatchStatus = bigMatchStatus;
+  passive.bigMatchEconomyGain = bigMatchEconomy;
+  passive.skullMatchEconomyGain = { ...skullEconomy };
+  if (damagedStatusList.length > 0) passive.inflictOnSkullDamagedList = damagedStatusList;
   return passive;
 }
 
@@ -504,6 +556,58 @@ export function applyDeathTriggers(
   ];
 }
 
+/**
+ * 敌人身亡触发的状态/种族光环变体（T2 死亡钩子批：bloodlust/lordofdeath/sharedfate）。
+ *
+ * 与 applyDeathTriggers 同一时机（行动末尾统一扫 defeat 事件）、同一持有者口径：
+ * 持有者为死者的对方全队存活角色，按队伍序结算。三类变体：
+ *   - onEnemyDeathStatus：持有者自身获得状态（bloodlust「在敌人身亡时获得狂怒效果」）；
+ *   - onEnemyDeathTypeAura：持有者一方指定种族的存活盟友获得数值，含持有者本人
+ *     （lordofdeath「所有不死族在一名敌人身亡时获得 5 点生命值和魔法值」）；
+ *   - onEnemyDeathEnemyStatus：死者已被移出编队，目标取死者一方队伍序首个存活角色
+ *     （sharedfate「在一名敌人身亡时，使另一名敌人陷入死亡标记状态」），确定性、不耗随机数。
+ * applyStatus 由 TurnEngine 注入（与 onBigMatchStatus 同口径，免疫在 applyStatus 内拦截）；
+ * 缺省时状态类变体跳过，仅光环类生效。
+ */
+export function applyEnemyDeathTriggers(
+  opposingTeam: readonly Character[],
+  deadSideTeam: readonly Character[],
+  ctx: { applyStatus?: (char: Character, status: StatusInstance) => GameEvent[] } = {},
+): GameEvent[] {
+  const events: GameEvent[] = [];
+  for (const holder of opposingTeam) {
+    if (holder.defeated) continue;
+    const p = passivesOf(holder);
+    if (p.onEnemyDeathStatus && ctx.applyStatus) {
+      events.push(...ctx.applyStatus(holder, {
+        id: p.onEnemyDeathStatus.id,
+        turns: p.onEnemyDeathStatus.turns,
+      }));
+    }
+    const aura = p.onEnemyDeathTypeAura;
+    if (aura) {
+      for (const member of opposingTeam) {
+        if (member.defeated) continue;
+        if (!(member.troopTypes ?? []).includes(aura.troopType)) continue;
+        for (const stat of GAIN_STAT_ORDER) {
+          const actual = grantStat(member, stat, aura.gains[stat] ?? 0);
+          if (actual !== 0) events.push({ type: 'buff', targetId: member.id, stat, amount: actual });
+        }
+      }
+    }
+    if (p.onEnemyDeathEnemyStatus && ctx.applyStatus) {
+      const target = deadSideTeam.find((c) => !c.defeated);
+      if (target) {
+        events.push(...ctx.applyStatus(target, {
+          id: p.onEnemyDeathEnemyStatus.id,
+          turns: p.onEnemyDeathEnemyStatus.turns,
+        }));
+      }
+    }
+  }
+  return events;
+}
+
 /** 死亡召唤特质的定义字段（summonOnDeath / summonOnAllyDeath / summonOnEnemyDeath 共用） */
 export type DeathSummonSpec = NonNullable<TraitDefinition['summonOnDeath']>;
 
@@ -621,7 +725,7 @@ function resolveSummonTemplate(spec: DeathSummonSpec): Omit<Character, 'id' | 'd
 export function applyColorMatchTriggers(
   team: readonly Character[],
   color: BaseColor | 'skull',
-  opts: { enemyTeam?: readonly Character[] } = {},
+  opts: { enemyTeam?: readonly Character[]; gainEconomy?: (currency: keyof TraitEconomyGain, amount: number) => GameEvent[] } = {},
 ): GameEvent[] {
   const events: GameEvent[] = [];
   for (const char of team) {
@@ -665,6 +769,14 @@ export function applyColorMatchTriggers(
       }
     }
   }
+  // 条件经济光环·骷髅版（darkensouls「在配对骷髅头时，获得 3 个灵魂」）：
+  // 仅骷髅键结算（配色键无对应官方句式），按持有者逐个入账、阵亡不贡献。
+  if (color === 'skull') {
+    for (const holder of team) {
+      if (holder.defeated) continue;
+      events.push(...grantEconomy(passivesOf(holder).skullMatchEconomyGain, opts.gainEconomy));
+    }
+  }
   return events;
 }
 
@@ -700,6 +812,31 @@ export interface BigMatchTriggerContext {
   applyStatus?: (char: Character, status: StatusInstance) => GameEvent[];
   /** 敌方存活队列（scope 'allEnemies' 的施加目标，bloodmark 族）；缺省时该 scope 跳过 */
   enemyTeam?: readonly Character[];
+  /**
+   * 战场经济入账口（条件经济批，TurnEngine 注入：economy[currency] += amount 并发
+   * economy-gain 事件）；缺省时条件经济光环跳过（纯逻辑单测零事件）。
+   */
+  gainEconomy?: (currency: keyof TraitEconomyGain, amount: number) => GameEvent[];
+}
+
+/** 条件经济光环的币种结算序（固定 gold→souls→gems，保证事件顺序确定性） */
+const ECONOMY_CURRENCY_ORDER = ['gold', 'souls', 'gems'] as const;
+
+/**
+ * 条件经济光环·通用结算：把一份按币种聚合的数额经 ctx.gainEconomy 入账。
+ * 零数额与缺省回调都安全跳过（无新键特质零事件、零随机消耗）。
+ */
+function grantEconomy(
+  amounts: Readonly<TraitEconomyGain>,
+  gain?: (currency: keyof TraitEconomyGain, amount: number) => GameEvent[],
+): GameEvent[] {
+  if (!gain) return [];
+  const events: GameEvent[] = [];
+  for (const currency of ECONOMY_CURRENCY_ORDER) {
+    const amount = amounts[currency];
+    if (amount > 0) events.push(...gain(currency, amount));
+  }
+  return events;
 }
 
 /** 把编译好的状态规格逐条施加到目标（ctx.applyStatus 由 TurnEngine 注入；缺省时跳过） */
@@ -816,6 +953,17 @@ export function applyBigMatchTriggers(
   // 净化（royalhoney）：任一存活持有者带键即全队去负面状态
   if (matchingTeam.some((c) => !c.defeated && passivesOf(c).cleanseOnBigMatch)) {
     for (const member of matchingTeam) events.push(...cleanseNegative(member));
+  }
+
+  // 条件经济光环（greedy/extremegreed/pillageandplunder「配对 4 或 5 颗获得额外 N 黄金」）：
+  // 按持有者逐个入账（阵亡不贡献），minSize 限定与 gainOnBigMatchSized 同口径。
+  for (const holder of matchingTeam) {
+    if (holder.defeated) continue;
+    const byMinSize = passivesOf(holder).bigMatchEconomyGain;
+    for (const [minSize, amounts] of Object.entries(byMinSize)) {
+      if (size < Number(minSize)) continue;
+      events.push(...grantEconomy(amounts, ctx.gainEconomy));
+    }
   }
   return events;
 }

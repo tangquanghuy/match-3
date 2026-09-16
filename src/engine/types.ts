@@ -450,6 +450,12 @@ export interface PassiveModifiers {
   inflictOnSkullHit?: { id: string; turns: number; magnitude?: number };
   /** 承受骷髅伤害时给攻击者施加的状态（毒孢子族：被打时反手让敌人中毒） */
   inflictOnSkullDamaged?: { id: string; turns: number; magnitude?: number };
+  /**
+   * 承受骷髅伤害时给攻击者施加的**多条**状态（双状态诅咒族 frozencurse 等：
+   * 「使其陷入诅咒和冻结状态」）。与 inflictOnSkullDamaged 并存，结算时在单条施加点
+   * 之后逐条施加；条目按特质声明的描述顺序保留。仅 DoT（poison/burning/bleed）带 magnitude。
+   */
+  inflictOnSkullDamagedList?: readonly { id: string; turns: number; magnitude?: number }[];
   /** 自己一方匹配 4/5 连时，给同队指定种族盟友的增益（firstwargare/overclock 族）；键为种族或 'all'（全队） */
   bigMatchTypeAura: Readonly<Record<string, StatGains>>;
   /**
@@ -494,6 +500,19 @@ export interface PassiveModifiers {
   gainOnEnemyCast: StatGains;
   /** 敌方角色阵亡时获得（吸收生命/庆功…） */
   gainOnEnemyDeath: StatGains;
+  /** 敌方角色阵亡时自身获得的状态（bloodlust「在敌人身亡时获得狂怒效果」） */
+  onEnemyDeathStatus?: { id: string; turns: number };
+  /**
+   * 敌方角色阵亡时同队指定种族盟友获得的数值（lordofdeath「所有不死族在一名敌人身亡时
+   * 获得 5 点生命值和魔法值」）。受益者为持有者一方该种族的存活盟友，含持有者本人。
+   */
+  onEnemyDeathTypeAura?: { troopType: string; gains: Partial<StatGains> };
+  /**
+   * 敌方角色阵亡时使死者一方仍存活的「另一名敌人」陷入状态（sharedfate「在一名敌人
+   * 身亡时，使另一名敌人陷入死亡标记状态」）。死者已被移出编队，目标取死者一方
+   * 队伍序首个存活角色，确定性结算、不消耗随机数。
+   */
+  onEnemyDeathEnemyStatus?: { id: string; turns: number };
   /** 同队角色阵亡时获得（复仇者…） */
   gainOnAllyDeath: StatGains;
   /** 自己一方匹配 4 或 5 连时获得（庞然/巨型/修理…） */
@@ -527,6 +546,21 @@ export interface PassiveModifiers {
    * 多条特质同类比率相加；gems 无对应官方句式不设键。
    */
   battleEconomyGain?: { gold: number; souls: number };
+  /**
+   * 条件经济光环·大连版（greedy/extremegreed/pillageandplunder 族）：
+   * 自己一方配对 N 连时向战场经济池入账，键为 minSize（缺省 4，「配对 4 或 5 颗」
+   * 官方口径 = 任意大连）。多持有者各自入账（与 gainOnBigMatch 累加口径一致）。
+   */
+  bigMatchEconomyGain: Readonly<Record<string, TraitEconomyGain>>;
+  /** 条件经济光环·骷髅版（darkensouls「在配对骷髅头时，获得 3 个灵魂」），骷髅匹配触发点结算 */
+  skullMatchEconomyGain: TraitEconomyGain;
+}
+
+/** 条件经济光环的入账数额（按币种；maps 无对应官方句式不设键） */
+export interface TraitEconomyGain {
+  gold: number;
+  souls: number;
+  gems: number;
 }
 
 /**

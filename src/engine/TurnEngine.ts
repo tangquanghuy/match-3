@@ -22,7 +22,7 @@ import { AiCellChooser, prototypeNeedsCell } from './skills/cellChooser';
 import type { CellChooser } from './skills/cellChooser';
 import { MatchState, PlayerSide, BaseColor, opponentOf, colorGem, WEB_GEM_TURNS,
   MATCH_STATUS_GEMS, DESTROY_STATUS_GEMS, STATUS_GEM_EFFECTS, isStatusGemKind, BOOTY_GEM_GOLD } from './types';
-import type { SkullStormDropKind, StatusGemKind, StatusInstance } from './types';
+import type { SkullStormDropKind, StatusGemKind, StatusInstance, TraitEconomyGain } from './types';
 
 /**
  * 被炸毁骷髅的法术伤害表（官方口径，区别于三消骷髅的攻击力结算）：
@@ -41,6 +41,7 @@ import {
   applyColorMatchTriggers,
   applyDeathSummons,
   applyDeathTriggers,
+  applyEnemyDeathTriggers,
   applyTurnStartPassives,
   attachPassives,
   getTrait,
@@ -92,6 +93,15 @@ export class TurnEngine {
    * GoW 的战斗奖励归玩家，共用池只按玩家侧特质放大。
    */
   private readonly economyGainRatios: { gold: number; souls: number };
+  /**
+   * 条件经济光环入账口（条件经济批，注入 traits 触发器 ctx/opts.gainEconomy）：
+   * 灵魂/黄金/宝石直接入战场经济池（GameState.economy，全场共用），发既有
+   * economy-gain 事件（不新增事件类型）；side 记录获得发生时的行动方。
+   */
+  private readonly creditEconomy = (currency: keyof TraitEconomyGain, amount: number): GameEvent[] => {
+    this.state.economy[currency] += amount;
+    return [{ type: 'economy-gain', currency, amount, side: this.state.activePlayer }];
+  };
 
   constructor(
     private state: GameState,
@@ -271,7 +281,7 @@ export class TurnEngine {
         if (grantsExtraTurn(group.shape)) grantedExtra = true;
 
         // 4/5 连响应特质（庞然/巨型/修理…）：只给匹配方自己一队，按组结算。
-        // ctx 只服务条件光环批新键（施加状态/5 连限定/净化）；旧特质路径零随机消耗、事件序不变。
+        // ctx 只服务条件光环批新键（施加状态/5 连限定/净化/条件经济）；旧特质路径零随机消耗、事件序不变。
         if (group.cells.length >= 4) {
           events.push(...applyBigMatchTriggers(
             this.state.teams[this.state.activePlayer].characters,
@@ -280,6 +290,7 @@ export class TurnEngine {
               rng: this.rng,
               applyStatus: (char, status) => applyStatus(char, status),
               enemyTeam: this.state.teams[opponentOf(this.state.activePlayer)].characters,
+              gainEconomy: this.creditEconomy,
             },
           ));
         }
@@ -376,11 +387,12 @@ export class TurnEngine {
         settle.bonusDamage,
       );
       events.push(...resolveDefeatEvents(this.state, outcome.events));
-      // 配对骷髅触发（diamondaura/powerofstars 配色光环、rancor 敌方触发）：
-      // 在骷髅伤害结算之后触发，避免同一次命中被本次新增的护甲/生命减免——
+      // 配对骷髅触发（diamondaura/powerofstars 配色光环、rancor 敌方触发、darkensouls
+      // 条件经济）：在骷髅伤害结算之后触发，避免同一次命中被本次新增的护甲/生命减免——
       // 炸毁骷髅（settleExplodedSkulls）不算「配对」，不在此列。
       events.push(...applyColorMatchTriggers(activeTeam.characters, 'skull', {
         enemyTeam: enemyTeam.characters,
+        gainEconomy: this.creditEconomy,
       }));
     }
     // 'wildOnly'：全通配组无归属色，只消除不结算
@@ -709,9 +721,10 @@ export class TurnEngine {
       // 传入 rng：闪避特质（敏捷/轻巧）需要随机判定，且必须走同一条确定性随机源
       const outcome = this.combat.resolveSkullDamage(activeTeam, enemyTeam, count, this.rng);
       events.push(...resolveDefeatEvents(this.state, outcome.events));
-      // 配对骷髅触发（diamondaura/powerofstars/rancor 族），在伤害结算之后（同 applyGroupEffects 口径）
+      // 配对骷髅触发（diamondaura/powerofstars/rancor/darkensouls 族），在伤害结算之后（同 applyGroupEffects 口径）
       events.push(...applyColorMatchTriggers(activeTeam.characters, 'skull', {
         enemyTeam: enemyTeam.characters,
+        gainEconomy: this.creditEconomy,
       }));
     }
   }
@@ -839,6 +852,13 @@ export class TurnEngine {
       events.push(...applyDeathTriggers(
         this.state.teams[side].characters,
         this.state.teams[opponentOf(side)].characters,
+      ));
+      // 敌人身亡的状态/种族光环变体（bloodlust/lordofdeath/sharedfate）：与阵亡响应同一时机。
+      // 事件顺序：stat 增益 → 状态/种族光环 → 死亡召唤，都落在引发阵亡的行动事件之后。
+      events.push(...applyEnemyDeathTriggers(
+        this.state.teams[opponentOf(side)].characters,
+        this.state.teams[side].characters,
+        { applyStatus },
       ));
       // 死亡召唤（daemonicpact/terrorpact/fromdark/darkdeath 族）：与阵亡响应同一时机。
       // 事件顺序：增益 buff → 召唤 summon，都落在引发阵亡的行动事件之后。

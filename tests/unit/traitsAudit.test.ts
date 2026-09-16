@@ -145,6 +145,15 @@ describe('A · 数据完整性', () => {
         if (![4, 5].includes(s.minSize)) report(`${tag} onBigMatchSizedGain.minSize=${s.minSize} 异常`);
         if (!(s.amount >= 1 && s.amount <= 20)) report(`${tag} onBigMatchSizedGain.amount=${s.amount} 异常`);
       }
+      // 条件经济光环批（条件经济批）：结构合法性
+      for (const [field, spec] of [['onBigMatchEconomy', t.onBigMatchEconomy], ['onSkullMatchEconomy', t.onSkullMatchEconomy]] as const) {
+        if (!spec) continue;
+        if (!['gold', 'souls', 'gems'].includes(spec.currency)) report(`${tag} ${field}.currency「${spec.currency}」非法`);
+        if (!(spec.amount >= 1 && spec.amount <= 50)) report(`${tag} ${field}.amount=${spec.amount} 异常`);
+        if (field === 'onBigMatchEconomy' && spec.minSize !== undefined && ![4, 5].includes(spec.minSize)) {
+          report(`${tag} onBigMatchEconomy.minSize=${spec.minSize} 异常`);
+        }
+      }
       if (t.onColorMatchTypeAura) {
         const s = t.onColorMatchTypeAura;
         const colorOk = s.color === 'skull' || BASE_COLORS.has(s.color as BaseColor);
@@ -175,6 +184,34 @@ describe('A · 数据完整性', () => {
         if (!(inf.turns >= 1 && inf.turns <= 9)) report(`${tag} 附状态 turns=${inf.turns} 异常`);
         if (inf.magnitude !== undefined && (inf.id === 'web' || !['poison', 'burning', 'bleed'].includes(inf.id))) {
           report(`${tag} 非DoT状态不应带 magnitude（web 的 magnitude 是挣脱几率，由引擎管理）`);
+        }
+      }
+      // T2 死亡钩子批：多状态列表与敌人身亡变体的结构合法性
+      if (t.inflictOnSkullDamagedList) {
+        if (t.inflictOnSkullDamagedList.length < 2) report(`${tag} inflictOnSkullDamagedList 少于两条（双状态族专用，单状态应走 inflictOnSkullDamaged）`);
+        for (const inf of t.inflictOnSkullDamagedList) {
+          if (!ENGINE_STATUS_IDS.has(inf.id)) report(`${tag} 命中附状态「${inf.id}」引擎未实现`);
+          if (!(inf.turns >= 1 && inf.turns <= 9)) report(`${tag} 附状态 turns=${inf.turns} 异常`);
+          if (inf.magnitude !== undefined && (inf.id === 'web' || !['poison', 'burning', 'bleed'].includes(inf.id))) {
+            report(`${tag} 非DoT状态不应带 magnitude（${inf.id}）`);
+          }
+        }
+      }
+      if (t.onEnemyDeathStatus) {
+        if (!ENGINE_STATUS_IDS.has(t.onEnemyDeathStatus.id)) report(`${tag} onEnemyDeathStatus「${t.onEnemyDeathStatus.id}」引擎未实现`);
+        if (!(t.onEnemyDeathStatus.turns >= 1 && t.onEnemyDeathStatus.turns <= 9)) report(`${tag} onEnemyDeathStatus.turns=${t.onEnemyDeathStatus.turns} 异常`);
+      }
+      if (t.onEnemyDeathEnemyStatus) {
+        if (!ENGINE_STATUS_IDS.has(t.onEnemyDeathEnemyStatus.id)) report(`${tag} onEnemyDeathEnemyStatus「${t.onEnemyDeathEnemyStatus.id}」引擎未实现`);
+        if (!(t.onEnemyDeathEnemyStatus.turns >= 1 && t.onEnemyDeathEnemyStatus.turns <= 9)) report(`${tag} onEnemyDeathEnemyStatus.turns=${t.onEnemyDeathEnemyStatus.turns} 异常`);
+      }
+      if (t.onEnemyDeathTypeAura) {
+        if (t.onEnemyDeathTypeAura.troopType !== 'all' && !/^[A-Z]/.test(t.onEnemyDeathTypeAura.troopType)) {
+          report(`${tag} onEnemyDeathTypeAura.troopType「${t.onEnemyDeathTypeAura.troopType}」不是规范族名`);
+        }
+        const vals = Object.values(t.onEnemyDeathTypeAura.gains).filter((v) => v !== 0);
+        if (vals.length === 0 || vals.some((v) => v < 0 || Math.abs(v) > 20)) {
+          report(`${tag} onEnemyDeathTypeAura.gains 异常`);
         }
       }
       if (t.turnStartCreateGem && !BASE_COLORS.has(t.turnStartCreateGem.color as BaseColor)) {
@@ -224,6 +261,10 @@ describe('B · 编译契约', () => {
     'onBigMatchCleanse', 'onColorMatchCleanse', 'onEnemyColorMatchGain',
     // 战后经济批（窗口 E，merchant/necromancy 族）
     'battleEconomyGain',
+    // T2 死亡钩子批：双状态诅咒列表 + 敌人身亡状态/种族光环/另一名敌人施状态
+    'inflictOnSkullDamagedList', 'onEnemyDeathStatus', 'onEnemyDeathTypeAura', 'onEnemyDeathEnemyStatus',
+    // 条件经济光环批（greedy/extremegreed/pillageandplunder/darkensouls）
+    'onBigMatchEconomy', 'onSkullMatchEconomy',
   ]);
 
   /**
@@ -319,13 +360,47 @@ describe('C · 描述↔数值一致性（从官方文本重新抽数对账）',
           report(`${tag(t)} 再生数值/属性与描述不符`);
         }
       }
-      // 触发类增益：获得 N 点 X；「给予所有盟友 N 颗/点 X」的旧实现同口径
-      for (const field of TRIGGER_FIELDS) {
+      // 触发类增益：获得 N 点 X；「给予所有盟友 N 颗/点 X」的旧实现同口径。
+      // sacrifice「所有技能增加 N 点」（属性词在数词前）单独对账，按 randomStat 口径（技能值→magic）
+      if (t.onEnemyDeathGain && /所有技能增加/.test(d)) {
+        const m = /所有技能增加\s*(\d+)\s*点/.exec(d);
+        if (!m || num(m[1]) !== t.onEnemyDeathGain.amount || t.onEnemyDeathGain.stat !== 'magic') {
+          report(`${tag(t)} onEnemyDeathGain（所有技能）数值/属性与描述不符`);
+        }
+      } else for (const field of TRIGGER_FIELDS) {
         const gain = t[field] as { stat: string; amount: number } | undefined;
         if (!gain) continue;
         const m = /(?:获得|给[予]?所有盟友)\s*(\d+)\s*[颗点](随机技能值|生命值|护甲值|攻击力|魔法值|法力值)/.exec(d);
         if (!m || num(m[1]) !== gain.amount || statOf(m[2]) !== gain.stat) {
           report(`${tag(t)} ${field} 数值/属性与描述不符`);
+        }
+      }
+      // T2 死亡钩子批：敌人身亡的状态/种族光环/另一名敌人施状态对账
+      if (t.onEnemyDeathStatus) {
+        if (!/敌人身亡/.test(d)) report(`${tag(t)} onEnemyDeathStatus 但描述没有「敌人身亡」`);
+        const wordOf: Record<string, string> = { 狂怒: 'rage', 屏障: 'barrier', 反射: 'reflect', 赐福: 'blessed' };
+        const m = /获得(狂怒|屏障|反射|赐福)效果/.exec(d);
+        if (!m || wordOf[m[1]] !== t.onEnemyDeathStatus.id) {
+          report(`${tag(t)} onEnemyDeathStatus 状态词与「${t.onEnemyDeathStatus.id}」不符`);
+        }
+      }
+      if (t.onEnemyDeathTypeAura) {
+        if (!/在一名敌人身亡时/.test(d)) report(`${tag(t)} onEnemyDeathTypeAura 但描述没有「在一名敌人身亡时」`);
+        const m = /在一名敌人身亡时[，,]?获得\s*(\d+)\s*点/.exec(d);
+        const vals = Object.values(t.onEnemyDeathTypeAura.gains).filter((v) => v !== 0);
+        if (!m || vals.length === 0 || vals.some((v) => v !== num(m[1]))) {
+          report(`${tag(t)} onEnemyDeathTypeAura 数值与描述不符`);
+        }
+      }
+      if (t.onEnemyDeathEnemyStatus && !/敌人身亡/.test(d)) {
+        report(`${tag(t)} onEnemyDeathEnemyStatus 但描述没有「敌人身亡」`);
+      }
+      // 双状态诅咒族：描述必须是「陷入X和Y状态」句式，条目数与描述段数一致
+      if (t.inflictOnSkullDamagedList) {
+        const m = /陷入(.+?)状态/.exec(d);
+        const parts = m ? m[1].split('和').filter((s) => s.trim() !== '') : [];
+        if (parts.length !== t.inflictOnSkullDamagedList.length) {
+          report(`${tag(t)} 双状态条数 ${t.inflictOnSkullDamagedList.length} 与描述「${m?.[1] ?? d}」不符`);
         }
       }
       // 光环族
@@ -491,6 +566,7 @@ describe('D · 接线完整性（钩子存在但没人调用 = 死角）', () =>
     ['战斗开始光环', /applyBattleStartTraits/, () => turnEngineSrc],
     ['回合开始再生', /applyTurnStartPassives/, () => turnEngineSrc],
     ['阵亡响应', /applyDeathTriggers/, () => turnEngineSrc],
+    ['敌人身亡状态/光环变体', /applyEnemyDeathTriggers/, () => turnEngineSrc],
     ['4-5 连触发', /applyBigMatchTriggers/, () => turnEngineSrc],
     ['配色触发', /applyColorMatchTriggers/, () => turnEngineSrc],
     ['施法响应', /applyCastTriggers/, () => turnEngineSrc],

@@ -27,9 +27,10 @@ const STATUS_MAP = [
 /**
  * 特质可救批（T1 免疫 + T3 骷髅命中）扩展状态映射：这些状态本体在引擎里已落地
  * （skills/effects/status.ts：death-mark/marked/curse/disease/bleed/terror 均有结算），
- * 只是 STATUS_MAP 当年没收。只并入免疫与骷髅命中/受击附状态三类规则；
- * **不**并入屠戮条件（parseDamageCondition）与大连光环（AURA_STATUS_MAP）——
- * 那两类在本批范围外，避免越批实现（恐怖/猎人标记的大连施加仍是 T5 欠账）。
+ * 只是 STATUS_MAP 当年没收。并入免疫、骷髅命中/受击附状态与屠戮条件三类规则
+ * （屠戮条件经 DAMAGE_CONDITION_MAP 消费扩展表——cursehunter/virulence/doom 等
+ * 「对陷入X状态的敌人造成双倍骷髅头伤害」）；大连光环仍走自己的 AURA_STATUS_MAP，
+ * 不并此表（两表范围不同：光环按「施加」，屠戮按「条件命中」）。
  */
 const RESCUE_STATUS_MAP = [
   [/死亡标记/, 'death-mark'],
@@ -42,6 +43,13 @@ const RESCUE_STATUS_MAP = [
 
 /** 免疫 / 骷髅命中附状态规则的完整查找表：基础表在前（保持既有命中次序），扩展表在后 */
 const RESCUE_FULL_STATUS_MAP = [...STATUS_MAP, ...RESCUE_STATUS_MAP];
+
+/**
+ * 双状态诅咒族的机器翻译错字定点修正（仅双状态拆段分支生效，不做全局映射）：
+ * diseasedcurse 官方名「疾病诅咒」（Diseased Curse = Curse + Disease），dump 描述把
+ * Disease 误译作「击败」；按特质名与官方机制逐字核对后映射 disease，其余状态不在此列。
+ */
+const DUAL_STATUS_ALIAS = { 击败: 'disease' };
 
 /** DoT 状态施加时带 magnitude:1（bleed 与 poison/burning 同为每回合跳伤的攻击性 DoT） */
 const isDotStatus = (id) => id === 'poison' || id === 'burning' || id === 'bleed';
@@ -112,12 +120,21 @@ const TROOP_TYPE_MAP = {
 const num = (s) => Number(s);
 
 /**
+ * 屠戮条件的可用状态全集（O 桶高频批）：基础表 + 特质可救批扩展表 + 下潜。
+ * 下潜（submerged）本体在 status.ts 已落地（UNTARGETABLE_STATUS_IDS），命中附状态
+ * 映射表没收它是因为没有「命中施加下潜」的官方句式；屠戮条件有（depthcharge
+ * 「对已下潜的敌人造成双倍骷髅头伤害」），在此补上。含未落地状态词（法印/吞噬…）
+ * 的句子整体不收，不做缺状态半解析。
+ */
+const DAMAGE_CONDITION_MAP = [...RESCUE_FULL_STATUS_MAP, [/下潜|下潮/, 'submerged']];
+
+/**
  * 解析屠戮类特质的「条件」描述：陷入某状态的敌人 / 被击晕的敌人 / 受伤的敌人。
  * 只认引擎已有的状态；`受伤` 是「当前生命低于上限」的状况，不是状态。
  */
 function parseDamageCondition(text) {
   if (/受伤/.test(text)) return { wounded: true };
-  const hit = STATUS_MAP.find(([re]) => re.test(text));
+  const hit = DAMAGE_CONDITION_MAP.find(([re]) => re.test(text));
   return hit ? { status: hit[1] } : null;
 }
 const pickColor = (desc) => COLOR_MAP.find(([re]) => re.test(desc))?.[1];
@@ -229,18 +246,50 @@ function parse(desc) {
   //   serenity/scalding「在敌方/敌人对自身造成骷髅头伤害时，使对方陷入X状态」
   //   frozensoul「当承受骷髅头伤害时冻结敌人」（动词句，无「陷入…状态」）
   // 与毒孢子同一字段（inflictOnSkullDamaged）。
-  // 双状态诅咒族（frozencurse 等「使其陷入诅咒和X状态」）要一次施加两条状态，
-  // 现有字段是单状态，不做半解析——捕获组带「和」或「其」时整体拒绝，留在未实现桶。
+  // 双状态诅咒族（T2 批：frozencurse 等「使其陷入诅咒和X状态」）要一次施加两条状态，
+  // 落到新字段 inflictOnSkullDamagedList：按「和」拆段逐个映射，**全部命中才收**（不做
+  // 半解析）；条目顺序与描述一致，DoT 段带 magnitude:1，与单状态口径相同。
   if (/^(?:在自身受到|在敌[方人]对自身造成|当承受)骷髅头伤害时/.test(desc)) {
-    const captured = /使对方陷入(.+?)状态/.exec(desc) ?? /当承受骷髅头伤害时(.+?)敌人/.exec(desc);
+    const captured = /使(?:对方|其)陷入(.+?)状态/.exec(desc) ?? /当承受骷髅头伤害时(.+?)敌人/.exec(desc);
     const text = captured?.[1];
-    if (!text || /和/.test(text)) return null;
+    if (!text) return null;
+    if (/和/.test(text)) {
+      const ids = text
+        .split('和')
+        .map((s) => s.trim())
+        .filter(Boolean)
+        .map((part) => RESCUE_FULL_STATUS_MAP.find(([re]) => re.test(part))?.[1] ?? DUAL_STATUS_ALIAS[part]);
+      if (ids.some((id) => !id) || new Set(ids).size !== ids.length) return null;
+      return {
+        effects: {
+          inflictOnSkullDamagedList: ids.map((id) => (isDotStatus(id)
+            ? { id, turns: 3, magnitude: 1 }
+            : { id, turns: 3 })),
+        },
+      };
+    }
     const hit = RESCUE_FULL_STATUS_MAP.find(([re]) => re.test(text));
     if (!hit) return null;
     const isDot = isDotStatus(hit[1]);
     return {
       effects: {
         inflictOnSkullDamaged: isDot
+          ? { id: hit[1], turns: 3, magnitude: 1 }
+          : { id: hit[1], turns: 3 },
+      },
+    };
+  }
+  // 骷髅匹配附状态（feartouch「在配对骷髅头使使敌人陷入恐怖状态」——dump 的「使使」
+  // 为机翻叠字，按「配对骷髅头时使敌人陷入X状态」理解；匹配骷髅即造成骷髅伤害，
+  // 与 T3 骷髅命中族同一字段 inflictOnSkullHit 同一口径）。DoT 带 magnitude:1，其余不带；
+  // 状态词查不到整体不收，不做半解析。
+  if ((m = /^(?:在)?配对骷髅头(?:宝石)?时?[，,]?使+敌人陷入(.+?)状态。?$/.exec(desc))) {
+    const hit = RESCUE_FULL_STATUS_MAP.find(([re]) => re.test(m[1]));
+    if (!hit) return null;
+    const isDot = isDotStatus(hit[1]);
+    return {
+      effects: {
+        inflictOnSkullHit: isDot
           ? { id: hit[1], turns: 3, magnitude: 1 }
           : { id: hit[1], turns: 3 },
       },
@@ -302,6 +351,34 @@ function parse(desc) {
     const key = m[1] === '盟友' ? 'onAllyCastGain' : 'onEnemyCastGain';
     return { effects: { [key]: { stat, amount: num(m[2]) } } };
   }
+  // 敌人身亡时自身获得状态（bloodlust「在敌人身亡时获得狂怒效果」）：rage 本体已落地
+  // （RAGE_STATUS_IDS），施加回合数与大连施加的狂怒（provocation）同口径取 3。
+  // 只收引擎已落地的四个正面状态，其余词不命中即整体不收。
+  if ((m = /^(?:当|在)(?:一名)?敌人身亡时[，,]?获得(狂怒|屏障|反射|赐福)效果。?$/.exec(desc))) {
+    const id = { 狂怒: 'rage', 屏障: 'barrier', 反射: 'reflect', 赐福: 'blessed' }[m[1]];
+    return { effects: { onEnemyDeathStatus: { id, turns: 3 } } };
+  }
+  // 种族限定的敌人身亡光环（lordofdeath「所有不死族在一名敌人身亡时获得 5 点生命值和
+  // 魔法值」）：受益者为持有者一方该种族的存活盟友（含持有者）。种族查表失败按未实现
+  // 归类，不硬猜。
+  if ((m = /^所有(.+?)在一名敌人身亡时[，,]?获得\s*(\d+)\s*点(.+?)。?$/.exec(desc))) {
+    const troopType = TROOP_TYPE_MAP[m[1]] ?? TROOP_TYPE_MAP[`${m[1]}族`];
+    const gains = parseGainsList(m[3], num(m[2]));
+    if (!troopType || !gains) return null;
+    return { effects: { onEnemyDeathTypeAura: { troopType, gains } } };
+  }
+  // 敌人身亡时使另一名敌人陷入状态（sharedfate「在一名敌人身亡时，使另一名敌人陷入死亡
+  // 标记状态」）：目标取死者一方队伍序首个存活（引擎侧确定性结算）；状态本体查不到不收。
+  if ((m = /^在一名敌人身亡时[，,]?使另一名敌人陷入(.+?)状态。?$/.exec(desc))) {
+    const hit = RESCUE_FULL_STATUS_MAP.find(([re]) => re.test(m[1]));
+    if (!hit) return null;
+    return { effects: { onEnemyDeathEnemyStatus: { id: hit[1], turns: 3 } } };
+  }
+  // sacrifice「当一名敌人身亡时，所有技能增加 3 点」：技能值按既有约定映射 magic
+  // （STAT_MAP「技能值→magic」/ pickTriggerStat「随机技能值→magic」同源的 randomStat 口径）。
+  if ((m = /^(?:当|在)(?:一名)?敌人身亡时[，,]?所有技能增加\s*(\d+)\s*点。?$/.exec(desc))) {
+    return { effects: { onEnemyDeathGain: { stat: 'magic', amount: num(m[1]) } } };
+  }
   // 阵亡响应：当敌人/一名盟友身亡时获得 N 点 X
   if ((m = /^(?:当|在)(?:一名)?(敌人|盟友)身亡时[，,]?获得\s*(\d+)\s*点(生命值|护甲值|攻击力|魔法值|法力值)。?$/.exec(desc))) {
     const stat = m[3] === '法力值' ? 'mana' : pickStat(m[3]);
@@ -321,6 +398,17 @@ function parse(desc) {
     const stat = pickStat(m[2]);
     if (!stat) return null;
     return { effects: { onBigMatchGain: { stat, amount: num(m[1]) } } };
+  }
+  // 条件经济光环·大连版（条件经济批）：「在配对 4 或 5 颗宝石时，获得额外 N 黄金/灵魂」
+  // → onBigMatchEconomy。黄金=gold、灵魂=souls；minSize 缺省 4（官方「4 或 5 颗」口径
+  // = 任意大连，与 onBigMatchStatus 的 minSize 缺省同款）。
+  if ((m = /^在配对\s*4\s*或\s*5\s*颗宝石时[，,]?获得额外\s*(\d+)\s*(黄金|灵魂)。?$/.exec(desc))) {
+    return { effects: { onBigMatchEconomy: { currency: m[2] === '黄金' ? 'gold' : 'souls', amount: num(m[1]) } } };
+  }
+  // 条件经济光环·骷髅版：「在配对骷髅头时，获得 N 个灵魂/黄金」（darkensouls）
+  // → onSkullMatchEconomy，骷髅匹配触发点结算（与 diamondaura/rancor 的 'skull' 键同一结算口径）。
+  if ((m = /^在配对骷髅头(?:宝石)?时[，,]?获得\s*(\d+)\s*[个点](黄金|灵魂)。?$/.exec(desc))) {
+    return { effects: { onSkullMatchEconomy: { currency: m[2] === '黄金' ? 'gold' : 'souls', amount: num(m[1]) } } };
   }
   // 4/5 连给予盟友（firstwargare/overclock/celestialsage…）：种族限定或全队，
   // 支持「N 点 X 和 Y」双属性共享数值（两个属性各得 N）。种族查表失败按未实现归类，不硬猜。
@@ -520,6 +608,27 @@ function parse(desc) {
   }
   if ((m = /^在战斗中获得\s*(\d+)%\s*黄金加成。?$/.exec(desc))) {
     return { effects: { battleEconomyGain: { currency: 'gold', ratio: num(m[1]) / 100 } } };
+  }
+  // 开局召唤风暴（songofnature/songofstone/songofdoom…「在战斗开始的时候召唤叶风暴」）：
+  // 与 BATTLE_START_STORMS 同一 battleStartStorm 字段，风暴名复用死亡召唤的 STORM_MAP
+  // （9 种风暴 + 骷髅系 dropKind 同源）。已入 BATTLE_START_STORMS 的 5 个 code 由显式
+  // 映射兜底（生成器里 startupStorm 后展开覆盖，输出不变）。捕获名不在 STORM_MAP 的
+  // （开局召唤兵种，如 parliamentarycall）不在此收——开局召兵需入队钩子，属新机制。
+  if ((m = /^在战斗开始的时候召唤(.+?)。?$/.exec(desc))) {
+    const storm = STORM_MAP[m[1]];
+    if (!storm) return null;
+    return {
+      effects: {
+        battleStartStorm: {
+          color: storm.color,
+          turns: STORM_TURNS,
+          troopId: storm.troopId,
+          referenceName: storm.referenceName,
+          displayName: m[1],
+          ...(storm.dropKind ? { dropKind: storm.dropKind } : {}),
+        },
+      },
+    };
   }
   // 死亡召唤三族（daemonicpact/terrorpact/fromdark/darkdeath…）。
   // 触发主体：自己身亡 / 盟友身亡 / 敌人身亡；概率可省略（=100%，如 loyalmount/desertmount）。

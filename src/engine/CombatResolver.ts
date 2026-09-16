@@ -161,6 +161,18 @@ export class CombatResolver {
       }));
     }
 
+    // 承受骷髅伤害附状态·多条版（双状态诅咒族 frozencurse 等）：逐条施加，
+    // 与单条版同一触发口径（enraged 攻击者不吃反手状态）。
+    if (!enraged && !attacker.defeated) {
+      for (const s of targetPassive.inflictOnSkullDamagedList ?? []) {
+        events.push(...applyStatus(attacker, {
+          id: s.id,
+          turns: s.turns,
+          ...(s.magnitude !== undefined ? { magnitude: s.magnitude } : {}),
+        }));
+      }
+    }
+
     // 反弹特质（炼狱护甲/荆棘/米提护甲）：按减伤后的实际伤害折算反打攻击者。
     // 反弹伤害不再触发攻击者身上的反弹，避免两个反弹角色互相弹到死循环。
     const reflectRatio = enraged ? 0 : targetPassive.reflectSkullRatio;
