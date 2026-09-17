@@ -250,6 +250,10 @@
 | `scripts/_augment_gow_weapons.mjs` | 已验证补充数据合并器 |
 | `scripts/_gen_gow_weapons_doc.mjs` | 本文档目录表/统计表生成器（改数据后重跑再生成 §4） |
 
+### 全量数据库快照（gowhead.com，2026-09-17）
+
+官方目录之外的全量 718 把现代武器已抓取入库：`artifacts/gowhead-weapons/`（weapons.json + 718 张卡面图标 + README 字段速查；含 Doomed 稀有度、淬炼词缀、按稀有度成长数组、发布日期）。抓取脚本 `scripts/_fetch_gowhead_weapons.mjs` 可重跑（断点续传）。artifacts/ 在 .gitignore 中，快照仅存本地。
+
 ### 主要来源
 
 - 官方武器目录：https://gemsofwar.com/game-guide-weapon-list/
