@@ -169,6 +169,27 @@ describe('A · 数据完整性', () => {
         if (![4, 5].includes(s.minSize)) report(`${tag} onBigMatchSizedGain.minSize=${s.minSize} 异常`);
         if (!(s.amount >= 1 && s.amount <= 20)) report(`${tag} onBigMatchSizedGain.amount=${s.amount} 异常`);
       }
+      // T5 窃取批：配色窃取生命的结构合法性（「窃取第一/首位敌人 N 点生命值」句式族）
+      if (t.onColorMatchDrain) {
+        const s = t.onColorMatchDrain;
+        if (s.color !== 'skull' && !BASE_COLORS.has(s.color as BaseColor)) report(`${tag} onColorMatchDrain.color「${s.color}」非法`);
+        if (!(s.amount >= 1 && s.amount <= 20)) report(`${tag} onColorMatchDrain.amount=${s.amount} 异常`);
+      }
+      // T5 大连伤害批：4/5 连技能伤害的结构合法性
+      if (t.onBigMatchDamage) {
+        const s = t.onBigMatchDamage;
+        if (!['randomEnemy', 'enemyAll'].includes(s.scope)) report(`${tag} onBigMatchDamage.scope「${s.scope}」非法`);
+        if (!(s.amount >= 1 && s.amount <= 20)) report(`${tag} onBigMatchDamage.amount=${s.amount} 异常`);
+        if (s.minSize !== undefined && ![4, 5].includes(s.minSize)) report(`${tag} onBigMatchDamage.minSize=${s.minSize} 异常`);
+      }
+      // T5 大连敌减批：4+ 连削减敌方属性的结构合法性（reduce 语义，无 hp——扣血走伤害管线）
+      if (t.onBigMatchEnemyDrain) {
+        const s = t.onBigMatchEnemyDrain;
+        if (!['attack', 'armor', 'magic', 'mana'].includes(s.stat)) report(`${tag} onBigMatchEnemyDrain.stat「${s.stat}」非法`);
+        if (!(s.amount >= 1 && s.amount <= 20)) report(`${tag} onBigMatchEnemyDrain.amount=${s.amount} 异常`);
+        if (!['front', 'randomEnemy'].includes(s.scope)) report(`${tag} onBigMatchEnemyDrain.scope「${s.scope}」非法`);
+        if (s.minSize !== undefined && ![4, 5].includes(s.minSize)) report(`${tag} onBigMatchEnemyDrain.minSize=${s.minSize} 异常`);
+      }
       // 条件经济光环批（条件经济批）：结构合法性
       for (const [field, spec] of [['onBigMatchEconomy', t.onBigMatchEconomy], ['onSkullMatchEconomy', t.onSkullMatchEconomy]] as const) {
         if (!spec) continue;
@@ -302,6 +323,8 @@ describe('B · 编译契约', () => {
     'onBigMatchCleanse', 'onColorMatchCleanse', 'onEnemyColorMatchGain',
     // T5 配色状态批（molten/sunfire/foxfire…「配对X色→随机敌人施加状态」族）
     'onColorMatchStatus',
+    // T5 三机制批：配色窃取生命（corruption 族）/ 大连技能伤害（shock 族）/ 大连敌减（suppression 族）
+    'onColorMatchDrain', 'onBigMatchDamage', 'onBigMatchEnemyDrain',
     // 战后经济批（窗口 E，merchant/necromancy 族）
     'battleEconomyGain',
     // T2 死亡钩子批：双状态诅咒列表 + 敌人身亡状态/种族光环/另一名敌人施状态
@@ -621,6 +644,37 @@ describe('C · 描述↔数值一致性（从官方文本重新抽数对账）',
           if (!re || !re.test(d)) report(`${tag(t)} 配色施加状态「${st.id}」在描述中无对应状态词`);
         }
       }
+      // T5 窃取批：窃取 N 点生命值 + 色键与描述一致
+      if (t.onColorMatchDrain) {
+        const m = /在?配对(.+?)宝石的?时[，,]?窃取(?:第一名|第一位|首位)敌人\s*(\d+)\s*点生命值/.exec(d);
+        const expectColor = m ? pickColorOf(m[1]) : null;
+        if (!m || num(m[2]) !== t.onColorMatchDrain.amount || expectColor !== t.onColorMatchDrain.color) {
+          report(`${tag(t)} onColorMatchDrain 与描述「${d}」不符`);
+        }
+      }
+      // T5 大连伤害批：对（一名随机敌人|所有敌人）造成 N 点伤害
+      if (t.onBigMatchDamage) {
+        const s = t.onBigMatchDamage;
+        const m = /在配对\s*4\s*或\s*5\s*颗宝石时[，,]?对(一名随机敌人|所有敌人)造成\s*(\d+)\s*点伤害/.exec(d);
+        const expectScope = m ? (m[1] === '所有敌人' ? 'enemyAll' : 'randomEnemy') : null;
+        if (!m || num(m[2]) !== s.amount || expectScope !== s.scope) {
+          report(`${tag(t)} onBigMatchDamage 与描述「${d}」不符`);
+        }
+      }
+      // T5 大连敌减批：数额/属性对账（技能值/随机技能值→magic、法力值→mana）+ scope 方向
+      if (t.onBigMatchEnemyDrain) {
+        const s = t.onBigMatchEnemyDrain;
+        if (!/配对\s*4/.test(d)) report(`${tag(t)} onBigMatchEnemyDrain 但描述不是 4 连句式`);
+        const drainStatOf = (w: string) => STAT_OF_WORD[w] ?? (w === '技能值' ? 'magic' : null);
+        const m = /(损失|耗掉|窃取)(?:一名随机敌人|第一名敌人|首位敌人|敌人)?\s*(\d+)\s*点(魔法值|技能值|攻击力|护甲值|法力值)/.exec(d)
+          ?? /(?:一名随机敌人|第一名敌人|首位敌人|敌人)(损失|耗掉|窃取)\s*(\d+)\s*点(魔法值|技能值|攻击力|护甲值|法力值)/.exec(d);
+        if (!m || num(m[2]) !== s.amount || drainStatOf(m[3]) !== s.stat) {
+          report(`${tag(t)} onBigMatchEnemyDrain 数额/属性与描述「${d}」不符`);
+        }
+        const random = /一名随机敌人/.test(d);
+        if (random && s.scope !== 'randomEnemy') report(`${tag(t)} onBigMatchEnemyDrain.scope=${s.scope} 但描述是随机句`);
+        if (!random && s.scope !== 'front') report(`${tag(t)} onBigMatchEnemyDrain.scope=${s.scope} 但描述不是随机句`);
+      }
       // 净化族方向校验
       if (t.onBigMatchCleanse && !/净化所有盟友/.test(d)) report(`${tag(t)} onBigMatchCleanse 但描述没有「净化所有盟友」`);
       if (t.onColorMatchCleanse && !/净化所有盟友/.test(d)) report(`${tag(t)} onColorMatchCleanse 但描述没有「净化所有盟友」`);
@@ -689,6 +743,7 @@ describe('D · 接线完整性（钩子存在但没人调用 = 死角）', () =>
     ['敌人身亡状态/光环变体', /applyEnemyDeathTriggers/, () => turnEngineSrc],
     ['4-5 连触发', /applyBigMatchTriggers/, () => turnEngineSrc],
     ['配色触发', /applyColorMatchTriggers/, () => turnEngineSrc],
+    ['大连伤害/窃取生命注入', /traitDamage|traitDrainLife/, () => turnEngineSrc],
     ['施法响应', /applyCastTriggers/, () => turnEngineSrc],
     ['回合开始棋盘写入', /turnStartCreateGem/, () => turnEngineSrc],
     ['骷髅减伤/受击/命中/反弹/穿甲', /skullDamageTaken|inflictOnSkullHit|reflectSkullRatio/, () => combatResolverSrc],

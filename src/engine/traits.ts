@@ -146,6 +146,35 @@ export interface TraitDefinition {
     turns?: number;
     chance?: number;
   };
+  /**
+   * 配对某色（或骷髅）宝石时窃取首位敌人的生命（T5 窃取批 5 code：corruption/poisontide/
+   * justabite/darkesthunger/ladyofdesire「在配对X色宝石时窃取第一/首位敌人 N 点生命值」）。
+   * 口径与技能 drain（settleDrain）一致：对首位存活敌人造成 amount 伤害（TurnEngine 注入
+   * drainLife 回调走 damageOne 管线），持有者按实际伤害额等量治疗；编译进
+   * PassiveModifiers.colorMatchDrain 的同色键。
+   */
+  onColorMatchDrain?: { color: BaseColor | 'skull'; amount: number };
+  /**
+   * 自己一方配对 4/5 连时对敌人造成技能伤害（T5 大连伤害批 3 code：shock/tentacles/
+   * lightningbolt「在配对 4 或 5 颗宝石时对…造成 N 点伤害」）。伤害经
+   * BigMatchTriggerContext.damage 注入（TurnEngine 传 damageOne 管线，法术减伤/屏障/
+   * 护甲/阵亡同口径）产出 skill-damage 事件；randomEnemy 每条规格耗一次种子化随机数
+   * （与施加状态的随机分支同口径）；minSize 缺省 4（「4 或 5 颗」= 任意大连）。
+   */
+  onBigMatchDamage?: { amount: number; scope: 'randomEnemy' | 'enemyAll'; minSize?: number };
+  /**
+   * 自己一方配对 4/5 连时削减敌方属性（T5 大连敌减批 5 code：suppression/aspectofplague/
+   * technomancy/creepinggloom/chillingaura「敌人/一名随机敌人损失/耗掉/窃取 N 点X」）。
+   * reduce 语义（不给自己）：目标属性夹零发负 buff 事件，mana 为耗蓝口径（manashield
+   * 免疫在削减口拦截）；front=首位存活敌人、randomEnemy 走种子化 rng；minSize 缺省 4。
+   * chillingaura 官方文本是「窃取」，按批裁定落纯削减（自身不进账）。
+   */
+  onBigMatchEnemyDrain?: {
+    stat: 'attack' | 'armor' | 'magic' | 'mana';
+    amount: number;
+    scope: 'front' | 'randomEnemy';
+    minSize?: number;
+  };
   /** 敌方配对某色/骷髅时自身获得（rancor「在敌人配对骷髅头时，获得 3 点攻击力」） */
   onEnemyColorMatchGain?: { color: string; stat: PassiveStat; amount: number };
   /** 回合开始时把棋盘上随机一格变成该色宝石 */
@@ -244,6 +273,9 @@ export function neutralPassives(): PassiveModifiers {
     cleanseOnBigMatch: false,
     gainOnEnemyColorMatch: {},
     colorMatchStatus: {},
+    colorMatchDrain: {},
+    bigMatchDamage: [],
+    bigMatchEnemyDrain: [],
     bigMatchEconomyGain: {},
     skullMatchEconomyGain: { gold: 0, souls: 0, gems: 0 },
   };
@@ -290,6 +322,17 @@ export function resolvePassives(
     turns: number;
     chance?: number;
   }> = {};
+  // 配色窃取生命（T5 窃取批）：色键 → 伤害额，同色键累加（与 gainOnColorMatch 同口径）
+  const colorMatchDrain: Record<string, number> = {};
+  // 大连技能伤害 / 大连敌减（T5 大连伤害批 + 大连敌减批）：多条并存按声明序逐条结算，
+  // minSize 定义侧可省，编译期缺省 4（「4 或 5 颗」=「4 或更多」= 任意大连）
+  const bigMatchDamage: { amount: number; scope: 'randomEnemy' | 'enemyAll'; minSize: number }[] = [];
+  const bigMatchEnemyDrain: {
+    stat: 'attack' | 'armor' | 'magic' | 'mana';
+    amount: number;
+    scope: 'front' | 'randomEnemy';
+    minSize: number;
+  }[] = [];
   const cleanseColors = new Set<string>();
   let cleanseBigMatch = false;
   let bigMatchStatus: PassiveModifiers['onBigMatchStatus'];
@@ -442,6 +485,18 @@ export function resolvePassives(
         };
       }
     }
+    // 配色窃取生命（T5 窃取批）：同色键累加
+    if (trait.onColorMatchDrain) {
+      const { color, amount } = trait.onColorMatchDrain;
+      colorMatchDrain[color] = (colorMatchDrain[color] ?? 0) + amount;
+    }
+    // 大连技能伤害 / 大连敌减（T5 大连伤害批 + 大连敌减批）：多条并存逐条结算，minSize 缺省 4
+    if (trait.onBigMatchDamage) {
+      bigMatchDamage.push({ ...trait.onBigMatchDamage, minSize: trait.onBigMatchDamage.minSize ?? 4 });
+    }
+    if (trait.onBigMatchEnemyDrain) {
+      bigMatchEnemyDrain.push({ ...trait.onBigMatchEnemyDrain, minSize: trait.onBigMatchEnemyDrain.minSize ?? 4 });
+    }
     // 净化：颜色并集、布尔取或
     if (trait.onColorMatchCleanse) cleanseColors.add(trait.onColorMatchCleanse.color);
     if (trait.onBigMatchCleanse) cleanseBigMatch = true;
@@ -488,6 +543,9 @@ export function resolvePassives(
   passive.colorMatchTypeAura = colorMatchAura;
   passive.gainOnEnemyColorMatch = enemyColorGains;
   passive.colorMatchStatus = colorMatchStatus;
+  passive.colorMatchDrain = colorMatchDrain;
+  passive.bigMatchDamage = bigMatchDamage;
+  passive.bigMatchEnemyDrain = bigMatchEnemyDrain;
   passive.cleanseOnColorMatch = [...cleanseColors];
   passive.cleanseOnBigMatch = cleanseBigMatch;
   passive.onBigMatchStatus = bigMatchStatus;
@@ -788,6 +846,11 @@ function resolveSummonTemplate(spec: DeathSummonSpec): Omit<Character, 'id' | 'd
  * 与概率（foxfire 50% 用 chance）经 opts.rng 判定，每次触发至多耗两条随机数（概率一条、
  * 选目标一条），与 applyBigMatchTriggers 的 randomEnemy 分支同口径：无 rng 时概率 <1 的
  * 不生效、随机目标退化为首个存活；无 applyStatus/enemyTeam 时整块跳过（纯逻辑环境零事件）。
+ *
+ * T5 窃取批扩展：onColorMatchDrain（corruption/poisontide/justabite/darkesthunger/ladyofdesire
+ * 「在配对X色宝石时窃取第一/首位敌人 N 点生命值」）——色键命中时对首位存活敌人造成伤害、
+ * 持有者按实际伤害额等量治疗（结算经 opts.drainLife 注入，TurnEngine 传 damageOne+治疗）；
+ * front 目标确定性选取、零随机消耗，无 drainLife/enemyTeam 注入时整块跳过。
  */
 export function applyColorMatchTriggers(
   team: readonly Character[],
@@ -799,6 +862,11 @@ export function applyColorMatchTriggers(
     rng?: Pick<SeededRNG, 'next'>;
     /** 状态施加口（TurnEngine 注入 skills/effects/status 的 applyStatus）；缺省时不施加状态 */
     applyStatus?: (char: Character, status: StatusInstance) => GameEvent[];
+    /**
+     * 窃取生命口（T5 窃取批，TurnEngine 注入：damageOne 管线伤害 + 持有者按实际伤害额
+     * 等量治疗）；缺省时窃取类跳过（纯逻辑环境零事件）。
+     */
+    drainLife?: (target: Character, holder: Character, amount: number) => GameEvent[];
   } = {},
 ): GameEvent[] {
   const events: GameEvent[] = [];
@@ -862,6 +930,21 @@ export function applyColorMatchTriggers(
       }
     }
   }
+  // 配色窃取生命（T5 窃取批 5 code：corruption/poisontide/justabite/darkesthunger/ladyofdesire）：
+  // 匹配色命中持有者的 colorMatchDrain 键时，对首位存活敌人造成伤害、持有者等量治疗。
+  // 结算经 opts.drainLife 注入（TurnEngine 传 damageOne+治疗，defeat 出编队同骷髅口径）；
+  // front 目标确定性选取、不耗随机数——无新键特质零事件、零随机消耗。前一个持有者的
+  // 窃取若击杀首位，后续持有者重取当前首位（同一触发点内逐个现算）。
+  if (opts.drainLife && opts.enemyTeam) {
+    for (const holder of team) {
+      if (holder.defeated) continue;
+      const amount = passivesOf(holder).colorMatchDrain[color];
+      if (!amount) continue;
+      const front = opts.enemyTeam.find((c) => !c.defeated);
+      if (!front) break;
+      events.push(...opts.drainLife(front, holder, amount));
+    }
+  }
   // 条件经济光环·骷髅版（darkensouls「在配对骷髅头时，获得 3 个灵魂」）：
   // 仅骷髅键结算（配色键无对应官方句式），按持有者逐个入账、阵亡不贡献。
   if (color === 'skull') {
@@ -910,6 +993,11 @@ export interface BigMatchTriggerContext {
    * economy-gain 事件）；缺省时条件经济光环跳过（纯逻辑单测零事件）。
    */
   gainEconomy?: (currency: keyof TraitEconomyGain, amount: number) => GameEvent[];
+  /**
+   * 技能伤害口（T5 大连伤害批，TurnEngine 注入 damageOne 管线：妖火/法术减伤/屏障/护甲/
+   * 阵亡同技能伤害口径）；缺省时伤害类跳过（纯逻辑环境零事件）。
+   */
+  damage?: (target: Character, caster: Character, amount: number) => GameEvent[];
 }
 
 /** 条件经济光环的币种结算序（固定 gold→souls→gems，保证事件顺序确定性） */
@@ -950,6 +1038,27 @@ function applySpecStatuses(
   return events;
 }
 
+/**
+ * 敌减原语（T5 大连敌减批 suppression/aspectofplague/technomancy/creepinggloom/chillingaura）：
+ * 目标属性扣减、夹零，实际发生的削减才发负 buff 事件（与 skills/effects/debuff.ts 的
+ * reduceEffect 同口径）；mana 为耗蓝口径，manashield 免疫在削减口整体跳过。
+ * 不直接 import debuff——effects 层依赖本模块的 passivesOf，反向引会成环，逻辑就地实现。
+ */
+function reduceStat(
+  target: Character,
+  stat: 'attack' | 'armor' | 'magic' | 'mana',
+  amount: number,
+): GameEvent[] {
+  if (target.defeated || amount <= 0) return [];
+  if (stat === 'mana' && passivesOf(target).manaOpsImmunity) return [];
+  const current = stat === 'mana' ? target.mana : Math.max(0, target[stat]);
+  const removed = Math.min(current, amount);
+  if (removed <= 0) return [];
+  if (stat === 'mana') target.mana -= removed;
+  else target[stat] -= removed;
+  return [{ type: 'buff', targetId: target.id, stat, amount: -removed }];
+}
+
 /** 触发循环里的成员匹配：scope 为 'all'（全队）/种族名（troopTypes）/颜色名（colors） */
 function scopeMatches(member: Character, scope: string): boolean {
   if (scope === 'all') return true;
@@ -966,6 +1075,8 @@ function scopeMatches(member: Character, scope: string): boolean {
  *   - onBigMatchStatus：施加状态（屏障/狂怒/下潜/反射/赐福…）；随机目标与概率经 ctx.rng 判定，
  *     施加经 ctx.applyStatus（TurnEngine 注入）；无 rng 时概率 <1 的不生效、随机目标退化为首个存活
  *   - cleanseOnBigMatch：任一存活持有者带此键即全队净化（移除负面状态）
+ *   - damage + bigMatchDamage：大连技能伤害（T5 大连伤害批 shock/tentacles/lightningbolt）
+ *   - bigMatchEnemyDrain：大连敌减（T5 大连敌减批 suppression/chillingaura 族，reduce 语义）
  */
 export function applyBigMatchTriggers(
   matchingTeam: readonly Character[],
@@ -1039,6 +1150,43 @@ export function applyBigMatchTriggers(
           ? [spec.statuses[Math.floor(ctx.rng.next() * spec.statuses.length)]]
           : spec.statuses;
         events.push(...applySpecStatuses(target, picks, spec.turns, ctx));
+      }
+    }
+  }
+
+  // 大连技能伤害（T5 大连伤害批 3 code：shock/tentacles/lightningbolt）：对随机一名/全体
+  // 敌人造成固定额技能伤害。伤害经 ctx.damage 注入（TurnEngine 传 damageOne 管线）；
+  // randomEnemy 每条规格耗一次随机数（与施加状态随机分支同口径），无 rng 退化为首个存活；
+  // 无注入/无敌队时整块跳过——无新键特质零事件、零随机消耗。minSize 与经济光环同口径。
+  if (ctx.damage && ctx.enemyTeam) {
+    for (const holder of matchingTeam) {
+      if (holder.defeated) continue;
+      for (const spec of passivesOf(holder).bigMatchDamage) {
+        if (spec.minSize > size) continue;
+        const foes = ctx.enemyTeam.filter((c) => !c.defeated);
+        if (foes.length === 0) break;
+        if (spec.scope === 'enemyAll') {
+          for (const foe of foes) events.push(...ctx.damage(foe, holder, spec.amount));
+        } else {
+          const foe = ctx.rng ? foes[Math.floor(ctx.rng.next() * foes.length)] : foes[0];
+          events.push(...ctx.damage(foe, holder, spec.amount));
+        }
+      }
+    }
+  }
+  // 大连敌减（T5 大连敌减批 5 code：suppression/aspectofplague/technomancy/creepinggloom/
+  // chillingaura）：削减敌方属性（reduce 语义，持有者不进账）。front=首位存活确定性选取、
+  // randomEnemy 每条规格耗一次随机数；manashield 免疫在 reduceStat 拦截。
+  if (ctx.enemyTeam) {
+    for (const holder of matchingTeam) {
+      if (holder.defeated) continue;
+      for (const spec of passivesOf(holder).bigMatchEnemyDrain) {
+        if (spec.minSize > size) continue;
+        const foes = ctx.enemyTeam.filter((c) => !c.defeated);
+        if (foes.length === 0) break;
+        const target = spec.scope === 'front' ? foes[0]
+          : ctx.rng ? foes[Math.floor(ctx.rng.next() * foes.length)] : foes[0];
+        events.push(...reduceStat(target, spec.stat, spec.amount));
       }
     }
   }

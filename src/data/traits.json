@@ -1307,6 +1307,16 @@
     }
   },
   {
+    "code": "shock",
+    "name": "触电",
+    "description": "在配对 4 或 5 颗宝石时，对一名随机敌人造成 2 点伤害。",
+    "troops": 7,
+    "onBigMatchDamage": {
+      "amount": 2,
+      "scope": "randomEnemy"
+    }
+  },
+  {
     "code": "cosmicshield",
     "name": "宇宙盾牌",
     "description": "降低来自法术的伤害 55%。",
@@ -2381,6 +2391,17 @@
     "reflectSkullRatio": 0.5
   },
   {
+    "code": "suppression",
+    "name": "压制",
+    "description": "在配对 4 或 5 颗宝石时，敌人损失 1 点技能值。",
+    "troops": 1,
+    "onBigMatchEnemyDrain": {
+      "stat": "magic",
+      "amount": 1,
+      "scope": "front"
+    }
+  },
+  {
     "code": "silence",
     "name": "肃静！",
     "description": "在造成骷髅头伤害时，使敌人陷入沉默状态。",
@@ -2639,6 +2660,17 @@
     }
   },
   {
+    "code": "aspectofplague",
+    "name": "瘟疫样态",
+    "description": "在配对 4 或 5 颗宝石时，敌人损失 3 点技能值。",
+    "troops": 1,
+    "onBigMatchEnemyDrain": {
+      "stat": "magic",
+      "amount": 3,
+      "scope": "front"
+    }
+  },
+  {
     "code": "lionstrength",
     "name": "狮子之怒",
     "description": "在配对 4 或 5 颗宝石时，击晕一名随机敌人。",
@@ -2663,6 +2695,17 @@
       "troopId": 6231,
       "referenceName": "BabyDragon",
       "displayName": "幼龙"
+    }
+  },
+  {
+    "code": "technomancy",
+    "name": "量子魔法",
+    "description": "在配对 4 或 5 颗宝石时，一名随机敌人损失 2 点魔法值。",
+    "troops": 1,
+    "onBigMatchEnemyDrain": {
+      "stat": "magic",
+      "amount": 2,
+      "scope": "randomEnemy"
     }
   },
   {
@@ -2739,6 +2782,16 @@
       "color": "Purple",
       "stat": "magic",
       "amount": 8
+    }
+  },
+  {
+    "code": "tentacles",
+    "name": "触手",
+    "description": "在配对 4 或 5 颗宝石时，对所有敌人造成 3 点伤害。",
+    "troops": 1,
+    "onBigMatchDamage": {
+      "amount": 3,
+      "scope": "enemyAll"
     }
   },
   {
@@ -3021,6 +3074,16 @@
     }
   },
   {
+    "code": "corruption",
+    "name": "走火入魔",
+    "description": "在配对红色宝石时窃取第一名敌人 3 点生命值。",
+    "troops": 1,
+    "onColorMatchDrain": {
+      "color": "Red",
+      "amount": 3
+    }
+  },
+  {
     "code": "feyslayer",
     "name": "妖仙杀手",
     "description": "对妖仙军队造成双倍骷髅头伤害。",
@@ -3290,6 +3353,26 @@
     }
   },
   {
+    "code": "lightningbolt",
+    "name": "霹雳雷火",
+    "description": "在配对 4 或 5 颗宝石时，对一名随机敌人造成 10 点伤害。",
+    "troops": 1,
+    "onBigMatchDamage": {
+      "amount": 10,
+      "scope": "randomEnemy"
+    }
+  },
+  {
+    "code": "poisontide",
+    "name": "毒浪",
+    "description": "在配对绿色宝石时，窃取第一名敌人 4 点生命值。",
+    "troops": 1,
+    "onColorMatchDrain": {
+      "color": "Green",
+      "amount": 4
+    }
+  },
+  {
     "code": "grimcurse",
     "name": "阴冷诅咒",
     "description": "在配对紫色宝石时使一名随机敌人陷入疾病状态。",
@@ -3325,6 +3408,17 @@
     "skullMultVsTroopType": {
       "troopType": "Rogue",
       "mult": 2
+    }
+  },
+  {
+    "code": "chillingaura",
+    "name": "寒风凛凛",
+    "description": "在配对 4 或 5 颗宝石时窃取第一名敌人 2 点攻击力。",
+    "troops": 1,
+    "onBigMatchEnemyDrain": {
+      "stat": "attack",
+      "amount": 2,
+      "scope": "front"
     }
   },
   {
@@ -3380,6 +3474,16 @@
         "color": "Yellow",
         "turns": 8
       }
+    }
+  },
+  {
+    "code": "justabite",
+    "name": "偷一口粮",
+    "description": "在配对棕色宝石时窃取第一位敌人 4 点生命值。",
+    "troops": 1,
+    "onColorMatchDrain": {
+      "color": "Brown",
+      "amount": 4
     }
   },
   {
@@ -4184,6 +4288,27 @@
     }
   },
   {
+    "code": "creepinggloom",
+    "name": "阴霾笼罩",
+    "description": "在配对 4 或更多宝石时，耗掉一名随机敌人 3 点法力值。",
+    "troops": 1,
+    "onBigMatchEnemyDrain": {
+      "stat": "mana",
+      "amount": 3,
+      "scope": "randomEnemy"
+    }
+  },
+  {
+    "code": "darkesthunger",
+    "name": "暗黑饥饿",
+    "description": "在配对紫色宝石时窃取第一名敌人 6 点生命值。",
+    "troops": 1,
+    "onColorMatchDrain": {
+      "color": "Purple",
+      "amount": 6
+    }
+  },
+  {
     "code": "magmahide",
     "name": "岩浆厚皮",
     "description": "在自身受到骷髅头伤害时，使对方陷入燃烧状态。",
@@ -4887,6 +5012,16 @@
     "troops": 1,
     "turnStartCreateGem": {
       "color": "Yellow"
+    }
+  },
+  {
+    "code": "ladyofdesire",
+    "name": "欲望夫人",
+    "description": "在配对红色宝石时，窃取首位敌人 2 点生命值。",
+    "troops": 1,
+    "onColorMatchDrain": {
+      "color": "Red",
+      "amount": 2
     }
   },
   {

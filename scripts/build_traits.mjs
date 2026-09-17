@@ -502,6 +502,46 @@ function parse(desc) {
       if (color) return { effects: { onColorMatchCleanse: { color } } };
     }
   }
+  // 4/5 连技能伤害（T5 大连伤害批 3 code）：「对一名随机敌人造成 N 点伤害」→ randomEnemy
+  // （随机目标走引擎种子化 rng，与大连施加状态的随机分支同口径）、「对所有敌人造成 N 点伤害」
+  // → enemyAll。伤害走既有 skill-damage 管线（damageOne）。配色版的同句式
+  // （lumpofcoal/dawnslayer/sleetstorm「在配对X色宝石时对…」）属另一触发点，不在此收。
+  if ((m = /^在配对\s*4\s*或\s*5\s*颗宝石时[，,]?对一名随机敌人造成\s*(\d+)\s*点伤害。?$/.exec(desc))) {
+    return { effects: { onBigMatchDamage: { amount: num(m[1]), scope: 'randomEnemy' } } };
+  }
+  if ((m = /^在配对\s*4\s*或\s*5\s*颗宝石时[，,]?对所有敌人造成\s*(\d+)\s*点伤害。?$/.exec(desc))) {
+    return { effects: { onBigMatchDamage: { amount: num(m[1]), scope: 'enemyAll' } } };
+  }
+  // 4+ 连敌减（T5 大连敌减批 5 code）：损失/耗掉按纯削减收（本批裁定：只减敌方、不给持有者
+  // 进账）。「敌人损失 N 点技能值」（suppression/aspectofplague，无序词=首位存活；技能值→magic
+  // 同 STAT_MAP 约定）/「一名随机敌人损失 N 点魔法值」（technomancy）/「耗掉一名随机敌人
+  // N 点法力值」（creepinggloom，动词前置；法力值→mana 耗蓝口径）。「4 或 5 颗」与
+  // 「4 或更多（颗）」同为任意大连，minSize 缺省 4。「所有敌人损失」（darkness）已被
+  // 前面的 teamAura 规则按战斗开始光环收走，落不到这里。
+  if ((m = /^在?配对\s*4\s*(?:或\s*5|或更?多)\s*颗?宝石的?时[，,]?(.+)$/.exec(desc))) {
+    const dm = /^(?:一名随机敌人|第一名敌人|首位敌人|敌人)?(?:损失|耗掉)(?:一名随机敌人|第一名敌人|首位敌人|敌人)?\s*(\d+)\s*点(魔法值|技能值|攻击力|护甲值|法力值)。?$/.exec(m[1]);
+    if (dm) {
+      const stat = pickTriggerStat(dm[2]);
+      if (stat) {
+        return {
+          effects: {
+            onBigMatchEnemyDrain: {
+              stat,
+              amount: num(dm[1]),
+              scope: /一名随机敌人/.test(m[1]) ? 'randomEnemy' : 'front',
+            },
+          },
+        };
+      }
+    }
+    // 窃取动词只收攻击力句（chillingaura「窃取第一名敌人 2 点攻击力」，按批裁定落纯削减）：
+    // 窃取魔法/生命的 4+ 句（darkinfusion「窃取首位敌人 2 点魔法值」等）官方语义是
+    // 「敌方削减 + 自身进账」，与本机制的纯 reduce 不合，不硬套、留未实现桶。
+    const sm = /^窃取(?:第一名|第一位|首位)敌人\s*(\d+)\s*点攻击力。?$/.exec(m[1]);
+    if (sm) {
+      return { effects: { onBigMatchEnemyDrain: { stat: 'attack', amount: num(sm[1]), scope: 'front' } } };
+    }
+  }
   // 条件光环·施加状态（屏障/狂怒/下潜/反射/赐福/冻结+出血…）：状态本体均已落地。
   //   DoT（出血/中毒/燃烧）带 magnitude:1；概率句（lotusblessing 50%）收进 chance。
   //   范围按描述词判定：「获得屏障效果」=self / 所有敌人=allEnemies / 一名随机敌人=randomEnemy /
@@ -646,6 +686,14 @@ function parse(desc) {
         };
       }
     }
+  }
+  // 配色窃取生命（T5 窃取批 5 code）：「在配对<色>宝石时窃取第一/第一位/首位敌人 N 点生命值」
+  // 族（corruption/poisontide/justabite/darkesthunger/ladyofdesire）。结算与技能 drain
+  // （settleDrain）同口径：对首位存活敌人造成 amount 伤害（damageOne 管线），持有者按
+  // 实际伤害额等量治疗。与配色施加状态同一触发点（applyColorMatchTriggers）。
+  if ((m = /^在?配对(.+?)宝石的?时[，,]?窃取(?:第一名|第一位|首位)敌人\s*(\d+)\s*点生命值。?$/.exec(desc))) {
+    const color = pickColor(m[1]);
+    if (color) return { effects: { onColorMatchDrain: { color, amount: num(m[2]) } } };
   }
   // 反弹 N% 的骷髅（头）伤害——"反弹/反射"、"骷髅头/骷髅"两种译法都收
   if ((m = /^(?:反弹|反射)\s*(\d+)%\s*的骷髅(?:头)?伤害。?$/.exec(desc))) {

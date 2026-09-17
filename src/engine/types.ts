@@ -512,6 +512,39 @@ export interface PassiveModifiers {
     turns: number;
     chance?: number;
   }>>;
+  /**
+   * 配对某色（或骷髅）宝石时窃取首位敌人的生命（T5 窃取批 5 code：corruption/poisontide/
+   * justabite/darkesthunger/ladyofdesire「在配对X色宝石时窃取第一/首位敌人 N 点生命值」）。
+   * 外层色键同 gainOnEnemyColorMatch；值为伤害额，同色键累加。触发点
+   * applyColorMatchTriggers（配色触发同点），结算经 TurnEngine 注入的 drainLife
+   * （damageOne 管线伤害 + 持有者按实际伤害额等量治疗，与技能 drain 的 settleDrain 同源）；
+   * front 目标确定性选取、零随机消耗。
+   */
+  colorMatchDrain: Readonly<Record<string, number>>;
+  /**
+   * 自己一方配对 4+ 连时对敌人造成技能伤害（T5 大连伤害批 3 code：shock/tentacles/
+   * lightningbolt「在配对 4 或 5 颗宝石时对…造成 N 点伤害」）。多条并存按声明序逐条结算，
+   * minSize 缺省 4；伤害经 TurnEngine 注入的 damage（damageOne 管线）产出 skill-damage
+   * 事件，randomEnemy 每条规格消耗一次注入的 rng。
+   */
+  bigMatchDamage: readonly {
+    amount: number;
+    scope: 'randomEnemy' | 'enemyAll';
+    minSize: number;
+  }[];
+  /**
+   * 自己一方配对 4+ 连时削减敌方属性（T5 大连敌减批 5 code：suppression/aspectofplague/
+   * technomancy/creepinggloom/chillingaura「敌人损失/耗掉/窃取 N 点X」）。reduce 语义
+   * （持有者不进账）：目标属性夹零发负 buff 事件，mana 为耗蓝口径（manashield 免疫在
+   * 削减口拦截）；front=首位存活敌人、randomEnemy 每条规格消耗一次注入的 rng；
+   * minSize 缺省 4。
+   */
+  bigMatchEnemyDrain: readonly {
+    stat: 'attack' | 'armor' | 'magic' | 'mana';
+    amount: number;
+    scope: 'front' | 'randomEnemy';
+    minSize: number;
+  }[];
   /** 匹配某色宝石时的额外法力；键为颜色或 '*'（全色） */
   manaLink: Readonly<Record<string, number>>;
   /** 反弹给攻击者的骷髅伤害比例（0～1） */

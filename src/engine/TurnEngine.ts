@@ -11,6 +11,7 @@ import { reshuffle, hasLegalSwap } from './boardUtils';
 import { tickTeamStatuses, canCastSkill, applyStatus, canGainMana, WEB_STATUS_ID } from './skills/effects/status';
 import { executePrototype } from './skills/prototypes';
 import { damageOne } from './skills/effects/damage';
+import { applyBuffGain } from './skills/effects/buff';
 import { applyStormToTeam } from './skills/effects/storm';
 import type { EffectContext, DestroyedGem } from './skills/effects/context';
 import type { SummonTemplate } from './skills/effects/summon';
@@ -101,6 +102,31 @@ export class TurnEngine {
   private readonly creditEconomy = (currency: keyof TraitEconomyGain, amount: number): GameEvent[] => {
     this.state.economy[currency] += amount;
     return [{ type: 'economy-gain', currency, amount, side: this.state.activePlayer }];
+  };
+
+  /**
+   * 特质技能伤害口（T5 大连伤害批 shock/tentacles/lightningbolt，注入 ctx.damage）：
+   * damageOne 全管线（妖火/法术减伤/屏障/护甲/阵亡同技能伤害口径），defeat 事件统一经
+   * resolveDefeatEvents 出编队（与骷髅命中同口径）。
+   */
+  private readonly traitDamage = (target: Character, caster: Character, amount: number): GameEvent[] =>
+    resolveDefeatEvents(this.state, damageOne(target, caster.id, amount, false, 'single'));
+
+  /**
+   * 特质窃取生命口（T5 窃取批 corruption 族，注入 opts.drainLife）：对首位敌人 damageOne
+   * 伤害 + 持有者按实际伤害额等量治疗（applyBuffGain 口径：出血禁疗/疾病减半/上限夹取，
+   * 与技能 drain 的 settleDrain 同源）。零伤害（屏障全吸等）不治疗。
+   */
+  private readonly traitDrainLife = (target: Character, holder: Character, amount: number): GameEvent[] => {
+    const produced = this.traitDamage(target, holder, amount);
+    let dealt = 0;
+    for (const e of produced) {
+      if (e.type === 'skill-damage') dealt += e.damage;
+    }
+    if (dealt <= 0 || holder.defeated) return produced;
+    const healed = applyBuffGain(holder, 'hp', dealt);
+    if (healed > 0) produced.push({ type: 'buff', targetId: holder.id, stat: 'hp', amount: healed });
+    return produced;
   };
 
   constructor(
@@ -336,6 +362,7 @@ export class TurnEngine {
               applyStatus: (char, status) => applyStatus(char, status),
               enemyTeam: this.state.teams[opponentOf(this.state.activePlayer)].characters,
               gainEconomy: this.creditEconomy,
+              damage: this.traitDamage,
             },
           ));
         }
@@ -418,11 +445,12 @@ export class TurnEngine {
       // 每次结算算一次，与消除的宝石数无关——描述是「在配对X色宝石时」，不是「每颗」。
       // enemyTeam 供敌方配色触发（rancor「在敌人配对骷髅头时…」族，颜色键同理）；
       // rng/applyStatus 供配色施加状态（molten/sunfire 族「使随机一名敌人陷入Y状态」，
-      // 无新键特质零随机消耗、事件序不变）。
+      // 无新键特质零随机消耗、事件序不变）；drainLife 供配色窃取生命（corruption 族）。
       events.push(...applyColorMatchTriggers(activeTeam.characters, settle.color, {
         enemyTeam: this.state.teams[opponentOf(this.state.activePlayer)].characters,
         rng: this.rng,
         applyStatus: (char, status) => applyStatus(char, status),
+        drainLife: this.traitDrainLife,
       }));
     } else if (settle.kind === 'skull') {
       // 骷髅 → 物理伤害（需求 14），不产生法力（需求 11.2）
@@ -439,12 +467,13 @@ export class TurnEngine {
       // 配对骷髅触发（diamondaura/powerofstars 配色光环、rancor 敌方触发、darkensouls
       // 条件经济）：在骷髅伤害结算之后触发，避免同一次命中被本次新增的护甲/生命减免——
       // 炸毁骷髅（settleExplodedSkulls）不算「配对」，不在此列。rng/applyStatus 同配色点
-      // （onColorMatchStatus 定义允许 'skull' 色键，现无数据、注入零消耗）。
+      // （onColorMatchStatus 定义允许 'skull' 色键，现无数据、注入零消耗）；drainLife 同配色点。
       events.push(...applyColorMatchTriggers(activeTeam.characters, 'skull', {
         enemyTeam: enemyTeam.characters,
         gainEconomy: this.creditEconomy,
         rng: this.rng,
         applyStatus: (char, status) => applyStatus(char, status),
+        drainLife: this.traitDrainLife,
       }));
     }
     // 'wildOnly'：全通配组无归属色，只消除不结算
@@ -772,11 +801,13 @@ export class TurnEngine {
       );
       // 配色触发特质（食人魔之怒/阳光…）：匹配到关联色时给结算归属方全队加值。
       // 每次结算算一次，与消除的宝石数无关——描述是「在配对X色宝石时」，不是「每颗」。
-      // enemyTeam 供敌方配色触发（rancor 族）；rng/applyStatus 供配色施加状态（molten 族）。
+      // enemyTeam 供敌方配色触发（rancor 族）；rng/applyStatus 供配色施加状态（molten 族）；
+      // drainLife 供配色窃取生命（corruption 族）。
       events.push(...applyColorMatchTriggers(activeTeam.characters, gemType.color, {
         enemyTeam: this.state.teams[opponentOf(side)].characters,
         rng: this.rng,
         applyStatus: (char, status) => applyStatus(char, status),
+        drainLife: this.traitDrainLife,
       }));
     } else if (gemType.kind === 'skull') {
       // 骷髅 → 物理伤害（需求 14），不产生法力（需求 11.2）
@@ -790,6 +821,7 @@ export class TurnEngine {
         gainEconomy: this.creditEconomy,
         rng: this.rng,
         applyStatus: (char, status) => applyStatus(char, status),
+        drainLife: this.traitDrainLife,
       }));
     }
   }
