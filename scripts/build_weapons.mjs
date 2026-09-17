@@ -136,6 +136,9 @@ const stats = {
   spellSemiZh: [], // zh 法术描述存在但夹英文（如新武器半翻译）
   affixFallback: 0, // 词缀名称/描述走了英文兜底的条数
   kingdomGaps: [], // 王国映射缺口（原样英文落盘）
+  byRole: {}, // 角色分布（gowhead _TroopRole_parsed，每把恰一个）
+  roleMissing: [], // 角色缺失清单（应为空）
+  roleZhFallback: 0, // roleName 走英文码兜底的条数
   unrecognizedBrackets: {}, // 括号公式里解析器不认识的 token
   byFidelity: {}, // 绑定保真度分布（K-B 登记）
   withReleaseDate: 0,
@@ -241,6 +244,16 @@ const weapons = zh.weapons.map((w) => {
     });
   }
 
+  // 角色：_TroopRole_parsed 英文码（每把恰一个）；roleName 取 zh 本地化名（stats.role.name），缺失回退英文码
+  const roleCode = (w._TroopRole_parsed ?? [])[0] ?? null;
+  if (roleCode) {
+    stats.byRole[roleCode] = (stats.byRole[roleCode] ?? 0) + 1;
+  } else {
+    stats.roleMissing.push(`${w.Id}:${w.ReferenceName}`);
+  }
+  const roleName = s.role?.name ?? roleCode;
+  if (roleName === roleCode && roleCode) stats.roleZhFallback++;
+
   if (d.releaseDate !== undefined) stats.withReleaseDate++;
   const immortal = Boolean(w.IsImmortal);
   if (immortal) stats.immortal++;
@@ -255,6 +268,8 @@ const weapons = zh.weapons.map((w) => {
     rarityIdx: w.RarityIdx,
     kingdom,
     weaponType: w.TroopType,
+    role: roleCode,
+    roleName,
     attack: w.Attack ?? 0,
     armor: w.Armor ?? 0,
     health: w.Health ?? 0,
@@ -303,6 +318,11 @@ for (const [r, n] of Object.entries(stats.byRarity)) lines.push(`  ${r.padEnd(10
 lines.push('');
 lines.push('-- 按武器类型分布 --');
 for (const [t, n] of Object.entries(stats.byType)) lines.push(`  ${t.padEnd(10)} ${n}`);
+lines.push('');
+lines.push('-- 按角色分布 --');
+for (const [r, n] of Object.entries(stats.byRole)) lines.push(`  ${r.padEnd(10)} ${n}`);
+lines.push(`  角色缺失: ${stats.roleMissing.length}${stats.roleMissing.length ? ' → ' + stats.roleMissing.join(', ') : ''}`);
+lines.push(`  roleName 中文兜底英文码: ${stats.roleZhFallback}`);
 lines.push('');
 lines.push('-- 按法力颜色分布 --');
 for (const [c, n] of Object.entries(stats.byColor)) lines.push(`  ${c.padEnd(7)} ${n}`);

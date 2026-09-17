@@ -50,6 +50,10 @@ interface WeaponRow {
   rarityIdx: number;
   kingdom: string | null;
   weaponType: string;
+  /** 角色英文码（gowhead _TroopRole_parsed，每把恰一个） */
+  role: string | null;
+  /** 角色中文显示名（zh dump 本地化，缺失回退英文码） */
+  roleName: string | null;
   attack: number;
   armor: number;
   health: number;
@@ -181,6 +185,16 @@ describe('B · 值域与引用', () => {
   it('weaponType ∈ 14 类白名单', () => {
     const illegal = WEAPONS.filter((w) => !WEAPON_TYPES.has(w.weaponType));
     expect(illegal.map((w) => `${w.id}:${w.weaponType}`)).toEqual([]);
+  });
+
+  it('role ∈ 9 类白名单且每把恰一个、roleName 非空', () => {
+    const ROLES = new Set(['Striker', 'Mage', 'Generator', 'Warlock', 'Defender', 'Warmaster', 'Support', 'Assassin', 'Warrior']);
+    const problems: string[] = [];
+    for (const w of WEAPONS) {
+      if (!w.role || !ROLES.has(w.role)) problems.push(`${w.id} role 非法「${w.role}」`);
+      if (!w.roleName || w.roleName.trim() === '') problems.push(`${w.id} roleName 为空`);
+    }
+    expect(problems, `前 ${Math.min(5, problems.length)} 条 → ${problems.slice(0, 5).join(' | ')}`).toEqual([]);
   });
 
   it('manaColors 非空、⊆ 6 基色、无重复', () => {
