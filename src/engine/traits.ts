@@ -68,6 +68,27 @@ export interface TraitDefinition {
   onDamagedGain?: { stat: PassiveStat; amount: number; alsoStats?: PassiveStat[] };
   /** 自身受到伤害后自身获得状态（aquatic「在自身受到伤害时使自身下潜」）；施加走 applyStatus，免疫在施加口拦截 */
   onDamagedStatus?: { statusId: string; turns: number };
+  /**
+   * 自身承受骷髅伤害时使**对方阵营**队伍序首位存活陷入状态（deathray 死光「在自身生命值
+   * 受损时，使敌方第一名敌人陷入死亡标记效果」）。与 onDamagedStatus 同一触发点
+   * （CombatResolver 骷髅受击结算处，闪避/屏障/挣扎路径不触发、激怒无视敌方特质）；
+   * 受魅惑反打时按持有者归属取对面（与 onDamagedTypeAura 同款裁定）。施加走 applyStatus，
+   * 免疫在施加口拦截。建模子集：技能伤害路径（damageOne）不触发。
+   */
+  onDamagedEnemyStatus?: { id: string; turns: number };
+  /**
+   * 自身承受骷髅伤害时对**对方全体存活**造成固定额技能伤害（manyheads 九头攻击「当敌人造成
+   * 骷髅头伤害时，全体敌人受到 3 点伤害」）。触发点与 gainOnDamaged 同口径（落空不触发），
+   * 消费在 TurnEngine.applyDamagedTriggersFromEvents（伤害经 damageOne 管线注入）。
+   */
+  onSkullDamagedEnemyDamage?: { amount: number };
+  /**
+   * 自身承受骷髅伤害时创造特殊宝石（onyxshard 缟玛瑙碎片「创造 2 颗极度末日骷髅头」/
+   * *shard 巨人宝石族 / 法力药水族）。随机现存格就地翻新（满盘创造的代理口径，与
+   * onDeathCreateGem 同源），color 为六色族宝石的归属基色；消费在
+   * TurnEngine.applyDamagedTriggersFromEvents（处在 runCascades 组结算内，不重入连锁）。
+   */
+  onDamagedCreateGem?: { gem: SpecialGemKind; tier?: number; color?: string; count: number };
   /** 自己身亡时向战场经济池入账（valuable「在自身身亡时获得 25 黄金」） */
   onDeathEconomy?: { currency: keyof TraitEconomyGain; amount: number };
   /** 自己身亡时创造 N 颗特殊宝石（T4 批 unstablecore「在我身亡时创造 3 颗炸弹宝石」） */
@@ -100,6 +121,18 @@ export interface TraitDefinition {
   onBigMatchGain?: { stat: PassiveStat; amount: number; alsoStats?: PassiveStat[] };
   /** 自己造成骷髅伤害时给目标施加的状态 */
   inflictOnSkullHit?: { id: string; turns: number; magnitude?: number };
+  /**
+   * 造成骷髅伤害时给目标施加的**多条**状态（brokenjaw 断颚「使第一位敌人陷入出血和沉默
+   * 状态」）。与 inflictOnSkullHit 同一触发点、条目按描述顺序保留，DoT 带 magnitude；
+   * 结算侧在单条施加点之后逐条施加（CombatResolver）。
+   */
+  inflictOnSkullHitList?: readonly { id: string; turns: number; magnitude?: number }[];
+  /**
+   * 造成骷髅伤害时窃取本次受击目标的法力（siphon 吸星大法「窃取敌人法力值」；官方
+   * RawData Modifier=1，描述无数量词）。偷多少削多少（目标夹零、自己按 manaCost 夹取），
+   * manashield 免疫在削减口整体跳过；消费在 CombatResolver 骷髅结算口。
+   */
+  onSkullHitStealMana?: number;
   /** 承受骷髅伤害时给攻击者施加的状态（毒孢子族） */
   inflictOnSkullDamaged?: { id: string; turns: number; magnitude?: number };
   /** 承受骷髅伤害时给攻击者施加的多条状态（双状态诅咒族 frozencurse 等「陷入诅咒和X状态」） */
@@ -212,6 +245,7 @@ export interface TraitDefinition {
   onBigMatchCreateGem?: {
     gem: SpecialGemKind;
     tier?: number;
+    color?: string;
     count: number;
     chance?: number;
     minSize?: number;
@@ -244,25 +278,32 @@ export interface TraitDefinition {
   onBigMatchKill?: { chance: number; scope: 'lastEnemy'; minSize?: number };
   /** 敌方配对某色/骷髅时自身获得（rancor「在敌人配对骷髅头时，获得 3 点攻击力」） */
   onEnemyColorMatchGain?: { color: string; stat: PassiveStat; amount: number };
-  /** 回合开始时把棋盘上随机一格变成该色宝石；count 为数量（intothevoid「创造 2 颗紫色宝石」） */
+  /**
+   * 回合开始时把棋盘上随机一格变成该色宝石；count 为数量（intothevoid「创造 2 颗紫色宝石」）。
+   * color 'skull' = 普通骷髅头（bonefeast「创造 2 颗骷髅头」，TurnEngine 落 { kind:'skull' }）。
+   */
   turnStartCreateGem?: { color: string; count?: number };
   /** 回合开始时按概率把一颗该色宝石转成骷髅头 */
   turnStartColorToSkull?: { color: string; chance: number };
   /**
    * 回合开始时创造特殊宝石（T4 批 spidersilk 织网 / haunted 鬼魂 / eyeofdestruction 末日骷髅…）。
    * 满盘创造的代理口径：随机互不相同的 N 个现存格就地翻新成特殊宝石（与技能 doCreate 的
-   * 转化回退同源），改完棋盘立即 runCascades；chance 缺省必定。
+   * 转化回退同源），改完棋盘立即 runCascades；chance 缺省必定。color 为六色族宝石
+   *（dragonGem/giantGem/spiritGem/manaPotionGem/candyGem）的归属基色（oceankin 蓝龙宝石）。
    */
-  turnStartCreateSpecialGem?: { gem: SpecialGemKind; tier?: number; count: number; chance?: number };
+  turnStartCreateSpecialGem?: { gem: SpecialGemKind; tier?: number; color?: string; count: number; chance?: number };
   /**
    * 回合开始时把 N 颗某色（或骷髅头）宝石转换成特殊宝石（T4 批 redrage/embers 红→燃烧、
-   * daemonsmark/kinofchaos 骷髅→末日骷髅、temporal 黄→沙漏族）。目标格按来源色/骷髅筛选
-   * （转换后不再是来源类型，天然不重复命中）；chance 缺省必定。
+   * daemonsmark/kinofchaos 骷髅→末日骷髅、temporal 黄→沙漏族；接线批 lycanthropy 紫→狼化、
+   * kinof* 六色→龙宝石族）。目标格按来源色/骷髅筛选（转换后不再是来源类型，天然不重复命中）；
+   * chance 缺省必定。gemColor 为六色族目标宝石的归属基色（与来源色 color 分名防混淆）。
    */
   turnStartColorToSpecial?: {
     color: BaseColor | 'skull';
     gem: SpecialGemKind;
     tier?: number;
+    /** 六色族目标宝石的归属基色（kinof*「蓝色宝石→蓝龙宝石」族；与来源色 color 分名防混淆） */
+    gemColor?: string;
     count: number;
     chance?: number;
   };
@@ -380,6 +421,35 @@ export interface TraitDefinition {
    * 同口径）。编译进 PassiveModifiers.onSkullMatchEnemyDrain。
    */
   onSkullMatchEnemyDrain?: { stat: 'attack' | 'armor' | 'magic' | 'mana' | 'random'; amount: number };
+  /** 敌方施法时同队指定范围盟友获得（职业天赋 portent）；与 onAllyCastTypeAura 同构反向 */
+  onEnemyCastTypeAura?: { troopType: string; gains: Partial<StatGains> };
+  /** 敌方身亡时使其一方**全部**存活陷入状态（职业天赋 brutalstrike「当敌人身亡时，使所有敌人出血」） */
+  onEnemyDeathEnemyAllStatus?: { statuses: readonly { id: string; magnitude?: number }[]; turns: number };
+  /** 自己身亡时使敌方**全部**存活陷入状态（职业天赋 deathcurse「我身亡时，使所有敌人陷入死亡标记」） */
+  onSelfDeathEnemyAllStatus?: { statuses: readonly { id: string; magnitude?: number }[]; turns: number };
+  /** 骷髅伤害即死概率（职业天赋 bullseye「骷髅头伤害有 15% 的几率一击致命」）：结算口判定 */
+  skullLethalChance?: number;
+  /** 回合开始按概率获得属性（职业天赋 darkchannel「每回合有 50% 的几率获得 1 点魔法值」）。
+   *  定义直读键（TurnEngine 回合开始结算口消费）；魔法走 grantStat（织网拦截口径不变）。 */
+  turnStartChanceGain?: { chance: number; stat: PassiveStat; amount: number };
+  /** 造成骷髅伤害时按概率猎杀末位敌人（职业天赋 assassinate「造成骷髅头伤害时，10% 猎杀最后一名敌人」） */
+  onSkullHitKill?: { chance: number; scope: 'lastEnemy' };
+  /** 自己回合开始时施加状态（职业天赋 wrathofanu 击晕随机敌 / getbehindme 屏障随机盟友 /
+   *  ancientmysteries 随机盟友随机正面状态；接线批 tidalking 自身下潜 / blessedwaters 赐福
+   *  全体盟友 / curseofdamnation 诅咒全体敌人 / sunflare·burningembers 燃烧随机敌）。
+   *  定义直读键（applyTurnStartPassives 同族），TurnEngine 回合开始结算口消费。 */
+  turnStartStatus?: {
+    target: 'self' | 'randomAlly' | 'randomEnemy' | 'allAllies' | 'allEnemies';
+    statuses: readonly { id: string; magnitude?: number }[];
+    turns: number;
+    chance?: number;
+    /** 从正面状态池随机掷一条（ancientmysteries 口径），忽略 statuses 列表 */
+    randomPositive?: boolean;
+    /** 独立概率掷（sleepersbane「Curse and/or Terror」）：每条状态各自掷一次 chance
+     *  （各中各的），每条各耗一次种子化 rng；目标先选出、概率逐条判定（与
+     *  onBigMatchStatus 的 independentChance 同口径）。 */
+    independentChance?: boolean;
+  };
   /**
    * 战后经济加成（merchant/necromancy/necromaster/moneybags 族，DECISIONS 四项拍板①）：
    * 「从战斗中获得 N% 额外灵魂/黄金」「在战斗中获得 N% 黄金加成」。
@@ -513,7 +583,7 @@ export interface TraitDefinition {
    * 失去 4 点随机技能值」）。reduce 语义（持有者不进账）：stat 'random' 每次触发经 rng
    * 在四项属性中掷一条（无 rng 按随机技能值口径落 magic）；allEnemies 逐个削减。
    */
-  onAllyCastEnemyDrain?: { stat: 'hp' | 'attack' | 'armor' | 'magic' | 'mana' | 'random'; amount: number; scope: 'allEnemies' };
+  onAllyCastEnemyDrain?: { stat: 'hp' | 'attack' | 'armor' | 'magic' | 'mana' | 'random'; amount: number; scope: 'allEnemies' | 'randomEnemy' };
   /** 回合开始经济入账（goldenhoard 5 黄金 / soulgatherer 4 灵魂）。惰性：回合钩子无经济口 */
   turnStartEconomy?: { currency: 'gold' | 'souls'; amount: number };
   /** 盟友施法时经济入账（soulverdict 3 灵魂）。惰性：施法响应区无经济口 */
@@ -537,6 +607,8 @@ export interface TraitDefinition {
   mode?: 'pvp';
   /** PVP 限定加成（attack=进攻方全队 / defense=防守方全队 / battle=持有者自身） */
   pvpBonus?: { phase: 'attack' | 'defense' | 'battle'; gains: Partial<StatGains> };
+  /** PvP 战斗结算荣耀映射（职业天赋 bloodandglory；本作映射黄金）：GameOver 且 pvpMode 时入账 */
+  pvpEconomyGain?: { currency: 'gold' | 'souls'; amount: number };
 }
 
 export const TRAIT_LIBRARY: readonly TraitDefinition[] = traitTable as TraitDefinition[];
@@ -698,6 +770,7 @@ export function resolvePassives(
   const bigMatchCreateGem: {
     gem: SpecialGemKind;
     tier?: number;
+    color?: string;
     count: number;
     chance?: number;
     minSize: number;
@@ -706,6 +779,8 @@ export function resolvePassives(
   let cleanseBigMatch = false;
   let bigMatchStatus: PassiveModifiers['onBigMatchStatus'];
   const damagedStatusList: { id: string; turns: number; magnitude?: number }[] = [];
+  // 命中附带状态·多条版（接线批 brokenjaw）：条目按声明顺序拼接保留，结算侧逐条施加
+  const skullHitStatusList: { id: string; turns: number; magnitude?: number }[] = [];
   const bigMatchEconomy: Record<string, TraitEconomyGain> = {};
   const skullEconomy: TraitEconomyGain = { gold: 0, souls: 0, gems: 0 };
   // 模式专属特质批（淘宝/晋升/赏金）：聚合容器——Delve 层属性按 stat 累加，晋升度倍率
@@ -721,6 +796,7 @@ export function resolvePassives(
   let turnStartSummon: PassiveModifiers['turnStartSummon'];
   let turnStartStorm: PassiveModifiers['turnStartStorm'];
   const pvpBonuses: { phase: 'attack' | 'defense' | 'battle'; gains: Partial<StatGains> }[] = [];
+  let passivePvpEconomy: PassiveModifiers['pvpEconomyGain'];
 
   for (const code of traitIds) {
     const trait = lookup(code);
@@ -805,11 +881,30 @@ export function resolvePassives(
     if (trait.onDamagedStatus && passive.onDamagedStatus === undefined) {
       passive.onDamagedStatus = { ...trait.onDamagedStatus };
     }
+    // 受击使对方首位陷入状态（deathray）/ 受击敌方全体受伤（manyheads）/ 受击创造宝石
+    //（onyxshard + *shard 族）：同类均取先声明的一条（与 onDamagedStatus 同口径）
+    if (trait.onDamagedEnemyStatus && passive.onDamagedEnemyStatus === undefined) {
+      passive.onDamagedEnemyStatus = { ...trait.onDamagedEnemyStatus };
+    }
+    if (trait.onSkullDamagedEnemyDamage && passive.onSkullDamagedEnemyDamage === undefined) {
+      passive.onSkullDamagedEnemyDamage = { ...trait.onSkullDamagedEnemyDamage };
+    }
+    if (trait.onDamagedCreateGem && passive.onDamagedCreateGem === undefined) {
+      passive.onDamagedCreateGem = { ...trait.onDamagedCreateGem };
+    }
     // 命中附带状态取回合数更长的一条
     if (trait.inflictOnSkullHit
       && (passive.inflictOnSkullHit === undefined
         || trait.inflictOnSkullHit.turns > passive.inflictOnSkullHit.turns)) {
       passive.inflictOnSkullHit = { ...trait.inflictOnSkullHit };
+    }
+    // 命中附带状态·多条版（brokenjaw）：条目按声明顺序拼接保留，结算侧逐条施加
+    if (trait.inflictOnSkullHitList) {
+      skullHitStatusList.push(...trait.inflictOnSkullHitList.map((s) => ({ ...s })));
+    }
+    // 命中窃法（siphon）：单值取最强（与 armorPierceChance 数值族同口径）
+    if (trait.onSkullHitStealMana !== undefined) {
+      passive.onSkullHitStealMana = Math.max(passive.onSkullHitStealMana ?? 0, trait.onSkullHitStealMana);
     }
     // 受击附带状态同口径（取回合数更长的一条）
     if (trait.inflictOnSkullDamaged
@@ -1019,6 +1114,21 @@ export function resolvePassives(
     if (trait.onSkullMatchEnemyDrain && passive.onSkullMatchEnemyDrain === undefined) {
       passive.onSkullMatchEnemyDrain = { ...trait.onSkullMatchEnemyDrain };
     }
+    if (trait.onEnemyCastTypeAura && passive.onEnemyCastTypeAura === undefined) {
+      passive.onEnemyCastTypeAura = { ...trait.onEnemyCastTypeAura };
+    }
+    if (trait.onEnemyDeathEnemyAllStatus && passive.onEnemyDeathEnemyAllStatus === undefined) {
+      passive.onEnemyDeathEnemyAllStatus = { ...trait.onEnemyDeathEnemyAllStatus, statuses: [...trait.onEnemyDeathEnemyAllStatus.statuses] };
+    }
+    if (trait.onSelfDeathEnemyAllStatus && passive.onSelfDeathEnemyAllStatus === undefined) {
+      passive.onSelfDeathEnemyAllStatus = { ...trait.onSelfDeathEnemyAllStatus, statuses: [...trait.onSelfDeathEnemyAllStatus.statuses] };
+    }
+    if (trait.skullLethalChance !== undefined) {
+      passive.skullLethalChance = Math.max(passive.skullLethalChance ?? 0, trait.skullLethalChance);
+    }
+    if (trait.onSkullHitKill && passive.onSkullHitKill === undefined) {
+      passive.onSkullHitKill = { ...trait.onSkullHitKill };
+    }
     // 战后经济加成（merchant/necromancy 族）：同类比率累加（与增益类"累加"口径一致）。
     if (trait.battleEconomyGain) {
       passive.battleEconomyGain ??= { gold: 0, souls: 0 };
@@ -1058,6 +1168,9 @@ export function resolvePassives(
     // PVP 限定（defender/siege/virtueofhonor）：惰性建模，pvpMode 标记 + 加成按声明序保留
     if (trait.mode === 'pvp') passive.pvpMode = true;
     if (trait.pvpBonus) pvpBonuses.push({ ...trait.pvpBonus });
+    if (trait.pvpEconomyGain && passivePvpEconomy === undefined) {
+      passivePvpEconomy = { ...trait.pvpEconomyGain };
+    }
     // 模式专属特质批（淘宝/晋升/赏金）：只编译、不消费——标准战斗结算路径不读这些字段，
     // 编译产物仅供数据对账与将来 Delve/晋升层直接使用。
     if (trait.onDelveGain) {
@@ -1123,7 +1236,9 @@ export function resolvePassives(
   if (turnStartSummon) passive.turnStartSummon = turnStartSummon;
   if (turnStartStorm) passive.turnStartStorm = turnStartStorm;
   passive.pvpBonuses = pvpBonuses;
+  if (passivePvpEconomy) passive.pvpEconomyGain = passivePvpEconomy;
   if (damagedStatusList.length > 0) passive.inflictOnSkullDamagedList = damagedStatusList;
+  if (skullHitStatusList.length > 0) passive.inflictOnSkullHitList = skullHitStatusList;
   return passive;
 }
 
@@ -1172,7 +1287,7 @@ export function manaLinkBonus(char: Character, color: BaseColor): number {
 }
 
 /** 就地给角色某项数值加值，hp/armor 同时抬上限，返回实际变化量。 */
-function grantStat(char: Character, stat: PassiveStat, amount: number): number {
+export function grantStat(char: Character, stat: PassiveStat, amount: number): number {
   if (amount === 0 || char.defeated) return 0;
   if (stat === 'magic') {
     // 织网（GoW Web）期间无法获得魔法值增益。字面量与 status.ts 的 WEB_STATUS_ID 一致；
@@ -1232,6 +1347,9 @@ export function applyCastTriggers(
     // 盟友施法队伍光环（virtueofloyalty「当一名盟友施放法术时，所有盟友获得…」）：
     // 持有者在施法方队伍时生效，受益者为该队存活盟友。
     ...applyTypeAuraGains(casterTeam, casterTeam, 'onAllyCastTypeAura'),
+    // 敌方施法队伍光环（职业天赋 portent「当敌人施放法术时，所有人马族获得 2 点魔法值」）：
+    // 持有者在受击方（对方施法时的己方）队伍，受益者为同队存活盟友。
+    ...applyTypeAuraGains(opposingTeam, opposingTeam, 'onEnemyCastTypeAura'),
   ];
 }
 
@@ -1324,7 +1442,12 @@ export function applyCastRandomStatusTriggers(
     if (holder.defeated) continue;
     const spec = passivesOf(holder).castEnemyDrain;
     if (!spec) continue;
-    for (const foe of foeAlive) {
+    // scope randomEnemy（职业天赋 spiritdrain「耗掉一名随机敌人 2 点法力」）：每持有者
+    // 耗一次 rng 掷目标；allEnemies（psychicaffliction/succumb 原口径）逐个确定性削减。
+    const targets = spec.scope === 'randomEnemy'
+      ? (ctx.rng && foeAlive.length > 0 ? [foeAlive[Math.floor(ctx.rng.next() * foeAlive.length)]] : [])
+      : foeAlive;
+    for (const foe of targets) {
       const stat = spec.stat === 'random'
         ? (ctx.rng ? DRAIN_STATS[Math.floor(ctx.rng.next() * DRAIN_STATS.length)] : 'magic')
         : spec.stat;
@@ -1437,7 +1560,7 @@ export interface DeathTriggerContext {
 function applyTypeAuraGains(
   holders: readonly Character[],
   team: readonly Character[],
-  field: 'onEnemyDeathTypeAura' | 'onAllyDeathTypeAura' | 'onAllyCastTypeAura' | 'onDamagedTypeAura',
+  field: 'onEnemyDeathTypeAura' | 'onAllyDeathTypeAura' | 'onAllyCastTypeAura' | 'onEnemyCastTypeAura' | 'onDamagedTypeAura',
 ): BuffEvent[] {
   const events: BuffEvent[] = [];
   for (const holder of holders) {
@@ -1501,6 +1624,18 @@ export function applyEnemyDeathTriggers(
         const target = ctx.rng ? pool[Math.floor(ctx.rng.next() * pool.length)] : pool[0];
         for (const st of p.onEnemyDeathRandomStatus.statuses) {
           const status: StatusInstance = { id: st.id, turns: p.onEnemyDeathRandomStatus.turns };
+          if (st.magnitude !== undefined) status.magnitude = st.magnitude;
+          events.push(...ctx.applyStatus(target, status));
+        }
+      }
+    }
+    // 敌方身亡→死者一方全部存活陷入状态（职业天赋 brutalstrike「当敌人身亡时，使所有
+    // 敌人陷入出血状态」）：确定性逐个施加，零随机消耗。
+    if (p.onEnemyDeathEnemyAllStatus && ctx.applyStatus) {
+      for (const target of deadSideTeam) {
+        if (target.defeated) continue;
+        for (const st of p.onEnemyDeathEnemyAllStatus.statuses) {
+          const status: StatusInstance = { id: st.id, turns: p.onEnemyDeathEnemyAllStatus.turns };
           if (st.magnitude !== undefined) status.magnitude = st.magnitude;
           events.push(...ctx.applyStatus(target, status));
         }
@@ -1895,8 +2030,9 @@ export interface BigMatchTriggerContext {
    * 特殊宝石创造口（T4 大连创造批 wildtribe/wildmagic/twinfires/spectromancy，TurnEngine
    * 注入：随机格就地转化 + gem-transform 事件；新造宝石参与的匹配由外层 runCascades
    * 下一轮吸收）；缺省时创造类跳过（纯逻辑环境零事件、零随机消耗）。
+   * color 为六色族宝石的归属基色（接线批 slimed 绿龙宝石族），缺省 undefined。
    */
-  createGem?: (gem: SpecialGemKind, tier: number | undefined, count: number) => GameEvent[];
+  createGem?: (gem: SpecialGemKind, tier: number | undefined, count: number, color?: string) => GameEvent[];
   /**
    * 兵种召唤口（T5 杂项批 genieslamp/stormflock，TurnEngine 注入：复用死亡召唤基建
    * applyDeathSummons——概率走注入的 rng、模板按兵种数据装配、入队走容量/FIFO 规则）；
@@ -2168,7 +2304,7 @@ export function applyBigMatchTriggers(
         if (spec.chance !== undefined) {
           if (!ctx.rng || ctx.rng.next() >= spec.chance) continue;
         }
-        events.push(...ctx.createGem(spec.gem, spec.tier, spec.count));
+        events.push(...ctx.createGem(spec.gem, spec.tier, spec.count, spec.color));
       }
     }
   }

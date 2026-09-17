@@ -609,6 +609,25 @@ export interface PassiveModifiers {
    * 施加经 applyStatus（免疫在 applyStatus 内拦截）。
    */
   onDamagedStatus?: { statusId: string; turns: number };
+  /**
+   * 自身承受骷髅伤害时使**对方阵营**队伍序首位存活陷入状态（接线批 deathray 死光
+   * 「在自身生命值受损时，使敌方第一名敌人陷入死亡标记效果」）。与 onDamagedStatus
+   * 同一触发点（落空不触发、激怒无视敌方特质）；受魅惑反打时按持有者归属取对面。
+   * 建模子集：技能伤害路径（damageOne）不触发。
+   */
+  onDamagedEnemyStatus?: { id: string; turns: number };
+  /**
+   * 自身承受骷髅伤害时对**对方全体存活**造成固定额技能伤害（接线批 manyheads 九头攻击
+   * 「当敌人造成骷髅头伤害时，全体敌人受到 3 点伤害」）。消费在
+   * TurnEngine.applyDamagedTriggersFromEvents（伤害经 damageOne 管线注入）。
+   */
+  onSkullDamagedEnemyDamage?: { amount: number };
+  /**
+   * 自身承受骷髅伤害时创造特殊宝石（接线批 onyxshard 缟玛瑙碎片「创造 2 颗极度末日骷髅头」
+   * + *shard 巨人宝石族 / 法力药水族）。随机现存格就地翻新，color 为六色族宝石归属基色；
+   * 消费在 TurnEngine.applyDamagedTriggersFromEvents（不重入连锁，外层循环吸收）。
+   */
+  onDamagedCreateGem?: { gem: SpecialGemKind; tier?: number; color?: string; count: number };
   /** 法力操作免疫（manashield「对法力灼烧、法力耗尽和法力窃取免疫」）：
    *  法力耗（耗蓝/耗尽/减半）与窃取（stat='mana' 的 reduce 原语，含窃取回灌）在执行
    *  入口对带此被动的目标整体跳过。灼烧另有 mana-burn 状态免疫（statusImmunities）。 */
@@ -616,6 +635,18 @@ export interface PassiveModifiers {
   /** 自己造成骷髅伤害时获得的数值 */
   gainOnSkullHit: StatGains;
   inflictOnSkullHit?: { id: string; turns: number; magnitude?: number };
+  /**
+   * 造成骷髅伤害时给目标施加的**多条**状态（接线批 brokenjaw 断颚「使第一位敌人陷入出血
+   * 和沉默状态」）。与 inflictOnSkullHit 同一触发点、条目按描述顺序保留，在单条施加点
+   * 之后逐条施加；仅 DoT（poison/burning/bleed）带 magnitude。
+   */
+  inflictOnSkullHitList?: readonly { id: string; turns: number; magnitude?: number }[];
+  /**
+   * 造成骷髅伤害时窃取本次受击目标的法力（接线批 siphon 吸星大法；官方 RawData
+   * Modifier=1）。偷多少削多少（目标夹零、自己按 manaCost 夹取），manashield 免疫
+   * 在削减口整体跳过；消费在 CombatResolver 骷髅结算口。
+   */
+  onSkullHitStealMana?: number;
   /** 承受骷髅伤害时给攻击者施加的状态（毒孢子族：被打时反手让敌人中毒） */
   inflictOnSkullDamaged?: { id: string; turns: number; magnitude?: number };
   /**
@@ -739,6 +770,8 @@ export interface PassiveModifiers {
   bigMatchCreateGem: readonly {
     gem: SpecialGemKind;
     tier?: number;
+    /** 六色族宝石（dragonGem/giantGem/spiritGem/manaPotionGem/candyGem）的归属基色 */
+    color?: string;
     count: number;
     chance?: number;
     minSize: number;
@@ -945,7 +978,7 @@ export interface PassiveModifiers {
    * rng 在四项属性中掷一条（无 rng 按随机技能值口径落 magic）；scope 'allEnemies' 逐个
    * 削减、零随机消耗。触发点与 castStatus 同点（applyCastRandomStatusTriggers）。
    */
-  castEnemyDrain?: { stat: 'hp' | 'attack' | 'armor' | 'magic' | 'mana' | 'random'; amount: number; scope: 'allEnemies' };
+  castEnemyDrain?: { stat: 'hp' | 'attack' | 'armor' | 'magic' | 'mana' | 'random'; amount: number; scope: 'allEnemies' | 'randomEnemy' };
   // —— 缺口清扫批惰性字段（同 onDelveGains 口径：编译进 passive 建模完整，战斗结算路径
   // 不读——对应钩子（回合/受击/施法的经济与召唤口、PVP 模式）落地时直接消费）——
   /** 回合开始经济入账（goldenhoard 5 黄金 / soulgatherer 4 灵魂）。惰性：回合开始钩子无经济口 */
@@ -1008,6 +1041,20 @@ export interface PassiveModifiers {
   onEnemyDeathKill?: { chance: number; scope: 'lastEnemy' };
   /** 匹配骷髅头时所有敌人随机损失技能（chaoswave）；stat 'random' 经 rng 掷项 */
   onSkullMatchEnemyDrain?: { stat: 'attack' | 'armor' | 'magic' | 'mana' | 'random'; amount: number };
+  // —— 职业特质收编批（perk 动态定义消费）——
+  /** 敌方施法时同队指定范围盟友获得（portent）；与 onAllyCastTypeAura 同构反向 */
+  onEnemyCastTypeAura?: { troopType: string; gains: Partial<StatGains> };
+  /** 敌方身亡时使其一方全部存活陷入状态（brutalstrike） */
+  onEnemyDeathEnemyAllStatus?: { statuses: readonly { id: string; magnitude?: number }[]; turns: number };
+  /** 自己身亡时使敌方全部存活陷入状态（deathcurse）；死者被动经行动开始快照取 */
+  onSelfDeathEnemyAllStatus?: { statuses: readonly { id: string; magnitude?: number }[]; turns: number };
+  /** 骷髅伤害即死概率（bullseye「15% 几率一击致命」）；骷髅结算口判定 */
+  skullLethalChance?: number;
+  /** 造成骷髅伤害时按概率猎杀末位敌人（assassinate） */
+  onSkullHitKill?: { chance: number; scope: 'lastEnemy' };
+  /** PvP 战斗结算荣耀映射（bloodandglory「PvP 战斗中获得 1 点荣耀」→ 本作映射黄金）：
+   *  GameOver 且 pvpMode 时对持有者（玩家侧）入账 */
+  pvpEconomyGain?: { currency: 'gold' | 'souls'; amount: number };
 }
 
 /** 条件经济光环的入账数额（按币种；maps 无对应官方句式不设键） */

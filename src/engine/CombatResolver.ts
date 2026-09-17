@@ -166,6 +166,18 @@ export class CombatResolver {
       const s = targetPassive.onDamagedStatus;
       events.push(...applyStatus(target, { id: s.statusId, turns: s.turns }));
     }
+    // 受击使对方首位陷入状态（接线批 deathray 死光「在自身生命值受损时，使敌方第一名敌人
+    // 陷入死亡标记效果」）：与 onDamagedStatus 同一触发口径（落空不触发、激怒无视敌方
+    // 特质）；目标=持有者对面阵营的队伍序首位存活（确定性、零随机消耗）——受魅惑反打时
+    // 按持有者归属取对面（与 onDamagedTypeAura 同款裁定）。
+    if (!enraged && !target.defeated && targetPassive.onDamagedEnemyStatus) {
+      const foeTeam = attackerTeam.characters.includes(target) ? defenderTeam : attackerTeam;
+      const first = CombatResolver.frontAlive(foeTeam);
+      if (first) {
+        const s = targetPassive.onDamagedEnemyStatus;
+        events.push(...applyStatus(first, { id: s.id, turns: s.turns }));
+      }
+    }
     // 命中触发：自身增益（国王之意…）+ 给目标附状态（毒液…）
     const attackerPassive = passivesOf(attacker);
     applyStatGains(attacker, attackerPassive.gainOnSkullHit, events);
@@ -178,6 +190,32 @@ export class CombatResolver {
           : {}),
       });
       events.push(...inflicted);
+    }
+    // 命中附状态·多条版（接线批 brokenjaw 断颚「使第一位敌人陷入出血和沉默状态」）：
+    // 与单条版同一触发口径（伤害实际成立后结算），条目按描述顺序逐条施加。
+    if (attackerPassive.inflictOnSkullHitList && !target.defeated) {
+      for (const s of attackerPassive.inflictOnSkullHitList) {
+        events.push(...applyStatus(target, {
+          id: s.id,
+          turns: s.turns,
+          ...(s.magnitude !== undefined ? { magnitude: s.magnitude } : {}),
+        }));
+      }
+    }
+    // 命中窃法（接线批 siphon 吸星大法「在造成骷髅头伤害时，窃取敌人法力值」，官方
+    // RawData Modifier=1）：从本次受击目标削多少偷多少（目标夹零；manashield 免疫在
+    // 削减口整体跳过——不削也不偷），自己按 manaCost 夹取回灌，实际入账量发事件。
+    if (attackerPassive.onSkullHitStealMana && !target.defeated
+      && !passivesOf(target).manaOpsImmunity) {
+      const stolen = Math.min(attackerPassive.onSkullHitStealMana, target.mana);
+      if (stolen > 0) {
+        target.mana -= stolen;
+        events.push({ type: 'buff', targetId: target.id, stat: 'mana', amount: -stolen });
+        const before = attacker.mana;
+        attacker.mana = Math.min(attacker.manaCost, attacker.mana + stolen);
+        const gained = attacker.mana - before;
+        if (gained > 0) events.push({ type: 'buff', targetId: attacker.id, stat: 'mana', amount: gained });
+      }
     }
 
     // 承受骷髅伤害附状态（毒孢子族）：被打时反手给攻击者上状态。
@@ -253,6 +291,30 @@ export class CombatResolver {
     if (target.hp <= 0 && !target.defeated) {
       target.defeated = true;
       events.push({ type: 'defeat', characterId: target.id });
+    }
+
+    // 骷髅即死/猎杀（职业天赋 bullseye「15% 几率一击致命」/ assassinate「造成骷髅伤害时
+    // 10% 猎杀最后一名敌人」）：伤害实际成立（非闪避/屏障/挣扎路径）后判定。即死=本次
+    // 受击目标无论剩余生命直接阵亡；猎杀=敌方队伍序末位存活（defeat 出编队管线照常）。
+    // 概率经同一条种子化 rng（无 rng 不生效，与闪避判定同口径）；目标已阵亡则跳过。
+    if (!target.defeated && rng !== undefined) {
+      const lethal = passivesOf(attacker).skullLethalChance ?? 0;
+      if (lethal > 0 && rng.next() < lethal) {
+        target.hp = 0;
+        target.defeated = true;
+        events.push({ type: 'defeat', characterId: target.id });
+      } else {
+        const killSpec = passivesOf(attacker).onSkullHitKill;
+        if (killSpec && rng.next() < killSpec.chance) {
+          const foes = defenderTeam.characters.filter((c) => !c.defeated && c.id !== target.id);
+          const last = foes[foes.length - 1];
+          if (last) {
+            last.hp = 0;
+            last.defeated = true;
+            events.push({ type: 'defeat', characterId: last.id });
+          }
+        }
+      }
     }
 
     if (enraged) {

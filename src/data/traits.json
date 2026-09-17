@@ -1364,6 +1364,18 @@
     }
   },
   {
+    "code": "lycanthropy",
+    "name": "狼化",
+    "description": "在我的回合开始时，有 50% 的几率将一颗紫色宝石转换成狼化宝石。",
+    "troops": 8,
+    "turnStartColorToSpecial": {
+      "color": "Purple",
+      "gem": "lycanthropyGem",
+      "count": 1,
+      "chance": 0.5
+    }
+  },
+  {
     "code": "songofice",
     "name": "冰之歌",
     "description": "在战斗开始的时候召唤冰风暴。",
@@ -1520,6 +1532,19 @@
       "color": "Blue",
       "stat": "attack",
       "amount": 1
+    }
+  },
+  {
+    "code": "defender",
+    "name": "防卫者",
+    "description": "盟友在玩家对决战中将获得 3 点护甲值。",
+    "troops": 6,
+    "mode": "pvp",
+    "pvpBonus": {
+      "phase": "defense",
+      "gains": {
+        "armor": 3
+      }
     }
   },
   {
@@ -1949,6 +1974,17 @@
     }
   },
   {
+    "code": "spiny",
+    "name": "带刺",
+    "description": "在自身配对骷髅头时，对所有敌人造成 1 点伤害。",
+    "troops": 4,
+    "onColorMatchDamage": {
+      "color": "skull",
+      "amount": 1,
+      "scope": "allEnemies"
+    }
+  },
+  {
     "code": "urskashield",
     "name": "厄什卡之盾",
     "description": "厄什卡盟友获得 2 点护甲值。",
@@ -2039,6 +2075,17 @@
     }
   },
   {
+    "code": "rottingsoul",
+    "name": "腐烂的灵魂",
+    "description": "我的回合开始时有 25% 的几率创造一颗腐烂的宝石。",
+    "troops": 4,
+    "turnStartCreateSpecialGem": {
+      "gem": "decayGem",
+      "count": 1,
+      "chance": 0.25
+    }
+  },
+  {
     "code": "cursedaura",
     "name": "诅咒光环",
     "description": "我的回合开始时有 10% 的几率创造一颗诅咒宝石。",
@@ -2088,6 +2135,19 @@
     "skullMultVsTroopType": {
       "troopType": "Human",
       "mult": 2
+    }
+  },
+  {
+    "code": "siege",
+    "name": "围城",
+    "description": "在 PVP 中攻击时，盟友获得 2 点攻击力。",
+    "troops": 3,
+    "mode": "pvp",
+    "pvpBonus": {
+      "phase": "attack",
+      "gains": {
+        "attack": 2
+      }
     }
   },
   {
@@ -2319,6 +2379,18 @@
     }
   },
   {
+    "code": "harpyflock",
+    "name": "鸟妖群",
+    "description": "在我的回合开始时，有 5% 的几率召唤一只鸟妖。",
+    "troops": 3,
+    "turnStartSummon": {
+      "chance": 0.05,
+      "troopId": 6752,
+      "referenceName": "Harpy",
+      "displayName": "鸟妖"
+    }
+  },
+  {
     "code": "elfshield",
     "name": "精灵之盾",
     "description": "精灵盟友获得 2 点护甲值。",
@@ -2327,6 +2399,18 @@
       "troopType": "Elf",
       "stat": "armor",
       "amount": 2
+    }
+  },
+  {
+    "code": "bandinglife",
+    "name": "束带人生",
+    "description": "己方每有一名拥有束带特质的盟友，获得 2 点生命值。",
+    "troops": 3,
+    "perAllyTrait": {
+      "trait": "banding",
+      "gains": {
+        "hp": 2
+      }
     }
   },
   {
@@ -2599,6 +2683,30 @@
     }
   },
   {
+    "code": "bandingmagic",
+    "name": "束带魔力",
+    "description": "己方每有一名拥有束带特质的盟友，获得 1 点魔法值。",
+    "troops": 2,
+    "perAllyTrait": {
+      "trait": "banding",
+      "gains": {
+        "magic": 1
+      }
+    }
+  },
+  {
+    "code": "bandingarmor",
+    "name": "束带护甲",
+    "description": "己方每有一名拥有束带特质的盟友，获得 2 点护甲值。",
+    "troops": 2,
+    "perAllyTrait": {
+      "trait": "banding",
+      "gains": {
+        "armor": 2
+      }
+    }
+  },
+  {
     "code": "bornofdarkness",
     "name": "生于黑暗",
     "description": "在我的回合开始的时候创建一颗紫色宝石。",
@@ -2642,6 +2750,16 @@
     }
   },
   {
+    "code": "carcass",
+    "name": "胴体",
+    "description": "当我死后创造一颗腐烂的宝石。",
+    "troops": 2,
+    "onDeathCreateGem": {
+      "gem": "decayGem",
+      "count": 1
+    }
+  },
+  {
     "code": "mudsplash",
     "name": "泥浆飞溅",
     "description": "反弹 30% 的骷髅伤害。",
@@ -2675,6 +2793,13 @@
       ],
       "turns": 3
     }
+  },
+  {
+    "code": "spikearmor",
+    "name": "钉刺护甲",
+    "description": "增加 25% 护甲值到骷髅头伤害。",
+    "troops": 1,
+    "skullDamageFromArmorRatio": 0.25
   },
   {
     "code": "sacrifice",
@@ -2914,6 +3039,32 @@
     }
   },
   {
+    "code": "orclord",
+    "name": "兽人领主",
+    "description": "所有兽人军队在战斗开始时获得 50% 法力。",
+    "troops": 1,
+    "allyStartMana": {
+      "troopType": "Orc",
+      "ratio": 0.5
+    }
+  },
+  {
+    "code": "manyheads",
+    "name": "九头攻击",
+    "description": "当敌人造成骷髅头伤害时，全体敌人受到 3 点伤害。",
+    "troops": 1,
+    "onSkullDamagedEnemyDamage": {
+      "amount": 3
+    }
+  },
+  {
+    "code": "siphon",
+    "name": "吸星大法",
+    "description": "在造成骷髅头伤害时，窃取敌人法力值。",
+    "troops": 1,
+    "onSkullHitStealMana": 1
+  },
+  {
     "code": "fall",
     "name": "秋日",
     "description": "在配对棕色宝石时获得 8 点魔法值。",
@@ -2962,6 +3113,19 @@
     }
   },
   {
+    "code": "queensgrace",
+    "name": "女王的恩典",
+    "description": "在每回合开始时，所有恶魔军队获得 2 点攻击力和生命值。",
+    "troops": 1,
+    "turnStartTypeAura": {
+      "scope": "Daemon",
+      "gains": {
+        "attack": 2,
+        "hp": 2
+      }
+    }
+  },
+  {
     "code": "compassion",
     "name": "恻隐之心",
     "description": "在配对红色宝石时获得 8 点魔法值。",
@@ -2970,6 +3134,18 @@
       "color": "Red",
       "stat": "magic",
       "amount": 8
+    }
+  },
+  {
+    "code": "immortal",
+    "name": "永垂不朽",
+    "description": "身亡后有 25% 的复活几率。",
+    "troops": 1,
+    "summonOnDeath": {
+      "chance": 0.25,
+      "troopId": 6183,
+      "referenceName": "InfernalKing",
+      "displayName": "炼狱之王"
     }
   },
   {
@@ -3067,6 +3243,19 @@
     }
   },
   {
+    "code": "rebirth",
+    "name": "重生",
+    "description": "有 50% 的几率在身亡时重生为法力值满额的幼龙。",
+    "troops": 1,
+    "summonOnDeath": {
+      "chance": 0.5,
+      "troopId": 6231,
+      "referenceName": "BabyDragon",
+      "displayName": "幼龙",
+      "fullMana": true
+    }
+  },
+  {
     "code": "dragonvines",
     "name": "龙族藤蔓",
     "description": "在配对 4 或 5 颗宝石时，缠绕第一名敌人。",
@@ -3090,6 +3279,18 @@
       "stat": "magic",
       "amount": 2,
       "scope": "randomEnemy"
+    }
+  },
+  {
+    "code": "forthepeople",
+    "name": "人民的名义",
+    "description": "在每回合开始时，所有人类军队获得 2 点护甲值。",
+    "troops": 1,
+    "turnStartTypeAura": {
+      "scope": "Human",
+      "gains": {
+        "armor": 2
+      }
     }
   },
   {
@@ -3169,6 +3370,22 @@
     }
   },
   {
+    "code": "virtueofhonor",
+    "name": "诚信之美德",
+    "description": "在玩家对决战中，全部状态值将增加 10 点。",
+    "troops": 1,
+    "mode": "pvp",
+    "pvpBonus": {
+      "phase": "battle",
+      "gains": {
+        "hp": 10,
+        "armor": 10,
+        "attack": 10,
+        "magic": 10
+      }
+    }
+  },
+  {
     "code": "boo",
     "name": "吓死你！",
     "description": "在配对紫色宝石时，获得 8 点魔法值。",
@@ -3207,6 +3424,16 @@
     "battleEconomyGain": {
       "currency": "souls",
       "ratio": 1.5
+    }
+  },
+  {
+    "code": "lordofbeasts",
+    "name": "野兽领主",
+    "description": "所有野兽军队在战斗开始时获得 50% 法力。",
+    "troops": 1,
+    "allyStartMana": {
+      "troopType": "Beast",
+      "ratio": 0.5
     }
   },
   {
@@ -3266,6 +3493,22 @@
     }
   },
   {
+    "code": "crystalize",
+    "name": "结晶",
+    "description": "在配对紫色宝石时赋予自身法印状态。",
+    "troops": 1,
+    "onColorMatchStatus": {
+      "color": "Purple",
+      "scope": "self",
+      "statuses": [
+        {
+          "id": "enchanted"
+        }
+      ],
+      "turns": 3
+    }
+  },
+  {
     "code": "stormshield",
     "name": "风暴之盾",
     "description": "在配对 4 或 5 颗宝石时，赋予一名随盟友屏障效果。",
@@ -3278,6 +3521,19 @@
         }
       ],
       "turns": 3
+    }
+  },
+  {
+    "code": "soaring",
+    "name": "翱翔",
+    "description": "鸟族盟友获得 5 点生命值和攻击力。",
+    "troops": 1,
+    "battleStartTypeAura": {
+      "scope": "Stryx",
+      "gains": {
+        "hp": 5,
+        "attack": 5
+      }
     }
   },
   {
@@ -3301,6 +3557,96 @@
     "description": "降低来自骷髅头的伤害 80%。",
     "troops": 1,
     "skullDamageReduction": 0.8
+  },
+  {
+    "code": "iceaura",
+    "name": "冰之灵气",
+    "description": "所有蓝色盟友的全部状态值将增加 5 点。",
+    "troops": 1,
+    "battleStartTypeAura": {
+      "scope": "Blue",
+      "gains": {
+        "hp": 5,
+        "armor": 5,
+        "attack": 5,
+        "magic": 5
+      }
+    }
+  },
+  {
+    "code": "natureaura",
+    "name": "自然灵气",
+    "description": "所有绿色盟友的全部状态值将增加 5 点。",
+    "troops": 1,
+    "battleStartTypeAura": {
+      "scope": "Green",
+      "gains": {
+        "hp": 5,
+        "armor": 5,
+        "attack": 5,
+        "magic": 5
+      }
+    }
+  },
+  {
+    "code": "fireaura",
+    "name": "火焰灵气",
+    "description": "所有红色盟友的全部状态值将增加 5 点。",
+    "troops": 1,
+    "battleStartTypeAura": {
+      "scope": "Red",
+      "gains": {
+        "hp": 5,
+        "armor": 5,
+        "attack": 5,
+        "magic": 5
+      }
+    }
+  },
+  {
+    "code": "windaura",
+    "name": "风之灵气",
+    "description": "所有黄色盟友的全部状态值将增加 5 点。",
+    "troops": 1,
+    "battleStartTypeAura": {
+      "scope": "Yellow",
+      "gains": {
+        "hp": 5,
+        "armor": 5,
+        "attack": 5,
+        "magic": 5
+      }
+    }
+  },
+  {
+    "code": "magicaura",
+    "name": "魔法灵气",
+    "description": "所有紫色盟友的全部状态值将增加 5 点。",
+    "troops": 1,
+    "battleStartTypeAura": {
+      "scope": "Purple",
+      "gains": {
+        "hp": 5,
+        "armor": 5,
+        "attack": 5,
+        "magic": 5
+      }
+    }
+  },
+  {
+    "code": "stoneaura",
+    "name": "岩石灵气",
+    "description": "所有棕色盟友的全部状态值将增加 5 点。",
+    "troops": 1,
+    "battleStartTypeAura": {
+      "scope": "Brown",
+      "gains": {
+        "hp": 5,
+        "armor": 5,
+        "attack": 5,
+        "magic": 5
+      }
+    }
   },
   {
     "code": "sunsglory",
@@ -3374,6 +3720,16 @@
     }
   },
   {
+    "code": "wildmana",
+    "name": "狂野法力",
+    "description": "所有蛮族军队在战斗开始时获得 50% 法力。",
+    "troops": 1,
+    "allyStartMana": {
+      "troopType": "Wildfolk",
+      "ratio": 0.5
+    }
+  },
+  {
     "code": "fromashes",
     "name": "源自灰烬",
     "description": "当一名盟友身亡时，召唤一个火风暴。",
@@ -3410,6 +3766,16 @@
       "gains": {
         "hp": 5
       }
+    }
+  },
+  {
+    "code": "stoneloyalty",
+    "name": "石之忠诚",
+    "description": "所有矮人军队在战斗开始时获得 50% 法力。",
+    "troops": 1,
+    "allyStartMana": {
+      "troopType": "Dwarf",
+      "ratio": 0.5
     }
   },
   {
@@ -3505,6 +3871,22 @@
     }
   },
   {
+    "code": "spark",
+    "name": "薪火",
+    "description": "在配对红色宝石时赋予自身法印状态。",
+    "troops": 1,
+    "onColorMatchStatus": {
+      "color": "Red",
+      "scope": "self",
+      "statuses": [
+        {
+          "id": "enchanted"
+        }
+      ],
+      "turns": 3
+    }
+  },
+  {
     "code": "summerveil",
     "name": "炽夏之纱",
     "description": "在配对 4 或 5 颗宝石时，使一名随机敌人陷入妖火状态。",
@@ -3533,6 +3915,19 @@
     }
   },
   {
+    "code": "penumbra",
+    "name": "阴影笼罩",
+    "description": "在每一个回合开始的时候创造暗风暴。",
+    "troops": 1,
+    "turnStartStorm": {
+      "referenceName": "Darkstorm",
+      "displayName": "暗风暴",
+      "colors": [
+        "Purple"
+      ]
+    }
+  },
+  {
     "code": "deadlywaters",
     "name": "致命水域",
     "description": "在配对 4 或 5 颗宝石时，创造骸骨风暴。",
@@ -3557,6 +3952,21 @@
         "attack": 1,
         "armor": 1,
         "hp": 1
+      }
+    }
+  },
+  {
+    "code": "desertking",
+    "name": "沙漠之王",
+    "description": "在每回合开始时，所有棕色盟友的全部状态值将增加 1 点。",
+    "troops": 1,
+    "turnStartTypeAura": {
+      "scope": "Brown",
+      "gains": {
+        "hp": 1,
+        "armor": 1,
+        "attack": 1,
+        "magic": 1
       }
     }
   },
@@ -3590,6 +4000,19 @@
     "troops": 1,
     "onColorMatchCleanse": {
       "color": "Yellow"
+    }
+  },
+  {
+    "code": "snowstorm",
+    "name": "暴风雪",
+    "description": "在每一回合开始的时候创造冰风暴。",
+    "troops": 1,
+    "turnStartStorm": {
+      "referenceName": "Icestorm",
+      "displayName": "冰风暴",
+      "colors": [
+        "Blue"
+      ]
     }
   },
   {
@@ -3645,6 +4068,31 @@
     }
   },
   {
+    "code": "radiantaura",
+    "name": "灿烂灵气",
+    "description": "所有神祇军队在战斗开始时获得 40% 法力。",
+    "troops": 1,
+    "allyStartMana": {
+      "troopType": "Divine",
+      "ratio": 0.4
+    }
+  },
+  {
+    "code": "blessingofanu",
+    "name": "安努的赐福",
+    "description": "在每回合开始时，所有蓝色盟友的全部状态值将增加 1 点。",
+    "troops": 1,
+    "turnStartTypeAura": {
+      "scope": "Blue",
+      "gains": {
+        "hp": 1,
+        "armor": 1,
+        "attack": 1,
+        "magic": 1
+      }
+    }
+  },
+  {
     "code": "soulritual",
     "name": "灵魂祭礼",
     "description": "在一名敌人身亡时获得 5 点魔法值。",
@@ -3652,6 +4100,21 @@
     "onEnemyDeathGain": {
       "stat": "magic",
       "amount": 5
+    }
+  },
+  {
+    "code": "emperorsblessing",
+    "name": "帝王恩赐",
+    "description": "在配对 4 或 5 颗宝石时，赋予一名随机盟友法印效果。",
+    "troops": 1,
+    "onBigMatchStatus": {
+      "scope": "randomAlly",
+      "statuses": [
+        {
+          "id": "enchanted"
+        }
+      ],
+      "turns": 3
     }
   },
   {
@@ -3693,6 +4156,21 @@
     }
   },
   {
+    "code": "tidalking",
+    "name": "滔天大王",
+    "description": "在每一回合开始的时候使自身下潜。",
+    "troops": 1,
+    "turnStartStatus": {
+      "target": "self",
+      "statuses": [
+        {
+          "id": "submerged"
+        }
+      ],
+      "turns": 3
+    }
+  },
+  {
     "code": "frombones",
     "name": "源自骸骨",
     "description": "当一名盟友身亡时，召唤一个骸骨风暴。",
@@ -3706,6 +4184,18 @@
         "color": "Brown",
         "turns": 8,
         "dropKind": "skull"
+      }
+    }
+  },
+  {
+    "code": "wildfrenzy",
+    "name": "野蛮狂暴",
+    "description": "所有蛮族在每一回合开始时获得 2 点攻击力。",
+    "troops": 1,
+    "turnStartTypeAura": {
+      "scope": "Wildfolk",
+      "gains": {
+        "attack": 2
       }
     }
   },
@@ -3748,6 +4238,30 @@
       ],
       "turns": 3,
       "randomPositive": true
+    }
+  },
+  {
+    "code": "spiky",
+    "name": "刺头",
+    "description": "在自身配对骷髅头时，对所有敌人造成 3 点伤害。",
+    "troops": 1,
+    "onColorMatchDamage": {
+      "color": "skull",
+      "amount": 3,
+      "scope": "allEnemies"
+    }
+  },
+  {
+    "code": "prideprowess",
+    "name": "狮群战技",
+    "description": "所有猫族盟友在每一回合开始的时候获得 1 点攻击力和魔法值。",
+    "troops": 1,
+    "turnStartTypeAura": {
+      "scope": "Raksha",
+      "gains": {
+        "attack": 1,
+        "magic": 1
+      }
     }
   },
   {
@@ -3850,6 +4364,16 @@
     }
   },
   {
+    "code": "northernclans",
+    "name": "北部宗族",
+    "description": "所有厄什卡军队在战斗开始时获得 50% 法力。",
+    "troops": 1,
+    "allyStartMana": {
+      "troopType": "Urska",
+      "ratio": 0.5
+    }
+  },
+  {
     "code": "poisontide",
     "name": "毒浪",
     "description": "在配对绿色宝石时，窃取第一名敌人 4 点生命值。",
@@ -3908,6 +4432,31 @@
     }
   },
   {
+    "code": "temptation",
+    "name": "蛊惑",
+    "description": "在一名盟友身亡时，魅惑一名随机敌人。",
+    "troops": 1,
+    "onAllyDeathStatus": {
+      "target": "randomEnemy",
+      "statuses": [
+        {
+          "id": "charm"
+        }
+      ],
+      "turns": 3
+    }
+  },
+  {
+    "code": "deathray",
+    "name": "死光",
+    "description": "在自身生命值受损时，使敌方第一名敌人陷入死亡标记效果。",
+    "troops": 1,
+    "onDamagedEnemyStatus": {
+      "id": "death-mark",
+      "turns": 3
+    }
+  },
+  {
     "code": "chillingaura",
     "name": "寒风凛凛",
     "description": "在配对 4 或 5 颗宝石时窃取第一名敌人 2 点攻击力。",
@@ -3938,6 +4487,16 @@
       "gains": {
         "attack": 3
       }
+    }
+  },
+  {
+    "code": "inspirehope",
+    "name": "激发希望",
+    "description": "所有人类军队在战斗开始时获得 50% 法力。",
+    "troops": 1,
+    "allyStartMana": {
+      "troopType": "Human",
+      "ratio": 0.5
     }
   },
   {
@@ -3973,6 +4532,23 @@
     }
   },
   {
+    "code": "sunflare",
+    "name": "太阳黑子",
+    "description": "在轮到我的回合开始的时候，有 50% 的几率燃烧一名随机敌人。",
+    "troops": 1,
+    "turnStartStatus": {
+      "target": "randomEnemy",
+      "statuses": [
+        {
+          "id": "burning",
+          "magnitude": 1
+        }
+      ],
+      "turns": 3,
+      "chance": 0.5
+    }
+  },
+  {
     "code": "justabite",
     "name": "偷一口粮",
     "description": "在配对棕色宝石时窃取第一位敌人 4 点生命值。",
@@ -3999,6 +4575,108 @@
     }
   },
   {
+    "code": "destinyofice",
+    "name": "寒冰命运",
+    "description": "在配对蓝色宝石时，有 2% 的几率使一名随机敌人陷入死亡标记状态。",
+    "troops": 1,
+    "onColorMatchStatus": {
+      "color": "Blue",
+      "scope": "randomEnemy",
+      "statuses": [
+        {
+          "id": "death-mark"
+        }
+      ],
+      "turns": 3,
+      "chance": 0.02
+    }
+  },
+  {
+    "code": "destinyofnature",
+    "name": "自然命运",
+    "description": "在配对绿色宝石时，有 2% 的几率使一名随机敌人陷入死亡标记状态。",
+    "troops": 1,
+    "onColorMatchStatus": {
+      "color": "Green",
+      "scope": "randomEnemy",
+      "statuses": [
+        {
+          "id": "death-mark"
+        }
+      ],
+      "turns": 3,
+      "chance": 0.02
+    }
+  },
+  {
+    "code": "destinyofflame",
+    "name": "火焰命运",
+    "description": "在配对红色宝石时，有 2% 的几率使一名随机敌人陷入死亡标记状态。",
+    "troops": 1,
+    "onColorMatchStatus": {
+      "color": "Red",
+      "scope": "randomEnemy",
+      "statuses": [
+        {
+          "id": "death-mark"
+        }
+      ],
+      "turns": 3,
+      "chance": 0.02
+    }
+  },
+  {
+    "code": "destinyoflight",
+    "name": "光明命运",
+    "description": "在配对黄色宝石时，有 2% 的几率使一名随机敌人陷入死亡标记状态。",
+    "troops": 1,
+    "onColorMatchStatus": {
+      "color": "Yellow",
+      "scope": "randomEnemy",
+      "statuses": [
+        {
+          "id": "death-mark"
+        }
+      ],
+      "turns": 3,
+      "chance": 0.02
+    }
+  },
+  {
+    "code": "destinyofdarkness",
+    "name": "暗黑命运",
+    "description": "在配对紫色宝石时，有 2% 的几率使一名随机敌人陷入死亡标记状态。",
+    "troops": 1,
+    "onColorMatchStatus": {
+      "color": "Purple",
+      "scope": "randomEnemy",
+      "statuses": [
+        {
+          "id": "death-mark"
+        }
+      ],
+      "turns": 3,
+      "chance": 0.02
+    }
+  },
+  {
+    "code": "destinyofstone",
+    "name": "岩石命运",
+    "description": "在配对棕色宝石时，有 2% 的几率使一名随机敌人陷入死亡标记状态。",
+    "troops": 1,
+    "onColorMatchStatus": {
+      "color": "Brown",
+      "scope": "randomEnemy",
+      "statuses": [
+        {
+          "id": "death-mark"
+        }
+      ],
+      "turns": 3,
+      "chance": 0.02
+    }
+  },
+  {
     "code": "celestialsage",
     "name": "天界大圣",
     "description": "在配对 4 或 5 颗宝石时，给予所有盟友 1 点魔法值。",
@@ -4009,6 +4687,23 @@
         "magic": 1
       }
     }
+  },
+  {
+    "code": "elvenkin",
+    "name": "精灵亲族",
+    "description": "所有精灵军队在战斗开始时获得 50% 法力。",
+    "troops": 1,
+    "allyStartMana": {
+      "troopType": "Elf",
+      "ratio": 0.5
+    }
+  },
+  {
+    "code": "electrifiedplating",
+    "name": "带电铠甲",
+    "description": "在造成骷髅头伤害时，伤害值添加 50% 的护甲值。",
+    "troops": 1,
+    "skullDamageFromArmorRatio": 0.5
   },
   {
     "code": "curseofmadness",
@@ -4024,6 +4719,17 @@
         }
       ],
       "turns": 3
+    }
+  },
+  {
+    "code": "succumb",
+    "name": "屈服",
+    "description": "在一名盟友施放法术时，敌人失去 4 点随机技能值。",
+    "troops": 1,
+    "onAllyCastEnemyDrain": {
+      "stat": "random",
+      "amount": 4,
+      "scope": "allEnemies"
     }
   },
   {
@@ -4069,6 +4775,36 @@
     }
   },
   {
+    "code": "icyrebirth",
+    "name": "寒冰重生",
+    "description": "在自身身亡时冻结所有敌军。",
+    "troops": 1,
+    "onSelfDeathEnemyAllStatus": {
+      "statuses": [
+        {
+          "id": "frozen"
+        }
+      ],
+      "turns": 3
+    }
+  },
+  {
+    "code": "feylink",
+    "name": "妖仙灵链",
+    "description": "在我的回合开始的时候有 50% 几率使一名随机敌人妖火状态。",
+    "troops": 1,
+    "turnStartStatus": {
+      "target": "randomEnemy",
+      "statuses": [
+        {
+          "id": "faerie-fire"
+        }
+      ],
+      "turns": 3,
+      "chance": 0.5
+    }
+  },
+  {
     "code": "toxic",
     "name": "制毒",
     "description": "对中毒的敌人造成双倍骷髅头伤害。",
@@ -4086,6 +4822,21 @@
     "onEnemyDeathGain": {
       "stat": "mana",
       "amount": 8
+    }
+  },
+  {
+    "code": "blessingofgaard",
+    "name": "加尔德赐福",
+    "description": "在每回合开始时，所有红色盟友的全部状态值将增加 1 点。",
+    "troops": 1,
+    "turnStartTypeAura": {
+      "scope": "Red",
+      "gains": {
+        "hp": 1,
+        "armor": 1,
+        "attack": 1,
+        "magic": 1
+      }
     }
   },
   {
@@ -4111,6 +4862,16 @@
     "onDamagedGain": {
       "stat": "mana",
       "amount": 4
+    }
+  },
+  {
+    "code": "drownedcrew",
+    "name": "溺水船员",
+    "description": "所有元素军队在战斗开始时获得 50% 法力。",
+    "troops": 1,
+    "allyStartMana": {
+      "troopType": "Elemental",
+      "ratio": 0.5
     }
   },
   {
@@ -4150,6 +4911,16 @@
         }
       ],
       "turns": 3
+    }
+  },
+  {
+    "code": "pickpocket",
+    "name": "扒手",
+    "description": "在自身受到伤害时获得 10 黄金。",
+    "troops": 1,
+    "onDamagedEconomy": {
+      "currency": "gold",
+      "amount": 10
     }
   },
   {
@@ -4305,6 +5076,16 @@
     }
   },
   {
+    "code": "shipscaptain",
+    "name": "船长之力",
+    "description": "在战斗开始时，给予所有盗贼盟友 50% 法力值。",
+    "troops": 1,
+    "allyStartMana": {
+      "troopType": "Rogue",
+      "ratio": 0.5
+    }
+  },
+  {
     "code": "huntress",
     "name": "女猎",
     "description": "在配对 4 颗或更多宝石时，获得 4 点攻击力",
@@ -4418,6 +5199,16 @@
     }
   },
   {
+    "code": "griffoncommander",
+    "name": "狮鹫指挥官",
+    "description": "所有骑士盟友在战斗开始时获得 50% 法力。",
+    "troops": 1,
+    "allyStartMana": {
+      "troopType": "Knight",
+      "ratio": 0.5
+    }
+  },
+  {
     "code": "bloodmark",
     "name": "血印",
     "description": "在配对 4 或更多颗宝石时，使所有敌人都陷入出血状态。",
@@ -4431,6 +5222,35 @@
         }
       ],
       "turns": 3
+    }
+  },
+  {
+    "code": "unstablemind",
+    "name": "想法不正常",
+    "description": "在我的回合开始的时候，召唤疯狂风暴。",
+    "troops": 1,
+    "turnStartStorm": {
+      "referenceName": "Madnessstorm",
+      "displayName": "疯狂风暴",
+      "colors": [
+        "Blue",
+        "Purple"
+      ]
+    }
+  },
+  {
+    "code": "essenceofmagic",
+    "name": "魔法精髓",
+    "description": "在每个回合开始的时候，所有紫色盟友的全部技能值增加 1 点。",
+    "troops": 1,
+    "turnStartTypeAura": {
+      "scope": "Purple",
+      "gains": {
+        "hp": 1,
+        "armor": 1,
+        "attack": 1,
+        "magic": 1
+      }
     }
   },
   {
@@ -4457,6 +5277,21 @@
     "onColorMatchDamage": {
       "color": "Yellow",
       "amount": 12
+    }
+  },
+  {
+    "code": "enchantedwind",
+    "name": "魔风",
+    "description": "在配对 4 或 5 颗宝石时，赋予所有盟友法印效果。",
+    "troops": 1,
+    "onBigMatchStatus": {
+      "scope": "allAllies",
+      "statuses": [
+        {
+          "id": "enchanted"
+        }
+      ],
+      "turns": 3
     }
   },
   {
@@ -4493,6 +5328,47 @@
     "armorPierceChance": 1
   },
   {
+    "code": "hiddennest",
+    "name": "隐秘巢穴",
+    "description": "在自身身亡时，有 50% 的几率产出一颗法力值满值的恶龙蛋。",
+    "troops": 1,
+    "summonOnDeath": {
+      "chance": 0.5,
+      "troopId": 6892,
+      "referenceName": "FellDragonEgg",
+      "displayName": "恶龙蛋",
+      "fullMana": true
+    }
+  },
+  {
+    "code": "trollblood",
+    "name": "巨魔之血",
+    "description": "在自身回合开始的时候，给予所有元素盟友 1 点攻击力和护甲值。",
+    "troops": 1,
+    "turnStartTypeAura": {
+      "scope": "Elemental",
+      "gains": {
+        "attack": 1,
+        "armor": 1
+      }
+    }
+  },
+  {
+    "code": "magehunter",
+    "name": "法师猎人",
+    "description": "在敌人施放法术时获得狂怒效果。",
+    "troops": 1,
+    "onEnemyCastStatus": {
+      "scope": "self",
+      "statuses": [
+        {
+          "id": "rage"
+        }
+      ],
+      "turns": 3
+    }
+  },
+  {
     "code": "psychicpulse",
     "name": "精神脉搏",
     "description": "在配对 4 或更多宝石是，给予怪兽盟友 2 点随机技能值。",
@@ -4521,6 +5397,22 @@
     }
   },
   {
+    "code": "curseofdamnation",
+    "name": "天谴诅咒",
+    "description": "在我的回合开始的时候，有 40% 的几率诅咒所有敌人",
+    "troops": 1,
+    "turnStartStatus": {
+      "target": "allEnemies",
+      "statuses": [
+        {
+          "id": "curse"
+        }
+      ],
+      "turns": 3,
+      "chance": 0.4
+    }
+  },
+  {
     "code": "volcanicmeteor",
     "name": "火山流星",
     "description": "配对 4 或更多宝石时，燃烧和击晕一名随机敌人。",
@@ -4537,6 +5429,98 @@
         }
       ],
       "turns": 3
+    }
+  },
+  {
+    "code": "brokenjaw",
+    "name": "断颚",
+    "description": "在造成骷髅头伤害的时候使第一位敌人陷入出血和沉默状态。",
+    "troops": 1,
+    "inflictOnSkullHitList": [
+      {
+        "id": "bleed",
+        "turns": 3,
+        "magnitude": 1
+      },
+      {
+        "id": "silence",
+        "turns": 3
+      }
+    ]
+  },
+  {
+    "code": "fluxcapacitor",
+    "name": "通量电容器",
+    "description": "在我的回合开始的时候，召唤电风暴。",
+    "troops": 1,
+    "turnStartStorm": {
+      "referenceName": "Electrostorm",
+      "displayName": "电风暴",
+      "colors": [
+        "Red",
+        "Yellow"
+      ]
+    }
+  },
+  {
+    "code": "risingvenom",
+    "name": "毒液泛滥",
+    "description": "在每个回合开始的时候，所有绿色盟友全部技能值增加 1 点。",
+    "troops": 1,
+    "turnStartTypeAura": {
+      "scope": "Green",
+      "gains": {
+        "hp": 1,
+        "armor": 1,
+        "attack": 1,
+        "magic": 1
+      }
+    }
+  },
+  {
+    "code": "divineroar",
+    "name": "神圣狮吼",
+    "description": "在我的回合开始的时候，有 50% 的几率赐福一名随机盟友。",
+    "troops": 1,
+    "turnStartStatus": {
+      "target": "randomAlly",
+      "statuses": [
+        {
+          "id": "blessed"
+        }
+      ],
+      "turns": 3,
+      "chance": 0.5
+    }
+  },
+  {
+    "code": "astronomy",
+    "name": "天文学",
+    "description": "在我的回合开始的时候召唤一个星风暴。",
+    "troops": 1,
+    "turnStartStorm": {
+      "referenceName": "Starstorm",
+      "displayName": "星风暴",
+      "colors": [
+        "Yellow",
+        "Purple"
+      ]
+    }
+  },
+  {
+    "code": "curseofkhet",
+    "name": "盖塔诅咒",
+    "description": "在我的回合开始的时候，有 25% 的几率诅咒一名随机敌人。",
+    "troops": 1,
+    "turnStartStatus": {
+      "target": "randomEnemy",
+      "statuses": [
+        {
+          "id": "curse"
+        }
+      ],
+      "turns": 3,
+      "chance": 0.25
     }
   },
   {
@@ -4627,6 +5611,32 @@
     }
   },
   {
+    "code": "eternaldawn",
+    "name": "永恒黎明",
+    "description": "在自身身亡时有 20% 的几率满值重生。",
+    "troops": 1,
+    "summonOnDeath": {
+      "chance": 0.2,
+      "troopId": 6961,
+      "referenceName": "Quetzalma",
+      "displayName": "魁札尔玛",
+      "fullMana": true
+    }
+  },
+  {
+    "code": "endlessdawn",
+    "name": "永晨",
+    "description": "在我的回合开始时召唤光风暴。",
+    "troops": 1,
+    "turnStartStorm": {
+      "referenceName": "Lightstorm",
+      "displayName": "光风暴",
+      "colors": [
+        "Yellow"
+      ]
+    }
+  },
+  {
     "code": "titanic",
     "name": "泰坦尼克",
     "description": "在配对 4 或 5 颗宝石时，获得 10 点生命值。",
@@ -4662,6 +5672,16 @@
     }
   },
   {
+    "code": "hauntedcrown",
+    "name": "幽冥皇冠",
+    "description": "在战斗开始的时候，给予所有不死族盟友 50% 的法力值。",
+    "troops": 1,
+    "allyStartMana": {
+      "troopType": "Undead",
+      "ratio": 0.5
+    }
+  },
+  {
     "code": "armorsupply",
     "name": "盔甲库",
     "description": "在配对 4 或更多宝石时，给予所有机械 5 点护甲值。",
@@ -4671,6 +5691,16 @@
       "gains": {
         "armor": 5
       }
+    }
+  },
+  {
+    "code": "mazemaster",
+    "name": "迷宫大师",
+    "description": "在战斗开始的时候，给予所有牛头族盟友 50% 的法力值。",
+    "troops": 1,
+    "allyStartMana": {
+      "troopType": "Tauros",
+      "ratio": 0.5
     }
   },
   {
@@ -4698,6 +5728,38 @@
     "troops": 1,
     "onDamagedStatus": {
       "statusId": "rage",
+      "turns": 3
+    }
+  },
+  {
+    "code": "burningembers",
+    "name": "燃烧的火焰",
+    "description": "回合开始时，50%的几率燃烧一个随机的敌人。",
+    "troops": 1,
+    "turnStartStatus": {
+      "target": "randomEnemy",
+      "statuses": [
+        {
+          "id": "burning",
+          "magnitude": 1
+        }
+      ],
+      "turns": 3,
+      "chance": 0.5
+    }
+  },
+  {
+    "code": "psychicbacklash",
+    "name": "回光返照",
+    "description": "敌人施放法术时晕眩随机敌人。",
+    "troops": 1,
+    "onEnemyCastStatus": {
+      "scope": "randomEnemy",
+      "statuses": [
+        {
+          "id": "stun"
+        }
+      ],
       "turns": 3
     }
   },
@@ -4776,6 +5838,43 @@
     }
   },
   {
+    "code": "bandingattack",
+    "name": "束带攻击",
+    "description": "己方每有一名拥有束带特质的盟友，获得 1 点攻击力。",
+    "troops": 1,
+    "perAllyTrait": {
+      "trait": "banding",
+      "gains": {
+        "attack": 1
+      }
+    }
+  },
+  {
+    "code": "truebanding",
+    "name": "真正的结合",
+    "description": "己方每有一名拥有束带特质的盟友，全部技能值各获得 1 点。",
+    "troops": 1,
+    "perAllyTrait": {
+      "trait": "banding",
+      "gains": {
+        "hp": 1,
+        "armor": 1,
+        "attack": 1,
+        "magic": 1
+      }
+    }
+  },
+  {
+    "code": "dragonseer",
+    "name": "龙族先知",
+    "description": "所有龙族盟友在战斗开始时获得 50% 的法力值。",
+    "troops": 1,
+    "allyStartMana": {
+      "troopType": "Dragon",
+      "ratio": 0.5
+    }
+  },
+  {
     "code": "enchantedvines",
     "name": "魔法藤蔓",
     "description": "在配对绿色宝石时，使一名随机敌人陷入缠绕和妖火状态。",
@@ -4792,6 +5891,16 @@
         }
       ],
       "turns": 3
+    }
+  },
+  {
+    "code": "darklordrising",
+    "name": "黑魔王复起",
+    "description": "在我的回合开始时获得 3 点魔法值。",
+    "troops": 1,
+    "regen": {
+      "stat": "magic",
+      "amount": 3
     }
   },
   {
@@ -4814,6 +5923,31 @@
     }
   },
   {
+    "code": "gibberingmadness",
+    "name": "疯言疯语",
+    "description": "在一名盟友施放法术时使一名随机盟友获得狂怒效果。",
+    "troops": 1,
+    "onAllyCastStatus": {
+      "scope": "randomAlly",
+      "statuses": [
+        {
+          "id": "rage"
+        }
+      ],
+      "turns": 3
+    }
+  },
+  {
+    "code": "soulverdict",
+    "name": "灵魂审判",
+    "description": "当一名盟友施放法术时获得 3 个灵魂。",
+    "troops": 1,
+    "onAllyCastEconomy": {
+      "currency": "souls",
+      "amount": 3
+    }
+  },
+  {
     "code": "parrotcry",
     "name": "鹦鹉鸣叫",
     "description": "当我身亡时，有 25% 的几率召唤一只鹦鹉。",
@@ -4823,6 +5957,43 @@
       "troopId": 6377,
       "referenceName": "Parrot",
       "displayName": "鹦鹉"
+    }
+  },
+  {
+    "code": "feralinspiration",
+    "name": "野性灵感",
+    "description": "在我的回合开始时，给予所有野兽盟友 1 点 攻击力和魔法值。",
+    "troops": 1,
+    "turnStartTypeAura": {
+      "scope": "Beast",
+      "gains": {
+        "attack": 1,
+        "magic": 1
+      }
+    }
+  },
+  {
+    "code": "lunarinspiration",
+    "name": "月之灵",
+    "description": "在我的回合开始时，给予所有野兽盟友 2 点魔法值。",
+    "troops": 1,
+    "turnStartTypeAura": {
+      "scope": "Beast",
+      "gains": {
+        "magic": 2
+      }
+    }
+  },
+  {
+    "code": "solarinspiration",
+    "name": "阳之灵",
+    "description": "在我的回合开始时，给予所有野兽盟友 4 点攻击力。",
+    "troops": 1,
+    "turnStartTypeAura": {
+      "scope": "Beast",
+      "gains": {
+        "attack": 4
+      }
     }
   },
   {
@@ -4875,11 +6046,42 @@
     }
   },
   {
+    "code": "moonfever",
+    "name": "月祸",
+    "description": "在配对 4 或更多颗宝石时，使一名随机敌人陷入狼化状态。",
+    "troops": 1,
+    "onBigMatchStatus": {
+      "scope": "randomEnemy",
+      "statuses": [
+        {
+          "id": "lycanthropy"
+        }
+      ],
+      "turns": 3
+    }
+  },
+  {
     "code": "mithrilarmor",
     "name": "米提护甲",
     "description": "反弹 75% 的骷髅头伤害。",
     "troops": 1,
     "reflectSkullRatio": 0.75
+  },
+  {
+    "code": "poolofstars",
+    "name": "星池",
+    "description": "在我的回合开始的时候，有 40% 的几率赋予一名随机盟友反射效果。",
+    "troops": 1,
+    "turnStartStatus": {
+      "target": "randomAlly",
+      "statuses": [
+        {
+          "id": "reflect"
+        }
+      ],
+      "turns": 3,
+      "chance": 0.4
+    }
   },
   {
     "code": "darkinfusion",
@@ -4890,6 +6092,44 @@
       "stat": "magic",
       "amount": 2,
       "scope": "front"
+    }
+  },
+  {
+    "code": "blessedwaters",
+    "name": "圣水",
+    "description": "在我的回合开始的时候，有 15% 的几率赐福所有盟友。",
+    "troops": 1,
+    "turnStartStatus": {
+      "target": "allAllies",
+      "statuses": [
+        {
+          "id": "blessed"
+        }
+      ],
+      "turns": 3,
+      "chance": 0.15
+    }
+  },
+  {
+    "code": "stonefragment",
+    "name": "石头的碎片",
+    "description": "在受到骷髅头伤害时创造一颗棕色法力药水宝石。",
+    "troops": 1,
+    "onDamagedCreateGem": {
+      "gem": "manaPotionGem",
+      "count": 1,
+      "color": "Brown"
+    }
+  },
+  {
+    "code": "icefragment",
+    "name": "冰的碎片",
+    "description": "在受到骷髅头伤害时创造一颗蓝色法力药水宝石。",
+    "troops": 1,
+    "onDamagedCreateGem": {
+      "gem": "manaPotionGem",
+      "count": 1,
+      "color": "Blue"
     }
   },
   {
@@ -4924,6 +6164,26 @@
     }
   },
   {
+    "code": "heofmanyparts",
+    "name": "多肉组织",
+    "description": "在我的回合开始的时候获得 2 个随机技能值。",
+    "troops": 1,
+    "regen": {
+      "stat": "magic",
+      "amount": 2
+    }
+  },
+  {
+    "code": "bonefeast",
+    "name": "白骨盛宴",
+    "description": "在我的回合开始时创造 2 颗骷髅头。",
+    "troops": 1,
+    "turnStartCreateGem": {
+      "color": "skull",
+      "count": 2
+    }
+  },
+  {
     "code": "blessingofstone",
     "name": "石之赐福",
     "description": "在匹配棕色宝石时，给予所有元素盟友 5 点生命值。",
@@ -4934,6 +6194,17 @@
       "gains": {
         "hp": 5
       }
+    }
+  },
+  {
+    "code": "risingstar",
+    "name": "冉冉之星",
+    "description": "在我的回合开始的时候，有 50% 几率创建一颗元素星。",
+    "troops": 1,
+    "turnStartCreateSpecialGem": {
+      "gem": "elementalStar",
+      "count": 1,
+      "chance": 0.5
     }
   },
   {
@@ -4955,6 +6226,17 @@
     "onEnemyCastGain": {
       "stat": "hp",
       "amount": 10
+    }
+  },
+  {
+    "code": "psychicaffliction",
+    "name": "精神折磨",
+    "description": "当一名盟友施放法术时，消除所有敌人 1 点魔法值。",
+    "troops": 1,
+    "onAllyCastEnemyDrain": {
+      "stat": "magic",
+      "amount": 1,
+      "scope": "allEnemies"
     }
   },
   {
@@ -5034,6 +6316,16 @@
     }
   },
   {
+    "code": "lordofsummer",
+    "name": "夏季领主",
+    "description": "所有妖仙盟友在战斗开始时获得 50% 法力值。",
+    "troops": 1,
+    "allyStartMana": {
+      "troopType": "Fey",
+      "ratio": 0.5
+    }
+  },
+  {
     "code": "magmahide",
     "name": "岩浆厚皮",
     "description": "在自身受到骷髅头伤害时，使对方陷入燃烧状态。",
@@ -5042,6 +6334,20 @@
       "id": "burning",
       "turns": 3,
       "magnitude": 1
+    }
+  },
+  {
+    "code": "magmastorm",
+    "name": "岩浆风暴",
+    "description": "在我的回合开始的时候，召唤熔岩风暴。",
+    "troops": 1,
+    "turnStartStorm": {
+      "referenceName": "Lavastorm",
+      "displayName": "熔岩风暴",
+      "colors": [
+        "Red",
+        "Brown"
+      ]
     }
   },
   {
@@ -5068,6 +6374,16 @@
       "gains": {
         "armor": 4
       }
+    }
+  },
+  {
+    "code": "goldenhoard",
+    "name": "黄金储藏室",
+    "description": "我的回合开始时获得5金币。",
+    "troops": 1,
+    "turnStartEconomy": {
+      "currency": "gold",
+      "amount": 5
     }
   },
   {
@@ -5156,6 +6472,18 @@
     }
   },
   {
+    "code": "wildcunning",
+    "name": "狂野狡猾",
+    "description": "所有蛮族将在我的回合开始的时候获得 1 点魔法值。",
+    "troops": 1,
+    "turnStartTypeAura": {
+      "scope": "Wildfolk",
+      "gains": {
+        "magic": 1
+      }
+    }
+  },
+  {
     "code": "celestialaegis",
     "name": "圣洁盾牌",
     "description": "在配对黄色宝石时，给予所有黄色盟友 4 点护甲值。",
@@ -5166,6 +6494,63 @@
       "gains": {
         "armor": 4
       }
+    }
+  },
+  {
+    "code": "dustplume",
+    "name": "望尘莫及",
+    "description": "在我的回合开始的时候召唤尘风暴。",
+    "troops": 1,
+    "turnStartStorm": {
+      "referenceName": "Duststorm",
+      "displayName": "尘风暴",
+      "colors": [
+        "Brown"
+      ]
+    }
+  },
+  {
+    "code": "evileye",
+    "name": "邪眼",
+    "description": "在配对 4 或更多宝石时，创造一颗恶石像鬼宝石。",
+    "troops": 1,
+    "onBigMatchCreateGem": {
+      "gem": "gargoyleGem",
+      "tier": 2,
+      "count": 1
+    }
+  },
+  {
+    "code": "hellcragguards",
+    "name": "地狱悬崖守卫",
+    "description": "在配对 4 或更多宝石时，创造一颗善石像鬼宝石。",
+    "troops": 1,
+    "onBigMatchCreateGem": {
+      "gem": "gargoyleGem",
+      "tier": 1,
+      "count": 1
+    }
+  },
+  {
+    "code": "nightaura",
+    "name": "夜光环绕",
+    "description": "在我的回合开始的时候，有 30% 的几率创造一颗恶石像鬼宝石。",
+    "troops": 1,
+    "turnStartCreateSpecialGem": {
+      "gem": "gargoyleGem",
+      "tier": 2,
+      "count": 1,
+      "chance": 0.3
+    }
+  },
+  {
+    "code": "seaofhope",
+    "name": "海的希望",
+    "description": "所有海族在战斗开始的时候拥有 50% 法力值。",
+    "troops": 1,
+    "allyStartMana": {
+      "troopType": "Merfolk",
+      "ratio": 0.5
     }
   },
   {
@@ -5189,6 +6574,82 @@
       "gains": {
         "hp": 4
       }
+    }
+  },
+  {
+    "code": "onyxshard",
+    "name": "缟玛瑙碎片",
+    "description": "在受到骷髅头伤害时创造 2 颗极度末日骷髅头。",
+    "troops": 1,
+    "onDamagedCreateGem": {
+      "gem": "uberDoomSkull",
+      "count": 2
+    }
+  },
+  {
+    "code": "sapphireshard",
+    "name": "蓝宝石碎片",
+    "description": "在受到骷髅头伤害时创造一颗蓝色巨人宝石。",
+    "troops": 1,
+    "onDamagedCreateGem": {
+      "gem": "giantGem",
+      "count": 1,
+      "color": "Blue"
+    }
+  },
+  {
+    "code": "emeraldshard",
+    "name": "翡翠碎片",
+    "description": "在受到骷髅头伤害时创造一颗绿色巨人宝石。",
+    "troops": 1,
+    "onDamagedCreateGem": {
+      "gem": "giantGem",
+      "count": 1,
+      "color": "Green"
+    }
+  },
+  {
+    "code": "rubyshard",
+    "name": "红宝石碎片",
+    "description": "在受到骷髅头伤害时创造一颗红色巨人宝石。",
+    "troops": 1,
+    "onDamagedCreateGem": {
+      "gem": "giantGem",
+      "count": 1,
+      "color": "Red"
+    }
+  },
+  {
+    "code": "amethystshard",
+    "name": "紫水晶碎片",
+    "description": "在受到骷髅头伤害时创造一颗紫色巨人宝石。",
+    "troops": 1,
+    "onDamagedCreateGem": {
+      "gem": "giantGem",
+      "count": 1,
+      "color": "Purple"
+    }
+  },
+  {
+    "code": "topazshard",
+    "name": "黄玉碎片",
+    "description": "在受到骷髅头伤害时创造一颗黄色巨人宝石。",
+    "troops": 1,
+    "onDamagedCreateGem": {
+      "gem": "giantGem",
+      "count": 1,
+      "color": "Yellow"
+    }
+  },
+  {
+    "code": "umbralshard",
+    "name": "暗影碎片",
+    "description": "在受到骷髅头伤害时创造一颗棕色巨人宝石。",
+    "troops": 1,
+    "onDamagedCreateGem": {
+      "gem": "giantGem",
+      "count": 1,
+      "color": "Brown"
     }
   },
   {
@@ -5331,6 +6792,16 @@
     }
   },
   {
+    "code": "soulgatherer",
+    "name": "灵魂收割者",
+    "description": "在我的回合开始的时候，获得 4 个灵魂。",
+    "troops": 1,
+    "turnStartEconomy": {
+      "currency": "souls",
+      "amount": 4
+    }
+  },
+  {
     "code": "celestialwaters",
     "name": "仙境水域",
     "description": "在配对蓝色宝石时，给予所有蓝色盟友 4 点生命值。",
@@ -5379,6 +6850,17 @@
     }
   },
   {
+    "code": "foxwere",
+    "name": "狐狼之心",
+    "description": "在我的回合开始的时候，将一颗紫色宝石转换成一颗狼化宝石。",
+    "troops": 1,
+    "turnStartColorToSpecial": {
+      "color": "Purple",
+      "gem": "lycanthropyGem",
+      "count": 1
+    }
+  },
+  {
     "code": "crystallizedmana",
     "name": "水晶法力",
     "description": "在配对 4 或更多宝石时， 获得 3 点法力值。",
@@ -5386,6 +6868,24 @@
     "onBigMatchGain": {
       "stat": "mana",
       "amount": 3
+    }
+  },
+  {
+    "code": "fenixsblessing",
+    "name": "狐神赐福",
+    "description": "在配对 4 或更多宝石时，赋予一名随机盟友赐福和法印效果。",
+    "troops": 1,
+    "onBigMatchStatus": {
+      "scope": "randomAlly",
+      "statuses": [
+        {
+          "id": "blessed"
+        },
+        {
+          "id": "enchanted"
+        }
+      ],
+      "turns": 3
     }
   },
   {
@@ -5402,6 +6902,30 @@
         }
       ],
       "turns": 3,
+      "chance": 0.5
+    }
+  },
+  {
+    "code": "murderofravens",
+    "name": "黑鸦恶群",
+    "description": "在我的回合开始的时候，将 2 颗蓝色宝石转换成灵力宝石。",
+    "troops": 1,
+    "turnStartColorToSpecial": {
+      "color": "Blue",
+      "gem": "spiritGem",
+      "gemColor": "Purple",
+      "count": 2
+    }
+  },
+  {
+    "code": "hellcragwatchers",
+    "name": "地狱悬崖守护者",
+    "description": "在我的回合开始的时候，有 50% 的几率创造一颗善石像鬼宝石。",
+    "troops": 1,
+    "turnStartCreateSpecialGem": {
+      "gem": "gargoyleGem",
+      "tier": 1,
+      "count": 1,
       "chance": 0.5
     }
   },
@@ -5440,6 +6964,22 @@
     }
   },
   {
+    "code": "moonfestival",
+    "name": "月圆佳节",
+    "description": "在一个盟友施放法术时，有 30% 的几率赋予一名随机盟友法印效果。",
+    "troops": 1,
+    "onAllyCastStatus": {
+      "scope": "randomAlly",
+      "statuses": [
+        {
+          "id": "enchanted"
+        }
+      ],
+      "turns": 3,
+      "chance": 0.3
+    }
+  },
+  {
     "code": "springtolife",
     "name": "大地回春",
     "description": "在配对绿色宝石时，赋予所有绿色盟友 3 点生命值。",
@@ -5471,6 +7011,16 @@
       "color": "Red",
       "stat": "armor",
       "amount": 8
+    }
+  },
+  {
+    "code": "cattauriroar",
+    "name": "卡托里咆哮",
+    "description": "所有半人马盟友初始法力值为 50%。",
+    "troops": 1,
+    "allyStartMana": {
+      "troopType": "Centaur",
+      "ratio": 0.5
     }
   },
   {
@@ -5566,6 +7116,22 @@
     "spellDamageReduction": 0.8
   },
   {
+    "code": "mirroredstone",
+    "name": "镜像石",
+    "description": "在我的回合开始的时候，有 35% 的几率赋予一名随机盟友反射效果。",
+    "troops": 1,
+    "turnStartStatus": {
+      "target": "randomAlly",
+      "statuses": [
+        {
+          "id": "reflect"
+        }
+      ],
+      "turns": 3,
+      "chance": 0.35
+    }
+  },
+  {
     "code": "feygift",
     "name": "妖仙送礼",
     "description": "在我的回合开始的时候创造 1 颗妖火宝石。",
@@ -5573,6 +7139,18 @@
     "turnStartCreateSpecialGem": {
       "gem": "faerieFireGem",
       "count": 1
+    }
+  },
+  {
+    "code": "parliamentarycall",
+    "name": "群鸟会议",
+    "description": "在我的回合开始的时候，有 10% 的几率召唤一名枭熊。",
+    "troops": 1,
+    "turnStartSummon": {
+      "chance": 0.1,
+      "troopId": 6026,
+      "referenceName": "Owlbear",
+      "displayName": "枭熊"
     }
   },
   {
@@ -5907,6 +7485,16 @@
     }
   },
   {
+    "code": "baneofthemoon",
+    "name": "月的诅咒",
+    "description": "在我的回合开始时，创造一颗狼人宝石。",
+    "troops": 1,
+    "turnStartCreateSpecialGem": {
+      "gem": "lycanthropyGem",
+      "count": 1
+    }
+  },
+  {
     "code": "holidaywish",
     "name": "节日愿望",
     "description": "在我的回合开始的时候创造一颗愿望宝石。",
@@ -5914,6 +7502,22 @@
     "turnStartCreateSpecialGem": {
       "gem": "wish",
       "count": 1
+    }
+  },
+  {
+    "code": "prosperousyear",
+    "name": "旺年",
+    "description": "在配对黄色宝石时赋予自身法印状态。",
+    "troops": 1,
+    "onColorMatchStatus": {
+      "color": "Yellow",
+      "scope": "self",
+      "statuses": [
+        {
+          "id": "enchanted"
+        }
+      ],
+      "turns": 3
     }
   },
   {
@@ -5946,6 +7550,16 @@
       "gem": "faerieFireGem",
       "count": 3,
       "chance": 0.3
+    }
+  },
+  {
+    "code": "celestialhost",
+    "name": "神祗宿主",
+    "description": "在我的回合开始的时候，创造 1 颗天使宝石。",
+    "troops": 1,
+    "turnStartCreateSpecialGem": {
+      "gem": "angelGem",
+      "count": 1
     }
   },
   {
@@ -6014,6 +7628,17 @@
     "troops": 1,
     "turnStartCreateSpecialGem": {
       "gem": "ghost",
+      "count": 1
+    }
+  },
+  {
+    "code": "burningbright",
+    "name": "火焰高涨",
+    "description": "在我的回合开始的时候，将一颗紫色宝石转换成元素星。",
+    "troops": 1,
+    "turnStartColorToSpecial": {
+      "color": "Purple",
+      "gem": "elementalStar",
       "count": 1
     }
   },
@@ -6122,6 +7747,41 @@
     }
   },
   {
+    "code": "oceankin",
+    "name": "海洋亲族",
+    "description": "在我回合开始的时候，有 50% 的几率创造一颗蓝龙宝石。",
+    "troops": 1,
+    "turnStartCreateSpecialGem": {
+      "gem": "dragonGem",
+      "color": "Blue",
+      "count": 1,
+      "chance": 0.5
+    }
+  },
+  {
+    "code": "alchemistfire",
+    "name": "炼金术士之火",
+    "description": "在我的回合开始的时候，有 50% 的几率将一颗红色宝石转换成红色法力药剂宝石。",
+    "troops": 1,
+    "turnStartColorToSpecial": {
+      "color": "Red",
+      "gem": "manaPotionGem",
+      "gemColor": "Red",
+      "count": 1,
+      "chance": 0.5
+    }
+  },
+  {
+    "code": "angelichost",
+    "name": "天使化身",
+    "description": "在我的回合开始的时候，创造 2 颗天使宝石。",
+    "troops": 1,
+    "turnStartCreateSpecialGem": {
+      "gem": "angelGem",
+      "count": 2
+    }
+  },
+  {
     "code": "cursedvolley",
     "name": "诅咒齐射",
     "description": "在配对 4 或更多宝石时，使一名随机敌人陷入诅咒和出血状态。",
@@ -6171,6 +7831,17 @@
     }
   },
   {
+    "code": "ancestralspirits",
+    "name": "祖灵",
+    "description": "在我的回合开始的时候，创造 1 颗灵魂宝石。",
+    "troops": 1,
+    "turnStartCreateSpecialGem": {
+      "gem": "spiritGem",
+      "color": "Purple",
+      "count": 1
+    }
+  },
+  {
     "code": "breathofpower",
     "name": "能量之气",
     "description": "在配对 4 或更多宝石时，给予所有龙族盟友 2 点魔法值。",
@@ -6183,6 +7854,17 @@
     }
   },
   {
+    "code": "hallofportals",
+    "name": "传送门大堂",
+    "description": "我的回合开始时有 50% 的几率创造 1 个恶魔门户宝石。",
+    "troops": 1,
+    "turnStartCreateSpecialGem": {
+      "gem": "daemonicPortalGem",
+      "count": 1,
+      "chance": 0.5
+    }
+  },
+  {
     "code": "sandsoftime",
     "name": "时之沙",
     "description": "当我的回合开始时，有 50% 的几率将黄色宝石转换为沙漏宝石。",
@@ -6190,6 +7872,17 @@
     "turnStartColorToSpecial": {
       "color": "Yellow",
       "gem": "hourglass",
+      "count": 1,
+      "chance": 0.5
+    }
+  },
+  {
+    "code": "eldritchportal",
+    "name": "恐怖传送门",
+    "description": "我的回合开始时有 50% 的几率创造一个恶魔门户宝石。",
+    "troops": 1,
+    "turnStartCreateSpecialGem": {
+      "gem": "daemonicPortalGem",
       "count": 1,
       "chance": 0.5
     }
@@ -6214,6 +7907,29 @@
     }
   },
   {
+    "code": "genieinabottle",
+    "name": "瓶中精灵",
+    "description": "当我的回合开始时，有 35% 的几率将紫宝石转化为紫色法力药水宝石。",
+    "troops": 1,
+    "turnStartColorToSpecial": {
+      "color": "Purple",
+      "gem": "manaPotionGem",
+      "gemColor": "Purple",
+      "count": 1,
+      "chance": 0.35
+    }
+  },
+  {
+    "code": "attackfrombelow",
+    "name": "从下方进攻",
+    "description": "匹配 4 颗或更多宝石时对最后一个敌人造成 8 点伤害。",
+    "troops": 1,
+    "onBigMatchDamage": {
+      "amount": 8,
+      "scope": "lastEnemy"
+    }
+  },
+  {
     "code": "dissolve",
     "name": "溶解",
     "description": "我死时有 25% 的几率召唤绿色史莱姆。",
@@ -6223,6 +7939,45 @@
       "troopId": 6163,
       "referenceName": "GreenSlime",
       "displayName": "绿液粘怪"
+    }
+  },
+  {
+    "code": "slimed",
+    "name": "粘液",
+    "description": "匹配 4 颗或更多宝石时有 50% 的几率创造出绿龙宝石。",
+    "troops": 1,
+    "onBigMatchCreateGem": {
+      "gem": "dragonGem",
+      "color": "Green",
+      "count": 1,
+      "chance": 0.5
+    }
+  },
+  {
+    "code": "eldercall",
+    "name": "长老呼召",
+    "description": "当我的回合开始时，有 50% 的几率将紫宝石转换为紫龙宝石。",
+    "troops": 1,
+    "turnStartColorToSpecial": {
+      "color": "Purple",
+      "gem": "dragonGem",
+      "gemColor": "Purple",
+      "count": 1,
+      "chance": 0.5
+    }
+  },
+  {
+    "code": "holly&ivy",
+    "name": "霍莉与艾薇",
+    "description": "在我的回合开始时创造一个 Hollystorm。",
+    "troops": 1,
+    "turnStartStorm": {
+      "referenceName": "Hollystorm",
+      "displayName": "Hollystorm",
+      "colors": [
+        "Green",
+        "Red"
+      ]
     }
   },
   {
@@ -6332,6 +8087,65 @@
     }
   },
   {
+    "code": "azuredragonlord",
+    "name": "青龙领主",
+    "description": "在我的回合开始的时候，有 50% 的几率将一颗蓝色宝石转换成蓝龙宝石。",
+    "troops": 1,
+    "turnStartColorToSpecial": {
+      "color": "Blue",
+      "gem": "dragonGem",
+      "gemColor": "Blue",
+      "count": 1,
+      "chance": 0.5
+    }
+  },
+  {
+    "code": "crimsondragonknight",
+    "name": "赤龙骑士",
+    "description": "在我的回合开始的时候，有 35% 的几率将一颗红色宝石转换成红龙宝石。",
+    "troops": 1,
+    "turnStartColorToSpecial": {
+      "color": "Red",
+      "gem": "dragonGem",
+      "gemColor": "Red",
+      "count": 1,
+      "chance": 0.35
+    }
+  },
+  {
+    "code": "corrodingheart",
+    "name": "腐蚀之心",
+    "description": "当我的轮次开始时创造一颗腐烂的宝石。",
+    "troops": 1,
+    "turnStartCreateSpecialGem": {
+      "gem": "decayGem",
+      "count": 1
+    }
+  },
+  {
+    "code": "eventide",
+    "name": "黄昏",
+    "description": "当我的轮次开始时创造一颗附魔宝石。",
+    "troops": 1,
+    "turnStartCreateSpecialGem": {
+      "gem": "enchantedGem",
+      "count": 1
+    }
+  },
+  {
+    "code": "darkgift",
+    "name": "黑暗礼物",
+    "description": "当我的回合开始时，有 50% 的几率将紫宝石转换为紫色法力药水宝石。",
+    "troops": 1,
+    "turnStartColorToSpecial": {
+      "color": "Purple",
+      "gem": "manaPotionGem",
+      "gemColor": "Purple",
+      "count": 1,
+      "chance": 0.5
+    }
+  },
+  {
     "code": "oceanswell",
     "name": "海洋涌浪",
     "description": "所有人鱼盟友在匹配 4 颗或更多宝石时获得 2 点魔法值。",
@@ -6341,6 +8155,20 @@
       "gains": {
         "magic": 2
       }
+    }
+  },
+  {
+    "code": "shroudofskulls",
+    "name": "骷髅裹尸布",
+    "description": "当我的轮次开始时创造一场骨风暴。",
+    "troops": 1,
+    "turnStartStorm": {
+      "referenceName": "Bonestorm",
+      "displayName": "骨风暴",
+      "colors": [
+        "Brown"
+      ],
+      "dropKind": "skull"
     }
   },
   {
@@ -6387,6 +8215,18 @@
     "turnStartCreateSpecialGem": {
       "gem": "enrageGem",
       "count": 1
+    }
+  },
+  {
+    "code": "forestkin",
+    "name": "森林亲属",
+    "description": "我的回合开始时有 50% 的几率创造出一颗绿龙宝石。",
+    "troops": 1,
+    "turnStartCreateSpecialGem": {
+      "gem": "dragonGem",
+      "color": "Green",
+      "count": 1,
+      "chance": 0.5
     }
   },
   {
@@ -6485,6 +8325,17 @@
     }
   },
   {
+    "code": "celestialeclipse",
+    "name": "天蚀",
+    "description": "我的回合开始时有 50% 的几率创造出一个暗影之星。",
+    "troops": 1,
+    "turnStartCreateSpecialGem": {
+      "gem": "umbralStar",
+      "count": 1,
+      "chance": 0.5
+    }
+  },
+  {
     "code": "radiantvanguard",
     "name": "光辉先锋",
     "description": "匹配 4 颗或更多宝石时，为所有神圣盟友提供 3 点生命和护甲。",
@@ -6495,6 +8346,16 @@
         "hp": 3,
         "armor": 3
       }
+    }
+  },
+  {
+    "code": "astralaura",
+    "name": "星界光环",
+    "description": "匹配 4 颗或更多宝石时，创建一颗暗影星宝石。",
+    "troops": 1,
+    "onBigMatchCreateGem": {
+      "gem": "umbralStar",
+      "count": 1
     }
   },
   {
@@ -6542,6 +8403,26 @@
         }
       ],
       "turns": 3
+    }
+  },
+  {
+    "code": "sleepersbane",
+    "name": "沉睡者的祸害",
+    "description": "当我的回合开始时，有 50% 的机会对随机敌人进行诅咒和/或造成恐怖。",
+    "troops": 1,
+    "turnStartStatus": {
+      "target": "randomEnemy",
+      "statuses": [
+        {
+          "id": "curse"
+        },
+        {
+          "id": "terror"
+        }
+      ],
+      "turns": 3,
+      "chance": 0.5,
+      "independentChance": true
     }
   },
   {
@@ -6596,6 +8477,30 @@
     }
   },
   {
+    "code": "nightsong",
+    "name": "夜曲",
+    "description": "所有紫色盟友在每个回合开始时获得 2 点生命值和魔法值。",
+    "troops": 1,
+    "turnStartTypeAura": {
+      "scope": "Purple",
+      "gains": {
+        "hp": 2,
+        "magic": 2
+      }
+    }
+  },
+  {
+    "code": "angelicgrace",
+    "name": "天使般的恩典",
+    "description": "当我的回合开始时，有 65% 的机会创造 3 颗天使宝石。",
+    "troops": 1,
+    "turnStartCreateSpecialGem": {
+      "gem": "angelGem",
+      "count": 3,
+      "chance": 0.65
+    }
+  },
+  {
     "code": "deeproots",
     "name": "深厚的根基",
     "description": "当我的回合开始时，创造 2 颗纠缠宝石。",
@@ -6603,6 +8508,22 @@
     "turnStartCreateSpecialGem": {
       "gem": "entangleGem",
       "count": 2
+    }
+  },
+  {
+    "code": "enchantinggaze",
+    "name": "魅惑凝视",
+    "description": "匹配紫色宝石时为随机盟友附魔。",
+    "troops": 1,
+    "onColorMatchStatus": {
+      "color": "Purple",
+      "scope": "randomAlly",
+      "statuses": [
+        {
+          "id": "enchanted"
+        }
+      ],
+      "turns": 3
     }
   },
   {
@@ -6772,6 +8693,20 @@
     }
   },
   {
+    "code": "stormwinds",
+    "name": "暴风雨",
+    "description": "回合开始时制造一场狂风暴雨。",
+    "troops": 1,
+    "turnStartStorm": {
+      "referenceName": "Galestorm",
+      "displayName": "狂风暴雨",
+      "colors": [
+        "Blue",
+        "Yellow"
+      ]
+    }
+  },
+  {
     "code": "dwarvenfortress",
     "name": "矮人要塞",
     "description": "消除棕色宝石时获得3点护甲值。",
@@ -6780,6 +8715,189 @@
       "color": "Brown",
       "stat": "armor",
       "amount": 3
+    }
+  },
+  {
+    "code": "draconicrage",
+    "name": "龙之怒",
+    "description": "当一名盟友施放法术时，获得 2 点攻击力、生命值和护甲值。",
+    "troops": 1,
+    "onAllyCastGain": {
+      "stat": "attack",
+      "amount": 2,
+      "alsoStats": [
+        "hp",
+        "armor"
+      ]
+    }
+  },
+  {
+    "code": "deepsoul",
+    "name": "深灵魂",
+    "description": "死亡后有 15% 的几率复活并恢复全部魔力。",
+    "troops": 1,
+    "summonOnDeath": {
+      "chance": 0.15,
+      "troopId": 7839,
+      "referenceName": "Krakynos",
+      "displayName": "克拉基诺斯",
+      "fullMana": true
+    }
+  },
+  {
+    "code": "kinofthedeep",
+    "name": "深海之子",
+    "description": "回合开始时，有 40% 的几率将 2 个蓝色宝石转化为蓝色龙宝石。",
+    "troops": 1,
+    "turnStartColorToSpecial": {
+      "color": "Blue",
+      "gem": "dragonGem",
+      "gemColor": "Blue",
+      "count": 2,
+      "chance": 0.4
+    }
+  },
+  {
+    "code": "cursedsoul",
+    "name": "被诅咒的灵魂",
+    "description": "死亡后有 15% 的几率复活并恢复全部魔力。",
+    "troops": 1,
+    "summonOnDeath": {
+      "chance": 0.15,
+      "troopId": 7840,
+      "referenceName": "Runethius",
+      "displayName": "鲁内修斯",
+      "fullMana": true
+    }
+  },
+  {
+    "code": "kinofthecursed",
+    "name": "受诅咒者的亲属",
+    "description": "回合开始时，有 40% 的几率将 2 个绿色宝石转化为绿色龙宝石。",
+    "troops": 1,
+    "turnStartColorToSpecial": {
+      "color": "Green",
+      "gem": "dragonGem",
+      "gemColor": "Green",
+      "count": 2,
+      "chance": 0.4
+    }
+  },
+  {
+    "code": "bloodysoul",
+    "name": "血腥灵魂",
+    "description": "死亡后有 15% 的几率复活并恢复全部魔力。",
+    "troops": 1,
+    "summonOnDeath": {
+      "chance": 0.15,
+      "troopId": 7841,
+      "referenceName": "Hematrax",
+      "displayName": "赫马特拉克斯",
+      "fullMana": true
+    }
+  },
+  {
+    "code": "kinofblood",
+    "name": "血亲",
+    "description": "回合开始时，有 40% 的几率将 2 个红色宝石转化为红色龙宝石。",
+    "troops": 1,
+    "turnStartColorToSpecial": {
+      "color": "Red",
+      "gem": "dragonGem",
+      "gemColor": "Red",
+      "count": 2,
+      "chance": 0.4
+    }
+  },
+  {
+    "code": "eldritchsoul",
+    "name": "远古之魂",
+    "description": "死亡后有 15% 的几率复活并恢复全部魔力。",
+    "troops": 1,
+    "summonOnDeath": {
+      "chance": 0.15,
+      "troopId": 7842,
+      "referenceName": "Vizinium",
+      "displayName": "维齐尼姆",
+      "fullMana": true
+    }
+  },
+  {
+    "code": "kinofmadness",
+    "name": "疯狂的亲族",
+    "description": "回合开始时，有 40% 的几率将 2 个黄色宝石转化为黄色龙宝石。",
+    "troops": 1,
+    "turnStartColorToSpecial": {
+      "color": "Yellow",
+      "gem": "dragonGem",
+      "gemColor": "Yellow",
+      "count": 2,
+      "chance": 0.4
+    }
+  },
+  {
+    "code": "deadlysoul",
+    "name": "致命灵魂",
+    "description": "死亡后有 15% 的几率复活并恢复全部魔力。",
+    "troops": 1,
+    "summonOnDeath": {
+      "chance": 0.15,
+      "troopId": 7843,
+      "referenceName": "Demizerius",
+      "displayName": "德米泽留斯",
+      "fullMana": true
+    }
+  },
+  {
+    "code": "kinofdeath",
+    "name": "死亡亲属",
+    "description": "回合开始时，有 40% 的几率将 2 个紫色宝石转化为紫色龙宝石。",
+    "troops": 1,
+    "turnStartColorToSpecial": {
+      "color": "Purple",
+      "gem": "dragonGem",
+      "gemColor": "Purple",
+      "count": 2,
+      "chance": 0.4
+    }
+  },
+  {
+    "code": "ancientsoul",
+    "name": "远古灵魂",
+    "description": "死亡后有 15% 的几率复活并恢复全部魔力。",
+    "troops": 1,
+    "summonOnDeath": {
+      "chance": 0.15,
+      "troopId": 7844,
+      "referenceName": "Amenhotrex",
+      "displayName": "阿门霍特雷克斯",
+      "fullMana": true
+    }
+  },
+  {
+    "code": "kinofbones",
+    "name": "骨之亲",
+    "description": "回合开始时，有 40% 的几率将 2 个棕色宝石转化为棕色龙宝石。",
+    "troops": 1,
+    "turnStartColorToSpecial": {
+      "color": "Brown",
+      "gem": "dragonGem",
+      "gemColor": "Brown",
+      "count": 2,
+      "chance": 0.4
+    }
+  },
+  {
+    "code": "infernalsoul",
+    "name": "地狱之魂",
+    "description": "死亡后有 15% 的几率复活并恢复全部魔力。",
+    "troops": 1,
+    "summonOnDeath": {
+      "chance": 0.15,
+      "troopId": 7845,
+      "referenceName": "Pandemonia",
+      "displayName": "潘德莫尼亚",
+      "fullMana": true
     }
   },
   {
@@ -6792,6 +8910,66 @@
       "gem": "uberDoomSkull",
       "count": 2,
       "chance": 0.4
+    }
+  },
+  {
+    "code": "bloodmoon",
+    "name": "血月",
+    "description": "回合开始时，将 2 个红色宝石转换为狼人宝石。",
+    "troops": 1,
+    "turnStartColorToSpecial": {
+      "color": "Red",
+      "gem": "lycanthropyGem",
+      "count": 2
+    }
+  },
+  {
+    "code": "wildhorns",
+    "name": "野角",
+    "description": "我的回合开始时，攻击力、生命值和护甲值获得2点提升。",
+    "troops": 1,
+    "regen": {
+      "stat": "attack",
+      "amount": 2,
+      "alsoStats": [
+        "hp",
+        "armor"
+      ]
+    }
+  },
+  {
+    "code": "mountainclan",
+    "name": "山地氏族",
+    "description": "当我的回合开始时，所有巨型盟友的攻击力和护甲值增加2点。",
+    "troops": 1,
+    "turnStartTypeAura": {
+      "scope": "Giant",
+      "gains": {
+        "attack": 2,
+        "armor": 2
+      }
+    }
+  },
+  {
+    "code": "brambleheart",
+    "name": "荆棘之心",
+    "description": "消除绿色宝石时，有 50% 的几率使随机敌人陷入纠缠或流血状态。",
+    "troops": 1,
+    "onColorMatchStatus": {
+      "color": "Green",
+      "scope": "randomEnemy",
+      "statuses": [
+        {
+          "id": "entangle"
+        },
+        {
+          "id": "bleed",
+          "magnitude": 1
+        }
+      ],
+      "turns": 3,
+      "chance": 0.5,
+      "independentChance": true
     }
   },
   {
@@ -6816,6 +8994,24 @@
     }
   },
   {
+    "code": "hemlock",
+    "name": "铁杉",
+    "description": "在一名盟友施放法术时，使一名随机敌人陷入诅咒和疾病状态。",
+    "troops": 1,
+    "onAllyCastStatus": {
+      "scope": "randomEnemy",
+      "statuses": [
+        {
+          "id": "curse"
+        },
+        {
+          "id": "disease"
+        }
+      ],
+      "turns": 3
+    }
+  },
+  {
     "code": "darksight",
     "name": "黑暗视野",
     "description": "消除 4 个或更多宝石时，从第一个敌人身上窃取 2 点魔法值。",
@@ -6824,6 +9020,45 @@
       "stat": "magic",
       "amount": 2,
       "scope": "front"
+    }
+  },
+  {
+    "code": "deafeningwail",
+    "name": "震耳欲聋的哀嚎",
+    "description": "我死后，让所有敌人噤声。",
+    "troops": 1,
+    "onSelfDeathEnemyAllStatus": {
+      "statuses": [
+        {
+          "id": "silence"
+        }
+      ],
+      "turns": 3
+    }
+  },
+  {
+    "code": "bornofchaos",
+    "name": "混沌之子",
+    "description": "回合开始时，有 50% 的几率将一个骷髅头转化为一个元素之星。",
+    "troops": 1,
+    "turnStartColorToSpecial": {
+      "color": "skull",
+      "gem": "elementalStar",
+      "count": 1,
+      "chance": 0.5
+    }
+  },
+  {
+    "code": "elementalvitality",
+    "name": "元素活力",
+    "description": "当我的回合开始时，所有元素盟友获得2点生命值和护甲值。",
+    "troops": 1,
+    "turnStartTypeAura": {
+      "scope": "Elemental",
+      "gains": {
+        "hp": 2,
+        "armor": 2
+      }
     }
   }
 ]

@@ -57,17 +57,24 @@ const ENGINE_STATUS_IDS = new Set([
   // 妖火拆分批：faerie-fire 是独立状态（status.ts FAERIE_FIRE_STATUS_ID，受法术伤害 ×1.5），
   // 不再与 DoT 的 burning 混映射
   'faerie-fire',
+  // 接线批：狼化状态本体（status.ts WOLF_STATUS_IDS，狼化宝石 LYCANTHROPY_GEM_TURNS 同款）
+  'lycanthropy',
 ]);
 
 const BASE_COLORS = new Set(Object.values(BaseColor));
 
-/** 引擎认识的特殊宝石 kind（与 types.ts SpecialGemKind 全集对齐） */
+/** 引擎认识的特殊宝石 kind（与 types.ts SpecialGemKind 全集对齐；接线批补波 B 17 kind） */
 const ENGINE_SPECIAL_GEMS = new Set([
   'doomSkull', 'uberDoomSkull', 'bomb', 'web', 'lightningRow', 'lightningCol',
   'wildcard', 'wish', 'hourglass', 'bootyGem', 'ghost',
   'burningGem', 'freezeGem', 'curseGem', 'bleedGem', 'poisonGem', 'deathMarkGem',
   'terrorGem', 'entangleGem', 'enrageGem', 'submergeGem', 'faerieFireGem',
   'stunGem', 'barrierGem',
+  // 波 B（GEMS-SEMANTICS-2 2026-09-17，types.ts SpecialGemKind 全集对齐）
+  'dragonGem', 'giantGem', 'spiritGem', 'manaPotionGem', 'candyGem',
+  'elementalStar', 'umbralStar', 'angelGem', 'daemonicPortalGem', 'gargoyleGem',
+  'stoneBlock', 'lycanthropyGem', 'decayGem', 'volcanoGem', 'trapGem',
+  'enchantedGem', 'mimicGem',
 ]);
 
 /** 特殊宝石 kind → 描述中的中文词（T4 创造批对账用；与 build_traits.mjs SPECIAL_GEM_MAP 同源） */
@@ -76,9 +83,15 @@ const GEM_WORD_OF: Record<string, RegExp> = {
   burningGem: /燃烧/, freezeGem: /冻结/, curseGem: /诅咒/, poisonGem: /毒/,
   bleedGem: /流血/, terrorGem: /恐怖/, deathMarkGem: /死亡标记|死亡印记/,
   entangleGem: /纠缠|缠绕/, enrageGem: /激怒|愤怒|狂怒/, doomSkull: /末日骷髅头/,
-  uberDoomSkull: /超级末日骷髅头/, bootyGem: /赃物/, faerieFireGem: /妖火|妖仙/,
+  uberDoomSkull: /超级末日骷髅头|极度末日骷髅头/, bootyGem: /赃物/, faerieFireGem: /妖火|妖仙/,
   barrierGem: /屏障/, stunGem: /击晕|眩晕/, submergeGem: /沉没/, hourglass: /沙漏/,
   wildcard: /通配/,
+  // 接线批补收（与 build_traits.mjs SPECIAL_GEM_MAP 新增条目同源）
+  decayGem: /腐烂/, gargoyleGem: /石像鬼/, angelGem: /天使/,
+  elementalStar: /元素之星|元素星/, umbralStar: /暗影之星|暗影星/,
+  lycanthropyGem: /狼化|狼人/, manaPotionGem: /法力药水|法力药剂/,
+  spiritGem: /灵魂宝石|灵力宝石|灵魂|灵力/, daemonicPortalGem: /恶魔门户/,
+  giantGem: /巨人/, dragonGem: /龙宝石|龙/,
 };
 
 /** 触发类字段清单（与 traits.ts TRIGGER_FIELDS 同步） */
@@ -306,8 +319,12 @@ describe('A · 数据完整性', () => {
           report(`${tag} onEnemyDeathTypeAura.gains 异常`);
         }
       }
-      if (t.turnStartCreateGem && !BASE_COLORS.has(t.turnStartCreateGem.color as BaseColor)) {
-        report(`${tag} turnStartCreateGem.color 非法`);
+      if (t.turnStartCreateGem) {
+        const colorOk = t.turnStartCreateGem.color === 'skull' || BASE_COLORS.has(t.turnStartCreateGem.color as BaseColor);
+        if (!colorOk) report(`${tag} turnStartCreateGem.color「${t.turnStartCreateGem.color}」非法`);
+        if (t.turnStartCreateGem.color === 'skull' && !/骷髅头/.test(t.description)) {
+          report(`${tag} turnStartCreateGem.color=skull 但描述没有「骷髅头」`);
+        }
       }
       if (t.turnStartCreateGem?.count !== undefined && !(t.turnStartCreateGem.count >= 1 && t.turnStartCreateGem.count <= 9)) {
         report(`${tag} turnStartCreateGem.count=${t.turnStartCreateGem.count} 异常`);
@@ -316,7 +333,7 @@ describe('A · 数据完整性', () => {
         if (!BASE_COLORS.has(t.turnStartColorToSkull.color as BaseColor)) report(`${tag} turnStartColorToSkull.color 非法`);
         if (!(t.turnStartColorToSkull.chance > 0 && t.turnStartColorToSkull.chance <= 1)) report(`${tag} turnStartColorToSkull.chance 异常`);
       }
-      // T4 宝石创造批：创造/转换特殊宝石的结构合法性
+      // T4 宝石创造批：创造/转换特殊宝石的结构合法性（接线批扩六色族 color/gemColor）
       for (const [field, spec] of [
         ['turnStartCreateSpecialGem', t.turnStartCreateSpecialGem],
         ['onDeathCreateGem', t.onDeathCreateGem],
@@ -324,6 +341,8 @@ describe('A · 数据完整性', () => {
         if (!spec) continue;
         if (!ENGINE_SPECIAL_GEMS.has(spec.gem)) report(`${tag} ${field}.gem「${spec.gem}」引擎未实现`);
         if (!(spec.count >= 1 && spec.count <= 9)) report(`${tag} ${field}.count=${spec.count} 异常`);
+        const color = (spec as { color?: string }).color;
+        if (color !== undefined && !BASE_COLORS.has(color as BaseColor)) report(`${tag} ${field}.color「${color}」非法`);
       }
       if (t.turnStartCreateSpecialGem?.chance !== undefined
         && !(t.turnStartCreateSpecialGem.chance > 0 && t.turnStartCreateSpecialGem.chance <= 1)) {
@@ -335,6 +354,7 @@ describe('A · 数据完整性', () => {
         if (!ENGINE_SPECIAL_GEMS.has(s.gem)) report(`${tag} turnStartColorToSpecial.gem「${s.gem}」引擎未实现`);
         if (!(s.count >= 1 && s.count <= 9)) report(`${tag} turnStartColorToSpecial.count=${s.count} 异常`);
         if (s.chance !== undefined && !(s.chance > 0 && s.chance <= 1)) report(`${tag} turnStartColorToSpecial.chance=${s.chance} 异常`);
+        if (s.gemColor !== undefined && !BASE_COLORS.has(s.gemColor as BaseColor)) report(`${tag} turnStartColorToSpecial.gemColor「${s.gemColor}」非法`);
       }
       if (t.onBigMatchCreateGem) {
         const s = t.onBigMatchCreateGem;
@@ -342,6 +362,52 @@ describe('A · 数据完整性', () => {
         if (!(s.count >= 1 && s.count <= 9)) report(`${tag} onBigMatchCreateGem.count=${s.count} 异常`);
         if (s.chance !== undefined && !(s.chance > 0 && s.chance <= 1)) report(`${tag} onBigMatchCreateGem.chance=${s.chance} 异常`);
         if (s.minSize !== undefined && ![4, 5].includes(s.minSize)) report(`${tag} onBigMatchCreateGem.minSize=${s.minSize} 异常`);
+        if (s.color !== undefined && !BASE_COLORS.has(s.color as BaseColor)) report(`${tag} onBigMatchCreateGem.color「${s.color}」非法`);
+      }
+      // —— 接线批：回合开始施加状态 / 骷髅受击·命中钩子族的结构合法性 ——
+      if (t.turnStartStatus) {
+        const s = t.turnStartStatus;
+        if (!['self', 'randomAlly', 'randomEnemy', 'allAllies', 'allEnemies'].includes(s.target)) {
+          report(`${tag} turnStartStatus.target「${s.target}」非法`);
+        }
+        if (!s.statuses || s.statuses.length === 0) report(`${tag} turnStartStatus 缺 statuses`);
+        for (const st of s.statuses ?? []) {
+          if (!ENGINE_STATUS_IDS.has(st.id)) report(`${tag} turnStartStatus 状态「${st.id}」引擎未实现`);
+          if (st.magnitude !== undefined && !['poison', 'burning', 'bleed'].includes(st.id)) {
+            report(`${tag} turnStartStatus 非 DoT 状态不应带 magnitude（${st.id}）`);
+          }
+        }
+        if (!(s.turns >= 1 && s.turns <= 9)) report(`${tag} turnStartStatus.turns=${s.turns} 异常`);
+        if (s.chance !== undefined && !(s.chance > 0 && s.chance <= 1)) report(`${tag} turnStartStatus.chance=${s.chance} 异常`);
+        if (s.independentChance !== undefined && s.independentChance !== true) report(`${tag} turnStartStatus.independentChance 只允许 true`);
+        if (s.independentChance && s.chance === undefined) report(`${tag} independentChance 需要搭配 chance`);
+      }
+      if (t.onDamagedCreateGem) {
+        const s = t.onDamagedCreateGem;
+        if (!ENGINE_SPECIAL_GEMS.has(s.gem)) report(`${tag} onDamagedCreateGem.gem「${s.gem}」引擎未实现`);
+        if (!(s.count >= 1 && s.count <= 9)) report(`${tag} onDamagedCreateGem.count=${s.count} 异常`);
+        if (s.color !== undefined && !BASE_COLORS.has(s.color as BaseColor)) report(`${tag} onDamagedCreateGem.color「${s.color}」非法`);
+      }
+      if (t.onSkullDamagedEnemyDamage) {
+        const s = t.onSkullDamagedEnemyDamage;
+        if (!(s.amount >= 1 && s.amount <= 20)) report(`${tag} onSkullDamagedEnemyDamage.amount=${s.amount} 异常`);
+      }
+      if (t.onSkullHitStealMana !== undefined && !(t.onSkullHitStealMana >= 1 && t.onSkullHitStealMana <= 20)) {
+        report(`${tag} onSkullHitStealMana=${t.onSkullHitStealMana} 异常`);
+      }
+      if (t.inflictOnSkullHitList) {
+        if (t.inflictOnSkullHitList.length < 2) report(`${tag} inflictOnSkullHitList 少于两条（多状态族专用，单状态应走 inflictOnSkullHit）`);
+        for (const inf of t.inflictOnSkullHitList) {
+          if (!ENGINE_STATUS_IDS.has(inf.id)) report(`${tag} 命中附状态「${inf.id}」引擎未实现`);
+          if (!(inf.turns >= 1 && inf.turns <= 9)) report(`${tag} 附状态 turns=${inf.turns} 异常`);
+          if (inf.magnitude !== undefined && !['poison', 'burning', 'bleed'].includes(inf.id)) {
+            report(`${tag} 非DoT状态不应带 magnitude（${inf.id}）`);
+          }
+        }
+      }
+      if (t.onDamagedEnemyStatus) {
+        if (!ENGINE_STATUS_IDS.has(t.onDamagedEnemyStatus.id)) report(`${tag} onDamagedEnemyStatus「${t.onDamagedEnemyStatus.id}」引擎未实现`);
+        if (!(t.onDamagedEnemyStatus.turns >= 1 && t.onDamagedEnemyStatus.turns <= 9)) report(`${tag} onDamagedEnemyStatus.turns=${t.onDamagedEnemyStatus.turns} 异常`);
       }
       // T5 杂项机制批：转换/召唤/风暴/即杀/配色伤害的结构合法性
       if (t.onBigMatchConvert) {
@@ -537,6 +603,13 @@ describe('B · 编译契约', () => {
     'turnStartEconomy', 'onAllyCastEconomy', 'onDamagedEconomy',
     'turnStartSummon', 'turnStartStorm',
     'mode', 'pvpBonus',
+    // 接线批：骷髅受击/命中钩子族（CombatResolver 结算口）+ 受击创造（TurnEngine）+
+    // 命中附加护甲比（spikearmor/electrifiedplating，职业天赋 razorarmor 同字段）
+    'skullDamageFromArmorRatio', 'inflictOnSkullHitList', 'onSkullHitStealMana',
+    'onDamagedEnemyStatus', 'onSkullDamagedEnemyDamage', 'onDamagedCreateGem',
+    // 接线批死亡钩子补族（temptation 蛊惑 / icyrebirth 寒冰重生 / deafeningwail 哀嚎）：
+    // 与职业天赋 savior/deathcurse 同字段的既有编译产物
+    'onAllyDeathStatus', 'onSelfDeathEnemyAllStatus',
   ]);
 
   /**
@@ -559,6 +632,9 @@ describe('B · 编译契约', () => {
     // 缺口清扫批：种族开局法力 / 开局范围光环 / 束带计数（applyBattleStartTraits 直读）/
     // 回合开始范围光环（applyTurnStartPassives 直读）
     'allyStartMana', 'battleStartTypeAura', 'perAllyTrait', 'turnStartTypeAura',
+    // 接线批：回合开始施加状态（TurnEngine.applyTurnStartEconomyAndSummons 直读；
+    // 职业天赋 wrathofanu 族 + tidalking 族 11 code 共用）
+    'turnStartStatus',
   ]);
 
   it('生成器产出的每个效果键都被引擎消费（编译器或定义直读，二者其一）', () => {
@@ -744,12 +820,13 @@ describe('C · 描述↔数值一致性（从官方文本重新抽数对账）',
           report(`${tag(t)} onDeathEconomy 与描述不符`);
         }
       }
-      // T4 宝石创造批：身亡创造（编译族）的数量与宝石词对账
+      // T4 宝石创造批：身亡创造（编译族）的数量与宝石词对账（「一」按 1 折算，与 countOf 同口径）
       if (t.onDeathCreateGem) {
         const m = /在?我(?:身亡时|死亡时|死[后亡])时?[，,]?创[建造成]出?\s*(一|\d+)\s*[颗个]/.exec(d);
-        if (!m) report(`${tag(t)} onDeathCreateGem 但描述不是身亡创造句式`);
-        else if (num(m[1]) !== t.onDeathCreateGem.count) {
-          report(`${tag(t)} onDeathCreateGem.count=${t.onDeathCreateGem.count} 与描述「${m[1]}」不符`);
+        const count = m ? (m[1] === '一' ? 1 : num(m[1])) : null;
+        if (count === null) report(`${tag(t)} onDeathCreateGem 但描述不是身亡创造句式`);
+        else if (count !== t.onDeathCreateGem.count) {
+          report(`${tag(t)} onDeathCreateGem.count=${t.onDeathCreateGem.count} 与描述「${m![1]}」不符`);
         }
         const word = GEM_WORD_OF[t.onDeathCreateGem.gem];
         if (!word || !word.test(d)) report(`${tag(t)} onDeathCreateGem.gem「${t.onDeathCreateGem.gem}」在描述中无对应宝石词`);
@@ -1165,6 +1242,95 @@ describe('C · 描述↔数值一致性（从官方文本重新抽数对账）',
       // PVP 限定：必须是 PVP 句式（「玩家对决战」机翻连写一并认）
       if (t.mode === 'pvp' && !/玩家对[战决]|PVP/.test(d)) report(`${tag(t)} mode='pvp' 但描述没有 PVP 句式`);
 
+      // —— 接线批：回合开始施加状态 / 骷髅受击·命中钩子族 描述↔数值对账 ——
+      if (t.turnStartStatus) {
+        const s = t.turnStartStatus;
+        if (!/回合开始|轮次开始|轮到我行动/.test(d)) report(`${tag(t)} turnStartStatus 但描述没有回合开始句式`);
+        // 概率句：「几率」「机会」两种机翻用词都认
+        const chanceM = /(?:有\s*)?(\d+)\s*%\s*的?(?:几[率会]|机会)/.exec(d);
+        const expectChance = chanceM ? num(chanceM[1]) / 100 : undefined;
+        if (s.chance !== expectChance) report(`${tag(t)} turnStartStatus.chance=${s.chance} 与描述不符`);
+        // 方向粗校验
+        if (s.target === 'self' && /敌人|盟友/.test(d)) report(`${tag(t)} turnStartStatus.target=self 但描述提到敌人/盟友`);
+        if (s.target === 'allEnemies' && !/所有敌人|所有敌军/.test(d)) report(`${tag(t)} turnStartStatus.target=allEnemies 但描述不是全体敌句`);
+        if (s.target === 'allAllies' && !/所有盟友/.test(d)) report(`${tag(t)} turnStartStatus.target=allAllies 但描述不是全体盟友句`);
+        if ((s.target === 'randomEnemy' || s.target === 'randomAlly') && !/随机/.test(d)) report(`${tag(t)} turnStartStatus.target=${s.target} 但描述没有「随机」`);
+        if (s.target === 'randomEnemy' && !/敌人/.test(d)) report(`${tag(t)} turnStartStatus.target=randomEnemy 但描述没有「敌人」`);
+        if (s.target === 'randomAlly' && !/盟友/.test(d)) report(`${tag(t)} turnStartStatus.target=randomAlly 但描述没有「盟友」`);
+        // 状态词逐个反查（本批 11 code 涉及的状态子集；扩状态时同步扩表）
+        const wordOf: Record<string, RegExp> = {
+          submerged: /下潜/, burning: /燃烧/, 'faerie-fire': /妖火/,
+          curse: /诅咒/, blessed: /赐福|祝福/, reflect: /反射/, terror: /恐怖/,
+        };
+        for (const st of s.statuses ?? []) {
+          const re = wordOf[st.id];
+          if (!re || !re.test(d)) report(`${tag(t)} turnStartStatus 状态「${st.id}」在描述中无对应状态词`);
+        }
+      }
+      if (t.skullDamageFromArmorRatio !== undefined) {
+        const m = /增加\s*(\d+)\s*%\s*护甲值到骷髅头伤害/.exec(d)
+          ?? /伤害值添加\s*(\d+)\s*%\s*的?护甲值/.exec(d);
+        if (!m || num(m[1]) / 100 !== t.skullDamageFromArmorRatio) {
+          report(`${tag(t)} skullDamageFromArmorRatio=${t.skullDamageFromArmorRatio} 与描述「${d.slice(0, 30)}」不符`);
+        }
+      }
+      if (t.onSkullHitStealMana !== undefined) {
+        // 官方 EN「Steal enemy mana」无数量词，数值取 RawData Modifier=1
+        if (!/^在造成骷髅头伤害时[，,]?窃取敌人法力值。?$/.test(d) || t.onSkullHitStealMana !== 1) {
+          report(`${tag(t)} onSkullHitStealMana=${t.onSkullHitStealMana} 与描述「${d}」不符`);
+        }
+      }
+      if (t.inflictOnSkullHitList) {
+        const m = /在造成骷髅头伤害的时候使第一位敌人陷入(.+?)状态/.exec(d);
+        const parts = m ? m[1].split('和').filter((s) => s.trim() !== '') : [];
+        if (parts.length !== t.inflictOnSkullHitList.length) {
+          report(`${tag(t)} 命中多状态条数 ${t.inflictOnSkullHitList.length} 与描述「${m?.[1] ?? d}」不符`);
+        }
+      }
+      if (t.onDamagedEnemyStatus) {
+        const m = /在自身生命值受损时[，,]?使敌方第一名敌人陷入(.+?)(?:状态|效果)/.exec(d);
+        const wordOf: Record<string, RegExp> = { 'death-mark': /死亡标记/ };
+        const re = m ? wordOf[t.onDamagedEnemyStatus.id] : null;
+        if (!m || !re || !re.test(m[1])) report(`${tag(t)} onDamagedEnemyStatus 与描述「${d}」不符`);
+      }
+      if (t.onSkullDamagedEnemyDamage) {
+        const m = /当敌人造成骷髅头伤害时[，,]?全体敌人受到\s*(\d+)\s*点伤害/.exec(d);
+        if (!m || num(m[1]) !== t.onSkullDamagedEnemyDamage.amount) {
+          report(`${tag(t)} onSkullDamagedEnemyDamage.amount=${t.onSkullDamagedEnemyDamage.amount} 与描述不符`);
+        }
+      }
+      if (t.onDamagedCreateGem) {
+        const m = /在受到骷髅头伤害时创造\s*(一|\d+)\s*[颗瓶]/.exec(d);
+        const count = m ? (m[1] === '一' ? 1 : num(m[1])) : null;
+        if (count === null) report(`${tag(t)} onDamagedCreateGem 但描述不是受击创造句式`);
+        else if (count !== t.onDamagedCreateGem.count) {
+          report(`${tag(t)} onDamagedCreateGem.count=${t.onDamagedCreateGem.count} 与描述「${m![1]}」不符`);
+        }
+        const word = GEM_WORD_OF[t.onDamagedCreateGem.gem];
+        if (!word || !word.test(d)) report(`${tag(t)} onDamagedCreateGem.gem「${t.onDamagedCreateGem.gem}」在描述中无对应宝石词`);
+      }
+      if (t.onAllyDeathStatus) {
+        // temptation 句式：「在一名盟友身亡时，魅惑一名随机敌人。」（动词可插在目标前）
+        if (!/在一名盟友身亡时[，,]?\S{0,6}一名随机敌人/.test(d)) {
+          report(`${tag(t)} onAllyDeathStatus 但描述不是「盟友身亡使随机敌人」句式`);
+        }
+        const wordOf: Record<string, RegExp> = { charm: /魅惑|迷惑/ };
+        for (const st of t.onAllyDeathStatus.statuses ?? []) {
+          const re = wordOf[st.id];
+          if (!re || !re.test(d)) report(`${tag(t)} onAllyDeathStatus 状态「${st.id}」在描述中无对应状态词`);
+        }
+      }
+      if (t.onSelfDeathEnemyAllStatus) {
+        if (!/(?:在自身身亡时|我死后)/.test(d) || !/所有敌/.test(d)) {
+          report(`${tag(t)} onSelfDeathEnemyAllStatus 但描述不是「身亡使所有敌人」句式`);
+        }
+        const wordOf: Record<string, RegExp> = { frozen: /冻结/, silence: /噤声|沉默/ };
+        for (const st of t.onSelfDeathEnemyAllStatus.statuses ?? []) {
+          const re = wordOf[st.id];
+          if (!re || !re.test(d)) report(`${tag(t)} onSelfDeathEnemyAllStatus 状态「${st.id}」在描述中无对应状态词`);
+        }
+      }
+
       /** 中文风暴名 → 生成器写入的英文 referenceName 词干（开局风暴对账用） */
 const CN_STORM_TO_REFERENCE: Record<string, string> = {
   光: 'Light',
@@ -1261,6 +1427,14 @@ describe('D · 接线完整性（钩子存在但没人调用 = 死角）', () =>
     ['施法显式状态/施法敌方削减', /castStatus|castEnemyDrain|onAllyCastStatus/, () => traitsSrc],
     ['复活满法力（immortal/deepsoul 族）', /fullMana/, () => traitsSrc],
     ['配色全体伤害/大连末位伤害 scope', /allEnemies|lastEnemy/, () => traitsSrc],
+    // 接线批：回合开始施加状态 + 骷髅受击/命中钩子族的消费点
+    ['回合开始施加状态（tidalking/sunflare 族）', /turnStartStatus/, () => turnEngineSrc],
+    ['受击创造宝石（onyxshard/*shard 族）', /onDamagedCreateGem/, () => turnEngineSrc],
+    ['受击敌方全体受伤（manyheads）', /onSkullDamagedEnemyDamage/, () => turnEngineSrc],
+    ['命中窃法（siphon）', /onSkullHitStealMana/, () => combatResolverSrc],
+    ['命中多条状态（brokenjaw）', /inflictOnSkullHitList/, () => combatResolverSrc],
+    ['受击敌方首位状态（deathray）', /onDamagedEnemyStatus/, () => combatResolverSrc],
+    ['命中附加护甲比（spikearmor/electrifiedplating）', /skullDamageFromArmorRatio/, () => turnEngineSrc],
   ];
   it.each(cases)('%s 有真实消费点', (_name, re, src) => {
     expect(re.test(src())).toBe(true);

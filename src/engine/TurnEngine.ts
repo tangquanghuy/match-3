@@ -42,6 +42,7 @@ import type { GameState } from './GameState';
 import { resolveDefeatEvents, summonQueueOf, MAX_ACTIVE_TEAM_SIZE } from './teamRoster';
 import {
   applyBattleStartTraits,
+  grantStat,
   collectBattleStartStorms,
   applyBigMatchTriggers,
   applyCastTriggers,
@@ -120,6 +121,13 @@ export class TurnEngine {
   private readonly masterySuppress: Readonly<Record<PlayerSide, number>>;
   /** 位次光环已补授的角色 id（战斗机制批 leader 族，applyPositionAuras 防重复授出） */
   private readonly positionAuraGranted = new Set<number>();
+  /**
+   * PvP 模式旗（职业天赋 exemplar/bloodandglory 族）：由宿主（App 从 BattleRequest.mode）
+   * 构造后、首次 takeInitialEvents 前注入。true 时一次性应用持有者的 pvpBonuses
+   *（battle=自身 / attack=己方全队；本作竞技场玩家恒为进攻方，defense 惰性）。
+   */
+  pvpMode = false;
+  private pvpApplied = false;
   /**
    * 条件经济光环入账口（条件经济批，注入 traits 触发器 ctx/opts.gainEconomy）：
    * 灵魂/黄金/宝石直接入战场经济池（GameState.economy，全场共用），发既有
@@ -259,6 +267,26 @@ export class TurnEngine {
 
   /** 取出构造阶段的开局事件；只消费一次。 */
   takeInitialEvents(): GameEvent[] {
+    if (this.pvpMode && !this.pvpApplied) {
+      this.pvpApplied = true;
+      // PvP 加成（缺口清扫批 pvpBonus 惰性字段的结算口）：battle=持有者自身、
+      // attack=持有者己方全队（本作竞技场玩家恒为进攻方；defense 惰性不结算）。
+      // 静默授予（与开局光环同口径，构造期事件流未开始）。
+      for (const char of this.state.teams[PlayerSide.Left].characters) {
+        if (char.defeated) continue;
+        for (const bonus of passivesOf(char).pvpBonuses) {
+          if (bonus.phase === 'defense') continue;
+          const targets = bonus.phase === 'battle' ? [char] : this.state.teams[PlayerSide.Left].characters;
+          for (const target of targets) {
+            if (target.defeated) continue;
+            for (const stat of ['hp', 'armor', 'attack', 'magic'] as const) {
+              const amount = bonus.gains[stat] ?? 0;
+              if (amount > 0) grantStat(target, stat, amount);
+            }
+          }
+        }
+      }
+    }
     return this.initialEvents.splice(0, this.initialEvents.length);
   }
 
@@ -411,6 +439,24 @@ export class TurnEngine {
         events.push(...this.traitSummon(summon, side));
         events.push(...this.applySelfSummonStatus(holder));
       }
+      // 承受骷髅伤害创造特殊宝石（接线批 onyxshard「创造 2 颗极度末日骷髅头」+ *shard
+      // 巨人宝石/法力药水族）：随机现存格就地翻新（满盘创造的代理口径，与 onDeathCreateGem
+      // 同源），发既有 gem-transform 事件。处在 runCascades 组结算内，不在此重入连锁——
+      // 新造宝石若可匹配由外层连锁循环下一轮吸收（与大连创造同口径）。
+      const create = p.onDamagedCreateGem;
+      if (create) {
+        events.push(...this.spawnSpecialGems(
+          create.gem, create.tier, create.count, undefined, create.color as BaseColor | undefined,
+        ));
+      }
+      // 承受骷髅伤害敌方全体受伤（接线批 manyheads「当敌人造成骷髅头伤害时，全体敌人受到
+      // 3 点伤害」）：伤害经 traitDamage（damageOne 管线，妖火/法术减伤/屏障/护甲/阵亡同
+      // 技能口径），目标=持有者对面阵营的存活全队（确定性逐个结算、零随机消耗）。
+      const aoe = p.onSkullDamagedEnemyDamage;
+      if (aoe) {
+        const foes = this.state.teams[opponentOf(side)].characters.filter((c) => !c.defeated);
+        for (const foe of foes) events.push(...this.traitDamage(foe, holder, aoe.amount));
+      }
     }
     return events;
   }
@@ -437,6 +483,66 @@ export class TurnEngine {
       if (summon && (summon.chance >= 1 || this.rng.next() < summon.chance)) {
         events.push(...this.traitSummon(summon));
         events.push(...this.applySelfSummonStatus(char));
+      }
+      // 回合开始按概率获得属性（职业天赋 darkchannel「每回合 50% 几率获得 1 点魔法值」）：
+      // 定义直读键；概率经同一条 rng。
+      for (const code of char.traitIds ?? []) {
+        const gainSpec = getTrait(code)?.turnStartChanceGain;
+        if (!gainSpec) continue;
+        if (this.rng.next() >= gainSpec.chance) continue;
+        const actual = grantStat(char, gainSpec.stat, gainSpec.amount);
+        if (actual !== 0) events.push({ type: 'buff', targetId: char.id, stat: gainSpec.stat, amount: actual });
+      }
+      // 回合开始棋盘/状态惰性字段（缺口清扫批）+ 职业天赋（wrathofanu 击晕随机敌 /
+      // getbehindme 屏障随机盟友 / ancientmysteries 随机正面 / stormsoul·heatwave 开风暴）：
+      // 定义直读键（getTrait，同 turnStartTypeAura 口径），概率与随机目标经同一条 rng。
+      for (const code of char.traitIds ?? []) {
+        const def = getTrait(code);
+        if (!def) continue;
+        const statusSpec = def.turnStartStatus;
+        if (statusSpec && statusSpec.chance !== undefined && this.rng.next() >= statusSpec.chance) {
+          continue; // 概率未命中（无 chance 字段必发）
+        }
+        if (statusSpec) {
+          // 目标解析（接线批扩 target）：self=持有者 / allAllies/allEnemies=双方全存活
+          //（确定性、零随机消耗）；randomAlly/randomEnemy=随机一名（各耗一次 rng）。
+          const allies = team.characters.filter((c) => !c.defeated);
+          const foes = this.state.teams[opponentOf(this.state.activePlayer)].characters.filter((c) => !c.defeated);
+          let targets: readonly Character[];
+          if (statusSpec.target === 'self') {
+            targets = [char];
+          } else if (statusSpec.target === 'allAllies') {
+            targets = allies;
+          } else if (statusSpec.target === 'allEnemies') {
+            targets = foes;
+          } else {
+            const pool = statusSpec.target === 'randomAlly' ? allies : foes;
+            if (pool.length === 0) continue;
+            targets = [pool[this.rng.nextInt(pool.length)]];
+          }
+          const statuses: readonly { id: string; magnitude?: number }[] = statusSpec.randomPositive
+            ? [{ id: RANDOM_POSITIVE_STATUS_POOL[this.rng.nextInt(RANDOM_POSITIVE_STATUS_POOL.length)]! }]
+            : statusSpec.statuses;
+          for (const st of statuses) {
+            // independentChance（sleepersbane「诅咒和/或恐怖」双独立概率）：每条各自掷一次
+            // chance（各中各的），目标已先选出——与 onBigMatchStatus 的 independentChance 同口径
+            if (statusSpec.independentChance && statusSpec.chance !== undefined
+              && this.rng.next() >= statusSpec.chance) {
+              continue;
+            }
+            for (const target of targets) {
+              const status: StatusInstance = { id: st.id, turns: statusSpec.turns };
+              if (st.magnitude !== undefined) status.magnitude = st.magnitude;
+              events.push(...applyStatus(target, status));
+            }
+          }
+        }
+        const storm = def.turnStartStorm;
+        if (storm && storm.colors.length > 0) {
+          const stormSummon: StormSummon = { color: storm.colors[0]!, turns: 8 };
+          if (storm.dropKind) stormSummon.dropKind = storm.dropKind;
+          events.push(...this.setTraitStorm(stormSummon, 9009, this.state.activePlayer));
+        }
       }
     }
     return events;
@@ -663,8 +769,8 @@ export class TurnEngine {
               damage: this.traitDamage,
               drainLife: this.traitDrainLife,
               explodeGem: (color, count) => this.explodeGemsOfColor(color, count),
-              createGem: (kind, tier, count) =>
-                this.spawnSpecialGems(kind, tier, count, matches.map((grp) => grp.cells)),
+              createGem: (kind, tier, count, color) =>
+                this.spawnSpecialGems(kind, tier, count, matches.map((grp) => grp.cells), color as BaseColor | undefined),
               summon: (spec) => {
                 const produced = this.traitSummon(spec);
                 // 大连召唤完成后的 self-summon 触发（hauntedweave）：召唤事件发生后，
@@ -1521,7 +1627,11 @@ export class TurnEngine {
           for (const pos of this.randomGemSlots(count)) {
             const from = this.state.board.get(pos);
             if (from) {
-              const to = colorGem(trait.turnStartCreateGem.color as BaseColor);
+              // color 'skull' = 普通骷髅头（接线批 bonefeast「创造 2 颗骷髅头」），其余为六基色
+              const c = trait.turnStartCreateGem.color;
+              const to: GemType = c === 'skull'
+                ? { kind: 'skull', variant: 'normal' }
+                : colorGem(c as BaseColor);
               const gemId = this.nextGemId();
               this.state.board.set(pos, { id: gemId, type: to });
               changes.push({ pos, gemId, from: from.type, to });
@@ -1544,7 +1654,8 @@ export class TurnEngine {
             for (const pos of this.randomGemSlots(spec.count)) {
               const from = this.state.board.get(pos);
               if (!from) continue;
-              const to = specialGem(spec.gem, spec.tier);
+              // color：六色族宝石（dragonGem/giantGem/spiritGem/manaPotionGem）归属基色
+              const to = specialGem(spec.gem, spec.tier, spec.color as BaseColor | undefined);
               const gemId = this.nextGemId();
               this.state.board.set(pos, { id: gemId, type: to });
               changes.push({ pos, gemId, from: from.type, to });
@@ -1562,7 +1673,8 @@ export class TurnEngine {
                 : this.randomCellOfColor(spec.color as BaseColor);
               const from = pos ? this.state.board.get(pos) : null;
               if (!pos || !from) continue;
-              const to = specialGem(spec.gem, spec.tier);
+              // gemColor：六色族目标宝石的归属基色（kinof*「蓝色宝石→蓝龙宝石」族）
+              const to = specialGem(spec.gem, spec.tier, spec.gemColor as BaseColor | undefined);
               const gemId = this.nextGemId();
               this.state.board.set(pos, { id: gemId, type: to });
               changes.push({ pos, gemId, from: from.type, to });
@@ -1634,22 +1746,24 @@ export class TurnEngine {
   }
 
   /**
-   * 特殊宝石创造原语（T4 创造批共用：回合开始 / 身亡 / 大连三个触发点）：
+   * 特殊宝石创造原语（T4 创造批共用：回合开始 / 身亡 / 大连三个触发点 + 接线批受击创造）：
    * 随机格现存宝石就地翻新成特殊宝石（满盘创造的代理口径，与技能 doCreate 的
    * 转化回退同源），发既有 gem-transform 事件。不在此跑连锁——调用方决定：
    * 大连路径由外层 runCascades 下一轮自然吸收新匹配；回合开始/身亡路径显式跑。
+   * color 为六色族宝石（dragonGem/giantGem/spiritGem/manaPotionGem）的归属基色。
    */
   private spawnSpecialGems(
     kind: SpecialGemKind,
     tier: number | undefined,
     count: number,
     avoid?: ReadonlyArray<readonly CellPos[]>,
+    color?: BaseColor,
   ): GameEvent[] {
     const changes: GemTransformEvent['changes'] = [];
     for (const pos of this.randomGemSlots(count, avoid)) {
       const from = this.state.board.get(pos);
       if (!from) continue;
-      const to = specialGem(kind, tier);
+      const to = specialGem(kind, tier, color);
       const gemId = this.nextGemId();
       this.state.board.set(pos, { id: gemId, type: to });
       changes.push({ pos, gemId, from: from.type, to });
@@ -1689,6 +1803,19 @@ export class TurnEngine {
       const dead = this.rosterCharAtActionStart.get(id);
       const deathEco = dead ? passivesOf(dead).onDeathEconomy : undefined;
       if (deathEco) events.push(...this.creditEconomy(deathEco.currency, deathEco.amount));
+      // 自身亡→敌方全体陷入状态（职业天赋 deathcurse「我身亡时，使所有敌人陷入死亡标记」）：
+      // 死者被动随行动开始引用快照取（死者已移出编队），确定性逐个施加、零随机消耗。
+      const selfDeathStatus = dead ? passivesOf(dead).onSelfDeathEnemyAllStatus : undefined;
+      if (selfDeathStatus && side !== null) {
+        for (const foe of this.state.teams[opponentOf(side)].characters) {
+          if (foe.defeated) continue;
+          for (const st of selfDeathStatus.statuses) {
+            const status: StatusInstance = { id: st.id, turns: selfDeathStatus.turns };
+            if (st.magnitude !== undefined) status.magnitude = st.magnitude;
+            events.push(...applyStatus(foe, status));
+          }
+        }
+      }
       // 身亡创造特殊宝石（T4 批 unstablecore「在我身亡时创造 3 颗炸弹宝石」）：死者本人
       // 持有，与身亡经济同一结算点、同一引用快照。随机格就地翻新（满盘转化代理口径），
       // 随后照常跑一次连锁并复判胜负——炸弹不可匹配，通常一次扫描即止（零随机消耗），
@@ -1912,6 +2039,15 @@ export class TurnEngine {
           const { gold, souls } = this.economyGainRatios;
           if (gold > 0) this.state.economy.gold = Math.floor(this.state.economy.gold * (1 + gold));
           if (souls > 0) this.state.economy.souls = Math.floor(this.state.economy.souls * (1 + souls));
+          // PvP 荣耀映射（职业天赋 bloodandglory「PvP 战斗中获得 1 点荣耀」）：本作无
+          // 荣耀币种，设计值映射为黄金按持有者入账（官方单场荣耀个位数，量级一致）。
+          if (this.pvpMode) {
+            for (const char of this.state.teams[PlayerSide.Left].characters) {
+              if (char.defeated) continue;
+              const gain = passivesOf(char).pvpEconomyGain;
+              if (gain && gain.amount > 0) this.creditEconomy(gain.currency, gain.amount);
+            }
+          }
         }
         const winner = opponentOf(side);
         this.state.state = MatchState.GameOver;
