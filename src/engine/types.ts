@@ -545,6 +545,20 @@ export interface PassiveModifiers {
     scope: 'front' | 'randomEnemy';
     minSize: number;
   }[];
+  /**
+   * 自己一方配对 4+ 连时创造特殊宝石（T4 大连创造批 wildtribe/wildmagic/twinfires/
+   * spectromancy「在配对 4 或更多宝石时（有 N% 几率）创建 x2/x3 通配/燃烧宝石」）。
+   * 多条并存按声明序逐条结算，minSize 缺省 4；概率经 TurnEngine 注入的 rng 判定，
+   * 落子经注入的 createGem（随机格就地转化 + gem-transform 事件，连锁由外层
+   * runCascades 下一轮吸收）；无注入时概率 <1 不生效（纯逻辑环境零事件、零随机消耗）。
+   */
+  bigMatchCreateGem: readonly {
+    gem: SpecialGemKind;
+    tier?: number;
+    count: number;
+    chance?: number;
+    minSize: number;
+  }[];
   /** 匹配某色宝石时的额外法力；键为颜色或 '*'（全色） */
   manaLink: Readonly<Record<string, number>>;
   /** 反弹给攻击者的骷髅伤害比例（0～1） */
@@ -578,6 +592,12 @@ export interface PassiveModifiers {
    * 编队），复用 creditEconomy 入账口（economy-gain 事件，side 记行动方）。
    */
   onDeathEconomy?: { currency: keyof TraitEconomyGain; amount: number };
+  /**
+   * 自己身亡时创造 N 颗特殊宝石（T4 批 unstablecore「在我身亡时创造 3 颗炸弹宝石」）。
+   * 与 onDeathEconomy 同一结算点（行动末尾统一扫 defeat 事件），从行动开始的引用快照取
+   * （阵亡者已移出编队）；落子为随机格就地转化（满盘创造的代理口径）。
+   */
+  onDeathCreateGem?: { gem: SpecialGemKind; tier?: number; count: number };
   /** 自己一方匹配 4 或 5 连时获得（庞然/巨型/修理…） */
   gainOnBigMatch: StatGains;
   /** 对特定种族的骷髅伤害倍率（屠戮类，如龙族杀手 ×2） */

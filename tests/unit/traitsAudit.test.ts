@@ -57,6 +57,26 @@ const ENGINE_STATUS_IDS = new Set([
 
 const BASE_COLORS = new Set(Object.values(BaseColor));
 
+/** 引擎认识的特殊宝石 kind（与 types.ts SpecialGemKind 全集对齐） */
+const ENGINE_SPECIAL_GEMS = new Set([
+  'doomSkull', 'uberDoomSkull', 'bomb', 'web', 'lightningRow', 'lightningCol',
+  'wildcard', 'wish', 'hourglass', 'bootyGem', 'ghost',
+  'burningGem', 'freezeGem', 'curseGem', 'bleedGem', 'poisonGem', 'deathMarkGem',
+  'terrorGem', 'entangleGem', 'enrageGem', 'submergeGem', 'faerieFireGem',
+  'stunGem', 'barrierGem',
+]);
+
+/** 特殊宝石 kind → 描述中的中文词（T4 创造批对账用；与 build_traits.mjs SPECIAL_GEM_MAP 同源） */
+const GEM_WORD_OF: Record<string, RegExp> = {
+  web: /织网|蛛网|网络/, bomb: /炸弹/, ghost: /鬼魂/, wish: /许愿|愿望/,
+  burningGem: /燃烧/, freezeGem: /冻结/, curseGem: /诅咒/, poisonGem: /毒/,
+  bleedGem: /流血/, terrorGem: /恐怖/, deathMarkGem: /死亡标记|死亡印记/,
+  entangleGem: /纠缠|缠绕/, enrageGem: /激怒|愤怒|狂怒/, doomSkull: /末日骷髅头/,
+  uberDoomSkull: /超级末日骷髅头/, bootyGem: /赃物/, faerieFireGem: /妖火|妖仙/,
+  barrierGem: /屏障/, stunGem: /击晕|眩晕/, submergeGem: /沉没/, hourglass: /沙漏/,
+  wildcard: /通配/,
+};
+
 /** 触发类字段清单（与 traits.ts TRIGGER_FIELDS 同步） */
 const TRIGGER_FIELDS = [
   'onDamagedGain', 'onSkullHitGain', 'onAllyCastGain', 'onEnemyCastGain',
@@ -279,9 +299,39 @@ describe('A · 数据完整性', () => {
       if (t.turnStartCreateGem && !BASE_COLORS.has(t.turnStartCreateGem.color as BaseColor)) {
         report(`${tag} turnStartCreateGem.color 非法`);
       }
+      if (t.turnStartCreateGem?.count !== undefined && !(t.turnStartCreateGem.count >= 1 && t.turnStartCreateGem.count <= 9)) {
+        report(`${tag} turnStartCreateGem.count=${t.turnStartCreateGem.count} 异常`);
+      }
       if (t.turnStartColorToSkull) {
         if (!BASE_COLORS.has(t.turnStartColorToSkull.color as BaseColor)) report(`${tag} turnStartColorToSkull.color 非法`);
         if (!(t.turnStartColorToSkull.chance > 0 && t.turnStartColorToSkull.chance <= 1)) report(`${tag} turnStartColorToSkull.chance 异常`);
+      }
+      // T4 宝石创造批：创造/转换特殊宝石的结构合法性
+      for (const [field, spec] of [
+        ['turnStartCreateSpecialGem', t.turnStartCreateSpecialGem],
+        ['onDeathCreateGem', t.onDeathCreateGem],
+      ] as const) {
+        if (!spec) continue;
+        if (!ENGINE_SPECIAL_GEMS.has(spec.gem)) report(`${tag} ${field}.gem「${spec.gem}」引擎未实现`);
+        if (!(spec.count >= 1 && spec.count <= 9)) report(`${tag} ${field}.count=${spec.count} 异常`);
+      }
+      if (t.turnStartCreateSpecialGem?.chance !== undefined
+        && !(t.turnStartCreateSpecialGem.chance > 0 && t.turnStartCreateSpecialGem.chance <= 1)) {
+        report(`${tag} turnStartCreateSpecialGem.chance=${t.turnStartCreateSpecialGem.chance} 异常`);
+      }
+      if (t.turnStartColorToSpecial) {
+        const s = t.turnStartColorToSpecial;
+        if (s.color !== 'skull' && !BASE_COLORS.has(s.color as BaseColor)) report(`${tag} turnStartColorToSpecial.color「${s.color}」非法`);
+        if (!ENGINE_SPECIAL_GEMS.has(s.gem)) report(`${tag} turnStartColorToSpecial.gem「${s.gem}」引擎未实现`);
+        if (!(s.count >= 1 && s.count <= 9)) report(`${tag} turnStartColorToSpecial.count=${s.count} 异常`);
+        if (s.chance !== undefined && !(s.chance > 0 && s.chance <= 1)) report(`${tag} turnStartColorToSpecial.chance=${s.chance} 异常`);
+      }
+      if (t.onBigMatchCreateGem) {
+        const s = t.onBigMatchCreateGem;
+        if (!ENGINE_SPECIAL_GEMS.has(s.gem)) report(`${tag} onBigMatchCreateGem.gem「${s.gem}」引擎未实现`);
+        if (!(s.count >= 1 && s.count <= 9)) report(`${tag} onBigMatchCreateGem.count=${s.count} 异常`);
+        if (s.chance !== undefined && !(s.chance > 0 && s.chance <= 1)) report(`${tag} onBigMatchCreateGem.chance=${s.chance} 异常`);
+        if (s.minSize !== undefined && ![4, 5].includes(s.minSize)) report(`${tag} onBigMatchCreateGem.minSize=${s.minSize} 异常`);
       }
       for (const field of ['summonOnDeath', 'summonOnAllyDeath', 'summonOnEnemyDeath'] as const) {
         const s = t[field];
@@ -333,6 +383,8 @@ describe('B · 编译契约', () => {
     'onBigMatchEconomy', 'onSkullMatchEconomy',
     // O 桶判读批：受击下潜 / 身亡经济 / 法力操作免疫（battleStartDestroy 为定义直读）
     'onDamagedStatus', 'onDeathEconomy', 'manaOpsImmunity',
+    // T4 宝石创造批：身亡创造（unstablecore）/ 大连创造（wildtribe/wildmagic/twinfires/spectromancy）
+    'onDeathCreateGem', 'onBigMatchCreateGem',
   ]);
 
   /**
@@ -346,6 +398,8 @@ describe('B · 编译契约', () => {
   const DEFINITION_READ_KEYS = new Set([
     'teamAura', 'typeAura', 'perAllyColor', 'battleStartManaRatio',
     'turnStartCreateGem', 'turnStartColorToSkull', 'battleStartStorm',
+    // T4 宝石创造批：回合开始创造/转换特殊宝石（TurnEngine.applyTurnStartBoardTraits 直读）
+    'turnStartCreateSpecialGem', 'turnStartColorToSpecial',
     // O 桶判读批：开局爆破（omenof* 族，TurnEngine 构造期读 getTrait）
     'battleStartDestroy',
   ]);
@@ -480,6 +534,33 @@ describe('C · 描述↔数值一致性（从官方文本重新抽数对账）',
         if (!m || num(m[1]) !== t.onDeathEconomy.amount || currency !== t.onDeathEconomy.currency) {
           report(`${tag(t)} onDeathEconomy 与描述不符`);
         }
+      }
+      // T4 宝石创造批：身亡创造（编译族）的数量与宝石词对账
+      if (t.onDeathCreateGem) {
+        const m = /在?我(?:身亡时|死亡时|死[后亡])时?[，,]?创[建造成]出?\s*(一|\d+)\s*[颗个]/.exec(d);
+        if (!m) report(`${tag(t)} onDeathCreateGem 但描述不是身亡创造句式`);
+        else if (num(m[1]) !== t.onDeathCreateGem.count) {
+          report(`${tag(t)} onDeathCreateGem.count=${t.onDeathCreateGem.count} 与描述「${m[1]}」不符`);
+        }
+        const word = GEM_WORD_OF[t.onDeathCreateGem.gem];
+        if (!word || !word.test(d)) report(`${tag(t)} onDeathCreateGem.gem「${t.onDeathCreateGem.gem}」在描述中无对应宝石词`);
+      }
+      // T4 宝石创造批：大连创造（编译族）的句式/概率/数量/tier/宝石词对账
+      if (t.onBigMatchCreateGem) {
+        const s = t.onBigMatchCreateGem;
+        if (!/(?:在?配对|匹配)\s*4\s*颗?\s*或\s*更?多/.test(d)) report(`${tag(t)} onBigMatchCreateGem 但描述不是 4+ 连句式`);
+        const chanceM = /有\s*(\d+)\s*%\s*的?几[率会]/.exec(d);
+        const expectChance = chanceM ? num(chanceM[1]) / 100 : undefined;
+        if (s.chance !== expectChance) report(`${tag(t)} onBigMatchCreateGem.chance=${s.chance} 与描述不符`);
+        const cm = /(?:创[建造成]|生成)出?\s*(?:(一|\d+)\s*[颗个])?/.exec(d);
+        const expectCount = cm && cm[1] !== undefined ? (cm[1] === '一' ? 1 : num(cm[1])) : 1;
+        if (s.count !== expectCount) report(`${tag(t)} onBigMatchCreateGem.count=${s.count} 与描述「${expectCount}」不符`);
+        if (s.gem === 'wildcard') {
+          const tm = /x(\d)\s*通配/.exec(d);
+          if (!tm || num(tm[1]) !== s.tier) report(`${tag(t)} 通配 tier=${s.tier} 与描述不符`);
+        }
+        const word = GEM_WORD_OF[s.gem];
+        if (!word || !word.test(d)) report(`${tag(t)} onBigMatchCreateGem.gem「${s.gem}」在描述中无对应宝石词`);
       }
       if (t.manaOpsImmunity && !/对法力灼烧、法力耗尽和法力窃取免疫/.test(d)) {
         report(`${tag(t)} manaOpsImmunity 但描述不是法力操作免疫句式`);
@@ -746,6 +827,9 @@ describe('D · 接线完整性（钩子存在但没人调用 = 死角）', () =>
     ['大连伤害/窃取生命注入', /traitDamage|traitDrainLife/, () => turnEngineSrc],
     ['施法响应', /applyCastTriggers/, () => turnEngineSrc],
     ['回合开始棋盘写入', /turnStartCreateGem/, () => turnEngineSrc],
+    ['回合开始创造/转换特殊宝石', /turnStartCreateSpecialGem|turnStartColorToSpecial/, () => turnEngineSrc],
+    ['大连创造宝石落子注入', /createGem/, () => turnEngineSrc],
+    ['身亡创造宝石', /onDeathCreateGem/, () => turnEngineSrc],
     ['骷髅减伤/受击/命中/反弹/穿甲', /skullDamageTaken|inflictOnSkullHit|reflectSkullRatio/, () => combatResolverSrc],
     ['受击附状态', /inflictOnSkullDamaged/, () => combatResolverSrc],
     ['受击下潜', /onDamagedStatus/, () => combatResolverSrc],

@@ -398,6 +398,16 @@
     "battleStartManaRatio": 0.25
   },
   {
+    "code": "unstablecore",
+    "name": "核心不稳",
+    "description": "在我身亡时创造 3 颗炸弹宝石。",
+    "troops": 26,
+    "onDeathCreateGem": {
+      "gem": "bomb",
+      "count": 3
+    }
+  },
+  {
     "code": "feybond",
     "name": "妖仙族亲",
     "description": "妖仙盟友获得 2 点生命值。",
@@ -797,6 +807,17 @@
     ]
   },
   {
+    "code": "spidersilk",
+    "name": "蜘蛛丝绸",
+    "description": "在我的回合开始的时候，有 25% 的几率创建一颗织网宝石。",
+    "troops": 14,
+    "turnStartCreateSpecialGem": {
+      "gem": "web",
+      "count": 1,
+      "chance": 0.25
+    }
+  },
+  {
     "code": "elfbond",
     "name": "精灵族亲",
     "description": "精灵盟友获得 2 点生命值。",
@@ -1122,6 +1143,17 @@
     }
   },
   {
+    "code": "haunted",
+    "name": "闹鬼",
+    "description": "在我的回合开始的时候有 15% 的几率创造 1 颗鬼魂宝石。",
+    "troops": 10,
+    "turnStartCreateSpecialGem": {
+      "gem": "ghost",
+      "count": 1,
+      "chance": 0.15
+    }
+  },
+  {
     "code": "dwarfbond",
     "name": "矮人族亲",
     "description": "矮人盟友获得 2 点生命值。",
@@ -1179,6 +1211,18 @@
       "id": "bleed",
       "turns": 3,
       "magnitude": 1
+    }
+  },
+  {
+    "code": "wildtribe",
+    "name": "野性部落",
+    "description": "在配对 4 或更多宝石时，有 10% 的几率创建一颗 x2 通配宝石。",
+    "troops": 8,
+    "onBigMatchCreateGem": {
+      "gem": "wildcard",
+      "tier": 2,
+      "count": 1,
+      "chance": 0.1
     }
   },
   {
@@ -1489,7 +1533,8 @@
     "description": "在我的回合开始的时候，创建一颗红色宝石。",
     "troops": 6,
     "turnStartCreateGem": {
-      "color": "Red"
+      "color": "Red",
+      "count": 1
     }
   },
   {
@@ -1498,7 +1543,8 @@
     "description": "在我的回合开始的时候，创建一颗蓝色宝石。",
     "troops": 6,
     "turnStartCreateGem": {
-      "color": "Blue"
+      "color": "Blue",
+      "count": 1
     }
   },
   {
@@ -1507,7 +1553,19 @@
     "description": "在我的回合开始的时候，创建一颗棕色宝石。",
     "troops": 6,
     "turnStartCreateGem": {
-      "color": "Brown"
+      "color": "Brown",
+      "count": 1
+    }
+  },
+  {
+    "code": "chaoticwish",
+    "name": "胡乱许愿",
+    "description": "在我的回合开始的时候，有 10% 的几率创造一颗许愿宝石。",
+    "troops": 6,
+    "turnStartCreateSpecialGem": {
+      "gem": "wish",
+      "count": 1,
+      "chance": 0.1
     }
   },
   {
@@ -1518,6 +1576,17 @@
     "skullMultVsStatus": {
       "status": "curse",
       "mult": 2
+    }
+  },
+  {
+    "code": "vampirism",
+    "name": "吸血鬼",
+    "description": "回合开始时有 10% 的几率生成一个流血宝石。",
+    "troops": 6,
+    "turnStartCreateSpecialGem": {
+      "gem": "bleedGem",
+      "count": 1,
+      "chance": 0.1
     }
   },
   {
@@ -1589,7 +1658,32 @@
     "description": "在我的回合开始的时候，创建一颗绿色宝石。",
     "troops": 5,
     "turnStartCreateGem": {
-      "color": "Green"
+      "color": "Green",
+      "count": 1
+    }
+  },
+  {
+    "code": "wildmagic",
+    "name": "狂野魔法",
+    "description": "在配对 4 或更多宝石时，有 25% 的几率创建一颗 x2 通配宝石。",
+    "troops": 5,
+    "onBigMatchCreateGem": {
+      "gem": "wildcard",
+      "tier": 2,
+      "count": 1,
+      "chance": 0.25
+    }
+  },
+  {
+    "code": "embers",
+    "name": "余烬",
+    "description": "在我的回合开始的时候，有 25% 的几率将一颗红色宝石转换成燃烧宝石。",
+    "troops": 5,
+    "turnStartColorToSpecial": {
+      "color": "Red",
+      "gem": "burningGem",
+      "count": 1,
+      "chance": 0.25
     }
   },
   {
@@ -1773,6 +1867,28 @@
       "gains": {
         "magic": 1
       }
+    }
+  },
+  {
+    "code": "cursedaura",
+    "name": "诅咒光环",
+    "description": "我的回合开始时有 10% 的几率创造一颗诅咒宝石。",
+    "troops": 4,
+    "turnStartCreateSpecialGem": {
+      "gem": "curseGem",
+      "count": 1,
+      "chance": 0.1
+    }
+  },
+  {
+    "code": "corruptedaura",
+    "name": "腐化灵气",
+    "description": "回合开始时有 10% 的几率生成一颗毒宝石。",
+    "troops": 4,
+    "turnStartCreateSpecialGem": {
+      "gem": "poisonGem",
+      "count": 1,
+      "chance": 0.1
     }
   },
   {
@@ -2293,7 +2409,8 @@
     "description": "在我的回合开始的时候创建一颗紫色宝石。",
     "troops": 2,
     "turnStartCreateGem": {
-      "color": "Purple"
+      "color": "Purple",
+      "count": 1
     }
   },
   {
@@ -2302,7 +2419,8 @@
     "description": "在我的回合开始的时候创建一颗黄色宝石。",
     "troops": 2,
     "turnStartCreateGem": {
-      "color": "Yellow"
+      "color": "Yellow",
+      "count": 1
     }
   },
   {
@@ -2317,11 +2435,34 @@
     }
   },
   {
+    "code": "temporal",
+    "name": "瞬时",
+    "description": "在我的回合开始时，有 50% 的几率将一颗黄色宝石转换成沙漏宝石。",
+    "troops": 2,
+    "turnStartColorToSpecial": {
+      "color": "Yellow",
+      "gem": "hourglass",
+      "count": 1,
+      "chance": 0.5
+    }
+  },
+  {
     "code": "mudsplash",
     "name": "泥浆飞溅",
     "description": "反射 30% 的骷髅伤害",
     "troops": 2,
     "reflectSkullRatio": 0.3
+  },
+  {
+    "code": "ragingaura",
+    "name": "狂暴光环",
+    "description": "当我的回合开始时，有 10% 的几率创造出一颗愤怒宝石。",
+    "troops": 2,
+    "turnStartCreateSpecialGem": {
+      "gem": "enrageGem",
+      "count": 1,
+      "chance": 0.1
+    }
   },
   {
     "code": "molten",
@@ -4278,6 +4419,17 @@
     }
   },
   {
+    "code": "redrage",
+    "name": "红色怒火",
+    "description": "在我的回合开始的时候，将 2 颗红色宝石转换成燃烧宝石。",
+    "troops": 1,
+    "turnStartColorToSpecial": {
+      "color": "Red",
+      "gem": "burningGem",
+      "count": 2
+    }
+  },
+  {
     "code": "absorbspell",
     "name": "吸星大法",
     "description": "在敌人施放法术时获得 10 点生命值",
@@ -4296,6 +4448,40 @@
       "stat": "mana",
       "amount": 3,
       "scope": "randomEnemy"
+    }
+  },
+  {
+    "code": "wishingwell",
+    "name": "许愿池",
+    "description": "在我的回合开始时，有 50% 的几率将一名黄色宝石转换成许愿宝石。",
+    "troops": 1,
+    "turnStartColorToSpecial": {
+      "color": "Yellow",
+      "gem": "wish",
+      "count": 1,
+      "chance": 0.5
+    }
+  },
+  {
+    "code": "snaretrap",
+    "name": "圈套陷阱",
+    "description": "在我的回合开始的时候有 10% 的几率创造一颗缠绕宝石。",
+    "troops": 1,
+    "turnStartCreateSpecialGem": {
+      "gem": "entangleGem",
+      "count": 1,
+      "chance": 0.1
+    }
+  },
+  {
+    "code": "darksmithscurse",
+    "name": "暗黑铁匠诅咒",
+    "description": "在我的回合开始的时候，将 2 颗棕色宝石转换成诅咒宝石。",
+    "troops": 1,
+    "turnStartColorToSpecial": {
+      "color": "Brown",
+      "gem": "curseGem",
+      "count": 2
     }
   },
   {
@@ -4389,6 +4575,16 @@
     }
   },
   {
+    "code": "trailoffire",
+    "name": "火焰道路",
+    "description": "在我的回合开始时，创造 1 颗燃烧宝石。",
+    "troops": 1,
+    "turnStartCreateSpecialGem": {
+      "gem": "burningGem",
+      "count": 1
+    }
+  },
+  {
     "code": "stonecurse",
     "name": "石化诅咒",
     "description": "在配对 4 或更多宝石时，使一名随机敌人陷入诅咒与击晕状态。",
@@ -4417,6 +4613,16 @@
       "gains": {
         "armor": 4
       }
+    }
+  },
+  {
+    "code": "landmines",
+    "name": "地雷",
+    "description": "在我的回合开始的时候，创造一颗炸弹宝石。",
+    "troops": 1,
+    "turnStartCreateSpecialGem": {
+      "gem": "bomb",
+      "count": 1
     }
   },
   {
@@ -4598,6 +4804,17 @@
     }
   },
   {
+    "code": "hohoho",
+    "name": "哈哈哈！",
+    "description": "在我的回合开始的时候，有 30% 的几率创建 3 颗冻结宝石。",
+    "troops": 1,
+    "turnStartCreateSpecialGem": {
+      "gem": "freezeGem",
+      "count": 3,
+      "chance": 0.3
+    }
+  },
+  {
     "code": "crystallizedmana",
     "name": "水晶法力",
     "description": "在配对 4 或更多宝石时， 获得 3 点法力值。",
@@ -4623,6 +4840,16 @@
       ],
       "turns": 3,
       "chance": 0.5
+    }
+  },
+  {
+    "code": "eyeofdestruction",
+    "name": "毁灭之眼",
+    "description": "在我的回合开始的时候，创造 2 颗末日骷髅头。",
+    "troops": 1,
+    "turnStartCreateSpecialGem": {
+      "gem": "doomSkull",
+      "count": 2
     }
   },
   {
@@ -4663,6 +4890,16 @@
     }
   },
   {
+    "code": "silkenstrands",
+    "name": "丝绸丝线",
+    "description": "在我的回合开始的时候，创建 1 颗织网宝石。",
+    "troops": 1,
+    "turnStartCreateSpecialGem": {
+      "gem": "web",
+      "count": 1
+    }
+  },
+  {
     "code": "armorofheaven",
     "name": "天甲",
     "description": "在配对黄色宝石时获得 4 点护甲值。",
@@ -4671,6 +4908,28 @@
       "color": "Yellow",
       "stat": "armor",
       "amount": 4
+    }
+  },
+  {
+    "code": "lightsend",
+    "name": "光之尽头",
+    "description": "在我的回合开始的时候，将 2 颗黄色宝石转换成死亡标记宝石。",
+    "troops": 1,
+    "turnStartColorToSpecial": {
+      "color": "Yellow",
+      "gem": "deathMarkGem",
+      "count": 2
+    }
+  },
+  {
+    "code": "deathsign",
+    "name": "死亡征兆",
+    "description": "在我的回合开始的时候，有 25% 的几率创造死亡标记宝石。",
+    "troops": 1,
+    "turnStartCreateSpecialGem": {
+      "gem": "deathMarkGem",
+      "count": 1,
+      "chance": 0.25
     }
   },
   {
@@ -4693,6 +4952,16 @@
     }
   },
   {
+    "code": "secretbooty",
+    "name": "秘密赃货",
+    "description": "在我的回合开始的时候创造 1 颗赃物宝石。",
+    "troops": 1,
+    "turnStartCreateSpecialGem": {
+      "gem": "bootyGem",
+      "count": 1
+    }
+  },
+  {
     "code": "celestialharvest",
     "name": "天赐丰收",
     "description": "在配对绿色宝石时，给予所有绿色盟友 4 点生命值。",
@@ -4706,11 +4975,31 @@
     }
   },
   {
+    "code": "deathvisage",
+    "name": "油尽灯枯",
+    "description": "在我的回合开始的时候，创造一颗超级末日骷髅头。",
+    "troops": 1,
+    "turnStartCreateSpecialGem": {
+      "gem": "uberDoomSkull",
+      "count": 1
+    }
+  },
+  {
     "code": "beyondreproach",
     "name": "无可非议",
     "description": "降低来自法术的伤害 80%。",
     "troops": 1,
     "spellDamageReduction": 0.8
+  },
+  {
+    "code": "feygift",
+    "name": "妖仙送礼",
+    "description": "在我的回合开始的时候创造 1 颗妖火宝石。",
+    "troops": 1,
+    "turnStartCreateSpecialGem": {
+      "gem": "faerieFireGem",
+      "count": 1
+    }
   },
   {
     "code": "lotusblessing",
@@ -4765,6 +5054,17 @@
       "color": "Purple",
       "stat": "magic",
       "amount": 2
+    }
+  },
+  {
+    "code": "flurry",
+    "name": "大雪纷飞",
+    "description": "在我的回合开始的时候，有 25% 的几率创造一颗冻结宝石。",
+    "troops": 1,
+    "turnStartCreateSpecialGem": {
+      "gem": "freezeGem",
+      "count": 1,
+      "chance": 0.25
     }
   },
   {
@@ -4990,6 +5290,26 @@
     ]
   },
   {
+    "code": "horrorshow",
+    "name": "恐怖演出",
+    "description": "在我的回合开始的时候创造一颗恐怖宝石",
+    "troops": 1,
+    "turnStartCreateSpecialGem": {
+      "gem": "terrorGem",
+      "count": 1
+    }
+  },
+  {
+    "code": "twinfires",
+    "name": "双飞火焰",
+    "description": "在配对 4 或更多宝石时，创造 2 颗燃烧宝石。",
+    "troops": 1,
+    "onBigMatchCreateGem": {
+      "gem": "burningGem",
+      "count": 2
+    }
+  },
+  {
     "code": "webbedbranches",
     "name": "织网枝干",
     "description": "在配对紫色宝石时使一名随机敌人陷入织网状态。",
@@ -5006,12 +5326,45 @@
     }
   },
   {
+    "code": "holidaywish",
+    "name": "节日愿望",
+    "description": "在我的回合开始的时候创造一颗愿望宝石。",
+    "troops": 1,
+    "turnStartCreateSpecialGem": {
+      "gem": "wish",
+      "count": 1
+    }
+  },
+  {
     "code": "lightningaura",
     "name": "闪电光环",
     "description": "在我的回合开始的时候创造 2 颗黄色闪电宝石。",
     "troops": 1,
     "turnStartCreateGem": {
-      "color": "Yellow"
+      "color": "Yellow",
+      "count": 2
+    }
+  },
+  {
+    "code": "rainbowscales",
+    "name": "彩虹鳞片",
+    "description": "在我的回合开始的时候，创造 x3 通配卡。",
+    "troops": 1,
+    "turnStartCreateSpecialGem": {
+      "gem": "wildcard",
+      "tier": 3,
+      "count": 1
+    }
+  },
+  {
+    "code": "faerieaura",
+    "name": "妖仙光环",
+    "description": "在我的回合开始的时候，有 30% 的几率创造 3 颗妖火宝石。",
+    "troops": 1,
+    "turnStartCreateSpecialGem": {
+      "gem": "faerieFireGem",
+      "count": 3,
+      "chance": 0.3
     }
   },
   {
@@ -5062,6 +5415,38 @@
     }
   },
   {
+    "code": "spectromancy",
+    "name": "光谱占卜术",
+    "description": "匹配 4 颗或更多宝石时，有 50% 的几率创建 x3 通配符。",
+    "troops": 1,
+    "onBigMatchCreateGem": {
+      "gem": "wildcard",
+      "tier": 3,
+      "count": 1,
+      "chance": 0.5
+    }
+  },
+  {
+    "code": "frozenlegion",
+    "name": "冰冻军团",
+    "description": "在我的回合开始的时候创造 1 颗鬼魂宝石。",
+    "troops": 1,
+    "turnStartCreateSpecialGem": {
+      "gem": "ghost",
+      "count": 1
+    }
+  },
+  {
+    "code": "creepingvines",
+    "name": "爬行藤蔓",
+    "description": "在我的回合开始的时候创造 2 颗缠绕宝石。",
+    "troops": 1,
+    "turnStartCreateSpecialGem": {
+      "gem": "entangleGem",
+      "count": 2
+    }
+  },
+  {
     "code": "blightmaster",
     "name": "荒芜大师",
     "description": "当我身亡时，有 25% 的几率召唤一只荒芜猎犬。",
@@ -5071,6 +5456,26 @@
       "troopId": 7555,
       "referenceName": "BlightHound",
       "displayName": "荒芜猎犬"
+    }
+  },
+  {
+    "code": "trailofvines",
+    "name": "藤蔓缠绕",
+    "description": "在我的回合开始的时候创造 1 颗缠绕宝石。",
+    "troops": 1,
+    "turnStartCreateSpecialGem": {
+      "gem": "entangleGem",
+      "count": 1
+    }
+  },
+  {
+    "code": "cleansingfire",
+    "name": "净化之火",
+    "description": "在我的回合开始的时候创造 2 颗燃烧宝石。",
+    "troops": 1,
+    "turnStartCreateSpecialGem": {
+      "gem": "burningGem",
+      "count": 2
     }
   },
   {
@@ -5089,6 +5494,26 @@
         }
       ],
       "turns": 3
+    }
+  },
+  {
+    "code": "brightbarrier",
+    "name": "光明屏障",
+    "description": "在我的回合开始的时候创造一颗屏障宝石。",
+    "troops": 1,
+    "turnStartCreateSpecialGem": {
+      "gem": "barrierGem",
+      "count": 1
+    }
+  },
+  {
+    "code": "quakeshock",
+    "name": "地震冲击",
+    "description": "在我的回合开始的时候，创造一颗击晕宝石。",
+    "troops": 1,
+    "turnStartCreateSpecialGem": {
+      "gem": "stunGem",
+      "count": 1
     }
   },
   {
@@ -5111,6 +5536,36 @@
     }
   },
   {
+    "code": "faeriesoul",
+    "name": "妖仙灵魂",
+    "description": "在我的回合开始的时候，创造一颗妖仙宝石。",
+    "troops": 1,
+    "turnStartCreateSpecialGem": {
+      "gem": "faerieFireGem",
+      "count": 1
+    }
+  },
+  {
+    "code": "minefield",
+    "name": "雷区",
+    "description": "在我的回合开始的时候，创造 2 颗炸弹宝石。",
+    "troops": 1,
+    "turnStartCreateSpecialGem": {
+      "gem": "bomb",
+      "count": 2
+    }
+  },
+  {
+    "code": "permafrost",
+    "name": "永久冻土",
+    "description": "在我的回合开始的时候，创造一颗冻结宝石。",
+    "troops": 1,
+    "turnStartCreateSpecialGem": {
+      "gem": "freezeGem",
+      "count": 1
+    }
+  },
+  {
     "code": "breathofpower",
     "name": "能量之气",
     "description": "在配对 4 或更多宝石时，给予所有龙族盟友 2 点魔法值。",
@@ -5120,6 +5575,18 @@
       "gains": {
         "magic": 2
       }
+    }
+  },
+  {
+    "code": "sandsoftime",
+    "name": "时之沙",
+    "description": "当我的回合开始时，有 50% 的几率将黄色宝石转换为沙漏宝石。",
+    "troops": 1,
+    "turnStartColorToSpecial": {
+      "color": "Yellow",
+      "gem": "hourglass",
+      "count": 1,
+      "chance": 0.5
     }
   },
   {
@@ -5142,6 +5609,89 @@
     }
   },
   {
+    "code": "fathomlessdepths",
+    "name": "深不可测的深渊",
+    "description": "当我的轮次开始时创造一颗沉没宝石。",
+    "troops": 1,
+    "turnStartCreateSpecialGem": {
+      "gem": "submergeGem",
+      "count": 1
+    }
+  },
+  {
+    "code": "endlessfury",
+    "name": "无尽怒火",
+    "description": "当我的回合开始时创造一颗激怒宝石。",
+    "troops": 1,
+    "turnStartCreateSpecialGem": {
+      "gem": "enrageGem",
+      "count": 1
+    }
+  },
+  {
+    "code": "burningfury",
+    "name": "燃烧之怒",
+    "description": "当我的回合开始时，将 2 颗红色宝石转换为狂怒宝石。",
+    "troops": 1,
+    "turnStartColorToSpecial": {
+      "color": "Red",
+      "gem": "enrageGem",
+      "count": 2
+    }
+  },
+  {
+    "code": "frozengrave",
+    "name": "冰冻坟墓",
+    "description": "当我的回合开始时，将 2 颗蓝色宝石转换为冻结宝石。",
+    "troops": 1,
+    "turnStartColorToSpecial": {
+      "color": "Blue",
+      "gem": "freezeGem",
+      "count": 2
+    }
+  },
+  {
+    "code": "cursedgod",
+    "name": "诅咒之神",
+    "description": "当我的回合开始时创造 2 颗诅咒宝石。",
+    "troops": 1,
+    "turnStartCreateSpecialGem": {
+      "gem": "curseGem",
+      "count": 2
+    }
+  },
+  {
+    "code": "daybreak",
+    "name": "拂晓",
+    "description": "当我的回合开始时，将紫色宝石转换为屏障宝石。",
+    "troops": 1,
+    "turnStartColorToSpecial": {
+      "color": "Purple",
+      "gem": "barrierGem",
+      "count": 1
+    }
+  },
+  {
+    "code": "intothevoid",
+    "name": "进入虚空",
+    "description": "当我的回合开始时创造 2 颗紫色宝石。",
+    "troops": 1,
+    "turnStartCreateGem": {
+      "color": "Purple",
+      "count": 2
+    }
+  },
+  {
+    "code": "lifesblood",
+    "name": "生命之血",
+    "description": "回合开始时，创造一个流血宝石。",
+    "troops": 1,
+    "turnStartCreateSpecialGem": {
+      "gem": "bleedGem",
+      "count": 1
+    }
+  },
+  {
     "code": "desertmount",
     "name": "沙漠山",
     "description": "死亡时有100%几率召唤商队骆驼。",
@@ -5151,6 +5701,100 @@
       "troopId": 7784,
       "referenceName": "CaravanCamel",
       "displayName": "商队骆驼"
+    }
+  },
+  {
+    "code": "deeproots",
+    "name": "深厚的根基",
+    "description": "当我的回合开始时，创造 2 颗纠缠宝石。",
+    "troops": 1,
+    "turnStartCreateSpecialGem": {
+      "gem": "entangleGem",
+      "count": 2
+    }
+  },
+  {
+    "code": "terrifyingaura",
+    "name": "恐怖的气息",
+    "description": "回合开始时，将2颗紫色宝石转化为恐怖宝石。",
+    "troops": 1,
+    "turnStartColorToSpecial": {
+      "color": "Purple",
+      "gem": "terrorGem",
+      "count": 2
+    }
+  },
+  {
+    "code": "chaoticdesire",
+    "name": "混乱的欲望",
+    "description": "轮到我行动时，创造一颗许愿宝石。",
+    "troops": 1,
+    "turnStartCreateSpecialGem": {
+      "gem": "wish",
+      "count": 1
+    }
+  },
+  {
+    "code": "silkenweave",
+    "name": "丝质织物",
+    "description": "轮到我行动时，创造2个网络宝石。",
+    "troops": 1,
+    "turnStartCreateSpecialGem": {
+      "gem": "web",
+      "count": 2
+    }
+  },
+  {
+    "code": "waterycall",
+    "name": "水之呼唤",
+    "description": "回合开始时，将一颗红色宝石转化为一颗沉没宝石。",
+    "troops": 1,
+    "turnStartColorToSpecial": {
+      "color": "Red",
+      "gem": "submergeGem",
+      "count": 1
+    }
+  },
+  {
+    "code": "toxiccurse",
+    "name": "剧毒诅咒",
+    "description": "回合开始时，创造一颗毒宝石。",
+    "troops": 1,
+    "turnStartCreateSpecialGem": {
+      "gem": "poisonGem",
+      "count": 1
+    }
+  },
+  {
+    "code": "wildblossom",
+    "name": "野花",
+    "description": "回合开始时，将一颗绿色宝石转化为一颗纠缠宝石。",
+    "troops": 1,
+    "turnStartColorToSpecial": {
+      "color": "Green",
+      "gem": "entangleGem",
+      "count": 1
+    }
+  },
+  {
+    "code": "darkweave",
+    "name": "暗织",
+    "description": "回合开始时，将2个紫色宝石转化为蛛网宝石。",
+    "troops": 1,
+    "turnStartColorToSpecial": {
+      "color": "Purple",
+      "gem": "web",
+      "count": 2
+    }
+  },
+  {
+    "code": "deathstalker",
+    "name": "死亡追猎者",
+    "description": "回合开始时，创造一个死亡印记宝石。",
+    "troops": 1,
+    "turnStartCreateSpecialGem": {
+      "gem": "deathMarkGem",
+      "count": 1
     }
   }
 ]

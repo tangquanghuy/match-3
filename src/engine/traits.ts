@@ -33,7 +33,7 @@
 import traitTable from '../data/traits.json';
 import { effectiveHealing } from './healing';
 import type { BuffEvent, GameEvent } from './events';
-import type { BaseColor, Character, PassiveModifiers, StatGains, PlayerSide, StatusInstance, StormSummon, TraitEconomyGain } from './types';
+import type { BaseColor, Character, PassiveModifiers, SpecialGemKind, StatGains, PlayerSide, StatusInstance, StormSummon, TraitEconomyGain } from './types';
 import type { SeededRNG } from './rng';
 
 /** 状态免疫通配符：免疫所有状态 */
@@ -69,6 +69,8 @@ export interface TraitDefinition {
   onDamagedStatus?: { statusId: string; turns: number };
   /** 自己身亡时向战场经济池入账（valuable「在自身身亡时获得 25 黄金」） */
   onDeathEconomy?: { currency: keyof TraitEconomyGain; amount: number };
+  /** 自己身亡时创造 N 颗特殊宝石（T4 批 unstablecore「在我身亡时创造 3 颗炸弹宝石」） */
+  onDeathCreateGem?: { gem: SpecialGemKind; tier?: number; count: number };
   /** 法力操作免疫（manashield「对法力灼烧、法力耗尽和法力窃取免疫」）：reduce 原语 stat='mana' 的执行入口跳过 */
   manaOpsImmunity?: boolean;
   /** 自己造成骷髅伤害时获得 */
@@ -175,12 +177,44 @@ export interface TraitDefinition {
     scope: 'front' | 'randomEnemy';
     minSize?: number;
   };
+  /**
+   * 自己一方配对 4/5 连（或 4+ 连）时创造特殊宝石（T4 大连创造批 4 code：wildtribe/
+   * wildmagic x2 通配、twinfires 燃烧、spectromancy x3 通配「在配对 4 或更多宝石时
+   * （有 N% 几率）创建…」）。落子经 BigMatchTriggerContext.createGem 注入（TurnEngine
+   * 写棋盘 + gem-transform 事件，新造宝石参与的匹配由外层 runCascades 下一轮吸收）；
+   * minSize 缺省 4（「4 或更多」= 任意大连，与 onBigMatchStatus 同口径）。
+   */
+  onBigMatchCreateGem?: {
+    gem: SpecialGemKind;
+    tier?: number;
+    count: number;
+    chance?: number;
+    minSize?: number;
+  };
   /** 敌方配对某色/骷髅时自身获得（rancor「在敌人配对骷髅头时，获得 3 点攻击力」） */
   onEnemyColorMatchGain?: { color: string; stat: PassiveStat; amount: number };
-  /** 回合开始时把棋盘上随机一格变成该色宝石 */
-  turnStartCreateGem?: { color: string };
+  /** 回合开始时把棋盘上随机一格变成该色宝石；count 为数量（intothevoid「创造 2 颗紫色宝石」） */
+  turnStartCreateGem?: { color: string; count?: number };
   /** 回合开始时按概率把一颗该色宝石转成骷髅头 */
   turnStartColorToSkull?: { color: string; chance: number };
+  /**
+   * 回合开始时创造特殊宝石（T4 批 spidersilk 织网 / haunted 鬼魂 / eyeofdestruction 末日骷髅…）。
+   * 满盘创造的代理口径：随机互不相同的 N 个现存格就地翻新成特殊宝石（与技能 doCreate 的
+   * 转化回退同源），改完棋盘立即 runCascades；chance 缺省必定。
+   */
+  turnStartCreateSpecialGem?: { gem: SpecialGemKind; tier?: number; count: number; chance?: number };
+  /**
+   * 回合开始时把 N 颗某色（或骷髅头）宝石转换成特殊宝石（T4 批 redrage/embers 红→燃烧、
+   * daemonsmark/kinofchaos 骷髅→末日骷髅、temporal 黄→沙漏族）。目标格按来源色/骷髅筛选
+   * （转换后不再是来源类型，天然不重复命中）；chance 缺省必定。
+   */
+  turnStartColorToSpecial?: {
+    color: BaseColor | 'skull';
+    gem: SpecialGemKind;
+    tier?: number;
+    count: number;
+    chance?: number;
+  };
   /** 对特定种族的骷髅伤害倍率 */
   skullMultVsTroopType?: { troopType: string; mult: number };
   /** 对处于特定状态的目标的骷髅伤害倍率 */
@@ -276,6 +310,7 @@ export function neutralPassives(): PassiveModifiers {
     colorMatchDrain: {},
     bigMatchDamage: [],
     bigMatchEnemyDrain: [],
+    bigMatchCreateGem: [],
     bigMatchEconomyGain: {},
     skullMatchEconomyGain: { gold: 0, souls: 0, gems: 0 },
   };
@@ -331,6 +366,14 @@ export function resolvePassives(
     stat: 'attack' | 'armor' | 'magic' | 'mana';
     amount: number;
     scope: 'front' | 'randomEnemy';
+    minSize: number;
+  }[] = [];
+  // 大连创造宝石（T4 大连创造批）：多条并存按声明序逐条结算，minSize 编译期缺省 4
+  const bigMatchCreateGem: {
+    gem: SpecialGemKind;
+    tier?: number;
+    count: number;
+    chance?: number;
     minSize: number;
   }[] = [];
   const cleanseColors = new Set<string>();
@@ -439,6 +482,10 @@ export function resolvePassives(
     if (trait.onDeathEconomy && passive.onDeathEconomy === undefined) {
       passive.onDeathEconomy = { ...trait.onDeathEconomy };
     }
+    // 身亡创造特殊宝石（unstablecore）：同类取先声明的一条（与 onDeathEconomy 同口径）
+    if (trait.onDeathCreateGem && passive.onDeathCreateGem === undefined) {
+      passive.onDeathCreateGem = { ...trait.onDeathCreateGem };
+    }
     // 4/5 连种族光环：同种族数值叠加，异种族并存
     if (trait.onBigMatchTypeAura) {
       const k = trait.onBigMatchTypeAura.troopType;
@@ -497,6 +544,10 @@ export function resolvePassives(
     if (trait.onBigMatchEnemyDrain) {
       bigMatchEnemyDrain.push({ ...trait.onBigMatchEnemyDrain, minSize: trait.onBigMatchEnemyDrain.minSize ?? 4 });
     }
+    // 大连创造宝石（T4 批）：多条并存逐条结算，minSize 缺省 4
+    if (trait.onBigMatchCreateGem) {
+      bigMatchCreateGem.push({ ...trait.onBigMatchCreateGem, minSize: trait.onBigMatchCreateGem.minSize ?? 4 });
+    }
     // 净化：颜色并集、布尔取或
     if (trait.onColorMatchCleanse) cleanseColors.add(trait.onColorMatchCleanse.color);
     if (trait.onBigMatchCleanse) cleanseBigMatch = true;
@@ -546,6 +597,7 @@ export function resolvePassives(
   passive.colorMatchDrain = colorMatchDrain;
   passive.bigMatchDamage = bigMatchDamage;
   passive.bigMatchEnemyDrain = bigMatchEnemyDrain;
+  passive.bigMatchCreateGem = bigMatchCreateGem;
   passive.cleanseOnColorMatch = [...cleanseColors];
   passive.cleanseOnBigMatch = cleanseBigMatch;
   passive.onBigMatchStatus = bigMatchStatus;
@@ -998,6 +1050,12 @@ export interface BigMatchTriggerContext {
    * 阵亡同技能伤害口径）；缺省时伤害类跳过（纯逻辑环境零事件）。
    */
   damage?: (target: Character, caster: Character, amount: number) => GameEvent[];
+  /**
+   * 特殊宝石创造口（T4 大连创造批 wildtribe/wildmagic/twinfires/spectromancy，TurnEngine
+   * 注入：随机格就地转化 + gem-transform 事件；新造宝石参与的匹配由外层 runCascades
+   * 下一轮吸收）；缺省时创造类跳过（纯逻辑环境零事件、零随机消耗）。
+   */
+  createGem?: (gem: SpecialGemKind, tier: number | undefined, count: number) => GameEvent[];
 }
 
 /** 条件经济光环的币种结算序（固定 gold→souls→gems，保证事件顺序确定性） */
@@ -1194,6 +1252,24 @@ export function applyBigMatchTriggers(
   // 净化（royalhoney）：任一存活持有者带键即全队去负面状态
   if (matchingTeam.some((c) => !c.defeated && passivesOf(c).cleanseOnBigMatch)) {
     for (const member of matchingTeam) events.push(...cleanseNegative(member));
+  }
+
+  // 大连创造宝石（T4 大连创造批 4 code：wildtribe/wildmagic x2 通配、twinfires 燃烧、
+  // spectromancy x3 通配）：概率（wildtribe 10%）走种子化 rng、每条规格一次；落子经
+  // ctx.createGem 注入（TurnEngine 写棋盘 + gem-transform，连锁由外层 runCascades 下一轮
+  // 吸收）。minSize 与经济光环同口径；无注入/无 rng 时概率 <1 的不生效——无新键特质
+  // 零事件、零随机消耗。
+  if (ctx.createGem) {
+    for (const holder of matchingTeam) {
+      if (holder.defeated) continue;
+      for (const spec of passivesOf(holder).bigMatchCreateGem) {
+        if (spec.minSize > size) continue;
+        if (spec.chance !== undefined) {
+          if (!ctx.rng || ctx.rng.next() >= spec.chance) continue;
+        }
+        events.push(...ctx.createGem(spec.gem, spec.tier, spec.count));
+      }
+    }
   }
 
   // 条件经济光环（greedy/extremegreed/pillageandplunder「配对 4 或 5 颗获得额外 N 黄金」）：

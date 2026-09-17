@@ -126,6 +126,57 @@ const TROOP_TYPE_MAP = {
 const num = (s) => Number(s);
 
 /**
+ * 中文特殊宝石名 → 引擎 SpecialGemKind（子串匹配，尾缀「宝石/符」可有可无）。
+ * 顺序敏感：超级末日骷髅头先于末日骷髅头、x3 先于 x2。逐条与官方 EN dump
+ * （data/raw/troops.gow.en.json）交叉核对：狂怒/愤怒/激怒宝石同为 Enrage Gem、
+ * 妖仙宝石=Faerie Fire Gem（faeriesoul 机翻）、蛛网/网络宝石=Web Gem、
+ * 死亡印记宝石=Death Mark Gem。不在表内的（狼化/石像鬼/龙族/元素星/法力药剂/
+ * 天使/灵魂/恶魔门户/腐烂/魔法/灵力宝石等）= 引擎未实现，命中句式也整体不收。
+ */
+const SPECIAL_GEM_MAP = [
+  [/x3\s*通配/, { kind: 'wildcard', tier: 3 }],
+  [/x2\s*通配/, { kind: 'wildcard', tier: 2 }],
+  [/超级末日骷髅头/, { kind: 'uberDoomSkull' }],
+  [/末日骷髅头/, { kind: 'doomSkull' }],
+  [/织网|蛛网|网络/, { kind: 'web' }],
+  [/燃烧/, { kind: 'burningGem' }],
+  [/冻结/, { kind: 'freezeGem' }],
+  [/诅咒/, { kind: 'curseGem' }],
+  [/毒/, { kind: 'poisonGem' }],
+  [/流血/, { kind: 'bleedGem' }],
+  [/恐怖/, { kind: 'terrorGem' }],
+  [/死亡标记|死亡印记/, { kind: 'deathMarkGem' }],
+  [/纠缠|缠绕/, { kind: 'entangleGem' }],
+  [/激怒|愤怒|狂怒/, { kind: 'enrageGem' }],
+  [/许愿|愿望/, { kind: 'wish' }],
+  [/赃物/, { kind: 'bootyGem' }],
+  [/妖火|妖仙/, { kind: 'faerieFireGem' }],
+  [/鬼魂/, { kind: 'ghost' }],
+  [/屏障/, { kind: 'barrierGem' }],
+  [/击晕|眩晕/, { kind: 'stunGem' }],
+  [/沉没/, { kind: 'submergeGem' }],
+  [/沙漏/, { kind: 'hourglass' }],
+  [/炸弹/, { kind: 'bomb' }],
+];
+const pickSpecialGem = (desc) => SPECIAL_GEM_MAP.find(([re]) => re.test(desc))?.[1];
+
+/** 「N 颗/个/名」计数捕获 → 数字（「一」按 1；无捕获缺省 1；「2 颗」取整数前缀） */
+const countOf = (raw) => {
+  if (raw === undefined) return 1;
+  const s = String(raw).trim();
+  if (s[0] === '一') return 1;
+  const n = parseInt(s, 10);
+  return Number.isFinite(n) ? n : 1;
+};
+
+/**
+ * 回合开始/轮次开始的触发头（T4 创造批共用）：
+ * 在/当、我的/我、每一个、回合/轮次开始、的时候/时 全部可选；「轮到我行动时」独立分支
+ * （chaoticdesire/silkenweave 的官方译法）。
+ */
+const TURN_START_HEAD = String.raw`(?:(?:当|在)?(?:我的|我)?(?:每一个|每一)?(?:回合|轮次)开始(?:的时候|时)?|轮到我行动时)`;
+
+/**
  * 屠戮条件的可用状态全集（O 桶高频批）：基础表 + 特质可救批扩展表 + 下潜。
  * 下潜（submerged）本体在 status.ts 已落地（UNTARGETABLE_STATUS_IDS），命中附状态
  * 映射表没收它是因为没有「命中施加下潜」的官方句式；屠戮条件有（depthcharge
@@ -331,11 +382,53 @@ function parse(desc) {
       },
     };
   }
+  // —— 回合开始创造特殊宝石（T4 创造批）——必须先于下面的纯色规则：
+  // 纯色规则对「命中句式但颜色不识别」会提前 return null，会吞掉特殊宝石句。
+  // A. 创造型（spidersilk 25%织网 / haunted 鬼魂 / eyeofdestruction 末日骷髅…）：
+  //    概率、数量皆可选（无数量句 = 1 颗）。宝石名不在 SPECIAL_GEM_MAP 的
+  //    （风暴/元素星/狼化/石像鬼…）不拦截，落回后续规则留在未实现桶。
+  if ((m = new RegExp(`^${TURN_START_HEAD}[，,]?\\s*(?:有\\s*(\\d+)\\s*%\\s*的?几[率会]\\s*)?(?:创[建造成]|生成)出?\\s*(?:(一|\\d+)\\s*[颗个])?\\s*(.+?)。?$`).exec(desc))) {
+    const gem = pickSpecialGem(m[3]);
+    if (gem) {
+      return {
+        effects: {
+          turnStartCreateSpecialGem: {
+            gem: gem.kind,
+            ...(gem.tier !== undefined ? { tier: gem.tier } : {}),
+            count: countOf(m[2]),
+            ...(m[1] !== undefined ? { chance: num(m[1]) / 100 } : {}),
+          },
+        },
+      };
+    }
+  }
+  // B. 转化型（redrage 红2→燃烧 / embers / daemonsmark 骷髅2→末日骷髅 / temporal 黄→沙漏…）：
+  //    来源只认六色或骷髅头（末日族不算普通骷髅），目标必须是 SPECIAL_GEM_MAP 内的特殊宝石；
+  //    未命中（bonepile 的「转换成骷髅头」/ 狼化宝石等）不拦截，落回后续规则。
+  if ((m = new RegExp(`^${TURN_START_HEAD}[，,]?\\s*(?:有\\s*(\\d+)\\s*%\\s*的?几[率会]\\s*)?将\\s*(?:(一|\\d+)\\s*[颗个名])?\\s*(.+?)宝石?转[换化][为成]\\s*(.+?)(?:宝石)?。?$`).exec(desc))) {
+    const gem = pickSpecialGem(m[4]);
+    const src = m[3] === '骷髅头' ? 'skull' : pickColor(m[3]);
+    if (gem && src) {
+      return {
+        effects: {
+          turnStartColorToSpecial: {
+            color: src,
+            gem: gem.kind,
+            ...(gem.tier !== undefined ? { tier: gem.tier } : {}),
+            count: countOf(m[2]),
+            ...(m[1] !== undefined ? { chance: num(m[1]) / 100 } : {}),
+          },
+        },
+      };
+    }
+  }
   // 回合开始造某色宝石：「在我的回合开始的时候，创建一颗红色宝石。」
-  if ((m = /^(?:在)?我的回合开始(?:的时候|时)[，,]?创[建造]一?颗?(.+?)宝石。?$/.exec(desc))) {
-    const color = pickColor(m[1]);
-    if (!color) return null; // 特殊宝石类型（织网/幽魂/沙漏…）引擎未实现，不收
-    return { effects: { turnStartCreateGem: { color } } };
+  // T4 扩展：前缀放宽到 当/我/轮次开始、数量可选（intothevoid「创造 2 颗紫色宝石」、
+  // lightningaura「创造 2 颗黄色闪电宝石」按官方文本收 count）。
+  if ((m = /^(?:当|在)?(?:我的|我)?回合开始(?:的时候|时)?[，,]?创[建造]\s*(一[颗个]|\d+\s*[颗个])?(.+?)宝石。?$/.exec(desc))) {
+    const color = pickColor(m[2]);
+    if (!color) return null; // 特殊宝石类型不在映射表，整体不收
+    return { effects: { turnStartCreateGem: { color, ...(m[1] ? { count: countOf(m[1]) } : {}) } } };
   }
   // 回合开始按概率把某色转成骷髅头（引擎已有骷髅；转成其它特殊宝石的不收）
   if ((m = /^(?:在)?我的回合开始(?:的时候|时)[，,]?有\s*(\d+)%\s*的?几率将一颗(.+?)宝石转换成骷髅头。?$/.exec(desc))) {
@@ -401,6 +494,22 @@ function parse(desc) {
   // 并发 economy-gain 事件）；持有者币种超出黄金/灵魂句式的（宝石）不硬猜，不收。
   if ((m = /^在自身身亡时获得\s*(\d+)\s*(黄金|灵魂)。?$/.exec(desc))) {
     return { effects: { onDeathEconomy: { currency: m[2] === '黄金' ? 'gold' : 'souls', amount: num(m[1]) } } };
+  }
+  // 身亡创造特殊宝石（T4 批 unstablecore「在我身亡时创造 3 颗炸弹宝石」）：身亡/死亡/
+  // 死后三种译法都收；宝石名不在映射表的（carcass 腐烂的宝石）不拦截，留在未实现桶。
+  if ((m = /^在?我(?:身亡时|死亡时|死[后亡])时?[，,]?创[建造成]出?\s*(一|\d+)\s*[颗个]\s*(.+?)(?:宝石)?。?$/.exec(desc))) {
+    const gem = pickSpecialGem(m[2]);
+    if (gem) {
+      return {
+        effects: {
+          onDeathCreateGem: {
+            gem: gem.kind,
+            ...(gem.tier !== undefined ? { tier: gem.tier } : {}),
+            count: countOf(m[1]),
+          },
+        },
+      };
+    }
   }
   // sacrifice「当一名敌人身亡时，所有技能增加 3 点」：技能值按既有约定映射 magic
   // （STAT_MAP「技能值→magic」/ pickTriggerStat「随机技能值→magic」同源的 randomStat 口径）。
@@ -540,6 +649,25 @@ function parse(desc) {
     const sm = /^窃取(?:第一名|第一位|首位)敌人\s*(\d+)\s*点攻击力。?$/.exec(m[1]);
     if (sm) {
       return { effects: { onBigMatchEnemyDrain: { stat: 'attack', amount: num(sm[1]), scope: 'front' } } };
+    }
+  }
+  // 大连创造宝石（T4 大连创造批 4 code）：「在配对 4 或更多宝石时（有 N% 几率）创建
+  // x2/x3 通配宝石 / 2 颗燃烧宝石」（wildtribe/wildmagic/spectromancy/twinfires）。
+  // 「匹配 4 颗或更多宝石时」同义前缀一并收；宝石名不在映射表的（恶/善石像鬼宝石、
+  // 暗影星、绿龙宝石）与创造风暴的（deadlywaters 骸骨风暴）不拦截，留在未实现桶。
+  if ((m = /^(?:在?配对|匹配)\s*4\s*颗?\s*或\s*更?多\s*颗?\s*宝石的?时[，,]?\s*(?:有\s*(\d+)\s*%\s*的?几[率会]\s*)?(?:创[建造成]|生成)出?\s*(?:(一|\d+)\s*[颗个])?\s*(.+?)(?:宝石|符)?。?$/.exec(desc))) {
+    const gem = pickSpecialGem(m[3]);
+    if (gem) {
+      return {
+        effects: {
+          onBigMatchCreateGem: {
+            gem: gem.kind,
+            ...(gem.tier !== undefined ? { tier: gem.tier } : {}),
+            count: countOf(m[2]),
+            ...(m[1] !== undefined ? { chance: num(m[1]) / 100 } : {}),
+          },
+        },
+      };
     }
   }
   // 条件光环·施加状态（屏障/狂怒/下潜/反射/赐福/冻结+出血…）：状态本体均已落地。

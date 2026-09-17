@@ -21,9 +21,9 @@ import { AiTargetChooser, prototypeChosenTargetMode } from './skills/targetChoos
 import type { TargetChooser } from './skills/targetChooser';
 import { AiCellChooser, prototypeNeedsCell } from './skills/cellChooser';
 import type { CellChooser } from './skills/cellChooser';
-import { MatchState, PlayerSide, BaseColor, opponentOf, colorGem, WEB_GEM_TURNS,
+import { MatchState, PlayerSide, BaseColor, opponentOf, colorGem, specialGem, posKey, WEB_GEM_TURNS,
   MATCH_STATUS_GEMS, DESTROY_STATUS_GEMS, STATUS_GEM_EFFECTS, isStatusGemKind, BOOTY_GEM_GOLD } from './types';
-import type { SkullStormDropKind, StatusGemKind, StatusInstance, TraitEconomyGain } from './types';
+import type { SkullStormDropKind, StatusGemKind, StatusInstance, SpecialGemKind, TraitEconomyGain } from './types';
 
 /**
  * 被炸毁骷髅的法术伤害表（官方口径，区别于三消骷髅的攻击力结算）：
@@ -352,7 +352,9 @@ export class TurnEngine {
         if (grantsExtraTurn(group.shape)) grantedExtra = true;
 
         // 4/5 连响应特质（庞然/巨型/修理…）：只给匹配方自己一队，按组结算。
-        // ctx 只服务条件光环批新键（施加状态/5 连限定/净化/条件经济）；旧特质路径零随机消耗、事件序不变。
+        // ctx 只服务条件光环批新键（施加状态/5 连限定/净化/条件经济）与大连创造批
+        // （createGem：wildtribe/wildmagic 族落子，避开本轮将被消除的匹配格）；
+        // 旧特质路径零随机消耗、事件序不变。
         if (group.cells.length >= 4) {
           events.push(...applyBigMatchTriggers(
             this.state.teams[this.state.activePlayer].characters,
@@ -363,6 +365,8 @@ export class TurnEngine {
               enemyTeam: this.state.teams[opponentOf(this.state.activePlayer)].characters,
               gainEconomy: this.creditEconomy,
               damage: this.traitDamage,
+              createGem: (kind, tier, count) =>
+                this.spawnSpecialGems(kind, tier, count, matches.map((grp) => grp.cells)),
             },
           ));
         }
@@ -860,13 +864,16 @@ export class TurnEngine {
   }
 
   /**
-   * 回合开始的棋盘写入类特质：把随机一格变成指定颜色，或按概率把某色转成骷髅头。
+   * 回合开始的棋盘写入类特质：把随机一格变成指定颜色，或按概率把某色转成骷髅头，
+   * 以及 T4 创造批——创造特殊宝石（spidersilk 织网/haunted 鬼魂/eyeofdestruction 末日骷髅…）
+   * 与把某色/骷髅头转换成特殊宝石（redrage/embers/daemonsmark/temporal 族）。
    *
    * 改完棋盘后**立即** `runCascades()`：三连就该被消掉，不能把现成匹配滞留到下一次行动。
    * 连锁产出的法力与骷髅伤害都归即将行动的这一方，符合「我的回合开始」的语义。
    *
-   * 只支持颜色宝石与骷髅头——织网/幽魂/沙漏这类特殊宝石引擎还没有，相关特质在
-   * 生成阶段就被排除，不会走到这里。
+   * 特殊宝石落子走满盘转化的代理口径：随机现存格就地翻新（与技能 doCreate 的转化回退
+   * 同源），发既有 gem-transform 事件。概率判定与 turnStartColorToSkull 同口径：
+   * 每条特质掷一次，未命中也占掉这次随机数。
    *
    * @returns 是否改动过棋盘（调用方据此决定是否补一次胜负判定）
    */
@@ -879,13 +886,15 @@ export class TurnEngine {
       for (const code of char.traitIds ?? []) {
         const trait = getTrait(code);
         if (trait?.turnStartCreateGem) {
-          const pos = this.randomCell();
-          const from = this.state.board.get(pos);
-          if (from) {
-            const to = colorGem(trait.turnStartCreateGem.color as BaseColor);
-            const gemId = this.nextGemId();
-            this.state.board.set(pos, { id: gemId, type: to });
-            changes.push({ pos, gemId, from: from.type, to });
+          const count = trait.turnStartCreateGem.count ?? 1;
+          for (const pos of this.randomGemSlots(count)) {
+            const from = this.state.board.get(pos);
+            if (from) {
+              const to = colorGem(trait.turnStartCreateGem.color as BaseColor);
+              const gemId = this.nextGemId();
+              this.state.board.set(pos, { id: gemId, type: to });
+              changes.push({ pos, gemId, from: from.type, to });
+            }
           }
         }
         if (trait?.turnStartColorToSkull && this.rng.next() < trait.turnStartColorToSkull.chance) {
@@ -896,6 +905,37 @@ export class TurnEngine {
             const gemId = this.nextGemId();
             this.state.board.set(pos, { id: gemId, type: to });
             changes.push({ pos, gemId, from: from.type, to });
+          }
+        }
+        if (trait?.turnStartCreateSpecialGem) {
+          const spec = trait.turnStartCreateSpecialGem;
+          if (spec.chance === undefined || this.rng.next() < spec.chance) {
+            for (const pos of this.randomGemSlots(spec.count)) {
+              const from = this.state.board.get(pos);
+              if (!from) continue;
+              const to = specialGem(spec.gem, spec.tier);
+              const gemId = this.nextGemId();
+              this.state.board.set(pos, { id: gemId, type: to });
+              changes.push({ pos, gemId, from: from.type, to });
+            }
+          }
+        }
+        if (trait?.turnStartColorToSpecial) {
+          const spec = trait.turnStartColorToSpecial;
+          if (spec.chance === undefined || this.rng.next() < spec.chance) {
+            for (let i = 0; i < spec.count; i++) {
+              // 转换后该格不再是来源类型（骷髅头→末日骷髅头 / 红→燃烧宝石），
+              // 下一颗不会重复命中同一格，天然不重叠
+              const pos = spec.color === 'skull'
+                ? this.randomCellOfPlainSkull()
+                : this.randomCellOfColor(spec.color as BaseColor);
+              const from = pos ? this.state.board.get(pos) : null;
+              if (!pos || !from) continue;
+              const to = specialGem(spec.gem, spec.tier);
+              const gemId = this.nextGemId();
+              this.state.board.set(pos, { id: gemId, type: to });
+              changes.push({ pos, gemId, from: from.type, to });
+            }
           }
         }
       }
@@ -926,6 +966,65 @@ export class TurnEngine {
     }
     if (candidates.length === 0) return null;
     return candidates[this.rng.nextInt(candidates.length)];
+  }
+
+  /** 随机一格普通骷髅头；没有返回 null（「将骷髅头转换成末日骷髅头」只翻新普通骷髅，末日族不算） */
+  private randomCellOfPlainSkull(): CellPos | null {
+    const candidates: CellPos[] = [];
+    for (let row = 0; row < BoardModel.ROWS; row++) {
+      for (let col = 0; col < BoardModel.COLS; col++) {
+        const gem = this.state.board.get({ row, col });
+        if (gem?.type.kind === 'skull' && gem.type.variant === 'normal') candidates.push({ row, col });
+      }
+    }
+    if (candidates.length === 0) return null;
+    return candidates[this.rng.nextInt(candidates.length)];
+  }
+
+  /**
+   * 随机取至多 count 个互不相同的可写格位（多颗创造的落点，满盘棋盘上重掷已选格）。
+   * avoid 为需要避开的格（大连创造时传本轮连锁将被消除的匹配格——落在其上会被随后
+   * 的组移除吞掉）；有界重试，超过上限就少放一格，绝不重复盖写或死循环。
+   */
+  private randomGemSlots(count: number, avoid?: ReadonlyArray<readonly CellPos[]>): CellPos[] {
+    const taken = new Set<string>();
+    for (const cells of avoid ?? []) {
+      for (const p of cells) taken.add(posKey(p));
+    }
+    const out: CellPos[] = [];
+    for (let i = 0; i < count; i++) {
+      let pos = this.randomCell();
+      for (let tries = 0; taken.has(posKey(pos)) && tries < 16; tries++) pos = this.randomCell();
+      if (taken.has(posKey(pos))) continue;
+      taken.add(posKey(pos));
+      out.push(pos);
+    }
+    return out;
+  }
+
+  /**
+   * 特殊宝石创造原语（T4 创造批共用：回合开始 / 身亡 / 大连三个触发点）：
+   * 随机格现存宝石就地翻新成特殊宝石（满盘创造的代理口径，与技能 doCreate 的
+   * 转化回退同源），发既有 gem-transform 事件。不在此跑连锁——调用方决定：
+   * 大连路径由外层 runCascades 下一轮自然吸收新匹配；回合开始/身亡路径显式跑。
+   */
+  private spawnSpecialGems(
+    kind: SpecialGemKind,
+    tier: number | undefined,
+    count: number,
+    avoid?: ReadonlyArray<readonly CellPos[]>,
+  ): GameEvent[] {
+    const changes: GemTransformEvent['changes'] = [];
+    for (const pos of this.randomGemSlots(count, avoid)) {
+      const from = this.state.board.get(pos);
+      if (!from) continue;
+      const to = specialGem(kind, tier);
+      const gemId = this.nextGemId();
+      this.state.board.set(pos, { id: gemId, type: to });
+      changes.push({ pos, gemId, from: from.type, to });
+    }
+    if (changes.length === 0) return [];
+    return [{ type: 'gem-transform', changes }];
   }
 
   /**
@@ -959,6 +1058,19 @@ export class TurnEngine {
       const dead = this.rosterCharAtActionStart.get(id);
       const deathEco = dead ? passivesOf(dead).onDeathEconomy : undefined;
       if (deathEco) events.push(...this.creditEconomy(deathEco.currency, deathEco.amount));
+      // 身亡创造特殊宝石（T4 批 unstablecore「在我身亡时创造 3 颗炸弹宝石」）：死者本人
+      // 持有，与身亡经济同一结算点、同一引用快照。随机格就地翻新（满盘转化代理口径），
+      // 随后照常跑一次连锁并复判胜负——炸弹不可匹配，通常一次扫描即止（零随机消耗），
+      // 但未来的可匹配宝石落子也走同一条正确路径。
+      const deathGem = dead ? passivesOf(dead).onDeathCreateGem : undefined;
+      if (deathGem) {
+        const spawned = this.spawnSpecialGems(deathGem.gem, deathGem.tier, deathGem.count);
+        if (spawned.length > 0) {
+          events.push(...spawned);
+          this.runCascades(events);
+          this.checkVictory(events);
+        }
+      }
       events.push(...applyDeathTriggers(
         this.state.teams[side].characters,
         this.state.teams[opponentOf(side)].characters,
