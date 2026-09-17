@@ -166,11 +166,15 @@ class Compiler {
   }
   use(...fns) { for (const f of fns) this.imports.add(f); }
 
-  /** 编译一条；成功 → { build }，失败 → { skip: reason } */
+  /**
+   * 编译一条（分保真度）：
+   * - full      全部子句可编译；
+   * - partial   ≥1 子句编译 + ≥1 子句略去（可编译子句照常入 build，卡点子句不硬编）；
+   * - mana-only 零子句可编译 → 占位绑定（不入批次，运行时回退仅扣法力）。
+   * 返回 { build, fidelity, features, skippedClauses, imports } 或 { manaOnly, ... }。
+   */
   compile(sp) {
     this.imports = new Set();
-    const pre = this.prejudge(sp.desc);
-    if (pre) return { skip: pre };
     let desc = sp.desc;
     // 1) 摘尾部 [xN]/[N:M] 增幅标签（gowhead 附注 = meta.modifier）
     let tag = null;
@@ -184,39 +188,45 @@ class Compiler {
     }
     // 2) 切子句（spell-rules §0.1：。/；/&&/换行）
     const clauses = desc.split(/。|；|&&|\n/).map((c) => c.trim()).filter(Boolean);
-    if (clauses.length === 0) return { skip: '空描述' };
-    const state = { segments: [], tag, tagUsed: false };
+    if (clauses.length === 0) return { manaOnly: true, features: [], skippedClauses: [] };
+    const state = { segments: [], tag, tagUsed: false, skippedClauses: [], features: new Set() };
     for (const clause of clauses) {
       const err = this.clause(clause, state);
-      if (err) return { skip: `未识别子句「${clause}」（${err}）` };
+      if (err) {
+        if (process.env.WPOOL_TRACE === '1') console.log('[compileSkip]', clause, '| err:', err, '| segs:', state.segments.length);
+        // 分保真度：卡点子句记省略（不硬编），可编译子句照常入 build
+        state.skippedClauses.push(clause);
+        classifyClause(clause, err, state.features);
+      }
     }
-    if (state.segments.length === 0) return { skip: '未产出任何效果段' };
+    if (state.segments.length === 0) {
+      return { manaOnly: true, features: [...state.features], skippedClauses: state.skippedClauses };
+    }
     if (state.tag && !state.tagUsed) {
-      // §1 修饰段归属：未点名 → 挂最近数值段
-      const idx = lastNumericSegment(state.segments);
-      if (idx < 0) return { skip: `尾部增幅标签 ${tagText(state.tag)} 找不到挂载段` };
-      state.segments = withModifierAt(state.segments, idx, { mod: state.tag });
+      if (state.skippedClauses.length > 0) {
+        // partial：尾部标签的归属子句可能已略去 → 不硬挂，记省略
+        state.skippedClauses.push(`尾部增幅标签 ${tagText(state.tag)}（归属子句已略去或无法可靠挂载）`);
+        state.features.add('modifier-tag');
+      } else {
+        // §1 修饰段归属：未点名 → 挂最近数值段
+        const idx = lastNumericSegment(state.segments);
+        if (idx < 0) {
+          state.skippedClauses.push(`尾部增幅标签 ${tagText(state.tag)}（无可靠挂载段）`);
+          state.features.add('modifier-tag');
+        } else {
+          state.segments = withModifierAt(state.segments, idx, { mod: state.tag });
+        }
+      }
     }
+    const fidelity = state.skippedClauses.length > 0 ? 'partial' : 'full';
     this.use('skill');
     return {
       build: `skill(\n${state.segments.map((s) => `      ${s}`).join(',\n')},\n    )`,
       imports: this.imports,
+      fidelity,
+      features: [...state.features],
+      skippedClauses: state.skippedClauses,
     };
-  }
-
-  /** 命中预判 → 返回 skip 原因（诚实原则：整条不硬凑） */
-  prejudge(desc) {
-    if (TEMPERING_RE.test(desc)) {
-      return '武器淬炼段位加成（每锻炼 1 个武器段位/每级回火…）无战斗内机制对应，Doomed 档专属 → 原语请求：tempering 段位缩放来源';
-    }
-    if (BLOCKED_GEM_RE.test(desc)) {
-      const m = desc.match(BLOCKED_GEM_RE);
-      return `特殊宝石家族未实现（${m[0]}，等 GEMS-SEMANTICS-2 后续波，DECISIONS 翻案记录②）`;
-    }
-    if (/\{\d+\}/.test(desc)) return '译文异常（模板占位符 {N} 未填充）';
-    const miss = desc.match(/法印|赐福|祝福|反射|狼化|石化|附魔/);
-    if (miss) return `缺失状态（${miss[0]}，不在 spell-rules §6 状态词表，batch-03 8387 / batch-04 8919 同款）`;
-    return null;
   }
 
   /**
@@ -224,7 +234,15 @@ class Compiler {
    * 处理器契约：null = 本子句不属于该处理器（继续下一条）；'' = 已处理；其他字符串 = 错误原因。
    */
   clause(raw, state) {
-    const c = raw.replace(/\s+/g, ' ').trim();
+    let c = raw.replace(/\s+/g, ' ').trim();
+    // 淬炼增项：参数化省略（用户新裁定 #2）——增项略去、主效果照编
+    const tFrag = c.match(/[,，]?\s*(?:每锻炼|每级回火|每提升一级强化|回火等级)[^，。；]*/);
+    if (tFrag) {
+      state.features.add('tempering-scaling');
+      state.skippedClauses.push(tFrag[0].replace(/^[，,]\s*/, ''));
+      c = c.replace(tFrag[0], '').replace(/[,，、]\s*$/, '').replace(/^\s*[,，、]/, '').trim();
+      if (c === '') return ''; // 本子句仅剩淬炼增项 → 整句略去
+    }
     for (const handler of [
       this.hPureCondMult, this.hKingdomCond, this.hIfPayload, this.hDamage, this.hStandaloneModifier, this.hStatus,
       this.hGemOps, this.hBuffHeal, this.hReduceDrain, this.hCleanseExtraTurn,
@@ -233,6 +251,8 @@ class Compiler {
       const r = handler.call(this, c, state);
       if (r === null) continue;
       if (r === '') return null;
+      // 定性原因（缺失状态/特殊宝石/王国/原语请求等）→ 整句记录一次，不做或拆碎片化
+      if (/原语请求|缺失状态|特殊宝石家族|语义拿不准|无对应原语|译文异常|不属于该处理器/.test(r)) return r;
       // 处理器报错：若含复合拆分标记，先试拆分（拆分成功即修复；否则保留原错误）
       if (/，|并|或/.test(c)) {
         const splitErr = this.tryCompound(c, state);
@@ -267,6 +287,18 @@ class Compiler {
         state.segments.push(`oneOf([${s1.join(', ')}], [${s2.join(', ')}])`);
         return null;
       }
+      // 单侧可编译 → 收下该侧，另一侧记省略（partial；一侧卡点不代表另一侧不可用）
+      if (!e1) {
+        state.segments.push(...s1);
+        this.recordSkip(orParts[1], e2, state);
+        return null;
+      }
+      if (!e2) {
+        state.segments.push(...s2);
+        this.recordSkip(orParts[0], e1, state);
+        return null;
+      }
+      // 两侧都失败 → 落到下面的顺序拆分
     }
     for (const sp of [/^(.+?)，\s*(?:然后|再|并|且|同时)\s*(.+)$/, /^(.+?)，(.+)$/, /^(.+?)并(.+)$/]) {
       const m = sp.exec(c);
@@ -294,14 +326,19 @@ class Compiler {
         return null;
       }
       const e1 = this.clause(m[1], state);
-      if (dbg) console.log('   [e1]', JSON.stringify(m[1]), '->', e1 ?? 'OK');
-      if (e1) return e1;
       const e2 = this.clause(m[2].trim(), state);
-      if (dbg) console.log('   [e2]', JSON.stringify(m[2]), '->', e2 ?? 'OK');
-      if (e2) return e2;
+      if (dbg) console.log('   [e1]', JSON.stringify(m[1]), '->', e1 ?? 'OK', '| [e2]', JSON.stringify(m[2]), '->', e2 ?? 'OK');
+      if (e1) { this.recordSkip(m[1], e1, state); }
+      if (e2) { this.recordSkip(m[2], e2, state); }
       return null;
     }
     return '无法拆分';
+  }
+
+  /** 记省略子句并分类特征（分保真度核心） */
+  recordSkip(text, err, state) {
+    state.skippedClauses.push(text);
+    classifyClause(text, err, state.features);
   }
 
   /** 王国条件倍率：显式 SKIP（batch-23 9376 / batch-24 9593 同款不做） */
@@ -546,6 +583,7 @@ class Compiler {
       { re: /^对首\s*(\d+)\s*[位名个]敌人/, t: (m) => ({ mode: 'enemyFirstN', n: Number(m[1]) }) },
       { re: /^对(?:第\s*[一1]\s*名|第一名|第\s*1\s*[名位个]|第一位的?|首位|首名)的?敌人/, t: () => ({ mode: 'enemyFront' }) },
       { re: /^对最虚弱的敌人/, t: () => ({ mode: 'enemyWeakest' }) },
+      { re: /^对第一名和最后一名敌人/, t: () => ({ mode: 'enemyFront', also: 'enemyLast' }) },
       { re: /^对最强大的敌人|^对最强悍的敌人/, t: () => ({ mode: 'enemyHealthiest' }) },
       { re: /^对最健康的敌人/, t: () => ({ mode: 'enemyHealthiest' }) },
       { re: /^对最后(?:一名|一个|一位|的|\s*1\s*[名个]|两[名个])敌人|^对最末位的敌人/, t: () => ({ mode: 'enemyLast' }) },
@@ -631,15 +669,20 @@ class Compiler {
       halveStealStat = statOf(halveSteal[1]);
       rest = rest.slice(0, halveSteal.index).trim();
     }
-    // 同子句 rider：，伤害值因X而增强（tag 缺省按 [1:1]，7059 系先例）
+    // 同子句 rider：，伤害值因X而增强（tag 缺省按 [1:1]，7059 系先例）；来源不可解析 → 增项略去（partial 化）
     let modifier = null;
     const modm = /(?:，|,)?(?:伤害值|数值|点数|效果)?并?因(.+?)而增强$/.exec(rest);
     if (modm) {
       const src = parseModifierSource(modm[1]);
-      if (!src) return `修饰来源无法解析「${modm[1]}」`;
-      modifier = { mod: state.tag ?? { kind: 'ratio', a: 1, b: 1 }, ...src };
-      if (state.tag) state.tagUsed = true;
-      rest = rest.slice(0, modm.index).trim();
+      if (!src) {
+        state.skippedClauses.push(modm[0].replace(/^[，,]/, ''));
+        classifyClause(modm[1], '修饰来源无法解析', state.features);
+        rest = rest.slice(0, modm.index).trim();
+      } else {
+        modifier = { mod: state.tag ?? { kind: 'ratio', a: 1, b: 1 }, ...src };
+        if (state.tag) state.tagUsed = true;
+        rest = rest.slice(0, modm.index).trim();
+      }
     }
     const tail = rest.replace(/^[，,、和及]/, '').trim();
     if (tail !== '') return `伤害句残留无法解析「${tail}」`;
@@ -675,6 +718,7 @@ class Compiler {
       call = appendOpt(call, `modifier: ${jsonMod(perDestroyMod)}`);
       segs[segs.length - 1] = call;
     }
+    if (head.also) segs.push(call.replace(targetRef(head.mode), `'${head.also}'`));
     segs.push(call);
     state.segments.push(...segs);
     if (halveStealStat) {
@@ -932,7 +976,7 @@ class Compiler {
     m = /^(?:再|然后)?创造?\s*(\d+)\s*[颗个]骷髅头$/.exec(c);
     if (m) {
       this.use('createSkulls');
-      state.segments.push(`createSkulls(${m[1]})`);
+      state.segments.push(`createSkulls(${m[1]}, 0)`);
       return '';
     }
     m = /^(?:制作|制造|创造)\s*(\d+)-(\d+)\s*[颗个]骷髅头$/.exec(c);
@@ -1103,16 +1147,21 @@ class Compiler {
     // 按「和」拆分属性段：每段独立取值；无方括号的后续段沿用前段公式（R4「一个方括号管两段」同值口径）
     this.use('heal', 'armor', 'attack', 'magic', 'mana', 'randomStat', 'scale', 'flat');
     state.lastAllyTarget = target;
-    // rider：「，数量因X而增强」→ modifier 挂本段（被减除/黄金等 exotic → 来源解析失败 → SKIP）
+    // rider：「，数量因X而增强」→ modifier 挂本段；来源不可解析 → 增项略去（partial 化，主效果保留）
     let buffMod = null;
     const modRider = /，数量因(.+?)而增强$/.exec(rest);
     let restBase = rest;
     if (modRider) {
       const src = parseModifierSource(modRider[1]);
-      if (!src) return `修饰来源无法解析「${modRider[1]}」（被减除的护甲值/黄金等为 §1 exotic 来源）`;
-      buffMod = { mod: state.tag ?? { kind: 'ratio', a: 1, b: 1 }, ...src };
-      if (state.tag) state.tagUsed = true;
-      restBase = rest.slice(0, modRider.index);
+      if (!src) {
+        state.skippedClauses.push(modRider[0]);
+        classifyClause(modRider[1], '修饰来源无法解析（§1 exotic 来源）', state.features);
+        restBase = rest.slice(0, modRider.index);
+      } else {
+        buffMod = { mod: state.tag ?? { kind: 'ratio', a: 1, b: 1 }, ...src };
+        if (state.tag) state.tagUsed = true;
+        restBase = rest.slice(0, modRider.index);
+      }
     }
     const statRe = /(生命值|护甲值|护甲|攻击力|魔法值|法力值|随机技能值)/;
     const parts = [];
@@ -1120,6 +1169,12 @@ class Compiler {
     const pieces = restBase.includes('和') ? splitTopLevel(restBase, '和') : [restBase];
     for (const piece of pieces) {
       const p = piece.trim();
+      // 「一半的法力值」= mana halve（§9.6 口径）
+      const halveM = p.match(/^(?:一半|半数)的?(法力值)$/);
+      if (halveM) {
+        parts.push({ halveMana: true });
+        continue;
+      }
       const bareStat = statRe.exec(p.replace(/点/g, '').trim());
       let f = parseFormulaPrefix(p);
       let rest2;
@@ -1144,7 +1199,13 @@ class Compiler {
     this.use('heal', 'armor', 'attack', 'magic', 'mana', 'randomStat', 'scale', 'flat');
     const mode = target;
     state.lastAllyTarget = mode;
-    for (const { stat: st, f } of parts) {
+    for (const part of parts) {
+      // 「一半的法力值」= mana halve（§9.6：获得 floor(manaCost/2)，受上限夹取）
+      if (part.halveMana) {
+        state.segments.push(`mana('${mode}', 0, 0, { halve: true })`);
+        continue;
+      }
+      const { stat: st, f } = part;
       let seg;
       if (f.rangeSpec) {
         seg = `${fnOfStat(st)}('${mode}', 0, 0, { rangeSpec: { min: ${f.rangeSpec.min}, max: ${f.rangeSpec.max} } })`;
@@ -1313,7 +1374,7 @@ class Compiler {
       const refs = this.resolveGroupRefs(grp);
       if (typeof refs === 'string') return refs;
       this.use('summonRandom', 'summonRef');
-      const opts = countRange ? `, undefined, { countRange: { min: ${countRange.min}, max: ${countRange.max} } }` : '';
+      const opts = countRange ? `, undefined, { countRange: { min: ${countRange.min}, max: ${countRange.max} } }` : ', undefined';
       if (refs.length === 1) state.segments.push(`summonRef('${refs[0]}'${opts})`);
       else state.segments.push(`summonRandom([${refs.map((r) => `'${r}'`).join(', ')}]${opts})`);
       return '';
@@ -1327,7 +1388,7 @@ class Compiler {
       const refB = b ? troopsRefByName(b) : null;
       if (refA && refB) {
         this.use('summonRandom');
-        state.segments.push(`summonRandom(['${refA}', '${refB}'])`);
+        state.segments.push(`summonRandom(['${refA}', '${refB}'], undefined)`);
         return '';
       }
       return `召唤引用无法解析「${m[1]} / ${m[2]}」`;
@@ -1339,7 +1400,7 @@ class Compiler {
       if (!name) return `召唤引用无法解析「${m[1]}」（troops.json 无此中文名）`;
       const ref = troopsRefByName(name);
       this.use('summonRef');
-      state.segments.push(`summonRef('${ref}')`);
+      state.segments.push(`summonRef('${ref}', undefined)`);
       return '';
     }
     return null;
@@ -1725,6 +1786,45 @@ function parseMagicBracket(inner) {
 }
 
 // —— 修饰来源（§1 来源计数表） ——
+/**
+ * 卡点子句特征分类（missingFeatures 单源）：从子句原文 + 处理器错误归因出机器可读特征键。
+ * 特征键即 weapon-skill-meta.json 的 missingFeatures 词表；与原语请求映射见 cmdReport。
+ */
+function classifyClause(clause, err, features) {
+  const before = features.size;
+  const text = (clause ?? '') + ' ' + (err ?? '');
+  if (/\{\d+\}/.test(clause)) features.add('mt-garbage');
+  const bg = clause.match(BLOCKED_GEM_RE);
+  if (bg) features.add('special-gem:' + bg[0]);
+  const ms = clause.match(/法印|赐福|祝福|反射|狼化|石化|附魔/);
+  if (ms) features.add('status:' + ms[0]);
+  if (TEMPERING_RE.test(clause) || /tempering/.test(err ?? '')) features.add('tempering-scaling');
+  if (/王国条件倍率|战斗发生在|敌人来自/.test(text)) features.add('kingdom-condition');
+  if (/限定盟友目标|限定目标/.test(text)) features.add('kingdom-target');
+  if (/计数无对应来源/.test(text)) features.add('kingdom-count');
+  if (/随机召唤无对应原语/.test(text)) features.add('kingdom-summon');
+  if (/群体名称无法可靠映射/.test(text)) features.add('unknown-group');
+  if (/数值型区间/.test(text)) features.add('numeric-range');
+  if (/随机属性削减/.test(text)) features.add('random-stat-reduce');
+  if (/反向属性比较/.test(text)) features.add('targetStatBeatsCaster');
+  if (/stat 翻倍/.test(text)) features.add('stat-double');
+  if (/dmg base = targetStat/.test(text)) features.add('dmg-base-targetStat');
+  if (/anyEnemyDied/.test(text)) features.add('anyEnemyDied');
+  if (/clear line-of-gem/.test(text)) features.add('clear-line-of-gem');
+  if (/吞噬/.test(clause)) features.add('devour');
+  if (/法力灼烧/.test(clause)) features.add('mana-burn');
+  if (/正面增益」不做/.test(text)) features.add('dispel-all');
+  if (/召唤引用无法解析|条件兵种引用无法解析/.test(text)) features.add('unresolved-ref');
+  if (/随机风暴/.test(clause)) features.add('random-storm');
+  if (/终止风暴/.test(clause)) features.add('storm-end');
+  if (/敌我双方的|每有一名\S{1,6}敌人/.test(text)) features.add('enemy-color-count');
+  if (/条件子句内含不支持 opts/.test(text)) features.add('conditional-clear');
+  if (/被减除的/.test(text)) features.add('exotic-modifier-source');
+  if (/尾部增幅标签/.test(text)) features.add('modifier-tag');
+  if (/修饰来源无法解析/.test(text)) features.add('modifier-source');
+  if (features.size === before) features.add('unparsed-clause');
+}
+
 function parseModifierSource(body) {
   const b = body.replace(/数量|数/g, '');
   const colorKeys = Object.keys(COLORS).sort((x, y) => y.length - x.length);
@@ -1819,9 +1919,18 @@ function compileAll() {
     try {
       out = compiler.compile(w);
     } catch (e) {
-      out = { skip: `编译器异常：${String(e).slice(0, 160)}` };
+      out = { manaOnly: true, features: ['compiler-error'], skippedClauses: [`编译器异常：${String(e).slice(0, 120)}`] };
     }
-    return { ...w, compiled: !out.skip, build: out.build ?? null, imports: out.imports ?? null, reason: out.skip ?? null };
+    const fidelity = out.manaOnly ? 'mana-only' : (out.fidelity ?? 'full');
+    return {
+      ...w,
+      fidelity,
+      compiled: fidelity !== 'mana-only',
+      build: out.build ?? null,
+      imports: out.imports ?? null,
+      features: out.features ?? [],
+      skippedClauses: out.skippedClauses ?? [],
+    };
   });
   return results;
 }
@@ -1905,14 +2014,15 @@ function esc(s) {
 const BATCH_CHUNK = 180;
 
 function cmdGen() {
-  const results = compileAll().sort((a, b) => a.spellId - b.spellId);
+  const all = compileAll().sort((a, b) => a.spellId - b.spellId);
+  // 分保真度：full + partial 进批次；mana-only 仅入 meta（占位绑定，运行时回退仅扣法力）
+  const results = all.filter((r) => r.fidelity !== 'mana-only');
   const batches = [];
   for (let i = 0; i < results.length; i += BATCH_CHUNK) batches.push(results.slice(i, i + BATCH_CHUNK));
   const names = batches.map((_, i) => `W${String(i + 1).padStart(2, '0')}`);
   batches.forEach((chunk, bi) => {
     const name = names[bi];
     const spells = chunk.filter((r) => r.compiled);
-    const skipped = chunk.filter((r) => !r.compiled).map((r) => ({ id: r.spellId, reason: r.reason }));
     const imports = new Set(['skill']);
     let useBaseColor = false;
     let useChosen = false;
@@ -1930,22 +2040,20 @@ function cmdGen() {
     useChosen = useChosen && /\bCHOSEN\b/.test(allBuilds);
     const importLines = `import { ${importNames.join(', ')}${useChosen ? (importNames.length ? ', ' : '') + 'CHOSEN' : ''} } from '../builders';${useBaseColor ? "\nimport { BaseColor } from '../../types';" : ''}`;
     const spellRows = spells.map((s) => `  {\n    id: ${s.spellId},\n    desc: ${esc(s.desc)},\n    build: ${s.build},\n  },`).join('\n');
-    const skipRows = skipped.map((s) => `  { id: ${s.id}, reason: ${esc(s.reason)} },`).join('\n');
     const out = `/**
- * 窗口 K-B · 武器法术批次 ${name}（池：scripts/curated-pools/pool-w01.json）。
+ * 窗口 K-B · 武器法术批次 ${name}（池：scripts/curated-pools/pool-w01.json；分保真度绑定）。
  *
  * 来源：artifacts/gowhead-weapons/weapons.json（zh 文本逐字锚定，校验见
  * tests/unit/weaponSpellAudit.test.ts——与部队批次的 troops.json 锚定不同源）。
- * 组装规则全部锚定 scripts/spell-rules.md 与既有部队批次先例（详见各 skipped 原因
- * 与 artifacts/weapon-spell-triage.md 的家族分布/原语请求节）。
- * 生成器：scripts/_weapon_pools.mjs gen（规则表 + 人工裁定；机器不猜语义）。
+ * 保真度：本批全部为 full/partial（partial = 可编译子句照常入 build、卡点子句按
+ * missingFeatures/skippedClauses 略去；mana-only 占位绑定不进批次，见
+ * src/data/weapon-skill-meta.json）。组装规则锚定 scripts/spell-rules.md 与
+ * 既有部队批次先例；生成器 scripts/_weapon_pools.mjs gen。
  */
 ${importLines}
 import type { CuratedBatch } from './index';
 
-const SKIPPED: { id: number; reason: string }[] = [
-${skipRows}
-];
+const SKIPPED: { id: number; reason: string }[] = [];
 
 const SPELLS: CuratedBatch['spells'] = [
 ${spellRows}
@@ -1954,8 +2062,22 @@ ${spellRows}
 export const BATCH_${name}: CuratedBatch = { batch: '${name}', spells: SPELLS, skipped: SKIPPED };
 `;
     writeFileSync(path.join(CURATED_DIR, `batch-${name.toLowerCase()}.ts`), out, 'utf8');
-    console.log(`batch-${name.toLowerCase()}.ts：${spells.length} 编译 + ${skipped.length} 放弃`);
+    console.log(`batch-${name.toLowerCase()}.ts：${spells.length} 条（${chunk.filter((r) => r.fidelity === 'full').length} full + ${chunk.filter((r) => r.fidelity === 'partial').length} partial）`);
   });
+  // —— 分保真度元数据（运行时/meta 层单源）——
+  const meta = {};
+  for (const r of all) {
+    meta[String(r.spellId)] = {
+      fidelity: r.fidelity,
+      missingFeatures: r.features,
+      skippedClauses: r.skippedClauses,
+    };
+  }
+  const metaPath = path.join(ROOT, 'src', 'data', 'weapon-skill-meta.json');
+  writeFileSync(metaPath, JSON.stringify(meta, null, 1) + '\n', 'utf8');
+  const tier = { full: 0, partial: 0, 'mana-only': 0 };
+  for (const r of all) tier[r.fidelity] += 1;
+  console.log(`weapon-skill-meta.json：full ${tier.full} / partial ${tier.partial} / mana-only ${tier['mana-only']}（计 718）`);
   console.log(`共 ${names.length} 个批次：${names.join(', ')}`);
   console.log('index.ts 注册（W 系独立注册表，与部队 BATCHES 分离）：');
   console.log(names.map((n) => `  import { BATCH_${n} } from './batch-${n.toLowerCase()}';`).join('\n'));
@@ -1966,51 +2088,72 @@ export const BATCH_${name}: CuratedBatch = { batch: '${name}', spells: SPELLS, s
 // =====================================================================
 function cmdReport() {
   const results = compileAll().sort((a, b) => a.spellId - b.spellId);
-  const ok = results.filter((r) => r.compiled);
-  const bad = results.filter((r) => !r.compiled);
-  const primitives = bad.filter((r) => r.reason.includes('原语请求'));
+  const full = results.filter((r) => r.fidelity === 'full');
+  const partial = results.filter((r) => r.fidelity === 'partial');
+  const manaOnly = results.filter((r) => r.fidelity === 'mana-only');
+  const bound = results.filter((r) => r.fidelity !== 'mana-only');
+  // missingFeatures 直方图（特征 → 条数 + 样例）
+  const featHist = new Map();
+  for (const r of results) {
+    for (const f of r.features) {
+      const cur = featHist.get(f) ?? { count: 0, sample: r };
+      cur.count += 1;
+      featHist.set(f, cur);
+    }
+  }
   // 家族分布
   const fam = new Map();
   for (const r of results) {
     const f = familyOf(r.desc);
-    const cur = fam.get(f) ?? { total: 0, ok: 0 };
+    const cur = fam.get(f) ?? { total: 0, bound: 0 };
     cur.total += 1;
-    if (r.compiled) cur.ok += 1;
+    if (r.fidelity !== 'mana-only') cur.bound += 1;
     fam.set(f, cur);
   }
-  // 放弃原因分布（归并到句式级主因）
-  const reasonHist = new Map();
-  for (const b of bad) {
-    const key = b.reason.replace(/→ 原语请求.*$/, '').replace(/「[^」]*」/g, '「…」').slice(0, 60);
-    reasonHist.set(key, (reasonHist.get(key) ?? 0) + 1);
-  }
-  // 原语请求清单（去重 + 样例）
-  const primMap = new Map();
-  for (const p of primitives) {
-    const key = p.reason;
-    if (!primMap.has(key)) primMap.set(key, { count: 0, sample: p });
-    primMap.get(key).count += 1;
-  }
+  // 原语请求聚合（partial 化不消掉请求——战斗可用性与引擎补齐解耦）
+  const PRIM = [
+    ['tempering-scaling', 'tempering 段位缩放来源', 'modifier 来源 { kind: tempering, n }（或组装期常量注入）'],
+    ['kingdom-condition', 'kingdomPresent 条件', 'Condition { kind: kingdomPresent, kingdom }'],
+    ['kingdom-count', 'alliesOfKingdom 计数来源', 'ModifierSource { kind: alliesOfKingdom, kingdom }'],
+    ['kingdom-target', 'kingdom 目标限定', 'TargetMode allyKingdom { kingdom }'],
+    ['kingdom-summon', 'kingdom 随机召唤', 'summonRandom 按 troops.json kingdom 字段取引用清单'],
+    ['anyEnemyDied', 'anyEnemyDied 条件', 'Condition { kind: anyEnemyDied }'],
+    ['stat-double', 'stat 翻倍 buff', 'buff opts.double（现仅 reduce.halve）'],
+    ['dmg-base-targetStat', 'dmg 基数取目标属性', 'dmg 支持 base 来源 targetStat'],
+    ['targetStatBeatsCaster', '反向属性比较', 'Condition casterStatBeatsTarget 加 reversed'],
+    ['clear-line-of-gem', '清除宝石所在行/列', 'clear target { kind: lineOfGem, mode }'],
+    ['allyOfColor-target', '按法力色限定盟友目标', 'TargetMode allyOfColor { color }'],
+    ['enemy-color-count', '敌方颜色计数来源', 'ModifierSource { kind: enemiesOfColor, color }'],
+    ['createMix-special', 'createMix 特殊端点', 'createMix 端点扩特殊宝石/骷髅'],
+    ['random-stat-reduce', '随机属性削减', 'reduce 支持 stat=random'],
+    ['conditional-clear', '条件化清除段', 'clear 段支持 ifCond'],
+    ['exotic-modifier-source', 'exotic 来源（被减除护甲值/黄金等）', '按 §1 维持不做；如要做需新来源 kind'],
+    ['numeric-range', '数值型区间', '段级 rangeSpec 扩 buff/create'],
+    ['devour', '吞噬（吞并敌人）', 'devour 效果段'],
+    ['mana-burn', '法力灼烧伤害', 'damage 来源 manaBurn'],
+    ['random-storm', '随机风暴', 'createStorm 支持随机色'],
+    ['storm-end', '终止风暴', 'createStorm 对立操作'],
+    ['dispel-all', '驱散全部正面增益', '泛指驱散（§6 维持不做）'],
+  ];
   const lines = [];
-  lines.push('# 武器法术组装分诊报告（窗口 K-B）');
+  lines.push('# 武器法术组装分诊报告（窗口 K-B · 分保真度绑定）');
   lines.push('');
-  lines.push('> 2026-09-17。数据源 `artifacts/gowhead-weapons/weapons.json`（718 条，zh 文本锚定）；');
-  lines.push('> 语义依据 `scripts/spell-rules.md`（含 §0 裸伤害/§9 风暴 oneOf/§11 随机状态分池/§12 lastTarget/§13 && 切分）；');
-  lines.push('> 组装规则锚定既有部队批次先例；机器不猜语义，规则外一律 SKIPPED 并注明原因。');
+  lines.push('> 数据源 `artifacts/gowhead-weapons/weapons.json`（718 条，zh 文本锚定）；');
+  lines.push('> 语义依据 `scripts/spell-rules.md`（§0 裸散射 2026-09-18 官方重裁=enemyAll、§9 风暴/oneOf、§11 随机状态分池、§12 lastTarget、§13 && 切分）；');
+  lines.push('> 分保真度绑定：可编译子句照常入 build，卡点子句不硬编，按 missingFeatures/skippedClauses 略去；');
+  lines.push('> 元数据单源：`src/data/weapon-skill-meta.json`（718 条 fidelity/missingFeatures/skippedClauses）。');
   lines.push('> 生成器：`scripts/_weapon_pools.mjs`（pool / triage / left / debug / gen / report）。');
   lines.push('');
-  lines.push('## 总账');
+  lines.push('## 三级总账');
   lines.push('');
-  lines.push(`| 类别 | 条数 |`);
-  lines.push(`|---|---|`);
-  lines.push(`| 编译（curated W 系批次） | ${ok.length} |`);
-  lines.push(`| 放弃（SKIPPED，其中原语请求 ${primitives.length}） | ${bad.length} |`);
-  lines.push(`| **合计** | **${results.length}** |`);
+  lines.push('| 保真度 | 条数 | 说明 |');
+  lines.push('|---|---|---|');
+  lines.push(`| full | ${full.length} | 全部子句可编译 |`);
+  lines.push(`| partial | ${partial.length} | ≥1 子句编译 + ≥1 子句略去（含 Doomed 淬炼 0 级参数化编译） |`);
+  lines.push(`| mana-only | ${manaOnly.length} | 零子句可编译 → 占位绑定，运行时回退仅扣法力 |`);
+  lines.push(`| **合计** | **${results.length}** | 与 pool-w01.json 逐条对应 |`);
   lines.push('');
-  lines.push(`编译率 ${(100 * ok.length / results.length).toFixed(1)}%（目标 ≥50% 未达标，卡点分布见下——`);
-  lines.push(`最大三块为 Doomed 档淬炼加成（${results.filter((r) => TEMPERING_RE.test(r.desc)).length} 条，武器系统机制、战斗引擎无对应）、`);
-  lines.push(`缺失状态（${results.filter((r) => /缺失状态/.test(r.reason ?? '')).length} 条）与未实现特殊宝石（${results.filter((r) => /特殊宝石家族未实现/.test(r.reason ?? '')).length} 条），`);
-  lines.push('均为数据驱动的硬缺口而非规则缺失；其余为长尾机翻变体（每条 1-2 例）。');
+  lines.push(`战斗可用绑定（full+partial）${bound.length}/718 = ${(100 * bound.length / results.length).toFixed(1)}%。`);
   lines.push('');
   lines.push('## SpellId 冲突检查（动工前扫描）');
   lines.push('');
@@ -2020,60 +2163,48 @@ function cmdReport() {
   lines.push('- 结论：**无冲突**；W 系批次仍采用独立注册表（`collectWeaponCurated`），');
   lines.push('  因为部队侧对号入座校验（tests/unit/spellData.test.ts）要求 curated id 必须存在于 troops.json，武器 id 不满足。');
   lines.push('');
-  lines.push('## 批次文件清单');
+  lines.push('## 批次文件清单（full + partial 入批）');
   lines.push('');
   {
     const batches = [];
-    for (let i = 0; i < results.length; i += BATCH_CHUNK) batches.push(results.slice(i, i + BATCH_CHUNK));
+    for (let i = 0; i < bound.length; i += BATCH_CHUNK) batches.push(bound.slice(i, i + BATCH_CHUNK));
     batches.forEach((chunk, bi) => {
       const name = `W${String(bi + 1).padStart(2, '0')}`;
-      const s = chunk.filter((r) => r.compiled).length;
-      const k = chunk.length - s;
-      lines.push(`- \`src/engine/skills/curated/batch-${name.toLowerCase()}.ts\`（BATCH_${name}）：编译 ${s} + 放弃 ${k}`);
+      const fu = chunk.filter((r) => r.fidelity === 'full').length;
+      const pa = chunk.filter((r) => r.fidelity === 'partial').length;
+      lines.push(`- \`src/engine/skills/curated/batch-${name.toLowerCase()}.ts\`（BATCH_${name}）：full ${fu} + partial ${pa}`);
     });
   }
   lines.push('');
-  lines.push('## 句式家族分布（top10，按总数）');
+  lines.push('## missingFeatures 直方图（按条数）');
   lines.push('');
-  lines.push('| 家族 | 编译 | 总数 |');
+  lines.push('| 特征 | 条数 | 样例 spellId |');
   lines.push('|---|---|---|');
-  for (const [f, v] of [...fam.entries()].sort((a, b) => b[1].total - a[1].total).slice(0, 10)) {
-    lines.push(`| ${f} | ${v.ok} | ${v.total} |`);
+  for (const [f, v] of [...featHist.entries()].sort((a, b) => b[1].count - a[1].count)) {
+    lines.push(`| ${f} | ${v.count} | ${v.sample.spellId} |`);
   }
   lines.push('');
-  lines.push('## SKIPPED 原因分布');
+  lines.push('## 句式家族分布（绑定视角）');
   lines.push('');
-  lines.push('| 原因（归并后） | 条数 |');
-  lines.push('|---|---|');
-  for (const [k, n] of [...reasonHist.entries()].sort((a, b) => b[1] - a[1])) lines.push(`| ${k} | ${n} |`);
+  lines.push('| 家族 | 绑定(full+partial) | 总数 |');
+  lines.push('|---|---|---|');
+  for (const [f, v] of [...fam.entries()].sort((a, b) => b[1].total - a[1].total)) {
+    lines.push(`| ${f} | ${v.bound} | ${v.total} |`);
+  }
   lines.push('');
-  lines.push('## 原语请求清单（供 G 窗口评估）');
+  lines.push('## 原语请求清单（供 G 窗口评估；partial 化不消掉请求——只是战斗可用性先解耦）');
   lines.push('');
-  lines.push('以下机制在武器法术中出现但 builders/prototypes 无对应原语；K-B 未自行实现。');
-  lines.push('');
-  lines.push('| # | 机制 | 出现 | 句式样例（spellId） | 期望形态 |');
-  lines.push('|---|---|---|---|---|');
-  let pi = 1;
-  for (const [key, v] of primMap) {
-    const form = key.includes('tempering') ? 'modifier 来源 { kind: tempering, n }（或组装期常量注入）'
-      : key.includes('kingdom 条件') ? 'Condition { kind: kingdomPresent, kingdom }'
-      : key.includes('kingdom 计数') ? 'ModifierSource { kind: alliesOfKingdom, kingdom }'
-      : key.includes('kingdom 目标限定') ? 'TargetMode allyKingdom { kingdom } / Condition kingdom'
-      : key.includes('kingdom 召唤') ? 'summonRandom 支持按 troops.json kingdom 字段取引用清单'
-      : key.includes('stat 翻倍') ? 'buff opts.double（现仅 reduce.halve）'
-      : key.includes('dmg base = targetStat') ? 'dmg 支持 base 来源 targetStat'
-      : key.includes('targetStatBeatsCaster') ? 'Condition { kind: casterStatBeatsTarget, stat, reversed }'
-      : key.includes('anyEnemyDied') ? 'Condition { kind: anyEnemyDied }'
-      : key.includes('allyOfColor') ? 'TargetMode allyOfColor { color }'
-      : key.includes('createMix 扩特殊') ? 'createMix 端点扩特殊宝石/骷髅'
-      : key.includes('clear line-of-gem') ? 'clear target { kind: lineOfGem, mode }'
-      : '（见样例句）';
-    lines.push(`| ${pi++} | ${key.replace('→ 原语请求：', ' → ').replace(/（batch[^）]*）/, '')} | ${v.count} | ${v.sample.desc.slice(0, 40)}（${v.sample.spellId}） | ${form} |`);
+  lines.push('| 特征 | 受影响条数 | 期望形态 | 样例（spellId） |');
+  lines.push('|---|---|---|---|');
+  for (const [feat, label, form] of PRIM) {
+    const cur = featHist.get(feat);
+    if (!cur) continue;
+    lines.push(`| ${label} | ${cur.count} | ${form} | ${cur.sample.spellId} |`);
   }
   lines.push('');
   lines.push('## 其余放弃说明（诚实原则）');
   lines.push('');
-  lines.push('- 全部 SKIPPED 均带首因（首个未识别子句或预判命中），逐条见批次文件 SKIPPED 数组；');
+  lines.push('- partial/mana-only 的被略去子句逐字保存在 meta 的 skippedClauses，可随时复核与回收；');
   lines.push('- 机翻噪声（「造成l」「{1}」占位符、错字语序）不硬凑，EN 原文仅作对照、zh 为锚；');
   lines.push('- 中英快照不同步的个别条目（如 7074 两版法术不同）以 zh 为准编译。');
   lines.push('');

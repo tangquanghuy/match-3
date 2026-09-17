@@ -167,3 +167,34 @@ describe('武器法术语义冒烟（TurnEngine 全管线）', () => {
     expect(goblinStatused).toBe(true);
   });
 });
+
+describe('武器法术语义冒烟（partial 保真度代表）', () => {
+  it('7655 龙鳞巨剑（Doomed · partial）：基础全体散射生效，淬炼增项不产生事件', () => {
+    const { events, state } = castWeapon(7655);
+    // 淬炼 0 级语义：只有 [魔法 + 10] 基础段（magic 7 → 17 点，护甲 4 → 实扣 13）
+    const damages = events.filter((e) => e.type === 'skill-damage');
+    expect(damages.length, '全体散射应产生多条 skill-damage').toBeGreaterThanOrEqual(3);
+    for (const c of state.teams[PlayerSide.Right].characters) {
+      expect(c.hp, '每个敌人都吃到基础散射伤害').toBe(45 - (17 - 4));
+      expect(c.hp, '淬炼 0 级不得产生额外伤害事件').toBeGreaterThan(20);
+    }
+    void damages;
+  });
+
+  it('7250 纹章盾（partial）：主效果照编（伤害+屏障），王国增项略去', () => {
+    const { events, state } = castWeapon(7250);
+    expect(typesOf(events)).toContain('skill-damage');
+    expect(typesOf(events)).toContain('status-apply');
+    const barriered = state.teams[PlayerSide.Left].characters.some((c) =>
+      c.statuses.some((s) => s.id === 'barrier'));
+    expect(barriered, '所有盟友应获得屏障').toBe(true);
+  });
+
+  it('8322 阿达纳石板（partial · kingdom-condition 略去）：移除+增幅伤害生效', () => {
+    const { events, state } = castWeapon(8322);
+    expect(typesOf(events)).toContain('gem-destroy');
+    const damages = events.filter((e) => e.type === 'skill-damage');
+    expect(damages.length).toBeGreaterThan(0);
+    void state;
+  });
+});

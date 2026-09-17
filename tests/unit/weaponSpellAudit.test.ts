@@ -1,13 +1,15 @@
 /**
- * 武器法术组装审计（窗口 K-B · 硬关卡）。
+ * 武器法术组装审计（窗口 K-B · 硬关卡 · 分保真度绑定）。
  *
- * 对 curated W 系批次（batch-w*.ts，窗口 K 武器法术）强制执行：
- *   1. 池 pool-w01.json 全量 718 条：编译 ∪ SKIPPED = 全集，无遗漏、无重复；
- *   2. desc 与 weapons.json 快照（zh）逐字相等（武器侧「对号入座」锚；
- *      部队批次的 troops.json 锚不适用于武器 id——两个 id 空间不相交，见冲突用例）；
- *   3. SpellId 与部队法术 id / SKILL_OVERRIDES 无冲突（回归护栏）；
- *   4. 白名单（状态 id / 召唤引用）与数值护栏（对齐部队批口径）；
- *   5. 全量原型在固定种子棋盘上烟雾执行不抛错（确定性入口）。
+ * 对 curated W 系批次（batch-w*.ts）与元数据（weapon-skill-meta.json）强制执行：
+ *   1. 三级并集：full + partial + mana-only = 池全集 718，无遗漏、无重复；
+ *   2. full/partial 的 spellId 必须在批次 build 里；mana-only 必须只在 meta（不在批次）；
+ *   3. desc 与 weapons.json 快照（zh）逐字相等（武器侧「对号入座」锚）；
+ *      部队批次的 troops.json 锚不适用于武器 id——两个 id 空间不相交（冲突回归用例）；
+ *   4. fidelity 一致性：full 的 missingFeatures/skippedClauses 为空；
+ *      partial/mana-only 至少略去一个子句；mana-only 的 skippedClauses 非空；
+ *   5. 白名单（状态 id / 召唤引用）与数值护栏（对齐部队批口径）；
+ *   6. 全量原型在固定种子棋盘上烟雾执行不抛错（确定性入口）。
  * 汇总报告：artifacts/weapon-spell-triage.md。
  */
 import { describe, it, expect } from 'vitest';
@@ -26,11 +28,11 @@ import { BaseColor, PlayerSide, colorGem } from '@engine/types';
 import type { Character, Team, GemType } from '@engine/types';
 import { TROOPS, getTroopByRef } from '../../src/data/troops';
 
-// 池 JSON（生成器产物，勿手改；desc 为武器侧对号入座锚）
-const POOL: { spellId: number; desc: string; scalings: { base: number; mult: number }[] }[] =
-  JSON.parse(
-    fs.readFileSync('scripts/curated-pools/pool-w01.json', 'utf8'),
-  );
+const POOL: { spellId: number; desc: string }[] =
+  JSON.parse(fs.readFileSync('scripts/curated-pools/pool-w01.json', 'utf8'));
+
+const META: Record<string, { fidelity: string; missingFeatures: string[]; skippedClauses: string[] }> =
+  JSON.parse(fs.readFileSync('src/data/weapon-skill-meta.json', 'utf8'));
 
 const STATUS_WHITELIST = new Set([
   'poison', 'burning', 'bleed', 'silence', 'frozen', 'stun', 'entangle', 'web', 'barrier', 'submerged',
@@ -135,46 +137,66 @@ function smokeExecute(spellId: number, errs: string[]): void {
 
 // —— 用例 ——
 
-describe('武器法术池（pool-w01）', () => {
+describe('武器法术池与元数据（pool-w01 + weapon-skill-meta）', () => {
   it('池全量 718 条且 spellId 无重复', () => {
     expect(POOL.length).toBe(718);
     const ids = POOL.map((p) => p.spellId);
     expect(new Set(ids).size).toBe(ids.length);
   });
-});
 
-describe('武器法术组装审计（curated W 系批次）', () => {
-  it('编译 ∪ SKIPPED = 池全集（718），无遗漏无重复', () => {
-    const builtIds = [...weaponById.keys()];
-    const skippedIds = weaponSkipped.map((s) => s.id);
-    const all = new Set([...builtIds, ...skippedIds]);
-    // 无重复（编译/放弃互斥、批间不重）
-    expect(builtIds.length, '编译条数去重前').toBe(builtIds.length);
-    expect(new Set(builtIds).size).toBe(builtIds.length);
-    expect(new Set(skippedIds).size).toBe(skippedIds.length);
-    for (const id of builtIds) {
-      expect(skippedIds.includes(id), `spell ${id} 同时出现在编译与放弃`).toBe(false);
-    }
-    // 三类并集 = 718（原语请求是 SKIPPED 的子集，理由带「原语请求」标记）
-    expect(all.size, '并集大小').toBe(POOL.length);
-    for (const p of POOL) {
-      expect(all.has(p.spellId), `spell ${p.spellId} 既未编译也未放弃`).toBe(true);
+  it('meta 覆盖池全集、键一一对应、fidelity 值域合法', () => {
+    const metaIds = Object.keys(META).map(Number).sort((a, b) => a - b);
+    const poolIds = POOL.map((p) => p.spellId).sort((a, b) => a - b);
+    expect(metaIds, 'meta 键与池逐一对应').toEqual(poolIds);
+    for (const v of Object.values(META)) {
+      expect(['full', 'partial', 'mana-only']).toContain(v.fidelity);
+      expect(Array.isArray(v.missingFeatures)).toBe(true);
+      expect(Array.isArray(v.skippedClauses)).toBe(true);
     }
   });
+});
 
-  it('放弃条目必须带原因；原语请求条目已登记（数量与报告一致）', () => {
-    expect(weaponSkipped.length).toBeGreaterThan(0);
-    for (const s of weaponSkipped) {
-      expect(s.reason.trim().length, `spell ${s.id} 放弃原因为空`).toBeGreaterThan(0);
-      expect(s.batch.startsWith('W'), `放弃条目批次名 ${s.batch}`).toBe(true);
+describe('武器法术组装审计（curated W 系批次 · 分保真度）', () => {
+  it('full + partial + mana-only = 718，三类互斥无遗漏', () => {
+    const builtIds = [...weaponById.keys()];
+    const fullPartial = Object.entries(META)
+      .filter(([, v]) => v.fidelity !== 'mana-only')
+      .map(([id]) => Number(id));
+    const manaOnly = Object.entries(META)
+      .filter(([, v]) => v.fidelity === 'mana-only')
+      .map(([id]) => Number(id));
+
+    // 三级合计 = 718
+    expect(fullPartial.length + manaOnly.length).toBe(POOL.length);
+    // full/partial 必须在批次 build 里
+    for (const id of fullPartial) {
+      expect(weaponById.has(id), `spell ${id}（${META[String(id)].fidelity}）必须在批次 build 里`).toBe(true);
     }
-    const primitiveCount = weaponSkipped.filter((s) => s.reason.includes('原语请求')).length;
-    expect(primitiveCount).toBeGreaterThan(0);
-    const report = fs.readFileSync('artifacts/weapon-spell-triage.md', 'utf8');
-    expect(report).toContain('原语请求清单');
-    expect(report).toContain(`| 放弃（SKIPPED，其中原语请求 ${primitiveCount}） | ${weaponSkipped.length} |`);
-    expect(report).toContain(`| 编译（curated W 系批次） | ${weaponById.size} |`);
-    expect(report).toContain('| **合计** | **718** |');
+    // mana-only 不在批次 build 里
+    for (const id of manaOnly) {
+      expect(weaponById.has(id), `spell ${id} 是 mana-only，不得进批次`).toBe(false);
+    }
+    // 批次 build 与 meta 的 full/partial 集合一致
+    expect(new Set(builtIds).size).toBe(builtIds.length);
+    expect(new Set(fullPartial).size).toBe(fullPartial.length);
+    expect(new Set(builtIds)).toEqual(new Set(fullPartial));
+    //mana-only 占位绑定单独成类
+    expect(manaOnly.length).toBeGreaterThan(0);
+    void weaponSkipped;
+  });
+
+  it('fidelity 一致性：full 无省略；partial/mana-only 必有略去子句', () => {
+    for (const [id, v] of Object.entries(META)) {
+      if (v.fidelity === 'full') {
+        expect(v.missingFeatures.length, `full ${id} 不应有 missingFeatures`).toBe(0);
+        expect(v.skippedClauses.length, `full ${id} 不应有 skippedClauses`).toBe(0);
+      } else {
+        expect(
+          v.skippedClauses.length + v.missingFeatures.length,
+          `${v.fidelity} ${id} 应至少记录一个略去子句或特征`,
+        ).toBeGreaterThan(0);
+      }
+    }
   });
 
   it('desc 与 weapons.json 快照逐字一致（武器侧对号入座锚）', () => {
@@ -195,7 +217,7 @@ describe('武器法术组装审计（curated W 系批次）', () => {
   });
 
   it('批次号 W 系命名、批次内按 spellId 升序', () => {
-    expect(weaponBatchNames).toEqual(weaponBatchNames.map((n) => n).sort());
+    expect(weaponBatchNames).toEqual([...weaponBatchNames].sort());
     for (const n of weaponBatchNames) expect(n).toMatch(/^W\d{2}$/);
     for (const b of weaponBatches) {
       const ids = b.spells.map((s) => s.id);
