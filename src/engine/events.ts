@@ -241,6 +241,8 @@ export interface SpecialGemTriggerEvent {
   pos: CellPos;
   /** 闪电：被清空的行号（lightningRow）或列号（lightningCol） */
   line?: number;
+  /** 六色族（龙/巨人/灵力/药水/糖果）与按色结算的触发：归属/结算基色（表现层按色演出） */
+  color?: BaseColor;
   /** 许愿：抽中选项（0..2=随机 1/2/3 名己方，3=己方全员，4=双方全员）与受益角色 */
   wish?: { option: number; targetIds: number[] };
 }

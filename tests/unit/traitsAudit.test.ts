@@ -176,11 +176,12 @@ describe('A · 数据完整性', () => {
           report(`${tag} randomNegative 必须 randomEnemy + 多状态池`);
         }
       }
-      // T5 配色状态批：配色施加状态的结构合法性（「随机一名敌人」/「赋予自身」句式族）
+      // T5 配色状态批：配色施加状态的结构合法性（「随机一名敌人」/「赋予自身」/ 缺口清扫批
+      // 「随机一名盟友」句式族；independentChance 仅限带概率的多状态条目）
       if (t.onColorMatchStatus) {
         const s = t.onColorMatchStatus;
         if (s.color !== 'skull' && !BASE_COLORS.has(s.color as BaseColor)) report(`${tag} onColorMatchStatus.color「${s.color}」非法`);
-        if (!['randomEnemy', 'self'].includes(s.scope)) report(`${tag} onColorMatchStatus.scope「${s.scope}」非法`);
+        if (!['randomEnemy', 'randomAlly', 'self'].includes(s.scope)) report(`${tag} onColorMatchStatus.scope「${s.scope}」非法`);
         if (!s.statuses || s.statuses.length === 0) report(`${tag} onColorMatchStatus 缺 statuses`);
         for (const st of s.statuses ?? []) {
           if (!ENGINE_STATUS_IDS.has(st.id)) report(`${tag} 配色施加状态「${st.id}」引擎未实现`);
@@ -190,6 +191,8 @@ describe('A · 数据完整性', () => {
         }
         if (s.turns !== undefined && !(s.turns >= 1 && s.turns <= 9)) report(`${tag} onColorMatchStatus.turns=${s.turns} 异常`);
         if (s.chance !== undefined && !(s.chance > 0 && s.chance <= 1)) report(`${tag} onColorMatchStatus.chance=${s.chance} 异常`);
+        if (s.independentChance !== undefined && s.independentChance !== true) report(`${tag} onColorMatchStatus.independentChance 只允许 true`);
+        if (s.independentChance && s.chance === undefined) report(`${tag} independentChance 需要搭配 chance`);
       }
       if (t.onBigMatchSizedGain) {
         const s = t.onBigMatchSizedGain;
@@ -202,10 +205,10 @@ describe('A · 数据完整性', () => {
         if (s.color !== 'skull' && !BASE_COLORS.has(s.color as BaseColor)) report(`${tag} onColorMatchDrain.color「${s.color}」非法`);
         if (!(s.amount >= 1 && s.amount <= 20)) report(`${tag} onColorMatchDrain.amount=${s.amount} 异常`);
       }
-      // T5 大连伤害批：4/5 连技能伤害的结构合法性
+      // T5 大连伤害批：4/5 连技能伤害的结构合法性（缺口清扫批 attackfrombelow 扩 scope lastEnemy）
       if (t.onBigMatchDamage) {
         const s = t.onBigMatchDamage;
-        if (!['randomEnemy', 'enemyAll'].includes(s.scope)) report(`${tag} onBigMatchDamage.scope「${s.scope}」非法`);
+        if (!['randomEnemy', 'enemyAll', 'lastEnemy'].includes(s.scope)) report(`${tag} onBigMatchDamage.scope「${s.scope}」非法`);
         if (!(s.amount >= 1 && s.amount <= 20)) report(`${tag} onBigMatchDamage.amount=${s.amount} 异常`);
         if (s.minSize !== undefined && ![4, 5].includes(s.minSize)) report(`${tag} onBigMatchDamage.minSize=${s.minSize} 异常`);
       }
@@ -373,6 +376,7 @@ describe('A · 数据完整性', () => {
         const s = t.onColorMatchDamage;
         if (s.color !== 'skull' && !BASE_COLORS.has(s.color as BaseColor)) report(`${tag} onColorMatchDamage.color「${s.color}」非法`);
         if (!(s.amount >= 1 && s.amount <= 20)) report(`${tag} onColorMatchDamage.amount=${s.amount} 异常`);
+        if (s.scope !== undefined && !['randomEnemy', 'allEnemies'].includes(s.scope)) report(`${tag} onColorMatchDamage.scope「${s.scope}」非法`);
       }
       for (const field of ['summonOnDeath', 'summonOnAllyDeath', 'summonOnEnemyDeath'] as const) {
         const s = t[field];
@@ -388,6 +392,7 @@ describe('A · 数据完整性', () => {
           if (s.displayName && !s.displayName.includes(s.referenceName) && !OFFICIAL_TROOP_NAMES.has(s.displayName)) {
             report(`${tag} ${field}.displayName「${s.displayName}」在兵种数据中不存在`);
           }
+          if (s.fullMana !== undefined && s.fullMana !== true) report(`${tag} ${field}.fullMana 只允许 true`);
         }
       }
       if (t.onBigMatchTypeAura && t.onBigMatchTypeAura.troopType !== 'all'
@@ -413,6 +418,74 @@ describe('A · 数据完整性', () => {
         const s = t.onAllyCastRandomStatus;
         if (!['randomAlly', 'randomEnemy'].includes(s.scope)) report(`${tag} onAllyCastRandomStatus.scope「${s.scope}」非法`);
       }
+      // —— 缺口清扫批：新字段结构合法性 ——
+      if (t.allyStartMana) {
+        const s = t.allyStartMana;
+        if (!/^[A-Z]/.test(s.troopType)) report(`${tag} allyStartMana.troopType「${s.troopType}」不是规范族名`);
+        if (!(s.ratio > 0 && s.ratio <= 1)) report(`${tag} allyStartMana.ratio=${s.ratio} 超出 (0,1]`);
+      }
+      for (const [field, aura] of [['battleStartTypeAura', t.battleStartTypeAura], ['turnStartTypeAura', t.turnStartTypeAura]] as const) {
+        if (!aura) continue;
+        const scopeOk = aura.scope === 'all' || /^[A-Z]/.test(aura.scope) || BASE_COLORS.has(aura.scope as BaseColor);
+        if (!scopeOk) report(`${tag} ${field}.scope「${aura.scope}」不是全队/规范族名/颜色`);
+        const vals = Object.values(aura.gains).filter((v) => v !== 0);
+        if (vals.length === 0 || vals.some((v) => v < 1 || v > 20)) report(`${tag} ${field}.gains 异常`);
+      }
+      if (t.perAllyTrait) {
+        if (t.perAllyTrait.trait !== 'banding') report(`${tag} perAllyTrait.trait「${t.perAllyTrait.trait}」非法（束带家族）`);
+        const vals = Object.values(t.perAllyTrait.gains).filter((v) => v !== 0);
+        if (vals.length === 0 || vals.some((v) => v < 1 || v > 20)) report(`${tag} perAllyTrait.gains 异常`);
+      }
+      for (const [field, s] of [['onAllyCastStatus', t.onAllyCastStatus], ['onEnemyCastStatus', t.onEnemyCastStatus]] as const) {
+        if (!s) continue;
+        if (!['self', 'randomAlly', 'randomEnemy'].includes(s.scope)) report(`${tag} ${field}.scope「${s.scope}」非法`);
+        if (!s.statuses || s.statuses.length === 0) report(`${tag} ${field} 缺 statuses`);
+        for (const st of s.statuses ?? []) {
+          if (!ENGINE_STATUS_IDS.has(st.id)) report(`${tag} ${field} 状态「${st.id}」引擎未实现`);
+          if (st.magnitude !== undefined && !['poison', 'burning', 'bleed'].includes(st.id)) {
+            report(`${tag} ${field} 非 DoT 状态不应带 magnitude（${st.id}）`);
+          }
+        }
+        if (!(s.turns >= 1 && s.turns <= 9)) report(`${tag} ${field}.turns=${s.turns} 异常`);
+        if (s.chance !== undefined && !(s.chance > 0 && s.chance <= 1)) report(`${tag} ${field}.chance=${s.chance} 异常`);
+      }
+      if (t.onAllyCastEnemyDrain) {
+        const s = t.onAllyCastEnemyDrain;
+        if (!['hp', 'attack', 'armor', 'magic', 'mana', 'random'].includes(s.stat)) report(`${tag} onAllyCastEnemyDrain.stat「${s.stat}」非法`);
+        if (!(s.amount >= 1 && s.amount <= 20)) report(`${tag} onAllyCastEnemyDrain.amount=${s.amount} 异常`);
+        if (s.scope !== 'allEnemies') report(`${tag} onAllyCastEnemyDrain.scope「${s.scope}」非法`);
+      }
+      for (const [field, s] of [['turnStartEconomy', t.turnStartEconomy], ['onAllyCastEconomy', t.onAllyCastEconomy], ['onDamagedEconomy', t.onDamagedEconomy]] as const) {
+        if (!s) continue;
+        if (!['gold', 'souls', 'gems'].includes(s.currency)) report(`${tag} ${field}.currency「${s.currency}」非法`);
+        if (!(s.amount >= 1 && s.amount <= 50)) report(`${tag} ${field}.amount=${s.amount} 异常`);
+      }
+      if (t.turnStartSummon) {
+        const s = t.turnStartSummon;
+        if (!(s.chance > 0 && s.chance <= 1)) report(`${tag} turnStartSummon.chance=${s.chance} 异常`);
+        if (!s.troopId || !s.referenceName || !s.displayName) report(`${tag} turnStartSummon 缺 troopId/referenceName/displayName`);
+        if (s.displayName && !OFFICIAL_TROOP_NAMES.has(s.displayName)) {
+          report(`${tag} turnStartSummon.displayName「${s.displayName}」在兵种数据中不存在`);
+        }
+      }
+      if (t.turnStartStorm) {
+        const s = t.turnStartStorm;
+        if (!s.referenceName || !s.displayName) report(`${tag} turnStartStorm 缺 referenceName/displayName`);
+        if (!s.colors || s.colors.length === 0 || s.colors.some((c) => !BASE_COLORS.has(c as BaseColor))) {
+          report(`${tag} turnStartStorm.colors 非法`);
+        }
+        if (s.dropKind !== undefined && !['skull', 'doomSkull', 'uberDoomSkull'].includes(s.dropKind)) {
+          report(`${tag} turnStartStorm.dropKind「${s.dropKind}」非法`);
+        }
+      }
+      if (t.mode !== undefined && t.mode !== 'pvp') report(`${tag} mode 只允许 'pvp'`);
+      if (t.pvpBonus) {
+        const s = t.pvpBonus;
+        if (!['attack', 'defense', 'battle'].includes(s.phase)) report(`${tag} pvpBonus.phase「${s.phase}」非法`);
+        const vals = Object.values(s.gains).filter((v) => v !== 0);
+        if (vals.length === 0 || vals.some((v) => v < 1 || v > 20)) report(`${tag} pvpBonus.gains 异常`);
+      }
+      if (t.mode === 'pvp' && !t.pvpBonus) report(`${tag} mode='pvp' 但缺 pvpBonus`);
     }
   });
   it('全部条目结构合法、数值在合理区间、引用真实存在', () => expectNoProblems(problems, '数据完整性'));
@@ -457,6 +530,13 @@ describe('B · 编译契约', () => {
     // 战斗机制批：jinx 敌方宝石灵力减半 / indigestible 吞噬免疫（数据字段，吞噬落地时消费）/
     // goodtarot+badtarot 施法随机状态
     'enemyMasteryMult', 'devourImmunity', 'onAllyCastRandomStatus',
+    // 缺口清扫批：施法显式状态（moonfestival 族）+ 施法敌方削减（psychicaffliction/succumb）+
+    // 惰性经济/召唤/风暴（goldenhoard/harpyflock/snowstorm 族，钩子落地时消费）+
+    // PVP 限定（defender/siege/virtueofhonor，mode:'pvp' 惰性建模）
+    'onAllyCastStatus', 'onEnemyCastStatus', 'onAllyCastEnemyDrain',
+    'turnStartEconomy', 'onAllyCastEconomy', 'onDamagedEconomy',
+    'turnStartSummon', 'turnStartStorm',
+    'mode', 'pvpBonus',
   ]);
 
   /**
@@ -476,6 +556,9 @@ describe('B · 编译契约', () => {
     'battleStartDestroy',
     // 战斗机制批：位次条件光环（leader/general/goblord，applyPositionAuras 直读 getTrait）
     'positionAura',
+    // 缺口清扫批：种族开局法力 / 开局范围光环 / 束带计数（applyBattleStartTraits 直读）/
+    // 回合开始范围光环（applyTurnStartPassives 直读）
+    'allyStartMana', 'battleStartTypeAura', 'perAllyTrait', 'turnStartTypeAura',
   ]);
 
   it('生成器产出的每个效果键都被引擎消费（编译器或定义直读，二者其一）', () => {
@@ -553,10 +636,20 @@ describe('C · 描述↔数值一致性（从官方文本重新抽数对账）',
         const expectRatio = /全满/.test(d) ? 1 : (num(/(\d+)%\s*法力/.exec(d)?.[1] ?? '-1') / 100);
         if (t.battleStartManaRatio !== expectRatio) report(`${tag(t)} 开局法力比例与描述不符`);
       }
-      // 回合恢复
+      // 回合恢复。三种句式：恢复/获得 N 点X（aspectofwar）/ N 个随机技能值（heofmanyparts）/
+      // 属性词前置共享数值（wildhorns「攻击力、生命值和护甲值获得2点提升」→ stat+alsoStats）。
       if (t.regen) {
-        const m = /(?:恢复|获得)\s*(\d+)\s*点(生命值|护甲值|攻击力|魔法值)/.exec(d);
-        if (!m || num(m[1]) !== t.regen.amount || statOf(m[2]) !== t.regen.stat) {
+        const statFirst = /((?:随机技能值|生命值|护甲值|攻击力|魔法值)(?:[、和](?:\s*\d+\s*点)?(?:随机技能值|生命值|护甲值|攻击力|魔法值))*)获得\s*(\d+)\s*点/.exec(d);
+        const m = statFirst ? null
+          : /(?:恢复|获得)\s*(\d+)\s*[点个](随机技能值|生命值|护甲值|攻击力|魔法值)/.exec(d);
+        if (statFirst) {
+          const words = statFirst[1].split(/[、和]/).map((s) => s.replace(/\s*\d+\s*点/g, '').trim()).filter(Boolean);
+          const expected: string[] = words.map(statOf);
+          const all: string[] = [t.regen.stat, ...(t.regen.alsoStats ?? [])];
+          const ok = num(statFirst[2]) === t.regen.amount
+            && expected.length === all.length && expected.every((s) => all.includes(s));
+          if (!ok) report(`${tag(t)} 再生（共享数值多属性）与描述不符`);
+        } else if (!m || num(m[1]) !== t.regen.amount || statOf(m[2]) !== t.regen.stat) {
           report(`${tag(t)} 再生数值/属性与描述不符`);
         }
       }
@@ -705,11 +798,22 @@ describe('C · 描述↔数值一致性（从官方文本重新抽数对账）',
           report(`${tag(t)} onBigMatchKill.chance=${t.onBigMatchKill.chance} 与描述「${d}」不符`);
         }
       }
+      // 配色伤害：randomEnemy=「对一名随机敌人」（lumpofcoal 族）/ allEnemies=「对所有敌人」
+      //（缺口清扫批 spiny/spiky「在自身配对骷髅头时，对所有敌人造成 N 点伤害」）
       if (t.onColorMatchDamage) {
-        const m = /在?配对(.+?)宝石的?时[，,]?对一名随机敌人造成\s*(\d+)\s*点伤害/.exec(d);
-        const expectColor = m ? pickColorOf(m[1]) : null;
-        if (!m || num(m[2]) !== t.onColorMatchDamage.amount || expectColor !== t.onColorMatchDamage.color) {
-          report(`${tag(t)} onColorMatchDamage 与描述「${d}」不符`);
+        const s = t.onColorMatchDamage;
+        const allM = /在自身配对骷髅头(?:宝石)?时[，,]?对所有敌人造成\s*(\d+)\s*点伤害/.exec(d);
+        const m = allM
+          ?? /在?配对(.+?)宝石的?时[，,]?对一名随机敌人造成\s*(\d+)\s*点伤害/.exec(d);
+        if (allM) {
+          if (s.scope !== 'allEnemies' || s.color !== 'skull' || num(allM[1]) !== s.amount) {
+            report(`${tag(t)} onColorMatchDamage（全体骷髅）与描述「${d}」不符`);
+          }
+        } else {
+          const expectColor = m ? pickColorOf(m[1]) : null;
+          if (!m || num(m[2]) !== s.amount || expectColor !== s.color || (s.scope ?? 'randomEnemy') !== 'randomEnemy') {
+            report(`${tag(t)} onColorMatchDamage 与描述「${d}」不符`);
+          }
         }
       }
       if (t.manaOpsImmunity && !/对法力灼烧、法力耗尽和法力窃取免疫/.test(d)) {
@@ -895,7 +999,8 @@ describe('C · 描述↔数值一致性（从官方文本重新抽数对账）',
         if (s.scope === 'randomAlly' && !/随机|一名随/.test(d)) report(`${tag(t)} onBigMatchStatus.scope=randomAlly 但描述没有「随机」`);
       }
       // T5 配色状态批：概率句对账 + 句式方向/颜色键/状态词逐个反查
-      //（angrybear「赋予自身狂怒状态」为 scope self：目标=持有者本人，方向校验相应放宽）
+      //（angrybear「赋予自身狂怒状态」为 scope self：目标=持有者本人，方向校验相应放宽；
+      // enchantinggaze「为随机盟友附魔」为 scope randomAlly；brambleheart 机翻动词「消除」）
       if (t.onColorMatchStatus) {
         const s = t.onColorMatchStatus;
         const chanceM = /有\s*(\d+)%\s*的?几率/.exec(d);
@@ -905,12 +1010,16 @@ describe('C · 描述↔数值一致性（从官方文本重新抽数对账）',
           if (!/自身|自己/.test(d) || /敌人/.test(d)) {
             report(`${tag(t)} onColorMatchStatus.scope=self 但描述不是「自身」句式`);
           }
+        } else if (s.scope === 'randomAlly') {
+          if (!/随机/.test(d) || !/盟友/.test(d) || /敌人/.test(d)) {
+            report(`${tag(t)} onColorMatchStatus.scope=randomAlly 但描述不是「随机…盟友」句式`);
+          }
         } else if (!/随机/.test(d) || !/敌人/.test(d) || /所有敌人/.test(d)) {
           report(`${tag(t)} onColorMatchStatus 但描述不是「随机…敌人」句式`);
         }
         if (s.color !== 'skull') {
           // 颜色键必须与描述一致（「在配对红色宝石时」「匹配红宝石时」→ Red，色字可省）
-          const cm = /(?:在?配对|匹配)(.+?)宝石/.exec(d);
+          const cm = /(?:在?配对|匹配|消除)(.+?)宝石/.exec(d);
           const expectColor = cm ? pickColorOf(cm[1]) : null;
           if (expectColor === null || expectColor !== s.color) {
             report(`${tag(t)} onColorMatchStatus.color「${s.color}」与描述「${cm?.[1] ?? d}」不符`);
@@ -922,6 +1031,8 @@ describe('C · 描述↔数值一致性（从官方文本重新抽数对账）',
           frozen: /冻结|冰冻/, bleed: /出血|流血/, entangle: /缠绕|纠缠/, web: /织网/,
           stun: /击晕|眩晕/, curse: /诅咒/, disease: /疾病|患病/, marked: /猎人标记/,
           rage: /狂怒|激怒/, barrier: /屏障|阻挡/, blessed: /赐福|祝福/,
+          // 缺口清扫批新增状态词（法印=enchanted、死亡标记=death-mark）
+          enchanted: /法印|附魔/, 'death-mark': /死亡标记|死亡印记/,
         };
         for (const st of s.statuses ?? []) {
           const re = wordOf[st.id] ?? (st.id === 'faerie-fire' ? wordOf.faerie_fire : undefined);
@@ -939,13 +1050,15 @@ describe('C · 描述↔数值一致性（从官方文本重新抽数对账）',
           report(`${tag(t)} onColorMatchDrain 与描述「${d}」不符`);
         }
       }
-      // T5 大连伤害批：对（一名随机敌人|所有敌人）造成 N 点伤害
-      //（huntersclaw 机翻变体「消除 4 个或更多宝石时，对随机敌人造成 N 点伤害」同口径）
+      // T5 大连伤害批：对（一名随机敌人|所有敌人|最后一个敌人）造成 N 点伤害
+      //（huntersclaw 机翻变体「消除 4 个或更多宝石时，对随机敌人造成 N 点伤害」同口径；
+      // 缺口清扫批 attackfrombelow「对最后一个敌人」= scope lastEnemy）
       if (t.onBigMatchDamage) {
         const s = t.onBigMatchDamage;
         const m = /在配对\s*4\s*或\s*5\s*颗宝石时[，,]?对(一名随机敌人|所有敌人)造成\s*(\d+)\s*点伤害/.exec(d)
-          ?? /(?:在?配对|匹配|消除)\s*4\s*[颗个]?\s*或\s*(?:更?多|5|以上)\s*[颗个]?宝石的?时[，,]?对(?:一名)?(随机敌人)造成\s*(\d+)\s*点伤害/.exec(d);
-        const expectScope = m ? (m[1].includes('所有敌人') ? 'enemyAll' : 'randomEnemy') : null;
+          ?? /(?:在?配对|匹配|消除)\s*4\s*[颗个]?\s*或\s*(?:更?多|5|以上)\s*[颗个]?宝石的?时[，,]?对(?:一名)?(随机敌人)造成\s*(\d+)\s*点伤害/.exec(d)
+          ?? /(?:在?配对|匹配)\s*4\s*[颗个]?\s*或\s*(?:更?多|5|以上)\s*[颗个]?的?宝石的?时[，,]?对(最后一个敌人)造成\s*(\d+)\s*点伤害/.exec(d);
+        const expectScope = m ? (m[1].includes('所有敌人') ? 'enemyAll' : m[1].includes('最后') ? 'lastEnemy' : 'randomEnemy') : null;
         if (!m || num(m[2]) !== s.amount || expectScope !== s.scope) {
           report(`${tag(t)} onBigMatchDamage 与描述「${d}」不符`);
         }
@@ -981,6 +1094,77 @@ describe('C · 描述↔数值一致性（从官方文本重新抽数对账）',
       if (t.onAllyCastGain && !/盟友施/.test(d)) report(`${tag(t)} onAllyCastGain 但描述没有「盟友施法」`);
       if (t.onEnemyCastGain && !/敌人施/.test(d)) report(`${tag(t)} onEnemyCastGain 但描述没有「敌人施法」`);
 
+      // —— 缺口清扫批：新族描述↔数值对账 ——
+      // 种族开局法力：「获得/给予/拥有/都有 … N% 法力」「初始法力值为 N%」
+      if (t.allyStartMana) {
+        const m = /(?:获得|给予|拥有|都有)[^0-9。]*?(\d+)\s*%\s*(?:的)?\s*法力/.exec(d) ?? /初始法力值为\s*(\d+)\s*%/.exec(d);
+        if (!m || num(m[1]) / 100 !== t.allyStartMana.ratio) report(`${tag(t)} allyStartMana.ratio=${t.allyStartMana.ratio} 与描述不符`);
+        if (!/战斗开始|初始/.test(d)) report(`${tag(t)} allyStartMana 但描述不是开局法力句式`);
+      }
+      // 开局/回合开始范围光环：全部非零 gains = 描述里的 N
+      for (const [field, aura] of [['battleStartTypeAura', t.battleStartTypeAura], ['turnStartTypeAura', t.turnStartTypeAura]] as const) {
+        if (!aura) continue;
+        const m = /(?:全部(?:状态值|技能值)(?:将)?增加|获得|增加|给予|拥有|都有|提供)[^0-9。]*?(\d+)\s*点/.exec(d);
+        const vals = Object.values(aura.gains).filter((v) => v !== 0);
+        if (!m || vals.length === 0 || vals.some((v) => v !== num(m[1]))) {
+          report(`${tag(t)} ${field} 数值与描述「${m?.[1] ?? d}」不符`);
+        }
+        if (field === 'turnStartTypeAura' && !/回合开始/.test(d)) report(`${tag(t)} turnStartTypeAura 但描述没有「回合开始」`);
+        if (field === 'turnStartTypeAura' && /敌人/.test(d)) report(`${tag(t)} turnStartTypeAura 指向己方但描述提到「敌人」`);
+        if (field === 'battleStartTypeAura' && /敌人/.test(d)) report(`${tag(t)} battleStartTypeAura 指向己方但描述提到「敌人」`);
+      }
+      // 束带计数：「每有一名拥有束带特质的盟友，获得/全部技能值各获得 N 点」
+      if (t.perAllyTrait) {
+        const m = /束带特质的盟友，(?:全部技能值各获得|获得)\s*(\d+)\s*点/.exec(d);
+        const vals = Object.values(t.perAllyTrait.gains).filter((v) => v !== 0);
+        if (!m || vals.length === 0 || vals.some((v) => v !== num(m[1]))) {
+          report(`${tag(t)} perAllyTrait 数值与描述「${m?.[1] ?? d}」不符`);
+        }
+      }
+      // 施法显式状态：概率 + scope 方向
+      for (const [field, s] of [['onAllyCastStatus', t.onAllyCastStatus], ['onEnemyCastStatus', t.onEnemyCastStatus]] as const) {
+        if (!s) continue;
+        if (!/施(?:放|法)法?术?时/.test(d)) report(`${tag(t)} ${field} 但描述没有施法句式`);
+        const chanceM = /有\s*(\d+)\s*[％%]\s*的?几率/.exec(d);
+        const expectChance = chanceM ? num(chanceM[1]) / 100 : undefined;
+        if (s.chance !== expectChance) report(`${tag(t)} ${field}.chance=${s.chance} 与描述不符`);
+        const targetAlly = s.scope === 'randomAlly' || (s.scope === 'self' && field === 'onEnemyCastStatus');
+        if (s.scope === 'randomAlly' && !/随机盟友|随机一名盟友/.test(d)) report(`${tag(t)} ${field}.scope=randomAlly 但描述没有「随机盟友」`);
+        if (s.scope === 'randomEnemy' && !/随机敌人|随机一名敌人|随机敌人/.test(d)) report(`${tag(t)} ${field}.scope=randomEnemy 但描述没有「随机敌人」`);
+        if (targetAlly && s.scope === 'self' && field === 'onEnemyCastStatus' && !/获得/.test(d)) {
+          report(`${tag(t)} ${field}.scope=self 但描述不是「获得」句式`);
+        }
+      }
+      // 施法敌方削减：数额与「敌人」方向
+      if (t.onAllyCastEnemyDrain) {
+        const s = t.onAllyCastEnemyDrain;
+        const m = /(?:消除|失去)(?:所有敌人|一名随机敌人)?\s*(\d+)\s*点(魔法值|随机技能值)/.exec(d);
+        const statOk = m ? (s.stat === 'magic' || s.stat === 'random') && (m[2] === '魔法值' ? s.stat === 'magic' : true) : false;
+        if (!m || num(m[1]) !== s.amount || !statOk) report(`${tag(t)} onAllyCastEnemyDrain 与描述「${d}」不符`);
+        if (!/所有敌人/.test(d) && s.stat !== 'random') report(`${tag(t)} onAllyCastEnemyDrain 但描述不是全体句`);
+      }
+      // 经济三兄弟：数额/币种与描述一致
+      for (const [field, s, re] of [
+        ['turnStartEconomy', t.turnStartEconomy, /回合开始(?:的时候|时)?[，,]?获得\s*(\d+)\s*个?(金币|灵魂)/],
+        ['onAllyCastEconomy', t.onAllyCastEconomy, /施放法术时[，,]?获得\s*(\d+)\s*个?(金币|灵魂)/],
+        ['onDamagedEconomy', t.onDamagedEconomy, /受到伤害时获得\s*(\d+)\s*(黄金|灵魂)/],
+      ] as const) {
+        if (!s) continue;
+        const m = re.exec(d);
+        const currency = m ? ((m[2] === '金币' || m[2] === '黄金') ? 'gold' : 'souls') : null;
+        if (!m || num(m[1]) !== s.amount || currency !== s.currency) report(`${tag(t)} ${field} 与描述不符`);
+      }
+      // 回合开始召唤：概率 + 兵种名
+      if (t.turnStartSummon) {
+        const m = /回合开始(?:的时候|时)?[，,]?有\s*(\d+)\s*[％%]\s*的?几率召唤一?[名只个头]?(.+?)。?$/.exec(d);
+        if (!m || num(m[1]) / 100 !== t.turnStartSummon.chance) report(`${tag(t)} turnStartSummon.chance 与描述不符`);
+        else if (m[2].trim() !== t.turnStartSummon.displayName) {
+          report(`${tag(t)} turnStartSummon.displayName「${t.turnStartSummon.displayName}」与描述「${m[2]}」不符`);
+        }
+      }
+      // PVP 限定：必须是 PVP 句式（「玩家对决战」机翻连写一并认）
+      if (t.mode === 'pvp' && !/玩家对[战决]|PVP/.test(d)) report(`${tag(t)} mode='pvp' 但描述没有 PVP 句式`);
+
       /** 中文风暴名 → 生成器写入的英文 referenceName 词干（开局风暴对账用） */
 const CN_STORM_TO_REFERENCE: Record<string, string> = {
   光: 'Light',
@@ -1011,6 +1195,12 @@ const CN_STORM_TO_REFERENCE: Record<string, string> = {
           const named = `${bs.displayName ?? ''}${bs.referenceName ?? ''}`;
           if (!refName || !named.includes(refName)) {
             report(`${tag(t)} 开局风暴「${named}」与描述「${expected}」不符`);
+          }
+        } else if (t.turnStartStorm) {
+          // 缺口清扫批：回合开始创造风暴（snowstorm/endlessdawn/dustplume 族）——
+          // 中文描述截获词 + 风暴 = 写入的 displayName（混合双色风暴随对象建模）
+          if (!t.turnStartStorm.displayName.includes(expected)) {
+            report(`${tag(t)} 回合开始风暴「${t.turnStartStorm.displayName}」与描述「${expected}」不符`);
           }
         } else {
           const spec = t.summonOnDeath ?? t.summonOnAllyDeath ?? t.summonOnEnemyDeath;
@@ -1065,6 +1255,12 @@ describe('D · 接线完整性（钩子存在但没人调用 = 死角）', () =>
     ['死亡召唤', /applyDeathSummons|summonOnDeath/, () => turnEngineSrc],
     ['风暴设置/顶替/回合递减', /setStormFromSummon|tickStorms|stormDropWeights/, () => turnEngineSrc],
     ['风暴掉落加权', /STORM_DROP_WEIGHT/, () => gravitySystemSrc],
+    // 缺口清扫批：新族消费点（traits.ts 内已由 TurnEngine 调用的 apply* 函数承接）
+    ['种族开局法力/开局范围光环/束带计数', /allyStartMana|battleStartTypeAura|perAllyTrait/, () => traitsSrc],
+    ['回合开始范围光环', /turnStartTypeAura/, () => traitsSrc],
+    ['施法显式状态/施法敌方削减', /castStatus|castEnemyDrain|onAllyCastStatus/, () => traitsSrc],
+    ['复活满法力（immortal/deepsoul 族）', /fullMana/, () => traitsSrc],
+    ['配色全体伤害/大连末位伤害 scope', /allEnemies|lastEnemy/, () => traitsSrc],
   ];
   it.each(cases)('%s 有真实消费点', (_name, re, src) => {
     expect(re.test(src())).toBe(true);

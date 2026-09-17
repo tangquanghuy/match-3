@@ -111,7 +111,8 @@ describe('编译正确性（新键 → 定义/resolvePassives 产物）', () => 
     expect(getTrait('lumpofcoal')?.onColorMatchDamage).toEqual({ color: 'Red', amount: 5 });
     expect(getTrait('dawnslayer')?.onColorMatchDamage).toEqual({ color: 'Yellow', amount: 12 });
     expect(getTrait('sleetstorm')?.onColorMatchDamage).toEqual({ color: 'Blue', amount: 12 });
-    expect(resolvePassives(['lumpofcoal']).colorMatchDamage).toEqual({ Red: 5 });
+    // 缺口清扫批：编译产物带 scope（缺省 randomEnemy 语义不变），spiny/spiky 另有 allEnemies
+    expect(resolvePassives(['lumpofcoal']).colorMatchDamage).toEqual({ Red: { amount: 5, scope: 'randomEnemy' } });
   });
 
   it('新键编译后与中性被动有差异且编译为纯函数', () => {

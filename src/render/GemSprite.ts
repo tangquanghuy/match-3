@@ -1,7 +1,7 @@
 import { Container, Graphics, Sprite, Text } from 'pixi.js';
 import { BaseColor } from '@engine/types';
-import type { GemType, SpecialGemKind } from '@engine/types';
-import { isStatusGemKind } from '@engine/types';
+import type { GemType, SpecialGemKind, SpecialGemSpec } from '@engine/types';
+import { isStatusGemKind, isWaveBGemKind } from '@engine/types';
 import { textureFor } from './gemTextures';
 import { attachStatusGemOverlay, disposeStatusGemOverlay } from './statusGemOverlays';
 import type { StatusGemOverlay } from './statusGemOverlays';
@@ -53,6 +53,25 @@ const SPECIAL_HEX: Record<SpecialGemKind, number> = {
   barrierGem: 0xffd24a,
   // 赃物宝石（窗口 E 经济批）：黄底（贴图）+ 钱袋金币程序化叠层
   bootyGem: 0xffd24a,
+  // 波B 17 颗（GEMS-SEMANTICS-2 2026-09-17，免贴图）：主色仅作贴图缺失时的兜底基调——
+  // 六色族实际主色随 spec.color（colorOf 优先读实例色），星族/无色族按各自设计行登记
+  dragonGem: 0xf2f2ff,
+  giantGem: 0xffd24a,
+  spiritGem: 0xb7e5ff,
+  manaPotionGem: 0xf2f2ff,
+  candyGem: 0xffd24a,
+  elementalStar: 0xc8864b,
+  umbralStar: 0xc77dff,
+  angelGem: 0xffe9a6,
+  daemonicPortalGem: 0xff8a5c,
+  gargoyleGem: 0x8a8f9c,
+  stoneBlock: 0xa8adb8,
+  lycanthropyGem: 0xb46cff,
+  decayGem: 0x9c8462,
+  volcanoGem: 0xff4d5e,
+  trapGem: 0x8a8f9c,
+  enchantedGem: 0xb46cff,
+  mimicGem: 0xc8864b,
 };
 
 export function colorOf(type: GemType): number {
@@ -61,7 +80,11 @@ export function colorOf(type: GemType): number {
     return hex !== undefined ? hex : 0x8a8f9c; // 防御：颜色缺失时退灰，绝不返回纯白
   }
   if (type.kind === 'skull') return 0xdfe3ea;
-  if (type.kind === 'special') return SPECIAL_HEX[type.spec.kind] ?? 0x8a8f9c;
+  if (type.kind === 'special') {
+    // 六色族（波B）实际主色随实例归属色；其余 kind 走静态表
+    if (type.spec.color) return COLOR_HEX[type.spec.color] ?? 0x8a8f9c;
+    return SPECIAL_HEX[type.spec.kind] ?? 0x8a8f9c;
+  }
   return 0x8a8f9c;
 }
 
@@ -79,6 +102,8 @@ export class GemSprite extends Container {
   private multiplierLabel: Text | null = null;
   /** 状态搬运宝石的程序化叠层（GEMS-SEMANTICS-2 波A）；setType 时销毁重建 */
   private statusOverlay: StatusGemOverlay | null = null;
+  /** 波B 免贴图宝石的静态叠层（GEMS-SEMANTICS-2 波B）；setType 时销毁重建 */
+  private waveBOverlay: Graphics | null = null;
   private size: number;
 
   constructor(size: number) {
@@ -100,6 +125,10 @@ export class GemSprite extends Container {
     // 旧状态叠层先销毁（对象池复用时残留的补间/图层不能带到新宝石上）
     disposeStatusGemOverlay(this.statusOverlay);
     this.statusOverlay = null;
+    if (this.waveBOverlay) {
+      this.waveBOverlay.destroy();
+      this.waveBOverlay = null;
+    }
 
     const tex = textureFor(type);
     // 状态搬运宝石：独立贴图之上只叠轻量环境粒子。
@@ -133,6 +162,12 @@ export class GemSprite extends Container {
     }
     if (statusKind) {
       this.statusOverlay = attachStatusGemOverlay(this, statusKind, this.size);
+    }
+    // 波B 免贴图宝石：归属色贴图（textureFor 回退）之上叠一层静态语义标记
+    //（单层 Graphics、setType 绘制一次；无逐帧重绘/滤镜，GEMS-SEMANTICS-2 §0 预算）
+    if (type.kind === 'special' && isWaveBGemKind(type.spec.kind)) {
+      this.waveBOverlay = drawWaveBOverlay(type.spec, this.size);
+      this.addChild(this.waveBOverlay);
     }
   }
 
@@ -332,6 +367,28 @@ export class GemSprite extends Container {
         this.drawStatusGemFallback(kind, r);
         break;
       }
+      // 波B 17 颗（免贴图）：正常路径 textureFor 已回退归属色贴图 + drawWaveBOverlay 叠层；
+      // 此分支只服务贴图整体加载失败的极端回退，保证可玩。
+      case 'dragonGem':
+      case 'giantGem':
+      case 'spiritGem':
+      case 'manaPotionGem':
+      case 'candyGem':
+      case 'elementalStar':
+      case 'umbralStar':
+      case 'angelGem':
+      case 'daemonicPortalGem':
+      case 'gargoyleGem':
+      case 'stoneBlock':
+      case 'lycanthropyGem':
+      case 'decayGem':
+      case 'volcanoGem':
+      case 'trapGem':
+      case 'enchantedGem':
+      case 'mimicGem': {
+        this.drawStatusGemFallback(kind, r);
+        break;
+      }
     }
   }
 
@@ -343,4 +400,148 @@ export class GemSprite extends Container {
     g.poly([0, -k, k, 0, 0, k, -k, 0]).fill(hex);
     g.poly([0, -k, k, 0, 0, k, -k, 0]).stroke({ width: 2, color: 0x1a1a28, alpha: 0.45 });
   }
+}
+
+/** 星形多边形顶点（n 角，外/内半径交替；rot 为起始角） */
+function starPoints(cx: number, cy: number, outer: number, inner: number, n: number, rot: number): number[] {
+  const pts: number[] = [];
+  for (let i = 0; i < n * 2; i++) {
+    const rad = i % 2 === 0 ? outer : inner;
+    const a = rot + (Math.PI * i) / n;
+    pts.push(cx + Math.cos(a) * rad, cy + Math.sin(a) * rad);
+  }
+  return pts;
+}
+
+/**
+ * 波B 宝石的静态语义叠层（GEMS-SEMANTICS-2 §0 预算：单层 Graphics、setType 绘制一次，
+ * 无逐帧重绘/无滤镜；待机动画复用 App 既有呼吸系统）。形状即语义的极简占位：
+ * 龙=下行双箭纹 / 巨人=金环 / 灵力=鬼眼 / 药水=瓶 / 糖果=包装角 / 星=星形 /
+ * 天使=光环 / 传送门=漩涡椭圆 / 石像鬼=眼色 / 石块=凿痕 / 狼化=爪痕 / 腐朽=裂纹 /
+ * 火山=喷口 / 陷阱=尖刺 / 附魔=符环 / 宝箱怪=箱口。
+ */
+function drawWaveBOverlay(spec: SpecialGemSpec, size: number): Graphics {
+  const g = new Graphics();
+  const r = size * 0.5;
+  const ink = { width: 2, color: 0x1a1a28, alpha: 0.6 };
+  switch (spec.kind) {
+    case 'dragonGem': {
+      // 下行双箭纹：列向清除的方向语义
+      for (const y of [-r * 0.18, r * 0.14]) {
+        g.moveTo(-r * 0.26, y - r * 0.16).lineTo(0, y + r * 0.02).lineTo(r * 0.26, y - r * 0.16)
+          .stroke({ width: 2.5, color: 0x1a1a28, alpha: 0.65 });
+      }
+      break;
+    }
+    case 'giantGem': {
+      // 粗金环（官方"法力版末日骷髅"的体型感）
+      g.circle(0, 0, r * 0.8).stroke({ width: 3, color: 0xffd24a, alpha: 0.9 });
+      break;
+    }
+    case 'spiritGem': {
+      // 两只椭圆鬼眼（白）
+      g.ellipse(-r * 0.2, -r * 0.08, r * 0.12, r * 0.16).fill({ color: 0xffffff, alpha: 0.9 });
+      g.ellipse(r * 0.2, -r * 0.08, r * 0.12, r * 0.16).fill({ color: 0xffffff, alpha: 0.9 });
+      break;
+    }
+    case 'manaPotionGem': {
+      // 药瓶轮廓：瓶身圆 + 瓶颈
+      g.circle(0, r * 0.1, r * 0.3).stroke({ width: 2, color: 0xffffff, alpha: 0.85 });
+      g.rect(-r * 0.1, -r * 0.38, r * 0.2, r * 0.2).stroke({ width: 2, color: 0xffffff, alpha: 0.85 });
+      break;
+    }
+    case 'candyGem': {
+      // 糖果包装左右角
+      g.poly([-r * 0.72, 0, -r * 0.42, -r * 0.16, -r * 0.42, r * 0.16]).fill({ color: 0xffffff, alpha: 0.75 });
+      g.poly([r * 0.72, 0, r * 0.42, -r * 0.16, r * 0.42, r * 0.16]).fill({ color: 0xffffff, alpha: 0.75 });
+      break;
+    }
+    case 'elementalStar': {
+      // 四色四角星 + 白核（棕蓝绿红四支角）
+      const rays: [number, number][] = [[0, 0xc8864b], [Math.PI / 2, 0x4aa8ff], [Math.PI, 0x4bd66a], [-Math.PI / 2, 0xff4d5e]];
+      for (const [rot, color] of rays) {
+        g.poly(starPoints(0, 0, r * 0.62, r * 0.14, 4, rot - Math.PI / 2)).fill({ color, alpha: 0.85 });
+      }
+      g.circle(0, 0, r * 0.12).fill({ color: 0xffffff, alpha: 0.9 });
+      break;
+    }
+    case 'umbralStar': {
+      // 暗色五角星 + 紫描边
+      g.poly(starPoints(0, 0, r * 0.58, r * 0.24, 5, -Math.PI / 2))
+        .fill({ color: 0x2d1b4e, alpha: 0.9 })
+        .stroke({ width: 2, color: 0xc77dff, alpha: 0.9 });
+      break;
+    }
+    case 'angelGem': {
+      // 顶部光环
+      g.ellipse(0, -r * 0.42, r * 0.3, r * 0.1).stroke({ width: 2.5, color: 0xffd24a, alpha: 0.95 });
+      break;
+    }
+    case 'daemonicPortalGem': {
+      // 三层同心漩涡椭圆
+      g.ellipse(0, 0, r * 0.62, r * 0.42).stroke({ width: 2, color: 0xff6a3a, alpha: 0.85 });
+      g.ellipse(0, 0, r * 0.42, r * 0.28).stroke({ width: 2, color: 0xc77dff, alpha: 0.8 });
+      g.ellipse(0, 0, r * 0.22, r * 0.14).stroke({ width: 2, color: 0x4a2d5e, alpha: 0.9 });
+      break;
+    }
+    case 'gargoyleGem': {
+      // 眼睛即语义：善=蓝眼 / 恶=红眼（tier 通道，wildcard 先例）
+      const eye = spec.tier === 2 ? 0xff4d4d : 0x57c8ff;
+      g.circle(-r * 0.18, -r * 0.1, r * 0.09).fill({ color: eye, alpha: 0.95 });
+      g.circle(r * 0.18, -r * 0.1, r * 0.09).fill({ color: eye, alpha: 0.95 });
+      break;
+    }
+    case 'stoneBlock': {
+      // 两道凿痕（惰性物，无动画）
+      g.moveTo(-r * 0.3, -r * 0.2).lineTo(r * 0.05, r * 0.05).stroke(ink);
+      g.moveTo(-r * 0.05, -r * 0.3).lineTo(r * 0.3, -r * 0.05).stroke(ink);
+      break;
+    }
+    case 'lycanthropyGem': {
+      // 两道爪痕
+      g.moveTo(-r * 0.28, -r * 0.34).lineTo(-r * 0.1, r * 0.3).stroke({ width: 2.5, color: 0xff4d6e, alpha: 0.85 });
+      g.moveTo(r * 0.1, -r * 0.34).lineTo(r * 0.28, r * 0.3).stroke({ width: 2.5, color: 0xff4d6e, alpha: 0.85 });
+      break;
+    }
+    case 'decayGem': {
+      // 三条干裂纹（从中心放射）
+      for (const [dx, dy] of [[-1, -0.4], [0.2, 1], [1, 0.1]] as const) {
+        g.moveTo(0, 0).lineTo(dx * r * 0.5, dy * r * 0.5).stroke(ink);
+      }
+      break;
+    }
+    case 'volcanoGem': {
+      // 火山口向上喷发三角
+      g.poly([-r * 0.3, r * 0.2, r * 0.3, r * 0.2, 0, -r * 0.45])
+        .fill({ color: 0xff8c3a, alpha: 0.85 });
+      break;
+    }
+    case 'trapGem': {
+      // 尖刺 ×
+      g.moveTo(-r * 0.3, -r * 0.3).lineTo(r * 0.3, r * 0.3)
+        .moveTo(r * 0.3, -r * 0.3).lineTo(-r * 0.3, r * 0.3)
+        .stroke({ width: 2.5, color: 0xff3348, alpha: 0.9 });
+      break;
+    }
+    case 'enchantedGem': {
+      // 符文环 + 四刻度
+      g.circle(0, 0, r * 0.44).stroke({ width: 2, color: 0xffffff, alpha: 0.8 });
+      for (let i = 0; i < 4; i++) {
+        const a = (Math.PI / 2) * i;
+        g.moveTo(Math.cos(a) * r * 0.34, Math.sin(a) * r * 0.34)
+          .lineTo(Math.cos(a) * r * 0.54, Math.sin(a) * r * 0.54)
+          .stroke({ width: 2, color: 0xffffff, alpha: 0.8 });
+      }
+      break;
+    }
+    case 'mimicGem': {
+      // 宝箱口：横线 + 金币点
+      g.moveTo(-r * 0.34, r * 0.08).lineTo(r * 0.34, r * 0.08).stroke(ink);
+      g.circle(0, r * 0.08, r * 0.09).fill({ color: 0xffd24a, alpha: 0.95 });
+      break;
+    }
+    default:
+      break;
+  }
+  return g;
 }

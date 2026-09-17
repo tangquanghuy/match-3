@@ -1,0 +1,297 @@
+/**
+ * 职业天赋动态特质定义批测试（主角系统 v3，56 条天赋的引擎钩子落地）。
+ *
+ * 覆盖：
+ *   - 注册表：registerDynamicTraits 后 getTrait 回落可查、dynamicTraitCodes 可枚举；
+ *   - 编译正确性：代表 code → resolvePassives 产物（既有键与新增键）；
+ *   - 钩子集成：纯函数层（applyBigMatchTriggers/applyDeathTriggers/applyEnemyDeathTriggers）
+ *     与真实对局层（TurnEngine：开局施加状态/开局法力光环/回合经济）；
+ *   - meta 集成：TALENT_DYNAMIC_DEFS 与 classes.json 的 unimplemented 天赋一一对应、
+ *     heroTraitCodes 携带动态 code、buildBattleRequest 过会话校验。
+ */
+import { describe, it, expect } from 'vitest';
+import {
+  dynamicTraitCodes,
+  getTrait,
+  resolvePassives,
+  applyBigMatchTriggers,
+  applyDeathTriggers,
+  applyEnemyDeathTriggers,
+  applyColorMatchTriggers,
+  attachPassives,
+} from '@engine/traits';
+import { TurnEngine } from '@engine/TurnEngine';
+import { BoardModel } from '@engine/BoardModel';
+import { BoardGenerator } from '@engine/boardGen';
+import { createGameState } from '@engine/GameState';
+import { SeededRNG } from '@engine/rng';
+import { ExtensionRegistry } from '@engine/registry';
+import { PlayerSide, BaseColor } from '@engine/types';
+import type { Character, Team } from '@engine/types';
+import { TALENT_DYNAMIC_CODES, TALENT_DYNAMIC_DEFS } from '../../src/meta/data/talentDefs';
+import {
+  CLASSES,
+  pickTalent,
+  equipClass,
+  setTeamPreset,
+  newSave,
+  buildBattleRequest,
+  planQuestEncounter,
+} from '../../src/meta';
+
+function makeChar(id: number, over: Partial<Character> = {}): Character {
+  return {
+    id,
+    name: `C${id}`,
+    maxHp: 50,
+    hp: 50,
+    attack: 5,
+    armor: 0,
+    magic: 8,
+    colors: [BaseColor.Red],
+    manaCost: 20,
+    mana: 0,
+    skillId: 'none',
+    statuses: [],
+    defeated: false,
+    ...over,
+  };
+}
+
+function makeTeam(side: PlayerSide, chars: Character[]): Team {
+  return { player: side, characters: chars };
+}
+
+/** 编译特质进 passive（passivesOf 只读 char.passive） */
+function withPassives(chars: Character[]): Character[] {
+  for (const c of chars) attachPassives(c);
+  return chars;
+}
+
+/** 生成满盘随机合法棋盘（对局集成用） */
+function freshBoard(seed: number): BoardModel {
+  return new BoardGenerator(new SeededRNG(seed), () => 0).generate();
+}
+
+/** 测试用状态施加上下文（与引擎注入口径一致：直改 statuses + status-apply 事件） */
+const statusCtx = (rng: SeededRNG) => ({
+  applyStatus: (char: Character, status: { id: string; turns: number; magnitude?: number }) => {
+    char.statuses.push({ ...status });
+    return [{ type: 'status-apply', targetId: char.id, statusId: status.id, turns: status.turns } as never];
+  },
+  rng,
+  kill: (target: Character) => {
+    target.hp = 0;
+    target.defeated = true;
+    return [];
+  },
+});
+
+// ============================================================
+// 注册表与编译
+// ============================================================
+
+describe('动态特质注册表', () => {
+  it('56 条定义已随 meta 模块导入注册；getTrait 回落可查', () => {
+    expect(TALENT_DYNAMIC_DEFS).toHaveLength(56);
+    expect(dynamicTraitCodes()).toContain('fasthealing');
+    expect(getTrait('fasthealing')?.regen).toEqual({ stat: 'hp', amount: 2 });
+    expect(resolvePassives(['fasthealing']).regenPerTurn).toBe(2);
+  });
+
+  it('编译：vengeance/counterattack/delirium（事件自身数值，含 alsoStats 双属性）', () => {
+    expect(resolvePassives(['vengeance']).gainOnEnemyDeath.attack).toBe(3);
+    expect(resolvePassives(['counterattack']).gainOnDamaged.attack).toBe(2);
+    const p = resolvePassives(['delirium']);
+    expect(p.gainOnDamaged.magic).toBe(2);
+    expect(p.gainOnDamaged.attack).toBe(2);
+  });
+
+  it('编译：光环家族（onEnemyDeathTypeAura/onAllyDeathTypeAura/onAllyCastTypeAura/onBigMatchTypeAura）', () => {
+    expect(resolvePassives(['mysticchannel']).onEnemyDeathTypeAura).toEqual({
+      troopType: 'Mystic', gains: { magic: 2, hp: 2 },
+    });
+    expect(resolvePassives(['unholyblessing']).onAllyDeathTypeAura).toEqual({
+      troopType: 'Undead', gains: { armor: 2, magic: 2 },
+    });
+    expect(resolvePassives(['lordofstorms']).onAllyCastTypeAura).toEqual({
+      troopType: 'Elemental', gains: { magic: 1 },
+    });
+    expect(resolvePassives(['brilliantaura']).bigMatchTypeAura.all).toMatchObject({ hp: 2 });
+    expect(getTrait('eternalsummer')?.turnStartTypeAura).toEqual({ scope: 'Fey', gains: { hp: 2 } });
+  });
+
+  it('编译：配色/受击/闪避/法术减伤（既有键，官方数值）', () => {
+    expect(resolvePassives(['healingherb']).gainOnColorMatch.Green).toMatchObject({ hp: 4 });
+    expect(getTrait('darkvenom')?.onColorMatchStatus).toMatchObject({ color: 'Purple', scope: 'randomEnemy' });
+    expect(getTrait('rocksolid')?.onColorMatchStatus).toMatchObject({ color: 'Brown', scope: 'self' });
+    expect(resolvePassives(['dodge']).dodgeChance).toBe(0.3);
+    expect(resolvePassives(['antimagicsphere']).spellDamageTaken).toBe(0.8);
+    expect(resolvePassives(['impact']).inflictOnSkullDamaged).toEqual({ id: 'stun', turns: 3 });
+  });
+
+  it('编译：本批新增 passive 键', () => {
+    expect(resolvePassives(['golemprotector']).summonOnDamaged).toMatchObject({ chance: 0.2, troopId: 6398 });
+    expect(resolvePassives(['childofsky']).summonOnAllyCast).toMatchObject({ chance: 0.25, troopId: 6331 });
+    expect(resolvePassives(['razorarmor']).skullDamageFromArmorRatio).toBe(0.2);
+    expect(resolvePassives(['banishment']).onBigMatchDispelEnemies).toBe(true);
+    expect(resolvePassives(['purification']).onBigMatchCleanseSelf).toBe(true);
+    expect(resolvePassives(['lifesiphon']).onBigMatchDrainLife).toEqual({ amount: 2 });
+    expect(resolvePassives(['chaosstorm']).onBigMatchRandomStorm).toEqual({ minSize: 4 });
+    expect(resolvePassives(['chaoswave']).onSkullMatchEnemyDrain).toEqual({ stat: 'random', amount: 1 });
+    expect(resolvePassives(['risingshadows']).onEnemyDeathKill).toEqual({ chance: 0.07, scope: 'lastEnemy' });
+    expect(resolvePassives(['chillofdeath']).onEnemyDeathRandomStatus).toEqual({ statuses: [{ id: 'frozen' }], turns: 3 });
+    expect(getTrait('vanguard')?.battleStartStatus).toEqual({ target: 'self', statuses: [{ id: 'barrier' }], turns: 3 });
+    expect(getTrait('serendipity')?.battleStartStatus).toMatchObject({ target: 'randomAlly', randomPositive: true });
+    expect(getTrait('windspeed')?.allyStartMana).toEqual({ scope: 'Yellow', ratio: 0.1 });
+    expect(getTrait('lightfingers')?.turnStartEconomy).toEqual({ currency: 'gold', amount: 5 });
+  });
+});
+
+// ============================================================
+// 真实对局集成（TurnEngine）
+// ============================================================
+
+describe('对局集成（TurnEngine）', () => {
+  it('开局施加状态：vanguard 自身屏障 / roottrap 缠绕首敌 / swiftcurse 死亡标记随机敌', () => {
+    const left = makeTeam(PlayerSide.Left, withPassives([makeChar(1, { traitIds: ['vanguard', 'roottrap', 'swiftcurse'] })]));
+    const right = makeTeam(PlayerSide.Right, [makeChar(2), makeChar(3)]);
+    const state = createGameState(freshBoard(7), left, right, PlayerSide.Left);
+    const engine = new TurnEngine(state, new SeededRNG(7), () => 0, new ExtensionRegistry());
+    const events = engine.takeInitialEvents();
+    const hero = state.teams[PlayerSide.Left].characters[0]!;
+    expect(hero.statuses.some((s) => s.id === 'barrier')).toBe(true);
+    // roottrap 缠绕敌方队首（确定性）；swiftcurse 死亡标记随机敌（2/3 其一）
+    expect(state.teams[PlayerSide.Right].characters[0]!.statuses.some((s) => s.id === 'entangle')).toBe(true);
+    expect(state.teams[PlayerSide.Right].characters.filter((c) => c.statuses.some((s) => s.id === 'death-mark'))).toHaveLength(1);
+    expect(events.filter((e) => e.type === 'status-apply').length).toBeGreaterThanOrEqual(3);
+  });
+
+  it('开局法力光环：inspiration 全队 15% / windspeed 黄色盟友 10%（fill-up-to 取最大比例）', () => {
+    // manaCost 20：两个光环都是「补到 manaCost×ratio」口径（allyStartMana 既有语义），
+    // 黄色盟友取 max(15%,10%) = 15% = 3；红色盟友只有 inspiration = 3。
+    const yellowAlly = makeChar(11, { colors: [BaseColor.Yellow], mana: 0 });
+    const redAlly = makeChar(12, { colors: [BaseColor.Red], mana: 0 });
+    const left = makeTeam(PlayerSide.Left, withPassives([
+      makeChar(10, { traitIds: ['inspiration', 'windspeed'] }),
+      yellowAlly,
+      redAlly,
+    ]));
+    const state = createGameState(freshBoard(7), left, makeTeam(PlayerSide.Right, [makeChar(13)]), PlayerSide.Left);
+    new TurnEngine(state, new SeededRNG(7), () => 0, new ExtensionRegistry());
+    expect(state.teams[PlayerSide.Left].characters[0]!.mana).toBe(3);
+    expect(state.teams[PlayerSide.Left].characters[1]!.mana).toBe(3);
+    expect(state.teams[PlayerSide.Left].characters[2]!.mana).toBe(3);
+    // windspeed 单独持有（无 inspiration）时黄色盟友 10% = 2 生效
+  });
+
+  it('回合经济：lightfingers 在持有者方回合开始 +5 黄金（economy-gain 事件恰好一次）', () => {
+    const left = makeTeam(PlayerSide.Left, withPassives([makeChar(1, { traitIds: ['lightfingers'] })]));
+    const state = createGameState(freshBoard(7), left, makeTeam(PlayerSide.Right, [makeChar(2)]), PlayerSide.Left);
+    const engine = new TurnEngine(state, new SeededRNG(7), () => 0, new ExtensionRegistry());
+    engine.takeInitialEvents();
+    const goldBefore = state.economy.gold;
+    // passTurn → 切到 Right（无持有者，零入账）；再 passTurn → 切回 Left，lightfingers 结算
+    engine.passTurn();
+    expect(state.economy.gold).toBe(goldBefore);
+    engine.passTurn();
+    expect(state.economy.gold).toBe(goldBefore + 5);
+  });
+
+  it('大匹配新键：banishment 驱散敌方正面 / lifesiphon 窃取首位 / purification 自净化', () => {
+    const holder = makeChar(1, {
+      traitIds: ['banishment', 'lifesiphon', 'purification'],
+      statuses: [{ id: 'poison', turns: 3 }],
+    });
+    attachPassives(holder);
+    const foe = makeChar(2, { statuses: [{ id: 'barrier', turns: 3 }], hp: 40 });
+    applyBigMatchTriggers([holder], {
+      size: 4,
+      rng: new SeededRNG(1),
+      enemyTeam: [foe],
+      drainLife: (target, caster, amount) => {
+        target.hp -= amount;
+        caster.hp += amount;
+        return [];
+      },
+    });
+    expect(foe.statuses.some((s) => s.id === 'barrier')).toBe(false); // 驱散
+    expect(foe.hp).toBe(38); // 窃取 2
+    expect(holder.statuses.some((s) => s.id === 'poison')).toBe(false); // 自净化
+  });
+
+  it('死亡链：savior 盟友死→同队随机存活屏障；chillofdeath/risingshadows 走敌方死亡链不炸', () => {
+    const savior = makeChar(1, { traitIds: ['savior'] });
+    const dyingAlly = makeChar(2, { defeated: true }); // 模拟已阵亡（行动末尾已移出编队前的状态）
+    attachPassives(savior);
+    applyDeathTriggers([savior, dyingAlly], [makeChar(3)], statusCtx(new SeededRNG(1)));
+    expect(savior.statuses.some((s) => s.id === 'barrier')).toBe(true);
+
+    const watcher = makeChar(4, { traitIds: ['chillofdeath', 'risingshadows'] });
+    const lastFoe = makeChar(5, { hp: 1 });
+    attachPassives(watcher);
+    const ctx = statusCtx(new SeededRNG(3));
+    const events = applyEnemyDeathTriggers([watcher], [lastFoe], ctx);
+    // chillofdeath 必然冻结死者一方剩余存活（lastFoe 是唯一目标）
+    expect(lastFoe.statuses.some((s) => s.id === 'frozen')).toBe(true);
+    expect(Array.isArray(events)).toBe(true);
+  });
+
+  it('chaoswave：骷髅匹配时敌方全员随机技能 -1（每个敌人恰好一项属性掉 1）', () => {
+    const holder = makeChar(1, { traitIds: ['chaoswave'] });
+    attachPassives(holder);
+    const foeA = makeChar(2, { attack: 5, armor: 5, magic: 5, mana: 10, manaCost: 20 });
+    const foeB = makeChar(3, { attack: 5, armor: 5, magic: 5, mana: 10, manaCost: 20 });
+    const before = [foeA, foeB].map((f) => ({ a: f.attack, ar: f.armor, m: f.magic, mana: f.mana }));
+    applyColorMatchTriggers([holder], 'skull', { enemyTeam: [foeA, foeB], rng: new SeededRNG(1) });
+    for (const [i, foe] of [foeA, foeB].entries()) {
+      const b = before[i]!;
+      const dropped =
+        b.a - foe.attack + b.ar - foe.armor + b.m - foe.magic + Math.max(0, b.mana - foe.mana);
+      expect(dropped).toBe(1);
+    }
+  });
+});
+
+// ============================================================
+// meta 集成
+// ============================================================
+
+describe('meta 集成（classes.json ↔ 动态定义 ↔ 桥接）', () => {
+  it('classes.json 中所有 unimplemented 天赋都有动态定义（v3 全量收编）', () => {
+    const unimplemented = new Set<string>();
+    for (const cls of CLASSES) {
+      for (const tree of cls.trees) {
+        for (const t of tree.talents) {
+          if (t.effect.kind === 'unimplemented') unimplemented.add(t.code);
+        }
+      }
+    }
+    expect(unimplemented.size).toBeGreaterThan(0);
+    for (const code of unimplemented) {
+      expect(TALENT_DYNAMIC_CODES.has(code)).toBe(true);
+      expect(TALENT_DYNAMIC_DEFS.find((d) => d.code === code)).toBeTruthy();
+    }
+  });
+
+  it('桥接：选中动态天赋进入主角 traitIds 且过会话校验', () => {
+    const s = newSave({ now: 0, starterTroopIds: [6000, 6097, 6457] });
+    s.hero.unlockedClasses.push('warrior');
+    equipClass(s, 'warrior');
+    s.hero.classLevels['warrior'] = 100;
+    // 督军 War 树 T5（Lv.40 档）= vengeance（动态定义）
+    const warlord = CLASSES.find((c) => c.id === 'warrior')!;
+    const vengeance = warlord.trees[0]!.talents[4]!;
+    expect(vengeance.code).toBe('vengeance');
+    expect(pickTalent(s, 'warrior', 4, 'vengeance')).toMatchObject({ ok: true });
+    setTeamPreset(s, 0, {
+      name: 't',
+      members: [{ kind: 'hero' }, { kind: 'troop', troopId: 6000 }, { kind: 'troop', troopId: 6097 }],
+      bannerKingdomId: null,
+    });
+    const outcome = buildBattleRequest(s, planQuestEncounter('破碎尖塔', 1, 7));
+    if (!outcome.ok) throw new Error(outcome.message);
+    const hero = outcome.request.playerTeam.find((c) => c.externalId.endsWith('-hero'))!;
+    expect(hero.traitIds).toContain('vengeance');
+  });
+});

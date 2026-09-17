@@ -1,6 +1,9 @@
 import { BoardModel } from './BoardModel';
-import { DOOMSKULL_BONUS_DAMAGE, UBER_DOOMSKULL_BONUS_DAMAGE, matchJoinKey, posKey } from './types';
-import type { BaseColor, CellPos, GemType } from './types';
+import {
+  DOOMSKULL_BONUS_DAMAGE, UBER_DOOMSKULL_BONUS_DAMAGE, matchJoinKey, matchKeysConnect, posKey,
+  ELEMENTAL_STAR_JOIN_KEY, UMBRAL_STAR_JOIN_KEY, BaseColor,
+} from './types';
+import type { CellPos, GemType } from './types';
 
 /** 匹配形状（需求 7） */
 export type MatchShape = 'line3' | 'line4plus' | 'L' | 'T';
@@ -8,14 +11,18 @@ export type MatchShape = 'line3' | 'line4plus' | 'L' | 'T';
 /**
  * 一个消除组的结算类别（特殊宝石引入后，组的归属不再等于"组内第一个宝石的类型"）：
  *   - color：颜色组。通配按解析色计入；manaMultiplier 为组内通配倍率**相加**合计
- *     （官方 Heroic Gems 口径：同一次匹配多颗通配倍率相加，x2+x3=x5；无通配 = 1）
+ *     （官方 Heroic Gems 口径：同一次匹配多颗通配倍率相加，x2+x3=x5；无通配 = 1）。
+ *     bonusColors：星族随组加发（元素星=棕蓝绿红各 +1 / 暗影星=黄紫各 +1，官方
+ *     "give 1 Mana for ALL of those colors"，组归属色按其余宝石的颜色计）
  *   - skull：骷髅族组（普通骷髅/末日骷髅/至尊末日骷髅）。bonusDamage 为末日族加伤合计
  *   - wildOnly：全通配组。无归属色，只消除不结算（3 颗通配互连且无颜色可依附的极小概率局面）
+ *   - starOnly：纯星组（星与星互连、无基色可依附）。只发星族的各色 +1，宝石本体不产法力
  */
 export type MatchSettle =
-  | { kind: 'color'; color: BaseColor; manaMultiplier: number }
+  | { kind: 'color'; color: BaseColor; manaMultiplier: number; bonusColors?: readonly BaseColor[] }
   | { kind: 'skull'; bonusDamage: number }
-  | { kind: 'wildOnly' };
+  | { kind: 'wildOnly' }
+  | { kind: 'starOnly'; bonusColors: readonly BaseColor[] };
 
 /** 一个消除组：一组将被一起消除的格子，附带形状与结算类别 */
 export interface MatchGroup {
@@ -111,7 +118,8 @@ export class MatchResolver {
           runCells.push(pos);
           continue;
         }
-        if (runKey === key) {
+        if (matchKeysConnect(runKey, key)) {
+          // 等值键（颜色/骷髅）或星族白名单族（'star4' 与棕蓝绿红 / 'star2' 与黄紫）延续 run
           runCells.push(pos);
           continue;
         }
@@ -215,6 +223,8 @@ export class MatchResolver {
     let multiplier = 0;
     let skullish = false;
     let bonusDamage = 0;
+    // 星族随组加发（D1/D2）：元素星=棕蓝绿红各+1、暗影星=黄紫各+1；两种星不会同组（连接键互斥）
+    let starBonus: BaseColor[] | null = null;
 
     for (const cell of cells) {
       const gem = board.get(cell);
@@ -238,11 +248,20 @@ export class MatchResolver {
             skullish = true;
             bonusDamage += UBER_DOOMSKULL_BONUS_DAMAGE;
             break;
+          case 'elementalStar':
+            starBonus = [BaseColor.Brown, BaseColor.Blue, BaseColor.Green, BaseColor.Red];
+            break;
+          case 'umbralStar':
+            starBonus = [BaseColor.Yellow, BaseColor.Purple];
+            break;
           default: {
-            // 织网/沙漏/闪电/状态搬运族（GEMS-SEMANTICS-2）：凡 matchJoinKey 归属基色的
-            // 特殊宝石都计入组归属色；不可匹配类（炸弹/许愿/幽魂/死亡标记）键为 null，保守跳过
+            // 织网/沙漏/闪电/状态搬运族/六色族（spec.color）：凡 matchJoinKey 归属基色的
+            // 特殊宝石都计入组归属色；不可匹配类（炸弹/许愿/幽魂/死亡标记等）键为 null，保守跳过
             const c = matchJoinKey(t);
-            if (color === null && c !== null && c !== 'skull' && c !== 'wildcard') color = c as BaseColor;
+            if (color === null && c !== null && c !== 'skull' && c !== 'wildcard'
+              && c !== ELEMENTAL_STAR_JOIN_KEY && c !== UMBRAL_STAR_JOIN_KEY) {
+              color = c as BaseColor;
+            }
             break;
           }
         }
@@ -251,8 +270,11 @@ export class MatchResolver {
 
     if (skullish) return { kind: 'skull', bonusDamage };
     if (color !== null) {
-      return { kind: 'color', color, manaMultiplier: Math.max(1, multiplier) };
+      const settle: MatchSettle = { kind: 'color', color, manaMultiplier: Math.max(1, multiplier) };
+      if (starBonus) settle.bonusColors = starBonus;
+      return settle;
     }
+    if (starBonus) return { kind: 'starOnly', bonusColors: starBonus };
     return { kind: 'wildOnly' };
   }
 

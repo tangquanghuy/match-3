@@ -210,7 +210,7 @@ function cellsOfCol(col: number): CellPos[] {
 /** 创造型宝石的每颗取色：单一类型直接解析；混合型逐颗从候选色随机取（种子化）；特殊宝石按 spec 构造 */
 function pickCreateGemType(spec: CreateGemSpec, ctx: EffectContext): GemType | null {
   if (spec.kind === 'skull') return skullGem();
-  if (spec.kind === 'special') return specialGem(spec.spec.kind, spec.spec.tier);
+  if (spec.kind === 'special') return specialGem(spec.spec.kind, spec.spec.tier, spec.spec.color);
   const colors = spec.kind === 'mix' ? spec.colors : [spec.color];
   if (colors.length === 0) return null;
   const resolved = colors.map((c) => resolveColor(c, ctx));
@@ -276,7 +276,8 @@ function gemTypeEquals(a: GemType, b: GemType): boolean {
   if (a.kind === 'color' && b.kind === 'color') return a.color === b.color;
   if (a.kind === 'skull' && b.kind === 'skull') return true;
   if (a.kind === 'special' && b.kind === 'special') {
-    return a.spec.kind === b.spec.kind && a.spec.tier === b.spec.tier;
+    // 六色族（spec.color）参与实例相等：蓝龙与红龙不是同一目标类型（波B）
+    return a.spec.kind === b.spec.kind && a.spec.tier === b.spec.tier && a.spec.color === b.spec.color;
   }
   return false;
 }

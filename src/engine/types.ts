@@ -97,7 +97,50 @@ export type SpecialGemKind =
   /** 打昏宝石：可匹配（棕）；被摧毁时（含被匹配）打昏一名随机敌人（触发句未证实，建议默认行为） */
   | 'stunGem'
   /** 屏障宝石：可匹配（黄）；被摧毁时（含被匹配）屏障一名随机己方（触发句未证实，建议默认行为） */
-  | 'barrierGem';
+  | 'barrierGem'
+  // ── 波B（GEMS-SEMANTICS-2 六色族/星族/不可匹配族/杂项，2026-09-17）──
+  // 共性：仍不进 SPAWNABLE_SPECIALS（自然掉落白名单不变）；六色族经 spec.color 携带归属色。
+  /** 龙宝石：可匹配（spec.color 六色）；被匹配或被摧毁时爆炸其所在列**下方**全部宝石（官方 Heroic Gems 原文） */
+  | 'dragonGem'
+  /** 巨人宝石：可匹配（spec.color 六色）；被匹配或被摧毁时 +5 该色法力并爆炸相邻一圈（官方"法力版末日骷髅"） */
+  | 'giantGem'
+  /** 灵力宝石：可匹配（spec.color 六色，官方颜色集合存疑缺省紫）；被匹配或被摧毁时敌方每个存活角色 -2 法力（汲取不转移） */
+  | 'spiritGem'
+  /** 法力药水宝石：可匹配（spec.color 六色）；被匹配或被摧毁时全盘随机空格撒 7-11 颗该色普通宝石 */
+  | 'manaPotionGem'
+  /** 糖果宝石：可匹配（spec.color 六色）；被匹配时己方全体该色存活盟友各 +1 法力（官方 in-game guide 原文） */
+  | 'candyGem'
+  /** 元素星：与棕/蓝/绿/红互连（特殊连接键 'star4'）；组结算给四色各 +1 法力，并摧毁匹配点对角线四格 */
+  | 'elementalStar'
+  /** 暗影之星（官方枚举 LightDarkStar）：与黄/紫互连（'star2'）；组结算给两色各 +1 法力，摧毁整行+整列 */
+  | 'umbralStar'
+  /** 天使宝石：无色不可匹配；被摧毁时随机己方获得 blessed（施加即净化负面+全免疫，状态本日已实现） */
+  | 'angelGem'
+  /** 恶魔传送门宝石：无色不可匹配；被摧毁时爆炸相邻一圈并为摧毁者召唤一名随机恶魔（TroopType 含 Daemon） */
+  | 'daemonicPortalGem'
+  /** 石像鬼宝石：无色不可匹配；tier 1=善（摧毁→己方每个存活角色随机 1 条正面状态）/ 2=恶（敌方全体随机 1 条负面） */
+  | 'gargoyleGem'
+  /** 石块：无色不可匹配惰性障碍——无任何触发；被摧毁不计法力不计骷髅（settleDestroyed 天然不数 special） */
+  | 'stoneBlock'
+  /** 狼化宝石：可匹配（紫）；被摧毁时（含被匹配）随机敌人施加狼化状态（官方"Removing Lycanthropy gems cast lycanthropy"） */
+  | 'lycanthropyGem'
+  /** 腐朽宝石：可匹配（棕）；无匹配/摧毁触发——盘上光环：每回合开始兵多一方全员 -1 甲/颗（同数双方都扣） */
+  | 'decayGem'
+  /** 火山宝石：可匹配（红）；被匹配时向上垂直列 + 对角方向爆炸（dragonGem「向下」的反向） */
+  | 'volcanoGem'
+  /** 陷阱宝石：无色不可匹配；被摧毁时五选一负面（stun/frozen/entangle/faerie-fire 全员打玩家队 or 创造 3 末日骷髅，官方 Underspire 原文） */
+  | 'trapGem'
+  /**
+   * 附魔宝石：⚠️ 行为句官方未证实（公开渠道无定义，GEMS-SEMANTICS-2 E5）——先落 kind
+   * （可创造/可摧毁），按官方"紫色 Heroic Gem"给紫匹配（匹配产紫法力），摧毁无特殊效果。
+   * 待官方语义核实后再补触发行为。
+   */
+  | 'enchantedGem'
+  /**
+   * 宝箱怪宝石：⚠️ 公开渠道无定义（官方数据仅 1 处 CreateGems(Mimic)，GEMS-SEMANTICS-2 E6）——
+   * 先落 kind（可创造/可摧毁），无匹配归属（颜色未知），摧毁无特殊效果。待官方语义核实。
+   */
+  | 'mimicGem';
 
 /**
  * 状态搬运宝石族（波A 13 颗）的 kind 子集。用于渲染基图映射与触发路径判定。
@@ -119,11 +162,16 @@ export type StatusGemKind =
 
 /**
  * 特殊宝石规格（需求 20.1）。
- * wildcard 的 tier 表示法力倍率；bootyGem 的 tier 1-8 仅选择价值链外观。
+ * wildcard 的 tier 表示法力倍率；bootyGem 的 tier 1-8 仅选择价值链外观；
+ * gargoyleGem 的 tier 1=善 / 2=恶（wildcard 先例的 tier 通道复用）。
+ * color：六色族（dragonGem/giantGem/spiritGem/manaPotionGem/candyGem）的归属基色
+ * （GEMS-SEMANTICS-2 开放问题1 拍板方案：spec.color 携带，避免 12 个分色 kind 爆炸词表）。
  */
 export interface SpecialGemSpec {
   kind: SpecialGemKind;
   tier?: number;
+  /** 六色族归属基色；matchJoinKey 对带 color 的特殊宝石返回该色（与同色互连） */
+  color?: BaseColor;
 }
 
 /** 末日骷髅被匹配时的额外骷髅伤害（官方 +5） */
@@ -134,8 +182,40 @@ export const UBER_DOOMSKULL_BONUS_DAMAGE = 10;
 export const WEB_GEM_TURNS = 3;
 /** 赃物宝石被摧毁时给摧毁方的金币数（官方 Heroic Gems 原文：10 Gold） */
 export const BOOTY_GEM_GOLD = 10;
+/** 巨人宝石被匹配/被摧毁时给予的该色法力（官方 Heroic Gems 原文：+5 Mana of their color） */
+export const MANA_BONUS_GIANT = 5;
+/** 灵力宝石被匹配/被摧毁时从敌方每个存活角色汲取的法力（官方 "drain 2 Mana from Enemies"） */
+export const SPIRIT_GEM_DRAIN = 2;
+/** 法力药水宝石撒落该色普通宝石的数量区间（官方 "create 7-11 Mana Gems"） */
+export const MANA_POTION_GEM_RANGE = { min: 7, max: 11 } as const;
+/** 糖果宝石被匹配时己方全体该色存活盟友各获得的法力（官方 "give 1 mana to all allies of that colour"） */
+export const CANDY_GEM_MANA = 1;
+/** 陷阱宝石被摧毁时的五选一掷签面数（官方 Underspire 原文：1 of 5 effects） */
+export const TRAP_GEM_OPTIONS = 5;
+/** 天使宝石被摧毁时祝福的存续回合数（设计默认，与屏障同档） */
+export const ANGEL_GEM_TURNS = 3;
+/** 狼化宝石施加狼化状态的存续回合数（官方未给时限，取状态宝石族缺省 3） */
+export const LYCANTHROPY_GEM_TURNS = 3;
+/** 石像鬼宝石随机状态的存续回合数（随机状态效果缺省口径 3） */
+export const GARGOYLE_GEM_TURNS = 3;
 
-/** 可匹配特殊宝石参与匹配时视作的颜色（不可匹配的炸弹/许愿/幽魂/死亡标记不在表内） */
+/**
+ * 石像鬼宝石的随机状态池（GEMS-SEMANTICS-2 B4：池引用引擎已实现的施加管线状态集）。
+ * 正面 = traits POSITIVE_STATUS_IDS 同集；负面剔除诅咒外的已实现负面（DoT 带 magnitude 由施加侧补）。
+ */
+export const GARGOYLE_POSITIVE_STATUS_POOL: readonly string[] = [
+  'barrier', 'blessed', 'enchanted', 'enraged', 'reflect', 'submerged',
+];
+export const GARGOYLE_NEGATIVE_STATUS_POOL: readonly string[] = [
+  'poison', 'burning', 'bleed', 'silence', 'frozen', 'entangle', 'web', 'stun', 'curse',
+];
+
+/**
+ * 可匹配特殊宝石参与匹配时视作的颜色。单色 kind 的静态归属表——
+ * 六色族（dragonGem/giantGem/spiritGem/manaPotionGem/candyGem）不在表内，
+ * 经 spec.color 动态归属（matchJoinKey 优先读实例色）；星族走特殊连接键，也不入表。
+ * 不可匹配的炸弹/许愿/幽魂/死亡标记/天使/传送门/石像鬼/石块/陷阱/宝箱怪不在表内。
+ */
 export const SPECIAL_MATCH_COLOR: Partial<Record<SpecialGemKind, BaseColor>> = {
   web: BaseColor.Purple,
   hourglass: BaseColor.Yellow,
@@ -154,6 +234,11 @@ export const SPECIAL_MATCH_COLOR: Partial<Record<SpecialGemKind, BaseColor>> = {
   faerieFireGem: BaseColor.Green,
   stunGem: BaseColor.Brown,
   barrierGem: BaseColor.Yellow,
+  // 波B 单色 kind（六色族/星族见上注）
+  volcanoGem: BaseColor.Red,
+  decayGem: BaseColor.Brown,
+  lycanthropyGem: BaseColor.Purple,
+  enchantedGem: BaseColor.Purple,
 };
 
 /**
@@ -220,9 +305,28 @@ export function isStatusGemKind(kind: SpecialGemKind): kind is StatusGemKind {
   return kind in STATUS_GEM_EFFECTS;
 }
 
-/** 便捷构造：特殊宝石 */
-export function specialGem(kind: SpecialGemKind, tier?: number): GemType {
-  const spec: SpecialGemSpec = tier === undefined ? { kind } : { kind, tier };
+/**
+ * 波B 17 kind（GEMS-SEMANTICS-2 2026-09-17：六色族/星族/不可匹配族/杂项）。
+ * 免贴图族：渲染侧据此叠加程序化占位层（叠层≤1、无逐帧滤镜，§0 预算）；
+ * 自然掉落白名单不含本集合任何 kind（SPAWNABLE_SPECIALS 不扩，风险护栏）。
+ */
+export const WAVE_B_GEM_KINDS: ReadonlySet<SpecialGemKind> = new Set<SpecialGemKind>([
+  'dragonGem', 'giantGem', 'spiritGem', 'manaPotionGem', 'candyGem',
+  'elementalStar', 'umbralStar',
+  'angelGem', 'daemonicPortalGem', 'gargoyleGem', 'stoneBlock', 'lycanthropyGem',
+  'decayGem', 'volcanoGem', 'trapGem', 'enchantedGem', 'mimicGem',
+]);
+
+/** 类型守卫：该特殊宝石 kind 是否属于波B 17 颗 */
+export function isWaveBGemKind(kind: SpecialGemKind): boolean {
+  return WAVE_B_GEM_KINDS.has(kind);
+}
+
+/** 便捷构造：特殊宝石。六色族（dragonGem 等）经 color 携带归属基色 */
+export function specialGem(kind: SpecialGemKind, tier?: number, color?: BaseColor): GemType {
+  const spec: SpecialGemSpec = { kind };
+  if (tier !== undefined) spec.tier = tier;
+  if (color !== undefined) spec.color = color;
   return { kind: 'special', spec };
 }
 
@@ -247,7 +351,9 @@ export function skullGem(): GemType {
 
 /**
  * 匹配连接键：颜色返回色名，骷髅族（普通/末日）返回 'skull'，通配返回 'wildcard'，
- * 不可匹配（炸弹/许愿）返回 null。MatchResolver 的 run 级扫描与 isSameMatchType 共用。
+ * 六色族特殊宝石返回其 spec.color（与同色宝石互连），星族返回特殊键
+ * 'star4'（棕蓝绿红）/ 'star2'（黄紫），不可匹配（炸弹/许愿等）返回 null。
+ * MatchResolver 的 run 级扫描与 isSameMatchType 共用。
  */
 export function matchJoinKey(type: GemType): string | null {
   switch (type.kind) {
@@ -258,15 +364,59 @@ export function matchJoinKey(type: GemType): string | null {
     case 'special': {
       if (type.spec.kind === 'wildcard') return 'wildcard';
       if (type.spec.kind === 'doomSkull' || type.spec.kind === 'uberDoomSkull') return 'skull';
+      if (type.spec.kind === 'elementalStar') return ELEMENTAL_STAR_JOIN_KEY;
+      if (type.spec.kind === 'umbralStar') return UMBRAL_STAR_JOIN_KEY;
+      if (type.spec.color !== undefined) return type.spec.color;
       return SPECIAL_MATCH_COLOR[type.spec.kind] ?? null;
     }
   }
 }
 
+/** 元素星的特殊连接键（GEMS-SEMANTICS-2 D1）：与棕/蓝/绿/红四色互连 */
+export const ELEMENTAL_STAR_JOIN_KEY = 'star4';
+/** 暗影之星的特殊连接键（GEMS-SEMANTICS-2 D2）：与黄/紫两色互连 */
+export const UMBRAL_STAR_JOIN_KEY = 'star2';
+
+/** 星族连接键的匹配白名单：star4 与自身+四基色互连（不与骷髅/黄紫相连） */
+const STAR4_MATCH_KEYS: ReadonlySet<string> = new Set([
+  ELEMENTAL_STAR_JOIN_KEY,
+  BaseColor.Brown,
+  BaseColor.Blue,
+  BaseColor.Green,
+  BaseColor.Red,
+]);
+/** star2 与自身+黄紫互连（不与骷髅/棕蓝绿红相连） */
+const STAR2_MATCH_KEYS: ReadonlySet<string> = new Set([
+  UMBRAL_STAR_JOIN_KEY,
+  BaseColor.Yellow,
+  BaseColor.Purple,
+]);
+
+/**
+ * run 级连接判定（MatchResolver.scanLines 的 run 延续条件 + isSameMatchType 共用）：
+ * 等值键相连；星族特殊键按各自白名单族相连（'star4' 与棕蓝绿红/star4、'star2' 与黄紫/star2，
+ * 星不与骷髅连、两族星互不连）。isSameMatchType 的逐对判定与 run 的延续判定同源，
+ * 避免两套语义漂移。
+ *
+ * 注意 run 继承是贪心从左到右（与通配同款既有语义）：星先被左侧同族 run 前缀吸收后，
+ * 右侧同族 run 不再拿到它——两颗星分属两侧同族色时按扫描序归属先到者。
+ */
+export function matchKeysConnect(runKey: string | null, key: string | null): boolean {
+  if (runKey === null || key === null) return false;
+  if (runKey === ELEMENTAL_STAR_JOIN_KEY || key === ELEMENTAL_STAR_JOIN_KEY) {
+    return STAR4_MATCH_KEYS.has(runKey) && STAR4_MATCH_KEYS.has(key);
+  }
+  if (runKey === UMBRAL_STAR_JOIN_KEY || key === UMBRAL_STAR_JOIN_KEY) {
+    return STAR2_MATCH_KEYS.has(runKey) && STAR2_MATCH_KEYS.has(key);
+  }
+  return runKey === key;
+}
+
 /**
  * 判断两个宝石类型是否"可匹配同类"。
- * 颜色按色名；末日骷髅与普通骷髅同族；织网/沙漏/闪电按各自归属色；
- * 通配与任意颜色同类（不与骷髅族相连）；炸弹/许愿与任何宝石都不同类（只能被消除管线触发）。
+ * 颜色按色名；末日骷髅与普通骷髅同族；织网/沙漏/闪电/状态搬运族按各自归属色；
+ * 六色族按 spec.color；星族按特殊连接键白名单（'star4'/'star2'，星不与骷髅连）；
+ * 通配与任意颜色同类（不与骷髅族相连）；不可匹配宝石与任何宝石都不同类（只能被消除管线触发）。
  */
 export function isSameMatchType(a: GemType, b: GemType): boolean {
   const ka = matchJoinKey(a);
@@ -275,7 +425,7 @@ export function isSameMatchType(a: GemType, b: GemType): boolean {
   if (ka === 'wildcard' || kb === 'wildcard') {
     return ka !== 'skull' && kb !== 'skull';
   }
-  return ka === kb;
+  return matchKeysConnect(ka, kb);
 }
 
 /** 宝石实例。id 稳定唯一，供表现层追踪同一宝石的移动（下落动画依赖此） */
@@ -525,10 +675,13 @@ export interface PassiveModifiers {
    * （foxfire 50% 用 chance）消耗注入的 rng；无注入时概率 <1 不生效、目标退化为首个存活。
    */
   colorMatchStatus: Readonly<Record<string, {
-    scope: 'randomEnemy' | 'self';
+    scope: 'randomEnemy' | 'randomAlly' | 'self';
     statuses: readonly { id: string; magnitude?: number }[];
     turns: number;
     chance?: number;
+    /** 独立概率掷（brambleheart「Independent 50% chances to Entangle or inflict Bleed」）：
+     *  每条状态各自掷一次 chance（各中各的），每条各耗一次 rng */
+    independentChance?: boolean;
   }>>;
   /**
    * 配对某色（或骷髅）宝石时窃取首位敌人的生命（T5 窃取批 5 code：corruption/poisontide/
@@ -540,13 +693,17 @@ export interface PassiveModifiers {
    */
   colorMatchDrain: Readonly<Record<string, number>>;
   /**
-   * 配对某色（或骷髅）宝石时对随机一名敌人造成技能伤害（T5 杂项批 lumpofcoal/dawnslayer/
-   * sleetstorm「在配对X色宝石时，对一名随机敌人造成 N 点伤害」）。外层色键同
-   * colorMatchDrain；值为伤害额，同色键累加。触发点 applyColorMatchTriggers（配色触发
-   * 同点），结算经 TurnEngine 注入的 damage（damageOne 管线，同技能伤害口径），随机目标
-   * 每次触发消耗一次注入的 rng（与配色施加状态的随机分支同口径）。
+   * 配对某色（或骷髅）宝石时对（随机一名 / 全体）敌人造成技能伤害（T5 杂项批 lumpofcoal/
+   * dawnslayer/sleetstorm「在配对X色宝石时，对一名随机敌人造成 N 点伤害」+ 缺口清扫批
+   * spiny/spiky「在自身配对骷髅头时，对所有敌人造成 N 点伤害」）。外层色键同
+   * colorMatchDrain；同色键累加。触发点 applyColorMatchTriggers（配色触发同点），结算经
+   * TurnEngine 注入的 damage（damageOne 管线，同技能伤害口径），随机目标每次触发消耗一次
+   * 注入的 rng（与配色施加状态的随机分支同口径）；allEnemies 逐个结算、零随机消耗。
    */
-  colorMatchDamage: Readonly<Record<string, number>>;
+  colorMatchDamage: Readonly<Record<string, {
+    amount: number;
+    scope: 'randomEnemy' | 'allEnemies';
+  }>>;
   /**
    * 自己一方配对 4+ 连时对敌人造成技能伤害（T5 大连伤害批 3 code：shock/tentacles/
    * lightningbolt「在配对 4 或 5 颗宝石时对…造成 N 点伤害」）。多条并存按声明序逐条结算，
@@ -555,7 +712,7 @@ export interface PassiveModifiers {
    */
   bigMatchDamage: readonly {
     amount: number;
-    scope: 'randomEnemy' | 'enemyAll';
+    scope: 'randomEnemy' | 'enemyAll' | 'lastEnemy';
     minSize: number;
   }[];
   /**
@@ -761,6 +918,96 @@ export interface PassiveModifiers {
    * 回合数 3（randomStatusEffect 缺省同款）。
    */
   castRandomStatus?: { scope: 'randomAlly' | 'randomEnemy' };
+  /**
+   * 施法显式状态（缺口清扫批）：onAllyCast=同队任一角色施法时（moonfestival 30% 法印随机
+   * 盟友 / gibberingmadness 狂怒随机盟友 / hemlock 诅咒+疾病随机敌人）、onEnemyCast=敌方
+   * 施法时（magehunter 自身狂怒 / psychicbacklash 击晕随机敌人）。与 castRandomStatus 同一
+   * 触发点（applyCastRandomStatusTriggers 显式分支），施加经注入的 applyStatus（免疫在
+   * 施加口拦截），概率/随机目标经注入的 rng，回合数 3（与大连施加同口径）。
+   */
+  castStatus?: {
+    onAllyCast?: {
+      scope: 'self' | 'randomAlly' | 'randomEnemy';
+      statuses: readonly { id: string; magnitude?: number }[];
+      turns: number;
+      chance?: number;
+    };
+    onEnemyCast?: {
+      scope: 'self' | 'randomAlly' | 'randomEnemy';
+      statuses: readonly { id: string; magnitude?: number }[];
+      turns: number;
+      chance?: number;
+    };
+  };
+  /**
+   * 施法响应·敌方属性削减（psychicaffliction「消除所有敌人 1 点魔法值」/ succumb「敌人
+   * 失去 4 点随机技能值」）。reduce 语义（持有者不进账）：stat 'random' 每次触发经注入的
+   * rng 在四项属性中掷一条（无 rng 按随机技能值口径落 magic）；scope 'allEnemies' 逐个
+   * 削减、零随机消耗。触发点与 castStatus 同点（applyCastRandomStatusTriggers）。
+   */
+  castEnemyDrain?: { stat: 'hp' | 'attack' | 'armor' | 'magic' | 'mana' | 'random'; amount: number; scope: 'allEnemies' };
+  // —— 缺口清扫批惰性字段（同 onDelveGains 口径：编译进 passive 建模完整，战斗结算路径
+  // 不读——对应钩子（回合/受击/施法的经济与召唤口、PVP 模式）落地时直接消费）——
+  /** 回合开始经济入账（goldenhoard 5 黄金 / soulgatherer 4 灵魂）。惰性：回合开始钩子无经济口 */
+  turnStartEconomyGains: TraitEconomyGain;
+  /** 盟友施法时经济入账（soulverdict 3 灵魂）。惰性：施法响应区无经济口 */
+  allyCastEconomyGains: TraitEconomyGain;
+  /** 自身承伤时经济入账（pickpocket 10 黄金）。惰性：受击结算无经济口 */
+  damagedEconomyGains: TraitEconomyGain;
+  /** 回合开始按概率召唤兵种（harpyflock 5% 鸟妖 / parliamentarycall 10% 枭熊）。惰性：回合开始钩子无召唤口 */
+  turnStartSummon?: { chance: number; troopId: number; referenceName: string; displayName: string };
+  /**
+   * 回合开始创造风暴（snowstorm 冰 / penumbra 暗 / endlessdawn 光 / dustplume 尘 /
+   * shroudofskulls 骸骨 / unstablemind 疯狂 / fluxcapacitor 电 / astronomy 星 /
+   * magmastorm 熔岩 / holly&ivy 冬青 / stormwinds 烈风）。惰性：回合开始棋盘钩子
+   * （applyTurnStartBoardTraits）无风暴口。colors=官方 BoostColors（Filter 原色风暴单色、
+   * 混合风暴双色，引擎风暴契约落地时取并集加权）；dropKind 为骷髅系掉落（骸骨风暴）。
+   */
+  turnStartStorm?: {
+    referenceName: string;
+    displayName: string;
+    colors: readonly BaseColor[];
+    dropKind?: 'skull' | 'doomSkull' | 'uberDoomSkull';
+  };
+  /**
+   * PVP 限定（缺口清扫批 mode 字段 + pvpBonus 加成）：defender「防守 PVP 时盟友 +3 护甲」/
+   * siege「进攻 PVP 时盟友 +2 攻击」/ virtueofhonor「PVP 战斗中自身全部技能 +10」。
+   * **标准战斗惰性**：本作无 PVP 模式层，字段编译进 passive 建模完整、审计对账通过，
+   * 战斗结算路径不读（phase=battle 时 gains 为持有者自身，attack/defense 时为全队）。
+   */
+  pvpMode: boolean;
+  pvpBonuses: readonly { phase: 'attack' | 'defense' | 'battle'; gains: Partial<StatGains> }[];
+  // —— 职业天赋批（meta 动态特质定义消费的新键；中性形态见 traits.neutralPassives）——
+  /** 承受骷髅伤害时按概率召唤（golemprotector）；规格同死亡召唤，概率经注入 rng */
+  summonOnDamaged?: { chance: number; troopId: number; referenceName: string; displayName: string };
+  /** 同队施法时按概率召唤（childofsky）；召唤物归持有者一方 */
+  summonOnAllyCast?: { chance: number; troopId: number; referenceName: string; displayName: string };
+  /** 骷髅伤害附加护甲比（razorarmor「附加 20% 的护甲值」）：附加 = 自身护甲 × ratio */
+  skullDamageFromArmorRatio?: number;
+  /** 配对 4/5 连驱散所有敌人（banishment）：移除敌方全队存活正面状态 */
+  onBigMatchDispelEnemies?: boolean;
+  /** 配对 4/5 连净化自身（purification）：移除自身负面状态 */
+  onBigMatchCleanseSelf?: boolean;
+  /** 配对 4/5 连窃取首位敌人生命（lifesiphon）；经注入 drainLife 结算 */
+  onBigMatchDrainLife?: { amount: number; minSize?: number };
+  /** 配对 4/5 连爆破关联色宝石（lightningstrike）；经注入爆破口结算 */
+  onBigMatchExplodeGem?: readonly { color: string; count: number; minSize: number }[];
+  /** 配对 4/5 连召唤随机风暴（chaosstorm）；经注入 setStorm + rng 掷色 */
+  onBigMatchRandomStorm?: { minSize: number };
+  /** 自己召唤部队后使随机敌人陷入状态（hauntedweave）；施加经注入 applyStatus */
+  onSelfSummonStatus?: { statuses: readonly { id: string; magnitude?: number }[]; turns: number };
+  /** 同队阵亡时施加状态（savior 随机盟友屏障 / feyvengeance、upinflames 随机敌人） */
+  onAllyDeathStatus?: {
+    target: 'randomAlly' | 'randomEnemy';
+    statuses: readonly { id: string; magnitude?: number }[];
+    turns: number;
+  };
+  /** 敌方阵亡时使死者一方另一名随机存活陷入状态（chillofdeath） */
+  onEnemyDeathRandomStatus?: { statuses: readonly { id: string; magnitude?: number }[]; turns: number };
+  /** 敌方阵亡时按概率猎杀最后一名敌人（risingshadows）；处决经注入 kill */
+  onEnemyDeathKill?: { chance: number; scope: 'lastEnemy' };
+  /** 匹配骷髅头时所有敌人随机损失技能（chaoswave）；stat 'random' 经 rng 掷项 */
+  onSkullMatchEnemyDrain?: { stat: 'attack' | 'armor' | 'magic' | 'mana' | 'random'; amount: number };
 }
 
 /** 条件经济光环的入账数额（按币种；maps 无对应官方句式不设键） */

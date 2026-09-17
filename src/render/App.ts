@@ -155,6 +155,24 @@ const SPECIAL_GEM_FEEDBACK: Record<SpecialGemKind, { label: string; color: strin
   barrierGem: { label: '屏障', color: '#ffe06b' },
   // 赃物宝石（窗口 E 经济批）：摧毁时 +10 金币
   bootyGem: { label: '赃物 +10 金币', color: '#ffd24a' },
+  // 波B 17 颗（GEMS-SEMANTICS-2 2026-09-17）：触发环 + 飘字沿用既有反馈动画（≤450ms）
+  dragonGem: { label: '巨龙', color: '#f2f2ff' },
+  giantGem: { label: '巨人', color: '#ffd36b' },
+  spiritGem: { label: '摄魂', color: '#b7e5ff' },
+  manaPotionGem: { label: '法力药水', color: '#ffe9a6' },
+  candyGem: { label: '糖果 +1 法力', color: '#ffb6d9' },
+  elementalStar: { label: '元素星', color: '#f2f2ff' },
+  umbralStar: { label: '暗影星', color: '#c77dff' },
+  angelGem: { label: '祝福', color: '#ffe9a6' },
+  daemonicPortalGem: { label: '恶魔传送门', color: '#ff8a5c' },
+  gargoyleGem: { label: '石像鬼', color: '#a8adb8' },
+  stoneBlock: { label: '石块', color: '#a8adb8' },
+  lycanthropyGem: { label: '狼化', color: '#b46cff' },
+  decayGem: { label: '腐朽', color: '#9c8462' },
+  volcanoGem: { label: '火山', color: '#ff9c5c' },
+  trapGem: { label: '陷阱', color: '#ff5c6e' },
+  enchantedGem: { label: '附魔', color: '#d9b6ff' },
+  mimicGem: { label: '宝箱怪', color: '#e6bd94' },
 };
 
 const SINGLE_HIT_FX: Partial<Record<BaseColor, string>> = {
@@ -192,7 +210,9 @@ const SINGLE_HIT_SFX: Partial<Record<BaseColor, SfxName>> = {
   [BaseColor.Green]: 'skillHitGreenSingle',
 };
 
-
+/** 棋盘上沿 HUD 通道高度与上下留白：deriveCellSize 与 init 共享同一布局公式，避免漂移。 */
+const BOARD_TOP_INSET = 44;
+const BOARD_MARGIN_Y = 4;
 
 export class App {
   /** slash steps 关键帧仅注入一次的标记 */
@@ -408,13 +428,15 @@ export class App {
   onBattleDismissed?: () => void;
   /** 结果只交出一次 */
   private battleResultEmitted = false;
+  /** destroy() 已执行标记（幂等） */
+  private destroyed = false;
   /** 技能注册表（主游戏拥有全部技能原型） */
   private registry!: ExtensionRegistry;
   /**
-   * 棋盘逻辑格基准像素（init 时生效，夹取 [40,96]）。默认 40 = 手机横屏紧凑基准；
-   * 测试台等大屏嵌入方在 init 前调大，使画布原生放大而非靠 transform 拉伸变糊。
+   * 棋盘逻辑格基准像素（init 时生效，夹取 [40,96]）。null（默认）= 按挂载视口高度推导，
+   * 让画布原生铺满窗口而非靠 transform 拉伸变糊；测试台等嵌入方仍可在 init 前显式指定。
    */
-  baseCellSize = 40;
+  baseCellSize: number | null = null;
   /** 玩家选择 UI（选目标/选宝石），技能释放时按需调用 */
   private targetPicker = new TargetPicker();
   private cellPicker!: CellPicker;
@@ -498,18 +520,18 @@ export class App {
     // 队伍人数影响卡片尺寸，需在读取 CARD_W 前设置
     const teamSize = Math.max(playerTeam.characters.length, enemyTeam.characters.length);
 
-    // 手机横屏紧凑基准：逻辑格默认 40px，最低 667×375 安全内容盒中不再缩小。
+    // 手机横屏紧凑基准：逻辑格下限 40px，最低 667×375 安全内容盒中不再缩小。
     // Pixi 与 DOM 仍共享同一逻辑坐标系，视口变化仅调整 wrapper 等比缩放。
-    // 嵌入方（测试台等大屏场景）可在 init 前调大 baseCellSize，让画布原生变大而非拉伸变糊。
-    const cellSize = Math.max(40, Math.min(96, Math.round(this.baseCellSize)));
+    // baseCellSize 未显式指定时按视口推导，画布原生放大而非靠 transform 拉伸变糊。
+    const cellSize = Math.max(40, Math.min(96, Math.round(this.baseCellSize ?? this.deriveCellSize(mount))));
     // Reserve a compact 44px HUD lane so the turn frame never covers the first gem row.
-    const boardTopInset = 44;
+    const boardTopInset = BOARD_TOP_INSET;
     const gridPx = cellSize * BoardModel.COLS;
     const teamColumnPx = boardTopInset + gridPx;
     setTeamSize(teamSize, teamColumnPx);
 
-    const topMargin = 4;
-    const bottomMargin = 4;
+    const topMargin = BOARD_MARGIN_Y;
+    const bottomMargin = BOARD_MARGIN_Y;
     const colGap = 6;
     const gemSpace = 8;
     const sideColW = CARD_W + colGap;
@@ -593,6 +615,11 @@ export class App {
     // 死亡召唤特质（summonOnDeath 族）的召唤物装配：按生成器预解析的 referenceName 查兵种数据
     setSummonTemplateResolver((spec) => troopToSummonTemplate(spec.referenceName));
     this.engine.skullChance = 0.16; // 骷髅为棋盘常驻成分（Gems of War 风格）
+    // 玩家旗帜加成（meta M6）：请求带 playerBanner 时注入引擎，玩家方匹配加成色 ±N 法力
+    const bannerBoosts = battleRequest.playerBanner?.boosts;
+    if (bannerBoosts && Object.keys(bannerBoosts).length > 0) {
+      this.engine.bannerBoosts = { ...bannerBoosts };
+    }
     // 表现层一律通过 session 提交行动，事件流才会被完整累积进结果摘要与 digest
     this.session = new BattleSession({ request: battleRequest, idMap, engine: this.engine });
 
@@ -756,6 +783,26 @@ export class App {
     this.onBattleFinished?.(result);
   }
 
+  /**
+   * 战斗收尾销毁（meta 外壳按场新建/销毁 App 时用）：停渲染循环、销毁舞台子树
+   * 与渲染器、清掉挂起的定时器/补间，并移除 wrapper DOM。幂等；init 之前调用安全。
+   * 共享贴图缓存（gemTextures）不销毁，下一场战斗直接复用。
+   */
+  destroy(): void {
+    if (this.destroyed) return;
+    this.destroyed = true;
+    if (this.hintTimer !== null) clearTimeout(this.hintTimer);
+    if (this.turnHudComboTimer !== null) clearTimeout(this.turnHudComboTimer);
+    for (const tween of this.hintTweens) tween.kill();
+    for (const animation of this.turnHudAnimations) animation.cancel();
+    this.hintTweens = [];
+    this.turnHudAnimations = [];
+    if (this.app.renderer) {
+      this.app.destroy({ removeView: true }, { children: true });
+    }
+    this.wrapper?.remove();
+  }
+
   /** 由 ResizeObserver/visualViewport 或窗口事件触发的统一布局入口。 */
   refreshLayout(): void {
     if (!this.wrapper || !this.mountEl || this.baseW <= 0 || this.baseH <= 0) return;
@@ -768,6 +815,33 @@ export class App {
     // 紧凑基准在支持范围内只会放大；桌面端封顶，避免画面无限膨胀。
     const scale = Math.max(0.1, Math.min(1.75, fit));
     this.wrapper.style.transform = `scale(${scale})`;
+    this.syncBackingStore(scale);
+  }
+
+  /** 未显式指定 baseCellSize 时按挂载视口高度反解逻辑格：画布原生高度≈视口，refreshLayout 只需微调而非放大。 */
+  private deriveCellSize(mount: HTMLElement): number {
+    const rect = mount.getBoundingClientRect();
+    const style = getComputedStyle(mount);
+    const padY = parseFloat(style.paddingTop) + parseFloat(style.paddingBottom);
+    const availH = (rect.height > 0 ? rect.height : window.innerHeight) - padY;
+    // dimH = cellSize×COLS + 顶部 HUD 通道 + 上下留白；令 dimH≈可用高度反解 cellSize。
+    return Math.floor((availH - BOARD_TOP_INSET - BOARD_MARGIN_Y * 2) / BoardModel.COLS);
+  }
+
+  /** 已应用到 renderer 的 resolution（含 CSS 缩放补偿），用于跳过无意义的 resize。 */
+  private appliedResolution = 0;
+
+  /**
+   * CSS transform 只是显示放大，背面缓冲若不跟着放大就会拉伸变糊。
+   * 这里把 resolution 同步为 dpr×scale，让纹理 1:1 落到物理像素；上限 4 防 GPU 纹理失控。
+   */
+  private syncBackingStore(scale: number): void {
+    if (!this.app.renderer) return;
+    const dpr = window.devicePixelRatio || 1;
+    const target = Math.min(4, Math.max(1, dpr * scale));
+    if (Math.abs(target - this.appliedResolution) < 0.05) return;
+    this.appliedResolution = target;
+    this.app.renderer.resize(this.baseW, this.baseH, target);
   }
 
   /** 竖屏/过小视口是独立门禁状态，任何异步回合收尾都不能绕过它重新开启输入。 */

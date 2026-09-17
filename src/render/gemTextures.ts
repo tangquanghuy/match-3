@@ -1,5 +1,5 @@
 import { Assets, Texture } from 'pixi.js';
-import { BaseColor } from '@engine/types';
+import { BaseColor, SPECIAL_MATCH_COLOR } from '@engine/types';
 import type { GemType, SpecialGemKind } from '@engine/types';
 
 // 通过 Vite 以 URL 形式引入资源：自动处理 base 路径与产物哈希（需求 21.3）
@@ -59,8 +59,10 @@ const COLOR_URL: Record<BaseColor, string> = {
 /**
  * 特殊宝石贴图（按 kind；通配按倍率分两张，见 WILDCARD_TIER_URL）。
  * 状态搬运宝石族使用独立 256×256 透明贴图；GemSprite 上的程序化层只补环境光尘。
+ * 波B（GEMS-SEMANTICS-2 2026-09-17）17 颗裁定免贴图：不入本表，
+ * textureFor 回退归属色贴图（见 SPECIAL_FALLBACK_COLOR）+ GemSprite 程序化叠层占位。
  */
-const SPECIAL_URL: Record<Exclude<SpecialGemKind, 'wildcard' | 'bootyGem'>, string> = {
+const SPECIAL_URL: Partial<Record<SpecialGemKind, string>> = {
   doomSkull: doomSkullUrl,
   uberDoomSkull: uberDoomSkullUrl,
   bomb: bombUrl,
@@ -127,7 +129,7 @@ export function loadGemTextures(): Promise<void> {
   loadPromise = (async () => {
     try {
       const colorEntries = Object.entries(COLOR_URL) as [BaseColor, string][];
-      const specialEntries = Object.entries(SPECIAL_URL) as [Exclude<SpecialGemKind, 'wildcard' | 'bootyGem'>, string][];
+      const specialEntries = Object.entries(SPECIAL_URL) as [SpecialGemKind, string][];
       const wildcardEntries = Object.entries(WILDCARD_TIER_URL) as [string, string][];
       const bootyEntries = Object.entries(BOOTY_TIER_URL) as [string, string][];
       await Promise.all([
@@ -162,10 +164,36 @@ export function gemTexturesReady(): boolean {
   return loaded;
 }
 
+/**
+ * 波B 免贴图宝石的静态回退基图（无 spec.color、也不在 SPECIAL_MATCH_COLOR 单色表的 kind）。
+ * 星族/无色族按 GEMS-SEMANTICS-2 各节"基图"行登记；'skull' = 骷髅贴图打底。
+ */
+const SPECIAL_FALLBACK_COLOR: Partial<Record<SpecialGemKind, BaseColor | 'skull'>> = {
+  elementalStar: BaseColor.Brown,
+  umbralStar: BaseColor.Purple,
+  angelGem: BaseColor.Yellow,
+  daemonicPortalGem: BaseColor.Purple,
+  gargoyleGem: 'skull',
+  stoneBlock: BaseColor.Brown,
+  trapGem: 'skull',
+  mimicGem: BaseColor.Brown,
+};
+
 /** 取某宝石类型对应贴图；无对应贴图（如加载失败）返回 null，由调用方回退 */
 export function textureFor(type: GemType): Texture | null {
   if (type.kind === 'color') return colorTex.get(type.color) ?? null;
   if (type.kind === 'skull') return skullTex;
-  if (type.kind === 'special') return specialTex.get(specialKey(type.spec.kind, type.spec.tier)) ?? null;
+  if (type.kind === 'special') {
+    const own = specialTex.get(specialKey(type.spec.kind, type.spec.tier));
+    if (own) return own;
+    // 波B 免贴图宝石：回退归属色贴图（六色族=spec.color；单色 kind=SPECIAL_MATCH_COLOR；
+    // 无色/星族=静态回退表），程序化叠层由 GemSprite 叠在其上（GEMS-SEMANTICS-2 §0 预算）
+    const fallback = type.spec.color
+      ?? SPECIAL_MATCH_COLOR[type.spec.kind]
+      ?? SPECIAL_FALLBACK_COLOR[type.spec.kind];
+    if (fallback === 'skull') return skullTex;
+    if (fallback) return colorTex.get(fallback) ?? null;
+    return null;
+  }
   return null;
 }

@@ -24,8 +24,12 @@ import type { TargetChooser } from './skills/targetChooser';
 import { AiCellChooser, prototypeNeedsCell } from './skills/cellChooser';
 import type { CellChooser } from './skills/cellChooser';
 import { MatchState, PlayerSide, BaseColor, opponentOf, colorGem, specialGem, posKey, WEB_GEM_TURNS,
-  MATCH_STATUS_GEMS, DESTROY_STATUS_GEMS, STATUS_GEM_EFFECTS, isStatusGemKind, BOOTY_GEM_GOLD } from './types';
-import type { SkullStormDropKind, StatusGemKind, StatusInstance, SpecialGemKind, StormSummon, TraitEconomyGain } from './types';
+  MATCH_STATUS_GEMS, DESTROY_STATUS_GEMS, STATUS_GEM_EFFECTS, isStatusGemKind, BOOTY_GEM_GOLD,
+  MANA_BONUS_GIANT, SPIRIT_GEM_DRAIN, MANA_POTION_GEM_RANGE, CANDY_GEM_MANA, TRAP_GEM_OPTIONS,
+  ANGEL_GEM_TURNS, LYCANTHROPY_GEM_TURNS, GARGOYLE_GEM_TURNS,
+  GARGOYLE_POSITIVE_STATUS_POOL, GARGOYLE_NEGATIVE_STATUS_POOL } from './types';
+import type { SkullStormDropKind, StatusGemKind, StatusInstance, SpecialGemKind, SpecialGemSpec,
+  StormSummon, TraitEconomyGain } from './types';
 
 /**
  * 被炸毁骷髅的法术伤害表（官方口径，区别于三消骷髅的攻击力结算）：
@@ -59,6 +63,7 @@ import type {
   SpecialGemHookEvent,
   GemTransformEvent,
   GemClearEvent,
+  GemCreateEvent,
   StormChangeEvent,
 } from './events';
 
@@ -158,8 +163,8 @@ export class TurnEngine {
    */
   private readonly traitSummon = (spec: {
     chance: number; troopId: number; referenceName: string; displayName: string;
-  }): GameEvent[] =>
-    applyDeathSummons([{ spec: { ...spec, chance: 1 }, side: this.state.activePlayer }], {
+  }, side: PlayerSide = this.state.activePlayer): GameEvent[] =>
+    applyDeathSummons([{ spec: { ...spec, chance: 1 }, side }], {
       nextCharId: () => this.nextCharId(),
       rng: this.rng,
       enqueue: (summoned, troopId, side) => this.enqueueSummon(summoned, troopId, side),
@@ -245,6 +250,11 @@ export class TurnEngine {
     // 开局爆破（omenof* 族「在战斗开始的时候爆破一颗X宝石/骷髅头」）：棋盘已生成、
     // 事件流未开始，事件交由 takeInitialEvents 供表现层首屏消费。
     this.initialEvents.push(...this.applyBattleStartDestroyTraits());
+    // 开局施加状态（职业天赋族：vanguard 自身屏障 / roottrap 缠绕首敌 / snapfreeze 冻结
+    // 随机敌 / swiftcurse 死亡标记随机敌 / serendipity 随机盟友随机正面状态）：棋盘已生成、
+    // 事件流未开始，事件交由 takeInitialEvents。随机目标与 randomPositive 走构造期同一条
+    // 种子化 rng；施加经 applyStatus（免疫在施加口拦截）。
+    this.initialEvents.push(...this.applyBattleStartStatusTraits());
   }
 
   /** 取出构造阶段的开局事件；只消费一次。 */
@@ -294,6 +304,206 @@ export class TurnEngine {
     return events;
   }
 
+  /**
+   * 开局施加状态（职业天赋 battleStartStatus 族，定义直读同 omenof* 口径）：
+   * 双方存活队伍按序收集（Left 全队 → Right 全队 → 队伍序 → 特质声明序，确定性）。
+   * target=self 持有者自身 / randomAlly 同队随机存活 / randomEnemy 敌方随机存活 /
+   * firstEnemy 敌方队伍序首个存活；randomPositive（serendipity）从正面状态池经 rng
+   * 掷一条、忽略 statuses 列表。候选唯一不掷骰；施加经 applyStatus（免疫在施加口拦截）。
+   * 双方都持有同类开局状态时按上述顺序结算（先 Left 后 Right）。
+   */
+  private applyBattleStartStatusTraits(): GameEvent[] {
+    const events: GameEvent[] = [];
+    for (const side of [PlayerSide.Left, PlayerSide.Right]) {
+      const own = this.state.teams[side].characters;
+      const foes = this.state.teams[opponentOf(side)].characters;
+      for (const char of own) {
+        if (char.defeated) continue;
+        for (const code of char.traitIds ?? []) {
+          const spec = getTrait(code)?.battleStartStatus;
+          if (!spec) continue;
+          const statuses: readonly { id: string; magnitude?: number }[] = spec.randomPositive
+            ? [{ id: RANDOM_POSITIVE_STATUS_POOL[this.rng.nextInt(RANDOM_POSITIVE_STATUS_POOL.length)]! }]
+            : spec.statuses;
+          let target: Character | undefined;
+          if (spec.target === 'self') {
+            target = char;
+          } else if (spec.target === 'firstEnemy') {
+            target = foes.find((c) => !c.defeated);
+          } else {
+            const pool = (spec.target === 'randomAlly' ? own : foes).filter((c) => !c.defeated);
+            target = pool.length === 0 ? undefined : pool[this.rng.nextInt(pool.length)];
+          }
+          if (!target) continue;
+          for (const st of statuses) {
+            const status: StatusInstance = { id: st.id, turns: spec.turns };
+            if (st.magnitude !== undefined) status.magnitude = st.magnitude;
+            events.push(...applyStatus(target, status));
+          }
+        }
+      }
+    }
+    return events;
+  }
+
+  /**
+   * 爆破关联色宝石（职业天赋 lightningstrike「配对时爆破一颗黄色宝石」，注入大匹配
+   * ctx.explodeGem）：候选格从棋盘移除后走 resolveBoardChange——法力/骷髅结算归当前
+   * 行动方（持有者一方）、重力连锁照常。候选唯一不掷骰、多候选每颗耗一次 rng、
+   * 无候选安全跳过（与开局爆破 omenof* 同口径）。
+   */
+  private explodeGemsOfColor(color: string, count: number): GameEvent[] {
+    const events: GameEvent[] = [];
+    for (let i = 0; i < count; i++) {
+      const candidates: CellPos[] = [];
+      for (let row = 0; row < BoardModel.ROWS; row++) {
+        for (let col = 0; col < BoardModel.COLS; col++) {
+          const gem = this.state.board.get({ row, col });
+          if (!gem) continue;
+          if (gem.type.kind === 'color' && gem.type.color === color) candidates.push({ row, col });
+        }
+      }
+      if (candidates.length === 0) break;
+      const pos = candidates.length === 1 ? candidates[0] : candidates[this.rng.nextInt(candidates.length)];
+      const gem = this.state.board.get(pos)!;
+      this.state.board.set(pos, null);
+      this.resolveBoardChange([{ gemType: gem.type, pos }], events, this.state.activePlayer);
+    }
+    return events;
+  }
+
+  /**
+   * 承受骷髅伤害的召唤/经济钩子（职业天赋 golemprotector「当我受到伤害时有 20% 几率召唤」
+   * + 缺口清扫批 pickpocket 惰性经济）：从骷髅结算事件取实际受击目标（skull-damage 事件
+   * 只在实际扣血时产出——闪避/屏障落空天然不触发，与 gainOnDamaged 同口径），每次受击
+   * 各自掷签。召唤物归受击者一方（非当前行动方，side 显式传入）。
+   */
+  private applyDamagedTriggersFromEvents(produced: GameEvent[]): GameEvent[] {
+    const events: GameEvent[] = [];
+    const damagedIds = [
+      ...new Set(
+        produced
+          .filter((e): e is GameEvent & { type: 'skull-damage'; targetId: number } => e.type === 'skull-damage')
+          .map((e) => e.targetId),
+      ),
+    ];
+    for (const id of damagedIds) {
+      let holder: Character | undefined;
+      let side: PlayerSide | null = null;
+      for (const s of [PlayerSide.Left, PlayerSide.Right]) {
+        const hit = this.state.teams[s].characters.find((c) => c.id === id && !c.defeated);
+        if (hit) {
+          holder = hit;
+          side = s;
+          break;
+        }
+      }
+      if (!holder || side === null) continue;
+      const p = passivesOf(holder);
+      const eco = p.damagedEconomyGains;
+      if (eco) {
+        for (const currency of ['gold', 'souls', 'gems'] as const) {
+          if (eco[currency] > 0) events.push(...this.creditEconomy(currency, eco[currency]));
+        }
+      }
+      const summon = p.summonOnDamaged;
+      if (summon && (summon.chance >= 1 || this.rng.next() < summon.chance)) {
+        events.push(...this.traitSummon(summon, side));
+        events.push(...this.applySelfSummonStatus(holder));
+      }
+    }
+    return events;
+  }
+
+  /**
+   * 回合开始的经济入账与召唤（缺口清扫批 turnStartEconomy/turnStartSummon 惰性字段的
+   * 结算口 + 职业天赋 lightfingers「每回合 5 黄金」/ soulcaller「每回合 1 灵魂」复用）：
+   * 行动方存活持有者逐个结算（与 applyTurnStartPassives 同一触发点、同一次序）；
+   * 召唤概率经同一条 rng（无概率字段 chance>=1 直接入队）。
+   */
+  private applyTurnStartEconomyAndSummons(): GameEvent[] {
+    const events: GameEvent[] = [];
+    const team = this.state.teams[this.state.activePlayer];
+    for (const char of team.characters) {
+      if (char.defeated) continue;
+      const p = passivesOf(char);
+      const eco = p.turnStartEconomyGains;
+      if (eco) {
+        for (const currency of ['gold', 'souls', 'gems'] as const) {
+          if (eco[currency] > 0) events.push(...this.creditEconomy(currency, eco[currency]));
+        }
+      }
+      const summon = p.turnStartSummon;
+      if (summon && (summon.chance >= 1 || this.rng.next() < summon.chance)) {
+        events.push(...this.traitSummon(summon));
+        events.push(...this.applySelfSummonStatus(char));
+      }
+    }
+    return events;
+  }
+
+  /**
+   * 同队施法触发（职业天赋 childofsky「盟友施法时 25% 召唤苍鹭巨兽」+ 缺口清扫批
+   * soulverdict 惰性经济）：与施法响应（applyCastTriggers）同一触发点，行动方全队存活
+   * 持有者逐个结算（盟友口径含施法者本人）。召唤物归持有者一方（=行动方）。
+   */
+  private applyAllyCastTriggers(): GameEvent[] {
+    const events: GameEvent[] = [];
+    for (const holder of this.state.teams[this.state.activePlayer].characters) {
+      if (holder.defeated) continue;
+      const p = passivesOf(holder);
+      const eco = p.allyCastEconomyGains;
+      if (eco) {
+        for (const currency of ['gold', 'souls', 'gems'] as const) {
+          if (eco[currency] > 0) events.push(...this.creditEconomy(currency, eco[currency]));
+        }
+      }
+      const summon = p.summonOnAllyCast;
+      if (summon && (summon.chance >= 1 || this.rng.next() < summon.chance)) {
+        events.push(...this.traitSummon(summon));
+        events.push(...this.applySelfSummonStatus(holder));
+      }
+    }
+    return events;
+  }
+
+  /**
+   * 自己召唤部队后的触发（职业天赋 hauntedweave「当我召唤部队时，织网一名随机敌人」）：
+   * 持有者无此被动时零开销返回。随机目标=持有者对方的存活队列（经同一条 rng）；
+   * 施加经 applyStatus（免疫在施加口拦截）。
+   */
+  private applySelfSummonStatus(holder: Character): GameEvent[] {
+    const spec = passivesOf(holder).onSelfSummonStatus;
+    if (!spec || holder.defeated) return [];
+    const holderSide = this.sideOfCharacter(holder.id);
+    if (holderSide === null) return [];
+    const foes = this.state.teams[opponentOf(holderSide)].characters.filter((c) => !c.defeated);
+    if (foes.length === 0) return [];
+    const target = foes[this.rng.nextInt(foes.length)];
+    const events: GameEvent[] = [];
+    for (const st of spec.statuses) {
+      const status: StatusInstance = { id: st.id, turns: spec.turns };
+      if (st.magnitude !== undefined) status.magnitude = st.magnitude;
+      events.push(...applyStatus(target, status));
+    }
+    return events;
+  }
+
+  /**
+   * 死亡召唤路径的 self-summon 触发（hauntedweave）：召唤事件确实发生后，对双方存活
+   * 持有者各触发一次（持有者=召唤特质的持有者，官方口径「当我召唤部队时」）。
+   */
+  private appendSelfSummonStatusForDeathSummons(events: GameEvent[], candidates: readonly Character[]): GameEvent[] {
+    if (!events.some((e) => e.type === 'summon')) return events;
+    const out = [...events];
+    for (const holder of candidates) {
+      if (holder.defeated) continue;
+      if (!passivesOf(holder).onSelfSummonStatus) continue;
+      out.push(...this.applySelfSummonStatus(holder));
+    }
+    return out;
+  }
+
   /** 注入选色器（玩家已选色时传 FixedColorChooser；AI 用默认） */
   setColorChooser(chooser: ColorChooser): void {
     this.colorChooser = chooser;
@@ -312,6 +522,16 @@ export class TurnEngine {
   /** 注入召唤物解析器（装配层从 troops 数据提供） */
   setSummonResolver(resolver: (referenceName: string) => SummonTemplate | null): void {
     this.summonResolver = resolver;
+  }
+
+  /**
+   * 恶魔传送门宝石的随机恶魔候选池（TroopType 含 Daemon 的 referenceName 列表）。
+   * 由装配层从 troops 数据注入；缺省空池 → 传送门只爆炸不召唤（零随机消耗）。
+   */
+  private daemonPool: readonly string[] = [];
+
+  setDaemonPool(refs: readonly string[]): void {
+    this.daemonPool = refs;
   }
 
   getState(): GameState {
@@ -441,9 +661,19 @@ export class TurnEngine {
               enemyTeam: this.state.teams[opponentOf(this.state.activePlayer)].characters,
               gainEconomy: this.creditEconomy,
               damage: this.traitDamage,
+              drainLife: this.traitDrainLife,
+              explodeGem: (color, count) => this.explodeGemsOfColor(color, count),
               createGem: (kind, tier, count) =>
                 this.spawnSpecialGems(kind, tier, count, matches.map((grp) => grp.cells)),
-              summon: this.traitSummon,
+              summon: (spec) => {
+                const produced = this.traitSummon(spec);
+                // 大连召唤完成后的 self-summon 触发（hauntedweave）：召唤事件发生后，
+                // 对行动方存活持有者各触发一次。
+                return [...produced, ...this.appendSelfSummonStatusForDeathSummons(
+                  produced,
+                  this.state.teams[this.state.activePlayer].characters,
+                )];
+              },
               setStorm: this.traitSetStorm,
               kill: this.traitKill,
             },
@@ -555,6 +785,13 @@ export class TurnEngine {
       events.push(
         ...this.distributeGemMana(activeTeam, this.state.activePlayer, settle.color, group.cells.length * settle.manaMultiplier),
       );
+      // 星族随组加发（元素星四色各 +1 / 暗影星两色各 +1，官方 "1 Mana for ALL of those
+      // colors"）：组归属色按其余宝石的颜色计（settle.color），星色法力逐色另发
+      if (settle.bonusColors) {
+        for (const c of settle.bonusColors) {
+          events.push(...this.distributeGemMana(activeTeam, this.state.activePlayer, c, 1));
+        }
+      }
       // 配色触发特质（食人魔之怒/阳光…）：匹配到关联色时给匹配方全队加值。
       // 每次结算算一次，与消除的宝石数无关——描述是「在配对X色宝石时」，不是「每颗」。
       // enemyTeam 供敌方配色触发（rancor「在敌人配对骷髅头时…」族，颜色键同理）；
@@ -568,18 +805,32 @@ export class TurnEngine {
         drainLife: this.traitDrainLife,
         damage: this.traitDamage,
       }));
+    } else if (settle.kind === 'starOnly') {
+      // 纯星组（星与星互连、无基色依附）：只发星族各色 +1，宝石本体不产法力
+      for (const c of settle.bonusColors) {
+        events.push(...this.distributeGemMana(activeTeam, this.state.activePlayer, c, 1));
+      }
     } else if (settle.kind === 'skull') {
       // 骷髅 → 物理伤害（需求 14），不产生法力（需求 11.2）
       const enemyTeam = this.state.teams[opponentOf(this.state.activePlayer)];
       // 传入 rng：闪避特质（敏捷/轻巧）需要随机判定，且必须走同一条确定性随机源
+      // 骷髅附加护甲比（职业天赋 razorarmor「骷髅头伤害附加 20% 的护甲值」）：攻击方队首
+      // 持有者按 自身护甲 × ratio 附加固定伤害（与末日骷髅加伤同一 bonus 通道）。
+      const front = activeTeam.characters.find((c) => !c.defeated);
+      const armorRatio = front ? passivesOf(front).skullDamageFromArmorRatio ?? 0 : 0;
+      const armorBonus = front && armorRatio > 0 ? Math.floor(front.armor * armorRatio) : 0;
       const outcome = this.combat.resolveSkullDamage(
         activeTeam,
         enemyTeam,
         group.cells.length,
         this.rng,
-        settle.bonusDamage,
+        settle.bonusDamage + armorBonus,
       );
       events.push(...resolveDefeatEvents(this.state, outcome.events));
+      // 承受骷髅伤害的召唤/经济钩子（职业天赋 golemprotector 召唤 + 缺口清扫批 pickpocket
+      // 惰性经济）：从本次结算的 skull-damage 事件取实际受击目标——落空不产事件，天然与
+      // gainOnDamaged「落空不触发」同口径；每次受击各自掷签（概率经同一条 rng）。
+      events.push(...this.applyDamagedTriggersFromEvents(outcome.events));
       // 配对骷髅触发（diamondaura/powerofstars 配色光环、rancor 敌方触发、darkensouls
       // 条件经济）：在骷髅伤害结算之后触发，避免同一次命中被本次新增的护甲/生命减免——
       // 炸毁骷髅（settleExplodedSkulls）不算「配对」，不在此列。rng/applyStatus 同配色点
@@ -629,7 +880,19 @@ export class TurnEngine {
           // 「被摧毁」型被匹配同样视为被摧毁（GEMS-SEMANTICS-2 A 组共性）：登记进摧毁链统一施加
           destroyTriggers.push({ gemType: gem.type, pos: cell, viaMatch: true });
         }
+      } else if (kind === 'dragonGem' || kind === 'giantGem' || kind === 'spiritGem'
+        || kind === 'manaPotionGem' || kind === 'elementalStar' || kind === 'umbralStar'
+        || kind === 'volcanoGem' || kind === 'lycanthropyGem') {
+        // 波B「被匹配/被摧毁」双路径触发（官方 matched **or destroyed**；火山/狼化按其官方句式
+        // 同样双路径——狼化=「Removing ... cast lycanthropy」）：登记到摧毁链统一结算
+        //（匹配宝石不入摧毁队列，管线天然去重）。星族的多色法力加发在组结算（MatchSettle.bonusColors）。
+        destroyTriggers.push({ gemType: gem.type, pos: cell, viaMatch: true });
+      } else if (kind === 'candyGem') {
+        // 糖果（官方 "when matched"）：仅被匹配触发——己方全体该色存活盟友各 +1 法力
+        this.applyCandyGem(gem.type.spec, cell, events);
       }
+      // decayGem/stoneBlock/enchantedGem/mimicGem：可匹配（或不可匹配）但无"被匹配"触发
+      //（腐朽只有盘上光环，见 applyDecayGemAura；石块=惰性；附魔/宝箱怪行为句待官方核实）
     }
   }
 
@@ -719,13 +982,84 @@ export class TurnEngine {
         events.push({
           type: 'economy-gain', currency: 'gold', amount: BOOTY_GEM_GOLD, side: this.state.activePlayer,
         });
+      } else if (kind === 'dragonGem') {
+        // 龙宝石（官方 matched/destroyed）：爆炸其所在列**下方**全部宝石（{row..ROWS-1}×col，
+        // 自身格已在组移除/调用方清除，clear 对空格天然幂等）
+        events.push({ type: 'special-gem-trigger', kind, pos: d.pos, color: d.gemType.spec.color });
+        const cells: CellPos[] = [];
+        for (let row = d.pos.row; row < BoardModel.ROWS; row++) cells.push({ row, col: d.pos.col });
+        this.clearCellsForSpecial(cells, 'gem-explode', events, queue, chain);
+      } else if (kind === 'giantGem') {
+        // 巨人宝石（官方 matched/destroyed）：+5 该色法力（distributeGemMana → ManaDistributor/
+        // canGainMana 口径，沉默者跳过）+ 爆炸相邻一圈（末日骷髅同款 ringCells）
+        const color = d.gemType.spec.color ?? BaseColor.Red;
+        events.push({ type: 'special-gem-trigger', kind, pos: d.pos, color });
+        events.push(...this.distributeGemMana(
+          this.state.teams[this.state.activePlayer], this.state.activePlayer, color, MANA_BONUS_GIANT,
+        ));
+        this.clearCellsForSpecial(this.ringCells(d.pos), 'gem-explode', events, queue, chain);
+      } else if (kind === 'spiritGem') {
+        this.applySpiritGem(d.gemType.spec, d.pos, events);
+      } else if (kind === 'manaPotionGem') {
+        this.scatterManaPotionGems(d.gemType.spec, d.pos, events);
+      } else if (kind === 'elementalStar') {
+        // 元素星（官方 "destroys diagonal Gems"）：摧毁对角线四格 {±1,±1}（非 8 邻环）；
+        // 四色各 +1 法力在组结算加发（MatchSettle.bonusColors）
+        events.push({ type: 'special-gem-trigger', kind, pos: d.pos });
+        this.clearCellsForSpecial(this.diagonalCells(d.pos), 'gem-destroy', events, queue, chain);
+      } else if (kind === 'umbralStar') {
+        // 暗影星（官方 "destroys Gems in the row and column"）：清整行+整列，
+        // 行/列交叉点=自身、只登记一次；两色各 +1 法力在组结算加发
+        events.push({ type: 'special-gem-trigger', kind, pos: d.pos, line: d.pos.row });
+        this.clearCellsForSpecial(
+          [...this.cellsOfRow(d.pos.row), ...this.cellsOfCol(d.pos.col)],
+          'gem-destroy', events, queue, chain,
+        );
+      } else if (kind === 'volcanoGem') {
+        // 火山（官方 guide "match with reds and explode up vertically and diagonally"）：
+        // 仅被匹配时触发（doomSkull 同款 viaMatch 门）；向上垂直列 + 对角延伸
+        if (!d.viaMatch) continue;
+        events.push({ type: 'special-gem-trigger', kind, pos: d.pos, color: BaseColor.Red });
+        this.clearCellsForSpecial(this.upwardBlastCells(d.pos), 'gem-explode', events, queue, chain);
+      } else if (kind === 'lycanthropyGem') {
+        // 狼化宝石（官方 "Removing Lycanthropy gems cast lycanthropy"）：被摧毁（含被匹配）
+        // 时对随机敌人施加狼化状态
+        events.push({ type: 'special-gem-trigger', kind, pos: d.pos, color: BaseColor.Purple });
+        const enemies = this.state.teams[opponentOf(this.state.activePlayer)].characters
+          .filter((c) => !c.defeated);
+        if (enemies.length > 0) {
+          const target = enemies[this.rng.nextInt(enemies.length)];
+          events.push(...applyStatus(target, { id: 'lycanthropy', turns: LYCANTHROPY_GEM_TURNS }));
+        }
+      } else if (kind === 'angelGem') {
+        // 天使宝石（官方 "give a random Ally the Bless Status Effect"）：随机己方获得祝福
+        //（blessed 施加即净化负面 + 存续期全免疫，status.ts 已实现口径）
+        events.push({ type: 'special-gem-trigger', kind, pos: d.pos });
+        const allies = this.state.teams[this.state.activePlayer].characters
+          .filter((c) => !c.defeated);
+        if (allies.length > 0) {
+          const target = allies[this.rng.nextInt(allies.length)];
+          events.push(...applyStatus(target, { id: 'blessed', turns: ANGEL_GEM_TURNS }));
+        }
+      } else if (kind === 'daemonicPortalGem') {
+        // 恶魔传送门（官方 "explode all Gems around them and summon a random Daemon
+        // to the team of the gem destroyer"）：爆炸相邻一圈 + 为摧毁者（行动方）召唤随机恶魔
+        events.push({ type: 'special-gem-trigger', kind, pos: d.pos });
+        this.clearCellsForSpecial(this.ringCells(d.pos), 'gem-explode', events, queue, chain);
+        events.push(...this.summonRandomDaemon());
+      } else if (kind === 'gargoyleGem') {
+        this.applyGargoyleGem(d.gemType.spec, d.pos, events);
+      } else if (kind === 'trapGem') {
+        this.applyTrapGem(d.pos, events);
       } else if (isStatusGemKind(kind) && DESTROY_STATUS_GEMS.has(kind)) {
         // 「被摧毁」型状态宝石（流血/缠绕/打昏/屏障/激怒/沉没/精灵火/死亡标记）：
         // 被技能清除/爆破波及/匹配三路都汇到这里，按考证规格施加状态（不清相邻格）。
         // 「被匹配」型（燃烧/冻结/诅咒/毒/恐怖）被普通摧毁不触发——官方文本只写 When matched。
         this.applyStatusGem(kind, d.pos, events);
       }
-      // ghost/wildcard：无"被摧毁"触发（wildcard 倍率在组结算里；ghost 语义待定无行为）
+      // ghost/wildcard/stoneBlock/enchantedGem/mimicGem：无"被摧毁"触发
+      //（wildcard 倍率在组结算里；ghost 语义待定；石块=惰性障碍；
+      // 附魔/宝箱怪行为句官方未证实，摧毁仅按普通移除处理）
     }
     return chain;
   }
@@ -806,6 +1140,187 @@ export class TurnEngine {
       }
     }
     return cells;
+  }
+
+  /** 对角线四格 {±1,±1}（元素星，非 8 邻环；限界） */
+  private diagonalCells(pos: CellPos): CellPos[] {
+    const cells: CellPos[] = [];
+    for (const [dr, dc] of [[-1, -1], [-1, 1], [1, -1], [1, 1]] as const) {
+      const p = { row: pos.row + dr, col: pos.col + dc };
+      if (BoardModel.inBounds(p)) cells.push(p);
+    }
+    return cells;
+  }
+
+  /** 向上垂直列 + 对角延伸（火山，dragonGem「向下」的反向）：{row-1..0}×col 及 {row-k}×{col±k}，限界 */
+  private upwardBlastCells(pos: CellPos): CellPos[] {
+    const cells: CellPos[] = [];
+    for (let row = pos.row - 1; row >= 0; row--) cells.push({ row, col: pos.col });
+    for (let k = 1; ; k++) {
+      const left = { row: pos.row - k, col: pos.col - k };
+      const right = { row: pos.row - k, col: pos.col + k };
+      const inL = BoardModel.inBounds(left);
+      const inR = BoardModel.inBounds(right);
+      if (inL) cells.push(left);
+      if (inR) cells.push(right);
+      if (!inL && !inR) break;
+    }
+    return cells;
+  }
+
+  /**
+   * 灵力宝石（官方 "drain 2 Mana from Enemies"）：敌方每个存活角色 -2 法力（夹零、不转移，
+   * 官方 "drain" 无转移语义）。沉默**不影响**被汲取方（法力汲取不是充能）；法力操作免疫
+   *（manashield）按引擎削减口既有口径拦截（debuff.ts stat==='mana' 同款）。
+   */
+  private applySpiritGem(spec: SpecialGemSpec, pos: CellPos, events: GameEvent[]): void {
+    events.push({ type: 'special-gem-trigger', kind: 'spiritGem', pos, color: spec.color });
+    for (const foe of this.state.teams[opponentOf(this.state.activePlayer)].characters) {
+      if (foe.defeated || passivesOf(foe).manaOpsImmunity) continue;
+      const loss = Math.min(SPIRIT_GEM_DRAIN, foe.mana);
+      if (loss <= 0) continue;
+      foe.mana -= loss;
+      events.push({ type: 'buff', targetId: foe.id, stat: 'mana', amount: -loss });
+    }
+  }
+
+  /**
+   * 法力药水宝石（官方 "create 7-11 Mana Gems of that color randomly across the board"）：
+   * rng.nextInt 定数量、空格不放回随机采样（开放问题按建议只落空格——覆盖会顶掉特殊宝石），
+   * 发既有 gem-create 事件。**不在此调用 resolveBoardChange**：两条外层触发路径
+   *（runCascades 步骤5 / resolveBoardChange 步骤2-3）都会在摧毁链之后做重力+连锁，
+   * 撒落的宝石自然下落并被下一轮扫描吸收；此处再调会递归重入连锁循环。
+   */
+  private scatterManaPotionGems(spec: SpecialGemSpec, pos: CellPos, events: GameEvent[]): void {
+    const color = spec.color ?? BaseColor.Red;
+    events.push({ type: 'special-gem-trigger', kind: 'manaPotionGem', pos, color });
+    const count = MANA_POTION_GEM_RANGE.min
+      + this.rng.nextInt(MANA_POTION_GEM_RANGE.max - MANA_POTION_GEM_RANGE.min + 1);
+    const empties: CellPos[] = [];
+    for (let row = 0; row < BoardModel.ROWS; row++) {
+      for (let col = 0; col < BoardModel.COLS; col++) {
+        if (this.state.board.get({ row, col }) === null) empties.push({ row, col });
+      }
+    }
+    const spawns: GemCreateEvent['spawns'] = [];
+    for (let i = 0; i < count && empties.length > 0; i++) {
+      const p = empties.splice(this.rng.nextInt(empties.length), 1)[0];
+      const gem = { id: this.nextGemId(), type: colorGem(color) };
+      this.state.board.set(p, gem);
+      spawns.push({ pos: p, gemId: gem.id, gemType: gem.type });
+    }
+    if (spawns.length > 0) events.push({ type: 'gem-create', spawns });
+  }
+
+  /**
+   * 糖果宝石（官方 "give 1 mana to all allies of that colour when matched"）：仅被匹配触发
+   *（collectMatchTriggers 登记口）。己方全体该色存活盟友各 +1——直接授予不走分配器
+   *（官方是"给每个该色盟友"而非产出到池），但保持 canGainMana 沉默拦截 + manaCost 夹取口径。
+   */
+  private applyCandyGem(spec: SpecialGemSpec, pos: CellPos, events: GameEvent[]): void {
+    const color = spec.color ?? BaseColor.Red;
+    events.push({ type: 'special-gem-trigger', kind: 'candyGem', pos, color });
+    for (const ally of this.state.teams[this.state.activePlayer].characters) {
+      if (ally.defeated || !ally.colors.includes(color) || !canGainMana(ally)) continue;
+      const gain = Math.min(CANDY_GEM_MANA, ally.manaCost - ally.mana);
+      if (gain <= 0) continue;
+      ally.mana += gain;
+      events.push({ type: 'buff', targetId: ally.id, stat: 'mana', amount: gain });
+    }
+  }
+
+  /**
+   * 石像鬼宝石（官方 "Good Gargoyle Gems give all Allies a random Positive Status Effect;
+   * Evil/Bad Gargoyle Gems inflict all Enemies a random Negative Status Effect"）：
+   * tier 1=善（己方全体）/ 2=恶（敌方全体），每个存活角色独立掷一条随机状态
+   *（池=引擎已实现状态集，见 GARGOYLE_*_STATUS_POOL；DoT 带标准 magnitude）。
+   */
+  private applyGargoyleGem(spec: SpecialGemSpec, pos: CellPos, events: GameEvent[]): void {
+    const evil = spec.tier === 2;
+    events.push({ type: 'special-gem-trigger', kind: 'gargoyleGem', pos });
+    const side = evil ? opponentOf(this.state.activePlayer) : this.state.activePlayer;
+    const pool = evil ? GARGOYLE_NEGATIVE_STATUS_POOL : GARGOYLE_POSITIVE_STATUS_POOL;
+    for (const target of this.state.teams[side].characters) {
+      if (target.defeated) continue;
+      const statusId = pool[this.rng.nextInt(pool.length)];
+      const status: StatusInstance = { id: statusId, turns: GARGOYLE_GEM_TURNS };
+      // DoT 量级对齐状态搬运族口径（燃烧/中毒 3、出血 1）
+      if (statusId === 'poison' || statusId === 'burning') status.magnitude = 3;
+      else if (statusId === 'bleed') status.magnitude = 1;
+      events.push(...applyStatus(target, status));
+    }
+  }
+
+  /**
+   * 陷阱宝石（官方 Underspire "1 of 5 effects: Stun/Freeze/Entangle/Faerie Fire all Player
+   * Troops / Create 3 Doomskulls"）：oneOf 掷签五选一。负面**永远打玩家队**（Left），
+   * 即使宝石由玩家自己摧毁（官方原文 "even if the player destroys the Gem"）。
+   * 创造末日骷髅走满盘随机现存格就地转化的代理口径（T4 创造批同款），连锁由外层管线吸收。
+   */
+  private applyTrapGem(pos: CellPos, events: GameEvent[]): void {
+    const option = this.rng.nextInt(TRAP_GEM_OPTIONS);
+    events.push({ type: 'special-gem-trigger', kind: 'trapGem', pos });
+    if (option < 4) {
+      const statusIds = ['stun', 'frozen', 'entangle', 'faerie-fire'] as const;
+      const turns = [1, 3, 3, 3] as const;
+      for (const target of this.state.teams[PlayerSide.Left].characters) {
+        if (target.defeated) continue;
+        events.push(...applyStatus(target, { id: statusIds[option], turns: turns[option] }));
+      }
+    } else {
+      events.push(...this.spawnSpecialGems('doomSkull', undefined, 3));
+    }
+  }
+
+  /**
+   * 恶魔传送门的随机恶魔召唤（官方 "summon a random Daemon to the team of the gem destroyer"）：
+   * 候选池由装配层经 setDaemonPool 注入（troops.json TroopType 含 Daemon 的 referenceName），
+   * 种子化掷选后走现有召唤先例（traitSummon → applyDeathSummons → 注入模板解析器装配 +
+   * 容量/FIFO 入队），归摧毁者（行动方）一方。池为空时安全跳过、零随机消耗。
+   */
+  private summonRandomDaemon(): GameEvent[] {
+    if (this.daemonPool.length === 0) return [];
+    const referenceName = this.daemonPool[this.rng.nextInt(this.daemonPool.length)];
+    return this.traitSummon({ chance: 1, troopId: -1, referenceName, displayName: referenceName });
+  }
+
+  /**
+   * 腐朽宝石盘上光环（官方 "at the start of each turn, the team with the most troops will
+   * suffer -1 Armor per Decay Gem for all its troops; if both teams have the same number of
+   * troops, it will affect all troops"）：棋盘上每颗 decayGem，兵员更多的一队全员 -1 甲/颗，
+   * 同数双方都扣；甲夹零、零随机消耗。挂回合开始的回合尾扫描（finishTurn，每回合至多一次）；
+   * 无腐朽宝石时零事件——既有对局事件流与 rng 序列逐字节不变。
+   */
+  private applyDecayGemAura(): GameEvent[] {
+    let gems = 0;
+    let firstPos: CellPos | null = null;
+    for (let row = 0; row < BoardModel.ROWS; row++) {
+      for (let col = 0; col < BoardModel.COLS; col++) {
+        const gem = this.state.board.get({ row, col });
+        if (gem?.type.kind === 'special' && gem.type.spec.kind === 'decayGem') {
+          gems += 1;
+          if (!firstPos) firstPos = { row, col };
+        }
+      }
+    }
+    if (gems === 0 || firstPos === null) return [];
+    const leftAlive = this.state.teams[PlayerSide.Left].characters.filter((c) => !c.defeated).length;
+    const rightAlive = this.state.teams[PlayerSide.Right].characters.filter((c) => !c.defeated).length;
+    const sides: PlayerSide[] = leftAlive === rightAlive
+      ? [PlayerSide.Left, PlayerSide.Right]
+      : leftAlive > rightAlive ? [PlayerSide.Left] : [PlayerSide.Right];
+    const events: GameEvent[] = [
+      { type: 'special-gem-trigger', kind: 'decayGem', pos: firstPos, color: BaseColor.Brown },
+    ];
+    for (const side of sides) {
+      for (const char of this.state.teams[side].characters) {
+        if (char.defeated || char.armor <= 0) continue;
+        const loss = Math.min(gems, char.armor);
+        char.armor -= loss;
+        events.push({ type: 'buff', targetId: char.id, stat: 'armor', amount: -loss });
+      }
+    }
+    return events;
   }
 
   private cellsOfRow(row: number): CellPos[] {
@@ -1190,13 +1705,15 @@ export class TurnEngine {
       events.push(...applyDeathTriggers(
         this.state.teams[side].characters,
         this.state.teams[opponentOf(side)].characters,
+        { applyStatus, rng: this.rng },
       ));
-      // 敌人身亡的状态/种族光环变体（bloodlust/lordofdeath/sharedfate）：与阵亡响应同一时机。
+      // 敌人身亡的状态/种族光环变体（bloodlust/lordofdeath/sharedfate + 职业天赋
+      // chillofdeath 随机冻结 / risingshadows 阵亡猎杀）：与阵亡响应同一时机。
       // 事件顺序：stat 增益 → 状态/种族光环 → 死亡召唤，都落在引发阵亡的行动事件之后。
       events.push(...applyEnemyDeathTriggers(
         this.state.teams[opponentOf(side)].characters,
         this.state.teams[side].characters,
-        { applyStatus },
+        { applyStatus, rng: this.rng, kill: this.traitKill },
       ));
       // 死亡召唤（daemonicpact/terrorpact/fromdark/darkdeath 族）：与阵亡响应同一时机。
       // 事件顺序：增益 buff → 召唤 summon，都落在引发阵亡的行动事件之后。
@@ -1242,13 +1759,19 @@ export class TurnEngine {
 
     if (specs.length === 0) return [];
 
-    return applyDeathSummons(specs, {
+    // 死亡召唤完成后的 self-summon 触发（hauntedweave「当我召唤部队时，织网随机敌人」）：
+    // 候选持有者=双方全队（持有者的"我召唤"指召唤源是自己的被动）。
+    const produced = applyDeathSummons(specs, {
       deadId,
       nextCharId: () => this.nextCharId(),
       rng: this.rng,
       enqueue: (summoned, troopId, side) => this.enqueueSummon(summoned, troopId, side),
       setStorm: (spec, side) => this.setStormFromSummon(spec, side),
     });
+    return this.appendSelfSummonStatusForDeathSummons(
+      produced,
+      [...ownerTeam.characters, ...enemyTeam.characters],
+    );
   }
 
   /**
@@ -1419,6 +1942,13 @@ export class TurnEngine {
 
     // 回合开始的被动恢复（再生）：先于 DoT 结算，顺序固定以保证确定性
     events.push(...applyTurnStartPassives(this.state.teams[this.state.activePlayer].characters));
+    // 回合开始经济/召唤（缺口清扫批惰性字段结算口 + 职业天赋 lightfingers/soulcaller）：
+    // 与被动恢复同一触发点、同一持有者序。
+    events.push(...this.applyTurnStartEconomyAndSummons());
+
+    // 腐朽宝石盘上光环（官方 "at the start of each turn"）：回合尾一次扫描，兵多一方全员
+    // -1 甲/颗（同数双方都扣）。零随机消耗；无腐朽宝石零事件，既有对局序列不变。
+    events.push(...this.applyDecayGemAura());
 
     // 状态结算：对「即将行动方」的角色触发（DoT 扣血 / 织网挣脱 / 到期移除，需求 9.2, 9.4, 9.5）
     events.push(
@@ -1530,6 +2060,9 @@ export class TurnEngine {
         poolOf: (scope) => (scope === 'randomAlly' ? RANDOM_POSITIVE_STATUS_POOL : RANDOM_NEGATIVE_STATUS_POOL),
       },
     ));
+    // 同队施法召唤/经济（职业天赋 childofsky「盟友施法时 25% 召唤」+ 惰性 soulverdict）：
+    // 与施法响应同一触发点、行动方全队存活持有者逐个结算。
+    events.push(...this.applyAllyCastTriggers());
 
     // 优先低层自定义 SkillEffect；否则查技能原型执行；都没有则仅产生空效果技能并照常回到等待输入。
     const effect = this.registry.skills.get(ch.skillId);
@@ -1560,6 +2093,12 @@ export class TurnEngine {
             ),
           ),
         );
+        // 自己召唤部队后的触发（职业天赋 hauntedweave「当我召唤部队时，织网一名随机敌人」
+        // 的施法路径）：法术含召唤段且实际产出了召唤 → 触发施法者自身的该被动。
+        if (events.some((e) => e.type === 'summon')
+          && proto.segments.some((seg) => (seg as { kind?: string }).kind === 'summon')) {
+          events.push(...this.applySelfSummonStatus(ch));
+        }
       }
     }
 

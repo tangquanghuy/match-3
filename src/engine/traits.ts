@@ -33,7 +33,8 @@
 import traitTable from '../data/traits.json';
 import { effectiveHealing } from './healing';
 import type { BuffEvent, GameEvent } from './events';
-import type { BaseColor, Character, PassiveModifiers, SpecialGemKind, StatGains, PlayerSide, StatusInstance, StormSummon, TraitEconomyGain } from './types';
+import type { Character, PassiveModifiers, SpecialGemKind, StatGains, PlayerSide, StatusInstance, StormSummon, TraitEconomyGain } from './types';
+import { BaseColor } from './types';
 import type { SeededRNG } from './rng';
 
 /** 状态免疫通配符：免疫所有状态 */
@@ -61,8 +62,8 @@ export interface TraitDefinition {
     referenceName: string;
     displayName: string;
   };
-  /** 每回合开始恢复 */
-  regen?: { stat: PassiveStat; amount: number };
+  /** 每回合开始恢复；alsoStats 为共享数值的附加属性（wildhorns「攻击力、生命值和护甲值获得2点提升」） */
+  regen?: { stat: PassiveStat; amount: number; alsoStats?: PassiveStat[] };
   /** 自身受到伤害后获得 */
   onDamagedGain?: { stat: PassiveStat; amount: number; alsoStats?: PassiveStat[] };
   /** 自身受到伤害后自身获得状态（aquatic「在自身受到伤害时使自身下潜」）；施加走 applyStatus，免疫在施加口拦截 */
@@ -156,10 +157,13 @@ export interface TraitDefinition {
    */
   onColorMatchStatus?: {
     color: BaseColor | 'skull';
-    scope: 'randomEnemy' | 'self';
+    scope: 'randomEnemy' | 'randomAlly' | 'self';
     statuses: readonly { id: string; magnitude?: number }[];
     turns?: number;
     chance?: number;
+    /** 独立概率掷（brambleheart「Independent 50% chances to Entangle or inflict Bleed」）：
+     *  每条状态各自掷一次 chance（各中各的），每条各耗一次种子化 rng */
+    independentChance?: boolean;
   };
   /**
    * 配对某色（或骷髅）宝石时窃取首位敌人的生命（T5 窃取批 5 code：corruption/poisontide/
@@ -176,7 +180,7 @@ export interface TraitDefinition {
    * 同技能伤害口径），随机目标消耗一次种子化 rng。编译进 colorMatchDamage 的同色键
    * （同色键累加，与 onColorMatchDrain 同口径）。
    */
-  onColorMatchDamage?: { color: BaseColor | 'skull'; amount: number };
+  onColorMatchDamage?: { color: BaseColor | 'skull'; amount: number; scope?: 'randomEnemy' | 'allEnemies' };
   /**
    * 自己一方配对 4/5 连时对敌人造成技能伤害（T5 大连伤害批 3 code：shock/tentacles/
    * lightningbolt「在配对 4 或 5 颗宝石时对…造成 N 点伤害」）。伤害经
@@ -184,7 +188,7 @@ export interface TraitDefinition {
    * 护甲/阵亡同口径）产出 skill-damage 事件；randomEnemy 每条规格耗一次种子化随机数
    * （与施加状态的随机分支同口径）；minSize 缺省 4（「4 或 5 颗」= 任意大连）。
    */
-  onBigMatchDamage?: { amount: number; scope: 'randomEnemy' | 'enemyAll'; minSize?: number };
+  onBigMatchDamage?: { amount: number; scope: 'randomEnemy' | 'enemyAll' | 'lastEnemy'; minSize?: number };
   /**
    * 自己一方配对 4/5 连时削减敌方属性（T5 大连敌减批 5 code：suppression/aspectofplague/
    * technomancy/creepinggloom/chillingaura「敌人/一名随机敌人损失/耗掉/窃取 N 点X」）。
@@ -281,11 +285,101 @@ export interface TraitDefinition {
   /** 无法成为技能指定目标（隐匿） */
   untargetable?: boolean;
   /** 自己身亡时按概率召唤（daemonicpact/terrorpact 族；summon 为兵种中文名，由生成器解析成 referenceName；带 storm 时为风暴变体，不产出兵种） */
-  summonOnDeath?: { chance: number; troopId: number; referenceName: string; displayName: string; storm?: StormSummon };
+  summonOnDeath?: { chance: number; troopId: number; referenceName: string; displayName: string; storm?: StormSummon; /** 复活族（immortal/deepsoul/rebirth/eternaldawn 等）：召唤物以满法力入场 */ fullMana?: boolean };
   /** 一名盟友（含自己）身亡时召唤（fromdark/fromashes 族） */
-  summonOnAllyDeath?: { chance: number; troopId: number; referenceName: string; displayName: string; storm?: StormSummon };
+  summonOnAllyDeath?: { chance: number; troopId: number; referenceName: string; displayName: string; storm?: StormSummon; /** 复活族（immortal/deepsoul/rebirth/eternaldawn 等）：召唤物以满法力入场 */ fullMana?: boolean };
   /** 敌方角色身亡时召唤（darkdeath/icydeath 族） */
-  summonOnEnemyDeath?: { chance: number; troopId: number; referenceName: string; displayName: string; storm?: StormSummon };
+  summonOnEnemyDeath?: { chance: number; troopId: number; referenceName: string; displayName: string; storm?: StormSummon; /** 复活族（immortal/deepsoul/rebirth/eternaldawn 等）：召唤物以满法力入场 */ fullMana?: boolean };
+  /**
+   * 自身承受骷髅伤害时按概率召唤（职业天赋 golemprotector「当我受到伤害时，有 20% 的
+   * 几率召唤一只远古魔像」）。与死亡召唤同构的规格；触发点 = 骷髅受击结算处（与
+   * gainOnDamaged 同口径：闪避/屏障/挣扎的落空不触发；技能伤害不触发，建模子集）。
+   * 编译进 PassiveModifiers.summonOnDamaged，TurnEngine 在骷髅结算后统一消费。
+   */
+  summonOnDamaged?: { chance: number; troopId: number; referenceName: string; displayName: string };
+  /**
+   * 同队任一角色（含持有者）施放法术时按概率召唤（职业天赋 childofsky「当盟友施放法术时，
+   * 有 25% 的几率召唤一只苍鹭巨兽」）。编译进 PassiveModifiers.summonOnAllyCast，
+   * TurnEngine 在施法响应区统一消费；召唤物归持有者一方。
+   */
+  summonOnAllyCast?: { chance: number; troopId: number; referenceName: string; displayName: string };
+  /**
+   * 骷髅伤害附加护甲比（职业天赋 razorarmor「骷髅头伤害附加 20% 的护甲值」）：持有者
+   * （攻击方队首）造成骷髅伤害时，附加 自身护甲值 × ratio 的固定伤害（计入 doom 骷髅
+   * 加伤之后的同一 bonus 通道，吃目标减伤/护甲结算）。编译进
+   * PassiveModifiers.skullDamageFromArmorRatio，TurnEngine 骷髅结算口消费。
+   */
+  skullDamageFromArmorRatio?: number;
+  /**
+   * 自己一方配对 4/5 连时驱散所有敌人（职业天赋 banishment「配对 4 或 5 颗宝石时，
+   * 驱散所有敌人」）：移除敌方全队存活的**正面**状态（正面清单与诅咒剥正面同源）。
+   * 编译进 PassiveModifiers.onBigMatchDispelEnemies，大匹配触发点消费。
+   */
+  onBigMatchDispelEnemies?: boolean;
+  /**
+   * 自己一方配对 4/5 连时净化自身（职业天赋 purification「配对 4 或 5 颗宝石时，净化
+   * 自身」）：移除持有者自身的负面状态。与 cleanseOnBigMatch（全队）同点不同范围。
+   * 编译进 PassiveModifiers.onBigMatchCleanseSelf。
+   */
+  onBigMatchCleanseSelf?: boolean;
+  /**
+   * 自己一方配对 4/5 连时窃取首位敌人生命（职业天赋 lifesiphon「配对 4 或 5 颗宝石时，
+   * 窃取第一名敌人 2 点生命值」）。同色窃取批 onColorMatchDrain 的大连版：front 目标
+   * 确定性、伤害经 drainLife 注入（持有者按实际伤害等量治疗）。编译进
+   * PassiveModifiers.onBigMatchDrainLife。
+   */
+  onBigMatchDrainLife?: { amount: number; minSize?: number };
+  /**
+   * 自己一方配对 4/5 连时爆破 N 颗关联色宝石（职业天赋 lightningstrike「配对 4 或 5 颗
+   * 宝石时，爆破一颗黄色宝石」）。落子口径同开局爆破 omenof*：命中格移除后走
+   * resolveBoardChange（法力归持有者一方、重力连锁照常），候选唯一不掷骰、多候选耗
+   * 一次 rng。编译进 PassiveModifiers.onBigMatchExplodeGem，TurnEngine 注入爆破口消费。
+   */
+  onBigMatchExplodeGem?: { color: string; count?: number; minSize?: number };
+  /**
+   * 自己一方配对 4/5 连时召唤一个**随机**风暴（职业天赋 chaosstorm「配对 4 或 5 颗宝石时，
+   * 召唤一个随机风暴」）。风暴种类经 rng 从七大基础风暴（光/暗/冰/火/叶/尘/骸骨）均匀
+   * 掷取；设置经 ctx.setStorm 注入，全局唯一顶替裁定照常。编译进
+   * PassiveModifiers.onBigMatchRandomStorm。
+   */
+  onBigMatchRandomStorm?: { minSize?: number };
+  /**
+   * 自己召唤部队后，使一名随机敌人陷入状态（职业天赋 hauntedweave「当我召唤部队时，
+   * 织网一名随机敌人」）。触发点 = 持有者可归因的召唤完成（死亡召唤/大连召唤/回合召唤
+   * /施法召唤），施加经注入 applyStatus。编译进 PassiveModifiers.onSelfSummonStatus。
+   */
+  onSelfSummonStatus?: { statuses: readonly { id: string; magnitude?: number }[]; turns: number };
+  /**
+   * 同队角色阵亡时施加状态（职业天赋 savior「当盟友身亡时，给另一名随机盟友屏障」/
+   * feyvengeance「当盟友身亡时，使随机敌人妖火」/ upinflames 燃烧）：target=randomAlly
+   * 从持有者一方存活取、randomEnemy 从对方存活取，随机目标经注入 rng。编译进
+   * PassiveModifiers.onAllyDeathStatus。
+   */
+  onAllyDeathStatus?: {
+    target: 'randomAlly' | 'randomEnemy';
+    statuses: readonly { id: string; magnitude?: number }[];
+    turns: number;
+  };
+  /**
+   * 敌方角色阵亡时，使死者一方**另一名随机**存活角色陷入状态（职业天赋 chillofdeath
+   * 「当敌人身亡时，冻结另一名随机敌人」；sharedfate 的随机目标变体——sharedfate 是
+   * 确定性取首个存活）。编译进 PassiveModifiers.onEnemyDeathRandomStatus。
+   */
+  onEnemyDeathRandomStatus?: { statuses: readonly { id: string; magnitude?: number }[]; turns: number };
+  /**
+   * 敌方角色阵亡时按概率猎杀最后一名敌人（职业天赋 risingshadows「当另一名敌人身亡时，
+   * 有 7% 的几率猎杀最后一名敌人」）。onBigMatchKill 的死亡触发变体：概率经注入 rng、
+   * 目标=死者一方队伍序末位存活、处决经 ctx.kill 注入。编译进
+   * PassiveModifiers.onEnemyDeathKill。
+   */
+  onEnemyDeathKill?: { chance: number; scope: 'lastEnemy' };
+  /**
+   * 匹配骷髅头时削减敌人随机技能（职业天赋 chaoswave「匹配骷髅头时，所有敌人随机损失
+   * 1 点技能值」）。大连敌减（bigMatchEnemyDrain）的骷髅触发版：scope 固定 allEnemies、
+   * stat 支持 'random'（每次触发经注入 rng 掷一项，无 rng 落 magic，与 castEnemyDrain
+   * 同口径）。编译进 PassiveModifiers.onSkullMatchEnemyDrain。
+   */
+  onSkullMatchEnemyDrain?: { stat: 'attack' | 'armor' | 'magic' | 'mana' | 'random'; amount: number };
   /**
    * 战后经济加成（merchant/necromancy/necromaster/moneybags 族，DECISIONS 四项拍板①）：
    * 「从战斗中获得 N% 额外灵魂/黄金」「在战斗中获得 N% 黄金加成」。
@@ -308,6 +402,28 @@ export interface TraitDefinition {
    * 直接结算归持有者一方；候选唯一不掷骰、无候选安全跳过。
    */
   battleStartDestroy?: { kind: 'color'; color: string } | { kind: 'skull' };
+  /**
+   * 战斗开始时施加状态（职业天赋族：vanguard「战斗开始时获得屏障」/ roottrap「缠绕第一
+   * 名敌人」/ snapfreeze「冻结一名随机敌人」/ swiftcurse「死亡标记一名随机敌人」/
+   * serendipity「给一名随机盟友一个随机状态效果」）。定义直读字段（同 battleStartStorm/
+   * battleStartDestroy 族，TurnEngine 构造期读 getTrait，不进 passive）：随机目标与
+   * randomPositive（从正面状态池掷一条）经构造期同一条种子化 rng；施加走 applyStatus
+   *（免疫在施加口拦截），事件进 takeInitialEvents 供表现层首屏消费。
+   */
+  battleStartStatus?: {
+    target: 'self' | 'randomAlly' | 'randomEnemy' | 'firstEnemy';
+    statuses: readonly { id: string; magnitude?: number }[];
+    turns: number;
+    /** 从正面状态池随机掷一条（serendipity 口径），忽略 statuses 列表 */
+    randomPositive?: boolean;
+  };
+  /**
+   * 战斗开始时给同队匹配范围的盟友按 manaCost 比例授予开局法力（职业天赋 windspeed
+   * 「所有黄色盟友以 10% 法力开始战斗」/ inspiration「所有盟友以 15% 法力开始战斗」）。
+   * 定义直读字段（同 battleStartStorm 族）；scope 认 'all'/种族/颜色（scopeMatches 同款）。
+   * 自身版为 battleStartManaRatio（快速/赐能），两者叠加各自独立结算。
+   */
+  battleStartManaAura?: { scope: string; ratio: number };
   // —— 模式专属特质批（淘宝模式 / 晋升度 / 赏金语义，8 code）——
   // 这些机制在官方属于 Delve 进层 / 战后结算 / 晋升度倍率（官方 RawData：deep* 族
   // GameMode=delve_attacker、bountyhunter/pathfinder Activation=end_battle_rewards、
@@ -340,11 +456,110 @@ export interface TraitDefinition {
    * 取阵营（randomAlly=正面池 / randomEnemy=负面池，消费端与技能 randomStatusEffect 同源）。
    */
   onAllyCastRandomStatus?: { scope: 'randomAlly' | 'randomEnemy' };
+  // —— 缺口清扫批（203 code 全量核对后的新增字段，官方 EN + RawData 逐条实锤）——
+  /**
+   * 种族开局法力（orclord/lordofbeasts/hauntedcrown 族 17 code「All X Allies start with
+   * N% Mana」）：战斗开始时同队该种族存活盟友（含持有者）的法力补到 manaCost×ratio。
+   * 定义直读键（applyBattleStartTraits 读 getTrait，同 typeAura 口径）。
+   */
+  /**
+   * 种族/范围开局法力（缺口清扫批 orclord/lordofbeasts/hauntedcrown 族「All X Allies
+   * start with N% Mana」）。scope 认种族名/颜色名/'all'（scopeMatches 同款）；旧数据
+   * 字段 troopType 仍收（种族名等价），职业天赋 windspeed「所有黄色盟友」用 scope 传颜色、
+   * inspiration「所有盟友」用 scope:'all'。
+   */
+  allyStartMana?: { troopType?: string; scope?: string; ratio: number };
+  /**
+   * 开局范围光环（iceaura 族 6 色「All Blue Allies gain 5 to all Stats」+ soaring「Allied
+   * Stryx gain 5 Life and Attack」）：战斗开始时同队 scope（颜色或种族）成员一次性获得。
+   * 定义直读键（applyBattleStartTraits，scopeMatches 认颜色/种族/'all'）。
+   */
+  battleStartTypeAura?: { scope: string; gains: Partial<StatGains> };
+  /**
+   * 回合开始范围光环（queensgrace/feralinspiration/nightsong/blessingofanu 族 17 code
+   * 「All X Allies gain N … at the start of each turn」）：持有者一方每个回合开始时给
+   * scope（种族或颜色）成员叠加。定义直读键（applyTurnStartPassives 读 getTrait，
+   * 仅行动方队伍结算——官方 trig=self_player）。
+   */
+  turnStartTypeAura?: { scope: string; gains: Partial<StatGains> };
+  /**
+   * 束带计数光环（bandinglife/bandingmagic/bandingarmor/bandingattack/truebanding，
+   * 官方 Filter=traitbanding「Gain N … for each Ally with a Banding Trait」）：战斗开始时
+   * 数同队存活持有束带特质（banding* / truebanding）的盟友数（含自己，perAllyColor 同口径），
+   * gains×count 一次性授出。定义直读键（applyBattleStartTraits）。
+   */
+  perAllyTrait?: { trait: 'banding'; gains: Partial<StatGains> };
+  /**
+   * 施法显式状态（缺口清扫批 5 code）：onAllyCast=同队任一角色施法时（moonfestival 30%
+   * 法印随机盟友 / gibberingmadness 狂怒随机盟友 / hemlock 诅咒+疾病随机敌人）、
+   * onEnemyCast=敌方施法时（magehunter 自身狂怒 / psychicbacklash 击晕随机敌人）。
+   * 施加经 applyCastRandomStatusTriggers 注入的 applyStatus（免疫在施加口拦截），
+   * 概率/随机目标经注入的 rng；无注入时概率 <1 不生效、随机退化为首个存活。
+   */
+  onAllyCastStatus?: {
+    scope: 'self' | 'randomAlly' | 'randomEnemy';
+    statuses: readonly { id: string; magnitude?: number }[];
+    turns: number;
+    chance?: number;
+  };
+  onEnemyCastStatus?: {
+    scope: 'self' | 'randomAlly' | 'randomEnemy';
+    statuses: readonly { id: string; magnitude?: number }[];
+    turns: number;
+    chance?: number;
+  };
+  /**
+   * 施法响应·敌方属性削减（psychicaffliction「消除所有敌人 1 点魔法值」/ succumb「敌人
+   * 失去 4 点随机技能值」）。reduce 语义（持有者不进账）：stat 'random' 每次触发经 rng
+   * 在四项属性中掷一条（无 rng 按随机技能值口径落 magic）；allEnemies 逐个削减。
+   */
+  onAllyCastEnemyDrain?: { stat: 'hp' | 'attack' | 'armor' | 'magic' | 'mana' | 'random'; amount: number; scope: 'allEnemies' };
+  /** 回合开始经济入账（goldenhoard 5 黄金 / soulgatherer 4 灵魂）。惰性：回合钩子无经济口 */
+  turnStartEconomy?: { currency: 'gold' | 'souls'; amount: number };
+  /** 盟友施法时经济入账（soulverdict 3 灵魂）。惰性：施法响应区无经济口 */
+  onAllyCastEconomy?: { currency: 'gold' | 'souls'; amount: number };
+  /** 自身承伤时经济入账（pickpocket 10 黄金）。惰性：受击结算无经济口 */
+  onDamagedEconomy?: { currency: 'gold' | 'souls'; amount: number };
+  /** 回合开始按概率召唤兵种（harpyflock 5% 鸟妖 / parliamentarycall 10% 枭熊）。惰性：回合钩子无召唤口 */
+  turnStartSummon?: { chance: number; troopId: number; referenceName: string; displayName: string };
+  /**
+   * 回合开始创造风暴（snowstorm/penumbra/shroudofskulls 等 11 code）。惰性：回合开始
+   * 棋盘钩子无风暴口。colors=官方 BoostColors（原色风暴单色、混合风暴双色），
+   * dropKind 为骷髅系掉落（骸骨风暴）——引擎风暴契约落地时并集加权。
+   */
+  turnStartStorm?: {
+    referenceName: string;
+    displayName: string;
+    colors: readonly BaseColor[];
+    dropKind?: 'skull' | 'doomSkull' | 'uberDoomSkull';
+  };
+  /** PVP 限定标记（defender/siege/virtueofhonor）：标准战斗惰性，PVP 模式落地时消费 */
+  mode?: 'pvp';
+  /** PVP 限定加成（attack=进攻方全队 / defense=防守方全队 / battle=持有者自身） */
+  pvpBonus?: { phase: 'attack' | 'defense' | 'battle'; gains: Partial<StatGains> };
 }
 
 export const TRAIT_LIBRARY: readonly TraitDefinition[] = traitTable as TraitDefinition[];
 
 const BY_CODE = new Map(TRAIT_LIBRARY.map((t) => [t.code, t]));
+
+/**
+ * 动态特质定义注册表（meta 职业天赋 v3）：宿主（meta 层）在构建战斗请求前把
+ * 「职业天赋编译出的特质定义」注册进来，getTrait 按 静态库 → 动态注册 顺序回落查询。
+ * 定义形态与 traits.json 完全一致——引擎的全部既有钩子（大连/配色/死亡/回合开始/
+ * 召唤/开局…）对动态定义零改动生效。进程级单例，同 code 重注册即覆盖（幂等）。
+ */
+const DYNAMIC_DEFS = new Map<string, TraitDefinition>();
+
+/** 注册动态特质定义（meta 职业天赋；调用方保证幂等或接受覆盖语义） */
+export function registerDynamicTraits(defs: readonly TraitDefinition[]): void {
+  for (const d of defs) DYNAMIC_DEFS.set(d.code, d);
+}
+
+/** 已注册的动态特质 code（供宿主快照校验把天赋 code 放进 knownTraitIds） */
+export function dynamicTraitCodes(): string[] {
+  return [...DYNAMIC_DEFS.keys()];
+}
 
 const noGains = (): StatGains => ({ hp: 0, armor: 0, attack: 0, magic: 0, mana: 0 });
 
@@ -407,6 +622,18 @@ export function neutralPassives(): PassiveModifiers {
     // 战斗机制批：宝石灵力无抑制 / 非吞噬免疫为中性形态
     enemyMasteryMult: 1,
     devourImmunity: false,
+    // 缺口清扫批：施法显式状态/施法敌减无 + 惰性经济/召唤/风暴/PVP 字段的中性形态
+    castStatus: {},
+    turnStartEconomyGains: { gold: 0, souls: 0, gems: 0 },
+    allyCastEconomyGains: { gold: 0, souls: 0, gems: 0 },
+    damagedEconomyGains: { gold: 0, souls: 0, gems: 0 },
+    pvpMode: false,
+    pvpBonuses: [],
+    // 职业天赋批：新键的中性形态（未持有 = 无行为）
+    skullDamageFromArmorRatio: 0,
+    onBigMatchDispelEnemies: false,
+    onBigMatchCleanseSelf: false,
+    onBigMatchExplodeGem: [],
   };
 }
 
@@ -414,9 +641,10 @@ export const NEUTRAL_PASSIVES: PassiveModifiers = neutralPassives();
 
 export type TraitLookup = (code: string) => TraitDefinition | undefined;
 
-/** 按 code 取特质定义；未实现的 code 返回 undefined（安全忽略，不报错）。 */
+/** 按 code 取特质定义；未实现的 code 返回 undefined（安全忽略，不报错）。
+ *  动态注册表（registerDynamicTraits）回落查询——meta 职业天赋经此进入全部既有钩子。 */
 export function getTrait(code: string): TraitDefinition | undefined {
-  return BY_CODE.get(code);
+  return BY_CODE.get(code) ?? DYNAMIC_DEFS.get(code);
 }
 
 /** 已实现的特质 code，供宿主快照校验判断「这个特质客户端认不认」。 */
@@ -446,18 +674,20 @@ export function resolvePassives(
   const enemyColorGains: Record<string, StatGains> = {};
   // 配色施加状态（T5 配色状态批）：色键 → 规格条目（与 PassiveModifiers.colorMatchStatus 同构）
   const colorMatchStatus: Record<string, {
-    scope: 'randomEnemy' | 'self';
+    scope: 'randomEnemy' | 'randomAlly' | 'self';
     statuses: readonly { id: string; magnitude?: number }[];
     turns: number;
     chance?: number;
+    independentChance?: boolean;
   }> = {};
   // 配色窃取生命（T5 窃取批）：色键 → 伤害额，同色键累加（与 gainOnColorMatch 同口径）
   const colorMatchDrain: Record<string, number> = {};
-  // 配色伤害（T5 杂项批 lumpofcoal/dawnslayer/sleetstorm）：色键 → 伤害额，同色键累加
-  const colorMatchDamage: Record<string, number> = {};
+  // 配色伤害（T5 杂项批 lumpofcoal/dawnslayer/sleetstorm + 缺口清扫批 spiny/spiky 全体 scope）：
+  // 色键 → { amount, scope }，同色键累加伤害额、scope 取后声明的一条
+  const colorMatchDamage: Record<string, { amount: number; scope: 'randomEnemy' | 'allEnemies' }> = {};
   // 大连技能伤害 / 大连敌减（T5 大连伤害批 + 大连敌减批）：多条并存按声明序逐条结算，
   // minSize 定义侧可省，编译期缺省 4（「4 或 5 颗」=「4 或更多」= 任意大连）
-  const bigMatchDamage: { amount: number; scope: 'randomEnemy' | 'enemyAll'; minSize: number }[] = [];
+  const bigMatchDamage: { amount: number; scope: 'randomEnemy' | 'enemyAll' | 'lastEnemy'; minSize: number }[] = [];
   const bigMatchEnemyDrain: {
     stat: 'attack' | 'armor' | 'magic' | 'mana';
     amount: number;
@@ -482,6 +712,15 @@ export function resolvePassives(
   // 按声明序保留（godslayer/siegebreaker 可并存），赏金取最宽区间
   const delveGains: Partial<Record<'hp' | 'magic' | 'armor' | 'attack', number>> = {};
   const vsAscended: { target: 'boss' | 'tower'; min: number; max: number }[] = [];
+  // 缺口清扫批：施法显式状态/施法敌减 + 惰性经济/召唤/风暴/PVP 聚合容器
+  const castStatus: NonNullable<PassiveModifiers['castStatus']> = {};
+  let castEnemyDrain: PassiveModifiers['castEnemyDrain'];
+  const turnStartEconomy: TraitEconomyGain = { gold: 0, souls: 0, gems: 0 };
+  const allyCastEconomy: TraitEconomyGain = { gold: 0, souls: 0, gems: 0 };
+  const damagedEconomy: TraitEconomyGain = { gold: 0, souls: 0, gems: 0 };
+  let turnStartSummon: PassiveModifiers['turnStartSummon'];
+  let turnStartStorm: PassiveModifiers['turnStartStorm'];
+  const pvpBonuses: { phase: 'attack' | 'defense' | 'battle'; gains: Partial<StatGains> }[] = [];
 
   for (const code of traitIds) {
     const trait = lookup(code);
@@ -505,10 +744,15 @@ export function resolvePassives(
     // regen.stat 按 stat 字段路由：attack/magic 是回合增益（aspectofwar「每回合开始时
     // 获得 3 点攻击力」），不再静默并入 HP 回复——那会让攻击增益错误地结算成回血。
     if (trait.regen) {
-      if (trait.regen.stat === 'armor') passive.regenArmorPerTurn += trait.regen.amount;
-      else if (trait.regen.stat === 'attack') passive.regenAttackPerTurn += trait.regen.amount;
-      else if (trait.regen.stat === 'magic') passive.regenMagicPerTurn += trait.regen.amount;
-      else passive.regenPerTurn += trait.regen.amount;
+      const regenInto = (stat: PassiveStat) => {
+        if (stat === 'armor') passive.regenArmorPerTurn += trait.regen!.amount;
+        else if (stat === 'attack') passive.regenAttackPerTurn += trait.regen!.amount;
+        else if (stat === 'magic') passive.regenMagicPerTurn += trait.regen!.amount;
+        else if (stat === 'hp') passive.regenPerTurn += trait.regen!.amount;
+      };
+      regenInto(trait.regen.stat);
+      // 共享数值附加属性（wildhorns「攻击力、生命值和护甲值获得2点提升」= 三项各 2）
+      for (const stat of trait.regen.alsoStats ?? []) regenInto(stat);
     }
     for (const [from, into] of TRIGGER_FIELDS) {
       const gain = trait[from];
@@ -654,7 +898,7 @@ export function resolvePassives(
     // 配色施加状态（T5 配色状态批）：同色键取回合更长的一条（与 onBigMatchStatus 同口径）；
     // turns 定义侧可省，编译期缺省 3。chance 只在官方句式带概率（foxfire 50%）时存在。
     if (trait.onColorMatchStatus) {
-      const { color, scope, statuses, turns, chance } = trait.onColorMatchStatus;
+      const { color, scope, statuses, turns, chance, independentChance } = trait.onColorMatchStatus;
       const prev = colorMatchStatus[color];
       if (prev === undefined || (turns ?? 3) > prev.turns) {
         colorMatchStatus[color] = {
@@ -662,6 +906,7 @@ export function resolvePassives(
           statuses: [...statuses],
           turns: turns ?? 3,
           ...(chance !== undefined ? { chance } : {}),
+          ...(independentChance ? { independentChance: true } : {}),
         };
       }
     }
@@ -670,10 +915,15 @@ export function resolvePassives(
       const { color, amount } = trait.onColorMatchDrain;
       colorMatchDrain[color] = (colorMatchDrain[color] ?? 0) + amount;
     }
-    // 配色伤害（T5 杂项批 lumpofcoal/dawnslayer/sleetstorm）：同色键累加（与窃取同口径）
+    // 配色伤害（T5 杂项批 + 缺口清扫批 spiny/spiky）：同色键累加伤害额（与窃取同口径），
+    // scope 缺省 randomEnemy（旧数据无 scope 键）、同色键取后声明的一条
     if (trait.onColorMatchDamage) {
-      const { color, amount } = trait.onColorMatchDamage;
-      colorMatchDamage[color] = (colorMatchDamage[color] ?? 0) + amount;
+      const { color, amount, scope } = trait.onColorMatchDamage;
+      const prevDmg = colorMatchDamage[color];
+      colorMatchDamage[color] = {
+        amount: (prevDmg?.amount ?? 0) + amount,
+        scope: scope ?? prevDmg?.scope ?? 'randomEnemy',
+      };
     }
     // 大连技能伤害 / 大连敌减（T5 大连伤害批 + 大连敌减批）：多条并存逐条结算，minSize 缺省 4
     if (trait.onBigMatchDamage) {
@@ -720,6 +970,55 @@ export function resolvePassives(
         passive[key] = { ...s };
       }
     }
+    // —— 职业天赋批 ——
+    // 受击/施法召唤：同字段取概率更高的一条（与死亡召唤"同类取最强"口径一致）
+    for (const key of ['summonOnDamaged', 'summonOnAllyCast'] as const) {
+      const s = trait[key];
+      if (s && (passive[key] === undefined || s.chance > passive[key]!.chance)) {
+        passive[key] = { ...s };
+      }
+    }
+    // 骷髅附加护甲比 / 配对驱散 / 配对自净化：同类取最强（比率高者优先、布尔取或）
+    if (trait.skullDamageFromArmorRatio !== undefined) {
+      passive.skullDamageFromArmorRatio = Math.max(passive.skullDamageFromArmorRatio ?? 0, trait.skullDamageFromArmorRatio);
+    }
+    if (trait.onBigMatchDispelEnemies) passive.onBigMatchDispelEnemies = true;
+    if (trait.onBigMatchCleanseSelf) passive.onBigMatchCleanseSelf = true;
+    // 配对窃取生命：同类取先声明的一条（与 onBigMatchConvert 同口径）
+    if (trait.onBigMatchDrainLife && passive.onBigMatchDrainLife === undefined) {
+      passive.onBigMatchDrainLife = { ...trait.onBigMatchDrainLife };
+    }
+    // 配对爆破宝石：多条并存按声明序逐条结算（minSize 编译期缺省 4、count 缺省 1）
+    if (trait.onBigMatchExplodeGem) {
+      passive.onBigMatchExplodeGem = [
+        ...(passive.onBigMatchExplodeGem ?? []),
+        {
+          color: trait.onBigMatchExplodeGem.color,
+          count: trait.onBigMatchExplodeGem.count ?? 1,
+          minSize: trait.onBigMatchExplodeGem.minSize ?? 4,
+        },
+      ];
+    }
+    // 配对随机风暴 / 自身召唤触发状态 / 阵亡施加状态 / 阵亡猎杀 / 骷髅敌减：
+    // 同类取先声明的一条（单天赋持有为主，多条并存极少见）
+    if (trait.onBigMatchRandomStorm && passive.onBigMatchRandomStorm === undefined) {
+      passive.onBigMatchRandomStorm = { minSize: trait.onBigMatchRandomStorm.minSize ?? 4 };
+    }
+    if (trait.onSelfSummonStatus && passive.onSelfSummonStatus === undefined) {
+      passive.onSelfSummonStatus = { ...trait.onSelfSummonStatus, statuses: [...trait.onSelfSummonStatus.statuses] };
+    }
+    if (trait.onAllyDeathStatus && passive.onAllyDeathStatus === undefined) {
+      passive.onAllyDeathStatus = { ...trait.onAllyDeathStatus, statuses: [...trait.onAllyDeathStatus.statuses] };
+    }
+    if (trait.onEnemyDeathRandomStatus && passive.onEnemyDeathRandomStatus === undefined) {
+      passive.onEnemyDeathRandomStatus = { ...trait.onEnemyDeathRandomStatus, statuses: [...trait.onEnemyDeathRandomStatus.statuses] };
+    }
+    if (trait.onEnemyDeathKill && passive.onEnemyDeathKill === undefined) {
+      passive.onEnemyDeathKill = { ...trait.onEnemyDeathKill };
+    }
+    if (trait.onSkullMatchEnemyDrain && passive.onSkullMatchEnemyDrain === undefined) {
+      passive.onSkullMatchEnemyDrain = { ...trait.onSkullMatchEnemyDrain };
+    }
     // 战后经济加成（merchant/necromancy 族）：同类比率累加（与增益类"累加"口径一致）。
     if (trait.battleEconomyGain) {
       passive.battleEconomyGain ??= { gold: 0, souls: 0 };
@@ -735,6 +1034,30 @@ export function resolvePassives(
     if (trait.onSkullMatchEconomy) {
       skullEconomy[trait.onSkullMatchEconomy.currency] += trait.onSkullMatchEconomy.amount;
     }
+    // —— 缺口清扫批 ——
+    // 施法显式状态（moonfestival/gibberingmadness/magehunter/psychicbacklash/hemlock）：
+    // 按触发主体分桶，各取先声明的一条（与 castRandomStatus 同口径）
+    if (trait.onAllyCastStatus && castStatus.onAllyCast === undefined) {
+      castStatus.onAllyCast = { ...trait.onAllyCastStatus, statuses: [...trait.onAllyCastStatus.statuses] };
+    }
+    if (trait.onEnemyCastStatus && castStatus.onEnemyCast === undefined) {
+      castStatus.onEnemyCast = { ...trait.onEnemyCastStatus, statuses: [...trait.onEnemyCastStatus.statuses] };
+    }
+    // 施法敌方削减（psychicaffliction/succumb）：取先声明的一条
+    if (trait.onAllyCastEnemyDrain && castEnemyDrain === undefined) {
+      castEnemyDrain = { ...trait.onAllyCastEnemyDrain };
+    }
+    // 惰性经济/召唤/风暴（goldenhoard/soulgatherer/soulverdict/pickpocket/harpyflock/
+    // parliamentarycall/snowstorm 族）：按币种/同字段聚合累加或取先声明——战斗结算路径
+    // 不消费（对应钩子落地时经 passivesOf 直接读），编译只为数据建模完整。
+    if (trait.turnStartEconomy) turnStartEconomy[trait.turnStartEconomy.currency] += trait.turnStartEconomy.amount;
+    if (trait.onAllyCastEconomy) allyCastEconomy[trait.onAllyCastEconomy.currency] += trait.onAllyCastEconomy.amount;
+    if (trait.onDamagedEconomy) damagedEconomy[trait.onDamagedEconomy.currency] += trait.onDamagedEconomy.amount;
+    if (trait.turnStartSummon && turnStartSummon === undefined) turnStartSummon = { ...trait.turnStartSummon };
+    if (trait.turnStartStorm && turnStartStorm === undefined) turnStartStorm = { ...trait.turnStartStorm };
+    // PVP 限定（defender/siege/virtueofhonor）：惰性建模，pvpMode 标记 + 加成按声明序保留
+    if (trait.mode === 'pvp') passive.pvpMode = true;
+    if (trait.pvpBonus) pvpBonuses.push({ ...trait.pvpBonus });
     // 模式专属特质批（淘宝/晋升/赏金）：只编译、不消费——标准战斗结算路径不读这些字段，
     // 编译产物仅供数据对账与将来 Delve/晋升层直接使用。
     if (trait.onDelveGain) {
@@ -791,6 +1114,15 @@ export function resolvePassives(
   // 模式专属特质批：聚合产物挂载（空对象/空数组也是确定性的中性形态，与 neutralPassives 一致）
   passive.onDelveGains = delveGains;
   passive.vsAscendedMultipliers = vsAscended;
+  // 缺口清扫批：聚合产物挂载（同上，空形态 = 无效果）
+  if (castStatus.onAllyCast || castStatus.onEnemyCast) passive.castStatus = castStatus;
+  if (castEnemyDrain) passive.castEnemyDrain = castEnemyDrain;
+  passive.turnStartEconomyGains = { ...turnStartEconomy };
+  passive.allyCastEconomyGains = { ...allyCastEconomy };
+  passive.damagedEconomyGains = { ...damagedEconomy };
+  if (turnStartSummon) passive.turnStartSummon = turnStartSummon;
+  if (turnStartStorm) passive.turnStartStorm = turnStartStorm;
+  passive.pvpBonuses = pvpBonuses;
   if (damagedStatusList.length > 0) passive.inflictOnSkullDamagedList = damagedStatusList;
   return passive;
 }
@@ -905,13 +1237,22 @@ export function applyCastTriggers(
 
 /**
  * 施法响应·随机状态（战斗机制批 goodtarot「Grant a random status effect to a random Ally
- * when an Ally casts a spell」/ badtarot 同款但官方目标是随机 Enemy）。
+ * when an Ally casts a spell」/ badtarot 同款但官方目标是随机 Enemy）+ 施法显式状态
+ * （缺口清扫批 moonfestival/gibberingmadness/magehunter/psychicbacklash/hemlock）+
+ * 施法敌方削减（psychicaffliction/succumb）。
  *
  * 与 applyCastTriggers 同一触发点（castSkillAction 施法响应区、技能效果之前）结算。
- * 池按 scope 取阵营——randomAlly=正面池、randomEnemy=负面池（与技能 randomStatusEffect
- * 的阵营裁定同源；池本体经 ctx.poolOf 注入，避免 traits ↔ status 循环依赖），回合数 3。
- * 每个存活持有者独立结算：掷目标一次、池内掷签一次。施法者自己也算盟友，与官方一致。
- * 无 rng/施加口/池注入时整块跳过——无新键特质零事件、零随机消耗。
+ * 随机状态池按 scope 取阵营——randomAlly=正面池、randomEnemy=负面池（与技能
+ * randomStatusEffect 的阵营裁定同源；池本体经 ctx.poolOf 注入，避免 traits ↔ status
+ * 循环依赖），回合数 3。每个存活持有者独立结算：掷目标一次、池内掷签一次。
+ * 施法者自己也算盟友，与官方一致。无 rng/施加口/池注入时随机状态整块跳过。
+ *
+ * 显式状态走 onAllyCast/onEnemyCast 双桶：持有者在施法方队伍走 onAllyCast
+ *（目标按 scope：self=持有者 / randomAlly=施法方存活 / randomEnemy=对方存活），
+ * 在对方队伍走 onEnemyCast（magehunter「敌人施法时自身狂怒」/ psychicbacklash
+ * 「击晕随机敌人」）。概率 <1 走种子化 rng（无 rng 不生效），随机目标各耗一次。
+ * 施法敌方削减为 reduce 语义（reduceStat 夹零发负 buff 事件，manashield 在削减口拦截），
+ * allEnemies 逐个确定性削减、零随机消耗（stat 'random' 每目标掷一次属性）。
  */
 export function applyCastRandomStatusTriggers(
   casterTeam: readonly Character[],
@@ -939,6 +1280,56 @@ export function applyCastRandomStatusTriggers(
     const target = targets[Math.floor(ctx.rng.next() * targets.length)];
     const id = pool[Math.floor(ctx.rng.next() * pool.length)];
     events.push(...ctx.applyStatus(target, { id, turns: 3 }));
+  }
+  // —— 施法显式状态 ——显式目标（self）不耗随机数；随机目标各耗一次；概率 <1 先掷一次
+  const aliveIn = (team: readonly Character[]) => team.filter((c) => !c.defeated);
+  const casterAlive = aliveIn(casterTeam);
+  const foeAlive = aliveIn(opposingTeam);
+  const explicit = (
+    holder: Character,
+    spec: NonNullable<NonNullable<PassiveModifiers['castStatus']>['onAllyCast']>,
+    allies: readonly Character[],
+    foes: readonly Character[],
+  ) => {
+    if (holder.defeated) return;
+    if (spec.chance !== undefined && ctx.rng!.next() >= spec.chance) return;
+    let target: Character | undefined;
+    if (spec.scope === 'self') {
+      target = holder;
+    } else if (spec.scope === 'randomAlly') {
+      if (allies.length === 0) return;
+      target = ctx.rng ? allies[Math.floor(ctx.rng.next() * allies.length)] : allies[0];
+    } else {
+      if (foes.length === 0) return;
+      target = ctx.rng ? foes[Math.floor(ctx.rng.next() * foes.length)] : foes[0];
+    }
+    for (const st of spec.statuses) {
+      events.push(...ctx.applyStatus!(target, { id: st.id, turns: spec.turns, ...(st.magnitude !== undefined ? { magnitude: st.magnitude } : {}) }));
+    }
+  };
+  for (const holder of casterTeam) {
+    const spec = passivesOf(holder).castStatus?.onAllyCast;
+    if (spec) explicit(holder, spec, casterAlive, foeAlive);
+  }
+  for (const holder of opposingTeam) {
+    const spec = passivesOf(holder).castStatus?.onEnemyCast;
+    if (spec) explicit(holder, spec, foeAlive, casterAlive);
+  }
+  // —— 施法敌方削减（psychicaffliction/succumb，reduce 语义）——持有者在施法方队伍时生效；
+  // stat 'random' 按目标各掷一次属性（官方 Skill Points = 生命/护甲/攻击/魔法四项，hp 经
+  // reduceStat 夹零、无击杀；无 rng 按随机技能值口径落 magic，与「随机技能值」解析约定一致）；
+  // 削减夹零发负 buff 事件、法力走耗蓝口径（manashield 免疫在 reduceStat 拦截）。
+  const DRAIN_STATS = ['hp', 'armor', 'attack', 'magic'] as const;
+  for (const holder of casterTeam) {
+    if (holder.defeated) continue;
+    const spec = passivesOf(holder).castEnemyDrain;
+    if (!spec) continue;
+    for (const foe of foeAlive) {
+      const stat = spec.stat === 'random'
+        ? (ctx.rng ? DRAIN_STATS[Math.floor(ctx.rng.next() * DRAIN_STATS.length)] : 'magic')
+        : spec.stat;
+      events.push(...reduceStat(foe, stat, spec.amount));
+    }
   }
   return events;
 }
@@ -997,14 +1388,45 @@ export function applyPositionAuras(
 export function applyDeathTriggers(
   deadTeam: readonly Character[],
   opposingTeam: readonly Character[],
-): BuffEvent[] {
-  return [
+  ctx: DeathTriggerContext = {},
+): GameEvent[] {
+  const events: GameEvent[] = [
     ...applyTrigger(deadTeam, 'gainOnAllyDeath'),
     ...applyTrigger(opposingTeam, 'gainOnEnemyDeath'),
     // 盟友身亡队伍光环（virtueofsacrifice「当一名盟友身亡时，所有盟友获得…」）：
     // 持有者为死者一方存活角色，受益者同队存活盟友（'all'=全队/种族名）。
     ...applyTypeAuraGains(deadTeam, deadTeam, 'onAllyDeathTypeAura'),
   ];
+  // 盟友身亡施加状态（职业天赋 savior「给另一名随机盟友屏障」/ feyvengeance、upinflames
+  // 「使随机敌人妖火/燃烧」）：持有者=死者的**同队**存活队友（对方的"盟友死"触发走
+  // applyEnemyDeathTriggers，不在此列）。target=randomAlly 从死者一方存活取、randomEnemy
+  // 从对方存活取；随机目标经 ctx.rng（无 rng 退化为首个存活），施加经 ctx.applyStatus
+  //（免疫在施加口拦截）。
+  for (const holder of deadTeam) {
+    if (holder.defeated) continue;
+    const spec = passivesOf(holder).onAllyDeathStatus;
+    if (!spec) continue;
+    const pool = (spec.target === 'randomAlly' ? deadTeam : opposingTeam).filter((c) => !c.defeated);
+    if (pool.length === 0) continue;
+    const target = ctx.rng ? pool[Math.floor(ctx.rng.next() * pool.length)] : pool[0];
+    for (const st of spec.statuses) {
+      if (!ctx.applyStatus) continue;
+      const status: StatusInstance = { id: st.id, turns: spec.turns };
+      if (st.magnitude !== undefined) status.magnitude = st.magnitude;
+      events.push(...ctx.applyStatus(target, status));
+    }
+  }
+  return events;
+}
+
+/** 死亡触发家族的执行环境（全部可选——缺省时状态/猎杀类变体跳过） */
+export interface DeathTriggerContext {
+  /** 状态施加口（免疫在施加口拦截）；缺省时状态类跳过 */
+  applyStatus?: (char: Character, status: StatusInstance) => GameEvent[];
+  /** 随机目标 / 概率判定；缺省时随机目标退化为首个存活、概率 <1 不生效 */
+  rng?: Pick<SeededRNG, 'next'>;
+  /** 即杀口（onEnemyDeathKill 的处决通道）；缺省时猎杀类跳过 */
+  kill?: (target: Character) => GameEvent[];
 }
 
 /**
@@ -1050,7 +1472,7 @@ function applyTypeAuraGains(
 export function applyEnemyDeathTriggers(
   opposingTeam: readonly Character[],
   deadSideTeam: readonly Character[],
-  ctx: { applyStatus?: (char: Character, status: StatusInstance) => GameEvent[] } = {},
+  ctx: { applyStatus?: (char: Character, status: StatusInstance) => GameEvent[]; rng?: Pick<SeededRNG, 'next'>; kill?: (target: Character) => GameEvent[] } = {},
 ): GameEvent[] {
   const events: GameEvent[] = [];
   for (const holder of opposingTeam) {
@@ -1069,6 +1491,29 @@ export function applyEnemyDeathTriggers(
           id: p.onEnemyDeathEnemyStatus.id,
           turns: p.onEnemyDeathEnemyStatus.turns,
         }));
+      }
+    }
+    // 敌方身亡→死者一方另一名随机存活陷入状态（职业天赋 chillofdeath「当敌人身亡时，
+    // 冻结另一名随机敌人」）：与 sharedfate 同点，目标改随机（经 ctx.rng，无 rng 退化首存）。
+    if (p.onEnemyDeathRandomStatus && ctx.applyStatus) {
+      const pool = deadSideTeam.filter((c) => !c.defeated);
+      if (pool.length > 0) {
+        const target = ctx.rng ? pool[Math.floor(ctx.rng.next() * pool.length)] : pool[0];
+        for (const st of p.onEnemyDeathRandomStatus.statuses) {
+          const status: StatusInstance = { id: st.id, turns: p.onEnemyDeathRandomStatus.turns };
+          if (st.magnitude !== undefined) status.magnitude = st.magnitude;
+          events.push(...ctx.applyStatus(target, status));
+        }
+      }
+    }
+    // 敌方身亡→按概率猎杀死者一方末位存活（职业天赋 risingshadows「当另一名敌人身亡时，
+    // 有 7% 的几率猎杀最后一名敌人」）：概率经 ctx.rng（无 rng 不生效），处决经 ctx.kill
+    //（defeat 出编队管线，同 bigMatchKill 口径）。新增的 defeat 不再回灌本次扫描
+    //（与 applyBigMatchTriggers 的 kill 同口径）。
+    if (p.onEnemyDeathKill && ctx.kill) {
+      if (ctx.rng && ctx.rng.next() < p.onEnemyDeathKill.chance) {
+        const pool = deadSideTeam.filter((c) => !c.defeated);
+        if (pool.length > 0) events.push(...ctx.kill(pool[pool.length - 1]));
       }
     }
   }
@@ -1160,7 +1605,10 @@ export function applyDeathSummons(
     const template = resolveSummonTemplate(spec);
     if (!template) continue;
     const id = ctx.nextCharId();
-    events.push(...ctx.enqueue({ ...template, id, defeated: false, statuses: [] }, spec.troopId, side));
+    // 复活族（immortal/deepsoul/rebirth「resurrect with full Mana」）：fullMana 时召唤物
+    // 以满法力入场（复活=召唤自身模板 + 补满法力条，与官方「with full Mana」一致）。
+    const mana = spec.fullMana === true ? template.manaCost : template.mana;
+    events.push(...ctx.enqueue({ ...template, id, defeated: false, statuses: [], mana }, spec.troopId, side));
   }
   return events;
 }
@@ -1257,6 +1705,26 @@ export function applyColorMatchTriggers(
   if (team.some((c) => !c.defeated && passivesOf(c).cleanseOnColorMatch.includes(color))) {
     for (const member of team) events.push(...cleanseNegative(member));
   }
+  // 匹配骷髅头时削减敌人随机技能（职业天赋 chaoswave「匹配骷髅头时，所有敌人随机损失
+  // 1 点技能值」）：只在骷髅触发点（color === 'skull'）结算，scope 固定敌方全队存活逐个
+  // 削减（确定性）；stat 'random' 每个目标经 rng 掷一项（无 rng 落 magic，与 castEnemyDrain
+  // 同口径）。reduce 语义（持有者不进账），manashield 免疫在 reduceStat 拦截。
+  if (color === 'skull' && opts.enemyTeam) {
+    for (const holder of team) {
+      if (holder.defeated) continue;
+      const spec = passivesOf(holder).onSkullMatchEnemyDrain;
+      if (!spec) continue;
+      for (const foe of opts.enemyTeam) {
+        if (foe.defeated) continue;
+        const stat = spec.stat === 'random'
+          ? (opts.rng
+            ? (['attack', 'armor', 'magic', 'mana'] as const)[Math.floor(opts.rng.next() * 4)]
+            : 'magic')
+          : spec.stat;
+        events.push(...reduceStat(foe, stat, spec.amount));
+      }
+    }
+  }
   // 敌方配色触发（rancor）：敌方持有者自身获得（不动敌方的 gainOnColorMatch——那是他们自己配对时才吃的）
   if (opts.enemyTeam) {
     for (const char of opts.enemyTeam) {
@@ -1270,18 +1738,24 @@ export function applyColorMatchTriggers(
     }
   }
   // 配色施加状态（T5 配色状态批 16 code：molten/sunfire/deepwounds/foxfire… + angrybear
-  // 自身狂怒）：匹配色命中持有者的 colorMatchStatus 键时施加状态。
-  // scope randomEnemy=随机一名存活敌人；self=持有者自身（angrybear「配对棕色宝石时赋予
-  // 自身狂怒状态」，确定性目标、零随机消耗）。概率仍走 rng（无 rng 概率 <1 不生效）。
+  // 自身狂怒 + 缺口清扫批 enchantinggaze 随机盟友 / brambleheart 独立概率）：匹配色命中
+  // 持有者的 colorMatchStatus 键时施加状态。
+  // scope randomEnemy=随机一名存活敌人；randomAlly=随机一名存活盟友（enchantinggaze
+  // 「匹配紫色宝石时为随机盟友附魔」）；self=持有者自身（angrybear「配对棕色宝石时赋予
+  // 自身狂怒状态」，确定性目标、零随机消耗）。概率仍走 rng（无 rng 概率 <1 不生效）；
+  // independentChance（brambleheart「Independent 50% chances to Entangle or inflict
+  // Bleed」）不在入口整体判定——每条状态在目标选出后各掷各的 chance（各耗一次 rng）。
   // 只在施加口注入时结算——旧特质路径（无新键）零事件、零随机消耗。
   if (opts.applyStatus) {
     const foes = (opts.enemyTeam ?? []).filter((c) => !c.defeated);
+    const allies = team.filter((c) => !c.defeated);
     for (const holder of team) {
       if (holder.defeated) continue;
       const spec = passivesOf(holder).colorMatchStatus[color];
       if (!spec) continue;
       if (spec.scope === 'randomEnemy' && foes.length === 0) continue;
-      if (spec.chance !== undefined) {
+      if (spec.scope === 'randomAlly' && allies.length === 0) continue;
+      if (spec.chance !== undefined && !spec.independentChance) {
         // 概率判定走种子化 rng；纯逻辑环境（无 rng）按召唤口径不生效
         if (!opts.rng || opts.rng.next() >= spec.chance) continue;
       }
@@ -1289,8 +1763,16 @@ export function applyColorMatchTriggers(
         events.push(...applySpecStatuses(holder, spec.statuses, spec.turns, opts));
         continue;
       }
-      const foe = opts.rng ? foes[Math.floor(opts.rng.next() * foes.length)] : foes[0];
-      events.push(...applySpecStatuses(foe, spec.statuses, spec.turns, opts));
+      const pool = spec.scope === 'randomAlly' ? allies : foes;
+      const target = opts.rng ? pool[Math.floor(opts.rng.next() * pool.length)] : pool[0];
+      if (spec.independentChance) {
+        for (const st of spec.statuses) {
+          if (!opts.rng || opts.rng.next() >= (spec.chance ?? 1)) continue;
+          events.push(...applySpecStatuses(target, [st], spec.turns, opts));
+        }
+        continue;
+      }
+      events.push(...applySpecStatuses(target, spec.statuses, spec.turns, opts));
     }
   }
   // 配色窃取生命（T5 窃取批 5 code：corruption/poisontide/justabite/darkesthunger/ladyofdesire）：
@@ -1309,18 +1791,24 @@ export function applyColorMatchTriggers(
     }
   }
   // 配色伤害（T5 杂项批 3 code：lumpofcoal/dawnslayer/sleetstorm「在配对X色宝石时对一名
-  // 随机敌人造成 N 点伤害」）：伤害经 opts.damage 注入（TurnEngine 传 damageOne 管线，
-  // 与大连伤害/窃取生命同款回调）；随机目标每条持有者耗一次种子化 rng（与配色施加状态
-  // 的随机分支同口径），无 rng 退化为首个存活——无新键特质零事件、零随机消耗。
+  // 随机敌人造成 N 点伤害」+ 缺口清扫批 spiny/spiky「在自身配对骷髅头时，对所有敌人造成
+  // N 点伤害」）：伤害经 opts.damage 注入（TurnEngine 传 damageOne 管线，与大连伤害/窃取
+  // 生命同款回调）；randomEnemy 随机目标每条持有者耗一次种子化 rng（与配色施加状态的随机
+  // 分支同口径），无 rng 退化为首个存活；allEnemies 逐个确定性结算、零随机消耗——无新键
+  // 特质零事件、零随机消耗。
   if (opts.damage && opts.enemyTeam) {
     for (const holder of team) {
       if (holder.defeated) continue;
-      const amount = passivesOf(holder).colorMatchDamage[color];
-      if (!amount) continue;
+      const spec = passivesOf(holder).colorMatchDamage[color];
+      if (!spec) continue;
       const foes = opts.enemyTeam.filter((c) => !c.defeated);
       if (foes.length === 0) break;
+      if (spec.scope === 'allEnemies') {
+        for (const foe of foes) events.push(...opts.damage(foe, holder, spec.amount));
+        continue;
+      }
       const foe = opts.rng ? foes[Math.floor(opts.rng.next() * foes.length)] : foes[0];
-      events.push(...opts.damage(foe, holder, amount));
+      events.push(...opts.damage(foe, holder, spec.amount));
     }
   }
   // 条件经济光环·骷髅版（darkensouls「在配对骷髅头时，获得 3 个灵魂」）：
@@ -1352,6 +1840,33 @@ function cleanseNegative(char: Character): GameEvent[] {
   const event: GameEvent = { type: 'status-cleanse', targetId: char.id, statusIds: removed };
   return [event];
 }
+
+/**
+ * 驱散（职业天赋 banishment「驱散所有敌人」）：移除全部**正面**状态，负面保留——
+ * 与净化正好互为反向。事件同用 status-cleanse（表现层的驱散/净化同属"状态被移除"演出）。
+ */
+function dispelPositive(char: Character): GameEvent[] {
+  if (char.defeated || char.statuses.length === 0) return [];
+  const removed = char.statuses.filter((s) => POSITIVE_STATUS_IDS.has(s.id)).map((s) => s.id);
+  if (removed.length === 0) return [];
+  char.statuses = char.statuses.filter((s) => !POSITIVE_STATUS_IDS.has(s.id));
+  const event: GameEvent = { type: 'status-cleanse', targetId: char.id, statusIds: removed };
+  return [event];
+}
+
+/**
+ * 七大基础风暴池（职业天赋 chaosstorm「召唤一个随机风暴」的掷签池）：光/火/冰/暗/叶/尘/
+ * 骸骨，载荷取自 songof* 族的官方战斗开始风暴（色键/回合/骷髅掉落同源，号段沿用 9001~9007）。
+ */
+const RANDOM_STORM_POOL: readonly { color: BaseColor; turns: number; troopId: number; dropKind?: 'skull' }[] = [
+  { color: BaseColor.Yellow, turns: 8, troopId: 9004 },
+  { color: BaseColor.Red, turns: 8, troopId: 9002 },
+  { color: BaseColor.Blue, turns: 8, troopId: 9003 },
+  { color: BaseColor.Purple, turns: 8, troopId: 9001 },
+  { color: BaseColor.Green, turns: 8, troopId: 9005 },
+  { color: BaseColor.Brown, turns: 8, troopId: 9006 },
+  { color: BaseColor.Brown, turns: 8, troopId: 9007, dropKind: 'skull' },
+];
 
 /**
  * 大连触发的执行环境（条件光环批）：由 TurnEngine 注入，traits 不反向依赖 status。
@@ -1399,6 +1914,17 @@ export interface BigMatchTriggerContext {
    * （纯逻辑环境零事件、零随机消耗）。
    */
   kill?: (target: Character) => GameEvent[];
+  /**
+   * 窃取生命口（职业天赋 lifesiphon，同配色窃取批的 opts.drainLife：damageOne 伤害 +
+   * 持有者按实际伤害等量治疗）；缺省时窃取类跳过。
+   */
+  drainLife?: (target: Character, holder: Character, amount: number) => GameEvent[];
+  /**
+   * 宝石爆破口（职业天赋 lightningstrike，TurnEngine 注入：命中格从棋盘移除后走
+   * resolveBoardChange——法力归持有者一方、重力连锁照常；候选唯一不掷骰、多候选耗一次
+   * rng、无候选安全跳过）；缺省时爆破类跳过。
+   */
+  explodeGem?: (color: string, count: number) => GameEvent[];
 }
 
 /** 条件经济光环的币种结算序（固定 gold→souls→gems，保证事件顺序确定性） */
@@ -1447,7 +1973,7 @@ function applySpecStatuses(
  */
 function reduceStat(
   target: Character,
-  stat: 'attack' | 'armor' | 'magic' | 'mana',
+  stat: 'attack' | 'armor' | 'magic' | 'mana' | 'hp',
   amount: number,
 ): GameEvent[] {
   if (target.defeated || amount <= 0) return [];
@@ -1591,6 +2117,10 @@ export function applyBigMatchTriggers(
         if (foes.length === 0) break;
         if (spec.scope === 'enemyAll') {
           for (const foe of foes) events.push(...ctx.damage(foe, holder, spec.amount));
+        } else if (spec.scope === 'lastEnemy') {
+          // 末位敌人（attackfrombelow「Deal 8 damage to the last Enemy」）：队伍序末位存活，
+          // 确定性选取、零随机消耗
+          events.push(...ctx.damage(foes[foes.length - 1], holder, spec.amount));
         } else {
           const foe = ctx.rng ? foes[Math.floor(ctx.rng.next() * foes.length)] : foes[0];
           events.push(...ctx.damage(foe, holder, spec.amount));
@@ -1701,6 +2231,57 @@ export function applyBigMatchTriggers(
     }
   }
 
+  // —— 职业天赋批（大匹配 5 新键；缺省注入时各自跳过——无新键特质零事件、零随机消耗）——
+  // 配对驱散所有敌人（banishment）：移除敌方全队存活的正面状态（正面清单与诅咒剥正面同源）。
+  // 确定性逐个结算、零随机消耗。
+  if (matchingTeam.some((c) => !c.defeated && passivesOf(c).onBigMatchDispelEnemies)) {
+    for (const foe of ctx.enemyTeam ?? []) {
+      if (foe.defeated) continue;
+      events.push(...dispelPositive(foe));
+    }
+  }
+  // 配对净化自身（purification）：只清持有者自己的负面状态（与 royalhoney 全队口径相区分）
+  for (const holder of matchingTeam) {
+    if (holder.defeated) continue;
+    if (passivesOf(holder).onBigMatchCleanseSelf) events.push(...cleanseNegative(holder));
+  }
+  // 配对窃取首位敌人生命（lifesiphon）：front 目标确定性、伤害经 ctx.drainLife（持有者按
+  // 实际伤害等量治疗，与配色窃取批同源）；同类取先声明的一条（编译期保证）。
+  if (ctx.drainLife && ctx.enemyTeam) {
+    for (const holder of matchingTeam) {
+      if (holder.defeated) continue;
+      const spec = passivesOf(holder).onBigMatchDrainLife;
+      if (!spec || (spec.minSize ?? 4) > size) continue;
+      const front = ctx.enemyTeam.find((c) => !c.defeated);
+      if (front) events.push(...ctx.drainLife(front, holder, spec.amount));
+    }
+  }
+  // 配对爆破关联色宝石（lightningstrike）：多条规格按声明序逐条结算，落子经 ctx.explodeGem
+  // 注入（TurnEngine 移除命中格 + resolveBoardChange；候选多时每条规格耗一次 rng）。
+  if (ctx.explodeGem) {
+    for (const holder of matchingTeam) {
+      if (holder.defeated) continue;
+      for (const spec of passivesOf(holder).onBigMatchExplodeGem ?? []) {
+        if (spec.minSize > size) continue;
+        events.push(...ctx.explodeGem(spec.color, spec.count));
+      }
+    }
+  }
+  // 配对召唤随机风暴（chaosstorm）：rng 从七大基础风暴均匀掷一（无 rng 不生效），设置经
+  // ctx.setStorm 注入（全局唯一顶替裁定照常）；虚拟风暴号段沿用 9008（号段仅元数据）。
+  if (ctx.setStorm) {
+    for (const holder of matchingTeam) {
+      if (holder.defeated) continue;
+      const spec = passivesOf(holder).onBigMatchRandomStorm;
+      if (!spec || spec.minSize > size) continue;
+      if (!ctx.rng) continue;
+      const pick = RANDOM_STORM_POOL[Math.floor(ctx.rng.next() * RANDOM_STORM_POOL.length)]!;
+      const storm: StormSummon = { color: pick.color, turns: pick.turns };
+      if (pick.dropKind) storm.dropKind = pick.dropKind;
+      events.push(...ctx.setStorm(storm, pick.troopId));
+    }
+  }
+
   // 条件经济光环（greedy/extremegreed/pillageandplunder「配对 4 或 5 颗获得额外 N 黄金」）：
   // 按持有者逐个入账（阵亡不贡献），minSize 限定与 gainOnBigMatchSized 同口径。
   for (const holder of matchingTeam) {
@@ -1715,8 +2296,15 @@ export function applyBigMatchTriggers(
 }
 
 /**
- * 回合开始的被动结算：生命 / 护甲恢复 / 攻击·魔法回合增益。
+ * 回合开始的被动结算：生命 / 护甲恢复 / 攻击·魔法回合增益 + 回合开始范围光环
+ * （缺口清扫批 turnStartTypeAura：queensgrace/feralinspiration/nightsong/blessingofanu
+ * 族 17 code「All X Allies gain N … at the start of each turn」）。
  * 发 `buff` 事件让卡面能演出恢复量。
+ *
+ * 范围光环为定义直读键（getTrait，同 positionAura 口径）：只在持有者一方行动的回合结算
+ *（TurnEngine 传行动方队伍，官方 trig=self_player），受益者为同队 scope（种族或颜色，
+ * scopeMatches 认颜色/种族/'all'）内的存活成员、含持有者本人。光环授出的攻击/魔法走
+ * grantStat（织网/ silenced 等既有拦截口径不变），法力不授（官方句式只涉四项属性）。
  */
 export function applyTurnStartPassives(characters: readonly Character[]): BuffEvent[] {
   const events: BuffEvent[] = [];
@@ -1742,6 +2330,19 @@ export function applyTurnStartPassives(characters: readonly Character[]): BuffEv
     if (p.regenMagicPerTurn !== 0) {
       const actual = grantStat(char, 'magic', p.regenMagicPerTurn);
       if (actual !== 0) events.push({ type: 'buff', targetId: char.id, stat: 'magic', amount: actual });
+    }
+    // 回合开始范围光环（turnStartTypeAura，定义直读）：持有者存活时给同队 scope 成员叠加
+    for (const code of char.traitIds ?? []) {
+      const aura = getTrait(code)?.turnStartTypeAura;
+      if (!aura) continue;
+      for (const member of characters) {
+        if (member.defeated) continue;
+        if (!scopeMatches(member, aura.scope)) continue;
+        for (const stat of GAIN_STAT_ORDER) {
+          const actual = grantStat(member, stat, aura.gains[stat] ?? 0);
+          if (actual !== 0) events.push({ type: 'buff', targetId: member.id, stat, amount: actual });
+        }
+      }
     }
   }
   return events;
@@ -1804,6 +2405,75 @@ export function applyBattleStartTraits(
         if (!per) continue;
         const count = team.filter((c) => !c.defeated && c.colors.includes(per.color as BaseColor)).length;
         push(char, per.stat, per.amount * count);
+      }
+    }
+  }
+
+  // 3.5 束带计数光环（缺口清扫批 bandinglife/bandingmagic/bandingarmor/bandingattack/
+  // truebanding，官方 Filter=traitbanding「Gain N … for each Ally with a Banding Trait」）：
+  // 数同队存活持有束带特质的盟友（含自己，与 perAllyColor 同口径），gains×count 一次性授出。
+  // 束带家族 = banding* 前缀 + truebanding（官方 traitbanding 过滤器的全集）。
+  const isBandingTrait = (code: string) => code.startsWith('banding') || code === 'truebanding';
+  for (const team of [allies, enemies]) {
+    for (const char of team) {
+      if (char.defeated) continue;
+      for (const code of char.traitIds ?? []) {
+        const per = lookup(code)?.perAllyTrait;
+        if (!per) continue;
+        const count = team.filter((c) => !c.defeated && (c.traitIds ?? []).some(isBandingTrait)).length;
+        for (const stat of GAIN_STAT_ORDER) {
+          if (stat === 'mana') continue; // 光环不授法力（官方句式只涉四项属性）
+          const actual = grantStat(char, stat, (per.gains[stat] ?? 0) * count);
+          if (actual !== 0) events.push({ type: 'buff', targetId: char.id, stat, amount: actual });
+        }
+      }
+    }
+  }
+
+  // 3.6 开局范围光环（缺口清扫批 iceaura 族 6 色「All X Allies gain 5 to all Stats」+
+  // soaring「Allied Stryx gain 5 Life and Attack」）：同队 scope（颜色/种族）成员一次性获得，
+  // scopeMatches 认颜色与种族（含持有者本人，同 typeAura 口径）。
+  for (const team of [allies, enemies]) {
+    for (const char of team) {
+      if (char.defeated) continue;
+      for (const code of char.traitIds ?? []) {
+        const aura = lookup(code)?.battleStartTypeAura;
+        if (!aura) continue;
+        for (const target of team) {
+          if (target.defeated) continue;
+          if (!scopeMatches(target, aura.scope)) continue;
+          for (const stat of GAIN_STAT_ORDER) {
+            const actual = grantStat(target, stat, aura.gains[stat] ?? 0);
+            if (actual !== 0) events.push({ type: 'buff', targetId: target.id, stat, amount: actual });
+          }
+        }
+      }
+    }
+  }
+
+  // 3.7 种族/范围开局法力（缺口清扫批 orclord/lordofbeasts/hauntedcrown 族 17 code「All X
+  // Allies start with N% Mana」）：同队 scope 匹配的存活盟友（含持有者）法力补到
+  // manaCost×ratio，只补不扣（与开局法力步骤同口径）。scope 经 scopeMatches（种族/颜色/
+  // 'all'，职业天赋 windspeed 黄色盟友 / inspiration 全体走同一条通路）；旧 troopType 字段
+  // 等价转发（种族名下 scopeMatches 与 includes 行为一致）。
+  for (const team of [allies, enemies]) {
+    for (const char of team) {
+      if (char.defeated) continue;
+      for (const code of char.traitIds ?? []) {
+        const spec = lookup(code)?.allyStartMana;
+        if (!spec) continue;
+        const scope = spec.scope ?? spec.troopType;
+        if (!scope) continue;
+        for (const target of team) {
+          if (target.defeated) continue;
+          if (!scopeMatches(target, scope)) continue;
+          const gained = Math.min(target.manaCost, Math.floor(target.manaCost * spec.ratio));
+          if (gained > target.mana) {
+            const delta = gained - target.mana;
+            target.mana = gained;
+            events.push({ type: 'buff', targetId: target.id, stat: 'mana', amount: delta });
+          }
+        }
       }
     }
   }

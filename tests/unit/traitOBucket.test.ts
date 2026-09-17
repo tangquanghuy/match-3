@@ -151,7 +151,15 @@ describe('护栏', () => {
     expect(p.onBigMatchStatus).toBeUndefined();
   });
 
-  it('开局召唤非风暴物（parliamentarycall）不误收，仍留在未实现桶', () => {
-    expect(getTrait('parliamentarycall')).toBeUndefined();
+  it('开局召唤非风暴物（parliamentarycall）：缺口清扫批落 turnStartSummon 惰性字段', () => {
+    // 历史裁定「留未实现桶」已按缺口清扫批修订：回合开始召唤为惰性数据建模
+    //（官方 RawData summon / Filter=6026 实锤枭熊），回合钩子落地前零事件零消耗
+    const t = getTrait('parliamentarycall');
+    expect(t?.turnStartSummon).toEqual({
+      chance: 0.1, troopId: 6026, referenceName: 'Owlbear', displayName: '枭熊',
+    });
+    expect(resolvePassives(['parliamentarycall']).turnStartSummon).toEqual({
+      chance: 0.1, troopId: 6026, referenceName: 'Owlbear', displayName: '枭熊',
+    });
   });
 });
