@@ -26,7 +26,8 @@
 | 「最健康的敌人」「最强的敌人」 | `enemyHealthiest` |
 | 「所有敌人」 | `enemyAll`（伤害段需配 `range:'all'`） |
 | 「所有盟友」含施法者自身；「其他盟友」同理（引擎按存活剔除自身——当前以 allyAll 近似） | `allyAll` |
-| 裸伤害句式（「造成…点(真实/散射)伤害」无任何目标词；2026-09-17 用户裁定回收批） | `enemyChosen`（散射为类型词→溅射链；数据证据：散射族凡全体必明写「所有敌人」40/40） |
+| 裸散射句式（「造成…点(真实)散射伤害」无任何目标词；2026-09-18 官方 SpellSteps 重裁，推翻 09-17 旧裁定） | `enemyAll` + `range:'all'`（**全体散射**。官方实锤：ScatterDamage/TrueScatterDamage@AllEnemies 16/16、无一带 FromTarget——8459/8586/8678/8827/8934/9175/9493/9673/9710/8841/8027/8860/8651/9865/9222/9807；伤害覆盖面按全体算，不再走 enemyChosen 溅射链） |
+| 裸伤害句式·非散射（「造成…点伤害」无任何目标词；2026-09-17 用户裁定回收批，维持） | `enemyChosen`（单敌；「对 1 名敌人…散射/溅射」才是溅射链） |
 
 ## 1. 二次缩放（[xN] / [N:M]）
 
@@ -254,6 +255,9 @@
    （官方「转化不是死亡」）。发 `troop-transform` 事件（表现层刷新卡面）。
 3. **随机状态**：「造成随机状态效果」→ `inflictRandom(target)`，每目标独立掷签负面池
    （poison/burning/bleed/silence/frozen/stun/entangle/web/disease/curse/death-mark/charm）。
+   **引擎缺口**：randomStatus 段不支持 `n`/`nRange`（段类型只有 turns/times），「对最后 2 名各一个
+   随机状态」类多目标无法单段表达（8572，官方 RandomStatusEffect@LastTwoEnemies）——组装侧
+   暂以单目标近似并注明，待引擎扩 RandomStatusSegment 后回收。
 4. **藏宝图**：战场经济第四币种。`gainMaps(n)`（「有 20% 几率获得一张」= `gainMaps(1,0,{chance:0.2})`）；
    来源 `battleMaps`（「每收集到一张藏宝图，额外创造 4 颗 [x4]」= createSkulls 挂 modifier）。
 5. **特定兵种在场**：「若自身队伍有梁帝」→ `ifCond: { kind: 'troopPresent', side: 'ally', name: '梁帝' }`

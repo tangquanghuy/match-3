@@ -415,9 +415,12 @@ const SPELLS: CuratedBatch['spells'] = [
   {
     id: 8305,
     desc: '对末位敌人造成 [魔法 + 1] 点真实伤害，有 50% 的几率也对第 3 位敌人造成 [魔法 + 1] 点真实伤害。再使自身下潜。',
+    // 修正（2026-09-18 官方复核）：官方 SecondLastEnemy = 倒数第 2（中文「第 3 位」为位次误译，
+    // enemyNth 从队首数、编队>3 时目标完全不同）。目标词表无「倒数第 2」精确词汇——
+    // 按裁定取 enemyLastN(2)（首个别 = 倒数第 2；近似：末位会一并受击）
     build: skill(
       trueDmg('enemyLast', 1, 1),
-      trueDmg('enemyNth', 1, 1, { n: 3, chance: 0.5 }),
+      trueDmg('enemyLastN', 1, 1, { n: 2, chance: 0.5 }),
       inflict('submerged', 'allySelf'),
     ),
   },
@@ -815,8 +818,8 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '引爆一颗宝石。造成[魔法 + 8]点散射伤害，被摧毁的黄色宝石数量越多，伤害越高。 [x8]',
     build: skill(
       explodeRandomGems(1, 0, 'all'),
-      // 裸散射伤害 = enemyChosen 溅射链（batch-r6 8860 同款）
-      dmgSplash('enemyChosen', 8, 1, { modifier: { mod: { kind: 'multiplier', a: 8 }, source: { kind: 'destroyedGems', color: BaseColor.Yellow } } }),
+      // 裸散射重裁（2026-09-18）：官方 ScatterDamage@AllEnemies = 全体散射
+      dmg('enemyAll', 8, 1, { range: 'all', modifier: { mod: { kind: 'multiplier', a: 8 }, source: { kind: 'destroyedGems', color: BaseColor.Yellow } } }),
     ),
   },
   {

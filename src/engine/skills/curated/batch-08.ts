@@ -175,9 +175,10 @@ const SPELLS: CuratedBatch['spells'] = [
   {
     id: 8524,
     desc: '对首 2 位敌人造成 [魔法 + 5] 点伤害再将他们击晕。获得屏障效果。',
+    // 修正（2026-09-18 官方复核）：官方 CauseStun@FirstTwoEnemies——补 n:2（缺 n 时 enemyFirstN 只命中 1 人）
     build: skill(
       dmg('enemyFirstN', 5, 1, { n: 2 }),
-      inflict('stun', 'enemyFirstN'),
+      inflict('stun', 'enemyFirstN', { n: 2 }),
       inflict('barrier', 'allySelf'),
     ),
   },

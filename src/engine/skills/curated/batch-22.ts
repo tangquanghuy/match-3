@@ -152,9 +152,9 @@ const SPELLS: CuratedBatch['spells'] = [
   {
     id: 8720,
     desc: '给予盟友 [魔法 + 1] 点护甲值。板面上每有一颗绿色宝石，则有 7% 的几率获得一个额外回合。 [x7]',
+    // 修正（2026-09-18 官方复核）：官方 IncreaseArmor@AllAllies = 全体盟友（中文漏译「所有」）
     build: skill(
-      // 裸「给予盟友」单数未限定 → allyChosen（batch-10 8982 同款）
-      armor('allyChosen', 1),
+      armor('allyAll', 1),
       // 回收：chanceBoost 现支持「每颗X宝石 7% 几率」（SOP 示例句式；boardGems Green）
       extraTurn({ chanceBoost: { mod: { kind: 'multiplier', a: 7 }, source: { kind: 'boardGems', color: BaseColor.Green } } }),
     ),

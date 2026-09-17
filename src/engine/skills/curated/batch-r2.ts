@@ -118,7 +118,8 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '爆破一颗宝石并造成 [魔法 + 6] 点散射伤害。若自身队伍有梁帝，则赋予首 2 位盟友屏障效果。',
     build: skill(
       explodeRandomGems(1, 0),
-      dmgSplash('enemyChosen', 6),
+      // 裸散射重裁（2026-09-18）：官方 ScatterDamage@AllEnemies = 全体散射
+      dmg('enemyAll', 6, 1, { range: 'all' }),
       inflict('barrier', 'allyFirstN', { n: 2, ifCond: { kind: 'troopPresent', side: 'ally', name: '梁帝' } }),
     ),
   },

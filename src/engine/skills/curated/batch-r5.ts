@@ -4,7 +4,7 @@
  * reposition/shuffleTeam（位置）、dmg split（分摊 {N}）、'lastTarget' 目标模式（跨段绑定）、
  * summon countRange（召唤数量区间）、skillOnce/oncePerBattle、'not' 条件 + selfStat manaCost。
  */
-import { skill, dmg, dmgSplash, trueDmg, heal, armor, attack, mana, inflict, reduce, steal,
+import { skill, dmg, trueDmg, heal, armor, attack, mana, inflict, reduce, steal,
   createGems, createSpecialGems, transformToSpecial, explodeRandomGems, destroyChosenCol,
   destroySkulls, shuffleBoard, summonRef, extraTurn, reposition, shuffleTeam,
   skillOnce, scale } from '../builders';
@@ -143,7 +143,8 @@ const SPELLS: CuratedBatch['spells'] = [
   {
     id: 8027,
     desc: '造成 [魔法 + 12] 点散射伤害，再打乱敌方队伍顺序。',
-    build: skill(dmgSplash('enemyChosen', 12), shuffleTeam('enemy')),
+    // 裸散射重裁（2026-09-18）：官方 ScatterDamage@AllEnemies = 全体散射
+    build: skill(dmg('enemyAll', 12, 1, { range: 'all' }), shuffleTeam('enemy')),
   },
   {
     id: 9343,
@@ -213,8 +214,9 @@ const SPELLS: CuratedBatch['spells'] = [
   {
     id: 8824,
     desc: '给予一名盟友 4 点护甲值。板面上没有一颗蓝色宝石则有 7% 的几率获得一个额外回合。 [x7]',
+    // 修正（2026-09-18 官方复核）：官方 IncreaseArmor@FromTarget = 指定的一名盟友，非自身
     build: skill(
-      armor('allySelf', 4, 0),
+      armor('allyChosen', 4, 0),
       extraTurn({
         chance: 0.07,
         ifCond: { kind: 'not', cond: { kind: 'boardAtLeast', color: BaseColor.Blue, n: 1 } },

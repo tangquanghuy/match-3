@@ -107,16 +107,18 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 7751,
     desc: '窃取一名敌人 [魔法 + 2] 点生命值。有 30% 的几率跑掉。',
     build: skill(
-      // 未写转为何属性 → 同属性回填（batch-01 7141 口径）
-      steal('enemyRandom', 'hp', 'hp', 2, 1),
+      // 未写转为何属性 → 同属性回填（batch-01 7141 口径）；
+      // 「一名敌人」= 指定单敌（SOP §0；2026-09-18 与 8196/8594/9736 同批校正，官方同族均 FromTarget）
+      steal('enemyChosen', 'hp', 'hp', 2, 1),
       escape(0.3),
     ),
   },
   {
     id: 8196,
     desc: '窃取一名敌人 [魔法 + 2]  点护甲值。有 30%  的几率跑掉。',
+    // 修正（2026-09-18 官方复核）：官方 StealArmor@FromTarget = 指定的敌人，非随机
     build: skill(
-      steal('enemyRandom', 'armor', 'armor', 2, 1),
+      steal('enemyChosen', 'armor', 'armor', 2, 1),
       escape(0.3),
     ),
   },
@@ -157,8 +159,9 @@ const SPELLS: CuratedBatch['spells'] = [
   {
     id: 8594,
     desc: '对一名敌人造成 [魔法 + 2] 点伤害，数量因地精盟友而增强。有 30% 的几率跑掉。 [x6]',
+    // 修正（2026-09-18 官方复核）：官方 Damage@FromTarget = 指定的敌人，非随机
     build: skill(
-      dmg('enemyRandom', 2, 1, { modifier: { mod: { kind: 'multiplier', a: 6 }, source: { kind: 'alliesOfRace', race: 'Goblin' } } }),
+      dmg('enemyChosen', 2, 1, { modifier: { mod: { kind: 'multiplier', a: 6 }, source: { kind: 'alliesOfRace', race: 'Goblin' } } }),
       escape(0.3),
     ),
   },
@@ -223,8 +226,9 @@ const SPELLS: CuratedBatch['spells'] = [
   {
     id: 9736,
     desc: '对一名敌人造成[魔法 + 3]点伤害，伤害值因我的金币而增强。创造3颗战利品宝石。 [4:1]',
+    // 修正（2026-09-18 官方复核）：官方 Damage@FromTarget = 指定的敌人，非随机
     build: skill(
-      dmg('enemyRandom', 3, 1, { modifier: { mod: { kind: 'ratio', a: 4, b: 1 }, source: { kind: 'battleGold' } } }),
+      dmg('enemyChosen', 3, 1, { modifier: { mod: { kind: 'ratio', a: 4, b: 1 }, source: { kind: 'battleGold' } } }),
       // 「战利品宝石」= 赃物宝石 Booty Gem 译名（GEMS-SEMANTICS-2）；不可匹配、被摧毁 +10 金币
       createSpecialGems({ kind: 'bootyGem' }, 3, 0),
     ),

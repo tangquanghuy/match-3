@@ -11,7 +11,7 @@
  * - 7408「杀死最后一名盟友」→ sacrifice('allyLast')（即杀己方目标唯一原语）。
  */
 import type { CuratedBatch } from './index';
-import { skill, dmg, dmgAll, dmgSplash, trueDmg, armor, magic, inflict,
+import { skill, dmg, dmgAll, trueDmg, armor, magic, inflict,
   steal, drainMana, createGems, createSpecialGems, createMix, transform, transformToSpecial,
   destroyChosenCol, destroySpecialGems, explodeSpecialGems, explodeRandomGems,
   createStorm, summonRef, extraTurn, sacrifice, reposition, CHOSEN } from '../builders';
@@ -264,8 +264,9 @@ const SPELLS: CuratedBatch['spells'] = [
   {
     id: 9807,
     desc: '造成[(魔法 x 1.5) + 12]点散射伤害，紫色宝石可提升伤害。若存在风暴，则生成4颗黄色宝石，然后将所有黄色宝石转化为紫色宝石。 [x5]',
+    // 裸散射重裁（2026-09-18）：官方 ScatterDamage@AllEnemies = 全体散射
     build: skill(
-      dmgSplash('enemyChosen', 12, 1.5, { modifier: { mod: { kind: 'multiplier', a: 5 }, source: { kind: 'boardGems', color: BaseColor.Purple } } }),
+      dmg('enemyAll', 12, 1.5, { range: 'all', modifier: { mod: { kind: 'multiplier', a: 5 }, source: { kind: 'boardGems', color: BaseColor.Purple } } }),
       createGems(BaseColor.Yellow, 4, 0, { ifCond: { kind: 'stormPresent' } }),
       transform(BaseColor.Yellow, BaseColor.Purple, { ifCond: { kind: 'stormPresent' } }),
     ),

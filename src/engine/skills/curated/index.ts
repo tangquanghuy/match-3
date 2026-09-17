@@ -82,6 +82,10 @@ import { BATCH_P39 } from './batch-p39';
 import { BATCH_P40 } from './batch-p40';
 import { BATCH_R8 } from './batch-r8';
 import { BATCH_R9 } from './batch-r9';
+import { BATCH_W01 } from './batch-w01';
+import { BATCH_W02 } from './batch-w02';
+import { BATCH_W03 } from './batch-w03';
+import { BATCH_W04 } from './batch-w04';
 
 /** 全部批次（新批次在此追加注册） */
 const BATCHES: CuratedBatch[] = [
@@ -159,4 +163,42 @@ export function collectCurated(): {
 /** 批次原数组（校验测试直读 desc 用） */
 export function collectCuratedBatches(): CuratedBatch[] {
   return BATCHES;
+}
+
+// =====================================================================
+// 窗口 K · 武器法术批次（W 系）独立注册表。
+// spellId 来自 artifacts/gowhead-weapons/weapons.json（7064–10065，与部队法术 id
+// 空间不相交，动工扫描零冲突）；desc 锚 = weapons.json（非 troops.json），锚定校验
+// 在 tests/unit/weaponSpellAudit.test.ts。故独立注册、不并入上方 BATCHES——
+// 部队侧对号入座校验（spellData.test.ts）要求 curated id 存在于 troops.json。
+// =====================================================================
+
+/** 武器法术批次（新批次在此追加注册） */
+const WEAPON_BATCHES: CuratedBatch[] = [
+  BATCH_W01,
+  BATCH_W02,
+  BATCH_W03,
+  BATCH_W04,
+];
+
+/** 合并武器批次（id → 原型 + 跳过清单），供武器侧消费/校验 */
+export function collectWeaponCurated(): {
+  byId: Map<number, SkillPrototype>;
+  skipped: { id: number; batch: string; reason: string }[];
+  batches: string[];
+} {
+  const byId = new Map<number, SkillPrototype>();
+  const skipped: { id: number; batch: string; reason: string }[] = [];
+  const batches: string[] = [];
+  for (const b of WEAPON_BATCHES) {
+    batches.push(b.batch);
+    for (const s of b.spells) byId.set(s.id, s.build);
+    for (const k of b.skipped) skipped.push({ id: k.id, batch: b.batch, reason: k.reason });
+  }
+  return { byId, skipped, batches };
+}
+
+/** 武器批次原数组（校验测试直读 desc 用） */
+export function collectWeaponBatches(): CuratedBatch[] {
+  return WEAPON_BATCHES;
 }

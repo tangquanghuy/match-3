@@ -16,7 +16,7 @@
  * - 种族口径：妖仙 = Fey、秘士 = Mystic（troops.json troopTypes，summonRandom 引用池内联）。
  */
 import type { CuratedBatch } from './index';
-import { skill, dmg, dmgSplash, trueDmg, heal, armor, inflict, createGems, createSkulls,
+import { skill, dmg, trueDmg, heal, armor, inflict, createGems, createSkulls,
   createSpecialGems, createMix, transform, transformToSpecial, explodeSpecialGems,
   explodeRandomGems, oneOf, createStorm, summonRef, summonRandom, extraTurn,
   transformTroop, CHOSEN } from '../builders';
@@ -112,10 +112,11 @@ const SPELLS: CuratedBatch['spells'] = [
   {
     id: 8661,
     desc: '使所有敌人陷入疾病状态，有 4% 的几率将其杀戮。每有一颗末日骷髅头则几率增强 4%。 [x4]',
+    // 修正（2026-09-18 官方复核）：官方 LethalDamageConditional@RandomEnemy = 杀 1 名随机敌人，
+    // 非对全体敌人各掷一次即杀（期望伤害显著偏高）
     build: skill(
       inflict('disease', 'enemyAll'),
-      dmg('enemyAll', 0, 0, {
-        range: 'all',
+      dmg('enemyRandom', 0, 0, {
         execute: true,
         chance: 0.04,
         chanceBoost: { mod: { kind: 'multiplier', a: 4 }, source: { kind: 'boardSpecial', gem: 'doomSkull' } },
@@ -212,9 +213,9 @@ const SPELLS: CuratedBatch['spells'] = [
   {
     id: 9222,
     desc: '造成 [魔法 + 8] 点散射伤害，伤害值因染疾病的敌人数而增强。使 1-3 名随机敌人染上疾病。 [x8]',
+    // 裸散射重裁（2026-09-18）：官方 ScatterDamage@AllEnemies = 全体散射
     build: skill(
-      // 裸散射伤害 = enemyChosen 溅射链（spell-rules §0 裸伤害裁定，batch-r7 9865 同款）
-      dmgSplash('enemyChosen', 8, 1, { modifier: { mod: { kind: 'multiplier', a: 8 }, source: { kind: 'enemyStatusCount', statusId: 'disease' } } }),
+      dmg('enemyAll', 8, 1, { range: 'all', modifier: { mod: { kind: 'multiplier', a: 8 }, source: { kind: 'enemyStatusCount', statusId: 'disease' } } }),
       inflict('disease', 'enemyRandomN', { nRange: { min: 1, max: 3 } }),
     ),
   },
@@ -238,10 +239,12 @@ const SPELLS: CuratedBatch['spells'] = [
   {
     id: 9314,
     desc: '将所有选定颜色的宝石转换成诅咒宝石。将 3 颗骷髅头转换成死亡标记宝石，再将其他的骷髅头转换成末日骷髅头。',
+    // 修正（2026-09-18 官方复核）：官方 ConvertGems(Skull→UberDoomskull) = 极度末日骷髅头
+    //（中文漏译「极度」，普通末日为降一级误装）
     build: skill(
       transformToSpecial(CHOSEN, 'curseGem'),
       transformToSpecial('SKULL', 'deathMarkGem', { count: 3 }),
-      transformToSpecial('SKULL', 'doomSkull'),
+      transformToSpecial('SKULL', 'uberDoomSkull'),
     ),
   },
   {

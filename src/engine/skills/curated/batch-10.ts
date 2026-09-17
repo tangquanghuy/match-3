@@ -146,9 +146,10 @@ const SPELLS: CuratedBatch['spells'] = [
   {
     id: 9190,
     desc: '对 2 名随机盟友造成 [魔法 + 2] 点真实伤害，伤害值因厄什卡盟友数而增强。 [x3]',
+    // 敌我颠倒修正（2026-09-18 官方复核）：官方 TrueDamage@RandomEnemy 打随机敌人，非盟友（中文机翻误译）
     build: skill(
       // 厄什卡 = Urska（troops.json 查询）
-      trueDmg('allyRandomN', 2, 1, {
+      trueDmg('enemyRandomN', 2, 1, {
         n: 2,
         modifier: { mod: { kind: 'multiplier', a: 3 }, source: { kind: 'alliesOfRace', race: 'Urska' } },
       }),

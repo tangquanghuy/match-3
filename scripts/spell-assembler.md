@@ -75,8 +75,10 @@ export const BATCH_XX: CuratedBatch = { batch: 'XX', spells: SPELLS, skipped: SK
 - **「对所有敌人…散射伤害」**：散射只是伤害类型词，目标是全体 → `dmg('enemyAll', …, { range: 'all' })`；
   **「对 1 名敌人…散射/溅射」**才是溅射链 → `dmgSplash('enemyChosen', …)`。
 - 「摧毁/消灭该敌人」（即杀）→ `dmg(target, 0, 0, { execute: true })`。
-- **裸伤害句式（2026-09-17 用户裁定）**：「造成…点(真实/散射)伤害」无目标词 = 对 1 名敌人
-  （`enemyChosen`；散射类型词走溅射链 `dmgSplash`/`dmg range:'splash'`）。此前「句子式不明」SKIP 的该族照此回收。
+- **裸散射句式（2026-09-18 官方 SpellSteps 重裁，推翻 09-17 旧裁定）**：「造成…点(真实)散射伤害」
+  无目标词 = **全体散射** → `dmg('enemyAll', …, { range: 'all' })`（官方 ScatterDamage/
+  TrueScatterDamage@AllEnemies 16/16 实锤、无一带 FromTarget；裸散射段**不再**走 enemyChosen 溅射链）。
+- **裸伤害句式·非散射（2026-09-17 用户裁定，维持）**：「造成…点伤害」无目标词 = 对 1 名敌人（`enemyChosen`）。
 - 「减除(全部)生命值」「减血」→ `reduce(target, 'hp', …)`（直接扣血夹零，击杀会走 defeat）；
   「减除全部护甲值」→ `reduce(target, 'armor', 0, 0, { drainAll: true })`。
 - 「恢复所有生命值」（全额治疗）→ `heal(target, 0, 0, { full: true })`。
@@ -206,6 +208,8 @@ mana(…, { modifier: { mod: { kind: 'multiplier', a: 1 }, source: { kind: 'self
 sacrifice('allyOthers')              // 「献祭一名盟友」= 随机其他盟友（不含施法者）；即杀走 execute 管线
 inflictRandom(target, opts?)         // 「造成随机状态效果」：按目标阵营分池（盟友=正面 barrier/rage/submerged，
                                      //  敌方=负面 12 种）；opts { turns?, times? }（times=「陷入 N 个随机状态」）
+                                     //  ⚠️ 引擎缺口：不支持 n/nRange，多目标（「最后 2 名各随机状态」8572）
+                                     //  无法单段表达——暂单目标近似并注明（spell-rules §11.3）
 createGems('ENEMY', N)               // 「创造 N 颗指定敌人的法力颜色的宝石」（敌方颜色动态占位符）
 transformToSpecial('LAST_TARGET', X) // 「将该敌人的一种法力颜色的所有宝石转化为X」（跨段该敌人）
 transformTroop(target, ref, opts?)   // 「将一名随机敌人转化为怨灵」= transformTroop('enemyRandom','Banshee')

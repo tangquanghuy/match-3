@@ -116,9 +116,10 @@ const SPELLS: CuratedBatch['spells'] = [
   {
     id: 8173,
     desc: '使一名敌人陷入沉默状态。爆破其法力颜色  [(魔法 / 4) + 1]  颗宝石。获得一个额外回合。',
+    // 修正（2026-09-18 官方复核）：官方 ExplodeColor(FromTarget) = 爆破（辐射一圈），非静默摧毁
     build: skill(
       inflict('silence', 'enemyChosen'),
-      destroyRandomGems(1, 0.25, 'color', 'LAST_TARGET'),
+      explodeRandomGems(1, 0.25, 'color', 'LAST_TARGET'),
       extraTurn(),
     ),
   },
@@ -294,6 +295,8 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '对最后 2 位敌人造成 [魔法 + 1] 点伤害，并使他们陷入一个随机的状态效果。再使他们中毒。',
     build: skill(
       dmg('enemyLastN', 1, 1, { n: 2 }),
+      // 引擎缺口：randomStatus 段不支持 n/nRange（spell-rules §11.3），官方
+      // RandomStatusEffect@LastTwoEnemies（最后 2 名各随机状态）无法单段表达——暂单目标（末位）近似
       inflictRandom('enemyLastN'),
       inflict('poison', 'enemyLastN', { n: 2 }),
     ),

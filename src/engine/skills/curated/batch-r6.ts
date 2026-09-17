@@ -3,7 +3,7 @@
  * 新裁定见 spell-rules §13：casterStatBeatsTarget（属性比较 vs 跨段追踪目标）、
  * anyEnemyColor（聚合存在判定超集口径）、'&&' 为合法子句切分符（本就如此，按段顺序组装）。
  */
-import { skill, dmg, dmgSplash, trueDmg, heal, armor, mana, inflict, steal,
+import { skill, dmg, dmgSplash, trueDmg, heal, armor, magic, mana, inflict, steal,
   createGems, createSpecialGems, summonRef, summonRandom, extraTurn,
   scale } from '../builders';
 import { BaseColor } from '../../types';
@@ -26,9 +26,11 @@ const SPELLS: CuratedBatch['spells'] = [
   {
     id: 8860,
     desc: '&& 给予所有盟友 3 点魔法值 && 造成 [魔法 + 6] 点散射伤害',
+    // 修正（2026-09-18 官方复核）：「魔法值」= magic（官方 IncreaseSpellPower@AllAllies），非 mana；
+    // 裸散射重裁：官方 ScatterDamage@AllEnemies = 全体散射
     build: skill(
-      mana('allyAll', 3, 0),
-      dmgSplash('enemyChosen', 6),
+      magic('allyAll', 3, 0),
+      dmg('enemyAll', 6, 1, { range: 'all' }),
     ),
   },
   {
@@ -101,9 +103,11 @@ const SPELLS: CuratedBatch['spells'] = [
   {
     id: 8418,
     desc: '对首位和末位敌人造成 [魔法 + 2] 点伤害。若其中一个使用蓝色法力，则造成双倍伤害。若其中一个使用紫色法力，则赋予自身屏障效果。',
+    // 修正（2026-09-18 官方复核）：官方 Damage@FirstLastEnemies 带条件倍率——补漏
+    // 「若其中一个使用蓝色法力，则双倍伤害」（anyEnemyColor Blue ×2 辖两段伤害，§13.3 超集口径）
     build: skill(
-      dmg('enemyFront', 2),
-      dmg('enemyLast', 2),
+      dmg('enemyFront', 2, 1, { condMult: { times: 2, cond: { kind: 'anyEnemyColor', color: BaseColor.Blue } } }),
+      dmg('enemyLast', 2, 1, { condMult: { times: 2, cond: { kind: 'anyEnemyColor', color: BaseColor.Blue } } }),
       inflict('barrier', 'allySelf', { ifCond: { kind: 'anyEnemyColor', color: BaseColor.Purple } }),
     ),
   },

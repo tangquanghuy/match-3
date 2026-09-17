@@ -48,10 +48,11 @@ const SPELLS: CuratedBatch['spells'] = [
   {
     id: 8129,
     desc: '诅咒所有敌人。将所有绿色宝石转换成骷髅头。',
+    // 修正（2026-09-18 官方复核）：官方 ConvertGems(Green→Doomskull) = 末日骷髅头（中文漏译「末日」，
+    // 普通骷髅为降级误装）
     build: skill(
       inflict('curse', 'enemyAll'),
-      // transform 端点 'SKULL'（batch-05 7135 口径）
-      transform(BaseColor.Green, 'SKULL'),
+      transformToSpecial(BaseColor.Green, 'doomSkull'),
     ),
   },
   {

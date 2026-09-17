@@ -19,7 +19,7 @@
  * - 8137「若有一名敌人陷入疾病状态」→ anyEnemyStatus 全局存在判定（8743 同款）。
  */
 import type { CuratedBatch } from './index';
-import { skill, dmg, dmgAll, dmgSplash, heal, armor, attack, magic, mana, inflict,
+import { skill, dmg, dmgAll, heal, armor, attack, magic, mana, inflict,
   createGems, createSpecialGems, transform, destroyChosenRow, destroyChosenCol,
   createStorm, summonRef, extraTurn, transformTroop, oneOf, scale, CHOSEN } from '../builders';
 import { BaseColor } from '../../types';
@@ -288,8 +288,9 @@ const SPELLS: CuratedBatch['spells'] = [
   {
     id: 8651,
     desc: '造成 [魔法 + 8] 点散射伤害，伤害值因通配宝石和紫色盟友数而增强。若有敌人身亡，则创建 4 颗 x2 通配宝石。 [x4]',
+    // 裸散射重裁（2026-09-18）：官方 ScatterDamage@AllEnemies = 全体散射
     build: skill(
-      dmgSplash('enemyChosen', 8, 1, { modifier: { mod: { kind: 'multiplier', a: 4 }, sources: [{ kind: 'boardSpecial', gem: 'wildcard' }, { kind: 'alliesOfColor', color: BaseColor.Purple }] } }),
+      dmg('enemyAll', 8, 1, { range: 'all', modifier: { mod: { kind: 'multiplier', a: 4 }, sources: [{ kind: 'boardSpecial', gem: 'wildcard' }, { kind: 'alliesOfColor', color: BaseColor.Purple }] } }),
       createSpecialGems({ kind: 'wildcard', tier: 2 }, 4, 0, { ifTargetDied: true }),
     ),
   },
