@@ -149,6 +149,21 @@ describe('A · 数据完整性', () => {
           report(`${tag} randomPositive 必须 randomAlly + 多状态池`);
         }
       }
+      // T5 配色状态批：配色施加状态的结构合法性（「随机一名敌人」句式族）
+      if (t.onColorMatchStatus) {
+        const s = t.onColorMatchStatus;
+        if (s.color !== 'skull' && !BASE_COLORS.has(s.color as BaseColor)) report(`${tag} onColorMatchStatus.color「${s.color}」非法`);
+        if (s.scope !== 'randomEnemy') report(`${tag} onColorMatchStatus.scope「${s.scope}」非法`);
+        if (!s.statuses || s.statuses.length === 0) report(`${tag} onColorMatchStatus 缺 statuses`);
+        for (const st of s.statuses ?? []) {
+          if (!ENGINE_STATUS_IDS.has(st.id)) report(`${tag} 配色施加状态「${st.id}」引擎未实现`);
+          if (st.magnitude !== undefined && !['poison', 'burning', 'bleed'].includes(st.id)) {
+            report(`${tag} 非 DoT 状态不应带 magnitude（${st.id}）`);
+          }
+        }
+        if (s.turns !== undefined && !(s.turns >= 1 && s.turns <= 9)) report(`${tag} onColorMatchStatus.turns=${s.turns} 异常`);
+        if (s.chance !== undefined && !(s.chance > 0 && s.chance <= 1)) report(`${tag} onColorMatchStatus.chance=${s.chance} 异常`);
+      }
       if (t.onBigMatchSizedGain) {
         const s = t.onBigMatchSizedGain;
         if (![4, 5].includes(s.minSize)) report(`${tag} onBigMatchSizedGain.minSize=${s.minSize} 异常`);
@@ -285,6 +300,8 @@ describe('B · 编译契约', () => {
     // 条件光环批（窗口 E）
     'onBigMatchStatus', 'onBigMatchSizedGain', 'onColorMatchTypeAura',
     'onBigMatchCleanse', 'onColorMatchCleanse', 'onEnemyColorMatchGain',
+    // T5 配色状态批（molten/sunfire/foxfire…「配对X色→随机敌人施加状态」族）
+    'onColorMatchStatus',
     // 战后经济批（窗口 E，merchant/necromancy 族）
     'battleEconomyGain',
     // T2 死亡钩子批：双状态诅咒列表 + 敌人身亡状态/种族光环/另一名敌人施状态
@@ -575,6 +592,34 @@ describe('C · 描述↔数值一致性（从官方文本重新抽数对账）',
         if (s.scope === 'self' && !/自己|获得屏障/.test(d)) report(`${tag(t)} onBigMatchStatus.scope=self 但描述没有「自己/获得」`);
         // stormshield 官方文本「一名随盟友」漏了「机」字，按「随机」容忍
         if (s.scope === 'randomAlly' && !/随机|一名随/.test(d)) report(`${tag(t)} onBigMatchStatus.scope=randomAlly 但描述没有「随机」`);
+      }
+      // T5 配色状态批：概率句对账 + 句式方向/颜色键/状态词逐个反查
+      if (t.onColorMatchStatus) {
+        const s = t.onColorMatchStatus;
+        const chanceM = /有\s*(\d+)%\s*的?几率/.exec(d);
+        const expectChance = chanceM ? num(chanceM[1]) / 100 : undefined;
+        if (s.chance !== expectChance) report(`${tag(t)} onColorMatchStatus.chance=${s.chance} 与描述不符`);
+        if (!/随机/.test(d) || !/敌人/.test(d) || /所有敌人/.test(d)) {
+          report(`${tag(t)} onColorMatchStatus 但描述不是「随机…敌人」句式`);
+        }
+        if (s.color !== 'skull') {
+          // 颜色键必须与描述一致（「在配对红色宝石时」→ Red）
+          const cm = /在?配对(.+?)宝石/.exec(d);
+          const expectColor = cm ? pickColorOf(cm[1]) : null;
+          if (expectColor === null || expectColor !== s.color) {
+            report(`${tag(t)} onColorMatchStatus.color「${s.color}」与描述「${cm?.[1] ?? d}」不符`);
+          }
+        }
+        // 状态条目必须逐个在描述里有对应中文词（双状态条目序由生成器保序，此处只查存在性）
+        const wordOf: Record<string, RegExp> = {
+          poison: /中毒/, burning: /燃烧|妖火/, frozen: /冻结|冰冻/, bleed: /出血/,
+          entangle: /缠绕|纠缠/, web: /织网/, stun: /击晕|眩晕/, curse: /诅咒/,
+          disease: /疾病/, marked: /猎人标记/,
+        };
+        for (const st of s.statuses ?? []) {
+          const re = wordOf[st.id];
+          if (!re || !re.test(d)) report(`${tag(t)} 配色施加状态「${st.id}」在描述中无对应状态词`);
+        }
       }
       // 净化族方向校验
       if (t.onBigMatchCleanse && !/净化所有盟友/.test(d)) report(`${tag(t)} onBigMatchCleanse 但描述没有「净化所有盟友」`);

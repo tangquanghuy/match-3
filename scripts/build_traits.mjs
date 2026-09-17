@@ -93,9 +93,12 @@ const AURA_STATUS_MAP = [
   // T5 批补收：恐怖本体在 T1/T3 批已落地（status.ts TERROR_STATUS_ID），当时条件光环
   // 映射表没收是历史时序问题；terrorqueen/gapingwounds/icyterror 三条靠它入大连施加。
   [/恐怖/, 'terror'],
+  // T5 配色状态批补收：猎人标记本体同在 T1/T3 批落地（status.ts MARK_STATUS_ID，
+  // RESCUE_STATUS_MAP 早有映射），huntersmoon「配对红色→随机猎人标记」是首条施加句。
+  [/猎人标记/, 'marked'],
 ];
 /** 引擎尚无对应状态本体：含这些词的条件光环句子整体不收（不做缺状态的半解析） */
-const AURA_UNKNOWN_STATUS = /法印|猎人标记|狼化|风暴|石化|催眠|惑乱|迷惑|变羊|吞噬|受诅|嘲讽/;
+const AURA_UNKNOWN_STATUS = /法印|狼化|风暴|石化|催眠|惑乱|迷惑|变羊|吞噬|受诅|嘲讽/;
 /** 「随机的正面增益状态效果」（dragonsblessing）的候选池 */
 const POSITIVE_STATUS_POOL = [
   { id: 'barrier' }, { id: 'rage' }, { id: 'reflect' }, { id: 'blessed' }, { id: 'enchanted' },
@@ -598,6 +601,51 @@ function parse(desc) {
         onColorMatchGain: { color: 'skull', stat: 'hp', amount: num(m[1]), alsoStats: ['armor', 'attack', 'magic'] },
       },
     };
+  }
+  // 配色施加状态（T5 配色状态批 16 code）：「在配对<色>宝石时…随机敌人施加状态」句式族。
+  //   动词句 molten「随机燃烧一名敌人」/ wildvines「随机缠绕一名敌人」/ magicvines「缠绕一名
+  //   随机敌人」/ lionsroar·petrification「击晕一名随机敌人」（petrification 官方文本无句尾句号）；
+  //   陷入句 sunfire「随机使一名敌人陷入妖火状态」/ sourcandy「使一名随机敌人陷入妖火状态」/
+  //   deepwounds/rainofspines/grimcurse/curseofmadness/huntersmoon/webbedbranches（单状态）与
+  //   enchantedvines「陷入缠绕和妖火状态」/ ancientchill「陷入冻结和妖火状态」（双状态按「和」
+  //   拆段，全部命中才收，条目序与描述一致）；foxfire 带概率「有 50% 的几率」收进 chance。
+  // 状态词查 AURA_STATUS_MAP（与大连施加同表），DoT（燃烧/出血/中毒）带 magnitude:1；
+  // 回合数 3（与 onBigMatchStatus 同口径）。范围只认「随机…敌人」：指定序号（「第一名敌人」）
+  // 、窃取/伤害类动词句、无「随机」的句子不在此收；形状不合落回后续规则，不短路。
+  if ((m = /^在?配对(.+?)宝石的?时[，,]?(.+)$/.exec(desc))) {
+    const color = pickColor(m[1]);
+    const tail = m[2];
+    if (color && /随机/.test(tail) && /敌人/.test(tail) && !/所有敌人/.test(tail)) {
+      const chanceM = /有\s*(\d+)%\s*的?几率/.exec(tail);
+      let statuses = null;
+      const trapped = /陷入(.+?)状态/.exec(tail);
+      if (trapped) {
+        const ids = trapped[1]
+          .split('和')
+          .map((s) => s.trim())
+          .filter(Boolean)
+          .map((part) => AURA_STATUS_MAP.find(([re]) => re.test(part))?.[1]);
+        if (!ids.some((id) => !id) && new Set(ids).size === ids.length) {
+          statuses = [...new Set(ids)].map((id) => (isDotStatus(id) ? { id, magnitude: 1 } : { id }));
+        }
+      } else {
+        const hit = AURA_STATUS_MAP.find(([re]) => re.test(tail));
+        if (hit) statuses = [isDotStatus(hit[1]) ? { id: hit[1], magnitude: 1 } : { id: hit[1] }];
+      }
+      if (statuses) {
+        return {
+          effects: {
+            onColorMatchStatus: {
+              color,
+              scope: 'randomEnemy',
+              statuses,
+              turns: 3,
+              ...(chanceM ? { chance: num(chanceM[1]) / 100 } : {}),
+            },
+          },
+        };
+      }
+    }
   }
   // 反弹 N% 的骷髅（头）伤害——"反弹/反射"、"骷髅头/骷髅"两种译法都收
   if ((m = /^(?:反弹|反射)\s*(\d+)%\s*的骷髅(?:头)?伤害。?$/.exec(desc))) {

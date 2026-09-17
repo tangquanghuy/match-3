@@ -416,9 +416,13 @@ export class TurnEngine {
       );
       // 配色触发特质（食人魔之怒/阳光…）：匹配到关联色时给匹配方全队加值。
       // 每次结算算一次，与消除的宝石数无关——描述是「在配对X色宝石时」，不是「每颗」。
-      // enemyTeam 供敌方配色触发（rancor「在敌人配对骷髅头时…」族，颜色键同理）。
+      // enemyTeam 供敌方配色触发（rancor「在敌人配对骷髅头时…」族，颜色键同理）；
+      // rng/applyStatus 供配色施加状态（molten/sunfire 族「使随机一名敌人陷入Y状态」，
+      // 无新键特质零随机消耗、事件序不变）。
       events.push(...applyColorMatchTriggers(activeTeam.characters, settle.color, {
         enemyTeam: this.state.teams[opponentOf(this.state.activePlayer)].characters,
+        rng: this.rng,
+        applyStatus: (char, status) => applyStatus(char, status),
       }));
     } else if (settle.kind === 'skull') {
       // 骷髅 → 物理伤害（需求 14），不产生法力（需求 11.2）
@@ -434,10 +438,13 @@ export class TurnEngine {
       events.push(...resolveDefeatEvents(this.state, outcome.events));
       // 配对骷髅触发（diamondaura/powerofstars 配色光环、rancor 敌方触发、darkensouls
       // 条件经济）：在骷髅伤害结算之后触发，避免同一次命中被本次新增的护甲/生命减免——
-      // 炸毁骷髅（settleExplodedSkulls）不算「配对」，不在此列。
+      // 炸毁骷髅（settleExplodedSkulls）不算「配对」，不在此列。rng/applyStatus 同配色点
+      // （onColorMatchStatus 定义允许 'skull' 色键，现无数据、注入零消耗）。
       events.push(...applyColorMatchTriggers(activeTeam.characters, 'skull', {
         enemyTeam: enemyTeam.characters,
         gainEconomy: this.creditEconomy,
+        rng: this.rng,
+        applyStatus: (char, status) => applyStatus(char, status),
       }));
     }
     // 'wildOnly'：全通配组无归属色，只消除不结算
@@ -765,9 +772,11 @@ export class TurnEngine {
       );
       // 配色触发特质（食人魔之怒/阳光…）：匹配到关联色时给结算归属方全队加值。
       // 每次结算算一次，与消除的宝石数无关——描述是「在配对X色宝石时」，不是「每颗」。
-      // enemyTeam 供敌方配色触发（rancor 族）。
+      // enemyTeam 供敌方配色触发（rancor 族）；rng/applyStatus 供配色施加状态（molten 族）。
       events.push(...applyColorMatchTriggers(activeTeam.characters, gemType.color, {
         enemyTeam: this.state.teams[opponentOf(side)].characters,
+        rng: this.rng,
+        applyStatus: (char, status) => applyStatus(char, status),
       }));
     } else if (gemType.kind === 'skull') {
       // 骷髅 → 物理伤害（需求 14），不产生法力（需求 11.2）
@@ -779,6 +788,8 @@ export class TurnEngine {
       events.push(...applyColorMatchTriggers(activeTeam.characters, 'skull', {
         enemyTeam: enemyTeam.characters,
         gainEconomy: this.creditEconomy,
+        rng: this.rng,
+        applyStatus: (char, status) => applyStatus(char, status),
       }));
     }
   }

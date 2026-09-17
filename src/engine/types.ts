@@ -498,6 +498,20 @@ export interface PassiveModifiers {
   cleanseOnBigMatch: boolean;
   /** 敌方配对某色/骷髅时自身获得（rancor），色键同 colorMatchTypeAura */
   gainOnEnemyColorMatch: Readonly<Record<string, StatGains>>;
+  /**
+   * 配对某色（或骷髅）宝石时给随机一名敌人施加状态（T5 配色状态批 16 code：
+   * molten/sunfire/deepwounds…）。外层色键同 gainOnEnemyColorMatch（'skull'=骷髅匹配）；
+   * scope 当前仅 randomEnemy（「（随机）使一名随机敌人陷入X状态」句式族，多条 statuses
+   * 逐条施加，enchantedvines 缠绕+妖火）。触发点 applyColorMatchTriggers（配色触发同点），
+   * 施加经 TurnEngine 注入的 applyStatus（免疫在施加口拦截），随机目标与概率
+   * （foxfire 50% 用 chance）消耗注入的 rng；无注入时概率 <1 不生效、目标退化为首个存活。
+   */
+  colorMatchStatus: Readonly<Record<string, {
+    scope: 'randomEnemy';
+    statuses: readonly { id: string; magnitude?: number }[];
+    turns: number;
+    chance?: number;
+  }>>;
   /** 匹配某色宝石时的额外法力；键为颜色或 '*'（全色） */
   manaLink: Readonly<Record<string, number>>;
   /** 反弹给攻击者的骷髅伤害比例（0～1） */

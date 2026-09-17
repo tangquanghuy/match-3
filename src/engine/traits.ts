@@ -132,6 +132,20 @@ export interface TraitDefinition {
   onBigMatchCleanse?: { minSize?: number };
   /** 匹配某色宝石时净化全队（adagio） */
   onColorMatchCleanse?: { color: string };
+  /**
+   * 配对某色（或骷髅）宝石时给随机一名敌人施加状态（T5 配色状态批 16 code：
+   * molten/sunfire/deepwounds/foxfire…）。风格对齐 onBigMatchStatus 的 randomEnemy 分支：
+   * 施加经 applyStatus 注入（TurnEngine 传 status.applyStatus，免疫在施加口拦截）；
+   * 随机目标与概率（foxfire「有 50% 的几率」用 chance）经 rng 注入判定。turns 缺省 3
+   * （与大连施加同口径），编译进 PassiveModifiers.colorMatchStatus 的同色键。
+   */
+  onColorMatchStatus?: {
+    color: BaseColor | 'skull';
+    scope: 'randomEnemy';
+    statuses: readonly { id: string; magnitude?: number }[];
+    turns?: number;
+    chance?: number;
+  };
   /** 敌方配对某色/骷髅时自身获得（rancor「在敌人配对骷髅头时，获得 3 点攻击力」） */
   onEnemyColorMatchGain?: { color: string; stat: PassiveStat; amount: number };
   /** 回合开始时把棋盘上随机一格变成该色宝石 */
@@ -229,6 +243,7 @@ export function neutralPassives(): PassiveModifiers {
     cleanseOnColorMatch: [],
     cleanseOnBigMatch: false,
     gainOnEnemyColorMatch: {},
+    colorMatchStatus: {},
     bigMatchEconomyGain: {},
     skullMatchEconomyGain: { gold: 0, souls: 0, gems: 0 },
   };
@@ -268,6 +283,13 @@ export function resolvePassives(
   const sizedBigMatchGains: Record<string, StatGains> = {};
   const colorMatchAura: Record<string, Record<string, StatGains>> = {};
   const enemyColorGains: Record<string, StatGains> = {};
+  // 配色施加状态（T5 配色状态批）：色键 → 规格条目（与 PassiveModifiers.colorMatchStatus 同构）
+  const colorMatchStatus: Record<string, {
+    scope: 'randomEnemy';
+    statuses: readonly { id: string; magnitude?: number }[];
+    turns: number;
+    chance?: number;
+  }> = {};
   const cleanseColors = new Set<string>();
   let cleanseBigMatch = false;
   let bigMatchStatus: PassiveModifiers['onBigMatchStatus'];
@@ -406,6 +428,20 @@ export function resolvePassives(
       enemyColorGains[k] ??= noGains();
       enemyColorGains[k][trait.onEnemyColorMatchGain.stat] += trait.onEnemyColorMatchGain.amount;
     }
+    // 配色施加状态（T5 配色状态批）：同色键取回合更长的一条（与 onBigMatchStatus 同口径）；
+    // turns 定义侧可省，编译期缺省 3。chance 只在官方句式带概率（foxfire 50%）时存在。
+    if (trait.onColorMatchStatus) {
+      const { color, scope, statuses, turns, chance } = trait.onColorMatchStatus;
+      const prev = colorMatchStatus[color];
+      if (prev === undefined || (turns ?? 3) > prev.turns) {
+        colorMatchStatus[color] = {
+          scope,
+          statuses: [...statuses],
+          turns: turns ?? 3,
+          ...(chance !== undefined ? { chance } : {}),
+        };
+      }
+    }
     // 净化：颜色并集、布尔取或
     if (trait.onColorMatchCleanse) cleanseColors.add(trait.onColorMatchCleanse.color);
     if (trait.onBigMatchCleanse) cleanseBigMatch = true;
@@ -451,6 +487,7 @@ export function resolvePassives(
   passive.gainOnBigMatchSized = sizedBigMatchGains;
   passive.colorMatchTypeAura = colorMatchAura;
   passive.gainOnEnemyColorMatch = enemyColorGains;
+  passive.colorMatchStatus = colorMatchStatus;
   passive.cleanseOnColorMatch = [...cleanseColors];
   passive.cleanseOnBigMatch = cleanseBigMatch;
   passive.onBigMatchStatus = bigMatchStatus;
@@ -744,11 +781,25 @@ function resolveSummonTemplate(spec: DeathSummonSpec): Omit<Character, 'id' | 'd
  *     'all'/种族/颜色；color 传 'skull' 时结算骷髅匹配触发（diamondaura/powerofstars/rancor）
  *   - cleanseOnColorMatch：配色净化（adagio）
  *   - opts.enemyTeam：敌方配色触发（rancor）——敌方配对骷髅/某色时敌方持有者自身获得
+ *
+ * T5 配色状态批扩展：onColorMatchStatus（molten/sunfire/deepwounds…「在配对X色宝石时
+ * 使随机一名敌人陷入Y状态」族）——色键命中时给随机一名存活敌人施加状态。施加经
+ * opts.applyStatus 注入（TurnEngine 传 status.applyStatus，免疫在施加口拦截）；随机目标
+ * 与概率（foxfire 50% 用 chance）经 opts.rng 判定，每次触发至多耗两条随机数（概率一条、
+ * 选目标一条），与 applyBigMatchTriggers 的 randomEnemy 分支同口径：无 rng 时概率 <1 的
+ * 不生效、随机目标退化为首个存活；无 applyStatus/enemyTeam 时整块跳过（纯逻辑环境零事件）。
  */
 export function applyColorMatchTriggers(
   team: readonly Character[],
   color: BaseColor | 'skull',
-  opts: { enemyTeam?: readonly Character[]; gainEconomy?: (currency: keyof TraitEconomyGain, amount: number) => GameEvent[] } = {},
+  opts: {
+    enemyTeam?: readonly Character[];
+    gainEconomy?: (currency: keyof TraitEconomyGain, amount: number) => GameEvent[];
+    /** 随机目标选择 / 概率判定；缺省时概率 <1 不生效、随机目标退化为首个存活 */
+    rng?: Pick<SeededRNG, 'next'>;
+    /** 状态施加口（TurnEngine 注入 skills/effects/status 的 applyStatus）；缺省时不施加状态 */
+    applyStatus?: (char: Character, status: StatusInstance) => GameEvent[];
+  } = {},
 ): GameEvent[] {
   const events: GameEvent[] = [];
   for (const char of team) {
@@ -789,6 +840,25 @@ export function applyColorMatchTriggers(
       for (const stat of GAIN_STAT_ORDER) {
         const actual = grantStat(char, stat, gains[stat]);
         if (actual !== 0) events.push({ type: 'buff', targetId: char.id, stat, amount: actual });
+      }
+    }
+  }
+  // 配色施加状态（T5 配色状态批 16 code：molten/sunfire/deepwounds/foxfire…）：
+  // 匹配色命中持有者的 colorMatchStatus 键时，给随机一名存活敌人逐条施加状态。
+  // 只在施加口与敌队都注入时结算——旧特质路径（无新键）零事件、零随机消耗。
+  if (opts.applyStatus && opts.enemyTeam) {
+    const foes = opts.enemyTeam.filter((c) => !c.defeated);
+    if (foes.length > 0) {
+      for (const holder of team) {
+        if (holder.defeated) continue;
+        const spec = passivesOf(holder).colorMatchStatus[color];
+        if (!spec) continue;
+        if (spec.chance !== undefined) {
+          // 概率判定走种子化 rng；纯逻辑环境（无 rng）按召唤口径不生效
+          if (!opts.rng || opts.rng.next() >= spec.chance) continue;
+        }
+        const foe = opts.rng ? foes[Math.floor(opts.rng.next() * foes.length)] : foes[0];
+        events.push(...applySpecStatuses(foe, spec.statuses, spec.turns, opts));
       }
     }
   }

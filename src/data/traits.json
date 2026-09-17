@@ -2314,6 +2314,23 @@
     "reflectSkullRatio": 0.3
   },
   {
+    "code": "molten",
+    "name": "熔化",
+    "description": "在配对红色宝石时随机燃烧一名敌人。",
+    "troops": 1,
+    "onColorMatchStatus": {
+      "color": "Red",
+      "scope": "randomEnemy",
+      "statuses": [
+        {
+          "id": "burning",
+          "magnitude": 1
+        }
+      ],
+      "turns": 3
+    }
+  },
+  {
     "code": "sacrifice",
     "name": "献祭",
     "description": "当一名敌人身亡时，所有技能增加 3 点。",
@@ -2957,6 +2974,22 @@
     }
   },
   {
+    "code": "wildvines",
+    "name": "狂野藤蔓",
+    "description": "在配对绿色宝石时，随机缠绕一名敌人。",
+    "troops": 1,
+    "onColorMatchStatus": {
+      "color": "Green",
+      "scope": "randomEnemy",
+      "statuses": [
+        {
+          "id": "entangle"
+        }
+      ],
+      "turns": 3
+    }
+  },
+  {
     "code": "poisongaze",
     "name": "剧毒凝视",
     "description": "在配对 4 或 5 颗宝石时，使所有敌人陷入中毒状态。",
@@ -3177,6 +3210,23 @@
     }
   },
   {
+    "code": "sunfire",
+    "name": "太阳之火",
+    "description": "在配对红色宝石时，随机使一名敌人陷入妖火状态。",
+    "troops": 1,
+    "onColorMatchStatus": {
+      "color": "Red",
+      "scope": "randomEnemy",
+      "statuses": [
+        {
+          "id": "burning",
+          "magnitude": 1
+        }
+      ],
+      "turns": 3
+    }
+  },
+  {
     "code": "creepingdoom",
     "name": "末日将临",
     "description": "在一名敌人身亡时，有 75% 的几率召唤一只盘丝魔蛛。",
@@ -3240,6 +3290,22 @@
     }
   },
   {
+    "code": "grimcurse",
+    "name": "阴冷诅咒",
+    "description": "在配对紫色宝石时使一名随机敌人陷入疾病状态。",
+    "troops": 1,
+    "onColorMatchStatus": {
+      "color": "Purple",
+      "scope": "randomEnemy",
+      "statuses": [
+        {
+          "id": "disease"
+        }
+      ],
+      "turns": 3
+    }
+  },
+  {
     "code": "darkcovenant",
     "name": "暗黑契约",
     "description": "在身亡时有 25% 的几率召唤嫉妒。",
@@ -3284,6 +3350,23 @@
     }
   },
   {
+    "code": "sourcandy",
+    "name": "酸糖",
+    "description": "在配对绿色宝石时，使一名随机敌人陷入妖火状态。",
+    "troops": 1,
+    "onColorMatchStatus": {
+      "color": "Green",
+      "scope": "randomEnemy",
+      "statuses": [
+        {
+          "id": "burning",
+          "magnitude": 1
+        }
+      ],
+      "turns": 3
+    }
+  },
+  {
     "code": "fromlight",
     "name": "源自光明",
     "description": "当一名盟友身亡时，召唤一个光风暴。",
@@ -3300,6 +3383,22 @@
     }
   },
   {
+    "code": "magicvines",
+    "name": "魔法藤蔓",
+    "description": "在配对紫色宝石时，缠绕一名随机敌人。",
+    "troops": 1,
+    "onColorMatchStatus": {
+      "color": "Purple",
+      "scope": "randomEnemy",
+      "statuses": [
+        {
+          "id": "entangle"
+        }
+      ],
+      "turns": 3
+    }
+  },
+  {
     "code": "celestialsage",
     "name": "天界大圣",
     "description": "在配对 4 或 5 颗宝石时，给予所有盟友 1 点魔法值。",
@@ -3309,6 +3408,39 @@
       "gains": {
         "magic": 1
       }
+    }
+  },
+  {
+    "code": "curseofmadness",
+    "name": "疯狂诅咒",
+    "description": "在配对棕色宝石时，使一名随机敌人陷入诅咒状态。",
+    "troops": 1,
+    "onColorMatchStatus": {
+      "color": "Brown",
+      "scope": "randomEnemy",
+      "statuses": [
+        {
+          "id": "curse"
+        }
+      ],
+      "turns": 3
+    }
+  },
+  {
+    "code": "deepwounds",
+    "name": "身受重创",
+    "description": "在配对红色宝石时使一名随机敌人陷入出血状态。",
+    "troops": 1,
+    "onColorMatchStatus": {
+      "color": "Red",
+      "scope": "randomEnemy",
+      "statuses": [
+        {
+          "id": "bleed",
+          "magnitude": 1
+        }
+      ],
+      "turns": 3
     }
   },
   {
@@ -3462,6 +3594,22 @@
         },
         {
           "id": "entangle"
+        }
+      ],
+      "turns": 3
+    }
+  },
+  {
+    "code": "huntersmoon",
+    "name": "猎月",
+    "description": "在配对红色宝石时使一名随机敌人陷入猎人标记状态。",
+    "troops": 1,
+    "onColorMatchStatus": {
+      "color": "Red",
+      "scope": "randomEnemy",
+      "statuses": [
+        {
+          "id": "marked"
         }
       ],
       "turns": 3
@@ -3654,6 +3802,22 @@
     "onSkullMatchEconomy": {
       "currency": "souls",
       "amount": 3
+    }
+  },
+  {
+    "code": "petrification",
+    "name": "石化",
+    "description": "在配对棕色宝石时击晕一名随机敌人",
+    "troops": 1,
+    "onColorMatchStatus": {
+      "color": "Brown",
+      "scope": "randomEnemy",
+      "statuses": [
+        {
+          "id": "stun"
+        }
+      ],
+      "turns": 3
     }
   },
   {
@@ -3860,6 +4024,22 @@
     }
   },
   {
+    "code": "lionsroar",
+    "name": "狮子吼",
+    "description": "在配对黄色宝石时击晕一名随机敌人。",
+    "troops": 1,
+    "onColorMatchStatus": {
+      "color": "Yellow",
+      "scope": "randomEnemy",
+      "statuses": [
+        {
+          "id": "stun"
+        }
+      ],
+      "turns": 3
+    }
+  },
+  {
     "code": "scalding",
     "name": "烫伤",
     "description": "在敌人对自身造成骷髅头伤害时，使对方陷入燃烧状态。",
@@ -3868,6 +4048,43 @@
       "id": "burning",
       "turns": 3,
       "magnitude": 1
+    }
+  },
+  {
+    "code": "rainofspines",
+    "name": "荆棘雨",
+    "description": "在配对绿色宝石时，使一名随机敌人陷入出血状态。",
+    "troops": 1,
+    "onColorMatchStatus": {
+      "color": "Green",
+      "scope": "randomEnemy",
+      "statuses": [
+        {
+          "id": "bleed",
+          "magnitude": 1
+        }
+      ],
+      "turns": 3
+    }
+  },
+  {
+    "code": "enchantedvines",
+    "name": "魔法藤蔓",
+    "description": "在配对绿色宝石时，使一名随机敌人陷入缠绕和妖火状态。",
+    "troops": 1,
+    "onColorMatchStatus": {
+      "color": "Green",
+      "scope": "randomEnemy",
+      "statuses": [
+        {
+          "id": "entangle"
+        },
+        {
+          "id": "burning",
+          "magnitude": 1
+        }
+      ],
+      "turns": 3
     }
   },
   {
@@ -3899,6 +4116,26 @@
       "troopId": 6377,
       "referenceName": "Parrot",
       "displayName": "鹦鹉"
+    }
+  },
+  {
+    "code": "ancientchill",
+    "name": "古老寒冰",
+    "description": "在配对蓝色宝石时使一名随机敌人陷入冻结和妖火状态。",
+    "troops": 1,
+    "onColorMatchStatus": {
+      "color": "Blue",
+      "scope": "randomEnemy",
+      "statuses": [
+        {
+          "id": "frozen"
+        },
+        {
+          "id": "burning",
+          "magnitude": 1
+        }
+      ],
+      "turns": 3
     }
   },
   {
@@ -4243,6 +4480,24 @@
     "onBigMatchGain": {
       "stat": "mana",
       "amount": 3
+    }
+  },
+  {
+    "code": "foxfire",
+    "name": "狐焰",
+    "description": "在配对红色宝石时，有 50% 的几率使一名随机敌人陷入妖火状态。",
+    "troops": 1,
+    "onColorMatchStatus": {
+      "color": "Red",
+      "scope": "randomEnemy",
+      "statuses": [
+        {
+          "id": "burning",
+          "magnitude": 1
+        }
+      ],
+      "turns": 3,
+      "chance": 0.5
     }
   },
   {
@@ -4608,6 +4863,22 @@
         "turns": 3
       }
     ]
+  },
+  {
+    "code": "webbedbranches",
+    "name": "织网枝干",
+    "description": "在配对紫色宝石时使一名随机敌人陷入织网状态。",
+    "troops": 1,
+    "onColorMatchStatus": {
+      "color": "Purple",
+      "scope": "randomEnemy",
+      "statuses": [
+        {
+          "id": "web"
+        }
+      ],
+      "turns": 3
+    }
   },
   {
     "code": "lightningaura",
