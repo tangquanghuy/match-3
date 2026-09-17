@@ -80,6 +80,7 @@ import { BATCH_R7 } from './batch-r7';
 import { BATCH_P38 } from './batch-p38';
 import { BATCH_P39 } from './batch-p39';
 import { BATCH_P40 } from './batch-p40';
+import { BATCH_R8 } from './batch-r8';
 
 /** 全部批次（新批次在此追加注册） */
 const BATCHES: CuratedBatch[] = [
@@ -133,6 +134,7 @@ const BATCHES: CuratedBatch[] = [
   BATCH_P38,
   BATCH_P39,
   BATCH_P40,
+  BATCH_R8,
 ];
 
 /** 合并全部批次的组装结果（id → 原型），并给出跳过清单 */
