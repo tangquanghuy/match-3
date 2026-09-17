@@ -23,7 +23,7 @@ import { AiCellChooser, prototypeNeedsCell } from './skills/cellChooser';
 import type { CellChooser } from './skills/cellChooser';
 import { MatchState, PlayerSide, BaseColor, opponentOf, colorGem, specialGem, posKey, WEB_GEM_TURNS,
   MATCH_STATUS_GEMS, DESTROY_STATUS_GEMS, STATUS_GEM_EFFECTS, isStatusGemKind, BOOTY_GEM_GOLD } from './types';
-import type { SkullStormDropKind, StatusGemKind, StatusInstance, SpecialGemKind, TraitEconomyGain } from './types';
+import type { SkullStormDropKind, StatusGemKind, StatusInstance, SpecialGemKind, StormSummon, TraitEconomyGain } from './types';
 
 /**
  * 被炸毁骷髅的法术伤害表（官方口径，区别于三消骷髅的攻击力结算）：
@@ -127,6 +127,41 @@ export class TurnEngine {
     const healed = applyBuffGain(holder, 'hp', dealt);
     if (healed > 0) produced.push({ type: 'buff', targetId: holder.id, stat: 'hp', amount: healed });
     return produced;
+  };
+
+  /**
+   * 特质兵种召唤口（T5 杂项批 genieslamp/stormflock「配对 4+ 有 N% 的几率召唤一名X」，
+   * 注入 traits 的 ctx.summon）：复用死亡召唤基建 applyDeathSummons 的模板装配与入队
+   * （容量/FIFO）规则，召唤物归持有者一方（匹配方 = 当前行动方）。概率已在 traits 层
+   * 判定过（恰好掷一次），这里置 chance=1 走确定性入队，避免二次掷签平方概率。
+   */
+  private readonly traitSummon = (spec: {
+    chance: number; troopId: number; referenceName: string; displayName: string;
+  }): GameEvent[] =>
+    applyDeathSummons([{ spec: { ...spec, chance: 1 }, side: this.state.activePlayer }], {
+      nextCharId: () => this.nextCharId(),
+      rng: this.rng,
+      enqueue: (summoned, troopId, side) => this.enqueueSummon(summoned, troopId, side),
+    });
+
+  /**
+   * 特质风暴设置口（T5 杂项批 deadlywaters「配对时创造骸骨风暴」，注入 traits 的
+   * ctx.setStorm）：风暴归持有者一方（匹配方 = 当前行动方），走 setTraitStorm 的
+   * 全局唯一顶替裁定（与技能造风暴同一 storm-change 事件形态）。
+   */
+  private readonly traitSetStorm = (storm: StormSummon, troopId: number): GameEvent[] =>
+    this.setTraitStorm(storm, troopId, this.state.activePlayer);
+
+  /**
+   * 即杀口（T5 杂项批 deathbelow「猎杀最后一名敌人」，注入 traits 的 ctx.kill）：
+   * hp 归零 + defeat 事件经 resolveDefeatEvents 出编队（召唤队列顶替照常），与骷髅击杀
+   * 同口径；已阵亡目标幂等返回空。
+   */
+  private readonly traitKill = (target: Character): GameEvent[] => {
+    if (target.defeated) return [];
+    target.hp = 0;
+    target.defeated = true;
+    return resolveDefeatEvents(this.state, [{ type: 'defeat', characterId: target.id }]);
   };
 
   constructor(
@@ -367,6 +402,9 @@ export class TurnEngine {
               damage: this.traitDamage,
               createGem: (kind, tier, count) =>
                 this.spawnSpecialGems(kind, tier, count, matches.map((grp) => grp.cells)),
+              summon: this.traitSummon,
+              setStorm: this.traitSetStorm,
+              kill: this.traitKill,
             },
           ));
         }
@@ -449,12 +487,14 @@ export class TurnEngine {
       // 每次结算算一次，与消除的宝石数无关——描述是「在配对X色宝石时」，不是「每颗」。
       // enemyTeam 供敌方配色触发（rancor「在敌人配对骷髅头时…」族，颜色键同理）；
       // rng/applyStatus 供配色施加状态（molten/sunfire 族「使随机一名敌人陷入Y状态」，
-      // 无新键特质零随机消耗、事件序不变）；drainLife 供配色窃取生命（corruption 族）。
+      // 无新键特质零随机消耗、事件序不变）；drainLife 供配色窃取生命（corruption 族）；
+      // damage 供配色伤害（lumpofcoal/dawnslayer/sleetstorm 族）。
       events.push(...applyColorMatchTriggers(activeTeam.characters, settle.color, {
         enemyTeam: this.state.teams[opponentOf(this.state.activePlayer)].characters,
         rng: this.rng,
         applyStatus: (char, status) => applyStatus(char, status),
         drainLife: this.traitDrainLife,
+        damage: this.traitDamage,
       }));
     } else if (settle.kind === 'skull') {
       // 骷髅 → 物理伤害（需求 14），不产生法力（需求 11.2）
@@ -471,13 +511,14 @@ export class TurnEngine {
       // 配对骷髅触发（diamondaura/powerofstars 配色光环、rancor 敌方触发、darkensouls
       // 条件经济）：在骷髅伤害结算之后触发，避免同一次命中被本次新增的护甲/生命减免——
       // 炸毁骷髅（settleExplodedSkulls）不算「配对」，不在此列。rng/applyStatus 同配色点
-      // （onColorMatchStatus 定义允许 'skull' 色键，现无数据、注入零消耗）；drainLife 同配色点。
+      //（onColorMatchStatus 定义允许 'skull' 色键，现无数据、注入零消耗）；drainLife/damage 同配色点。
       events.push(...applyColorMatchTriggers(activeTeam.characters, 'skull', {
         enemyTeam: enemyTeam.characters,
         gainEconomy: this.creditEconomy,
         rng: this.rng,
         applyStatus: (char, status) => applyStatus(char, status),
         drainLife: this.traitDrainLife,
+        damage: this.traitDamage,
       }));
     }
     // 'wildOnly'：全通配组无归属色，只消除不结算
@@ -806,12 +847,13 @@ export class TurnEngine {
       // 配色触发特质（食人魔之怒/阳光…）：匹配到关联色时给结算归属方全队加值。
       // 每次结算算一次，与消除的宝石数无关——描述是「在配对X色宝石时」，不是「每颗」。
       // enemyTeam 供敌方配色触发（rancor 族）；rng/applyStatus 供配色施加状态（molten 族）；
-      // drainLife 供配色窃取生命（corruption 族）。
+      // drainLife 供配色窃取生命（corruption 族）；damage 供配色伤害（lumpofcoal 族）。
       events.push(...applyColorMatchTriggers(activeTeam.characters, gemType.color, {
         enemyTeam: this.state.teams[opponentOf(side)].characters,
         rng: this.rng,
         applyStatus: (char, status) => applyStatus(char, status),
         drainLife: this.traitDrainLife,
+        damage: this.traitDamage,
       }));
     } else if (gemType.kind === 'skull') {
       // 骷髅 → 物理伤害（需求 14），不产生法力（需求 11.2）
@@ -826,6 +868,7 @@ export class TurnEngine {
         rng: this.rng,
         applyStatus: (char, status) => applyStatus(char, status),
         drainLife: this.traitDrainLife,
+        damage: this.traitDamage,
       }));
     }
   }
@@ -1144,11 +1187,20 @@ export class TurnEngine {
   private setStormFromSummon(spec: DeathSummonSpec, side: PlayerSide): GameEvent[] {
     const payload = spec.storm;
     if (!payload) return [];
+    return this.setTraitStorm(payload, spec.troopId, side);
+  }
+
+  /**
+   * 特质风暴共通落点（死亡召唤的风暴变体 / 配对风暴 deadlywaters / 开局风暴共用裁定）：
+   * 走 applyStormToTeam 的全局唯一「后召顶替先召」实现，storm-change 事件形态与技能
+   * createStorm 逐字节一致。
+   */
+  private setTraitStorm(storm: StormSummon, troopId: number, side: PlayerSide): GameEvent[] {
     return applyStormToTeam(this.state, side, {
-      color: payload.color,
-      turns: payload.turns,
-      troopId: spec.troopId,
-      dropKind: payload.dropKind,
+      color: storm.color,
+      turns: storm.turns,
+      troopId,
+      dropKind: storm.dropKind,
     });
   }
 

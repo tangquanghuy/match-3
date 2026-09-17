@@ -1780,6 +1780,17 @@
     }
   },
   {
+    "code": "trascend",
+    "name": "超越自我",
+    "description": "在配对 4 或 5 颗宝石时，将 2 点生命值替换成 2 点魔法值。",
+    "troops": 4,
+    "onBigMatchConvert": {
+      "from": "hp",
+      "to": "magic",
+      "amount": 2
+    }
+  },
+  {
     "code": "urskashield",
     "name": "厄什卡之盾",
     "description": "厄什卡盟友获得 2 点护甲值。",
@@ -2839,6 +2850,21 @@
     }
   },
   {
+    "code": "dragonvines",
+    "name": "龙族藤蔓",
+    "description": "在配对 4 或 5 颗宝石时，缠绕第一名敌人。",
+    "troops": 1,
+    "onBigMatchStatus": {
+      "scope": "firstEnemy",
+      "statuses": [
+        {
+          "id": "entangle"
+        }
+      ],
+      "turns": 3
+    }
+  },
+  {
     "code": "technomancy",
     "name": "量子魔法",
     "description": "在配对 4 或 5 颗宝石时，一名随机敌人损失 2 点魔法值。",
@@ -3264,6 +3290,20 @@
     }
   },
   {
+    "code": "deadlywaters",
+    "name": "致命水域",
+    "description": "在配对 4 或 5 颗宝石时，创造骸骨风暴。",
+    "troops": 1,
+    "onBigMatchStorm": {
+      "color": "Brown",
+      "turns": 8,
+      "troopId": 9007,
+      "referenceName": "Bonestorm",
+      "displayName": "骸骨风暴",
+      "dropKind": "skull"
+    }
+  },
+  {
     "code": "fortheherd",
     "name": "为兽群而战",
     "description": "在配对 4 或 5 颗宝石时，给所有牛头族盟友 1 点攻击力、护甲值和生命值。",
@@ -3305,6 +3345,58 @@
     "troops": 1,
     "onColorMatchCleanse": {
       "color": "Yellow"
+    }
+  },
+  {
+    "code": "experiment",
+    "name": "实验",
+    "description": "在配对 4 或 5 颗宝石时，使随机一名敌人陷入一个随机的状态效果。",
+    "troops": 1,
+    "onBigMatchStatus": {
+      "scope": "randomEnemy",
+      "statuses": [
+        {
+          "id": "poison",
+          "magnitude": 1
+        },
+        {
+          "id": "burning",
+          "magnitude": 1
+        },
+        {
+          "id": "bleed",
+          "magnitude": 1
+        },
+        {
+          "id": "silence"
+        },
+        {
+          "id": "frozen"
+        },
+        {
+          "id": "stun"
+        },
+        {
+          "id": "entangle"
+        },
+        {
+          "id": "web"
+        },
+        {
+          "id": "disease"
+        },
+        {
+          "id": "curse"
+        },
+        {
+          "id": "death-mark"
+        },
+        {
+          "id": "charm"
+        }
+      ],
+      "turns": 3,
+      "randomNegative": true
     }
   },
   {
@@ -3479,6 +3571,16 @@
       "troopType": "Naga",
       "stat": "armor",
       "amount": 2
+    }
+  },
+  {
+    "code": "deathbelow",
+    "name": "拉入深渊",
+    "description": "在配对 4 或 5 颗宝石时，有 8% 的几率猎杀最后一名敌人。",
+    "troops": 1,
+    "onBigMatchKill": {
+      "chance": 0.08,
+      "scope": "lastEnemy"
     }
   },
   {
@@ -3761,6 +3863,18 @@
     }
   },
   {
+    "code": "stormflock",
+    "name": "百鸟朝凤",
+    "description": "在配对 4 或更多颗宝石时，有 35% 的几率召唤一只鸟妖法师。",
+    "troops": 1,
+    "onBigMatchSummon": {
+      "chance": 0.35,
+      "troopId": 6754,
+      "referenceName": "HarpyMage",
+      "displayName": "鸟妖法师"
+    }
+  },
+  {
     "code": "sporecloud",
     "name": "孢子云",
     "description": "在配对 4 或更多宝石时，使一名随机敌人陷入疾病状态。",
@@ -3876,6 +3990,16 @@
     }
   },
   {
+    "code": "lumpofcoal",
+    "name": "小煤球",
+    "description": "在配对红色宝石时，对一名随机敌人造成 5 点伤害。",
+    "troops": 1,
+    "onColorMatchDamage": {
+      "color": "Red",
+      "amount": 5
+    }
+  },
+  {
     "code": "frostfireaura",
     "name": "霜火灵气",
     "description": "在配对 4 或更多宝石时，冻结并燃烧一名随机敌人。",
@@ -3892,6 +4016,18 @@
         }
       ],
       "turns": 3
+    }
+  },
+  {
+    "code": "genieslamp",
+    "name": "神灯",
+    "description": "在配对 4 或更多宝石时，有 30% 的几率召唤一名神灯之灵。",
+    "troops": 1,
+    "onBigMatchSummon": {
+      "chance": 0.3,
+      "troopId": 6157,
+      "referenceName": "Djinn",
+      "displayName": "神灯之灵"
     }
   },
   {
@@ -4038,6 +4174,16 @@
     "description": "降低来自法术的伤害 75%。",
     "troops": 1,
     "spellDamageReduction": 0.75
+  },
+  {
+    "code": "dawnslayer",
+    "name": "晨曦杀手",
+    "description": "在配对黄色宝石时，对一名随机敌人造成 12 点伤害。",
+    "troops": 1,
+    "onColorMatchDamage": {
+      "color": "Yellow",
+      "amount": 12
+    }
   },
   {
     "code": "darkensouls",
@@ -5456,6 +5602,16 @@
       "troopId": 7555,
       "referenceName": "BlightHound",
       "displayName": "荒芜猎犬"
+    }
+  },
+  {
+    "code": "sleetstorm",
+    "name": "雨夹雪风暴",
+    "description": "在配对蓝色宝石时对一名随机敌人造成 12 点伤害。",
+    "troops": 1,
+    "onColorMatchDamage": {
+      "color": "Blue",
+      "amount": 12
     }
   },
   {

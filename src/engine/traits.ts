@@ -119,11 +119,13 @@ export interface TraitDefinition {
    * 施加经 BigMatchTriggerContext.applyStatus 注入（TurnEngine 传 status.applyStatus），DoT 带 magnitude。
    */
   onBigMatchStatus?: {
-    scope: 'self' | 'randomAlly' | 'allAllies' | 'allEnemies' | 'randomEnemy';
+    scope: 'self' | 'randomAlly' | 'allAllies' | 'allEnemies' | 'randomEnemy' | 'firstEnemy';
     statuses: readonly { id: string; magnitude?: number }[];
     turns: number;
     chance?: number;
     randomPositive?: boolean;
+    /** 随机负面池掷签（experiment「陷入一个随机的状态效果」，statuses 为负面池；仅 randomEnemy） */
+    randomNegative?: boolean;
     minSize?: number;
   };
   /** 配对 N 连限定自身增益（insanegrowth「配对 5 或 5 颗」官方文本只认 5 连） */
@@ -156,6 +158,14 @@ export interface TraitDefinition {
    * PassiveModifiers.colorMatchDrain 的同色键。
    */
   onColorMatchDrain?: { color: BaseColor | 'skull'; amount: number };
+  /**
+   * 配对某色（或骷髅）宝石时对随机一名敌人造成技能伤害（T5 杂项批 lumpofcoal/dawnslayer/
+   * sleetstorm「在配对X色宝石时，对一名随机敌人造成 N 点伤害」）。触发点与配色施加状态/
+   * 窃取生命同点（applyColorMatchTriggers）；伤害经 opts.damage 注入（damageOne 管线，
+   * 同技能伤害口径），随机目标消耗一次种子化 rng。编译进 colorMatchDamage 的同色键
+   * （同色键累加，与 onColorMatchDrain 同口径）。
+   */
+  onColorMatchDamage?: { color: BaseColor | 'skull'; amount: number };
   /**
    * 自己一方配对 4/5 连时对敌人造成技能伤害（T5 大连伤害批 3 code：shock/tentacles/
    * lightningbolt「在配对 4 或 5 颗宝石时对…造成 N 点伤害」）。伤害经
@@ -191,6 +201,32 @@ export interface TraitDefinition {
     chance?: number;
     minSize?: number;
   };
+  /**
+   * 配对 N 连时把生命转换为魔法（T5 杂项批 trascend「在配对 4 或 5 颗宝石时，将 2 点
+   * 生命值替换成 2 点魔法值」）：持有者自身 1:1 交换（from 侧减、to 侧加），生命侧保底
+   * 1 点（特质不自杀），实际减少额 = 魔法获得额；不掷随机数。minSize 缺省 4。
+   */
+  onBigMatchConvert?: { from: 'hp'; to: 'magic'; amount: number; minSize?: number };
+  /**
+   * 配对 N 连时按概率召唤兵种（T5 杂项批 genieslamp「配对 4+ 有 30% 的几率召唤一名神灯
+   * 之灵」/stormflock）：复用死亡召唤基建（summonOnDeath 的模板装配/入队管线同源），
+   * 召唤物归持有者一方；概率经 ctx.summon 注入口内的种子化 rng 判定。
+   * minSize 缺省 4（「4 或更多」= 任意大连）。
+   */
+  onBigMatchSummon?: { chance: number; troopId: number; referenceName: string; displayName: string; minSize?: number };
+  /**
+   * 配对 N 连时创造风暴（T5 杂项批 deadlywaters「在配对 4 或 5 颗宝石时，创造骸骨风暴」）。
+   * 风暴不是兵种：经 ctx.setStorm 注入口走 TurnEngine 的全局唯一顶替裁定（与技能造风暴
+   * 同一 storm-change 事件形态），troopId 为虚拟风暴号段。minSize 缺省 4。
+   */
+  onBigMatchStorm?: StormSummon & { troopId: number; referenceName: string; displayName: string; minSize?: number };
+  /**
+   * 配对 N 连时按概率即杀（T5 杂项批 deathbelow「有 8% 的几率猎杀最后一名敌人」）。
+   * 即死概率原语（death-mark 的回合开始 10% 即死先例同族）：概率走种子化 rng（无 rng
+   * 不生效），目标=敌方队伍序末位存活（确定性），处决经 ctx.kill 注入口走 defeat
+   * 出编队管线。minSize 缺省 4。
+   */
+  onBigMatchKill?: { chance: number; scope: 'lastEnemy'; minSize?: number };
   /** 敌方配对某色/骷髅时自身获得（rancor「在敌人配对骷髅头时，获得 3 点攻击力」） */
   onEnemyColorMatchGain?: { color: string; stat: PassiveStat; amount: number };
   /** 回合开始时把棋盘上随机一格变成该色宝石；count 为数量（intothevoid「创造 2 颗紫色宝石」） */
@@ -308,6 +344,7 @@ export function neutralPassives(): PassiveModifiers {
     gainOnEnemyColorMatch: {},
     colorMatchStatus: {},
     colorMatchDrain: {},
+    colorMatchDamage: {},
     bigMatchDamage: [],
     bigMatchEnemyDrain: [],
     bigMatchCreateGem: [],
@@ -359,6 +396,8 @@ export function resolvePassives(
   }> = {};
   // 配色窃取生命（T5 窃取批）：色键 → 伤害额，同色键累加（与 gainOnColorMatch 同口径）
   const colorMatchDrain: Record<string, number> = {};
+  // 配色伤害（T5 杂项批 lumpofcoal/dawnslayer/sleetstorm）：色键 → 伤害额，同色键累加
+  const colorMatchDamage: Record<string, number> = {};
   // 大连技能伤害 / 大连敌减（T5 大连伤害批 + 大连敌减批）：多条并存按声明序逐条结算，
   // minSize 定义侧可省，编译期缺省 4（「4 或 5 颗」=「4 或更多」= 任意大连）
   const bigMatchDamage: { amount: number; scope: 'randomEnemy' | 'enemyAll'; minSize: number }[] = [];
@@ -537,6 +576,11 @@ export function resolvePassives(
       const { color, amount } = trait.onColorMatchDrain;
       colorMatchDrain[color] = (colorMatchDrain[color] ?? 0) + amount;
     }
+    // 配色伤害（T5 杂项批 lumpofcoal/dawnslayer/sleetstorm）：同色键累加（与窃取同口径）
+    if (trait.onColorMatchDamage) {
+      const { color, amount } = trait.onColorMatchDamage;
+      colorMatchDamage[color] = (colorMatchDamage[color] ?? 0) + amount;
+    }
     // 大连技能伤害 / 大连敌减（T5 大连伤害批 + 大连敌减批）：多条并存逐条结算，minSize 缺省 4
     if (trait.onBigMatchDamage) {
       bigMatchDamage.push({ ...trait.onBigMatchDamage, minSize: trait.onBigMatchDamage.minSize ?? 4 });
@@ -547,6 +591,24 @@ export function resolvePassives(
     // 大连创造宝石（T4 批）：多条并存逐条结算，minSize 缺省 4
     if (trait.onBigMatchCreateGem) {
       bigMatchCreateGem.push({ ...trait.onBigMatchCreateGem, minSize: trait.onBigMatchCreateGem.minSize ?? 4 });
+    }
+    // 配对转换（trascend）：同类取先声明的一条（与 onBigMatchStatus 同口径），minSize 缺省 4
+    if (trait.onBigMatchConvert && passive.onBigMatchConvert === undefined) {
+      passive.onBigMatchConvert = { ...trait.onBigMatchConvert, minSize: trait.onBigMatchConvert.minSize ?? 4 };
+    }
+    // 配对召唤（genieslamp/stormflock）：同字段取概率更高的一条（与 summonOnDeath 同口径）
+    if (trait.onBigMatchSummon
+      && (passive.bigMatchSummon === undefined || trait.onBigMatchSummon.chance > passive.bigMatchSummon.chance)) {
+      passive.bigMatchSummon = { ...trait.onBigMatchSummon, minSize: trait.onBigMatchSummon.minSize ?? 4 };
+    }
+    // 配对风暴（deadlywaters）：同类取先声明的一条（与开局风暴同口径，全场唯一顶替在宿主侧）
+    if (trait.onBigMatchStorm && passive.bigMatchStorm === undefined) {
+      passive.bigMatchStorm = { ...trait.onBigMatchStorm, minSize: trait.onBigMatchStorm.minSize ?? 4 };
+    }
+    // 配对即杀（deathbelow）：同字段取概率更高的一条（与配对召唤同口径）
+    if (trait.onBigMatchKill
+      && (passive.bigMatchKill === undefined || trait.onBigMatchKill.chance > passive.bigMatchKill.chance)) {
+      passive.bigMatchKill = { ...trait.onBigMatchKill, minSize: trait.onBigMatchKill.minSize ?? 4 };
     }
     // 净化：颜色并集、布尔取或
     if (trait.onColorMatchCleanse) cleanseColors.add(trait.onColorMatchCleanse.color);
@@ -595,6 +657,7 @@ export function resolvePassives(
   passive.gainOnEnemyColorMatch = enemyColorGains;
   passive.colorMatchStatus = colorMatchStatus;
   passive.colorMatchDrain = colorMatchDrain;
+  passive.colorMatchDamage = colorMatchDamage;
   passive.bigMatchDamage = bigMatchDamage;
   passive.bigMatchEnemyDrain = bigMatchEnemyDrain;
   passive.bigMatchCreateGem = bigMatchCreateGem;
@@ -783,8 +846,8 @@ export type DeathSummonSpec = NonNullable<TraitDefinition['summonOnDeath']>;
 
 /** 死亡召唤的执行环境：由 TurnEngine 注入，避免 traits 直接依赖 GameState/编队容量逻辑 */
 export interface DeathSummonContext {
-  /** 阵亡者 id（供宿主侧判定等） */
-  deadId: number;
+  /** 阵亡者 id（供宿主侧判定等元数据；配对召唤等无死者来源的变体可省略） */
+  deadId?: number;
   /** 分配新角色 id（TurnEngine 注入，确定性）；缺省时该次召唤跳过 */
   nextCharId?: () => number;
   /** 召唤物入队：side 为**持有者**所在方（召唤物跟随持有者，而非死者），填空位或进 FIFO 队列 */
@@ -919,6 +982,11 @@ export function applyColorMatchTriggers(
      * 等量治疗）；缺省时窃取类跳过（纯逻辑环境零事件）。
      */
     drainLife?: (target: Character, holder: Character, amount: number) => GameEvent[];
+    /**
+     * 技能伤害口（T5 杂项批 lumpofcoal/dawnslayer/sleetstorm 配色伤害，TurnEngine 注入
+     * damageOne 管线，与大连伤害同款回调）；缺省时配色伤害跳过（纯逻辑环境零事件）。
+     */
+    damage?: (target: Character, caster: Character, amount: number) => GameEvent[];
   } = {},
 ): GameEvent[] {
   const events: GameEvent[] = [];
@@ -997,6 +1065,21 @@ export function applyColorMatchTriggers(
       events.push(...opts.drainLife(front, holder, amount));
     }
   }
+  // 配色伤害（T5 杂项批 3 code：lumpofcoal/dawnslayer/sleetstorm「在配对X色宝石时对一名
+  // 随机敌人造成 N 点伤害」）：伤害经 opts.damage 注入（TurnEngine 传 damageOne 管线，
+  // 与大连伤害/窃取生命同款回调）；随机目标每条持有者耗一次种子化 rng（与配色施加状态
+  // 的随机分支同口径），无 rng 退化为首个存活——无新键特质零事件、零随机消耗。
+  if (opts.damage && opts.enemyTeam) {
+    for (const holder of team) {
+      if (holder.defeated) continue;
+      const amount = passivesOf(holder).colorMatchDamage[color];
+      if (!amount) continue;
+      const foes = opts.enemyTeam.filter((c) => !c.defeated);
+      if (foes.length === 0) break;
+      const foe = opts.rng ? foes[Math.floor(opts.rng.next() * foes.length)] : foes[0];
+      events.push(...opts.damage(foe, holder, amount));
+    }
+  }
   // 条件经济光环·骷髅版（darkensouls「在配对骷髅头时，获得 3 个灵魂」）：
   // 仅骷髅键结算（配色键无对应官方句式），按持有者逐个入账、阵亡不贡献。
   if (color === 'skull') {
@@ -1056,6 +1139,23 @@ export interface BigMatchTriggerContext {
    * 下一轮吸收）；缺省时创造类跳过（纯逻辑环境零事件、零随机消耗）。
    */
   createGem?: (gem: SpecialGemKind, tier: number | undefined, count: number) => GameEvent[];
+  /**
+   * 兵种召唤口（T5 杂项批 genieslamp/stormflock，TurnEngine 注入：复用死亡召唤基建
+   * applyDeathSummons——概率走注入的 rng、模板按兵种数据装配、入队走容量/FIFO 规则）；
+   * 缺省时召唤跳过（纯逻辑环境零事件、零随机消耗）。
+   */
+  summon?: (spec: { chance: number; troopId: number; referenceName: string; displayName: string }) => GameEvent[];
+  /**
+   * 风暴设置口（T5 杂项批 deadlywaters，TurnEngine 注入：全局唯一「后召顶替先召」裁定，
+   * 与技能造风暴同一 storm-change 事件形态）；缺省时风暴跳过。
+   */
+  setStorm?: (storm: StormSummon, troopId: number) => GameEvent[];
+  /**
+   * 即杀口（T5 杂项批 deathbelow「猎杀最后一名敌人」，TurnEngine 注入：hp 归零 + defeat
+   * 事件走 resolveDefeatEvents 出编队，与骷髅击杀同口径）；缺省时概率 <1 不生效
+   * （纯逻辑环境零事件、零随机消耗）。
+   */
+  kill?: (target: Character) => GameEvent[];
 }
 
 /** 条件经济光环的币种结算序（固定 gold→souls→gems，保证事件顺序确定性） */
@@ -1190,12 +1290,23 @@ export function applyBigMatchTriggers(
         for (const foe of foes) {
           events.push(...applySpecStatuses(foe, spec.statuses, spec.turns, ctx));
         }
-      } else if (spec.scope === 'randomEnemy') {
-        // 随机一名敌人（winterveil「冻结一名随机敌人」）：消耗一次随机数，无 rng 退化为首个存活
+      } else if (spec.scope === 'firstEnemy') {
+        // 首位敌人（dragonvines「缠绕第一名敌人」）：队伍序首个存活，确定性、不耗随机数
         const foes = (ctx.enemyTeam ?? []).filter((c) => !c.defeated);
         if (foes.length === 0) continue;
+        events.push(...applySpecStatuses(foes[0], spec.statuses, spec.turns, ctx));
+      } else if (spec.scope === 'randomEnemy') {
+        // 随机一名敌人（winterveil「冻结一名随机敌人」）：消耗一次随机数，无 rng 退化为首个存活；
+        // randomNegative（experiment「陷入一个随机的状态效果」）为概率语义：无 rng 整条跳过
+        //（不退化为必发全池），命中时再消耗一次从负面池掷一条
+        const foes = (ctx.enemyTeam ?? []).filter((c) => !c.defeated);
+        if (foes.length === 0) continue;
+        if (spec.randomNegative && !ctx.rng) continue;
         const foe = ctx.rng ? foes[Math.floor(ctx.rng.next() * foes.length)] : foes[0];
-        events.push(...applySpecStatuses(foe, spec.statuses, spec.turns, ctx));
+        const picks = spec.randomNegative
+          ? [spec.statuses[Math.floor(ctx.rng!.next() * spec.statuses.length)]]
+          : spec.statuses;
+        events.push(...applySpecStatuses(foe, picks, spec.turns, ctx));
       } else if (spec.scope === 'allAllies') {
         for (const member of alive) {
           events.push(...applySpecStatuses(member, spec.statuses, spec.turns, ctx));
@@ -1269,6 +1380,64 @@ export function applyBigMatchTriggers(
         }
         events.push(...ctx.createGem(spec.gem, spec.tier, spec.count));
       }
+    }
+  }
+
+  // 配对转换（T5 杂项批 trascend「将 2 点生命值替换成 2 点魔法值」）：持有者自身 1:1 交换，
+  // 生命侧保底 1 点（特质不自杀），实际减少多少生命就等量加多少魔法（织网下的魔法增益
+  // 拦截走 grantStat 既有口径）；纯数值操作不掷随机数——无新键特质零事件、零随机消耗。
+  for (const holder of matchingTeam) {
+    if (holder.defeated) continue;
+    const spec = passivesOf(holder).onBigMatchConvert;
+    if (!spec || spec.minSize > size) continue;
+    const loss = Math.min(spec.amount, holder.hp - 1);
+    if (loss <= 0) continue;
+    holder.hp -= loss;
+    events.push({ type: 'buff', targetId: holder.id, stat: 'hp', amount: -loss });
+    const gained = grantStat(holder, 'magic', loss);
+    if (gained > 0) events.push({ type: 'buff', targetId: holder.id, stat: 'magic', amount: gained });
+  }
+
+  // 配对召唤（T5 杂项批 genieslamp/stormflock「配对 4+ 有 N% 的几率召唤一名X」）：概率在
+  // 本层判定（与其他 chance 规格同口径：无 rng 时概率 <1 不生效，恰好掷一次），入队经
+  // ctx.summon 注入（TurnEngine 复用死亡召唤基建的模板装配/容量/FIFO 规则，召唤物归持有者
+  // 一方）；缺省时整块跳过——无新键特质零事件、零随机消耗。
+  if (ctx.summon) {
+    for (const holder of matchingTeam) {
+      if (holder.defeated) continue;
+      const spec = passivesOf(holder).bigMatchSummon;
+      if (!spec || spec.minSize > size) continue;
+      if (spec.chance < 1) {
+        if (!ctx.rng || ctx.rng.next() >= spec.chance) continue;
+      }
+      events.push(...ctx.summon(spec));
+    }
+  }
+
+  // 配对风暴（T5 杂项批 deadlywaters「配对时创造骸骨风暴」）：设置经 ctx.setStorm 注入
+  //（TurnEngine 的全局唯一顶替裁定，与技能造风暴同一事件形态），只传 StormSummon 载荷；
+  // 缺省时跳过。
+  if (ctx.setStorm) {
+    for (const holder of matchingTeam) {
+      if (holder.defeated) continue;
+      const spec = passivesOf(holder).bigMatchStorm;
+      if (!spec || spec.minSize > size) continue;
+      events.push(...ctx.setStorm({ color: spec.color, turns: spec.turns, dropKind: spec.dropKind }, spec.troopId));
+    }
+  }
+
+  // 配对即杀（T5 杂项批 deathbelow「配对 4/5 有 8% 的几率猎杀最后一名敌人」）：概率走
+  // 种子化 rng（无 rng 不生效，按召唤口径），目标=敌方队伍序末位存活（确定性）；处决经
+  // ctx.kill 注入（TurnEngine 走 defeat 出编队管线，召唤队列顶替照常）；缺省时整块跳过。
+  if (ctx.kill && ctx.enemyTeam) {
+    for (const holder of matchingTeam) {
+      if (holder.defeated) continue;
+      const spec = passivesOf(holder).bigMatchKill;
+      if (!spec || spec.minSize > size) continue;
+      if (!ctx.rng || ctx.rng.next() >= spec.chance) continue;
+      const foes = ctx.enemyTeam.filter((c) => !c.defeated);
+      if (foes.length === 0) break;
+      events.push(...ctx.kill(foes[foes.length - 1]));
     }
   }
 

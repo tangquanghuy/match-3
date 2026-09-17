@@ -105,6 +105,15 @@ const POSITIVE_STATUS_POOL = [
 ];
 
 /**
+ * 「一个随机的状态效果」（experiment「使随机一名敌人陷入一个随机的状态效果」）的候选池：
+ * 与引擎 skills/effects/status.ts 的 RANDOM_NEGATIVE_STATUS_POOL 同源（12 项施加管线
+ * 已落地的负面状态）。DoT（中毒/燃烧/出血）与全局口径一致带 magnitude:1。
+ */
+const NEGATIVE_STATUS_POOL = [
+  'poison', 'burning', 'bleed', 'silence', 'frozen', 'stun', 'entangle', 'web', 'disease', 'curse', 'death-mark', 'charm',
+];
+
+/**
  * 中文族名 → 英文 TroopType。
  *
  * 不靠翻译猜：对每个「X盟友获得 N 点 Y」特质，统计实际持有它的兵种的 TroopType 分布，
@@ -670,27 +679,89 @@ function parse(desc) {
       };
     }
   }
+  // 配对转换（T5 杂项批 trascend「在配对 4 或 5 颗宝石时，将 N 点生命值替换成 N 点魔法值」）：
+  // from 侧减 to 侧加（1:1 交换，持有者自身，不掷随机数）。只收 生命值→魔法值 同额句式，
+  // 其余属性/不同额的不硬猜（引擎只落地了这一对）。
+  if ((m = /^在配对\s*4\s*或\s*5\s*颗宝石时[，,]?将\s*(\d+)\s*点生命值替换成\s*(\d+)\s*点魔法值。?$/.exec(desc))) {
+    if (num(m[1]) === num(m[2])) {
+      return { effects: { onBigMatchConvert: { from: 'hp', to: 'magic', amount: num(m[1]) } } };
+    }
+  }
+  // 配对召唤（T5 杂项批 genieslamp/stormflock「在配对 4 或更多（颗）宝石时，有 N% 的几率
+  // 召唤一名X」）：复用死亡召唤基建（兵种名经 TROOP_BY_NAME 解析成 troopId/referenceName，
+  // TurnEngine 注入召唤口走同一条模板装配+入队管线）。召唤名解析失败不拦截，留在未实现桶。
+  if ((m = /^(?:在?配对|匹配)\s*4\s*颗?\s*或\s*(?:更?多|5)\s*颗?宝石的?时[，,]?\s*(?:有\s*(\d+)\s*%\s*的?几[率会]\s*)?召唤一?[名只个头]?(.+?)。?$/.exec(desc))) {
+    const troop = resolveSummonedTroop(desc);
+    if (troop && !troop.storm) {
+      return {
+        effects: {
+          onBigMatchSummon: {
+            chance: m[1] !== undefined ? num(m[1]) / 100 : 1,
+            troopId: troop.troopId,
+            referenceName: troop.referenceName,
+            displayName: m[2].trim(),
+          },
+        },
+      };
+    }
+  }
+  // 配对风暴（T5 杂项批 deadlywaters「在配对 4 或 5 颗宝石时，创造骸骨风暴」）：风暴名查
+  // STORM_MAP（骸骨风暴 dropKind 'skull' 同源），TurnEngine 注入风暴设置口（与技能造风暴
+  // 同一份全局唯一顶替裁定）。不在映射表的风暴（元素风暴/临界风暴——引擎掉落契约无对应
+  // 语义，映射拿不准）不拦截，留在未实现桶。
+  if ((m = /^在?配对\s*4\s*颗?\s*或\s*(?:更?多|5)\s*颗?宝石的?时[，,]?(?:创[建造成]|召唤)出?(.+?)。?$/.exec(desc))) {
+    const storm = STORM_MAP[m[1]];
+    if (storm) {
+      return {
+        effects: {
+          onBigMatchStorm: {
+            color: storm.color,
+            turns: STORM_TURNS,
+            troopId: storm.troopId,
+            referenceName: storm.referenceName,
+            displayName: m[1],
+            ...(storm.dropKind ? { dropKind: storm.dropKind } : {}),
+          },
+        },
+      };
+    }
+  }
+  // 配对即杀（T5 杂项批 deathbelow「在配对 4 或 5 颗宝石时，有 N% 的几率猎杀最后一名敌人」）：
+  // 即死概率原语（death-mark 的回合开始 10% 即死先例同族），最后一名=敌方队伍序末位存活
+  //（确定性），处决走 defeat 出编队管线。只收「猎杀最后一名敌人」句式。
+  if ((m = /^在配对\s*4\s*或\s*5\s*颗宝石时[，,]?有\s*(\d+)\s*%\s*的?几率猎杀最后一名敌人。?$/.exec(desc))) {
+    return { effects: { onBigMatchKill: { chance: num(m[1]) / 100, scope: 'lastEnemy' } } };
+  }
   // 条件光环·施加状态（屏障/狂怒/下潜/反射/赐福/冻结+出血…）：状态本体均已落地。
   //   DoT（出血/中毒/燃烧）带 magnitude:1；概率句（lotusblessing 50%）收进 chance。
   //   范围按描述词判定：「获得屏障效果」=self / 所有敌人=allEnemies / 一名随机敌人=randomEnemy /
   //   自己=self / 所有盟友=allAllies / 其余（「一名（随机）盟友」）=randomAlly。
   //   含引擎没有的状态本体（恐怖/法印…）的句子整体不收，不做缺状态的半解析；
-  //   「创造 N 颗X宝石」是特殊宝石域不在此收（twinfires）；「第一名敌人」非随机目标不硬猜（dragonvines）；
+  //   「创造 N 颗X宝石」是特殊宝石域不在此收（twinfires）；「第一名敌人」收 firstEnemy（dragonvines）；
   //   未命中任何已知状态的（如「获得额外 N 黄金」）同样落回后续规则留在未实现桶。
   if (/^在?配对\s*4/.test(desc) && !AURA_UNKNOWN_STATUS.test(desc) && !/创造|创建/.test(desc)) {
     const chanceM = /有\s*(\d+)%\s*的?几率/.exec(desc);
     const enemyTargeted = /敌人/.test(desc) && !/所有敌人/.test(desc);
-    // 敌人指定但非随机/全体（「缠绕第一名敌人」）→ null，不硬猜
+    // 敌人指定：随机 → randomEnemy；指定序号（「第一名敌人」dragonvines）→ firstEnemy
+    //（引擎按队伍序首个存活确定性结算，不掷随机数）；其余序词不硬猜
     const scope = /获得屏障效果/.test(desc) ? 'self'
       : /所有敌人/.test(desc) ? 'allEnemies'
         : (enemyTargeted && /随机|任意/.test(desc)) ? 'randomEnemy'
-          : enemyTargeted ? null
-            : /自己/.test(desc) ? 'self'
-              : /所有盟友/.test(desc) ? 'allAllies'
-                : 'randomAlly';
+          : (enemyTargeted && /第一名敌人|第一位敌人|首位敌人/.test(desc)) ? 'firstEnemy'
+            : enemyTargeted ? null
+              : /自己/.test(desc) ? 'self'
+                : /所有盟友/.test(desc) ? 'allAllies'
+                  : 'randomAlly';
     let statuses = null;
     let randomPositive = false;
-    if (/屏障效果/.test(desc)) statuses = [{ id: 'barrier' }];
+    let randomNegative = false;
+    if (/一个随机的状态效果/.test(desc)) {
+      // 随机负面池（experiment「使随机一名敌人陷入一个随机的状态效果」）：池与引擎
+      // RANDOM_NEGATIVE_STATUS_POOL 同源，DoT 带 magnitude:1；引擎侧 rng 掷一条
+      statuses = NEGATIVE_STATUS_POOL.map((id) => (isDotStatus(id) ? { id, magnitude: 1 } : { id }));
+      randomNegative = true;
+    }
+    else if (/屏障效果/.test(desc)) statuses = [{ id: 'barrier' }];
     else if (/反射效果/.test(desc)) statuses = [{ id: 'reflect' }];
     else if (/下潜/.test(desc)) statuses = [{ id: 'submerged' }];
     else if (/正面增益状态效果/.test(desc)) { statuses = POSITIVE_STATUS_POOL; randomPositive = true; }
@@ -712,6 +783,7 @@ function parse(desc) {
             turns: 3,
             ...(chanceM ? { chance: num(chanceM[1]) / 100 } : {}),
             ...(randomPositive ? { randomPositive: true } : {}),
+            ...(randomNegative ? { randomNegative: true } : {}),
           },
         },
       };
@@ -769,6 +841,14 @@ function parse(desc) {
         onColorMatchGain: { color: 'skull', stat: 'hp', amount: num(m[1]), alsoStats: ['armor', 'attack', 'magic'] },
       },
     };
+  }
+  // 配色伤害（T5 杂项批 lumpofcoal/dawnslayer/sleetstorm「在配对X色宝石时，对一名随机敌人
+  // 造成 N 点伤害」）：与配色施加状态/窃取生命同一触发点（applyColorMatchTriggers），伤害经
+  // TurnEngine 注入的 damage（damageOne 管线，同技能伤害口径），随机目标走种子化 rng。
+  // sleetstorm 官方文本无逗号，[，,]? 一并收。
+  if ((m = /^在?配对(.+?)宝石的?时[，,]?对一名随机敌人造成\s*(\d+)\s*点伤害。?$/.exec(desc))) {
+    const color = pickColor(m[1]);
+    if (color) return { effects: { onColorMatchDamage: { color, amount: num(m[2]) } } };
   }
   // 配色施加状态（T5 配色状态批 16 code）：「在配对<色>宝石时…随机敌人施加状态」句式族。
   //   动词句 molten「随机燃烧一名敌人」/ wildvines「随机缠绕一名敌人」/ magicvines「缠绕一名

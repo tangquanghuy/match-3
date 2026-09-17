@@ -154,7 +154,7 @@ describe('A · 数据完整性', () => {
       // 条件光环批（窗口 E）：结构合法性
       if (t.onBigMatchStatus) {
         const s = t.onBigMatchStatus;
-        if (!['self', 'randomAlly', 'allAllies', 'allEnemies', 'randomEnemy'].includes(s.scope)) report(`${tag} onBigMatchStatus.scope「${s.scope}」非法`);
+        if (!['self', 'randomAlly', 'allAllies', 'allEnemies', 'randomEnemy', 'firstEnemy'].includes(s.scope)) report(`${tag} onBigMatchStatus.scope「${s.scope}」非法`);
         if (!s.statuses || s.statuses.length === 0) report(`${tag} onBigMatchStatus 缺 statuses`);
         for (const st of s.statuses ?? []) {
           if (!ENGINE_STATUS_IDS.has(st.id)) report(`${tag} 大连施加状态「${st.id}」引擎未实现`);
@@ -167,6 +167,9 @@ describe('A · 数据完整性', () => {
         if (s.minSize !== undefined && ![4, 5].includes(s.minSize)) report(`${tag} onBigMatchStatus.minSize=${s.minSize} 异常`);
         if (s.randomPositive && (s.scope !== 'randomAlly' || (s.statuses?.length ?? 0) < 2)) {
           report(`${tag} randomPositive 必须 randomAlly + 多状态池`);
+        }
+        if (s.randomNegative && (s.scope !== 'randomEnemy' || (s.statuses?.length ?? 0) < 2)) {
+          report(`${tag} randomNegative 必须 randomEnemy + 多状态池`);
         }
       }
       // T5 配色状态批：配色施加状态的结构合法性（「随机一名敌人」句式族）
@@ -333,6 +336,40 @@ describe('A · 数据完整性', () => {
         if (s.chance !== undefined && !(s.chance > 0 && s.chance <= 1)) report(`${tag} onBigMatchCreateGem.chance=${s.chance} 异常`);
         if (s.minSize !== undefined && ![4, 5].includes(s.minSize)) report(`${tag} onBigMatchCreateGem.minSize=${s.minSize} 异常`);
       }
+      // T5 杂项机制批：转换/召唤/风暴/即杀/配色伤害的结构合法性
+      if (t.onBigMatchConvert) {
+        const s = t.onBigMatchConvert;
+        if (s.from !== 'hp' || s.to !== 'magic') report(`${tag} onBigMatchConvert 只支持 生命值→魔法值`);
+        if (!(s.amount >= 1 && s.amount <= 20)) report(`${tag} onBigMatchConvert.amount=${s.amount} 异常`);
+        if (s.minSize !== undefined && ![4, 5].includes(s.minSize)) report(`${tag} onBigMatchConvert.minSize=${s.minSize} 异常`);
+      }
+      if (t.onBigMatchSummon) {
+        const s = t.onBigMatchSummon;
+        if (!(s.chance > 0 && s.chance <= 1)) report(`${tag} onBigMatchSummon.chance=${s.chance} 异常`);
+        if (!s.troopId || !s.referenceName || !s.displayName) report(`${tag} onBigMatchSummon 缺 troopId/referenceName/displayName`);
+        if (s.displayName && !OFFICIAL_TROOP_NAMES.has(s.displayName)) {
+          report(`${tag} onBigMatchSummon.displayName「${s.displayName}」在兵种数据中不存在`);
+        }
+        if (s.minSize !== undefined && ![4, 5].includes(s.minSize)) report(`${tag} onBigMatchSummon.minSize=${s.minSize} 异常`);
+      }
+      if (t.onBigMatchStorm) {
+        const s = t.onBigMatchStorm;
+        if (!BASE_COLORS.has(s.color as BaseColor)) report(`${tag} onBigMatchStorm.color「${s.color}」非法`);
+        if (!(s.turns >= 1 && s.turns <= 20)) report(`${tag} onBigMatchStorm.turns=${s.turns} 超出 [1,20]`);
+        if (!(s.troopId >= 9001 && s.troopId <= 9009)) report(`${tag} onBigMatchStorm.troopId=${s.troopId} 不在风暴虚拟号段 9001~9009`);
+        if (s.minSize !== undefined && ![4, 5].includes(s.minSize)) report(`${tag} onBigMatchStorm.minSize=${s.minSize} 异常`);
+      }
+      if (t.onBigMatchKill) {
+        const s = t.onBigMatchKill;
+        if (s.scope !== 'lastEnemy') report(`${tag} onBigMatchKill.scope「${s.scope}」非法`);
+        if (!(s.chance > 0 && s.chance <= 1)) report(`${tag} onBigMatchKill.chance=${s.chance} 异常`);
+        if (s.minSize !== undefined && ![4, 5].includes(s.minSize)) report(`${tag} onBigMatchKill.minSize=${s.minSize} 异常`);
+      }
+      if (t.onColorMatchDamage) {
+        const s = t.onColorMatchDamage;
+        if (s.color !== 'skull' && !BASE_COLORS.has(s.color as BaseColor)) report(`${tag} onColorMatchDamage.color「${s.color}」非法`);
+        if (!(s.amount >= 1 && s.amount <= 20)) report(`${tag} onColorMatchDamage.amount=${s.amount} 异常`);
+      }
       for (const field of ['summonOnDeath', 'summonOnAllyDeath', 'summonOnEnemyDeath'] as const) {
         const s = t[field];
         if (!s) continue;
@@ -385,6 +422,9 @@ describe('B · 编译契约', () => {
     'onDamagedStatus', 'onDeathEconomy', 'manaOpsImmunity',
     // T4 宝石创造批：身亡创造（unstablecore）/ 大连创造（wildtribe/wildmagic/twinfires/spectromancy）
     'onDeathCreateGem', 'onBigMatchCreateGem',
+    // T5 杂项机制批：配对转换（trascend）/ 配对召唤（genieslamp）/ 配对风暴（deadlywaters）/
+    // 配对即杀（deathbelow）/ 配色伤害（lumpofcoal/dawnslayer/sleetstorm）
+    'onBigMatchConvert', 'onBigMatchSummon', 'onBigMatchStorm', 'onBigMatchKill', 'onColorMatchDamage',
   ]);
 
   /**
@@ -562,6 +602,40 @@ describe('C · 描述↔数值一致性（从官方文本重新抽数对账）',
         const word = GEM_WORD_OF[s.gem];
         if (!word || !word.test(d)) report(`${tag(t)} onBigMatchCreateGem.gem「${s.gem}」在描述中无对应宝石词`);
       }
+      // T5 杂项机制批：新键描述↔数值对账
+      if (t.onBigMatchConvert) {
+        const m = /在配对\s*4\s*或\s*5\s*颗宝石时[，,]?将\s*(\d+)\s*点生命值替换成\s*(\d+)\s*点魔法值/.exec(d);
+        if (!m || num(m[1]) !== num(m[2]) || num(m[1]) !== t.onBigMatchConvert.amount) {
+          report(`${tag(t)} onBigMatchConvert 与描述「${d}」不符`);
+        }
+      }
+      if (t.onBigMatchSummon) {
+        const m = /有\s*(\d+)\s*%\s*的?几率召唤一?[名只个头]?(.+?)。?$/.exec(d);
+        if (!m || num(m[1]) / 100 !== t.onBigMatchSummon.chance) {
+          report(`${tag(t)} onBigMatchSummon.chance=${t.onBigMatchSummon.chance} 与描述不符`);
+        } else if (m[2].trim() !== t.onBigMatchSummon.displayName) {
+          report(`${tag(t)} onBigMatchSummon.displayName「${t.onBigMatchSummon.displayName}」与描述「${m[2]}」不符`);
+        }
+      }
+      if (t.onBigMatchStorm) {
+        const m = /宝石的?时[，,]?(?:创[建造成]|召唤)出?(.+?)。?$/.exec(d);
+        if (!m || m[1] !== t.onBigMatchStorm.displayName || !/风暴$/.test(m[1])) {
+          report(`${tag(t)} onBigMatchStorm.displayName「${t.onBigMatchStorm.displayName}」与描述「${d}」不符`);
+        }
+      }
+      if (t.onBigMatchKill) {
+        const m = /有\s*(\d+)\s*%\s*的?几率猎杀最后一名敌人/.exec(d);
+        if (!m || num(m[1]) / 100 !== t.onBigMatchKill.chance) {
+          report(`${tag(t)} onBigMatchKill.chance=${t.onBigMatchKill.chance} 与描述「${d}」不符`);
+        }
+      }
+      if (t.onColorMatchDamage) {
+        const m = /在?配对(.+?)宝石的?时[，,]?对一名随机敌人造成\s*(\d+)\s*点伤害/.exec(d);
+        const expectColor = m ? pickColorOf(m[1]) : null;
+        if (!m || num(m[2]) !== t.onColorMatchDamage.amount || expectColor !== t.onColorMatchDamage.color) {
+          report(`${tag(t)} onColorMatchDamage 与描述「${d}」不符`);
+        }
+      }
       if (t.manaOpsImmunity && !/对法力灼烧、法力耗尽和法力窃取免疫/.test(d)) {
         report(`${tag(t)} manaOpsImmunity 但描述不是法力操作免疫句式`);
       }
@@ -690,6 +764,8 @@ describe('C · 描述↔数值一致性（从官方文本重新抽数对账）',
         if (s.scope === 'allAllies' && !/所有盟友|获得屏障/.test(d)) report(`${tag(t)} onBigMatchStatus.scope=allAllies 但描述没有「所有盟友」`);
         if (s.scope === 'allEnemies' && !/所有敌人/.test(d)) report(`${tag(t)} onBigMatchStatus.scope=allEnemies 但描述没有「所有敌人」`);
         if (s.scope === 'randomEnemy' && !/敌人/.test(d)) report(`${tag(t)} onBigMatchStatus.scope=randomEnemy 但描述没有「敌人」`);
+        if (s.scope === 'firstEnemy' && !/第一名敌人|第一位敌人|首位敌人/.test(d)) report(`${tag(t)} onBigMatchStatus.scope=firstEnemy 但描述没有指定序敌人`);
+        if (s.randomNegative && !/一个随机的状态效果/.test(d)) report(`${tag(t)} randomNegative 但描述不是随机状态句式`);
         if ((s.scope === 'randomAlly' || s.scope === 'allAllies' || s.scope === 'self') && /敌人/.test(d)) {
           report(`${tag(t)} onBigMatchStatus.scope=${s.scope} 指向己方但描述提到「敌人」`);
         }
@@ -830,6 +906,7 @@ describe('D · 接线完整性（钩子存在但没人调用 = 死角）', () =>
     ['回合开始创造/转换特殊宝石', /turnStartCreateSpecialGem|turnStartColorToSpecial/, () => turnEngineSrc],
     ['大连创造宝石落子注入', /createGem/, () => turnEngineSrc],
     ['身亡创造宝石', /onDeathCreateGem/, () => turnEngineSrc],
+    ['配对召唤/风暴/即杀注入', /traitSummon|traitSetStorm|traitKill/, () => turnEngineSrc],
     ['骷髅减伤/受击/命中/反弹/穿甲', /skullDamageTaken|inflictOnSkullHit|reflectSkullRatio/, () => combatResolverSrc],
     ['受击附状态', /inflictOnSkullDamaged/, () => combatResolverSrc],
     ['受击下潜', /onDamagedStatus/, () => combatResolverSrc],

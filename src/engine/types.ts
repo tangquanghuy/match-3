@@ -472,16 +472,20 @@ export interface PassiveModifiers {
    * 自己一方匹配 4/5 连时施加状态（条件光环批：屏障/狂怒/下潜/反射/赐福…）。
    * scope 指受益范围：self=持有者 / randomAlly=随机一名存活盟友 / allAllies=全队存活 /
    * allEnemies=敌方全队存活（bloodmark「使所有敌人陷入出血状态」）/
-   * randomEnemy=随机一名存活敌人（winterveil「冻结一名随机敌人」）。
+   * randomEnemy=随机一名存活敌人（winterveil「冻结一名随机敌人」）/
+   * firstEnemy=敌方队伍序首个存活（dragonvines「缠绕第一名敌人」，确定性、零随机消耗）。
    * statuses 逐条施加（bloodcoldrage 一条特质带冻结+出血两条）；DoT 才带 magnitude。
    * chance 为触发概率（lotusblessing 50%），缺省必定；minSize 限定触发的大连颗数（缺省 4）。
+   * randomNegative（experiment「陷入一个随机的状态效果」）：从 statuses 负面池经 rng
+   * 掷一条施加（与 randomPositive 的掷签同口径，仅 randomEnemy scope）。
    */
   onBigMatchStatus?: {
-    scope: 'self' | 'randomAlly' | 'allAllies' | 'allEnemies' | 'randomEnemy';
+    scope: 'self' | 'randomAlly' | 'allAllies' | 'allEnemies' | 'randomEnemy' | 'firstEnemy';
     statuses: readonly { id: string; magnitude?: number }[];
     turns: number;
     chance?: number;
     randomPositive?: boolean;
+    randomNegative?: boolean;
     minSize?: number;
   };
   /** 配对 N 连限定自身增益（insanegrowth「配对 5 或 5 颗」只认 5 连），键为 minSize */
@@ -522,6 +526,14 @@ export interface PassiveModifiers {
    */
   colorMatchDrain: Readonly<Record<string, number>>;
   /**
+   * 配对某色（或骷髅）宝石时对随机一名敌人造成技能伤害（T5 杂项批 lumpofcoal/dawnslayer/
+   * sleetstorm「在配对X色宝石时，对一名随机敌人造成 N 点伤害」）。外层色键同
+   * colorMatchDrain；值为伤害额，同色键累加。触发点 applyColorMatchTriggers（配色触发
+   * 同点），结算经 TurnEngine 注入的 damage（damageOne 管线，同技能伤害口径），随机目标
+   * 每次触发消耗一次注入的 rng（与配色施加状态的随机分支同口径）。
+   */
+  colorMatchDamage: Readonly<Record<string, number>>;
+  /**
    * 自己一方配对 4+ 连时对敌人造成技能伤害（T5 大连伤害批 3 code：shock/tentacles/
    * lightningbolt「在配对 4 或 5 颗宝石时对…造成 N 点伤害」）。多条并存按声明序逐条结算，
    * minSize 缺省 4；伤害经 TurnEngine 注入的 damage（damageOne 管线）产出 skill-damage
@@ -559,6 +571,33 @@ export interface PassiveModifiers {
     chance?: number;
     minSize: number;
   }[];
+  /**
+   * 配对 N 连时把生命转换为魔法（T5 杂项批 trascend「在配对 4 或 5 颗宝石时，将 2 点
+   * 生命值替换成 2 点魔法值」）：持有者自身 1:1 交换，生命侧保底 1 点（特质不自杀），
+   * 实际减少多少生命就等量加魔法（织网下的魔法增益拦截走 grantStat 既有口径）；
+   * 不掷随机数。同类取先声明的一条，minSize 缺省 4。
+   */
+  onBigMatchConvert?: { from: 'hp'; to: 'magic'; amount: number; minSize: number };
+  /**
+   * 配对 N 连时按概率召唤兵种（T5 杂项批 genieslamp「配对 4+ 30% 召唤神灯之灵」/
+   * stormflock「35% 召唤鸟妖法师」）。复用死亡召唤基建：概率经 TurnEngine 注入的
+   * rng 判定，召唤物经注入的 summon 口按兵种数据装配并入队（容量/FIFO 同口径），
+   * 归持有者一方；同类取概率更高的一条，minSize 缺省 4。
+   */
+  bigMatchSummon?: { chance: number; troopId: number; referenceName: string; displayName: string; minSize: number };
+  /**
+   * 配对 N 连时创造风暴（T5 杂项批 deadlywaters「配对 4/5 创造骸骨风暴」）。走 TurnEngine
+   * 的全局唯一风暴顶替裁定（与技能造风暴同一 storm-change 事件形态），troopId 为虚拟
+   * 风暴号段；同类取先声明的一条，minSize 缺省 4。
+   */
+  bigMatchStorm?: StormSummon & { troopId: number; referenceName: string; displayName: string; minSize: number };
+  /**
+   * 配对 N 连时按概率即杀（T5 杂项批 deathbelow「配对 4/5 有 8% 的几率猎杀最后一名敌人」）。
+   * 即死原语（death-mark 的回合开始 10% 即死先例同族）：概率经注入的 rng 判定（无 rng
+   * 不生效），目标取敌方队伍序末位存活（确定性），处决经注入的 kill 口走 defeat 出编队
+   * 管线；同类取概率更高的一条，minSize 缺省 4。
+   */
+  bigMatchKill?: { chance: number; scope: 'lastEnemy'; minSize: number };
   /** 匹配某色宝石时的额外法力；键为颜色或 '*'（全色） */
   manaLink: Readonly<Record<string, number>>;
   /** 反弹给攻击者的骷髅伤害比例（0～1） */
