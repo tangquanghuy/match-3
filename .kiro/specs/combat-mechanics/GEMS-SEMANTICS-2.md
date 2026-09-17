@@ -316,6 +316,78 @@ SpellSteps——游戏本体数据，非文本翻译），提取全部宝石操�
 
 ---
 
+## E 组 · 漏收宝石补全考证（2026-09-18，武器语料 718 把触发；官方数据枚举 + 官方论坛）
+
+> 背景：武器全量接入（窗口 K）后，Volcano/Trap/Candy/Lycanthropy/Enchant/Mimic 六种枚举在武器法术中
+> 反复出现（火山 12 处、陷阱 8 处、糖果 6 处、狼化 17 处、附魔 3 处、宝箱怪 1 处）。本节为
+> 「⭐ 官方数据核验」第 3 条「考证漏收需补设计」清单的逐颗补全。
+
+### E1. 火山宝石（Volcano Gem）✅ 官方 guide 引用 ｜ 官方数据 ×15（武器 12 处）
+
+- **官方语义**：红色宝石，**与红色匹配；被匹配时向上垂直 + 对角方向爆炸**。官方 in-game Heroic Gem
+  guide 原文（论坛引述）："volcano gems match with reds and explode up vertically and diagonally"；
+  战役「The Ruby Heptagon」官方 Heroic Gem（[topic 89991](https://community.gemsofwar.com/t/campaign-begins-the-ruby-heptagon/89991)）。
+- **引擎行为设计**：`volcanoGem`，归属 Red；触发=向上垂直列 + 对角清除（dragonGem「向下」的反向，清向
+  `{row-1..0} × col` + `{row-1}×{col±1}` 对角延伸，具体步数实现时按官方演示再核）。法术证据：Volcanic
+  Staff（创造+增幅）、Arcane Flame（紫→火山转换）、Burning Rush（摧毁红宝石增幅创造）。
+- **视觉一句话**：红宝石 + 火山口/岩浆向上喷发意象。
+
+### E2. 糖果宝石（Candy Gem）✅ 官方 guide 引用 ｜ 六色 ×2
+
+- **官方语义**："**Candy gems give 1 mana to all allies of that colour when matched**"（与同色匹配；被
+  匹配时给己方所有该色盟友各 1 点法力）。官方 in-game Heroic Gem guide 原文引述（topic 69968）。
+- **引擎行为设计**：`candyGem`（spec.color 六色，同 Giant 方案）；匹配组结算 → 该色全体存活盟友各 +1 法力。
+- **视觉一句话**：色宝石 + 糖果包装/糖霜意象（节日活动风）。
+
+### E3. 陷阱宝石（Trap Gem）✅ 官方 Underspire 公告全文 ｜ ×16
+
+- **官方语义**："**Trap Gems are colorless Gems that, when destroyed, will do 1 of 5 effects:
+  Stun all Player Troops / Freeze all Player Troops / Entangle all Player Troops / Faerie Fire all
+  Player Troops / Create 3 Doomskulls**。The negative status effects only affect the player's team
+  (even if the player destroys the Gem). Trap Gems do not drop randomly in battles; they are only
+  created by Trap Enemies in Trap Rooms."（[topic 88974](https://community.gemsofwar.com/t/underspire-teams/88974)）
+  ——无色；被摧毁时五选一负面（**永远打玩家队**，玩家自己摧毁也一样）；不随机掉落，仅深渊
+  （Underspire）陷阱房由陷阱敌人生成。
+- **引擎行为设计**：`trapGem`；不可匹配（同 bomb 族）；摧毁 → `oneOf` 原语五选一（前四=对玩家队全体施加
+  对应状态，第五=创造 3 末日骷髅）。⚠️ 仅深渊模式生成——标准战斗不放（`SPAWNABLE_SPECIALS` 不扩）。
+- **配套**：8 个「Trigger X Trap」兵种（Dart/Acid/Boulder/Mirror/Flamethrower/Frozen/Pit/Spike，法术 =
+  `CountGems(Trap)+ExplodeColor(Trap)` 引爆器）为深渊陷阱房内容，本引擎非深渊模式不涉及。
+- **视觉一句话**：无色暗金属陷阱感（尖刺/齿轮），危险红点缀。
+
+### E4. 狼化宝石（Lycanthropy Gem）✅ 官方帖三重证据 ｜ ×20（武器 17 处）
+
+- **官方语义**：①紫色宝石替代品（Campaign 5 官方预告："Lycanthropy gems will be purple gem
+  replacements"，[topic 69709](https://community.gemsofwar.com/t/spoiler-alert-any-details-provided-are-subject-to-change-part-2/69968/…)）；②**匹配按紫色计**
+  （官方帖确认 "lycanthropy gems are regarded as purple for matching"，[topic 70235](https://community.gemsofwar.com/t/please-modify-converters-to-treat-lycanthropy-gems-as-purple/70235)）；
+  ③**被移除/摧毁时施加狼化状态**（"[Investigating] Removing Lycanthropy gems cast lycanthropy"，[topic 70257](https://community.gemsofwar.com/t/investigating-removing-lycanthropy-gems-cast-lycanthropy/70257)——
+  官方按"预期行为"处理，非 bug）。
+- **引擎行为设计**：`lycanthropyGem`；`matchJoinKey='Purple'`；匹配/摧毁 → 对随机敌人施加狼化状态（狼化
+  状态本体引擎已有半成品接线，见 ASSET-GAPS）。
+- **视觉一句话**：紫宝石 + 爪痕/月光意象。
+
+### E5. 附魔宝石（Enchanted Gem）⚠️ 行为句未获取（公开渠道无定义）｜ ×3
+
+- **已知**：Update 8.4「Shadows Over Karakoth」引入的紫色 Heroic Gem（[topic 87379](https://community.gemsofwar.com/t/shadows-over-karakoth/87379)：
+  "the new purple 'Enchanted Gems'"；Cosmic Dragons 每色生成 5 颗、Awakened Eventide 生成 3 颗）；
+  成就「Enchantée：Destroy 100 Enchanted Gems」。
+- **未解**：被匹配/摧毁时的效果官方文本未在公开渠道找到。⚠️ 注意与附魔**状态**（Enchant：每回合 +2 法力
+  直到施法）同名不同物。暂按「紫匹配 → 施加附魔状态」假设，**实现前必须游戏内核实或裁定**。
+- **视觉一句话**：紫宝石 + 符文/星辉附魔环。
+
+### E6. 宝箱怪宝石（Mimic Gem）⚠️ 公开渠道无定义 ｜ ×1
+
+- **已知**：全量官方数据（3207 法术）仅 1 处——武器/法术 Firebolt（`CreateGems(Mimic,5)`，当前未上线或
+  极新内容，gowhead 亦无描述文本）；论坛零讨论。
+- **推测（非考据，实现前需核实）**：Mimic 兵种法术 = 随机五选一（金币/伤害/吞噬/爆破/生命/法力），宝石
+  可能同族「摧毁时随机效果」。
+- **视觉一句话**：棕宝石 + 宝箱怪嘴/金币意象。
+
+### 枚举对齐更正（官方数据核验补充）
+
+- **LightDarkStar = D2 暗影之星（Umbral Star）的官方枚举名**，非新宝石。实锤：Leio's Claws 法术文本
+  "boosted by Umbral Stars" ↔ 同法术 SpellSteps `CountGems(LightDarkStar)`。D2 考据不变，补记枚举名。
+- 官方枚举全集见「⭐ 官方数据核验」；本节新增 6 种后，官方非基色枚举已全部建档或有归属。
+
 ## 考证纠错（放弃桶里的假宝石 / 译名陷阱）
 
 | 放弃桶写法 | 考证结论 |
