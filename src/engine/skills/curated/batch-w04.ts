@@ -8,7 +8,7 @@
  * src/data/weapon-skill-meta.json）。组装规则锚定 scripts/spell-rules.md 与
  * 既有部队批次先例；生成器 scripts/_weapon_pools.mjs gen。
  */
-import { armor, attack, cleanse, createGems, createSpecialGems, destroyRandomRows, dmg, dmgSplash, explodeRandomGems, extraTurn, inflict, skill, summonRandom, transformToSpecial, trueDmg } from '../builders';
+import { armor, attack, cleanse, createGems, createSkulls, createSpecialGems, destroyRandomRows, dmg, dmgSplash, explodeRandomGems, extraTurn, heal, inflict, inflictRandom, reduce, reposition, skill, summonRandom, transformToSpecial, trueDmg } from '../builders';
 import { BaseColor } from '../../types';
 import type { CuratedBatch } from './index';
 
@@ -16,10 +16,184 @@ const SKIPPED: { id: number; reason: string }[] = [];
 
 const SPELLS: CuratedBatch['spells'] = [
   {
+    id: 9162,
+    desc: '对一名敌人造成 [魔法 + 4] 点伤害。再使其上方所有敌人陷入诅咒和恐怖状态。',
+    build: skill(
+      dmg('enemyChosen', 4, 1),
+      inflict('curse', 'enemyAll'),
+    ),
+  },
+  {
+    id: 9167,
+    desc: '创造 14 颗混合骷髅头和恐怖宝石。使一名敌人陷入叠加 3 的出血状态。',
+    build: skill(
+      inflict('bleed', 'enemyChosen'),
+    ),
+  },
+  {
+    id: 9203,
+    desc: '爆破 [魔法 + 1] 颗棕色宝石。赋予所有巨人盟友一个随机正面增益效果。再召唤一个巨人军队。',
+    build: skill(
+      explodeRandomGems(1, 1, 'color', BaseColor.Brown),
+      inflictRandom('allyAll', { targetRace: 'Giant' }),
+      summonRandom(['Ogre', 'Ettin', 'StoneGiant', 'FrostGiant', 'Berserker', 'JarlFiremantle', 'Elf-Eater', 'Cyclops', 'Zephyros', 'Gob-Chomper', 'SeaTroll', 'DragonCruncher', 'RockTroll', 'DarkTroll', 'GogAndGud', 'JotnarStormshield', 'Ogryn', 'DesertTroll', 'ForestTroll', 'FireGiant', 'MonsterMuncher', 'FlameTroll', 'SkrymirTheLofty', 'HyndlaFrostcrown', 'IceTroll', 'Igneus', 'HalfgrimHalf-Giant', 'Sledgepaw', 'LavaTroll', 'Stone-Biter', 'CorruptTroll', 'Fomorian', 'FrostfireTroll', 'CrazedTroll', 'OgrakShaman', 'Bone-Biter', 'IllithianColossus', 'Smashedmouth', 'StormKnight', 'FlameMaiden', 'Kharybdis', 'Ogress', 'Baldr', 'VidarrTheVast', 'IcespireShaman', 'DarkForestTroll', 'TheOnyxGiant', 'TheSapphireGiant', 'TheEmeraldGiant', 'TheRubyGiant', 'TheAmethystGiant', 'TheTopazGiant', 'TheUmbralGiant', 'TheGraveGiant', 'Ogretaur', 'GiantSentinel', 'EarthGiant', 'Jordrin', 'Kolfrysti', 'Jarnvisa', 'GhostOgre', 'MazeCyclops', 'GrimbornBloodeye', 'HeldrTheGrave', 'Polymetis', 'SteamTroll', 'ScoriaGiant-born', 'VenomousTroll', 'LavaEttin', 'AbominableTroll', 'StormOracle', 'ToxAndSion', 'StormGuard', 'AsbjornTheMountain'], undefined),
+    ),
+  },
+  {
+    id: 9204,
+    desc: '&& 创造 8 颗蓝色闪电宝石，并对一名敌人造成 [魔法 + 3] 点溅射伤害  && 创造 8 颗黄色闪电宝石，并对一名敌人造成 [魔法 + 3] 点溅射伤害',
+    build: skill(
+      createGems(BaseColor.Blue, 8, 0),
+      createGems(BaseColor.Yellow, 8, 0),
+    ),
+  },
+  {
+    id: 9205,
+    desc: '爆破 [魔法 + 1] 颗绿色宝石。赋予所有沃尔帕克盟友一个正面增益状态效果。再召唤一名沃尔帕克军队。',
+    build: skill(
+      explodeRandomGems(1, 1, 'color', BaseColor.Green),
+    ),
+  },
+  {
+    id: 9206,
+    desc: '对一名敌人造成 [魔法 + 4] 点伤害，伤害值因棕色盟友和野兽盟友数而增强。 [x3]',
+    build: skill(
+      dmg('enemyChosen', 4, 1, { modifier: { mod: { kind: 'multiplier', a: 3 }, source: { kind: 'alliesOfRace', race: 'Beast' } } }),
+    ),
+  },
+  {
+    id: 9207,
+    desc: '爆破 [魔法 + 1] 颗棕色宝石。赋予所有厄什卡盟友一个正面增益状态效果。再召唤一名厄什卡军队。',
+    build: skill(
+      explodeRandomGems(1, 1, 'color', BaseColor.Brown),
+    ),
+  },
+  {
+    id: 9208,
+    desc: '爆破 [魔法 + 1] 颗蓝色宝石。赋予所有剑锋崖盟友一个正面增益状态效果。再召唤一名剑锋崖军队。',
+    build: skill(
+      explodeRandomGems(1, 1, 'color', BaseColor.Blue),
+    ),
+  },
+  {
+    id: 9209,
+    desc: '对一名敌人造成 [魔法 + 4] 点伤害，伤害值因紫色盟友和狼族盟友数而增强。 [x3]',
+    build: skill(
+      dmg('enemyChosen', 4, 1, { modifier: { mod: { kind: 'multiplier', a: 3 }, source: { kind: 'teamSize', side: 'ally' } } }),
+    ),
+  },
+  {
+    id: 9210,
+    desc: '爆破 [魔法 + 1] 颗棕色宝石。赋予所有怪兽盟友一个正面增益状态效果。再召唤一名怪兽军队。',
+    build: skill(
+      explodeRandomGems(1, 1, 'color', BaseColor.Brown),
+      summonRandom(['Golem', 'NightTerror', 'MistStalker', 'Owlbear', 'WarSphinx', 'Chimera', 'Behemoth', 'CrimsonBat', 'RockWorm', 'Cockatrice', 'Gorgon', 'Hydra', 'Swamplash', 'Watcher', 'TheGreatMaw', 'SandShark', 'GreenSlime', 'MarshRaptor', 'AnubiteWarrior', 'SettiteWarrior', 'Creeper', 'Manticore', 'EmperorKhorvash', 'KruargTheDread', 'Kraken', 'Mimic', 'GiantToadstool', 'Werewolf', 'Villager', 'BastitePriestess', 'DesertMantis', 'Bogstrider', 'Chupacabra', 'Peryton', 'Myzmer', 'Troglodyte', 'Scavenger', 'Lamprey', 'Mosasaurus', 'Scylla', 'Bulette', 'Scorpius', 'SandScuttler', 'ArachnaeanWeaver', 'IceWorm', 'Glaycion', 'Megavore', 'Pyggra', 'GelatinousCube', 'WatchMother', 'OcularenLeech', 'Ocularen', 'Xerodar', 'Hammerclaw', 'Sandrunner', 'Sharptooth', 'Apophisis', 'Mervorax', 'ChiefDargon', 'Arachnataur', 'Ridgeback', 'Scarabi', 'CrabMan', 'TheWendigo', 'Krampus', 'Dementicore', 'Trihorn', 'TyranAndRex', 'Lasher', 'BlindGuardian', 'Basilisk', 'ManticoreCub', 'ManticoreProtector', 'Doombat', 'MindEater', 'IllithianColossus', 'IllithianServitor', 'HiveMind', 'DesertWorm', 'Ankhnum', 'SnowyOwlbear', 'Pyrohydra', 'Bahir', 'RockSquid', 'Cloakmantle', 'OchreJelly', 'Shoggorath', 'Wereraven', 'Werebat', 'Wereverine', 'TheWerestag', 'Nagatrap', 'Wererat', 'Wereshark', 'Kelpie', 'Sluagh', 'TheFleshHorror', 'VoidWisp', 'Centuragon', 'SulfurSlime', 'HoardMimic', 'LordArchimedus', 'BurningOcularen', 'Medusa', 'ChromiteSphinx', 'ClamLasher', 'LavaWorm', 'Stoneshell', 'SeaScavenger', 'Vulperus', 'Cantur', 'Geryon', 'Grimfeather', 'DeathTrapMimic', 'VoidManticore', 'Eyestalker', 'Hornwing', 'MonstrousSentinel', 'Bloodfang', 'Gynosphinx', 'TawaritePriestess', 'FellHydra', 'CrystalIntellect', 'Ghulemoth', 'Necroshale', 'CryptWorm', 'ShadowBeetle', 'DuskOwlbear', 'BlackOoze', 'OcularenEgg', 'TheCragMaw', 'TheSlimeDragon', 'Mantichoras', 'Gormungandr', 'HorusiteChampion', 'SekhitePriestess', 'DesertOx', 'ForsakenGuardian', 'Voidjaw', 'GloomOcularen', 'GraveWorm', 'ImmortalMaratus', 'TwistedHag', 'SirGeoffreyTheFallen', 'CorruptedCycad', 'CaveMole', 'CannonMimic', 'CaveCrawler'], undefined),
+    ),
+  },
+  {
+    id: 9211,
+    desc: '对首 2 位敌人造成 [魔法 + 5] 点伤害，每锻炼 1 个武器段位则 +2 点伤害值。每有一名蓝色盟友和敌人则创造 2 颗蓝色宝石。若敌方有劫数则获得一个随机正面增益状态效果。 [x2]',
+    build: skill(
+      dmg('enemyFirstN', 5, 1, { n: 2 }),
+    ),
+  },
+  {
+    id: 9212,
+    desc: '对首 2 位敌人造成 [魔法 + 5] 点伤害，每锻炼 1 个武器段位则 +2 点伤害值。每有一名绿色盟友和敌人则创造 2 颗绿色宝石。若敌方有劫数则获得一个随机正面增益状态效果。 [x2]',
+    build: skill(
+      dmg('enemyFirstN', 5, 1, { n: 2 }),
+    ),
+  },
+  {
+    id: 9213,
+    desc: '对首 2 位敌人造成 [魔法 + 5] 点伤害，每锻炼 1 个武器段位则 +2 点伤害值。每有一名红色盟友和敌人则创造 2 颗红色宝石。若敌方有劫数则获得一个随机正面增益状态效果。 [x2]',
+    build: skill(
+      dmg('enemyFirstN', 5, 1, { n: 2 }),
+    ),
+  },
+  {
+    id: 9214,
+    desc: '对首 2 位敌人造成 [魔法 + 5] 点伤害，每锻炼 1 个武器段位则 +2 点伤害值。每有一名黄色盟友和敌人则创造 2 颗黄色宝石。若敌方有劫数则获得一个随机正面增益状态效果。 [x2]',
+    build: skill(
+      dmg('enemyFirstN', 5, 1, { n: 2 }),
+    ),
+  },
+  {
+    id: 9215,
+    desc: '对首 2 位敌人造成 [魔法 + 5] 点伤害，每锻炼 1 个武器段位则 +2 点伤害值。每有一名紫色盟友和敌人则创造 2 颗紫色宝石。若敌方有劫数则获得一个随机正面增益状态效果。 [x2]',
+    build: skill(
+      dmg('enemyFirstN', 5, 1, { n: 2 }),
+    ),
+  },
+  {
+    id: 9216,
+    desc: '对首 2 位敌人造成 [魔法 + 5] 点伤害，每锻炼 1 个武器段位则 +2 点伤害值。每有一名棕色盟友和敌人则创造 2 颗棕色宝石。若敌方有劫数则获得一个随机正面增益状态效果。 [x2]',
+    build: skill(
+      dmg('enemyFirstN', 5, 1, { n: 2 }),
+    ),
+  },
+  {
+    id: 9235,
+    desc: '爆破 [魔法 + 1] 颗紫色宝石。赋予所有黑石盟友一个随机正面增益状态效果。再召唤一名黑石军队。',
+    build: skill(
+      explodeRandomGems(1, 1, 'color', BaseColor.Purple),
+    ),
+  },
+  {
+    id: 9261,
+    desc: '对一名敌人造成 [魔法 + 3] 点伤害，伤害值因天使宝石数而增强。再创造 2 颗天使宝石。 [x5]',
+    build: skill(
+      dmg('enemyChosen', 3, 1, { modifier: { mod: { kind: 'multiplier', a: 5 }, source: { kind: 'boardSpecial', gem: 'angelGem' } } }),
+      createSpecialGems({ kind: 'angelGem' }, 2, 0),
+    ),
+  },
+  {
+    id: 9262,
+    desc: '对一名敌人造成 [魔法 + 4] 点伤害，伤害值因紫色盟友和秘士盟友数而增强。 [x3]',
+    build: skill(
+      dmg('enemyChosen', 4, 1, { modifier: { mod: { kind: 'multiplier', a: 3 }, source: { kind: 'alliesOfRace', race: 'Mystic' } } }),
+    ),
+  },
+  {
+    id: 9263,
+    desc: '对首位 2 名敌人造成 [魔法 + 3] 点伤害，伤害值因恶魔盟友数而增强。 [x3]',
+    build: skill(
+      dmg('enemyFirstN', 3, 1, { n: 2, modifier: { mod: { kind: 'multiplier', a: 3 }, source: { kind: 'alliesOfRace', race: 'Daemon' } } }),
+    ),
+  },
+  {
+    id: 9264,
+    desc: '爆破 [魔法 + 1] 颗蓝色宝石。赋予所有狮心帝国盟友一个随机正面增益状态效果。再召唤一名随机狮心帝国军队。',
+    build: skill(
+      explodeRandomGems(1, 1, 'color', BaseColor.Blue),
+    ),
+  },
+  {
+    id: 9265,
+    desc: '对一名敌人造成 [魔法 + 4] 点伤害，伤害值因蓝色盟友和巨人盟友数而增强。 [x3]',
+    build: skill(
+      dmg('enemyChosen', 4, 1, { modifier: { mod: { kind: 'multiplier', a: 3 }, source: { kind: 'alliesOfRace', race: 'Giant' } } }),
+    ),
+  },
+  {
+    id: 9266,
+    desc: '爆破 [魔法 + 1] 颗绿色宝石。使所有蛮族盟友获得一个随机正面增益效果。再召唤一名蛮族军队。',
+    build: skill(
+      explodeRandomGems(1, 1, 'color', BaseColor.Green),
+    ),
+  },
+  {
     id: 9267,
     desc: '爆破 [魔法 + 1] 颗黄色宝石。使所有白盔国盟友获得一个随机正面增益效果。再召唤一名白盔国军队。',
     build: skill(
       explodeRandomGems(1, 1, 'color', BaseColor.Yellow),
+    ),
+  },
+  {
+    id: 9300,
+    desc: '创造 16 颗混合鬼魂宝石和冻结宝石。再爆破一颗宝石。',
+    build: skill(
+      explodeRandomGems(1, 0, 'color', undefined),
     ),
   },
   {
@@ -125,42 +299,48 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 9356,
     desc: '赋予一名盟友 [魔法 + 2] 点护甲值，每锻炼 1 个武器段位则 +3 点。赋予所有蓝色盟友屏障效果并击晕所有蓝色敌人。若敌方有劫数，则将 3 颗蓝色宝石转换成巨人蓝色宝石。',
     build: skill(
-      inflict('stun', 'allyAll'),
+      armor('allyAll', 2, 1),
+      inflict('stun', 'allyAll', { ifCond: { kind: 'targetColor', color: BaseColor.Blue } }),
     ),
   },
   {
     id: 9357,
     desc: '赋予一名盟友 [魔法 + 2] 点护甲值，每锻炼 1 个武器段位则 +3 点。赋予所有绿色盟友屏障效果并击晕所有绿色敌人。若敌方有劫数，则将 3 颗绿色宝石转换成巨人绿色宝石。',
     build: skill(
-      inflict('stun', 'allyAll'),
+      armor('allyAll', 2, 1),
+      inflict('stun', 'allyAll', { ifCond: { kind: 'targetColor', color: BaseColor.Green } }),
     ),
   },
   {
     id: 9358,
     desc: '赋予一名盟友 [魔法 + 2] 点护甲值，每锻炼 1 个武器段位则 +3 点。赋予所有红色盟友屏障效果并击晕所有红色敌人。若敌方有劫数，则将 3 颗红色宝石转换成巨人红色宝石。',
     build: skill(
-      inflict('stun', 'allyAll'),
+      armor('allyAll', 2, 1),
+      inflict('stun', 'allyAll', { ifCond: { kind: 'targetColor', color: BaseColor.Red } }),
     ),
   },
   {
     id: 9359,
     desc: '赋予一名盟友 [魔法 + 2] 点护甲值，每锻炼 1 个武器段位则 +3 点。赋予所有黄色盟友屏障效果并击晕所有黄色敌人。若敌方有劫数，则将 3 颗黄色宝石转换成巨人黄色宝石。',
     build: skill(
-      inflict('stun', 'allyAll'),
+      armor('allyAll', 2, 1),
+      inflict('stun', 'allyAll', { ifCond: { kind: 'targetColor', color: BaseColor.Yellow } }),
     ),
   },
   {
     id: 9360,
     desc: '赋予一名盟友 [魔法 + 2] 点护甲值，每锻炼 1 个武器段位则 +3 点。赋予所有紫色盟友屏障效果并击晕所有紫色敌人。若敌方有劫数，则将 3 颗紫色宝石转换成巨人紫色宝石。',
     build: skill(
-      inflict('stun', 'allyAll'),
+      armor('allyAll', 2, 1),
+      inflict('stun', 'allyAll', { ifCond: { kind: 'targetColor', color: BaseColor.Purple } }),
     ),
   },
   {
     id: 9361,
     desc: '赋予一名盟友 [魔法 + 2] 点护甲值，每锻炼 1 个武器段位则 +3 点。赋予所有棕色盟友屏障效果并击晕所有棕色敌人。若敌方有劫数，则将 3 颗棕色宝石转换成巨人棕色宝石。',
     build: skill(
-      inflict('stun', 'allyAll'),
+      armor('allyAll', 2, 1),
+      inflict('stun', 'allyAll', { ifCond: { kind: 'targetColor', color: BaseColor.Brown } }),
     ),
   },
   {
@@ -197,8 +377,25 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 9382,
     desc: '创造 4 颗蓝龙宝石。若队伍里有永生神阿卡丽亚，则召唤一名随机龙族军队。',
     build: skill(
-      createGems(BaseColor.Blue, 4, 0),
+      createSpecialGems({ kind: 'dragonGem', color: BaseColor.Blue }, 4, 0),
       summonRandom(['Sheggra', 'Venoxia', 'ShadowDragon', 'Emperina', 'Celestasia', 'BoneDragon', 'DrakeRider', 'Dimetraxia', 'Wyvern', 'Venbarak', 'Borealis', 'DragonEggs', 'BabyDragon', 'Dragonette', 'Dragotaur', 'Dragonmoth', 'Visk', 'TheDragonSoul', 'Couatl', 'Sylvanimora', 'DRACOS-1337', 'DragonianRogue', 'DragonianMonk', 'SilverDrakon', 'Krystenax', 'Drake', 'Elemaugrim', 'DragonTurtle', 'Asha', 'Leviathan', 'Penglong', 'Glitterclaw', 'TheWorldbreaker', 'Divinia', 'LordEmber', 'LadyGarnetia', 'Tinseltail', 'Shimmerscale', 'Volthrenax', 'Thaumaris', 'Droggo', 'Sylfrostenath', 'MatronDragotani', 'UndeadDrake', 'FellDragonEgg', 'FellDragon', 'Nocturnia', 'Ishtara', 'DragonianSage', 'Obregonia', 'DragonSpirit', 'Essencia', 'Huanglong', 'Veneratus', 'HornedWyrm', 'NetherWyrm', 'TerraWyrm', 'TheGreatWyrm', 'Tihamata', 'RedAhriman', 'TwinkleBerry', 'MagmaDragon', 'Sabellius', 'Adakite', 'Obsidiaxas', 'Sapphirax', 'Emeraldrin', 'Rubirath', 'Topasarth', 'Amethialas', 'Garnetaerlin', 'Diamantina', 'Aquaria', 'TheElderDragon', 'HeraldOfKrystenax', 'TheGuardianDragon', 'CobaltDrake', 'HuntmasterArborius', 'CrystalEggs', 'DragonstoneGuardian', 'TheVoidDragon', 'Comethalas', 'Nebuladryx', 'Meteoridan', 'Solarithus', 'Lunarelleon', 'Eklipsos', 'Stellarix', 'DraconicSentinel', 'Tianlong', 'BrassDrake', 'Venerabilax', 'Chromaticea', 'Kukulkan', 'ImmortalAquaria', 'Leucithrax', 'TheSlimeDragon', 'Bahamata', 'Gingeraxia', 'Belcerulea', 'Gladius', 'Thornaressa', 'Narcithus', 'Orrissea', 'Orchidius', 'Chrysantherax', 'Chargrimax', 'Crackleleaf', 'Mistmother', 'DrakeEggs', 'ImmortalDrakkon', 'CrimsonWyrmling', 'Dragonhawk', 'Amethony', 'Creteus', 'Krakynos', 'Runethius', 'Hematrax', 'Vizinium', 'Demizerius', 'Amenhotrex', 'Pandemonia'], undefined, { ifCond: { kind: 'troopPresent', side: 'ally', name: '永生神阿卡丽亚' } }),
+    ),
+  },
+  {
+    id: 9383,
+    desc: '对一名敌人造成 [(魔法 x 2) + 3] 点轻量溅射伤害。若队伍里有永生神卡普里乔尔，则将敌人打回末位。',
+    build: skill(
+      dmgSplash('enemyChosen', 3, 2, { range: 'splash' }),
+      reposition('lastTarget', 'back', { ifCond: { kind: 'troopPresent', side: 'ally', name: '永生神卡普里乔尔' } }),
+    ),
+  },
+  {
+    id: 9384,
+    desc: '对首位和末位敌人造成 [(魔法 x 1.5) + 2] 点伤害，伤害值因天使宝石数而增强。若队伍里有永生神利贝拉，则赐福所有盟友。 [x3]',
+    build: skill(
+      dmg('enemyLast', 2, 1.5, { modifier: { mod: { kind: 'multiplier', a: 3 }, source: { kind: 'boardSpecial', gem: 'angelGem' } } }),
+      dmg('enemyFront', 2, 1.5, { modifier: { mod: { kind: 'multiplier', a: 3 }, source: { kind: 'boardSpecial', gem: 'angelGem' } } }),
+      inflict('blessed', 'allyAll', { ifCond: { kind: 'troopPresent', side: 'ally', name: '永生神利贝拉' } }),
     ),
   },
   {
@@ -249,6 +446,28 @@ const SPELLS: CuratedBatch['spells'] = [
     ),
   },
   {
+    id: 9488,
+    desc: '制造 4 个骷髅，数量受中毒敌人影响。如果我的队伍中有永生的 Scoprio，则再制造 2 个骷髅。 [x2]',
+    build: skill(
+      createSpecialGems({ kind: 'poisonGem' }, 4, 0),
+    ),
+  },
+  {
+    id: 9490,
+    desc: '制作 8-12 个骷髅。如果我的队伍中有 Immortal Furnax，则将 4 个黄色宝石转换为末日骷髅。 [x4]',
+    build: skill(
+      createSkulls(0, 0, { countRange: { min: 8, max: 12 } }),
+    ),
+  },
+  {
+    id: 9505,
+    desc: '对首位 2 名敌人造成 [魔法 + 3] 点伤害，伤害值因噩梦传送门宝石数而增强。创造 2 颗恶魔传送门宝石。 [x3]',
+    build: skill(
+      dmg('enemyFirstN', 3, 1, { n: 2, modifier: { mod: { kind: 'multiplier', a: 3 }, source: { kind: 'boardSpecial', gem: 'daemonicPortalGem' } } }),
+      createSpecialGems({ kind: 'daemonicPortalGem' }, 2, 0),
+    ),
+  },
+  {
     id: 9506,
     desc: '对前 2 名敌人造成 [魔法 + 3] 点伤害，伤害值因狐狸座盟友的数量而增强。 [x3]',
     build: skill(
@@ -288,6 +507,7 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '引爆 [魔法 + 1] 颗紫色宝石。为所有半人马盟友赋予随机状态效果。然后召唤一支半人马部队。',
     build: skill(
       explodeRandomGems(1, 1, 'color', BaseColor.Purple),
+      summonRandom(['CentaurScout', 'StarGazer', 'Herdmaster', 'Orion', 'BulTauros', 'AstralSpirit', 'Dragotaur', 'Anthea', 'Artema', 'Hind', 'TheWorldbreaker', 'Vanguard', 'OrionsHerald', 'Herne', 'HorseLord', 'BorGakk', 'MatronDragotani', 'Thaumataur', 'Auspecia', 'Baphomet', 'AstralMother', 'Oneiros', 'Centuragon', 'Sagittarian', 'Chiron', 'CattauriWarrior', 'TheCattauriKing', 'Ogretaur', 'Hippolyta', 'WingedDonkey', 'Zebrataur', 'ImmortalSagittarian', 'Astaroth', 'Discordia', 'CentaurElder', 'Astrotaur', 'Eridana', 'KingEquustis', 'Lapitaur', 'Giraffataur', 'DuskWitch', 'Ciaran'], undefined),
     ),
   },
   {
@@ -295,6 +515,24 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '净化自身，然后随机对敌方队伍造成 9 层流血效果。',
     build: skill(
       cleanse('allySelf'),
+      inflict('bleed', 'enemyAll', { stacks: 9 }),
+    ),
+  },
+  {
+    id: 9524,
+    desc: '随机对敌方队伍造成 2 次精灵之火和 2 次缠绕。然后对一名敌人造成 [(魔法 / 2) + 4] – [魔法 + 9] -{2} 点伤害。',
+    build: skill(
+      inflict('faerie-fire', 'enemyAll', { stacks: 2 }),
+      inflict('entangle', 'enemyAll', { stacks: 2 }),
+    ),
+  },
+  {
+    id: 9525,
+    desc: '对敌方队伍随机施加 8 层流血、2 层精灵之火和 2 层缠绕。然后对一名敌人造成 [魔法 + 2] – [(魔法 x 2) + 4] -{2} 点伤害。',
+    build: skill(
+      inflict('bleed', 'enemyAll', { stacks: 8 }),
+      inflict('faerie-fire', 'enemyAll', { stacks: 2 }),
+      inflict('entangle', 'enemyAll', { stacks: 2 }),
     ),
   },
   {
@@ -309,6 +547,13 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '对一名敌人造成 [魔法 + 12] 点溅射伤害，并使所有受影响的敌人流血。如果我的队伍中有不朽双子，则将敌人法力颜色之一的所有宝石转换为紫色。',
     build: skill(
       dmgSplash('enemyChosen', 12, 1, { range: 'splash' }),
+    ),
+  },
+  {
+    id: 9573,
+    desc: '将所选颜色的所有宝石转换为腐烂宝石。',
+    build: skill(
+      transformToSpecial('ANY', 'decayGem'),
     ),
   },
   {
@@ -365,6 +610,7 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '对敌人造成 [魔法 + 3] 点伤害，每级回火 +4 点。如果敌人使用绿色法力，则引爆 3 颗绿色宝石。如果敌人有毁灭之力，则恢复我四分之一的法力。',
     build: skill(
       dmg('enemyChosen', 3, 1),
+      explodeRandomGems(3, 0, 'color', BaseColor.Green, { ifCond: { kind: 'targetColor', color: BaseColor.Green } }),
     ),
   },
   {
@@ -372,6 +618,7 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '对敌人造成 [魔法 + 3] 点伤害，每级回火 +4 点。如果敌人使用红色法力，则引爆 3 颗红色宝石。如果敌人有毁灭之力，则恢复我四分之一的法力。',
     build: skill(
       dmg('enemyChosen', 3, 1),
+      explodeRandomGems(3, 0, 'color', BaseColor.Red, { ifCond: { kind: 'targetColor', color: BaseColor.Red } }),
     ),
   },
   {
@@ -379,6 +626,7 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '对敌人造成 [魔法 + 3] 点伤害，每级回火 +4 点。如果敌人使用黄色法力，则引爆 3 颗黄色宝石。如果敌人有毁灭之力，则恢复我四分之一的法力。',
     build: skill(
       dmg('enemyChosen', 3, 1),
+      explodeRandomGems(3, 0, 'color', BaseColor.Yellow, { ifCond: { kind: 'targetColor', color: BaseColor.Yellow } }),
     ),
   },
   {
@@ -460,10 +708,19 @@ const SPELLS: CuratedBatch['spells'] = [
     ),
   },
   {
+    id: 9647,
+    desc: '对4名随机敌人造成流血效果。然后制造9颗激怒宝石。如果我的队伍中有不朽的安格拉克，则再制造4颗。 [x4]',
+    build: skill(
+      inflict('bleed', 'enemyRandomN', { n: 4 }),
+      createSpecialGems({ kind: 'enrageGem' }, 9, 0),
+      createSpecialGems({ kind: 'enrageGem' }, 4, 0, { ifCond: { kind: 'troopPresent', side: 'ally', name: '不朽的安格拉克' } }),
+    ),
+  },
+  {
     id: 9649,
     desc: '造成[魔法 + 8]点散射伤害，伤害值因绿龙宝石数量而增强。如果我的队伍中有不朽的德拉肯，则随机召唤一条龙。 [x4]',
     build: skill(
-      dmg('enemyAll', 8, 1, { range: 'all', modifier: { mod: { kind: 'multiplier', a: 4 }, source: { kind: 'boardGems', color: BaseColor.Green } } }),
+      dmg('enemyAll', 8, 1, { range: 'all', modifier: { mod: { kind: 'multiplier', a: 4 }, source: { kind: 'boardSpecial', gem: 'dragonGem' } } }),
     ),
   },
   {
@@ -471,6 +728,7 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '对一名敌人造成[魔法 + 3]点伤害，伤害值因诅咒宝石数量而增强。如果敌人已中毒，则造成双倍伤害。然后使其中毒。 [x3]',
     build: skill(
       dmg('enemyChosen', 3, 1, { modifier: { mod: { kind: 'multiplier', a: 3 }, source: { kind: 'enemyStatusCount', statusId: 'curse' } } }),
+      inflict('poison', 'lastTarget'),
     ),
   },
   {
@@ -492,6 +750,15 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '对一名敌人造成 [魔法 + 4] 点伤害，伤害值因黄色盟友和骑士盟友的数量而增强。 [x3]',
     build: skill(
       dmg('enemyChosen', 4, 1, { modifier: { mod: { kind: 'multiplier', a: 3 }, source: { kind: 'alliesOfRace', race: 'Knight' } } }),
+    ),
+  },
+  {
+    id: 9691,
+    desc: '赋予所有怪物盟友[魔法 + 1]点攻击力和生命值。然后祝福他们。',
+    build: skill(
+      attack('allyAll', 1, 1, { targetRace: 'Monster' }),
+      heal('allyAll', 1, 1, { targetRace: 'Monster' }),
+      inflict('blessed', 'allyAll', { targetRace: 'Monster' }),
     ),
   },
   {
@@ -527,6 +794,15 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '对一名敌人造成[魔法 + 3]溅射伤害，伤害值因激怒宝石数量而增强。然后引爆3颗激怒宝石。 [x6]',
     build: skill(
       dmgSplash('enemyChosen', 3, 1, { range: 'splash', modifier: { mod: { kind: 'multiplier', a: 6 }, source: { kind: 'boardSpecial', gem: 'enrageGem' } } }),
+    ),
+  },
+  {
+    id: 9748,
+    desc: '赋予所有恶魔盟友[魔法 + 1]攻击力和生命值。然后祝福他们。',
+    build: skill(
+      attack('allyAll', 1, 1, { targetRace: 'Daemon' }),
+      heal('allyAll', 1, 1, { targetRace: 'Daemon' }),
+      inflict('blessed', 'allyAll', { targetRace: 'Daemon' }),
     ),
   },
   {
@@ -586,6 +862,66 @@ const SPELLS: CuratedBatch['spells'] = [
     ),
   },
   {
+    id: 9825,
+    desc: '对一名敌人和一名随机敌人造成[魔法 + 3]点伤害，每级回火+2点。如果敌人使用蓝色法力，则使其流血。如果敌人拥有末日效果，则先破坏其护甲。',
+    build: skill(
+      dmg('enemyChosen', 3, 1),
+      dmg('enemyRandom', 3, 1),
+      inflict('bleed', 'lastTarget', { ifCond: { kind: 'targetColor', color: BaseColor.Blue } }),
+    ),
+  },
+  {
+    id: 9826,
+    desc: '对一名敌人和一名随机敌人造成[魔法 + 3]点伤害，每级回火+2点。如果敌人使用绿色法力，则使其流血。如果敌人拥有末日效果，则优先破坏其护甲。',
+    build: skill(
+      dmg('enemyChosen', 3, 1),
+      dmg('enemyRandom', 3, 1),
+      inflict('bleed', 'lastTarget', { ifCond: { kind: 'targetColor', color: BaseColor.Green } }),
+    ),
+  },
+  {
+    id: 9827,
+    desc: '对一名敌人和一名随机敌人造成[魔法 + 3]点伤害，每级回火+2点。如果敌人使用了红色法力，则使其流血。如果敌人拥有末日效果，则先破坏其护甲。',
+    build: skill(
+      dmg('enemyChosen', 3, 1),
+      dmg('enemyRandom', 3, 1),
+    ),
+  },
+  {
+    id: 9828,
+    desc: '对一名敌人和一名随机敌人造成[魔法 + 3]点伤害，每级回火+2点。如果敌人使用黄色法力，则使其流血。如果敌人拥有末日效果，则先破坏其护甲。',
+    build: skill(
+      dmg('enemyChosen', 3, 1),
+      dmg('enemyRandom', 3, 1),
+      inflict('bleed', 'lastTarget', { ifCond: { kind: 'targetColor', color: BaseColor.Yellow } }),
+    ),
+  },
+  {
+    id: 9829,
+    desc: '对一名敌人和一名随机敌人造成[魔法 + 3]点伤害，每级回火+2点。如果敌人使用紫色法力，则使其流血。如果敌人拥有末日效果，则先破坏其护甲。',
+    build: skill(
+      dmg('enemyChosen', 3, 1),
+      dmg('enemyRandom', 3, 1),
+      inflict('bleed', 'lastTarget', { ifCond: { kind: 'targetColor', color: BaseColor.Purple } }),
+    ),
+  },
+  {
+    id: 9830,
+    desc: '对一名敌人和一名随机敌人造成[魔法 + 3]点伤害，每级回火+2点。如果敌人使用棕色法力，则使其流血。如果敌人拥有末日效果，则先破坏其护甲。',
+    build: skill(
+      dmg('enemyChosen', 3, 1),
+      dmg('enemyRandom', 3, 1),
+      inflict('bleed', 'lastTarget', { ifCond: { kind: 'targetColor', color: BaseColor.Brown } }),
+    ),
+  },
+  {
+    id: 9831,
+    desc: '将指定颜色的所有宝石转化为流血宝石。灼烧并流血所有该颜色的敌人。',
+    build: skill(
+      transformToSpecial('ANY', 'bleedGem'),
+    ),
+  },
+  {
     id: 9832,
     desc: '引爆[魔法 + 1]颗绿色宝石。随机赋予所有扎金盟友一个状态效果。然后召唤一个扎金部队。',
     build: skill(
@@ -621,10 +957,20 @@ const SPELLS: CuratedBatch['spells'] = [
     ),
   },
   {
+    id: 9837,
+    desc: '使所有亡灵盟友获得1点攻击力和生命值。然后祝福他们。',
+    build: skill(
+      attack('allyAll', 1, 0, { targetRace: 'Undead' }),
+      heal('allyAll', 1, 0, { targetRace: 'Undead' }),
+      inflict('blessed', 'allyAll', { targetRace: 'Undead' }),
+    ),
+  },
+  {
     id: 9840,
     desc: '对一名敌人造成[魔法 + 2]点真实伤害，并使其燃烧。如果我方队伍中有不朽巨龟，则引爆4颗许愿宝石。 [x4]',
     build: skill(
       trueDmg('enemyChosen', 2, 1, { trueDamage: true }),
+      inflict('burning', 'lastTarget'),
     ),
   },
   {
@@ -653,6 +999,7 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '对 3 个随机敌人造成 [魔法 + 2] 点伤害。然后生成 3 个流血宝石。如果一个敌人死亡，则再生成 3 个流血宝石。',
     build: skill(
       dmg('enemyRandomN', 2, 1, { n: 3 }),
+      createSpecialGems({ kind: 'bleedGem' }, 3, 0),
     ),
   },
   {
@@ -660,6 +1007,21 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '对所有敌人造成[(魔法 x 1.75) + 5]点伤害。生成3个流血宝石、3个恐惧宝石、3个中毒宝石。如果敌人死亡，则额外生成3个流血宝石和3个恐惧宝石。',
     build: skill(
       dmg('enemyAll', 5, 1.75, { range: 'all' }),
+      createSpecialGems({ kind: 'bleedGem' }, 3, 0),
+    ),
+  },
+  {
+    id: 9910,
+    desc: '制作10颗毒宝石。然后对所有敌人施加1-2种随机状态效果。',
+    build: skill(
+      createSpecialGems({ kind: 'poisonGem' }, 10, 0),
+    ),
+  },
+  {
+    id: 9911,
+    desc: '使所有暗石盟友获得1点攻击力和生命值。然后祝福他们。',
+    build: skill(
+      inflict('blessed', 'allySelf'),
     ),
   },
   {
@@ -674,6 +1036,13 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '对前 2 个敌人造成 [魔法 + 3] 点伤害，骑士盟友可提升伤害。 [x3]',
     build: skill(
       dmg('enemyFirstN', 3, 1, { n: 2 }),
+    ),
+  },
+  {
+    id: 9914,
+    desc: '使所有狐狸族盟友获得1点攻击力和生命值。然后祝福他们。',
+    build: skill(
+      inflict('blessed', 'allySelf'),
     ),
   },
   {
@@ -709,6 +1078,7 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '对所有敌人造成[魔法 + 3]点伤害。然后生成8个蛛网宝石。',
     build: skill(
       dmg('enemyAll', 3, 1, { range: 'all' }),
+      createSpecialGems({ kind: 'web' }, 8, 0),
     ),
   },
   {
@@ -716,6 +1086,15 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '对敌人造成[魔法 + 4]点伤害，绿色盟友和神秘盟友可提升伤害。 [x3]',
     build: skill(
       dmg('enemyChosen', 4, 1),
+    ),
+  },
+  {
+    id: 9973,
+    desc: '赋予所有元素盟友[魔法 + 1]点攻击力和生命值。然后祝福他们。',
+    build: skill(
+      attack('allyAll', 1, 1, { targetRace: 'Elemental' }),
+      heal('allyAll', 1, 1, { targetRace: 'Elemental' }),
+      inflict('blessed', 'allyAll', { targetRace: 'Elemental' }),
     ),
   },
   {
@@ -733,6 +1112,15 @@ const SPELLS: CuratedBatch['spells'] = [
     ),
   },
   {
+    id: 9976,
+    desc: '使所有神秘盟友获得1点攻击力和生命值。然后祝福他们。',
+    build: skill(
+      attack('allyAll', 1, 0, { targetRace: 'Mystic' }),
+      heal('allyAll', 1, 0, { targetRace: 'Mystic' }),
+      inflict('blessed', 'allyAll', { targetRace: 'Mystic' }),
+    ),
+  },
+  {
     id: 9977,
     desc: '对前 2 个敌人造成 [魔法 + 3] 点伤害，受到荒野平原盟友的加成。 [x3]',
     build: skill(
@@ -747,31 +1135,43 @@ const SPELLS: CuratedBatch['spells'] = [
     ),
   },
   {
+    id: 9985,
+    desc: '降低一名敌人1点攻击力和4点魔法值，受诅咒敌人影响时效果更佳。如果我方队伍中有不朽者拜布利奥斯，则同时沉默该敌人。 [x3]',
+    build: skill(
+      reduce('enemyChosen', 'attack', 1, 0),
+      reduce('enemyChosen', 'magic', 4, 0),
+    ),
+  },
+  {
     id: 10003,
     desc: '随机给予一名盟友1点技能点数，每提升一级强化等级额外增加3点。祝福所有蓝色盟友，诅咒所有蓝色敌人。如果敌人带有厄运效果，则获得额外回合。',
     build: skill(
-      inflict('curse', 'enemyAll'),
+      inflict('blessed', 'allyAll', { ifCond: { kind: 'targetColor', color: BaseColor.Blue } }),
+      inflict('curse', 'enemyAll', { ifCond: { kind: 'targetColor', color: BaseColor.Blue } }),
     ),
   },
   {
     id: 10005,
     desc: '随机给予一名盟友1点技能点数，每提升一级强化等级额外增加3点。祝福所有红色盟友，诅咒所有红色敌人。如果敌人带有厄运效果，则获得额外回合。',
     build: skill(
-      inflict('curse', 'enemyAll'),
+      inflict('blessed', 'allyAll', { ifCond: { kind: 'targetColor', color: BaseColor.Red } }),
+      inflict('curse', 'enemyAll', { ifCond: { kind: 'targetColor', color: BaseColor.Red } }),
     ),
   },
   {
     id: 10006,
     desc: '随机给予一名盟友1点技能点数，每提升一级强化等级额外增加3点。祝福所有黄色盟友，诅咒所有黄色敌人。如果敌人带有厄运效果，则获得额外回合。',
     build: skill(
-      inflict('curse', 'enemyAll'),
+      inflict('blessed', 'allyAll', { ifCond: { kind: 'targetColor', color: BaseColor.Yellow } }),
+      inflict('curse', 'enemyAll', { ifCond: { kind: 'targetColor', color: BaseColor.Yellow } }),
     ),
   },
   {
     id: 10008,
     desc: '随机给予一名盟友1点技能点数，每提升一级强化等级额外增加3点。祝福所有棕色盟友，诅咒所有棕色敌人。如果敌人带有厄运效果，则获得额外回合。',
     build: skill(
-      inflict('curse', 'enemyAll'),
+      inflict('blessed', 'allyAll', { ifCond: { kind: 'targetColor', color: BaseColor.Brown } }),
+      inflict('curse', 'enemyAll', { ifCond: { kind: 'targetColor', color: BaseColor.Brown } }),
     ),
   },
   {
@@ -779,6 +1179,15 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '对一名敌人造成[魔法 + 4]点伤害，绿色盟友和哥布林盟友可提升伤害。 [x3]',
     build: skill(
       dmg('enemyChosen', 4, 1),
+    ),
+  },
+  {
+    id: 10046,
+    desc: '使所有构装体盟友获得1点攻击力和生命值。然后祝福他们。',
+    build: skill(
+      attack('allyAll', 1, 0, { targetRace: 'Construct' }),
+      heal('allyAll', 1, 0, { targetRace: 'Construct' }),
+      inflict('blessed', 'allyAll', { targetRace: 'Construct' }),
     ),
   },
   {
@@ -800,6 +1209,13 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '对前 2 个敌人造成 [魔法 + 3] 点伤害，野兽盟友可提升伤害。 [x3]',
     build: skill(
       dmg('enemyFirstN', 3, 1, { n: 2 }),
+    ),
+  },
+  {
+    id: 10050,
+    desc: '使所有流沙盟军获得1点攻击力和生命值。然后祝福他们。',
+    build: skill(
+      inflict('blessed', 'allySelf'),
     ),
   },
 ];

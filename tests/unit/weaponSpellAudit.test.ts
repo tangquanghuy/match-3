@@ -37,6 +37,8 @@ const META: Record<string, { fidelity: string; missingFeatures: string[]; skippe
 const STATUS_WHITELIST = new Set([
   'poison', 'burning', 'bleed', 'silence', 'frozen', 'stun', 'entangle', 'web', 'barrier', 'submerged',
   'rage', 'disease', 'curse', 'death-mark', 'charm', 'marked', 'terror', 'faerie-fire',
+  // 第三轮：正面状态族落地（status.ts BLESS/ENCHANTED/REFLECT_STATUS_ID + WOLF_STATUS_IDS）
+  'blessed', 'enchanted', 'reflect', 'lycanthropy',
 ]);
 
 const { byId: weaponById, skipped: weaponSkipped, batches: weaponBatchNames } = collectWeaponCurated();
@@ -153,6 +155,14 @@ describe('武器法术池与元数据（pool-w01 + weapon-skill-meta）', () => 
       expect(Array.isArray(v.missingFeatures)).toBe(true);
       expect(Array.isArray(v.skippedClauses)).toBe(true);
     }
+  });
+
+  it('第三轮分布快照：full 320 / partial 382 / mana-only 16（前轮 245/406/67；tier 修正后 8966 诚实降级）', () => {
+    const tier = { full: 0, partial: 0, 'mana-only': 0 };
+    for (const v of Object.values(META)) tier[v.fidelity as keyof typeof tier] += 1;
+    expect(tier.full).toBe(320);
+    expect(tier.partial).toBe(382);
+    expect(tier['mana-only']).toBe(16);
   });
 });
 

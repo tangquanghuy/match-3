@@ -8,7 +8,7 @@
  * src/data/weapon-skill-meta.json）。组装规则锚定 scripts/spell-rules.md 与
  * 既有部队批次先例；生成器 scripts/_weapon_pools.mjs gen。
  */
-import { armor, attack, cleanse, createGems, createMix, createStorm, destroyChosenCol, destroyChosenRow, destroyColor, destroyRandomGems, destroySkulls, dmg, dmgSplash, drainMana, explodeRandomGems, extraTurn, flat, gainSouls, heal, inflict, magic, mana, oneOf, randomStat, reduce, reposition, scale, shuffleBoard, skill, steal, summonRandom, summonRef, trueDmg, CHOSEN } from '../builders';
+import { armor, attack, cleanse, createGems, createMix, createSpecialGems, createStorm, destroyChosenCol, destroyChosenRow, destroyColor, destroyRandomGems, destroySkulls, dmg, dmgSplash, drainMana, explodeRandomGems, extraTurn, flat, gainGold, gainMaps, gainSouls, heal, inflict, magic, mana, oneOf, randomStat, reduce, reposition, scale, shuffleBoard, skill, steal, summonRandom, summonRef, trueDmg, CHOSEN, CASTER } from '../builders';
 import { BaseColor } from '../../types';
 import type { CuratedBatch } from './index';
 
@@ -558,7 +558,6 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '创造 7 颗红色宝石，并净化所有盟友。给随机一名盟友 [魔法 + 1] 点生命值。',
     build: skill(
       createGems(BaseColor.Red, 7, 0),
-      cleanse('allyAll'),
       heal('allyRandom', 1, 1),
     ),
   },
@@ -658,6 +657,13 @@ const SPELLS: CuratedBatch['spells'] = [
       heal('allySelf', 0, 0, { full: true }),
       extraTurn(),
       gainSouls(1, 1),
+    ),
+  },
+  {
+    id: 7204,
+    desc: '创造 8 颗指定盟友的法力颜色的宝石。盟友获得 [魔法] 点护甲值。',
+    build: skill(
+      armor('allyAll', 0, 1),
     ),
   },
   {
@@ -962,6 +968,7 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 7295,
     desc: '将一名军队拉到首位。对其造成 [魔法 + 6] 点伤害并将其击晕。',
     build: skill(
+      dmg('lastTarget', 6, 1),
       inflict('stun', 'lastTarget'),
     ),
   },
@@ -987,6 +994,7 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '对 1 名敌人造成 [魔法 + 5] 点伤害。有 50% 的几率获得下列其一：20 个灵魂、100 黄金或 1 张藏宝图。',
     build: skill(
       dmg('enemyChosen', 5, 1),
+      { kind: 'oneOf', options: [[gainSouls(20, 0)], [gainGold(100, 0)], [gainMaps(1, 0)]], chance: 0.5 },
     ),
   },
   {
@@ -1018,7 +1026,8 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 7308,
     desc: '对 1 名敌人造成 [魔法 + 5] 点伤害，移除所有该军队法力颜色的宝石来强化此效果。 [2:1]',
     build: skill(
-      dmg('enemyChosen', 5, 1),
+      destroyColor(CASTER),
+      dmg('enemyChosen', 5, 1, { modifier: { mod: { kind: 'ratio', a: 2, b: 1 } } }),
     ),
   },
   {
@@ -1057,6 +1066,7 @@ const SPELLS: CuratedBatch['spells'] = [
     build: skill(
       dmg('enemyChosen', 6, 1),
       inflict('poison', 'lastTarget'),
+      dmg('lastTarget', 0, 0, { execute: true, chance: 0.1, chanceBoost: { mod: { kind: 'multiplier', a: 10 }, source: { kind: 'enemyStatusCount', statusId: 'poison' } } }),
     ),
   },
   {
@@ -1067,6 +1077,13 @@ const SPELLS: CuratedBatch['spells'] = [
       drainMana('lastTarget'),
       inflict('web', 'lastTarget'),
       extraTurn({ ifCond: { kind: 'anyEnemyStatus', statusId: 'web' } }),
+    ),
+  },
+  {
+    id: 7412,
+    desc: '对 1 名敌人施放法力灼烧，伤害值因自身魔法值而增强。燃烧敌人，如果敌人身亡，则转化成一只随机龙族。',
+    build: skill(
+      inflict('burning', 'enemyChosen'),
     ),
   },
   {
@@ -1097,6 +1114,8 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '获得 [魔法 + 4] 点生命值。净化和赋予所有其他的盟友法印效果。',
     build: skill(
       heal('allySelf', 4, 1),
+      cleanse('allyAll'),
+      inflict('enchanted', 'allyAll'),
     ),
   },
   {
@@ -1116,6 +1135,14 @@ const SPELLS: CuratedBatch['spells'] = [
     ),
   },
   {
+    id: 7492,
+    desc: '给予所有黄色盟友 5 点攻击力。对所有紫色敌人造成 [魔法 + 4] 点伤害。然后召唤一个随机风暴。',
+    build: skill(
+      attack('allyAll', 5, 0, { ifCond: { kind: 'targetColor', color: BaseColor.Yellow } }),
+      dmg('enemyAll', 4, 1, { range: 'all', ifCond: { kind: 'targetColor', color: BaseColor.Purple } }),
+    ),
+  },
+  {
     id: 7527,
     desc: '对一名敌人造成 [魔法 + 8] 点溅射伤害。赋予第一名盟友狂怒状态。',
     build: skill(
@@ -1127,7 +1154,7 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 7529,
     desc: '创造 8 颗红色宝石和 8 颗黄色宝石，再召唤一颗龙蛋或恶龙蛋。',
     build: skill(
-      createGems(BaseColor.Red, 8, 0),
+      createSpecialGems({ kind: 'dragonGem', color: BaseColor.Red }, 8, 0),
     ),
   },
   {
@@ -1286,7 +1313,10 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '给一名盟友 [魔法 + 2] 点生命值和一半的法力值。将其净化，并赋予其屏障和法印效果。 [2:1]',
     build: skill(
       heal('allyAll', 2, 1),
-      mana('allyAll', 0, 0, { halve: true }),
+      mana('allyAll', 0, 0, { halve: true, modifier: { mod: { kind: 'ratio', a: 2, b: 1 } } }),
+      cleanse('lastTarget'),
+      inflict('barrier', 'lastTarget'),
+      inflict('enchanted', 'lastTarget'),
     ),
   },
   {
@@ -1294,6 +1324,7 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '对所有敌人造成 [(魔法 / 2) + 4] 点伤害。使所有神祇军队陷入死亡标记状态和所有骑士陷入疾病状态。',
     build: skill(
       dmg('enemyAll', 4, 0.5, { range: 'all' }),
+      inflict('death-mark', 'enemyAll', { targetRace: 'Divine' }),
     ),
   },
   {
@@ -1315,7 +1346,8 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 7654,
     desc: '创造 15 颗 红色和绿色的宝石。赋予两名随机盟友法印效果。',
     build: skill(
-      createGems(BaseColor.Red, 15, 0),
+      createMix([BaseColor.Red, BaseColor.Green], 15),
+      inflict('enchanted', 'allyRandomN', { n: 2 }),
     ),
   },
   {
@@ -1356,29 +1388,6 @@ const SPELLS: CuratedBatch['spells'] = [
     build: skill(
       dmg('enemyAll', 10, 1, { range: 'all' }),
       magic('allyAll', 3, 0),
-    ),
-  },
-  {
-    id: 7660,
-    desc: '造成 [魔法 + 10] 点散射伤害，每锻炼 1 个武器段位则 +4 点伤害值。每有一名棕色敌人则创造 6 颗混合棕色和骷髅头的宝石。给予所有盟友 3 点魔法值。如果敌方有劫数，则再增加 5 点。 [x6]',
-    build: skill(
-      dmg('enemyAll', 10, 1, { range: 'all' }),
-      magic('allyAll', 3, 0),
-    ),
-  },
-  {
-    id: 7662,
-    desc: '对一名敌人造成 [魔法 + 7] 点伤害，伤害值因潘神之谷友数而增强。每有一名潘神之谷盟友，则创造混合绿色和黄色的 6 颗宝石。 [x6]',
-    build: skill(
-      dmg('enemyChosen', 7, 1),
-    ),
-  },
-  {
-    id: 7688,
-    desc: '对一名敌人造成 [魔法 + 7] 点伤害，伤害值因野兽盟友数而增强。每有一名野兽盟友，则创造 6 颗宝石，所创造的宝石混合绿色和黄色两种颜色。 [x6]',
-    build: skill(
-      dmg('enemyChosen', 7, 1, { modifier: { mod: { kind: 'multiplier', a: 6 }, source: { kind: 'alliesOfRace', race: 'Beast' } } }),
-      createMix([BaseColor.Green, BaseColor.Yellow], 6, 0, { modifier: { mod: { kind: 'multiplier', a: 6 }, sources: [{ kind: 'alliesOfRace', race: 'Beast' }] } }),
     ),
   },
 ];

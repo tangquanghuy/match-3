@@ -168,6 +168,59 @@ describe('武器法术语义冒烟（TurnEngine 全管线）', () => {
   });
 });
 
+describe('武器法术语义冒烟（第三轮 · 新引擎词汇代表）', () => {
+  it('9691 兽王之爪：种族限定盟友增益（targetRace）+ 祝福（blessed 状态）', () => {
+    const { events, state } = castWeapon(9691, { allyTroopTypes: ['Monster'] });
+    const buffs = events.filter((e) => e.type === 'buff');
+    expect(buffs.length, '怪物盟友应获得攻击力/生命值增益').toBeGreaterThanOrEqual(2);
+    const blessed = state.teams[PlayerSide.Left].characters
+      .filter((c) => (c.troopTypes ?? []).includes('Monster'))
+      .every((c) => c.statuses.some((s) => s.id === 'blessed'));
+    expect(blessed, '所有怪物盟友应被祝福').toBe(true);
+  });
+
+  it('8842 圣镜盾：反射状态 + 自身已有反射则全体反射（selfStatus 条件）', () => {
+    const { events, state } = castWeapon(8842);
+    expect(typesOf(events)).toContain('status-apply');
+    const caster = state.teams[PlayerSide.Left].characters[0];
+    expect(caster.statuses.some((s) => s.id === 'reflect'), '自身应获得反射').toBe(true);
+    expect(caster.armor).toBeGreaterThan(4); // 应获得 [魔法+1] 护甲
+  });
+
+  it('8623 星辰法杖：元素星/暗影之星创造（Wave B）+ 赐福全体 + 诅咒全体', () => {
+    const { events, state } = castWeapon(8623);
+    const creates = events.filter((e) => e.type === 'gem-create');
+    expect(creates.length, '应创造元素星与暗影之星').toBeGreaterThan(0);
+    const blessed = state.teams[PlayerSide.Left].characters.every((c) => c.statuses.some((s) => s.id === 'blessed'));
+    const cursed = state.teams[PlayerSide.Right].characters.every((c) => c.statuses.some((s) => s.id === 'curse'));
+    expect(blessed, '全体盟友赐福').toBe(true);
+    expect(cursed, '全体敌人诅咒').toBe(true);
+  });
+
+  it('9647 怒岩锤：对4名随机敌人流血 + 条件复用创造（troopPresent 条件不满足时空过）', () => {
+    const { events, state } = castWeapon(9647);
+    const applies = events.filter((e) => e.type === 'status-apply');
+    expect(applies.length, '随机敌人应陷入流血').toBeGreaterThan(0);
+    const creates = events.filter((e) => e.type === 'gem-create');
+    expect(creates.length, '应制造 9 颗激怒宝石').toBeGreaterThan(0);
+    void state;
+  });
+
+  it('7928 灾祸之刃：全负面状态池展开 + 爆破其法力颜色宝石（LAST_TARGET 通道）', () => {
+    const { events, state } = castWeapon(7928);
+    const applies = events.filter((e) => e.type === 'status-apply');
+    expect(applies.length, '目标应陷入全负面状态池').toBeGreaterThanOrEqual(12);
+    expect(typesOf(events)).toContain('gem-explode');
+    void state;
+  });
+
+  it('9263 兽人战旗：首 2 名敌人伤害 + 恶魔盟友数增幅（alliesOfRace modifier）', () => {
+    const { events } = castWeapon(9263, { allyTroopTypes: ['Daemon'] });
+    expect(typesOf(events)).toContain('skill-damage');
+    void events;
+  });
+});
+
 describe('武器法术语义冒烟（partial 保真度代表）', () => {
   it('7655 龙鳞巨剑（Doomed · partial）：基础全体散射生效，淬炼增项不产生事件', () => {
     const { events, state } = castWeapon(7655);
