@@ -88,9 +88,10 @@ describe('编译正确性（代表 code → resolvePassives 产物）', () => {
     expect(stars.skull.all).toEqual({ hp: 1, armor: 1, attack: 1, magic: 1, mana: 0 });
   });
 
-  it('insanegrowth：「配对 5 或 5 颗」只认 5 连（minSize 限定）', () => {
-    expect(getTrait('insanegrowth')?.onBigMatchSizedGain).toEqual({ minSize: 5, stat: 'magic', amount: 4 });
-    expect(resolvePassives(['insanegrowth']).gainOnBigMatchSized).toEqual({ '5': { hp: 0, armor: 0, attack: 0, magic: 4, mana: 0 } });
+  it('insanegrowth：官方「Gain 5 to a random Skill on 4 or 5 Gem matches」= 任意大连 magic +5（修正前误锁 minSize5/amount4）', () => {
+    expect(getTrait('insanegrowth')?.onBigMatchGain).toEqual({ stat: 'magic', amount: 5 });
+    expect(getTrait('insanegrowth')?.onBigMatchSizedGain).toBeUndefined();
+    expect(resolvePassives(['insanegrowth']).gainOnBigMatch).toEqual({ hp: 0, armor: 0, attack: 0, magic: 5, mana: 0 });
   });
 
   it('ragingbull：共享数值多属性（红匹配 → 攻/甲/血各 2）', () => {
@@ -184,14 +185,16 @@ describe('applyBigMatchTriggers + ctx（纯函数层）', () => {
     expect(team.every((c) => c.statuses.some((s) => s.id === 'submerged'))).toBe(true);
   });
 
-  it('insanegrowth：size=4 不触发、size=5 触发（magic +4）', () => {
+  it('insanegrowth：4 连与 5 连都触发 magic +5（官方口径：4 or 5 Gem matches）', () => {
     const char = makeChar(0, { traitIds: ['insanegrowth'], magic: 8 });
     attachPassives(char);
-    applyBigMatchTriggers([char], { size: 4 });
-    expect(char.magic).toBe(8);
-    const events = applyBigMatchTriggers([char], { size: 5 });
-    expect(char.magic).toBe(12);
-    expect(events.some((e) => e.type === 'buff' && e.stat === 'magic' && e.amount === 4)).toBe(true);
+    const events4 = applyBigMatchTriggers([char], { size: 4 });
+    expect(char.magic).toBe(13);
+    expect(events4.some((e) => e.type === 'buff' && e.stat === 'magic' && e.amount === 5)).toBe(true);
+    const char5 = makeChar(1, { traitIds: ['insanegrowth'], magic: 8 });
+    attachPassives(char5);
+    applyBigMatchTriggers([char5], { size: 5 });
+    expect(char5.magic).toBe(13);
   });
 
   it('lotusblessing：50% 概率受 rng 控制；无 rng 不生效（召唤口径）', () => {
@@ -348,18 +351,18 @@ describe('TurnEngine 集成：真实对局中的条件光环', () => {
     expect(events.some((e) => e.type === 'buff' && e.stat === 'hp' && e.amount === 5)).toBe(true);
   });
 
-  it('insanegrowth：4 连不触发、5 连 magic +4（minSize 限定在真实对局生效）', () => {
+  it('insanegrowth：4 连与 5 连都 magic +5（官方口径在真实对局生效）', () => {
     // 断言读 state 里的角色对象（createGameState 可能拷贝入参）
     const four = buildWithNMatch(4, [makeChar(0, { traitIds: ['insanegrowth'], magic: 8 }), makeChar(1)], [makeChar(4), makeChar(5)]);
     attachPassives(four.engine.getState().teams[PlayerSide.Left].characters[0]);
     four.engine.resolveSwap({ row: 7, col: 2 }, { row: 6, col: 2 });
-    expect(four.engine.getState().teams[PlayerSide.Left].characters[0].magic).toBe(8);
+    expect(four.engine.getState().teams[PlayerSide.Left].characters[0].magic).toBe(13);
 
     const five = buildWithNMatch(5, [makeChar(0, { traitIds: ['insanegrowth'], magic: 8 }), makeChar(1)], [makeChar(4), makeChar(5)]);
     attachPassives(five.engine.getState().teams[PlayerSide.Left].characters[0]);
     const events = five.engine.resolveSwap({ row: 7, col: 2 }, { row: 6, col: 2 });
     expect(events.some((e) => e.type === 'buff' && e.stat === 'magic')).toBe(true);
-    expect(five.engine.getState().teams[PlayerSide.Left].characters[0].magic).toBe(12);
+    expect(five.engine.getState().teams[PlayerSide.Left].characters[0].magic).toBe(13);
   });
 
   it('celestialtemper：红色匹配给所有红色盟友 +4 攻（colorMatchTypeAura）', () => {

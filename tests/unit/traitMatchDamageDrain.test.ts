@@ -444,9 +444,12 @@ describe('护栏 · 无新键特质的对局随机序列不变', () => {
     // 基线说明：本组数字在**不含新键特质**的 legacy 大连族对局采集。damage/drainLife
     // 注入对无新键阵容必须零随机消耗、零额外事件——若 applyBigMatchTriggers 的伤害/敌减块
     // 或 applyColorMatchTriggers 的窃取块意外消耗随机数或多发事件，会偏离基线而红。
+    // 2026-09 核对修正：insanegrowth 数据由「只认 5 连 magic+4」改为官方「4/5 连 magic+5」，
+    // 纯确定性 buff 事件增加（seed 7: 104→108、seed 42: 73→74），rng 终态五组全部逐字节不变——
+    // 即该修正确实零随机消耗。
     const BASELINE: Record<number, { rngState: number; eventCount: number }> = {
-      7: { rngState: 3704343930, eventCount: 104 },
-      42: { rngState: 233035930, eventCount: 73 },
+      7: { rngState: 3704343930, eventCount: 108 },
+      42: { rngState: 233035930, eventCount: 74 },
       99: { rngState: 1304883736, eventCount: 97 },
       1234: { rngState: 3200391881, eventCount: 83 },
       2026: { rngState: 1936721333, eventCount: 92 },

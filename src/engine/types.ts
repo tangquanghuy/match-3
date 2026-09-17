@@ -443,6 +443,14 @@ export interface PassiveModifiers {
   regenPerTurn: number;
   /** 每回合开始恢复的护甲 */
   regenArmorPerTurn: number;
+  /**
+   * 每回合开始获得的攻击力（aspectofwar「在每回合开始时获得 3 点攻击力」）。
+   * regen.stat 按 attack/magic 分路由——历史上非 armor 的 regen 一律落 regenPerTurn
+   * （HP 回复），攻击/魔法回合增益被静默结算成回血，属接线 bug，已按 stat 字段修正。
+   */
+  regenAttackPerTurn: number;
+  /** 每回合开始获得的魔法值（织网下的魔法增益拦截走 grantStat 既有口径） */
+  regenMagicPerTurn: number;
   /** 自身受到伤害后获得的数值 */
   gainOnDamaged: StatGains;
   /**
@@ -487,6 +495,11 @@ export interface PassiveModifiers {
     randomPositive?: boolean;
     randomNegative?: boolean;
     minSize?: number;
+    /**
+     * 独立概率掷（maladycurse「Independent 25% chances to inflict Curse or Death Mark」）：
+     * 每条状态各自掷一次 chance（各中各的），而非一次判定全上；每条各耗一次 rng。
+     */
+    independentChance?: boolean;
   };
   /** 配对 N 连限定自身增益（insanegrowth「配对 5 或 5 颗」只认 5 连），键为 minSize */
   gainOnBigMatchSized: Readonly<Record<string, StatGains>>;
@@ -503,15 +516,16 @@ export interface PassiveModifiers {
   /** 敌方配对某色/骷髅时自身获得（rancor），色键同 colorMatchTypeAura */
   gainOnEnemyColorMatch: Readonly<Record<string, StatGains>>;
   /**
-   * 配对某色（或骷髅）宝石时给随机一名敌人施加状态（T5 配色状态批 16 code：
+   * 配对某色（或骷髅）宝石时施加状态（T5 配色状态批 16 code：
    * molten/sunfire/deepwounds…）。外层色键同 gainOnEnemyColorMatch（'skull'=骷髅匹配）；
-   * scope 当前仅 randomEnemy（「（随机）使一名随机敌人陷入X状态」句式族，多条 statuses
-   * 逐条施加，enchantedvines 缠绕+妖火）。触发点 applyColorMatchTriggers（配色触发同点），
+   * scope：randomEnemy=随机一名存活敌人（多条 statuses 逐条施加，enchantedvines 缠绕+妖火）/
+   * self=持有者自身（angrybear「配对棕色宝石时赋予自身狂怒状态」）。触发点
+   * applyColorMatchTriggers（配色触发同点），
    * 施加经 TurnEngine 注入的 applyStatus（免疫在施加口拦截），随机目标与概率
    * （foxfire 50% 用 chance）消耗注入的 rng；无注入时概率 <1 不生效、目标退化为首个存活。
    */
   colorMatchStatus: Readonly<Record<string, {
-    scope: 'randomEnemy';
+    scope: 'randomEnemy' | 'self';
     statuses: readonly { id: string; magnitude?: number }[];
     turns: number;
     chance?: number;
@@ -548,13 +562,14 @@ export interface PassiveModifiers {
    * 自己一方配对 4+ 连时削减敌方属性（T5 大连敌减批 5 code：suppression/aspectofplague/
    * technomancy/creepinggloom/chillingaura「敌人损失/耗掉/窃取 N 点X」）。reduce 语义
    * （持有者不进账）：目标属性夹零发负 buff 事件，mana 为耗蓝口径（manashield 免疫在
-   * 削减口拦截）；front=首位存活敌人、randomEnemy 每条规格消耗一次注入的 rng；
-   * minSize 缺省 4。
+   * 削减口拦截）；front=首位存活敌人、randomEnemy 每条规格消耗一次注入的 rng、
+   * allEnemies=敌方全队存活逐个削减（darkness「所有敌人损失 4 点攻击力」，确定性、
+   * 零随机消耗）；minSize 缺省 4。
    */
   bigMatchEnemyDrain: readonly {
     stat: 'attack' | 'armor' | 'magic' | 'mana';
     amount: number;
-    scope: 'front' | 'randomEnemy';
+    scope: 'front' | 'randomEnemy' | 'allEnemies';
     minSize: number;
   }[];
   /**
@@ -614,9 +629,27 @@ export interface PassiveModifiers {
   onEnemyDeathStatus?: { id: string; turns: number };
   /**
    * 敌方角色阵亡时同队指定种族盟友获得的数值（lordofdeath「所有不死族在一名敌人身亡时
-   * 获得 5 点生命值和魔法值」）。受益者为持有者一方该种族的存活盟友，含持有者本人。
+   * 获得 5 点生命值和魔法值」）。受益者为持有者一方该种族的存活盟友，含持有者本人；
+   * troopType 'all' = 全队（virtueofjustice「当敌人身亡时，所有盟友获得 3 点攻击力和护甲值」）。
    */
   onEnemyDeathTypeAura?: { troopType: string; gains: Partial<StatGains> };
+  /**
+   * 同队角色阵亡时同队指定范围盟友获得的数值（virtueofsacrifice「当一名盟友身亡时，
+   * 所有盟友获得 2 点攻击力和魔法值」）。受益者为持有者一方存活盟友（'all'=全队/种族名），
+   * 与 onEnemyDeathTypeAura 同构、方向相反。
+   */
+  onAllyDeathTypeAura?: { troopType: string; gains: Partial<StatGains> };
+  /**
+   * 同队任一角色施法时同队指定范围盟友获得的数值（virtueofloyalty「当一名盟友施放法术时，
+   * 所有盟友获得 3 点护甲值和生命值」）。持有者在施法方队伍时生效，受益者为该队存活盟友。
+   */
+  onAllyCastTypeAura?: { troopType: string; gains: Partial<StatGains> };
+  /**
+   * 自身承受伤害时同队指定范围盟友获得的数值（virtueofhumility「当自身生命值承受伤害时，
+   * 所有盟友获得 2 点护甲值和魔法值」）。与 gainOnDamaged 同一触发点（骷髅受击结算处），
+   * 受益者为受击者一方存活盟友（'all'=全队/种族名）。
+   */
+  onDamagedTypeAura?: { troopType: string; gains: Partial<StatGains> };
   /**
    * 敌方角色阵亡时使死者一方仍存活的「另一名敌人」陷入状态（sharedfate「在一名敌人
    * 身亡时，使另一名敌人陷入死亡标记状态」）。死者已被移出编队，目标取死者一方

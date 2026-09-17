@@ -55,7 +55,8 @@
     "description": "对燃烧和妖火状态效果免疫。",
     "troops": 95,
     "statusImmunities": [
-      "burning"
+      "burning",
+      "faerie-fire"
     ]
   },
   {
@@ -362,7 +363,7 @@
     "description": "对法力耗尽、沉默、妖火和织网状态效果免疫。",
     "troops": 29,
     "statusImmunities": [
-      "burning",
+      "faerie-fire",
       "silence",
       "web"
     ]
@@ -476,7 +477,7 @@
     "description": "对法力耗尽、沉默、妖火和死亡标记状态效果免疫。",
     "troops": 23,
     "statusImmunities": [
-      "burning",
+      "faerie-fire",
       "silence",
       "death-mark"
     ]
@@ -801,7 +802,7 @@
     "description": "对法力耗尽、沉默、妖火和缠绕状态效果免疫。",
     "troops": 14,
     "statusImmunities": [
-      "burning",
+      "faerie-fire",
       "silence",
       "entangle"
     ]
@@ -1029,8 +1030,9 @@
     "description": "对法力耗尽、沉默、妖火和法力灼烧免疫。",
     "troops": 11,
     "statusImmunities": [
-      "burning",
-      "silence"
+      "faerie-fire",
+      "silence",
+      "mana-burn"
     ]
   },
   {
@@ -1370,9 +1372,21 @@
   {
     "code": "flowershield",
     "name": "花盾",
-    "description": "反射 35% 的骷髅伤害。",
+    "description": "反弹 35% 的骷髅头伤害。",
     "troops": 7,
     "reflectSkullRatio": 0.35
+  },
+  {
+    "code": "herdspirit",
+    "name": "群体精神",
+    "description": "死亡时有 25% 的几率召唤半人马侦察兵。",
+    "troops": 6,
+    "summonOnDeath": {
+      "chance": 0.25,
+      "troopId": 6016,
+      "referenceName": "CentaurScout",
+      "displayName": "人马斥候"
+    }
   },
   {
     "code": "waterbrand",
@@ -1607,6 +1621,18 @@
     "inflictOnSkullHit": {
       "id": "stun",
       "turns": 3
+    }
+  },
+  {
+    "code": "dragonboon",
+    "name": "龙族恩惠",
+    "description": "在身亡时有 25% 的几率召唤一只德拉贡特。",
+    "troops": 5,
+    "summonOnDeath": {
+      "chance": 0.25,
+      "troopId": 6232,
+      "referenceName": "Dragonette",
+      "displayName": "小飞龙"
     }
   },
   {
@@ -1968,9 +1994,8 @@
     "description": "在造成骷髅头伤害时使敌人陷入妖火状态。",
     "troops": 3,
     "inflictOnSkullHit": {
-      "id": "burning",
-      "turns": 3,
-      "magnitude": 1
+      "id": "faerie-fire",
+      "turns": 3
     }
   },
   {
@@ -2180,6 +2205,18 @@
     "turnStartColorToSkull": {
       "color": "Purple",
       "chance": 0.25
+    }
+  },
+  {
+    "code": "stonepact",
+    "name": "岩石协议",
+    "description": "在我身亡时，有 25% 的几率召唤一名石梅菲特。",
+    "troops": 3,
+    "summonOnDeath": {
+      "chance": 0.25,
+      "troopId": 7217,
+      "referenceName": "StoneMefyt",
+      "displayName": "石化梅菲特"
     }
   },
   {
@@ -2460,7 +2497,7 @@
   {
     "code": "mudsplash",
     "name": "泥浆飞溅",
-    "description": "反射 30% 的骷髅伤害",
+    "description": "反弹 30% 的骷髅伤害。",
     "troops": 2,
     "reflectSkullRatio": 0.3
   },
@@ -2498,8 +2535,13 @@
     "description": "当一名敌人身亡时，所有技能增加 3 点。",
     "troops": 1,
     "onEnemyDeathGain": {
-      "stat": "magic",
-      "amount": 3
+      "stat": "hp",
+      "amount": 3,
+      "alsoStats": [
+        "armor",
+        "attack",
+        "magic"
+      ]
     }
   },
   {
@@ -2507,10 +2549,16 @@
     "name": "致命毒素",
     "description": "对陷入中毒和织网状态的敌人造成三倍骷髅头伤害。",
     "troops": 1,
-    "skullMultVsStatus": {
-      "status": "poison",
-      "mult": 3
-    }
+    "skullMultVsStatusList": [
+      {
+        "status": "poison",
+        "mult": 3
+      },
+      {
+        "status": "web",
+        "mult": 3
+      }
+    ]
   },
   {
     "code": "trueshot",
@@ -2766,6 +2814,16 @@
     }
   },
   {
+    "code": "nastyteeth",
+    "name": "牙尖嘴利",
+    "description": "对骑士造成 5x 骷髅头伤害。",
+    "troops": 1,
+    "skullMultVsTroopType": {
+      "troopType": "Knight",
+      "mult": 5
+    }
+  },
+  {
     "code": "winterveil",
     "name": "冬雪之纱",
     "description": "在配对 4 或 5 颗宝石时，冻结一名随机敌人。",
@@ -2890,10 +2948,12 @@
     "name": "正义之美德",
     "description": "当敌人身亡时，所有盟友获得 3 点攻击力和护甲值。",
     "troops": 1,
-    "teamAura": {
-      "scope": "allies",
-      "stat": "attack",
-      "amount": 3
+    "onEnemyDeathTypeAura": {
+      "troopType": "all",
+      "gains": {
+        "attack": 3,
+        "armor": 3
+      }
     }
   },
   {
@@ -2901,10 +2961,12 @@
     "name": "忠诚之美德",
     "description": "当一名盟友施放法术时，所有盟友获得 3 点护甲值和生命值。",
     "troops": 1,
-    "teamAura": {
-      "scope": "allies",
-      "stat": "armor",
-      "amount": 3
+    "onAllyCastTypeAura": {
+      "troopType": "all",
+      "gains": {
+        "armor": 3,
+        "hp": 3
+      }
     }
   },
   {
@@ -2912,10 +2974,13 @@
     "name": "勇气之美德",
     "description": "在配对骷髅头时，所有盟友获得 2 点攻击力和生命值。",
     "troops": 1,
-    "teamAura": {
-      "scope": "allies",
-      "stat": "attack",
-      "amount": 2
+    "onColorMatchTypeAura": {
+      "color": "skull",
+      "scope": "all",
+      "gains": {
+        "attack": 2,
+        "hp": 2
+      }
     }
   },
   {
@@ -2923,10 +2988,12 @@
     "name": "谦恭之美德",
     "description": "当自身生命值承受伤害时，所有盟友获得 2 点护甲值和魔法值。",
     "troops": 1,
-    "teamAura": {
-      "scope": "allies",
-      "stat": "armor",
-      "amount": 2
+    "onDamagedTypeAura": {
+      "troopType": "all",
+      "gains": {
+        "armor": 2,
+        "magic": 2
+      }
     }
   },
   {
@@ -2934,10 +3001,12 @@
     "name": "牺牲之美德",
     "description": "当一名盟友身亡时，所有盟友获得 2 点攻击力和魔法值。",
     "troops": 1,
-    "teamAura": {
-      "scope": "allies",
-      "stat": "attack",
-      "amount": 2
+    "onAllyDeathTypeAura": {
+      "troopType": "all",
+      "gains": {
+        "attack": 2,
+        "magic": 2
+      }
     }
   },
   {
@@ -3097,10 +3166,10 @@
     "name": "暗黑来袭",
     "description": "在配对 4 或 5 颗宝石时，所有敌人损失 4 点攻击力。",
     "troops": 1,
-    "teamAura": {
-      "scope": "enemies",
+    "onBigMatchEnemyDrain": {
       "stat": "attack",
-      "amount": -4
+      "amount": 4,
+      "scope": "allEnemies"
     }
   },
   {
@@ -3124,6 +3193,22 @@
         {
           "id": "burning",
           "magnitude": 1
+        }
+      ],
+      "turns": 3
+    }
+  },
+  {
+    "code": "angrybear",
+    "name": "愤怒熊族",
+    "description": "当配对棕色宝石时赋予自身狂怒状态。",
+    "troops": 1,
+    "onColorMatchStatus": {
+      "color": "Brown",
+      "scope": "self",
+      "statuses": [
+        {
+          "id": "rage"
         }
       ],
       "turns": 3
@@ -3269,8 +3354,7 @@
       "scope": "randomEnemy",
       "statuses": [
         {
-          "id": "burning",
-          "magnitude": 1
+          "id": "faerie-fire"
         }
       ],
       "turns": 3
@@ -3320,12 +3404,11 @@
   {
     "code": "insanegrowth",
     "name": "疯狂成长",
-    "description": "在配对 5 或 5 颗宝石时，获得 4 点随机技能值。",
+    "description": "在配对 4 或 5 颗宝石时，随机一项技能获得 5 点。",
     "troops": 1,
-    "onBigMatchSizedGain": {
-      "minSize": 5,
+    "onBigMatchGain": {
       "stat": "magic",
-      "amount": 4
+      "amount": 5
     }
   },
   {
@@ -3335,7 +3418,10 @@
     "troops": 1,
     "onDamagedGain": {
       "stat": "attack",
-      "amount": 8
+      "amount": 8,
+      "alsoStats": [
+        "magic"
+      ]
     }
   },
   {
@@ -3515,8 +3601,7 @@
       "scope": "randomEnemy",
       "statuses": [
         {
-          "id": "burning",
-          "magnitude": 1
+          "id": "faerie-fire"
         }
       ],
       "turns": 3
@@ -3654,6 +3739,16 @@
     }
   },
   {
+    "code": "antimagic",
+    "name": "反妖除魔",
+    "description": "对拥有法印效果的敌人造成双倍骷髅头伤害。",
+    "troops": 1,
+    "skullMultVsStatus": {
+      "status": "enchanted",
+      "mult": 2
+    }
+  },
+  {
     "code": "chillingaura",
     "name": "寒风凛凛",
     "description": "在配对 4 或 5 颗宝石时窃取第一名敌人 2 点攻击力。",
@@ -3696,8 +3791,7 @@
       "scope": "randomEnemy",
       "statuses": [
         {
-          "id": "burning",
-          "magnitude": 1
+          "id": "faerie-fire"
         }
       ],
       "turns": 3
@@ -3851,6 +3945,16 @@
     }
   },
   {
+    "code": "zornsfury",
+    "name": "卓恩怒火",
+    "description": "在自身受到伤害时获得 4 点法力值。",
+    "troops": 1,
+    "onDamagedGain": {
+      "stat": "mana",
+      "amount": 4
+    }
+  },
+  {
     "code": "deadlyflock",
     "name": "鸟穷则啄",
     "description": "在一名敌人身亡时，有 25% 的几率召唤一只刃飞羽。",
@@ -3924,6 +4028,17 @@
       "troopId": 6536,
       "referenceName": "Vargouille",
       "displayName": "飞头蛮"
+    }
+  },
+  {
+    "code": "magicshield",
+    "name": "魔法灵盾",
+    "description": "每有一名紫色盟友即获得 1 点护甲值。",
+    "troops": 1,
+    "perAllyColor": {
+      "color": "Purple",
+      "stat": "armor",
+      "amount": 1
     }
   },
   {
@@ -4249,7 +4364,7 @@
   {
     "code": "volcanicmeteor",
     "name": "火山流星",
-    "description": "配对 4 后更多宝石时，燃烧和击晕一名随机敌人。",
+    "description": "配对 4 或更多宝石时，燃烧和击晕一名随机敌人。",
     "troops": 1,
     "onBigMatchStatus": {
       "scope": "randomEnemy",
@@ -4306,6 +4421,9 @@
         {
           "id": "burning",
           "magnitude": 1
+        },
+        {
+          "id": "faerie-fire"
         }
       ],
       "turns": 3
@@ -4415,6 +4533,46 @@
     }
   },
   {
+    "code": "raging",
+    "name": "愤怒",
+    "description": "受到伤害时激怒自身。",
+    "troops": 1,
+    "onDamagedStatus": {
+      "statusId": "rage",
+      "turns": 3
+    }
+  },
+  {
+    "code": "sanctuary",
+    "name": "避难所",
+    "description": "匹配4个或以上宝石时，获得屏障和一个随机盟友。",
+    "troops": 1,
+    "onBigMatchStatus": {
+      "scope": "randomAlly",
+      "statuses": [
+        {
+          "id": "barrier"
+        },
+        {
+          "id": "blessed"
+        }
+      ],
+      "turns": 3
+    }
+  },
+  {
+    "code": "daoslamp",
+    "name": "刀之灯",
+    "description": "匹配4个或以上的宝石时有30%几率召唤恶道仆人。",
+    "troops": 1,
+    "onBigMatchSummon": {
+      "chance": 0.3,
+      "troopId": 7011,
+      "referenceName": "ServantOfTheDao",
+      "displayName": "恶道仆人"
+    }
+  },
+  {
     "code": "lionsroar",
     "name": "狮子吼",
     "description": "在配对黄色宝石时击晕一名随机敌人。",
@@ -4471,8 +4629,7 @@
           "id": "entangle"
         },
         {
-          "id": "burning",
-          "magnitude": 1
+          "id": "faerie-fire"
         }
       ],
       "turns": 3
@@ -4510,6 +4667,25 @@
     }
   },
   {
+    "code": "hellfire",
+    "name": "地狱之火",
+    "description": "当匹配 4 颗或更多宝石时，诅咒并燃烧一名敌人。",
+    "troops": 1,
+    "onBigMatchStatus": {
+      "scope": "randomEnemy",
+      "statuses": [
+        {
+          "id": "curse"
+        },
+        {
+          "id": "burning",
+          "magnitude": 1
+        }
+      ],
+      "turns": 3
+    }
+  },
+  {
     "code": "ancientchill",
     "name": "古老寒冰",
     "description": "在配对蓝色宝石时使一名随机敌人陷入冻结和妖火状态。",
@@ -4522,8 +4698,7 @@
           "id": "frozen"
         },
         {
-          "id": "burning",
-          "magnitude": 1
+          "id": "faerie-fire"
         }
       ],
       "turns": 3
@@ -4548,6 +4723,31 @@
     "reflectSkullRatio": 0.75
   },
   {
+    "code": "darkinfusion",
+    "name": "暗黑输入",
+    "description": "在配对 4 或更多颗宝石时，窃取首位敌人 2 点魔法值。",
+    "troops": 1,
+    "onBigMatchEnemyDrain": {
+      "stat": "magic",
+      "amount": 2,
+      "scope": "front"
+    }
+  },
+  {
+    "code": "vast",
+    "name": "一大片",
+    "description": "匹配4枚或更多宝石时，获得2点攻击力、生命值和盔甲。",
+    "troops": 1,
+    "onBigMatchGain": {
+      "stat": "attack",
+      "amount": 2,
+      "alsoStats": [
+        "hp",
+        "armor"
+      ]
+    }
+  },
+  {
     "code": "doomofarachnaea",
     "name": "阿拉科尼亚的厄运",
     "description": "当敌人死亡时召唤超级末日风暴。",
@@ -4561,6 +4761,19 @@
         "color": "Purple",
         "turns": 8,
         "dropKind": "uberDoomSkull"
+      }
+    }
+  },
+  {
+    "code": "blessingofstone",
+    "name": "石之赐福",
+    "description": "在匹配棕色宝石时，给予所有元素盟友 5 点生命值。",
+    "troops": 1,
+    "onColorMatchTypeAura": {
+      "color": "Brown",
+      "scope": "Elemental",
+      "gains": {
+        "hp": 5
       }
     }
   },
@@ -4594,6 +4807,17 @@
       "stat": "mana",
       "amount": 3,
       "scope": "randomEnemy"
+    }
+  },
+  {
+    "code": "daemonsmark",
+    "name": "恶魔标记",
+    "description": "在我的回合开始的时候，将 2 颗骷髅头转换成末日骷髅头。",
+    "troops": 1,
+    "turnStartColorToSpecial": {
+      "color": "skull",
+      "gem": "doomSkull",
+      "count": 2
     }
   },
   {
@@ -4641,6 +4865,16 @@
     }
   },
   {
+    "code": "tinselterror",
+    "name": "可怖金箔",
+    "description": "对陷入缠绕状态的敌人造成 3 倍骷髅头伤害。",
+    "troops": 1,
+    "skullMultVsStatus": {
+      "status": "entangle",
+      "mult": 3
+    }
+  },
+  {
     "code": "magmahide",
     "name": "岩浆厚皮",
     "description": "在自身受到骷髅头伤害时，使对方陷入燃烧状态。",
@@ -4649,6 +4883,19 @@
       "id": "burning",
       "turns": 3,
       "magnitude": 1
+    }
+  },
+  {
+    "code": "celestialstrength",
+    "name": "天赐能量",
+    "description": "在匹配蓝色宝石时，赐予所有蓝色盟友 4 点攻击力。",
+    "troops": 1,
+    "onColorMatchTypeAura": {
+      "color": "Blue",
+      "scope": "Blue",
+      "gains": {
+        "attack": 4
+      }
     }
   },
   {
@@ -4691,7 +4938,8 @@
         }
       ],
       "turns": 3,
-      "chance": 0.25
+      "chance": 0.25,
+      "independentChance": true
     }
   },
   {
@@ -4937,6 +5185,17 @@
     }
   },
   {
+    "code": "lossofsanity",
+    "name": "失智",
+    "description": "在配对 4 颗或更多宝石时，消除所有敌人 3 点魔法值。",
+    "troops": 1,
+    "onBigMatchEnemyDrain": {
+      "stat": "magic",
+      "amount": 3,
+      "scope": "allEnemies"
+    }
+  },
+  {
     "code": "blessingofrock",
     "name": "岩石赐福",
     "description": "在配对棕色宝石时，给予所有元素盟友 2 点魔法值。",
@@ -4980,8 +5239,7 @@
       "scope": "randomEnemy",
       "statuses": [
         {
-          "id": "burning",
-          "magnitude": 1
+          "id": "faerie-fire"
         }
       ],
       "turns": 3,
@@ -5043,6 +5301,17 @@
     "turnStartCreateSpecialGem": {
       "gem": "web",
       "count": 1
+    }
+  },
+  {
+    "code": "guardianshield",
+    "name": "护卫护盾",
+    "description": "在配对红色宝石的时候活动 8 点护甲值。",
+    "troops": 1,
+    "onColorMatchGain": {
+      "color": "Red",
+      "stat": "armor",
+      "amount": 8
     }
   },
   {
@@ -5148,6 +5417,13 @@
     }
   },
   {
+    "code": "dontblink",
+    "name": "别眨眼",
+    "description": "有 45% 的几率躲避骷髅头伤害。",
+    "troops": 1,
+    "dodgeChance": 0.45
+  },
+  {
     "code": "lotusblessing",
     "name": "莲花赐福",
     "description": "在配对 4 或更多宝石时，有 50% 的几率赐福所有盟友。",
@@ -5229,7 +5505,7 @@
   {
     "code": "powerofcomet",
     "name": "彗星的力量",
-    "description": "在配对蓝色宝石时给予所有蓝色盟友 1 点所有技能组。",
+    "description": "在配对蓝色宝石时给予所有蓝色盟友全部技能值各 1 点。",
     "troops": 1,
     "onColorMatchTypeAura": {
       "color": "Blue",
@@ -5245,7 +5521,7 @@
   {
     "code": "powerofnebula",
     "name": "星云的力量",
-    "description": "在配对绿色宝石时给予所有绿色盟友 1 点所有技能组。",
+    "description": "在配对绿色宝石时给予所有绿色盟友全部技能值各 1 点。",
     "troops": 1,
     "onColorMatchTypeAura": {
       "color": "Green",
@@ -5261,7 +5537,7 @@
   {
     "code": "powerofmeteor",
     "name": "流星的力量",
-    "description": "在配对红色宝石时给予所有红色盟友 1 点所有技能组。",
+    "description": "在配对红色宝石时给予所有红色盟友全部技能值各 1 点。",
     "troops": 1,
     "onColorMatchTypeAura": {
       "color": "Red",
@@ -5277,7 +5553,7 @@
   {
     "code": "powerofsun",
     "name": "太阳的力量",
-    "description": "在配对黄色宝石时给予所有黄色盟友 1 点所有技能组。",
+    "description": "在配对黄色宝石时给予所有黄色盟友全部技能值各 1 点。",
     "troops": 1,
     "onColorMatchTypeAura": {
       "color": "Yellow",
@@ -5293,7 +5569,7 @@
   {
     "code": "powerofmoon",
     "name": "月亮的力量",
-    "description": "在配对紫色宝石时给予所有紫色盟友 1 点所有技能组。",
+    "description": "在配对紫色宝石时给予所有紫色盟友全部技能值各 1 点。",
     "troops": 1,
     "onColorMatchTypeAura": {
       "color": "Purple",
@@ -5309,7 +5585,7 @@
   {
     "code": "powerofeclipse",
     "name": "日食的力量",
-    "description": "在配对棕色宝石时给予所有棕色盟友 1 点所有技能组。",
+    "description": "在配对棕色宝石时给予所有棕色盟友全部技能值各 1 点。",
     "troops": 1,
     "onColorMatchTypeAura": {
       "color": "Brown",
@@ -5325,7 +5601,7 @@
   {
     "code": "powerofstars",
     "name": "星星的力量",
-    "description": "在配对骷髅头宝石时给予所有盟友 1 点所有技能组。",
+    "description": "在配对骷髅头宝石时给予所有盟友全部技能值各 1 点。",
     "troops": 1,
     "onColorMatchTypeAura": {
       "color": "skull",
@@ -5406,7 +5682,7 @@
   {
     "code": "diseasedcurse",
     "name": "疾病诅咒",
-    "description": "在敌人对自身造成骷髅头伤害时，使其陷入诅咒和击败状态。",
+    "description": "在敌人对自身造成骷髅头伤害时，使其陷入诅咒和疾病状态。",
     "troops": 1,
     "inflictOnSkullDamagedList": [
       {
@@ -5615,6 +5891,20 @@
     }
   },
   {
+    "code": "eternaldoom",
+    "name": "永恒末日",
+    "description": "在匹配 4 或更多宝石时，召唤末日风暴。",
+    "troops": 1,
+    "onBigMatchStorm": {
+      "color": "Purple",
+      "turns": 8,
+      "troopId": 9008,
+      "referenceName": "Doomstorm",
+      "displayName": "末日风暴",
+      "dropKind": "doomSkull"
+    }
+  },
+  {
     "code": "trailofvines",
     "name": "藤蔓缠绕",
     "description": "在我的回合开始的时候创造 1 颗缠绕宝石。",
@@ -5694,7 +5984,7 @@
   {
     "code": "faeriesoul",
     "name": "妖仙灵魂",
-    "description": "在我的回合开始的时候，创造一颗妖仙宝石。",
+    "description": "在我的回合开始的时候，创造一颗妖火宝石。",
     "troops": 1,
     "turnStartCreateSpecialGem": {
       "gem": "faerieFireGem",
@@ -5746,12 +6036,113 @@
     }
   },
   {
-    "code": "bloodcoldrage",
-    "name": "血冷狂暴",
-    "description": "在配对 4 或更多宝石时，使一名随机盟友陷入冻结和出血状态。",
+    "code": "venomouscurse",
+    "name": "恶毒诅咒",
+    "description": "匹配 4 颗或更多宝石时对随机敌人施加诅咒和毒药。",
     "troops": 1,
     "onBigMatchStatus": {
-      "scope": "randomAlly",
+      "scope": "randomEnemy",
+      "statuses": [
+        {
+          "id": "poison",
+          "magnitude": 1
+        },
+        {
+          "id": "curse"
+        }
+      ],
+      "turns": 3
+    }
+  },
+  {
+    "code": "dissolve",
+    "name": "溶解",
+    "description": "我死时有 25% 的几率召唤绿色史莱姆。",
+    "troops": 1,
+    "summonOnDeath": {
+      "chance": 0.25,
+      "troopId": 6163,
+      "referenceName": "GreenSlime",
+      "displayName": "绿液粘怪"
+    }
+  },
+  {
+    "code": "bluebellaura",
+    "name": "蓝铃花光环",
+    "description": "匹配蓝色宝石时窃取 4 条生命。",
+    "troops": 1,
+    "onColorMatchDrain": {
+      "color": "Blue",
+      "amount": 4
+    }
+  },
+  {
+    "code": "gladiolaaura",
+    "name": "剑兰光环",
+    "description": "匹配绿宝石时窃取 4 点生命。",
+    "troops": 1,
+    "onColorMatchDrain": {
+      "color": "Green",
+      "amount": 4
+    }
+  },
+  {
+    "code": "roseaura",
+    "name": "玫瑰光环",
+    "description": "匹配红宝石时窃取 4 条生命。",
+    "troops": 1,
+    "onColorMatchDrain": {
+      "color": "Red",
+      "amount": 4
+    }
+  },
+  {
+    "code": "daffodilaura",
+    "name": "水仙花光环",
+    "description": "匹配黄色宝石时窃取 4 条生命。",
+    "troops": 1,
+    "onColorMatchDrain": {
+      "color": "Yellow",
+      "amount": 4
+    }
+  },
+  {
+    "code": "irisaura",
+    "name": "鸢尾花光环",
+    "description": "匹配紫色宝石时窃取 4 条生命。",
+    "troops": 1,
+    "onColorMatchDrain": {
+      "color": "Purple",
+      "amount": 4
+    }
+  },
+  {
+    "code": "orchidaura",
+    "name": "兰花光环",
+    "description": "匹配棕色宝石时窃取 4 条生命。",
+    "troops": 1,
+    "onColorMatchDrain": {
+      "color": "Brown",
+      "amount": 4
+    }
+  },
+  {
+    "code": "blossomaura",
+    "name": "绽放光环",
+    "description": "匹配骷髅宝石时窃取 4 条生命。",
+    "troops": 1,
+    "onColorMatchDrain": {
+      "color": "skull",
+      "amount": 4
+    }
+  },
+  {
+    "code": "bloodcoldrage",
+    "name": "血冷狂暴",
+    "description": "在配对 4 或更多宝石时，使一名随机敌人陷入冻结和出血状态。",
+    "troops": 1,
+    "onBigMatchStatus": {
+      "scope": "randomEnemy",
       "statuses": [
         {
           "id": "frozen"
@@ -5765,6 +6156,35 @@
     }
   },
   {
+    "code": "venomofanu",
+    "name": "阿努之毒",
+    "description": "匹配蓝色宝石时使随机敌人中毒。",
+    "troops": 1,
+    "onColorMatchStatus": {
+      "color": "Blue",
+      "scope": "randomEnemy",
+      "statuses": [
+        {
+          "id": "poison",
+          "magnitude": 1
+        }
+      ],
+      "turns": 3
+    }
+  },
+  {
+    "code": "oceanswell",
+    "name": "海洋涌浪",
+    "description": "所有人鱼盟友在匹配 4 颗或更多宝石时获得 2 点魔法值。",
+    "troops": 1,
+    "onBigMatchTypeAura": {
+      "troopType": "Merfolk",
+      "gains": {
+        "magic": 2
+      }
+    }
+  },
+  {
     "code": "fathomlessdepths",
     "name": "深不可测的深渊",
     "description": "当我的轮次开始时创造一颗沉没宝石。",
@@ -5772,6 +6192,32 @@
     "turnStartCreateSpecialGem": {
       "gem": "submergeGem",
       "count": 1
+    }
+  },
+  {
+    "code": "motherswrath",
+    "name": "母亲的愤怒",
+    "description": "匹配 4 颗或更多宝石时，向所有敌人发射精灵之火。",
+    "troops": 1,
+    "onBigMatchStatus": {
+      "scope": "allEnemies",
+      "statuses": [
+        {
+          "id": "faerie-fire"
+        }
+      ],
+      "turns": 3
+    }
+  },
+  {
+    "code": "stoneshield",
+    "name": "石之灵盾",
+    "description": "每有一名棕色盟友即获得 1 点护甲值。",
+    "troops": 1,
+    "perAllyColor": {
+      "color": "Brown",
+      "stat": "armor",
+      "amount": 1
     }
   },
   {
@@ -5796,6 +6242,31 @@
     }
   },
   {
+    "code": "strengthofthepride",
+    "name": "骄傲的力量",
+    "description": "匹配 4 颗或更多宝石时，为所有 猫族 盟友提供 2 点魔法值和生命值。",
+    "troops": 1,
+    "onBigMatchTypeAura": {
+      "troopType": "Raksha",
+      "gains": {
+        "magic": 2,
+        "hp": 2
+      }
+    }
+  },
+  {
+    "code": "bountifulgrowth",
+    "name": "丰硕的增长",
+    "description": "匹配 4 颗或更多宝石时，为所有绿色盟友提供 4 点生命。",
+    "troops": 1,
+    "onBigMatchTypeAura": {
+      "troopType": "Green",
+      "gains": {
+        "hp": 4
+      }
+    }
+  },
+  {
     "code": "frozengrave",
     "name": "冰冻坟墓",
     "description": "当我的回合开始时，将 2 颗蓝色宝石转换为冻结宝石。",
@@ -5817,6 +6288,33 @@
     }
   },
   {
+    "code": "unstableinvention",
+    "name": "不稳定的发明",
+    "description": "匹配 4 颗或更多宝石时，为所有机甲盟友提供 2 点护甲和攻击力。",
+    "troops": 1,
+    "onBigMatchTypeAura": {
+      "troopType": "Mech",
+      "gains": {
+        "armor": 2,
+        "attack": 2
+      }
+    }
+  },
+  {
+    "code": "castledefense",
+    "name": "城堡防御",
+    "description": "匹配 4 颗或更多宝石时获得 4 点攻击力、生命值和护甲。",
+    "troops": 1,
+    "onBigMatchGain": {
+      "stat": "attack",
+      "amount": 4,
+      "alsoStats": [
+        "hp",
+        "armor"
+      ]
+    }
+  },
+  {
     "code": "daybreak",
     "name": "拂晓",
     "description": "当我的回合开始时，将紫色宝石转换为屏障宝石。",
@@ -5828,6 +6326,66 @@
     }
   },
   {
+    "code": "radiantvanguard",
+    "name": "光辉先锋",
+    "description": "匹配 4 颗或更多宝石时，为所有神圣盟友提供 3 点生命和护甲。",
+    "troops": 1,
+    "onBigMatchTypeAura": {
+      "troopType": "Divine",
+      "gains": {
+        "hp": 3,
+        "armor": 3
+      }
+    }
+  },
+  {
+    "code": "reflectivesurface",
+    "name": "反射面",
+    "description": "当我受到伤害时获得反射。",
+    "troops": 1,
+    "onDamagedStatus": {
+      "statusId": "reflect",
+      "turns": 3
+    }
+  },
+  {
+    "code": "ancientguardian",
+    "name": "古代守护者",
+    "description": "匹配 4 颗或更多宝石时，激怒并阻挡一名随机盟友。",
+    "troops": 1,
+    "onBigMatchStatus": {
+      "scope": "randomAlly",
+      "statuses": [
+        {
+          "id": "rage"
+        },
+        {
+          "id": "barrier"
+        }
+      ],
+      "turns": 3
+    }
+  },
+  {
+    "code": "deadlyvenom",
+    "name": "致命毒液",
+    "description": "匹配 4 颗或更多宝石时对随机敌人造成中毒和死亡标记。",
+    "troops": 1,
+    "onBigMatchStatus": {
+      "scope": "randomEnemy",
+      "statuses": [
+        {
+          "id": "poison",
+          "magnitude": 1
+        },
+        {
+          "id": "death-mark"
+        }
+      ],
+      "turns": 3
+    }
+  },
+  {
     "code": "intothevoid",
     "name": "进入虚空",
     "description": "当我的回合开始时创造 2 颗紫色宝石。",
@@ -5835,6 +6393,25 @@
     "turnStartCreateGem": {
       "color": "Purple",
       "count": 2
+    }
+  },
+  {
+    "code": "sicknessaura",
+    "name": "疾病光环",
+    "description": "匹配 4 颗或更多宝石时，会使随机敌人患病和中毒。",
+    "troops": 1,
+    "onBigMatchStatus": {
+      "scope": "randomEnemy",
+      "statuses": [
+        {
+          "id": "poison",
+          "magnitude": 1
+        },
+        {
+          "id": "disease"
+        }
+      ],
+      "turns": 3
     }
   },
   {
@@ -5870,6 +6447,32 @@
     }
   },
   {
+    "code": "elvenking",
+    "name": "精灵王",
+    "description": "匹配 4 颗或更多宝石时，为所有精灵盟友提供 2 点魔法值和生命值。",
+    "troops": 1,
+    "onBigMatchTypeAura": {
+      "troopType": "Elf",
+      "gains": {
+        "magic": 2,
+        "hp": 2
+      }
+    }
+  },
+  {
+    "code": "dwarvenbrew",
+    "name": "矮人酿造",
+    "description": "消除 4 个或更多宝石时，所有矮人盟友获得 2 点攻击力和护甲值。",
+    "troops": 1,
+    "onBigMatchTypeAura": {
+      "troopType": "Dwarf",
+      "gains": {
+        "attack": 2,
+        "armor": 2
+      }
+    }
+  },
+  {
     "code": "terrifyingaura",
     "name": "恐怖的气息",
     "description": "回合开始时，将2颗紫色宝石转化为恐怖宝石。",
@@ -5893,11 +6496,28 @@
   {
     "code": "silkenweave",
     "name": "丝质织物",
-    "description": "轮到我行动时，创造2个网络宝石。",
+    "description": "轮到我行动时，创造 2 颗织网宝石。",
     "troops": 1,
     "turnStartCreateSpecialGem": {
       "gem": "web",
       "count": 2
+    }
+  },
+  {
+    "code": "bloodyfury",
+    "name": "血腥狂怒",
+    "description": "匹配骷髅头时，随机对一名敌人施加流血效果。",
+    "troops": 1,
+    "onColorMatchStatus": {
+      "color": "skull",
+      "scope": "randomEnemy",
+      "statuses": [
+        {
+          "id": "bleed",
+          "magnitude": 1
+        }
+      ],
+      "turns": 3
     }
   },
   {
@@ -5912,6 +6532,31 @@
     }
   },
   {
+    "code": "kingoftheherd",
+    "name": "群中之王",
+    "description": "消除 4 个或更多宝石时，所有半人马盟友获得 1 点生命值和魔法值。",
+    "troops": 1,
+    "onBigMatchTypeAura": {
+      "troopType": "Centaur",
+      "gains": {
+        "hp": 1,
+        "magic": 1
+      }
+    }
+  },
+  {
+    "code": "infernalpact",
+    "name": "地狱契约",
+    "description": "我死后有 25% 的几率召唤地狱犬。",
+    "troops": 1,
+    "summonOnDeath": {
+      "chance": 0.25,
+      "troopId": 6179,
+      "referenceName": "Hellhound",
+      "displayName": "地狱猎犬"
+    }
+  },
+  {
     "code": "toxiccurse",
     "name": "剧毒诅咒",
     "description": "回合开始时，创造一颗毒宝石。",
@@ -5919,6 +6564,18 @@
     "turnStartCreateSpecialGem": {
       "gem": "poisonGem",
       "count": 1
+    }
+  },
+  {
+    "code": "wolfcompanion",
+    "name": "狼伴侣",
+    "description": "死亡时有 25% 的几率召唤战牙。",
+    "troops": 1,
+    "summonOnDeath": {
+      "chance": 0.25,
+      "troopId": 7819,
+      "referenceName": "Warfang",
+      "displayName": "沃方"
     }
   },
   {
@@ -5930,6 +6587,52 @@
       "color": "Green",
       "gem": "entangleGem",
       "count": 1
+    }
+  },
+  {
+    "code": "lifetide",
+    "name": "生命之潮",
+    "description": "消除蓝色宝石时，所有美人鱼盟友恢复 5 点生命值。",
+    "troops": 1,
+    "onColorMatchTypeAura": {
+      "color": "Blue",
+      "scope": "Merfolk",
+      "gains": {
+        "hp": 5
+      }
+    }
+  },
+  {
+    "code": "huntersclaw",
+    "name": "猎人之爪",
+    "description": "消除 4 个或更多宝石时，对随机敌人造成 6 点伤害。",
+    "troops": 1,
+    "onBigMatchDamage": {
+      "amount": 6,
+      "scope": "randomEnemy"
+    }
+  },
+  {
+    "code": "dwarvenfortress",
+    "name": "矮人要塞",
+    "description": "消除棕色宝石时获得3点护甲值。",
+    "troops": 1,
+    "onColorMatchGain": {
+      "color": "Brown",
+      "stat": "armor",
+      "amount": 3
+    }
+  },
+  {
+    "code": "kinofchaos",
+    "name": "混沌之族",
+    "description": "回合开始时，有 40% 的几率将 2 个骷髅头转化为超级末日骷髅头。",
+    "troops": 1,
+    "turnStartColorToSpecial": {
+      "color": "skull",
+      "gem": "uberDoomSkull",
+      "count": 2,
+      "chance": 0.4
     }
   },
   {
@@ -5951,6 +6654,17 @@
     "turnStartCreateSpecialGem": {
       "gem": "deathMarkGem",
       "count": 1
+    }
+  },
+  {
+    "code": "darksight",
+    "name": "黑暗视野",
+    "description": "消除 4 个或更多宝石时，从第一个敌人身上窃取 2 点魔法值。",
+    "troops": 1,
+    "onBigMatchEnemyDrain": {
+      "stat": "magic",
+      "amount": 2,
+      "scope": "front"
     }
   }
 ]

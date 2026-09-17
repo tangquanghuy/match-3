@@ -96,11 +96,12 @@ describe('编译正确性（16 code → onColorMatchStatus）', () => {
   });
 
   it('单状态·陷入句（sunfire/sourcandy/deepwounds/rainofspines/grimcurse/curseofmadness/huntersmoon/webbedbranches）', () => {
+    // 妖火 = faerie-fire 独立状态（非 DoT，不带 magnitude）——修正前误映射 burning
     expect(getTrait('sunfire')?.onColorMatchStatus).toEqual({
-      color: 'Red', scope: 'randomEnemy', statuses: [{ id: 'burning', magnitude: 1 }], turns: 3,
+      color: 'Red', scope: 'randomEnemy', statuses: [{ id: 'faerie-fire' }], turns: 3,
     });
     expect(getTrait('sourcandy')?.onColorMatchStatus).toEqual({
-      color: 'Green', scope: 'randomEnemy', statuses: [{ id: 'burning', magnitude: 1 }], turns: 3,
+      color: 'Green', scope: 'randomEnemy', statuses: [{ id: 'faerie-fire' }], turns: 3,
     });
     expect(getTrait('deepwounds')?.onColorMatchStatus).toEqual({
       color: 'Red', scope: 'randomEnemy', statuses: [{ id: 'bleed', magnitude: 1 }], turns: 3,
@@ -125,22 +126,22 @@ describe('编译正确性（16 code → onColorMatchStatus）', () => {
   it('双状态（enchantedvines 缠绕+妖火 / ancientchill 冻结+妖火）条目序与描述一致', () => {
     expect(getTrait('enchantedvines')?.onColorMatchStatus).toEqual({
       color: 'Green', scope: 'randomEnemy',
-      statuses: [{ id: 'entangle' }, { id: 'burning', magnitude: 1 }], turns: 3,
+      statuses: [{ id: 'entangle' }, { id: 'faerie-fire' }], turns: 3,
     });
     expect(getTrait('ancientchill')?.onColorMatchStatus).toEqual({
       color: 'Blue', scope: 'randomEnemy',
-      statuses: [{ id: 'frozen' }, { id: 'burning', magnitude: 1 }], turns: 3,
+      statuses: [{ id: 'frozen' }, { id: 'faerie-fire' }], turns: 3,
     });
   });
 
   it('foxfire：50% 概率收进 chance；编译产物进 colorMatchStatus 色键', () => {
     expect(getTrait('foxfire')?.onColorMatchStatus).toEqual({
-      color: 'Red', scope: 'randomEnemy', statuses: [{ id: 'burning', magnitude: 1 }], turns: 3, chance: 0.5,
+      color: 'Red', scope: 'randomEnemy', statuses: [{ id: 'faerie-fire' }], turns: 3, chance: 0.5,
     });
     const fox = resolvePassives(['foxfire']).colorMatchStatus;
-    expect(fox.Red).toEqual({ scope: 'randomEnemy', statuses: [{ id: 'burning', magnitude: 1 }], turns: 3, chance: 0.5 });
+    expect(fox.Red).toEqual({ scope: 'randomEnemy', statuses: [{ id: 'faerie-fire' }], turns: 3, chance: 0.5 });
     expect(resolvePassives(['enchantedvines']).colorMatchStatus.Green?.statuses).toEqual([
-      { id: 'entangle' }, { id: 'burning', magnitude: 1 },
+      { id: 'entangle' }, { id: 'faerie-fire' },
     ]);
     expect(resolvePassives(['webbedbranches']).colorMatchStatus.Purple).toEqual({
       scope: 'randomEnemy', statuses: [{ id: 'web' }], turns: 3,
@@ -215,7 +216,7 @@ describe('applyColorMatchTriggers + ctx（纯函数层）', () => {
         ...statusCtx,
         enemyTeam: foes,
       });
-      return foes.filter((f) => f.statuses.some((s) => s.id === 'burning')).length;
+      return foes.filter((f) => f.statuses.some((s) => s.id === 'faerie-fire')).length;
     };
     expect(drive(hitSeed, true)).toBe(1);
     expect(drive(missSeed, true)).toBe(0);
@@ -231,8 +232,9 @@ describe('applyColorMatchTriggers + ctx（纯函数层）', () => {
     });
     const hit = foes.filter((f) => f.statuses.some((s) => s.id === 'entangle'));
     expect(hit).toHaveLength(1);
-    expect(hit[0].statuses.map((s) => s.id).sort()).toEqual(['burning', 'entangle']);
-    expect(hit[0].statuses.find((s) => s.id === 'burning')?.magnitude).toBe(1);
+    // 妖火为独立状态 faerie-fire（修正前与燃烧混淆）
+    expect(hit[0].statuses.map((s) => s.id).sort()).toEqual(['entangle', 'faerie-fire']);
+    expect(hit[0].statuses.find((s) => s.id === 'faerie-fire')?.magnitude).toBeUndefined();
     expect(events.filter((e) => e.type === 'status-apply')).toHaveLength(2);
   });
 

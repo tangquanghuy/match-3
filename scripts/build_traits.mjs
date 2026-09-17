@@ -13,10 +13,13 @@ import path from 'node:path';
 const IN = 'data/raw/troops.gow.zh.json';
 const OUT = 'src/data/traits.json';
 
-/** 中文状态名 → 引擎状态 id。缠绕（攻击归零）与织网（魔力归零）是两个状态，按官方拆分。 */
+/** 中文状态名 → 引擎状态 id。缠绕（攻击归零）与织网（魔力归零）是两个状态，按官方拆分。
+ *  妖火（Faerie Fire，受法术伤害 ×1.5 的独立状态）与燃烧（DoT）是两个状态，按官方拆分——
+ *  历史上两者都映射 burning，13 条特质语义偏差、flamingmane 双子句被 Set 去重吞掉。 */
 const STATUS_MAP = [
   [/中毒/, 'poison'],
-  [/燃烧|妖火/, 'burning'],
+  [/燃烧/, 'burning'],
+  [/妖火|妖仙|精灵之火/, 'faerie-fire'],
   [/冻结|冰冻/, 'frozen'],
   [/沉默/, 'silence'],
   [/缠绕|纠缠/, 'entangle'],
@@ -39,6 +42,9 @@ const RESCUE_STATUS_MAP = [
   [/疾病/, 'disease'],
   [/出血/, 'bleed'],
   [/恐怖/, 'terror'],
+  // 法力灼烧本体在引擎已注册（status.ts MANA_BURN_STATUS_IDS），skyancestry
+  // 「对法力耗尽、沉默、妖火和法力灼烧免疫」的灼烧段按此映射（manashield 先例）。
+  [/法力灼烧/, 'mana-burn'],
 ];
 
 /** 免疫 / 骷髅命中附状态规则的完整查找表：基础表在前（保持既有命中次序），扩展表在后 */
@@ -51,20 +57,101 @@ const RESCUE_FULL_STATUS_MAP = [...STATUS_MAP, ...RESCUE_STATUS_MAP];
  */
 const DUAL_STATUS_ALIAS = { 击败: 'disease' };
 
+/**
+ * 机翻错译定点修正（核对报告 §二）：这些 code 的官方中文 dump 描述与官方英文语义有出入
+ * （数字错位/目标反向/状态错词/术语不统一），生成前先按官方英文描述改写。
+ * 只改描述文本——机制一律仍由句式规则从修正后的文本解析，保证「描述↔数值」对账成立。
+ */
+const DESCRIPTION_OVERRIDES = {
+  // 「Gain 5 to a random Skill on 4 or 5 Gem matches」——dump 把两个数字都译错
+  insanegrowth: '在配对 4 或 5 颗宝石时，随机一项技能获得 5 点。',
+  // 「Inflict Freeze and Bleed to a random Enemy」——dump 把 Enemy 译成「盟友」（目标反向）
+  bloodcoldrage: '在配对 4 或更多宝石时，使一名随机敌人陷入冻结和出血状态。',
+  // 「Curse and Disease」——dump 把 Disease 误译作「击败」
+  diseasedcurse: '在敌人对自身造成骷髅头伤害时，使其陷入诅咒和疾病状态。',
+  // 「Create 2 Web Gems」——「网络宝石」与他处「织网」术语不统一
+  silkenweave: '轮到我行动时，创造 2 颗织网宝石。',
+  // 「matching 4 or more Gems」——「4 后更多」为错字
+  volcanicmeteor: '配对 4 或更多宝石时，燃烧和击晕一名随机敌人。',
+  // 「Reflect 35%/30% of Skull Damage」——与他处「反弹」术语统一（与 Reflect 状态撞名）
+  flowershield: '反弹 35% 的骷髅头伤害。',
+  mudsplash: '反弹 30% 的骷髅伤害。',
+  // 「Faerie Fire Gem」——「妖仙宝石」与他处「妖火宝石」译法统一
+  faeriesoul: '在我的回合开始的时候，创造一颗妖火宝石。',
+  faerieaura: '在我的回合开始的时候，有 30% 的几率创造 3 颗妖火宝石。',
+  // powerof* 族「Give 1 to all Skill Points」——机翻腔「所有技能组」统一为「全部技能值各 N 点」
+  powerofcomet: '在配对蓝色宝石时给予所有蓝色盟友全部技能值各 1 点。',
+  powerofnebula: '在配对绿色宝石时给予所有绿色盟友全部技能值各 1 点。',
+  powerofmeteor: '在配对红色宝石时给予所有红色盟友全部技能值各 1 点。',
+  powerofsun: '在配对黄色宝石时给予所有黄色盟友全部技能值各 1 点。',
+  powerofmoon: '在配对紫色宝石时给予所有紫色盟友全部技能值各 1 点。',
+  powerofeclipse: '在配对棕色宝石时给予所有棕色盟友全部技能值各 1 点。',
+  powerofstars: '在配对骷髅头宝石时给予所有盟友全部技能值各 1 点。',
+  // 召唤名对齐兵种数据（「道的仆人」机报名 → 兵种库「恶道仆人」ServantOfTheDao）
+  daoslamp: '匹配4个或以上的宝石时有30%几率召唤恶道仆人。',
+};
+
+/**
+ * 官方英文描述权威、但中文机翻破损/漏译导致句式规则无法落地（或落地错语义）的特质，
+ * 按 traits.en.json / troops.gow.en.json 的官方文本逐条显式写效果（核对报告 §1.1/§3.1）。
+ * 命中本表的 code 不再走描述解析。
+ */
+const EXPLICIT_EFFECTS = {
+  // 「Independent 25% chances to inflict Curse or Death Mark on a random Enemy」：
+  // 两个独立 25% 判定（各中各的），不是一次 25% 两条全上。
+  maladycurse: {
+    onBigMatchStatus: {
+      scope: 'randomEnemy', statuses: [{ id: 'curse' }, { id: 'death-mark' }],
+      turns: 3, chance: 0.25, independentChance: true,
+    },
+  },
+  // 「Barrier and Bless a random Ally when matching 4 or more Gems」（zh 机翻「获得屏障和
+  // 一个随机盟友」破损不可解析）
+  sanctuary: {
+    onBigMatchStatus: { scope: 'randomAlly', statuses: [{ id: 'barrier' }, { id: 'blessed' }], turns: 3 },
+  },
+  // 「Curse and Burn a random Enemy」（zh 漏译「随机」，句式规则无法判定目标）
+  hellfire: {
+    onBigMatchStatus: {
+      scope: 'randomEnemy', statuses: [{ id: 'curse' }, { id: 'burning', magnitude: 1 }], turns: 3,
+    },
+  },
+};
+
+/**
+ * 死亡/配对召唤的机翻兵种名 → 兵种库 referenceName（troops.json 精简表按 referenceName
+ * 解析 troopId）。dump 描述里的召唤名与兵种名常对不上（半人马侦察兵 vs 人马斥候），
+ * 逐条与 troops.gow.en.json 官方英文描述交叉核对后固化。daospuppet 召唤「the Dao」
+ * 在兵种库无此兵种，留未实现桶。
+ */
+const SUMMON_TROOP_NAME_FIX = {
+  herdspirit: 'CentaurScout',
+  dragonboon: 'Dragonette',
+  stonepact: 'StoneMefyt',
+  dissolve: 'GreenSlime',
+  infernalpact: 'Hellhound',
+  wolfcompanion: 'Warfang',
+  daoslamp: 'ServantOfTheDao',
+};
+
 /** DoT 状态施加时带 magnitude:1（bleed 与 poison/burning 同为每回合跳伤的攻击性 DoT） */
 const isDotStatus = (id) => id === 'poison' || id === 'burning' || id === 'bleed';
 /** 引擎尚未实现的状态/机制关键词，用于报告 */
 const UNSUPPORTED_STATUS = /疾病|狼化|死亡标记|吞噬|法力燃烧|法力耗尽|法力窃取|恐怖|出血|猎人标记|受诅|转化|屏障|下潮|狂怒|法印|风暴/;
 
 const COLOR_MAP = [
-  [/蓝色/, 'Blue'], [/绿色/, 'Green'], [/红色/, 'Red'],
-  [/黄色/, 'Yellow'], [/紫色/, 'Purple'], [/棕色/, 'Brown'],
+  // 「色」字可省（roseaura「匹配红宝石时窃取 4 条生命」——机翻省略了「色」）
+  [/蓝[色]?/, 'Blue'], [/绿[色]?/, 'Green'], [/红[色]?/, 'Red'],
+  [/黄[色]?/, 'Yellow'], [/紫[色]?/, 'Purple'], [/棕[色]?/, 'Brown'],
 ];
 
 const STAT_MAP = [
   [/生命值/, 'hp'], [/护甲值/, 'armor'], [/攻击力/, 'attack'], [/魔法值/, 'magic'], [/技能值/, 'magic'],
   // 「提供 4 点护甲」（celestialbarrier）不带「值」：放最后兜底，避免抢走「护甲值」的匹配
   [/护甲/, 'armor'],
+  // 机翻省字/别称（收编批）：「4 点生命」（bountifulgrowth）、「盔甲」（vast 官方译法）
+  [/生命/, 'hp'],
+  [/盔甲/, 'armor'],
 ];
 
 /**
@@ -74,17 +161,22 @@ const STAT_MAP = [
  */
 const AURA_STATUS_MAP = [
   [/冻结|冰冻/, 'frozen'],
-  [/出血/, 'bleed'],
-  [/中毒/, 'poison'],
-  [/燃烧|妖火/, 'burning'],
-  [/屏障/, 'barrier'],
-  [/狂怒/, 'rage'],
+  // 流血=bleed 的机翻别称（bloodyfury「施加流血效果」）；毒药=poison 别称（venomouscurse）
+  [/出血|流血/, 'bleed'],
+  [/中毒|毒药/, 'poison'],
+  [/燃烧/, 'burning'],
+  // 妖火独立状态（motherswrath 的机翻「精灵之火」同指 Faerie Fire）
+  [/妖火|妖仙|精灵之火/, 'faerie-fire'],
+  // 激怒=rage 动词（ancientguardian「激怒并阻挡」）；阻挡=barrier 机翻动词
+  [/狂怒|激怒/, 'rage'],
+  [/屏障|阻挡/, 'barrier'],
   [/下潜|下潮/, 'submerged'],
   [/反射/, 'reflect'],
   [/赐福|祝福/, 'blessed'],
   [/诅咒/, 'curse'],
   [/魅惑/, 'charm'],
-  [/疾病/, 'disease'],
+  // 患病=disease 机翻别称（sicknessaura「患病和中毒」）
+  [/疾病|患病/, 'disease'],
   [/死亡标记/, 'death-mark'],
   [/缠绕|纠缠/, 'entangle'],
   [/织网/, 'web'],
@@ -130,6 +222,8 @@ const TROOP_TYPE_MAP = {
   半人马: 'Centaur', 罗刹: 'Raksha', 不朽: 'Immortal',
   厄什卡: 'Urska', 罗格: 'Rogue',
   怪兽: 'Monster', // 「怪兽盟友」与「怪物」同义（psychicpulse）
+  // 机翻族名别名（收编批：报告 3.1 Top 表逐条核对官方 EN TroopType 后补）
+  美人鱼: 'Merfolk', 人鱼: 'Merfolk', 神圣: 'Divine', 机甲: 'Mech',
 };
 
 const num = (s) => Number(s);
@@ -192,7 +286,10 @@ const TURN_START_HEAD = String.raw`(?:(?:当|在)?(?:我的|我)?(?:每一个|�
  * 「对已下潜的敌人造成双倍骷髅头伤害」），在此补上。含未落地状态词（法印/吞噬…）
  * 的句子整体不收，不做缺状态半解析。
  */
-const DAMAGE_CONDITION_MAP = [...RESCUE_FULL_STATUS_MAP, [/下潜|下潮/, 'submerged']];
+const DAMAGE_CONDITION_MAP = [...RESCUE_FULL_STATUS_MAP, [/下潜|下潮/, 'submerged'],
+  // 法印=Enchanted（引擎已注册 'enchanted' 状态 id；antimagic「对拥有法印效果的敌人
+  // 造成双倍骷髅头伤害」按此映射。条件光环仍不收法印——见 AURA_UNKNOWN_STATUS。）
+  [/法印/, 'enchanted']];
 
 /**
  * 解析屠戮类特质的「条件」描述：陷入某状态的敌人 / 被击晕的敌人 / 受伤的敌人。
@@ -227,8 +324,8 @@ function parseGainsList(text, value) {
   return Object.keys(gains).length > 0 ? gains : null;
 }
 
-/** 把一条描述解析成引擎效果；无法完整表达返回 null 并给出原因。 */
-function parse(desc) {
+/** 把一条描述解析成引擎效果；无法完整表达返回 null 并给出原因。code 供召唤名修复等定点表使用。 */
+function parse(desc, code) {
   let m;
 
   // 减伤：降低来自骷髅头的伤害 N%
@@ -273,9 +370,35 @@ function parse(desc) {
   if ((m = /^在每回合开始时获得\s*(\d+)\s*点(攻击力|护甲值|生命值|魔法值)/.exec(desc))) {
     return { effects: { regen: { stat: pickStat(m[2]) ?? 'hp', amount: num(m[1]) } } };
   }
-  // 受击触发：在自身受到伤害时获得 N 点 X / 在受到攻击时获得 N 点 X
-  if ((m = /(?:在自身受到伤害时|在受到攻击时)获得\s*(\d+)\s*点(攻击力|护甲值|魔法值|生命值)/.exec(desc))) {
-    return { effects: { onDamagedGain: { stat: pickStat(m[2]) ?? 'attack', amount: num(m[1]) } } };
+  // 受击触发：在自身受到伤害时获得 N 点 X / 在受到攻击时获得 N 点 X（法力值→mana，
+  // zornsfury「在自身受到伤害时获得 4 点法力值」；共享数值多属性 darkfury
+  // 「获得 8 点攻击力和魔法值」→ alsoStats）
+  if ((m = /(?:在自身受到伤害时|在受到攻击时)获得\s*(\d+)\s*点((?:随机技能值|生命值|护甲值|攻击力|魔法值|法力值)(?:[、和](?:\s*\d+\s*点)?(?:随机技能值|生命值|护甲值|攻击力|魔法值|法力值))*)/.exec(desc))) {
+    const gains = (() => {
+      const g = parseGainsList(m[2], num(m[1]));
+      if (g) return g;
+      const stat = pickTriggerStat(m[2]);
+      return stat ? { [stat]: num(m[1]) } : null;
+    })();
+    if (!gains) return null;
+    const stats = Object.keys(gains);
+    return {
+      effects: {
+        onDamagedGain: {
+          stat: stats[0],
+          amount: num(m[1]),
+          ...(stats.length > 1 ? { alsoStats: stats.slice(1) } : {}),
+        },
+      },
+    };
+  }
+  // 受击获得正面状态（收编批）：reflectivesurface「当我受到伤害时获得反射」/
+  // raging「受到伤害时激怒自身」。与 aquatic「使自身下潜」同一字段 onDamagedStatus，
+  // 施加回合数同口径取 3；施加经 applyStatus（免疫在施加口拦截）。
+  if ((m = /^(?:当|在)?我?(?:自身)?受到伤害时[，,]?(?:使自身(下潜|反射|狂怒|屏障|赐福)|获得(下潜|反射|狂怒|屏障|赐福)|激怒自身)。?$/.exec(desc))) {
+    const word = m[1] ?? m[2] ?? '狂怒';
+    const id = { 下潜: 'submerged', 反射: 'reflect', 狂怒: 'rage', 屏障: 'barrier', 赐福: 'blessed' }[word];
+    return { effects: { onDamagedStatus: { statusId: id, turns: 3 } } };
   }
   // 受击下潜（aquatic「在自身受到伤害时使自身下潜」，O 桶判读批）：与 onDamagedGain
   // 同一触发点（骷髅受击结算处），落新字段 onDamagedStatus。下潜本体已落地
@@ -377,8 +500,10 @@ function parse(desc) {
       },
     };
   }
-  // 队伍光环·全体：所有盟友获得 N 点 X / 所有敌人损失 N 点 X
-  if ((m = /所有(盟友|敌人)(获得|损失)\s*(\d+)\s*点?(随机技能值|生命值|护甲值|攻击力|魔法值)/.exec(desc))) {
+  // 队伍光环·全体：所有盟友获得 N 点 X / 所有敌人损失 N 点 X。
+  // 整条锚定（^…$）：历史上未锚定行首，「在配对骷髅头时，所有盟友获得 2 点攻击力…」
+  // 这类触发句被中途命中误收成战斗开始光环（virtue 家族 / darkness 的触发点错误即此因）。
+  if ((m = /^所有(盟友|敌人)(获得|损失)\s*(\d+)\s*点?(随机技能值|生命值|护甲值|攻击力|魔法值)。?$/.exec(desc))) {
     const stat = m[4] === '随机技能值' ? 'magic' : pickStat(m[4]);
     if (!stat) return null;
     return {
@@ -414,7 +539,9 @@ function parse(desc) {
   // B. 转化型（redrage 红2→燃烧 / embers / daemonsmark 骷髅2→末日骷髅 / temporal 黄→沙漏…）：
   //    来源只认六色或骷髅头（末日族不算普通骷髅），目标必须是 SPECIAL_GEM_MAP 内的特殊宝石；
   //    未命中（bonepile 的「转换成骷髅头」/ 狼化宝石等）不拦截，落回后续规则。
-  if ((m = new RegExp(`^${TURN_START_HEAD}[，,]?\\s*(?:有\\s*(\\d+)\\s*%\\s*的?几[率会]\\s*)?将\\s*(?:(一|\\d+)\\s*[颗个名])?\\s*(.+?)宝石?转[换化][为成]\\s*(.+?)(?:宝石)?。?$`).exec(desc))) {
+  //    「宝石」整体可选（(?:宝石)?）：写成 宝石? 会让「宝」变必选，骷髅头等无「宝石」尾缀的
+  //    来源全部漏配（kinofchaos/daemonsmark 骷髅转化即因此落空）。
+  if ((m = new RegExp(`^${TURN_START_HEAD}[，,]?\\s*(?:有\\s*(\\d+)\\s*%\\s*的?几[率会]\\s*)?将\\s*(?:(一|\\d+)\\s*[颗个名])?\\s*(.+?)(?:宝石)?转[换化][为成]\\s*(.+?)(?:宝石)?。?$`).exec(desc))) {
     const gem = pickSpecialGem(m[4]);
     const src = m[3] === '骷髅头' ? 'skull' : pickColor(m[3]);
     if (gem && src) {
@@ -449,8 +576,10 @@ function parse(desc) {
   if ((m = /^骷髅头伤害有\s*(\d+)%\s*的?几率略过护甲值/.exec(desc))) {
     return { effects: { armorPierceChance: num(m[1]) / 100 } };
   }
-  // 屠戮类：对<族/色>军队造成双倍/N 倍骷髅头伤害
-  if ((m = /^对(.+?)(?:军队)?造成(双|三|\d+)倍骷髅头伤害/.exec(desc))) {
+  // 屠戮类：对<族/色/状态>造成 N 倍骷髅头伤害。「造成 3 倍」（空格）与「5x」（nastyteeth）
+  // 两种机翻排版都收；双条件（lethaltoxin「陷入中毒和织网状态」）拆开各落一条同倍率
+  // （任一命中即 ×3，编译进 skullMultVsStatus 同一张表）。
+  if ((m = /^对(.+?)(?:军队)?造成\s*(双|三|\d+)\s*(?:倍|x)\s*骷髅头伤害/.exec(desc))) {
     const mult = m[2] === '双' ? 2 : m[2] === '三' ? 3 : num(m[2]);
     const target = m[1].replace(/军队$/, '');
     // 先看是不是颜色（红色军队…），再看种族，最后看状态/状况
@@ -458,6 +587,14 @@ function parse(desc) {
     if (color) return { effects: { skullMultVsColor: { color, mult } } };
     const troopType = TROOP_TYPE_MAP[target] ?? TROOP_TYPE_MAP[`${target}族`];
     if (troopType) return { effects: { skullMultVsTroopType: { troopType, mult } } };
+    // 双状态条件（「陷入X和Y状态的敌人」）：两段各自映射，全部命中才收
+    const dual = /陷入(.+?)状态/.exec(target);
+    if (dual && /和/.test(dual[1])) {
+      const conds = dual[1].split('和').map((s) => parseDamageCondition(s.trim()));
+      if (conds.length >= 2 && conds.every((c) => c?.status)) {
+        return { effects: { skullMultVsStatusList: conds.map((c) => ({ status: c.status, mult })) } };
+      }
+    }
     const cond = parseDamageCondition(target);
     if (cond) return { effects: cond.status ? { skullMultVsStatus: { status: cond.status, mult } } : { skullMultVsWounded: mult } };
     return null;
@@ -520,10 +657,38 @@ function parse(desc) {
       };
     }
   }
-  // sacrifice「当一名敌人身亡时，所有技能增加 3 点」：技能值按既有约定映射 magic
-  // （STAT_MAP「技能值→magic」/ pickTriggerStat「随机技能值→magic」同源的 randomStat 口径）。
+  // sacrifice「当一名敌人身亡时，所有技能增加 3 点」：官方「Gain 3 to all Skills」= 四项属性
+  // 各 3（与 hunger/manifestation 的全部技能展开同口径），首属性进 stat、其余进 alsoStats
+  //（引擎 TRIGGER_FIELDS 展开）。历史上只落 magic 一项，漏了另外三项。
   if ((m = /^(?:当|在)(?:一名)?敌人身亡时[，,]?所有技能增加\s*(\d+)\s*点。?$/.exec(desc))) {
-    return { effects: { onEnemyDeathGain: { stat: 'magic', amount: num(m[1]) } } };
+    return {
+      effects: { onEnemyDeathGain: { stat: 'hp', amount: num(m[1]), alsoStats: ['armor', 'attack', 'magic'] } },
+    };
+  }
+  // virtueofjustice「当敌人身亡时，所有盟友获得 3 点攻击力和护甲值」（官方
+  // 「All allies gain 3 Attack and Armor when an enemy dies」）：敌亡触发的全队光环，
+  // 复用 onEnemyDeathTypeAura（troopType 'all' = 全队）。
+  if ((m = /^(?:当|在)(?:一名)?敌人身亡时[，,]?所有盟友获得\s*(\d+)\s*点(.+?)。?$/.exec(desc))) {
+    const gains = parseGainsList(m[2], num(m[1]));
+    if (gains) return { effects: { onEnemyDeathTypeAura: { troopType: 'all', gains } } };
+  }
+  // virtueofsacrifice「当一名盟友身亡时，所有盟友获得 2 点攻击力和魔法值」：
+  // 盟友亡触发的全队光环（onAllyDeathTypeAura，与 onEnemyDeathTypeAura 同构、方向相反）。
+  if ((m = /^(?:当|在)一名盟友身亡时[，,]?所有盟友获得\s*(\d+)\s*点(.+?)。?$/.exec(desc))) {
+    const gains = parseGainsList(m[2], num(m[1]));
+    if (gains) return { effects: { onAllyDeathTypeAura: { troopType: 'all', gains } } };
+  }
+  // virtueofloyalty「当一名盟友施放法术时，所有盟友获得 3 点护甲值和生命值」：
+  // 施法触发的全队光环（onAllyCastTypeAura）。
+  if ((m = /^(?:当|在)一名盟友施放法术时[，,]?所有盟友获得\s*(\d+)\s*点(.+?)。?$/.exec(desc))) {
+    const gains = parseGainsList(m[2], num(m[1]));
+    if (gains) return { effects: { onAllyCastTypeAura: { troopType: 'all', gains } } };
+  }
+  // virtueofhumility「当自身生命值承受伤害时，所有盟友获得 2 点护甲值和魔法值」：
+  // 承伤触发的全队光环（onDamagedTypeAura，与 gainOnDamaged 同一触发点）。
+  if ((m = /^(?:当|在)?自身生命值承受伤害时[，,]?所有盟友获得\s*(\d+)\s*点(.+?)。?$/.exec(desc))) {
+    const gains = parseGainsList(m[2], num(m[1]));
+    if (gains) return { effects: { onDamagedTypeAura: { troopType: 'all', gains } } };
   }
   // 阵亡响应：当敌人/一名盟友身亡时获得 N 点 X
   if ((m = /^(?:当|在)(?:一名)?(敌人|盟友)身亡时[，,]?获得\s*(\d+)\s*点(生命值|护甲值|攻击力|魔法值|法力值)。?$/.exec(desc))) {
@@ -579,7 +744,7 @@ function parse(desc) {
 
   // 4+ 连自身增益·长尾：「在配对 4 颗或更多宝石时，获得 4 点攻击力」（huntress，句尾无句号）
   // 「在配对 4 或更多宝石时， 获得 3 点法力值」（crystallizedmana，法力值→mana）。
-  // 「在配对 5 或 5 颗宝石时」（insanegrowth，官方文本如此）→ 两个数字相同 = 只认 5 连，走 minSize 限定字段。
+  // 「在配对 4 或 5 颗宝石时」（两个数字不同 = 任意 4/5 连）。
   if ((m = /^在?配对\s*(\d+)\s*颗?\s*或\s*(?:(\d+)\s*颗?|更?多)\s*[颗个]?宝石的?时?候?[，,]?\s*获得\s*(\d+)\s*点?(随机技能值|生命值|护甲值|攻击力|魔法值|法力值)\s*。?$/.exec(desc))) {
     const stat = pickTriggerStat(m[4]);
     if (!stat) return null;
@@ -590,23 +755,59 @@ function parse(desc) {
     }
     return { effects: { onBigMatchGain: { stat, amount: num(m[3]) } } };
   }
-  // 4+ 连团队增益·长尾（条件光环主体，16 code）：两种动词都收——
+  // 4/5 连自身增益·「随机一项技能」变体（insanegrowth 官方译法「随机一项技能获得 5 点」）：
+  // 属性词在数词前，按 randomStat 口径落 magic；「4 或 5」= 任意大连（onBigMatchGain），
+  // 两数相同才落 minSize 限定（onBigMatchSizedGain）。
+  if ((m = /^在?配对\s*(\d+)\s*颗?\s*或\s*(?:(\d+)\s*颗?|更?多)\s*[颗个]?宝石的?时?候?[，,]?随机一项?技能获得\s*(\d+)\s*点。?$/.exec(desc))) {
+    const n1 = num(m[1]);
+    const n2 = m[2] !== undefined ? num(m[2]) : null;
+    if (n2 !== null && n1 === n2) {
+      return { effects: { onBigMatchSizedGain: { minSize: n1, stat: 'magic', amount: num(m[3]) } } };
+    }
+    return { effects: { onBigMatchGain: { stat: 'magic', amount: num(m[3]) } } };
+  }
+  // 4+ 连自身增益·共享数值多属性（vast「获得2点攻击力、生命值和盔甲」/ castledefense）：
+  // 首属性进 stat、其余进 alsoStats（引擎 TRIGGER_FIELDS 同额展开）。消除/匹配/配对与
+  // 颗/个/枚量词的机翻差异、省字「生命/护甲/盔甲」都收。
+  if ((m = /^在?(?:配对|匹配|消除)\s*4\s*[颗个枚]?\s*或\s*(?:更?多|5|以上)\s*[颗个枚]?的?宝石的?时[，,]?\s*获得\s*(\d+)\s*点((?:生命值?|护甲值?|盔甲|攻击力|魔法值)(?:[、和]\s*(?:\d+\s*点)?(?:生命值?|护甲值?|盔甲|攻击力|魔法值))+)[，,]?。?$/.exec(desc))) {
+    const gains = parseGainsList(m[2], num(m[1]));
+    if (gains) {
+      const stats = Object.keys(gains);
+      return { effects: { onBigMatchGain: { stat: stats[0], amount: num(m[1]), alsoStats: stats.slice(1) } } };
+    }
+  }
+  // 4+ 连团队增益·长尾（条件光环主体，16 code + 收编批 8 code）：两种动词都收——
   //   「所有哥布林盟友获得 5 点生命值」（获得）/「给所有牛头族盟友 1 点攻击力、护甲值和生命值」（给/给予）
   //   「所有野兽军队获得 …」（军队后缀）/「当配对4个或更多宝石时，所有罗格盟友获得2点魔法值」（个、无空格）
   //   「在配对 4 或更多宝石是，给予怪兽盟友 2 点随机技能值」（官方文本「是」为「时」之误）
+  //   「为所有 猫族 盟友提供 2 点魔法值和生命值」（提供动词 + 机翻空格，strengthofthepride）
+  //   「消除 4 个或更多宝石时…」（消除动词，dwarvenbrew/kingoftheherd）
   // 属性表支持共享数值多属性与「全部技能值」（giftof* 族 = 四项各 N）。
-  if ((m = /^[当在]?配对\s*4\s*[颗个]?\s*或\s*(?:更?多|5)\s*[颗个]?宝石的?[时是]候?[，,]?\s*(.+)$/.exec(desc))) {
-    const bm = /^(?:给予?|使)?\s*所有(.+?)(?:盟友|军队)?获得\s*(\d+)\s*点(.+?)[，,]?。?$/.exec(m[1])
+  if ((m = /^[当在]?(?:配对|匹配|消除)\s*4\s*[颗个枚]?\s*或\s*(?:更?多|5|以上)\s*[颗个]?的?宝石的?[时是]候?[，,]?\s*(.+)$/.exec(desc))) {
+    const bm = /^(?:给予?|使)?\s*所有\s*(.*?)\s*(?:盟友|军队)?\s*(?:获得|提供)?\s*(\d+)\s*点(.+?)[，,]?。?$/.exec(m[1])
+      ?? /^(?:给予?|为|提供)\s*所有\s*(.*?)\s*盟友\s*(?:提供|给予|赋予|恢复|获得)?\s*(\d+)\s*点(.+?)[，,]?。?$/.exec(m[1])
+      // 「给予怪兽盟友 2 点随机技能值」（psychicpulse）：动词句、无「所有」前缀
       ?? /^(?:给予?)\s*(?:所有)?(.+?)(?:盟友|军队)?\s*(\d+)\s*点(.+?)[，,]?。?$/.exec(m[1]);
     if (bm) {
-      const scopeName = bm[1];
+      const scopeName = bm[1].trim();
+      // scope：种族名 / 'all'（全队）/ 颜色名（bountifulgrowth「为所有绿色盟友提供 4 点生命」，
+      // 引擎侧 bigMatchTypeAura 结算经 scopeMatches 同样认颜色）
       const troopType = scopeName === ''
         ? 'all'
-        : (TROOP_TYPE_MAP[scopeName] ?? TROOP_TYPE_MAP[`${scopeName}族`] ?? TROOP_TYPE_MAP[scopeName.replace(/族$/, '')]);
+        : (TROOP_TYPE_MAP[scopeName] ?? TROOP_TYPE_MAP[`${scopeName}族`] ?? TROOP_TYPE_MAP[scopeName.replace(/族$/, '')] ?? pickColor(scopeName));
       const gains = parseGainsList(bm[3], num(bm[2]));
       if (troopType && gains) {
         return { effects: { onBigMatchTypeAura: { troopType, gains } } };
       }
+    }
+  }
+  // 4+ 连团队增益·scope 前置变体（oceanswell「所有人鱼盟友在匹配 4 颗或更多宝石时获得
+  // 2 点魔法值」）：受益范围写在触发头之前。
+  if ((m = /^所有\s*(.*?)\s*盟友在?(?:配对|匹配|消除)\s*4\s*[颗个]?\s*或\s*(?:更?多|5|以上)\s*[颗个]?的?宝石的?时[，,]?(?:获得|提供|给予|赋予|恢复)?\s*(\d+)\s*点(.+?)[，,]?。?$/.exec(desc))) {
+    const troopType = TROOP_TYPE_MAP[m[1]] ?? TROOP_TYPE_MAP[`${m[1]}族`] ?? TROOP_TYPE_MAP[m[1].replace(/族$/, '')] ?? pickColor(m[1]);
+    const gains = parseGainsList(m[3], num(m[2]));
+    if (troopType && gains) {
+      return { effects: { onBigMatchTypeAura: { troopType, gains } } };
     }
   }
   // 条件光环·净化：「净化所有盟友」= 移除全部负面状态（正面清单与 status.ts 诅咒剥正面一致）。
@@ -630,34 +831,37 @@ function parse(desc) {
   if ((m = /^在配对\s*4\s*或\s*5\s*颗宝石时[，,]?对所有敌人造成\s*(\d+)\s*点伤害。?$/.exec(desc))) {
     return { effects: { onBigMatchDamage: { amount: num(m[1]), scope: 'enemyAll' } } };
   }
-  // 4+ 连敌减（T5 大连敌减批 5 code）：损失/耗掉按纯削减收（本批裁定：只减敌方、不给持有者
-  // 进账）。「敌人损失 N 点技能值」（suppression/aspectofplague，无序词=首位存活；技能值→magic
+  // 4+ 连伤害·机翻变体（huntersclaw「消除 4 个或更多宝石时，对随机敌人造成 6 点伤害」，
+  // 官方「Deal 6 damage to a random Enemy when matching 4 or more Gems」）：消除/匹配动词
+  // 与「随机敌人」省略「一名」的排版差异都收。
+  if ((m = /^在?(?:配对|匹配|消除)\s*4\s*[颗个]?\s*或\s*(?:更?多|5|以上)\s*[颗个]?的?宝石的?时[，,]?对(?:一名)?随机敌人造成\s*(\d+)\s*点伤害。?$/.exec(desc))) {
+    return { effects: { onBigMatchDamage: { amount: num(m[1]), scope: 'randomEnemy' } } };
+  }
+  // 4+ 连敌减（T5 大连敌减批 5 code + darkness 修正 + 收编批 darksight/darkinfusion/
+  // lossofsanity）：损失/耗掉/消除按纯削减收（本批裁定：只减敌方、不给持有者进账）。
+  // 「敌人损失 N 点技能值」（suppression/aspectofplague，无序词=首位存活；技能值→magic
   // 同 STAT_MAP 约定）/「一名随机敌人损失 N 点魔法值」（technomancy）/「耗掉一名随机敌人
-  // N 点法力值」（creepinggloom，动词前置；法力值→mana 耗蓝口径）。「4 或 5 颗」与
-  // 「4 或更多（颗）」同为任意大连，minSize 缺省 4。「所有敌人损失」（darkness）已被
-  // 前面的 teamAura 规则按战斗开始光环收走，落不到这里。
-  if ((m = /^在?配对\s*4\s*(?:或\s*5|或更?多)\s*颗?宝石的?时[，,]?(.+)$/.exec(desc))) {
-    const dm = /^(?:一名随机敌人|第一名敌人|首位敌人|敌人)?(?:损失|耗掉)(?:一名随机敌人|第一名敌人|首位敌人|敌人)?\s*(\d+)\s*点(魔法值|技能值|攻击力|护甲值|法力值)。?$/.exec(m[1]);
+  // N 点法力值」（creepinggloom，动词前置）/「所有敌人损失 N 点攻击力」（darkness，官方
+  // Filter=all，落 allEnemies 全体削减）/「消除所有敌人 3 点魔法值」（lossofsanity，官方
+  // 「Eliminate 3 Magic from all Enemies」）。「4 或 5 颗」与「4 或更多（颗）」同为任意大连，
+  // minSize 缺省 4。
+  if ((m = /^在?(?:配对|匹配|消除)\s*4\s*[颗个]?\s*或\s*(?:更?多|5|以上)\s*[颗个]?的?宝石的?时[，,]?(.+)$/.exec(desc))) {
+    const dm = /^(所有敌人|一名随机敌人|第一名敌人|首位敌人|敌人)?(?:损失|耗掉|消除)(所有敌人|一名随机敌人|第一名敌人|首位敌人|敌人)?\s*(\d+)\s*点(魔法值|技能值|攻击力|护甲值|法力值)。?$/.exec(m[1]);
     if (dm) {
-      const stat = pickTriggerStat(dm[2]);
+      const stat = pickTriggerStat(dm[4]);
       if (stat) {
-        return {
-          effects: {
-            onBigMatchEnemyDrain: {
-              stat,
-              amount: num(dm[1]),
-              scope: /一名随机敌人/.test(m[1]) ? 'randomEnemy' : 'front',
-            },
-          },
-        };
+        const scope = /所有敌人/.test(`${dm[1] ?? ''}${dm[2] ?? ''}`) ? 'allEnemies'
+          : /一名随机敌人/.test(`${dm[1] ?? ''}${dm[2] ?? ''}`) ? 'randomEnemy' : 'front';
+        return { effects: { onBigMatchEnemyDrain: { stat, amount: num(dm[3]), scope } } };
       }
     }
-    // 窃取动词只收攻击力句（chillingaura「窃取第一名敌人 2 点攻击力」，按批裁定落纯削减）：
-    // 窃取魔法/生命的 4+ 句（darkinfusion「窃取首位敌人 2 点魔法值」等）官方语义是
-    // 「敌方削减 + 自身进账」，与本机制的纯 reduce 不合，不硬套、留未实现桶。
-    const sm = /^窃取(?:第一名|第一位|首位)敌人\s*(\d+)\s*点攻击力。?$/.exec(m[1]);
+    // 窃取动词按批裁定落纯削减（持有者不进账，官方语义为转移）：攻击力句（chillingaura）
+    // 与魔法句（darkinfusion「窃取首位敌人 2 点魔法值」/ darksight「从第一个敌人身上窃取
+    // 2 点魔法值」）。其余属性不硬猜、留未实现桶。
+    const sm = /^窃取(?:第一名|第一位|首位)敌人\s*(\d+)\s*点(攻击力|魔法值)。?$/.exec(m[1])
+      ?? /^从(?:第一个|第一位|第一名|首位)敌人身上窃取\s*(\d+)\s*点(攻击力|魔法值)。?$/.exec(m[1]);
     if (sm) {
-      return { effects: { onBigMatchEnemyDrain: { stat: 'attack', amount: num(sm[1]), scope: 'front' } } };
+      return { effects: { onBigMatchEnemyDrain: { stat: sm[2] === '魔法值' ? 'magic' : 'attack', amount: num(sm[1]), scope: 'front' } } };
     }
   }
   // 大连创造宝石（T4 大连创造批 4 code）：「在配对 4 或更多宝石时（有 N% 几率）创建
@@ -687,10 +891,11 @@ function parse(desc) {
       return { effects: { onBigMatchConvert: { from: 'hp', to: 'magic', amount: num(m[1]) } } };
     }
   }
-  // 配对召唤（T5 杂项批 genieslamp/stormflock「在配对 4 或更多（颗）宝石时，有 N% 的几率
-  // 召唤一名X」）：复用死亡召唤基建（兵种名经 TROOP_BY_NAME 解析成 troopId/referenceName，
-  // TurnEngine 注入召唤口走同一条模板装配+入队管线）。召唤名解析失败不拦截，留在未实现桶。
-  if ((m = /^(?:在?配对|匹配)\s*4\s*颗?\s*或\s*(?:更?多|5)\s*颗?宝石的?时[，,]?\s*(?:有\s*(\d+)\s*%\s*的?几[率会]\s*)?召唤一?[名只个头]?(.+?)。?$/.exec(desc))) {
+  // 配对召唤（T5 杂项批 genieslamp/stormflock + 收编批 daoslamp「匹配4个或以上的宝石时
+  // 有30%几率召唤恶道仆人」）：复用死亡召唤基建（兵种名经 TROOP_BY_NAME / 召唤名修复表
+  // 解析成 troopId/referenceName，TurnEngine 注入召唤口走同一条模板装配+入队管线）。
+  // 「或以上」/量词「个」/召唤名解析失败不拦截，留在未实现桶。
+  if ((m = /^(?:在?配对|匹配)\s*4\s*[颗个]?\s*或\s*(?:更?多|5|以上)\s*[颗个]?的?宝石的?时[，,]?\s*(?:有\s*(\d+)\s*[％%]\s*的?几[率会]\s*)?召唤一?[名只个头]?(.+?)。?$/.exec(desc))) {
     const troop = resolveSummonedTroop(desc);
     if (troop && !troop.storm) {
       return {
@@ -705,11 +910,12 @@ function parse(desc) {
       };
     }
   }
-  // 配对风暴（T5 杂项批 deadlywaters「在配对 4 或 5 颗宝石时，创造骸骨风暴」）：风暴名查
-  // STORM_MAP（骸骨风暴 dropKind 'skull' 同源），TurnEngine 注入风暴设置口（与技能造风暴
-  // 同一份全局唯一顶替裁定）。不在映射表的风暴（元素风暴/临界风暴——引擎掉落契约无对应
-  // 语义，映射拿不准）不拦截，留在未实现桶。
-  if ((m = /^在?配对\s*4\s*颗?\s*或\s*(?:更?多|5)\s*颗?宝石的?时[，,]?(?:创[建造成]|召唤)出?(.+?)。?$/.exec(desc))) {
+  // 配对风暴（T5 杂项批 deadlywaters「在配对 4 或 5 颗宝石时，创造骸骨风暴」+ 收编批
+  // eternaldoom「在匹配 4 或更多宝石时，召唤末日风暴」）：风暴名查 STORM_MAP（骸骨/末日
+  // 风暴 dropKind 同源），TurnEngine 注入风暴设置口（与技能造风暴同一份全局唯一顶替裁定）。
+  // 不在映射表的风暴（元素风暴/临界风暴——引擎掉落契约无对应语义，映射拿不准）不拦截，
+  // 留在未实现桶。
+  if ((m = /^在?(?:配对|匹配)\s*4\s*[颗个]?\s*或\s*(?:更?多|5|以上)\s*[颗个]?的?宝石的?时[，,]?(?:创[建造成]|召唤)出?(.+?)。?$/.exec(desc))) {
     const storm = STORM_MAP[m[1]];
     if (storm) {
       return {
@@ -739,7 +945,7 @@ function parse(desc) {
   //   含引擎没有的状态本体（恐怖/法印…）的句子整体不收，不做缺状态的半解析；
   //   「创造 N 颗X宝石」是特殊宝石域不在此收（twinfires）；「第一名敌人」收 firstEnemy（dragonvines）；
   //   未命中任何已知状态的（如「获得额外 N 黄金」）同样落回后续规则留在未实现桶。
-  if (/^在?配对\s*4/.test(desc) && !AURA_UNKNOWN_STATUS.test(desc) && !/创造|创建/.test(desc)) {
+  if (/^在?(?:配对|匹配|消除)\s*4/.test(desc) && !AURA_UNKNOWN_STATUS.test(desc) && !/创造|创建/.test(desc)) {
     const chanceM = /有\s*(\d+)%\s*的?几率/.exec(desc);
     const enemyTargeted = /敌人/.test(desc) && !/所有敌人/.test(desc);
     // 敌人指定：随机 → randomEnemy；指定序号（「第一名敌人」dragonvines）→ firstEnemy
@@ -795,10 +1001,15 @@ function parse(desc) {
     if (!stat) return null;
     return { effects: { onEnemyColorMatchGain: { color: 'skull', stat, amount: num(m[1]) } } };
   }
-  // 配色团队光环（celestial*/powerof*/*aura 族，28 code）：「在配对红色宝石时，给予所有红色盟友 4 点攻击力」。
+  // 配色团队光环（celestial*/powerof*/*aura 族 + virtueofcourage + 收编批 lifetide/
+  // celestialstrength/blessingofstone）：「在配对红色宝石时，给予所有红色盟友 4 点攻击力」。
+  // 匹配动词 配对/匹配/消除、给予动词 给予/为/赋予/赐予/提供/恢复、获得/恢复后缀、
+  // 多属性共享数值（「2 点攻击力和生命值」）与「全部技能值各 N」（四项各 N）都收。
   // 受益范围：同色盟友（查 colors）/ 种族（查 troopTypes）/「所有盟友」= 全队；
-  // 骷髅头匹配以 'skull' 为色键（diamondaura/powerofstars）。动词 给予/为…提供/赋予 都收。
-  if ((m = /^在?配对(骷髅头(?:宝石)?|.+?宝石)的?时[，,]?\s*(?:给予|为|赋予)?所有(盟友|.+?盟友)(?:给予|提供|赋予)?\s*(\d+)\s*点?\s*(生命值|护甲值?|攻击力|魔法值|所有技能组)[，,]?。?$/.exec(desc))) {
+  // 骷髅头匹配以 'skull' 为色键（diamondaura/powerofstars/virtueofcourage）。
+  // 宝石短语含数字 = 4+ 连句式外壳被 (.+?宝石) 吞进组里，整条跳过（不 return null，
+  // 让大连句式落回前面已命中的 4+ 规则族）。
+  if ((m = /^在?(?:配对|匹配|消除)(骷髅头(?:宝石)?|.+?宝石)(?:的?时候?|时)[，,]?\s*(?:给予|为|赋予|赐予|提供|恢复)?所有\s*(.*?)\s*盟友(?:获得|给予|提供|赋予|赐予|恢复)?\s*(?:(\d+)\s*点?\s*(.+?)|全部技能值各\s*(\d+)\s*点)[，,]?。?$/.exec(desc)) && !/\d/.test(m[1])) {
     let gemColor;
     if (m[1].startsWith('骷髅头')) gemColor = 'skull';
     else {
@@ -806,25 +1017,27 @@ function parse(desc) {
       if (!gemColor) return null;
     }
     // 「所有盟友」= 全队；「所有棕色盟友」= 先剥「盟友」再查颜色/种族映射
-    const scopeRaw = m[2];
-    const scopeName = scopeRaw === '盟友' ? '' : scopeRaw.replace(/盟友$/, '');
+    const scopeName = m[2].trim();
     const scope = scopeName === '' ? 'all' : (pickColor(scopeName) ?? TROOP_TYPE_MAP[scopeName] ?? TROOP_TYPE_MAP[`${scopeName}族`]);
-    const gains = m[4] === '所有技能组'
-      ? { hp: num(m[3]), armor: num(m[3]), attack: num(m[3]), magic: num(m[3]) }
-      : (() => { const stat = pickStat(m[4]); return stat ? { [stat]: num(m[3]) } : null; })();
+    const gains = m[5] !== undefined
+      ? { hp: num(m[5]), armor: num(m[5]), attack: num(m[5]), magic: num(m[5]) }
+      : (() => { const g = parseGainsList(m[4], num(m[3])); if (g) return g; const stat = pickStat(m[4] ?? ''); return stat ? { [stat]: num(m[3]) } : null; })();
     if (!scope || !gains) return null;
     return { effects: { onColorMatchTypeAura: { color: gemColor, scope, gains } } };
   }
   // 配色触发·共享数值多属性（ragingbull）：「在配对红色宝石时获得 2 点攻击力、护甲值和生命值」
-  if ((m = /^在?配对(.+?)宝石时[，,]?获得\s*(\d+)\s*点((?:生命值|护甲值?|攻击力|魔法值)(?:[、和](?:\d+\s*点)?(?:生命值|护甲值?|攻击力|魔法值))+)[，,]?。?$/.exec(desc))) {
+  // （宝石短语含数字 = 4+ 连外壳，跳过不短路）
+  if ((m = /^在?(?:配对|匹配|消除)(.+?)宝石(?:的?时候?|时)[，,]?\s*获得\s*(\d+)\s*点((?:生命值?|护甲值?|攻击力|魔法值)(?:[、和](?:\s*(\d+)\s*点)?(?:生命值?|护甲值?|攻击力|魔法值))+)[，,]?。?$/.exec(desc)) && !/\d/.test(m[1])) {
     const color = pickColor(m[1]);
     const gains = parseGainsList(m[3], num(m[2]));
     if (!color || !gains) return null;
     const stats = Object.keys(gains);
     return { effects: { onColorMatchGain: { color, stat: stats[0], amount: num(m[2]), alsoStats: stats.slice(1) } } };
   }
-  // 配色触发：在配对<色>宝石时获得 N 点 X（boo/firewall 族带逗号；royalfire「点 攻击力」带空格）
-  if ((m = /^在?配对(.+?)宝石时[，,]?\s*获得\s*(\d+)\s*点\s*(生命值|护甲值|攻击力|魔法值)。?$/.exec(desc))) {
+  // 配色触发：在配对<色>宝石时获得 N 点 X（boo/firewall 族带逗号；royalfire「点 攻击力」带
+  // 空格；收编批 dwarvenfortress「消除棕色宝石时获得3点护甲值」/ guardianshield 机翻
+  // 「活动 8 点护甲值」——消除动词与「活动」错别字都收；宝石短语含数字 = 4+ 连外壳，跳过）
+  if ((m = /^在?(?:配对|匹配|消除)(.+?)宝石(?:的?时候?|时)[，,]?\s*(?:获得|活动)\s*(\d+)\s*点\s*(生命值|护甲值|攻击力|魔法值)。?$/.exec(desc)) && !/\d/.test(m[1])) {
     const color = pickColor(m[1]);
     const stat = pickStat(m[3]);
     if (!color || !stat) return null;
@@ -850,21 +1063,45 @@ function parse(desc) {
     const color = pickColor(m[1]);
     if (color) return { effects: { onColorMatchDamage: { color, amount: num(m[2]) } } };
   }
-  // 配色施加状态（T5 配色状态批 16 code）：「在配对<色>宝石时…随机敌人施加状态」句式族。
+  // 配色施加状态（T5 配色状态批 16 code + 收编批 venomofanu/bloodyfury/angrybear）：
   //   动词句 molten「随机燃烧一名敌人」/ wildvines「随机缠绕一名敌人」/ magicvines「缠绕一名
   //   随机敌人」/ lionsroar·petrification「击晕一名随机敌人」（petrification 官方文本无句尾句号）；
   //   陷入句 sunfire「随机使一名敌人陷入妖火状态」/ sourcandy「使一名随机敌人陷入妖火状态」/
   //   deepwounds/rainofspines/grimcurse/curseofmadness/huntersmoon/webbedbranches（单状态）与
   //   enchantedvines「陷入缠绕和妖火状态」/ ancientchill「陷入冻结和妖火状态」（双状态按「和」
-  //   拆段，全部命中才收，条目序与描述一致）；foxfire 带概率「有 50% 的几率」收进 chance。
+  //   拆段，全部命中才收，条目序与描述一致）；foxfire 带概率「有 50% 的几率」收进 chance；
+  //   venomofanu「匹配蓝色宝石时使随机敌人中毒」（匹配动词省「在」）/ bloodyfury「匹配骷髅头
+  //   时，随机对一名敌人施加流血效果」（骷髅头不带「宝石」尾缀）；angrybear「当配对棕色宝石时
+  //   赋予自身狂怒状态」= 持有者自身（scope 'self'）。
   // 状态词查 AURA_STATUS_MAP（与大连施加同表），DoT（燃烧/出血/中毒）带 magnitude:1；
-  // 回合数 3（与 onBigMatchStatus 同口径）。范围只认「随机…敌人」：指定序号（「第一名敌人」）
-  // 、窃取/伤害类动词句、无「随机」的句子不在此收；形状不合落回后续规则，不短路。
-  if ((m = /^在?配对(.+?)宝石的?时[，,]?(.+)$/.exec(desc))) {
-    const color = pickColor(m[1]);
-    const tail = m[2];
-    if (color && /随机/.test(tail) && /敌人/.test(tail) && !/所有敌人/.test(tail)) {
-      const chanceM = /有\s*(\d+)%\s*的?几率/.exec(tail);
+  // 回合数 3（与 onBigMatchStatus 同口径）。指定序号（「第一名敌人」）、窃取/伤害类动词句、
+  // 无「随机」的句子不在此收；形状不合落回后续规则，不短路。
+  if ((m = /^[当在]?(?:配对|匹配)(骷髅头|.+?宝石)的?时[，,]?(.+)$/.exec(desc))) {
+    const color = m[1] === '骷髅头' ? 'skull' : pickColor(m[1]);
+    // 色键解析不了就跳过本规则（落回后续规则）——宝石短语可能只是 4+ 连句式的机翻外壳
+    //（「匹配4枚或更多宝石时…」被 (.+?宝石) 吞进组里），此处 return null 会误杀下游规则
+    if (color) {
+      const tail = m[2];
+      if (!/所有敌人/.test(tail) && /自身|自己/.test(tail) && !/敌人/.test(tail)) {
+      // 自身变体（angrybear）：目标确定性（持有者本人，scope 'self'），概率句仍收 chance
+      const chanceM = /有\s*(\d+)\s*[％%]\s*的?几率/.exec(tail);
+      const found = AURA_STATUS_MAP.filter(([re]) => re.test(tail)).map(([, id]) => id);
+      if (found.length > 0) {
+        return {
+          effects: {
+            onColorMatchStatus: {
+              color,
+              scope: 'self',
+              statuses: [...new Set(found)].map((id) => (isDotStatus(id) ? { id, magnitude: 1 } : { id })),
+              turns: 3,
+              ...(chanceM ? { chance: num(chanceM[1]) / 100 } : {}),
+            },
+          },
+        };
+      }
+    }
+    if (/随机/.test(tail) && /敌人/.test(tail) && !/所有敌人/.test(tail)) {
+      const chanceM = /有\s*(\d+)\s*[％%]\s*的?几率/.exec(tail);
       let statuses = null;
       const trapped = /陷入(.+?)状态/.exec(tail);
       if (trapped) {
@@ -893,22 +1130,30 @@ function parse(desc) {
           },
         };
       }
+      }
     }
   }
-  // 配色窃取生命（T5 窃取批 5 code）：「在配对<色>宝石时窃取第一/第一位/首位敌人 N 点生命值」
-  // 族（corruption/poisontide/justabite/darkesthunger/ladyofdesire）。结算与技能 drain
-  // （settleDrain）同口径：对首位存活敌人造成 amount 伤害（damageOne 管线），持有者按
-  // 实际伤害额等量治疗。与配色施加状态同一触发点（applyColorMatchTriggers）。
+  // 配色窃取生命（T5 窃取批 5 code + 收编批 roseaura 族 7 code）：
+  //   corruption 族「在配对<色>宝石时窃取第一/第一位/首位敌人 N 点生命值」；
+  //   roseaura/bluebellaura/gladiolaaura/daffodilaura/irisaura/orchidaura「匹配X宝石时窃取
+  //   N 条生命」（官方「Steal 4 Life when matching X Gems」，省略目标=首位敌人，量词「条」）
+  //   与 blossomaura「匹配骷髅宝石时窃取 4 条生命」（骷髅以 'skull' 色键）。
+  // 结算与技能 drain（settleDrain）同口径：对首位存活敌人造成 amount 伤害（damageOne 管线），
+  // 持有者按实际伤害额等量治疗。与配色施加状态同一触发点（applyColorMatchTriggers）。
   if ((m = /^在?配对(.+?)宝石的?时[，,]?窃取(?:第一名|第一位|首位)敌人\s*(\d+)\s*点生命值。?$/.exec(desc))) {
     const color = pickColor(m[1]);
+    if (color) return { effects: { onColorMatchDrain: { color, amount: num(m[2]) } } };
+  }
+  if ((m = /^在?匹配(骷髅|.+?)宝石时窃取\s*(\d+)\s*[条点]生命。?$/.exec(desc))) {
+    const color = m[1] === '骷髅' ? 'skull' : pickColor(m[1]);
     if (color) return { effects: { onColorMatchDrain: { color, amount: num(m[2]) } } };
   }
   // 反弹 N% 的骷髅（头）伤害——"反弹/反射"、"骷髅头/骷髅"两种译法都收
   if ((m = /^(?:反弹|反射)\s*(\d+)%\s*的骷髅(?:头)?伤害。?$/.exec(desc))) {
     return { effects: { reflectSkullRatio: num(m[1]) / 100 } };
   }
-  // 有 N% 的几率闪避骷髅头伤害
-  if ((m = /^有\s*(\d+)%\s*的?几率闪避骷髅头伤害/.exec(desc))) {
+  // 有 N% 的几率闪避骷髅头伤害（dontblink 的机翻动词「躲避」一并收）
+  if ((m = /^有\s*(\d+)%\s*的?几率(?:闪避|躲避)骷髅头伤害/.exec(desc))) {
     return { effects: { dodgeChance: num(m[1]) / 100 } };
   }
   // 种族光环：<族>盟友获得 N 点 X。整条锚定，避免把「当…时，所有<族>…」这类条件光环误收
@@ -922,8 +1167,8 @@ function parse(desc) {
     }
     return null;
   }
-  // 光环·计数：每有一名<色>盟友则获得 N 点 X
-  if ((m = /每有一名(.+?)盟友则获得\s*(\d+)\s*点(生命值|护甲值|攻击力|魔法值)/.exec(desc))) {
+  // 光环·计数：每有一名<色>盟友则获得 N 点 X（stoneshield/magicshield 的机翻「即获得」一并收）
+  if ((m = /每有一名(.+?)盟友(?:则|即)获得\s*(\d+)\s*点(生命值|护甲值|攻击力|魔法值)/.exec(desc))) {
     const color = pickColor(m[1]);
     const stat = pickStat(m[3]);
     if (!color || !stat) return null;
@@ -981,22 +1226,23 @@ function parse(desc) {
     if (!color) return null;
     return { effects: { battleStartDestroy: { kind: 'color', color } } };
   }
-  // 死亡召唤三族（daemonicpact/terrorpact/fromdark/darkdeath…）。
-  // 触发主体：自己身亡 / 盟友身亡 / 敌人身亡；概率可省略（=100%，如 loyalmount/desertmount）。
-  // 召唤物两段式解析：先查兵种数据，未命中查风暴映射表（骸骨风暴/末日风暴等 9 种，
-  // 产出 storm 变体 spec，不产出兵种）；两者都查不到留在未实现桶。
-  if (/身亡时|死亡时/.test(desc) && /召唤/.test(desc)) {
+  // 死亡召唤三族（daemonicpact/terrorpact/fromdark/darkdeath… + 收编批 6 条）。
+  // 触发主体：自己身亡 / 盟友身亡 / 敌人身亡；概率可省略（=100%，如 loyalmount/desertmount）；
+  // 死亡译法 身亡时/死亡时/死时（dissolve）/死后（infernalpact）都收。
+  // 召唤物两段式解析：先查兵种数据（含按 code 的机报名修复表），未命中查风暴映射表
+  //（骸骨风暴/末日风暴等 9 种，产出 storm 变体 spec，不产出兵种）；两者都查不到留在未实现桶。
+  if (/身亡时|死亡时|死[后时]/.test(desc) && /召唤/.test(desc)) {
     if (/当?一?名?敌人(?:死亡|身亡)时/.test(desc)) {
-      const hit = parseDeathSummon(desc, 'summonOnEnemyDeath', true);
+      const hit = parseDeathSummon(desc, 'summonOnEnemyDeath', true, code);
       if (hit) return hit;
       return null; // 敌人身亡但召唤名解析失败，不再尝试其它字段
     }
     if (/当一名盟友身亡时/.test(desc)) {
-      const hit = parseDeathSummon(desc, 'summonOnAllyDeath', false);
+      const hit = parseDeathSummon(desc, 'summonOnAllyDeath', false, code);
       if (hit) return hit;
       return null;
     }
-    const hit = parseDeathSummon(desc, 'summonOnDeath', true);
+    const hit = parseDeathSummon(desc, 'summonOnDeath', true, code);
     if (hit) return hit;
     return null;
   }
@@ -1063,10 +1309,24 @@ function resolveSummonedTroop(desc) {
   return null;
 }
 
+/**
+ * 召唤名机翻修复（收编批）：dump 描述的召唤名与兵种库中文名对不上
+ * （「半人马侦察兵」vs 兵种库「人马斥候」等），按 code 显式指向官方英文描述确认的
+ * referenceName，displayName 用兵种库实名（展示与防幻觉对账都要求实名）。
+ */
+function resolveSummonedTroopByCode(code) {
+  const ref = SUMMON_TROOP_NAME_FIX[code];
+  if (!ref) return null;
+  const slim = (Array.isArray(troopsSlim) ? troopsSlim : troopsSlim.raw_data ?? []).find((t) => t.referenceName === ref);
+  if (!slim) return null;
+  return { troopId: slim.id, referenceName: slim.referenceName, displayName: slim.name };
+}
+
 /** 死亡召唤共同解析：触发主体 + 概率 + 召唤物。触发字段由调用方指定 */
-function parseDeathSummon(desc, field, withChance) {
+function parseDeathSummon(desc, field, withChance, code) {
+  const byCode = resolveSummonedTroopByCode(code);
   const chance = withChance ? (/(?:有|时)\s*(\d+)%\s*的?几率/.exec(desc) ?? [])[1] : undefined;
-  const troop = resolveSummonedTroop(desc);
+  const troop = byCode ?? resolveSummonedTroop(desc);
   if (!troop) return null;
   return {
     effects: {
@@ -1074,7 +1334,8 @@ function parseDeathSummon(desc, field, withChance) {
         chance: chance !== undefined ? num(chance) / 100 : 1,
         troopId: troop.troopId,
         referenceName: troop.referenceName,
-        displayName: (/(?:召唤|召唤出)一?[名只个头]?(.+?)[。.？?]?$/.exec(desc) ?? [])[1]?.trim(),
+        displayName: byCode?.displayName
+          ?? (/(?:召唤|召唤出)一?[名只个头]?(.+?)[。.？?]?$/.exec(desc) ?? [])[1]?.trim(),
         ...(troop.storm ? { storm: troop.storm } : {}),
       },
     },
@@ -1100,19 +1361,22 @@ const BATTLE_START_STORMS = {
   songofice: { color: 'Blue', turns: STORM_TURNS, troopId: 9003, referenceName: 'Icestorm', displayName: 'Icestorm' },
 };
 for (const [code, v] of [...info].sort((a, b) => b[1].troops - a[1].troops)) {
-  const parsed = parse(v.description);
+  // 机翻错译定点修正（核对报告 §二）：先改写描述再解析，保证「描述↔数值」对账一致
+  const description = DESCRIPTION_OVERRIDES[code] ?? v.description;
+  // 官方英文权威、中文机翻破损的特质按官方文本显式写效果（maladycurse/sanctuary/hellfire）
+  const parsed = EXPLICIT_EFFECTS[code] ? { effects: EXPLICIT_EFFECTS[code] } : parse(description, code);
   const startupStorm = BATTLE_START_STORMS[code];
   if (parsed || startupStorm) {
     out.push({
       code,
       name: v.name,
-      description: v.description,
+      description,
       troops: v.troops,
       ...(parsed?.effects ?? {}),
       ...(startupStorm ? { battleStartStorm: startupStorm } : {}),
     });
   } else {
-    skipped.push({ code, ...v });
+    skipped.push({ code, ...v, description });
   }
 }
 

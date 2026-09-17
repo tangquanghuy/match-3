@@ -8,14 +8,22 @@ import {
 import { passivesOf, skullDamageMultiplier } from './traits';
 
 /** 战斗结算产出的事件 */
-/** 就地施加一组被动增益并产出 buff 事件；生命同时抬上限。 */
+/** 就地施加一组被动增益并产出 buff 事件；生命同时抬上限；法力按上限夹取。 */
 function applyStatGains(char: Character, gains: StatGains, events: GameEvent[]): void {
-  for (const stat of ['hp', 'armor', 'attack', 'magic'] as const) {
+  for (const stat of ['hp', 'armor', 'attack', 'magic', 'mana'] as const) {
     const amount = gains[stat];
     if (amount === 0) continue;
     if (stat === 'hp') {
       char.maxHp += amount;
       char.hp = Math.min(char.maxHp, char.hp + amount);
+    } else if (stat === 'mana') {
+      // 法力增益按法力上限夹取（zornsfury「在自身受到伤害时获得 4 点法力值」），
+      // 实际入账量按夹取后的差值发事件。
+      const before = char.mana;
+      char.mana = Math.max(0, Math.min(char.manaCost, char.mana + amount));
+      const delta = char.mana - before;
+      if (delta !== 0) events.push({ type: 'buff', targetId: char.id, stat, amount: delta });
+      continue;
     } else {
       char[stat] = Math.max(0, char[stat] + amount);
     }
@@ -135,7 +143,21 @@ export class CombatResolver {
 
     // 受击触发（狂暴/兽人报甲…）：落空不触发，因此放在实际扣血之后
     const targetPassive = passivesOf(target);
-    if (!enraged && !target.defeated) applyStatGains(target, targetPassive.gainOnDamaged, events);
+    if (!enraged && !target.defeated) {
+      applyStatGains(target, targetPassive.gainOnDamaged, events);
+      // 承伤队伍光环（virtueofhumility「当自身生命值承受伤害时，所有盟友获得 2 点护甲值和
+      // 魔法值」）：与 gainOnDamaged 同一触发点，受益者为受击者一方存活盟友
+      //（'all'=全队/种族名）。目标可能在攻击方（被魅惑打自己人），按归属取队伍。
+      const aura = targetPassive.onDamagedTypeAura;
+      if (aura) {
+        const ownTeam = attackerTeam.characters.includes(target) ? attackerTeam : defenderTeam;
+        for (const member of ownTeam.characters) {
+          if (member.defeated) continue;
+          if (aura.troopType !== 'all' && !(member.troopTypes ?? []).includes(aura.troopType)) continue;
+          applyStatGains(member, { hp: 0, armor: 0, attack: 0, magic: 0, mana: 0, ...aura.gains }, events);
+        }
+      }
+    }
     // 受击附状态（aquatic「在自身受到伤害时使自身下潜」）：与受击增益同一触发口径
     //（同为落空不触发），施加走 applyStatus（免疫在施加口拦截）；下潜=不可被指定
     //（UNTARGETABLE_STATUS_IDS），回合尾随持有者方状态结算递减。

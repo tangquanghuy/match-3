@@ -113,8 +113,9 @@ describe('被动编译 · resolvePassives', () => {
   });
 
   it('免疫取并集，通配符覆盖一切', () => {
+    // fireproof 官方「Immunity to Burning and Faerie Fire」：妖火是独立状态（修正前只免 burning）
     expect([...resolvePassives(['fireproof', 'insulated']).statusImmunities].sort())
-      .toEqual(['burning', 'frozen']);
+      .toEqual(['burning', 'faerie-fire', 'frozen']);
     expect(resolvePassives(['impervious']).statusImmunities).toContain(ALL_STATUSES);
   });
 
