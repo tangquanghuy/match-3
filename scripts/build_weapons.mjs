@@ -2,14 +2,18 @@
 // 用法: node scripts/build_weapons.mjs
 // 输入: artifacts/gowhead-weapons/raw/weapons.gow.zh.json（主数据，716/718 条法术全中文）
 //       artifacts/gowhead-weapons/raw/weapons.gow.en.json（对照兜底：nameEn / 中文名缺口时的英文回退）
+//       src/data/weapon-skill-meta.json（输入之一，由窗口 K-B 的 _weapon_pools.mjs 管线产出：
+//         spellId → {fidelity, missingFeatures, skippedClauses} 绑定保真度登记，按 spell.id 合并进 spell.meta）
 // 输出: src/data/weapons.json （主角武器数据，schema 对齐 troops.json，产物勿手改）
-// 报告: artifacts/weapons-build-report.txt （统计 + 王国映射差异清单）
+// 报告: artifacts/weapons-build-report.txt （统计 + 王国映射差异清单 + 绑定保真度分布）
 import fs from 'node:fs';
 import path from 'node:path';
 
 const IN_ZH = 'artifacts/gowhead-weapons/raw/weapons.gow.zh.json';
 const IN_EN = 'artifacts/gowhead-weapons/raw/weapons.gow.en.json';
 const IN_TROOPS = 'src/data/troops.json';
+// K-B 登记输入：绑定保真度元数据（只读消费，产物归 K-B 的 _weapon_pools.mjs 管线所有）
+const IN_SKILL_META = 'src/data/weapon-skill-meta.json';
 const OUT = 'src/data/weapons.json';
 const REPORT = 'artifacts/weapons-build-report.txt';
 
@@ -100,6 +104,25 @@ const enById = new Map(en.weapons.map((w) => [w.Id, w]));
 const troops = JSON.parse(fs.readFileSync(IN_TROOPS, 'utf8'));
 const TROOP_KINGDOM_ZH = new Set(troops.map((t) => t.kingdom).filter((k) => k && hasCJK(k)));
 
+// --- 绑定保真度元数据（窗口 K-B 产物，登记输入） ---
+// 与武器 spell.id 必须严格 718 对齐：武器缺登记或多出登记都是构建错误（直接 throw）。
+const FIDELITIES = new Set(['full', 'partial', 'mana-only']);
+const skillMeta = JSON.parse(fs.readFileSync(IN_SKILL_META, 'utf8'));
+const skillMetaIds = new Set(Object.keys(skillMeta).map(Number));
+
+/** 取某 spellId 的绑定登记；缺条目/形状不合法/保真度非法一律 throw（对齐错误不允许静默落盘） */
+function requireSkillMeta(spellId, referenceName) {
+  const m = skillMeta[String(spellId)];
+  if (!m) {
+    throw new Error(`weapon-skill-meta.json 缺少 spellId ${spellId}（武器 ${referenceName}）——与武器登记必须严格 718 对齐`);
+  }
+  if (typeof m.fidelity !== 'string' || !FIDELITIES.has(m.fidelity)
+    || !Array.isArray(m.missingFeatures) || !Array.isArray(m.skippedClauses)) {
+    throw new Error(`weapon-skill-meta.json 的 spellId ${spellId} 形状非法（需要 fidelity ∈ full/partial/mana-only + 两个数组）`);
+  }
+  return m;
+}
+
 // --- 统计收集（报告用；不含时间戳，保证重跑幂等） ---
 const stats = {
   byRarity: {},
@@ -114,6 +137,7 @@ const stats = {
   affixFallback: 0, // 词缀名称/描述走了英文兜底的条数
   kingdomGaps: [], // 王国映射缺口（原样英文落盘）
   unrecognizedBrackets: {}, // 括号公式里解析器不认识的 token
+  byFidelity: {}, // 绑定保真度分布（K-B 登记）
   withReleaseDate: 0,
   immortal: 0,
   affixEntries: 0,
@@ -178,6 +202,15 @@ const weapons = zh.weapons.map((w) => {
     stats.modifierOnly++;
   }
 
+  // 绑定保真度合并（K-B 登记）：fidelity / missingFeatures / skippedClauses 进 spell.meta。
+  // spellId 缺登记即 throw（见 requireSkillMeta）；多出的登记在映射完成后统一检查。
+  const spellId = w.SpellId ?? zhSpell.id;
+  const bound = requireSkillMeta(spellId, w.ReferenceName);
+  meta.fidelity = bound.fidelity;
+  meta.missingFeatures = bound.missingFeatures;
+  meta.skippedClauses = bound.skippedClauses;
+  stats.byFidelity[bound.fidelity] = (stats.byFidelity[bound.fidelity] ?? 0) + 1;
+
   // 淬炼词缀：有中文用中文，zh 缺失按序回退 en
   const zhAffixes = s.affixes ?? [];
   const enAffixes = enS.affixes ?? [];
@@ -229,7 +262,7 @@ const weapons = zh.weapons.map((w) => {
     manaColors: colors,
     manaCost: w.ManaCost ?? 0,
     spell: {
-      id: w.SpellId ?? zhSpell.id,
+      id: spellId,
       name: zhSpell.name || enSpell.name || '',
       description,
       meta,
@@ -244,6 +277,15 @@ const weapons = zh.weapons.map((w) => {
 
 // 按 id 升序（输入已有序，显式排序保证确定性）
 weapons.sort((a, b) => a.id - b.id);
+
+// 登记对齐的反向校验：武器侧用掉的 spellId 之外，登记里多出的 spellId 也是构建错误
+const usedSpellIds = new Set(weapons.map((x) => x.spell.id));
+const extraMetaIds = [...skillMetaIds].filter((id) => !usedSpellIds.has(id));
+if (extraMetaIds.length > 0) {
+  throw new Error(
+    `weapon-skill-meta.json 多出 ${extraMetaIds.length} 个武器不存在的 spellId: ${extraMetaIds.slice(0, 10).join(', ')}——与武器登记必须严格 718 对齐`,
+  );
+}
 
 fs.mkdirSync(path.dirname(OUT), { recursive: true });
 fs.writeFileSync(OUT, JSON.stringify(weapons, null, 2), 'utf8');
@@ -291,6 +333,14 @@ for (const [token, n] of Object.entries(stats.unrecognizedBrackets)) {
 lines.push(`  RarityIdx ↔ WeaponRarity 不一致: ${stats.rarityIdxMismatch.length}`);
 for (const m of stats.rarityIdxMismatch) lines.push(`    - ${m}`);
 lines.push('');
+lines.push('-- 绑定保真度分布（spell.meta 合并自 src/data/weapon-skill-meta.json，K-B 登记输入） --');
+lines.push(`  full（法术全语义绑定）: ${stats.byFidelity.full ?? 0}`);
+lines.push(`  partial（有缺失特性/跳过子句）: ${stats.byFidelity.partial ?? 0}`);
+lines.push(`  mana-only（仅扣法力占位）: ${stats.byFidelity['mana-only'] ?? 0}`);
+const fidelityTotal = Object.values(stats.byFidelity).reduce((s, n) => s + n, 0);
+lines.push(`  对齐校验: 武器 spell.id ↔ 登记键 ${fidelityTotal}/${weapons.length}（缺/多即构建 throw，禁止静默落盘）`);
+lines.push('  missingFeatures/skippedClauses 原样合并进 spell.meta，逐条与登记一致（审计测试锁定）');
+lines.push('');
 lines.push('-- 淬炼词缀（affixes） --');
 lines.push(`  带词缀武器: ${stats.affixWeapons}/${weapons.length}，词缀共 ${stats.affixEntries} 条`);
 lines.push(`  词缀名称/描述英文兜底条数: ${stats.affixFallback}`);
@@ -329,4 +379,5 @@ const outSize = (fs.statSync(OUT).size / 1024 / 1024).toFixed(2);
 console.log(`抽取完成: ${weapons.length} 把武器`);
 console.log(`原始 ${inSize}MB → 精简 ${outSize}MB`);
 console.log(`中文名 ${zhNameCount}/${weapons.length}，缩放解析 parsed=true ${stats.parsedTrue} / false ${stats.parsedFalse}，王国映射缺口 ${stats.kingdomGaps.length}`);
+console.log(`绑定保真度 full ${stats.byFidelity.full ?? 0} / partial ${stats.byFidelity.partial ?? 0} / mana-only ${stats.byFidelity['mana-only'] ?? 0}`);
 console.log(`报告 → ${REPORT}`);

@@ -12,6 +12,8 @@
  *   E. 快照断言   —— 5 把已知武器（骑士之剑/雅思敏的弓/野性匕首/暗影使者/在劫难逃的匕首）
  *                    锁定中文名/费用/公式解析值，期望值从 raw dump 人工核对后写死
  *   F. 名称覆盖   —— 中文名覆盖率与英文回退清单锁定（1720/1721 两把新武器官方未翻译）
+ *   G. 绑定保真度 —— spell.meta.fidelity ∈ {full, partial, mana-only}，三级分布写死对齐
+ *                    （full 245 / partial 406 / mana-only 67），逐条与 K-B 登记一致
  *
  * 人工核对只需复核本套件测不了的部分：法术文本的官方语义（归 K-B 组装批）。
  */
@@ -19,6 +21,7 @@ import { describe, it, expect } from 'vitest';
 import { BaseColor } from '@engine/types';
 import weaponsJson from '../../src/data/weapons.json';
 import troopsJson from '../../src/data/troops.json';
+import weaponSkillMetaJson from '../../src/data/weapon-skill-meta.json';
 
 interface ScalingSpec {
   base: number;
@@ -62,6 +65,10 @@ interface WeaponRow {
       raw: string;
       parsed: boolean;
       modifier?: SecondaryModifier;
+      /** 绑定保真度（K-B 登记输入，合并自 src/data/weapon-skill-meta.json） */
+      fidelity: string;
+      missingFeatures: string[];
+      skippedClauses: string[];
     };
   };
   affixes: WeaponAffix[];
@@ -71,7 +78,15 @@ interface WeaponRow {
   imageFile: string;
 }
 
+/** weapon-skill-meta.json 单条登记（K-B 的 _weapon_pools.mjs 管线产出） */
+interface SkillMetaEntry {
+  fidelity: string;
+  missingFeatures: string[];
+  skippedClauses: string[];
+}
+
 const WEAPONS = weaponsJson as unknown as WeaponRow[];
+const SKILL_META = weaponSkillMetaJson as unknown as Record<string, SkillMetaEntry>;
 const TROOP_KINGDOMS = new Set(
   (troopsJson as unknown as { kingdom: string | null }[])
     .map((t) => t.kingdom)
@@ -91,6 +106,9 @@ const BASE_COLORS = new Set(Object.values(BaseColor));
 
 /** 词缀稀有度走兵种稀有度词表（淬炼按稀有度晋升级解锁，无 Doomed 档） */
 const AFFIX_RARITIES = new Set(['Rare', 'UltraRare', 'Epic', 'Legendary', 'Mythic']);
+
+/** 绑定保真度三级（K-B 分保真度绑定：full 全语义 / partial 缺特性或跳子句 / mana-only 仅扣法力） */
+const FIDELITIES = new Set(['full', 'partial', 'mana-only']);
 
 const CJK_RE = /[\u4e00-\u9fff]/;
 const BRACKET_RE = /\[[^\]]*\]/;
@@ -455,6 +473,68 @@ describe('E · 已知武器快照断言（期望值从 raw dump 人工核对后�
     expect(w!.affixes).toHaveLength(5);
     expect(w!.affixes.map((a) => a.rarity)).toEqual(['Rare', 'UltraRare', 'Epic', 'Legendary', 'Mythic']);
     expect(w!.affixes[4]).toEqual({ name: '劫数之火', description: '耗尽红色盟友 2 点法力值', rarity: 'Mythic' });
+    // 绑定保真度（K-B 登记）：回火词缀族的「每个回火等级 3% 几率杀死」需要 tempering-scaling 原语，
+    // 当前为 partial 绑定，缺失特性里必须含有 tempering-scaling
+    expect(w!.spell.meta.fidelity).toBe('partial');
+    expect(w!.spell.meta.missingFeatures).toContain('tempering-scaling');
+    expect(w!.spell.meta.skippedClauses.length).toBeGreaterThan(0);
+  });
+});
+
+describe('G · 绑定保真度（K-B 分保真度绑定元数据）', () => {
+  it('每把武器 spell.meta.fidelity ∈ {full, partial, mana-only} 且数组字段齐全', () => {
+    const problems: string[] = [];
+    for (const w of WEAPONS) {
+      const { fidelity, missingFeatures, skippedClauses } = w.spell.meta;
+      if (!FIDELITIES.has(fidelity)) problems.push(`${w.id} fidelity「${fidelity}」非法`);
+      if (!Array.isArray(missingFeatures)) problems.push(`${w.id} missingFeatures 非数组`);
+      if (!Array.isArray(skippedClauses)) problems.push(`${w.id} skippedClauses 非数组`);
+    }
+    expect(problems, `前 ${Math.min(5, problems.length)} 条 → ${problems.slice(0, 5).join(' | ')}`).toEqual([]);
+  });
+
+  it('三级分布写死对齐（full 245 / partial 406 / mana-only 67 = 718）', () => {
+    const dist: Record<string, number> = { full: 0, partial: 0, 'mana-only': 0 };
+    for (const w of WEAPONS) {
+      expect(FIDELITIES.has(w.spell.meta.fidelity), `${w.id} fidelity 非法`).toBe(true);
+      dist[w.spell.meta.fidelity]++;
+    }
+    expect(dist).toEqual({ full: 245, partial: 406, 'mana-only': 67 });
+  });
+
+  it('逐条与 weapon-skill-meta.json 登记一致（fidelity/missingFeatures/skippedClauses 三元组）', () => {
+    const problems: string[] = [];
+    for (const w of WEAPONS) {
+      const key = String(w.spell.id);
+      const m = SKILL_META[key];
+      const tag = `${w.id}(${w.referenceName})`;
+      if (!m) {
+        problems.push(`${tag} 登记缺 spellId ${key}`);
+        continue;
+      }
+      if (w.spell.meta.fidelity !== m.fidelity) {
+        problems.push(`${tag} fidelity「${w.spell.meta.fidelity}」≠ 登记「${m.fidelity}」`);
+      }
+      if (JSON.stringify(w.spell.meta.missingFeatures) !== JSON.stringify(m.missingFeatures)) {
+        problems.push(`${tag} missingFeatures 与登记不一致`);
+      }
+      if (JSON.stringify(w.spell.meta.skippedClauses) !== JSON.stringify(m.skippedClauses)) {
+        problems.push(`${tag} skippedClauses 与登记不一致`);
+      }
+    }
+    // 登记侧也不允许多出武器没有的 spellId（生成器同样 throw，此处双保险）
+    const usedIds = new Set(WEAPONS.map((w) => String(w.spell.id)));
+    for (const key of Object.keys(SKILL_META)) {
+      if (!usedIds.has(key)) problems.push(`登记多出 spellId ${key}（武器侧不存在）`);
+    }
+    expect(problems, `前 ${Math.min(5, problems.length)} 条 → ${problems.slice(0, 5).join(' | ')}`).toEqual([]);
+  });
+
+  it('登记文件的保真度值全部在三级白名单内', () => {
+    const illegal = Object.entries(SKILL_META)
+      .filter(([, m]) => !FIDELITIES.has(m.fidelity))
+      .map(([k]) => k);
+    expect(illegal).toEqual([]);
   });
 });
 
