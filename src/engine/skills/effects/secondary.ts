@@ -41,6 +41,8 @@ export type ModifierSource =
   | { kind: 'alliesOfRace'; race: string }
   /** 施法方关联指定法力色的存活盟友数（「因蓝色盟友数而增强」） */
   | { kind: 'alliesOfColor'; color: BaseColor }
+  /** 敌方关联指定法力色的存活敌人数（「因红色敌人（的数量）而增强」，R13 批；与 alliesOfColor 对称） */
+  | { kind: 'enemiesOfColor'; color: BaseColor }
   /** 敌方处于指定状态的存活人数 */
   | { kind: 'enemyStatusCount'; statusId: string }
   /** 己方处于指定状态的存活人数（「因下潜的盟友数而增强」） */
@@ -400,6 +402,16 @@ export function resolveModifierCount(source: ModifierSource, ctx: EffectContext)
       const side = findSide(ctx.state, ctx.casterId);
       if (side === null) return 0;
       return ctx.state.teams[side].characters.filter(
+        (c) => !c.defeated && c.colors.includes(source.color),
+      ).length;
+    }
+    case 'enemiesOfColor': {
+      // 敌方该法力色存活计数（R13 批，官方 CountArmyColor Target=AllEnemies）：
+      // 与 alliesOfColor 同构，仅换算敌方侧。
+      const side = findSide(ctx.state, ctx.casterId);
+      if (side === null) return 0;
+      const enemySide = side === 'Left' ? 'Right' : 'Left';
+      return ctx.state.teams[enemySide].characters.filter(
         (c) => !c.defeated && c.colors.includes(source.color),
       ).length;
     }

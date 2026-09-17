@@ -462,12 +462,13 @@ export function explodeAt(cell: CellPos | typeof CELL): GemSegment { return clea
 export function destroyAround(cell: CellPos | typeof CELL): GemSegment { return explodeAt(cell); }
 
 /**
- * 面积形状清除（R12 批）：以中心格（缺省棋盘中心，可给固定格/CELL）生成形状格集合，
- * 走既有清除管线。形状即完整目标集——不再做 8 邻辐射，mode 只区分事件类型：
+ * 面积形状清除（R12 批；R13 批增补 circle5）：以中心格（缺省棋盘中心，可给固定格/CELL）
+ * 生成形状格集合，走既有清除管线。形状即完整目标集——不再做 8 邻辐射，mode 只区分事件类型：
  *   destroyArea('square5', 'destroy')  「摧毁一整块大小为 5x5 的宝石」（官方 Block5x5）
  *   destroyArea('square3', 'explode')  「爆破 3x3 阵型的宝石」（官方 Block3x3）
  *   destroyArea('cross3',  'explode')  「以 3x3 交叉队列方式爆破」（官方 Block1x3+Block3x1 十字）
  *   destroyArea('x',       'destroy')  「以 X 形状摧毁宝石」（过中心的两条对角线）
+ *   destroyArea('circle5', 'destroy')  「摧毁 5x5 圈宝石」（官方 BoardTarget=Circle，半径 2.5 格圆）
  */
 export function destroyArea(
   shape: import('./effects/gems').AreaShape,

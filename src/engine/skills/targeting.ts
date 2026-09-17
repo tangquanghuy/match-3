@@ -37,6 +37,8 @@ export type TargetMode =
   | 'enemyChosen' // 施法方（玩家/AI）手动选定的敌方单体
   | 'enemyChosenAndBelow' // 指定敌人与其纵队「下方」（编队中更靠后）的全部存活敌人
   | 'enemyChosenAndAdjacent' // 选定敌人的编队前后各一位（「上方和下方的敌人」，不含选定者；R11 批）
+  | 'enemyAboveTarget' // 选定目标编队位**上方**的全部存活敌人（官方 AboveTarget；R13 批）
+  | 'enemyBelowTarget' // 选定目标编队位**下方**的全部存活敌人（官方 BelowTarget；R13 批）
   | 'lastTarget' // 跨段追踪目标（「对随机敌人造成伤害，再使他陷入X」的「他」；2026-09-17 回收批）
   // —— 己方 ——
   | 'allySelf' // 施法者自身
@@ -50,6 +52,10 @@ export type TargetMode =
   | 'allyFirstN'
   | 'allyNth' // 第 N 位盟友（1-based）
   | 'allyOthers' // 其他盟友（除施法者外全体存活）
+  | 'allySelfAndBelow' // 施法者自身与其编队位下方的全部存活盟友（官方 SelfAndBelow；R13 批）
+  | 'allyAboveSelf' // 施法者编队位上方的全部存活盟友（官方 AboveSelf；R13 批）
+  | 'allyBelowSelf' // 施法者编队位下方的全部存活盟友（官方 BelowSelf；R13 批）
+  | 'allyBelowTarget' // 选定盟友编队位下方的全部存活盟友（官方 BelowTarget；R13 批）
   | 'allyLast'
   | 'allyLastN'
   | 'allyAll'
@@ -123,6 +129,33 @@ function pickExtreme(
 }
 
 /**
+ * 编队纵向切片（R13 批 · 编队全列方位族）：以队伍索引 refIdx 为锚，取其上方
+ * （更小索引）/下方（更大索引）的存活角色，保持队伍索引序；inclusive 时含锚位自身
+ * （SelfAndBelow）。敌方切片跳过下潮/隐匿（与 R11 enemyChosenAndAdjacent 的邻居过滤
+ * 同一口径——位置群体效果打不中不可指定者，且不做「全不可指定则回退」）；己方切片不受影响。
+ */
+function columnSlice(
+  team: Team,
+  refIdx: number,
+  part: 'above' | 'below',
+  inclusive: boolean,
+  filterUntargetable: boolean,
+): Character[] {
+  const out: Character[] = [];
+  team.characters.forEach((c, i) => {
+    if (c.defeated) return;
+    if (i === refIdx) {
+      if (!inclusive) return; // 锚位仅在 SelfAndBelow 类（inclusive）时含自身
+    } else if (part === 'above' ? i >= refIdx : i <= refIdx) {
+      return;
+    }
+    if (filterUntargetable && isUntargetable(c)) return;
+    out.push(c);
+  });
+  return out;
+}
+
+/**
  * 依据目标模式解析出目标角色列表（需求 5.1–5.5）。
  *
  * @param mode  目标模式
@@ -189,6 +222,44 @@ export function selectTargets(
         return c && !isUntargetable(c) ? [c] : [];
       };
       return [...neighbor(idx - 1), ...neighbor(idx + 1)];
+    }
+
+    case 'allyAboveSelf':
+    case 'allyBelowSelf': {
+      // 「所有位于我上方/下方的盟友」（R13 批，官方 AboveSelf/BelowSelf）：以施法者
+      // 编队索引为锚的纵向切片（不含自身；施法者贴边时对应方向自然为空）。
+      const meIdx = state.teams[casterSide].characters.findIndex((c) => c.id === casterId);
+      if (meIdx < 0) return [];
+      return columnSlice(state.teams[casterSide], meIdx, mode === 'allyAboveSelf' ? 'above' : 'below', false, false);
+    }
+
+    case 'allySelfAndBelow': {
+      // 「自身和自身下方的所有盟友」（R13 批，官方 SelfAndBelow）：切片含自身。
+      const meIdx = state.teams[casterSide].characters.findIndex((c) => c.id === casterId);
+      if (meIdx < 0) return [];
+      return columnSlice(state.teams[casterSide], meIdx, 'below', true, false);
+    }
+
+    case 'allyBelowTarget':
+    case 'enemyAboveTarget':
+    case 'enemyBelowTarget': {
+      // 「其上方/下方的…」（R13 批，官方 AboveTarget/BelowTarget）：以**选定目标**的
+      // 编队索引为锚取切片。锚 = 目标在其**自身**队伍中的索引（8894「使一名盟友…再对
+      // 其下位所有敌人…」= 选定盟友的己方索引映射到敌方同位切片；9258 选定敌人 →
+      // 敌方同队切片）。未提供选定 id / 找不到（含已阵亡被移出编队）→ 安全返回空。
+      if (chosenId === undefined) return [];
+      const refSide = sideOf(state, chosenId);
+      if (refSide === null) return [];
+      const refIdx = state.teams[refSide].characters.findIndex((c) => c.id === chosenId);
+      if (refIdx < 0) return [];
+      const enemySide = mode.startsWith('enemy');
+      return columnSlice(
+        state.teams[targetSide],
+        refIdx,
+        mode === 'enemyAboveTarget' ? 'above' : 'below',
+        false,
+        enemySide,
+      );
     }
 
     case 'enemyFront':

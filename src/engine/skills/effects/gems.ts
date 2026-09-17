@@ -195,9 +195,11 @@ export interface TransformGemParams {
  *   - square3：3x3 方块（官方 Block3x3，「爆破 3x3 阵型的宝石」）
  *   - cross3 ：3x3 十字（官方 Block1x3 + Block3x1，「以 3x3 交叉队列方式爆破」= 横竖各 3 格）
  *   - x      ：两条对角线（官方 X 形状，「以 X 形状摧毁宝石」= 沿过中心的两条对角线清全程）
+ *   - circle5：5x5 圆（R13 批，官方 BoardTarget Circle，「摧毁 5x5 圈宝石」= 以中心格为
+ *     圆心、半径 2.5 格的圆内格集合，几何判定 dx²+dy² ≤ 2.5²，8x8 中心处 21 格圆角盘）
  * 中心格缺省 = 棋盘几何中心（8x8 取 floor((N-1)/2)=3），可显式给格或 'CELL'（玩家点选）。
  */
-export type AreaShape = 'square5' | 'square3' | 'cross3' | 'x';
+export type AreaShape = 'square5' | 'square3' | 'cross3' | 'x' | 'circle5';
 
 /**
  * 清除目标集描述。产出一组"目标格"，再由 clear 模式决定是否辐射一圈。
@@ -498,6 +500,15 @@ function resolveTargetCells(target: ClearTarget, ctx: EffectContext, modifier?: 
           for (let r = 0; r < BoardModel.ROWS; r++) {
             push(r, center.col + (r - center.row));
             push(r, center.col - (r - center.row));
+          }
+          break;
+        case 'circle5':
+          // 官方 BoardTarget=Circle（R13 批）：圆心=中心格、半径 2.5 格的圆内格集合
+          //（dx²+dy² ≤ 2.5²=6.25；dr/dc 为整数，中心处 21 格——5x5 去掉四个角）。
+          for (let dr = -2; dr <= 2; dr++) {
+            for (let dc = -2; dc <= 2; dc++) {
+              if (dr * dr + dc * dc <= 6.25) push(center.row + dr, center.col + dc);
+            }
           }
           break;
       }
