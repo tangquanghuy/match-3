@@ -42,6 +42,10 @@ const STATUS_WHITELIST = new Set([
   'rage', 'disease', 'curse', 'death-mark', 'charm', 'marked',
   // 波A 状态本体（2026-09-16 落地），回收批随用随扩：
   'terror', 'faerie-fire',
+  // 正面状态族（2026-09-17 R10 批，官方语义已核实并接入引擎消费钩子）：
+  // blessed=净化+免疫一切状态；enchanted=每回合+2法力至施法；reflect=受击反弹50%（gowhead
+  // 步骤名 CauseMirror）；enraged=狂怒同族（RAGE_STATUS_IDS 既有别名，骷髅1.5x+无视特质）。
+  'blessed', 'enchanted', 'reflect', 'enraged',
 ]);
 
 const { byId: curatedById, skipped } = collectCurated();

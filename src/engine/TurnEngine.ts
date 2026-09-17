@@ -9,7 +9,8 @@ import { ExtensionRegistry } from './registry';
 import { SeededRNG } from './rng';
 import { reshuffle, hasLegalSwap } from './boardUtils';
 import { tickTeamStatuses, canCastSkill, applyStatus, canGainMana, WEB_STATUS_ID,
-  RANDOM_POSITIVE_STATUS_POOL, RANDOM_NEGATIVE_STATUS_POOL } from './skills/effects/status';
+  RANDOM_POSITIVE_STATUS_POOL, RANDOM_NEGATIVE_STATUS_POOL,
+  hasStatus, ENCHANTED_STATUS_ID } from './skills/effects/status';
 import { executePrototype } from './skills/prototypes';
 import { damageOne } from './skills/effects/damage';
 import { applyBuffGain } from './skills/effects/buff';
@@ -75,6 +76,14 @@ export class TurnEngine {
   /** 补充时生成骷髅的概率；战斗模式 > 0，纯三消模式 = 0 */
   skullChance = 0;
 
+  /**
+   * 玩家方旗帜加成（GoW 王国旗帜语义，meta M6 宿主注入；形如 `{ Red: 2, Brown: -1 }`）。
+   * 玩家侧（Left）匹配对应色宝石时按**每次匹配事件**平展 ±N 法力、向下保底 0；
+   * null = 无旗帜，`distributeGemMana` 走原路径（既有对局事件流逐字节不变）。
+   * 与 skullChance 同款公开字段注入模式：构造函数签名不动，宿主构造后赋值。
+   */
+  bannerBoosts: Partial<Record<BaseColor, number>> | null = null;
+
   private nextGemId: () => number;
   /** 选色器（需求 2）：技能含 'CHOSEN' 时用它选色；默认 AI 策略 */
   private colorChooser: ColorChooser = new AiColorChooser();
@@ -122,7 +131,7 @@ export class TurnEngine {
    * resolveDefeatEvents 出编队（与骷髅命中同口径）。
    */
   private readonly traitDamage = (target: Character, caster: Character, amount: number): GameEvent[] =>
-    resolveDefeatEvents(this.state, damageOne(target, caster.id, amount, false, 'single'));
+    resolveDefeatEvents(this.state, damageOne(target, caster.id, amount, false, 'single', undefined, caster));
 
   /**
    * 特质窃取生命口（T5 窃取批 corruption 族，注入 opts.drainLife）：对首位敌人 damageOne
@@ -510,7 +519,14 @@ export class TurnEngine {
    */
   private distributeGemMana(team: Team, side: PlayerSide, color: BaseColor, amount: number): GameEvent[] {
     const mult = this.masterySuppress[side];
-    return this.mana.distribute(team, side, color, mult < 1 ? Math.max(1, Math.floor(amount * mult)) : amount);
+    let effective = mult < 1 ? Math.max(1, Math.floor(amount * mult)) : amount;
+    // 旗帜加成（meta M6）：仅玩家方（Left），按匹配事件平展 ±N、向下保底 0。
+    // 加成并入「宝石本体产出」一起走分配管线，故吃 jinx/Mastery 抑制之后应用。
+    if (side === PlayerSide.Left && this.bannerBoosts) {
+      const boost = this.bannerBoosts[color];
+      if (boost) effective = Math.max(0, effective + boost);
+    }
+    return this.mana.distribute(team, side, color, effective);
   }
 
   /**
@@ -862,8 +878,9 @@ export class TurnEngine {
     const enemyTeam = this.state.teams[opponentOf(side)];
     const target = CombatResolver.frontAlive(enemyTeam);
     if (!target || target.defeated) return;
-    const sourceId = CombatResolver.frontAlive(this.state.teams[side])?.id ?? 0;
-    const produced = damageOne(target, sourceId, total, false, 'single');
+    const source = CombatResolver.frontAlive(this.state.teams[side]);
+    const sourceId = source?.id ?? 0;
+    const produced = damageOne(target, sourceId, total, false, 'single', undefined, source ?? undefined);
     // 演出元数据：爆炸源 = 被炸骷髅的质心格（表现层从该点发射骷髅弹体）；无格位信息时退化为棋盘中心
     const origin: CellPos = skullCells.length > 0
       ? {
@@ -1488,6 +1505,12 @@ export class TurnEngine {
     const events: GameEvent[] = [
       { type: 'skill-cast', characterId: ch.id, skillId: ch.skillId },
     ];
+    // 附魔（GoW Enchanted）：施放法术即移除（官方「直到其施放法术」）。先于效果本体
+    // 执行——法术若给自身重新附魔，新实例不被同一次施法消耗。
+    if (hasStatus(ch, ENCHANTED_STATUS_ID)) {
+      ch.statuses = ch.statuses.filter((s) => s.id !== ENCHANTED_STATUS_ID);
+      events.push({ type: 'status-expire', targetId: ch.id, statusId: ENCHANTED_STATUS_ID });
+    }
     // 位次条件光环（leader 族）：行动开始按当前编队位次补授（首位易主在此生效）
     events.push(...this.applyPositionAuraTriggers());
     // 施法响应特质（秘法/铭刻/怨恨…）：在技能效果之前结算，

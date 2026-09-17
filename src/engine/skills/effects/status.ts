@@ -62,6 +62,49 @@ export const TERROR_STATUS_ID = 'terror';
 /** 恐怖状态每回合使目标下移一位的概率（官方 10%） */
 export const TERROR_DROP_CHANCE = 0.1;
 
+/**
+ * 赐福状态（GoW Blessed，官方语义已核实——官方帮助中心「All status effects」+ wiki 状态表
+ * 交叉，见 GEMS-SEMANTICS-2 ⭐官方数据核验节）：施加时**净化全部负面状态**，存续期间
+ * **免疫一切状态效果**（正面负面皆拦，Devour/法力燃烧引擎暂无对应机制；诅咒例外——
+ * 官方「诅咒落在赐福单位上时两者互相抵消」，且诅咒本就穿透普通免疫）。
+ * gowhead 数据的施加步骤名为 CauseBlessed；中文数据「赐福/祝福」同义。
+ * 无「施法/骷髅后结束」条款（纯时限），按施加时的 turns 自然到期，不入自动解除集合。
+ */
+export const BLESS_STATUS_IDS = new Set(['blessed']);
+
+/**
+ * 附魔状态（GoW Enchanted，官方语义已核实——官方帮助中心 + wiki 状态表交叉）：
+ * 持有者**每回合开始获得 2 点法力，直到其施放法术**。移除时机：
+ * 回合自然到期（施加时的 turns 兜底）或施放法术（TurnEngine 在效果执行前移除——
+ * 法术若给自身重新附魔，新实例不被同一次施法消耗）。
+ * 沉默期间不可获得法力（canGainMana 同口径），故 +2 被沉默拦截。
+ */
+export const ENCHANTED_STATUS_ID = 'enchanted';
+/** 附魔每回合开始提供的法力（官方 +2） */
+export const ENCHANTED_MANA_PER_TURN = 2;
+
+/**
+ * 反射状态（GoW Reflect，官方语义已核实——官方帮助中心「Reflect always does a minimum
+ * of 1 damage」+ wiki 状态表「Ends after taking damage once」交叉）：受到的任何伤害
+ * **50% 反弹给来源（至少 1 点）**，原伤害照常结算；**受一次伤害后即消失**。
+ * gowhead 数据的施加步骤名为 CauseMirror（中文数据译「反射」），本引擎统一用
+ * traits.json 既有拼写 `reflect`（mirrorimage/reflectivesurface 特质已以此 id 施加）。
+ * 消费点：骷髅普攻（CombatResolver）与法术伤害（damageOne）两处结算末尾；
+ * 屏障整发吸收=没被打中，不触发反弹也不消耗。
+ */
+export const REFLECT_STATUS_ID = 'reflect';
+/** 反射比例（官方 50%） */
+export const REFLECT_RATIO = 0.5;
+/** 反射伤害下限（官方至少 1 点） */
+export const REFLECT_MIN = 1;
+
+/** 负面状态 id 全集（赐福净化口径）：负面 + 诅咒族（官方「净化目标」含解除诅咒）。 */
+const NEGATIVE_STATUS_IDS = new Set([
+  'poison', 'burning', 'bleed', 'silence', 'frozen', 'stun', 'entangle', 'web', 'disease',
+  'curse', 'cursed', 'death-mark', 'death_mark', 'charm', 'charmed', 'mana-burn', 'mana_burn',
+  'faerie-fire', 'terror', 'wolf', 'wolf-form', 'lycanthropy',
+]);
+
 /** GoW 自动解除：中毒是唯一不会自行解除的负面状态。 */
 /** GoW 自动解除（GOW-STATUS-RESEARCH 逐状态核对）：中毒与诅咒不会自行解除——
  *  诅咒只「使他状态自愈概率减半」，自身无自愈通道（UX 审查 P1#6 回归：
@@ -193,6 +236,26 @@ export function consumeBarrier(char: Character): { consumed: boolean; events: Ga
   return { consumed: true, events: [ev] };
 }
 
+/** 反弹量折算（官方口径：所受伤害的 50%，至少 1 点） */
+export function reflectDamageAmount(damageTaken: number): number {
+  return Math.max(REFLECT_MIN, Math.round(damageTaken * REFLECT_RATIO));
+}
+
+/**
+ * 消耗反射：带反射则立即移除并返回 status-expire 事件（官方「受一次伤害后结束」）。
+ * 调用方在结算完反弹伤害后调用；屏障整发吸收（没被打中）不得调用。
+ */
+export function consumeReflect(char: Character): GameEvent[] {
+  if (!hasStatus(char, REFLECT_STATUS_ID)) return [];
+  char.statuses = char.statuses.filter((s) => s.id !== REFLECT_STATUS_ID);
+  const ev: StatusExpireEvent = {
+    type: 'status-expire',
+    targetId: char.id,
+    statusId: REFLECT_STATUS_ID,
+  };
+  return [ev];
+}
+
 /**
  * 该角色当前能否释放技能：
  * 被沉默或冰冻时不可释放；击晕、缠绕不影响技能。
@@ -230,6 +293,12 @@ export function applyStatus(
   opts: { stack?: boolean } = {},
 ): GameEvent[] {
   if (char.defeated) return [];
+  // 赐福（GoW Blessed）：存续期间免疫一切状态效果。赐福自身放行（重复施加按既有
+  // max 合并刷新）；诅咒放行——官方「诅咒落在赐福单位上时两者互相抵消」，且诅咒
+  // 本就穿透普通免疫（见下方 curse 分支的互消处理）。
+  if (status.id !== 'blessed'
+    && !CURSE_STATUS_IDS.has(status.id)
+    && hasStatus(char, 'blessed')) return [];
   // 免疫特质（防火/隔热/警醒/健壮/灵巧/无坚不摧…）：不施加、不发事件
   // GoW Curse penetrates ordinary immunities. Invulnerable remains the one
   // exception; its trait id is retained on Character for this distinction.
@@ -240,10 +309,24 @@ export function applyStatus(
   const events: GameEvent[] = [];
   // Curse removes positive statuses and resets their recovery chance.
   if (CURSE_STATUS_IDS.has(status.id)) {
+    // 诅咒 × 赐福互相抵消（官方状态表）：诅咒落在赐福单位上时同时移除赐福。
+    const blessed = char.statuses.filter((s) => BLESS_STATUS_IDS.has(s.id));
+    if (blessed.length > 0) {
+      char.statuses = char.statuses.filter((s) => !blessed.includes(s));
+      for (const inst of blessed) events.push({ type: 'status-expire', targetId: char.id, statusId: inst.id });
+    }
     const positives = char.statuses.filter((s) => ['barrier', 'blessed', 'enchanted', 'enraged', 'rage', 'reflect', 'submerged'].includes(s.id));
     if (positives.length > 0) {
       char.statuses = char.statuses.filter((s) => !positives.includes(s));
       for (const positive of positives) events.push({ type: 'status-expire', targetId: char.id, statusId: positive.id });
+    }
+  }
+  // 赐福施加时净化全部负面状态（官方「cleanses the affected Troop」；诅咒同属被净化对象）。
+  if (BLESS_STATUS_IDS.has(status.id)) {
+    const negatives = char.statuses.filter((s) => NEGATIVE_STATUS_IDS.has(s.id));
+    if (negatives.length > 0) {
+      char.statuses = char.statuses.filter((s) => !negatives.includes(s));
+      for (const negative of negatives) events.push({ type: 'status-expire', targetId: char.id, statusId: negative.id });
     }
   }
   if (existing) {
@@ -301,6 +384,15 @@ export function tickStatuses(char: Character, rng?: SeededRNG): GameEvent[] {
         else status.recoveryChance = Math.min(100, chance + (cursed ? 5 : 10));
       }
     }
+  }
+
+  // 0.5 附魔（GoW Enchanted）：持有者回合开始 +2 法力（上限夹取在 manaCost）；
+  // 沉默期间不可获得法力（canGainMana 同口径）。走 buff 事件让表现层显示法力跳动。
+  if (hasStatus(char, ENCHANTED_STATUS_ID) && !isSilenced(char)) {
+    const before = char.mana;
+    char.mana = Math.min(char.manaCost, char.mana + ENCHANTED_MANA_PER_TURN);
+    const gained = char.mana - before;
+    if (gained > 0) events.push({ type: 'buff', targetId: char.id, stat: 'mana', amount: gained });
   }
 
   // 1. DoT 结算（按状态数组既有顺序，确定性）

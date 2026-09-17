@@ -15,7 +15,8 @@ import { casterMagic, locate, findCharacter, findSide } from './context';
 import { hasTroopType, evaluateWithModifier, DEFAULT_RACE_DOUBLE, condMultiplier, condBonusValue } from './secondary';
 import type { ModifierSpec, CondMult, CondBonus } from './secondary';
 import { passivesOf } from '../../traits';
-import { consumeBarrier, hasStatus, FAERIE_FIRE_STATUS_ID, FAERIE_FIRE_SPELL_MULT } from './status';
+import { consumeBarrier, hasStatus, FAERIE_FIRE_STATUS_ID, FAERIE_FIRE_SPELL_MULT,
+  REFLECT_STATUS_ID, reflectDamageAmount, consumeReflect } from './status';
 import { applyBuffGain } from './buff';
 
 export type DamageRange = 'single' | 'all' | 'splash';
@@ -138,6 +139,8 @@ export function damageOne(
   trueDamage: boolean,
   range: DamageRange,
   chain?: ChainMeta,
+  /** 伤害来源角色（反射状态反弹的对象）；缺省不反弹（DoT 直扣血等无来源路径） */
+  caster?: Character,
 ): GameEvent[] {
   const events: GameEvent[] = [];
   if (target.defeated || amount <= 0) return events;
@@ -182,6 +185,29 @@ export function damageOne(
   }
   events.push(damageEvent);
 
+  // 反射状态（GoW Reflect，gowhead 步骤名 Mirror）：法术伤害同样反弹 50%（至少 1 点）
+  // 给施法者，受一次伤害后消失。屏障整发吸收的路径在上面已提前返回（等于没打中）。
+  if (caster && !caster.defeated && hasStatus(target, REFLECT_STATUS_ID)) {
+    const reflected = reflectDamageAmount(amount);
+    const takenByArmor = Math.min(caster.armor, reflected);
+    caster.armor -= takenByArmor;
+    caster.hp = Math.max(0, caster.hp - (reflected - takenByArmor));
+    events.push({
+      type: 'skill-damage',
+      casterId: target.id,
+      targetId: caster.id,
+      range: 'single',
+      damage: reflected,
+      resultingHp: caster.hp,
+      resultingArmor: caster.armor,
+    });
+    events.push(...consumeReflect(target));
+    if (caster.hp <= 0 && !caster.defeated) {
+      caster.defeated = true;
+      events.push({ type: 'defeat', characterId: caster.id });
+    }
+  }
+
   if (target.hp <= 0 && !target.defeated) {
     target.defeated = true;
     events.push({ type: 'defeat', characterId: target.id });
@@ -194,6 +220,8 @@ export function damageEffect(params: DamageParams): EffectPrimitive {
     apply(ctx: EffectContext): GameEvent[] {
       const { targets, scaling, range = 'single', trueDamage = false } = params;
       if (targets.length === 0) return [];
+      // 反射状态（GoW Reflect）反弹对象=伤害来源；预解析一次即可
+      const caster = findCharacter(ctx.state, ctx.casterId);
 
       // 一次缩放（[魔法+N]）+ 二次缩放（[xN]/[N:M] 随战场资源）共同决定名义伤害；
       // 伤害区间（[A] – [B]）在区间内均匀取整（种子化，每段一次）
@@ -232,7 +260,7 @@ export function damageEffect(params: DamageParams): EffectPrimitive {
           const deal = per + (rem > 0 ? 1 : 0);
           if (rem > 0) rem -= 1;
           if (deal <= 0) continue;
-          events.push(...damageOne(victim, ctx.casterId, deal, trueDamage, 'single'));
+          events.push(...damageOne(victim, ctx.casterId, deal, trueDamage, 'single', undefined, caster));
         }
         return events;
       }
@@ -257,7 +285,7 @@ export function damageEffect(params: DamageParams): EffectPrimitive {
             index,
             count: hits.length,
             fromId,
-          });
+          }, caster);
           for (const event of produced) {
             if (event.type === 'skill-damage') damageEvents.push(event);
             else tailEvents.push(event);
@@ -275,7 +303,7 @@ export function damageEffect(params: DamageParams): EffectPrimitive {
         const damageEvents: SkillDamageEvent[] = [];
         const tailEvents: GameEvent[] = [];
         for (const victim of targets) {
-          const produced = damageOne(victim, ctx.casterId, doubled(victim), trueDamage, range);
+          const produced = damageOne(victim, ctx.casterId, doubled(victim), trueDamage, range, undefined, caster);
           for (const event of produced) {
             if (event.type === 'skill-damage') damageEvents.push(event);
             else tailEvents.push(event);
@@ -286,7 +314,7 @@ export function damageEffect(params: DamageParams): EffectPrimitive {
 
       const events: GameEvent[] = [];
       for (const victim of targets.slice(0, 1)) {
-        events.push(...damageOne(victim, ctx.casterId, doubled(victim), trueDamage, range));
+        events.push(...damageOne(victim, ctx.casterId, doubled(victim), trueDamage, range, undefined, caster));
       }
       return params.drain ? settleDrain(ctx, events) : events;
     },

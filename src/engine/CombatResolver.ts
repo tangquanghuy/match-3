@@ -4,6 +4,7 @@ import type { SeededRNG } from './rng';
 import {
   canAttack, isFrozen, isEntangled, isEnraged, isCharmed,
   applyStatus, consumeBarrier, RAGE_STATUS_IDS,
+  hasStatus, REFLECT_STATUS_ID, reflectDamageAmount, consumeReflect,
 } from './skills/effects/status';
 import { passivesOf, skullDamageMultiplier } from './traits';
 
@@ -223,6 +224,29 @@ export class CombatResolver {
           attacker.defeated = true;
           events.push({ type: 'defeat', characterId: attacker.id });
         }
+      }
+    }
+
+    // 反弹状态（GoW Reflect，gowhead 步骤名 Mirror）：所受伤害 50% 反弹（至少 1 点），
+    // 受一次伤害后消失。与特质反弹（按比例）可叠加；激怒只无视特质，不免疫状态反弹。
+    // 屏障整发吸收的「攻击落空」路径在上面已提前返回，不会走到这里。
+    if (damage > 0 && !attacker.defeated && hasStatus(target, REFLECT_STATUS_ID)) {
+      const reflected = reflectDamageAmount(damage);
+      const takenByArmor = Math.min(attacker.armor, reflected);
+      attacker.armor -= takenByArmor;
+      attacker.hp = Math.max(0, attacker.hp - (reflected - takenByArmor));
+      events.push({
+        type: 'skull-damage',
+        attackerId: target.id,
+        targetId: attacker.id,
+        damage: reflected,
+        resultingHp: attacker.hp,
+        resultingArmor: attacker.armor,
+      });
+      events.push(...consumeReflect(target));
+      if (attacker.hp <= 0 && !attacker.defeated) {
+        attacker.defeated = true;
+        events.push({ type: 'defeat', characterId: attacker.id });
       }
     }
 
