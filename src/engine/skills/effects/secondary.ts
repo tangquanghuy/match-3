@@ -89,7 +89,9 @@ export const DEFAULT_RACE_DOUBLE = 2;
  */
 export type Condition =
   | { kind: 'targetRace'; race: string }
-  | { kind: 'targetColor'; color: BaseColor }
+  /** 目标法力色过滤；color 亦可为 'CHOSEN'（「所有使用该(选定)颜色的敌人/盟友」，R11 批：
+   *  运行时取 ctx.chosenColor，未选色 → 条件对任何目标不成立、整段安全跳过） */
+  | { kind: 'targetColor'; color: BaseColor | 'CHOSEN' }
   | { kind: 'targetStatus'; statusId: string }
   | { kind: 'targetHpDamaged' }
   | { kind: 'selfHpDamaged' }
@@ -126,7 +128,20 @@ export type Condition =
   /** 析取（「若敌人是兽人或恶魔」）：任一子条件成立即成立 */
   | { kind: 'anyOf'; of: Condition[] }
   /** 合取：全部子条件成立才成立 */
-  | { kind: 'allOf'; of: Condition[] };
+  | { kind: 'allOf'; of: Condition[] }
+  /**
+   * 地区条件（R11 批 · 模式专属建模，官方 MultiplyForRegion4001-4010「若在夏之岛/阿达尼亚/
+   * 格赫隆使用，则伤害翻倍」）：region 为地区键（'SummerIsle'/'Aidania'/'Geheron' 等官方
+   * 十地区）。标准战斗 state 无 region 字段 → 恒 false（建模完整、惰性放置——用户裁定：
+   * 晋升/魔头等模式专属内容也实现，标准战斗不触发）。
+   */
+  | { kind: 'regionPresent'; region: string }
+  /**
+   * 晋升度条件（R11 批 · 模式专属建模，官方 MultiplyForAscensionBoss「如果敌人是 Boss，
+   * 则根据我的升华值造成 3-5 倍伤害」）：min 为晋升数下限。与 targetRace:'Boss' 组合
+   * （allOf）表达官方完整语义。标准战斗 state 无 ascension 字段（按 0 计）→ 恒 false。
+   */
+  | { kind: 'ascended'; min: number };
 
 export interface CondMult {
   times: number;
@@ -142,8 +157,15 @@ export function conditionMet(
   switch (cond.kind) {
     case 'targetRace':
       return !!target && hasTroopType(target, cond.race);
-    case 'targetColor':
-      return !!target && target.colors.includes(cond.color);
+    case 'targetColor': {
+      if (!target) return false;
+      // 'CHOSEN'（R11 批）：运行时选色（「所有使用该颜色的敌人/盟友」）；未选色 → 不成立
+      if (cond.color === 'CHOSEN') {
+        if (ctx.chosenColor === undefined) return false;
+        return target.colors.includes(ctx.chosenColor);
+      }
+      return target.colors.includes(cond.color);
+    }
     case 'targetStatus':
       return !!target && target.statuses.some((s) => s.id === cond.statusId && s.turns > 0);
     case 'targetHpDamaged':
@@ -234,6 +256,13 @@ export function conditionMet(
       return cond.of.some((c) => conditionMet(c, ctx, target));
     case 'allOf':
       return cond.of.every((c) => conditionMet(c, ctx, target));
+    case 'regionPresent':
+      // 模式专属建模（R11 批）：战场 state 将来由晋升/地区模式挂 region 字段时按键比对；
+      // 标准战斗无此字段 → 恒 false（condMult 退化为原值，官方「翻倍」不触发）。
+      return (ctx.state as { region?: string }).region === cond.region;
+    case 'ascended':
+      // 模式专属建模（R11 批）：晋升模式挂 ascension 字段（缺省 0）；标准战斗恒 false。
+      return ((ctx.state as { ascension?: number }).ascension ?? 0) >= cond.min;
     default: {
       const _exhaustive: never = cond;
       return _exhaustive;

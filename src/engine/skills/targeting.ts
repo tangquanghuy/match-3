@@ -36,6 +36,7 @@ export type TargetMode =
   | 'enemyAll' // 全体
   | 'enemyChosen' // 施法方（玩家/AI）手动选定的敌方单体
   | 'enemyChosenAndBelow' // 指定敌人与其纵队「下方」（编队中更靠后）的全部存活敌人
+  | 'enemyChosenAndAdjacent' // 选定敌人的编队前后各一位（「上方和下方的敌人」，不含选定者；R11 批）
   | 'lastTarget' // 跨段追踪目标（「对随机敌人造成伤害，再使他陷入X」的「他」；2026-09-17 回收批）
   // —— 己方 ——
   | 'allySelf' // 施法者自身
@@ -55,14 +56,15 @@ export type TargetMode =
   | 'allyChosen'; // 施法方手动选定的己方单体
 
 /** 手动选定类模式（需运行时由 TargetChooser 解析出具体 id） */
-export type ChosenTargetMode = 'enemyChosen' | 'allyChosen' | 'enemyChosenAndBelow';
+export type ChosenTargetMode = 'enemyChosen' | 'allyChosen' | 'enemyChosenAndBelow' | 'enemyChosenAndAdjacent';
 
 export function isChosenMode(mode: TargetMode): mode is 'enemyChosen' | 'allyChosen' {
   return mode === 'enemyChosen' || mode === 'allyChosen';
 }
 
 /** 列出某模式对应的候选存活角色（供玩家 UI 展示可点选项 / AI 决策）。
- * enemyChosenAndBelow 的候选集与 enemyChosen 相同（「下方」集合由选定结果派生）。 */
+ * enemyChosenAndBelow / enemyChosenAndAdjacent 的候选集与 enemyChosen 相同
+ * （「下方/相邻」集合由选定结果派生）。 */
 export function candidatesFor(
   mode: ChosenTargetMode,
   state: GameState,
@@ -73,7 +75,7 @@ export function candidatesFor(
   const side = mode === 'allyChosen' ? casterSide : opponentOf(casterSide);
   const alive = aliveInOrder(state.teams[side]);
   // 手动选敌：下潮/隐匿的敌人不出现在可点列表里（与 selectTargets 同一口径）
-  return mode === 'enemyChosen' ? targetableFrom(alive) : alive;
+  return mode === 'enemyChosen' || mode === 'enemyChosenAndAdjacent' ? targetableFrom(alive) : alive;
 }
 
 /** 该模式是否作用于己方 */
@@ -172,6 +174,21 @@ export function selectTargets(
       if (chosenId === undefined) return [];
       const start = alive.findIndex((c) => c.id === chosenId);
       return start < 0 ? [] : alive.slice(start);
+    }
+
+    case 'enemyChosenAndAdjacent': {
+      // 「上方和下方的敌人」「上下相邻」（R11 批）：选定者在编队中的前后各一位
+      //（不含选定者；贴边只取存在的一侧）。相邻按**编队伍索引**判定（aliveAll 全体存活，
+      // 不受下潮/隐匿过滤影响），再对邻居套用不可指定过滤（下潮/隐匿不选中）。
+      // 未提供选定 id / 选定者不在敌方存活列表 → 安全返回空。
+      if (chosenId === undefined) return [];
+      const idx = aliveAll.findIndex((c) => c.id === chosenId);
+      if (idx < 0) return [];
+      const neighbor = (i: number): Character[] => {
+        const c = aliveAll[i];
+        return c && !isUntargetable(c) ? [c] : [];
+      };
+      return [...neighbor(idx - 1), ...neighbor(idx + 1)];
     }
 
     case 'enemyFront':

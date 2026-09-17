@@ -125,6 +125,8 @@ export interface BuffSegment extends SegmentOptions {
   full?: boolean;
   /** 比例获得（仅 stat='mana'）：「获得半数法力值」= 获得 floor(manaCost/2) */
   halve?: boolean;
+  /** 任意比例获得（R12 批，仅 stat='mana'）：floor(manaCost × fraction)（「4 分之一」= 0.25） */
+  fraction?: number;
   /** 二次缩放 */
   modifier?: ModifierSpec;
   /** 种族条件翻倍：受益者 troopTypes 含该族时数值 ×2 */
@@ -148,10 +150,13 @@ export interface ReduceSegment extends SegmentOptions {
   scaling: ScalingSpec;
   /** 耗尽全部法力（stat='mana'）：数值取目标当前法力（「耗尽法力值」） */
   drainAll?: boolean;
-  /** 窃取：目标削减的同时自身获得该属性（同额 ×gainRatio） */
+  /** 窃取：目标削减的同时自身获得该属性（同额 ×gainRatio）。stat='random' 时仅作
+   *  窃取标记：实际获得 = 掷中的属性（debuff.ts R12 口径） */
   gainStat?: BuffStat;
   /** 自身获得比例，默认 1（「获得其中半数」= 0.5） */
   gainRatio?: number;
+  /** 连掷次数（仅 stat='random'，「从其 2 个随机技能值各消除 N 点」= 2；缺省 1） */
+  times?: number;
   n?: number;
   /** 目标数量区间：给出时忽略 n，rng 掷选 */
   nRange?: NRangeSpec;
@@ -473,6 +478,7 @@ function compileSegment(segment: EffectSegment, ctx: EffectContext): EffectPrimi
         scaling: segment.scaling,
         full: segment.full,
         halve: segment.halve,
+        fraction: segment.fraction,
         modifier: segment.modifier,
         raceDouble: segment.raceDouble,
         raceTimes: segment.raceTimes,
@@ -488,6 +494,7 @@ function compileSegment(segment: EffectSegment, ctx: EffectContext): EffectPrimi
         halve: segment.halve,
         gainStat: segment.gainStat,
         gainRatio: segment.gainRatio,
+        times: segment.times,
         modifier: segment.modifier,
         raceDouble: segment.raceDouble,
         raceTimes: segment.raceTimes,

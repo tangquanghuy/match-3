@@ -177,7 +177,7 @@ export function trueDmg(target: TargetMode, base: number, mult = 1, opts: DmgOpt
 
 // —— 增益（作用己方） ——
 
-type BuffOpts = SegmentOpts & NRangeOpts & { n?: number; full?: boolean; halve?: boolean };
+type BuffOpts = SegmentOpts & NRangeOpts & { n?: number; full?: boolean; halve?: boolean; fraction?: number };
 
 function buff(target: TargetMode, stat: BuffStat, base: number, mult: number, opts?: BuffOpts): BuffSegment {
   const seg: BuffSegment = { kind: 'buff', target, stat, scaling: scale(base, mult) };
@@ -185,6 +185,7 @@ function buff(target: TargetMode, stat: BuffStat, base: number, mult: number, op
   if (opts?.nRange !== undefined) seg.nRange = opts.nRange;
   if (opts?.full) seg.full = true;
   if (opts?.halve) seg.halve = true;
+  if (opts?.fraction !== undefined) seg.fraction = opts.fraction;
   return attach(seg, opts);
 }
 /** 治疗（opts.full = 全额治疗：「恢复所有生命值」；opts.n = N 目标：「前 2 位盟友」） */
@@ -203,7 +204,8 @@ export function attack(target: TargetMode, base: number, mult = 1, opts: BuffOpt
 export function magic(target: TargetMode, base: number, mult = 1, opts: BuffOpts = {}): BuffSegment {
   return buff(target, 'magic', base, mult, opts);
 }
-/** 加法力（opts.halve = 「获得半数法力值」：获得 floor(manaCost/2)，忽略数值） */
+/** 加法力（opts.halve = 「获得半数法力值」：获得 floor(manaCost/2)，忽略数值；
+ *  opts.fraction = 任意比例（R12 批）：「获得 4 分之一的法力值 / 25% 法力值」= floor(manaCost × fraction)） */
 export function mana(target: TargetMode, base: number, mult = 1, opts: BuffOpts = {}): BuffSegment {
   return buff(target, 'mana', base, mult, opts);
 }
@@ -242,10 +244,15 @@ export interface ReduceOpts extends SegmentOpts, NRangeOpts {
   drainAll?: boolean;
   /** 比例减半：「将敌方攻击力减半」= 按当前值 50% 下取整削减（忽略数值） */
   halve?: boolean;
+  /** 连掷次数（仅 stat='random'）：「从其 2 个随机技能值各消除 N 点」= 2（官方多条
+   *  DecreaseRandom 步骤，每步独立掷签攻/甲/魔其一）；缺省 1 */
+  times?: number;
 }
 
 /**
- * 削减段：目标属性扣减（夹零）。stat='mana' 即耗蓝；opts.halve = 按当前值减半。
+ * 削减段：目标属性扣减（夹零）。stat='mana' 即耗蓝；opts.halve = 按当前值减半；
+ * stat='random'（R12 批）= 官方 DecreaseRandom：执行时 rng 在攻/甲/魔三围掷选其一削减，
+ * opts.times 为连掷次数（「从其 2 个随机技能值各消除 N 点」）。
  */
 export function reduce(
   target: TargetMode,
@@ -259,6 +266,7 @@ export function reduce(
   if (opts.nRange !== undefined) seg.nRange = opts.nRange;
   if (opts.drainAll) seg.drainAll = true;
   if (opts.halve) seg.halve = true;
+  if (opts.times !== undefined) seg.times = opts.times;
   return attach(seg, opts);
 }
 
@@ -273,6 +281,8 @@ export function drainMana(target: TargetMode, opts: ReduceOpts = {}): ReduceSegm
 /**
  * 窃取：目标 stat 削减（夹零），施法者获得同额 ×gainRatio 的 gainStat。
  * 「窃取 2 点护甲值并将之转为魔法值」= steal(t, 'armor', 'magic', 2, 0)。
+ * stat='random'（R12 批，官方 StealRandom）：gainStat 仅作窃取标记，
+ * 实际获得 = 掷中的那项属性；一般用 stealRandomStat() 构造。
  */
 export function steal(
   target: TargetMode,
@@ -286,7 +296,16 @@ export function steal(
   if (opts.gainRatio !== undefined && opts.gainRatio !== 1) seg.gainRatio = opts.gainRatio;
   if (opts.n !== undefined) seg.n = opts.n;
   if (opts.nRange !== undefined) seg.nRange = opts.nRange;
+  if (opts.times !== undefined) seg.times = opts.times;
   return attach(seg, opts);
+}
+
+/**
+ * 窃取随机属性（R12 批，「窃取 [魔法 + 1] 点随机技能值」，官方 StealRandom/DecreaseRandom
+ * 窃取变体）：掷中攻/甲/魔哪项就削减哪项，施法者同项入账（同额 ×gainRatio）。
+ */
+export function stealRandomStat(target: TargetMode, base: number, mult = 1, opts: ReduceOpts & { gainRatio?: number } = {}): ReduceSegment {
+  return steal(target, 'random', 'attack', base, mult, opts);
 }
 
 // —— 宝石：创造 / 转化 ——
@@ -441,6 +460,26 @@ export function destroyAt(cell: CellPos | typeof CELL): GemSegment { return clea
 export function explodeAt(cell: CellPos | typeof CELL): GemSegment { return clearSeg('explode', { kind: 'cell', cell }); }
 /** @deprecated 旧名，等价 explodeAt（radius 已由"辐射一圈"取代） */
 export function destroyAround(cell: CellPos | typeof CELL): GemSegment { return explodeAt(cell); }
+
+/**
+ * 面积形状清除（R12 批）：以中心格（缺省棋盘中心，可给固定格/CELL）生成形状格集合，
+ * 走既有清除管线。形状即完整目标集——不再做 8 邻辐射，mode 只区分事件类型：
+ *   destroyArea('square5', 'destroy')  「摧毁一整块大小为 5x5 的宝石」（官方 Block5x5）
+ *   destroyArea('square3', 'explode')  「爆破 3x3 阵型的宝石」（官方 Block3x3）
+ *   destroyArea('cross3',  'explode')  「以 3x3 交叉队列方式爆破」（官方 Block1x3+Block3x1 十字）
+ *   destroyArea('x',       'destroy')  「以 X 形状摧毁宝石」（过中心的两条对角线）
+ */
+export function destroyArea(
+  shape: import('./effects/gems').AreaShape,
+  mode: 'destroy' | 'explode' = 'destroy',
+  center?: CellPos | typeof CELL,
+  opts?: SegmentOpts,
+): GemSegment {
+  const target: import('./effects/gems').ClearTarget = center !== undefined
+    ? { kind: 'area', shape, center }
+    : { kind: 'area', shape };
+  return clearSeg(mode, target, opts);
+}
 
 // —— 状态 ——
 

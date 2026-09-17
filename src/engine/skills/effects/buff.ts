@@ -37,6 +37,12 @@ export interface BuffParams {
    * floor(manaCost / 2)（半条法力，逐目标按各自法力条现算）；给出时忽略 scaling。
    */
   halve?: boolean;
+  /**
+   * 任意比例获得（R12 批，stat='mana' 专用）：「获得 4 分之一的法力值 / 25% 法力值」=
+   * 获得 floor(manaCost × fraction)（官方 GenerateQuarterMana = 0.25，逐目标现算、下取整）；
+   * 与 halve 二选一同时给出时以 halve 为准。给出时忽略 scaling。
+   */
+  fraction?: number;
   /** 二次缩放（[xN]/[N:M] + 来源），可选 */
   modifier?: ModifierSpec;
   /** 种族条件翻倍：目标 troopTypes 含该族时数值 ×2（五机制之一） */
@@ -175,9 +181,11 @@ export function buffEffect(params: BuffParams): EffectPrimitive {
 
       for (const target of targets) {
         if (target.defeated) continue; // 阵亡不接受增益
-        // 比例获得（半条法力）：按受益者各自的 manaCost 现算，覆盖缩放数值
-        if (params.halve && stat === 'mana') {
-          const applied = buffOne(target, 'mana', Math.floor(target.manaCost / 2));
+        // 比例获得（半条法力 / 任意比例）：按受益者各自的 manaCost 现算，覆盖缩放数值。
+        // 比例族仅 stat='mana' 生效（非 mana 属性挂 halve/fraction 走普通数值路径，既有护栏）。
+        if (stat === 'mana' && (params.halve || params.fraction !== undefined)) {
+          const ratio = params.halve ? 0.5 : (params.fraction as number);
+          const applied = buffOne(target, 'mana', Math.floor(target.manaCost * ratio));
           if (applied !== 0) {
             events.push({ type: 'buff', targetId: target.id, stat, amount: applied });
           }

@@ -62,6 +62,7 @@ export function prototypeChosenTargetMode(proto: SkillPrototype): ChosenTargetMo
     if ('target' in seg && seg.target === 'enemyChosen') return 'enemyChosen';
     if ('target' in seg && seg.target === 'allyChosen') return 'allyChosen';
     if ('target' in seg && seg.target === 'enemyChosenAndBelow') return 'enemyChosenAndBelow';
+    if ('target' in seg && seg.target === 'enemyChosenAndAdjacent') return 'enemyChosenAndAdjacent';
   }
   return null;
 }

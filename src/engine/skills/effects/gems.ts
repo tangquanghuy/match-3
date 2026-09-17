@@ -15,7 +15,7 @@
  */
 import { BoardModel } from '../../BoardModel';
 import { reshuffle } from '../../boardUtils';
-import { colorGem, skullGem, isSameMatchType, posKey, specialGem } from '../../types';
+import { colorGem, skullGem, isSameMatchType, posKey, specialGem, ALL_BASE_COLORS } from '../../types';
 import type { BaseColor, CellPos, Gem, GemType, SpecialGemKind, SpecialGemSpec } from '../../types';
 import { PlayerSide } from '../../types';
 import type {
@@ -35,10 +35,55 @@ import type { ModifierSpec } from './secondary';
  * 颜色规格：具体基础色，或运行时占位符——
  *   'CHOSEN'：释放时由玩家/AI 选色（ctx.chosenColor 解析，需求 2）；
  *   'CASTER'：施法者的军队法力颜色（取施法者首个关联色，「该军队法力颜色的宝石」）；
- *   'SKULL'：骷髅端点（仅 transform 用：「将所有棕色宝石转换成骷髅头」「骷髅转换成X色」）。
+ *   'SKULL'：骷髅端点（仅 transform 用：「将所有棕色宝石转换成骷髅头」「骷髅转换成X色」）；
+ *   'ENEMY_MOST_USED'/'ALLY_MOST_USED'（R11 批）：敌方/己方队伍**已用法力最多**的颜色
+ *   （「敌人使用最多的颜色宝石」，官方 MostUsedManaEnemy/Ally；聚合口径见 mostUsedManaColor）。
  * 无法解析（占位符无值）时，宝石段安全跳过。
  */
-export type ColorSpec = BaseColor | 'CHOSEN' | 'CASTER' | 'SKULL' | 'ENEMY' | 'LAST_TARGET';
+export type ColorSpec =
+  | BaseColor
+  | 'CHOSEN'
+  | 'CASTER'
+  | 'SKULL'
+  | 'ENEMY'
+  | 'LAST_TARGET'
+  | 'ENEMY_MOST_USED'
+  | 'ALLY_MOST_USED';
+
+/**
+ * 某方「已用法力最多」的颜色（R11 批，官方 MostUsedManaEnemy / MostUsedManaAlly）：
+ * 从行动日志聚合该方全部施法行动——每次施法按施法者 manaCost 均摊到其法力色上计账
+ * （官方口径是「使用/收集最多的法力色」；引擎无逐色法力流水，以此为确定性代理，
+ * 用当前 manaCost 快照，平行批 R12 的 LAST_TARGET chosenTargetId 回退同款权衡）。
+ * 平局取 ALL_BASE_COLORS 固定序更前者；该方尚无施法记录 → null（调用段安全跳过）。
+ */
+export function mostUsedManaColor(
+  state: import('../../GameState').GameState,
+  side: PlayerSide,
+): BaseColor | null {
+  const tally = new Map<BaseColor, number>();
+  for (const entry of state.actionLog) {
+    if (entry.side !== side) continue;
+    const action = entry.action;
+    if (action.type !== 'cast') continue;
+    const caster = state.teams[side].characters.find((c) => c.id === action.characterId);
+    if (!caster || caster.colors.length === 0) continue;
+    const share = caster.manaCost / caster.colors.length;
+    for (const color of caster.colors) {
+      tally.set(color, (tally.get(color) ?? 0) + share);
+    }
+  }
+  let best: BaseColor | null = null;
+  let bestN = 0;
+  for (const color of ALL_BASE_COLORS) {
+    const n = tally.get(color) ?? 0;
+    if (n > bestN) {
+      bestN = n;
+      best = color;
+    }
+  }
+  return best;
+}
 
 /** 把 ColorSpec 解析为具体基础色；占位符取 ctx，缺省返回 null（'SKULL' 无对应基色） */
 function resolveColor(spec: ColorSpec, ctx: EffectContext): BaseColor | null {
@@ -48,12 +93,17 @@ function resolveColor(spec: ColorSpec, ctx: EffectContext): BaseColor | null {
     return findCharacter(ctx.state, ctx.casterId)?.colors[0] ?? null;
   }
   // 「指定/该敌人的一种法力颜色」（2026-09-17 回收批）：随机存活敌方 / 跨段追踪目标，
-  // 多法力色时 rng 掷选其一（确定性）
+  // 多法力色时 rng 掷选其一（确定性）。LAST_TARGET 无跨段追踪时回退到玩家选定的敌人
+  // （「选择一名敌人。摧毁其法力颜色的宝石」——清除段本身是首段，追踪尚无主目标）。
   if (spec === 'ENEMY' || spec === 'LAST_TARGET') {
     let char = undefined;
     if (spec === 'LAST_TARGET') {
       const last = ctx.castTracking?.lastTarget;
-      char = last ? findCharacter(ctx.state, last.id) : undefined;
+      if (last) {
+        char = findCharacter(ctx.state, last.id);
+      } else if (ctx.chosenTargetId !== undefined) {
+        char = findCharacter(ctx.state, ctx.chosenTargetId);
+      }
     } else {
       const mySide = findSide(ctx.state, ctx.casterId);
       if (mySide === null) return null;
@@ -63,6 +113,16 @@ function resolveColor(spec: ColorSpec, ctx: EffectContext): BaseColor | null {
     }
     if (!char || char.colors.length === 0) return null;
     return char.colors[ctx.rng.nextInt(char.colors.length)];
+  }
+  // 「敌人/自身队伍使用最多的颜色宝石」（R11 批，官方 MostUsedManaEnemy/Ally）：
+  // 行动日志聚合（见 mostUsedManaColor）；无施法记录 → null，宝石段安全跳过。
+  if (spec === 'ENEMY_MOST_USED' || spec === 'ALLY_MOST_USED') {
+    const mySide = findSide(ctx.state, ctx.casterId);
+    if (mySide === null) return null;
+    const targetSide = spec === 'ALLY_MOST_USED'
+      ? mySide
+      : mySide === PlayerSide.Left ? PlayerSide.Right : PlayerSide.Left;
+    return mostUsedManaColor(ctx.state, targetSide);
   }
   return spec;
 }
@@ -130,6 +190,16 @@ export interface TransformGemParams {
 // —— 清除目标集（destroy / explode 共用） ——
 
 /**
+ * 面积形状（2026-09-17 回收批 R12）：以中心格为锚的固定形状格集合。
+ *   - square5：5x5 方块（官方 BoardTarget Block5x5，「摧毁一整块大小为 5x5 的宝石」）
+ *   - square3：3x3 方块（官方 Block3x3，「爆破 3x3 阵型的宝石」）
+ *   - cross3 ：3x3 十字（官方 Block1x3 + Block3x1，「以 3x3 交叉队列方式爆破」= 横竖各 3 格）
+ *   - x      ：两条对角线（官方 X 形状，「以 X 形状摧毁宝石」= 沿过中心的两条对角线清全程）
+ * 中心格缺省 = 棋盘几何中心（8x8 取 floor((N-1)/2)=3），可显式给格或 'CELL'（玩家点选）。
+ */
+export type AreaShape = 'square5' | 'square3' | 'cross3' | 'x';
+
+/**
  * 清除目标集描述。产出一组"目标格"，再由 clear 模式决定是否辐射一圈。
  *   - lines：固定整行/整列（rows/cols）
  *   - chosenLine：玩家选定一枚宝石，取其所在整行/整列（起点 = ctx.chosenCell）
@@ -139,6 +209,7 @@ export interface TransformGemParams {
  *   - skulls：全部骷髅
  *   - randomGems：随机 N 颗宝石（可限定仅颜色/含骷髅）
  *   - cell：以某格为中心（cell 可 'CELL'）；本身即单格，靠 explode 辐射成片
+ *   - area：固定形状格集合（面积原语批）——形状本身即完整目标集，**不再辐射**
  */
 export type ClearTarget =
   | { kind: 'lines'; rows?: number[]; cols?: number[] }
@@ -149,7 +220,8 @@ export type ClearTarget =
   | { kind: 'skulls' }
   | { kind: 'special'; gem: SpecialGemKind }
   | { kind: 'randomGems'; count: ScalingSpec; include?: 'color' | 'all'; color?: ColorSpec; special?: SpecialGemKind; countRange?: { min: number; max: number } }
-  | { kind: 'cell'; cell: CellPos | 'CELL' };
+  | { kind: 'cell'; cell: CellPos | 'CELL' }
+  | { kind: 'area'; shape: AreaShape; center?: CellPos | 'CELL' };
 
 /** 清除操作：destroy=仅目标本身；explode=目标并入每颗 8 邻格 */
 export interface ClearGemParams {
@@ -398,6 +470,39 @@ function resolveTargetCells(target: ClearTarget, ctx: EffectContext, modifier?: 
       const cell = target.cell === 'CELL' ? ctx.chosenCell : target.cell;
       return cell ? [cell] : null;
     }
+    case 'area': {
+      // 面积形状（原语批 R12）：形状格集合按中心格生成；越界格剔除（贴边中心时自动收边）。
+      const center = target.center === undefined
+        ? { row: Math.floor((BoardModel.ROWS - 1) / 2), col: Math.floor((BoardModel.COLS - 1) / 2) }
+        : target.center === 'CELL' ? ctx.chosenCell : target.center;
+      if (!center) return null;
+      const cells: CellPos[] = [];
+      const push = (row: number, col: number) => {
+        const pos = { row, col };
+        if (BoardModel.inBounds(pos)) cells.push(pos);
+      };
+      switch (target.shape) {
+        case 'square5':
+          for (let dr = -2; dr <= 2; dr++) for (let dc = -2; dc <= 2; dc++) push(center.row + dr, center.col + dc);
+          break;
+        case 'square3':
+          for (let dr = -1; dr <= 1; dr++) for (let dc = -1; dc <= 1; dc++) push(center.row + dr, center.col + dc);
+          break;
+        case 'cross3':
+          // 官方 Block1x3 + Block3x1：横竖各 3 格的十字（5 格）
+          for (let dc = -1; dc <= 1; dc++) push(center.row, center.col + dc);
+          for (let dr = -1; dr <= 1; dr++) push(center.row + dr, center.col);
+          break;
+        case 'x':
+          // 过中心的两条对角线（全板长）：r-c 定值线 ∪ r+c 定值线
+          for (let r = 0; r < BoardModel.ROWS; r++) {
+            push(r, center.col + (r - center.row));
+            push(r, center.col - (r - center.row));
+          }
+          break;
+      }
+      return cells;
+    }
     default: {
       const _exhaustive: never = target;
       return _exhaustive;
@@ -427,7 +532,10 @@ function radiate(cells: CellPos[]): CellPos[] {
 function doClear(params: ClearGemParams, ctx: EffectContext): GameEvent[] {
   const targetCells = resolveTargetCells(params.target, ctx, params.modifier);
   if (targetCells === null) return []; // 选色/选行列/选格缺失，安全跳过
-  const positions = params.mode === 'explode' ? radiate(targetCells) : targetCells;
+  // explode 辐射一圈；area 形状本身即完整目标集（官方 BoardTarget Block5x5 等是精确格集合，
+  // 再辐射会越出官方形状），故只按 mode 区分事件类型、不做 8 邻扩展。
+  const positions =
+    params.mode === 'explode' && params.target.kind !== 'area' ? radiate(targetCells) : targetCells;
 
   const board = ctx.state.board;
   const cells: GemClearEvent['cells'] = [];

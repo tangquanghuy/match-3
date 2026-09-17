@@ -421,7 +421,7 @@ describe('A · 数据完整性', () => {
       // —— 缺口清扫批：新字段结构合法性 ——
       if (t.allyStartMana) {
         const s = t.allyStartMana;
-        if (!/^[A-Z]/.test(s.troopType)) report(`${tag} allyStartMana.troopType「${s.troopType}」不是规范族名`);
+        if (s.troopType !== undefined && !/^[A-Z]/.test(s.troopType)) report(`${tag} allyStartMana.troopType「${s.troopType}」不是规范族名`);
         if (!(s.ratio > 0 && s.ratio <= 1)) report(`${tag} allyStartMana.ratio=${s.ratio} 超出 (0,1]`);
       }
       for (const [field, aura] of [['battleStartTypeAura', t.battleStartTypeAura], ['turnStartTypeAura', t.turnStartTypeAura]] as const) {
