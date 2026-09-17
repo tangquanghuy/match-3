@@ -2,7 +2,7 @@ import { Container, Graphics, Sprite, Text } from 'pixi.js';
 import { BaseColor } from '@engine/types';
 import type { GemType, SpecialGemKind, SpecialGemSpec } from '@engine/types';
 import { isStatusGemKind, isWaveBGemKind } from '@engine/types';
-import { textureFor } from './gemTextures';
+import { hasOwnSpecialTexture, textureFor } from './gemTextures';
 import { attachStatusGemOverlay, disposeStatusGemOverlay } from './statusGemOverlays';
 import type { StatusGemOverlay } from './statusGemOverlays';
 
@@ -102,7 +102,7 @@ export class GemSprite extends Container {
   private multiplierLabel: Text | null = null;
   /** 状态搬运宝石的程序化叠层（GEMS-SEMANTICS-2 波A）；setType 时销毁重建 */
   private statusOverlay: StatusGemOverlay | null = null;
-  /** 波B 免贴图宝石的静态叠层（GEMS-SEMANTICS-2 波B）；setType 时销毁重建 */
+  /** 波B 宝石真贴图缺失时的兜底静态叠层（GEMS-SEMANTICS-2 波B）；setType 时销毁重建 */
   private waveBOverlay: Graphics | null = null;
   private size: number;
 
@@ -163,9 +163,10 @@ export class GemSprite extends Container {
     if (statusKind) {
       this.statusOverlay = attachStatusGemOverlay(this, statusKind, this.size);
     }
-    // 波B 免贴图宝石：归属色贴图（textureFor 回退）之上叠一层静态语义标记
-    //（单层 Graphics、setType 绘制一次；无逐帧重绘/滤镜，GEMS-SEMANTICS-2 §0 预算）
-    if (type.kind === 'special' && isWaveBGemKind(type.spec.kind)) {
+    // 波B 宝石：真贴图已就位时美术自带语义，不再叠程序化标记；
+    // 仅在贴图缺失（回退归属色基图）时叠静态语义标记兜底（单层 Graphics、无逐帧重绘）
+    if (type.kind === 'special' && isWaveBGemKind(type.spec.kind)
+        && !hasOwnSpecialTexture(type.spec)) {
       this.waveBOverlay = drawWaveBOverlay(type.spec, this.size);
       this.addChild(this.waveBOverlay);
     }
