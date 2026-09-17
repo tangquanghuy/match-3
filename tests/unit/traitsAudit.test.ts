@@ -22,6 +22,7 @@ import { BaseColor } from '@engine/types';
 import { traitBadgeSvg } from '../../src/render/traitBadges';
 import turnEngineSrc from '../../src/engine/TurnEngine.ts?raw';
 import combatResolverSrc from '../../src/engine/CombatResolver.ts?raw';
+import traitsSrc from '../../src/engine/traits.ts?raw';
 import targetingSrc from '../../src/engine/skills/targeting.ts?raw';
 import damageSrc from '../../src/engine/skills/effects/damage.ts?raw';
 import debuffSrc from '../../src/engine/skills/effects/debuff.ts?raw';
@@ -393,6 +394,25 @@ describe('A · 数据完整性', () => {
         && !/^[A-Z]/.test(t.onBigMatchTypeAura.troopType)) {
         report(`${tag} onBigMatchTypeAura.troopType「${t.onBigMatchTypeAura.troopType}」不是规范族名`);
       }
+      // 战斗机制批：宝石灵力减半 / 位次光环 / 施法随机状态 / 吞噬免疫的结构合法性
+      if (t.enemyMasteryMult !== undefined && !(t.enemyMasteryMult > 0 && t.enemyMasteryMult < 1)) {
+        report(`${tag} enemyMasteryMult=${t.enemyMasteryMult} 应为 (0,1) 开区间抑制倍率`);
+      }
+      if (t.devourImmunity !== undefined && t.devourImmunity !== true) {
+        report(`${tag} devourImmunity 只允许 true`);
+      }
+      if (t.positionAura) {
+        const s = t.positionAura;
+        if (!['front', 'last'].includes(s.position)) report(`${tag} positionAura.position「${s.position}」非法`);
+        const vals = Object.values(s.gains).filter((v) => v !== 0);
+        if (vals.length === 0 || vals.some((v) => v < 1 || v > 20)) {
+          report(`${tag} positionAura.gains 异常`);
+        }
+      }
+      if (t.onAllyCastRandomStatus) {
+        const s = t.onAllyCastRandomStatus;
+        if (!['randomAlly', 'randomEnemy'].includes(s.scope)) report(`${tag} onAllyCastRandomStatus.scope「${s.scope}」非法`);
+      }
     }
   });
   it('全部条目结构合法、数值在合理区间、引用真实存在', () => expectNoProblems(problems, '数据完整性'));
@@ -430,6 +450,13 @@ describe('B · 编译契约', () => {
     'onBigMatchConvert', 'onBigMatchSummon', 'onBigMatchStorm', 'onBigMatchKill', 'onColorMatchDamage',
     // 核对修正批：多状态屠戮（lethaltoxin）/ virtue 家族三种队伍光环变体
     'skullMultVsStatusList', 'onAllyDeathTypeAura', 'onAllyCastTypeAura', 'onDamagedTypeAura',
+    // 模式专属特质批（淘宝/晋升/赏金语义）：deep* 族 onDelveGain、bountyhunter onDelveBounty、
+    // pathfinder onDelveMiles、godslayer/siegebreaker vsAscendedMultiplier——编译进 passive
+    // 但标准战斗结算路径**不消费**（惰性），traitModeSpecific.test.ts 专设断言
+    'onDelveGain', 'onDelveBounty', 'onDelveMiles', 'vsAscendedMultiplier',
+    // 战斗机制批：jinx 敌方宝石灵力减半 / indigestible 吞噬免疫（数据字段，吞噬落地时消费）/
+    // goodtarot+badtarot 施法随机状态
+    'enemyMasteryMult', 'devourImmunity', 'onAllyCastRandomStatus',
   ]);
 
   /**
@@ -447,6 +474,8 @@ describe('B · 编译契约', () => {
     'turnStartCreateSpecialGem', 'turnStartColorToSpecial',
     // O 桶判读批：开局爆破（omenof* 族，TurnEngine 构造期读 getTrait）
     'battleStartDestroy',
+    // 战斗机制批：位次条件光环（leader/general/goblord，applyPositionAuras 直读 getTrait）
+    'positionAura',
   ]);
 
   it('生成器产出的每个效果键都被引擎消费（编译器或定义直读，二者其一）', () => {
@@ -705,6 +734,38 @@ describe('C · 描述↔数值一致性（从官方文本重新抽数对账）',
         const parts = m ? m[1].split('和').filter((s) => s.trim() !== '') : [];
         if (parts.length !== t.inflictOnSkullDamagedList.length) {
           report(`${tag(t)} 双状态条数 ${t.inflictOnSkullDamagedList.length} 与描述「${m?.[1] ?? d}」不符`);
+        }
+      }
+      // 战斗机制批：描述↔数值对账
+      if (t.enemyMasteryMult !== undefined) {
+        const m = /将敌人的宝石灵力减半/.test(d);
+        if (!m || t.enemyMasteryMult !== 0.5) {
+          report(`${tag(t)} enemyMasteryMult=${t.enemyMasteryMult} 与描述「${d}」不符`);
+        }
+      }
+      if (t.devourImmunity && !/对吞噬免疫/.test(d)) {
+        report(`${tag(t)} devourImmunity 但描述不是吞噬免疫句式`);
+      }
+      if (t.positionAura) {
+        const s = t.positionAura;
+        const m = /(?:当|如果)军队位于(首位|末位)/.exec(d);
+        const expectPos = m ? (m[1] === '首位' ? 'front' : 'last') : null;
+        const allM = /全部技能值将增加\s*(\d+)\s*点/.exec(d);
+        const oneM = /获得\s*(\d+)\s*点(生命值|护甲值|攻击力|魔法值)/.exec(d);
+        const expectGains = allM
+          ? { hp: num(allM[1]), armor: num(allM[1]), attack: num(allM[1]), magic: num(allM[1]) }
+          : oneM ? { [statOf(oneM[2])]: num(oneM[1]) } : null;
+        if (!m || s.position !== expectPos || !expectGains
+          || JSON.stringify(s.gains) !== JSON.stringify(expectGains)) {
+          report(`${tag(t)} positionAura ${JSON.stringify(s)} 与描述「${d}」不符`);
+        }
+      }
+      if (t.onAllyCastRandomStatus) {
+        const m = /盟友施(?:放|法)法?术?时[，,]?使一名随机(盟友|敌人)陷入一个状态效果/.test(d);
+        const expectScope = /使一名随机盟友/.test(d) ? 'randomAlly'
+          : /使一名随机敌人/.test(d) ? 'randomEnemy' : null;
+        if (!m || t.onAllyCastRandomStatus.scope !== expectScope) {
+          report(`${tag(t)} onAllyCastRandomStatus.scope「${t.onAllyCastRandomStatus.scope}」与描述「${d}」不符`);
         }
       }
       // 光环族
@@ -982,6 +1043,10 @@ describe('D · 接线完整性（钩子存在但没人调用 = 死角）', () =>
     ['配色触发', /applyColorMatchTriggers/, () => turnEngineSrc],
     ['大连伤害/窃取生命注入', /traitDamage|traitDrainLife/, () => turnEngineSrc],
     ['施法响应', /applyCastTriggers/, () => turnEngineSrc],
+    ['施法随机状态（goodtarot/badtarot）', /applyCastRandomStatusTriggers/, () => turnEngineSrc],
+    ['位次条件光环（leader 族）', /applyPositionAuras/, () => turnEngineSrc],
+    ['宝石灵力减半（jinx）', /distributeGemMana|masterySuppress/, () => turnEngineSrc],
+    ['吞噬免疫（数据字段，吞噬落地时消费）', /devourImmunity/, () => traitsSrc],
     ['回合开始棋盘写入', /turnStartCreateGem/, () => turnEngineSrc],
     ['回合开始创造/转换特殊宝石', /turnStartCreateSpecialGem|turnStartColorToSpecial/, () => turnEngineSrc],
     ['大连创造宝石落子注入', /createGem/, () => turnEngineSrc],

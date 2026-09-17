@@ -89,6 +89,10 @@ const DESCRIPTION_OVERRIDES = {
   powerofstars: '在配对骷髅头宝石时给予所有盟友全部技能值各 1 点。',
   // 召唤名对齐兵种数据（「道的仆人」机报名 → 兵种库「恶道仆人」ServantOfTheDao）
   daoslamp: '匹配4个或以上的宝石时有30%几率召唤恶道仆人。',
+  // badtarot「Inflict a random status effect on a random Enemy when an Ally casts a spell.」
+  // ——dump 把 Enemy 译成「盟友」（目标反向，与 bloodcoldrage 同款机翻事故；官方
+  // TraitType=cause_random_status_effect 施加负面池，目标必为敌方）
+  badtarot: '在任一盟友施放法术时使一名随机敌人陷入一个状态效果。',
 };
 
 /**
@@ -349,6 +353,38 @@ function parse(desc, code) {
   if (/^对法力灼烧、法力耗尽和法力窃取免疫。?$/.test(desc)) {
     return { effects: { manaOpsImmunity: true, statusImmunities: ['mana-burn'] } };
   }
+  // —— 战斗机制批（jinx / leader 族 / indigestible / goodtarot+badtarot，7 code）——
+  // 全部整条锚定（官方英文描述逐条核对过，见 data/raw/gow-2026-09-18/traits.en.json）。
+
+  // jinx（官方「Halve enemy Gem Masteries」，Activation=start_battle /
+  // TraitType=adjust_all_masteries / Modifier=0.5）：本引擎以「匹配宝石产出的法力」
+  // 作为 Gem Masteries（宝石灵力）的落地模型，敌方队伍宝石法力获取 ×0.5。
+  if (/^将敌人的宝石灵力减半。?$/.test(desc)) {
+    return { effects: { enemyMasteryMult: 0.5 } };
+  }
+  // 位次条件光环（leader「Gain 3 to all Skills if in first position」 /
+  // general 同款末位版 / goblord 单属性末位版）：front=编队首位、last=编队末位；
+  // 「全部技能值」= 四项各 N（giftof* 族同口径展开）。
+  if ((m = /^(?:当|如果)军队位于(首位|末位)时?[，,]?全部技能值将增加\s*(\d+)\s*点。?$/.exec(desc))) {
+    const v = num(m[2]);
+    return { effects: { positionAura: { position: m[1] === '首位' ? 'front' : 'last', gains: { hp: v, armor: v, attack: v, magic: v } } } };
+  }
+  if ((m = /^(?:当|如果)军队位于(首位|末位)时?[，,]?则?获得\s*(\d+)\s*点(生命值|护甲值|攻击力|魔法值)。?$/.exec(desc))) {
+    const stat = pickStat(m[3]);
+    if (!stat) return null;
+    return { effects: { positionAura: { position: m[1] === '首位' ? 'front' : 'last', gains: { [stat]: num(m[2]) } } } };
+  }
+  // indigestible（官方「Immunity to Devour」）：引擎尚无吞噬机制，落数据字段
+  // devourImmunity 编译进 passive，供吞噬机制将来落地时经 passivesOf 消费。
+  if (/^对吞噬免疫。?$/.test(desc)) {
+    return { effects: { devourImmunity: true } };
+  }
+  // 施法响应·随机状态（goodtarot「Grant a random status effect to a random Ally when an
+  // Ally casts a spell」/ badtarot 同款但目标是随机敌人）：池按 scope 取阵营——
+  // 盟友=正面池、敌人=负面池（与技能 randomStatusEffect 的阵营裁定同源，池在消费端取）。
+  if ((m = /^(?:当|在)(?:一名|任一)盟友施(?:放|法)法?术?时[，,]?使一名随机(盟友|敌人)陷入一个状态效果。?$/.exec(desc))) {
+    return { effects: { onAllyCastRandomStatus: { scope: m[1] === '盟友' ? 'randomAlly' : 'randomEnemy' } } };
+  }
   // 免疫：对 X、Y 免疫（T1 批：warded/cunning/brave/immune——「对疾病和狼化免疫」的
   // 狼化引擎未实现，按映射表只收疾病，不做缺状态半解析）
   if (/免疫/.test(desc)) {
@@ -598,6 +634,48 @@ function parse(desc, code) {
     const cond = parseDamageCondition(target);
     if (cond) return { effects: cond.status ? { skullMultVsStatus: { status: cond.status, mult } } : { skullMultVsWounded: mult } };
     return null;
+  }
+  // —— 模式专属特质批（淘宝模式 / 晋升度 / 赏金语义，8 code）——
+  // 官方 RawData 佐证：deep* 族 GameMode=delve_attacker（淘宝=Delve 进层时按 stat 调整，
+  // Modifier=9/5/9/7）、bountyhunter Activation=end_battle_rewards（bonus_bounty，2-6 倍
+  // 随晋升稀有度）、pathfinder Activation=end_battle_rewards（旅程英里 2x/2.5x/3x）、
+  // godslayer/siegebreaker Activation=on_skull_damage + Filter=boss/castle（晋升度倍率
+  // 3-5 倍）。这些机制都在 Delve/晋升/结算层生效，**标准三消战斗内惰性**——本作未建模
+  // Delve/晋升层，落为正确建模的声明字段（编译进 passive 但结算路径不消费），数据完整、
+  // 审计对账通过、描述正确。全部整条锚定，「全部命中才收」。
+
+  // A. 淘宝模式获得（deepvitality/deepmagic/deepshield/deepstrength）：
+  //    「在淘宝模式中获得 N 点生命值/魔法值/护甲值/攻击力。」→ onDelveGain
+  //    属性词只认 STAT_MAP 四项（官方 deep 族也只用这四项），解析不了整体不收。
+  if ((m = /^在淘宝模式中获得\s*(\d+)\s*点(生命值|护甲值|攻击力|魔法值)。?$/.exec(desc))) {
+    const stat = pickStat(m[2]);
+    if (!stat) return null;
+    return { effects: { onDelveGain: { stat, amount: num(m[1]) } } };
+  }
+  // B. 赏金猎人（bountyhunter）：「基于我已晋升的稀有度获得 2 到 6 倍的赏金点数。」
+  //    → onDelveBounty（战后赏金倍率区间，下限/上限按晋升稀有度取位；官方 Modifier=2 为下限）
+  if ((m = /^基于我已晋升的稀有度获得\s*(\d+)\s*到\s*(\d+)\s*倍的赏金点数。?$/.exec(desc))) {
+    const min = num(m[1]);
+    const max = num(m[2]);
+    if (!(min > 0 && max > min)) return null;
+    return { effects: { onDelveBounty: { min, max } } };
+  }
+  // C. 探路者（pathfinder）：「在自身旅程活动中获得 2x/2.5x/3x 英里，数量因自身晋升稀有度
+  //    而定。」→ onDelveMiles（英里倍率表，位序=晋升稀有度序）
+  if ((m = /^在自身旅程活动中获得\s*([\d.x/]+?)\s*英里，数量因自身晋升稀有度而定。?$/.exec(desc))) {
+    const multipliers = m[1].split('/').map((s) => Number(s.replace(/x$/i, '')));
+    if (multipliers.length < 2 || multipliers.some((x) => !Number.isFinite(x) || x <= 0)) return null;
+    return { effects: { onDelveMiles: { multipliers } } };
+  }
+  // D. 屠魔/攻城（godslayer/siegebreaker）：「基于我已晋升的稀有度对魔头/高塔造成 3 到 5 倍
+  //    伤害。」→ vsAscendedMultiplier（target boss=魔头 / tower=高塔）。**必须先于下方通用
+  //    「基于晋升对<族>」规则**：魔头/高塔不是兵种种族（官方 Filter=boss/castle，是模式构造），
+  //    落 skullMultVsTroopType 会让标准战斗骷髅结算错误放大。
+  if ((m = /^基于我已晋升的稀有度对(魔头|高塔)造成\s*(\d+)\s*到\s*(\d+)\s*倍伤害。?$/.exec(desc))) {
+    const min = num(m[2]);
+    const max = num(m[3]);
+    if (!(min > 1 && max > min)) return null;
+    return { effects: { vsAscendedMultiplier: { target: m[1] === '魔头' ? 'boss' : 'tower', min, max } } };
   }
   // 「基于我已晋升的稀有度对<族>造成 3 到 5 倍伤害」：晋升度本作未建模，取区间下限
   if ((m = /^基于我已晋升的稀有度对(.+?)造成\s*(\d+)\s*到\s*(\d+)\s*倍伤害/.exec(desc))) {

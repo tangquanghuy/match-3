@@ -308,6 +308,38 @@ export interface TraitDefinition {
    * 直接结算归持有者一方；候选唯一不掷骰、无候选安全跳过。
    */
   battleStartDestroy?: { kind: 'color'; color: string } | { kind: 'skull' };
+  // —— 模式专属特质批（淘宝模式 / 晋升度 / 赏金语义，8 code）——
+  // 这些机制在官方属于 Delve 进层 / 战后结算 / 晋升度倍率（官方 RawData：deep* 族
+  // GameMode=delve_attacker、bountyhunter/pathfinder Activation=end_battle_rewards、
+  // godslayer/siegebreaker on_skull_damage + Filter=boss/castle），**标准三消战斗内惰性**。
+  // 本作未建模 Delve/晋升层：字段编译进 passive（types.ts PassiveModifiers 同名字段），
+  // 数据建模完整、审计对账通过、描述正确；战斗结算路径不消费——无新键特质零事件、
+  // 零随机消耗的护栏不被破坏（这些字段没有任何触发钩子，天然零事件）。
+  /** 淘宝模式获得（deepvitality/deepmagic/deepshield/deepstrength「在淘宝模式中获得 N 点X」） */
+  onDelveGain?: { stat: 'hp' | 'magic' | 'armor' | 'attack'; amount: number };
+  /** 晋升赏金（bountyhunter「基于我已晋升的稀有度获得 2 到 6 倍的赏金点数」） */
+  onDelveBounty?: { min: number; max: number };
+  /** 旅程英里（pathfinder「在自身旅程活动中获得 2x/2.5x/3x 英里」，位序=晋升稀有度序） */
+  onDelveMiles?: { multipliers: readonly number[] };
+  /** 晋升度倍率（godslayer/siegebreaker「对魔头/高塔造成 3 到 5 倍伤害」；不进 skullMultVs* 屠戮表） */
+  vsAscendedMultiplier?: { target: 'boss' | 'tower'; min: number; max: number };
+  // —— 战斗机制批（jinx / leader 族 / indigestible / goodtarot+badtarot，7 code）——
+  /** 敌方宝石灵力倍率（jinx「将敌人的宝石灵力减半」）：详见 PassiveModifiers.enemyMasteryMult */
+  enemyMasteryMult?: number;
+  /** 吞噬免疫（indigestible「对吞噬免疫」）：引擎尚无吞噬机制，数据字段先行（吞噬落地时消费） */
+  devourImmunity?: boolean;
+  /**
+   * 位次条件光环（leader「当军队位于首位时，全部技能值将增加 3 点」/ general 末位版 /
+   * goblord 末位单属性版）。定义直读键（applyPositionAuras 读 getTrait，同 teamAura 口径）：
+   * front=编队首位、last=编队末位；进入该位次时一次性补授（位次在本引擎编队模型下
+   * 只会因阵亡/召唤前移或追加，不回退），granted 集合由宿主按战斗持有防重复。
+   */
+  positionAura?: { position: 'front' | 'last'; gains: Partial<StatGains> };
+  /**
+   * 盟友施法时的随机状态（goodtarot 随机盟友 / badtarot 官方目标=随机敌人）：池按 scope
+   * 取阵营（randomAlly=正面池 / randomEnemy=负面池，消费端与技能 randomStatusEffect 同源）。
+   */
+  onAllyCastRandomStatus?: { scope: 'randomAlly' | 'randomEnemy' };
 }
 
 export const TRAIT_LIBRARY: readonly TraitDefinition[] = traitTable as TraitDefinition[];
@@ -369,6 +401,12 @@ export function neutralPassives(): PassiveModifiers {
     bigMatchCreateGem: [],
     bigMatchEconomyGain: {},
     skullMatchEconomyGain: { gold: 0, souls: 0, gems: 0 },
+    // 模式专属特质批：淘宝/晋升/赏金字段的中性形态（空 = 无任何 Delve 层效果）
+    onDelveGains: {},
+    vsAscendedMultipliers: [],
+    // 战斗机制批：宝石灵力无抑制 / 非吞噬免疫为中性形态
+    enemyMasteryMult: 1,
+    devourImmunity: false,
   };
 }
 
@@ -440,6 +478,10 @@ export function resolvePassives(
   const damagedStatusList: { id: string; turns: number; magnitude?: number }[] = [];
   const bigMatchEconomy: Record<string, TraitEconomyGain> = {};
   const skullEconomy: TraitEconomyGain = { gold: 0, souls: 0, gems: 0 };
+  // 模式专属特质批（淘宝/晋升/赏金）：聚合容器——Delve 层属性按 stat 累加，晋升度倍率
+  // 按声明序保留（godslayer/siegebreaker 可并存），赏金取最宽区间
+  const delveGains: Partial<Record<'hp' | 'magic' | 'armor' | 'attack', number>> = {};
+  const vsAscended: { target: 'boss' | 'tower'; min: number; max: number }[] = [];
 
   for (const code of traitIds) {
     const trait = lookup(code);
@@ -693,6 +735,34 @@ export function resolvePassives(
     if (trait.onSkullMatchEconomy) {
       skullEconomy[trait.onSkullMatchEconomy.currency] += trait.onSkullMatchEconomy.amount;
     }
+    // 模式专属特质批（淘宝/晋升/赏金）：只编译、不消费——标准战斗结算路径不读这些字段，
+    // 编译产物仅供数据对账与将来 Delve/晋升层直接使用。
+    if (trait.onDelveGain) {
+      delveGains[trait.onDelveGain.stat] = (delveGains[trait.onDelveGain.stat] ?? 0) + trait.onDelveGain.amount;
+    }
+    if (trait.onDelveBounty) {
+      const b = trait.onDelveBounty;
+      passive.onDelveBounty = passive.onDelveBounty
+        ? { min: Math.min(passive.onDelveBounty.min, b.min), max: Math.max(passive.onDelveBounty.max, b.max) }
+        : { ...b };
+    }
+    if (trait.onDelveMiles && passive.onDelveMiles === undefined) {
+      passive.onDelveMiles = { multipliers: [...trait.onDelveMiles.multipliers] };
+    }
+    if (trait.vsAscendedMultiplier) {
+      vsAscended.push({ ...trait.vsAscendedMultiplier });
+    }
+    // —— 战斗机制批（jinx / indigestible / goodtarot+badtarot）——
+    // 宝石灵力抑制：多条并存取最强抑制（min，与减伤族「取最强」同口径）
+    if (trait.enemyMasteryMult !== undefined) {
+      passive.enemyMasteryMult = Math.min(passive.enemyMasteryMult, trait.enemyMasteryMult);
+    }
+    // 吞噬免疫：布尔取或
+    if (trait.devourImmunity) passive.devourImmunity = true;
+    // 施法随机状态：同类取先声明的一条（与 onDamagedStatus 等单值变体同口径）
+    if (trait.onAllyCastRandomStatus && passive.castRandomStatus === undefined) {
+      passive.castRandomStatus = { ...trait.onAllyCastRandomStatus };
+    }
   }
 
   passive.skullDamageTaken = 1 - Math.min(0.95, skullReduction);
@@ -718,6 +788,9 @@ export function resolvePassives(
   passive.onBigMatchStatus = bigMatchStatus;
   passive.bigMatchEconomyGain = bigMatchEconomy;
   passive.skullMatchEconomyGain = { ...skullEconomy };
+  // 模式专属特质批：聚合产物挂载（空对象/空数组也是确定性的中性形态，与 neutralPassives 一致）
+  passive.onDelveGains = delveGains;
+  passive.vsAscendedMultipliers = vsAscended;
   if (damagedStatusList.length > 0) passive.inflictOnSkullDamagedList = damagedStatusList;
   return passive;
 }
@@ -828,6 +901,93 @@ export function applyCastTriggers(
     // 持有者在施法方队伍时生效，受益者为该队存活盟友。
     ...applyTypeAuraGains(casterTeam, casterTeam, 'onAllyCastTypeAura'),
   ];
+}
+
+/**
+ * 施法响应·随机状态（战斗机制批 goodtarot「Grant a random status effect to a random Ally
+ * when an Ally casts a spell」/ badtarot 同款但官方目标是随机 Enemy）。
+ *
+ * 与 applyCastTriggers 同一触发点（castSkillAction 施法响应区、技能效果之前）结算。
+ * 池按 scope 取阵营——randomAlly=正面池、randomEnemy=负面池（与技能 randomStatusEffect
+ * 的阵营裁定同源；池本体经 ctx.poolOf 注入，避免 traits ↔ status 循环依赖），回合数 3。
+ * 每个存活持有者独立结算：掷目标一次、池内掷签一次。施法者自己也算盟友，与官方一致。
+ * 无 rng/施加口/池注入时整块跳过——无新键特质零事件、零随机消耗。
+ */
+export function applyCastRandomStatusTriggers(
+  casterTeam: readonly Character[],
+  opposingTeam: readonly Character[],
+  ctx: {
+    /** 随机目标选择 / 池内掷签；缺省时整块跳过（纯逻辑环境零事件、零随机消耗） */
+    rng?: Pick<SeededRNG, 'next'>;
+    /** 状态施加口（TurnEngine 注入 skills/effects/status 的 applyStatus，免疫在施加口拦截） */
+    applyStatus?: (char: Character, status: StatusInstance) => GameEvent[];
+    /** 池解析：scope → 状态 id 列表（TurnEngine 注入同名 RANDOM_*_STATUS_POOL） */
+    poolOf?: (scope: 'randomAlly' | 'randomEnemy') => readonly string[];
+  } = {},
+): GameEvent[] {
+  if (!ctx.rng || !ctx.applyStatus || !ctx.poolOf) return [];
+  const events: GameEvent[] = [];
+  for (const holder of casterTeam) {
+    if (holder.defeated) continue;
+    const spec = passivesOf(holder).castRandomStatus;
+    if (!spec) continue;
+    const pool = ctx.poolOf(spec.scope);
+    if (pool.length === 0) continue;
+    const targets = (spec.scope === 'randomAlly' ? casterTeam : opposingTeam)
+      .filter((c) => !c.defeated);
+    if (targets.length === 0) continue;
+    const target = targets[Math.floor(ctx.rng.next() * targets.length)];
+    const id = pool[Math.floor(ctx.rng.next() * pool.length)];
+    events.push(...ctx.applyStatus(target, { id, turns: 3 }));
+  }
+  return events;
+}
+
+/**
+ * 位次条件光环（战斗机制批 leader「当军队位于首位时，全部技能值将增加 3 点」/
+ * general·goblord 末位版）。定义直读键（getTrait，同 teamAura 口径，不进 passive）。
+ *
+ * 结算语义「进入该位次时一次性补授」：front=编队首位（characters[0]，阵亡者被移出
+ * 编队后天然前移）、last=编队末位。位次在本引擎编队模型下只会因阵亡/逃离前移或
+ * 召唤追加、不回退，因此「进入即补授」与官方「处于该位次期间生效」等效；
+ * granted 集合由宿主（TurnEngine）按战斗持有防重复授出。战斗开始与每次行动开始
+ * 各结算一次（首位易主在下次行动开始补授）。返回 buff 事件供演出。
+ */
+export function applyPositionAuras(
+  teams: readonly (readonly Character[])[],
+  granted: Set<number>,
+  lookup: TraitLookup = getTrait,
+): BuffEvent[] {
+  const events: BuffEvent[] = [];
+  for (const team of teams) {
+    if (team.length === 0) continue;
+    const occupant = team[0];
+    const occupantLast = team[team.length - 1];
+    // front 位次 occupant === occupantLast 时（单人队）同一人只授一次
+    const candidates = new Set<Character>([occupant]);
+    candidates.add(occupantLast);
+    for (const char of candidates) {
+      if (!char || char.defeated || granted.has(char.id)) continue;
+      const auras = (char.traitIds ?? [])
+        .map((code) => lookup(code)?.positionAura)
+        .filter((a): a is NonNullable<typeof a> => !!a);
+      if (auras.length === 0) continue;
+      let didGrant = false;
+      for (const aura of auras) {
+        const inPosition = aura.position === 'front' ? char === occupant : char === occupantLast;
+        if (!inPosition) continue;
+        didGrant = true;
+        for (const stat of GAIN_STAT_ORDER) {
+          const actual = grantStat(char, stat, aura.gains[stat] ?? 0);
+          if (actual !== 0) events.push({ type: 'buff', targetId: char.id, stat, amount: actual });
+        }
+      }
+      // 只有真正处于光环位次并授出过才登记：不在位次的持有者保留将来补授资格
+      //（如 front 位持 last 光环者，待身前角色离场后进入末位时再授）。
+      if (didGrant) granted.add(char.id);
+    }
+  }
+  return events;
 }
 
 /**

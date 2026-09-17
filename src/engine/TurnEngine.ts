@@ -8,7 +8,8 @@ import { CombatResolver } from './CombatResolver';
 import { ExtensionRegistry } from './registry';
 import { SeededRNG } from './rng';
 import { reshuffle, hasLegalSwap } from './boardUtils';
-import { tickTeamStatuses, canCastSkill, applyStatus, canGainMana, WEB_STATUS_ID } from './skills/effects/status';
+import { tickTeamStatuses, canCastSkill, applyStatus, canGainMana, WEB_STATUS_ID,
+  RANDOM_POSITIVE_STATUS_POOL, RANDOM_NEGATIVE_STATUS_POOL } from './skills/effects/status';
 import { executePrototype } from './skills/prototypes';
 import { damageOne } from './skills/effects/damage';
 import { applyBuffGain } from './skills/effects/buff';
@@ -31,7 +32,7 @@ import type { SkullStormDropKind, StatusGemKind, StatusInstance, SpecialGemKind,
  * 查证来源：TrueTrophies 官方攻略（Heroic Gems 节）+ Steam 社区专家帖复核。
  */
 const EXPLODED_SKULL_DAMAGE = { normal: 1, doom: 5, uber: 10 } as const;
-import type { ActionLogEntry, BattleAction, CellPos, GemType, Character } from './types';
+import type { ActionLogEntry, BattleAction, CellPos, GemType, Character, Team } from './types';
 import type { GameState } from './GameState';
 import { resolveDefeatEvents, summonQueueOf, MAX_ACTIVE_TEAM_SIZE } from './teamRoster';
 import {
@@ -39,10 +40,12 @@ import {
   collectBattleStartStorms,
   applyBigMatchTriggers,
   applyCastTriggers,
+  applyCastRandomStatusTriggers,
   applyColorMatchTriggers,
   applyDeathSummons,
   applyDeathTriggers,
   applyEnemyDeathTriggers,
+  applyPositionAuras,
   applyTurnStartPassives,
   attachPassives,
   getTrait,
@@ -94,6 +97,15 @@ export class TurnEngine {
    * GoW 的战斗奖励归玩家，共用池只按玩家侧特质放大。
    */
   private readonly economyGainRatios: { gold: number; souls: number };
+  /**
+   * 宝石灵力抑制快照（战斗机制批 jinx「将敌人的宝石灵力减半」）：对某方生效的宝石法力
+   * 倍率 = 其敌方队伍存活持有人中最强的 enemyMasteryMult（min）。官方 Activation=
+   * start_battle 是对玩家 Gem Masteries 的一次性修正——开局生效、全场持续（持有者
+   * 阵亡不解除），与 economyGainRatios 同款的构造期快照口径。
+   */
+  private readonly masterySuppress: Readonly<Record<PlayerSide, number>>;
+  /** 位次光环已补授的角色 id（战斗机制批 leader 族，applyPositionAuras 防重复授出） */
+  private readonly positionAuraGranted = new Set<number>();
   /**
    * 条件经济光环入账口（条件经济批，注入 traits 触发器 ctx/opts.gainEconomy）：
    * 灵魂/黄金/宝石直接入战场经济池（GameState.economy，全场共用），发既有
@@ -189,11 +201,29 @@ export class TurnEngine {
       }
     }
     this.economyGainRatios = gainRatios;
+    // 宝石灵力抑制快照（jinx）：对 Left 生效 = Right 队持有人的最强 enemyMasteryMult，反之亦然。
+    const masteryMultOf = (side: PlayerSide): number => {
+      let mult = 1;
+      for (const foe of state.teams[side].characters) {
+        const m = foe.passive?.enemyMasteryMult;
+        if (m !== undefined && m < mult) mult = m;
+      }
+      return mult;
+    };
+    this.masterySuppress = {
+      [PlayerSide.Left]: masteryMultOf(PlayerSide.Right),
+      [PlayerSide.Right]: masteryMultOf(PlayerSide.Left),
+    };
     // 战斗开始的一次性特质（全体光环、按颜色计数光环、开局法力）。
     // 事件流此时还没开始，交由表现层首次刷新卡面时读取。
     applyBattleStartTraits(
       state.teams[PlayerSide.Left].characters,
       state.teams[PlayerSide.Right].characters,
+    );
+    // 位次条件光环（leader 族）：战斗开始时各队首位/末位补授（与开局光环同口径静默）。
+    applyPositionAuras(
+      [state.teams[PlayerSide.Left].characters, state.teams[PlayerSide.Right].characters],
+      this.positionAuraGranted,
     );
     // 开局风暴与死亡召唤共享同一套全局唯一/后者顶替前者裁定。
     const startupStorms = [
@@ -361,6 +391,8 @@ export class TurnEngine {
     this.pendingExtraTurnSource = null;
     const logEntry = this.beginActionLog({ type: 'swap', from: a, to: b });
     const events: GameEvent[] = [{ type: 'swap', a, b, gemIdA, gemIdB }];
+    // 位次条件光环（leader 族）：行动开始按当前编队位次补授（首位易主在此生效）
+    events.push(...this.applyPositionAuraTriggers());
     this.runCascades(events);
     this.finishTurn(events);
     this.processDeathTriggers(events);
@@ -470,6 +502,30 @@ export class TurnEngine {
   }
 
   /**
+   * 宝石法力结算口（战斗机制批 jinx「将敌人的宝石灵力减半」的抑制点）：宝石匹配/被摧毁
+   * 产出的法力统一经此入账——归属方的敌方队伍持有 jinx 时产出按 masterySuppress 折减
+   * （向下取整、保底 1：抑制不放大，与疾病减半的逐接收者 floor 同口径）。无抑制时
+   * 数值原样透传（无新键特质逐字节等价旧路径）。法力灵链等「额外」量在分配器内按
+   * 接收者追加，不乘倍率——Masteries 折减的是宝石本体产出，不折特质赠送。
+   */
+  private distributeGemMana(team: Team, side: PlayerSide, color: BaseColor, amount: number): GameEvent[] {
+    const mult = this.masterySuppress[side];
+    return this.mana.distribute(team, side, color, mult < 1 ? Math.max(1, Math.floor(amount * mult)) : amount);
+  }
+
+  /**
+   * 位次条件光环的行动开始结算（战斗机制批 leader 族「当军队位于首位时…」）：
+   * 战斗开始的授予在构造期（静默），首位/末位易主（身前/身后角色离场、召唤追加）
+   * 在下次行动开始于此补授。无持有者时零事件、零随机消耗。
+   */
+  private applyPositionAuraTriggers(): GameEvent[] {
+    return applyPositionAuras(
+      [this.state.teams[PlayerSide.Left].characters, this.state.teams[PlayerSide.Right].characters],
+      this.positionAuraGranted,
+    );
+  }
+
+  /**
    * 结算一个消除组的法力或骷髅伤害（需求 11, 12, 14）：
    *   - 颜色组：法力量 = 消除宝石数 × 组内通配倍率乘积
    *   - 骷髅族组：一次普攻，末日骷髅每颗 +5 加伤
@@ -479,9 +535,9 @@ export class TurnEngine {
     const settle = group.settle;
     const activeTeam = this.state.teams[this.state.activePlayer];
     if (settle.kind === 'color') {
-      // 颜色 → 产生法力，数量 = 宝石数 × 通配倍率（需求 11.1）
+      // 颜色 → 产生法力，数量 = 宝石数 × 通配倍率（需求 11.1）；jinx 抑制在 distributeGemMana
       events.push(
-        ...this.mana.distribute(activeTeam, this.state.activePlayer, settle.color, group.cells.length * settle.manaMultiplier),
+        ...this.distributeGemMana(activeTeam, this.state.activePlayer, settle.color, group.cells.length * settle.manaMultiplier),
       );
       // 配色触发特质（食人魔之怒/阳光…）：匹配到关联色时给匹配方全队加值。
       // 每次结算算一次，与消除的宝石数无关——描述是「在配对X色宝石时」，不是「每颗」。
@@ -840,9 +896,9 @@ export class TurnEngine {
   ): void {
     const activeTeam = this.state.teams[side];
     if (gemType.kind === 'color') {
-      // 颜色 → 产生法力，数量 = 宝石数（需求 11.1）
+      // 颜色 → 产生法力，数量 = 宝石数（需求 11.1）；jinx 抑制在 distributeGemMana
       events.push(
-        ...this.mana.distribute(activeTeam, side, gemType.color, count),
+        ...this.distributeGemMana(activeTeam, side, gemType.color, count),
       );
       // 配色触发特质（食人魔之怒/阳光…）：匹配到关联色时给结算归属方全队加值。
       // 每次结算算一次，与消除的宝石数无关——描述是「在配对X色宝石时」，不是「每颗」。
@@ -1432,11 +1488,24 @@ export class TurnEngine {
     const events: GameEvent[] = [
       { type: 'skill-cast', characterId: ch.id, skillId: ch.skillId },
     ];
+    // 位次条件光环（leader 族）：行动开始按当前编队位次补授（首位易主在此生效）
+    events.push(...this.applyPositionAuraTriggers());
     // 施法响应特质（秘法/铭刻/怨恨…）：在技能效果之前结算，
     // 这样「敌人施法 +1 护甲」能挡下同一次施法的伤害，与官方手感一致。
     events.push(...applyCastTriggers(
       this.state.teams[this.state.activePlayer].characters,
       this.state.teams[opponentOf(this.state.activePlayer)].characters,
+    ));
+    // 施法随机状态（战斗机制批 goodtarot「使一名随机盟友陷入一个状态效果」/ badtarot）：
+    // 与施法响应同一触发点；池按 scope 取阵营（盟友=正面池、敌人=负面池，同源 status.ts）。
+    events.push(...applyCastRandomStatusTriggers(
+      this.state.teams[this.state.activePlayer].characters,
+      this.state.teams[opponentOf(this.state.activePlayer)].characters,
+      {
+        rng: this.rng,
+        applyStatus: (char, status) => applyStatus(char, status),
+        poolOf: (scope) => (scope === 'randomAlly' ? RANDOM_POSITIVE_STATUS_POOL : RANDOM_NEGATIVE_STATUS_POOL),
+      },
     ));
 
     // 优先低层自定义 SkillEffect；否则查技能原型执行；都没有则仅产生空效果技能并照常回到等待输入。

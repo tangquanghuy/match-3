@@ -60,6 +60,16 @@
     ]
   },
   {
+    "code": "bountyhunter",
+    "name": "赏金猎人",
+    "description": "基于我已晋升的稀有度获得 2 到 6 倍的赏金点数。",
+    "troops": 93,
+    "onDelveBounty": {
+      "min": 2,
+      "max": 6
+    }
+  },
+  {
     "code": "stealthy",
     "name": "隐匿",
     "description": "无法成为法术指定攻击目标（除非场上已无任何其他目标）。",
@@ -97,6 +107,16 @@
     }
   },
   {
+    "code": "deepvitality",
+    "name": "淘宝之命",
+    "description": "在淘宝模式中获得 9 点生命值。",
+    "troops": 73,
+    "onDelveGain": {
+      "stat": "hp",
+      "amount": 9
+    }
+  },
+  {
     "code": "manashield",
     "name": "法力之盾",
     "description": "对法力灼烧、法力耗尽和法力窃取免疫。",
@@ -105,6 +125,17 @@
     "statusImmunities": [
       "mana-burn"
     ]
+  },
+  {
+    "code": "godslayer",
+    "name": "神祇杀手",
+    "description": "基于我已晋升的稀有度对魔头造成 3 到 5 倍伤害。",
+    "troops": 69,
+    "vsAscendedMultiplier": {
+      "target": "boss",
+      "min": 3,
+      "max": 5
+    }
   },
   {
     "code": "fast",
@@ -134,6 +165,17 @@
     }
   },
   {
+    "code": "siegebreaker",
+    "name": "攻城高手",
+    "description": "基于我已晋升的稀有度对高塔造成 3 到 5 倍伤害。",
+    "troops": 61,
+    "vsAscendedMultiplier": {
+      "target": "tower",
+      "min": 3,
+      "max": 5
+    }
+  },
+  {
     "code": "alert",
     "name": "警醒",
     "description": "对沉默状态免疫。",
@@ -148,6 +190,16 @@
     "description": "降低来自骷髅头的伤害 30%。",
     "troops": 59,
     "skullDamageReduction": 0.3
+  },
+  {
+    "code": "deepmagic",
+    "name": "淘宝之魔",
+    "description": "在淘宝模式中获得 5 点魔法值。",
+    "troops": 57,
+    "onDelveGain": {
+      "stat": "magic",
+      "amount": 5
+    }
   },
   {
     "code": "insulated",
@@ -166,6 +218,16 @@
     "onBigMatchGain": {
       "stat": "hp",
       "amount": 1
+    }
+  },
+  {
+    "code": "deepshield",
+    "name": "淘宝之盾",
+    "description": "在淘宝模式中获得 9 点护甲值。",
+    "troops": 48,
+    "onDelveGain": {
+      "stat": "armor",
+      "amount": 9
     }
   },
   {
@@ -266,6 +328,19 @@
     "manaLink": {
       "color": "Blue",
       "amount": 1
+    }
+  },
+  {
+    "code": "pathfinder",
+    "name": "探路者",
+    "description": "在自身旅程活动中获得 2x/2.5x/3x 英里，数量因自身晋升稀有度而定。",
+    "troops": 35,
+    "onDelveMiles": {
+      "multipliers": [
+        2,
+        2.5,
+        3
+      ]
     }
   },
   {
@@ -428,6 +503,13 @@
       "color": "Yellow",
       "amount": 1
     }
+  },
+  {
+    "code": "jinx",
+    "name": "霉运",
+    "description": "将敌人的宝石灵力减半。",
+    "troops": 24,
+    "enemyMasteryMult": 0.5
   },
   {
     "code": "elementalbond",
@@ -660,6 +742,13 @@
     ]
   },
   {
+    "code": "indigestible",
+    "name": "无法消化",
+    "description": "对吞噬免疫。",
+    "troops": 18,
+    "devourImmunity": true
+  },
+  {
     "code": "stoneheart",
     "name": "岩石之心",
     "description": "每有一名棕色盟友则获得 1 点生命值。",
@@ -668,6 +757,15 @@
       "color": "Brown",
       "stat": "hp",
       "amount": 1
+    }
+  },
+  {
+    "code": "goodtarot",
+    "name": "好卦",
+    "description": "在一名盟友施法术时使一名随机盟友陷入一个状态效果。",
+    "troops": 17,
+    "onAllyCastRandomStatus": {
+      "scope": "randomAlly"
     }
   },
   {
@@ -733,6 +831,16 @@
     "spellDamageReduction": 0.5
   },
   {
+    "code": "deepstrength",
+    "name": "淘宝之力",
+    "description": "在淘宝模式中获得 7 点攻击力。",
+    "troops": 16,
+    "onDelveGain": {
+      "stat": "attack",
+      "amount": 7
+    }
+  },
+  {
     "code": "wildfolkbond",
     "name": "蛮族族亲",
     "description": "蛮族盟友获得 2 点生命值。",
@@ -741,6 +849,21 @@
       "troopType": "Wildfolk",
       "stat": "hp",
       "amount": 2
+    }
+  },
+  {
+    "code": "leader",
+    "name": "领袖",
+    "description": "当军队位于首位时，全部技能值将增加 3 点。",
+    "troops": 15,
+    "positionAura": {
+      "position": "front",
+      "gains": {
+        "hp": 3,
+        "armor": 3,
+        "attack": 3,
+        "magic": 3
+      }
     }
   },
   {
@@ -1542,6 +1665,15 @@
     }
   },
   {
+    "code": "badtarot",
+    "name": "坏卦",
+    "description": "在任一盟友施放法术时使一名随机敌人陷入一个状态效果。",
+    "troops": 6,
+    "onAllyCastRandomStatus": {
+      "scope": "randomEnemy"
+    }
+  },
+  {
     "code": "bornoffire",
     "name": "火生",
     "description": "在我的回合开始的时候，创建一颗红色宝石。",
@@ -2261,6 +2393,21 @@
     }
   },
   {
+    "code": "general",
+    "name": "将军",
+    "description": "如果军队位于末位，全部技能值将增加 3 点。",
+    "troops": 2,
+    "positionAura": {
+      "position": "last",
+      "gains": {
+        "hp": 3,
+        "armor": 3,
+        "attack": 3,
+        "magic": 3
+      }
+    }
+  },
+  {
     "code": "buriedhatred",
     "name": "仇恨深埋",
     "description": "对棕色军队造成双倍骷髅头伤害。",
@@ -2629,6 +2776,18 @@
     "description": "降低来自骷髅头的伤害 75%。",
     "troops": 1,
     "skullDamageReduction": 0.75
+  },
+  {
+    "code": "goblord",
+    "name": "哥布林领主",
+    "description": "如果军队位于末位，则获得  20 点生命值。",
+    "troops": 1,
+    "positionAura": {
+      "position": "last",
+      "gains": {
+        "hp": 20
+      }
+    }
   },
   {
     "code": "immense",

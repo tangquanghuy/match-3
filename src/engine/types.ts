@@ -709,6 +709,58 @@ export interface PassiveModifiers {
   bigMatchEconomyGain: Readonly<Record<string, TraitEconomyGain>>;
   /** 条件经济光环·骷髅版（darkensouls「在配对骷髅头时，获得 3 个灵魂」），骷髅匹配触发点结算 */
   skullMatchEconomyGain: TraitEconomyGain;
+  /**
+   * 模式专属·淘宝层属性（deepvitality/deepmagic/deepshield/deepstrength 族：「在淘宝模式中
+   * 获得 N 点生命值/魔法值/护甲值/攻击力」，官方 RawData GameMode=delve_attacker）。
+   * **标准战斗惰性**：按 stat 聚合累加（同一角色可持多条 deep* 特质），Delve 进层时才生效；
+   * 本作未建模 Delve 层，战斗结算路径不读此字段——编译进 passive 是为了数据建模完整
+   * （审计对账通过）与将来 Delve 模式直接消费，不需要回头查特质表。
+   */
+  onDelveGains: Partial<Record<'hp' | 'magic' | 'armor' | 'attack', number>>;
+  /**
+   * 模式专属·赏金（bountyhunter「基于我已晋升的稀有度获得 2 到 6 倍的赏金点数」，官方
+   * Activation=end_battle_rewards / TraitType=bonus_bounty）：战后赏金点数倍率区间，
+   * 下限/上限按晋升稀有度取位。**标准战斗惰性**（战后结算属 meta 层，本作未接入）；
+   * 多条并存取区间最宽的一条。
+   */
+  onDelveBounty?: { min: number; max: number };
+  /**
+   * 模式专属·旅程英里（pathfinder「在自身旅程活动中获得 2x/2.5x/3x 英里，数量因自身晋升
+   * 稀有度而定」）：英里倍率表，位序=晋升稀有度序。**标准战斗惰性**（旅程结算属 meta 层，
+   * 本作未接入）；同类取先声明的一条。
+   */
+  onDelveMiles?: { multipliers: readonly number[] };
+  /**
+   * 模式专属·晋升度屠魔/攻城（godslayer/siegebreaker「基于我已晋升的稀有度对魔头/高塔
+   * 造成 3 到 5 倍伤害」，官方 Filter=boss/castle）：骷髅伤害倍率区间，target boss=魔头 /
+   * tower=高塔。**标准战斗惰性**：晋升度本作未建模，且魔头/高塔不是兵种种族（是模式构造），
+   * 刻意**不**编译进 skullMultVs* 屠戮表——标准骷髅结算不读此字段，倍率不会泄漏进普通战斗；
+   * 多条并存按声明序保留（同一角色可同时持 godslayer+siegebreaker）。
+   */
+  vsAscendedMultipliers: readonly { target: 'boss' | 'tower'; min: number; max: number }[];
+  /**
+   * 敌方宝石灵力倍率（jinx「将敌人的宝石灵力减半。」官方「Halve enemy Gem Masteries」，
+   * Activation=start_battle / TraitType=adjust_all_masteries / Modifier=0.5）：本引擎以
+   * 「匹配宝石产出的法力」作为 Gem Masteries 的落地模型——持有者的**敌方**队伍经
+   * ManaDistributor 分得的宝石法力按此倍率折减（向下取整、保底 1，与疾病的法力减半
+   * 同口径；法力灵链等直接法力 grant 不受影响）。多条并存取最强抑制（min）。
+   * TurnEngine 构造期快照（开局生效全场持续，与 economyGainRatios 同口径）。
+   */
+  enemyMasteryMult: number;
+  /**
+   * 吞噬免疫（indigestible「对吞噬免疫。」官方「Immunity to Devour」）：引擎尚无吞噬
+   * 机制，数据字段先行编译进 passive——吞噬机制将来落地时经 passivesOf 消费
+   * （impervious 等全状态免疫的「吞噬」段由 statusImmunities ['*'] 覆盖，不经此字段）。
+   */
+  devourImmunity: boolean;
+  /**
+   * 盟友施法时的随机状态（goodtarot「Grant a random status effect to a random Ally when
+   * an Ally casts a spell」/ badtarot 官方目标是随机 Enemy）。触发点 applyCastTriggers
+   * 旁（castSkillAction 施法响应区）；池按 scope 取阵营——randomAlly=正面池、
+   * randomEnemy=负面池（消费端与 skills/effects/status.ts 的 RANDOM_*_STATUS_POOL 同源），
+   * 回合数 3（randomStatusEffect 缺省同款）。
+   */
+  castRandomStatus?: { scope: 'randomAlly' | 'randomEnemy' };
 }
 
 /** 条件经济光环的入账数额（按币种；maps 无对应官方句式不设键） */
