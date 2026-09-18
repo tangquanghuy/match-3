@@ -167,6 +167,8 @@ const BATCHES: CuratedBatch[] = [
   BATCH_R19,
   BATCH_R20,
   BATCH_R21,
+  BATCH_P41,
+  BATCH_R22,
 ];
 
 /** 合并全部批次的组装结果（id → 原型），并给出跳过清单 */

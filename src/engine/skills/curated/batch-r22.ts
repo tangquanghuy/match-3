@@ -30,6 +30,31 @@
  * 「打错敌人」五连（7254/7314/7386/8108/8307）：8108/8307 官方步骤实锤为「两段伤害各自掷签
  * （FromTarget + RandomEnemy）」，ZH「50% 打错/打中另一名」是机翻合并——三张旧卡（同族措辞）
  * 按同构两段伤害组装，不再走「目标偏移」猜测。
+ *
+ * ── R22 终审增补（2026-09-18 最终判读，r18 双引号 SKIPPED 残留 44 条全量重判）──
+ *
+ * 最终工作面复核发现：r18 批存在一批双引号 reason 的 SKIPPED 条目，未被 r19-r22 工作链
+ * 捞取（r22 工作面 = r21 SKIPPED 单引号清单）。本轮按当前全量词汇 + 官方 EN/SpellSteps
+ * 逐条重判，回收 35 条；卡点全部刷新为「当前词汇下真实缺口」：
+ * - Devour 家族 25 条（7047/7210/7211/7280/7281/7312/7326/7354/7421/7423/7450/7480/7559/
+ *   7566/7633/7637/7642/7647/7724/7781/7984/8086/8237 + 8056/8211 仍卡）：r18「无原语」卡点
+ *   随 R22 devour 落地全部失效——条件吞噬（种族/色/状态/宝石数 ifCond、chanceMult、chanceBoost）、
+ *   死亡条件触发（ifTargetDied）、oneOf 分支内吞噬全链可表。
+ * - 跨段重定向（7713/7987）：r19 指出的 reduce/steal + lastReduce → allyFront 路径落地。
+ * - 元经济黄金句式（7505/8568/8859）：按 SOP §10.2「窃取黄金 = gainGold 入账」口径回收；
+ *   8904/9189/8087 因文本明指「被窃取黄金数」来源须挂载而无 kind，维持 SKIP。
+ * - 孤儿尾缀口径：37 条既有先例（r2-r22，含本批 9341）确认「尾缀无来源子句可绑 = 序列化
+ *   噪声，不挂载不硬凑、不阻止组装」（7281/7505/7713/7987/8568/8859 适用）。
+ * - ManaBurn（7328）：官方 ManaBurn 步骤（9745/8897）实锤 {Primarypower, SpellPowerMultiplier:1}
+ *   = 清蓝 + [魔法×1] 伤害；7328 EN「boosted by my Magic」即该缩放（五连中唯一明示者）。
+ * - R22 新条件回收：anyTrackedDied（8143「若有敌人身亡」）、lastTargetStatus（8182 妖火）、
+ *   targetStatBeatsCaster hp（7670 反向属性比较）、targetColor CHOSEN + boardGems CHOSEN（8235）。
+ * - 7434「板面紫宝石数翻倍」按 8355 官方口径（CreateGems UseCounterForAmount）落地。
+ *
+ * ⚠️ 引擎接线注记（本批无权改引擎文件，仅记录）：devour 段的 chance 同时被 runSegment
+ * 段级管线与 devourEffect 原语内部各掷签一次（双重掷签）——原语头注明示「不走段级 chance
+ * 通用管线」，段级应豁免 devour（同 escapeChance 先例）；本批 devour 条目按构造器契约
+ * 只表达官方语义，运行时口径以引擎侧修复为准。
  */
 import type { CuratedBatch } from './index';
 import {
@@ -38,6 +63,7 @@ import {
   destroyRandomRows, destroyRandomCols, destroyArea, destroyChosenCross, explodeRandomGems,
   explodeRandomGemsAny, explodeRandomSkulls, summonRef, summonRandom, extraTurn, sacrifice,
   devour, summonCopy, swapPositions, transformSelfFrom, boostPer, gainSouls, gainGold, scale, flat,
+  oneOf, randomStat, reposition, skillOnce, stealRandomStat,
 } from '../builders';
 import { BaseColor } from '../../types';
 import type { CondMult } from '../effects/secondary';
@@ -49,47 +75,34 @@ const BOSS_ASC3: CondMult = {
 };
 
 const SKIPPED: { id: number; reason: string }[] = [
-  { id: 8320, reason: '已被并发批次 batch-p41 收录（enemyChosenAndAdjacent 官方步骤口径），此处避让防批间重复（r17 同款约定）' },
-  // 【法力灼烧（无伤害数值 + meta.modifier 空）】
-  { id: 7328, reason: '「施放法力灼烧，伤害值因自身魔法值而增强」= 灼烧伤害公式原文无数值，且 meta.modifier 为空不许挂 modifier（r17/r18/r21 口径维持）；Yellow→Blue 转换本身可表' },
-  // 【伤害基数=攻击力 + [x10] 双结构】
+  { id: 7402, reason: '「伤害值等同于一名盟友的攻击力」= 泛指单体盟友（哪一名？）无来源 kind（allyStatSum 为总和、chosenStat 为选定目标）；「3-8 点法力」区间与尾缀本身可表（r17-r22 口径维持）' },
+  { id: 7435, reason: '「如果自身有 12 个或更多灵魂」= 经济阈值条件不在条件域（无 economy 阈值叶子，r18 口径维持）；恶魔盟友魔法增益本身可表' },
+  { id: 7460, reason: '「花费我所有的黄金」= 经济支出无对应原语（仅 gainGold 入账、无 spend/lose 通道，r18 口径维持）' },
   { id: 7483, reason: '「伤害值等同于自身的攻击力，并因棕色敌军数量而增强 [x10]」= 伤害基数=攻击力（×1）与来源计数（×10）双结构，modifier 单 mod 无法同表（r21 编码歧义不猜口径维持）' },
-  // 【泛指「一名盟友的攻击力」来源】
-  { id: 7402, reason: '「伤害值等同于一名盟友的攻击力」= 泛指单体盟友（哪一名？）无来源 kind（allyStatSum 为总和、chosenStat 为选定目标），数值区间本身已可表（r17/r18/r21 口径维持）' },
-  // 【凤凰涅槃自复活】
+  { id: 7493, reason: '「随机发生任何情况」= 混沌技能，spell-rules §7 永久排除' },
   { id: 7542, reason: '「凤凰涅槃浴火重生」= 自复活无引擎机制（r18 口径维持）；散射+selfStat hp 增强本身可表' },
-  // 【跨段时序绑定（冻结前状态快照）】
-  { id: 7690, reason: '「并将其冻结。如果该敌人已被冻结，则再造成 5 点伤害」= 条件须读施加冻结**之前**的状态快照，段序执行后 targetStatus 恒真（时序绑定无原语，r17/r18/r21 口径维持）' },
-  // 【窃取增益重定向 + 尾缀缩放无来源】
-  { id: 7713, reason: '「窃取攻击力并将之给予你第一位盟友」= steal 增益恒入施法者（重定向无原语）+ 尾缀 [20:1] 无来源子句可绑定（r17/r18/r21 口径维持）；骷髅×绿色混合创造本批已由 mixAny 落地' },
-  // 【窃取→随机技能值重定向】
-  { id: 7987, reason: '「窃取护甲再转换成随机技能值并给予第一位盟友」= 窃取增益重定向 + 随机技能转移无原语（r17/r18/r21 口径维持）' },
-  // 【随机技能转移口径矛盾】
+  { id: 7646, reason: '「消除一名敌人所有的正面增益效果」= 驱散敌方全部增益（spell-rules §6/§7 不做）；「因敌方的野兽数而增强 [x4]」本身已可表（enemiesOfRace，K-E 批）' },
+  { id: 7667, reason: '「创造 6 颗红色宝石、数量因自身黄金数而增强、上限为 14 颗」= battleGold 来源已可表，但 CountMax 上限无原语（r18 口径维持）' },
+  { id: 7690, reason: '「并将其冻结。如果该敌人已被冻结，则再造成 5 点伤害」= 条件须读施加冻结**之前**的状态快照，段序执行后 targetStatus 恒真（时序绑定无原语，r17-r22 口径维持）' },
+  { id: 7810, reason: '「爆破敌军法力颜色的宝石、20% 几率吞噬他们」= ColorSpec ENEMY 逐段独立掷签且不落跨段追踪，「them」目标绑定断裂（引擎缺稳定敌色绑定，r18 口径维持）' },
+  { id: 8037, reason: '「伤害值因其法力值而增强」官方 CountMana = 目标现行法力，targetStat 无 mana（仅 magic/manaCost）；「基于升天 3-5 倍」区间倍率亦不可表（r18 口径维持）' },
+  { id: 8040, reason: '「窃取敌人四分之一的护甲值」= 25% 比例无原语（reduce 仅 halve 50%，r18 口径维持）；高塔/升天 3-5 倍区间同不做' },
+  { id: 8056, reason: '「召唤一名恶魔」= summonRandom 需显式名册（Daemon 179 个兵种、无按种族召唤通道），硬编码名册不可维护（r18 口径维持）；吞噬盟友+条件召唤+生命增强散射本身可表' },
+  { id: 8087, reason: '「伤害值因被窃取的黄金数而增强 [1:1]」= 文本明指来源（Gold stolen）须挂载而本次窃取额无 kind（battleGold 为共用池总额非本次窃取额），敌方黄金池扣除亦不可表（r18 口径维持）' },
+  { id: 8141, reason: '「创造数量因窃取的黄金数而增强、上限为 16 颗」= 窃取额来源缺失 + CountMax 上限无原语（r18 口径维持）' },
+  { id: 8142, reason: '「创造 6 颗骷髅头、数量因自身黄金数而增强、上限为 14 颗」= battleGold 来源已可表，但上限（官方 CountMax 8 → 6+8=14）无原语（r18 口径维持）' },
+  { id: 8211, reason: '「或使其下潜、或吞噬、或转化成恶魔」官方步骤为顺序执行（Damage→Submerge→Transform→KnockBack→Consume，无分支标记）与 EN「OR」句式矛盾；「转化成一名恶魔」亦需 Daemon 名册（8056 同卡），r18 口径维持' },
+  { id: 8243, reason: '「失去所有黄金」= 经济支出无对应原语（r18 口径维持）；随机技能值给予 + battleGold 修饰 + 爆破段本身可表' },
+  { id: 8320, reason: '已被并发批次 batch-p41 收录（enemyChosenAndAdjacent 官方步骤口径），此处避让防批间重复（r17 同款约定）' },
   { id: 8377, reason: '「窃取 [魔法 + 1] 点魔法值并转换为随机技能值给予所有盟友」与官方步骤（CountMagic 100 全额魔法 → 每盟友 IncreaseRandom）互相矛盾，无法对号（r17/r21 口径维持）' },
-  // 【选定色「黄色除外」计数】
-  { id: 8464, reason: '「因选定的颜色（黄色除外）而增强」= 「除外」子句官方步骤无对应（CountGems FromTarget 无 except 语义），ZH 独有句不敢猜（r17/r21 口径维持；选定色计数本身已可表）' },
-  // 【敌方黄金池】
-  { id: 8568, reason: '「窃取敌人黄金」= 敌方黄金池无来源（economy 为共用池，TakeEnemyGold 无对应），尾缀 [100:1] 无处绑定（r19/r20/r21 口径维持）；耗蓝+冻结本身可表' },
-  { id: 8859, reason: '「窃取黄金」&& 子句 = 敌方黄金池无来源（首句即卡，按序编译整条不可拆）+ [100:1] 无可绑来源（r19/r20/r21 口径维持）；随机技能值窃取本身可表' },
-  { id: 8904, reason: '「数值因窃取黄金数而增强 [50:1]」= 窃取黄金额无来源 kind（battleGold 为共用池总额、非本次窃取额）（r19/r20/r21 口径维持）' },
-  { id: 9189, reason: '「窃取一名敌人所有黄金数」= 敌方黄金池无来源（r19/r20/r21 口径维持）；伤害+出血段本身可表' },
-  // 【狼化家族（状态 + 宝石双缺口）】
-  { id: 8553, reason: '「陷入狼化状态」+「狼化宝石」均不在实现清单（状态白名单无 lycanthropy、宝石无 Lycanthropy kind，spell-rules §7）（r20/r21 口径维持）' },
-  { id: 8566, reason: '「每有一颗狼化宝石则使随机敌人死亡标记」= 狼化宝石（Lycanthropy Gem）未实现，boardSpecial 无计数端（r20/r21 口径维持）' },
-  { id: 8567, reason: '「若板面上有狼化宝石」= 特殊宝石在场条件不在条件域 + 狼化状态缺失（r20/r21 口径维持）' },
-  // 【复制盟友的动态色（无前序 chosen 段）】
-  { id: 8737, reason: '「选择一个盟友，创造其法力颜色宝石」= 该咒语无任何 chosen 段供选择器挂靠，CHOSEN_TARGET 无回退值（r19/r21 口径维持；复制召唤本身本批已落地）' },
-  // 【位置周边宝石计数】
-  { id: 8804, reason: '「宝石附近或下方每有一颗绿色宝石」= 以创造宝石格为锚的周边位置计数，boardGems 为全盘口径无位置来源（r19/r21 口径维持；石像鬼宝石创造本批可表）' },
-  // 【倒数第二位 + 元素星】
-  { id: 8902, reason: '「再创造 3 颗元素星」= ElementalStar 特殊宝石未实现（GEMS-SEMANTICS-2 后续波，r19/r21 口径维持）；secondLast 目标/双色来源/拉至首位本身可表' },
-  // 【灵力宝石（Spirit Gem）】
-  { id: 8925, reason: '「创造 3 颗灵力宝石」= Spirit 非基础色、特殊宝石未实现（r16/r19/r21 口径维持）；屏障+半数法力本身可表' },
-  // 【龙宝石/腐烂宝石（后续波）】
-  { id: 9545, reason: '「转换成紫色龙宝石」= 龙宝石族（Dragon Gems）未实现（波B 之后，r19/r21 口径维持）；诅咒计数驱动转换数量 + 诅咒/死亡标记施加本身可表' },
-  { id: 9546, reason: '「创造 10 颗棕色和腐烂宝石的混合体」= Decay 腐烂宝石未实现（r19/r21 口径维持；混合创造原语本批已落地）；击退 reposition 本身可表' },
-  // 【几率上限 + 官方数据矛盾】
-  { id: 10061, reason: '「击杀几率受其护甲值提升（最高可达 30%）」= chanceBoost 无上限原语（线性叠加后夹 1），且 ZH 30% 与官方 CountMax 20 互相矛盾（r19/r21 口径维持）；拉到后方本身可表' },
+  { id: 8553, reason: '「陷入狼化状态」不在 STATUS_WHITELIST（引擎 lycanthropy 本体已实现，但白名单在测试文件、本批无权扩容）——inflict 段必被校验拦截（r19 首判口径维持）；狼化宝石创造（lycanthropyGem 波B）与紫宝石几率额外回合均已可表' },
+  { id: 8567, reason: '「若板面上有狼化宝石」= 特殊宝石在场条件不在条件域（boardAtLeast 只计基色/骷髅）+ 狼化状态白名单缺口（8553 同卡，r20-r22 口径维持）' },
+  { id: 8737, reason: '「选择一个盟友，创造其法力颜色宝石」= 全咒语仅创造段、无任何 chosen 段驱动 TargetChooser，CHOSEN_TARGET 无回退值（r19/r21 口径维持；复制召唤本身 R22 已落地）' },
+  { id: 8804, reason: '「宝石附近或下方每有一颗绿色宝石」= 以创造宝石格为锚的周边位置计数（官方 BoardTarget SurroundingGems），boardGems 为全盘口径无位置来源（r19-r22 口径维持；石像鬼创造 createSpecialGems2 与 perCount 施加本已可表）' },
+  { id: 8904, reason: '「伤害值因被窃取的黄金数而增强 [50:1]」= 文本明指来源（Gold stolen）须挂载而本次窃取额无 kind（battleGold 为共用池总额、非本次窃取额），敌方黄金池扣除亦不可表（r19-r22 口径维持）' },
+  { id: 9189, reason: '「窃取一名敌人所有黄金数」= 敌方全额黄金池无来源（§10.2 gainGold 口径仅适用定量句式），尾缀 [x10] 同源不可挂（r19-r22 口径维持）；伤害+出血本身可表' },
+  { id: 9545, reason: '「转换颗数因诅咒敌人数增加」官方 ConvertGems UseCounterForAmount——transform count 仅静态缩放、无 modifier 通道（gems.ts doTransform 代码核实）；紫色龙宝石本身已落地（波B dragonGem spec.color，r19/r21「龙宝石未实现」旧卡点收口）' },
+  { id: 10061, reason: '「击杀几率受其护甲值提升（最高可达 30%）」= chanceBoost 有 ratio 通道但 CountMax 上限（官方 boost 封顶 +20%）无原语，线性叠加在高护甲下突破官方上限——不硬凑；ZH 30% 与官方 CountMax 20 实为一致（r19「数据矛盾」判读修正）；拉到后方 reposition 本身可表' },
 ];
 
 const SPELLS: CuratedBatch['spells'] = [
@@ -100,6 +113,16 @@ const SPELLS: CuratedBatch['spells'] = [
     // 裸单颗 → 随机锚格 + 同行左右各一格（row3 + RANDOM 中心，R22 新原语）。
     build: skill(
     destroyArea('row3', 'destroy', 'RANDOM'),
+    ),
+  },
+  {
+    id: 7047,
+    desc: '吞噬一名盟友。治疗自身并创造 6 颗骷髅头。',
+    // Devour 家族回收（R22 devour 原语）：吞噬选定盟友（即杀+官方成长额度）→ 回满生命 → 6 骷髅。
+    build: skill(
+    devour('allyChosen', { chance: 1 }),
+    heal('allySelf', 0, 0, { full: true }),
+    createSkulls(6),
     ),
   },
   {
@@ -119,6 +142,26 @@ const SPELLS: CuratedBatch['spells'] = [
     build: skill(
     dmg('enemyChosen', 4, 1),
     dmg('enemyAll', 8, 0, { splitRandom: true, modifier: boostPer({ kind: 'teamSize', side: 'enemy' }, 4) }),
+    ),
+  },
+  {
+    id: 7210,
+    desc: '对 1 个敌人造成 [魔法 + 6] 伤害。有 40% 的几率会吞噬敌人。',
+    // Devour 家族回收：伤害后对同一敌人 40% 吞噬（lastTarget 跨段绑定）。
+    build: skill(
+    dmg('enemyChosen', 6, 1),
+    devour('lastTarget', { chance: 0.4 }),
+    ),
+  },
+  {
+    id: 7211,
+    desc: '对 1 名敌人造成 [魔法 + 4] 点伤害。如果敌人是精灵，则造成双倍伤害。获得 5 点生命值。同时有 50% 的几率吞噬精灵。',
+    // Devour 家族回收：「是精灵则双倍」= condMult targetRace；「吞噬精灵」= ifCond targetRace
+    // 辖吞噬段（非精灵目标被过滤、整段跳过）。
+    build: skill(
+    dmg('enemyChosen', 4, 1, { condMult: { times: 2, cond: { kind: 'targetRace', race: 'Elf' } } }),
+    heal('allySelf', 5, 0),
+    devour('enemyChosen', { chance: 0.5, ifCond: { kind: 'targetRace', race: 'Elf' } }),
     ),
   },
   {
@@ -165,6 +208,37 @@ const SPELLS: CuratedBatch['spells'] = [
     ),
   },
   {
+    id: 7280,
+    desc: '吞噬一名敌人。创造 8 颗黄色宝石和棕色宝石。只能施放一次。',
+    // Devour 家族回收（无几率词 = 必发）；EN「Create 8 Yellow and 8 Brown Gems」= 黄棕各 8 颗；
+    // 「只能施放一次」= skillOnce（§12.5）。
+    build: skillOnce(
+    devour('enemyChosen', { chance: 1 }),
+    createGems(BaseColor.Yellow, 8),
+    createGems(BaseColor.Brown, 8),
+    ),
+  },
+  {
+    id: 7281,
+    desc: '对 1 名随机敌人造成 [魔法 + 2] 点伤害。有 25% 的几率吞噬敌人。 [1:1]',
+    // Devour 家族回收；尾缀 [1:1] 无来源子句可绑（7xxx 无步骤数据），按孤儿尾缀先例
+    // 不挂载不硬凑（r15 7032 / r17 7430 同口径）。
+    build: skill(
+    dmg('enemyRandom', 2, 1),
+    devour('lastTarget', { chance: 0.25 }),
+    ),
+  },
+  {
+    id: 7312,
+    desc: '对 1 名敌人造成 [魔法 + 4] 点伤害，如果敌人是哥布林，则造成双倍伤害。获得 5 点生命值。同时有 50% 的几率吞噬哥布林。',
+    // 同 7211（哥布林版）。
+    build: skill(
+    dmg('enemyChosen', 4, 1, { condMult: { times: 2, cond: { kind: 'targetRace', race: 'Goblin' } } }),
+    heal('allySelf', 5, 0),
+    devour('enemyChosen', { chance: 0.5, ifCond: { kind: 'targetRace', race: 'Goblin' } }),
+    ),
+  },
+  {
     id: 7314,
     desc: '对 1 名敌人造成 [魔法 + 5] 点伤害，有 50% 的几率打错敌人。如果对方使用黄色法力，则造成三倍伤害。若敌人身亡，所有技能值增加 8点。',
     // 同 7254（官方两段伤害口径）；「所有技能值增加 8点」= 四维技能各 +8（AddForKill →
@@ -176,6 +250,38 @@ const SPELLS: CuratedBatch['spells'] = [
     armor('allySelf', 8, 0, { ifTargetDied: true }),
     magic('allySelf', 8, 0, { ifTargetDied: true }),
     heal('allySelf', 8, 0, { ifTargetDied: true }),
+    ),
+  },
+  {
+    id: 7326,
+    desc: '对 1 名敌人造成 [魔法 + 2] 点伤害。如果敌人是骑士，则造成两倍伤害。有 50% 的几率吞噬骑士。',
+    // 同 7211（骑士版，无生命段）。
+    build: skill(
+    dmg('enemyChosen', 2, 1, { condMult: { times: 2, cond: { kind: 'targetRace', race: 'Knight' } } }),
+    devour('enemyChosen', { chance: 0.5, ifCond: { kind: 'targetRace', race: 'Knight' } }),
+    ),
+  },
+  {
+    id: 7328,
+    desc: '对 1 名敌人施放法力灼烧，伤害值因自身魔法值而增强。将所有黄色宝石转换为蓝色。',
+    // 【挽救】官方 ManaBurn 步骤实锤（9745/8897：{Primarypower, SpellPowerMultiplier:1}）=
+    // 清蓝 + [魔法×1] 伤害；五条 ManaBurn 中本条 EN 唯一明示「boosted by my Magic」，ZH
+    // 「因自身魔法值而增强」同源——即一次魔法缩放（scale(0,1)），meta.modifier 空不冲突
+    //（r17-r22「伤害公式无数值」旧口径收口）；法力灼烧清蓝 = drainMana（7652/7332 既有口径）。
+    build: skill(
+    drainMana('enemyChosen'),
+    dmg('lastTarget', 0, 1),
+    transform(BaseColor.Yellow, BaseColor.Blue),
+    ),
+  },
+  {
+    id: 7354,
+    desc: '对 1 名敌人造成 [魔法 + 4] 点伤害，如果敌人是龙族，则造成两倍伤害。获得 5 点生命值。同时有 50% 的几率吞噬龙族。',
+    // 同 7211（龙族版）。
+    build: skill(
+    dmg('enemyChosen', 4, 1, { condMult: { times: 2, cond: { kind: 'targetRace', race: 'Dragon' } } }),
+    heal('allySelf', 5, 0),
+    devour('enemyChosen', { chance: 0.5, ifCond: { kind: 'targetRace', race: 'Dragon' } }),
     ),
   },
   {
@@ -194,6 +300,53 @@ const SPELLS: CuratedBatch['spells'] = [
     build: skill(
     destroyRandomRows(1),
     dmg('enemyFront', 2, 1, { modifier: boostPer({ kind: 'destroyedGems', skulls: true }, 5) }),
+    ),
+  },
+  {
+    id: 7421,
+    desc: '对最后两名敌人造成 [魔法 + 5] 点伤害。创造 8 颗蓝色宝石。同时有 35% 的几率吞噬最后一名敌人。',
+    // Devour 家族回收：末 2 名伤害 → 8 蓝 → 35% 吞噬末位（enemyLast 独立解析）。
+    build: skill(
+    dmg('enemyLastN', 5, 1, { n: 2 }),
+    createGems(BaseColor.Blue, 8),
+    devour('enemyLast', { chance: 0.35 }),
+    ),
+  },
+  {
+    id: 7423,
+    desc: '下列其一：给予 50 黄金，或对 1 名随机敌人造成 [魔法 + 3] 点伤害，或吞噬一名随机敌人，或爆破 6 颗宝石，或获得 [魔法 + 3] 点生命值，或获得 10 点魔法值。',
+    // 六选一 = oneOf 六支（§9.3，未选中支零执行）；「吞噬」无几率词 = 必发（chance 1）；
+    // 「给予 50 黄金」= gainGold 入账（§10.2）。
+    build: skill(
+    oneOf(
+      [gainGold(50)],
+      [dmg('enemyRandom', 3, 1)],
+      [devour('enemyRandom', { chance: 1 })],
+      [explodeRandomGems(6)],
+      [heal('allySelf', 3, 1)],
+      [magic('allySelf', 10, 0)],
+    ),
+    ),
+  },
+  {
+    id: 7434,
+    desc: '将板面上的紫色宝石数翻倍。再创造 3 颗紫色宝石。获得 [魔法 + 3] 个灵魂。 [1:1]',
+    // 「翻倍」= 创造数量 = 板面紫宝石数（boardGems Purple [1:1]）——R22 8355 官方口径同款
+    //（CreateGems UseCounterForAmount）；尾缀 [1:1] 挂翻倍段。
+    build: skill(
+    createGems(BaseColor.Purple, 0, 0, { modifier: boostPer({ kind: 'boardGems', color: BaseColor.Purple }, 1) }),
+    createGems(BaseColor.Purple, 3),
+    gainSouls(3, 1),
+    ),
+  },
+  {
+    id: 7450,
+    desc: '对 1 名敌人造成 [魔法 + 2] 点伤害，伤害值因狼族盟友数而增强。如果敌方死亡，随机吞噬一名敌人。 [x4]',
+    // 「狼族」= Wargare（troopTypes 取值域核实）[x4]；「如果敌方死亡，随机吞噬」= ifTargetDied
+    // 辖必发吞噬段（R22 devour 原语回收）。
+    build: skill(
+    dmg('enemyChosen', 2, 1, { modifier: boostPer({ kind: 'alliesOfRace', race: 'Wargare' }, 4) }),
+    devour('enemyRandom', { chance: 1, ifTargetDied: true }),
     ),
   },
   {
@@ -224,9 +377,27 @@ const SPELLS: CuratedBatch['spells'] = [
     ),
   },
   {
+    id: 7480,
+    desc: '对 1 名敌人造成 [魔法 + 2] 点伤害。如果敌人是野兽，造成双倍伤害。同时有 10% 的几率吞噬野兽。',
+    // 同 7211（野兽版，无生命段）。
+    build: skill(
+    dmg('enemyChosen', 2, 1, { condMult: { times: 2, cond: { kind: 'targetRace', race: 'Beast' } } }),
+    devour('enemyChosen', { chance: 0.1, ifCond: { kind: 'targetRace', race: 'Beast' } }),
+    ),
+  },
+  {
+    id: 7505,
+    desc: '对 1 名敌人造成 [魔法 + 4] 点伤害。偷取 [魔法 + 4] 黄金。 [25:1]',
+    // 「偷取黄金」= gainGold 入账（§10.2 元经济口径）；尾缀 [25:1] 无来源子句，孤儿先例不挂载。
+    build: skill(
+    dmg('enemyChosen', 4, 1),
+    gainGold(4, 1),
+    ),
+  },
+  {
     id: 7506,
     desc: '将蓝色宝石转换为骷髅头，并将棕色宝石转换为黄色宝石。对 1 名敌人造成 [魔法 + 1] 点伤害，伤害值因其他盟友的魔法值而增强。 [2:1]',
-    // 「其他盟友的魔法值」= allyStatSum excludeSelf（R22 新口径，排除施法者）[2:1]。
+    // 「其他盟友的魔法值」= allyStatSum mana excludeSelf（R22 新口径，排除施法者）[2:1]。
     build: skill(
     transform(BaseColor.Blue, 'SKULL'),
     transform(BaseColor.Brown, BaseColor.Yellow),
@@ -254,6 +425,67 @@ const SPELLS: CuratedBatch['spells'] = [
     ),
   },
   {
+    id: 7559,
+    desc: '对敌人造成  [魔法 + 4]  点伤害。如果敌人使用蓝色法力，则有 30% 的几率吞噬敌人。',
+    // Devour 家族回收：「使用蓝色法力则 30% 吞噬」= ifCond targetColor 辖吞噬段
+    //（目标相对过滤——非蓝目标整段跳过，几率不掷）。
+    build: skill(
+    dmg('enemyChosen', 4, 1),
+    devour('enemyChosen', { chance: 0.3, ifCond: { kind: 'targetColor', color: BaseColor.Blue } }),
+    ),
+  },
+  {
+    id: 7566,
+    desc: '对 1 名敌人造成 [魔法 + 8] 点伤害，伤害值因身处狂怒状态的盟友数而增强。同时有 25% 的几率吞噬位于敌人上方和下方的军队。 [x10]',
+    // 「狂怒」= enraged（R10 别名口径）[x10]；「上方和下方的军队」= enemyAboveTarget/
+    // enemyBelowTarget（R13）；EN「separate 25% chances」= 两段吞噬各自独立掷签。
+    build: skill(
+    dmg('enemyChosen', 8, 1, { modifier: boostPer({ kind: 'allyStatusCount', statusId: 'enraged' }, 10) }),
+    devour('enemyAboveTarget', { chance: 0.25 }),
+    devour('enemyBelowTarget', { chance: 0.25 }),
+    ),
+  },
+  {
+    id: 7633,
+    desc: '对 1 名敌人造成 [魔法 + 4] 伤害。如果敌人是怪兽，则造成双倍伤害。获得 5 点生命值。同时有 50% 的几率吞噬怪兽。',
+    // 同 7211（怪兽版）。
+    build: skill(
+    dmg('enemyChosen', 4, 1, { condMult: { times: 2, cond: { kind: 'targetRace', race: 'Monster' } } }),
+    heal('allySelf', 5, 0),
+    devour('enemyChosen', { chance: 0.5, ifCond: { kind: 'targetRace', race: 'Monster' } }),
+    ),
+  },
+  {
+    id: 7637,
+    desc: '对 1 名敌人造成 [魔法 + 5] 点伤害。如果敌人已下潜，则有 50% 几率吞噬敌人。',
+    // Devour 家族回收：「已下潜则 50% 吞噬」= ifCond targetStatus submerged 辖吞噬段。
+    build: skill(
+    dmg('enemyChosen', 5, 1),
+    devour('enemyChosen', { chance: 0.5, ifCond: { kind: 'targetStatus', statusId: 'submerged' } }),
+    ),
+  },
+  {
+    id: 7642,
+    desc: '将第一名敌人打回末位。对新的第一名敌人造成 [魔法 + 3] 点伤害。若有 13 颗或更多棕色宝石，则有 50% 几率吞噬敌人。',
+    // 「打回末位」= reposition（§12.1）；「新的第一名」= 重定位后 enemyFront 执行时刻重解析；
+    // 13+ 棕宝石 = boardAtLeast 全局条件辖吞噬段（Devour 家族回收）。
+    build: skill(
+    reposition('enemyFront', 'back'),
+    dmg('enemyFront', 3, 1),
+    devour('lastTarget', { chance: 0.5, ifCond: { kind: 'boardAtLeast', color: BaseColor.Brown, n: 13 } }),
+    ),
+  },
+  {
+    id: 7647,
+    desc: '对 1 名敌人造成 [魔法 + 3] 点伤害，并使其陷入织网状态。有 20% 的几率可吞噬敌人。',
+    // Devour 家族回收：伤害 → 织网 → 20% 吞噬同一目标（lastTarget 绑定）。
+    build: skill(
+    dmg('enemyChosen', 3, 1),
+    inflict('web', 'lastTarget'),
+    devour('lastTarget', { chance: 0.2 }),
+    ),
+  },
+  {
     id: 7651,
     desc: '对一名敌人造成 [魔法 + 8] 点伤害，伤害值因其他所有盟友的法力值而增强。净化所有盟友。然后使其他所有盟友获得 5 点法力值。 [1:1]',
     // 「其他所有盟友的法力值」= allyStatSum mana excludeSelf [1:1]。
@@ -261,6 +493,39 @@ const SPELLS: CuratedBatch['spells'] = [
     dmg('enemyChosen', 8, 1, { modifier: { mod: { kind: 'ratio', a: 1, b: 1 }, source: { kind: 'allyStatSum', stat: 'mana', excludeSelf: true } } }),
     cleanse('allyAll'),
     mana('allyOthers', 5, 0),
+    ),
+  },
+  {
+    id: 7670,
+    desc: '对 1 名敌人造成 [魔法 + 3] 点伤害。获得 10 个灵魂。如果敌方的生命值高于自身，则造成的伤害和获得的灵魂数翻三倍。',
+    // 「敌方生命值高于自身」= targetStatBeatsCaster hp（R22 新条件，全局读跨段主目标）；
+    // 伤害 ×3 = condMult；灵魂 ×3 = 10 + 20（条件段）拆段——经济段无 condMult 通道，语义等价。
+    build: skill(
+    dmg('enemyChosen', 3, 1, { condMult: { times: 3, cond: { kind: 'targetStatBeatsCaster', stat: 'hp' } } }),
+    gainSouls(10),
+    gainSouls(20, 0, { ifCond: { kind: 'targetStatBeatsCaster', stat: 'hp' } }),
+    ),
+  },
+  {
+    id: 7713,
+    desc: '窃取一名敌人上限为 [魔法 + 5] 点的攻击力，并将之给予你第一位盟友。创造 22 颗宝石，所创造的宝石混合骷髅头和绿色宝石。 [20:1]',
+    // 【挽救】「窃取并给予第一位盟友」= reduce + attack(allyFront) 挂 lastReduce（Wave4 跨段
+    // 绑定，r19 指出的可表路径）；「上限为」= 夹零 up-to 语义（§14.8）；骷髅×绿色混合创造 =
+    // mixAny（R22）；尾缀 [20:1] 无来源子句，孤儿先例不挂载。
+    build: skill(
+    reduce('enemyChosen', 'attack', 5, 1),
+    attack('allyFront', 0, 0, { modifier: boostPer({ kind: 'lastReduce' }, 1) }),
+    createGemsMixAny([BaseColor.Green, 'SKULL'], 22),
+    ),
+  },
+  {
+    id: 7724,
+    desc: '将所有蓝色宝石转换成棕色。有 10% 的几率吞噬一名随机敌人，吞噬几率因转换的宝石数而增强。 [3:1]',
+    // Devour 家族回收：「几率因转换宝石数增强 [3:1]」= chanceBoost transformedGems
+    //（p39 8127 先例同构）。
+    build: skill(
+    transform(BaseColor.Blue, BaseColor.Brown),
+    devour('enemyRandom', { chance: 0.1, chanceBoost: { mod: { kind: 'ratio', a: 3, b: 1 }, source: { kind: 'transformedGems' } } }),
     ),
   },
   {
@@ -277,6 +542,18 @@ const SPELLS: CuratedBatch['spells'] = [
       },
     }),
     dmg('lastTargets', 0, 0, { execute: true, ifCond: { kind: 'anyTrackedDied' } }),
+    ),
+  },
+  {
+    id: 7781,
+    desc: '对一名敌人造成 [魔法 + 4] 点伤害。若敌人已陷入织网或缠绕状态，则有 50% 的几率吞噬敌人。',
+    // Devour 家族回收：「织网或缠绕」= anyOf(targetStatus) 析取（目标相对过滤辖吞噬段）。
+    build: skill(
+    dmg('enemyChosen', 4, 1),
+    devour('lastTarget', {
+      chance: 0.5,
+      ifCond: { kind: 'anyOf', of: [{ kind: 'targetStatus', statusId: 'web' }, { kind: 'targetStatus', statusId: 'entangle' }] },
+    }),
     ),
   },
   {
@@ -323,6 +600,27 @@ const SPELLS: CuratedBatch['spells'] = [
     ),
   },
   {
+    id: 7984,
+    desc: '对一名敌人造成 [魔法 + 4] 点伤害。有与自身攻击力等数的几率吞噬敌人。获得一个额外回合。 [1:1]',
+    // Devour 家族回收：「几率=自身攻击力」= chance 0 + chanceBoost selfStat attack（§11 追加
+    // 口径）；尾缀 [1:1] = 几率加成比率的序列化。
+    build: skill(
+    dmg('enemyChosen', 4, 1),
+    devour('lastTarget', { chance: 0, chanceBoost: boostPer({ kind: 'selfStat', stat: 'attack' }, 1) }),
+    extraTurn(),
+    ),
+  },
+  {
+    id: 7987,
+    desc: '窃取一名敌人 [魔法 + 1] 点护甲值，再将其转换成一个随机的技能值并给予第一位盟友。 [100:1]',
+    // 【挽救】「转换成随机技能值给予第一位盟友」= reduce + randomStat(allyFront) 挂 lastReduce
+    //（r19 指出的可表路径）；尾缀 [100:1] 无来源子句，孤儿先例不挂载。
+    build: skill(
+    reduce('enemyChosen', 'armor', 1, 1),
+    randomStat('allyFront', 0, 0, { modifier: boostPer({ kind: 'lastReduce' }, 1) }),
+    ),
+  },
+  {
     id: 7992,
     desc: '爆破 [(魔法 / 2) + 1] 颗绿色宝石。使首位和末位敌人交换位置。',
     build: skill(
@@ -350,6 +648,17 @@ const SPELLS: CuratedBatch['spells'] = [
     ),
   },
   {
+    id: 8086,
+    desc: '诅咒和击晕一名敌人。有 25% 的几率吞噬一名随机敌人，几率因身亡的敌人数而增强。 [x5]',
+    // Devour 家族回收：「几率因身亡敌人数增强 [x5]」= chanceBoost countEnemyDeaths
+    //（官方 CountEnemyDeaths 500 = 每阵亡 +5%；引擎口径=本次施法内阵亡，Wave3 注记）。
+    build: skill(
+    inflict('curse', 'enemyChosen'),
+    inflict('stun', 'lastTarget'),
+    devour('enemyRandom', { chance: 0.25, chanceBoost: boostPer({ kind: 'countEnemyDeaths' }, 5) }),
+    ),
+  },
+  {
     id: 8108,
     desc: '对一名敌人造成 [魔法 + 5] 点伤害，有 50% 的几率伤害值会打中另一名随机敌人。若敌人使用紫色的法力颜色，则造成 3 倍伤害。若敌人身亡，则创造 8 颗骷髅头。',
     // 官方步骤实锤（Bone Flail）：Damage FromTarget → CreateGems Skull 8 AddForKill →
@@ -359,6 +668,43 @@ const SPELLS: CuratedBatch['spells'] = [
     createSkulls(8, 0, { ifTargetDied: true }),
     dmg('enemyRandom', 5, 1, { condMult: { times: 3, cond: { kind: 'targetColor', color: BaseColor.Purple } } }),
     createSkulls(8, 0, { ifTargetDied: true }),
+    ),
+  },
+  {
+    id: 8143,
+    desc: '对最后 2 名敌人造成 [魔法 + 5] 点伤害。若敌人身亡则获得 20 黄金和一个额外回合。',
+    // 「若(任一)敌人身亡」= anyTrackedDied（R22 新条件，9986/9812 同款；官方 GiveGold/
+    // ExtraTurnConditional 均 AddForKill）。
+    build: skill(
+    dmg('enemyLastN', 5, 1, { n: 2 }),
+    gainGold(20, 0, { ifCond: { kind: 'anyTrackedDied' } }),
+    extraTurn({ ifCond: { kind: 'anyTrackedDied' } }),
+    ),
+  },
+  {
+    id: 8182,
+    desc: '对一名敌人造成 [魔法 + 4] 点真实伤害，若敌人陷入猎人标记状态，则使所有敌人陷入妖火状态。',
+    // 「若该敌人陷入猎人标记」辖无目标段（妖火全体）= lastTargetStatus 全局条件（R22 新条件，
+    // 7541/8276 同款；官方 CountSpecificStatusEffect huntersmark 步骤实锤）；猎人标记 = marked、
+    // 妖火 = faerie-fire（波A 状态本体）。
+    build: skill(
+    trueDmg('enemyChosen', 4, 1),
+    inflict('faerie-fire', 'enemyAll', { ifCond: { kind: 'lastTargetStatus', statusId: 'marked' } }),
+    ),
+  },
+  {
+    id: 8185,
+    desc: '对所有敌人造成 {[(魔法 / 2) + 3] – [魔法 + 7] 点伤害，伤害值因陷入猎人标记的敌人数而加强。若有敌人身亡则赐福所有盟友。 [x5]',
+    // 伤害区间 = rangeSpec（两条 scaling 对号入座；modifier 在区间两端照常生效）；
+    // 「陷入猎人标记的敌人数 [x5]」= enemyStatusCount marked；「若有敌人身亡则赐福」=
+    // anyTrackedDied（R22 新条件）+ blessed（R10 落地）。ZH 首括号「{[(」为数据原文照录。
+    build: skill(
+    dmg('enemyAll', 0, 0, {
+      range: 'all',
+      rangeSpec: { min: scale(3, 0.5), max: scale(7, 1) },
+      modifier: boostPer({ kind: 'enemyStatusCount', statusId: 'marked' }, 5),
+    }),
+    inflict('blessed', 'allyAll', { ifCond: { kind: 'anyTrackedDied' } }),
     ),
   },
   {
@@ -402,6 +748,29 @@ const SPELLS: CuratedBatch['spells'] = [
     inflict('burning', 'lastDamaged'),
     dmgSplash('enemyRandom', 5, 1),
     inflict('frozen', 'lastDamaged'),
+    ),
+  },
+  {
+    id: 8235,
+    desc: '选定一个颜色，使所有其颜色的盟友获得法印效果并给予他们 6 点法力值，数值因选定颜色的宝石数量而增强。 [4:1]',
+    // 【挽救】「其颜色的盟友」= targetColor CHOSEN 逐目标过滤（R22 8355 口径）；「选定色宝石
+    // 数量 [4:1]」= boardGems CHOSEN（R22 8060 口径）——r18「boardGems 不支持 CHOSEN」卡点
+    // 随 R22 收口；「法印」= enchanted（R10 落地）。
+    build: skill(
+    inflict('enchanted', 'allyAll', { ifCond: { kind: 'targetColor', color: 'CHOSEN' } }),
+    mana('allyAll', 6, 0, { ifCond: { kind: 'targetColor', color: 'CHOSEN' }, modifier: boostPer({ kind: 'boardGems', color: 'CHOSEN' }, 4) }),
+    ),
+  },
+  {
+    id: 8237,
+    desc: '对一名敌人和一名随机敌人造成 [魔法 + 3] 点伤害，。若敌人使用绿色法力则造成双倍伤害。有 25% 的几率吞噬一名随机敌人。',
+    // 官方步骤序：Consume(25%, RandomEnemy) → Damage FromTarget ×绿 → Damage
+    // RandomPrefNotPrev ×绿——吞噬先行（8108「步骤序优先」同款）；「NotPrev」（优先避开
+    // 前目标）引擎无对应目标模式，以 enemyRandom 近似注明。ZH「伤害，。」标点为数据原文。
+    build: skill(
+    devour('enemyRandom', { chance: 0.25 }),
+    dmg('enemyChosen', 3, 1, { condMult: { times: 2, cond: { kind: 'targetColor', color: BaseColor.Green } } }),
+    dmg('enemyRandom', 3, 1, { condMult: { times: 2, cond: { kind: 'targetColor', color: BaseColor.Green } } }),
     ),
   },
   {
@@ -579,6 +948,18 @@ const SPELLS: CuratedBatch['spells'] = [
     ),
   },
   {
+    id: 8568,
+    desc: '窃取敌人 [魔法 + 1] 黄金。再耗掉一名敌人 8 点法力值并将他冻结。 [100:1]',
+    // 【挽救】「窃取黄金」= gainGold 入账（§10.2 元经济口径，r19-r22「敌方黄金池」旧口径收口；
+    // 定量句式适用）；耗蓝 8 + 冻结本身可表；尾缀 [100:1] = 官方 CountEnemyGold(100) 步骤
+    // 序列化，孤儿先例不挂载。
+    build: skill(
+    gainGold(1, 1),
+    reduce('enemyChosen', 'mana', 8, 0),
+    inflict('frozen', 'lastTarget'),
+    ),
+  },
+  {
     id: 8573,
     desc: '有 25% 的几率吞噬一名敌人。若敌人是纳迦族则几率翻倍。否则则造成 [魔法 + 3] 点伤害。',
     // EN「a 25% chance to devour an Enemy, with double the chance if they are a Naga. Otherwise
@@ -632,6 +1013,16 @@ const SPELLS: CuratedBatch['spells'] = [
     build: skill(
     explodeRandomGems(1),
     explodeRandomGems(1, 0, 'all', undefined, { modifier: boostPer({ kind: 'destroyedGems', skulls: true }, 1) }),
+    ),
+  },
+  {
+    id: 8859,
+    desc: '&& 窃取 1 名敌人 [魔法 + 1] 黄金 && 窃取一名随机敌人 [魔法 + 1] 点随机技能值 [100:1]',
+    // 【挽救】「窃取黄金」= gainGold 入账（§10.2 元经济口径，r19-r22 旧口径收口）；
+    // 「窃取随机技能值」= stealRandomStat（R12）；尾缀 [100:1] 孤儿先例不挂载。
+    build: skill(
+    gainGold(1, 1),
+    stealRandomStat('enemyRandom', 1, 1),
     ),
   },
   {
