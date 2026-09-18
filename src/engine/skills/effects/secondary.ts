@@ -55,6 +55,15 @@ export type ModifierSource =
   | { kind: 'targetStat'; stat: 'attack' | 'armor' | 'hp' | 'magic' }
   /** 本技能前序段耗掉的敌方法力总和 */
   | { kind: 'drainedMana' }
+  /**
+   * 本技能效果段造成的敌方阵亡数（原语 Wave3 批，官方 CountEnemyDeaths——
+   * Glutmaw 8086「Devour…boosted by Enemy deaths [x5]」步骤
+   * {Target: AllEnemies, Amount: 500, Type: CountEnemyDeaths}）。跨段追踪计数。
+   */
+  | { kind: 'countEnemyDeaths' }
+  /** 本技能效果段造成的己方阵亡数（官方 CountAllyDeaths——Dullahan 8172 双来源，「boosted
+   *  by Ally and Enemy deaths [x5]」；献祭盟友同计入此来源） */
+  | { kind: 'countAllyDeaths' }
   /** 本场收集的藏宝图数（四项拍板①延伸，2026-09-17） */
   | { kind: 'battleMaps' }
   /** 最近被献祭盟友的属性（「因献祭军队的攻击力而增强」，跨段追踪） */
@@ -143,7 +152,15 @@ export type Condition =
    * 则根据我的升华值造成 3-5 倍伤害」）：min 为晋升数下限。与 targetRace:'Boss' 组合
    * （allOf）表达官方完整语义。标准战斗 state 无 ascension 字段（按 0 计）→ 恒 false。
    */
-  | { kind: 'ascended'; min: number };
+  | { kind: 'ascended'; min: number }
+  /**
+   * 法力已满（原语 Wave3 批，官方 AddForFullMana / CountEnemiesFullMana——
+   * Maid of Envy 8532「If the Enemy has full Mana, drain their Mana」步骤
+   * {StatusModifier: AddForFullMana, Type: DecreaseMana}）：该角色 mana ≥ manaCost。
+   * 缺省按**该段目标**逐个判定（目标相对条件，目标不满足 → 被过滤、全不满足 → 段跳过）；
+   * of:'caster' 为施法者全局条件（「若自身法力已满」）。
+   */
+  | { kind: 'manaFull'; of?: 'target' | 'caster' };
 
 export interface CondMult {
   times: number;
@@ -265,6 +282,15 @@ export function conditionMet(
     case 'ascended':
       // 模式专属建模（R11 批）：晋升模式挂 ascension 字段（缺省 0）；标准战斗恒 false。
       return ((ctx.state as { ascension?: number }).ascension ?? 0) >= cond.min;
+    case 'manaFull': {
+      // 法力已满（Wave3 批，官方 AddForFullMana）：mana ≥ manaCost 即满。
+      // of:'caster' 为施法者全局判定；缺省按目标逐个判定（isTargetCondition=true）。
+      if (cond.of === 'caster') {
+        const caster = findCharacter(ctx.state, ctx.casterId);
+        return !!caster && caster.mana >= caster.manaCost;
+      }
+      return !!target && target.mana >= target.manaCost;
+    }
     default: {
       const _exhaustive: never = cond;
       return _exhaustive;
@@ -285,7 +311,7 @@ export function condMultiplier(
 /** 目标相对条件（需要具体目标才能判定；无目标段挂这类条件 → 整段跳过）。
  * 组合条件（anyOf/allOf）按「任一叶子是目标相对」判定——对目标过滤语义成立。 */
 const TARGET_CONDITION_KINDS: ReadonlySet<Condition['kind']> = new Set([
-  'targetRace', 'targetColor', 'targetStatus', 'targetHpDamaged',
+  'targetRace', 'targetColor', 'targetStatus', 'targetHpDamaged', 'manaFull',
 ]);
 
 export function isTargetCondition(cond: Condition): boolean {
@@ -434,6 +460,11 @@ export function resolveModifierCount(source: ModifierSource, ctx: EffectContext)
     }
     case 'drainedMana':
       return tracking?.drainedMana ?? 0;
+    case 'countEnemyDeaths':
+      // 本技能造成的敌方阵亡数（Wave3 批）：跨段追踪在 runSegment 数 defeat 事件入账
+      return tracking?.enemyDeaths ?? 0;
+    case 'countAllyDeaths':
+      return tracking?.allyDeaths ?? 0;
     case 'battleGold':
       return ctx.state.economy.gold;
     case 'battleSouls':

@@ -36,6 +36,14 @@ export interface CastTracking {
   transformed: number;
   /** 本技能耗掉的敌方法力总和 */
   drainedMana: number;
+  /**
+   * 本技能效果段直接造成的敌方/己方阵亡数（原语 Wave3 批，官方 CountEnemyDeaths /
+   * CountAllyDeaths——Glutmaw「因敌方阵亡数而增强 [x5]」、Dullahan 双来源）。
+   * executePrototype 在每段结算时数 defeat 事件（参考 drainedMana 先例；
+   * 官方口径是全战斗累计，受技能层可动范围限制先落「本次施法内」口径，见 runSegment）。
+   */
+  enemyDeaths: number;
+  allyDeaths: number;
   /** 最近被献祭的盟友属性快照（「因献祭军队的攻击力而增强」跨段追踪） */
   sacrificed?: { attack: number; armor: number; magic: number; hp: number };
   /**

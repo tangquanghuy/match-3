@@ -346,6 +346,24 @@ export function createSpecialGems(spec: SpecialGemSpec, base: number, mult = 0, 
   return createSeg(params, opts);
 }
 
+/**
+ * 创造混合特殊宝石（原语 Wave3 批，官方 CreateGems2Colors 双特殊端点）：每颗在给定
+ * 两种 spec 间**放回均匀**掷选（种子化）。官方善/恶石像鬼逐颗掷签——
+ * 8795 Frozen Time「Freeze a random Enemy. Create 3 Gargoyle Gems, and gain an extra turn.」
+ * 步骤 {Color1: GoodGargoyle, Amount: 3, Color2: BadGargoyle, Type: CreateGems2Colors}
+ * = createSpecialGems2([{ kind: 'gargoyleGem', tier: 1 }, { kind: 'gargoyleGem', tier: 2 }], 3)
+ * （gargoyleGem tier 1=善 / 2=恶，types.ts 口径）。
+ */
+export function createSpecialGems2(
+  kinds: readonly [SpecialGemSpec, SpecialGemSpec],
+  base: number,
+  mult = 0,
+  opts: CreateOpts = {},
+): GemSegment {
+  const params: CreateGemParams = { op: 'create', gem: { kind: 'mixSpecial', specs: [kinds[0], kinds[1]] }, count: scale(base, mult) };
+  return createSeg(params, opts);
+}
+
 // —— 特殊宝石清除（「摧毁所有末日骷髅头」「引爆 3 颗末日骷髅」） ——
 
 /** 摧毁棋盘上某特殊宝石全量 */
@@ -607,11 +625,17 @@ export function sacrifice(target: TargetMode, opts?: SegmentOpts): SacrificeSegm
   return attach({ kind: 'sacrifice', target }, opts);
 }
 
-/** 随机状态（「造成随机状态效果」）：每目标独立掷签负面池（池见 effects/status.ts） */
-export function inflictRandom(target: TargetMode, opts?: SegmentOpts & { turns?: number; times?: number }): RandomStatusSegment {
+/**
+ * 随机状态（「造成随机状态效果」）：每目标独立掷签，池按目标阵营（盟友=正面池、
+ * 敌方=负面池，池见 effects/status.ts）。opts.times 连掷 N 条（「陷入 3 个随机状态
+ * 效果」，每条独立掷签）；opts.pool='positive' 强制正面全集（原语 Wave3 批，官方
+ * RandomPositiveStatusEffect——Book of Secrets「…or Allies」分支，无视阵营）。
+ */
+export function inflictRandom(target: TargetMode, opts?: SegmentOpts & { turns?: number; times?: number; pool?: 'positive' }): RandomStatusSegment {
   const seg = attach({ kind: 'randomStatus', target } as RandomStatusSegment, opts);
   if (opts?.turns !== undefined) seg.turns = opts.turns;
   if (opts?.times !== undefined) seg.times = opts.times;
+  if (opts?.pool !== undefined) seg.pool = opts.pool;
   return seg;
 }
 

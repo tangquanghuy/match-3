@@ -146,12 +146,14 @@ function transformEndpointOf(params: TransformGemParams, side: 'from' | 'to', ct
 
 // —— 创造 / 转化 ——
 
-/** 创造宝石类型：指定颜色（可占位符）/ 骷髅 / 混合多色（逐颗随机取色）/ 特殊宝石（窗口 C spec） */
+/** 创造宝石类型：指定颜色（可占位符）/ 骷髅 / 混合多色（逐颗随机取色）/ 特殊宝石（窗口 C spec）
+ *  / 混合特殊宝石（原语 Wave3 批：官方 CreateGems2Colors 双特殊端点，逐颗 rng 掷选） */
 export type CreateGemSpec =
   | { kind: 'color'; color: ColorSpec }
   | { kind: 'skull' }
   | { kind: 'mix'; colors: ColorSpec[] }
-  | { kind: 'special'; spec: SpecialGemSpec };
+  | { kind: 'special'; spec: SpecialGemSpec }
+  | { kind: 'mixSpecial'; specs: SpecialGemSpec[] };
 
 export interface CreateGemParams {
   op: 'create';
@@ -281,10 +283,17 @@ function cellsOfCol(col: number): CellPos[] {
 
 // —— 创造 ——
 
-/** 创造型宝石的每颗取色：单一类型直接解析；混合型逐颗从候选色随机取（种子化）；特殊宝石按 spec 构造 */
+/** 创造型宝石的每颗取色：单一类型直接解析；混合型逐颗从候选色随机取（种子化）；特殊宝石按 spec 构造；
+ *  混合特殊宝石（Wave3）逐颗从候选 spec 里**放回均匀**掷选（官方 CreateGems2Colors 善/恶石像鬼
+ *  「创造 3 颗石像鬼宝石」= 每颗独立 50/50，8795 Frozen Time 官方步骤） */
 function pickCreateGemType(spec: CreateGemSpec, ctx: EffectContext): GemType | null {
   if (spec.kind === 'skull') return skullGem();
   if (spec.kind === 'special') return specialGem(spec.spec.kind, spec.spec.tier, spec.spec.color);
+  if (spec.kind === 'mixSpecial') {
+    if (spec.specs.length === 0) return null;
+    const picked = spec.specs[ctx.rng.nextInt(spec.specs.length)];
+    return specialGem(picked.kind, picked.tier, picked.color);
+  }
   const colors = spec.kind === 'mix' ? spec.colors : [spec.color];
   if (colors.length === 0) return null;
   const resolved = colors.map((c) => resolveColor(c, ctx));

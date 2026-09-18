@@ -538,17 +538,36 @@ export const RANDOM_POSITIVE_STATUS_POOL: readonly string[] = [
   'barrier', 'rage', 'submerged',
 ];
 
+/**
+ * 正面状态 id 全集（原语 Wave3 批，官方 RandomPositiveStatusEffect——Book of Secrets 8369
+ * 「Cause a random status effect on all Enemies or Allies」的盟友分支步骤
+ * {Target: AllAllies, Type: RandomPositiveStatusEffect}）：与 traits.ts 的
+ * POSITIVE_STATUS_IDS 同集（净化口径的正面状态；traits 内为私有常量，此处镜像、
+ * 改动需两处同步）。inflictRandom pool:'positive' 掷签用这个全集；
+ * 缺省盟友路径仍用 RANDOM_POSITIVE_STATUS_POOL（既有 goodtarot 等消费点分布不变）。
+ */
+export const POSITIVE_STATUS_IDS: readonly string[] = [
+  'barrier', 'blessed', 'enchanted', 'enraged', 'rage', 'reflect', 'submerged',
+];
+
 export interface RandomStatusParams {
   targets: Character[];
   /** 存续回合数（缺省 3，与 statusEffect 同口径） */
   turns?: number;
   /** 每目标连续施加的随机状态个数（「使其陷入 3 个随机状态效果」= 3；缺省 1） */
   times?: number;
+  /**
+   * 池强制（原语 Wave3 批）：'positive' = 正面全集 POSITIVE_STATUS_IDS
+   * （官方 RandomPositiveStatusEffect 步骤），无视目标阵营；缺省按目标阵营选池
+   * （盟友=正面池、敌方=负面池，2026-09-17 回收批口径不变）。
+   */
+  pool?: 'positive';
 }
 
 /**
  * 随机状态（用户裁定 2026-09-17：盟友=正面池、敌方=负面池）：对每个存活目标掷签施加。
  * times > 1 时逐次独立掷签（可重复同一状态，走 applyStatus 合并口径）。
+ * pool:'positive' 强制正面全集（官方 RandomPositiveStatusEffect，Wave3 批）。
  * DoT 量级走引擎默认（中毒/燃烧 3、出血 1，由 tick 结算侧的缺省口径接管）。
  */
 export function randomStatusEffect(params: RandomStatusParams): EffectPrimitive {
@@ -559,7 +578,9 @@ export function randomStatusEffect(params: RandomStatusParams): EffectPrimitive 
       for (const target of params.targets) {
         if (target.defeated) continue;
         const negative = mySide !== null && findSide(ctx.state, target.id) !== mySide;
-        const pool = negative ? RANDOM_NEGATIVE_STATUS_POOL : RANDOM_POSITIVE_STATUS_POOL;
+        const pool = params.pool === 'positive'
+          ? POSITIVE_STATUS_IDS
+          : negative ? RANDOM_NEGATIVE_STATUS_POOL : RANDOM_POSITIVE_STATUS_POOL;
         const times = Math.max(1, params.times ?? 1);
         for (let i = 0; i < times; i++) {
           const statusId = pool[ctx.rng.nextInt(pool.length)];

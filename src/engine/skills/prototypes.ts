@@ -25,7 +25,7 @@ import type { ScalingSpec } from './scaling';
 import type { TargetMode } from './targeting';
 import { selectTargets } from './targeting';
 import type { EffectContext, EffectPrimitive, CastTracking } from './effects/context';
-import { findCharacter } from './effects/context';
+import { findCharacter, findSide } from './effects/context';
 import { modifierBonus, conditionMet, isTargetCondition } from './effects/secondary';
 import { damageEffect } from './effects/damage';
 import type { DamageRange } from './effects/damage';
@@ -305,6 +305,9 @@ export interface RandomStatusSegment extends SegmentOptions {
   turns?: number;
   /** 每目标连续施加个数（「陷入 3 个随机状态效果」） */
   times?: number;
+  /** 池强制（原语 Wave3 批）：'positive' = 正面全集（官方 RandomPositiveStatusEffect，
+   *  Book of Secrets 8369 @AllAllies 分支）；缺省按目标阵营选池 */
+  pool?: 'positive';
 }
 
 /** 兵种转化（「将一名敌人转化为怨灵」）：目标就地替换为模板兵种，不触发阵亡钩子 */
@@ -565,6 +568,7 @@ function compileSegment(segment: EffectSegment, ctx: EffectContext): EffectPrimi
         targets: resolveTargetsTracked(segment, ctx),
         turns: segment.turns,
         times: segment.times,
+        pool: segment.pool,
       });
     case 'transformTroop':
       return transformTroopEffect({
@@ -590,9 +594,32 @@ function compileSegment(segment: EffectSegment, ctx: EffectContext): EffectPrimi
 /** 新建一段施法的跨段追踪（已挂在 ctx 上则复用） */
 function ensureCastTracking(ctx: EffectContext): CastTracking {
   if (!ctx.castTracking) {
-    ctx.castTracking = { destroyed: [], transformed: 0, drainedMana: 0 };
+    ctx.castTracking = { destroyed: [], transformed: 0, drainedMana: 0, enemyDeaths: 0, allyDeaths: 0 };
   }
   return ctx.castTracking;
+}
+
+/**
+ * 阵亡计数（原语 Wave3 批，countEnemyDeaths/countAllyDeaths 来源）：
+ * 数本段事件流里的 defeat 事件、按死者与施法者的阵营归边入跨段追踪。
+ * 在 resolveDefeatEvents 之前调用——阵亡者此刻仍在编队里（仅 defeated 标记），
+ * findSide 才能判出归属；此后官方口径的阵亡响应由 TurnEngine 收尾。
+ * 官方 CountEnemyDeaths/CountAllyDeaths 是**全战斗累计**（含骷髅/DoT 击杀）；
+ * 引擎技能层只见本技能事件流，先落「本次施法内」口径（drainedMana 同款权衡），
+ * 全战斗累计需 TurnEngine processDeathTriggers 挂全局计数器，已在交接注记。
+ */
+function countCastDeaths(events: GameEvent[], ctx: EffectContext): void {
+  const tracking = ctx.castTracking;
+  if (!tracking || events.length === 0) return;
+  const casterSide = findSide(ctx.state, ctx.casterId);
+  if (casterSide === null) return;
+  for (const ev of events) {
+    if (ev.type !== 'defeat') continue;
+    const side = findSide(ctx.state, ev.characterId);
+    if (side === null) continue;
+    if (side === casterSide) tracking.allyDeaths += 1;
+    else tracking.enemyDeaths += 1;
+  }
 }
 
 /**
@@ -630,7 +657,9 @@ function runSegment(segment: EffectSegment, ctx: EffectContext): GameEvent[] {
 
   const primitive = compileSegment(segment, ctx);
   if (!primitive) return [];
-  return resolveDefeatEvents(ctx.state, primitive.apply(ctx));
+  const produced = primitive.apply(ctx);
+  countCastDeaths(produced, ctx);
+  return resolveDefeatEvents(ctx.state, produced);
 }
 
 /**
