@@ -364,5 +364,39 @@
     （8400 石墩计数，无对应 SpecialGemKind）。
 14. **诚实降级/维持 mana-only 余量**：7071（{1} 占位符）、7188/7199（stat 翻倍）、7190（基数取
     目标属性）、7217（行绑定清除）、8529（敌方最常用色）/8577（多档通配）/8578（五色药水池）/
-    8965（X 形清除+逐摧毁祝福）、8966（x3 通配转换）、10045/10063/10065（EN-only 快照）——
+    8965（X 形清除+逐摧毁触发祝福）、8966（x3 通配转换）、10045/10063/10065（EN-only 快照）——
     均为引擎/数据缺口，不硬凑。
+
+## §14.5 K-E 引擎原语批接线（第五轮，2026-09-18；分布 418/288/12 → 610/96/12）
+
+> 四族原语（builders.ts K-E 批：temperingBoost/boostPer/enemyHasDoom/kingdomPresent/
+> kingdomOf/targetKingdom/alliesOfKingdomBoost/enemiesOfKingdomBoost/enemiesOfRaceBoost/
+> summonRandomOfKingdom + R12 mana.fraction）接入生成器，全部按本节裁定消费：
+
+1. **tempering 完整编译**（推翻 §14 的「参数化省略」）：「每锻炼 1 个武器段位则 +N 点伤害值 /
+   +N 颗宝石 / 每级回火 +N 点 / 每提升一级强化等级额外增加 N 点」→ `modifier temperingBoost(N)`
+   挂本子句数值段（无则挂最近数值段；仍无 → 记省略）。「(每个)回火等级有 N% 的几率杀死敌人」→
+   前置处决段 chanceBoost（无前置 → 新建 execute 段 chance 0 + boost——level 0 恒不触发，8726-8728）。
+2. **劫数条件**：「如果敌方/他们(拥有|带有|有)劫数/末日/厄运/毁灭之力」→ enemyHasDoom()，结论三形态：
+   「再增加/再给予 N 点」= condBonus 挂前段；「可造成双倍/三倍伤害」= condMult 挂前伤害段；
+   其余（「再创造 N 颗」lastCreate 复用、「恢复我四分之一的法力」mana fraction 0.25、
+   「先破坏其护甲」reduce drainAll）= parseSub + ifCond。
+3. **王国族**（王国名一律用 zh 原文名，与 troops.json/CombatantSnapshot kingdom 同口径；
+   王国判定先于种族表——「龙爪盟友」是王国 ≠ 龙族）：
+   - 「若敌人来自X，或战斗发生在/位于X，则 N 倍伤害」→ anyOf(kingdomOf enemy, kingdomPresent) condMult；
+   - 「如果盟友来自X，则为他们提供屏障」→ payload 段挂 `targetKingdom:'X'`（8971）；
+   - 「伤害值因X王国盟友(敌人)数而增强」→ alliesOfKingdom/enemiesOfKingdom 来源
+     （修正第四轮 teamSize(ally) 误读，9302/9354 回收）；
+   - 「每有一名X王国盟友，则创造 N 颗宝石」→ 同上修饰；「召唤一名/1 到 3 名X王国军队」→
+     summonRandomOfKingdom（countRange 支持，7816）；「赋予所有X王国盟友随机正面」→
+     inflictRandom targetKingdom；「使所有X王国盟友获得…」→ 增益段 targetKingdom（9914/10050）。
+4. **敌侧计数**：「每有一名X色(族/王国)敌人则创造/给予…」→ enemiesOfColor/enemiesOfRace/
+   enemiesOfKingdom 来源（7655 混合骷髅端点仍卡 createMix-special；8872/8873 巨人宝石回收）；
+   「几率因恶魔敌人数而增强」→ enemiesOfRace（8391/8392）；「因敌我双方的X色军队/巨人军队/妖仙
+   数量」→ [alliesOf*, enemiesOf*] 双来源（7250/7445/8075）；「敌我双方的黄金数」→ battleGold
+   （黄金共用池 §10.2，8073）。
+5. **配套小裁定**：「如果他们使用X法力，则…」主语补 他们；「若敌人陷入出血状态，则伤害翻倍」
+   （省「造成…伤害」）；「战斗位于X」＝「战斗发生在X」；「伤害只因X而增强」「伤害力由X而增强」
+   机翻词序；「获得一个随机正面状态效果」＝自身随机正面（inflictRandom pool positive，9211）；
+   「每有一名X敌人则给予所有盟友 N 点属性」＝计数增幅全体增益（7982/8047）；
+   classify 的 doom 特征排除「末日骷髅头」子串误配。

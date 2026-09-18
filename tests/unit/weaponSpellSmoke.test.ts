@@ -51,6 +51,12 @@ function castWeapon(spellId: number, opts: {
   seed?: number;
   allyTroopTypes?: string[];
   enemyTroopTypes?: string[];
+  /** 施法者淬炼段位（K-E tempering 来源修饰） */
+  temperingLevel?: number;
+  /** 敌方王国（K-E kingdomOf 条件/目标限定） */
+  enemyKingdom?: string;
+  /** 战斗发生王国（K-E kingdomPresent 条件） */
+  battleKingdom?: string;
 } = {}): Harness {
   const proto = weaponById.get(spellId);
   if (!proto) throw new Error(`spell ${spellId} 未编译`);
@@ -60,16 +66,25 @@ function castWeapon(spellId: number, opts: {
   const left: Team = {
     player: PlayerSide.Left,
     characters: [
-      makeChar(0, { skillId: String(spellId), troopTypes: opts.allyTroopTypes ?? ['Human'] }),
+      makeChar(0, { skillId: String(spellId), troopTypes: opts.allyTroopTypes ?? ['Human'], ...(opts.temperingLevel !== undefined ? { temperingLevel: opts.temperingLevel } : {}) }),
       makeChar(1, { troopTypes: opts.allyTroopTypes ?? ['Human'] }),
       makeChar(2, { troopTypes: opts.allyTroopTypes ?? ['Human'] }),
     ],
   };
   const right: Team = {
     player: PlayerSide.Right,
-    characters: [makeChar(4), makeChar(5), makeChar(6)],
+    characters: [makeChar(4), makeChar(5), makeChar(6)].map(
+      (c) => ({
+        ...c,
+        troopTypes: opts.enemyTroopTypes ?? c.troopTypes,
+        ...(opts.enemyKingdom !== undefined ? { kingdom: opts.enemyKingdom } : {}),
+      }) as Character,
+    ),
   };
-  const state = createGameState(board, left, right);
+  const state = createGameState(
+    board, left, right, PlayerSide.Left,
+    opts.battleKingdom !== undefined ? { kingdom: opts.battleKingdom } : undefined,
+  );
   const registry = new ExtensionRegistry();
   registry.prototypes.set(String(spellId), proto);
   let idg = 200000;
@@ -249,5 +264,50 @@ describe('武器法术语义冒烟（partial 保真度代表）', () => {
     const damages = events.filter((e) => e.type === 'skill-damage');
     expect(damages.length).toBeGreaterThan(0);
     void state;
+  });
+});
+
+describe('武器法术语义冒烟（第五轮 · K-E 原语接线）', () => {
+  it('7655 龙鳞巨剑（tempering level 2）：淬炼来源修饰随段位缩放（+4/段 × 2 = +8 伤）', () => {
+    // 散射 [魔法+10]=17，level 2 增项 +8 → 25 点，护甲 4 → 实扣 21
+    const { state } = castWeapon(7655, { temperingLevel: 2 });
+    for (const c of state.teams[PlayerSide.Right].characters) {
+      expect(c.hp, '淬炼段位 2 应使散射伤害提升至 25').toBe(45 - 21);
+    }
+  });
+
+  it('7655 劫数 condBonus：敌方编有 Doom 部队 → 全体盟友魔法 3+5=8', () => {
+    const { state } = castWeapon(7655, { enemyTroopTypes: ['Doom'] });
+    const caster = state.teams[PlayerSide.Left].characters[0];
+    // magic('allyAll', 3, 0, { condBonus: 5 })：基 3 + 法 7 + 劫数加成 5 = 15
+    expect(caster.magic, '劫数在场应触发 +5 condBonus').toBe(7 + 3 + 5);
+  });
+
+  it('9580 灾祸之刃（tempering + 劫数 quarter mana）：fraction 恢复 + 目标色条件引爆', () => {
+    const noDoom = castWeapon(9580);
+    // 施放耗尽 12 法力；敌方无 Doom → quarter mana 段静默跳过
+    expect(noDoom.state.teams[PlayerSide.Left].characters[0].mana).toBe(0);
+    const withDoom = castWeapon(9580, { enemyTroopTypes: ['Doom'] });
+    // 敌方有 Doom → floor(12 × 0.25) = 3 回蓝
+    expect(withDoom.state.teams[PlayerSide.Left].characters[0].mana).toBe(3);
+  });
+
+  it('8442 荒芜战锤（tempering + 劫数 drainAll）：敌方有 Doom → 清空随机敌人护甲', () => {
+    const { state } = castWeapon(8442, { enemyTroopTypes: ['Doom'] });
+    const drained = state.teams[PlayerSide.Right].characters.some((c) => c.armor === 0);
+    expect(drained, '劫数条件下应清空一名随机敌人护甲').toBe(true);
+  });
+
+  it('8322 阿达纳石板（kingdom 条件）：战斗发生在阿达纳/敌人来自阿达纳 → 伤害翻倍', () => {
+    // 基线：[魔法+5]=12 + 被移除黄宝石增幅 +3 = 15 - 护甲 4 = 11（种子棋盘确定）
+    const base = castWeapon(8322);
+    const baseTarget = base.state.teams[PlayerSide.Right].characters[0];
+    expect(baseTarget.hp).toBe(34);
+    // 敌人来自阿达纳（kingdomOf）→ 先加后乘：15×2=30 - 护甲 4 = 26 → hp 19
+    const byEnemy = castWeapon(8322, { enemyKingdom: '阿达纳' });
+    expect(byEnemy.state.teams[PlayerSide.Right].characters[0].hp).toBe(19);
+    // 战斗发生在阿达纳（kingdomPresent）→ 同样翻倍
+    const byBattle = castWeapon(8322, { battleKingdom: '阿达纳' });
+    expect(byBattle.state.teams[PlayerSide.Right].characters[0].hp).toBe(19);
   });
 });

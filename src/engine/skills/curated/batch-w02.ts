@@ -8,7 +8,7 @@
  * src/data/weapon-skill-meta.json）。组装规则锚定 scripts/spell-rules.md 与
  * 既有部队批次先例；生成器 scripts/_weapon_pools.mjs gen。
  */
-import { armor, attack, cleanse, createGems, createMix, createSkulls, createStorm, destroyChosenCol, destroyColor, dmg, dmgSplash, drainMana, explodeRandomGems, extraTurn, gainGold, heal, inflict, inflictRandom, magic, mana, oneOf, reduce, reposition, skill, steal, summonRandom, transformToSpecial, trueDmg, CHOSEN } from '../builders';
+import { armor, attack, cleanse, createGems, createMix, createSkulls, createStorm, destroyChosenCol, destroyColor, dmg, dmgSplash, drainMana, explodeRandomGems, extraTurn, gainGold, heal, inflict, inflictRandom, magic, mana, oneOf, reduce, reposition, skill, steal, summonRandom, summonRandomOfKingdom, transformToSpecial, trueDmg, CHOSEN } from '../builders';
 import { BaseColor } from '../../types';
 import type { CuratedBatch } from './index';
 
@@ -19,15 +19,16 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 7660,
     desc: '造成 [魔法 + 10] 点散射伤害，每锻炼 1 个武器段位则 +4 点伤害值。每有一名棕色敌人则创造 6 颗混合棕色和骷髅头的宝石。给予所有盟友 3 点魔法值。如果敌方有劫数，则再增加 5 点。 [x6]',
     build: skill(
-      dmg('enemyAll', 10, 1, { range: 'all' }),
-      magic('allyAll', 3, 0),
+      dmg('enemyAll', 10, 1, { range: 'all', modifier: { mod: { kind: 'multiplier', a: 4 }, source: { kind: 'tempering' } } }),
+      magic('allyAll', 3, 0, { condBonus: { n: 5, cond: { kind: 'targetHasDoom' } } }),
     ),
   },
   {
     id: 7662,
     desc: '对一名敌人造成 [魔法 + 7] 点伤害，伤害值因潘神之谷友数而增强。每有一名潘神之谷盟友，则创造混合绿色和黄色的 6 颗宝石。 [x6]',
     build: skill(
-      dmg('enemyChosen', 7, 1),
+      dmg('enemyChosen', 7, 1, { modifier: { mod: { kind: 'multiplier', a: 6 }, source: { kind: 'alliesOfKingdom', kingdom: '潘神之谷' } } }),
+      createMix([BaseColor.Green, BaseColor.Yellow], 6, 0, { modifier: { mod: { kind: 'multiplier', a: 6 }, source: { kind: 'alliesOfKingdom', kingdom: '潘神之谷' } } }),
     ),
   },
   {
@@ -42,7 +43,8 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 7692,
     desc: '对一名敌人造成 [魔法 + 7] 点伤害，伤害值因冰峰之巅盟友数而增强。每有一名冰峰之巅盟友，则创造 6 颗宝石，所创造的宝石混合蓝色和紫色两种颜色。 [x6]',
     build: skill(
-      dmg('enemyChosen', 7, 1),
+      dmg('enemyChosen', 7, 1, { modifier: { mod: { kind: 'multiplier', a: 6 }, source: { kind: 'alliesOfKingdom', kingdom: '冰峰之巅' } } }),
+      createMix([BaseColor.Blue, BaseColor.Purple], 6, 0, { modifier: { mod: { kind: 'multiplier', a: 6 }, source: { kind: 'alliesOfKingdom', kingdom: '冰峰之巅' } } }),
     ),
   },
   {
@@ -65,7 +67,8 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 7707,
     desc: '对一名敌人造成 [魔法 + 7] 点伤害，伤害值因剑锋崖盟友数而增强。每有一名剑锋崖盟友，则创造 6 颗宝石，所创造的宝石混合蓝色和黄色两种颜色。 [x6]',
     build: skill(
-      dmg('enemyChosen', 7, 1),
+      dmg('enemyChosen', 7, 1, { modifier: { mod: { kind: 'multiplier', a: 6 }, source: { kind: 'alliesOfKingdom', kingdom: '剑锋崖' } } }),
+      createMix([BaseColor.Blue, BaseColor.Yellow], 6, 0, { modifier: { mod: { kind: 'multiplier', a: 6 }, source: { kind: 'alliesOfKingdom', kingdom: '剑锋崖' } } }),
     ),
   },
   {
@@ -80,7 +83,8 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 7722,
     desc: '对一名敌人造成 [魔法 + 7] 点伤害，伤害值因盛唐盟友数而增强。每有一名盛唐盟友，则创造 6 颗宝石，所创造的宝石混合红色和黄色两种颜色。色 [x6]',
     build: skill(
-      dmg('enemyChosen', 7, 1),
+      dmg('enemyChosen', 7, 1, { modifier: { mod: { kind: 'multiplier', a: 6 }, source: { kind: 'alliesOfKingdom', kingdom: '盛唐' } } }),
+      createMix([BaseColor.Red, BaseColor.Yellow], 6, 0, { modifier: { mod: { kind: 'multiplier', a: 6 }, source: { kind: 'alliesOfKingdom', kingdom: '盛唐' } } }),
     ),
   },
   {
@@ -241,6 +245,7 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '对一名敌人造成 [魔法 + 4] 点伤害。如果板面上有 13 颗或更多紫色宝石，则召唤 1 到 3 名迈纳杰之罪军队。',
     build: skill(
       dmg('enemyChosen', 4, 1),
+      summonRandomOfKingdom('迈纳杰之罪', undefined, { countRange: { min: 1, max: 3 }, ifCond: { kind: 'boardAtLeast', color: BaseColor.Purple, n: 13 } }),
     ),
   },
   {
@@ -360,8 +365,10 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 7952,
     desc: '对所有敌人造成 [魔法 + 3] 点伤害，每锻炼 1 个武器段位则 +1 点伤害值。将红色宝石转换成末日骷髅头。如果敌方有劫数，则再创造 5 颗。每有一名蓝色敌人则获得 3 点法力值。 [x3]',
     build: skill(
-      dmg('enemyAll', 3, 1, { range: 'all' }),
+      dmg('enemyAll', 3, 1, { range: 'all', modifier: { mod: { kind: 'multiplier', a: 1 }, source: { kind: 'tempering' } } }),
       transformToSpecial(BaseColor.Red, 'doomSkull'),
+      createSkulls(5, 0, { ifCond: { kind: 'targetHasDoom' } }),
+      mana('allySelf', 3, 0, { modifier: { mod: { kind: 'multiplier', a: 3 }, source: { kind: 'enemiesOfColor', color: BaseColor.Blue } } }),
     ),
   },
   {
@@ -384,8 +391,10 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 7963,
     desc: '对所有敌人造成 [魔法 + 3] 点伤害，每锻炼 1 个武器段位则 +1 点伤害值。将绿色宝石转换成末日骷髅头。如果敌方有劫数，则再创造 5 颗。每有一名棕色敌人则获得 3 点法力值。 [x3]',
     build: skill(
-      dmg('enemyAll', 3, 1, { range: 'all' }),
+      dmg('enemyAll', 3, 1, { range: 'all', modifier: { mod: { kind: 'multiplier', a: 1 }, source: { kind: 'tempering' } } }),
       transformToSpecial(BaseColor.Green, 'doomSkull'),
+      createSkulls(5, 0, { ifCond: { kind: 'targetHasDoom' } }),
+      mana('allySelf', 3, 0, { modifier: { mod: { kind: 'multiplier', a: 3 }, source: { kind: 'enemiesOfColor', color: BaseColor.Brown } } }),
     ),
   },
   {
@@ -415,15 +424,18 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 7973,
     desc: '对所有敌人造成 [魔法 + 3] 点伤害，每锻炼 1 个武器段位则 +1 点伤害值。将蓝色宝石转换成末日骷髅头。如果敌方有劫数，则再创造 5 颗。每有一名红色敌人则获得 3 点法力值。 [x3]',
     build: skill(
-      dmg('enemyAll', 3, 1, { range: 'all' }),
+      dmg('enemyAll', 3, 1, { range: 'all', modifier: { mod: { kind: 'multiplier', a: 1 }, source: { kind: 'tempering' } } }),
       transformToSpecial(BaseColor.Blue, 'doomSkull'),
+      createSkulls(5, 0, { ifCond: { kind: 'targetHasDoom' } }),
+      mana('allySelf', 3, 0, { modifier: { mod: { kind: 'multiplier', a: 3 }, source: { kind: 'enemiesOfColor', color: BaseColor.Red } } }),
     ),
   },
   {
     id: 7976,
     desc: '对一名敌人造成 [魔法 + 7] 点伤害，伤害值因狂野平原盟友的数量而增强。每有一名狂野平原盟友，则创造混合绿色和红色的 6 颗宝石。 [x6]',
     build: skill(
-      dmg('enemyChosen', 7, 1),
+      dmg('enemyChosen', 7, 1, { modifier: { mod: { kind: 'multiplier', a: 6 }, source: { kind: 'alliesOfKingdom', kingdom: '狂野平原盟友' } } }),
+      createMix([BaseColor.Green, BaseColor.Red], 6, 0, { modifier: { mod: { kind: 'multiplier', a: 6 }, source: { kind: 'alliesOfKingdom', kingdom: '狂野平原' } } }),
     ),
   },
   {
@@ -438,8 +450,9 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 7982,
     desc: '给予所有盟友 [魔法 + 1] 点生命值，每锻炼 1 个武器段位则 +2 点生命值。给予所有其他盟友 5 点法力值。如果敌方有劫数，则再给予 4 点法力值。每有一名紫色敌人则给予所有盟友 2 点魔法值。 [x4]',
     build: skill(
-      heal('allyAll', 1, 1),
-      mana('allyOthers', 5, 0),
+      heal('allyAll', 1, 1, { modifier: { mod: { kind: 'multiplier', a: 2 }, source: { kind: 'tempering' } } }),
+      mana('allyOthers', 5, 0, { condBonus: { n: 4, cond: { kind: 'targetHasDoom' } } }),
+      magic('allyAll', 2, 0, { modifier: { mod: { kind: 'multiplier', a: 4 }, source: { kind: 'enemiesOfColor', color: BaseColor.Purple } } }),
     ),
   },
   {
@@ -467,7 +480,8 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 8045,
     desc: '对一名敌人造成 [魔法 + 7] 点伤害，伤害值因卜筮之原的盟友数而增强。每有一名卜筮之原盟友，则创造混合蓝色和黄色的 6 颗宝石。 [x6]',
     build: skill(
-      dmg('enemyChosen', 7, 1),
+      dmg('enemyChosen', 7, 1, { modifier: { mod: { kind: 'multiplier', a: 6 }, source: { kind: 'alliesOfKingdom', kingdom: '卜筮之原' } } }),
+      createMix([BaseColor.Blue, BaseColor.Yellow], 6, 0, { modifier: { mod: { kind: 'multiplier', a: 6 }, source: { kind: 'alliesOfKingdom', kingdom: '卜筮之原' } } }),
     ),
   },
   {
@@ -482,15 +496,17 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 8047,
     desc: '给予所有盟友 [魔法 + 1] 点生命值，每锻炼 1 个武器段位则 +2 点生命值。给予所有其他盟友 5 点法力值。如果敌方有劫数，则再给予 4 点法力值。每有一名棕色敌人则给予所有盟友 2 点魔法值。 [x4]',
     build: skill(
-      heal('allyAll', 1, 1),
-      mana('allyOthers', 5, 0),
+      heal('allyAll', 1, 1, { modifier: { mod: { kind: 'multiplier', a: 2 }, source: { kind: 'tempering' } } }),
+      mana('allyOthers', 5, 0, { condBonus: { n: 4, cond: { kind: 'targetHasDoom' } } }),
+      magic('allyAll', 2, 0, { modifier: { mod: { kind: 'multiplier', a: 4 }, source: { kind: 'enemiesOfColor', color: BaseColor.Brown } } }),
     ),
   },
   {
     id: 8048,
     desc: '对一名敌人造成 [魔法 + 7] 点伤害，伤害值因葛洛什奈克盟友的数量而增强。每有一名葛洛什奈克盟友，则创造混合红色和棕色的 6 颗宝石。 [x6]',
     build: skill(
-      dmg('enemyChosen', 7, 1),
+      dmg('enemyChosen', 7, 1, { modifier: { mod: { kind: 'multiplier', a: 6 }, source: { kind: 'alliesOfKingdom', kingdom: '葛洛什奈克盟友' } } }),
+      createMix([BaseColor.Red, BaseColor.Brown], 6, 0, { modifier: { mod: { kind: 'multiplier', a: 6 }, source: { kind: 'alliesOfKingdom', kingdom: '葛洛什奈克' } } }),
     ),
   },
   {
@@ -505,15 +521,17 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 8050,
     desc: '给予所有盟友 [魔法 + 1] 点生命值，每锻炼 1 个武器段位则 +2 点生命值。给予所有其他盟友 5 点法力值。如果敌方有劫数，则再给予 4 点法力值。每有一名黄色敌人则给予所有盟友 2 点魔法值。 [x4]',
     build: skill(
-      heal('allyAll', 1, 1),
-      mana('allyOthers', 5, 0),
+      heal('allyAll', 1, 1, { modifier: { mod: { kind: 'multiplier', a: 2 }, source: { kind: 'tempering' } } }),
+      mana('allyOthers', 5, 0, { condBonus: { n: 4, cond: { kind: 'targetHasDoom' } } }),
+      magic('allyAll', 2, 0, { modifier: { mod: { kind: 'multiplier', a: 4 }, source: { kind: 'enemiesOfColor', color: BaseColor.Yellow } } }),
     ),
   },
   {
     id: 8051,
     desc: '对一名敌人造成 [魔法 + 7] 点伤害，伤害值因玉银林地盟友的数量而增强。每有一名玉银林地盟友，则创造混合紫色和黄色的 6 颗宝石。 [x6]',
     build: skill(
-      dmg('enemyChosen', 7, 1),
+      dmg('enemyChosen', 7, 1, { modifier: { mod: { kind: 'multiplier', a: 6 }, source: { kind: 'alliesOfKingdom', kingdom: '玉银林地盟友' } } }),
+      createMix([BaseColor.Purple, BaseColor.Yellow], 6, 0, { modifier: { mod: { kind: 'multiplier', a: 6 }, source: { kind: 'alliesOfKingdom', kingdom: '玉银林地' } } }),
     ),
   },
   {
@@ -528,16 +546,18 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 8053,
     desc: '对所有敌人造成 [魔法 + 3] 点伤害，每锻炼 1 个武器段位则 +1 点伤害值。将棕色宝石转换成末日骷髅头。如果敌方有劫数，则再创造 5 颗。每有一名绿色敌人则获得 3 点法力值。 [x3]',
     build: skill(
-      dmg('enemyAll', 3, 1, { range: 'all' }),
+      dmg('enemyAll', 3, 1, { range: 'all', modifier: { mod: { kind: 'multiplier', a: 1 }, source: { kind: 'tempering' } } }),
       transformToSpecial(BaseColor.Brown, 'doomSkull'),
+      createSkulls(5, 0, { ifCond: { kind: 'targetHasDoom' } }),
+      mana('allySelf', 3, 0, { modifier: { mod: { kind: 'multiplier', a: 3 }, source: { kind: 'enemiesOfColor', color: BaseColor.Green } } }),
     ),
   },
   {
     id: 8054,
     desc: '对一名敌人造成 [魔法 + 7] 点伤害，伤害值因厄什卡亚盟友的数量而增强。每有一名厄什卡亚盟友，则创造混合绿色和棕色的 6 颗宝石。 [x6]',
     build: skill(
-      dmg('enemyChosen', 7, 1, { modifier: { mod: { kind: 'multiplier', a: 6 }, source: { kind: 'alliesOfRace', race: 'Urska' } } }),
-      createMix([BaseColor.Green, BaseColor.Brown], 6, 0, { modifier: { mod: { kind: 'multiplier', a: 6 }, sources: [{ kind: 'alliesOfRace', race: 'Urska' }] } }),
+      dmg('enemyChosen', 7, 1, { modifier: { mod: { kind: 'multiplier', a: 6 }, source: { kind: 'alliesOfKingdom', kingdom: '厄什卡亚盟友' } } }),
+      createMix([BaseColor.Green, BaseColor.Brown], 6, 0, { modifier: { mod: { kind: 'multiplier', a: 6 }, source: { kind: 'alliesOfKingdom', kingdom: '厄什卡亚' } } }),
     ),
   },
   {
@@ -570,7 +590,7 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 8073,
     desc: '对 2 个随机敌人造成 [魔法 + 3] 点伤害，伤害值因敌我双方的黄金数而增强。 [2:1]',
     build: skill(
-      dmg('enemyRandomN', 3, 1, { n: 2 }),
+      dmg('enemyRandomN', 3, 1, { n: 2, modifier: { mod: { kind: 'ratio', a: 2, b: 1 }, source: { kind: 'battleGold' } } }),
     ),
   },
   {
@@ -584,7 +604,7 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 8075,
     desc: '造成 [魔法 + 12] 点真实散射伤害，伤害值因敌我双方的妖仙数量而增强。若有一名敌人身亡，则给予所有盟友 2 个随机的正面增益效果。 [x8]',
     build: skill(
-      dmg('enemyAll', 12, 1, { range: 'all', trueDamage: true }),
+      dmg('enemyAll', 12, 1, { range: 'all', trueDamage: true, modifier: { mod: { kind: 'multiplier', a: 8 }, sources: [{ kind: 'alliesOfRace', race: 'Fey' }, { kind: 'enemiesOfRace', race: 'Fey' }] } }),
     ),
   },
   {
@@ -598,48 +618,55 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 8077,
     desc: '对所有敌人造成 [魔法 + 3] 点伤害，每锻炼 1 个武器段位则 +1 点伤害值。将紫色宝石转换成末日骷髅头。如果敌方有劫数，则再创造 5 颗。每有一名黄色敌人则获得 3 点法力值。 [x3]',
     build: skill(
-      dmg('enemyAll', 3, 1, { range: 'all' }),
+      dmg('enemyAll', 3, 1, { range: 'all', modifier: { mod: { kind: 'multiplier', a: 1 }, source: { kind: 'tempering' } } }),
       transformToSpecial(BaseColor.Purple, 'doomSkull'),
+      createSkulls(5, 0, { ifCond: { kind: 'targetHasDoom' } }),
+      mana('allySelf', 3, 0, { modifier: { mod: { kind: 'multiplier', a: 3 }, source: { kind: 'enemiesOfColor', color: BaseColor.Yellow } } }),
     ),
   },
   {
     id: 8078,
     desc: '对所有敌人造成 [魔法 + 3] 点伤害，每锻炼 1 个武器段位则 +1 点伤害值。将黄色宝石转换成末日骷髅头。如果敌方有劫数，则再创造 5 颗。每有一名紫色敌人则获得 3 点法力值。 [x3]',
     build: skill(
-      dmg('enemyAll', 3, 1, { range: 'all' }),
+      dmg('enemyAll', 3, 1, { range: 'all', modifier: { mod: { kind: 'multiplier', a: 1 }, source: { kind: 'tempering' } } }),
       transformToSpecial(BaseColor.Yellow, 'doomSkull'),
+      createSkulls(5, 0, { ifCond: { kind: 'targetHasDoom' } }),
+      mana('allySelf', 3, 0, { modifier: { mod: { kind: 'multiplier', a: 3 }, source: { kind: 'enemiesOfColor', color: BaseColor.Purple } } }),
     ),
   },
   {
     id: 8079,
     desc: '给予所有盟友 [魔法 + 1] 点生命值，每锻炼 1 个武器段位则 +2 点生命值。给予所有其他盟友 5 点法力值。如果敌方有劫数，则再给予 4 点法力值。每有一名蓝色敌人则给予所有盟友 2 点魔法值。 [x4]',
     build: skill(
-      heal('allyAll', 1, 1),
-      mana('allyOthers', 5, 0),
+      heal('allyAll', 1, 1, { modifier: { mod: { kind: 'multiplier', a: 2 }, source: { kind: 'tempering' } } }),
+      mana('allyOthers', 5, 0, { condBonus: { n: 4, cond: { kind: 'targetHasDoom' } } }),
+      magic('allyAll', 2, 0, { modifier: { mod: { kind: 'multiplier', a: 4 }, source: { kind: 'enemiesOfColor', color: BaseColor.Blue } } }),
     ),
   },
   {
     id: 8080,
     desc: '给予所有盟友 [魔法 + 1] 点生命值，每锻炼 1 个武器段位则 +2 点生命值。给予所有其他盟友 5 点法力值。如果敌方有劫数，则再给予 4 点法力值。每有一名绿色敌人则给予所有盟友 2 点魔法值。 [x4]',
     build: skill(
-      heal('allyAll', 1, 1),
-      mana('allyOthers', 5, 0),
+      heal('allyAll', 1, 1, { modifier: { mod: { kind: 'multiplier', a: 2 }, source: { kind: 'tempering' } } }),
+      mana('allyOthers', 5, 0, { condBonus: { n: 4, cond: { kind: 'targetHasDoom' } } }),
+      magic('allyAll', 2, 0, { modifier: { mod: { kind: 'multiplier', a: 4 }, source: { kind: 'enemiesOfColor', color: BaseColor.Green } } }),
     ),
   },
   {
     id: 8081,
     desc: '给予所有盟友 [魔法 + 1] 点生命值，每锻炼 1 个武器段位则 +2 点生命值。给予所有其他盟友 5 点法力值。如果敌方有劫数，则再给予 4 点法力值。每有一名红色敌人则给予所有盟友 2 点魔法值。 [x4]',
     build: skill(
-      heal('allyAll', 1, 1),
-      mana('allyOthers', 5, 0),
+      heal('allyAll', 1, 1, { modifier: { mod: { kind: 'multiplier', a: 2 }, source: { kind: 'tempering' } } }),
+      mana('allyOthers', 5, 0, { condBonus: { n: 4, cond: { kind: 'targetHasDoom' } } }),
+      magic('allyAll', 2, 0, { modifier: { mod: { kind: 'multiplier', a: 4 }, source: { kind: 'enemiesOfColor', color: BaseColor.Red } } }),
     ),
   },
   {
     id: 8083,
     desc: '对一名敌人造成 [魔法 + 6] 点伤害。若敌人陷入出血状态，则伤害翻倍。有 10% 的几率直接杀死敌人，几率因末日骷髅头的数量而增强。  [x2]',
     build: skill(
-      dmg('enemyChosen', 6, 1),
-      dmg('lastTarget', 0, 0, { execute: true, chance: 0.1 }),
+      dmg('enemyChosen', 6, 1, { condMult: { times: 2, cond: { kind: 'targetStatus', statusId: 'bleed' } } }),
+      dmg('lastTarget', 0, 0, { execute: true, chance: 0.1, chanceBoost: { mod: { kind: 'multiplier', a: 2 }, source: { kind: 'boardSkulls' } } }),
     ),
   },
   {
@@ -660,7 +687,8 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 8119,
     desc: '对一名敌人造成 [魔法 + 7] 点伤害，伤害值因阿达纳盟友的数量而增强。每有一名阿达纳盟友，则创造混合红色和黄色的 6 颗宝石。 [x6]',
     build: skill(
-      dmg('enemyChosen', 7, 1),
+      dmg('enemyChosen', 7, 1, { modifier: { mod: { kind: 'multiplier', a: 6 }, source: { kind: 'alliesOfKingdom', kingdom: '阿达纳盟友' } } }),
+      createMix([BaseColor.Red, BaseColor.Yellow], 6, 0, { modifier: { mod: { kind: 'multiplier', a: 6 }, source: { kind: 'alliesOfKingdom', kingdom: '阿达纳' } } }),
     ),
   },
   {
@@ -675,7 +703,8 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 8121,
     desc: '对一名敌人造成 [魔法 + 7] 点伤害，伤害值因卡其尔盟友的数量而增强。每有一名卡其尔盟友，则创造混合红色和棕色的 6 颗宝石。 [x6]',
     build: skill(
-      dmg('enemyChosen', 7, 1),
+      dmg('enemyChosen', 7, 1, { modifier: { mod: { kind: 'multiplier', a: 6 }, source: { kind: 'alliesOfKingdom', kingdom: '卡其尔盟友' } } }),
+      createMix([BaseColor.Red, BaseColor.Brown], 6, 0, { modifier: { mod: { kind: 'multiplier', a: 6 }, source: { kind: 'alliesOfKingdom', kingdom: '卡其尔' } } }),
     ),
   },
   {
@@ -690,7 +719,8 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 8123,
     desc: '对一名敌人造成 [魔法 + 7] 点伤害，伤害值因日冕盟友的数量而增强。每有一名日冕盟友，则创造混合紫色和黄色的 6 颗宝石。 [x6]',
     build: skill(
-      dmg('enemyChosen', 7, 1),
+      dmg('enemyChosen', 7, 1, { modifier: { mod: { kind: 'multiplier', a: 6 }, source: { kind: 'alliesOfKingdom', kingdom: '日冕盟友' } } }),
+      createMix([BaseColor.Purple, BaseColor.Yellow], 6, 0, { modifier: { mod: { kind: 'multiplier', a: 6 }, source: { kind: 'alliesOfKingdom', kingdom: '日冕' } } }),
     ),
   },
   {
@@ -705,7 +735,8 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 8125,
     desc: '对一名敌人造成 [魔法 + 7] 点伤害，伤害值因皓彩森林盟友的数量而增强。每有一名皓彩森林盟友，则创造混合红色和绿色的 6 颗宝石。 [x6]',
     build: skill(
-      dmg('enemyChosen', 7, 1),
+      dmg('enemyChosen', 7, 1, { modifier: { mod: { kind: 'multiplier', a: 6 }, source: { kind: 'alliesOfKingdom', kingdom: '皓彩森林盟友' } } }),
+      createMix([BaseColor.Red, BaseColor.Green], 6, 0, { modifier: { mod: { kind: 'multiplier', a: 6 }, source: { kind: 'alliesOfKingdom', kingdom: '皓彩森林' } } }),
     ),
   },
   {
@@ -789,7 +820,8 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 8176,
     desc: '对一名敌人造成 [魔法 + 7] 点伤害，伤害值因卓克祖盟友的数量而增强。每有一名卓克祖盟友，则创造混合棕色和蓝色的 6 颗宝石。 [x6]',
     build: skill(
-      dmg('enemyChosen', 7, 1),
+      dmg('enemyChosen', 7, 1, { modifier: { mod: { kind: 'multiplier', a: 6 }, source: { kind: 'alliesOfKingdom', kingdom: '卓克祖盟友' } } }),
+      createMix([BaseColor.Brown, BaseColor.Blue], 6, 0, { modifier: { mod: { kind: 'multiplier', a: 6 }, source: { kind: 'alliesOfKingdom', kingdom: '卓克祖' } } }),
     ),
   },
   {
@@ -804,7 +836,8 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 8178,
     desc: '对一名敌人造成 [魔法 + 7] 点伤害，伤害值因毛格瑞姆森林盟友的数量而增强。每有一名毛格瑞姆森林盟友，则创造混合绿色和蓝色的 6 颗宝石。 [x6]',
     build: skill(
-      dmg('enemyChosen', 7, 1),
+      dmg('enemyChosen', 7, 1, { modifier: { mod: { kind: 'multiplier', a: 6 }, source: { kind: 'alliesOfKingdom', kingdom: '毛格瑞姆森林盟友' } } }),
+      createMix([BaseColor.Green, BaseColor.Blue], 6, 0, { modifier: { mod: { kind: 'multiplier', a: 6 }, source: { kind: 'alliesOfKingdom', kingdom: '毛格瑞姆森林' } } }),
     ),
   },
   {
@@ -835,7 +868,8 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 8197,
     desc: '对一名敌人造成 [魔法 + 7] 点伤害，伤害值因鳞雾沼泽盟友的数量而增强。每有一名鳞雾沼泽盟友，则创造混合蓝色和红色的 6 颗宝石。 [x6]',
     build: skill(
-      dmg('enemyChosen', 7, 1),
+      dmg('enemyChosen', 7, 1, { modifier: { mod: { kind: 'multiplier', a: 6 }, source: { kind: 'alliesOfKingdom', kingdom: '鳞雾沼泽盟友' } } }),
+      createMix([BaseColor.Blue, BaseColor.Red], 6, 0, { modifier: { mod: { kind: 'multiplier', a: 6 }, source: { kind: 'alliesOfKingdom', kingdom: '鳞雾沼泽' } } }),
     ),
   },
   {
@@ -850,7 +884,8 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 8199,
     desc: '对一名敌人造成 [魔法 + 7] 点伤害，伤害值因荣耀之地盟友的数量而增强。每有一名荣耀之地盟友，则创造混合绿色和红色的 6 颗宝石。 [x6]',
     build: skill(
-      dmg('enemyChosen', 7, 1),
+      dmg('enemyChosen', 7, 1, { modifier: { mod: { kind: 'multiplier', a: 6 }, source: { kind: 'alliesOfKingdom', kingdom: '荣耀之地盟友' } } }),
+      createMix([BaseColor.Green, BaseColor.Red], 6, 0, { modifier: { mod: { kind: 'multiplier', a: 6 }, source: { kind: 'alliesOfKingdom', kingdom: '荣耀之地' } } }),
     ),
   },
   {
@@ -865,7 +900,8 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 8201,
     desc: '对一名敌人造成 [魔法 + 7] 点伤害，伤害值因荆棘森林盟友的数量而增强。每有一名荆棘森林盟友，则创造混合绿色和黄色的 6 颗宝石。 [x6]',
     build: skill(
-      dmg('enemyChosen', 7, 1),
+      dmg('enemyChosen', 7, 1, { modifier: { mod: { kind: 'multiplier', a: 6 }, source: { kind: 'alliesOfKingdom', kingdom: '荆棘森林盟友' } } }),
+      createMix([BaseColor.Green, BaseColor.Yellow], 6, 0, { modifier: { mod: { kind: 'multiplier', a: 6 }, source: { kind: 'alliesOfKingdom', kingdom: '荆棘森林' } } }),
     ),
   },
   {
@@ -903,82 +939,92 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 8254,
     desc: '对一名敌人造成 [魔法 + 5] 点严重溅射伤害，每锻炼 1 个武器段位则 +4 点伤害值。击晕所有蓝色敌人并净化所有蓝色盟友。爆破 4 颗宝石，如果敌方有劫数，则再爆破 3 颗宝石。',
     build: skill(
-      dmgSplash('enemyChosen', 5, 1, { range: 'splash' }),
+      dmgSplash('enemyChosen', 5, 1, { range: 'splash', modifier: { mod: { kind: 'multiplier', a: 4 }, source: { kind: 'tempering' } } }),
       inflict('stun', 'allyAll'),
       explodeRandomGems(4, 0, 'color', undefined),
+      explodeRandomGems(3, 0, 'color', undefined, { ifCond: { kind: 'targetHasDoom' } }),
     ),
   },
   {
     id: 8255,
     desc: '对一名敌人造成 [魔法 + 5] 点严重溅射伤害，每锻炼 1 个武器段位则 +4 点伤害值。击晕所有绿色敌人并净化所有绿色盟友。爆破 4 颗宝石，如果敌方有劫数，则再爆破 3 颗宝石。',
     build: skill(
-      dmgSplash('enemyChosen', 5, 1, { range: 'splash' }),
+      dmgSplash('enemyChosen', 5, 1, { range: 'splash', modifier: { mod: { kind: 'multiplier', a: 4 }, source: { kind: 'tempering' } } }),
       inflict('stun', 'allyAll'),
       explodeRandomGems(4, 0, 'color', undefined),
+      explodeRandomGems(3, 0, 'color', undefined, { ifCond: { kind: 'targetHasDoom' } }),
     ),
   },
   {
     id: 8256,
     desc: '对一名敌人造成 [魔法 + 5] 点严重溅射伤害，每锻炼 1 个武器段位则 +4 点伤害值。击晕所有红色敌人并净化所有红色盟友。爆破 4 颗宝石，如果敌方有劫数，则再爆破 3 颗宝石。',
     build: skill(
-      dmgSplash('enemyChosen', 5, 1, { range: 'splash' }),
+      dmgSplash('enemyChosen', 5, 1, { range: 'splash', modifier: { mod: { kind: 'multiplier', a: 4 }, source: { kind: 'tempering' } } }),
       inflict('stun', 'allyAll'),
       explodeRandomGems(4, 0, 'color', undefined),
+      explodeRandomGems(3, 0, 'color', undefined, { ifCond: { kind: 'targetHasDoom' } }),
     ),
   },
   {
     id: 8257,
     desc: '对一名敌人造成 [魔法 + 5] 点严重溅射伤害，每锻炼 1 个武器段位则 +4 点伤害值。击晕所有黄色敌人并净化所有黄色盟友。爆破 4 颗宝石，如果敌方有劫数，则再爆破 3 颗宝石。',
     build: skill(
-      dmgSplash('enemyChosen', 5, 1, { range: 'splash' }),
+      dmgSplash('enemyChosen', 5, 1, { range: 'splash', modifier: { mod: { kind: 'multiplier', a: 4 }, source: { kind: 'tempering' } } }),
       inflict('stun', 'allyAll'),
       explodeRandomGems(4, 0, 'color', undefined),
+      explodeRandomGems(3, 0, 'color', undefined, { ifCond: { kind: 'targetHasDoom' } }),
     ),
   },
   {
     id: 8258,
     desc: '对一名敌人造成 [魔法 + 5] 点严重溅射伤害，每锻炼 1 个武器段位则 +4 点伤害值。击晕所有紫色敌人并净化所有紫色盟友。爆破 4 颗宝石，如果敌方有劫数，则再爆破 3 颗宝石。',
     build: skill(
-      dmgSplash('enemyChosen', 5, 1, { range: 'splash' }),
+      dmgSplash('enemyChosen', 5, 1, { range: 'splash', modifier: { mod: { kind: 'multiplier', a: 4 }, source: { kind: 'tempering' } } }),
       inflict('stun', 'allyAll'),
       explodeRandomGems(4, 0, 'color', undefined),
+      explodeRandomGems(3, 0, 'color', undefined, { ifCond: { kind: 'targetHasDoom' } }),
     ),
   },
   {
     id: 8259,
     desc: '对一名敌人造成 [魔法 + 5] 点严重溅射伤害，每锻炼 1 个武器段位则 +4 点伤害值。击晕所有棕色敌人并净化所有棕色盟友。爆破 4 颗宝石，如果敌方有劫数，则再爆破 3 颗宝石。',
     build: skill(
-      dmgSplash('enemyChosen', 5, 1, { range: 'splash' }),
+      dmgSplash('enemyChosen', 5, 1, { range: 'splash', modifier: { mod: { kind: 'multiplier', a: 4 }, source: { kind: 'tempering' } } }),
       inflict('stun', 'allyAll'),
       explodeRandomGems(4, 0, 'color', undefined),
+      explodeRandomGems(3, 0, 'color', undefined, { ifCond: { kind: 'targetHasDoom' } }),
     ),
   },
   {
     id: 8260,
     desc: '对一名敌人造成 [魔法 + 7] 点伤害，伤害值因迈纳杰之罪盟友数而增强。每有一名迈纳杰之罪盟友，则创造 6 颗混合红色和紫色的宝石。 [x6]',
     build: skill(
-      dmg('enemyChosen', 7, 1),
+      dmg('enemyChosen', 7, 1, { modifier: { mod: { kind: 'multiplier', a: 6 }, source: { kind: 'alliesOfKingdom', kingdom: '迈纳杰之罪' } } }),
+      createMix([BaseColor.Red, BaseColor.Purple], 6, 0, { modifier: { mod: { kind: 'multiplier', a: 6 }, source: { kind: 'alliesOfKingdom', kingdom: '迈纳杰之罪' } } }),
     ),
   },
   {
     id: 8261,
     desc: '对一名敌人造成 [魔法 + 7] 点伤害，伤害值因聚沙之地盟友数而增强。每有一名聚沙之地盟友，则创造 6 颗混合黄色和棕色的宝石。 [x6]',
     build: skill(
-      dmg('enemyChosen', 7, 1),
+      dmg('enemyChosen', 7, 1, { modifier: { mod: { kind: 'multiplier', a: 6 }, source: { kind: 'alliesOfKingdom', kingdom: '聚沙之地' } } }),
+      createMix([BaseColor.Yellow, BaseColor.Brown], 6, 0, { modifier: { mod: { kind: 'multiplier', a: 6 }, source: { kind: 'alliesOfKingdom', kingdom: '聚沙之地' } } }),
     ),
   },
   {
     id: 8262,
     desc: '对一名敌人造成 [魔法 + 7] 点伤害，伤害值因荒芜之地盟友数而增强。每有一名荒芜之地盟友，则创造 6 颗混合红色和紫色的宝石。 [x6]',
     build: skill(
-      dmg('enemyChosen', 7, 1),
+      dmg('enemyChosen', 7, 1, { modifier: { mod: { kind: 'multiplier', a: 6 }, source: { kind: 'alliesOfKingdom', kingdom: '荒芜之地' } } }),
+      createMix([BaseColor.Red, BaseColor.Purple], 6, 0, { modifier: { mod: { kind: 'multiplier', a: 6 }, source: { kind: 'alliesOfKingdom', kingdom: '荒芜之地' } } }),
     ),
   },
   {
     id: 8263,
     desc: '对一名敌人造成 [魔法 + 7] 点伤害，伤害值因白盔国盟友数而增强。每有一名白盔国盟友，则创造 6 颗混合黄色和棕色的宝石。 [x6]',
     build: skill(
-      dmg('enemyChosen', 7, 1),
+      dmg('enemyChosen', 7, 1, { modifier: { mod: { kind: 'multiplier', a: 6 }, source: { kind: 'alliesOfKingdom', kingdom: '白盔国' } } }),
+      createMix([BaseColor.Yellow, BaseColor.Brown], 6, 0, { modifier: { mod: { kind: 'multiplier', a: 6 }, source: { kind: 'alliesOfKingdom', kingdom: '白盔国' } } }),
     ),
   },
   {
@@ -1028,7 +1074,8 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 8285,
     desc: '对一名敌人造成 [魔法 + 7] 点伤害，伤害值因卡拉考斯盟友数而增强。每有一名卡拉考斯盟友，则创建 6 颗混合紫色和棕色的宝石。 [x6]',
     build: skill(
-      dmg('enemyChosen', 7, 1),
+      dmg('enemyChosen', 7, 1, { modifier: { mod: { kind: 'multiplier', a: 6 }, source: { kind: 'alliesOfKingdom', kingdom: '卡拉考斯' } } }),
+      createMix([BaseColor.Purple, BaseColor.Brown], 6, 0, { modifier: { mod: { kind: 'multiplier', a: 6 }, source: { kind: 'alliesOfKingdom', kingdom: '卡拉考斯' } } }),
     ),
   },
   {
@@ -1045,7 +1092,8 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 8313,
     desc: '对一名敌人造成 [魔法 + 7] 伤害，伤害值因梅兰堤斯盟友数而增强。每有一名梅兰堤斯盟友，则创建 6 颗混合蓝色和绿色的宝石。 [x6]',
     build: skill(
-      dmg('enemyChosen', 7, 1),
+      dmg('enemyChosen', 7, 1, { modifier: { mod: { kind: 'multiplier', a: 6 }, source: { kind: 'alliesOfKingdom', kingdom: '梅兰堤斯' } } }),
+      createMix([BaseColor.Blue, BaseColor.Green], 6, 0, { modifier: { mod: { kind: 'multiplier', a: 6 }, source: { kind: 'alliesOfKingdom', kingdom: '梅兰堤斯' } } }),
     ),
   },
   {
@@ -1077,7 +1125,7 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '移除所有黄色宝石。对一名敌人造成l [魔法 + 5] 点伤害，伤害值因被移除的宝石数而增强。若敌人来自阿达纳，或战斗发生在阿达纳，则造成双倍伤害。 [3:1]',
     build: skill(
       destroyColor(BaseColor.Yellow),
-      dmg('enemyChosen', 5, 1, { modifier: { mod: { kind: 'ratio', a: 3, b: 1 }, source: { kind: 'destroyedGems' } } }),
+      dmg('enemyChosen', 5, 1, { modifier: { mod: { kind: 'ratio', a: 3, b: 1 }, source: { kind: 'destroyedGems' } }, condMult: { times: 2, cond: { kind: 'anyOf', of: [{ kind: 'kingdomOf', side: 'enemy', kingdom: '阿达纳' }, { kind: 'kingdomPresent', kingdom: '阿达纳' }] } } }),
     ),
   },
   {
@@ -1085,7 +1133,7 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '移除所有紫色宝石。对一名敌人造成l [魔法 + 5] 点伤害，伤害值因被移除的宝石数而增强。若敌人来自卡拉考斯，或战斗发生在卡拉考斯，则造成双倍伤害。 [3:1]',
     build: skill(
       destroyColor(BaseColor.Purple),
-      dmg('enemyChosen', 5, 1, { modifier: { mod: { kind: 'ratio', a: 3, b: 1 }, source: { kind: 'destroyedGems' } } }),
+      dmg('enemyChosen', 5, 1, { modifier: { mod: { kind: 'ratio', a: 3, b: 1 }, source: { kind: 'destroyedGems' } }, condMult: { times: 2, cond: { kind: 'anyOf', of: [{ kind: 'kingdomOf', side: 'enemy', kingdom: '卡拉考斯' }, { kind: 'kingdomPresent', kingdom: '卡拉考斯' }] } } }),
     ),
   },
   {
@@ -1093,7 +1141,7 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '移除所有紫色宝石。对一名敌人造成l [魔法 + 5] 点伤害，伤害值因被移除的宝石数而增强。若敌人来自蛛尔卡里，或战斗发生在蛛尔卡里，则造成双倍伤害。 [3:1]',
     build: skill(
       destroyColor(BaseColor.Purple),
-      dmg('enemyChosen', 5, 1, { modifier: { mod: { kind: 'ratio', a: 3, b: 1 }, source: { kind: 'destroyedGems' } } }),
+      dmg('enemyChosen', 5, 1, { modifier: { mod: { kind: 'ratio', a: 3, b: 1 }, source: { kind: 'destroyedGems' } }, condMult: { times: 2, cond: { kind: 'anyOf', of: [{ kind: 'kingdomOf', side: 'enemy', kingdom: '蛛尔卡里' }, { kind: 'kingdomPresent', kingdom: '蛛尔卡里' }] } } }),
     ),
   },
   {
@@ -1101,7 +1149,7 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '移除所有黄色宝石。对一名敌人造成l [魔法 + 5] 点伤害，伤害值因被移除的宝石数而增强。若敌人来自卜筮之原，或战斗发生在卜筮之原，则造成双倍伤害。 [3:1]',
     build: skill(
       destroyColor(BaseColor.Yellow),
-      dmg('enemyChosen', 5, 1, { modifier: { mod: { kind: 'ratio', a: 3, b: 1 }, source: { kind: 'destroyedGems' } } }),
+      dmg('enemyChosen', 5, 1, { modifier: { mod: { kind: 'ratio', a: 3, b: 1 }, source: { kind: 'destroyedGems' } }, condMult: { times: 2, cond: { kind: 'anyOf', of: [{ kind: 'kingdomOf', side: 'enemy', kingdom: '卜筮之原' }, { kind: 'kingdomPresent', kingdom: '卜筮之原' }] } } }),
     ),
   },
   {
@@ -1109,7 +1157,7 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '移除所有绿色宝石。对一名敌人造成l [魔法 + 5] 点伤害，伤害值因被移除的宝石数而增强。若敌人来自鳞雾沼泽，或战斗发生在鳞雾沼泽，则造成双倍伤害。 [3:1]',
     build: skill(
       destroyColor(BaseColor.Green),
-      dmg('enemyChosen', 5, 1, { modifier: { mod: { kind: 'ratio', a: 3, b: 1 }, source: { kind: 'destroyedGems' } } }),
+      dmg('enemyChosen', 5, 1, { modifier: { mod: { kind: 'ratio', a: 3, b: 1 }, source: { kind: 'destroyedGems' } }, condMult: { times: 2, cond: { kind: 'anyOf', of: [{ kind: 'kingdomOf', side: 'enemy', kingdom: '鳞雾沼泽' }, { kind: 'kingdomPresent', kingdom: '鳞雾沼泽' }] } } }),
     ),
   },
   {
@@ -1117,7 +1165,7 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '移除所有绿色宝石。对一名敌人造成l [魔法 + 5] 点伤害，伤害值因被移除的宝石数而增强。若敌人来自荆棘森林，或战斗发生在荆棘森林，则造成双倍伤害。 [3:1]',
     build: skill(
       destroyColor(BaseColor.Green),
-      dmg('enemyChosen', 5, 1, { modifier: { mod: { kind: 'ratio', a: 3, b: 1 }, source: { kind: 'destroyedGems' } } }),
+      dmg('enemyChosen', 5, 1, { modifier: { mod: { kind: 'ratio', a: 3, b: 1 }, source: { kind: 'destroyedGems' } }, condMult: { times: 2, cond: { kind: 'anyOf', of: [{ kind: 'kingdomOf', side: 'enemy', kingdom: '荆棘森林' }, { kind: 'kingdomPresent', kingdom: '荆棘森林' }] } } }),
     ),
   },
   {
@@ -1125,7 +1173,7 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '移除所有黄色宝石。对一名敌人造成l [魔法 + 5] 点伤害，伤害值因被移除的宝石数而增强。若敌人来自白盔国，或战斗发生在白盔国，则造成双倍伤害。 [3:1]',
     build: skill(
       destroyColor(BaseColor.Yellow),
-      dmg('enemyChosen', 5, 1, { modifier: { mod: { kind: 'ratio', a: 3, b: 1 }, source: { kind: 'destroyedGems' } } }),
+      dmg('enemyChosen', 5, 1, { modifier: { mod: { kind: 'ratio', a: 3, b: 1 }, source: { kind: 'destroyedGems' } }, condMult: { times: 2, cond: { kind: 'anyOf', of: [{ kind: 'kingdomOf', side: 'enemy', kingdom: '白盔国' }, { kind: 'kingdomPresent', kingdom: '白盔国' }] } } }),
     ),
   },
   {
@@ -1133,7 +1181,7 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '移除所有绿色宝石。对一名敌人造成l [魔法 + 5] 点伤害，伤害值因被移除的宝石数而增强。若敌人来自潘神之谷，或战斗发生在潘神之谷，则造成双倍伤害。 [3:1]',
     build: skill(
       destroyColor(BaseColor.Green),
-      dmg('enemyChosen', 5, 1, { modifier: { mod: { kind: 'ratio', a: 3, b: 1 }, source: { kind: 'destroyedGems' } } }),
+      dmg('enemyChosen', 5, 1, { modifier: { mod: { kind: 'ratio', a: 3, b: 1 }, source: { kind: 'destroyedGems' } }, condMult: { times: 2, cond: { kind: 'anyOf', of: [{ kind: 'kingdomOf', side: 'enemy', kingdom: '潘神之谷' }, { kind: 'kingdomPresent', kingdom: '潘神之谷' }] } } }),
     ),
   },
   {
@@ -1141,7 +1189,7 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '移除所有棕色宝石。对一名敌人造成l [魔法 + 5] 点伤害，伤害值因被移除的宝石数而增强。若敌人来自卡其尔，或战斗发生在卡其尔，则造成双倍伤害。 [3:1]',
     build: skill(
       destroyColor(BaseColor.Brown),
-      dmg('enemyChosen', 5, 1, { modifier: { mod: { kind: 'ratio', a: 3, b: 1 }, source: { kind: 'destroyedGems' } } }),
+      dmg('enemyChosen', 5, 1, { modifier: { mod: { kind: 'ratio', a: 3, b: 1 }, source: { kind: 'destroyedGems' } }, condMult: { times: 2, cond: { kind: 'anyOf', of: [{ kind: 'kingdomOf', side: 'enemy', kingdom: '卡其尔' }, { kind: 'kingdomPresent', kingdom: '卡其尔' }] } } }),
     ),
   },
   {
@@ -1149,7 +1197,7 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '移除所有紫色宝石。对一名敌人造成l [魔法 + 5] 点伤害，伤害值因被移除的宝石数而增强。若敌人来自盖塔尔，或战斗发生在盖塔尔，则造成双倍伤害。 [3:1]',
     build: skill(
       destroyColor(BaseColor.Purple),
-      dmg('enemyChosen', 5, 1, { modifier: { mod: { kind: 'ratio', a: 3, b: 1 }, source: { kind: 'destroyedGems' } } }),
+      dmg('enemyChosen', 5, 1, { modifier: { mod: { kind: 'ratio', a: 3, b: 1 }, source: { kind: 'destroyedGems' } }, condMult: { times: 2, cond: { kind: 'anyOf', of: [{ kind: 'kingdomOf', side: 'enemy', kingdom: '盖塔尔' }, { kind: 'kingdomPresent', kingdom: '盖塔尔' }] } } }),
     ),
   },
   {
@@ -1157,7 +1205,7 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '移除所有绿色宝石。对一名敌人造成l [魔法 + 5] 点伤害，伤害值因被移除的宝石数而增强。若敌人来自齐埃金，或战斗发生在齐埃金，则造成双倍伤害。 [3:1]',
     build: skill(
       destroyColor(BaseColor.Green),
-      dmg('enemyChosen', 5, 1, { modifier: { mod: { kind: 'ratio', a: 3, b: 1 }, source: { kind: 'destroyedGems' } } }),
+      dmg('enemyChosen', 5, 1, { modifier: { mod: { kind: 'ratio', a: 3, b: 1 }, source: { kind: 'destroyedGems' } }, condMult: { times: 2, cond: { kind: 'anyOf', of: [{ kind: 'kingdomOf', side: 'enemy', kingdom: '齐埃金' }, { kind: 'kingdomPresent', kingdom: '齐埃金' }] } } }),
     ),
   },
   {
@@ -1165,7 +1213,7 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '移除所有红色宝石。对一名敌人造成l [魔法 + 5] 点伤害，伤害值因被移除的宝石数而增强。若敌人来自荣耀之地，或战斗发生在荣耀之地，则造成双倍伤害。 [3:1]',
     build: skill(
       destroyColor(BaseColor.Red),
-      dmg('enemyChosen', 5, 1, { modifier: { mod: { kind: 'ratio', a: 3, b: 1 }, source: { kind: 'destroyedGems' } } }),
+      dmg('enemyChosen', 5, 1, { modifier: { mod: { kind: 'ratio', a: 3, b: 1 }, source: { kind: 'destroyedGems' } }, condMult: { times: 2, cond: { kind: 'anyOf', of: [{ kind: 'kingdomOf', side: 'enemy', kingdom: '荣耀之地' }, { kind: 'kingdomPresent', kingdom: '荣耀之地' }] } } }),
     ),
   },
   {
@@ -1173,7 +1221,7 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '移除所有紫色宝石。对一名敌人造成l [魔法 + 5] 点伤害，伤害值因被移除的宝石数而增强。若敌人来自加尔凡尼亚，或战斗发生在加尔凡尼亚，则造成双倍伤害。 [3:1]',
     build: skill(
       destroyColor(BaseColor.Purple),
-      dmg('enemyChosen', 5, 1, { modifier: { mod: { kind: 'ratio', a: 3, b: 1 }, source: { kind: 'destroyedGems' } } }),
+      dmg('enemyChosen', 5, 1, { modifier: { mod: { kind: 'ratio', a: 3, b: 1 }, source: { kind: 'destroyedGems' } }, condMult: { times: 2, cond: { kind: 'anyOf', of: [{ kind: 'kingdomOf', side: 'enemy', kingdom: '加尔凡尼亚' }, { kind: 'kingdomPresent', kingdom: '加尔凡尼亚' }] } } }),
     ),
   },
   {
@@ -1181,7 +1229,7 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '移除所有蓝色宝石。对一名敌人造成l [魔法 + 5] 点伤害，伤害值因被移除的宝石数而增强。若敌人来自剑锋崖，或战斗发生在剑锋崖，则造成双倍伤害。 [3:1]',
     build: skill(
       destroyColor(BaseColor.Blue),
-      dmg('enemyChosen', 5, 1, { modifier: { mod: { kind: 'ratio', a: 3, b: 1 }, source: { kind: 'destroyedGems' } } }),
+      dmg('enemyChosen', 5, 1, { modifier: { mod: { kind: 'ratio', a: 3, b: 1 }, source: { kind: 'destroyedGems' } }, condMult: { times: 2, cond: { kind: 'anyOf', of: [{ kind: 'kingdomOf', side: 'enemy', kingdom: '剑锋崖' }, { kind: 'kingdomPresent', kingdom: '剑锋崖' }] } } }),
     ),
   },
   {
@@ -1189,7 +1237,7 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '移除所有蓝色宝石。对一名敌人造成l [魔法 + 5] 点伤害，伤害值因被移除的宝石数而增强。若敌人来自风暴峡湾，或战斗发生在风暴峡湾，则造成双倍伤害。 [3:1]',
     build: skill(
       destroyColor(BaseColor.Blue),
-      dmg('enemyChosen', 5, 1, { modifier: { mod: { kind: 'ratio', a: 3, b: 1 }, source: { kind: 'destroyedGems' } } }),
+      dmg('enemyChosen', 5, 1, { modifier: { mod: { kind: 'ratio', a: 3, b: 1 }, source: { kind: 'destroyedGems' } }, condMult: { times: 2, cond: { kind: 'anyOf', of: [{ kind: 'kingdomOf', side: 'enemy', kingdom: '风暴峡湾' }, { kind: 'kingdomPresent', kingdom: '风暴峡湾' }] } } }),
     ),
   },
   {
@@ -1197,7 +1245,7 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '移除所有绿色宝石。对一名敌人造成l [魔法 + 5] 点伤害，伤害值因被移除的宝石数而增强。若敌人来自毛格瑞姆森林，或战斗发生在毛格瑞姆森林，则造成双倍伤害。 [3:1]',
     build: skill(
       destroyColor(BaseColor.Green),
-      dmg('enemyChosen', 5, 1, { modifier: { mod: { kind: 'ratio', a: 3, b: 1 }, source: { kind: 'destroyedGems' } } }),
+      dmg('enemyChosen', 5, 1, { modifier: { mod: { kind: 'ratio', a: 3, b: 1 }, source: { kind: 'destroyedGems' } }, condMult: { times: 2, cond: { kind: 'anyOf', of: [{ kind: 'kingdomOf', side: 'enemy', kingdom: '毛格瑞姆森林' }, { kind: 'kingdomPresent', kingdom: '毛格瑞姆森林' }] } } }),
     ),
   },
   {
@@ -1205,7 +1253,7 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '移除所有红色宝石。对一名敌人造成l [魔法 + 5] 点伤害，伤害值因被移除的宝石数而增强。若敌人来自葛洛什奈克，或战斗发生在葛洛什奈克，则造成双倍伤害。 [3:1]',
     build: skill(
       destroyColor(BaseColor.Red),
-      dmg('enemyChosen', 5, 1, { modifier: { mod: { kind: 'ratio', a: 3, b: 1 }, source: { kind: 'destroyedGems' } } }),
+      dmg('enemyChosen', 5, 1, { modifier: { mod: { kind: 'ratio', a: 3, b: 1 }, source: { kind: 'destroyedGems' } }, condMult: { times: 2, cond: { kind: 'anyOf', of: [{ kind: 'kingdomOf', side: 'enemy', kingdom: '葛洛什奈克' }, { kind: 'kingdomPresent', kingdom: '葛洛什奈克' }] } } }),
     ),
   },
   {
@@ -1213,7 +1261,7 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '移除所有棕色宝石。对一名敌人造成l [魔法 + 5] 点伤害，伤害值因被移除的宝石数而增强。若敌人来自狂野平原，或战斗发生在狂野平原，则造成双倍伤害。 [3:1]',
     build: skill(
       destroyColor(BaseColor.Brown),
-      dmg('enemyChosen', 5, 1, { modifier: { mod: { kind: 'ratio', a: 3, b: 1 }, source: { kind: 'destroyedGems' } } }),
+      dmg('enemyChosen', 5, 1, { modifier: { mod: { kind: 'ratio', a: 3, b: 1 }, source: { kind: 'destroyedGems' } }, condMult: { times: 2, cond: { kind: 'anyOf', of: [{ kind: 'kingdomOf', side: 'enemy', kingdom: '狂野平原' }, { kind: 'kingdomPresent', kingdom: '狂野平原' }] } } }),
     ),
   },
   {
@@ -1221,7 +1269,7 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '移除所有紫色宝石。对一名敌人造成l [魔法 + 5] 点伤害，伤害值因被移除的宝石数而增强。若敌人来自黑石，或战斗发生在黑石，则造成双倍伤害。 [3:1]',
     build: skill(
       destroyColor(BaseColor.Purple),
-      dmg('enemyChosen', 5, 1, { modifier: { mod: { kind: 'ratio', a: 3, b: 1 }, source: { kind: 'destroyedGems' } } }),
+      dmg('enemyChosen', 5, 1, { modifier: { mod: { kind: 'ratio', a: 3, b: 1 }, source: { kind: 'destroyedGems' } }, condMult: { times: 2, cond: { kind: 'anyOf', of: [{ kind: 'kingdomOf', side: 'enemy', kingdom: '黑石' }, { kind: 'kingdomPresent', kingdom: '黑石' }] } } }),
     ),
   },
   {
@@ -1229,7 +1277,7 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '移除所有黄色宝石。对一名敌人造成l [魔法 + 5] 点伤害，伤害值因被移除的宝石数而增强。若敌人来自聚沙之地，或战斗发生在聚沙之地，则造成双倍伤害。 [3:1]',
     build: skill(
       destroyColor(BaseColor.Yellow),
-      dmg('enemyChosen', 5, 1, { modifier: { mod: { kind: 'ratio', a: 3, b: 1 }, source: { kind: 'destroyedGems' } } }),
+      dmg('enemyChosen', 5, 1, { modifier: { mod: { kind: 'ratio', a: 3, b: 1 }, source: { kind: 'destroyedGems' } }, condMult: { times: 2, cond: { kind: 'anyOf', of: [{ kind: 'kingdomOf', side: 'enemy', kingdom: '聚沙之地' }, { kind: 'kingdomPresent', kingdom: '聚沙之地' }] } } }),
     ),
   },
   {
@@ -1237,7 +1285,7 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '移除所有红色宝石。对一名敌人造成l [魔法 + 5] 点伤害，伤害值因被移除的宝石数而增强。若敌人来自荒芜之地，或战斗发生在荒芜之地，则造成双倍伤害。 [3:1]',
     build: skill(
       destroyColor(BaseColor.Red),
-      dmg('enemyChosen', 5, 1, { modifier: { mod: { kind: 'ratio', a: 3, b: 1 }, source: { kind: 'destroyedGems' } } }),
+      dmg('enemyChosen', 5, 1, { modifier: { mod: { kind: 'ratio', a: 3, b: 1 }, source: { kind: 'destroyedGems' } }, condMult: { times: 2, cond: { kind: 'anyOf', of: [{ kind: 'kingdomOf', side: 'enemy', kingdom: '荒芜之地' }, { kind: 'kingdomPresent', kingdom: '荒芜之地' }] } } }),
     ),
   },
   {
@@ -1245,7 +1293,7 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '移除所有蓝色宝石。对一名敌人造成l [魔法 + 5] 点伤害，伤害值因被移除的宝石数而增强。若敌人来自冰峰之巅，或战斗发生在冰峰之巅，则造成双倍伤害。 [3:1]',
     build: skill(
       destroyColor(BaseColor.Blue),
-      dmg('enemyChosen', 5, 1, { modifier: { mod: { kind: 'ratio', a: 3, b: 1 }, source: { kind: 'destroyedGems' } } }),
+      dmg('enemyChosen', 5, 1, { modifier: { mod: { kind: 'ratio', a: 3, b: 1 }, source: { kind: 'destroyedGems' } }, condMult: { times: 2, cond: { kind: 'anyOf', of: [{ kind: 'kingdomOf', side: 'enemy', kingdom: '冰峰之巅' }, { kind: 'kingdomPresent', kingdom: '冰峰之巅' }] } } }),
     ),
   },
   {
@@ -1253,7 +1301,7 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '移除所有蓝色宝石。对一名敌人造成l [魔法 + 5] 点伤害，伤害值因被移除的宝石数而增强。若敌人来自狮心帝国，或战斗发生在狮心帝国，则造成双倍伤害。 [3:1]',
     build: skill(
       destroyColor(BaseColor.Blue),
-      dmg('enemyChosen', 5, 1, { modifier: { mod: { kind: 'ratio', a: 3, b: 1 }, source: { kind: 'destroyedGems' } } }),
+      dmg('enemyChosen', 5, 1, { modifier: { mod: { kind: 'ratio', a: 3, b: 1 }, source: { kind: 'destroyedGems' } }, condMult: { times: 2, cond: { kind: 'anyOf', of: [{ kind: 'kingdomOf', side: 'enemy', kingdom: '狮心帝国' }, { kind: 'kingdomPresent', kingdom: '狮心帝国' }] } } }),
     ),
   },
   {
@@ -1261,7 +1309,7 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '移除所有红色宝石。对一名敌人造成l [魔法 + 5] 点伤害，伤害值因被移除的宝石数而增强。若敌人来自龙爪，或战斗发生在龙爪，则造成双倍伤害。 [3:1]',
     build: skill(
       destroyColor(BaseColor.Red),
-      dmg('enemyChosen', 5, 1, { modifier: { mod: { kind: 'ratio', a: 3, b: 1 }, source: { kind: 'destroyedGems' } } }),
+      dmg('enemyChosen', 5, 1, { modifier: { mod: { kind: 'ratio', a: 3, b: 1 }, source: { kind: 'destroyedGems' } }, condMult: { times: 2, cond: { kind: 'anyOf', of: [{ kind: 'kingdomOf', side: 'enemy', kingdom: '龙爪' }, { kind: 'kingdomPresent', kingdom: '龙爪' }] } } }),
     ),
   },
   {
@@ -1269,7 +1317,7 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '移除所有蓝色宝石。对一名敌人造成l [魔法 + 5] 点伤害，伤害值因被移除的宝石数而增强。若敌人来自黑鹰，或战斗发生在黑鹰，则造成双倍伤害。 [3:1]',
     build: skill(
       destroyColor(BaseColor.Blue),
-      dmg('enemyChosen', 5, 1, { modifier: { mod: { kind: 'ratio', a: 3, b: 1 }, source: { kind: 'destroyedGems' } } }),
+      dmg('enemyChosen', 5, 1, { modifier: { mod: { kind: 'ratio', a: 3, b: 1 }, source: { kind: 'destroyedGems' } }, condMult: { times: 2, cond: { kind: 'anyOf', of: [{ kind: 'kingdomOf', side: 'enemy', kingdom: '黑鹰' }, { kind: 'kingdomPresent', kingdom: '黑鹰' }] } } }),
     ),
   },
   {
@@ -1277,7 +1325,7 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '移除所有紫色宝石。对一名敌人造成l [魔法 + 5] 点伤害，伤害值因被移除的宝石数而增强。若敌人来自玉银林地，或战斗发生在玉银林地，则造成双倍伤害。 [3:1]',
     build: skill(
       destroyColor(BaseColor.Purple),
-      dmg('enemyChosen', 5, 1, { modifier: { mod: { kind: 'ratio', a: 3, b: 1 }, source: { kind: 'destroyedGems' } } }),
+      dmg('enemyChosen', 5, 1, { modifier: { mod: { kind: 'ratio', a: 3, b: 1 }, source: { kind: 'destroyedGems' } }, condMult: { times: 2, cond: { kind: 'anyOf', of: [{ kind: 'kingdomOf', side: 'enemy', kingdom: '玉银林地' }, { kind: 'kingdomPresent', kingdom: '玉银林地' }] } } }),
     ),
   },
   {
@@ -1285,7 +1333,7 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '移除所有黄色宝石。对一名敌人造成l [魔法 + 5] 点伤害，伤害值因被移除的宝石数而增强。若敌人来自日冕，或战斗发生在日冕，则造成双倍伤害。 [3:1]',
     build: skill(
       destroyColor(BaseColor.Yellow),
-      dmg('enemyChosen', 5, 1, { modifier: { mod: { kind: 'ratio', a: 3, b: 1 }, source: { kind: 'destroyedGems' } } }),
+      dmg('enemyChosen', 5, 1, { modifier: { mod: { kind: 'ratio', a: 3, b: 1 }, source: { kind: 'destroyedGems' } }, condMult: { times: 2, cond: { kind: 'anyOf', of: [{ kind: 'kingdomOf', side: 'enemy', kingdom: '日冕' }, { kind: 'kingdomPresent', kingdom: '日冕' }] } } }),
     ),
   },
   {
@@ -1293,7 +1341,7 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '移除所有棕色宝石。对一名敌人造成l [魔法 + 5] 点伤害，伤害值因被移除的宝石数而增强。若敌人来自厄什卡亚，或战斗发生在厄什卡亚，则造成双倍伤害。 [3:1]',
     build: skill(
       destroyColor(BaseColor.Brown),
-      dmg('enemyChosen', 5, 1, { modifier: { mod: { kind: 'ratio', a: 3, b: 1 }, source: { kind: 'destroyedGems' } } }),
+      dmg('enemyChosen', 5, 1, { modifier: { mod: { kind: 'ratio', a: 3, b: 1 }, source: { kind: 'destroyedGems' } }, condMult: { times: 2, cond: { kind: 'anyOf', of: [{ kind: 'kingdomOf', side: 'enemy', kingdom: '厄什卡亚' }, { kind: 'kingdomPresent', kingdom: '厄什卡亚' }] } } }),
     ),
   },
   {
@@ -1301,7 +1349,7 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '移除所有蓝色宝石。对一名敌人造成l [魔法 + 5] 点伤害，伤害值因被移除的宝石数而增强。若敌人来自梅兰堤斯，或战斗发生在梅兰堤斯，则造成双倍伤害。 [3:1]',
     build: skill(
       destroyColor(BaseColor.Blue),
-      dmg('enemyChosen', 5, 1, { modifier: { mod: { kind: 'ratio', a: 3, b: 1 }, source: { kind: 'destroyedGems' } } }),
+      dmg('enemyChosen', 5, 1, { modifier: { mod: { kind: 'ratio', a: 3, b: 1 }, source: { kind: 'destroyedGems' } }, condMult: { times: 2, cond: { kind: 'anyOf', of: [{ kind: 'kingdomOf', side: 'enemy', kingdom: '梅兰堤斯' }, { kind: 'kingdomPresent', kingdom: '梅兰堤斯' }] } } }),
     ),
   },
   {
@@ -1309,7 +1357,7 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '移除所有绿色宝石。对一名敌人造成l [魔法 + 5] 点伤害，伤害值因被移除的宝石数而增强。若敌人来自皓彩森林，或战斗发生在皓彩森林，则造成双倍伤害。 [3:1]',
     build: skill(
       destroyColor(BaseColor.Green),
-      dmg('enemyChosen', 5, 1, { modifier: { mod: { kind: 'ratio', a: 3, b: 1 }, source: { kind: 'destroyedGems' } } }),
+      dmg('enemyChosen', 5, 1, { modifier: { mod: { kind: 'ratio', a: 3, b: 1 }, source: { kind: 'destroyedGems' } }, condMult: { times: 2, cond: { kind: 'anyOf', of: [{ kind: 'kingdomOf', side: 'enemy', kingdom: '皓彩森林' }, { kind: 'kingdomPresent', kingdom: '皓彩森林' }] } } }),
     ),
   },
   {
@@ -1317,7 +1365,7 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '移除所有黄色宝石。对一名敌人造成l [魔法 + 5] 点伤害，伤害值因被移除的宝石数而增强。若敌人来自圣唐，或战斗发生在圣唐，则造成双倍伤害。 [3:1]',
     build: skill(
       destroyColor(BaseColor.Yellow),
-      dmg('enemyChosen', 5, 1, { modifier: { mod: { kind: 'ratio', a: 3, b: 1 }, source: { kind: 'destroyedGems' } } }),
+      dmg('enemyChosen', 5, 1, { modifier: { mod: { kind: 'ratio', a: 3, b: 1 }, source: { kind: 'destroyedGems' } }, condMult: { times: 2, cond: { kind: 'anyOf', of: [{ kind: 'kingdomOf', side: 'enemy', kingdom: '圣唐' }, { kind: 'kingdomPresent', kingdom: '圣唐' }] } } }),
     ),
   },
   {
@@ -1325,7 +1373,7 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '移除所有棕色宝石。对一名敌人造成l [魔法 + 5] 点伤害，伤害值因被移除的宝石数而增强。若敌人来自卓克祖，或战斗发生在卓克祖，则造成双倍伤害。 [3:1]',
     build: skill(
       destroyColor(BaseColor.Brown),
-      dmg('enemyChosen', 5, 1, { modifier: { mod: { kind: 'ratio', a: 3, b: 1 }, source: { kind: 'destroyedGems' } } }),
+      dmg('enemyChosen', 5, 1, { modifier: { mod: { kind: 'ratio', a: 3, b: 1 }, source: { kind: 'destroyedGems' } }, condMult: { times: 2, cond: { kind: 'anyOf', of: [{ kind: 'kingdomOf', side: 'enemy', kingdom: '卓克祖' }, { kind: 'kingdomPresent', kingdom: '卓克祖' }] } } }),
     ),
   },
   {
@@ -1333,7 +1381,7 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '移除所有红色宝石。对一名敌人造成l [魔法 + 5] 点伤害，伤害值因被移除的宝石数而增强。若敌人来自迈纳杰之罪，或战斗发生在迈纳杰之罪，则造成双倍伤害。 [3:1]',
     build: skill(
       destroyColor(BaseColor.Red),
-      dmg('enemyChosen', 5, 1, { modifier: { mod: { kind: 'ratio', a: 3, b: 1 }, source: { kind: 'destroyedGems' } } }),
+      dmg('enemyChosen', 5, 1, { modifier: { mod: { kind: 'ratio', a: 3, b: 1 }, source: { kind: 'destroyedGems' } }, condMult: { times: 2, cond: { kind: 'anyOf', of: [{ kind: 'kingdomOf', side: 'enemy', kingdom: '迈纳杰之罪' }, { kind: 'kingdomPresent', kingdom: '迈纳杰之罪' }] } } }),
     ),
   },
   {
@@ -1357,7 +1405,8 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 8383,
     desc: '对一名敌人造成 [魔法 + 7] 点伤害，伤害值因蛛尔卡里盟友数而增强。每有一名蛛尔卡里盟友，则创造混合绿色和紫色的 6 颗宝石。 [x6]',
     build: skill(
-      dmg('enemyChosen', 7, 1),
+      dmg('enemyChosen', 7, 1, { modifier: { mod: { kind: 'multiplier', a: 6 }, source: { kind: 'alliesOfKingdom', kingdom: '蛛尔卡里' } } }),
+      createMix([BaseColor.Green, BaseColor.Purple], 6, 0, { modifier: { mod: { kind: 'multiplier', a: 6 }, source: { kind: 'alliesOfKingdom', kingdom: '蛛尔卡里' } } }),
     ),
   },
   {
@@ -1373,7 +1422,8 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 8385,
     desc: '对一名敌人造成 [魔法 + 7] 点伤害，伤害值因狮心帝国盟友数而增强。每有一名狮心帝国盟友，则创造混合黄色和棕色的 6 颗宝石。 [x6]',
     build: skill(
-      dmg('enemyChosen', 7, 1),
+      dmg('enemyChosen', 7, 1, { modifier: { mod: { kind: 'multiplier', a: 6 }, source: { kind: 'alliesOfKingdom', kingdom: '狮心帝国' } } }),
+      createMix([BaseColor.Yellow, BaseColor.Brown], 6, 0, { modifier: { mod: { kind: 'multiplier', a: 6 }, source: { kind: 'alliesOfKingdom', kingdom: '狮心帝国' } } }),
     ),
   },
   {
@@ -1389,7 +1439,7 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '对敌人造成 [魔法 + 4] 点伤害。有 4% 的几率直接杀死对方，几率因恶魔敌人数而增强。 [x4]',
     build: skill(
       dmg('enemyChosen', 4, 1),
-      dmg('lastTarget', 0, 0, { execute: true, chance: 0.04 }),
+      dmg('lastTarget', 0, 0, { execute: true, chance: 0.04, chanceBoost: { mod: { kind: 'multiplier', a: 4 }, source: { kind: 'enemiesOfRace', race: 'Daemon' } } }),
     ),
   },
   {
@@ -1397,7 +1447,7 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '对敌人造成 [魔法 + 4] 点伤害。有 4% 的几率直接杀死对方，几率因元素敌人数而增强。 [x4]',
     build: skill(
       dmg('enemyChosen', 4, 1),
-      dmg('lastTarget', 0, 0, { execute: true, chance: 0.04 }),
+      dmg('lastTarget', 0, 0, { execute: true, chance: 0.04, chanceBoost: { mod: { kind: 'multiplier', a: 4 }, source: { kind: 'enemiesOfRace', race: 'Elemental' } } }),
     ),
   },
   {
@@ -1444,6 +1494,8 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '爆破 [魔法 + 1] 颗红色宝石。赋予所有圣唐盟友一个随机状态效果。召唤一名圣唐军队。',
     build: skill(
       explodeRandomGems(1, 1, 'color', BaseColor.Red),
+      inflictRandom('allyAll', { targetKingdom: '圣唐' }),
+      summonRandomOfKingdom('圣唐', undefined),
     ),
   },
 ];

@@ -256,7 +256,7 @@ class Compiler {
     if (clauses.length === 0) return { manaOnly: true, features: [], skippedClauses: [] };
     const state = {
       segments: [], tag, tagUsed: false, skippedClauses: [], features: new Set(),
-      temperingOnly: 0, lastCreate: null, lastChanceSeg: -1, lastAllyRace: null, buffRace: null,
+      lastCreate: null, lastChanceSeg: -1, lastAllyRace: null, buffRace: null, buffKingdom: null,
     };
     for (let raw of clauses) {
       // 子句归一：机翻噪声与连接词头（&&/然后/再/接着/并/同时/而且）——
@@ -277,10 +277,9 @@ class Compiler {
       return { manaOnly: true, features: [...state.features], skippedClauses: state.skippedClauses };
     }
     if (state.tag && !state.tagUsed) {
-      // 淬炼增项是「参数化省略」（用户裁定 #2，0 级时增项=0），不算语义缺口：
-      // 略去的全是淬炼碎片时，尾部标签仍可靠挂载到最近数值段（战斗语义完整）
-      const onlyTempering = state.skippedClauses.length === state.temperingOnly && state.temperingOnly > 0;
-      if (!onlyTempering && state.skippedClauses.length > 0) {
+      // 尾部 [xN] 孤儿治理（第四轮口径维持）：归属子句被略去 → 不硬挂，记省略；
+      // 淬炼增项自第五轮起为完整编译（tempering 来源修饰），不再产生「纯淬炼略去」特例
+      if (state.skippedClauses.length > 0) {
         // partial：尾部标签的归属子句可能已略去 → 不硬挂，记省略
         state.skippedClauses.push(`尾部增幅标签 ${tagText(state.tag)}（归属子句已略去或无法可靠挂载）`);
         state.features.add('modifier-tag');
@@ -312,10 +311,26 @@ class Compiler {
    */
   clause(raw, state) {
     let c = raw.replace(/\s+/g, ' ').trim();
+    // 淬炼增项（K-E 第五轮完整编译，推翻第四轮「参数化省略」）：「每锻炼 1 个武器段位则 +N
+    // 点伤害值 / +N 颗宝石 / 每级回火 +N 点 / 每提升一级强化等级额外增加 N 点」＝tempering
+    // 来源修饰（temperingBoost(N)），挂本子句（或最近）数值段——level 0 增项=0，随段位缩放；
+    // 「(每个)回火等级有 N% 的几率杀死敌人」＝处决段 chanceBoost（+N 个百分点/段位）。
+    const tFrag = c.match(/[,，]?\s*(?:每锻炼|每级回火|每提升一级强化|每个?回火等级)[^，。；]*/);
+    let temperA = null;
+    let temperChance = null;
+    if (tFrag) {
+      const aM = tFrag[0].match(/\+\s*(\d+)/);
+      const cM = tFrag[0].match(/(\d+)\s*%\s*的几率杀死/);
+      const eM = tFrag[0].match(/增加\s*(\d+)\s*点/);
+      if (cM) temperChance = Number(cM[1]);
+      else if (aM) temperA = Number(aM[1]);
+      else if (eM) temperA = Number(eM[1]);
+      c = c.replace(tFrag[0], '').replace(/[,，、]\s*$/, '').replace(/^\s*[,，、]/, '').trim();
+    }
     // 句首连接词剥除（K-B3：移入 clause——parseSub 的条件 payload 不经 compile() 循环，
     // 「则还摧毁 2 个随机列」9484 类 payload 此前漏剥「还」）
     c = c.replace(/^[\s,，。;；&]+/, '');
-    c = c.replace(/^(?:然后|再|接着|同时|并|而且|且|随之|还|额外)/, '').trim();
+    c = c.replace(/^(?:然后|再|接着|同时|并|而且|且|随之|还|额外|先)/, '').trim();
     c = c.replace(/^[\s,，。;；&]+/, '').trim();
     // 机翻错字定点归一（gowhead zh 快照噪声；EN 侧核实为同义句）
     c = c.replace('反射教过', '反射效果');
@@ -334,15 +349,12 @@ class Compiler {
     c = c.replace(/^在使其中毒$/, '使其中毒'); // 7194 机翻（EN "and either: Poison them OR…"，「在」为噪声）
     // 「如果/若 …，payload」缺「则」的补齐（7294/8076/9629 族）：只在首个逗号后无则/那么时插入
     if (/^(?:如果|若)/.test(c) && !/[，,](?:则|那么)/.test(c)) c = c.replace(/，/, '，则');
-    // 淬炼增项：参数化省略（用户新裁定 #2）——增项略去、主效果照编
-    const tFrag = c.match(/[,，]?\s*(?:每锻炼|每级回火|每提升一级强化|回火等级)[^，。；]*/);
-    if (tFrag) {
-      state.features.add('tempering-scaling');
-      state.temperingOnly += 1;
-      state.skippedClauses.push(tFrag[0].replace(/^[，,]\s*/, ''));
-      c = c.replace(tFrag[0], '').replace(/[,，、]\s*$/, '').replace(/^\s*[,，、]/, '').trim();
-      if (c === '') return ''; // 本子句仅剩淬炼增项 → 整句略去
+    // 纯淬炼子句（「每个回火等级有3%的几率杀死敌人」8726 独立句）：直接挂最近段
+    if (c === '' && (temperA !== null || temperChance !== null)) {
+      this.attachTempering(state, state.segments.length, temperA, temperChance, tFrag);
+      return null;
     }
+    const segsBefore = state.segments.length;
     for (const handler of [
       this.hPureCondMult, this.hKingdomCond, this.hIfPayload, this.hDamage, this.hStandaloneModifier, this.hStatus,
       this.hGemOps, this.hBuffHeal, this.hReduceDrain, this.hCleanseExtraTurn,
@@ -350,13 +362,19 @@ class Compiler {
     ]) {
       const r = handler.call(this, c, state);
       if (r === null) continue;
-      if (r === '') return null;
+      if (r === '') {
+        this.attachTempering(state, segsBefore, temperA, temperChance, tFrag);
+        return null;
+      }
       // 定性原因（缺失状态/特殊宝石/王国/原语请求等）→ 整句记录一次，不做或拆碎片化
       if (/原语请求|缺失状态|特殊宝石家族|语义拿不准|无对应原语|译文异常|不属于该处理器/.test(r)) return r;
       // 处理器报错：若含复合拆分标记，先试拆分（拆分成功即修复；否则保留原错误）
       if (/，|并|或/.test(c)) {
         const splitErr = this.tryCompound(c, state);
-        if (splitErr === null) return null;
+        if (splitErr === null) {
+          this.attachTempering(state, segsBefore, temperA, temperChance, tFrag);
+          return null;
+        }
       }
       return r;
     }
@@ -460,10 +478,57 @@ class Compiler {
     classifyClause(text, err, state.features);
   }
 
-  /** 王国条件倍率：显式 SKIP（batch-23 9376 / batch-24 9593 同款不做） */
-  hKingdomCond(c, _state) {
-    const m = /^(?:如果|若)敌人来自([\u4e00-\u9fa5]+?)(?:，或战斗发生在[\u4e00-\u9fa5]+?)?[，,]?则造成双倍伤害$/.exec(c);
-    if (m) return `王国条件倍率（「若敌人来自${m[1]}/战斗发生在该王国」无对应条件原语，batch-23 9376 同款）→ 原语请求：kingdom 条件`;
+  /**
+   * 淬炼修饰挂载（K-E 第五轮）：temperA → modifier temperingBoost(N) 挂（本子句）最近数值段；
+   * temperChance → 处决段 chanceBoost（无前置处决段则新建 execute 段，level 0 恒不触发）。
+   * 挂载失败 → 记省略（tempering-scaling 特征），不硬凑。
+   */
+  attachTempering(state, segsBefore, temperA, temperChance, tFrag) {
+    if (temperA !== null) {
+      const idx = lastNumericSegment(state.segments, segsBefore);
+      if (idx >= 0) {
+        state.segments[idx] = appendOpt(state.segments[idx], `modifier: ${jsonMod({ mod: { kind: 'multiplier', a: temperA }, source: { kind: 'tempering' } })}`);
+        return;
+      }
+      state.skippedClauses.push(tFrag[0].replace(/^[，,]\s*/, ''));
+      classifyClause(tFrag[0], 'tempering 修饰找不到挂载段', state.features);
+    }
+    if (temperChance !== null) {
+      const idx = lastKind(state.segments, /execute: true/);
+      const boost = `chanceBoost: { mod: { kind: 'multiplier', a: ${temperChance} }, source: { kind: 'tempering' } }`;
+      if (idx >= 0) {
+        state.segments[idx] = appendOpt(state.segments[idx], boost);
+        return;
+      }
+      this.use('dmg');
+      state.segments.push(`dmg('lastTarget', 0, 0, { execute: true, ${boost} })`);
+    }
+  }
+
+  /** 王国条件倍率（K-E 第五轮接线）：「若敌人来自X，或战斗发生在X，则造成 N 倍伤害」＝
+   *  anyOf(kingdomOf enemy X, kingdomPresent X) condMult；单独「若战斗发生在X」→ kingdomPresent。
+   *  王国名用 zh 原文名（与 troops.json/CombatantSnapshot kingdom 字段同口径）。 */
+  hKingdomCond(c, state) {
+    let m = /^(?:如果|若)敌人来自([\u4e00-\u9fa5]+?)(?:，或战斗(?:发生在|位于)([\u4e00-\u9fa5]+?))?[，,]?则造成\s*(双倍|三倍|\d+\s*倍)伤害$/.exec(c);
+    if (m) {
+      const kg = normalizeGroupName(m[1]);
+      const of = [{ kind: 'kingdomOf', side: 'enemy', kingdom: kg }];
+      if (m[2]) of.push({ kind: 'kingdomPresent', kingdom: normalizeGroupName(m[2]) });
+      const cond = of.length === 1 ? of[0] : { kind: 'anyOf', of };
+      const times = m[3] === '双倍' ? 2 : m[3] === '三倍' ? 3 : Number(m[3].replace(/[^\d]/g, ''));
+      const idx = lastKind(state.segments, /dmg/i);
+      if (idx < 0) return '王国条件倍率找不到前置伤害段';
+      state.segments = withCondMultAt(state.segments, idx, times, cond);
+      return '';
+    }
+    m = /^(?:如果|若)?战斗(?:发生在|位于)([\u4e00-\u9fa5]+?)(?:王国)?[，,]?则造成\s*(双倍|三倍|\d+\s*倍)伤害$/.exec(c);
+    if (m) {
+      const times = m[2] === '双倍' ? 2 : m[2] === '三倍' ? 3 : Number(m[2].replace(/[^\d]/g, ''));
+      const idx = lastKind(state.segments, /dmg/i);
+      if (idx < 0) return '王国条件倍率找不到前置伤害段';
+      state.segments = withCondMultAt(state.segments, idx, times, { kind: 'kingdomPresent', kingdom: normalizeGroupName(m[1]) });
+      return '';
+    }
     return null;
   }
 
@@ -539,13 +604,15 @@ class Compiler {
     //   护栏：动词省略后须先过 matchStatus 再认领——否则会抢走「是X族」条件（7291））
     {
       const cc = c.replace('已下潜', '已陷入下潜');
-      m = /^(?:如果|若)(?:敌人|对方|目标)已?(?:陷入|身中|被)?(.+?)(?:状态)?[，,]?(?:则)?造成\s*(双倍|翻倍|三倍|\d+\s*倍)伤害$/.exec(cc);
+      m = /^(?:如果|若)(?:敌人|对方|目标)已?(?:陷入|身中|被)?(.+?)(?:状态)?[，,]?(?:则)?造成\s*(双倍|翻倍|三倍|\d+\s*倍)伤害$/.exec(cc)
+        // K-E：「若敌人陷入出血状态，则伤害翻倍」（8083，省「造成…伤害」宾语式）
+        || /^(?:如果|若)(?:敌人|对方|目标)已?(?:陷入|身中|被)?(.+?)(?:状态)?[，,]?(?:则)?伤害(双倍|翻倍|三倍|\d+\s*倍)$/.exec(cc);
       if (m && matchStatus(m[1])) {
         const id = matchStatus(m[1]);
         const idx = lastKind(state.segments, /dmg/i);
         if (idx < 0) return '状态条件找不到前置伤害段';
-        const times = m[2] === '双倍' || m[2] === '翻倍' ? 2 : m[2] === '三倍' ? 3 : Number(m[2].replace('倍', ''));
-        state.segments = withCondMultAt(state.segments, idx, times, { kind: 'targetStatus', statusId: id });
+        const w = m[2] === '双倍' || m[2] === '翻倍' ? 2 : m[2] === '三倍' ? 3 : Number(m[2].replace(/[^\d]/g, ''));
+        state.segments = withCondMultAt(state.segments, idx, w, { kind: 'targetStatus', statusId: id });
         return '';
       }
     }
@@ -612,9 +679,8 @@ class Compiler {
     // 「如果敌方有X(军队)?，则<payload>」→ ifCond enemyRacePresent（§ enemyRacePresent 全局条件；
     //   7955「若敌方有魔头」无群体后缀 → 后缀可选）
     m = /^(?:如果|若)敌方有([\u4e00-\u9fa5]+?)(?:军队|部队|盟友)?[，,]?则(.+)$/.exec(c);
-    if (m) {
+    if (m && RACE_ALIAS[m[1]]) {
       const race = RACE_ALIAS[m[1]];
-      if (!race) return `种族别名无法映射「${m[1]}」`;
       const stash = this.parseSub(m[2], state);
       if (typeof stash === 'string') return `敌方种族条件 payload：${stash}`;
       state.segments.push(...stash.map((s) => withIfCond(s, { kind: 'enemyRacePresent', race })));
@@ -645,10 +711,35 @@ class Compiler {
       state.segments.push(...stash.map(withIfTargetDied));
       return '';
     }
-    // 「如果敌人/敌方(拥有|带有|有)(末日|厄运|劫数|毁灭之力)(效果)?，则X」= Doomed 机制条件（引擎无对应）→ 定性原语请求
-    m = /^(?:如果|若)(?:敌方|敌人|对方|目标|他们)(?:拥有|带有|有|身上有)(?:一个)?(末日|厄运|劫数|毁灭之力)(?:效果|标记)?/.exec(c);
+    // 「如果敌人/敌方(拥有|带有|有)劫数/末日/厄运/毁灭之力，则X」＝敌方劫数条件（K-E 第五轮接线，
+    // enemyHasDoom()=targetHasDoom，敌方存活者 troopTypes 含 Doom）。结论子句三形态：
+    //  a)「再增加/再给予 N 点…」＝condBonus 挂前段（7655/7982 官方形态「…give 5 more」）；
+    //  b)「可造成双倍/三倍/N 倍伤害」＝condMult 挂前伤害段（8726/8727/8728）；
+    //  c) 其余 → parseSub + ifCond（「则再创造 5 颗」7952 走 lastCreate 复用、「恢复我四分之一的法力」9580）。
+    m = /^(?:如果|若)(?:敌方|敌人|对方|目标|他们)(?:拥有|带有|有|身上有)(?:一个)?(?:末日|厄运|劫数|毁灭之力)(?:效果|标记)?[，,]?(?:则|那么)?(.*)$/.exec(c);
     if (m) {
-      return `「敌方拥有${m[1]}」Doomed 机制条件无对应 Condition kind → 原语请求：targetHasDoom 条件`;
+      const cond = { kind: 'targetHasDoom' };
+      const payload = (m[1] ?? '').trim();
+      const more = payload.match(/^(?:再|额外)?(?:增加|给予)\s*(\d+)\s*点/);
+      if (more) {
+        const idx = lastNumericSegment(state.segments);
+        if (idx < 0) return '劫数条件加成找不到前置数值段';
+        state.segments = withCondBonusAt(state.segments, idx, Number(more[1]), cond);
+        return '';
+      }
+      const mult = payload.match(/^可?造成\s*(双倍|三倍|\d+\s*倍)伤害$/);
+      if (mult) {
+        const idx = lastKind(state.segments, /dmg/i);
+        if (idx < 0) return '劫数条件倍率找不到前置伤害段';
+        const times = mult[1] === '双倍' ? 2 : mult[1] === '三倍' ? 3 : Number(mult[1].replace(/[^\d]/g, ''));
+        state.segments = withCondMultAt(state.segments, idx, times, cond);
+        return '';
+      }
+      if (payload === '') return '「敌方拥有劫数」条件缺少结论子句';
+      const stash = this.parseSub(payload, state);
+      if (typeof stash === 'string') return `劫数条件 payload：${stash}`;
+      state.segments.push(...stash.map((s) => withIfCond(s, cond)));
+      return '';
     }
     // 「如果一名/有 N 名敌人死亡，则X」= 任意敌人阵亡口径（「如果一名敌人死亡」9629/9903/9904、
     // 「若有敌人身亡」8076）→ 与 ifTargetDied（追踪主目标）不一致 → 定性原语请求（引擎暂缺 anyEnemyDied）
@@ -677,8 +768,8 @@ class Compiler {
       state.segments.push(...stash.map((s) => withIfCond(s, cond)));
       return '';
     }
-    // 「如果(敌人|目标)使用(色)法力(值)?，则X」→ ifCond targetColor（目标相对过滤；9825 族）
-    m = /^(?:如果|若)(?:敌人|对方|目标)(?:使用|用的是)(红|蓝|绿|黄|紫|棕)色?法力(?:值)?[，,]?(?:则|那么)?(.+)$/.exec(c);
+    // 「如果(敌人|目标|他们)使用(色)法力(值)?，则X」→ ifCond targetColor（目标相对过滤；9825/9580 族）
+    m = /^(?:如果|若)(?:敌人|对方|目标|他们)(?:使用|用的是)(红|蓝|绿|黄|紫|棕)色?法力(?:值)?[，,]?(?:则|那么)?(.+)$/.exec(c);
     if (m) {
       const stash = this.parseSub(m[2], state);
       if (typeof stash === 'string') return `敌色条件 payload：${stash}`;
@@ -726,11 +817,23 @@ class Compiler {
       state.segments.push(...stash.map((s) => withIfCond(s, { kind: 'casterStatBeatsTarget', stat: statMap[m[1]] })));
       return '';
     }
-    // 「如果盟友来自X(王国)，则<payload>」＝盟友王国条件（alliesOfKingdom Condition kind 引擎已备、
-    // 生成器待王国批统一接线）→ 定性略去（8971 白盔国屏障）
+    // 「如果盟友来自X(王国)，则为他们提供<payload>」＝盟友王国限定（K-E 第五轮接线）：
+    // payload 段挂 targetKingdom 过滤（8971 白盔国屏障；段级 SegmentOpts.targetKingdom）
     m = /^(?:如果|若)(?:盟友|所有盟友|一名盟友)来自([^，,则]+)(?:王国)?[，,]?(?:则|那么)?(.+)$/.exec(c);
     if (m && isKingdomGroup(m[1])) {
-      return `盟友来源王国条件（alliesOfKingdom 条件生成器待接线）→ 原语请求：allyKingdom 条件`;
+      const kg = normalizeGroupName(m[1]);
+      const pm = m[2].match(/^为他们提供(.+?)(?:状态|效果)?$/);
+      if (pm) {
+        const id = matchStatus(pm[1]);
+        if (!id) return `盟友王国条件 payload 状态词无法识别「${pm[1]}」`;
+        this.use('inflict');
+        state.segments.push(`inflict('${id}', 'allyAll', { targetKingdom: '${kg}' })`);
+        return '';
+      }
+      const stash = this.parseSub(m[2], state);
+      if (typeof stash === 'string') return `盟友王国条件 payload：${stash}`;
+      state.segments.push(...stash.map((s) => appendOpt(s, `targetKingdom: '${kg}'`)));
+      return '';
     }
     // 「若自身队伍中有X / 若队伍里有永生神X / 如果我的队伍中有X，则<payload>」→ troopPresent（§11.5）
     // K-B3：量词补「内」（9378「队伍内」）、主语补「我方」（9720）
@@ -897,7 +1000,7 @@ class Compiler {
       .replace(/激发$/u, '增强')
       .replace(/加成$/u, '增强');
     let modifier = null;
-    const modm = /(?:，|,)?(?:伤害值|数值|点数|效果)?并?(?:因|由|受)(.+?)而?增强$/.exec(modTailNorm);
+    const modm = /(?:，|,)?(?:伤害值|伤害力|伤害|数值|点数|效果)?并?(?:只)?(?:因|由|受)(.+?)而?增强$/.exec(modTailNorm);
     if (modm) {
       const src = parseModifierSource(modm[1]);
       if (!src) {
@@ -1127,6 +1230,13 @@ class Compiler {
         }
       }
     }
+    // 「获得一个(随机)正面状态效果」＝自身获随机正面（9211 劫数条件 payload，EN gain a random
+    // Status Effect；inflictRandom pool:'positive' 正面池）
+    if (/^获得一个?(?:随机(?:的)?)?(?:正面增益|正面增益状态)?(?:状态效果|状态)$/.test(c)) {
+      this.use('inflictRandom');
+      state.segments.push(`inflictRandom('allySelf', { pool: 'positive' })`);
+      return '';
+    }
     // 「赋予/给予 X盟友 一个随机(正面增益)状态效果」大族（§11.3/§11 补充：盟友=正面池）。
     // K-B3：机翻丢「随机」（9207/9210 zh 无、EN "Grant a random Status Effect" 实锤）→ 随机可省；
     // 「正面增益」修饰语可省（8384/8437/8449/8490/8509/8576/8621/8622/8706/8771/9033/9754 族——
@@ -1352,9 +1462,18 @@ class Compiler {
 
       return '';
     }
-    // 「敌我双方每有一名X色军队则爆破一颗随机X色宝石」（7568）＝敌我双侧色计数 → enemiesOfColor 缺口
-    if (/^敌我双方每有一名(红|蓝|绿|黄|紫|棕)色?(?:军队|盟友|敌人)则(爆破|摧毁)一颗随机(?:的)?\1色?宝石$/.test(c)) {
-      return `敌我双侧法力色计数无对应来源 kind → 原语请求：enemiesOfColor 计数`;
+    // 「敌我双方每有一名X色军队则爆破一颗随机X色宝石」（7568）＝双侧色计数
+    // → sources [alliesOfColor, enemiesOfColor]（K-E 第五轮接线）
+    {
+      const both = /^敌我双方每有一名(红|蓝|绿|黄|紫|棕)色?(?:军队|盟友|敌人)则(爆破|摧毁)一颗随机(?:的)?\1色?宝石$/.exec(c);
+      if (both) {
+        const mods = { mod: state.tag ?? { kind: 'multiplier', a: 1 }, sources: [{ kind: 'alliesOfColor', color: COLORS[both[1]] }, { kind: 'enemiesOfColor', color: COLORS[both[1]] }] };
+        if (state.tag) state.tagUsed = true;
+        this.use('explodeRandomGems', 'destroyRandomGems');
+        const fn = both[2] === '摧毁' ? 'destroyRandomGems' : 'explodeRandomGems';
+        state.segments.push(`${fn}(1, 0, 'color', BaseColor.${COLORS[both[1]]}, { modifier: ${jsonMod(mods)} })`);
+        return '';
+      }
     }
     // 「每摧毁一颗X宝石则燃烧/诅咒…一名随机敌人」= 触发式状态施加（8518）→ 无对应段型，定性略去
     if (/每摧毁一颗.+?(?:宝石|骷髅头)则(?:再)?(?:燃烧|诅咒|冻结|打昏|击晕|缠绕|中毒|流血|沉默|魅惑|点燃)/.test(c)) {
@@ -1430,7 +1549,42 @@ class Compiler {
       state.segments.push(`${fn}(${n}, 0, 'color', undefined, { modifier: ${jsonMod(mods)} })`);
       return '';
     }
-    // 每有一名X盟友，则创造 N 颗宝石，所创造的宝石混合A和B两种颜色 [xN]
+    // 「每有一名X色敌人则创造 N 颗混合A色和骷髅头的宝石」（7655-7660 Doomed 族）＝
+    // 敌侧计数来源 K-E 已接线，但混合端点含骷髅头仍无 mix 原语 → 归因 createMix-special
+    if (/^每有一[名位](红|蓝|绿|黄|紫|棕)色?(?:盟友|敌人)则创(?:造|建)\s*\d+\s*颗?混合的?(红|蓝|绿|黄|紫|棕)?色?.*骷髅头.*宝石$/.test(c)
+      || /^每有一[名位](红|蓝|绿|黄|紫|棕)色?(?:盟友|敌人)则创(?:造|建)混合.*骷髅头.*宝石$/.test(c)) {
+      return `混合宝石含骷髅头端点，无 mix 原语（enemiesOfColor 计数已备）→ 原语请求：createMix 扩特殊宝石端点`;
+    }
+    // 「每有一名X色盟友和敌人则创造 N 颗X色宝石」（9211-9216）＝双侧计数普通创造
+    {
+      const dual = /^每有一[名位](红|蓝|绿|黄|紫|棕)色?(?:盟友|盟军)和敌人则创(?:造|建|作)\s*(\d+)\s*颗?\1色?宝石$/.exec(c);
+      if (dual) {
+        const color = COLORS[dual[1]];
+        const mods = { mod: state.tag ?? { kind: 'multiplier', a: Number(dual[2]) }, sources: [{ kind: 'alliesOfColor', color }, { kind: 'enemiesOfColor', color }] };
+        if (state.tag) state.tagUsed = true;
+        this.use('createGems');
+        state.segments.push(`createGems(BaseColor.${color}, ${dual[2]}, 0, { modifier: ${jsonMod(mods)} })`);
+        return '';
+      }
+    }
+    // 「每有一名X色敌人(盟友)则创造 N 颗Y宝石」＝普通/特殊宝石创造 + 敌侧计数（8872/8873 巨人宝石族）
+    // （[^，和] 防误吃混合句——混合端点句由上方 createMix-special 归因规则先行）
+    m = /^每有一[名位](.+?)(盟友|敌人)[，,]?(?:则|就)?创(?:造|建|作)\s*(\d+)\s*颗?(?:的)?([^，和]*?)宝石$/.exec(c);
+    if (m) {
+      const isEnemy = m[2] === '敌人';
+      const src = allySourceOf(m[1], isEnemy);
+      if (typeof src === 'string') return src;
+      if (!src) return `每一名来源无法解析「${m[1]}」`;
+      const mods = { mod: state.tag ?? { kind: 'multiplier', a: Number(m[3]) }, ...src };
+      if (state.tag) state.tagUsed = true;
+      const what = m[4] === '' || m[4] === '颗' ? '' : m[4];
+      const call = createGemCall(this, what, Number(m[3]), mods, true);
+      if (call.err) return call.err;
+      state.segments.push(call.seg);
+      state.lastCreate = { what, allowBareColor: true };
+      return '';
+    }
+    // 每有一名X盟友/敌人，则创造 N 颗宝石，所创造的宝石混合A和B两种颜色 [xN]
     // K-B3 语序全集（8161/8260-8266/8285/8313-8315/8386/8394/8402/8434/8435/8452/8453/8487/8506/
     // 8620/8645/8669/8809/8877 族；EN 原文均为 create a mix of N A and B Gems for each X Ally）：
     //  a) 每有一名X盟友，则创造 N 颗宝石，所创造的宝石混合A和B两种颜色
@@ -1438,22 +1592,24 @@ class Compiler {
     //  c) 每有一名/位X盟友[，,]则创(造|建) N 颗混合A和B(色)?的宝石（数量前置）
     //  d) 为每位X盟友创(造|建) N 颗混合A和B宝石（8620）
     //  e) 给每个X盟友制造 N 颗混合的A和B宝石（8453）
-    m = /^每有一[名位](.+?)盟友[，,]?则创(?:造|建)\s*(\d+)\s*颗宝石[，,]?所创造的宝石混合(红|蓝|绿|黄|紫|棕)色?和(红|蓝|绿|黄|紫|棕)色?两种颜色$/.exec(c)
-      || /^每有一[名位](.+?)盟友[，,]?则创(?:造|建)混合(红|蓝|绿|黄|紫|棕)色?和(红|蓝|绿|黄|紫|棕)色?的\s*(\d+)\s*颗宝石$/.exec(c)
-      || /^每有一[名位](.+?)盟友[，,]?(?:则|就)?创(?:造|建|作)\s*(\d+)\s*颗?混合的?(红|蓝|绿|黄|紫|棕)色?和(红|蓝|绿|黄|紫|棕)色?(?:两种?颜色)?的?\s*宝石$/.exec(c)
-      || /^为每[一位名](.+?)盟友创(?:造|建)\s*(\d+)\s*颗?混合的?(红|蓝|绿|黄|紫|棕)色?和(红|蓝|绿|黄|紫|棕)色?(?:两种?颜色)?的?宝石$/.exec(c)
-      || /^给每个(.+?)盟友制(?:造|作)\s*(\d+)\s*颗?混合的?(红|蓝|绿|黄|紫|棕)色?和(红|蓝|绿|黄|紫|棕)色?(?:两种?颜色)?的?宝石$/.exec(c);
+    // K-E：敌侧变体（7655「每有一名蓝色敌人则创造 6 颗混合蓝色和骷髅头的宝石」）→ enemiesOf* 来源
+    m = /^每有一[名位](.+?)(盟友|敌人)[，,]?则创(?:造|建)\s*(\d+)\s*颗宝石[，,]?所创造的宝石混合(红|蓝|绿|黄|紫|棕)色?和(红|蓝|绿|黄|紫|棕)色?两种颜色$/.exec(c)
+      || /^每有一[名位](.+?)(盟友|敌人)[，,]?则创(?:造|建)混合(红|蓝|绿|黄|紫|棕)色?和(红|蓝|绿|黄|紫|棕)色?的\s*(\d+)\s*颗宝石$/.exec(c)
+      || /^每有一[名位](.+?)(盟友|敌人)[，,]?(?:则|就)?创(?:造|建|作)\s*(\d+)\s*颗?混合的?(红|蓝|绿|黄|紫|棕)色?和(红|蓝|绿|黄|紫|棕)色?(?:两种?颜色)?的?\s*宝石$/.exec(c)
+      || /^为每[一位名](.+?)(盟友|敌人)创(?:造|建)\s*(\d+)\s*颗?混合的?(红|蓝|绿|黄|紫|棕)色?和(红|蓝|绿|黄|紫|棕)色?(?:两种?颜色)?的?宝石$/.exec(c)
+      || /^给每个(.+?)(盟友|敌人)制(?:造|作)\s*(\d+)\s*颗?混合的?(红|蓝|绿|黄|紫|棕)色?和(红|蓝|绿|黄|紫|棕)色?(?:两种?颜色)?的?宝石$/.exec(c);
     if (m) {
+      const isEnemy = m[2] === '敌人';
       let src2; let n; let cA; let cB;
       if (/所创造的宝石混合/.test(c)) {
-        src2 = allySourceOf(m[1], false);
-        n = Number(m[2]); cA = m[3]; cB = m[4];
-      } else if (/^每有一[名位](.+?)盟友[，,]?则创(?:造|建)混合/.test(c)) {
-        src2 = allySourceOf(m[1], false);
-        cA = m[2]; cB = m[3]; n = Number(m[4]);
+        src2 = allySourceOf(m[1], isEnemy);
+        n = Number(m[3]); cA = m[4]; cB = m[5];
+      } else if (/^每有一[名位](.+?)(?:盟友|敌人)[，,]?则创(?:造|建)混合/.test(c)) {
+        src2 = allySourceOf(m[1], isEnemy);
+        cA = m[3]; cB = m[4]; n = Number(m[5]);
       } else {
-        src2 = allySourceOf(m[1], false);
-        n = Number(m[2]); cA = m[3]; cB = m[4];
+        src2 = allySourceOf(m[1], isEnemy);
+        n = Number(m[3]); cA = m[4]; cB = m[5];
       }
       if (typeof src2 === 'string') return src2;
       if (!src2) return `每一名来源无法解析「${m[1]}」`;
@@ -1570,6 +1726,7 @@ class Compiler {
       if (call === TRANSFORM_TIER_UNSUPPORTED) return '原语请求：转换端点不支持 tier（带倍率通配/恶石像鬼）';
       if (call) {
         state.segments.push(call);
+        state.lastCreate = { what, allowBareColor: true }; // 「则再创造 5 颗」复用 referent（7952）
         return '';
       }
       return `转化目标无法识别「${m[3]}」`;
@@ -1584,6 +1741,7 @@ class Compiler {
       if (call === TRANSFORM_TIER_UNSUPPORTED) return '原语请求：转换端点不支持 tier（带倍率通配/恶石像鬼）';
       if (call) {
         state.segments.push(chosenFrom ? call.replace(`transformToSpecial('ANY'`, `transformToSpecial('CHOSEN'`) : call);
+        state.lastCreate = { what, allowBareColor: true }; // 「则再创造 5 颗」复用 referent（7952）
         return '';
       }
       const toColor = matchColor(what);
@@ -1816,6 +1974,44 @@ class Compiler {
         return '';
       }
     }
+    // 「恢复我四分之一的法力」（9580 劫数条件 payload；GenerateQuarterMana 口径）
+    if (/^(?:恢复|回复|获得)我?四分之一的?法力值?$/.test(c)) {
+      this.use('mana');
+      state.lastAllyTarget = 'allySelf';
+      state.segments.push(`mana('allySelf', 0, 0, { fraction: 0.25 })`);
+      return '';
+    }
+    // 「每有一名X色/族/王国的敌人(或盟友)，则获得 N 点法力值」（7952 族）＝计数增幅法力
+    {
+      const perM = /^每有一名(.+?)(盟友|敌人)[，,]?则获得\s*(\d+)\s*点法力值?$/.exec(c);
+      if (perM) {
+        const src = allySourceOf(perM[1], perM[2] === '敌人');
+        if (typeof src === 'string') return src;
+        if (!src) return `每一名来源无法解析「${perM[1]}」`;
+        const mods = { mod: state.tag ?? { kind: 'multiplier', a: Number(perM[3]) }, ...src };
+        if (state.tag) state.tagUsed = true;
+        this.use('mana');
+        state.lastAllyTarget = 'allySelf';
+        state.segments.push(`mana('allySelf', ${perM[3]}, 0, { modifier: ${jsonMod(mods)} })`);
+        return '';
+      }
+    }
+    // 「每有一名X敌人(盟友)，则给予所有盟友 N 点<属性>」（7982/8047）＝计数增幅全体增益
+    {
+      const perGrant = /^每有一名(.+?)(盟友|敌人)[，,]?则给予所有盟友\s*(\d+)\s*点(魔法值|生命值|护甲值|攻击力)$/.exec(c);
+      if (perGrant) {
+        const src = allySourceOf(perGrant[1], perGrant[2] === '敌人');
+        if (typeof src === 'string') return src;
+        if (!src) return `每一名来源无法解析「${perGrant[1]}」`;
+        const mods = { mod: state.tag ?? { kind: 'multiplier', a: Number(perGrant[3]) }, ...src };
+        if (state.tag) state.tagUsed = true;
+        this.use('heal', 'armor', 'attack', 'magic', 'scale', 'flat');
+        state.lastAllyTarget = 'allyAll';
+        const fn = fnOfStat(perGrant[4]);
+        state.segments.push(`${fn}('allyAll', ${perGrant[3]}, 0, { modifier: ${jsonMod(mods)} })`);
+        return '';
+      }
+    }
     // 目标头：获得(自身) / 给予(为)X盟友 / 代词回指（给予其/他们）/ 主语先行（「所有盟友获得」）
     let m = /^(?:自身)?(获得|恢复|回复)\s*(.+)$/.exec(c);
     let target = 'allySelf';
@@ -1853,7 +2049,11 @@ class Compiler {
         target = raceM[1] && /随机/.test(raceM[1]) ? 'allyRandomN' : 'allyAll';
         rest = raceM[3];
       } else if (raceM && (isKingdomGroup(raceM[2]) || isKingdomGroup(raceM[2] + '族')) && !m) {
-        return `按王国（${normalizeGroupName(raceM[2] + '族')}）限定盟友目标无对应原语（batch-22 8607 同款）→ 原语请求：kingdom 目标限定`;
+        // K-E 第五轮接线：王国限定盟友增益 → 段级 targetKingdom 过滤（9914 狐狸族=沃尔帕克、10050 流沙）
+        const kg = isKingdomGroup(normalizeGroupName(raceM[2] + '族')) ? normalizeGroupName(raceM[2] + '族') : normalizeGroupName(raceM[2]);
+        state.buffKingdom = kg;
+        target = raceM[1] && /随机/.test(raceM[1]) ? 'allyRandomN' : 'allyAll';
+        rest = raceM[3];
       } else if (raceM && !m) {
         return `群体名称无法可靠映射到种族/王国「${raceM[2]}」（语义拿不准）`;
       } else if (m) {
@@ -1889,9 +2089,11 @@ class Compiler {
     }
     const race = state.buffRace ?? null;
     const buffColor = state.buffColor ?? null;
+    const buffKingdom = state.buffKingdom ?? null;
     state.buffRace = null;
     state.buffColor = null;
-    const stash = this.buffPieces(restBase, target, state, buffMod, race, buffColor);
+    state.buffKingdom = null;
+    const stash = this.buffPieces(restBase, target, state, buffMod, race, buffColor, buffKingdom);
     if (typeof stash === 'string') return stash;
     state.segments.push(...stash);
     if (race) state.lastAllyRace = race;
@@ -1899,7 +2101,7 @@ class Compiler {
   }
 
   /** 增益/状态混合段解析：属性段 → buff 族段；状态段（「反射效果」）→ inflict；出错返回字符串 */
-  buffPieces(restBase, target, state, buffMod = null, race = null, color = null) {
+  buffPieces(restBase, target, state, buffMod = null, race = null, color = null, kingdom = null) {
     const statRe = /(生命值|护甲值|护甲|攻击力|魔法值|法力值|随机技能值|技能点数)/;
     const parts = [];
     const segs = [];
@@ -1908,10 +2110,10 @@ class Compiler {
     const pieces = restBase.includes('和') || restBase.includes('、') ? restBase.split(/\s*(?:和|、)\s*/) : [restBase];
     for (const piece of pieces) {
       const p = piece.trim();
-      // 「一半的法力值」= mana halve（§9.6 口径）
-      const halveM = p.match(/^(?:一半|半数)的?(法力值)$/);
+      // 「一半的法力值」= mana halve（§9.6 口径）；「四分之一的法力值」= fraction 0.25（K-E，8439）
+      const halveM = p.match(/^(?:一半|半数|四分之一)的?(法力值)$/);
       if (halveM) {
-        parts.push({ halveMana: true });
+        parts.push(/四分之一/.test(p) ? { manaFraction: 0.25 } : { halveMana: true });
         continue;
       }
       // 纯状态段（「反射效果」「屏障和法印」族）：hBuffHeal 的增益/状态混合分支（8842/7624）
@@ -1936,7 +2138,7 @@ class Compiler {
           return `增益数值无法解析「${piece}」`;
         }
       } else {
-        rest2 = f.rest.replace(/点/g, '').trim();
+        rest2 = f.rest.trim();
       }
       const sm = statRe.exec(rest2);
       if (!sm) return `增益属性无法解析「${piece}」`;
@@ -1954,6 +2156,11 @@ class Compiler {
         segs.push(`mana('${mode}', 0, 0, { halve: true })`);
         continue;
       }
+      // 「四分之一的法力值」= mana fraction 0.25（K-E：GenerateQuarterMana 口径，8439）
+      if (part.manaFraction) {
+        segs.push(`mana('${mode}', 0, 0, { fraction: ${part.manaFraction} })`);
+        continue;
+      }
       const { stat: st, f } = part;
       let seg;
       if (f.rangeSpec) {
@@ -1965,6 +2172,7 @@ class Compiler {
       }
       if (buffMod) seg = appendOpt(seg, `modifier: ${jsonMod(buffMod)}`);
       if (race) seg = appendOpt(seg, `targetRace: '${race}'`);
+      if (kingdom) seg = appendOpt(seg, `targetKingdom: '${kingdom}'`);
       if (color) seg = appendOpt(seg, `ifCond: { kind: 'targetColor', color: BaseColor.${color} }`);
       segs.push(seg);
     }
@@ -1979,11 +2187,27 @@ class Compiler {
     }
     let m = /^(?:减除|消除)(一名|所有)?敌人全部(护甲值|攻击力|魔法值|生命值)$/.exec(c)
       // K-B3：「消除其全部护甲值」（8395 条件 payload）目标词回指变体
-      || /^(?:减除|消除)(其|该|对方)(?:的)?全部(护甲值|攻击力|魔法值|生命值)$/.exec(c);
+      || /^(?:减除|消除)(其|该|对方)(?:的)?全部(护甲值|攻击力|魔法值|生命值)$/.exec(c)
+      // K-E：「消除一位随机敌人所有护甲值」（8442-8444 劫数条件 payload；所有=全部同义）
+      || /^(?:减除|消除)一位随机敌人(所有|全部)(护甲值|攻击力|魔法值|生命值)$/.exec(c);
     if (m) {
-      const mode = m[1] === '所有' ? 'enemyAll' : m[1] === '一名' ? 'enemyChosen' : refTargetOf(state);
+      const mode = m[1] === '所有' || m[1] === '全部' ? 'enemyAll'
+        : m[1] === '一名' ? 'enemyChosen'
+        : /一位随机|一名随机/.test(m[0]) ? 'enemyRandom'
+        : refTargetOf(state);
+      const stat = m[3] ?? m[2];
       this.use('reduce');
-      state.segments.push(`reduce('${mode}', '${statOf(m[2])}', 0, 0, { drainAll: true })`);
+      state.segments.push(`reduce('${mode}', '${statOf(stat)}', 0, 0, { drainAll: true })`);
+      return '';
+    }
+    // （兼容旧双分组形态）
+    // 窃取公式+双属性（7803「窃取一名敌人 [魔法 + 1] 点攻击力和护甲值」）＝同公式两段
+    // 「(先)破坏其/该敌人/目标的护甲」（9825-9830 劫数条件 payload；EN shatter its Armor）＝
+    // 清空护甲（drainAll），目标跨段回指
+    m = /^(?:先)?破坏(?:其|该敌人|该|目标|对方)(?:的)?(所有|全部)?护甲值?$/.exec(c);
+    if (m) {
+      this.use('reduce');
+      state.segments.push(`reduce('${refTargetOf(state)}', 'armor', 0, 0, { drainAll: true })`);
       return '';
     }
     // 「窃取一名敌人全部护甲值」（7754；EN Steal all of an enemy's Armor）
@@ -2218,6 +2442,23 @@ class Compiler {
       state.segments[idx] = appendOpt(state.segments[idx], `chanceBoost: ${jsonMod(mod)}`);
       return '';
     }
+    // 「几率因X而增强」（8083，无量化 N）——倍率取尾部 [xN] 标签（EN boosted by Doomskulls [x2]
+    // = 每颗末日骷髅 +2%）；无标签 → 模糊增幅，记省略不硬凑
+    m = /^几率因(.+?)而增强$/.exec(c);
+    if (m) {
+      const idx = state.lastChanceSeg >= 0 ? state.lastChanceSeg : lastKind(state.segments, /execute: true/);
+      if (idx < 0 || !state.tag) {
+        state.skippedClauses.push(c);
+        classifyClause(c, '修饰来源无法解析（§1 exotic 来源）', state.features);
+        return '';
+      }
+      const src = parseModifierSource(m[1]);
+      if (!src?.source) return `几率来源无法解析「${m[1]}」`;
+      const mod = { mod: state.tag, ...src };
+      state.tagUsed = true;
+      state.segments[idx] = appendOpt(state.segments[idx], `chanceBoost: ${jsonMod(mod)}`);
+      return '';
+    }
     if (/^净化(自身|所有盟友|一名盟友|一名随机盟友|所有其他的?盟友|所有其他的?)?$/.test(c)) {
       this.use('cleanse');
       const mode = /自身/.test(c) ? 'allySelf' : /其他/.test(c) ? 'allyOthers' : /随机/.test(c) ? 'allyRandom' : 'allyAll';
@@ -2308,8 +2549,14 @@ class Compiler {
       const grp = (countRange ? m[3] : m[1]).replace(/(?:军队|部队|军团|盟友)$/, '').replace(/的$/, '').trim();
       const refs = this.resolveGroupRefs(grp);
       if (typeof refs === 'string') return refs;
-      this.use('summonRandom', 'summonRef');
       const opts = countRange ? `, undefined, { countRange: { min: ${countRange.min}, max: ${countRange.max} } }` : ', undefined';
+      // K-E：王国随机召唤（「召唤一名盖塔尔军队」「召唤 1 到 3 名迈纳杰之罪军队」7816）
+      if (refs && refs.kingdom) {
+        this.use('summonRandomOfKingdom');
+        state.segments.push(`summonRandomOfKingdom('${refs.kingdom}'${opts})`);
+        return '';
+      }
+      this.use('summonRandom', 'summonRef');
       if (refs.length === 1) state.segments.push(`summonRef('${refs[0]}'${opts})`);
       else state.segments.push(`summonRandom([${refs.map((r) => `'${r}'`).join(', ')}]${opts})`);
       return '';
@@ -2451,7 +2698,7 @@ class Compiler {
     return null;
   }
 
-  /** 群体名 → 召唤引用清单；失败返回错误字符串 */
+  /** 群体名 → 召唤引用清单；王国 → { kingdom }（K-E summonRandomOfKingdom）；失败返回错误字符串 */
   resolveGroupRefs(grp) {
     if (grp === '全视之眼') return OCULAREN_REFS;
     if (RACE_ALIAS[grp]) {
@@ -2460,10 +2707,8 @@ class Compiler {
       if (!refs || refs.length === 0) return `种族 ${race} 在 troops.json 无成员`;
       return refs;
     }
-    // 王国随机 = 无对应原语（batch-16 8831 / batch-26 头注先例）；机翻变体先归一（K-B3）
-    if (isKingdomGroup(grp)) {
-      return `按王国（${normalizeGroupName(grp)}）随机召唤无对应原语（batch-16 8831 同款）→ 原语请求：kingdom 召唤/目标限定`;
-    }
+    // 王国随机召唤（K-E 第五轮接线，summonRandomOfKingdom）；机翻变体先归一（K-B3）
+    if (isKingdomGroup(grp)) return { kingdom: normalizeGroupName(grp) };
     return `群体名称无法可靠映射到种族/王国「${grp}」（语义拿不准）`;
   }
 
@@ -2689,7 +2934,9 @@ function allyRandomStatusSeg(grp, _compiler) {
   const g2 = g.replace(/族$/, '');
   if (RACE_ALIAS[g2]) return { seg: `inflictRandom('allyAll', { targetRace: '${RACE_ALIAS[g2]}' })` };
   if (isKingdomGroup(g) || isKingdomGroup(g2)) {
-    return { err: `按王国（${normalizeGroupName(g)}）限定盟友目标无对应原语（batch-22 8607 同款）→ 原语请求：kingdom 目标限定` };
+    // K-E 第五轮接线：王国限定盟友 → 段级 targetKingdom 过滤（「赋予所有圣唐盟友一个随机状态效果」8399）
+    const kg = isKingdomGroup(g) ? normalizeGroupName(g) : normalizeGroupName(g2);
+    return { seg: `inflictRandom('allyAll', { targetKingdom: '${kg}' })` };
   }
   return { err: `群体名称无法可靠映射到种族/王国「${g}」（语义拿不准）` };
 }
@@ -2728,13 +2975,20 @@ function matchSpecialGem(what) {
   return null;
 }
 function allySourceOf(grp, isEnemy) {
-  // 「每有一名X色敌人」= 敌方色计数 → enemiesOfColor 缺失（诚实略去，8806/8872 族）
+  // K-E 第五轮：敌侧计数接线（enemiesOfColor/enemiesOfRace/enemiesOfKingdom）；
+  // 王国分支先于种族表（「龙爪盟友」≠ 龙族，王国名含种族子串）。
   const g = normalizeGroupName(grp);
   const color = matchColor(g);
+  if (isKingdomGroup(g)) {
+    const kg = normalizeGroupName(g);
+    return isEnemy
+      ? { source: { kind: 'enemiesOfKingdom', kingdom: kg } }
+      : { source: { kind: 'alliesOfKingdom', kingdom: kg } };
+  }
   if (isEnemy) {
-    if (color) return `敌方法力色计数无对应来源 kind → 原语请求：enemiesOfColor 计数`;
+    if (color) return { source: { kind: 'enemiesOfColor', color } };
     for (const [zh, race] of Object.entries(RACE_ALIAS)) {
-      if (g.includes(zh)) return `敌方种族计数无对应来源 kind → 原语请求：enemiesOfRace 计数`;
+      if (g.includes(zh)) return { source: { kind: 'enemiesOfRace', race } };
     }
     return null;
   }
@@ -2743,9 +2997,6 @@ function allySourceOf(grp, isEnemy) {
   }
   for (const [zh, race] of Object.entries(RACE_ALIAS)) {
     if (g.includes(zh)) return { sources: [{ kind: 'alliesOfRace', race }] };
-  }
-  if (isKingdomGroup(g)) {
-    return `按王国（${g}）计数无对应来源 kind（batch-08 8365 / batch-15 8723 同款）→ 原语请求：kingdom 计数`;
   }
   return null;
 }
@@ -2793,8 +3044,8 @@ function jsonCond(cond) {
   }
   return `{ ${parts.join(', ')} }`;
 }
-function lastNumericSegment(segs) {
-  for (let i = segs.length - 1; i >= 0; i--) {
+function lastNumericSegment(segs, from = 0) {
+  for (let i = segs.length - 1; i >= from; i--) {
     if (/\b(dmg|dmgAll|dmgSplash|trueDmg|heal|armor|attack|magic|mana|reduce|randomStat|gainGold|gainSouls|gainGems|gainMaps|createGems|createSkulls|createSpecialGems|steal|drainMana|inflictRandom)\(/.test(segs[i])) return i;
   }
   return -1;
@@ -2979,7 +3230,7 @@ function classifyClause(clause, err, features) {
   if (/终止风暴/.test(clause)) features.add('storm-end');
   if (/敌我双方的|每有一名\S{1,6}敌人/.test(text)) features.add('enemy-color-count');
   if (/enemiesOfColor|enemiesOfRace/.test(text)) features.add('enemy-color-count');
-  if (/targetHasDoom|末日|厄运|劫数|毁灭之力/.test(text)) features.add('doom-condition');
+  if (/targetHasDoom|末日(?!骷髅头)|厄运(?!骷髅头)|劫数|毁灭之力/.test(text)) features.add('doom-condition');
   if (/columnGems/.test(text)) features.add('column-gem-count');
   if (/destroyedSpecialGems/.test(text)) features.add('destroyed-special-count');
   if (/en-only-text/.test(text)) features.add('en-only-text');
@@ -3068,13 +3319,39 @@ function parseModifierSource(body) {
     const c = colorsIn(b)[0];
     return { sources: [{ kind: 'alliesOfColor', color: c }, { kind: 'teamSize', side: 'enemy' }] };
   }
-  if (/(红|蓝|绿|黄|紫|棕)色?盟友数?/.test(b)) return { source: { kind: 'alliesOfColor', color: colorsIn(b)[0] } };
-  for (const [zh, race] of Object.entries(RACE_ALIAS)) {
-    if (b.includes(zh) && /盟友/.test(b)) return { source: { kind: 'alliesOfRace', race } };
+  // K-E：「因敌我双方的X色军队/巨人军队数量而增强」（7250/7445）＝双侧计数 → 两来源
+  {
+    const bothM = b.match(/敌我双方的(红|蓝|绿|黄|紫|棕)色?(?:军队|盟友|敌人)/);
+    if (bothM) return { sources: [{ kind: 'alliesOfColor', color: COLORS[bothM[1]] }, { kind: 'enemiesOfColor', color: COLORS[bothM[1]] }] };
+    const bothR = b.match(/敌我双方的([\u4e00-\u9fa5]{1,4}?)(?:族)?(?:军队|盟友|敌人|部队)?(?:数|数量)?$/);
+    if (bothR) {
+      const race = RACE_ALIAS[bothR[1]] ?? RACE_ALIAS[normalizeGroupName(bothR[1] + '族')];
+      if (race) return { sources: [{ kind: 'alliesOfRace', race }, { kind: 'enemiesOfRace', race }] };
+    }
+    // 「伤害值因敌我双方的黄金数而增强」（8073）：黄金共用池（§10.2）→ battleGold 即双侧总额
+    if (/敌我双方的黄金/.test(b)) return { source: { kind: 'battleGold' } };
   }
-  // K-B3：王国盟友计数 ≠ 全体盟友数——诚实拒绝（9302/9354 曾被误降级为 teamSize(ally)；
-  // 引擎 alliesOfKingdom 来源已备、生成器待王国批统一接线）
-  if (/盟友/.test(b) && isKingdomGroup(b)) return null;
+  if (/(红|蓝|绿|黄|紫|棕)色?盟友数?/.test(b)) return { source: { kind: 'alliesOfColor', color: colorsIn(b)[0] } };
+  // K-E：王国盟友/敌人计数（第五轮接线，alliesOfKingdom/enemiesOfKingdom）——先于种族表判定：
+  // 王国名含种族子串（「龙爪盟友」≠ 龙族）。王国名用 zh 原文名；
+  // 「潘神之谷友数」（机翻脱「盟」）经宽松尾缀剥除覆盖。
+  if (/盟友|盟军|敌人|敌军|友/.test(b)) {
+    const kgRaw = normalizeGroupName(b)
+      .replace(/的?(?:盟友|盟军|敌军|敌人|部队|军队|友)数?$/u, '')
+      .replace(/的$/u, '');
+    if (kgRaw && isKingdomGroup(kgRaw)) {
+      const kg = normalizeGroupName(kgRaw);
+      return /敌/.test(b)
+        ? { source: { kind: 'enemiesOfKingdom', kingdom: kg } }
+        : { source: { kind: 'alliesOfKingdom', kingdom: kg } };
+    }
+  }
+  for (const [zh, race] of Object.entries(RACE_ALIAS)) {
+    if (b.includes(zh) && /盟友|敌人|敌军/.test(b)) {
+      // K-E：敌侧种族计数（「几率因恶魔敌人数而增强」8391/8392 族）
+      return /敌/.test(b) ? { source: { kind: 'enemiesOfRace', race } } : { source: { kind: 'alliesOfRace', race } };
+    }
+  }
   const cs = colorsIn(b);
   if (cs.length >= 1 && /宝石/.test(b)) {
     if (cs.length === 1) return { source: { kind: 'boardGems', color: cs[0] } };
@@ -3310,13 +3587,14 @@ function cmdReport() {
   // 原语请求聚合（partial 化不消掉请求——战斗可用性与引擎补齐解耦）
   // 第三轮：allyOfColor-target 已用 ifCond targetColor 消化（TargetMode 无需扩）；新增 doom/columnGems/destroyedSpecialGems 等
   const PRIM = [
-    ['tempering-scaling', 'tempering 段位缩放来源', 'modifier 来源 { kind: tempering, n }（或组装期常量注入）'],
-    ['doom-condition', 'targetHasDoom 条件（Doomed 机制）', 'Condition { kind: targetHasDoom }——「如果敌人拥有劫数/末日/厄运/毁灭之力」'],
-    ['kingdom-condition', 'kingdomPresent 条件', 'Condition { kind: kingdomPresent, kingdom }'],
-    ['enemy-color-count', 'enemiesOfColor / enemiesOfRace 计数来源', 'ModifierSource { kind: enemiesOfColor | enemiesOfRace }（alliesOfColor 已有，敌方侧仍缺）'],
-    ['kingdom-target', 'kingdom 目标限定', 'TargetMode allyKingdom { kingdom }'],
-    ['kingdom-count', 'alliesOfKingdom 计数来源', 'ModifierSource { kind: alliesOfKingdom, kingdom }'],
-    ['kingdom-summon', 'kingdom 随机召唤', 'summonRandom 按 troops.json kingdom 字段取引用清单'],
+    // —— 第五轮（K-E）已接线：tempering-scaling / doom-condition / kingdom-condition /
+    //     kingdom-target / kingdom-count / kingdom-summon / enemy-color-count 七族主桶清零，
+    //     残余条目见各特征行标注 ——
+    ['tempering-scaling', 'tempering 段位缩放（第五轮已接线）', '残余=无挂载段的特例；来源 { kind: tempering }'],
+    ['doom-condition', 'targetHasDoom 劫数条件（第五轮已接线）', '残余=结论子句超出 condBonus/condMult/ifCond 三形态'],
+    ['kingdom-condition', 'kingdomPresent/kingdomOf 条件（第五轮已接线）', '残余=复合条件特例（9827 多条件连排）'],
+    ['enemy-color-count', 'enemiesOfColor 计数（第五轮已接线）', '残余=createMix 骷髅端点句（7655-7660，归 createMix-special）'],
+    ['kingdom-count', 'alliesOfKingdom 计数（第五轮已接线）', '残余=列内计数特例'],
     ['modifier-tag', '尾部增幅标签归属', '非缺失原语：归属子句被略去时标签暂不挂载；卡点消解后自动回收'],
     ['modifier-source', '修饰来源无法解析（§1 exotic 大族）', '逐条见 meta skippedClauses'],
     ['unknown-group', '群体名无法映射种族/王国', '毒菇林/罗格/滴答洞穴等机翻族名；待术语表'],
@@ -3339,7 +3617,6 @@ function cmdReport() {
     ['destroyed-special-count', '按特殊宝石筛选被摧毁数', 'ModifierSource { kind: destroyedSpecialGems, gem }（8806）'],
     ['anyEnemyDied', 'anyEnemyDied 条件', 'Condition { kind: anyEnemyDied }'],
     ['en-only-text', 'EN-only 快照条目', '非引擎缺口：2 把新武器 zh 法术文本缺失，数据补全后回收'],
-    // —— 第四轮（K-B3）新增 ——
     ['boss-condition', '魔头（Boss troopType）条件', '已按 targetRace/enemyRacePresent Boss 表达；如官方实为晋升口径再翻案（7754/7803/7955）'],
     ['random-status-nrange', '随机状态条数区间', 'inflictRandom 支持 times nRange（7986/7996/9910）'],
     ['destroyed-gem-status-trigger', '逐摧毁宝石触发状态', 'destroyedGems 触发器段（8518）'],
@@ -3367,16 +3644,24 @@ function cmdReport() {
   lines.push('');
   lines.push(`战斗可用绑定（full+partial）${bound.length}/718 = ${(100 * bound.length / results.length).toFixed(1)}%。`);
   lines.push('');
-  lines.push('## 第四轮升级对比（K-B3 解析器冲刺，2026-09-18 · 第三轮 320/382/16 → 本轮）');
+  lines.push('## 第五轮升级对比（K-E 引擎原语批接线，2026-09-18 · 第四轮 418/288/12 → 本轮）');
   lines.push('');
-  lines.push('| 保真度 | 第三轮 | 本轮 | 增量 |');
+  lines.push('| 保真度 | 第四轮 | 本轮 | 增量 |');
   lines.push('|---|---|---|---|');
-  lines.push(`| full | 320 | ${full.length} | ${full.length - 320 >= 0 ? '+' : ''}${full.length - 320} |`);
-  lines.push(`| partial | 382 | ${partial.length} | ${partial.length - 382 >= 0 ? '+' : ''}${partial.length - 382} |`);
-  lines.push(`| mana-only | 16 | ${manaOnly.length} | ${manaOnly.length - 16} |`);
-  lines.push(`| 战斗可用 | 702 | ${bound.length} | ${bound.length - 702 >= 0 ? '+' : ''}${bound.length - 702} |`);
+  lines.push(`| full | 418 | ${full.length} | ${full.length - 418 >= 0 ? '+' : ''}${full.length - 418} |`);
+  lines.push(`| partial | 288 | ${partial.length} | ${partial.length - 288 >= 0 ? '+' : ''}${partial.length - 288} |`);
+  lines.push(`| mana-only | 12 | ${manaOnly.length} | ${manaOnly.length - 12} |`);
+  lines.push(`| 战斗可用 | 706 | ${bound.length} | ${bound.length - 706 >= 0 ? '+' : ''}${bound.length - 706} |`);
   lines.push('');
-  lines.push('**本轮（K-B3 解析器冲刺）消化的句式家族**（引擎原语零新增，全部为生成器规则/词表扩展，裁定见 spell-rules §14）：');
+  lines.push('**本轮（K-E 原语接线）新消化**（四族，裁定见 spell-rules §14 第五轮记录）：');
+  lines.push('');
+  lines.push('- tempering 完整编译：76 把 Doomed 淬炼增项从「参数化省略」升级为 `tempering` 来源修饰（level 0 增项=0、随段位缩放；「每级回火 +N 点」「每提升一级强化等级额外增加 N 点」「+N 颗宝石」全形态）；「回火等级有 N% 几率杀死」→ execute 段 chanceBoost（8726-8728 chance 0+boost=level 0 恒不触发的诚实语义）；');
+  lines.push('- 劫数条件接线：enemyHasDoom()（targetHasDoom，敌方存活者 troopTypes 含 Doom）——「则再增加/给予 N 点」→ condBonus 挂前段（7655-7660/7952-8083 官方形态）、「可造成双倍伤害」→ condMult（8726-8728）、「再创造 N 颗」→ lastCreate 复用 + ifCond（7952）、「恢复我四分之一的法力」→ mana fraction 0.25（9580-9582，R12 fraction 原语）、「先破坏其护甲」→ reduce drainAll（9825-9830）；');
+  lines.push('- 王国族接线：条件「若敌人来自X，或战斗发生在/位于X，则 N 倍」→ anyOf(kingdomOf enemy, kingdomPresent) condMult（8322-8360 族 37 把，样例 8322 阿达纳手枪）；「盟友来自X则…」→ 段级 targetKingdom（8971）；「因X王国盟友数而增强」→ alliesOfKingdom（9302/9354/8877 等，修正第四轮 teamSize 误读）；「每有一名X王国盟友则创造 N 颗宝石」→ alliesOfKingdom 修饰；「召唤一名/1 到 3 名X王国军队」→ summonRandomOfKingdom（7816 countRange、8399/8451/8505/8510/8513/9210 等）；「赋予所有X王国盟友随机正面」→ inflictRandom targetKingdom；王国判定先于种族表（「龙爪盟友」≠ 龙族）；');
+  lines.push('- 敌侧计数接线：enemiesOfColor/enemiesOfRace/enemiesOfKingdom——「几率因恶魔敌人数而增强」（8391/8392）、「每有一名X色敌人则创造/给予…」（7982/8047/8872/8873）、「因敌我双方的X色军队/巨人军队数」（7250/7445 双来源）、「敌我双方的黄金数」→ battleGold 共用池（8073）；');
+  lines.push('- 修饰 rider 词序补全：「伤害只因X而增强」（8877）、「伤害力由X而增强」（8726-8728 机翻 伤害值→伤害力）；');
+  lines.push('');
+  lines.push('**上一轮（K-B3 解析器冲刺）消化的句式家族**（引擎原语零新增，全部为生成器规则/词表扩展，裁定见 spell-rules §14）：');
   lines.push('');
   lines.push('- 「boosted by」修饰句大族归一：「X盟友可提升伤害」「由X激发/增强」「受到X的加成」「被蛛网束缚的敌人伤害加成」「而加强/而激发」机翻词序——9833/9834/9836/9837/9842/9876/9912/9913/9915/9972/9974/9975/9977/10015/10047/10048/10049/8453/8620/8398/8052 等 30+ 把回收，尾部 [xN] 随归属子句挂载；');
   lines.push('- 机翻族名/兵种名补全（EN 原文 + troops.json troopTypes 反查）：猫族/罗刹=Raksha、金牛座/牛头族=Tauros、人马=Centaur、狼族/战神=Wargare、蛮族=Wildfolk、厄什卡/乌尔斯卡=Urska、建造=Construct、罗格=Rogue、冥河/猎鹰/鸟族=Stryx、美人鱼=Merfolk、魔头=Boss——「爆炸+赋予随机正面+召唤」三连武器族（7531/8455/8708/8771/8907/8908/9207/9210/9266/9301/9508/9511/9575/9754/9916 等 20+ 把）整族回收；');

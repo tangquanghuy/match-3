@@ -764,7 +764,8 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 7241,
     desc: '对一名敌人造成 [魔法 + 7] 点伤害，伤害值因盖塔尔盟友数而增强。每有一名盖塔尔盟友，则创造 6 颗宝石，所创造的宝石混合紫色和棕色两种颜色。 [x6]',
     build: skill(
-      dmg('enemyChosen', 7, 1),
+      dmg('enemyChosen', 7, 1, { modifier: { mod: { kind: 'multiplier', a: 6 }, source: { kind: 'alliesOfKingdom', kingdom: '盖塔尔' } } }),
+      createMix([BaseColor.Purple, BaseColor.Brown], 6, 0, { modifier: { mod: { kind: 'multiplier', a: 6 }, source: { kind: 'alliesOfKingdom', kingdom: '盖塔尔' } } }),
     ),
   },
   {
@@ -827,7 +828,7 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 7250,
     desc: '对所有敌人造成 [魔法 + 2] 点伤害，伤害值因敌我双方的黄色军队数量而增强。赋予所有盟友屏障效果。如果有 13 颗或更多红色宝石，则获得 2 点魔法值。 [x2]',
     build: skill(
-      dmg('enemyAll', 2, 1, { range: 'all' }),
+      dmg('enemyAll', 2, 1, { range: 'all', modifier: { mod: { kind: 'multiplier', a: 2 }, sources: [{ kind: 'alliesOfColor', color: BaseColor.Yellow }, { kind: 'enemiesOfColor', color: BaseColor.Yellow }] } }),
       inflict('barrier', 'allyAll'),
       magic('allySelf', 2, 0, { ifCond: { kind: 'boardAtLeast', color: BaseColor.Red, n: 13 } }),
     ),
@@ -1112,7 +1113,7 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 7445,
     desc: '对一名敌人造成 [魔法 + 5] 点溅射伤害。伤害值因敌我双方的巨人军队数而增强。 [x6]',
     build: skill(
-      dmgSplash('enemyChosen', 5, 1, { range: 'splash' }),
+      dmgSplash('enemyChosen', 5, 1, { range: 'splash', modifier: { mod: { kind: 'multiplier', a: 6 }, sources: [{ kind: 'alliesOfRace', race: 'Giant' }, { kind: 'enemiesOfRace', race: 'Giant' }] } }),
     ),
   },
   {
@@ -1190,6 +1191,7 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '对一名敌人造成 [魔法 + 4] 点溅射伤害。敌我双方每有一名棕色军队则爆破一颗随机棕色宝石。 [1:1]',
     build: skill(
       dmgSplash('enemyChosen', 4, 1, { range: 'splash' }),
+      explodeRandomGems(1, 0, 'color', BaseColor.Brown, { modifier: { mod: { kind: 'ratio', a: 1, b: 1 }, sources: [{ kind: 'alliesOfColor', color: BaseColor.Brown }, { kind: 'enemiesOfColor', color: BaseColor.Brown }] } }),
     ),
   },
   {
@@ -1362,40 +1364,40 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 7655,
     desc: '造成 [魔法 + 10] 点散射伤害，每锻炼 1 个武器段位则 +4 点伤害值。每有一名蓝色敌人则创造 6 颗混合蓝色和骷髅头的宝石。给予所有盟友 3 点魔法值。如果敌方有劫数，则再增加 5 点。 [x6]',
     build: skill(
-      dmg('enemyAll', 10, 1, { range: 'all' }),
-      magic('allyAll', 3, 0),
+      dmg('enemyAll', 10, 1, { range: 'all', modifier: { mod: { kind: 'multiplier', a: 4 }, source: { kind: 'tempering' } } }),
+      magic('allyAll', 3, 0, { condBonus: { n: 5, cond: { kind: 'targetHasDoom' } } }),
     ),
   },
   {
     id: 7656,
     desc: '造成 [魔法 + 10] 点散射伤害，每锻炼 1 个武器段位则 +4 点伤害值。每有一名绿色敌人则创造 6 颗混合绿色和骷髅头的宝石。给予所有盟友 3 点魔法值。如果敌方有劫数，则再增加 5 点。 [x6]',
     build: skill(
-      dmg('enemyAll', 10, 1, { range: 'all' }),
-      magic('allyAll', 3, 0),
+      dmg('enemyAll', 10, 1, { range: 'all', modifier: { mod: { kind: 'multiplier', a: 4 }, source: { kind: 'tempering' } } }),
+      magic('allyAll', 3, 0, { condBonus: { n: 5, cond: { kind: 'targetHasDoom' } } }),
     ),
   },
   {
     id: 7657,
     desc: '造成 [魔法 + 10] 点散射伤害，每锻炼 1 个武器段位则 +4 点伤害值。每有一名红色敌人则创造 6 颗混合红色和骷髅头的宝石。给予所有盟友 3 点魔法值。如果敌方有劫数，则再增加 5 点。 [x6]',
     build: skill(
-      dmg('enemyAll', 10, 1, { range: 'all' }),
-      magic('allyAll', 3, 0),
+      dmg('enemyAll', 10, 1, { range: 'all', modifier: { mod: { kind: 'multiplier', a: 4 }, source: { kind: 'tempering' } } }),
+      magic('allyAll', 3, 0, { condBonus: { n: 5, cond: { kind: 'targetHasDoom' } } }),
     ),
   },
   {
     id: 7658,
     desc: '造成 [魔法 + 10] 点散射伤害，每锻炼 1 个武器段位则 +4 点伤害值。每有一名黄色敌人则创造 6 颗混合黄色和骷髅头的宝石。给予所有盟友 3 点魔法值。如果敌方有劫数，则再增加 5 点。 [x6]',
     build: skill(
-      dmg('enemyAll', 10, 1, { range: 'all' }),
-      magic('allyAll', 3, 0),
+      dmg('enemyAll', 10, 1, { range: 'all', modifier: { mod: { kind: 'multiplier', a: 4 }, source: { kind: 'tempering' } } }),
+      magic('allyAll', 3, 0, { condBonus: { n: 5, cond: { kind: 'targetHasDoom' } } }),
     ),
   },
   {
     id: 7659,
     desc: '造成 [魔法 + 10] 点散射伤害，每锻炼 1 个武器段位则 +4 点伤害值。每有一名紫色敌人则创造 6 颗混合紫色和骷髅头的宝石。给予所有盟友 3 点魔法值。如果敌方有劫数，则再增加 5 点。 [x6]',
     build: skill(
-      dmg('enemyAll', 10, 1, { range: 'all' }),
-      magic('allyAll', 3, 0),
+      dmg('enemyAll', 10, 1, { range: 'all', modifier: { mod: { kind: 'multiplier', a: 4 }, source: { kind: 'tempering' } } }),
+      magic('allyAll', 3, 0, { condBonus: { n: 5, cond: { kind: 'targetHasDoom' } } }),
     ),
   },
 ];

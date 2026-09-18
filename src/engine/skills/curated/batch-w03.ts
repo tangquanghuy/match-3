@@ -8,7 +8,7 @@
  * src/data/weapon-skill-meta.json）。组装规则锚定 scripts/spell-rules.md 与
  * 既有部队批次先例；生成器 scripts/_weapon_pools.mjs gen。
  */
-import { armor, attack, cleanse, createGems, createMix, createSpecialGems, createStorm, destroyChosenCol, destroyChosenRow, destroyColor, destroyRandomCols, dmg, dmgSplash, explodeChosenCol, explodeChosenRow, explodeRandomGems, extraTurn, gainGold, heal, inflict, inflictRandom, magic, mana, oneOf, reduce, reposition, shuffleTeam, skill, steal, summonRandom, transform, transformToSpecial, trueDmg, CHOSEN } from '../builders';
+import { armor, attack, cleanse, createGems, createMix, createSpecialGems, createStorm, destroyChosenCol, destroyChosenRow, destroyColor, destroyRandomCols, dmg, dmgSplash, explodeChosenCol, explodeChosenRow, explodeRandomGems, extraTurn, gainGold, heal, inflict, inflictRandom, magic, mana, oneOf, reduce, reposition, shuffleTeam, skill, steal, summonRandom, summonRandomOfKingdom, transform, transformToSpecial, trueDmg, CHOSEN } from '../builders';
 import { BaseColor } from '../../types';
 import type { CuratedBatch } from './index';
 
@@ -76,7 +76,8 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 8434,
     desc: '对一名敌人造成 [魔法 + 7] 点伤害，伤害值因黑石盟友数而增强。每有一名黑石盟友，则创造 6 颗混合蓝色和紫色的宝石。 [x6]',
     build: skill(
-      dmg('enemyChosen', 7, 1),
+      dmg('enemyChosen', 7, 1, { modifier: { mod: { kind: 'multiplier', a: 6 }, source: { kind: 'alliesOfKingdom', kingdom: '黑石' } } }),
+      createMix([BaseColor.Blue, BaseColor.Purple], 6, 0, { modifier: { mod: { kind: 'multiplier', a: 6 }, source: { kind: 'alliesOfKingdom', kingdom: '黑石' } } }),
     ),
   },
   {
@@ -110,6 +111,7 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '给予一位盟友 [魔法 + 1] 点生命值，数值因棕色宝石而增强。再给予其四分之一的法力值。 [x2]',
     build: skill(
       heal('allyAll', 1, 1, { modifier: { mod: { kind: 'multiplier', a: 2 }, source: { kind: 'boardGems', color: BaseColor.Brown } } }),
+      mana('allyAll', 0, 0, { fraction: 0.25 }),
     ),
   },
   {
@@ -133,48 +135,54 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 8442,
     desc: '创造 4 颗绿色宝石，每锻炼 1 个武器段位则 +1 颗宝石。给予所有蓝色盟友 [魔法 + 2] 点护甲值。若敌方有劫数，则消除一位随机敌人所有护甲值。',
     build: skill(
-      createGems(BaseColor.Green, 4, 0),
+      createGems(BaseColor.Green, 4, 0, { modifier: { mod: { kind: 'multiplier', a: 1 }, source: { kind: 'tempering' } } }),
       armor('allyAll', 2, 1, { ifCond: { kind: 'targetColor', color: BaseColor.Blue } }),
+      reduce('enemyAll', 'armor', 0, 0, { drainAll: true, ifCond: { kind: 'targetHasDoom' } }),
     ),
   },
   {
     id: 8443,
     desc: '创造 4 颗蓝色宝石，每锻炼 1 个武器段位则 +1 颗宝石。给予所有绿色盟友 [魔法 + 1] 点护甲值。若敌方有劫数，则消除一位随机敌人所有护甲值。',
     build: skill(
-      createGems(BaseColor.Blue, 4, 0),
+      createGems(BaseColor.Blue, 4, 0, { modifier: { mod: { kind: 'multiplier', a: 1 }, source: { kind: 'tempering' } } }),
       armor('allyAll', 1, 1, { ifCond: { kind: 'targetColor', color: BaseColor.Green } }),
+      reduce('enemyAll', 'armor', 0, 0, { drainAll: true, ifCond: { kind: 'targetHasDoom' } }),
     ),
   },
   {
     id: 8444,
     desc: '创造 4 颗黄色宝石，每锻炼 1 个武器段位则 +1 颗宝石。给予所有红色盟友 [魔法 + 1] 点护甲值。若敌方有劫数，则消除一位随机敌人所有护甲值。',
     build: skill(
-      createGems(BaseColor.Yellow, 4, 0),
+      createGems(BaseColor.Yellow, 4, 0, { modifier: { mod: { kind: 'multiplier', a: 1 }, source: { kind: 'tempering' } } }),
       armor('allyAll', 1, 1, { ifCond: { kind: 'targetColor', color: BaseColor.Red } }),
+      reduce('enemyAll', 'armor', 0, 0, { drainAll: true, ifCond: { kind: 'targetHasDoom' } }),
     ),
   },
   {
     id: 8445,
     desc: '创造 4 颗红色宝石，每锻炼 1 个武器段位则 +1 颗宝石。给予所有黄色盟友 [魔法 + 1] 点护甲值。若敌方有劫数，则消除一位随机敌人所有护甲值。',
     build: skill(
-      createGems(BaseColor.Red, 4, 0),
+      createGems(BaseColor.Red, 4, 0, { modifier: { mod: { kind: 'multiplier', a: 1 }, source: { kind: 'tempering' } } }),
       armor('allyAll', 1, 1, { ifCond: { kind: 'targetColor', color: BaseColor.Yellow } }),
+      reduce('enemyAll', 'armor', 0, 0, { drainAll: true, ifCond: { kind: 'targetHasDoom' } }),
     ),
   },
   {
     id: 8446,
     desc: '创造 4 颗棕色宝石，每锻炼 1 个武器段位则 +1 颗宝石。给予所有紫色盟友 [魔法 + 1] 点护甲值。若敌方有劫数，则消除一位随机敌人所有护甲值。',
     build: skill(
-      createGems(BaseColor.Brown, 4, 0),
+      createGems(BaseColor.Brown, 4, 0, { modifier: { mod: { kind: 'multiplier', a: 1 }, source: { kind: 'tempering' } } }),
       armor('allyAll', 1, 1, { ifCond: { kind: 'targetColor', color: BaseColor.Purple } }),
+      reduce('enemyAll', 'armor', 0, 0, { drainAll: true, ifCond: { kind: 'targetHasDoom' } }),
     ),
   },
   {
     id: 8447,
     desc: '创造 4 颗紫色宝石，每锻炼 1 个武器段位则 +1 颗宝石。给予所有棕色盟友 [魔法 + 1] 点护甲值。若敌方有劫数，则消除一位随机敌人所有护甲值。',
     build: skill(
-      createGems(BaseColor.Purple, 4, 0),
+      createGems(BaseColor.Purple, 4, 0, { modifier: { mod: { kind: 'multiplier', a: 1 }, source: { kind: 'tempering' } } }),
       armor('allyAll', 1, 1, { ifCond: { kind: 'targetColor', color: BaseColor.Brown } }),
+      reduce('enemyAll', 'armor', 0, 0, { drainAll: true, ifCond: { kind: 'targetHasDoom' } }),
     ),
   },
   {
@@ -207,21 +215,24 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '爆破 [魔法 + 1] 颗黄色宝石。赋予所有卜筮之原盟友一个随机状态效果。再召唤一名卜筮之原军队。',
     build: skill(
       explodeRandomGems(1, 1, 'color', BaseColor.Yellow),
+      inflictRandom('allyAll', { targetKingdom: '卜筮之原' }),
+      summonRandomOfKingdom('卜筮之原', undefined),
     ),
   },
   {
     id: 8452,
     desc: '对一名敌人造成 [魔法 + 7] 点伤害，伤害值因龙爪盟友数而增强。每有一名龙爪盟友则创造 6 颗混合红色和紫色的宝石。 [x6]',
     build: skill(
-      dmg('enemyChosen', 7, 1, { modifier: { mod: { kind: 'multiplier', a: 6 }, source: { kind: 'alliesOfRace', race: 'Dragon' } } }),
-      createMix([BaseColor.Red, BaseColor.Purple], 6, 0, { modifier: { mod: { kind: 'multiplier', a: 6 }, sources: [{ kind: 'alliesOfRace', race: 'Dragon' }] } }),
+      dmg('enemyChosen', 7, 1, { modifier: { mod: { kind: 'multiplier', a: 6 }, source: { kind: 'alliesOfKingdom', kingdom: '龙爪' } } }),
+      createMix([BaseColor.Red, BaseColor.Purple], 6, 0, { modifier: { mod: { kind: 'multiplier', a: 6 }, source: { kind: 'alliesOfKingdom', kingdom: '龙爪' } } }),
     ),
   },
   {
     id: 8453,
     desc: '对敌人造成[魔法 + 7]点伤害，由风暴峡湾盟友激发。然后给每个风暴峡湾盟友制造6颗混合的蓝色和黄色宝石。 [x6]',
     build: skill(
-      dmg('enemyChosen', 7, 1),
+      dmg('enemyChosen', 7, 1, { modifier: { mod: { kind: 'multiplier', a: 6 }, source: { kind: 'alliesOfKingdom', kingdom: '风暴峡湾' } } }),
+      createMix([BaseColor.Blue, BaseColor.Yellow], 6, 0, { modifier: { mod: { kind: 'multiplier', a: 6 }, source: { kind: 'alliesOfKingdom', kingdom: '风暴峡湾' } } }),
     ),
   },
   {
@@ -262,7 +273,8 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 8487,
     desc: '对一名敌人造成 [魔法 + 7] 点伤害，伤害值因黑鹰盟友数而增强。每有一位黑鹰盟友则创造 6 颗混合蓝色和红色的宝石。 [x6]',
     build: skill(
-      dmg('enemyChosen', 7, 1),
+      dmg('enemyChosen', 7, 1, { modifier: { mod: { kind: 'multiplier', a: 6 }, source: { kind: 'alliesOfKingdom', kingdom: '黑鹰' } } }),
+      createMix([BaseColor.Blue, BaseColor.Red], 6, 0, { modifier: { mod: { kind: 'multiplier', a: 6 }, source: { kind: 'alliesOfKingdom', kingdom: '黑鹰' } } }),
     ),
   },
   {
@@ -279,13 +291,16 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '爆破 [魔法 + 1] 颗绿色宝石。赋予所有狂野平原盟友一个随机状态效果。再召唤一名狂野平原军队。',
     build: skill(
       explodeRandomGems(1, 1, 'color', BaseColor.Green),
+      inflictRandom('allyAll', { targetKingdom: '狂野平原' }),
+      summonRandomOfKingdom('狂野平原', undefined),
     ),
   },
   {
     id: 8506,
     desc: '对一名敌人造成 [魔法 + 7] 点伤害，伤害值因破碎尖塔盟友数而增强。每有一位破碎尖塔盟友则创造 6 颗混合红色和棕色的宝石。 [x6]',
     build: skill(
-      dmg('enemyChosen', 7, 1),
+      dmg('enemyChosen', 7, 1, { modifier: { mod: { kind: 'multiplier', a: 6 }, source: { kind: 'alliesOfKingdom', kingdom: '破碎尖塔' } } }),
+      createMix([BaseColor.Red, BaseColor.Brown], 6, 0, { modifier: { mod: { kind: 'multiplier', a: 6 }, source: { kind: 'alliesOfKingdom', kingdom: '破碎尖塔' } } }),
     ),
   },
   {
@@ -319,6 +334,8 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '爆破 [魔法 + 1] 颗蓝色宝石。赋予所有冰峰之巅盟友一个随机状态效果。再召唤一名冰峰之巅军队。',
     build: skill(
       explodeRandomGems(1, 1, 'color', BaseColor.Blue),
+      inflictRandom('allyAll', { targetKingdom: '冰峰之巅' }),
+      summonRandomOfKingdom('冰峰之巅', undefined),
     ),
   },
   {
@@ -342,6 +359,8 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '爆破 [魔法 + 1] 颗红色宝石。赋予所有破碎尖塔盟友一个随机正面增益效果。再召唤一名破碎尖塔军队。',
     build: skill(
       explodeRandomGems(1, 1, 'color', BaseColor.Red),
+      inflictRandom('allyAll', { targetKingdom: '破碎尖塔' }),
+      summonRandomOfKingdom('破碎尖塔', undefined),
     ),
   },
   {
@@ -349,6 +368,8 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '爆破 [魔法 + 1] 颗红色宝石。赋予所有葛洛什奈克盟友一个随机正面增益效果。再召唤一名葛洛什奈克军队。',
     build: skill(
       explodeRandomGems(1, 1, 'color', BaseColor.Red),
+      inflictRandom('allyAll', { targetKingdom: '葛洛什奈克' }),
+      summonRandomOfKingdom('葛洛什奈克', undefined),
     ),
   },
   {
@@ -356,6 +377,8 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '爆破[魔法 + 1]颗紫色宝石。给予所有卡拉科斯盟友一个随机状态效果。然后召唤一支卡拉科斯部队。',
     build: skill(
       explodeRandomGems(1, 1, 'color', BaseColor.Purple),
+      inflictRandom('allyAll', { targetKingdom: '卡拉考斯' }),
+      summonRandomOfKingdom('卡拉考斯', undefined),
     ),
   },
   {
@@ -464,7 +487,8 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 8620,
     desc: '对敌人造成 [魔法 + 7] 点伤害，由古尔瓦尼亚盟友增强。然后为每位古尔瓦尼亚盟友创造 6 颗混合红色和紫色宝石。 [x6]',
     build: skill(
-      dmg('enemyChosen', 7, 1),
+      dmg('enemyChosen', 7, 1, { modifier: { mod: { kind: 'multiplier', a: 6 }, source: { kind: 'alliesOfKingdom', kingdom: '加尔凡尼亚' } } }),
+      createMix([BaseColor.Red, BaseColor.Purple], 6, 0, { modifier: { mod: { kind: 'multiplier', a: 6 }, source: { kind: 'alliesOfKingdom', kingdom: '加尔凡尼亚' } } }),
     ),
   },
   {
@@ -514,7 +538,7 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '移除所有棕色宝石。对一名敌人造成l [魔法 + 5] 点伤害，伤害值因被移除的宝石数而增强。若敌人来自诺斯，或战斗发生在诺斯，则造成双倍伤害。 [3:1]',
     build: skill(
       destroyColor(BaseColor.Brown),
-      dmg('enemyChosen', 5, 1, { modifier: { mod: { kind: 'ratio', a: 3, b: 1 }, source: { kind: 'destroyedGems' } } }),
+      dmg('enemyChosen', 5, 1, { modifier: { mod: { kind: 'ratio', a: 3, b: 1 }, source: { kind: 'destroyedGems' } }, condMult: { times: 2, cond: { kind: 'anyOf', of: [{ kind: 'kingdomOf', side: 'enemy', kingdom: '诺斯' }, { kind: 'kingdomPresent', kingdom: '诺斯' }] } } }),
     ),
   },
   {
@@ -536,7 +560,8 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 8645,
     desc: '对一名敌人造成 [魔法 + 7] 点伤害，伤害值因诺斯盟友数而增强。每有一名诺斯盟友，则创建 6 颗混合红色和棕色的宝石。 [x6]',
     build: skill(
-      dmg('enemyChosen', 7, 1),
+      dmg('enemyChosen', 7, 1, { modifier: { mod: { kind: 'multiplier', a: 6 }, source: { kind: 'alliesOfKingdom', kingdom: '诺斯' } } }),
+      createMix([BaseColor.Red, BaseColor.Brown], 6, 0, { modifier: { mod: { kind: 'multiplier', a: 6 }, source: { kind: 'alliesOfKingdom', kingdom: '诺斯' } } }),
     ),
   },
   {
@@ -584,7 +609,8 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 8669,
     desc: '对一名敌人造成 [魔法 + 7] 点伤害，伤害值因齐埃金盟友数而增强。每有一名齐埃金盟友则创建 6 颗混合绿色和棕色的宝石。 [x6]',
     build: skill(
-      dmg('enemyChosen', 7, 1),
+      dmg('enemyChosen', 7, 1, { modifier: { mod: { kind: 'multiplier', a: 6 }, source: { kind: 'alliesOfKingdom', kingdom: '齐埃金' } } }),
+      createMix([BaseColor.Green, BaseColor.Brown], 6, 0, { modifier: { mod: { kind: 'multiplier', a: 6 }, source: { kind: 'alliesOfKingdom', kingdom: '齐埃金' } } }),
     ),
   },
   {
@@ -592,6 +618,8 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '爆破 [魔法 + 1] 颗紫色宝石。赋予所有玉银林地盟友一个随机正面增益效果。再召唤一名玉银林地军队。',
     build: skill(
       explodeRandomGems(1, 1, 'color', BaseColor.Purple),
+      inflictRandom('allyAll', { targetKingdom: '玉银林地' }),
+      summonRandomOfKingdom('玉银林地', undefined),
     ),
   },
   {
@@ -622,7 +650,7 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '对首位和末位敌人造成 [魔法 + 8] 点伤害，每锻炼 1 个武器段位则 +4 点伤害值。赐福所有蓝色盟友并诅咒所有蓝色敌人。',
     build: skill(
       dmg('enemyLast', 8, 1),
-      dmg('enemyFront', 8, 1),
+      dmg('enemyFront', 8, 1, { modifier: { mod: { kind: 'multiplier', a: 4 }, source: { kind: 'tempering' } } }),
       inflict('blessed', 'allyAll', { ifCond: { kind: 'targetColor', color: BaseColor.Blue } }),
       inflict('curse', 'enemyAll', { ifCond: { kind: 'targetColor', color: BaseColor.Blue } }),
     ),
@@ -632,7 +660,7 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '对首位和末位敌人造成 [魔法 + 8] 点伤害，每锻炼 1 个武器段位则 +4 点伤害值。赐福所有绿色盟友并诅咒所有绿色敌人。',
     build: skill(
       dmg('enemyLast', 8, 1),
-      dmg('enemyFront', 8, 1),
+      dmg('enemyFront', 8, 1, { modifier: { mod: { kind: 'multiplier', a: 4 }, source: { kind: 'tempering' } } }),
       inflict('blessed', 'allyAll', { ifCond: { kind: 'targetColor', color: BaseColor.Green } }),
       inflict('curse', 'enemyAll', { ifCond: { kind: 'targetColor', color: BaseColor.Green } }),
     ),
@@ -642,7 +670,7 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '对首位和末位敌人造成 [魔法 + 8] 点伤害，每锻炼 1 个武器段位则 +4 点伤害值。赐福所有红色盟友并诅咒所有红色敌人。',
     build: skill(
       dmg('enemyLast', 8, 1),
-      dmg('enemyFront', 8, 1),
+      dmg('enemyFront', 8, 1, { modifier: { mod: { kind: 'multiplier', a: 4 }, source: { kind: 'tempering' } } }),
       inflict('blessed', 'allyAll', { ifCond: { kind: 'targetColor', color: BaseColor.Red } }),
       inflict('curse', 'enemyAll', { ifCond: { kind: 'targetColor', color: BaseColor.Red } }),
     ),
@@ -652,7 +680,7 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '对首位和末位敌人造成 [魔法 + 8] 点伤害，每锻炼 1 个武器段位则 +4 点伤害值。赐福所有黄色盟友并诅咒所有黄色敌人。',
     build: skill(
       dmg('enemyLast', 8, 1),
-      dmg('enemyFront', 8, 1),
+      dmg('enemyFront', 8, 1, { modifier: { mod: { kind: 'multiplier', a: 4 }, source: { kind: 'tempering' } } }),
       inflict('blessed', 'allyAll', { ifCond: { kind: 'targetColor', color: BaseColor.Yellow } }),
       inflict('curse', 'enemyAll', { ifCond: { kind: 'targetColor', color: BaseColor.Yellow } }),
     ),
@@ -662,7 +690,7 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '对首位和末位敌人造成 [(魔法 x 2) + 16] 点伤害，每锻炼 1 个武器段位则 +4 点伤害值。赐福所有紫色盟友并诅咒所有紫色敌人。',
     build: skill(
       dmg('enemyLast', 16, 2),
-      dmg('enemyFront', 16, 2),
+      dmg('enemyFront', 16, 2, { modifier: { mod: { kind: 'multiplier', a: 4 }, source: { kind: 'tempering' } } }),
       inflict('blessed', 'allyAll', { ifCond: { kind: 'targetColor', color: BaseColor.Purple } }),
       inflict('curse', 'enemyAll', { ifCond: { kind: 'targetColor', color: BaseColor.Purple } }),
     ),
@@ -672,7 +700,7 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '对首位和末位敌人造成 [魔法 + 8] 点伤害，每锻炼 1 个武器段位则 +4 点伤害值。赐福所有棕色盟友并诅咒所有棕色敌人。',
     build: skill(
       dmg('enemyLast', 8, 1),
-      dmg('enemyFront', 8, 1),
+      dmg('enemyFront', 8, 1, { modifier: { mod: { kind: 'multiplier', a: 4 }, source: { kind: 'tempering' } } }),
       inflict('blessed', 'allyAll', { ifCond: { kind: 'targetColor', color: BaseColor.Brown } }),
       inflict('curse', 'enemyAll', { ifCond: { kind: 'targetColor', color: BaseColor.Brown } }),
     ),
@@ -691,6 +719,8 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '爆破 [魔法 + 1] 颗紫色宝石。赋予所有盖塔尔盟友一个随机正面增益效果。再召唤一名盖塔尔军队。',
     build: skill(
       explodeRandomGems(1, 1, 'color', BaseColor.Purple),
+      inflictRandom('allyAll', { targetKingdom: '盖塔尔' }),
+      summonRandomOfKingdom('盖塔尔', undefined),
     ),
   },
   {
@@ -722,48 +752,56 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '爆破 [魔法 + 1] 颗黄色宝石。赋予所有阿达纳盟友一个随机正面增益状态效果。再召唤一名阿达纳军队。',
     build: skill(
       explodeRandomGems(1, 1, 'color', BaseColor.Yellow),
+      inflictRandom('allyAll', { targetKingdom: '阿达纳' }),
+      summonRandomOfKingdom('阿达纳', undefined),
     ),
   },
   {
     id: 8726,
     desc: '对最后一名敌人造成[魔法 + 4]点伤害，伤害力由蓝色宝石而增强。如果他们有末日，可造成双倍伤害。每个回火等级有3%的几率杀死敌人。 [1:1]',
     build: skill(
-      dmg('enemyLast', 4, 1),
+      dmg('enemyLast', 4, 1, { modifier: { mod: { kind: 'ratio', a: 1, b: 1 }, source: { kind: 'boardGems', color: BaseColor.Blue } }, condMult: { times: 2, cond: { kind: 'targetHasDoom' } } }),
+      dmg('lastTarget', 0, 0, { execute: true, chanceBoost: { mod: { kind: 'multiplier', a: 3 }, source: { kind: 'tempering' } } }),
     ),
   },
   {
     id: 8727,
     desc: '对最后一名敌人造成[魔法 + 4]点伤害值，伤害值由绿色宝石而增强。如果他们有末日，造成双倍伤害。每个回火等级有 3% 的几率杀死敌人。 [1:1]',
     build: skill(
-      dmg('enemyLast', 4, 1, { modifier: { mod: { kind: 'ratio', a: 1, b: 1 }, source: { kind: 'boardGems', color: BaseColor.Green } } }),
+      dmg('enemyLast', 4, 1, { modifier: { mod: { kind: 'ratio', a: 1, b: 1 }, source: { kind: 'boardGems', color: BaseColor.Green } }, condMult: { times: 2, cond: { kind: 'targetHasDoom' } } }),
+      dmg('lastTarget', 0, 0, { execute: true, chanceBoost: { mod: { kind: 'multiplier', a: 3 }, source: { kind: 'tempering' } } }),
     ),
   },
   {
     id: 8728,
     desc: '对最后一名敌人造成[魔法 + 4]点伤害值，伤害值由红色宝石而增强。如果他们有末日，造成双倍伤害。每个回火等级有 3% 的几率杀死敌人。 [1:1]',
     build: skill(
-      dmg('enemyLast', 4, 1, { modifier: { mod: { kind: 'ratio', a: 1, b: 1 }, source: { kind: 'boardGems', color: BaseColor.Red } } }),
+      dmg('enemyLast', 4, 1, { modifier: { mod: { kind: 'ratio', a: 1, b: 1 }, source: { kind: 'boardGems', color: BaseColor.Red } }, condMult: { times: 2, cond: { kind: 'targetHasDoom' } } }),
+      dmg('lastTarget', 0, 0, { execute: true, chanceBoost: { mod: { kind: 'multiplier', a: 3 }, source: { kind: 'tempering' } } }),
     ),
   },
   {
     id: 8729,
     desc: '对最后一名敌人造成[魔法 + 4]点伤害值，伤害值由黄色宝石而增强。如果他们有末日，造成双倍伤害。每个回火等级有 3% 的几率杀死敌人。 [1:1]',
     build: skill(
-      dmg('enemyLast', 4, 1, { modifier: { mod: { kind: 'ratio', a: 1, b: 1 }, source: { kind: 'boardGems', color: BaseColor.Yellow } } }),
+      dmg('enemyLast', 4, 1, { modifier: { mod: { kind: 'ratio', a: 1, b: 1 }, source: { kind: 'boardGems', color: BaseColor.Yellow } }, condMult: { times: 2, cond: { kind: 'targetHasDoom' } } }),
+      dmg('lastTarget', 0, 0, { execute: true, chanceBoost: { mod: { kind: 'multiplier', a: 3 }, source: { kind: 'tempering' } } }),
     ),
   },
   {
     id: 8730,
     desc: '对最后一名敌人造成[魔法 + 4]点伤害值，伤害值由紫色宝石而增强。如果他们有末日，造成双倍伤害。每个回火等级有 3% 的几率杀死敌人。 [1:1]',
     build: skill(
-      dmg('enemyLast', 4, 1, { modifier: { mod: { kind: 'ratio', a: 1, b: 1 }, source: { kind: 'boardGems', color: BaseColor.Purple } } }),
+      dmg('enemyLast', 4, 1, { modifier: { mod: { kind: 'ratio', a: 1, b: 1 }, source: { kind: 'boardGems', color: BaseColor.Purple } }, condMult: { times: 2, cond: { kind: 'targetHasDoom' } } }),
+      dmg('lastTarget', 0, 0, { execute: true, chanceBoost: { mod: { kind: 'multiplier', a: 3 }, source: { kind: 'tempering' } } }),
     ),
   },
   {
     id: 8731,
     desc: '对最后一名敌人造成[魔法 + 4]点伤害值，伤害值由棕色宝石而增强。如果他们有末日，造成双倍伤害。每个回火等级有 3% 的几率杀死敌人。 [1:1]',
     build: skill(
-      dmg('enemyLast', 4, 1, { modifier: { mod: { kind: 'ratio', a: 1, b: 1 }, source: { kind: 'boardGems', color: BaseColor.Brown } } }),
+      dmg('enemyLast', 4, 1, { modifier: { mod: { kind: 'ratio', a: 1, b: 1 }, source: { kind: 'boardGems', color: BaseColor.Brown } }, condMult: { times: 2, cond: { kind: 'targetHasDoom' } } }),
+      dmg('lastTarget', 0, 0, { execute: true, chanceBoost: { mod: { kind: 'multiplier', a: 3 }, source: { kind: 'tempering' } } }),
     ),
   },
   {
@@ -805,6 +843,8 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '爆破 [魔法 + 1] 颗绿色宝石。给予所有潘神之谷盟友一个随机正面增益效果。再召唤一名潘神之谷盟友。',
     build: skill(
       explodeRandomGems(1, 1, 'color', BaseColor.Green),
+      inflictRandom('allyAll', { targetKingdom: '潘神之谷' }),
+      summonRandomOfKingdom('潘神之谷', undefined),
     ),
   },
   {
@@ -812,6 +852,8 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '爆破 [魔法 + 1] 颗蓝色宝石。给予所有剑锋崖盟友一个随机正面增益效果。再召唤一名剑锋崖盟友。',
     build: skill(
       explodeRandomGems(1, 1, 'color', BaseColor.Blue),
+      inflictRandom('allyAll', { targetKingdom: '剑锋崖' }),
+      summonRandomOfKingdom('剑锋崖', undefined),
     ),
   },
   {
@@ -923,7 +965,7 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '移除所有棕色宝石。对一名敌人造成 [魔法 + 5] 点伤害，数值因移除的宝石数而增强。若敌人来自地狱悬崖或战斗位于地狱悬崖，则造成双倍伤害。 [3:1]',
     build: skill(
       destroyColor(BaseColor.Brown),
-      dmg('enemyChosen', 5, 1, { modifier: { mod: { kind: 'ratio', a: 3, b: 1 }, source: { kind: 'destroyedGems' } } }),
+      dmg('enemyChosen', 5, 1, { modifier: { mod: { kind: 'ratio', a: 3, b: 1 }, source: { kind: 'destroyedGems' } }, condMult: { times: 2, cond: { kind: 'kingdomOf', side: 'enemy', kingdom: '地狱悬崖或战斗位于地狱悬崖' } } }),
     ),
   },
   {
@@ -937,7 +979,8 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 8809,
     desc: '对一名敌人造成 [魔法 + 7] 点伤害，数值因地域悬崖盟友数而增强。每有一名地狱悬崖盟友，则创造 6 颗混合红色和棕色的宝石。 [x6]',
     build: skill(
-      dmg('enemyChosen', 7, 1),
+      dmg('enemyChosen', 7, 1, { modifier: { mod: { kind: 'multiplier', a: 6 }, source: { kind: 'alliesOfKingdom', kingdom: '地狱悬崖' } } }),
+      createMix([BaseColor.Red, BaseColor.Brown], 6, 0, { modifier: { mod: { kind: 'multiplier', a: 6 }, source: { kind: 'alliesOfKingdom', kingdom: '地狱悬崖' } } }),
     ),
   },
   {
@@ -997,6 +1040,7 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 8872,
     desc: '每有一名蓝色敌人则创造 1 颗蓝色巨人宝石。再对所有蓝色敌人造成 [魔法 + 1] 点伤害，并使他们陷入冻结状态。 [1:1]',
     build: skill(
+      createSpecialGems({ kind: 'giantGem', color: BaseColor.Blue }, 1, 0, { modifier: { mod: { kind: 'ratio', a: 1, b: 1 }, source: { kind: 'enemiesOfColor', color: BaseColor.Blue } } }),
       dmg('enemyAll', 1, 1, { range: 'all', ifCond: { kind: 'targetColor', color: BaseColor.Blue } }),
       inflict('frozen', 'lastTarget'),
     ),
@@ -1005,6 +1049,7 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 8873,
     desc: '每有一名红色敌人则创造 1 颗红色巨人宝石。再对所有红色敌人造成 [魔法 + 1] 点伤害，并使他们陷入燃烧状态。 [1:1]',
     build: skill(
+      createSpecialGems({ kind: 'giantGem', color: BaseColor.Red }, 1, 0, { modifier: { mod: { kind: 'ratio', a: 1, b: 1 }, source: { kind: 'enemiesOfColor', color: BaseColor.Red } } }),
       dmg('enemyAll', 1, 1, { range: 'all', ifCond: { kind: 'targetColor', color: BaseColor.Red } }),
       inflict('burning', 'lastTarget'),
     ),
@@ -1024,7 +1069,7 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '移除所有绿色宝石。对一名敌人造成 [魔法 + 5] 点伤害，伤害值因被移除的宝石数而增强。若敌人来自沃尔帕克，或战斗位于沃尔帕克，则造成双倍伤害。 [3:1]',
     build: skill(
       destroyColor(BaseColor.Green),
-      dmg('enemyChosen', 5, 1, { modifier: { mod: { kind: 'ratio', a: 3, b: 1 }, source: { kind: 'destroyedGems' } } }),
+      dmg('enemyChosen', 5, 1, { modifier: { mod: { kind: 'ratio', a: 3, b: 1 }, source: { kind: 'destroyedGems' } }, condMult: { times: 2, cond: { kind: 'anyOf', of: [{ kind: 'kingdomOf', side: 'enemy', kingdom: '沃尔帕克' }, { kind: 'kingdomPresent', kingdom: '沃尔帕克' }] } } }),
     ),
   },
   {
@@ -1040,7 +1085,8 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 8877,
     desc: '对一名敌人造成 [魔法 + 7] 点伤害，伤害只因沃尔帕克盟友数而增强。每有一名沃尔帕克盟友，则创造 6 颗混合蓝色和绿色的宝石。 [x6]',
     build: skill(
-      dmg('enemyChosen', 7, 1),
+      dmg('enemyChosen', 7, 1, { modifier: { mod: { kind: 'multiplier', a: 6 }, source: { kind: 'alliesOfKingdom', kingdom: '沃尔帕克' } } }),
+      createMix([BaseColor.Blue, BaseColor.Green], 6, 0, { modifier: { mod: { kind: 'multiplier', a: 6 }, source: { kind: 'alliesOfKingdom', kingdom: '沃尔帕克' } } }),
     ),
   },
   {
@@ -1072,6 +1118,8 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '爆破 [魔法 + 1] 颗紫色宝石。赋予所有迈纳杰之罪盟友一个随机正面增益状态效果。再召唤一名迈纳杰之罪军队。',
     build: skill(
       explodeRandomGems(1, 1, 'color', BaseColor.Purple),
+      inflictRandom('allyAll', { targetKingdom: '迈纳杰之罪' }),
+      summonRandomOfKingdom('迈纳杰之罪', undefined),
     ),
   },
   {
@@ -1122,6 +1170,8 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '爆破 [魔法 + 1] 颗绿色宝石。赋予所有荆棘森林盟友一个随机正面增益效果。再召唤一名荆棘森林军队。',
     build: skill(
       explodeRandomGems(1, 1, 'color', BaseColor.Green),
+      inflictRandom('allyAll', { targetKingdom: '荆棘森林' }),
+      summonRandomOfKingdom('荆棘森林', undefined),
     ),
   },
   {
@@ -1178,6 +1228,8 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '爆破 [魔法 + 1] 颗棕色宝石。赋予所有厄什卡亚盟友一个随机正面增益效果。再召唤一名厄什卡亚军队。',
     build: skill(
       explodeRandomGems(1, 1, 'color', BaseColor.Brown),
+      inflictRandom('allyAll', { targetKingdom: '厄什卡亚' }),
+      summonRandomOfKingdom('厄什卡亚', undefined),
     ),
   },
   {
@@ -1194,6 +1246,7 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '为所有盟友提供 [魔法 + 5] 护甲。如果盟友来自白盔国，则为他们提供屏障。',
     build: skill(
       armor('allyAll', 5, 1),
+      inflict('barrier', 'allyAll', { targetKingdom: '白盔国' }),
     ),
   },
   {
@@ -1214,48 +1267,54 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 8989,
     desc: '给予所有盟友 2 点魔法值，每锻炼 1 个武器段位则 +1 魔法值。给予蓝色盟友 [魔法 + 2] 点护甲值。若敌人拥有一个劫数，则获得 10 点攻击力。',
     build: skill(
-      magic('allyAll', 2, 0),
+      magic('allyAll', 2, 0, { modifier: { mod: { kind: 'multiplier', a: 1 }, source: { kind: 'tempering' } } }),
       armor('allyAll', 2, 1, { ifCond: { kind: 'targetColor', color: BaseColor.Blue } }),
+      attack('allySelf', 10, 0, { ifCond: { kind: 'targetHasDoom' } }),
     ),
   },
   {
     id: 8990,
     desc: '给予所有盟友 2 点魔法值，每锻炼 1 个武器段位则 +1 魔法值。给予绿色盟友 [魔法 + 2] 点护甲值。若敌人拥有一个劫数，则获得 10 点攻击力。',
     build: skill(
-      magic('allyAll', 2, 0),
+      magic('allyAll', 2, 0, { modifier: { mod: { kind: 'multiplier', a: 1 }, source: { kind: 'tempering' } } }),
       armor('allyAll', 2, 1, { ifCond: { kind: 'targetColor', color: BaseColor.Green } }),
+      attack('allySelf', 10, 0, { ifCond: { kind: 'targetHasDoom' } }),
     ),
   },
   {
     id: 8991,
     desc: '给予所有盟友 2 点魔法值，每锻炼 1 个武器段位则 +1 魔法值。给予红色盟友 [魔法 + 2] 点护甲值。若敌人拥有一个劫数，则获得 10 点攻击力。',
     build: skill(
-      magic('allyAll', 2, 0),
+      magic('allyAll', 2, 0, { modifier: { mod: { kind: 'multiplier', a: 1 }, source: { kind: 'tempering' } } }),
       armor('allyAll', 2, 1, { ifCond: { kind: 'targetColor', color: BaseColor.Red } }),
+      attack('allySelf', 10, 0, { ifCond: { kind: 'targetHasDoom' } }),
     ),
   },
   {
     id: 8992,
     desc: '给予所有盟友 2 点魔法值，每锻炼 1 个武器段位则 +1 魔法值。给予黄色盟友 [魔法 + 2] 点护甲值。若敌人拥有一个劫数，则获得 10 点攻击力。',
     build: skill(
-      magic('allyAll', 2, 0),
+      magic('allyAll', 2, 0, { modifier: { mod: { kind: 'multiplier', a: 1 }, source: { kind: 'tempering' } } }),
       armor('allyAll', 2, 1, { ifCond: { kind: 'targetColor', color: BaseColor.Yellow } }),
+      attack('allySelf', 10, 0, { ifCond: { kind: 'targetHasDoom' } }),
     ),
   },
   {
     id: 8993,
     desc: '给予所有盟友 2 点魔法值，每锻炼 1 个武器段位则 +1 魔法值。给予紫色盟友 [魔法 + 2] 点护甲值。若敌人拥有一个劫数，则获得 10 点攻击力。',
     build: skill(
-      magic('allyAll', 2, 0),
+      magic('allyAll', 2, 0, { modifier: { mod: { kind: 'multiplier', a: 1 }, source: { kind: 'tempering' } } }),
       armor('allyAll', 2, 1, { ifCond: { kind: 'targetColor', color: BaseColor.Purple } }),
+      attack('allySelf', 10, 0, { ifCond: { kind: 'targetHasDoom' } }),
     ),
   },
   {
     id: 8994,
     desc: '给予所有盟友 2 点魔法值，每锻炼 1 个武器段位则 +1 魔法值。给予棕色盟友 [魔法 + 2] 点护甲值。若敌人拥有一个劫数，则获得 10 点攻击力。',
     build: skill(
-      magic('allyAll', 2, 0),
+      magic('allyAll', 2, 0, { modifier: { mod: { kind: 'multiplier', a: 1 }, source: { kind: 'tempering' } } }),
       armor('allyAll', 2, 1, { ifCond: { kind: 'targetColor', color: BaseColor.Brown } }),
+      attack('allySelf', 10, 0, { ifCond: { kind: 'targetHasDoom' } }),
     ),
   },
   {
@@ -1349,6 +1408,8 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '爆破 [魔法 + 1] 颗棕色宝石。赋予所有诺斯盟友一个随机正面增益状态效果。再召唤一名诺斯军队。',
     build: skill(
       explodeRandomGems(1, 1, 'color', BaseColor.Brown),
+      inflictRandom('allyAll', { targetKingdom: '诺斯' }),
+      summonRandomOfKingdom('诺斯', undefined),
     ),
   },
   {
@@ -1365,6 +1426,8 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '爆破 [魔法 + 1] 颗蓝色宝石。赋予所有梅兰堤斯盟友一个随机正面增益效果。再召唤一名梅兰堤斯军队。',
     build: skill(
       explodeRandomGems(1, 1, 'color', BaseColor.Blue),
+      inflictRandom('allyAll', { targetKingdom: '梅兰堤斯' }),
+      summonRandomOfKingdom('梅兰堤斯', undefined),
     ),
   },
   {
@@ -1417,6 +1480,8 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '爆破 [魔法 + 1] 颗棕色宝石。赋予所有聚沙之地盟友一个随机正面增益效果。再召唤一名聚沙之地军队。',
     build: skill(
       explodeRandomGems(1, 1, 'color', BaseColor.Brown),
+      inflictRandom('allyAll', { targetKingdom: '聚沙之地' }),
+      summonRandomOfKingdom('聚沙之地', undefined),
     ),
   },
   {
@@ -1438,6 +1503,8 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '爆破 [魔法 + 1] 颗绿色宝石。赋予所有蛛尔卡里盟友一个随机正面增益效果。再召唤一名蛛尔卡里军队。',
     build: skill(
       explodeRandomGems(1, 1, 'color', BaseColor.Green),
+      inflictRandom('allyAll', { targetKingdom: '蛛尔卡里' }),
+      summonRandomOfKingdom('蛛尔卡里', undefined),
     ),
   },
   {

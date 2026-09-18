@@ -157,11 +157,11 @@ describe('武器法术池与元数据（pool-w01 + weapon-skill-meta）', () => 
     }
   });
 
-  it('第四轮分布快照：full 418 / partial 288 / mana-only 12（前轮 320/382/16；K-B3 解析器冲刺）', () => {
+  it('第五轮分布快照：full 610 / partial 96 / mana-only 12（前轮 418/288/12；K-E 原语接线）', () => {
     const tier = { full: 0, partial: 0, 'mana-only': 0 };
     for (const v of Object.values(META)) tier[v.fidelity as keyof typeof tier] += 1;
-    expect(tier.full).toBe(418);
-    expect(tier.partial).toBe(288);
+    expect(tier.full).toBe(610);
+    expect(tier.partial).toBe(96);
     expect(tier['mana-only']).toBe(12);
   });
 });

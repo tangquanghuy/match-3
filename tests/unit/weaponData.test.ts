@@ -487,11 +487,11 @@ describe('E · 已知武器快照断言（期望值从 raw dump 人工核对后�
     expect(w!.affixes).toHaveLength(5);
     expect(w!.affixes.map((a) => a.rarity)).toEqual(['Rare', 'UltraRare', 'Epic', 'Legendary', 'Mythic']);
     expect(w!.affixes[4]).toEqual({ name: '劫数之火', description: '耗尽红色盟友 2 点法力值', rarity: 'Mythic' });
-    // 绑定保真度（K-B 登记）：回火词缀族的「每个回火等级 3% 几率杀死」需要 tempering-scaling 原语，
-    // 当前为 partial 绑定，缺失特性里必须含有 tempering-scaling
-    expect(w!.spell.meta.fidelity).toBe('partial');
-    expect(w!.spell.meta.missingFeatures).toContain('tempering-scaling');
-    expect(w!.spell.meta.skippedClauses.length).toBeGreaterThan(0);
+    // 绑定保真度（K-B 登记）：「每个回火等级 3% 几率杀死」自第五轮起经 tempering 来源
+    // 完整编译（execute 段 chanceBoost），升级为 full、无缺失特性
+    expect(w!.spell.meta.fidelity).toBe('full');
+    expect(w!.spell.meta.missingFeatures).toEqual([]);
+    expect(w!.spell.meta.skippedClauses.length).toBe(0);
   });
 });
 
@@ -507,13 +507,13 @@ describe('G · 绑定保真度（K-B 分保真度绑定元数据）', () => {
     expect(problems, `前 ${Math.min(5, problems.length)} 条 → ${problems.slice(0, 5).join(' | ')}`).toEqual([]);
   });
 
-  it('三级分布写死对齐（full 418 / partial 288 / mana-only 12 = 718；第四轮 K-B3 解析器冲刺）', () => {
+  it('三级分布写死对齐（full 610 / partial 96 / mana-only 12 = 718；第五轮 K-E 原语接线）', () => {
     const dist: Record<string, number> = { full: 0, partial: 0, 'mana-only': 0 };
     for (const w of WEAPONS) {
       expect(FIDELITIES.has(w.spell.meta.fidelity), `${w.id} fidelity 非法`).toBe(true);
       dist[w.spell.meta.fidelity]++;
     }
-    expect(dist).toEqual({ full: 418, partial: 288, 'mana-only': 12 });
+    expect(dist).toEqual({ full: 610, partial: 96, 'mana-only': 12 });
   });
 
   it('逐条与 weapon-skill-meta.json 登记一致（fidelity/missingFeatures/skippedClauses 三元组）', () => {

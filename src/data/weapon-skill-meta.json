@@ -568,18 +568,9 @@
   ]
  },
  "7241": {
-  "fidelity": "partial",
-  "missingFeatures": [
-   "kingdom-count",
-   "modifier-source",
-   "unparsed-clause",
-   "modifier-tag"
-  ],
-  "skippedClauses": [
-   "伤害值因盖塔尔盟友数而增强",
-   "每有一名盖塔尔盟友，则创造 6 颗宝石，所创造的宝石混合紫色和棕色两种颜色",
-   "尾部增幅标签 [x6]（归属子句已略去或无法可靠挂载）"
-  ]
+  "fidelity": "full",
+  "missingFeatures": [],
+  "skippedClauses": []
  },
  "7242": {
   "fidelity": "full",
@@ -627,16 +618,9 @@
   "skippedClauses": []
  },
  "7250": {
-  "fidelity": "partial",
-  "missingFeatures": [
-   "enemy-color-count",
-   "modifier-source",
-   "modifier-tag"
-  ],
-  "skippedClauses": [
-   "伤害值因敌我双方的黄色军队数量而增强",
-   "尾部增幅标签 [x2]（归属子句已略去或无法可靠挂载）"
-  ]
+  "fidelity": "full",
+  "missingFeatures": [],
+  "skippedClauses": []
  },
  "7251": {
   "fidelity": "full",
@@ -838,16 +822,9 @@
   "skippedClauses": []
  },
  "7445": {
-  "fidelity": "partial",
-  "missingFeatures": [
-   "enemy-color-count",
-   "modifier-source",
-   "modifier-tag"
-  ],
-  "skippedClauses": [
-   "伤害值因敌我双方的巨人军队数而增强",
-   "尾部增幅标签 [x6]（归属子句已略去或无法可靠挂载）"
-  ]
+  "fidelity": "full",
+  "missingFeatures": [],
+  "skippedClauses": []
  },
  "7446": {
   "fidelity": "full",
@@ -904,16 +881,9 @@
   ]
  },
  "7568": {
-  "fidelity": "partial",
-  "missingFeatures": [
-   "kingdom-count",
-   "enemy-color-count",
-   "modifier-tag"
-  ],
-  "skippedClauses": [
-   "敌我双方每有一名棕色军队则爆破一颗随机棕色宝石",
-   "尾部增幅标签 [1:1]（归属子句已略去或无法可靠挂载）"
-  ]
+  "fidelity": "full",
+  "missingFeatures": [],
+  "skippedClauses": []
  },
  "7577": {
   "fidelity": "full",
@@ -1023,117 +993,79 @@
  "7655": {
   "fidelity": "partial",
   "missingFeatures": [
-   "tempering-scaling",
    "enemy-color-count",
-   "doom-condition",
-   "unparsed-clause",
+   "createMix-special",
    "modifier-tag"
   ],
   "skippedClauses": [
-   "每锻炼 1 个武器段位则 +4 点伤害值",
    "每有一名蓝色敌人则创造 6 颗混合蓝色和骷髅头的宝石",
-   "如果敌方有劫数",
-   "则再增加 5 点",
    "尾部增幅标签 [x6]（归属子句已略去或无法可靠挂载）"
   ]
  },
  "7656": {
   "fidelity": "partial",
   "missingFeatures": [
-   "tempering-scaling",
    "enemy-color-count",
-   "doom-condition",
-   "unparsed-clause",
+   "createMix-special",
    "modifier-tag"
   ],
   "skippedClauses": [
-   "每锻炼 1 个武器段位则 +4 点伤害值",
    "每有一名绿色敌人则创造 6 颗混合绿色和骷髅头的宝石",
-   "如果敌方有劫数",
-   "则再增加 5 点",
    "尾部增幅标签 [x6]（归属子句已略去或无法可靠挂载）"
   ]
  },
  "7657": {
   "fidelity": "partial",
   "missingFeatures": [
-   "tempering-scaling",
    "enemy-color-count",
-   "doom-condition",
-   "unparsed-clause",
+   "createMix-special",
    "modifier-tag"
   ],
   "skippedClauses": [
-   "每锻炼 1 个武器段位则 +4 点伤害值",
    "每有一名红色敌人则创造 6 颗混合红色和骷髅头的宝石",
-   "如果敌方有劫数",
-   "则再增加 5 点",
    "尾部增幅标签 [x6]（归属子句已略去或无法可靠挂载）"
   ]
  },
  "7658": {
   "fidelity": "partial",
   "missingFeatures": [
-   "tempering-scaling",
    "enemy-color-count",
-   "doom-condition",
-   "unparsed-clause",
+   "createMix-special",
    "modifier-tag"
   ],
   "skippedClauses": [
-   "每锻炼 1 个武器段位则 +4 点伤害值",
    "每有一名黄色敌人则创造 6 颗混合黄色和骷髅头的宝石",
-   "如果敌方有劫数",
-   "则再增加 5 点",
    "尾部增幅标签 [x6]（归属子句已略去或无法可靠挂载）"
   ]
  },
  "7659": {
   "fidelity": "partial",
   "missingFeatures": [
-   "tempering-scaling",
    "enemy-color-count",
-   "doom-condition",
-   "unparsed-clause",
+   "createMix-special",
    "modifier-tag"
   ],
   "skippedClauses": [
-   "每锻炼 1 个武器段位则 +4 点伤害值",
    "每有一名紫色敌人则创造 6 颗混合紫色和骷髅头的宝石",
-   "如果敌方有劫数",
-   "则再增加 5 点",
    "尾部增幅标签 [x6]（归属子句已略去或无法可靠挂载）"
   ]
  },
  "7660": {
   "fidelity": "partial",
   "missingFeatures": [
-   "tempering-scaling",
    "enemy-color-count",
-   "doom-condition",
-   "unparsed-clause",
+   "createMix-special",
    "modifier-tag"
   ],
   "skippedClauses": [
-   "每锻炼 1 个武器段位则 +4 点伤害值",
    "每有一名棕色敌人则创造 6 颗混合棕色和骷髅头的宝石",
-   "如果敌方有劫数",
-   "则再增加 5 点",
    "尾部增幅标签 [x6]（归属子句已略去或无法可靠挂载）"
   ]
  },
  "7662": {
-  "fidelity": "partial",
-  "missingFeatures": [
-   "modifier-source",
-   "kingdom-count",
-   "modifier-tag"
-  ],
-  "skippedClauses": [
-   "伤害值因潘神之谷友数而增强",
-   "每有一名潘神之谷盟友，则创造混合绿色和黄色的 6 颗宝石",
-   "尾部增幅标签 [x6]（归属子句已略去或无法可靠挂载）"
-  ]
+  "fidelity": "full",
+  "missingFeatures": [],
+  "skippedClauses": []
  },
  "7688": {
   "fidelity": "full",
@@ -1141,18 +1073,9 @@
   "skippedClauses": []
  },
  "7692": {
-  "fidelity": "partial",
-  "missingFeatures": [
-   "kingdom-count",
-   "modifier-source",
-   "unparsed-clause",
-   "modifier-tag"
-  ],
-  "skippedClauses": [
-   "伤害值因冰峰之巅盟友数而增强",
-   "每有一名冰峰之巅盟友，则创造 6 颗宝石，所创造的宝石混合蓝色和紫色两种颜色",
-   "尾部增幅标签 [x6]（归属子句已略去或无法可靠挂载）"
-  ]
+  "fidelity": "full",
+  "missingFeatures": [],
+  "skippedClauses": []
  },
  "7695": {
   "fidelity": "full",
@@ -1165,18 +1088,9 @@
   "skippedClauses": []
  },
  "7707": {
-  "fidelity": "partial",
-  "missingFeatures": [
-   "kingdom-count",
-   "modifier-source",
-   "unparsed-clause",
-   "modifier-tag"
-  ],
-  "skippedClauses": [
-   "伤害值因剑锋崖盟友数而增强",
-   "每有一名剑锋崖盟友，则创造 6 颗宝石，所创造的宝石混合蓝色和黄色两种颜色",
-   "尾部增幅标签 [x6]（归属子句已略去或无法可靠挂载）"
-  ]
+  "fidelity": "full",
+  "missingFeatures": [],
+  "skippedClauses": []
  },
  "7711": {
   "fidelity": "full",
@@ -1186,16 +1100,10 @@
  "7722": {
   "fidelity": "partial",
   "missingFeatures": [
-   "kingdom-count",
-   "modifier-source",
-   "unparsed-clause",
-   "modifier-tag"
+   "unparsed-clause"
   ],
   "skippedClauses": [
-   "伤害值因盛唐盟友数而增强",
-   "每有一名盛唐盟友，则创造 6 颗宝石，所创造的宝石混合红色和黄色两种颜色",
-   "色",
-   "尾部增幅标签 [x6]（归属子句已略去或无法可靠挂载）"
+   "色"
   ]
  },
  "7752": {
@@ -1376,13 +1284,9 @@
   ]
  },
  "7816": {
-  "fidelity": "partial",
-  "missingFeatures": [
-   "kingdom-summon"
-  ],
-  "skippedClauses": [
-   "如果板面上有 13 颗或更多紫色宝石，则召唤 1 到 3 名迈纳杰之罪军队"
-  ]
+  "fidelity": "full",
+  "missingFeatures": [],
+  "skippedClauses": []
  },
  "7861": {
   "fidelity": "partial",
@@ -1456,21 +1360,9 @@
   "skippedClauses": []
  },
  "7952": {
-  "fidelity": "partial",
-  "missingFeatures": [
-   "tempering-scaling",
-   "doom-condition",
-   "unparsed-clause",
-   "enemy-color-count",
-   "modifier-tag"
-  ],
-  "skippedClauses": [
-   "每锻炼 1 个武器段位则 +1 点伤害值",
-   "如果敌方有劫数",
-   "则再创造 5 颗",
-   "每有一名蓝色敌人则获得 3 点法力值",
-   "尾部增幅标签 [x3]（归属子句已略去或无法可靠挂载）"
-  ]
+  "fidelity": "full",
+  "missingFeatures": [],
+  "skippedClauses": []
  },
  "7955": {
   "fidelity": "partial",
@@ -1488,21 +1380,9 @@
   "skippedClauses": []
  },
  "7963": {
-  "fidelity": "partial",
-  "missingFeatures": [
-   "tempering-scaling",
-   "doom-condition",
-   "unparsed-clause",
-   "enemy-color-count",
-   "modifier-tag"
-  ],
-  "skippedClauses": [
-   "每锻炼 1 个武器段位则 +1 点伤害值",
-   "如果敌方有劫数",
-   "则再创造 5 颗",
-   "每有一名棕色敌人则获得 3 点法力值",
-   "尾部增幅标签 [x3]（归属子句已略去或无法可靠挂载）"
-  ]
+  "fidelity": "full",
+  "missingFeatures": [],
+  "skippedClauses": []
  },
  "7964": {
   "fidelity": "partial",
@@ -1526,34 +1406,14 @@
   "skippedClauses": []
  },
  "7973": {
-  "fidelity": "partial",
-  "missingFeatures": [
-   "tempering-scaling",
-   "doom-condition",
-   "unparsed-clause",
-   "enemy-color-count",
-   "modifier-tag"
-  ],
-  "skippedClauses": [
-   "每锻炼 1 个武器段位则 +1 点伤害值",
-   "如果敌方有劫数",
-   "则再创造 5 颗",
-   "每有一名红色敌人则获得 3 点法力值",
-   "尾部增幅标签 [x3]（归属子句已略去或无法可靠挂载）"
-  ]
+  "fidelity": "full",
+  "missingFeatures": [],
+  "skippedClauses": []
  },
  "7976": {
-  "fidelity": "partial",
-  "missingFeatures": [
-   "modifier-source",
-   "kingdom-count",
-   "modifier-tag"
-  ],
-  "skippedClauses": [
-   "伤害值因狂野平原盟友的数量而增强",
-   "每有一名狂野平原盟友，则创造混合绿色和红色的 6 颗宝石",
-   "尾部增幅标签 [x6]（归属子句已略去或无法可靠挂载）"
-  ]
+  "fidelity": "full",
+  "missingFeatures": [],
+  "skippedClauses": []
  },
  "7980": {
   "fidelity": "full",
@@ -1561,21 +1421,9 @@
   "skippedClauses": []
  },
  "7982": {
-  "fidelity": "partial",
-  "missingFeatures": [
-   "tempering-scaling",
-   "doom-condition",
-   "unparsed-clause",
-   "enemy-color-count",
-   "modifier-tag"
-  ],
-  "skippedClauses": [
-   "每锻炼 1 个武器段位则 +2 点生命值",
-   "如果敌方有劫数",
-   "则再给予 4 点法力值",
-   "每有一名紫色敌人则给予所有盟友 2 点魔法值",
-   "尾部增幅标签 [x4]（归属子句已略去或无法可靠挂载）"
-  ]
+  "fidelity": "full",
+  "missingFeatures": [],
+  "skippedClauses": []
  },
  "7986": {
   "fidelity": "partial",
@@ -1605,18 +1453,9 @@
   ]
  },
  "8045": {
-  "fidelity": "partial",
-  "missingFeatures": [
-   "kingdom-count",
-   "modifier-source",
-   "unparsed-clause",
-   "modifier-tag"
-  ],
-  "skippedClauses": [
-   "伤害值因卜筮之原的盟友数而增强",
-   "每有一名卜筮之原盟友，则创造混合蓝色和黄色的 6 颗宝石",
-   "尾部增幅标签 [x6]（归属子句已略去或无法可靠挂载）"
-  ]
+  "fidelity": "full",
+  "missingFeatures": [],
+  "skippedClauses": []
  },
  "8046": {
   "fidelity": "full",
@@ -1624,34 +1463,14 @@
   "skippedClauses": []
  },
  "8047": {
-  "fidelity": "partial",
-  "missingFeatures": [
-   "tempering-scaling",
-   "doom-condition",
-   "unparsed-clause",
-   "enemy-color-count",
-   "modifier-tag"
-  ],
-  "skippedClauses": [
-   "每锻炼 1 个武器段位则 +2 点生命值",
-   "如果敌方有劫数",
-   "则再给予 4 点法力值",
-   "每有一名棕色敌人则给予所有盟友 2 点魔法值",
-   "尾部增幅标签 [x4]（归属子句已略去或无法可靠挂载）"
-  ]
+  "fidelity": "full",
+  "missingFeatures": [],
+  "skippedClauses": []
  },
  "8048": {
-  "fidelity": "partial",
-  "missingFeatures": [
-   "modifier-source",
-   "kingdom-count",
-   "modifier-tag"
-  ],
-  "skippedClauses": [
-   "伤害值因葛洛什奈克盟友的数量而增强",
-   "每有一名葛洛什奈克盟友，则创造混合红色和棕色的 6 颗宝石",
-   "尾部增幅标签 [x6]（归属子句已略去或无法可靠挂载）"
-  ]
+  "fidelity": "full",
+  "missingFeatures": [],
+  "skippedClauses": []
  },
  "8049": {
   "fidelity": "full",
@@ -1659,34 +1478,14 @@
   "skippedClauses": []
  },
  "8050": {
-  "fidelity": "partial",
-  "missingFeatures": [
-   "tempering-scaling",
-   "doom-condition",
-   "unparsed-clause",
-   "enemy-color-count",
-   "modifier-tag"
-  ],
-  "skippedClauses": [
-   "每锻炼 1 个武器段位则 +2 点生命值",
-   "如果敌方有劫数",
-   "则再给予 4 点法力值",
-   "每有一名黄色敌人则给予所有盟友 2 点魔法值",
-   "尾部增幅标签 [x4]（归属子句已略去或无法可靠挂载）"
-  ]
+  "fidelity": "full",
+  "missingFeatures": [],
+  "skippedClauses": []
  },
  "8051": {
-  "fidelity": "partial",
-  "missingFeatures": [
-   "modifier-source",
-   "kingdom-count",
-   "modifier-tag"
-  ],
-  "skippedClauses": [
-   "伤害值因玉银林地盟友的数量而增强",
-   "每有一名玉银林地盟友，则创造混合紫色和黄色的 6 颗宝石",
-   "尾部增幅标签 [x6]（归属子句已略去或无法可靠挂载）"
-  ]
+  "fidelity": "full",
+  "missingFeatures": [],
+  "skippedClauses": []
  },
  "8052": {
   "fidelity": "full",
@@ -1694,21 +1493,9 @@
   "skippedClauses": []
  },
  "8053": {
-  "fidelity": "partial",
-  "missingFeatures": [
-   "tempering-scaling",
-   "doom-condition",
-   "unparsed-clause",
-   "enemy-color-count",
-   "modifier-tag"
-  ],
-  "skippedClauses": [
-   "每锻炼 1 个武器段位则 +1 点伤害值",
-   "如果敌方有劫数",
-   "则再创造 5 颗",
-   "每有一名绿色敌人则获得 3 点法力值",
-   "尾部增幅标签 [x3]（归属子句已略去或无法可靠挂载）"
-  ]
+  "fidelity": "full",
+  "missingFeatures": [],
+  "skippedClauses": []
  },
  "8054": {
   "fidelity": "full",
@@ -1731,16 +1518,9 @@
   "skippedClauses": []
  },
  "8073": {
-  "fidelity": "partial",
-  "missingFeatures": [
-   "enemy-color-count",
-   "modifier-source",
-   "modifier-tag"
-  ],
-  "skippedClauses": [
-   "伤害值因敌我双方的黄金数而增强",
-   "尾部增幅标签 [2:1]（归属子句已略去或无法可靠挂载）"
-  ]
+  "fidelity": "full",
+  "missingFeatures": [],
+  "skippedClauses": []
  },
  "8074": {
   "fidelity": "partial",
@@ -1754,15 +1534,10 @@
  "8075": {
   "fidelity": "partial",
   "missingFeatures": [
-   "enemy-color-count",
-   "modifier-source",
-   "anyEnemyDied",
-   "modifier-tag"
+   "anyEnemyDied"
   ],
   "skippedClauses": [
-   "伤害值因敌我双方的妖仙数量而增强",
-   "若有一名敌人身亡，则给予所有盟友 2 个随机的正面增益效果",
-   "尾部增幅标签 [x8]（归属子句已略去或无法可靠挂载）"
+   "若有一名敌人身亡，则给予所有盟友 2 个随机的正面增益效果"
   ]
  },
  "8076": {
@@ -1775,103 +1550,34 @@
   ]
  },
  "8077": {
-  "fidelity": "partial",
-  "missingFeatures": [
-   "tempering-scaling",
-   "doom-condition",
-   "unparsed-clause",
-   "enemy-color-count",
-   "modifier-tag"
-  ],
-  "skippedClauses": [
-   "每锻炼 1 个武器段位则 +1 点伤害值",
-   "如果敌方有劫数",
-   "则再创造 5 颗",
-   "每有一名黄色敌人则获得 3 点法力值",
-   "尾部增幅标签 [x3]（归属子句已略去或无法可靠挂载）"
-  ]
+  "fidelity": "full",
+  "missingFeatures": [],
+  "skippedClauses": []
  },
  "8078": {
-  "fidelity": "partial",
-  "missingFeatures": [
-   "tempering-scaling",
-   "doom-condition",
-   "unparsed-clause",
-   "enemy-color-count",
-   "modifier-tag"
-  ],
-  "skippedClauses": [
-   "每锻炼 1 个武器段位则 +1 点伤害值",
-   "如果敌方有劫数",
-   "则再创造 5 颗",
-   "每有一名紫色敌人则获得 3 点法力值",
-   "尾部增幅标签 [x3]（归属子句已略去或无法可靠挂载）"
-  ]
+  "fidelity": "full",
+  "missingFeatures": [],
+  "skippedClauses": []
  },
  "8079": {
-  "fidelity": "partial",
-  "missingFeatures": [
-   "tempering-scaling",
-   "doom-condition",
-   "unparsed-clause",
-   "enemy-color-count",
-   "modifier-tag"
-  ],
-  "skippedClauses": [
-   "每锻炼 1 个武器段位则 +2 点生命值",
-   "如果敌方有劫数",
-   "则再给予 4 点法力值",
-   "每有一名蓝色敌人则给予所有盟友 2 点魔法值",
-   "尾部增幅标签 [x4]（归属子句已略去或无法可靠挂载）"
-  ]
+  "fidelity": "full",
+  "missingFeatures": [],
+  "skippedClauses": []
  },
  "8080": {
-  "fidelity": "partial",
-  "missingFeatures": [
-   "tempering-scaling",
-   "doom-condition",
-   "unparsed-clause",
-   "enemy-color-count",
-   "modifier-tag"
-  ],
-  "skippedClauses": [
-   "每锻炼 1 个武器段位则 +2 点生命值",
-   "如果敌方有劫数",
-   "则再给予 4 点法力值",
-   "每有一名绿色敌人则给予所有盟友 2 点魔法值",
-   "尾部增幅标签 [x4]（归属子句已略去或无法可靠挂载）"
-  ]
+  "fidelity": "full",
+  "missingFeatures": [],
+  "skippedClauses": []
  },
  "8081": {
-  "fidelity": "partial",
-  "missingFeatures": [
-   "tempering-scaling",
-   "doom-condition",
-   "unparsed-clause",
-   "enemy-color-count",
-   "modifier-tag"
-  ],
-  "skippedClauses": [
-   "每锻炼 1 个武器段位则 +2 点生命值",
-   "如果敌方有劫数",
-   "则再给予 4 点法力值",
-   "每有一名红色敌人则给予所有盟友 2 点魔法值",
-   "尾部增幅标签 [x4]（归属子句已略去或无法可靠挂载）"
-  ]
+  "fidelity": "full",
+  "missingFeatures": [],
+  "skippedClauses": []
  },
  "8083": {
-  "fidelity": "partial",
-  "missingFeatures": [
-   "unparsed-clause",
-   "doom-condition",
-   "modifier-tag"
-  ],
-  "skippedClauses": [
-   "若敌人陷入出血状态",
-   "则伤害翻倍",
-   "几率因末日骷髅头的数量而增强",
-   "尾部增幅标签 [x2]（归属子句已略去或无法可靠挂载）"
-  ]
+  "fidelity": "full",
+  "missingFeatures": [],
+  "skippedClauses": []
  },
  "8084": {
   "fidelity": "partial",
@@ -1897,17 +1603,9 @@
   ]
  },
  "8119": {
-  "fidelity": "partial",
-  "missingFeatures": [
-   "modifier-source",
-   "kingdom-count",
-   "modifier-tag"
-  ],
-  "skippedClauses": [
-   "伤害值因阿达纳盟友的数量而增强",
-   "每有一名阿达纳盟友，则创造混合红色和黄色的 6 颗宝石",
-   "尾部增幅标签 [x6]（归属子句已略去或无法可靠挂载）"
-  ]
+  "fidelity": "full",
+  "missingFeatures": [],
+  "skippedClauses": []
  },
  "8120": {
   "fidelity": "full",
@@ -1915,17 +1613,9 @@
   "skippedClauses": []
  },
  "8121": {
-  "fidelity": "partial",
-  "missingFeatures": [
-   "modifier-source",
-   "kingdom-count",
-   "modifier-tag"
-  ],
-  "skippedClauses": [
-   "伤害值因卡其尔盟友的数量而增强",
-   "每有一名卡其尔盟友，则创造混合红色和棕色的 6 颗宝石",
-   "尾部增幅标签 [x6]（归属子句已略去或无法可靠挂载）"
-  ]
+  "fidelity": "full",
+  "missingFeatures": [],
+  "skippedClauses": []
  },
  "8122": {
   "fidelity": "full",
@@ -1933,17 +1623,9 @@
   "skippedClauses": []
  },
  "8123": {
-  "fidelity": "partial",
-  "missingFeatures": [
-   "modifier-source",
-   "kingdom-count",
-   "modifier-tag"
-  ],
-  "skippedClauses": [
-   "伤害值因日冕盟友的数量而增强",
-   "每有一名日冕盟友，则创造混合紫色和黄色的 6 颗宝石",
-   "尾部增幅标签 [x6]（归属子句已略去或无法可靠挂载）"
-  ]
+  "fidelity": "full",
+  "missingFeatures": [],
+  "skippedClauses": []
  },
  "8124": {
   "fidelity": "full",
@@ -1951,17 +1633,9 @@
   "skippedClauses": []
  },
  "8125": {
-  "fidelity": "partial",
-  "missingFeatures": [
-   "modifier-source",
-   "kingdom-count",
-   "modifier-tag"
-  ],
-  "skippedClauses": [
-   "伤害值因皓彩森林盟友的数量而增强",
-   "每有一名皓彩森林盟友，则创造混合红色和绿色的 6 颗宝石",
-   "尾部增幅标签 [x6]（归属子句已略去或无法可靠挂载）"
-  ]
+  "fidelity": "full",
+  "missingFeatures": [],
+  "skippedClauses": []
  },
  "8130": {
   "fidelity": "full",
@@ -2032,17 +1706,9 @@
   "skippedClauses": []
  },
  "8176": {
-  "fidelity": "partial",
-  "missingFeatures": [
-   "modifier-source",
-   "kingdom-count",
-   "modifier-tag"
-  ],
-  "skippedClauses": [
-   "伤害值因卓克祖盟友的数量而增强",
-   "每有一名卓克祖盟友，则创造混合棕色和蓝色的 6 颗宝石",
-   "尾部增幅标签 [x6]（归属子句已略去或无法可靠挂载）"
-  ]
+  "fidelity": "full",
+  "missingFeatures": [],
+  "skippedClauses": []
  },
  "8177": {
   "fidelity": "full",
@@ -2050,17 +1716,9 @@
   "skippedClauses": []
  },
  "8178": {
-  "fidelity": "partial",
-  "missingFeatures": [
-   "modifier-source",
-   "kingdom-count",
-   "modifier-tag"
-  ],
-  "skippedClauses": [
-   "伤害值因毛格瑞姆森林盟友的数量而增强",
-   "每有一名毛格瑞姆森林盟友，则创造混合绿色和蓝色的 6 颗宝石",
-   "尾部增幅标签 [x6]（归属子句已略去或无法可靠挂载）"
-  ]
+  "fidelity": "full",
+  "missingFeatures": [],
+  "skippedClauses": []
  },
  "8179": {
   "fidelity": "full",
@@ -2084,17 +1742,9 @@
   ]
  },
  "8197": {
-  "fidelity": "partial",
-  "missingFeatures": [
-   "modifier-source",
-   "kingdom-count",
-   "modifier-tag"
-  ],
-  "skippedClauses": [
-   "伤害值因鳞雾沼泽盟友的数量而增强",
-   "每有一名鳞雾沼泽盟友，则创造混合蓝色和红色的 6 颗宝石",
-   "尾部增幅标签 [x6]（归属子句已略去或无法可靠挂载）"
-  ]
+  "fidelity": "full",
+  "missingFeatures": [],
+  "skippedClauses": []
  },
  "8198": {
   "fidelity": "full",
@@ -2102,17 +1752,9 @@
   "skippedClauses": []
  },
  "8199": {
-  "fidelity": "partial",
-  "missingFeatures": [
-   "modifier-source",
-   "kingdom-count",
-   "modifier-tag"
-  ],
-  "skippedClauses": [
-   "伤害值因荣耀之地盟友的数量而增强",
-   "每有一名荣耀之地盟友，则创造混合绿色和红色的 6 颗宝石",
-   "尾部增幅标签 [x6]（归属子句已略去或无法可靠挂载）"
-  ]
+  "fidelity": "full",
+  "missingFeatures": [],
+  "skippedClauses": []
  },
  "8200": {
   "fidelity": "full",
@@ -2120,17 +1762,9 @@
   "skippedClauses": []
  },
  "8201": {
-  "fidelity": "partial",
-  "missingFeatures": [
-   "modifier-source",
-   "kingdom-count",
-   "modifier-tag"
-  ],
-  "skippedClauses": [
-   "伤害值因荆棘森林盟友的数量而增强",
-   "每有一名荆棘森林盟友，则创造混合绿色和黄色的 6 颗宝石",
-   "尾部增幅标签 [x6]（归属子句已略去或无法可靠挂载）"
-  ]
+  "fidelity": "full",
+  "missingFeatures": [],
+  "skippedClauses": []
  },
  "8202": {
   "fidelity": "partial",
@@ -2162,138 +1796,54 @@
   "skippedClauses": []
  },
  "8254": {
-  "fidelity": "partial",
-  "missingFeatures": [
-   "tempering-scaling",
-   "doom-condition",
-   "unparsed-clause"
-  ],
-  "skippedClauses": [
-   "每锻炼 1 个武器段位则 +4 点伤害值",
-   "如果敌方有劫数",
-   "则再爆破 3 颗宝石"
-  ]
+  "fidelity": "full",
+  "missingFeatures": [],
+  "skippedClauses": []
  },
  "8255": {
-  "fidelity": "partial",
-  "missingFeatures": [
-   "tempering-scaling",
-   "doom-condition",
-   "unparsed-clause"
-  ],
-  "skippedClauses": [
-   "每锻炼 1 个武器段位则 +4 点伤害值",
-   "如果敌方有劫数",
-   "则再爆破 3 颗宝石"
-  ]
+  "fidelity": "full",
+  "missingFeatures": [],
+  "skippedClauses": []
  },
  "8256": {
-  "fidelity": "partial",
-  "missingFeatures": [
-   "tempering-scaling",
-   "doom-condition",
-   "unparsed-clause"
-  ],
-  "skippedClauses": [
-   "每锻炼 1 个武器段位则 +4 点伤害值",
-   "如果敌方有劫数",
-   "则再爆破 3 颗宝石"
-  ]
+  "fidelity": "full",
+  "missingFeatures": [],
+  "skippedClauses": []
  },
  "8257": {
-  "fidelity": "partial",
-  "missingFeatures": [
-   "tempering-scaling",
-   "doom-condition",
-   "unparsed-clause"
-  ],
-  "skippedClauses": [
-   "每锻炼 1 个武器段位则 +4 点伤害值",
-   "如果敌方有劫数",
-   "则再爆破 3 颗宝石"
-  ]
+  "fidelity": "full",
+  "missingFeatures": [],
+  "skippedClauses": []
  },
  "8258": {
-  "fidelity": "partial",
-  "missingFeatures": [
-   "tempering-scaling",
-   "doom-condition",
-   "unparsed-clause"
-  ],
-  "skippedClauses": [
-   "每锻炼 1 个武器段位则 +4 点伤害值",
-   "如果敌方有劫数",
-   "则再爆破 3 颗宝石"
-  ]
+  "fidelity": "full",
+  "missingFeatures": [],
+  "skippedClauses": []
  },
  "8259": {
-  "fidelity": "partial",
-  "missingFeatures": [
-   "tempering-scaling",
-   "doom-condition",
-   "unparsed-clause"
-  ],
-  "skippedClauses": [
-   "每锻炼 1 个武器段位则 +4 点伤害值",
-   "如果敌方有劫数",
-   "则再爆破 3 颗宝石"
-  ]
+  "fidelity": "full",
+  "missingFeatures": [],
+  "skippedClauses": []
  },
  "8260": {
-  "fidelity": "partial",
-  "missingFeatures": [
-   "kingdom-count",
-   "modifier-source",
-   "unparsed-clause",
-   "modifier-tag"
-  ],
-  "skippedClauses": [
-   "伤害值因迈纳杰之罪盟友数而增强",
-   "每有一名迈纳杰之罪盟友，则创造 6 颗混合红色和紫色的宝石",
-   "尾部增幅标签 [x6]（归属子句已略去或无法可靠挂载）"
-  ]
+  "fidelity": "full",
+  "missingFeatures": [],
+  "skippedClauses": []
  },
  "8261": {
-  "fidelity": "partial",
-  "missingFeatures": [
-   "kingdom-count",
-   "modifier-source",
-   "unparsed-clause",
-   "modifier-tag"
-  ],
-  "skippedClauses": [
-   "伤害值因聚沙之地盟友数而增强",
-   "每有一名聚沙之地盟友，则创造 6 颗混合黄色和棕色的宝石",
-   "尾部增幅标签 [x6]（归属子句已略去或无法可靠挂载）"
-  ]
+  "fidelity": "full",
+  "missingFeatures": [],
+  "skippedClauses": []
  },
  "8262": {
-  "fidelity": "partial",
-  "missingFeatures": [
-   "kingdom-count",
-   "modifier-source",
-   "unparsed-clause",
-   "modifier-tag"
-  ],
-  "skippedClauses": [
-   "伤害值因荒芜之地盟友数而增强",
-   "每有一名荒芜之地盟友，则创造 6 颗混合红色和紫色的宝石",
-   "尾部增幅标签 [x6]（归属子句已略去或无法可靠挂载）"
-  ]
+  "fidelity": "full",
+  "missingFeatures": [],
+  "skippedClauses": []
  },
  "8263": {
-  "fidelity": "partial",
-  "missingFeatures": [
-   "kingdom-count",
-   "modifier-source",
-   "unparsed-clause",
-   "modifier-tag"
-  ],
-  "skippedClauses": [
-   "伤害值因白盔国盟友数而增强",
-   "每有一名白盔国盟友，则创造 6 颗混合黄色和棕色的宝石",
-   "尾部增幅标签 [x6]（归属子句已略去或无法可靠挂载）"
-  ]
+  "fidelity": "full",
+  "missingFeatures": [],
+  "skippedClauses": []
  },
  "8264": {
   "fidelity": "full",
@@ -2325,18 +1875,9 @@
   "skippedClauses": []
  },
  "8285": {
-  "fidelity": "partial",
-  "missingFeatures": [
-   "kingdom-count",
-   "modifier-source",
-   "unparsed-clause",
-   "modifier-tag"
-  ],
-  "skippedClauses": [
-   "伤害值因卡拉考斯盟友数而增强",
-   "每有一名卡拉考斯盟友，则创建 6 颗混合紫色和棕色的宝石",
-   "尾部增幅标签 [x6]（归属子句已略去或无法可靠挂载）"
-  ]
+  "fidelity": "full",
+  "missingFeatures": [],
+  "skippedClauses": []
  },
  "8299": {
   "fidelity": "full",
@@ -2344,18 +1885,9 @@
   "skippedClauses": []
  },
  "8313": {
-  "fidelity": "partial",
-  "missingFeatures": [
-   "kingdom-count",
-   "modifier-source",
-   "unparsed-clause",
-   "modifier-tag"
-  ],
-  "skippedClauses": [
-   "伤害值因梅兰堤斯盟友数而增强",
-   "每有一名梅兰堤斯盟友，则创建 6 颗混合蓝色和绿色的宝石",
-   "尾部增幅标签 [x6]（归属子句已略去或无法可靠挂载）"
-  ]
+  "fidelity": "full",
+  "missingFeatures": [],
+  "skippedClauses": []
  },
  "8314": {
   "fidelity": "full",
@@ -2373,301 +1905,169 @@
   "skippedClauses": []
  },
  "8322": {
-  "fidelity": "partial",
-  "missingFeatures": [
-   "kingdom-condition"
-  ],
-  "skippedClauses": [
-   "若敌人来自阿达纳，或战斗发生在阿达纳，则造成双倍伤害"
-  ]
+  "fidelity": "full",
+  "missingFeatures": [],
+  "skippedClauses": []
  },
  "8323": {
-  "fidelity": "partial",
-  "missingFeatures": [
-   "kingdom-condition"
-  ],
-  "skippedClauses": [
-   "若敌人来自卡拉考斯，或战斗发生在卡拉考斯，则造成双倍伤害"
-  ]
+  "fidelity": "full",
+  "missingFeatures": [],
+  "skippedClauses": []
  },
  "8324": {
-  "fidelity": "partial",
-  "missingFeatures": [
-   "kingdom-condition"
-  ],
-  "skippedClauses": [
-   "若敌人来自蛛尔卡里，或战斗发生在蛛尔卡里，则造成双倍伤害"
-  ]
+  "fidelity": "full",
+  "missingFeatures": [],
+  "skippedClauses": []
  },
  "8325": {
-  "fidelity": "partial",
-  "missingFeatures": [
-   "kingdom-condition"
-  ],
-  "skippedClauses": [
-   "若敌人来自卜筮之原，或战斗发生在卜筮之原，则造成双倍伤害"
-  ]
+  "fidelity": "full",
+  "missingFeatures": [],
+  "skippedClauses": []
  },
  "8326": {
-  "fidelity": "partial",
-  "missingFeatures": [
-   "kingdom-condition"
-  ],
-  "skippedClauses": [
-   "若敌人来自鳞雾沼泽，或战斗发生在鳞雾沼泽，则造成双倍伤害"
-  ]
+  "fidelity": "full",
+  "missingFeatures": [],
+  "skippedClauses": []
  },
  "8327": {
-  "fidelity": "partial",
-  "missingFeatures": [
-   "kingdom-condition"
-  ],
-  "skippedClauses": [
-   "若敌人来自荆棘森林，或战斗发生在荆棘森林，则造成双倍伤害"
-  ]
+  "fidelity": "full",
+  "missingFeatures": [],
+  "skippedClauses": []
  },
  "8328": {
-  "fidelity": "partial",
-  "missingFeatures": [
-   "kingdom-condition"
-  ],
-  "skippedClauses": [
-   "若敌人来自白盔国，或战斗发生在白盔国，则造成双倍伤害"
-  ]
+  "fidelity": "full",
+  "missingFeatures": [],
+  "skippedClauses": []
  },
  "8329": {
-  "fidelity": "partial",
-  "missingFeatures": [
-   "kingdom-condition"
-  ],
-  "skippedClauses": [
-   "若敌人来自潘神之谷，或战斗发生在潘神之谷，则造成双倍伤害"
-  ]
+  "fidelity": "full",
+  "missingFeatures": [],
+  "skippedClauses": []
  },
  "8330": {
-  "fidelity": "partial",
-  "missingFeatures": [
-   "kingdom-condition"
-  ],
-  "skippedClauses": [
-   "若敌人来自卡其尔，或战斗发生在卡其尔，则造成双倍伤害"
-  ]
+  "fidelity": "full",
+  "missingFeatures": [],
+  "skippedClauses": []
  },
  "8331": {
-  "fidelity": "partial",
-  "missingFeatures": [
-   "kingdom-condition"
-  ],
-  "skippedClauses": [
-   "若敌人来自盖塔尔，或战斗发生在盖塔尔，则造成双倍伤害"
-  ]
+  "fidelity": "full",
+  "missingFeatures": [],
+  "skippedClauses": []
  },
  "8332": {
-  "fidelity": "partial",
-  "missingFeatures": [
-   "kingdom-condition"
-  ],
-  "skippedClauses": [
-   "若敌人来自齐埃金，或战斗发生在齐埃金，则造成双倍伤害"
-  ]
+  "fidelity": "full",
+  "missingFeatures": [],
+  "skippedClauses": []
  },
  "8333": {
-  "fidelity": "partial",
-  "missingFeatures": [
-   "kingdom-condition"
-  ],
-  "skippedClauses": [
-   "若敌人来自荣耀之地，或战斗发生在荣耀之地，则造成双倍伤害"
-  ]
+  "fidelity": "full",
+  "missingFeatures": [],
+  "skippedClauses": []
  },
  "8334": {
-  "fidelity": "partial",
-  "missingFeatures": [
-   "kingdom-condition"
-  ],
-  "skippedClauses": [
-   "若敌人来自加尔凡尼亚，或战斗发生在加尔凡尼亚，则造成双倍伤害"
-  ]
+  "fidelity": "full",
+  "missingFeatures": [],
+  "skippedClauses": []
  },
  "8335": {
-  "fidelity": "partial",
-  "missingFeatures": [
-   "kingdom-condition"
-  ],
-  "skippedClauses": [
-   "若敌人来自剑锋崖，或战斗发生在剑锋崖，则造成双倍伤害"
-  ]
+  "fidelity": "full",
+  "missingFeatures": [],
+  "skippedClauses": []
  },
  "8336": {
-  "fidelity": "partial",
-  "missingFeatures": [
-   "kingdom-condition"
-  ],
-  "skippedClauses": [
-   "若敌人来自风暴峡湾，或战斗发生在风暴峡湾，则造成双倍伤害"
-  ]
+  "fidelity": "full",
+  "missingFeatures": [],
+  "skippedClauses": []
  },
  "8337": {
-  "fidelity": "partial",
-  "missingFeatures": [
-   "kingdom-condition"
-  ],
-  "skippedClauses": [
-   "若敌人来自毛格瑞姆森林，或战斗发生在毛格瑞姆森林，则造成双倍伤害"
-  ]
+  "fidelity": "full",
+  "missingFeatures": [],
+  "skippedClauses": []
  },
  "8338": {
-  "fidelity": "partial",
-  "missingFeatures": [
-   "kingdom-condition"
-  ],
-  "skippedClauses": [
-   "若敌人来自葛洛什奈克，或战斗发生在葛洛什奈克，则造成双倍伤害"
-  ]
+  "fidelity": "full",
+  "missingFeatures": [],
+  "skippedClauses": []
  },
  "8339": {
-  "fidelity": "partial",
-  "missingFeatures": [
-   "kingdom-condition"
-  ],
-  "skippedClauses": [
-   "若敌人来自狂野平原，或战斗发生在狂野平原，则造成双倍伤害"
-  ]
+  "fidelity": "full",
+  "missingFeatures": [],
+  "skippedClauses": []
  },
  "8340": {
-  "fidelity": "partial",
-  "missingFeatures": [
-   "kingdom-condition"
-  ],
-  "skippedClauses": [
-   "若敌人来自黑石，或战斗发生在黑石，则造成双倍伤害"
-  ]
+  "fidelity": "full",
+  "missingFeatures": [],
+  "skippedClauses": []
  },
  "8341": {
-  "fidelity": "partial",
-  "missingFeatures": [
-   "kingdom-condition"
-  ],
-  "skippedClauses": [
-   "若敌人来自聚沙之地，或战斗发生在聚沙之地，则造成双倍伤害"
-  ]
+  "fidelity": "full",
+  "missingFeatures": [],
+  "skippedClauses": []
  },
  "8342": {
-  "fidelity": "partial",
-  "missingFeatures": [
-   "kingdom-condition"
-  ],
-  "skippedClauses": [
-   "若敌人来自荒芜之地，或战斗发生在荒芜之地，则造成双倍伤害"
-  ]
+  "fidelity": "full",
+  "missingFeatures": [],
+  "skippedClauses": []
  },
  "8343": {
-  "fidelity": "partial",
-  "missingFeatures": [
-   "kingdom-condition"
-  ],
-  "skippedClauses": [
-   "若敌人来自冰峰之巅，或战斗发生在冰峰之巅，则造成双倍伤害"
-  ]
+  "fidelity": "full",
+  "missingFeatures": [],
+  "skippedClauses": []
  },
  "8344": {
-  "fidelity": "partial",
-  "missingFeatures": [
-   "kingdom-condition"
-  ],
-  "skippedClauses": [
-   "若敌人来自狮心帝国，或战斗发生在狮心帝国，则造成双倍伤害"
-  ]
+  "fidelity": "full",
+  "missingFeatures": [],
+  "skippedClauses": []
  },
  "8345": {
-  "fidelity": "partial",
-  "missingFeatures": [
-   "kingdom-condition"
-  ],
-  "skippedClauses": [
-   "若敌人来自龙爪，或战斗发生在龙爪，则造成双倍伤害"
-  ]
+  "fidelity": "full",
+  "missingFeatures": [],
+  "skippedClauses": []
  },
  "8346": {
-  "fidelity": "partial",
-  "missingFeatures": [
-   "kingdom-condition"
-  ],
-  "skippedClauses": [
-   "若敌人来自黑鹰，或战斗发生在黑鹰，则造成双倍伤害"
-  ]
+  "fidelity": "full",
+  "missingFeatures": [],
+  "skippedClauses": []
  },
  "8347": {
-  "fidelity": "partial",
-  "missingFeatures": [
-   "kingdom-condition"
-  ],
-  "skippedClauses": [
-   "若敌人来自玉银林地，或战斗发生在玉银林地，则造成双倍伤害"
-  ]
+  "fidelity": "full",
+  "missingFeatures": [],
+  "skippedClauses": []
  },
  "8348": {
-  "fidelity": "partial",
-  "missingFeatures": [
-   "kingdom-condition"
-  ],
-  "skippedClauses": [
-   "若敌人来自日冕，或战斗发生在日冕，则造成双倍伤害"
-  ]
+  "fidelity": "full",
+  "missingFeatures": [],
+  "skippedClauses": []
  },
  "8349": {
-  "fidelity": "partial",
-  "missingFeatures": [
-   "kingdom-condition"
-  ],
-  "skippedClauses": [
-   "若敌人来自厄什卡亚，或战斗发生在厄什卡亚，则造成双倍伤害"
-  ]
+  "fidelity": "full",
+  "missingFeatures": [],
+  "skippedClauses": []
  },
  "8350": {
-  "fidelity": "partial",
-  "missingFeatures": [
-   "kingdom-condition"
-  ],
-  "skippedClauses": [
-   "若敌人来自梅兰堤斯，或战斗发生在梅兰堤斯，则造成双倍伤害"
-  ]
+  "fidelity": "full",
+  "missingFeatures": [],
+  "skippedClauses": []
  },
  "8351": {
-  "fidelity": "partial",
-  "missingFeatures": [
-   "kingdom-condition"
-  ],
-  "skippedClauses": [
-   "若敌人来自皓彩森林，或战斗发生在皓彩森林，则造成双倍伤害"
-  ]
+  "fidelity": "full",
+  "missingFeatures": [],
+  "skippedClauses": []
  },
  "8352": {
-  "fidelity": "partial",
-  "missingFeatures": [
-   "kingdom-condition"
-  ],
-  "skippedClauses": [
-   "若敌人来自圣唐，或战斗发生在圣唐，则造成双倍伤害"
-  ]
+  "fidelity": "full",
+  "missingFeatures": [],
+  "skippedClauses": []
  },
  "8353": {
-  "fidelity": "partial",
-  "missingFeatures": [
-   "kingdom-condition"
-  ],
-  "skippedClauses": [
-   "若敌人来自卓克祖，或战斗发生在卓克祖，则造成双倍伤害"
-  ]
+  "fidelity": "full",
+  "missingFeatures": [],
+  "skippedClauses": []
  },
  "8354": {
-  "fidelity": "partial",
-  "missingFeatures": [
-   "kingdom-condition"
-  ],
-  "skippedClauses": [
-   "若敌人来自迈纳杰之罪，或战斗发生在迈纳杰之罪，则造成双倍伤害"
-  ]
+  "fidelity": "full",
+  "missingFeatures": [],
+  "skippedClauses": []
  },
  "8357": {
   "fidelity": "full",
@@ -2680,18 +2080,9 @@
   "skippedClauses": []
  },
  "8383": {
-  "fidelity": "partial",
-  "missingFeatures": [
-   "kingdom-count",
-   "modifier-source",
-   "unparsed-clause",
-   "modifier-tag"
-  ],
-  "skippedClauses": [
-   "伤害值因蛛尔卡里盟友数而增强",
-   "每有一名蛛尔卡里盟友，则创造混合绿色和紫色的 6 颗宝石",
-   "尾部增幅标签 [x6]（归属子句已略去或无法可靠挂载）"
-  ]
+  "fidelity": "full",
+  "missingFeatures": [],
+  "skippedClauses": []
  },
  "8384": {
   "fidelity": "full",
@@ -2699,18 +2090,9 @@
   "skippedClauses": []
  },
  "8385": {
-  "fidelity": "partial",
-  "missingFeatures": [
-   "kingdom-count",
-   "modifier-source",
-   "unparsed-clause",
-   "modifier-tag"
-  ],
-  "skippedClauses": [
-   "伤害值因狮心帝国盟友数而增强",
-   "每有一名狮心帝国盟友，则创造混合黄色和棕色的 6 颗宝石",
-   "尾部增幅标签 [x6]（归属子句已略去或无法可靠挂载）"
-  ]
+  "fidelity": "full",
+  "missingFeatures": [],
+  "skippedClauses": []
  },
  "8386": {
   "fidelity": "full",
@@ -2718,26 +2100,14 @@
   "skippedClauses": []
  },
  "8391": {
-  "fidelity": "partial",
-  "missingFeatures": [
-   "unparsed-clause",
-   "modifier-tag"
-  ],
-  "skippedClauses": [
-   "几率因恶魔敌人数而增强",
-   "尾部增幅标签 [x4]（归属子句已略去或无法可靠挂载）"
-  ]
+  "fidelity": "full",
+  "missingFeatures": [],
+  "skippedClauses": []
  },
  "8392": {
-  "fidelity": "partial",
-  "missingFeatures": [
-   "unparsed-clause",
-   "modifier-tag"
-  ],
-  "skippedClauses": [
-   "几率因元素敌人数而增强",
-   "尾部增幅标签 [x4]（归属子句已略去或无法可靠挂载）"
-  ]
+  "fidelity": "full",
+  "missingFeatures": [],
+  "skippedClauses": []
  },
  "8394": {
   "fidelity": "full",
@@ -2773,15 +2143,9 @@
   "skippedClauses": []
  },
  "8399": {
-  "fidelity": "partial",
-  "missingFeatures": [
-   "kingdom-target",
-   "kingdom-summon"
-  ],
-  "skippedClauses": [
-   "赋予所有圣唐盟友一个随机状态效果",
-   "召唤一名圣唐军队"
-  ]
+  "fidelity": "full",
+  "missingFeatures": [],
+  "skippedClauses": []
  },
  "8400": {
   "fidelity": "partial",
@@ -2840,18 +2204,9 @@
   "skippedClauses": []
  },
  "8434": {
-  "fidelity": "partial",
-  "missingFeatures": [
-   "kingdom-count",
-   "modifier-source",
-   "unparsed-clause",
-   "modifier-tag"
-  ],
-  "skippedClauses": [
-   "伤害值因黑石盟友数而增强",
-   "每有一名黑石盟友，则创造 6 颗混合蓝色和紫色的宝石",
-   "尾部增幅标签 [x6]（归属子句已略去或无法可靠挂载）"
-  ]
+  "fidelity": "full",
+  "missingFeatures": [],
+  "skippedClauses": []
  },
  "8435": {
   "fidelity": "full",
@@ -2869,13 +2224,9 @@
   "skippedClauses": []
  },
  "8439": {
-  "fidelity": "partial",
-  "missingFeatures": [
-   "unparsed-clause"
-  ],
-  "skippedClauses": [
-   "给予其四分之一的法力值"
-  ]
+  "fidelity": "full",
+  "missingFeatures": [],
+  "skippedClauses": []
  },
  "8440": {
   "fidelity": "partial",
@@ -2892,82 +2243,34 @@
   "skippedClauses": []
  },
  "8442": {
-  "fidelity": "partial",
-  "missingFeatures": [
-   "tempering-scaling",
-   "doom-condition",
-   "unparsed-clause"
-  ],
-  "skippedClauses": [
-   "每锻炼 1 个武器段位则 +1 颗宝石",
-   "若敌方有劫数",
-   "则消除一位随机敌人所有护甲值"
-  ]
+  "fidelity": "full",
+  "missingFeatures": [],
+  "skippedClauses": []
  },
  "8443": {
-  "fidelity": "partial",
-  "missingFeatures": [
-   "tempering-scaling",
-   "doom-condition",
-   "unparsed-clause"
-  ],
-  "skippedClauses": [
-   "每锻炼 1 个武器段位则 +1 颗宝石",
-   "若敌方有劫数",
-   "则消除一位随机敌人所有护甲值"
-  ]
+  "fidelity": "full",
+  "missingFeatures": [],
+  "skippedClauses": []
  },
  "8444": {
-  "fidelity": "partial",
-  "missingFeatures": [
-   "tempering-scaling",
-   "doom-condition",
-   "unparsed-clause"
-  ],
-  "skippedClauses": [
-   "每锻炼 1 个武器段位则 +1 颗宝石",
-   "若敌方有劫数",
-   "则消除一位随机敌人所有护甲值"
-  ]
+  "fidelity": "full",
+  "missingFeatures": [],
+  "skippedClauses": []
  },
  "8445": {
-  "fidelity": "partial",
-  "missingFeatures": [
-   "tempering-scaling",
-   "doom-condition",
-   "unparsed-clause"
-  ],
-  "skippedClauses": [
-   "每锻炼 1 个武器段位则 +1 颗宝石",
-   "若敌方有劫数",
-   "则消除一位随机敌人所有护甲值"
-  ]
+  "fidelity": "full",
+  "missingFeatures": [],
+  "skippedClauses": []
  },
  "8446": {
-  "fidelity": "partial",
-  "missingFeatures": [
-   "tempering-scaling",
-   "doom-condition",
-   "unparsed-clause"
-  ],
-  "skippedClauses": [
-   "每锻炼 1 个武器段位则 +1 颗宝石",
-   "若敌方有劫数",
-   "则消除一位随机敌人所有护甲值"
-  ]
+  "fidelity": "full",
+  "missingFeatures": [],
+  "skippedClauses": []
  },
  "8447": {
-  "fidelity": "partial",
-  "missingFeatures": [
-   "tempering-scaling",
-   "doom-condition",
-   "unparsed-clause"
-  ],
-  "skippedClauses": [
-   "每锻炼 1 个武器段位则 +1 颗宝石",
-   "若敌方有劫数",
-   "则消除一位随机敌人所有护甲值"
-  ]
+  "fidelity": "full",
+  "missingFeatures": [],
+  "skippedClauses": []
  },
  "8448": {
   "fidelity": "full",
@@ -2989,15 +2292,9 @@
   ]
  },
  "8451": {
-  "fidelity": "partial",
-  "missingFeatures": [
-   "kingdom-target",
-   "kingdom-summon"
-  ],
-  "skippedClauses": [
-   "赋予所有卜筮之原盟友一个随机状态效果",
-   "召唤一名卜筮之原军队"
-  ]
+  "fidelity": "full",
+  "missingFeatures": [],
+  "skippedClauses": []
  },
  "8452": {
   "fidelity": "full",
@@ -3005,18 +2302,9 @@
   "skippedClauses": []
  },
  "8453": {
-  "fidelity": "partial",
-  "missingFeatures": [
-   "kingdom-count",
-   "modifier-source",
-   "unparsed-clause",
-   "modifier-tag"
-  ],
-  "skippedClauses": [
-   "由风暴峡湾盟友激发",
-   "给每个风暴峡湾盟友制造6颗混合的蓝色和黄色宝石",
-   "尾部增幅标签 [x6]（归属子句已略去或无法可靠挂载）"
-  ]
+  "fidelity": "full",
+  "missingFeatures": [],
+  "skippedClauses": []
  },
  "8454": {
   "fidelity": "full",
@@ -3043,18 +2331,9 @@
   ]
  },
  "8487": {
-  "fidelity": "partial",
-  "missingFeatures": [
-   "kingdom-count",
-   "modifier-source",
-   "unparsed-clause",
-   "modifier-tag"
-  ],
-  "skippedClauses": [
-   "伤害值因黑鹰盟友数而增强",
-   "每有一位黑鹰盟友则创造 6 颗混合蓝色和红色的宝石",
-   "尾部增幅标签 [x6]（归属子句已略去或无法可靠挂载）"
-  ]
+  "fidelity": "full",
+  "missingFeatures": [],
+  "skippedClauses": []
  },
  "8490": {
   "fidelity": "full",
@@ -3062,29 +2341,14 @@
   "skippedClauses": []
  },
  "8505": {
-  "fidelity": "partial",
-  "missingFeatures": [
-   "kingdom-target",
-   "kingdom-summon"
-  ],
-  "skippedClauses": [
-   "赋予所有狂野平原盟友一个随机状态效果",
-   "召唤一名狂野平原军队"
-  ]
+  "fidelity": "full",
+  "missingFeatures": [],
+  "skippedClauses": []
  },
  "8506": {
-  "fidelity": "partial",
-  "missingFeatures": [
-   "kingdom-count",
-   "modifier-source",
-   "unparsed-clause",
-   "modifier-tag"
-  ],
-  "skippedClauses": [
-   "伤害值因破碎尖塔盟友数而增强",
-   "每有一位破碎尖塔盟友则创造 6 颗混合红色和棕色的宝石",
-   "尾部增幅标签 [x6]（归属子句已略去或无法可靠挂载）"
-  ]
+  "fidelity": "full",
+  "missingFeatures": [],
+  "skippedClauses": []
  },
  "8507": {
   "fidelity": "full",
@@ -3102,15 +2366,9 @@
   "skippedClauses": []
  },
  "8510": {
-  "fidelity": "partial",
-  "missingFeatures": [
-   "kingdom-target",
-   "kingdom-summon"
-  ],
-  "skippedClauses": [
-   "赋予所有冰峰之巅盟友一个随机状态效果",
-   "召唤一名冰峰之巅军队"
-  ]
+  "fidelity": "full",
+  "missingFeatures": [],
+  "skippedClauses": []
  },
  "8511": {
   "fidelity": "full",
@@ -3123,37 +2381,19 @@
   "skippedClauses": []
  },
  "8513": {
-  "fidelity": "partial",
-  "missingFeatures": [
-   "kingdom-target",
-   "kingdom-summon"
-  ],
-  "skippedClauses": [
-   "赋予所有破碎尖塔盟友一个随机正面增益效果",
-   "召唤一名破碎尖塔军队"
-  ]
+  "fidelity": "full",
+  "missingFeatures": [],
+  "skippedClauses": []
  },
  "8514": {
-  "fidelity": "partial",
-  "missingFeatures": [
-   "kingdom-target",
-   "kingdom-summon"
-  ],
-  "skippedClauses": [
-   "赋予所有葛洛什奈克盟友一个随机正面增益效果",
-   "召唤一名葛洛什奈克军队"
-  ]
+  "fidelity": "full",
+  "missingFeatures": [],
+  "skippedClauses": []
  },
  "8515": {
-  "fidelity": "partial",
-  "missingFeatures": [
-   "kingdom-target",
-   "kingdom-summon"
-  ],
-  "skippedClauses": [
-   "给予所有卡拉科斯盟友一个随机状态效果",
-   "召唤一支卡拉科斯部队"
-  ]
+  "fidelity": "full",
+  "missingFeatures": [],
+  "skippedClauses": []
  },
  "8516": {
   "fidelity": "full",
@@ -3253,17 +2493,9 @@
   "skippedClauses": []
  },
  "8620": {
-  "fidelity": "partial",
-  "missingFeatures": [
-   "modifier-source",
-   "kingdom-count",
-   "modifier-tag"
-  ],
-  "skippedClauses": [
-   "由古尔瓦尼亚盟友增强",
-   "为每位古尔瓦尼亚盟友创造 6 颗混合红色和紫色宝石",
-   "尾部增幅标签 [x6]（归属子句已略去或无法可靠挂载）"
-  ]
+  "fidelity": "full",
+  "missingFeatures": [],
+  "skippedClauses": []
  },
  "8621": {
   "fidelity": "full",
@@ -3291,13 +2523,9 @@
   "skippedClauses": []
  },
  "8642": {
-  "fidelity": "partial",
-  "missingFeatures": [
-   "kingdom-condition"
-  ],
-  "skippedClauses": [
-   "若敌人来自诺斯，或战斗发生在诺斯，则造成双倍伤害"
-  ]
+  "fidelity": "full",
+  "missingFeatures": [],
+  "skippedClauses": []
  },
  "8643": {
   "fidelity": "full",
@@ -3310,18 +2538,9 @@
   "skippedClauses": []
  },
  "8645": {
-  "fidelity": "partial",
-  "missingFeatures": [
-   "kingdom-count",
-   "modifier-source",
-   "unparsed-clause",
-   "modifier-tag"
-  ],
-  "skippedClauses": [
-   "伤害值因诺斯盟友数而增强",
-   "每有一名诺斯盟友，则创建 6 颗混合红色和棕色的宝石",
-   "尾部增幅标签 [x6]（归属子句已略去或无法可靠挂载）"
-  ]
+  "fidelity": "full",
+  "missingFeatures": [],
+  "skippedClauses": []
  },
  "8646": {
   "fidelity": "full",
@@ -3344,29 +2563,14 @@
   "skippedClauses": []
  },
  "8669": {
-  "fidelity": "partial",
-  "missingFeatures": [
-   "kingdom-count",
-   "modifier-source",
-   "unparsed-clause",
-   "modifier-tag"
-  ],
-  "skippedClauses": [
-   "伤害值因齐埃金盟友数而增强",
-   "每有一名齐埃金盟友则创建 6 颗混合绿色和棕色的宝石",
-   "尾部增幅标签 [x6]（归属子句已略去或无法可靠挂载）"
-  ]
+  "fidelity": "full",
+  "missingFeatures": [],
+  "skippedClauses": []
  },
  "8670": {
-  "fidelity": "partial",
-  "missingFeatures": [
-   "kingdom-target",
-   "kingdom-summon"
-  ],
-  "skippedClauses": [
-   "赋予所有玉银林地盟友一个随机正面增益效果",
-   "召唤一名玉银林地军队"
-  ]
+  "fidelity": "full",
+  "missingFeatures": [],
+  "skippedClauses": []
  },
  "8680": {
   "fidelity": "full",
@@ -3384,58 +2588,34 @@
   "skippedClauses": []
  },
  "8698": {
-  "fidelity": "partial",
-  "missingFeatures": [
-   "tempering-scaling"
-  ],
-  "skippedClauses": [
-   "每锻炼 1 个武器段位则 +4 点伤害值"
-  ]
+  "fidelity": "full",
+  "missingFeatures": [],
+  "skippedClauses": []
  },
  "8699": {
-  "fidelity": "partial",
-  "missingFeatures": [
-   "tempering-scaling"
-  ],
-  "skippedClauses": [
-   "每锻炼 1 个武器段位则 +4 点伤害值"
-  ]
+  "fidelity": "full",
+  "missingFeatures": [],
+  "skippedClauses": []
  },
  "8700": {
-  "fidelity": "partial",
-  "missingFeatures": [
-   "tempering-scaling"
-  ],
-  "skippedClauses": [
-   "每锻炼 1 个武器段位则 +4 点伤害值"
-  ]
+  "fidelity": "full",
+  "missingFeatures": [],
+  "skippedClauses": []
  },
  "8701": {
-  "fidelity": "partial",
-  "missingFeatures": [
-   "tempering-scaling"
-  ],
-  "skippedClauses": [
-   "每锻炼 1 个武器段位则 +4 点伤害值"
-  ]
+  "fidelity": "full",
+  "missingFeatures": [],
+  "skippedClauses": []
  },
  "8702": {
-  "fidelity": "partial",
-  "missingFeatures": [
-   "tempering-scaling"
-  ],
-  "skippedClauses": [
-   "每锻炼 1 个武器段位则 +4 点伤害值"
-  ]
+  "fidelity": "full",
+  "missingFeatures": [],
+  "skippedClauses": []
  },
  "8703": {
-  "fidelity": "partial",
-  "missingFeatures": [
-   "tempering-scaling"
-  ],
-  "skippedClauses": [
-   "每锻炼 1 个武器段位则 +4 点伤害值"
-  ]
+  "fidelity": "full",
+  "missingFeatures": [],
+  "skippedClauses": []
  },
  "8706": {
   "fidelity": "full",
@@ -3443,15 +2623,9 @@
   "skippedClauses": []
  },
  "8707": {
-  "fidelity": "partial",
-  "missingFeatures": [
-   "kingdom-target",
-   "kingdom-summon"
-  ],
-  "skippedClauses": [
-   "赋予所有盖塔尔盟友一个随机正面增益效果",
-   "召唤一名盖塔尔军队"
-  ]
+  "fidelity": "full",
+  "missingFeatures": [],
+  "skippedClauses": []
  },
  "8708": {
   "fidelity": "full",
@@ -3473,94 +2647,39 @@
   ]
  },
  "8725": {
-  "fidelity": "partial",
-  "missingFeatures": [
-   "kingdom-target",
-   "kingdom-summon"
-  ],
-  "skippedClauses": [
-   "赋予所有阿达纳盟友一个随机正面增益状态效果",
-   "召唤一名阿达纳军队"
-  ]
+  "fidelity": "full",
+  "missingFeatures": [],
+  "skippedClauses": []
  },
  "8726": {
-  "fidelity": "partial",
-  "missingFeatures": [
-   "unparsed-clause",
-   "doom-condition",
-   "tempering-scaling"
-  ],
-  "skippedClauses": [
-   "伤害力由蓝色宝石而增强",
-   "如果他们有末日，可造成双倍伤害",
-   "回火等级有3%的几率杀死敌人",
-   "每个回火等级有3%的几率杀死敌人"
-  ]
+  "fidelity": "full",
+  "missingFeatures": [],
+  "skippedClauses": []
  },
  "8727": {
-  "fidelity": "partial",
-  "missingFeatures": [
-   "doom-condition",
-   "tempering-scaling",
-   "unparsed-clause"
-  ],
-  "skippedClauses": [
-   "如果他们有末日，造成双倍伤害",
-   "回火等级有 3% 的几率杀死敌人",
-   "每个回火等级有 3% 的几率杀死敌人"
-  ]
+  "fidelity": "full",
+  "missingFeatures": [],
+  "skippedClauses": []
  },
  "8728": {
-  "fidelity": "partial",
-  "missingFeatures": [
-   "doom-condition",
-   "tempering-scaling",
-   "unparsed-clause"
-  ],
-  "skippedClauses": [
-   "如果他们有末日，造成双倍伤害",
-   "回火等级有 3% 的几率杀死敌人",
-   "每个回火等级有 3% 的几率杀死敌人"
-  ]
+  "fidelity": "full",
+  "missingFeatures": [],
+  "skippedClauses": []
  },
  "8729": {
-  "fidelity": "partial",
-  "missingFeatures": [
-   "doom-condition",
-   "tempering-scaling",
-   "unparsed-clause"
-  ],
-  "skippedClauses": [
-   "如果他们有末日，造成双倍伤害",
-   "回火等级有 3% 的几率杀死敌人",
-   "每个回火等级有 3% 的几率杀死敌人"
-  ]
+  "fidelity": "full",
+  "missingFeatures": [],
+  "skippedClauses": []
  },
  "8730": {
-  "fidelity": "partial",
-  "missingFeatures": [
-   "doom-condition",
-   "tempering-scaling",
-   "unparsed-clause"
-  ],
-  "skippedClauses": [
-   "如果他们有末日，造成双倍伤害",
-   "回火等级有 3% 的几率杀死敌人",
-   "每个回火等级有 3% 的几率杀死敌人"
-  ]
+  "fidelity": "full",
+  "missingFeatures": [],
+  "skippedClauses": []
  },
  "8731": {
-  "fidelity": "partial",
-  "missingFeatures": [
-   "doom-condition",
-   "tempering-scaling",
-   "unparsed-clause"
-  ],
-  "skippedClauses": [
-   "如果他们有末日，造成双倍伤害",
-   "回火等级有 3% 的几率杀死敌人",
-   "每个回火等级有 3% 的几率杀死敌人"
-  ]
+  "fidelity": "full",
+  "missingFeatures": [],
+  "skippedClauses": []
  },
  "8761": {
   "fidelity": "full",
@@ -3587,26 +2706,14 @@
   "skippedClauses": []
  },
  "8765": {
-  "fidelity": "partial",
-  "missingFeatures": [
-   "kingdom-target",
-   "kingdom-summon"
-  ],
-  "skippedClauses": [
-   "给予所有潘神之谷盟友一个随机正面增益效果",
-   "召唤一名潘神之谷盟友"
-  ]
+  "fidelity": "full",
+  "missingFeatures": [],
+  "skippedClauses": []
  },
  "8766": {
-  "fidelity": "partial",
-  "missingFeatures": [
-   "kingdom-target",
-   "kingdom-summon"
-  ],
-  "skippedClauses": [
-   "给予所有剑锋崖盟友一个随机正面增益效果",
-   "召唤一名剑锋崖盟友"
-  ]
+  "fidelity": "full",
+  "missingFeatures": [],
+  "skippedClauses": []
  },
  "8767": {
   "fidelity": "full",
@@ -3697,13 +2804,9 @@
   ]
  },
  "8807": {
-  "fidelity": "partial",
-  "missingFeatures": [
-   "kingdom-condition"
-  ],
-  "skippedClauses": [
-   "若敌人来自地狱悬崖或战斗位于地狱悬崖，则造成双倍伤害"
-  ]
+  "fidelity": "full",
+  "missingFeatures": [],
+  "skippedClauses": []
  },
  "8808": {
   "fidelity": "full",
@@ -3711,18 +2814,9 @@
   "skippedClauses": []
  },
  "8809": {
-  "fidelity": "partial",
-  "missingFeatures": [
-   "kingdom-count",
-   "modifier-source",
-   "unparsed-clause",
-   "modifier-tag"
-  ],
-  "skippedClauses": [
-   "数值因地域悬崖盟友数而增强",
-   "每有一名地狱悬崖盟友，则创造 6 颗混合红色和棕色的宝石",
-   "尾部增幅标签 [x6]（归属子句已略去或无法可靠挂载）"
-  ]
+  "fidelity": "full",
+  "missingFeatures": [],
+  "skippedClauses": []
  },
  "8810": {
   "fidelity": "full",
@@ -3764,26 +2858,14 @@
   "skippedClauses": []
  },
  "8872": {
-  "fidelity": "partial",
-  "missingFeatures": [
-   "enemy-color-count",
-   "modifier-tag"
-  ],
-  "skippedClauses": [
-   "每有一名蓝色敌人则创造 1 颗蓝色巨人宝石",
-   "尾部增幅标签 [1:1]（归属子句已略去或无法可靠挂载）"
-  ]
+  "fidelity": "full",
+  "missingFeatures": [],
+  "skippedClauses": []
  },
  "8873": {
-  "fidelity": "partial",
-  "missingFeatures": [
-   "enemy-color-count",
-   "modifier-tag"
-  ],
-  "skippedClauses": [
-   "每有一名红色敌人则创造 1 颗红色巨人宝石",
-   "尾部增幅标签 [1:1]（归属子句已略去或无法可靠挂载）"
-  ]
+  "fidelity": "full",
+  "missingFeatures": [],
+  "skippedClauses": []
  },
  "8874": {
   "fidelity": "full",
@@ -3791,16 +2873,9 @@
   "skippedClauses": []
  },
  "8875": {
-  "fidelity": "partial",
-  "missingFeatures": [
-   "unparsed-clause",
-   "kingdom-condition"
-  ],
-  "skippedClauses": [
-   "战斗位于沃尔帕克",
-   "则造成双倍伤害",
-   "若敌人来自沃尔帕克"
-  ]
+  "fidelity": "full",
+  "missingFeatures": [],
+  "skippedClauses": []
  },
  "8876": {
   "fidelity": "full",
@@ -3808,19 +2883,9 @@
   "skippedClauses": []
  },
  "8877": {
-  "fidelity": "partial",
-  "missingFeatures": [
-   "kingdom-count",
-   "modifier-source",
-   "unparsed-clause",
-   "modifier-tag"
-  ],
-  "skippedClauses": [
-   "因沃尔帕克盟友数而增强",
-   "伤害只因沃尔帕克盟友数而增强",
-   "每有一名沃尔帕克盟友，则创造 6 颗混合蓝色和绿色的宝石",
-   "尾部增幅标签 [x6]（归属子句已略去或无法可靠挂载）"
-  ]
+  "fidelity": "full",
+  "missingFeatures": [],
+  "skippedClauses": []
  },
  "8878": {
   "fidelity": "full",
@@ -3843,15 +2908,9 @@
   ]
  },
  "8905": {
-  "fidelity": "partial",
-  "missingFeatures": [
-   "kingdom-target",
-   "kingdom-summon"
-  ],
-  "skippedClauses": [
-   "赋予所有迈纳杰之罪盟友一个随机正面增益状态效果",
-   "召唤一名迈纳杰之罪军队"
-  ]
+  "fidelity": "full",
+  "missingFeatures": [],
+  "skippedClauses": []
  },
  "8906": {
   "fidelity": "full",
@@ -3879,15 +2938,9 @@
   "skippedClauses": []
  },
  "8911": {
-  "fidelity": "partial",
-  "missingFeatures": [
-   "kingdom-target",
-   "kingdom-summon"
-  ],
-  "skippedClauses": [
-   "赋予所有荆棘森林盟友一个随机正面增益效果",
-   "召唤一名荆棘森林军队"
-  ]
+  "fidelity": "full",
+  "missingFeatures": [],
+  "skippedClauses": []
  },
  "8946": {
   "fidelity": "full",
@@ -3920,15 +2973,9 @@
   "skippedClauses": []
  },
  "8955": {
-  "fidelity": "partial",
-  "missingFeatures": [
-   "kingdom-target",
-   "kingdom-summon"
-  ],
-  "skippedClauses": [
-   "赋予所有厄什卡亚盟友一个随机正面增益效果",
-   "召唤一名厄什卡亚军队"
-  ]
+  "fidelity": "full",
+  "missingFeatures": [],
+  "skippedClauses": []
  },
  "8956": {
   "fidelity": "full",
@@ -3956,13 +3003,9 @@
   ]
  },
  "8971": {
-  "fidelity": "partial",
-  "missingFeatures": [
-   "unparsed-clause"
-  ],
-  "skippedClauses": [
-   "如果盟友来自白盔国，则为他们提供屏障"
-  ]
+  "fidelity": "full",
+  "missingFeatures": [],
+  "skippedClauses": []
  },
  "8972": {
   "fidelity": "full",
@@ -3982,70 +3025,34 @@
   ]
  },
  "8989": {
-  "fidelity": "partial",
-  "missingFeatures": [
-   "tempering-scaling",
-   "doom-condition"
-  ],
-  "skippedClauses": [
-   "每锻炼 1 个武器段位则 +1 魔法值",
-   "若敌人拥有一个劫数，则获得 10 点攻击力"
-  ]
+  "fidelity": "full",
+  "missingFeatures": [],
+  "skippedClauses": []
  },
  "8990": {
-  "fidelity": "partial",
-  "missingFeatures": [
-   "tempering-scaling",
-   "doom-condition"
-  ],
-  "skippedClauses": [
-   "每锻炼 1 个武器段位则 +1 魔法值",
-   "若敌人拥有一个劫数，则获得 10 点攻击力"
-  ]
+  "fidelity": "full",
+  "missingFeatures": [],
+  "skippedClauses": []
  },
  "8991": {
-  "fidelity": "partial",
-  "missingFeatures": [
-   "tempering-scaling",
-   "doom-condition"
-  ],
-  "skippedClauses": [
-   "每锻炼 1 个武器段位则 +1 魔法值",
-   "若敌人拥有一个劫数，则获得 10 点攻击力"
-  ]
+  "fidelity": "full",
+  "missingFeatures": [],
+  "skippedClauses": []
  },
  "8992": {
-  "fidelity": "partial",
-  "missingFeatures": [
-   "tempering-scaling",
-   "doom-condition"
-  ],
-  "skippedClauses": [
-   "每锻炼 1 个武器段位则 +1 魔法值",
-   "若敌人拥有一个劫数，则获得 10 点攻击力"
-  ]
+  "fidelity": "full",
+  "missingFeatures": [],
+  "skippedClauses": []
  },
  "8993": {
-  "fidelity": "partial",
-  "missingFeatures": [
-   "tempering-scaling",
-   "doom-condition"
-  ],
-  "skippedClauses": [
-   "每锻炼 1 个武器段位则 +1 魔法值",
-   "若敌人拥有一个劫数，则获得 10 点攻击力"
-  ]
+  "fidelity": "full",
+  "missingFeatures": [],
+  "skippedClauses": []
  },
  "8994": {
-  "fidelity": "partial",
-  "missingFeatures": [
-   "tempering-scaling",
-   "doom-condition"
-  ],
-  "skippedClauses": [
-   "每锻炼 1 个武器段位则 +1 魔法值",
-   "若敌人拥有一个劫数，则获得 10 点攻击力"
-  ]
+  "fidelity": "full",
+  "missingFeatures": [],
+  "skippedClauses": []
  },
  "8995": {
   "fidelity": "full",
@@ -4103,15 +3110,9 @@
   "skippedClauses": []
  },
  "9034": {
-  "fidelity": "partial",
-  "missingFeatures": [
-   "kingdom-target",
-   "kingdom-summon"
-  ],
-  "skippedClauses": [
-   "赋予所有诺斯盟友一个随机正面增益状态效果",
-   "召唤一名诺斯军队"
-  ]
+  "fidelity": "full",
+  "missingFeatures": [],
+  "skippedClauses": []
  },
  "9035": {
   "fidelity": "full",
@@ -4119,15 +3120,9 @@
   "skippedClauses": []
  },
  "9036": {
-  "fidelity": "partial",
-  "missingFeatures": [
-   "kingdom-target",
-   "kingdom-summon"
-  ],
-  "skippedClauses": [
-   "赋予所有梅兰堤斯盟友一个随机正面增益效果",
-   "召唤一名梅兰堤斯军队"
-  ]
+  "fidelity": "full",
+  "missingFeatures": [],
+  "skippedClauses": []
  },
  "9037": {
   "fidelity": "full",
@@ -4171,15 +3166,9 @@
   "skippedClauses": []
  },
  "9142": {
-  "fidelity": "partial",
-  "missingFeatures": [
-   "kingdom-target",
-   "kingdom-summon"
-  ],
-  "skippedClauses": [
-   "赋予所有聚沙之地盟友一个随机正面增益效果",
-   "召唤一名聚沙之地军队"
-  ]
+  "fidelity": "full",
+  "missingFeatures": [],
+  "skippedClauses": []
  },
  "9143": {
   "fidelity": "full",
@@ -4192,15 +3181,9 @@
   "skippedClauses": []
  },
  "9145": {
-  "fidelity": "partial",
-  "missingFeatures": [
-   "kingdom-target",
-   "kingdom-summon"
-  ],
-  "skippedClauses": [
-   "赋予所有蛛尔卡里盟友一个随机正面增益效果",
-   "召唤一名蛛尔卡里军队"
-  ]
+  "fidelity": "full",
+  "missingFeatures": [],
+  "skippedClauses": []
  },
  "9146": {
   "fidelity": "full",
@@ -4252,15 +3235,9 @@
   "skippedClauses": []
  },
  "9205": {
-  "fidelity": "partial",
-  "missingFeatures": [
-   "kingdom-target",
-   "kingdom-summon"
-  ],
-  "skippedClauses": [
-   "赋予所有沃尔帕克盟友一个正面增益状态效果",
-   "召唤一名沃尔帕克军队"
-  ]
+  "fidelity": "full",
+  "missingFeatures": [],
+  "skippedClauses": []
  },
  "9206": {
   "fidelity": "full",
@@ -4273,15 +3250,9 @@
   "skippedClauses": []
  },
  "9208": {
-  "fidelity": "partial",
-  "missingFeatures": [
-   "kingdom-target",
-   "kingdom-summon"
-  ],
-  "skippedClauses": [
-   "赋予所有剑锋崖盟友一个正面增益状态效果",
-   "召唤一名剑锋崖军队"
-  ]
+  "fidelity": "full",
+  "missingFeatures": [],
+  "skippedClauses": []
  },
  "9209": {
   "fidelity": "full",
@@ -4294,105 +3265,39 @@
   "skippedClauses": []
  },
  "9211": {
-  "fidelity": "partial",
-  "missingFeatures": [
-   "tempering-scaling",
-   "enemy-color-count",
-   "doom-condition",
-   "modifier-tag"
-  ],
-  "skippedClauses": [
-   "每锻炼 1 个武器段位则 +2 点伤害值",
-   "每有一名蓝色盟友和敌人则创造 2 颗蓝色宝石",
-   "若敌方有劫数则获得一个随机正面增益状态效果",
-   "尾部增幅标签 [x2]（归属子句已略去或无法可靠挂载）"
-  ]
+  "fidelity": "full",
+  "missingFeatures": [],
+  "skippedClauses": []
  },
  "9212": {
-  "fidelity": "partial",
-  "missingFeatures": [
-   "tempering-scaling",
-   "enemy-color-count",
-   "doom-condition",
-   "modifier-tag"
-  ],
-  "skippedClauses": [
-   "每锻炼 1 个武器段位则 +2 点伤害值",
-   "每有一名绿色盟友和敌人则创造 2 颗绿色宝石",
-   "若敌方有劫数则获得一个随机正面增益状态效果",
-   "尾部增幅标签 [x2]（归属子句已略去或无法可靠挂载）"
-  ]
+  "fidelity": "full",
+  "missingFeatures": [],
+  "skippedClauses": []
  },
  "9213": {
-  "fidelity": "partial",
-  "missingFeatures": [
-   "tempering-scaling",
-   "enemy-color-count",
-   "doom-condition",
-   "modifier-tag"
-  ],
-  "skippedClauses": [
-   "每锻炼 1 个武器段位则 +2 点伤害值",
-   "每有一名红色盟友和敌人则创造 2 颗红色宝石",
-   "若敌方有劫数则获得一个随机正面增益状态效果",
-   "尾部增幅标签 [x2]（归属子句已略去或无法可靠挂载）"
-  ]
+  "fidelity": "full",
+  "missingFeatures": [],
+  "skippedClauses": []
  },
  "9214": {
-  "fidelity": "partial",
-  "missingFeatures": [
-   "tempering-scaling",
-   "enemy-color-count",
-   "doom-condition",
-   "modifier-tag"
-  ],
-  "skippedClauses": [
-   "每锻炼 1 个武器段位则 +2 点伤害值",
-   "每有一名黄色盟友和敌人则创造 2 颗黄色宝石",
-   "若敌方有劫数则获得一个随机正面增益状态效果",
-   "尾部增幅标签 [x2]（归属子句已略去或无法可靠挂载）"
-  ]
+  "fidelity": "full",
+  "missingFeatures": [],
+  "skippedClauses": []
  },
  "9215": {
-  "fidelity": "partial",
-  "missingFeatures": [
-   "tempering-scaling",
-   "enemy-color-count",
-   "doom-condition",
-   "modifier-tag"
-  ],
-  "skippedClauses": [
-   "每锻炼 1 个武器段位则 +2 点伤害值",
-   "每有一名紫色盟友和敌人则创造 2 颗紫色宝石",
-   "若敌方有劫数则获得一个随机正面增益状态效果",
-   "尾部增幅标签 [x2]（归属子句已略去或无法可靠挂载）"
-  ]
+  "fidelity": "full",
+  "missingFeatures": [],
+  "skippedClauses": []
  },
  "9216": {
-  "fidelity": "partial",
-  "missingFeatures": [
-   "tempering-scaling",
-   "enemy-color-count",
-   "doom-condition",
-   "modifier-tag"
-  ],
-  "skippedClauses": [
-   "每锻炼 1 个武器段位则 +2 点伤害值",
-   "每有一名棕色盟友和敌人则创造 2 颗棕色宝石",
-   "若敌方有劫数则获得一个随机正面增益状态效果",
-   "尾部增幅标签 [x2]（归属子句已略去或无法可靠挂载）"
-  ]
+  "fidelity": "full",
+  "missingFeatures": [],
+  "skippedClauses": []
  },
  "9235": {
-  "fidelity": "partial",
-  "missingFeatures": [
-   "kingdom-target",
-   "kingdom-summon"
-  ],
-  "skippedClauses": [
-   "赋予所有黑石盟友一个随机正面增益状态效果",
-   "召唤一名黑石军队"
-  ]
+  "fidelity": "full",
+  "missingFeatures": [],
+  "skippedClauses": []
  },
  "9261": {
   "fidelity": "full",
@@ -4410,15 +3315,9 @@
   "skippedClauses": []
  },
  "9264": {
-  "fidelity": "partial",
-  "missingFeatures": [
-   "kingdom-target",
-   "kingdom-summon"
-  ],
-  "skippedClauses": [
-   "赋予所有狮心帝国盟友一个随机正面增益状态效果",
-   "召唤一名随机狮心帝国军队"
-  ]
+  "fidelity": "full",
+  "missingFeatures": [],
+  "skippedClauses": []
  },
  "9265": {
   "fidelity": "full",
@@ -4431,15 +3330,9 @@
   "skippedClauses": []
  },
  "9267": {
-  "fidelity": "partial",
-  "missingFeatures": [
-   "kingdom-target",
-   "kingdom-summon"
-  ],
-  "skippedClauses": [
-   "使所有白盔国盟友获得一个随机正面增益效果",
-   "召唤一名白盔国军队"
-  ]
+  "fidelity": "full",
+  "missingFeatures": [],
+  "skippedClauses": []
  },
  "9300": {
   "fidelity": "partial",
@@ -4456,16 +3349,9 @@
   "skippedClauses": []
  },
  "9302": {
-  "fidelity": "partial",
-  "missingFeatures": [
-   "kingdom-count",
-   "modifier-source",
-   "modifier-tag"
-  ],
-  "skippedClauses": [
-   "伤害值因玉银林地盟友数而增强",
-   "尾部增幅标签 [x3]（归属子句已略去或无法可靠挂载）"
-  ]
+  "fidelity": "full",
+  "missingFeatures": [],
+  "skippedClauses": []
  },
  "9303": {
   "fidelity": "full",
@@ -4478,15 +3364,9 @@
   "skippedClauses": []
  },
  "9305": {
-  "fidelity": "partial",
-  "missingFeatures": [
-   "kingdom-target",
-   "kingdom-summon"
-  ],
-  "skippedClauses": [
-   "赋予所有冰封之巅盟友一个随机正面增益状态效果",
-   "召唤一名冰封之巅军队"
-  ]
+  "fidelity": "full",
+  "missingFeatures": [],
+  "skippedClauses": []
  },
  "9306": {
   "fidelity": "full",
@@ -4509,15 +3389,9 @@
   "skippedClauses": []
  },
  "9351": {
-  "fidelity": "partial",
-  "missingFeatures": [
-   "kingdom-target",
-   "kingdom-summon"
-  ],
-  "skippedClauses": [
-   "赋予所有盖塔尔盟友一个随机正面增益状态效果",
-   "召唤一名盖塔尔军队"
-  ]
+  "fidelity": "full",
+  "missingFeatures": [],
+  "skippedClauses": []
  },
  "9352": {
   "fidelity": "full",
@@ -4530,16 +3404,9 @@
   "skippedClauses": []
  },
  "9354": {
-  "fidelity": "partial",
-  "missingFeatures": [
-   "kingdom-count",
-   "modifier-source",
-   "modifier-tag"
-  ],
-  "skippedClauses": [
-   "伤害值因蛛尔卡里盟友数而增强",
-   "尾部增幅标签 [x3]（归属子句已略去或无法可靠挂载）"
-  ]
+  "fidelity": "full",
+  "missingFeatures": [],
+  "skippedClauses": []
  },
  "9355": {
   "fidelity": "full",
@@ -4547,82 +3414,34 @@
   "skippedClauses": []
  },
  "9356": {
-  "fidelity": "partial",
-  "missingFeatures": [
-   "tempering-scaling",
-   "doom-condition",
-   "unparsed-clause"
-  ],
-  "skippedClauses": [
-   "每锻炼 1 个武器段位则 +3 点",
-   "若敌方有劫数",
-   "则将 3 颗蓝色宝石转换成巨人蓝色宝石"
-  ]
+  "fidelity": "full",
+  "missingFeatures": [],
+  "skippedClauses": []
  },
  "9357": {
-  "fidelity": "partial",
-  "missingFeatures": [
-   "tempering-scaling",
-   "doom-condition",
-   "unparsed-clause"
-  ],
-  "skippedClauses": [
-   "每锻炼 1 个武器段位则 +3 点",
-   "若敌方有劫数",
-   "则将 3 颗绿色宝石转换成巨人绿色宝石"
-  ]
+  "fidelity": "full",
+  "missingFeatures": [],
+  "skippedClauses": []
  },
  "9358": {
-  "fidelity": "partial",
-  "missingFeatures": [
-   "tempering-scaling",
-   "doom-condition",
-   "unparsed-clause"
-  ],
-  "skippedClauses": [
-   "每锻炼 1 个武器段位则 +3 点",
-   "若敌方有劫数",
-   "则将 3 颗红色宝石转换成巨人红色宝石"
-  ]
+  "fidelity": "full",
+  "missingFeatures": [],
+  "skippedClauses": []
  },
  "9359": {
-  "fidelity": "partial",
-  "missingFeatures": [
-   "tempering-scaling",
-   "doom-condition",
-   "unparsed-clause"
-  ],
-  "skippedClauses": [
-   "每锻炼 1 个武器段位则 +3 点",
-   "若敌方有劫数",
-   "则将 3 颗黄色宝石转换成巨人黄色宝石"
-  ]
+  "fidelity": "full",
+  "missingFeatures": [],
+  "skippedClauses": []
  },
  "9360": {
-  "fidelity": "partial",
-  "missingFeatures": [
-   "tempering-scaling",
-   "doom-condition",
-   "unparsed-clause"
-  ],
-  "skippedClauses": [
-   "每锻炼 1 个武器段位则 +3 点",
-   "若敌方有劫数",
-   "则将 3 颗紫色宝石转换成巨人紫色宝石"
-  ]
+  "fidelity": "full",
+  "missingFeatures": [],
+  "skippedClauses": []
  },
  "9361": {
-  "fidelity": "partial",
-  "missingFeatures": [
-   "tempering-scaling",
-   "doom-condition",
-   "unparsed-clause"
-  ],
-  "skippedClauses": [
-   "每锻炼 1 个武器段位则 +3 点",
-   "若敌方有劫数",
-   "则将 3 颗棕色宝石转换成巨人棕色宝石"
-  ]
+  "fidelity": "full",
+  "missingFeatures": [],
+  "skippedClauses": []
  },
  "9378": {
   "fidelity": "partial",
@@ -4638,7 +3457,7 @@
  "9379": {
   "fidelity": "partial",
   "missingFeatures": [
-   "doom-condition"
+   "unparsed-clause"
   ],
   "skippedClauses": [
    "将所有骷髅头转换成超级末日骷髅头"
@@ -4758,15 +3577,9 @@
   "skippedClauses": []
  },
  "9509": {
-  "fidelity": "partial",
-  "missingFeatures": [
-   "kingdom-target",
-   "kingdom-summon"
-  ],
-  "skippedClauses": [
-   "为所有马拉杰之罪盟友赋予随机状态效果",
-   "召唤一支马拉杰之罪部队"
-  ]
+  "fidelity": "full",
+  "missingFeatures": [],
+  "skippedClauses": []
  },
  "9510": {
   "fidelity": "full",
@@ -4842,15 +3655,9 @@
   "skippedClauses": []
  },
  "9577": {
-  "fidelity": "partial",
-  "missingFeatures": [
-   "kingdom-target",
-   "kingdom-summon"
-  ],
-  "skippedClauses": [
-   "为所有地狱岩盟友赋予随机状态效果",
-   "召唤地狱岩部队"
-  ]
+  "fidelity": "full",
+  "missingFeatures": [],
+  "skippedClauses": []
  },
  "9578": {
   "fidelity": "full",
@@ -4863,90 +3670,39 @@
   "skippedClauses": []
  },
  "9580": {
-  "fidelity": "partial",
-  "missingFeatures": [
-   "tempering-scaling",
-   "unparsed-clause",
-   "doom-condition"
-  ],
-  "skippedClauses": [
-   "每级回火 +4 点",
-   "如果他们使用蓝色法力",
-   "则引爆 3 颗蓝色宝石",
-   "如果敌人有毁灭之力，则恢复我四分之一的法力"
-  ]
+  "fidelity": "full",
+  "missingFeatures": [],
+  "skippedClauses": []
  },
  "9581": {
-  "fidelity": "partial",
-  "missingFeatures": [
-   "tempering-scaling",
-   "doom-condition"
-  ],
-  "skippedClauses": [
-   "每级回火 +4 点",
-   "如果敌人有毁灭之力，则恢复我四分之一的法力"
-  ]
+  "fidelity": "full",
+  "missingFeatures": [],
+  "skippedClauses": []
  },
  "9582": {
-  "fidelity": "partial",
-  "missingFeatures": [
-   "tempering-scaling",
-   "doom-condition"
-  ],
-  "skippedClauses": [
-   "每级回火 +4 点",
-   "如果敌人有毁灭之力，则恢复我四分之一的法力"
-  ]
+  "fidelity": "full",
+  "missingFeatures": [],
+  "skippedClauses": []
  },
  "9583": {
-  "fidelity": "partial",
-  "missingFeatures": [
-   "tempering-scaling",
-   "doom-condition"
-  ],
-  "skippedClauses": [
-   "每级回火 +4 点",
-   "如果敌人有毁灭之力，则恢复我四分之一的法力"
-  ]
+  "fidelity": "full",
+  "missingFeatures": [],
+  "skippedClauses": []
  },
  "9584": {
-  "fidelity": "partial",
-  "missingFeatures": [
-   "tempering-scaling",
-   "unparsed-clause",
-   "doom-condition"
-  ],
-  "skippedClauses": [
-   "每级回火 +4 点",
-   "如果他们使用紫色法力",
-   "则引爆 3 颗紫色宝石",
-   "如果敌人有毁灭之力，则恢复我四分之一的法力"
-  ]
+  "fidelity": "full",
+  "missingFeatures": [],
+  "skippedClauses": []
  },
  "9585": {
-  "fidelity": "partial",
-  "missingFeatures": [
-   "tempering-scaling",
-   "unparsed-clause",
-   "doom-condition"
-  ],
-  "skippedClauses": [
-   "每级回火 +4 点",
-   "如果他们使用棕色法力",
-   "则引爆 3 颗棕色宝石",
-   "如果敌人有毁灭之力，则恢复我四分之一的法力"
-  ]
+  "fidelity": "full",
+  "missingFeatures": [],
+  "skippedClauses": []
  },
  "9628": {
-  "fidelity": "partial",
-  "missingFeatures": [
-   "kingdom-target",
-   "kingdom-summon"
-  ],
-  "skippedClauses": [
-   "为所有 Dhrak-Zum 盟友赋予随机状态效果",
-   "召唤一支 Dhrak-Zum 部队"
-  ]
+  "fidelity": "full",
+  "missingFeatures": [],
+  "skippedClauses": []
  },
  "9629": {
   "fidelity": "partial",
@@ -4968,15 +3724,9 @@
   "skippedClauses": []
  },
  "9632": {
-  "fidelity": "partial",
-  "missingFeatures": [
-   "modifier-source",
-   "modifier-tag"
-  ],
-  "skippedClauses": [
-   "伤害值因暗石盟友的数量而增强",
-   "尾部增幅标签 [x3]（归属子句已略去或无法可靠挂载）"
-  ]
+  "fidelity": "full",
+  "missingFeatures": [],
+  "skippedClauses": []
  },
  "9633": {
   "fidelity": "full",
@@ -5019,15 +3769,9 @@
   "skippedClauses": []
  },
  "9689": {
-  "fidelity": "partial",
-  "missingFeatures": [
-   "modifier-source",
-   "modifier-tag"
-  ],
-  "skippedClauses": [
-   "伤害值因阿达纳盟友的数量而增强",
-   "尾部增幅标签 [x3]（归属子句已略去或无法可靠挂载）"
-  ]
+  "fidelity": "full",
+  "missingFeatures": [],
+  "skippedClauses": []
  },
  "9690": {
   "fidelity": "full",
@@ -5040,15 +3784,9 @@
   "skippedClauses": []
  },
  "9692": {
-  "fidelity": "partial",
-  "missingFeatures": [
-   "modifier-source",
-   "modifier-tag"
-  ],
-  "skippedClauses": [
-   "伤害值因流沙盟友的数量而增强",
-   "尾部增幅标签 [x3]（归属子句已略去或无法可靠挂载）"
-  ]
+  "fidelity": "full",
+  "missingFeatures": [],
+  "skippedClauses": []
  },
  "9693": {
   "fidelity": "full",
@@ -5138,73 +3876,45 @@
   "skippedClauses": []
  },
  "9825": {
-  "fidelity": "partial",
-  "missingFeatures": [
-   "tempering-scaling",
-   "doom-condition"
-  ],
-  "skippedClauses": [
-   "每级回火+2点",
-   "如果敌人拥有末日效果，则先破坏其护甲"
-  ]
+  "fidelity": "full",
+  "missingFeatures": [],
+  "skippedClauses": []
  },
  "9826": {
   "fidelity": "partial",
   "missingFeatures": [
-   "tempering-scaling",
-   "doom-condition"
+   "doom-condition",
+   "unparsed-clause"
   ],
   "skippedClauses": [
-   "每级回火+2点",
-   "如果敌人拥有末日效果，则优先破坏其护甲"
+   "如果敌人拥有末日效果",
+   "则优先破坏其护甲"
   ]
  },
  "9827": {
   "fidelity": "partial",
   "missingFeatures": [
-   "tempering-scaling",
-   "unparsed-clause",
-   "doom-condition"
+   "unparsed-clause"
   ],
   "skippedClauses": [
-   "每级回火+2点",
    "如果敌人使用了红色法力",
-   "则使其流血",
-   "如果敌人拥有末日效果，则先破坏其护甲"
+   "则使其流血"
   ]
  },
  "9828": {
-  "fidelity": "partial",
-  "missingFeatures": [
-   "tempering-scaling",
-   "doom-condition"
-  ],
-  "skippedClauses": [
-   "每级回火+2点",
-   "如果敌人拥有末日效果，则先破坏其护甲"
-  ]
+  "fidelity": "full",
+  "missingFeatures": [],
+  "skippedClauses": []
  },
  "9829": {
-  "fidelity": "partial",
-  "missingFeatures": [
-   "tempering-scaling",
-   "doom-condition"
-  ],
-  "skippedClauses": [
-   "每级回火+2点",
-   "如果敌人拥有末日效果，则先破坏其护甲"
-  ]
+  "fidelity": "full",
+  "missingFeatures": [],
+  "skippedClauses": []
  },
  "9830": {
-  "fidelity": "partial",
-  "missingFeatures": [
-   "tempering-scaling",
-   "doom-condition"
-  ],
-  "skippedClauses": [
-   "每级回火+2点",
-   "如果敌人拥有末日效果，则先破坏其护甲"
-  ]
+  "fidelity": "full",
+  "missingFeatures": [],
+  "skippedClauses": []
  },
  "9831": {
   "fidelity": "partial",
@@ -5217,15 +3927,9 @@
   ]
  },
  "9832": {
-  "fidelity": "partial",
-  "missingFeatures": [
-   "kingdom-target",
-   "kingdom-summon"
-  ],
-  "skippedClauses": [
-   "随机赋予所有扎金盟友一个状态效果",
-   "召唤一个扎金部队"
-  ]
+  "fidelity": "full",
+  "missingFeatures": [],
+  "skippedClauses": []
  },
  "9833": {
   "fidelity": "full",
@@ -5238,15 +3942,9 @@
   "skippedClauses": []
  },
  "9835": {
-  "fidelity": "partial",
-  "missingFeatures": [
-   "kingdom-target",
-   "kingdom-summon"
-  ],
-  "skippedClauses": [
-   "随机赋予所有日冠盟友一个状态效果",
-   "召唤一支日冠部队"
-  ]
+  "fidelity": "full",
+  "missingFeatures": [],
+  "skippedClauses": []
  },
  "9836": {
   "fidelity": "full",
@@ -5269,16 +3967,9 @@
   "skippedClauses": []
  },
  "9876": {
-  "fidelity": "partial",
-  "missingFeatures": [
-   "kingdom-count",
-   "modifier-source",
-   "modifier-tag"
-  ],
-  "skippedClauses": [
-   "受到地狱峭壁盟友的加成",
-   "尾部增幅标签 [x3]（归属子句已略去或无法可靠挂载）"
-  ]
+  "fidelity": "full",
+  "missingFeatures": [],
+  "skippedClauses": []
  },
  "9902": {
   "fidelity": "full",
@@ -5309,13 +4000,9 @@
   ]
  },
  "9911": {
-  "fidelity": "partial",
-  "missingFeatures": [
-   "kingdom-target"
-  ],
-  "skippedClauses": [
-   "使所有暗石盟友获得1点攻击力和生命值"
-  ]
+  "fidelity": "full",
+  "missingFeatures": [],
+  "skippedClauses": []
  },
  "9912": {
   "fidelity": "full",
@@ -5328,13 +4015,9 @@
   "skippedClauses": []
  },
  "9914": {
-  "fidelity": "partial",
-  "missingFeatures": [
-   "kingdom-target"
-  ],
-  "skippedClauses": [
-   "使所有狐狸族盟友获得1点攻击力和生命值"
-  ]
+  "fidelity": "full",
+  "missingFeatures": [],
+  "skippedClauses": []
  },
  "9915": {
   "fidelity": "full",
@@ -5372,16 +4055,9 @@
   "skippedClauses": []
  },
  "9974": {
-  "fidelity": "partial",
-  "missingFeatures": [
-   "kingdom-count",
-   "modifier-source",
-   "modifier-tag"
-  ],
-  "skippedClauses": [
-   "受到德拉克-祖姆盟友的加成",
-   "尾部增幅标签 [x3]（归属子句已略去或无法可靠挂载）"
-  ]
+  "fidelity": "full",
+  "missingFeatures": [],
+  "skippedClauses": []
  },
  "9975": {
   "fidelity": "full",
@@ -5425,56 +4101,24 @@
   ]
  },
  "10003": {
-  "fidelity": "partial",
-  "missingFeatures": [
-   "tempering-scaling",
-   "unparsed-clause",
-   "doom-condition"
-  ],
-  "skippedClauses": [
-   "每提升一级强化等级额外增加3点",
-   "随机给予一名盟友1点技能点数，每提升一级强化等级额外增加3点",
-   "如果敌人带有厄运效果，则获得额外回合"
-  ]
+  "fidelity": "full",
+  "missingFeatures": [],
+  "skippedClauses": []
  },
  "10005": {
-  "fidelity": "partial",
-  "missingFeatures": [
-   "tempering-scaling",
-   "unparsed-clause",
-   "doom-condition"
-  ],
-  "skippedClauses": [
-   "每提升一级强化等级额外增加3点",
-   "随机给予一名盟友1点技能点数，每提升一级强化等级额外增加3点",
-   "如果敌人带有厄运效果，则获得额外回合"
-  ]
+  "fidelity": "full",
+  "missingFeatures": [],
+  "skippedClauses": []
  },
  "10006": {
-  "fidelity": "partial",
-  "missingFeatures": [
-   "tempering-scaling",
-   "unparsed-clause",
-   "doom-condition"
-  ],
-  "skippedClauses": [
-   "每提升一级强化等级额外增加3点",
-   "随机给予一名盟友1点技能点数，每提升一级强化等级额外增加3点",
-   "如果敌人带有厄运效果，则获得额外回合"
-  ]
+  "fidelity": "full",
+  "missingFeatures": [],
+  "skippedClauses": []
  },
  "10008": {
-  "fidelity": "partial",
-  "missingFeatures": [
-   "tempering-scaling",
-   "unparsed-clause",
-   "doom-condition"
-  ],
-  "skippedClauses": [
-   "每提升一级强化等级额外增加3点",
-   "随机给予一名盟友1点技能点数，每提升一级强化等级额外增加3点",
-   "如果敌人带有厄运效果，则获得额外回合"
-  ]
+  "fidelity": "full",
+  "missingFeatures": [],
+  "skippedClauses": []
  },
  "10015": {
   "fidelity": "full",
@@ -5496,16 +4140,9 @@
   "skippedClauses": []
  },
  "10047": {
-  "fidelity": "partial",
-  "missingFeatures": [
-   "kingdom-count",
-   "modifier-source",
-   "modifier-tag"
-  ],
-  "skippedClauses": [
-   "受到荆棘森林盟友的加成",
-   "尾部增幅标签 [x3]（归属子句已略去或无法可靠挂载）"
-  ]
+  "fidelity": "full",
+  "missingFeatures": [],
+  "skippedClauses": []
  },
  "10048": {
   "fidelity": "full",
@@ -5518,13 +4155,9 @@
   "skippedClauses": []
  },
  "10050": {
-  "fidelity": "partial",
-  "missingFeatures": [
-   "kingdom-target"
-  ],
-  "skippedClauses": [
-   "使所有流沙盟军获得1点攻击力和生命值"
-  ]
+  "fidelity": "full",
+  "missingFeatures": [],
+  "skippedClauses": []
  },
  "10063": {
   "fidelity": "mana-only",
