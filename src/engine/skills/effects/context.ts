@@ -104,6 +104,13 @@ export interface EffectContext {
    */
   resolveSummonRef?: (referenceName: string) => import('./summon').SummonTemplate | null;
   /**
+   * 王国 → 该王国兵种 referenceName 清单 的映射器（武器原语批 K-E，「召唤一名来自X王国的
+   * 随机部队」）：由装配层注入（来自 troops.json kingdom 字段）。召唤段 randomOfKingdom
+   * 来源用它先取候选集再种子化掷选（随后仍经 resolveSummonRef 解析属性）；
+   * 缺省时该来源安全跳过（同 resolveSummonRef 的缺省口径）。
+   */
+  resolveKingdomSummonRefs?: (kingdom: string) => string[] | null;
+  /**
    * 单次施法的跨段追踪（五机制：二次缩放来源 / 段间死亡条件）。
    * executePrototype 进入段循环前创建；缺省（纯原语单测）时相关来源按 0 计、
    * ifTargetDied 段按条件不成立跳过。

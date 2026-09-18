@@ -19,7 +19,7 @@ import type { TargetMode } from './targeting';
 import type { DamageRange } from './effects/damage';
 import type { BuffStat } from './effects/buff';
 import type { ReduceStat } from './effects/debuff';
-import type { ModifierSpec } from './effects/secondary';
+import type { ModifierSpec, ModifierSource, Condition } from './effects/secondary';
 import type { ColorSpec, ClearTarget, ClearGemParams, CreateGemParams, TransformFrom } from './effects/gems';
 import type { SummonSource, SummonTemplate } from './effects/summon';
 import type {
@@ -84,6 +84,8 @@ export interface SegmentOpts {
   condBonus?: { n: number; cond: import('./effects/secondary').Condition };
   /** 种族限定目标：只作用于 troopTypes 含该族的目标（「所有恶魔盟友」） */
   targetRace?: string;
+  /** 王国限定目标（武器原语批 K-E）：只作用于 kingdom 匹配的目标（「对所有来自阿达纳的敌人…」） */
+  targetKingdom?: string;
 }
 
 /** 把公共选项拷到段上（仅写出现的字段，保持序列化确定性） */
@@ -100,6 +102,7 @@ function attach<T extends object>(seg: T, opts?: SegmentOpts): T {
   if (opts.ifCond !== undefined) s.ifCond = opts.ifCond;
   if (opts.condBonus !== undefined) s.condBonus = opts.condBonus;
   if (opts.targetRace !== undefined) (s as { targetRace?: string }).targetRace = opts.targetRace;
+  if (opts.targetKingdom !== undefined) (s as { targetKingdom?: string }).targetKingdom = opts.targetKingdom;
   return seg;
 }
 
@@ -614,6 +617,19 @@ export function summonTemplate(template: SummonTemplate, troopId?: number): Summ
   return { kind: 'summon', params: { source } };
 }
 
+/**
+ * 按王国随机召唤（武器原语批 K-E，「召唤一名来自X王国的随机部队」）：执行期经
+ * 注入的王国兵册解析器取该王国的 referenceName 清单（troops.json kingdom 字段口径，
+ * TurnEngine.setSummonKingdomResolver 注入），再种子化掷选一名召唤——官方语义 =
+ * 整个王国兵册均匀随机。清单为空/解析器缺省 → 整段安全跳过（零随机消耗）。
+ */
+export function summonRandomOfKingdom(kingdom: string, troopId?: number, opts?: SegmentOpts & { countRange?: { min: number; max: number } }): SummonSegment {
+  const source: SummonSource = troopId !== undefined
+    ? { randomOfKingdom: kingdom, troopId }
+    : { randomOfKingdom: kingdom };
+  return attach({ kind: 'summon', params: { source, countRange: opts?.countRange } } as SummonSegment, opts);
+}
+
 // —— 其它 ——
 
 /** 获得额外回合（可带死亡条件：「如果敌人身亡，则获得一个额外回合」） */
@@ -706,6 +722,68 @@ export function reposition(target: TargetMode, to: 'front' | 'back', opts?: Segm
 /** 队伍乱序（「打乱敌方队伍」）：整队种子化重排 */
 export function shuffleTeam(side: 'ally' | 'enemy', opts?: SegmentOpts): ShuffleTeamSegment {
   return attach({ kind: 'shuffleTeam', side }, opts);
+}
+
+// —— 武器法术原语批（窗口 K-E，生成器下一轮按名字消费） ——
+
+/**
+ * 通用计数来源增幅（「因X数量而增强 [xN]」）：ModifierSpec = multiplier a × 来源计数，
+ * 计数为 0 时增项为 0（multiplier 路径早退）。来源取值域见
+ * effects/secondary.ts 的 ModifierSource（destroyedGems/boardGems/alliesOfColor/…）。
+ */
+export function boostPer(source: ModifierSource, a: number): ModifierSpec {
+  return { mod: { kind: 'multiplier', a }, source };
+}
+
+/**
+ * 淬炼段位增幅（官方 Doomed 档武器族 76 把「+N per Tempering level / 每锻炼 1 个武器
+ * 段位则 +N」）：计数来源 = 施法者（主角）的 `Character.temperingLevel`（缺省 0）。
+ * 「Deal [Magic + 10] scatter damage, +4 per Tempering level」=
+ * dmg(…, 10, 1, { modifier: temperingBoost(4) })——level 2 → +8、level 0 → 增项为 0。
+ */
+export function temperingBoost(a: number): ModifierSpec {
+  return boostPer({ kind: 'tempering' }, a);
+}
+
+/** 敌方色计数增幅（「因X色敌人数而增强 [xN]」，来源 enemiesOfColor） */
+export function enemiesOfColorBoost(color: BaseColor, a: number): ModifierSpec {
+  return boostPer({ kind: 'enemiesOfColor', color }, a);
+}
+
+/** 敌方种族计数增幅（「因X族敌人数而增强 [xN]」，来源 enemiesOfRace，K-E 批新增） */
+export function enemiesOfRaceBoost(race: string, a: number): ModifierSpec {
+  return boostPer({ kind: 'enemiesOfRace', race }, a);
+}
+
+/** 王国盟友计数增幅（「因X王国盟友数量而增强 [xN]」，来源 alliesOfKingdom） */
+export function alliesOfKingdomBoost(kingdom: string, a: number): ModifierSpec {
+  return boostPer({ kind: 'alliesOfKingdom', kingdom }, a);
+}
+
+/** 王国敌人计数增幅（「因来自X王国的敌人数量而增强 [xN]」，来源 enemiesOfKingdom） */
+export function enemiesOfKingdomBoost(kingdom: string, a: number): ModifierSpec {
+  return boostPer({ kind: 'enemiesOfKingdom', kingdom }, a);
+}
+
+/**
+ * 敌方拥有劫数（官方 Doomed 档武器族「If the Enemy has a Doom / 如果敌方有劫数，
+ * 则再增加 N 点」）：条件 kind targetHasDoom——敌方存活者中存在 TroopType 'Doom'
+ * 的劫数部队（troops.json 考证见 effects/secondary.ts）。全局条件，配 opts.condBonus /
+ * opts.condMult / opts.ifCond 消费：「Give 3 Magic to all Allies, if the Enemy has a
+ * Doom, give 5 more」= magic('allyAll', 3, 0, { condBonus: { n: 5, cond: enemyHasDoom() } })。
+ */
+export function enemyHasDoom(): Condition {
+  return { kind: 'targetHasDoom' };
+}
+
+/**
+ * 战斗发生在指定王国（官方「战斗发生在X王国时…」条件族）：条件 kind kingdomPresent，
+ * 读战斗上下文 GameState.kingdom（BattleRequest.kingdom → createGameState opts 注入；
+ * 探索/入侵 = 当前王国、竞技场 = null）。缺省/null → 恒为假。全局条件，配
+ * opts.ifCond / opts.condMult / opts.condBonus 消费。
+ */
+export function kingdomPresent(kingdom: string): Condition {
+  return { kind: 'kingdomPresent', kingdom };
 }
 
 /** once-per-battle 原型（「此咒语只能使用一次」）：本场重复释放会被引擎拒绝（不占号） */

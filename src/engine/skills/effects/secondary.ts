@@ -39,6 +39,9 @@ export type ModifierSource =
   | { kind: 'teamSize'; side: 'ally' | 'enemy' }
   /** 施法方指定种族的存活盟友数 */
   | { kind: 'alliesOfRace'; race: string }
+  /** 敌方指定种族的存活敌人数（武器原语批 K-E，「因恶魔敌人数而增强」；与 alliesOfRace 对称，
+   *  敌方侧形态补齐——enemiesOfColor 的种族版） */
+  | { kind: 'enemiesOfRace'; race: string }
   /** 施法方指定王国的存活盟友数（原语 Wave4 批，「因 Dhrak-Zum 盟友数量而增强」；
    *  与 alliesOfRace 对称，按 Character.kingdom 筛选） */
   | { kind: 'alliesOfKingdom'; kingdom: string }
@@ -86,7 +89,15 @@ export type ModifierSource =
   /** 战场经济池当前灵魂总数（「因本战斗收集的灵魂数而增强」） */
   | { kind: 'battleSouls' }
   /** 战场经济池当前宝石（钻石）总数 */
-  | { kind: 'battleGems' };
+  | { kind: 'battleGems' }
+  /**
+   * 淬炼段位（武器原语批 K-E，官方 Doomed 档武器族「+N per Tempering level」）：
+   * 施法者（主角）的 `Character.temperingLevel`（缺省 0）。「Deal [Magic + 10] scatter
+   * damage, +4 per Tempering level」= 淬炼段 modifier `{ kind: 'multiplier', a: 4 }` ×
+   * 本来源——level 2 → +8；level 0 / 缺省 → 增项为 0（multiplier 路径 count=0 早退）。
+   * meta 层淬炼系统接入前恒按 0 计，既有对局数值不变。
+   */
+  | { kind: 'tempering' };
 
 /** 二次缩放规格：解析出的 [xN]/[N:M] + 来源，段定义里以纯数据存在（可 JSON 化） */
 export interface ModifierSpec {
@@ -101,6 +112,13 @@ export interface ModifierSpec {
 export function hasTroopType(char: Character, race: string): boolean {
   return (char.troopTypes ?? []).includes(race);
 }
+
+/**
+ * 劫数部队的专属 TroopType（武器原语批 K-E 考证）：troops.json 中仅 6 名劫数部队
+ * （寒冰/自然/火焰/光明/暗黑/岩石劫数，DoomOfIce~DoomOfStone）携带该类型值，
+ * 官方武器法术「if the Enemy has a Doom」按它判定（见 Condition targetHasDoom 注释）。
+ */
+export const DOOM_TROOP_TYPE = 'Doom';
 
 /** 种族条件倍数：raceDouble 段的放大倍率（默认 ×2，「翻 3 倍」= 3） */
 export const DEFAULT_RACE_DOUBLE = 2;
@@ -181,7 +199,25 @@ export type Condition =
    * （enemyRacePresent 的王国版，全局条件整段判定；Character.kingdom 缺省者不属于
    * 任何王国，恒不匹配）。
    */
-  | { kind: 'kingdomOf'; side: 'ally' | 'enemy'; kingdom: string };
+  | { kind: 'kingdomOf'; side: 'ally' | 'enemy'; kingdom: string }
+  /**
+   * 敌方拥有劫数（武器原语批 K-E，官方 Doomed 档武器族 76 把的
+   * 「if the Enemy has a Doom / 如果敌方有劫数，则再增加 N 点」条件）。
+   * 考证结论（troops.json × gowhead 官方数据）：「劫数/Doom」是**兵种属性**——
+   * troops.json 中 6 名劫数部队（寒冰/自然/火焰/光明/暗黑/岩石劫数，DoomOfIce~DoomOfStone）
+   * 均带专属 `troopTypes: ['Doom']`，官方法术语义 = 敌方队伍里编有劫数部队，
+   * **不是战斗内标记**（trait code:'doom'「末日」是对死亡标记目标的双倍骷髅伤，另一机制）。
+   * 故按目标侧模板判定：敌方存活者中存在 troopTypes 含 'Doom' 即真（全局条件整段判定，
+   * = enemyRacePresent race 'Doom' 的专名形态，生成器按 kind 名消费）。
+   */
+  | { kind: 'targetHasDoom' }
+  /**
+   * 战斗发生在指定王国（武器原语批 K-E，官方「战斗发生在X王国时…」条件族）：
+   * 读战斗上下文 `GameState.kingdom`（经 BattleRequest.kingdom → createGameState opts 注入；
+   * 探索/入侵 = 当前王国、竞技场 = null）。字段缺省或为 null（旧请求/竞技场口径）时恒为假，
+   * 条件 kingdom 需与之严格相等。全局条件整段判定。
+   */
+  | { kind: 'kingdomPresent'; kingdom: string };
 
 export interface CondMult {
   times: number;
@@ -323,6 +359,19 @@ export function conditionMet(
         (c) => !c.defeated && c.kingdom === cond.kingdom,
       );
     }
+    case 'targetHasDoom': {
+      // 敌方拥有劫数（K-E 批，考证见 Condition 定义处）：敌方存活者存在 TroopType 'Doom'。
+      const mySide = findSide(ctx.state, ctx.casterId);
+      if (mySide === null) return false;
+      const enemySide = mySide === PlayerSide.Left ? PlayerSide.Right : PlayerSide.Left;
+      return ctx.state.teams[enemySide].characters.some(
+        (c) => !c.defeated && hasTroopType(c, DOOM_TROOP_TYPE),
+      );
+    }
+    case 'kingdomPresent':
+      // 战斗发生在指定王国（K-E 批）：战斗上下文 kingdom 严格相等才真；
+      // 字段缺省/null（旧请求、竞技场）→ 恒假（用户裁定口径）。
+      return ctx.state.kingdom === cond.kingdom;
     default: {
       const _exhaustive: never = cond;
       return _exhaustive;
@@ -448,6 +497,13 @@ export function resolveModifierCount(source: ModifierSource, ctx: EffectContext)
       if (side === null) return 0;
       return ctx.state.teams[side].characters.filter((c) => !c.defeated && hasTroopType(c, source.race)).length;
     }
+    case 'enemiesOfRace': {
+      // 敌方该种族存活计数（K-E 批，与 alliesOfRace 对称、敌方侧形态补齐）
+      const side = findSide(ctx.state, ctx.casterId);
+      if (side === null) return 0;
+      const enemySide = side === 'Left' ? 'Right' : 'Left';
+      return ctx.state.teams[enemySide].characters.filter((c) => !c.defeated && hasTroopType(c, source.race)).length;
+    }
     case 'alliesOfKingdom': {
       // 施法方该王国存活盟友数（Wave4 批，与 alliesOfRace 对称，按 kingdom 筛选）
       const side = findSide(ctx.state, ctx.casterId);
@@ -523,6 +579,12 @@ export function resolveModifierCount(source: ModifierSource, ctx: EffectContext)
       return tracking?.lastReduce?.amount ?? 0;
     case 'battleGems':
       return ctx.state.economy.gems;
+    case 'tempering':
+      // 淬炼段位（K-E 批）：施法者（主角）的 temperingLevel，缺省按 0 计（增项为 0）。
+      {
+        const caster = findCharacter(ctx.state, ctx.casterId);
+        return Math.max(0, caster?.temperingLevel ?? 0);
+      }
     default: {
       const _exhaustive: never = source;
       return _exhaustive;

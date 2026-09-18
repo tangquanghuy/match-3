@@ -90,6 +90,8 @@ export interface DamageSegment extends SegmentOptions {
   nRange?: NRangeSpec;
   /** 种族限定目标：只作用于 troopTypes 含该族的目标（「所有恶魔盟友」） */
   targetRace?: string;
+  /** 王国限定目标（武器原语批 K-E）：只作用于 kingdom 匹配的目标（「对所有来自阿达纳的敌人…」） */
+  targetKingdom?: string;
   /** 二次缩放（[xN]/[N:M] + 来源），叠加在基础数值上（五机制之一） */
   modifier?: ModifierSpec;
   /** 种族条件翻倍：受击者 troopTypes 含该族时其所受伤害 ×2（五机制之五） */
@@ -121,6 +123,8 @@ export interface BuffSegment extends SegmentOptions {
   nRange?: NRangeSpec;
   /** 种族限定目标（「所有恶魔盟友」） */
   targetRace?: string;
+  /** 王国限定目标（武器原语批 K-E，「给予所有白盔国盟友…」） */
+  targetKingdom?: string;
   /** 全额治疗（stat='hp' 且 full：恢复全部生命，「恢复所有生命值」） */
   full?: boolean;
   /** 比例获得（仅 stat='mana'）：「获得半数法力值」= 获得 floor(manaCost/2) */
@@ -164,6 +168,8 @@ export interface ReduceSegment extends SegmentOptions {
   halve?: boolean;
   /** 种族限定目标 */
   targetRace?: string;
+  /** 王国限定目标（武器原语批 K-E） */
+  targetKingdom?: string;
   /** 二次缩放（如「数值因被摧毁的棕色宝石而增强 [1:1]」） */
   modifier?: ModifierSpec;
   /** 种族条件翻倍 */
@@ -172,7 +178,7 @@ export interface ReduceSegment extends SegmentOptions {
   raceTimes?: number;
   /** 条件倍率（「如果敌人是X族/使用X色法力/已陷入X状态，则数值 ×N」） */
   condMult?: import('./effects/secondary').CondMult;
-  /** 条件加成（「若…则增加 N 点」，加算；叠加顺序见 SOP） */
+  /** 条件加成（「若…则增加 N 点」，加算） */
   condBonus?: import('./effects/secondary').CondBonus;
 }
 
@@ -192,6 +198,8 @@ export interface RandomStatSegment extends SegmentOptions {
   nRange?: NRangeSpec;
   /** 种族限定目标 */
   targetRace?: string;
+  /** 王国限定目标（武器原语批 K-E） */
+  targetKingdom?: string;
   /** 二次缩放（「点数因…而增强」） */
   modifier?: ModifierSpec;
   /** 种族条件翻倍 */
@@ -218,6 +226,8 @@ export interface StatusSegment extends SegmentOptions {
   nRange?: NRangeSpec;
   /** 种族限定目标（「所有恶魔盟友」） */
   targetRace?: string;
+  /** 王国限定目标（武器原语批 K-E） */
+  targetKingdom?: string;
   /**
    * 逐颗宝石驱动施加（原语 Wave4 批，官方 7463/9287/8804 的
    * InflictEffectOnRandomTroops + UseCounterForAmount 步骤）：给出时施加编排改为
@@ -236,6 +246,8 @@ export interface CleanseSegment extends SegmentOptions {
   nRange?: NRangeSpec;
   /** 种族限定目标 */
   targetRace?: string;
+  /** 王国限定目标（武器原语批 K-E） */
+  targetKingdom?: string;
 }
 
 /**
@@ -251,6 +263,8 @@ export interface DispelSegment extends SegmentOptions {
   nRange?: NRangeSpec;
   /** 种族限定目标 */
   targetRace?: string;
+  /** 王国限定目标（武器原语批 K-E） */
+  targetKingdom?: string;
 }
 
 /** 创造风暴段（引擎原语批）：施法方获得风暴（全场唯一/顶替裁定与 TurnEngine 共用） */
@@ -397,7 +411,7 @@ export function fallbackPrototype(): SkillPrototype {
 
 /** 为需要目标选择的段解析目标 */
 function resolveTargets(
-  segment: { target: TargetMode; n?: number; nRange?: NRangeSpec; targetRace?: string; ifCond?: import('./effects/secondary').Condition },
+  segment: { target: TargetMode; n?: number; nRange?: NRangeSpec; targetRace?: string; targetKingdom?: string; ifCond?: import('./effects/secondary').Condition },
   ctx: EffectContext,
   overrideMode?: TargetMode,
 ): Character[] {
@@ -420,6 +434,11 @@ function resolveTargets(
   // 种族限定目标：命中不了的段整体跳过（空列表由调用方安全跳过）
   if (segment.targetRace) {
     result = result.filter((c) => (c.troopTypes ?? []).includes(segment.targetRace!));
+  }
+  // 王国限定目标（武器原语批 K-E，「给予所有白盔国盟友…」）：按目标模板的 kingdom 字段
+  // 过滤（Character.kingdom 缺省者不属于任何王国，恒不命中）；全不命中 → 段整体跳过。
+  if (segment.targetKingdom) {
+    result = result.filter((c) => c.kingdom === segment.targetKingdom);
   }
   // 通用条件（目标相对类）：按该段自己的目标逐个过滤（「如果敌人已被冻结，则窃取…」）
   if (segment.ifCond && isTargetCondition(segment.ifCond)) {
