@@ -434,6 +434,26 @@ export interface TraitDefinition {
   turnStartChanceGain?: { chance: number; stat: PassiveStat; amount: number };
   /** 造成骷髅伤害时按概率猎杀末位敌人（职业天赋 assassinate「造成骷髅头伤害时，10% 猎杀最后一名敌人」） */
   onSkullHitKill?: { chance: number; scope: 'lastEnemy' };
+  // —— R22 吞噬批（TurnEngine 消费，复用 skills/effects/devour 的 devourEffect 原语：
+  //  即杀走 damageOne 伤害管线 + 官方成长额度 +2/+2/+2/+5，吞噬免疫在原语口整体跳过）——
+  /**
+   * 造成骷髅伤害时按概率吞噬本次受击目标（voracious 贪食「在造成骷髅头伤害时有 5% 的几率
+   * 吞噬敌人」）。消费在 TurnEngine 骷髅结算后（applySkullDevourTriggers）：闪避/屏障/挣扎
+   * 落空不产 skull-damage 事件、天然不触发；目标已亡/吞噬免疫由原语跳过（免疫不耗 rng）。
+   */
+  onSkullHitDevour?: { chance: number };
+  /**
+   * 承受骷髅伤害时按概率吞噬攻击者（consumefuel 消耗燃料「头骨受到伤害时有 10% 的几率吞噬
+   * 第一个敌人」——持有者受骷髅伤害时攻击者即敌方队首，引擎口径取本次攻击者；攻击者已亡
+   * （如被反弹反杀）不触发）。触发点与 onSkullHitDevour 同点反向。
+   */
+  onSkullDamagedDevour?: { chance: number };
+  /**
+   * 敌方角色阵亡时按概率吞噬死者一方**随机一名**存活（bloodyfeast 血腥盛宴「若敌人死亡，
+   * 则有 20% 的几率吞噬该随机敌人」）。消费在 processDeathTriggers（与 applyEnemyDeathTriggers
+   * 同时机、死者经出编队天然排除），随机目标经同一条种子化 rng。
+   */
+  onEnemyDeathDevour?: { chance: number };
   /** 自己回合开始时施加状态（职业天赋 wrathofanu 击晕随机敌 / getbehindme 屏障随机盟友 /
    *  ancientmysteries 随机盟友随机正面状态；接线批 tidalking 自身下潜 / blessedwaters 赐福
    *  全体盟友 / curseofdamnation 诅咒全体敌人 / sunflare·burningembers 燃烧随机敌）。
@@ -1128,6 +1148,17 @@ export function resolvePassives(
     }
     if (trait.onSkullHitKill && passive.onSkullHitKill === undefined) {
       passive.onSkullHitKill = { ...trait.onSkullHitKill };
+    }
+    // 吞噬触发（R22 批 voracious/consumefuel/bloodyfeast）：同字段取先声明的一条
+    //（与 onSkullHitKill 单值触发族同口径）
+    if (trait.onSkullHitDevour && passive.onSkullHitDevour === undefined) {
+      passive.onSkullHitDevour = { ...trait.onSkullHitDevour };
+    }
+    if (trait.onSkullDamagedDevour && passive.onSkullDamagedDevour === undefined) {
+      passive.onSkullDamagedDevour = { ...trait.onSkullDamagedDevour };
+    }
+    if (trait.onEnemyDeathDevour && passive.onEnemyDeathDevour === undefined) {
+      passive.onEnemyDeathDevour = { ...trait.onEnemyDeathDevour };
     }
     // 战后经济加成（merchant/necromancy 族）：同类比率累加（与增益类"累加"口径一致）。
     if (trait.battleEconomyGain) {

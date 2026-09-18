@@ -13,6 +13,7 @@ import { tickTeamStatuses, canCastSkill, applyStatus, canGainMana, WEB_STATUS_ID
   hasStatus, ENCHANTED_STATUS_ID } from './skills/effects/status';
 import { executePrototype } from './skills/prototypes';
 import { damageOne } from './skills/effects/damage';
+import { devourEffect } from './skills/effects/devour';
 import { applyBuffGain } from './skills/effects/buff';
 import { applyStormToTeam } from './skills/effects/storm';
 import type { EffectContext, DestroyedGem } from './skills/effects/context';
@@ -197,6 +198,54 @@ export class TurnEngine {
     target.defeated = true;
     return resolveDefeatEvents(this.state, [{ type: 'defeat', characterId: target.id }]);
   };
+
+  /**
+   * 特质吞噬口（R22 吞噬批 voracious/consumefuel/bloodyfeast）：复用技能吞噬原语
+   * devourEffect（即杀走 damageOne 伤害管线 + 官方成长额度 2/2/2/+5；吞噬免疫在原语口
+   * 整体跳过——不杀、不成长、不耗 rng；概率在原语内部经同一条种子化 rng 掷签），defeat
+   * 事件统一经 resolveDefeatEvents 出编队（召唤队列顶替照常，与 traitDamage 同口径）。
+   * 目标列表由调用方解析（命中侧=受击目标 / 受击侧=攻击者 / 敌亡侧=随机存活）；
+   * 无新键特质不会被调到，零事件、零随机消耗护栏不破坏。
+   */
+  private readonly traitDevour = (caster: Character, targets: Character[], chance: number): GameEvent[] => {
+    const produced = devourEffect({ targets, chance }).apply({
+      state: this.state,
+      casterId: caster.id,
+      rng: this.rng,
+      nextGemId: this.nextGemId,
+    });
+    return resolveDefeatEvents(this.state, produced);
+  };
+
+  /**
+   * 骷髅命中/受击的吞噬触发（R22 吞噬批 voracious「在造成骷髅头伤害时有 5% 的几率吞噬
+   * 敌人」+ consumefuel「头骨受到伤害时有 10% 的几率吞噬第一个敌人」）：从骷髅结算事件取
+   * 首条 skull-damage（主结算事件——闪避/屏障/挣扎落空不产事件、天然不触发；后续的反弹
+   * 事件不算「攻击命中」），命中侧=攻击者吞受击目标、受击侧=受击者吞攻击者（攻击者已亡、
+   * 目标已亡或吞噬免疫由原语/存活检查跳过）。无新键特质不进此路径，零消耗。
+   */
+  private applySkullDevourTriggers(produced: GameEvent[]): GameEvent[] {
+    const events: GameEvent[] = [];
+    const hit = produced.find(
+      (e): e is GameEvent & { type: 'skull-damage'; attackerId: number; targetId: number } =>
+        e.type === 'skull-damage',
+    );
+    if (!hit) return events;
+    const attacker = this.state.teams[PlayerSide.Left].characters.find((c) => c.id === hit.attackerId)
+      ?? this.state.teams[PlayerSide.Right].characters.find((c) => c.id === hit.attackerId);
+    const target = this.state.teams[PlayerSide.Left].characters.find((c) => c.id === hit.targetId)
+      ?? this.state.teams[PlayerSide.Right].characters.find((c) => c.id === hit.targetId);
+    if (!attacker || attacker.defeated || !target || target.defeated) return events;
+    // 命中侧（voracious）：攻击者吞噬本次受击目标
+    const hitSpec = passivesOf(attacker).onSkullHitDevour;
+    if (hitSpec) events.push(...this.traitDevour(attacker, [target], hitSpec.chance));
+    // 受击侧（consumefuel）：受击者吞噬攻击者——攻击者已被命中侧吞掉则不再触发
+    if (!target.defeated && !attacker.defeated) {
+      const damagedSpec = passivesOf(target).onSkullDamagedDevour;
+      if (damagedSpec) events.push(...this.traitDevour(target, [attacker], damagedSpec.chance));
+    }
+    return events;
+  }
 
   constructor(
     private state: GameState,
@@ -948,6 +997,9 @@ export class TurnEngine {
       // 惰性经济）：从本次结算的 skull-damage 事件取实际受击目标——落空不产事件，天然与
       // gainOnDamaged「落空不触发」同口径；每次受击各自掷签（概率经同一条 rng）。
       events.push(...this.applyDamagedTriggersFromEvents(outcome.events));
+      // 骷髅命中/受击的吞噬触发（R22 吞噬批 voracious 命中吞目标 / consumefuel 受击吞攻击者）：
+      // 与受击钩子同一触发时机（主结算 skull-damage 事件之后），defeat 经出编队管线。
+      events.push(...this.applySkullDevourTriggers(outcome.events));
       // 配对骷髅触发（diamondaura/powerofstars 配色光环、rancor 敌方触发、darkensouls
       // 条件经济）：在骷髅伤害结算之后触发，避免同一次命中被本次新增的护甲/生命减免——
       // 炸毁骷髅（settleExplodedSkulls）不算「配对」，不在此列。rng/applyStatus 同配色点
@@ -1566,6 +1618,9 @@ export class TurnEngine {
       // 传入 rng：闪避特质（敏捷/轻巧）需要随机判定，且必须走同一条确定性随机源
       const outcome = this.combat.resolveSkullDamage(activeTeam, enemyTeam, count, this.rng);
       events.push(...resolveDefeatEvents(this.state, outcome.events));
+      // 骷髅命中/受击的吞噬触发（R22 吞噬批）：与 applyGroupEffects 骷髅口同款（技能炸毁
+      // 的骷髅也算「在造成骷髅头伤害时」，官方命中类特质同口径）。
+      events.push(...this.applySkullDevourTriggers(outcome.events));
       // 配对骷髅触发（diamondaura/powerofstars/rancor/darkensouls 族），在伤害结算之后（同 applyGroupEffects 口径）
       events.push(...applyColorMatchTriggers(activeTeam.characters, 'skull', {
         enemyTeam: enemyTeam.characters,
@@ -1853,6 +1908,19 @@ export class TurnEngine {
         this.state.teams[side].characters,
         { applyStatus, rng: this.rng, kill: this.traitKill },
       ));
+      // 敌亡吞噬（R22 吞噬批 bloodyfeast「若敌人死亡，则有 20% 的几率吞噬该随机敌人」）：
+      // 持有者=死者对方阵营的存活角色（与 applyEnemyDeathTriggers 同时机同持有者范围），
+      // 目标=死者一方仍存活的随机一名（死者已出编队天然排除）。随机目标与吞噬概率各经
+      // 同一条种子化 rng；吞噬免疫在原语口整体跳过。无新键特质不进此路径（零消耗）。
+      for (const holder of this.state.teams[opponentOf(side)].characters) {
+        if (holder.defeated) continue;
+        const spec = passivesOf(holder).onEnemyDeathDevour;
+        if (!spec) continue;
+        const candidates = this.state.teams[side].characters.filter((c) => !c.defeated);
+        if (candidates.length === 0) break;
+        const target = candidates[Math.floor(this.rng.next() * candidates.length)];
+        events.push(...this.traitDevour(holder, [target], spec.chance));
+      }
       // 死亡召唤（daemonicpact/terrorpact/fromdark/darkdeath 族）：与阵亡响应同一时机。
       // 事件顺序：增益 buff → 召唤 summon，都落在引发阵亡的行动事件之后。
       events.push(...this.resolveDeathSummons(id, side));

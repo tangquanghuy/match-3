@@ -1068,6 +1068,13 @@ export interface PassiveModifiers {
   skullLethalChance?: number;
   /** 造成骷髅伤害时按概率猎杀末位敌人（assassinate） */
   onSkullHitKill?: { chance: number; scope: 'lastEnemy' };
+  // —— R22 吞噬批（voracious/consumefuel/bloodyfeast；TurnEngine 消费，复用 devourEffect 原语）——
+  /** 造成骷髅伤害时按概率吞噬本次受击目标（voracious 贪食）；吞噬免疫在原语口拦截 */
+  onSkullHitDevour?: { chance: number };
+  /** 承受骷髅伤害时按概率吞噬攻击者（consumefuel 消耗燃料；官方「第一个敌人」= 受击时攻击者即敌方队首） */
+  onSkullDamagedDevour?: { chance: number };
+  /** 敌方角色阵亡时按概率吞噬死者一方随机一名存活（bloodyfeast 血腥盛宴） */
+  onEnemyDeathDevour?: { chance: number };
   /** PvP 战斗结算荣耀映射（bloodandglory「PvP 战斗中获得 1 点荣耀」→ 本作映射黄金）：
    *  GameOver 且 pvpMode 时对持有者（玩家侧）入账 */
   pvpEconomyGain?: { currency: 'gold' | 'souls'; amount: number };

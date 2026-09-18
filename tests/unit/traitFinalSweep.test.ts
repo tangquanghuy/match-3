@@ -202,9 +202,10 @@ describe('TurnEngine 集成（clanhunt 骷髅结算点）', () => {
 // ============================================================
 
 /**
- * 留弃 26 code（官方 EN + RawData 逐条核对后的「需新机制」分组）：
- *   - 缺吞噬机制（3）：voracious / consumefuel / bloodyfeast（consume 原语未建模，
- *     devourImmunity 仅为数据字段）；
+ * 留弃 23 code（官方 EN + RawData 逐条核对后的「需新机制」分组）：
+ *   - （原缺吞噬机制 3 code voracious/consumefuel/bloodyfeast 已在 R22 吞噬批落地——
+ *     devourEffect 原语 + onSkullHitDevour/onSkullDamagedDevour/onEnemyDeathDevour 编译，
+ *     移出本清单，见 traitDevour.test.ts）；
  *   - 缺爆破原语变体（7）：unstablepossession（大连×随机色）/ cataclysm（骷髅命中触发）/
  *     hiddentrap（配色触发×随机色）/ trappedtomb·onelittlespark·angelicburst（回合开始）/
  *     goodomen（大连×特殊宝石）——引擎爆破口仅支持「大连×指定基础色」
@@ -222,15 +223,15 @@ describe('TurnEngine 集成（clanhunt 骷髅结算点）', () => {
  */
 const DROPPED = [
   'angelicburst', 'artillerysupport', 'aspectofdeath', 'aspectoffamine', 'bigteeth',
-  'bloodyfeast', 'callnature', 'cataclysm', 'clairvoyance', 'consumefuel',
+  'callnature', 'cataclysm', 'clairvoyance',
   'elementalaura', 'essenceoftime', 'goodomen', 'hiddentrap', 'lunarscales',
   'monkeymagic', 'onelittlespark', 'serpentsfang', 'songofmadness', 'summercourtsboon',
-  'summoningritual', 'trappedtomb', 'umbralaura', 'unstablepossession', 'voracious',
+  'summoningritual', 'trappedtomb', 'umbralaura', 'unstablepossession',
   'wintercourtsboon',
 ] as const;
 
 describe('终扫判定守护', () => {
-  it('留弃 26 code 保持引擎不可见（getTrait 返回 undefined）', () => {
+  it('留弃 23 code 保持引擎不可见（getTrait 返回 undefined）', () => {
     for (const code of DROPPED) {
       expect(getTrait(code), `${code} 应保持未实现`).toBeUndefined();
     }

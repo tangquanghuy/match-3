@@ -633,6 +633,22 @@ function parse(desc, code) {
   if (/^对吞噬免疫。?$/.test(desc)) {
     return { effects: { devourImmunity: true } };
   }
+  // —— R22 吞噬批（voracious/consumefuel/bloodyfeast，3 code）——
+  // 「有 N% 的几率吞噬」→ devour 触发字段（chance = N/100），触发头按官方句式分流：
+  // 「在造成骷髅头伤害时」→ 命中侧 onSkullHitDevour（吞本次受击目标）；
+  // 「头骨受到伤害时」→ 受击侧 onSkullDamagedDevour（官方「吞噬第一个敌人」的引擎落地
+  //   口径=吞攻击者：持有者受骷髅伤害时攻击者即敌方队首）；
+  // 「若敌人死亡」→ 敌亡侧 onEnemyDeathDevour（吞死者一方随机一名存活）。
+  // 消费端复用 devourEffect 原语（即杀 + 官方成长额度），吞噬免疫在原语口拦截。
+  if ((m = /^在?造成骷髅头伤害时有\s*(\d+)\s*%\s*的?几率吞噬/.exec(desc))) {
+    return { effects: { onSkullHitDevour: { chance: num(m[1]) / 100 } } };
+  }
+  if ((m = /^头骨受到伤害时有\s*(\d+)\s*%\s*的?几率吞噬/.exec(desc))) {
+    return { effects: { onSkullDamagedDevour: { chance: num(m[1]) / 100 } } };
+  }
+  if ((m = /^若敌人死亡[，,]则有\s*(\d+)\s*%\s*的?几率吞噬/.exec(desc))) {
+    return { effects: { onEnemyDeathDevour: { chance: num(m[1]) / 100 } } };
+  }
   // 施法响应·随机状态（goodtarot「Grant a random status effect to a random Ally when an
   // Ally casts a spell」/ badtarot 同款但目标是随机敌人）：池按 scope 取阵营——
   // 盟友=正面池、敌人=负面池（与技能 randomStatusEffect 的阵营裁定同源，池在消费端取）。

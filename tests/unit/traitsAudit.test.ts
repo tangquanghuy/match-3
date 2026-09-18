@@ -596,6 +596,9 @@ describe('B · 编译契约', () => {
     // 战斗机制批：jinx 敌方宝石灵力减半 / indigestible 吞噬免疫（数据字段，吞噬落地时消费）/
     // goodtarot+badtarot 施法随机状态
     'enemyMasteryMult', 'devourImmunity', 'onAllyCastRandomStatus',
+    // R22 吞噬批：voracious 命中吞目标 / consumefuel 受击吞攻击者 / bloodyfeast 敌亡吞随机存活
+    //（TurnEngine 复用 devourEffect 原语消费）
+    'onSkullHitDevour', 'onSkullDamagedDevour', 'onEnemyDeathDevour',
     // 缺口清扫批：施法显式状态（moonfestival 族）+ 施法敌方削减（psychicaffliction/succumb）+
     // 惰性经济/召唤/风暴（goldenhoard/harpyflock/snowstorm 族，钩子落地时消费）+
     // PVP 限定（defender/siege/virtueofhonor，mode:'pvp' 惰性建模）

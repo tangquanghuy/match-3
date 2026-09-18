@@ -3271,6 +3271,15 @@
     }
   },
   {
+    "code": "voracious",
+    "name": "贪食",
+    "description": "在造成骷髅头伤害时有 5% 的几率吞噬敌人。",
+    "troops": 1,
+    "onSkullHitDevour": {
+      "chance": 0.05
+    }
+  },
+  {
     "code": "technomancy",
     "name": "量子魔法",
     "description": "在配对 4 或 5 颗宝石时，一名随机敌人损失 2 点魔法值。",
@@ -8076,6 +8085,15 @@
     }
   },
   {
+    "code": "consumefuel",
+    "name": "消耗燃料",
+    "description": "头骨受到伤害时有 10% 的几率吞噬第一个敌人。",
+    "troops": 1,
+    "onSkullDamagedDevour": {
+      "chance": 0.1
+    }
+  },
+  {
     "code": "bloodcoldrage",
     "name": "血冷狂暴",
     "description": "在配对 4 或更多宝石时，使一名随机敌人陷入冻结和出血状态。",
@@ -8180,6 +8198,15 @@
       "gains": {
         "magic": 2
       }
+    }
+  },
+  {
+    "code": "bloodyfeast",
+    "name": "血腥盛宴",
+    "description": "若敌人死亡，则有 20% 的几率吞噬该随机敌人。",
+    "troops": 1,
+    "onEnemyDeathDevour": {
+      "chance": 0.2
     }
   },
   {
