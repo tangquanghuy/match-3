@@ -87,6 +87,8 @@ import { BATCH_R15 } from './batch-r15';
 import { BATCH_R16 } from './batch-r16';
 import { BATCH_R17 } from './batch-r17';
 import { BATCH_R20 } from './batch-r20';
+import { BATCH_P41 } from './batch-p41';
+import { BATCH_R22 } from './batch-r22';
 import { BATCH_R21 } from './batch-r21';
 import { BATCH_R19 } from './batch-r19';
 import { BATCH_R18 } from './batch-r18';
