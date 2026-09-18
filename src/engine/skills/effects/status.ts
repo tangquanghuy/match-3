@@ -486,6 +486,7 @@ export function tickTeamStatuses(characters: Character[], rng?: SeededRNG): Game
 
 import type { EffectContext, EffectPrimitive } from './context';
 import { findSide } from './context';
+import { modifierBonus } from './secondary';
 
 export interface StatusApplyParams {
   /** 目标列表（由 targeting 产出） */
@@ -507,6 +508,14 @@ export interface StatusApplyParams {
    * targets 语义随之从「逐个施加」变为「随机候选池」（官方 InflictEffectOnRandomTroops）。
    */
   perDestroyed?: { color?: BaseColor | 'skull' };
+  /**
+   * 计数驱动施加（R22 批，官方「每有一名X则赋予一名随机盟友/敌人Y」族——8427 受诅咒敌人
+   * → 屏障、9252 红色盟友 → 恐怖、9287 鬼魂宝石 → 屏障、9341 每 10 黄金 → 疾病）：
+   * 给出时施加次数 = modifierBonus(perCount)（mod+source 全套，支持 ratio——「每有 10 黄金」
+   * = { ratio 10:1, source battleGold }），每次从 targets 存活池随机取一名（可重复，rng 逐次掷）。
+   * targets 语义同 perDestroyed = 「随机候选池」。计数 ≤ 0 → 零事件零 rng。
+   */
+  perCount?: import('./secondary').ModifierSpec;
 }
 
 /** 与 destroyed 追踪比对用的宝石类型匹配（secondary.matchGem 同口径：色含归属色特殊宝石） */
@@ -532,6 +541,20 @@ export function statusEffect(params: StatusApplyParams): EffectPrimitive {
       const mag = magnitude !== undefined ? magnitude * layers : undefined;
       const stack = stacks !== undefined && stacks > 1;
       const events: GameEvent[] = [];
+
+      // 计数驱动施加（R22 批）：施加次数 = 来源计数折算（支持 ratio），目标 = 存活池逐次随机
+      if (params.perCount) {
+        const count = modifierBonus(params.perCount, ctx);
+        const pool = targets.filter((t) => !t.defeated);
+        if (count <= 0 || pool.length === 0) return [];
+        for (let i = 0; i < count; i++) {
+          const target = pool[ctx.rng.nextInt(pool.length)];
+          const status: StatusInstance =
+            mag !== undefined ? { id: statusId, turns, magnitude: mag } : { id: statusId, turns };
+          events.push(...applyStatus(target, status, { stack }));
+        }
+        return events;
+      }
 
       // 逐颗宝石驱动施加（Wave4）：施加次数 = 被摧毁计数，目标 = 存活池逐次随机
       if (params.perDestroyed) {
