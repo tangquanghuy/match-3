@@ -142,6 +142,16 @@ const DESCRIPTION_OVERRIDES = {
   // dump 把 skull damage 误译作「颅骨受伤」、量词作「一瓶」；统一到受击创造句式
   stonefragment: '在受到骷髅头伤害时创造一颗棕色法力药水宝石。',
   icefragment: '在受到骷髅头伤害时创造一颗蓝色法力药水宝石。',
+  // —— 终扫批（2026-09-18 全量 28 个 missTraits 逐条核对后的收尾两条）——
+  // daospuppet 官方「25% chance to summon the Dao when I die」（RawData summon +
+  // death + Filter=6993）：dump 描述「有 25% 召唤恶道」漏了「几率」二字，概率捕获
+  // 正则需要它；「恶道」改按兵种库实名「刀」（id 6993，official Filter 即其兵种 id）。
+  daospuppet: '在自身身亡时，有 25% 的几率召唤刀。',
+  // clanhunt 官方「Give 2 Attack to Green Allies when an Ally deals Skull damage」——
+  // dump「给予所有与绿色盟友」的「与」为机翻衍字；触发词对齐引擎骷髅结算口径
+  //（骷髅伤害经骷髅配对结算产生，与 powerofstars「配对骷髅头宝石时…」同款句式，
+  // 描述↔触发点对账一致）。
+  clanhunt: '在盟友配对骷髅头时，给予所有绿色盟友 2 点攻击力。',
 };
 
 /**
@@ -273,6 +283,16 @@ const EXPLICIT_EFFECTS = {
   moonfever: {
     onBigMatchStatus: { scope: 'randomEnemy', statuses: [{ id: 'lycanthropy' }], turns: 3 },
   },
+  // —— 终扫批（28 个 missTraits 判读落地）——
+  // clanhunt「Give 2 Attack to Green Allies when an Ally deals Skull damage」（RawData
+  // adjust_allies_attack + on_skull_damage + Filter=1/color）：引擎的骷髅结算点对**整支
+  // 行动方队伍**触发 'skull' 色键配色触发（TurnEngine 骷髅伤害结算后统一调
+  // applyColorMatchTriggers('skull')）——「任一盟友造成骷髅伤害」与该触发点同一语义
+  //（feartouch「匹配骷髅即造成骷髅伤害」先例）。复用 onColorMatchTypeAura 的 'skull' 键
+  //（powerofstars/diamondaura 同款消费路径），scope 'Green' 经 scopeMatches 认颜色。
+  clanhunt: {
+    onColorMatchTypeAura: { color: 'skull', scope: 'Green', gains: { attack: 2 } },
+  },
 };
 
 /**
@@ -289,6 +309,9 @@ const SUMMON_TROOP_NAME_FIX = {
   infernalpact: 'Hellhound',
   wolfcompanion: 'Warfang',
   daoslamp: 'ServantOfTheDao',
+  // 终扫批：daospuppet 官方 RawData Filter=6993 即兵种 id——「the Dao」= 兵种库
+  // 「刀」（referenceName Dao，id 6993），与旧注「兵种库无此兵种」已不符。
+  daospuppet: 'Dao',
 };
 
 /**

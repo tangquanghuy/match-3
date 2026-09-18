@@ -5035,6 +5035,19 @@
     }
   },
   {
+    "code": "clanhunt",
+    "name": "族猎",
+    "description": "在盟友配对骷髅头时，给予所有绿色盟友 2 点攻击力。",
+    "troops": 1,
+    "onColorMatchTypeAura": {
+      "color": "skull",
+      "scope": "Green",
+      "gains": {
+        "attack": 2
+      }
+    }
+  },
+  {
     "code": "lumpofcoal",
     "name": "小煤球",
     "description": "在配对红色宝石时，对一名随机敌人造成 5 点伤害。",
@@ -5862,6 +5875,18 @@
         "attack": 1,
         "magic": 1
       }
+    }
+  },
+  {
+    "code": "daospuppet",
+    "name": "恶道木偶",
+    "description": "在自身身亡时，有 25% 的几率召唤刀。",
+    "troops": 1,
+    "summonOnDeath": {
+      "chance": 0.25,
+      "troopId": 6993,
+      "referenceName": "Dao",
+      "displayName": "刀"
     }
   },
   {
