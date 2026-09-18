@@ -19,7 +19,6 @@
  * 全部自包含在本文件与效果原语内，不动行动生命周期（TurnEngine 无改动）。
  */
 import type { GameEvent } from '../events';
-import { resolveDefeatEvents } from '../teamRoster';
 import type { Character, BaseColor } from '../types';
 import type { ScalingSpec } from './scaling';
 import type { TargetMode } from './targeting';
@@ -37,7 +36,7 @@ import type { ModifierSpec } from './effects/secondary';
 import { gemEffect } from './effects/gems';
 import type { GemParams } from './effects/gems';
 import { cleanseEffect, statusEffect, dispelStatusEffect, randomStatusEffect } from './effects/status';
-import { summonEffect, extraTurnEffect, transformTroopEffect, repositionEffect, shuffleTeamEffect, summonCopyEffect, swapPositionsEffect } from './effects/summon';
+import { summonEffect, extraTurnEffect, transformTroopEffect, repositionEffect, shuffleTeamEffect, summonCopyEffect, swapPositionsEffect, selfReviveEffect, resolveDefeatAfterRevive } from './effects/summon';
 import { devourEffect } from './effects/devour';
 import { stormEffect } from './effects/storm';
 import { escapeEffect } from './effects/escape';
@@ -382,6 +381,24 @@ export interface SwapPositionsSegment extends SegmentOptions {
   b: TargetMode;
 }
 
+/**
+ * 自复活段（凤凰涅槃批，Sunbird「浴火重生」官方 "Die and rise from the Ashes"）：
+ * 本次施法中施法者被击杀 → 死亡被撤销（defeat 事件不出流、不出编队、不触发阵亡钩子），
+ * 按段规格原位回血复活（healPct 缺省 0.5；full=满血，官方涅槃口径；fullMana=法力回满）。
+ * 段级 chance 缺省 1（必发、不掷签、零随机消耗）——与 escapeChance 同理**不用**
+ * SegmentOptions.chance 通用管线（那是「整段是否执行」的掷签，语义冲突），字段走
+ * 段自己的规格。段本体执行时施法者通常已在拦截口复活：无事发生、零事件。
+ */
+export interface SelfReviveSegment extends SegmentOptions {
+  kind: 'selfRevive';
+  /** 复活回血到 maxHp 的百分比（0~1]，缺省 0.5（向上取整） */
+  healPct?: number;
+  /** 满血复活（覆盖 healPct） */
+  full?: boolean;
+  /** 复活同时法力回满（deepsoul「复活并恢复全部魔力」口径） */
+  fullMana?: boolean;
+}
+
 /** 调位（「将一名敌人击回末位」「移至队伍首位」）：改编队顺序 */
 export interface RepositionSegment extends SegmentOptions {
   kind: 'reposition';
@@ -438,7 +455,8 @@ export type EffectSegment =
   | ShuffleTeamSegment
   | DevourSegment
   | SummonCopySegment
-  | SwapPositionsSegment;
+  | SwapPositionsSegment
+  | SelfReviveSegment;
 
 /** 技能原型：有序效果段数组 */
 export interface SkillPrototype {
@@ -703,6 +721,17 @@ function compileSegment(segment: EffectSegment, ctx: EffectContext): EffectPrimi
       });
     case 'summonCopy':
       return summonCopyEffect({ targets: resolveTargetsTracked(segment, ctx) });
+    case 'selfRevive': {
+      // 复活对象 = 施法者本人（含 defeated——死亡态仍带标记待出编队；已被出编队移除则无从
+      // 复活，靠 executePrototype 的施法内拦截兜底：见 runSegment 的 castRevive 通道）
+      const caster = findCharacter(ctx.state, ctx.casterId);
+      return selfReviveEffect({
+        targets: caster ? [caster] : [],
+        healPct: segment.healPct,
+        full: segment.full,
+        fullMana: segment.fullMana,
+      });
+    }
     case 'swapPositions':
       return swapPositionsEffect({ a: segment.a, b: segment.b });
     case 'reposition':
@@ -765,8 +794,14 @@ function countCastDeaths(events: GameEvent[], ctx: EffectContext): void {
  * 单段的完整裁决管线（概率掷签 → 全局条件 → 目标相对条件 × 无目标段 → 死亡条件 →
  * 编译执行），供主循环与 oneOf 选中分支共用。跳过的段返回空事件、不消耗目标选择、
  * 不更新跨段追踪（lastTarget 保持上一有效段）。
+ * castRevive（凤凰涅槃批）：本次施法带 selfRevive 段时的施法者复活标记，出编队时拦截
+ * 施法者被击杀的 defeat 事件（官方「Die and rise from the Ashes」——死亡被撤销）。
  */
-function runSegment(segment: EffectSegment, ctx: EffectContext): GameEvent[] {
+function runSegment(
+  segment: EffectSegment,
+  ctx: EffectContext,
+  castRevive?: { casterId: number } & import('./effects/summon').SelfReviveSpec,
+): GameEvent[] {
   // 概率子句：掷签不通过 → 整段跳过（rng 消耗固定发生，保证同种子同事件流）
   if (segment.chance !== undefined || segment.chanceBoost) {
     const boost = modifierBonus(segment.chanceBoost, ctx) / 100;
@@ -790,7 +825,7 @@ function runSegment(segment: EffectSegment, ctx: EffectContext): GameEvent[] {
     if (branches.length === 0) return [];
     const picked = branches[ctx.rng.nextInt(branches.length)];
     const events: GameEvent[] = [];
-    for (const sub of picked) events.push(...runSegment(sub, ctx));
+    for (const sub of picked) events.push(...runSegment(sub, ctx, castRevive));
     return events;
   }
 
@@ -798,18 +833,30 @@ function runSegment(segment: EffectSegment, ctx: EffectContext): GameEvent[] {
   if (!primitive) return [];
   const produced = primitive.apply(ctx);
   countCastDeaths(produced, ctx);
-  return resolveDefeatEvents(ctx.state, produced);
+  return resolveDefeatAfterRevive(ctx.state, produced, ctx.rng, castRevive);
 }
 
 /**
  * 执行技能原型：按段顺序解释，汇集事件流（需求 11.3, 11.5）。
  * 空原型或全部段不支持 → 返回空事件（仅扣法力回退由 castSkill 处理，需求 11.4）。
+ * 凤凰涅槃批：原型带 selfRevive 段时，本次施法中施法者被击杀（如反弹反杀）的 defeat
+ * 事件在各段出编队前被拦截撤销并复活——「Die and rise from the Ashes」。
  */
 export function executePrototype(proto: SkillPrototype, ctx: EffectContext): GameEvent[] {
   ensureCastTracking(ctx);
+  const reviveSeg = proto.segments.find((s): s is SelfReviveSegment => s.kind === 'selfRevive');
+  const castRevive = reviveSeg
+    ? {
+      casterId: ctx.casterId,
+      chance: reviveSeg.chance,
+      healPct: reviveSeg.healPct,
+      full: reviveSeg.full,
+      fullMana: reviveSeg.fullMana,
+    }
+    : undefined;
   const events: GameEvent[] = [];
   for (const segment of proto.segments) {
-    events.push(...runSegment(segment, ctx));
+    events.push(...runSegment(segment, ctx, castRevive));
   }
   return events;
 }

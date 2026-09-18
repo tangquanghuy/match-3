@@ -47,6 +47,7 @@ import type {
   DevourSegment,
   SummonCopySegment,
   SwapPositionsSegment,
+  SelfReviveSegment,
   NRangeSpec,
 } from './prototypes';
 
@@ -907,11 +908,26 @@ export function summonCopy(target: TargetMode, opts?: SegmentOpts): SummonCopySe
 }
 
 /**
- * 交换编队位（R22 批，官方 Swap——7555「再使他们交换位置」7992「使首位和末位敌人交换
- * 位置」）：两个目标模式各解析一名存活者（同队、不同人），交换其编队索引。
+ * 交换编队位（R22 批，官方 Swap——7555「再使他们交换位置」7992「使首位和末位敌人
+ * 交换位置」）：两个目标模式各解析一名存活者（同队、不同人），交换其编队索引。
  */
 export function swapPositions(a: TargetMode, b: TargetMode, opts?: SegmentOpts): SwapPositionsSegment {
   return attach({ kind: 'swapPositions', a, b } as SwapPositionsSegment, opts);
+}
+
+/**
+ * 自复活（凤凰涅槃批，Sunbird「浴火重生」官方 "Die and rise from the Ashes"）：本次施法中
+ * 施法者被击杀 → 死亡被撤销（defeat 不出流、不出编队、不触发阵亡钩子），原位回血复活。
+ * healPct 缺省 0.5（复活到 50% maxHp、向上取整）；opts.full = 满血复活（官方涅槃口径）；
+ * opts.fullMana = 复活同时法力回满（deepsoul「复活并恢复全部魔力」）。
+ * 与 escape() 同理不接受 opts.chance：段级缺省必发（chance 管线是「整段是否执行」掷签，
+ * 与复活判定语义冲突）；无死亡时整段零事件、零随机消耗。
+ */
+export function selfRevive(healPct = 0.5, opts: SegmentOpts & { full?: boolean; fullMana?: boolean } = {}): SelfReviveSegment {
+  const seg = attach({ kind: 'selfRevive', healPct } as SelfReviveSegment, opts);
+  if (opts.full) seg.full = true;
+  if (opts.fullMana) seg.fullMana = true;
+  return seg;
 }
 
 /**

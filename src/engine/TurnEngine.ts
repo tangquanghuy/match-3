@@ -41,6 +41,7 @@ const EXPLODED_SKULL_DAMAGE = { normal: 1, doom: 5, uber: 10 } as const;
 import type { ActionLogEntry, BattleAction, CellPos, GemType, Character, Team } from './types';
 import type { GameState } from './GameState';
 import { resolveDefeatEvents, summonQueueOf, MAX_ACTIVE_TEAM_SIZE } from './teamRoster';
+import { resolveDefeatAfterRevive } from './skills/effects/summon';
 import {
   applyBattleStartTraits,
   grantStat,
@@ -145,7 +146,7 @@ export class TurnEngine {
    * resolveDefeatEvents 出编队（与骷髅命中同口径）。
    */
   private readonly traitDamage = (target: Character, caster: Character, amount: number): GameEvent[] =>
-    resolveDefeatEvents(this.state, damageOne(target, caster.id, amount, false, 'single', undefined, caster));
+    this.resolveDefeatWithRevive(damageOne(target, caster.id, amount, false, 'single', undefined, caster));
 
   /**
    * 特质窃取生命口（T5 窃取批 corruption 族，注入 opts.drainLife）：对首位敌人 damageOne
@@ -216,6 +217,16 @@ export class TurnEngine {
     });
     return resolveDefeatEvents(this.state, produced);
   };
+
+  /**
+   * 出编队统一口（自复活/凤凰涅槃批）：先过自复活拦截再走 resolveDefeatEvents——阵亡者
+   * 持有 selfRevive 被动（或本次施法带 selfRevive 段，经 prototypes 层同一函数处理）时，
+   * 掷中即不走 defeat 路径（defeat 事件剔除、死亡扫描不触发、原位回血复活发 buff 事件）。
+   * 无 selfRevive 角色时事件流与 resolveDefeatEvents 逐字节一致、零 rng 消耗（护栏不破坏）。
+   */
+  private resolveDefeatWithRevive(produced: GameEvent[]): GameEvent[] {
+    return resolveDefeatAfterRevive(this.state, produced, this.rng);
+  }
 
   /**
    * 骷髅命中/受击的吞噬触发（R22 吞噬批 voracious「在造成骷髅头伤害时有 5% 的几率吞噬
@@ -992,7 +1003,7 @@ export class TurnEngine {
         this.rng,
         settle.bonusDamage + armorBonus,
       );
-      events.push(...resolveDefeatEvents(this.state, outcome.events));
+      events.push(...this.resolveDefeatWithRevive(outcome.events));
       // 承受骷髅伤害的召唤/经济钩子（职业天赋 golemprotector 召唤 + 缺口清扫批 pickpocket
       // 惰性经济）：从本次结算的 skull-damage 事件取实际受击目标——落空不产事件，天然与
       // gainOnDamaged「落空不触发」同口径；每次受击各自掷签（概率经同一条 rng）。
@@ -1617,7 +1628,7 @@ export class TurnEngine {
       const enemyTeam = this.state.teams[opponentOf(side)];
       // 传入 rng：闪避特质（敏捷/轻巧）需要随机判定，且必须走同一条确定性随机源
       const outcome = this.combat.resolveSkullDamage(activeTeam, enemyTeam, count, this.rng);
-      events.push(...resolveDefeatEvents(this.state, outcome.events));
+      events.push(...this.resolveDefeatWithRevive(outcome.events));
       // 骷髅命中/受击的吞噬触发（R22 吞噬批）：与 applyGroupEffects 骷髅口同款（技能炸毁
       // 的骷髅也算「在造成骷髅头伤害时」，官方命中类特质同口径）。
       events.push(...this.applySkullDevourTriggers(outcome.events));
@@ -2167,8 +2178,7 @@ export class TurnEngine {
 
     // 状态结算：对「即将行动方」的角色触发（DoT 扣血 / 织网挣脱 / 到期移除，需求 9.2, 9.4, 9.5）
     events.push(
-      ...resolveDefeatEvents(
-        this.state,
+      ...this.resolveDefeatWithRevive(
         tickTeamStatuses(this.state.teams[this.state.activePlayer].characters, this.rng),
       ),
     );
@@ -2282,7 +2292,7 @@ export class TurnEngine {
     // 优先低层自定义 SkillEffect；否则查技能原型执行；都没有则仅产生空效果技能并照常回到等待输入。
     const effect = this.registry.skills.get(ch.skillId);
     if (effect) {
-      events.push(...resolveDefeatEvents(this.state, effect.apply(this.state, ch.id)));
+      events.push(...this.resolveDefeatWithRevive(effect.apply(this.state, ch.id)));
     } else {
       const proto = this.registry.prototypes.get(ch.skillId);
       if (proto) {
@@ -2300,8 +2310,7 @@ export class TurnEngine {
           ? this.cellChooser.choose(this.state, ch.id, this.rng) ?? undefined
           : undefined;
         events.push(
-          ...resolveDefeatEvents(
-            this.state,
+          ...this.resolveDefeatWithRevive(
             executePrototype(
               proto,
               this.makeEffectContext(ch.id, chosenColor, chosenTargetId, chosenCell),

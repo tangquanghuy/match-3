@@ -454,6 +454,15 @@ export interface TraitDefinition {
    * 同时机、死者经出编队天然排除），随机目标经同一条种子化 rng。
    */
   onEnemyDeathDevour?: { chance: number };
+  /**
+   * 死亡时自我复活（凤凰涅槃批，Sunbird「浴火重生」官方 "Die and rise from the Ashes"）：
+   * 出编队口（TurnEngine/prototypes 的 resolveDefeatAfterRevive）拦截本次伤害致死的 defeat
+   * 事件——掷中后死亡被撤销（不出编队、不触发阵亡钩子），原位回血复活。healPct 缺省 0.5、
+   * full=满血、fullMana=法力回满（deepsoul「复活并恢复全部魔力」口径）、chance 缺省 1。
+   * 现网复活族特质（immortal/deepsoul/rebirth/eternaldawn）保持 summonOnDeath 复活模型不变，
+   * 本键供 Phoenix 涅槃类新特质/段级 selfRevive 消费。
+   */
+  selfRevive?: { chance?: number; healPct?: number; full?: boolean; fullMana?: boolean };
   /** 自己回合开始时施加状态（职业天赋 wrathofanu 击晕随机敌 / getbehindme 屏障随机盟友 /
    *  ancientmysteries 随机盟友随机正面状态；接线批 tidalking 自身下潜 / blessedwaters 赐福
    *  全体盟友 / curseofdamnation 诅咒全体敌人 / sunflare·burningembers 燃烧随机敌）。
@@ -1159,6 +1168,12 @@ export function resolvePassives(
     }
     if (trait.onEnemyDeathDevour && passive.onEnemyDeathDevour === undefined) {
       passive.onEnemyDeathDevour = { ...trait.onEnemyDeathDevour };
+    }
+    // 自复活（凤凰涅槃批 Sunbird「浴火重生」）：同类取概率更高的一条（缺省 1，与死亡召唤
+    // "同类取最强"口径一致）
+    if (trait.selfRevive
+      && (passive.selfRevive === undefined || (trait.selfRevive.chance ?? 1) > (passive.selfRevive.chance ?? 1))) {
+      passive.selfRevive = { ...trait.selfRevive };
     }
     // 战后经济加成（merchant/necromancy 族）：同类比率累加（与增益类"累加"口径一致）。
     if (trait.battleEconomyGain) {

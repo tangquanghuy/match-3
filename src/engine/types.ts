@@ -577,6 +577,14 @@ export interface Character {
    * 可选：meta 层淬炼系统接入前恒缺省（=0），不影响既有对局。
    */
   temperingLevel?: number;
+  /** ===== 以下为宿主显示字段（引擎逻辑不消费；2026-09-19 素材批追加） ===== */
+  /** 技能显示名/描述（引擎原型不含文本，详情面板兜底用） */
+  spellName?: string;
+  spellDescription?: string;
+  /** 特质显示名（code → 中文名），库外 code 的名称兜底 */
+  traitNames?: Record<string, string>;
+  /** 卡面特质展示清单（缺省回落 traitIds；主角= 3 条职业特质，天赋不上卡面） */
+  displayTraitIds?: string[];
   /**
    * 由 `traitIds` 编译出的被动修正，战斗开始时算一次。
    * 结算路径只读这里，不查特质注册表，见 `src/engine/traits.ts`。
@@ -1075,6 +1083,17 @@ export interface PassiveModifiers {
   onSkullDamagedDevour?: { chance: number };
   /** 敌方角色阵亡时按概率吞噬死者一方随机一名存活（bloodyfeast 血腥盛宴） */
   onEnemyDeathDevour?: { chance: number };
+  // —— 自复活/凤凰涅槃批（Sunbird「浴火重生」官方 "Die and rise from the Ashes"；出编队口消费）——
+  /**
+   * 死亡时自我复活（凤凰涅槃浴火重生）：本次伤害致死的 defeat 事件在出编队（resolveDefeatEvents
+   * 移除编队）之前被拦截——掷中后**不走 defeat 路径**（defeat 事件从事件流剔除，死亡扫描
+   * processDeathTriggers 不触发任何阵亡钩子），原位回血复活并发 buff(hp) 事件（官方口径 = 死亡被撤销）。
+   * healPct 缺省 0.5（复活到 50% maxHp）；full=true 满血复活；fullMana=true 同时法力回满
+   * （deepsoul「复活并恢复全部魔力」口径）；chance 缺省 1（必发；<1 时经同一条种子化 rng 掷签，
+   * 无 selfRevive 角色零 rng 消耗，护栏不破坏）。消费在 TurnEngine/prototypes 的出编队统一口
+   * （skills/effects/summon.ts resolveDefeatAfterRevive）。
+   */
+  selfRevive?: { chance?: number; healPct?: number; full?: boolean; fullMana?: boolean };
   /** PvP 战斗结算荣耀映射（bloodandglory「PvP 战斗中获得 1 点荣耀」→ 本作映射黄金）：
    *  GameOver 且 pvpMode 时对持有者（玩家侧）入账 */
   pvpEconomyGain?: { currency: 'gold' | 'souls'; amount: number };

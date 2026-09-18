@@ -9,10 +9,11 @@
 import type { GameEvent, ExtraTurnEvent } from '../../events';
 import type { Character } from '../../types';
 import { PlayerSide } from '../../types';
-import { MAX_ACTIVE_TEAM_SIZE, summonQueueOf } from '../../teamRoster';
+import { MAX_ACTIVE_TEAM_SIZE, summonQueueOf, resolveDefeatEvents } from '../../teamRoster';
 import type { EffectContext, EffectPrimitive } from './context';
 import { attachPassives } from '../../traits';
 import { findSide } from './context';
+import { selectTargets } from '../targeting';
 
 /**
  * 额外回合效果（需求 10.2）。发 extra-turn 事件并（若引擎注入）保留当前玩家回合。
@@ -37,10 +38,33 @@ export interface TransformTroopParams {
   ref?: string;
   /** 兵种族随机（「转化为一只随机龙族」）：候选集，rng 掷选后再映射 */
   randomOf?: string[];
+  /**
+   * 复制形态来源（R22 批，官方 TransformSelfFromTarget——8187「转化成一名敌人」）：给出时
+   * 不走 ref/randomOf，模板 = 该目标模式解析出的**现存角色**快照（targets[0] 被就地改写成
+   * 它的数值/技能/特质/法力色）。8187 = targets ['allySelf'(施法者)] + copyOf 'enemyChosen'。
+   */
+  copyOf?: Character[];
   /** 被转化成兵种 id（可选，供表现层取立绘） */
   troopId?: number;
   /** referenceName → 模板映射（由装配层注入；缺省用 ctx.resolveSummonRef） */
   resolveRef?: (referenceName: string) => SummonTemplate | null;
+}
+
+/** 从现存角色提取召唤模板（复制召唤 / TransformSelf 共用，R22 批）：
+ *  剥离 id/defeated/statuses，生命回满、法力清零（官方复制体不继承阵亡/状态）。
+ *  colors/traitIds/troopTypes 为**新建数组**——复制召唤的模板来自现存角色，
+ *  浅拷贝会让复制体与本体共享可变数组（改一侧污染另一侧）。 */
+function templateOf(char: Character): SummonTemplate {
+  const { id: _id, defeated: _defeated, statuses: _statuses, ...rest } = char;
+  void _id; void _defeated; void _statuses;
+  return {
+    ...rest,
+    hp: char.maxHp,
+    mana: 0,
+    colors: [...char.colors],
+    traitIds: [...(char.traitIds ?? [])],
+    troopTypes: [...(char.troopTypes ?? [])],
+  };
 }
 
 /**
@@ -52,13 +76,18 @@ export function transformTroopEffect(params: TransformTroopParams): EffectPrimit
   return {
     apply(ctx: EffectContext): GameEvent[] {
       const resolve = params.resolveRef ?? ctx.resolveSummonRef;
-      if (!resolve) return [];
-      // ref / randomOf 二选一：randomOf 先种子化掷选再映射（与 summon.randomOf 同语义）
-      const refName = params.ref ?? (params.randomOf && params.randomOf.length > 0
-        ? params.randomOf[ctx.rng.nextInt(params.randomOf.length)]
-        : undefined);
-      if (!refName) return [];
-      const template = resolve(refName);
+      // R22 批：copyOf 形态（TransformSelfFromTarget）模板来自现存角色，无需 ref 解析器
+      const template: SummonTemplate | null = params.copyOf && params.copyOf.length > 0
+        ? templateOf(params.copyOf[0])
+        : (() => {
+          if (!resolve) return null;
+          // ref / randomOf 二选一：randomOf 先种子化掷选再映射（与 summon.randomOf 同语义）
+          const refName = params.ref ?? (params.randomOf && params.randomOf.length > 0
+            ? params.randomOf[ctx.rng.nextInt(params.randomOf.length)]
+            : undefined);
+          if (!refName) return null;
+          return resolve(refName);
+        })();
       if (!template) return [];
       const events: GameEvent[] = [];
       for (const target of params.targets) {
@@ -161,6 +190,42 @@ function resolveTemplate(params: SummonParams, ctx: EffectContext): SummonTempla
   return params.resolveRef?.(pick) ?? null;
 }
 
+/** 把一只召唤物追加进编队（未满进场上、满员进 FIFO 召唤队列），发 summon 事件。
+ *  summonEffect / summonCopyEffect（R22 批复制召唤）共用。 */
+function appendSummon(
+  team: import('../../types').Team,
+  side: PlayerSide,
+  template: SummonTemplate,
+  troopId: number,
+  ctx: EffectContext,
+  events: GameEvent[],
+): void {
+  const id = deriveCharId(ctx);
+  const summoned: Character = { ...template, id, defeated: false, statuses: [] };
+  if (team.characters.length < MAX_ACTIVE_TEAM_SIZE) {
+    team.characters.push(summoned);
+    events.push({
+      type: 'summon',
+      player: side,
+      slot: team.characters.length - 1,
+      troopId,
+      characterId: id,
+      destination: 'field',
+    });
+  } else {
+    const queue = summonQueueOf(team);
+    queue.push({ character: summoned, troopId });
+    events.push({
+      type: 'summon',
+      player: side,
+      slot: queue.length - 1,
+      troopId,
+      characterId: id,
+      destination: 'queue',
+    });
+  }
+}
+
 /**
  * Append a summon to the active bottom while below four characters.
  * A full active roster stores subsequent summons on a FIFO bench.
@@ -184,36 +249,164 @@ export function summonEffect(params: SummonParams): EffectPrimitive {
         : 1;
       const events: GameEvent[] = [];
       for (let i = 0; i < count; i++) {
-        const id = deriveCharId(ctx);
-        const troopId = params.troopId ?? src_troopId(params.source);
-        const summoned: Character = { ...template, id, defeated: false, statuses: [] };
-
-        if (team.characters.length < MAX_ACTIVE_TEAM_SIZE) {
-          team.characters.push(summoned);
-          events.push({
-            type: 'summon',
-            player: side,
-            slot: team.characters.length - 1,
-            troopId,
-            characterId: id,
-            destination: 'field',
-          });
-        } else {
-          const queue = summonQueueOf(team);
-          queue.push({ character: summoned, troopId });
-          events.push({
-            type: 'summon',
-            player: side,
-            slot: queue.length - 1,
-            troopId,
-            characterId: id,
-            destination: 'queue',
-          });
-        }
+        appendSummon(team, side, template, params.troopId ?? src_troopId(params.source), ctx, events);
       }
       return events;
     },
   };
+}
+
+/** 复制召唤参数（R22 批，官方 SummoningTarget(NoError)——8188「有 50% 的几率复制盟友」
+ *  8190「复制那名敌人」8273「召唤首位敌人的卡牌」）：模板 = 目标模式解析出的现存角色
+ *  快照（满血、零法力、无状态），走与普通召唤相同的编队/队列管线。 */
+export interface SummonCopyParams {
+  /** 被复制的目标（由 targeting 产出；取首个存活者） */
+  targets: Character[];
+}
+
+export function summonCopyEffect(params: SummonCopyParams): EffectPrimitive {
+  return {
+    apply(ctx: EffectContext): GameEvent[] {
+      const side = findSide(ctx.state, ctx.casterId);
+      if (side === null) return [];
+      const source = params.targets.find((c) => !c.defeated);
+      if (!source) return [];
+      const team = ctx.state.teams[side];
+      team.characters = team.characters.filter((character) => !character.defeated);
+      const events: GameEvent[] = [];
+      appendSummon(team, side, templateOf(source), -1, ctx, events);
+      return events;
+    },
+  };
+}
+
+// —— 自复活/凤凰涅槃（Sunbird「浴火重生」官方 "Die and rise from the Ashes"）——
+
+/**
+ * 自复活规格（被动 PassiveModifiers.selfRevive 与段级 selfRevive 段共用）：
+ *   - chance：触发概率（0~1），缺省 1（官方「Die and rise from the Ashes」必发）；
+ *   - healPct：复活回血到 maxHp 的百分比，缺省 0.5（向上取整，至少 1 点）；
+ *   - full：满血复活（覆盖 healPct；官方 Sunbird 涅槃 = 满血归来）；
+ *   - fullMana：复活同时法力回满（deepsoul「复活并恢复全部魔力」口径）。
+ */
+export interface SelfReviveSpec {
+  chance?: number;
+  healPct?: number;
+  full?: boolean;
+  fullMana?: boolean;
+}
+
+export interface SelfReviveParams extends SelfReviveSpec {
+  /** 复活目标（通常为施法者本人；处死亡态 = defeated 或 hp≤0 才生效） */
+  targets: Character[];
+}
+
+/** 把一名处于死亡态的角色原位复活：清 defeated、按规格回血（发 buff 事件；回血为
+ *  「复活到指定值」语义，不经治疗管线——出血禁疗/疾病减半不拦截复活）。 */
+function reviveOne(target: Character, spec: SelfReviveSpec): GameEvent[] {
+  const events: GameEvent[] = [];
+  const hpBefore = target.hp;
+  const pct = Math.min(1, Math.max(0, spec.healPct ?? 0.5));
+  const revivedHp = spec.full === true ? target.maxHp : Math.ceil(target.maxHp * pct);
+  target.defeated = false;
+  target.hp = Math.min(target.maxHp, Math.max(1, revivedHp));
+  if (target.hp > hpBefore) {
+    events.push({ type: 'buff', targetId: target.id, stat: 'hp', amount: target.hp - hpBefore });
+  }
+  if (spec.fullMana === true && target.mana < target.manaCost) {
+    const gained = target.manaCost - target.mana;
+    target.mana = target.manaCost;
+    events.push({ type: 'buff', targetId: target.id, stat: 'mana', amount: gained });
+  }
+  return events;
+}
+
+/**
+ * 自复活效果段（「凤凰涅槃浴火重生」）：把处死亡态（defeated 或 hp≤0）的目标原位复活。
+ * 段级主消费路径是**施法内拦截**：executePrototype 扫到 selfRevive 段后，本次施法中施法者
+ * 被击杀的 defeat 事件在出编队前即被撤销并复活（见 resolveDefeatAfterRevive 的 castRevive
+ * 通道）；段本体执行时施法者通常已复活（无事发生、零事件、零随机消耗）。
+ */
+export function selfReviveEffect(params: SelfReviveParams): EffectPrimitive {
+  return {
+    apply(): GameEvent[] {
+      const events: GameEvent[] = [];
+      for (const target of params.targets) {
+        if (!target.defeated && target.hp > 0) continue;
+        events.push(...reviveOne(target, {
+          chance: 1,
+          healPct: params.healPct,
+          full: params.full,
+          fullMana: params.fullMana,
+        }));
+      }
+      return events;
+    },
+  };
+}
+
+/** 在场角色查找（含 defeated——复活对象此刻仍带着阵亡标记待出编队） */
+function findOnField(state: import('../../GameState').GameState, characterId: number): Character | null {
+  for (const side of [PlayerSide.Left, PlayerSide.Right]) {
+    const found = state.teams[side].characters.find((c) => c.id === characterId);
+    if (found) return found;
+  }
+  return null;
+}
+
+/**
+ * 出编队统一口（自复活拦截 + resolveDefeatEvents）：defeat 事件先过自复活判定——
+ *   1) castRevive 通道：本次施法带 selfRevive 段时，施法者被击杀按段规格复活（官方
+ *      「Die and rise from the Ashes」= 施法中死亡必复活，chance 缺省 1 不掷签）；
+ *   2) 被动通道：阵亡者持有 selfRevive 被动（Phoenix 涅槃族）按其 chance 掷签（<1 时经
+ *      同一条种子化 rng；无 selfRevive 角色零 rng 消耗）。
+ * 掷中 → 不走 defeat 路径：defeat 事件从事件流剔除（死亡扫描/阵亡钩子不触发），原位
+ * 回血复活并发 buff 事件；未掷中或无规格 → 原样走 resolveDefeatEvents（出编队 + 队列补位）。
+ */
+export function resolveDefeatAfterRevive(
+  state: import('../../GameState').GameState,
+  produced: readonly GameEvent[],
+  rng: { next(): number } | null,
+  castRevive?: { casterId: number } & SelfReviveSpec,
+): GameEvent[] {
+  if (!produced.some((e) => e.type === 'defeat')) return resolveDefeatEvents(state, produced);
+  const revived = new Set<number>();
+  const filtered: GameEvent[] = [];
+  for (const ev of produced) {
+    if (ev.type === 'defeat' && !revived.has(ev.characterId)) {
+      const spec = reviveSpecFor(state, ev.characterId, castRevive, rng);
+      if (spec) {
+        const fallen = findOnField(state, ev.characterId);
+        if (fallen) {
+          revived.add(fallen.id);
+          filtered.push(...reviveOne(fallen, spec));
+          continue;
+        }
+      }
+    }
+    filtered.push(ev);
+  }
+  return resolveDefeatEvents(state, filtered);
+}
+
+/** defeat 事件的自复活规格裁定（castRevive 段级标记优先，其次被动；掷签失败返回 null） */
+function reviveSpecFor(
+  state: import('../../GameState').GameState,
+  characterId: number,
+  castRevive: ({ casterId: number } & SelfReviveSpec) | undefined,
+  rng: { next(): number } | null,
+): SelfReviveSpec | null {
+  if (castRevive && castRevive.casterId === characterId) {
+    const chance = castRevive.chance ?? 1;
+    // 段级标记即「死亡被撤销」语义；chance ≥1 不掷签（零随机消耗），<1 经同一条 rng
+    return chance >= 1 || (rng !== null && rng.next() < chance) ? castRevive : null;
+  }
+  const fallen = findOnField(state, characterId);
+  if (!fallen) return null;
+  const spec = fallen.passive?.selfRevive;
+  if (!spec) return null;
+  const chance = spec.chance ?? 1;
+  return chance >= 1 || (rng !== null && rng.next() < chance) ? spec : null;
 }
 
 /** 从来源取可选 troopId（表现层用） */
@@ -274,6 +467,41 @@ export function shuffleTeamEffect(params: TeamShuffleParams): EffectPrimitive {
         team.characters[j] = tmp;
       }
       return [{ type: 'team-shuffle', player: side }];
+    },
+  };
+}
+
+/** 交换编队位（R22 批，官方 Swap 句式——7555「再使他们交换位置」7992「使首位和末位敌人
+ *  交换位置」）：两个目标模式各解析出一名存活者（须同队、不同人），交换其编队索引。
+ *  任一侧解析失败/同队同目标 → 安全跳过。发既有 troop-reposition 事件（表现层调卡面序）。 */
+export interface SwapPositionsParams {
+  a: import('../targeting').TargetMode;
+  b: import('../targeting').TargetMode;
+}
+
+export function swapPositionsEffect(params: SwapPositionsParams): EffectPrimitive {
+  return {
+    apply(ctx: EffectContext): GameEvent[] {
+      const pick = (mode: import('../targeting').TargetMode): Character | null => {
+        const targets = selectTargets(mode, ctx.state, ctx.casterId, ctx.rng, 1, ctx.chosenTargetId);
+        return targets.length > 0 ? targets[0] : null;
+      };
+      const a = pick(params.a);
+      const b = pick(params.b);
+      if (!a || !b || a.id === b.id) return [];
+      const sideA = findSide(ctx.state, a.id);
+      const sideB = findSide(ctx.state, b.id);
+      if (sideA === null || sideB === null || sideA !== sideB) return [];
+      const team = ctx.state.teams[sideA];
+      const ia = team.characters.indexOf(a);
+      const ib = team.characters.indexOf(b);
+      if (ia < 0 || ib < 0) return [];
+      team.characters[ia] = b;
+      team.characters[ib] = a;
+      return [
+        { type: 'troop-reposition', targetId: a.id, to: ib === team.characters.length - 1 ? 'back' : 'front' },
+        { type: 'troop-reposition', targetId: b.id, to: ia === team.characters.length - 1 ? 'back' : 'front' },
+      ];
     },
   };
 }
