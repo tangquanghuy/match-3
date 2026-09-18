@@ -96,11 +96,16 @@ export type SummonTemplate = Omit<Character, 'id' | 'defeated' | 'statuses'>;
  *   - template：直接给一份手写属性模板
  *   - ref：引用一个已有兵种 referenceName（由 resolveRef 映射为模板）
  *   - randomOf：候选 referenceName 集合，执行期用种子化 RNG 确定性选一个
+ *   - randomOfKingdom：按王国随机（武器原语批 K-E，「召唤一名来自X王国的随机部队」）——
+ *     执行期经 resolveKingdomSummonRefs 取该王国的兵种引用清单（troops.json kingdom 字段
+ *     口径），再种子化掷选一条走 resolveRef 解析；清单为空/解析器缺省 → 安全跳过
+ *     （官方语义 = 整个王国兵册均匀随机，运行时取册而非组装期快照清单）。
  */
 export type SummonSource =
   | { template: SummonTemplate; troopId?: number }
   | { ref: string; troopId?: number }
-  | { randomOf: string[]; troopId?: number };
+  | { randomOf: string[]; troopId?: number }
+  | { randomOfKingdom: string; troopId?: number };
 
 export interface SummonParams {
   /** 召唤物来源 */
@@ -134,13 +139,22 @@ function deriveCharId(ctx: EffectContext): number {
 
 /**
  * 把召唤来源解析为具体属性模板（需求 7.1, 7.3, 7.4）。
- * template→直接用；ref→经 resolveRef 映射；randomOf→种子化选一个再映射。
+ * template→直接用；ref→经 resolveRef 映射；randomOf→种子化选一个再映射；
+ * randomOfKingdom→先经 resolveKingdomSummonRefs 取王国兵册再种子化选一个映射。
  * 无法解析返回 null（调用方安全跳过）。
  */
 function resolveTemplate(params: SummonParams, ctx: EffectContext): SummonTemplate | null {
   const src = params.source;
   if ('template' in src) return src.template;
   if ('ref' in src) return params.resolveRef?.(src.ref) ?? null;
+  // randomOfKingdom（K-E 批）：王国兵册清单 → 种子化掷选 → resolveRef 映射；
+  // 映射器缺省 / 清单空（null 或 []）→ 安全跳过（rng 不消耗，与 ref 无解析器同口径）
+  if ('randomOfKingdom' in src) {
+    const refs = ctx.resolveKingdomSummonRefs?.(src.randomOfKingdom);
+    if (!refs || refs.length === 0) return null;
+    const pick = refs[ctx.rng.nextInt(refs.length)];
+    return params.resolveRef?.(pick) ?? null;
+  }
   // randomOf：确定性选取
   if (src.randomOf.length === 0) return null;
   const pick = src.randomOf[ctx.rng.nextInt(src.randomOf.length)];

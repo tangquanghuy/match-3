@@ -95,6 +95,15 @@ export interface BattleRequest {
    * PvP 结算经济（bloodandglory 的荣耀映射）。既有请求不传即无影响。
    */
   mode?: 'pvp';
+  /**
+   * 战斗发生王国（武器原语批 K-E，用户裁定口径）：探索/入侵模式 = 当前王国名
+   * （对齐 kingdoms 数据的王国名，如 troops.json 的 kingdom 字段取值），
+   * 竞技场对战 = null。缺省（undefined）= 旧宿主兼容口径，与 null 同效。
+   * 引擎消费点：条件 `{ kind: 'kingdomPresent', kingdom }`（「战斗发生在X王国」）——
+   * null/undefined 时恒为假。经 createGameState opts 注入 GameState.kingdom。
+   * 可选字段，不构成 schemaVersion 变更。
+   */
+  kingdom?: string | null;
 }
 
 /** 单个角色的战斗结束状态。 */

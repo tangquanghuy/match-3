@@ -631,6 +631,17 @@ export class TurnEngine {
   }
 
   /**
+   * 王国 → 该王国兵种 referenceName 清单 的解析器（武器原语批 K-E，「召唤一名来自X王国的
+   * 随机部队」randomOfKingdom 召唤来源的候选池）：由装配层从 troops.json kingdom 字段
+   * 提供。缺省时该来源安全跳过（零随机消耗），既有对局不受影响。
+   */
+  private summonKingdomResolver: ((kingdom: string) => string[] | null) | null = null;
+
+  setSummonKingdomResolver(resolver: (kingdom: string) => string[] | null): void {
+    this.summonKingdomResolver = resolver;
+  }
+
+  /**
    * 恶魔传送门宝石的随机恶魔候选池（TroopType 含 Daemon 的 referenceName 列表）。
    * 由装配层从 troops 数据注入；缺省空池 → 传送门只爆炸不召唤（零随机消耗）。
    */
@@ -2286,6 +2297,7 @@ export class TurnEngine {
     if (chosenTargetId !== undefined) ctx.chosenTargetId = chosenTargetId;
     if (chosenCell !== undefined) ctx.chosenCell = chosenCell;
     if (this.summonResolver) ctx.resolveSummonRef = this.summonResolver;
+    if (this.summonKingdomResolver) ctx.resolveKingdomSummonRefs = this.summonKingdomResolver;
     return ctx;
   }
 }

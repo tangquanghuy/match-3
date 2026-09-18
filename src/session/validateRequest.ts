@@ -290,6 +290,12 @@ export function validateBattleRequest(raw: unknown, opts: ValidateOptions): Vali
   validateTeam(issues, 'playerTeam', raw.playerTeam, opts, seenExternalIds);
   validateTeam(issues, 'enemyTeam', raw.enemyTeam, opts, seenExternalIds);
 
+  // kingdom 可选（武器原语批 K-E）：战斗发生王国；给了就必须是非空字符串或显式 null
+  //（竞技场口径）。类型错误按坏数据拒绝——静默忽略会让「战斗发生在X王国」类条件失真。
+  if (raw.kingdom !== undefined && raw.kingdom !== null && !isNonEmptyString(raw.kingdom)) {
+    issues.push({ path: 'kingdom', code: 'bad-type', message: '必须是非空字符串或 null' });
+  }
+
   if (issues.length > 0) return { ok: false, issues };
   return { ok: true, request: raw as unknown as BattleRequest };
 }

@@ -564,10 +564,19 @@ export interface Character {
   /**
    * 王国归属（对齐 GoW 的 `KingdomId` → kingdoms 数据的王国名，如 `Merlantis`/`Dhrak-Zum`）。
    * 原语 Wave4 批消费点：条件 kingdomOf（「如果敌人来自 Merlantis」）与
-   * modifier 来源 alliesOfKingdom/enemiesOfKingdom（「因 Dhrak-Zum 盟友数量而增强」）。
+   * modifier 来源 alliesOfKingdom/enemiesOfKingdom（「因 Dhrak-Zum 盟友数量而增强」）；
+   * 武器原语批（K-E）追加消费点：段级 targetKingdom 目标过滤（「给予所有白盔国盟友…」）。
    * 可选：宿主快照未携带或手写夹具省略即不属于任何王国（条件不成立、计数不计入）。
    */
   kingdom?: string;
+  /**
+   * 淬炼段位（武器原语批 K-E，官方 Doomed 档武器「+N per Tempering level」的缩放来源）：
+   * 施法者（主角）的武器淬炼等级。modifier 来源 `{ kind: 'tempering' }` 按它计数——
+   * 「Deal [Magic + 10] …, +4 per Tempering level」= 淬炼段 modifier {multiplier 4}：
+   * level 2 → +8、level 0 / 缺省（undefined 按 0 计）→ 增项为 0，数值退化为普通一次缩放。
+   * 可选：meta 层淬炼系统接入前恒缺省（=0），不影响既有对局。
+   */
+  temperingLevel?: number;
   /**
    * 由 `traitIds` 编译出的被动修正，战斗开始时算一次。
    * 结算路径只读这里，不查特质注册表，见 `src/engine/traits.ts`。

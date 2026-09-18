@@ -29,6 +29,20 @@ export interface GameState {
   actionLog: ActionLogEntry[];
   /** 战场经济池（金币/灵魂/宝石），全场共用，见 BattleEconomy 注释 */
   economy: BattleEconomy;
+  /**
+   * 战斗上下文·发生王国（武器原语批 K-E，用户裁定口径）：探索/入侵模式 = 当前王国名，
+   * 竞技场 = null；字段缺省（undefined）= 旧请求兼容口径，与 null 同效。
+   * 唯一消费点：条件 `{ kind: 'kingdomPresent', kingdom }`（「战斗发生在X王国」）——
+   * 本字段为 null/undefined 或与条件 kingdom 不相等时恒为假。经 BattleRequest.kingdom
+   * → createGameState opts 注入（宿主/表现层接线，引擎不做隐式推断）。
+   */
+  kingdom?: string | null;
+}
+
+/** createGameState 的可选战斗上下文（武器原语批 K-E）。 */
+export interface GameStateOptions {
+  /** 战斗发生王国；语义见 GameState.kingdom 注释。缺省不写键（undefined = 恒假口径）。 */
+  kingdom?: string | null;
 }
 
 /** 创建初始对局状态 */
@@ -37,6 +51,7 @@ export function createGameState(
   leftTeam: Team,
   rightTeam: Team,
   startingPlayer: PlayerSide = PlayerSide.Left,
+  opts?: GameStateOptions,
 ): GameState {
   return {
     board,
@@ -50,5 +65,6 @@ export function createGameState(
     winner: null,
     actionLog: [],
     economy: { gold: 0, souls: 0, gems: 0, maps: 0 },
+    ...(opts && opts.kingdom !== undefined ? { kingdom: opts.kingdom } : {}),
   };
 }
