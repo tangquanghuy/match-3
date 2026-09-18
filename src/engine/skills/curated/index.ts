@@ -90,6 +90,7 @@ import { BATCH_R20 } from './batch-r20';
 import { BATCH_P41 } from './batch-p41';
 import { BATCH_R22 } from './batch-r22';
 import { BATCH_R21 } from './batch-r21';
+import { BATCH_R24 } from './batch-r24';
 import { BATCH_R19 } from './batch-r19';
 import { BATCH_R18 } from './batch-r18';
 import { BATCH_R10 } from './batch-r10';
