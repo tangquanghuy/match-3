@@ -1,29 +1,37 @@
 /**
- * 放弃桶回收批 R19（2026-09-18，与 R18 并行 · 分界 id ≥ 8700）。
+ * 放弃桶回收批 R19（2026-09-18 · 终判收口批）。
  *
- * 工作面 = 「从未组装也未在 SKIPPED」的 id ≥ 8700 条目 + tmp/remaining_all.json 中
- * id ≥ 8700 的 SKIP 记录用 Wave4 后全词汇重判可挽救者。判读依据 = 官方英文原句
- * （data/raw/gow-2026-09-18 troops.en.json stats.spell.desc）与官方 SpellSteps
- * （data/raw/spells.gow.en.json RawData.SpellSteps），原句优先于机翻 ZH。
+ * 工作面 = tmp/remaining_all.json 现存 23 个 unique 未组装 id（= r22 SKIPPED 全量，
+ * 8320 已被 batch-p41 收录除外），用当前全词汇（Wave4 + R22 原语 + 波B 宝石）逐条终判。
+ * 判读依据 = 官方英文原句（data/raw/gow-2026-09-18 troops.en.json，7xxx 段经
+ * referenceName 映射、stats.spell.id 对齐）与官方 SpellSteps（spells.gow.en.json /
+ * gow-2026-09-18/spells.en.json RawData；7xxx 旧咒语无步骤数据），原句优先于机翻 ZH。
  *
- * 本批口径：
- * - 二次缩放尾缀编码（r11 实测推广）：Count* Amount/100 = ×N（multiplier 系）；
- *   Amount ≈ 100/N = [N:1]（ratio 系，34→[3:1]/50→[2:1]/100→[1:1]/10→[10:1]/20→[5:1]/25→[4:1]）。
- * - 王国计数/条件首落地：alliesOfKingdom（8723/8985/9245/9249/9588）+ kingdomOf 条件
- *   （9593「敌人来自 Merlantis」= builders.ts Wave4 注记的官方出处）。注意 8985「狂野皇廷」
- *   = 官方 KingdomId 3048，本地 troops.json 王国名为「卜筮之原」（kingdom 匹配按本地名）。
- * - 晋升度惰性建模（r16 口径）：Boss/高塔 ×「3-5 倍」= anyOf[targetRace, ascended≥3] 取下限 3。
- * - 战场经济来源扩用：battleGold（9005/9259/8749/9316/8732）、battleSouls（9180/9551/9586/9987）、
- *   battleMaps（9342）+ gainMaps/gainGold/gainSouls 获得段。
- * - Wave4 新词消费：convertSpecial+tiers（8801）、perDestroyed（9060/9869）、lastReduce（9815）、
- *   mana fraction（8923/9463）、CreateGems2Colors 闪电对（9198）、rangeSpec+split（9281）。
- * - 「吞噬」= execute 即杀段（w01 7380 口径）；条件/几率吞噬挂 ifCond/chance/chanceBoost。
- * - ZH 机翻漏译按 EN/ST 补齐（8895 藏宝图子句，8930 EN 优先口径）；绑定口径见条目注释。
+ * 本批挽救 5 条（此前批次的卡点已被后续引擎/词汇落地解锁）：
+ * - 8464：boardGems 'CHOSEN' + except Yellow（R22 来源扩展；EN 原句实锤
+ *   「boosted by a chosen Gem Colour (except Yellow)」，官方 CountGems FromTarget x300 = ×3）；
+ * - 8566：perCount × boardSpecial lycanthropyGem（狼化宝石波B 落地补齐计数端；
+ *   death-mark 在 STATUS_WHITELIST；官方 InflictEffectOnRandomTroops UseCounterForAmount）；
+ * - 8902：elementalStar 波B 落地（r19 9046 已在用）+ enemyLastN(2) 首位 = 倒数第二
+ *   （r7 8305 官方复核口径）+ 双来源各 ×2（r17 7650）；
+ * - 8925：spiritGem 已实现（r19 8920 先例）+ lastTargetRace 全局条件（R22）表达
+ *   「若对方是一名骑士」——目标相对条件挂无目标创造段的替代路径；
+ * - 9546：createGemsMixAny 色×特殊端点（R22）× decayGem 波B 落地。
+ *
+ * 仍留弃 18 条（分组见批尾注记）：狼化状态施加不在 STATUS_WHITELIST（本批无权改测试
+ * 文件）、敌方黄金池无来源（8568/8859/8904/9189）、转换 count 无 modifier 通道（9545）、
+ * 几率上限（10061）、自复活（7542）、冻结前状态快照（7690）、双结构 modifier（7483）、
+ * 伤害/灼烧公式无数值（7328/7402）、孤儿尾缀不可绑（7713/7987）、官方步骤与尾缀编码
+ * 互斥（8377）、周边位置计数（8804）、创造段无 chosen 驱动（8737）。
+ *
+ * 保留声明：本文件同时承载 R19 前判已验收的 97 条组装（8715-9987 段，别处无副本），
+ * 覆写时逐字保留、条目升序不变；旧 SKIPPED 中已由 r21/r22 回收的条目（8880/9252/9341/
+ * 9364/9369/9492/9812/9959）移出本批 SKIPPED，避免覆盖率报告对同一 id 重复记弃。
  */
 import type { CuratedBatch } from './index';
 import {
   skill, dmg, dmgSplash, trueDmg, heal, armor, attack, magic, mana, reduce, steal,
-  cleanse, randomStat, inflict, inflictRandom, createGems, createMix, createSkulls,
+  cleanse, randomStat, inflict, inflictRandom, createGems, createGemsMixAny, createMix, createSkulls,
   createSpecialGems, createSpecialGems2, transform, transformToSpecial, convertSpecial,
   destroyColor, destroyAllColors, destroyRandomCols, destroyChosenCol, destroyRandomGems,
   explodeRandomGems, explodeRandomSpecialGems, explodeSpecialGems, explodeSkulls,
@@ -54,22 +62,59 @@ const CHOSEN_COLOR: Condition = { kind: 'targetColor', color: 'CHOSEN' };
 const DAEMON_REFS = ["AncientHorror","SpiderQueen","Abhorath","Webspinner","Moloch","TheSilentOne","Gorgotha","Kerberos","Cthyryzyx","Terraxis","Psion","Abynissia","Quasit","Hellhound","Succubus","HeraldOfChaos","InfernalKing","Venbarak","War","Plague","Famine","Death","Marilith","Hellcat","Creeper","KruargTheDread","Desdaemona","Warg","Incubus","DarkMonolith","Myzmer","Elemaugrim","CorruptedUrska","BoneDaemon","Hellspawn","Spinnerette","Doomclaw","YaoGuai","Erinyes","Tzathoth","Gargantaur","TomeOfEvil","Hellcackle","Glaycion","Nightmare","SirMordayne","Umbraxis","ThePossessedKing","Sloth","Envy","Greed","Gluttony","Barghast","Pride","Wrath","Lust","SibylOfLust","SoldierOfWrath","WallOfTentacles","Bael","VashDagon","QueenOfSin","Glutmaw","Obsidius","Lamashtu","PossessedUrska","BrokerOfGreed","EnvoyOfPride","MotherOfDarkness","GateOfSouls","Lucifria","Blightwing","Deminaga","TheInfernalMachine","Ironjaw","Tartarus","Netherhound","EldritchGuardian","FellDragonEgg","FellDragon","Nocturnia","HeraldOfWoe","IndolatorOfSloth","ShadeOfKurandara","Kurandara","EnragedKurandara","DaemonGnome","Mambasira","Arcturion","HeraldOfDamnation","Baphomet","TheScourgeOfHonor","DeepGolem","NyarMel","HoundOfYaoGuai","MaidOfEnvy","TheArchduke","Lemure","Fury","Charonas","JudgeOfTheDead","HellclawHunter","HellclawMage","HellclawWarrior","Indrajit","HelgorTheGuardian","FlamingOni","Oneiros","RedAhriman","AbjectOfDespond","Despond","BileBlackheart","AnimusOfEnvy","HornedHag","ConsortOfDarkness","EldritchMinion","Uvhash-Ka","WarMachine","HellclawRager","HeraldOfBlight","HellstoneGate","HeraldOfTorpor","Czernobog","Nabassu","Xenith","Tourmaline","Chalcedony","Petrahulk","StoneMefyt","TheElderDragon","VrawkDaemon","EldritchDisciple","Voidcaller","TheBaneOfMercy","EyeOfArges","InfernalVoyager","TheIronMaiden","TriTerror","DaemonChild","TheVoidDragon","Tempurath","DaemonicSentinel","Hellborer","DarkHerald","Groevanga","FellHydra","Isban","Goethite","SuccubusQueen","Bieska","HoundmasterGor","BlightHound","Astaroth","DaeDrak","MelekTauss","DoomedGuardian","StingBat","TheBaneOfValor","Redreaver","LionOfYaoGuai","Discordia","ImmortalAbaddon","BlightedHusk","BaneOfAmbition","HellclawShadowpriest","Polymetis","DagoNath","FelineOfEnvy","Skarn","MaidenOfPain","HeraldOfWar","Azbeel","OkraNosTheSleeper","Voidjaw","ChampionOfRot","BloodSpore","InfernalTrickster","Seditius","ImmortalZephaar"];
 
 const SKIPPED: { id: number; reason: string }[] = [
-  { id: 8859, reason: '「窃取黄金 [100:1]」二次缩放来源不支持（敌方黄金计数无 source kind，battleGold 为共用池总额）；随机技能值窃取本身可表达' },
-  { id: 8880, reason: '「混合紫色和骷髅头的宝石」创造无原语（createMix 仅六色、createSpecialGems2 仅双特殊，batch-36 9312 口径）；灵魂/净化本身可表达' },
-  { id: 8902, reason: '「倒数第二位敌人」(SecondLastEnemy) 无对应目标模式（enemyNth 为静态 n，无法动态取倒数第二）' },
-  { id: 8904, reason: '「因窃取黄金数而增强」来源缺失（battleGold 为战场池总额、非本次窃取额）；[50:1] 无可绑来源' },
-  { id: 9189, reason: '「窃取所有黄金」无数量来源原语（敌方黄金池不可读）；尾缀 [x10] 无文本落点，语义拿不准' },
-  { id: 9252, reason: '「每有一个红色盟友则使随机敌人陷入恐怖」= 在场计数驱动施加，perDestroyed 仅辖被摧毁宝石（9287 同族无原语）' },
-  { id: 9341, reason: '「每有 10 黄金则使随机敌人陷入疾病」= 经济计数驱动施加，状态段无计数驱动位（r16 UseCounterForAmount 口径）' },
-  { id: 9364, reason: '几率来源「敌人最常用法力色的宝石数」——boardGems 来源 color 仅收 BaseColor，不支持 ENEMY_MOST_USED 动态色' },
-  { id: 9369, reason: '「消除所有敌人正面增益」泛指驱散仍不做（§6）；「3-[(魔法 x 1.33) + 2] 点真实伤害」数值区间亦 blocked（伤害区间族）' },
-  { id: 9492, reason: '「几率随被摧毁的头骨数量而增强」——destroyedGems 来源无骷髅筛（仅基色，r17 8812 同卡点）；5x5 圆/即杀本身可表达' },
-  { id: 9545, reason: '「转换数量因诅咒敌人数增加」——transform count 为静态缩放、无 modifier 通道；诅咒/死亡标记施加本身可表达' },
-  { id: 9812, reason: '「若有敌人死亡」跨段任意死亡绑定缺失（2 目标段 ifTargetDied 仅判最近段主目标，r16 9986 同口径）' },
-  { id: 9959, reason: '文本「引爆2-5颗宝石」与官方步骤（ExplodeGems 2+1+1+1 无掷签 = 固定 5）互相矛盾，语义拿不准' },
+  { id: 7328, reason: '「法力灼烧，伤害值因自身魔法值而增强」= Mana Burn 伤害公式原文无数值（7xxx 无步骤数据；drain 全额可表、灼烧伤害量不可），meta.modifier 为空不许挂 modifier（r17-r22 口径维持）；Yellow→Blue 转换本身可表' },
+  { id: 7402, reason: '「伤害值等同于一名盟友的攻击力」= 泛指单体盟友（哪一名？）无来源 kind（allyStatSum 为总和、chosenStat 为手动选定目标）——「3 到 8 点法力」数值区间已可由 R22 rangeSpec 表达，但首句卡死整条（r17-r22 口径维持）' },
+  { id: 7483, reason: '「伤害值等同于自身的攻击力，并因棕色敌军数量而增强 [x10]」= 伤害基数=攻击力（×1）与来源计数（×10）双结构，modifier 单 mod 无法同表（r21/r22 编码歧义不猜口径维持）' },
+  { id: 7542, reason: '「凤凰涅槃浴火重生」= 自复活无引擎机制（r18-r22 口径维持）；散射 + selfStat hp [1:1] 本身可表' },
+  { id: 7690, reason: '「如果该敌人已被冻结，则再造成 5 点伤害」= 条件须读施加冻结**之前**的状态快照，段序执行后 targetStatus 恒真（时序绑定无原语，r17-r22 口径维持）；「冻结其上下左右的敌人」= enemyAboveTarget/BelowTarget 可表但被条件句卡死' },
+  { id: 7713, reason: '「窃取攻击力并给予第一位盟友」重定向本可用 lastReduce+attack(allyFront) 表达，但孤儿尾缀 [20:1] 无来源子句、7xxx 无步骤数据可考；读作混合配比亦不可表（mixAny 均匀掷选无权重通道）——不可绑不硬凑（r14#12）' },
+  { id: 7987, reason: '「窃取护甲转换成随机技能值给予第一位盟友」= lastReduce+randomStat 重定向路径可表，但孤儿尾缀 [100:1] 无来源子句、7xxx 无步骤数据可考——不可绑不硬凑（r17-r22 口径维持）' },
+  { id: 8377, reason: '官方步骤（CountMagic 100 → CountMaxWithMagic [M+1] → IncreaseRandom @AllAllies）与 desc 尾缀 [100:1] 编码互斥（Amount 100 按尾缀编码应映射 [1:1]），无法对号（r21/r22 口径维持）' },
+  { id: 8553, reason: '「陷入狼化状态」：引擎已实现 lycanthropy 状态本体（WOLF_STATUS_IDS/狼化宝石摧毁触发），但组装侧 STATUS_WHITELIST 未扩容且本批无权改测试文件——inflict 段必被白名单校验拒绝；狼化宝石创造/紫色计数额外回合本身可表' },
+  { id: 8567, reason: '「若板面上有狼化宝石」= 特殊宝石在场条件不在条件域（boardAtLeast 只计基色/骷髅）+ 狼化状态施加同 STATUS_WHITELIST 缺口（r20-r22 口径维持）' },
+  { id: 8568, reason: '「窃取敌人黄金」= 敌方黄金池无来源（economy 为共用池，TakeEnemyGold/CountEnemyGold 无对应 source kind），尾缀 [100:1] 无处绑定（r19-r22 口径维持）；耗蓝 8 点+冻结本身可表' },
+  { id: 8737, reason: '「选择一个盟友，创造其法力颜色宝石」= 全咒语仅创造段、无任何 chosen 段驱动 TargetChooser（prototypeChosenTargetMode 只认带 target 字段的段），CHOSEN_TARGET 无回退值整段跳过（r19/r21/r22 口径维持）' },
+  { id: 8804, reason: '「宝石附近或下方每有一颗绿色宝石」= 以创造宝石格为锚的周边位置计数（官方 BoardTarget SurroundingGems），boardGems 为全盘口径无位置来源（r19-r22 口径维持）；石像鬼宝石创造/额外回合本身可表' },
+  { id: 8859, reason: '「窃取黄金」&& 子句 = 敌方黄金池无来源（首句即卡，按序编译整条不可拆），尾缀 [100:1] 来源=CountEnemyGold（敌方黄金计数）无 source kind（r19-r22 口径维持）；随机技能值窃取本身可表' },
+  { id: 8904, reason: '「数值因窃取黄金数而增强 [50:1]」= 本次窃取黄金额无来源 kind（battleGold 为共用池总额、非本次窃取额）（r19-r22 口径维持）' },
+  { id: 9189, reason: '「窃取一名敌人所有黄金数」= 敌方黄金池无来源，尾缀 [x10] 来源=敌方黄金计数无 source kind（r19-r22 口径维持）；伤害+出血段本身可表' },
+  { id: 9545, reason: '「诅咒敌人数量增加」= 转换颗数不可挂 modifier（transform count 仅静态缩放，gems.ts 无该通道；官方 ConvertGems UseCounterForAmount 无论替换/叠加基数均无通道）；紫龙宝石（dragonGem spec.color 波B）转换+诅咒/死亡标记施加本身可表（r21/r22 宝石卡点已解锁，计数卡点维持）' },
+  { id: 10061, reason: '「击杀几率受其护甲值提升（最高可达 30%）」= 几率上限无法表达（chanceBoost 线性叠加后夹取 [0,1]，无 cap 原语）+ ZH 30% 与官方 CountMax 20 互相矛盾（r19/r21/r22 口径维持）；伤害+拉到后方本身可表' },
 ];
 
 const SPELLS: CuratedBatch['spells'] = [
+  {
+    id: 8464,
+    desc: '造成 [魔法 + 20] 点散射伤害，伤害值因选定的颜色（黄色除外）而增强。再创造 10 颗黄色宝石，并移除所有选定颜色的宝石。 [x3]',
+    // r22 卡点回收：EN 原句实锤「boosted by a chosen Gem Colour (except Yellow)」（r22 误读为
+    // ZH 独有）→ boardGems 'CHOSEN' + except Yellow（R22 来源扩展，注明「8464 口径备用」即本条）；
+    // [x3] = 官方 CountGems FromTarget x300；裸散射 = 全体散射（官方 ScatterDamage@AllEnemies）；
+    // 「移除所有选定颜色的宝石」= RemoveColor FromTarget → destroyColor(CHOSEN)。玩家若选黄，
+    // 加成计 0（官方选色器排除黄，引擎超集口径并注明）。
+    build: skill(
+      dmg('enemyAll', 20, 1, {
+        range: 'all',
+        modifier: { mod: { kind: 'multiplier', a: 3 }, source: { kind: 'boardGems', color: 'CHOSEN', except: BaseColor.Yellow } },
+      }),
+      createGems(BaseColor.Yellow, 10),
+      destroyColor(CHOSEN),
+    ),
+  },
+  {
+    id: 8566,
+    desc: '窃取一名敌人 [魔法 + 2] 点生命值。板面上每有一颗狼化宝石，则使一名随机敌人陷入死亡标记状态。 [1:1]',
+    // r22 卡点回收：狼化宝石 lycanthropyGem 波B 落地 → boardSpecial 计数端补齐；
+    // 「每有一颗狼化宝石则使一名随机敌人死亡标记」= perCount（官方 InflictEffectOnRandomTroops
+    // UseCounterForAmount @AllEnemies，9252/9287 口径；[1:1] = CountGems Lycanthropy x100 编码）；
+    // 「窃取生命」= steal hp→hp（9282 口径）。death-mark 在 STATUS_WHITELIST；
+    // 狼化「状态」施加仍不在白名单（8553/8567 留弃），本条只涉宝石计数、无碍。
+    build: skill(
+      steal('enemyChosen', 'hp', 'hp', 2, 1),
+      inflict('death-mark', 'enemyAll', {
+        perCount: { mod: { kind: 'multiplier', a: 1 }, source: { kind: 'boardSpecial', gem: 'lycanthropyGem' } },
+      }),
+    ),
+  },
   {
     id: 8715,
     desc: '摧毁所有绿色宝石。创造蓝色宝石，数量等同于被摧毁的宝石数。有个别 30% 的几率吞噬 2 名随机敌人。 [1:1]',
@@ -217,6 +262,26 @@ const SPELLS: CuratedBatch['spells'] = [
     ),
   },
   {
+    id: 8902,
+    desc: '对倒数第二位敌人造成 [魔法 + 4] 点严重溅射伤害，伤害值因棕色宝石数和盟友数而增强。将其拉到首位。再创造 3 颗元素星。 [x2]',
+    // r22 卡点回收：元素星 elementalStar 波B 已落地（r19 9046 同款创造）；「倒数第二位敌人」
+    // （官方 SecondLastEnemy）目标词表无精确词汇 → enemyLastN(2) 首个 = 倒数第二（r7 8305
+    // 官方复核口径；splash 池主目标 = targets[0]，alive.slice(-n) 保队序）；「棕色宝石数和
+    // 盟友数」双来源各 ×2（官方 CountGems Brown/CountArmyColor x200，r17 7650 口径）；
+    // 「将其拉到首位」= reposition lastTarget 跨段绑定（§12.3，官方 TroopOrderFront）。
+    build: skill(
+      dmgSplash('enemyLastN', 4, 1, {
+        n: 2,
+        modifier: {
+          mod: { kind: 'multiplier', a: 2 },
+          sources: [{ kind: 'boardGems', color: BaseColor.Brown }, { kind: 'teamSize', side: 'ally' }],
+        },
+      }),
+      reposition('lastTarget', 'front'),
+      createSpecialGems({ kind: 'elementalStar' }, 3),
+    ),
+  },
+  {
     id: 8920,
     desc: '创造 8 颗黄色宝石和 8 颗灵力宝石。获得法印效果。',
     // 灵力宝石 = spiritGem（官方 CreateGems Spirit 无色，r14 8917 同款缺省）
@@ -245,6 +310,20 @@ const SPELLS: CuratedBatch['spells'] = [
     build: skill(
       mana('allyOthers', 0, 0, { fraction: 0.25 }),
       cleanse('allyOthers'),
+    ),
+  },
+  {
+    id: 8925,
+    desc: '赋予一名盟友屏障效果，并给予其半数法力值。若对方是一名骑士，则创造 3 颗灵力宝石。',
+    // r22 卡点回收：灵力宝石 spiritGem 已实现（r19 8920 同款无色创造，官方 CreateGems
+    // Spirit StatusAmount 3）；「若对方是一名骑士」= lastTargetRace Knight（R22 全局条件
+    // 读跨段追踪主目标——屏障/法力段的 allyChosen 目标；目标相对条件挂无目标创造段会
+    // 整段跳过，lastTarget 族为官方 AddForKnight 的正解路径）；
+    // 「半数法力值」= GenerateHalfMana → mana halve（按目标 manaCost 现算，§9.6）。
+    build: skill(
+      inflict('barrier', 'allyChosen'),
+      mana('allyChosen', 0, 0, { halve: true }),
+      createSpecialGems({ kind: 'spiritGem' }, 3, 0, { ifCond: { kind: 'lastTargetRace', race: 'Knight' } }),
     ),
   },
   {
@@ -787,6 +866,17 @@ const SPELLS: CuratedBatch['spells'] = [
     ),
   },
   {
+    id: 9546,
+    desc: '创造 10 颗棕色和腐烂宝石的混合体。将第一个敌人击退。',
+    // r19 卡点回收：腐烂宝石 decayGem 波B 落地 + createGemsMixAny 色×特殊端点（R22，
+    // 9780 口径：官方 CreateGems2Colors Brown/Decay Amount 10 逐颗掷选）；
+    // 「将第一个敌人击退」= reposition('enemyFront','back')（官方 TroopOrderBack @FrontEnemy）。
+    build: skill(
+      createGemsMixAny([BaseColor.Brown, { kind: 'decayGem' }], 10),
+      reposition('enemyFront', 'back'),
+    ),
+  },
+  {
     id: 9551,
     desc: '对敌人造成 [魔法 + 2] 点伤害，伤害值由我的灵魂数增强。如果敌人是塔，则根据我的升天数造成 3 倍 - 5 倍伤害。获得 5 个灵魂。 [1:1]',
     // [1:1] = CountMySouls x100 编码 → ratio 1:1 battleSouls；「塔」= CASTLE_ASC3
@@ -1129,46 +1219,31 @@ const SPELLS: CuratedBatch['spells'] = [
 ];
 
 /**
- * 本批复核仍留弃条目（SKIP 记录保留在原批次文件，避免重复计数；此处仅记 R19 复核结论）：
+ * 本批（终判）留弃 18 条分组注记（SKIP 记录见上方 SKIPPED 数组；此前复核结论中已被
+ * r21/r22 回收的条目——8812/8927/9052/9571/9723/9780/9986、8838/8915/9237/9284/9462/9471、
+ * 8931/9055/9181、9287、9812、8880/9252/9341/9364/9369/9492/9959——均已移出本批口径）：
  *
- * 【指定盟友法力色无占位】
- * - 8737：「选择一个盟友，创造其法力颜色宝石」——ColorSpec 无 'ALLY(选定盟友)' 占位
- *   （'CASTER'/'ENEMY'/'LAST_TARGET' 均不合；r17 同卡点）。
+ * 【狼化状态白名单缺口（引擎已实现、测试白名单未扩）】
+ * - 8553（狼化施加 + 狼化宝石创造 + 紫计数额外回合）、8567（狼化宝石在场条件 + 狼化施加 +
+ *   收回法力）——本批无权改 tests/unit/spellData.test.ts STATUS_WHITELIST；
+ *   8566 只涉狼化宝石计数（宝石≠状态）故可组装。
  *
- * 【位置/周边计数】
- * - 8804：「宝石附近或下方每有一颗绿色宝石」周边位置计数无 modifier 来源（boardGems 为全盘）；
- * - 8812：「每有一颗骷髅头被摧毁则再爆破」——destroyedGems 无骷髅筛；
- * - 9052：「爆破一颗宝石和其两边的宝石」一行三格无此面积形状（cross3 为十字）。
+ * 【敌方黄金池无来源（TakeEnemyGold/CountEnemyGold 无 source kind）】
+ * - 8568（窃金+尾缀）、8859（窃金 && 随机技能窃取）、8904（窃金额驱动伤害 [50:1]）、
+ *   9189（窃全部黄金 [x10]）。
  *
- * 【敌方侧种族计数来源缺失（enemiesOfRace 族待引擎扩）】
- * - 8838（亡灵+恶魔双侧四来源）、8915（恶魔敌人+盟友）、9237（不死+恶魔敌人）、
- *   9284（鬼魂宝石+不死敌人双来源）、9462（敌我龙族）、9471（恶魔+娜迦四来源）。
+ * 【数值/公式不可考（7xxx 无步骤数据）】
+ * - 7328（法力灼烧伤害公式无数值）、7402（泛指「一名盟友的攻击力」无来源 kind）、
+ *   7483（基数=攻击力 ×1 与来源 ×10 双结构，modifier 单 mod 无法同表）、
+ *   7713/7987（孤儿尾缀 [20:1]/[100:1] 无来源子句不可绑）。
  *
- * 【状态段计数驱动 / 跨段任意死亡】
- * - 9287（每颗鬼魂宝石→屏障，在场计数驱动施加）、9986（「若有敌人死亡」4 目标段漏判，
- *   ifTargetDied 仅判最近段主目标）。
+ * 【时序/条件/上限缺口】
+ * - 7690（冻结前状态快照，段序后 targetStatus 恒真）、10061（击杀几率上限无 cap 原语 +
+ *   ZH 30%/官方 CountMax 20 矛盾）、8567（特殊宝石在场条件不在条件域）。
  *
- * 【目标相对条件挂无目标段】
- * - 8925：「若对方是一名骑士则创造灵力宝石」——创造段无目标无从判定（r16 口径）；
- *   屏障+半数法力本身可表达。
- *
- * 【晋升度外泄无碍、数值区间族】
- * - 8931（3-8 点法力）、9055（3-10 法力）、9181（3-10 法力）——GenerateRandomMana 数值区间
- *   仍 blocked（§9.8；8931/9055 其余部分现均可表达）。
- *
- * 【色+特殊宝石混合创造无原语】
- * - 9546（棕色+腐烂）、9780（绿色+流血）——createMix 仅颜色、createSpecialGems2 仅双特殊。
- *
- * 【伤害值→治疗量绑定】
- * - 9571：「将其作为生命赋予最弱的盟友」——治疗量绑定伤害额无原语（lastReduce 仅辖 reduce 族）。
- *
- * 【泛指驱散敌方增益】
- * - 9723：「驱散一名敌人」= 移除其全部正面增益，泛指驱散仍不做（§6）；屏障宝石加成/创造本身可表达。
- *
- * 【几率上限 / 内部编码矛盾】
- * - 10061：击杀几率「最高可达 30%」上限无法表达（chanceBoost 仅 [0,1] 夹取），官方 CountMax 20
- *   与 ZH 30% 亦互相矛盾；
- * - 8927/8871：ZH 描述截断（「数值因被摧毁的 [x5]」/「4 颗 [1:1]」末段缺失），8927 另有
- *   「被摧毁的石像鬼宝石」destroyedGems 无特殊宝石筛。
+ * 【其余】
+ * - 7542（凤凰涅槃自复活无机制）、8377（官方步骤与尾缀编码互斥无法对号）、
+ *   8804（以创造格为锚的周边位置计数无来源）、8737（全咒语无 chosen 段驱动目标选择器）、
+ *   9545（转换 count 无 modifier 通道；龙宝石本身波B 已解锁）。
  */
 export const BATCH_R19: CuratedBatch = { batch: 'R19', spells: SPELLS, skipped: SKIPPED };
