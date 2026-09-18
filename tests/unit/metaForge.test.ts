@@ -11,6 +11,9 @@ import {
   forgeTierUnlockLevel,
 } from '../../src/meta/systems/forge';
 import { SOULFORGE_RECIPES, findRecipe, recipesOfTier } from '../../src/meta/data/soulforge';
+import { newSave, planQuestEncounter, buildBattleRequest } from '../../src/meta';
+import { forgeCatalogWeapon, equipWeapon, equippedWeaponOf } from '../../src/meta/systems/hero';
+import { setTeamPreset } from '../../src/meta/systems/teamRules';
 
 describe('淬炼消耗表（设计值 §2）', () => {
   it('每级消耗 = 钢锭基数 × ceil(下一级/2) + 黄金 200×下一级', () => {
@@ -99,34 +102,72 @@ describe('熔炉（Soulforge）', () => {
   });
 
   it('锻造成功：返回武器 id', () => {
-    const r = forgeWeapon({ recipe, heroLevel: 20, owned: false, souls: recipe.souls, ingots: recipe.ingots });
+    const r = forgeWeapon({ recipe, heroLevel: 20, owned: false, souls: recipe.souls, gold: recipe.gold, ingots: recipe.ingots });
     expect(r).toEqual({ ok: true, weaponId: recipe.weaponId });
   });
 
   it('档位未解锁 / 已拥有 / 材料不足 → 汇总问题', () => {
-    const r = forgeWeapon({ recipe, heroLevel: 10, owned: true, souls: 0, ingots: 0 });
+    const r = forgeWeapon({ recipe, heroLevel: 10, owned: true, souls: 0, gold: 0, ingots: 0 });
     expect(r.ok).toBe(false);
     if (!r.ok) {
       expect(r.issues.map((i) => i.code)).toEqual([
         'TIER_LOCKED',
         'ALREADY_OWNED',
         'MISSING_SOULS',
-        'MISSING_INGOTS',
+        'MISSING_GOLD',
       ]);
     }
   });
 
-  it('Doomed 配方检查符卷', () => {
-    const doomed = findRecipe('DoomedTome');
-    expect(doomed?.scrolls).toBe(25);
-    const r = forgeWeapon({ recipe: doomed, heroLevel: 40, owned: false, souls: doomed!.souls, ingots: doomed!.ingots, scrolls: 0 });
+  it('Doomed 配方走黄金档（符卷通道二期）', () => {
+    const doomed = findRecipe('gw_DoomedTome');
+    expect(doomed?.rarity).toBe('Doomed');
+    const r = forgeWeapon({ recipe: doomed, heroLevel: 40, owned: false, souls: doomed!.souls, gold: 0 });
     expect(r.ok).toBe(false);
-    if (!r.ok) expect(r.issues.map((i) => i.code)).toContain('MISSING_SCROLLS');
+    if (!r.ok) expect(r.issues.map((i) => i.code)).toContain('MISSING_GOLD');
   });
 
   it('配方不存在 → BAD_RECIPE', () => {
-    const r = forgeWeapon({ recipe: null, heroLevel: 40, owned: false, souls: 0, ingots: 0 });
+    const r = forgeWeapon({ recipe: null, heroLevel: 40, owned: false, souls: 0, gold: 0, ingots: 0 });
     expect(r.ok).toBe(false);
     if (!r.ok) expect(r.issues.map((i) => i.code)).toEqual(['BAD_RECIPE']);
+  });
+});
+
+describe('锻造 → 装备 → 桥接全链（目录武器真实进战斗）', () => {
+  it('锻造 gw_Eggsplosion → 解锁+原子扣费 → 装备 → 主角快照用其法术/法力色，注册表有原型', () => {
+    const save = newSave({ now: 0, starterTroopIds: [6000, 6097, 6457] });
+    save.hero.level = 20;
+    save.currencies.souls = 50_000;
+    save.currencies.gold = 50_000;
+    // 主角编入 1 号位（默认队全是部队）
+    setTeamPreset(save, 0, { name: 'x', members: [{ kind: 'hero' }, { kind: 'troop', troopId: 6000 }, { kind: 'troop', troopId: 6097 }], bannerKingdomId: null });
+    const forged = forgeCatalogWeapon(save, 'gw_Eggsplosion');
+    expect(forged).toEqual({ ok: true, weaponId: 'gw_Eggsplosion' });
+    expect(save.hero.unlockedWeapons).toContain('gw_Eggsplosion');
+    expect(save.currencies.souls).toBe(30_000);
+    expect(save.currencies.gold).toBe(35_000);
+
+    const eq = equipWeapon(save, 'gw_Eggsplosion');
+    expect(eq).toEqual({ ok: true, weaponId: 'gw_Eggsplosion' });
+    const equipped = equippedWeaponOf(save)!;
+    expect(equipped.id).toBe('gw_Eggsplosion');
+    expect(equipped.manaColors.length).toBeGreaterThan(0);
+
+    const plan = planQuestEncounter('破碎尖塔', 1, 7);
+    const outcome = buildBattleRequest(save, plan);
+    if (!outcome.ok) throw new Error(outcome.message);
+    const hero = outcome.request.playerTeam.find((c) => c.externalId.endsWith('-hero'))!;
+    expect(hero.skillId).toBe('gw_Eggsplosion');
+    expect(hero.manaColors).toEqual(equipped.manaColors);
+    expect(outcome.registry.prototypes.get('gw_Eggsplosion')!.segments.length).toBeGreaterThan(0);
+  });
+
+  it('未锻造的目录武器不可装备（装备不送所有权）', () => {
+    const save = newSave({ now: 0, starterTroopIds: [6000, 6097, 6457] });
+    save.hero.level = 20;
+    const r = equipWeapon(save, 'gw_Dawnbringer');
+    expect(r.ok).toBe(false);
+    expect(save.hero.unlockedWeapons).not.toContain('gw_Dawnbringer');
   });
 });

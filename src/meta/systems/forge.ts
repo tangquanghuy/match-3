@@ -143,8 +143,10 @@ export interface ForgeRecipe {
   tier: ForgeTier;
   /** 灵魂消耗 */
   souls: number;
-  /** 钢锭消耗（对应稀有度档） */
-  ingots: number;
+  /** 黄金消耗 */
+  gold: number;
+  /** 钢锭消耗（对应稀有度档；v1 预留） */
+  ingots?: number;
   /** 熔铸符卷消耗（Doomed 配方） */
   scrolls?: number;
   note?: string;
@@ -156,7 +158,8 @@ export interface ForgeCraftInput {
   heroLevel: number;
   owned: boolean;
   souls: number;
-  ingots: number;
+  gold: number;
+  ingots?: number;
   scrolls?: number;
 }
 
@@ -185,7 +188,8 @@ export function forgeWeapon(input: ForgeCraftInput): ForgeCraftResult {
   }
   if (input.owned) issues.push({ code: 'ALREADY_OWNED', message: '已拥有该武器' });
   if (input.souls < r.souls) issues.push({ code: 'MISSING_SOULS', message: `灵魂不足（需要 ${r.souls}，持有 ${input.souls}）` });
-  if (input.ingots < r.ingots) issues.push({ code: 'MISSING_INGOTS', message: `钢锭不足（需要 ${r.ingots}，持有 ${input.ingots}）` });
+  if (r.gold > 0 && input.gold < r.gold) issues.push({ code: 'MISSING_GOLD', message: `黄金不足（需要 ${r.gold}，持有 ${input.gold}）` });
+  if (r.ingots !== undefined && (input.ingots ?? 0) < r.ingots) issues.push({ code: 'MISSING_INGOTS', message: `钢锭不足（需要 ${r.ingots}，持有 ${input.ingots}）` });
   if (r.scrolls !== undefined && (input.scrolls ?? 0) < r.scrolls) {
     issues.push({ code: 'MISSING_SCROLLS', message: `熔铸符卷不足（需要 ${r.scrolls}，持有 ${input.scrolls ?? 0}）` });
   }

@@ -1,15 +1,14 @@
 /**
- * 主角系统（M5）——等级/经验、职业装备与升级、武器装备、天赋解锁。
+ * 主角系统（M5/v2）——等级/经验、职业装备与冠军等级、武器装备。
  *
  * 口径：
  *  - 主角经验来自战斗胜利（结算钩子调用 addHeroXp，多级一次连升）；
- *  - 职业经验只在「主角编入队伍」的胜场里积累（与职业绑定）；
+ *  - 冠军（职业）经验只在「主角编入队伍」的胜场里积累（与职业绑定，上限 100）；
  *  - 职业解锁 = 王国任务链 8 关通关（settlement 写 unlockedClasses，本模块只做装备校验）；
  *  - 武器 = 主角唯一施法手段：解锁条件见 data/weapons.ts（职业 10/20 级、通用按主角等级）；
- *  - 天赋按职业等级自动生效（5/20/40/60/80），只输出已实现特质 code（traitIndex）。
+ *  - 天赋树/职业特质的选取与解锁在 systems/talents.ts（v2：7 档三树选一，可随时改配）。
  */
 import type { LeveledStats } from '../../data/leveling';
-import { TRAIT_LIBRARY } from '../../engine/traits';
 import type { MetaSave } from '../state/schema';
 import { fail, type MetaFailure } from '../types';
 import {
@@ -18,30 +17,21 @@ import {
   heroStatsAt,
   heroXpToNext,
   CLASS_MAX_LEVEL,
-} from '../data/hero';
+  type ClassDef,
+} from '../data/classes';
 import { weaponById, type WeaponDef } from '../data/weapons';
+import { catalogWeaponById, isCatalogId } from '../data/weaponCatalog';
+import { findRecipe } from '../data/soulforge';
+import { isFailure } from '../gateway/types';
+import { spend } from './wallet';
 
-const KNOWN_CODES: ReadonlySet<string> = new Set(TRAIT_LIBRARY.map((t) => t.code));
-
-/** 主角四维（不含王国加成——那是全体部队属性，桥接时统一加） */
+/** 主角四维（不含王国加成与天赋加成——桥接时统一加） */
 export function heroStatsOf(save: MetaSave): LeveledStats {
   return heroStatsAt(save.hero.level);
 }
 
 export function classLevelOf(save: MetaSave, classId: string): number {
   return save.hero.classLevels[classId] ?? 0;
-}
-
-/** 当前职业的已生效天赋 code（过滤到引擎已实现集合） */
-export function activeTalentCodes(save: MetaSave): string[] {
-  const classId = save.hero.classId;
-  if (!classId) return [];
-  const def = classById(classId);
-  const level = classLevelOf(save, classId);
-  if (!def || level <= 0) return [];
-  return def.talents
-    .filter((t) => level >= t.level && KNOWN_CODES.has(t.code))
-    .map((t) => t.code);
 }
 
 /** 主角加经验：可能连升多级；返回 {levelsGained, newLevel} */
@@ -56,7 +46,7 @@ export function addHeroXp(save: MetaSave, amount: number): { levelsGained: numbe
   return { levelsGained: gained, newLevel: save.hero.level };
 }
 
-/** 职业加经验（未装备/未解锁的职业不动） */
+/** 冠军等级加经验（未装备/未解锁的职业不动；上限 CLASS_MAX_LEVEL=100） */
 export function addClassXp(save: MetaSave, classId: string, amount: number): { levelsGained: number; newLevel: number } | null {
   if (!save.hero.unlockedClasses.includes(classId)) return null;
   const before = classLevelOf(save, classId);
@@ -94,8 +84,12 @@ export function canUseWeapon(save: MetaSave, weapon: WeaponDef): boolean {
 
 /** 装备武器：校验职业与等级，自动记入 unlockedWeapons */
 export function equipWeapon(save: MetaSave, weaponId: string): { ok: true; weaponId: string } | MetaFailure {
-  const weapon = weaponById(weaponId);
+  const weapon = weaponById(weaponId) ?? catalogWeaponById(weaponId);
   if (!weapon) return fail('INVALID', `未知武器：${weaponId}`);
+  // 目录武器（gw_*）必须先经熔炉锻造解锁——装备不送所有权
+  if (isCatalogId(weaponId) && !save.hero.unlockedWeapons.includes(weaponId)) {
+    return fail('INVALID', `「${weapon.name}」尚未拥有：先在熔炉锻造`);
+  }
   if (weapon.classId !== null) {
     const def = classById(weapon.classId);
     if (save.hero.classId !== weapon.classId) {
@@ -112,7 +106,40 @@ export function equipWeapon(save: MetaSave, weaponId: string): { ok: true; weapo
   return { ok: true, weaponId };
 }
 
-/** 当前装备的武器（可能为 null——桥接回退为「无施法」快照） */
-export function equippedWeaponOf(save: MetaSave): WeaponDef | null {
-  return weaponById(save.hero.equippedWeapon) ?? null;
+/**
+ * 熔炉锻造：按配方白名单消耗灵魂+黄金，解锁一把目录武器（gw_* 命名空间）。
+ * 档位门槛 / 重复拥有 / 资源原子扣费（wallet.spend）都在这里校验。
+ */
+export function forgeCatalogWeapon(
+  save: MetaSave,
+  weaponId: string,
+  heroLevel?: number,
+): { ok: true; weaponId: string } | MetaFailure {
+  const recipe = findRecipe(weaponId);
+  if (!recipe) return fail('INVALID', `熔炉没有该配方：${weaponId}`);
+  const level = heroLevel ?? save.hero.level;
+  if (level < forgeTierUnlockLevel(recipe.tier)) {
+    return fail('PREREQ_LOCKED', `熔炉 Tier ${recipe.tier} 需要主角 ${forgeTierUnlockLevel(recipe.tier)} 级（当前 ${level}）`);
+  }
+  if (save.hero.unlockedWeapons.includes(weaponId)) {
+    return fail('INVALID', `「${recipe.name}」已拥有`);
+  }
+  const paid = spend(save, { souls: recipe.souls, gold: recipe.gold });
+  if (isFailure(paid)) return paid;
+  save.hero.unlockedWeapons.push(weaponId);
+  return { ok: true, weaponId };
+}
+
+function forgeTierUnlockLevel(tier: 1 | 2): number {
+  return tier === 1 ? 20 : 40;
+}
+
+/** 当前装备的武器（首批 20 把或目录武器；可能为 null——桥接回退为「无施法」快照） */
+export function equippedWeaponOf(save: MetaSave): (WeaponDef & { gw?: boolean; rarity?: string; imageFile?: string }) | null {
+  return weaponById(save.hero.equippedWeapon) ?? catalogWeaponById(save.hero.equippedWeapon) ?? null;
+}
+
+/** 当前装备职业（可空） */
+export function equippedClassOf(save: MetaSave): ClassDef | null {
+  return (save.hero.classId && classById(save.hero.classId)) || null;
 }

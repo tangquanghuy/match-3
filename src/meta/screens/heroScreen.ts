@@ -14,6 +14,9 @@ import {
 } from '../data/classes';
 import { WEAPONS, type WeaponDef } from '../data/weapons';
 import { canUseWeapon, classLevelOf, heroStatsOf } from '../systems/hero';
+import { CATALOG_WEAPONS, ownedCatalogWeapons, catalogIconUrl, anyWeaponById, type CatalogWeaponDef } from '../data/weaponCatalog';
+import { SOULFORGE_RECIPES } from '../data/soulforge';
+import { forgeTierUnlockLevel } from '../systems/forge';
 import { heroTraitSlots, talentPicksOf } from '../systems/talents';
 import { traitBadgeSvg } from '../../render/traitBadges';
 import { TALENT_DYNAMIC_CODES } from '../data/talentDefs';
@@ -91,6 +94,8 @@ function effectUsable(t: TalentDef): 'yes' | 'no' | 'na' {
 export class HeroScreen implements Screen {
   private ctx!: ShellCtx;
   private pickedWeaponId: string | null = null;
+  private forgeMode = false;
+  private pickedRecipeId: string | null = null;
   private listeners: Array<[EventTarget, string, EventListenerOrEventListenerObject]> = [];
   /** 最近一次 spellSheet 渲染的公式集（bindSheetTips 消费） */
   private sheetFormulas: ReturnType<typeof renderSpell>['formulas'] = [];
@@ -227,6 +232,7 @@ export class HeroScreen implements Screen {
               <p>武器是主角唯一的施法手段 · 决定法力色、耗蓝与法术</p>
             </div>
             <div class="vault-count">已获得 <b id="vaultOwned">0</b> / <i id="vaultTotal">0</i></div>
+            <button class="secondary" id="vaultForge" type="button">熔炉锻造</button>
             <button class="vault-close" id="vaultClose" type="button" aria-label="关闭武器库"><span data-icon="close"></span></button>
           </header>
           <div class="vault-body">
@@ -241,6 +247,12 @@ export class HeroScreen implements Screen {
     this.ctx = ctx;
     mountWeaponDefs();
     this.bind('#vaultClose', 'click', () => ($('#vaultVeil').hidden = true));
+    this.bind('#vaultForge', 'click', () => {
+      this.forgeMode = !this.forgeMode;
+      this.pickedWeaponId = null;
+      this.renderRack();
+      this.renderVaultDetail();
+    });
     this.on($('#vaultVeil'), 'click', (e) => {
       if (e.target === $('#vaultVeil')) $('#vaultVeil').hidden = true;
     });
@@ -629,7 +641,22 @@ export class HeroScreen implements Screen {
     return `${cls?.name ?? w.classId} 冠军 Lv.${w.unlockLevel} 解锁`;
   }
 
+  private rarityClsOfRarity(rarity: string): { cn: string; cls: string } {
+    const keyMap: Record<string, string> = {
+      Common: 'common', Uncommon: 'common', Rare: 'rare', UltraRare: 'rare',
+      Epic: 'epic', Legendary: 'legend', Mythic: 'mythic', Doomed: 'mythic',
+    };
+    const cnMap: Record<string, string> = {
+      Common: '普通', Uncommon: '非普通', Rare: '稀有', UltraRare: '超稀有',
+      Epic: '史诗', Legendary: '传说', Mythic: '神话', Doomed: '末日',
+    };
+    return { cn: cnMap[rarity] ?? rarity, cls: RARITY[keyMap[rarity] ?? 'common']!.cls };
+  }
+
   private rarityOf(w: WeaponDef): { cn: string; cls: string } {
+    // 目录武器（gw_*）：用官方稀有度
+    const cat = w as CatalogWeaponDef;
+    if (cat.gw && cat.rarity) return this.rarityClsOfRarity(cat.rarity);
     // 武器档位展示：职业毕业武器（20 级）给传说，10 级给史诗，通用按主角等级段
     if (w.classId !== null && w.unlockLevel >= 20) return RARITY.legend!;
     if (w.classId !== null) return RARITY.epic!;
@@ -717,26 +744,34 @@ export class HeroScreen implements Screen {
 
   private renderSlab(): void {
     const save = this.ctx.save();
-    const w = WEAPONS.find((x) => x.id === save.hero.equippedWeapon);
+    const w = anyWeaponById(save.hero.equippedWeapon);
     if (!w) {
       $('#weaponSlab').innerHTML = '<div class="slab-body"><div class="plate-caption"><b>未装备武器</b><span>去武器库选择一把</span></div></div>';
       return;
     }
     const rarity = this.rarityOf(w);
     const owned = save.hero.unlockedWeapons.length;
+    const cat = w as CatalogWeaponDef;
+    const isCat = !!cat.gw;
+    const plateArt = isCat
+      ? `<img class="tile-img" src="${catalogIconUrl(cat)}" alt="${w.name}"/>`
+      : weaponArt(weaponKind(w));
+    const captionSub = isCat
+      ? `${rarity.cn} · ${cat.kingdom}`
+      : `${rarity.cn} · ${w.classId === null ? '通用武器' : (CLASSES.find((c) => c.id === w.classId)?.name ?? '') + '系'}`;
     $('#weaponSlab').innerHTML = `
       <div class="slab-body ${rarity.cls}">
         <div class="weapon-plate">
           <i class="plate-lamp"></i>
           <i class="plate-corner tl"></i><i class="plate-corner tr"></i>
           <i class="plate-corner bl"></i><i class="plate-corner br"></i>
-          <div class="plate-art">${weaponArt(weaponKind(w))}</div>
+          <div class="plate-art">${plateArt}</div>
           <div class="plate-caption">
             <b>${w.name}</b>
-            <span>${rarity.cn} · ${w.classId === null ? '通用武器' : (CLASSES.find((c) => c.id === w.classId)?.name ?? '') + '系'}</span>
+            <span>${captionSub}</span>
           </div>
         </div>
-        ${this.spellSheet(w, `<button class="secondary" id="swapWeapon" type="button"><span data-icon="bag"></span>武器库 <i>${owned} / ${WEAPONS.length}</i></button><button class="secondary" id="weaponCodex" type="button">武器图鉴</button>`)}
+        ${this.spellSheet(w, `<button class="secondary" id="swapWeapon" type="button"><span data-icon="bag"></span>武器库 <i>${owned}</i></button><button class="secondary" id="weaponCodex" type="button">武器图鉴</button>`)}
       </div>`;
     mountIcons($('#weaponSlab'));
     const slabSheet = document.querySelector('#weaponSlab .weapon-spell') as HTMLElement | null;
@@ -756,9 +791,19 @@ export class HeroScreen implements Screen {
   }
 
   private renderRack(): void {
+    if (this.forgeMode) {
+      this.renderRecipes();
+      return;
+    }
     const save = this.ctx.save();
     const rack = $('#vaultRack');
-    rack.innerHTML = WEAPONS.map((w) => {
+    // 列表 = 首批 20 把（w_*）+ 已锻造解锁的目录武器（gw_*，真实卡面立绘）
+    const ownedCatalog = ownedCatalogWeapons(save);
+    const tiles: { w: WeaponDef; cat: CatalogWeaponDef | null }[] = [
+      ...WEAPONS.map((w) => ({ w, cat: null as CatalogWeaponDef | null })),
+      ...ownedCatalog.map((w) => ({ w: w as WeaponDef, cat: w })),
+    ];
+    rack.innerHTML = tiles.map(({ w, cat }) => {
       const state = this.weaponState(w);
       const rarity = this.rarityOf(w);
       const flag =
@@ -767,9 +812,12 @@ export class HeroScreen implements Screen {
           : state === 'locked'
             ? '<em class="tile-flag lock"><span data-icon="lock"></span>未解锁</em>'
             : '';
+      const art = cat
+        ? `<img class="tile-img" loading="lazy" src="${catalogIconUrl(cat)}" alt="${w.name}"/>`
+        : weaponArt(weaponKind(w));
       return `<button class="rack-tile ${rarity.cls} is-${state === 'usable' ? 'owned' : state}${this.pickedWeaponId === w.id ? ' picked' : ''}" data-weapon="${w.id}" type="button" role="option" aria-selected="${this.pickedWeaponId === w.id}">
         <span class="tile-rarity">${rarity.cn}</span>
-        <div class="tile-art">${weaponArt(weaponKind(w))}</div>
+        <div class="tile-art">${art}</div>
         ${flag}
         <b class="tile-name">${w.name}</b>
         <span class="tile-mana">${gemSvg(w.manaColors.map((c) => c.toLowerCase()))}<i>${w.manaCost}</i></span>
@@ -783,14 +831,96 @@ export class HeroScreen implements Screen {
         this.renderVaultDetail();
       }),
     );
+    const ownedCount = save.hero.unlockedWeapons.length;
+    $('#vaultOwned').textContent = String(ownedCount);
+    $('#vaultTotal').textContent = String(WEAPONS.length + CATALOG_WEAPONS.length);
+  }
+
+  /** 熔炉配方列表（forgeMode） */
+  private renderRecipes(): void {
+    const save = this.ctx.save();
+    const rack = $('#vaultRack');
+    rack.innerHTML = SOULFORGE_RECIPES.map(({ recipe: r }) => {
+      const owned = save.hero.unlockedWeapons.includes(r.weaponId);
+      const cat = anyWeaponById(r.weaponId) as CatalogWeaponDef | undefined;
+      const img = cat ? `<img class="tile-img" loading="lazy" src="${catalogIconUrl(cat)}" alt="${r.name}"/>` : '';
+      const can = save.currencies.souls >= r.souls && save.currencies.gold >= r.gold && save.hero.level >= forgeTierUnlockLevel(r.tier) && !owned;
+      return `<button class="rack-tile is-owned${this.pickedRecipeId === r.weaponId ? ' picked' : ''}" data-recipe="${r.weaponId}" type="button">
+        <span class="tile-rarity">${r.tier === 2 ? 'Tier 2' : 'Tier 1'}</span>
+        <div class="tile-art">${img}</div>
+        ${owned ? '<em class="tile-flag">已拥有</em>' : ''}
+        <b class="tile-name">${r.name}</b>
+        <span class="tile-mana"><i>${r.souls.toLocaleString()} 魂 + ${r.gold.toLocaleString()} 金</i></span>
+        ${can ? '' : '<em class="tile-flag lock">材料/等级不足</em>'}
+      </button>`;
+    }).join('');
     $('#vaultOwned').textContent = String(save.hero.unlockedWeapons.length);
-    $('#vaultTotal').textContent = String(WEAPONS.length);
+    $('#vaultTotal').textContent = String(WEAPONS.length + CATALOG_WEAPONS.length);
+    $$('#vaultRack [data-recipe]').forEach((btn) =>
+      this.on(btn, 'click', () => {
+        this.pickedRecipeId = (btn as HTMLElement).dataset.recipe!;
+        this.renderRecipes();
+        this.renderRecipeDetail();
+      }),
+    );
+    if (this.pickedRecipeId) this.renderRecipeDetail();
+  }
+
+  /** 熔炉配方详情 + 锻造按钮（forgeMode） */
+  private renderRecipeDetail(): void {
+    const save = this.ctx.save();
+    const recipe = SOULFORGE_RECIPES.find((r) => r.recipe.weaponId === this.pickedRecipeId)?.recipe ?? null;
+    const detail = $('#vaultDetail');
+    if (!recipe) {
+      detail.className = 'vault-detail';
+      detail.innerHTML = '<div class="detail-source">左侧选择一份熔炉配方</div>';
+      return;
+    }
+    const cat = anyWeaponById(recipe.weaponId) as CatalogWeaponDef | undefined;
+    const rarity = this.rarityClsOfRarity(recipe.rarity);
+    const owned = save.hero.unlockedWeapons.includes(recipe.weaponId);
+    const ok = save.currencies.souls >= recipe.souls && save.currencies.gold >= recipe.gold && save.hero.level >= forgeTierUnlockLevel(recipe.tier) && !owned;
+    detail.className = 'vault-detail ' + rarity.cls;
+    detail.innerHTML = `
+      <div class="detail-art ${rarity.cls}">
+        <i class="plate-lamp"></i>
+        <i class="plate-corner tl"></i><i class="plate-corner tr"></i>
+        <i class="plate-corner bl"></i><i class="plate-corner br"></i>
+        ${cat ? `<img class="tile-img" src="${catalogIconUrl(cat)}" alt="${recipe.name}"/>` : ''}
+      </div>
+      <div class="detail-rarity ${rarity.cls}"><i></i><span>${rarity.cn} · Tier ${recipe.tier}</span><i></i></div>
+      <h3 class="detail-name">${recipe.name}</h3>
+      <p class="detail-source">熔炉锻造 · ${SOULFORGE_RECIPES.find((r) => r.recipe.weaponId === recipe.weaponId)?.source ?? ''}</p>
+      <p class="detail-source">消耗：灵魂 ${recipe.souls.toLocaleString()}（持有 ${save.currencies.souls.toLocaleString()}）· 黄金 ${recipe.gold.toLocaleString()}（持有 ${save.currencies.gold.toLocaleString()}）· 需主角 Lv.${forgeTierUnlockLevel(recipe.tier)}</p>
+      <button class="primary" id="doForge" type="button" ${ok ? '' : 'disabled'}>锻 造</button>`;
+    const doForge = $('#doForge');
+    if (doForge)
+      doForge.onclick = () => void (async () => {
+        const { result } = await this.ctx.gateway.forgeCatalogWeapon(recipe.weaponId);
+        if (isFailure(result)) {
+          toast(result.message);
+          return;
+        }
+        toast(`锻造成功：「${recipe.name}」已入武器库，可直接装备。`);
+        this.renderAll();
+        this.openVault();
+        this.forgeMode = true;
+        this.pickedRecipeId = recipe.weaponId;
+        this.renderRecipes();
+        this.renderRecipeDetail();
+      })();
   }
 
   private renderVaultDetail(): void {
-    const w = WEAPONS.find((x) => x.id === this.pickedWeaponId) ?? WEAPONS[0]!;
+    const w = anyWeaponById(this.pickedWeaponId) ?? WEAPONS[0]!;
+    const cat = w as CatalogWeaponDef;
+    const isCat = !!cat.gw;
     const state = this.weaponState(w);
     const rarity = this.rarityOf(w);
+    const art = isCat
+      ? `<img class="tile-img" src="${catalogIconUrl(cat)}" alt="${w.name}"/>`
+      : weaponArt(weaponKind(w));
+    const source = isCat ? '熔炉锻造获得' : this.sourceText(w);
     const action =
       state === 'equipped'
         ? '<button class="primary" disabled type="button"><span data-icon="check"></span>已装备</button>'
@@ -804,13 +934,13 @@ export class HeroScreen implements Screen {
         <i class="plate-lamp"></i>
         <i class="plate-corner tl"></i><i class="plate-corner tr"></i>
         <i class="plate-corner bl"></i><i class="plate-corner br"></i>
-        ${weaponArt(weaponKind(w))}
-        ${state === 'locked' ? '<span class="detail-rank lock"><span data-icon="lock"></span></span>' : '<span class="detail-rank">' + this.sourceText(w) + '</span>'}
+        ${art}
+        ${state === 'locked' ? '<span class="detail-rank lock"><span data-icon="lock"></span></span>' : '<span class="detail-rank">' + source + '</span>'}
       </div>
       <div class="detail-rarity ${rarity.cls}"><i></i><span>${rarity.cn}</span><i></i></div>
       <h3 class="detail-name">${w.name}</h3>
       ${this.spellSheet(w)}
-      <p class="detail-source">${this.sourceText(w)}</p>
+      <p class="detail-source">${source}</p>
       ${action}`;
     mountIcons(detail);
     const detailSheet = detail.querySelector('.weapon-spell') as HTMLElement | null;

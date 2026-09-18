@@ -7,7 +7,7 @@ import { getTroopById } from '../../data/troops';
 import type { TeamMember } from '../state/schema';
 import { troopStatsOf } from '../systems/troopProgress';
 import { heroStatsOf } from '../systems/hero';
-import { WEAPONS } from '../data/weapons';
+import { anyWeaponById } from '../data/weaponCatalog';
 import { bannerUnlocked } from '../systems/banners';
 import { BANNERS, BANNER_COLOR_LABELS, bannerOf } from '../data/banners';
 import { bottomNavHtml, mountIcons, toast, toastHtml, topbarHtml, gemSvg, $, $$ } from '../shell/chrome';
@@ -297,7 +297,7 @@ export class TeamScreen implements Screen {
   private roster(): RosterEntry[] {
     const save = this.ctx.save();
     // 主角条目实时反映已装备武器：武器决定法术/法力色/耗蓝（官方口径）
-    const equipped = WEAPONS.find((x) => x.id === save.hero.equippedWeapon) ?? null;
+    const equipped = anyWeaponById(save.hero.equippedWeapon) ?? null;
     const list: RosterEntry[] = [{
       key: 'hero',
       troop: null,

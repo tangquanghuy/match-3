@@ -13,7 +13,7 @@
 import { getTroopById, knownTroopTypes, type TroopData } from '../../data/troops';
 import { troopStatsAtLevel } from '../../data/leveling';
 import { BaseColor } from '../../engine/types';
-import type { TroopRecord } from '../state/schema';
+import type { TeamPreset, TroopRecord } from '../state/schema';
 import type { MetaSave } from '../state/schema';
 import { BATTLE_SCHEMA_VERSION, RULESET_VERSION } from '../../session/contract';
 import type { BattleRequest, CombatantSnapshot } from '../../session/contract';
@@ -21,14 +21,20 @@ import { validateBattleRequest } from '../../session/validateRequest';
 import { ExtensionRegistry } from '../../engine/registry';
 import { fallbackPrototype } from '../../engine/skills/prototypes';
 import { registerSkillLibrary } from '../../engine/skills/library';
+import { CATALOG_WEAPONS } from '../data/weaponCatalog';
 import { fail, type MetaFailure } from '../types';
 import { activeTeam } from './teamRules';
+import { equippedBannerOf } from './banners';
 import { getRecord } from './troopProgress';
 import { kingdomBonusOf } from './kingdomOps';
 import type { KingdomStatBonus } from './kingdomOps';
-import { activeTalentCodes, equippedWeaponOf, heroStatsOf } from './hero';
+import { equippedClassOf, equippedWeaponOf, heroStatsOf } from './hero';
+import { allyStatBonus, heroStatBonus, heroTraitCodes, selectedTalents } from './talents';
+import { dynamicTraitCodes } from '../../engine/traits';
+import { CLASSES } from '../data/classes';
 import { WEAPONS } from '../data/weapons';
 import { KNOWN_TRAIT_CODES } from '../data/traitIndex';
+import { temperingLevelOf } from './forgeOps';
 import type { EncounterEnemy, EncounterPlan } from './encounter';
 
 /**
@@ -101,6 +107,10 @@ export function buildMetaRegistry(extraSkillIds: Iterable<string>): ExtensionReg
   for (const weapon of WEAPONS) {
     registry.prototypes.set(weapon.id, weapon.skill);
   }
+  // 718 目录武器（K-B 编译批次原型，gw_* 命名空间）——锻造解锁后即可装备出战
+  for (const weapon of CATALOG_WEAPONS) {
+    registry.prototypes.set(weapon.id, weapon.skill);
+  }
   for (const id of extraSkillIds) {
     if (!registry.prototypes.has(id)) registry.prototypes.set(id, fallbackPrototype());
   }
@@ -117,38 +127,77 @@ export interface BridgeOutcome {
   registry: ExtensionRegistry;
 }
 
-/** 组一场战斗请求。队伍非法 / 主角占位 / 敌我内容异常都返回显式失败。 */
-export function buildBattleRequest(save: MetaSave, plan: EncounterPlan): BridgeOutcome | MetaFailure {
-  if (plan.enemies.length === 0) return fail('INVALID', '出敌计划为空');
-
+/**
+ * 玩家出战队的战斗快照（当前预设队：主角/旗帜/王国加成/天赋全生效）。
+ * buildBattleRequest 与入侵 PvP 共用（镜像对手单独走 enemyToSnapshot）。
+ */
+export function buildPlayerSnapshots(
+  save: MetaSave,
+): { ok: true; playerTeam: CombatantSnapshot[]; team: TeamPreset } | MetaFailure {
   const team = activeTeam(save);
   if (!team) return fail('NO_TEAM', '没有可用队伍：先在编队页保存一支 3~4 人队');
 
   const playerTeam: CombatantSnapshot[] = [];
   const statBonus = kingdomBonusOf(save);
   const weapon = equippedWeaponOf(save);
-  const talentCodes = activeTalentCodes(save);
+  const heroClass = equippedClassOf(save);
+  const talentEffects = selectedTalents(save);
+  const talentCodes = heroTraitCodes(save);
   const heroBase = heroStatsOf(save);
+  // 淬炼面板加成（WEAPON-FORGE-DESIGN §2）：每 2 级 +1，按 攻/甲/血/魔 轮转分配
+  const temperPoints = Math.floor(temperingLevelOf(save, weapon?.id ?? '') / 2);
+  const temperSeq = ['attack', 'armor', 'health', 'magic'] as const;
+  const temperBonus = { attack: 0, armor: 0, health: 0, magic: 0 };
+  for (let i = 0; i < temperPoints; i++) temperBonus[temperSeq[i % 4]!] += 1;
+  // 天赋加成的作用对象判定：全队种族计数（含主角采纳的职业类型）——
+  // 「每有一名X盟友」按计数乘，「全队静态」按类型/颜色命中
+  const allyTypeCounts = new Map<string, number>();
+  const countType = (type: string): void => {
+    allyTypeCounts.set(type, (allyTypeCounts.get(type) ?? 0) + 1);
+  };
+  if (heroClass) countType(heroClass.troopType);
+  for (const member of team.members.values()) {
+    if (member.kind !== 'troop') continue;
+    const troop = getTroopById(member.troopId);
+    if (!troop) continue; // 缺收藏的成员在下方主循环显式报错
+    for (const type of troop.troopTypes) countType(type);
+  }
+
   for (const [position, member] of team.members.entries()) {
     if (member.kind === 'hero') {
-      // 主角快照（M5）：武器=唯一施法手段，无武器时 skillId 'none'（注册表兜底，仅扣法力）；
-      // 王国 10 级加成对主角同样生效（全体部队口径）
+      // 主角快照（M5/v2）：武器=唯一施法手段，无武器时 skillId 'none'（注册表兜底，仅扣法力）；
+      // 王国 10 级加成对主角同样生效（全体部队口径）；天赋走 heroStatBonus（自身系）+
+      // allyStatBonus（全队系对主角的份额）；装备职业后主角采纳该职业兵种类型
+      const heroTalent = heroStatBonus(
+        save,
+        position,
+        team.members.length,
+        weapon?.weaponType ?? null,
+        allyTypeCounts,
+      );
+      const heroAura = allyStatBonus(
+        talentEffects,
+        heroClass ? [heroClass.troopType] : ['Human'],
+        weapon?.manaColors.length ? [...weapon.manaColors] : [BaseColor.Brown],
+      );
       playerTeam.push({
         externalId: `p${position}-hero`,
         name: '法露特',
         levelLabel: `Lv.${save.hero.level}`,
         stats: {
-          hp: heroBase.health + statBonus.health,
-          attack: heroBase.attack + statBonus.attack,
-          armor: heroBase.armor + statBonus.armor,
-          magic: heroBase.magic + statBonus.magic,
+          hp: heroBase.health + statBonus.health + heroTalent.health + heroAura.health + temperBonus.health,
+          attack: heroBase.attack + statBonus.attack + heroTalent.attack + heroAura.attack + temperBonus.attack,
+          armor: heroBase.armor + statBonus.armor + heroTalent.armor + heroAura.armor + temperBonus.armor,
+          magic: heroBase.magic + statBonus.magic + heroTalent.magic + heroAura.magic + temperBonus.magic,
         },
-        troopTypes: ['Human'],
+        troopTypes: [heroClass?.troopType ?? 'Human'],
         manaColors: weapon?.manaColors.length ? [...weapon.manaColors] : [BaseColor.Brown],
         // 会话校验要求耗蓝 1~100：无武器按「1 蓝耗的空施法」处理（skillId 'none' 走兜底原型）
         manaCost: weapon?.manaCost ?? 1,
         traitIds: talentCodes,
         skillId: weapon?.id ?? 'none',
+        // 淬炼等级（素材批 F2）：引擎 tempering 来源 modifier 按它计数
+        ...(weapon ? { temperingLevel: temperingLevelOf(save, weapon.id) } : {}),
       });
       continue;
     }
@@ -158,8 +207,25 @@ export function buildBattleRequest(save: MetaSave, plan: EncounterPlan): BridgeO
     if (!troop || !rec) {
       return fail('NOT_OWNED', `队伍第 ${position + 1} 号位的部队不在收藏中`);
     }
-    playerTeam.push(troopToSnapshot(troop, rec, `p${position}-${troop.id}`, statBonus));
+    const snapshot = troopToSnapshot(troop, rec, `p${position}-${troop.id}`, statBonus);
+    // 天赋「全队静态加成」（alliesStat）：按种族/颜色/全体筛选后加到该部队
+    const aura = allyStatBonus(talentEffects, troop.troopTypes, troop.manaColors);
+    snapshot.stats.hp += aura.health;
+    snapshot.stats.attack += aura.attack;
+    snapshot.stats.armor += aura.armor;
+    snapshot.stats.magic += aura.magic;
+    playerTeam.push(snapshot);
   }
+  return { ok: true, playerTeam, team };
+}
+
+/** 组一场战斗请求。队伍非法 / 主角占位 / 敌我内容异常都返回显式失败。 */
+export function buildBattleRequest(save: MetaSave, plan: EncounterPlan): BridgeOutcome | MetaFailure {
+  if (plan.enemies.length === 0) return fail('INVALID', '出敌计划为空');
+
+  const built = buildPlayerSnapshots(save);
+  if (!built.ok) return built;
+  const playerTeam = built.playerTeam;
 
   const enemyByExternalId = new Map<string, EncounterEnemy>();
   const enemyTeam: CombatantSnapshot[] = [];
@@ -171,7 +237,11 @@ export function buildBattleRequest(save: MetaSave, plan: EncounterPlan): BridgeO
     enemyTeam.push(snapshot);
   }
 
-  const sourceTag = plan.source.kind === 'quest' ? `q${plan.source.node}` : `x${plan.source.tier}`;
+  const sourceTag = plan.source.kind === 'quest'
+    ? `q${plan.source.node}`
+    : plan.source.kind === 'event'
+      ? `ev-${plan.source.typeId}-${plan.source.weekStart}`
+      : `x${plan.source.tier}`;
   const request: BattleRequest = {
     schemaVersion: BATTLE_SCHEMA_VERSION,
     battleId: `meta-${plan.seed}`,
@@ -181,13 +251,23 @@ export function buildBattleRequest(save: MetaSave, plan: EncounterPlan): BridgeO
     playerTeam,
     enemyTeam,
   };
+  // 玩家旗帜（M6）：出战预设队装备了已解锁旗帜 → 契约带加成（官方语义：匹配 ±N 法力）
+  const banner = equippedBannerOf(save, built.team);
+  if (banner && Object.keys(banner.boosts).length > 0) {
+    request.playerBanner = { boosts: { ...banner.boosts } };
+  }
 
   const registry = buildMetaRegistry(
     [...playerTeam, ...enemyTeam].map((s) => s.skillId as string),
   );
   const check = validateBattleRequest(request, {
     knownSkillIds: new Set([...registry.skills.keys(), ...registry.prototypes.keys()]),
-    knownTraitIds: KNOWN_TRAIT_CODES,
+    knownTraitIds: new Set([
+      ...KNOWN_TRAIT_CODES,
+      ...dynamicTraitCodes(),
+      // 静态效果天赋的 code 无引擎定义（行为在快照期计算），也放进白名单供校验通过
+      ...CLASSES.flatMap((c) => c.trees.flatMap((t) => t.talents.map((x) => x.code))),
+    ]),
     knownTroopTypes: knownTroopTypes(),
   });
   if (!check.ok) {
