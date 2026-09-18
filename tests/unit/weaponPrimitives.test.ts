@@ -23,13 +23,17 @@ import {
   enemiesOfColorBoost, enemiesOfRaceBoost,
   alliesOfKingdomBoost, enemiesOfKingdomBoost,
   enemyHasDoom, kingdomPresent, summonRandomOfKingdom,
+  anyEnemyDied, transformToSpecial, createGemsMixAny,
+  destroyColor, explodeSpecialGems,
+  createSkulls,
 } from '@engine/skills/builders';
 import { resolveModifierCount, conditionMet, DOOM_TROOP_TYPE } from '@engine/skills/effects/secondary';
 import type { EffectContext } from '@engine/skills/effects/context';
+import type { TransformGemParams } from '@engine/skills/effects/gems';
 import type { SummonTemplate } from '@engine/skills/effects/summon';
 import { BATTLE_SCHEMA_VERSION, RULESET_VERSION, validateBattleRequest } from '@session/index';
 import type { BattleRequest, CombatantSnapshot } from '@session/index';
-import { BaseColor, PlayerSide, colorGem } from '@engine/types';
+import { BaseColor, PlayerSide, colorGem, specialGem } from '@engine/types';
 import type { Character, Team, Gem, GemType } from '@engine/types';
 import type { GameEvent } from '@engine/events';
 import { troopToSummonTemplate } from '../../src/data/troops';
@@ -491,5 +495,222 @@ describe('K-E · 护栏（Wave B 风格）：新字段不使用 → 事件流/rn
     const plain = scriptedBattle(guardHarness());
     const withCtx = scriptedBattle(guardHarness({ kingdom: 'Khetar', withKingdomResolver: true }));
     expect(JSON.stringify(withCtx)).toBe(JSON.stringify(plain));
+  });
+});
+
+// ───────────────────────── 8. K-B 收官轮 · anyEnemyDied 条件 ─────────────────────────
+
+/** 清出 n 个空格（创造段在满盘时会走「就地转化」路径，为验证 gem-create 需要空位） */
+function punchHoles(state: ReturnType<typeof createGameState>, n: number): void {
+  let cleared = 0;
+  for (let r = 0; r < 8 && cleared < n; r++) {
+    for (let c = 0; c < 8 && cleared < n; c++) {
+      state.board.set({ row: r, col: c }, null);
+      cleared++;
+    }
+  }
+}
+
+describe('K-B 收官 · anyEnemyDied（If an Enemy dies → anyTrackedDied 武器形态）', () => {
+  it('7117 官方形态：本咒语击杀任一敌人 → 条件段执行（创造 7 颗骷髅头）', () => {
+    const kill = primitiveCtx({ right: [{ hp: 5, maxHp: 50 }] });
+    punchHoles(kill.state, 8);
+    const events = executePrototype(
+      { segments: [dmg('enemyAll', 40, 0, { range: 'all' }), createSkulls(7, 0, { ifCond: anyEnemyDied() })] },
+      kill.ctx,
+    );
+    const created = events.filter((e) => e.type === 'gem-create');
+    expect(created.length).toBe(1);
+    expect(events.some((e) => e.type === 'defeat')).toBe(true);
+  });
+
+  it('无击杀 → 条件段静默跳过（零事件、零随机消耗：与不写该段的事件流逐字节一致）', () => {
+    gid = 0;
+    const withSeg = primitiveCtx({ seed: 7 });
+    const eventsWith = executePrototype(
+      { segments: [dmg('enemyAll', 1, 0, { range: 'all' }), createSkulls(7, 0, { ifCond: anyEnemyDied() })] },
+      withSeg.ctx,
+    );
+    gid = 0;
+    const without = primitiveCtx({ seed: 7 });
+    const eventsWithout = executePrototype({ segments: [dmg('enemyAll', 1, 0, { range: 'all' })] }, without.ctx);
+    // 跳过不消耗 rng → 两种写法事件流逐字节一致
+    expect(JSON.stringify(eventsWith)).toBe(JSON.stringify(eventsWithout));
+  });
+
+  it('9629 官方形态：溅射击杀 → 再创造 4 颗（条件化的第二段创造）', () => {
+    const kill = primitiveCtx({ right: [{ hp: 3, maxHp: 50 }] });
+    kill.ctx.chosenTargetId = 20; // enemyChosen：手动选定低位敌人（over.right 从 id 20 起）
+    punchHoles(kill.state, 8);
+    const events = executePrototype(
+      {
+        segments: [
+          dmg('enemyChosen', 10, 0, { range: 'splash' }),
+          createSkulls(7, 0),
+          createSkulls(4, 0, { ifCond: anyEnemyDied() }),
+        ],
+      },
+      kill.ctx,
+    );
+    expect(events.some((e) => e.type === 'defeat')).toBe(true);
+    expect(events.filter((e) => e.type === 'gem-create').length).toBe(2);
+  });
+
+  it('构造器 = anyTrackedDied 专名形态（序列化同为 { kind: anyTrackedDied }）', () => {
+    expect(anyEnemyDied()).toEqual({ kind: 'anyTrackedDied' });
+  });
+});
+
+// ───────────────────────── 9. K-B 收官 · 转换端点 tier 通道 ─────────────────────────
+
+describe('K-B 收官 · transformToSpecial tier 通道（8966 x3 通配符）', () => {
+  it('spec 形态 { kind, tier }：转换结果带 tier（wildcard tier 3）', () => {
+    const { ctx } = primitiveCtx({ seed: 7 });
+    const events = executePrototype(
+      { segments: [transformToSpecial('ANY', { kind: 'wildcard', tier: 3 }, { count: 2 })] },
+      ctx,
+    );
+    const changes = events.flatMap((e) => (e.type === 'gem-transform' ? (e as { changes: { to: GemType }[] }).changes : []));
+    expect(changes.length).toBe(2);
+    for (const ch of changes) {
+      expect(ch.to).toEqual(specialGem('wildcard', 3));
+    }
+  });
+
+  it('opts.tier 与 spec 形态等价（kind 字符串 + tier 走同一 spec 端点）', () => {
+    gid = 0;
+    const a = primitiveCtx({ seed: 7 });
+    const ea = executePrototype({ segments: [transformToSpecial('ANY', { kind: 'wildcard', tier: 3 }, { count: 2 })] }, a.ctx);
+    gid = 0;
+    const b = primitiveCtx({ seed: 7 });
+    const eb = executePrototype({ segments: [transformToSpecial('ANY', 'wildcard', { count: 2, tier: 3 })] }, b.ctx);
+    expect(JSON.stringify(eb)).toBe(JSON.stringify(ea));
+  });
+
+  it('8966 官方形态：选定单格（CELL）→ x3 通配符', () => {
+    const { ctx, state } = primitiveCtx({ seed: 7 });
+    ctx.chosenCell = { row: 2, col: 3 };
+    const before = state.board.get({ row: 2, col: 3 })!.type;
+    const events = executePrototype(
+      { segments: [transformToSpecial('CELL', { kind: 'wildcard', tier: 3 })] },
+      ctx,
+    );
+    const changes = events.flatMap((e) => (e.type === 'gem-transform' ? (e as { changes: { pos: unknown; from: GemType; to: GemType }[] }).changes : []));
+    expect(changes.length).toBe(1);
+    expect(changes[0].pos).toEqual({ row: 2, col: 3 });
+    expect(changes[0].from).toEqual(before);
+    expect(changes[0].to).toEqual(specialGem('wildcard', 3));
+  });
+
+  it('护栏：不带 tier 的既有调用序列化为 kind 字符串形态、事件流与裸段字面量逐字节一致', () => {
+    // 序列化：kind 字符串（不升级对象）——旧批次/旧段字面量兼容口径
+    const seg = transformToSpecial('ANY', 'bomb', { count: 1 });
+    expect((seg.params as TransformGemParams).toSpecial).toBe('bomb');
+    const legacy = transformToSpecial('ANY', 'wildcard');
+    expect((legacy.params as TransformGemParams).toSpecial).toBe('wildcard');
+    // 行为：builder 产物与裸段字面量（旧序列）同 seed 事件流一致
+    gid = 0;
+    const viaBuilder = primitiveCtx({ seed: 11 });
+    const e1 = executePrototype({ segments: [transformToSpecial('ANY', 'bomb', { count: 2 })] }, viaBuilder.ctx);
+    gid = 0;
+    const viaLiteral = primitiveCtx({ seed: 11 });
+    const e2 = executePrototype(
+      { segments: [{ kind: 'gem', params: { op: 'transform', from: 'ANY', to: 'SKULL', toSpecial: 'bomb', count: { base: 2, mult: 0 } } }] },
+      viaLiteral.ctx,
+    );
+    expect(JSON.stringify(e2)).toBe(JSON.stringify(e1));
+  });
+});
+
+// ───────────────────────── 10. K-B 收官 · mixAny 特殊宝石/骷髅端点 ─────────────────────────
+
+describe('K-B 收官 · createGemsMixAny 骷髅/特殊宝石端点（9110/9167/9300 族）', () => {
+  it('色 + 骷髅头混合：逐颗只在两 endpoint 中取（9110「混合蓝色和骷髅头」）', () => {
+    const { ctx, state } = primitiveCtx({ seed: 7 });
+    punchHoles(state, 12);
+    const events = executePrototype({ segments: [createGemsMixAny([BaseColor.Blue, 'SKULL'], 12)] }, ctx);
+    const spawns = events.flatMap((e) => (e.type === 'gem-create' ? (e as { spawns: { gemType: GemType }[] }).spawns : []));
+    expect(spawns.length).toBeGreaterThan(0);
+    for (const s of spawns) {
+      const isBlue = s.gemType.kind === 'color' && s.gemType.color === BaseColor.Blue;
+      const isSkull = s.gemType.kind === 'skull';
+      expect(isBlue || isSkull, `非混合端点宝石: ${JSON.stringify(s.gemType)}`).toBe(true);
+    }
+  });
+
+  it('双特殊宝石混合（9300「混合鬼魂宝石和冻结宝石」）', () => {
+    const { ctx, state } = primitiveCtx({ seed: 7 });
+    punchHoles(state, 10);
+    const events = executePrototype(
+      { segments: [createGemsMixAny([{ kind: 'ghost' }, { kind: 'freezeGem' }], 8)] },
+      ctx,
+    );
+    const spawns = events.flatMap((e) => (e.type === 'gem-create' ? (e as { spawns: { gemType: GemType }[] }).spawns : []));
+    expect(spawns.length).toBe(8);
+    for (const s of spawns) {
+      expect(s.gemType.kind).toBe('special');
+      expect(['ghost', 'freezeGem']).toContain((s.gemType as { spec: { kind: string } }).spec.kind);
+    }
+  });
+
+  it('骷髅 + 恐怖宝石混合（9167「混合骷髅头和恐怖宝石」）', () => {
+    const { ctx, state } = primitiveCtx({ seed: 7 });
+    punchHoles(state, 8);
+    const events = executePrototype(
+      { segments: [createGemsMixAny(['SKULL', { kind: 'terrorGem' }], 6)] },
+      ctx,
+    );
+    const spawns = events.flatMap((e) => (e.type === 'gem-create' ? (e as { spawns: { gemType: GemType }[] }).spawns : []));
+    expect(spawns.length).toBe(6);
+    for (const s of spawns) {
+      const ok = s.gemType.kind === 'skull'
+        || (s.gemType.kind === 'special' && s.gemType.spec.kind === 'terrorGem');
+      expect(ok, `非混合端点宝石: ${JSON.stringify(s.gemType)}`).toBe(true);
+    }
+  });
+});
+
+// ───────────────────────── 11. K-B 收官 · 条件化清除段 ─────────────────────────
+
+describe('K-B 收官 · 条件化清除（clear 构造器 opts + ifCond）', () => {
+  it('7286 官方形态：风暴在场 → destroyColor 执行；否则整段跳过', () => {
+    const green = primitiveCtx({ seed: 7 });
+    green.state.teams[PlayerSide.Left].storm = { color: BaseColor.Brown, turns: 3, troopId: 0 };
+    green.ctx.state.board.set({ row: 3, col: 3 }, { id: 990001, type: colorGem(BaseColor.Green) });
+    const seg = destroyColor(BaseColor.Green, { ifCond: { kind: 'stormPresent', color: BaseColor.Brown } });
+    const events = executePrototype({ segments: [seg] }, green.ctx);
+    expect(events.filter((e) => e.type === 'gem-destroy').length).toBe(1);
+
+    const noStorm = primitiveCtx({ seed: 7 });
+    noStorm.ctx.state.board.set({ row: 3, col: 3 }, { id: 990002, type: colorGem(BaseColor.Green) });
+    const eventsNone = executePrototype({ segments: [seg] }, noStorm.ctx);
+    expect(eventsNone).toEqual([]);
+  });
+
+  it('9983 官方形态：troopPresent 条件 + explodeSpecialGems（引爆所有死亡印记宝石）', () => {
+    const withZephaar = primitiveCtx({ left: [{ name: '不朽的泽法尔', id: 11 }] });
+    withZephaar.ctx.state.board.set({ row: 4, col: 4 }, { id: 990003, type: specialGem('deathMarkGem') });
+    const seg = explodeSpecialGems('deathMarkGem', { ifCond: { kind: 'troopPresent', side: 'ally', name: '不朽的泽法尔' } });
+    const events = executePrototype({ segments: [seg] }, withZephaar.ctx);
+    expect(events.filter((e) => e.type === 'gem-explode').length).toBe(1);
+
+    const without = primitiveCtx({});
+    without.ctx.state.board.set({ row: 4, col: 4 }, { id: 990004, type: specialGem('deathMarkGem') });
+    expect(executePrototype({ segments: [seg] }, without.ctx)).toEqual([]);
+  });
+
+  it('护栏：不传 opts 的清除调用事件流与裸段字面量逐字节一致（旧形序列化不变）', () => {
+    gid = 0;
+    const a = primitiveCtx({ seed: 13 });
+    a.ctx.state.board.set({ row: 1, col: 1 }, { id: 990005, type: specialGem('stunGem') });
+    const e1 = executePrototype({ segments: [explodeSpecialGems('stunGem')] }, a.ctx);
+    gid = 0;
+    const b = primitiveCtx({ seed: 13 });
+    b.ctx.state.board.set({ row: 1, col: 1 }, { id: 990005, type: specialGem('stunGem') });
+    const e2 = executePrototype(
+      { segments: [{ kind: 'gem', params: { op: 'clear', mode: 'explode', target: { kind: 'special', gem: 'stunGem' } } }] },
+      b.ctx,
+    );
+    expect(JSON.stringify(e2)).toBe(JSON.stringify(e1));
   });
 });

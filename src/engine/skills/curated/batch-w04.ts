@@ -8,13 +8,43 @@
  * src/data/weapon-skill-meta.json）。组装规则锚定 scripts/spell-rules.md 与
  * 既有部队批次先例；生成器 scripts/_weapon_pools.mjs gen。
  */
-import { armor, attack, cleanse, createGems, createSkulls, createSpecialGems, destroyRandomCols, destroyRandomRows, dmg, dmgSplash, drainMana, explodeRandomGems, explodeRandomSpecialGems, extraTurn, heal, inflict, inflictRandom, mana, randomStat, reduce, reposition, shuffleTeam, skill, summonRandom, summonRandomOfKingdom, transform, transformToSpecial, trueDmg } from '../builders';
+import { armor, attack, cleanse, createGems, createGemsMixAny, createSkulls, createSpecialGems, destroyRandomCols, destroyRandomRows, dmg, dmgSplash, drainMana, explodeRandomGems, explodeRandomSpecialGems, explodeSpecialGems, extraTurn, heal, inflict, inflictRandom, mana, randomStat, reduce, reposition, scale, shuffleTeam, skill, summonRandom, summonRandomOfKingdom, transform, transformToSpecial, trueDmg } from '../builders';
 import { BaseColor } from '../../types';
 import type { CuratedBatch } from './index';
 
 const SKIPPED: { id: number; reason: string }[] = [];
 
 const SPELLS: CuratedBatch['spells'] = [
+  {
+    id: 9143,
+    desc: '对一名敌人造成 [魔法 + 4] 点伤害，伤害值因绿色盟友和人马族盟友数而增强。 [x3]',
+    build: skill(
+      dmg('enemyChosen', 4, 1, { modifier: { mod: { kind: 'multiplier', a: 3 }, sources: [{ kind: 'alliesOfColor', color: BaseColor.Green }, { kind: 'alliesOfRace', race: 'Centaur' }] } }),
+    ),
+  },
+  {
+    id: 9144,
+    desc: '对首 2 位敌人造成 [魔法 + 3] 点伤害，伤害值因妖仙盟友数而增强。 [x3]',
+    build: skill(
+      dmg('enemyFirstN', 3, 1, { n: 2, modifier: { mod: { kind: 'multiplier', a: 3 }, source: { kind: 'alliesOfRace', race: 'Fey' } } }),
+    ),
+  },
+  {
+    id: 9145,
+    desc: '爆破 [魔法 + 1] 颗绿色宝石。赋予所有蛛尔卡里盟友一个随机正面增益效果。再召唤一名蛛尔卡里军队。',
+    build: skill(
+      explodeRandomGems(1, 1, 'color', BaseColor.Green),
+      inflictRandom('allyAll', { targetKingdom: '蛛尔卡里' }),
+      summonRandomOfKingdom('蛛尔卡里', undefined),
+    ),
+  },
+  {
+    id: 9146,
+    desc: '对一名敌人造成 [魔法 + 4] 点伤害，伤害值因黄色盟友和鸟族盟友数而增强 。 [x3]',
+    build: skill(
+      dmg('enemyChosen', 4, 1, { modifier: { mod: { kind: 'multiplier', a: 3 }, sources: [{ kind: 'alliesOfColor', color: BaseColor.Yellow }, { kind: 'alliesOfRace', race: 'Stryx' }] } }),
+    ),
+  },
   {
     id: 9158,
     desc: '对一名敌人造成 [魔法 + 3] 点伤害，伤害值因沙漏宝石数而增强。 [x8]',
@@ -59,7 +89,8 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 9167,
     desc: '创造 14 颗混合骷髅头和恐怖宝石。使一名敌人陷入叠加 3 的出血状态。',
     build: skill(
-      inflict('bleed', 'enemyChosen'),
+      createGemsMixAny(['SKULL', { kind: 'terrorGem' }], 14, 0),
+      inflict('bleed', 'enemyChosen', { stacks: 3 }),
     ),
   },
   {
@@ -252,6 +283,7 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 9300,
     desc: '创造 16 颗混合鬼魂宝石和冻结宝石。再爆破一颗宝石。',
     build: skill(
+      createGemsMixAny([{ kind: 'ghost' }, { kind: 'freezeGem' }], 16, 0),
       explodeRandomGems(1, 0, 'color', undefined),
     ),
   },
@@ -268,7 +300,7 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 9302,
     desc: '对首 2 名敌人造成 [魔法 + 3] 点伤害，伤害值因玉银林地盟友数而增强。 [x3]',
     build: skill(
-      dmg('enemyFirstN', 3, 1, { n: 2, modifier: { mod: { kind: 'multiplier', a: 3 }, source: { kind: 'alliesOfKingdom', kingdom: '玉银林地' } } }),
+      dmg('enemyFirstN', 3, 1, { n: 2, modifier: { mod: { kind: 'multiplier', a: 3 }, source: { kind: 'alliesOfKingdom', kingdom: '玉玉玉银林地' } } }),
     ),
   },
   {
@@ -343,7 +375,7 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 9353,
     desc: '对首 2 名敌人造成 [魔法 + 3] 点伤害，伤害值因盗贼盟友数而增强。 [x3]',
     build: skill(
-      dmg('enemyFirstN', 3, 1, { n: 2, modifier: { mod: { kind: 'multiplier', a: 3 }, source: { kind: 'teamSize', side: 'ally' } } }),
+      dmg('enemyFirstN', 3, 1, { n: 2, modifier: { mod: { kind: 'multiplier', a: 3 }, source: { kind: 'alliesOfRace', race: 'Rogue' } } }),
     ),
   },
   {
@@ -432,7 +464,7 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 9379,
     desc: '将所有骷髅头转换成超级末日骷髅头，并获得 [(魔法 / 2) + 1] 点攻击力。若队伍里有永生神奥西弗，则获得一个额外回合。',
     build: skill(
-      attack('allySelf', 1, 0.5),
+      transformToSpecial('SKULL', 'uberDoomSkull'),
       extraTurn({ ifCond: { kind: 'troopPresent', side: 'ally', name: '永生神奥西弗' } }),
     ),
   },
@@ -448,7 +480,8 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 9381,
     desc: '给予所有盟友 [(魔法 x 1.5) + 2] 点护甲值。若队伍里有永生神泰拉，则爆破所有击晕宝石。 [x10]',
     build: skill(
-      armor('allyAll', 2, 1.5),
+      armor('allyAll', 2, 1.5, { modifier: { mod: { kind: 'multiplier', a: 10 } } }),
+      explodeSpecialGems('stunGem', { ifCond: { kind: 'troopPresent', side: 'ally', name: '永生神泰拉' } }),
     ),
   },
   {
@@ -515,7 +548,7 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '摧毁 2 个随机行。如果我的队伍中有不朽的拉奇亚，则还摧毁 2 个随机列。 [x2]',
     build: skill(
       destroyRandomRows(2),
-      destroyRandomCols(2, 0, { ifCond: { kind: 'troopPresent', side: 'ally', name: '不朽的拉基亚' } }),
+      destroyRandomCols(2, 0, { ifCond: { kind: 'troopPresent', side: 'ally', name: '不朽的拉基亚' }, modifier: { mod: { kind: 'multiplier', a: 2 } } }),
     ),
   },
   {
@@ -523,6 +556,7 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '对一名敌人造成 [魔法 + 3] 点伤害，伤害值因恶魔盟友数量而增强。如果我的队伍中有不朽的阿巴顿，则引爆所有恶魔传送门宝石。 [x4]',
     build: skill(
       dmg('enemyChosen', 3, 1, { modifier: { mod: { kind: 'multiplier', a: 4 }, source: { kind: 'alliesOfRace', race: 'Daemon' } } }),
+      explodeSpecialGems('daemonicPortalGem', { ifCond: { kind: 'troopPresent', side: 'ally', name: '不朽的亚巴顿' } }),
     ),
   },
   {
@@ -537,7 +571,8 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 9490,
     desc: '制作 8-12 个骷髅。如果我的队伍中有 Immortal Furnax，则将 4 个黄色宝石转换为末日骷髅。 [x4]',
     build: skill(
-      createSkulls(0, 0, { countRange: { min: 8, max: 12 } }),
+      createSkulls(0, 0, { countRange: { min: 8, max: 12 }, modifier: { mod: { kind: 'multiplier', a: 4 } } }),
+      transformToSpecial(BaseColor.Yellow, 'doomSkull', { count: 4, ifCond: { kind: 'troopPresent', side: 'ally', name: '不朽熔炉' } }),
     ),
   },
   {
@@ -552,7 +587,7 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 9506,
     desc: '对前 2 名敌人造成 [魔法 + 3] 点伤害，伤害值因狐狸座盟友的数量而增强。 [x3]',
     build: skill(
-      dmg('enemyFirstN', 3, 1, { n: 2 }),
+      dmg('enemyFirstN', 3, 1, { n: 2, modifier: { mod: { kind: 'multiplier', a: 3 }, source: { kind: 'alliesOfKingdom', kingdom: '沃尔帕克' } } }),
     ),
   },
   {
@@ -610,6 +645,7 @@ const SPELLS: CuratedBatch['spells'] = [
     build: skill(
       inflict('faerie-fire', 'enemyAll', { stacks: 2 }),
       inflict('entangle', 'enemyAll', { stacks: 2 }),
+      dmg('enemyChosen', 0, 0, { rangeSpec: { min: scale(4, 0.5), max: scale(9, 1) } }),
     ),
   },
   {
@@ -619,6 +655,7 @@ const SPELLS: CuratedBatch['spells'] = [
       inflict('bleed', 'enemyAll', { stacks: 8 }),
       inflict('faerie-fire', 'enemyAll', { stacks: 2 }),
       inflict('entangle', 'enemyAll', { stacks: 2 }),
+      dmg('enemyChosen', 0, 0, { rangeSpec: { min: scale(2, 1), max: scale(4, 2) } }),
     ),
   },
   {
@@ -634,6 +671,7 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '对一名敌人造成 [魔法 + 12] 点溅射伤害，并使所有受影响的敌人流血。如果我的队伍中有不朽双子，则将敌人法力颜色之一的所有宝石转换为紫色。',
     build: skill(
       dmgSplash('enemyChosen', 12, 1, { range: 'splash' }),
+      inflict('bleed', 'lastDamaged'),
       transform('LAST_TARGET', BaseColor.Purple, { ifCond: { kind: 'troopPresent', side: 'ally', name: '不朽的双子座' } }),
     ),
   },
@@ -648,7 +686,7 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 9574,
     desc: '对前 2 名敌人造成 [魔法 + 3] 点伤害，伤害值因银林地盟友的数量而增强。 [x3]',
     build: skill(
-      dmg('enemyFirstN', 3, 1, { n: 2 }),
+      dmg('enemyFirstN', 3, 1, { n: 2, modifier: { mod: { kind: 'multiplier', a: 3 }, source: { kind: 'alliesOfKingdom', kingdom: '玉玉银林地' } } }),
     ),
   },
   {
@@ -758,6 +796,7 @@ const SPELLS: CuratedBatch['spells'] = [
     build: skill(
       dmgSplash('enemyChosen', 3, 1, { range: 'splash' }),
       createSpecialGems({ kind: 'submergeGem' }, 7, 0),
+      createSpecialGems({ kind: 'submergeGem' }, 4, 0, { ifCond: { kind: 'anyTrackedDied' } }),
     ),
   },
   {
@@ -778,7 +817,7 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 9632,
     desc: '对前 2 名敌人造成 [魔法 + 3] 点伤害，伤害值因暗石盟友的数量而增强。 [x3]',
     build: skill(
-      dmg('enemyFirstN', 3, 1, { n: 2, modifier: { mod: { kind: 'multiplier', a: 3 }, source: { kind: 'alliesOfKingdom', kingdom: '黑石盟友' } } }),
+      dmg('enemyFirstN', 3, 1, { n: 2, modifier: { mod: { kind: 'multiplier', a: 3 }, source: { kind: 'alliesOfKingdom', kingdom: '黑石' } } }),
     ),
   },
   {
@@ -845,7 +884,7 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 9689,
     desc: '对前 2 名敌人造成 [魔法 + 3] 点伤害，伤害值因阿达纳盟友的数量而增强。 [x3]',
     build: skill(
-      dmg('enemyFirstN', 3, 1, { n: 2, modifier: { mod: { kind: 'multiplier', a: 3 }, source: { kind: 'alliesOfKingdom', kingdom: '阿达纳盟友' } } }),
+      dmg('enemyFirstN', 3, 1, { n: 2, modifier: { mod: { kind: 'multiplier', a: 3 }, source: { kind: 'alliesOfKingdom', kingdom: '阿达纳' } } }),
     ),
   },
   {
@@ -868,7 +907,7 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 9692,
     desc: '对前 2 名敌人造成 [魔法 + 3] 点伤害，伤害值因流沙盟友的数量而增强。 [x3]',
     build: skill(
-      dmg('enemyFirstN', 3, 1, { n: 2, modifier: { mod: { kind: 'multiplier', a: 3 }, source: { kind: 'alliesOfKingdom', kingdom: '聚沙之地盟友' } } }),
+      dmg('enemyFirstN', 3, 1, { n: 2, modifier: { mod: { kind: 'multiplier', a: 3 }, source: { kind: 'alliesOfKingdom', kingdom: '聚沙之地' } } }),
     ),
   },
   {
@@ -890,7 +929,7 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 9722,
     desc: '造成[魔法 + 6]点散射伤害，伤害值因暗影星辰而增强。如果我方队伍中有不朽雷奥，则对所有敌人施加2层流血效果。 [x8]',
     build: skill(
-      dmg('enemyAll', 6, 1, { range: 'all' }),
+      dmg('enemyAll', 6, 1, { range: 'all', modifier: { mod: { kind: 'multiplier', a: 8 }, source: { kind: 'boardSpecial', gem: 'umbralStar' } } }),
       inflict('bleed', 'enemyAll', { stacks: 2, ifCond: { kind: 'troopPresent', side: 'ally', name: '不朽的雷奥' } }),
     ),
   },
@@ -915,7 +954,7 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 9749,
     desc: '对前 2 名敌人造成 [魔法 + 3] 点伤害，伤害值因圣力场盟友的数量而增强。 [x3]',
     build: skill(
-      dmg('enemyFirstN', 3, 1, { n: 2 }),
+      dmg('enemyFirstN', 3, 1, { n: 2, modifier: { mod: { kind: 'multiplier', a: 3 }, source: { kind: 'alliesOfKingdom', kingdom: '卜筮之原' } } }),
     ),
   },
   {
@@ -936,7 +975,7 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 9752,
     desc: '对前 2 名敌人造成 [魔法 + 3] 点伤害，伤害值因潘之谷盟友的数量而增强。 [x3]',
     build: skill(
-      dmg('enemyFirstN', 3, 1, { n: 2 }),
+      dmg('enemyFirstN', 3, 1, { n: 2, modifier: { mod: { kind: 'multiplier', a: 3 }, source: { kind: 'alliesOfKingdom', kingdom: '潘神之谷' } } }),
     ),
   },
   {
@@ -960,6 +999,7 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '造成[魔法 + 8]点散射伤害，伤害值因黄色宝石数量而增强。如果我方队伍中有不朽的卡奥玛尼，则引爆所有天使宝石。 [x8]',
     build: skill(
       dmg('enemyAll', 8, 1, { range: 'all', modifier: { mod: { kind: 'multiplier', a: 8 }, source: { kind: 'boardGems', color: BaseColor.Yellow } } }),
+      explodeSpecialGems('angelGem', { ifCond: { kind: 'troopPresent', side: 'ally', name: '不朽的考马尼' } }),
     ),
   },
   {
@@ -987,6 +1027,7 @@ const SPELLS: CuratedBatch['spells'] = [
       dmg('enemyChosen', 3, 1),
       dmg('enemyRandom', 3, 1, { modifier: { mod: { kind: 'multiplier', a: 2 }, source: { kind: 'tempering' } } }),
       inflict('bleed', 'lastTarget', { ifCond: { kind: 'targetColor', color: BaseColor.Green } }),
+      reduce('lastTarget', 'armor', 0, 0, { drainAll: true, ifCond: { kind: 'targetHasDoom' } }),
     ),
   },
   {
@@ -995,6 +1036,7 @@ const SPELLS: CuratedBatch['spells'] = [
     build: skill(
       dmg('enemyChosen', 3, 1),
       dmg('enemyRandom', 3, 1, { modifier: { mod: { kind: 'multiplier', a: 2 }, source: { kind: 'tempering' } } }),
+      inflict('bleed', 'lastTarget', { ifCond: { kind: 'targetColor', color: BaseColor.Red } }),
       reduce('lastTarget', 'armor', 0, 0, { drainAll: true, ifCond: { kind: 'targetHasDoom' } }),
     ),
   },
@@ -1033,6 +1075,8 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '将指定颜色的所有宝石转化为流血宝石。灼烧并流血所有该颜色的敌人。',
     build: skill(
       transformToSpecial('ANY', 'bleedGem'),
+      inflict('burning', 'enemyAll', { ifCond: { kind: 'targetColor', color: 'CHOSEN' } }),
+      inflict('bleed', 'enemyAll', { ifCond: { kind: 'targetColor', color: 'CHOSEN' } }),
     ),
   },
   {
@@ -1104,7 +1148,7 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 9876,
     desc: '对前 2 个敌人造成 [魔法 + 3] 点伤害，受到地狱峭壁盟友的加成。 [x3]',
     build: skill(
-      dmg('enemyFirstN', 3, 1, { n: 2, modifier: { mod: { kind: 'multiplier', a: 3 }, source: { kind: 'alliesOfKingdom', kingdom: '地狱悬崖盟友' } } }),
+      dmg('enemyFirstN', 3, 1, { n: 2, modifier: { mod: { kind: 'multiplier', a: 3 }, source: { kind: 'alliesOfKingdom', kingdom: '地狱悬崖' } } }),
     ),
   },
   {
@@ -1121,6 +1165,7 @@ const SPELLS: CuratedBatch['spells'] = [
     build: skill(
       dmg('enemyRandomN', 2, 1, { n: 3 }),
       createSpecialGems({ kind: 'bleedGem' }, 3, 0),
+      createSpecialGems({ kind: 'bleedGem' }, 3, 0, { ifCond: { kind: 'anyTrackedDied' } }),
     ),
   },
   {
@@ -1236,7 +1281,7 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 9974,
     desc: '对前 2 个敌人造成 [魔法 + 3] 点伤害，受到德拉克-祖姆盟友的加成。 [x3]',
     build: skill(
-      dmg('enemyFirstN', 3, 1, { n: 2, modifier: { mod: { kind: 'multiplier', a: 3 }, source: { kind: 'alliesOfKingdom', kingdom: '卓克祖盟友' } } }),
+      dmg('enemyFirstN', 3, 1, { n: 2, modifier: { mod: { kind: 'multiplier', a: 3 }, source: { kind: 'alliesOfKingdom', kingdom: '卓克祖' } } }),
     ),
   },
   {
@@ -1259,7 +1304,7 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 9977,
     desc: '对前 2 个敌人造成 [魔法 + 3] 点伤害，受到荒野平原盟友的加成。 [x3]',
     build: skill(
-      dmg('enemyFirstN', 3, 1, { n: 2 }),
+      dmg('enemyFirstN', 3, 1, { n: 2, modifier: { mod: { kind: 'multiplier', a: 3 }, source: { kind: 'alliesOfKingdom', kingdom: '狂野平原' } } }),
     ),
   },
   {
@@ -1267,6 +1312,7 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '对一名敌人造成[魔法 + 3]点伤害，骷髅头可提升伤害。如果我方队伍中有不朽泽法尔，则引爆所有死亡印记宝石。 [x2]',
     build: skill(
       dmg('enemyChosen', 3, 1, { modifier: { mod: { kind: 'multiplier', a: 2 }, source: { kind: 'boardSkulls' } } }),
+      explodeSpecialGems('deathMarkGem', { ifCond: { kind: 'troopPresent', side: 'ally', name: '不朽的泽法尔' } }),
     ),
   },
   {
@@ -1338,7 +1384,7 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 10047,
     desc: '对前 2 个敌人造成 [魔法 + 3] 点伤害，受到荆棘森林盟友的加成。 [x3]',
     build: skill(
-      dmg('enemyFirstN', 3, 1, { n: 2, modifier: { mod: { kind: 'multiplier', a: 3 }, source: { kind: 'alliesOfKingdom', kingdom: '荆棘森林盟友' } } }),
+      dmg('enemyFirstN', 3, 1, { n: 2, modifier: { mod: { kind: 'multiplier', a: 3 }, source: { kind: 'alliesOfKingdom', kingdom: '荆棘森林' } } }),
     ),
   },
   {

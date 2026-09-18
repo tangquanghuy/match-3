@@ -48,7 +48,11 @@ export type ColorSpec =
   | 'ENEMY'
   | 'LAST_TARGET'
   | 'ENEMY_MOST_USED'
-  | 'ALLY_MOST_USED';
+  | 'ALLY_MOST_USED'
+  /** 本次释放手动选定目标的法力色之一（R22 批，8188「创建 10 颗与盟友的法力颜色相同的
+   *  宝石」——该咒语的首段即创造段、无前序 chosen 段，直接读 ctx.chosenTargetId（其候选
+   *  集由同技能后段 allyChosen 驱动）；未选目标/无色 → null 整段跳过）。 */
+  | 'CHOSEN_TARGET';
 
 /**
  * 某方「已用法力最多」的颜色（R11 批，官方 MostUsedManaEnemy / MostUsedManaAlly）：
@@ -91,6 +95,13 @@ function resolveColor(spec: ColorSpec, ctx: EffectContext): BaseColor | null {
   if (spec === 'SKULL') return null;
   if (spec === 'CASTER') {
     return findCharacter(ctx.state, ctx.casterId)?.colors[0] ?? null;
+  }
+  if (spec === 'CHOSEN_TARGET') {
+    // R22 批：手动选定目标（任意阵营）的一种法力色（多色 rng 掷选）
+    if (ctx.chosenTargetId === undefined) return null;
+    const char = findCharacter(ctx.state, ctx.chosenTargetId);
+    if (!char || char.colors.length === 0) return null;
+    return char.colors[ctx.rng.nextInt(char.colors.length)];
   }
   // 「指定/该敌人的一种法力颜色」（2026-09-17 回收批）：随机存活敌方 / 跨段追踪目标，
   // 多法力色时 rng 掷选其一（确定性）。LAST_TARGET 无跨段追踪时回退到玩家选定的敌人
@@ -136,10 +147,15 @@ function transformEndpoint(spec: ColorSpec, ctx: EffectContext): GemType | null 
 
 /** doTransform 的端点解析：优先特殊宝石端点（「将所有红色宝石转换成极度末日骷髅头」）。
  *  from 侧遇 'ANY'/'CELL'/缺省返回 null（由 doTransform 按「不限来源 / 选定单格」分支
- *  处理，不走这里）。 */
+ *  处理，不走这里）。toSpecial 亦接受 spec 形态 { kind, tier?, color? }（K-B 收官轮，
+ *  带档通配/恶石像鬼 tier 端点）——kind 字符串与对象两形态运行时等价。 */
 function transformEndpointOf(params: TransformGemParams, side: 'from' | 'to', ctx: EffectContext): GemType | null {
   const special = side === 'from' ? params.fromSpecial : params.toSpecial;
-  if (special) return specialGem(special);
+  if (special) {
+    return typeof special === 'string'
+      ? specialGem(special)
+      : specialGem(special.kind, special.tier, special.color);
+  }
   const spec = side === 'from' ? params.from : params.to;
   if (spec === undefined || spec === 'ANY' || spec === 'CELL') return null;
   return transformEndpoint(spec, ctx);
@@ -154,7 +170,15 @@ export type CreateGemSpec =
   | { kind: 'skull' }
   | { kind: 'mix'; colors: ColorSpec[] }
   | { kind: 'special'; spec: SpecialGemSpec }
-  | { kind: 'mixSpecial'; specs: SpecialGemSpec[] };
+  | { kind: 'mixSpecial'; specs: SpecialGemSpec[] }
+  /**
+   * 混合创造·通用形态（R22 批，官方 CreateGems「a mix of …」句式）：entries 逐颗放回均匀
+   * 掷选，端点可为颜色占位符 / 'SKULL'（骷髅）/ 特殊宝石 spec——
+   *   8880「创造 24 颗混合紫色和骷髅头的宝石」= entries ['Purple','SKULL']
+   *   9780「创造 14 颗绿色和流血宝石混合体」= entries ['Green',{kind:'bleedGem'}]
+   * 任一颜色端点无法解析 → 整段跳过（与 mix 同护栏）。
+   */
+  | { kind: 'mixAny'; entries: (ColorSpec | 'SKULL' | SpecialGemSpec)[] };
 
 export interface CreateGemParams {
   op: 'create';
@@ -185,8 +209,13 @@ export interface TransformGemParams {
   /** 来源端点；'ANY' = 不限色（排除已是目标类型的宝石）。缺省按 'ANY' 处理（既有构造器恒显式传入） */
   from?: TransformFrom;
   to: ColorSpec;
-  /** to 端点为特殊宝石时给出（优先于 to 的基色解析） */
-  toSpecial?: SpecialGemKind;
+  /**
+   * to 端点为特殊宝石时给出（优先于 to 的基色解析）。
+   * kind 字符串 = 既有形态（无档宝石）；K-B 收官轮起亦可为 spec 形态 `{ kind, tier?, color? }`
+   * （对齐 createSpecialGems 的 SpecialGemSpec——带档通配 x3 / 恶石像鬼等 tier 端点，
+   * 8966「Convert a selected Mana Gem into a x3 Wildcard」）。两种形态运行时等价。
+   */
+  toSpecial?: SpecialGemKind | SpecialGemSpec;
   /** from 端点为特殊宝石时给出（优先于 from）——特殊↔特殊（Wave4，8801 石块端点）。
    *  池匹配按 kind 精确对位（石块/石像鬼等不可匹配宝石 isSameMatchType 恒 false） */
   fromSpecial?: SpecialGemKind;
@@ -213,9 +242,12 @@ export interface TransformGemParams {
  *   - x      ：两条对角线（官方 X 形状，「以 X 形状摧毁宝石」= 沿过中心的两条对角线清全程）
  *   - circle5：5x5 圆（R13 批，官方 BoardTarget Circle，「摧毁 5x5 圈宝石」= 以中心格为
  *     圆心、半径 2.5 格的圆内格集合，几何判定 dx²+dy² ≤ 2.5²，8x8 中心处 21 格圆角盘）
- * 中心格缺省 = 棋盘几何中心（8x8 取 floor((N-1)/2)=3），可显式给格或 'CELL'（玩家点选）。
+ *   - row3  ：一行三格（R22 批，官方 Block1x3 单排——7000/9052「爆破/摧毁一颗宝石和其两侧
+ *     的宝石」= 以中心格为锚的横向 1x3）
+ * 中心格缺省 = 棋盘几何中心（8x8 取 floor((N-1)/2)=3），可显式给格、'CELL'（玩家点选）或
+ * 'RANDOM'（R22 批：随机取一颗有宝石的格为锚——「(爆破)一颗宝石和其两侧的宝石」裸单颗口径）。
  */
-export type AreaShape = 'square5' | 'square3' | 'cross3' | 'x' | 'circle5';
+export type AreaShape = 'square5' | 'square3' | 'cross3' | 'x' | 'circle5' | 'row3';
 
 /**
  * 清除目标集描述。产出一组"目标格"，再由 clear 模式决定是否辐射一圈。
@@ -225,9 +257,10 @@ export type AreaShape = 'square5' | 'square3' | 'cross3' | 'x' | 'circle5';
  *   - color：某颜色全部（可 'CHOSEN'）
  *   - allColors：全部颜色宝石（不含骷髅）
  *   - skulls：全部骷髅
- *   - randomGems：随机 N 颗宝石（可限定仅颜色/含骷髅）
+ *   - randomGems：随机 N 颗宝石（可限定仅颜色/含骷髅/仅普通骷髅/指定特殊宝石；双色并集池）
  *   - cell：以某格为中心（cell 可 'CELL'）；本身即单格，靠 explode 辐射成片
  *   - area：固定形状格集合（面积原语批）——形状本身即完整目标集，**不再辐射**
+ *   - chosenCross：选定宝石的行+列（R22 批，7253「选择一颗宝石，摧毁其行和列」）
  */
 export type ClearTarget =
   | { kind: 'lines'; rows?: number[]; cols?: number[] }
@@ -237,9 +270,10 @@ export type ClearTarget =
   | { kind: 'allColors' }
   | { kind: 'skulls' }
   | { kind: 'special'; gem: SpecialGemKind }
-  | { kind: 'randomGems'; count: ScalingSpec; include?: 'color' | 'all'; color?: ColorSpec; special?: SpecialGemKind; countRange?: { min: number; max: number } }
+  | { kind: 'randomGems'; count: ScalingSpec; include?: 'color' | 'all' | 'skull'; color?: ColorSpec; colors?: ColorSpec[]; special?: SpecialGemKind; countRange?: { min: number; max: number } }
   | { kind: 'cell'; cell: CellPos | 'CELL' }
-  | { kind: 'area'; shape: AreaShape; center?: CellPos | 'CELL' };
+  | { kind: 'area'; shape: AreaShape; center?: CellPos | 'CELL' | 'RANDOM' }
+  | { kind: 'chosenCross' };
 
 /** 清除操作：destroy=仅目标本身；explode=目标并入每颗 8 邻格 */
 export interface ClearGemParams {
@@ -307,6 +341,24 @@ function pickCreateGemType(spec: CreateGemSpec, ctx: EffectContext): GemType | n
     if (spec.specs.length === 0) return null;
     const picked = spec.specs[ctx.rng.nextInt(spec.specs.length)];
     return specialGem(picked.kind, picked.tier, picked.color);
+  }
+  if (spec.kind === 'mixAny') {
+    // R22 批：通用混合创造（色/骷髅/特殊宝石逐颗掷选）。先解析全部颜色端点（按位对齐），
+    // 任一失败 → 整段跳过；'SKULL'/特殊宝石端点无需解析。
+    if (spec.entries.length === 0) return null;
+    const resolvedByEntry: (BaseColor | null | undefined)[] = spec.entries.map((e) => {
+      if (typeof e !== 'string') return undefined; // 特殊宝石 spec 端点
+      if (e === 'SKULL') return undefined;
+      return resolveColor(e, ctx);
+    });
+    if (resolvedByEntry.some((r) => r === null)) return null;
+    const idx = ctx.rng.nextInt(spec.entries.length);
+    const pick = spec.entries[idx];
+    if (typeof pick === 'string') {
+      if (pick === 'SKULL') return skullGem();
+      return colorGem(resolvedByEntry[idx] as BaseColor);
+    }
+    return specialGem(pick.kind, pick.tier, pick.color);
   }
   const colors = spec.kind === 'mix' ? spec.colors : [spec.color];
   if (colors.length === 0) return null;
@@ -500,16 +552,32 @@ function resolveTargetCells(target: ClearTarget, ctx: EffectContext, modifier?: 
         ? rollInRange(target.countRange, ctx)
         : evaluateWithModifier(evaluateScaling(target.count, casterMagic(ctx)), modifier, ctx);
       if (n <= 0) return [];
-      // 可选限定色：「爆破 [魔法 + 1] 颗紫色宝石」从紫色的池子里随机取；可选限定特殊宝石种类
-      const colorFilter = target.color === undefined ? null : resolveColor(target.color, ctx);
-      if (target.color !== undefined && colorFilter === null) return null;
-      const filterType = colorFilter === null ? null : colorGem(colorFilter);
+      // 可选限定色：「爆破 [魔法 + 1] 颗紫色宝石」从紫色的池子里随机取；可选限定特殊宝石种类；
+      // colors（R22 批，8429「绿色或紫色宝石」）：双色并集池（逐颗任一命中即入池）——
+      // 仅支持基色端点，占位符无法解析时整段跳过。
+      let colorFilters: GemType[] | null = null;
+      if (target.colors !== undefined) {
+        const resolved: GemType[] = [];
+        for (const c of target.colors) {
+          const r = resolveColor(c, ctx);
+          if (r === null) return null;
+          resolved.push(colorGem(r));
+        }
+        colorFilters = resolved;
+      }
+      const colorFilter = colorFilters === null && target.color !== undefined ? resolveColor(target.color, ctx) : null;
+      if (target.color !== undefined && colorFilters === null && colorFilter === null) return null;
+      const singleFilter = colorFilter === null ? null : colorGem(colorFilter);
       const pool: CellPos[] = [];
       board.forEach((gem, pos) => {
         if (!gem) return;
         if (target.special !== undefined && !(gem.type.kind === 'special' && gem.type.spec.kind === target.special)) return;
         if (target.include === 'color' && gem.type.kind !== 'color') return;
-        if (filterType && !isSameMatchType(gem.type, filterType)) return;
+        // include 'skull'（R22 批，7136/8504）：仅普通骷髅（末日族属 special kind，不在池内）
+        if (target.include === 'skull' && gem.type.kind !== 'skull') return;
+        if (colorFilters !== null) {
+          if (!colorFilters.some((t) => isSameMatchType(gem.type, t))) return;
+        } else if (singleFilter && !isSameMatchType(gem.type, singleFilter)) return;
         pool.push(pos);
       });
       return pickN(pool, n, ctx);
@@ -518,11 +586,27 @@ function resolveTargetCells(target: ClearTarget, ctx: EffectContext, modifier?: 
       const cell = target.cell === 'CELL' ? ctx.chosenCell : target.cell;
       return cell ? [cell] : null;
     }
+    case 'chosenCross': {
+      // 选定宝石的行+列（R22 批，7253「选择一颗紫色宝石，摧毁其行和列」）：以玩家点选格为
+      // 锚取整行∪整列（锚格重复出现按后续去重收口）。未选格 → 安全跳过。
+      if (ctx.chosenCell === undefined) return null;
+      return [...cellsOfRow(ctx.chosenCell.row), ...cellsOfCol(ctx.chosenCell.col)];
+    }
     case 'area': {
       // 面积形状（原语批 R12）：形状格集合按中心格生成；越界格剔除（贴边中心时自动收边）。
-      const center = target.center === undefined
-        ? { row: Math.floor((BoardModel.ROWS - 1) / 2), col: Math.floor((BoardModel.COLS - 1) / 2) }
-        : target.center === 'CELL' ? ctx.chosenCell : target.center;
+      // center 'RANDOM'（R22 批）：随机取一颗有宝石的格为锚（「一颗宝石和其两侧的宝石」）。
+      let center: CellPos | null;
+      if (target.center === undefined) {
+        center = { row: Math.floor((BoardModel.ROWS - 1) / 2), col: Math.floor((BoardModel.COLS - 1) / 2) };
+      } else if (target.center === 'CELL') {
+        center = ctx.chosenCell ?? null;
+      } else if (target.center === 'RANDOM') {
+        const occupied: CellPos[] = [];
+        board.forEach((gem, pos) => { if (gem) occupied.push(pos); });
+        center = occupied.length > 0 ? occupied[ctx.rng.nextInt(occupied.length)] : null;
+      } else {
+        center = target.center;
+      }
       if (!center) return null;
       const cells: CellPos[] = [];
       const push = (row: number, col: number) => {
@@ -556,6 +640,12 @@ function resolveTargetCells(target: ClearTarget, ctx: EffectContext, modifier?: 
               if (dr * dr + dc * dc <= 6.25) push(center.row + dr, center.col + dc);
             }
           }
+          break;
+        case 'row3':
+          // 一行三格（R22 批，官方 Block1x3 单排）：中心格 + 同行左右各一格
+          push(center.row, center.col - 1);
+          push(center.row, center.col);
+          push(center.row, center.col + 1);
           break;
       }
       return cells;

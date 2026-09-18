@@ -37,7 +37,8 @@ import type { ModifierSpec } from './effects/secondary';
 import { gemEffect } from './effects/gems';
 import type { GemParams } from './effects/gems';
 import { cleanseEffect, statusEffect, dispelStatusEffect, randomStatusEffect } from './effects/status';
-import { summonEffect, extraTurnEffect, transformTroopEffect, repositionEffect, shuffleTeamEffect } from './effects/summon';
+import { summonEffect, extraTurnEffect, transformTroopEffect, repositionEffect, shuffleTeamEffect, summonCopyEffect, swapPositionsEffect } from './effects/summon';
+import { devourEffect } from './effects/devour';
 import { stormEffect } from './effects/storm';
 import { escapeEffect } from './effects/escape';
 import { economyGainEffect } from './effects/economy';
@@ -106,6 +107,8 @@ export interface DamageSegment extends SegmentOptions {
   rangeSpec?: { min: ScalingSpec; max: ScalingSpec };
   /** 分摊（「伤害分摊给至多 {N} 名敌人」）：掷一次总额均分给前 N 名存活敌人（余数给靠前者） */
   split?: number;
+  /** 随机分摊（R22 批，7207「随机分配给所有敌人」）：总额按随机切点分给全部存活敌人 */
+  splitRandom?: boolean;
   /** 生命窃取：实际伤害总额治疗施法者（「窃取 X 点生命值」） */
   drain?: boolean;
   /** 即杀（「摧毁/消灭该敌人」）：伤害额 = 目标当前有效耐久 */
@@ -141,6 +144,8 @@ export interface BuffSegment extends SegmentOptions {
   condMult?: import('./effects/secondary').CondMult;
   /** 条件加成（「若…则增加 N 点」，加算；叠加顺序见 SOP） */
   condBonus?: import('./effects/secondary').CondBonus;
+  /** 数值区间（R22 批，7469/9055/9181「3-8 点法力值」/ 8055 护甲区间）：与 scaling 二选一 */
+  rangeSpec?: { min: ScalingSpec; max: ScalingSpec };
 }
 
 /**
@@ -180,6 +185,8 @@ export interface ReduceSegment extends SegmentOptions {
   condMult?: import('./effects/secondary').CondMult;
   /** 条件加成（「若…则增加 N 点」，加算） */
   condBonus?: import('./effects/secondary').CondBonus;
+  /** 数值区间（R22 批，8356「耗掉 1-3 点法力值」CountRange）：与 scaling 二选一 */
+  rangeSpec?: { min: ScalingSpec; max: ScalingSpec };
 }
 
 /** 宝石操作段（不经目标选择） */
@@ -235,6 +242,11 @@ export interface StatusSegment extends SegmentOptions {
    * 存活目标池一名（可重复同目标，rng 逐次掷）」。消费在 effects/status.ts statusEffect。
    */
   perDestroyed?: { color?: BaseColor | 'skull' };
+  /**
+   * 计数驱动施加（R22 批，「每有一名X则使一名随机(盟友/敌人)Y」族）：施加次数 =
+   * modifierBonus(perCount)，每次随机取存活目标池一名（可重复）。消费在 effects/status.ts。
+   */
+  perCount?: import('./effects/secondary').ModifierSpec;
 }
 
 /** Remove statuses from selected allies. */
@@ -339,7 +351,35 @@ export interface TransformTroopSegment extends SegmentOptions {
   ref?: string;
   /** 兵种族随机（「转化为一只随机龙族」）：候选 referenceName 集合，rng 掷选 */
   randomOf?: string[];
+  /** 复制形态（R22 批，官方 TransformSelfFromTarget——8187「转化成一名敌人」）：
+   *  给出时模板 = 该目标模式解析出的现存角色快照，targets 被就地改写（与 ref/randomOf 互斥） */
+  copyOf?: TargetMode;
   troopId?: number;
+}
+
+/** 吞噬段（R22 批，官方 Devour——8573/9364/9492）：即杀目标 + 吞噬者官方额度成长；
+ *  概率在原语内部掷签（chance 段级通用管线不用——失败也要完成目标解析入追踪）。 */
+export interface DevourSegment extends SegmentOptions {
+  kind: 'devour';
+  target: TargetMode;
+  /** 基础概率（0~1） */
+  chance: number;
+  /** 概率条件倍率（「若敌人是纳迦族则几率翻倍」） */
+  chanceMult?: import('./effects/secondary').CondMult;
+}
+
+/** 复制召唤段（R22 批，官方 SummoningTarget(NoError)——8188/8190/8273）：以目标现存角色
+ *  快照为模板召唤一名（走编队/队列管线） */
+export interface SummonCopySegment extends SegmentOptions {
+  kind: 'summonCopy';
+  target: TargetMode;
+}
+
+/** 交换编队位段（R22 批，官方 Swap——7555/7992「使首位和末位敌人交换位置」） */
+export interface SwapPositionsSegment extends SegmentOptions {
+  kind: 'swapPositions';
+  a: TargetMode;
+  b: TargetMode;
 }
 
 /** 调位（「将一名敌人击回末位」「移至队伍首位」）：改编队顺序 */
@@ -395,7 +435,10 @@ export type EffectSegment =
   | RandomStatusSegment
   | TransformTroopSegment
   | RepositionSegment
-  | ShuffleTeamSegment;
+  | ShuffleTeamSegment
+  | DevourSegment
+  | SummonCopySegment
+  | SwapPositionsSegment;
 
 /** 技能原型：有序效果段数组 */
 export interface SkillPrototype {
@@ -467,9 +510,40 @@ function resolveTargetsTracked(
     }
     return targets;
   }
+  // R22 批跨段追踪族：'lastTargets' 全列表 / 'lastTargetFirst'·'lastTargetLast' 首尾 /
+  // 'lastDamaged' 最近伤害段实际命中集。不重抽 rng；追踪为空或全灭 → 空目标安全跳过。
+  if (mode === 'lastTargets' || mode === 'lastTargetFirst' || mode === 'lastTargetLast' || mode === 'lastDamaged') {
+    const tracking = ctx.castTracking;
+    if (!tracking) return [];
+    let ids: number[] = [];
+    if (mode === 'lastDamaged') {
+      ids = tracking.lastDamaged ?? [];
+    } else {
+      const list = tracking.lastTargets ?? [];
+      if (list.length === 0) return [];
+      if (mode === 'lastTargets') ids = list.map((t) => t.id);
+      else if (mode === 'lastTargetFirst') ids = [list[0].id];
+      else ids = [list[list.length - 1].id];
+    }
+    const targets = ids
+      .map((id) => findCharacter(ctx.state, id))
+      .filter((c): c is Character => !!c && !c.defeated);
+    if (targets.length > 0) {
+      tracking.lastTargets = targets.map((c) => ({ id: c.id, aliveBefore: !c.defeated }));
+      tracking.lastTarget = { id: targets[0].id, aliveBefore: true };
+    }
+    return targets;
+  }
   const targets = resolveTargets(segment, ctx, overrideMode);
   if (targets.length > 0 && ctx.castTracking) {
     ctx.castTracking.lastTarget = { id: targets[0].id, aliveBefore: !targets[0].defeated };
+    // R22 批：全目标列表快照（'lastTargets' 族读最近一段；allTargets 跨段累积供 anyTrackedDied）
+    const snapshot = targets.map((c) => ({ id: c.id, aliveBefore: !c.defeated }));
+    ctx.castTracking.lastTargets = snapshot;
+    const all = ctx.castTracking.allTargets ?? [];
+    const seen = new Set(all.map((t) => t.id));
+    for (const t of snapshot) if (!seen.has(t.id)) all.push(t);
+    ctx.castTracking.allTargets = all;
   }
   return targets;
 }
@@ -505,6 +579,8 @@ function compileSegment(segment: EffectSegment, ctx: EffectContext): EffectPrimi
         rangeSpec: segment.rangeSpec,
         drain: segment.drain,
         execute: segment.execute,
+        split: segment.split,
+        splitRandom: segment.splitRandom,
       });
     case 'buff':
       return buffEffect({
@@ -519,6 +595,7 @@ function compileSegment(segment: EffectSegment, ctx: EffectContext): EffectPrimi
         raceTimes: segment.raceTimes,
         condMult: segment.condMult,
         condBonus: segment.condBonus,
+        rangeSpec: segment.rangeSpec,
       });
     case 'reduce':
       return reduceEffect({
@@ -535,6 +612,7 @@ function compileSegment(segment: EffectSegment, ctx: EffectContext): EffectPrimi
         raceTimes: segment.raceTimes,
         condMult: segment.condMult,
         condBonus: segment.condBonus,
+        rangeSpec: segment.rangeSpec,
       });
     case 'gem':
       return gemEffect(segment.params);
@@ -556,6 +634,7 @@ function compileSegment(segment: EffectSegment, ctx: EffectContext): EffectPrimi
         magnitude: segment.magnitude,
         stacks: segment.stacks,
         perDestroyed: segment.perDestroyed,
+        perCount: segment.perCount,
       });
     case 'cleanse':
       return cleanseEffect({ targets: resolveTargetsTracked(segment, ctx) });
@@ -603,13 +682,29 @@ function compileSegment(segment: EffectSegment, ctx: EffectContext): EffectPrimi
         times: segment.times,
         pool: segment.pool,
       });
-    case 'transformTroop':
+    case 'transformTroop': {
+      // R22 批 copyOf 形态（TransformSelfFromTarget，8187）：模板来自 copyOf 目标解析
+      const copyTargets = segment.copyOf !== undefined
+        ? resolveTargets({ target: segment.copyOf }, ctx)
+        : [];
       return transformTroopEffect({
         targets: resolveTargetsTracked(segment, ctx),
         ref: segment.ref,
         randomOf: segment.randomOf,
+        copyOf: copyTargets.length > 0 ? copyTargets : undefined,
         troopId: segment.troopId,
       });
+    }
+    case 'devour':
+      return devourEffect({
+        targets: resolveTargetsTracked(segment, ctx),
+        chance: segment.chance,
+        chanceMult: segment.chanceMult,
+      });
+    case 'summonCopy':
+      return summonCopyEffect({ targets: resolveTargetsTracked(segment, ctx) });
+    case 'swapPositions':
+      return swapPositionsEffect({ a: segment.a, b: segment.b });
     case 'reposition':
       return repositionEffect({
         targets: resolveTargetsTracked(segment, ctx),
@@ -633,8 +728,9 @@ function ensureCastTracking(ctx: EffectContext): CastTracking {
 }
 
 /**
- * 阵亡计数（原语 Wave3 批，countEnemyDeaths/countAllyDeaths 来源）：
- * 数本段事件流里的 defeat 事件、按死者与施法者的阵营归边入跨段追踪。
+ * 阵亡计数（原语 Wave3 批，countEnemyDeaths/countAllyDeaths 来源）+
+ * R22 批扩展：lastDamaged / lastDamage（最近伤害段实际命中集与伤害总额）。
+ * 数本段事件流里的 defeat/skill-damage 事件、按死者与施法者的阵营归边入跨段追踪。
  * 在 resolveDefeatEvents 之前调用——阵亡者此刻仍在编队里（仅 defeated 标记），
  * findSide 才能判出归属；此后官方口径的阵亡响应由 TurnEngine 收尾。
  * 官方 CountEnemyDeaths/CountAllyDeaths 是**全战斗累计**（含骷髅/DoT 击杀）；
@@ -646,13 +742,23 @@ function countCastDeaths(events: GameEvent[], ctx: EffectContext): void {
   if (!tracking || events.length === 0) return;
   const casterSide = findSide(ctx.state, ctx.casterId);
   if (casterSide === null) return;
+  let damageTotal = 0;
+  const damagedIds = new Set<number>();
   for (const ev of events) {
+    if (ev.type === 'skill-damage') {
+      // R22 批：本段实际命中集（含溅射链受害者）与伤害总额（lastDamaged/lastDamage 来源）
+      damageTotal += ev.damage;
+      damagedIds.add(ev.targetId);
+      continue;
+    }
     if (ev.type !== 'defeat') continue;
     const side = findSide(ctx.state, ev.characterId);
     if (side === null) continue;
     if (side === casterSide) tracking.allyDeaths += 1;
     else tracking.enemyDeaths += 1;
   }
+  if (damagedIds.size > 0) tracking.lastDamaged = [...damagedIds];
+  if (damageTotal > 0) tracking.lastDamage = damageTotal;
 }
 
 /**

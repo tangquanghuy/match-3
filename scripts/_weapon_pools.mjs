@@ -107,7 +107,7 @@ const SPECIAL_GEMS = [
   ['极度末日骷髅头', 'uberDoomSkull'], ['超级末日骷髅头', 'uberDoomSkull'],
   ['善石像鬼宝石', 'gargoyleGem', 1], ['恶石像鬼宝石', 'gargoyleGem', 2],
   ['噩梦传送门宝石', 'daemonicPortalGem'], ['恶魔传送门宝石', 'daemonicPortalGem'],
-  ['末日骷髅头', 'doomSkull'], ['厄运骷髅头', 'doomSkull'],
+  ['末日骷髅', 'doomSkull'], ['末日骷髅头', 'doomSkull'], ['厄运骷髅头', 'doomSkull'],
   ['燃烧宝石', 'burningGem'], ['冻结宝石', 'freezeGem'], ['诅咒宝石', 'curseGem'],
   ['流血宝石', 'bleedGem'], ['毒药宝石', 'poisonGem'], ['毒宝石', 'poisonGem'],
   ['死亡标记宝石', 'deathMarkGem'], ['死亡印记宝石', 'deathMarkGem'], ['恐怖宝石', 'terrorGem'], ['恐惧宝石', 'terrorGem'], ['缠绕宝石', 'entangleGem'],
@@ -119,10 +119,16 @@ const SPECIAL_GEMS = [
   // —— Wave B（提交 2813774）：龙/巨人/灵力/法力药水/糖果 = 六色族，spec.color 携带归属色 ——
   ['龙宝石', 'dragonGem'], ['巨人宝石', 'giantGem'], ['灵力宝石', 'spiritGem'],
   ['法力药水宝石', 'manaPotionGem'], ['糖果宝石', 'candyGem'],
-  ['元素星', 'elementalStar'], ['临界星', 'umbralStar'], ['暗影之星', 'umbralStar'],
+  ['元素星', 'elementalStar'], ['临界星', 'umbralStar'], ['暗影之星', 'umbralStar'], ['暗影星辰', 'umbralStar'],
   ['天使宝石', 'angelGem'], ['石像鬼宝石', 'gargoyleGem'],
   ['传送门宝石', 'daemonicPortalGem'], ['狼化宝石', 'lycanthropyGem'],
   ['腐朽宝石', 'decayGem'], ['腐烂宝石', 'decayGem'], ['陷阱宝石', 'trapGem'], ['火山宝石', 'volcanoGem'],
+  // —— K-B 收官轮：石块（8769 石块计数/创造、8400 石墩）；带档通配符（8966 x3 通配符转换）——
+  //  x 档变体必须排在裸「通配符」之前（matchSpecialGem 按包含匹配、先命中先返回）
+  ['石块', 'stoneBlock'], ['石墩', 'stoneBlock'],
+  ['x2 通配符', 'wildcard', 2], ['x3 通配符', 'wildcard', 3], ['x4 通配符', 'wildcard', 4],
+  ['x2 通配', 'wildcard', 2], ['x3 通配', 'wildcard', 3], ['x4 通配', 'wildcard', 4],
+  ['通配符', 'wildcard'], ['通配宝石', 'wildcard'],
 ];
 /** 六色族：文本带颜色时经 spec.color 通道携带（GEMS-SEMANTICS-2 拍板方案） */
 const SIX_COLOR_GEMS = new Set(['dragonGem', 'giantGem', 'spiritGem', 'manaPotionGem', 'candyGem']);
@@ -138,20 +144,28 @@ const BLOCKED_GEM_RE = /龙族宝石|蓝龙宝石|贪婪宝石/;
  *  若敌人是个魔头=目标 Boss 族判定，推翻 §5 旧读法——见 spell-rules §5 修订）。 */
 const RACE_ALIAS = {
   恶魔: 'Daemon', 不死族: 'Undead', 亡灵: 'Undead', 元素: 'Elemental', 元素生物: 'Elemental', 神祇: 'Divine',
+  神祗: 'Divine',
   纳迦: 'Naga', 半人马: 'Centaur', 人马: 'Centaur', 巨人: 'Giant', 矮人: 'Dwarf', 人类: 'Human', 兽人: 'Orc',
   骑士: 'Knight', 机械: 'Mech', 秘士: 'Mystic', 神秘: 'Mystic', 龙: 'Dragon', 龙族: 'Dragon', 野兽: 'Beast', 哥布林: 'Goblin', 妖仙: 'Fey', 精灵: 'Elf',
   怪兽: 'Monster', 怪物: 'Monster', 构装体: 'Construct',
   猫族: 'Raksha', 罗刹: 'Raksha', 金牛座: 'Tauros', 牛头族: 'Tauros',
   狼族: 'Wargare', 战神: 'Wargare', 蛮族: 'Wildfolk', 厄什卡: 'Urska', 乌尔斯卡: 'Urska',
-  建造: 'Construct', 罗格: 'Rogue', 冥河: 'Stryx', 猎鹰: 'Stryx', 鸟族: 'Stryx', Stryx: 'Stryx',
-  美人鱼: 'Merfolk', 魔头: 'Boss',
+  建造: 'Construct', 罗格: 'Rogue', 盗贼: 'Rogue', 冥河: 'Stryx', 猎鹰: 'Stryx', 鸟族: 'Stryx', Stryx: 'Stryx',
+  美人鱼: 'Merfolk', 海族: 'Merfolk', 魔头: 'Boss',
 };
 /** 王国名机翻变体（K-B3：EN 原文核实；召唤/计数/状态目标共用一条归一口）。
- *  与 RACE_ALIAS 的分工：命中此处 → kingdom-* 特征（待王国批接线）；命中 RACE_ALIAS → 立即可组装。 */
+ *  与 RACE_ALIAS 的分工：命中此处 → kingdom-* 特征（待王国批接线）；命中 RACE_ALIAS → 立即可组装。
+ *  K-B 收官轮（EN 快照王国改名考证，data/raw 双语 dump 按 troop Id 配对核实）：
+ *  官方 2025 改名——Zaejin→Amanithrax（zh=齐埃金）、Hellcrag→Obsidian Depths（zh=地狱悬崖）、
+ *  Grosh-Nak→Dripping Caverns（zh=葛洛什奈克）；机翻译名/截断——毒菇林=Amanithrax（齐埃金）、
+ *  滴答洞穴=Dripping Caverns（葛洛什奈克）、黑曜石深渊=Obsidian Depths（地狱悬崖）、
+ *  圣力场=Divinion Fields（卜筮之原）、潘之谷=潘神之谷、银林地=玉银林地、狐狸座=Vulpacea（沃尔帕克）。 */
 const KINGDOM_ALIAS = {
   冰封之巅: '冰峰之巅', 卡拉科斯: '卡拉考斯', 地狱岩: '地狱悬崖', 地狱峭壁: '地狱悬崖', 地域悬崖: '地狱悬崖',
   马拉杰之罪: '迈纳杰之罪', 古尔瓦尼亚: '加尔凡尼亚', '德拉克-祖姆': '卓克祖', 'Dhrak-Zum': '卓克祖',
-  日冠: '日冕', 扎金: '齐埃金', 狐狸族: '沃尔帕克', 暗石: '黑石', 流沙: '聚沙之地',
+  日冠: '日冕', 扎金: '齐埃金', 狐狸族: '沃尔帕克', 狐狸座: '沃尔帕克', 暗石: '黑石', 流沙: '聚沙之地',
+  荒野平原: '狂野平原', 毒菇林: '齐埃金', 滴答洞穴: '葛洛什奈克', 黑曜石深渊: '地狱悬崖', 圣力场: '卜筮之原',
+  潘之谷: '潘神之谷', 银林地: '玉银林地',
 };
 /** 群体名归一（机翻变体 → 王国官方名）；非变体原样返回 */
 function normalizeGroupName(grp) {
@@ -175,8 +189,18 @@ const TROOP_NAME_ALIAS = {
 const KINGDOM_NAMES = ['破碎尖塔', '阿达纳', '卡拉考斯', '蛛尔卡里', '卜筮之原', '鳞雾沼泽', '荆棘森林', '白盔国', '潘神之谷', '盖塔尔', '卡其尔', '齐埃金', '荣耀之地', '加尔凡尼亚', '剑锋崖', '风暴峡湾', '毛格瑞姆森林', '葛洛什奈克', '混沌', '狂野平原', '黑石', '聚沙之地', '荒芜之地', '冰峰之巅', '天启', '狮心帝国', '龙爪', '守护者', '黑鹰', '玉银林地', '日冕', '厄什卡亚', '藏宝库', '梅兰堤斯', '圣唐', '皓彩森林', '卓克祖', '迈纳杰之罪', '沃尔帕克', '诺斯', '地狱悬崖', '午夜城市', '盛唐'];
 /** 全视之眼 = Ocularen 族（batch-08 7752 先例的引用清单） */
 const OCULAREN_REFS = ['OcularenLeech', 'Ocularen', 'BurningOcularen', 'GloomOcularen'];
-/** 风暴颜色（spell-rules §9.1；地狱≈火 = batch-p37 8560 先例） */
-const STORM_COLORS = { 尘: 'Brown', 冰: 'Blue', 叶: 'Green', 火: 'Red', 光: 'Yellow', 暗: 'Purple', 地狱: 'Red' };
+/** 风暴颜色（spell-rules §9.1；地狱≈火 = batch-p37 8560 先例）。
+ *  K-B 收官轮：电=Yellow（8409 Electrostorm——GoW 元素口径 Yellow=风/空气，闪电系风暴
+ *  归黄；与「光=Yellow」同色系裁定，见 spell-rules §14.6）。 */
+const STORM_COLORS = { 尘: 'Brown', 冰: 'Blue', 叶: 'Green', 火: 'Red', 光: 'Yellow', 暗: 'Purple', 地狱: 'Red', 电: 'Yellow' };
+/** 具名部队族引用清单（batch-08 7752 全视之眼先例）： troops.json 无对应 troopType、
+ *  但官方句式为「召唤一名随机X」的具名族——按 name 清单均匀随机。
+ *  小鬼=Imp（夏/秋/冬/春/万圣 5 只）、科博=Kobold（科博/骑士/法师/使者/小偷 5 只，
+ *  troops.json name 反查 referenceName）。 */
+const NAMED_GROUP_REFS = {
+  小鬼: ['SummerImp', 'AutumnalImp', 'WinterImp', 'SpringImp', 'SpookyImp'],
+  科博: ['Kobold', 'KoboldKnight', 'KoboldMagi', 'KoboldEmissary', 'KoboldThief'],
+};
 
 // —— 数据加载 ——
 function loadWeapons() {
@@ -264,6 +288,8 @@ class Compiler {
       raw = raw.replace(/^[\s,，。;；&]+/, '');
       raw = raw.replace(/^(?:然后|再|接着|同时|并|而且|且|随之|还)/, '').trim();
       raw = raw.replace(/^[\s,，。;；&]+/, '').trim();
+      // 孤立噪声字符子句（7722 尾部「色」——MT 把「两种颜色」断句残留；非语义单元）
+      if (/^[色、]$/.test(raw)) continue;
       if (raw === '') continue;
       const err = this.clause(raw, state);
       if (err) {
@@ -330,10 +356,16 @@ class Compiler {
     // 句首连接词剥除（K-B3：移入 clause——parseSub 的条件 payload 不经 compile() 循环，
     // 「则还摧毁 2 个随机列」9484 类 payload 此前漏剥「还」）
     c = c.replace(/^[\s,，。;；&]+/, '');
-    c = c.replace(/^(?:然后|再|接着|同时|并|而且|且|随之|还|额外|先)/, '').trim();
+    c = c.replace(/^(?:然后|再|接着|同时|并|而且|且|随之|还|额外|先|优先)/, '').trim();
     c = c.replace(/^[\s,，。;；&]+/, '').trim();
     // 机翻错字定点归一（gowhead zh 快照噪声；EN 侧核实为同义句）
     c = c.replace('反射教过', '反射效果');
+    // K-B 收官轮机翻噪声定点归一：
+    //  8529「使用对多的颜色」= most used（对→最）；9524/9525 尾部「 -{2}」= gowhead MT
+    //  残渣（EN 原文无此段，剥除后方括号区间才能进 rangeSpec）；「使用了」=「使用」。
+    c = c.replace(/对多/g, '最多');
+    c = c.replace(/\s*-\s*\{\d+\}/g, '');
+    c = c.replace('使用了', '使用');
     // 逗号后空格（机翻「， 则」式噪声）归一：8776 族——否则条件正则的 [，,]?(?:则) 断链
     c = c.replace(/([，,])\s+/g, '$1');
     // 机翻定点归一（2026-09-18 K-B3，EN 原文逐句核实为同义改写；zh 快照机翻丢失语义的三条）：
@@ -509,13 +541,16 @@ class Compiler {
    *  anyOf(kingdomOf enemy X, kingdomPresent X) condMult；单独「若战斗发生在X」→ kingdomPresent。
    *  王国名用 zh 原文名（与 troops.json/CombatantSnapshot kingdom 字段同口径）。 */
   hKingdomCond(c, state) {
-    let m = /^(?:如果|若)敌人来自([\u4e00-\u9fa5]+?)(?:，或战斗(?:发生在|位于)([\u4e00-\u9fa5]+?))?[，,]?则造成\s*(双倍|三倍|\d+\s*倍)伤害$/.exec(c);
+    // K-B 收官轮：尾段扩「则伤害翻倍」形（9111「若敌人来自午夜城市或战斗位于午夜城市，则伤害翻倍」——
+    // 此前仅收「则造成 N 倍伤害」形，「则伤害翻倍」被 tryCompound 顶层「或」拆碎）
+    let m = /^(?:如果|若)敌人来自([\u4e00-\u9fa5]+?)(?:，或战斗(?:发生在|位于)([\u4e00-\u9fa5]+?))?[，,]?(?:则造成\s*(双倍|三倍|\d+\s*倍)伤害|(?:则)?伤害(双倍|翻倍|三倍|\d+\s*倍))$/.exec(c);
     if (m) {
       const kg = normalizeGroupName(m[1]);
       const of = [{ kind: 'kingdomOf', side: 'enemy', kingdom: kg }];
       if (m[2]) of.push({ kind: 'kingdomPresent', kingdom: normalizeGroupName(m[2]) });
       const cond = of.length === 1 ? of[0] : { kind: 'anyOf', of };
-      const times = m[3] === '双倍' ? 2 : m[3] === '三倍' ? 3 : Number(m[3].replace(/[^\d]/g, ''));
+      const w = m[3] ?? m[4];
+      const times = w === '双倍' || w === '翻倍' ? 2 : w === '三倍' ? 3 : Number(w.replace(/[^\d]/g, ''));
       const idx = lastKind(state.segments, /dmg/i);
       if (idx < 0) return '王国条件倍率找不到前置伤害段';
       state.segments = withCondMultAt(state.segments, idx, times, cond);
@@ -582,6 +617,29 @@ class Compiler {
       state.segments = withCondBonusAt(state.segments, idx, Number(m[2]), { kind: 'targetRace', race });
       return '';
     }
+    // K-B 收官轮：条件加成扩形——
+    //  a)「若敌人是X(族)，则(再)造成 N 点(额外)?伤害」= condBonus targetRace（7815 神祗）
+    //  b)「如果敌人使用X色法力，则再添/再增加 N 点伤害」= condBonus targetColor（7815）
+    m = /^(?:如果|若)(?:敌人是|敌人来自|目标是)([\u4e00-\u9fa5]+?)(?:族|生物|军队)?[，,]?(?:则)?再?造成\s*(\d+)\s*点(?:额外)?伤害$/.exec(c);
+    if (m) {
+      const race = RACE_ALIAS[m[1]];
+      if (!race) return `种族别名无法映射「${m[1]}」`;
+      const idx = lastKind(state.segments, /dmg/i);
+      if (idx < 0) return '额外伤害条件找不到前置伤害段';
+      // 引擎单 condBonus 通道：一段只容一条条件加成（7815 神祗+黄法力双条）——
+      // 已占用时诚实略去第二条（不计 splitting，保住已挂载的第一条）
+      if (/condBonus:/.test(state.segments[idx])) return '第二条 condBonus 无对应通道（单条件加成原语）→ 原语请求：condBonus 数组化';
+      state.segments = withCondBonusAt(state.segments, idx, Number(m[2]), { kind: 'targetRace', race });
+      return '';
+    }
+    m = /^(?:如果|若)(?:敌人|对方)使用(红|蓝|绿|黄|紫|棕)色?法力(?:值)?[，,]?(?:则)?再(?:添|增加|添加)\s*(\d+)\s*点伤害$/.exec(c);
+    if (m) {
+      const idx = lastKind(state.segments, /dmg/i);
+      if (idx < 0) return '敌色加成条件找不到前置伤害段';
+      if (/condBonus:/.test(state.segments[idx])) return '第二条 condBonus 无对应通道（单条件加成原语）→ 原语请求：condBonus 数组化';
+      state.segments = withCondBonusAt(state.segments, idx, Number(m[2]), { kind: 'targetColor', color: COLORS[m[1]] });
+      return '';
+    }
     // 「若盟友使用红色法力，则效果翻倍」→ 回挂最近 buff 段（7955 先例口径：目标相对条件）
     m = /^(?:如果|若)盟友使用(红|蓝|绿|黄|紫|棕)色?法力[，,]?(?:则)?效果?翻倍$/.exec(c);
     if (m) {
@@ -644,7 +702,8 @@ class Compiler {
       return '';
     }
     // 「如果敌人是X(族/军队)，造成 N/三 倍伤害」「若对方是一名元素军队则造成双倍伤害」→ condMult targetRace 回挂（batch-05/07 先例）
-    m = /^(?:如果|若)(?:敌人|对方)是一?名?([\u4e00-\u9fa5]+?)(?:族|军队|生物)?[，,]?(?:则)?造成(三|\d+|双)倍?伤害$/.exec(c);
+    // K-B 收官轮：主语补「目标」（7240「如果目标是妖仙，则造成三倍伤害」）
+    m = /^(?:如果|若)(?:敌人|对方|目标)是一?名?([\u4e00-\u9fa5]+?)(?:族|军队|生物)?[，,]?(?:则)?造成(三|\d+|双)倍?伤害$/.exec(c);
     if (m) {
       const race = RACE_ALIAS[m[1]];
       if (!race) return `种族别名无法映射「${m[1]}」`;
@@ -664,8 +723,8 @@ class Compiler {
       state.segments = withCondMultAt(state.segments, idx, 2, { kind: 'targetRace', race });
       return '';
     }
-    // 「如果现有X风暴，则<payload>」→ ifCond stormPresent
-    m = /^(?:如果|若)现有([\u4e00-\u9fa5]?)风暴[，,]?则(.+)$/.exec(c);
+    // 「如果/若现有/存在(一个)X风暴，则<payload>」→ ifCond stormPresent（8153「若存在一个风暴」）
+    m = /^(?:如果|若)(?:现有|存在|有)(?:一个|一场|一种)?([\u4e00-\u9fa5]?)风暴[，,]?则(.+)$/.exec(c);
     if (m) {
       const colorName = m[1] || null;
       const condSeg = colorName && STORM_COLORS[colorName]
@@ -741,11 +800,19 @@ class Compiler {
       state.segments.push(...stash.map((s) => withIfCond(s, cond)));
       return '';
     }
-    // 「如果一名/有 N 名敌人死亡，则X」= 任意敌人阵亡口径（「如果一名敌人死亡」9629/9903/9904、
-    // 「若有敌人身亡」8076）→ 与 ifTargetDied（追踪主目标）不一致 → 定性原语请求（引擎暂缺 anyEnemyDied）
-    m = /^(?:如果|若)(?:有)?(?:一名|一个|\d+\s*[名个]|有)?\s*(?:敌人|敌方(?:军队|部队)?)(?:身亡|死亡|阵亡)[，,]?(?:则|那么)?(.*)$/.exec(c);
+    // 「如果(有)一名/N名敌人死亡/身亡/阵亡，则X」＝anyEnemyDied（K-B 收官轮接线）：
+    // EN 原文考证（7117/7861/8075/8076/9629/9903）均为「If an Enemy dies, …」＝本咒语
+    // 执行中任一敌人被击杀——与部队批 R22 已落地的 anyTrackedDied 同口径（9986/9812/7747
+    // 「若有敌人死亡」先例，读本次施放跨段追踪 allTargets），builders.anyEnemyDied() 专名形态。
+    // 无量词裸形（「如果敌人身亡，则X」）仍走上方 ifTargetDied（追踪主目标）规则。
+    m = /^(?:如果|若)(?:有)?\s*(?:一名|一个|\d+\s*[名个])?\s*(?:敌人|敌方(?:军队|部队)?)(?:身亡|死亡|阵亡)[，,]?(?:则|那么)?(.*)$/.exec(c);
     if (m && /(一名|一个|\d+\s*[名个]|有)/.test(m[0].replace(/^(?:如果|若)/, ''))) {
-      return '「(有)一名敌人死亡」为任意阵亡口径，与 ifTargetDied（追踪主目标）不一致（语义拿不准）→ 原语请求：anyEnemyDied 条件';
+      const payload = (m[1] ?? '').trim();
+      if (payload === '') return '「任一敌人死亡」条件缺少结论子句';
+      const stash = this.parseSub(payload, state);
+      if (typeof stash === 'string') return `anyEnemyDied 条件 payload：${stash}`;
+      state.segments.push(...stash.map((s) => withIfCond(s, { kind: 'anyTrackedDied' })));
+      return '';
     }
     // 「若有(己方)?X(族)盟友，则X」→ ifCond allyRacePresent（8409）
     m = /^(?:如果|若)(?:己方)?有([\u4e00-\u9fa5]+?)(?:族|军队|生物)?盟友[，,]?(?:则|那么)(.+)$/.exec(c);
@@ -797,11 +864,6 @@ class Compiler {
       state.segments.push(...stash.map((s) => withIfCond(s, { kind: 'targetRace', race })));
       return '';
     }
-    // 「有 N 名敌人身亡」= 任意敌人阵亡，与 §4 ifTargetDied（追踪主目标）口径不一致 → 语义拿不准
-    m = /^(?:如果|若)有\s*\d+\s*[名个]敌人(?:身亡|死亡)[，,]?则(.+)$/.exec(c);
-    if (m) {
-      return '「有 N 名敌人身亡」为任意阵亡口径，与 ifTargetDied（追踪主目标）不一致（语义拿不准）→ 原语请求：anyEnemyDied 条件';
-    }
     m = /^(?:如果|若)(?:板面上有|有|存在)?\s*(\d+)\s*颗?\s*或更多(?:的)?颗?(红|蓝|绿|黄|紫|棕)色?宝石[，,]?则(.+)$/.exec(c);
     if (m) {
       const stash = this.parseSub(m[3], state);
@@ -852,8 +914,10 @@ class Compiler {
     return null;
   }
 
-  /** 不可携带 opts 的段族（无 opts 形参，条件挂载会错位） */
-  static NO_OPTS_RE = /^(destroyColor|explodeColor|destroySkulls|explodeSkulls|destroyChosenRow|destroyChosenCol|explodeChosenRow|explodeChosenCol|destroySpecialGems|explodeSpecialGems|oneOf|cleanse)\(/;
+  /** 不可携带 opts 的段族（无 opts 形参，条件挂载会错位）。
+   *  K-B 收官轮：destroyColor/explodeColor/destroySkulls/explodeSkulls/destroySpecialGems/
+   *  explodeSpecialGems 已补 opts 形参（条件化清除族 7286/7955/9381/9486/9809/9983）→ 移出本表。 */
+  static NO_OPTS_RE = /^(destroyChosenRow|destroyChosenCol|explodeChosenRow|explodeChosenCol|oneOf|cleanse)\(/;
 
   /** 解析条件 payload（复用规则表到临时段数组）。支持「则再创造/制造 N 颗」复用上一创造目标。 */
   parseSub(text, state) {
@@ -885,6 +949,27 @@ class Compiler {
 
   // —— 伤害主句（含同子句 rider）——
   hDamage(c, state) {
+    // 「对(1 名/一名)敌人施放法力灼烧[，rider]」（7412）＝官方 Mana Burn：耗尽目标法力、
+    // 每 1 点被耗法力造成 1 点伤害（drainMana + dmg×drainedMana 跨段引用）。
+    // zh rider「伤害值因自身魔法值而增强」＝第二增幅来源，与灼烧主源（drainedMana）争用
+    // 单 modifier 通道 → 诚实略去（主效果=官方法力灼烧口径照编）。
+    // （必须先于通用目标头表：否则「对 1 名敌人」被裸目标头截走、尾段进不了灼烧规则）
+    {
+      const mb = /^对\s*(?:1 名|一名|一个)敌人施放法力灼烧(?:[，,]\s*(.+))?$/.exec(c);
+      if (mb) {
+        this.use('drainMana', 'dmg');
+        state.segments.push(`drainMana('enemyChosen')`);
+        state.segments.push(`dmg('lastTarget', 0, 0, { modifier: ${jsonMod({ mod: { kind: 'multiplier', a: 1 }, source: { kind: 'drainedMana' } })} })`);
+        state.lastTargetMode = 'enemyChosen';
+        const restMb = (mb[1] ?? '').trim();
+        if (restMb !== '' && !/^伤害值因.+?而增强$/.test(restMb)) return `法力灼烧 rider 无法解析「${restMb}」`;
+        if (restMb !== '') {
+          state.skippedClauses.push(restMb);
+          classifyClause(restMb, '修饰来源通道已占用（法力灼烧主源=drainedMana）', state.features);
+        }
+        return '';
+      }
+    }
     const heads = [
       { re: /^对前\s*(\d+)\s*[位名个]敌人/, t: (m) => ({ mode: 'enemyFirstN', n: Number(m[1]) }) },
       { re: /^对首\s*(\d+)\s*[位名个]敌人/, t: (m) => ({ mode: 'enemyFirstN', n: Number(m[1]) }) },
@@ -930,6 +1015,33 @@ class Compiler {
       const optStr = tail.optStr();
       state.segments.push(`dmg('enemyChosen', ${tail.base}, ${tail.mult}${optStr})`, `dmg('enemyRandom', ${tail.base}, ${tail.mult}${optStr})`);
       state.lastTargetMode = 'enemyRandom';
+      return '';
+    }
+    // —— 选定色（CHOSEN）目标族（K-B 收官轮）——
+    // 7862「对使用所选定法力宝石颜色的每一名敌人造成 [M+1] 点伤害，并使其陷入燃烧状态」：
+    // 选定法力宝石 → 运行时选色（CHOSEN），伤害与状态都只作用于该色敌人（ifCond targetColor CHOSEN）
+    let mc = /^(?:对)?使用(?:所)?选定(?:法力宝石)?颜色的每一名敌人造成(.+?)点伤害[，,]?并?使其?陷入(.+?)(?:状态|效果)?$/.exec(c);
+    if (mc) {
+      const f = parseFormulaPrefix(mc[1].trim());
+      if (!f || f.rangeSpec) return `选定色伤害数值无法解析「${mc[1]}」`;
+      const id = matchStatus(mc[2]);
+      if (!id) return `状态词无法识别「${mc[2]}」`;
+      this.use('dmg', 'inflict');
+      state.segments.push(
+        `dmg('enemyAll', ${f.base}, ${f.mult}, { ifCond: { kind: 'targetColor', color: 'CHOSEN' } })`,
+        `inflict('${id}', 'enemyAll', { ifCond: { kind: 'targetColor', color: 'CHOSEN' } })`,
+      );
+      state.lastTargetMode = 'enemyAll';
+      return '';
+    }
+    // 8152「对所有使用此颜色的敌人造成 [魔法 + 1] 点伤害」＝同族（伤害单段）
+    mc = /^对所有使用(?:此|该|所选定(?:法力宝石)?)颜色的?敌人造成(.+)$/.exec(c);
+    if (mc) {
+      const tail = parseDamageTail(mc[1]);
+      if (!tail || tail.rest !== '') return `选定色伤害句无法解析「${mc[1]}」`;
+      this.use('dmg');
+      state.segments.push(`dmg('enemyAll', ${tail.base}, ${tail.mult}, { ifCond: { kind: 'targetColor', color: 'CHOSEN' } })`);
+      state.lastTargetMode = 'enemyAll';
       return '';
     }
     let head = null;
@@ -981,11 +1093,22 @@ class Compiler {
       rest2 = rest2.slice(0, perDestroy.index).trim();
     }
     // 同子句 rider：，并窃取其半数攻击力（7805：steal halve 跨段回指）
+    // K-B 收官轮：「并使其攻击力减半」= reduce halve（EN "halve their Attack"——无自得不叫窃取，7753）
     let halveStealStat = null;
-    const halveSteal = /(?:，|,)?并?窃取其?半数(攻击力|护甲值|魔法值|法力值)$/.exec(rest2);
+    let halveIsSteal = false;
+    const halveSteal = /(?:，|,)?并?(?:窃取其?半数|使其?半数)(攻击力|护甲值|魔法值|法力值)$/.exec(rest2)
+      || /(?:，|,)?并?使其?(攻击力|护甲值|魔法值|法力值)减半$/.exec(rest2);
     if (halveSteal) {
       halveStealStat = statOf(halveSteal[1]);
+      halveIsSteal = /窃取/.test(halveSteal[0]);
       rest2 = rest2.slice(0, halveSteal.index).trim();
+    }
+    // 同子句 rider：，并随机窃取 N 点能力值/随机技能值（7240）= stealRandomStat（R12 random 通道）
+    let randStealN = null;
+    const randSteal = /(?:，|,)?并?随机窃取\s*(\d+)\s*点(?:能力值|随机技能值)$/.exec(rest2);
+    if (randSteal) {
+      randStealN = Number(randSteal[1]);
+      rest2 = rest2.slice(0, randSteal.index).trim();
     }
     // 同子句 rider：，伤害值因X而增强/加强（tag 缺省按 [1:1]，7059 系先例）；来源不可解析 → 增项略去（partial 化）
     // K-B3：机翻词序归一（「而加强」「由X激发」「受到X的加成」——8052/8398/9876 族；EN 原文均为 boosted by）
@@ -1063,8 +1186,17 @@ class Compiler {
       state.lastChanceSeg = state.segments.length - 1;
     }
     if (halveStealStat) {
-      this.use('steal');
-      state.segments.push(`steal('${refTargetOf(state)}', '${halveStealStat}', '${halveStealStat}', 0, 0, { halve: true })`);
+      if (halveIsSteal) {
+        this.use('steal');
+        state.segments.push(`steal('${refTargetOf(state)}', '${halveStealStat}', '${halveStealStat}', 0, 0, { halve: true })`);
+      } else {
+        this.use('reduce');
+        state.segments.push(`reduce('${refTargetOf(state)}', '${halveStealStat}', 0, 0, { halve: true })`);
+      }
+    }
+    if (randStealN !== null) {
+      this.use('stealRandomStat');
+      state.segments.push(`stealRandomStat('${refTargetOf(state)}', ${randStealN}, 0)`);
     }
     state.lastTargetMode = head.mode;
     return '';
@@ -1133,7 +1265,9 @@ class Compiler {
   // —— 状态施加 ——
   hStatus(c, state) {
     // 「陷入叠加 N 的出血状态」（9167）；「施加 N 层流血效果」（9934，目标跨段回指）
-    let m = /^(?:使其?|令其?|让他|对她|对目标)?(?:陷入|施加)叠加\s*(\d+)\s*的?(.+?)(?:状态|效果)?$/.exec(c)
+    // K-B 收官轮修：目标头扩名词形（「使一名敌人陷入叠加 3 的出血状态」——此前仅收
+    // 代词形，名词形跌入通用规则丢 stacks）
+    let m = /^(?:使其?|令其?|让他|对她|对目标|使一名随机敌人|使一名敌人|一名随机敌人|一名敌人|该敌人|敌方队伍|所有敌人)?(?:陷入|施加)叠加\s*(\d+)\s*的?(.+?)(?:状态|效果)?$/.exec(c)
       || /^(?:施加|附加)\s*(\d+)\s*层的?(.+?)(?:状态|效果)?$/.exec(c);
     if (m) {
       // K-B3：并列状态（「施加1层流血效果和狼人诅咒效果」9934）→ 逐状态施加
@@ -1237,6 +1371,13 @@ class Compiler {
       state.segments.push(`inflictRandom('allySelf', { pool: 'positive' })`);
       return '';
     }
+    // 「给予/赋予 所有盟友 N 个随机的正面增益(状态)(效果)」（8075）＝inflictRandom times N 正面池
+    m = /^(?:赋予|给予|使)所有盟友\s*(\d+)\s*个随机的?正面增益(?:状态)?(?:效果)?$/.exec(c);
+    if (m) {
+      this.use('inflictRandom');
+      state.segments.push(`inflictRandom('allyAll', { times: ${m[1]}, pool: 'positive' })`);
+      return '';
+    }
     // 「赋予/给予 X盟友 一个随机(正面增益)状态效果」大族（§11.3/§11 补充：盟友=正面池）。
     // K-B3：机翻丢「随机」（9207/9210 zh 无、EN "Grant a random Status Effect" 实锤）→ 随机可省；
     // 「正面增益」修饰语可省（8384/8437/8449/8490/8509/8576/8621/8622/8706/8771/9033/9754 族——
@@ -1270,10 +1411,13 @@ class Compiler {
       }
     }
     // 「获得X效果」「赋予(自身|一名盟友)X效果」——屏障/狂怒/下潜等（获得=自身）
-    m = /^(获得|赋予自身|赋予他|赋予一名盟友|赋予所有盟友|赋予所有其他盟友|获得屏障|赋予其)(屏障|狂怒|狂暴|下潜|沉没|死亡标记|猎人标记|疾病)(?:效果|状态)?$/.exec(c);
+    // K-B 收官轮：「使他们下潜」（8076——前句「给予所有盟友」的「他们」=盟友全体，
+    // 沿用上文盟友目标，不落 lastTarget 敌方回指）
+    m = /^(获得|赋予自身|赋予他|赋予一名盟友|赋予所有盟友|赋予所有其他盟友|获得屏障|赋予其|使他们|让他们)(屏障|狂怒|狂暴|下潜|沉没|死亡标记|猎人标记|疾病)(?:效果|状态)?$/.exec(c);
     if (m) {
       const id = matchStatus(m[2]);
       const mode = m[1] === '获得' || m[1] === '获得屏障' || m[1] === '赋予自身' ? 'allySelf'
+        : m[1] === '使他们' || m[1] === '让他们' ? (state.lastAllyTarget ?? 'allyAll')
         : m[1] === '赋予一名盟友' || m[1] === '赋予他' || m[1] === '赋予其' ? (state.lastTargetMode ?? 'allyChosen')
         : m[1] === '赋予所有其他盟友' ? 'allyOthers' : 'allyAll';
       this.use('inflict');
@@ -1319,6 +1463,28 @@ class Compiler {
       const id = matchStatus(m[1] === '灼烧' ? '燃烧' : m[1]);
       this.use('inflict');
       state.segments.push(`inflict('${id}', '${refTargetOf(state)}')`);
+      return '';
+    }
+    // 「使所有受影响的敌人流血」（9566）＝最近伤害段实际命中集（R22 lastDamaged 目标模式）
+    m = /^(?:使|令)?所有受影响的敌人(?:陷入|承受|受到)?(.+?)(?:状态|效果)?$/.exec(c);
+    if (m) {
+      const id = matchStatus(m[1]);
+      if (!id) return `状态词无法识别「${m[1]}」`;
+      this.use('inflict');
+      state.segments.push(`inflict('${id}', 'lastDamaged')`);
+      return '';
+    }
+    // 「灼烧并流血所有该颜色的敌人」（9831）＝选定色（CHOSEN）敌人逐状态施加（与 7862 同族）
+    m = /^(燃烧|灼烧|流血|冻结|冰冻|诅咒|缠绕|沉默|打昏|击晕|中毒|魅惑|恐怖)并(燃烧|灼烧|流血|冻结|冰冻|诅咒|缠绕|沉默|打昏|击晕|中毒|魅惑|恐怖)所有(?:该|此|同)(?:颜色|色)的?敌人$/.exec(c);
+    if (m) {
+      const idA = matchStatus(m[1] === '灼烧' ? '燃烧' : m[1]);
+      const idB = matchStatus(m[2] === '灼烧' ? '燃烧' : m[2]);
+      if (!idA || !idB) return `状态词无法识别「${m[1]}/${m[2]}」`;
+      this.use('inflict');
+      state.segments.push(
+        `inflict('${idA}', 'enemyAll', { ifCond: { kind: 'targetColor', color: 'CHOSEN' } })`,
+        `inflict('${idB}', 'enemyAll', { ifCond: { kind: 'targetColor', color: 'CHOSEN' } })`,
+      );
       return '';
     }
     // 「使X陷入 1 到 4 个状态效果」（7986/7996/9910）＝随机状态条数区间（inflictRandom 仅支持
@@ -1371,6 +1537,38 @@ class Compiler {
         for (const id of NEGATIVE_POOL) state.segments.push(statusSegOpts(`inflict('${id}', '${tgt.mode}')`, tgt));
         return '';
       }
+    }
+    // 「燃烧敌人，如果敌人身亡，则转化成一只随机龙族」（7412；EN "then Burn them. If the
+    // Enemy dies, transform into a Dragon troop"）＝burn lastTarget + ifTargetDied 转化
+    m = /^燃烧敌人，如果敌人身亡，则转化成一只随机(.+?)(?:族|军队)?$/.exec(c);
+    if (m) {
+      const race = RACE_ALIAS[m[1]];
+      const refs = race ? this.raceRefs.get(race) : null;
+      if (!refs || refs.length === 0) return `种族 ${m[1]} 在 troops.json 无成员`;
+      this.use('inflict', 'transformTroopRandom');
+      state.segments.push(`inflict('burning', 'lastTarget')`);
+      state.segments.push(withIfTargetDied(`transformTroopRandom('lastTarget', [${refs.map((r) => `'${r}'`).join(', ')}])`));
+      return '';
+    }
+    // 「转化成一名/一只(随机)X族 / X」（R2 transformTroop 原语；条件 payload「则转化成…」）
+    m = /^转化成一名?(?:随机)?(.+?)(?:族|军队|部队)?$/.exec(c);
+    if (m) {
+      const race = RACE_ALIAS[m[1]];
+      if (race) {
+        const refs = this.raceRefs.get(race);
+        if (!refs || refs.length === 0) return `种族 ${race} 在 troops.json 无成员`;
+        this.use('transformTroopRandom');
+        state.segments.push(`transformTroopRandom('${refTargetOf(state)}', [${refs.map((r) => `'${r}'`).join(', ')}])`);
+        return '';
+      }
+      const name = this.resolveTroopName(m[1]);
+      const ref = name ? troopsRefByName(name) : null;
+      if (ref) {
+        this.use('transformTroop');
+        state.segments.push(`transformTroop('${refTargetOf(state)}', '${ref}')`);
+        return '';
+      }
+      return `转化目标无法解析「${m[1]}」`;
     }
     // 状态动词开头：「缠绕第一名敌人」「点燃一名敌人（=燃烧）」「死亡标记一名敌人」8398
     const verbMap = [['死亡标记', 'death-mark'], ['猎人标记', 'marked'], ['缠绕', 'entangle'], ['冻结', 'frozen'], ['冰冻', 'frozen'], ['沉默', 'silence'], ['打昏', 'stun'], ['击晕', 'stun'], ['点燃', 'burning'], ['燃烧', 'burning'], ['魅惑', 'charm'], ['诅咒', 'curse'], ['中毒', 'poison'], ['流血', 'bleed'], ['下潜', 'submerged'], ['恐怖', 'terror']];
@@ -1430,8 +1628,10 @@ class Compiler {
   hGemOps(c, state) {
     // 创造动词族（机翻译名不统一：创造/制作/制造/创建/生成）
     const CREATE_V = '(?:创造|制作|制造|创建|生成)';
-    // 混合宝石（骷髅/特殊端点 → 无 mix 原语；色+色 → createMix）；
-    // 「创造 15 颗 红色和绿色的宝石」（无「混合」二字，7654）同 createMix 口径
+    // 混合宝石（「混合A和B的宝石」/「创造 N 颗 红色和绿色的宝石」7654 无「混合」同口径）。
+    // K-B 收官轮：端点开放到骷髅头/特殊宝石（引擎 createGemsMixAny 已备——R22 mixAny）：
+    //   9110「创造 15 颗混合蓝色和骷髅头的宝石」/ 9167「混合骷髅头和恐怖宝石」/
+    //   9300「混合鬼魂宝石和冻结宝石」→ entries [色|'SKULL'|spec] 逐颗掷选。
     let m = new RegExp(`^${CREATE_V}(?:\\d+|[\\]魔法（）/ +x×.0-9[]+)?颗?混合(.+?)的?宝石$`).exec(c)
       || new RegExp(`^${CREATE_V}\\s*(\\d+)\\s*颗?\\s*(红|蓝|绿|黄|紫|棕)色?和(红|蓝|绿|黄|紫|棕)色?(?:的)?宝石$`).exec(c);
     if (m) {
@@ -1445,14 +1645,38 @@ class Compiler {
         const n = m[0].match(/(\d+)\s*颗/);
         cnt = n ? Number(n[1]) : 0;
       }
-      const colorParts = parts.filter((p) => matchColor(p));
-      if (parts.length === colorParts.length && parts.length >= 2) {
+      const entries = [];
+      let ok = parts.length >= 2;
+      for (const p of parts) {
+        const color = matchColor(p);
+        if (color) {
+          const gem = matchSpecialGem(p);
+          // 六色族特殊宝石（「蓝色巨人宝石」）带 spec.color；普通色端点直接给色
+          if (gem && SIX_COLOR_GEMS.has(gem.kind)) entries.push(`{ kind: '${gem.kind}', color: BaseColor.${color} }`);
+          else entries.push(`BaseColor.${color}`);
+          continue;
+        }
+        if (/骷髅头/.test(p)) { entries.push(`'SKULL'`); continue; }
+        const gem = matchSpecialGem(p.replace(/宝石$/g, '').trim());
+        if (gem) {
+          entries.push(gem.tier !== undefined ? `{ kind: '${gem.kind}', tier: ${gem.tier} }` : `{ kind: '${gem.kind}' }`);
+          continue;
+        }
+        ok = false;
+        break;
+      }
+      // 纯色并集维持既有 createMix 形态（旧批次产物不变）；含骷髅头/特殊端点 → mixAny
+      if (ok && entries.every((e) => e.startsWith('BaseColor.'))) {
         this.use('createMix');
-        state.segments.push(`createMix([${colorParts.map((p) => `BaseColor.${matchColor(p)}`).join(', ')}], ${cnt})`);
-
+        state.segments.push(`createMix([${entries.join(', ')}], ${cnt})`);
         return '';
       }
-      return `混合宝石含骷髅头/特殊宝石端点，无 mix 原语（原语请求：createMix 扩特殊宝石端点）`;
+      if (ok) {
+        this.use('createGemsMixAny');
+        state.segments.push(`createGemsMixAny([${entries.join(', ')}], ${cnt}, 0)`);
+        return '';
+      }
+      return `混合宝石端点无法识别（色/骷髅头/特殊宝石之外）「${m[1]}」`;
     }
     // 「创造 N 颗A色宝石和 M 颗B色宝石」→ 两段 createGems（7529；修复旧版吞色 bug）
     m = new RegExp(`^${CREATE_V}\\s*(\\d+)\\s*颗?(红|蓝|绿|黄|紫|棕)色?宝石和\\s*(\\d+)\\s*颗?(红|蓝|绿|黄|紫|棕)色?宝石$`).exec(c);
@@ -1475,9 +1699,22 @@ class Compiler {
         return '';
       }
     }
-    // 「每摧毁一颗X宝石则燃烧/诅咒…一名随机敌人」= 触发式状态施加（8518）→ 无对应段型，定性略去
-    if (/每摧毁一颗.+?(?:宝石|骷髅头)则(?:再)?(?:燃烧|诅咒|冻结|打昏|击晕|缠绕|中毒|流血|沉默|魅惑|点燃)/.test(c)) {
-      return `「每摧毁一颗宝石则施加状态」destroyedGems 触发器无对应效果段 → 原语请求：destroyed-gem-status-trigger`;
+    // 「每摧毁一颗(色)宝石/骷髅头，(即可|则|便|再)<状态>一名(随机)敌人/盟友」（8518/8965）
+    // ＝官方「for every X Gem destroyed」族：perDestroyed 逐摧毁触发状态（原语 Wave4 已备，
+    // 次数 = 被摧毁的该类宝石数、每次随机取目标池一名）——此前按缺口拒绝为陈旧口径。
+    m = /^每摧毁一颗(红|蓝|绿|黄|紫|棕)?色?(.+?)?(?:宝石|骷髅头)[，,]?(?:即可|则|便|再)?(燃烧|点燃|诅咒|冻结|冰冻|打昏|击晕|缠绕|中毒|流血|沉默|魅惑|祝福|屏障|恐怖|激怒)一名?(随机的?)?(敌人|盟友)$/.exec(c);
+    if (m) {
+      const id = matchStatus(m[3] === '点燃' ? '燃烧' : m[3] === '祝福' ? '赐福' : m[3]);
+      if (!id) return `状态词无法识别「${m[3]}」`;
+      const mode = m[5] === '盟友' ? 'allyRandom' : 'enemyRandom';
+      const per = /骷髅头/.test(m[2] ?? '')
+        ? "{ color: 'skull' }"
+        : m[1]
+          ? `{ color: BaseColor.${COLORS[m[1]]} }`
+          : '{}'; // 无色无限定 = 按全部被摧毁宝石计数（perDestroyed 缺省口径）
+      this.use('inflict');
+      state.segments.push(`inflict('${id}', '${mode}', { perDestroyed: ${per} })`);
+      return '';
     }
     // 「制造 N 个骷髅，数量受中毒敌人影响」（9488）＝骷髅版 create+modifier rider。
     // 必须先于通用创造规则：通用规则对「…中毒敌人影响」误配单字核心「毒」→ poisonGem（预存 bug）
@@ -1520,6 +1757,14 @@ class Compiler {
       state.segments.push(`createGems('LAST_TARGET', 0, 0, { modifier: ${jsonMod(mod)} })`);
       return '';
     }
+    // 「创造 8 颗指定盟友的法力颜色的宝石」（7204；EN Gems of a chosen Ally's Mana Color）
+    // ＝ColorSpec 'CHOSEN_TARGET'（R22 批：本次释放手动选定目标的法力色）
+    m = new RegExp(`^${CREATE_V}\\s*(\\d+)\\s*颗指定盟友的法力颜色的宝石$`).exec(c);
+    if (m) {
+      this.use('createGems');
+      state.segments.push(`createGems('CHOSEN_TARGET', ${m[1]}, 0)`);
+      return '';
+    }
     // 「创造等同于被移除/摧毁的X色宝石数的Y色宝石」（8507）＝按前序清除段计数再创造
     m = /^创造等同于被(?:移除|摧毁)的(红|蓝|绿|黄|紫|棕)色?宝石数的?(红|蓝|绿|黄|紫|棕)色?宝石$/.exec(c);
     if (m) {
@@ -1549,11 +1794,18 @@ class Compiler {
       state.segments.push(`${fn}(${n}, 0, 'color', undefined, { modifier: ${jsonMod(mods)} })`);
       return '';
     }
-    // 「每有一名X色敌人则创造 N 颗混合A色和骷髅头的宝石」（7655-7660 Doomed 族）＝
-    // 敌侧计数来源 K-E 已接线，但混合端点含骷髅头仍无 mix 原语 → 归因 createMix-special
-    if (/^每有一[名位](红|蓝|绿|黄|紫|棕)色?(?:盟友|敌人)则创(?:造|建)\s*\d+\s*颗?混合的?(红|蓝|绿|黄|紫|棕)?色?.*骷髅头.*宝石$/.test(c)
-      || /^每有一[名位](红|蓝|绿|黄|紫|棕)色?(?:盟友|敌人)则创(?:造|建)混合.*骷髅头.*宝石$/.test(c)) {
-      return `混合宝石含骷髅头端点，无 mix 原语（enemiesOfColor 计数已备）→ 原语请求：createMix 扩特殊宝石端点`;
+    // 「每有一名X色敌人则创造 N 颗混合X色和骷髅头的宝石」（7655-7660 Doomed 族）＝
+    // createGemsMixAny + enemiesOfColor 修饰（K-B 收官轮接线：mixAny 端点开放后整句可编译）。
+    // 官方「a mix of N X Gems and Skulls for every X Enemy」＝总数 = N × 敌人数（base 0、
+    // 倍率 = 尾部 [xN]（gowhead 对「每名 N 颗」的编码）或句内 N）。
+    m = /^每有一[名位](红|蓝|绿|黄|紫|棕)色?敌人[，,]?则创(?:造|建)\s*(\d+)\s*颗?混合(?:的)?\1色?和骷髅头的?宝石$/.exec(c);
+    if (m) {
+      const color = COLORS[m[1]];
+      const mods = { mod: state.tag ?? { kind: 'multiplier', a: Number(m[2]) }, source: { kind: 'enemiesOfColor', color } };
+      if (state.tag) state.tagUsed = true;
+      this.use('createGemsMixAny');
+      state.segments.push(`createGemsMixAny([BaseColor.${color}, 'SKULL'], 0, 0, { modifier: ${jsonMod(mods)} })`);
+      return '';
     }
     // 「每有一名X色盟友和敌人则创造 N 颗X色宝石」（9211-9216）＝双侧计数普通创造
     {
@@ -1633,6 +1885,19 @@ class Compiler {
       state.lastCreate = { what, allowBareColor: true };
       return '';
     }
+    // 「制造 3 种药水，蓝色、绿色、红色、黄色或紫色」（8578）＝官方 Create 3 Potions of
+    // either Blue/Green/Red/Yellow/Purple：逐颗在五色法力药水宝石（spec.color 通道）掷选。
+    m = new RegExp(`^${CREATE_V}\\s*(\\d+)\\s*种药水[，,]((?:蓝|绿|红|黄|紫|棕)色?[、和或]+){2,}(?:蓝|绿|红|黄|紫|棕)色?$`).exec(c);
+    if (m) {
+      const colors = c.slice(c.indexOf('药水') + 2).replace(/^[，,]/, '').split(/[、和或]/).map((s) => matchColor(s.trim())).filter(Boolean);
+      if (colors.length >= 2) {
+        this.use('createGemsMixAny');
+        const entries = colors.map((co) => `{ kind: 'manaPotionGem', color: BaseColor.${co} }`);
+        state.segments.push(`createGemsMixAny([${entries.join(', ')}], ${m[1]}, 0)`);
+        return '';
+      }
+      return `药水颜色表无法解析「${c}」`;
+    }
     // 创造 N 颗骷髅头 / 8-12 个骷髅（countRange §9.8；「骷髅」省「头」变体 9490/9488）。
     // 必须先于通用创造规则：否则「制作 8-12 个骷髅」被通用规则截成 n=8/what='-12 个'
     m = /^(?:再|然后)?(?:创造|制作|制造|创建)?\s*(\d+)\s*[颗个]骷髅头?$/.exec(c);
@@ -1658,7 +1923,7 @@ class Compiler {
       cc = c.replace(/(一|两|二|三|四|五|六|七|八|十)颗/, `${cnMap[cnNum[1]]} 颗`);
     }
     m = new RegExp(`^(?:再|然后|随机)?${CREATE_V}(?:选定(?:颜色)?的)?\\s*(\\d+)\\s*[颗个]?(?:随机的?)?(.+?)?(?:色的)?(?:的)?(?:宝石|骷髅)?$`).exec(cc);
-    if (m && /宝石|骷髅|星/.test(cc)) {
+    if (m && /宝石|骷髅|星|石块|石墩/.test(cc)) {
       // (.+?)? 外层 ? 贪婪 → what 至少 1 字；「宝石」裸词=未指定颜色（createGems CHOSEN）
       const rawWhat = (m[2] ?? '').trim();
       const what = rawWhat === '宝石' || rawWhat === '颗宝石' ? '' : rawWhat;
@@ -1682,6 +1947,50 @@ class Compiler {
       this.use('transform');
       state.segments.push(`transform(BaseColor.${COLORS[m[1]]}, BaseColor.${COLORS[m[2]]})`);
       return '';
+    }
+    // 「将所有骷髅头转换成X宝石」（9379 骷髅→极度末日骷髅）＝from 'SKULL' 端点（ColorSpec 'SKULL'
+    // 既有通道）；端点可为颜色（骷髅→红宝石）或特殊宝石（→末日骷髅族）
+    m = /^(?:再)?将所有骷髅头转换?为?成?(.+?)$/.exec(c);
+    if (m) {
+      const gem = matchSpecialGem(m[1].replace(/宝石/g, '').trim());
+      if (gem) {
+        this.use('transformToSpecial');
+        const spec = gem.tier !== undefined ? `{ kind: '${gem.kind}', tier: ${gem.tier} }` : `'${gem.kind}'`;
+        state.segments.push(`transformToSpecial('SKULL', ${spec})`);
+        return '';
+      }
+      const toColor = matchColor(m[1]);
+      if (toColor) {
+        this.use('transform');
+        state.segments.push(`transform('SKULL', BaseColor.${toColor})`);
+        return '';
+      }
+      return `骷髅头转化目标无法识别「${m[1]}」`;
+    }
+    // 「选定敌人一个法力颜色」＝选色交互（CHOSEN 占位符运行时由 ColorChooser 解析），
+    // 独立子句为无段声明（8900；同「选定一个颜色以移除」的隐式选色口径）。
+    // 「选定一颗法力宝石」（7862）＝选定单格、其颜色成为选定色——同口径无段声明。
+    if (/^(?:选定|选择)(?:敌人|敌方)?(?:一个|一种)?法力(?:宝石)?颜色$/.test(c)
+      || /^(?:选定|选择)一颗?(?:法力)?宝石$/.test(c)) {
+      return '';
+    }
+    // 「将所有此(法力)颜色的宝石转换成X宝石」（8900）＝from CHOSEN 端点（选定的敌方法力色）
+    m = /^(?:再)?将所有此(?:法力)?颜色的?宝石转换?为?成?(.+?)$/.exec(c);
+    if (m) {
+      const gem = matchSpecialGem(m[1].replace(/宝石/g, '').trim());
+      if (gem) {
+        this.use('transformToSpecial');
+        const spec = gem.tier !== undefined ? `{ kind: '${gem.kind}', tier: ${gem.tier} }` : `'${gem.kind}'`;
+        state.segments.push(`transformToSpecial('CHOSEN', ${spec})`);
+        return '';
+      }
+      const toColor = matchColor(m[1]);
+      if (toColor) {
+        this.use('transform');
+        state.segments.push(`transform('CHOSEN', BaseColor.${toColor})`);
+        return '';
+      }
+      return `选定色转化目标无法识别「${m[1]}」`;
     }
     m = /^(?:再)?将所有(红|蓝|绿|黄|紫|棕)色?宝石转换?为?成?(?:一个)?选定颜色$/.exec(c);
     if (m) {
@@ -1718,12 +2027,11 @@ class Compiler {
       state.segments.push(`transform('LAST_TARGET', BaseColor.${COLORS[m[1]]})`);
       return '';
     }
-    // 「将 N 颗(色)宝石转换成X宝石」→ 定量转化（9031）
-    m = /^(?:再)?将\s*(\d+)\s*颗(红|蓝|绿|黄|紫|棕)色?宝石转[换化]为?成?(.+?)$/.exec(c);
+    // 「将 N 颗(色)宝石转换成X宝石」→ 定量转化（9031；K-B 收官轮量词扩「个」9490）
+    m = /^(?:再)?将\s*(\d+)\s*[颗个](红|蓝|绿|黄|紫|棕)色?宝石转[换化]为?成?(.+?)$/.exec(c);
     if (m) {
       const what = m[3].replace(/宝石/g, '').trim();
       const call = transformGemCall(this, COLORS[m[2]], what, Number(m[1]), c);
-      if (call === TRANSFORM_TIER_UNSUPPORTED) return '原语请求：转换端点不支持 tier（带倍率通配/恶石像鬼）';
       if (call) {
         state.segments.push(call);
         state.lastCreate = { what, allowBareColor: true }; // 「则再创造 5 颗」复用 referent（7952）
@@ -1738,9 +2046,11 @@ class Compiler {
       const fromColor = m[2] ? COLORS[m[2]] : null;
       const chosenFrom = /选定|所选|指定/.test(m[1]) && !fromColor;
       const call = transformGemCall(this, fromColor, what, undefined, c);
-      if (call === TRANSFORM_TIER_UNSUPPORTED) return '原语请求：转换端点不支持 tier（带倍率通配/恶石像鬼）';
       if (call) {
-        state.segments.push(chosenFrom ? call.replace(`transformToSpecial('ANY'`, `transformToSpecial('CHOSEN'`) : call);
+        // K-B 收官轮：「选定的法力宝石」＝玩家点选单格（CELL 管线，9638 先例）；
+        // 「选定(颜色)」＝运行时选色（CHOSEN）。两者都是「选定」但选择器不同。
+        const gemSel = /选定的?法力宝石|选定一颗/.test(c);
+        state.segments.push(chosenFrom ? call.replace(`transformToSpecial('ANY'`, `transformToSpecial('${gemSel ? 'CELL' : 'CHOSEN'}'`) : call);
         state.lastCreate = { what, allowBareColor: true }; // 「则再创造 5 颗」复用 referent（7952）
         return '';
       }
@@ -1787,6 +2097,19 @@ class Compiler {
       return '';
     }
     // 「随机摧毁 N 颗宝石，摧毁数因X而增强」（7447 黄金计数、9720 屏障盟友计数）＝destroy + modifier rider
+    // 「(随机)摧毁 N 颗宝石，摧毁数因X而增强」（7447 黄金计数、9720 屏障盟友计数）＝destroy + modifier rider
+    // K-B 收官轮：独立「移除所有C色宝石以增强(伤害)?(效果)?」句（7964——tryCompound 的
+    // enhanceRider 只收复合尾；此为独立子句形态，[N:M] 标签挂最近数值段、清除段照编）
+    m = /^移除所有(红|蓝|绿|黄|紫|棕)色宝石以(?:增强|强化)(?:此)?(?:伤害)?(?:效果效果|效果)?$/.exec(c);
+    if (m) {
+      const idx = lastNumericSegment(state.segments);
+      if (idx < 0 || !state.tag) return '增强 rider 找不到挂载段或缺少 [N:M] 标签';
+      state.segments = withModifierAt(state.segments, idx, { mod: state.tag });
+      state.tagUsed = true;
+      this.use('destroyColor');
+      state.segments.push(`destroyColor(BaseColor.${COLORS[m[1]]})`);
+      return '';
+    }
     m = /^(?:随机)?(爆破|摧毁|引爆|爆炸)\s*(\d+)\s*[颗枚]的?宝石[，,]?(?:摧毁数|爆破数|数量)?(?:因|受|随)(.+?)(?:而增强|而加强|影响)$/.exec(c);
     if (m) {
       const src = parseModifierSource(m[3]);
@@ -1831,6 +2154,17 @@ class Compiler {
       this.use('explodeRandomGems', 'destroyRandomGems');
       const fn = m[1] === '摧毁' ? 'destroyRandomGems' : 'explodeRandomGems';
       state.segments.push(`${fn}(${f.base}, ${f.mult}, 'color', 'LAST_TARGET')`);
+      return '';
+    }
+    // 「摧毁 [魔法+1] 颗敌人(队伍)使用最多的颜色宝石」（8529；EN Gems of the most used
+    // Enemy Mana Color）＝ColorSpec 'ENEMY_MOST_USED'（R11 批占位符）
+    m = /^(?:随机)?(爆破|摧毁|引爆|爆炸)\s*([[\]()魔法x×/ +\d.]+?)\s*[颗枚]敌人(?:队伍)?使用最多(?:的)?(?:法力)?(?:颜色|色)宝石$/.exec(c);
+    if (m) {
+      const f = parseFormulaPrefix(m[2]);
+      if (!f || f.rangeSpec) return `宝石数量公式无法解析「${m[2]}」`;
+      this.use('explodeRandomGems', 'destroyRandomGems');
+      const fn = m[1] === '摧毁' ? 'destroyRandomGems' : 'explodeRandomGems';
+      state.segments.push(`${fn}(${f.base}, ${f.mult}, 'color', 'ENEMY_MOST_USED')`);
       return '';
     }
     m = /^(?:随机)?(爆破|摧毁|引爆|爆炸)\s*([[\]()魔法x×/ +\d.]+?)\s*[颗枚](?:的)?宝石$/.exec(c);
@@ -1886,9 +2220,18 @@ class Compiler {
       state.segments.push('oneOf([explodeChosenRow()], [explodeChosenCol()])');
       return '';
     }
-    // 「选择一宝石，摧毁其行和列」——绑定被选宝石位置 → 定性原语请求（8721）
+    // 「选择一宝石，摧毁其行和列」（8721）＝选定宝石的行+列（R22 destroyChosenCross 原语，
+    // 7253 同款；此前误记 line-of-gem 缺口——引擎已有 chosenCross 通道）
     if (/^选择.{0,3}宝石[，,]?摧毁其行和列$/.test(c)) {
-      return `「摧毁宝石所在行与列」绑定被选宝石的位置，无对应清除原语 → 原语请求：clear line-of-gem`;
+      this.use('destroyChosenRow', 'destroyChosenCol');
+      state.segments.push('{ kind: \'gem\', params: { op: \'clear\', mode: \'destroy\', target: { kind: \'chosenCross\' } } }');
+      return '';
+    }
+    // 「摧毁 X 形宝石」（8965）＝过中心两条对角线（R12 area 'x' 原语）
+    if (/^摧毁\s*X\s*形(?:的)?宝石$/.test(c)) {
+      this.use('destroyArea');
+      state.segments.push(`destroyArea('x', 'destroy')`);
+      return '';
     }
     // 「选定一个颜色以移除所有同色宝石」（8511）＝选定色清除（CHOSEN 通道，§1 修饰挂载走 destroyedGems）
     if (/^(?:选定|选择)(?:一个)?颜色(?:以|来|并)?(?:移除|摧毁)所有(?:同色|该色|其色|该颜色)?的?宝石$/.test(c)) {
@@ -1897,7 +2240,8 @@ class Compiler {
       return '';
     }
     // 摧毁/移除所有：选定颜色 / C色
-    if (/^(?:摧毁|移除)(?:所有)?(?:指定|选定)颜色的?(?:所有)?宝石$/.test(c) || /^移除所有一个选定颜色的宝石$/.test(c)) {
+    // K-B 收官轮：「可摧毁所选颜色的宝石」（8400，EN Destroy Gems of a chosen Color）同口径
+    if (/^(?:可)?(?:摧毁|移除)(?:所有)?(?:指定|选定|所选)颜色的?(?:所有)?宝石$/.test(c) || /^移除所有一个选定颜色的宝石$/.test(c)) {
       this.use('destroyColor');
       state.segments.push('destroyColor(CHOSEN)');
       return '';
@@ -1922,8 +2266,46 @@ class Compiler {
     // 「使 N 名盟友的X翻倍」= 无翻倍原语（诚实 SKIP，不近似）
     const doubleM = /^使\s*\d+\s*[名个]盟友的?(护甲值|攻击力|生命值|魔法值)翻倍/.exec(c);
     if (doubleM) return `「使${doubleM[1]}翻倍」无对应原语（减半有 halve、翻倍无）→ 原语请求：stat 翻倍 buff`;
+    // 「(给予/获得) 3 - 15 点法力值」＝段级 rangeSpec（R22 BuffOpts 已备；K-B 收官轮 7414）。
+    // 目标词省略（「并给予 3 - 15 点法力值」payload）→ 沿用上文盟友目标 / 自身。
+    {
+      const rangeM = c.match(/^(?:给予|给|获得|恢复|回复)\s*(\d+)\s*-\s*(\d+)\s*点(法力值|生命值|护甲值|护甲|攻击力|魔法值)$/);
+      if (rangeM) {
+        const fn = fnOfStat(rangeM[3]);
+        const tgt = state.lastAllyTarget ?? 'allySelf';
+        this.use(fn, 'flat');
+        state.lastAllyTarget = tgt;
+        state.segments.push(`${fn}('${tgt}', 0, 0, { rangeSpec: { min: flat(${rangeM[1]}), max: flat(${rangeM[2]}) } })`);
+        return '';
+      }
+    }
     // 「造成等同于其(目标)X的伤害」= 基数取目标属性，无对应缩放原语
     if (/造成等同于其/.test(c)) return '「等同于其攻击力的伤害」基数取目标属性无对应原语 → 原语请求：dmg base = targetStat';
+    // 「获得(生命值/攻击力/…)〔，数量〕等同于(被)?减除的X」＝lastReduce 跨段数值绑定
+    // （K-B 收官轮，7247/7756——Wave4 lastReduce 来源：前序 reduce 段实际削减额）
+    {
+      const lrM = c.match(/^(?:获得|恢复|回复)(生命值|护甲值|护甲|攻击力|魔法值)[，,]?(?:数量)?等同于被?(?:减除|降低)的(护甲值|攻击力|魔法值|生命值)(?:值)?$/)
+        // 语序变体（7247）：「获得 等同于减除的护甲值 的 攻击力」＝被减属性在前、获得属性在后
+        || c.match(/^(?:获得|恢复|回复)等同于被?(?:减除|降低)的(护甲值|攻击力|魔法值|生命值)(?:值)?的(生命值|护甲值|护甲|攻击力|魔法值)$/);
+      if (lrM) {
+        const fn = fnOfStat((lrM[2] ?? lrM[1]) === '护甲' ? '护甲值' : (lrM[2] ?? lrM[1]));
+        // 尾部 [1:1] 标签即官方「1 per 1」编码 → 直接作本段 modifier 倍率（不再孤儿挂载，
+        // 否则与 lastReduce modifier 重复键）；无标签 → 每点削减 +1
+        const mod = { mod: state.tag ?? { kind: 'multiplier', a: 1 }, source: { kind: 'lastReduce' } };
+        if (state.tag) state.tagUsed = true;
+        this.use(fn);
+        state.segments.push(`${fn}('allySelf', 0, 0, { modifier: ${jsonMod(mod)} })`);
+        return '';
+      }
+      // 「给予所有同色盟友 N 点属性」（7862）＝选定色（CHOSEN）盟友增益
+      const sameM = c.match(/^给予所有同色盟友\s*(\d+)\s*点(生命值|护甲值|护甲|攻击力|魔法值)$/);
+      if (sameM) {
+        const fn = fnOfStat(sameM[2]);
+        this.use(fn);
+        state.segments.push(`${fn}('allyAll', ${sameM[1]}, 0, { ifCond: { kind: 'targetColor', color: 'CHOSEN' } })`);
+        return '';
+      }
+    }
     // 「敌方每一拥有X效果的军队，(己方)盟友即各得 N 点…」→ buff + enemyStatusCount 来源（7806）
     {
       const perEnemy = /^(?:同时[，,]?)?敌方每[一有一]?拥有(.+?)效果的?(?:军队|部队|敌人)[，,]?(?:已方|己方|我方)?盟友即?各得(.+)$/.exec(c);
@@ -2066,14 +2448,17 @@ class Compiler {
     }
     // 属性词预检：rest 不含属性词 → 非增益句，放行给后续处理器（如「获得一个额外回合」）
     if (!/(生命值|护甲值|护甲|攻击力|魔法值|法力值|随机技能值|技能点数)/.test(rest)) return null;
-    // 数值区间（3 - 15 点法力）= 数值型区间 blocked（§9.8 注意）
-    if (/\d+\s*-\s*\d+\s*点/.test(rest)) return '数值型区间（§9.8：数值不明）不做';
+    // 数值区间（3 - 15 点法力）＝段级 rangeSpec（R22 BuffOpts 已备；K-B 收官轮接线，7414）；
+    // 仅纯「N - M 点属性」形态走 rangeSpec，其余数值型区间维持 blocked（§9.8 数值不明）
+    const rangeOnly = rest.trim().match(/^(\d+)\s*-\s*(\d+)\s*点(生命值|护甲值|护甲|攻击力|魔法值|法力值)$/);
+    if (/\d+\s*-\s*\d+\s*点/.test(rest) && !rangeOnly) return '数值型区间（§9.8：数值不明）不做';
     // 按「和」拆分属性段：每段独立取值；无方括号的后续段沿用前段公式（R4「一个方括号管两段」同值口径）
     this.use('heal', 'armor', 'attack', 'magic', 'mana', 'randomStat', 'scale', 'flat');
     state.lastAllyTarget = target;
     // rider：「，数量因X而增强/受X影响」→ modifier 挂本段；来源不可解析 → 增项略去（partial 化，主效果保留）
+    // K-B 收官轮：「而加强」机翻词序归一（8191「数值因自身的生命值而加强」，hDamage 同款）
     let buffMod = null;
-    const modRider = /[,，]\s*(?:数值|数量|宝石数?量)?(?:因|受|随)(.+?)(?:而增[强加]|影响)$/.exec(rest);
+    const modRider = /[,，]\s*(?:数值|数量|宝石数?量)?(?:因|受|随)(.+?)(?:而增[强加]|而加强|影响)$/.exec(rest);
     let restBase = rest;
     if (modRider) {
       const src = parseModifierSource(modRider[1]);
@@ -2110,6 +2495,12 @@ class Compiler {
     const pieces = restBase.includes('和') || restBase.includes('、') ? restBase.split(/\s*(?:和|、)\s*/) : [restBase];
     for (const piece of pieces) {
       const p = piece.trim();
+      // 「3 - 15 点法力值」＝段级 rangeSpec（R22 BuffOpts；K-B 收官轮 7414）
+      const rngM = p.match(/^(\d+)\s*-\s*(\d+)\s*点(生命值|护甲值|护甲|攻击力|魔法值|法力值)$/);
+      if (rngM) {
+        parts.push({ rangeStat: rngM[3], rMin: Number(rngM[1]), rMax: Number(rngM[2]) });
+        continue;
+      }
       // 「一半的法力值」= mana halve（§9.6 口径）；「四分之一的法力值」= fraction 0.25（K-E，8439）
       const halveM = p.match(/^(?:一半|半数|四分之一)的?(法力值)$/);
       if (halveM) {
@@ -2151,6 +2542,11 @@ class Compiler {
     const mode = target;
     state.lastAllyTarget = mode;
     for (const part of parts) {
+      // 「3 - 15 点X」rangeSpec（K-B 收官轮，7414）
+      if (part.rangeStat) {
+        segs.push(`${fnOfStat(part.rangeStat)}('${mode}', 0, 0, { rangeSpec: { min: flat(${part.rMin}), max: flat(${part.rMax}) } })`);
+        continue;
+      }
       // 「一半的法力值」= mana halve（§9.6：获得 floor(manaCost/2)，受上限夹取）
       if (part.halveMana) {
         segs.push(`mana('${mode}', 0, 0, { halve: true })`);
@@ -2228,9 +2624,10 @@ class Compiler {
       state.segments.push(`reduce('${mode}', '${statOf(m[2])}', ${f.base}, ${f.mult})`);
       return '';
     }
-    m = /^(?:耗掉|消除)(所有|一位随机|一名随机)敌人\s*(\d+)\s*点(护甲值|法力值|攻击力)$/.exec(c);
+    m = /^(?:耗掉|消除)((?:所有|一位随机|一名随机|一名)?|该|其)敌人\s*(\d+)\s*点(护甲值|法力值|攻击力)$/.exec(c);
     if (m) {
-      const mode = m[1] === '所有' ? 'enemyAll' : 'enemyRandom';
+      const head = m[1] ?? '';
+      const mode = head === '所有' ? 'enemyAll' : /随机/.test(head) ? 'enemyRandom' : /一名|一位/.test(head) ? 'enemyChosen' : /该|其/.test(head) ? refTargetOf(state) : 'enemyChosen';
       this.use('reduce');
       state.segments.push(`reduce('${mode}', '${statOf(m[3])}', ${m[2]}, 0)`);
       return '';
@@ -2256,10 +2653,10 @@ class Compiler {
       state.segments.push(`reduce('${mode}', 'mana', ${m[1]}, 0)`);
       return '';
     }
-    m = /^耗掉(?:该|其|这名)?敌人(所有的)?法力值$/.exec(c) || /^耗尽(?:该|其|这名|他)(?:的)?(?:所有)?法力值$/.exec(c);
+    m = /^耗掉(?:该|其|这名|一名|一位|一名随机)?敌人(所有的?|全部的?)?法力值$/.exec(c) || /^耗尽(?:该|其|这名|他)(?:的)?(?:所有)?法力值$/.exec(c);
     if (m) {
       this.use('drainMana');
-      state.segments.push(`drainMana('${refTargetOf(state)}')`);
+      state.segments.push(`drainMana('${/随机/.test(c) ? 'enemyRandom' : /一名|一位/.test(c) ? 'enemyChosen' : refTargetOf(state)}')`);
       return '';
     }
     // 「吸取目标的所有法力值」（9811 条件 payload；= 耗尽其法力，无自得）
@@ -2363,11 +2760,26 @@ class Compiler {
       state.segments.push(`steal('${refTargetOf(state)}', '${st}', '${st}', 0, 0, { drainAll: true })`);
       return '';
     }
-    // 「随机窃取 N 点能力值」/「每名敌人身上窃取随机技能值」/「消除 N 点随机技能值」（8440）
-    // = 随机属性削减，无对应原语（batch-01 7319 先例）
-    if (/窃取\s*\d+\s*点(随机|能力值)|每名敌人.*窃取.*随机技能值/.test(c)
-      || (/^(?:消除|减除|窃取)/.test(c) && /点随机技能值$/.test(c))) {
-      return '随机属性削减无对应原语（batch-01 7319 同款）';
+    // 「随机窃取 N 点能力值」/「从每名敌人身上窃取 1 点随机技能值」/「消除 N 点随机技能值」（8440）
+    // ＝官方 StealRandom/DecreaseRandom（R12 已落 stat='random' 通道；K-B 收官轮接线回收——
+    // 此前按 batch-01 缺口诚实略去）。窃取 → stealRandomStat（同项自得）；消除 → reduce random。
+    // 数值可带公式（8440「消除 [魔法 + 1] 点随机技能值」）。
+    {
+      const rs = /^(?:从每名敌人身上)?(?:随机)?(窃取|消除|减除)\s*(\[[^\]]*\]|\d+)\s*点(?:的)?(?:能力值|随机技能值)$/.exec(c);
+      if (rs) {
+        const f = parseFormulaPrefix(rs[2]);
+        if (!f || f.rangeSpec) return `随机技能值数值无法解析「${rs[2]}」`;
+        if (rs[1] === '窃取') {
+          this.use('stealRandomStat');
+          const mode = /每名敌人/.test(c) ? 'enemyAll' : /随机/.test(c) ? 'enemyRandom' : /敌人/.test(c) ? 'enemyChosen' : refTargetOf(state);
+          state.segments.push(`stealRandomStat('${mode}', ${f.base}, ${fmtN(f.mult)})`);
+        } else {
+          this.use('reduce');
+          const mode = /每名敌人/.test(c) ? 'enemyAll' : /随机一名|一名随机/.test(c) ? 'enemyRandom' : /敌人/.test(c) ? 'enemyChosen' : refTargetOf(state);
+          state.segments.push(`reduce('${mode}', 'random', ${f.base}, ${fmtN(f.mult)})`);
+        }
+        return '';
+      }
     }
     // 窃取属性转属性
     m = /^窃取一名敌人\s*(\d+)\s*点(护甲值|攻击力|魔法值)(?:并将之转为|并将之转换成|，并将之转换为)(护甲值|攻击力|魔法值|法力值)$/.exec(c);
@@ -2459,6 +2871,23 @@ class Compiler {
       state.segments[idx] = appendOpt(state.segments[idx], `chanceBoost: ${jsonMod(mod)}`);
       return '';
     }
+    // 「有 N% 的几率吞噬一名(随机)敌人」（7293）＝官方 Devour（R22 devour 原语：即杀+
+    // 吞噬者成长；掷签在原语内部，chance 恒必填）
+    m = /^(?:有)?\s*(\d+)\s*%\s*的(?:几|机)率吞噬一名?(随机的?)?(敌人|盟友)$/.exec(c);
+    if (m) {
+      const mode = m[3] === '盟友' ? 'allyRandom' : /随机/.test(m[2] ?? '') ? 'enemyRandom' : 'enemyChosen';
+      this.use('devour');
+      state.segments.push(`devour('${mode}', { chance: ${Number(m[1]) / 100} })`);
+      return '';
+    }
+    // 「(并)将其吞噬」跨段回指变体（ devour 无几率口径=必中）
+    m = /^(?:并)?将(?:其|该敌人|该|一名随机敌人|一名敌人)吞噬$/.exec(c);
+    if (m) {
+      const mode = /随机/.test(m[0]) ? 'enemyRandom' : /其|该/.test(m[0]) ? refTargetOf(state) : 'enemyChosen';
+      this.use('devour');
+      state.segments.push(`devour('${mode}', { chance: 1 })`);
+      return '';
+    }
     if (/^净化(自身|所有盟友|一名盟友|一名随机盟友|所有其他的?盟友|所有其他的?)?$/.test(c)) {
       this.use('cleanse');
       const mode = /自身/.test(c) ? 'allySelf' : /其他/.test(c) ? 'allyOthers' : /随机/.test(c) ? 'allyRandom' : 'allyAll';
@@ -2497,21 +2926,32 @@ class Compiler {
     if (m && !/下列其一/.test(c)) { // 「获得下列其一」= 经济多选一（8153/7304 族），交 hEconomy
       const chance = Number(m[1]) / 100;
       let payload = m[2];
+      let boost = null;
       const vague = payload.match(/，几率因(.+?)而增强$/);
       if (vague) {
-        state.skippedClauses.push(`几率因${vague[1]}而增强`);
-        classifyClause(`几率因${vague[1]}而增强`, '修饰来源无法解析（§1 exotic 来源）', state.features);
-        payload = payload.slice(0, vague.index);
+        // K-B 收官轮：几率增幅先尝试解析来源（8283「几率因棕色宝石数而增强」= boardGems），
+        // 可解析 → chanceBoost 挂段；不可解析才按模糊增幅记省略
+        const src = parseModifierSource(vague[1]);
+        if (src?.source) {
+          boost = { mod: state.tag ?? { kind: 'ratio', a: 1, b: 1 }, ...src };
+          if (state.tag) state.tagUsed = true;
+          payload = payload.slice(0, vague.index);
+        } else {
+          state.skippedClauses.push(`几率因${vague[1]}而增强`);
+          classifyClause(`几率因${vague[1]}而增强`, '修饰来源无法解析（§1 exotic 来源）', state.features);
+          payload = payload.slice(0, vague.index);
+        }
       }
       const parts2 = payload.split('和').map((s) => s.trim());
       const segs2 = [];
       for (const p of parts2) {
+        const b = boost ? `, chanceBoost: ${jsonMod(boost)}` : '';
         if (/额外(?:的)?回合/.test(p)) {
           this.use('extraTurn');
-          segs2.push(`extraTurn({ chance: ${chance} })`);
+          segs2.push(`extraTurn({ chance: ${chance}${b} })`);
         } else if (/半数法力值|一半法力值/.test(p)) {
           this.use('mana');
-          segs2.push(`mana('allySelf', 0, 0, { halve: true, chance: ${chance} })`);
+          segs2.push(`mana('allySelf', 0, 0, { halve: true, chance: ${chance}${b} })`);
         } else {
           return `独立几率项无法解析「${p}」`;
         }
@@ -2524,7 +2964,7 @@ class Compiler {
 
   // —— 风暴 / 召唤 ——
   hStormSummon(c, state) {
-    let m = /^(?:创造|发起|召唤)(?:一个|一场|一名)?(尘|冰|叶|火|光|暗|地狱)?风暴$/.exec(c);
+    let m = /^(?:创造|发起|召唤)(?:一个|一场|一名)?(尘|冰|叶|火|光|暗|地狱|电)?风暴$/.exec(c);
     if (m) {
       const cn = m[1];
       if (!cn) return '风暴颜色缺失（语义拿不准）';
@@ -2538,8 +2978,10 @@ class Compiler {
     // K-B3：「召唤一条龙」9649 量词变体、「召唤地狱岩部队」9577 冠词省略变体（群体后缀锚定）、
     // 「随机召唤」前缀（9649 条件 payload）
     const SUMMON_HEAD = String.raw`(?:随机(?:的)?)?召唤`;
-    const GROUP_WORD_RE = /军队|部队|军团|盟友|恶魔|不死族|亡灵|元素|神祇|纳迦|半人马|人马|巨人|矮人|人类|兽人|骑士|龙族|龙|野兽|哥布林|妖仙|精灵|怪兽|怪物|构装体|建造|猫族|罗刹|金牛座|牛头族|狼族|战神|蛮族|厄什卡|乌尔斯卡|罗格|冥河|猎鹰|美人鱼|魔头|Stryx|Dhrak-Zum/;
-    m = GROUP_WORD_RE.test(c)
+    const GROUP_WORD_RE = /军队|部队|军团|盟友|恶魔|不死族|亡灵|元素|神祇|纳迦|半人马|人马|巨人|矮人|人类|兽人|骑士|龙族|龙|野兽|哥布林|妖仙|精灵|怪兽|怪物|构装体|建造|猫族|罗刹|金牛座|牛头族|狼族|战神|蛮族|厄什卡|乌尔斯卡|罗格|冥河|猎鹰|美人鱼|魔头|小鬼|科博|Stryx|Dhrak-Zum/;
+    // K-B 收官轮：群体词表之外的王国名（毒菇林/滴答洞穴等经 KINGDOM_ALIAS 归一后命中）
+    // 亦可召唤 → isKingdomGroup 兜底（8529/8140/8816）
+    m = (GROUP_WORD_RE.test(c) || isKingdomGroup(c))
       ? (new RegExp(`^${SUMMON_HEAD}\\s*(\\d+)\\s*到\\s*(\\d+)\\s*[名个](?:随机的?|一名随机)?(.+?)$`).exec(c)
         || new RegExp(`^${SUMMON_HEAD}(?:一名|一个|一支|一条|一头|一名随机的?)(?:随机的?|一名随机)?(.+?)$`).exec(c)
         || new RegExp(`^${SUMMON_HEAD}(?:随机的?)?(.+?)(?:军队|部队|军团)$`).exec(c))
@@ -2599,6 +3041,14 @@ class Compiler {
       return '「摧毁该行」绑定被爆破宝石的位置，无对应清除原语 → 原语请求：clear line-of-gem';
     }
     let m = /^(?:将)?一名敌人拉到首位$/.exec(c);
+    if (m) {
+      this.use('reposition');
+      state.segments.push("reposition('enemyChosen', 'front')");
+      return '';
+    }
+    // K-B 收官轮：「将一名军队拉到首位」（7295；EN "Pull an Enemy to first position"——
+    // 「军队」= MT 对 Enemy troop 的泛称，与既有「将一名敌人拉到首位」同口径）
+    m = /^将(?:一名|一个)(?:军队|部队)拉到首位$/.exec(c);
     if (m) {
       this.use('reposition');
       state.segments.push("reposition('enemyChosen', 'front')");
@@ -2701,6 +3151,9 @@ class Compiler {
   /** 群体名 → 召唤引用清单；王国 → { kingdom }（K-E summonRandomOfKingdom）；失败返回错误字符串 */
   resolveGroupRefs(grp) {
     if (grp === '全视之眼') return OCULAREN_REFS;
+    // 具名部队族（K-B 收官轮：小鬼=Imp 族、科博=Kobold 族——troops.json 无该 troopType，
+    // 按 name/referenceName 反查固定清单，batch-08 全视之眼先例）
+    if (NAMED_GROUP_REFS[grp]) return NAMED_GROUP_REFS[grp];
     if (RACE_ALIAS[grp]) {
       const race = RACE_ALIAS[grp];
       const refs = this.raceRefs.get(race);
@@ -2718,7 +3171,8 @@ class Compiler {
    *  「不朽的塞勒涅」、「不朽的怪物」→「不朽的龟背竹」（EN 原文 Monstera 实锤）等，
    *  经 TROOP_NAME_ALIAS + 前缀补全二次尝试；仍无 → null 不硬凑。 */
   resolveTroopName(text) {
-    const names = loadTroops().map((x) => x.name);
+    const troops = loadTroops();
+    const names = troops.map((x) => x.name);
     const attempt = (t) => {
       const v = t.replace(/^不朽者/, '不朽的').trim();
       if (names.includes(v)) return v;
@@ -2730,6 +3184,10 @@ class Compiler {
     };
     const direct = attempt(text);
     if (direct) return direct;
+    // K-B 收官轮：zh 快照里残留 EN 原文名（9490「Immortal Furnax」）→ referenceName
+    // 去空格回退（ImmortalFurnax），取回官方 zh name
+    const refHit = troops.find((x) => x.referenceName === text.replace(/\s+/g, ''));
+    if (refHit) return refHit.name;
     // 「永生塞勒涅 / 不朽双子 / 永生的 Scoprio」类前缀缺失/变体 → 前缀归一重试
     const stripped = text.replace(/^(?:永生神|永生|不朽的|不朽)的?\s*/, '').trim();
     if (stripped && stripped !== text) {
@@ -2776,29 +3234,23 @@ function splitTopLevel(c, sep) {
   if (idx < 0) return [];
   return [c.slice(0, idx).trim(), c.slice(idx + sep.length).trim()];
 }
-/** 转换端点 tier 哨兵：builders.TransformOpts 无 tier 通道（只有 count），tier 转换是原语缺口 */
+/** 转换端点 tier 哨兵：K-B 收官轮起 tier 通道已开（toSpecial spec 形态）→ 本符号仅保留
+ *  供历史批次排查引用，现行 transformGemCall 不再返回（带档通配/恶石像鬼可编译）。 */
 export const TRANSFORM_TIER_UNSUPPORTED = Symbol('transform-tier-unsupported');
 function transformGemCall(compiler, fromColor, what, count, _clause) {
   compiler.use('transformToSpecial', 'transform');
   const gem = matchSpecialGem(what);
-  if (!gem) {
-    if (/x3|×3|三倍/.test(what)) {
-      // 「将选定的法力宝石转换为 x3 通配符」——通配倍率=WildCard3(tier3)，
-      // 转换端点无 tier 通道（batch-r9 先例用 createSpecialGems spec 表达，此处是转换）→ 原语缺口
-      return TRANSFORM_TIER_UNSUPPORTED;
-    }
-    return null;
-  }
-  // 石像鬼 tier1(善)=引擎缺省（TurnEngine.applyGargoyleGem: evil = tier===2），省略 tier 等价；
-  // tier2(恶) 及其他带档宝石（wildcard 倍率族）无法表达 → 原语缺口
-  if (gem.tier !== undefined && !(gem.kind === 'gargoyleGem' && gem.tier === 1)) {
-    return TRANSFORM_TIER_UNSUPPORTED;
-  }
+  if (!gem) return null;
+  // tier 端点（带档通配/恶石像鬼）→ toSpecial spec 形态（K-B 收官轮，引擎 toSpecial
+  // 扩 { kind, tier? } 对齐 createSpecialGems）；善石像鬼 tier1 仍省略（引擎缺省=善）。
+  const spec = gem.tier !== undefined && !(gem.kind === 'gargoyleGem' && gem.tier === 1)
+    ? `{ kind: '${gem.kind}', tier: ${gem.tier} }`
+    : `'${gem.kind}'`;
   const from = fromColor ? `BaseColor.${fromColor}` : "'ANY'";
   const opts = [];
   if (count !== undefined) opts.push(`count: ${count}`);
   const optStr = opts.length ? `, { ${opts.join(', ')} }` : '';
-  return `transformToSpecial(${from}, '${gem.kind}'${optStr})`;
+  return `transformToSpecial(${from}, ${spec}${optStr})`;
 }
 function allyTargetOf(grp, others) {
   const g = grp.trim();
@@ -3046,7 +3498,9 @@ function jsonCond(cond) {
 }
 function lastNumericSegment(segs, from = 0) {
   for (let i = segs.length - 1; i >= from; i--) {
-    if (/\b(dmg|dmgAll|dmgSplash|trueDmg|heal|armor|attack|magic|mana|reduce|randomStat|gainGold|gainSouls|gainGems|gainMaps|createGems|createSkulls|createSpecialGems|steal|drainMana|inflictRandom)\(/.test(segs[i])) return i;
+    // K-B 收官轮：destroyRandomRows/Cols 计数段可作尾部 [xN] 挂载宿主（9484 标签孤儿回收；
+    // 修改数 = 随机行列的 N，与「创造 N 颗」同类数值段）
+    if (/\b(dmg|dmgAll|dmgSplash|trueDmg|heal|armor|attack|magic|mana|reduce|randomStat|gainGold|gainSouls|gainGems|gainMaps|createGems|createSkulls|createSpecialGems|createGemsMixAny|steal|drainMana|inflictRandom|destroyRandomRows|destroyRandomCols|explodeRandomRows|explodeRandomCols)\(/.test(segs[i])) return i;
   }
   return -1;
 }
@@ -3157,8 +3611,9 @@ function parseFormulaPrefix(text) {
     if (!inner) return null;
     return { rest: text.slice(m[0].length), rangeSpec: { min: `flat(${m[1]})`, max: `scale(${inner.base}, ${fmtN(inner.mult)})` } };
   }
-  // [公式] – [公式]（7213 先例）
-  m = /^\[\s*(魔法[^\]]*)\s*\]\s*[–—-]\s*\[\s*(魔法[^\]]*)\s*\]\s*(点)?/.exec(text);
+  // [公式] – [公式]（7213 先例；K-B 收官轮：两侧内文放宽为任意含「魔法」片段——
+  // 9524/9525「[(魔法 / 2) + 4] – [魔法 + 9]」混合括号形，parseMagicBracket 可解析两侧）
+  m = /^\[\s*([^\]]*魔法[^\]]*)\s*\]\s*[–—-]\s*\[\s*([^\]]*魔法[^\]]*)\s*\]\s*(点)?/.exec(text);
   if (m) {
     const a = parseMagicBracket(m[1]);
     const b = parseMagicBracket(m[2]);
@@ -3248,6 +3703,8 @@ function classifyClause(clause, err, features) {
   if (/盟友数|盟友的加成|盟友可提升|盟友而增强|盟友激发/.test(clause) && isKingdomGroup(clause)) features.add('kingdom-count');
   if (/尾部增幅标签/.test(text)) features.add('modifier-tag');
   if (/修饰来源无法解析/.test(text)) features.add('modifier-source');
+  // K-B 收官轮：单 modifier 通道被主效果占用（法力灼烧主源=drainedMana），第二来源诚实略去
+  if (/修饰来源通道已占用/.test(text)) features.add('modifier-source');
   if (features.size === before) features.add('unparsed-clause');
 }
 
@@ -3280,14 +3737,17 @@ function parseModifierSource(body) {
   // 特殊宝石计数（boardSpecial）；元素星/暗影之星无「宝石」后缀，放宽星族匹配
   for (const [zh] of SPECIAL_GEMS) {
     const core = zh.replace('宝石', '');
-    if (b.includes(core) && (/宝石/.test(b) || /星/.test(core))) {
+    if (b.includes(core) && (/宝石/.test(b) || /星/.test(core) || /石块|石墩/.test(core))) {
       if (core.includes('末日') || core.includes('厄运')) return { source: { kind: 'boardSkulls' } };
       const kind = matchSpecialGem(core);
       if (kind) return { source: { kind: 'boardSpecial', gem: kind.kind } };
     }
   }
   if (/骷髅头/.test(b)) return { source: { kind: 'boardSkulls' } };
-  if (/所耗尽的法力/.test(body)) return { source: { kind: 'drainedMana' } };
+  if (/所耗尽的法力|耗尽的法力|耗掉的法力/.test(body)) return { source: { kind: 'drainedMana' } };
+  // K-B 收官轮：「被减除/降低的X值」＝前序 reduce 段实际削减额（引擎 Wave4 lastReduce 来源；
+  // 7752/7757/7758/7759/7799「数量因被减除的护甲值(数)而增强」族——此前按 exotic 拒绝）
+  if (/被?(?:减除|降低)的(护甲值|攻击力|魔法值|生命值)/.test(b)) return { source: { kind: 'lastReduce' } };
   // 「被摧毁的骷髅头和棕色宝石数」= 骷髅 + 色宝石双来源（7769）
   const skullAndColor = b.match(/被摧毁的骷髅头和(红|蓝|绿|黄|紫|棕)色?宝石/);
   if (skullAndColor) return { sources: [{ kind: 'destroyedGems' }, { kind: 'destroyedGems', color: COLORS[skullAndColor[1]] }] };
@@ -3310,8 +3770,12 @@ function parseModifierSource(body) {
   }
   if (/自身损失的生命值/.test(b)) return { source: { kind: 'selfStat', stat: 'missingHp' } };
   if (/敌人现有生命值/.test(b)) return { source: { kind: 'targetStat', stat: 'hp' } };
+  // K-B 收官轮：「敌人所需的法力值」＝目标 manaCost（R22 targetStat stat 扩展，7815）
+  if (/敌人所需的法力值/.test(b)) return { source: { kind: 'targetStat', stat: 'manaCost' } };
   const tgtStat = b.match(/敌人(的)?(攻击力|护甲值|魔法值)/);
   if (tgtStat) return { source: { kind: 'targetStat', stat: { 攻击力: 'attack', 护甲值: 'armor', 魔法值: 'magic' }[tgtStat[2]] } };
+  // K-B 收官轮：「自身灵魂数/我的灵魂」＝战场经济灵魂池（battleSouls，8401「因自身灵魂数」）
+  if (/灵魂数|我的灵魂|自身灵魂/.test(body)) return { source: { kind: 'battleSouls' } };
   if (/所收集的灵魂数|收集的灵魂数/.test(body)) return { source: { kind: 'battleSouls' } };
   // K-B3：战场经济来源（§10.2）——「摧毁数因收集到的黄金数量而增强」7447 族
   if (/收集到的黄金|黄金数量/.test(body)) return { source: { kind: 'battleGold' } };
@@ -3336,7 +3800,10 @@ function parseModifierSource(body) {
   // 王国名含种族子串（「龙爪盟友」≠ 龙族）。王国名用 zh 原文名；
   // 「潘神之谷友数」（机翻脱「盟」）经宽松尾缀剥除覆盖。
   if (/盟友|盟军|敌人|敌军|友/.test(b)) {
+    // K-B 收官轮修：先剥句尾「的」（9977「受到荒野平原盟友的加成」→ body 带尾「的」，
+    // 剥「盟友」前不先剥「的」会残留「狂野平原盟友」作王国名——运行时永不命中）
     const kgRaw = normalizeGroupName(b)
+      .replace(/的$/u, '')
       .replace(/的?(?:盟友|盟军|敌军|敌人|部队|军队|友)数?$/u, '')
       .replace(/的$/u, '');
     if (kgRaw && isKingdomGroup(kgRaw)) {
@@ -3507,9 +3974,9 @@ function cmdGen() {
       .filter((f) => f !== 'CHOSEN' && f !== 'CASTER')
       .filter((f) => new RegExp(`\\b${f}\\s*\\(`).test(allBuilds))
       .sort();
-    useChosen = useChosen && /\bCHOSEN\b/.test(allBuilds);
+    useChosen = useChosen && /(?<!')\bCHOSEN\b(?!')/.test(allBuilds);
     // CASTER 占位符（「该军队法力颜色」）为常量非函数，单独按词检测
-    const useCaster = /\bCASTER\b/.test(allBuilds);
+    const useCaster = /(?<!')\bCASTER\b(?!')/.test(allBuilds);
     const placeholderImports = [useChosen ? 'CHOSEN' : '', useCaster ? 'CASTER' : ''].filter(Boolean);
     const allImports = [...importNames, ...placeholderImports];
     const importLines = `import { ${allImports.join(', ')} } from '../builders';${useBaseColor ? "\nimport { BaseColor } from '../../types';" : ''}`;
@@ -3587,42 +4054,41 @@ function cmdReport() {
   // 原语请求聚合（partial 化不消掉请求——战斗可用性与引擎补齐解耦）
   // 第三轮：allyOfColor-target 已用 ifCond targetColor 消化（TargetMode 无需扩）；新增 doom/columnGems/destroyedSpecialGems 等
   const PRIM = [
-    // —— 第五轮（K-E）已接线：tempering-scaling / doom-condition / kingdom-condition /
-    //     kingdom-target / kingdom-count / kingdom-summon / enemy-color-count 七族主桶清零，
-    //     残余条目见各特征行标注 ——
+    // —— 第六轮（K-B 收官）已接线：createMix-special / anyEnemyDied / conditional-clear /
+    //     transform-tier / destroyed-gem-status-trigger / random-stat-reduce（R12 random 通道
+    //     回收）/ exotic-modifier-source（lastReduce 回收）——残余条目见各行标注 ——
     ['tempering-scaling', 'tempering 段位缩放（第五轮已接线）', '残余=无挂载段的特例；来源 { kind: tempering }'],
     ['doom-condition', 'targetHasDoom 劫数条件（第五轮已接线）', '残余=结论子句超出 condBonus/condMult/ifCond 三形态'],
     ['kingdom-condition', 'kingdomPresent/kingdomOf 条件（第五轮已接线）', '残余=复合条件特例（9827 多条件连排）'],
     ['enemy-color-count', 'enemiesOfColor 计数（第五轮已接线）', '残余=createMix 骷髅端点句（7655-7660，归 createMix-special）'],
     ['kingdom-count', 'alliesOfKingdom 计数（第五轮已接线）', '残余=列内计数特例'],
+    ['createMix-special', 'createMix 特殊端点（第六轮已接线：createGemsMixAny）', '残余=无'],
+    ['anyEnemyDied', 'anyEnemyDied 条件（第六轮已接线：anyTrackedDied 专名形态）', '残余=无'],
+    ['conditional-clear', '条件化清除段（第六轮已接线：clear 构造器补 opts + ifCond）', '残余=无'],
+    ['transform-tier', '转换端点 tier 通道（第六轮已接线：toSpecial spec 形态）', '残余=无'],
+    ['destroyed-gem-status-trigger', '逐摧毁宝石触发状态（第六轮回收：perDestroyed 原语）', '残余=无'],
+    ['random-stat-reduce', '随机属性削减（第六轮回收：R12 stat=random 通道）', '残余=无'],
+    ['exotic-modifier-source', '被减除属性来源（第六轮回收：lastReduce 跨段来源）', '残余=敌方高塔计数等无来源特例（7800）'],
     ['modifier-tag', '尾部增幅标签归属', '非缺失原语：归属子句被略去时标签暂不挂载；卡点消解后自动回收'],
     ['modifier-source', '修饰来源无法解析（§1 exotic 大族）', '逐条见 meta skippedClauses'],
-    ['unknown-group', '群体名无法映射种族/王国', '毒菇林/罗格/滴答洞穴等机翻族名；待术语表'],
-    ['unresolved-ref', '机翻引用无法回译', '小鬼/科博等泛称与电风暴等；待术语表'],
+    ['unknown-group', '群体名无法映射种族/王国', '无官方口径的群体词（7567 满额幼龙等）；待术语表'],
+    ['unresolved-ref', '机翻引用无法回译', '随机风暴等官方步骤未证实句（7492）'],
     ['stat-double', 'stat 翻倍 buff', 'buff opts.double（现仅 reduce.halve）'],
     ['dmg-base-targetStat', 'dmg 基数取目标属性', 'dmg 支持 base 来源 targetStat'],
     ['targetStatBeatsCaster', '反向属性比较', 'Condition casterStatBeatsTarget 加 reversed'],
-    ['clear-line-of-gem', '清除宝石所在行/列', 'clear target { kind: lineOfGem, mode }'],
-    ['createMix-special', 'createMix 特殊端点', 'createMix 端点扩特殊宝石/骷髅'],
-    ['random-stat-reduce', '随机属性削减', 'reduce 支持 stat=random'],
-    ['conditional-clear', '条件化清除段', 'clear 段支持 ifCond'],
-    ['exotic-modifier-source', 'exotic 来源（被减除护甲值/黄金等）', '按 §1 维持不做；如要做需新来源 kind'],
-    ['numeric-range', '数值型区间', '段级 rangeSpec 扩 buff/create'],
-    ['devour', '吞噬（吞并敌人）', 'devour 效果段'],
-    ['mana-burn', '法力灼烧伤害', 'damage 来源 manaBurn'],
+    ['clear-line-of-gem', '清除随机宝石所在行（绑定被爆宝石位置）', 'clear target { kind: lineOfGem, mode }（7217）'],
+    ['numeric-range', '数值型区间', '段级 rangeSpec 扩 create'],
+    ['mana-burn', '法力灼烧第二增幅来源', '灼烧主源已按 drainedMana 接线（7412）；magic 增幅与主源争用单 modifier 通道'],
     ['random-storm', '随机风暴', 'createStorm 支持随机色'],
     ['storm-end', '终止风暴', 'createStorm 对立操作'],
     ['dispel-all', '驱散全部正面增益', '泛指驱散（§6 维持不做）'],
     ['column-gem-count', '列内宝石计数来源', 'ModifierSource { kind: columnGems, col: chosen }（「所选的列每有一颗X色宝石」8805）'],
-    ['destroyed-special-count', '按特殊宝石筛选被摧毁数', 'ModifierSource { kind: destroyedSpecialGems, gem }（8806）'],
-    ['anyEnemyDied', 'anyEnemyDied 条件', 'Condition { kind: anyEnemyDied }'],
     ['en-only-text', 'EN-only 快照条目', '非引擎缺口：2 把新武器 zh 法术文本缺失，数据补全后回收'],
-    ['boss-condition', '魔头（Boss troopType）条件', '已按 targetRace/enemyRacePresent Boss 表达；如官方实为晋升口径再翻案（7754/7803/7955）'],
+    ['boss-condition', '魔头（Boss troopType）条件', '7754 残余=「其他所有敌人」目标模式（enemyOthers）'],
     ['random-status-nrange', '随机状态条数区间', 'inflictRandom 支持 times nRange（7986/7996/9910）'],
-    ['destroyed-gem-status-trigger', '逐摧毁宝石触发状态', 'destroyedGems 触发器段（8518）'],
     ['reposition-nrange', '数量区间调位', 'reposition 支持 nRange（8074）'],
     ['all-status-grant', '全状态池授予', '「所有状态效果」官方口径考证（8084）'],
-    ['stone-block-count', '石墩（Stone Block）计数', 'SpecialGemKind stoneBlock + boardSpecial 来源（8400）'],
+    ['stone-block-count', '石墩激活（场上石块触发器）', '石块计数/创造已接线（8769）；「石墩激活」=盘上光环触发（8400）待考证'],
   ];
   const lines = [];
   lines.push('# 武器法术组装分诊报告（窗口 K-B · 分保真度绑定）');
@@ -3644,14 +4110,32 @@ function cmdReport() {
   lines.push('');
   lines.push(`战斗可用绑定（full+partial）${bound.length}/718 = ${(100 * bound.length / results.length).toFixed(1)}%。`);
   lines.push('');
-  lines.push('## 第五轮升级对比（K-E 引擎原语批接线，2026-09-18 · 第四轮 418/288/12 → 本轮）');
+  lines.push('## 第六轮升级对比（K-B 收官 · 小引擎批+解析收尾，2026-09-19 · 第五轮 610/96/12 → 本轮）');
   lines.push('');
-  lines.push('| 保真度 | 第四轮 | 本轮 | 增量 |');
+  lines.push('| 保真度 | 第五轮 | 本轮 | 增量 |');
   lines.push('|---|---|---|---|');
-  lines.push(`| full | 418 | ${full.length} | ${full.length - 418 >= 0 ? '+' : ''}${full.length - 418} |`);
-  lines.push(`| partial | 288 | ${partial.length} | ${partial.length - 288 >= 0 ? '+' : ''}${partial.length - 288} |`);
+  lines.push(`| full | 610 | ${full.length} | ${full.length - 610 >= 0 ? '+' : ''}${full.length - 610} |`);
+  lines.push(`| partial | 96 | ${partial.length} | ${partial.length - 96 >= 0 ? '+' : ''}${partial.length - 96} |`);
   lines.push(`| mana-only | 12 | ${manaOnly.length} | ${manaOnly.length - 12} |`);
   lines.push(`| 战斗可用 | 706 | ${bound.length} | ${bound.length - 706 >= 0 ? '+' : ''}${bound.length - 706} |`);
+  lines.push('');
+  lines.push('**本轮（收官）新消化**（四原语 + 解析长尾，裁定见 spell-rules §14.6）：');
+  lines.push('');
+  lines.push('- anyEnemyDied 接线：EN 考证（7117/7861/8075/8076/9629/9903）「If an Enemy dies, …」＝本咒语执行中任一敌人被击杀，与部队批 R22 已落地的 anyTrackedDied 同口径（9986/9812 先例）→ builders.anyEnemyDied() 专名形态 + ifCond（6 把全升 full，含 8076「使他们下潜」盟友回指修正）；');
+  lines.push('- createMix 特殊端点开放：createGemsMixAny（R22 mixAny）接线——「混合蓝色和骷髅头的宝石」（9110）、「混合骷髅头和恐怖宝石」（9167）、「混合鬼魂宝石和冻结宝石」（9300）、7655-7660 Doomed 族「每有一名X色敌人则创造 N 颗混合X色和骷髅头的宝石」（base 0 × enemiesOfColor 倍率，官方「N per Enemy」口径）、8578「制造 3 种药水」（五色法力药水 spec 混合）；');
+  lines.push('- TransformOpts tier 通道：TransformGemParams.toSpecial 扩 spec 形态 { kind, tier }（对齐 createSpecialGems）——8966「将选定的法力宝石转换为 x3 通配符」＝transformToSpecial(CELL, {kind: wildcard, tier: 3})；不带 tier 的既有转换序列化为 kind 字符串、rng 序列逐字节不变（护栏测试）；');
+  lines.push('- 条件化清除段：destroyColor/explodeColor/destroySkulls/explodeSkulls/destroySpecialGems/explodeSpecialGems 六构造器补 opts 形参（段级 ifCond 经既有 attach/runSegment 管线生效）——7286 尘风暴条件清除、7955 魔头条件爆破、9381/9486/9809/9983 永生神条件引爆全族回收；');
+  lines.push('- 陈旧拒绝回收（引擎原语已在、生成器口径未更）：随机属性削减 → stealRandomStat/reduce random（R12 通道，7240/7244/8440）、「获得等同于减除的护甲值」→ lastReduce 跨段来源（Wave4，7247/7752/7756-7759/7799）、逐摧毁宝石触发状态 → perDestroyed（Wave4，8518/8965）、吞噬 → devour（R22，7293）、「摧毁宝石的行和列」→ destroyChosenCross（R22，8721）、石块计数/创造 → boardSpecial stoneBlock（8769）、8400「可摧毁所选颜色的宝石」→ destroyColor(CHOSEN)；');
+  lines.push('- 解析长尾攻坚（EN 原文逐句对照）：选定色目标族（7862/8152/9831「使用所选定法力宝石颜色的敌人」→ ifCond targetColor CHOSEN）、骷髅/选定色转化（9379→uberDoomSkull、8900→spiritGem）、王国改名考证（双语 dump 按 troop Id 配对：Zaejin→Amanithrax=齐埃金、Hellcrag→Obsidian Depths=地狱悬崖、Grosh-Nak→Dripping Caverns=葛洛什奈克、Divinion Fields=卜筮之原——8140 毒菇林/8529 滴答洞穴/8816 黑曜石深渊/9749 圣力场/9977 荒野平原(狂→荒机翻) 全回收）、机翻译名补全（盗贼=Rogue、海族=Merfolk、神祗=Divine、潘之谷/银林地/狐狸座截断形）、具名族召唤（小鬼=Imp 族 5 只、科博=Kobold 族 5 只，8461/7991）、EN 名残留回退（9490 Immortal Furnax→不朽熔炉）、调价/词序归一（9524/9525「-{2}」MT 残渣、8529「对多→最多」、9826/9827「优先」剥除+「使用了」、8191「而加强」、8283 几率来源先解析、8397 耗蓝目标扩形、8409 消除目标扩形+电风暴=Yellow 裁定、7204 CHOSEN_TARGET、7295 军队拉到首位、9566 lastDamaged、9111「则伤害翻倍」尾形、8401 自身灵魂=battleSouls、7815 manaCost 来源+神祗+再加成、7414 rangeSpec 区间、7412 法力灼烧=drainMana+drainedMana 主源）——零降级（无一带既 full 降 partial）。');
+  lines.push('');
+  lines.push('## 第五轮升级对比（K-E 引擎原语批接线，2026-09-18 · 第四轮 418/288/12 → 本轮）');
+  lines.push('');
+  lines.push('| 保真度 | 第四轮 | 第五轮 | 增量 |');
+  lines.push('|---|---|---|---|');
+  lines.push(`| full | 418 | 610 | +192 |`);
+  lines.push(`| partial | 288 | 96 | -192 |`);
+  lines.push(`| mana-only | 12 | 12 | 0 |`);
+  lines.push(`| 战斗可用 | 706 | 706 | 0 |`);
   lines.push('');
   lines.push('**本轮（K-E 原语接线）新消化**（四族，裁定见 spell-rules §14 第五轮记录）：');
   lines.push('');
@@ -3671,7 +4155,7 @@ function cmdReport() {
   lines.push('- 窃取/耗蓝扩形：「窃取一名敌人全部护甲值」（7754 drainAll）、「窃取其 N 点生命值」（8952 条件化）、「窃取 [魔法+1] 点攻击力和护甲值」双段（7803）、「耗尽最高 N 点法力值」（7866 up-to=夹零等价）、「吸取目标的所有法力值」（9811）、「每有一名亡灵盟友则消耗 3 点法力」（9579 alliesOfRace 修饰）；');
   lines.push('- 其他：三支 oneOf（8253 耗蓝或增益或创造）、独立掷签（8283 个别几率）、全部技能值四段展开（7294/7864）、编队上方敌人（9162 enemyAboveTarget）、随机摧毁列（8619/9387/9484 destroyRandomCols）、爆破一行或一列 oneOf（8448）、具名特殊宝石定量爆破（9747/9840）、选定颜色清除（8511）、八种「每有一名X盟友则创造 N 颗混合宝石」语序（8161/8260-8266/8313-8315/8386/8394/8402/8434/8435/8452/8487/8506/8645/8669/8809/8877 族——种族半边回收、王国半边诚实略去）。');
   lines.push('');
-  lines.push(`**mana-only 余量 ${manaOnly.length} 条构成**：机翻语义丢失 4（8529 最常用敌色+王国召唤、8577 多档通配、8965 X形清除+逐摧毁触发祝福、8966 x3 通配转换）、占位符 {1} 1（7071）、缺原语 4（7188/7199 stat 翻倍、7190 基数取目标属性、7217 行绑定清除）、EN-only 快照 3（10045/10063/10065）。`);
+  lines.push(`**mana-only 余量 ${manaOnly.length} 条构成**（全部为引擎/数据真实缺口，不为凑数硬收）：机翻占位符 {1}（7071）、stat 翻倍 2（7188/7199）、基数取目标属性（7190）、行绑定清除（7217）、随机倍率通配创造（8577）、EN-only 快照 3（10045/10063/10065）。`);
   lines.push('');
   lines.push('## SpellId 冲突检查（动工前扫描）');
   lines.push('');

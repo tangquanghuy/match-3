@@ -8,7 +8,7 @@
  * src/data/weapon-skill-meta.json）。组装规则锚定 scripts/spell-rules.md 与
  * 既有部队批次先例；生成器 scripts/_weapon_pools.mjs gen。
  */
-import { armor, attack, cleanse, createGems, createMix, createSpecialGems, createStorm, destroyChosenCol, destroyChosenRow, destroyColor, destroyRandomGems, destroySkulls, dmg, dmgSplash, drainMana, explodeRandomGems, extraTurn, flat, gainGold, gainMaps, gainSouls, heal, inflict, magic, mana, oneOf, randomStat, reduce, reposition, scale, shuffleBoard, skill, steal, summonRandom, summonRef, trueDmg, CHOSEN, CASTER } from '../builders';
+import { armor, attack, cleanse, createGems, createGemsMixAny, createMix, createSkulls, createSpecialGems, createStorm, destroyChosenCol, destroyChosenRow, destroyColor, destroyRandomGems, destroySkulls, devour, dmg, dmgSplash, drainMana, explodeRandomGems, extraTurn, flat, gainGold, gainMaps, gainSouls, heal, inflict, magic, mana, oneOf, randomStat, reduce, reposition, scale, shuffleBoard, skill, steal, stealRandomStat, summonRandom, summonRef, transformTroopRandom, trueDmg, CHOSEN, CASTER } from '../builders';
 import { BaseColor } from '../../types';
 import type { CuratedBatch } from './index';
 
@@ -386,6 +386,7 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '对所有敌人造成 [魔法 + 4] 点伤害。如果有 1 名敌人身亡，则创造 7 颗骷髅头。',
     build: skill(
       dmg('enemyAll', 4, 1, { range: 'all' }),
+      createSkulls(7, 0, { ifCond: { kind: 'anyTrackedDied' } }),
     ),
   },
   {
@@ -663,6 +664,7 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 7204,
     desc: '创造 8 颗指定盟友的法力颜色的宝石。盟友获得 [魔法] 点护甲值。',
     build: skill(
+      createGems('CHOSEN_TARGET', 8, 0),
       armor('allyAll', 0, 1),
     ),
   },
@@ -757,7 +759,8 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 7240,
     desc: '对 1 名敌人造成 [魔法 + 6] 点伤害，并随机窃取 5 点能力值 。如果目标是妖仙，则造成三倍伤害。',
     build: skill(
-      dmg('enemyChosen', 6, 1),
+      dmg('enemyChosen', 6, 1, { condMult: { times: 3, cond: { kind: 'targetRace', race: 'Fey' } } }),
+      stealRandomStat('lastTarget', 5, 0),
     ),
   },
   {
@@ -780,6 +783,7 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '对所有敌人造成 [魔法 + 1] 点伤害。从每名敌人身上窃取 1 点随机技能值。',
     build: skill(
       dmg('enemyAll', 1, 1, { range: 'all' }),
+      stealRandomStat('enemyAll', 1, 0),
     ),
   },
   {
@@ -805,6 +809,7 @@ const SPELLS: CuratedBatch['spells'] = [
     build: skill(
       reduce('enemyChosen', 'armor', 0, 0, { drainAll: true }),
       dmg('enemyChosen', 1, 1),
+      attack('allySelf', 0, 0, { modifier: { mod: { kind: 'ratio', a: 1, b: 1 }, source: { kind: 'lastReduce' } } }),
     ),
   },
   {
@@ -925,6 +930,7 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '对最后一名敌人造成 [魔法 + 7] 点伤害。如果现有尘风暴，则移除所有绿色的宝石。创造尘风暴。',
     build: skill(
       dmg('enemyLast', 7, 1),
+      destroyColor(BaseColor.Green, { ifCond: { kind: 'stormPresent', color: BaseColor.Brown } }),
       createStorm(BaseColor.Brown),
     ),
   },
@@ -956,6 +962,7 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '对所有敌人造成 [魔法] 点伤害。有 20% 的几率吞噬一名随机敌人。',
     build: skill(
       dmg('enemyAll', 0, 1, { range: 'all' }),
+      devour('enemyRandom', { chance: 0.2 }),
     ),
   },
   {
@@ -973,6 +980,7 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 7295,
     desc: '将一名军队拉到首位。对其造成 [魔法 + 6] 点伤害并将其击晕。',
     build: skill(
+      reposition('enemyChosen', 'front'),
       dmg('lastTarget', 6, 1),
       inflict('stun', 'lastTarget'),
     ),
@@ -1090,7 +1098,10 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 7412,
     desc: '对 1 名敌人施放法力灼烧，伤害值因自身魔法值而增强。燃烧敌人，如果敌人身亡，则转化成一只随机龙族。',
     build: skill(
-      inflict('burning', 'enemyChosen'),
+      drainMana('enemyChosen'),
+      dmg('lastTarget', 0, 0, { modifier: { mod: { kind: 'multiplier', a: 1 }, source: { kind: 'drainedMana' } } }),
+      inflict('burning', 'lastTarget'),
+      transformTroopRandom('lastTarget', ['Sheggra', 'Venoxia', 'ShadowDragon', 'Emperina', 'Celestasia', 'BoneDragon', 'DrakeRider', 'Dimetraxia', 'Wyvern', 'Venbarak', 'Borealis', 'DragonEggs', 'BabyDragon', 'Dragonette', 'Dragotaur', 'Dragonmoth', 'Visk', 'TheDragonSoul', 'Couatl', 'Sylvanimora', 'DRACOS-1337', 'DragonianRogue', 'DragonianMonk', 'SilverDrakon', 'Krystenax', 'Drake', 'Elemaugrim', 'DragonTurtle', 'Asha', 'Leviathan', 'Penglong', 'Glitterclaw', 'TheWorldbreaker', 'Divinia', 'LordEmber', 'LadyGarnetia', 'Tinseltail', 'Shimmerscale', 'Volthrenax', 'Thaumaris', 'Droggo', 'Sylfrostenath', 'MatronDragotani', 'UndeadDrake', 'FellDragonEgg', 'FellDragon', 'Nocturnia', 'Ishtara', 'DragonianSage', 'Obregonia', 'DragonSpirit', 'Essencia', 'Huanglong', 'Veneratus', 'HornedWyrm', 'NetherWyrm', 'TerraWyrm', 'TheGreatWyrm', 'Tihamata', 'RedAhriman', 'TwinkleBerry', 'MagmaDragon', 'Sabellius', 'Adakite', 'Obsidiaxas', 'Sapphirax', 'Emeraldrin', 'Rubirath', 'Topasarth', 'Amethialas', 'Garnetaerlin', 'Diamantina', 'Aquaria', 'TheElderDragon', 'HeraldOfKrystenax', 'TheGuardianDragon', 'CobaltDrake', 'HuntmasterArborius', 'CrystalEggs', 'DragonstoneGuardian', 'TheVoidDragon', 'Comethalas', 'Nebuladryx', 'Meteoridan', 'Solarithus', 'Lunarelleon', 'Eklipsos', 'Stellarix', 'DraconicSentinel', 'Tianlong', 'BrassDrake', 'Venerabilax', 'Chromaticea', 'Kukulkan', 'ImmortalAquaria', 'Leucithrax', 'TheSlimeDragon', 'Bahamata', 'Gingeraxia', 'Belcerulea', 'Gladius', 'Thornaressa', 'Narcithus', 'Orrissea', 'Orchidius', 'Chrysantherax', 'Chargrimax', 'Crackleleaf', 'Mistmother', 'DrakeEggs', 'ImmortalDrakkon', 'CrimsonWyrmling', 'Dragonhawk', 'Amethony', 'Creteus', 'Krakynos', 'Runethius', 'Hematrax', 'Vizinium', 'Demizerius', 'Amenhotrex', 'Pandemonia'], { ifTargetDied: true }),
     ),
   },
   {
@@ -1099,6 +1110,7 @@ const SPELLS: CuratedBatch['spells'] = [
     build: skill(
       randomStat('allyChosen', 1, 1),
       inflict('barrier', 'allyChosen'),
+      mana('allyChosen', 0, 0, { rangeSpec: { min: flat(3), max: flat(15) } }),
     ),
   },
   {
@@ -1365,6 +1377,7 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '造成 [魔法 + 10] 点散射伤害，每锻炼 1 个武器段位则 +4 点伤害值。每有一名蓝色敌人则创造 6 颗混合蓝色和骷髅头的宝石。给予所有盟友 3 点魔法值。如果敌方有劫数，则再增加 5 点。 [x6]',
     build: skill(
       dmg('enemyAll', 10, 1, { range: 'all', modifier: { mod: { kind: 'multiplier', a: 4 }, source: { kind: 'tempering' } } }),
+      createGemsMixAny([BaseColor.Blue, 'SKULL'], 0, 0, { modifier: { mod: { kind: 'multiplier', a: 6 }, source: { kind: 'enemiesOfColor', color: BaseColor.Blue } } }),
       magic('allyAll', 3, 0, { condBonus: { n: 5, cond: { kind: 'targetHasDoom' } } }),
     ),
   },
@@ -1373,6 +1386,7 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '造成 [魔法 + 10] 点散射伤害，每锻炼 1 个武器段位则 +4 点伤害值。每有一名绿色敌人则创造 6 颗混合绿色和骷髅头的宝石。给予所有盟友 3 点魔法值。如果敌方有劫数，则再增加 5 点。 [x6]',
     build: skill(
       dmg('enemyAll', 10, 1, { range: 'all', modifier: { mod: { kind: 'multiplier', a: 4 }, source: { kind: 'tempering' } } }),
+      createGemsMixAny([BaseColor.Green, 'SKULL'], 0, 0, { modifier: { mod: { kind: 'multiplier', a: 6 }, source: { kind: 'enemiesOfColor', color: BaseColor.Green } } }),
       magic('allyAll', 3, 0, { condBonus: { n: 5, cond: { kind: 'targetHasDoom' } } }),
     ),
   },
@@ -1381,6 +1395,7 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '造成 [魔法 + 10] 点散射伤害，每锻炼 1 个武器段位则 +4 点伤害值。每有一名红色敌人则创造 6 颗混合红色和骷髅头的宝石。给予所有盟友 3 点魔法值。如果敌方有劫数，则再增加 5 点。 [x6]',
     build: skill(
       dmg('enemyAll', 10, 1, { range: 'all', modifier: { mod: { kind: 'multiplier', a: 4 }, source: { kind: 'tempering' } } }),
+      createGemsMixAny([BaseColor.Red, 'SKULL'], 0, 0, { modifier: { mod: { kind: 'multiplier', a: 6 }, source: { kind: 'enemiesOfColor', color: BaseColor.Red } } }),
       magic('allyAll', 3, 0, { condBonus: { n: 5, cond: { kind: 'targetHasDoom' } } }),
     ),
   },
@@ -1389,6 +1404,7 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '造成 [魔法 + 10] 点散射伤害，每锻炼 1 个武器段位则 +4 点伤害值。每有一名黄色敌人则创造 6 颗混合黄色和骷髅头的宝石。给予所有盟友 3 点魔法值。如果敌方有劫数，则再增加 5 点。 [x6]',
     build: skill(
       dmg('enemyAll', 10, 1, { range: 'all', modifier: { mod: { kind: 'multiplier', a: 4 }, source: { kind: 'tempering' } } }),
+      createGemsMixAny([BaseColor.Yellow, 'SKULL'], 0, 0, { modifier: { mod: { kind: 'multiplier', a: 6 }, source: { kind: 'enemiesOfColor', color: BaseColor.Yellow } } }),
       magic('allyAll', 3, 0, { condBonus: { n: 5, cond: { kind: 'targetHasDoom' } } }),
     ),
   },
@@ -1397,6 +1413,7 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '造成 [魔法 + 10] 点散射伤害，每锻炼 1 个武器段位则 +4 点伤害值。每有一名紫色敌人则创造 6 颗混合紫色和骷髅头的宝石。给予所有盟友 3 点魔法值。如果敌方有劫数，则再增加 5 点。 [x6]',
     build: skill(
       dmg('enemyAll', 10, 1, { range: 'all', modifier: { mod: { kind: 'multiplier', a: 4 }, source: { kind: 'tempering' } } }),
+      createGemsMixAny([BaseColor.Purple, 'SKULL'], 0, 0, { modifier: { mod: { kind: 'multiplier', a: 6 }, source: { kind: 'enemiesOfColor', color: BaseColor.Purple } } }),
       magic('allyAll', 3, 0, { condBonus: { n: 5, cond: { kind: 'targetHasDoom' } } }),
     ),
   },

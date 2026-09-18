@@ -66,6 +66,11 @@ export interface ReduceParams {
   condMult?: CondMult;
   /** 条件加成（加算；先加后乘） */
   condBonus?: CondBonus;
+  /**
+   * 数值区间（R22 批，8356「耗掉他们 1-3 点法力值」CountRange）：与 scaling 二选一，
+   * 每段掷签一次，区间内所有目标共用同值；给出时忽略 condBonus/condMult。
+   */
+  rangeSpec?: { min: ScalingSpec; max: ScalingSpec };
 }
 
 /** 施法者获得窃取所得（走 buffOne 口径：上限夹取、织网拦截、治疗修正） */
@@ -88,7 +93,14 @@ export function reduceEffect(params: ReduceParams): EffectPrimitive {
 
       const base = params.drainAll
         ? Number.POSITIVE_INFINITY
-        : evaluateWithModifier(evaluateScaling(scaling, casterMagic(ctx)), params.modifier, ctx);
+        : (params.rangeSpec
+          ? (() => {
+            // 数值区间（R22 批）：每段掷签一次，区间内所有目标共用同值
+            const lo = evaluateWithModifier(evaluateScaling(params.rangeSpec!.min, casterMagic(ctx)), params.modifier, ctx);
+            const hi = evaluateWithModifier(evaluateScaling(params.rangeSpec!.max, casterMagic(ctx)), params.modifier, ctx);
+            return hi <= lo ? lo : lo + ctx.rng.nextInt(hi - lo + 1);
+          })()
+          : evaluateWithModifier(evaluateScaling(scaling, casterMagic(ctx)), params.modifier, ctx));
       const events: GameEvent[] = [];
       let drainedTotal = 0;
       // 实际削减总额（Wave4 批 lastReduce 跨段绑定）：所有属性/目标/步的 removed 累加，

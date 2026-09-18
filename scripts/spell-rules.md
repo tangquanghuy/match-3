@@ -400,3 +400,63 @@
    机翻词序；「获得一个随机正面状态效果」＝自身随机正面（inflictRandom pool positive，9211）；
    「每有一名X敌人则给予所有盟友 N 点属性」＝计数增幅全体增益（7982/8047）；
    classify 的 doom 特征排除「末日骷髅头」子串误配。
+
+## §14.6 K-B 收官轮（第六轮，2026-09-19；分布 610/96/12 → 683/27/8）
+
+> 窗口 K 授权动 src/engine（台账 K-B 六轮行）：builders.ts（anyEnemyDied / transformToSpecial
+> spec 形态 + opts.tier / 六个清除构造器补 opts）、effects/gems.ts（toSpecial spec 形态）、
+> prototypes.ts 零改动（ifCond/anyTrackedDied 既有管线通用）。生成器接线 + 解析长尾，
+> 零降级（无一带既 full 降 partial）：
+
+1. **anyEnemyDied 条件（6 把）**：EN 考证「If an Enemy dies, …」（7117/7861/8075/8076/9629/9903）
+   ＝**本咒语执行中任一敌人被击杀**（即时死亡判定），非「本战斗曾有敌人阵亡」——与 R22 已落地的
+   `anyTrackedDied`（9986/9812/7747「若有敌人死亡」先例，读跨段追踪 allTargets）完全同口径。
+   故**不新增 Condition kind**：builders.anyEnemyDied() = `{ kind: 'anyTrackedDied' }` 专名形态，
+   配 opts.ifCond 消费。无量词裸形「如果敌人身亡，则X」仍走 ifTargetDied（追踪主目标）。
+2. **createMix 特殊宝石端点（9 把）**：引擎 createGemsMixAny（R22 mixAny）本已支持
+   色/'SKULL'/SpecialGemSpec 三类端点——本轮生成器接线：混合句端点逐个解析（色优先，骷髅头
+   →'SKULL'，matchSpecialGem→spec；纯色并集仍走既有 createMix 形态，旧批次产物不变）。
+   7655-7660「每有一名X色敌人则创造 N 颗混合X色和骷髅头的宝石」＝**base 0 × enemiesOfColor**
+   倍率（官方「N per Enemy」总数口径；尾部 [xN] 即 gowhead 对每名 N 颗的编码，与句内 N 同值）。
+3. **TransformOpts tier 通道（8966）**：TransformGemParams.toSpecial 扩为
+   `SpecialGemKind | SpecialGemSpec`（对齐 createSpecialGems spec 形态）；transformToSpecial
+   增 opts.tier、TransformOpts.tier。「将选定的法力宝石转换为 x3 通配符」＝
+   `transformToSpecial('CELL', { kind: 'wildcard', tier: 3 })`——「选定的法力宝石」＝玩家点选
+   单格（CELL，9638 先例）；「选定(敌人一个法力)颜色」＝运行时选色（CHOSEN），两种「选定」
+   选择器不同。**护栏**：不带 tier 的既有调用序列化为 kind 字符串形态，rng 序列逐字节不变
+   （weaponPrimitives 护栏测试：builder 产物 vs 裸段字面量同 seed 事件流一致）。
+4. **条件化清除段（6 把）**：destroyColor/explodeColor/destroySkulls/explodeSkulls/
+   destroySpecialGems/explodeSpecialGems 六构造器补 opts 形参（此前 NO_OPTS_RE 拒绝）——
+   段级 ifCond 经既有 attach/runSegment 全局条件管线生效。7286「如果现有尘风暴，则移除所有
+   绿色的宝石」、7955「若敌方有魔头，则爆破所有红色宝石」、9381/9486/9809/9983「若队伍里有
+   永生神X，则引爆所有Y宝石」全族回收。
+5. **陈旧拒绝回收**（引擎原语已在、生成器口径未更——逐条核对 builders 注释后接线）：
+   随机属性削减 → stealRandomStat/reduce stat=random（R12；7240/7244/8440）；「获得等同于
+   减除的护甲值的攻击力」→ lastReduce 跨段来源（Wave4；7247/7752/7756-7759/7799，含
+   「获得 等同于减除的X 的 属性」倒装语序）；逐摧毁宝石触发状态 → perDestroyed（Wave4；
+   8518/8965）；吞噬 → devour（R22；7293）；「选择一宝石摧毁其行和列」→ destroyChosenCross
+   （R22；8721——此前误记 line-of-gem 缺口）；石块计数/创造 → boardSpecial/createSpecialGems
+   stoneBlock（8769）；「可摧毁所选颜色的宝石」→ destroyColor(CHOSEN)（8400）。
+6. **王国改名考证**（K-B 收官重要发现）：官方 2025 改名——双语 dump（data/raw 两份按
+   troop Id 配对）核实 **Zaejin→Amanithrax（zh=齐埃金）、Hellcrag→Obsidian Depths
+   （zh=地狱悬崖）、Grosh-Nak→Dripping Caverns（zh=葛洛什奈克）、Divinion Fields=卜筮之原**。
+   机翻译名归一：毒菇林→齐埃金、滴答洞穴→葛洛什奈克、黑曜石深渊→地狱悬崖、圣力场→卜筮之原、
+   荒野平原→狂野平原（狂→荒机翻）、潘之谷→潘神之谷、银林地→玉银林地、狐狸座→沃尔帕克。
+7. **具名族召唤**（batch-08 全视之眼先例）：小鬼=Imp 族（夏/秋/冬/春/万圣 5 只）、
+   科博=Kobold 族（科博/骑士/法师/使者/小偷 5 只）→ NAMED_GROUP_REFS 固定清单均匀随机。
+8. **其余小裁定**：电风暴=Yellow（8409 Electrostorm；GoW 元素 Yellow=风/空气，与光=Yellow
+   同色系）；「使所有受影响的敌人流血」→ lastDamaged 目标模式（9566）；「对使用所选定法力
+   宝石颜色的每一名敌人…」→ enemyAll + ifCond targetColor CHOSEN（7862/8152/9831）；「燃烧
+   敌人，如果敌人身亡，则转化成一只随机龙族」→ lastTarget + ifTargetDied 转化（7412）；法力
+   灼烧 = drainMana + dmg×drainedMana（官方 Mana Burn 主语义；zh「伤害值因自身魔法值而增强」
+   与主源争用单 modifier 通道 → 诚实略去）；「使他们下潜」→ 沿用上文盟友目标（8076）；
+   「-{2}」MT 残渣剥除、「对多→最多」、「使用了→使用」、孤立「色」子句噪声丢弃（7722）；
+   mt-garbage 剥除后不再计特征（9524/9525 区间可解析）。
+9. **诚实余量（27 partial + 8 mana-only 全清单核因）**：见 meta skippedClauses——机翻占位符
+   {1}（7071/7129）、stat 翻倍（7188/7199）、基数取目标属性（7190）、随机宝石所在行（7217）、
+   「另一名敌人」目标模式（7285）、「敌方高塔」来源（7800）、「其他所有敌人」（7754）、
+   随机状态条数区间（7986/7996/9910）、区间调位（8074）、全状态池授予（8084）、终止风暴
+   （8153）、「石墩激活」盘上触发（8400）、斜方宝石转化（8762）、列内计数（8805/8988）、
+   「一颗 2」机翻垃圾（8806）、dispel-all（7753/9378）、反向属性比较（7192/7755/8450）、
+   诅咒 vague（9985）、随机风暴（7492）、法力灼烧第二来源（7412）、满额幼龙（7567）、
+   EN-only 快照 3（10045/10063/10065）、7815 双条件加成超单 condBonus 通道（诚实 partial）。**不为凑数硬收。**

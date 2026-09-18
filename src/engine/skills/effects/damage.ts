@@ -50,6 +50,12 @@ export interface DamageParams {
   execute?: boolean;
   /** 分摊（「伤害分摊给至多 {N} 名敌人」）：掷一次总额，均分给前 N 名存活敌人（余数给靠前者） */
   split?: number;
+  /**
+   * 随机分摊（R22 批，7207「再造成 8 点伤害，随机分配给所有敌人」）：掷一次总额后按
+   * 随机切点分给**全部**存活敌人（与 split 的"均分给前 N 名"不同——分配方式随机、
+   * 覆盖全体）。modifier 在总额上照常生效。
+   */
+  splitRandom?: boolean;
 }
 
 interface ChainMeta {
@@ -245,6 +251,32 @@ export function damageEffect(params: DamageParams): EffectPrimitive {
         const based = amount + condBonusValue(params.condBonus, ctx, victim);
         return based * raceFactor * condMultiplier(params.condMult, ctx, victim);
       };
+
+      if (params.splitRandom) {
+        // 随机分摊（R22 批，7207）：总额掷定后按随机切点分给全部存活敌人（确定性切点法：
+        // 在 [0, total] 上取 n-1 个有序随机数作累积边界，差值即各目标份额，可能为 0）
+        const mySide = findSide(ctx.state, ctx.casterId);
+        if (mySide === null) return [];
+        const enemySide = mySide === PlayerSide.Left ? PlayerSide.Right : PlayerSide.Left;
+        const victims = ctx.state.teams[enemySide].characters.filter((c) => !c.defeated);
+        if (victims.length === 0) return [];
+        const total = evaluateWithModifier(evaluateScaling(scaling, casterMagic(ctx)), params.modifier, ctx);
+        if (total <= 0) return [];
+        const cuts: number[] = [];
+        for (let i = 0; i < victims.length - 1; i++) cuts.push(ctx.rng.nextInt(total + 1));
+        cuts.sort((a, b) => a - b);
+        const shares: number[] = [];
+        let prev = 0;
+        for (const cut of [...cuts, total]) {
+          shares.push(cut - prev);
+          prev = cut;
+        }
+        const events: GameEvent[] = [];
+        victims.forEach((victim, i) => {
+          if (shares[i] > 0) events.push(...damageOne(victim, ctx.casterId, shares[i], trueDamage, 'single', undefined, caster));
+        });
+        return events;
+      }
 
       if (params.split !== undefined && params.split > 0) {
         const mySide = findSide(ctx.state, ctx.casterId);

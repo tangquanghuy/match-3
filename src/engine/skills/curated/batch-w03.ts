@@ -8,7 +8,7 @@
  * src/data/weapon-skill-meta.json）。组装规则锚定 scripts/spell-rules.md 与
  * 既有部队批次先例；生成器 scripts/_weapon_pools.mjs gen。
  */
-import { armor, attack, cleanse, createGems, createMix, createSpecialGems, createStorm, destroyChosenCol, destroyChosenRow, destroyColor, destroyRandomCols, dmg, dmgSplash, explodeChosenCol, explodeChosenRow, explodeRandomGems, extraTurn, gainGold, heal, inflict, inflictRandom, magic, mana, oneOf, reduce, reposition, shuffleTeam, skill, steal, summonRandom, summonRandomOfKingdom, transform, transformToSpecial, trueDmg, CHOSEN } from '../builders';
+import { armor, attack, cleanse, createGems, createGemsMixAny, createMix, createSpecialGems, createStorm, destroyArea, destroyChosenCol, destroyChosenRow, destroyColor, destroyRandomCols, destroyRandomGems, dmg, dmgSplash, explodeChosenCol, explodeChosenRow, explodeRandomGems, extraTurn, gainGold, heal, inflict, inflictRandom, magic, mana, oneOf, reduce, reposition, shuffleTeam, skill, steal, summonRandom, summonRandomOfKingdom, transform, transformToSpecial, trueDmg, CHOSEN } from '../builders';
 import { BaseColor } from '../../types';
 import type { CuratedBatch } from './index';
 
@@ -20,13 +20,14 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '从所有敌人中清空两个玛那，石墩激活。可摧毁所选颜色的宝石。 [1:1]',
     build: skill(
       reduce('enemyAll', 'mana', 2, 0),
+      destroyColor(CHOSEN),
     ),
   },
   {
     id: 8401,
     desc: '对一名敌人造成 [魔法 + 2] 点伤害，伤害值因自身灵魂数而增强。 [1:1]',
     build: skill(
-      dmg('enemyChosen', 2, 1),
+      dmg('enemyChosen', 2, 1, { modifier: { mod: { kind: 'ratio', a: 1, b: 1 }, source: { kind: 'battleSouls' } } }),
     ),
   },
   {
@@ -61,6 +62,8 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '对一名敌人造成 [魔法 + 6] 点伤害。若有机械盟友，则先消除敌人 30 点护甲值。召唤一个电风暴。',
     build: skill(
       dmg('enemyChosen', 6, 1),
+      reduce('enemyChosen', 'armor', 30, 0, { ifCond: { kind: 'allyRacePresent', race: 'Mech' } }),
+      createStorm(BaseColor.Yellow),
     ),
   },
   {
@@ -118,6 +121,7 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 8440,
     desc: '消除 [魔法 + 1] 点随机技能值，再使一名敌人陷入诅咒、死亡标记和疾病状态。',
     build: skill(
+      reduce('lastTarget', 'random', 1, 1),
       inflict('curse', 'enemyChosen'),
       inflict('death-mark', 'enemyChosen'),
       inflict('disease', 'enemyChosen'),
@@ -266,7 +270,7 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '对最末位的敌人造成 [魔法 + 4] 点伤害。再获得一个额外回合或召唤一名随机科博。',
     build: skill(
       dmg('enemyLast', 4, 1),
-      extraTurn(),
+      oneOf([extraTurn()], [summonRandom(['Kobold', 'KoboldKnight', 'KoboldMagi', 'KoboldEmissary', 'KoboldThief'], undefined)]),
     ),
   },
   {
@@ -402,6 +406,7 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '摧毁一行。每摧毁一颗紫色宝石则燃烧一名随机敌人。 [1:1]',
     build: skill(
       destroyChosenRow(),
+      inflict('burning', 'enemyRandom', { perDestroyed: { color: BaseColor.Purple } }),
     ),
   },
   {
@@ -429,6 +434,14 @@ const SPELLS: CuratedBatch['spells'] = [
     ),
   },
   {
+    id: 8529,
+    desc: '摧毁 [魔法 + 1] 颗敌人队伍使用对多的颜色宝石。召唤一名随机滴答洞穴军队。',
+    build: skill(
+      destroyRandomGems(1, 1, 'color', 'ENEMY_MOST_USED'),
+      summonRandomOfKingdom('葛洛什奈克', undefined),
+    ),
+  },
+  {
     id: 8554,
     desc: '对一名敌人造成 [魔法 + 4] 点伤害。再将他其中一个法力颜色的 3 颗宝石转换成狼化宝石。',
     build: skill(
@@ -446,9 +459,17 @@ const SPELLS: CuratedBatch['spells'] = [
     ),
   },
   {
+    id: 8577,
+    desc: '创建 3-8 颗拥有各种翻倍量的通配宝石。',
+    build: skill(
+      createSpecialGems({ kind: 'wildcard' }, 3, 0),
+    ),
+  },
+  {
     id: 8578,
     desc: '制造 3 种药水，蓝色、绿色、红色、黄色或紫色。可获得额外的回合。',
     build: skill(
+      createGemsMixAny([{ kind: 'manaPotionGem', color: BaseColor.Blue }, { kind: 'manaPotionGem', color: BaseColor.Green }, { kind: 'manaPotionGem', color: BaseColor.Red }, { kind: 'manaPotionGem', color: BaseColor.Yellow }, { kind: 'manaPotionGem', color: BaseColor.Purple }], 3, 0),
       extraTurn(),
     ),
   },
@@ -618,8 +639,8 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '爆破 [魔法 + 1] 颗紫色宝石。赋予所有玉银林地盟友一个随机正面增益效果。再召唤一名玉银林地军队。',
     build: skill(
       explodeRandomGems(1, 1, 'color', BaseColor.Purple),
-      inflictRandom('allyAll', { targetKingdom: '玉银林地' }),
-      summonRandomOfKingdom('玉银林地', undefined),
+      inflictRandom('allyAll', { targetKingdom: '玉玉玉银林地' }),
+      summonRandomOfKingdom('玉玉银林地', undefined),
     ),
   },
   {
@@ -744,6 +765,7 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 8721,
     desc: '选择一宝石，摧毁其行和列。再创造 6 颗炸弹宝石，并造成 [魔法 + 6] 点散射伤害。',
     build: skill(
+      { kind: 'gem', params: { op: 'clear', mode: 'destroy', target: { kind: 'chosenCross' } } },
       createSpecialGems({ kind: 'bomb' }, 6, 0),
     ),
   },
@@ -876,7 +898,8 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 8769,
     desc: '对一名敌人造成 [魔法 + 3] 点真实伤害，伤害值因石块数量而增强。再创建 4 颗石块。 [x2]',
     build: skill(
-      trueDmg('enemyChosen', 3, 1, { trueDamage: true }),
+      trueDmg('enemyChosen', 3, 1, { trueDamage: true, modifier: { mod: { kind: 'multiplier', a: 2 }, source: { kind: 'boardSpecial', gem: 'stoneBlock' } } }),
+      createSpecialGems({ kind: 'stoneBlock' }, 4, 0),
     ),
   },
   {
@@ -1002,6 +1025,7 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '爆破 [魔法 + 1] 颗宝石。再召唤一名黑曜石深渊军队。',
     build: skill(
       explodeRandomGems(1, 1, 'color'),
+      summonRandomOfKingdom('地狱悬崖', undefined),
     ),
   },
   {
@@ -1110,6 +1134,7 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 8900,
     desc: '&& 选定敌人一个法力颜色，将所有此法力颜色的宝石转换成灵力宝石。&&对一名敌人造成 [魔法 + 2] 点伤害，伤害值因灵力宝石数而增强。  [x4]',
     build: skill(
+      transformToSpecial('CHOSEN', 'spiritGem'),
       dmg('enemyChosen', 2, 1, { modifier: { mod: { kind: 'multiplier', a: 4 }, source: { kind: 'boardSpecial', gem: 'spiritGem' } } }),
     ),
   },
@@ -1239,6 +1264,21 @@ const SPELLS: CuratedBatch['spells'] = [
       explodeRandomGems(1, 1, 'color', BaseColor.Purple),
       inflictRandom('allyAll', { targetRace: 'Dragon' }),
       summonRandom(['Sheggra', 'Venoxia', 'ShadowDragon', 'Emperina', 'Celestasia', 'BoneDragon', 'DrakeRider', 'Dimetraxia', 'Wyvern', 'Venbarak', 'Borealis', 'DragonEggs', 'BabyDragon', 'Dragonette', 'Dragotaur', 'Dragonmoth', 'Visk', 'TheDragonSoul', 'Couatl', 'Sylvanimora', 'DRACOS-1337', 'DragonianRogue', 'DragonianMonk', 'SilverDrakon', 'Krystenax', 'Drake', 'Elemaugrim', 'DragonTurtle', 'Asha', 'Leviathan', 'Penglong', 'Glitterclaw', 'TheWorldbreaker', 'Divinia', 'LordEmber', 'LadyGarnetia', 'Tinseltail', 'Shimmerscale', 'Volthrenax', 'Thaumaris', 'Droggo', 'Sylfrostenath', 'MatronDragotani', 'UndeadDrake', 'FellDragonEgg', 'FellDragon', 'Nocturnia', 'Ishtara', 'DragonianSage', 'Obregonia', 'DragonSpirit', 'Essencia', 'Huanglong', 'Veneratus', 'HornedWyrm', 'NetherWyrm', 'TerraWyrm', 'TheGreatWyrm', 'Tihamata', 'RedAhriman', 'TwinkleBerry', 'MagmaDragon', 'Sabellius', 'Adakite', 'Obsidiaxas', 'Sapphirax', 'Emeraldrin', 'Rubirath', 'Topasarth', 'Amethialas', 'Garnetaerlin', 'Diamantina', 'Aquaria', 'TheElderDragon', 'HeraldOfKrystenax', 'TheGuardianDragon', 'CobaltDrake', 'HuntmasterArborius', 'CrystalEggs', 'DragonstoneGuardian', 'TheVoidDragon', 'Comethalas', 'Nebuladryx', 'Meteoridan', 'Solarithus', 'Lunarelleon', 'Eklipsos', 'Stellarix', 'DraconicSentinel', 'Tianlong', 'BrassDrake', 'Venerabilax', 'Chromaticea', 'Kukulkan', 'ImmortalAquaria', 'Leucithrax', 'TheSlimeDragon', 'Bahamata', 'Gingeraxia', 'Belcerulea', 'Gladius', 'Thornaressa', 'Narcithus', 'Orrissea', 'Orchidius', 'Chrysantherax', 'Chargrimax', 'Crackleleaf', 'Mistmother', 'DrakeEggs', 'ImmortalDrakkon', 'CrimsonWyrmling', 'Dragonhawk', 'Amethony', 'Creteus', 'Krakynos', 'Runethius', 'Hematrax', 'Vizinium', 'Demizerius', 'Amenhotrex', 'Pandemonia'], undefined),
+    ),
+  },
+  {
+    id: 8965,
+    desc: '摧毁 X 形宝石。每摧毁一颗黄色宝石，即可祝福一名随机盟友。 [1:1]',
+    build: skill(
+      destroyArea('x', 'destroy'),
+      inflict('blessed', 'allyRandom', { perDestroyed: { color: BaseColor.Yellow } }),
+    ),
+  },
+  {
+    id: 8966,
+    desc: '将选定的法力宝石转换为 x3 通配符。',
+    build: skill(
+      transformToSpecial('CELL', { kind: 'wildcard', tier: 3 }),
     ),
   },
   {
@@ -1441,6 +1481,7 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 9110,
     desc: '创造 15 颗混合蓝色和骷髅头的宝石。有 25% 的几率获得一个额外回合，几率因陷入恐怖状态的敌人数而增强。 [x2]',
     build: skill(
+      createGemsMixAny([BaseColor.Blue, 'SKULL'], 15, 0),
       extraTurn({ chance: 0.25, chanceBoost: { mod: { kind: 'multiplier', a: 2 }, source: { kind: 'enemyStatusCount', statusId: 'terror' } } }),
     ),
   },
@@ -1449,7 +1490,7 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '移除所有棕色宝石。对一名敌人造成 [魔法 + 5] 点伤害，伤害值因被移除的宝石数而增强。若敌人来自午夜城市或战斗位于午夜城市，则伤害翻倍。 [3:1]',
     build: skill(
       destroyColor(BaseColor.Brown),
-      dmg('enemyChosen', 5, 1, { modifier: { mod: { kind: 'ratio', a: 3, b: 1 }, source: { kind: 'destroyedGems' } } }),
+      dmg('enemyChosen', 5, 1, { modifier: { mod: { kind: 'ratio', a: 3, b: 1 }, source: { kind: 'destroyedGems' } }, condMult: { times: 2, cond: { kind: 'kingdomOf', side: 'enemy', kingdom: '午夜城市或战斗位于午夜城市' } } }),
     ),
   },
   {
@@ -1482,36 +1523,6 @@ const SPELLS: CuratedBatch['spells'] = [
       explodeRandomGems(1, 1, 'color', BaseColor.Brown),
       inflictRandom('allyAll', { targetKingdom: '聚沙之地' }),
       summonRandomOfKingdom('聚沙之地', undefined),
-    ),
-  },
-  {
-    id: 9143,
-    desc: '对一名敌人造成 [魔法 + 4] 点伤害，伤害值因绿色盟友和人马族盟友数而增强。 [x3]',
-    build: skill(
-      dmg('enemyChosen', 4, 1, { modifier: { mod: { kind: 'multiplier', a: 3 }, sources: [{ kind: 'alliesOfColor', color: BaseColor.Green }, { kind: 'alliesOfRace', race: 'Centaur' }] } }),
-    ),
-  },
-  {
-    id: 9144,
-    desc: '对首 2 位敌人造成 [魔法 + 3] 点伤害，伤害值因妖仙盟友数而增强。 [x3]',
-    build: skill(
-      dmg('enemyFirstN', 3, 1, { n: 2, modifier: { mod: { kind: 'multiplier', a: 3 }, source: { kind: 'alliesOfRace', race: 'Fey' } } }),
-    ),
-  },
-  {
-    id: 9145,
-    desc: '爆破 [魔法 + 1] 颗绿色宝石。赋予所有蛛尔卡里盟友一个随机正面增益效果。再召唤一名蛛尔卡里军队。',
-    build: skill(
-      explodeRandomGems(1, 1, 'color', BaseColor.Green),
-      inflictRandom('allyAll', { targetKingdom: '蛛尔卡里' }),
-      summonRandomOfKingdom('蛛尔卡里', undefined),
-    ),
-  },
-  {
-    id: 9146,
-    desc: '对一名敌人造成 [魔法 + 4] 点伤害，伤害值因黄色盟友和鸟族盟友数而增强 。 [x3]',
-    build: skill(
-      dmg('enemyChosen', 4, 1, { modifier: { mod: { kind: 'multiplier', a: 3 }, sources: [{ kind: 'alliesOfColor', color: BaseColor.Yellow }, { kind: 'alliesOfRace', race: 'Stryx' }] } }),
     ),
   },
 ];

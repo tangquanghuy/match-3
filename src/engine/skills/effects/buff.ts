@@ -53,6 +53,12 @@ export interface BuffParams {
   condMult?: CondMult;
   /** 条件加成（加算；先加后乘） */
   condBonus?: CondBonus;
+  /**
+   * 数值区间（R22 批，「给予 3-8 点法力值」GenerateRandomMana / 8055「获得 [M+4]–[(Mx2)+8]
+   * 点护甲值」）：与 scaling 二选一，每段掷签一次（min/max 各自按魔力求值后区间取整），
+   * 命中区间内所有目标共用同值。给出时忽略 condBonus/condMult。
+   */
+  rangeSpec?: { min: ScalingSpec; max: ScalingSpec };
 }
 
 /**
@@ -172,7 +178,15 @@ export function buffEffect(params: BuffParams): EffectPrimitive {
       const { targets, stat, scaling } = params;
       if (targets.length === 0) return []; // 无目标安全跳过
 
-      const base = evaluateWithModifier(
+      // 数值区间（R22 批）：每段掷签一次，区间内所有目标共用同值（GenerateRandomMana 口径）
+      let rolled: number | null = null;
+      if (params.rangeSpec) {
+        const lo = evaluateWithModifier(evaluateScaling(params.rangeSpec.min, casterMagic(ctx)), params.modifier, ctx);
+        const hi = evaluateWithModifier(evaluateScaling(params.rangeSpec.max, casterMagic(ctx)), params.modifier, ctx);
+        rolled = hi <= lo ? lo : lo + ctx.rng.nextInt(hi - lo + 1);
+      }
+
+      const base = rolled ?? evaluateWithModifier(
         evaluateScaling(scaling, casterMagic(ctx)),
         params.modifier,
         ctx,
@@ -193,7 +207,10 @@ export function buffEffect(params: BuffParams): EffectPrimitive {
         }
         // 种族条件翻倍：按受益者逐个判定（群体段中仅该族目标翻倍）
         const raceFactor = params.raceDouble && hasTroopType(target, params.raceDouble) ? (params.raceTimes ?? DEFAULT_RACE_DOUBLE) : 1;
-        let amount = (base + condBonusValue(params.condBonus, ctx, target)) * raceFactor * condMultiplier(params.condMult, ctx, target);
+        // 数值区间段为终值口径（R22 批）：不再叠加 condBonus/condMult
+        let amount = rolled !== null
+          ? base * raceFactor
+          : (base + condBonusValue(params.condBonus, ctx, target)) * raceFactor * condMultiplier(params.condMult, ctx, target);
         if (params.full && stat === 'hp') amount = Number.POSITIVE_INFINITY;
         const applied = buffOne(target, stat, amount);
         // 仅在实际发生变更时发事件（如满血治疗不产生 0 事件噪声）

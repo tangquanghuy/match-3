@@ -12,7 +12,7 @@
  *
  * 纯逻辑：无 pixi/gsap/dom 依赖。
  */
-import { isSameMatchType, colorGem, skullGem, PlayerSide } from '../../types';
+import { isSameMatchType, colorGem, skullGem, PlayerSide, ALL_BASE_COLORS } from '../../types';
 import type { SpecialGemKind, SkullStormDropKind } from '../../types';
 import type { BaseColor, Character } from '../../types';
 import type { SecondaryModifier } from '../scaling';
@@ -23,12 +23,17 @@ import { findCharacter, findSide } from './context';
  * 二次缩放来源。color 字段为 undefined 表示不筛颜色（任意色/全体）。
  */
 export type ModifierSource =
-  /** 本技能前序段直接摧毁（destroy/explode）的宝石数，可筛颜色 */
-  | { kind: 'destroyedGems'; color?: BaseColor }
+  /** 本技能前序段直接摧毁（destroy/explode）的宝石数，可筛颜色；
+   *  R22 批：skulls=true 筛普通骷髅族（「因该行被摧毁的骷髅头数而增强」，7388/7977/8812/9492）、
+   *  special 筛指定特殊宝石 kind（「因被摧毁的石像鬼宝石数而增强」，8927） */
+  | { kind: 'destroyedGems'; color?: BaseColor; skulls?: boolean; special?: SpecialGemKind }
   /** 本技能前序段直接转化（transform）的宝石数，可筛颜色（按转化后的颜色计） */
   | { kind: 'transformedGems'; color?: BaseColor }
-  /** 当前棋盘上某色宝石数（在段执行时刻读取） */
-  | { kind: 'boardGems'; color?: BaseColor }
+  /** 当前棋盘上某色宝石数（在段执行时刻读取）。R22 批：color 亦可为 'CHOSEN'（运行时取
+   *  ctx.chosenColor，未选色按 0 计；8060「创造与此色宝石数等量」/ 8355「使选定色宝石数翻倍」）
+   *  与 'ENEMY_MOST_USED'（9364「几率随敌人最常用法力色的宝石数增强」）；except 排除某色
+   *  （8464 口径备用，本批未消费）。 */
+  | { kind: 'boardGems'; color?: BaseColor | 'CHOSEN' | 'ENEMY_MOST_USED'; except?: BaseColor }
   /** 当前棋盘上的骷髅头数（含末日族，经 isSameMatchType 同族判定） */
   | { kind: 'boardSkulls' }
   /** 当前棋盘上指定种类的特殊宝石数（「因炸弹宝石数而增强」） */
@@ -51,16 +56,38 @@ export type ModifierSource =
   | { kind: 'alliesOfColor'; color: BaseColor }
   /** 敌方关联指定法力色的存活敌人数（「因红色敌人（的数量）而增强」，R13 批；与 alliesOfColor 对称） */
   | { kind: 'enemiesOfColor'; color: BaseColor }
-  /** 敌方处于指定状态的存活人数 */
-  | { kind: 'enemyStatusCount'; statusId: string }
+  /** 敌方处于指定状态的存活人数；R22 批 statusId 可缺省 = 任意状态（「因身负状态效果的
+   *  敌人数而增强」，8581「每有一名敌人陷入状态效果」） */
+  | { kind: 'enemyStatusCount'; statusId?: string }
   /** 己方处于指定状态的存活人数（「因下潜的盟友数而增强」） */
   | { kind: 'allyStatusCount'; statusId: string }
-  /** 敌方全体的某属性总和（hp=当前生命） */
-  | { kind: 'enemyStatSum'; stat: 'attack' | 'armor' | 'hp' | 'magic' }
-  /** 施法方全体的某属性总和（hp=当前生命） */
-  | { kind: 'allyStatSum'; stat: 'attack' | 'armor' | 'hp' | 'magic' }
-  /** 最近目标段的当前主目标属性 */
-  | { kind: 'targetStat'; stat: 'attack' | 'armor' | 'hp' | 'magic' }
+  /** 敌方全体的某属性总和（hp=当前生命；R22 批 stat 增 mana、color 筛法力色——
+   *  8367「因所有红色敌人的法力值而增强」） */
+  | { kind: 'enemyStatSum'; stat: 'attack' | 'armor' | 'hp' | 'magic' | 'mana'; color?: BaseColor }
+  /** 施法方全体的某属性总和（hp=当前生命；R22 批 stat 增 mana、excludeSelf=true 排除施法者
+   *  ——7506「因其他盟友的魔法值」/ 7651「因其他所有盟友的法力值」口径） */
+  | { kind: 'allyStatSum'; stat: 'attack' | 'armor' | 'hp' | 'magic' | 'mana'; excludeSelf?: boolean }
+  /** 最近目标段的当前主目标属性（R22 批 stat 增 missingHp / manaCost：7464/7472 目标侧补齐，
+   *  与 selfStat 侧对齐） */
+  | { kind: 'targetStat'; stat: 'attack' | 'armor' | 'hp' | 'magic' | 'missingHp' | 'manaCost' }
+  /** 本次释放玩家手动选定目标（ctx.chosenTargetId）的当前属性（R22 批，8659「造成等同于
+   *  其（指定敌人）攻击力的伤害，再对上方敌人造成同等伤害」——同额跨段引用选定的那名敌人，
+   *  不受后段目标解析冲掉 lastTarget 影响） */
+  | { kind: 'chosenStat'; stat: 'attack' | 'armor' | 'hp' | 'magic' }
+  /**
+   * 本技能最近一个伤害段实际造成的伤害总额（R22 批，7274「数值因造成的伤害而增强」/
+   * 9571「并将其作为生命赋予最弱的盟友」）：damage 原语结算把本段 skill-damage 事件总额
+   * 记入 castTracking.lastDamage（每段整体覆写，lastReduce 同款「最近一段」语义）。
+   */
+  | { kind: 'lastDamage' }
+  /** 敌方生命/法力值满值的存活人数（R22 批，官方 CountEnemiesFullMana——8406/7808「每有
+   *  一名法力值满值的敌人」「因生命值和法力值满值的敌军数而增强」）：hp/mana 各自开关，
+   *  都缺省 = 只看法力满值；都给 = 同时满足才计（满判定：hp≥maxHp、mana≥manaCost）。 */
+  | { kind: 'enemyFull'; hp?: boolean; mana?: boolean }
+  /** 施法者属性高于最近目标的三围/生命计数（R22 批，7812「自身每高于敌方一个技能即窃取
+   *  3 点魔法」）：逐围（attack/armor/magic/hp 四围，randomStat 同一口径）比较 caster>target
+   *  计数，供 multiplier 消费。 */
+  | { kind: 'casterStatBeatsCount' }
   /** 本技能前序段耗掉的敌方法力总和 */
   | { kind: 'drainedMana' }
   /**
@@ -135,6 +162,9 @@ export type Condition =
    *  运行时取 ctx.chosenColor，未选色 → 条件对任何目标不成立、整段安全跳过） */
   | { kind: 'targetColor'; color: BaseColor | 'CHOSEN' }
   | { kind: 'targetStatus'; statusId: string }
+  /** 目标身负任意状态（R22 批，7263「如果敌人陷入某状态效果」/ 7935「若敌人身负状态效果」——
+   *  任意状态存在判定，与按 id 的 targetStatus 区分）。目标相对条件。 */
+  | { kind: 'targetHasAnyStatus' }
   | { kind: 'targetHpDamaged' }
   | { kind: 'selfHpDamaged' }
   | { kind: 'boardAtLeast'; color?: BaseColor; n: number }
@@ -217,7 +247,28 @@ export type Condition =
    * 探索/入侵 = 当前王国、竞技场 = null）。字段缺省或为 null（旧请求/竞技场口径）时恒为假，
    * 条件 kingdom 需与之严格相等。全局条件整段判定。
    */
-  | { kind: 'kingdomPresent'; kingdom: string };
+  | { kind: 'kingdomPresent'; kingdom: string }
+  /** 最近产目标段的主目标带有该状态（R22 批全局条件，读跨段追踪 lastTarget——7541「如果
+   *  敌人已陷入猎人标记状态…获得一个额外回合」、8276 条件化爆破、8533 等：条件挂在
+   *  无目标段 / 目标与本段不同的段上时，targetStatus 会错滤本段目标，故按追踪目标判定）。
+   *  无追踪目标 → false。 */
+  | { kind: 'lastTargetStatus'; statusId: string }
+  /** 最近产目标段的主目标具有该种族（R22 批全局条件，8533「若敌人是元素」、8534「若敌人
+   *  是建造」、8573 配合 devour 等）。无追踪目标 → false。 */
+  | { kind: 'lastTargetRace'; race: string }
+  /** 最近产目标段的主目标带该法力色（R22 批全局条件，8467「若敌人使用蓝色法力」） */
+  | { kind: 'lastTargetColor'; color: BaseColor }
+  /** 最近产目标段的主目标仍存活（R22 批，「否则」反向分支：8550「否则就使他陷入死亡标记」
+   *  8248「否则就召唤 2 名暗影姐妹」8694「否则则消除其所有技能值」——ifTargetDied 的取反
+   *  全局条件形态；主目标从已阵亡到不存在同判 false）。无追踪目标 → false。 */
+  | { kind: 'lastTargetSurvived' }
+  /** 最近一个多目标段中任一目标阵亡（R22 批，9986「若有敌人死亡」9812「若有敌人死亡」
+   *  7747「若其中一名敌人身亡」——ifTargetDied 仅判主目标，多目标任意死亡判定读
+   *  castTracking.lastTargets 各项 aliveBefore）。 */
+  | { kind: 'anyTrackedDied' }
+  /** 最近目标段的主目标属性高于施法者（R22 批反向属性比较，7960「若其攻击力比较大」——
+   *  §13.2 casterStatBeatsTarget 只支持施法者>目标正向，本条件为其对偶）。 */
+  | { kind: 'targetStatBeatsCaster'; stat: 'attack' | 'armor' | 'magic' | 'hp' };
 
 export interface CondMult {
   times: number;
@@ -244,6 +295,8 @@ export function conditionMet(
     }
     case 'targetStatus':
       return !!target && target.statuses.some((s) => s.id === cond.statusId && s.turns > 0);
+    case 'targetHasAnyStatus':
+      return !!target && target.statuses.some((s) => s.turns > 0);
     case 'targetHpDamaged':
       return !!target && target.hp < target.maxHp;
     case 'selfHpDamaged': {
@@ -372,6 +425,44 @@ export function conditionMet(
       // 战斗发生在指定王国（K-E 批）：战斗上下文 kingdom 严格相等才真；
       // 字段缺省/null（旧请求、竞技场）→ 恒假（用户裁定口径）。
       return ctx.state.kingdom === cond.kingdom;
+    case 'lastTargetStatus':
+    case 'lastTargetRace':
+    case 'lastTargetColor':
+    case 'lastTargetSurvived':
+    case 'targetStatBeatsCaster': {
+      // R22 批 lastTarget 族（全局条件）：统一取跨段追踪主目标判定。
+      const last = ctx.castTracking?.lastTarget;
+      const ch = last ? findCharacter(ctx.state, last.id) : undefined;
+      if (!ch) return false;
+      switch (cond.kind) {
+        case 'lastTargetStatus':
+          return ch.statuses.some((s) => s.id === cond.statusId && s.turns > 0);
+        case 'lastTargetRace':
+          return hasTroopType(ch, cond.race);
+        case 'lastTargetColor':
+          return ch.colors.includes(cond.color);
+        case 'lastTargetSurvived':
+          return !ch.defeated;
+        case 'targetStatBeatsCaster': {
+          const me = findCharacter(ctx.state, ctx.casterId);
+          return !!me && statOf(ch, cond.stat) > statOf(me, cond.stat);
+        }
+        default: {
+          const _never: never = cond;
+          return _never;
+        }
+      }
+    }
+    case 'anyTrackedDied': {
+      // R22 批：本次施放任一产目标段的目标阵亡（跨段累积，ifTargetDied 的多目标/跨段形态）
+      const list = ctx.castTracking?.allTargets;
+      if (!list || list.length === 0) return false;
+      return list.some((t) => {
+        if (!t.aliveBefore) return false;
+        const c = findCharacter(ctx.state, t.id);
+        return c === undefined || c.defeated;
+      });
+    }
     default: {
       const _exhaustive: never = cond;
       return _exhaustive;
@@ -392,7 +483,7 @@ export function condMultiplier(
 /** 目标相对条件（需要具体目标才能判定；无目标段挂这类条件 → 整段跳过）。
  * 组合条件（anyOf/allOf）按「任一叶子是目标相对」判定——对目标过滤语义成立。 */
 const TARGET_CONDITION_KINDS: ReadonlySet<Condition['kind']> = new Set([
-  'targetRace', 'targetColor', 'targetStatus', 'targetHpDamaged', 'manaFull',
+  'targetRace', 'targetColor', 'targetStatus', 'targetHpDamaged', 'manaFull', 'targetHasAnyStatus',
 ]);
 
 export function isTargetCondition(cond: Condition): boolean {
@@ -422,7 +513,7 @@ export function condBonusValue(
   return conditionMet(bonus.cond, ctx, target) ? bonus.n : 0;
 }
 
-function statOf(char: Character, stat: 'attack' | 'armor' | 'hp' | 'magic' | 'missingHp' | 'manaCost'): number {
+function statOf(char: Character, stat: 'attack' | 'armor' | 'hp' | 'magic' | 'missingHp' | 'manaCost' | 'mana'): number {
   switch (stat) {
     case 'attack': return char.attack;
     case 'armor': return char.armor;
@@ -430,6 +521,7 @@ function statOf(char: Character, stat: 'attack' | 'armor' | 'hp' | 'magic' | 'mi
     case 'magic': return char.magic;
     case 'missingHp': return Math.max(0, char.maxHp - char.hp);
     case 'manaCost': return char.manaCost;
+    case 'mana': return char.mana;
   }
 }
 
@@ -454,17 +546,36 @@ function isSkull(gemType: import('../../types').GemType): boolean {
 export function resolveModifierCount(source: ModifierSource, ctx: EffectContext): number {
   const tracking = ctx.castTracking;
   switch (source.kind) {
-    case 'destroyedGems':
-      return (tracking?.destroyed ?? []).filter((d) => matchGem(d.gemType, source.color)).length;
+    case 'destroyedGems': {
+      // R22 批：skulls/special 细分筛（7388/7977/8812/9492 骷髅、8927 石像鬼宝石）
+      return (tracking?.destroyed ?? []).filter((d) => {
+        if (source.skulls) return isSkull(d.gemType);
+        if (source.special !== undefined) {
+          return d.gemType.kind === 'special' && d.gemType.spec.kind === source.special;
+        }
+        return matchGem(d.gemType, source.color);
+      }).length;
+    }
     case 'transformedGems': {
       // 追踪粒度权衡：transform 事件自带逐格明细，但追踪层只累计总数；
       // 带颜色的「因转换的 X 色宝石数」来源极少（<10 条），第一波按总转化数计，规则手册已注明。
       return source.color === undefined ? (tracking?.transformed ?? 0) : countTransformed(tracking, source.color);
     }
     case 'boardGems': {
+      // R22 批：color 可为 'CHOSEN'/'ENEMY_MOST_USED' 动态色（未解析按 0 计），except 排除某色
+      let color: BaseColor | null = null;
+      if (source.color === 'CHOSEN') color = ctx.chosenColor ?? null;
+      else if (source.color === 'ENEMY_MOST_USED') {
+        const side = findSide(ctx.state, ctx.casterId);
+        color = side === null ? null : gemsMostUsed(ctx, side === PlayerSide.Left ? PlayerSide.Right : PlayerSide.Left);
+      } else color = source.color ?? null;
+      if (source.color !== undefined && color === null) return 0;
       let n = 0;
       ctx.state.board.forEach((gem) => {
-        if (gem && gem.type.kind === 'color' && (source.color === undefined || gem.type.color === source.color)) n += 1;
+        if (!gem || gem.type.kind !== 'color') return;
+        if (color !== null && gem.type.color !== color) return;
+        if (source.except !== undefined && gem.type.color === source.except) return;
+        n += 1;
       });
       return n;
     }
@@ -522,7 +633,9 @@ export function resolveModifierCount(source: ModifierSource, ctx: EffectContext)
       if (side === null) return 0;
       const enemySide = side === 'Left' ? 'Right' : 'Left';
       return ctx.state.teams[enemySide].characters.filter(
-        (c) => !c.defeated && c.statuses.some((s) => s.id === source.statusId && s.turns > 0),
+        (c) => !c.defeated && (source.statusId === undefined
+          ? c.statuses.some((s) => s.turns > 0)
+          : c.statuses.some((s) => s.id === source.statusId && s.turns > 0)),
       ).length;
     }
     case 'alliesOfColor': {
@@ -550,14 +663,50 @@ export function resolveModifierCount(source: ModifierSource, ctx: EffectContext)
       ).length;
     }
     case 'enemyStatSum':
-      return teamStatSum(ctx, 'enemy', source.stat);
+      return teamStatSum(ctx, 'enemy', source.stat, source.color);
     case 'allyStatSum':
-      return teamStatSum(ctx, 'ally', source.stat);
+      return teamStatSum(ctx, 'ally', source.stat, undefined, source.excludeSelf === true);
     case 'targetStat': {
       const last = tracking?.lastTarget;
       if (!last) return 0;
       const ch = findCharacter(ctx.state, last.id);
       return ch ? statOf(ch, source.stat) : 0;
+    }
+    case 'chosenStat': {
+      // R22 批：本次释放手动选定目标的当前属性（8659「等同于其攻击力…再同等伤害」）
+      if (ctx.chosenTargetId === undefined) return 0;
+      const ch = findCharacter(ctx.state, ctx.chosenTargetId);
+      return ch ? statOf(ch, source.stat) : 0;
+    }
+    case 'lastDamage':
+      return tracking?.lastDamage ?? 0;
+    case 'enemyFull': {
+      // 满值判定（R22 批）：hp 开关缺省不查 hp；mana 开关缺省查 mana（8406 口径），
+      // 两者都给 = 同时满足（7808「生命值和法力值满值」）。
+      const checkHp = source.hp === true;
+      const checkMana = source.mana === true
+        ? true
+        : (source.mana === undefined && source.hp !== true);
+      const side = findSide(ctx.state, ctx.casterId);
+      if (side === null) return 0;
+      const enemySide = side === 'Left' ? 'Right' : 'Left';
+      return ctx.state.teams[enemySide].characters.filter(
+        (c) => !c.defeated
+          && (!checkHp || c.hp >= c.maxHp)
+          && (!checkMana || c.mana >= c.manaCost),
+      ).length;
+    }
+    case 'casterStatBeatsCount': {
+      // R22 批：四围逐项比较 caster > 追踪目标 的命中数（7812「每高于敌方一个技能」）
+      const me = findCharacter(ctx.state, ctx.casterId);
+      const last = tracking?.lastTarget;
+      const foe = last ? findCharacter(ctx.state, last.id) : undefined;
+      if (!me || !foe) return 0;
+      let n = 0;
+      for (const stat of ['attack', 'armor', 'magic', 'hp'] as const) {
+        if (statOf(me, stat) > statOf(foe, stat)) n += 1;
+      }
+      return n;
     }
     case 'drainedMana':
       return tracking?.drainedMana ?? 0;
@@ -602,20 +751,47 @@ function countTransformed(
   return tracking?.transformed ?? 0;
 }
 
-/** 某方全体的属性总和 */
+/** 某方全体的属性总和（R22 批：color 筛法力色、excludeSelf 排除施法者） */
 function teamStatSum(
   ctx: EffectContext,
   side: 'ally' | 'enemy',
-  stat: 'attack' | 'armor' | 'hp' | 'magic',
+  stat: 'attack' | 'armor' | 'hp' | 'magic' | 'mana',
+  color?: BaseColor,
+  excludeSelf = false,
 ): number {
   const casterSide = findSide(ctx.state, ctx.casterId);
   if (casterSide === null) return 0;
   const targetSide = side === 'ally' ? casterSide : (casterSide === 'Left' ? 'Right' : 'Left');
   let sum = 0;
   for (const c of ctx.state.teams[targetSide].characters) {
-    if (!c.defeated) sum += statOf(c, stat);
+    if (c.defeated) continue;
+    if (excludeSelf && c.id === ctx.casterId) continue;
+    if (color !== undefined && !c.colors.includes(color)) continue;
+    sum += statOf(c, stat);
   }
   return sum;
+}
+
+/** boardGems 'ENEMY_MOST_USED' 动态色解析：行动日志聚合，与 effects/gems.ts
+ *  mostUsedManaColor 同款算法（就地内联，避免 effects 间相互引用） */
+function gemsMostUsed(ctx: EffectContext, side: PlayerSide): BaseColor | null {
+  const tally = new Map<BaseColor, number>();
+  for (const entry of ctx.state.actionLog) {
+    if (entry.side !== side) continue;
+    const action = entry.action;
+    if (action.type !== 'cast') continue;
+    const caster = ctx.state.teams[side].characters.find((c) => c.id === action.characterId);
+    if (!caster || caster.colors.length === 0) continue;
+    const share = caster.manaCost / caster.colors.length;
+    for (const color of caster.colors) tally.set(color, (tally.get(color) ?? 0) + share);
+  }
+  let best: BaseColor | null = null;
+  let bestN = 0;
+  for (const color of ALL_BASE_COLORS) {
+    const n = tally.get(color) ?? 0;
+    if (n > bestN) { bestN = n; best = color; }
+  }
+  return best;
 }
 
 /**

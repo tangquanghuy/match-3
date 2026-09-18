@@ -17,24 +17,12 @@
  * - 官方 Devour（吞噬）机制引擎无对应原语 → 相关条目一律 SKIP（含 7047 盟友吞噬——即杀近似会
  *   丢失成长语义，不取）。
  * - 挽救候选复核后仍维持 SKIP 的 50 条记录保留在原批次文件（不重复计数），复核结论见批尾注记。
- *
- * ── 第二遍收尾（2026-09-19）───────────────────────────────────────────────────
- * r19-r22 全部跑完后 remaining_all.json 剩 23 个唯一 id（r8-r22 各批 SKIP 记录的交集残部），
- * 用 R22 后全词汇（boardGems CHOSEN+except / perCount / lastTargetRace / createGemsMixAny /
- * spiritGem·decayGem·lycanthropyGem 波B 宝石等）逐条二判：
- * - 挽救组装 4 条：8464（boardGems CHOSEN+except——R22 备好的 8464 口径来源本批消费）、
- *   8566（perCount boardSpecial lycanthropyGem）、8925（lastTargetRace 全局条件 + spiritGem）、
- *   9546（createGemsMixAny 腐朽宝石 + reposition）。
- * - 维持 SKIP 19 条（【二判】标记，含引擎代码级复核：8737 无带 target 段则
- *   prototypeChosenTargetMode 不识别 CHOSEN_TARGET、8553 狼化不在组装侧白名单），
- *   与既有 44 条【一批】记录合并按 id 升序记账。
  */
 import type { CuratedBatch } from './index';
 import {
   skill, dmg, dmgSplash, trueDmg, heal, armor, attack, magic, mana, reduce, steal, drainMana,
   cleanse, dispelStatus, randomStat, inflict, inflictRandom, createGems, createSkulls, createMix,
-  createGemsMixAny, createSpecialGems, createStorm, destroyColor, destroyRandomGems,
-  destroyRandomRows, destroyRandomCols,
+  createStorm, destroyColor, destroyRandomGems, destroyRandomRows, destroyRandomCols,
   explodeColor, explodeRandomGems, explodeRandomCols, transform, transformToSpecial,
   reposition, shuffleBoard, shuffleTeam, extraTurn, oneOf, summonRef, summonRandom, sacrifice,
   gainGold, gainSouls, gainMaps, escape, CHOSEN,
@@ -92,9 +80,7 @@ const SKIPPED: { id: number; reason: string }[] = [
   { id: 7281, reason: "语义拿不准（官方 Devour 吞噬成长机制引擎无对应原语，r18 口径）；[1:1] 为吞噬步骤序列化" },
   { id: 7312, reason: "语义拿不准（官方 Devour 吞噬成长机制引擎无对应原语，r18 口径）" },
   { id: 7326, reason: "语义拿不准（官方 Devour 吞噬成长机制引擎无对应原语，r18 口径）" },
-  { id: 7328, reason: "【二判】「法力灼烧，伤害值因自身魔法值而增强」= 官方无 SpellSteps、灼烧伤害量无公式数值，drainMana 清蓝段无数值位可挂「因魔法增强」（meta.modifier 亦为空），r17/r18/r21/r22 口径维持；Yellow→Blue 转换本身可表" },
   { id: 7354, reason: "语义拿不准（官方 Devour 吞噬成长机制引擎无对应原语，r18 口径）" },
-  { id: 7402, reason: "【二判】「伤害值等同于一名盟友的攻击力」= 泛指单体盟友（哪一名？）无来源 kind（allyStatSum 为总和、chosenStat 为本次手动选定目标而本咒语无选目标段），「3 到 8 点法力值」数值区间亦不可表，r17-r22 口径维持" },
   { id: 7421, reason: "语义拿不准（官方 Devour 吞噬成长机制引擎无对应原语，r18 口径）" },
   { id: 7423, reason: "语义拿不准（官方 Devour 吞噬成长机制引擎无对应原语，r18 口径）（oneOf 六选一支含吞噬）" },
   { id: 7434, reason: "语义拿不准（「使板面同色宝石数翻倍」无对应原语）" },
@@ -102,10 +88,8 @@ const SKIPPED: { id: number; reason: string }[] = [
   { id: 7450, reason: "语义拿不准（官方 Devour 吞噬成长机制引擎无对应原语，r18 口径）（死亡条件触发的吞噬）" },
   { id: 7460, reason: "语义拿不准（「花费我所有的黄金」经济支出无对应原语）" },
   { id: 7480, reason: "语义拿不准（官方 Devour 吞噬成长机制引擎无对应原语，r18 口径）" },
-  { id: 7483, reason: "【二判】「伤害值等同于自身的攻击力，并因棕色敌军数量而增强 [x10]」= 基数取攻击力（multiplier×selfStat attack）与 enemiesOfColor×10 双 mod 结构，段仅支持单 modifier 无法同表，编码歧义不猜（r21/r22 口径维持；棕色敌军计数 enemiesOfColor 本身已落地）" },
   { id: 7493, reason: "句子式不明（「随机发生任何情况」混沌技能，§7 永久排除）" },
   { id: 7505, reason: "二次缩放来源不支持（尾缀 [25:1] 内部编码无法判读，r15 [100:1] 族同口径；「偷取黄金」按 gainGold 入账可表达但整条维持）" },
-  { id: 7542, reason: "【二判】EN \"Die and rise from the Ashes\" = 自复活无引擎机制（r18 口径维持）；散射+selfStat hp 增强本身可表" },
   { id: 7559, reason: "语义拿不准（官方 Devour 吞噬成长机制引擎无对应原语，r18 口径）（蓝色法力条件吞噬）" },
   { id: 7566, reason: "语义拿不准（官方 Devour 吞噬成长机制引擎无对应原语，r18 口径）（上下方军队逐一致升天度机会，位置+晋升复合）" },
   { id: 7633, reason: "语义拿不准（官方 Devour 吞噬成长机制引擎无对应原语，r18 口径）" },
@@ -115,13 +99,10 @@ const SKIPPED: { id: number; reason: string }[] = [
   { id: 7647, reason: "语义拿不准（官方 Devour 吞噬成长机制引擎无对应原语，r18 口径）" },
   { id: 7667, reason: "二次缩放来源不支持（创造上限「最多 14 颗」无对应机制，r16 10061 上限同口径）" },
   { id: 7670, reason: "语义拿不准（「若敌人的生命值高于自身」反向属性比较——仅支持施法者>目标正向，§13.2）" },
-  { id: 7690, reason: "【二判】「如果该敌人已被冻结，则再造成 5 点伤害」= 条件须读施加冻结**之前**的状态快照，段序执行后 targetStatus 恒真（时序绑定无原语，r17/r18/r21/r22 口径维持；「上下左右敌人」enemyAbove/BelowTarget 本身已落地）" },
-  { id: 7713, reason: "【二判】「窃取攻击力并将之给予你第一位盟友」= steal 增益恒入施法者（重定向无原语）+ 尾缀 [20:1] 无来源子句可绑定（r17/r18/r21/r22 口径维持）；骷髅×绿色混合创造已由 createGemsMixAny 落地" },
   { id: 7724, reason: "语义拿不准（官方 Devour 吞噬成长机制引擎无对应原语，r18 口径）（几率因转换宝石数增强的吞噬）" },
   { id: 7781, reason: "语义拿不准（官方 Devour 吞噬成长机制引擎无对应原语，r18 口径）（织网/缠绕条件吞噬）" },
   { id: 7810, reason: "语义拿不准（官方 Devour 吞噬成长机制引擎无对应原语，r18 口径）" },
   { id: 7984, reason: "语义拿不准（官方 Devour 吞噬成长机制引擎无对应原语，r18 口径）（几率等同自身攻击力的吞噬）" },
-  { id: 7987, reason: "【二判】「窃取护甲再转换成随机技能值并给予第一位盟友」= 窃取增益重定向 + 随机技能转移无原语（r17/r18/r21/r22 口径维持）" },
   { id: 8037, reason: "二次缩放来源不支持（「因其法力值而增强」官方 CountMana 100——targetStat 无 mana，r16 9223 CountMagic 同族不同源）" },
   { id: 8040, reason: "比例法力（「窃取四分之一护甲值」25% 比例无对应原语，reduce 仅 halve 50%）" },
   { id: 8056, reason: "语义拿不准（官方 Devour 吞噬成长机制引擎无对应原语，r18 口径）（吞噬盟友+条件召唤恶魔）" },
@@ -136,18 +117,6 @@ const SKIPPED: { id: number; reason: string }[] = [
   { id: 8235, reason: "二次缩放来源不支持（「因选定颜色的宝石数量增强」boardGems 不支持 CHOSEN）" },
   { id: 8237, reason: "语义拿不准（官方 Devour 吞噬成长机制引擎无对应原语，r18 口径）" },
   { id: 8243, reason: "语义拿不准（「失去所有黄金」经济支出无对应原语）" },
-  { id: 8377, reason: "【二判】ZH「窃取 [魔法 + 1] 点魔法值」与官方步骤（CountMagic 全额魔法 → DecreaseSpellPower → 每盟友 IncreaseRandom）互相矛盾，无法对号（r17/r21/r22 口径维持）" },
-  { id: 8553, reason: "【二判】「使 2 名随机敌人陷入狼化状态」= lycanthropy 不在组装侧 STATUS_WHITELIST（仅 weapon 侧放行，spellData.test.ts 未收，本批禁改测试文件）；创造狼化宝石+几率段本身可表达" },
-  { id: 8567, reason: "【二判】「若板面上有狼化宝石」= 特殊宝石在场条件不在条件域（boardAtLeast 只计基色/骷髅）+ 狼化施加同 8553 白名单缺口（r20 口径维持）；伤害/收回法力本身可表达" },
-  { id: 8568, reason: "【二判】「窃取敌人黄金」= 敌方黄金池无来源（economy 为共用池，CountEnemyGold/TakeEnemyGold 无对应），尾缀 [100:1] 无处绑定（r19/r20/r21/r22 口径维持）；耗蓝+冻结本身可表达" },
-  { id: 8737, reason: "【二判】「选择一个盟友，创造其法力颜色宝石」= 全咒语无带 target 段，prototypeChosenTargetMode 不识别 CHOSEN_TARGET 颜色占位 → 无选择器驱动、chosenTargetId 恒空（r19/r21/r22 口径维持，引擎代码复核）" },
-  { id: 8804, reason: "【二判】「宝石附近或下方每有一颗绿色宝石」= 官方 BoardTarget SurroundingGems 周边位置计数无 modifier 来源 kind（boardGems 为全盘口径，r8/r14 口径维持；石像鬼宝石创造/中毒 perCount 本身可表达）" },
-  { id: 8859, reason: "【二判】「窃取黄金」&& 子句 = 敌方黄金池无来源（首句即卡，按序编译整条不可拆）+ [100:1] 无可绑来源（r19/r20/r21/r22 口径维持）；随机技能值窃取 stealRandomStat 本身可表达" },
-  { id: 8902, reason: "【二判】「倒数第二位敌人」(SecondLastEnemy) 无对应目标模式（enemyNth 为自队首计数的静态 n，无法动态取倒数第二）（r19/r21 口径维持；溅射/双来源计数/元素星创造本身可表达）" },
-  { id: 8904, reason: "【二判】「数值因窃取黄金数而增强 [50:1]」= 窃取黄金额无来源 kind（battleGold 为共用池总额、非本次窃取额）（r19/r20/r21/r22 口径维持）" },
-  { id: 9189, reason: "【二判】「窃取一名敌人所有黄金数」= 敌方黄金池无来源（TakeEnemyGold 无池），尾缀 [x10] 随之无处挂载（r19/r20/r21 口径维持）" },
-  { id: 9545, reason: "【二判】「转换数量因诅咒敌人数增加」= transform count 为静态缩放、TransformGemParams 无 modifier 通道；「紫色龙宝石」转换端点亦无 color 通道（r14/r19 口径维持；诅咒+死亡标记施加本身可表达）" },
-  { id: 10061, reason: "【二判】「击杀几率受其护甲值提升（最高可达 30%）」= chanceBoost 无上限原语（线性叠加后夹 1，官方 CountMax 20 上限无法编码），且 ZH 30% 与官方步骤 CountMax 20 互相矛盾（r19/r21/r22 口径维持）；伤害+拉到后方本身可表达" },
 ];
 
 const SPELLS: CuratedBatch['spells'] = [
@@ -1437,58 +1406,6 @@ const SPELLS: CuratedBatch['spells'] = [
       steal('enemyAll', 'magic', 'magic', 4, 0, { ifTargetDied: true }),
     ),
   },
-  {
-    id: 8464,
-    desc: "造成 [魔法 + 20] 点散射伤害，伤害值因选定的颜色（黄色除外）而增强。再创造 10 颗黄色宝石，并移除所有选定颜色的宝石。 [x3]",
-    // 【二判挽救】「因选定的颜色（黄色除外）而增强 [x3]」= boardGems color CHOSEN + except Yellow
-    //（R22 批为此条备好的来源口径，本批消费；官方步骤 CountGems FromTarget 300 → 散射 UseCounterForAmount）；
-    // 裸散射 = enemyAll + range all（§0）；「移除所有选定颜色」= destroyColor(CHOSEN)（步骤末位同序）
-    build: skill(
-      dmg('enemyAll', 20, 1, {
-        range: 'all',
-        modifier: { mod: { kind: 'multiplier', a: 3 }, source: { kind: 'boardGems', color: 'CHOSEN', except: BaseColor.Yellow } },
-      }),
-      createGems(BaseColor.Yellow, 10),
-      destroyColor(CHOSEN),
-    ),
-  },
-  {
-    id: 8566,
-    desc: "窃取一名敌人 [魔法 + 2] 点生命值。板面上每有一颗狼化宝石，则使一名随机敌人陷入死亡标记状态。 [1:1]",
-    // 【二判挽救】「窃取生命」= dmg + drain（7302 口径）；「每颗狼化宝石 → 死亡标记一名随机敌人」=
-    // perCount boardSpecial lycanthropyGem（R22 新原语，官方 InflictEffectOnRandomTroops@AllEnemies，
-    // r22 713 鬼魂宝石同款）；[1:1] = 驱动比率序列化（r17 尾缀口径）
-    build: skill(
-      dmg('enemyChosen', 2, 1, { drain: true }),
-      inflict('death-mark', 'enemyAll', {
-        perCount: { mod: { kind: 'ratio', a: 1, b: 1 }, source: { kind: 'boardSpecial', gem: 'lycanthropyGem' } },
-      }),
-    ),
-  },
-  {
-    id: 8925,
-    desc: "赋予一名盟友屏障效果，并给予其半数法力值。若对方是一名骑士，则创造 3 颗灵力宝石。",
-    // 【二判挽救】「若对方是一名骑士」= lastTargetRace 全局条件（R22 批；屏障段建立跨段追踪，
-    // r22 8533 同款）；「半数法力值」= mana halve（7473 口径，EN "half their Mana cost"）；
-    // 灵力宝石 = spiritGem（官方 CreateGems Spirit 无色缺省，r19 8917 同款；官方步骤 StatusModifier
-    // AddForKnight = 骑士条件，7737 AddForKill 同族）
-    build: skill(
-      inflict('barrier', 'allyChosen'),
-      mana('allyChosen', 0, 0, { halve: true }),
-      createSpecialGems({ kind: 'spiritGem' }, 3, 0, { ifCond: { kind: 'lastTargetRace', race: 'Knight' } }),
-    ),
-  },
-  {
-    id: 9546,
-    desc: "创造 10 颗棕色和腐烂宝石的混合体。将第一个敌人击退。",
-    // 【二判挽救】「棕色和腐烂宝石混合体」= createGemsMixAny（R22 新原语，特殊宝石可入 mix，
-    // r22 9780 流血宝石同款；腐烂宝石 = decayGem 波B 落地，官方步骤 CreateGems2Colors Brown+Decay）；
-    // 「将第一个敌人击退」= reposition back（§12.1，官方 TroopOrderBack@FrontEnemy）
-    build: skill(
-      createGemsMixAny([BaseColor.Brown, { kind: 'decayGem' }], 10),
-      reposition('enemyFront', 'back'),
-    ),
-  },
 ];
 
 /**
@@ -1522,25 +1439,6 @@ const SPELLS: CuratedBatch['spells'] = [
  *   7542（自复活）、7713（窃取重定向 + SKULL mix）、7747（其中一名/另一名绑定）、7987（随机技能转移）、
  *   7812/7670/7960（属性比较方向/逐围计数）、8108（desc 与官方步骤矛盾）、8248（else 分支）、
  *   8060（CHOSEN 计数）。
- *
- * ── 第二遍收尾记账（2026-09-19，【二判】标记 19 条维持 SKIP 的卡点分组）──────
- * 【敌方黄金池缺口（CountEnemyGold/TakeEnemyGold 无对应池，economy 为共用池）】
- * - 8568/8859/8904/9189（含 [100:1]/[50:1]/[x10] 尾缀随之无处绑定）。
- *
- * 【白名单/条件域缺口】
- * - 8553/8567（狼化状态不在组装侧 STATUS_WHITELIST + 特殊宝石在场条件不在条件域）、
- *   8737（无带 target 段则 CHOSEN_TARGET 无选择器驱动，引擎代码复核）、8804（SurroundingGems
- *   周边位置计数无来源 kind）。
- *
- * 【目标模式/时序/重定向】
- * - 8902（SecondLastEnemy 无目标模式）、7690（已冻结条件须读施加前快照，时序绑定）、
- *   7713/7987（steal 增益重定向给其他盟友无原语）。
- *
- * 【单 modifier 双结构/来源缺口/矛盾数据】
- * - 7483（攻击力基数 + enemiesOfColor×10 双 mod 无法同表）、7402（泛指盟友攻击来源 + 3-8 区间）、
- *   7328（Mana Burn 增强无公式数值）、7542（自复活无机制）、8377（ZH 与官方步骤矛盾）、
- *   9545（transform count 无 modifier 通道 + 转换端点无 color 通道）、10061（几率上限无原语 +
- *   ZH 30% 与官方 CountMax 20 矛盾）。
  */
 
 export const BATCH_R18: CuratedBatch = { batch: 'R18', spells: SPELLS, skipped: SKIPPED };

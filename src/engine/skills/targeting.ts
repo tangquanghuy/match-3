@@ -39,7 +39,12 @@ export type TargetMode =
   | 'enemyChosenAndAdjacent' // 选定敌人的编队前后各一位（「上方和下方的敌人」，不含选定者；R11 批）
   | 'enemyAboveTarget' // 选定目标编队位**上方**的全部存活敌人（官方 AboveTarget；R13 批）
   | 'enemyBelowTarget' // 选定目标编队位**下方**的全部存活敌人（官方 BelowTarget；R13 批）
+  | 'enemyNextDown' // 选定目标编队位**正下方一名**（官方 NextDownFromTarget，单格；R22 批 8248）
   | 'lastTarget' // 跨段追踪目标（「对随机敌人造成伤害，再使他陷入X」的「他」；2026-09-17 回收批）
+  | 'lastTargets' // 跨段追踪目标**全列表**（最近产目标段解析出的全部目标，R22 批 9812「吸取其 8 点法力」）
+  | 'lastTargetFirst' // 跨段追踪目标列表**第一个**（R22 批 8220「燃烧第一组敌人」）
+  | 'lastTargetLast' // 跨段追踪目标列表**最后一个**（R22 批 8220「冻结第二组敌人」）
+  | 'lastDamaged' // 最近一个伤害段**实际命中**的目标集（skill-damage 事件口径，R22 批 8220/8320「使所有被伤害的敌人…」）
   // —— 己方 ——
   | 'allySelf' // 施法者自身
   | 'allyFront'
@@ -178,6 +183,10 @@ export function selectTargets(
 
   // lastTarget 特例：由 prototypes.resolveTargetsTracked 基于跨段追踪解析（此处兜底为空）
   if (mode === 'lastTarget') return [];
+  // R22 批跨段追踪族：同样由 resolveTargetsTracked 基于追踪解析（此处兜底为空）
+  if (mode === 'lastTargets' || mode === 'lastTargetFirst' || mode === 'lastTargetLast' || mode === 'lastDamaged') {
+    return [];
+  }
 
   // allySelf 特例：施法者存活才返回自身
   if (mode === 'allySelf') {
@@ -260,6 +269,15 @@ export function selectTargets(
         false,
         enemySide,
       );
+    }
+
+    case 'enemyNextDown': {
+      // 选定目标正下方一名（R22 批，官方 NextDownFromTarget 单格）：选定者在存活编队中的
+      // 下一位存活敌人（更靠后、索引更大）。未提供选定 id / 无下方存活者 → 安全返回空。
+      if (chosenId === undefined) return [];
+      const idx = alive.findIndex((c) => c.id === chosenId);
+      if (idx < 0 || idx + 1 >= alive.length) return [];
+      return [alive[idx + 1]];
     }
 
     case 'enemyFront':

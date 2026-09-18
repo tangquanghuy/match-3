@@ -59,6 +59,27 @@ export interface CastTracking {
    * 「如果该敌人身亡」= 它 aliveBefore 且现在 defeated。
    */
   lastTarget?: { id: number; aliveBefore: boolean };
+  /**
+   * 最近一个产目标段的**全目标列表**（R22 批，'lastTargets'/'lastTargetFirst'/'lastTargetLast'
+   * 目标模式的解析源——「吸取其 8 点法力」）。
+   */
+  lastTargets?: { id: number; aliveBefore: boolean }[];
+  /**
+   * 本次施放**全部**产目标段的目标快照（按段累积，R22 批）：anyTrackedDied 条件
+   * （「若有敌人死亡」「若其中一名身亡则击杀另一名」）的判定源——跨段累积，
+   * 任意被解析过的目标阵亡即真。
+   */
+  allTargets?: { id: number; aliveBefore: boolean }[];
+  /**
+   * 最近一个伤害段**实际命中**的目标 id 集（skill-damage 事件口径，含溅射链受害者；
+   * R22 批 'lastDamaged' 目标模式——8220/8320「使所有被伤害的敌人陷入X」）。
+   */
+  lastDamaged?: number[];
+  /**
+   * 最近一个伤害段实际造成的伤害总额（R22 批 modifier 来源 lastDamage——7274「数值因造成
+   * 的伤害而增强」9571「并将其作为生命赋予最弱的盟友」；每段整体覆写，lastReduce 同款）。
+   */
+  lastDamage?: number;
 }
 
 /** 效果原语执行上下文（施法者、状态、随机源、宝石 id 分配器） */

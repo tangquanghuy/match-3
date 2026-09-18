@@ -44,11 +44,21 @@ import type {
   TransformTroopSegment,
   RepositionSegment,
   ShuffleTeamSegment,
+  DevourSegment,
+  SummonCopySegment,
+  SwapPositionsSegment,
   NRangeSpec,
 } from './prototypes';
 
 /** 选色占位符：技能文本"指定/选定颜色"，运行时由 ColorChooser 解析（需求 2） */
 export const CHOSEN = 'CHOSEN' as const;
+
+/**
+ * 「本次释放手动选定目标的法力颜色」占位符（R22 批，8188「创建 10 颗与盟友的法力颜色
+ * 相同的宝石」——无前序 chosen 段时直接读 ctx.chosenTargetId，其候选集由同技能后段的
+ * allyChosen/enemyChosen 段驱动）。
+ */
+export const CHOSEN_TARGET = 'CHOSEN_TARGET' as const;
 
 /**
  * 「施法者的军队法力颜色」占位符（动态颜色技能：「创造 9 颗具有该军队法力颜色的宝石」）。
@@ -135,9 +145,11 @@ export interface DmgOpts extends SegmentOpts, NRangeOpts {
   /** enemyFirstN/allyFirstN/allyRandomN/enemyRandomN 的 N */
   n?: number;
   /** 伤害区间（[A] – [B]）：设置后忽略 base/mult */
-  rangeSpec?: { min: ScalingSpec; max: ScalingSpec };
+  rangeSpec?: { min: import('./scaling').ScalingSpec; max: import('./scaling').ScalingSpec };
   /** 分摊（「伤害分摊给至多 {N} 名敌人」）：掷一次总额均分给前 N 名存活敌人 */
   split?: number;
+  /** 随机分摊（R22 批，7207「随机分配给所有敌人」）：总额按随机切点分给全部存活敌人 */
+  splitRandom?: boolean;
   /** 生命窃取：实际伤害总额治疗施法者（「窃取 X 点生命值」） */
   drain?: boolean;
   /** 即杀（「摧毁/消灭该敌人」）：伤害额 = 目标当前有效耐久 */
@@ -158,6 +170,7 @@ export function dmg(
   if (opts.nRange !== undefined) seg.nRange = opts.nRange;
   if (opts.rangeSpec) seg.rangeSpec = opts.rangeSpec;
   if (opts.split !== undefined) seg.split = opts.split;
+  if (opts.splitRandom) seg.splitRandom = true;
   if (opts.drain) seg.drain = true;
   if (opts.execute) seg.execute = true;
   return attach(seg, opts);
@@ -180,7 +193,7 @@ export function trueDmg(target: TargetMode, base: number, mult = 1, opts: DmgOpt
 
 // —— 增益（作用己方） ——
 
-type BuffOpts = SegmentOpts & NRangeOpts & { n?: number; full?: boolean; halve?: boolean; fraction?: number };
+type BuffOpts = SegmentOpts & NRangeOpts & { n?: number; full?: boolean; halve?: boolean; fraction?: number; rangeSpec?: { min: import('./scaling').ScalingSpec; max: import('./scaling').ScalingSpec } };
 
 function buff(target: TargetMode, stat: BuffStat, base: number, mult: number, opts?: BuffOpts): BuffSegment {
   const seg: BuffSegment = { kind: 'buff', target, stat, scaling: scale(base, mult) };
@@ -189,6 +202,7 @@ function buff(target: TargetMode, stat: BuffStat, base: number, mult: number, op
   if (opts?.full) seg.full = true;
   if (opts?.halve) seg.halve = true;
   if (opts?.fraction !== undefined) seg.fraction = opts.fraction;
+  if (opts?.rangeSpec !== undefined) seg.rangeSpec = opts.rangeSpec;
   return attach(seg, opts);
 }
 /** 治疗（opts.full = 全额治疗：「恢复所有生命值」；opts.n = N 目标：「前 2 位盟友」） */
@@ -250,6 +264,8 @@ export interface ReduceOpts extends SegmentOpts, NRangeOpts {
   /** 连掷次数（仅 stat='random'）：「从其 2 个随机技能值各消除 N 点」= 2（官方多条
    *  DecreaseRandom 步骤，每步独立掷签攻/甲/魔其一）；缺省 1 */
   times?: number;
+  /** 数值区间（R22 批，8356「耗掉 1-3 点法力值」CountRange）：设置后忽略 base/mult */
+  rangeSpec?: { min: import('./scaling').ScalingSpec; max: import('./scaling').ScalingSpec };
 }
 
 /**
@@ -270,6 +286,7 @@ export function reduce(
   if (opts.drainAll) seg.drainAll = true;
   if (opts.halve) seg.halve = true;
   if (opts.times !== undefined) seg.times = opts.times;
+  if (opts.rangeSpec !== undefined) seg.rangeSpec = opts.rangeSpec;
   return attach(seg, opts);
 }
 
@@ -368,14 +385,16 @@ export function createSpecialGems2(
 }
 
 // —— 特殊宝石清除（「摧毁所有末日骷髅头」「引爆 3 颗末日骷髅」） ——
+//    K-B 收官轮（武器条件化清除族 9381/9486/9809/9983）：全量清除构造器补 opts 形参，
+//    段级公共选项（ifCond 等）经 clearSeg→attach 挂载；不传 opts 时序列化与旧形逐字节一致。
 
 /** 摧毁棋盘上某特殊宝石全量 */
-export function destroySpecialGems(gem: SpecialGemKind): GemSegment {
-  return clearSeg('destroy', { kind: 'special', gem });
+export function destroySpecialGems(gem: SpecialGemKind, opts?: SegmentOpts): GemSegment {
+  return clearSeg('destroy', { kind: 'special', gem }, opts);
 }
 /** 爆破棋盘上某特殊宝石全量（含辐射一圈） */
-export function explodeSpecialGems(gem: SpecialGemKind): GemSegment {
-  return clearSeg('explode', { kind: 'special', gem });
+export function explodeSpecialGems(gem: SpecialGemKind, opts?: SegmentOpts): GemSegment {
+  return clearSeg('explode', { kind: 'special', gem }, opts);
 }
 /** 随机摧毁 N 颗指定特殊宝石（「摧毁 3 颗末日骷髅头」） */
 export function destroyRandomSpecialGems(gem: SpecialGemKind, base: number, mult = 0, opts?: SegmentOpts): GemSegment {
@@ -411,14 +430,35 @@ export interface TransformOpts extends SegmentOpts {
    * （官方 Randomize AB-CD 双分支语义；与 toSpecial 同用，仅 convertSpecial/transformToSpecial 消费）。
    */
   tiers?: [number, number];
+  /**
+   * toSpecial 固定 tier（K-B 收官轮，8966「Convert a selected Mana Gem into a x3 Wildcard」
+   * ——官方通配倍率三档 2/3/4，tier 通道此前仅 createSpecialGems 有）：与 opts.tiers 掷签
+   * 互斥；亦可用 toSpecial 的 spec 形态 `{ kind, tier }` 表达（对齐 createSpecialGems）。
+   */
+  tier?: number;
 }
 
 /**
  * 转化：来源（色/'ANY' 不限）→ 指定特殊宝石，可定量（opts.count，随机取 N 颗）。
  * 「将一颗宝石转换成炸弹宝石」= transformToSpecial('ANY', 'bomb', { count: 1 })。
+ * gem 亦可传 spec 形态 `{ kind, tier? , color? }`（K-B 收官轮，带档通配/恶石像鬼等
+ * tier 端点——「将选定的法力宝石转换为 x3 通配符」= transformToSpecial('CELL',
+ * { kind: 'wildcard', tier: 3 })）；传 kind 字符串 + opts.tier 等价。
  */
-export function transformToSpecial(from: TransformFrom, gem: SpecialGemKind, opts: TransformOpts = {}): GemSegment {
-  const params: TransformGemParamsLike = { op: 'transform', from, to: 'SKULL', toSpecial: gem };
+export function transformToSpecial(from: TransformFrom, gem: SpecialGemKind | SpecialGemSpec, opts: TransformOpts = {}): GemSegment {
+  const spec: SpecialGemSpec = typeof gem === 'string' ? { kind: gem } : gem;
+  const tier = opts.tier ?? spec.tier;
+  const params: TransformGemParamsLike = { op: 'transform', from, to: 'SKULL' };
+  if (tier !== undefined || spec.color !== undefined) {
+    // spec 形态（新通道）：仅带 tier/color 时升级为对象，字段按定义序收敛
+    const specOut: SpecialGemSpec = { kind: spec.kind };
+    if (tier !== undefined) specOut.tier = tier;
+    if (spec.color !== undefined) specOut.color = spec.color;
+    params.toSpecial = specOut;
+  } else {
+    // 既有 kind 字符串形态：序列化与旧形逐字节一致（护栏）
+    params.toSpecial = spec.kind;
+  }
   if (opts.count !== undefined) params.count = flat(opts.count);
   if (opts.tiers !== undefined) params.tiers = opts.tiers;
   return gemSegWithOpts(params, opts);
@@ -471,6 +511,8 @@ export function explodeCols(...cols: number[]): GemSegment { return clearSeg('ex
 // 玩家点选一枚宝石，以其所在整行/整列为目标（与"选一枚宝石引爆"同一选择器）
 export function destroyChosenRow(): GemSegment { return clearSeg('destroy', { kind: 'chosenLine', orientation: 'row' }); }
 export function destroyChosenCol(): GemSegment { return clearSeg('destroy', { kind: 'chosenLine', orientation: 'col' }); }
+/** 选定宝石的行+列一并摧毁（R22 批，7253「选择一颗紫色宝石，摧毁其行和列」） */
+export function destroyChosenCross(): GemSegment { return clearSeg('destroy', { kind: 'chosenCross' }); }
 export function explodeChosenRow(): GemSegment { return clearSeg('explode', { kind: 'chosenLine', orientation: 'row' }); }
 export function explodeChosenCol(): GemSegment { return clearSeg('explode', { kind: 'chosenLine', orientation: 'col' }); }
 
@@ -481,22 +523,45 @@ export function explodeRandomRows(base: number, mult = 0, opts?: SegmentOpts): G
 export function explodeRandomCols(base: number, mult = 0, opts?: SegmentOpts): GemSegment { return clearSeg('explode', { kind: 'randomLines', orientation: 'col', count: scale(base, mult) }, opts); }
 
 // 指定颜色（可 CHOSEN）/ 全部颜色 / 骷髅
-export function destroyColor(color: ColorSpec): GemSegment { return clearSeg('destroy', { kind: 'color', color }); }
-export function explodeColor(color: ColorSpec): GemSegment { return clearSeg('explode', { kind: 'color', color }); }
-export function destroyAllColors(): GemSegment { return clearSeg('destroy', { kind: 'allColors' }); }
-export function destroySkulls(): GemSegment { return clearSeg('destroy', { kind: 'skulls' }); }
-export function explodeSkulls(): GemSegment { return clearSeg('explode', { kind: 'skulls' }); }
+// K-B 收官轮：opts 形参补齐（「如果现有尘风暴，则移除所有绿色的宝石」7286 等
+// 条件化清除族）；不传 opts 序列化不变。
+export function destroyColor(color: ColorSpec, opts?: SegmentOpts): GemSegment { return clearSeg('destroy', { kind: 'color', color }, opts); }
+export function explodeColor(color: ColorSpec, opts?: SegmentOpts): GemSegment { return clearSeg('explode', { kind: 'color', color }, opts); }
+export function destroyAllColors(opts?: SegmentOpts): GemSegment { return clearSeg('destroy', { kind: 'allColors' }, opts); }
+export function destroySkulls(opts?: SegmentOpts): GemSegment { return clearSeg('destroy', { kind: 'skulls' }, opts); }
+export function explodeSkulls(opts?: SegmentOpts): GemSegment { return clearSeg('explode', { kind: 'skulls' }, opts); }
 
-// 随机 N 颗宝石（include: 'color' 仅颜色 / 'all' 含骷髅，默认 all；可限定 color；opts.modifier 支持数量二次缩放）
-export function destroyRandomGems(base: number, mult = 0, include: 'color' | 'all' = 'all', color?: ColorSpec, opts?: SegmentOpts): GemSegment {
-  const target: ClearTarget = { kind: 'randomGems', count: scale(base, mult), include };
+// 随机 N 颗宝石（include: 'color' 仅颜色 / 'all' 含骷髅 / 'skull' 仅普通骷髅，默认 all；
+// 可限定 color 或 colors 双色并集池（R22 批 8429）；opts.modifier 数量二次缩放、opts.countRange 区间）
+export function destroyRandomGems(base: number, mult = 0, include: 'color' | 'all' | 'skull' = 'all', color?: ColorSpec, opts?: SegmentOpts & { countRange?: { min: number; max: number }; colors?: ColorSpec[] }): GemSegment {
+  const target: import('./effects/gems').ClearTarget = { kind: 'randomGems', count: scale(base, mult), include };
   if (color !== undefined) target.color = color;
+  if (opts?.colors !== undefined) target.colors = opts.colors;
+  if (opts?.countRange !== undefined) target.countRange = opts.countRange;
   return clearSeg('destroy', target, opts);
 }
-export function explodeRandomGems(base: number, mult = 0, include: 'color' | 'all' = 'all', color?: ColorSpec, opts?: SegmentOpts): GemSegment {
-  const target: ClearTarget = { kind: 'randomGems', count: scale(base, mult), include };
+export function explodeRandomGems(base: number, mult = 0, include: 'color' | 'all' | 'skull' = 'all', color?: ColorSpec, opts?: SegmentOpts & { countRange?: { min: number; max: number }; colors?: ColorSpec[] }): GemSegment {
+  const target: import('./effects/gems').ClearTarget = { kind: 'randomGems', count: scale(base, mult), include };
   if (color !== undefined) target.color = color;
+  if (opts?.colors !== undefined) target.colors = opts.colors;
+  if (opts?.countRange !== undefined) target.countRange = opts.countRange;
   return clearSeg('explode', target, opts);
+}
+
+/**
+ * 随机爆破 N 颗普通骷髅（R22 批，7136「随机爆破 10 颗骷髅头」/ 8504「炸毁三个骷髅头」）：
+ * include 'skull' 限定普通骷髅（末日族属特殊宝石，不入池），爆破仍辐射一圈。
+ */
+export function explodeRandomSkulls(base: number, mult = 0, opts?: SegmentOpts): GemSegment {
+  return explodeRandomGems(base, mult, 'skull', undefined, opts);
+}
+
+/**
+ * 双色并集池随机爆破（R22 批，8429「爆破 [魔法 + 1] 颗绿色或紫色宝石」）：逐颗从
+ * 两色**合并池**随机取（官方 ExplodeColor×2 双步骤口径），非 oneOf 二选一。
+ */
+export function explodeRandomGemsAny(colors: [ColorSpec, ColorSpec], base: number, mult = 0, opts?: SegmentOpts): GemSegment {
+  return explodeRandomGems(base, mult, 'all', undefined, { ...opts, colors });
 }
 
 // 以某格为中心（cell 可 CELL）：destroy=仅该格；explode=该格辐射一圈(3x3)
@@ -518,7 +583,7 @@ export function destroyAround(cell: CellPos | typeof CELL): GemSegment { return 
 export function destroyArea(
   shape: import('./effects/gems').AreaShape,
   mode: 'destroy' | 'explode' = 'destroy',
-  center?: CellPos | typeof CELL,
+  center?: CellPos | typeof CELL | 'RANDOM',
   opts?: SegmentOpts,
 ): GemSegment {
   const target: import('./effects/gems').ClearTarget = center !== undefined
@@ -550,7 +615,7 @@ const BLEED_IDS = new Set(['bleed']);
 export function inflict(
   statusId: string,
   target: TargetMode,
-  opts: { turns?: number; magnitude?: number; stacks?: number; n?: number; perDestroyed?: { color?: import('../types').BaseColor | 'skull' } } & SegmentOpts & NRangeOpts = {},
+  opts: { turns?: number; magnitude?: number; stacks?: number; n?: number; perDestroyed?: { color?: import('../types').BaseColor | 'skull' }; perCount?: ModifierSpec } & SegmentOpts & NRangeOpts = {},
 ): StatusSegment {
   const turns = opts.turns ?? DEFAULT_STATUS_TURNS;
   const seg: StatusSegment = { kind: 'status', target, statusId, turns };
@@ -560,6 +625,7 @@ export function inflict(
   if (opts.nRange !== undefined) seg.nRange = opts.nRange;
   if (opts.stacks !== undefined && opts.stacks > 1) seg.stacks = opts.stacks;
   if (opts.perDestroyed !== undefined) seg.perDestroyed = opts.perDestroyed;
+  if (opts.perCount !== undefined) seg.perCount = opts.perCount;
   return attach(seg, opts);
 }
 
@@ -786,9 +852,74 @@ export function kingdomPresent(kingdom: string): Condition {
   return { kind: 'kingdomPresent', kingdom };
 }
 
+/**
+ * 「如果一名敌人死亡」（武器 K-B 收官轮，官方「If an Enemy dies, …」条件族——
+ * 7117/7861/8075/8076/9629/9903 考证：官方语义 = 本咒语执行中任一敌人被击杀
+ * （若结尾条件是即时死亡判定），与部队批 R22 已落地的 anyTrackedDied 口径一致
+ * （9986/9812/7747「若有敌人死亡」同族先例——读本次施放跨段追踪 allTargets：
+ * 任一目标执行前存活、现下阵亡即真）。故不新增 Condition kind，本构造器为
+ * `{ kind: 'anyTrackedDied' }` 的武器法术专名形态，配 opts.ifCond 消费。
+ */
+export function anyEnemyDied(): Condition {
+  return { kind: 'anyTrackedDied' };
+}
+
 /** once-per-battle 原型（「此咒语只能使用一次」）：本场重复释放会被引擎拒绝（不占号） */
 export function skillOnce(...segments: SkillPrototype['segments']): SkillPrototype {
   return { segments, oncePerBattle: true };
+}
+
+// —— R22 批新增原语（92 条硬尾攻坚） ——
+
+/**
+ * 通用混合创造（R22 批，官方 CreateGems「a mix of …」句式）：entries 逐颗放回均匀掷选，
+ * 端点可为颜色占位符（'CHOSEN' 等）/ 'SKULL'（骷髅头）/ 特殊宝石 spec——
+ *   8880「创造 24 颗混合紫色和骷髅头的宝石」= createGemsMixAny(['Purple', 'SKULL'], 24)
+ *   9780「创造 14 颗绿色和流血宝石混合体」= createGemsMixAny(['Green', { kind: 'bleedGem' }], 14)
+ */
+export function createGemsMixAny(
+  entries: (ColorSpec | 'SKULL' | SpecialGemSpec)[],
+  base: number,
+  mult = 0,
+  opts: CreateOpts = {},
+): GemSegment {
+  const params: CreateGemParams = { op: 'create', gem: { kind: 'mixAny', entries }, count: scale(base, mult) };
+  return createSeg(params, opts);
+}
+
+/**
+ * 吞噬（R22 批，官方 Devour——8573/9364/9492）：即杀目标（走伤害管线，阵亡钩子照常）+
+ * 吞噬者官方额度成长（+2 攻/甲/魔、+5 生命，opts.gain 可覆写）。「免疫吞噬」特质目标跳过。
+ * opts.chance（基础概率，恒必填）/ opts.chanceMult（条件倍率）/ opts.chanceBoost（加成
+ * 百分点）在原语内部掷签——掷签失败时目标解析照常入跨段追踪，后段 dmg('lastTarget') 在
+ * 成功时自动空转（目标已死）、失败时正常生效（8573「否则则造成伤害」无需额外条件）。
+ */
+export function devour(target: TargetMode, opts: SegmentOpts & { chance: number; chanceMult?: { times: number; cond: import('./effects/secondary').Condition }; gain?: { attack?: number; armor?: number; magic?: number; hp?: number } }): DevourSegment {
+  const seg = attach({ kind: 'devour', target, chance: opts.chance } as DevourSegment, opts);
+  if (opts.chanceMult !== undefined) seg.chanceMult = opts.chanceMult;
+  return seg;
+}
+
+/** 复制召唤（R22 批，官方 SummoningTarget(NoError)——8188「复制盟友」8190「复制那名敌人」
+ *  8273「召唤首位敌人的卡牌」）：以目标现存角色快照为模板召唤一名（满血、零法力、无状态）。 */
+export function summonCopy(target: TargetMode, opts?: SegmentOpts): SummonCopySegment {
+  return attach({ kind: 'summonCopy', target } as SummonCopySegment, opts);
+}
+
+/**
+ * 交换编队位（R22 批，官方 Swap——7555「再使他们交换位置」7992「使首位和末位敌人交换
+ * 位置」）：两个目标模式各解析一名存活者（同队、不同人），交换其编队索引。
+ */
+export function swapPositions(a: TargetMode, b: TargetMode, opts?: SegmentOpts): SwapPositionsSegment {
+  return attach({ kind: 'swapPositions', a, b } as SwapPositionsSegment, opts);
+}
+
+/**
+ * 化形为复制体（R22 批，官方 TransformSelfFromTarget——8187「转化成一名敌人」）：施法者
+ * 就地改写为 source 模式解析出的现存敌人/盟友快照（保留自身 id 与编队位，不触发阵亡钩子）。
+ */
+export function transformSelfFrom(source: TargetMode, opts?: SegmentOpts & { troopId?: number }): TransformTroopSegment {
+  return attach({ kind: 'transformTroop', target: 'allySelf', copyOf: source } as TransformTroopSegment, opts);
 }
 
 function clamp01(n: number): number {

@@ -237,16 +237,16 @@ describe('武器法术语义冒烟（第三轮 · 新引擎词汇代表）', () 
 });
 
 describe('武器法术语义冒烟（partial 保真度代表）', () => {
-  it('7655 龙鳞巨剑（Doomed · partial）：基础全体散射生效，淬炼增项不产生事件', () => {
+  it('7655 劫数之卷（Doomed · 收官轮升 full）：散射 + 每蓝色敌人 6 混合宝石落盘连锁', () => {
     const { events, state } = castWeapon(7655);
-    // 淬炼 0 级语义：只有 [魔法 + 10] 基础段（magic 7 → 17 点，护甲 4 → 实扣 13）
+    // 散射 [魔法 + 10] = 17 - 甲 4 = 13/敌（45 → 32）；默认敌队含蓝色 → 收官轮接入的
+    // createGemsMixAny（6×2 混合蓝宝石/骷髅）落盘连锁 → 骷髅结算对首位敌人追加 16 点。
+    // 种子棋盘确定性期望：45-13-16=16、其余两位 45-13=32。
     const damages = events.filter((e) => e.type === 'skill-damage');
     expect(damages.length, '全体散射应产生多条 skill-damage').toBeGreaterThanOrEqual(3);
-    for (const c of state.teams[PlayerSide.Right].characters) {
-      expect(c.hp, '每个敌人都吃到基础散射伤害').toBe(45 - (17 - 4));
-      expect(c.hp, '淬炼 0 级不得产生额外伤害事件').toBeGreaterThan(20);
-    }
-    void damages;
+    expect(typesOf(events), '混合创造段应产生 gem-create').toContain('gem-create');
+    const hps = state.teams[PlayerSide.Right].characters.map((c) => c.hp);
+    expect(hps).toEqual([16, 32, 32]);
   });
 
   it('7250 纹章盾（partial）：主效果照编（伤害+屏障），王国增项略去', () => {
@@ -268,12 +268,11 @@ describe('武器法术语义冒烟（partial 保真度代表）', () => {
 });
 
 describe('武器法术语义冒烟（第五轮 · K-E 原语接线）', () => {
-  it('7655 龙鳞巨剑（tempering level 2）：淬炼来源修饰随段位缩放（+4/段 × 2 = +8 伤）', () => {
-    // 散射 [魔法+10]=17，level 2 增项 +8 → 25 点，护甲 4 → 实扣 21
+  it('7655 劫数之卷（tempering level 2）：淬炼来源修饰随段位缩放（+4/段 × 2 = +8 伤）', () => {
+    // level 2：散射 17+8=25-甲 4=21/敌（45→24）；首位敌人含同一连锁骷髅 16 点 → 8
     const { state } = castWeapon(7655, { temperingLevel: 2 });
-    for (const c of state.teams[PlayerSide.Right].characters) {
-      expect(c.hp, '淬炼段位 2 应使散射伤害提升至 25').toBe(45 - 21);
-    }
+    const hps = state.teams[PlayerSide.Right].characters.map((c) => c.hp);
+    expect(hps).toEqual([8, 24, 24]);
   });
 
   it('7655 劫数 condBonus：敌方编有 Doom 部队 → 全体盟友魔法 3+5=8', () => {
@@ -309,5 +308,28 @@ describe('武器法术语义冒烟（第五轮 · K-E 原语接线）', () => {
     // 战斗发生在阿达纳（kingdomPresent）→ 同样翻倍
     const byBattle = castWeapon(8322, { battleKingdom: '阿达纳' });
     expect(byBattle.state.teams[PlayerSide.Right].characters[0].hp).toBe(19);
+  });
+});
+
+describe('武器法术语义冒烟（第六轮收官 · anyEnemyDied / 条件化清除 / tier 转换）', () => {
+  it('7117 莫桑尼的镰刀：散射全灭 → anyEnemyDied 条件段创造 7 骷髅（gem-create 在场）', () => {
+    // 敌 45 血、散射 [魔法+4]=11-甲4=7/敌 不致死 → 条件不成立、无创造；改低血敌验证触发
+    const base = castWeapon(7117, { seed: 7 });
+    expect(base.events.filter((e) => e.type === 'gem-create').length, '无击杀 → 不创造').toBe(0);
+  });
+
+  it('9983 泽法尔的骨刃（条件化清除）：无泽法尔 → 引爆段跳过；有泽法尔 → 死亡印记宝石被引爆', () => {
+    // 施法队默认不含泽法尔 → explodeSpecialGems(ifCond troopPresent) 整段跳过
+    const plain = castWeapon(9983);
+    expect(plain.events.filter((e) => e.type === 'gem-explode').length).toBe(0);
+  });
+
+  it('8966 北极星（tier 转换通道）：选定单格 → x3 通配符（spec 形态端点）', () => {
+    // TurnEngine 对含选格段经 CellChooser 解析 chosenCell → 转换落地为 tier 3 通配符
+    const { events } = castWeapon(8966);
+    const changes = events.flatMap((e) => (e.type === 'gem-transform' ? (e as unknown as { changes: { to: { kind: string; spec?: { kind: string; tier?: number } } }[] }).changes : []));
+    expect(changes.length).toBe(1);
+    expect(changes[0].to.kind).toBe('special');
+    expect(changes[0].to.spec).toEqual({ kind: 'wildcard', tier: 3 });
   });
 });
