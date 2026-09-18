@@ -262,6 +262,10 @@ export interface ReduceOpts extends SegmentOpts, NRangeOpts {
   drainAll?: boolean;
   /** 比例减半：「将敌方攻击力减半」= 按当前值 50% 下取整削减（忽略数值） */
   halve?: boolean;
+  /** 任意比例削减（R26 批，官方 CountArmor 25 + StealArmor）：「窃取敌人四分之一的护甲值」
+   *  = steal(t,'armor','armor',0,0,{ fraction: 0.25 })——削减额 = 当前值 × fraction 下取整
+   *  （与 halve 同一比例族口径；给出时忽略数值缩放/条件修饰） */
+  fraction?: number;
   /** 连掷次数（仅 stat='random'）：「从其 2 个随机技能值各消除 N 点」= 2（官方多条
    *  DecreaseRandom 步骤，每步独立掷签攻/甲/魔其一）；缺省 1 */
   times?: number;
@@ -286,6 +290,7 @@ export function reduce(
   if (opts.nRange !== undefined) seg.nRange = opts.nRange;
   if (opts.drainAll) seg.drainAll = true;
   if (opts.halve) seg.halve = true;
+  if (opts.fraction !== undefined) seg.fraction = opts.fraction;
   if (opts.times !== undefined) seg.times = opts.times;
   if (opts.rangeSpec !== undefined) seg.rangeSpec = opts.rangeSpec;
   return attach(seg, opts);
@@ -318,6 +323,9 @@ export function steal(
   if (opts.n !== undefined) seg.n = opts.n;
   if (opts.nRange !== undefined) seg.nRange = opts.nRange;
   if (opts.times !== undefined) seg.times = opts.times;
+  // R26 修：drainAll 此前未透传——r15 7347「耗尽其法力值并获得其中半数」段削减额恒 0（静默无效）
+  if (opts.drainAll) seg.drainAll = true;
+  if (opts.fraction !== undefined) seg.fraction = opts.fraction;
   return attach(seg, opts);
 }
 
@@ -351,9 +359,16 @@ export function createSkulls(base: number, mult = 0, opts: CreateOpts = {}): Gem
 /**
  * 创造混合宝石（「创造 15 颗宝石，混合绿色和一种选定类型」）：
  * 逐颗从 colors 里随机取色（种子化）。
+ * R26 扩容（9658「合成 18 颗冰冻宝石和末日骷髅头」/ 7713「混合骷髅头和绿色宝石」）：
+ * colors 端点亦可传 'SKULL'（骷髅头）或 SpecialGemSpec（冻结/流血等状态宝石）——
+ * 混合端走既有 mixAny 路径（effects/gems.ts，每颗 rng 掷选色/骷髅/特殊宝石）；
+ * 纯基色/占位符数组维持旧 `{ kind: 'mix' }` 序列化逐字节不变（零事件零 rng 护栏）。
  */
-export function createMix(colors: ColorSpec[], base: number, mult = 0, opts: CreateOpts = {}): GemSegment {
-  const params: CreateGemParams = { op: 'create', gem: { kind: 'mix', colors }, count: scale(base, mult) };
+export function createMix(colors: (ColorSpec | SpecialGemSpec)[], base: number, mult = 0, opts: CreateOpts = {}): GemSegment {
+  const hasMixedEndpoint = colors.some((c) => typeof c !== 'string' || c === 'SKULL');
+  const params: CreateGemParams = hasMixedEndpoint
+    ? { op: 'create', gem: { kind: 'mixAny', entries: colors }, count: scale(base, mult) }
+    : { op: 'create', gem: { kind: 'mix', colors: colors as ColorSpec[] }, count: scale(base, mult) };
   return createSeg(params, opts);
 }
 

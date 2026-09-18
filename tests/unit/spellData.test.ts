@@ -46,6 +46,10 @@ const STATUS_WHITELIST = new Set([
   // blessed=净化+免疫一切状态；enchanted=每回合+2法力至施法；reflect=受击反弹50%（gowhead
   // 步骤名 CauseMirror）；enraged=狂怒同族（RAGE_STATUS_IDS 既有别名，骷髅1.5x+无视特质）。
   'blessed', 'enchanted', 'reflect', 'enraged',
+  // 狼化（2026-09-19 R26 批扩容，官方 CauseLycanthropy 步骤族 8553 首用）：引擎侧
+  // lycanthropy 本体已实现（WOLF_STATUS_IDS / TurnEngine 狼化宝石摧毁施加同 id，
+  // LYCANTHROPY_GEM_TURNS=3，负面/自动解除集合均登记）——白名单「随回收批扩容」口径。
+  'lycanthropy',
 ]);
 
 const { byId: curatedById, skipped } = collectCurated();

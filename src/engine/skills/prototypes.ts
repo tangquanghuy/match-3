@@ -170,6 +170,8 @@ export interface ReduceSegment extends SegmentOptions {
   nRange?: NRangeSpec;
   /** 比例减半：「将敌方攻击力减半」= 按该属性当前值 50% 下取整削减 */
   halve?: boolean;
+  /** 任意比例削减（R26 批，8040「窃取敌人四分之一的护甲值」）：削减额 = 当前值 × fraction 下取整 */
+  fraction?: number;
   /** 种族限定目标 */
   targetRace?: string;
   /** 王国限定目标（武器原语批 K-E） */
@@ -622,6 +624,7 @@ function compileSegment(segment: EffectSegment, ctx: EffectContext): EffectPrimi
         scaling: segment.scaling,
         drainAll: segment.drainAll,
         halve: segment.halve,
+        fraction: segment.fraction,
         gainStat: segment.gainStat,
         gainRatio: segment.gainRatio,
         times: segment.times,

@@ -48,6 +48,12 @@ export interface ReduceParams {
    * 该属性当前值的 50% 下取整（逐目标现算）；给出时忽略 scaling/condBonus/condMult。
    */
   halve?: boolean;
+  /**
+   * 任意比例削减（R26 批，「消除 25% 攻击」「窃取四分之一的护甲值」官方 CountArmor 25 +
+   * StealArmor）：削减额 = 该属性当前值 × fraction 下取整（逐目标现算，与 halve 同口径的
+   * 比例族；给出时忽略 scaling/condBonus/condMult）。
+   */
+  fraction?: number;
   /** 窃取：目标削减的同时，施法者获得同额（×gainRatio）的该属性。
    *  stat='random' 时此字段仅作「窃取」标记：实际获得 = 掷中的那项属性（同额）。 */
   gainStat?: BuffStat;
@@ -125,6 +131,11 @@ export function reduceEffect(params: ReduceParams): EffectPrimitive {
             // 比例减半：按该属性当前值 50% 下取整（逐目标现算，不走缩放/条件修饰）
             const cur = statNow === 'mana' ? target.mana : statNow === 'hp' ? target.hp : Math.max(0, target[statNow]);
             cAmount = Math.floor(cur / 2);
+          } else if (params.fraction !== undefined) {
+            // 任意比例（R26 批，8040「窃取敌人四分之一的护甲值」官方 CountArmor 25）：
+            // 削减额 = 当前值 × fraction 下取整（与 halve 同一比例族口径）
+            const cur = statNow === 'mana' ? target.mana : statNow === 'hp' ? target.hp : Math.max(0, target[statNow]);
+            cAmount = Math.floor(cur * params.fraction);
           } else {
             const raceFactor = params.raceDouble && hasTroopType(target, params.raceDouble) ? (params.raceTimes ?? DEFAULT_RACE_DOUBLE) : 1;
             cAmount = (base + condBonusValue(params.condBonus, ctx, target)) * raceFactor * condMultiplier(params.condMult, ctx, target);

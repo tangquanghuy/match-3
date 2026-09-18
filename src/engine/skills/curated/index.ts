@@ -91,6 +91,7 @@ import { BATCH_P41 } from './batch-p41';
 import { BATCH_R22 } from './batch-r22';
 import { BATCH_R21 } from './batch-r21';
 import { BATCH_R24 } from './batch-r24';
+import { BATCH_R26 } from './batch-r26';
 import { BATCH_R19 } from './batch-r19';
 import { BATCH_R18 } from './batch-r18';
 import { BATCH_R10 } from './batch-r10';
@@ -170,6 +171,8 @@ const BATCHES: CuratedBatch[] = [
   BATCH_R21,
   BATCH_P41,
   BATCH_R22,
+  BATCH_R24,
+  BATCH_R26,
 ];
 
 /** 合并全部批次的组装结果（id → 原型），并给出跳过清单 */
