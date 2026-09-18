@@ -40,7 +40,7 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 7068,
     desc: '对 1 名随机的敌人造成 [(魔法 / 2) + 6] 点伤害。',
     build: skill(
-      dmg('enemyRandomN', 6, 0.5, { n: 1 }),
+      dmg('enemyRandom', 6, 0.5),
     ),
   },
   {
@@ -76,7 +76,7 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '对 1 名随机的敌人造成 [魔法 + 3] 点伤害，并移除所有红色宝石以增强伤害效果。',
     build: skill(
       destroyColor(BaseColor.Red),
-      dmg('enemyRandomN', 3, 1, { n: 1 }),
+      dmg('enemyRandom', 3, 1),
     ),
   },
   {
@@ -104,7 +104,7 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 7078,
     desc: '对 1 名随机的敌人造成 [魔法 + 5] 点真实伤害。',
     build: skill(
-      trueDmg('enemyRandomN', 5, 1, { trueDamage: true, n: 1 }),
+      trueDmg('enemyRandom', 5, 1, { trueDamage: true }),
     ),
   },
   {
@@ -125,7 +125,7 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 7081,
     desc: '对 1 个随机的敌人造成 3 到 [魔法 + 10] 点伤害。',
     build: skill(
-      dmg('enemyRandomN', 0, 0, { rangeSpec: { min: flat(3), max: scale(10, 1) }, n: 1 }),
+      dmg('enemyRandom', 0, 0, { rangeSpec: { min: flat(3), max: scale(10, 1) } }),
     ),
   },
   {
@@ -153,7 +153,7 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 7085,
     desc: '对 1 名随机的敌人造成 [魔法 + 7] 点伤害。',
     build: skill(
-      dmg('enemyRandomN', 7, 1, { n: 1 }),
+      dmg('enemyRandom', 7, 1),
     ),
   },
   {
@@ -210,7 +210,7 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 7093,
     desc: '对 1 名随机的敌人造成 [魔法 + 7] 点真实伤害。',
     build: skill(
-      trueDmg('enemyRandomN', 7, 1, { trueDamage: true, n: 1 }),
+      trueDmg('enemyRandom', 7, 1, { trueDamage: true }),
     ),
   },
   {
@@ -259,7 +259,7 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 7100,
     desc: '对 1 名随机的敌人造成 [魔法 + 9] 点伤害。',
     build: skill(
-      dmg('enemyRandomN', 9, 1, { n: 1 }),
+      dmg('enemyRandom', 9, 1),
     ),
   },
   {
@@ -312,7 +312,7 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 7107,
     desc: '对 1 名随机的敌人造成 [魔法 + 4] 点真实伤害。',
     build: skill(
-      trueDmg('enemyRandomN', 4, 1, { trueDamage: true, n: 1 }),
+      trueDmg('enemyRandom', 4, 1, { trueDamage: true }),
     ),
   },
   {
@@ -363,7 +363,7 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 7114,
     desc: '对 1 个随机的敌人造成 [魔法 + 5] 伤害。如果敌人是龙族，则造成 8 点额外伤害。',
     build: skill(
-      dmg('enemyRandomN', 5, 1, { n: 1, condBonus: { n: 8, cond: { kind: 'targetRace', race: 'Dragon' } } }),
+      dmg('enemyRandom', 5, 1, { condBonus: { n: 8, cond: { kind: 'targetRace', race: 'Dragon' } } }),
     ),
   },
   {
@@ -399,7 +399,7 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 7119,
     desc: '对 1 名随机的敌人造成 [魔法 + 6] 点伤害，并使其陷入沉默状态。',
     build: skill(
-      dmg('enemyRandomN', 6, 1, { n: 1 }),
+      dmg('enemyRandom', 6, 1),
       inflict('silence', 'lastTarget'),
     ),
   },
@@ -520,7 +520,7 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '摧毁 1 列。对第一名敌人造成 [魔法 + 2] 点伤害，同时每摧毁一颗蓝色宝石则增加 2 点伤害。 [x2]',
     build: skill(
       destroyChosenCol(),
-      dmg('enemyFront', 2, 1),
+      dmg('enemyFront', 2, 1, { modifier: { mod: { kind: 'multiplier', a: 2 }, source: { kind: 'destroyedGems', color: BaseColor.Blue } } }),
     ),
   },
   {
@@ -565,7 +565,7 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 7189,
     desc: '减除一名敌人全部魔法值。',
     build: skill(
-      reduce('lastTarget', 'magic', 0, 0, { drainAll: true }),
+      reduce('enemyChosen', 'magic', 0, 0, { drainAll: true }),
     ),
   },
   {
@@ -593,7 +593,7 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 7194,
     desc: '减除一名敌人全部护甲值，在使其中毒，或造成 [魔法 + 2] 点伤害。',
     build: skill(
-      oneOf([reduce('lastTarget', 'armor', 0, 0, { drainAll: true })], [dmg('enemyChosen', 2, 1)]),
+      oneOf([reduce('enemyChosen', 'armor', 0, 0, { drainAll: true }), inflict('poison', 'lastTarget')], [dmg('enemyChosen', 2, 1)]),
     ),
   },
   {
@@ -614,8 +614,8 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 7197,
     desc: '为 1 个盟友提供 [魔法 + 1] 点攻击力和护甲值。',
     build: skill(
-      attack('allyAll', 1, 1),
-      armor('allyAll', 1, 1),
+      attack('allyChosen', 1, 1),
+      armor('allyChosen', 1, 1),
     ),
   },
   {
@@ -764,7 +764,7 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 7241,
     desc: '对一名敌人造成 [魔法 + 7] 点伤害，伤害值因盖塔尔盟友数而增强。每有一名盖塔尔盟友，则创造 6 颗宝石，所创造的宝石混合紫色和棕色两种颜色。 [x6]',
     build: skill(
-      dmg('enemyChosen', 7, 1, { modifier: { mod: { kind: 'multiplier', a: 6 }, source: { kind: 'teamSize', side: 'ally' } } }),
+      dmg('enemyChosen', 7, 1),
     ),
   },
   {
@@ -802,7 +802,7 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 7247,
     desc: '减除一名敌人全部护甲值，再造成 [魔法 + 1] 点伤害。获得等同于减除的护甲值的攻击力。 [1:1]',
     build: skill(
-      reduce('lastTarget', 'armor', 0, 0, { drainAll: true }),
+      reduce('enemyChosen', 'armor', 0, 0, { drainAll: true }),
       dmg('enemyChosen', 1, 1),
     ),
   },
@@ -884,7 +884,7 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '摧毁 1 列。对 1 名随机敌人造成 [魔法 + 5] 点伤害，伤害值因被摧毁的骷髅头数而增强。 [1:1]',
     build: skill(
       destroyChosenCol(),
-      dmg('enemyRandomN', 5, 1, { n: 1, modifier: { mod: { kind: 'ratio', a: 1, b: 1 }, source: { kind: 'boardSkulls' } } }),
+      dmg('enemyRandom', 5, 1, { modifier: { mod: { kind: 'ratio', a: 1, b: 1 }, source: { kind: 'boardSkulls' } } }),
     ),
   },
   {
@@ -916,7 +916,7 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '对所有敌人造成 [(魔法 / 2) + 2] 点伤害。随机燃烧一名敌人，并使另一名敌人陷入疾病状态。',
     build: skill(
       dmg('enemyAll', 2, 0.5, { range: 'all' }),
-      inflict('disease', 'enemyRandomN'),
+      inflict('burning', 'enemyRandom'),
     ),
   },
   {
@@ -962,6 +962,10 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '对 1 名敌人造成 [魔法 + 6] 点伤害。如果敌人身亡，所有技能值增加 10 点。',
     build: skill(
       dmg('enemyChosen', 6, 1),
+      attack('allySelf', 10, 0, { ifTargetDied: true }),
+      armor('allySelf', 10, 0, { ifTargetDied: true }),
+      heal('allySelf', 10, 0, { ifTargetDied: true }),
+      magic('allySelf', 10, 0, { ifTargetDied: true }),
     ),
   },
   {
@@ -1009,7 +1013,7 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '爆破一颗宝石。对 1 名随机敌人造成 [魔法 + 5] 点伤害并将其燃烧。',
     build: skill(
       explodeRandomGems(1, 0, 'color', undefined),
-      dmg('enemyRandomN', 5, 1, { n: 1 }),
+      dmg('enemyRandom', 5, 1),
       inflict('burning', 'lastTarget'),
     ),
   },
@@ -1058,6 +1062,8 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '科学地使随机敌人陷入燃烧、冻结和沉默状态，并造成 [魔法 + 3] 点伤害。',
     build: skill(
       inflict('burning', 'enemyRandomN'),
+      inflict('frozen', 'enemyRandomN'),
+      inflict('silence', 'enemyRandomN'),
     ),
   },
   {
@@ -1090,7 +1096,7 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 7414,
     desc: '给予一名盟友 [魔法 + 1] 点随机技能值，然后赋予其屏障效果并给予 3 - 15 点法力值。',
     build: skill(
-      randomStat('allyAll', 1, 1),
+      randomStat('allyChosen', 1, 1),
       inflict('barrier', 'allyChosen'),
     ),
   },
@@ -1123,7 +1129,7 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '对 1 名敌人造成 [魔法 + 1] 点伤害。随机摧毁 5 颗宝石，摧毁数因收集到的黄金数量而增强。 [4:1]',
     build: skill(
       dmg('enemyChosen', 1, 1),
-      destroyRandomGems(5, 0, 'color', undefined),
+      destroyRandomGems(5, 0, 'color', undefined, { modifier: { mod: { kind: 'ratio', a: 4, b: 1 }, source: { kind: 'battleGold' } } }),
     ),
   },
   {
@@ -1131,7 +1137,7 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '获得 [魔法 + 1] 点生命值。创造 5 颗绿色宝石，宝石数因拥有法印效果的盟友数而增强。 [x3]',
     build: skill(
       heal('allySelf', 1, 1),
-      createGems(BaseColor.Green, 5, 0),
+      createGems(BaseColor.Green, 5, 0, { modifier: { mod: { kind: 'multiplier', a: 3 }, source: { kind: 'allyStatusCount', statusId: 'enchanted' } } }),
     ),
   },
   {
@@ -1162,6 +1168,7 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '创造 9 颗红色宝石。召唤一名随机的厄什卡军队。',
     build: skill(
       createGems(BaseColor.Red, 9, 0),
+      summonRandom(['Barbearius', 'UrskaWanderer', 'Urskatyr', 'CorruptedUrska', 'KingMikhail', 'UrskaSavage', 'Doomclaw', 'XiongMao', 'PandaskaGuard', 'CrimsonArrow', 'UrskaDragoon', 'Urskula', 'UrskaDruid', 'Berengari', 'PossessedUrska', 'BlackBjörn', 'Defiance', 'Lyrasza', 'PandaskaMage', 'PrinceBarislav', 'Ursuvius', 'SpiritOfRage', 'IronVlasta', 'Ursky', 'Pandazerker', 'Theodorevich', 'Pandallista', 'ShejiShi', 'Bearlock', 'Bieska', 'Emberclaw', 'SkeletalUrska', 'IvarLongclaw', 'VelesStormborn', 'PossessedTeddy', 'PoisonedUrsidae', 'RangerEvgeniy'], undefined),
     ),
   },
   {
@@ -1312,8 +1319,8 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 7624,
     desc: '给一名盟友 [魔法 + 2] 点生命值和一半的法力值。将其净化，并赋予其屏障和法印效果。 [2:1]',
     build: skill(
-      heal('allyAll', 2, 1),
-      mana('allyAll', 0, 0, { halve: true, modifier: { mod: { kind: 'ratio', a: 2, b: 1 } } }),
+      heal('allyChosen', 2, 1),
+      mana('allyChosen', 0, 0, { halve: true, modifier: { mod: { kind: 'ratio', a: 2, b: 1 } } }),
       cleanse('lastTarget'),
       inflict('barrier', 'lastTarget'),
       inflict('enchanted', 'lastTarget'),
@@ -1325,6 +1332,7 @@ const SPELLS: CuratedBatch['spells'] = [
     build: skill(
       dmg('enemyAll', 4, 0.5, { range: 'all' }),
       inflict('death-mark', 'enemyAll', { targetRace: 'Divine' }),
+      inflict('disease', 'enemyAll', { targetRace: 'Divine' }),
     ),
   },
   {

@@ -317,3 +317,52 @@
    反向用 targetHpDamaged 思路取反或对调双方，当前仅支持施法者>目标的正向比较）。
 3. **聚合存在（超集口径）**：「若其中一个使用X法力」→ `{ kind: 'anyEnemyColor', color: X }`
    （任一存活敌人带该法力色；对「首位和末位之一」是超集，已标注）。
+
+## §14 武器法术解析器冲刺（K-B3，2026-09-18；分布 320/382/16 → 418/288/12）
+
+> 以下裁定均锚定 `artifacts/gowhead-weapons/raw/weapons.gow.en.json` 英文原文消歧（zh 为锚、
+> EN 为译名/语义判据）；生成器 `scripts/_weapon_pools.mjs`，条目号 = SpellId。
+
+1. **「boosted by」修饰句大族归一**：「因X而增强/加强」「由X激发/增强/加成」「受到X盟友的加成」
+   「X盟友(和Y盟友)可提升伤害」「X的敌人伤害加成」「数二增强」（机翻 而→二）——一律读 §1 修饰段：
+   挂最近数值段；来源经 parseModifierSource（盟友族→alliesOfRace、色盟友→alliesOfColor、
+   骷髅头→boardSkulls、状态→statusCount、战场经济→battleGold/battleSouls、特殊宝石→boardSpecial）。
+   双来源「A色盟友和B族盟友(的数量)」（9510/9833/9690/8811 族）→ `sources: [alliesOfColor, alliesOfRace]`。
+2. **王国盟友计数诚实拒绝**：「伤害值因玉银林地盟友数而增强」曾被泛化回退 `盟友→teamSize(ally)`
+   （= 数全体盟友，语义错误）。修正为拒绝并归 kingdom-count 特征；9302/9354 随之诚实降级
+   full→partial，待王国批 alliesOfKingdom 来源接线后自动回收（引擎 Condition/来源 kind 已备）。
+3. **「魔头=Boss」重裁（推翻 §5 旧读法）**：「若敌人是个魔头/若敌方有魔头」EN "If enemy is a Boss"
+   —— troops.json troopTypes 含 `Boss`，引擎 targetRace/enemyRacePresent 按族判定即可表达
+   （与「基于晋升稀有度 N 倍」的晋升度条件无关，后者仍 blocked）。§5 的「魔头条件不做」限定撤销。
+4. **机翻定点归一（EN 逐句核实）**：「结果 [魔法+N] 给予一名敌人(超级)重击」= (严重的)溅射伤害
+   （8512/8521，mana-only → 回收）；「摧毁N枚宝石的法力颜色之一」= 爆破N颗其法力颜色宝石
+   （LAST_TARGET）；「从所有敌人中清空两个玛那」= 耗掉所有敌人 2 点法力（8400）；「在使其中毒」
+   （7194）；「还/额外」句首连接词；「， 则」逗号后空格；条件子句缺「则」自动补齐（7294 族）。
+5. **「全部技能值增加 N 点」** = 四项技能（攻/甲/血/魔）各 +N，逐项落段（§6 状态池展开同款）；
+   「获得 N to all Skills」（7294/7864）。
+6. **独立掷签 ≠ oneOf**：「有 N% 个别几率获得 A 和 B」（8283，EN independent chances）→
+   A、B 各自挂段级 `chance`；「几率因X而增强」无量化倍率时按模糊增幅记省略。
+7. **「每有一名X盟友，则消耗 N 点法力」**（9579）= reduce(目标, mana, N) + alliesOfRace 修饰。
+8. **up-to 数值口径**：「耗尽一名敌人最高 12 点法力值」（7866）= reduce(mana, 12)——引擎 mana
+   夹零下限即 up-to 语义，诚实等价；创造数量 = drainedMana 修饰（尾部 [N:M] 即每点法力 +N 颗）。
+9. **编队上下方**：「使其上方所有敌人…」（9162）→ enemyAboveTarget / enemyBelowTarget（R13 原语）；
+   「对一名敌人和其下方的敌人」（8154）→ enemyChosenAndBelow。无 enemyOthers/「另一名敌人」
+   目标模式 → 诚实略去（7754/7285）。
+10. **盟友随机状态无「正面」修饰**：「赋予所有X盟友一个(随机的)状态效果」EN "Grant a random
+    Status Effect to all X Allies"（8384/8437/8449/8490/8509/8576/8621/8622/8706/8771/9033/9754/
+    9916 族）→ 按 §11 补充「赋予盟友=正面池」口径，与「随机正面增益」同读。
+11. **具名特殊宝石定量/全体爆破**：「引爆3颗激怒宝石」（9747）→ explodeRandomSpecialGems；
+    「引爆所有恶魔传送门宝石」（9486）→ explodeSpecialGems（无 opts 形参，禁止挂条件——
+    条件用法归 conditional-clear，9486/9809/9983/9381）。
+12. **modifier-tag 孤儿治理**：138 → 110。尾部 [xN] 在其归属子句可编译时随规则挂载
+    （「可提升伤害」「由X激发」族 → tag 即乘数）；归属子句因引擎缺口被略去时
+    （doom/王国/exotic 计数）维持不挂载、不硬凑——「无可靠挂载段」记录保留。
+13. **新特征键（PRIM 请求）**：boss-condition（如未来需晋升口径再议）、random-status-nrange
+    （「陷入 1 到 4 个状态」inflictRandom 无 times 区间）、destroyed-gem-status-trigger
+    （「每摧毁一颗X宝石则燃烧」触发式状态）、reposition-nrange（「将 1-2 位敌人由首位打到末位」）、
+    all-status-grant（「赋予一名盟友所有状态效果」全池口径未考证）、stone-block-count
+    （8400 石墩计数，无对应 SpecialGemKind）。
+14. **诚实降级/维持 mana-only 余量**：7071（{1} 占位符）、7188/7199（stat 翻倍）、7190（基数取
+    目标属性）、7217（行绑定清除）、8529（敌方最常用色）/8577（多档通配）/8578（五色药水池）/
+    8965（X 形清除+逐摧毁祝福）、8966（x3 通配转换）、10045/10063/10065（EN-only 快照）——
+    均为引擎/数据缺口，不硬凑。

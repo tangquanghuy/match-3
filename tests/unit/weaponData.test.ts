@@ -507,13 +507,13 @@ describe('G · 绑定保真度（K-B 分保真度绑定元数据）', () => {
     expect(problems, `前 ${Math.min(5, problems.length)} 条 → ${problems.slice(0, 5).join(' | ')}`).toEqual([]);
   });
 
-  it('三级分布写死对齐（full 320 / partial 382 / mana-only 16 = 718；第三轮+tier 修正）', () => {
+  it('三级分布写死对齐（full 418 / partial 288 / mana-only 12 = 718；第四轮 K-B3 解析器冲刺）', () => {
     const dist: Record<string, number> = { full: 0, partial: 0, 'mana-only': 0 };
     for (const w of WEAPONS) {
       expect(FIDELITIES.has(w.spell.meta.fidelity), `${w.id} fidelity 非法`).toBe(true);
       dist[w.spell.meta.fidelity]++;
     }
-    expect(dist).toEqual({ full: 320, partial: 382, 'mana-only': 16 });
+    expect(dist).toEqual({ full: 418, partial: 288, 'mana-only': 12 });
   });
 
   it('逐条与 weapon-skill-meta.json 登记一致（fidelity/missingFeatures/skippedClauses 三元组）', () => {

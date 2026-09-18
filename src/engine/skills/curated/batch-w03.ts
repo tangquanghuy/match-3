@@ -8,13 +8,20 @@
  * src/data/weapon-skill-meta.json）。组装规则锚定 scripts/spell-rules.md 与
  * 既有部队批次先例；生成器 scripts/_weapon_pools.mjs gen。
  */
-import { armor, attack, createGems, createSpecialGems, createStorm, destroyChosenCol, destroyChosenRow, destroyColor, dmg, dmgSplash, explodeRandomGems, extraTurn, gainGold, heal, inflict, inflictRandom, magic, mana, reposition, shuffleTeam, skill, steal, summonRandom, transform, transformToSpecial, trueDmg, CHOSEN } from '../builders';
+import { armor, attack, cleanse, createGems, createMix, createSpecialGems, createStorm, destroyChosenCol, destroyChosenRow, destroyColor, destroyRandomCols, dmg, dmgSplash, explodeChosenCol, explodeChosenRow, explodeRandomGems, extraTurn, gainGold, heal, inflict, inflictRandom, magic, mana, oneOf, reduce, reposition, shuffleTeam, skill, steal, summonRandom, transform, transformToSpecial, trueDmg, CHOSEN } from '../builders';
 import { BaseColor } from '../../types';
 import type { CuratedBatch } from './index';
 
 const SKIPPED: { id: number; reason: string }[] = [];
 
 const SPELLS: CuratedBatch['spells'] = [
+  {
+    id: 8400,
+    desc: '从所有敌人中清空两个玛那，石墩激活。可摧毁所选颜色的宝石。 [1:1]',
+    build: skill(
+      reduce('enemyAll', 'mana', 2, 0),
+    ),
+  },
   {
     id: 8401,
     desc: '对一名敌人造成 [魔法 + 2] 点伤害，伤害值因自身灵魂数而增强。 [1:1]',
@@ -27,6 +34,7 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '对一名敌人造成 [魔法 + 7] 点伤害，伤害值因矮人盟友数而增强。每有一位矮人盟友则创造 6 颗混合蓝色和棕色的宝石。 [x6]',
     build: skill(
       dmg('enemyChosen', 7, 1, { modifier: { mod: { kind: 'multiplier', a: 6 }, source: { kind: 'alliesOfRace', race: 'Dwarf' } } }),
+      createMix([BaseColor.Blue, BaseColor.Brown], 6, 0, { modifier: { mod: { kind: 'multiplier', a: 6 }, sources: [{ kind: 'alliesOfRace', race: 'Dwarf' }] } }),
     ),
   },
   {
@@ -43,7 +51,9 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '获得屏障效果。给予一名盟友 [(魔法 x 1.5) + 1] 点生命值，并将其净化和赋予其法印效果。',
     build: skill(
       inflict('barrier', 'allySelf'),
-      inflict('enchanted', 'allyChosen'),
+      heal('allyChosen', 1, 1.5),
+      cleanse('lastTarget'),
+      inflict('enchanted', 'lastTarget'),
     ),
   },
   {
@@ -66,22 +76,24 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 8434,
     desc: '对一名敌人造成 [魔法 + 7] 点伤害，伤害值因黑石盟友数而增强。每有一名黑石盟友，则创造 6 颗混合蓝色和紫色的宝石。 [x6]',
     build: skill(
-      dmg('enemyChosen', 7, 1, { modifier: { mod: { kind: 'multiplier', a: 6 }, source: { kind: 'teamSize', side: 'ally' } } }),
+      dmg('enemyChosen', 7, 1),
     ),
   },
   {
     id: 8435,
     desc: '对一名敌人造成 [魔法 + 7] 点伤害，伤害值因牛头族盟友数而增强。每有一名牛头族盟友，则创造 6 颗混合绿色和棕色的宝石。 [x6]',
     build: skill(
-      dmg('enemyChosen', 7, 1, { modifier: { mod: { kind: 'multiplier', a: 6 }, source: { kind: 'teamSize', side: 'ally' } } }),
+      dmg('enemyChosen', 7, 1, { modifier: { mod: { kind: 'multiplier', a: 6 }, source: { kind: 'alliesOfRace', race: 'Tauros' } } }),
+      createMix([BaseColor.Green, BaseColor.Brown], 6, 0, { modifier: { mod: { kind: 'multiplier', a: 6 }, sources: [{ kind: 'alliesOfRace', race: 'Tauros' }] } }),
     ),
   },
   {
     id: 8436,
     desc: '对所有敌人造成 [魔法 + 2] 点伤害，伤害值因紫色盟友和敌人数而增强。使所有敌人陷入死亡标记状态。若有 13 或更多颗棕色宝石，则获得 2 点魔法值。 [x2]',
     build: skill(
-      dmg('enemyAll', 2, 1, { range: 'all', modifier: { mod: { kind: 'multiplier', a: 2 }, source: { kind: 'teamSize', side: 'enemy' } } }),
+      dmg('enemyAll', 2, 1, { range: 'all', modifier: { mod: { kind: 'multiplier', a: 2 }, source: { kind: 'alliesOfColor', color: BaseColor.Purple } } }),
       inflict('death-mark', 'enemyAll'),
+      magic('allySelf', 2, 0, { ifCond: { kind: 'boardAtLeast', color: BaseColor.Brown, n: 13 } }),
     ),
   },
   {
@@ -104,7 +116,9 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 8440,
     desc: '消除 [魔法 + 1] 点随机技能值，再使一名敌人陷入诅咒、死亡标记和疾病状态。',
     build: skill(
-      inflict('death-mark', 'enemyRandomN'),
+      inflict('curse', 'enemyChosen'),
+      inflict('death-mark', 'enemyChosen'),
+      inflict('disease', 'enemyChosen'),
     ),
   },
   {
@@ -167,7 +181,9 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 8448,
     desc: '爆破 1 行或 1 列。对第一位敌人造成 [魔法 + 4] 点伤害。打乱敌方队伍队形。',
     build: skill(
+      oneOf([explodeChosenRow()], [explodeChosenCol()]),
       dmg('enemyFront', 4, 1),
+      shuffleTeam('enemy'),
     ),
   },
   {
@@ -198,6 +214,7 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '对一名敌人造成 [魔法 + 7] 点伤害，伤害值因龙爪盟友数而增强。每有一名龙爪盟友则创造 6 颗混合红色和紫色的宝石。 [x6]',
     build: skill(
       dmg('enemyChosen', 7, 1, { modifier: { mod: { kind: 'multiplier', a: 6 }, source: { kind: 'alliesOfRace', race: 'Dragon' } } }),
+      createMix([BaseColor.Red, BaseColor.Purple], 6, 0, { modifier: { mod: { kind: 'multiplier', a: 6 }, sources: [{ kind: 'alliesOfRace', race: 'Dragon' }] } }),
     ),
   },
   {
@@ -220,6 +237,8 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '爆破 [魔法 + 1] 颗棕色宝石。赋予所有厄什卡盟友一个随机正面增益效果。再召唤一名厄什卡军队。',
     build: skill(
       explodeRandomGems(1, 1, 'color', BaseColor.Brown),
+      inflictRandom('allyAll', { targetRace: 'Urska' }),
+      summonRandom(['Barbearius', 'UrskaWanderer', 'Urskatyr', 'CorruptedUrska', 'KingMikhail', 'UrskaSavage', 'Doomclaw', 'XiongMao', 'PandaskaGuard', 'CrimsonArrow', 'UrskaDragoon', 'Urskula', 'UrskaDruid', 'Berengari', 'PossessedUrska', 'BlackBjörn', 'Defiance', 'Lyrasza', 'PandaskaMage', 'PrinceBarislav', 'Ursuvius', 'SpiritOfRage', 'IronVlasta', 'Ursky', 'Pandazerker', 'Theodorevich', 'Pandallista', 'ShejiShi', 'Bearlock', 'Bieska', 'Emberclaw', 'SkeletalUrska', 'IvarLongclaw', 'VelesStormborn', 'PossessedTeddy', 'PoisonedUrsidae', 'RangerEvgeniy'], undefined),
     ),
   },
   {
@@ -243,7 +262,7 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 8487,
     desc: '对一名敌人造成 [魔法 + 7] 点伤害，伤害值因黑鹰盟友数而增强。每有一位黑鹰盟友则创造 6 颗混合蓝色和红色的宝石。 [x6]',
     build: skill(
-      dmg('enemyChosen', 7, 1, { modifier: { mod: { kind: 'multiplier', a: 6 }, source: { kind: 'teamSize', side: 'ally' } } }),
+      dmg('enemyChosen', 7, 1),
     ),
   },
   {
@@ -266,7 +285,7 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 8506,
     desc: '对一名敌人造成 [魔法 + 7] 点伤害，伤害值因破碎尖塔盟友数而增强。每有一位破碎尖塔盟友则创造 6 颗混合红色和棕色的宝石。 [x6]',
     build: skill(
-      dmg('enemyChosen', 7, 1, { modifier: { mod: { kind: 'multiplier', a: 6 }, source: { kind: 'teamSize', side: 'ally' } } }),
+      dmg('enemyChosen', 7, 1),
     ),
   },
   {
@@ -274,7 +293,8 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '移除所有紫色宝石。创造等同于被移除的紫色宝石数的黄色宝石。给予一名盟友 [魔法 + 1] 点生命值，数量因板面上现有的黄色宝石数而增强。 [1:1]',
     build: skill(
       destroyColor(BaseColor.Purple),
-      heal('allyAll', 1, 1, { modifier: { mod: { kind: 'ratio', a: 1, b: 1 }, source: { kind: 'boardGems', color: BaseColor.Yellow } } }),
+      createGems(BaseColor.Yellow, 0, 0, { modifier: { mod: { kind: 'ratio', a: 1, b: 1 }, source: { kind: 'destroyedGems', color: BaseColor.Purple } } }),
+      heal('allyChosen', 1, 1, { modifier: { mod: { kind: 'ratio', a: 1, b: 1 }, source: { kind: 'boardGems', color: BaseColor.Yellow } } }),
     ),
   },
   {
@@ -282,6 +302,7 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '对最后一位敌人造成 [魔法 + 3] 点伤害。若对方已陷入中毒状态，则使其陷入叠加 4 倍的出血状态',
     build: skill(
       dmg('enemyLast', 3, 1),
+      inflict('bleed', 'enemyChosen', { stacks: 4, ifCond: { kind: 'anyEnemyStatus', statusId: 'poison' } }),
     ),
   },
   {
@@ -304,7 +325,16 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 8511,
     desc: '选定一个颜色以移除所有同色宝石。造成 [魔法 + 6] 点散射伤害，伤害值因被移除的宝石数而增强。 [x2]',
     build: skill(
+      destroyColor(CHOSEN),
       dmg('enemyAll', 6, 1, { range: 'all', modifier: { mod: { kind: 'multiplier', a: 2 }, source: { kind: 'destroyedGems' } } }),
+    ),
+  },
+  {
+    id: 8512,
+    desc: '结果 [魔法 + 3] 给予一名敌人重击。摧毁8枚宝石的法力颜色之一。',
+    build: skill(
+      dmgSplash('enemyChosen', 3, 1, { range: 'splash' }),
+      explodeRandomGems(8, 0, 'color', 'LAST_TARGET'),
     ),
   },
   {
@@ -332,8 +362,8 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 8516,
     desc: '给予一名盟友 [魔法 + 1] 点护甲值和 4 点法力值。',
     build: skill(
-      armor('allyAll', 1, 1),
-      mana('allyAll', 4, 0),
+      armor('allyChosen', 1, 1),
+      mana('allyChosen', 4, 0),
     ),
   },
   {
@@ -363,7 +393,16 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 8520,
     desc: '窃取第一位敌人 [(魔法 / 2) + 2] 点生命值，并创造 7 颗蓝色宝石。',
     build: skill(
+      dmg('enemyFront', 2, 0.5, { drain: true }),
       createGems(BaseColor.Blue, 7, 0),
+    ),
+  },
+  {
+    id: 8521,
+    desc: '结果 [魔法 + 3] 给予一名敌人超级重击。如果敌人被打昏，炸毁四枚宝石。',
+    build: skill(
+      dmgSplash('enemyChosen', 3, 1, { range: 'splash' }),
+      explodeRandomGems(4, 0, 'color', undefined, { ifCond: { kind: 'anyEnemyStatus', statusId: 'stun' } }),
     ),
   },
   {
@@ -381,6 +420,13 @@ const SPELLS: CuratedBatch['spells'] = [
       explodeRandomGems(1, 1, 'color', BaseColor.Green),
       inflictRandom('allyAll', { targetRace: 'Beast' }),
       summonRandom(['Rhynax', 'Pegasus', 'Owlbear', 'SacredGuardian', 'BoarRider', 'BlackBeast', 'SabertoothLion', 'GriffonKnight', 'Serpent', 'Warhound', 'Hippogryph', 'GiantSpider', 'DireWolf', 'Kerberos', 'SpiderSwarm', 'Roc', 'Fenrir', 'Salamander', 'Hellhound', 'BunniNog', 'Jackelope', 'Yeti', 'WinterWolf', 'SpiritFox', 'Hellcat', 'Moa', 'FireLizard', 'LionPrince', 'SandCobra', 'Dragonmoth', 'WingedBison', 'ArmoredBoar', 'WarGoat', 'Sunsail', 'Warg', 'Frostling', 'BoneScorpion', 'SnowyOwl', 'GiantToad', 'Werewolf', 'ForestGuardian', 'Wulfgarok', 'Minogor', 'Unicorn', 'Penguin', 'Aurai', 'FrostLizard', 'Drake', 'QueenAurora', 'Parrot', 'Cocoon', 'RiftLynx', 'Valraven', 'Falconer', 'Warhawk', 'Sunbird', 'DragonTurtle', 'Spinnerette', 'GiantCrab', 'Hippocampus', 'Merlion', 'Zhenniao', 'CatSith', 'BatSwarm', 'Umberwolf', 'Bulette', 'Hyena', 'Mammoth', 'OwlRider', 'Stone-Shaker', 'PharaohHound', 'TombSpider', 'Willow', 'Gorbil', 'DireBoar', 'CuSith', 'Nightmare', 'MidgeSwarm', 'FestivalCow', 'ArcticFox', 'Barghast', 'GriffStonefeather', 'Rhynaggor', 'TurtleCannon', 'Bunnicorn', 'Nightwing', 'Plainsjumper', 'MoonRabbit', 'Qilin', 'VineMarten', 'WoodRhynax', 'SnowPanther', 'UrskayanBlue', 'HornedAsp', 'Necrocorn', 'Glutmaw', 'CorpseMare', 'ROVER-300', 'Frostfeather', 'Grimcorn', 'HarpyEagle', 'Droggo', 'Kryshound', 'WarWolf', 'GuardianOfTheFields', 'Amaru', 'DireCub', 'Tutankhatmun', 'DandyLion', 'Crysturtle', 'Werebird', 'Werebear', 'Werecat', 'BeastmasterTorbern', 'SirQuentinHadley', 'ChaosHound', 'P4-NTH4', 'MechaRat', 'Blightwing', 'DynamiteGoat', 'Netherhound', 'SwampRat', 'Basilisk', 'WarElephant', 'Axolotl', 'Doombat', 'DreadSteed', 'LordBelanor', 'Amarok', 'ArmoredBoarlet', 'DeepHuntsman', 'FlameOfAnu', 'NightSpider', 'Kharybdis', 'Pan', 'CarrionCrow', 'SnowyOwlbear', 'Baihu', 'UlfsMascot', 'Hatir&Skroll', 'HatirAscendant', 'SkrollReborn', 'Wereraven', 'Werebat', 'Wereverine', 'TheWerestag', 'Devourer', 'IceOrca', 'Wererat', 'Swanmay', 'Wereshark', 'SkyScorpion', 'AransiTheGuardian', 'NaturebornWolf', 'FirebornEagle', 'WaterbornOwl', 'StonebornLion', 'MoonPhoenix', 'Leocorn', 'Catterfly', 'BrianTheClucky', 'Narwhale', 'SteelCobra', 'SkyGoat', 'Shadowbeast', 'LavaScorpion', 'Kitsune', 'Crystalynx', 'Mechamare', 'LordArchimedus', 'Mechweaver', 'Deathclaw', 'Tauraeus', 'EagleOwl', 'FloraFawn', 'CryptHound', 'FlameRhynax', 'FireBeetle', 'StoneViper', 'Leio', 'Craghound', 'Anglerfin', 'BORK-3000', 'Scoprio', 'HoundOfLiang', 'RedFox', 'Vulperus', 'Inari', 'Zhuque', 'Negasus', 'DeadParrot', 'AxeBeak', 'Deathgaunt', 'FeyHound', 'SandCat', 'CobaltDrake', 'StonePanther', 'MantaRaider', 'SkellyCat', 'Grimfeather', 'Werehound', 'RatSwarm', 'LeapingSpider', 'BoneHound', 'TheBestialFey', 'Egris', 'Caribou', 'ArcaneSabercat', 'DeephornBeetle', 'Bloodfang', 'GiantBadger', 'Adelwing', 'BrassDrake', 'UndeadLion', 'Valhawk', 'ManeCourser', 'Weresnake', 'FirebornLynx', 'Amphib-o-Bot', 'MidwinterLycan', 'Mistlark', 'WargSpirit', 'Moonfeather', 'YetiCub', 'DeepSpider', 'BlightHound', 'ShadowBeetle', 'DuskOwlbear', 'WingedDonkey', 'Foxglove', 'Peregrine', 'LionOfYaoGuai', 'ImmortalScoprio', 'ZombieGoat', 'RottingSerpent', 'Treviamus', 'Reavnarokkr', 'Yue-She', 'BloomManatee', 'FelineOfEnvy', 'Azaleus', 'Xuanwu', 'Scrollweaver', 'ImmortalLeio', 'Cosmo', 'Dragonhawk', 'WEEZL-300', 'Rockraptor', 'CaravanCamel', 'Gindibu', 'Yohaulticetl', 'Warmadillo', 'ToxicPuffer', 'Warfang', 'GriffonCaptain', 'PoisonedUrsidae', 'CaveMole', 'ManedWolf', 'FrostSpider', 'CaveCrawler', 'RagingBull', 'Tetramorph'], undefined),
+    ),
+  },
+  {
+    id: 8578,
+    desc: '制造 3 种药水，蓝色、绿色、红色、黄色或紫色。可获得额外的回合。',
+    build: skill(
+      extraTurn(),
     ),
   },
   {
@@ -411,6 +457,7 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '对一名随机敌人造成 [魔法 + 1] 点真实伤害，并随机摧毁一列。',
     build: skill(
       trueDmg('enemyRandom', 1, 1, { trueDamage: true }),
+      destroyRandomCols(1, 0),
     ),
   },
   {
@@ -434,6 +481,8 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '爆炸[魔法 + 1]枚黄色宝石。赋予所有冥河盟友一个随机状态效果。然后召唤一支猎鹰军团。',
     build: skill(
       explodeRandomGems(1, 1, 'color', BaseColor.Yellow),
+      inflictRandom('allyAll', { targetRace: 'Stryx' }),
+      summonRandom(['Heronath', 'Owleth', 'Sylph', 'Garuda', 'PrinceAzquila', 'Strygik', 'Stormsinger', 'Taloca', 'WindArcher', 'Ixchel', 'Phoenicia', 'PavosDawnwind', 'Harpy', 'Bladewing', 'HarpyMage', 'QueenXochi', 'CaptainMacaw', 'Finesse', 'Lyriath', 'Zilopochtli', 'Quetzalma', 'HighPriestessChazka', 'Metztli', 'Ostryx', 'Totec', 'KingOfRavens', 'Stormcrow', 'HarpyNightsong', 'Ehecatl', 'Egris', 'SparrowKnight', 'Kukulkan', 'FisherKing', 'CrestedAva', 'Mayahuel', 'Cinereous', 'Cassoryx'], undefined),
     ),
   },
   {
@@ -450,7 +499,7 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 8640,
     desc: '对一名敌人造成 [魔法 + 3] 点伤害，敌人每陷入以下一个状态效果则再造成 12 点伤害：缠绕、燃烧、冻结、击晕。 [x12]',
     build: skill(
-      dmg('enemyChosen', 3, 1),
+      dmg('enemyChosen', 3, 1, { condBonus: { n: 12, cond: { kind: 'anyOf', of: [{ kind: 'targetStatus', statusId: 'entangle' }, { kind: 'targetStatus', statusId: 'burning' }, { kind: 'targetStatus', statusId: 'frozen' }, { kind: 'targetStatus', statusId: 'stun' }] } } }),
     ),
   },
   {
@@ -487,7 +536,7 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 8645,
     desc: '对一名敌人造成 [魔法 + 7] 点伤害，伤害值因诺斯盟友数而增强。每有一名诺斯盟友，则创建 6 颗混合红色和棕色的宝石。 [x6]',
     build: skill(
-      dmg('enemyChosen', 7, 1, { modifier: { mod: { kind: 'multiplier', a: 6 }, source: { kind: 'teamSize', side: 'ally' } } }),
+      dmg('enemyChosen', 7, 1),
     ),
   },
   {
@@ -535,7 +584,7 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 8669,
     desc: '对一名敌人造成 [魔法 + 7] 点伤害，伤害值因齐埃金盟友数而增强。每有一名齐埃金盟友则创建 6 颗混合绿色和棕色的宝石。 [x6]',
     build: skill(
-      dmg('enemyChosen', 7, 1, { modifier: { mod: { kind: 'multiplier', a: 6 }, source: { kind: 'teamSize', side: 'ally' } } }),
+      dmg('enemyChosen', 7, 1),
     ),
   },
   {
@@ -557,6 +606,7 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '爆破 3 颗宝石，再创造一颗许愿宝石。',
     build: skill(
       explodeRandomGems(3, 0, 'color', undefined),
+      createSpecialGems({ kind: 'wish' }, 1, 0),
     ),
   },
   {
@@ -648,6 +698,8 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '爆破 [魔法 + 1] 颗棕色宝石。赋予所有建造盟友一个随机正面增益效果。再召唤一名建造军队。',
     build: skill(
       explodeRandomGems(1, 1, 'color', BaseColor.Brown),
+      inflictRandom('allyAll', { targetRace: 'Construct' }),
+      summonRandom(['Golem', 'ArchonStatue', 'FleshGolem', 'FortressGate', 'Justice', 'Loyalty', 'Courage', 'Humility', 'Sacrifice', 'Honor', 'ShipCannon', 'Mimic', 'IceGolem', 'VoidPortal', 'DarkMonolith', 'ObsidianTitan', 'SnowGuardian', 'TotemGuardian', 'YagasHut', 'DwarvenGate', 'AncientGolem', 'CoralGolem', 'TomeOfEvil', 'WallOfBones', 'CoinPurse', 'GoldRing', 'PriestsChalice', 'KingsCrown', 'GeniesLamp', 'SacredTreasure', 'EtherealSentry', 'ArcaneGolem', 'Gargoyle', 'SilentSentinel', 'TurtleCannon', 'WallOfTentacles', 'GreenGolem', 'BoneGolem', 'CursedEffigy', 'BlackfireCannon', 'Thunderforge', 'TheMarajiQueen', 'Kryshound', 'GlassGolem', 'Treachery', 'Persistence', 'Ferocity', 'Finesse', 'Cunning', 'Defiance', 'GateOfSouls', 'TheInfernalMachine', 'Ironjaw', 'EldritchGuardian', 'TheLordOfSlaughter', 'BookOfSecrets', 'HeartOfRage', 'Orrery', 'VolcanicGolem', 'HornedGuardian', 'DeepGolem', 'Ironhawk', 'DarkDjinnBottle', 'TheSun', 'TheEmperor', 'Quatramanus', 'TheMoon', 'Mithrilion', 'TheStar', 'FountainOfStars', 'TheDevil', 'NexusPortal', 'TheLovers', 'TheMagician', 'UmbralPortal', 'TheFool', 'SteelCobra', 'Ahries', 'HoardMimic', 'TheChariot', 'WarMachine', 'AceOfWands', 'TheWorld', 'StoneViper', 'GuardianPillar', 'HellstoneGate', 'PetrifiedGolem', 'Czernobog', 'Nabassu', 'EternalSentinel', 'TheTower', 'Xenith', 'Chalcedony', 'Adakite', 'StoneZombie', 'Petrahulk', 'Craghound', 'StoneMefyt', 'DarkGolem', 'OnyxGargoyle', 'ChromiteSphinx', 'Obsidiaxas', 'AceOfRunes', 'Strength', 'AceOfCups', 'TheEmpress', 'VoicelessGolem', 'Morganite', 'DoomedGargoyle', 'TheWheelOfFortune', 'VulpineWatcher', 'TheHighPriestess', 'TheColossus', 'TheSpiderThrone', 'AceOfSwords', 'DeathTarot', 'TheHangedMan', 'JeweledGolem', 'StonePanther', 'InfernalVoyager', 'PetrifiedTreant', 'DragonstoneGuardian', 'TwoOfWands', 'HauntedDoll', 'QueenOfWands', 'TheHermit', 'BoneCatapult', 'SplinteredGolem', 'GiantSentinel', 'ElementalSentinel', 'DaemonicSentinel', 'DraconicSentinel', 'UndeadSentinel', 'MonstrousSentinel', 'Hellborer', 'Theodorevich', 'Judgement', 'Pandallista', 'MazeGuardian', 'Groevanga', 'Temperance', 'BookOfWitches', 'Goethite', 'JusticeTarot', 'TheHierophant', 'TwoOfSwords', 'Gingeraxia', 'ImmortalFurnax', 'TenOfWands', 'TenOfCups', 'TenOfRunes', 'TenOfSwords', 'QueenOfSwords', 'CorruptedCrystalem', 'ClayFiend', 'Mudwalker', 'IcyPortal', 'KingOfCups', 'TempestBallista', 'ParagonStatue', 'AlabasterKnight', 'PossessedTeddy', 'Skarn', 'KingOfRunes', 'MaidenOfPain', 'ZargsBoomPile', 'TheSandstoneSentinel', 'TheDarkOracle', 'KingOfSwords', 'OkraNosTheSleeper', 'Rockraptor', 'SaviorStatue', 'QueenOfCups', 'Sanguinette', 'TheTombkeeper', 'QueenOfRunes', 'FlinthammersTower', 'CannonMimic', 'Seditius', 'KnightOfCups', 'MineCart', 'LavaGates'], undefined),
     ),
   },
   {
@@ -683,43 +735,44 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 8727,
     desc: '对最后一名敌人造成[魔法 + 4]点伤害值，伤害值由绿色宝石而增强。如果他们有末日，造成双倍伤害。每个回火等级有 3% 的几率杀死敌人。 [1:1]',
     build: skill(
-      dmg('enemyLast', 4, 1),
+      dmg('enemyLast', 4, 1, { modifier: { mod: { kind: 'ratio', a: 1, b: 1 }, source: { kind: 'boardGems', color: BaseColor.Green } } }),
     ),
   },
   {
     id: 8728,
     desc: '对最后一名敌人造成[魔法 + 4]点伤害值，伤害值由红色宝石而增强。如果他们有末日，造成双倍伤害。每个回火等级有 3% 的几率杀死敌人。 [1:1]',
     build: skill(
-      dmg('enemyLast', 4, 1),
+      dmg('enemyLast', 4, 1, { modifier: { mod: { kind: 'ratio', a: 1, b: 1 }, source: { kind: 'boardGems', color: BaseColor.Red } } }),
     ),
   },
   {
     id: 8729,
     desc: '对最后一名敌人造成[魔法 + 4]点伤害值，伤害值由黄色宝石而增强。如果他们有末日，造成双倍伤害。每个回火等级有 3% 的几率杀死敌人。 [1:1]',
     build: skill(
-      dmg('enemyLast', 4, 1),
+      dmg('enemyLast', 4, 1, { modifier: { mod: { kind: 'ratio', a: 1, b: 1 }, source: { kind: 'boardGems', color: BaseColor.Yellow } } }),
     ),
   },
   {
     id: 8730,
     desc: '对最后一名敌人造成[魔法 + 4]点伤害值，伤害值由紫色宝石而增强。如果他们有末日，造成双倍伤害。每个回火等级有 3% 的几率杀死敌人。 [1:1]',
     build: skill(
-      dmg('enemyLast', 4, 1),
+      dmg('enemyLast', 4, 1, { modifier: { mod: { kind: 'ratio', a: 1, b: 1 }, source: { kind: 'boardGems', color: BaseColor.Purple } } }),
     ),
   },
   {
     id: 8731,
     desc: '对最后一名敌人造成[魔法 + 4]点伤害值，伤害值由棕色宝石而增强。如果他们有末日，造成双倍伤害。每个回火等级有 3% 的几率杀死敌人。 [1:1]',
     build: skill(
-      dmg('enemyLast', 4, 1),
+      dmg('enemyLast', 4, 1, { modifier: { mod: { kind: 'ratio', a: 1, b: 1 }, source: { kind: 'boardGems', color: BaseColor.Brown } } }),
     ),
   },
   {
     id: 8761,
     desc: '赋予自身屏障效果。再给予所有盟友 [魔法 + 4] 点护甲值，数量因燃烧宝石数而增强。若自身陷入燃烧状态，则获得一个额外回合。 [1:1]',
     build: skill(
-      inflict('barrier', 'allyAll'),
-      inflict('burning', 'allyAll'),
+      inflict('barrier', 'allySelf'),
+      armor('allyAll', 4, 1, { modifier: { mod: { kind: 'ratio', a: 1, b: 1 }, source: { kind: 'enemyStatusCount', statusId: 'burning' } } }),
+      extraTurn({ ifCond: { kind: 'selfStatus', statusId: 'burning' } }),
     ),
   },
   {
@@ -798,6 +851,8 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '爆破[魔法 + 1]颗蓝色宝石。给予所有罗格盟友一个随机状态效果。然后召唤一支罗格部队。',
     build: skill(
       explodeRandomGems(1, 1, 'color', BaseColor.Blue),
+      inflictRandom('allyAll', { targetRace: 'Rogue' }),
+      summonRandom(['Satyr', 'Ferit', 'Tyri', 'Atlanta', 'Raven', 'Shadow-Hunter', 'Marid', 'NobendBrothers', 'Amira', 'DragonianRogue', 'Desdaemona', 'DeckHand', 'Pirate', 'Sharkey', 'LilJohnnyBronze', 'BonnieRose', 'Wayfinder', 'Shadowblade', 'CaptainSkullbeard', 'Bandit', 'Snow-Hunter', 'ClawDancer', 'SisterOfShadows', 'ScurvySeadog', 'KendralaBloodjewel', 'CrimsonArrow', 'EggThief', 'SkulkFang', 'Trickster', 'QuickpawJack', 'RedCharlotte', 'Bladewing', 'StreetThief', 'CatBurglar', 'TombRobber', 'KingOfThieves', 'FirstMateAxelubber', 'CaptainMacaw', 'BrokerOfGreed', 'MotherOfDarkness', 'Lucifria', 'Rogueling', 'RoyalAssassin', 'SisterEbony', 'DeepElvenRogue', 'NightSpider', 'WilliTheAnchor', 'Freebooter', 'SisterOfNightmares', 'Nightarrow', 'Plaguecrafter', 'Deathblade', 'BileBlackheart', 'ConsortOfDarkness', 'Shadowbeast', 'CorbenHalf-Elf', 'Sabellius', 'RakshaSwabbie', 'CaptainSaltclaw', 'RattigarCutpurse', 'FennecThief', 'DreadCaptainGrim', 'BoatswainBart', 'OrcRogue', 'TheRedCorsair', 'TheBaneOfValor', 'ImmortalSelene', 'GoblinPickpocket', 'Skulker', 'CommodoreMaryka', 'LapinaCharlatan', 'LapinaPirate', 'SetauriSkulk', 'InfernalTrickster'], undefined),
     ),
   },
   {
@@ -829,6 +884,7 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '对一名敌人造成 [魔法 + 3] 点伤害。若自身队伍中有黛希德莫娜， 则使对方陷入叠加 2 次的出血状态。',
     build: skill(
       dmg('enemyChosen', 3, 1),
+      inflict('bleed', 'lastTarget', { ifCond: { kind: 'troopPresent', side: 'ally', name: '黛希德莫娜' } }),
     ),
   },
   {
@@ -881,7 +937,7 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 8809,
     desc: '对一名敌人造成 [魔法 + 7] 点伤害，数值因地域悬崖盟友数而增强。每有一名地狱悬崖盟友，则创造 6 颗混合红色和棕色的宝石。 [x6]',
     build: skill(
-      dmg('enemyChosen', 7, 1, { modifier: { mod: { kind: 'multiplier', a: 6 }, source: { kind: 'teamSize', side: 'ally' } } }),
+      dmg('enemyChosen', 7, 1),
     ),
   },
   {
@@ -895,7 +951,7 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 8811,
     desc: '对一名敌人造成 [魔法 + 4] 点伤害，伤害值因棕色盟友和建造盟友数二增强。 [x5]',
     build: skill(
-      dmg('enemyChosen', 4, 1),
+      dmg('enemyChosen', 4, 1, { modifier: { mod: { kind: 'multiplier', a: 5 }, sources: [{ kind: 'alliesOfColor', color: BaseColor.Brown }, { kind: 'alliesOfRace', race: 'Construct' }] } }),
     ),
   },
   {
@@ -942,6 +998,7 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '每有一名蓝色敌人则创造 1 颗蓝色巨人宝石。再对所有蓝色敌人造成 [魔法 + 1] 点伤害，并使他们陷入冻结状态。 [1:1]',
     build: skill(
       dmg('enemyAll', 1, 1, { range: 'all', ifCond: { kind: 'targetColor', color: BaseColor.Blue } }),
+      inflict('frozen', 'lastTarget'),
     ),
   },
   {
@@ -949,6 +1006,7 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '每有一名红色敌人则创造 1 颗红色巨人宝石。再对所有红色敌人造成 [魔法 + 1] 点伤害，并使他们陷入燃烧状态。 [1:1]',
     build: skill(
       dmg('enemyAll', 1, 1, { range: 'all', ifCond: { kind: 'targetColor', color: BaseColor.Red } }),
+      inflict('burning', 'lastTarget'),
     ),
   },
   {
@@ -989,7 +1047,7 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 8878,
     desc: '对一名敌人造成 [魔法 + 4] 点伤害，伤害值因绿色盟友和狼族盟友数而增强。 [x3]',
     build: skill(
-      dmg('enemyChosen', 4, 1, { modifier: { mod: { kind: 'multiplier', a: 3 }, source: { kind: 'teamSize', side: 'ally' } } }),
+      dmg('enemyChosen', 4, 1, { modifier: { mod: { kind: 'multiplier', a: 3 }, sources: [{ kind: 'alliesOfColor', color: BaseColor.Green }, { kind: 'alliesOfRace', race: 'Wargare' }] } }),
     ),
   },
   {
@@ -999,6 +1057,7 @@ const SPELLS: CuratedBatch['spells'] = [
       dmg('enemyLast', 3, 1),
       steal('lastTarget', 'magic', 'magic', 3, 0),
       dmg('enemyLast', 3, 1),
+      steal('lastTarget', 'mana', 'mana', 6, 0),
     ),
   },
   {
@@ -1029,13 +1088,15 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '爆破 [魔法 + 1] 颗绿色宝石。赋予所有蛮族盟友一个随机正面增益状态效果。再召唤一名蛮族军队。',
     build: skill(
       explodeRandomGems(1, 1, 'color', BaseColor.Green),
+      inflictRandom('allyAll', { targetRace: 'Wildfolk' }),
+      summonRandom(['Satyr', 'BladeDancer', 'Sylvasi', 'Ragnagord', 'Faunessa', 'BunniNog', 'SatyrMusician', 'Tuskar', 'DesertMantis', 'Tezca', 'Nax', 'KingSilenus', 'MonkeyDisciple', 'TheWildQueen', 'Senita', 'Saguaro', 'Agave', 'Piper', 'Caprinicus', 'TianYi', 'Trickster', 'Bunnicorn', 'LapinaKnight', 'Luna', 'Rattigar', 'PlagueRat', 'HexRat', 'Sledgepaw', 'QuickpawJack', 'LapinaExplorer', 'Starflower', 'SatyrHunter', 'Rubitressa', 'BeetleBlade', 'MothMage', 'ScarabKnight', 'QueenBeetrix', 'Tuskor', 'SileniGuard', 'Argos', 'Pan', 'Rhinotaur', 'TheScourgeOfHonor', 'PoxHare', 'TheBurrowWarden', 'TheWildKing', 'LapinaHealer', 'VoicelessGolem', 'RattigarCutpurse', 'Mumakus', 'Tuzi', 'Beltane', 'Aravatar', 'FallenSatyr', 'AravatarsTusk', 'MantisMage', 'SatyrTrickster', 'Caprichor', 'DeephornBeetle', 'Badgerkin', 'DoeStoneshatter', 'ImmortalTerra', 'ImmortalCaprichor', 'LapinaLancer', 'Sonata', 'LapinaCharlatan', 'Ariosa', 'LapinaPirate', 'Lapitaur', 'RattigarGladiator'], undefined),
     ),
   },
   {
     id: 8908,
     desc: '对一名敌人造成 [魔法 + 4] 点伤害，伤害值因紫色盟友数和精灵盟友数而增强。 [x3]',
     build: skill(
-      dmg('enemyChosen', 4, 1, { modifier: { mod: { kind: 'multiplier', a: 3 }, source: { kind: 'alliesOfRace', race: 'Elf' } } }),
+      dmg('enemyChosen', 4, 1, { modifier: { mod: { kind: 'multiplier', a: 3 }, sources: [{ kind: 'alliesOfColor', color: BaseColor.Purple }, { kind: 'alliesOfRace', race: 'Elf' }] } }),
     ),
   },
   {
@@ -1068,6 +1129,8 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '对一名敌人造成 [魔法 + 4] 点伤害，伤害值因陷入织网和中毒状态的敌人数而增强。再使他们陷入织网和中毒状态。 [x3]',
     build: skill(
       dmg('enemyChosen', 4, 1, { modifier: { mod: { kind: 'multiplier', a: 3 }, source: { kind: 'enemyStatusCount', statusId: 'poison' } } }),
+      inflict('web', 'lastTarget'),
+      inflict('poison', 'lastTarget'),
     ),
   },
   {
@@ -1098,6 +1161,7 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '对一名敌人造成 [魔法 + 2] 点伤害。若对方陷入猎人标记状态，则窃取其 6 点生命值。',
     build: skill(
       dmg('enemyChosen', 2, 1),
+      dmg('lastTarget', 6, 0, { drain: true, ifCond: { kind: 'anyEnemyStatus', statusId: 'marked' } }),
     ),
   },
   {
@@ -1246,7 +1310,7 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 9019,
     desc: '对一名敌人造成 [魔法 + 4] 点伤害，伤害值因红色盟友和龙族盟友数而增强。 [x3]',
     build: skill(
-      dmg('enemyChosen', 4, 1, { modifier: { mod: { kind: 'multiplier', a: 3 }, source: { kind: 'alliesOfRace', race: 'Dragon' } } }),
+      dmg('enemyChosen', 4, 1, { modifier: { mod: { kind: 'multiplier', a: 3 }, sources: [{ kind: 'alliesOfColor', color: BaseColor.Red }, { kind: 'alliesOfRace', race: 'Dragon' }] } }),
     ),
   },
   {
@@ -1307,14 +1371,14 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 9037,
     desc: '对一名敌人造成 [魔法 + 4] 点伤害，数值因蓝色盟友数和骑士盟友数而增强。 [x3]',
     build: skill(
-      dmg('enemyChosen', 4, 1, { modifier: { mod: { kind: 'multiplier', a: 3 }, source: { kind: 'alliesOfRace', race: 'Knight' } } }),
+      dmg('enemyChosen', 4, 1, { modifier: { mod: { kind: 'multiplier', a: 3 }, sources: [{ kind: 'alliesOfColor', color: BaseColor.Blue }, { kind: 'alliesOfRace', race: 'Knight' }] } }),
     ),
   },
   {
     id: 9110,
     desc: '创造 15 颗混合蓝色和骷髅头的宝石。有 25% 的几率获得一个额外回合，几率因陷入恐怖状态的敌人数而增强。 [x2]',
     build: skill(
-      extraTurn({ chance: 0.25 }),
+      extraTurn({ chance: 0.25, chanceBoost: { mod: { kind: 'multiplier', a: 2 }, source: { kind: 'enemyStatusCount', statusId: 'terror' } } }),
     ),
   },
   {
@@ -1359,7 +1423,7 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 9143,
     desc: '对一名敌人造成 [魔法 + 4] 点伤害，伤害值因绿色盟友和人马族盟友数而增强。 [x3]',
     build: skill(
-      dmg('enemyChosen', 4, 1, { modifier: { mod: { kind: 'multiplier', a: 3 }, source: { kind: 'teamSize', side: 'ally' } } }),
+      dmg('enemyChosen', 4, 1, { modifier: { mod: { kind: 'multiplier', a: 3 }, sources: [{ kind: 'alliesOfColor', color: BaseColor.Green }, { kind: 'alliesOfRace', race: 'Centaur' }] } }),
     ),
   },
   {
@@ -1380,38 +1444,7 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 9146,
     desc: '对一名敌人造成 [魔法 + 4] 点伤害，伤害值因黄色盟友和鸟族盟友数而增强 。 [x3]',
     build: skill(
-      dmg('enemyChosen', 4, 1, { modifier: { mod: { kind: 'multiplier', a: 3 }, source: { kind: 'teamSize', side: 'ally' } } }),
-    ),
-  },
-  {
-    id: 9158,
-    desc: '对一名敌人造成 [魔法 + 3] 点伤害，伤害值因沙漏宝石数而增强。 [x8]',
-    build: skill(
-      dmg('enemyChosen', 3, 1, { modifier: { mod: { kind: 'multiplier', a: 8 }, source: { kind: 'boardSpecial', gem: 'hourglass' } } }),
-    ),
-  },
-  {
-    id: 9159,
-    desc: '将所有红色宝石转换成诅咒宝石。再对一名敌人造成 [魔法 + 6] 点伤害。',
-    build: skill(
-      transformToSpecial(BaseColor.Red, 'curseGem'),
-      dmg('enemyChosen', 6, 1),
-    ),
-  },
-  {
-    id: 9160,
-    desc: '将所有紫色宝石转换成末日骷髅头。再对一名敌人造成 [魔法 + 6] 点伤害。',
-    build: skill(
-      transformToSpecial(BaseColor.Purple, 'doomSkull'),
-      dmg('enemyChosen', 6, 1),
-    ),
-  },
-  {
-    id: 9161,
-    desc: '将所有红色宝石转换成诅咒宝石，并将所有紫色宝石转换成末日骷髅头。打乱敌方队伍。',
-    build: skill(
-      transformToSpecial(BaseColor.Red, 'doomSkull'),
-      shuffleTeam('enemy'),
+      dmg('enemyChosen', 4, 1, { modifier: { mod: { kind: 'multiplier', a: 3 }, sources: [{ kind: 'alliesOfColor', color: BaseColor.Yellow }, { kind: 'alliesOfRace', race: 'Stryx' }] } }),
     ),
   },
 ];
