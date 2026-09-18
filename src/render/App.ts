@@ -620,6 +620,11 @@ export class App {
     if (bannerBoosts && Object.keys(bannerBoosts).length > 0) {
       this.engine.bannerBoosts = { ...bannerBoosts };
     }
+    // PvP 模式旗（职业天赋 exemplar/bloodandglory 族；竞技场对战 = 本作 PvP 场景）：
+    // 须在首次 takeInitialEvents 前注入（pvpBonus 开局加成在该口一次性结算）。
+    if (battleRequest.mode === 'pvp') {
+      this.engine.pvpMode = true;
+    }
     // 表现层一律通过 session 提交行动，事件流才会被完整累积进结果摘要与 digest
     this.session = new BattleSession({ request: battleRequest, idMap, engine: this.engine });
 
