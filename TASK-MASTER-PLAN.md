@@ -67,3 +67,18 @@ UI/演出细节由**程序自动截图审查迭代**推进，不依赖人工逐�
 - **音效**：战斗基础音齐（35 wav + 变体）。缺口：状态施加音、特殊宝石触发音、胜负结算 stinger、BGM（零音乐文件）、黄色技能音。`assets/音效/` 已盘点（窗口E → `artifacts/audio-inventory.txt`）：仅 `中毒.wav` 一个文件、未接线、命名不合既有约定。
 - **测试台**：面板过长不可收起、区块名英文、状态/特质图标不可点击、技能释放与详情粗糙。
 - **环境坑**：内嵌浏览器页签 rAF 会间歇冻结（visible 但 0 帧）→ gsap 时间线挂起。自动化截图走 Playwright/前台浏览器，勿依赖内嵌浏览器做动画终态断言。
+
+## 任务书归档记录（2026-09-19 清理，git 历史可找回原文）
+
+以下任务书对应工作流已完结，文件已删除，**不要再按这些路径派发新窗口**：
+
+| 任务书 | 窗口 | 完结证据 |
+|---|---|---|
+| `TASK-SKILLS.md` | B · 技能编译 | 原 build_spells 管线方案作废，改走 spell-assembler/curated 路线，现 1761/1798 compiled |
+| `TASK-GEMS.md` | C · 特殊宝石 | Wave A（状态宝石 13 颗）+ Wave B（17 kind）全部落地（2813774、6dc1f13 等） |
+| `TASK-STORM-ACCEPTANCE.md` | D · 风暴 | 四阶段提交完成（487926e、890165c） |
+| `TASK-STATUS-ACCEPT.md` | E · 状态批 | 文内自带验收记录：通过，三块提交 6b1079a/2cd8e3e/5ced37c |
+| `TASK-THEATER.md` | G · 放映厅 | 三件套交付并实跑，408 张截图审查闭环（findings 喂给内容窗口） |
+| `TASK-WEAPONS.md` | K · 武器 | 718 把收官：full 683（95%）、战斗可用 710/718（98.9%），装备循环已接入（f7af342） |
+
+仍在活跃/待裁定，**保留**：`TASK-CONTENT.md`（R25 在途）、`TASK-PORTRAITS.md`（待用户跑图终验，产物未入库）、`TASK-META.md` + `META-GAME-PLAN.md`（J/K 在途）、`TASK-UX.md` 与 `TASK-AUDIO.md`（交付物未收尾，待人工裁定重派或归档）。
