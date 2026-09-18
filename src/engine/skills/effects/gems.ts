@@ -135,12 +135,13 @@ function transformEndpoint(spec: ColorSpec, ctx: EffectContext): GemType | null 
 }
 
 /** doTransform 的端点解析：优先特殊宝石端点（「将所有红色宝石转换成极度末日骷髅头」）。
- *  from 侧遇 'ANY'/缺省返回 null（由 doTransform 按「不限来源」分支处理，不走这里）。 */
+ *  from 侧遇 'ANY'/'CELL'/缺省返回 null（由 doTransform 按「不限来源 / 选定单格」分支
+ *  处理，不走这里）。 */
 function transformEndpointOf(params: TransformGemParams, side: 'from' | 'to', ctx: EffectContext): GemType | null {
   const special = side === 'from' ? params.fromSpecial : params.toSpecial;
   if (special) return specialGem(special);
   const spec = side === 'from' ? params.from : params.to;
-  if (spec === undefined || spec === 'ANY') return null;
+  if (spec === undefined || spec === 'ANY' || spec === 'CELL') return null;
   return transformEndpoint(spec, ctx);
 }
 
@@ -169,8 +170,14 @@ export interface CreateGemParams {
   modifier?: ModifierSpec;
 }
 
-/** 转化来源端点：颜色/占位符之外，'ANY' = 不限来源（任意非目标类型宝石，定量转换用） */
-export type TransformFrom = ColorSpec | 'ANY';
+/**
+ * 转化来源端点：颜色/占位符之外——
+ *   'ANY' = 不限来源（任意非目标类型宝石，定量转换用）；
+ *   'CELL'（原语 Wave4 批，9638 Shining Light「Choose a Gem. Convert it…」官方步骤
+ *   BoardTarget SingleGem + Color1 FromTarget）= 选定单格那颗宝石（ctx.chosenCell，
+ *   既有 CellPicker 管线）。
+ */
+export type TransformFrom = ColorSpec | 'ANY' | 'CELL';
 
 /** 转化：某颜色 → 另一颜色（均可为 'CHOSEN'/'SKULL'）；端点亦可为特殊宝石种类 */
 export interface TransformGemParams {
@@ -180,8 +187,15 @@ export interface TransformGemParams {
   to: ColorSpec;
   /** to 端点为特殊宝石时给出（优先于 to 的基色解析） */
   toSpecial?: SpecialGemKind;
-  /** from 端点为特殊宝石时给出（优先于 from） */
+  /** from 端点为特殊宝石时给出（优先于 from）——特殊↔特殊（Wave4，8801 石块端点）。
+   *  池匹配按 kind 精确对位（石块/石像鬼等不可匹配宝石 isSameMatchType 恒 false） */
   fromSpecial?: SpecialGemKind;
+  /**
+   * toSpecial 的 tier 掷签（原语 Wave4 批，8801「Convert 4 Stone Blocks to either Good
+   * or Evil Gargoyle Gems」官方 Randomize AB-CD 两分支 = 整段一次掷签、本次转换的
+   * 所有宝石同 tier）。仅与 toSpecial 同用；目标集为空时不掷（零事件零 rng 护栏）。
+   */
+  tiers?: [number, number];
   /**
    * 定量转换（引擎原语批）：随机转换 N 颗（种子化、不放回）；缺省 = 全部匹配。
    * 「将一颗宝石转换成炸弹宝石」「将 2 颗紫色宝石转换成X」。
@@ -369,34 +383,57 @@ function doTransform(params: TransformGemParams, ctx: EffectContext): GameEvent[
   const board = ctx.state.board;
   const toType = transformEndpointOf(params, 'to', ctx);
   if (toType === null) return [];
-  // from = 'ANY'/缺省 → 不限来源（「将一颗宝石转换成炸弹宝石」）；否则解析来源端点
+  // from = 'ANY'/缺省 → 不限来源（「将一颗宝石转换成炸弹宝石」）；否则解析来源端点。
+  // from = 'CELL'（Wave4，9638）→ 选定单格那颗宝石，不走端点类型解析。
   const fromAny = params.from === undefined || params.from === 'ANY';
-  const fromType = fromAny ? null : transformEndpointOf(params, 'from', ctx);
-  if (!fromAny && fromType === null) return [];
-  if (!fromAny && params.from === params.to && !params.toSpecial && !params.fromSpecial) return [];
+  const fromCell = params.from === 'CELL';
+  const fromType = fromAny || fromCell ? null : transformEndpointOf(params, 'from', ctx);
+  if (!fromAny && !fromCell && fromType === null) return [];
+  if (!fromAny && !fromCell && params.from === params.to && !params.toSpecial && !params.fromSpecial) return [];
 
   // 收集匹配来源的宝石格；'ANY' 时排除「已是目标类型」的宝石（转了等于没转）
   const pool: CellPos[] = [];
-  board.forEach((gem, pos) => {
-    if (!gem) return;
-    if (fromType !== null) {
-      if (!isSameMatchType(gem.type, fromType)) return;
-    } else if (gemTypeEquals(gem.type, toType)) {
-      return;
-    }
-    pool.push(pos);
-  });
+  if (fromCell) {
+    // 选定单格端点（9638「Choose a Gem. Convert it」）：只收 ctx.chosenCell 一格；
+    // 未选格 / 该格无宝石 / 已是目标类型 → 安全跳过
+    const cell = ctx.chosenCell;
+    const gem = cell ? board.get(cell) : undefined;
+    if (cell && gem && !gemTypeEquals(gem.type, toType)) pool.push(cell);
+  } else {
+    board.forEach((gem, pos) => {
+      if (!gem) return;
+      if (params.fromSpecial !== undefined) {
+        // 特殊→特殊（Wave4，8801 石块→善恶石像鬼）：按 kind 精确对位——石块等
+        // 不可匹配宝石 matchJoinKey 为 null，isSameMatchType 恒 false，走不了匹配键管线
+        if (!(gem.type.kind === 'special' && gem.type.spec.kind === params.fromSpecial)) return;
+      } else if (fromType !== null) {
+        if (!isSameMatchType(gem.type, fromType)) return;
+      } else if (gemTypeEquals(gem.type, toType)) {
+        return;
+      }
+      pool.push(pos);
+    });
+  }
   // 定量转换：随机取 N 颗（种子化、不放回）；缺省 = 全部（既有全棋盘转化路径不变）
   const targets = params.count
     ? pickN(pool, Math.max(0, evaluateScaling(params.count, casterMagic(ctx))), ctx)
     : pool;
+  if (targets.length === 0) return [];
+
+  // '善或恶' tier 掷签（Wave4，8801 官方 AB-CD 分支语义）：目标集非空才掷、整段一次，
+  // 本次转换的所有宝石取同一 tier；仅对特殊宝石端点生效（基色端点忽略该字段）
+  let finalTo = toType;
+  if (params.tiers !== undefined && params.tiers.length > 0 && toType.kind === 'special') {
+    const tier = params.tiers[ctx.rng.nextInt(params.tiers.length)];
+    finalTo = specialGem(toType.spec.kind, tier, toType.spec.color);
+  }
 
   const changes: GemTransformEvent['changes'] = [];
   for (const pos of targets) {
     const gem = board.get(pos)!;
     const prev = gem.type;
-    gem.type = toType;
-    changes.push({ pos, gemId: gem.id, from: prev, to: toType });
+    gem.type = finalTo;
+    changes.push({ pos, gemId: gem.id, from: prev, to: finalTo });
   }
   if (changes.length === 0) return [];
   if (ctx.castTracking) ctx.castTracking.transformed += changes.length;

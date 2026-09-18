@@ -218,6 +218,13 @@ export interface StatusSegment extends SegmentOptions {
   nRange?: NRangeSpec;
   /** 种族限定目标（「所有恶魔盟友」） */
   targetRace?: string;
+  /**
+   * 逐颗宝石驱动施加（原语 Wave4 批，官方 7463/9287/8804 的
+   * InflictEffectOnRandomTroops + UseCounterForAmount 步骤）：给出时施加编排改为
+   * 「次数 = 本次施放被摧毁的该类宝石数（castTracking.destroyed 口径），每次随机取
+   * 存活目标池一名（可重复同目标，rng 逐次掷）」。消费在 effects/status.ts statusEffect。
+   */
+  perDestroyed?: { color?: BaseColor | 'skull' };
 }
 
 /** Remove statuses from selected allies. */
@@ -326,6 +333,12 @@ export interface RepositionSegment extends SegmentOptions {
   kind: 'reposition';
   target: TargetMode;
   to: 'front' | 'back';
+  /**
+   * 编队第 N 位（原语 Wave4 批，8101 Tricky Blow 官方步骤两轮 TroopOrderBack——第二轮
+   * 打的是动态编队第二位）：配合 enemyNth/allyNth 目标模式，n 为 1-based 编队位
+   * （resolveTargetsTracked 既有 n 通道，按执行时刻的存活编队动态解析）。
+   */
+  n?: number;
 }
 
 /** 队伍乱序（「打乱敌方队伍」）：整队随机重排（种子化） */
@@ -523,6 +536,7 @@ function compileSegment(segment: EffectSegment, ctx: EffectContext): EffectPrimi
         turns: segment.turns,
         magnitude: segment.magnitude,
         stacks: segment.stacks,
+        perDestroyed: segment.perDestroyed,
       });
     case 'cleanse':
       return cleanseEffect({ targets: resolveTargetsTracked(segment, ctx) });

@@ -39,6 +39,11 @@ export type ModifierSource =
   | { kind: 'teamSize'; side: 'ally' | 'enemy' }
   /** 施法方指定种族的存活盟友数 */
   | { kind: 'alliesOfRace'; race: string }
+  /** 施法方指定王国的存活盟友数（原语 Wave4 批，「因 Dhrak-Zum 盟友数量而增强」；
+   *  与 alliesOfRace 对称，按 Character.kingdom 筛选） */
+  | { kind: 'alliesOfKingdom'; kingdom: string }
+  /** 敌方指定王国的存活敌人数（原语 Wave4 批；与 enemiesOfColor 同构，按 kingdom 筛选） */
+  | { kind: 'enemiesOfKingdom'; kingdom: string }
   /** 施法方关联指定法力色的存活盟友数（「因蓝色盟友数而增强」） */
   | { kind: 'alliesOfColor'; color: BaseColor }
   /** 敌方关联指定法力色的存活敌人数（「因红色敌人（的数量）而增强」，R13 批；与 alliesOfColor 对称） */
@@ -68,6 +73,14 @@ export type ModifierSource =
   | { kind: 'battleMaps' }
   /** 最近被献祭盟友的属性（「因献祭军队的攻击力而增强」，跨段追踪） */
   | { kind: 'sacrificedStat'; stat: 'attack' | 'armor' | 'magic' | 'hp' }
+  /**
+   * 本技能前序 reduce 段的实际削减总额（原语 Wave4 批，官方 7507 Lost Warrior 句式
+   * 「减除其 [魔法 + 2] 点生命值并将之转化为攻击力」——ZH 净化一名盟友，减除其 [M+2]
+   * 点生命值并将之转化为攻击力）：debuff.ts reduce 结算把实际发生（夹零/夹当前值后）
+   * 的削减额记入 castTracking.lastReduce，后段增益以 modifier {multiplier 1} × 本来源
+   * 引用同额（「并转化为攻击力」= 攻击增益 = 实际削减额，非声明额）。
+   */
+  | { kind: 'lastReduce' }
   /** 战场经济池当前金币总数（「伤害因我的金币而增强」「数量等于我的金币」） */
   | { kind: 'battleGold' }
   /** 战场经济池当前灵魂总数（「因本战斗收集的灵魂数而增强」） */
@@ -160,7 +173,15 @@ export type Condition =
    * 缺省按**该段目标**逐个判定（目标相对条件，目标不满足 → 被过滤、全不满足 → 段跳过）；
    * of:'caster' 为施法者全局条件（「若自身法力已满」）。
    */
-  | { kind: 'manaFull'; of?: 'target' | 'caster' };
+  | { kind: 'manaFull'; of?: 'target' | 'caster' }
+  /**
+   * 王国在场（原语 Wave4 批，官方语义 Dugall Ramhorn 9588「Dhrak-Zum Allies」/
+   * Seaborn Knight 9593「If the Enemy is from Merlantis」的王国家族）：
+   * side 一侧（ally=施法方含自身 / enemy=敌方）存活者中存在 kingdom 匹配者即真
+   * （enemyRacePresent 的王国版，全局条件整段判定；Character.kingdom 缺省者不属于
+   * 任何王国，恒不匹配）。
+   */
+  | { kind: 'kingdomOf'; side: 'ally' | 'enemy'; kingdom: string };
 
 export interface CondMult {
   times: number;
@@ -291,6 +312,17 @@ export function conditionMet(
       }
       return !!target && target.mana >= target.manaCost;
     }
+    case 'kingdomOf': {
+      // 王国在场（Wave4 批）：side 一侧存活者存在 kingdom 匹配即真（全局条件）。
+      const mySide = findSide(ctx.state, ctx.casterId);
+      if (mySide === null) return false;
+      const side = cond.side === 'enemy'
+        ? mySide === PlayerSide.Left ? PlayerSide.Right : PlayerSide.Left
+        : mySide;
+      return ctx.state.teams[side].characters.some(
+        (c) => !c.defeated && c.kingdom === cond.kingdom,
+      );
+    }
     default: {
       const _exhaustive: never = cond;
       return _exhaustive;
@@ -416,6 +448,19 @@ export function resolveModifierCount(source: ModifierSource, ctx: EffectContext)
       if (side === null) return 0;
       return ctx.state.teams[side].characters.filter((c) => !c.defeated && hasTroopType(c, source.race)).length;
     }
+    case 'alliesOfKingdom': {
+      // 施法方该王国存活盟友数（Wave4 批，与 alliesOfRace 对称，按 kingdom 筛选）
+      const side = findSide(ctx.state, ctx.casterId);
+      if (side === null) return 0;
+      return ctx.state.teams[side].characters.filter((c) => !c.defeated && c.kingdom === source.kingdom).length;
+    }
+    case 'enemiesOfKingdom': {
+      // 敌方该王国存活计数（Wave4 批，与 enemiesOfColor 同构）
+      const side = findSide(ctx.state, ctx.casterId);
+      if (side === null) return 0;
+      const enemySide = side === 'Left' ? 'Right' : 'Left';
+      return ctx.state.teams[enemySide].characters.filter((c) => !c.defeated && c.kingdom === source.kingdom).length;
+    }
     case 'enemyStatusCount': {
       const side = findSide(ctx.state, ctx.casterId);
       if (side === null) return 0;
@@ -473,6 +518,9 @@ export function resolveModifierCount(source: ModifierSource, ctx: EffectContext)
       return ctx.state.economy.maps;
     case 'sacrificedStat':
       return tracking?.sacrificed ? tracking.sacrificed[source.stat] : 0;
+    case 'lastReduce':
+      // 前序 reduce 段实际削减额（Wave4 批，7507 跨段数值绑定）：debuff.ts 结算写入
+      return tracking?.lastReduce?.amount ?? 0;
     case 'battleGems':
       return ctx.state.economy.gems;
     default: {

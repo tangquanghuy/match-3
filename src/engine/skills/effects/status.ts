@@ -22,6 +22,8 @@ export {
   effectiveHealing,
 } from '../../healing';
 import type { Character, StatusInstance } from '../../types';
+import { isSameMatchType, colorGem, skullGem } from '../../types';
+import type { BaseColor } from '../../types';
 import type { SeededRNG } from '../../rng';
 import type {
   GameEvent,
@@ -496,6 +498,21 @@ export interface StatusApplyParams {
   magnitude?: number;
   /** 叠加层数（「陷入 2 层流血」「3 次叠加中毒」）：≥2 时同 id 再施加按累加合并 */
   stacks?: number;
+  /**
+   * 逐颗宝石驱动施加（原语 Wave4 批，官方 7463 Infernal Drill「Destroy…InflictEffect
+   * OnRandomTroops AllAllies barrier UseCounterForAmount」/ 9287 / 8804 Poison Stone 族）：
+   * 给出时改变施加编排——施加次数 = 本次施放被摧毁的该类宝石数（castTracking.destroyed
+   * 现有口径；color 筛基色含归属色特殊宝石，'skull' 筛骷髅族，缺省不筛即全部被摧毁宝石），
+   * 每次从 targets 存活池中随机取一名施加（rng 逐次掷、可重复同目标，次数用尽为止）。
+   * targets 语义随之从「逐个施加」变为「随机候选池」（官方 InflictEffectOnRandomTroops）。
+   */
+  perDestroyed?: { color?: BaseColor | 'skull' };
+}
+
+/** 与 destroyed 追踪比对用的宝石类型匹配（secondary.matchGem 同口径：色含归属色特殊宝石） */
+function matchDestroyed(gemType: import('../../types').GemType, color: BaseColor | 'skull' | undefined): boolean {
+  if (color === undefined) return true;
+  return isSameMatchType(gemType, color === 'skull' ? skullGem() : colorGem(color));
 }
 
 /**
@@ -503,16 +520,34 @@ export interface StatusApplyParams {
  * 对每个存活目标施加状态并发 status-apply。
  * 叠层语义（SOP 裁定）：最终 magnitude = 每层值 × 层数（bleed 无显式值时每层 1）；
  * 同 id 已存在时按**累加**合并（仅 stacks 路径），非 stacks 施加维持 max 合并。
+ * perDestroyed（Wave4 批）：施加次数改为「本次施放被摧毁的该类宝石数」，每次随机取
+ * 存活目标池一名（可重复）；计数为 0 → 无事件且不消耗 rng（护栏同无新键零事件零随机）。
  */
 export function statusEffect(params: StatusApplyParams): EffectPrimitive {
   return {
-    apply(_ctx: EffectContext): GameEvent[] {
+    apply(ctx: EffectContext): GameEvent[] {
       const { targets, statusId, turns, magnitude, stacks } = params;
       if (targets.length === 0) return [];
       const layers = Math.max(1, stacks ?? 1);
       const mag = magnitude !== undefined ? magnitude * layers : undefined;
       const stack = stacks !== undefined && stacks > 1;
       const events: GameEvent[] = [];
+
+      // 逐颗宝石驱动施加（Wave4）：施加次数 = 被摧毁计数，目标 = 存活池逐次随机
+      if (params.perDestroyed) {
+        const count = (ctx.castTracking?.destroyed ?? [])
+          .filter((d) => matchDestroyed(d.gemType, params.perDestroyed!.color)).length;
+        const pool = targets.filter((t) => !t.defeated);
+        if (count <= 0 || pool.length === 0) return [];
+        for (let i = 0; i < count; i++) {
+          const target = pool[ctx.rng.nextInt(pool.length)];
+          const status: StatusInstance =
+            mag !== undefined ? { id: statusId, turns, magnitude: mag } : { id: statusId, turns };
+          events.push(...applyStatus(target, status, { stack }));
+        }
+        return events;
+      }
+
       for (const target of targets) {
         if (target.defeated) continue;
         const status: StatusInstance =

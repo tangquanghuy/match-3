@@ -55,19 +55,23 @@ export class FixedCellChooser {
 
 /**
  * 判断一个技能原型是否需要玩家"点选一枚宝石"（→ ctx.chosenCell）。
- * 覆盖两类 clear 目标，二者都以选定的宝石格为起点：
- *   - cell 且 cell='CELL'：以该格为中心（destroy 单格 / explode 3x3）
- *   - chosenLine：取该格所在的整行 / 整列
+ * 覆盖三类段，都以选定的宝石格为起点：
+ *   - clear 的 cell 且 cell='CELL'：以该格为中心（destroy 单格 / explode 3x3）
+ *   - clear 的 chosenLine：取该格所在的整行 / 整列
+ *   - transform 且 from='CELL'（原语 Wave4 批，9638「Choose a Gem. Convert it」）：
+ *     转换选定单格那颗宝石
  */
 export function prototypeNeedsCell(proto: { segments: readonly unknown[] }): boolean {
   for (const seg of proto.segments as ReadonlyArray<Record<string, unknown>>) {
     if (seg.kind !== 'gem') continue;
-    const params = seg.params as { op?: string; target?: Record<string, unknown> } | undefined;
-    if (params?.op !== 'clear') continue;
-    const target = params.target;
-    if (!target) continue;
-    if (target.kind === 'cell' && target.cell === 'CELL') return true;
-    if (target.kind === 'chosenLine') return true;
+    const params = seg.params as { op?: string; target?: Record<string, unknown>; from?: unknown } | undefined;
+    if (params?.op === 'clear') {
+      const target = params.target;
+      if (!target) continue;
+      if (target.kind === 'cell' && target.cell === 'CELL') return true;
+      if (target.kind === 'chosenLine') return true;
+    }
+    if (params?.op === 'transform' && params.from === 'CELL') return true;
   }
   return false;
 }

@@ -562,6 +562,13 @@ export interface Character {
    */
   troopTypes?: string[];
   /**
+   * 王国归属（对齐 GoW 的 `KingdomId` → kingdoms 数据的王国名，如 `Merlantis`/`Dhrak-Zum`）。
+   * 原语 Wave4 批消费点：条件 kingdomOf（「如果敌人来自 Merlantis」）与
+   * modifier 来源 alliesOfKingdom/enemiesOfKingdom（「因 Dhrak-Zum 盟友数量而增强」）。
+   * 可选：宿主快照未携带或手写夹具省略即不属于任何王国（条件不成立、计数不计入）。
+   */
+  kingdom?: string;
+  /**
    * 由 `traitIds` 编译出的被动修正，战斗开始时算一次。
    * 结算路径只读这里，不查特质注册表，见 `src/engine/traits.ts`。
    */

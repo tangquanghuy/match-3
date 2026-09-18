@@ -91,6 +91,10 @@ export function reduceEffect(params: ReduceParams): EffectPrimitive {
         : evaluateWithModifier(evaluateScaling(scaling, casterMagic(ctx)), params.modifier, ctx);
       const events: GameEvent[] = [];
       let drainedTotal = 0;
+      // 实际削减总额（Wave4 批 lastReduce 跨段绑定）：所有属性/目标/步的 removed 累加，
+      // 段末整体覆写 castTracking.lastReduce（「减除其 N 点生命值并将之转化为攻击力」=
+      // 后段 attack 增益按实际削减额引用，非声明额）
+      let reducedTotal = 0;
       // 随机削减的连掷次数（官方多条 DecreaseRandom 步骤 → times；非 random 恒 1 步、不耗 rng）
       const steps = stat === 'random' ? Math.max(1, params.times ?? 1) : 1;
 
@@ -133,6 +137,7 @@ export function reduceEffect(params: ReduceParams): EffectPrimitive {
           }
           // 实际发生削减才发事件（目标属性为 0 时无事发生）
           if (removed > 0) {
+            reducedTotal += removed;
             const ev: BuffEvent = { type: 'buff', targetId: target.id, stat: statNow, amount: -removed };
             events.push(ev);
             if (gainStat) {
@@ -149,6 +154,9 @@ export function reduceEffect(params: ReduceParams): EffectPrimitive {
         // 供后续段「伤害值因所耗尽的法力值而增强」读取
         if (ctx.castTracking) ctx.castTracking.drainedMana += drainedTotal;
       }
+      // lastReduce 跨段绑定（Wave4 批）：无论本段是否真的削到，都整体覆写——
+      // 「最近一个 reduce 段」的语义不允许读到更早段的陈旧额度
+      if (ctx.castTracking) ctx.castTracking.lastReduce = { amount: reducedTotal };
       return events;
     },
   };

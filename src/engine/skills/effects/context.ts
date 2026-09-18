@@ -47,6 +47,14 @@ export interface CastTracking {
   /** 最近被献祭的盟友属性快照（「因献祭军队的攻击力而增强」跨段追踪） */
   sacrificed?: { attack: number; armor: number; magic: number; hp: number };
   /**
+   * 最近一个 reduce 段的实际削减总额（原语 Wave4 批，7507「减除其 [魔法 + 2] 点生命值
+   * 并将之转化为攻击力」的跨段数值绑定）：debuff.ts reduce 结算把**实际发生**的削减额
+   * （夹零/夹当前值后，多目标/多步累加）记入此处；后段增益以 modifier 来源
+   * { kind: 'lastReduce' }（multiplier 1）引用同额——「并转化为攻击力」= 增益等于实际
+   * 削减额而非声明额。每个 reduce 段结算时整体覆写（保留「最近一段」语义）。
+   */
+  lastReduce?: { amount: number };
+  /**
    * 最近一个解析出目标的效果段：主目标 id + 该段执行前是否存活。
    * 「如果该敌人身亡」= 它 aliveBefore 且现在 defeated。
    */

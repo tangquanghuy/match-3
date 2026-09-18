@@ -43,6 +43,12 @@ export interface CombatantSnapshot {
    * 可选字段，老宿主不传即可，因此不构成 `schemaVersion` 不兼容变更。
    */
   troopTypes?: string[];
+  /**
+   * 王国归属（对齐 GoW `KingdomId` → kingdoms 数据的王国名）。原语 Wave4 批：
+   * 引擎条件 kingdomOf 与 modifier 来源 alliesOfKingdom/enemiesOfKingdom 按它筛选。
+   * 可选字段，老宿主不传即可（该角色不属于任何王国），不构成 `schemaVersion` 不兼容变更。
+   */
+  kingdom?: string;
   /** 关联法力颜色，任一色的匹配共同充能同一条法力条 */
   manaColors: BaseColor[];
   /** 释放技能所需法力总量 */
@@ -77,6 +83,18 @@ export interface BattleRequest {
   seed: number;
   playerTeam: CombatantSnapshot[];
   enemyTeam: CombatantSnapshot[];
+  /**
+   * 玩家方旗帜加成（GoW 王国旗帜语义；meta M6）。形如 `{ Red: 2, Yellow: 1, Brown: -1 }`：
+   * 玩家方匹配对应色宝石时，该色法力按**每次匹配事件**平展 ±N（不逐宝石、不放大，
+   * 惩罚色向下保底 0）。可选字段，省略 = 无旗帜，不构成 schemaVersion 变更。
+   */
+  playerBanner?: { boosts: Partial<Record<BaseColor, number>> };
+  /**
+   * 战斗模式（可选，加性字段）。'pvp' = 竞技场对战（官方 PvP 场景映射）：
+   * 引擎在该场启用 pvpBonus 类特质（exemplar「PvP 战斗中获得 5 点攻击力」等）与
+   * PvP 结算经济（bloodandglory 的荣耀映射）。既有请求不传即无影响。
+   */
+  mode?: 'pvp';
 }
 
 /** 单个角色的战斗结束状态。 */

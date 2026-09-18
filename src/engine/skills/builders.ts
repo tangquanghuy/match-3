@@ -390,8 +390,9 @@ function createSeg(params: CreateGemParams, opts: CreateOpts): GemSegment {
   const seg: GemSegment = { kind: 'gem', params };
   return attach(seg, opts);
 }
-/** 转化：某色 → 另一色（全棋盘；任一端可为 CHOSEN）。opts.count = 定量随机转换 N 颗 */
-export function transform(from: ColorSpec, to: ColorSpec, opts: SegmentOpts & { count?: number } = {}): GemSegment {
+/** 转化：某色 → 另一色（全棋盘；任一端可为 CHOSEN）。opts.count = 定量随机转换 N 颗；
+ *  from 亦可为 'CELL'（原语 Wave4 批，9638「选择一颗宝石转换」= 选定单格那颗） */
+export function transform(from: ColorSpec | 'CELL', to: ColorSpec, opts: SegmentOpts & { count?: number } = {}): GemSegment {
   const params: TransformGemParamsLike = { op: 'transform', from, to };
   if (opts.count !== undefined) params.count = flat(opts.count);
   return gemSegWithOpts(params, opts);
@@ -401,6 +402,12 @@ export function transform(from: ColorSpec, to: ColorSpec, opts: SegmentOpts & { 
 export interface TransformOpts extends SegmentOpts {
   /** 随机转换颗数（「将一颗宝石转换成炸弹宝石」「将 2 颗紫色宝石转换成X」） */
   count?: number;
+  /**
+   * toSpecial tier 掷签（原语 Wave4 批，8801「Convert 4 Stone Blocks to either Good or
+   * Evil Gargoyle Gems」）：执行时整段掷签一次，本次转换的所有宝石取同一 tier
+   * （官方 Randomize AB-CD 双分支语义；与 toSpecial 同用，仅 convertSpecial/transformToSpecial 消费）。
+   */
+  tiers?: [number, number];
 }
 
 /**
@@ -410,6 +417,23 @@ export interface TransformOpts extends SegmentOpts {
 export function transformToSpecial(from: TransformFrom, gem: SpecialGemKind, opts: TransformOpts = {}): GemSegment {
   const params: TransformGemParamsLike = { op: 'transform', from, to: 'SKULL', toSpecial: gem };
   if (opts.count !== undefined) params.count = flat(opts.count);
+  if (opts.tiers !== undefined) params.tiers = opts.tiers;
+  return gemSegWithOpts(params, opts);
+}
+
+/**
+ * 特殊↔特殊转换（原语 Wave4 批，8801 Crypt of Despair「Convert 4 Stone Blocks to either
+ * Good or Evil Gargoyle Gems. Then explode a Gem.」官方步骤 {Color1: Block, Color2:
+ * GoodGargoyle/BadGargoyle, Type: ConvertGems}）：from/to 均为特殊宝石 kind——石块 =
+ * 'stoneBlock'，善/恶石像鬼 = 'gargoyleGem'（tier 1=善 / 2=恶）。
+ * 「善或恶」整段掷签 = opts.tiers: [1, 2]（本次转换的所有宝石同 tier，官方 AB-CD 双分支）；
+ * 池匹配按 kind 精确对位（不可匹配宝石不走 isSameMatchType 管线，见 effects/gems.ts）。
+ * 9638 的选定单格转换走 transform('CELL', …) 族，不在此处。
+ */
+export function convertSpecial(from: SpecialGemKind, to: SpecialGemKind, opts: TransformOpts = {}): GemSegment {
+  const params: TransformGemParamsLike = { op: 'transform', from: 'ANY', to: 'SKULL', fromSpecial: from, toSpecial: to };
+  if (opts.count !== undefined) params.count = flat(opts.count);
+  if (opts.tiers !== undefined) params.tiers = opts.tiers;
   return gemSegWithOpts(params, opts);
 }
 
@@ -514,11 +538,16 @@ const BLEED_IDS = new Set(['bleed']);
 /**
  * 施加状态段。turns/magnitude 缺省用默认值；DoT（中毒/燃烧）默认带伤害量。
  * 支持概率/死亡条件等公共选项。
+ * opts.perDestroyed（原语 Wave4 批，官方 InflictEffectOnRandomTroops +
+ * UseCounterForAmount 步骤族）：给出时施加次数 = 本次施放被摧毁的该类宝石数
+ * （color 筛基色 / 'skull' 筛骷髅族 / 缺省全部），每次随机取目标池一名（可重复）——
+ * 7463「每摧毁一颗黄宝石便使一名随机盟友获得屏障」= inflict('barrier','allyAll',
+ * { perDestroyed: { color: BaseColor.Yellow } })。
  */
 export function inflict(
   statusId: string,
   target: TargetMode,
-  opts: { turns?: number; magnitude?: number; stacks?: number; n?: number } & SegmentOpts & NRangeOpts = {},
+  opts: { turns?: number; magnitude?: number; stacks?: number; n?: number; perDestroyed?: { color?: import('../types').BaseColor | 'skull' } } & SegmentOpts & NRangeOpts = {},
 ): StatusSegment {
   const turns = opts.turns ?? DEFAULT_STATUS_TURNS;
   const seg: StatusSegment = { kind: 'status', target, statusId, turns };
@@ -527,6 +556,7 @@ export function inflict(
   if (opts.n !== undefined) seg.n = opts.n;
   if (opts.nRange !== undefined) seg.nRange = opts.nRange;
   if (opts.stacks !== undefined && opts.stacks > 1) seg.stacks = opts.stacks;
+  if (opts.perDestroyed !== undefined) seg.perDestroyed = opts.perDestroyed;
   return attach(seg, opts);
 }
 
@@ -661,9 +691,16 @@ export function gainMaps(base: number, mult = 0, opts?: SegmentOpts): GainEconom
 }
 
 
-/** 调位（「将一名敌人击回末位」「移至队伍首位」）：改编队顺序，影响前 N 名类目标序 */
-export function reposition(target: TargetMode, to: 'front' | 'back', opts?: SegmentOpts): RepositionSegment {
-  return attach({ kind: 'reposition', target, to }, opts);
+/**
+ * 调位（「将一名敌人击回末位」「移至队伍首位」）：改编队顺序，影响前 N 名类目标序。
+ * opts.n（原语 Wave4 批，8101 Tricky Blow 官方两轮 TroopOrderBack 的第二轮）：配合
+ * 'enemyNth'/'allyNth' 目标模式指定编队第 N 位（1-based、按执行时刻动态解析）——
+ * 「第二次击退」= reposition('enemyNth', 'back', { n: 2 })。
+ */
+export function reposition(target: TargetMode, to: 'front' | 'back', opts?: SegmentOpts & { n?: number }): RepositionSegment {
+  const seg = attach({ kind: 'reposition', target, to } as RepositionSegment, opts);
+  if (opts?.n !== undefined) seg.n = opts.n;
+  return seg;
 }
 
 /** 队伍乱序（「打乱敌方队伍」）：整队种子化重排 */

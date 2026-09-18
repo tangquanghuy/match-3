@@ -60,6 +60,9 @@ export function snapshotToCharacter(snapshot: CombatantSnapshot, internalId: num
     traitIds: [...(snapshot.traitIds ?? [])],
     // 种族透传；族亲光环按它筛选受益对象
     troopTypes: [...(snapshot.troopTypes ?? [])],
+    // 王国透传（Wave4 批）；kingdomOf 条件与 alliesOf/enemiesOfKingdom 来源按它筛选。
+    // 可选字段：快照未携带时不写键（该角色不属于任何王国）。
+    ...(snapshot.kingdom !== undefined ? { kingdom: snapshot.kingdom } : {}),
   };
 }
 
