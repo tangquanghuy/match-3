@@ -818,9 +818,9 @@ export class HeroScreen implements Screen {
     mountIcons($('#weaponSlab'));
     const slabSheet = document.querySelector('#weaponSlab .weapon-spell') as HTMLElement | null;
     if (slabSheet) this.bindSheetTips(slabSheet);
-    $('#swapWeapon').onclick = () => this.openVault();
+    $('#swapWeapon').onclick = () => this.ctx.navigate('#weapons/owned');
     const codexBtn = document.getElementById('weaponCodex');
-    if (codexBtn) codexBtn.onclick = () => window.open('/weapons-codex.html', '_blank');
+    if (codexBtn) codexBtn.onclick = () => this.ctx.navigate('#weapons/all');
   }
 
   private openVault(): void {

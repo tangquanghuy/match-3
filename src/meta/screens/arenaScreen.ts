@@ -4,9 +4,14 @@
  */
 import { ARENA, ARENA_REWARDS, arenaDraftLevel } from '../data/economy';
 import { getTroopById } from '../../data/troops';
+import { troopStatsAtLevel } from '../../data/leveling';
 import { currentDraftChoices } from '../systems/arena';
+import { pickEnemies, type EnemyTier } from '../systems/encounter';
+import { KINGDOM_ORDER } from '../data/kingdoms';
+import { SeededRNG } from '../../engine/rng';
 import { isFailure, weekStartOf } from '../gateway';
 import { bottomNavHtml, gemSvg, mountIcons, toast, toastHtml, topbarHtml, $, $$ } from '../shell/chrome';
+import { renderSpell } from '../shell/spellText';
 import type { Screen, ShellCtx } from '../shell/screen';
 import { troopImg } from './teamScreen';
 
@@ -15,6 +20,34 @@ const ROMAN = ['Ⅰ', 'Ⅱ', 'Ⅲ'];
 
 const RARITY_CLS: Record<number, string> = { 0: 'common', 1: 'common', 2: 'rare', 3: 'epic', 4: 'legend', 5: 'mythic' };
 const RARITY_CN: Record<number, string> = { 0: '普通', 1: '精良', 2: '稀有', 3: '传说', 4: '史诗', 5: '神话' };
+const MANA_CN: Record<string, string> = { red: '红', green: '绿', blue: '蓝', yellow: '黄', purple: '紫', brown: '棕' };
+
+function opponentTiers(wins: number, size: number): EnemyTier[] {
+  if (wins <= 0) return Array.from({ length: size }, () => 'minion' as const);
+  if (wins === 1) return ['elite' as const, ...Array.from({ length: size - 1 }, () => 'minion' as const)];
+  return ['elite' as const, ...Array.from({ length: Math.max(size - 2, 0) }, () => 'minion' as const), 'boss' as const];
+}
+
+/**
+ * 竞技场对手是 draft seed 的纯函数。这里复用与 gateway 计划相同的 RNG 顺序，
+ * 让编队页看到的阵容和实际出战保持一致，而不提前改变存档阶段。
+ */
+function opponentPreview(seed: number, wins: number) {
+  const rng = new SeededRNG((seed ^ ((wins + 1) * 0x9e3779b9)) >>> 0);
+  const kingdom = KINGDOM_ORDER[rng.nextInt(KINGDOM_ORDER.length)]!;
+  const level = ARENA.opponentLevels[wins]!;
+  const size = ARENA.opponentSizes[wins]!;
+  return { kingdom, level, enemies: pickEnemies(kingdom, level, opponentTiers(wins, size), rng) };
+}
+
+function manaConflict(ids: readonly number[], candidateId: number): string[] {
+  const candidate = getTroopById(candidateId);
+  if (!candidate) return [];
+  const pickedColors = new Set(
+    ids.flatMap((id) => getTroopById(id)?.manaColors.map((color) => String(color).toLowerCase()) ?? []),
+  );
+  return [...new Set(candidate.manaColors.map((color) => String(color).toLowerCase()).filter((color) => pickedColors.has(color)))];
+}
 
 export class ArenaScreen implements Screen {
   private ctx!: ShellCtx;
@@ -29,7 +62,7 @@ export class ArenaScreen implements Screen {
       if (r.gems) parts.push(`宝石 ${fmt(r.gems)}`);
       if (r.goldKeys) parts.push(`金钥匙 ×${r.goldKeys}`);
       const tag = i === 3 ? '完胜' : i === 2 ? '进阶' : i === 1 ? '回本' : '保底';
-      return `<div class="prize${i === 3 ? ' featured' : ''}"><em>${i}</em><div><b>${i} 胜 · ${tag}</b><span>${parts.join(' · ')}</span></div><i>${tag}</i></div>`;
+      return `<div class="prize${i === 3 ? ' featured' : ''}"><em>${i}</em><div><b>${i} 胜 · ${tag}</b><span>${parts.join(' · ')}</span></div></div>`;
     }).join('');
     const matches = ARENA.opponentLevels
       .map(
@@ -144,6 +177,18 @@ export class ArenaScreen implements Screen {
           </div>
         </section>
       </main>
+      <div class="arena-modal-veil" id="forfeitModal" hidden>
+        <section class="arena-confirm" role="dialog" aria-modal="true" aria-labelledby="forfeitTitle">
+          <small class="eyebrow">LEAVE THIS RUN</small>
+          <h2 id="forfeitTitle">确定弃赛？</h2>
+          <p id="forfeitCopy">当前牌组会清除，并按已得胜场自动发奖。</p>
+          <div class="forfeit-reward" id="forfeitReward"></div>
+          <div class="arena-confirm-actions">
+            <button class="secondary" id="cancelForfeit" type="button">继续挑战</button>
+            <button class="danger-primary" id="confirmForfeit" type="button"><span data-icon="flag"></span>确认弃赛</button>
+          </div>
+        </section>
+      </div>
       ${bottomNavHtml('', '现开赛卡组独立')}
       ${toastHtml()}`;
   }
@@ -153,8 +198,13 @@ export class ArenaScreen implements Screen {
     this.bind('#enter', 'click', () => void this.enter());
     this.bind('#nextDraft', 'click', () => void this.confirmPick());
     this.bind('#fight', 'click', () => void this.fight());
-    this.bind('#clearDraft', 'click', () => void this.forfeit());
-    this.bind('#forfeit', 'click', () => void this.forfeit());
+    this.bind('#clearDraft', 'click', () => this.openForfeitModal());
+    this.bind('#forfeit', 'click', () => this.openForfeitModal());
+    this.bind('#cancelForfeit', 'click', () => this.closeForfeitModal());
+    this.bind('#confirmForfeit', 'click', () => void this.forfeit());
+    this.on(document, 'keydown', (event) => {
+      if ((event as KeyboardEvent).key === 'Escape' && !$('#forfeitModal').hidden) this.closeForfeitModal();
+    });
     this.on($('#draftTeam'), 'click', (e) => this.shiftClicked(e));
     this.render();
   }
@@ -215,17 +265,35 @@ export class ArenaScreen implements Screen {
         const troop = getTroopById(o.troopId);
         if (!troop) return '';
         const cls = RARITY_CLS[o.rarityIdx] ?? 'common';
-        return `<button class="draft-card r-${cls}" data-i="${i}" type="button">
+        const level = arenaDraftLevel(o.rarityIdx);
+        const stats = troopStatsAtLevel(troop, level);
+        const spell = renderSpell(troop.spell.description, stats.magic, { interactive: false }).html;
+        const conflicts = manaConflict(draft.picked, troop.id);
+        return `<button class="draft-card r-${cls}${conflicts.length ? ' has-conflict' : ''}" data-i="${i}" type="button">
           ${troopImg(troop, false, `alt="${troop.name}"`)}
           <span class="shade"></span>
           <span class="mana">${gemSvg(troop.manaColors.map((c) => c.toLowerCase()))}<i>${troop.manaCost}</i></span>
           <b class="rarity">${RARITY_CN[o.rarityIdx] ?? ''}</b>
-          <h3>${troop.name}</h3>
-          <small>${troop.kingdom ?? '无王国'} · 满配 Lv.${arenaDraftLevel(o.rarityIdx)} · 临时卡</small>
+          <div class="draft-card-info">
+            <h3>${troop.name}</h3>
+            <small>${troop.kingdom ?? '无王国'} · 满配 Lv.${level} · 临时卡</small>
+            <div class="draft-stats" aria-label="攻击、护甲、生命、魔力">
+              <span title="攻击"><b>攻</b>${stats.attack}</span>
+              <span title="护甲"><b>护</b>${stats.armor}</span>
+              <span title="生命"><b>生</b>${stats.health}</span>
+              <span title="魔力"><b>魔</b>${stats.magic}</span>
+            </div>
+            <div class="draft-spell">
+              <strong>${troop.spell.name}</strong>
+              <p class="draft-spell-copy">${spell || '暂无技能描述'}</p>
+            </div>
+            ${conflicts.length ? `<span class="mana-conflict" title="与已锁定部队共享法力颜色">同色法力：${conflicts.map((c) => MANA_CN[c] ?? c).join('、')}</span>` : ''}
+          </div>
           <i class="pick-flag">已选</i>
         </button>`;
       })
       .join('');
+    mountIcons(cardsEl);
     this.renderPicked(draft.picked);
     $$('#draftCards .draft-card').forEach((btn) =>
       this.on(btn, 'click', () => {
@@ -305,9 +373,17 @@ export class ArenaScreen implements Screen {
         const current = draft.stage === 'fighting' ? i === wins : i === 0;
         const cls = done ? 'done' : current ? 'pending' : 'locked';
         const state = done ? '胜利' : current && draft.stage === 'fighting' ? '待出战' : '尚未开始';
+        const preview = opponentPreview(draft.seed, i);
+        const enemyCards = preview.enemies
+          .map((enemy) => {
+            const troop = getTroopById(enemy.troopId);
+            if (!troop) return '';
+            return `<span class="match-enemy" title="${troop.name} · Lv.${enemy.level}">${troopImg(troop, false, `alt="${troop.name}"`)}<b>${troop.name}</b></span>`;
+          })
+          .join('');
         return `<div class="match ${cls}" data-match="${i}">
           <span class="match-no">${ROMAN[i]}</span>
-          <div><b>第 ${i + 1} 战</b><small>对手 Lv.${lv} · ${ARENA.opponentSizes[i]} 人</small></div>
+          <div class="match-copy"><b>第 ${i + 1} 战</b><small>${preview.kingdom} · 对手 Lv.${lv} · ${ARENA.opponentSizes[i]} 人</small><div class="match-preview">${enemyCards}</div></div>
           <i class="match-state">${state}</i>
         </div>`;
       })
@@ -371,10 +447,27 @@ export class ArenaScreen implements Screen {
     await this.ctx.launchArenaBattle();
   }
 
+  private openForfeitModal(): void {
+    const draft = this.draft();
+    if (!draft) return;
+    const reward = ARENA_REWARDS[Math.min(Math.max(draft.wins, 0), ARENA_REWARDS.length - 1)]!;
+    $('#forfeitCopy').textContent = `当前 ${draft.wins} 胜；确认后会清除临时牌组，并自动发放这一档奖励。`;
+    $('#forfeitReward').innerHTML = `<span><b>${draft.wins} 胜</b> 本届结算</span><strong>黄金 +${fmt(reward.gold)}${reward.gems ? ` · 宝石 +${fmt(reward.gems)}` : ''}${reward.goldKeys ? ` · 金钥匙 ×${reward.goldKeys}` : ''}</strong>`;
+    const modal = $('#forfeitModal');
+    modal.hidden = false;
+    mountIcons(modal);
+    const confirmButton = $('#confirmForfeit') as HTMLButtonElement;
+    confirmButton.focus();
+  }
+
+  private closeForfeitModal(): void {
+    $('#forfeitModal').hidden = true;
+  }
+
   private async forfeit(): Promise<void> {
     const draft = this.draft();
     if (!draft) return;
-    if (!confirm('确定弃赛吗？按已得胜场发奖，卡组清除。')) return;
+    this.closeForfeitModal();
     const { result } = await this.ctx.gateway.forfeitDraft();
     if (isFailure(result)) {
       toast(result.message);

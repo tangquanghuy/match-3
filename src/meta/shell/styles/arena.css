@@ -312,23 +312,83 @@
   font-style: normal;
 }
 .draft-card h3 {
-  position: absolute;
-  z-index: 2;
-  left: 12px;
-  right: 12px;
-  bottom: 34px;
+  margin: 0;
   color: #f0d49b;
   font: 20px var(--display);
   letter-spacing: 1px;
 }
-.draft-card small {
+.draft-card-info {
   position: absolute;
   z-index: 2;
-  left: 12px;
-  bottom: 14px;
+  inset: auto 0 0;
+  min-height: 146px;
+  padding: 34px 12px 10px;
+  background: linear-gradient(transparent, #090910f2 28%, #090910 100%);
+  text-align: left;
+}
+.draft-card-info > small {
+  display: block;
+  margin-top: 3px;
   color: #a9a0ac;
   font-size: 10px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
+.draft-stats {
+  display: flex;
+  gap: 5px;
+  margin-top: 8px;
+  color: #e6d6b6;
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+}
+.draft-stats span {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 3px;
+  min-width: 27px;
+  padding: 2px 4px;
+  border: 1px solid #c1a56a44;
+  background: #17131dcc;
+}
+.draft-stats b { color: #a99bb0; font-size: 9px; font-weight: 500; }
+.draft-spell {
+  margin-top: 7px;
+  color: #ead4a1;
+  font-size: 11px;
+  line-height: 1.35;
+}
+.draft-spell strong {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: #f1d995;
+  font-size: 12px;
+}
+.draft-spell-copy {
+  max-height: 0;
+  margin: 2px 0 0;
+  overflow: hidden;
+  color: #c8bcca;
+  opacity: 0;
+  transition: max-height .18s ease, opacity .18s ease;
+}
+.draft-card.selected .draft-spell-copy {
+  max-height: 48px;
+  opacity: .95;
+}
+.mana-conflict {
+  display: block;
+  margin-top: 4px;
+  color: #ffae86;
+  font-size: 10px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.draft-card.has-conflict { border-color: #d77e62; }
 .draft-card:hover,
 .draft-card:hover:not(:disabled) {
   transform: translateY(-10px);
@@ -559,3 +619,94 @@
   padding: 0 22px;
 }
 .battle-actions .primary [data-icon] { width: 18px; height: 18px; }
+
+/* A-4：连战页把种子化对手阵容作为编队决策信息露出。 */
+.match-copy { min-width: 0; }
+.match-preview {
+  display: flex;
+  gap: 6px;
+  margin-top: 8px;
+  min-height: 34px;
+}
+.match-enemy {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  min-width: 34px;
+  height: 34px;
+  padding-right: 4px;
+  overflow: hidden;
+  border: 1px solid #62516b;
+  background: #0d0d16;
+}
+.match-enemy img {
+  width: 32px;
+  height: 34px;
+  object-fit: cover;
+  object-position: 50% 15%;
+}
+.match-enemy b {
+  max-width: 66px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: #b7aabd;
+  font: 10px var(--body);
+  letter-spacing: 0;
+}
+.match.done .match-preview { opacity: .5; }
+
+/* A-5：弃赛页内确认，列出当前胜场能拿到的实际奖励。 */
+.arena-modal-veil {
+  position: absolute;
+  inset: 0;
+  z-index: 60;
+  display: grid;
+  place-items: center;
+  padding: 22px;
+  background: #05060bd9;
+  backdrop-filter: blur(6px);
+}
+.arena-confirm {
+  width: min(440px, 100%);
+  padding: 28px 30px 24px;
+  border: 1px solid #9c5c48;
+  background: linear-gradient(145deg, #2a1e25, #14131e 72%);
+  box-shadow: 0 24px 80px #000b;
+}
+.arena-confirm h2 { margin: 10px 0 12px; color: #f0d0b2; font: 28px var(--display); letter-spacing: 2px; }
+.arena-confirm > p { margin: 0; color: #c0aeb7; font-size: 13px; line-height: 1.7; }
+.forfeit-reward {
+  display: flex;
+  justify-content: space-between;
+  gap: 14px;
+  margin-top: 18px;
+  padding: 12px 14px;
+  border: 1px solid #72523f;
+  background: #1b1619;
+  color: #c6b3a5;
+  font-size: 12px;
+}
+.forfeit-reward b, .forfeit-reward strong { color: #f0d18a; }
+.forfeit-reward strong { text-align: right; font-weight: 600; }
+.arena-confirm-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 22px; }
+.arena-confirm-actions button { width: auto; min-width: 122px; height: 42px; padding: 0 16px; }
+.danger-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  color: #ffe2d0;
+  background: linear-gradient(#7d4132, #4d2620 52%, #431f1b);
+  border: 1px solid #c98f74;
+  cursor: pointer;
+}
+.danger-primary:hover { filter: brightness(1.12); }
+.danger-primary [data-icon] { width: 16px; height: 16px; }
+
+@media (max-width: 900px) {
+  .arena-screen { padding-left: 16px; padding-right: 16px; }
+  .draft-card { width: min(30vw, 210px); height: 330px; }
+  .battle-grid { grid-template-columns: minmax(300px, 1fr); }
+}

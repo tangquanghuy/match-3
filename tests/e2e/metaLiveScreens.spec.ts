@@ -32,13 +32,12 @@ test('素材批冒烟：活动屏/入侵屏/荣耀箱', async ({ page }) => {
   await page.locator('#railEvents').click();
   await expect(page.locator('.ev-banner h1')).toBeVisible({ timeout: 15000 });
 
-  // 材料库弹层（顶栏背包按钮）
+  // 材料库独立页（顶栏背包按钮）
   await page.goto('http://localhost:5173/game.html#map');
   await page.locator('#materialsBtn').click();
-  await expect(page.locator('.mat-sheet')).toBeVisible({ timeout: 10000 });
-  await expect(page.locator('.mat-item').first()).toBeVisible();
-  await page.locator('.mat-close').click();
-  await expect(page.locator('.mat-sheet')).toHaveCount(0);
+  await expect(page).toHaveURL(/#bag$/);
+  await expect(page.locator('.bag-panel')).toBeVisible({ timeout: 10000 });
+  await expect(page.locator('.bag-item').first()).toBeVisible();
 
   // 宝箱屏荣耀箱
   await page.goto('http://localhost:5173/game.html#chests');

@@ -10,7 +10,6 @@ import './styles/extras.css';
 
 import { initMetaGateway } from '../gateway';
 import { heroXpToNext } from '../data/classes';
-import { INGOT_KEYS, INGOT_NAMES, STONE_COLORS, type IngotKey } from '../data/materials';
 import { MapScreen } from '../screens/mapScreen';
 import { TeamScreen } from '../screens/teamScreen';
 import { TroopScreen } from '../screens/troopScreen';
@@ -22,6 +21,9 @@ import { QuestScreen } from '../screens/questScreen';
 import { InvasionScreen } from '../screens/invasionScreen';
 import { ResultScreen } from '../screens/resultScreen';
 import { SettingsScreen } from '../screens/settingsScreen';
+import { BagScreen } from '../screens/bagScreen';
+import { EventShopScreen } from '../screens/eventShopScreen';
+import { WeaponsScreen } from '../screens/weaponsScreen';
 import { $, $$, fitStage, mountIcons, toast } from './chrome';
 import { BattleLauncher } from './battleLauncher';
 import { applyPageCss } from './pageCss';
@@ -72,6 +74,9 @@ const SCREENS: Record<string, Screen> = {
   quest: new QuestScreen(),
   settings: new SettingsScreen(),
   result: resultScreen,
+  bag: new BagScreen(),
+  shop: new EventShopScreen(),
+  weapons: new WeaponsScreen(),
 };
 
 const PAGE_TITLES: Record<string, string> = {
@@ -86,6 +91,9 @@ const PAGE_TITLES: Record<string, string> = {
   quest: '王 国 主 线',
   settings: '设 置',
   result: '战 斗 结 算',
+  bag: '材 料 库',
+  shop: '活 动 商 店',
+  weapons: '武 器 中 心',
 };
 
 /** 路由名 → 底部导航高亮项（result/settings 等无导航页不高亮） */
@@ -93,6 +101,7 @@ const NAV_OF: Record<string, string> = {
   map: '地图', team: '队伍', hero: '英雄', troop: '图鉴', chests: '宝箱',
   // 王国主线页是地图的下一层，导航仍高亮「地图」（避免设置页那种"孤儿页"观感）
   quest: '地图',
+  weapons: '英雄',
 };
 
 let current: { name: string; screen: Screen; param?: string } | null = null;
@@ -122,8 +131,8 @@ function bindChrome(name: string): void {
   const settings = $('#settings');
   if (settings) settings.onclick = () => ctx.navigate('#settings');
   const materialsBtn = $('#materialsBtn');
-  if (materialsBtn) materialsBtn.onclick = () => openMaterialsVeil();
-  $('#matVeil')?.remove(); // 切屏时清掉旧弹层（挂 body，不随 stage 重置）
+  if (materialsBtn) materialsBtn.onclick = () => ctx.navigate('#bag');
+  $('#matVeil')?.remove(); // 兼容旧会话：切屏时清掉已挂载的旧材料弹层
   refreshWallet();
   refreshPlayer();
   // 货币来源说明弹层是地图屏专属；其它屏给轻量 toast
@@ -135,64 +144,6 @@ function bindChrome(name: string): void {
       };
     });
   }
-}
-
-
-/** 材料库弹层（素材批 2026-09-19）：钢锭/符卷/特质石全库存一览，顶栏背包按钮打开 */
-const STONE_COLOR_HEX: Record<string, string> = {
-  blue: '#4f8fd0', green: '#4fb06d', red: '#d04f5f',
-  yellow: '#e6c84c', purple: '#9a6fd0', brown: '#9e7c4b',
-};
-
-function openMaterialsVeil(): void {
-  $('#matVeil')?.remove();
-  const m = ctx.save().materials;
-  const ingots = INGOT_KEYS.map(
-    (k) => `<div class="mat-item"><b>${m.ingots[k] ?? 0}</b><small>${INGOT_NAMES[k as IngotKey]}</small></div>`,
-  ).join('');
-  const stoneRow = (tier: string): string =>
-    STONE_COLORS.map(
-      (c) => {
-        const key = `${tier}:${c.key}`;
-        const n = m.traitstones[key] ?? 0;
-        return `<div class="mat-item${n === 0 ? ' empty' : ''}"><b>${n}</b><small><i style="background:${STONE_COLOR_HEX[c.key]}"></i>${c.name}${tier === 'minor' ? '初' : tier === 'major' ? '高' : '符'}</small></div>`;
-      },
-    ).join('');
-  const celestial = m.traitstones.celestial ?? 0;
-  const veil = document.createElement('div');
-  veil.id = 'matVeil';
-  veil.innerHTML = `
-    <div class="mat-veil-backdrop" data-mat-close></div>
-    <section class="mat-sheet" role="dialog" aria-modal="true" aria-label="材料库">
-      <header class="mat-head">
-        <div><small>MATERIALS</small><h2>材料库</h2></div>
-        <button class="mat-close" type="button" aria-label="关闭" data-mat-close>×</button>
-      </header>
-      <div class="mat-body">
-        <section class="mat-group">
-          <h3><small>INGOTS · 淬炼武器</small>钢锭</h3>
-          <div class="mat-grid wide">${ingots}</div>
-          <p class="mat-hint">来源：每周活动（突袭首领/阵营突袭）、探索掉落、荣耀赛季奖励；去向：英雄页武器淬炼。</p>
-        </section>
-        <section class="mat-group">
-          <h3><small>FORGE SCROLLS · Doomed 武器</small>熔铸符卷</h3>
-          <div class="mat-grid"><div class="mat-item${m.forgeScrolls === 0 ? ' empty' : ''}"><b>${m.forgeScrolls}</b><small>熔铸符卷</small></div></div>
-          <p class="mat-hint">来源：末日之塔/突袭首领周；Doomed 系武器淬炼每级消耗 1 卷。</p>
-        </section>
-        <section class="mat-group">
-          <h3><small>TRAITSTONES · 解锁部队特质</small>特质石</h3>
-          <div class="mat-tier"><small>初级</small><div class="mat-grid">${stoneRow('minor')}</div></div>
-          <div class="mat-tier"><small>高级</small><div class="mat-grid">${stoneRow('major')}</div></div>
-          <div class="mat-tier"><small>符文</small><div class="mat-grid">${stoneRow('runic')}</div></div>
-          <div class="mat-tier"><small>万能</small><div class="mat-grid"><div class="mat-item${celestial === 0 ? ' empty' : ''}"><b>${celestial}</b><small>圣辉石（无色万能）</small></div></div></div>
-          <p class="mat-hint">颜色 = 部队主色（水/自然/火/风/魔法/土）；来源：活动周/探索/荣耀箱；消耗：图鉴页特质解锁。</p>
-        </section>
-      </div>
-    </section>`;
-  document.body.appendChild(veil);
-  veil.querySelectorAll('[data-mat-close]').forEach((el) =>
-    el.addEventListener('click', () => veil.remove()),
-  );
 }
 
 function refreshWallet(): void {

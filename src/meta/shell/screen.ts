@@ -8,7 +8,7 @@ import type { SettlementDetail } from '../systems/settlement';
 /** 所有屏名（hash 路由用） */
 export type ScreenName =
   | 'map' | 'team' | 'hero' | 'troop' | 'chests' | 'arena' | 'settings' | 'result'
-  | 'events' | 'invasion'
+  | 'events' | 'invasion' | 'shop' | 'weapons' | 'bag'
   /** 王国主线页 `#quest/<王国>`（M10） */
   | 'quest';
 

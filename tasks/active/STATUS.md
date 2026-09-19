@@ -7,10 +7,10 @@
 | 域 | 任务书 | 当前状态 | 下一批次 |
 |---|---|---|---|
 | UX 总纲 | `TASK-UX-PHASE-B.md` | 阶段 A 已完成，阶段 B 未闭环；窗口 L 已取消 | 统一 P0、视觉验收和任务书台账 |
-| 收藏 | `TASK-COLLECTION.md` | 图鉴浏览、编队基础交互、CH-1 热修已落；宝箱双页和 `#bag` 未落 | 宝箱双页 → 材料背包 |
-| 活动 | `TASK-EVENTS.md` | per-event 周实例和商店逻辑已有；六玩法视觉、独立商店未落 | 六活动图形化 → `#shop` |
-| 战斗/PvP | `TASK-BATTLE-UI.md` | 竞技场站位、入侵文案 P0 已落；完整竞技场/入侵/结算未落 | 竞技场信息层 → 入侵对手卡 → 结算 |
-| 武器 | `TASK-WEAPONS-UI.md` | 官方武器数据、可达性和旧熔炉修复已落；`#weapons` 四 Tab 未落 | 新武器中心 |
+| 收藏 | `TASK-COLLECTION.md` | 图鉴浏览、编队基础交互、CH-1 热修与 `#bag` 背包页已落；宝箱双页、素材红点/换算提示未落 | 宝箱双页 → 背包换算与入账提示 |
+| 活动 | `TASK-EVENTS.md` | per-event 周实例、六玩法视觉与 `#shop/<typeId>` 独立商店已落；结算页商店入口仍缺 | 结算/商店闭环与六活动视觉回归 |
+| 战斗/PvP | `TASK-BATTLE-UI.md` | 竞技场站位、draft 信息、连战对手预览、弃赛确认、入侵对手卡与榜单已落；结算屏接线仍未落 | 竞技场战报 → 入侵结算明细 → 结算屏 |
+| 武器 | `TASK-WEAPONS-UI.md` | 官方武器数据、可达性、熔炉修复与 `#weapons` 四 Tab 已落；旧 codex 入口/页面清理与全量回归仍待收口 | 旧 codex 退役 → 四 Tab 视觉验收 |
 | 地图 | `TASK-MAP-UI.md` | 地图 P0、王国主线页已有批次记录 | 按任务书剩余视觉验收 |
 | Meta | `TASK-META.md` | M0-M9 逻辑已落；M10 主要是页面验收台账 | 与 Q 域同步验收 |
 | 内容/音效/立绘 | `TASK-CONTENT.md` / `TASK-AUDIO.md` / `TASK-PORTRAITS.md` | 独立并行长线，不能作为 UX 页面完成证据 | 按各自任务书继续 |

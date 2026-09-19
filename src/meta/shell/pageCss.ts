@@ -10,6 +10,8 @@ import troopCss from './styles/troop.css?raw';
 import arenaCss from './styles/arena.css?raw';
 import resultCss from './styles/result.css?raw';
 import liveCss from './styles/live.css?raw';
+import bagCss from './styles/bag.css?raw';
+import eventShopCss from './styles/event-shop.css?raw';
 
 interface PageCssSpec {
   css: string;
@@ -22,6 +24,8 @@ const PAGE_CSS: Record<string, PageCssSpec> = {
   result: { css: resultCss, position: 'last' },
   events: { css: liveCss, position: 'last' },
   invasion: { css: liveCss, position: 'last' },
+  bag: { css: bagCss, position: 'last' },
+  shop: { css: eventShopCss, position: 'last' },
 };
 
 const STYLE_ID = 'meta-page-css';
