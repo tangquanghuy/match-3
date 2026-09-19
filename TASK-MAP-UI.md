@@ -84,4 +84,4 @@
 
 | 日期 | 批次 | 内容 | 验证 |
 |---|---|---|---|
-| — | — | 待开工 | — |
+| 2026-09-19 | 0 · rail 死链 | **M-1 关闭**：rail 七入口全部有明确行为——王国任务（新 id `railQuest`，副题改「当前推进王国 n/8」，落点=当前推进王国，批次 3 后改 `#quest/<王国>`）、战役→诚实锁态 `is-lock`+「敬请期待」toast、世界事件→**改名「活动中心」**（与窗口 N 协调，一处实现在 mapScreen）、武器库→`#hero`（副题=已装备武器名，M 的 `#weapons` 交付后改指向）、神殿→`#hero`（副题=已解锁职业数）、馈赠→诚实锁态、入侵保持既有解锁判定。三条副题从「分类描述」换成「当前状态」（审查提案 M-1 规则 3） | 探针 `artifacts/ux-audit-scripts/q1-map-verify.mjs`：rail 7/7「有明确行为」全绿（改前 5 条 `changed:false`）；console 零错误；截图 `design/ux-audit/shots/q-map-rail-after.png`。**并发处置**：主工作树被他窗在途改动打断（`TeamView.ts` 语法错、`eventsScreen` 仍 import 已改名的 `EVENT_ROTATION` → 外壳起不来），验收改在隔离工作树 `D:\Code\m3-q`（detached HEAD + `scripts/q_sync_worktree.mjs` 同步 Q 名下文件 + dev server 5181） |

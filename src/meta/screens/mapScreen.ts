@@ -6,6 +6,7 @@
 import { isFailure, todayStartOf, weekStartOf, type MetaGateway } from '../gateway';import type { MetaSave } from '../state/schema';
 import { KINGDOM_MAX_LEVEL, kingdomNodeState } from '../systems/kingdomOps';
 import { kingdomBonusStat, kingdomTroopPool } from '../data/kingdoms';
+import { anyWeaponById } from '../data/weaponCatalog';
 import { kingdomUpgradeCost, INVASION } from '../data/economy';
 import { bottomNavHtml, mountIcons, toast, toastHtml, topbarHtml, $, $$ } from '../shell/chrome';
 import type { Screen, ShellCtx } from '../shell/screen';
@@ -96,17 +97,17 @@ export class MapScreen implements Screen {
       ${topbarHtml()}
       <div class="map-shell">
         <aside class="rail left" aria-label="玩法入口">
-          <button type="button" class="on" data-rail="王国任务">
+          <button type="button" class="on" data-rail="王国任务" id="railQuest">
             <span class="facet"><span data-icon="flag"></span></span>
-            <span class="rail-copy"><b>王国任务</b><small>章节战斗</small></span>
+            <span class="rail-copy"><b>王国任务</b><small id="railQuestCopy">章节战斗</small></span>
           </button>
-          <button type="button" data-rail="战役">
-            <span class="facet"><span data-icon="book"></span></span>
-            <span class="rail-copy"><b>战役</b><small>主线剧情</small></span>
+          <button type="button" class="is-lock" data-rail="战役" id="railCampaign" data-locked="1">
+            <span class="facet"><span data-icon="book"></span><i class="rail-lock" data-icon="lock"></i></span>
+            <span class="rail-copy"><b>战役</b><small>敬请期待</small></span>
           </button>
-          <button type="button" data-rail="世界事件" id="railEvents">
+          <button type="button" data-rail="活动中心" id="railEvents">
             <span class="facet"><span data-icon="time"></span></span>
-            <span class="rail-copy"><b>世界事件</b><small>限时活动</small></span>
+            <span class="rail-copy"><b>活动中心</b><small id="railEventsCopy">限时活动</small></span>
           </button>
           <button type="button" class="is-lock" data-rail="入侵" id="railInvasion" data-locked="1">
             <span class="facet"><span data-icon="skull"></span><i class="rail-lock" data-icon="lock"></i></span>
@@ -133,17 +134,17 @@ export class MapScreen implements Screen {
           </button>
         </div>
         <aside class="rail right" aria-label="养成入口">
-          <button type="button" data-rail="武器库">
+          <button type="button" data-rail="武器库" id="railVault">
             <span class="facet"><span data-icon="swords"></span></span>
-            <span class="rail-copy"><b>武器库</b><small>更换装备</small></span>
+            <span class="rail-copy"><b>武器库</b><small id="railVaultCopy">更换装备</small></span>
           </button>
-          <button type="button" data-rail="神殿">
+          <button type="button" data-rail="神殿" id="railTemple">
             <span class="facet"><span data-icon="temple"></span></span>
-            <span class="rail-copy"><b>神殿</b><small>职业进阶</small></span>
+            <span class="rail-copy"><b>神殿</b><small id="railTempleCopy">职业进阶</small></span>
           </button>
-          <button type="button" data-rail="馈赠">
-            <span class="facet"><span data-icon="chest"></span></span>
-            <span class="rail-copy"><b>馈赠</b><small>每周礼遇</small></span>
+          <button type="button" class="is-lock" data-rail="馈赠" id="railGifts" data-locked="1">
+            <span class="facet"><span data-icon="chest"></span><i class="rail-lock" data-icon="lock"></i></span>
+            <span class="rail-copy"><b>馈赠</b><small>敬请期待</small></span>
           </button>
         </aside>
         <div class="daily" id="daily">
@@ -236,8 +237,8 @@ export class MapScreen implements Screen {
     this.on($('#dailyTribute'), 'click', () => void this.collectAllTribute(ctx));
     this.on($('#dailyArena'), 'click', () => ctx.navigate('#arena'));
 
-    // —— 素材批：世界事件 / 入侵 rail 入口 ——
-    this.on($('#railEvents'), 'click', () => ctx.navigate('#events'));
+    this.bindRail(ctx);
+
     const invasionBtn = $('#railInvasion');
     if (invasionBtn) {
       const unlocked = ctx.save().hero.level >= INVASION.unlockHeroLevel;
@@ -277,6 +278,68 @@ export class MapScreen implements Screen {
         $('#moneyVeil').hidden = true;
       }
     });
+  }
+
+  // —— rail 入口（M-1：7 个入口全部有明确行为，零「点了没反应」） ——
+
+  /**
+   * 当前应推进的王国：优先当前选中的（若还有未打的关），否则按 KINGDOM_VIEWS 顺序
+   * 取第一个「已解锁且任务链未打完」的王国；全部打完则回落到选中王国。
+   */
+  private questTargetKingdom(): string {
+    const sel = this.nodes.find((n) => n.view.name === this.selected);
+    if (sel && !sel.locked && sel.nextNode !== null) return sel.view.name;
+    const next = this.nodes.find((n) => !n.locked && n.nextNode !== null);
+    return next?.view.name ?? this.selected;
+  }
+
+  /** rail 七入口：绑定 + 副题改「当前状态」（审查提案 M-1 规则 3） */
+  private bindRail(ctx: ShellCtx): void {
+    const save = ctx.save();
+
+    // 左 1 · 王国任务 → 当前推进王国的主线页
+    const questTarget = this.questTargetKingdom();
+    const questVm = this.nodes.find((n) => n.view.name === questTarget);
+    if ($('#railQuestCopy')) {
+      $('#railQuestCopy').textContent = questVm
+        ? `${questTarget} ${questVm.questsDone}/8`
+        : '章节战斗';
+    }
+    this.on($('#railQuest'), 'click', () => this.openRailQuest(ctx));
+
+    // 左 2 · 战役：无对应系统 → 诚实锁态（不留亮着点了没反应的按钮）
+    this.on($('#railCampaign'), 'click', () => toast('战役（主线剧情）尚未开放，敬请期待。'));
+
+    // 左 3 · 活动中心（原「世界事件」）→ 每周活动屏
+    this.on($('#railEvents'), 'click', () => ctx.navigate('#events'));
+
+    // 右 1 · 武器库 → 英雄页武器区（窗口 M 的 #weapons 交付后改指向该屏）
+    const weapon = anyWeaponById(save.hero.equippedWeapon);
+    if ($('#railVaultCopy')) {
+      $('#railVaultCopy').textContent = weapon ? `已装备 · ${weapon.name}` : '尚未装备武器';
+    }
+    this.on($('#railVault'), 'click', () => ctx.navigate('#hero'));
+
+    // 右 2 · 神殿（职业进阶）→ 英雄页职业圣殿区
+    if ($('#railTempleCopy')) {
+      $('#railTempleCopy').textContent = `已解锁职业 ${save.hero.unlockedClasses.length}`;
+    }
+    this.on($('#railTemple'), 'click', () => ctx.navigate('#hero'));
+
+    // 右 3 · 馈赠：无对应系统 → 诚实锁态
+    this.on($('#railGifts'), 'click', () => toast('每周礼遇尚未开放，敬请期待。'));
+  }
+
+  /** 王国任务 rail 的落点（批次 3 后改为 #quest/<王国> 主线页） */
+  private openRailQuest(ctx: ShellCtx): void {
+    const target = this.questTargetKingdom();
+    const vm = this.nodes.find((n) => n.view.name === target);
+    if (!vm || vm.locked) {
+      toast('暂无可推进的王国任务，先提升冒险者等级解锁新王国。');
+      return;
+    }
+    void ctx;
+    this.openKingdom(target);
   }
 
   /** 外壳挂载后的二次刷新（战斗归来等场景直接复用） */
