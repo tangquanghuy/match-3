@@ -148,7 +148,7 @@ export class TroopScreen implements Screen {
               <button class="primary" id="upgrade"><span data-icon="chevrons"></span><span>提升等级</span><span class="price"><span data-icon="soul"></span><b id="upgradeCost">0</b></span></button>
               <small class="shared-note">成长对同名部队的全部副本生效</small>
             </section>
-            <section class="growth" id="decomposeSection">
+            <section class="growth danger" id="decomposeSection">
               <div class="section-line"><h2>分解 / 保护</h2><span id="decomposeYield">—</span></div>
               <div class="growth-benefit"><span id="lockState">未保护</span></div>
               <div class="decompose-row">
@@ -158,7 +158,7 @@ export class TroopScreen implements Screen {
             </section>
           </section>
           <section class="portrait-column" aria-label="部队卡">
-            <div class="rarity-label"><i></i><span id="rarityLabel">—</span><i></i></div>
+            <div class="rarity-label" id="rarityBadge"><i></i><span id="rarityLabel">—</span><i></i></div>
             <div class="card-stage">
               <article class="character-card" id="characterCard">
                 <img class="portrait" id="portraitArt" alt=""><div class="portrait-shade"></div><div class="card-frame" aria-hidden="true"></div>
@@ -171,9 +171,9 @@ export class TroopScreen implements Screen {
             </div>
             <div class="portrait-controls"><button id="previous" aria-label="上一张（当前筛选集合内）"><span data-icon="arrow"></span></button><span id="portraitCaption">—</span><button id="next" aria-label="下一张（当前筛选集合内）"><span data-icon="arrow"></span></button></div>
             <!-- T-5 养成动线出口：编入队伍。行内样式是临时占位，L 交付 .btn 基类后换类名 -->
-            <div class="enlist-row" id="enlistRow" style="display:flex;gap:10px;align-items:stretch;margin-top:12px">
+            <div class="enlist-row" id="enlistRow" style="display:flex;gap:10px;align-items:stretch;margin-top:10px">
               <button class="primary" id="enlist" style="flex:1"><span data-icon="shield"></span><span id="enlistLabel">编入队伍</span></button>
-              <select id="enlistSlot" aria-label="选择站位" style="min-width:150px"></select>
+              <select id="enlistSlot" aria-label="选择站位" style="min-width:148px"></select>
             </div>
             <small class="shared-note" id="enlistHint">—</small>
           </section>
@@ -186,6 +186,7 @@ export class TroopScreen implements Screen {
             </div>
             <section class="ascension">
               <div class="section-line"><h2>升阶</h2><span><b id="copies">0</b> / <span id="copiesNeed">5</span></span></div>
+              <div class="growth-benefit"><span>收益</span><span id="ascendBenefit">—</span></div>
               <div class="ascension-gems" id="ascensionGems" aria-label="同名卡"></div>
               <div class="ascension-caption"><span id="copyCaption">—</span><button id="ascend">升一阶</button></div>
             </section>
@@ -216,7 +217,7 @@ export class TroopScreen implements Screen {
             <span class="divider"></span>
             <select id="typeSelect" aria-label="按种族筛选"><option value="">全部种族</option></select>
             <select id="kingdomSelect" aria-label="按王国筛选"><option value="">全部王国</option></select>
-            <button class="filter-reset" id="resetFilters" hidden>重置筛选</button>
+            <button class="filter-reset is-off" id="resetFilters">重置筛选</button>
           </div>
           <div class="filter-row filter-row-foot">
             <span class="filter-label">排序</span>
@@ -234,9 +235,11 @@ export class TroopScreen implements Screen {
         <div id="collectionBands"></div>
         <p class="collection-note">点击卡片查看养成详情 · 未获得的部队也可查看图鉴资料</p>
       </main>
-      ${bottomNavHtml('图鉴', '全图鉴 1,798 支')}
+      ${bottomNavHtml('图鉴', `全图鉴 ${fmt(TROOPS.length)} 支`)}
       ${toastHtml()}
-      <div class="modal-veil" id="modal" hidden><section class="modal etched" role="dialog" aria-modal="true" aria-labelledby="modalTitle"><small>TROOP GROWTH</small><h2 id="modalTitle">提升部队等级</h2><p id="modalCopy">—</p><div class="stat-preview" id="modalPreview"></div><button class="primary" id="confirmUpgrade">确认提升</button><button class="cancel" id="cancelUpgrade">暂不提升</button></section></div>`;
+      <div class="modal-veil" id="modal" hidden><section class="modal etched" role="dialog" aria-modal="true" aria-labelledby="modalTitle"><small>TROOP GROWTH</small><h2 id="modalTitle">提升部队等级</h2><p id="modalCopy">—</p><ul class="modal-lines" id="modalPreview"></ul><button class="primary" id="confirmUpgrade">确认提升</button><button class="cancel" id="cancelUpgrade">暂不提升</button></section></div>
+      <!-- T-16：分解是永久销毁，自绘危险确认弹层替掉浏览器原生 confirm() -->
+      <div class="modal-veil" id="dangerModal" hidden><section class="modal etched danger" role="dialog" aria-modal="true" aria-labelledby="dangerTitle"><small>PERMANENT ACTION</small><h2 id="dangerTitle">分解副本</h2><p id="dangerCopy">—</p><ul class="modal-lines" id="dangerPreview"></ul><button class="primary" id="confirmDanger">确认分解</button><button class="cancel" id="cancelDanger">取消</button></section></div>`;
   }
 
   mount(ctx: ShellCtx, _root: HTMLElement, param?: string): void {
@@ -269,7 +272,9 @@ export class TroopScreen implements Screen {
     this.bind('#unlock', 'click', () => void this.unlockNextTrait());
     this.bind('#ascend', 'click', () => void this.ascend());
     this.bind('#toggleLock', 'click', () => void this.toggleLock());
-    this.bind('#decompose', 'click', () => void this.decompose());
+    this.bind('#decompose', 'click', () => this.askDecompose());
+    this.bind('#confirmDanger', 'click', () => void this.decompose());
+    this.bind('#cancelDanger', 'click', () => ($('#dangerModal').hidden = true));
     this.bind('#enlist', 'click', () => void this.toggleEnlist());
     $$('#collection [data-tab]').forEach((tab) =>
       this.on(tab, 'click', () => {
@@ -381,6 +386,7 @@ export class TroopScreen implements Screen {
       if ((e as KeyboardEvent).key === 'Escape') {
         this.closeSpellTip();
         $('#modal').hidden = true;
+        $('#dangerModal').hidden = true;
       }
     });
 
@@ -433,7 +439,8 @@ export class TroopScreen implements Screen {
     $('#cardTitle').textContent = troop.referenceName.toUpperCase();
     $('#cardName').textContent = spaced(troop.name);
     $('#cardType').textContent = typeCn(troop.troopTypes) + (troop.kingdom ? ' · ' + troop.kingdom : '');
-    $('#rarityLabel').textContent = rarityName;
+    $('#rarityLabel').textContent = `${RARITY_CN[tier] ?? ''} · ${rarityName}`;
+    $('#rarityBadge').dataset.rarity = String(tier);
     $('#magicStat').textContent = String(stats.magic);
     $('#attackStat').textContent = String(stats.attack);
     $('#armorStat').textContent = String(stats.armor);
@@ -534,20 +541,45 @@ export class TroopScreen implements Screen {
     });
   }
 
+  /** 四维差值（只保留真有变化的项，T-11：阶段 A 把「护甲 3 → 3」也当收益列） */
+  private statDiffs(troop: TroopData, rec: TroopRecord, toLevel: number): Array<{ label: string; from: number; to: number }> {
+    const cur = troopStatsOf(troop, rec);
+    const next = troopStatsOf(troop, { ...rec, level: toLevel });
+    return (
+      [
+        { label: '攻击', from: cur.attack, to: next.attack },
+        { label: '护甲', from: cur.armor, to: next.armor },
+        { label: '生命', from: cur.health, to: next.health },
+        { label: '魔法', from: cur.magic, to: next.magic },
+      ] as const
+    )
+      .filter((row) => row.to !== row.from)
+      .map((row) => ({ ...row }));
+  }
+
   private paintGrowth(troop: TroopData, rec: TroopRecord, owned: boolean): void {
     const cap = levelCapFor(troop.rarityIdx, rec.ascension);
     const cost = rec.level < cap ? totalSoulCost(troop.rarityIdx, rec.level, rec.level + 1) : 0;
     const atCap = rec.level >= cap;
-    const nextStats = atCap ? null : troopStatsOf(troop, { ...rec, level: rec.level + 1 });
-    const cur = troopStatsOf(troop, rec);
+    const souls = this.ctx.save().currencies.souls;
+    const diffs = atCap ? [] : this.statDiffs(troop, rec, rec.level + 1);
     $('#growthNext').innerHTML = !owned
       ? '获得该部队后可提升等级'
       : atCap
         ? '已达稀有度上限 · 升阶可提升'
-        : `生命 <b>+${nextStats!.health - cur.health}</b> 护甲 <b>+${nextStats!.armor - cur.armor}</b>`;
+        : diffs.length
+          ? diffs.map((d) => `${d.label} <b>+${d.to - d.from}</b>`).join(' ')
+          : '下一级无属性变化（等级本身计入战力上限）';
     const btn = $('#upgrade') as HTMLButtonElement;
-    btn.disabled = !owned || atCap;
-    $('#upgradeCost').textContent = owned ? fmt(cost) : '—';
+    const short = owned && !atCap && souls < cost;
+    btn.disabled = !owned || atCap || short;
+    // T-10 配套：代价旁边就是余额，买不起直接写"还差多少"而不是点下去赌 toast
+    btn.title = short ? `灵魂不足：需要 ${fmt(cost)}，现有 ${fmt(souls)}` : '';
+    $('#upgradeCost').innerHTML = owned
+      ? short
+        ? `${fmt(cost)} <em class="short">还差 ${fmt(cost - souls)}</em>`
+        : `${fmt(cost)}`
+      : '—';
   }
 
   private paintTraits(troop: TroopData, rec: TroopRecord, owned: boolean): void {
@@ -588,16 +620,40 @@ export class TroopScreen implements Screen {
     } else {
       const primary = stoneColorKeyOf(troop.manaColors[0] ?? BaseColor.Brown);
       const cost = traitUnlockCost(nextSlot, primary);
-      unlockBtn.disabled = false;
-      $('#unlockLabel').textContent = `解锁特质 ${['Ⅰ', 'Ⅱ', 'Ⅲ'][nextSlot - 1]}`;
-      $('#unlockCost').innerHTML = `<span><span data-icon="coin"></span>${fmt(cost.gold)}</span>`
-        + Object.entries(cost.stones).map(([key, n]) => `<span>${stoneName(key)} ×${n}</span>`).join('');
+      const save = this.ctx.save();
+      // T-10：每一项代价旁边列持有量，不够的标红；凑不齐时按钮直接禁用并写清缺口
+      const shortfalls: string[] = [];
+      const goldHave = save.currencies.gold;
+      if (goldHave < cost.gold) shortfalls.push(`黄金还差 ${fmt(cost.gold - goldHave)}`);
+      const stoneRows = Object.entries(cost.stones).map(([key, n]) => {
+        const have = save.materials.traitstones[key] ?? 0;
+        if (have < n) shortfalls.push(`${stoneName(key)}还差 ${n - have}`);
+        return `<span>${stoneName(key)} ×${n}<em class="${have < n ? 'short' : ''}">持有 ${fmt(have)}</em></span>`;
+      });
+      $('#unlockLabel').textContent = shortfalls.length
+        ? `材料不足 · ${shortfalls[0]}`
+        : `解锁特质 ${['Ⅰ', 'Ⅱ', 'Ⅲ'][nextSlot - 1]}`;
+      unlockBtn.disabled = shortfalls.length > 0;
+      unlockBtn.title = shortfalls.join(' · ');
+      $('#unlockCost').innerHTML =
+        `<span><span data-icon="coin"></span>${fmt(cost.gold)}<em class="${goldHave < cost.gold ? 'short' : ''}">持有 ${fmt(goldHave)}</em></span>`
+        + stoneRows.join('');
       mountIcons($('#unlockCost'));
     }
   }
 
-  private paintAscension(_troop: TroopData, rec: TroopRecord, owned: boolean): void {
+  private paintAscension(troop: TroopData, rec: TroopRecord, owned: boolean): void {
     const need = rec.ascension >= MAX_ASCENSION ? 0 : ascensionCopiesNeeded(rec.ascension);
+    // T-10：升阶换来什么——阶段 A 只写 2/5，收益那句话只在成功后的 toast 里出现过
+    const capNow = levelCapFor(troop.rarityIdx, rec.ascension);
+    const capNext = levelCapFor(troop.rarityIdx, rec.ascension + 1);
+    const benefit = $('#ascendBenefit');
+    if (benefit) {
+      benefit.innerHTML =
+        rec.ascension >= MAX_ASCENSION
+          ? '已满阶 · 等级上限已到顶'
+          : `升一阶 → 等级上限 <b>${capNow} → ${capNext}</b>${capNext === capNow ? '（本档已到表尾，升阶只加星标）' : ''} · 稀有度档 +1`;
+    }
     $('#copiesNeed').textContent = String(need);
     const gems = $('#ascensionGems');
     gems.innerHTML = Array.from({ length: Math.max(need, 0) }, (_, i) => `<i${i < rec.copies ? ' class="on"' : ''}></i>`).join('');
@@ -673,7 +729,9 @@ export class TroopScreen implements Screen {
       btn.disabled = true;
       slot.hidden = true;
       $('#enlistLabel').textContent = owned ? '还没有预设队' : '获得该部队后可编入队伍';
-      if (hint) hint.textContent = owned ? '先去队伍页建一支预设队。' : '尚未获得 · 图鉴资料仅供参考';
+      const why = owned ? '先去队伍页建一支预设队。' : '尚未获得 · 图鉴资料仅供参考';
+      btn.title = why;
+      if (hint) hint.textContent = why;
       return;
     }
     const at = team.preset.members.findIndex((m) => m.kind === 'troop' && m.troopId === this.currentId);
@@ -681,7 +739,9 @@ export class TroopScreen implements Screen {
       btn.disabled = false;
       slot.hidden = true;
       $('#enlistLabel').textContent = `已在「${team.preset.name}」第 ${at + 1} 位 · 卸下`;
-      if (hint) hint.textContent = `队伍 ${team.preset.members.length} 人 · 最少 ${MIN_TEAM_SIZE} 人`;
+      const why = `队伍 ${team.preset.members.length} 人 · 最少 ${MIN_TEAM_SIZE} 人`;
+      btn.title = why;
+      if (hint) hint.textContent = why;
       return;
     }
     btn.disabled = false;
@@ -700,7 +760,10 @@ export class TroopScreen implements Screen {
       return `<option value="${i}">第 ${i + 1} 位（${who}）</option>`;
     }).join('');
     slot.value = keep && Number(keep) < slots ? keep : String(slots - 1);
-    if (hint) hint.textContent = `编入「${team.preset.name}」· 选中已有站位会替换该成员`;
+    const why = `编入「${team.preset.name}」· 选中已有站位会替换该成员`;
+    btn.title = why;
+    slot.title = why;
+    if (hint) hint.textContent = why;
   }
 
   private async toggleEnlist(): Promise<void> {
@@ -743,13 +806,18 @@ export class TroopScreen implements Screen {
       return;
     }
     const cost = totalSoulCost(troop.rarityIdx, rec.level, rec.level + 1);
-    const cur = troopStatsOf(troop, rec);
-    const next = troopStatsOf(troop, { ...rec, level: rec.level + 1 });
     const souls = this.ctx.save().currencies.souls;
+    // T-11：只列真有变化的属性（四维全查），零变化项不再冒充收益
+    const diffs = this.statDiffs(troop, rec, rec.level + 1);
     $('#modalTitle').textContent = '提升部队等级';
     $('#modalCopy').innerHTML = `${troop.name} <b>Lv.${rec.level} → Lv.${rec.level + 1}</b>`;
     $('#modalPreview').innerHTML =
-      `<span>生命 <b>${cur.health} → ${next.health}</b></span><span>护甲 <b>${cur.armor} → ${next.armor}</b></span><span>灵魂 <b id="soulPreview">${fmt(souls)} → ${fmt(Math.max(0, souls - cost))}</b></span>`;
+      (diffs.length
+        ? diffs
+            .map((d) => `<li class="gain"><span>${d.label}</span><b>${d.from} → ${d.to}（+${d.to - d.from}）</b></li>`)
+            .join('')
+        : '<li><span>属性</span><b>本级无属性变化</b></li>')
+      + `<li class="cost"><span>灵魂</span><b id="soulPreview">${fmt(souls)} → ${fmt(Math.max(0, souls - cost))}</b></li>`;
     $('#confirmUpgrade').textContent = `确认提升 · ${fmt(cost)} 灵魂`;
     $('#modal').hidden = false;
     $('#confirmUpgrade').focus();
@@ -799,11 +867,28 @@ export class TroopScreen implements Screen {
     this.afterMutation();
   }
 
+  /** 分解要二次确认：自绘弹层（T-16），并把"换来什么 / 代价是什么"写清 */
+  private askDecompose(): void {
+    const troop = this.troop();
+    const rec = this.rec();
+    if (!troop || !rec || rec.copies < 1) return;
+    const gain = decomposeYield(troop.rarityIdx);
+    const need = rec.ascension >= MAX_ASCENSION ? 0 : ascensionCopiesNeeded(rec.ascension);
+    $('#dangerCopy').innerHTML = `永久销毁「${troop.name}」<b>1 张副本</b>（本体保留，等级与特质不变）`;
+    $('#dangerPreview').innerHTML =
+      `<li class="gain"><span>换来</span><b>黄金 +${fmt(gain.gold)} · 灵魂 +${fmt(gain.souls)}</b></li>`
+      + `<li class="cost"><span>副本</span><b>${rec.copies} → ${rec.copies - 1} 张</b></li>`
+      + (need ? `<li><span>升阶进度</span><b>${Math.min(rec.copies, need)} / ${need} → ${Math.min(rec.copies - 1, need)} / ${need}</b></li>` : '')
+      + '<li><span>不可撤销</span><b>分解后无法找回</b></li>';
+    $('#dangerModal').hidden = false;
+    $('#confirmDanger').focus();
+  }
+
   private async decompose(): Promise<void> {
     const troop = this.troop();
     const rec = this.rec();
+    $('#dangerModal').hidden = true;
     if (!troop || !rec) return;
-    if (!confirm(`确定分解「${troop.name}」1 张副本吗？（本体保留）`)) return;
     const { result } = await this.ctx.gateway.decomposeTroop(this.currentId);
     if (result.ok) {
       toast(`分解 ${result.count} 张：黄金 +${fmt(result.gained.gold)} · 灵魂 +${fmt(result.gained.souls)}`);
@@ -972,7 +1057,8 @@ export class TroopScreen implements Screen {
     $('#activeFilters').innerHTML = active
       .map((f) => `<button class="filter-chip selected" data-drop="${f.dim}" title="移除该条件">${f.label} ✕</button>`)
       .join('');
-    $('#resetFilters').hidden = active.length === 0;
+    // T-15：用 visibility 占位而不是 hidden，避免整行左右抖 34px
+    $('#resetFilters').classList.toggle('is-off', active.length === 0);
     $('#shownCount').textContent = `匹配 ${fmt(sorted.length)} 支`;
 
     const container = $('#collectionBands');

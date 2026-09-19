@@ -179,3 +179,120 @@
 .collection-card.locked>img{filter:grayscale(.9) brightness(.42)}
 .locked-mark{position:absolute;inset:0;display:grid;place-items:center;z-index:2;font:700 36px Georgia;color:#d6bd8d;text-shadow:0 2px 10px #000,0 0 4px #000;opacity:.85;pointer-events:none}
 .collection-empty{text-align:center;color:#8a7d8e;font-size:13px;padding:70px 0;letter-spacing:2px}.collection-progress{display:flex;align-items:center;gap:12px;margin:0 95px 10px;color:#968b9b;font-size:11px}.collection-progress>div{width:310px;height:6px;background:#08080e;border:1px solid #594b39}.collection-progress i{display:block;height:100%;background:linear-gradient(90deg,#806141,#d6b878)}.collection-progress>b{color:#e0c78e;font:12px Georgia}.collection-filter button{background:none;color:#887d8e;font-size:13px;padding:0 3px}.collection-filter button.selected{color:#ddc895;border-bottom:2px solid #d5b87c;height:52px}.collection-filter .divider{height:20px;border-left:1px solid #594936}.collection-filter .filter-chip{padding:5px 10px;border:1px solid #493c4d;border-radius:20px;font-size:11px;height:auto}.collection-filter .filter-chip.selected{border-color:#a28656;color:#e0c990;border-bottom:1px solid #a28656}.collection-filter label{display:flex;align-items:center;gap:5px;margin-left:auto;border:1px solid #47394d;padding:5px 8px}.collection-filter input{width:120px;background:transparent;border:0;outline:0;color:#e7dcc2;font-size:11px}.kingdom-band{display:flex;align-items:center;gap:10px;margin:18px 95px 0;padding:9px 12px;border-left:3px solid #a7854f;background:linear-gradient(90deg,#201a25,transparent);color:#e7d09d}.kingdom-band small{color:#918394;font-size:10px}.kingdom-band>div{width:180px;height:4px;background:#0a0910;border:1px solid #4a3a2d;margin-left:8px}.kingdom-band>div i{display:block;height:100%;background:#71996d}.band-mark{width:14px;height:18px;background:#8f6a47;clip-path:polygon(50% 0,100% 15%,86% 100%,50% 83%,14% 100%,0 15%)}
+
+/* ===========================================================================
+   阶段 B · 窗口 O 批次 1 收尾（图鉴页 CSS 修正；窗口 L 取消后 CSS 归本窗口）
+   逐条对应 design/ux-audit/pages/04-troop.md：T-1 密度 / T-6 吸顶条穿透 /
+   T-7 稀有度图例 / T-8 卡面数值 / T-14 未获得详情全彩 / T-15 筛选行抖动 /
+   T-16 分解危险态。放在文件末尾 = 覆盖上面两处互相打架的历史规则。
+   =========================================================================== */
+
+/* T-6：两条 .kingdom-band 规则打架，后者把背景改成右侧全透明 → 吸顶时穿透并压住第一行卡。
+   这里给回不透明底（保留左侧金线与渐变收尾，但整条可读）。 */
+.kingdom-band {
+  background: linear-gradient(90deg, #241d2b, #1b1622 62%, #17131d);
+  box-shadow: 0 1px 0 #4a3c2e, inset 0 1px 0 #322840, 0 6px 12px #0b0b12aa;
+}
+
+/* T-1 续：卡再压一档（150→126 最小列宽、196→172 高），85 张从 5.2 屏压到 ≈3.5 屏 */
+.collection-cards { grid-template-columns: repeat(auto-fill, minmax(126px, 1fr)); gap: 8px; }
+.collection-card { height: 172px; }
+.collection-info { padding: 22px 8px 7px; }
+.collection-info h2 { font-size: 13px; margin: 0 0 4px; }
+.collection-info > span { font-size: 9px; padding-top: 4px; gap: 4px; }
+/* T-8：卡面第二行 = 攻/护/生（阶段 A 卡面一个战斗数值都没有） */
+.collection-info > span + span { border-top: 0; padding-top: 2px; color: #9d90a4; }
+.collection-info > span + span > span:first-child { color: #c9bda6; font-variant-numeric: tabular-nums; }
+.collection-info > span + span > span:last-child { color: var(--rc, #8d8091); }
+
+/* T-7：品质 chip 自带稀有度色点 = 全页缺失的稀有度图例（不额外占一行） */
+.collection-filter .filter-chip[data-rarity]:before {
+  content: ""; display: inline-block; vertical-align: middle;
+  width: 7px; height: 7px; margin-right: 5px; border-radius: 50%;
+  background: var(--rc, #6b6472); box-shadow: 0 0 4px #0008;
+}
+.collection-filter .filter-chip[data-rarity=""] { --rc: linear-gradient(135deg, #79828e, #e9c258); }
+.collection-filter .filter-chip[data-rarity="0"] { --rc: #79828e; }
+.collection-filter .filter-chip[data-rarity="1"] { --rc: #63a86b; }
+.collection-filter .filter-chip[data-rarity="2"] { --rc: #5493cf; }
+.collection-filter .filter-chip[data-rarity="3"] { --rc: #9d6bdc; }
+.collection-filter .filter-chip[data-rarity="4"] { --rc: #dd8f45; }
+.collection-filter .filter-chip[data-rarity="5"] { --rc: #e9c258; }
+.collection-filter .filter-chip[data-rarity=""]:before { background-image: linear-gradient(135deg, #79828e, #5493cf 45%, #e9c258); }
+.collection-filter .filter-chip i { margin-left: 4px; color: #8f8298; font: 10px Georgia; }
+.collection-filter .filter-chip.selected i { color: #e3cfa2; }
+.collection-filter [data-tab] i { margin-left: 5px; color: #8f8298; font: 11px Georgia; }
+.collection-filter [data-tab].selected i { color: #e3cfa2; }
+
+/* 筛选摘要 chip（单条 ✕ 撤销） */
+#activeFilters .filter-chip { border-style: dashed; }
+#activeFilters .filter-chip:hover { border-color: #d08a76; color: #f0c3ae; }
+
+/* T-15：重置按钮显隐会让整行左右抖 34px → 改占位不塌缩 */
+.filter-reset.is-off { visibility: hidden; pointer-events: none; }
+
+/* 空态：出路按钮排成一行，与正文分开 */
+.collection-empty { line-height: 2.2; }
+.collection-empty .filter-chip { margin: 0 5px; letter-spacing: 0; }
+
+/* 稀有度标牌：跟卡绑在一起（阶段 A 它落在页标题正下方，读起来像"这个页面很普通"） */
+.rarity-label { color: var(--rc, #d0ac69); }
+.rarity-label span {
+  padding: 2px 14px; border: 1px solid currentColor; border-radius: 2px;
+  background: #14121bcc; font-size: 12px;
+}
+.rarity-label i { background: linear-gradient(90deg, transparent, currentColor); opacity: .55; }
+.rarity-label[data-rarity="0"] { --rc: #9aa3ae; }
+.rarity-label[data-rarity="1"] { --rc: #7cc285; }
+.rarity-label[data-rarity="2"] { --rc: #6aa9e0; }
+.rarity-label[data-rarity="3"] { --rc: #b285e8; }
+.rarity-label[data-rarity="4"] { --rc: #eda75f; }
+.rarity-label[data-rarity="5"] { --rc: #f0cf74; }
+
+/* T-14：`.unowned` 这个类阶段 A 挂了但全仓零样式 → 列表灰、详情全彩，同一张卡两套表达 */
+.character-card.unowned .portrait { filter: grayscale(.92) brightness(.46) contrast(1.05); }
+.character-card.unowned .card-name h2,
+.character-card.unowned .card-stats b { color: #cfc6bb; }
+.character-card.unowned .card-stats { opacity: .72; }
+.character-card.unowned { border-color: #6f6558; box-shadow: 0 0 0 3px #111016, 0 0 0 4px #4a423588, 0 16px 38px #0009; }
+
+/* T-10：代价旁边列持有量，不够的标红（阶段 A 只报价不报余额，按钮恒亮只能点下去赌） */
+.unlock-cost em { font-style: normal; color: #7f8b76; margin-left: 4px; font-size: 11px; }
+.unlock-cost em.short { color: #d07d6b; }
+.growth-benefit .short { color: #d07d6b; }
+
+/* T-16：分解 = 永久销毁副本，不能和「部队成长」同一种外框 */
+.growth.danger { border-color: #7a4a3a; background: linear-gradient(115deg, #2a1c1f99, #17121899); box-shadow: inset 0 1px #f0c0b011; }
+.growth.danger .section-line h2 { color: #dfa892; }
+.growth.danger .secondary#decompose { border-color: #9c5c48; color: #e8b49f; background: linear-gradient(#3a2228, #241519); }
+.growth.danger .secondary#decompose:disabled { border-color: #5c4a44; color: #9a8b85; }
+
+/* 自绘危险确认弹层（替掉浏览器原生 confirm()） */
+.modal.danger { border-color: #9c5c48; }
+.modal.danger h2 { color: #eab79f; }
+.modal.danger .primary { background: linear-gradient(#7d4132, #4d2620 49%, #431f1b 50%, #5d2f26); border-color: #c98f74; }
+.modal .modal-lines { margin: 14px 0 6px; padding: 0; list-style: none; }
+.modal .modal-lines li { display: flex; justify-content: space-between; gap: 16px; padding: 7px 0; border-top: 1px solid #55453155; color: #bdb098; font-size: 13px; }
+.modal .modal-lines li b { color: #ecd9ab; font-weight: 400; }
+.modal .modal-lines li.gain b { color: #9eba92; }
+.modal .modal-lines li.cost b { color: #d6b07e; }
+
+/* 编入队伍（T-5）：主行动 + 站位选择器 */
+.enlist-row select {
+  height: 51px; padding: 0 26px 0 12px; border: 1px solid #8e7347; border-radius: 0;
+  background: #1d1824 url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='5'%3E%3Cpath d='M0 0l4 5 4-5z' fill='%23a98f5e'/%3E%3C/svg%3E") no-repeat right 9px center;
+  color: #d8c8a8; font: 13px var(--body); appearance: none; cursor: pointer; outline: 0;
+}
+.enlist-row select option { background: #171320; color: #dccaa5; }
+.enlist-row select { height: 42px; }
+.enlist-row .primary { height: 42px; font-size: 16px; }
+.enlist-row .primary:before, .enlist-row .primary:after { top: 17px; }
+/* 详情页竖向预算很紧（卡 522px + 控制条），提示改挂 title，不再单独占一行 */
+#enlistHint { display: none; }
+.portrait-controls { margin-top: 14px; }
+
+/* 主行动按钮里的余额缺口（T-10：提升等级的灵魂不足） */
+.primary .price em { font-style: normal; font-size: 11px; margin-left: 6px; color: #e2a58f; }
+/* 升阶收益行 */
+.ascension .growth-benefit { margin: 10px 0 4px; font-size: 11px; }
+.ascension .growth-benefit b { color: #d9c393; font-weight: 400; }
