@@ -48,8 +48,12 @@ describe('存档 v1 → v2 迁移', () => {
   it('武器 id 同步改名；equippedWeapon 一并迁移', () => {
     const save = migrateSave(v1Raw());
     expect(save.hero.equippedWeapon).toBe('w_warlord_10');
+    // v1→v2 只做旧职业改名（w_berserker_10 → w_warlord_10）。
+    // 这些 w_* 本身在 2026-09-19 已被裁定为假数据整表退役，但存档侧的清理是 schema v4
+    // 的事（窗口 M，待窗口 N 的 v3 落盘后接）——本用例只锁 v2 这一步的行为。
+    // newSave 的模板会带上起始武器（STARTER_WEAPON_ID），hydrate 与旧列表取并集。
     expect(save.hero.unlockedWeapons.sort()).toEqual(
-      ['w_univ_apprentice', 'w_warlord_10', 'w_sorcerer_20'].sort(),
+      ['gw_KnightsSword', 'w_univ_apprentice', 'w_warlord_10', 'w_sorcerer_20'].sort(),
     );
   });
 

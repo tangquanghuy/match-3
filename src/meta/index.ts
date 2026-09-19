@@ -9,6 +9,7 @@ export * from './data/traitIndex';
 export * from './data/classes';
 export * from './data/talentDefs';
 export * from './data/weapons';
+export * from './data/weaponCatalog';
 export * from './data/banners';
 export * from './state/schema';
 export * from './state/save';

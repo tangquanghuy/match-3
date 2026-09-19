@@ -12,18 +12,32 @@ import {
   type ClassDef,
   type TalentDef,
 } from '../data/classes';
-import { WEAPONS, type WeaponDef } from '../data/weapons';
+import { type WeaponDef } from '../data/weapons';
 import { canUseWeapon, classLevelOf, heroStatsOf } from '../systems/hero';
-import { CATALOG_WEAPONS, ownedCatalogWeapons, catalogIconUrl, anyWeaponById, type CatalogWeaponDef } from '../data/weaponCatalog';
+import {
+  ALL_CATALOG_WEAPONS,
+  STARTER_WEAPONS,
+  catalogIconUrl,
+  anyWeaponById,
+  ownedWeapons,
+  ownedWeaponIds,
+  ownsWeapon,
+  weaponTypeZh,
+} from '../data/weaponCatalog';
 import { SOULFORGE_RECIPES } from '../data/soulforge';
-import { forgeTierUnlockLevel } from '../systems/forge';
+import {
+  AFFIX_UNLOCK_LEVELS,
+  DOOMED_AFFIX_UNLOCK_LEVELS,
+  affixUnlockedCount,
+  forgeTierUnlockLevel,
+} from '../systems/forge';
+import { temperingLevelOf } from '../systems/forgeOps';
 import { heroTraitSlots, talentPicksOf } from '../systems/talents';
 import { traitBadgeSvg } from '../../render/traitBadges';
 import { TALENT_DYNAMIC_CODES } from '../data/talentDefs';
 import { bottomNavHtml, gemSvg, mountIcons, toast, toastHtml, topbarHtml, $, $$ } from '../shell/chrome';
 import { isFailure } from '../gateway';
 import type { Screen, ShellCtx } from '../shell/screen';
-import { mountWeaponDefs, weaponArt } from '../shell/weaponIcons';
 import { formulaKind, formulaParts, formulaRule, renderSpell } from '../shell/spellText';
 
 /** 职业图标（icon 库键；未列出的用 helmet 兜底） */
@@ -65,21 +79,18 @@ const RARITY: Record<string, { cn: string; cls: string }> = {
   mythic: { cn: '神话', cls: 'r-mythic' },
 };
 
-/** 武器展示分类（weaponType → 剪影种类） */
-function weaponKind(w: WeaponDef): string {
-  switch (w.weaponType) {
-    case 'axe': return 'axe';
-    case 'dagger': return 'dagger';
-    case 'bow': return 'bow';
-    case 'tome': return 'tome';
-    case 'mace': case 'hammer': return 'mace';
-    case 'staff': return 'staff';
-    case 'shield': return 'shield';
-    case 'scythe': return 'scythe';
-    case 'polearm': return 'spear';
-    case 'jewellery': case 'relic': return 'ring';
-    default: return 'sword';
-  }
+/**
+ * 武器卡面（官方 webp，`public/gowhead-icons/`）。
+ *
+ * 2026-09-19 窗口 M：程序化剪影 `shell/weaponIcons.ts` 已退役（UX-2 混排的根因——
+ * 同一个列表里一边是透明底单色矢量、一边是满幅彩绘，且 `WEAPON_ICONS` 缺
+ * mace/tome/shield/ring 四键让 7/20 把兜底成同一把长剑）。现在 718/718 把都有官方卡面，
+ * 取图只有这一个出口。
+ */
+function weaponArtHtml(w: WeaponDef, lazy = false): string {
+  const url = catalogIconUrl(w);
+  if (!url) return '<div class="tile-img tile-img-missing" aria-hidden="true"></div>';
+  return `<img class="tile-img"${lazy ? ' loading="lazy"' : ''} src="${url}" alt="${w.name}"/>`;
 }
 
 const spaced = (s: string): string => s.split('').join(' ');
@@ -245,7 +256,6 @@ export class HeroScreen implements Screen {
 
   mount(ctx: ShellCtx): void {
     this.ctx = ctx;
-    mountWeaponDefs();
     this.bind('#vaultClose', 'click', () => ($('#vaultVeil').hidden = true));
     this.bind('#vaultForge', 'click', () => {
       this.forgeMode = !this.forgeMode;
@@ -635,10 +645,19 @@ export class HeroScreen implements Screen {
     return canUseWeapon(save, w) ? 'usable' : 'locked';
   }
 
+  /**
+   * 获取途径（**唯一出口**，H-9 的三处重复且自相矛盾在此收口）。
+   *
+   * 旧实现有两套口径打架：`sourceText()` 按 `unlockLevel` 输出「主角 Lv.1 解锁」，
+   * 而 `weaponCatalog` 给所有目录武器写死 `unlockLevel: 1` → 一把 130 万灵魂的神话武器
+   * 同屏既写「熔炉锻造获得」又写「主角 Lv.1 解锁」。现在只按真实途径回答。
+   */
   private sourceText(w: WeaponDef): string {
-    if (w.classId === null) return `主角 Lv.${w.unlockLevel} 解锁`;
-    const cls = CLASSES.find((c) => c.id === w.classId);
-    return `${cls?.name ?? w.classId} 冠军 Lv.${w.unlockLevel} 解锁`;
+    if (w.starter) return '初始武器 · 无需解锁';
+    const recipe = SOULFORGE_RECIPES.find((r) => r.recipe.weaponId === w.id);
+    if (recipe) return `熔炉锻造 · ${recipe.source}`;
+    if (!w.equippable) return '占位武器 · 无法术实现，不可装备';
+    return '暂无获取途径';
   }
 
   private rarityClsOfRarity(rarity: string): { cn: string; cls: string } {
@@ -653,16 +672,9 @@ export class HeroScreen implements Screen {
     return { cn: cnMap[rarity] ?? rarity, cls: RARITY[keyMap[rarity] ?? 'common']!.cls };
   }
 
+  /** 稀有度：假数据退役后武器全部自带官方 rarity，不再有「按解锁档推导」的第二口径 */
   private rarityOf(w: WeaponDef): { cn: string; cls: string } {
-    // 目录武器（gw_*）：用官方稀有度
-    const cat = w as CatalogWeaponDef;
-    if (cat.gw && cat.rarity) return this.rarityClsOfRarity(cat.rarity);
-    // 武器档位展示：职业毕业武器（20 级）给传说，10 级给史诗，通用按主角等级段
-    if (w.classId !== null && w.unlockLevel >= 20) return RARITY.legend!;
-    if (w.classId !== null) return RARITY.epic!;
-    if (w.unlockLevel >= 15) return RARITY.epicplus!;
-    if (w.unlockLevel >= 8) return RARITY.rare!;
-    return RARITY.common!;
+    return this.rarityClsOfRarity(w.rarity);
   }
 
   private spellSheet(w: WeaponDef, extraHead?: string): string {
@@ -681,12 +693,47 @@ export class HeroScreen implements Screen {
           ${extraHead ?? ''}
         </header>
         <div class="wspell-body">
-          <div class="ink-rule"><i></i><span>${this.sourceText(w)}</span><i></i></div>
+          <!-- H-9：这条分割线原来印的是「来源」，与面板上另外两处重复且对目录武器自相矛盾；
+               改印真正缺失的身份信息（类型 / 王国 / 角色），来源只在面板底部印一次 -->
+          <div class="ink-rule"><i></i><span>${[weaponTypeZh(w.weaponType), w.kingdom, w.roleName].filter(Boolean).join(' · ')}</span><i></i></div>
           <p class="spell-copy">${parsed.html}</p>
           ${bar}
           <div class="spell-tip" hidden><i class="spell-tip-arrow" aria-hidden="true"></i><small></small><em></em><ul></ul></div>
         </div>
       </article>`;
+  }
+
+  /**
+   * 词缀与解锁档（H-5 的一部分）。
+   *
+   * 数据一直都在（`weapons.json` 侧 710/718 把有 affixes），此前被 `weaponCatalog.ts`
+   * 的 `affixes: []` 整列丢弃。解锁档走 `forge.affixUnlockedCount`（普通 4 档 5/10/15/20、
+   * Doomed 5 档 4/8/12/16/20）。
+   *
+   * **诚实标注**：词缀的战斗语义是 `WEAPON-FORGE-DESIGN` 里程碑 F4，尚未实现——
+   * 面板必须写明「展示口径」，不能让玩家以为已经在打（`06-forge.md` 的「确实缺源」第 2 项）。
+   */
+  private affixList(w: WeaponDef): string {
+    if (w.affixes.length === 0) return '';
+    const level = temperingLevelOf(this.ctx.save(), w.id);
+    const unlocked = affixUnlockedCount(w.rarity, level);
+    const levels = w.rarity === 'Doomed' ? DOOMED_AFFIX_UNLOCK_LEVELS : AFFIX_UNLOCK_LEVELS;
+    const rows = w.affixes
+      .map((affix, i) => {
+        const need = levels[i];
+        const on = i < unlocked;
+        return `<li class="${on ? 'on' : 'off'}">
+          <span class="affix-gate">${on ? '●' : '🔒'} ${need === undefined ? '—' : `Lv.${need}`}</span>
+          <b>${affix.name}</b>
+          <small>${affix.description}</small>
+        </li>`;
+      })
+      .join('');
+    return `<section class="detail-affixes">
+      <div class="ink-rule"><i></i><span>淬炼词缀 ${unlocked} / ${w.affixes.length}</span><i></i></div>
+      <ul>${rows}</ul>
+      <small class="affix-note">词缀效果二期生效（当前仅解锁展示）</small>
+    </section>`;
   }
 
   /** 绑定一个 weapon-spell 面板的数值点击 → 计算过程浮层（小样同款交互） */
@@ -750,15 +797,10 @@ export class HeroScreen implements Screen {
       return;
     }
     const rarity = this.rarityOf(w);
-    const owned = save.hero.unlockedWeapons.length;
-    const cat = w as CatalogWeaponDef;
-    const isCat = !!cat.gw;
-    const plateArt = isCat
-      ? `<img class="tile-img" src="${catalogIconUrl(cat)}" alt="${w.name}"/>`
-      : weaponArt(weaponKind(w));
-    const captionSub = isCat
-      ? `${rarity.cn} · ${cat.kingdom}`
-      : `${rarity.cn} · ${w.classId === null ? '通用武器' : (CLASSES.find((c) => c.id === w.classId)?.name ?? '') + '系'}`;
+    // 分母诚实（H-4）：这里是「我拥有的把数」，不是假的 5 / 730
+    const owned = ownedWeaponIds(save).length;
+    const plateArt = weaponArtHtml(w);
+    const captionSub = `${rarity.cn} · ${weaponTypeZh(w.weaponType)} · ${w.kingdom}`;
     $('#weaponSlab').innerHTML = `
       <div class="slab-body ${rarity.cls}">
         <div class="weapon-plate">
@@ -797,27 +839,20 @@ export class HeroScreen implements Screen {
     }
     const save = this.ctx.save();
     const rack = $('#vaultRack');
-    // 列表 = 首批 20 把（w_*）+ 已锻造解锁的目录武器（gw_*，真实卡面立绘）
-    const ownedCatalog = ownedCatalogWeapons(save);
-    const tiles: { w: WeaponDef; cat: CatalogWeaponDef | null }[] = [
-      ...WEAPONS.map((w) => ({ w, cat: null as CatalogWeaponDef | null })),
-      ...ownedCatalog.map((w) => ({ w: w as WeaponDef, cat: w })),
-    ];
-    rack.innerHTML = tiles.map(({ w, cat }) => {
+    // 列表 = 我拥有的武器（起始池 22 把 ∪ 已锻造的目录武器）——全部官方卡面，零剪影（UX-2）
+    const tiles = ownedWeapons(save);
+    rack.innerHTML = tiles.map((w) => {
       const state = this.weaponState(w);
       const rarity = this.rarityOf(w);
       const flag =
         state === 'equipped'
           ? '<em class="tile-flag">装备中</em>'
           : state === 'locked'
-            ? '<em class="tile-flag lock"><span data-icon="lock"></span>未解锁</em>'
+            ? '<em class="tile-flag lock"><span data-icon="lock"></span>不可装备</em>'
             : '';
-      const art = cat
-        ? `<img class="tile-img" loading="lazy" src="${catalogIconUrl(cat)}" alt="${w.name}"/>`
-        : weaponArt(weaponKind(w));
       return `<button class="rack-tile ${rarity.cls} is-${state === 'usable' ? 'owned' : state}${this.pickedWeaponId === w.id ? ' picked' : ''}" data-weapon="${w.id}" type="button" role="option" aria-selected="${this.pickedWeaponId === w.id}">
         <span class="tile-rarity">${rarity.cn}</span>
-        <div class="tile-art">${art}</div>
+        <div class="tile-art">${weaponArtHtml(w, true)}</div>
         ${flag}
         <b class="tile-name">${w.name}</b>
         <span class="tile-mana">${gemSvg(w.manaColors.map((c) => c.toLowerCase()))}<i>${w.manaCost}</i></span>
@@ -831,9 +866,9 @@ export class HeroScreen implements Screen {
         this.renderVaultDetail();
       }),
     );
-    const ownedCount = save.hero.unlockedWeapons.length;
-    $('#vaultOwned').textContent = String(ownedCount);
-    $('#vaultTotal').textContent = String(WEAPONS.length + CATALOG_WEAPONS.length);
+    // 分母诚实（H-4）：拥有 N / 目录全量 718，不再是「首批 20 + 可装备 710」拼出来的假 730
+    $('#vaultOwned').textContent = String(tiles.length);
+    $('#vaultTotal').textContent = String(ALL_CATALOG_WEAPONS.length);
   }
 
   /** 熔炉配方列表（forgeMode） */
@@ -841,21 +876,23 @@ export class HeroScreen implements Screen {
     const save = this.ctx.save();
     const rack = $('#vaultRack');
     rack.innerHTML = SOULFORGE_RECIPES.map(({ recipe: r }) => {
-      const owned = save.hero.unlockedWeapons.includes(r.weaponId);
-      const cat = anyWeaponById(r.weaponId) as CatalogWeaponDef | undefined;
-      const img = cat ? `<img class="tile-img" loading="lazy" src="${catalogIconUrl(cat)}" alt="${r.name}"/>` : '';
+      const owned = ownsWeapon(save, r.weaponId);
+      const cat = anyWeaponById(r.weaponId);
+      // 名称单源（F-4）：熔炉不再用自己那套翻译（9 配方里 6 个与目录官方名不一致）
+      const name = cat?.name ?? r.name;
+      const rarity = this.rarityClsOfRarity(cat?.rarity ?? r.rarity);
       const can = save.currencies.souls >= r.souls && save.currencies.gold >= r.gold && save.hero.level >= forgeTierUnlockLevel(r.tier) && !owned;
-      return `<button class="rack-tile is-owned${this.pickedRecipeId === r.weaponId ? ' picked' : ''}" data-recipe="${r.weaponId}" type="button">
-        <span class="tile-rarity">${r.tier === 2 ? 'Tier 2' : 'Tier 1'}</span>
-        <div class="tile-art">${img}</div>
+      return `<button class="rack-tile ${rarity.cls} is-owned${this.pickedRecipeId === r.weaponId ? ' picked' : ''}" data-recipe="${r.weaponId}" type="button">
+        <span class="tile-rarity">${rarity.cn}</span>
+        <div class="tile-art">${cat ? weaponArtHtml(cat, true) : ''}</div>
         ${owned ? '<em class="tile-flag">已拥有</em>' : ''}
-        <b class="tile-name">${r.name}</b>
+        <b class="tile-name">${name}</b>
         <span class="tile-mana"><i>${r.souls.toLocaleString()} 魂 + ${r.gold.toLocaleString()} 金</i></span>
         ${can ? '' : '<em class="tile-flag lock">材料/等级不足</em>'}
       </button>`;
     }).join('');
-    $('#vaultOwned').textContent = String(save.hero.unlockedWeapons.length);
-    $('#vaultTotal').textContent = String(WEAPONS.length + CATALOG_WEAPONS.length);
+    $('#vaultOwned').textContent = String(ownedWeaponIds(save).length);
+    $('#vaultTotal').textContent = String(ALL_CATALOG_WEAPONS.length);
     $$('#vaultRack [data-recipe]').forEach((btn) =>
       this.on(btn, 'click', () => {
         this.pickedRecipeId = (btn as HTMLElement).dataset.recipe!;
@@ -876,9 +913,11 @@ export class HeroScreen implements Screen {
       detail.innerHTML = '<div class="detail-source">左侧选择一份熔炉配方</div>';
       return;
     }
-    const cat = anyWeaponById(recipe.weaponId) as CatalogWeaponDef | undefined;
-    const rarity = this.rarityClsOfRarity(recipe.rarity);
-    const owned = save.hero.unlockedWeapons.includes(recipe.weaponId);
+    const cat = anyWeaponById(recipe.weaponId);
+    // 名称与稀有度单源取目录（F-4：熔炉那套翻译与目录官方名 9 配方里 6 个不一致）
+    const name = cat?.name ?? recipe.name;
+    const rarity = this.rarityClsOfRarity(cat?.rarity ?? recipe.rarity);
+    const owned = ownsWeapon(save, recipe.weaponId);
     const ok = save.currencies.souls >= recipe.souls && save.currencies.gold >= recipe.gold && save.hero.level >= forgeTierUnlockLevel(recipe.tier) && !owned;
     detail.className = 'vault-detail ' + rarity.cls;
     detail.innerHTML = `
@@ -886,10 +925,10 @@ export class HeroScreen implements Screen {
         <i class="plate-lamp"></i>
         <i class="plate-corner tl"></i><i class="plate-corner tr"></i>
         <i class="plate-corner bl"></i><i class="plate-corner br"></i>
-        ${cat ? `<img class="tile-img" src="${catalogIconUrl(cat)}" alt="${recipe.name}"/>` : ''}
+        ${cat ? weaponArtHtml(cat) : ''}
       </div>
       <div class="detail-rarity ${rarity.cls}"><i></i><span>${rarity.cn} · Tier ${recipe.tier}</span><i></i></div>
-      <h3 class="detail-name">${recipe.name}</h3>
+      <h3 class="detail-name">${name}</h3>
       <p class="detail-source">熔炉锻造 · ${SOULFORGE_RECIPES.find((r) => r.recipe.weaponId === recipe.weaponId)?.source ?? ''}</p>
       <p class="detail-source">消耗：灵魂 ${recipe.souls.toLocaleString()}（持有 ${save.currencies.souls.toLocaleString()}）· 黄金 ${recipe.gold.toLocaleString()}（持有 ${save.currencies.gold.toLocaleString()}）· 需主角 Lv.${forgeTierUnlockLevel(recipe.tier)}</p>
       <button class="primary" id="doForge" type="button" ${ok ? '' : 'disabled'}>锻 造</button>`;
@@ -901,7 +940,7 @@ export class HeroScreen implements Screen {
           toast(result.message);
           return;
         }
-        toast(`锻造成功：「${recipe.name}」已入武器库，可直接装备。`);
+        toast(`锻造成功：「${name}」已入武器库，可直接装备。`);
         this.renderAll();
         this.openVault();
         this.forgeMode = true;
@@ -912,21 +951,18 @@ export class HeroScreen implements Screen {
   }
 
   private renderVaultDetail(): void {
-    const w = anyWeaponById(this.pickedWeaponId) ?? WEAPONS[0]!;
-    const cat = w as CatalogWeaponDef;
-    const isCat = !!cat.gw;
+    const w = anyWeaponById(this.pickedWeaponId) ?? STARTER_WEAPONS[0]!;
     const state = this.weaponState(w);
     const rarity = this.rarityOf(w);
-    const art = isCat
-      ? `<img class="tile-img" src="${catalogIconUrl(cat)}" alt="${w.name}"/>`
-      : weaponArt(weaponKind(w));
-    const source = isCat ? '熔炉锻造获得' : this.sourceText(w);
+    const art = weaponArtHtml(w);
+    // 来源只印一次、只有一个口径（H-9：旧实现同屏印三次且目录武器自相矛盾）
+    const source = this.sourceText(w);
     const action =
       state === 'equipped'
         ? '<button class="primary" disabled type="button"><span data-icon="check"></span>已装备</button>'
         : state === 'usable'
           ? '<button class="primary" id="equipWeapon" type="button"><span data-icon="swords"></span>装 备</button>'
-          : '<button class="primary" disabled type="button"><span data-icon="lock"></span>未解锁</button>';
+          : '<button class="primary" disabled type="button"><span data-icon="lock"></span>不可装备</button>';
     const detail = $('#vaultDetail');
     detail.className = 'vault-detail ' + rarity.cls;
     detail.innerHTML = `
@@ -935,11 +971,20 @@ export class HeroScreen implements Screen {
         <i class="plate-corner tl"></i><i class="plate-corner tr"></i>
         <i class="plate-corner bl"></i><i class="plate-corner br"></i>
         ${art}
-        ${state === 'locked' ? '<span class="detail-rank lock"><span data-icon="lock"></span></span>' : '<span class="detail-rank">' + source + '</span>'}
+        ${state === 'locked' ? '<span class="detail-rank lock"><span data-icon="lock"></span></span>' : ''}
       </div>
       <div class="detail-rarity ${rarity.cls}"><i></i><span>${rarity.cn}</span><i></i></div>
-      <h3 class="detail-name">${w.name}</h3>
+      <h3 class="detail-name">${w.name}<small class="detail-name-en">${w.nameEn}</small></h3>
+      <!-- H-5：武器详情此前零属性；四维与词缀的数据一直都在 weapons.json 里，
+           是 weaponCatalog 建 def 时没搬（affixes 写死 []）——本批已补搬 -->
+      <div class="detail-stats" role="group" aria-label="武器属性加成">
+        <span title="攻击"><span data-icon="swords"></span><b>+${w.attack}</b></span>
+        <span title="护甲"><span data-icon="shield"></span><b>+${w.armor}</b></span>
+        <span title="生命"><span data-icon="heart"></span><b>+${w.health}</b></span>
+        <span title="魔力"><span data-icon="orb"></span><b>+${w.magic}</b></span>
+      </div>
       ${this.spellSheet(w)}
+      ${this.affixList(w)}
       <p class="detail-source">${source}</p>
       ${action}`;
     mountIcons(detail);

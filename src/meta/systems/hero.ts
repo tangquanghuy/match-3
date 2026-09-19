@@ -5,7 +5,8 @@
  *  - 主角经验来自战斗胜利（结算钩子调用 addHeroXp，多级一次连升）；
  *  - 冠军（职业）经验只在「主角编入队伍」的胜场里积累（与职业绑定，上限 100）；
  *  - 职业解锁 = 王国任务链 8 关通关（settlement 写 unlockedClasses，本模块只做装备校验）；
- *  - 武器 = 主角唯一施法手段：解锁条件见 data/weapons.ts（职业 10/20 级、通用按主角等级）；
+ *  - 武器 = 主角唯一施法手段：全部来自官方目录（data/weaponCatalog.ts），**无等级/职业门槛**——
+ *    起始池 22 把零条件人人都有，其余靠获取途径拿所有权（假数据退役裁定，见 data/weapons.ts）；
  *  - 天赋树/职业特质的选取与解锁在 systems/talents.ts（v2：7 档三树选一，可随时改配）。
  */
 import type { LeveledStats } from '../../data/leveling';
@@ -19,8 +20,8 @@ import {
   CLASS_MAX_LEVEL,
   type ClassDef,
 } from '../data/classes';
-import { weaponById, type WeaponDef } from '../data/weapons';
-import { catalogWeaponById, isCatalogId } from '../data/weaponCatalog';
+import type { WeaponDef } from '../data/weapons';
+import { anyWeaponById, ownsWeapon } from '../data/weaponCatalog';
 import { findRecipe } from '../data/soulforge';
 import { isFailure } from '../gateway/types';
 import { spend } from './wallet';
@@ -73,37 +74,30 @@ export function equipClass(save: MetaSave, classId: string): { ok: true; classId
   return { ok: true, classId };
 }
 
-/** 武器是否可用（不解锁，只判定） */
+/**
+ * 武器是否可装备（只判定，不解锁）。
+ *
+ * 假数据退役后（见 data/weapons.ts 头注）武器**没有等级/职业门槛**了：
+ * 起始池 22 把零条件人人都有，其余目录武器靠获取途径（熔炉等）拿到所有权。
+ * 因此可用 = 已拥有 ∧ 有编译原型（mana-only 占位武器永远不可装备）。
+ */
 export function canUseWeapon(save: MetaSave, weapon: WeaponDef): boolean {
-  if (weapon.classId === null) return save.hero.level >= weapon.unlockLevel;
-  return (
-    save.hero.classId === weapon.classId &&
-    classLevelOf(save, weapon.classId) >= weapon.unlockLevel
-  );
+  return weapon.equippable && ownsWeapon(save, weapon.id);
 }
 
-/** 装备武器：校验职业与等级，自动记入 unlockedWeapons */
+/** 装备武器：校验所有权与可装备性；`gw_*` 之外（含已退役的 `w_*`）一律归一后再判 */
 export function equipWeapon(save: MetaSave, weaponId: string): { ok: true; weaponId: string } | MetaFailure {
-  const weapon = weaponById(weaponId) ?? catalogWeaponById(weaponId);
+  const weapon = anyWeaponById(weaponId);
   if (!weapon) return fail('INVALID', `未知武器：${weaponId}`);
-  // 目录武器（gw_*）必须先经熔炉锻造解锁——装备不送所有权
-  if (isCatalogId(weaponId) && !save.hero.unlockedWeapons.includes(weaponId)) {
-    return fail('INVALID', `「${weapon.name}」尚未拥有：先在熔炉锻造`);
+  if (!weapon.equippable) {
+    return fail('INVALID', `「${weapon.name}」是占位武器（无法术实现），不可装备`);
   }
-  if (weapon.classId !== null) {
-    const def = classById(weapon.classId);
-    if (save.hero.classId !== weapon.classId) {
-      return fail('PREREQ_LOCKED', `「${weapon.name}」需要装备职业：${def?.name ?? weapon.classId}`);
-    }
-    if (classLevelOf(save, weapon.classId) < weapon.unlockLevel) {
-      return fail('PREREQ_LOCKED', `「${weapon.name}」需要职业等级 ${weapon.unlockLevel}`);
-    }
-  } else if (save.hero.level < weapon.unlockLevel) {
-    return fail('PREREQ_LOCKED', `「${weapon.name}」需要主角等级 ${weapon.unlockLevel}`);
+  if (!ownsWeapon(save, weapon.id)) {
+    return fail('PREREQ_LOCKED', `「${weapon.name}」尚未拥有`);
   }
-  if (!save.hero.unlockedWeapons.includes(weaponId)) save.hero.unlockedWeapons.push(weaponId);
-  save.hero.equippedWeapon = weaponId;
-  return { ok: true, weaponId };
+  // 起始池不写进存档（ownedWeaponIds 隐式并入）；非起始池的所有权在获取时已写入
+  save.hero.equippedWeapon = weapon.id;
+  return { ok: true, weaponId: weapon.id };
 }
 
 /**
@@ -134,9 +128,9 @@ function forgeTierUnlockLevel(tier: 1 | 2): number {
   return tier === 1 ? 20 : 40;
 }
 
-/** 当前装备的武器（首批 20 把或目录武器；可能为 null——桥接回退为「无施法」快照） */
-export function equippedWeaponOf(save: MetaSave): (WeaponDef & { gw?: boolean; rarity?: string; imageFile?: string }) | null {
-  return weaponById(save.hero.equippedWeapon) ?? catalogWeaponById(save.hero.equippedWeapon) ?? null;
+/** 当前装备的武器（可能为 null——桥接回退为「无施法」快照） */
+export function equippedWeaponOf(save: MetaSave): WeaponDef | null {
+  return anyWeaponById(save.hero.equippedWeapon) ?? null;
 }
 
 /** 当前装备职业（可空） */

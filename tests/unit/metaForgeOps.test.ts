@@ -13,11 +13,13 @@ import { starterTroopIds } from '../../src/meta/data/economy';
 const save = () => newSave({ now: 0, starterTroopIds: starterTroopIds(), currencies: { gold: 100_000 } });
 
 describe('稀有度解析（weaponRarityOfId）', () => {
-  it('首批 w_*：通用按解锁档推导，职业 10/20 级分 UltraRare/Epic', () => {
-    expect(weaponRarityOfId('w_univ_apprentice')).toBe('Common');
-    expect(weaponRarityOfId('w_univ_tome')).toBe('Rare');
-    expect(weaponRarityOfId('w_knight_10')).toBe('UltraRare');
-    expect(weaponRarityOfId('w_knight_20')).toBe('Epic');
+  it('已退役的 w_*：经退役映射归一后取目标武器的官方稀有度', () => {
+    // 2026-09-19：首批 20 把自造 w_* 整表抛弃，「按解锁档推导稀有度」的 weaponRarity() 一并作废。
+    // 老档里的 w_* 先归一到起始池同类型目录武器，再读官方 rarity。
+    expect(weaponRarityOfId('w_univ_apprentice')).toBe('Common'); // → gw_WizardsWand 巫师的魔杖
+    expect(weaponRarityOfId('w_univ_tome')).toBe('Uncommon'); // → gw_DustyTome 积尘巨著
+    expect(weaponRarityOfId('w_thief_10')).toBe('Uncommon'); // → gw_BlackDagger 暗黑匕首
+    expect(weaponRarityOfId('w_knight_20')).toBe('Common'); // → gw_SwordOfHeroes 英雄之剑
   });
 
   it('目录 gw_*：稀有度取 weapons.json 原文；未知 id 返回 null', () => {
@@ -60,7 +62,8 @@ describe('temperWeaponOnSave（存档集成）', () => {
 
   it('未拥有/未知武器拒绝；满级拦截（构造 20 级）', () => {
     const s = save();
-    expect(temperWeaponOnSave(s, 'w_knight_20')).toMatchObject({ ok: false, code: 'NOT_OWNED' });
+    // 未拥有 = 起始池之外且没锻造过（黎明使者是 Tier2 神话配方，新档必然没有）
+    expect(temperWeaponOnSave(s, 'gw_Dawnbringer')).toMatchObject({ ok: false, code: 'NOT_OWNED' });
     expect(temperWeaponOnSave(s, 'gw_不存在的武器')).toMatchObject({ ok: false, code: 'NOT_OWNED' });
     // 已拥有但目录无此 id（数据不一致场景）→ INVALID
     s.hero.unlockedWeapons.push('gw_不存在的武器');

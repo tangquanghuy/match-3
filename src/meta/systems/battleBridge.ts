@@ -51,7 +51,6 @@ function heroDisplayTraitIds(save: MetaSave): string[] {
     .map((perk, i) => (state[i] ? perk.code : null))
     .filter((code): code is string => !!code);
 }
-import { WEAPONS } from '../data/weapons';
 import { KNOWN_TRAIT_CODES } from '../data/traitIndex';
 import { temperingLevelOf } from './forgeOps';
 import type { EncounterEnemy, EncounterPlan } from './encounter';
@@ -125,19 +124,19 @@ export function enemyToSnapshot(troop: TroopData, enemy: EncounterEnemy, index: 
 
 /**
  * meta 桥接专用注册表：全量技能库 + 主角武器原型 + 未收录法术的兜底原型。
- * 武器原型是 meta 层自有的真实技能（data/weapons.ts，builders DSL），
+ * 武器原型来自 curated W 系批次（`weaponCatalog.CATALOG_WEAPONS`，`gw_*` 命名空间），
  * 注册在兜底循环之前，永远不会被 fallbackPrototype 覆盖。
  * headless 驱动与未来战斗层挂载共用同一份（App.init 的注入模式）。
+ *
+ * 2026-09-19 窗口 M：首批 20 把自造 `w_*`（meta 层手写 builders DSL 原型）已整表退役，
+ * 原先那个循环随之删除——主角武器原型现在与 718 目录同一个来源。
  */
 export function buildMetaRegistry(extraSkillIds: Iterable<string>): ExtensionRegistry {
   const registry = new ExtensionRegistry();
   registerSkillLibrary(registry.prototypes);
-  for (const weapon of WEAPONS) {
-    registry.prototypes.set(weapon.id, weapon.skill);
-  }
-  // 718 目录武器（K-B 编译批次原型，gw_* 命名空间）——锻造解锁后即可装备出战
+  // 目录武器装备池（有编译原型的那些；mana-only 占位不可装备、不注册）
   for (const weapon of CATALOG_WEAPONS) {
-    registry.prototypes.set(weapon.id, weapon.skill);
+    if (weapon.skill) registry.prototypes.set(weapon.id, weapon.skill);
   }
   for (const id of extraSkillIds) {
     if (!registry.prototypes.has(id)) registry.prototypes.set(id, fallbackPrototype());

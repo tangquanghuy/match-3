@@ -1652,16 +1652,10 @@
 .weapon-spell .spell-tip .sum b { color: #d36a6a; }
 
 /* ---- 武器画像 ---- */
-.wp { display: block; width: 100%; height: 100%; filter: drop-shadow(0 4px 6px #000000a6); }
-.wp .steel { fill: url(#wpSteel); }
-.wp .gold { fill: url(#wpGold); }
-.wp .wood { fill: url(#wpWood); }
-.wp .gem { fill: url(#wpGem); }
-.wp .line { fill: none; stroke: #0d0b1199; stroke-width: 1.3; }
-.wp .shine { fill: none; stroke: #ffffff8c; stroke-width: 1.6; stroke-linecap: round; }
-.wp .gstroke { fill: none; stroke: url(#wpGold); stroke-width: 6; stroke-linecap: round; }
-.wp .wstroke { fill: none; stroke: url(#wpWood); stroke-width: 7; stroke-linecap: round; }
-.wp .string { fill: none; stroke: #cfc2a6; stroke-width: 1.4; }
+/* 程序化武器剪影（.wp / #wpSteel 等渐变）已随 shell/weaponIcons.ts 于 2026-09-19 退役——
+   UX-2 混排的根因：同列表里一边透明底单色矢量、一边满幅官方彩绘，且 WEAPON_ICONS 缺
+   mace/tome/shield/ring 四键让 7/20 把兜底成同一把长剑。武器取图现在只有
+   weaponCatalog.catalogIconUrl 一个出口（718/718 官方卡面，零缺失）。 */
 
 .section-title { display: flex; align-items: flex-end; justify-content: space-between; }
 .section-title small { display: block; margin-top: 3px; color: #91887a; font-size: 10px; }
@@ -1860,12 +1854,29 @@
   border-radius: 4px;
 }
 .vault-close [data-icon] { width: 17px; height: 17px; }
-.vault-body { flex: 1; min-height: 0; display: grid; grid-template-columns: minmax(0, 1fr) 376px; }
+.vault-body {
+  flex: 1;
+  min-height: 0;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 376px;
+  /* H-1/H-2 修复前提：两列都必须能被压到 0 高，否则子列会被内容撑出 sheet 之外
+     （旧实现里详情列被武器架内容撑到 1263px，把「装备」按钮顶到 y=1416，
+     而可见底沿只有 y=772 —— 换武器功能 0% 可用） */
+  min-width: 0;
+}
+.vault-body > * { min-height: 0; }
 .vault-rack {
   padding: 20px 22px 24px;
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  grid-auto-rows: 1fr;
+  /* H-1：原为 grid-auto-rows:1fr —— 行高被均分到固定 646px 弹层里，
+     20 把武器挤成 1263px 内容却无任何滚动容器（弹层 overflow:hidden、
+     架子与 body 都没有 overflow-y）→ 8 把完全点不着、12 把裁一半、滚轮无效。
+     改成自然行高 + 本列自己滚。 */
+  grid-auto-rows: 164px;
+  align-content: start;
+  overflow-y: auto;
+  overscroll-behavior: contain;
   gap: 20px 16px;
   background:
     radial-gradient(ellipse at 50% 0%, rgba(186, 164, 139, .06) 0%, transparent 62%),
@@ -1919,7 +1930,7 @@
   background: linear-gradient(180deg, #222328, #16171a);
   box-shadow: 0 0 0 1px var(--r-line), 0 0 22px -6px var(--r-glow), inset 0 1px rgba(255, 255, 255, .08);
 }
-.rack-tile.is-locked .wp { filter: grayscale(1) brightness(.42); }
+.rack-tile.is-locked .tile-img { filter: grayscale(1) brightness(.42); }
 .rack-tile.is-locked .tile-name { color: #76716a; }
 .rack-tile.is-equipped .tile-name { color: var(--r-text, #fff2d2); }
 .vault-detail {
@@ -1930,12 +1941,29 @@
   border-left: 1px solid rgba(186, 164, 139, .18);
   background: linear-gradient(200deg, #1a1b20, #101114 72%);
   min-height: 0;
-  overflow: visible;
+  /* F-1：原为 overflow:visible —— 配合 .detail-art 的固定 148px 高与 aspect-ratio:1 的图，
+     卡面实渲 337px 上下各溢出 ~94px，把稀有度/名称/来源/消耗四行文字全盖住
+     （命中测试 coveredBy IMG.tile-img）。本列改为自己滚，图不再逃出容器。 */
+  overflow-y: auto;
+  overflow-x: hidden;
+  overscroll-behavior: contain;
 }
+/* 详情列改成可滚之后，子项绝不能再被压缩：`.weapon-spell` / `.wspell-body` 都是
+   overflow:visible（法术数值浮层要能溢出），一旦被 flex-shrink 压扁，里面
+   margin-top:auto 的公式条就会溢出到面板之外、盖住来源行与底部操作条。
+   在滚动容器里正确的做法是子项保持自然高度、由容器滚动。 */
+.vault-detail > * { flex: none; }
 .detail-art {
   position: relative;
-  height: 148px;
+  /* F-1：容器高度跟上卡面真实比例（官方卡面近 1:1），并且自己裁剪 */
+  height: 196px;
+  flex: none;
+  overflow: hidden;
   display: grid;
+  /* F-1 的第二层根因：这里原是「单个 auto 行」的 grid —— 行高由内容决定，而卡面图用
+     height:100%，百分比又要拿行高来解析，于是回落到图的固有比例（459×350 在 337px 宽下
+     = 257px），行反过来被撑到比容器（196px）还高。显式给一条被夹到容器内的行轨解开这个环。 */
+  grid-template-rows: minmax(0, 1fr);
   place-items: center;
   border: 1px solid var(--r-line, rgba(186, 164, 139, .22));
   background:
@@ -1944,8 +1972,7 @@
   box-shadow: inset 0 0 30px #000000a6;
   border-radius: 4px;
 }
-.detail-art .wp { position: relative; width: 96px; height: 128px; }
-.detail-art.is-locked .wp { filter: grayscale(1) brightness(.4); }
+.detail-art.is-locked .tile-img { filter: grayscale(1) brightness(.45); }
 .detail-art .plate-lamp { top: 18px; width: 88px; height: 88px; }
 .detail-rank {
   position: absolute; right: 8px; bottom: 8px;
@@ -1966,6 +1993,65 @@
 .detail-rarity i { flex: 1; height: 1px; background: linear-gradient(90deg, transparent, var(--r-line)); }
 .detail-rarity i:last-child { transform: scaleX(-1); }
 .detail-name { text-align: center; font: 24px var(--display); letter-spacing: 4px; color: var(--r-text, #f5ede0); }
+.detail-name-en {
+  display: block;
+  margin-top: 3px;
+  font: 11px var(--body);
+  letter-spacing: 1px;
+  color: #91887a;
+}
+/* H-5：武器四维加成（数据一直在 weapons.json，此前 weaponCatalog 建 def 时没搬） */
+.detail-stats {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 4px;
+  padding: 8px 6px;
+  border: 1px solid rgba(186, 164, 139, .18);
+  border-radius: 4px;
+  background: #15161a;
+}
+.detail-stats > span {
+  display: grid;
+  grid-auto-flow: column;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  color: #c4b6a3;
+}
+.detail-stats [data-icon] { width: 14px; height: 14px; color: #d8c290; }
+.detail-stats b { font: 15px Georgia; font-style: normal; color: #f2e9dc; }
+/* H-5：淬炼词缀与解锁档（affixes 此前被 `affixes: []` 整列丢弃） */
+.detail-affixes { display: flex; flex-direction: column; gap: 6px; }
+.detail-affixes ul { display: flex; flex-direction: column; gap: 5px; list-style: none; }
+.detail-affixes li {
+  display: grid;
+  grid-template-columns: 58px minmax(0, 1fr);
+  grid-template-areas: 'gate name' 'gate desc';
+  gap: 0 8px;
+  padding: 6px 8px;
+  border: 1px solid rgba(186, 164, 139, .14);
+  border-radius: 4px;
+  background: #15161a;
+}
+.detail-affixes li.off { opacity: .52; }
+.detail-affixes .affix-gate {
+  grid-area: gate;
+  align-self: center;
+  font-size: 10px;
+  letter-spacing: 1px;
+  color: #9c9489;
+}
+.detail-affixes li.on .affix-gate { color: #65be91; }
+.detail-affixes b { grid-area: name; font: 13px var(--display); letter-spacing: 1px; color: #f0e3c6; }
+.detail-affixes small { grid-area: desc; font-size: 11px; line-height: 1.5; color: #a79c8c; }
+.detail-affixes .affix-note { font-size: 10px; color: #8a8f9c; text-align: center; }
+/* 卡面缺图占位（718/718 当前零缺失，这是防御性兜底） */
+.tile-img-missing {
+  width: 100%;
+  height: 100%;
+  border: 1px dashed rgba(186, 164, 139, .24);
+  border-radius: 3px;
+}
 .vault-detail .weapon-spell {
   position: relative;
   z-index: 4;
@@ -1985,15 +2071,25 @@
   color: #9c9489;
   text-align: center;
 }
+/* H-2：原为纯 margin-top:auto —— 详情列被武器架内容撑到 1263px 后，
+   按钮被推到内容流末尾 y=1416，而弹层可见底沿 y=772，中间 766px 全是空白，
+   命中测试拿不到元素（换武器 0% 可用）。
+   改为「常驻底部操作条」：内容短时 auto 边距把它压到底，内容长时 sticky 把它钉在可见底沿。
+   这条同时是 DESIGN-SYSTEM §3.4「滚动三禁则②」的要求。 */
 .vault-detail .primary {
+  position: sticky;
+  bottom: 0;
+  /* 必须高于 `.vault-detail .weapon-spell` 的 z-index:4，否则法术面板会画在操作条上面 */
+  z-index: 6;
   margin-top: auto;
+  flex: none;
   height: 44px;
   background: #252322;
   border: 1px solid #a38c71;
   box-shadow:
     inset 0 1px 0 rgba(255, 255, 255, .12),
     inset 0 0 12px rgba(186, 158, 120, .12),
-    0 4px 14px rgba(0, 0, 0, .4);
+    0 -10px 18px 6px #101114;
   color: #faf5ee;
   font-size: 16px;
 }
@@ -2820,5 +2916,9 @@
 /* 目录武器卡面立绘（gw_* 图鉴/武器库） */
 .tile-img { width: 100%; height: 100%; object-fit: contain; display: block; }
 .plate-art .tile-img { max-height: 100%; }
-.detail-art .tile-img { width: 100%; aspect-ratio: 1; object-fit: contain; }
+/* F-1 根因之一：这里原有一条 `.detail-art .tile-img { width:100%; aspect-ratio:1 }` 覆盖——
+   在 376px 宽的详情列里 aspect-ratio 把图强行撑成 337×337，而容器只有 148px 高，
+   上下各溢出 ~94px，把稀有度/名称/来源/消耗四行文字全盖住。
+   覆盖已删除：基类 `.tile-img`（本文件上方）的 `width:100%; height:100%; object-fit:contain`
+   本身就保证「盒子等于容器、图等比内缩」，不需要任何特例。 */
 .vault-forge-hint { font-size: 12px; color: #8a8f9c; }

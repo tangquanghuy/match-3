@@ -29,7 +29,13 @@ import {
   planQuestEncounter,
   setTeamPreset,
   STARTER_WEAPON_ID,
-  WEAPONS,
+  STARTER_WEAPON_IDS,
+  STARTER_WEAPONS,
+  ALL_CATALOG_WEAPONS,
+  anyWeaponById,
+  normalizeWeaponType,
+  ownedWeaponIds,
+  resolveWeaponId,
 } from '../../src/meta';
 
 const KINGDOM = '破碎尖塔';
@@ -137,43 +143,118 @@ describe('职业（官方 38 个，绑定王国任务链）', () => {
   });
 });
 
-describe('武器（主角唯一施法手段；v2 重映射官方职业）', () => {
-  it('首批 20 把：通用 4 + 8 官方职业 × 2；新档自带学徒法杖', () => {
-    expect(WEAPONS).toHaveLength(20);
-    expect(WEAPONS.filter((w) => w.classId === null)).toHaveLength(4);
-    const bound = new Set(WEAPONS.filter((w) => w.classId !== null).map((w) => w.classId as string));
-    expect(bound.size).toBe(8);
-    for (const id of bound) {
-      expect(WEAPONS.filter((w) => w.classId === id)).toHaveLength(2);
-      expect(classById(id as string)).toBeTruthy(); // 绑定职业必须在官方 38 表内
+describe('武器（主角唯一施法手段；全部来自官方目录）', () => {
+  // 2026-09-19 窗口 M：首批 20 把自造 w_* 是假数据、已整表退役（见 src/meta/data/weapons.ts）。
+  // 武器域此后只有一个来源（718 官方目录）、没有等级/职业门槛，
+  // 起始池 22 把零条件隐式拥有（不写进 unlockedWeapons）。
+
+  it('起始池：22 把低档目录武器、全部可装备、六法力色齐全', () => {
+    expect(STARTER_WEAPON_IDS).toHaveLength(22);
+    expect(STARTER_WEAPONS).toHaveLength(22); // 每个 id 都能在目录里解析到
+    for (const w of STARTER_WEAPONS) {
+      expect(w.id.startsWith('gw_')).toBe(true);
+      expect(w.starter).toBe(true);
+      expect(w.equippable).toBe(true); // mana-only 占位武器不得进起始池
+      expect(['Common', 'Uncommon']).toContain(w.rarity); // 只收最低两档
+      expect(w.weaponType).toBeTruthy();
+      expect(w.imageFile).toBeTruthy(); // 官方卡面，零剪影兜底
     }
-    for (const w of WEAPONS) expect(w.weaponType).toBeTruthy();
+    // 六法力色全覆盖——选武器就是选法力色，缺一色就有一色玩不了
+    const colors = new Set(STARTER_WEAPONS.flatMap((w) => w.manaColors));
+    expect(colors.size).toBe(6);
+  });
+
+  it('新档自带骑士之剑，且无需任何解锁条件', () => {
     const s = save();
+    expect(STARTER_WEAPON_ID).toBe('gw_KnightsSword');
     expect(equippedWeaponOf(s)?.id).toBe(STARTER_WEAPON_ID);
+    expect(equippedWeaponOf(s)?.name).toBe('骑士之剑');
     expect(canUseWeapon(s, equippedWeaponOf(s)!)).toBe(true);
+    // 起始池整池零条件可用（1 级主角、无职业）
+    for (const w of STARTER_WEAPONS) expect(canUseWeapon(s, w)).toBe(true);
   });
 
-  it('通用武器按主角等级解锁', () => {
+  it('起始池隐式拥有：不写进存档 unlockedWeapons，但 ownedWeaponIds 全含且去重', () => {
     const s = save();
-    expect(canUseWeapon(s, WEAPONS.find((w) => w.id === 'w_univ_tome')!)).toBe(false);
-    s.hero.level = 10;
-    expect(canUseWeapon(s, WEAPONS.find((w) => w.id === 'w_univ_tome')!)).toBe(true);
-    expect(equipWeapon(s, 'w_univ_tome')).toEqual({ ok: true, weaponId: 'w_univ_tome' });
-    expect(equippedWeaponOf(s)?.name).toBe('学者之书');
+    // 存档里只有 newHero() 写入的那一把
+    expect(s.hero.unlockedWeapons).toEqual([STARTER_WEAPON_ID]);
+    const owned = ownedWeaponIds(s);
+    expect(owned).toHaveLength(22);
+    expect(new Set(owned).size).toBe(22); // 与存档里那把不重复计数
+    for (const id of STARTER_WEAPON_IDS) expect(owned).toContain(id);
   });
 
-  it('职业武器需要对应职业与冠军等级（10/20 两档）', () => {
+  it('装备只判所有权与可装备性，没有等级/职业门槛', () => {
     const s = save();
-    expect(equipWeapon(s, 'w_knight_10')).toMatchObject({ ok: false, code: 'PREREQ_LOCKED' });
-    s.hero.unlockedClasses.push('knight');
-    equipClass(s, 'knight');
-    expect(equipWeapon(s, 'w_knight_10')).toMatchObject({ ok: false, code: 'PREREQ_LOCKED' });
-    s.hero.classLevels['knight'] = 10;
-    expect(equipWeapon(s, 'w_knight_10')).toEqual({ ok: true, weaponId: 'w_knight_10' });
-    expect(equipWeapon(s, 'w_knight_20')).toMatchObject({ ok: false, code: 'PREREQ_LOCKED' });
-    s.hero.classLevels['knight'] = 20;
-    expect(equipWeapon(s, 'w_knight_20')).toEqual({ ok: true, weaponId: 'w_knight_20' });
-    expect(equipWeapon(s, 'w_nonexistent')).toMatchObject({ ok: false, code: 'INVALID' });
+    // 起始池：直接装
+    expect(equipWeapon(s, 'gw_DustyTome')).toEqual({ ok: true, weaponId: 'gw_DustyTome' });
+    expect(equippedWeaponOf(s)?.name).toBe('积尘巨著');
+    // 非起始池且未拥有：拒绝（获取途径是熔炉等，不是等级）
+    expect(equipWeapon(s, 'gw_Dawnbringer')).toMatchObject({ ok: false, code: 'PREREQ_LOCKED' });
+    // 拥有后即可装（不看主角等级）
+    s.hero.unlockedWeapons.push('gw_Dawnbringer');
+    expect(s.hero.level).toBe(1);
+    expect(equipWeapon(s, 'gw_Dawnbringer')).toEqual({ ok: true, weaponId: 'gw_Dawnbringer' });
+    expect(equipWeapon(s, 'gw_不存在的武器')).toMatchObject({ ok: false, code: 'INVALID' });
+  });
+
+  it('mana-only 占位武器永远不可装备（无法术实现，装上只会白扣法力）', () => {
+    const club = anyWeaponById('gw_CrudeClub');
+    expect(club).toBeTruthy();
+    expect(club!.equippable).toBe(false);
+    expect(club!.skill).toBeNull();
+    const s = save();
+    s.hero.unlockedWeapons.push('gw_CrudeClub'); // 即便所有权在手
+    expect(canUseWeapon(s, club!)).toBe(false);
+    expect(equipWeapon(s, 'gw_CrudeClub')).toMatchObject({ ok: false, code: 'INVALID' });
+  });
+
+  it('已退役的假数据 id 运行时仍可解析（老档在 schema 迁移落地前不炸）', () => {
+    // w_univ_apprentice（学徒法杖 staff）→ 起始池同类型的巫师的魔杖
+    expect(resolveWeaponId('w_univ_apprentice')).toBe('gw_WizardsWand');
+    expect(anyWeaponById('w_univ_apprentice')?.name).toBe('巫师的魔杖');
+    const s = save();
+    // 老档 equippedWeapon 指向 w_*：解析得到归一后的目录武器，不会变成「未装备」
+    s.hero.equippedWeapon = 'w_archer_20';
+    expect(equippedWeaponOf(s)?.id).toBe('gw_ElderBow');
+    // 装备走归一，返回的是归一后的 id
+    expect(equipWeapon(s, 'w_thief_10')).toEqual({ ok: true, weaponId: 'gw_BlackDagger' });
+  });
+
+  it('weaponType 归一：官方 Artifact 归到天赋词表的 relic（此前 8 条天赋永久空转）', () => {
+    // classes.json 的 selfStatIfWeapon 用 relic（8 次），官方武器数据用 Artifact（65 把）
+    expect(normalizeWeaponType('Artifact')).toBe('relic');
+    expect(normalizeWeaponType('Jewellery')).toBe('jewellery');
+    expect(normalizeWeaponType('Sword')).toBe('sword');
+    expect(normalizeWeaponType('')).toBeNull();
+    const artifacts = ALL_CATALOG_WEAPONS.filter((w) => w.weaponType === 'relic');
+    expect(artifacts.length).toBe(65);
+    expect(ALL_CATALOG_WEAPONS.some((w) => w.weaponType === 'artifact')).toBe(false);
+  });
+
+  it('目录适配层不再丢字段：四维 718/718、词缀 710/718', () => {
+    expect(ALL_CATALOG_WEAPONS).toHaveLength(718);
+    const missingStats = ALL_CATALOG_WEAPONS.filter(
+      (w) => ![w.attack, w.armor, w.health, w.magic].every((n) => Number.isFinite(n)),
+    );
+    expect(missingStats).toEqual([]);
+    // 此前 weaponCatalog.ts 写死 affixes: []，把 710 把武器的词缀全丢了
+    expect(ALL_CATALOG_WEAPONS.filter((w) => w.affixes.length > 0)).toHaveLength(710);
+    const sample = anyWeaponById('gw_BlackDagger')!;
+    expect(sample.affixes[0]).toMatchObject({ name: '险恶', rarity: 'Rare' });
+    expect(sample.roleName).toBe('击杀者');
+    expect(sample.masteryRequirement).toBeGreaterThan(0);
+  });
+
+  it('天赋条件用到的 13 个类型键，目录里都有武器能命中', () => {
+    const talentKeys = [
+      'dagger', 'relic', 'bow', 'hammer', 'tome', 'polearm', 'mace',
+      'scythe', 'axe', 'missile', 'staff', 'jewellery', 'shield',
+    ];
+    const present = new Set(ALL_CATALOG_WEAPONS.map((w) => w.weaponType));
+    for (const key of talentKeys) {
+      expect(present.has(key), `天赋类型键 ${key} 在目录里无对应武器`).toBe(true);
+    }
   });
 });
 

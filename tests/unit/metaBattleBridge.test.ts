@@ -113,8 +113,8 @@ describe('buildBattleRequest（存档 → BattleRequest）', () => {
     expect(outcome.request.playerTeam).toHaveLength(3);
     const hero = outcome.request.playerTeam.find((c) => c.externalId.endsWith('-hero'))!;
     expect(hero.name).toBe('法露特');
-    // 新档默认装备学徒法杖
-    expect(hero.skillId).toBe('w_univ_apprentice');
+    // 新档默认装备官方开局武器「骑士之剑」（自造 w_* 假数据已整表退役）
+    expect(hero.skillId).toBe('gw_KnightsSword');
   });
 
   it('没有预设队 → NO_TEAM', () => {
