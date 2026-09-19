@@ -1,0 +1,11 @@
+骷髅钥匙：
+wlopk2style, Yoneyama Mai Style,
+western fantasy style, DnD monster manual illustration, painterly fantasy,
+<krea2_prompt>
+  <subject>the Skeleton Key, a mythic key-dagger, half fine blade and half biting key-bit, its hilt cast as a grinning skull with coin-set eyes, the sole subject in a medium-close shot, dominating most of the frame, weapon only</subject>
+  <details>a hanging keyhole of gold light standing in the air before the point, treasure-light leaking through the keyhole's seams, the key-bit teeth counting themselves down the blade's spine</details>
+  <pose>floating point-first toward the keyhole of light on its own as the seam-light widens, skull hilt and key teeth clearly readable, no bearer, no hands</pose>
+  <environment>scrap-strewn stone under a green fen haze, a single crooked watch-shrine far in the back, clean minimal backdrop, the key fully unobstructed, no characters</environment>
+  <lighting>strong key light on the subject, clear readable details</lighting>
+  <style>clean anime-style weapon design over a simple photorealistic backdrop, keybit steel, coin gold, keyhole light palette, thumbnail-readable silhouette, no characters or hands in frame</style>
+</krea2_prompt>

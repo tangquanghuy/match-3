@@ -1,0 +1,11 @@
+水晶刺：
+wlopk2style, Yoneyama Mai Style,
+western fantasy style, DnD monster manual illustration, painterly fantasy,
+<krea2_prompt>
+  <subject>an elven longsword whose blade is a single flawless crystal point grown straight out of a silver-wood hilt, the sole subject in a medium-close shot, dominating most of the frame, weapon only</subject>
+  <details>silverleaf engraving running the ricasso, green sap-light glowing in the blade's heart, a loose spray of shard splinters hovering just off the edge</details>
+  <pose>suspended point-down in the glade air on its own, rings of verdant and ruby light rippling away from the tip, crystal facets clearly readable, no bearer, no hands</pose>
+  <environment>mossy silver-leaf grove floor with one far bole of filtered light, clean minimal backdrop, the sword fully unobstructed, no characters</environment>
+  <lighting>strong key light on the subject, clear readable details</lighting>
+  <style>clean anime-style weapon design over a simple photorealistic backdrop, crystal verdant, ember ruby, silverleaf grey palette, thumbnail-readable silhouette, no characters or hands in frame</style>
+</krea2_prompt>

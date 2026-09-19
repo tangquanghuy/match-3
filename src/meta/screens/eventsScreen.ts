@@ -1,15 +1,13 @@
 /**
- * 每周活动屏（素材批 2026-09-19；玩法差异化批）——六类活动各自独立页面。
+ * 六类常驻活动各自独立页面，#events 为六活动总览。
  *
  * 路由：#events/<typeId>（invasion|raidBoss|towerOfDoom|factionAssault|worldEvent|classTrials）；
- * #events 回退到本周轮值活动。每页 = 横幅 + 规则卡 + 专属状态区 + 里程碑轨 + 商店（仅轮值周）。
- * 非轮值周显示预告态（剩 N 周轮换、不可出战）。
+ * 单页 = 横幅 + 规则卡 + 专属状态区 + 里程碑轨 + 商店。
  */
 import { isFailure, weekStartOf } from '../gateway';
 import { EVENT_MILESTONES, EVENT_ROTATION, WEEK_MS, type EventTypeId } from '../data/events';
 import { INGOT_NAMES, stoneName, type IngotKey } from '../data/materials';
 import {
-  currentEventTheme,
   ensureEventWeek,
   eventPageState,
   eventShopOf,
@@ -17,7 +15,6 @@ import {
 import { bottomNavHtml, toast, toastHtml, topbarHtml, $ } from '../shell/chrome';
 import type { Screen, ShellCtx } from '../shell/screen';
 
-const DAY_MS = 24 * 3_600_000;
 const TYPE_IDS: readonly EventTypeId[] = EVENT_ROTATION.map((t) => t.id);
 
 function parseTypeId(param: string | undefined): EventTypeId | null {
@@ -47,19 +44,19 @@ export class EventsScreen implements Screen {
   html(ctx: ShellCtx, param?: string): string {
     const now = Date.now();
     const weekStart = weekStartOf(now);
-    const activeTheme = currentEventTheme(weekStart);
-    // 路由：#events/<typeId>；#events 回退本周轮值
-    const typeId: EventTypeId = parseTypeId(param) ?? activeTheme.type.id;
+    const typeId = parseTypeId(param);
+    if (!typeId) return this.overviewHtml(ctx, weekStart);
     const def = EVENT_ROTATION.find((t) => t.id === typeId)!;
     const page = eventPageState(ctx.save(), weekStart, typeId);
+    const week = ensureEventWeek(ctx.save(), weekStart, typeId);
     const milestones = EVENT_MILESTONES[typeId]!;
-    const daysLeft = Math.max(1, Math.ceil((weekStart + WEEK_MS - now) / DAY_MS));
+    const hoursLeft = Math.max(0, Math.ceil((weekStart + WEEK_MS - now) / 3_600_000));
+    const timeLeft = hoursLeft < 24 ? `剩 ${hoursLeft} 小时` : `剩 ${Math.ceil(hoursLeft / 24)} 天`;
 
-    // —— 顶部页签（六页互切；本周轮值带点） ——
+    // —— 顶部页签（六页互切） ——
     const tabs = EVENT_ROTATION.map((t) => {
-      const isCurrent = t.id === activeTheme.type.id;
       const isPage = t.id === typeId;
-      return `<a class="ev-tab${isPage ? ' page' : ''}${isCurrent ? ' active' : ''}" href="#events/${t.id}"><i${isCurrent ? '' : ' hidden'}></i>${t.name}</a>`;
+      return `<a class="ev-tab${isPage ? ' page active' : ''}" href="#events/${t.id}"><i${isPage ? '' : ' hidden'}></i>${t.name}</a>`;
     }).join('');
 
     // —— 专属状态区（每类型一块） ——
@@ -68,7 +65,7 @@ export class EventsScreen implements Screen {
     // —— 里程碑轨（进度按类型：物资 / 积分） ——
     const track = milestones
       .map((m, i) => {
-        const done = ctx.save().eventWeek?.claimed.includes(i) ?? false;
+        const done = week.claimed.includes(i);
         const state = done ? 'done' : page.metric.value >= m.points ? 'ready' : '';
         return `
           <div class="ev-mile ${state}">
@@ -81,8 +78,7 @@ export class EventsScreen implements Screen {
       })
       .join('');
 
-    // —— 商店（仅轮值周） ——
-    const shop = eventShopOf(ctx.save(), weekStart);
+    const shop = eventShopOf(ctx.save(), weekStart, typeId);
     const goodsHtml = shop.rows
       .map((row) => {
         const g = row.goods;
@@ -98,13 +94,12 @@ export class EventsScreen implements Screen {
       })
       .join('');
 
-    const activeBlock = page.active
-      ? `
+    const activeBlock = `
           ${statePanel}
           <div class="ev-progress">
             <div class="ev-progress-head">
               <span>本周${page.metric.label}</span><b>${page.metric.value.toLocaleString('en-US')}</b>
-              <small>本周胜场 ${ensureEventWeek(ctx.save(), weekStart).wins} · 单场积分封顶 120</small>
+              <small>本周胜场 ${week.wins} · ${typeId === 'worldEvent' ? '物资为里程碑进度' : typeId === 'classTrials' ? '连胜单场最多 240 积分' : '单场积分封顶 120'}</small>
             </div>
             <div class="ev-progress-bar"><i style="width:${Math.min(100, (page.metric.value / milestones[milestones.length - 1]!.points) * 100)}%"></i></div>
           </div>
@@ -112,30 +107,25 @@ export class EventsScreen implements Screen {
           <div class="ev-shop">
             <div class="ev-shop-head">
               <h2><small>EVENT SHOP</small>活动商店</h2>
-              <span class="ev-tokens"><i></i>活动代币 <b id="evTokenBalance">${shop.week.tokens}</b><small>胜场产出 · 跨周作废</small></span>
+              <span class="ev-tokens"><i></i>${def.tokenName} <b id="evTokenBalance">${shop.week.tokens}</b><small>仅限本活动使用 · 跨周作废</small></span>
             </div>
             <div class="ev-goods">${goodsHtml}</div>
-          </div>`
-      : `
-          <div class="ev-preview">
-            <p>本周轮值：<b>${activeTheme.type.name}</b>——本活动将在 <b>${page.weeksUntil} 周后</b>开启（${new Date(weekStart + page.weeksUntil * WEEK_MS).getMonth() + 1} 月 ${new Date(weekStart + page.weeksUntil * WEEK_MS).getDate()} 日当周）。</p>
-            <p class="ev-preview-hint">届时代币、商店库存与里程碑进度都会重置重来。</p>
           </div>`;
 
     return `
       ${topbarHtml()}
       <div class="screen ev-screen">
-        <nav class="ev-tabs">${tabs}</nav>
+        <nav class="ev-tabs"><a class="ev-tab" href="#events">全部活动</a>${tabs}</nav>
         <section class="panel ev-panel">
-          <header class="ev-banner${page.active ? '' : ' off'}">
+          <header class="ev-banner">
             <div class="ev-banner-copy">
-              <small>LIVE EVENT · ${def.tagline}${page.active ? '' : ' · 未开启'}</small>
+              <small>LIVE EVENT · ${def.tagline}</small>
               <h1>${def.name}</h1>
               <p>${def.brief}</p>
-              ${page.active ? `<p class="ev-kingdom">剩 <b>${daysLeft}</b> 天</p>` : ''}
+              <p class="ev-kingdom">${timeLeft} · 周一 0:00 重置</p>
             </div>
             <div class="ev-banner-meta">
-              <button class="ev-fight" id="evFight" type="button" ${page.active ? '' : 'disabled'}><span>${def.fightLabel}</span><small>${page.active ? 'ENTER BATTLE' : 'CLOSED'}</small></button>
+              <button class="ev-fight" id="evFight" type="button"><span>${def.fightLabel}</span><small>ENTER BATTLE</small></button>
             </div>
           </header>
 
@@ -147,7 +137,7 @@ export class EventsScreen implements Screen {
           ${activeBlock}
 
           <footer class="ev-rotation">
-            <small>6 周轮换 · 每周一 0 点切换 · 点页签预览其他活动</small>
+            <small>周一 0:00 六活动统一重置 · 积分、代币、商店限量及里程碑重来</small>
           </footer>
         </section>
       </div>
@@ -155,9 +145,31 @@ export class EventsScreen implements Screen {
       ${toastHtml()}`;
   }
 
+  private overviewHtml(ctx: ShellCtx, weekStart: number): string {
+    const cards = EVENT_ROTATION.map((def) => {
+      const state = eventPageState(ctx.save(), weekStart, def.id);
+      const week = ensureEventWeek(ctx.save(), weekStart, def.id);
+      const goals = EVENT_MILESTONES[def.id];
+      const next = goals.find((_m, i) => !week.claimed.includes(i));
+      return `<a class="ev-mile" href="#events/${def.id}" style="border-left:3px solid ${def.accent}">
+        <div class="ev-mile-body">
+          <div class="ev-mile-head"><b>${def.name}</b><span>${state.metric.value} ${state.metric.label}</span></div>
+          <div class="ev-mile-rewards">${next ? `距「${next.label}」${Math.max(0, next.points - state.metric.value)} ${state.metric.label}` : '本周里程碑已达成'} · ${def.tokenName} ${week.tokens}</div>
+        </div>
+      </a>`;
+    }).join('');
+    return `${topbarHtml()}
+      <div class="screen ev-screen">
+        <section class="panel ev-panel">
+          <header class="ev-banner"><div class="ev-banner-copy"><small>LIVE EVENTS</small><h1>活动中心</h1><p>六活动同时开放 · 周一 0:00 统一重置</p></div></header>
+          <div class="ev-track">${cards}</div>
+          <footer class="ev-rotation"><small>积分、代币、商店限量及里程碑每周重置 · 六活动进度独立</small></footer>
+        </section>
+      </div>${bottomNavHtml('', '选择活动出战')}${toastHtml()}`;
+  }
+
   /** 各活动的专属状态区 */
   private statePanelHtml(page: ReturnType<typeof eventPageState>): string {
-    if (!page.active) return '';
     const e = page.extra;
     switch (e.kind) {
       case 'invasion': {
@@ -221,7 +233,6 @@ export class EventsScreen implements Screen {
   }
 
   mount(ctx: ShellCtx, _root: HTMLElement, param?: string): void {
-    void param;
     this.bind('#evFight', 'click', () => {
       void ctx.launchEventBattle();
     });
@@ -238,9 +249,11 @@ export class EventsScreen implements Screen {
     });
     document.querySelectorAll('[data-goods]').forEach((el) =>
       this.on(el, 'click', () => {
+        const typeId = parseTypeId(param);
+        if (!typeId) return;
         const goodsId = (el as HTMLElement).dataset.goods!;
         const now = Date.now();
-        void ctx.gateway.buyEventGoods(goodsId, now, weekStartOf(now)).then(({ result }) => {
+        void ctx.gateway.buyEventGoods(goodsId, now, weekStartOf(now), typeId).then(({ result }) => {
           if (isFailure(result)) {
             toast(result.message);
             return;

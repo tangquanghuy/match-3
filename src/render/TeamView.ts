@@ -74,6 +74,15 @@ function gemSize(): number {
   return Math.round(CARD_W * 0.18);
 }
 
+/** 属性值转义（特质名/描述来自数据文件，进 data-* 前必须转义引号与尖括号） */
+function escAttr(s: string): string {
+  return s
+    .replace(/&/g, '&amp;')
+    .replace(/"/g, '&quot;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;');
+}
+
 /** 基础色 → card_7 暖旧电影皮肤类名 */
 const SKIN_CLASS: Record<BaseColor, string> = {
   [BaseColor.Red]: 'skin-rust',
@@ -167,6 +176,9 @@ let stylesInjected = false;
 function ensureStyles(): void {
   if (stylesInjected) return;
   stylesInjected = true;
+  // B-1 名字条的几何：贴在攻/甲/血一行之上，徽记栏再叠在它之上（见 .status-strip）
+  const NAME_BAND_BOTTOM = os(9) + ofs(18) + os(3);
+  const NAME_BAND_H = ofs(13) + os(3) + os(2) + 2;
   const css = `
   .gcol{position:absolute;display:flex;flex-direction:column;gap:${CARD_GAP}px;pointer-events:none}
   /* ?????????????????????????????? */
@@ -237,6 +249,69 @@ function ensureStyles(): void {
     border:2px solid rgba(240,210,130,.95);box-shadow:0 0 16px rgba(240,210,130,.75)}
   .gcard.castable .card-frame{filter:brightness(1.18)}
   .gcard.castable .frame-ornament{filter:brightness(1.15) drop-shadow(0 2px 2px rgba(0,0,0,.8))}
+  /* B-6（UX 阶段 B）：可释放态此前只有卡框亮度 +18% + 宝石呼吸，无显式信号，
+     而"沉默放不出"共用同一套视觉。这里给两件事各一个能读懂的标记：
+     ① 可释放 → 卡框走一道暖金流光 + 法力宝石旁打感叹号；
+     ② 沉默且满法力 → 同一位置改叉号并转紫灰（与 silenced 宝石的紫灰呼吸同族）。 */
+  .gcard .cast-flag{position:absolute;z-index:8;top:${os(2)}px;left:${gemSize() + os(3)}px;
+    display:none;align-items:center;justify-content:center;
+    min-width:${os(14)}px;height:${os(14)}px;padding:0 ${os(3)}px;box-sizing:border-box;
+    border-radius:${os(4)}px;pointer-events:none;
+    font-family:"Oswald",sans-serif;font-weight:700;font-size:${ofs(11)}px;line-height:1;
+    color:#1a1206;background:linear-gradient(180deg,#ffe9ad,#d9b264);
+    border:1px solid rgba(120,92,40,.9);box-shadow:0 1px 3px rgba(0,0,0,.7)}
+  .gcard.castable .cast-flag,.gcard.silenced.mana-full .cast-flag{display:inline-flex}
+  .gcard.silenced.mana-full .cast-flag{color:#e6dcf5;
+    background:linear-gradient(180deg,#6b5885,#3b2f4d);border-color:rgba(150,120,190,.85)}
+  .gcard.castable:not(.silenced) .cast-flag{animation:castFlagBeat 1.4s ease-in-out infinite}
+  @keyframes castFlagBeat{0%,100%{transform:scale(1)}50%{transform:scale(1.14)}}
+  /* 卡框流光：只在可释放且未沉默时跑，一眼能从视野边缘捕捉到 */
+  .gcard .cast-sheen{position:absolute;inset:-1px;z-index:8;border-radius:9px;pointer-events:none;
+    display:none;overflow:hidden}
+  .gcard.castable:not(.silenced) .cast-sheen{display:block}
+  .gcard .cast-sheen::before{content:"";position:absolute;inset:-40%;
+    background:linear-gradient(115deg,transparent 42%,rgba(255,240,196,.42) 50%,transparent 58%);
+    animation:castSheen 2.6s linear infinite}
+  @keyframes castSheen{0%{transform:translateX(-60%)}100%{transform:translateX(60%)}}
+
+  /* B-5（UX 阶段 B）：长按前给按压进度反馈。短按=施法 / 长按=详情只差 475ms，
+     且误触代价不对称（想看详情结果放了技能 = 法力全没），按压期画一圈铺开的进度环，
+     让玩家看得见"再按下去就变成长按了"。 */
+  .gcard .press-ring{position:absolute;z-index:10;inset:-2px;border-radius:10px;pointer-events:none;
+    opacity:0;border:2px solid rgba(240,222,170,.9);
+    box-shadow:0 0 10px rgba(240,222,170,.45),inset 0 0 8px rgba(240,222,170,.2)}
+  .gcard.pressing .press-ring{animation:pressRing 475ms linear forwards}
+  @keyframes pressRing{
+    0%{opacity:0;clip-path:inset(0 100% 0 0)}
+    8%{opacity:1}
+    100%{opacity:1;clip-path:inset(0 0 0 0)}
+  }
+  @media (prefers-reduced-motion:reduce){
+    .gcard.castable:not(.silenced) .cast-flag{animation:none}
+    .gcard .cast-sheen::before{animation:none;opacity:.25}
+    .gcard.pressing .press-ring{animation:none;opacity:.8}
+  }
+
+  /* B-3（UX 阶段 B）：短按无效时的即时反馈浮窗（还差 N 点法力 / 等待对手行动 / 沉默中）。
+     阶段 A 这里是彻底的零反馈——玩家分不清"法力不够 / 不是我的回合 / 游戏卡住了"，
+     于是反复点、越点越确信是 bug。这是整个战斗层最高频的一次交互失败。 */
+  .gcard .cast-hint{position:absolute;z-index:14;left:50%;bottom:calc(100% + ${os(4)}px);
+    transform:translateX(-50%);display:none;max-width:${Math.max(96, Math.round(CARD_W * 1.5))}px;
+    padding:${os(4)}px ${os(7)}px;border-radius:${os(5)}px;pointer-events:none;text-align:center;
+    background:rgba(10,8,6,.95);border:1px solid rgba(216,194,144,.55);
+    box-shadow:0 3px 10px rgba(0,0,0,.65);
+    font-family:"Oswald","Microsoft YaHei",sans-serif;font-size:${ofs(11)}px;line-height:1.45;
+    color:#f4e6c4;white-space:normal}
+  .gcard .cast-hint.show{display:block;animation:castHint .18s ease-out}
+  .gcard .cast-hint.warn{border-color:rgba(226,132,120,.75);color:#ffd9d1}
+  @keyframes castHint{from{opacity:0;transform:translateX(-50%) translateY(4px)}
+    to{opacity:1;transform:translateX(-50%) translateY(0)}}
+  @keyframes cardShake{
+    0%,100%{transform:translateX(0)}
+    18%{transform:translateX(-4px)}38%{transform:translateX(4px)}
+    58%{transform:translateX(-3px)}78%{transform:translateX(2px)}
+  }
+  .gcard.shake{animation:cardShake .34s ease-in-out}
   .gcard:hover .frame-ornament{animation:ornamentGleam .42s ease-out}
   @keyframes ornamentGleam{0%{filter:brightness(1) drop-shadow(0 2px 2px rgba(0,0,0,.8))}45%{filter:brightness(1.55) drop-shadow(0 0 4px rgba(232,202,132,.45))}100%{filter:brightness(1) drop-shadow(0 2px 2px rgba(0,0,0,.8))}}
   .gcard.defeated{opacity:.32;filter:grayscale(.6)}
@@ -466,7 +541,7 @@ function ensureStyles(): void {
 
   /* ?????????????????????????????? */
   .gcard .ov{position:absolute;z-index:6}
-  .gcard .c-tl{top:${os(8)}px;left:${os(9)}px;right:${os(14)}px}
+  /* 旧名字槽 .c-tl 随 B-1 的名字条一起退役：名字改挂立绘底缘的 .name-band */
   .gcard .c-bl{left:${os(13)}px;bottom:${os(9)}px}
   .gcard .c-br{right:${os(13)}px;bottom:${os(9)}px;text-align:right}
   .gcard.frozen .c-bl,.gcard.frozen .c-br{isolation:isolate}
@@ -475,13 +550,32 @@ function ensureStyles(): void {
     background:radial-gradient(ellipse at 50% 68%,rgba(3,12,18,.82) 0%,rgba(4,14,21,.48) 50%,transparent 78%);
     filter:blur(1px)}
 
-  .gcard .name{display:none}
-  .gcard .name-rule{display:none}
+  /* B-1 + B-2（UX 阶段 B）：名字条 + 常驻法力进度。
+     阶段 A：name 元素被 display:none 硬关掉（元素与内容都在），八张卡一个名字都不显示；
+     mana-num 的三处样式是死样式（模板里根本没有这个元素），法力数字只在 hover/点宝石
+     的浮窗里，移动端无 hover 等于拿不到。两项都是"该不该现在放技能"的判据，补回卡面。
+     位置：压在立绘底缘的暗带上，左名字（一行省略号）右 N/M，正好在攻/甲/血一行之上。 */
+  .gcard .name-band{position:absolute;z-index:6;left:0;right:0;bottom:${NAME_BAND_BOTTOM}px;
+    display:flex;align-items:baseline;justify-content:space-between;gap:${os(6)}px;
+    padding:${os(3)}px ${os(9)}px ${os(2)}px;pointer-events:none;
+    background:linear-gradient(180deg,rgba(6,5,4,0) 0%,rgba(6,5,4,.62) 38%,rgba(6,5,4,.86) 100%)}
+  .gcard .name{flex:1;min-width:0;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;
+    font-family:"Oswald",sans-serif;font-weight:600;font-size:${ofs(13)}px;letter-spacing:.02em;
+    color:#f3e7c9;text-shadow:0 1px 3px rgba(0,0,0,.95)}
+  /* 移动横屏（卡 110×129）放不下名字：整条降级为只留法力数字，名字改
+     "首回合浮现 0.8s + 长按详情"。法力数字优先保留——它比名字更高频。 */
+  .gcard.name-compact .name{display:none}
+  .gcard.name-compact .name-band{justify-content:flex-end}
+  .gcard .name-flash{position:absolute;z-index:11;left:${os(6)}px;right:${os(6)}px;bottom:50%;
+    padding:${os(2)}px ${os(5)}px;pointer-events:none;opacity:0;text-align:center;border-radius:${os(4)}px;
+    background:rgba(8,7,5,.86);border:1px solid rgba(216,194,144,.45);
+    font-family:"Oswald",sans-serif;font-weight:600;font-size:${ofs(12)}px;color:#f6ecd2;
+    overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
 
-  /* 法力：右上仅显示当前充能值（颜色需求交给底部宝石），暖金，满充提亮 */
-  .gcard .mana{display:flex;flex-direction:column;align-items:flex-end}
-  .gcard .mana-num{font-family:"Oswald",sans-serif;font-weight:600;letter-spacing:.04em;font-size:${ofs(12)}px;
-    color:#d8c290;font-variant-numeric:tabular-nums;text-shadow:0 1px 3px rgba(0,0,0,.9)}
+  /* 法力：常驻 N/M（死样式复用），暖金，满充提亮；沉默转紫见下方 silenced 段 */
+  .gcard .mana-num{flex:none;font-family:"Oswald",sans-serif;font-weight:600;letter-spacing:.04em;
+    font-size:${ofs(12)}px;color:#d8c290;font-variant-numeric:tabular-nums;
+    text-shadow:0 1px 3px rgba(0,0,0,.9)}
   .gcard.mana-full .mana-num{color:#fff3d2;text-shadow:0 1px 3px rgba(0,0,0,.9),0 0 6px rgba(232,200,121,.6)}
 
   /* 法力宝石：贴着卡片左上角、嵌进边框的"书签式"角标（与立绘卡同源的边框语言）。
@@ -566,17 +660,42 @@ function ensureStyles(): void {
     letter-spacing:-.01em;color:#f1e9ff;text-shadow:0 1px 2px rgba(0,0,0,.95),0 0 5px rgba(150,100,210,.5)}
 
   /* 状态图标栏：卡片左下角横排，中毒/燃烧/沉默等各一枚可辨识图标 + 剩余回合 */
-  .gcard .status-strip{position:absolute;z-index:6;left:${os(6)}px;bottom:${os(34)}px;
+  /* 底部三层自下而上：攻/甲/血一行 → B-1 名字条 → 状态徽记栏。
+     名字条占掉了原来 os(34) 这一档，徽记栏必须再抬一层名字条的高度，
+     否则名字条的暗带会盖住徽记（改前/改后对照时发现的回归）。 */
+  .gcard .status-strip{position:absolute;z-index:6;left:${os(6)}px;bottom:${NAME_BAND_BOTTOM + NAME_BAND_H}px;
     display:flex;flex-wrap:wrap-reverse;gap:${os(3)}px;max-width:${CARD_W - os(12)}px;pointer-events:none}
+  /* B-7（UX 阶段 B）：徽记尺寸设 24px 绝对下限。阶段 A 实测移动横屏（740×400）徽记
+     缩到 17×17、相邻间距约 2px，而它是本页唯一"可点内容"——点偏就落到卡面上，
+     卡面短按是**释放技能**，代价不对称且不可撤销。实际尺寸由 resize() 按实时卡宽
+     写 --sbz（取 max(24, 等比值)）；CSS 只给缺省值，窗口缩放后不会留旧值。 */
   .gcard .status-badge{position:relative;display:inline-flex;align-items:center;justify-content:center;
-    width:${os(20)}px;height:${os(20)}px;border-radius:${os(5)}px;
+    width:var(--sbz,${Math.max(24, os(20))}px);height:var(--sbz,${Math.max(24, os(20))}px);
+    border-radius:${os(5)}px;
     background:rgba(11,10,9,.82);border:1px solid color-mix(in srgb,var(--sb) 55%,rgba(216,194,144,.4));
     box-shadow:0 1px 3px rgba(0,0,0,.6),0 0 5px color-mix(in srgb,var(--sb) 40%,transparent)}
   .gcard .status-badge img,.gcard .status-badge .status-icon-fallback{
-    display:block;width:${os(17)}px;height:${os(17)}px;object-fit:contain;
+    display:block;width:var(--sbiz,${Math.max(20, os(17))}px);height:var(--sbiz,${Math.max(20, os(17))}px);
+    object-fit:contain;
     filter:drop-shadow(0 0 2px color-mix(in srgb,var(--sb) 70%,transparent))}
   .gcard .status-badge .status-icon-fallback{font:700 ${ofs(12)}px/1 "Oswald",sans-serif;
     text-align:center;color:#cfd2d6}
+  /* B-8（UX 阶段 B）：徽记"可点"暗示。此前唯一线索是 cursor:pointer（触屏上完全不可见），
+     而点击才是那份好说明（自绘浮层）的唯一入口。右上角一枚小三角 + hover 提亮描边。 */
+  .gcard .status-badge::after{content:"";position:absolute;right:1px;top:1px;
+    border-left:${Math.max(3, os(4))}px solid transparent;
+    border-top:${Math.max(3, os(4))}px solid color-mix(in srgb,var(--sb) 78%,#ffffff);
+    opacity:.7;pointer-events:none}
+  .gcard .status-badge:hover{border-color:color-mix(in srgb,var(--sb) 92%,#ffffff);
+    box-shadow:0 1px 3px rgba(0,0,0,.6),0 0 9px color-mix(in srgb,var(--sb) 62%,transparent)}
+  .gcard .status-badge:hover::after{opacity:1}
+  /* B-7 折叠态入口：+N 一次点开全部状态（走详情面板的"当前状态"区） */
+  .gcard .status-more{display:inline-flex;align-items:center;justify-content:center;
+    min-width:var(--sbz,${Math.max(24, os(20))}px);height:var(--sbz,${Math.max(24, os(20))}px);
+    padding:0 2px;box-sizing:border-box;border-radius:${os(5)}px;cursor:pointer;pointer-events:auto;
+    color:#f0e2bf;background:rgba(11,10,9,.88);border:1px solid rgba(216,194,144,.62);
+    font-family:"Oswald",sans-serif;font-weight:700;font-size:${ofs(11)}px;line-height:1}
+  .gcard .status-more:hover{color:#fff3d2;border-color:#e0c98a}
   .gcard .status-badge .sb-turns{position:absolute;right:-3px;bottom:-3px;min-width:11px;height:11px;
     padding:0 1px;box-sizing:border-box;border-radius:6px;background:#0b0a09;border:1px solid var(--sb);
     font-family:"Oswald",sans-serif;font-size:8px;line-height:9px;text-align:center;color:#f0e2bf}
@@ -591,6 +710,10 @@ function ensureStyles(): void {
     filter:drop-shadow(0 1px 2px rgba(0,0,0,.95)) drop-shadow(0 0 4px rgba(0,0,0,.65))}
   .gcard .trait-badge svg{display:block;width:100%;height:100%}
   .gcard .trait-badge-off{opacity:.4}
+  /* B-8 覆盖面：特质图标接入同一套自绘浮层（此前只有一个原生 title、没有描述）。
+     只让图标本身可命中，容器保持 none——否则容器内边距也会吞掉卡面按压。 */
+  .gcard .trait-badge{pointer-events:auto;cursor:pointer}
+  .gcard .trait-badge:hover{filter:drop-shadow(0 1px 2px rgba(0,0,0,.95)) drop-shadow(0 0 6px rgba(240,222,170,.85))}
   `;
   const style = document.createElement('style');
   style.id = 'gcard-styles';
@@ -618,6 +741,17 @@ export class CharacterCard {
   private inputEnabled = true;
   private readonly eventController = new AbortController();
   private tipEl!: HTMLElement;     // 法力进度浮窗
+  private manaNumEl!: HTMLElement; // 常驻法力进度 N/M（B-2）
+  private castFlagEl!: HTMLElement; // 可释放 / 沉默 的显式标记（B-6）
+  private hintEl!: HTMLElement;    // 短按无效提示浮窗（B-3）
+  private flashEl!: HTMLElement;   // 紧凑卡的名字一次性浮现（B-1 降级路径）
+  private hintTimer: number | null = null;
+  /** 当前卡片 CSS 宽度与舞台缩放（B-7 的 24px 屏幕像素下限要两者一起算） */
+  private cardWidth = CARD_W;
+  private stageScale = 1;
+  private statusCollapsed = false;
+  /** 折叠态点 +N 的回调（打开详情面板的"当前状态"区） */
+  private onStatusList: (() => void) | null = null;
   private magicEl!: HTMLElement;   // 魔力（法术强度）数值
   private statusStripEl!: HTMLElement; // 状态图标栏（中毒/燃烧…）
   private traitRowEl!: HTMLElement; // 特质图标行（卡面底部）
@@ -664,19 +798,21 @@ export class CharacterCard {
           <path class="orn-core" d="M36 5l5 7-5 7-5-7z"/>
         </svg>
       </div>
-      <div class="ov c-tl">
-        <div class="name"></div>
-        <div class="name-rule"></div>
-      </div>
+      <div class="cast-sheen" aria-hidden="true"></div>
+      <div class="press-ring" aria-hidden="true"></div>
       <div class="ov c-bl">
         <div class="stat">${SWORD_SVG}<span class="v atk">0</span></div>
       </div>
       <div class="ov c-br"></div>
       <div class="gem" tabindex="0" role="button" aria-label="法力">${gemSvg(gemColors)}</div>
       <div class="gem-tip"></div>
+      <div class="cast-flag" aria-hidden="true">!</div>
       <div class="magic" title="魔力（法术强度）">${MAGIC_SVG}<span class="v magic-v">0</span></div>
       <div class="status-strip" aria-label="状态"></div>
       <div class="trait-row" aria-label="特质"></div>
+      <div class="name-band"><span class="name"></span><span class="mana-num">0/0</span></div>
+      <div class="name-flash" aria-hidden="true"></div>
+      <div class="cast-hint" role="status" aria-live="polite"></div>
     `;
     this.el = el;
     this.nameEl = el.querySelector('.name')!;
@@ -685,6 +821,10 @@ export class CharacterCard {
     this.gemEl = el.querySelector('.gem')!;
     this.riseEl = el.querySelector('.rise')!;
     this.tipEl = el.querySelector('.gem-tip')!;
+    this.manaNumEl = el.querySelector('.mana-num')!;
+    this.castFlagEl = el.querySelector('.cast-flag')!;
+    this.hintEl = el.querySelector('.cast-hint')!;
+    this.flashEl = el.querySelector('.name-flash')!;
     this.magicEl = el.querySelector('.magic-v')!;
     this.statusStripEl = el.querySelector('.status-strip')!;
     this.traitRowEl = el.querySelector('.trait-row')!;
@@ -704,6 +844,8 @@ export class CharacterCard {
     }, { signal: this.eventController.signal });
 
     this.nameEl.textContent = char.name;
+    this.flashEl.textContent = char.name;
+    this.applyCompactMetrics(CARD_W);
 
     this.refresh();
   }
@@ -719,12 +861,17 @@ export class CharacterCard {
     const codes = [...new Set(this.char.displayTraitIds ?? this.char.traitIds ?? [])].slice(0, 3);
     this.traitRowEl.innerHTML = codes
       .map((code) => {
+        // B-8 覆盖面：特质图标接入同一套自绘浮层（此前只有原生 title，且没有描述）。
+        // 名称/描述写进 data-*，由 statusTooltip 统一渲染；title 一并撤掉避免双轨。
+        // 「未生效」是开发口径，改玩家口径「本场不生效」（同 B-10）。
         const size = `width:${os(16)}px;height:${os(16)}px`;
-        const name = getTrait(code)?.name ?? code;
+        const lib = getTrait(code);
+        const name = lib?.name ?? this.char.traitNames?.[code] ?? code;
+        const data = `data-trait-name="${escAttr(name)}" data-trait-desc="${escAttr(lib?.description ?? '')}"`;
         const svg = traitBadgeSvg(code);
         return svg
-          ? `<span class="trait-badge" title="${name}" style="${size}">${svg}</span>`
-          : `<span class="trait-badge trait-badge-off" title="${name}（未生效）" style="${size}"><svg viewBox="0 0 24 24"><path d="M12 3l7.8 4.5v9L12 21l-7.8-4.5v-9z" fill="rgba(0,0,0,.35)" stroke="#8a7c5c" stroke-width="1.4"/></svg></span>`;
+          ? `<span class="trait-badge" ${data} aria-label="特质 ${escAttr(name)}" style="${size}">${svg}</span>`
+          : `<span class="trait-badge trait-badge-off" ${data} data-trait-off="1" aria-label="特质 ${escAttr(name)}（本场不生效）" style="${size}"><svg viewBox="0 0 24 24"><path d="M12 3l7.8 4.5v9L12 21l-7.8-4.5v-9z" fill="rgba(0,0,0,.35)" stroke="#8a7c5c" stroke-width="1.4"/></svg></span>`;
       })
       .join('');
   }
@@ -733,6 +880,48 @@ export class CharacterCard {
     this.el.style.width = `${width}px`;
     this.el.style.height = `${height}px`;
     this.statusStripEl.style.maxWidth = `${Math.max(0, width - 12)}px`;
+    this.applyCompactMetrics(width);
+  }
+
+  /**
+   * 按实时卡宽调两件事（CSS 里的 os() 是首次注入时烘死的，窗口缩放后会留旧值）：
+   * - B-7：状态徽记 24px 绝对下限（等比值不足时抬到 24）；
+   * - B-1 降级：卡宽放不下名字条时转紧凑态（只留法力数字，名字走一次性浮现 + 长按）。
+   * 基准 142px = 512px 棋盘下的 3 人卡宽（与 setTeamSize 同一基准）。
+   */
+  private applyCompactMetrics(width: number): void {
+    this.cardWidth = width;
+    const ratio = width > 0 ? width / 142 : 1;
+    // 整个战斗层是一张被 wrapper transform 缩放的舞台：屏幕像素 = CSS 像素 × stageScale。
+    // 阶段 A 实测的 17×17 就是"CSS 20px × 0.68 舞台缩放"的结果——只抬 CSS 尺寸不够，
+    // 必须按舞台缩放反推，同时不许吃掉卡面（封顶卡宽 30%）。
+    const stage = Math.max(0.2, this.stageScale);
+    const wanted = Math.ceil(24 / stage);
+    const cap = Math.max(20, Math.round(width * 0.3));
+    const badge = Math.min(Math.max(Math.round(20 * ratio), wanted), cap);
+    this.el.style.setProperty('--sbz', `${badge}px`);
+    this.el.style.setProperty('--sbiz', `${Math.max(12, Math.round(badge * 0.84))}px`);
+    // 连 30% 封顶都达不到 24 屏幕 px 时，改"状态条折叠 → 一次点开全部状态"
+    // （`15-battle.md` B-7 给的备选方案）：只留 3 枚 + 一个 +N 入口。
+    const collapsed = badge * stage < 23.5;
+    if (collapsed !== this.statusCollapsed) {
+      this.statusCollapsed = collapsed;
+      this.el.classList.toggle('status-collapsed', collapsed);
+      this.renderStatuses();
+    }
+    // 名字条同理按**屏幕**宽度判断：卡片 CSS 宽度不随视口变，变的是舞台缩放
+    // （阶段 A 实测移动横屏卡片 110×129 就是缩放后的屏幕尺寸）。
+    this.el.classList.toggle('name-compact', width * stage < 120);
+  }
+
+  /**
+   * 舞台缩放（由 App.refreshLayout 推入）。徽记的 24px 下限是**屏幕**像素口径，
+   * 必须知道舞台缩放才能算出该给多少 CSS 像素。
+   */
+  setStageScale(scale: number): void {
+    if (!(scale > 0) || Math.abs(scale - this.stageScale) < 0.005) return;
+    this.stageScale = scale;
+    this.applyCompactMetrics(this.cardWidth);
   }
 
   refresh(): void {
@@ -757,18 +946,46 @@ export class CharacterCard {
     this.el.classList.toggle('defeated', c.defeated);
   }
 
+  /** 折叠态「+N」的点击回调（由 TeamView 注入，指向详情面板） */
+  setStatusListHandler(fn: (() => void) | null): void {
+    this.onStatusList = fn;
+  }
+
   /** 渲染状态图标栏：按角色当前 statuses 显示可区分图标（需求 6.1） */
   private renderStatuses(): void {
-    const statuses = this.char.statuses ?? [];
+    const all = this.char.statuses ?? [];
+    // B-7 折叠态：徽记在当前舞台缩放下小于 24 屏幕 px 时只留 3 枚 + 一个 +N 入口，
+    // 点它一次看全部状态（详情面板的"当前状态"区，B-10 已补齐）。
+    const shown = this.statusCollapsed && all.length > 3 ? all.slice(0, 3) : all;
+    const overflow = all.length - shown.length;
+    const statuses = shown;
     this.statusStripEl.innerHTML = statuses
       .map((s) => {
         const b = statusBadge(s.id);
         const turns = s.turns > 0 ? `<span class="sb-turns">${s.turns}</span>` : '';
         // data-status-id / data-magnitude：状态点击说明浮层读取实例实际数值
         const mag = s.magnitude !== undefined ? ` data-magnitude="${s.magnitude}"` : '';
-        return `<span class="status-badge" data-status-id="${s.id}" data-turns="${s.turns}"${mag} title="${b.label}${s.turns ? ' · ' + s.turns + '回合' : ''}" style="--sb:${b.color}">${statusBadgeIcon(s.id)}${turns}</span>`;
+        // B-8：去掉原生 title。此前 title（名字+回合）与自绘浮层（机制+当前数值）
+        // 双轨并存且内容不一致，桌面 hover 拿到的恰是差的那一份。名字改走
+        // data-status-label，statusTooltip 从它取标题——单一事实源。
+        return `<span class="status-badge" data-status-id="${s.id}" data-status-label="${escAttr(b.label)}" data-turns="${s.turns}"${mag} aria-label="${escAttr(b.label)}${s.turns ? ' · 剩余 ' + s.turns + ' 回合' : ''}" style="--sb:${b.color}">${statusBadgeIcon(s.id)}${turns}</span>`;
       })
-      .join('');
+      .join('')
+      + (overflow > 0
+        ? `<button type="button" class="status-more" aria-label="查看全部 ${all.length} 个状态">+${overflow}</button>`
+        : '');
+    const more = this.statusStripEl.querySelector('.status-more');
+    if (more) {
+      more.addEventListener('click', (e) => {
+        e.stopPropagation();
+        e.preventDefault();
+        this.onStatusList?.();
+      });
+      // 与徽记同样不得穿透到卡面短按（否则点它就是放技能）
+      for (const type of ['pointerdown', 'pointerup'] as const) {
+        more.addEventListener(type, (e) => { e.stopPropagation(); e.preventDefault(); });
+      }
+    }
   }
 
   /** 状态图标出现动效（供 status-apply 事件驱动，需求 6.2） */
@@ -846,7 +1063,73 @@ export class CharacterCard {
           `<div class="gt"><span class="dot" style="background:${COLOR_HEX[col]}"></span></div>`,
       )
       .join('');
-    this.tipEl.innerHTML = `<div class="gt" style="color:#e8c879">法力 ${curSum}/${reqSum}</div>${rows}`;
+    // B-2：常驻 N/M。宝石浮窗保留（它多给一份关联色），但不再是唯一入口。
+    this.manaNumEl.textContent = `${curSum}/${reqSum}`;
+    // B-6：满法力时标记区分"能放"与"沉默放不出"（样式在 CSS，文字在这里切）
+    const silenced = this.el.classList.contains('silenced');
+    this.castFlagEl.textContent = silenced ? '×' : '!';
+    const stateLine = full
+      ? silenced
+        ? '<div class="gt" style="color:#b79ad6">沉默中 · 放不出技能</div>'
+        : '<div class="gt" style="color:#ffe6a8">法力已满 · 短按释放</div>'
+      : `<div class="gt" style="color:#a89974">还差 ${Math.max(0, reqSum - curSum)} 点</div>`;
+    this.tipEl.innerHTML = `<div class="gt" style="color:#e8c879">法力 ${curSum}/${reqSum}</div>${stateLine}${rows}`;
+  }
+
+  /** 当前显示值下还差多少法力（供 App 组装「还差 N 点」提示） */
+  manaShortfall(): number {
+    return Math.max(0, this.char.manaCost - Math.min(this.displayedMana, this.char.manaCost));
+  }
+
+  /** 当前是否满法力（B-6 口径：与 castable 合并判断时用） */
+  isManaFull(): boolean {
+    return this.char.manaCost > 0 && this.displayedMana >= this.char.manaCost;
+  }
+
+  /**
+   * 卡边提示浮窗（B-3 / B-5）：短按无效的原因、手势引导都走这里。
+   * @param text 提示文案
+   * @param opts warn=红框（阻断类原因）；ms=显示时长；shake=同时摇一下卡片
+   */
+  showHint(text: string, opts: { warn?: boolean; ms?: number; shake?: boolean } = {}): void {
+    if (this.hintTimer !== null) {
+      window.clearTimeout(this.hintTimer);
+      this.hintTimer = null;
+    }
+    this.hintEl.textContent = text;
+    this.hintEl.classList.toggle('warn', !!opts.warn);
+    this.hintEl.classList.remove('show');
+    // 强制回流重置动画，否则连续两次同样的提示不会再播入场
+    void this.hintEl.offsetWidth;
+    this.hintEl.classList.add('show');
+    if (opts.shake) {
+      this.el.classList.remove('shake');
+      void this.el.offsetWidth;
+      this.el.classList.add('shake');
+      window.setTimeout(() => this.el.classList.remove('shake'), 360);
+    }
+    this.hintTimer = window.setTimeout(() => {
+      this.hintEl.classList.remove('show');
+      this.hintTimer = null;
+    }, opts.ms ?? 1600);
+  }
+
+  /**
+   * 名字一次性浮现（B-1 移动横屏降级路径）：紧凑卡不常驻名字条，
+   * 首回合浮现 0.8s 让玩家至少认一次脸，之后靠长按详情。
+   * 非紧凑卡（名字常驻）本方法是空操作。
+   */
+  flashName(ms = 800): void {
+    if (!this.el.classList.contains('name-compact')) return;
+    this.flashEl.animate(
+      [
+        { opacity: 0, transform: 'translateY(4px)' },
+        { opacity: 1, transform: 'translateY(0)', offset: 0.18 },
+        { opacity: 1, transform: 'translateY(0)', offset: 0.82 },
+        { opacity: 0, transform: 'translateY(-4px)' },
+      ],
+      { duration: ms, easing: 'ease-out' },
+    );
   }
 
   /** 用 requestAnimationFrame 平滑插值充能矩形的 y/height（SVG 几何属性，直接设 attr 最可靠） */
@@ -888,6 +1171,8 @@ export class CharacterCard {
   /** 沉默持续态：满法力时法力宝石呼吸暗下去（能量满却放不出）。由 status-apply/expire 驱动。 */
   setSilenced(on: boolean): void {
     this.el.classList.toggle('silenced', on);
+    // 法力浮窗的状态行与 B-6 标记文字随之改写（法力已满 / 沉默中 / 还差 N 点）
+    this.renderMana(this.displayedMana);
   }
 
   /** ???????????????????? status-apply/expire/cleanse ??? */
@@ -954,6 +1239,7 @@ export class CharacterCard {
       activePointerId = null;
       movedOrCancelled ||= cancelled;
       clearTimer();
+      this.el.classList.remove('pressing'); // B-5：撤掉按压进度环
       releaseCapture(pointerId);
     };
     const onPointerDown = (e: PointerEvent) => {
@@ -969,8 +1255,14 @@ export class CharacterCard {
         // Pointer capture is an enhancement; document-level pointer routing remains the fallback.
       }
       if (onLong) {
+        // B-5：按压期画一圈 475ms 铺开的进度环——短按/长按只差 475ms，
+        // 让玩家看得见"再按下去就变成长按（看详情）了"。
+        this.el.classList.remove('pressing');
+        void this.el.offsetWidth;
+        this.el.classList.add('pressing');
         timer = window.setTimeout(() => {
           timer = null;
+          this.el.classList.remove('pressing');
           if (activePointerId !== e.pointerId || movedOrCancelled) return;
           longFired = true;
           onLong();
@@ -1025,6 +1317,10 @@ export class CharacterCard {
   destroy(): void {
     this.pressCleanup?.();
     this.eventController.abort();
+    if (this.hintTimer !== null) {
+      window.clearTimeout(this.hintTimer);
+      this.hintTimer = null;
+    }
     if (this.riseRaf !== null) {
       cancelAnimationFrame(this.riseRaf);
       this.riseRaf = null;
@@ -1164,6 +1460,7 @@ export class TeamView {
   private side: PlayerSide;
   private shortPress?: (charId: number) => void;
   private longPress?: (charId: number) => void;
+  private statusList?: (charId: number) => void;
   private leftAnchor = 0;
   private rightAnchor = 0;
   private mounted = false;
@@ -1178,12 +1475,15 @@ export class TeamView {
       onCardClick?: (charId: number) => void;
       onShortPress?: (charId: number) => void;
       onLongPress?: (charId: number) => void;
+      /** B-7 折叠态点 +N：一次看全部状态（缺省沿用 onLongPress，即详情面板） */
+      onStatusList?: (charId: number) => void;
     },
   ) {
     ensureStyles();
     this.side = side;
     this.shortPress = opts?.onShortPress ?? opts?.onCardClick;
     this.longPress = opts?.onLongPress;
+    this.statusList = opts?.onStatusList ?? opts?.onLongPress;
     this.el = document.createElement('div');
     this.el.className = 'gcol';
     const frame = document.createElement('div');
@@ -1203,6 +1503,8 @@ export class TeamView {
   }
 
   private bindCard(card: CharacterCard, charId: number): void {
+    // B-7 折叠态入口与按压手势独立：即使没有按压回调也要能点开状态列表
+    card.setStatusListHandler(this.statusList ? () => this.statusList!(charId) : null);
     if (!this.shortPress && !this.longPress) return;
     card.el.style.pointerEvents = 'auto';
     card.el.style.cursor = 'pointer';
@@ -1314,6 +1616,11 @@ export class TeamView {
 
   refreshAll(): void {
     for (const card of this.cards.values()) card.refresh();
+  }
+
+  /** 推入舞台缩放（B-7：徽记 24px 下限是屏幕像素口径，见 CharacterCard.setStageScale） */
+  setStageScale(scale: number): void {
+    for (const card of this.cards.values()) card.setStageScale(scale);
   }
 
   static totalHeight(): number {

@@ -1,16 +1,22 @@
 /**
- * 每周活动（素材批 2026-09-19）：6 周轮换确定性、主题参数、出敌过校验、
- * 积分公式、里程碑入账、周切重置、结算行素材展示。
+ * 六种常驻活动：独立主题与周实例、出敌校验、积分与里程碑入账、周切重置。
  */
 import { describe, it, expect } from 'vitest';
 import { newSave } from '../../src/meta/state/schema';
-import { EVENT_MILESTONES, EVENT_ROTATION, eventTypeOfWeek, WEEK_MS } from '../../src/meta/data/events';
+import { migrateSave } from '../../src/meta/state/save';
+import { MockGateway, memoryStorage } from '../../src/meta/gateway/mockGateway';
+import { weekStartOf } from '../../src/meta/gateway/clock';
+import { EventsScreen } from '../../src/meta/screens/eventsScreen';
+import type { ShellCtx } from '../../src/meta/shell/screen';
+import { EVENT_MILESTONES, EVENT_TYPES, EVENT_WEEKLY_PLAY_REWARD_CAP, eventThemeOf, WEEK_MS } from '../../src/meta/data/events';
 import {
   currentEventTheme,
   ensureEventWeek,
   eventPointsOf,
   eventMilestonesReached,
   eventTokensFor,
+  eventShopOf,
+  eventPageState,
   buyEventGoods,
   planEventEncounter,
   eventBattleProgress,
@@ -31,30 +37,28 @@ import { troopStatsAtLevel } from '../../src/data/leveling';
 
 const OGRE = 6000;
 const WEEK = 1_700_000_000_000 - (1_700_000_000_000 % WEEK_MS); // 对齐周一零点的任意锚点
+const TYPE = 'invasion' as const;
 
 const saveWithTeam = () => {
   const s = newSave({ now: 0, starterTroopIds: [OGRE, 6097, 6457], currencies: { gold: 1000 } });
   return s;
 };
 
-describe('轮换与主题（data/events）', () => {
-  it('6 周大轮换：weekIndex 决定类型，同周必同类型', () => {
-    expect(EVENT_ROTATION).toHaveLength(6);
-    expect(eventTypeOfWeek(WEEK).id).toBe(eventTypeOfWeek(WEEK + 1).id);
-    expect(eventTypeOfWeek(WEEK + WEEK_MS).id).not.toBe(eventTypeOfWeek(WEEK).id);
-    // 负数/大数不越界
-    expect(eventTypeOfWeek(-WEEK_MS * 7).id).toBeTruthy();
+describe('常驻活动与主题（data/events）', () => {
+  it('六种类型固定开放，单活动同周主题可复现', () => {
+    expect(EVENT_TYPES).toHaveLength(6);
+    for (const def of EVENT_TYPES) {
+      expect(eventThemeOf(def.id, WEEK)).toEqual(eventThemeOf(def.id, WEEK));
+      expect(eventThemeOf(def.id, WEEK).type.id).toBe(def.id);
+    }
   });
 
   it('主题参数确定性：同周同势力；入侵/阵营突袭有目标王国', () => {
-    const a = currentEventTheme(WEEK);
-    const b = currentEventTheme(WEEK);
+    const a = currentEventTheme(WEEK, TYPE);
+    const b = currentEventTheme(WEEK, TYPE);
     expect(b.kingdom).toBe(a.kingdom);
-    const weekOf = (id: string): string | null =>
-      Array.from({ length: 12 }, (_, i) => currentEventTheme(WEEK + i * WEEK_MS)).find((t) => t.type.id === id)?.kingdom ?? null;
-    expect(weekOf('invasion')).not.toBeNull();
-    expect(weekOf('factionAssault')).not.toBeNull();
-    expect(weekOf('raidBoss')).toBeNull();
+    expect(currentEventTheme(WEEK, 'factionAssault').kingdom).not.toBeNull();
+    expect(currentEventTheme(WEEK, 'raidBoss').kingdom).toBeNull();
   });
 
   it('里程碑表：六档、阈值严格递增、素材键全部合法', () => {
@@ -79,48 +83,96 @@ describe('轮换与主题（data/events）', () => {
 describe('活动实例与出敌（systems/events）', () => {
   it('ensureEventWeek：建档 + 周切重置（幂等）', () => {
     const s = saveWithTeam();
-    const w1 = ensureEventWeek(s, WEEK);
+    const w1 = ensureEventWeek(s, WEEK, TYPE);
     expect(w1.points).toBe(0);
     w1.points = 500;
-    expect(ensureEventWeek(s, WEEK).points).toBe(500); // 同周幂等
-    const w2 = ensureEventWeek(s, WEEK + WEEK_MS);
+    expect(ensureEventWeek(s, WEEK, TYPE).points).toBe(500); // 同周幂等
+    const w2 = ensureEventWeek(s, WEEK + WEEK_MS, TYPE);
     expect(w2.points).toBe(0); // 跨周重置
     expect(w2.weekStart).toBe(WEEK + WEEK_MS);
   });
 
+  it('同周六活动周实例互不借用进度/代币/已购，下一周一起清零', () => {
+    const s = saveWithTeam();
+    const invasion = ensureEventWeek(s, WEEK, 'invasion');
+    invasion.points = 625;
+    invasion.claimed = [0, 1, 2];
+    invasion.tokens = 47;
+    invasion.bought.invasion_major = 1;
+    invasion.eventData[EVENT_STATE_KEYS.invLine] = 3;
+    for (const { id } of EVENT_TYPES) {
+      const other = ensureEventWeek(s, WEEK, id);
+      if (id === 'invasion') continue;
+      expect(other.points).toBe(0);
+      expect(other.claimed).toEqual([]);
+      expect(other.tokens).toBe(0);
+      expect(other.bought).toEqual({});
+      expect(other.eventData).toEqual({});
+    }
+    expect(eventPageState(s, WEEK, 'raidBoss').metric.value).toBe(0);
+    expect(eventShopOf(s, WEEK, 'raidBoss').week.tokens).toBe(0);
+    const next = WEEK + WEEK_MS;
+    for (const { id } of EVENT_TYPES) {
+      const fresh = ensureEventWeek(s, next, id);
+      expect(fresh.weekStart).toBe(next);
+      expect(fresh).toMatchObject({ points: 0, tokens: 0, tokensEarned: 0, playRewards: 0, claimed: [], bought: {}, eventData: {} });
+    }
+  });
+
+  it('v2 轮值周记录只迁入原活动，坏索引与异店已购在 hydrate 时丢弃', () => {
+    const raw = JSON.parse(JSON.stringify(newSave({ now: 0 }))) as Record<string, unknown>;
+    raw.version = 2;
+    delete raw.eventWeeks;
+    // WEEK 在旧 6 周轮换中的索引为 2（末日之塔）。
+    raw.eventWeek = {
+      weekStart: WEEK, points: 345, claimed: [0, 1, 1, -1, 6, 1.5], wins: 3,
+      tokens: 35, bought: { tod_scroll: 1, invasion_major: 3 },
+      eventData: { floor: 6 }, runTeam: [{ externalId: 'p0-6000', hp: 8, defeated: false }],
+    };
+    const migrated = migrateSave(raw);
+    expect(migrated.eventWeeks.towerOfDoom).toMatchObject({ weekStart: WEEK, points: 345, claimed: [0, 1], tokens: 35, tokensEarned: 35, bought: { tod_scroll: 1 } });
+    expect(migrated.eventWeeks.towerOfDoom?.runTeam?.[0]).toMatchObject({ hp: 8, maxHp: 8 });
+    expect(migrated.eventWeeks.invasion).toBeUndefined();
+    expect(ensureEventWeek(migrated, WEEK, 'invasion').points).toBe(0);
+  });
+
   it('planEventEncounter：同周同 seed 复现；出敌引用真实部队', () => {
     const s = saveWithTeam();
-    const p1 = planEventEncounter(s, WEEK, 12345);
-    const p2 = planEventEncounter(s, WEEK, 12345);
-    expect(p1.source).toMatchObject({ kind: 'event', weekStart: WEEK });
+    const p1 = planEventEncounter(s, WEEK, 12345, TYPE);
+    const p2 = planEventEncounter(s, WEEK, 12345, TYPE);
+    expect(p1.source).toMatchObject({ kind: 'event', weekStart: WEEK, typeId: TYPE });
     expect(p2.enemies).toEqual(p1.enemies);
     for (const e of p1.enemies) {
       expect(getTroopById(e.troopId)).toBeTruthy();
     }
   });
 
-  it('入侵周：敌人全部来自本周目标王国；等级随防线推进递增', () => {
-    // 找到一个入侵周
-    let week = WEEK;
-    for (let i = 0; i < 6; i++) {
-      if (currentEventTheme(week).type.id === 'invasion') break;
-      week += WEEK_MS;
+  it('网关可在同一周为六页分别生成所属活动的战斗来源', async () => {
+    const gateway = new MockGateway(memoryStorage());
+    await gateway.load();
+    for (const { id } of EVENT_TYPES) {
+      const planned = await gateway.planEventBattle(0, WEEK, id);
+      expect(planned.ok, id).toBe(true);
+      if (planned.ok) expect(planned.plan.source).toMatchObject({ kind: 'event', weekStart: WEEK, typeId: id });
     }
+  });
+
+  it('入侵周：敌人全部来自本周目标王国；等级随防线推进递增', () => {
     const s = saveWithTeam();
-    const theme = currentEventTheme(week);
+    const theme = currentEventTheme(WEEK, TYPE);
     expect(theme.kingdom).toBeTruthy();
-    const line1 = planEventEncounter(s, week, 999);
+    const line1 = planEventEncounter(s, WEEK, 999, TYPE);
     for (const e of line1.enemies) {
       expect(getTroopById(e.troopId)!.kingdom).toBe(theme.kingdom);
     }
-    ensureEventWeek(s, week).eventData[EVENT_STATE_KEYS.invLine] = 3;
-    const line3 = planEventEncounter(s, week, 999);
+    ensureEventWeek(s, WEEK, TYPE).eventData[EVENT_STATE_KEYS.invLine] = 3;
+    const line3 = planEventEncounter(s, WEEK, 999, TYPE);
     expect(line3.enemies[0]!.level).toBe(line1.enemies[0]!.level + 6);
   });
 
   it('eventPointsOf：按稀有度与等级计分并封顶 120', () => {
     const s = saveWithTeam();
-    const plan = planEventEncounter(s, WEEK, 42);
+    const plan = planEventEncounter(s, WEEK, 42, TYPE);
     const manual = plan.enemies.reduce((sum, e) => {
       const troop = getTroopById(e.troopId)!;
       return sum + (troop.rarityIdx + 1) * 10 + e.level;
@@ -129,17 +181,39 @@ describe('活动实例与出敌（systems/events）', () => {
   });
 
   it('eventMilestonesReached：只返回未领且达标者（按总分）', () => {
-    const gains = eventMilestonesReached(WEEK, 650, [0, 1]);
+    const gains = eventMilestonesReached(TYPE, 650, [0, 1]);
     expect(gains.map((g) => g.index)).toEqual([2]);
-    expect(gains[0]!.milestone.points).toBe(EVENT_MILESTONES[currentEventTheme(WEEK).type.id]![2]!.points);
+    expect(gains[0]!.milestone.points).toBe(EVENT_MILESTONES[TYPE][2]!.points);
+    expect(eventMilestonesReached('worldEvent', 95, []).map((g) => g.index)).toEqual([0, 1, 2]);
+    expect(eventMilestonesReached(TYPE, 95, []).map((g) => g.index)).toEqual([]);
+  });
+});
+
+describe('六活动页面', () => {
+  it('总览可进入六活动，六页均可出战，其他活动的领取状态不会误标', () => {
+    const save = saveWithTeam();
+    const week = weekStartOf(Date.now());
+    ensureEventWeek(save, week, TYPE).claimed = [0];
+    const ctx = { save: () => save } as ShellCtx;
+    const screen = new EventsScreen();
+    const overview = screen.html(ctx);
+    for (const { id } of EVENT_TYPES) {
+      expect(overview).toContain(`href="#events/${id}"`);
+      const page = screen.html(ctx, id);
+      expect(page).toContain('id="evFight"');
+      expect(page).not.toContain('ev-preview');
+      expect(page).not.toContain('CLOSED');
+      if (id !== TYPE) expect(page).not.toContain('class="ev-mile done"');
+    }
+    expect(screen.html(ctx, TYPE)).toContain('class="ev-mile done"');
   });
 });
 
 describe('活动结算（applySettlement 事件分支）', () => {
   it('胜场入积分 + 里程碑素材自动入账（结算行可解释）', () => {
     const s = saveWithTeam();
-    const week = ensureEventWeek(s, WEEK);
-    const plan = planEventEncounter(s, WEEK, 777);
+    const week = ensureEventWeek(s, WEEK, TYPE);
+    const plan = planEventEncounter(s, WEEK, 777, TYPE);
     const enemyByExternalId = new Map(plan.enemies.map((e, i) => [`e${i}-${e.troopId}`, e]));
     const result = {
       winner: 'player',
@@ -150,19 +224,17 @@ describe('活动结算（applySettlement 事件分支）', () => {
     } as unknown as Parameters<typeof applySettlement>[1];
 
     // 手动预置进度到里程碑 1 门槛前（世界事件按物资，其余按积分）
-    const isWorld = currentEventTheme(WEEK).type.id === 'worldEvent';
-    if (isWorld) week.eventData[EVENT_STATE_KEYS.supplies] = 13;
-    else week.points = 95;
+    week.points = 95;
     const detail = applySettlement(s, result, { plan, enemyByExternalId, todayStart: 0 });
     const pointsLine = detail.lines.find((l) => l.key === 'event-points');
     expect(pointsLine).toBeTruthy();
     const gained = eventPointsOf(plan);
-    expect(week.points).toBe((isWorld ? 0 : 95) + gained);
+    expect(week.points).toBe(95 + gained);
     // 里程碑（100 分档）应当已入账：库存出现特质石
     const milestoneLines = detail.lines.filter((l) => l.key === 'event-milestone');
     expect(milestoneLines.length).toBeGreaterThanOrEqual(1);
     // 里程碑奖励按当周类型落账：素材或货币至少一项入账
-    const firstMilestone = EVENT_MILESTONES[currentEventTheme(WEEK).type.id]![0]!;
+    const firstMilestone = EVENT_MILESTONES[TYPE][0]!;
     const ingotTotal = Object.values(s.materials.ingots).reduce((a, b) => a + b, 0);
     const stoneTotal = Object.values(s.materials.traitstones).reduce((a, b) => a + b, 0);
     const matCredited = ingotTotal + stoneTotal + s.materials.forgeScrolls > 0;
@@ -173,11 +245,11 @@ describe('活动结算（applySettlement 事件分支）', () => {
 
   it('败场不积分不推进里程碑', () => {
     const s = saveWithTeam();
-    const plan = planEventEncounter(s, WEEK, 778);
-    const before = ensureEventWeek(s, WEEK).points;
+    const plan = planEventEncounter(s, WEEK, 778, TYPE);
+    const before = ensureEventWeek(s, WEEK, TYPE).points;
     const result = { winner: 'enemy', turns: 8, defeatedExternalIds: [], combatants: [], eventSummary: [] } as unknown as Parameters<typeof applySettlement>[1];
     applySettlement(s, result, { plan, enemyByExternalId: new Map(), todayStart: 0 });
-    expect(ensureEventWeek(s, WEEK).points).toBe(before);
+    expect(ensureEventWeek(s, WEEK, TYPE).points).toBe(before);
   });
 });
 
@@ -209,57 +281,62 @@ describe('活动商店与代币（2026-09-19 追补）', () => {
 
   it('购买：扣代币入素材、已购计数累加、限量售罄拒绝', () => {
     const s = saveWithTeam();
-    ensureEventWeek(s, WEEK).tokens = 100;
-    const unlimited = EVENT_SHOP[currentEventTheme(WEEK).type.id]!.find((g) => g.stock === null)!;
-    const limited = EVENT_SHOP[currentEventTheme(WEEK).type.id]!.find((g) => g.stock !== null && g.stock! >= 2)!;
+    ensureEventWeek(s, WEEK, TYPE).tokens = 100;
+    const unlimited = EVENT_SHOP[TYPE].find((g) => g.stock === null)!;
+    const limited = EVENT_SHOP[TYPE].find((g) => g.stock !== null && g.stock! >= 2)!;
 
-    const r1 = buyEventGoods(s, unlimited.id, WEEK);
+    const r1 = buyEventGoods(s, unlimited.id, WEEK, TYPE);
     expect(r1).toMatchObject({ ok: true, tokensSpent: unlimited.cost });
-    expect(ensureEventWeek(s, WEEK).bought[unlimited.id]).toBe(1);
+    expect(ensureEventWeek(s, WEEK, TYPE).bought[unlimited.id]).toBe(1);
 
     // 把限量货买到售罄
     const stock = limited.stock!;
     for (let i = 0; i < stock; i++) {
-      ensureEventWeek(s, WEEK).tokens += limited.cost;
-      const r = buyEventGoods(s, limited.id, WEEK);
+      ensureEventWeek(s, WEEK, TYPE).tokens += limited.cost;
+      const r = buyEventGoods(s, limited.id, WEEK, TYPE);
       expect(r.ok).toBe(true);
     }
-    expect(buyEventGoods(s, limited.id, WEEK)).toMatchObject({ ok: false, code: 'SOLD_OUT' });
+    expect(buyEventGoods(s, limited.id, WEEK, TYPE)).toMatchObject({ ok: false, code: 'SOLD_OUT' });
+  });
+
+  it('六活动代币不通兑、限量不串号，跨店商品 id 无法购买', () => {
+    const s = saveWithTeam();
+    ensureEventWeek(s, WEEK, 'invasion').tokens = 500;
+    const raidGoods = EVENT_SHOP.raidBoss.find((goods) => goods.stock !== null)!;
+    expect(buyEventGoods(s, raidGoods.id, WEEK, 'raidBoss')).toMatchObject({ ok: false, code: 'INSUFFICIENT' });
+    expect(buyEventGoods(s, raidGoods.id, WEEK, 'invasion')).toMatchObject({ ok: false, code: 'INVALID' });
+    expect(ensureEventWeek(s, WEEK, 'invasion').tokens).toBe(500);
+    ensureEventWeek(s, WEEK, 'raidBoss').tokens = 500;
+    expect(buyEventGoods(s, raidGoods.id, WEEK, 'raidBoss')).toMatchObject({ ok: true });
+    expect(eventShopOf(s, WEEK, 'raidBoss').rows.find((r) => r.goods.id === raidGoods.id)?.stockLeft).toBe(raidGoods.stock! - 1);
+    expect(ensureEventWeek(s, WEEK, 'invasion').bought).toEqual({});
   });
 
   it('代币不足 → 整笔不动；未知商品拒绝；周切重置代币与已购', () => {
     const s = saveWithTeam();
-    ensureEventWeek(s, WEEK).tokens = 2;
-    const anyGoods = EVENT_SHOP[currentEventTheme(WEEK).type.id]![0]!;
-    expect(buyEventGoods(s, anyGoods.id, WEEK)).toMatchObject({ ok: false, code: 'INSUFFICIENT' });
-    expect(buyEventGoods(s, '不存在的商品', WEEK)).toMatchObject({ ok: false, code: 'INVALID' });
-    expect(ensureEventWeek(s, WEEK).tokens).toBe(2);
+    ensureEventWeek(s, WEEK, TYPE).tokens = 2;
+    const anyGoods = EVENT_SHOP[TYPE][0]!;
+    expect(buyEventGoods(s, anyGoods.id, WEEK, TYPE)).toMatchObject({ ok: false, code: 'INSUFFICIENT' });
+    expect(buyEventGoods(s, '不存在的商品', WEEK, TYPE)).toMatchObject({ ok: false, code: 'INVALID' });
+    expect(ensureEventWeek(s, WEEK, TYPE).tokens).toBe(2);
 
-    ensureEventWeek(s, WEEK).tokens = 500;
-    ensureEventWeek(s, WEEK + WEEK_MS); // 跨周
-    expect(ensureEventWeek(s, WEEK + WEEK_MS).tokens).toBe(0);
-    expect(Object.keys(ensureEventWeek(s, WEEK + WEEK_MS).bought)).toHaveLength(0);
+    ensureEventWeek(s, WEEK, TYPE).tokens = 500;
+    ensureEventWeek(s, WEEK + WEEK_MS, TYPE); // 跨周
+    expect(ensureEventWeek(s, WEEK + WEEK_MS, TYPE).tokens).toBe(0);
+    expect(Object.keys(ensureEventWeek(s, WEEK + WEEK_MS, TYPE).bought)).toHaveLength(0);
   });
 
   it('胜场结算同步发代币（结算行备注可解释）', () => {
     const s = saveWithTeam();
-    ensureEventWeek(s, WEEK);
-    const plan = planEventEncounter(s, WEEK, 781);
+    ensureEventWeek(s, WEEK, TYPE);
+    const plan = planEventEncounter(s, WEEK, 781, TYPE);
     const result = { winner: 'player', turns: 8, defeatedExternalIds: [], combatants: [], eventSummary: [] } as unknown as Parameters<typeof applySettlement>[1];
     applySettlement(s, result, { plan, enemyByExternalId: new Map(), todayStart: 0 });
-    expect(ensureEventWeek(s, WEEK).tokens).toBe(eventTokensFor(eventPointsOf(plan)));
+    expect(ensureEventWeek(s, WEEK, TYPE).tokens).toBe(eventTokensFor(eventPointsOf(plan)));
   });
 });
 
 describe('六种玩法机制（玩法差异化批）', () => {
-  const findWeekOf = (id: string): number => {
-    for (let i = 0; i < 12; i++) {
-      const week = WEEK + i * WEEK_MS;
-      if (currentEventTheme(week).type.id === id) return week;
-    }
-    throw new Error(`rotation missing ${id}`);
-  };
-
   /** 依 plan/存档构造最小 BattleResult：playerHps 按预设队序（缺省满血），enemyHps 按出敌序（缺省按胜负） */
   const fakeResult = (save: ReturnType<typeof saveWithTeam>, plan: ReturnType<typeof planEventEncounter>, victory: boolean, opts?: { playerHps?: number[]; enemyHps?: number[] }): BattleResult => {
     const team = save.teams[0]!;
@@ -291,35 +368,66 @@ describe('六种玩法机制（玩法差异化批）', () => {
     } as unknown as BattleResult;
   };
 
-  it('入侵周防线推进：胜→推进，破第三防线=守土成功重赏，败→退回第 1 条', () => {
-    const week = findWeekOf('invasion');
+  it('同周世界事件只按自己的物资领取里程碑，入侵积分保持不动', () => {
     const s = saveWithTeam();
-    ensureEventWeek(s, week);
+    const inv = ensureEventWeek(s, WEEK, 'invasion');
+    inv.points = 95;
+    const world = ensureEventWeek(s, WEEK, 'worldEvent');
+    world.eventData[EVENT_STATE_KEYS.supplies] = 14;
+    const plan = planEventEncounter(s, WEEK, 902, 'worldEvent');
+    const result = applySettlement(s, fakeResult(s, plan, true), { plan, enemyByExternalId: new Map(), todayStart: 0 });
+    expect(result.lines.filter((line) => line.key === 'event-milestone')).toHaveLength(1);
+    expect(world.claimed).toEqual([0]);
+    expect(world.tokensEarned).toBe(world.tokens);
+    expect(world.eventData[EVENT_STATE_KEYS.supplies]).toBeGreaterThanOrEqual(16);
+    expect(inv).toMatchObject({ points: 95, claimed: [], tokens: 0 });
+  });
+
+  it('守土奖励按周额封顶，后续胜场仍推进并发积分和代币', () => {
+    const s = saveWithTeam();
+    const limit = EVENT_WEEKLY_PLAY_REWARD_CAP.invasion;
+    for (let i = 0; i < 3 * (limit + 1); i++) {
+      const plan = planEventEncounter(s, WEEK, 100 + i, 'invasion');
+      applySettlement(s, fakeResult(s, plan, true), { plan, enemyByExternalId: new Map(), todayStart: 0 });
+    }
+    const week = ensureEventWeek(s, WEEK, 'invasion');
+    expect(week.eventData[EVENT_STATE_KEYS.invRepelled]).toBe(limit + 1);
+    expect(week.playRewards).toBe(limit);
+    expect(s.currencies.glory).toBe(limit * 40);
+    expect(week.wins).toBe(3 * (limit + 1));
+    expect(week.points).toBeGreaterThan(0);
+    expect(week.tokens).toBeGreaterThan(0);
+  });
+
+  it('入侵周防线推进：胜→推进，破第三防线=守土成功重赏，败→退回第 1 条', () => {
+    const week = WEEK;
+    const s = saveWithTeam();
+    ensureEventWeek(s, week, 'invasion');
     const settle = (victory: boolean): void => {
-      const plan = planEventEncounter(s, week, 555);
+      const plan = planEventEncounter(s, week, 555, 'invasion');
       eventBattleProgress(s, plan, fakeResult(s, plan, victory), victory);
     };
     settle(true);
-    expect(ensureEventWeek(s, week).eventData[EVENT_STATE_KEYS.invLine]).toBe(2);
+    expect(ensureEventWeek(s, week, 'invasion').eventData[EVENT_STATE_KEYS.invLine]).toBe(2);
     settle(true);
-    expect(ensureEventWeek(s, week).eventData[EVENT_STATE_KEYS.invLine]).toBe(3);
+    expect(ensureEventWeek(s, week, 'invasion').eventData[EVENT_STATE_KEYS.invLine]).toBe(3);
     const gloryBefore = s.currencies.glory;
     settle(true);
-    expect(ensureEventWeek(s, week).eventData[EVENT_STATE_KEYS.invRepelled]).toBe(1);
-    expect(ensureEventWeek(s, week).eventData[EVENT_STATE_KEYS.invLine]).toBe(1);
+    expect(ensureEventWeek(s, week, 'invasion').eventData[EVENT_STATE_KEYS.invRepelled]).toBe(1);
+    expect(ensureEventWeek(s, week, 'invasion').eventData[EVENT_STATE_KEYS.invLine]).toBe(1);
     expect(s.currencies.glory).toBe(gloryBefore + 40);
     settle(false);
-    expect(ensureEventWeek(s, week).eventData[EVENT_STATE_KEYS.invLine]).toBe(1);
+    expect(ensureEventWeek(s, week, 'invasion').eventData[EVENT_STATE_KEYS.invLine]).toBe(1);
   });
 
   it('突袭首领：计划生成血池，伤害跨场累计，清零=讨伐成功并刷新更强首领', () => {
-    const week = findWeekOf('raidBoss');
+    const week = WEEK;
     const s = saveWithTeam();
-    ensureEventWeek(s, week);
-    const plan1 = planEventEncounter(s, week, 777);
-    const max1 = ensureEventWeek(s, week).eventData[EVENT_STATE_KEYS.bossMax]!;
+    ensureEventWeek(s, week, 'raidBoss');
+    const plan1 = planEventEncounter(s, week, 777, 'raidBoss');
+    const max1 = ensureEventWeek(s, week, 'raidBoss').eventData[EVENT_STATE_KEYS.bossMax]!;
     expect(max1).toBeGreaterThan(0);
-    expect(ensureEventWeek(s, week).eventData[EVENT_STATE_KEYS.bossHp]).toBe(max1);
+    expect(ensureEventWeek(s, week, 'raidBoss').eventData[EVENT_STATE_KEYS.bossHp]).toBe(max1);
     const damageOf = (pl: ReturnType<typeof planEventEncounter>, hps: number[]): number =>
       pl.enemies.reduce((sum, e, i) => {
         const realMax = troopStatsAtLevel(getTroopById(e.troopId)!, e.level).health;
@@ -327,31 +435,32 @@ describe('六种玩法机制（玩法差异化批）', () => {
       }, 0);
     const d1 = damageOf(plan1, [200, 200, 300]);
     const r = eventBattleProgress(s, plan1, fakeResult(s, plan1, true, { enemyHps: [200, 200, 300] }), true);
-    expect(ensureEventWeek(s, week).eventData[EVENT_STATE_KEYS.bossHp]).toBe(max1 - d1);
+    expect(ensureEventWeek(s, week, 'raidBoss').eventData[EVENT_STATE_KEYS.bossHp]).toBe(max1 - d1);
     expect(r.lines.some((l) => l.label.startsWith('首领伤害'))).toBe(true);
-    ensureEventWeek(s, week).eventData[EVENT_STATE_KEYS.bossHp] = 1; // 残血（一场伤害必≥1，稳定触发讨伐成功）
+    ensureEventWeek(s, week, 'raidBoss').eventData[EVENT_STATE_KEYS.bossHp] = 1; // 残血（一场伤害必≥1，稳定触发讨伐成功）
     const gloryBefore = s.currencies.glory;
-    const plan2 = planEventEncounter(s, week, 778);
-    expect(ensureEventWeek(s, week).eventData[EVENT_STATE_KEYS.bossMax]).toBe(max1);
+    const plan2 = planEventEncounter(s, week, 778, 'raidBoss');
+    expect(ensureEventWeek(s, week, 'raidBoss').eventData[EVENT_STATE_KEYS.bossMax]).toBe(max1);
     eventBattleProgress(s, plan2, fakeResult(s, plan2, true, { enemyHps: [0, 0, 0] }), true);
-    expect(ensureEventWeek(s, week).eventData[EVENT_STATE_KEYS.bossesSlain]).toBe(1);
-    expect(ensureEventWeek(s, week).eventData[EVENT_STATE_KEYS.bossTier]).toBe(2);
+    expect(ensureEventWeek(s, week, 'raidBoss').eventData[EVENT_STATE_KEYS.bossesSlain]).toBe(1);
+    expect(ensureEventWeek(s, week, 'raidBoss').eventData[EVENT_STATE_KEYS.bossTier]).toBe(2);
     expect(s.currencies.glory).toBe(gloryBefore + 50);
-    planEventEncounter(s, week, 779);
-    expect(ensureEventWeek(s, week).eventData[EVENT_STATE_KEYS.bossMax]).toBeGreaterThan(max1);
+    planEventEncounter(s, week, 779, 'raidBoss');
+    expect(ensureEventWeek(s, week, 'raidBoss').eventData[EVENT_STATE_KEYS.bossMax]).toBeGreaterThan(max1);
   });
 
   it('末日之塔：开爬/通过推进/状态冻结/败北收尾', () => {
-    const week = findWeekOf('towerOfDoom');
+    const week = WEEK;
     const s = saveWithTeam();
-    ensureEventWeek(s, week);
-    const plan1 = planEventEncounter(s, week, 801);
-    expect(ensureEventWeek(s, week).eventData[EVENT_STATE_KEYS.runActive]).toBe(1);
-    expect(ensureEventWeek(s, week).eventData[EVENT_STATE_KEYS.floor]).toBe(1);
+    ensureEventWeek(s, week, 'towerOfDoom');
+    const plan1 = planEventEncounter(s, week, 801, 'towerOfDoom');
+    expect(ensureEventWeek(s, week, 'towerOfDoom').eventData[EVENT_STATE_KEYS.runActive]).toBe(1);
+    expect(ensureEventWeek(s, week, 'towerOfDoom').eventData[EVENT_STATE_KEYS.floor]).toBe(1);
     eventBattleProgress(s, plan1, fakeResult(s, plan1, true, { playerHps: [150, 0, 200] }), true);
-    expect(ensureEventWeek(s, week).eventData[EVENT_STATE_KEYS.floor]).toBe(2);
-    expect(ensureEventWeek(s, week).runTeam!.filter((m) => !m.defeated)).toHaveLength(2);
-    const plan2 = planEventEncounter(s, week, 802);
+    expect(ensureEventWeek(s, week, 'towerOfDoom').eventData[EVENT_STATE_KEYS.floor]).toBe(2);
+    expect(ensureEventWeek(s, week, 'towerOfDoom').runTeam!.filter((m) => !m.defeated)).toHaveLength(2);
+    expect(ensureEventWeek(s, week, 'towerOfDoom').runTeam![0]!.maxHp).toBe(200);
+    const plan2 = planEventEncounter(s, week, 802, 'towerOfDoom');
     const outcome = buildBattleRequest(s, plan2) as unknown as BridgeOutcome;
     expect(outcome.ok).toBe(true);
     applyEventBattleModifiers(s, outcome);
@@ -359,7 +468,7 @@ describe('六种玩法机制（玩法差异化批）', () => {
     const hero = outcome.request.playerTeam.find((snap) => snap.externalId === 'p0-6000');
     expect(hero?.stats.hp).toBeLessThanOrEqual(150);
     eventBattleProgress(s, plan2, fakeResult(s, plan2, false), false);
-    const weekState = ensureEventWeek(s, week);
+    const weekState = ensureEventWeek(s, week, 'towerOfDoom');
     expect(weekState.eventData[EVENT_STATE_KEYS.runActive]).toBe(0);
     expect(weekState.eventData[EVENT_STATE_KEYS.floorBest]).toBe(1);
     expect(weekState.runTeam).toBeNull();
@@ -367,26 +476,26 @@ describe('六种玩法机制（玩法差异化批）', () => {
   });
 
   it('世界事件：胜场掉物资（里程碑按物资结算），败场不掉', () => {
-    const week = findWeekOf('worldEvent');
+    const week = WEEK;
     const s = saveWithTeam();
-    ensureEventWeek(s, week);
-    const plan = planEventEncounter(s, week, 901);
+    ensureEventWeek(s, week, 'worldEvent');
+    const plan = planEventEncounter(s, week, 901, 'worldEvent');
     eventBattleProgress(s, plan, fakeResult(s, plan, true), true);
-    const supplies = ensureEventWeek(s, week).eventData[EVENT_STATE_KEYS.supplies]!;
+    const supplies = ensureEventWeek(s, week, 'worldEvent').eventData[EVENT_STATE_KEYS.supplies]!;
     expect(supplies).toBeGreaterThanOrEqual(2);
-    const metric = eventMetricOf(s, week);
+    const metric = eventMetricOf(s, week, 'worldEvent');
     expect(metric.label).toBe('物资');
     expect(metric.value).toBe(supplies);
-    const plan2 = planEventEncounter(s, week, 902);
+    const plan2 = planEventEncounter(s, week, 902, 'worldEvent');
     eventBattleProgress(s, plan2, fakeResult(s, plan2, false), false);
-    expect(ensureEventWeek(s, week).eventData[EVENT_STATE_KEYS.supplies]).toBe(supplies);
+    expect(ensureEventWeek(s, week, 'worldEvent').eventData[EVENT_STATE_KEYS.supplies]).toBe(supplies);
   });
 
   it('职业试炼：连胜 ×1.3/×1.6 计分，败场清零', () => {
-    const week = findWeekOf('classTrials');
+    const week = WEEK;
     const s = saveWithTeam();
-    const weekState = ensureEventWeek(s, week);
-    const plan = planEventEncounter(s, week, 951);
+    const weekState = ensureEventWeek(s, week, 'classTrials');
+    const plan = planEventEncounter(s, week, 951, 'classTrials');
     const base = eventPointsOf(plan);
     const settleWin = (): void => {
       applySettlement(s, fakeResult(s, plan, true), { plan, enemyByExternalId: new Map(), todayStart: 0 });
@@ -408,13 +517,13 @@ describe('六种玩法机制（玩法差异化批）', () => {
     let week = -1;
     for (let i = 0; i < 5000 && week < 0; i++) {
       const candidate = WEEK + i * WEEK_MS;
-      if (currentEventTheme(candidate).type.id === 'factionAssault' && currentEventTheme(candidate).kingdom === KINGDOM) {
+      if (currentEventTheme(candidate, 'factionAssault').kingdom === KINGDOM) {
         week = candidate;
       }
     }
     expect(week).toBeGreaterThanOrEqual(0);
     const s = saveWithTeam();
-    const plan = planEventEncounter(s, week, 961);
+    const plan = planEventEncounter(s, week, 961, 'factionAssault');
     const outcome = buildBattleRequest(s, plan) as unknown as BridgeOutcome;
     expect(outcome.ok).toBe(true);
     const before = outcome.request.playerTeam.map((snap) => ({ attack: snap.stats.attack, hp: snap.stats.hp }));
@@ -436,18 +545,18 @@ describe('六种玩法机制（玩法差异化批）', () => {
   });
 
   it('放弃按败北同口径收尾：到达层=当前层-1，照发层数奖励；无 run 时拒绝', () => {
-    const week = findWeekOf('towerOfDoom');
+    const week = WEEK;
     const s = saveWithTeam();
-    ensureEventWeek(s, week);
-    planEventEncounter(s, week, 971); // 开爬，floor=1
-    ensureEventWeek(s, week).eventData[EVENT_STATE_KEYS.floor] = 8; // 直接爬到第 8 层
-    expect(ensureEventWeek(s, week).eventData[EVENT_STATE_KEYS.runActive]).toBe(1);
+    ensureEventWeek(s, week, 'towerOfDoom');
+    planEventEncounter(s, week, 971, 'towerOfDoom'); // 开爬，floor=1
+    ensureEventWeek(s, week, 'towerOfDoom').eventData[EVENT_STATE_KEYS.floor] = 8; // 直接爬到第 8 层
+    expect(ensureEventWeek(s, week, 'towerOfDoom').eventData[EVENT_STATE_KEYS.runActive]).toBe(1);
     const gloryBefore = s.currencies.glory;
     const r = abandonTowerRun(s, week);
     expect(r).toMatchObject({ ok: true, floorReached: 7, glory: 14, scrolls: 1 });
     expect(s.currencies.glory).toBe(gloryBefore + 14);
     expect(s.materials.forgeScrolls).toBe(1);
-    const weekState = ensureEventWeek(s, week);
+    const weekState = ensureEventWeek(s, week, 'towerOfDoom');
     expect(weekState.eventData[EVENT_STATE_KEYS.runActive]).toBe(0);
     expect(weekState.eventData[EVENT_STATE_KEYS.floorBest]).toBe(7);
     expect(weekState.runTeam).toBeNull();

@@ -11,8 +11,9 @@
 
 import { STARTING_CURRENCIES } from '../data/economy';
 import { STARTER_WEAPON_ID } from '../data/weapons';
+import type { EventTypeId } from '../data/events';
 
-export const META_SAVE_VERSION = 2;
+export const META_SAVE_VERSION = 3;
 
 /**
  * v1 → v2（主角系统 v2：官方 38 职业 + 天赋树）：
@@ -20,6 +21,14 @@ export const META_SAVE_VERSION = 2;
  *    迁移时重映射到官方职业 id（见 MIGRATIONS）；
  *  - talentSpent（按等级自动生效的旧天赋点）废弃，改 talentPicks（7 档三树选一）；
  *  - 新增 classTraits（职业专属特质三槽解锁状态）。
+ *
+ * v2 → v3（UX 阶段 B 窗口 N：活动全开放）：
+ *  - 六活动从「6 周轮换、一周只有一个在跑」改为**常驻全开放**，
+ *    因此 `eventWeek`（全局单实例）拆成 `eventWeeks`（每活动一份周实例）——
+ *    不拆的后果实测可见：六个类型页共用同一串积分/代币/已购/里程碑 claimed，
+ *    在 A 活动攒的分会把 B 活动的里程碑一起领掉（`10-events.md` §4 附加 2）；
+ *  - 迁移：旧单实例按它自己的 weekStart 还原出「当时的轮值类型」，归到该活动名下，
+ *    其余五个活动从零开始（见 MIGRATIONS[2]）。
  */
 
 // ---------------------------------------------------------------------------
@@ -132,7 +141,11 @@ export interface InvasionState {
   seasonsPlayed: number;
 }
 
-/** 每周活动周实例（系统逻辑见 systems/events.ts；里程碑达标自动入账） */
+/**
+ * **单个活动**的周实例（系统逻辑见 systems/events.ts；里程碑达标自动入账）。
+ * 六活动各持一份（`MetaSave.eventWeeks`）：积分/代币/已购/里程碑/玩法状态全部独立，
+ * 互不通兑、互不串号。周一 0:00 六份统一重置。
+ */
 export interface EventWeekState {
   /** 本活动周锚点（weekStart） */
   weekStart: number;
@@ -142,8 +155,16 @@ export interface EventWeekState {
   claimed: number[];
   /** 本周活动胜场 */
   wins: number;
-  /** 活动代币（本周商店通用；胜场获得，跨周作废） */
+  /** 本活动代币（只能在本活动的商店花；胜场获得，跨周作废；六池互不通兑） */
   tokens: number;
+  /** 本周累计已赚代币（商店页「本周已赚 N」用；只增不减，购买不扣它） */
+  tokensEarned: number;
+  /**
+   * 本周已发放的「玩法推进奖励」次数（守土成功/讨伐成功/登塔结算）。
+   * 达到 `EVENT_WEEKLY_PLAY_REWARD_CAP[typeId]` 后继续打只给积分与代币——
+   * 这是六活动全开放后的产出封口（`data/events.ts` 单源）。
+   */
+  playRewards: number;
   /** 活动商店已购计数：goodsId → 次数（限量货架按它判库存） */
   bought: Record<string, number>;
   /**
@@ -153,8 +174,12 @@ export interface EventWeekState {
    * classTrials 连胜 trialStreak；factionAssault 进攻次数 assaultWins。
    */
   eventData: Record<string, number>;
-  /** 末日之塔爬塔 run 的冻结队伍（跨场延续 HP/阵亡）；仅爬塔期间非 null */
-  runTeam: { externalId: string; hp: number; defeated: boolean }[] | null;
+  /**
+   * 末日之塔爬塔 run 的冻结队伍（跨场延续 HP/阵亡）；仅爬塔期间非 null。
+   * `maxHp` 是画残血格必需的分母（`10-events.md` E-4 ③：玩家决定「继续爬还是收手」
+   * 的唯一依据是四个成员各自还剩多少血，只报「存活 3 人」等于没报）。
+   */
+  runTeam: { externalId: string; hp: number; maxHp: number; defeated: boolean }[] | null;
 }
 
 export interface KingdomState {
@@ -218,8 +243,11 @@ export interface MetaSave {
   weaponTempering: WeaponTempering;
   /** 入侵 PvP 赛季（加性字段，version 仍为 2） */
   invasion: InvasionState;
-  /** 每周活动当前周（加性字段，version 仍为 2；null = 本周还没打过活动） */
-  eventWeek: EventWeekState | null;
+  /**
+   * 每周活动周实例 · **per-event**（schema v3）：键 = EventTypeId，缺键 = 该活动本周还没打过。
+   * 六活动常驻全开放，进度/代币/已购/里程碑各自独立（不拆会串号，见 v3 迁移说明）。
+   */
+  eventWeeks: Partial<Record<EventTypeId, EventWeekState>>;
   settings: MetaSettings;
 }
 
@@ -278,7 +306,7 @@ export function newSave(options: NewSaveOptions = {}): MetaSave {
     materials: { ingots: {}, forgeScrolls: 0, traitstones: {} },
     weaponTempering: {},
     invasion: { league: 0, vp: 0, weekStart: 0, seed: 0, lastWinDay: 0, battles: 0, bestLeague: 0, seasonsPlayed: 0 },
-    eventWeek: null,
+    eventWeeks: {},
     settings: { language: 'zh', battleDebug: false },
   };
   const starters = options.starterTroopIds ?? [];

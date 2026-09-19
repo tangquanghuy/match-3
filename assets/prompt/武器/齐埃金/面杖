@@ -1,0 +1,11 @@
+面杖：
+wlopk2style, Yoneyama Mai Style,
+western fantasy style, DnD monster manual illustration, painterly fantasy,
+<krea2_prompt>
+  <subject>a goblin cudgel whose head is carved with a stack of grinning faces, each one remembered from a different argument, the sole subject in a medium-close shot, dominating most of the frame, weapon only</subject>
+  <details>one face newer and smugger than the rest, knuckle-worn polish on the grip, an iron tooth driven in where a wooden one fell out</details>
+  <pose>resting head-down on packed dirt on its own with the carved faces lighting green one at a time as if grinning, grain clearly readable, no bearer, no hands</pose>
+  <environment>market-square dirt under humid jungle haze, clean minimal backdrop, the cudgel fully unobstructed, no characters</environment>
+  <lighting>strong key light on the subject, clear readable details</lighting>
+  <style>clean anime-style weapon design over a simple photorealistic backdrop, carve umber, grin green, iron tooth palette, thumbnail-readable silhouette, no characters or hands in frame</style>
+</krea2_prompt>

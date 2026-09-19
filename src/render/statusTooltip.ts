@@ -49,6 +49,7 @@ function ensureStyle(): void {
 .status-badge{cursor:pointer}
 .gcard .status-strip{pointer-events:auto}
 .gcard .status-badge{pointer-events:auto}
+.gcard .trait-badge{pointer-events:auto;cursor:pointer}
 .gcard .photo,.gcard .art .vig{pointer-events:none}
 .status-tooltip{position:fixed;z-index:60;max-width:210px;padding:7px 9px;border-radius:7px;
   background:rgba(14,11,6,.96);border:1px solid var(--stc,#d8c290);
@@ -70,23 +71,38 @@ function closeTip(): void {
 }
 
 function openTipFor(badge: HTMLElement): void {
-  const title = (badge.getAttribute('title') ?? '').split(' · ')[0].trim();
-  const desc = STATUS_DESCRIPTIONS[title] ?? '效果未知。';
-  const color = badge.style.getPropertyValue('--sb') || '#d8c290';
-
   if (openTip && openTipBadge === badge) {
     closeTip();
     return;
   }
   closeTip();
 
+  const isTrait = badge.classList.contains('trait-badge');
+  // B-8（UX 阶段 B）：标题来源改 data-*。此前从原生 title 里切字符串——
+  // 而 title 与自绘浮层双轨并存、内容不一致；TeamView 已撤掉 title，这里从
+  // data-status-label / data-trait-name 取，单一事实源（旧 title 留作兜底）。
+  const title = isTrait
+    ? (badge.dataset.traitName ?? '特质')
+    : (badge.dataset.statusLabel ?? (badge.getAttribute('title') ?? '').split(' · ')[0].trim());
+  const desc = isTrait
+    ? (badge.dataset.traitDesc || '这条特质暂无描述。')
+    : (STATUS_DESCRIPTIONS[title] ?? '效果未知。');
+  const color = isTrait
+    ? (badge.dataset.traitOff === '1' ? '#8a7c5c' : '#e0c98a')
+    : badge.style.getPropertyValue('--sb') || '#d8c290';
+
   // 实例实际数值行（TeamView renderStatuses 注入的 data-*）：
-  // 带 magnitude 的（DoT 类）显示每回合伤害，其余显示剩余回合
-  const turns = badge.dataset.turns ?? '';
-  const magnitude = badge.dataset.magnitude;
+  // 带 magnitude 的（DoT 类）显示每回合伤害，其余显示剩余回合。
+  // 特质用同一行位置说明「本场不生效」（未实现 code 的玩家口径）。
   const live: string[] = [];
-  if (magnitude !== undefined) live.push(`每回合 ${magnitude} 点`);
-  if (turns && turns !== '0') live.push(`剩余 ${turns} 回合`);
+  if (isTrait) {
+    if (badge.dataset.traitOff === '1') live.push('本场不生效');
+  } else {
+    const turns = badge.dataset.turns ?? '';
+    const magnitude = badge.dataset.magnitude;
+    if (magnitude !== undefined) live.push(`每回合 ${magnitude} 点`);
+    if (turns && turns !== '0') live.push(`剩余 ${turns} 回合`);
+  }
   const liveLine = live.length > 0 ? `<div class="st-live"></div>` : '';
 
   const tip = document.createElement('div');
@@ -98,7 +114,7 @@ function openTipFor(badge: HTMLElement): void {
   if (liveLine) {
     const el = tip.querySelector('.st-live') as HTMLElement;
     el.style.opacity = '.8';
-    el.textContent = `当前：${live.join(' · ')}`;
+    el.textContent = isTrait ? live.join(' · ') : `当前：${live.join(' · ')}`;
   }
   document.body.appendChild(tip);
 
@@ -128,9 +144,10 @@ export function installStatusTooltips(): void {
   installed = true;
   ensureStyle();
 
+  // B-8 覆盖面：同一套浮层扩到特质图标（此前特质只有一个原生 title、没有描述）
   const badgeHit = (e: Event): HTMLElement | null => {
     const target = e.target as HTMLElement | null;
-    return target?.closest?.('.status-badge') as HTMLElement | null;
+    return target?.closest?.('.status-badge,.trait-badge') as HTMLElement | null;
   };
 
   // 捕获阶段阻断：徽记点击不进卡面短按/长按逻辑

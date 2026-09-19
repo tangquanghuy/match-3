@@ -1,0 +1,11 @@
+岩石护盾：
+wlopk2style, Yoneyama Mai Style,
+western fantasy style, DnD monster manual illustration, painterly fantasy,
+<krea2_prompt>
+  <subject>the Stone Aegis, a Khaziel bulwark shield cut from a single slab of veined granite and rimmed in green bronze, the sole subject in a medium-close shot, dominating most of the frame, weapon only</subject>
+  <details>an armor-sheen of pale light sealing the granite's pores, runic mason-marks chiseled along the bronze rim, a low stun-ring of light hovering just off the face</details>
+  <pose>standing slab-upright on hall stone on its own as the sheen passes and the stun-ring tightens, mason marks and rim clearly readable, no bearer, no hands</pose>
+  <environment>forge-hall flags under a warm ember glow, a single rune pillar far in the back, clean minimal backdrop, the shield fully unobstructed, no characters</environment>
+  <lighting>strong key light on the subject, clear readable details</lighting>
+  <style>clean anime-style weapon design over a simple photorealistic backdrop, veined granite, rim bronze, sheen pale palette, thumbnail-readable silhouette, no characters or hands in frame</style>
+</krea2_prompt>

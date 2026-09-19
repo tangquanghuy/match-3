@@ -1,0 +1,11 @@
+皇家宝石：
+wlopk2style, Yoneyama Mai Style,
+western fantasy style, DnD monster manual illustration, painterly fantasy,
+<krea2_prompt>
+  <subject>the Imperial Jewel, a dragon-court brooch of claw-clasped gold holding one great bezel and five lesser stones around it, the sole subject in a medium-close shot, dominating most of the frame, weapon only</subject>
+  <details>each lesser stone a different court color, burning in slow rotation around the bezel, the claw-clasp engraved with a lineage of tiny hoard-marks, arcane motes rising off the gold</details>
+  <pose>floating face-out on its own as the five lesser stones wheel their colors around the bezel, claw clasp and hoard-marks clearly readable, no bearer, no hands</pose>
+  <environment>hoard-cave stone under a warm gold haze, a single spilled coin-glint far in the back, clean minimal backdrop, the brooch fully unobstructed, no characters</environment>
+  <lighting>strong key light on the subject, clear readable details</lighting>
+  <style>clean anime-style weapon design over a simple photorealistic backdrop, court gold, five-stone spectrum, mote amber palette, thumbnail-readable silhouette, no characters or hands in frame</style>
+</krea2_prompt>

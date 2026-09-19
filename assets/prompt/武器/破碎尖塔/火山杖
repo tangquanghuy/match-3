@@ -1,0 +1,11 @@
+火山杖：
+wlopk2style, Yoneyama Mai Style,
+western fantasy style, DnD monster manual illustration, painterly fantasy,
+<krea2_prompt>
+  <subject>the Volcanic Staff, a spire-warden rod of black basalt whose crown is a crater-cup of cooled lava holding three live red gems, the sole subject in a medium-close shot, dominating most of the frame, weapon only</subject>
+  <details>the crater rim crazed with glowing hairline vents, umber iron bands sweating heat-shimmer, a drift of cinder-motes orbiting the cup on a slow thermal</details>
+  <pose>standing upright in ash-grit on its own, the crater flaring as a spray of red gem-sparks and ember motes vents upward, crater vents and iron bands clearly readable, no bearer, no hands</pose>
+  <environment>shattered tower flags under an ash-grey light, one single leaning spire far in the back, clean minimal backdrop, the staff fully unobstructed, no characters</environment>
+  <lighting>strong key light on the subject, clear readable details</lighting>
+  <style>clean anime-style weapon design over a simple photorealistic backdrop, basalt black, crater ember red, band umber palette, thumbnail-readable silhouette, no characters or hands in frame</style>
+</krea2_prompt>

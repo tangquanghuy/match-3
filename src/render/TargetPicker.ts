@@ -39,6 +39,17 @@ function ensureStyles(): void {
   .aim-overlay.locked.friendly .aim-reticle .ring{stroke:#57d47a}
   .aim-overlay.locked.friendly .aim-reticle .bracket{stroke:#8fe6a3}
   .aim-overlay.locked.friendly .aim-reticle .dot{fill:#d6ffe0}
+  /* B-11（UX 阶段 B）：选目标层也要一行说明 + Esc 告知（与 CellPicker 同款） */
+  .aim-hint{position:absolute;left:50%;top:10px;z-index:1210;transform:translateX(-50%);
+    max-width:86%;padding:7px 14px;border-radius:7px;pointer-events:none;text-align:center;
+    background:rgba(10,8,6,.92);border:1px solid rgba(216,194,144,.5);
+    box-shadow:0 4px 14px rgba(0,0,0,.6);
+    font-family:"Oswald","Microsoft YaHei",sans-serif;font-size:13px;letter-spacing:.04em;
+    line-height:1.5;color:#f4e6c4;animation:aimHintIn .2s ease-out}
+  .aim-hint em{font-style:normal;color:#a89974;margin-left:8px;font-size:12px}
+  @keyframes aimHintIn{from{opacity:0;transform:translateX(-50%) translateY(-6px)}
+    to{opacity:1;transform:translateX(-50%) translateY(0)}}
+  @media (prefers-reduced-motion:reduce){.aim-hint{animation:none}}
   `;
   const style = document.createElement('style');
   style.id = 'aim-picker-styles';
@@ -55,12 +66,15 @@ export class TargetPicker {
    * @param cards  候选目标卡（已按引擎候选过滤）
    * @param overlayParent 承载瞄准 SVG 的容器（建议 wrapper，覆盖全画面）
    * @param friendly 是否为友善目标（治疗/增益盟友）：true→锁定翠绿，false→锁定赤红
+   * @param hint 顶部提示文案（B-11）。缺省按 friendly 给「选择一名盟友/敌人」；
+   *             `Esc 取消` 由本方法统一追加。
    */
   pick(
     origin: CharacterCard,
     cards: CharacterCard[],
     overlayParent: HTMLElement,
     friendly = false,
+    hint?: string,
   ): Promise<number | null> {
     this.cancel();
     ensureStyles();
@@ -119,6 +133,15 @@ export class TargetPicker {
         </g>
       `;
       overlayParent.appendChild(svg);
+
+      const hintEl = document.createElement('div');
+      hintEl.className = 'aim-hint';
+      hintEl.setAttribute('role', 'status');
+      hintEl.textContent = hint ?? (friendly ? '选择一名盟友作为目标' : '选择一名敌人作为目标');
+      const escNote = document.createElement('em');
+      escNote.textContent = 'Esc 取消';
+      hintEl.appendChild(escNote);
+      overlayParent.appendChild(hintEl);
 
       const beam = svg.querySelector('.aim-beam') as SVGPathElement;
       const beamCore = svg.querySelector('.aim-beam-core') as SVGPathElement;
@@ -222,6 +245,7 @@ export class TargetPicker {
         window.removeEventListener('click', onDocClick, { capture: true });
         origin.el.classList.remove('casting-origin');
         svg.remove();
+        hintEl.remove();
       });
 
       render();

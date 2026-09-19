@@ -1,0 +1,11 @@
+试用灵药：
+wlopk2style, Yoneyama Mai Style,
+western fantasy style, DnD monster manual illustration, painterly fantasy,
+<krea2_prompt>
+  <subject>a goblin alchemist's trial flask, its bulbous glass half-filled with a muddy brew that keeps changing its mind, the sole subject in a medium-close shot, dominating most of the frame, weapon only</subject>
+  <details>a cork gagged down with copper wire, a hand-scratched hazard label curling off the glass, the brew blinking brown to green to a defiant gold</details>
+  <pose>standing level on its own as the brew gives one hiccup and sheds a single bright bubble, label scratches clearly readable, no bearer, no hands</pose>
+  <environment>workbench-scarred boards under murky green haze, clean minimal backdrop, the flask fully unobstructed, no characters</environment>
+  <lighting>strong key light on the subject, clear readable details</lighting>
+  <style>clean anime-style weapon design over a simple photorealistic backdrop, brew brown, hazard green, copper wire palette, thumbnail-readable silhouette, no characters or hands in frame</style>
+</krea2_prompt>

@@ -1,0 +1,11 @@
+暗黑榔头：
+wlopk2style, Yoneyama Mai Style,
+western fantasy style, DnD monster manual illustration, painterly fantasy,
+<krea2_prompt>
+  <subject>a smith-of-sins hammer whose head is forged from a hundred melted curse-coins, their faces still legible, the sole subject in a medium-close shot, dominating most of the frame, weapon only</subject>
+  <details>coin-edge seams crawling red-hot, curse-script pooling purple in the letter hollows, a haft of forged prison-bar iron</details>
+  <pose>raised overhead on its own as the coin seams run and shed a slow drip of violet light, coin faces clearly readable, no bearer, no hands</pose>
+  <environment>a dark forge floor under coal-red haze, clean minimal backdrop, the hammer fully unobstructed, no characters</environment>
+  <lighting>strong key light on the subject, clear readable details</lighting>
+  <style>clean anime-style weapon design over a simple photorealistic backdrop, coin red, curse violet, bar iron palette, thumbnail-readable silhouette, no characters or hands in frame</style>
+</krea2_prompt>

@@ -1,0 +1,11 @@
+岩石切碎刀：
+wlopk2style, Yoneyama Mai Style,
+western fantasy style, DnD monster manual illustration, painterly fantasy,
+<krea2_prompt>
+  <subject>the Stonecutter, a monster-plain dagger with a blade of chipped red flint set in a jaws-of-bone socket hilt, the sole subject in a medium-close shot, dominating most of the frame, weapon only</subject>
+  <details>knapped facet scars down both faces, sinew-and-pitch binding at the socket, a dawn-gold dust worn into the flint's grain</details>
+  <pose>standing socket-down in cracked scree on its own, a shiver of red shards and gold dust sifting off the knapped edge, facet scars and binding clearly readable, no bearer, no hands</pose>
+  <environment>bone-littered scree under a dusty ochre light, one single rib-arch far in the back, clean minimal backdrop, the dagger fully unobstructed, no characters</environment>
+  <lighting>strong key light on the subject, clear readable details</lighting>
+  <style>clean anime-style weapon design over a simple photorealistic backdrop, flint red, bone ivory, dust gold palette, thumbnail-readable silhouette, no characters or hands in frame</style>
+</krea2_prompt>

@@ -171,7 +171,7 @@ export function applySettlement(
   if (ctx.plan.source.kind === 'event') {
     const source = ctx.plan.source;
     const typeId = source.typeId as EventTypeId;
-    const week = ensureEventWeek(save, source.weekStart);
+    const week = ensureEventWeek(save, source.weekStart, typeId);
     if (victory) {
       let points = eventPointsOf(ctx.plan);
       if (typeId === 'classTrials') {
@@ -184,6 +184,7 @@ export function applySettlement(
       week.wins += 1;
       const tokensGain = eventTokensFor(points);
       week.tokens += tokensGain;
+      week.tokensEarned += tokensGain;
       lines.push({
         key: 'event-points',
         label: `活动积分 +${points}`,
@@ -202,7 +203,7 @@ export function applySettlement(
 
     // 里程碑：世界事件按物资，其余按积分
     const metric = typeId === 'worldEvent' ? (week.eventData[EVENT_STATE_KEYS.supplies] ?? 0) : week.points;
-    for (const gain of eventMilestonesReached(source.weekStart, metric, week.claimed)) {
+    for (const gain of eventMilestonesReached(typeId, metric, week.claimed)) {
       const m = gain.milestone;
       week.claimed.push(gain.index);
       const applied = earn(save, {

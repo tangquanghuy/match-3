@@ -1,0 +1,11 @@
+神圣符文：
+wlopk2style, Yoneyama Mai Style,
+western fantasy style, DnD monster manual illustration, painterly fantasy,
+<krea2_prompt>
+  <subject>the Holy Symbol, a gilded sun-disc reliquary on a chain, its rim set with twelve reliquary studs and its face pierced into a rayed cross, the sole subject in a medium-close shot, dominating most of the frame, weapon only</subject>
+  <details>a barrier-halo of warm light standing off the disc's edge, the pierced cross throwing a wheel of light on the air behind it, incense-smoke curling through the cutouts</details>
+  <pose>hanging upright and turning a slow quarter on its own, the light-wheel sweeping the haze, studs and pierced cross clearly readable, no bearer, no hands</pose>
+  <environment>pale marble flags under a warm incense haze, a single blurred bell tower far in the back, clean minimal backdrop, the disc fully unobstructed, no characters</environment>
+  <lighting>strong key light on the subject, clear readable details</lighting>
+  <style>clean anime-style weapon design over a simple photorealistic backdrop, reliquary gold, halo white, incense cream palette, thumbnail-readable silhouette, no characters or hands in frame</style>
+</krea2_prompt>

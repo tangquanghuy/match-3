@@ -7,7 +7,6 @@ import type { TeamPreset, TroopRecord } from '../state/schema';
 import { MAX_TEAM_SIZE, MIN_TEAM_SIZE } from '../systems/teamRules';
 import {
   MAX_ASCENSION,
-  RARITY_ORDER,
   ascensionCopiesNeeded,
   decomposeYield,
   levelCapFor,
@@ -29,11 +28,10 @@ import {
 } from '../shell/spellText';
 
 const fmt = (n: number): string => n.toLocaleString('en-US');
-const spaced = (name: string): string => name.split('').join(' ');
 
 const COLOR_CN: Record<string, string> = { red: '红', green: '绿', blue: '蓝', yellow: '黄', purple: '紫', brown: '棕' };
 /** 稀有度中文（与品质 chip 文案同源） */
-const RARITY_CN = ['普通', '非普', '稀有', '超稀有', '史诗', '传说'] as const;
+const RARITY_CN = ['普通', '精良', '稀有', '传说', '史诗', '神话'] as const;
 /** 筛选维度（摘要 chip 撤销 / 空态逐条回退用） */
 type FilterDim = 'rarity' | 'color' | 'type' | 'kingdom' | 'search' | 'tab';
 
@@ -121,13 +119,13 @@ export class TroopScreen implements Screen {
       <div class="ambient" aria-hidden="true"></div>
       ${topbarHtml()}
       <main id="detail">
-        <div class="page-heading"><button class="back" id="back"><span data-icon="arrow"></span>返回图鉴</button><div class="heading-center"><small>TROOP & TRAITS</small><h1>部 队 详 情</h1></div><span class="page-index">图鉴 <b id="pageIndex">001</b> / <span id="pageTotal">000</span></span></div>
+        <div class="page-heading"><button class="back" id="back"><span data-icon="arrow"></span>返回图鉴</button><div class="heading-center"><h1>部队详情</h1></div><span class="page-index">图鉴 <b id="pageIndex">001</b> / <span id="pageTotal">000</span></span></div>
         <div class="detail-layout">
           <section class="left-column">
             <article class="spell">
               <header class="spell-head">
                 <div class="spell-mark" id="spellMark"></div>
-                <div class="spell-title"><small>ACTIVE SPELL</small><h2 id="spellName">—</h2></div>
+                <div class="spell-title"><h2 id="spellName">—</h2></div>
               </header>
               <div class="spell-body">
                 <div class="ink-rule"><i></i><span id="spellTag">部队法术</span><i></i></div>
@@ -146,7 +144,6 @@ export class TroopScreen implements Screen {
               <div class="growth-track"><i id="growthFill"></i></div>
               <div class="growth-benefit"><span>下一级</span><span id="growthNext">—</span></div>
               <button class="primary" id="upgrade"><span data-icon="chevrons"></span><span>提升等级</span><span class="price"><span data-icon="soul"></span><b id="upgradeCost">0</b></span></button>
-              <small class="shared-note">成长对同名部队的全部副本生效</small>
             </section>
             <section class="growth danger" id="decomposeSection">
               <div class="section-line"><h2>分解 / 保护</h2><span id="decomposeYield">—</span></div>
@@ -158,66 +155,65 @@ export class TroopScreen implements Screen {
             </section>
           </section>
           <section class="portrait-column" aria-label="部队卡">
-            <div class="rarity-label" id="rarityBadge"><i></i><span id="rarityLabel">—</span><i></i></div>
+            <div class="rarity-label" id="rarityBadge"><span class="rarity-gem" aria-hidden="true"></span><strong id="rarityLabel">—</strong></div>
             <div class="card-stage">
               <article class="character-card" id="characterCard">
                 <img class="portrait" id="portraitArt" alt=""><div class="portrait-shade"></div><div class="card-frame" aria-hidden="true"></div>
                 <span class="unowned-mark" id="unownedMark" hidden><span data-icon="lock"></span>未获得</span>
-                <div class="mana-gem" id="manaGem" role="img" aria-label="法力颜色"></div><div class="magic-badge"><span data-icon="orb"></span><b id="magicStat">0</b></div><div class="trait-diamonds" aria-label="0 / 3 特质已解锁"><i></i><i></i><i></i></div>
-                <div class="card-name"><small id="cardTitle">TROOP</small><h2 id="cardName">—</h2><span id="cardType">—</span></div><div class="card-stats"><div class="stat-atk"><span data-icon="swords"></span><b id="attackStat">0</b></div><div class="stat-armor"><span data-icon="shield"></span><b id="armorStat">0</b></div><div class="stat-hp"><span data-icon="heart"></span><b id="healthStat">0</b></div></div>
-                <div class="card-level"><span>LEVEL <b id="cardLevel">1</b><i>/<span id="cardLevelCap">15</span></i></span><div class="rank" id="rankPips"></div><span id="owned">×1</span></div>
+                <div class="mana-gem" id="manaGem" role="img" aria-label="法力颜色"></div><div class="magic-badge"><span data-icon="orb"></span><b id="magicStat">0</b></div>
+                <div class="card-name"><h2 id="cardName">—</h2><span id="cardType">—</span></div><div class="card-stats"><div class="stat-atk"><span data-icon="swords"></span><b id="attackStat">0</b></div><div class="stat-armor"><span data-icon="shield"></span><b id="armorStat">0</b></div><div class="stat-hp"><span data-icon="heart"></span><b id="healthStat">0</b></div></div>
+                <div class="card-level"><span>等级 <b id="cardLevel">1</b><i>/<span id="cardLevelCap">15</span></i></span><div class="rank" id="rankPips"></div><span id="owned">×1</span></div>
               </article>
               <div class="card-ornament" data-ornament></div>
             </div>
             <div class="portrait-controls"><button id="previous" aria-label="上一张（当前筛选集合内）"><span data-icon="arrow"></span></button><span id="portraitCaption">—</span><button id="next" aria-label="下一张（当前筛选集合内）"><span data-icon="arrow"></span></button></div>
-            <!-- T-5 养成动线出口：编入队伍。行内样式是临时占位，L 交付 .btn 基类后换类名 -->
-            <div class="enlist-row" id="enlistRow" style="display:flex;gap:10px;align-items:stretch;margin-top:10px">
-              <button class="primary" id="enlist" style="flex:1"><span data-icon="shield"></span><span id="enlistLabel">编入队伍</span></button>
-              <select id="enlistSlot" aria-label="选择站位" style="min-width:148px"></select>
+            <div class="enlist-row" id="enlistRow">
+              <button class="primary" id="enlist" type="button"><span data-icon="shield"></span><span id="enlistLabel">编入队伍</span></button>
+              <select id="enlistSlot" aria-label="选择站位"></select>
             </div>
-            <small class="shared-note" id="enlistHint">—</small>
           </section>
           <section class="right-column">
-            <div class="trait-heading"><div><small>PASSIVE ABILITIES</small><h2>天赋特质</h2></div><span id="traitCount">0 / 3 已解锁</span></div>
+            <div class="trait-heading"><h2>天赋特质</h2><span id="traitCount">0 / 3 已解锁</span></div>
             <div class="trait-list" id="traitList"></div>
             <div class="unlock-block">
               <div class="unlock-cost" id="unlockCost">—</div>
               <button class="secondary" id="unlock"><span data-icon="lock"></span><span id="unlockLabel">解锁特质</span></button>
             </div>
             <section class="ascension">
-              <div class="section-line"><h2>升阶</h2><span><b id="copies">0</b> / <span id="copiesNeed">5</span></span></div>
-              <div class="growth-benefit"><span>收益</span><span id="ascendBenefit">—</span></div>
+              <div class="section-line"><h2>升阶</h2><span class="ascension-count"><small id="ascensionCountLabel">可用副本</small><b id="copies">0</b><i>/</i><span id="copiesNeed">5</span></span></div>
               <div class="ascension-gems" id="ascensionGems" aria-label="同名卡"></div>
-              <div class="ascension-caption"><span id="copyCaption">—</span><button id="ascend">升一阶</button></div>
+              <div class="ascension-benefit" id="ascendBenefit">—</div>
+              <div class="ascension-caption"><span id="copyCaption">—</span><button id="ascend">升阶</button></div>
             </section>
             <div class="protected" id="protectedNote" hidden><span data-icon="lock"></span>已锁定 · 防止误分解</div>
           </section>
         </div>
       </main>
       <main id="collection" hidden>
-        <div class="collection-heading"><div><small>THE BESTIARY · ${fmt(TROOPS.length)} CARDS</small><h1>我的收藏</h1></div><span>已拥有 <b id="ownedTotal">0</b> / ${fmt(TROOPS.length)} 名部队</span><button class="secondary" id="returnDetail">查看详情<span data-icon="arrow"></span></button></div>
-        <div class="collection-progress"><span>总进度</span><div><i id="ownedProgress" style="width:0%"></i></div><b id="ownedPercent">0%</b></div>
+        <div class="collection-heading"><div><small>THE BESTIARY</small><h1>我的收藏</h1></div></div>
         <div class="collection-filter">
           <div class="filter-row">
-            <button class="selected" data-tab="owned">已拥有 <i id="tabOwnedCount">0</i></button><button data-tab="all">全部 <i id="tabAllCount">${fmt(TROOPS.length)}</i></button>
+            <div class="collection-scope" role="group" aria-label="显示范围">
+              <button class="selected" type="button" data-tab="owned">已拥有 <i id="tabOwnedCount">0</i></button><button type="button" data-tab="all">全部 <i id="tabAllCount">${fmt(TROOPS.length)}</i></button>
+            </div>
             <span class="divider"></span>
             <small class="filter-label">品质</small>
-            <div class="rarity-chips" id="rarityChips">
-              <button class="filter-chip selected" data-rarity="">全部 <i data-chip-count></i></button>
-              <button class="filter-chip" data-rarity="0">普通 <i data-chip-count></i></button>
-              <button class="filter-chip" data-rarity="1">非普 <i data-chip-count></i></button>
-              <button class="filter-chip" data-rarity="2">稀有 <i data-chip-count></i></button>
-              <button class="filter-chip" data-rarity="3">超稀有 <i data-chip-count></i></button>
-              <button class="filter-chip" data-rarity="4">史诗 <i data-chip-count></i></button>
-              <button class="filter-chip" data-rarity="5">传说 <i data-chip-count></i></button>
+            <div class="rarity-chips" id="rarityChips" role="group" aria-label="品质筛选">
+              <button class="filter-chip selected" type="button" data-rarity="">全部 <i data-chip-count></i></button>
+              <button class="filter-chip" type="button" data-rarity="0">普通 <i data-chip-count></i></button>
+              <button class="filter-chip" type="button" data-rarity="1">精良 <i data-chip-count></i></button>
+              <button class="filter-chip" type="button" data-rarity="2">稀有 <i data-chip-count></i></button>
+              <button class="filter-chip" type="button" data-rarity="3">传说 <i data-chip-count></i></button>
+              <button class="filter-chip" type="button" data-rarity="4">史诗 <i data-chip-count></i></button>
+              <button class="filter-chip" type="button" data-rarity="5">神话 <i data-chip-count></i></button>
             </div>
             <span class="divider"></span>
             <small class="filter-label">魔法</small>
-            <div class="color-chips" id="colorChips"></div>
+            <div class="color-chips" id="colorChips" role="group" aria-label="魔法颜色筛选"></div>
             <span class="divider"></span>
             <select id="typeSelect" aria-label="按种族筛选"><option value="">全部种族</option></select>
             <select id="kingdomSelect" aria-label="按王国筛选"><option value="">全部王国</option></select>
-            <button class="filter-reset is-off" id="resetFilters">重置筛选</button>
+            <button class="filter-reset is-off" id="resetFilters" type="button" aria-label="重置全部筛选" title="重置全部筛选"><span data-icon="close"></span>重置</button>
           </div>
           <div class="filter-row filter-row-foot">
             <span class="filter-label">排序</span>
@@ -227,19 +223,18 @@ export class TroopScreen implements Screen {
             <span class="filter-label">分组</span>
             <select id="groupSelect" aria-label="分组方式"><option value="none">不分组</option><option value="kingdom">按王国</option></select>
             <span class="divider"></span>
-            <div class="active-filters" id="activeFilters" style="display:flex;gap:5px;flex-wrap:nowrap"></div>
+            <div class="active-filters" id="activeFilters"></div>
             <small id="shownCount"></small>
             <label class="filter-search"><span data-icon="funnel"></span><input id="collectionSearch" placeholder="搜索名字 / 法术 / 特质"></label>
           </div>
         </div>
         <div id="collectionBands"></div>
-        <p class="collection-note">点击卡片查看养成详情 · 未获得的部队也可查看图鉴资料</p>
       </main>
       ${bottomNavHtml('图鉴', `全图鉴 ${fmt(TROOPS.length)} 支`)}
       ${toastHtml()}
-      <div class="modal-veil" id="modal" hidden><section class="modal etched" role="dialog" aria-modal="true" aria-labelledby="modalTitle"><small>TROOP GROWTH</small><h2 id="modalTitle">提升部队等级</h2><p id="modalCopy">—</p><ul class="modal-lines" id="modalPreview"></ul><button class="primary" id="confirmUpgrade">确认提升</button><button class="cancel" id="cancelUpgrade">暂不提升</button></section></div>
+      <div class="modal-veil" id="modal" hidden><section class="modal etched" role="dialog" aria-modal="true" aria-labelledby="modalTitle"><h2 id="modalTitle">提升部队等级</h2><p id="modalCopy">—</p><ul class="modal-lines" id="modalPreview"></ul><button class="primary" id="confirmUpgrade">确认提升</button><button class="cancel" id="cancelUpgrade">暂不提升</button></section></div>
       <!-- T-16：分解是永久销毁，自绘危险确认弹层替掉浏览器原生 confirm() -->
-      <div class="modal-veil" id="dangerModal" hidden><section class="modal etched danger" role="dialog" aria-modal="true" aria-labelledby="dangerTitle"><small>PERMANENT ACTION</small><h2 id="dangerTitle">分解副本</h2><p id="dangerCopy">—</p><ul class="modal-lines" id="dangerPreview"></ul><button class="primary" id="confirmDanger">确认分解</button><button class="cancel" id="cancelDanger">取消</button></section></div>`;
+      <div class="modal-veil" id="dangerModal" hidden><section class="modal etched danger" role="dialog" aria-modal="true" aria-labelledby="dangerTitle"><h2 id="dangerTitle">分解副本</h2><p id="dangerCopy">—</p><ul class="modal-lines" id="dangerPreview"></ul><button class="primary" id="confirmDanger">确认分解</button><button class="cancel" id="cancelDanger">取消</button></section></div>`;
   }
 
   mount(ctx: ShellCtx, _root: HTMLElement, param?: string): void {
@@ -263,7 +258,6 @@ export class TroopScreen implements Screen {
     }
 
     this.bind('#back', 'click', () => this.showView('collection', true));
-    this.bind('#returnDetail', 'click', () => this.showView('detail'));
     this.bind('#previous', 'click', () => this.stepOwned(-1));
     this.bind('#next', 'click', () => this.stepOwned(1));
     this.bind('#upgrade', 'click', () => this.openUpgradeModal());
@@ -279,7 +273,6 @@ export class TroopScreen implements Screen {
     $$('#collection [data-tab]').forEach((tab) =>
       this.on(tab, 'click', () => {
         this.collectionMode = (tab as HTMLElement).dataset.tab as 'owned' | 'all';
-        $$('#collection [data-tab]').forEach((x) => x.classList.toggle('selected', x === tab));
         this.renderCollection();
       }),
     );
@@ -287,18 +280,16 @@ export class TroopScreen implements Screen {
       const chip = (e.target as HTMLElement).closest('[data-rarity]') as HTMLElement | null;
       if (!chip) return;
       this.rarityFilter = chip.dataset.rarity === '' ? null : Number(chip.dataset.rarity);
-      $$('#rarityChips [data-rarity]').forEach((x) => x.classList.toggle('selected', x === chip));
       this.renderCollection();
     });
     const colorChips = $('#colorChips');
     colorChips.innerHTML = COLOR_ORDER.map(
-      (c) => `<button class="color-chip" data-color="${c}" title="${COLOR_CN[c]}色魔法">${gemSvg([c])}</button>`,
+      (c) => `<button class="color-chip" type="button" data-color="${c}" aria-label="${COLOR_CN[c]}色魔法" title="${COLOR_CN[c]}色魔法">${gemSvg([c])}</button>`,
     ).join('');
     this.on(colorChips, 'click', (e) => {
       const chip = (e.target as HTMLElement).closest('[data-color]') as HTMLElement | null;
       if (!chip) return;
       this.colorFilter = this.colorFilter === chip.dataset.color ? null : chip.dataset.color!;
-      $$('#colorChips [data-color]').forEach((x) => x.classList.toggle('selected', x.dataset.color === this.colorFilter));
       this.renderCollection();
     });
     // 种族 34 项：按中文名排序（阶段 A：顺序 = 数据出现顺序，无序不可扫）
@@ -353,6 +344,10 @@ export class TroopScreen implements Screen {
       const action = act.dataset.emptyAct!;
       if (action === 'chests' || action === 'map') return void this.ctx.navigate('#' + action);
       if (action === 'reset') return this.resetFilters();
+      if (action === 'tab') {
+        this.collectionMode = 'all';
+        return this.renderCollection();
+      }
       if (action === 'clear-search') {
         ($('#collectionSearch') as HTMLInputElement).value = '';
         return this.renderCollection();
@@ -427,7 +422,6 @@ export class TroopScreen implements Screen {
     const stats = troopStatsOf(troop, rec);
     const cap = levelCapFor(troop.rarityIdx, rec.ascension);
     const tier = rarityTierOf(troop, rec);
-    const rarityName = (RARITY_ORDER[tier] ?? 'COMMON').toUpperCase();
 
     const portraitEl = $('#portraitArt') as HTMLImageElement;
     const artChain = troopArtChain(troop);
@@ -435,12 +429,17 @@ export class TroopScreen implements Screen {
     portraitEl.src = artChain[0]!;
     portraitEl.alt = troop.name;
     $('#characterCard').classList.toggle('unowned', !owned);
+    ($('#characterCard') as HTMLElement).dataset.rarity = String(tier);
     $('#unownedMark').hidden = owned;
-    $('#cardTitle').textContent = troop.referenceName.toUpperCase();
-    $('#cardName').textContent = spaced(troop.name);
-    $('#cardType').textContent = typeCn(troop.troopTypes) + (troop.kingdom ? ' · ' + troop.kingdom : '');
-    $('#rarityLabel').textContent = `${RARITY_CN[tier] ?? ''} · ${rarityName}`;
-    $('#rarityBadge').dataset.rarity = String(tier);
+    $('#cardName').textContent = troop.name;
+    $('#cardType').textContent = typeCn(troop.troopTypes) + (troop.kingdom ? ' · ' + troop.kingdom : '') + ` · ${RARITY_CN[tier]}`;
+    $('#rarityLabel').textContent = RARITY_CN[tier] ?? '';
+    const rarityBadge = $('#rarityBadge');
+    rarityBadge.dataset.rarity = String(tier);
+    rarityBadge.title = tier === troop.rarityIdx
+      ? `当前品质：${RARITY_CN[tier]}`
+      : `当前品质：${RARITY_CN[tier]} · 初始品质：${RARITY_CN[troop.rarityIdx]}`;
+    rarityBadge.setAttribute('aria-label', rarityBadge.title);
     $('#magicStat').textContent = String(stats.magic);
     $('#attackStat').textContent = String(stats.attack);
     $('#armorStat').textContent = String(stats.armor);
@@ -451,9 +450,8 @@ export class TroopScreen implements Screen {
     $('#growthCap').textContent = String(cap);
     $('#growthFill').style.width = `${(rec.level / cap) * 100}%`;
     $('#owned').textContent = owned ? '×' + (rec.copies + 1) : '×0';
-    $('#copies').textContent = String(rec.copies);
     $('#copyCaption').textContent = owned ? `持有 ${rec.copies + 1} 张 · 可用副本 ${rec.copies} 张` : '尚未获得 · 图鉴资料仅供参考';
-    $('#portraitCaption').innerHTML = owned ? `${troop.name} <i>·</i> 已拥有 ${rec.copies + 1} 张` : `${troop.name} <i>·</i> 尚未获得`;
+    $('#portraitCaption').textContent = owned ? `已拥有 ${rec.copies + 1} 张` : '尚未获得';
     $('#rankPips').innerHTML = [0, 1, 2].map((i) => `<i${i < rec.ascension ? ' class="on"' : ''}></i>`).join('');
     // 页码按全图鉴（1798）导航，左右箭头同样遍历全图鉴
     const dex = TROOPS.map((t) => t.id);
@@ -477,7 +475,7 @@ export class TroopScreen implements Screen {
     this.magic = magic;
     const parsed = renderSpell(troop.spell.description, magic);
     this.formulas = parsed.formulas;
-    $('#spellName').textContent = spaced(troop.spell.name);
+    $('#spellName').textContent = troop.spell.name;
     $('#spellTag').textContent = troop.kingdom ? `${troop.kingdom} · 部队法术` : '部队法术';
     $('#spellCopy').innerHTML = parsed.html;
     $('#spellMark').innerHTML = gemSvg(troop.manaColors.map((c) => c.toLowerCase())) + `<b>${troop.manaCost}</b>`;
@@ -574,7 +572,9 @@ export class TroopScreen implements Screen {
     const short = owned && !atCap && souls < cost;
     btn.disabled = !owned || atCap || short;
     // T-10 配套：代价旁边就是余额，买不起直接写"还差多少"而不是点下去赌 toast
-    btn.title = short ? `灵魂不足：需要 ${fmt(cost)}，现有 ${fmt(souls)}` : '';
+    btn.title = short
+      ? `灵魂不足：需要 ${fmt(cost)}，现有 ${fmt(souls)}`
+      : '提升等级对同名部队的全部副本生效';
     $('#upgradeCost').innerHTML = owned
       ? short
         ? `${fmt(cost)} <em class="short">还差 ${fmt(cost - souls)}</em>`
@@ -598,14 +598,12 @@ export class TroopScreen implements Screen {
         const glyph = glyphs[i]!;
         return `<article class="trait${unlocked ? '' : ' locked'}"${i === 2 ? ' id="lastTrait"' : ''}>
           <span class="trait-glyph">${glyph}</span>
-          <div><small>TRAIT ${['I', 'II', 'III'][i]}</small><h3>${spaced(name)}</h3><p>${text.replace(/(\d+(?:\.\d+)?%?)/g, '<b class="spell-stat">$1</b>')}</p></div>
-          <span class="${unlocked ? 'acquired' : 'lock-icon'}" data-icon="${unlocked ? 'check' : 'lock'}"></span>
+          <div class="trait-copy"><h3>${name}</h3><p>${text.replace(/(\d+(?:\.\d+)?%?)/g, '<b class="spell-stat">$1</b>')}</p></div>
+          <span class="${unlocked ? 'acquired' : 'lock-icon'}" data-icon="${unlocked ? 'check' : 'lock'}" role="img" aria-label="${unlocked ? '已解锁' : '尚未解锁'}"></span>
         </article>`;
       })
       .join('');
     mountIcons(list);
-    document.querySelectorAll('.trait-diamonds i').forEach((el, i) => el.classList.toggle('on', i < unlockedCount));
-
     // 下一个待解锁槽位与代价
     const nextSlot = rec.traits.findIndex((v) => !v) + 1;
     const unlockBtn = $('#unlock') as HTMLButtonElement;
@@ -644,32 +642,36 @@ export class TroopScreen implements Screen {
 
   private paintAscension(troop: TroopData, rec: TroopRecord, owned: boolean): void {
     const need = rec.ascension >= MAX_ASCENSION ? 0 : ascensionCopiesNeeded(rec.ascension);
-    // T-10：升阶换来什么——阶段 A 只写 2/5，收益那句话只在成功后的 toast 里出现过
     const capNow = levelCapFor(troop.rarityIdx, rec.ascension);
     const capNext = levelCapFor(troop.rarityIdx, rec.ascension + 1);
-    const benefit = $('#ascendBenefit');
-    if (benefit) {
-      benefit.innerHTML =
-        rec.ascension >= MAX_ASCENSION
-          ? '已满阶 · 等级上限已到顶'
-          : `升一阶 → 等级上限 <b>${capNow} → ${capNext}</b>${capNext === capNow ? '（本档已到表尾，升阶只加星标）' : ''} · 稀有度档 +1`;
-    }
-    $('#copiesNeed').textContent = String(need);
+    const tierNow = rarityTierOf(troop, rec);
+    const tierNext = Math.min(tierNow + 1, 5);
+    $('#ascendBenefit').innerHTML = rec.ascension >= MAX_ASCENSION
+      ? `<span>当前品质 <b>${RARITY_CN[tierNow]}</b></span><span>等级上限 <b>${capNow}</b></span>`
+      : tierNext === tierNow
+        ? '<span>已达最高品质 · 升阶保留星标</span>'
+        : `<span>品质 <b>${RARITY_CN[tierNow]}</b><i>→</i><b>${RARITY_CN[tierNext]}</b></span><span>等级上限 <b>${capNow}</b><i>→</i><b>${capNext}</b></span>`;
+    $('#ascensionCountLabel').textContent = need ? '可用副本' : '当前阶位';
+    $('#copies').textContent = String(need ? rec.copies : rec.ascension);
+    $('#copiesNeed').textContent = String(need || MAX_ASCENSION);
     const gems = $('#ascensionGems');
-    gems.innerHTML = Array.from({ length: Math.max(need, 0) }, (_, i) => `<i${i < rec.copies ? ' class="on"' : ''}></i>`).join('');
-    gems.setAttribute('aria-label', `${rec.copies} / ${need} 同名卡`);
+    gems.innerHTML = Array.from({ length: need || MAX_ASCENSION }, (_, i) => `<i${i < (need ? rec.copies : rec.ascension) ? ' class="on"' : ''}></i>`).join('');
+    gems.setAttribute('aria-label', need ? `${rec.copies} / ${need} 可用副本` : `${rec.ascension} / ${MAX_ASCENSION} 阶`);
     const btn = $('#ascend') as HTMLButtonElement;
     if (!owned) {
       btn.disabled = true;
       btn.textContent = '尚未获得';
+      btn.title = '';
       $('#copyCaption').textContent = '尚未获得 · 图鉴资料仅供参考';
     } else if (rec.ascension >= MAX_ASCENSION) {
       btn.disabled = true;
       btn.textContent = '已满阶';
+      btn.title = '';
       $('#copyCaption').textContent = `持有 ${rec.copies + 1} 张 · 三阶满阶`;
     } else {
       btn.disabled = rec.copies < need;
-      btn.textContent = rec.copies < need ? '副本不足' : '升一阶';
+      btn.textContent = rec.copies < need ? `还差 ${need - rec.copies} 张` : '升阶';
+      btn.title = rec.copies < need ? `还差 ${need - rec.copies} 张同名副本` : `消耗 ${need} 张同名副本，不消耗本体`;
     }
   }
 
@@ -722,28 +724,38 @@ export class TroopScreen implements Screen {
     const row = $('#enlistRow');
     const btn = $('#enlist') as HTMLButtonElement;
     const slot = $('#enlistSlot') as HTMLSelectElement;
-    const hint = $('#enlistHint');
     if (!row || !btn || !slot) return;
     const team = this.team();
+    const setButtonStyle = (removing: boolean): void => {
+      btn.classList.toggle('primary', !removing);
+      btn.classList.toggle('secondary', removing);
+      btn.classList.toggle('remove', removing);
+      const glyph = btn.querySelector<HTMLElement>('[data-icon]');
+      if (glyph) {
+        glyph.dataset.icon = removing ? 'close' : 'shield';
+        glyph.innerHTML = icon(glyph.dataset.icon);
+      }
+    };
     if (!owned || !team) {
+      setButtonStyle(false);
       btn.disabled = true;
       slot.hidden = true;
       $('#enlistLabel').textContent = owned ? '还没有预设队' : '获得该部队后可编入队伍';
       const why = owned ? '先去队伍页建一支预设队。' : '尚未获得 · 图鉴资料仅供参考';
       btn.title = why;
-      if (hint) hint.textContent = why;
       return;
     }
     const at = team.preset.members.findIndex((m) => m.kind === 'troop' && m.troopId === this.currentId);
     if (at >= 0) {
+      setButtonStyle(true);
       btn.disabled = false;
       slot.hidden = true;
       $('#enlistLabel').textContent = `已在「${team.preset.name}」第 ${at + 1} 位 · 卸下`;
-      const why = `队伍 ${team.preset.members.length} 人 · 最少 ${MIN_TEAM_SIZE} 人`;
+      const why = `已在「${team.preset.name}」第 ${at + 1} 位 · 队伍最少 ${MIN_TEAM_SIZE} 人`;
       btn.title = why;
-      if (hint) hint.textContent = why;
       return;
     }
+    setButtonStyle(false);
     btn.disabled = false;
     slot.hidden = false;
     $('#enlistLabel').textContent = '编入队伍';
@@ -757,13 +769,12 @@ export class TroopScreen implements Screen {
         : member.kind === 'hero'
           ? '主角'
           : getTroopById(member.troopId)?.name ?? `#${member.troopId}`;
-      return `<option value="${i}">第 ${i + 1} 位（${who}）</option>`;
+      return `<option value="${i}">第${i + 1}位 · ${who}</option>`;
     }).join('');
     slot.value = keep && Number(keep) < slots ? keep : String(slots - 1);
     const why = `编入「${team.preset.name}」· 选中已有站位会替换该成员`;
     btn.title = why;
     slot.title = why;
-    if (hint) hint.textContent = why;
   }
 
   private async toggleEnlist(): Promise<void> {
@@ -1015,26 +1026,32 @@ export class TroopScreen implements Screen {
 
   /** 把内部筛选态写回控件（撤销单条/重置后控件要跟着变） */
   private syncFilterControls(): void {
-    $$('#rarityChips [data-rarity]').forEach((x) =>
-      x.classList.toggle('selected', (x.dataset.rarity === '' ? null : Number(x.dataset.rarity)) === this.rarityFilter),
-    );
-    $$('#colorChips [data-color]').forEach((x) => x.classList.toggle('selected', x.dataset.color === this.colorFilter));
+    $$('#rarityChips [data-rarity]').forEach((x) => {
+      const selected = (x.dataset.rarity === '' ? null : Number(x.dataset.rarity)) === this.rarityFilter;
+      x.classList.toggle('selected', selected);
+      x.setAttribute('aria-pressed', String(selected));
+    });
+    $$('#colorChips [data-color]').forEach((x) => {
+      const selected = x.dataset.color === this.colorFilter;
+      x.classList.toggle('selected', selected);
+      x.setAttribute('aria-pressed', String(selected));
+    });
     ($('#typeSelect') as HTMLSelectElement).value = this.typeFilter ?? '';
     ($('#kingdomSelect') as HTMLSelectElement).value = this.kingdomFilter ?? '';
     ($('#sortSelect') as HTMLSelectElement).value = this.sortKey;
     ($('#groupSelect') as HTMLSelectElement).value = this.groupMode;
-    $$('#collection [data-tab]').forEach((x) => x.classList.toggle('selected', x.dataset.tab === this.collectionMode));
+    $$('#collection [data-tab]').forEach((x) => {
+      const selected = x.dataset.tab === this.collectionMode;
+      x.classList.toggle('selected', selected);
+      x.setAttribute('aria-pressed', String(selected));
+    });
   }
 
   private renderCollection(): void {
+    this.syncFilterControls();
     const save = this.ctx.save();
-    const total = TROOPS.length;
     const ownedCount = Object.keys(save.collection).length;
-    $('#ownedTotal').textContent = fmt(ownedCount);
-    $('#ownedProgress').style.width = `${(ownedCount / total) * 100}%`;
-    $('#ownedPercent').textContent = `${((ownedCount / total) * 100).toFixed(1)}%`;
     $('#tabOwnedCount').textContent = fmt(ownedCount);
-    ($('#returnDetail') as HTMLButtonElement).disabled = ownedCount === 0 && !getTroopById(this.currentId);
 
     const query = this.searchQuery();
     const pool = this.pool();
@@ -1059,7 +1076,7 @@ export class TroopScreen implements Screen {
       .join('');
     // T-15：用 visibility 占位而不是 hidden，避免整行左右抖 34px
     $('#resetFilters').classList.toggle('is-off', active.length === 0);
-    $('#shownCount').textContent = `匹配 ${fmt(sorted.length)} 支`;
+    $('#shownCount').textContent = active.some((f) => f.dim !== 'tab') ? `匹配 ${fmt(sorted.length)} 支` : '';
 
     const container = $('#collectionBands');
     if (!sorted.length) {
@@ -1121,24 +1138,17 @@ export class TroopScreen implements Screen {
     return `<div class="kingdom-section"><div class="kingdom-band"><span class="band-mark"></span><b>${kingdom}</b><small>收藏进度 ${ownedInKingdom} / ${troops.length}</small><div><i style="width:${pct}%"></i></div></div><div class="collection-cards">${troops.map((t) => this.cardHtml(t)).join('')}</div></div>`;
   }
 
-  /** 卡面（T-7/T-8：魔法值加图标不再被读成张数；补攻/护/生与副本数） */
+  /** 浏览卡只负责辨认立绘；战斗数值和副本资料在详情页查看。 */
   private cardHtml(t: TroopData): string {
     const rec = this.ctx.save().collection[String(t.id)];
     const locked = !rec;
-    const stats = troopStatsOf(t, rec ?? UNOWNED_REC);
-    const line = locked
-      ? '尚未获得'
-      : `Lv.${rec!.level}${rec!.ascension ? ' ★' + rec!.ascension : ''} · ${rec!.copies + 1} 张`;
-    return `<button class="collection-card r-${t.rarityIdx}${locked ? ' locked' : ''}" data-troop="${t.id}" aria-label="查看${t.name}（${RARITY_ORDER[t.rarityIdx]}）">
+    const level = locked ? '未获得' : `Lv.${rec.level}`;
+    return `<button class="collection-card r-${t.rarityIdx}${locked ? ' locked' : ''}" data-troop="${t.id}" aria-label="查看${t.name}详情（${RARITY_CN[t.rarityIdx]}，${level}）">
       <i class="rarity-edge" aria-hidden="true"></i>
-      ${troopImg(t, false, `alt="${t.name}"`)}
+      ${troopImg(t, false, 'alt=""')}
       <span class="collection-mana">${gemSvg(t.manaColors.map((c) => c.toLowerCase()))}</span>
-      <span class="magic-badge" title="魔法 ${stats.magic}">${icon('orb')}<b>${stats.magic}</b></span>
-      ${locked ? '<span class="locked-mark">?</span>' : ''}
-      <div class="collection-info"><h2>${t.name}</h2>
-        <span><span>${line}</span><span>${typeCn(t.troopTypes)}</span></span>
-        <span title="攻击 / 护甲 / 生命"><span>攻 ${stats.attack} · 护 ${stats.armor} · 生 ${stats.health}</span><span>${RARITY_CN[t.rarityIdx] ?? ''}</span></span>
-      </div>
+      ${locked ? `<span class="locked-mark" aria-hidden="true">${icon('lock')}</span>` : ''}
+      <div class="collection-info"><h2>${t.name}</h2><span class="collection-level">${level}</span></div>
     </button>`;
   }
 

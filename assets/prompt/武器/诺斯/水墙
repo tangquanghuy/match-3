@@ -1,0 +1,11 @@
+水墙：
+wlopk2style, Yoneyama Mai Style,
+western fantasy style, DnD monster manual illustration, painterly fantasy,
+<krea2_prompt>
+  <subject>the Wall of Water, an elemental warder's shield whose face is a framed pane of standing river water held between steel rims, the sole subject in a medium-close shot, dominating most of the frame, weapon only</subject>
+  <details>the water face rippling without falling, a swimming veil of blue light just under the surface, umber bronze rims furred with hard-water crust</details>
+  <pose>standing upright on its rim on stone on its own, a breaking crest curling off the top edge while droplets hang mid-fall around it, framed water and crusted rims clearly readable, no bearer, no hands</pose>
+  <environment>frozen shore flags under a clean cold light, one single blue pressure-ridge far in the back, clean minimal backdrop, the shield fully unobstructed, no characters</environment>
+  <lighting>strong key light on the subject, clear readable details</lighting>
+  <style>clean anime-style weapon design over a simple photorealistic backdrop, river water blue, crust umber bronze, under-light azure palette, thumbnail-readable silhouette, no characters or hands in frame</style>
+</krea2_prompt>

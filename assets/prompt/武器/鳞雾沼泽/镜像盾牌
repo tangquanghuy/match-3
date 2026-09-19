@@ -1,0 +1,11 @@
+镜像盾牌：
+wlopk2style, Yoneyama Mai Style,
+western fantasy style, DnD monster manual illustration, painterly fantasy,
+<krea2_prompt>
+  <subject>a mirror shield of swamp-silver, its round face polished to a true reflection and rimmed with frog-eye rivets, the sole subject in a medium-close shot, dominating most of the frame, weapon only</subject>
+  <details>a thin fog film that beads and runs on the mirror face, tarnished bronze enarmes on the back, one hairline crack in the silver that glints gold</details>
+  <pose>standing upright on its rim on mossy stone, a ribbon of barrier light peeling off the mirrored face like reflected dawn, fog beads and rivets clearly readable, no bearer, no hands</pose>
+  <environment>wet mossy flags under a pale teal fog, one single blurred reed clump far in the back, clean minimal backdrop, the shield fully unobstructed, no characters</environment>
+  <lighting>strong key light on the subject, clear readable details</lighting>
+  <style>clean anime-style weapon design over a simple photorealistic backdrop, mirror silver, dawn gold, bog green palette, thumbnail-readable silhouette, no characters or hands in frame</style>
+</krea2_prompt>

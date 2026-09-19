@@ -1,0 +1,11 @@
+齿轮手枪：
+wlopk2style, Yoneyama Mai Style,
+western fantasy style, DnD monster manual illustration, painterly fantasy,
+<krea2_prompt>
+  <subject>the Gearslinger, a clockwork side-arm of brass and blued steel whose cylinder is a visible stack of meshing gears, the sole subject in a medium-close shot, dominating most of the frame, weapon only</subject>
+  <details>a vine-and-leaf engraving softened by oil-dark handling, spring-loaded green crystal cells in the frame, a wisp of cordite smoke curling off the barrel</details>
+  <pose>suspended at a duelist's cant midair, five bomb-spark motes rattling off the muzzle in a line while the gear-cylinder catches the light, meshing gears and crystal cells clearly readable, no bearer, no hands</pose>
+  <environment>clean cobbled court under a bright machine-hall light, one single blurred clock spire far in the back, clean minimal backdrop, the pistol fully unobstructed, no characters</environment>
+  <lighting>strong key light on the subject, clear readable details</lighting>
+  <style>clean anime-style weapon design over a simple photorealistic backdrop, engine brass, blued steel, verdant green palette, thumbnail-readable silhouette, no characters or hands in frame</style>
+</krea2_prompt>

@@ -6,7 +6,8 @@
  *  - 版本迁移链：schema 不兼容变化时在 MIGRATIONS 追加 `v→v+1` 步骤；
  *  - 节级降级重建：单节损坏只丢该节、其余保留（hydrateSave），彻底损坏才回退新档。
  */
-import { META_SAVE_VERSION, newSave, type GachaLogEntry, type InvasionState, type KingdomState, type MetaSave, type TeamMember, type TeamPreset, type TroopRecord } from './schema';
+import { META_SAVE_VERSION, newSave, type EventWeekState, type GachaLogEntry, type InvasionState, type KingdomState, type MetaSave, type TeamMember, type TeamPreset, type TroopRecord } from './schema';
+import { EVENT_MILESTONES, EVENT_SHOP, EVENT_TYPES, EVENT_WEEKLY_PLAY_REWARD_CAP, WEEK_MS, type EventTypeId } from '../data/events';
 import { GACHA_LOG_CAP } from './schema';
 import { starterTroopIds } from '../data/economy';
 
@@ -89,6 +90,36 @@ MIGRATIONS[1] = (raw) => {
   return raw;
 };
 
+/**
+ * v2 时代的 6 周轮换顺序（**冻结快照，勿改**）。
+ * 迁移步骤必须自带历史口径：v3 之后 `EVENT_TYPES` 是「常驻词表」，
+ * 它的下标不再有「第 N 周轮值」的含义，拿它反推旧档会解释错。
+ */
+const V3_LEGACY_ROTATION: readonly EventTypeId[] = [
+  'invasion', 'raidBoss', 'towerOfDoom', 'factionAssault', 'worldEvent', 'classTrials',
+];
+
+/**
+ * v2 → v3：`eventWeek`（六活动共用的单实例）→ `eventWeeks`（每活动一份）。
+ * 旧实例按它自己的 weekStart 还原出「当时的轮值活动」归档到该活动名下，
+ * 其余五个活动无历史、从零开始（全开放是新功能，不伪造进度）。
+ */
+MIGRATIONS[2] = (raw) => {
+  const legacy = raw.eventWeek;
+  const eventWeeks: Record<string, unknown> = {};
+  if (isObject(legacy)) {
+    const weekStart = typeof legacy.weekStart === 'number' && Number.isFinite(legacy.weekStart) ? legacy.weekStart : 0;
+    const idx = Math.floor(weekStart / WEEK_MS);
+    const typeId = V3_LEGACY_ROTATION[
+      ((idx % V3_LEGACY_ROTATION.length) + V3_LEGACY_ROTATION.length) % V3_LEGACY_ROTATION.length
+    ]!;
+    eventWeeks[typeId] = legacy;
+  }
+  raw.eventWeeks = eventWeeks;
+  delete raw.eventWeek;
+  return raw;
+};
+
 function remapKeys(
   record: Record<string, unknown>,
   map: Record<string, string>,
@@ -164,6 +195,56 @@ function sanitizeTeam(v: unknown): TeamPreset | null {
   };
 }
 
+/** 单个活动的周实例清洗（结构不合法 → null，该活动本周从零开始） */
+function sanitizeEventWeek(v: unknown, typeId: EventTypeId): EventWeekState | null {
+  if (!isObject(v)) return null;
+  const claimed = Array.isArray(v.claimed)
+    ? [...new Set(v.claimed.filter((n): n is number => typeof n === 'number' && Number.isInteger(n) && n >= 0 && n < EVENT_MILESTONES[typeId].length))]
+    : [];
+  const bought: Record<string, number> = {};
+  if (isObject(v.bought)) {
+    for (const [key, value] of Object.entries(v.bought)) {
+      if (!EVENT_SHOP[typeId].some((goods) => goods.id === key)) continue;
+      const n = num(value, 0, 0);
+      if (n > 0) bought[key] = n;
+    }
+  }
+  const eventData: Record<string, number> = {};
+  if (isObject(v.eventData)) {
+    for (const [key, value] of Object.entries(v.eventData)) {
+      const n = num(value, 0, 0);
+      if (n > 0) eventData[key] = n;
+    }
+  }
+  const runTeam = Array.isArray(v.runTeam)
+    ? v.runTeam.flatMap((entry) => {
+        if (!isObject(entry) || typeof entry.externalId !== 'string') return [];
+        const hp = num(entry.hp, 0, 0);
+        return [{
+          externalId: entry.externalId,
+          hp,
+          // 旧档无 maxHp：拿 hp 兜底（血格会显示满格而不是崩，下一场结算即自愈）
+          maxHp: Math.max(num(entry.maxHp, 0, 0), hp, 1),
+          defeated: bool(entry.defeated, false),
+        }];
+      })
+    : null;
+  const tokens = num(v.tokens, 0, 0);
+  return {
+    weekStart: num(v.weekStart, 0, 0),
+    points: num(v.points, 0, 0),
+    claimed,
+    wins: num(v.wins, 0, 0),
+    tokens,
+    // 旧档无 tokensEarned：按「至少不少于当前余额」兜底，避免商店页显示「已赚 0 · 余额 72」自相矛盾
+    tokensEarned: Math.max(num(v.tokensEarned, 0, 0), tokens),
+    playRewards: num(v.playRewards, 0, 0, EVENT_WEEKLY_PLAY_REWARD_CAP[typeId]),
+    bought,
+    eventData,
+    runTeam: runTeam && runTeam.length > 0 ? runTeam : null,
+  };
+}
+
 function sanitizeKingdom(v: unknown): KingdomState | null {
   if (!isObject(v)) return null;
   return {
@@ -231,42 +312,13 @@ export function hydrateSave(raw: Record<string, unknown>): MetaSave {
     invasion.seasonsPlayed = num(raw.invasion.seasonsPlayed, 0, 0);
   }
 
-  // —— 每周活动周实例（null = 本周还没打过）——
-  let eventWeek: typeof base.eventWeek = null;
-  if (isObject(raw.eventWeek)) {
-    const claimed = Array.isArray(raw.eventWeek.claimed)
-      ? [...new Set(raw.eventWeek.claimed.filter((v): v is number => typeof v === 'number' && Number.isFinite(v)))]
-      : [];
-    const bought: Record<string, number> = {};
-    if (isObject(raw.eventWeek.bought)) {
-      for (const [key, value] of Object.entries(raw.eventWeek.bought)) {
-        const n = num(value, 0, 0);
-        if (n > 0) bought[key] = n;
-      }
+  // —— 每周活动周实例 · per-event（缺键 = 该活动本周还没打过）——
+  const eventWeeks: Partial<Record<EventTypeId, EventWeekState>> = {};
+  if (isObject(raw.eventWeeks)) {
+    for (const def of EVENT_TYPES) {
+      const parsed = sanitizeEventWeek((raw.eventWeeks as Record<string, unknown>)[def.id], def.id);
+      if (parsed) eventWeeks[def.id] = parsed;
     }
-    const eventData: Record<string, number> = {};
-    if (isObject(raw.eventWeek.eventData)) {
-      for (const [key, value] of Object.entries(raw.eventWeek.eventData)) {
-        const n = num(value, 0, 0);
-        if (n > 0) eventData[key] = n;
-      }
-    }
-    const runTeam = Array.isArray(raw.eventWeek.runTeam)
-      ? raw.eventWeek.runTeam.flatMap((entry) => {
-          if (!isObject(entry) || typeof entry.externalId !== 'string') return [];
-          return [{ externalId: entry.externalId, hp: num(entry.hp, 0, 0), defeated: bool(entry.defeated, false) }];
-        })
-      : null;
-    eventWeek = {
-      weekStart: num(raw.eventWeek.weekStart, 0, 0),
-      points: num(raw.eventWeek.points, 0, 0),
-      claimed,
-      wins: num(raw.eventWeek.wins, 0, 0),
-      tokens: num(raw.eventWeek.tokens, 0, 0),
-      bought,
-      eventData,
-      runTeam: runTeam && runTeam.length > 0 ? runTeam : null,
-    };
   }
 
   const collection: Record<string, TroopRecord> = {};
@@ -390,7 +442,7 @@ export function hydrateSave(raw: Record<string, unknown>): MetaSave {
     materials,
     weaponTempering,
     invasion,
-    eventWeek,
+    eventWeeks,
     settings: { ...base.settings },
   };
 }

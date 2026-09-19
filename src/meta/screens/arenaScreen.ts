@@ -14,7 +14,7 @@ const fmt = (n: number): string => n.toLocaleString('en-US');
 const ROMAN = ['Ⅰ', 'Ⅱ', 'Ⅲ'];
 
 const RARITY_CLS: Record<number, string> = { 0: 'common', 1: 'common', 2: 'rare', 3: 'epic', 4: 'legend', 5: 'mythic' };
-const RARITY_CN: Record<number, string> = { 0: '普 通', 1: '非 普', 2: '稀 有', 3: '超稀有', 4: '史 诗', 5: '传 说' };
+const RARITY_CN: Record<number, string> = { 0: '普通', 1: '精良', 2: '稀有', 3: '传说', 4: '史诗', 5: '神话' };
 
 export class ArenaScreen implements Screen {
   private ctx!: ShellCtx;

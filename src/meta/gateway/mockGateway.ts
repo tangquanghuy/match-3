@@ -9,6 +9,7 @@ import { SaveStore, type StorageLike } from '../state/save';
 import type { MetaSave } from '../state/schema';
 import { fail, type MetaFailure } from '../types';
 import { starterTroopIds } from '../data/economy';
+import type { EventTypeId } from '../data/events';
 import { newSave } from '../state/schema';
 import { levelUp, ascend, unlockTrait, decompose, getRecord } from '../systems/troopProgress';
 import { setTeamPreset } from '../systems/teamRules';
@@ -352,13 +353,13 @@ export class MockGateway implements MetaGateway {
 
   // —— 每周活动（素材批 2026-09-19） ——
 
-  async planEventBattle(_now: number, weekStart: number) {
-    const theme = currentEventTheme(weekStart);
+  async planEventBattle(_now: number, weekStart: number, typeId: EventTypeId) {
+    const theme = currentEventTheme(weekStart, typeId);
     const team = activeTeam(this.save);
     const hasHero = team?.members.some((m) => m.kind === 'hero') ?? false;
     const notReady = eventBattleReady(this.save, theme.type.id, hasHero);
     if (notReady) return fail('INVALID', notReady);
-    const plan = planEventEncounter(this.save, weekStart, this.nextSeed());
+    const plan = planEventEncounter(this.save, weekStart, this.nextSeed(), typeId);
     const outcome = buildBattleRequest(this.save, plan);
     // 活动玩法对面板的修改（阵营 buff / 塔层减员残血）：构建后、启动前应用
     if (outcome.ok) applyEventBattleModifiers(this.save, outcome);
@@ -371,8 +372,8 @@ export class MockGateway implements MetaGateway {
     return { result, save: this.save };
   }
 
-  async buyEventGoods(goodsId: string, _now: number, weekStart: number) {
-    const result = buyEventGoods(this.save, goodsId, weekStart);
+  async buyEventGoods(goodsId: string, _now: number, weekStart: number, typeId: EventTypeId) {
+    const result = buyEventGoods(this.save, goodsId, weekStart, typeId);
     if (result.ok) this.persist();
     return { result, save: this.save };
   }

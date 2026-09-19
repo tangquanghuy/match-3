@@ -1,0 +1,11 @@
+寒冰晶石：
+wlopk2style, Yoneyama Mai Style,
+western fantasy style, DnD monster manual illustration, painterly fantasy,
+<krea2_prompt>
+  <subject>the Glacial Crystal, a shield whose face is a single pane of layered glacier ice banded in pale gold, the sole subject in a medium-close shot, dominating most of the frame, weapon only</subject>
+  <details>the layers splitting incoming light into slow aurora bands, frost ferns racing the gold banding, fresh chips of blue and violet gem-ice budding at the lower rim</details>
+  <pose>standing rim-down in a snowdrift on its own as the aurora bands wheel slowly across the face, layer split and gem buds clearly readable, no bearer, no hands</pose>
+  <environment>a snowfield under a pale blue-white horizon glow, clean minimal backdrop, the shield fully unobstructed, no characters</environment>
+  <lighting>strong key light on the subject, clear readable details</lighting>
+  <style>clean anime-style weapon design over a simple photorealistic backdrop, glacier ice, aurora blue, banding gold palette, thumbnail-readable silhouette, no characters or hands in frame</style>
+</krea2_prompt>

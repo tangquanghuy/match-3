@@ -1,0 +1,11 @@
+时空镰刀：
+wlopk2style, Yoneyama Mai Style,
+western fantasy style, DnD monster manual illustration, painterly fantasy,
+<krea2_prompt>
+  <subject>the Temporal Scythe, a reaper's scythe whose crescent blade is a thin lens of purple glass showing a frozen hourglass image inside the steel, the sole subject in a medium-close shot, dominating most of the frame, weapon only</subject>
+  <details>a snath of layered grave-wood banded in umber iron, sand-grain etching covering the crescent's inside curve, a slow violet shimmer sliding the length of the lens</details>
+  <pose>standing planted in cold flagstones on its own, a thin ring of sand and purple motes draining upward around the snath while the lens-image turns, lens image and sand etching clearly readable, no bearer, no hands</pose>
+  <environment>cold crypt flags under a violet dusk-glow, one single blurred bone-pile far in the back, clean minimal backdrop, the scythe fully unobstructed, no characters</environment>
+  <lighting>strong key light on the subject, clear readable details</lighting>
+  <style>clean anime-style weapon design over a simple photorealistic backdrop, lens purple, grave-wood umber, iron black palette, thumbnail-readable silhouette, no characters or hands in frame</style>
+</krea2_prompt>

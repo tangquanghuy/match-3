@@ -1,0 +1,11 @@
+暗黑匕首：
+wlopk2style, Yoneyama Mai Style,
+western fantasy style, DnD monster manual illustration, painterly fantasy,
+<krea2_prompt>
+  <subject>a goblin-forged dagger of oily black metal with a wavy spine, back-alley make but keen, the sole subject in a medium-close shot, dominating most of the frame, weapon only</subject>
+  <details>a bead of blue venom-light running the fuller, stray scratches from a hundred sly errands, a wire-bound grip of swamp cane</details>
+  <pose>floating point-down above a mossy stone on its own, one slow drop of blue light detaching from the tip, the cane binding and wavy spine clearly readable, no bearer, no hands</pose>
+  <environment>damp mossy stone under a low swamp fog, a single glowing toadstool far in the back, clean minimal backdrop, the dagger fully unobstructed, no characters</environment>
+  <lighting>strong key light on the subject, clear readable details</lighting>
+  <style>clean anime-style weapon design over a simple photorealistic backdrop, oil black, venom azure, swamp moss palette, thumbnail-readable silhouette, no characters or hands in frame</style>
+</krea2_prompt>

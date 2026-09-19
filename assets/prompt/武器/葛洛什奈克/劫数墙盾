@@ -1,0 +1,11 @@
+劫数墙盾：
+wlopk2style, Yoneyama Mai Style,
+western fantasy style, DnD monster manual illustration, painterly fantasy,
+<krea2_prompt>
+  <subject>the Doomed Wall, an orc siege tower-shield of riveted iron plates gone furnace-black, its war-face stamped with a snout that has since melted half-shut, the sole subject in a medium-close shot, dominating most of the frame, weapon only</subject>
+  <details>doom-script slagged into the rivet rows, a live red glow breathing through the seams like a banked forge, hand-grip straps fused to the back plate</details>
+  <pose>propped upright on scorched ground with no rest, a failing screen of ember-red barrier light clinging to the face, slagged script and half-melted snout clearly readable, no bearer, no hands</pose>
+  <environment>ash-grit floor under a dying war-fire glow, one single broken ram far in the back, clean minimal backdrop, the shield fully unobstructed, no characters</environment>
+  <lighting>strong key light on the subject, clear readable details</lighting>
+  <style>clean anime-style weapon design over a simple photorealistic backdrop, furnace black, seam ember red, ash grey palette, thumbnail-readable silhouette, no characters or hands in frame</style>
+</krea2_prompt>

@@ -217,6 +217,7 @@ async function boot(): Promise<void> {
   const snapshot = await gateway.load();
   window.addEventListener('hashchange', () => void render());
   window.addEventListener('resize', fitStage);
+  window.visualViewport?.addEventListener('resize', fitStage);
   await render();
   if (snapshot.warning) toast(snapshot.warning);
 }

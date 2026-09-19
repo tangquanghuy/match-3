@@ -21,6 +21,7 @@ import type { SetTeamResult } from '../systems/teamRules';
 import type { BridgeOutcome } from '../systems/battleBridge';
 import type { InvasionBridgeOutcome, InvasionSettleResult } from '../systems/invasion';
 import type { EventBuyResult } from '../systems/events';
+import type { EventTypeId } from '../data/events';
 import type { TemperSaveResult } from '../systems/forgeOps';
 import type { TeamMember, MetaSave } from '../state/schema';
 
@@ -163,8 +164,8 @@ export interface MetaGateway {
   temperWeapon(weaponId: string): Promise<GatewayUpdate<TemperSaveResult | MetaFailure>>;
 
   // —— 每周活动（素材批 2026-09-19） ——
-  /** 本周活动出战斗计划（主题出敌 + 结算所需 plan；plan.source.kind === 'event'） */
-  planEventBattle(now: number, weekStart: number): Promise<BridgeOutcome | MetaFailure>;
+  /** 指定活动的出战计划（主题出敌 + 结算所需 plan；plan.source.kind === 'event'） */
+  planEventBattle(now: number, weekStart: number, typeId: EventTypeId): Promise<BridgeOutcome | MetaFailure>;
 
   /** 主动放弃登塔（按败北同口径收尾发奖；= 未来 D1 端点） */
   abandonTowerRun(weekStart: number): Promise<GatewayUpdate<{ ok: true; floorReached: number; glory: number; scrolls: number } | MetaFailure>>;
@@ -173,6 +174,7 @@ export interface MetaGateway {
     goodsId: string,
     now: number,
     weekStart: number,
+    typeId: EventTypeId,
   ): Promise<GatewayUpdate<EventBuyResult | MetaFailure>>;
 
   // —— 入侵 PvP（素材批 2026-09-19） ——

@@ -1,0 +1,11 @@
+劫数头盔：
+wlopk2style, Yoneyama Mai Style,
+western fantasy style, DnD monster manual illustration, painterly fantasy,
+<krea2_prompt>
+  <subject>a doomed funerary helm of scorched tomb-bronze, its face-plate blank except for one burning sight-slit, the sole subject in a medium-close shot, dominating most of the frame, weapon only</subject>
+  <details>doom-sigils punched in a band above the brow, ember ruby light bleeding from the slit, fine ash sifting off the cheek guards</details>
+  <pose>resting upright on bare tomb stone on its own, a slow plume of ember motes rising through the neck opening, sigil band clearly readable, no bearer, no hands</pose>
+  <environment>ash-drifted necropolis floor with one blurred obelisk far back, clean minimal backdrop, the helm fully unobstructed, no characters</environment>
+  <lighting>strong key light on the subject, clear readable details</lighting>
+  <style>clean anime-style weapon design over a simple photorealistic backdrop, doom bronze, ember red, ash grey palette, thumbnail-readable silhouette, no characters or hands in frame</style>
+</krea2_prompt>

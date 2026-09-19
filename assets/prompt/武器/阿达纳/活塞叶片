@@ -1,0 +1,11 @@
+活塞叶片：
+wlopk2style, Yoneyama Mai Style,
+western fantasy style, DnD monster manual illustration, painterly fantasy,
+<krea2_prompt>
+  <subject>the Piston Blade, an Adanan engine-sword whose hilt is a working steam piston driving the blade a hand's length on each stroke, the sole subject in a medium-close shot, dominating most of the frame, weapon only</subject>
+  <details>piston rods polished mirror-bright at the seals, a dawn-gold pressure gauge ringed into the crossguard, blue-tinged steam venting at the collar</details>
+  <pose>suspended midair with the piston driving the blade home in one slow stroke, steam-motes and blue sparks jetting at the collar seal, piston rods and gauge ring clearly readable, no bearer, no hands</pose>
+  <environment>machine-court flags under a brass-lamp haze, one single blurred clock spire far in the back, clean minimal backdrop, the engine-sword fully unobstructed, no characters</environment>
+  <lighting>strong key light on the subject, clear readable details</lighting>
+  <style>clean anime-style weapon design over a simple photorealistic backdrop, rod steel, gauge dawn gold, vent steam blue palette, thumbnail-readable silhouette, no characters or hands in frame</style>
+</krea2_prompt>

@@ -2,7 +2,7 @@
  * 每周活动（素材批 2026-09-19；玩法差异化批同日追补）——官方 Live Event 六类型的单机适配。
  *
  * 结构对齐官方（考据与设计值见 design/EVENTS-INVASION-DESIGN.md §1.2/§2.4）：
- *  - 每周一个主题活动（6 周大轮换），周一起算 7 天（weekStart 由调用方传入）；
+ *  - 六活动常驻开放、各自持有周实例，周一 0:00 同步重置；
  *  - 战斗胜利得积分/代币 → 里程碑自动入账；商店按活动类型供货架；
  *  - **六种活动各自独立的玩法机制**（本文件是唯一实现处）：
  *      invasion      防线波次：3 条防线逐条推进，破全线=守土成功（额外赏），败则打回第 1 条；
@@ -17,7 +17,7 @@
  * （主角/旗帜/王国加成全生效——走 buildBattleRequest），draft 不吃。
  */
 import { SeededRNG } from '../../engine/rng';
-import type { MetaSave } from '../state/schema';
+import type { EventWeekState, MetaSave } from '../state/schema';
 import { getTroopById } from '../../data/troops';
 import { troopStatsAtLevel } from '../../data/leveling';
 import type { EventGoods, EventMilestone, EventTheme, EventTypeId } from '../data/events';
@@ -26,9 +26,8 @@ import {
   EVENT_SHOP,
   EVENT_TOKEN_DIVISOR,
   EVENT_TOKEN_MIN_PER_WIN,
-  EVENT_ROTATION,
-  eventThemeOfWeek,
-  rotationIndexOf,
+  EVENT_WEEKLY_PLAY_REWARD_CAP,
+  eventThemeOf,
 } from '../data/events';
 import { kingdomBaseLevel, kingdomTroopPool, KINGDOM_ORDER } from '../data/kingdoms';
 import { fail, type CurrencyDelta, type MetaFailure } from '../types';
@@ -62,22 +61,27 @@ export const EVENT_STATE_KEYS = {
   assaultWins: 'assaultWins', // 阵营突袭：本周进攻胜场
 } as const;
 
-/** 确保本周活动实例存在（lazy 建档/周切重置；幂等；旧档缺字段兜底补齐） */
-export function ensureEventWeek(save: MetaSave, weekStart: number): NonNullable<MetaSave['eventWeek']> {
-  if (!save.eventWeek || save.eventWeek.weekStart !== weekStart) {
-    save.eventWeek = { weekStart, points: 0, claimed: [], wins: 0, tokens: 0, bought: {}, eventData: {}, runTeam: null };
+/** 确保指定活动的本周实例存在（lazy 建档/周切重置，六活动互不借用进度）。 */
+export function ensureEventWeek(save: MetaSave, weekStart: number, typeId: EventTypeId): EventWeekState {
+  if (!save.eventWeeks[typeId] || save.eventWeeks[typeId].weekStart !== weekStart) {
+    save.eventWeeks[typeId] = {
+      weekStart, points: 0, claimed: [], wins: 0, tokens: 0, tokensEarned: 0,
+      playRewards: 0, bought: {}, eventData: {}, runTeam: null,
+    };
   }
-  const week = save.eventWeek;
+  const week = save.eventWeeks[typeId]!;
   if (typeof week.tokens !== 'number') week.tokens = 0;
+  if (typeof week.tokensEarned !== 'number') week.tokensEarned = week.tokens;
+  if (typeof week.playRewards !== 'number') week.playRewards = 0;
   if (!week.bought) week.bought = {};
   if (!week.eventData) week.eventData = {};
   if (week.runTeam === undefined) week.runTeam = null;
   return week;
 }
 
-/** 本周活动主题（存档无关的纯读，屏层直接用） */
-export function currentEventTheme(weekStart: number): EventTheme {
-  return eventThemeOfWeek(weekStart);
+/** 指定活动的本周主题（存档无关的纯读）。 */
+export function currentEventTheme(weekStart: number, typeId: EventTypeId): EventTheme {
+  return eventThemeOf(typeId, weekStart);
 }
 
 // ---------------------------------------------------------------------------
@@ -111,11 +115,10 @@ function eventTierPlan(typeId: EventTypeId, arg: { line: number; floor: number }
 }
 
 /** 活动战斗出敌计划：难度与编排按各类型玩法状态推进。seed 由网关注入（熵源） */
-export function planEventEncounter(save: MetaSave, weekStart: number, seed: number): EncounterPlan {
-  const theme = currentEventTheme(weekStart);
-  const typeId = theme.type.id;
+export function planEventEncounter(save: MetaSave, weekStart: number, seed: number, typeId: EventTypeId): EncounterPlan {
+  const theme = currentEventTheme(weekStart, typeId);
   const rng = new SeededRNG(seed);
-  const week = ensureEventWeek(save, weekStart);
+  const week = ensureEventWeek(save, weekStart, typeId);
   const randomKingdom = (): string => KINGDOM_ORDER[rng.nextInt(KINGDOM_ORDER.length)]!;
 
   let kingdom: string;
@@ -224,8 +227,9 @@ export function factionMatchCount(save: MetaSave, kingdom: string): number {
 export function applyEventBattleModifiers(save: MetaSave, outcome: BridgeOutcome): void {
   const source = outcome.plan.source;
   if (source.kind !== 'event') return;
-  const theme = currentEventTheme(source.weekStart);
-  const week = ensureEventWeek(save, source.weekStart);
+  const typeId = source.typeId as EventTypeId;
+  const theme = currentEventTheme(source.weekStart, typeId);
+  const week = ensureEventWeek(save, source.weekStart, typeId);
 
   if (theme.type.id === 'factionAssault') {
     const match = factionMatchCount(save, theme.kingdom!);
@@ -285,8 +289,9 @@ export function eventBattleProgress(
 ): { lines: EventProgressLine[] } {
   const source = plan.source;
   if (source.kind !== 'event') return { lines: [] };
-  const theme = currentEventTheme(source.weekStart);
-  const week = ensureEventWeek(save, source.weekStart);
+  const typeId = source.typeId as EventTypeId;
+  const theme = currentEventTheme(source.weekStart, typeId);
+  const week = ensureEventWeek(save, source.weekStart, typeId);
   const lines: EventProgressLine[] = [];
 
   switch (theme.type.id) {
@@ -296,10 +301,15 @@ export function eventBattleProgress(
         if (line >= 3) {
           week.eventData[EVENT_STATE_KEYS.invRepelled] = (week.eventData[EVENT_STATE_KEYS.invRepelled] ?? 0) + 1;
           week.eventData[EVENT_STATE_KEYS.invLine] = 1;
-          const mats: MaterialDelta = { traitstones: { 'runic:red': 2, 'runic:blue': 2 } };
-          earn(save, { glory: 40, gems: 20 });
-          earnMaterials(save, mats);
-          lines.push({ label: '守土成功！', deltas: { glory: 40, gems: 20 }, mats, note: '三条防线全部守住，防线重整' });
+          if (week.playRewards < EVENT_WEEKLY_PLAY_REWARD_CAP.invasion) {
+            const mats: MaterialDelta = { traitstones: { 'runic:red': 2, 'runic:blue': 2 } };
+            earn(save, { glory: 40, gems: 20 });
+            earnMaterials(save, mats);
+            week.playRewards += 1;
+            lines.push({ label: '守土成功！', deltas: { glory: 40, gems: 20 }, mats, note: '三条防线全部守住，防线重整' });
+          } else {
+            lines.push({ label: '守土成功！', deltas: {}, note: '本周守土奖励已领满，积分与代币仍正常获得' });
+          }
         } else {
           week.eventData[EVENT_STATE_KEYS.invLine] = line + 1;
           lines.push({ label: `防线推进 → 第 ${line + 1} 条`, deltas: {}, note: '敌人一节比一节强' });
@@ -331,12 +341,17 @@ export function eventBattleProgress(
       lines.push({ label: `首领伤害 +${damage}`, deltas: {}, note: `血池 ${hpLeft} / ${hpMax}` });
       if (hpMax > 0 && hpLeft <= 0) {
         const tier = Math.max(week.eventData[EVENT_STATE_KEYS.bossTier] ?? 1, 1);
-        const mats: MaterialDelta = { ingots: { epic: 2 } };
-        if (tier >= 3) mats.ingots!.legendary = 1;
-        const glory = 30 + 20 * tier;
-        earn(save, { glory });
-        earnMaterials(save, mats);
-        lines.push({ label: `讨伐成功 · Tier ${tier} 首领倒下！`, deltas: { glory }, mats, note: '下一只首领血更厚' });
+        if (week.playRewards < EVENT_WEEKLY_PLAY_REWARD_CAP.raidBoss) {
+          const mats: MaterialDelta = { ingots: { epic: 2 } };
+          if (tier >= 3) mats.ingots!.legendary = 1;
+          const glory = 30 + 20 * tier;
+          earn(save, { glory });
+          earnMaterials(save, mats);
+          week.playRewards += 1;
+          lines.push({ label: `讨伐成功 · Tier ${tier} 首领倒下！`, deltas: { glory }, mats, note: '下一只首领血更厚' });
+        } else {
+          lines.push({ label: `讨伐成功 · Tier ${tier} 首领倒下！`, deltas: {}, note: '本周讨伐奖励已领满，积分与代币仍正常获得' });
+        }
         week.eventData[EVENT_STATE_KEYS.bossesSlain] = (week.eventData[EVENT_STATE_KEYS.bossesSlain] ?? 0) + 1;
         week.eventData[EVENT_STATE_KEYS.bossTier] = tier + 1;
         week.eventData[EVENT_STATE_KEYS.bossHp] = 0;
@@ -352,7 +367,7 @@ export function eventBattleProgress(
         // 队伍状态冻结：HP/阵亡跨层延续（减员继续）
         week.runTeam = result.combatants
           .filter((c) => c.side === 'player')
-          .map((c) => ({ externalId: c.externalId, hp: Math.max(0, c.hp), defeated: c.defeated }));
+          .map((c) => ({ externalId: c.externalId, hp: Math.max(0, c.hp), maxHp: Math.max(1, c.maxHp), defeated: c.defeated }));
         const alive = week.runTeam.filter((m) => !m.defeated && m.hp > 0).length;
         if (alive === 0) {
           // 惨胜全灭：同样收尾
@@ -402,7 +417,7 @@ export function eventBattleProgress(
 /** 塔层收尾：按到达层数结算符卷/荣耀，重置 run */
 function finishTowerRun(
   save: MetaSave,
-  week: NonNullable<MetaSave['eventWeek']>,
+  week: EventWeekState,
   floorReached: number,
   lines: EventProgressLine[],
   reason: string,
@@ -412,14 +427,19 @@ function finishTowerRun(
   const scrolls = Math.floor(floorReached / 5);
   const glory = floorReached * 2;
   if (scrolls > 0 || glory > 0) {
-    earn(save, { glory });
-    earnMaterials(save, { forgeScrolls: scrolls });
-    lines.push({
-      label: `登塔结束（${reason}）· 到达第 ${floorReached} 层`,
-      deltas: { glory },
-      mats: { forgeScrolls: scrolls },
-      note: `历史最高 第 ${best} 层 · 点击「攀爬」再来一程`,
-    });
+    if (week.playRewards < EVENT_WEEKLY_PLAY_REWARD_CAP.towerOfDoom) {
+      earn(save, { glory });
+      earnMaterials(save, { forgeScrolls: scrolls });
+      week.playRewards += 1;
+      lines.push({
+        label: `登塔结束（${reason}）· 到达第 ${floorReached} 层`,
+        deltas: { glory },
+        mats: { forgeScrolls: scrolls },
+        note: `历史最高 第 ${best} 层 · 点击「攀爬」再来一程`,
+      });
+    } else {
+      lines.push({ label: `登塔结束（${reason}）· 到达第 ${floorReached} 层`, deltas: {}, note: `历史最高 第 ${best} 层 · 本周登塔奖励已领满` });
+    }
   } else {
     lines.push({ label: `登塔结束（${reason}）· 到达第 ${floorReached} 层`, deltas: {}, note: `历史最高 第 ${best} 层` });
   }
@@ -433,9 +453,7 @@ export function abandonTowerRun(
   save: MetaSave,
   weekStart: number,
 ): { ok: true; floorReached: number; glory: number; scrolls: number } | MetaFailure {
-  const theme = currentEventTheme(weekStart);
-  if (theme.type.id !== 'towerOfDoom') return fail('INVALID', '本周不是末日之塔');
-  const week = ensureEventWeek(save, weekStart);
+  const week = ensureEventWeek(save, weekStart, 'towerOfDoom');
   if ((week.eventData[EVENT_STATE_KEYS.runActive] ?? 0) !== 1) return fail('INVALID', '没有进行中的登塔');
   const floor = Math.max(week.eventData[EVENT_STATE_KEYS.floor] ?? 1, 1);
   const lines: EventProgressLine[] = [];
@@ -465,9 +483,8 @@ export function eventPointsOf(plan: EncounterPlan): number {
 }
 
 /** 里程碑进度值：世界事件按累计物资，其余按积分 */
-export function eventMetricOf(save: MetaSave, weekStart: number): { label: string; value: number } {
-  const typeId = currentEventTheme(weekStart).type.id;
-  const week = ensureEventWeek(save, weekStart);
+export function eventMetricOf(save: MetaSave, weekStart: number, typeId: EventTypeId): { label: string; value: number } {
+  const week = ensureEventWeek(save, weekStart, typeId);
   return typeId === 'worldEvent'
     ? { label: '物资', value: week.eventData[EVENT_STATE_KEYS.supplies] ?? 0 }
     : { label: '积分', value: week.points };
@@ -480,11 +497,11 @@ export interface EventMilestoneGain {
 
 /** 结算后新达标的里程碑（调用方负责入账；value 为含本场的进度总量） */
 export function eventMilestonesReached(
-  weekStart: number,
+  typeId: EventTypeId,
   value: number,
   alreadyClaimed: readonly number[],
 ): EventMilestoneGain[] {
-  const table = EVENT_MILESTONES[currentEventTheme(weekStart).type.id]!;
+  const table = EVENT_MILESTONES[typeId];
   const claimed = new Set(alreadyClaimed);
   const gains: EventMilestoneGain[] = [];
   for (let i = 0; i < table.length; i++) {
@@ -507,21 +524,15 @@ export type EventPageExtra =
   | { kind: 'classTrials'; streak: number; mult: number };
 
 export interface EventPageState {
-  /** 是否本周轮值活动（非轮值=预告页，不可出战、无商店） */
-  active: boolean;
-  /** 距离下次轮值还有几周（0 = 本周） */
-  weeksUntil: number;
   /** 里程碑进度 */
   metric: { label: string; value: number };
   extra: EventPageExtra;
 }
 
 export function eventPageState(save: MetaSave, weekStart: number, typeId: EventTypeId): EventPageState {
-  const currentIndex = rotationIndexOf(currentEventTheme(weekStart).type.id);
-  const weeksUntil = (rotationIndexOf(typeId) - currentIndex + EVENT_ROTATION.length) % EVENT_ROTATION.length;
-  const week = ensureEventWeek(save, weekStart);
-  const theme = currentEventTheme(weekStart);
-  const metric = { label: typeId === 'worldEvent' ? '物资' : '积分', value: typeId === 'worldEvent' ? (week.eventData[EVENT_STATE_KEYS.supplies] ?? 0) : week.points };
+  const week = ensureEventWeek(save, weekStart, typeId);
+  const theme = currentEventTheme(weekStart, typeId);
+  const metric = eventMetricOf(save, weekStart, typeId);
   const d = week.eventData;
   let extra: EventPageExtra;
   switch (typeId) {
@@ -554,7 +565,7 @@ export function eventPageState(save: MetaSave, weekStart: number, typeId: EventT
       break;
     }
   }
-  return { active: weeksUntil === 0, weeksUntil, metric, extra };
+  return { metric, extra };
 }
 
 // ---------------------------------------------------------------------------
@@ -573,9 +584,9 @@ export interface EventShopRow {
   stockLeft: number | null;
 }
 
-export function eventShopOf(save: MetaSave, weekStart: number): { theme: EventTheme; week: NonNullable<MetaSave['eventWeek']>; rows: EventShopRow[] } {
-  const theme = currentEventTheme(weekStart);
-  const week = ensureEventWeek(save, weekStart);
+export function eventShopOf(save: MetaSave, weekStart: number, typeId: EventTypeId): { theme: EventTheme; week: EventWeekState; rows: EventShopRow[] } {
+  const theme = currentEventTheme(weekStart, typeId);
+  const week = ensureEventWeek(save, weekStart, typeId);
   const rows = EVENT_SHOP[theme.type.id]!.map((goods) => ({
     goods,
     stockLeft: goods.stock === null ? null : Math.max(0, goods.stock - (week.bought[goods.id] ?? 0)),
@@ -588,10 +599,10 @@ export type EventBuyResult =
   | MetaFailure;
 
 /** 购买一件货架商品：代币原子扣账 → 素材/货币入账 → 已购计数 +1 */
-export function buyEventGoods(save: MetaSave, goodsId: string, weekStart: number): EventBuyResult {
-  const shop = eventShopOf(save, weekStart);
+export function buyEventGoods(save: MetaSave, goodsId: string, weekStart: number, typeId: EventTypeId): EventBuyResult {
+  const shop = eventShopOf(save, weekStart, typeId);
   const row = shop.rows.find((r) => r.goods.id === goodsId);
-  if (!row) return fail('INVALID', '该商品不在本周货架');
+  if (!row) return fail('INVALID', '该商品不在此活动货架');
   if (row.stockLeft !== null && row.stockLeft <= 0) return fail('SOLD_OUT', '该商品本周已售罄');
   const week = shop.week;
   if (week.tokens < row.goods.cost) {

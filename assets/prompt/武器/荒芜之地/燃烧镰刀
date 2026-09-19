@@ -1,0 +1,11 @@
+燃烧镰刀：
+wlopk2style, Yoneyama Mai Style,
+western fantasy style, DnD monster manual illustration, painterly fantasy,
+<krea2_prompt>
+  <subject>the Burning Scythe, a daemon-haunted crescent whose edge carries a running fire that burns violet at the root and red at the tip, the sole subject in a medium-close shot, dominating most of the frame, weapon only</subject>
+  <details>plague-motes drifting in the flame's wake and dropping as grey snow, the snath charred in rings where each pass ended, a soul-sigil nailed to the neck joint</details>
+  <pose>mid-swing low over scorched ground on its own, the flame racing the edge while the plague-snow falls behind, fire gradient and nailed sigil clearly readable, no bearer, no hands</pose>
+  <environment>cracked ash ground under a grey ember haze, a single dead bramble far in the back, clean minimal backdrop, the scythe fully unobstructed, no characters</environment>
+  <lighting>strong key light on the subject, clear readable details</lighting>
+  <style>clean anime-style weapon design over a simple photorealistic backdrop, running red, root violet, ash grey palette, thumbnail-readable silhouette, no characters or hands in frame</style>
+</krea2_prompt>

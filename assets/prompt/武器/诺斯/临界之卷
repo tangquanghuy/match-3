@@ -1,0 +1,11 @@
+临界之卷：
+wlopk2style, Yoneyama Mai Style,
+western fantasy style, DnD monster manual illustration, painterly fantasy,
+<krea2_prompt>
+  <subject>an umbral tome bound in eclipse-hide, its pages black and its ink a light that reads the wrong way round, the sole subject in a medium-close shot, dominating most of the frame, weapon only</subject>
+  <details>one page burning with a slow umbra-flame that leaves it intact, star-script punched through the boards, gilt edges gone dark</details>
+  <pose>hovering open on its own with the umbra-flame casting light the wrong way off the page, punched script clearly readable, no bearer, no hands</pose>
+  <environment>a northern night fell under auroral haze, clean minimal backdrop, the tome fully unobstructed, no characters</environment>
+  <lighting>strong key light on the subject, clear readable details</lighting>
+  <style>clean anime-style weapon design over a simple photorealistic backdrop, umbra violet, eclipse black, star gold palette, thumbnail-readable silhouette, no characters or hands in frame</style>
+</krea2_prompt>

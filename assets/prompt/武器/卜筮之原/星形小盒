@@ -1,0 +1,11 @@
+星形小盒：
+wlopk2style, Yoneyama Mai Style,
+western fantasy style, DnD monster manual illustration, painterly fantasy,
+<krea2_prompt>
+  <subject>the Star Locket, a locket cast as an eight-pointed star of pale silver, its hinged faces just parted to show a sliver of burning gold inside, the sole subject in a medium-close shot, dominating most of the frame, weapon only</subject>
+  <details>constellation pin-pricks drilled through both star faces, dawn-gold light leaking from the hinge seam, a fine chain gathered in a coil beneath it</details>
+  <pose>suspended midair with the star upright and slowly rotating, crossed beams of light bursting from its points while tiny blessing-motes drift out of the seam, drilled pin-pricks and gold leak clearly readable, no bearer, no hands</pose>
+  <environment>night plain grass under a starfield glow, one single blurred standing stone far in the back, clean minimal backdrop, the locket fully unobstructed, no characters</environment>
+  <lighting>strong key light on the subject, clear readable details</lighting>
+  <style>clean anime-style weapon design over a simple photorealistic backdrop, locket silver, dawn gold, star-field blue palette, thumbnail-readable silhouette, no characters or hands in frame</style>
+</krea2_prompt>

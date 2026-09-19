@@ -1,0 +1,11 @@
+织网魔书：
+wlopk2style, Yoneyama Mai Style,
+western fantasy style, DnD monster manual illustration, painterly fantasy,
+<krea2_prompt>
+  <subject>the Weaver's Tome, a codex whose covers are stretched spider-silk over chitin board, its spine a row of silver spinneret rings, the sole subject in a medium-close shot, dominating most of the frame, weapon only</subject>
+  <details>pages fused into a single stretched web that still shows legible glyphs, six trapped motes of dawn-gold light in the strands, a live silk thread running off the bottom edge</details>
+  <pose>floating open midair with the silk pages humming taut, a wheel of web-gem light spinning itself across the open spread, spinneret rings and trapped motes clearly readable, no bearer, no hands</pose>
+  <environment>velvet-dark stone under a web-filtered glow, one single blurred cocoon pillar far in the back, clean minimal backdrop, the tome fully unobstructed, no characters</environment>
+  <lighting>strong key light on the subject, clear readable details</lighting>
+  <style>clean anime-style weapon design over a simple photorealistic backdrop, silk silver, chitin umber, glyph gold palette, thumbnail-readable silhouette, no characters or hands in frame</style>
+</krea2_prompt>

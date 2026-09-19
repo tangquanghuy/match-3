@@ -2922,3 +2922,193 @@
    覆盖已删除：基类 `.tile-img`（本文件上方）的 `width:100%; height:100%; object-fit:contain`
    本身就保证「盒子等于容器、图等比内缩」，不需要任何特例。 */
 .vault-forge-hint { font-size: 12px; color: #8a8f9c; }
+
+/* ===========================================================================
+   阶段 B · 窗口 O 批次 2（编队页 #team）
+   逐条对应 design/ux-audit/pages/03-team.md：TM-1 队伍仪表与槽位数值 /
+   TM-2 换位控件 / TM-3 卸下控件 / TM-4「沉闷单调」的视觉三档与选中态形变 /
+   TM-5 旗帜居中弹层 / TM-6 名册筛选行 / TM-7 小卡稀有度与数值 / TM-8 校验清单 /
+   TM-9 空编队徽章 / TM-11 切换条留白。
+   追加在文件末尾 = 覆盖上方「亮底小样」与「暗色覆盖」两层里打架的旧值。
+   =========================================================================== */
+
+/* ---- TM-4 视觉三档：容器最暗 / 内容中间 / 主体最亮（阶段 A 七类容器明度差 <2%）---- */
+.team-screen .panel { background: #0a0a11; }                    /* 第三档：容器 */
+.team-screen .lineup { background: linear-gradient(#17151f, #100e17 62%); } /* 第一档：主体 */
+.slot { background: #131220; border-color: #6d5b3f; }           /* 第二档：内容 */
+.mini { background: #121120; border-color: #6d5b3f; }
+.team-switcher { background: #0a0a11; }
+
+/* 选中态"形变"而不是只换描边（阶段 A 选中与未选中只差一个 border-color） */
+.slot.on {
+  background: linear-gradient(#221d2c, #171423 70%);
+  border-color: #e1c891;
+  box-shadow: 0 0 0 1px #e1c89166, 0 10px 22px #000a, inset 3px 0 0 #e8c87a;
+  transform: translateY(-2px);
+}
+.slot.on .slot-foot { background: linear-gradient(180deg, #221c2e, #14111c); }
+.slot:hover:not(.on) { border-color: #9a8154; transform: translateY(-1px); }
+
+/* 「出战中」徽章改暗金：绿色在本页只留给「已上阵」角标（阶段 A 它是全页唯一饱和色、抢了 CTA 的位） */
+.active-badge { color: #d9c49a; background: #191521; border-color: #7d6743; letter-spacing: 2px; }
+.active-badge.active { color: #f2dfae; background: linear-gradient(#3a2e1c, #241c12); border-color: #c0a163; }
+.active-badge.incomplete { color: #e0a996; background: #241619; border-color: #8f5a4a; }
+
+/* 保存按钮：没东西可存时不摆一个近黑灰的死按钮，改静态"已保存 ✓"观感 */
+.save-team:disabled { color: #6f6a76; background: #16141c; border-color: #4a4250; box-shadow: none; }
+.save-hint { color: #8b8196; }
+.save-hint.dirty { color: #e0b076; }
+
+/* Compact coverage strip; individual stats belong to the selected portrait's details. */
+.team-gauge {
+  flex: none; min-height: 28px; margin: 0 0 8px;
+  display: flex; align-items: center; gap: 12px;
+  border-bottom: 1px solid #413a39;
+}
+.team-screen .gauge-count { flex: none; color: #d5c296; font: 13px Georgia; }
+.team-screen .gauge-summary { color: #bca77e; font-size: 11px; white-space: nowrap; }
+.team-screen .gauge-colors { display: flex; align-items: center; gap: 9px; }
+.team-screen .gauge-colors .cov { display: inline-flex; align-items: center; gap: 2px; color: #d5c296; font: 10px Georgia; }
+.team-screen .gauge-colors .cov svg { width: 13px; height: 16px; }
+.team-screen .gauge-colors .cov.zero { opacity: .35; }
+
+/* Portraits fill their slots; the name and level occupy one slim footer. */
+.slots { gap: 10px; }
+.slot-wrap { position: relative; min-height: 0; }
+.slot-wrap > .slot { width: 100%; height: 100%; }
+.slot-ops { position: absolute; bottom: 43px; left: 7px; z-index: 4; display: flex; gap: 5px; opacity: 0; transition: opacity .12s; }
+.slot-wrap:hover .slot-ops, .slot-wrap:focus-within .slot-ops { opacity: 1; }
+.slot-wrap > .slot.on + .slot-ops { opacity: .85; }
+.slot-op {
+  width: 24px; height: 24px; display: grid; place-items: center;
+  color: #e4d3ab; background: #12101acc; border: 1px solid #8e7347; border-radius: 3px;
+  font: 13px/1 var(--body);
+}
+.slot-op:hover:not(:disabled) { background: #241d2c; border-color: #e1c891; }
+.slot-op.drop:hover:not(:disabled) { color: #f0b9a6; border-color: #c07a63; }
+.slot-op:disabled { opacity: .3; }
+.team-screen .slot-art { flex: 1 1 auto; width: 100%; height: auto; min-height: 0; }
+.team-screen .slot-art img { object-position: 50% 20%; }
+.slot-foot {
+  flex: none; height: 35px; min-width: 0;
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 7px; padding: 4px 9px 5px;
+}
+.team-screen .slot-foot b { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 15px; }
+.team-screen .slot-foot .slot-level { flex: none; color: #d2bd90; font: 11px Georgia; }
+.team-screen .slot.r-0 { --rc: #aab2ad; } .team-screen .slot.r-1 { --rc: #4caf6a; }
+.team-screen .slot.r-2 { --rc: #9a4fd4; } .team-screen .slot.r-3 { --rc: #ffe24a; }
+.team-screen .slot.r-4 { --rc: #c56b2d; } .team-screen .slot.r-5 { --rc: #56d8ff; }
+.team-screen .slot.r-hero { --rc: #d8c290; }
+.team-screen .slot:not(.empty) .slot-foot { border-top: 2px solid var(--rc); }
+.team-screen .slot.on:not(.empty) .slot-foot { border-top-color: #e1c891; }
+/* The mana corner still shows color and cost without a second text row. */
+.slot-mana i {
+  display: grid; place-items: center;
+  position: absolute; right: -5px; bottom: -4px; z-index: 1;
+  width: 18px; height: 18px; border-radius: 50%;
+  color: #f7e7c4; background: #1c2434; border: 1px solid #dfc986;
+  font: 700 10px Georgia; font-style: normal; line-height: 1; text-shadow: 0 1px #000;
+}
+.slot.empty { background: repeating-linear-gradient(135deg, #11101a, #11101a 9px, #15141f 9px, #15141f 18px); }
+.team-screen .slot.empty .slot-art { height: auto; color: #666073; font: 32px Georgia; }
+
+/* Validation reserves space only when something blocks saving. */
+.team-checks { flex: none; list-style: none; margin: 6px 0 0; padding: 0; display: flex; flex-wrap: wrap; gap: 4px 14px; }
+.team-checks li { display: flex; align-items: center; gap: 5px; font-size: 11px; }
+.team-checks li [data-icon] { width: 12px; height: 12px; }
+.team-checks .bad { color: #e0a08a; }
+.team-checks .ok { color: #a9c88b; }
+
+/* ---- TM-6 名册筛选行 ---- */
+.filters { flex-wrap: wrap; gap: 8px; }
+.filters-colors { margin-top: -2px; }
+.filter-sep { width: 1px; height: 16px; background: #4a4250; }
+.filter-hint { color: #93836c; font-size: 10px; letter-spacing: 2px; }
+.team-screen .filters select {
+  height: 24px; padding: 0 20px 0 7px; border: 1px solid #453a4e; border-radius: 3px;
+  background: #1d1824 url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='5'%3E%3Cpath d='M0 0l4 5 4-5z' fill='%23a98f5e'/%3E%3C/svg%3E") no-repeat right 6px center;
+  color: #d8c8a8; font: 11px var(--body); appearance: none; cursor: pointer; outline: 0;
+}
+.team-screen .filters select option { background: #171320; color: #dccaa5; }
+.team-screen .color-chips { display: flex; gap: 4px; }
+.team-screen .color-chip { width: 24px; height: 22px; display: grid; place-items: center; padding: 2px 4px; background: #1d1826; border: 1px solid #453a4e; border-radius: 3px; }
+.team-screen .color-chip svg { width: 100%; height: 100%; }
+.team-screen .color-chip.selected { border-color: #e0c078; background: #2a2130; box-shadow: 0 0 6px #d2af6644; }
+.team-screen .filter-reset { height: 22px; padding: 0 9px; border: 1px solid #7a4a3a; border-radius: 3px; background: #241619; color: #d8a08a; font-size: 10px; }
+.team-screen .filter-reset.is-off { visibility: hidden; pointer-events: none; }
+.roster-count { margin-left: auto; color: #c9b088; font: 11px Georgia; }
+
+/* Twelve legible portraits per page, with no stat block over the artwork. */
+.roster-grid { grid-template-columns: repeat(6, 1fr); gap: 8px; }
+.mini { position: relative; overflow: hidden; }
+.mini .rarity-edge { position: absolute; top: 0; left: 0; right: 0; height: 3px; z-index: 3; background: var(--rc, #8f98a3); opacity: .92; }
+.mini.r-0 { --rc: #aab2ad; } .mini.r-1 { --rc: #4caf6a; } .mini.r-2 { --rc: #9a4fd4; }
+.mini.r-3 { --rc: #ffe24a; } .mini.r-4 { --rc: #c56b2d; } .mini.r-5 { --rc: #56d8ff; }
+.mini.r-hero { --rc: #d8c290; }
+.team-screen .mini-shade { padding: 18px 7px 5px; background: linear-gradient(transparent, #0b0b12 74%); }
+.team-screen .mini-shade b { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 12px; }
+.team-screen .mini-mana { width: 29px; height: 29px; padding: 4px; }
+.team-screen .mini.in:after {
+  content: "✓"; top: auto; bottom: 5px; right: 5px;
+  width: 16px; height: 16px; display: grid; place-items: center;
+  padding: 0; font-size: 11px; line-height: 1; letter-spacing: 0;
+}
+.team-screen .mini.in .mini-shade b { padding-right: 18px; }
+.team-screen .inspect { height: 178px; }
+.team-screen .inspect-name { min-width: 0; }
+.team-screen .inspect-name b { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.team-screen .inspect-name span { flex: none; max-width: 60%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.team-screen .inspect-copy > p { overflow-y: auto; }
+
+/* ---- TM-11 队伍切换条：一个 tab 不再留 1100px 白 ---- */
+.team-tabs { flex: 1; }
+.team-tab { flex: 1 1 0; max-width: 300px; }
+
+/* ---- TM-5 旗帜选择器：居中独立弹层 ---- */
+.banner-veil { z-index: 40; }
+.banner-picker {
+  width: 720px; max-height: 620px; display: flex; flex-direction: column;
+  background: linear-gradient(160deg, #211b29, #120f18 62%);
+  border: 1px solid #a38b56; box-shadow: 0 24px 80px #000c, inset 0 1px #f0dab718;
+  font: 12px var(--body); position: relative;
+}
+.banner-picker-head { display: flex; align-items: center; gap: 14px; padding: 14px 18px 10px; border-bottom: 1px solid #4a3c2e; }
+.banner-picker-head small { display: block; color: #9e865f; font: 9px Georgia; letter-spacing: 3px; }
+.banner-picker-head b { display: block; margin-top: 3px; color: #e6d09d; font: 20px var(--display); letter-spacing: 3px; }
+.banner-used { margin-left: auto; margin-right: 34px; color: #cbbb9a; font-size: 11px; }
+.banner-picker-note { padding: 8px 18px 0; color: #8f8498; font-size: 10px; }
+.banner-picker-list { flex: 1; min-height: 0; overflow-y: auto; padding: 10px 14px 14px; display: grid; grid-template-columns: 1fr 1fr; gap: 5px; align-content: start; }
+.banner-group { grid-column: 1 / -1; color: #93836c; font-size: 10px; letter-spacing: 2px; margin-top: 4px; }
+.banner-locked-group { grid-column: 1 / -1; }
+.banner-locked-group summary { cursor: pointer; color: #9a8e9c; font-size: 10px; padding: 8px 0 6px; border-top: 1px solid #332b41; margin-top: 6px; }
+.banner-locked-group[open] { display: grid; grid-template-columns: 1fr 1fr; gap: 5px; }
+.banner-locked-group[open] summary { grid-column: 1 / -1; }
+.banner-opt { display: flex; align-items: center; gap: 8px; padding: 7px 9px; text-align: left; background: #191622; border: 1px solid #322c42; border-radius: 3px; }
+.banner-opt:hover:not(:disabled) { border-color: #8e7347; filter: brightness(1.15); }
+.banner-opt.on { border-color: #d8c290; background: #241d2e; box-shadow: inset 2px 0 0 #e8c87a; }
+.banner-opt.locked { opacity: .42; }
+.banner-opt-name { display: flex; flex-direction: column; min-width: 0; flex: 1; }
+.banner-opt-name b { color: #f0e2c0; font: 12px var(--display); }
+.banner-opt-name small { color: #9a8e9c; font-size: 10px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.banner-opt-boosts { display: flex; gap: 5px; flex: none; }
+.banner-gem { display: inline-flex; align-items: center; gap: 2px; color: #e6d4a4; font-size: 10px; }
+.banner-gem svg { width: 12px; height: 12px; }
+.banner-gem i { font-style: normal; }
+.banner-lock { color: #d39a70; font-size: 10px; white-space: nowrap; }
+.banner-hit { color: #8fb996; font-size: 10px; white-space: nowrap; }
+
+/* 撤销提示：toast 可点时给出可点线索（TM-3 卸下后 Ctrl+Z / 点 toast 撤销） */
+.toast.undoable { cursor: pointer; border-bottom: 1px solid #d8c290; }
+
+/* GOW troop rarity mapping: Common/Uncommon/Rare/UltraRare/Epic/Legendary. */
+.team-screen .mini.r-0, .team-screen .slot.r-0 { --rc: #aab2ad; }
+.team-screen .mini.r-1, .team-screen .slot.r-1 { --rc: #4caf6a; }
+.team-screen .mini.r-2, .team-screen .slot.r-2 { --rc: #9a4fd4; }
+.team-screen .mini.r-3, .team-screen .slot.r-3 { --rc: #ffe24a; }
+.team-screen .mini.r-4, .team-screen .slot.r-4 { --rc: #c56b2d; }
+.team-screen .mini.r-5, .team-screen .slot.r-5 { --rc: #56d8ff; }
+.team-screen .mini { border: 2px solid var(--rc, #aab2ad); }
+.team-screen .mini .rarity-edge { display: none; }
+.team-screen .slot:not(.empty) { border-color: var(--rc, #aab2ad); }
+.team-screen .slot:not(.empty) .slot-foot { border-top-color: var(--rc, #aab2ad); }

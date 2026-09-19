@@ -1,0 +1,11 @@
+冰冻分形：
+wlopk2style, Yoneyama Mai Style,
+western fantasy style, DnD monster manual illustration, painterly fantasy,
+<krea2_prompt>
+  <subject>the Frozen Fractal, a fae-frost staff whose head is a self-similar snowflake of blue glass branching into smaller and smaller arms, the sole subject in a medium-close shot, dominating most of the frame, weapon only</subject>
+  <details>a buried seam of red ember-light at the crystal's heart, silver-veined shaft polished like a skating blade, frost ferns repeating the head's own pattern down the wood</details>
+  <pose>standing planted in drift snow on its own, the fractal arms brightening arm by arm as blue motes and one red pulse travel the pattern, branching arms and red heart clearly readable, no bearer, no hands</pose>
+  <environment>bare snowfield under an even pale light, one single ice fin far in the back, clean minimal backdrop, the staff fully unobstructed, no characters</environment>
+  <lighting>strong key light on the subject, clear readable details</lighting>
+  <style>clean anime-style weapon design over a simple photorealistic backdrop, fractal ice blue, heart ember red, shaft silver palette, thumbnail-readable silhouette, no characters or hands in frame</style>
+</krea2_prompt>

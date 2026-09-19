@@ -1,0 +1,11 @@
+劫数之典：
+wlopk2style, Yoneyama Mai Style,
+western fantasy style, DnD monster manual illustration, painterly fantasy,
+<krea2_prompt>
+  <subject>the Doomed Codex, a war-orc lawbook bound in iron-scaled hide, its spine studded with rivet-rings and its clasp a doom-skull biting the boards shut, the sole subject in a medium-close shot, dominating most of the frame, weapon only</subject>
+  <details>dust-storm grit streaming from between the leaves, brown sigil-scars burned across the open page, a low lightning-gutter crawling the scaled cover</details>
+  <pose>floating open into the streaming grit on its own as the sigil-scars flare through, rivet rings and biting clasp clearly readable, no bearer, no hands</pose>
+  <environment>trod iron-mud under a smoky brown haze, a single iron trophy stake far in the back, clean minimal backdrop, the codex fully unobstructed, no characters</environment>
+  <lighting>strong key light on the subject, clear readable details</lighting>
+  <style>clean anime-style weapon design over a simple photorealistic backdrop, scale hide, sigil brown, storm grit palette, thumbnail-readable silhouette, no characters or hands in frame</style>
+</krea2_prompt>

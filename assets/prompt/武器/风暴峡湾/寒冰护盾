@@ -1,0 +1,11 @@
+寒冰护盾：
+wlopk2style, Yoneyama Mai Style,
+western fantasy style, DnD monster manual illustration, painterly fantasy,
+<krea2_prompt>
+  <subject>the Ice Aegis, a fjord aegis shield whose face is a plate of blue storm-ice framed in red-lacquered iron, the sole subject in a medium-close shot, dominating most of the frame, weapon only</subject>
+  <details>stolen strength running the frame as a thin red current under the lacquer, frost ferns blooming across the ice plate, a barrier-sheen hardening at the rim like a frozen wave about to curl</details>
+  <pose>standing rim-down on storm-slick stone on its own as the red current laps and the sheen curls, frame and ferns clearly readable, no bearer, no hands</pose>
+  <environment>storm-slick flagstones under a hard grey light, a single wall of fjord mist far in the back, clean minimal backdrop, the shield fully unobstructed, no characters</environment>
+  <lighting>strong key light on the subject, clear readable details</lighting>
+  <style>clean anime-style weapon design over a simple photorealistic backdrop, storm ice, frame red, sheen pale palette, thumbnail-readable silhouette, no characters or hands in frame</style>
+</krea2_prompt>

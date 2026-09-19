@@ -1,0 +1,11 @@
+镜像晶球：
+wlopk2style, Yoneyama Mai Style,
+western fantasy style, DnD monster manual illustration, painterly fantasy,
+<krea2_prompt>
+  <subject>a scrying orb of mirror-polished ice glass cradled in a split birch claw, the sole subject in a medium-close shot, dominating most of the frame, weapon only</subject>
+  <details>the surface catching a sunrise that exists nowhere in the room, hairline frost ferns under the glass, one gold fleck drifting inside like a caught spark</details>
+  <pose>hovering just free of its claw-cradle on its own, a pulse of frozen light flashing across the mirrored face, frost ferns clearly readable, no bearer, no hands</pose>
+  <environment>bare drift snow under pale peak-light haze, clean minimal backdrop, the orb fully unobstructed, no characters</environment>
+  <lighting>strong key light on the subject, clear readable details</lighting>
+  <style>clean anime-style weapon design over a simple photorealistic backdrop, mirror ice, spark gold, birch silver palette, thumbnail-readable silhouette, no characters or hands in frame</style>
+</krea2_prompt>

@@ -1,0 +1,11 @@
+劫数之卷：
+wlopk2style, Yoneyama Mai Style,
+western fantasy style, DnD monster manual illustration, painterly fantasy,
+<krea2_prompt>
+  <subject>the Doomed Tome, a blackened codex of deep-blue lacquered boards, its spine wrapped in cold iron and its clasps cast as little doom-skulls, the sole subject in a medium-close shot, dominating most of the frame, weapon only</subject>
+  <details>doom-script burning a slow blue along the page edges, frost creeping out from the binding into the air, a fork of pale lightning walking the cover's border lines</details>
+  <pose>floating open at a reader's tilt on its own as the doom-script spreads and a shard of blue ice-storm splits off the pages, skull clasps and border lightning clearly readable, no bearer, no hands</pose>
+  <environment>tomb sand under a pale dynastic haze, a single tilted obelisk far in the back, clean minimal backdrop, the tome fully unobstructed, no characters</environment>
+  <lighting>strong key light on the subject, clear readable details</lighting>
+  <style>clean anime-style weapon design over a simple photorealistic backdrop, lacquer blue, doom iron, page frost palette, thumbnail-readable silhouette, no characters or hands in frame</style>
+</krea2_prompt>

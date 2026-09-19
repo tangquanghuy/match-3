@@ -1,0 +1,11 @@
+死亡螺旋：
+wlopk2style, Yoneyama Mai Style,
+western fantasy style, DnD monster manual illustration, painterly fantasy,
+<krea2_prompt>
+  <subject>the Deathspire, a tower-cutter's scythe whose blade spirals a full turn like a burr, its spine rising into a spike, the sole subject in a medium-close shot, dominating most of the frame, weapon only</subject>
+  <details>the spiral edge shedding a rising helix of soul-purple light, stone-brown grit orbiting the spine-spike, tower-cut notches filed along the outer turn</details>
+  <pose>hovering spike-up on its own as the light helix climbs off the spiral and thins, grit orbit and notches clearly readable, no bearer, no hands</pose>
+  <environment>cracked ash ground under a grey ember haze, a single dead bramble far in the back, clean minimal backdrop, the scythe fully unobstructed, no characters</environment>
+  <lighting>strong key light on the subject, clear readable details</lighting>
+  <style>clean anime-style weapon design over a simple photorealistic backdrop, spiral steel, helix purple, grit brown palette, thumbnail-readable silhouette, no characters or hands in frame</style>
+</krea2_prompt>

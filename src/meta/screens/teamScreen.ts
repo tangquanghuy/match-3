@@ -9,6 +9,7 @@ import { troopStatsOf } from '../systems/troopProgress';
 import { heroStatsOf } from '../systems/hero';
 import { anyWeaponById } from '../data/weaponCatalog';
 import { bannerUnlocked } from '../systems/banners';
+import { MIN_TEAM_SIZE, validateTeam, type TeamIssue } from '../systems/teamRules';
 import { BANNERS, BANNER_COLOR_LABELS, bannerOf } from '../data/banners';
 import { bottomNavHtml, mountIcons, toast, toastHtml, topbarHtml, gemSvg, $, $$ } from '../shell/chrome';
 import { isFailure } from '../gateway';
@@ -16,7 +17,11 @@ import { renderSpell } from '../shell/spellText';
 import type { Screen, ShellCtx } from '../shell/screen';
 
 type SlotValue = number | 'hero' | null;
-const PAGE_SIZE = 8;
+/** 名册每页张数（TM-6：阶段 A 8 张 / 85 名 = 11 页） */
+const PAGE_SIZE = 12;
+const ROSTER_COLORS = ['red', 'green', 'blue', 'yellow', 'purple', 'brown'] as const;
+const COLOR_CN_ROSTER: Record<string, string> = { red: '红', green: '绿', blue: '蓝', yellow: '黄', purple: '紫', brown: '棕' };
+const RARITY_CN_ROSTER = ['普通', '精良', '稀有', '传说', '史诗', '神话'] as const;
 
 /** GOW 封面 CDN（与战斗渲染 App.ts 同源同命名）：重绘立绘批次的上传源，命中不了的条目继续沿链回退 */
 export function troopCdnArt(name: string): string {
@@ -121,6 +126,8 @@ interface RosterEntry {
   cost: number;
   colors: string[];
   copies: number;
+  /** 稀有度档（主角 = -1，小卡不画色边） */
+  rarityIdx: number;
   attack: number;
   armor: number;
   health: number;
@@ -140,6 +147,14 @@ export class TeamScreen implements Screen {
   private filter = 'all';
   private search = '';
   private page = 0;
+  /** 名册筛选（TM-6：阶段 A 一维筛选都没有，只能翻 11 页肉眼扫） */
+  private typeFilter = '';
+  private rarityFilter = '';
+  private colorFilter: string | null = null;
+  private sortKey: 'level' | 'attack' | 'health' | 'cost' | 'rarity' | 'name' = 'level';
+  /** 撤销一次"卸下"（TM-3：阶段 A 双击槽位静默删人且无法撤销） */
+  private lastRemoved: { index: number; value: SlotValue } | null = null;
+  private confirmAction: (() => void) | null = null;
   private listeners: Array<[EventTarget, string, EventListenerOrEventListenerObject]> = [];
 
   html(): string {
@@ -149,7 +164,7 @@ export class TeamScreen implements Screen {
         <section class="team-switcher" aria-label="队伍预设">
           <div class="switcher-heading">
             <span data-icon="shield"></span>
-            <div><b>我的队伍</b><small>切换并管理已保存的编队</small></div>
+            <div><b>我的队伍</b></div>
           </div>
           <div class="team-tabs" id="teamTabs"></div>
           <button class="add-team" id="addTeam" type="button"><span>＋</span>新建</button>
@@ -166,10 +181,12 @@ export class TeamScreen implements Screen {
         <div class="team-workspace">
           <section class="panel lineup">
             <div class="panel-head lineup-head">
-              <div><small>点选槽位作为编入目标 · 队首优先承受骷髅</small><h2 id="teamName">—</h2></div>
+              <div><h2 id="teamName">—</h2></div>
               <span class="active-badge" id="activeBadge">出战中</span>
             </div>
+            <div class="team-gauge" id="teamGauge"></div>
             <div class="slots" id="slots"></div>
+            <ul class="team-checks" id="teamChecks"></ul>
             <div class="lineup-bar">
               <button class="banner-chip" id="banner" type="button"><span data-icon="banner"></span><span id="bannerCopy">旗帜：未选择</span></button>
               <span class="save-hint" id="saveHint">已保存</span>
@@ -179,13 +196,34 @@ export class TeamScreen implements Screen {
           </section>
           <section class="panel roster">
             <div class="panel-head">
-              <div><small>单击查看详情 · 双击编入选中槽位</small><h2>可编入成员</h2></div>
+              <div><h2>可编入成员</h2></div>
               <div class="meta">已拥有 <b id="ownedCount">0</b> 名</div>
             </div>
             <div class="filters" id="filters">
               <button class="filter-tab on" data-filter="all">全部</button>
               <button class="filter-tab" data-filter="hero">主角</button>
+              <span class="filter-sep"></span>
+              <select id="typeFilter" aria-label="按种族筛选"><option value="">全部种族</option></select>
+              <select id="rarityFilter" aria-label="按品质筛选">
+                <option value="">全部品质</option>
+                <option value="0">普通</option><option value="1">精良</option><option value="2">稀有</option>
+                <option value="3">传说</option><option value="4">史诗</option><option value="5">神话</option>
+              </select>
+              <select id="sortRoster" aria-label="排序方式">
+                <option value="level">等级 ↓</option>
+                <option value="attack">攻击 ↓</option>
+                <option value="health">生命 ↓</option>
+                <option value="cost">耗蓝 ↑</option>
+                <option value="rarity">稀有度 ↓</option>
+                <option value="name">名字</option>
+              </select>
               <label class="roster-search"><span data-icon="funnel"></span><input id="searchInput" type="search" placeholder="搜索成员"></label>
+            </div>
+            <div class="filters filters-colors">
+              <small class="filter-hint">魔法色</small>
+              <div class="color-chips" id="colorChips"></div>
+              <button class="filter-reset is-off" id="resetRoster" type="button">清空筛选</button>
+              <small class="roster-count" id="rosterCount"></small>
             </div>
             <div class="roster-grid" id="roster"></div>
             <div class="pager">
@@ -197,13 +235,22 @@ export class TeamScreen implements Screen {
           </section>
         </div>
       </div>
-      ${bottomNavHtml('队伍', '3–4 人出战')}
-      ${toastHtml()}`;
+      ${bottomNavHtml('队伍', '编队')}
+      ${toastHtml()}
+      <!-- TM-9/TM-10：破坏性操作的二次确认（替掉"点一下就清空/删除"） -->
+      <div class="modal-veil" id="teamConfirm" hidden>
+        <section class="money-tip" role="dialog" aria-modal="true" aria-labelledby="teamConfirmTitle">
+          <small id="teamConfirmKicker">CONFIRM</small>
+          <h2 id="teamConfirmTitle">确认</h2>
+          <ul id="teamConfirmLines"></ul>
+          <button class="save-team" id="teamConfirmOk" type="button" style="width:100%;margin-top:18px">确认</button>
+          <button class="cancel" id="teamConfirmCancel" type="button">取消</button>
+        </section>
+      </div>`;
   }
 
   mount(ctx: ShellCtx): void {
     this.ctx = ctx;
-    this.injectBannerPickerStyle();
     const save = ctx.save();
     this.selectedTeamIndex = Math.min(save.activeTeamIndex, Math.max(0, save.teams.length - 1));
     this.loadTeamIntoSlots();
@@ -214,31 +261,105 @@ export class TeamScreen implements Screen {
     this.search = '';
     this.page = 0;
 
-    // 种族筛选 tabs：从收藏里实际出现的种族生成（前 5 个）
+    // 种族筛选改下拉全量（TM-6：阶段 A 只截前 5 个 tab，连自己队里的构装/元素都没有）
     const types = new Map<string, string>();
     for (const key of Object.keys(save.collection)) {
       const troop = getTroopById(Number(key));
-      const t = troop?.troopTypes?.[0];
-      if (t && !types.has(t)) types.set(t, typeCn([t]));
+      for (const t of troop?.troopTypes ?? []) if (!types.has(t)) types.set(t, typeCn([t]));
     }
+    const typeSelect = $('#typeFilter') as HTMLSelectElement;
+    [...types.entries()]
+      .sort((a, b) => a[1].localeCompare(b[1], 'zh-Hans-CN'))
+      .forEach(([raw, cn]) => {
+        const opt = document.createElement('option');
+        opt.value = raw;
+        opt.textContent = cn;
+        typeSelect.appendChild(opt);
+      });
     const filterTabs = $('#filters');
-    filterTabs.querySelectorAll('[data-filter="t"]').forEach((el) => el.remove());
-    const searchLabel = filterTabs.querySelector('.roster-search');
-    [...types.entries()].slice(0, 5).forEach(([raw, cn]) => {
-      const b = document.createElement('button');
-      b.className = 'filter-tab';
-      b.dataset.filter = 't:' + raw;
-      b.textContent = cn;
-      filterTabs.insertBefore(b, searchLabel);
+    const colorChips = $('#colorChips');
+    colorChips.innerHTML = ROSTER_COLORS.map(
+      (c) => `<button class="color-chip" data-color="${c}" title="${COLOR_CN_ROSTER[c]}色法力" type="button">${gemSvg([c])}</button>`,
+    ).join('');
+    this.on(colorChips, 'click', (e) => {
+      const chip = (e.target as HTMLElement).closest('[data-color]') as HTMLElement | null;
+      if (!chip) return;
+      this.colorFilter = this.colorFilter === chip.dataset.color ? null : chip.dataset.color!;
+      this.page = 0;
+      this.renderRoster();
+    });
+    this.on(typeSelect, 'change', () => {
+      this.typeFilter = typeSelect.value;
+      this.page = 0;
+      this.renderRoster();
+    });
+    this.bind('#rarityFilter', 'change', () => {
+      this.rarityFilter = ($('#rarityFilter') as HTMLSelectElement).value;
+      this.page = 0;
+      this.renderRoster();
+    });
+    this.bind('#sortRoster', 'change', () => {
+      this.sortKey = ($('#sortRoster') as HTMLSelectElement).value as typeof this.sortKey;
+      this.page = 0;
+      this.renderRoster();
+    });
+    this.bind('#resetRoster', 'click', () => {
+      this.typeFilter = this.rarityFilter = '';
+      this.colorFilter = null;
+      this.search = '';
+      this.filter = 'all';
+      typeSelect.value = '';
+      ($('#rarityFilter') as HTMLSelectElement).value = '';
+      ($('#searchInput') as HTMLInputElement).value = '';
+      filterTabs.querySelectorAll('.filter-tab').forEach((b) => b.classList.toggle('on', (b as HTMLElement).dataset.filter === 'all'));
+      this.page = 0;
+      this.renderRoster();
+    });
+    // 二次确认弹层（TM-9/TM-10）
+    this.bind('#teamConfirmOk', 'click', () => {
+      const act = this.confirmAction;
+      this.closeConfirm();
+      act?.();
+    });
+    this.bind('#teamConfirmCancel', 'click', () => this.closeConfirm());
+    this.on($('#teamConfirm'), 'click', (e) => {
+      if ((e as MouseEvent).target === $('#teamConfirm')) this.closeConfirm();
+    });
+    this.on(document, 'keydown', (e) => {
+      const ev = e as KeyboardEvent;
+      if (ev.key === 'Escape') {
+        if (!$('#teamConfirm').hidden) return this.closeConfirm();
+        this.closeBannerPicker();
+        return;
+      }
+      if ((ev.ctrlKey || ev.metaKey) && ev.key.toLowerCase() === 'z' && this.lastRemoved) {
+        ev.preventDefault();
+        this.undoRemove();
+      }
     });
 
     this.bind('#addTeam', 'click', () => void this.addTeam());
     this.bind('#renameTeam', 'click', () => void this.renameTeam());
+    // TM-9：「清空成员」紧贴「删除队伍」，阶段 A 一点就清空且无撤销
     this.bind('#clearTeam', 'click', () => {
-      this.slots = [null, null, null, null];
-      this.selected = 0;
-      this.renderAll();
-      toast('已清空编队（保存前不会写入存档）。');
+      const count = this.slots.filter(Boolean).length;
+      if (!count) return void toast('编队已经是空的。');
+      this.askConfirm({
+        kicker: 'CLEAR LINEUP',
+        title: '清空当前编队？',
+        lines: [
+          ['要清掉的成员', this.slots.filter(Boolean).map((s) => this.byKey(String(s))?.name ?? '?').join('、')],
+          ['存档', '保存前不写入存档'],
+        ],
+        okLabel: `清空 ${count} 名成员`,
+        run: () => {
+          this.slots = [null, null, null, null];
+          this.selected = 0;
+          this.lastRemoved = null;
+          this.renderAll();
+          toast('已清空编队（保存前不会写入存档）。');
+        },
+      });
     });
     this.bind('#deleteTeam', 'click', () => void this.deleteTeam());
     this.bind('#saveTeam', 'click', () => void this.saveCurrent());
@@ -310,6 +431,7 @@ export class TeamScreen implements Screen {
       cost: equipped?.manaCost ?? 1,
       colors: equipped ? [...equipped.manaColors] : ['Brown'],
       copies: 1,
+      rarityIdx: -1,
       ...heroStatsOf(save),
       spellName: equipped ? `主角法术 · ${equipped.name}` : '主角法术（未装备武器）',
       spellDesc: equipped
@@ -330,6 +452,7 @@ export class TeamScreen implements Screen {
         cost: troop.manaCost,
         colors: troop.manaColors,
         copies: rec.copies + 1,
+        rarityIdx: troop.rarityIdx,
         attack: stats.attack,
         armor: stats.armor,
         health: stats.health,
@@ -365,21 +488,68 @@ export class TeamScreen implements Screen {
     const count = this.slots.filter(Boolean).length;
     const dirty = this.isDirty();
     $('#teamName').textContent = team?.name ?? '—';
-    $('#activeBadge').textContent = active ? '出战中' : count < 3 ? '未完成' : '备用队伍';
-    $('#activeBadge').className = 'active-badge' + (active ? ' active' : count < 3 ? ' incomplete' : '');
+    // TM-9：0 人/不足 3 人的编辑态不许再挂「出战中」
+    const badgeState = count < MIN_TEAM_SIZE ? 'incomplete' : active ? 'active' : '';
+    $('#activeBadge').textContent = count === 0 ? '空编队' : count < MIN_TEAM_SIZE ? `未完成 ${count}/3` : active ? '出战中' : '备用队伍';
+    $('#activeBadge').className = 'active-badge' + (badgeState ? ' ' + badgeState : '');
+    this.renderGauge();
+    this.renderSlots();
+    const validation = this.renderChecks();
     $('#saveHint').textContent = dirty ? '有未保存的更改' : '已保存';
     $('#saveHint').classList.toggle('dirty', dirty);
-    ($('#saveTeam') as HTMLButtonElement).disabled = !dirty;
+    // TM-8：不合法时禁用保存（阶段 A 只看 dirty，2 人队照样亮着金按钮催你点）
+    const saveBtn = $('#saveTeam') as HTMLButtonElement;
+    saveBtn.disabled = !dirty || !validation.ok;
+    saveBtn.title = !validation.ok ? validation.issues.map((i) => i.message).join(' · ') : dirty ? '保存这支编队' : '没有未保存的更改';
     $('#setActive').hidden = active;
-    ($('#setActive') as HTMLButtonElement).disabled = count < 3;
-    $('#setActive').title = count < 3 ? '至少编入 3 名成员' : '将这支队伍设为当前出战队伍';
+    ($('#setActive') as HTMLButtonElement).disabled = count < MIN_TEAM_SIZE || !validation.ok;
+    $('#setActive').title = count < MIN_TEAM_SIZE ? `至少编入 ${MIN_TEAM_SIZE} 名成员` : '将这支队伍设为当前出战队伍';
     const banner = $('#bannerCopy');
     if (banner) banner.textContent = this.banner ? `旗帜：${this.banner}` : '旗帜：未选择';
     $('#ownedCount').textContent = String(Object.keys(save.collection).length);
     this.renderTeamTabs();
-    this.renderSlots();
     this.renderRoster();
     this.renderInspect();
+  }
+
+  /** 汇总只展示队伍用色；个体属性与法术集中在选中详情。 */
+  private renderGauge(): void {
+    const box = $('#teamGauge');
+    if (!box) return;
+    const members = this.slots
+      .filter((s): s is Exclude<SlotValue, null> => s !== null)
+      .map((s) => this.byKey(String(s)))
+      .filter((t): t is RosterEntry => !!t);
+    if (!members.length) {
+      box.innerHTML = '<span class="gauge-summary">空编队 · 还差 3 人 · 法力色覆盖</span><span class="gauge-count">0 / 4</span>';
+      return;
+    }
+    const averageLevel = Math.round(members.reduce((sum, member) => sum + member.level, 0) / members.length);
+    const coverage = ROSTER_COLORS.map((c) => ({
+      color: c,
+      n: members.filter((m) => m.colors.some((x) => x.toLowerCase() === c)).length,
+    }));
+    box.innerHTML = `
+      <span class="gauge-summary">平均 Lv.${averageLevel} · 法力色覆盖</span>
+      <span class="gauge-count" title="已编入 ${members.length} 名，最多 4 名">${members.length} / 4</span>
+      <span class="gauge-colors" aria-label="法力色覆盖" title="法力色覆盖">
+        ${coverage.map((c) => `<span class="cov${c.n ? '' : ' zero'}" title="${COLOR_CN_ROSTER[c.color]}色：${c.n} 名">${gemSvg([c.color])}<i>${c.n}</i></span>`).join('')}
+      </span>`;
+  }
+
+  /** 常驻列出编队校验状态；通过项也给出明确的可出战反馈。 */
+  private renderChecks(): { ok: boolean; issues: TeamIssue[] } {
+    const save = this.ctx.save();
+    const members = this.slotsToMembers();
+    const validation = validateTeam(save, { members, bannerKingdomId: this.banner });
+    const list = $('#teamChecks');
+    if (!list) return validation;
+    list.hidden = false;
+    list.innerHTML = validation.issues.length
+      ? validation.issues.map((i) => `<li class="bad"><span data-icon="lock"></span>${i.message}</li>`).join('')
+      : '<li class="ok"><span data-icon="check"></span>编队完整，可出战</li>';
+    mountIcons(list);
+    return validation;
   }
 
   private renderTeamTabs(): void {
@@ -391,7 +561,7 @@ export class TeamScreen implements Screen {
         const count = team.members.length;
         return `<button class="team-tab${isSelected ? ' on' : ''}${isActive ? ' active' : ''}" data-team="${index}" type="button">
           <span class="team-index">${String(index + 1).padStart(2, '0')}</span>
-          <span class="team-tab-copy"><b>${team.name}</b><small>${isActive ? '出战中' : count < 3 ? '未完成' : `${count} 人编队`}</small></span>
+          <span class="team-tab-copy"><b>${team.name}</b><small>${count < MIN_TEAM_SIZE ? `未完成 ${count}/3` : `${count} 人编队`}${isActive ? ' · 出战' : ''}</small></span>
           ${isSelected && this.isDirty() ? '<i class="dirty-dot" title="有未保存的更改"></i>' : ''}
         </button>`;
       })
@@ -416,18 +586,25 @@ export class TeamScreen implements Screen {
       .map((i) => {
         const key = this.slots[i];
         const t = key != null ? this.byKey(String(key)) : undefined;
+        // 站位操作（TM-2 换位 / TM-3 卸下）是槽位按钮的兄弟节点：按钮不能嵌按钮
+        const ops = `<span class="slot-ops">
+            <button class="slot-op" data-swap="${i}" type="button" aria-label="与上一格交换站位" title="${i === 0 ? '与 2 号位交换（把这张换下队首）' : `与 ${i} 号位交换`}">⇅</button>
+            <button class="slot-op drop" data-drop="${i}" type="button" aria-label="卸下" title="卸下这名成员"${t ? '' : ' disabled'}>✕</button>
+          </span>`;
         if (!t) {
-          return `<button class="slot empty${this.selected === i ? ' on' : ''}" data-slot="${i}" type="button">
-            <span class="slot-tag">${i + 1}</span>
-            <span class="slot-art">空 位</span>
-            <span class="slot-foot"><b>空位</b><span>点选作为编入目标</span></span>
-          </button>`;
+          return `<div class="slot-wrap">
+            <button class="slot empty${this.selected === i ? ' on' : ''}" data-slot="${i}" aria-label="${i + 1} 号位，空位" type="button">
+              <span class="slot-tag${i === 0 ? ' skull' : ''}" title="${i === 0 ? '1 号位优先承受骷髅伤害' : `${i + 1} 号位`}">${i + 1}${i === 0 ? '<span data-icon="skull"></span>' : ''}</span>
+              <span class="slot-art" aria-hidden="true">+</span>
+              <span class="slot-foot"><b>空位</b></span>
+            </button>${ops}</div>`;
         }
-        return `<button class="slot${i === 0 ? ' leader' : ''}${this.selected === i ? ' on' : ''}${this.inspectedKey === t.key ? ' look' : ''}" data-slot="${i}" type="button">
-          <span class="slot-tag${i === 0 ? ' skull' : ''}" title="${i === 0 ? '1号位优先承受骷髅伤害' : `${i + 1}号位`}">${i + 1}${i === 0 ? '<span data-icon="skull"></span>' : ''}</span>
-          <span class="slot-art">${manaCorner('slot-mana', t.colors)}${troopImg(t.troop, t.key === 'hero', `alt="${t.name}"`)}</span>
-          <span class="slot-foot"><b>${t.name}</b><span>${t.typeLabel} · Lv.${t.level}</span></span>
-        </button>`;
+        return `<div class="slot-wrap">
+          <button class="slot${i === 0 ? ' leader' : ''}${this.selected === i ? ' on' : ''}${this.inspectedKey === t.key ? ' look' : ''} ${t.rarityIdx >= 0 ? 'r-' + t.rarityIdx : 'r-hero'}" data-slot="${i}" title="${t.name} · ${t.typeLabel} · Lv.${t.level} · 耗蓝 ${t.cost}" type="button">
+            <span class="slot-tag${i === 0 ? ' skull' : ''}" title="${i === 0 ? '1 号位优先承受骷髅伤害' : `${i + 1} 号位`}">${i + 1}${i === 0 ? '<span data-icon="skull"></span>' : ''}</span>
+            <span class="slot-art">${manaCorner('slot-mana', t.colors, t.cost)}${troopImg(t.troop, t.key === 'hero', `alt="${t.name}"`)}</span>
+            <span class="slot-foot"><b>${t.name}</b><span class="slot-level">Lv.${t.level}</span></span>
+          </button>${ops}</div>`;
       })
       .join('');
     mountIcons(slotsEl);
@@ -439,19 +616,96 @@ export class TeamScreen implements Screen {
         if (occupant != null) this.inspectedKey = String(occupant);
         this.renderAll();
       });
+      // TM-3：双击不再静默删人，改成"看这张卡的图鉴"（与名册单击语义靠拢）
       this.on(el, 'dblclick', () => {
-        this.slots[Number(el.dataset.slot)] = null;
-        this.renderAll();
+        const occupant = this.slots[Number(el.dataset.slot)];
+        if (occupant == null || occupant === 'hero') {
+          toast('主角的资料在英雄页 · 卸下请用右上角 ✕');
+          return;
+        }
+        this.ctx.navigate('#troop/' + occupant);
       });
     });
+    $$('[data-swap]', slotsEl).forEach((btn) =>
+      this.on(btn, 'click', (e) => {
+        e.stopPropagation();
+        this.swapSlot(Number((btn as HTMLElement).dataset.swap));
+      }),
+    );
+    $$('[data-drop]', slotsEl).forEach((btn) =>
+      this.on(btn, 'click', (e) => {
+        e.stopPropagation();
+        this.dropSlot(Number((btn as HTMLElement).dataset.drop));
+      }),
+    );
   }
 
+  /** TM-2：与上一格交换（1 号位与 2 号位交换）——"队首吃骷髅"是页面自己写明的战术 */
+  private swapSlot(index: number): void {
+    const other = index === 0 ? 1 : index - 1;
+    const a = this.slots[index] ?? null;
+    const b = this.slots[other] ?? null;
+    if (a === null && b === null) return;
+    this.slots[index] = b;
+    this.slots[other] = a;
+    this.selected = other;
+    this.renderAll();
+    const who = (v: SlotValue): string => (v == null ? '空位' : this.byKey(String(v))?.name ?? '成员');
+    toast(`站位已交换：${other + 1} 号位 ${who(b)} → ${who(a)}`);
+  }
+
+  /** TM-3：显式卸下 + 可撤销（阶段 A 是双击静默删人，无 toast 无确认无撤销） */
+  private dropSlot(index: number): void {
+    const value = this.slots[index] ?? null;
+    if (value === null) return;
+    const name = this.byKey(String(value))?.name ?? '成员';
+    this.slots[index] = null;
+    this.lastRemoved = { index, value };
+    this.selected = index;
+    this.renderAll();
+    toast(`已卸下「${name}」（未保存）· 点这里或按 Ctrl+Z 撤销`);
+    const el = $('#toast');
+    if (el) {
+      el.classList.add('undoable');
+      el.onclick = () => {
+        el.onclick = null;
+        el.classList.remove('undoable');
+        this.undoRemove();
+      };
+    }
+  }
+
+  private undoRemove(): void {
+    if (!this.lastRemoved) return;
+    const { index, value } = this.lastRemoved;
+    this.lastRemoved = null;
+    if (this.slots[index] == null) this.slots[index] = value;
+    else {
+      const free = this.slots.findIndex((s) => s == null);
+      if (free < 0) return void toast('队伍已满，撤销失败。');
+      this.slots[free] = value;
+    }
+    this.renderAll();
+    toast('已撤销卸下。');
+  }
+
+  /** 名册筛选 + 排序（TM-6：阶段 A 只有"全部/主角/5 个种族 tab"和按名字搜） */
   private visiblePool(): RosterEntry[] {
-    return this.rosterCache.filter((t) => {
-      const matchesFilter =
-        this.filter === 'all' ||
-        (this.filter === 'hero' ? t.key === 'hero' : this.filter.startsWith('t:') ? t.typeRaw === this.filter.slice(2) : t.typeRaw === this.filter);
-      return matchesFilter && (!this.search || t.name.includes(this.search) || t.typeLabel.includes(this.search));
+    const list = this.rosterCache.filter((t) => {
+      if (this.filter === 'hero' && t.key !== 'hero') return false;
+      if (this.typeFilter && !(t.troop?.troopTypes ?? []).includes(this.typeFilter)) return false;
+      if (this.rarityFilter !== '' && t.rarityIdx !== Number(this.rarityFilter)) return false;
+      if (this.colorFilter && !t.colors.some((c) => c.toLowerCase() === this.colorFilter)) return false;
+      if (this.search && !t.name.includes(this.search) && !t.typeLabel.includes(this.search) && !t.spellName.includes(this.search)) return false;
+      return true;
+    });
+    const key = this.sortKey;
+    return list.sort((a, b) => {
+      if (key === 'name') return a.name.localeCompare(b.name, 'zh-Hans-CN');
+      if (key === 'cost') return a.cost - b.cost || b.level - a.level;
+      const val = (t: RosterEntry): number =>
+        key === 'level' ? t.level : key === 'attack' ? t.attack : key === 'health' ? t.health + t.armor / 100 : t.rarityIdx;
+      return val(b) - val(a) || a.name.localeCompare(b.name, 'zh-Hans-CN');
     });
   }
 
@@ -464,11 +718,12 @@ export class TeamScreen implements Screen {
     rosterEl.innerHTML = slice
       .map((t) => {
         const used = this.slots.includes(t.key === 'hero' ? 'hero' : Number(t.key));
-        return `<button class="mini${used ? ' in' : ''}${this.inspectedKey === t.key ? ' look' : ''}" data-id="${t.key}" title="${t.name} · 单击查看" type="button">
+        return `<button class="mini${used ? ' in' : ''}${this.inspectedKey === t.key ? ' look' : ''}${t.rarityIdx >= 0 ? ' r-' + t.rarityIdx : ' r-hero'}" data-id="${t.key}" title="${t.name} · ${t.rarityIdx >= 0 ? RARITY_CN_ROSTER[t.rarityIdx] : '主角'}${used ? ' · 已上阵' : ''} · 单击查看 / 双击编入" type="button">
+          <i class="rarity-edge" aria-hidden="true"></i>
           ${troopImg(t.troop, t.key === 'hero', `alt="${t.name}"`)}
           ${manaCorner('mini-mana', t.colors, t.cost)}
           <span class="mini-lv">Lv.${t.level}</span>
-          <span class="mini-shade"><b>${t.name}</b><span>${t.typeLabel} · ×${t.copies}</span></span>
+          <span class="mini-shade"><b>${t.name}</b></span>
         </button>`;
       })
       .join('');
@@ -484,6 +739,11 @@ export class TeamScreen implements Screen {
       });
     });
     $('#pageLabel').textContent = `${this.page + 1} / ${pages}`;
+    const countEl = $('#rosterCount');
+    if (countEl) countEl.textContent = `匹配 ${list.length} 名`;
+    const activeFilters = Boolean(this.typeFilter || this.rarityFilter !== '' || this.colorFilter || this.search || this.filter !== 'all');
+    $('#resetRoster')?.classList.toggle('is-off', !activeFilters);
+    $$('#colorChips [data-color]').forEach((x) => x.classList.toggle('selected', x.dataset.color === this.colorFilter));
   }
 
   private assignInspected(): void {
@@ -517,7 +777,7 @@ export class TeamScreen implements Screen {
     const troop = this.byKey(this.inspectedKey ?? '');
     const dock = $('#inspect');
     if (!troop) {
-      dock.innerHTML = '<p class="inspect-empty">点选一名成员查看技能、耗蓝与属性。<small>单击不会改变编队</small></p>';
+      dock.innerHTML = '<p class="inspect-empty">未选中成员</p>';
       return;
     }
     const slotValue: SlotValue = troop.key === 'hero' ? 'hero' : Number(troop.key);
@@ -533,7 +793,7 @@ export class TeamScreen implements Screen {
     dock.innerHTML = `
       <div class="inspect-art">${troopImg(troop.troop, troop.key === 'hero')}</div>
       <div class="inspect-copy">
-        <div class="inspect-name"><b>${troop.name}</b><span>${troop.typeLabel} · Lv.${troop.level}</span></div>
+        <div class="inspect-name"><b>${troop.name}</b><span>${troop.key === 'hero' ? '主角' : RARITY_CN_ROSTER[troop.rarityIdx]} · ${troop.typeLabel} · Lv.${troop.level}${troop.copies > 1 ? ` · ×${troop.copies}` : ''}</span></div>
         <div class="inspect-spell">
           ${manaCorner('inspect-mana', troop.colors, troop.cost)}
           <div><strong>${troop.spellName}</strong><small>${troop.key === 'hero' ? '经武器施放' : '部队法术'}</small></div>
@@ -548,15 +808,16 @@ export class TeamScreen implements Screen {
     mountIcons(dock);
     $('#inspectAct').onclick = () => (usedAt >= 0 ? this.removeInspected() : this.assignInspected());
     $('#inspectCodex').onclick = () => {
-      // 主角 → 武器图鉴（718 目录，独立页）；部队 → 部队图鉴详情
-      if (troop.key === 'hero') window.open('/weapons-codex.html', '_blank');
+      // TM-11：主角不再开新浏览器标签（阶段 A 直接跳出游戏）——走壳内英雄页的武器库
+      // 窗口 M 的 `#weapons` 屏上线后把这里换成 '#weapons'
+      if (troop.key === 'hero') this.ctx.navigate('#hero');
       else this.ctx.navigate('#troop/' + troop.key);
     };
   }
 
   // —— 网关操作 ——
 
-  private async saveCurrent(): Promise<void> {
+  private async saveCurrent(): Promise<boolean> {
     const index = this.selectedTeamIndex;
     const team = this.currentTeam();
     const { result } = await this.ctx.gateway.saveTeam(index, {
@@ -571,13 +832,14 @@ export class TeamScreen implements Screen {
       toast(result.issues[0]?.message ?? '编队未通过校验。');
     }
     this.renderAll();
+    return result.ok;
   }
 
   private async setActive(): Promise<void> {
-    if (this.isDirty()) await this.saveCurrent();
+    if (this.isDirty() && !(await this.saveCurrent())) return;
     const { result } = await this.ctx.gateway.activateTeam(this.selectedTeamIndex);
-    if (isFailure(result)) toast(result.message);
     this.renderAll();
+    if (isFailure(result)) return void toast(result.message);
     toast(`「${this.currentTeam()?.name ?? ''}」已设为出战队伍。`);
   }
 
@@ -586,8 +848,9 @@ export class TeamScreen implements Screen {
     const save = this.ctx.save();
     const source = this.currentTeam();
     const members = source && !this.isDirty() ? source.members : this.slotsToMembers();
-    if (members.length < 3) {
-      toast('当前编队不足 3 人，先补齐再新建预设。');
+    if (members.length < MIN_TEAM_SIZE) {
+      // TM-10：这句只属于「新建」，不能被别的路径复用
+      toast(`新建预设要从一支合法编队起底：当前 ${members.length} 人，先补到 ${MIN_TEAM_SIZE} 人。`);
       return;
     }
     const name = `新队伍 ${save.teams.length + 1}`.slice(0, 12);
@@ -617,12 +880,33 @@ export class TeamScreen implements Screen {
     this.renderAll();
   }
 
+  /** TM-10：删除的拦截理由必须对症（阶段 A 空队态下弹的是"先补齐再新建预设"） */
   private async deleteTeam(): Promise<void> {
     const save = this.ctx.save();
-    if (this.selectedTeamIndex === save.activeTeamIndex) {
-      toast('出战中的队伍不能删除。');
+    const team = this.currentTeam();
+    if (save.teams.length <= 1) {
+      toast('至少要保留一支预设队，这支不能删。');
       return;
     }
+    if (this.selectedTeamIndex === save.activeTeamIndex) {
+      toast('这支正在出战，不能删除——先把别的队「设为出战」再来删。');
+      return;
+    }
+    this.askConfirm({
+      kicker: 'DELETE PRESET',
+      title: `删除预设队「${team?.name ?? ''}」？`,
+      lines: [
+        ['成员', String(team?.members.length ?? 0) + ' 人'],
+        ['影响', '只删这支预设，部队与养成进度不受影响'],
+        ['不可撤销', '删除后无法找回'],
+      ],
+      okLabel: '删除这支预设',
+      run: () => void this.doDeleteTeam(),
+    });
+  }
+
+  private async doDeleteTeam(): Promise<void> {
+    const save = this.ctx.save();
     const { result } = await this.ctx.gateway.deleteTeam(this.selectedTeamIndex);
     if (isFailure(result)) {
       toast(result.message);
@@ -636,11 +920,29 @@ export class TeamScreen implements Screen {
 
   // —— 旗帜选择（M6：解锁列表 + 加成色签） ——
 
+  /** 队伍当前用色（旗帜是否值得挂，判据必须与选择器同屏，TM-5） */
+  private teamColors(): Record<string, number> {
+    const out: Record<string, number> = {};
+    for (const s of this.slots) {
+      if (s == null) continue;
+      const entry = this.byKey(String(s));
+      for (const c of entry?.colors ?? []) {
+        const key = c.toLowerCase();
+        out[key] = (out[key] ?? 0) + 1;
+      }
+    }
+    return out;
+  }
+
   private toggleBannerPicker(): void {
-    const panel = document.querySelector('.team-workspace .lineup');
-    if (!panel) return;
+    // TM-5：改居中独立弹层（阶段 A 挂在 lineup 内部、盖住 3、4 号位，且 Esc/点空白都关不掉）
+    const host = document.querySelector('.team-screen') ?? document.querySelector('#stage');
+    if (!host) return;
     if (this.closeBannerPicker()) return;
     const save = this.ctx.save();
+    const used = this.teamColors();
+    const hitCount = (kingdom: string): number =>
+      Object.entries(BANNERS[kingdom]?.boosts ?? {}).filter(([c, n]) => (n ?? 0) > 0 && used[c.toLowerCase()]).length;
     const row = (kingdom: string | null): string => {
       if (kingdom === null) {
         return `<button class="banner-opt${this.banner === null ? ' on' : ''}" data-banner="" type="button">
@@ -654,22 +956,43 @@ export class TeamScreen implements Screen {
           return `<span class="banner-gem" title="${color} ${mana! > 0 ? '+' : '−'}${Math.abs(mana!)} 法力">${gemSvg([color.toLowerCase()])}<i>${BANNER_COLOR_LABELS[key]} ${mana! > 0 ? '+' : '−'}${Math.abs(mana!)}</i></span>`;
         })
         .join('');
+      const hits = hitCount(kingdom);
       return `<button class="banner-opt${this.banner === kingdom ? ' on' : ''}${unlocked ? '' : ' locked'}" data-banner="${kingdom}"${unlocked ? '' : ' disabled'} type="button">
         <span class="banner-opt-name"><b>${kingdom}</b><small>${def.en}</small></span>
         <span class="banner-opt-boosts">${chips}</span>
-        ${unlocked ? '' : '<small class="banner-lock">任务 8/8 解锁</small>'}
+        ${unlocked ? (hits ? `<small class="banner-hit">命中用色 ${hits}</small>` : '') : '<small class="banner-lock">任务 8/8 解锁</small>'}
       </button>`;
     };
-    const wrap = document.createElement('div');
-    wrap.className = 'banner-picker';
-    wrap.innerHTML = `
-      <div class="banner-picker-head"><b>选择旗帜</b><small>匹配加成色时该色法力 ±N（每次匹配，官方王国旗帜语义）</small></div>
-      <div class="banner-picker-list">
-        ${row(null)}
-        ${Object.keys(BANNERS).map((kingdom) => row(kingdom)).join('')}
-      </div>`;
-    wrap.addEventListener('click', (e) => {
-      const btn = (e.target as HTMLElement).closest('[data-banner]') as HTMLElement | null;
+    const all = Object.keys(BANNERS);
+    const unlockedList = all
+      .filter((k) => bannerUnlocked(save, k))
+      .sort((a, b) => hitCount(b) - hitCount(a) || a.localeCompare(b, 'zh-Hans-CN'));
+    const lockedList = all.filter((k) => !bannerUnlocked(save, k));
+    const usedCopy = ROSTER_COLORS.filter((c) => used[c]).map((c) => `${COLOR_CN_ROSTER[c]}×${used[c]}`).join(' ') || '（空编队）';
+    const veil = document.createElement('div');
+    veil.className = 'modal-veil banner-veil';
+    veil.innerHTML = `
+      <section class="banner-picker" role="dialog" aria-modal="true" aria-label="选择旗帜">
+        <div class="banner-picker-head">
+          <div><small>BANNER</small><b>选择旗帜</b></div>
+          <span class="banner-used">队伍用色 ${usedCopy}</span>
+          <button class="sheet-close" data-banner-close type="button" aria-label="关闭"><span data-icon="close"></span></button>
+        </div>
+        <p class="banner-picker-note">匹配加成色时该色法力 ±N（每次匹配，官方王国旗帜语义）· 已解锁 ${unlockedList.length} / ${all.length}</p>
+        <div class="banner-picker-list">
+          <div class="banner-group">已解锁（按命中你的用色排序）</div>
+          ${row(null)}
+          ${unlockedList.map((kingdom) => row(kingdom)).join('')}
+          <details class="banner-locked-group">
+            <summary>未解锁 ${lockedList.length} 个王国（各需该王国任务 8/8）</summary>
+            ${lockedList.map((kingdom) => row(kingdom)).join('')}
+          </details>
+        </div>
+      </section>`;
+    veil.addEventListener('click', (e) => {
+      const target = e.target as HTMLElement;
+      if (target === veil || target.closest('[data-banner-close]')) return void this.closeBannerPicker();
+      const btn = target.closest('[data-banner]') as HTMLElement | null;
       if (!btn || btn.hasAttribute('disabled')) return;
       const kingdom = btn.dataset.banner ?? '';
       this.banner = kingdom === '' ? null : kingdom;
@@ -678,14 +1001,33 @@ export class TeamScreen implements Screen {
       toast(def ? `已选「${this.banner}」旗帜（${describeBoosts(def.boosts)}），保存编队后出战生效。` : '已取消旗帜。');
       this.renderAll();
     });
-    panel.appendChild(wrap);
+    host.appendChild(veil);
+    mountIcons(veil);
   }
 
   /** 关闭弹出（已开着返回 true） */
   private closeBannerPicker(): boolean {
-    const existing = document.querySelector('.banner-picker');
+    const existing = document.querySelector('.banner-veil');
     existing?.remove();
     return Boolean(existing);
+  }
+
+  // —— 二次确认（TM-9/TM-10） ——
+
+  private askConfirm(opts: { kicker: string; title: string; lines: Array<[string, string]>; okLabel: string; run: () => void }): void {
+    this.confirmAction = opts.run;
+    $('#teamConfirmKicker').textContent = opts.kicker;
+    $('#teamConfirmTitle').textContent = opts.title;
+    $('#teamConfirmLines').innerHTML = opts.lines.map(([k, v]) => `<li><span>${k}</span><b>${v}</b></li>`).join('');
+    $('#teamConfirmOk').textContent = opts.okLabel;
+    $('#teamConfirm').hidden = false;
+    $('#teamConfirmOk').focus();
+  }
+
+  private closeConfirm(): void {
+    this.confirmAction = null;
+    const veil = $('#teamConfirm');
+    if (veil) veil.hidden = true;
   }
 
   // —— 工具 ——
@@ -695,38 +1037,6 @@ export class TeamScreen implements Screen {
     this.listeners.push([target, type, fn]);
   }
 
-  /** 旗帜选择弹出样式（新类名，不与小样级联冲突；切屏随 dispose 拔除） */
-  private injectBannerPickerStyle(): void {
-    if (document.getElementById('banner-picker-style')) return;
-    const style = document.createElement('style');
-    style.id = 'banner-picker-style';
-    style.textContent = `
-      .team-workspace .lineup { position: relative; }
-      .banner-picker {
-        position: absolute; left: 10px; right: 10px; bottom: 54px; z-index: 30;
-        background: linear-gradient(#221c28, #120f18);
-        border: 1px solid #8e7347; border-radius: 4px;
-        box-shadow: 0 12px 30px rgba(0, 0, 0, .55);
-        font: 12px var(--body);
-      }
-      .banner-picker-head { display: flex; align-items: baseline; gap: 8px; padding: 9px 12px; border-bottom: 1px solid #3a3350; color: #d8c290; font: 13px var(--display); }
-      .banner-picker-head small { color: #9a8e9c; }
-      .banner-picker-list { max-height: 262px; overflow-y: auto; padding: 6px; display: grid; grid-template-columns: 1fr 1fr; gap: 4px; }
-      .banner-opt { display: flex; align-items: center; gap: 8px; padding: 7px 9px; text-align: left; background: #1a1622; border: 1px solid #322c42; border-radius: 3px; }
-      .banner-opt:hover:not(:disabled) { border-color: #8e7347; filter: brightness(1.15); }
-      .banner-opt.on { border-color: #d8c290; background: #241d2e; }
-      .banner-opt.locked { opacity: .45; }
-      .banner-opt-name { display: flex; flex-direction: column; min-width: 0; flex: 1; }
-      .banner-opt-name b { color: #f0e2c0; font: 12px var(--display); }
-      .banner-opt-name small { color: #9a8e9c; font-size: 10px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-      .banner-opt-boosts { display: flex; gap: 5px; flex: none; }
-      .banner-gem { display: inline-flex; align-items: center; gap: 2px; color: #e6d4a4; font-size: 10px; }
-      .banner-gem svg { width: 12px; height: 12px; }
-      .banner-lock { color: #d39a70; font-size: 10px; white-space: nowrap; }
-    `;
-    document.head.appendChild(style);
-  }
-
   private bind(selector: string, type: string, fn: EventListenerOrEventListenerObject): void {
     const el = $(selector);
     if (el) this.on(el, type, fn);
@@ -734,7 +1044,7 @@ export class TeamScreen implements Screen {
 
   dispose(): void {
     this.closeBannerPicker();
-    document.getElementById('banner-picker-style')?.remove();
+    this.closeConfirm();
     for (const [target, type, fn] of this.listeners.splice(0)) {
       target.removeEventListener(type, fn);
     }

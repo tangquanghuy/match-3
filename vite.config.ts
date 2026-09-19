@@ -7,7 +7,8 @@ import { defineConfig, type Connect, type Plugin } from 'vite';
 // 例如部署到 https://user.github.io/gems/ 时，构建用 VITE_BASE=/gems/ npm run build
 const base = process.env.VITE_BASE ?? '/';
 
-// 本地 GOW 官方立绘库（1828 张 · 381MB，见 docs/troop-codex-guide.md）。
+// 本地 GOW 官方立绘库（1827 张 · 164MB，459×675 官方卡面带背景版，
+// /assets/troops/cards/ 端点；旧透明底 1024² 备份在 portraits-flat-1024/）。
 // 体积原因不进 git、不进构建产物：dev/preview 由中间件按
 // /meta/assets/portraits/<fileBase>.webp 提供；纯静态部署时该路径 404，
 // 图鉴立绘会沿 onerror 兜底链回退（生成图 CDN → 通用类型图）。

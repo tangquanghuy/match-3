@@ -1,0 +1,11 @@
+魔法古卷：
+wlopk2style, Yoneyama Mai Style,
+western fantasy style, DnD monster manual illustration, painterly fantasy,
+<krea2_prompt>
+  <subject>a sea-wizard's grimoire bound in deep-water leather, its pages stiff with salt, the sole subject in a medium-close shot, dominating most of the frame, weapon only</subject>
+  <details>a barrier-hex inked on the flyleaf and burning as a standing pane of light, brass wave-clasps, a thin blue stream of drained light being pulled from the page gutter into the binding</details>
+  <pose>floating open at a reader's angle on its own, the barrier-hex pane standing off the page while drained light threads into the spine, hex pane and wave-clasps clearly readable, no bearer, no hands</pose>
+  <environment>shallow tide-pool water under a soft aqua haze, a single drowned pillar far in the back, clean minimal backdrop, the tome fully unobstructed, no characters</environment>
+  <lighting>strong key light on the subject, clear readable details</lighting>
+  <style>clean anime-style weapon design over a simple photorealistic backdrop, deep-water leather, arcane violet, brine blue palette, thumbnail-readable silhouette, no characters or hands in frame</style>
+</krea2_prompt>

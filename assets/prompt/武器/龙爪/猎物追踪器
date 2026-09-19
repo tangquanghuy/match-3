@@ -1,0 +1,11 @@
+猎物追踪器：
+wlopk2style, Yoneyama Mai Style,
+western fantasy style, DnD monster manual illustration, painterly fantasy,
+<krea2_prompt>
+  <subject>the Prey Seeker, a dragon-country bow of layered horn whose arrowhead is a compass rose of amber light, made to hunt what does not wish to be found, the sole subject in a medium-close shot, dominating most of the frame, weapon only</subject>
+  <details>the light-arrow leaning off the string toward something out of frame, a hunter's-mark ring drifting along the shaft, scale-iron wrappings at each limb nock</details>
+  <pose>canted at a tracking angle with the string drawn on its own, the marked arrow straining toward its line, compass head and scale wrappings clearly readable, no bearer, no hands</pose>
+  <environment>hoard-cave stone under a warm gold haze, a single shed scale far in the back, clean minimal backdrop, the bow fully unobstructed, no characters</environment>
+  <lighting>strong key light on the subject, clear readable details</lighting>
+  <style>clean anime-style weapon design over a simple photorealistic backdrop, horn umber, mark amber, scale iron palette, thumbnail-readable silhouette, no characters or hands in frame</style>
+</krea2_prompt>

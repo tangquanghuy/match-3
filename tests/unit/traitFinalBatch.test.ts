@@ -20,7 +20,7 @@ import { SeededRNG } from '@engine/rng';
 import { registerDynamicTraits, resolvePassives } from '@engine/traits';
 import { registerSkillLibrary } from '@engine/skills/library';
 import { BoardModel } from '@engine/BoardModel';
-import { PlayerSide, colorGem, skullGem } from '@engine/types';
+import { BaseColor, PlayerSide, colorGem, skullGem } from '@engine/types';
 import type { Character, Team } from '@engine/types';
 
 function makeChar(id: number, over: Partial<Character> = {}): Character {
@@ -35,7 +35,7 @@ function makeChar(id: number, over: Partial<Character> = {}): Character {
     magic: 5,
     mana: 0,
     manaCost: 12,
-    colors: ['Blue'],
+    colors: [BaseColor.Blue],
     troopTypes: ['Human'],
     statuses: [],
     traitIds: [],
@@ -58,7 +58,7 @@ function makeEngine(
 ): { engine: TurnEngine; state: ReturnType<typeof createGameState> } {
   const board = new BoardModel();
   // 四色斜纹盘：无初始三连（避免构造期连锁污染开局钩子断言），且不含蓝（转换用例可精确埋蓝）
-  const palette = ['Red', 'Brown', 'Yellow', 'Green'] as const;
+  const palette = [BaseColor.Red, BaseColor.Brown, BaseColor.Yellow, BaseColor.Green] as const;
   for (let row = 0; row < BoardModel.ROWS; row++) {
     for (let col = 0; col < BoardModel.COLS; col++) {
       board.set({ row, col }, { id: row * BoardModel.COLS + col + 1, type: colorGem(palette[(row + col) % 4]!) });
@@ -83,7 +83,7 @@ describe('特质收尾批 · 回合开始钩子（定义直读）', () => {
   it('aspectoffamine 口径：回合开始削减首位敌人全部技能值各 3（攻/甲/生命/魔法）', () => {
     const holder = makeChar(1, { traitIds: ['aspectoffamine'] });
     const foe = makeChar(2, { hp: 28, maxHp: 28, attack: 10, armor: 10, magic: 5 });
-    const { engine, state } = makeEngine([holder], [foe, makeChar(3, { hp: 10 })]);
+    const { engine } = makeEngine([holder], [foe, makeChar(3, { hp: 10 })]);
     engine.passTurn(); // Left → Right：Right 回合开始，holder 在 Left 不触发
     expect(foe.attack).toBe(10);
     engine.passTurn(); // Right → Left：Left 回合开始，holder 触发，首位敌人=foe
@@ -97,7 +97,7 @@ describe('特质收尾批 · 回合开始钩子（定义直读）', () => {
   it('aspectofdeath 口径：回合开始从首位敌人窃取 2 点生命（按实际伤害等量治疗；护甲先挡）', () => {
     const holder = makeChar(1, { traitIds: ['aspectofdeath'], hp: 20 });
     const foe = makeChar(2, { hp: 28, armor: 0 });
-    const { engine, state } = makeEngine([holder], [foe]);
+    const { engine } = makeEngine([holder], [foe]);
     engine.passTurn();
     engine.passTurn();
     expect(foe.hp).toBe(26); // 首2点伤害
@@ -107,7 +107,7 @@ describe('特质收尾批 · 回合开始钩子（定义直读）', () => {
   it('monkeymagic 口径：回合开始从首位敌人窃取 2 点法力（目标夹零、自己按 manaCost 夹取）', () => {
     const holder = makeChar(1, { traitIds: ['monkeymagic'], mana: 0, manaCost: 12 });
     const foe = makeChar(2, { mana: 5 });
-    const { engine, state } = makeEngine([holder], [foe]);
+    const { engine } = makeEngine([holder], [foe]);
     engine.passTurn();
     engine.passTurn();
     expect(foe.mana).toBe(3); // 削 2
@@ -143,10 +143,10 @@ describe('特质收尾批 · 开局转换 / 施法响应', () => {
       code: 'testconvert2',
       name: '测试转换2',
       description: '战斗开始时，将 3 颗蓝色宝石转换为冻结宝石。',
-      battleStartConvertGems: { color: 'Blue', gem: 'freezeGem', count: 3, chance: 1 },
+      battleStartConvertGems: { color: BaseColor.Blue, gem: 'freezeGem', count: 3, chance: 1 },
     }]);
     const holder = makeChar(1, { traitIds: ['testconvert2'] });
-    const { engine, state } = makeEngine([holder], [makeChar(2)]);
+    const { engine } = makeEngine([holder], [makeChar(2)]);
     const events = engine.takeInitialEvents();
     const transforms = events.filter((e) => e.type === 'gem-transform');
     expect(transforms.length).toBe(0); // 满盘红场无蓝宝石
@@ -157,13 +157,13 @@ describe('特质收尾批 · 开局转换 / 施法响应', () => {
       code: 'testconvert3',
       name: '测试转换3',
       description: '战斗开始时，将 3 颗蓝色宝石转换为冻结宝石。',
-      battleStartConvertGems: { color: 'Blue', gem: 'freezeGem', count: 3, chance: 1 },
+      battleStartConvertGems: { color: BaseColor.Blue, gem: 'freezeGem', count: 3, chance: 1 },
     }]);
     const holder = makeChar(1, { traitIds: ['testconvert3'] });
     const { engine, state } = makeEngine([holder], [makeChar(2)], (board) => {
-      board.set({ row: 0, col: 0 }, { id: 911, type: colorGem('Blue') });
-      board.set({ row: 0, col: 3 }, { id: 912, type: colorGem('Blue') });
-      board.set({ row: 5, col: 5 }, { id: 913, type: colorGem('Blue') });
+      board.set({ row: 0, col: 0 }, { id: 911, type: colorGem(BaseColor.Blue) });
+      board.set({ row: 0, col: 3 }, { id: 912, type: colorGem(BaseColor.Blue) });
+      board.set({ row: 5, col: 5 }, { id: 913, type: colorGem(BaseColor.Blue) });
     });
     engine.takeInitialEvents();
     const board = state.board;
@@ -172,7 +172,7 @@ describe('特质收尾批 · 开局转换 / 施法响应', () => {
     for (let row = 0; row < BoardModel.ROWS; row++) {
       for (let col = 0; col < BoardModel.COLS; col++) {
         const g = board.get({ row, col });
-        if (g?.type.kind === 'color' && g.type.color === 'Blue') blue += 1;
+        if (g?.type.kind === 'color' && g.type.color === BaseColor.Blue) blue += 1;
         if (g?.type.kind === 'special' && g.type.spec.kind === 'freezeGem') freeze += 1;
       }
     }
@@ -190,7 +190,7 @@ describe('特质收尾批 · 开局转换 / 施法响应', () => {
     const caster = makeChar(1, { mana: 12, manaCost: 12 }); // 7004 狙击：[魔法+2] 点伤害（magic 5 → 7）
     const holder = makeChar(2, { traitIds: ['testarty'] });
     const foe = makeChar(3, { hp: 60, maxHp: 60, armor: 0 });
-    const { engine, state } = makeEngine([caster, holder], [foe]);
+    const { engine } = makeEngine([caster, holder], [foe]);
     engine.takeInitialEvents();
     const events = engine.resolveAction({ type: 'cast', characterId: 1 });
     // 狙击 7 点 + 炮火 5 点（施法者也是盟友口径内：官方 "an Ally casts" 含自身）

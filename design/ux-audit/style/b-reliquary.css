@@ -1,0 +1,400 @@
+/* ============================================================================
+   风格样稿 B · 「赤金圣所 Crimson Reliquary」
+   窗口 L · 阶段 B 批次 0。注入式覆盖层，零 src/** 改动，随时可推翻。
+   气质：暖墨褐皮革底 + 陈金双线描边 + 四角铆钉 + 斜切角语言 + 猩红宝石 CTA。
+   赌注：把现在零散混用的斜切角（troop.css 的 8px 0 12px 0）升级成全局唯一的
+        形状特征——所有卡片/面板/按钮切同一个角度，形成"圣器"金属工艺感。
+   ========================================================================= */
+
+:root {
+  /* ---- 表面 ---- */
+  --ds-l0: #12100d;                                                   /* L 5.7  */
+  --ds-l0-field: radial-gradient(ellipse at 50% 36%, #241d16 0%, #12100d 64%);
+  --ds-l1: #1c1713;                                                   /* L 9.2  */
+  --ds-l2: #271f19;                                                   /* L 12.5 */
+  --ds-l2-raise: linear-gradient(#2e251d, #221b15);
+  --ds-l3: #342821;                                                   /* L 16.5 */
+
+  /* ---- 描边（双线 + 铆钉）---- */
+  --ds-edge-faint: rgba(231, 201, 152, .16);
+  --ds-edge: #5b4531;
+  --ds-edge-strong: #9a7546;
+  --ds-edge-hot: #edc27c;
+  --ds-hair-in: inset 0 0 0 1px rgba(237, 194, 124, .14);
+  --ds-hair-top: inset 0 1px 0 rgba(255, 233, 196, .12);
+
+  /* ---- 文字与金 ---- */
+  --ds-ink: #f3e7d4;
+  --ds-ink-soft: #c2ae95;
+  --ds-ink-faint: #8d7a64;
+  --ds-gold: #d9b874;
+  --ds-gold-bright: #f7e6bd;
+  --ds-gold-deep: #8a6631;
+
+  /* ---- 语义（强调色预算：猩红 CTA + 陈金徽章）---- */
+  --ds-cta: linear-gradient(#b8382f, #8a2420 52%, #6f1a17);
+  --ds-cta-edge: #e8c489;
+  --ds-cta-ink: #ffeede;
+  --ds-ok: #86ae6a;
+  --ds-warn: #e8bf6d;
+  --ds-danger: #d1564d;
+
+  /* ---- 形状：斜切角是本方案的签名 ---- */
+  --ds-cut-lg: 16px;
+  --ds-cut-md: 12px;
+  --ds-cut-sm: 8px;
+  --ds-rad-xs: 2px;
+  --ds-rad-sm: 3px;
+  --ds-clip-card: polygon(var(--ds-cut-md) 0, 100% 0, 100% calc(100% - var(--ds-cut-md)), calc(100% - var(--ds-cut-md)) 100%, 0 100%, 0 var(--ds-cut-md));
+  --ds-clip-panel: polygon(var(--ds-cut-lg) 0, calc(100% - var(--ds-cut-lg)) 0, 100% var(--ds-cut-lg), 100% calc(100% - var(--ds-cut-lg)), calc(100% - var(--ds-cut-lg)) 100%, var(--ds-cut-lg) 100%, 0 calc(100% - var(--ds-cut-lg)), 0 var(--ds-cut-lg));
+  --ds-clip-btn: polygon(var(--ds-cut-sm) 0, 100% 0, 100% calc(100% - var(--ds-cut-sm)), calc(100% - var(--ds-cut-sm)) 100%, 0 100%, 0 var(--ds-cut-sm));
+
+  /* ---- 字 / 光 / 材质 ---- */
+  --ds-font-display: "Palatino Linotype", "STZhongsong", "SimSun", serif;
+  --ds-font-body: "Segoe UI", "Microsoft YaHei", sans-serif;
+  --ds-font-num: Georgia, "Palatino Linotype", serif;
+  --ds-sh-card: 0 4px 12px rgba(0, 0, 0, .42);
+  --ds-sh-raise: 0 12px 26px rgba(0, 0, 0, .55);
+  --ds-sh-panel: 0 0 0 1px #0c0a08, 0 0 0 2px rgba(217, 184, 116, .3), 0 22px 48px rgba(0, 0, 0, .6);
+  --ds-leather:
+    repeating-linear-gradient(48deg, rgba(255, 226, 180, .022) 0 1px, transparent 1px 4px),
+    repeating-linear-gradient(-42deg, rgba(0, 0, 0, .1) 0 1px, transparent 1px 5px),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)' opacity='.55'/%3E%3C/svg%3E");
+  /* 四角铆钉：4 个 radial-gradient 定位到四角 */
+  --ds-rivets:
+    radial-gradient(circle 2.6px at 7px 7px, #f6e0b0 0 55%, #7b5a28 56%, transparent 100%),
+    radial-gradient(circle 2.6px at calc(100% - 7px) 7px, #f6e0b0 0 55%, #7b5a28 56%, transparent 100%),
+    radial-gradient(circle 2.6px at 7px calc(100% - 7px), #f6e0b0 0 55%, #7b5a28 56%, transparent 100%),
+    radial-gradient(circle 2.6px at calc(100% - 7px) calc(100% - 7px), #f6e0b0 0 55%, #7b5a28 56%, transparent 100%);
+}
+
+/* ================= L0 屏背板 ================= */
+.stage { background: var(--ds-l0) !important; }
+.map-shell, .screen, main { background-image: var(--ds-l0-field) !important; }
+.hero-screen {
+  background-color: var(--ds-l0) !important;
+  background-image:
+    radial-gradient(at 14% 10%, rgba(184, 56, 47, .13), transparent 40%),
+    radial-gradient(at 88% 88%, rgba(217, 184, 116, .09), transparent 44%),
+    var(--ds-l0-field) !important;
+}
+.ambient { opacity: .1 !important; filter: blur(20px) sepia(.4) !important; }
+
+/* ================= chrome ================= */
+.topbar {
+  background:
+    var(--ds-leather),
+    linear-gradient(#241c16, #120f0c) !important;
+  background-blend-mode: soft-light, overlay, normal !important;
+  border-bottom: 1px solid var(--ds-gold-deep) !important;
+  box-shadow: 0 1px 0 #000, 0 2px 0 rgba(217, 184, 116, .18), 0 12px 30px rgba(0, 0, 0, .5) !important;
+}
+.topbar:after { background: linear-gradient(90deg, transparent, var(--ds-edge-hot), transparent) !important; }
+.bottom-bar {
+  background: var(--ds-leather), linear-gradient(#201913, #12100d) !important;
+  background-blend-mode: soft-light, overlay, normal !important;
+  border-top: 1px solid var(--ds-gold-deep) !important;
+}
+.bottom-bar:before { background: linear-gradient(90deg, transparent, var(--ds-edge-hot), transparent) !important; }
+.top-title span, .world-mark small { color: var(--ds-ink-faint) !important; font-family: var(--ds-font-num) !important; }
+.top-title b { color: var(--ds-gold-bright) !important; letter-spacing: 6px !important; }
+.player strong { color: var(--ds-gold-bright) !important; }
+.player span { color: var(--ds-ink-faint) !important; }
+.player > img { background: linear-gradient(130deg, #f7dfa6, #6b4a20, #c9a565) !important; box-shadow: 0 0 0 3px #12100d, 0 2px 10px #000 !important; }
+.xp { border-color: var(--ds-edge) !important; background: #0d0b09 !important; }
+.xp i { background: linear-gradient(90deg, #8a2420, #d9764f) !important; }
+.money small { color: var(--ds-ink-faint) !important; }
+.money b { color: var(--ds-ink) !important; font-family: var(--ds-font-num) !important; }
+.money > [data-icon] { color: var(--ds-gold) !important; }
+.orb {
+  background: var(--ds-l2-raise) !important;
+  border: 1px solid var(--ds-edge-strong) !important;
+  box-shadow: var(--ds-hair-top), var(--ds-sh-card) !important;
+  color: var(--ds-gold-bright) !important;
+}
+.bottom-bar nav button { color: var(--ds-ink-faint) !important; }
+.bottom-bar nav .active {
+  color: var(--ds-gold-bright) !important;
+  background: linear-gradient(rgba(184, 56, 47, .2), rgba(217, 184, 116, .04)) !important;
+  border-left: 1px solid rgba(237, 194, 124, .22) !important;
+  border-right: 1px solid rgba(237, 194, 124, .22) !important;
+}
+.bottom-bar nav .active:before { background: linear-gradient(90deg, transparent, var(--ds-edge-hot), transparent) !important; }
+.world-mark { color: var(--ds-gold) !important; }
+.bottom-hint { color: var(--ds-ink-faint) !important; }
+
+/* ================= L1 面板：斜切八角 + 双线 + 铆钉 ================= */
+.panel, .map-frame, .collection-filter {
+  background-color: var(--ds-l1) !important;
+  background-image: var(--ds-rivets), var(--ds-leather) !important;
+  background-blend-mode: normal, soft-light, overlay, normal !important;
+  border: 1px solid var(--ds-edge-strong) !important;
+  border-radius: 0 !important;
+  clip-path: var(--ds-clip-panel) !important;
+  box-shadow: var(--ds-hair-in), var(--ds-hair-top) !important;
+}
+.map-frame { background-color: #14100c !important; }
+.panel:after { display: none !important; }
+.hero-info, .hero-card { background-color: var(--ds-l1) !important; }
+
+/* ================= 按钮六态（斜切角 + 铆钉）================= */
+.primary, .chest-btn, .ev-fight, .inv-attack {
+  background: var(--ds-cta) !important;
+  border: 1px solid var(--ds-cta-edge) !important;
+  border-radius: 0 !important;
+  clip-path: var(--ds-clip-btn) !important;
+  color: var(--ds-cta-ink) !important;
+  font: 19px var(--ds-font-display) !important;
+  letter-spacing: 3px !important;
+  text-shadow: 0 1px 2px rgba(60, 10, 6, .8) !important;
+  box-shadow: inset 0 1px 0 rgba(255, 216, 196, .3), inset 0 0 0 3px rgba(110, 24, 20, .35), 0 4px 12px rgba(0, 0, 0, .5) !important;
+}
+.primary:before, .primary:after { background: linear-gradient(140deg, #fbe7b4, #8a6631) !important; border-color: #f7e6bd !important; }
+.primary .price { color: #ffe6d6 !important; border-left-color: rgba(255, 230, 214, .3) !important; }
+.secondary {
+  background: var(--ds-l2-raise) !important;
+  border: 1px solid var(--ds-edge-strong) !important;
+  border-radius: 0 !important;
+  clip-path: var(--ds-clip-btn) !important;
+  color: var(--ds-gold-bright) !important;
+  box-shadow: var(--ds-hair-top), var(--ds-hair-in) !important;
+  font-family: var(--ds-font-display) !important;
+  letter-spacing: 2px !important;
+}
+.secondary:hover:not(:disabled) { border-color: var(--ds-edge-hot) !important; }
+.ghost, .class-expand, .perk-unlock, .filter-reset {
+  background: rgba(231, 201, 152, .05) !important;
+  border: 1px solid var(--ds-edge-faint) !important;
+  border-radius: var(--ds-rad-xs) !important;
+  color: var(--ds-ink-soft) !important;
+  box-shadow: none !important;
+}
+.ghost:hover:not(:disabled), .perk-unlock:hover:not(:disabled) {
+  background: rgba(231, 201, 152, .1) !important;
+  border-color: var(--ds-edge-strong) !important;
+  color: var(--ds-gold-bright) !important;
+}
+.filter-reset { border-color: rgba(209, 86, 77, .5) !important; color: var(--ds-danger) !important; background: rgba(209, 86, 77, .1) !important; }
+button:disabled { opacity: 1 !important; filter: saturate(.3) brightness(.66) !important; }
+button:focus-visible { outline: 2px solid var(--ds-edge-hot) !important; outline-offset: 3px !important; }
+
+/* ================= #map ================= */
+.rail .facet {
+  background: var(--ds-l2-raise) !important;
+  border: 1px solid var(--ds-edge) !important;
+  border-radius: 0 !important;
+  clip-path: var(--ds-clip-card) !important;
+  box-shadow: var(--ds-hair-top), var(--ds-sh-card) !important;
+  color: var(--ds-gold) !important;
+}
+.rail button:hover .facet { border-color: var(--ds-edge-strong) !important; }
+.rail button.on .facet {
+  background: linear-gradient(#4a2b22, #2a1c16) !important;
+  border: 2px solid var(--ds-edge-hot) !important;
+  color: var(--ds-gold-bright) !important;
+  box-shadow: 0 0 14px rgba(237, 194, 124, .25), 0 10px 20px rgba(0, 0, 0, .55) !important;
+}
+.rail button.on { transform: translateY(-2px) !important; }
+.rail-copy b { color: var(--ds-gold-bright) !important; font-family: var(--ds-font-num) !important; }
+.rail-copy small { color: var(--ds-ink-soft) !important; }
+.chip {
+  background: var(--ds-l2-raise) !important;
+  border: 1px solid var(--ds-edge) !important;
+  border-radius: 0 !important;
+  clip-path: var(--ds-clip-btn) !important;
+  color: var(--ds-ink-soft) !important;
+  box-shadow: var(--ds-hair-top) !important;
+  padding: 0 14px !important;
+}
+.chip.hot { border-color: rgba(209, 86, 77, .6) !important; color: #e8907f !important; }
+.chip.gold { border-color: rgba(232, 191, 109, .55) !important; color: var(--ds-warn) !important; }
+.map-vignette { box-shadow: inset 0 0 140px rgba(10, 6, 4, .9) !important; }
+.compass { color: var(--ds-gold) !important; filter: drop-shadow(0 3px 6px #000) !important; }
+.knode.sel span, .knode.sel img { filter: drop-shadow(0 0 12px rgba(237, 194, 124, .55)) !important; }
+
+/* ================= #troop ================= */
+.collection-heading small { color: var(--ds-ink-faint) !important; font-family: var(--ds-font-num) !important; letter-spacing: 5px !important; }
+.collection-heading h1 { color: var(--ds-gold-bright) !important; letter-spacing: 6px !important; }
+.collection-heading > span { color: var(--ds-ink-soft) !important; }
+.collection-heading > span b { color: var(--ds-gold-bright) !important; font-family: var(--ds-font-num) !important; }
+.collection-progress { color: var(--ds-ink-faint) !important; }
+.collection-progress > div { background: #0d0b09 !important; border: 1px solid var(--ds-edge) !important; }
+.collection-progress i { background: linear-gradient(90deg, #8a6631, var(--ds-gold-bright)) !important; }
+.collection-progress > b { color: var(--ds-gold-bright) !important; font-family: var(--ds-font-num) !important; }
+
+.collection-filter { padding: 10px 16px 8px !important; }
+.collection-filter .filter-chip {
+  background: rgba(231, 201, 152, .05) !important;
+  border: 1px solid var(--ds-edge-faint) !important;
+  border-radius: var(--ds-rad-xs) !important;
+  color: var(--ds-ink-soft) !important;
+  height: 24px !important;
+}
+.collection-filter .filter-chip.selected {
+  background: linear-gradient(#5e3a22, #3a241a) !important;
+  border: 1px solid var(--ds-edge-hot) !important;
+  color: var(--ds-gold-bright) !important;
+}
+.collection-filter .color-chip, .collection-filter select, .filter-search {
+  background: rgba(13, 11, 9, .85) !important;
+  border: 1px solid var(--ds-edge-faint) !important;
+  border-radius: var(--ds-rad-xs) !important;
+  color: var(--ds-ink-soft) !important;
+}
+.collection-filter .color-chip.selected { border-color: var(--ds-edge-hot) !important; box-shadow: 0 0 8px rgba(237, 194, 124, .35) !important; }
+.collection-filter [data-tab] { color: var(--ds-ink-faint) !important; }
+.collection-filter [data-tab].selected, .collection-filter button.selected { color: var(--ds-gold-bright) !important; border-bottom-color: var(--ds-edge-hot) !important; }
+.filter-label, .filter-row-foot > small { color: var(--ds-ink-faint) !important; }
+
+.kingdom-band {
+  background: linear-gradient(90deg, #35271d, #1e1712 72%) !important;
+  border-left: 3px solid var(--ds-gold) !important;
+  box-shadow: 0 1px 0 #0c0a08, var(--ds-hair-top) !important;
+  color: var(--ds-gold-bright) !important;
+  padding: 8px 14px !important;
+  clip-path: polygon(0 0, 100% 0, calc(100% - 10px) 100%, 0 100%) !important;
+}
+.kingdom-band small { color: var(--ds-ink-faint) !important; }
+.kingdom-band > div { background: #0d0b09 !important; border: 1px solid var(--ds-edge) !important; }
+.kingdom-band > div i { background: linear-gradient(90deg, #5d7a45, var(--ds-ok)) !important; }
+.band-mark { background: var(--ds-gold) !important; }
+
+/* 卡：斜切角 + 陈金双线 + 立绘放大 */
+.collection-cards { grid-template-columns: repeat(auto-fill, minmax(178px, 1fr)) !important; gap: 15px !important; }
+.collection-card {
+  height: 248px !important;
+  border: 1px solid var(--ds-edge-strong) !important;
+  border-radius: 0 !important;
+  clip-path: var(--ds-clip-card) !important;
+  background: var(--ds-l2) !important;
+  box-shadow: var(--ds-hair-in) !important;
+  transition: transform .12s, filter .12s !important;
+}
+.collection-card:after {
+  content: "" !important;
+  inset: 3px !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  clip-path: var(--ds-clip-card) !important;
+  box-shadow: inset 0 0 0 1px rgba(237, 194, 124, .22), inset 0 -66px 54px -44px rgba(18, 16, 13, .95) !important;
+}
+.collection-card:hover { transform: translateY(-3px) !important; filter: brightness(1.08) !important; }
+.collection-card > img { object-position: center 12% !important; }
+.collection-card .rarity-edge { height: 4px !important; opacity: 1 !important; box-shadow: 0 0 10px var(--rc) !important; }
+.collection-info {
+  padding: 34px 12px 11px !important;
+  background: linear-gradient(transparent, rgba(18, 16, 13, .85) 40%, #12100d 92%) !important;
+}
+.collection-info h2 { font: 16px/1.2 var(--ds-font-display) !important; color: #fff3da !important; letter-spacing: 2px !important; text-shadow: 0 2px 8px #000 !important; }
+.collection-info > span { color: var(--ds-ink-faint) !important; border-top: 1px solid rgba(231, 201, 152, .14) !important; }
+.collection-info > span b { color: var(--ds-gold-bright) !important; font-family: var(--ds-font-num) !important; }
+.collection-card .collection-mana {
+  background: rgba(13, 11, 9, .88) !important;
+  border-right: 1px solid var(--ds-edge-strong) !important;
+  border-bottom: 1px solid var(--ds-edge-strong) !important;
+  border-radius: 0 0 var(--ds-cut-md) 0 !important;
+}
+.collection-card .magic-badge {
+  background: linear-gradient(100deg, rgba(58, 36, 26, .95), rgba(28, 23, 19, .92)) !important;
+  border: 0 !important;
+  border-bottom: 1px solid var(--ds-edge-strong) !important;
+  border-left: 1px solid var(--ds-edge-strong) !important;
+  border-radius: 0 !important;
+  color: var(--ds-gold) !important;
+}
+.collection-card.locked > img { filter: grayscale(.92) sepia(.3) brightness(.34) !important; }
+.locked-mark { color: var(--ds-ink-soft) !important; font-family: var(--ds-font-num) !important; }
+.collection-note, .collection-empty { color: var(--ds-ink-faint) !important; }
+
+/* ================= #hero ================= */
+.hero-card img { object-position: 50% 10% !important; }
+.hero-card .shade { background: linear-gradient(180deg, rgba(18, 16, 13, .04) 34%, rgba(18, 16, 13, .6) 70%, #12100d 96%) !important; }
+.hero-name small { color: var(--ds-ink-faint) !important; font-family: var(--ds-font-num) !important; letter-spacing: 4px !important; }
+.hero-name b { color: #fff4dc !important; letter-spacing: 6px !important; text-shadow: 0 3px 18px #000 !important; }
+.hero-stats {
+  background: linear-gradient(90deg, transparent, rgba(18, 16, 13, .62), transparent) !important;
+  border-top: 1px solid rgba(237, 194, 124, .26) !important;
+  border-bottom: 1px solid rgba(237, 194, 124, .12) !important;
+}
+.hero-stats span { color: var(--ds-ink) !important; font-family: var(--ds-font-num) !important; }
+
+.class-head { border-bottom: 1px solid var(--ds-edge-faint) !important; }
+.progress-emblem {
+  background: var(--ds-l2-raise) !important;
+  border: 1px solid var(--ds-edge-strong) !important;
+  box-shadow: var(--ds-hair-top), var(--ds-sh-card) !important;
+  color: var(--ds-gold-bright) !important;
+}
+.career-title-wrap .career-name, .hero-info .career-name { color: var(--ds-gold-bright) !important; letter-spacing: 3px !important; }
+.class-head-copy p { color: var(--ds-ink-soft) !important; }
+.class-head-copy p b { color: var(--ds-gold) !important; }
+.class-xp { background: #0d0b09 !important; border: 1px solid var(--ds-edge) !important; }
+.class-xp i { background: linear-gradient(90deg, #8a6631, var(--ds-gold-bright)) !important; }
+.class-head-track .meta, .next-reward { color: var(--ds-ink-faint) !important; }
+.class-head-track .meta b { color: var(--ds-ink) !important; font-family: var(--ds-font-num) !important; }
+
+.weapon-slab, .talent-board, .class-vault, .perk-board {
+  background-color: var(--ds-l2) !important;
+  background-image: var(--ds-rivets), var(--ds-leather) !important;
+  background-blend-mode: normal, soft-light, overlay, normal !important;
+  border: 1px solid var(--ds-edge) !important;
+  border-radius: 0 !important;
+  clip-path: var(--ds-clip-card) !important;
+  box-shadow: var(--ds-hair-top) !important;
+}
+.hero-info > .weapon-slab .slab-body { height: auto !important; min-height: 176px !important; }
+.hero-info > .weapon-slab .plate-art, .plate-art { width: 112px !important; height: 150px !important; }
+.weapon-plate {
+  background:
+    radial-gradient(at 50% 34%, rgba(237, 194, 124, .18) 0%, transparent 66%),
+    linear-gradient(#2d241c, #1b1511) !important;
+  border-right: 1px solid var(--ds-edge) !important;
+}
+.plate-lamp { background: radial-gradient(circle, rgba(237, 194, 124, .24), transparent 68%) !important; }
+.plate-caption { background: linear-gradient(transparent, rgba(18, 16, 13, .95) 55%) !important; }
+.plate-caption b { color: var(--ds-gold-bright) !important; }
+.wspell-head {
+  background: linear-gradient(90deg, #3a2c22 0%, #251d17 70%, #1d1713 100%) !important;
+  box-shadow: var(--ds-hair-top) !important;
+  border-bottom: 1px solid var(--ds-edge) !important;
+}
+.wspell-body {
+  background:
+    radial-gradient(circle at 18% 10%, rgba(237, 194, 124, .05), transparent 240px),
+    linear-gradient(#251d17, #1c1713) !important;
+}
+.weapon-spell { background: transparent !important; }
+.section-title { background: none !important; border-bottom: 1px solid var(--ds-edge-faint) !important; padding-bottom: 6px !important; }
+.section-title h3, .hero-info .section-title h3 { color: var(--ds-gold-bright) !important; letter-spacing: 3px !important; }
+.section-title small, .section-title > span { color: var(--ds-ink-faint) !important; }
+
+.talent-node b { color: var(--ds-ink-soft) !important; }
+.talent-node small { color: var(--ds-ink-faint) !important; }
+.talent-node.claimed b { color: var(--ds-ink) !important; }
+.talent-node.current {
+  background: linear-gradient(#3e2c21, #261d17) !important;
+  clip-path: var(--ds-clip-btn) !important;
+  box-shadow: inset 0 0 0 2px var(--ds-edge-hot) !important;
+  transform: translateY(-2px) !important;
+}
+.talent-node.current b { color: var(--ds-gold-bright) !important; }
+.talent-path .path-line { background: linear-gradient(90deg, var(--ds-edge-strong), transparent) !important; }
+
+.perk-slot {
+  background: linear-gradient(#2e251d, #211a15) !important;
+  border: 1px solid var(--ds-edge-faint) !important;
+  border-radius: 0 !important;
+  clip-path: var(--ds-clip-btn) !important;
+  box-shadow: var(--ds-sh-card) !important;
+}
+.perk-slot.on, .class-vault > .career-perks .perk-slot.on {
+  background: linear-gradient(135deg, #5a3520, #2b211a) !important;
+  border: 2px solid var(--ds-edge-hot) !important;
+  box-shadow: var(--ds-sh-raise) !important;
+  transform: translateY(-2px) !important;
+}
+.perk-slot .perk-head b, .career-perks .perk-slot .perk-head b { color: var(--ds-gold-bright) !important; }
+.perk-slot small, .career-perks .perk-slot > small { color: var(--ds-ink-soft) !important; }
+.perk-slot .perk-state, .career-perks .perk-slot .perk-state { color: var(--ds-warn) !important; }
+.class-btn { border-radius: 0 !important; clip-path: var(--ds-clip-btn) !important; }
+.class-btn.on { background: linear-gradient(145deg, #5a3520, #2b211a) !important; border: 2px solid var(--ds-edge-hot) !important; }

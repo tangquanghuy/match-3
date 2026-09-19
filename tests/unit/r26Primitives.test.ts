@@ -103,9 +103,9 @@ describe('R26 · createMix 混合端点', () => {
 
   it('色 + 骷髅 / 色 + 特殊宝石端点走 mixAny（7713/9658 句式）', () => {
     const mixed = createMix([BaseColor.Green, 'SKULL'], 14);
-    expect(mixed.params.gem).toEqual({ kind: 'mixAny', entries: [BaseColor.Green, 'SKULL'] });
+    expect(mixed.params).toHaveProperty('gem', { kind: 'mixAny', entries: [BaseColor.Green, 'SKULL'] });
     const special = createMix([BaseColor.Green, { kind: 'freezeGem' }], 14);
-    expect(special.params.gem).toEqual({ kind: 'mixAny', entries: [BaseColor.Green, { kind: 'freezeGem' }] });
+    expect(special.params).toHaveProperty('gem', { kind: 'mixAny', entries: [BaseColor.Green, { kind: 'freezeGem' }] });
   });
 
   it('行为：绿宝石与骷髅逐颗混合创造（两种类型都出现）', () => {

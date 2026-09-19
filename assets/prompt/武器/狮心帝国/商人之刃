@@ -1,0 +1,11 @@
+商人之刃：
+wlopk2style, Yoneyama Mai Style,
+western fantasy style, DnD monster manual illustration, painterly fantasy,
+<krea2_prompt>
+  <subject>the Merchant's Blade, a slender guild rapier with a basket hilt pierced into coin-and-scale patterning, its blade blued like deep ledger ink, the sole subject in a medium-close shot, dominating most of the frame, weapon only</subject>
+  <details>three tokens chained at the pommel, a soul-token, a gold coin and a scrap of map, an augury-glimmer passing over the basket's piercings one at a time, the edge stropped mirror-keen</details>
+  <pose>floating hilt-up at a fop's careless angle on its own, the three tokens swinging while the augury-glimmer circles them, piercings and tokens clearly readable, no bearer, no hands</pose>
+  <environment>bare palace flags under a soft sand-gold haze, a single faded merchant banner far in the back, clean minimal backdrop, the rapier fully unobstructed, no characters</environment>
+  <lighting>strong key light on the subject, clear readable details</lighting>
+  <style>clean anime-style weapon design over a simple photorealistic backdrop, ledger blue, basket gold, token bronze palette, thumbnail-readable silhouette, no characters or hands in frame</style>
+</krea2_prompt>

@@ -1,0 +1,11 @@
+时空之剑：
+wlopk2style, Yoneyama Mai Style,
+western fantasy style, DnD monster manual illustration, painterly fantasy,
+<krea2_prompt>
+  <subject>the Hands of Time, a city-forged longsword whose blade is split by a running seam of ticking gears visible through a glass fuller, the sole subject in a medium-close shot, dominating most of the frame, weapon only</subject>
+  <details>a clockface pommel with hands set a heartbeat apart, blue steel ahead of the gear seam and tarnished steel behind it, a frock of tiny gold hour-marks down the ricasso</details>
+  <pose>suspended upright midair as the gear seam visibly ticks, two arcs of splintered light ringing off the blade one after another like a delayed echo, gear seam and clock pommel clearly readable, no bearer, no hands</pose>
+  <environment>rain-dark flagstones under a violet-grey glow, one single blurred clocktower far in the back, clean minimal backdrop, the sword fully unobstructed, no characters</environment>
+  <lighting>strong key light on the subject, clear readable details</lighting>
+  <style>clean anime-style weapon design over a simple photorealistic backdrop, gear brass, steel blue, hour-mark gold palette, thumbnail-readable silhouette, no characters or hands in frame</style>
+</krea2_prompt>

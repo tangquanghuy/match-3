@@ -1,0 +1,11 @@
+指标星：
+wlopk2style, Yoneyama Mai Style,
+western fantasy style, DnD monster manual illustration, painterly fantasy,
+<krea2_prompt>
+  <subject>the Lodestar, a spire-relic of a pointing-needle idol, a black iron hand that cradles a slowly turning shard of amethyst like a compass of ruin, the sole subject in a medium-close shot, dominating most of the frame, weapon only</subject>
+  <details>the shard always swinging toward something off-frame, a star-chart of scratched gold leaf on the iron palm, green plunder-gems nested in the wrist joints</details>
+  <pose>hovering at an angle midair with the shard tugging on its own axis, a wake of purple mist and small doom-skull motes spinning behind the point, gold star-chart and wrist gems clearly readable, no bearer, no hands</pose>
+  <environment>broken spire flags under a low violet gloom, one single fallen pillar far in the back, clean minimal backdrop, the idol fully unobstructed, no characters</environment>
+  <lighting>strong key light on the subject, clear readable details</lighting>
+  <style>clean anime-style weapon design over a simple photorealistic backdrop, ruin iron, shard amethyst, chart gold palette, thumbnail-readable silhouette, no characters or hands in frame</style>
+</krea2_prompt>

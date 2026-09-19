@@ -1,0 +1,11 @@
+劫数雕像：
+wlopk2style, Yoneyama Mai Style,
+western fantasy style, DnD monster manual illustration, painterly fantasy,
+<krea2_prompt>
+  <subject>a doomed idol of blackened glacial stone carved as a hooded sentinel, doom-sigils ringing its brow, the sole subject in a medium-close shot, dominating most of the frame, weapon only</subject>
+  <details>veins of sickly dawn-gold light threading the carving, rime crawling over the hooded shoulders, tiny doom-skulls nested into the pedestal relief</details>
+  <pose>standing on a plinth of clear ice on its own as the brow sigils kindle one by one, a slow halo of golden embers and frost dust, carved folds and skull reliefs clearly readable, no bearer, no hands</pose>
+  <environment>a bare glacier shelf under a pale storm sky, clean minimal backdrop, the idol fully unobstructed, no characters</environment>
+  <lighting>strong key light on the subject, clear readable details</lighting>
+  <style>clean anime-style weapon design over a simple photorealistic backdrop, doom obsidian, dawn gold, glacier white palette, thumbnail-readable silhouette, no characters or hands in frame</style>
+</krea2_prompt>

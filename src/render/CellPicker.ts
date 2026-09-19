@@ -31,6 +31,18 @@ function ensureStyles(): void {
   .cellaim-overlay .reticle .dot{fill:#fff3d6}
   .cellaim-overlay.locked .beam{stroke:url(#cellBeamGradLock)}
   .cellaim-overlay.locked .reticle .ring{stroke:#ffd089}
+  /* B-11（UX 阶段 B）：选择层此前零文案——玩家突然进入一个"必须点棋盘"的状态，
+     棋盘上没有一句话说明要点什么（选颜色？选要炸的格子？），也没人告诉他 Esc 能退。 */
+  .cellaim-hint{position:absolute;left:50%;top:10px;z-index:1210;transform:translateX(-50%);
+    max-width:86%;padding:7px 14px;border-radius:7px;pointer-events:none;text-align:center;
+    background:rgba(10,8,6,.92);border:1px solid rgba(216,194,144,.5);
+    box-shadow:0 4px 14px rgba(0,0,0,.6);
+    font-family:"Oswald","Microsoft YaHei",sans-serif;font-size:13px;letter-spacing:.04em;
+    line-height:1.5;color:#f4e6c4;animation:cellHintIn .2s ease-out}
+  .cellaim-hint em{font-style:normal;color:#a89974;margin-left:8px;font-size:12px}
+  @keyframes cellHintIn{from{opacity:0;transform:translateX(-50%) translateY(-6px)}
+    to{opacity:1;transform:translateX(-50%) translateY(0)}}
+  @media (prefers-reduced-motion:reduce){.cellaim-hint{animation:none}}
   `;
   const style = document.createElement('style');
   style.id = 'cellaim-styles';
@@ -64,8 +76,15 @@ export class CellPicker {
    * @param origin 施法者卡（光束起点）
    * @param overlayParent 承载瞄准 SVG 的容器（wrapper）
    * @param coords 坐标适配器（由 App 提供，统一坐标换算）
+   * @param hint 顶部提示文案（B-11）。缺省用"选择一枚宝石"的通用口径；
+   *             `Esc 取消` 由本方法统一追加，调用方不必重复写。
    */
-  pick(origin: CharacterCard, overlayParent: HTMLElement, coords: CellAimCoords): Promise<CellPos | null> {
+  pick(
+    origin: CharacterCard,
+    overlayParent: HTMLElement,
+    coords: CellAimCoords,
+    hint = '选择一枚宝石',
+  ): Promise<CellPos | null> {
     this.cancel();
     ensureStyles();
 
@@ -115,6 +134,16 @@ export class CellPicker {
         </g>
       `;
       overlayParent.appendChild(svg);
+
+      // B-11：提示条（独立 div，不放进 SVG——SVG 里做多行文本排版不值当）
+      const hintEl = document.createElement('div');
+      hintEl.className = 'cellaim-hint';
+      hintEl.setAttribute('role', 'status');
+      hintEl.textContent = hint;
+      const escNote = document.createElement('em');
+      escNote.textContent = 'Esc 取消';
+      hintEl.appendChild(escNote);
+      overlayParent.appendChild(hintEl);
 
       const beam = svg.querySelector('.beam') as SVGPathElement;
       const beamCore = svg.querySelector('.beam-core') as SVGPathElement;
@@ -184,6 +213,7 @@ export class CellPicker {
         window.removeEventListener('click', onDocClick, { capture: true });
         origin.el.classList.remove('casting-origin');
         svg.remove();
+        hintEl.remove();
       });
 
       render();

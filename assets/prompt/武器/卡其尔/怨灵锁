@@ -1,0 +1,11 @@
+怨灵锁：
+wlopk2style, Yoneyama Mai Style,
+western fantasy style, DnD monster manual illustration, painterly fantasy,
+<krea2_prompt>
+  <subject>a towering dwarf door-shield of banded black granite, its face locked shut with a single gilded grudge-lock, the sole subject in a medium-close shot, dominating most of the frame, weapon only</subject>
+  <details>ancestor runes hammered in gold leaf around the lock, deep old axe scores the dwarves refuse to repair, barrier light seam-glowing along every granite band</details>
+  <pose>planted upright on stone like a sealed door on its own, pale barrier light leaking through the lock seam, rune bands clearly readable, no bearer, no hands</pose>
+  <environment>a pillared dwarf-hall floor under warm torch haze, clean minimal backdrop, the shield fully unobstructed, no characters</environment>
+  <lighting>strong key light on the subject, clear readable details</lighting>
+  <style>clean anime-style weapon design over a simple photorealistic backdrop, granite black, grudge gold, barrier azure palette, thumbnail-readable silhouette, no characters or hands in frame</style>
+</krea2_prompt>

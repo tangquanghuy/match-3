@@ -7,6 +7,7 @@
 import { App } from '@render/App';
 import type { BattleResult } from '@session/index';
 import { isFailure, todayStartOf, weekStartOf } from '../gateway';
+import { EVENT_TYPES } from '../data/events';
 import type { BridgeOutcome } from '../systems/battleBridge';
 import type { ArenaBridgeOutcome } from '../systems/arena';
 import type { InvasionBridgeOutcome } from '../systems/invasion';
@@ -53,10 +54,15 @@ export class BattleLauncher {
     await this.run(plan, 'arena');
   }
 
-  /** 本周活动出战（主题出敌；结算行含活动积分/里程碑素材） */
+  /** 当前活动页出战（结算行含该活动积分/里程碑素材）。 */
   async launchEventBattle(): Promise<void> {
     const now = Date.now();
-    const plan = await this.ctx.gateway.planEventBattle(now, weekStartOf(now));
+    const typeId = EVENT_TYPES.find((type) => this.ctx.currentHash() === `#events/${type.id}`)?.id;
+    if (!typeId) {
+      toast('请先选择活动');
+      return;
+    }
+    const plan = await this.ctx.gateway.planEventBattle(now, weekStartOf(now), typeId);
     if (isFailure(plan)) {
       toast(plan.message);
       return;
@@ -172,7 +178,7 @@ export class BattleLauncher {
     this.ctx.showResult(detail, {
       kingdom: plan.plan.kingdom,
       sourceLabel,
-      returnHash: source.kind === 'event' ? '#events' : undefined,
+      returnHash: source.kind === 'event' ? `#events/${source.typeId}` : undefined,
     });
   }
 }

@@ -1,0 +1,11 @@
+注定失败的阔剑地雷：
+wlopk2style, Yoneyama Mai Style,
+western fantasy style, DnD monster manual illustration, painterly fantasy,
+<krea2_prompt>
+  <subject>the Doomed Claymore, a highland greatsword whose crossguard has drooped like candlewax and whose blade is blackened to a coal-sheen, the sole subject in a medium-close shot, dominating most of the frame, weapon only</subject>
+  <details>doom-sigils sunk into the fuller in a running line, a pale gold light drifting under the sheen like a lamp behind horn, a grip wrap of tartan gone grey-brown</details>
+  <pose>planted point-down in frozen ground on its own, the under-light brightening as gold motes lift off the fuller and turn to small doom-skulls, drooped guard and fuller line clearly readable, no bearer, no hands</pose>
+  <environment>hard frozen ground under an aurora-tinged haze, one single rune-stone far in the back, clean minimal backdrop, the claymore fully unobstructed, no characters</environment>
+  <lighting>strong key light on the subject, clear readable details</lighting>
+  <style>clean anime-style weapon design over a simple photorealistic backdrop, coal sheen black, under-light pale gold, doom sigil azure palette, thumbnail-readable silhouette, no characters or hands in frame</style>
+</krea2_prompt>

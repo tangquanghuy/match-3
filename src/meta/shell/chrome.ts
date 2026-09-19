@@ -59,7 +59,10 @@ export function mountIcons(root: ParentNode = document): void {
 
 export function fitStage(): void {
   const stage = $('#stage');
-  if (stage) stage.style.transform = 'scale(' + Math.min(innerWidth / 1600, innerHeight / 900) + ')';
+  if (!stage) return;
+  const width = document.documentElement.clientWidth || window.innerWidth;
+  const height = document.documentElement.clientHeight || window.innerHeight;
+  stage.style.transform = 'scale(' + Math.min(width / 1600, height / 900) + ')';
 }
 
 // ---------------------------------------------------------------------------

@@ -1,0 +1,11 @@
+黑石雕像：
+wlopk2style, Yoneyama Mai Style,
+western fantasy style, DnD monster manual illustration, painterly fantasy,
+<krea2_prompt>
+  <subject>a palm-high idol of veined darkstone, carved as a seated figure holding a bowl level in its lap, the sole subject in a medium-close shot, dominating most of the frame, weapon only</subject>
+  <details>ore-glitter pocked through the carving, the bowl collecting one bead of molten light, the base ringed with maker's punch-marks</details>
+  <pose>resting on a bare obsidian shelf on its own with the bowl-light rising in a slow thread, punch-marks clearly readable, no bearer, no hands</pose>
+  <environment>a dark forge-gallery floor under ember haze, clean minimal backdrop, the idol fully unobstructed, no characters</environment>
+  <lighting>strong key light on the subject, clear readable details</lighting>
+  <style>clean anime-style weapon design over a simple photorealistic backdrop, darkstone brown, forge ember, ore gold palette, thumbnail-readable silhouette, no characters or hands in frame</style>
+</krea2_prompt>

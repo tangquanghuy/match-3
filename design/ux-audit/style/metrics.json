@@ -1,0 +1,632 @@
+{
+  "map/current": {
+    "surfaces": [
+      {
+        "sel": "div.map-frame",
+        "area": 899600,
+        "l": 6.1,
+        "s": 54.8
+      }
+    ],
+    "ladder": [
+      6.1
+    ],
+    "saturatedCount": 0,
+    "saturatedTop": [],
+    "distinctButtonShapes": 10,
+    "distinctButtonRadii": 2,
+    "distinctFontSizes": 14
+  },
+  "troop/current": {
+    "surfaces": [
+      {
+        "sel": "button.collection-card",
+        "area": 32830,
+        "l": 5.7,
+        "s": 24.1
+      },
+      {
+        "sel": "button.collection-card",
+        "area": 32830,
+        "l": 5.7,
+        "s": 24.1
+      },
+      {
+        "sel": "button.collection-card",
+        "area": 32830,
+        "l": 5.7,
+        "s": 24.1
+      },
+      {
+        "sel": "button.collection-card",
+        "area": 32830,
+        "l": 5.7,
+        "s": 24.1
+      },
+      {
+        "sel": "button.collection-card",
+        "area": 32830,
+        "l": 5.7,
+        "s": 24.1
+      },
+      {
+        "sel": "button.collection-card",
+        "area": 32830,
+        "l": 5.7,
+        "s": 24.1
+      },
+      {
+        "sel": "button.collection-card",
+        "area": 32830,
+        "l": 5.7,
+        "s": 24.1
+      },
+      {
+        "sel": "button.collection-card",
+        "area": 32830,
+        "l": 5.7,
+        "s": 24.1
+      },
+      {
+        "sel": "button.collection-card",
+        "area": 32830,
+        "l": 5.7,
+        "s": 24.1
+      },
+      {
+        "sel": "button.collection-card",
+        "area": 32830,
+        "l": 5.7,
+        "s": 24.1
+      },
+      {
+        "sel": "button.collection-card",
+        "area": 32830,
+        "l": 5.7,
+        "s": 24.1
+      },
+      {
+        "sel": "button.collection-card",
+        "area": 32830,
+        "l": 5.7,
+        "s": 24.1
+      }
+    ],
+    "ladder": [
+      5.7
+    ],
+    "saturatedCount": 0,
+    "saturatedTop": [],
+    "distinctButtonShapes": 11,
+    "distinctButtonRadii": 5,
+    "distinctFontSizes": 21
+  },
+  "hero/current": {
+    "surfaces": [
+      {
+        "sel": "div.screen",
+        "area": 1155200,
+        "l": 5.9,
+        "s": 20
+      },
+      {
+        "sel": "section.panel",
+        "area": 830200,
+        "l": 8.6,
+        "s": 4.5
+      },
+      {
+        "sel": "section.weapon-slab",
+        "area": 257076,
+        "l": 10,
+        "s": 9.8
+      },
+      {
+        "sel": "section.panel",
+        "area": 252000,
+        "l": 8.6,
+        "s": 4.5
+      },
+      {
+        "sel": "article.weapon-spell",
+        "area": 217360,
+        "l": 9.8,
+        "s": 12
+      },
+      {
+        "sel": "div.wspell-body",
+        "area": 164008,
+        "l": 10,
+        "s": 9.8
+      },
+      {
+        "sel": "div.perk-slot",
+        "area": 39817,
+        "l": 14.1,
+        "s": 13.9
+      },
+      {
+        "sel": "div.perk-slot",
+        "area": 39815,
+        "l": 14.1,
+        "s": 13.9
+      },
+      {
+        "sel": "div.perk-slot",
+        "area": 39815,
+        "l": 14.1,
+        "s": 13.9
+      }
+    ],
+    "ladder": [
+      5.9,
+      8.6,
+      9.8,
+      10,
+      14.1
+    ],
+    "saturatedCount": 0,
+    "saturatedTop": [],
+    "distinctButtonShapes": 9,
+    "distinctButtonRadii": 5,
+    "distinctFontSizes": 17
+  },
+  "map/a": {
+    "surfaces": [
+      {
+        "sel": "div.map-frame",
+        "area": 899600,
+        "l": 8.8,
+        "s": 42.2
+      }
+    ],
+    "ladder": [
+      8.8
+    ],
+    "saturatedCount": 0,
+    "saturatedTop": [],
+    "distinctButtonShapes": 10,
+    "distinctButtonRadii": 4,
+    "distinctFontSizes": 14
+  },
+  "troop/a": {
+    "surfaces": [
+      {
+        "sel": "div.collection-filter",
+        "area": 153690,
+        "l": 11,
+        "s": 28.6
+      },
+      {
+        "sel": "button.collection-card",
+        "area": 46981,
+        "l": 15.5,
+        "s": 24.1
+      },
+      {
+        "sel": "button.collection-card",
+        "area": 46977,
+        "l": 15.5,
+        "s": 24.1
+      },
+      {
+        "sel": "button.collection-card",
+        "area": 46977,
+        "l": 15.5,
+        "s": 24.1
+      },
+      {
+        "sel": "button.collection-card",
+        "area": 46977,
+        "l": 15.5,
+        "s": 24.1
+      },
+      {
+        "sel": "button.collection-card",
+        "area": 46977,
+        "l": 15.5,
+        "s": 24.1
+      },
+      {
+        "sel": "button.collection-card",
+        "area": 46977,
+        "l": 15.5,
+        "s": 24.1
+      },
+      {
+        "sel": "button.collection-card",
+        "area": 46977,
+        "l": 15.5,
+        "s": 24.1
+      },
+      {
+        "sel": "button.collection-card",
+        "area": 46977,
+        "l": 15.5,
+        "s": 24.1
+      },
+      {
+        "sel": "button.collection-card",
+        "area": 46977,
+        "l": 15.5,
+        "s": 24.1
+      },
+      {
+        "sel": "button.collection-card",
+        "area": 46977,
+        "l": 15.5,
+        "s": 24.1
+      },
+      {
+        "sel": "button.collection-card",
+        "area": 46977,
+        "l": 15.5,
+        "s": 24.1
+      }
+    ],
+    "ladder": [
+      11,
+      15.5
+    ],
+    "saturatedCount": 0,
+    "saturatedTop": [],
+    "distinctButtonShapes": 11,
+    "distinctButtonRadii": 5,
+    "distinctFontSizes": 20
+  },
+  "hero/a": {
+    "surfaces": [
+      {
+        "sel": "div.screen",
+        "area": 1155200,
+        "l": 6.1,
+        "s": 29
+      },
+      {
+        "sel": "section.panel",
+        "area": 830200,
+        "l": 11,
+        "s": 28.6
+      },
+      {
+        "sel": "section.panel",
+        "area": 252000,
+        "l": 11,
+        "s": 28.6
+      }
+    ],
+    "ladder": [
+      6.1,
+      11
+    ],
+    "saturatedCount": 0,
+    "saturatedTop": [],
+    "distinctButtonShapes": 10,
+    "distinctButtonRadii": 4,
+    "distinctFontSizes": 17
+  },
+  "map/b": {
+    "surfaces": [
+      {
+        "sel": "div.map-frame",
+        "area": 899600,
+        "l": 6.3,
+        "s": 25
+      }
+    ],
+    "ladder": [
+      6.3
+    ],
+    "saturatedCount": 0,
+    "saturatedTop": [],
+    "distinctButtonShapes": 10,
+    "distinctButtonRadii": 2,
+    "distinctFontSizes": 14
+  },
+  "troop/b": {
+    "surfaces": [
+      {
+        "sel": "div.collection-filter",
+        "area": 156510,
+        "l": 9.2,
+        "s": 19.1
+      },
+      {
+        "sel": "button.collection-card",
+        "area": 46767,
+        "l": 12.5,
+        "s": 21.9
+      },
+      {
+        "sel": "button.collection-card",
+        "area": 46767,
+        "l": 12.5,
+        "s": 21.9
+      },
+      {
+        "sel": "button.collection-card",
+        "area": 46767,
+        "l": 12.5,
+        "s": 21.9
+      },
+      {
+        "sel": "button.collection-card",
+        "area": 46767,
+        "l": 12.5,
+        "s": 21.9
+      },
+      {
+        "sel": "button.collection-card",
+        "area": 46767,
+        "l": 12.5,
+        "s": 21.9
+      },
+      {
+        "sel": "button.collection-card",
+        "area": 46767,
+        "l": 12.5,
+        "s": 21.9
+      },
+      {
+        "sel": "button.collection-card",
+        "area": 46767,
+        "l": 12.5,
+        "s": 21.9
+      },
+      {
+        "sel": "button.collection-card",
+        "area": 46767,
+        "l": 12.5,
+        "s": 21.9
+      },
+      {
+        "sel": "button.collection-card",
+        "area": 46767,
+        "l": 12.5,
+        "s": 21.9
+      },
+      {
+        "sel": "button.collection-card",
+        "area": 46767,
+        "l": 12.5,
+        "s": 21.9
+      },
+      {
+        "sel": "button.collection-card",
+        "area": 46767,
+        "l": 12.5,
+        "s": 21.9
+      }
+    ],
+    "ladder": [
+      9.2,
+      12.5
+    ],
+    "saturatedCount": 0,
+    "saturatedTop": [],
+    "distinctButtonShapes": 11,
+    "distinctButtonRadii": 3,
+    "distinctFontSizes": 20
+  },
+  "hero/b": {
+    "surfaces": [
+      {
+        "sel": "div.screen",
+        "area": 1155200,
+        "l": 6.1,
+        "s": 16.1
+      },
+      {
+        "sel": "section.panel",
+        "area": 830200,
+        "l": 9.2,
+        "s": 19.1
+      },
+      {
+        "sel": "section.panel",
+        "area": 252000,
+        "l": 9.2,
+        "s": 19.1
+      },
+      {
+        "sel": "section.weapon-slab",
+        "area": 248540,
+        "l": 12.5,
+        "s": 21.9
+      },
+      {
+        "sel": "section.talent-board",
+        "area": 219640,
+        "l": 12.5,
+        "s": 21.9
+      },
+      {
+        "sel": "section.class-vault",
+        "area": 212704,
+        "l": 12.5,
+        "s": 21.9
+      }
+    ],
+    "ladder": [
+      6.1,
+      9.2,
+      12.5
+    ],
+    "saturatedCount": 0,
+    "saturatedTop": [],
+    "distinctButtonShapes": 10,
+    "distinctButtonRadii": 3,
+    "distinctFontSizes": 17
+  },
+  "map/c": {
+    "surfaces": [
+      {
+        "sel": "div.map-frame",
+        "area": 899600,
+        "l": 8.4,
+        "s": 48.8
+      }
+    ],
+    "ladder": [
+      8.4
+    ],
+    "saturatedCount": 0,
+    "saturatedTop": [],
+    "distinctButtonShapes": 10,
+    "distinctButtonRadii": 3,
+    "distinctFontSizes": 15
+  },
+  "troop/c": {
+    "surfaces": [
+      {
+        "sel": "div.collection-filter",
+        "area": 162150,
+        "l": 12.4,
+        "s": 36.5
+      },
+      {
+        "sel": "button.collection-card",
+        "area": 47305,
+        "l": 18.2,
+        "s": 37.6
+      },
+      {
+        "sel": "button.collection-card",
+        "area": 47305,
+        "l": 18.2,
+        "s": 37.6
+      },
+      {
+        "sel": "button.collection-card",
+        "area": 47305,
+        "l": 18.2,
+        "s": 37.6
+      },
+      {
+        "sel": "button.collection-card",
+        "area": 47305,
+        "l": 18.2,
+        "s": 37.6
+      },
+      {
+        "sel": "button.collection-card",
+        "area": 47305,
+        "l": 18.2,
+        "s": 37.6
+      },
+      {
+        "sel": "button.collection-card",
+        "area": 47305,
+        "l": 18.2,
+        "s": 37.6
+      },
+      {
+        "sel": "button.collection-card",
+        "area": 47305,
+        "l": 18.2,
+        "s": 37.6
+      },
+      {
+        "sel": "button.collection-card",
+        "area": 47305,
+        "l": 18.2,
+        "s": 37.6
+      },
+      {
+        "sel": "button.collection-card",
+        "area": 47305,
+        "l": 18.2,
+        "s": 37.6
+      },
+      {
+        "sel": "button.collection-card",
+        "area": 47305,
+        "l": 18.2,
+        "s": 37.6
+      },
+      {
+        "sel": "button.collection-card",
+        "area": 47305,
+        "l": 18.2,
+        "s": 37.6
+      }
+    ],
+    "ladder": [
+      12.4,
+      18.2
+    ],
+    "saturatedCount": 0,
+    "saturatedTop": [],
+    "distinctButtonShapes": 11,
+    "distinctButtonRadii": 5,
+    "distinctFontSizes": 21
+  },
+  "hero/c": {
+    "surfaces": [
+      {
+        "sel": "div.screen",
+        "area": 1155200,
+        "l": 6.1,
+        "s": 41.9
+      },
+      {
+        "sel": "section.panel",
+        "area": 830200,
+        "l": 12.4,
+        "s": 36.5
+      },
+      {
+        "sel": "section.panel",
+        "area": 252000,
+        "l": 12.4,
+        "s": 36.5
+      },
+      {
+        "sel": "section.weapon-slab",
+        "area": 248540,
+        "l": 18.2,
+        "s": 37.6
+      },
+      {
+        "sel": "section.talent-board",
+        "area": 219640,
+        "l": 18.2,
+        "s": 37.6
+      },
+      {
+        "sel": "section.class-vault",
+        "area": 212704,
+        "l": 18.2,
+        "s": 37.6
+      },
+      {
+        "sel": "div.perk-slot",
+        "area": 39744,
+        "l": 18.2,
+        "s": 37.6
+      },
+      {
+        "sel": "div.perk-slot",
+        "area": 39744,
+        "l": 18.2,
+        "s": 37.6
+      },
+      {
+        "sel": "div.perk-slot",
+        "area": 39744,
+        "l": 18.2,
+        "s": 37.6
+      }
+    ],
+    "ladder": [
+      6.1,
+      12.4,
+      18.2
+    ],
+    "saturatedCount": 0,
+    "saturatedTop": [],
+    "distinctButtonShapes": 10,
+    "distinctButtonRadii": 5,
+    "distinctFontSizes": 17
+  }
+}

@@ -1,0 +1,11 @@
+锁石：
+wlopk2style, Yoneyama Mai Style,
+western fantasy style, DnD monster manual illustration, painterly fantasy,
+<krea2_prompt>
+  <subject>a fist-sized seal-stone of banded orc-iron ore, its face stamped with a door-sigil and hung on a leather loop, the sole subject in a medium-close shot, dominating most of the frame, weapon only</subject>
+  <details>the door-sigil's seam glowing green when seen straight on, ore glitter under the stamp, loop leather cracked honest with age</details>
+  <pose>hovering face-out on its own as a film of green barrier light swells off the stamped seam, stamp lines clearly readable, no bearer, no hands</pose>
+  <environment>gate-post timber grain under smoke haze, clean minimal backdrop, the stone fully unobstructed, no characters</environment>
+  <lighting>strong key light on the subject, clear readable details</lighting>
+  <style>clean anime-style weapon design over a simple photorealistic backdrop, ore grey, seal green, loop umber palette, thumbnail-readable silhouette, no characters or hands in frame</style>
+</krea2_prompt>

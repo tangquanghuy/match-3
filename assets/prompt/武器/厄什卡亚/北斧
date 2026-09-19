@@ -1,0 +1,11 @@
+北斧：
+wlopk2style, Yoneyama Mai Style,
+western fantasy style, DnD monster manual illustration, painterly fantasy,
+<krea2_prompt>
+  <subject>a northlander's broad axe of cold blue steel, its beard deep-cut and storm-pocked, the sole subject in a medium-close shot, dominating most of the frame, weapon only</subject>
+  <details>a bear-claw collar below the head, red ochre runes stroked down the haft, rime burning off the steel in a thin blue haze</details>
+  <pose>driven into a snow ridge on its own with the beard shedding a sheet of frost while the ochre runes wake red, beard curve clearly readable, no bearer, no hands</pose>
+  <environment>wind-packed tundra snow under a steel-grey sky haze, clean minimal backdrop, the axe fully unobstructed, no characters</environment>
+  <lighting>strong key light on the subject, clear readable details</lighting>
+  <style>clean anime-style weapon design over a simple photorealistic backdrop, cold steel blue, ochre red, rime white palette, thumbnail-readable silhouette, no characters or hands in frame</style>
+</krea2_prompt>

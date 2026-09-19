@@ -1,0 +1,11 @@
+火山护盾：
+wlopk2style, Yoneyama Mai Style,
+western fantasy style, DnD monster manual illustration, painterly fantasy,
+<krea2_prompt>
+  <subject>the Volcanic Shield, a hoard-guard shield of quenched basalt banded in blue-steel, its face split by a cooling river of dark magma glass, the sole subject in a medium-close shot, dominating most of the frame, weapon only</subject>
+  <details>the magma river still glowing at its cracks, a barrier-sheen of pale blue light skating the basalt, cinder-beads clinging to the banding and dropping one by one</details>
+  <pose>standing slab-upright on cave stone on its own as the sheen passes and the cinders let go, magma river and banding clearly readable, no bearer, no hands</pose>
+  <environment>hoard-cave stone under a warm gold haze, a single spilled coin-glint far in the back, clean minimal backdrop, the shield fully unobstructed, no characters</environment>
+  <lighting>strong key light on the subject, clear readable details</lighting>
+  <style>clean anime-style weapon design over a simple photorealistic backdrop, basalt black, magma ember, banding blue palette, thumbnail-readable silhouette, no characters or hands in frame</style>
+</krea2_prompt>

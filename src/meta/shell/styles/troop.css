@@ -167,8 +167,8 @@
 .collection-card>img{object-position:center 15%}
 /* 稀有度色边 */
 .collection-card .rarity-edge{position:absolute;top:0;left:0;right:0;height:3px;z-index:2;background:var(--rc,#8f98a3);opacity:.9}
-.collection-card.r-0{--rc:#79828e}.collection-card.r-1{--rc:#63a86b}.collection-card.r-2{--rc:#5493cf}
-.collection-card.r-3{--rc:#9d6bdc}.collection-card.r-4{--rc:#dd8f45}.collection-card.r-5{--rc:#e9c258}
+.collection-card.r-0{--rc:#aab2ad}.collection-card.r-1{--rc:#4caf6a}.collection-card.r-2{--rc:#9a4fd4}
+.collection-card.r-3{--rc:#ffe24a}.collection-card.r-4{--rc:#c56b2d}.collection-card.r-5{--rc:#56d8ff}
 .collection-card .collection-mana{width:30px;height:30px;padding:4px;border-radius:0 0 9px 0}
 .collection-card .magic-badge{height:20px;padding:0 7px;border-radius:0 6px 0 10px}
 .collection-card .magic-badge [data-icon],.collection-card .magic-badge svg{width:11px;height:11px}
@@ -194,16 +194,38 @@
   box-shadow: 0 1px 0 #4a3c2e, inset 0 1px 0 #322840, 0 6px 12px #0b0b12aa;
 }
 
-/* T-1 续：卡再压一档（150→126 最小列宽、196→172 高），85 张从 5.2 屏压到 ≈3.5 屏 */
-.collection-cards { grid-template-columns: repeat(auto-fill, minmax(126px, 1fr)); gap: 8px; }
-.collection-card { height: 172px; }
-.collection-info { padding: 22px 8px 7px; }
-.collection-info h2 { font-size: 13px; margin: 0 0 4px; }
-.collection-info > span { font-size: 9px; padding-top: 4px; gap: 4px; }
-/* T-8：卡面第二行 = 攻/护/生（阶段 A 卡面一个战斗数值都没有） */
-.collection-info > span + span { border-top: 0; padding-top: 2px; color: #9d90a4; }
-.collection-info > span + span > span:first-child { color: #c9bda6; font-variant-numeric: tabular-nums; }
-.collection-info > span + span > span:last-child { color: var(--rc, #8d8091); }
+/* 立绘铺满：官方图为 459×675 竖版卡面（带背景），cover 填满槽位不留黑边，
+   纵向裁切偏顶部保留主体；资料留在选中详情。 */
+.collection-cards { grid-template-columns: repeat(auto-fill, minmax(168px, 1fr)); gap: 12px; }
+.collection-card { height: auto; min-height: 215px; aspect-ratio: 4 / 5; background: #151820; }
+.collection-card > img {
+  position: absolute; top: 0; left: 0; width: 100%; height: calc(100% - 36px);
+  object-fit: cover; object-position: center 15%;
+}
+.collection-info {
+  height: 36px; padding: 0 9px; display: flex; align-items: center; gap: 6px;
+  background: #17151e; border-top: 1px solid #756347; /* 不在画作上叠渐变和文字 */
+}
+.collection-info h2 {
+  min-width: 0; flex: 1; font: 15px/1.2 var(--display); color: #f0ddb9;
+  margin: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.collection-info .collection-level { flex: none; color: #b9aa9c; font: 11px Georgia; white-space: nowrap; }
+.collection-card.locked > img { filter: grayscale(.72) brightness(.78); }
+.collection-card .locked-mark {
+  inset: auto; top: 5px; right: 5px; width: 25px; height: 25px;
+  display: grid; place-items: center; z-index: 3; opacity: 1;
+  background: #17151edd; border: 1px solid #9b815b; border-radius: 3px; color: #decba7;
+}
+.collection-card .locked-mark svg { width: 14px; height: 14px; }
+
+@media (max-width: 800px) {
+  .collection-cards { grid-template-columns: repeat(auto-fill, minmax(148px, 1fr)); margin: 12px 16px 4px; }
+  .collection-heading { padding: 24px 16px 16px; }
+  .collection-filter { margin: 0 16px 10px; }
+  .collection-progress { margin: 0 16px 10px; }
+  .kingdom-band { margin-left: 16px; margin-right: 16px; }
+}
 
 /* T-7：品质 chip 自带稀有度色点 = 全页缺失的稀有度图例（不额外占一行） */
 .collection-filter .filter-chip[data-rarity]:before {
@@ -211,14 +233,14 @@
   width: 7px; height: 7px; margin-right: 5px; border-radius: 50%;
   background: var(--rc, #6b6472); box-shadow: 0 0 4px #0008;
 }
-.collection-filter .filter-chip[data-rarity=""] { --rc: linear-gradient(135deg, #79828e, #e9c258); }
-.collection-filter .filter-chip[data-rarity="0"] { --rc: #79828e; }
-.collection-filter .filter-chip[data-rarity="1"] { --rc: #63a86b; }
-.collection-filter .filter-chip[data-rarity="2"] { --rc: #5493cf; }
-.collection-filter .filter-chip[data-rarity="3"] { --rc: #9d6bdc; }
-.collection-filter .filter-chip[data-rarity="4"] { --rc: #dd8f45; }
-.collection-filter .filter-chip[data-rarity="5"] { --rc: #e9c258; }
-.collection-filter .filter-chip[data-rarity=""]:before { background-image: linear-gradient(135deg, #79828e, #5493cf 45%, #e9c258); }
+.collection-filter .filter-chip[data-rarity=""] { --rc: linear-gradient(135deg, #aab2ad, #56d8ff); }
+.collection-filter .filter-chip[data-rarity="0"] { --rc: #aab2ad; }
+.collection-filter .filter-chip[data-rarity="1"] { --rc: #4caf6a; }
+.collection-filter .filter-chip[data-rarity="2"] { --rc: #9a4fd4; }
+.collection-filter .filter-chip[data-rarity="3"] { --rc: #ffe24a; }
+.collection-filter .filter-chip[data-rarity="4"] { --rc: #c56b2d; }
+.collection-filter .filter-chip[data-rarity="5"] { --rc: #56d8ff; }
+.collection-filter .filter-chip[data-rarity=""]:before { background-image: linear-gradient(135deg, #aab2ad, #9a4fd4 45%, #56d8ff); }
 .collection-filter .filter-chip i { margin-left: 4px; color: #8f8298; font: 10px Georgia; }
 .collection-filter .filter-chip.selected i { color: #e3cfa2; }
 .collection-filter [data-tab] i { margin-left: 5px; color: #8f8298; font: 11px Georgia; }
@@ -242,12 +264,12 @@
   background: #14121bcc; font-size: 12px;
 }
 .rarity-label i { background: linear-gradient(90deg, transparent, currentColor); opacity: .55; }
-.rarity-label[data-rarity="0"] { --rc: #9aa3ae; }
-.rarity-label[data-rarity="1"] { --rc: #7cc285; }
-.rarity-label[data-rarity="2"] { --rc: #6aa9e0; }
-.rarity-label[data-rarity="3"] { --rc: #b285e8; }
-.rarity-label[data-rarity="4"] { --rc: #eda75f; }
-.rarity-label[data-rarity="5"] { --rc: #f0cf74; }
+.rarity-label[data-rarity="0"] { --rc: #aab2ad; }
+.rarity-label[data-rarity="1"] { --rc: #4caf6a; }
+.rarity-label[data-rarity="2"] { --rc: #9a4fd4; }
+.rarity-label[data-rarity="3"] { --rc: #ffe24a; }
+.rarity-label[data-rarity="4"] { --rc: #c56b2d; }
+.rarity-label[data-rarity="5"] { --rc: #56d8ff; }
 
 /* T-14：`.unowned` 这个类阶段 A 挂了但全仓零样式 → 列表灰、详情全彩，同一张卡两套表达 */
 .character-card.unowned .portrait { filter: grayscale(.92) brightness(.46) contrast(1.05); }
@@ -296,3 +318,261 @@
 /* 升阶收益行 */
 .ascension .growth-benefit { margin: 10px 0 4px; font-size: 11px; }
 .ascension .growth-benefit b { color: #d9c393; font-weight: 400; }
+
+/* Collection filters share one compact control height, including selected states. */
+.collection-filter {
+  padding: 8px 12px;
+  border-color: #48443c;
+  background: #191b22;
+}
+.collection-filter .filter-row { gap: 8px; min-height: 30px; }
+.collection-filter .filter-row-foot {
+  margin-top: 7px; padding-top: 7px; border-top-color: #383b3e;
+  justify-content: flex-start;
+}
+.collection-filter .filter-label {
+  flex: none; margin-left: 0; color: #aaa69e;
+  font: 11px/1 var(--body); letter-spacing: 0;
+}
+.collection-filter .divider { height: 18px; border-color: #43443f; }
+.collection-filter .collection-scope,
+.collection-filter .rarity-chips {
+  display: flex; flex: none; align-items: center; height: 30px;
+  border: 1px solid #4b4d49; border-radius: 4px; background: #11141b;
+}
+.collection-filter .collection-scope { overflow: hidden; }
+.collection-filter .collection-scope [data-tab] {
+  height: 28px; padding: 0 9px; border: 0; border-radius: 0;
+  color: #aaa9af; background: transparent; font: 11px/28px var(--body); letter-spacing: 0;
+}
+.collection-filter .collection-scope [data-tab] + [data-tab] { border-left: 1px solid #383b3e; }
+.collection-filter .collection-scope [data-tab].selected {
+  height: 28px; padding: 0 9px; border: 0;
+  background: #334139; color: #e3ecdc; box-shadow: inset 0 -2px #89ad87;
+}
+.collection-filter .rarity-chips { gap: 0; padding: 1px; }
+.collection-filter .rarity-chips .filter-chip {
+  display: inline-flex; flex: none; align-items: center; justify-content: center;
+  height: 26px; padding: 0 6px; border: 1px solid transparent; border-radius: 2px;
+  background: transparent; color: #b5b4b8; font: 11px/1 var(--body); white-space: nowrap;
+}
+.collection-filter .rarity-chips .filter-chip + .filter-chip { border-left-color: #383b3e; }
+.collection-filter .rarity-chips .filter-chip.selected,
+.collection-filter .rarity-chips .filter-chip.selected + .filter-chip {
+  border-left-color: transparent;
+}
+.collection-filter .rarity-chips .filter-chip.selected {
+  height: 26px; padding: 0 6px; border-bottom: 1px solid #89ad87;
+  background: #334139; color: #e3ecdc;
+}
+.collection-filter .rarity-chips .filter-chip:hover:not(.selected) {
+  border-color: #5c6c60; background: #28312c; color: #f2eee3;
+}
+.collection-filter .rarity-chips .filter-chip i {
+  min-width: 1.5em; margin-left: 4px; color: #908e96; text-align: right;
+}
+.collection-filter .rarity-chips .filter-chip.selected i { color: #c2d1bb; }
+.collection-filter .color-chips { align-items: center; gap: 4px; flex: none; }
+.collection-filter .color-chips .color-chip {
+  width: 30px; height: 30px; padding: 5px; border: 1px solid #4b4d49;
+  border-radius: 4px; background: #11141b;
+}
+.collection-filter .color-chips .color-chip.selected {
+  height: 30px; border-color: #89ad87; background: #293b36;
+  box-shadow: inset 0 -2px #89ad87;
+}
+.collection-filter .color-chips .color-chip:hover:not(.selected) { border-color: #829b88; background: #28312c; }
+.collection-filter select,
+.collection-filter .filter-reset,
+.collection-filter .filter-search {
+  height: 30px; border: 1px solid #4b4d49; border-radius: 4px;
+  background-color: #11141b; color: #d6d3ca;
+}
+.collection-filter select { padding: 0 21px 0 9px; font-size: 11px; }
+.collection-filter select:hover, .collection-filter select:focus-visible { border-color: #89ad87; }
+.collection-filter .filter-reset {
+  display: inline-flex; flex: none; align-items: center; gap: 4px;
+  padding: 0 8px; background: #292323; border-color: #67544c;
+  color: #e2b4a2; font-size: 11px;
+}
+.collection-filter .filter-reset [data-icon] { width: 12px; height: 12px; }
+.collection-filter .filter-reset:hover { background: #42302c; border-color: #bb8673; }
+.collection-filter .filter-search { height: 30px; margin-left: auto; padding: 0 8px; }
+.collection-filter .filter-search:focus-within { border-color: #89ad87; }
+.collection-filter .filter-search input { width: 150px; padding: 0; }
+.collection-filter .active-filters { display: flex; align-items: center; gap: 4px; min-width: 0; flex: 1; }
+.collection-filter #activeFilters .filter-chip {
+  height: 24px; padding: 0 7px; border: 1px solid #53634f; border-radius: 3px;
+  background: #253029; color: #c6d3c1; font-size: 10px;
+}
+.collection-filter #shownCount { margin-left: 0; }
+.collection-filter button:focus-visible, .collection-filter select:focus-visible {
+  position: relative; z-index: 1; outline: 2px solid #9ccde1; outline-offset: 1px;
+}
+
+.collection-empty { padding: 76px 20px 0; color: #c3bac7; line-height: 1.8; letter-spacing: 0; }
+.collection-empty .filter-chip {
+  display: inline-flex; align-items: center; justify-content: center;
+  min-height: 30px; margin: 8px 4px 0; padding: 5px 11px;
+  border: 1px solid #607261; border-radius: 3px; background: #293a31;
+  color: #e5ecdf; font: 12px/1.4 var(--body); letter-spacing: 0;
+}
+.collection-empty .filter-chip + .filter-chip {
+  border-color: #57595a; background: #23272d; color: #d1cdd1;
+}
+.collection-empty .filter-chip:hover:not(:disabled) { border-color: #9bb49c; background: #364c3e; }
+.collection-empty .filter-chip:focus-visible { outline: 2px solid #9ccde1; outline-offset: 2px; }
+
+.enlist-row { display: flex; gap: 7px; height: 42px; margin-top: 8px; }
+.enlist-row #enlist { flex: 1; width: auto; min-width: 0; height: 42px; }
+.enlist-row select { flex: none; width: 146px; }
+.enlist-row #enlist.secondary {
+  border-color: #63736b; background: #25312e; color: #d5dfd0;
+  box-shadow: inset 0 1px #a6cbb01a; font-size: 14px; letter-spacing: 0;
+}
+.enlist-row #enlist.secondary:hover:not(:disabled) { background: #304038; border-color: #8caf8c; }
+
+/* Detail: a quiet heading and a rarity seal attached to the portrait frame. */
+#detail .page-heading { height: 72px; }
+#detail .heading-center h1 {
+  margin: 0; color: #dac59b; font: 22px/1.2 var(--display); letter-spacing: 0;
+}
+#detail .heading-center::before, #detail .heading-center::after { display: none; }
+#detail .detail-layout { margin-top: 7px; }
+#detail .portrait-column { position: relative; }
+#detail .card-stage { margin-top: 20px; }
+#detail .rarity-label {
+  position: absolute; top: 20px; left: 50%; z-index: 9; transform: translateX(-50%);
+  display: flex; align-items: center; justify-content: center; gap: 10px;
+  width: auto; min-width: 116px; height: 34px; margin: 0; padding: 0 14px;
+  border: 1px solid var(--rc, #aab2ad); border-top-width: 2px;
+  border-radius: 2px 2px 4px 4px; background: #1c2026;
+  box-shadow: 0 3px 8px #0008, inset 0 1px #ffffff16;
+  color: var(--rc, #aab2ad); white-space: nowrap; letter-spacing: 0;
+}
+#detail .rarity-label .rarity-gem {
+  display: block; flex: none; width: 12px; height: 12px; padding: 0;
+  border: 1px solid currentColor; border-radius: 1px;
+  background: linear-gradient(135deg, #ffffff7a, var(--rc, #aab2ad) 65%, #15171e);
+  box-shadow: 0 0 0 2px #0e1017; transform: rotate(45deg);
+}
+#detail .rarity-label strong { font: 600 14px/1 var(--display); letter-spacing: 0; }
+#detail .unowned-mark { top: 42px; right: 8px; left: auto; transform: none; }
+#detail .character-card.unowned .portrait { filter: grayscale(.55) brightness(.72) contrast(1.03); }
+#detail .card-name h2 {
+  margin: 0 0 6px; color: #fff4dc; font: 34px/1.1 var(--display); letter-spacing: 0;
+}
+#detail .card-name > span { color: #ddd2c3; font: 12px/1.2 var(--body); letter-spacing: 0; }
+#detail .card-level { font: 11px/1.2 var(--body); letter-spacing: 0; }
+#detail .spell { height: 286px; }
+#detail .spell-head { height: 65px; }
+#detail .spell-title h2 { margin: 0; font: 600 25px/1.2 var(--display); letter-spacing: 0; }
+#detail .spell-body { background-color: #c8baa2; }
+#detail .spell-copy { margin-top: 14px; font: 17px/1.65 var(--body); letter-spacing: 0; overflow-wrap: anywhere; }
+#detail .spell-copy .spell-stat { font-size: 17px; line-height: inherit; }
+.modal-veil .modal h2 { margin-top: 0; }
+
+/* Keep all three effects readable, including locked traits and longer descriptions. */
+#detail .right-column { padding-top: 7px; }
+#detail .trait-heading {
+  height: 39px; margin: 0 0 12px; align-items: center;
+}
+#detail .trait-heading h2 {
+  margin: 0; color: #ecdbb7; font: 600 22px/1.2 var(--display); letter-spacing: 0;
+}
+#detail .trait-heading > span {
+  margin: 0; color: #bcb8b5; font: 12px/1.2 var(--body); white-space: nowrap;
+}
+#detail .trait-list { gap: 8px; }
+#detail .trait {
+  display: grid; grid-template-columns: 40px minmax(0, 1fr) 15px;
+  align-items: center; gap: 12px; height: auto; min-height: 91px;
+  padding: 10px 12px 10px 13px; border-color: #53524c;
+  background: #1d1e25; box-shadow: inset 2px 0 #79745966;
+}
+#detail .trait::after { display: none; }
+#detail .trait .trait-glyph { width: 40px; height: 40px; }
+#detail .trait .trait-glyph svg { width: 38px; height: 38px; }
+#detail .trait .trait-copy { min-width: 0; }
+#detail .trait h3 {
+  margin: 0; color: #eee3d4; font: 600 18px/1.25 var(--display); letter-spacing: 0;
+}
+#detail .trait p {
+  margin: 5px 0 0; color: #c8c5c7; font: 14px/1.4 var(--body);
+  white-space: normal; overflow-wrap: anywhere;
+}
+#detail .trait p .spell-stat { color: #e5a794; font: 700 14px/1.4 var(--body); }
+#detail .trait.locked { border-color: #49494d; background: #1b1c22; }
+#detail .trait.locked h3 { color: #dfd9d2; }
+#detail .trait.locked p { color: #bbb9bd; }
+#detail .trait.locked .trait-glyph { opacity: .72; filter: none; }
+#detail .trait .acquired, #detail .trait .lock-icon {
+  position: static; align-self: start; width: 15px; height: 15px;
+  margin-top: 2px; color: #a9a299;
+}
+#detail .trait .acquired { color: #99bd98; }
+#detail .unlock-block { margin-top: 12px; }
+#detail .unlock-cost {
+  display: flex; flex-wrap: wrap; justify-content: space-between; gap: 5px 12px;
+  margin-bottom: 9px; color: #d1c9ba; font: 12px/1.3 var(--body);
+}
+#detail .unlock-cost > span { display: inline-flex; align-items: center; gap: 4px; white-space: nowrap; }
+#detail .unlock-cost em { margin-left: 3px; color: #a3b49e; font: 11px var(--body); }
+#detail .unlock-cost em.short { color: #dd9a8b; }
+#detail #unlock { height: 38px; font: 15px/1 var(--display); letter-spacing: 0; }
+#detail #unlock:disabled {
+  opacity: 1; border-color: #63595a; background: #27262a; color: #c9babb;
+}
+
+/* Ascension reads as progress, payoff, then action. */
+#detail .ascension {
+  margin-top: 18px; padding-top: 15px; border-top-color: #5b5143;
+}
+#detail .ascension .section-line { height: 30px; align-items: center; }
+#detail .ascension .section-line h2 {
+  color: #ebd8ad; font: 600 21px/1.2 var(--display); letter-spacing: 0;
+}
+#detail .ascension-count { display: inline-flex; align-items: baseline; gap: 4px; color: #c8bdac; }
+#detail .ascension-count small { margin-right: 7px; color: #aaa69f; font: 11px var(--body); }
+#detail .ascension-count b { margin: 0; color: #ead19c; font: 700 22px/1 Georgia; }
+#detail .ascension-count i { color: #89888b; font: 13px Georgia; }
+#detail .ascension-count #copiesNeed { color: #d4c9b6; font: 15px Georgia; }
+#detail .ascension-gems { height: 8px; gap: 4px; margin: 13px 0 11px; }
+#detail .ascension-gems i {
+  height: 8px; border-radius: 1px; clip-path: none; background: #383c42;
+}
+#detail .ascension-gems .on { background: linear-gradient(90deg, #74987d, #b8d3a7); }
+#detail .ascension-benefit {
+  display: flex; align-items: center; flex-wrap: wrap; gap: 4px 14px;
+  min-height: 21px; color: #bcb9b5; font: 12px/1.4 var(--body);
+}
+#detail .ascension-benefit > span { display: inline-flex; align-items: baseline; gap: 5px; white-space: nowrap; }
+#detail .ascension-benefit b { color: #e5d3ac; font-weight: 600; }
+#detail .ascension-benefit i { color: #91b393; }
+#detail .ascension-caption { margin-top: 12px; line-height: normal; }
+#detail .ascension-caption #copyCaption {
+  position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+  overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0;
+}
+#detail .ascension-caption #ascend {
+  display: block; width: 100%; height: 38px; padding: 0;
+  border: 1px solid #8cab8b; border-radius: 2px;
+  background: #2f4938; color: #e7f2de; font: 600 15px var(--display);
+}
+#detail .ascension-caption #ascend:disabled {
+  opacity: 1; border-color: #625b54; background: #292a2e; color: #bfb8b0;
+}
+#detail .ascension-caption #ascend:focus-visible { outline-offset: 2px; }
+
+/* GOW troop rarity mapping: Common/Uncommon/Rare/UltraRare/Epic/Legendary. */
+.collection-card.r-0, #detail #characterCard[data-rarity="0"] { --rc: #aab2ad; }
+.collection-card.r-1, #detail #characterCard[data-rarity="1"] { --rc: #4caf6a; }
+.collection-card.r-2, #detail #characterCard[data-rarity="2"] { --rc: #9a4fd4; }
+.collection-card.r-3, #detail #characterCard[data-rarity="3"] { --rc: #ffe24a; }
+.collection-card.r-4, #detail #characterCard[data-rarity="4"] { --rc: #c56b2d; }
+.collection-card.r-5, #detail #characterCard[data-rarity="5"] { --rc: #56d8ff; }
+.collection-card { border: 2px solid var(--rc, #aab2ad); }
+.collection-card .rarity-edge { display: none; }
+#detail #characterCard { border: 3px solid var(--rc, #aab2ad); box-shadow: 0 0 0 3px #111016, 0 0 0 4px var(--rc, #aab2ad), 0 16px 38px #0009; }
+#detail #characterCard.unowned { border-color: var(--rc, #6f6558); }
+#detail .rarity-label { display: none; }

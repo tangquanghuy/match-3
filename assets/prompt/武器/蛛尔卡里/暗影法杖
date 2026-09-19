@@ -1,0 +1,11 @@
+暗影法杖：
+wlopk2style, Yoneyama Mai Style,
+western fantasy style, DnD monster manual illustration, painterly fantasy,
+<krea2_prompt>
+  <subject>the Shadow Staff, a web-warden rod of grey spider-silk wood whose head is a hooded spider's ceph aloft on four carved legs, the sole subject in a medium-close shot, dominating most of the frame, weapon only</subject>
+  <details>the hood's interior lined with red glass eyes, a green glow leaking between the shaft's wrapped silk rings, twin shadow-threads trailing from the hood's fangs</details>
+  <pose>standing upright in a fan of web-silk on stone on its own, thin arcs of red spark-light hopping the leg-tips while the silk rings breathe, glass eyes and silk rings clearly readable, no bearer, no hands</pose>
+  <environment>silk-draped stone under a green-filtered gloom, one single blurred web arch far in the back, clean minimal backdrop, the staff fully unobstructed, no characters</environment>
+  <lighting>strong key light on the subject, clear readable details</lighting>
+  <style>clean anime-style weapon design over a simple photorealistic backdrop, silk wood grey, eye glass red, leak green palette, thumbnail-readable silhouette, no characters or hands in frame</style>
+</krea2_prompt>

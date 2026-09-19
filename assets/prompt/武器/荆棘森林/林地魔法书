@@ -1,0 +1,11 @@
+林地魔法书：
+wlopk2style, Yoneyama Mai Style,
+western fantasy style, DnD monster manual illustration, painterly fantasy,
+<krea2_prompt>
+  <subject>the Grimoire of the Grove, a warden's field codex bound in green oiled hide with a bronze leaf-shaped clasp, the sole subject in a medium-close shot, dominating most of the frame, weapon only</subject>
+  <details>a sprouting twig actually rooted through the back board, azure ink-margin illustrations of beasts, page edges speckled with pressed spore-gold</details>
+  <pose>floating open midair with a light breeze riffling the leaves, two arcs of blue spark-light ringing off the covers as spore-motes rise from the gutter, twig root and leaf clasp clearly readable, no bearer, no hands</pose>
+  <environment>bramble-laced grove floor under a green canopy glow, one single flowering arch far in the back, clean minimal backdrop, the codex fully unobstructed, no characters</environment>
+  <lighting>strong key light on the subject, clear readable details</lighting>
+  <style>clean anime-style weapon design over a simple photorealistic backdrop, hide green, clasp bronze, spore gold palette, thumbnail-readable silhouette, no characters or hands in frame</style>
+</krea2_prompt>

@@ -2,7 +2,7 @@
  * 宝箱 / 抽卡屏（计划 §5.7）。开箱结果来自 gacha 系统（种子化 + 十连保底 Epic+），
  * 翻牌演出/音效沿用小样资产；概率公示从 economy 权重表派生（数值单源）。
  */
-import { GEM_CHEST, GLORY_CHEST, GOLD_CHEST, GEM_CHEST_WEIGHTS, GOLD_CHEST_WEIGHTS, RARITY_ORDER } from '../data/economy';
+import { GEM_CHEST, GLORY_CHEST, GOLD_CHEST, GEM_CHEST_WEIGHTS, GOLD_CHEST_WEIGHTS } from '../data/economy';
 import { stoneName } from '../data/materials';
 import { getTroopById, type TroopData } from '../../data/troops';
 import { isFailure } from '../gateway';
@@ -47,7 +47,8 @@ function fxClassOf(rarityIdx: number): 'common' | 'rare' | 'epic' | 'legend' {
   return 'common';
 }
 
-const rarityCn = (idx: number): string => RARITY_ORDER[Math.min(Math.max(idx, 0), 5)] ?? 'Common';
+const RARITY_CN = ['普通', '精良', '稀有', '传说', '史诗', '神话'] as const;
+const rarityCn = (idx: number): string => RARITY_CN[Math.min(Math.max(idx, 0), 5)] ?? '普通';
 
 /** 「最近获得」条容量（一次十连必须能全看见；CH-5 落存档在批次 3） */
 const RECENT_CAP = 10;
@@ -131,7 +132,7 @@ export class ChestsScreen implements Screen {
                 <button class="chest-btn" data-open="gold-1" type="button"><span class="btn-label">开启一次</span><small><span data-icon="key"></span><b class="btn-cost">${GOLD_CHEST.keyCost}</b></small></button>
                 <button class="chest-btn featured" data-open="gold-10" type="button"><span class="btn-label">开启十次</span><small><span data-icon="key"></span><b class="btn-cost">${GOLD_CHEST.keyCost * GOLD_CHEST.multiCount}</b></small></button>
               </div>
-              <div class="chest-note"><span>包含普通至超稀有部队</span><b>单抽即开 · 重复进同名副本</b></div>
+              <div class="chest-note"><span>包含普通至传说部队</span><b>单抽即开 · 重复进同名副本</b></div>
             </div>
             <div class="dock-divider" aria-hidden="true"><i></i><span data-icon="sparkles"></span><i></i></div>
             <div class="chest-col gem-pool">
@@ -344,7 +345,7 @@ export class ChestsScreen implements Screen {
   private showOdds(): void {
     const pct = (weights: readonly number[]): string =>
       weights
-        .map((w, i) => `${RARITY_ORDER[i]} ${(w / 100).toFixed(1)}%`)
+        .map((w, i) => `${rarityCn(i)} ${(w / 100).toFixed(1)}%`)
         .join(' · ');
     toast(`宝石箱：${pct(GEM_CHEST_WEIGHTS)}；金箱：${pct(GOLD_CHEST_WEIGHTS)}。十连保底 Epic+（最后一抽结算）。`);
   }
