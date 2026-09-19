@@ -239,3 +239,30 @@ git worktree add ../match-3-gems -b special-gems
 | 09-19 | Q | `src/meta/screens/mapScreen.ts` 内的 `MAP_CSS` 屏内样式段 | 文件所有权矩阵把 `shell/styles/**` 判给 L 独占，因此地图新元素（`.kgate`/`.kname.sub`/`.ktrib`/`.chip.over`）的样式写在屏自己的 CSS 段里（`<style id="mapScreenCss">`）。**L 的 `tokens.css` 交付后整段字面色值迁移到 `--ds-*`** | 🔄 待 L 交付后迁移 |
 | 09-19 | Q（并发处置） | `scripts/q_sync_worktree.mjs`（新） | 主工作树被他窗在途改动打断（`src/render/TeamView.ts` 语法错、`eventsScreen` 仍 import 已被 N 改名的 `EVENT_ROTATION` → `game.html` 整体起不来），视觉验收无法复现。改法：`git worktree add D:\Code\m3-q HEAD --detach` + junction `node_modules`/`public` + 本脚本同步 Q 名下文件 + dev server **5181**（主端口 5180 留给他窗）。主工作树保持唯一权威副本 | ✅ 已落 |
 | 09-19 | O（阶段 B · 批次 1b · 图鉴 CSS 收尾）**窗口 L 已取消，CSS 归各域窗口自管**（用户裁定 09-19） | `src/meta/shell/styles/troop.css`（**仅在文件末尾追加"阶段 B 窗口 O"段**，不改历史行；troop.css 只服务 `#troop`，本窗口独占）、`src/meta/screens/troopScreen.ts` | **图鉴 CSS 侧缺陷收口**：T-6 吸顶条右侧全透明（两条 `.kingdom-band` 打架）→ 补不透明底；T-1 续密度（列宽 150→126、卡高 196→172，85 张 5.25→3.76 屏）；T-7 品质 chip 自带稀有度色点 = 缺失的图例；T-8 卡面第二行攻/护/生样式；T-14 `.character-card.unowned` 补去色（阶段 A 挂了类零样式）；T-15 重置按钮改 `visibility` 占位不再抖 34px；T-16 分解区 `.growth.danger` 危险态 + 自绘确认弹层替掉原生 `confirm()`；T-10 代价旁列持有量并在凑不齐时禁用按钮（黄金/特质石/灵魂三处）+ 升阶收益行；T-11 升级预览改四维只列有变化项。**注**：`.primary` 绿色是 `style.css` 全局按钮体系（跨全部窗口），本窗口未动——要不要改成暗金需要全局裁定 | ✅ 已落 |
+
+> **09-19 并发提交事故与新约（窗口 O 记）**：多窗口共用同一工作区 = 共用同一个 git index。
+> 09-19 出现两次互卷：窗口 O 的 `git add` + `git commit` 把 M 已 stage 的武器域文件扫进了 O 的提交；
+> 紧接着 M 的提交又把 O 已 stage 的图鉴文件卷进了 `1f67f0d`。**内容没丢，只是提交署名混了**
+> （O 批次 1b 的 `troopScreen.ts` + `troop.css` 实际落在 M 的 `1f67f0d` 里）。
+> **新约**：提交一律用 **`git commit -m "…" -- <显式路径>`**（隐含 `--only`，绕过共享 index），
+> 禁止 `git add` 后裸 `git commit`；`git add -A` 本来就已禁。
+
+> **⚠ 共享 index 事故记录（2026-09-19，窗口 M 报告）**
+>
+> 提交 **`1f67f0d`** 的提交信息写的是「窗口 M 批次 1——武器 id 统一到官方目录 + H-1/H-2/F-1/F-7」，
+> 但它**实际装的是窗口 O 批次 2 的改动**（`src/meta/screens/troopScreen.ts`、`src/meta/shell/styles/troop.css`、
+> `TASK-COLLECTION.md`）。窗口 M 批次 1 的真实提交是 **`07617c4`**。
+>
+> 成因：同目录并发的多个窗口共用同一个 git index。窗口 M 先 `git add` 了自己的 15 个路径，
+> 在 `git commit` 之前窗口 O 对同一 index 做了 add/reset，把 M 的条目挤出、换成了自己的条目，
+> 于是 M 的 commit 命令把 O 的内容连同 M 的信息一起提交了。
+>
+> **补救与新规矩**：
+> 1. `1f67f0d` 不做 amend/revert（内容本身是 O 的有效工作，且改写 SHA 会影响正在其上工作的窗口）；
+>    回查历史时以本条记录为准。
+> 2. **并发期间禁止 `git add` + 后续 `git commit` 两步走**。改用**路径限定提交**一步完成，
+>    它直接从工作区取指定路径、完全不读共享 index：
+>    ```
+>    git commit -F <msgfile> -- <path1> <path2> ...
+>    ```
+>    （窗口 M 的 `07617c4` 即用此法。总纲 §4 第 3 条「禁止 git add -A」需升级为这条更强的约束。）
