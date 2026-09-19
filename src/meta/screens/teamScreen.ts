@@ -73,6 +73,8 @@ const TYPE_CN: Record<string, string> = {
   Divine: '神圣', Undead: '亡灵', Construct: '构装', Elemental: '元素', Fey: '妖精',
   Wargare: '鱼人', Centaur: '半人马', Raksha: '罗刹', Stryx: '鸦人', Naga: '娜迦',
   Merfolk: '人鱼', Urska: '熊族', Tauros: '牛族', Mech: '机械', Gnome: '侏儒', Immortal: '不朽',
+  // 阶段 A T-筛选器表：种族下拉里 Daemon 等条目漏译，直接把英文抛给玩家
+  Daemon: '恶魔', Wildfolk: '野民', Boss: '首领', Doom: '厄祸', Castle: '城塞',
 };
 export function typeCn(types: readonly string[]): string {
   return types.map((t) => TYPE_CN[t] ?? t).join('/');

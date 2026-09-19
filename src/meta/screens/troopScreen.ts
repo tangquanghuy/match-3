@@ -3,7 +3,8 @@
  * 数据全部来自 troops.json + 收藏存档；升级/升阶/特质/分解/保护走网关。
  */
 import { getTroopById, TROOPS, type TroopData } from '../../data/troops';
-import type { TroopRecord } from '../state/schema';
+import type { TeamPreset, TroopRecord } from '../state/schema';
+import { MAX_TEAM_SIZE, MIN_TEAM_SIZE } from '../systems/teamRules';
 import {
   MAX_ASCENSION,
   RARITY_ORDER,
@@ -17,7 +18,7 @@ import { getRecord, rarityTierOf, troopStatsOf } from '../systems/troopProgress'
 import { stoneColorKeyOf, stoneName } from '../data/materials';
 import { BaseColor } from '../../engine/types';
 import { traitGlyphsFor } from '../shell/traitIcon';
-import { bottomNavHtml, mountIcons, toast, toastHtml, topbarHtml, gemSvg, $, $$ } from '../shell/chrome';
+import { bottomNavHtml, icon, mountIcons, toast, toastHtml, topbarHtml, gemSvg, $, $$ } from '../shell/chrome';
 import type { Screen, ShellCtx } from '../shell/screen';
 import { troopArt, troopArtChain, troopArtFallback, troopImg, typeCn } from './teamScreen';
 import {
@@ -31,6 +32,32 @@ const fmt = (n: number): string => n.toLocaleString('en-US');
 const spaced = (name: string): string => name.split('').join(' ');
 
 const COLOR_CN: Record<string, string> = { red: '红', green: '绿', blue: '蓝', yellow: '黄', purple: '紫', brown: '棕' };
+/** 稀有度中文（与品质 chip 文案同源） */
+const RARITY_CN = ['普通', '非普', '稀有', '超稀有', '史诗', '传说'] as const;
+/** 筛选维度（摘要 chip 撤销 / 空态逐条回退用） */
+type FilterDim = 'rarity' | 'color' | 'type' | 'kingdom' | 'search' | 'tab';
+
+/** 搜索用的文本袋：名字 + 英文名 + 王国 + 种族 + 法术名/描述 + 特质名/描述（阶段 A 只搜名字） */
+const hayCache = new Map<number, string>();
+function haystack(t: TroopData): string {
+  let hay = hayCache.get(t.id);
+  if (hay === undefined) {
+    hay = [
+      t.name,
+      t.referenceName,
+      t.kingdom ?? '',
+      typeCn(t.troopTypes),
+      t.troopTypes.join(' '),
+      t.spell?.name ?? '',
+      t.spell?.description ?? '',
+      ...t.traits.flatMap((tr) => (tr ? [tr.name, tr.description] : [])),
+    ]
+      .join(' ')
+      .toLowerCase();
+    hayCache.set(t.id, hay);
+  }
+  return hay;
+}
 const COLOR_ORDER = ['red', 'green', 'blue', 'yellow', 'purple', 'brown'] as const;
 const chargeText = (colors: readonly string[]): string =>
   colors.length >= 6
@@ -39,6 +66,28 @@ const chargeText = (colors: readonly string[]): string =>
 
 /** 图鉴查看未获得部队用的空白记录（1 级 / 0 阶 / 特质全锁） */
 const UNOWNED_REC: TroopRecord = { copies: 0, level: 1, ascension: 0, traits: [false, false, false], locked: false };
+
+/**
+ * 排序表（T-3：阶段 A 实测「一个排序都没有」）。
+ * 「收藏时间」需要存档加获得时间戳（schema 是共享文件），留到后续批次提案。
+ */
+const SORTS = [
+  { key: 'level-desc', label: '等级 ↓' },
+  { key: 'level-asc', label: '等级 ↑' },
+  { key: 'rarity-desc', label: '稀有度 ↓' },
+  { key: 'rarity-asc', label: '稀有度 ↑' },
+  { key: 'attack-desc', label: '攻击 ↓' },
+  { key: 'health-desc', label: '生命 ↓' },
+  { key: 'copies-desc', label: '副本数 ↓' },
+  { key: 'dex-asc', label: '图鉴号 ↑' },
+] as const;
+type SortKey = (typeof SORTS)[number]['key'];
+const DEFAULT_SORT: SortKey = 'level-desc';
+
+/** 「全部」态分段渲染的每段卡数（T-2：一次性 1798 张 = 38,073 节点 / 70ms 阻塞） */
+const SEGMENT = 200;
+/** 距底多少像素开始追加下一段 */
+const APPEND_MARGIN = 700;
 
 export class TroopScreen implements Screen {
   private ctx!: ShellCtx;
@@ -50,6 +99,17 @@ export class TroopScreen implements Screen {
   private colorFilter: string | null = null;
   private typeFilter: string | null = null;
   private kingdomFilter: string | null = null;
+  private sortKey: SortKey = DEFAULT_SORT;
+  /** 'none' = 密排（默认，T-1）；'kingdom' = 王国分组（与王国筛选互斥） */
+  private groupMode: 'none' | 'kingdom' = 'none';
+  /** 当前筛选+排序后的集合——详情页左右箭头只在这个集合内走（T-5） */
+  private listIds: number[] = [];
+  /** 分段渲染游标 */
+  private flat: TroopData[] = [];
+  private sections: Array<[string, TroopData[]]> = [];
+  private cursor = 0;
+  /** 详情↔图鉴往返时保留的滚动位置（T-9） */
+  private collectionScroll = 0;
   private listeners: Array<[EventTarget, string, EventListenerOrEventListenerObject]> = [];
   private formulas: Formula[] = [];
   private magic = 0;
@@ -109,7 +169,13 @@ export class TroopScreen implements Screen {
               </article>
               <div class="card-ornament" data-ornament></div>
             </div>
-            <div class="portrait-controls"><button id="previous" aria-label="浏览部队"><span data-icon="arrow"></span></button><span id="portraitCaption">—</span><button id="next" aria-label="浏览部队"><span data-icon="arrow"></span></button></div>
+            <div class="portrait-controls"><button id="previous" aria-label="上一张（当前筛选集合内）"><span data-icon="arrow"></span></button><span id="portraitCaption">—</span><button id="next" aria-label="下一张（当前筛选集合内）"><span data-icon="arrow"></span></button></div>
+            <!-- T-5 养成动线出口：编入队伍。行内样式是临时占位，L 交付 .btn 基类后换类名 -->
+            <div class="enlist-row" id="enlistRow" style="display:flex;gap:10px;align-items:stretch;margin-top:12px">
+              <button class="primary" id="enlist" style="flex:1"><span data-icon="shield"></span><span id="enlistLabel">编入队伍</span></button>
+              <select id="enlistSlot" aria-label="选择站位" style="min-width:150px"></select>
+            </div>
+            <small class="shared-note" id="enlistHint">—</small>
           </section>
           <section class="right-column">
             <div class="trait-heading"><div><small>PASSIVE ABILITIES</small><h2>天赋特质</h2></div><span id="traitCount">0 / 3 已解锁</span></div>
@@ -128,21 +194,21 @@ export class TroopScreen implements Screen {
         </div>
       </main>
       <main id="collection" hidden>
-        <div class="collection-heading"><div><small>THE BESTIARY · 1,798 CARDS</small><h1>我的收藏</h1></div><span>已拥有 <b id="ownedTotal">0</b> / 1,798 名部队</span><button class="secondary" id="returnDetail">查看详情<span data-icon="arrow"></span></button></div>
+        <div class="collection-heading"><div><small>THE BESTIARY · ${fmt(TROOPS.length)} CARDS</small><h1>我的收藏</h1></div><span>已拥有 <b id="ownedTotal">0</b> / ${fmt(TROOPS.length)} 名部队</span><button class="secondary" id="returnDetail">查看详情<span data-icon="arrow"></span></button></div>
         <div class="collection-progress"><span>总进度</span><div><i id="ownedProgress" style="width:0%"></i></div><b id="ownedPercent">0%</b></div>
         <div class="collection-filter">
           <div class="filter-row">
-            <button class="selected" data-tab="owned">已拥有</button><button data-tab="all">全部</button>
+            <button class="selected" data-tab="owned">已拥有 <i id="tabOwnedCount">0</i></button><button data-tab="all">全部 <i id="tabAllCount">${fmt(TROOPS.length)}</i></button>
             <span class="divider"></span>
             <small class="filter-label">品质</small>
             <div class="rarity-chips" id="rarityChips">
-              <button class="filter-chip selected" data-rarity="">全部</button>
-              <button class="filter-chip" data-rarity="0">普通</button>
-              <button class="filter-chip" data-rarity="1">非普</button>
-              <button class="filter-chip" data-rarity="2">稀有</button>
-              <button class="filter-chip" data-rarity="3">超稀有</button>
-              <button class="filter-chip" data-rarity="4">史诗</button>
-              <button class="filter-chip" data-rarity="5">传说</button>
+              <button class="filter-chip selected" data-rarity="">全部 <i data-chip-count></i></button>
+              <button class="filter-chip" data-rarity="0">普通 <i data-chip-count></i></button>
+              <button class="filter-chip" data-rarity="1">非普 <i data-chip-count></i></button>
+              <button class="filter-chip" data-rarity="2">稀有 <i data-chip-count></i></button>
+              <button class="filter-chip" data-rarity="3">超稀有 <i data-chip-count></i></button>
+              <button class="filter-chip" data-rarity="4">史诗 <i data-chip-count></i></button>
+              <button class="filter-chip" data-rarity="5">传说 <i data-chip-count></i></button>
             </div>
             <span class="divider"></span>
             <small class="filter-label">魔法</small>
@@ -153,9 +219,16 @@ export class TroopScreen implements Screen {
             <button class="filter-reset" id="resetFilters" hidden>重置筛选</button>
           </div>
           <div class="filter-row filter-row-foot">
+            <span class="filter-label">排序</span>
+            <select id="sortSelect" aria-label="排序方式">
+              ${SORTS.map((s) => `<option value="${s.key}"${s.key === DEFAULT_SORT ? ' selected' : ''}>${s.label}</option>`).join('')}
+            </select>
+            <span class="filter-label">分组</span>
+            <select id="groupSelect" aria-label="分组方式"><option value="none">不分组</option><option value="kingdom">按王国</option></select>
+            <span class="divider"></span>
+            <div class="active-filters" id="activeFilters" style="display:flex;gap:5px;flex-wrap:nowrap"></div>
             <small id="shownCount"></small>
-            <small>点击卡片查看详情 · 未获得的部队也可查看图鉴</small>
-            <label class="filter-search"><span data-icon="funnel"></span><input id="collectionSearch" placeholder="搜索部队名"></label>
+            <label class="filter-search"><span data-icon="funnel"></span><input id="collectionSearch" placeholder="搜索名字 / 法术 / 特质"></label>
           </div>
         </div>
         <div id="collectionBands"></div>
@@ -197,6 +270,7 @@ export class TroopScreen implements Screen {
     this.bind('#ascend', 'click', () => void this.ascend());
     this.bind('#toggleLock', 'click', () => void this.toggleLock());
     this.bind('#decompose', 'click', () => void this.decompose());
+    this.bind('#enlist', 'click', () => void this.toggleEnlist());
     $$('#collection [data-tab]').forEach((tab) =>
       this.on(tab, 'click', () => {
         this.collectionMode = (tab as HTMLElement).dataset.tab as 'owned' | 'all';
@@ -222,10 +296,11 @@ export class TroopScreen implements Screen {
       $$('#colorChips [data-color]').forEach((x) => x.classList.toggle('selected', x.dataset.color === this.colorFilter));
       this.renderCollection();
     });
+    // 种族 34 项：按中文名排序（阶段 A：顺序 = 数据出现顺序，无序不可扫）
     const typeSelect = $('#typeSelect') as HTMLSelectElement;
     const types = new Set<string>();
     for (const t of TROOPS) for (const ty of t.troopTypes) types.add(ty);
-    for (const ty of types) {
+    for (const ty of [...types].sort((a, b) => typeCn([a]).localeCompare(typeCn([b]), 'zh-Hans-CN'))) {
       const opt = document.createElement('option');
       opt.value = ty;
       opt.textContent = typeCn([ty]);
@@ -235,8 +310,9 @@ export class TroopScreen implements Screen {
       this.typeFilter = typeSelect.value || null;
       this.renderCollection();
     });
+    // 王国 43 项：按中文名排序
     const kingdomSelect = $('#kingdomSelect') as HTMLSelectElement;
-    for (const kingdom of new Set(TROOPS.map((t) => t.kingdom ?? '无王国'))) {
+    for (const kingdom of [...new Set(TROOPS.map((t) => t.kingdom ?? '无王国'))].sort((a, b) => a.localeCompare(b, 'zh-Hans-CN'))) {
       const opt = document.createElement('option');
       opt.value = kingdom;
       opt.textContent = kingdom;
@@ -246,14 +322,52 @@ export class TroopScreen implements Screen {
       this.kingdomFilter = kingdomSelect.value || null;
       this.renderCollection();
     });
-    this.bind('#resetFilters', 'click', () => {
-      this.rarityFilter = this.colorFilter = this.typeFilter = this.kingdomFilter = null;
-      ($('#collectionSearch') as HTMLInputElement).value = '';
-      $$('#rarityChips [data-rarity]').forEach((x) => x.classList.toggle('selected', x.dataset.rarity === ''));
-      $$('#colorChips [data-color]').forEach((x) => x.classList.remove('selected'));
-      typeSelect.value = '';
-      kingdomSelect.value = '';
+    const sortSelect = $('#sortSelect') as HTMLSelectElement;
+    sortSelect.value = this.sortKey;
+    this.on(sortSelect, 'change', () => {
+      this.sortKey = (sortSelect.value || DEFAULT_SORT) as SortKey;
       this.renderCollection();
+    });
+    const groupSelect = $('#groupSelect') as HTMLSelectElement;
+    groupSelect.value = this.groupMode;
+    this.on(groupSelect, 'change', () => {
+      this.groupMode = groupSelect.value === 'kingdom' ? 'kingdom' : 'none';
+      this.renderCollection();
+    });
+    // 「重置筛选」连 tab 一起重置（阶段 A：tab 是唯一逃过重置的维度）
+    this.bind('#resetFilters', 'click', () => this.resetFilters());
+    // 筛选摘要 chip 行：单条 ✕ 撤销
+    this.on($('#activeFilters'), 'click', (e) => {
+      const chip = (e.target as HTMLElement).closest('[data-drop]') as HTMLElement | null;
+      if (chip) this.dropFilter(chip.dataset.drop as FilterDim);
+    });
+    // 空态里的出路（去宝箱/去地图/放宽筛选/清空搜索）
+    this.on($('#collectionBands'), 'click', (e) => {
+      const act = (e.target as HTMLElement).closest('[data-empty-act]') as HTMLElement | null;
+      if (!act) return;
+      const action = act.dataset.emptyAct!;
+      if (action === 'chests' || action === 'map') return void this.ctx.navigate('#' + action);
+      if (action === 'reset') return this.resetFilters();
+      if (action === 'clear-search') {
+        ($('#collectionSearch') as HTMLInputElement).value = '';
+        return this.renderCollection();
+      }
+      this.dropFilter(action as FilterDim);
+    });
+    // 卡片点击用事件代理（旧实现每次重渲染都给新按钮挂一遍监听，listeners 数组只增不减）
+    this.on($('#collectionBands'), 'click', (e) => {
+      const card = (e.target as HTMLElement).closest('[data-troop]') as HTMLElement | null;
+      if (!card) return;
+      this.collectionScroll = $('#collectionBands').scrollTop;
+      // 未获得的部队也进详情查看图鉴资料（详情页有未获得态）
+      this.currentId = Number(card.dataset.troop);
+      this.paintDetail();
+      this.showView('detail', true);
+    });
+    // 分段渲染：滚到段尾追加下一段（T-2）
+    this.on($('#collectionBands'), 'scroll', () => {
+      const el = $('#collectionBands');
+      if (el.scrollTop + el.clientHeight >= el.scrollHeight - APPEND_MARGIN) this.appendSegment();
     });
     let searchTimer = 0;
     this.on($('#collectionSearch'), 'input', () => {
@@ -345,6 +459,7 @@ export class TroopScreen implements Screen {
     if (ambient) ambient.style.background = `linear-gradient(90deg,#0e0e18 5%,#0e0e1899 48%,#0e0e18 97%),url("${troopArt(troop)}") center 33%/1050px no-repeat,url("${troopArtFallback(troop)}") center 33%/1050px no-repeat`;
 
     this.paintSpell(troop, stats.magic);
+    this.paintEnlist(owned);
     this.paintGrowth(troop, rec, owned);
     this.paintTraits(troop, rec, owned);
     this.paintAscension(troop, rec, owned);
@@ -516,15 +631,106 @@ export class TroopScreen implements Screen {
 
   // —— 网关操作 ——
 
+  /**
+   * 左右箭头只在**当前筛选集合**内走（T-5：旧实现遍历全图鉴 1798，
+   * 从自己的卡一按就掉进未获得卡里）。集合里没有当前卡时回落全图鉴。
+   */
+  private browseList(): number[] {
+    if (this.listIds.length && this.listIds.includes(this.currentId)) return this.listIds;
+    const owned = this.ownedIds();
+    if (owned.includes(this.currentId)) return owned;
+    return TROOPS.map((t) => t.id);
+  }
+
   private stepOwned(dir: 1 | -1): void {
-    // 图鉴页码与箭头都按全图鉴遍历（含未获得的部队）
-    const dex = TROOPS.map((t) => t.id);
-    if (!dex.length) return;
-    const idx = dex.indexOf(this.currentId);
-    const next = idx < 0 ? 0 : (idx + dir + dex.length) % dex.length;
-    this.currentId = dex[next]!;
+    const list = this.browseList();
+    if (!list.length) return;
+    const idx = list.indexOf(this.currentId);
+    const next = idx < 0 ? 0 : (idx + dir + list.length) % list.length;
+    this.currentId = list[next]!;
     this.paintDetail();
     history.replaceState(null, '', `#troop/${this.currentId}`);
+  }
+
+  // —— 编入队伍（T-5） ——
+
+  /** 当前生效队伍在 activeTeamIndex（没有预设队时为 null） */
+  private team(): { index: number; preset: TeamPreset } | null {
+    const save = this.ctx.save();
+    const index = save.teams[save.activeTeamIndex] ? save.activeTeamIndex : 0;
+    const preset = save.teams[index];
+    return preset ? { index, preset } : null;
+  }
+
+  private paintEnlist(owned: boolean): void {
+    const row = $('#enlistRow');
+    const btn = $('#enlist') as HTMLButtonElement;
+    const slot = $('#enlistSlot') as HTMLSelectElement;
+    const hint = $('#enlistHint');
+    if (!row || !btn || !slot) return;
+    const team = this.team();
+    if (!owned || !team) {
+      btn.disabled = true;
+      slot.hidden = true;
+      $('#enlistLabel').textContent = owned ? '还没有预设队' : '获得该部队后可编入队伍';
+      if (hint) hint.textContent = owned ? '先去队伍页建一支预设队。' : '尚未获得 · 图鉴资料仅供参考';
+      return;
+    }
+    const at = team.preset.members.findIndex((m) => m.kind === 'troop' && m.troopId === this.currentId);
+    if (at >= 0) {
+      btn.disabled = false;
+      slot.hidden = true;
+      $('#enlistLabel').textContent = `已在「${team.preset.name}」第 ${at + 1} 位 · 卸下`;
+      if (hint) hint.textContent = `队伍 ${team.preset.members.length} 人 · 最少 ${MIN_TEAM_SIZE} 人`;
+      return;
+    }
+    btn.disabled = false;
+    slot.hidden = false;
+    $('#enlistLabel').textContent = '编入队伍';
+    const size = team.preset.members.length;
+    const slots = Math.min(MAX_TEAM_SIZE, size + 1);
+    const keep = slot.value;
+    slot.innerHTML = Array.from({ length: slots }, (_, i) => {
+      const member = team.preset.members[i];
+      const who = !member
+        ? '空位'
+        : member.kind === 'hero'
+          ? '主角'
+          : getTroopById(member.troopId)?.name ?? `#${member.troopId}`;
+      return `<option value="${i}">第 ${i + 1} 位（${who}）</option>`;
+    }).join('');
+    slot.value = keep && Number(keep) < slots ? keep : String(slots - 1);
+    if (hint) hint.textContent = `编入「${team.preset.name}」· 选中已有站位会替换该成员`;
+  }
+
+  private async toggleEnlist(): Promise<void> {
+    const team = this.team();
+    const troop = this.troop();
+    if (!team || !troop) return;
+    const members = [...team.preset.members];
+    const at = members.findIndex((m) => m.kind === 'troop' && m.troopId === this.currentId);
+    if (at >= 0) {
+      if (members.length <= MIN_TEAM_SIZE) {
+        toast(`队伍最少 ${MIN_TEAM_SIZE} 人——先补一个人再卸下「${troop.name}」。`);
+        return;
+      }
+      members.splice(at, 1);
+    } else {
+      const slot = Number(($('#enlistSlot') as HTMLSelectElement).value) || 0;
+      if (slot < members.length) members[slot] = { kind: 'troop', troopId: this.currentId };
+      else members.push({ kind: 'troop', troopId: this.currentId });
+    }
+    const { result } = await this.ctx.gateway.saveTeam(team.index, {
+      name: team.preset.name,
+      members,
+      bannerKingdomId: team.preset.bannerKingdomId,
+    });
+    if (!result.ok) {
+      toast(result.issues[0]?.message ?? '编队不合法');
+      return;
+    }
+    toast(at >= 0 ? `已从「${team.preset.name}」卸下 ${troop.name}` : `${troop.name} 已编入「${team.preset.name}」`);
+    this.afterMutation();
   }
 
   private openUpgradeModal(): void {
@@ -615,81 +821,283 @@ export class TroopScreen implements Screen {
   // —— 图鉴视图 ——
 
   private showView(view: 'detail' | 'collection', syncHash = false): void {
+    if (view === 'detail' && !getTroopById(this.currentId)) {
+      // T-13：没有任何卡时不许进"001 / 000"的空白详情
+      toast('还没有部队卡可看——先去宝箱开一发。');
+      view = 'collection';
+    }
     $('#detail').hidden = view !== 'detail';
     $('#collection').hidden = view !== 'collection';
     // 站内视图切换用 replaceState 同步 hash：既不触发整屏重挂，刷新后也能停在当前位置
     if (syncHash) history.replaceState(null, '', view === 'detail' ? `#troop/${this.currentId}` : '#troop');
+    if (view === 'collection') this.restoreCollectionScroll();
+  }
+
+  /** T-9：详情返回图鉴恢复滚动位置（必要时先补渲染几段） */
+  private restoreCollectionScroll(): void {
+    const el = $('#collectionBands');
+    if (!el) return;
+    const target = this.collectionScroll;
+    if (target <= 0) return;
+    let guard = 0;
+    while (el.scrollHeight < target + el.clientHeight && guard < 40) {
+      const before = this.cursor;
+      this.appendSegment();
+      if (this.cursor === before) break;
+      guard += 1;
+    }
+    el.scrollTop = target;
+  }
+
+  // —— 筛选管线（T-1~T-4） ——
+
+  /** 当前 tab 的基础集合 */
+  private pool(): TroopData[] {
+    if (this.collectionMode === 'all') return TROOPS as unknown as TroopData[];
+    return this.ownedIds()
+      .map((id) => getTroopById(id))
+      .filter((t): t is TroopData => !!t);
+  }
+
+  private searchQuery(): string {
+    const input = $('#collectionSearch') as HTMLInputElement | null;
+    return input ? input.value.trim() : '';
+  }
+
+  /** skip = 忽略某一维（用于 chip 计数与"是哪个条件筛没了"的逐条回退） */
+  private matches(troop: TroopData, query: string, skip?: FilterDim): boolean {
+    if (skip !== 'rarity' && this.rarityFilter !== null && troop.rarityIdx !== this.rarityFilter) return false;
+    if (skip !== 'color' && this.colorFilter && !troop.manaColors.some((c) => c.toLowerCase() === this.colorFilter)) return false;
+    if (skip !== 'type' && this.typeFilter && !troop.troopTypes.includes(this.typeFilter)) return false;
+    if (skip !== 'kingdom' && this.kingdomFilter && (troop.kingdom ?? '无王国') !== this.kingdomFilter) return false;
+    if (skip !== 'search' && query && !haystack(troop).includes(query.toLowerCase())) return false;
+    return true;
+  }
+
+  private recOf(troop: TroopData): TroopRecord {
+    return this.ctx.save().collection[String(troop.id)] ?? UNOWNED_REC;
+  }
+
+  /** 排序（T-3）。同分回落图鉴号，保证同一筛选下顺序稳定可复现 */
+  private sortList(list: TroopData[]): TroopData[] {
+    const key = this.sortKey;
+    const val = (t: TroopData): number => {
+      const rec = this.recOf(t);
+      switch (key) {
+        case 'level-desc':
+        case 'level-asc':
+          return rec.level * 100 + rec.ascension;
+        case 'rarity-desc':
+        case 'rarity-asc':
+          return rarityTierOf(t, rec) * 100 + rec.level;
+        case 'attack-desc':
+          return troopStatsOf(t, rec).attack;
+        case 'health-desc':
+          return troopStatsOf(t, rec).health + troopStatsOf(t, rec).armor / 100;
+        case 'copies-desc':
+          return rec.copies;
+        default:
+          return 0;
+      }
+    };
+    const asc = key === 'level-asc' || key === 'rarity-asc' || key === 'dex-asc';
+    return [...list].sort((a, b) => {
+      if (key === 'dex-asc') return a.id - b.id;
+      const d = val(b) - val(a);
+      const primary = asc ? -d : d;
+      return primary !== 0 ? primary : a.id - b.id;
+    });
+  }
+
+  private resetFilters(): void {
+    this.rarityFilter = this.colorFilter = this.typeFilter = this.kingdomFilter = null;
+    this.collectionMode = 'owned';
+    ($('#collectionSearch') as HTMLInputElement).value = '';
+    this.syncFilterControls();
+    this.renderCollection();
+  }
+
+  private dropFilter(dim: FilterDim): void {
+    if (dim === 'rarity') this.rarityFilter = null;
+    else if (dim === 'color') this.colorFilter = null;
+    else if (dim === 'type') this.typeFilter = null;
+    else if (dim === 'kingdom') this.kingdomFilter = null;
+    else if (dim === 'search') ($('#collectionSearch') as HTMLInputElement).value = '';
+    else if (dim === 'tab') this.collectionMode = 'owned';
+    this.syncFilterControls();
+    this.renderCollection();
+  }
+
+  /** 把内部筛选态写回控件（撤销单条/重置后控件要跟着变） */
+  private syncFilterControls(): void {
+    $$('#rarityChips [data-rarity]').forEach((x) =>
+      x.classList.toggle('selected', (x.dataset.rarity === '' ? null : Number(x.dataset.rarity)) === this.rarityFilter),
+    );
+    $$('#colorChips [data-color]').forEach((x) => x.classList.toggle('selected', x.dataset.color === this.colorFilter));
+    ($('#typeSelect') as HTMLSelectElement).value = this.typeFilter ?? '';
+    ($('#kingdomSelect') as HTMLSelectElement).value = this.kingdomFilter ?? '';
+    ($('#sortSelect') as HTMLSelectElement).value = this.sortKey;
+    ($('#groupSelect') as HTMLSelectElement).value = this.groupMode;
+    $$('#collection [data-tab]').forEach((x) => x.classList.toggle('selected', x.dataset.tab === this.collectionMode));
   }
 
   private renderCollection(): void {
     const save = this.ctx.save();
-    const total = 1798;
+    const total = TROOPS.length;
     const ownedCount = Object.keys(save.collection).length;
-    $('#ownedTotal').textContent = String(ownedCount);
+    $('#ownedTotal').textContent = fmt(ownedCount);
     $('#ownedProgress').style.width = `${(ownedCount / total) * 100}%`;
     $('#ownedPercent').textContent = `${((ownedCount / total) * 100).toFixed(1)}%`;
+    $('#tabOwnedCount').textContent = fmt(ownedCount);
+    ($('#returnDetail') as HTMLButtonElement).disabled = ownedCount === 0 && !getTroopById(this.currentId);
 
-    const query = ($('#collectionSearch') as HTMLInputElement).value.trim();
-    $('#resetFilters').hidden = !query && this.rarityFilter === null && this.colorFilter === null && this.typeFilter === null && !this.kingdomFilter;
-    // 按王国分组：owned = 只看收藏；all = 全量兵种。品质/魔法色/种族/王国/搜索多级筛选
-    const bands = new Map<string, TroopData[]>();
-    const push = (troop: TroopData): void => {
-      if (this.rarityFilter !== null && troop.rarityIdx !== this.rarityFilter) return;
-      if (this.colorFilter && !troop.manaColors.some((c) => c.toLowerCase() === this.colorFilter)) return;
-      if (this.typeFilter && !troop.troopTypes.includes(this.typeFilter)) return;
-      if (query && !troop.name.includes(query) && !troop.referenceName.toLowerCase().includes(query.toLowerCase())) return;
-      const key = troop.kingdom ?? '无王国';
-      if (!bands.has(key)) bands.set(key, []);
-      bands.get(key)!.push(troop);
-    };
-    if (this.collectionMode === 'owned') {
-      for (const id of this.ownedIds()) {
-        const troop = getTroopById(id);
-        if (troop) push(troop);
-      }
-    } else {
-      for (const troop of TROOPS) push(troop);
-    }
+    const query = this.searchQuery();
+    const pool = this.pool();
+    const sorted = this.sortList(pool.filter((t) => this.matches(t, query)));
+    this.listIds = sorted.map((t) => t.id);
+
+    // 品质 chip 计数（"点下去有多少"是阶段 A 明确缺的预判信息）
+    const rarityBase = pool.filter((t) => this.matches(t, query, 'rarity'));
+    const perRarity = [0, 0, 0, 0, 0, 0];
+    for (const t of rarityBase) perRarity[Math.min(Math.max(t.rarityIdx, 0), 5)]! += 1;
+    $$('#rarityChips [data-rarity]').forEach((chip) => {
+      const box = chip.querySelector('[data-chip-count]');
+      if (!box) return;
+      const raw = chip.dataset.rarity;
+      box.textContent = raw === '' ? fmt(rarityBase.length) : fmt(perRarity[Number(raw)] ?? 0);
+    });
+
+    // 筛选摘要 chip 行 + 重置按钮（重置连 tab 一起，见 resetFilters）
+    const active = this.activeFilterChips(query);
+    $('#activeFilters').innerHTML = active
+      .map((f) => `<button class="filter-chip selected" data-drop="${f.dim}" title="移除该条件">${f.label} ✕</button>`)
+      .join('');
+    $('#resetFilters').hidden = active.length === 0;
+    $('#shownCount').textContent = `匹配 ${fmt(sorted.length)} 支`;
 
     const container = $('#collectionBands');
-    const entries = [...bands.entries()].filter(([kingdom]) => !this.kingdomFilter || kingdom === this.kingdomFilter);
-    const shown = entries.reduce((n, [, troops]) => n + troops.length, 0);
-    $('#shownCount').textContent = `匹配 ${shown} 支`;
-    if (!entries.length) {
-      container.innerHTML = '<p class="collection-empty">没有符合条件的部队 · 换个品质或王国试试</p>';
+    if (!sorted.length) {
+      container.innerHTML = this.emptyHtml(ownedCount, query, active);
+      container.scrollTop = 0;
+      this.flat = [];
+      this.sections = [];
+      this.cursor = 0;
       return;
     }
-    container.innerHTML = entries
-      .map(([kingdom, troops]) => {
-        const ownedInKingdom = troops.filter((t) => save.collection[String(t.id)]).length;
-        const cards = troops
-          .map((t) => {
-            const rec = save.collection[String(t.id)];
-            const locked = !rec;
-            const stats = rec ? troopStatsOf(t, rec) : null;
-            return `<button class="collection-card r-${t.rarityIdx}${locked ? ' locked' : ''}" data-troop="${t.id}" aria-label="查看${t.name}">
-              <i class="rarity-edge" aria-hidden="true"></i>
-              ${troopImg(t, false, `alt="${t.name}"`)}
-              <span class="collection-mana">${gemSvg(t.manaColors.map((c) => c.toLowerCase()))}</span>
-              <span class="magic-badge">${stats ? stats.magic : '—'}</span>
-              ${locked ? '<span class="locked-mark">?</span>' : ''}
-              <div class="collection-info"><h2>${t.name}</h2><span><span>${locked ? '尚未获得' : 'Lv.' + rec!.level + ' · ' + (rec!.copies + 1) + ' 张'}</span><span>${typeCn(t.troopTypes)}</span></span></div>
-            </button>`;
-          })
-          .join('');
-        // kingdom-section 让分组头只在自身区间内 sticky，不会盖住其他王国
-        return `<div class="kingdom-section"><div class="kingdom-band"><span class="band-mark"></span><b>${kingdom}</b><small>收藏进度 ${ownedInKingdom} / ${troops.length}</small><div><i style="width:${troops.length ? (ownedInKingdom / troops.length) * 100 : 0}%"></i></div></div><div class="collection-cards">${cards}</div></div>`;
-      })
-      .join('');
-    mountIcons(container);
-    $$('#collectionBands [data-troop]').forEach((btn) =>
-      this.on(btn, 'click', () => {
-        // 未获得的部队也进详情查看图鉴资料（详情页有未获得态）
-        this.currentId = Number((btn as HTMLElement).dataset.troop);
-        this.paintDetail();
-        this.showView('detail', true);
-      }),
-    );
+
+    // 王国分组降级为一个选项，且与王国筛选互斥（筛了单个王国就不再画条）
+    const grouped = this.groupMode === 'kingdom' && !this.kingdomFilter;
+    this.flat = sorted;
+    this.cursor = 0;
+    if (grouped) {
+      const bands = new Map<string, TroopData[]>();
+      for (const t of sorted) {
+        const key = t.kingdom ?? '无王国';
+        if (!bands.has(key)) bands.set(key, []);
+        bands.get(key)!.push(t);
+      }
+      this.sections = [...bands.entries()];
+      container.innerHTML = '';
+    } else {
+      this.sections = [];
+      container.innerHTML = '<div class="collection-cards" id="denseGrid"></div>';
+    }
+    container.scrollTop = 0; // T-4：任何筛选/排序/切 tab 之后回顶，无例外
+    this.appendSegment();
+  }
+
+  /** 分段追加（T-2）：一段 200 张，滚到段尾继续 */
+  private appendSegment(): void {
+    const container = $('#collectionBands');
+    if (!container) return;
+    if (this.sections.length) {
+      let added = 0;
+      while (this.cursor < this.sections.length && added < SEGMENT) {
+        const [kingdom, troops] = this.sections[this.cursor]!;
+        container.insertAdjacentHTML('beforeend', this.sectionHtml(kingdom, troops));
+        added += troops.length;
+        this.cursor += 1;
+      }
+      return;
+    }
+    const grid = container.querySelector('#denseGrid');
+    if (!grid || this.cursor >= this.flat.length) return;
+    const slice = this.flat.slice(this.cursor, this.cursor + SEGMENT);
+    this.cursor += slice.length;
+    grid.insertAdjacentHTML('beforeend', slice.map((t) => this.cardHtml(t)).join(''));
+  }
+
+  private sectionHtml(kingdom: string, troops: TroopData[]): string {
+    const save = this.ctx.save();
+    const ownedInKingdom = troops.filter((t) => save.collection[String(t.id)]).length;
+    const pct = troops.length ? (ownedInKingdom / troops.length) * 100 : 0;
+    // kingdom-section 让分组头只在自身区间内 sticky，不会盖住其他王国
+    return `<div class="kingdom-section"><div class="kingdom-band"><span class="band-mark"></span><b>${kingdom}</b><small>收藏进度 ${ownedInKingdom} / ${troops.length}</small><div><i style="width:${pct}%"></i></div></div><div class="collection-cards">${troops.map((t) => this.cardHtml(t)).join('')}</div></div>`;
+  }
+
+  /** 卡面（T-7/T-8：魔法值加图标不再被读成张数；补攻/护/生与副本数） */
+  private cardHtml(t: TroopData): string {
+    const rec = this.ctx.save().collection[String(t.id)];
+    const locked = !rec;
+    const stats = troopStatsOf(t, rec ?? UNOWNED_REC);
+    const line = locked
+      ? '尚未获得'
+      : `Lv.${rec!.level}${rec!.ascension ? ' ★' + rec!.ascension : ''} · ${rec!.copies + 1} 张`;
+    return `<button class="collection-card r-${t.rarityIdx}${locked ? ' locked' : ''}" data-troop="${t.id}" aria-label="查看${t.name}（${RARITY_ORDER[t.rarityIdx]}）">
+      <i class="rarity-edge" aria-hidden="true"></i>
+      ${troopImg(t, false, `alt="${t.name}"`)}
+      <span class="collection-mana">${gemSvg(t.manaColors.map((c) => c.toLowerCase()))}</span>
+      <span class="magic-badge" title="魔法 ${stats.magic}">${icon('orb')}<b>${stats.magic}</b></span>
+      ${locked ? '<span class="locked-mark">?</span>' : ''}
+      <div class="collection-info"><h2>${t.name}</h2>
+        <span><span>${line}</span><span>${typeCn(t.troopTypes)}</span></span>
+        <span title="攻击 / 护甲 / 生命"><span>攻 ${stats.attack} · 护 ${stats.armor} · 生 ${stats.health}</span><span>${RARITY_CN[t.rarityIdx] ?? ''}</span></span>
+      </div>
+    </button>`;
+  }
+
+  /** 当前生效的筛选维度（摘要 chip + 空态回退都用它） */
+  private activeFilterChips(query: string): Array<{ dim: FilterDim; label: string }> {
+    const out: Array<{ dim: FilterDim; label: string }> = [];
+    if (this.collectionMode === 'all') out.push({ dim: 'tab', label: '全部图鉴' });
+    if (this.rarityFilter !== null) out.push({ dim: 'rarity', label: RARITY_CN[this.rarityFilter] ?? String(this.rarityFilter) });
+    if (this.colorFilter) out.push({ dim: 'color', label: (COLOR_CN[this.colorFilter] ?? this.colorFilter) + '色' });
+    if (this.typeFilter) out.push({ dim: 'type', label: typeCn([this.typeFilter]) });
+    if (this.kingdomFilter) out.push({ dim: 'kingdom', label: this.kingdomFilter });
+    if (query) out.push({ dim: 'search', label: `“${query}”` });
+    return out;
+  }
+
+  /**
+   * 空态分三种（T-12/T-13：阶段 A 是一句「换个品质或王国试试」通吃三种处境且无出路）：
+   * 空收藏 / 搜索无果 / 筛选筛没了（逐条回退指认是哪个条件，并给一键放宽）。
+   */
+  private emptyHtml(ownedCount: number, query: string, active: Array<{ dim: FilterDim; label: string }>): string {
+    if (this.collectionMode === 'owned' && ownedCount === 0 && !active.length) {
+      return `<p class="collection-empty">你的收藏还是空的——先去开一箱，或者打一场探索捡卡。<br>
+        <button class="filter-chip" data-empty-act="chests">去宝箱开箱</button>
+        <button class="filter-chip" data-empty-act="map">去地图打一场</button>
+        <button class="filter-chip" data-empty-act="tab">看全部图鉴（${fmt(TROOPS.length)} 支）</button></p>`;
+    }
+    // 逐条回退：去掉哪一个条件能出结果（取收益最大的那条）
+    const pool = this.pool();
+    let best: { dim: FilterDim; label: string; count: number } | null = null;
+    for (const f of active) {
+      if (f.dim === 'tab') continue;
+      const count = pool.filter((t) => this.matches(t, query, f.dim)).length;
+      if (count > 0 && (!best || count > best.count)) best = { ...f, count };
+    }
+    const relax = best
+      ? `<button class="filter-chip" data-empty-act="${best.dim}">去掉「${best.label}」可得 ${fmt(best.count)} 支</button>`
+      : this.collectionMode === 'owned'
+        ? `<button class="filter-chip" data-empty-act="tab">这些条件你一张都没有 · 去「全部」看看谁符合</button>`
+        : '';
+    if (query && active.length === 1) {
+      return `<p class="collection-empty">没有名字 / 法术 / 特质里带「${query}」的部队。<br>
+        <button class="filter-chip" data-empty-act="clear-search">清空搜索</button>${relax}</p>`;
+    }
+    return `<p class="collection-empty">当前 ${active.length} 个条件把结果筛空了：${active.map((f) => f.label).join(' + ')}<br>
+      ${relax}<button class="filter-chip" data-empty-act="reset">重置全部筛选</button></p>`;
   }
 
   private on(target: EventTarget, type: string, fn: EventListenerOrEventListenerObject): void {
