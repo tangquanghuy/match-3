@@ -103,6 +103,7 @@ import { BATCH_W02 } from './batch-w02';
 import { BATCH_W03 } from './batch-w03';
 import { BATCH_W04 } from './batch-w04';
 import { BATCH_R27 } from './batch-r27';
+import { BATCH_R28 } from './batch-r28';
 
 /** 全部批次（新批次在此追加注册） */
 const BATCHES: CuratedBatch[] = [
@@ -175,6 +176,7 @@ const BATCHES: CuratedBatch[] = [
   BATCH_R24,
   BATCH_R26,
   BATCH_R27,
+  BATCH_R28,
 ];
 
 /** 合并全部批次的组装结果（id → 原型），并给出跳过清单 */

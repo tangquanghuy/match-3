@@ -40,7 +40,7 @@ import { summonEffect, extraTurnEffect, transformTroopEffect, repositionEffect, 
 import { devourEffect } from './effects/devour';
 import { stormEffect } from './effects/storm';
 import { escapeEffect } from './effects/escape';
-import { economyGainEffect } from './effects/economy';
+import { economyGainEffect, stealGoldEffect, spendEconomyEffect } from './effects/economy';
 import { shuffleBoardEffect } from './effects/gems';
 import type { SummonParams } from './effects/summon';
 
@@ -94,6 +94,11 @@ export interface DamageSegment extends SegmentOptions {
   targetKingdom?: string;
   /** 二次缩放（[xN]/[N:M] + 来源），叠加在基础数值上（五机制之一） */
   modifier?: ModifierSpec;
+  /**
+   * 多份二次缩放（batch-r28，双系数句式——7483「伤害值等同于自身的攻击力，并因棕色敌军
+   * 数量而增强 [x10]」）：与 modifier 并存、各份加成相加（单 modifier 通道数学上不可同表）。
+   */
+  modifiers?: ModifierSpec[];
   /** 种族条件翻倍：受击者 troopTypes 含该族时其所受伤害 ×2（五机制之五） */
   raceDouble?: string;
   /** 种族条件倍率（默认 2；「翻 3 倍」= 3），仅与 raceDouble 同用 */
@@ -428,6 +433,34 @@ export interface GainEconomySegment extends SegmentOptions {
   modifier?: ModifierSpec;
 }
 
+/**
+ * 窃取黄金段（batch-r28，官方 CountEnemyGold+TakeEnemyGold+GiveGold——8087/8904/9189/8141）。
+ * 口径见 effects/economy.ts stealGoldEffect：定量 = 入账并发 economy-gain；all = 零和易主。
+ * 实际窃取额入 castTracking.goldStolen，供来源 goldStolen 跨段挂载。
+ */
+export interface StealGoldSegment extends SegmentOptions {
+  kind: 'stealGold';
+  scaling: ScalingSpec;
+  /** 「最多 N」入账上限（8087 官方 CountMax 50） */
+  cap?: number;
+  /** 全额句式（「窃取(所有)敌人的黄金」）：零和易主 */
+  all?: boolean;
+  modifier?: ModifierSpec;
+}
+
+/**
+ * 经济支出段（batch-r28，官方 TakeMyGold——7460「花费我所有的黄金」/8243「失去所有黄金」）：
+ * 从共用池扣减（夹零）；实际扣减额入 castTracking.goldSpent 供来源 goldSpent 挂载。
+ */
+export interface SpendEconomySegment extends SegmentOptions {
+  kind: 'spendEconomy';
+  currency: 'gold';
+  scaling: ScalingSpec;
+  /** 全额句式（「花费/失去所有的黄金」） */
+  all?: boolean;
+  modifier?: ModifierSpec;
+}
+
 /** 额外回合段 */
 export interface ExtraTurnSegment extends SegmentOptions {
   kind: 'extraTurn';
@@ -450,6 +483,8 @@ export type EffectSegment =
   | ExtraTurnSegment
   | EscapeChanceSegment
   | GainEconomySegment
+  | StealGoldSegment
+  | SpendEconomySegment
   | SacrificeSegment
   | RandomStatusSegment
   | TransformTroopSegment
@@ -554,6 +589,18 @@ function resolveTargetsTracked(
     }
     return targets;
   }
+  // 'lastAlly'（batch-r28，7402「伤害值等同于一名盟友的攻击力……给予其……」）：指向
+  // randomAllyStat 来源本施法掷中并缓存的盟友（不重掷 rng）；未缓存/已阵亡 → 空目标。
+  if (mode === 'lastAlly') {
+    const tracking = ctx.castTracking;
+    if (!tracking || tracking.randomAllyId === undefined) return [];
+    const ch = findCharacter(ctx.state, tracking.randomAllyId);
+    const targets = ch && !ch.defeated ? [ch] : [];
+    if (targets.length > 0) {
+      tracking.lastTarget = { id: targets[0].id, aliveBefore: true };
+    }
+    return targets;
+  }
   const targets = resolveTargets(segment, ctx, overrideMode);
   if (targets.length > 0 && ctx.castTracking) {
     ctx.castTracking.lastTarget = { id: targets[0].id, aliveBefore: !targets[0].defeated };
@@ -592,6 +639,7 @@ function compileSegment(segment: EffectSegment, ctx: EffectContext): EffectPrimi
         range: segment.range,
         trueDamage: segment.trueDamage,
         modifier: segment.modifier,
+        modifiers: segment.modifiers,
         raceDouble: segment.raceDouble,
         raceTimes: segment.raceTimes,
         condMult: segment.condMult,
@@ -681,6 +729,20 @@ function compileSegment(segment: EffectSegment, ctx: EffectContext): EffectPrimi
         scaling: segment.scaling,
         modifier: segment.modifier,
       });
+    case 'stealGold':
+      return stealGoldEffect({
+        scaling: segment.scaling,
+        cap: segment.cap,
+        all: segment.all,
+        modifier: segment.modifier,
+      });
+    case 'spendEconomy':
+      return spendEconomyEffect({
+        currency: segment.currency,
+        scaling: segment.scaling,
+        all: segment.all,
+        modifier: segment.modifier,
+      });
     case 'sacrifice': {
       // 献祭 = 即杀己方目标（走 execute 管线：defeat/阵亡钩子照常），
       // 属性快照入跨段追踪供 sacrificedStat 来源（「因献祭军队的攻击力而增强」）
@@ -754,7 +816,24 @@ function compileSegment(segment: EffectSegment, ctx: EffectContext): EffectPrimi
 /** 新建一段施法的跨段追踪（已挂在 ctx 上则复用） */
 function ensureCastTracking(ctx: EffectContext): CastTracking {
   if (!ctx.castTracking) {
-    ctx.castTracking = { destroyed: [], transformed: 0, drainedMana: 0, enemyDeaths: 0, allyDeaths: 0 };
+    // statusesAtCastStart（batch-r28，7690「如果该敌人已被冻结」）：进入段循环前对全部
+    // 在场角色采集一次生效状态 id 快照（只录有状态者）——首段的施加不影响后续段读
+    // 「施法前」状态，时序绑定有了确定性锚点。
+    const snapshot: Record<number, string[]> = {};
+    for (const side of ['Left', 'Right'] as const) {
+      for (const c of ctx.state.teams[side].characters) {
+        const active = c.statuses.filter((s) => s.turns > 0).map((s) => s.id);
+        if (active.length > 0) snapshot[c.id] = active;
+      }
+    }
+    ctx.castTracking = {
+      destroyed: [],
+      transformed: 0,
+      drainedMana: 0,
+      enemyDeaths: 0,
+      allyDeaths: 0,
+      statusesAtCastStart: snapshot,
+    };
   }
   return ctx.castTracking;
 }

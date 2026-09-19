@@ -45,6 +45,7 @@ export type TargetMode =
   | 'lastTargetFirst' // 跨段追踪目标列表**第一个**（R22 批 8220「燃烧第一组敌人」）
   | 'lastTargetLast' // 跨段追踪目标列表**最后一个**（R22 批 8220「冻结第二组敌人」）
   | 'lastDamaged' // 最近一个伤害段**实际命中**的目标集（skill-damage 事件口径，R22 批 8220/8320「使所有被伤害的敌人…」）
+  | 'lastAlly' // randomAllyStat 来源本施法掷中的盟友（batch-r28，7402「伤害值等同于一名盟友的攻击力……给予**其**…」——跨段绑定同一名泛指盟友）
   // —— 己方 ——
   | 'allySelf' // 施法者自身
   | 'allyFront'
@@ -187,6 +188,8 @@ export function selectTargets(
   if (mode === 'lastTargets' || mode === 'lastTargetFirst' || mode === 'lastTargetLast' || mode === 'lastDamaged') {
     return [];
   }
+  // 'lastAlly'（batch-r28）：由 resolveTargetsTracked 读 castTracking.randomAllyId 解析（此处兜底为空）
+  if (mode === 'lastAlly') return [];
 
   // allySelf 特例：施法者存活才返回自身
   if (mode === 'allySelf') {

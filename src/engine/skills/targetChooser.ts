@@ -63,6 +63,16 @@ export function prototypeChosenTargetMode(proto: SkillPrototype): ChosenTargetMo
     if ('target' in seg && seg.target === 'allyChosen') return 'allyChosen';
     if ('target' in seg && seg.target === 'enemyChosenAndBelow') return 'enemyChosenAndBelow';
     if ('target' in seg && seg.target === 'enemyChosenAndAdjacent') return 'enemyChosenAndAdjacent';
+    // 创造段驱动（batch-r28，8737「选择一个盟友。创造10颗盟友对应法力颜色的宝石」官方
+    // CreateGems FromTarget@Ally 实锤）：全咒语只有创造段、无任何带 target 字段的段时，
+    // 'CHOSEN_TARGET' 占位色（读 ctx.chosenTargetId）也要有候选集——创造段的
+    // 「其法力颜色」是己方（盟友）色源，故报 'allyChosen' 让引擎先走盟友选目标。
+    if (
+      seg.kind === 'gem' && seg.params.op === 'create'
+      && seg.params.gem.kind === 'color' && seg.params.gem.color === 'CHOSEN_TARGET'
+    ) {
+      return 'allyChosen';
+    }
   }
   return null;
 }

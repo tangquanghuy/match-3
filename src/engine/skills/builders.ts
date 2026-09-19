@@ -39,6 +39,8 @@ import type {
   SummonSegment,
   EscapeChanceSegment,
   GainEconomySegment,
+  StealGoldSegment,
+  SpendEconomySegment,
   SacrificeSegment,
   RandomStatusSegment,
   TransformTroopSegment,
@@ -50,6 +52,7 @@ import type {
   SelfReviveSegment,
   NRangeSpec,
 } from './prototypes';
+import { RACE_SUMMON_REFS } from './data/raceRoster';
 
 /** 选色占位符：技能文本"指定/选定颜色"，运行时由 ColorChooser 解析（需求 2） */
 export const CHOSEN = 'CHOSEN' as const;
@@ -145,6 +148,13 @@ export interface DmgOpts extends SegmentOpts, NRangeOpts {
   trueDamage?: boolean;
   /** enemyFirstN/allyFirstN/allyRandomN/enemyRandomN 的 N */
   n?: number;
+  /**
+   * 多份二次缩放（batch-r28，双系数句式——7483「伤害值等同于自身的攻击力，并因棕色敌军
+   * 数量而增强 [x10]」= modifiers: [{multiplier 1, selfStat attack}, {multiplier 10,
+   * enemiesOfColor Brown}]）：与 modifier 并存、各份加成相加（单 modifier 通道在
+   * 「基数=属性 ×1 + 来源计数 ×10」双系数结构下数学上不可同表）。
+   */
+  modifiers?: ModifierSpec[];
   /** 伤害区间（[A] – [B]）：设置后忽略 base/mult */
   rangeSpec?: { min: import('./scaling').ScalingSpec; max: import('./scaling').ScalingSpec };
   /** 分摊（「伤害分摊给至多 {N} 名敌人」）：掷一次总额均分给前 N 名存活敌人 */
@@ -174,6 +184,7 @@ export function dmg(
   if (opts.splitRandom) seg.splitRandom = true;
   if (opts.drain) seg.drain = true;
   if (opts.execute) seg.execute = true;
+  if (opts.modifiers !== undefined) seg.modifiers = opts.modifiers;
   return attach(seg, opts);
 }
 
@@ -441,6 +452,12 @@ export interface TransformOpts extends SegmentOpts {
   /** 随机转换颗数（「将一颗宝石转换成炸弹宝石」「将 2 颗紫色宝石转换成X」） */
   count?: number;
   /**
+   * 转换颗数二次缩放（batch-r28，官方 ConvertGems UseCounterForAmount——9545「将 3 颗
+   * 黄色宝石转换成紫色龙宝石，诅咒敌人数量增加 [1:1]」= { count: 3, countModifier:
+   * boostPer(enemyStatusCount curse, 1) }，实际颗数 = 3 + 被诅咒敌人数）：与 count 同用。
+   */
+  countModifier?: ModifierSpec;
+  /**
    * toSpecial tier 掷签（原语 Wave4 批，8801「Convert 4 Stone Blocks to either Good or
    * Evil Gargoyle Gems」）：执行时整段掷签一次，本次转换的所有宝石取同一 tier
    * （官方 Randomize AB-CD 双分支语义；与 toSpecial 同用，仅 convertSpecial/transformToSpecial 消费）。
@@ -476,6 +493,7 @@ export function transformToSpecial(from: TransformFrom, gem: SpecialGemKind | Sp
     params.toSpecial = spec.kind;
   }
   if (opts.count !== undefined) params.count = flat(opts.count);
+  if (opts.countModifier !== undefined) params.countModifier = opts.countModifier;
   if (opts.tiers !== undefined) params.tiers = opts.tiers;
   return gemSegWithOpts(params, opts);
 }
@@ -712,6 +730,16 @@ export function summonRandomOfKingdom(kingdom: string, troopId?: number, opts?: 
   return attach({ kind: 'summon', params: { source, countRange: opts?.countRange } } as SummonSegment, opts);
 }
 
+/**
+ * 按种族随机召唤（batch-r28，「召唤一位随机恶魔」7435/8056）：名册 = data/raceRoster.ts
+ * 构建期从 troops.json 提取的 种族→referenceName[] 静态表（不依赖 TurnEngine 注入的
+ * 王国解析器），效果段直接把名册喂给 summonRandom 的 randomOf 池（种子化均匀掷选，
+ * 官方语义 = 该族全兵册随机）。名册缺该族/为空 → 整段安全跳过（零随机消耗）。
+ */
+export function summonRandomOfRace(race: string, opts?: SegmentOpts & { countRange?: { min: number; max: number } }): SummonSegment {
+  return summonRandom([...(RACE_SUMMON_REFS[race] ?? [])], undefined, opts);
+}
+
 // —— 其它 ——
 
 /** 获得额外回合（可带死亡条件：「如果敌人身亡，则获得一个额外回合」） */
@@ -742,6 +770,33 @@ export function gainSouls(base: number, mult = 0, opts: SegmentOpts = {}): GainE
 }
 export function gainGems(base: number, mult = 0, opts: SegmentOpts = {}): GainEconomySegment {
   return attach({ kind: 'gainEconomy', currency: 'gems', scaling: scale(base, mult) }, opts);
+}
+
+/**
+ * 窃取黄金（batch-r28，官方 CountEnemyGold+TakeEnemyGold+GiveGold——8087「窃取一名敌人
+ * 最多 50 黄金」= stealGold(50, 0)（cap 缺省即按额定入账）、8904「窃取 [魔法 + 2] 黄金」=
+ * stealGold(2)、8141/9189「窃取(所有)敌人的黄金」= stealGold(0, 0, { all: true })）。
+ * 口径见 effects/economy.ts stealGoldEffect：定量 = gainGold 同款入账 + goldStolen 跨段
+ * 追踪；all = 池内黄金全额易主（零和、不入账），goldStolen 记池总额供
+ * 「因窃取的黄金数而增强」来源（goldStolen）跨段挂载。
+ */
+export function stealGold(base: number, mult = 0, opts: SegmentOpts & { cap?: number; all?: boolean } = {}): StealGoldSegment {
+  const seg = attach({ kind: 'stealGold', scaling: scale(base, mult) } as StealGoldSegment, opts);
+  if (opts.cap !== undefined) seg.cap = opts.cap;
+  if (opts.all) seg.all = true;
+  return seg;
+}
+
+/**
+ * 花费/失去黄金（batch-r28，官方 TakeMyGold——7460「花费我所有的黄金以增强伤害」/
+ * 8243「失去所有黄金」）：spendGold() 全额扣减共用池（夹零），实际扣减额入
+ * castTracking.goldSpent，后续伤害段以 { multiplier 1, source: goldSpent } 引用同额
+ * （「花费的黄金转化为伤害加成」；支出段须排在消费段之前）。
+ */
+export function spendGold(opts: SegmentOpts & { all?: boolean } = {}): SpendEconomySegment {
+  const seg = attach({ kind: 'spendEconomy', currency: 'gold', scaling: scale(0, 0) } as SpendEconomySegment, opts);
+  if (opts.all !== false) seg.all = true;
+  return seg;
 }
 
 

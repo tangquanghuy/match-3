@@ -80,6 +80,36 @@ export interface CastTracking {
    * 的伤害而增强」9571「并将其作为生命赋予最弱的盟友」；每段整体覆写，lastReduce 同款）。
    */
   lastDamage?: number;
+  /**
+   * 本技能前序窃取黄金段的实际入账总额（batch-r28，modifier 来源 goldStolen——
+   * 8087/8904「伤害/数值因被窃取的黄金数而增强」、8141「数量因窃取的黄金数而增强」）。
+   * economy.ts stealGold 结算按实际入账累加（drainedMana 先例）；all 全额句式记
+   * 「池内黄金全额易主」的零和转移额（见 effects/economy.ts 口径注释）。
+   */
+  goldStolen?: number;
+  /**
+   * 本技能前序经济支出段的实际扣减总额（batch-r28，modifier 来源 goldSpent——
+   * 7460「花费我所有的黄金以增强伤害」）：economy.ts spendEconomy 结算写入。
+   */
+  goldSpent?: number;
+  /**
+   * 最近一个创造段产出的首颗宝石所在格（batch-r28，来源 surroundingGems 的位置锚——
+   * 8804「宝石附近或下方每有一颗绿色宝石」官方 BoardTarget SurroundingGems）。
+   * gems.ts doCreate 成功时覆写（空格不足的就地转化路径取首个转化格）。
+   */
+  lastCreatedCell?: CellPos;
+  /**
+   * randomAllyStat 来源本施法内掷中的盟友 id（batch-r28——7402「伤害值等同于一名盟友的
+   * 攻击力……给予**其**攻击力和护甲值」跨段绑定同一名泛指盟友）：来源解析时掷签并缓存，
+   * 同施法内重复读取复用同一名（缓存失效再重掷）。
+   */
+  randomAllyId?: number;
+  /**
+   * 施法开始时全部在场角色的生效状态 id 快照（batch-r28，条件 lastTargetStatusAtCastStart
+   * ——7690「如果该敌人**已被**冻结」须读首段施加冻结之前的状态）：executePrototype 进入
+   * 段循环前一次性采集（只录有状态者）。缺省（纯原语单测）时相关条件按不成立处理。
+   */
+  statusesAtCastStart?: Record<number, string[]>;
 }
 
 /** 效果原语执行上下文（施法者、状态、随机源、宝石 id 分配器） */

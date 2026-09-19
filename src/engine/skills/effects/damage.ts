@@ -12,7 +12,7 @@ import type { ScalingSpec } from '../scaling';
 import { evaluateScaling } from '../scaling';
 import type { EffectContext, EffectPrimitive } from './context';
 import { casterMagic, locate, findCharacter, findSide } from './context';
-import { hasTroopType, evaluateWithModifier, DEFAULT_RACE_DOUBLE, condMultiplier, condBonusValue } from './secondary';
+import { hasTroopType, evaluateWithModifier, modifierBonus, DEFAULT_RACE_DOUBLE, condMultiplier, condBonusValue } from './secondary';
 import type { ModifierSpec, CondMult, CondBonus } from './secondary';
 import { passivesOf } from '../../traits';
 import { consumeBarrier, hasStatus, FAERIE_FIRE_STATUS_ID, FAERIE_FIRE_SPELL_MULT,
@@ -34,6 +34,12 @@ export interface DamageParams {
   trueDamage?: boolean;
   /** 二次缩放（[xN]/[N:M] + 来源），叠加在基础伤害上 */
   modifier?: ModifierSpec;
+  /**
+   * 多份二次缩放（batch-r28，双系数句式——7483「伤害值等同于自身的攻击力，并因棕色敌军
+   * 数量而增强 [x10]」：基数=攻击力 ×1 与来源计数 ×10 是两个不同系数，单 modifier 通道
+   * 在数学上不可同表）：与 modifier 并存，各份加成相加（damage 之外的段暂无此需求）。
+   */
+  modifiers?: ModifierSpec[];
   /** 种族条件翻倍：目标 troopTypes 含该族时其所受伤害 ×2（五机制之一） */
   raceDouble?: string;
   /** 种族条件倍率（默认 2；「翻 3 倍」= 3），仅与 raceDouble 同用 */
@@ -230,7 +236,8 @@ export function damageEffect(params: DamageParams): EffectPrimitive {
       const caster = findCharacter(ctx.state, ctx.casterId);
 
       // 一次缩放（[魔法+N]）+ 二次缩放（[xN]/[N:M] 随战场资源）共同决定名义伤害；
-      // 伤害区间（[A] – [B]）在区间内均匀取整（种子化，每段一次）
+      // 伤害区间（[A] – [B]）在区间内均匀取整（种子化，每段一次）。
+      // modifiers（batch-r28）：多份加成相加后并入（7483 双系数；rangeSpec 路径同样生效）
       let amount: number;
       if (params.rangeSpec) {
         const lo = evaluateWithModifier(evaluateScaling(params.rangeSpec.min, casterMagic(ctx)), params.modifier, ctx);
@@ -238,6 +245,10 @@ export function damageEffect(params: DamageParams): EffectPrimitive {
         amount = hi <= lo ? lo : lo + ctx.rng.nextInt(hi - lo + 1);
       } else {
         amount = evaluateWithModifier(evaluateScaling(scaling, casterMagic(ctx)), params.modifier, ctx);
+      }
+      if (params.modifiers && params.modifiers.length > 0) {
+        for (const spec of params.modifiers) amount += modifierBonus(spec, ctx);
+        amount = Math.max(0, amount);
       }
       // 种族翻倍：单体/群体按受击者逐个判定；溅射为共享伤害池，
       // 简化为「主目标属该族则整池翻倍」（当前数据中溅射×种族组合为零，规则手册已注明）

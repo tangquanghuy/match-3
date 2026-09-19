@@ -15,6 +15,7 @@
 import { isSameMatchType, colorGem, skullGem, PlayerSide, ALL_BASE_COLORS } from '../../types';
 import type { SpecialGemKind, SkullStormDropKind } from '../../types';
 import type { BaseColor, Character } from '../../types';
+import { BoardModel } from '../../BoardModel';
 import type { SecondaryModifier } from '../scaling';
 import type { EffectContext } from './context';
 import { findCharacter, findSide } from './context';
@@ -68,8 +69,9 @@ export type ModifierSource =
    *  ——7506「因其他盟友的魔法值」/ 7651「因其他所有盟友的法力值」口径） */
   | { kind: 'allyStatSum'; stat: 'attack' | 'armor' | 'hp' | 'magic' | 'mana'; excludeSelf?: boolean }
   /** 最近目标段的当前主目标属性（R22 批 stat 增 missingHp / manaCost：7464/7472 目标侧补齐，
-   *  与 selfStat 侧对齐） */
-  | { kind: 'targetStat'; stat: 'attack' | 'armor' | 'hp' | 'magic' | 'missingHp' | 'manaCost' }
+   *  与 selfStat 侧对齐；batch-r28 增 mana——8037「伤害值因其（目标的）法力值而增强」，
+   *  官方 CountMana@FromTarget 实锤） */
+  | { kind: 'targetStat'; stat: 'attack' | 'armor' | 'hp' | 'magic' | 'missingHp' | 'manaCost' | 'mana' }
   /** 本次释放玩家手动选定目标（ctx.chosenTargetId）的当前属性（R22 批，8659「造成等同于
    *  其（指定敌人）攻击力的伤害，再对上方敌人造成同等伤害」——同额跨段引用选定的那名敌人，
    *  不受后段目标解析冲掉 lastTarget 影响） */
@@ -124,7 +126,33 @@ export type ModifierSource =
    * 本来源——level 2 → +8；level 0 / 缺省 → 增项为 0（multiplier 路径 count=0 早退）。
    * meta 层淬炼系统接入前恒按 0 计，既有对局数值不变。
    */
-  | { kind: 'tempering' };
+  | { kind: 'tempering' }
+  /**
+   * 本次施放前序窃取黄金段的实际入账总额（batch-r28，跨段追踪 goldStolen——
+   * 8087「伤害值因被窃取的黄金数而增强 [1:1]」/ 8904「数值因窃取黄金数而增强 [50:1]」/
+   * 8141「数量因窃取的黄金数而增强，上限 16」官方 CountEnemyGold+TakeEnemyGold+GiveGold
+   * 步骤族实锤；与 battleGold（池总额≠本次窃取额）明确区分）。
+   */
+  | { kind: 'goldStolen' }
+  /**
+   * 本次施放前序经济支出段的实际扣减总额（batch-r28，跨段追踪 goldSpent——
+   * 7460「花费我所有的黄金以增强造成的伤害数 [1:1]」：花费额即时转化为伤害加成）。
+   */
+  | { kind: 'goldSpent' }
+  /**
+   * 随机一名存活盟友的当前属性（batch-r28，7402「伤害值等同于**一名**盟友的攻击力」——
+   * 泛指单体盟友来源缺口）：解析时种子化掷选一名存活盟友（含施法者自身），
+   * 并把掷中者缓存到 castTracking.randomAllyId——同施法内重复读取复用同一名
+   * （「给予**其**攻击力和护甲值」的「其」经 TargetMode 'lastAlly' 引用同一名）。
+   */
+  | { kind: 'randomAllyStat'; stat: 'attack' | 'armor' | 'hp' | 'magic' }
+  /**
+   * 以最近创造段的首颗宝石所在格为锚、周边（8 邻）某色宝石计数（batch-r28，官方
+   * BoardTarget SurroundingGems——8804「宝石附近或下方每有一颗绿色宝石」；「下方」格
+   * 即 8 邻中的正下格，故按 3x3 邻域口径计数、不含锚格自身）。锚缺失（前序无成功创造段）
+   * 按 0 计。只数基色宝石（boardGems 同口径，不含归属色特殊宝石）。
+   */
+  | { kind: 'surroundingGems'; color: BaseColor; anchor: 'lastCreated' };
 
 /** 二次缩放规格：解析出的 [xN]/[N:M] + 来源，段定义里以纯数据存在（可 JSON 化） */
 export interface ModifierSpec {
@@ -133,6 +161,12 @@ export interface ModifierSpec {
   source?: ModifierSource;
   /** 多来源（与 source 二选一；两处都写时以 sources 为准） */
   sources?: ModifierSource[];
+  /**
+   * 加成上限（batch-r28，官方 CountMax 步骤族——7667「上限为 14 颗宝石」/ 8141「上限
+   * 16」/ 8142「上限 14」/ 10061「击杀几率最高可达 30%」）：给出时把**加成项**（bonus，
+   * 非总值）夹到 ≤max——「6 颗、因黄金增强 [4:1]、上限 14」= 6 + min(floor(gold/4), 8)。
+   */
+  max?: number;
 }
 
 /** 某角色是否具有指定种族/类型 */
@@ -167,7 +201,12 @@ export type Condition =
   | { kind: 'targetHasAnyStatus' }
   | { kind: 'targetHpDamaged' }
   | { kind: 'selfHpDamaged' }
-  | { kind: 'boardAtLeast'; color?: BaseColor; n: number }
+  /**
+   * 板面上某类宝石 ≥n 颗（「如果板面上有 13 颗或更多红色宝石」「若板面上有骷髅…」）。
+   * color 筛基色（缺省数骷髅）；special（batch-r28，8567「若板面上有狼化宝石」官方
+   * CountGems Color1=Lycanthropy 实锤）筛指定种类的特殊宝石——给出时优先按特殊宝石计数。
+   */
+  | { kind: 'boardAtLeast'; color?: BaseColor; special?: SpecialGemKind; n: number }
   | { kind: 'enemyRacePresent'; race: string }
   | { kind: 'allyRacePresent'; race: string }
   /** 任一存活敌人带有该状态即真（「若有(一名)敌人陷入X状态」，全局条件整段判定） */
@@ -268,7 +307,18 @@ export type Condition =
   | { kind: 'anyTrackedDied' }
   /** 最近目标段的主目标属性高于施法者（R22 批反向属性比较，7960「若其攻击力比较大」——
    *  §13.2 casterStatBeatsTarget 只支持施法者>目标正向，本条件为其对偶）。 */
-  | { kind: 'targetStatBeatsCaster'; stat: 'attack' | 'armor' | 'magic' | 'hp' };
+  | { kind: 'targetStatBeatsCaster'; stat: 'attack' | 'armor' | 'magic' | 'hp' }
+  /**
+   * 战场经济池某币种 ≥n（batch-r28，7435「如果自身有 12 个或更多灵魂」——经济阈值条件
+   * 缺口；读 GameState.economy 共用池现值，全局条件整段判定）。
+   */
+  | { kind: 'economyAtLeast'; currency: 'gold' | 'souls' | 'gems' | 'maps'; n: number }
+  /**
+   * 最近产目标段的主目标在**施法开始时**已带该状态（batch-r28，7690「如果该敌人**已被**
+   * 冻结，则再造成 5 点伤害」——首段 damage+冻结同段施加后，targetStatus 恒真，
+   * 须读 CastTracking.statusesAtCastStart 施法前快照）。无追踪目标/无快照 → false。
+   */
+  | { kind: 'lastTargetStatusAtCastStart'; statusId: string };
 
 export interface CondMult {
   times: number;
@@ -304,10 +354,13 @@ export function conditionMet(
       return !!caster && caster.hp < caster.maxHp;
     }
     case 'boardAtLeast': {
+      // special（batch-r28，8567 狼化宝石在场）：筛指定种类特殊宝石，优先于基色/骷髅口径
       let n = 0;
       ctx.state.board.forEach((gem) => {
         if (!gem) return;
-        if (cond.color) {
+        if (cond.special !== undefined) {
+          if (gem.type.kind === 'special' && gem.type.spec.kind === cond.special) n += 1;
+        } else if (cond.color) {
           if (gem.type.kind === 'color' && gem.type.color === cond.color) n += 1;
         } else if (gem.type.kind === 'skull') n += 1;
       });
@@ -462,6 +515,17 @@ export function conditionMet(
         const c = findCharacter(ctx.state, t.id);
         return c === undefined || c.defeated;
       });
+    }
+    case 'economyAtLeast':
+      // 战场经济阈值（batch-r28，7435「如果自身有 12 个或更多灵魂」）：共用池现值直读
+      return ctx.state.economy[cond.currency] >= cond.n;
+    case 'lastTargetStatusAtCastStart': {
+      // 施法前状态快照判定（batch-r28，7690「如果该敌人已被冻结」）：读 executePrototype
+      // 进入段循环前采集的 statusesAtCastStart——首段施加的状态不影响本判定（时序解耦）
+      const last = ctx.castTracking?.lastTarget;
+      const snapshot = ctx.castTracking?.statusesAtCastStart;
+      if (!last || !snapshot) return false;
+      return (snapshot[last.id] ?? []).includes(cond.statusId);
     }
     default: {
       const _exhaustive: never = cond;
@@ -734,6 +798,45 @@ export function resolveModifierCount(source: ModifierSource, ctx: EffectContext)
         const caster = findCharacter(ctx.state, ctx.casterId);
         return Math.max(0, caster?.temperingLevel ?? 0);
       }
+    case 'goldStolen':
+      // 本次施放窃取黄金累计（batch-r28）：economy.ts stealGold 段结算写入
+      return tracking?.goldStolen ?? 0;
+    case 'goldSpent':
+      // 本次施放经济支出累计（batch-r28）：economy.ts spendEconomy 段结算写入
+      return tracking?.goldSpent ?? 0;
+    case 'randomAllyStat': {
+      // 泛指单体盟友（batch-r28，7402「一名盟友的攻击力」）：掷选一名存活盟友（含施法者），
+      // 缓存到 castTracking.randomAllyId 供 'lastAlly' 目标模式与同施法内重复读取复用
+      const side = findSide(ctx.state, ctx.casterId);
+      if (side === null) return 0;
+      const allies = ctx.state.teams[side].characters.filter((c) => !c.defeated);
+      if (allies.length === 0) return 0;
+      const cachedId = tracking?.randomAllyId;
+      let pick = cachedId !== undefined ? allies.find((c) => c.id === cachedId) : undefined;
+      if (!pick) {
+        pick = allies[ctx.rng.nextInt(allies.length)];
+        if (tracking) tracking.randomAllyId = pick.id;
+      }
+      return statOf(pick, source.stat);
+    }
+    case 'surroundingGems': {
+      // 位置锚计数（batch-r28，8804 官方 BoardTarget SurroundingGems）：以最近创造段的
+      // 首颗宝石所在格为锚的 8 邻格内某基色宝石数（不含锚格自身；越界自动收边）。
+      // 锚缺失（前序无成功创造段）→ 0，消费段按零加成/零次数安全退化。
+      const anchor = tracking?.lastCreatedCell;
+      if (!anchor) return 0;
+      let n = 0;
+      for (let dr = -1; dr <= 1; dr++) {
+        for (let dc = -1; dc <= 1; dc++) {
+          if (dr === 0 && dc === 0) continue;
+          const pos = { row: anchor.row + dr, col: anchor.col + dc };
+          if (pos.row < 0 || pos.col < 0 || pos.row >= BoardModel.ROWS || pos.col >= BoardModel.COLS) continue;
+          const gem = ctx.state.board.get(pos);
+          if (gem && gem.type.kind === 'color' && gem.type.color === source.color) n += 1;
+        }
+      }
+      return n;
+    }
     default: {
       const _exhaustive: never = source;
       return _exhaustive;
@@ -799,6 +902,8 @@ function gemsMostUsed(ctx: EffectContext, side: PlayerSide): BaseColor | null {
  *   multiplier：a × count；ratio：b × floor(count / a)。
  * count 为 0 或 spec 缺省 → 0（DoD 边界：无资源退化）。
  * 多来源（sources）计数相加后按同一公式折算。
+ * max（batch-r28，官方 CountMax 封顶族）：给出时把加成项夹到 ≤max（封的是加成、
+ * 不是总值——「6 颗、[4:1]、上限 14」= 6 + min(floor(gold/4), 8)）。
  */
 export function modifierBonus(spec: ModifierSpec | undefined, ctx: EffectContext): number {
   if (!spec) return 0;
@@ -809,12 +914,15 @@ export function modifierBonus(spec: ModifierSpec | undefined, ctx: EffectContext
     count = resolveModifierCount(spec.source, ctx);
   }
   if (count <= 0) return 0;
+  let bonus: number;
   if (spec.mod.kind === 'multiplier') {
-    return spec.mod.a * count;
+    bonus = spec.mod.a * count;
+  } else {
+    const per = Math.max(1, Math.floor(spec.mod.a));
+    const m = Math.max(0, Math.floor(spec.mod.b ?? 0));
+    bonus = m * Math.floor(count / per);
   }
-  const per = Math.max(1, Math.floor(spec.mod.a));
-  const m = Math.max(0, Math.floor(spec.mod.b ?? 0));
-  return m * Math.floor(count / per);
+  return spec.max !== undefined ? Math.min(bonus, Math.max(0, spec.max)) : bonus;
 }
 
 /** 求值「一次缩放 + 二次缩放」的最终数值（非负整数） */

@@ -28,7 +28,7 @@ import type { ScalingSpec } from '../scaling';
 import { evaluateScaling } from '../scaling';
 import type { EffectContext, EffectPrimitive, DestroyedGem } from './context';
 import { casterMagic, findCharacter, findSide } from './context';
-import { evaluateWithModifier } from './secondary';
+import { evaluateWithModifier, modifierBonus } from './secondary';
 import type { ModifierSpec } from './secondary';
 
 /**
@@ -230,6 +230,12 @@ export interface TransformGemParams {
    * 「将一颗宝石转换成炸弹宝石」「将 2 颗紫色宝石转换成X」。
    */
   count?: ScalingSpec;
+  /**
+   * 转换颗数的二次缩放（batch-r28，官方 ConvertGems UseCounterForAmount——9545
+   * 「将 3 颗黄色宝石转换成紫色龙宝石，诅咒敌人数量增加 [1:1]」= 3 + 被诅咒敌人数）：
+   * 给出时转换颗数 = evaluateScaling(count) + modifierBonus(countModifier)。
+   */
+  countModifier?: ModifierSpec;
 }
 
 // —— 清除目标集（destroy / explode 共用） ——
@@ -383,7 +389,8 @@ function doCreate(params: CreateGemParams, ctx: EffectContext): GameEvent[] {
 
   const events: GameEvent[] = [];
 
-  // 1. 优先填空格 → gem-create
+  // 1. 优先填空格 → gem-create；首颗落格记入跨段追踪（batch-r28，surroundingGems
+  //    位置锚来源——8804「宝石附近或下方每有一颗绿色宝石」的锚=刚创造的宝石）
   const slots = pickN(emptyCells(board), n, ctx);
   const spawns: GemCreateEvent['spawns'] = [];
   for (const pos of slots) {
@@ -392,7 +399,10 @@ function doCreate(params: CreateGemParams, ctx: EffectContext): GameEvent[] {
     board.set(pos, gem);
     spawns.push({ pos, gemId: gem.id, gemType: gem.type });
   }
-  if (spawns.length > 0) events.push({ type: 'gem-create', spawns });
+  if (spawns.length > 0) {
+    events.push({ type: 'gem-create', spawns });
+    if (ctx.castTracking) ctx.castTracking.lastCreatedCell = spawns[0].pos;
+  }
 
   // 2. 空格不够 → 把剩余数量的随机现存（非目标类型）宝石就地转化为目标类型 → gem-transform
   const remaining = n - spawns.length;
@@ -410,7 +420,11 @@ function doCreate(params: CreateGemParams, ctx: EffectContext): GameEvent[] {
       gem.type = to;
       changes.push({ pos, gemId: gem.id, from, to });
     }
-    if (changes.length > 0) events.push({ type: 'gem-transform', changes });
+    if (changes.length > 0) {
+      events.push({ type: 'gem-transform', changes });
+      // 满盘就地转化路径（烟雾/满盘对局）：「创造」的宝石即首个转化格，同作位置锚
+      if (spawns.length === 0 && ctx.castTracking) ctx.castTracking.lastCreatedCell = changes[0].pos;
+    }
   }
 
   if (events.length === 0) return [];
@@ -466,9 +480,16 @@ function doTransform(params: TransformGemParams, ctx: EffectContext): GameEvent[
       pool.push(pos);
     });
   }
-  // 定量转换：随机取 N 颗（种子化、不放回）；缺省 = 全部（既有全棋盘转化路径不变）
+  // 定量转换：随机取 N 颗（种子化、不放回）；缺省 = 全部（既有全棋盘转化路径不变）。
+  // countModifier（batch-r28，9545 UseCounterForAmount）：颗数 = 一次缩放 + 二次缩放加成
   const targets = params.count
-    ? pickN(pool, Math.max(0, evaluateScaling(params.count, casterMagic(ctx))), ctx)
+    ? pickN(
+      pool,
+      Math.max(0,
+        evaluateScaling(params.count, casterMagic(ctx))
+        + (params.countModifier ? modifierBonus(params.countModifier, ctx) : 0)),
+      ctx,
+    )
     : pool;
   if (targets.length === 0) return [];
 
