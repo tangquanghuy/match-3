@@ -6,7 +6,7 @@
  *  - 版本迁移链：schema 不兼容变化时在 MIGRATIONS 追加 `v→v+1` 步骤；
  *  - 节级降级重建：单节损坏只丢该节、其余保留（hydrateSave），彻底损坏才回退新档。
  */
-import { META_SAVE_VERSION, newSave, type GachaLogEntry, type KingdomState, type MetaSave, type TeamMember, type TeamPreset, type TroopRecord } from './schema';
+import { META_SAVE_VERSION, newSave, type GachaLogEntry, type InvasionState, type KingdomState, type MetaSave, type TeamMember, type TeamPreset, type TroopRecord } from './schema';
 import { GACHA_LOG_CAP } from './schema';
 import { starterTroopIds } from '../data/economy';
 
@@ -24,8 +24,81 @@ export class MetaSaveError extends Error {
 }
 
 type Migration = (raw: Record<string, unknown>) => Record<string, unknown>;
-/** MIGRATIONS[v] 把 version v 的存档升到 v+1；v1 为首个版本，数组暂空 */
+
+/**
+ * v1 的 8 职业是设计虚构（早期 M5 蓝本），v2 换官方 38 职业后把进度重映射过去：
+ * 有官方同名的直接保留（knight/necromancer/sorcerer），其余按定位就近映射，
+ * 对应武器 id 同步改名；映射表外的前向兼容字段一律丢 给 hydrate 重建。
+ */
+const V2_CLASS_REMAP: Record<string, string> = {
+  knight: 'knight',
+  necromancer: 'necromancer',
+  sorcerer: 'sorcerer',
+  berserker: 'warrior',
+  cleric: 'priest',
+  rogue: 'thief',
+  druid: 'warden',
+  ranger: 'archer',
+};
+const V2_WEAPON_REMAP: Record<string, string> = {
+  w_berserker_10: 'w_warlord_10',
+  w_berserker_20: 'w_warlord_20',
+  w_cleric_10: 'w_priest_10',
+  w_cleric_20: 'w_priest_20',
+  w_rogue_10: 'w_thief_10',
+  w_rogue_20: 'w_thief_20',
+  w_druid_10: 'w_warden_10',
+  w_druid_20: 'w_warden_20',
+  w_ranger_10: 'w_archer_10',
+  w_ranger_20: 'w_archer_20',
+  w_necro_10: 'w_necromancer_10',
+  w_necro_20: 'w_necromancer_20',
+  w_sorc_10: 'w_sorcerer_10',
+  w_sorc_20: 'w_sorcerer_20',
+};
+
+/** MIGRATIONS[v] 把 version v 的存档升到 v+1（v1 是首个版本：下标 0 恒空） */
 const MIGRATIONS: Migration[] = [];
+MIGRATIONS[1] = (raw) => {
+  const hero = raw.hero;
+  if (isObject(hero)) {
+    const remapId = (id: unknown): unknown =>
+      typeof id === 'string' ? (V2_CLASS_REMAP[id] ?? null) : null;
+    if (isObject(hero.classLevels)) hero.classLevels = remapKeys(hero.classLevels, V2_CLASS_REMAP);
+    if (isObject(hero.classXp)) hero.classXp = remapKeys(hero.classXp, V2_CLASS_REMAP);
+    if (Array.isArray(hero.unlockedClasses)) {
+      hero.unlockedClasses = [
+        ...new Set(hero.unlockedClasses.map(remapId).filter((v): v is string => typeof v === 'string')),
+      ];
+    }
+    if (Array.isArray(hero.unlockedWeapons)) {
+      hero.unlockedWeapons = [
+        ...new Set(
+          hero.unlockedWeapons.map((w) =>
+            typeof w === 'string' ? (V2_WEAPON_REMAP[w] ?? w) : null,
+          ).filter((w): w is string => typeof w === 'string'),
+        ),
+      ];
+    }
+    if (typeof hero.equippedWeapon === 'string') {
+      hero.equippedWeapon = V2_WEAPON_REMAP[hero.equippedWeapon] ?? hero.equippedWeapon;
+    }
+    if (typeof hero.classId === 'string') hero.classId = remapId(hero.classId);
+    delete hero.talentSpent;
+  }
+  return raw;
+};
+
+function remapKeys(
+  record: Record<string, unknown>,
+  map: Record<string, string>,
+): Record<string, unknown> {
+  const out: Record<string, unknown> = {};
+  for (const [key, value] of Object.entries(record)) {
+    out[map[key] ?? key] = value;
+  }
+  return out;
+}
 
 function isObject(v: unknown): v is Record<string, unknown> {
   return v != null && typeof v === 'object' && !Array.isArray(v);
@@ -115,6 +188,85 @@ export function hydrateSave(raw: Record<string, unknown>): MetaSave {
     currencies.souls = num(raw.currencies.souls, currencies.souls, 0);
     currencies.gems = num(raw.currencies.gems, currencies.gems, 0);
     currencies.goldKeys = num(raw.currencies.goldKeys, currencies.goldKeys, 0);
+    currencies.glory = num(raw.currencies.glory, currencies.glory, 0);
+  }
+
+  // —— 素材库存（2026-09-19 素材批）：逐键清洗，非负整数兜底 ——
+  const materials = { ...base.materials, ingots: {}, traitstones: {} } as typeof base.materials;
+  if (isObject(raw.materials)) {
+    if (isObject(raw.materials.ingots)) {
+      for (const [key, value] of Object.entries(raw.materials.ingots)) {
+        const n = num(value, 0, 0);
+        if (n > 0) materials.ingots[key] = n;
+      }
+    }
+    if (isObject(raw.materials.traitstones)) {
+      for (const [key, value] of Object.entries(raw.materials.traitstones)) {
+        const n = num(value, 0, 0);
+        if (n > 0) materials.traitstones[key] = n;
+      }
+    }
+    materials.forgeScrolls = num(raw.materials.forgeScrolls, 0, 0);
+  }
+
+  // —— 武器淬炼等级（WEAPON-FORGE-DESIGN F2）：weaponId → 0..20 ——
+  const weaponTempering: Record<string, number> = {};
+  if (isObject(raw.weaponTempering)) {
+    for (const [key, value] of Object.entries(raw.weaponTempering)) {
+      const n = num(value, 0, 0, 20);
+      if (n > 0) weaponTempering[key] = n;
+    }
+  }
+
+  // —— 入侵 PvP 赛季（联赛夹紧 0..9）——
+  const invasion: InvasionState = { ...base.invasion };
+  if (isObject(raw.invasion)) {
+    invasion.league = num(raw.invasion.league, 0, 0, 9);
+    invasion.vp = num(raw.invasion.vp, 0, 0);
+    invasion.weekStart = num(raw.invasion.weekStart, 0, 0);
+    invasion.seed = num(raw.invasion.seed, 0, 0);
+    invasion.lastWinDay = num(raw.invasion.lastWinDay, 0, 0);
+    invasion.battles = num(raw.invasion.battles, 0, 0);
+    invasion.bestLeague = num(raw.invasion.bestLeague, 0, 0, 9);
+    invasion.seasonsPlayed = num(raw.invasion.seasonsPlayed, 0, 0);
+  }
+
+  // —— 每周活动周实例（null = 本周还没打过）——
+  let eventWeek: typeof base.eventWeek = null;
+  if (isObject(raw.eventWeek)) {
+    const claimed = Array.isArray(raw.eventWeek.claimed)
+      ? [...new Set(raw.eventWeek.claimed.filter((v): v is number => typeof v === 'number' && Number.isFinite(v)))]
+      : [];
+    const bought: Record<string, number> = {};
+    if (isObject(raw.eventWeek.bought)) {
+      for (const [key, value] of Object.entries(raw.eventWeek.bought)) {
+        const n = num(value, 0, 0);
+        if (n > 0) bought[key] = n;
+      }
+    }
+    const eventData: Record<string, number> = {};
+    if (isObject(raw.eventWeek.eventData)) {
+      for (const [key, value] of Object.entries(raw.eventWeek.eventData)) {
+        const n = num(value, 0, 0);
+        if (n > 0) eventData[key] = n;
+      }
+    }
+    const runTeam = Array.isArray(raw.eventWeek.runTeam)
+      ? raw.eventWeek.runTeam.flatMap((entry) => {
+          if (!isObject(entry) || typeof entry.externalId !== 'string') return [];
+          return [{ externalId: entry.externalId, hp: num(entry.hp, 0, 0), defeated: bool(entry.defeated, false) }];
+        })
+      : null;
+    eventWeek = {
+      weekStart: num(raw.eventWeek.weekStart, 0, 0),
+      points: num(raw.eventWeek.points, 0, 0),
+      claimed,
+      wins: num(raw.eventWeek.wins, 0, 0),
+      tokens: num(raw.eventWeek.tokens, 0, 0),
+      bought,
+      eventData,
+      runTeam: runTeam && runTeam.length > 0 ? runTeam : null,
+    };
   }
 
   const collection: Record<string, TroopRecord> = {};
@@ -154,6 +306,39 @@ export function hydrateSave(raw: Record<string, unknown>): MetaSave {
         }
       }
     }
+    // 职业等级 / 解锁集 / 天赋点（M5 加性字段；缺漏会导致刷新后职业进度回退）
+    if (isObject(raw.hero.classLevels)) {
+      for (const [key, value] of Object.entries(raw.hero.classLevels)) {
+        if (typeof value === 'number' && Number.isFinite(value) && value >= 0) {
+          hero.classLevels[key] = Math.floor(value);
+        }
+      }
+    }
+    if (Array.isArray(raw.hero.unlockedClasses)) {
+      hero.unlockedClasses = [...new Set(raw.hero.unlockedClasses.filter((c): c is string => typeof c === 'string'))];
+    }
+    if (Array.isArray(raw.hero.unlockedWeapons)) {
+      hero.unlockedWeapons = [
+        ...new Set([...hero.unlockedWeapons, ...raw.hero.unlockedWeapons.filter((w): w is string => typeof w === 'string')]),
+      ];
+    }
+    // 天赋选取（v2）：classId → 长度 7 的档位数组，code 白名单在选取时校验，
+    // 水合只保形状——未知 code 由 battleBridge 过滤（引擎安全忽略）
+    if (isObject(raw.hero.talentPicks)) {
+      for (const [key, value] of Object.entries(raw.hero.talentPicks)) {
+        if (!Array.isArray(value)) continue;
+        hero.talentPicks[key] = value
+          .slice(0, 7)
+          .map((v) => (typeof v === 'string' && v ? v : null));
+        while (hero.talentPicks[key]!.length < 7) hero.talentPicks[key]!.push(null);
+      }
+    }
+    if (isObject(raw.hero.classTraits)) {
+      for (const [key, value] of Object.entries(raw.hero.classTraits)) {
+        if (!Array.isArray(value)) continue;
+        hero.classTraits[key] = [bool(value[0], false), bool(value[1], false), bool(value[2], false)];
+      }
+    }
   }
 
   const arena = { ...base.arena };
@@ -176,7 +361,7 @@ export function hydrateSave(raw: Record<string, unknown>): MetaSave {
   if (Array.isArray(raw.gachaLog)) {
     for (const entry of raw.gachaLog) {
       if (!isObject(entry) || typeof entry.seed !== 'number') continue;
-      if (entry.kind !== 'gem' && entry.kind !== 'gold') continue;
+      if (entry.kind !== 'gem' && entry.kind !== 'gold' && entry.kind !== 'glory') continue;
       if (!Array.isArray(entry.troops)) continue;
       gachaLog.push({
         at: num(entry.at, 0, 0),
@@ -202,6 +387,10 @@ export function hydrateSave(raw: Record<string, unknown>): MetaSave {
     stats,
     dailyFirstWinAt: num(raw.dailyFirstWinAt, 0, 0),
     gachaLog,
+    materials,
+    weaponTempering,
+    invasion,
+    eventWeek,
     settings: { ...base.settings },
   };
 }

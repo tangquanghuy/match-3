@@ -11,6 +11,9 @@
  */
 import { TROOPS, getTroopById, type TroopData } from '../../data/troops';
 import { SeededRNG } from '../../engine/rng';
+import { BaseColor } from '../../engine/types';
+import { stoneColorKeyOf, stoneKey, type MaterialDelta } from '../data/materials';
+import { GLORY_CHEST } from '../data/economy';
 import type { GachaLogEntry, MetaSave } from '../state/schema';
 import { GACHA_LOG_CAP } from '../state/schema';
 import {
@@ -22,7 +25,7 @@ import {
 } from '../data/economy';
 import { fail, type MetaFailure } from '../types';
 import { grantTroop } from './troopProgress';
-import { spend } from './wallet';
+import { earn, earnMaterials, spend } from './wallet';
 
 /** 稀有度档 → 该档全部兵种（数据只读派生，一次构建） */
 const BY_RARITY_IDX: TroopData[][] = (() => {
@@ -30,6 +33,9 @@ const BY_RARITY_IDX: TroopData[][] = (() => {
   for (const troop of TROOPS) bands[Math.min(Math.max(troop.rarityIdx, 0), 5)]!.push(troop);
   return bands;
 })();
+
+/** 六色（荣耀宝箱特质石随机取色用） */
+const ALL_COLORS = [BaseColor.Blue, BaseColor.Green, BaseColor.Red, BaseColor.Yellow, BaseColor.Purple, BaseColor.Brown] as const;
 
 function pickBand(weights: readonly number[], rng: SeededRNG): number {
   const total = weights.reduce((sum, w) => sum + w, 0);
@@ -137,4 +143,53 @@ export function openGoldChest(save: MetaSave, seed: number): GachaDrawResult | M
   const rng = new SeededRNG(seed);
   const { cards, pityUsed } = rollBatch(save, GOLD_CHEST_WEIGHTS, rng, 1, false);
   return draw(save, 'gold', seed, cards, pityUsed, { goldKeys: GOLD_CHEST.keyCost });
+}
+
+export interface GloryChestResult {
+  ok: true;
+  kind: 'glory';
+  spent: { glory: number };
+  /** 出的部队卡（可能为空——荣耀箱以特质石为主） */
+  cards: GachaCard[];
+  goldKeys: number;
+  /** 特质石/圣辉石入账 */
+  stones: MaterialDelta;
+}
+
+/**
+ * 荣耀宝箱（官方 Glory Chest 语义：20 荣耀一开、特质石为主）：
+ * 25% 部队卡（低稀有度带）/ 10% 金钥匙 / 其余特质石包（5% 出圣辉石）。
+ */
+export function openGloryChest(save: MetaSave, seed: number): GloryChestResult | MetaFailure {
+  const paid = spend(save, { glory: GLORY_CHEST.cost });
+  if (!paid.ok) return paid;
+  const rng = new SeededRNG(seed);
+  const cards: GachaCard[] = [];
+  let goldKeys = 0;
+  const stones: MaterialDelta = { traitstones: {} };
+  const roll = rng.next();
+  if (roll < GLORY_CHEST.troopChance) {
+    // 低稀有度带（0~3）出一张卡，与金宝箱池同带宽
+    const band = rng.nextInt(4);
+    cards.push(commit(save, pickTroopInBand(band, rng)));
+  } else if (roll < GLORY_CHEST.troopChance + GLORY_CHEST.goldKeyChance) {
+    goldKeys = 1;
+    earn(save, { goldKeys });
+  } else {
+    const colorKey = stoneColorKeyOf(rng.pick(ALL_COLORS));
+    if (rng.next() < GLORY_CHEST.celestialChance) {
+      stones.traitstones!['celestial'] = 1;
+    } else if (rng.next() < 0.35) {
+      const key = stoneKey('major', colorKey)!;
+      stones.traitstones![key] = (stones.traitstones![key] ?? 0) + 2 + rng.nextInt(2);
+    } else {
+      const key = stoneKey('minor', colorKey)!;
+      stones.traitstones![key] = (stones.traitstones![key] ?? 0) + 3 + rng.nextInt(3);
+    }
+    earnMaterials(save, stones);
+  }
+  const entry: GachaLogEntry = { at: Date.now(), kind: 'glory', seed: seed >>> 0, troops: cards.map((c) => c.troopId) };
+  save.gachaLog.unshift(entry);
+  if (save.gachaLog.length > GACHA_LOG_CAP) save.gachaLog.length = GACHA_LOG_CAP;
+  return { ok: true, kind: 'glory', spent: { glory: GLORY_CHEST.cost }, cards, goldKeys, stones };
 }

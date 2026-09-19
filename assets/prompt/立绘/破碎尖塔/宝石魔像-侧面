@@ -1,0 +1,11 @@
+宝石魔像：
+wlopk2style, Yoneyama Mai Style, 
+western fantasy style, DnD monster manual illustration, painterly fantasy,
+<krea2_prompt>
+  <subject>broad blocky golem of vault stone studded with bezel-set gems, slab fists on stable vault-footed legs, filling most of the frame</subject>
+  <details>twin ruby cabochon eyes, a slab face with a chiseled coin-slot mouth and a jeweled brow cornice, a single great chest ruby, a gold chain belt of strongbox keys</details>
+  <pose>ledger-precise sternness, slab profile crowned in bezels, guard stance, bezel ribs and gem crown clearly readable, one gem fist dragging a chest into place, from side</pose>
+  <environment>photorealistic treasury vault alcove stacked with coin chests and jewel shelves, spilled coins and a tipped strongbox across the floor, compressed framing, no large empty space</environment>
+  <lighting>strong key light on the subject, clear readable details</lighting>
+  <style>clean anime-style monster design over a photorealistic background, vault stone grey and ruby red palette, thumbnail-readable silhouette</style>
+</krea2_prompt>

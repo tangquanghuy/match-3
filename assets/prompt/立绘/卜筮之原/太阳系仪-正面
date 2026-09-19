@@ -1,0 +1,11 @@
+太阳系仪：
+wlopk2style, Yoneyama Mai Style, 
+western fantasy style, DnD monster manual illustration, painterly fantasy,
+<krea2_prompt>
+  <subject>a living orrery, brass armillary build with planet-spheres orbiting on jointed arms, filling most of the frame</subject>
+  <details>a lens face glinting inside the ring cage, arms of graduated brass, planet spheres burnished in their colors</details>
+  <pose>astronomic patient precision, rings tilting into alignment as the spheres lock into one bright row, facing the viewer</pose>
+  <environment>an astronomer's tower room at night, star charts on the walls and a dome slit of sky, compressed framing, no large empty space</environment>
+  <lighting>strong key light on the subject, clear readable details</lighting>
+  <style>clean anime-style monster design over a photorealistic background, brass armillary gold, sphere enamel blue, tower dark wood palette, thumbnail-readable silhouette</style>
+</krea2_prompt>

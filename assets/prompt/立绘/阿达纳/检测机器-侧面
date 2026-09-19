@@ -1,0 +1,11 @@
+检测机器：
+wlopk2style, Yoneyama Mai Style, 
+western fantasy style, DnD monster manual illustration, painterly fantasy,
+<krea2_prompt>
+  <subject>a guild winding-marshal construct, upright lectern build on a trundle base with crank arms for winding keys and a great brass dial face, filling most of the frame</subject>
+  <details>a ground-glass monocle eye swiveling on its brass arm, the dial needle ticking across stamped charge marks, felt-padded crank grips, a guild seal riveted to the lectern front</details>
+  <pose>fussy bureaucratic warmth, rolling inspection round along the winding posts, dial face and crank arms clearly readable, trundle wheels clicking the flagstone joints, from side</pose>
+  <environment>photorealistic gnome quarter lane at lamplight evening, winding posts and mana-lamp stands ranked along the cobbles, tool barrows drawn up at the kerb, compressed framing, no large empty space</environment>
+  <lighting>strong key light on the subject, clear readable details</lighting>
+  <style>clean anime-style monster design over a photorealistic background, dial brass, lectern oak, lamp green palette, thumbnail-readable silhouette</style>
+</krea2_prompt>

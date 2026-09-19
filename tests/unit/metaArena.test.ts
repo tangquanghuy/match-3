@@ -87,8 +87,8 @@ describe('报名：本周首场免费 + 宝石报名费', () => {
   });
 });
 
-describe('draft：三轮 3 选 1，每轮保底 1 张 UR+', () => {
-  it('选项确定可复现；每轮必含 UR+；各轮不重复', () => {
+describe('draft：三轮 3 选 1，固定稀有度阶梯（低→中→高档，官方 3C/3R/3UR 结构的六档适配）', () => {
+  it('选项确定可复现；每轮档位落在对应阶梯内；各轮不重复', () => {
     for (let seed = 1; seed <= 20; seed++) {
       const s = save();
       entryArena(s, seed, WEEK1, WEEK1);
@@ -99,14 +99,30 @@ describe('draft：三轮 3 选 1，每轮保底 1 张 UR+', () => {
         expect(b).toEqual(a);
         expect(a.options).toHaveLength(ARENA.choicesPerRound);
         expect(a.round).toBe(round);
-        expect(a.options.some((o) => o.rarityIdx >= ARENA.guaranteeMinIdx)).toBe(true);
-        for (const o of a.options) expect(picked.has(o.troopId)).toBe(false);
+        const band = ARENA.roundBands[round]!;
+        for (const o of a.options) {
+          expect(o.rarityIdx).toBeGreaterThanOrEqual(band.min);
+          expect(o.rarityIdx).toBeLessThanOrEqual(band.max);
+          expect(picked.has(o.troopId)).toBe(false);
+        }
         const r = pickDraftCard(s, a.options[0]!.troopId);
         if (!r.ok) throw new Error(r.message);
         for (const id of r.picked) picked.add(id);
       }
       expect(currentDraftChoices(s)).toBeNull(); // 选满进入编队阶段
       expect(s.arena.activeDraft?.stage).toBe('building');
+    }
+  });
+
+  it('末轮必出 Epic+（阶梯结构自保证，不再依赖随机抬档）', () => {
+    for (let seed = 1; seed <= 20; seed++) {
+      const s = save();
+      entryArena(s, seed, WEEK1, WEEK1);
+      for (let round = 0; round < ARENA.rounds - 1; round++) {
+        pickDraftCard(s, currentDraftChoices(s)!.options[0]!.troopId);
+      }
+      const last = currentDraftChoices(s)!;
+      expect(last.options.some((o) => o.rarityIdx >= 4)).toBe(true);
     }
   });
 
@@ -146,6 +162,8 @@ describe('限定编队与连战', () => {
       const level = ARENA.opponentLevels[wins]!;
       expect(plan.opponents.every((e) => e.level === level)).toBe(true);
       expect(plan.request.playerTeam).toHaveLength(3);
+      // 官方口径：现开赛不吃王国加成/旗帜——请求不带 playerBanner
+      expect(plan.request.playerBanner).toBeUndefined();
       for (const snap of plan.request.playerTeam) {
         const troopId = Number(snap.externalId.split('-')[1]);
         const rarity = getTroopById(troopId)!.rarityIdx;

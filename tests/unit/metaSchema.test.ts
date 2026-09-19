@@ -15,7 +15,7 @@ describe('MetaSave schema v1', () => {
   it('新档默认：初始货币 + 空收藏', () => {
     const save = newSave({ now: 0 });
     expect(save.version).toBe(META_SAVE_VERSION);
-    expect(save.currencies).toEqual(STARTING_CURRENCIES);
+    expect(save.currencies).toEqual({ ...STARTING_CURRENCIES, glory: 0 });
     expect(save.collection).toEqual({});
     expect(save.teams).toEqual([]);
     expect(save.hero.level).toBe(1);
@@ -42,7 +42,7 @@ describe('MetaSave schema v1', () => {
 
   it('hydrateSave：缺节补默认（节级降级重建）', () => {
     const save = hydrateSave({ version: 1 });
-    expect(save.currencies).toEqual(STARTING_CURRENCIES);
+    expect(save.currencies).toEqual({ ...STARTING_CURRENCIES, glory: 0 });
     expect(save.hero.level).toBe(1);
     expect(save.arena.activeDraft).toBeNull();
     expect(save.stats).toEqual({ battlesWon: 0, battlesLost: 0, soulsEarned: 0, goldEarned: 0 });

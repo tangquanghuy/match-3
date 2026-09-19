@@ -1,0 +1,22 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>破晓之誓 · Chronicals of Dawn</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&family=Oswald:wght@500;600&display=swap" rel="stylesheet" />
+  <style>
+    html, body { margin: 0; padding: 0; width: 100%; height: 100%; min-height: 100dvh; overflow: hidden; background: #0e0e18; }
+    /* meta 屏（DOM/CSS）与战斗场景（Pixi 全屏接管）互斥显示 */
+    #battle-root { position: fixed; inset: 0; z-index: 50; background: #0e0e16; display: grid; place-items: center; }
+    #battle-root[hidden] { display: none; }
+  </style>
+</head>
+<body>
+  <div class="viewport"><div class="stage" id="stage"></div></div>
+  <div id="battle-root" hidden></div>
+  <script type="module" src="/src/meta/shell/gameMain.ts"></script>
+</body>
+</html>

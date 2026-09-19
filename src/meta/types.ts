@@ -7,8 +7,8 @@
  *    供 UI 层做「校验规则可见」的展示（ASSETS-NEEDED.md §6.3），不许只靠 alert。
  */
 
-/** 货币四件套（裁定③：宝石=抽卡货币，只产出于玩法，无内购） */
-export type CurrencyKey = 'gold' | 'souls' | 'gems' | 'goldKeys';
+/** 货币五件套（裁定③：宝石=抽卡货币，只产出于玩法，无内购；glory=荣耀，入侵 PvP 主产） */
+export type CurrencyKey = 'gold' | 'souls' | 'gems' | 'goldKeys' | 'glory';
 
 /** 一次消耗/收益的账目（缺省币种 = 不涉及；数值恒为正，方向由操作名决定） */
 export type CurrencyDelta = Partial<Record<CurrencyKey, number>>;
@@ -26,7 +26,8 @@ export type MetaErrorCode =
   | 'PREREQ_LOCKED' // 前置特质未解锁 / 职业或武器未达到解锁条件
   | 'ALREADY_UNLOCKED' // 特质已解锁
   | 'LOCKED' // 分解保护中
-  | 'NO_TEAM'; // 没有可用出战队伍
+  | 'NO_TEAM' // 没有可用出战队伍
+  | 'SOLD_OUT'; // 活动商店限量货架已售罄（素材批 2026-09-19）
 
 /** 失败结果：code 供程序分支，message 供界面直接展示 */
 export interface MetaFailure {

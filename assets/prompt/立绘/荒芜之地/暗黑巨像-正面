@@ -1,0 +1,11 @@
+暗黑巨像：
+wlopk2style, Yoneyama Mai Style, 
+western fantasy style, DnD monster manual illustration, painterly fantasy,
+<krea2_prompt>
+  <subject>a monolithic daemon stele, towering slab build with a carved glaring face and rune-grooved flanks, filling most of the frame</subject>
+  <details>a deep furrowed glare across the face, rune grooves weeping black ichor, slab edges chipped like old teeth</details>
+  <pose>carved eternal malice, tipping forward off its plinth in a slow menacing lean, grooves brightening with ichor, facing the viewer</pose>
+  <environment>a stele courtyard of broken plinths at midnight, cracked flagstones and ringed offering gutters, compressed framing, no large empty space</environment>
+  <lighting>strong key light on the subject, clear readable details</lighting>
+  <style>clean anime-style monster design over a photorealistic background, stele black, ichor violet, plinth stone grey palette, thumbnail-readable silhouette</style>
+</krea2_prompt>

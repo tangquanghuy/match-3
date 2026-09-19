@@ -1,5 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { troopStatsAtLevel } from '../../src/data/leveling';
+import { stoneColorKeyOf } from '../../src/meta/data/materials';
+import { BaseColor } from '../../src/engine/types';
 import { getTroopById, knownTroopTypes } from '../../src/data/troops';
 import { validateBattleRequest } from '../../src/session/validateRequest';
 import { TRAIT_LIBRARY } from '../../src/engine/traits';
@@ -26,6 +28,8 @@ describe('troopToSnapshot（养成进度进战斗）', () => {
     const troop = getTroopById(OGRE)!;
     const rec = getRecord(s, OGRE)!;
     expect(troopToSnapshot(troop, rec, 'x').traitIds).toEqual([]);
+    const colorKey = stoneColorKeyOf(troop.manaColors[0] ?? BaseColor.Brown);
+    s.materials.traitstones = { [`minor:${colorKey}`]: 8 };
     unlockTrait(s, OGRE, 1);
     expect(troopToSnapshot(troop, rec, 'x').traitIds).toEqual(['frenzy']);
   });

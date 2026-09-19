@@ -1,0 +1,2287 @@
+```
+<!-- 通用正文美化-外链版
+     基于“正文美化-外链素材版.html”拆分。
+     保留通用正文、图片、主题、设置和自定义角色能力；角色预置表为空。 -->
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="preconnect" href="https://fontsapi.zeoseven.com" crossorigin>
+  <link id="zhenKaiFontStylesheet" rel="preload" as="style" href="https://fontsapi.zeoseven.com/2/main/result.css" crossorigin
+    onload="this.onload=null;this.rel='stylesheet'"
+    onerror="this.rel='stylesheet'">
+  <noscript>
+    <link rel="stylesheet" href="https://fontsapi.zeoseven.com/2/main/result.css" crossorigin>
+  </noscript>
+  <script>
+    (() => {
+      const VALID_THEMES = new Set(['warm-white', 'paper-white', 'dark', 'green']);
+      const savedTheme = localStorage.getItem('kivotos-theme') || localStorage.getItem('theme') || 'warm-white';
+      const initialTheme = VALID_THEMES.has(savedTheme) ? savedTheme : 'warm-white';
+      window.__initialTheme = initialTheme;
+      document.documentElement.style.colorScheme = initialTheme === 'dark' ? 'dark' : 'light';
+    })();
+  </script>
+    <link rel="preconnect" href="https://testingcf.jsdelivr.net" crossorigin>
+  <!-- 这里原本是 22 个内联 <style>（共 171KB）。
+       每条 AI 消息都是一个独立 iframe，内联就等于每层重新解析一遍，所以抽成外链。
+       注意它是渲染阻塞的：取不到时浏览器会以无样式状态渲染正文。 -->
+  <link rel="stylesheet" href="https://testingcf.jsdelivr.net/gh/tangquanghuy/linjiang-glass@main/public/reading/reading.bab922d8.css">
+</head>
+
+<body class="theme-preload render-pending">
+  <script>
+    document.body.setAttribute('data-theme', window.__initialTheme || 'warm-white');
+
+    (() => {
+      const initialFontFamilies = {
+        'theme-default': '',
+        'zhenkai': '"LXGW ZhenKai GB", "LXGW ZhenKai", "Source Han Serif SC", "Songti SC", "STSong", "SimSun", serif',
+        'noto-serif': '"Source Han Serif SC", "Source Han Serif CN", "Noto Serif CJK SC", "Noto Serif SC", "Songti SC", "STSong", serif',
+        'yahei': '"Microsoft YaHei UI", "Microsoft YaHei", "PingFang SC", "Noto Sans SC", sans-serif',
+        'heiti': '"SimHei", "Heiti SC", "Microsoft YaHei UI", sans-serif',
+        'songti': '"SimSun", "Songti SC", "STSong", "Noto Serif SC", serif',
+        'kaiti': '"KaiTi", "Kaiti SC", "STKaiti", "DFKai-SB", serif',
+        'fangsong': '"FangSong", "FangSong_GB2312", "STFangsong", serif'
+      };
+      // 未显式选择过字体时走 'theme-default'（不写内联变量），由各主题自己决定默认字体：
+      // 白昼/纯白/茶色 = 霞鹜臻楷，黑夜 = 系统无衬线
+      const savedFontKey = localStorage.getItem('reading-font-family-v3') || 'theme-default';
+      const initialFontKey = Object.prototype.hasOwnProperty.call(initialFontFamilies, savedFontKey)
+        ? savedFontKey
+        : 'theme-default';
+      const initialFamily = initialFontFamilies[initialFontKey];
+      if (initialFamily) {
+        document.body.style.setProperty('--font-main', initialFamily);
+        document.body.style.setProperty('--serif', initialFamily);
+        document.body.style.setProperty('--kai', initialFamily);
+      }
+      window.__initialReadingFontKey = initialFontKey;
+    })();
+  </script>
+
+  <!-- controls moved inside grimoire-container -->
+
+
+  <div class="grimoire-container">
+    <div class="reading-header-banner" aria-hidden="true"></div>
+    <div class="reading-content" id="readingContent">
+      <div class="inline-controls" id="inlineControls">
+        <!-- 主题切换：桌面端 .theme-switch / .theme-switch__menu 都是 display: contents，
+             四个按钮仍是 .inline-controls 的直接 flex 子项，布局与原来完全一致；
+             窄屏下变成「当前主题」触发按钮 + 竖排下拉菜单。 -->
+        <div class="theme-switch" id="themeSwitch">
+          <button class="control-btn theme-switch__trigger" id="themeMenuTrigger" type="button"
+            aria-haspopup="true" aria-expanded="false" title="切换主题">
+            <span class="theme-switch__label" id="themeMenuLabel">白昼</span>
+            <span class="theme-switch__caret" aria-hidden="true"></span>
+          </button>
+          <div class="theme-switch__menu" id="themeMenu">
+            <button class="control-btn" data-theme-key="warm-white" onclick="setTheme('warm-white')" title="白昼主题">白昼</button>
+            <button class="control-btn" data-theme-key="paper-white" onclick="setTheme('paper-white')" title="纯白高对比主题">纯白</button>
+            <button class="control-btn" data-theme-key="dark" onclick="setTheme('dark')" title="黑夜主题">黑夜</button>
+            <button class="control-btn" data-theme-key="green" onclick="setTheme('green')" title="茶色主题">茶色</button>
+          </div>
+        </div>
+        <button class="control-btn" id="settingsBtn" title="设置">⚙</button>
+      </div>
+      <div class="settings-panel" id="settingsPanel">
+        <div class="settings-option">
+          <div class="settings-label">正文字体大小</div>
+          <div class="settings-actions settings-step-actions">
+            <button class="control-btn settings-step-btn" type="button" onclick="adjustReadingFontSize(-1)" aria-label="减小正文字号">−</button>
+            <button class="control-btn settings-step-btn" type="button" onclick="adjustReadingFontSize(1)" aria-label="增大正文字号">+</button>
+          </div>
+        </div>
+        <div class="settings-option">
+          <div class="settings-label">阅读宽度<span class="settings-note">永久性修改：退出角色卡后仍然生效，直到重新应用酒馆美化</span></div>
+          <div class="settings-width-control">
+            <button class="settings-width-btn" id="readingWidthDecrease" type="button" onclick="adjustReadingWidth(-1)" title="缩窄阅读区域" aria-label="缩窄阅读区域">−</button>
+            <span class="settings-width-value" id="readingWidthValue">最窄</span>
+            <button class="settings-width-btn" id="readingWidthIncrease" type="button" onclick="adjustReadingWidth(1)" title="加宽阅读区域" aria-label="加宽阅读区域">+</button>
+          </div>
+        </div>
+        <div class="settings-option">
+          <div class="settings-label">正文字体</div>
+          <select class="settings-select" id="readingFontSelect">
+            <option value="theme-default" selected>跟随主题</option>
+            <option value="zhenkai">霞鹜臻楷</option>
+            <option value="noto-serif">思源宋体</option>
+            <option value="yahei">微软雅黑</option>
+            <option value="heiti">黑体</option>
+            <option value="songti">宋体</option>
+            <option value="kaiti">楷体</option>
+            <option value="fangsong">仿宋</option>
+          </select>
+        </div>
+        <div class="settings-option">
+          <div class="settings-label">插画大小</div>
+          <div class="settings-actions settings-step-actions">
+            <button class="control-btn settings-step-btn" type="button" onclick="adjustImageSize(-10)" aria-label="缩小插画">−</button>
+            <button class="control-btn settings-step-btn" type="button" onclick="adjustImageSize(10)" aria-label="放大插画">+</button>
+          </div>
+        </div>
+        <div class="settings-option">
+          <div class="settings-label">默认展开插画</div>
+          <div class="toggle-switch" id="imageToggle">
+            <div class="toggle-slider"></div>
+          </div>
+        </div>
+        <div class="settings-option">
+          <div class="settings-label">统一对白字体大小</div>
+          <div class="toggle-switch" id="dialogueFontToggle">
+            <div class="toggle-slider"></div>
+          </div>
+        </div>
+        <div class="settings-option">
+          <div class="settings-label">默认展开心声</div>
+          <div class="toggle-switch" id="innerVoiceToggle">
+            <div class="toggle-slider"></div>
+          </div>
+        </div>
+        <div class="custom-char-section">
+          <div class="custom-char-title">🎭 对白美化角色</div>
+          <div class="custom-char-tab-content active" id="tabCache">
+             <div class="custom-char-hint">缓存库角色保存在浏览器中，加载后直接可用。</div>
+            <div class="custom-char-list" id="cacheCharList"></div>
+            <div id="customCharAddForm" style="display:none;">
+              <div class="custom-char-add-form">
+                <input type="text" id="customCharNameInput" placeholder="角色名称" maxlength="20">
+                <div class="custom-char-avatar-upload">
+                  <img class="custom-char-avatar-preview" id="customCharAvatarPreview" decoding="async">
+                  <button class="custom-char-upload-btn" id="customCharUploadBtn" type="button">📷 上传本地头像</button>
+                  <input type="file" id="customCharFileInput" accept="image/*" style="display:none;">
+                </div>
+                <input type="url" id="customCharAvatarUrlInput" placeholder="或输入头像网络链接（https://...）" autocomplete="off" inputmode="url">
+                <div class="custom-char-storage-hint" id="customCharStorageHint"></div>
+                <div class="custom-char-color-row">
+                  <label>首字染色</label>
+                  <input type="color" id="customCharColorInput" value="#a06050">
+                </div>
+                <div class="custom-char-form-actions">
+                  <button class="custom-char-btn-cancel" onclick="cancelAddCustomChar()">取消</button>
+                  <button class="custom-char-btn-confirm" onclick="confirmAddCustomChar()">添加到缓存</button>
+                </div>
+              </div>
+            </div>
+            <button class="custom-char-add-trigger" id="customCharAddBtn" onclick="showAddCustomCharForm()">+ 新建自定义角色</button>
+          </div>
+        </div>
+      </div>
+      <div class="reading-opening-mark bird-opening-ornament" aria-hidden="true"></div>
+      $1
+      <div class="reading-end-mark" aria-label="正文结束">END</div>
+    </div>
+  </div>
+  <div class="image-modal" id="imageModal">
+    <span class="image-modal-close" id="modalClose">&times;</span>
+    <img id="modalImage" src="" alt="预览图片">
+  </div>
+  <script>
+    // 角色表由浏览器缓存中的自定义角色动态填充。
+    const CHARACTER_CONFIG = {};
+    const BUILTIN_CHAR_NAMES = [];
+
+
+    const AVATAR_CACHE_PREFIX = 'custom_char_avatar_';
+    const CHAR_CACHE_KEY = 'custom_char_cache';
+
+    function getAllCachedChars() {
+      try {
+        const raw = localStorage.getItem(CHAR_CACHE_KEY);
+        return raw ? JSON.parse(raw) : {};
+      } catch (e) { return {}; }
+    }
+
+    function saveCachedChars(chars) {
+      try {
+        localStorage.setItem(CHAR_CACHE_KEY, JSON.stringify(chars));
+        return true;
+      } catch (e) {
+        console.warn('Custom character cache write failed:', e);
+        return false;
+      }
+    }
+
+    function normalizeAvatarNetworkUrl(value) {
+      const raw = String(value || '').trim();
+      if (!raw) return '';
+      try {
+        const url = new URL(raw, window.location.href);
+        return url.protocol === 'https:' || url.protocol === 'http:' ? url.href : '';
+      } catch (e) { return ''; }
+    }
+
+    function isLocalAvatarData(value) {
+      return /^data:image\//i.test(String(value || ''));
+    }
+
+    function estimateAvatarStorageBytes(value) {
+      return String(value || '').length * 2;
+    }
+
+    function getLocalAvatarCacheUsageBytes(excludeName = '') {
+      let total = 0;
+      try {
+        for (let i = 0; i < localStorage.length; i++) {
+          const key = localStorage.key(i) || '';
+          if (!key.startsWith(AVATAR_CACHE_PREFIX)) continue;
+          const name = key.slice(AVATAR_CACHE_PREFIX.length);
+          if (excludeName && name === excludeName) continue;
+          const value = localStorage.getItem(key) || '';
+          if (isLocalAvatarData(value)) total += estimateAvatarStorageBytes(value);
+        }
+      } catch (e) { }
+      return total;
+    }
+
+    function formatAvatarBytes(bytes) {
+      if (bytes < 1024) return bytes + ' B';
+      if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
+      return (bytes / 1024 / 1024).toFixed(2) + ' MB';
+    }
+
+    function updateAvatarStorageHint() {
+      const hint = document.getElementById('customCharStorageHint');
+      if (!hint || typeof AVATAR_CACHE_TOTAL_MAX_BYTES === 'undefined') return;
+      const used = getLocalAvatarCacheUsageBytes();
+      hint.textContent = '\u672c\u5730\u5934\u50cf\u7f13\u5b58\uff1a' + formatAvatarBytes(used) + ' / ' + formatAvatarBytes(AVATAR_CACHE_TOTAL_MAX_BYTES) + '\uff1b\u7f51\u7edc\u94fe\u63a5\u4e0d\u8ba1\u5165\u4e0a\u9650';
+    }
+
+    function saveAvatarToCache(charName, avatarValue) {
+      const value = String(avatarValue || '');
+      if (isLocalAvatarData(value)) {
+        const projected = getLocalAvatarCacheUsageBytes(charName) + estimateAvatarStorageBytes(value);
+        if (projected > AVATAR_CACHE_TOTAL_MAX_BYTES) return { ok: false, reason: 'limit', projected };
+      }
+      try {
+        localStorage.setItem(AVATAR_CACHE_PREFIX + charName, value);
+        return { ok: true };
+      } catch (e) {
+        console.warn('Avatar cache write failed:', e);
+        return { ok: false, reason: 'storage', error: e };
+      }
+    }
+
+    function getAvatarFromCache(charName) {
+      try { return localStorage.getItem(AVATAR_CACHE_PREFIX + charName) || ''; } catch (e) { return ''; }
+    }
+
+    function removeAvatarFromCache(charName) {
+      try { localStorage.removeItem(AVATAR_CACHE_PREFIX + charName); } catch (e) { }
+      updateAvatarStorageHint();
+    }
+
+    // ==================== 浏览器缓存角色 ====================
+    function injectCustomCharCSS(name, color) {
+      if (!color) return;
+      const styleId = 'custom-char-css-' + name;
+      if (document.getElementById(styleId)) document.getElementById(styleId).remove();
+      const style = document.createElement('style');
+      style.id = styleId;
+      const darkColor = lightenColor(color, 50);
+      style.textContent = `.char-${CSS.escape(name)} .character-name .name-main { color: ${color} }
+.name-initial-${CSS.escape(name)} { color: ${color}; }
+body[data-theme="dark"] .char-${CSS.escape(name)} .character-name .name-main { color: ${darkColor} }
+body[data-theme="dark"] .name-initial-${CSS.escape(name)} { color: ${darkColor}; }`;
+      document.head.appendChild(style);
+    }
+
+    function lightenColor(hex, amount) {
+      const num = parseInt(hex.replace('#', ''), 16);
+      let r = Math.min(255, (num >> 16) + amount);
+      let g = Math.min(255, ((num >> 8) & 0xff) + amount);
+      let b = Math.min(255, (num & 0xff) + amount);
+      return '#' + ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1);
+    }
+
+    Object.entries(CHARACTER_CONFIG).forEach(([name, cfg]) => {
+      if (cfg?.color) injectCustomCharCSS(name, cfg.color);
+    });
+
+    // ==================== 加载自定义角色到 CHARACTER_CONFIG ====================
+    // 从浏览器缓存读取自定义角色的头像和颜色
+    function loadCustomCharsIntoConfig() {
+      const cachedChars = getAllCachedChars();
+      Object.keys(cachedChars).forEach(name => {
+        if (BUILTIN_CHAR_NAMES.includes(name) || CHARACTER_CONFIG[name]) return;
+        const cached = cachedChars[name] || {};
+        const avatar = getAvatarFromCache(name);
+        const color = cached.color || '';
+        CHARACTER_CONFIG[name] = { avatar, aliases: [name], given_name: name, color: color || undefined, _custom: true };
+        if (color) injectCustomCharCSS(name, color);
+      });
+    }
+
+    function renderCacheCharList() {
+      const listEl = document.getElementById('cacheCharList');
+      if (!listEl) return;
+      updateAvatarStorageHint();
+      const cachedChars = getAllCachedChars();
+      const names = Object.keys(cachedChars);
+      if (names.length === 0) {
+        listEl.innerHTML = '<div style="text-align:center;color:var(--text-muted);font-size:12px;padding:8px;">缓存库为空，点击下方新建角色</div>';
+        return;
+      }
+      let html = '';
+      names.forEach(name => {
+        const info = cachedChars[name] || {};
+        const avatarSrc = getAvatarFromCache(name);
+        const avatarHtml = avatarSrc
+          ? `<img class="custom-char-avatar-small" src="${avatarSrc}" alt="${name}" loading="lazy" decoding="async">`
+          : `<div class="custom-char-avatar-placeholder-small">🎭</div>`;
+        const colorDot = info.color ? `<span class="custom-char-color-dot" style="background:${info.color}"></span>` : '';
+        html += `<div class="custom-char-item">
+          ${avatarHtml} ${colorDot}
+          <span class="custom-char-name">${name}</span>
+          <button class="custom-char-delete" onclick="deleteCacheChar('${name.replace(/'/g, "\\'")}')" title="从缓存删除">✕</button>
+        </div>`;
+      });
+      listEl.innerHTML = html;
+    }
+
+    function renderCustomCharList() {
+      renderCacheCharList();
+    }
+
+    let _pendingAvatarData = '';
+    let _pendingAvatarKind = '';
+
+    window.showAddCustomCharForm = function () {
+      document.getElementById('customCharAddForm').style.display = 'block';
+      document.getElementById('customCharAddBtn').style.display = 'none';
+      document.getElementById('customCharNameInput').value = '';
+      document.getElementById('customCharColorInput').value = '#a06050';
+      const preview = document.getElementById('customCharAvatarPreview');
+      preview.style.display = 'none';
+      preview.removeAttribute('src');
+      const urlInput = document.getElementById('customCharAvatarUrlInput');
+      if (urlInput) urlInput.value = '';
+      const fileInput = document.getElementById('customCharFileInput');
+      if (fileInput) fileInput.value = '';
+      const uploadBtn = document.getElementById('customCharUploadBtn');
+      if (uploadBtn) uploadBtn.textContent = '📷 上传本地头像';
+      _pendingAvatarData = '';
+      _pendingAvatarKind = '';
+      updateAvatarStorageHint();
+    };
+
+    window.cancelAddCustomChar = function () {
+      document.getElementById('customCharAddForm').style.display = 'none';
+      document.getElementById('customCharAddBtn').style.display = 'block';
+      const preview = document.getElementById('customCharAvatarPreview');
+      preview.removeAttribute('src');
+      preview.style.display = 'none';
+      _pendingAvatarData = '';
+      _pendingAvatarKind = '';
+    };
+
+    window.confirmAddCustomChar = function () {
+      const name = document.getElementById('customCharNameInput').value.trim();
+      if (!name) { showSettingsMessage('请输入角色名称'); return; }
+      if (BUILTIN_CHAR_NAMES.includes(name)) { showSettingsMessage('不能与内置角色同名'); return; }
+      const cachedChars = getAllCachedChars();
+      if (cachedChars[name]) { showSettingsMessage('缓存中已存在该角色'); return; }
+      const urlInput = document.getElementById('customCharAvatarUrlInput');
+      const rawUrl = urlInput ? urlInput.value.trim() : '';
+      const networkUrl = rawUrl ? normalizeAvatarNetworkUrl(rawUrl) : '';
+      if (rawUrl && !networkUrl) { showSettingsMessage('请输入有效的 http/https 头像链接'); return; }
+      const avatarValue = networkUrl || _pendingAvatarData;
+      const avatarKind = networkUrl ? 'url' : _pendingAvatarKind;
+      if (!avatarValue) { showSettingsMessage('请上传头像或输入头像网络链接'); return; }
+      const color = document.getElementById('customCharColorInput').value || '';
+      const avatarSave = saveAvatarToCache(name, avatarValue);
+      if (!avatarSave.ok) {
+        showSettingsMessage(avatarSave.reason === 'limit'
+          ? '本地头像缓存已达 ' + formatAvatarBytes(AVATAR_CACHE_TOTAL_MAX_BYTES) + ' 上限，请删除旧头像或改用网络链接'
+          : '头像缓存写入失败，请清理浏览器存储');
+        updateAvatarStorageHint();
+        return;
+      }
+      cachedChars[name] = { color: color, avatarType: avatarKind || (isLocalAvatarData(avatarValue) ? 'local' : 'url') };
+      CHARACTER_CONFIG[name] = { avatar: avatarValue, aliases: [name], given_name: name, color: color || undefined, _custom: true };
+      if (color) injectCustomCharCSS(name, color);
+      if (!saveCachedChars(cachedChars)) {
+        removeAvatarFromCache(name);
+        delete CHARACTER_CONFIG[name];
+        const failedStyle = document.getElementById('custom-char-css-' + name);
+        if (failedStyle) failedStyle.remove();
+        showSettingsMessage('角色缓存写入失败');
+        return;
+      }
+      renderCacheCharList();
+      cancelAddCustomChar();
+      updateAvatarStorageHint();
+      showSettingsMessage('已保存「' + name + '」到缓存库');
+    };
+
+    window.deleteCacheChar = function (name) {
+      if (BUILTIN_CHAR_NAMES.includes(name)) return;
+      const cachedChars = getAllCachedChars();
+      delete cachedChars[name];
+      saveCachedChars(cachedChars);
+      removeAvatarFromCache(name);
+      delete CHARACTER_CONFIG[name];
+      const styleEl = document.getElementById('custom-char-css-' + name);
+      if (styleEl) styleEl.remove();
+      renderCacheCharList();
+      showSettingsMessage(`已从缓存删除「${name}」`);
+    };
+
+    const AVATAR_UPLOAD_MAX_BYTES = 5 * 1024 * 1024; // 上传文件上限 5MB
+    const AVATAR_STORAGE_TARGET_BYTES = 480 * 1024; // 单头像建议占用，避免撑爆 localStorage
+    const AVATAR_CACHE_TOTAL_MAX_BYTES = 4 * 1024 * 1024;
+    const AVATAR_MAX_DIMENSION = 1024; // 超过该边长才缩放
+    const AVATAR_MIN_DIMENSION = 256; // 压缩兜底最小边长
+
+    function estimateDataUrlBytes(dataUrl) {
+      const commaIndex = dataUrl.indexOf(',');
+      if (commaIndex < 0) return 0;
+      const base64 = dataUrl.slice(commaIndex + 1);
+      const padding = (base64.match(/=+$/) || [''])[0].length;
+      return Math.floor(base64.length * 3 / 4) - padding;
+    }
+
+    function encodeAvatarDataUrl(img) {
+      const srcMaxSide = Math.max(img.width, img.height);
+      let scale = srcMaxSide > AVATAR_MAX_DIMENSION ? AVATAR_MAX_DIMENSION / srcMaxSide : 1;
+      let fallbackDataUrl = '';
+
+      while (scale > 0) {
+        const w = Math.max(1, Math.round(img.width * scale));
+        const h = Math.max(1, Math.round(img.height * scale));
+        const canvas = document.createElement('canvas');
+        canvas.width = w;
+        canvas.height = h;
+        const ctx = canvas.getContext('2d');
+        if (!ctx) break;
+        ctx.imageSmoothingEnabled = true;
+        ctx.imageSmoothingQuality = 'high';
+        ctx.drawImage(img, 0, 0, w, h);
+
+        const qualitySteps = [0.98, 0.95, 0.92, 0.88, 0.84, 0.8];
+        let bestAtThisScale = '';
+        for (const q of qualitySteps) {
+          const candidate = canvas.toDataURL('image/webp', q);
+          bestAtThisScale = candidate;
+          if (estimateDataUrlBytes(candidate) <= AVATAR_STORAGE_TARGET_BYTES) {
+            return candidate;
+          }
+        }
+        fallbackDataUrl = bestAtThisScale;
+
+        if (Math.max(w, h) <= AVATAR_MIN_DIMENSION) break;
+        scale *= 0.85;
+      }
+      return fallbackDataUrl;
+    }
+
+    // 头像上传处理
+    function initAvatarUpload() {
+      const uploadBtn = document.getElementById('customCharUploadBtn');
+      const fileInput = document.getElementById('customCharFileInput');
+      const urlInput = document.getElementById('customCharAvatarUrlInput');
+      const preview = document.getElementById('customCharAvatarPreview');
+      if (!uploadBtn || !fileInput || !preview) return;
+      uploadBtn.addEventListener('click', () => fileInput.click());
+
+      if (urlInput) urlInput.addEventListener('change', function () {
+        const normalized = normalizeAvatarNetworkUrl(this.value);
+        if (!this.value.trim()) {
+          if (_pendingAvatarKind === 'url') {
+            _pendingAvatarData = ''; _pendingAvatarKind = '';
+            preview.removeAttribute('src'); preview.style.display = 'none';
+          }
+          return;
+        }
+        if (!normalized) { showSettingsMessage('请输入有效的 http/https 头像链接'); return; }
+        const probe = new Image();
+        probe.onload = function () {
+          _pendingAvatarData = normalized; _pendingAvatarKind = 'url';
+          preview.src = normalized; preview.style.display = 'block';
+          uploadBtn.textContent = '🌐 已选择网络头像';
+        };
+        probe.onerror = function () { showSettingsMessage('头像链接加载失败，请检查地址'); };
+        probe.src = normalized;
+      });
+
+      fileInput.addEventListener('change', function () {
+        const file = this.files[0];
+        if (!file) return;
+        if (!file.type.startsWith('image/')) { showSettingsMessage('请选择图片文件'); this.value = ''; return; }
+        if (file.size > AVATAR_UPLOAD_MAX_BYTES) { showSettingsMessage('图片不能超过 5MB'); this.value = ''; return; }
+        const reader = new FileReader();
+        reader.onload = function (e) {
+          const img = new Image();
+          img.onload = function () {
+            const original = String(e.target?.result || '');
+            const needTranscode = file.size > AVATAR_STORAGE_TARGET_BYTES || Math.max(img.width, img.height) > AVATAR_MAX_DIMENSION;
+            const encoded = needTranscode ? encodeAvatarDataUrl(img) : original;
+            if (!encoded) { showSettingsMessage('头像处理失败，请换一张图片'); fileInput.value = ''; return; }
+            if (getLocalAvatarCacheUsageBytes() + estimateAvatarStorageBytes(encoded) > AVATAR_CACHE_TOTAL_MAX_BYTES) {
+              showSettingsMessage('本地头像缓存将超过 ' + formatAvatarBytes(AVATAR_CACHE_TOTAL_MAX_BYTES) + '，请删除旧头像或改用网络链接');
+              fileInput.value = ''; return;
+            }
+            _pendingAvatarData = encoded; _pendingAvatarKind = 'local';
+            if (urlInput) urlInput.value = '';
+            preview.src = encoded; preview.style.display = 'block';
+            uploadBtn.textContent = '✅ 已选择本地头像';
+            updateAvatarStorageHint();
+          };
+          img.onerror = function () { showSettingsMessage('无法读取图片，请换一张'); fileInput.value = ''; };
+          img.src = e.target.result;
+        };
+        reader.readAsDataURL(file);
+      });
+    }
+
+    function normalizeDisplayName(raw) {
+      const s = String(raw || '').trim()
+        .replace(/^[\s"'""''「」『』《》〈〉()（）【】\[\]]+|[\s"'""''「」『』《》〈〉()（）【】\[\]]+$/g, '');
+
+      // 1. 优先尝试精确匹配
+      for (const [name, config] of Object.entries(CHARACTER_CONFIG)) {
+        if (config.aliases && config.aliases.some(alias =>
+          alias.toLowerCase() === s.toLowerCase() ||
+          new RegExp(`^${alias}$`, 'i').test(s)
+        )) {
+          return name;
+        }
+      }
+
+      // 2. 尝试模糊匹配（包含别名），取最长匹配
+      // 解决类似“视频中的蕾雅”这样的情况
+      let bestMatch = null;
+      let maxLen = 0;
+
+      for (const [name, config] of Object.entries(CHARACTER_CONFIG)) {
+        if (!config.aliases) continue;
+        for (const alias of config.aliases) {
+          // 跳过单字符别名（如'我'、'你'），避免误匹配
+          if (alias.length < 2) continue;
+          if (s.includes(alias)) {
+            if (alias.length > maxLen) {
+              maxLen = alias.length;
+              bestMatch = name;
+            }
+          }
+        }
+      }
+
+      if (bestMatch) return bestMatch;
+
+      return s || '角色';
+    }
+
+    // Image manifest generated from D:\Code\anchor\SFW and NSFW.
+    const IMAGE_LISTS = {"NSFW": {"东雪莲": {"乳交": [1, 2], "事后口交": [1, 2, 3], "亲吻": [1, 2, 3, 4], "传教士体位做爱": [1, 2, 3, 4], "做爱射精": [1, 2, 3, 4], "做爱高潮": [1, 2, 3, 4, 5], "口交": [1, 2, 3, 4], "后入做爱": [1, 2], "吮吸乳头": [1, 2, 3], "女上位做爱": [1, 2, 3, 4], "射外面事后": [1, 2], "打屁股后入": [1, 2], "抱着摸小穴": [1, 2], "抱腿站着后入": [1, 2, 3], "抱起来做爱": [1, 2], "指交": [1, 2], "掰开小穴": [1, 2, 3], "摸胸": [1, 2, 3], "激烈站着后入": [1, 2, 3, 4], "站着后入": [1, 2, 3], "素股": [1, 2], "背后坐位做爱": [1, 2], "脱衣服": [1, 2, 3, 4], "自己掰开小穴": [1, 2], "自慰": [1, 2], "舔小穴": [1, 2], "足交": [1, 2, 3, 4], "趴着口交": [1, 2], "躺着抬腿做爱": [1, 2]}, "塔菲": {"乳交": [1, 2], "事后口交": [1, 2, 3], "亲吻": [1, 2, 3, 4], "传教士体位做爱": [1, 2, 3, 4], "做爱射精": [1, 2, 3, 4], "做爱高潮": [1, 2, 3, 4, 5], "口交": [1, 2, 3, 4], "后入做爱": [1, 2], "吮吸乳头": [1, 2, 3], "女上位做爱": [1, 2, 3, 4], "射外面事后": [1, 2], "打屁股后入": [1, 2], "抱着摸小穴": [1, 2], "抱腿站着后入": [1, 2, 3], "抱起来做爱": [1, 2], "指交": [1, 2], "掰开小穴": [1, 2, 3], "摸胸": [1, 2, 3], "激烈站着后入": [1, 2, 3, 4], "站着后入": [1, 2, 3], "素股": [1, 2], "背后坐位做爱": [1, 2], "脱衣服": [1, 2, 3, 4], "自己掰开小穴": [1, 2], "自慰": [1, 2], "舔小穴": [1, 2], "足交": [1, 2, 3, 4], "趴着口交": [1, 2], "躺着抬腿做爱": [1, 2]}, "斯黛拉": {"乳交": [1, 2], "事后口交": [1, 2, 3], "亲吻": [1, 2, 3, 4], "传教士体位做爱": [1, 2, 3, 4], "做爱射精": [1, 2, 3, 4], "做爱高潮": [1, 2, 3, 4, 5], "口交": [1, 2, 3, 4], "后入做爱": [1, 2], "吮吸乳头": [1, 2, 3], "女上位做爱": [1, 2, 3, 4], "射外面事后": [1, 2], "打屁股后入": [1, 2], "抱着摸小穴": [1, 2], "抱腿站着后入": [1, 2, 3], "抱起来做爱": [1, 2], "指交": [1, 2], "掰开小穴": [1, 2, 3], "摸胸": [1, 2, 3], "激烈站着后入": [1, 2, 3, 4], "站着后入": [1, 2, 3], "素股": [1, 2], "背后坐位做爱": [1, 2], "脱衣服": [1, 2, 3, 4], "自己掰开小穴": [1, 2], "自慰": [1, 2], "舔小穴": [1, 2], "足交": [1, 2, 3, 4], "趴着口交": [1, 2], "躺着抬腿做爱": [1, 2]}, "时雨羽衣": {"乳交": [1, 2], "事后口交": [1, 2, 3], "亲吻": [1, 2, 3, 4], "传教士体位做爱": [1, 2, 3, 4], "做爱射精": [1, 2, 3, 4], "做爱高潮": [1, 2, 3, 4, 5], "口交": [1, 2, 3, 4], "后入做爱": [1, 2], "吮吸乳头": [1, 2, 3], "女上位做爱": [1, 2, 3, 4], "射外面事后": [1, 2], "打屁股后入": [1, 2], "抱着摸小穴": [1, 2], "抱腿站着后入": [1, 2, 3], "抱起来做爱": [1, 2], "指交": [1, 2], "掰开小穴": [1, 2, 3], "摸胸": [1, 2, 3], "激烈站着后入": [1, 2, 3, 4], "站着后入": [1, 2, 3], "素股": [1, 2], "背后坐位做爱": [1, 2], "脱衣服": [1, 2, 3, 4], "自己掰开小穴": [1, 2], "自慰": [1, 2], "舔小穴": [1, 2], "足交": [1, 2, 3, 4], "趴着口交": [1, 2], "躺着抬腿做爱": [1, 2]}, "沙花叉": {"乳交": [1, 2], "事后口交": [1, 2, 3], "亲吻": [1, 2, 3, 4], "传教士体位做爱": [1, 2, 3, 4], "做爱射精": [1, 2, 3, 4], "做爱高潮": [1, 2, 3, 4, 5], "口交": [1, 2, 3, 4], "后入做爱": [1, 2], "吮吸乳头": [1, 2, 3], "女上位做爱": [1, 2, 3, 4], "射外面事后": [1, 2], "打屁股后入": [1, 2], "抱着摸小穴": [1, 2], "抱腿站着后入": [1, 2, 3], "抱起来做爱": [1, 2], "指交": [1, 2], "掰开小穴": [1, 2, 3], "摸胸": [1, 2, 3], "激烈站着后入": [1, 2, 3, 4], "站着后入": [1, 2, 3], "素股": [1, 2], "背后坐位做爱": [1, 2], "脱衣服": [1, 2, 3, 4], "自己掰开小穴": [1, 2], "自慰": [1, 2], "舔小穴": [1, 2], "足交": [1, 2, 3, 4], "趴着口交": [1, 2], "躺着抬腿做爱": [1, 2]}, "璃亚梦": {"乳交": [1, 2], "事后口交": [1, 2, 3], "亲吻": [1, 2, 3, 4], "传教士体位做爱": [1, 2, 3, 4], "做爱射精": [1, 2, 3, 4], "做爱高潮": [1, 2, 3, 4, 5], "口交": [1, 2, 3, 4], "后入做爱": [1, 2], "吮吸乳头": [1, 2, 3], "女上位做爱": [1, 2, 3, 4], "射外面事后": [1, 2], "打屁股后入": [1, 2], "抱着摸小穴": [1, 2], "抱腿站着后入": [1, 2, 3], "抱起来做爱": [1, 2], "指交": [1, 2], "掰开小穴": [1, 2, 3], "摸胸": [1, 2, 3], "激烈站着后入": [1, 2, 3, 4], "站着后入": [1, 2, 3], "素股": [1, 2], "背后坐位做爱": [1, 2], "脱衣服": [1, 2, 3, 4], "自己掰开小穴": [1, 2], "自慰": [1, 2], "舔小穴": [1, 2], "足交": [1, 2, 3, 4], "趴着口交": [1, 2], "躺着抬腿做爱": [1, 2]}, "红蔷薇": {"乳交": [1, 2], "事后口交": [1, 2, 3], "亲吻": [1, 2, 3, 4], "传教士体位做爱": [1, 2, 3, 4], "做爱射精": [1, 2, 3, 4], "做爱高潮": [1, 2, 3, 4, 5], "口交": [1, 2, 3, 4], "后入做爱": [1, 2], "吮吸乳头": [1, 2, 3], "女上位做爱": [1, 2, 3, 4], "射外面事后": [1, 2], "打屁股后入": [1, 2], "抱着摸小穴": [1, 2], "抱腿站着后入": [1, 2, 3], "抱起来做爱": [1, 2], "指交": [1, 2], "掰开小穴": [1, 2, 3], "摸胸": [1, 2, 3], "激烈站着后入": [1, 2, 3, 4], "站着后入": [1, 2, 3], "素股": [1, 2], "背后坐位做爱": [1, 2], "脱衣服": [1, 2, 3, 4], "自己掰开小穴": [1, 2], "自慰": [1, 2], "舔小穴": [1, 2], "足交": [1, 2, 3, 4], "趴着口交": [1, 2], "躺着抬腿做爱": [1, 2]}}, "SFW": {"东雪莲": {"通用": [1, 2, 3, 4, 5, 6, 7, 8]}, "塔菲": {"通用": [1, 2, 3, 4, 5, 6, 7, 8]}, "斯黛拉": {"通用": [1, 2, 3, 4, 5, 6, 7, 8]}, "时雨羽衣": {"通用": [1, 2, 3, 4, 5, 6, 7, 8]}, "沙花叉": {"通用": [1, 2, 3, 4, 5, 6, 7, 8]}, "璃亚梦": {"通用": [1, 2, 3, 4, 5, 6, 7, 8]}, "红蔷薇": {"通用": [1, 2, 3, 4, 5, 6, 7, 8]}}};
+
+    function findImageListEntry(category, character, sceneType) {
+      const categoryData = IMAGE_LISTS[category];
+      if (!categoryData) return null;
+      const nc = String(character || '').trim().normalize('NFC');
+      const characterKey = Object.keys(categoryData).find(key => {
+        const nk = key.trim().normalize('NFC');
+        return nk === nc || nk.replace(/\s/g, '') === nc.replace(/\s/g, '');
+      });
+      if (!characterKey) return null;
+      const characterData = categoryData[characterKey];
+      const ns = String(sceneType || '').trim().normalize('NFC');
+      const sceneKey = Object.keys(characterData).find(key => {
+        const nk = key.trim().normalize('NFC');
+        return nk === ns || nk.replace(/\s/g, '') === ns.replace(/\s/g, '');
+      });
+      if (!sceneKey) return null;
+      const numbers = Array.isArray(characterData[sceneKey]) ? characterData[sceneKey] : [];
+      return { characterKey, sceneKey, numbers, maxNumber: numbers.length };
+    }
+
+    const CG_UNLOCK_CHANNEL = 'linjiang-cg-unlock';
+
+    function publishCGUnlock(category, entry) {
+      const payload = {
+        channel: CG_UNLOCK_CHANNEL,
+        type: 'record',
+        id: `cg-${Date.now()}-${Math.random().toString(36).slice(2)}`,
+        category,
+        character: entry.characterKey,
+        scene: entry.sceneKey,
+        count: entry.maxNumber
+      };
+      const targets = [];
+      try { if (window.parent) targets.push(window.parent); } catch (e) {}
+      try { if (window.top && !targets.includes(window.top)) targets.push(window.top); } catch (e) {}
+      const send = () => targets.forEach(target => {
+        try { target.postMessage(payload, '*'); } catch (e) {}
+      });
+      send();
+      // 状态栏可能正处于楼层交接，短暂重发；接收端按 id 去重。
+      setTimeout(send, 300);
+      setTimeout(send, 1200);
+    }
+
+    window.recordCGUnlock = function (imgSrc) {
+      try {
+        const parsed = new URL(String(imgSrc || ''), window.location.href);
+        const parts = parsed.pathname.split('/').filter(Boolean);
+        const ci = parts.findIndex(part => part === 'NSFW' || part === 'SFW');
+        if (ci < 0 || ci + 2 >= parts.length) return;
+        const category = parts[ci];
+        const character = safeDecodeURIComponent(parts[ci + 1]);
+        const fileName = safeDecodeURIComponent(parts[ci + 2]).replace(/\.webp$/i, '');
+        const match = fileName.match(/^(.+?)(\d+)$/);
+        if (!match) return;
+        const entry = findImageListEntry(category, character, match[1]);
+        if (!entry || !entry.maxNumber) return;
+        let unlocked = {};
+        try { unlocked = JSON.parse(localStorage.getItem('unlocked_cg') || '{}') || {}; } catch (e) {}
+        if (!unlocked[entry.characterKey]) unlocked[entry.characterKey] = {};
+        const previous = Number(unlocked[entry.characterKey][entry.sceneKey]) || 0;
+        if (previous < entry.maxNumber) {
+          unlocked[entry.characterKey][entry.sceneKey] = entry.maxNumber;
+          try { localStorage.setItem('unlocked_cg', JSON.stringify(unlocked)); } catch (e) {}
+        }
+        // 即使正文自己的 localStorage 已记录，也继续通知 HUD，补齐旧版本漏掉的跨域同步。
+        publishCGUnlock(category, entry);
+      } catch (e) { console.error('CG unlock record failed:', e); }
+    };
+
+    window.refreshImage = function (imageId, event) {
+      const box = document.getElementById(imageId);
+      const img = box && box.querySelector('img');
+      if (!img) return;
+      const button = event && event.target.closest('.image-refresh-btn');
+      if (button) { button.style.transform = 'rotate(360deg)'; setTimeout(() => button.style.transform = '', 500); }
+      const restore = () => { img.style.opacity = '1'; };
+      img.style.opacity = '0.5';
+      try {
+        const parts = (img.currentSrc || img.src).split('/');
+        const ci = parts.findIndex(part => part === 'NSFW' || part === 'SFW');
+        if (ci < 0 || ci + 2 >= parts.length) { restore(); return; }
+        const character = safeDecodeURIComponent(parts[ci + 1]);
+        const fileName = safeDecodeURIComponent(parts[ci + 2]).replace(/\.webp(?:[?#].*)?$/i, '');
+        const match = fileName.match(/^(.+?)(\d+)$/);
+        const type = match ? match[1] : fileName;
+        const current = match ? Number.parseInt(match[2], 10) : 0;
+        const entry = findImageListEntry(parts[ci], character, type);
+        if (!entry || !entry.maxNumber) { restore(); return; }
+        const pool = entry.numbers.filter(n => n !== current);
+        const choices = pool.length ? pool : entry.numbers;
+        const next = choices[Math.floor(Math.random() * choices.length)];
+        parts[ci + 2] = encodeURIComponent(type + next + '.webp');
+        const onLoad = () => { cleanup(); restore(); img.style.width = imageSize + '%'; img.style.maxWidth = imageSize + '%'; recordCGUnlock(img.currentSrc || img.src); };
+        const onError = () => { cleanup(); restore(); };
+        const cleanup = () => { img.removeEventListener('load', onLoad); img.removeEventListener('error', onError); };
+        img.addEventListener('load', onLoad, { once: true });
+        img.addEventListener('error', onError, { once: true });
+        img.src = parts.join('/');
+      } catch (e) { restore(); console.error('Image refresh failed:', e); }
+    };
+
+    function safeDecodeURIComponent(str) {
+      try { return decodeURIComponent(str); } catch (e) {
+        try { return decodeURI(str); } catch (e2) { return str; }
+      }
+    }
+
+    function escapeHtmlText(text) {
+      const div = document.createElement('div');
+      div.textContent = decodeHtmlEntities(String(text || ''));
+      return div.innerHTML;
+    }
+
+    function escapeHtmlAttr(text) {
+      const div = document.createElement('div');
+      div.setAttribute('data-value', decodeHtmlEntities(String(text || '')));
+      const match = div.outerHTML.match(/data-value="([^"]*)"/);
+      return match ? match[1] : '';
+    }
+
+    function generateStyledNameHtml(config, normalizedName) {
+      if (!config) {
+        return `<span class="name-main">${normalizedName}</span>`;
+      }
+
+      // 获取首字染色CSS类名
+      const initialClass = `name-initial name-initial-${normalizedName}`;
+      const isEnlarge = config.enlargeInitial === true;
+
+      if (config.family_name) {
+        const fName = config.family_name;
+        const gName = config.given_name;
+        if (isEnlarge) {
+          // 初濑伊纲特殊：初字放大染色，濑正常，伊字只放大不染色，纲正常
+          let html = `<span class="${initialClass} name-initial-enlarge">${fName[0]}</span>`;
+          if (fName.length > 1) html += `<span class="name-normal">${fName.slice(1)}</span>`;
+          html += `<span class="name-initial-enlarge" style="font-weight:900">${gName[0]}</span>`;
+          if (gName.length > 1) html += `<span class="name-normal">${gName.slice(1)}</span>`;
+          return html;
+        } else {
+          // 普通有姓氏角色：姓氏首字染色
+          let html = `<span class="${initialClass}">${fName[0]}</span>`;
+          if (fName.length > 1) html += `<span class="name-normal">${fName.slice(1)}</span>`;
+          html += `<span class="name-normal">${gName}</span>`;
+          return html;
+        }
+      } else if (config.given_name) {
+        const gName = config.given_name;
+        // 首字染色
+        let html = `<span class="${initialClass}">${gName[0]}</span>`;
+        if (gName.length > 1) html += `<span class="name-normal">${gName.slice(1)}</span>`;
+        return html;
+      } else {
+        if (normalizedName.length > 0) {
+          return `<span class="${initialClass}">${normalizedName[0]}</span><span class="name-normal">${normalizedName.slice(1)}</span>`;
+        }
+        return `<span class="name-main">${normalizedName}</span>`;
+      }
+    }
+
+    // 创建角色对话元素（增强版）
+    function createDialogueElement(name, dialogue, skipProcess = false) {
+      const normalizedName = normalizeDisplayName(name);
+
+      const config = CHARACTER_CONFIG[normalizedName];
+      const avatarHtml = config && config.avatar
+        ? `<img class="character-avatar" src="${config.avatar}" alt="${normalizedName}" loading="lazy" decoding="async">`
+        : `<div class="character-avatar-placeholder">👤</div>`;
+
+      // 强制移除所有花括号内容（角色名标记）
+      dialogue = dialogue.replace(/\{[^}]+\}/g, '');
+
+      const processedDialogue = skipProcess ? dialogue : processDialogueContent(dialogue);
+      const nameHtml = generateStyledNameHtml(config, normalizedName);
+
+      return `<div class="dialogue-container char-${normalizedName}">
+        <div class="dialogue-bubble">
+          <div class="avatar-side">
+            ${avatarHtml}
+          </div>
+          <div class="content-side">
+            <div class="character-name">${nameHtml}</div>
+            <div class="bubble-text">${processedDialogue}</div>
+          </div>
+        </div>
+      </div>`;
+    }
+
+    // 处理对话内容（支持双语格式）
+    // Format *...* inside dialogue as darker action/narration text.
+    // Keep **...** untouched for the existing global asterisk cleanup.
+    function formatDialogueEmphasis(html) {
+      const emRegex = /(?<!\*)\*(?!\*)([^*\n]+?)\*(?!\*)/g;
+      return String(html || '').replace(emRegex, (match, inner) => {
+        return `<em class="dialogue-em">${inner}</em>`;
+      });
+    }
+
+    function processDialogueContent(dialogue) {
+      // 移除对话内容中的角色名标记 {角色名}
+      dialogue = dialogue.replace(/\{[^}]+\}/g, '').trim();
+
+      // 支持多种双语格式：
+      // 「日文」（中文）、「日文」(中文)、『日文』（中文）、【日文】（中文）
+      const patterns = [
+        { regex: /「([^」]+)」（([^）]+)）/g, type: 'standard' },
+        { regex: /「([^」]+)」\(([^)]+)\)/g, type: 'halfwidth' },
+        { regex: /『([^』]+)』（([^）]+)）/g, type: 'alternate' },
+        { regex: /【([^】]+)】（([^）]+)）/g, type: 'square' }
+      ];
+
+      let result = dialogue;
+      patterns.forEach(({ regex }) => {
+        result = result.replace(regex, (match, text1, text2) => {
+          return `<div class="bilingual-dialogue">
+        <div class="primary-text">「${text1}」</div>
+        <div class="dialogue-divider"></div>
+        <div class="secondary-text">（${text2}）</div>
+      </div>`;
+        });
+      });
+
+      // 如果没有双语格式，且不包含对话引号，则加上引号
+      if (result === dialogue &&
+        !dialogue.includes('「') && !dialogue.includes('『') &&
+        !dialogue.includes('【')) {
+        result = `「${dialogue}」`;
+      }
+
+      return formatDialogueEmphasis(result);
+    }
+
+    function wrapInlineDialogueQuote(segment) {
+      if (!segment) return '';
+      const pairs = {
+        '「': '」',
+        '『': '』',
+        '【': '】',
+        '“': '”',
+        '"': '"'
+      };
+      const open = segment[0];
+      const close = segment[segment.length - 1];
+      const expectedClose = pairs[open];
+      if (!expectedClose || expectedClose !== close || segment.length < 2) {
+        return escapeHtmlText(segment);
+      }
+      const inner = segment.slice(1, -1);
+      return `<span class="inline-dialogue-quote"><span class="quote-mark">${escapeHtmlText(open)}</span>${escapeHtmlText(inner)}<span class="quote-mark">${escapeHtmlText(close)}</span></span>`;
+    }
+
+    // 非对白正文里的 *...* 旁白强调：转义后包进斜体+变暗的 <em>。
+    // 用负向断言避开 **加粗**（双星号仍交给 removeAsterisks 清理），
+    // 星号内不允许换行/星号，未配对的孤立星号原样转义输出。
+    function escapeWithNarrationEmphasis(text) {
+      const src = String(text || '');
+      const emRegex = /(?<!\*)\*(?!\*)([^*\n]+?)\*(?!\*)/g;
+      let out = '';
+      let last = 0;
+      let m;
+      while ((m = emRegex.exec(src)) !== null) {
+        out += escapeHtmlText(src.slice(last, m.index));
+        out += '<em class="narration-em">' + escapeHtmlText(m[1]) + '</em>';
+        last = m.index + m[0].length;
+      }
+      out += escapeHtmlText(src.slice(last));
+      return out;
+    }
+
+    function highlightInlineDialogueQuotes(text) {
+      const source = decodeHtmlEntities(String(text || ''));
+      const quoteRegex = /「[^」\n]+」|『[^』\n]+』|【[^】\n]+】|“[^”\n]+”|"[^"\n]+"/g;
+      let result = '';
+      let lastIndex = 0;
+      let match;
+
+      while ((match = quoteRegex.exec(source)) !== null) {
+        result += escapeWithNarrationEmphasis(source.slice(lastIndex, match.index));
+        result += wrapInlineDialogueQuote(match[0]);
+        lastIndex = match.index + match[0].length;
+      }
+
+      result += escapeWithNarrationEmphasis(source.slice(lastIndex));
+      return result;
+    }
+
+
+    const AVATAR_MODAL_COVER_EXCLUDED_NAMES = new Set();
+
+    function toCoverImageUrl(avatarSrc) {
+      return String(avatarSrc || '')
+        .replace('/%E5%A4%B4%E5%83%8F/', '/%E5%B0%81%E9%9D%A2/')
+        .replace(/\/头像\//g, '/封面/');
+    }
+
+    function resolveModalImageSource(clickedImg) {
+      const fallbackSrc = clickedImg.currentSrc || clickedImg.src;
+      if (!clickedImg.classList?.contains('character-avatar')) {
+        return { src: fallbackSrc, fallbackSrc };
+      }
+
+      const charName = normalizeDisplayName(clickedImg.getAttribute('alt') || '');
+      if (!charName || AVATAR_MODAL_COVER_EXCLUDED_NAMES.has(charName)) {
+        return { src: fallbackSrc, fallbackSrc };
+      }
+
+      const coverSrc = toCoverImageUrl(fallbackSrc);
+      return {
+        src: coverSrc && coverSrc !== fallbackSrc ? coverSrc : fallbackSrc,
+        fallbackSrc
+      };
+    }
+
+    document.addEventListener('click', function (e) {
+      if (e.target.tagName === 'IMG' && e.target.closest('.reading-content')
+        && !e.target.closest('.st-chatu8-image-container, .st-chatu8-image-span, span[data-request-id]')) {
+        const modal = document.getElementById('imageModal');
+        const modalImage = document.getElementById('modalImage');
+        const modalImageSource = resolveModalImageSource(e.target);
+
+        // 被点击图片在文档中的绝对位置
+        const imgRect = e.target.getBoundingClientRect();
+        const scrollY = window.pageYOffset || document.documentElement.scrollTop || document.body.scrollTop || 0;
+        const imgTopAbs = imgRect.top + scrollY;
+        const imgCenterAbs = imgTopAbs + imgRect.height / 2;
+
+        // modal的top定位到被点击图片的位置附近
+        // 预估modal内容高度，让modal居中于点击图片的中心
+        // 先用一个合理的估算值，后续在图片加载后可以微调
+        const estimatedH = Math.min(imgRect.height * 1.5, window.innerHeight * 0.8);
+        let modalTop = imgCenterAbs - estimatedH / 2;
+        if (modalTop < 0) modalTop = 0;
+
+        modal.style.top = modalTop + 'px';
+        modal.style.height = Math.max(estimatedH, 400) + 'px';
+        modal.classList.add('active');
+
+        // 图片加载完成后，根据实际高度重新调整modal位置
+        const adjustPosition = () => {
+          const actualH = Math.max(modalImage.offsetHeight + 40, 400);
+          let adjustedTop = imgCenterAbs - actualH / 2;
+          if (adjustedTop < 0) adjustedTop = 0;
+          modal.style.top = adjustedTop + 'px';
+          modal.style.height = actualH + 'px';
+        };
+
+        modalImage.onload = adjustPosition;
+        modalImage.onerror = () => {
+          if (modalImageSource.src !== modalImageSource.fallbackSrc) {
+            modalImage.onerror = null;
+            modalImage.onload = adjustPosition;
+            modalImage.src = modalImageSource.fallbackSrc;
+          } else {
+            adjustPosition();
+          }
+        };
+
+        modalImage.src = modalImageSource.src;
+        modalImage.alt = e.target.alt;
+
+        if (modalImage.complete && modalImage.naturalHeight > 0) {
+          requestAnimationFrame(adjustPosition);
+        }
+      }
+    });
+
+    const closeModal = () => {
+      const modal = document.getElementById('imageModal');
+      const modalImage = document.getElementById('modalImage');
+      modal.classList.remove('active');
+      modal.style.top = '';
+      modal.style.height = '';
+      if (modalImage) {
+        modalImage.onload = null;
+        modalImage.onerror = null;
+        modalImage.removeAttribute('src');
+        modalImage.alt = '';
+      }
+    };
+    document.getElementById('modalClose')?.addEventListener('click', closeModal);
+    document.getElementById('imageModal')?.addEventListener('click', function (e) {
+      if (e.target === this || e.target.id === 'modalImage') closeModal();
+    });
+    document.addEventListener('keydown', function (e) { if (e.key === 'Escape') closeModal(); });
+
+
+    // Unsupported RPG tags are intentionally left as ordinary text.
+
+    function stripNowPlotTags(text) {
+      return String(text || '').replace(/<\/?\s*now_plot\s*>/gi, '');
+    }
+
+    function processTextContent() {
+      const contentDiv = document.getElementById('readingContent');
+      if (!contentDiv) return;
+
+      let initialHtml = stripNowPlotTags(contentDiv.innerHTML).trim();
+      if (!initialHtml) return;
+
+      // === 保护 markdown 代码块围栏 ```...``` ===
+      // 代码块内的 <div>/<style> 等会被浏览器当作真实DOM解析并被后续HTML块提取逻辑抽走，
+      // 破坏正文结构。此处先在字符串层面把代码块替换为纯文本占位符，最后再还原为转义后的 <pre><code>。
+      const fencedCodeBlocks = [];
+      initialHtml = initialHtml.replace(/```[\s\S]*?```/g, (block) => {
+        const ph = 'RPCODEFENCE' + fencedCodeBlocks.length + 'FENCEEND';
+        fencedCodeBlocks.push(block);
+        return ph;
+      });
+
+      const workDiv = document.createElement('div');
+      workDiv.innerHTML = initialHtml;
+      contentDiv.setAttribute('aria-busy', 'true');
+      try {
+
+      // === Phase 1: DOM操作 - 提取HTML块(style+div / 顶层自定义HTML卡片)，保留原始DOM元素 ===
+      const preservedBlocks = [];
+      let preservedBlockIndex = 0;
+      const standaloneHtmlBlockSelector = [
+        ':scope > div[style]',
+        ':scope > div[class]',
+        ':scope > div[data-preserve-html]',
+        ':scope > section[style]',
+        ':scope > section[class]',
+        ':scope > section[data-preserve-html]',
+        ':scope > article[style]',
+        ':scope > article[class]',
+        ':scope > article[data-preserve-html]',
+        ':scope > blockquote[style]',
+        ':scope > blockquote[class]',
+        ':scope > blockquote[data-preserve-html]',
+        ':scope > figure[style]',
+        ':scope > figure[class]',
+        ':scope > figure[data-preserve-html]',
+        ':scope > table[style]',
+        ':scope > table[class]',
+        ':scope > table[data-preserve-html]',
+        ':scope > button',
+        ':scope > a',
+        ':scope > input',
+        ':scope > textarea',
+        ':scope > select'
+      ].join(', ');
+      const styleEls = Array.from(workDiv.querySelectorAll(':scope > style'));
+      for (let si = 0; si < styleEls.length; si++) {
+        const styleEl = styleEls[si];
+        const scopeId = 'shb-' + Math.random().toString(36).substr(2, 6);
+        styleEl.textContent = scopeCssSelectors(styleEl.textContent, scopeId);
+        // 找到紧跟的div兄弟元素
+        let nextEl = styleEl.nextSibling;
+        while (nextEl && ((nextEl.nodeType === 3 && !nextEl.textContent.trim()) ||
+          (nextEl.nodeType === 1 && nextEl.tagName === 'BR'))) {
+          nextEl = nextEl.nextSibling;
+        }
+        const wrapper = document.createElement('div');
+        wrapper.id = scopeId;
+        wrapper.className = 'scoped-html-block';
+        // 插入占位符文本
+        const ph = '\n___HTMLBLOCK_' + (preservedBlockIndex++) + '___\n';
+        workDiv.insertBefore(document.createTextNode(ph), styleEl);
+        // 清理style和div之间的空白/BR
+        let cur = styleEl.nextSibling;
+        while (cur && cur !== nextEl) {
+          const nx = cur.nextSibling;
+          if ((cur.nodeType === 3 && !cur.textContent.trim()) || (cur.nodeType === 1 && cur.tagName === 'BR'))
+            workDiv.removeChild(cur);
+          cur = nx;
+        }
+        wrapper.appendChild(styleEl);
+        if (nextEl && nextEl.nodeType === 1 && nextEl.tagName === 'DIV') {
+          neutralizeFloatingRoot(nextEl);
+          wrapper.appendChild(nextEl);
+        }
+        preservedBlocks.push({ ph: ph.trim(), wrapper: wrapper });
+      }
+
+      // 顶层自定义HTML块默认保留，避免在 processParagraphs 中被当作普通正文剥离标签。
+      Array.from(workDiv.querySelectorAll(standaloneHtmlBlockSelector)).forEach(blockEl => {
+        if (blockEl.parentNode !== workDiv) return;
+        neutralizeFloatingRoot(blockEl);
+        const ph = '\n___HTMLBLOCK_' + (preservedBlockIndex++) + '___\n';
+        workDiv.insertBefore(document.createTextNode(ph), blockEl);
+        workDiv.removeChild(blockEl);
+        preservedBlocks.push({ ph: ph.trim(), wrapper: blockEl });
+      });
+
+      // 保护第三方生图按钮，保留其原始节点及 addEventListener 监听器
+      // 注意：workDiv 是 contentDiv.innerHTML 重新解析的克隆节点，监听器已丢失；
+      // 必须用 contentDiv 里的【原始按钮】作为 wrapper，replaceChildren 移动节点时监听器才保留。
+      // contentDiv 与 workDiv 同源，querySelectorAll 返回数量与文档序一致，按索引一一配对。
+      const pluginButtonSelector = [
+        'button.image-tag-button',
+        'button.st-chatu8-image-button',
+        'button[data-image-tag]',
+        'button[data-link][data-request-id]'
+      ].join(', ');
+      const origButtons = Array.from(contentDiv.querySelectorAll(pluginButtonSelector));
+      const cloneButtons = Array.from(workDiv.querySelectorAll(pluginButtonSelector));
+      const n = Math.min(origButtons.length, cloneButtons.length);
+      for (let bi = 0; bi < n; bi++) {
+        const cloneBtn = cloneButtons[bi];
+        const origBtn = origButtons[bi];
+        if (!cloneBtn || !cloneBtn.parentNode) continue;
+        const ph = '\n___HTMLBLOCK_' + (preservedBlockIndex++) + '___\n';
+        cloneBtn.parentNode.insertBefore(document.createTextNode(ph), cloneBtn);
+        cloneBtn.parentNode.removeChild(cloneBtn);
+        preservedBlocks.push({ ph: ph.trim(), wrapper: origBtn });
+      }
+
+      // 保护图片占位 span（生图回填目标），保留原始节点及 data-request-id
+      // 生图完成后回调按 span[data-request-id] 查找回填目标；若 span 被 replaceChildren
+      // 克隆替换、且因 <image>-><img> 解析错位，回填会失败。同样按索引保护原始 span。
+      const pluginSpanSelector = '.st-chatu8-image-span, span[data-request-id]';
+      const origSpans = Array.from(contentDiv.querySelectorAll(pluginSpanSelector));
+      const cloneSpans = Array.from(workDiv.querySelectorAll(pluginSpanSelector));
+      const ns = Math.min(origSpans.length, cloneSpans.length);
+      for (let si = 0; si < ns; si++) {
+        const cloneSpan = cloneSpans[si];
+        const origSpan = origSpans[si];
+        if (!cloneSpan || !cloneSpan.parentNode) continue;
+        const ph = '\n___HTMLBLOCK_' + (preservedBlockIndex++) + '___\n';
+        cloneSpan.parentNode.insertBefore(document.createTextNode(ph), cloneSpan);
+        cloneSpan.parentNode.removeChild(cloneSpan);
+        preservedBlocks.push({ ph: ph.trim(), wrapper: origSpan });
+      }
+
+      // === Phase 2: 读取innerHTML（HTML块已被替换为文本占位符）===
+      let rawText = workDiv.innerHTML.trim();
+      if (!rawText) return;
+
+      // 解码HTML实体，使转义标签（如 &lt;img&gt;）可被后续逻辑识别
+      rawText = decodeHtmlEntities(rawText);
+
+      // 标签匹配：仅处理正文图片标签。
+      const tagPatterns = [
+        { regex: /<Image>([\s\S]*?)<\/Image>/gi, type: 'image-tag' },
+        { regex: /<pic>([\s\S]*?)<\/pic>/gi, type: 'image-tag' },
+        { regex: /<img\b[^>]*>/gi, type: 'html-img' }
+      ];
+      const matches = [];
+      if (rawText.includes('<')) {
+        tagPatterns.forEach(config => {
+          let match;
+          config.regex.lastIndex = 0;
+          while ((match = config.regex.exec(rawText)) !== null) {
+            if (config.type === 'image-tag') {
+              matches.push({ index: match.index, length: match[0].length, content: match[1].trim(), raw: match[0], type: 'image-tag' });
+            } else if (config.type === 'html-img') {
+              matches.push({ index: match.index, length: match[0].length, content: match[0], type: 'html-img' });
+            }
+          }
+        });
+      }
+
+      matches.sort((a, b) => a.index - b.index);
+      // 去重：移除被更大匹配包含的重叠项
+      for (let i = matches.length - 1; i > 0; i--) {
+        const prev = matches[i - 1];
+        if (matches[i].index < prev.index + prev.length) {
+          if (matches[i].length > prev.length) matches.splice(i - 1, 1);
+          else matches.splice(i, 1);
+        }
+      }
+
+      // === Phase 2: 文本处理 - 只处理受支持标签，占位符原样保留 ===
+      const htmlParts = [];
+      let lastIndex = 0;
+      // 单个标签渲染异常时退回普通文本排版。
+      const renderTag = (match) => {
+        try {
+          if (match.type === 'image-tag') return renderImageTag(match);
+          if (match.type === 'html-img') return createInteractiveImageContainer(match.content);
+        } catch (err) {
+          console.error('[正文美化] 标签渲染失败，已退回纯文本：' + match.type, err);
+        }
+        return processParagraphs(match.raw || match.content || '');
+      };
+      matches.forEach(match => {
+        const beforeText = rawText.substring(lastIndex, match.index);
+        if (beforeText.trim()) htmlParts.push(processParagraphs(beforeText));
+        htmlParts.push(renderTag(match));
+        lastIndex = match.index + match.length;
+      });
+      const remainingText = rawText.substring(lastIndex);
+      if (remainingText.trim()) htmlParts.push(processParagraphs(remainingText));
+      workDiv.innerHTML = htmlParts.join('');
+
+      // === Phase 3: 恢复保存的HTML块 - 将占位符替换为原始DOM元素 ===
+      if (preservedBlocks.length > 0) {
+        const walker = document.createTreeWalker(workDiv, NodeFilter.SHOW_TEXT, null, false);
+        const textNodes = [];
+        let node;
+        while ((node = walker.nextNode())) textNodes.push(node);
+        for (const block of preservedBlocks) {
+          for (const tn of textNodes) {
+            if (tn.textContent.includes(block.ph)) {
+              const parent = tn.parentNode;
+              const trimmedContent = tn.textContent.replace(block.ph, '').trim();
+              // 如果占位符独占一个<p>标签（内容只有占位符），替换整个<p>
+              if (parent.tagName === 'P' && !trimmedContent) {
+                parent.parentNode.insertBefore(block.wrapper, parent);
+                parent.parentNode.removeChild(parent);
+              } else {
+                // 其他情况：在文本节点位置插入保存的DOM元素
+                const parts = tn.textContent.split(block.ph);
+                if (parts[0]) parent.insertBefore(document.createTextNode(parts[0]), tn);
+                parent.insertBefore(block.wrapper, tn);
+                if (parts[1]) parent.insertBefore(document.createTextNode(parts[1]), tn);
+                parent.removeChild(tn);
+              }
+              break;
+            }
+          }
+        }
+      }
+
+      // === 还原被保护的代码块占位符为转义后的 <pre><code> ===
+      if (fencedCodeBlocks.length > 0) {
+        const walker = document.createTreeWalker(workDiv, NodeFilter.SHOW_TEXT, null, false);
+        const textNodes = [];
+        let node;
+        while ((node = walker.nextNode())) textNodes.push(node);
+        fencedCodeBlocks.forEach((block, i) => {
+          const ph = 'RPCODEFENCE' + i + 'FENCEEND';
+          // 去掉首尾围栏及首行语言标注，内部内容整体转义
+          const inner = block
+            .replace(/^```[^\n]*\r?\n?/, '')
+            .replace(/\r?\n?```\s*$/, '');
+          const pre = document.createElement('pre');
+          pre.className = 'rp-code-block';
+          const code = document.createElement('code');
+          code.textContent = inner;
+          pre.appendChild(code);
+          for (const tn of textNodes) {
+            if (!tn.parentNode || !tn.textContent.includes(ph)) continue;
+            const parent = tn.parentNode;
+            const rest = tn.textContent.replace(ph, '').trim();
+            if (parent.tagName === 'P' && !rest) {
+              parent.parentNode.insertBefore(pre, parent);
+              parent.parentNode.removeChild(parent);
+            } else {
+              const parts = tn.textContent.split(ph);
+              if (parts[0]) parent.insertBefore(document.createTextNode(parts[0]), tn);
+              parent.insertBefore(pre, tn);
+              if (parts[1]) parent.insertBefore(document.createTextNode(parts[1]), tn);
+              parent.removeChild(tn);
+            }
+            break;
+          }
+        });
+      }
+
+      // 为敌人卡片注入SVG图标
+      workDiv.querySelectorAll('.monster-icon-frame[data-rank]').forEach(frame => {
+        const svg = getRankSvg(frame.dataset.rank);
+        if (svg) frame.innerHTML = svg;
+      });
+
+      // 过滤全文中的 ** 符号
+      removeAsterisks(workDiv);
+      contentDiv.replaceChildren(...Array.from(workDiv.childNodes));
+
+      // === [修复] 智绘姬按钮事件丢失 ===
+      // replaceChildren重建DOM后按钮会丢失click事件(变成无事件克隆节点)。
+      // 用replaceChildren之前保存的原始按钮(带事件)替换克隆按钮(无事件)，确保手动点击能触发生图。
+      ;(function(){
+        var chatu8Sel = 'button.image-tag-button, button.st-chatu8-image-button, button[data-image-tag], button[data-link][data-request-id]';
+        var cloneByLink = new Map();
+        Array.from(contentDiv.querySelectorAll(chatu8Sel)).forEach(function(button) {
+          var link = button.dataset.link || button.getAttribute('data-image-tag') || '';
+          if (link && !cloneByLink.has(link)) cloneByLink.set(link, button);
+        });
+        origButtons.forEach(function(ob){
+          if (ob.hasAttribute('data-loading') || contentDiv.contains(ob)) return;
+          var link = ob.dataset.link || ob.getAttribute('data-image-tag') || '';
+          if (!link) return;
+          var clone = cloneByLink.get(link);
+          if (clone && clone !== ob && clone.parentNode) clone.parentNode.replaceChild(ob, clone);
+          else contentDiv.appendChild(ob);
+        });
+      })();
+
+      } finally {
+        contentDiv.removeAttribute('aria-busy');
+      }
+    }
+
+    // 递归遍历文本节点，移除 ** 符号（跳过代码块，避免破坏代码内容）
+    function removeAsterisks(node) {
+      if (node.nodeType === Node.TEXT_NODE) {
+        node.textContent = node.textContent.replace(/\*\*/g, '');
+      } else {
+        if (node.nodeType === Node.ELEMENT_NODE && (node.tagName === 'PRE' || node.tagName === 'CODE')) return;
+        node.childNodes.forEach(removeAsterisks);
+      }
+    }
+
+    // 清理文本中的HTML注释
+    function cleanHtmlComments(text) {
+      return text.replace(new RegExp('<' + '!--[\\s\\S]*?--' + '>', 'g'), '');
+    }
+
+    // 解码常见HTML实体，支持一层嵌套编码（如 &amp;lt;img&amp;gt;）
+    let htmlEntityDecoder = null;
+
+    function decodeHtmlEntities(text) {
+      if (!text || text.indexOf('&') === -1) return text;
+      const ta = htmlEntityDecoder || (htmlEntityDecoder = document.createElement('textarea'));
+      let decoded = text;
+      for (let i = 0; i < 5; i++) {
+        const prev = decoded;
+        ta.innerHTML = decoded;
+        decoded = ta.value;
+        if (decoded === prev) break;
+        if (decoded.indexOf('&') === -1) break;
+      }
+      return decoded;
+    }
+
+    // 对CSS选择器添加作用域前缀，防止样式泄露到外部
+    function scopeCssSelectors(css, scopeId) {
+      const prefix = '#' + scopeId;
+      // 匹配 selector { body } 格式的CSS规则
+      return css.replace(/([^{}]+)\{([^{}]*)\}/g, function (match, selector, body) {
+        var scoped = selector.split(',').map(function (s) {
+          s = s.trim();
+          // 跳过@规则、关键帧步骤
+          if (!s || s.charAt(0) === '@' || s === 'from' || s === 'to' || /^\d+%$/.test(s)) return s;
+          return prefix + ' ' + s;
+        }).join(', ');
+        // 不保留悬浮：把 <style> 里定义的 fixed/sticky 定位改为 static，让块顺着正文排版
+        body = body.replace(/position\s*:\s*(fixed|sticky)\b\s*(!important)?/gi, 'position: static');
+        return scoped + '{' + body + '}';
+      });
+    }
+
+    // 中和保留块根元素上的【内联】悬浮定位，使其回到文档流、正常占位排版。
+    // 只处理根元素自身，不动其后代（保留卡片内部 absolute 装饰等布局）。
+    function neutralizeFloatingRoot(el) {
+      if (!el || el.nodeType !== 1 || !el.style) return;
+      const pos = (el.style.position || '').toLowerCase();
+      if (pos === 'fixed' || pos === 'sticky' || pos === 'absolute') {
+        el.style.setProperty('position', 'static', 'important');
+        // 清除随定位失效的偏移，避免元素被 transform/inset 拉出正文区
+        ['top', 'right', 'bottom', 'left', 'inset', 'z-index'].forEach(p => el.style.removeProperty(p));
+      }
+    }
+
+    function processParagraphs(text) {
+      // 清理HTML注释
+      text = cleanHtmlComments(text);
+      // 剥离残留的HTML标签（style块整体移除，其他标签只去标签保留文本）
+      text = text.replace(/<style[^>]*>[\s\S]*?<\/style>/gi, '');
+      text = text.replace(/<\/?(?:div|p|ul|ol|li|h[1-6]|table|tr|td|th|thead|tbody|br|hr|blockquote|pre|code|section|article|header|footer|nav|main|aside|figure|figcaption)[^>]*>/gi, '\n');
+      text = text.replace(/<\/?(?:span|strong|em|b|i|a)[^>]*>/gi, '');
+      let cleanText = text.replace(/<\/?Image(?!\s)>/gi, '');
+
+      // 清理每行中重复的角色名标记：保留行首的 {角色名}，移除后续的 {角色名}
+      // 例如 "{艾玛}{艾玛}「对话」" 变成 "{艾玛}「对话」"
+      cleanText = cleanText.split('\n').map(line => {
+        // 匹配行首的角色标记
+        const firstTagMatch = line.match(/^(\s*\{[^}]+\})/);
+        if (firstTagMatch) {
+          const firstTag = firstTagMatch[1];
+          const rest = line.substring(firstTag.length);
+          // 移除剩余部分中的所有角色名标记
+          const cleanRest = rest.replace(/\{[^}]+\}/g, '');
+          return firstTag + cleanRest;
+        }
+        return line;
+      }).join('\n');
+
+      const lines = cleanText.split(/\n+/).filter(p => p.trim().length > 0);
+
+      let resultHtml = '';
+      let pendingDialogue = null;
+
+      const flushPending = () => {
+        if (pendingDialogue) {
+          const mergedText = pendingDialogue.texts.map(t => processDialogueContent(t)).join('<br><br>');
+          resultHtml += createDialogueElement(pendingDialogue.name, mergedText, true);
+          pendingDialogue = null;
+        }
+      };
+
+      // 辅助函数：检查是否可以合并
+      const checkCanMerge = (normalizedName) => {
+        if (!pendingDialogue) return false;
+        if (pendingDialogue.normalizedName === normalizedName) return true;
+        const c1 = CHARACTER_CONFIG[pendingDialogue.normalizedName];
+        const c2 = CHARACTER_CONFIG[normalizedName];
+        if (c1 && c2 && c1.avatar && c2.avatar && c1.avatar === c2.avatar) return true;
+        return false;
+      };
+
+      for (let line of lines) {
+        line = line.trim();
+
+        // 跳过双花括号格式 {{...}}，这是情绪/动作描述，不作为对话处理
+        if (/^\{\{.*\}\}/.test(line)) {
+          flushPending();
+          resultHtml += `<p>${escapeHtmlText(line)}</p>`;
+          continue;
+        }
+
+        let rawName = null;
+        let content = null;
+        let normalizedName = null;
+
+        // 1. 尝试花括号格式: {角色名}「对话」
+        const braceNamePattern = /^[\s]*\{([^}]+)\}[\s]*(.+)$/;
+        const braceMatch = line.match(braceNamePattern);
+
+        if (braceMatch) {
+          rawName = braceMatch[1].trim();
+          content = braceMatch[2].trim();
+          normalizedName = normalizeDisplayName(rawName);
+
+          // 检查是否是有头像的已知角色
+          const config = CHARACTER_CONFIG[normalizedName];
+          if (!config || !config.avatar) {
+            // 不是已知角色，过滤掉花括号标记，按普通正文处理，保留引号高亮/图片解析等能力
+            flushPending();
+            resultHtml += processLineWithImages(content);
+            continue;
+          }
+        }
+        // 只处理明确的 {角色名} 格式
+
+        if (rawName && content && normalizedName) {
+          // 是对话行
+          if (checkCanMerge(normalizedName)) {
+            pendingDialogue.texts.push(content);
+          } else {
+            flushPending();
+            pendingDialogue = {
+              name: rawName,
+              normalizedName: normalizedName,
+              texts: [content]
+            };
+          }
+        } else {
+          // 非对话行，或无法识别的格式
+          flushPending();
+          resultHtml += processLineWithImages(line);
+        }
+      }
+      flushPending();
+      return resultHtml;
+    }
+
+    function createNamedInnerVoiceElement(rawName, thought) {
+      const name = String(rawName || '').trim() || '心声';
+      const text = String(thought || '').trim();
+      const safeName = escapeHtmlText(name);
+      const safeText = escapeHtmlText(text);
+      const open = window.__namedInnerVoiceDefaultExpand === true;
+      const expanded = open ? 'true' : 'false';
+      return '<div class="named-inner-voice' + (open ? ' is-open' : '') + '" data-inner-voice="true">' +
+        '<button class="named-inner-voice__trigger" type="button" data-inner-voice-toggle aria-expanded="' + expanded + '" aria-label="展开或收起' + safeName + '的心声">' +
+        '<span class="named-inner-voice__label">' + safeName + ' · 心声</span>' +
+        '<span class="named-inner-voice__dots" aria-hidden="true"><i></i><i></i><i></i></span></button>' +
+        '<div class="named-inner-voice__body"><div class="named-inner-voice__body-inner">' +
+        '<div class="named-inner-voice__text">' + safeText + '</div></div></div></div>';
+    }
+
+    function processLineWithImages(line) {
+      const sourceLine = String(line || '');
+      const htmlLine = sourceLine.indexOf('&') === -1 ? sourceLine : decodeHtmlEntities(sourceLine);
+      let decodedLine = htmlLine;
+      if (/<\/?[a-z][^>]*>/i.test(htmlLine)) {
+        const tempDiv = document.createElement('div');
+        tempDiv.innerHTML = htmlLine;
+        decodedLine = tempDiv.textContent || tempDiv.innerText || htmlLine;
+      }
+
+      // 跳过双花括号格式 {{...}}
+      if (/^\{\{.*\}\}/.test(decodedLine.trim())) {
+        return `<p>${escapeHtmlText(decodedLine)}</p>`;
+      }
+
+      // (角色名：*心理活动想法*)：角色名进入标记，心理活动使用比正文略小的心声字级。
+      const namedInnerVoiceMatch = decodedLine.trim().match(/^[\(（]\s*([^():：\n]+?)\s*[:：]\s*\*([^*\n]+?)\*\s*[\)）]$/);
+      if (namedInnerVoiceMatch) {
+        return createNamedInnerVoiceElement(namedInnerVoiceMatch[1], namedInnerVoiceMatch[2]);
+      }
+
+      // 整行 *...* 作为心里话处理；行内 *...* 仍由 highlightInlineDialogueQuotes 转为 narration-em。
+      const innerVoiceMatch = decodedLine.trim().match(/^\*([^*\n]+?)\*$/);
+      if (innerVoiceMatch) {
+        return `<div class="inner-voice"><p>${escapeHtmlText(innerVoiceMatch[1].trim())}</p></div>`;
+      }
+      const braceNamePattern = /^[\s]*\{([^}]+)\}[\s]*(.+)$/;
+      const braceMatch = decodedLine.match(braceNamePattern);
+
+      if (braceMatch) {
+        const rawName = braceMatch[1].trim();
+        const normalizedName = normalizeDisplayName(rawName);
+        // 校验是否是有头像的已知角色
+        const config = CHARACTER_CONFIG[normalizedName];
+        if (config && config.avatar) {
+          return createDialogueElement(rawName, braceMatch[2].trim());
+        }
+        // 不是已知角色，过滤掉花括号标记，内容作为普通文本显示
+        return `<p>${highlightInlineDialogueQuotes(braceMatch[2].trim())}</p>`;
+      }
+
+      // 只处理明确的 {角色名} 格式
+
+      // 图片处理 - 检测原始line中的<img>标签（decodedLine已被去除所有HTML标签，无法检测）
+      const imgRegex = /<img[^>]*>/i;
+      if (imgRegex.test(htmlLine)) {
+        const div = document.createElement('div');
+        div.innerHTML = htmlLine;
+        return createInteractiveImageContainer(div.innerHTML);
+      } else {
+        return `<p>${highlightInlineDialogueQuotes(decodedLine)}</p>`;
+      }
+    }
+
+    const IMAGE_GEN_RESPONSE_EVENT = 'generate-image-response';
+    const IMAGE_GEN_AUTO_RERENDER = false;
+    let imageGenRerenderTimer = null;
+
+    function hasUnprocessedImageTag(html) {
+      if (!html) return false;
+      return /<\s*Image\b|<\s*pic\b/i.test(html) || /&lt;\s*(Image|pic)\b/i.test(html);
+    }
+
+    function scheduleImageGenRerender() {
+      if (imageGenRerenderTimer) clearTimeout(imageGenRerenderTimer);
+      imageGenRerenderTimer = setTimeout(() => {
+        imageGenRerenderTimer = null;
+        try {
+          const contentDiv = document.getElementById('readingContent');
+          if (!contentDiv) return;
+          if (contentDiv.getAttribute('aria-busy') === 'true') return;
+          const currentHtml = contentDiv.innerHTML || '';
+          if (!hasUnprocessedImageTag(currentHtml)) return;
+          processTextContent();
+          if (typeof applyImageSize === 'function') applyImageSize();
+        } catch (e) {
+          console.warn('[正文美化] 生图响应重渲染失败:', e);
+        }
+      }, 30);
+    }
+
+    function initImageGenResponseListener() {
+      if (window.__imageGenResponseBound) return;
+      let eventOnFn;
+      try {
+        const win = window.parent || window;
+        eventOnFn = win.eventOn || window.eventOn;
+      } catch (e) {
+        eventOnFn = window.eventOn;
+      }
+      if (typeof eventOnFn !== 'function') return;
+      window.__imageGenResponseBound = true;
+      eventOnFn(IMAGE_GEN_RESPONSE_EVENT, function (responseData) {
+        if (!IMAGE_GEN_AUTO_RERENDER) return;
+        if (responseData && responseData.success === false) return;
+        scheduleImageGenRerender();
+      });
+    }
+
+    function isImageUrlLike(text) {
+      const trimmed = String(text || '').trim();
+      if (!trimmed) return false;
+      if (/^(SFW|NSFW)\//.test(trimmed)) return true;
+      if (/^data:image\//i.test(trimmed)) return true;
+      if (/^https?:\/\//i.test(trimmed)) return true;
+      if (/^(?:\/|\.\/|\.\.\/)/.test(trimmed)) return true;
+      if (/\.(webp|png|jpg|jpeg|gif|bmp|svg)(\?|#|$)/i.test(trimmed)) return true;
+      return false;
+    }
+
+    function renderImageTag(match) {
+      const content = match && typeof match.content === 'string' ? match.content : '';
+      if (isImageUrlLike(content)) {
+        return createImageElement(content);
+      }
+      return match && match.raw ? match.raw : '';
+    }
+
+    function createImageElement(imageUrl) {
+      let trimmedUrl = imageUrl.trim();
+      if (!trimmedUrl) return '';
+
+      // 处理 <pic> 标签的相对路径格式，如 "SFW/希罗/通常1"
+      // 补全为完整URL
+      if (/^(SFW|NSFW)\//.test(trimmedUrl)) {
+        // 如果没有.webp后缀，添加它
+        if (!trimmedUrl.endsWith('.webp')) {
+          trimmedUrl = trimmedUrl + '.webp';
+        }
+        trimmedUrl = 'https://anchor.bolt.qzz.io/' + trimmedUrl;
+      }
+
+      const imgTag = `<img src="${escapeHtmlAttr(trimmedUrl)}" alt="图片" loading="lazy" decoding="async">`;
+      return createInteractiveImageContainer(imgTag);
+    }
+
+    // 辅助函数：为缺少编号的图片URL自动添加随机编号
+    function autoAssignImageNumber(imgSrc) {
+      try {
+        const parts = String(imgSrc || '').split('/');
+        const ci = parts.findIndex(part => part === 'NSFW' || part === 'SFW');
+        if (ci < 0 || ci + 2 >= parts.length) return imgSrc;
+        const character = safeDecodeURIComponent(parts[ci + 1]);
+        const fileName = safeDecodeURIComponent(parts[ci + 2]).replace(/\.webp(?:[?#].*)?$/i, '');
+        if (/^(.+?)(\d+)$/.test(fileName)) return imgSrc;
+        const entry = findImageListEntry(parts[ci], character, fileName);
+        if (!entry || !entry.maxNumber) return imgSrc;
+        const next = entry.numbers[Math.floor(Math.random() * entry.numbers.length)];
+        parts[ci + 2] = encodeURIComponent(fileName + next + '.webp');
+        return parts.join('/');
+      } catch (e) {
+        console.error('Image number assignment failed:', e);
+        return imgSrc;
+      }
+    }
+
+    function createInteractiveImageContainer(imgContent, forceExpand) {
+      const uniqueId = 'img-' + Math.random().toString(36).substr(2, 9);
+      const autoExpand = !!forceExpand || localStorage.getItem('image-auto-expand') !== 'false';
+      const expandedClass = autoExpand ? ' expanded' : '';
+      const buttonClass = autoExpand ? ' expanded' : '';
+      const buttonText = autoExpand ? '\u6536\u8d77\u63d2\u753b' : '\u67e5\u770b\u63d2\u753b';
+      let isCgImage = false;
+      const srcMatch = imgContent.match(/src=["']([^"']+)["']/i);
+      if (srcMatch) {
+        const originalSrc = srcMatch[1];
+        const newSrc = autoAssignImageNumber(originalSrc);
+        if (newSrc !== originalSrc) imgContent = imgContent.replace(originalSrc, newSrc);
+        isCgImage = /(^|\/)(NSFW|SFW)\//i.test(newSrc);
+        if (isCgImage) imgContent = imgContent.replace(/<img\s/i, '<img onload="recordCGUnlock(this.currentSrc || this.src)" ');
+      }
+      const refreshButton = isCgImage
+        ? `<button class="image-refresh-btn" onclick="refreshImage('${uniqueId}', event)" title="Refresh image" aria-label="Refresh image">&#8635;</button>`
+        : '';
+      return `<div class="image-container">
+        <div style="display:flex;justify-content:center;align-items:center;gap:8px;">
+          <button class="image-toggle-btn${buttonClass}" onclick="toggleImage('${uniqueId}')">
+            <span class="image-toggle-text">${buttonText}</span>
+          </button>
+          ${refreshButton}
+        </div>
+        <div class="image-content${expandedClass}" id="${uniqueId}" style="text-align:center;">
+          ${imgContent}
+        </div>
+      </div>`;
+    }
+    window.toggleImage = function (imageId) {
+      const imageContent = document.getElementById(imageId);
+      const button = imageContent.previousElementSibling.querySelector('.image-toggle-btn');
+      const textSpan = button.querySelector('.image-toggle-text');
+      if (imageContent.classList.contains('expanded')) {
+        imageContent.classList.remove('expanded');
+        button.classList.remove('expanded');
+        textSpan.textContent = '查看插画';
+      } else {
+        imageContent.classList.add('expanded');
+        button.classList.add('expanded');
+        textSpan.textContent = '收起插画';
+      }
+    };
+
+    let readingFontSize = 18;
+    let imageSize = 70; // 默认70%
+    let readingWidthLevel = 0;
+    const READING_WIDTH_STORAGE_KEY = 'reading-width-level-v2';
+    const READING_WIDTH_LEVELS = [
+      { label: '最窄', chatWidth: 50 },
+      { label: '稍宽', chatWidth: 60 },
+      { label: '较宽', chatWidth: 70 },
+      { label: '宽', chatWidth: 80 },
+      { label: '最宽', chatWidth: 90 }
+    ];
+    const READING_FONT_PRESETS = {
+      'theme-default': {
+        label: '跟随主题',
+        family: ''
+      },
+      'zhenkai': {
+        label: '霞鹜臻楷',
+        family: '"LXGW ZhenKai GB", "LXGW ZhenKai", "Source Han Serif SC", "Songti SC", "STSong", "SimSun", serif'
+      },
+      'noto-serif': {
+        label: '思源宋体',
+        family: '"Source Han Serif SC", "Source Han Serif CN", "Noto Serif CJK SC", "Noto Serif SC", "Songti SC", "STSong", serif'
+      },
+      'yahei': {
+        label: '微软雅黑',
+        family: '"Microsoft YaHei UI", "Microsoft YaHei", "PingFang SC", "Noto Sans SC", sans-serif'
+      },
+      'heiti': {
+        label: '黑体',
+        family: '"SimHei", "Heiti SC", "Microsoft YaHei UI", sans-serif'
+      },
+      'songti': {
+        label: '宋体',
+        family: '"SimSun", "Songti SC", "STSong", "Noto Serif SC", serif'
+      },
+      'kaiti': {
+        label: '楷体',
+        family: '"KaiTi", "Kaiti SC", "STKaiti", "DFKai-SB", serif'
+      },
+      'fangsong': {
+        label: '仿宋',
+        family: '"FangSong", "FangSong_GB2312", "STFangsong", serif'
+      }
+    };
+
+    const REMOTE_READING_FONT_FAMILIES = {
+      'zhenkai': '"LXGW ZhenKai GB"',
+      'noto-serif': '"Noto Serif SC"'
+    };
+
+    const GOOGLE_READING_FONT_HREF = 'https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;500;700;900&display=swap';
+
+    function applyReadingFontStack(family) {
+      if (!document.body) return;
+      if (family) {
+        document.body.style.setProperty('--font-main', family);
+        document.body.style.setProperty('--serif', family);
+        document.body.style.setProperty('--kai', family);
+        // 显式选择的标记：黑夜正文用它覆盖自己的默认无衬线栈
+        document.body.style.setProperty('--reading-font-user', family);
+      } else {
+        document.body.style.removeProperty('--font-main');
+        document.body.style.removeProperty('--serif');
+        document.body.style.removeProperty('--kai');
+        document.body.style.removeProperty('--reading-font-user');
+      }
+    }
+
+    function ensureGoogleReadingFonts() {
+      if (document.getElementById('readingFontStylesheet')) return;
+      const link = document.createElement('link');
+      link.id = 'readingFontStylesheet';
+      link.rel = 'stylesheet';
+      link.href = GOOGLE_READING_FONT_HREF;
+      document.head.appendChild(link);
+    }
+
+    function isReadingFontCached(fontKey) {
+      const mainFamily = REMOTE_READING_FONT_FAMILIES[fontKey];
+      if (!mainFamily || !document.fonts || typeof document.fonts.check !== 'function') return false;
+      try {
+        return document.fonts.check(`400 18px ${mainFamily}`, '正文阅读对白');
+      } catch (e) {
+        return false;
+      }
+    }
+
+    async function waitForReadingFontReady(fontKey, timeoutMs = 240) {
+      const mainFamily = REMOTE_READING_FONT_FAMILIES[fontKey];
+      if (!mainFamily || !document.fonts || typeof document.fonts.load !== 'function') return true;
+      if (isReadingFontCached(fontKey)) return true;
+
+      if (fontKey === 'noto-serif') ensureGoogleReadingFonts();
+
+      const remoteStylesheet = fontKey === 'noto-serif'
+        ? document.getElementById('readingFontStylesheet')
+        : fontKey === 'zhenkai'
+          ? document.getElementById('zhenKaiFontStylesheet')
+          : null;
+      const stylesheetReady = !remoteStylesheet || remoteStylesheet.rel === 'stylesheet'
+        ? Promise.resolve()
+        : new Promise(resolve => {
+          remoteStylesheet.addEventListener('load', resolve, { once: true });
+          remoteStylesheet.addEventListener('error', resolve, { once: true });
+        });
+
+      const fontsReady = stylesheetReady
+        .then(() => document.fonts.load(`400 18px ${mainFamily}`, '正文阅读对白'))
+        .then(() => true)
+        .catch(() => false);
+      return Promise.race([
+        fontsReady,
+        new Promise(resolve => setTimeout(() => resolve(false), timeoutMs))
+      ]);
+    }
+
+    function applyReadingFont(fontKey, options = {}) {
+      const normalizedKey = Object.prototype.hasOwnProperty.call(READING_FONT_PRESETS, fontKey)
+        ? fontKey
+        : 'theme-default';
+      const preset = READING_FONT_PRESETS[normalizedKey];
+      const readingFontSelect = document.getElementById('readingFontSelect');
+
+      if (normalizedKey === 'noto-serif') ensureGoogleReadingFonts();
+      applyReadingFontStack(preset.family);
+
+      if (readingFontSelect && readingFontSelect.value !== normalizedKey) {
+        readingFontSelect.value = normalizedKey;
+      }
+
+      if (!options.skipPersist) {
+        localStorage.setItem('reading-font-family-v3', normalizedKey);
+      }
+
+      return normalizedKey;
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      initThemeSwitcher(true);
+      initThemeCollapse();
+      requestAnimationFrame(async () => {
+        /* 每一步各自兜住异常。正文渲染（processTextContent）以前是裸调的，
+           它一抛（比如某张卡片的渲染函数引用了不存在的变量），后面的 revealReading
+           就永远不会执行，body 卡在 render-pending 上——表现就是整页全白。
+           现在任何一步失败都只打日志，reveal 一定会跑到。 */
+        const step = (label, fn) => {
+          try { return fn(); }
+          catch (err) { console.error('[正文美化] 初始化步骤失败：' + label, err); }
+        };
+        const revealReading = () => {
+          document.body.classList.remove('render-pending', 'theme-preload');
+          document.body.classList.add('render-ready');
+        };
+        try {
+          // 初始化自定义角色：从MVU和缓存加载到CHARACTER_CONFIG
+          step('loadCustomCharsIntoConfig', loadCustomCharsIntoConfig);
+          step('processTextContent', processTextContent);
+          step('initImageGenResponseListener', initImageGenResponseListener);
+          step('initSettings', initSettings);
+          step('initReadingWidth', initReadingWidth);
+          step('initAvatarUpload', initAvatarUpload);
+          step('renderCustomCharList', renderCustomCharList);
+          step('正文字号', () => {
+            const savedReadingFontSize = localStorage.getItem('readingFontSize');
+            readingFontSize = savedReadingFontSize ? parseInt(savedReadingFontSize) : 18;
+            const readingContent = document.querySelector('.reading-content');
+            if (readingContent) readingContent.style.fontSize = readingFontSize + 'px';
+          });
+          step('applyImageSize', () => {
+            const savedImageSize = localStorage.getItem('imageSize');
+            imageSize = savedImageSize !== null ? parseInt(savedImageSize) : 70; // 默认70%
+            applyImageSize();
+          });
+          step('initAnimationObserver', initAnimationObserver);
+          const fontKey = window.__initialReadingFontKey || localStorage.getItem('reading-font-family-v3') || 'theme-default';
+          if (fontKey === 'noto-serif') step('ensureGoogleReadingFonts', () => ensureGoogleReadingFonts());
+          if (step('isReadingFontCached', () => isReadingFontCached(fontKey))) {
+            requestAnimationFrame(revealReading);
+          } else {
+            revealReading();
+            step('waitForReadingFontReady', () => waitForReadingFontReady(fontKey));
+          }
+        } catch (err) {
+          console.error('[正文美化] 初始化异常，正文按原样显示', err);
+          revealReading();
+        }
+      });
+    });
+
+    /* Merged into window.setTheme / applyTheme logic above to remove duplication */
+
+    function setNamedInnerVoiceOpen(panel, open) {
+      if (!panel) return;
+      panel.classList.toggle('is-open', !!open);
+      const trigger = panel.querySelector('[data-inner-voice-toggle]');
+      if (trigger) trigger.setAttribute('aria-expanded', open ? 'true' : 'false');
+    }
+
+    function initNamedInnerVoiceInteractions() {
+      if (window.__namedInnerVoiceInteractionsBound) return;
+      window.__namedInnerVoiceInteractionsBound = true;
+      document.addEventListener('click', (event) => {
+        const trigger = event.target.closest?.('[data-inner-voice-toggle]');
+        if (!trigger) return;
+        const panel = trigger.closest('.named-inner-voice');
+        if (!panel) return;
+        setNamedInnerVoiceOpen(panel, !panel.classList.contains('is-open'));
+      });
+    }
+
+    function initSettings() {
+      const settingsBtn = document.getElementById('settingsBtn');
+      const settingsPanel = document.getElementById('settingsPanel');
+      const imageToggle = document.getElementById('imageToggle');
+      const dialogueFontToggle = document.getElementById('dialogueFontToggle');
+      const innerVoiceToggle = document.getElementById('innerVoiceToggle');
+      const readingFontSelect = document.getElementById('readingFontSelect');
+      if (!settingsBtn || !settingsPanel || !imageToggle) return;
+      if (localStorage.getItem('image-auto-expand') !== 'false') imageToggle.classList.add('active'); // 默认展开
+      // 默认展开心声：读取上次选择，默认关闭
+      const innerVoiceExpand = localStorage.getItem('inner-voice-auto-expand') === 'true';
+      window.__namedInnerVoiceDefaultExpand = innerVoiceExpand;
+      if (innerVoiceToggle && innerVoiceExpand) innerVoiceToggle.classList.add('active');
+      document.querySelectorAll('.named-inner-voice').forEach(panel => setNamedInnerVoiceOpen(panel, innerVoiceExpand));
+      const initialReadingFont = applyReadingFont(localStorage.getItem('reading-font-family-v3') || 'theme-default', {
+        skipPersist: true
+      });
+      if (readingFontSelect) readingFontSelect.value = initialReadingFont;
+
+      // 统一对白字体大小：PC端默认开启，移动端默认关闭
+      const isMobile = window.innerWidth <= 768;
+      const savedDialogueFont = localStorage.getItem('unified-dialogue-font');
+      let dialogueFontEnabled;
+      if (savedDialogueFont !== null) {
+        dialogueFontEnabled = savedDialogueFont === 'true';
+      } else {
+        dialogueFontEnabled = !isMobile; // PC默认开，移动端默认关
+      }
+      if (dialogueFontEnabled) {
+        dialogueFontToggle.classList.add('active');
+        document.body.classList.add('unified-dialogue-font');
+      }
+
+      initNamedInnerVoiceInteractions();
+      initThemeCollapse(); // 正文渲染后控件节点是新的，重新同步收起状态
+      settingsBtn.addEventListener('click', function (e) { e.stopPropagation(); settingsPanel.classList.toggle('active'); });
+      imageToggle.addEventListener('click', function () {
+        this.classList.toggle('active');
+        const isActive = this.classList.contains('active');
+        localStorage.setItem('image-auto-expand', isActive);
+        document.querySelectorAll('.image-content').forEach((imageContent) => {
+          const button = imageContent.previousElementSibling?.querySelector('.image-toggle-btn');
+          const textSpan = button?.querySelector('.image-toggle-text');
+          imageContent.classList.toggle('expanded', isActive);
+          button?.classList.toggle('expanded', isActive);
+          if (textSpan) {
+            textSpan.textContent = isActive ? '收起插画' : '查看插画';
+          }
+        });
+        showSettingsMessage(isActive ? '已开启默认展开插画' : '已关闭默认展开插画');
+      });
+
+      dialogueFontToggle.addEventListener('click', function () {
+        this.classList.toggle('active');
+        const isActive = this.classList.contains('active');
+        localStorage.setItem('unified-dialogue-font', isActive);
+        document.body.classList.toggle('unified-dialogue-font', isActive);
+        showSettingsMessage(isActive ? '已统一对白与正文字体大小' : '已恢复对白独立字体大小');
+      });
+
+      if (innerVoiceToggle) {
+        innerVoiceToggle.addEventListener('click', function () {
+          this.classList.toggle('active');
+          const isActive = this.classList.contains('active');
+          window.__namedInnerVoiceDefaultExpand = isActive;
+          localStorage.setItem('inner-voice-auto-expand', isActive);
+          document.querySelectorAll('.named-inner-voice').forEach(panel => setNamedInnerVoiceOpen(panel, isActive));
+          showSettingsMessage(isActive ? '已开启默认展开心声' : '已关闭默认展开心声');
+        });
+      }
+
+      if (readingFontSelect) {
+        readingFontSelect.addEventListener('change', function () {
+          const fontKey = applyReadingFont(this.value);
+          showSettingsMessage(`已切换为${READING_FONT_PRESETS[fontKey].label}`);
+        });
+      }
+
+      document.addEventListener('click', function (e) {
+        if (!settingsPanel.contains(e.target) && !settingsBtn.contains(e.target)) settingsPanel.classList.remove('active');
+      });
+    }
+
+    function showSettingsMessage(message) {
+      const messageDiv = document.createElement('div');
+      messageDiv.className = 'toast-message';
+      messageDiv.textContent = message;
+      document.body.appendChild(messageDiv);
+      setTimeout(() => messageDiv.remove(), 2000);
+    }
+
+    // Theme setter helper
+    const VALID_THEMES = new Set(['warm-white', 'paper-white', 'dark', 'green']);
+
+    const updateThemeButtons = (theme) => {
+      localStorage.setItem('kivotos-theme', theme);
+      localStorage.setItem('theme', theme); // compatible backup
+      document.documentElement.style.colorScheme = theme === 'dark' ? 'dark' : 'light';
+      document.querySelectorAll('.control-btn[data-theme-key]').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.themeKey === theme);
+      });
+      syncThemeMenuLabel(theme);
+    };
+
+    const notifyEmbeddedThemeChange = (theme) => {
+      document.querySelectorAll('iframe').forEach((frame) => {
+        try {
+          frame.contentWindow?.postMessage({ type: 'kivotos-theme-change', theme }, '*');
+        } catch (err) { }
+      });
+    };
+
+    const commitTheme = (theme) => {
+      document.body.setAttribute('data-theme', theme);
+      updateThemeButtons(theme);
+      notifyEmbeddedThemeChange(theme);
+    };
+
+    const applyTheme = (theme, skipAnimation = false) => {
+      const normalizedTheme = VALID_THEMES.has(theme) ? theme : 'warm-white';
+
+      if (!skipAnimation && document.startViewTransition) {
+        document.startViewTransition(() => commitTheme(normalizedTheme));
+        return;
+      }
+
+      commitTheme(normalizedTheme);
+    };
+
+    // Expose for HTML onclick
+    window.setTheme = applyTheme;
+
+    function initThemeSwitcher(skipAnimation = false) {
+      const savedTheme = window.__initialTheme || localStorage.getItem('kivotos-theme') || localStorage.getItem('theme') || 'warm-white';
+      applyTheme(savedTheme, skipAnimation);
+    }
+
+    // 移动端主题切换收起：只显示当前主题，点击展开全部，选完自动收回。
+    // 注意：#inlineControls 在正文渲染时会随 #readingContent 一起被重建，
+    // 所以状态每次现查节点、事件走 document 委托，不能把监听绑在某个具体节点上。
+    const THEME_COLLAPSE_QUERY = '(max-width: 720px)';
+
+    function syncThemeCollapseMode() {
+      const box = document.getElementById('inlineControls');
+      if (!box) return null;
+      const collapse = window.matchMedia(THEME_COLLAPSE_QUERY).matches;
+      box.classList.toggle('is-theme-collapsed', collapse);
+      if (!collapse) box.classList.remove('is-theme-open');
+      // 正文重渲染后触发按钮是新节点，这里补一次当前主题文字
+      syncThemeMenuLabel(document.body.dataset.theme || 'warm-white');
+      return box;
+    }
+
+    function initThemeCollapse() {
+      syncThemeCollapseMode();
+      if (window.__themeCollapseBound) return;
+      window.__themeCollapseBound = true;
+
+      const mq = window.matchMedia(THEME_COLLAPSE_QUERY);
+      if (typeof mq.addEventListener === 'function') mq.addEventListener('change', syncThemeCollapseMode);
+      else if (typeof mq.addListener === 'function') mq.addListener(syncThemeCollapseMode);
+
+      document.addEventListener('click', (event) => {
+        const box = syncThemeCollapseMode();
+        if (!box) return;
+        // 点面板外收起
+        if (!box.contains(event.target)) {
+          setThemeMenuOpen(box, false);
+          return;
+        }
+        if (!box.classList.contains('is-theme-collapsed')) return;
+        // 点「当前主题 ▾」开合下拉
+        if (event.target.closest?.('.theme-switch__trigger')) {
+          setThemeMenuOpen(box, !box.classList.contains('is-theme-open'));
+          return;
+        }
+        // 在下拉里选了某个主题：切换由按钮自身的 onclick 完成，这里只负责收起
+        if (event.target.closest?.('.theme-switch__menu .control-btn')) {
+          setThemeMenuOpen(box, false);
+        }
+      });
+    }
+
+    function setThemeMenuOpen(box, open) {
+      box.classList.toggle('is-theme-open', open);
+      const trigger = box.querySelector('.theme-switch__trigger');
+      if (trigger) trigger.setAttribute('aria-expanded', open ? 'true' : 'false');
+    }
+
+    // 触发按钮上的文字始终显示当前主题
+    function syncThemeMenuLabel(theme) {
+      const label = document.getElementById('themeMenuLabel');
+      const trigger = document.getElementById('themeMenuTrigger');
+      const active = document.querySelector('.theme-switch__menu .control-btn[data-theme-key="' + theme + '"]');
+      if (label && active) label.textContent = active.textContent.trim();
+      if (trigger && active) trigger.title = active.title || '切换主题';
+    }
+
+    function updateReadingWidthControls() {
+      const level = READING_WIDTH_LEVELS[readingWidthLevel];
+      const value = document.getElementById('readingWidthValue');
+      const decrease = document.getElementById('readingWidthDecrease');
+      const increase = document.getElementById('readingWidthIncrease');
+
+      if (value) value.textContent = level.label;
+      if (decrease) decrease.disabled = readingWidthLevel <= 0;
+      if (increase) increase.disabled = readingWidthLevel >= READING_WIDTH_LEVELS.length - 1;
+    }
+
+    function syncHostLayout() {
+      let hostViewportWidth = window.innerWidth;
+      try {
+        hostViewportWidth = Number(window.parent?.innerWidth) || window.innerWidth;
+      } catch (e) { }
+      const nextLayout = hostViewportWidth > 768 ? 'desktop' : 'mobile';
+      document.body?.setAttribute('data-host-layout', nextLayout);
+      return nextLayout;
+    }
+
+    let hostLayoutResizeRaf = 0;
+    function queueHostLayoutSync() {
+      if (hostLayoutResizeRaf) return;
+      hostLayoutResizeRaf = requestAnimationFrame(() => {
+        hostLayoutResizeRaf = 0;
+        syncHostLayout();
+      });
+    }
+    window.addEventListener('resize', queueHostLayoutSync, { passive: true });
+    window.addEventListener('orientationchange', queueHostLayoutSync, { passive: true });
+    try {
+      if (window.parent && window.parent !== window) {
+        window.parent.addEventListener('resize', queueHostLayoutSync, { passive: true });
+      }
+    } catch (e) { }
+
+    function applyReadingWidth(options = {}) {
+      readingWidthLevel = Math.max(0, Math.min(READING_WIDTH_LEVELS.length - 1, readingWidthLevel));
+      const level = READING_WIDTH_LEVELS[readingWidthLevel];
+      const parentWindow = window.parent;
+      let parentDocument = null;
+      try {
+        parentDocument = parentWindow?.document || null;
+      } catch (e) {
+        parentDocument = null;
+      }
+
+      document.body?.setAttribute('data-reading-width-level', String(readingWidthLevel));
+      syncHostLayout();
+      updateReadingWidthControls();
+      if (!parentDocument) return;
+
+      // SillyTavern uses --sheldWidth for #sheld, #top-bar and #send_form.
+      parentDocument.documentElement.style.setProperty('--sheldWidth', `${level.chatWidth}vw`);
+
+      const slider = parentDocument.getElementById('chat_width_slider');
+      const counter = parentDocument.getElementById('chat_width_slider_counter');
+      if (slider) slider.value = String(level.chatWidth);
+      if (counter) counter.value = String(level.chatWidth);
+
+      const context = window.SillyTavern?.getContext?.() || window.SillyTavern;
+      if (context?.powerUserSettings) {
+        context.powerUserSettings.chat_width = level.chatWidth;
+      }
+
+      if (!options.skipPersist) {
+        localStorage.setItem(READING_WIDTH_STORAGE_KEY, String(readingWidthLevel));
+
+        // Trigger SillyTavern's own handler so the setting is saved exactly like its Chat Width slider.
+        if (slider && typeof parentWindow.$ === 'function') {
+          parentWindow.$(slider).val(level.chatWidth).trigger('input', { forced: true });
+        } else {
+          context?.saveSettingsDebounced?.();
+        }
+      }
+    }
+
+    function getHostReadingWidth() {
+      const parentWindow = window.parent;
+      let parentDocument = null;
+      try {
+        parentDocument = parentWindow?.document || null;
+      } catch (e) {
+        parentDocument = null;
+      }
+
+      const sliderValue = Number.parseFloat(parentDocument?.getElementById('chat_width_slider')?.value);
+      if (Number.isFinite(sliderValue)) return sliderValue;
+
+      let context = null;
+      try {
+        context = window.SillyTavern?.getContext?.()
+          || window.SillyTavern
+          || parentWindow?.SillyTavern?.getContext?.()
+          || parentWindow?.SillyTavern;
+      } catch (e) { }
+      const settingValue = Number.parseFloat(context?.powerUserSettings?.chat_width);
+      if (Number.isFinite(settingValue)) return settingValue;
+
+      try {
+        const rootStyle = parentDocument?.documentElement;
+        const inlineWidth = Number.parseFloat(rootStyle?.style?.getPropertyValue('--sheldWidth'));
+        if (Number.isFinite(inlineWidth)) return inlineWidth;
+        const computedWidth = Number.parseFloat(parentDocument?.defaultView?.getComputedStyle(rootStyle)?.getPropertyValue('--sheldWidth'));
+        if (Number.isFinite(computedWidth)) return computedWidth;
+      } catch (e) { }
+
+      return null;
+    }
+
+    function getClosestReadingWidthLevel(chatWidth) {
+      if (!Number.isFinite(chatWidth)) return 0;
+      return READING_WIDTH_LEVELS.reduce((closestIndex, level, index, levels) => {
+        const closestDistance = Math.abs(level.chatWidth - chatWidth);
+        const currentDistance = Math.abs(levels[closestIndex].chatWidth - chatWidth);
+        return currentDistance < closestDistance ? closestIndex : index;
+      }, 0);
+    }
+
+    function initReadingWidth() {
+      const savedValue = localStorage.getItem(READING_WIDTH_STORAGE_KEY);
+      const savedLevel = Number.parseInt(savedValue ?? '', 10);
+
+      // Without a saved manual choice, only sync the controls to the host width.
+      if (savedValue === null || Number.isNaN(savedLevel)) {
+        readingWidthLevel = getClosestReadingWidthLevel(getHostReadingWidth());
+        document.body?.removeAttribute('data-reading-width-level');
+        syncHostLayout();
+        updateReadingWidthControls();
+        return;
+      }
+
+      // Restore only a value explicitly saved by clicking this page.
+      readingWidthLevel = Math.max(0, Math.min(READING_WIDTH_LEVELS.length - 1, savedLevel));
+      applyReadingWidth({ skipPersist: true });
+    }
+
+    function adjustReadingWidth(delta) {
+      const nextLevel = Math.max(0, Math.min(READING_WIDTH_LEVELS.length - 1, readingWidthLevel + delta));
+      if (nextLevel === readingWidthLevel) {
+        updateReadingWidthControls();
+        return;
+      }
+
+      readingWidthLevel = nextLevel;
+      applyReadingWidth();
+      showSettingsMessage(`阅读宽度：${READING_WIDTH_LEVELS[readingWidthLevel].label}`);
+    }
+
+    window.adjustReadingWidth = adjustReadingWidth;
+
+    function adjustReadingFontSize(delta) {
+      readingFontSize = Math.max(12, Math.min(28, readingFontSize + delta));
+      const readingContent = document.querySelector('.reading-content');
+      if (readingContent) readingContent.style.fontSize = readingFontSize + 'px';
+      localStorage.setItem('readingFontSize', readingFontSize);
+    }
+
+    function adjustImageSize(delta) {
+      imageSize = Math.max(30, Math.min(200, imageSize + delta));
+      applyImageSize();
+      localStorage.setItem('imageSize', imageSize);
+      showSettingsMessage(`插画大小: ${imageSize}%`);
+    }
+
+    function applyImageSize() {
+      document.querySelectorAll('.image-content img').forEach(img => {
+        img.style.width = imageSize + '%';
+        img.style.maxWidth = imageSize + '%';
+        img.style.height = 'auto';
+      });
+    }
+
+    // --- Animation Observer: pause infinite animations when off-screen ---
+    function initAnimationObserver() {
+      if (window.__animationObserverBound) return;
+      window.__animationObserverBound = true;
+      const animSelectors = '.shimmer-text, .action-shimmer, .skill-name-wave, .enemy-hp-fill, .summon-hp-fill, .dice-roll-tag.crit, .badge-glow-success, .badge-glow-danger, .item-shimmer-artifact, .item-shimmer-legendary, .item-shimmer-epic, .item-shimmer-mythic, .sparkle, .name-initial-\u7279\u56FE';
+      if (!document.getElementById('animationPauseStyle')) {
+        const style = document.createElement('style');
+        style.id = 'animationPauseStyle';
+        style.textContent = '.anim-paused { animation-play-state: paused !important; }';
+        document.head.appendChild(style);
+      }
+      if (!('IntersectionObserver' in window)) return;
+      const root = document.getElementById('readingContent') || document.body;
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => entry.target.classList.toggle('anim-paused', !entry.isIntersecting));
+      }, { rootMargin: '200px 0px' });
+      const observeElement = (el) => {
+        if (!(el instanceof Element)) return;
+        if (el.matches(animSelectors) && !el.dataset.animObserved) {
+          el.dataset.animObserved = '1';
+          observer.observe(el);
+        }
+        if (!el.firstElementChild) return;
+        el.querySelectorAll(animSelectors).forEach(child => {
+          if (!child.dataset.animObserved) {
+            child.dataset.animObserved = '1';
+            observer.observe(child);
+          }
+        });
+      };
+      observeElement(root);
+      const pendingAnimationNodes = new Set();
+      let animationObserveRaf = 0;
+      const flushAnimationNodes = () => {
+        animationObserveRaf = 0;
+        pendingAnimationNodes.forEach(observeElement);
+        pendingAnimationNodes.clear();
+      };
+      const mo = new MutationObserver(records => {
+        records.forEach(record => record.addedNodes.forEach(node => {
+          if (node.nodeType === 1) pendingAnimationNodes.add(node);
+        }));
+        if (pendingAnimationNodes.size && !animationObserveRaf) {
+          animationObserveRaf = requestAnimationFrame(flushAnimationNodes);
+        }
+      });
+      mo.observe(root, { childList: true, subtree: true });
+      window.__animationObserver = observer;
+      window.__animationMutationObserver = mo;
+    }
+  </script>
+</body>
+
+</html>
+```

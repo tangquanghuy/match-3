@@ -11,7 +11,8 @@
 - 样板：`artifacts/prompt-overrides/破碎尖塔.json`（新 schema 47 条）+ `assets/prompt/立绘/破碎尖塔/`（94 文件）。
 - 风格行锁死：`wlopk2style, western fantasy style, DnD monster manual illustration, painterly fantasy,`——**wlopk2style 是用户管线必需 tag，严禁删除**。
 - 2026-09-16 用户更正（已落入脚本）：① 风格行去 dark fantasy（是奇幻不是黑暗奇幻，任何字段禁用该词）；
-  ② 侧面视角锚由 `side profile view, facing right` 改为 `, from side`，pose_side 禁写 full profile/silhouette 类措辞。
+  ② 侧面视角锚由 `side profile view, facing right` 改为 `, from side`，pose_side 禁写 full profile/silhouette 类措辞；
+  ③ 机械/构装系一律奇幻蒸汽朋克构装体，禁现代未来词汇（词表与放行同形词见 `_authoring-guidelines.md`「机械/构装系风格」节），全库 37 条已按此回炉。
 
 ## 作业方式（核心纪律）
 

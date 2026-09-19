@@ -64,6 +64,8 @@ describe('预设队保存', () => {
 
   it('校验通过 → 按 index 写入（越界即新增），站位顺序保留', () => {
     const s = save();
+    // 旗帜（M6）需该王国任务链 8/8 解锁后才可装备
+    s.kingdoms['破碎尖塔'] = { level: 1, questsDone: 8, exploreTier: 0, lastTributeAt: 0 };
     const members = [troop(6457), troop(6000), troop(6097)]; // 故意乱序：站位即数组顺序
     const r = setTeamPreset(s, 1, { name: '二号队', members, bannerKingdomId: '破碎尖塔' });
     expect(r).toMatchObject({ ok: true, index: 1 });
@@ -71,6 +73,16 @@ describe('预设队保存', () => {
     expect(s.teams[1]!.members).toEqual(members);
     expect(s.teams[1]!.bannerKingdomId).toBe('破碎尖塔');
     expect(s.teams).toHaveLength(2);
+  });
+
+  it('旗帜未解锁 → BAD_BANNER 拦截（M6 装备校验），存档不动', () => {
+    const s = save();
+    const before = JSON.stringify(s.teams);
+    const members = OWNED.map(troop);
+    const locked = setTeamPreset(s, 0, { name: 'X', members, bannerKingdomId: '破碎尖塔' });
+    expect(locked.ok).toBe(false);
+    if (!locked.ok) expect(locked.issues.map((i) => i.code)).toContain('BAD_BANNER');
+    expect(JSON.stringify(s.teams)).toBe(before);
   });
 
   it('activeTeam 取当前索引，越界回退 0 号', () => {

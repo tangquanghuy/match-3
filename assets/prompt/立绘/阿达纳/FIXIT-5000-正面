@@ -1,0 +1,11 @@
+FIXIT-5000：
+wlopk2style, Yoneyama Mai Style, 
+western fantasy style, DnD monster manual illustration, painterly fantasy,
+<krea2_prompt>
+  <subject>repair-and-refit clockwork construct, stocky multi-armed build with a tool turret head, a spare-part forge belly and clawed hand rings, filling most of the frame</subject>
+  <details>tool turret head swiveling with a grindstone bit crown, forge belly casting fresh parts in a glow of coals, clawed hand rings clamping a half-mended strut, hull plated in patch quilting</details>
+  <pose>tireless workshop pride, bit crown ticking with the fit, cast-and-fit stance, forge belly pulling a glowing fresh gear while clawed rings seat it into the strut, tool head swapping bits, patch quilting flexing at the seams, facing the viewer</pose>
+  <environment>photorealistic repair forge hall of chain hoist rails, spare-part crates and hung tool racks crowding the work floor, compressed framing, no large empty space</environment>
+  <lighting>strong key light on the subject, clear readable details</lighting>
+  <style>clean anime-style monster design over a photorealistic background, patch hull grey and forge glow orange palette, thumbnail-readable silhouette</style>
+</krea2_prompt>

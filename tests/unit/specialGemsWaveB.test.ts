@@ -754,7 +754,7 @@ describe('狼化宝石（lycanthropyGem：紫匹配；摧毁 → 随机敌人狼
 // ───────────────────────── 其余（腐朽/火山/陷阱/占位） ─────────────────────────
 
 describe('腐朽宝石（decayGem：盘上光环，回合开始兵多一方全员 -1 甲/颗）', () => {
-  it('左方兵多（3v2）：左方全员各 -1 甲（场上 1 颗），右方不动', () => {
+  it('左方兵多（3v2）：额外回合不结算光环；下次真实换手后左方全员各 -1 甲（场上 1 颗）', () => {
     const layout = [
       'x.......',
       '........',
@@ -769,13 +769,19 @@ describe('腐朽宝石（decayGem：盘上光环，回合开始兵多一方全�
     for (const side of [PlayerSide.Left, PlayerSide.Right]) {
       for (const ch of state.teams[side].characters) ch.armor = 10;
     }
-    // 场上 2 颗腐朽：交换后 (3,2) 的 x 被组消掉，(0,0) 仍在 → n=1
+    // 场上 2 颗腐朽：交换后 (3,2) 的 x 被组消掉，(0,0) 仍在 → n=1。
+    // 该交换构成大连（额外回合）：额外回合是同一回合的延续，回合开始的腐朽光环
+    // 不再随行动立即结算（额外回合语义修正，用户裁定 2026-09-19）。
     const events = engine.resolveSwap({ row: 3, col: 5 }, { row: 3, col: 6 });
-    const armorBuffs = eventsOf('buff', events).filter((e) => e.stat === 'armor' && e.amount < 0);
+    expect(events.some((e) => e.type === 'extra-turn')).toBe(true);
+    expect(eventsOf('buff', events).filter((e) => e.stat === 'armor' && e.amount < 0)).toHaveLength(0);
+    // 下一次真实换手（右方回合开始）时光环正常结算：兵多一方（左）全员 -1
+    const handover = engine.passTurn();
+    const armorBuffs = eventsOf('buff', handover).filter((e) => e.stat === 'armor' && e.amount < 0);
     expect(armorBuffs).toHaveLength(3); // 左方 3 人
     for (const ally of state.teams[PlayerSide.Left].characters) expect(ally.armor).toBe(9);
     for (const foe of state.teams[PlayerSide.Right].characters) expect(foe.armor).toBe(10);
-    expect(eventsOf('special-gem-trigger', events).some((e) => e.kind === 'decayGem')).toBe(true);
+    expect(eventsOf('special-gem-trigger', handover).some((e) => e.kind === 'decayGem')).toBe(true);
   });
 
   it('同数兵员（2v2）：双方都扣', () => {

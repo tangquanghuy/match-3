@@ -32,6 +32,25 @@ import { equippedClassOf, equippedWeaponOf, heroStatsOf } from './hero';
 import { allyStatBonus, heroStatBonus, heroTraitCodes, selectedTalents } from './talents';
 import { dynamicTraitCodes } from '../../engine/traits';
 import { CLASSES } from '../data/classes';
+
+/** 职业天赋/专属特质的中文显示名（code → nameZh；详情面板对库外 code 的兜底） */
+const TRAIT_DISPLAY_NAMES: Readonly<Record<string, string>> = Object.fromEntries(
+  CLASSES.flatMap((c) => [
+    ...c.trees.flatMap((t) => t.talents.map((x) => [x.code, x.nameZh ?? x.name] as const)),
+    ...c.perks.map((x) => [x.code, x.nameZh ?? x.name] as const),
+  ]),
+);
+
+/** 主角卡面特质 = 已解锁的职业专属特质（3 槽顺序；天赋不上卡面——用户裁定 2026-09-19） */
+function heroDisplayTraitIds(save: MetaSave): string[] {
+  const cls = equippedClassOf(save);
+  if (!cls) return [];
+  const state = save.hero.classTraits[cls.id];
+  if (!state) return [];
+  return cls.perks
+    .map((perk, i) => (state[i] ? perk.code : null))
+    .filter((code): code is string => !!code);
+}
 import { WEAPONS } from '../data/weapons';
 import { KNOWN_TRAIT_CODES } from '../data/traitIndex';
 import { temperingLevelOf } from './forgeOps';
@@ -67,12 +86,17 @@ export function troopToSnapshot(
     templateId: String(troop.id),
     name: troop.name,
     levelLabel: `Lv.${rec.level}`,
+    portraitUrl: `/meta/assets/portraits/${troop.portrait}.webp`,
     stats: { hp: stats.health, attack: stats.attack, armor: stats.armor, magic: stats.magic },
     troopTypes: [...troop.troopTypes],
     manaColors: [...troop.manaColors],
     manaCost: troop.manaCost,
     traitIds: knownTraits(troop, (i) => rec.traits[i]),
     skillId: String(troop.spell.id),
+    spellName: troop.spell.name,
+    spellDescription: troop.spell.description,
+    traitNames: Object.fromEntries(troop.traits.map((t) => [t.code, t.name])),
+    displayTraitIds: knownTraits(troop, (i) => rec.traits[i]),
   };
 }
 
@@ -84,6 +108,7 @@ export function enemyToSnapshot(troop: TroopData, enemy: EncounterEnemy, index: 
     templateId: String(troop.id),
     name: troop.name,
     levelLabel: `Lv.${enemy.level}`,
+    portraitUrl: `/meta/assets/portraits/${troop.portrait}.webp`,
     tier: enemy.tier,
     stats: { hp: stats.health, attack: stats.attack, armor: stats.armor, magic: stats.magic },
     troopTypes: [...troop.troopTypes],
@@ -92,6 +117,9 @@ export function enemyToSnapshot(troop: TroopData, enemy: EncounterEnemy, index: 
     // 敌人满配特质（AI 无养成概念），同样只带已实现 code
     traitIds: knownTraits(troop, () => true),
     skillId: String(troop.spell.id),
+    spellName: troop.spell.name,
+    spellDescription: troop.spell.description,
+    traitNames: Object.fromEntries(troop.traits.map((t) => [t.code, t.name])),
   };
 }
 
@@ -180,10 +208,12 @@ export function buildPlayerSnapshots(
         heroClass ? [heroClass.troopType] : ['Human'],
         weapon?.manaColors.length ? [...weapon.manaColors] : [BaseColor.Brown],
       );
+      const displayTraitIds = heroDisplayTraitIds(save);
       playerTeam.push({
         externalId: `p${position}-hero`,
         name: '法露特',
         levelLabel: `Lv.${save.hero.level}`,
+        portraitUrl: '/meta/assets/troops/hero.webp',
         stats: {
           hp: heroBase.health + statBonus.health + heroTalent.health + heroAura.health + temperBonus.health,
           attack: heroBase.attack + statBonus.attack + heroTalent.attack + heroAura.attack + temperBonus.attack,
@@ -195,6 +225,10 @@ export function buildPlayerSnapshots(
         // 会话校验要求耗蓝 1~100：无武器按「1 蓝耗的空施法」处理（skillId 'none' 走兜底原型）
         manaCost: weapon?.manaCost ?? 1,
         traitIds: talentCodes,
+        displayTraitIds,
+        spellName: weapon?.name,
+        spellDescription: weapon?.description,
+        traitNames: TRAIT_DISPLAY_NAMES,
         skillId: weapon?.id ?? 'none',
         // 淬炼等级（素材批 F2）：引擎 tempering 来源 modifier 按它计数
         ...(weapon ? { temperingLevel: temperingLevelOf(save, weapon.id) } : {}),

@@ -6,6 +6,7 @@
  * 这里只出权威判定）。站位即数组顺序，队首吃骷髅伤害——是战术不是校验项。
  */
 import { getTroopById } from '../../data/troops';
+import { bannerEquipIssue } from './banners';
 import type { MetaSave, TeamMember, TeamPreset } from '../state/schema';
 
 export const MIN_TEAM_SIZE = 3;
@@ -18,7 +19,8 @@ export type TeamRuleCode =
   | 'HERO_DUPLICATE'
   | 'BAD_MEMBER'
   | 'UNKNOWN_TROOP'
-  | 'NOT_OWNED';
+  | 'NOT_OWNED'
+  | 'BAD_BANNER';
 
 export interface TeamIssue {
   code: TeamRuleCode;
@@ -35,7 +37,10 @@ const SIZE_NAMES: Record<string, string> = {
   troop: '部队',
 };
 
-export function validateTeam(save: MetaSave, team: Pick<TeamPreset, 'members'>): TeamValidation {
+export function validateTeam(
+  save: MetaSave,
+  team: Pick<TeamPreset, 'members'> & Partial<Pick<TeamPreset, 'bannerKingdomId'>>,
+): TeamValidation {
   const issues: TeamIssue[] = [];
   const { members } = team;
 
@@ -74,6 +79,12 @@ export function validateTeam(save: MetaSave, team: Pick<TeamPreset, 'members'>):
     issues.push({ code: 'HERO_DUPLICATE', message: '主角最多编入一名' });
   }
 
+  // 旗帜（M6）：null 合法（不挂），其余必须是已解锁王国的旗帜（任务链 8/8）
+  const bannerIssue = bannerEquipIssue(save, team.bannerKingdomId ?? null);
+  if (bannerIssue) {
+    issues.push({ code: 'BAD_BANNER', message: bannerIssue });
+  }
+
   return { ok: issues.length === 0, issues };
 }
 
@@ -104,7 +115,7 @@ export function setTeamPreset(
   const preset: TeamPreset = {
     name: team.name,
     members: team.members.map((m) => (m.kind === 'hero' ? { kind: 'hero' } : { kind: 'troop', troopId: m.troopId })),
-    bannerKingdomId: team.bannerKingdomId,
+    bannerKingdomId: team.bannerKingdomId ?? null,
   };
   save.teams[index] = preset;
   return { ok: true, index };

@@ -1,0 +1,57 @@
+普通狼人：
+wlopk2style, Yoneyama Mai Style,
+<krea2_prompt>
+  <general_tags>
+    <count>solo, 1monster</count>
+    <rating>safe</rating>
+    <series>original</series>
+    <main_subject>muscular werewolf monster filling most of the frame, crouched predatory pose in misty ancient forest, strong frontal key light illuminates the creature’s face, torso and limbs, bright well-exposed character, fully visible fur and muscle details, clear readable silhouette when scaled down</main_subject>
+    <scene>lycanthrope creature seamlessly integrated into a highly realistic, photorealistic forest environment resembling a real photograph, creature dominates frame with minimal empty background space, primary light source is from front upper direction, subtle rim light only for outline separation, background is darker than the character</scene>
+    <environment>photorealistic old-growth forest, damp mossy stone ground, fog drifting between tree trunks, nighttime wilderness setting, photo-like background, tightly cropped scene with no large blank empty areas, dim ambient environment lighting</environment>
+    <medium>hybrid digital art, clean monster character design juxtaposed over a photorealistic real-life photographic background</medium>
+    <style>clean digital creature design juxtaposed with a realistic, high-detail real-world photographic background, silver and dark brown color theme, controlled contrast, strong frontal key lighting on creature, character is primary focal point, thumbnail-friendly clear shape</style>
+    <linework>sharp defined fur outlines, crisp facial feature linework, detailed individual fur strands, thick clear outlines to preserve details on downscale</linework>
+    <shading>balanced cel-shading on the creature form, soft shadows, heavy frontal key light, subtle silver rim light only on hair edge, bright midtones across body, NO crushed black shadows on torso, face and limbs, realistic background shading</shading>
+    <rendering>polished anime-style monster render combined with a painterly yet photorealistic, real-photo forest background environment with realistic depth of field and bark texture, well-exposed character, retain fine fur and muscle details</rendering>
+    <color_palette>deep charcoal grey, warm brown fur, pale silver edge highlights, cool indigo dark background, pale glowing moon white, lifted midtones on the creature, avoid large pure black areas on body</color_palette>
+    <lighting>primary light: strong soft frontal key light from front upper position illuminating the entire creature, secondary light: faint silver rim light only along mane and shoulder edges, full moon in background acts only as subtle ambient fill, NOT main backlight, low dim environmental shadows, face, chest, arms and front paws fully lit and detailed</lighting>
+    <composition>tight framing, werewolf occupies majority of canvas, asymmetrical wild fur flow, character dominates visual space, no large empty background areas, clear readable silhouette</composition>
+    <perspective>low eye-level frontal view</perspective>
+    <camera_framing>medium-full shot, tight crop, creature fills most of the frame, background compressed and kept minimal</camera_framing>
+    <depth_and_focus>shallow depth of field, sharp foreground werewolf, heavily blurred compressed background trees and drifting fog, atmospheric haze, subject has higher brightness priority</depth_and_focus>
+    <background>highly realistic, photorealistic background, tightly framed forest elements, rolling mist, faint full moon peeking through canopy, real-life forest textures, no wide empty open space, background intentionally darkened so character pops forward</background>
+    <atmosphere>ominous, wild, mysterious, primal, imposing, intense and haunting, creature stands out clearly from dark surroundings</atmosphere>
+    <objects>twisted tree roots, scattered dead branches, drifting mist, partial moon peek</objects>
+    <foreground>wet moss-covered stone floor mirroring faint silver moonlight, realistic damp rock texture, foreground partially occupied by creature’s large clawed feet</foreground>
+    <midground>muscular werewolf in crouched pose, beast figure fills most of the canvas, minimal surrounding empty space, fully well-lit body</midground>
+    <background_details>wispy rolling fog, faint moonlight filtering through canopy, tightly packed dark woodland behind the creature, photorealistic environmental rendering, no vast empty scenery, background is dim and subordinate</background_details>
+    <visual_effects>subtle bloom only around eyes and fur highlights, floating mist particles, volumetric fog in background only, subtle light reflection on wet moss, atmospheric scattering, avoid heavy bloom washing out character details</visual_effects>
+    <materials_and_textures>thick coarse fur, sharp claw texture, rough cracked bark, slimy damp moss, matte cloudy night sky, fur texture clearly visible across whole body</materials_and_textures>
+    <artists>rella</artists>
+  </general_tags>
+  <characters>
+    <character_1>
+      <n>$character_1$</n>
+      <name>werewolf_beast</name>
+      <role>primary</role>
+      <visibility>full body visible, facing forward, slightly turned to the side, body fills most of the frame, face, chest, arms, paws all brightly lit with clear details</visibility>
+      <gender>monster</gender>
+      <age_presentation>ancient primal creature</age_presentation>
+      <appearance>large beastly frame, glowing pale yellow animal eyes, thick shaggy fur, long sharp claws, muscular beast torso, imposing large silhouette filling canvas, well defined bright form, details remain legible when image shrunk</appearance>
+      <distinctive_features>wolf-like head, large pointed ears, powerful muscular limbs, sharp fangs, wild flowing white mane fur, creature dominates visual space</distinctive_features>
+      <hair>thick shaggy fur, mix of charcoal grey and brown, messy wild white mane flowing across shoulders, individual tufts lifted by wind, fur strands retain definition, not buried in shadow</hair>
+      <eyes>pale luminous yellow, staring directly at the viewer, bright glowing eyes that stand out in thumbnails</eyes>
+      <face>slack snarling maw, sharp exposed fangs, stylized beast facial features, subtle soft shadow under brow ridge, face is brightly lit and readable</face>
+      <clothing>tattered ragged torn fabric scraps hanging from waist, partial ruined leather straps, fabric details visible, not pure black</clothing>
+      <accessories>none</accessories>
+      <body_type>massive muscular beastly build, broad shoulders, digitigrade legs, crouched dynamic predatory pose</body_type>
+      <expression>feral, quiet snarl, intense primal stare, looking at viewer</expression>
+      <pose>crouched forward stance, weight shifted, torso slightly angled, large clawed hands planted on stone, body takes up most of the image area</pose>
+      <action>standing on damp mossy stone, looking toward viewer as mist drifts around its legs, front key light illuminates torso and face, moon only subtle ambient glow</action>
+      <gesture>large clawed paws slightly curled, planted firmly on wet stones</gesture>
+      <interaction>standing beneath partial full moon in misty ancient forest, creature is absolute center of attention, brightly separated from dark background</interaction>
+      <position>dominating center and majority of frame, minimal empty background space surrounding figure, subject brightness higher than environment</position>
+    </character_1>
+  </characters>
+  <caption>An exquisite digital artwork featuring a solo monster creature, $character_1$ named werewolf_beast, medium-full tight composition, the beast fills the majority of the canvas with no large blank background space. It is seamlessly integrated into a highly realistic, photorealistic real-world background that closely resembles a real photograph of a misty moonlit ancient woodland, background compressed and secondary to the monster. $character_1$ is in a crouched predatory pose with digitigrade muscular legs, massive clawed feet pressing into damp mossy stones. It wears only tattered scraps of fabric hanging loosely around its waist. Its thick shaggy fur is charcoal grey mixed with warm brown, a wild white mane of fur flowing across broad shoulders, adorned with sharp wolf ears. It has glowing pale yellow beast eyes and a slightly snarling maw with exposed sharp fangs. Lighting setup: strong soft frontal key light from front-above illuminates the creature’s face, chest, limbs and paws, full moon in sky provides only faint subtle ambient glow, only thin silver rim light outlines the mane edge. It looks directly at the viewer with a feral, primal, haunting gaze. The background is a tightly framed dim forest environment, filled with gnarled trees and slow drifting white mist, moonlight piercing through branches only faintly, no wide empty open scenery. The ground beneath it is wet and moss-covered, catching faint reflections of silver moon glow. This combination of an anime-style beast character and a photo-like, true-to-life real-world setting creates a striking, atmospheric contrast between the illustrative monster figure and the condensed photorealistic wilderness scenery, with the werewolf as the clear main subject, properly exposed, no heavy backlighting, no crushed black shadows on the body.</caption>
+</krea2_prompt>

@@ -1,0 +1,190 @@
+/* 每周活动 + 入侵 PvP 屏（素材批 2026-09-19）。追加于全局样式之后（pageCss 'last'）。 */
+
+/* —— 共享 —— */
+.ev-screen .panel, .inv-screen .panel { padding: 22px 26px; overflow: auto; }
+
+/* —— 每周活动 —— */
+.ev-banner { display: flex; justify-content: space-between; align-items: center; gap: 24px;
+  padding: 18px 22px; border: 1px solid rgba(255,255,255,.09); border-radius: 14px;
+  background: linear-gradient(120deg, rgba(120,60,200,.22), rgba(20,30,60,.35) 55%, rgba(200,80,60,.18)); }
+.ev-banner-copy small { letter-spacing: .3em; opacity: .65; font-size: 11px; }
+.ev-banner-copy h1 { font-size: 34px; margin: 4px 0 6px; letter-spacing: .12em; }
+.ev-banner-copy p { margin: 0; opacity: .82; font-size: 13px; }
+.ev-kingdom b { color: #ffd77a; }
+.ev-banner-meta { display: flex; flex-direction: column; align-items: flex-end; gap: 12px; }
+.ev-timer { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; opacity: .85; }
+.ev-timer i { width: 8px; height: 8px; border-radius: 50%; background: #ff7a59; box-shadow: 0 0 8px #ff7a59; }
+.ev-fight { cursor: pointer; border: 1px solid #ffd77a; background: linear-gradient(180deg, #7c4fd0, #4a2c90);
+  color: #ffe9b8; border-radius: 12px; padding: 10px 34px; text-align: center; }
+.ev-fight span { display: block; font-size: 18px; letter-spacing: .4em; text-indent: .4em; font-weight: 700; }
+.ev-fight small { font-size: 10px; letter-spacing: .25em; opacity: .7; }
+.ev-fight:hover { filter: brightness(1.12); }
+
+.ev-progress { margin-top: 18px; }
+.ev-progress-head { display: flex; align-items: baseline; gap: 12px; font-size: 13px; opacity: .9; }
+.ev-progress-head b { font-size: 22px; color: #ffd77a; }
+.ev-progress-head small { margin-left: auto; opacity: .6; }
+.ev-progress-bar { margin-top: 8px; height: 10px; border-radius: 6px; background: rgba(255,255,255,.08); overflow: hidden; }
+.ev-progress-bar i { display: block; height: 100%; border-radius: 6px;
+  background: linear-gradient(90deg, #4fd0a0, #ffd77a); transition: width .3s ease; }
+
+.ev-track { margin-top: 16px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+.ev-mile { display: flex; gap: 10px; padding: 10px 12px; border-radius: 10px;
+  border: 1px solid rgba(255,255,255,.08); background: rgba(10,14,30,.4); }
+.ev-mile.done { border-color: rgba(120,220,160,.5); }
+.ev-mile.ready { border-color: rgba(255,215,122,.75); box-shadow: 0 0 10px rgba(255,215,122,.18); }
+.ev-mile-mark { flex: 0 0 26px; height: 26px; border-radius: 50%; display: grid; place-items: center;
+  font-size: 13px; font-weight: 700; background: rgba(255,255,255,.1); }
+.ev-mile.done .ev-mile-mark { background: #4fb06d; color: #06130b; }
+.ev-mile.ready .ev-mile-mark { background: #ffd77a; color: #241a05; }
+.ev-mile-head { display: flex; justify-content: space-between; gap: 8px; font-size: 13px; }
+.ev-mile-head span { opacity: .55; }
+.ev-mile-rewards { margin-top: 3px; font-size: 11px; opacity: .7; line-height: 1.5; }
+
+.ev-rotation { margin-top: 16px; }
+.ev-rotation > small { opacity: .55; font-size: 11px; letter-spacing: .2em; }
+.ev-rot-row { margin-top: 8px; display: grid; grid-template-columns: repeat(6, 1fr); gap: 8px; }
+.ev-rot { padding: 8px 10px; border-radius: 9px; border: 1px solid rgba(255,255,255,.07); opacity: .55; font-size: 12px; }
+.ev-rot small { display: block; font-size: 10px; letter-spacing: .2em; }
+.ev-rot.active { opacity: 1; border-color: #ffd77a; background: rgba(255,215,122,.08); }
+
+/* —— 入侵 —— */
+.inv-head { display: flex; justify-content: space-between; align-items: center; gap: 24px; }
+.inv-league small { letter-spacing: .3em; opacity: .6; font-size: 11px; }
+.inv-league h1 { margin: 4px 0; font-size: 36px; letter-spacing: .18em; color: var(--league, #e6b84c); }
+.inv-league span { font-size: 12px; opacity: .65; }
+.inv-stats { display: flex; gap: 14px; }
+.inv-stat { min-width: 108px; text-align: center; padding: 10px 14px; border-radius: 12px;
+  border: 1px solid rgba(255,255,255,.09); background: rgba(10,14,30,.4); }
+.inv-stat small { display: block; font-size: 11px; opacity: .6; }
+.inv-stat b { font-size: 22px; color: #ffd77a; }
+.inv-stat b i { font-size: 12px; opacity: .5; font-style: normal; }
+.inv-zone-hint { margin: 12px 2px 0; font-size: 12px; opacity: .8; }
+.inv-zone-hint b { color: #ffd77a; }
+
+.inv-cols { margin-top: 16px; display: grid; grid-template-columns: 11fr 9fr; gap: 18px; align-items: start; }
+.inv-cols h2 { margin: 0 0 8px; font-size: 15px; }
+.inv-cols h2 small { display: block; font-size: 10px; letter-spacing: .28em; opacity: .5; }
+
+.inv-rival { margin-bottom: 10px; padding: 12px 14px; border-radius: 12px;
+  border: 1px solid rgba(255,255,255,.09); background: rgba(10,14,30,.4); position: relative; }
+.inv-rival.frenzy { border-color: rgba(255,110,80,.55); background: rgba(80,20,14,.28); }
+.inv-rival-head { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; }
+.inv-rival-name { font-size: 14px; }
+.inv-rival-nums { display: flex; gap: 12px; font-size: 12px; opacity: .8; }
+.inv-rival-defense { margin-top: 6px; display: flex; flex-wrap: wrap; gap: 6px; }
+.inv-def { font-size: 11px; padding: 2px 8px; border-radius: 999px; background: rgba(255,255,255,.07); opacity: .85; }
+.inv-attack { margin-top: 8px; width: 100%; cursor: pointer; border: 1px solid rgba(255,215,122,.6);
+  border-radius: 9px; padding: 7px 0; background: rgba(124,79,208,.25); color: #ffe9b8;
+  font-size: 13px; letter-spacing: .5em; text-indent: .5em; }
+.inv-attack:hover { background: rgba(124,79,208,.45); }
+.inv-frenzy-tag { display: inline-block; margin-left: 6px; padding: 1px 7px; border-radius: 999px;
+  font-size: 10px; font-style: normal; background: #ff6e50; color: #240a05; font-weight: 700; }
+
+.inv-row { display: grid; grid-template-columns: 34px 1fr auto; align-items: center; gap: 8px;
+  padding: 6px 10px; border-radius: 8px; font-size: 13px; }
+.inv-row.up { background: rgba(79,176,109,.14); box-shadow: inset 2px 0 0 #4fb06d; }
+.inv-row.down { background: rgba(208,79,95,.12); box-shadow: inset 2px 0 0 #d04f5f; }
+.inv-row.me { background: rgba(255,215,122,.14); border: 1px solid rgba(255,215,122,.4); }
+.inv-place { opacity: .6; font-variant-numeric: tabular-nums; }
+.inv-row.me .inv-name { color: #ffd77a; font-weight: 700; }
+.inv-vp { font-variant-numeric: tabular-nums; opacity: .85; }
+.inv-ellipsis { text-align: center; opacity: .4; padding: 2px 0; }
+.inv-zone-legend { margin-top: 10px; font-size: 11px; opacity: .7; display: flex; gap: 16px; }
+.inv-zone-legend i { display: inline-block; width: 10px; height: 10px; border-radius: 3px; margin-right: 6px; }
+.inv-zone-legend i.up { background: #4fb06d; }
+.inv-zone-legend i.down { background: #d04f5f; }
+
+.inv-locked { text-align: center; padding: 60px 30px !important; }
+.inv-locked h1 { font-size: 40px; letter-spacing: .3em; margin: 8px 0; }
+.inv-lock-hint b { color: #ffd77a; }
+
+/* —— 活动商店（2026-09-19 追补） —— */
+.ev-shop { margin-top: 16px; }
+.ev-shop-head { display: flex; align-items: center; justify-content: space-between; }
+.ev-shop-head h2 { margin: 0; font-size: 15px; }
+.ev-shop-head h2 small { display: block; font-size: 10px; letter-spacing: .28em; opacity: .5; }
+.ev-tokens { display: inline-flex; align-items: baseline; gap: 8px; font-size: 13px; }
+.ev-tokens i { width: 10px; height: 10px; border-radius: 50%; background: #ffd77a; box-shadow: 0 0 8px rgba(255,215,122,.8); align-self: center; }
+.ev-tokens b { font-size: 20px; color: #ffd77a; }
+.ev-tokens small { opacity: .55; font-size: 11px; }
+.ev-goods { margin-top: 10px; display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+.ev-goods-item { text-align: left; cursor: pointer; padding: 10px 12px; border-radius: 10px;
+  border: 1px solid rgba(255,255,255,.09); background: rgba(10,14,30,.4); color: inherit; }
+.ev-goods-item b { display: block; font-size: 13px; }
+.ev-goods-item small { display: block; margin-top: 3px; font-size: 11px; opacity: .65; line-height: 1.5; }
+.ev-goods-meta { display: flex; justify-content: space-between; margin-top: 6px; font-size: 11px; opacity: .75; }
+.ev-goods-meta i { color: #ffd77a; font-style: normal; font-weight: 700; }
+.ev-goods-item:hover:not(:disabled) { border-color: rgba(255,215,122,.5); }
+.ev-goods-item.sold-out { opacity: .38; cursor: not-allowed; }
+.ev-goods-item.poor:not(.sold-out) { opacity: .75; }
+
+/* —— 六页路由与专属状态区（玩法差异化批） —— */
+.ev-tabs { display: flex; gap: 6px; margin-bottom: 10px; }
+.ev-tab { display: inline-flex; align-items: center; gap: 6px; padding: 7px 14px; border-radius: 999px;
+  border: 1px solid rgba(255,255,255,.1); color: inherit; text-decoration: none; font-size: 13px; opacity: .7; }
+.ev-tab i { width: 7px; height: 7px; border-radius: 50%; background: #ffd77a; box-shadow: 0 0 6px rgba(255,215,122,.9); }
+.ev-tab.page { border-color: rgba(255,215,122,.6); color: #ffd77a; opacity: 1; }
+.ev-tab.active:not(.page) { opacity: .95; }
+
+.ev-howto { margin-top: 14px; padding: 12px 16px; border-radius: 12px; border: 1px solid rgba(255,255,255,.08);
+  background: rgba(10,14,30,.4); }
+.ev-howto h3 { margin: 0 0 6px; font-size: 14px; }
+.ev-howto h3 small { display: block; font-size: 10px; letter-spacing: .28em; opacity: .5; }
+.ev-howto ul { margin: 0; padding-left: 18px; font-size: 12.5px; opacity: .85; line-height: 1.8; }
+
+.ev-state { margin-top: 14px; padding: 12px 16px; border-radius: 12px;
+  border: 1px solid rgba(255,215,122,.25); background: rgba(60,44,12,.18); }
+.ev-state h3 { margin: 0 0 8px; font-size: 14px; }
+.ev-state h3 small { display: block; font-size: 10px; letter-spacing: .28em; opacity: .5; }
+.ev-state-note { display: block; margin-top: 8px; font-size: 11px; opacity: .6; }
+.ev-state-note b, .ev-state-line b { color: #ffd77a; }
+.ev-state-line { margin: 0; font-size: 13px; opacity: .9; }
+
+/* 入侵防线 */
+.ev-lines { display: flex; align-items: center; gap: 8px; }
+.ev-line-node { flex: 1; text-align: center; padding: 9px 6px; border-radius: 10px;
+  border: 1px solid rgba(255,255,255,.12); background: rgba(10,14,30,.45); font-size: 13px; }
+.ev-line-node small { display: block; font-size: 10px; opacity: .6; margin-top: 2px; }
+.ev-line-node.cleared { border-color: rgba(79,176,109,.55); background: rgba(30,70,45,.35); }
+.ev-line-node.current { border-color: rgba(255,215,122,.75); box-shadow: 0 0 10px rgba(255,215,122,.18); }
+.ev-line-arrow { opacity: .5; }
+
+/* 首领血池 */
+.ev-hpbar { position: relative; height: 22px; border-radius: 8px; background: rgba(255,255,255,.08); overflow: hidden; }
+.ev-hpbar i { position: absolute; inset: 0 auto 0 0; border-radius: 8px;
+  background: linear-gradient(90deg, #a01818, #d04f3f); transition: width .3s ease; }
+.ev-hpbar b { position: absolute; inset: 0; display: grid; place-items: center;
+  font-size: 12px; color: #ffe9b8; text-shadow: 0 1px 2px rgba(0,0,0,.8); }
+
+/* 末日之塔 */
+.ev-tower { display: flex; align-items: center; gap: 10px; }
+.ev-floor { padding: 8px 14px; border-radius: 10px; font-size: 14px; font-weight: 700;
+  border: 1px solid rgba(255,215,122,.55); background: rgba(255,215,122,.1); color: #ffd77a; }
+.ev-floor.meta { font-weight: 400; font-size: 12px; border-style: dashed; opacity: .8; color: inherit; }
+.ev-floor.meta.run { border-style: solid; }
+.ev-floor-sep { opacity: .5; }
+
+/* 未开启预告态 */
+.ev-banner.off { filter: saturate(.35) brightness(.8); }
+.ev-preview { margin-top: 16px; padding: 14px 18px; border-radius: 12px;
+  border: 1px dashed rgba(255,255,255,.18); font-size: 13px; opacity: .85; }
+.ev-preview b { color: #ffd77a; }
+.ev-preview-hint { margin: 6px 0 0; font-size: 11px; opacity: .6; }
+
+.ev-abandon { margin-left: auto; cursor: pointer; border: 1px dashed rgba(255,255,255,.3);
+  border-radius: 8px; background: transparent; color: inherit; font-size: 11px; padding: 5px 10px; opacity: .7; }
+.ev-abandon:hover { opacity: 1; border-color: rgba(255,120,100,.6); color: #ff9a85; }
+
+/* —— 视觉层级修正（玩法差异化批自查）：规则默认收起、里程碑紧凑化 —— */
+.ev-howto { padding: 0; overflow: hidden; }
+.ev-howto summary { cursor: pointer; list-style: none; display: flex; align-items: baseline; gap: 10px;
+  padding: 10px 16px; font-size: 14px; font-weight: 700; }
+.ev-howto summary::-webkit-details-marker { display: none; }
+.ev-howto summary small { font-size: 10px; letter-spacing: .28em; opacity: .5; }
+.ev-howto summary em { margin-left: auto; font-style: normal; font-size: 11px; opacity: .5; }
+.ev-howto[open] summary em { visibility: hidden; }
+.ev-howto ul { margin: 0; padding: 2px 18px 12px 30px; font-size: 12.5px; opacity: .85; line-height: 1.8; }
+.ev-mile { padding: 8px 10px; }
+.ev-mile-head { font-size: 12.5px; }
+.ev-mile-rewards { font-size: 10.5px; }

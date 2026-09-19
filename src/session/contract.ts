@@ -49,6 +49,27 @@ export interface CombatantSnapshot {
    * 可选字段，老宿主不传即可（该角色不属于任何王国），不构成 `schemaVersion` 不兼容变更。
    */
   kingdom?: string;
+  /**
+   * 技能显示文本（素材批追补 2026-09-19）：宿主侧已知的技能名/描述，
+   * 供详情面板与卡面展示（引擎原型无文本，宿主不传时客户端按池回落）。
+   */
+  spellName?: string;
+  spellDescription?: string;
+  /**
+   * 特质显示名（code → 中文名）：库外 code（职业天赋/专属特质）的名称兜底。
+   */
+  traitNames?: Record<string, string>;
+  /**
+   * 卡面特质展示清单（缺省回落 traitIds）：主角卡面只展示 3 条职业特质，
+   * 天赋(最多 7 条)只在详情面板出现、不占卡面。
+   */
+  displayTraitIds?: string[];
+  /**
+   * 主角武器淬炼等级（素材批 2026-09-19；官方 Tempering 语义）。
+   * 引擎 modifier 来源 `{ kind: 'tempering' }` 按它计数（每级 +N，见 builders.temperingBoost）。
+   * 可选字段，缺省按 0 计（增项为 0），不构成 `schemaVersion` 不兼容变更。
+   */
+  temperingLevel?: number;
   /** 关联法力颜色，任一色的匹配共同充能同一条法力条 */
   manaColors: BaseColor[];
   /** 释放技能所需法力总量 */

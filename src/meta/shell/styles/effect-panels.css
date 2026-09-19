@@ -1,0 +1,210 @@
+:root {
+  --effect-text: #ddd3c1;
+  --effect-muted: #a79da9;
+  --effect-faint: #8f8693;
+  --effect-gold: #ead8ad;
+  --effect-accent: #df8f86;
+}
+
+/* 英雄页与武器库沿用队伍页抬升灰底；图鉴不走这套。 */
+.hero-screen {
+  color: var(--effect-text);
+  background:
+    radial-gradient(ellipse at 52% 22%, rgba(78, 72, 85, .9), transparent 58%),
+    linear-gradient(135deg, #282a35, #34323e 52%, #252a33);
+}
+
+.hero-info {
+  color: var(--effect-text);
+  background: linear-gradient(145deg, rgba(55, 53, 65, .98), rgba(39, 40, 50, .98));
+}
+
+.class-head { border-bottom-color: rgba(194, 164, 102, .28); }
+.class-head-copy p { color: var(--effect-muted); }
+.next-reward { color: #b7ad9f; }
+.class-xp i { background: linear-gradient(90deg, #8a6c3d, #d0ae6c); box-shadow: 0 0 8px rgba(208, 174, 108, .22); }
+
+.weapon-slab,
+.talent-board {
+  color: var(--effect-text);
+  background: #16171f;
+  border-color: #786746;
+  box-shadow: 0 3px 9px rgba(0, 0, 0, .28);
+}
+
+.weapon-plate {
+  border-right-color: #786746;
+  background: linear-gradient(180deg, #2f2e38, #1d1e26);
+}
+.weapon-plate .plate-lamp,
+.detail-art .plate-lamp { display: none; }
+
+.weapon-spell { background: #252630; }
+
+.weapon-spell .wspell-head {
+  background: linear-gradient(180deg, #3d3945, #2d2d37);
+  border-bottom-color: #756344;
+  box-shadow: none;
+}
+
+.weapon-spell .wspell-body,
+.talent-board {
+  color: var(--effect-text);
+  background: linear-gradient(180deg, #2c2d37, #23242c);
+  border-color: rgba(192, 160, 98, .28);
+  box-shadow: inset 0 1px rgba(244, 226, 190, .06);
+}
+
+.weapon-spell .wspell-body {
+  --ink: var(--effect-text);
+  --ink-soft: #bbb0b7;
+  --ink-faint: var(--effect-muted);
+  --accent: var(--effect-gold);
+  --accent-strong: var(--effect-accent);
+  --rule: rgba(192, 160, 98, .32);
+  --edge: rgba(192, 160, 98, .18);
+  --quote-line: var(--effect-gold);
+  background-color: transparent;
+  background-image: none;
+}
+
+.weapon-spell .ink-rule { color: var(--effect-muted); }
+.weapon-spell .ink-rule i { background: linear-gradient(90deg, transparent, rgba(192, 160, 98, .42)); }
+
+.weapon-spell .spell-copy {
+  color: var(--effect-text);
+  text-shadow: none;
+}
+
+.weapon-spell .spell-stat {
+  color: var(--effect-accent);
+  border-bottom-color: rgba(223, 143, 134, .58);
+}
+
+.weapon-spell .spell-stat:hover,
+.weapon-spell .spell-stat:focus-visible,
+.weapon-spell .spell-stat[aria-expanded="true"] {
+  color: #f2aca2;
+  border-bottom-color: currentColor;
+}
+
+.weapon-spell .formula {
+  color: #b9aeb5;
+  border-top-color: rgba(192, 160, 98, .32);
+}
+
+.weapon-spell .formula span { color: #b7ad9f; }
+.weapon-spell .formula strong { color: #e4c994; }
+
+.talent-board {
+  background: linear-gradient(180deg, #2c2d37, #23242c);
+  border: 1px solid #786746;
+}
+
+.talent-board .section-title h3 { color: var(--effect-gold); }
+.talent-board .section-title small { color: var(--effect-muted); }
+.talent-board .section-title .ghost {
+  color: #d8c59e;
+  background: rgba(31, 31, 40, .56);
+  border-color: rgba(201, 171, 112, .5);
+}
+
+.talent-board .talent-node [data-icon] {
+  color: #cbb78d;
+  background: #292934;
+  border-color: #776747;
+}
+
+.talent-board .talent-node b { color: #ddd3c1; }
+.talent-board .talent-node small { color: var(--effect-faint); }
+
+.talent-board .talent-node.claimed [data-icon] {
+  color: #fff1c9;
+  background: linear-gradient(135deg, #8b6b37, #514127);
+  border-color: #c2a262;
+  box-shadow: 0 0 12px rgba(198, 158, 84, .2);
+}
+
+.talent-board .talent-node.claimed b { color: var(--effect-gold); }
+
+.talent-board .talent-node.current [data-icon] {
+  color: #fff5da;
+  background: linear-gradient(135deg, #a77b42, #62452b);
+  border-color: #e0bf79;
+  box-shadow: 0 0 0 3px rgba(205, 171, 104, .16);
+}
+
+.talent-board .talent-node.current b { color: #f0d9a8; }
+.talent-board .path-line { background: #554d59; }
+.talent-board .path-line.on {
+  background: linear-gradient(90deg, #8a6c3d, #d0ae6c);
+  box-shadow: none;
+}
+
+.class-vault {
+  background: rgba(28, 29, 38, .72);
+  border-top: 1px solid rgba(192, 160, 98, .32);
+}
+
+.class-vault .section-title h3 { color: var(--effect-gold); }
+.class-vault .section-title > span { color: var(--effect-muted); }
+
+.class-btn {
+  color: #d9cfbc;
+  background: rgba(29, 29, 38, .72);
+  border-color: #75674f;
+}
+
+.class-btn [data-icon] { color: #d3bb87; }
+.class-btn small { color: var(--effect-faint); }
+.class-btn.on {
+  color: #fff0cd;
+  background: linear-gradient(#8f7042, #634821);
+  border-color: #c0a163;
+  box-shadow: inset 0 1px rgba(255, 244, 208, .28);
+}
+
+.vault-sheet {
+  background: linear-gradient(145deg, rgba(55, 53, 65, .98), rgba(39, 40, 50, .98));
+  box-shadow: 0 0 0 1px rgba(28, 24, 27, .9), 0 0 0 2px rgba(194, 164, 102, .42), 0 24px 90px #000;
+}
+
+.vault-head {
+  background: rgba(43, 41, 51, .97);
+  border-bottom-color: #84714f;
+}
+
+.vault-heading p,
+.vault-count,
+.detail-source { color: var(--effect-muted); }
+.vault-close { color: #d2be94; border-color: #756449; }
+
+.vault-rack {
+  background: linear-gradient(180deg, #2a2b35, #23242c);
+  box-shadow: none;
+}
+
+.rack-tile {
+  color: var(--effect-text);
+  background: #252630;
+  border-color: #786746;
+  box-shadow: 0 3px 9px rgba(0, 0, 0, .28);
+}
+
+.rack-tile.picked {
+  background: #35323d;
+  border-color: #dfc17f;
+  box-shadow: 0 0 0 2px rgba(208, 173, 103, .32);
+}
+
+.vault-detail {
+  background: linear-gradient(180deg, #2c2d37, #23242c);
+  border-left-color: #756344;
+}
+
+.detail-art {
+  background: #1d1e26;
+  border-color: #786746;
+}
+
+.vault-detail .weapon-spell { border-color: #786746; }

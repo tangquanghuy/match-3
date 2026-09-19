@@ -1,5 +1,5 @@
 /**
- * Meta 层存档 schema（v1）——对齐 META-GAME-PLAN.md §3.3 草案。
+ * Meta 层存档 schema（v2）——对齐 META-GAME-PLAN.md §3.3 草案。
  *
  * 本文件只有类型与默认值工厂：禁 DOM、禁引擎/会话依赖（方向：meta → data 单向）。
  * 字段语义要点：
@@ -12,7 +12,15 @@
 import { STARTING_CURRENCIES } from '../data/economy';
 import { STARTER_WEAPON_ID } from '../data/weapons';
 
-export const META_SAVE_VERSION = 1;
+export const META_SAVE_VERSION = 2;
+
+/**
+ * v1 → v2（主角系统 v2：官方 38 职业 + 天赋树）：
+ *  - 旧 8 职业为设计虚构（berserker/cleric/rogue/druid/ranger 无官方对应），
+ *    迁移时重映射到官方职业 id（见 MIGRATIONS）；
+ *  - talentSpent（按等级自动生效的旧天赋点）废弃，改 talentPicks（7 档三树选一）；
+ *  - 新增 classTraits（职业专属特质三槽解锁状态）。
+ */
 
 // ---------------------------------------------------------------------------
 // 基础节
@@ -23,7 +31,22 @@ export interface Currencies {
   souls: number;
   gems: number;
   goldKeys: number;
+  /** 荣耀（官方 Glory：排位 PvP 主产，20 荣耀=1 荣耀箱；2026-09-19 素材批加性字段） */
+  glory: number;
 }
+
+/** 素材库存（2026-09-19 素材批：淬炼钢锭 / 熔铸符卷 / 特质石；词表见 data/materials.ts） */
+export interface Materials {
+  /** 钢锭按档位（键 = data/materials IngotKey） */
+  ingots: Record<string, number>;
+  /** 熔铸符卷（Doomed 系武器淬炼专用） */
+  forgeScrolls: number;
+  /** 特质石：键 = '{tier}:{color}' 或 'celestial'（见 data/materials.stoneKey） */
+  traitstones: Record<string, number>;
+}
+
+/** 武器淬炼等级：weaponId → level（0 起步，上限 20；WEAPON-FORGE-DESIGN §1 F2 接线） */
+export type WeaponTempering = Record<string, number>;
 
 /** 单张卡（按 troopId 计）的养成记录 */
 export interface TroopRecord {
@@ -59,13 +82,18 @@ export interface HeroState {
   xp: number;
   classId: string | null;
   classLevels: Record<string, number>;
-  /** 职业当前经验（加性字段，version 仍为 1） */
+  /** 职业当前经验（冠军等级 1~100） */
   classXp: Record<string, number>;
   unlockedClasses: string[];
   unlockedWeapons: string[];
   equippedWeapon: string | null;
-  /** classId → 已用天赋点 */
-  talentSpent: Record<string, number>;
+  /**
+   * classId → 已选天赋（长度 7 的稀疏数组，下标 = 档位 0..6，值 = 天赋 code 或 null）。
+   * 每档至多选 1 条（三树七档选一），可随时改配（官方口径）。
+   */
+  talentPicks: Record<string, (string | null)[]>;
+  /** classId → 职业专属特质三槽解锁状态（顺序同 classes.json perks） */
+  classTraits: Record<string, [boolean, boolean, boolean]>;
 }
 
 /** 进行中的一轮现开赛（draft 卡即用即弃，不进 collection——裁定④） */
@@ -82,6 +110,51 @@ export interface ArenaState {
   bestRun: number;
   /** 最近一次使用本周免费票的时刻（epoch ms）；< weekStart 即本周免费可用。加性字段 */
   lastFreeEntryAt: number;
+}
+
+/** 入侵 PvP（2026-09-19）：联赛官阶 + 每周 VP 赛季（系统逻辑见 systems/invasion.ts） */
+export interface InvasionState {
+  /** 联赛 idx 0..9（0=青铜；INVASION_LEAGUES 词表） */
+  league: number;
+  /** 本周 VP */
+  vp: number;
+  /** 当前赛季周锚点（weekStart；0 = 从未进入过入侵） */
+  weekStart: number;
+  /** 本周对手池种子（同周复现同一份 30 人榜单） */
+  seed: number;
+  /** 最近一次入侵胜利的「当日零点」（每日首胜荣耀判定）；0 = 今天还没赢过 */
+  lastWinDay: number;
+  /** 本周已打的入侵场数（0 场跨周 = 不降不发，官方「不打不降」口径） */
+  battles: number;
+  /** 历史最高联赛 */
+  bestLeague: number;
+  /** 已完成的赛季数 */
+  seasonsPlayed: number;
+}
+
+/** 每周活动周实例（系统逻辑见 systems/events.ts；里程碑达标自动入账） */
+export interface EventWeekState {
+  /** 本活动周锚点（weekStart） */
+  weekStart: number;
+  /** 已得积分 */
+  points: number;
+  /** 已自动入账的里程碑下标（EVENT_MILESTONES 序） */
+  claimed: number[];
+  /** 本周活动胜场 */
+  wins: number;
+  /** 活动代币（本周商店通用；胜场获得，跨周作废） */
+  tokens: number;
+  /** 活动商店已购计数：goodsId → 次数（限量货架按它判库存） */
+  bought: Record<string, number>;
+  /**
+   * 六种活动的玩法状态（键约定见 systems/events.ts EVENT_STATE_KEYS）：
+   * invasion 防线 invLine/invRepelled；raidBoss 血池 bossTier/bossHp/bossMax/bossesSlain；
+   * towerOfDoom 楼层 floor/floorBest/runActive；worldEvent 物资 supplies；
+   * classTrials 连胜 trialStreak；factionAssault 进攻次数 assaultWins。
+   */
+  eventData: Record<string, number>;
+  /** 末日之塔爬塔 run 的冻结队伍（跨场延续 HP/阵亡）；仅爬塔期间非 null */
+  runTeam: { externalId: string; hp: number; defeated: boolean }[] | null;
 }
 
 export interface KingdomState {
@@ -109,7 +182,7 @@ export interface MetaSettings {
 export interface GachaLogEntry {
   /** 开箱时刻 epoch ms（调用方传入） */
   at: number;
-  kind: 'gem' | 'gold';
+  kind: 'gem' | 'gold' | 'glory';
   seed: number;
   troops: number[];
 }
@@ -139,6 +212,14 @@ export interface MetaSave {
   dailyFirstWinAt: number;
   /** 最近开箱记录（新的在前，最多 GACHA_LOG_CAP 条）。加性字段，version 仍为 1 */
   gachaLog: GachaLogEntry[];
+  /** 素材库存（加性字段，version 仍为 2） */
+  materials: Materials;
+  /** 武器淬炼等级（加性字段，version 仍为 2） */
+  weaponTempering: WeaponTempering;
+  /** 入侵 PvP 赛季（加性字段，version 仍为 2） */
+  invasion: InvasionState;
+  /** 每周活动当前周（加性字段，version 仍为 2；null = 本周还没打过活动） */
+  eventWeek: EventWeekState | null;
   settings: MetaSettings;
 }
 
@@ -163,7 +244,8 @@ function newHero(): HeroState {
     unlockedClasses: [],
     unlockedWeapons: [STARTER_WEAPON_ID],
     equippedWeapon: STARTER_WEAPON_ID,
-    talentSpent: {},
+    talentPicks: {},
+    classTraits: {},
   };
 }
 
@@ -174,10 +256,11 @@ function newTroopRecord(): TroopRecord {
 /** 组一个全新存档。starter 部队按 troops.json 的 id 引用（对账脚本能校验悬空引用）。 */
 export function newSave(options: NewSaveOptions = {}): MetaSave {
   const now = options.now ?? Date.now();
-  const currencies: Currencies = {
-    ...STARTING_CURRENCIES,
-    ...options.currencies,
-  };
+  const currencies: Currencies = Object.assign(
+    { gold: 0, souls: 0, gems: 0, goldKeys: 0, glory: 0 },
+    STARTING_CURRENCIES,
+    options.currencies,
+  );
   const save: MetaSave = {
     version: META_SAVE_VERSION,
     createdAt: now,
@@ -192,6 +275,10 @@ export function newSave(options: NewSaveOptions = {}): MetaSave {
     stats: { battlesWon: 0, battlesLost: 0, soulsEarned: 0, goldEarned: 0 },
     dailyFirstWinAt: 0,
     gachaLog: [],
+    materials: { ingots: {}, forgeScrolls: 0, traitstones: {} },
+    weaponTempering: {},
+    invasion: { league: 0, vp: 0, weekStart: 0, seed: 0, lastWinDay: 0, battles: 0, bestLeague: 0, seasonsPlayed: 0 },
+    eventWeek: null,
     settings: { language: 'zh', battleDebug: false },
   };
   const starters = options.starterTroopIds ?? [];

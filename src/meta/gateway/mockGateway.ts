@@ -19,7 +19,7 @@ import { upgradeKingdom, setExploreTier } from '../systems/kingdomOps';
 import { collectTribute } from '../systems/tribute';
 import type { SettlementContext } from '../systems/settlement';
 import { temperWeaponOnSave } from '../systems/forgeOps';
-import { planEventEncounter, currentEventTheme, eventBattleReady } from '../systems/events';
+import { planEventEncounter, currentEventTheme, eventBattleReady, buyEventGoods, applyEventBattleModifiers, abandonTowerRun } from '../systems/events';
 import { planInvasionBattle, settleInvasionBattle } from '../systems/invasion';
 import { activeTeam } from '../systems/teamRules';
 import {
@@ -358,7 +358,22 @@ export class MockGateway implements MetaGateway {
     const notReady = eventBattleReady(this.save, theme.type.id, hasHero);
     if (notReady) return fail('INVALID', notReady);
     const plan = planEventEncounter(this.save, weekStart, this.nextSeed());
-    return buildBattleRequest(this.save, plan);
+    const outcome = buildBattleRequest(this.save, plan);
+    // 活动玩法对面板的修改（阵营 buff / 塔层减员残血）：构建后、启动前应用
+    if (outcome.ok) applyEventBattleModifiers(this.save, outcome);
+    return outcome;
+  }
+
+  async abandonTowerRun(weekStart: number) {
+    const result = abandonTowerRun(this.save, weekStart);
+    if (result.ok) this.persist();
+    return { result, save: this.save };
+  }
+
+  async buyEventGoods(goodsId: string, _now: number, weekStart: number) {
+    const result = buyEventGoods(this.save, goodsId, weekStart);
+    if (result.ok) this.persist();
+    return { result, save: this.save };
   }
 
   // —— 入侵 PvP（素材批 2026-09-19） ——

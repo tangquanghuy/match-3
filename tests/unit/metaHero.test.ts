@@ -1,7 +1,11 @@
+/**
+ * 主角系统 v2 测试：等级曲线、官方 38 职业、冠军等级、武器（重映射后口径）、
+ * 桥接快照（天赋加成/特质路由）、结算解锁。
+ * 天赋树细节见 metaTalent.test.ts；职业数据完整性见 metaClasses.test.ts。
+ */
 import { describe, it, expect } from 'vitest';
 import type { BattleResult } from '../../src/session/contract';
 import {
-  activeTalentCodes,
   addClassXp,
   addHeroXp,
   applySettlement,
@@ -11,7 +15,7 @@ import {
   classById,
   classLevelOf,
   CLASS_MAX_LEVEL,
-  CLASS_TALENT_LEVELS,
+  CHAMPION_TIERS,
   CLASSES,
   classXpToNext,
   equipClass,
@@ -20,7 +24,7 @@ import {
   heroStatsAt,
   heroStatsOf,
   heroXpToNext,
-  KNOWN_TRAIT_CODES,
+  pickTalent,
   newSave,
   planQuestEncounter,
   setTeamPreset,
@@ -29,6 +33,8 @@ import {
 } from '../../src/meta';
 
 const KINGDOM = '破碎尖塔';
+/** 督军（Warlord）= 破碎尖塔绑定职业（官方 HeroClassCode warrior） */
+const STARTER_CLASS = 'warrior';
 
 const save = () => newSave({ now: 0, starterTroopIds: [6000, 6097, 6457] });
 
@@ -88,57 +94,60 @@ describe('主角成长曲线（设计值锚点 + 官方形状）', () => {
   });
 });
 
-describe('职业（8 个，绑定王国任务链）', () => {
-  it('全部职业定义合法：天赋 5 档且 code 均为已实现特质', () => {
-    expect(CLASSES).toHaveLength(8);
+describe('职业（官方 38 个，绑定王国任务链）', () => {
+  it('38 职业 × 3 树 × 7 档；冠军等级上限 100；档位表 = 官方 1/5/10/20/40/70/100', () => {
+    expect(CLASSES).toHaveLength(38);
+    expect(CLASS_MAX_LEVEL).toBe(100);
+    expect([...CHAMPION_TIERS]).toEqual([1, 5, 10, 20, 40, 70, 100]);
     for (const cls of CLASSES) {
-      expect(cls.talents.map((t) => t.level)).toEqual([...CLASS_TALENT_LEVELS]);
-      for (const talent of cls.talents) {
-        expect(KNOWN_TRAIT_CODES.has(talent.code)).toBe(true);
-      }
+      expect(cls.trees).toHaveLength(3);
+      for (const tree of cls.trees) expect(tree.talents).toHaveLength(7);
       expect(classByKingdom(cls.kingdom)?.id).toBe(cls.id);
       expect(classById(cls.id)).toBeTruthy();
     }
-    expect(CLASS_MAX_LEVEL).toBe(80);
     expect(classXpToNext(1)).toBe(150);
   });
 
-  it('解锁→装备→天赋生效：破碎尖塔 8 关解锁骑士', () => {
-    expect(classByKingdom(KINGDOM)?.id).toBe('knight');
+  it('解锁→装备：破碎尖塔 8 关解锁督军；1 级即解锁第一档天赋选取', () => {
+    expect(classByKingdom(KINGDOM)?.id).toBe(STARTER_CLASS);
     const s = save();
-    expect(equipClass(s, 'knight')).toMatchObject({ ok: false, code: 'PREREQ_LOCKED' });
-    s.hero.unlockedClasses.push('knight');
-    expect(equipClass(s, 'knight')).toEqual({ ok: true, classId: 'knight' });
-    expect(classLevelOf(s, 'knight')).toBe(1);
-    expect(activeTalentCodes(s)).toEqual([]); // 1 级还没有天赋
+    expect(equipClass(s, STARTER_CLASS)).toMatchObject({ ok: false, code: 'PREREQ_LOCKED' });
+    s.hero.unlockedClasses.push(STARTER_CLASS);
+    expect(equipClass(s, STARTER_CLASS)).toEqual({ ok: true, classId: STARTER_CLASS });
+    expect(classLevelOf(s, STARTER_CLASS)).toBe(1);
 
-    s.hero.classLevels['knight'] = 5;
-    expect(activeTalentCodes(s)).toEqual(['armored']);
-    s.hero.classLevels['knight'] = 20;
-    expect(activeTalentCodes(s)).toEqual(['armored', 'sturdy']);
+    // 第一档（Lv.1）可选取战争树 T1「凶悍」= 自身攻击 +4
+    const warlord = classById(STARTER_CLASS)!;
+    const ferocity = warlord.trees[0]!.talents[0]!;
+    expect(ferocity.effect).toEqual({ kind: 'selfStat', stat: 'attack', amount: 4 });
+    expect(pickTalent(s, STARTER_CLASS, 0, ferocity.code)).toMatchObject({ ok: true });
   });
 
-  it('职业升级：经验逐级结算，封顶 80 级；未装备职业不积经验', () => {
+  it('冠军升级：经验逐级结算，封顶 100 级；未装备职业不积经验', () => {
     const s = save();
-    s.hero.unlockedClasses.push('knight');
-    equipClass(s, 'knight');
-    s.hero.classXp['knight'] = classXpToNext(1) + classXpToNext(2) + 3;
-    expect(addClassXp(s, 'knight', 0)).toEqual({ levelsGained: 2, newLevel: 3 });
-    expect(s.hero.classXp['knight']).toBe(3);
+    s.hero.unlockedClasses.push(STARTER_CLASS);
+    equipClass(s, STARTER_CLASS);
+    s.hero.classXp[STARTER_CLASS] = classXpToNext(1) + classXpToNext(2) + 3;
+    expect(addClassXp(s, STARTER_CLASS, 0)).toEqual({ levelsGained: 2, newLevel: 3 });
+    expect(s.hero.classXp[STARTER_CLASS]).toBe(3);
 
-    s.hero.classLevels['knight'] = CLASS_MAX_LEVEL;
-    expect(addClassXp(s, 'knight', 9999)).toEqual({ levelsGained: 0, newLevel: CLASS_MAX_LEVEL });
-    expect(addClassXp(s, 'ranger', 50)).toBeNull();
+    s.hero.classLevels[STARTER_CLASS] = CLASS_MAX_LEVEL;
+    expect(addClassXp(s, STARTER_CLASS, 9999)).toEqual({ levelsGained: 0, newLevel: CLASS_MAX_LEVEL });
+    expect(addClassXp(s, 'knight', 50)).toBeNull();
   });
 });
 
-describe('武器（主角唯一施法手段）', () => {
-  it('首批 20 把：通用 4 + 8 职业 × 2；新档自带学徒法杖', () => {
+describe('武器（主角唯一施法手段；v2 重映射官方职业）', () => {
+  it('首批 20 把：通用 4 + 8 官方职业 × 2；新档自带学徒法杖', () => {
     expect(WEAPONS).toHaveLength(20);
     expect(WEAPONS.filter((w) => w.classId === null)).toHaveLength(4);
-    for (const cls of CLASSES) {
-      expect(WEAPONS.filter((w) => w.classId === cls.id)).toHaveLength(2);
+    const bound = new Set(WEAPONS.filter((w) => w.classId !== null).map((w) => w.classId as string));
+    expect(bound.size).toBe(8);
+    for (const id of bound) {
+      expect(WEAPONS.filter((w) => w.classId === id)).toHaveLength(2);
+      expect(classById(id as string)).toBeTruthy(); // 绑定职业必须在官方 38 表内
     }
+    for (const w of WEAPONS) expect(w.weaponType).toBeTruthy();
     const s = save();
     expect(equippedWeaponOf(s)?.id).toBe(STARTER_WEAPON_ID);
     expect(canUseWeapon(s, equippedWeaponOf(s)!)).toBe(true);
@@ -153,7 +162,7 @@ describe('武器（主角唯一施法手段）', () => {
     expect(equippedWeaponOf(s)?.name).toBe('学者之书');
   });
 
-  it('职业武器需要对应职业与职业等级（10/20 两档）', () => {
+  it('职业武器需要对应职业与冠军等级（10/20 两档）', () => {
     const s = save();
     expect(equipWeapon(s, 'w_knight_10')).toMatchObject({ ok: false, code: 'PREREQ_LOCKED' });
     s.hero.unlockedClasses.push('knight');
@@ -168,12 +177,14 @@ describe('武器（主角唯一施法手段）', () => {
   });
 });
 
-describe('主角入队桥接与结算（M5 占位转正）', () => {
-  it('主角+部队混编可出战：快照带武器技能、天赋、王国加成', () => {
+describe('主角入队桥接与结算（天赋真实入战）', () => {
+  it('天赋自身静态加成入快照；主角采纳职业兵种类型', () => {
     const s = save();
-    s.hero.unlockedClasses.push('knight');
-    equipClass(s, 'knight');
-    s.hero.classLevels['knight'] = 5; // 天赋档 1 生效
+    s.hero.unlockedClasses.push(STARTER_CLASS);
+    equipClass(s, STARTER_CLASS);
+    s.hero.classLevels[STARTER_CLASS] = 5;
+    const warlord = classById(STARTER_CLASS)!;
+    expect(pickTalent(s, STARTER_CLASS, 0, warlord.trees[0]!.talents[0]!.code)).toMatchObject({ ok: true });
     teamWithHero(s);
 
     const outcome = buildBattleRequest(s, planQuestEncounter(KINGDOM, 1, 7));
@@ -182,12 +193,30 @@ describe('主角入队桥接与结算（M5 占位转正）', () => {
     expect(hero.name).toBe('法露特');
     expect(hero.skillId).toBe(STARTER_WEAPON_ID);
     expect(hero.manaColors).toEqual(equippedWeaponOf(s)!.manaColors);
-    expect(hero.traitIds).toEqual(['armored']);
-    expect(hero.stats.hp).toBe(heroStatsAt(s.hero.level).health); // 破碎尖塔未满级，无加成
+    // 督军采纳 Orc? 否——无字面证据保持 Human；天赋凶悍 = 攻击 +4
+    expect(hero.troopTypes).toEqual(['Human']);
+    expect(hero.stats.attack).toBe(heroStatsAt(s.hero.level).attack + 4);
+    expect(hero.stats.hp).toBe(heroStatsAt(s.hero.level).health); // 破碎尖塔未满级，无王国加成
 
     // 武器原型注册为真实技能（非兜底空原型）
     const proto = outcome.registry.prototypes.get(STARTER_WEAPON_ID)!;
     expect(proto.segments.length).toBeGreaterThan(0);
+  });
+
+  it('天赋 trait 别名进主角 traitIds（携火者→firelink）；未实现天赋不带特质', () => {
+    const s = save();
+    s.hero.unlockedClasses.push(STARTER_CLASS);
+    equipClass(s, STARTER_CLASS);
+    s.hero.classLevels[STARTER_CLASS] = 70; // 第 6 档（Lv.70）解锁
+    const warlord = classById(STARTER_CLASS)!;
+    const firebringer = warlord.trees[1]!.talents[5]!; // 烈焰树 T6：携火者→firelink
+    expect(firebringer.effect).toEqual({ kind: 'trait', code: 'firelink' });
+    expect(pickTalent(s, STARTER_CLASS, 5, firebringer.code)).toMatchObject({ ok: true });
+    teamWithHero(s);
+    const outcome = buildBattleRequest(s, planQuestEncounter(KINGDOM, 1, 7));
+    if (!outcome.ok) throw new Error(outcome.message);
+    const hero = outcome.request.playerTeam.find((c) => c.externalId.endsWith('-hero'))!;
+    expect(hero.traitIds).toContain('firelink');
   });
 
   it('无武器的主角：skillId 兜底 none、棕色法力、耗蓝按校验下限 1', () => {
@@ -202,10 +231,10 @@ describe('主角入队桥接与结算（M5 占位转正）', () => {
     expect(outcome.registry.prototypes.get('none')!.segments).toEqual([]);
   });
 
-  it('结算：主角经验会升级（含胜利加成）；职业经验只算主角编队的胜场', () => {
+  it('结算：主角经验会升级（含胜利加成）；冠军经验只算主角编队的胜场', () => {
     const s = save();
-    s.hero.unlockedClasses.push('knight');
-    equipClass(s, 'knight');
+    s.hero.unlockedClasses.push(STARTER_CLASS);
+    equipClass(s, STARTER_CLASS);
     teamWithHero(s);
     const plan = planQuestEncounter(KINGDOM, 1, 5);
     const detail = applySettlement(s, mkResult('player'), {
@@ -215,24 +244,24 @@ describe('主角入队桥接与结算（M5 占位转正）', () => {
     });
     expect(detail.heroLevelsGained).toBe(1); // 击杀 0 + 胜利 40 + 主角胜场 60 = 100 ≥ 首级 80
     expect(s.hero.level).toBe(2);
-    expect(s.hero.classXp['knight']).toBe(25);
-    expect(classLevelOf(s, 'knight')).toBe(1);
+    expect(s.hero.classXp[STARTER_CLASS]).toBe(25);
+    expect(classLevelOf(s, STARTER_CLASS)).toBe(1);
   });
 
-  it('主角未编队时不积职业经验', () => {
+  it('主角未编队时不积冠军经验', () => {
     const s = save();
-    s.hero.unlockedClasses.push('knight');
-    equipClass(s, 'knight');
+    s.hero.unlockedClasses.push(STARTER_CLASS);
+    equipClass(s, STARTER_CLASS);
     const plan = planQuestEncounter(KINGDOM, 1, 5);
     applySettlement(s, mkResult('player'), {
       plan,
       enemyByExternalId: new Map(),
       todayStart: 1000,
     });
-    expect(s.hero.classXp['knight']).toBeUndefined();
+    expect(s.hero.classXp[STARTER_CLASS]).toBeUndefined();
   });
 
-  it('任务链 8 关通关 → 解锁该王国绑定职业', () => {
+  it('任务链 8 关通关 → 解锁该王国绑定职业（42 王国中 38 个有职业）', () => {
     const s = save();
     s.kingdoms[KINGDOM] = { level: 1, questsDone: 7, exploreTier: 0, lastTributeAt: 0 };
     const plan = planQuestEncounter(KINGDOM, 8, 5);
@@ -241,7 +270,7 @@ describe('主角入队桥接与结算（M5 占位转正）', () => {
       enemyByExternalId: new Map(),
       todayStart: 1000,
     });
-    expect(detail.classUnlocked).toBe('knight');
-    expect(s.hero.unlockedClasses).toContain('knight');
+    expect(detail.classUnlocked).toBe(STARTER_CLASS);
+    expect(s.hero.unlockedClasses).toContain(STARTER_CLASS);
   });
 });

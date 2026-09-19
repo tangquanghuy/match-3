@@ -45,9 +45,18 @@ export interface DetailViewModel {
  * 从 Character（+可选 TroopData）构建展示模型（需求 4.1–4.3）。纯函数、无副作用。
  * hp 夹在 [0, maxHp]、mana 夹在 [0, manaCost]，避免展示越界的中间态数值。
  */
+export interface CharacterDisplay {
+  /** 快照携带的技能显示文本（宿主武器/兵种法术） */
+  spellName?: string;
+  spellDescription?: string;
+  /** 库外特质 code 的中文名兜底（职业天赋/专属特质） */
+  traitNames?: Record<string, string>;
+}
+
 export function buildDetailViewModel(
   char: Character,
   troop?: TroopData,
+  display?: CharacterDisplay,
 ): DetailViewModel {
   // 技能：TroopData 优先（官方全文）；宿主角色没有兵种数据时，
   // 从分拣技能池取该 skillId 的名称/描述（分拣分配的技能都在池内）。
@@ -57,12 +66,18 @@ export function buildDetailViewModel(
         description: troop.spell.description,
         manaCost: char.manaCost,
       }
-    : (() => {
-        const pool = skillDisplayOf(char.skillId ?? '');
-        return pool
-          ? { name: pool.name, description: pool.description, manaCost: char.manaCost }
-          : null;
-      })();
+    : char.spellName || display?.spellName
+      ? {
+          name: char.spellName ?? display?.spellName ?? '',
+          description: char.spellDescription ?? display?.spellDescription ?? '',
+          manaCost: char.manaCost,
+        }
+      : (() => {
+          const pool = skillDisplayOf(char.skillId ?? '');
+          return pool
+            ? { name: pool.name, description: pool.description, manaCost: char.manaCost }
+            : null;
+        })();
 
   // 特质合并：traitIds（引擎权威）→ 特质库取名称/描述；库里没有的（未实现 code）
   // 回落到 TroopData 的官方文本并标注未生效。TroopData 里多出的条目也列出。
@@ -73,7 +88,7 @@ export function buildDetailViewModel(
     const lib = getTrait(code);
     const official = troop?.traits.find((t) => t.code === code);
     traits.push({
-      name: official?.name ?? lib?.name ?? code,
+      name: official?.name ?? lib?.name ?? display?.traitNames?.[code] ?? char.traitNames?.[code] ?? code,
       description: official?.description ?? lib?.description ?? '',
       implemented: !!lib,
     });
@@ -214,8 +229,8 @@ export class CharacterDetailPanel {
   }
 
   /** 打开面板展示角色详情（需求 4.1）。troop 缺省时仅展示属性，技能/特质区给出占位。 */
-  open(char: Character, troop?: TroopData): void {
-    const vm = buildDetailViewModel(char, troop);
+  open(char: Character, troop?: TroopData, display?: CharacterDisplay): void {
+    const vm = buildDetailViewModel(char, troop, display);
     this.panel.innerHTML = this.render(vm);
     const close = this.panel.querySelector('.cdp-close');
     close?.addEventListener('click', () => this.close());

@@ -610,6 +610,9 @@ export class CharacterCard {
   private gemEl!: HTMLElement;
   private riseEl!: SVGRectElement; // 充能液面矩形（上涨表示进度）
   private riseRaf: number | null = null;
+  /** 冲撞动画重入保护：当前在飞的动画 + 代号（见 lunge） */
+  private lungeAnim: Animation | null = null;
+  private lungeGen = 0;
   private pressCleanup: (() => void) | null = null;
   private cancelPress: (() => void) | null = null;
   private inputEnabled = true;
@@ -711,7 +714,9 @@ export class CharacterCard {
    */
   private renderTraitRow(): void {
     if (!this.traitRowEl) return;
-    const codes = [...new Set(this.char.traitIds ?? [])].slice(0, 4);
+    // 卡面只展示 3 条特质（用户裁定 2026-09-19）：主角= 职业专属特质（displayTraitIds），
+    // 天赋只在详情面板出现；兵种= 3 特质原样。
+    const codes = [...new Set(this.char.displayTraitIds ?? this.char.traitIds ?? [])].slice(0, 3);
     this.traitRowEl.innerHTML = codes
       .map((code) => {
         const size = `width:${os(16)}px;height:${os(16)}px`;
@@ -841,7 +846,7 @@ export class CharacterCard {
           `<div class="gt"><span class="dot" style="background:${COLOR_HEX[col]}"></span></div>`,
       )
       .join('');
-    this.tipEl.innerHTML = `<div class="gt" style="color:#e8c879">?? ${curSum}/${reqSum}</div>${rows}`;
+    this.tipEl.innerHTML = `<div class="gt" style="color:#e8c879">法力 ${curSum}/${reqSum}</div>${rows}`;
   }
 
   /** 用 requestAnimationFrame 平滑插值充能矩形的 y/height（SVG 几何属性，直接设 attr 最可靠） */
@@ -1077,6 +1082,11 @@ export class CharacterCard {
     const el = this.el;
     const cfg = AnimConfig.attack;
     const prevZ = el.style.zIndex;
+    // 重入保护：同一次连锁里第二次骷髅命中会再次触发冲撞。旧冲撞若还在飞，
+    // 先整只取消（cancel 清除 fill:forwards 的残留效果），否则新旧动画叠加会
+    // 出现瞬移/复位错乱，旧动画的 onfinish 还会把新冲撞的 transform 清掉。
+    this.lungeAnim?.cancel();
+    const gen = ++this.lungeGen;
     el.style.zIndex = '20';
 
     // 阶段 1：直接匀速冲过去（干脆利落，无缓动）
@@ -1087,12 +1097,15 @@ export class CharacterCard {
       ],
       { duration: cfg.dashDuration, easing: 'linear', fill: 'forwards' },
     );
+    this.lungeAnim = dash;
     dash.onfinish = () => {
+      if (gen !== this.lungeGen) return;
       // 命中瞬间：定格强调——瞬时再放大一点并锁住，制造“顿”的卡肉
       el.style.transform = `translateX(${dx}px) scale(${cfg.hitPunchScale})`;
       // 触发音效/震屏/受击
       onHit?.();
       window.setTimeout(() => {
+        if (gen !== this.lungeGen) return;
         // 阶段 2：平滑归位（缓出，不向后拉、不过冲）
         const back = el.animate(
           [
@@ -1101,7 +1114,9 @@ export class CharacterCard {
           ],
           { duration: cfg.returnDuration, easing: 'ease-out', fill: 'forwards' },
         );
+        this.lungeAnim = back;
         back.onfinish = () => {
+          if (gen !== this.lungeGen) return;
           el.style.transform = '';
           el.style.zIndex = prevZ;
         };

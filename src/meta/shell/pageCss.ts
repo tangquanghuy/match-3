@@ -1,0 +1,45 @@
+/**
+ * 页面级 CSS 管理：小样各页的级联顺序各不相同（troop.css 要排在 style.css
+ * 之前被压回；arena/result 要排在最后做覆盖），全局一次性 import 会互相打架。
+ * 这里用 ?raw 把页面 CSS 按小样原本的位置注入/拔除：
+ *   - position 'first'  → 插到 <head> 最前（先于全局样式，会被全局压回）
+ *   - position 'last'   → 追加到 <head> 末尾（覆盖全局）
+ * 路由切屏时由外壳调用 apply()/clear()。
+ */
+import troopCss from './styles/troop.css?raw';
+import arenaCss from './styles/arena.css?raw';
+import resultCss from './styles/result.css?raw';
+import liveCss from './styles/live.css?raw';
+
+interface PageCssSpec {
+  css: string;
+  position: 'first' | 'last';
+}
+
+const PAGE_CSS: Record<string, PageCssSpec> = {
+  troop: { css: troopCss, position: 'first' },
+  arena: { css: arenaCss, position: 'last' },
+  result: { css: resultCss, position: 'last' },
+  events: { css: liveCss, position: 'last' },
+  invasion: { css: liveCss, position: 'last' },
+};
+
+const STYLE_ID = 'meta-page-css';
+
+export function applyPageCss(page: string): void {
+  clearPageCss();
+  const spec = PAGE_CSS[page];
+  if (!spec) return;
+  const style = document.createElement('style');
+  style.id = STYLE_ID;
+  style.textContent = spec.css;
+  if (spec.position === 'first') {
+    document.head.insertBefore(style, document.head.firstChild);
+  } else {
+    document.head.appendChild(style);
+  }
+}
+
+export function clearPageCss(): void {
+  document.getElementById(STYLE_ID)?.remove();
+}

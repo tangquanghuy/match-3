@@ -1,0 +1,11 @@
+制图师：
+wlopk2style, Yoneyama Mai Style, 
+western fantasy style, DnD monster manual illustration, painterly fantasy,
+<krea2_prompt>
+  <subject>wandering human cartographer, spare upright build in a map-pocket traveling coat with a drafting board harness and a compass-topped walking stick, filling most of the frame</subject>
+  <details>clear ink-stained eyes under a wide field hat, coat pockets bulging with rolled surveys, drafting board lashed square on the chest harness, compass needle glowing faintly true</details>
+  <pose>traveler's exacting care, field hat tipped to the horizon, pinning posture, needled map and swept hand clearly readable, compass needle steadying, from side</pose>
+  <environment>photorealistic map drafting atelier of parchment-covered tables, hanging survey sheets and ink pot shelves crowding the lamp desk, compressed framing, no large empty space</environment>
+  <lighting>strong key light on the subject, clear readable details</lighting>
+  <style>clean anime-style monster design over a photorealistic background, traveling coat tan and survey ink sepia palette, thumbnail-readable silhouette</style>
+</krea2_prompt>

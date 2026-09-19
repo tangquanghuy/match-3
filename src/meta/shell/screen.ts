@@ -1,0 +1,45 @@
+/**
+ * 屏层共享上下文与类型。每个屏 = { html, mount }，由 gameMain 的路由挂载。
+ */
+import type { MetaGateway } from '../gateway';
+import type { MetaSave } from '../state/schema';
+import type { SettlementDetail } from '../systems/settlement';
+
+/** 所有屏名（hash 路由用） */
+export type ScreenName =
+  | 'map' | 'team' | 'hero' | 'troop' | 'chests' | 'arena' | 'settings' | 'result'
+  | 'events' | 'invasion';
+
+/** 屏层上下文：网关 + 导航 + 战斗启动。屏层禁止绕过它直接摸路由/战斗层 */
+export interface ShellCtx {
+  readonly gateway: MetaGateway;
+  /** 当前权威存档（每次变更后重新读，屏层不要长期缓存引用） */
+  save(): MetaSave;
+  /** hash 导航（'#map' / '#troop/6001' …） */
+  navigate(hash: string): void;
+  /** 当前 hash（屏内子状态恢复用） */
+  currentHash(): string;
+  /** 整屏重渲染（网关变更后调用） */
+  refresh(): void;
+  /** 启动一场任务关战斗（结算后自动进结算屏） */
+  launchQuest(kingdom: string, node: number): Promise<void>;
+  /** 启动一场探索战斗 */
+  launchExplore(kingdom: string): Promise<void>;
+  /** 启动一场竞技场连战（结算走竞技场屏自身） */
+  launchArenaBattle(): Promise<void>;
+  /** 启动一场本周活动战斗（结算走结算屏，活动积分/里程碑在结算行里） */
+  launchEventBattle(): Promise<void>;
+  /** 启动一场入侵对战（mirrorId = 候选对手 id；结算走入侵屏自身） */
+  launchInvasionBattle(mirrorId: string): Promise<void>;
+  /** 展示 meta 结算屏（meta 携带王国与来源标签供标题区；returnHash=战斗来源页直达返回） */
+  showResult(detail: SettlementDetail, meta: { kingdom: string; sourceLabel: string; returnHash?: string }): void;
+}
+
+export interface Screen {
+  /** 返回 #stage 的完整 innerHTML（含顶栏/底部导航/toast/弹层） */
+  html(ctx: ShellCtx, param?: string): string;
+  /** 绑定事件与数据。挂载后外壳会统一 bindChrome（图标/导航/钱包/缩放） */
+  mount(ctx: ShellCtx, root: HTMLElement, param?: string): void;
+  /** 可选清理（拖拽监听、动画计时器等）。路由切屏时由外壳调用 */
+  dispose?(): void;
+}

@@ -24,6 +24,9 @@ import manaBurnIcon from '../assets/status-icons/mana-burn.png';
 import charmIcon from '../assets/status-icons/charm.png';
 import faerieFireIcon from '../assets/status-icons/faerie-fire.png';
 import terrorIcon from '../assets/status-icons/terror.png';
+import blessedIcon from '../assets/status-icons/blessed.png';
+import enchantedIcon from '../assets/status-icons/enchanted.png';
+import reflectIcon from '../assets/status-icons/reflect.png';
 
 export interface StatusBadgeSpec {
   /** 中文名（tooltip/无障碍） */
@@ -60,6 +63,9 @@ const BADGES: Record<string, StatusBadgeSpec> = {
   charmed: { label: '魅惑', color: '#f28fd5', icon: charmIcon },
   faerie_fire: { label: '精灵火', color: '#c993ff', icon: faerieFireIcon },
   terror: { label: '恐怖', color: '#bd82e9', icon: terrorIcon },
+  blessed: { label: '赐福', color: '#ffd56a', icon: blessedIcon },
+  enchanted: { label: '附魔', color: '#e08cff', icon: enchantedIcon },
+  reflect: { label: '反射', color: '#9ecfff', icon: reflectIcon },
 };
 
 const FALLBACK: StatusBadgeSpec = {

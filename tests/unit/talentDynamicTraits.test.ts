@@ -38,6 +38,8 @@ import {
   buildBattleRequest,
   planQuestEncounter,
 } from '../../src/meta';
+import { PERK_DYNAMIC_DEFS, PVP_DYNAMIC_DEFS } from '../../src/meta/data/talentDefs';
+import { traitBadgeSvg } from '../../src/render/traitBadges';
 
 function makeChar(id: number, over: Partial<Character> = {}): Character {
   return {
@@ -272,6 +274,43 @@ describe('meta 集成（classes.json ↔ 动态定义 ↔ 桥接）', () => {
       expect(TALENT_DYNAMIC_CODES.has(code)).toBe(true);
       expect(TALENT_DYNAMIC_DEFS.find((d) => d.code === code)).toBeTruthy();
     }
+  });
+
+  it('特质收编：classes.json 全部 unimplemented 特质都有动态定义（38/38）', () => {
+    const unimplemented = new Set<string>();
+    for (const cls of CLASSES) {
+      for (const perk of cls.perks) {
+        if (!perk.implemented) unimplemented.add(perk.code);
+      }
+    }
+    expect(unimplemented.size).toBe(38);
+    for (const code of unimplemented) {
+      expect(PERK_DYNAMIC_DEFS.find((d) => d.code === code)).toBeTruthy();
+    }
+    // 抽查编译
+    expect(resolvePassives(['fullplate']).regenArmorPerTurn).toBe(2);
+    expect(resolvePassives(['bullseye']).skullLethalChance).toBe(0.15);
+    expect(resolvePassives(['assassinate']).onSkullHitKill).toEqual({ chance: 0.1, scope: 'lastEnemy' });
+    expect(getTrait('wrathofanu')?.turnStartStatus).toMatchObject({ target: 'randomEnemy', chance: 0.5 });
+    expect(getTrait('stormsoul')?.turnStartStorm).toMatchObject({ referenceName: 'Lightstorm' });
+    expect(resolvePassives(['portent']).onEnemyCastTypeAura).toEqual({ troopType: 'Centaur', gains: { magic: 2 } });
+  });
+
+  it('PvP 天赋：exemplar/bloodandglory 已注册（pvpMode 注入后生效；本批引擎接线）', () => {
+    expect(PVP_DYNAMIC_DEFS.map((d) => d.code).sort()).toEqual(['bloodandglory', 'exemplar']);
+    expect(resolvePassives(['exemplar']).pvpBonuses).toEqual([{ phase: 'battle', gains: { attack: 5 } }]);
+    expect(resolvePassives(['bloodandglory']).pvpEconomyGain).toEqual({ currency: 'gold', amount: 1 });
+  });
+
+  it('图标：静态天赋 code 经显示兜底出图标（主角卡同兵种特质口径）', () => {
+    // 动态定义天赋走引擎定义
+    expect(traitBadgeSvg('fasthealing')).toContain('svg');
+    // 静态效果天赋（无引擎定义）走显示兜底
+    expect(traitBadgeSvg('ferocity')).toContain('svg'); // 督军 War T1 自身攻击
+    expect(traitBadgeSvg('armoroflight')).toContain('svg'); // 全队护甲（战旗族）
+    expect(traitBadgeSvg('shiningstaff')).toContain('svg'); // 武器条件（剑族）
+    // 未实现且未收编的 code 才返回 null
+    expect(traitBadgeSvg('nonexistent_code_xyz')).toBeNull();
   });
 
   it('桥接：选中动态天赋进入主角 traitIds 且过会话校验', () => {

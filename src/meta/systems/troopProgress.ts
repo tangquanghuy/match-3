@@ -11,6 +11,8 @@
  */
 import { getTroopById, type TroopData } from '../../data/troops';
 import { troopStatsAtLevel, type LeveledStats } from '../../data/leveling';
+import { BaseColor } from '../../engine/types';
+import { stoneColorKeyOf } from '../data/materials';
 import type { MetaSave, TroopRecord } from '../state/schema';
 import { fail, type MetaFailure } from '../types';
 import {
@@ -22,7 +24,7 @@ import {
   traitUnlockCost,
   TRAIT_SLOT_COUNT,
 } from '../data/economy';
-import { earn, spend } from './wallet';
+import { earn, spend, earnMaterials, spendMaterials } from './wallet';
 
 // ---------------------------------------------------------------------------
 // 收藏条目
@@ -128,14 +130,14 @@ export function ascend(save: MetaSave, troopId: number): AscendResult {
 }
 
 // ---------------------------------------------------------------------------
-// 特质解锁（黄金 + 灵魂 + 同名卡，裁定②）
+// 特质解锁（特质石 + 黄金；裁定②修订 2026-09-19，对齐官方素材口径）
 // ---------------------------------------------------------------------------
 
 export type UnlockTraitResult =
-  | { ok: true; slot: number; cost: { gold: number; souls: number; copies: number } }
+  | { ok: true; slot: number; cost: { gold: number; stones: Record<string, number> } }
   | MetaFailure;
 
-/** 解锁第 slot（1 起）个特质；槽位按顺序解锁（GoW 语义） */
+/** 解锁第 slot（1 起）个特质；槽位按顺序解锁（GoW 语义）。消耗本卡主色的特质石 */
 export function unlockTrait(save: MetaSave, troopId: number, slot: number): UnlockTraitResult {
   if (!Number.isInteger(slot) || slot < 1 || slot > TRAIT_SLOT_COUNT) {
     return fail('BAD_SLOT', `特质槽位号须为 1~${TRAIT_SLOT_COUNT}`);
@@ -148,13 +150,16 @@ export function unlockTrait(save: MetaSave, troopId: number, slot: number): Unlo
   if (slot > 1 && !rec.traits[slot - 2]) {
     return fail('PREREQ_LOCKED', `需先解锁特质 ${slot - 1}`);
   }
-  const cost = traitUnlockCost(slot);
-  if (rec.copies < cost.copies) {
-    return fail('NEED_COPIES', `同名卡不足：需 ${cost.copies} 张，现有 ${rec.copies} 张`);
+  const primaryColor = stoneColorKeyOf(troop.manaColors[0] ?? BaseColor.Brown);
+  const cost = traitUnlockCost(slot, primaryColor);
+  const paidMaterials = spendMaterials(save, { traitstones: cost.stones });
+  if (!paidMaterials.ok) return paidMaterials;
+  const paid = spend(save, { gold: cost.gold });
+  if (!paid.ok) {
+    // 素材先扣、黄金不足：回滚素材（单线程下两步扣费的一致性由这里保证）
+    earnMaterials(save, { traitstones: cost.stones });
+    return paid;
   }
-  const paid = spend(save, { gold: cost.gold, souls: cost.souls });
-  if (!paid.ok) return paid;
-  rec.copies -= cost.copies;
   rec.traits[slot - 1] = true;
   return { ok: true, slot, cost };
 }

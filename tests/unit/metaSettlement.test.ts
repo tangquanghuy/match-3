@@ -135,6 +135,23 @@ describe('结算入账（胜利 · 任务）', () => {
     expect(save.kingdoms[KINGDOM]?.questsDone).toBe(4);
   });
 
+  it('打赢任务 8 关：全通发 1 把金钥匙（金钥匙经济收口 M6），任务行带奖励 delta', () => {
+    const save = newSave({ now: 0, starterTroopIds: [6000, 6097, 6457] });
+    save.kingdoms[KINGDOM] = { level: 1, questsDone: 7, exploreTier: 0, lastTributeAt: 0 };
+    const keysBefore = save.currencies.goldKeys;
+    const plan = planQuestEncounter(KINGDOM, 8, 9);
+    const detail = applySettlement(save, mkResult('player', allDefeated(plan)), {
+      plan,
+      enemyByExternalId: mapOf(plan),
+      todayStart: DAY1,
+    });
+    expect(detail.questProgress).toEqual({ from: 7, to: 8 });
+    const questLine = detail.lines.find((l) => l.key === 'quest');
+    expect(questLine?.deltas.goldKeys).toBe(1);
+    expect(save.currencies.goldKeys).toBe(keysBefore + 1);
+    expect(save.kingdoms[KINGDOM]?.questsDone).toBe(8);
+  });
+
   it('越序打赢（不是下一关）不推进任务', () => {
     const save = newSave({ now: 0, starterTroopIds: [6000, 6097, 6457] });
     const plan = planQuestEncounter(KINGDOM, 2, 5);

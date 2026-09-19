@@ -1,0 +1,11 @@
+DRIDR-8000：
+wlopk2style, Yoneyama Mai Style, 
+western fantasy style, DnD monster manual illustration, painterly fantasy,
+<krea2_prompt>
+  <subject>a gunspider mesh-weaver construct, wide spider-frame rig on eight articulated legs under drow-etched armor plates, an arcane core glowing in the abdomen drum, filling most of the frame</subject>
+  <details>a cluster of polished ground-glass eyes set in a cast mask face, mesh spinnerets mounted along the belly, leg joints sheathed in etched forge-plate, core light pulsing violet through the drum seams</details>
+  <pose>patient weaving focus, web-launch stance strung between anchor stones, spinnerets spooling out a wide steel-mesh fan, legs splayed to the cavern walls, facing the viewer</pose>
+  <environment>photorealistic rune-web cavern strung with steel-mesh spans, anchor stalagmites wrapped in old netting and a cold green glow from the deep galleries, compressed framing, no large empty space</environment>
+  <lighting>strong key light on the subject, clear readable details</lighting>
+  <style>clean anime-style monster design over a photorealistic background, drow steel, mesh silver, core violet palette, thumbnail-readable silhouette</style>
+</krea2_prompt>

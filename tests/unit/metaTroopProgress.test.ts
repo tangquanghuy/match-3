@@ -17,6 +17,8 @@ import {
   unlockTrait,
 } from '../../src/meta';
 import { ascensionCopiesNeeded, decomposeYield } from '../../src/meta/data/economy';
+import { stoneColorKeyOf } from '../../src/meta/data/materials';
+import { BaseColor } from '../../src/engine/types';
 
 const OGRE = 6000; // 食人魔：破碎尖塔 Common（rarityIdx 0）
 const LEGEND = 6169; // 德拉古力斯：Legendary（rarityIdx 5）
@@ -122,9 +124,13 @@ describe('升阶（同名卡 5/10/25，不耗本体）', () => {
   });
 });
 
-describe('特质解锁（黄金+灵魂+同名卡，裁定②）', () => {
+describe('特质解锁（特质石+黄金，裁定②修订 2026-09-19）', () => {
+  const primary = stoneColorKeyOf(getTroopById(OGRE)!.manaColors[0] ?? BaseColor.Brown);
+  const key = (tier: string): string => `${tier}:${primary}`;
+
   it('槽位号非法 / 前置未解锁 / 已解锁', () => {
     const s = save();
+    s.materials.traitstones = { [key('minor')]: 99, [key('major')]: 99, [key('runic')]: 99, celestial: 99 };
     expect(unlockTrait(s, OGRE, 0)).toMatchObject({ ok: false, code: 'BAD_SLOT' });
     expect(unlockTrait(s, OGRE, 4)).toMatchObject({ ok: false, code: 'BAD_SLOT' });
     expect(unlockTrait(s, OGRE, 2)).toMatchObject({ ok: false, code: 'PREREQ_LOCKED' });
@@ -132,35 +138,45 @@ describe('特质解锁（黄金+灵魂+同名卡，裁定②）', () => {
     expect(unlockTrait(s, OGRE, 1)).toMatchObject({ ok: false, code: 'ALREADY_UNLOCKED' });
   });
 
-  it('特质 1 = 黄金 2000 + 灵魂 500；特质 2 = ×5 + 同名卡 2；特质 3 = 黄金 ×10 + 同名卡 5', () => {
+  it('特质 1 = minor×8 + 黄金 2000；特质 2 加 major/runic；特质 3 加 celestial；同名卡零消耗', () => {
     const s = save();
+    s.materials.traitstones = {
+      [key('minor')]: 30,
+      [key('major')]: 16,
+      [key('runic')]: 6,
+      celestial: 2,
+    };
     const r1 = unlockTrait(s, OGRE, 1);
-    expect(r1).toMatchObject({ ok: true, cost: { gold: 2000, souls: 500, copies: 0 } });
+    expect(r1).toMatchObject({ ok: true, cost: { gold: 2000, stones: { [key('minor')]: 8 } } });
     expect(s.currencies.gold).toBe(48000);
+    expect(s.materials.traitstones[key('minor')]).toBe(22);
+    expect(getRecord(s, OGRE)!.copies).toBe(0); // 同名卡不再消耗
 
-    grantTroop(s, OGRE, 2); // copies 2
-    expect(unlockTrait(s, OGRE, 2)).toMatchObject({
+    const r2 = unlockTrait(s, OGRE, 2);
+    expect(r2).toMatchObject({
       ok: true,
-      cost: { gold: 10000, souls: 2500, copies: 2 },
+      cost: { gold: 5000, stones: { [key('minor')]: 12, [key('major')]: 6, [key('runic')]: 2 } },
     });
-    expect(getRecord(s, OGRE)!.copies).toBe(0);
+    expect(s.materials.traitstones[key('major')]).toBe(10);
 
-    grantTroop(s, OGRE, 5); // copies 5
-    expect(unlockTrait(s, OGRE, 3)).toMatchObject({
-      ok: true,
-      cost: { gold: 20000, souls: 2500, copies: 5 },
-    });
+    const r3 = unlockTrait(s, OGRE, 3);
+    expect(r3).toMatchObject({ ok: true, cost: { gold: 12000, stones: { [key('major')]: 10, [key('runic')]: 4, celestial: 2 } } });
     expect(getRecord(s, OGRE)!.traits).toEqual([true, true, true]);
+    expect(s.materials.traitstones.celestial).toBe(0);
   });
 
-  it('同名卡不足 / 货币不足 → 整笔不动', () => {
+  it('特质石不足 / 黄金不足（素材回滚）→ 整笔不动', () => {
     const s = save();
-    expect(unlockTrait(s, OGRE, 1)).toMatchObject({ ok: true });
-    expect(unlockTrait(s, OGRE, 2)).toMatchObject({ ok: false, code: 'NEED_COPIES' }); // copies 0
-    const s2 = newSave({ now: 0, starterTroopIds: [OGRE], currencies: { gold: 100, souls: 5000 } });
+    s.materials.traitstones[key('minor')] = 3; // 少于 8
+    expect(unlockTrait(s, OGRE, 1)).toMatchObject({ ok: false, code: 'INSUFFICIENT' });
+    expect(getRecord(s, OGRE)!.traits).toEqual([false, false, false]);
+
+    const s2 = newSave({ now: 0, starterTroopIds: [OGRE], currencies: { gold: 100 } });
+    s2.materials.traitstones[key('minor')] = 50;
     expect(unlockTrait(s2, OGRE, 1)).toMatchObject({ ok: false, code: 'INSUFFICIENT' });
+    expect(s2.materials.traitstones[key('minor')]).toBe(50); // 素材回滚
+    expect(s2.currencies.gold).toBe(100);
     expect(getRecord(s2, OGRE)!.traits).toEqual([false, false, false]);
-    expect(s2.currencies.souls).toBe(5000);
   });
 });
 

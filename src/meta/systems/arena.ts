@@ -1,9 +1,11 @@
 /**
- * 竞技场 · 现开赛（M7，计划 §4.8 / ASSETS-NEEDED §4.9）。
+ * 竞技场 · 现开赛（M7，计划 §4.8 / ASSETS-NEEDED §4.9；2026-09-18 对照官方调研修正 draft）。
  *
- * 流程：报名（本周首场免费，其余 150 宝石）→ draft 三轮 3 选 1（每轮必含 1 张 UR+）
+ * 流程：报名（本周首场免费，其余 150 宝石——官方 150 宝石/次）→ draft 三轮 3 选 1
+ * （固定稀有度阶梯：常规档→稀有档→史诗档各选 1，官方旧版 3C/3R/3UR 结构的六档适配）
  * → 限定编队（只排 draft 到手的 3 张的站位顺序，主角不出战）→ 连战 3 场（难度递增）
- * → 按最终胜场发奖。**卡即用即弃**：draft 卡不进 collection、不动预设队。
+ * → 按最终胜场发奖（官方改版数字，economy.ARENA_REWARDS）。**卡即用即弃**：draft 卡
+ * 不进 collection、不动预设队；官方「现开赛不吃王国加成」——draft 快照不带 statBonus/旗帜。
  *
  * 确定性：draft 选项与对手全部由 `draft.seed` 派生（同 seed 复现同一届现开赛）；
  * draft 卡等级口径 = 基础稀有度档的等级上限（公平卡组）、满配特质（过滤已实现）。
@@ -64,7 +66,7 @@ export function forfeitArena(
 }
 
 // ---------------------------------------------------------------------------
-// Draft（三轮 3 选 1，每轮保底 1 张 UR+）
+// Draft（三轮 3 选 1，固定稀有度阶梯：低档→中档→高档各选 1）
 // ---------------------------------------------------------------------------
 
 export interface DraftOption {
@@ -80,36 +82,21 @@ export interface DraftState {
 
 function choicesForRound(seed: number, round: number, exclude: ReadonlySet<number>): DraftOption[] {
   const rng = new SeededRNG((seed ^ ((round + 1) * 0x9e3779b9)) >>> 0);
+  // 官方阶梯结构：第 1/2/3 轮分别在 低档/中档/高档 带内取人（ARENA.roundBands 注释）
+  const band = ARENA.roundBands[Math.min(round, ARENA.roundBands.length - 1)]!;
   const options: DraftOption[] = [];
   const seen = new Set<number>();
   let guard = 0;
   while (options.length < ARENA.choicesPerRound && guard++ < 500) {
-    const band = pickWeightedBand(ARENA.optionWeights, rng);
-    const pool = BAND_TROOPS[band]!.filter((t) => !exclude.has(t.id) && !seen.has(t.id));
-    if (pool.length === 0) continue;
+    const pool = BAND_TROOPS[band.min]!
+      .concat(BAND_TROOPS[band.max]!)
+      .filter((t) => !exclude.has(t.id) && !seen.has(t.id));
+    if (pool.length === 0) break;
     const troop = pool[rng.nextInt(pool.length)]!;
     seen.add(troop.id);
-    options.push({ troopId: troop.id, rarityIdx: band });
-  }
-  // 每轮保底：无 UR+ 选项时把第一张抬到保底档（UR/Legendary 各半概率）
-  if (!options.some((o) => o.rarityIdx >= ARENA.guaranteeMinIdx) && options.length > 0) {
-    const band = ARENA.guaranteeMinIdx + rng.nextInt(6 - ARENA.guaranteeMinIdx);
-    const pool = BAND_TROOPS[band]!.filter(
-      (t) => !exclude.has(t.id) && !options.some((o) => o.troopId === t.id),
-    );
-    if (pool.length > 0) options[0] = { troopId: pool[rng.nextInt(pool.length)]!.id, rarityIdx: band };
+    options.push({ troopId: troop.id, rarityIdx: troop.rarityIdx });
   }
   return options;
-}
-
-function pickWeightedBand(weights: readonly number[], rng: SeededRNG): number {
-  const total = weights.reduce((sum, w) => sum + w, 0);
-  let roll = rng.next() * total;
-  for (let idx = 0; idx < weights.length; idx++) {
-    roll -= weights[idx]!;
-    if (roll < 0) return idx;
-  }
-  return weights.length - 1;
 }
 
 /** 当前轮的三选一（draft 结束/不在抽卡阶段返回 null） */
@@ -218,6 +205,8 @@ export function planArenaBattle(save: MetaSave, battleSeed: number): ArenaBridge
   });
 
   const request: BattleRequest = {
+    // 竞技场对战 = 本作的 PvP 场景（官方 PvP 类天赋 exemplar/bloodandglory 在此生效）
+    mode: 'pvp' as const,
     schemaVersion: BATTLE_SCHEMA_VERSION,
     battleId: `arena-${draft.seed}`,
     requestId: `arena-${draft.seed}-${draft.wins}`,
