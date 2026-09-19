@@ -323,6 +323,10 @@ export class TurnEngine {
     // 事件流未开始，事件交由 takeInitialEvents。随机目标与 randomPositive 走构造期同一条
     // 种子化 rng；施加经 applyStatus（免疫在施加口拦截）。
     this.initialEvents.push(...this.applyBattleStartStatusTraits());
+    // 开局按概率转换宝石（特质收尾批 wintercourtsboon/summercourtsboon 冬/夏之宫廷恩赐
+    // 「战斗开始时 35% 把 3 颗蓝/绿宝石转换为冻结/妖火宝石」）：棋盘已生成、事件流未开始，
+    // 定义直读（同 omenof* 口径），转换后立即连锁。
+    this.initialEvents.push(...this.applyBattleStartConvertTraits());
   }
 
   /** 取出构造阶段的开局事件；只消费一次。 */
@@ -435,6 +439,76 @@ export class TurnEngine {
   }
 
   /**
+   * 开局按概率把 N 颗某色宝石转换为特殊宝石（特质收尾批 battleStartConvertGems：
+   * wintercourtsboon 冬之宫廷恩赐 / summercourtsboon 夏之宫廷恩赐）。双方存活队伍按序
+   * 收集（Left 全队 → Right 全队 → 队伍序 → 特质声明序，确定性）；目标格复用
+   * randomCellOfColor（每颗各耗一次种子化 rng，与 turnStartColorToSpecial 同口径），
+   * 转换完统一发 gem-transform 事件并立即 runCascades；无候选安全跳过——无此特质的
+   * 对局零事件、零随机消耗（构造期 rng 消耗只在持有者掷中概率后发生）。
+   */
+  private applyBattleStartConvertTraits(): GameEvent[] {
+    const events: GameEvent[] = [];
+    for (const side of [PlayerSide.Left, PlayerSide.Right]) {
+      for (const char of this.state.teams[side].characters) {
+        if (char.defeated) continue;
+        for (const code of char.traitIds ?? []) {
+          const spec = getTrait(code)?.battleStartConvertGems;
+          if (!spec) continue;
+          if (this.rng.next() >= spec.chance) continue;
+          const changes: GemTransformEvent['changes'] = [];
+          for (let i = 0; i < spec.count; i++) {
+            const pos = this.randomCellOfColor(spec.color);
+            const from = pos ? this.state.board.get(pos) : null;
+            if (!pos || !from) continue;
+            const to = specialGem(spec.gem, spec.tier);
+            const gemId = this.nextGemId();
+            this.state.board.set(pos, { id: gemId, type: to });
+            changes.push({ pos, gemId, from: from.type, to });
+          }
+          if (changes.length === 0) continue;
+          events.push({ type: 'gem-transform', changes });
+          this.runCascades(events);
+        }
+      }
+    }
+    return events;
+  }
+
+  /**
+   * kind 感知宝石爆破（特质收尾批：'random' 任意宝石 / 'skull' 普通骷髅头 / 特殊宝石
+   * kind，tier 为善神石像鬼等分层宝石的层号）。落子口径与 explodeGemsOfColor 完全一致
+   * （命中格移除后走 resolveBoardChange，side 归结算方；候选唯一不掷骰、多候选每颗耗
+   * 一次 rng、无候选安全跳过）。
+   */
+  private explodeGemsBySpec(
+    spec: { kind: 'random' | 'skull' | SpecialGemKind; tier?: number; color?: string; count: number },
+    side: PlayerSide,
+  ): GameEvent[] {
+    const events: GameEvent[] = [];
+    for (let i = 0; i < spec.count; i++) {
+      const candidates: CellPos[] = [];
+      for (let row = 0; row < BoardModel.ROWS; row++) {
+        for (let col = 0; col < BoardModel.COLS; col++) {
+          const gem = this.state.board.get({ row, col });
+          if (!gem) continue;
+          if (spec.kind === 'random') candidates.push({ row, col });
+          else if (spec.kind === 'skull') {
+            if (gem.type.kind === 'skull') candidates.push({ row, col });
+          } else if (gem.type.kind === 'special' && gem.type.spec.kind === spec.kind) {
+            if (spec.tier === undefined || gem.type.spec.tier === spec.tier) candidates.push({ row, col });
+          }
+        }
+      }
+      if (candidates.length === 0) break;
+      const pos = candidates.length === 1 ? candidates[0] : candidates[this.rng.nextInt(candidates.length)];
+      const gem = this.state.board.get(pos)!;
+      this.state.board.set(pos, null);
+      this.resolveBoardChange([{ gemType: gem.type, pos }], events, side);
+    }
+    return events;
+  }
+
+  /**
    * 爆破关联色宝石（职业天赋 lightningstrike「配对时爆破一颗黄色宝石」，注入大匹配
    * ctx.explodeGem）：候选格从棋盘移除后走 resolveBoardChange——法力/骷髅结算归当前
    * 行动方（持有者一方）、重力连锁照常。候选唯一不掷骰、多候选每颗耗一次 rng、
@@ -461,6 +535,38 @@ export class TurnEngine {
   }
 
   /**
+   * 行动内召唤事件的后置触发（特质收尾批：callnature 召唤自然「当一名盟友召唤部队时，
+   * 召唤一场叶风暴」/ summoningritual 召唤仪式「当一名盟友被召唤后，获得 8 点魔法值」）。
+   * 扫描本次行动产出的 summon 事件，按事件 player 归属触发该方存活持有者（事件序 ×
+   * 队伍序确定性）；风暴经 traitSetStorm 全局唯一顶替裁定（虚拟风暴号段由特质表提供）；
+   * colors 为官方 BoostColors 惰性建模，引擎契约取 colors[0]（与 turnStartStorm 同口径）。
+   * 定义直读；无新键特质零事件零随机消耗。
+   */
+  private applyActionSummonTriggers(events: GameEvent[]): void {
+    const summonEvents = events.filter((e) => e.type === 'summon') as (GameEvent & { type: 'summon'; player: PlayerSide })[];
+    if (summonEvents.length === 0) return;
+    for (const ev of summonEvents) {
+      for (const holder of this.state.teams[ev.player].characters) {
+        if (holder.defeated) continue;
+        for (const code of holder.traitIds ?? []) {
+          const def = getTrait(code);
+          if (!def) continue;
+          if (def.onAllySummonStorm) {
+            const spec = def.onAllySummonStorm;
+            const storm: StormSummon = { color: spec.colors[0]!, turns: 8 };
+            if (spec.dropKind) storm.dropKind = spec.dropKind;
+            events.push(...this.traitSetStorm(storm, spec.troopId));
+          }
+          if (def.onAllySummonGain) {
+            const actual = grantStat(holder, def.onAllySummonGain.stat, def.onAllySummonGain.amount);
+            if (actual !== 0) events.push({ type: 'buff', targetId: holder.id, stat: def.onAllySummonGain.stat, amount: actual });
+          }
+        }
+      }
+    }
+  }
+
+  /**
    * 承受骷髅伤害的召唤/经济钩子（职业天赋 golemprotector「当我受到伤害时有 20% 几率召唤」
    * + 缺口清扫批 pickpocket 惰性经济）：从骷髅结算事件取实际受击目标（skull-damage 事件
    * 只在实际扣血时产出——闪避/屏障落空天然不触发，与 gainOnDamaged 同口径），每次受击
@@ -475,6 +581,34 @@ export class TurnEngine {
           .map((e) => e.targetId),
       ),
     ];
+    // 造成骷髅伤害爆破（特质收尾批 cataclysm 天崩地裂「当自身造成骷髅头伤害时，爆破 2 颗
+    // 随机宝石」）：从同一批 skull-damage 事件取攻击者（attackerId，实扣才产事件），每次
+    // 造成伤害各自爆破、结算归攻击者一方（与受击侧的 side 取法对称）。
+    const attackerIds = [
+      ...new Set(
+        produced
+          .filter((e): e is GameEvent & { type: 'skull-damage'; attackerId: number } => e.type === 'skull-damage')
+          .map((e) => e.attackerId),
+      ),
+    ];
+    for (const id of attackerIds) {
+      let holder: Character | undefined;
+      let side: PlayerSide | null = null;
+      for (const s of [PlayerSide.Left, PlayerSide.Right]) {
+        const hit = this.state.teams[s].characters.find((c) => c.id === id && !c.defeated);
+        if (hit) {
+          holder = hit;
+          side = s;
+          break;
+        }
+      }
+      if (!holder || side === null) continue;
+      for (const code of holder.traitIds ?? []) {
+        const spec = getTrait(code)?.onSkullHitExplodeGem;
+        if (!spec) continue;
+        events.push(...this.explodeGemsBySpec({ kind: 'random', count: spec.count }, side));
+      }
+    }
     for (const id of damagedIds) {
       let holder: Character | undefined;
       let side: PlayerSide | null = null;
@@ -553,6 +687,47 @@ export class TurnEngine {
         const actual = grantStat(char, gainSpec.stat, gainSpec.amount);
         if (actual !== 0) events.push({ type: 'buff', targetId: char.id, stat: gainSpec.stat, amount: actual });
       }
+      // 回合开始削减首位敌人全部技能值 / 窃取生命 / 窃取法力（特质收尾批：
+      // aspectoffamine 饥荒相「First enemy loses 3 Skill points」官方 "Skill points" =
+      // 攻/甲/生命/魔法四项各减（powerof* 族同口径）；aspectofdeath 死亡相窃 2 生命经
+      // traitDrainLife（伤害管线 + 按实际伤害等量治疗）；monkeymagic 猴王魔法窃 2 法力
+      // 削减口径同 onSkullHitStealMana（目标夹零、manashield 免疫整体跳过、自己按
+      // manaCost 夹取））。目标=持有者对面阵营队伍序首位存活（确定性、零随机消耗）。
+      const foesOfHolder = this.state.teams[opponentOf(this.state.activePlayer)].characters;
+      const firstFoe = foesOfHolder.find((c) => !c.defeated);
+      if (firstFoe) {
+        for (const code of char.traitIds ?? []) {
+          const def = getTrait(code);
+          if (!def) continue;
+          if (def.turnStartEnemyDrain) {
+            for (const stat of ['attack', 'armor', 'magic', 'hp'] as const) {
+              const removed = Math.min(Math.max(0, firstFoe[stat]), def.turnStartEnemyDrain.amount);
+              if (removed <= 0 || firstFoe.defeated) continue;
+              firstFoe[stat] -= removed;
+              events.push({ type: 'buff', targetId: firstFoe.id, stat, amount: -removed });
+            }
+          }
+          if (def.turnStartStealLife) {
+            events.push(...this.traitDrainLife(firstFoe, char, def.turnStartStealLife.amount));
+          }
+          if (def.turnStartStealMana && !passivesOf(firstFoe).manaOpsImmunity) {
+            const stolen = Math.min(def.turnStartStealMana.amount, firstFoe.mana);
+            if (stolen > 0) {
+              firstFoe.mana -= stolen;
+              events.push({ type: 'buff', targetId: firstFoe.id, stat: 'mana', amount: -stolen });
+              const before = char.mana;
+              char.mana = Math.min(char.manaCost, char.mana + stolen);
+              if (char.mana > before) events.push({ type: 'buff', targetId: char.id, stat: 'mana', amount: char.mana - before });
+            }
+          }
+          if (def.turnStartExplodeGem) {
+            events.push(...this.explodeGemsBySpec(
+              { kind: def.turnStartExplodeGem.kind, tier: def.turnStartExplodeGem.tier, count: def.turnStartExplodeGem.count },
+              this.state.activePlayer,
+            ));
+          }
+        }
+      }
       // 回合开始棋盘/状态惰性字段（缺口清扫批）+ 职业天赋（wrathofanu 击晕随机敌 /
       // getbehindme 屏障随机盟友 / ancientmysteries 随机正面 / stormsoul·heatwave 开风暴）：
       // 定义直读键（getTrait，同 turnStartTypeAura 口径），概率与随机目标经同一条 rng。
@@ -628,6 +803,29 @@ export class TurnEngine {
       if (summon && (summon.chance >= 1 || this.rng.next() < summon.chance)) {
         events.push(...this.traitSummon(summon));
         events.push(...this.applySelfSummonStatus(holder));
+      }
+      // 盟友施法伤害/创造宝石（特质收尾批：serpentsfang 蝰蛇之牙「对一名随机敌人造成
+      // 3 点伤害」/ artillerysupport 炮火支援「对所有敌人造成 5 点伤害」经 traitDamage
+      // 管线；clairvoyance 天眼通「创造一颗善石像鬼宝石」经 spawnSpecialGems 随机现存格
+      // 就地翻新）。定义直读；随机目标耗一次种子化 rng，无 rng 退化不适用（本处恒有 rng）。
+      for (const code of holder.traitIds ?? []) {
+        const def = getTrait(code);
+        if (!def) continue;
+        if (def.onAllyCastEnemyDamage) {
+          const foes = this.state.teams[opponentOf(this.state.activePlayer)].characters.filter((c) => !c.defeated);
+          if (foes.length === 0) continue;
+          const spec = def.onAllyCastEnemyDamage;
+          if (spec.scope === 'enemyAll') {
+            for (const foe of foes) events.push(...this.traitDamage(foe, holder, spec.amount));
+          } else {
+            const foe = foes[this.rng.nextInt(foes.length)];
+            events.push(...this.traitDamage(foe, holder, spec.amount));
+          }
+        }
+        if (def.onAllyCastCreateGem) {
+          const spec = def.onAllyCastCreateGem;
+          events.push(...this.spawnSpecialGems(spec.gem, spec.tier, spec.count));
+        }
       }
     }
     return events;
@@ -801,6 +999,7 @@ export class TurnEngine {
     events.push(...this.applyPositionAuraTriggers());
     this.runCascades(events);
     this.finishTurn(events);
+    this.applyActionSummonTriggers(events);
     this.processDeathTriggers(events);
     this.endActionLog(logEntry);
     return events;
@@ -840,6 +1039,8 @@ export class TurnEngine {
               damage: this.traitDamage,
               drainLife: this.traitDrainLife,
               explodeGem: (color, count) => this.explodeGemsOfColor(color, count),
+              explodeSpec: (spec) => this.explodeGemsBySpec(spec, this.state.activePlayer),
+              createPlainGem: (color, count) => this.spawnPlainGems(color as BaseColor, count),
               createGem: (kind, tier, count, color) =>
                 this.spawnSpecialGems(kind, tier, count, matches.map((grp) => grp.cells), color as BaseColor | undefined),
               summon: (spec) => {
@@ -981,6 +1182,7 @@ export class TurnEngine {
         applyStatus: (char, status) => applyStatus(char, status),
         drainLife: this.traitDrainLife,
         damage: this.traitDamage,
+        explodeSpec: (spec) => this.explodeGemsBySpec(spec, this.state.activePlayer),
       }));
     } else if (settle.kind === 'starOnly') {
       // 纯星组（星与星互连、无基色依附）：只发星族各色 +1，宝石本体不产法力
@@ -1022,6 +1224,7 @@ export class TurnEngine {
         applyStatus: (char, status) => applyStatus(char, status),
         drainLife: this.traitDrainLife,
         damage: this.traitDamage,
+        explodeSpec: (spec) => this.explodeGemsBySpec(spec, this.state.activePlayer),
       }));
     }
     // 'wildOnly'：全通配组无归属色，只消除不结算
@@ -1622,6 +1825,7 @@ export class TurnEngine {
         applyStatus: (char, status) => applyStatus(char, status),
         drainLife: this.traitDrainLife,
         damage: this.traitDamage,
+        explodeSpec: (spec) => this.explodeGemsBySpec(spec, this.state.activePlayer),
       }));
     } else if (gemType.kind === 'skull') {
       // 骷髅 → 物理伤害（需求 14），不产生法力（需求 11.2）
@@ -1640,6 +1844,7 @@ export class TurnEngine {
         applyStatus: (char, status) => applyStatus(char, status),
         drainLife: this.traitDrainLife,
         damage: this.traitDamage,
+        explodeSpec: (spec) => this.explodeGemsBySpec(spec, this.state.activePlayer),
       }));
     }
   }
@@ -1841,6 +2046,26 @@ export class TurnEngine {
       const from = this.state.board.get(pos);
       if (!from) continue;
       const to = specialGem(kind, tier, color);
+      const gemId = this.nextGemId();
+      this.state.board.set(pos, { id: gemId, type: to });
+      changes.push({ pos, gemId, from: from.type, to });
+    }
+    if (changes.length === 0) return [];
+    return [{ type: 'gem-transform', changes }];
+  }
+
+  /**
+   * 随机现存格就地翻新为普通色宝石（特质收尾批 lunarscales「有 50% 的几率创造 3 颗紫色
+   * 宝石」注入大匹配 ctx.createPlainGem）：与 spawnSpecialGems 同一「满盘创造的代理口径」，
+   * 改完棋盘发 gem-transform 事件，新造宝石参与的匹配由外层 runCascades 下一轮吸收；
+   * 满盘安全跳过。
+   */
+  private spawnPlainGems(color: BaseColor, count: number): GameEvent[] {
+    const changes: GemTransformEvent['changes'] = [];
+    for (const pos of this.randomGemSlots(count)) {
+      const from = this.state.board.get(pos);
+      if (!from) continue;
+      const to = colorGem(color);
       const gemId = this.nextGemId();
       this.state.board.set(pos, { id: gemId, type: to });
       changes.push({ pos, gemId, from: from.type, to });
@@ -2153,6 +2378,7 @@ export class TurnEngine {
   private finishTurn(events: GameEvent[]): void {
     if (this.state.state === MatchState.GameOver) return;
 
+    const grantedExtraTurn = this.pendingExtraTurnSource !== null;
     if (this.pendingExtraTurnSource !== null) {
       // 技能额外回合的 source:'skill' 事件已由效果原语发出；匹配额外回合在这里发一次。
       if (this.pendingExtraTurnSource === 'match') {
@@ -2165,34 +2391,62 @@ export class TurnEngine {
       events.push({ type: 'turn-end', nextPlayer: next });
     }
     this.pendingExtraTurnSource = null;
+    // 额外回合触发特质（特质收尾批：bigteeth 大牙「当盟友获得额外回合时获得 1 点攻击力」/
+    // essenceoftime 时间精华「当自身获得额外回合时使所有盟友陷入法印状态」）。匹配/技能
+    // 两种来源统一在此结算（技能额外回合按既有契约延迟到本次回合尾）；按持有者一方
+    // 全员结算、定义直读、确定性顺序，无新键特质零事件零随机消耗。
+    if (grantedExtraTurn) {
+      for (const holder of this.state.teams[this.state.activePlayer].characters) {
+        if (holder.defeated) continue;
+        for (const code of holder.traitIds ?? []) {
+          const def = getTrait(code);
+          if (!def) continue;
+          if (def.onExtraTurnGain) {
+            const actual = grantStat(holder, def.onExtraTurnGain.stat, def.onExtraTurnGain.amount);
+            if (actual !== 0) events.push({ type: 'buff', targetId: holder.id, stat: def.onExtraTurnGain.stat, amount: actual });
+          }
+          if (def.onExtraTurnStatus) {
+            const spec = def.onExtraTurnStatus;
+            const targets = spec.scope === 'self'
+              ? [holder]
+              : this.state.teams[this.state.activePlayer].characters.filter((c) => !c.defeated);
+            for (const target of targets) events.push(...applyStatus(target, { id: spec.id, turns: spec.turns }));
+          }
+        }
+      }
+    }
 
-    // 回合开始的被动恢复（再生）：先于 DoT 结算，顺序固定以保证确定性
-    events.push(...applyTurnStartPassives(this.state.teams[this.state.activePlayer].characters));
-    // 回合开始经济/召唤（缺口清扫批惰性字段结算口 + 职业天赋 lightfingers/soulcaller）：
-    // 与被动恢复同一触发点、同一持有者序。
-    events.push(...this.applyTurnStartEconomyAndSummons());
+    // 「回合开始」结算块：只在真实换手时执行。额外回合（四连/技能）是同一回合的延续，
+    // 不重复触发回合开始效果——否则四连会再次加护甲/回血/跳 DoT（用户裁定 2026-09-19）。
+    if (!grantedExtraTurn) {
+      // 回合开始的被动恢复（再生）：先于 DoT 结算，顺序固定以保证确定性
+      events.push(...applyTurnStartPassives(this.state.teams[this.state.activePlayer].characters));
+      // 回合开始经济/召唤（缺口清扫批惰性字段结算口 + 职业天赋 lightfingers/soulcaller）：
+      // 与被动恢复同一触发点、同一持有者序。
+      events.push(...this.applyTurnStartEconomyAndSummons());
 
-    // 腐朽宝石盘上光环（官方 "at the start of each turn"）：回合尾一次扫描，兵多一方全员
-    // -1 甲/颗（同数双方都扣）。零随机消耗；无腐朽宝石零事件，既有对局序列不变。
-    events.push(...this.applyDecayGemAura());
+      // 腐朽宝石盘上光环（官方 "at the start of each turn"）：回合尾一次扫描，兵多一方全员
+      // -1 甲/颗（同数双方都扣）。零随机消耗；无腐朽宝石零事件，既有对局序列不变。
+      events.push(...this.applyDecayGemAura());
 
-    // 状态结算：对「即将行动方」的角色触发（DoT 扣血 / 织网挣脱 / 到期移除，需求 9.2, 9.4, 9.5）
-    events.push(
-      ...this.resolveDefeatWithRevive(
-        tickTeamStatuses(this.state.teams[this.state.activePlayer].characters, this.rng),
-      ),
-    );
-    // DoT 可能致死，重新判定胜负（game-over 仍排在末尾）
-    if (this.checkVictory(events)) return;
-
-    // 风暴持续回合递减（回合尾，DoT 结算附近）：归零清除并发 expired（阶段 1.3）
-    events.push(...this.tickStorms());
-
-    // 回合开始的棋盘写入类特质（火生/水生/白骨堆…）。放在死局检测之前：
-    // 新宝石可能正好造出一步合法交换，也可能自己就凑成三连——后者必须立刻结算，
-    // 不能把现成匹配留在盘面上等下一次行动。
-    if (this.applyTurnStartBoardTraits(events)) {
+      // 状态结算：对「即将行动方」的角色触发（DoT 扣血 / 织网挣脱 / 到期移除，需求 9.2, 9.4, 9.5）
+      events.push(
+        ...this.resolveDefeatWithRevive(
+          tickTeamStatuses(this.state.teams[this.state.activePlayer].characters, this.rng),
+        ),
+      );
+      // DoT 可能致死，重新判定胜负（game-over 仍排在末尾）
       if (this.checkVictory(events)) return;
+
+      // 风暴持续回合递减（回合尾，DoT 结算附近）：归零清除并发 expired（阶段 1.3）
+      events.push(...this.tickStorms());
+
+      // 回合开始的棋盘写入类特质（火生/水生/白骨堆…）。放在死局检测之前：
+      // 新宝石可能正好造出一步合法交换，也可能自己就凑成三连——后者必须立刻结算，
+      // 不能把现成匹配留在盘面上等下一次行动。
+      if (this.applyTurnStartBoardTraits(events)) {
+        if (this.checkVictory(events)) return;
+      }
     }
 
     // 死局检测只适用于完整棋盘。部分逻辑单测和未来的加载/恢复阶段可能暂时持有非满盘，
@@ -2343,6 +2597,7 @@ export class TurnEngine {
       }
       this.state.state = MatchState.AwaitingInput;
     }
+    this.applyActionSummonTriggers(events);
     this.processDeathTriggers(events);
     this.endActionLog(logEntry, true);
     return events;

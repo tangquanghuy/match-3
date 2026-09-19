@@ -1974,6 +1974,168 @@ for (const r of raw.troops) {
   }
 }
 
+/**
+ * 手工收编特质（特质收尾批 2026-09-19）：官方中文 dump 的 stats.traits 缺这 23 个 code
+ * 的解析条目（gowhead 抓取缺口），但官方英文描述（krystaradb.com 兵种页逐条核对）与
+ * RawData 机制字段（TraitType/Activation/Modifier/Filter）齐备。按 code 显式写
+ * 名称/中文描述/效果——EXPLICIT_EFFECTS 的全量版（描述与数值都人工对账）。
+ * 逐条官方 EN 依据见各行注释；官方 EN 原句已核对 krystaradb 兵种页（抓取快照
+ * tmp/krystara/*.html）。
+ */
+const MANUAL_TRAITS = {
+  // Winter Court's Boon | convert_blue_3, act=start_battle, mod=0.35
+  wintercourtsboon: {
+    name: '冬之宫廷恩赐',
+    description: '战斗开始时，有 35% 的几率将 3 颗蓝色宝石转换为冻结宝石。',
+    effects: { battleStartConvertGems: { color: 'Blue', gem: 'freezeGem', count: 3, chance: 0.35 } },
+  },
+  // Summer Court's Boon | convert_green_3, act=start_battle, mod=0.35
+  summercourtsboon: {
+    name: '夏之宫廷恩赐',
+    description: '战斗开始时，有 35% 的几率将 3 颗绿色宝石转换为妖火宝石。',
+    effects: { battleStartConvertGems: { color: 'Green', gem: 'faerieFireGem', count: 3, chance: 0.35 } },
+  },
+  // Big Teeth | adjust_attack, act=on_extra_turn, mod=1
+  bigteeth: {
+    name: '大牙',
+    description: '当盟友获得额外回合时，获得 1 点攻击力。',
+    effects: { onExtraTurnGain: { stat: 'attack', amount: 1 } },
+  },
+  // Call Nature | create_storm, act=on_summon, filter=1（Leafstorm 叶风暴）
+  callnature: {
+    name: '召唤自然',
+    description: '当一名盟友召唤部队时，召唤叶风暴。',
+    effects: { onAllySummonStorm: { referenceName: 'Leafstorm', displayName: '叶风暴', troopId: 9005, colors: ['Green'] } },
+  },
+  // Aspect of Famine | adjust_one_random_enemy_skill, act=start_turn, mod=-3
+  //（官方 "First enemy loses 3 Skill points"：Skill points 四项各减，powerof* 族同口径）
+  aspectoffamine: {
+    name: '饥荒相',
+    description: '在每个回合开始时，第一名敌人的全部技能值损失 3 点。',
+    effects: { turnStartEnemyDrain: { amount: 3 } },
+  },
+  // Aspect of Death | steal_life, act=start_turn, mod=2
+  aspectofdeath: {
+    name: '死亡相',
+    description: '在每个回合开始时，从第一名敌人身上窃取 2 点生命值。',
+    effects: { turnStartStealLife: { amount: 2 } },
+  },
+  // Serpent's Fang | adjust_enemy_life, act=cast_spell, mod=-3, filter=random
+  serpentsfang: {
+    name: '蝰蛇之牙',
+    description: '当一名盟友施放法术时，对一名随机敌人造成 3 点伤害。',
+    effects: { onAllyCastEnemyDamage: { amount: 3, scope: 'randomEnemy' } },
+  },
+  // Unstable Possession | explode_gems, act=four_or_five_of_a_kind, mod=2
+  unstablepossession: {
+    name: '不稳附身',
+    description: '在配对 4 或 5 颗宝石时，爆破 2 颗随机宝石。',
+    effects: { onBigMatchExplodeGem: { kind: 'random', count: 2 } },
+  },
+  // Cataclysm | explode_gems, act=on_skull_damage, mod=2
+  cataclysm: {
+    name: '天崩地裂',
+    description: '当自身造成骷髅头伤害时，爆破 2 颗随机宝石。',
+    effects: { onSkullHitExplodeGem: { count: 2 } },
+  },
+  // Monkey Magic | steal_magic, act=start_turn, mod=2, filter=first
+  monkeymagic: {
+    name: '猴王魔法',
+    description: '在我的回合开始时，从第一名敌人身上窃取 2 点魔法值。',
+    effects: { turnStartStealMana: { amount: 2 } },
+  },
+  // Hidden Trap | explode_gems_on_mana, act=match_mana, mod=1, filter=3（Yellow）
+  hiddentrap: {
+    name: '暗藏陷阱',
+    description: '在配对黄色宝石时，爆破一颗随机宝石。',
+    effects: { onColorMatchExplodeGem: { color: 'Yellow', count: 1 } },
+  },
+  // Artillery Support | adjust_enemy_life, act=cast_spell, mod=-5, filter=all
+  artillerysupport: {
+    name: '炮火支援',
+    description: '当一名盟友施放法术时，对所有敌人造成 5 点伤害。',
+    effects: { onAllyCastEnemyDamage: { amount: 5, scope: 'enemyAll' } },
+  },
+  // Elemental Aura | create_storm, act=four_or_five_of_a_kind, filter=21（Elementalstorm）
+  // 元素风暴官方 BoostColors 未有权威记载，惰性建模取主色 Red（三原元素色 Red/Blue/Yellow）
+  elementalaura: {
+    name: '元素光环',
+    description: '在配对 4 颗或更多宝石时，召唤元素风暴。',
+    effects: { onBigMatchStorm: { color: 'Red', turns: STORM_TURNS, troopId: 9010, referenceName: 'Elementalstorm', displayName: '元素风暴' } },
+  },
+  // Umbral Aura | create_storm, act=four_or_five_of_a_kind, filter=24（Umbralstorm）
+  // 幽暗风暴惰性建模取 Purple（幽暗=暗影系主色）
+  umbralaura: {
+    name: '幽暗光环',
+    description: '在配对 4 颗或更多宝石时，召唤幽暗风暴。',
+    effects: { onBigMatchStorm: { color: 'Purple', turns: STORM_TURNS, troopId: 9011, referenceName: 'Umbralstorm', displayName: '幽暗风暴' } },
+  },
+  // Summoning Ritual | adjust_magic, act=on_summon, mod=8
+  summoningritual: {
+    name: '召唤仪式',
+    description: '当一名盟友被召唤后，获得 8 点魔法值。',
+    effects: { onAllySummonGain: { stat: 'magic', amount: 8 } },
+  },
+  // Song of Madness | create_storm, act=start_battle, filter=0_4（Madnessstorm；
+  // TURN_START_STORM_MAP 疯狂风暴先例 BoostColors Blue/Purple，惰性取 Blue）
+  songofmadness: {
+    name: '疯乱之歌',
+    description: '战斗开始时，召唤疯乱风暴。',
+    effects: { battleStartStorm: { color: 'Blue', turns: STORM_TURNS, troopId: 9012, referenceName: 'Madnessstorm', displayName: '疯乱风暴' } },
+  },
+  // Essence of Time | cause_aoe_enchanted, act=on_extra_turn, mod=1（法印 turns=3 同批口径）
+  essenceoftime: {
+    name: '时间精华',
+    description: '当自身获得额外回合时，使所有盟友陷入法印状态。',
+    effects: { onExtraTurnStatus: { scope: 'allAllies', id: 'enchanted', turns: 3 } },
+  },
+  // Good Omen | explode_gems, act=four_or_five_of_a_kind, mod=4, filter=26（Good Gargoyle Gem = gargoyleGem tier 1）
+  goodomen: {
+    name: '吉兆',
+    description: '在配对 4 颗或更多宝石时，爆破 4 颗善石像鬼宝石。',
+    effects: { onBigMatchExplodeGem: { kind: 'gargoyleGem', tier: 1, count: 4 } },
+  },
+  // Trapped Tomb | explode_gems, act=start_turn, mod=2
+  trappedtomb: {
+    name: '陷阱古墓',
+    description: '在我的回合开始时，爆破 2 颗随机宝石。',
+    effects: { turnStartExplodeGem: { kind: 'random', count: 2 } },
+  },
+  // Lunar Scales | create_gem_3, act=four_or_five_of_a_kind, mod=0.5, filter=4（Purple）
+  lunarscales: {
+    name: '月鳞',
+    description: '在配对 4 颗或更多宝石时，有 50% 的几率创造 3 颗紫色宝石。',
+    effects: { onBigMatchCreatePlainGem: { color: 'Purple', count: 3, chance: 0.5 } },
+  },
+  // One Little Spark | explode_gems, act=start_turn, mod=2, filter=6（Skull）
+  onelittlespark: {
+    name: '星火',
+    description: '在我的回合开始时，爆破 2 颗骷髅头。',
+    effects: { turnStartExplodeGem: { kind: 'skull', count: 2 } },
+  },
+  // Angelic Burst | explode_gems, act=start_turn, mod=1, filter=53（Angel Gem）
+  angelicburst: {
+    name: '天使迸发',
+    description: '在我的回合开始时，爆破一颗天使宝石。',
+    effects: { turnStartExplodeGem: { kind: 'angelGem', count: 1 } },
+  },
+  // Clairvoyance | create_gem_1, act=cast_spell, filter=26（Good Gargoyle Gem）
+  clairvoyance: {
+    name: '天眼通',
+    description: '当一名盟友施放法术时，创造一颗善石像鬼宝石。',
+    effects: { onAllyCastCreateGem: { gem: 'gargoyleGem', tier: 1, count: 1 } },
+  },
+};
+
+/** 手工收编特质的兵种出场计数（src/data/troops.json 精简表按 trait code 统计） */
+function countManualTroops(code) {
+  let n = 0;
+  for (const t of (Array.isArray(troopsSlim) ? troopsSlim : troopsSlim.raw_data ?? [])) {
+    if ((t.traits ?? []).some((tc) => tc.code === code)) n += 1;
+  }
+  return n;
+}
+
 const out = [];
 const skipped = [];
 // 开局风暴的原始描述只有少量固定特质。按 code 显式映射，避免依赖多语言描述文本的正则匹配。
@@ -1999,10 +2161,24 @@ for (const [code, v] of [...info].sort((a, b) => b[1].troops - a[1].troops)) {
       ...(parsed?.effects ?? {}),
       ...(startupStorm ? { battleStartStorm: startupStorm } : {}),
     });
-  } else {
-    skipped.push({ code, ...v, description });
+    } else {
+      skipped.push({ code, ...v, description });
+    }
   }
-}
+  // 手工收编特质（MANUAL_TRAITS）：这 23 个 code 在 dump 的 stats.traits 里有条目
+  //（部分兵种抓到了），但描述解析不了（zh 描述缺失/机翻破损）→ 主循环全部丢进 skipped。
+  // 官方 EN 权威描述已逐条核对（krystaradb 兵种页），在此以手工条目**顶替** skipped 结果
+  //——守卫只看 out（若主循环已实现则不重复）。
+  for (const [code, def] of Object.entries(MANUAL_TRAITS)) {
+    if (out.some((x) => x.code === code)) continue;
+    out.push({
+      code,
+      name: def.name,
+      description: def.description,
+      troops: countManualTroops(code),
+      ...def.effects,
+    });
+  }
 
 fs.mkdirSync(path.dirname(OUT), { recursive: true });
 fs.writeFileSync(OUT, `${JSON.stringify(out, null, 2)}\n`, 'utf8');

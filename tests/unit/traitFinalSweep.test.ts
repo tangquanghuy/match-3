@@ -202,47 +202,42 @@ describe('TurnEngine 集成（clanhunt 骷髅结算点）', () => {
 // ============================================================
 
 /**
- * 留弃 23 code（官方 EN + RawData 逐条核对后的「需新机制」分组）：
- *   - （原缺吞噬机制 3 code voracious/consumefuel/bloodyfeast 已在 R22 吞噬批落地——
- *     devourEffect 原语 + onSkullHitDevour/onSkullDamagedDevour/onEnemyDeathDevour 编译，
- *     移出本清单，见 traitDevour.test.ts）；
- *   - 缺爆破原语变体（7）：unstablepossession（大连×随机色）/ cataclysm（骷髅命中触发）/
- *     hiddentrap（配色触发×随机色）/ trappedtomb·onelittlespark·angelicburst（回合开始）/
- *     goodomen（大连×特殊宝石）——引擎爆破口仅支持「大连×指定基础色」
- *     （onBigMatchExplodeGem → TurnEngine.explodeGemsOfColor）；
- *   - 缺回合开始敌方削减/窃取钩子（3）：aspectoffamine / aspectofdeath / monkeymagic；
- *   - 缺额外回合触发钩子（2）：bigteeth / essenceoftime；
- *   - 风暴契约单色，混合/特殊风暴无映射（3）：elementalaura（元素风暴全色）/
- *     umbralaura（临界风暴映射拿不准）/ songofmadness（疯狂风暴=蓝+紫，battleStartStorm
- *     只收单色、猜单色会错）；
- *   - 缺施法响应伤害口（2）：serpentsfang / artillerysupport（RawData adjust_enemy_life
- *     与既有施法敌减 reduce 语义有差，且审计关卡限定 stat∈{magic,random}）；
- *   - 缺战斗开始宝石转换钩子（2）：wintercourtsboon / summercourtsboon；
- *   - 缺召唤响应钩子（2）：callnature（盟友召唤→风暴）/ summoningritual（盟友召唤→魔法）；
- *   - 缺大连素色宝石创造（1）：lunarscales（create_gem_3 紫色**素**宝石；大连创造口仅特殊宝石）。
+ * 收尾批（2026-09-19 特质收尾批）后留弃清单已清空：原留弃 23 code（官方 EN + RawData
+ * 逐条核对后的「需新机制」分组）全部由新引擎钩子收编——
+ *   - 爆破原语变体（7）：onBigMatchExplodeGem kind 扩展（'random'/'skull'/特殊宝石 tier）+
+ *     onSkullHitExplodeGem + onColorMatchExplodeGem + turnStartExplodeGem；
+ *   - 回合开始敌方削减/窃取（3）：turnStartEnemyDrain / turnStartStealLife / turnStartStealMana；
+ *   - 额外回合触发（2）：onExtraTurnGain / onExtraTurnStatus；
+ *   - 风暴：onAllySummonStorm（colors 惰性建模取 [0]）+ 元素/幽暗/疯乱风暴入库；
+ *   - 施法响应伤害（2）：onAllyCastEnemyDamage（randomEnemy/enemyAll）；
+ *   - 战斗开始宝石转换（2）：battleStartConvertGems；
+ *   - 召唤响应（2）：onAllySummonStorm / onAllySummonGain；
+ *   - 大连素色宝石创造（1）：onBigMatchCreatePlainGem；
+ *   - 施法创造宝石（1）：onAllyCastCreateGem（clairvoyance）。
+ * 生成器侧以 MANUAL_TRAITS 显式收编（官方 EN 逐条核对 krystaradb 兵种页）。
  */
-const DROPPED = [
-  'angelicburst', 'artillerysupport', 'aspectofdeath', 'aspectoffamine', 'bigteeth',
-  'callnature', 'cataclysm', 'clairvoyance',
-  'elementalaura', 'essenceoftime', 'goodomen', 'hiddentrap', 'lunarscales',
-  'monkeymagic', 'onelittlespark', 'serpentsfang', 'songofmadness', 'summercourtsboon',
-  'summoningritual', 'trappedtomb', 'umbralaura', 'unstablepossession',
-  'wintercourtsboon',
-] as const;
+const DROPPED: readonly string[] = [];
 
 describe('终扫判定守护', () => {
-  it('留弃 23 code 保持引擎不可见（getTrait 返回 undefined）', () => {
-    for (const code of DROPPED) {
-      expect(getTrait(code), `${code} 应保持未实现`).toBeUndefined();
+  it('原留弃 23 code 已由收尾批收编（getTrait 返回定义）', () => {
+    for (const code of [
+      'angelicburst', 'artillerysupport', 'aspectofdeath', 'aspectoffamine', 'bigteeth',
+      'callnature', 'cataclysm', 'clairvoyance',
+      'elementalaura', 'essenceoftime', 'goodomen', 'hiddentrap', 'lunarscales',
+      'monkeymagic', 'onelittlespark', 'serpentsfang', 'songofmadness', 'summercourtsboon',
+      'summoningritual', 'trappedtomb', 'umbralaura', 'unstablepossession',
+      'wintercourtsboon',
+    ] as const) {
+      expect(getTrait(code), `${code} 应已收编`).toBeDefined();
     }
   });
 
-  it('兵种侧全覆盖：troops.json 引用的特质 code = 已实现 ∪ 留弃（无未判读残留）', () => {
+  it('兵种侧全覆盖：troops.json 引用的特质 code 全部已实现（无未判读残留）', () => {
     const official = new Set<string>(
       (troopsJson as { traits?: { code: string }[] }[]).flatMap((t) => (t.traits ?? []).map((x) => x.code)),
     );
     const implemented = new Set(implementedTraitIds());
-    const uncovered = [...official].filter((c) => !implemented.has(c) && !DROPPED.includes(c as never));
+    const uncovered = [...official].filter((c) => !implemented.has(c) && !DROPPED.includes(c));
     expect(uncovered, `未判读残留: ${uncovered.join(',')}`).toEqual([]);
     // 留弃清单与官方差集精确一致（防清单腐化：多列/漏列都报）
     expect([...official].filter((c) => !implemented.has(c)).sort()).toEqual([...DROPPED].sort());

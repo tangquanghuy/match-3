@@ -429,7 +429,7 @@ describe('A · 数据完整性', () => {
         const s = t.onBigMatchStorm;
         if (!BASE_COLORS.has(s.color as BaseColor)) report(`${tag} onBigMatchStorm.color「${s.color}」非法`);
         if (!(s.turns >= 1 && s.turns <= 20)) report(`${tag} onBigMatchStorm.turns=${s.turns} 超出 [1,20]`);
-        if (!(s.troopId >= 9001 && s.troopId <= 9009)) report(`${tag} onBigMatchStorm.troopId=${s.troopId} 不在风暴虚拟号段 9001~9009`);
+        if (!(s.troopId >= 9001 && s.troopId <= 9019)) report(`${tag} onBigMatchStorm.troopId=${s.troopId} 不在风暴虚拟号段 9001~9019`);
         if (s.minSize !== undefined && ![4, 5].includes(s.minSize)) report(`${tag} onBigMatchStorm.minSize=${s.minSize} 异常`);
       }
       if (t.onBigMatchKill) {
@@ -452,7 +452,7 @@ describe('A · 数据完整性', () => {
           // 风暴变体（阶段 1.3）：不产出兵种，color 合法 + turns ∈ [1,20] + 虚拟号段
           if (!BASE_COLORS.has(s.storm.color as BaseColor)) report(`${tag} ${field}.storm.color「${s.storm.color}」非法`);
           if (!(s.storm.turns >= 1 && s.storm.turns <= 20)) report(`${tag} ${field}.storm.turns=${s.storm.turns} 超出 [1,20]`);
-          if (!(s.troopId >= 9001 && s.troopId <= 9009)) report(`${tag} ${field}.troopId=${s.troopId} 不在风暴虚拟号段 9001~9009`);
+          if (!(s.troopId >= 9001 && s.troopId <= 9019)) report(`${tag} ${field}.troopId=${s.troopId} 不在风暴虚拟号段 9001~9019`);
         } else {
           if (!s.troopId || !s.referenceName || !s.displayName) report(`${tag} ${field} 缺 troopId/referenceName/displayName`);
           if (s.displayName && !s.displayName.includes(s.referenceName) && !OFFICIAL_TROOP_NAMES.has(s.displayName)) {
@@ -613,6 +613,9 @@ describe('B · 编译契约', () => {
     // 接线批死亡钩子补族（temptation 蛊惑 / icyrebirth 寒冰重生 / deafeningwail 哀嚎）：
     // 与职业天赋 savior/deathcurse 同字段的既有编译产物
     'onAllyDeathStatus', 'onSelfDeathEnemyAllStatus',
+    // 特质收尾批：大连爆破 kind 扩展（unstablepossession 'random' / goodomen 'skull'/特殊宝石）
+    // + 大连创造素色宝石（lunarscales）
+    'onBigMatchExplodeGem', 'onBigMatchCreatePlainGem',
   ]);
 
   /**
@@ -638,6 +641,16 @@ describe('B · 编译契约', () => {
     // 接线批：回合开始施加状态（TurnEngine.applyTurnStartEconomyAndSummons 直读；
     // 职业天赋 wrathofanu 族 + tidalking 族 11 code 共用）
     'turnStartStatus',
+    // 特质收尾批（最后 23 code 收编，全部定义直读 / applyBigMatchTriggers 内 passivesOf 编译除外）：
+    // 开局转换（TurnEngine 构造期直读）/ 额外回合（finishTurn 直读）/ 召唤响应（行动尾
+    // summon 事件扫描直读）/ 回合开始削减窃取爆破（applyTurnStartEconomyAndSummons 直读）/
+    // 骷髅命中爆破（applyDamagedTriggersFromEvents 直读）/ 配色爆破（applyColorMatchTriggers
+    // 直读）/ 施法响应伤害与创造（applyAllyCastTriggers 直读）
+    'battleStartConvertGems', 'onExtraTurnGain', 'onExtraTurnStatus',
+    'onAllySummonStorm', 'onAllySummonGain',
+    'turnStartEnemyDrain', 'turnStartStealLife', 'turnStartStealMana', 'turnStartExplodeGem',
+    'onSkullHitExplodeGem', 'onColorMatchExplodeGem',
+    'onAllyCastEnemyDamage', 'onAllyCastCreateGem',
   ]);
 
   it('生成器产出的每个效果键都被引擎消费（编译器或定义直读，二者其一）', () => {
@@ -1370,6 +1383,12 @@ const CN_STORM_TO_REFERENCE: Record<string, string> = {
           // 中文描述截获词 + 风暴 = 写入的 displayName（混合双色风暴随对象建模）
           if (!t.turnStartStorm.displayName.includes(expected)) {
             report(`${tag(t)} 回合开始风暴「${t.turnStartStorm.displayName}」与描述「${expected}」不符`);
+          }
+        } else if (t.onAllySummonStorm) {
+          // 特质收尾批：召唤响应风暴（callnature「盟友召唤时召唤叶风暴」）——
+          // 中文描述截获词 + 风暴 = 写入的 displayName（混合双色随 colors 惰性建模）
+          if (!t.onAllySummonStorm.displayName.includes(expected)) {
+            report(`${tag(t)} 召唤响应风暴「${t.onAllySummonStorm.displayName}」与描述「${expected}」不符`);
           }
         } else {
           const spec = t.summonOnDeath ?? t.summonOnAllyDeath ?? t.summonOnEnemyDeath;

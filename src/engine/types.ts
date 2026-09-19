@@ -1047,8 +1047,13 @@ export interface PassiveModifiers {
   onBigMatchCleanseSelf?: boolean;
   /** 配对 4/5 连窃取首位敌人生命（lifesiphon）；经注入 drainLife 结算 */
   onBigMatchDrainLife?: { amount: number; minSize?: number };
-  /** 配对 4/5 连爆破关联色宝石（lightningstrike）；经注入爆破口结算 */
-  onBigMatchExplodeGem?: readonly { color: string; count: number; minSize: number }[];
+  /**
+   * 配对 4/5 连爆破宝石（lightningstrike 关联色 / 特质收尾批 kind 扩展：'random' 任意、
+   * 'skull' 骷髅头、特殊宝石 kind；kind 条目经注入 explodeSpec 结算）；经注入爆破口结算。
+   */
+  onBigMatchExplodeGem?: readonly { color: string; kind?: 'random' | 'skull' | SpecialGemKind; tier?: number; count: number; minSize: number }[];
+  /** 配对 4/5 连创造普通色宝石（lunarscales「50% 创造 3 颗紫色宝石」）；经注入 createPlainGem 结算 */
+  onBigMatchCreatePlainGem?: { color: string; count: number; chance?: number; minSize: number };
   /** 配对 4/5 连召唤随机风暴（chaosstorm）；经注入 setStorm + rng 掷色 */
   onBigMatchRandomStorm?: { minSize: number };
   /** 自己召唤部队后使随机敌人陷入状态（hauntedweave）；施加经注入 applyStatus */

@@ -20,15 +20,14 @@
  *
  * ## 覆盖范围
  *
- * 官方共 785 个 trait code。已实现 376 个（覆盖 4078 次兵种出场），涵盖：骷髅减伤、
+ * 官方共 785 个 trait code。已实现 785 个（覆盖 5394 次兵种出场，兵种侧全覆盖），涵盖：骷髅减伤、
  * 法术减伤、状态免疫（含死亡标记/猎人标记/恐怖/疾病扩展）、开局法力、每回合恢复、
  * 受击增益、命中附带状态/增益（含死亡标记/猎人标记/受诅/疾病/出血）、
- * 全体光环、按颜色盟友计数的自身光环、法力灵链。
+ * 全体光环、按颜色盟友计数的自身光环、法力灵链、吞噬、风暴、大连/配色全族钩子、
+ * 开局转换、回合开始削减/窃取/爆破、额外回合触发、召唤响应、施法响应伤害（特质收尾批后无留弃）。
  *
- * 未实现的按缺失机制归类，见 `artifacts/trait-build.txt`：缺棋盘钩子（278）、
- * 缺状态或机制（123，如疾病/狼化/吞噬/风暴）、缺种族光环（64，需中文种族名映射）、
- * 缺召唤钩子（30）、缺施法响应（14）、缺阵亡钩子（12）、缺 4/5 连（—）、
- * 缺反弹（3）、缺闪避（2）。
+ * 兵种侧 785 code 全部可表达（数据缺口仅剩 dump 无兵种载体的 Delve/Boss/觉醒内容）；
+ * 生成器侧缺机制归档见 `artifacts/trait-build.txt`（历史归档，收尾批后归零）。
  */
 import traitTable from '../data/traits.json';
 import { effectiveHealing } from './healing';
@@ -307,6 +306,75 @@ export interface TraitDefinition {
     count: number;
     chance?: number;
   };
+  // ———— 特质收尾批（2026-09-19，最后 23 个无定义 code 的官方 EN 权威钩子）————
+  // 消费全部走「定义直读」（TurnEngine 在触发点 getTrait(code)，同 turnStartChanceGain
+  // 口径）——不进 PassiveModifiers、无中性形态键，无此特质的对局零事件零随机消耗。
+  /**
+   * 战斗开始时有 chance 几率把 N 颗某色宝石转换为特殊宝石（冬之宫廷恩赐 wintercourtsboon
+   * 「35% chance to convert 3 Blue Gems to Freeze Gems」/ 夏之宫廷恩赐 summercourtsboon
+   * 同族）。消费在 TurnEngine.applyBattleStartConvertTraits（构造期事件，棋盘已生成）；
+   * 目标格复用 randomCellOfColor（每颗各耗一次 rng，与 turnStartColorToSpecial 同口径），
+   * 转换后立即 runCascades。
+   */
+  battleStartConvertGems?: { color: BaseColor; gem: SpecialGemKind; tier?: number; count: number; chance: number };
+  /**
+   * 自己一方获得额外回合时自身获得属性（大牙 bigteeth「Gain 1 Attack when allies gain an
+   * Extra Turn」）。消费在 finishTurn 的额外回合分支（匹配/技能两种来源统一在此结算，
+   * 技能额外回合按既有契约延迟到下一次交换行动的回合尾）。
+   */
+  onExtraTurnGain?: { stat: PassiveStat; amount: number };
+  /**
+   * 自己一方获得额外回合时给同队指定范围施加状态（时间精华 essenceoftime「Enchant all
+   * Allies when I get an extra turn」）。scope=allAllies / self；施加经 applyStatus
+   * （免疫在施加口拦截）。
+   */
+  onExtraTurnStatus?: { scope: 'self' | 'allAllies'; id: string; turns: number };
+  /**
+   * 同队任一角色召唤部队后召唤一场风暴（召唤自然 callnature「Summon a Leafstorm when an
+   * ally summons a troop」）。colors 为官方 BoostColors 的惰性建模（混合风暴双色，
+   * 引擎契约取 colors[0]，与 turnStartStorm 同口径）。消费在行动末尾的 summon 事件扫描。
+   */
+  onAllySummonStorm?: { referenceName: string; displayName: string; troopId: number; colors: readonly BaseColor[]; dropKind?: 'skull' | 'doomSkull' | 'uberDoomSkull' };
+  /**
+   * 同队任一角色被召唤后自身获得属性（召唤仪式 summoningritual「Gain 8 Magic after an
+   * Ally is summoned」）。消费与 onAllySummonStorm 同点（召唤事件按 player 归属触发
+   * 持有者一方全员）。
+   */
+  onAllySummonGain?: { stat: PassiveStat; amount: number };
+  /**
+   * 回合开始时削减首位敌人的全部技能值（饥荒相 aspectoffamine「First enemy loses 3 Skill
+   * points at the start of each turn」；官方 "Skill points" = 攻击/护甲/生命/魔法四项各减，
+   * 与 powerof* 族「全部技能值」同口径）。削减语义同 onBigMatchEnemyDrain（夹零发负
+   * buff 事件，不给自己进账）；目标=持有者对面阵营队伍序首位存活（确定性、零随机消耗）。
+   */
+  turnStartEnemyDrain?: { amount: number };
+  /** 回合开始时从首位敌人窃取生命（死亡相 aspectofdeath「Steal 2 Life from the first enemy」）：伤害经 traitDrainLife（damageOne 管线 + 持有者按实际伤害额等量治疗）。 */
+  turnStartStealLife?: { amount: number };
+  /** 回合开始时从首位敌人窃取法力（猴王魔法 monkeymagic「Steal 2 Magic from the first enemy」）：削减口径同 onSkullHitStealMana（目标夹零、manashield 免疫整体跳过、自己按 manaCost 夹取）。 */
+  turnStartStealMana?: { amount: number };
+  /**
+   * 回合开始时爆破宝石（陷阱古墓 trappedtomb「爆破 2 颗随机宝石」/ 星火 onelittlespark
+   * 「爆破 2 颗骷髅头」/ 天使迸发 angelicburst「爆破一颗天使宝石」）。kind='random'=
+   * 任意宝石、'skull'=普通骷髅头、特殊宝石 kind=盘上该类宝石；命中格移除后走
+   * resolveBoardChange（结算归持有者一方、连锁照常），候选唯一不掷骰。
+   */
+  turnStartExplodeGem?: { kind: 'random' | 'skull' | SpecialGemKind; tier?: number; count: number };
+  /** 造成骷髅头伤害时爆破 N 颗随机宝石（天崩地裂 cataclysm「Explode 2 random Gems when I deal skull damage」）：消费在 applyDamagedTriggersFromEvents 的攻击者侧扫描（skull-damage 实扣才触发）。 */
+  onSkullHitExplodeGem?: { count: number };
+  /**
+   * 配对某色宝石时爆破一颗随机宝石（暗藏陷阱 hiddentrap「Explode a random Gem when
+   * matching Yellow Gems」）。消费在 applyColorMatchTriggers（ctx.explodeSpec 注入）；
+   * kind 固定 'random'（官方语义任意宝石，非关联色）。
+   */
+  onColorMatchExplodeGem?: { color: BaseColor | 'skull'; count: number };
+  /**
+   * 同队任一角色施放法术时对敌人造成技能伤害（蝰蛇之牙 serpentsfang「Deal 3 damage to a
+   * random enemy when an ally casts a spell」/ 炮火支援 artillerysupport「Deal 5 damage to
+   * all Enemies」）。伤害经 traitDamage（damageOne 管线），随机目标耗一次种子化 rng。
+   */
+  onAllyCastEnemyDamage?: { amount: number; scope: 'randomEnemy' | 'enemyAll' };
+  /** 同队任一角色施放法术时创造特殊宝石（天眼通 clairvoyance「Create a Good Gargoyle Gem when an Ally casts a spell」）：落子经 spawnSpecialGems（随机现存格就地翻新）。 */
+  onAllyCastCreateGem?: { gem: SpecialGemKind; tier?: number; count: number };
   /** 对特定种族的骷髅伤害倍率 */
   skullMultVsTroopType?: { troopType: string; mult: number };
   /** 对处于特定状态的目标的骷髅伤害倍率 */
@@ -375,8 +443,15 @@ export interface TraitDefinition {
    * 宝石时，爆破一颗黄色宝石」）。落子口径同开局爆破 omenof*：命中格移除后走
    * resolveBoardChange（法力归持有者一方、重力连锁照常），候选唯一不掷骰、多候选耗
    * 一次 rng。编译进 PassiveModifiers.onBigMatchExplodeGem，TurnEngine 注入爆破口消费。
+   *
+   * kind 扩展（特质收尾批）：'random'=任意宝石（unstablepossession「爆破 2 颗随机宝石」/
+   * trappedtomb 同族大连接口）、'skull'=普通骷髅头（goodomen 族按 kind 爆破）、
+   * 特殊宝石 kind=爆破盘上该类特殊宝石（gargoyleGem tier 1=善神石像鬼宝石）。
+   * 带 kind 时 color 缺省；两者都缺省按 legacy 色爆破（既有 lightningstrike 数据不变）。
    */
-  onBigMatchExplodeGem?: { color: string; count?: number; minSize?: number };
+  onBigMatchExplodeGem?: { color?: string; kind?: 'random' | 'skull' | SpecialGemKind; tier?: number; count?: number; minSize?: number };
+  /** 自己一方配对 4/5 连时创造 N 颗**普通色**宝石（lunarscales「有 50% 的几率创造 3 颗紫色宝石」；特殊宝石走 onBigMatchCreateGem）。概率缺省必定。 */
+  onBigMatchCreatePlainGem?: { color: BaseColor; count: number; chance?: number; minSize?: number };
   /**
    * 自己一方配对 4/5 连时召唤一个**随机**风暴（职业天赋 chaosstorm「配对 4 或 5 颗宝石时，
    * 召唤一个随机风暴」）。风暴种类经 rng 从七大基础风暴（光/暗/冰/火/叶/尘/骸骨）均匀
@@ -1112,16 +1187,29 @@ export function resolvePassives(
     if (trait.onBigMatchDrainLife && passive.onBigMatchDrainLife === undefined) {
       passive.onBigMatchDrainLife = { ...trait.onBigMatchDrainLife };
     }
-    // 配对爆破宝石：多条并存按声明序逐条结算（minSize 编译期缺省 4、count 缺省 1）
+    // 配对爆破宝石：多条并存按声明序逐条结算（minSize 编译期缺省 4、count 缺省 1；
+    // kind/tier 为特质收尾批扩展——'random'/'skull'/特殊宝石 kind，legacy 色条目不带 kind、
+    // kind 条目可无 color）
     if (trait.onBigMatchExplodeGem) {
       passive.onBigMatchExplodeGem = [
         ...(passive.onBigMatchExplodeGem ?? []),
         {
-          color: trait.onBigMatchExplodeGem.color,
+          color: trait.onBigMatchExplodeGem.color ?? '',
+          ...(trait.onBigMatchExplodeGem.kind !== undefined ? { kind: trait.onBigMatchExplodeGem.kind } : {}),
+          ...(trait.onBigMatchExplodeGem.tier !== undefined ? { tier: trait.onBigMatchExplodeGem.tier } : {}),
           count: trait.onBigMatchExplodeGem.count ?? 1,
           minSize: trait.onBigMatchExplodeGem.minSize ?? 4,
         },
       ];
+    }
+    // 配对创造普通色宝石（lunarscales）：同类取先声明的一条
+    if (trait.onBigMatchCreatePlainGem && passive.onBigMatchCreatePlainGem === undefined) {
+      passive.onBigMatchCreatePlainGem = {
+        color: trait.onBigMatchCreatePlainGem.color,
+        count: trait.onBigMatchCreatePlainGem.count,
+        ...(trait.onBigMatchCreatePlainGem.chance !== undefined ? { chance: trait.onBigMatchCreatePlainGem.chance } : {}),
+        minSize: trait.onBigMatchCreatePlainGem.minSize ?? 4,
+      };
     }
     // 配对随机风暴 / 自身召唤触发状态 / 阵亡施加状态 / 阵亡猎杀 / 骷髅敌减：
     // 同类取先声明的一条（单天赋持有为主，多条并存极少见）
@@ -1854,6 +1942,11 @@ export function applyColorMatchTriggers(
      * damageOne 管线，与大连伤害同款回调）；缺省时配色伤害跳过（纯逻辑环境零事件）。
      */
     damage?: (target: Character, caster: Character, amount: number) => GameEvent[];
+    /**
+     * kind 感知宝石爆破口（特质收尾批 hiddentrap「配对黄色宝石时爆破一颗随机宝石」，
+     * TurnEngine 注入与大连 explodeSpec 同款回调）；缺省时配色爆破跳过。
+     */
+    explodeSpec?: (spec: { kind: 'random' | 'skull' | SpecialGemKind; tier?: number; color?: string; count: number }) => GameEvent[];
   } = {},
 ): GameEvent[] {
   const events: GameEvent[] = [];
@@ -2000,6 +2093,19 @@ export function applyColorMatchTriggers(
       events.push(...grantEconomy(passivesOf(holder).skullMatchEconomyGain, opts.gainEconomy));
     }
   }
+  // 配色爆破（特质收尾批 hiddentrap「在配对黄色宝石时，爆破一颗随机宝石」）：定义直读
+  //（getTrait，同 onSkullMatchEnemyDrain 的骷髅触发点口径），匹配色命中即经 opts.explodeSpec
+  // 注入爆破（kind 固定 'random' 任意宝石）；缺省注入时跳过——无此特质的对局零事件。
+  if (opts.explodeSpec) {
+    for (const holder of team) {
+      if (holder.defeated) continue;
+      for (const code of holder.traitIds ?? []) {
+        const spec = getTrait(code)?.onColorMatchExplodeGem;
+        if (!spec || spec.color !== color) continue;
+        events.push(...opts.explodeSpec({ kind: 'random', count: spec.count }));
+      }
+    }
+  }
   return events;
 }
 
@@ -2107,6 +2213,17 @@ export interface BigMatchTriggerContext {
    * rng、无候选安全跳过）；缺省时爆破类跳过。
    */
   explodeGem?: (color: string, count: number) => GameEvent[];
+  /**
+   * kind 感知宝石爆破口（特质收尾批，TurnEngine 注入同一落子管线）：kind='random' 任意
+   * 宝石 / 'skull' 普通骷髅头 / 特殊宝石 kind（tier=善神石像鬼等分层宝石的层号）；
+   * color 仅供六色族特殊宝石的归属基色。缺省时 kind 条目跳过（legacy 色条目不受影响）。
+   */
+  explodeSpec?: (spec: { kind: 'random' | 'skull' | SpecialGemKind; tier?: number; color?: string; count: number }) => GameEvent[];
+  /**
+   * 普通色宝石创造口（lunarscales，TurnEngine 注入：随机现存格就地翻新为该色普通宝石 +
+   * gem-transform 事件，新造宝石参与的匹配由外层 runCascades 吸收）；缺省时跳过。
+   */
+  createPlainGem?: (color: string, count: number) => GameEvent[];
 }
 
 /** 条件经济光环的币种结算序（固定 gold→souls→gems，保证事件顺序确定性） */
@@ -2438,16 +2555,31 @@ export function applyBigMatchTriggers(
       if (front) events.push(...ctx.drainLife(front, holder, spec.amount));
     }
   }
-  // 配对爆破关联色宝石（lightningstrike）：多条规格按声明序逐条结算，落子经 ctx.explodeGem
-  // 注入（TurnEngine 移除命中格 + resolveBoardChange；候选多时每条规格耗一次 rng）。
-  if (ctx.explodeGem) {
-    for (const holder of matchingTeam) {
-      if (holder.defeated) continue;
-      for (const spec of passivesOf(holder).onBigMatchExplodeGem ?? []) {
-        if (spec.minSize > size) continue;
+  // 配对爆破宝石：多条规格按声明序逐条结算。legacy 色条目（lightningstrike）走
+  // ctx.explodeGem；kind 条目（特质收尾批 unstablepossession 'random' / goodomen
+  // 'skull'/特殊宝石 kind）走 ctx.explodeSpec（TurnEngine 注入 kind 感知爆破口）。
+  // 候选多时每条规格耗一次 rng；无候选安全跳过。
+  for (const holder of matchingTeam) {
+    if (holder.defeated) continue;
+    for (const spec of passivesOf(holder).onBigMatchExplodeGem ?? []) {
+      if (spec.minSize > size) continue;
+      if (spec.kind !== undefined) {
+        if (!ctx.explodeSpec) continue;
+        events.push(...ctx.explodeSpec({ kind: spec.kind, tier: spec.tier, color: spec.color, count: spec.count }));
+      } else if (ctx.explodeGem) {
         events.push(...ctx.explodeGem(spec.color, spec.count));
       }
     }
+  }
+  // 配对创造普通色宝石（lunarscales）：概率经注入 rng（无 rng 时概率 <1 不生效），
+  // 落子经 ctx.createPlainGem（TurnEngine 注入随机空格写盘 + gem-transform，同 createGem 口径）。
+  for (const holder of matchingTeam) {
+    if (holder.defeated) continue;
+    const spec = passivesOf(holder).onBigMatchCreatePlainGem;
+    if (!spec || spec.minSize > size) continue;
+    if (spec.chance !== undefined && (!ctx.rng || ctx.rng.next() >= spec.chance)) continue;
+    if (!ctx.createPlainGem) continue;
+    events.push(...ctx.createPlainGem(spec.color, spec.count));
   }
   // 配对召唤随机风暴（chaosstorm）：rng 从七大基础风暴均匀掷一（无 rng 不生效），设置经
   // ctx.setStorm 注入（全局唯一顶替裁定照常）；虚拟风暴号段沿用 9008（号段仅元数据）。

@@ -9112,5 +9112,252 @@
         "armor": 2
       }
     }
+  },
+  {
+    "code": "wintercourtsboon",
+    "name": "冬之宫廷恩赐",
+    "description": "战斗开始时，有 35% 的几率将 3 颗蓝色宝石转换为冻结宝石。",
+    "troops": 3,
+    "battleStartConvertGems": {
+      "color": "Blue",
+      "gem": "freezeGem",
+      "count": 3,
+      "chance": 0.35
+    }
+  },
+  {
+    "code": "summercourtsboon",
+    "name": "夏之宫廷恩赐",
+    "description": "战斗开始时，有 35% 的几率将 3 颗绿色宝石转换为妖火宝石。",
+    "troops": 2,
+    "battleStartConvertGems": {
+      "color": "Green",
+      "gem": "faerieFireGem",
+      "count": 3,
+      "chance": 0.35
+    }
+  },
+  {
+    "code": "bigteeth",
+    "name": "大牙",
+    "description": "当盟友获得额外回合时，获得 1 点攻击力。",
+    "troops": 2,
+    "onExtraTurnGain": {
+      "stat": "attack",
+      "amount": 1
+    }
+  },
+  {
+    "code": "callnature",
+    "name": "召唤自然",
+    "description": "当一名盟友召唤部队时，召唤叶风暴。",
+    "troops": 2,
+    "onAllySummonStorm": {
+      "referenceName": "Leafstorm",
+      "displayName": "叶风暴",
+      "troopId": 9005,
+      "colors": [
+        "Green"
+      ]
+    }
+  },
+  {
+    "code": "aspectoffamine",
+    "name": "饥荒相",
+    "description": "在每个回合开始时，第一名敌人的全部技能值损失 3 点。",
+    "troops": 1,
+    "turnStartEnemyDrain": {
+      "amount": 3
+    }
+  },
+  {
+    "code": "aspectofdeath",
+    "name": "死亡相",
+    "description": "在每个回合开始时，从第一名敌人身上窃取 2 点生命值。",
+    "troops": 1,
+    "turnStartStealLife": {
+      "amount": 2
+    }
+  },
+  {
+    "code": "serpentsfang",
+    "name": "蝰蛇之牙",
+    "description": "当一名盟友施放法术时，对一名随机敌人造成 3 点伤害。",
+    "troops": 1,
+    "onAllyCastEnemyDamage": {
+      "amount": 3,
+      "scope": "randomEnemy"
+    }
+  },
+  {
+    "code": "unstablepossession",
+    "name": "不稳附身",
+    "description": "在配对 4 或 5 颗宝石时，爆破 2 颗随机宝石。",
+    "troops": 1,
+    "onBigMatchExplodeGem": {
+      "kind": "random",
+      "count": 2
+    }
+  },
+  {
+    "code": "cataclysm",
+    "name": "天崩地裂",
+    "description": "当自身造成骷髅头伤害时，爆破 2 颗随机宝石。",
+    "troops": 1,
+    "onSkullHitExplodeGem": {
+      "count": 2
+    }
+  },
+  {
+    "code": "monkeymagic",
+    "name": "猴王魔法",
+    "description": "在我的回合开始时，从第一名敌人身上窃取 2 点魔法值。",
+    "troops": 1,
+    "turnStartStealMana": {
+      "amount": 2
+    }
+  },
+  {
+    "code": "hiddentrap",
+    "name": "暗藏陷阱",
+    "description": "在配对黄色宝石时，爆破一颗随机宝石。",
+    "troops": 1,
+    "onColorMatchExplodeGem": {
+      "color": "Yellow",
+      "count": 1
+    }
+  },
+  {
+    "code": "artillerysupport",
+    "name": "炮火支援",
+    "description": "当一名盟友施放法术时，对所有敌人造成 5 点伤害。",
+    "troops": 1,
+    "onAllyCastEnemyDamage": {
+      "amount": 5,
+      "scope": "enemyAll"
+    }
+  },
+  {
+    "code": "elementalaura",
+    "name": "元素光环",
+    "description": "在配对 4 颗或更多宝石时，召唤元素风暴。",
+    "troops": 1,
+    "onBigMatchStorm": {
+      "color": "Red",
+      "turns": 8,
+      "troopId": 9010,
+      "referenceName": "Elementalstorm",
+      "displayName": "元素风暴"
+    }
+  },
+  {
+    "code": "umbralaura",
+    "name": "幽暗光环",
+    "description": "在配对 4 颗或更多宝石时，召唤幽暗风暴。",
+    "troops": 1,
+    "onBigMatchStorm": {
+      "color": "Purple",
+      "turns": 8,
+      "troopId": 9011,
+      "referenceName": "Umbralstorm",
+      "displayName": "幽暗风暴"
+    }
+  },
+  {
+    "code": "summoningritual",
+    "name": "召唤仪式",
+    "description": "当一名盟友被召唤后，获得 8 点魔法值。",
+    "troops": 1,
+    "onAllySummonGain": {
+      "stat": "magic",
+      "amount": 8
+    }
+  },
+  {
+    "code": "songofmadness",
+    "name": "疯乱之歌",
+    "description": "战斗开始时，召唤疯乱风暴。",
+    "troops": 1,
+    "battleStartStorm": {
+      "color": "Blue",
+      "turns": 8,
+      "troopId": 9012,
+      "referenceName": "Madnessstorm",
+      "displayName": "疯乱风暴"
+    }
+  },
+  {
+    "code": "essenceoftime",
+    "name": "时间精华",
+    "description": "当自身获得额外回合时，使所有盟友陷入法印状态。",
+    "troops": 1,
+    "onExtraTurnStatus": {
+      "scope": "allAllies",
+      "id": "enchanted",
+      "turns": 3
+    }
+  },
+  {
+    "code": "goodomen",
+    "name": "吉兆",
+    "description": "在配对 4 颗或更多宝石时，爆破 4 颗善石像鬼宝石。",
+    "troops": 1,
+    "onBigMatchExplodeGem": {
+      "kind": "gargoyleGem",
+      "tier": 1,
+      "count": 4
+    }
+  },
+  {
+    "code": "trappedtomb",
+    "name": "陷阱古墓",
+    "description": "在我的回合开始时，爆破 2 颗随机宝石。",
+    "troops": 1,
+    "turnStartExplodeGem": {
+      "kind": "random",
+      "count": 2
+    }
+  },
+  {
+    "code": "lunarscales",
+    "name": "月鳞",
+    "description": "在配对 4 颗或更多宝石时，有 50% 的几率创造 3 颗紫色宝石。",
+    "troops": 1,
+    "onBigMatchCreatePlainGem": {
+      "color": "Purple",
+      "count": 3,
+      "chance": 0.5
+    }
+  },
+  {
+    "code": "onelittlespark",
+    "name": "星火",
+    "description": "在我的回合开始时，爆破 2 颗骷髅头。",
+    "troops": 1,
+    "turnStartExplodeGem": {
+      "kind": "skull",
+      "count": 2
+    }
+  },
+  {
+    "code": "angelicburst",
+    "name": "天使迸发",
+    "description": "在我的回合开始时，爆破一颗天使宝石。",
+    "troops": 1,
+    "turnStartExplodeGem": {
+      "kind": "angelGem",
+      "count": 1
+    }
+  },
+  {
+    "code": "clairvoyance",
+    "name": "天眼通",
+    "description": "当一名盟友施放法术时，创造一颗善石像鬼宝石。",
+    "troops": 1,
+    "onAllyCastCreateGem": {
+      "gem": "gargoyleGem",
+      "tier": 1,
+      "count": 1
+    }
   }
 ]
