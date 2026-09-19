@@ -606,7 +606,8 @@ export class TurnEngine {
       for (const code of holder.traitIds ?? []) {
         const spec = getTrait(code)?.onSkullHitExplodeGem;
         if (!spec) continue;
-        events.push(...this.explodeGemsBySpec({ kind: 'random', count: spec.count }, side));
+        // 处在组结算中途（skull-damage 结算口）：入队延迟到本轮组结算后（见队列注释）
+        this.pendingTraitExplosions.push({ kind: 'spec', spec: { kind: 'random', count: spec.count }, side });
       }
     }
     for (const id of damagedIds) {
@@ -998,6 +999,7 @@ export class TurnEngine {
     // 位次条件光环（leader 族）：行动开始按当前编队位次补授（首位易主在此生效）
     events.push(...this.applyPositionAuraTriggers());
     this.runCascades(events);
+    this.flushTraitExplosions(events); // 兜底：连锁外入队的爆破（正常应已在 3.5 清空）
     this.finishTurn(events);
     this.applyActionSummonTriggers(events);
     this.processDeathTriggers(events);
@@ -1038,8 +1040,14 @@ export class TurnEngine {
               gainEconomy: this.creditEconomy,
               damage: this.traitDamage,
               drainLife: this.traitDrainLife,
-              explodeGem: (color, count) => this.explodeGemsOfColor(color, count),
-              explodeSpec: (spec) => this.explodeGemsBySpec(spec, this.state.activePlayer),
+              explodeGem: (color, count) => {
+                this.pendingTraitExplosions.push({ kind: 'color', color, count, side: this.state.activePlayer });
+                return [];
+              },
+              explodeSpec: (spec) => {
+                this.pendingTraitExplosions.push({ kind: 'spec', spec, side: this.state.activePlayer });
+                return [];
+              },
               createPlainGem: (color, count) => this.spawnPlainGems(color as BaseColor, count),
               createGem: (kind, tier, count, color) =>
                 this.spawnSpecialGems(kind, tier, count, matches.map((grp) => grp.cells), color as BaseColor | undefined),
@@ -1087,6 +1095,10 @@ export class TurnEngine {
       //    以及连带的炸弹/闪电/许愿连锁；链上摧毁照常结算法力/骷髅
       this.settleDestroyed(this.expandSpecialDestruction(destroyTriggers, events), events);
 
+      // 3.5 特质爆破统一落地（收尾批延迟队列）：本轮组已全部遍历完，此处改盘安全——
+      // 爆破自带重力+连锁吸收，内层连锁跑完后再做本轮胜负/重力。
+      this.flushTraitExplosions(events);
+
       // 4. 胜负检查：某队全灭即结束（需求 15.3）
       if (this.checkVictory(events)) return;
 
@@ -1105,6 +1117,30 @@ export class TurnEngine {
   }
 
   private pendingExtraTurnSource: 'match' | 'skill' | null = null;
+
+  /**
+   * 特质爆破延迟队列（特质收尾批）：大连/配色/骷髅命中触发的爆破发生在 runCascades
+   * 的组遍历中途——若就地 resolveBoardChange（重力+连锁）会改写本轮尚未遍历的 match
+   * 组格位（makeEliminationEvent 读到空格崩溃 / 消除错位宝石，lightningstrike 时代
+   * 即潜伏、收尾批把爆破特质送进烟雾池后引爆）。因此中途触发一律入队，每轮组结算
+   * 完成后（步骤 3 之后、胜负/重力之前）按入队序统一执行——爆破的落地管线
+   * （settleDestroyed + 重力 + 连锁吸收）与官方语义一致，只是结算点后移到轮边界。
+   */
+  private pendingTraitExplosions: (
+    | { kind: 'color'; color: string; count: number; side: PlayerSide }
+    | { kind: 'spec'; spec: { kind: 'random' | 'skull' | SpecialGemKind; tier?: number; color?: string; count: number }; side: PlayerSide }
+  )[] = [];
+
+  /** 按 FIFO 执行入队的特质爆破（空队列零开销）。 */
+  private flushTraitExplosions(events: GameEvent[]): void {
+    const queue = this.pendingTraitExplosions;
+    if (queue.length === 0) return;
+    this.pendingTraitExplosions = [];
+    for (const entry of queue) {
+      if (entry.kind === 'color') events.push(...this.explodeGemsOfColor(entry.color, entry.count));
+      else events.push(...this.explodeGemsBySpec(entry.spec, entry.side));
+    }
+  }
 
   private makeEliminationEvent(group: MatchGroup, chain: number): EliminationEvent {
     return {
@@ -1182,7 +1218,10 @@ export class TurnEngine {
         applyStatus: (char, status) => applyStatus(char, status),
         drainLife: this.traitDrainLife,
         damage: this.traitDamage,
-        explodeSpec: (spec) => this.explodeGemsBySpec(spec, this.state.activePlayer),
+        explodeSpec: (spec) => {
+          this.pendingTraitExplosions.push({ kind: 'spec', spec, side: this.state.activePlayer });
+          return [];
+        },
       }));
     } else if (settle.kind === 'starOnly') {
       // 纯星组（星与星互连、无基色依附）：只发星族各色 +1，宝石本体不产法力
@@ -1224,7 +1263,10 @@ export class TurnEngine {
         applyStatus: (char, status) => applyStatus(char, status),
         drainLife: this.traitDrainLife,
         damage: this.traitDamage,
-        explodeSpec: (spec) => this.explodeGemsBySpec(spec, this.state.activePlayer),
+        explodeSpec: (spec) => {
+          this.pendingTraitExplosions.push({ kind: 'spec', spec, side: this.state.activePlayer });
+          return [];
+        },
       }));
     }
     // 'wildOnly'：全通配组无归属色，只消除不结算
@@ -1825,7 +1867,10 @@ export class TurnEngine {
         applyStatus: (char, status) => applyStatus(char, status),
         drainLife: this.traitDrainLife,
         damage: this.traitDamage,
-        explodeSpec: (spec) => this.explodeGemsBySpec(spec, this.state.activePlayer),
+        explodeSpec: (spec) => {
+          this.pendingTraitExplosions.push({ kind: 'spec', spec, side: this.state.activePlayer });
+          return [];
+        },
       }));
     } else if (gemType.kind === 'skull') {
       // 骷髅 → 物理伤害（需求 14），不产生法力（需求 11.2）
@@ -1844,7 +1889,10 @@ export class TurnEngine {
         applyStatus: (char, status) => applyStatus(char, status),
         drainLife: this.traitDrainLife,
         damage: this.traitDamage,
-        explodeSpec: (spec) => this.explodeGemsBySpec(spec, this.state.activePlayer),
+        explodeSpec: (spec) => {
+          this.pendingTraitExplosions.push({ kind: 'spec', spec, side: this.state.activePlayer });
+          return [];
+        },
       }));
     }
   }
@@ -2597,6 +2645,7 @@ export class TurnEngine {
       }
       this.state.state = MatchState.AwaitingInput;
     }
+    this.flushTraitExplosions(events); // 兜底：连锁外入队的爆破
     this.applyActionSummonTriggers(events);
     this.processDeathTriggers(events);
     this.endActionLog(logEntry, true);
