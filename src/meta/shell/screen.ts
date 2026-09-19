@@ -8,7 +8,9 @@ import type { SettlementDetail } from '../systems/settlement';
 /** 所有屏名（hash 路由用） */
 export type ScreenName =
   | 'map' | 'team' | 'hero' | 'troop' | 'chests' | 'arena' | 'settings' | 'result'
-  | 'events' | 'invasion';
+  | 'events' | 'invasion'
+  /** 王国主线页 `#quest/<王国>`（M10） */
+  | 'quest';
 
 /** 屏层上下文：网关 + 导航 + 战斗启动。屏层禁止绕过它直接摸路由/战斗层 */
 export interface ShellCtx {

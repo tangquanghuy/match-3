@@ -266,3 +266,5 @@ git worktree add ../match-3-gems -b special-gems
 >    git commit -F <msgfile> -- <path1> <path2> ...
 >    ```
 >    （窗口 M 的 `07617c4` 即用此法。总纲 §4 第 3 条「禁止 git add -A」需升级为这条更强的约束。）
+| 09-19 | Q（B2 地图 P1/P2） | `src/meta/screens/mapScreen.ts`（Q 独占） | M-5（标签防重叠 + `--label-s` 由反向补偿改跟随相机）/ M-6（王国检索抽屉）/ M-9（收贡二次确认）/ M-11（`.rail` 基线覆盖）/ M-12（本屏图标语义）。**对 L 的两项需求**：①`chrome.ts:bottomNavHtml()` 的 `data-icon="lock"` 与「Lv.12 · 42 王国」语义无关，全局应改（本屏已局部改 `map` 兜住）；②`.rail{top:50%;transform:translateY(-58%)}` 在 `style.css`，本屏用屏内段覆盖，token 化时请一并收口 | ✅ 已落 `b43056a` |
+| 09-19 | Q（B3 M10 主线页） | **新** `src/meta/screens/questScreen.ts`；Q 独占 `systems/kingdomOps.ts`（加 `questPreviewSeed`/`questLineupPreview` 读模型）、`tests/unit/metaKingdomQuest.test.ts`（新 5 例）；**共享**：`shell/screen.ts`（`ScreenName` 加 `'quest'`）、`shell/gameMain.ts`（`SCREENS.quest` + `PAGE_TITLES.quest` + `NAV_OF.quest='地图'`，三处均为**加性**，其它屏零影响） | **M10 落地**（接管 `TASK-META §9`，该节可标完成）：`#quest/<王国>` 8 关轨道 + 阵容预览 + 探索档位；地图弹层与 rail 的任务/探索入口改路由，不再直接开战。系统层零改动（读模型全是现有纯函数，写路径全是现有网关方法）。**对 O 的一项需求**：K-2 现在跳 `#troop/kingdom=<王国>`，请 `troopScreen` 接收该 param 做王国预筛（未接收时表现=正常进图鉴，不会坏） | ✅ 已落 |

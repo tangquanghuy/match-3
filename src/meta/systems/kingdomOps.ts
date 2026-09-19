@@ -14,7 +14,7 @@ import {
   kingdomUnlockLevel,
 } from '../data/kingdoms';
 import { spend } from './wallet';
-import { questNodeUnlocked } from './encounter';
+import { planQuestEncounter, questNodeUnlocked, type EncounterEnemy } from './encounter';
 import { tributePreview } from './tribute';
 
 export const KINGDOM_MAX_LEVEL = 10;
@@ -53,6 +53,35 @@ export function setExploreTier(save: MetaSave, kingdom: string, tier: number): {
   const entry = save.kingdoms[kingdom]!;
   entry.exploreTier = tier;
   return { ok: true, tier };
+}
+
+// ---------------------------------------------------------------------------
+// M10 王国主线页的阵容预览（纯读模型；与实战 seed 无关）
+// ---------------------------------------------------------------------------
+
+/** fnv1a32（与 session/battleResult.digestString、systems/tribute 同算法） */
+function fnv1a32(input: string): number {
+  let hash = 0x811c9dc7;
+  for (let i = 0; i < input.length; i++) {
+    hash ^= input.charCodeAt(i);
+    hash = Math.imul(hash, 0x01000193);
+  }
+  return hash >>> 0;
+}
+
+/**
+ * 任务关阵容预览的种子：`fnv1a32('quest-<王国>-<关号>')`。
+ *
+ * 与**实战 seed 无关**（实战 seed 来自网关熵源），所以预览只是"这一关大概谁来打"，
+ * 同参数任何时候都复现同一份，可入单测锁死（`TASK-META §9.5` 验收 2）。
+ */
+export function questPreviewSeed(kingdom: string, node: number): number {
+  return fnv1a32(`quest-${kingdom}-${node}`);
+}
+
+/** 任务关阵容预览（8 关节点卡上的"敌人是谁"）。node 越界抛 RangeError。 */
+export function questLineupPreview(kingdom: string, node: number): EncounterEnemy[] {
+  return planQuestEncounter(kingdom, node, questPreviewSeed(kingdom, node)).enemies;
 }
 
 export interface KingdomStatBonus {

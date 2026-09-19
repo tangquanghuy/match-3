@@ -33,6 +33,8 @@ export interface NodeVm {
   questsDone: number;
   nextNode: number | null;
   exploreUnlocked: boolean;
+  /** 当前探索难度档（1~5；0=没设过，按 1 显示） */
+  exploreTier: number;
   tributeHours: number;
   tributeHits: number;
   /** 进贡口径单源（M-4）：三处 UI 共用 tributeReady，不再各用一套判据 */
@@ -62,6 +64,7 @@ function nodeVms(gateway: MetaGateway): NodeVm[] {
       questsDone: state.questsDone,
       nextNode: state.nextNode,
       exploreUnlocked: state.exploreUnlocked,
+      exploreTier: Math.min(5, Math.max(1, save.kingdoms[view.name]?.exploreTier || 1)),
       tributeHours: state.tributeHours,
       tributeHits: state.tributeHits,
       tributeGold: state.tributeGold,
@@ -459,9 +462,9 @@ export class MapScreen implements Screen {
     });
     this.on($('#kingdomUpgrade'), 'click', () => void this.upgrade(ctx));
     this.on($('#kingdomCollect'), 'click', () => void this.collect(ctx));
-    this.on($('#entryQuest'), 'click', () => void this.enterQuest(ctx));
-    this.on($('#entryExplore'), 'click', () => void this.enterExplore(ctx));
-    this.on($('#entryTroops'), 'click', () => toast('王国部队清单：图鉴页顶部可按王国筛选。'));
+    this.on($('#entryQuest'), 'click', () => this.enterQuest(ctx));
+    this.on($('#entryExplore'), 'click', () => this.enterExplore(ctx));
+    this.on($('#entryTroops'), 'click', () => this.enterTroops(ctx));
     this.on($('#dailyWin'), 'click', () => {
       const claimed = ctx.save().dailyFirstWinAt >= todayStartOf(Date.now());
       toast(claimed ? '今日首胜已领取，明天再来。' : '打赢任意一场战斗，结算时自动领取每日首胜宝石。');
@@ -743,8 +746,8 @@ export class MapScreen implements Screen {
       toast('暂无可推进的王国任务，先提升冒险者等级解锁新王国。');
       return;
     }
-    void ctx;
-    this.openKingdom(target);
+    // M10 已落地：rail 直接进王国主线页（在那里才能看到 8 关结构与阵容）
+    ctx.navigate('#quest/' + encodeURIComponent(target));
   }
 
   /** 外壳挂载后的二次刷新（战斗归来等场景直接复用） */
@@ -890,11 +893,23 @@ export class MapScreen implements Screen {
       : vm.tributeOverflowing
         ? `⚠ 已满 ${TRIBUTE.capHours} 小时上限（${clockOf(vm.tributeCapAt)} 就满了），正在溢出——继续挂着的时间不再产出，请尽快收取`
         : `离线按小时累积，上限 ${TRIBUTE.capHours} 小时 · 已累计 ${vm.tributeHours} 小时 · 下一袋 ${clockOf(vm.tributeNextHourAt)} · ${clockOf(vm.tributeCapAt)} 达上限`;
-    $('#questProgress').textContent = locked ? '锁定' : `${vm.questsDone} / 8`;
-    $('#exploreState').textContent = vm.exploreUnlocked ? '已开放 · 重复刷取' : '通关后开放';
-    $('#troopProgress').textContent = locked ? '—' : `${vm.ownedTroops} / ${vm.poolSize}`;
-    $('#entryExplore').classList.toggle('locked', !vm.exploreUnlocked);
+    // K-10：把「你卡在第几关、下一步点哪」写在卡上，而不是让玩家自己从 8/8 推断
+    $('#questProgress').textContent = locked
+      ? `需冒险者 Lv.${vm.unlockLevel}`
+      : vm.nextNode === null
+        ? '8 / 8 已全通'
+        : `${vm.questsDone}/8 · 下一关 第 ${vm.nextNode} 关`;
+    // K-3：锁定态口径统一（改前「任务=锁定」而「探索=通关后开放」两种说法）
+    $('#exploreState').textContent = locked
+      ? `需冒险者 Lv.${vm.unlockLevel}`
+      : vm.exploreUnlocked
+        ? `已开放 · ${vm.exploreTier} 档`
+        : `任务 8/8 后开放（当前 ${vm.questsDone}/8）`;
+    $('#troopProgress').textContent = locked ? `解锁后 ${vm.poolSize} 名` : `${vm.ownedTroops} / ${vm.poolSize}`;
+    $('#entryExplore').classList.toggle('locked', locked || !vm.exploreUnlocked);
     $('#entryQuest').classList.toggle('locked', locked);
+    // K-3：锁定态下这张卡此前**不带 locked**，看起来完全可点
+    $('#entryTroops').classList.toggle('locked', locked);
     $('#kingdomVeil').hidden = false;
   }
 
@@ -948,28 +963,38 @@ export class MapScreen implements Screen {
     this.afterMutation(ctx);
   }
 
-  private async enterQuest(ctx: ShellCtx): Promise<void> {
+  /**
+   * M10：任务/探索两个入口**不再直接开战**，改进王国主线页（`#quest/<王国>`）——
+   * 玩家先看到 8 关结构、敌人阵容、奖励位置与探索档位，再决定出战。
+   */
+  private enterQuest(ctx: ShellCtx): void {
     if (!this.openName) return;
     const vm = this.nodes.find((n) => n.view.name === this.openName);
     if (!vm || vm.locked) {
-      toast('王国尚未解锁。');
+      toast(`${this.openName} 尚未解锁：需冒险者 Lv.${vm?.unlockLevel ?? '?'}。`);
       return;
     }
-    if (vm.nextNode === null) {
-      toast('任务链已 8/8 通关，去探索模式重复刷取材料。');
-      return;
-    }
-    await ctx.launchQuest(vm.view.name, vm.nextNode);
+    ctx.navigate('#quest/' + encodeURIComponent(vm.view.name));
   }
 
-  private async enterExplore(ctx: ShellCtx): Promise<void> {
+  private enterExplore(ctx: ShellCtx): void {
     if (!this.openName) return;
     const vm = this.nodes.find((n) => n.view.name === this.openName);
-    if (!vm || !vm.exploreUnlocked) {
-      toast('通关 8 章任务链后开放探索。');
+    if (!vm || vm.locked) {
+      toast(`${this.openName} 尚未解锁：需冒险者 Lv.${vm?.unlockLevel ?? '?'}。`);
       return;
     }
-    await ctx.launchExplore(vm.view.name);
+    if (!vm.exploreUnlocked) {
+      toast(`通关 8 章任务链后开放探索（当前 ${vm.questsDone}/8）。`);
+      return;
+    }
+    ctx.navigate('#quest/' + encodeURIComponent(vm.view.name));
+  }
+
+  /** K-2：王国部队不再只给一句 toast，跳图鉴并带王国筛选参数 */
+  private enterTroops(ctx: ShellCtx): void {
+    if (!this.openName) return;
+    ctx.navigate('#troop/kingdom=' + encodeURIComponent(this.openName));
   }
 
   /** 网关变更后：重算节点与弹层 + **同步顶栏钱包**（存档对象不变，重读视图即可） */

@@ -18,6 +18,7 @@ import { HeroScreen } from '../screens/heroScreen';
 import { ChestsScreen } from '../screens/chestsScreen';
 import { ArenaScreen } from '../screens/arenaScreen';
 import { EventsScreen } from '../screens/eventsScreen';
+import { QuestScreen } from '../screens/questScreen';
 import { InvasionScreen } from '../screens/invasionScreen';
 import { ResultScreen } from '../screens/resultScreen';
 import { SettingsScreen } from '../screens/settingsScreen';
@@ -68,6 +69,7 @@ const SCREENS: Record<string, Screen> = {
   arena: new ArenaScreen(),
   events: new EventsScreen(),
   invasion: new InvasionScreen(),
+  quest: new QuestScreen(),
   settings: new SettingsScreen(),
   result: resultScreen,
 };
@@ -81,6 +83,7 @@ const PAGE_TITLES: Record<string, string> = {
   arena: '竞 技 场',
   events: '每 周 活 动',
   invasion: '入 侵',
+  quest: '王 国 主 线',
   settings: '设 置',
   result: '战 斗 结 算',
 };
@@ -88,6 +91,8 @@ const PAGE_TITLES: Record<string, string> = {
 /** 路由名 → 底部导航高亮项（result/settings 等无导航页不高亮） */
 const NAV_OF: Record<string, string> = {
   map: '地图', team: '队伍', hero: '英雄', troop: '图鉴', chests: '宝箱',
+  // 王国主线页是地图的下一层，导航仍高亮「地图」（避免设置页那种"孤儿页"观感）
+  quest: '地图',
 };
 
 let current: { name: string; screen: Screen; param?: string } | null = null;
