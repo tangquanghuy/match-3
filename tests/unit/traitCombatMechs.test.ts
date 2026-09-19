@@ -135,10 +135,10 @@ describe('applyPositionAuras：位次条件光环', () => {
     expect(hero.attack).toBe(8);
     expect(hero.magic).toBe(11);
     expect(events).toEqual([
-      { type: 'buff', targetId: 0, stat: 'hp', amount: 3 },
-      { type: 'buff', targetId: 0, stat: 'armor', amount: 3 },
-      { type: 'buff', targetId: 0, stat: 'attack', amount: 3 },
-      { type: 'buff', targetId: 0, stat: 'magic', amount: 3 },
+      { type: 'buff', source: 'trait', targetId: 0, stat: 'hp', amount: 3 },
+      { type: 'buff', source: 'trait', targetId: 0, stat: 'armor', amount: 3 },
+      { type: 'buff', source: 'trait', targetId: 0, stat: 'attack', amount: 3 },
+      { type: 'buff', source: 'trait', targetId: 0, stat: 'magic', amount: 3 },
     ]);
     // 第二次调用不重复授出（granted 防重复）
     expect(applyPositionAuras([[hero, makeChar(1)]], granted)).toEqual([]);

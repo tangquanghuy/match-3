@@ -1402,7 +1402,14 @@ export class App {
       case 'skull-damage': {
         const card = this.cardOfChar(ev.targetId);
         if (card) card.refresh();
-        // 攻击冲撞特效：攻击者立绘冲向目标，目标后退
+        // 反弹伤害（受击方的荆棘/Reflect 把伤害弹回攻击者）：不是一次主动攻击，
+        // 不播冲撞——否则攻击者与反弹方各冲一次，看起来像双方对撞。只给受弹方闪白。
+        if (ev.reflected) {
+          const reflectee = this.cardOfChar(ev.attackerId);
+          reflectee?.hitFlash();
+          break;
+        }
+        // 攻击冲撞特效：攻击者短促前压，目标后退
         this.playAttackLunge(ev.attackerId, ev.targetId);
         break;
       }
@@ -1556,9 +1563,14 @@ export class App {
       case 'buff': {
         const card = this.cardOfChar(ev.targetId);
         if (card) {
+          // 轻量通道（2026-09-19 裁定）：特质/被动触发的 buff（每回合回复、受击增益、
+          // 施法响应光环等高频触发）只飘字 + 刷新卡面——不播音效、不播序列帧；
+          // 完整反馈（音效 + heal_cleanse/armor_up 帧动画）保留给技能段增益。
           const color = BUFF_COLOR[ev.stat] ?? '#e8c879';
-          card.floatText(`+${ev.amount}`, color);
+          const text = `${ev.amount >= 0 ? '+' : ''}${ev.amount}`;
+          card.floatText(text, color);
           card.refresh();
+          if (ev.source === 'trait') break;
           const center = this.cardCenterInOverlay(card);
           if (ev.stat === 'hp') {
             this.audio.play('healing');
@@ -1919,7 +1931,7 @@ export class App {
     return side === PlayerSide.Left ? this.leftTeamView : this.rightTeamView;
   }
 
-  /** 攻击冲撞特效：攻击者立绘冲向对面队伍方向，目标立绘后退 */
+  /** 攻击冲撞特效：攻击者短促前压（不跨屏顶到对方卡上），目标受击后退 */
   private playAttackLunge(attackerId: number, targetId: number): void {
     const attacker = this.cardOfChar(attackerId);
     const target = this.cardOfChar(targetId);
@@ -1927,15 +1939,17 @@ export class App {
     // 攻击者属于哪一方决定冲撞方向：左队向右(+)，右队向左(-)
     const attackerSide = this.sideOfChar(attackerId);
     const dir = attackerSide === PlayerSide.Right ? -1 : 1;
-    // 冲撞距离：跨过棋盘到对面，取两卡水平间距的一部分（用屏幕实测距离更稳）
-    let dist = 220;
+    // 冲撞距离：短促前压（原先按 0.7×卡距、上限 520px，会把攻击者整个顶到对方卡上，
+    // 加上受击方大立绘溢出，观感像双方对撞）。压到 0.3×卡距、上限 170px，
+    // 命中点交给命中特效与受击后仰表达。
+    let dist = 150;
     if (target) {
       const a = attacker.el.getBoundingClientRect();
       const t = target.el.getBoundingClientRect();
       const gap = Math.abs(t.left - a.left);
       // getBoundingClientRect 受 wrapper 缩放影响，除回缩放还原到布局坐标
       const scale = this.currentScale();
-      dist = Math.min(Math.max((gap / scale) * 0.7, 120), 520);
+      dist = Math.min(Math.max((gap / scale) * 0.3, 70), 170);
     }
     attacker.lunge(dir * dist, () => {
       // 命中瞬间：撞击音效 + 整屏震动(棋盘+卡片一起晃) + 目标后仰 + 命中特效
@@ -2915,7 +2929,9 @@ export class App {
     if (!found) return;
     // 演示队伍用中文名，尝试按名称匹配兵种数据以展示技能/特质；匹配不到则仅展示属性
     const troop = TROOPS.find((t) => t.name === found!.name);
-    this.detailPanel.open(found, troop);
+    // 宿主快照携带的显示文本（meta 主角武器技能/职业特质中文名）
+    const snapshot = this.idMap.snapshotOf(charId);
+    this.detailPanel.open(found, troop, snapshot ? { spellName: snapshot.spellName, spellDescription: snapshot.spellDescription, traitNames: snapshot.traitNames } : undefined);
   }
 
   /** 回合结束刷新两队卡面 + 技能可释放高亮 */

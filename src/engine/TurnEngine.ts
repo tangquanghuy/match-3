@@ -161,7 +161,7 @@ export class TurnEngine {
     }
     if (dealt <= 0 || holder.defeated) return produced;
     const healed = applyBuffGain(holder, 'hp', dealt);
-    if (healed > 0) produced.push({ type: 'buff', targetId: holder.id, stat: 'hp', amount: healed });
+    if (healed > 0) produced.push({ type: 'buff', source: 'trait', targetId: holder.id, stat: 'hp', amount: healed });
     return produced;
   };
 
@@ -559,7 +559,7 @@ export class TurnEngine {
           }
           if (def.onAllySummonGain) {
             const actual = grantStat(holder, def.onAllySummonGain.stat, def.onAllySummonGain.amount);
-            if (actual !== 0) events.push({ type: 'buff', targetId: holder.id, stat: def.onAllySummonGain.stat, amount: actual });
+            if (actual !== 0) events.push({ type: 'buff', source: 'trait', targetId: holder.id, stat: def.onAllySummonGain.stat, amount: actual });
           }
         }
       }
@@ -686,7 +686,7 @@ export class TurnEngine {
         if (!gainSpec) continue;
         if (this.rng.next() >= gainSpec.chance) continue;
         const actual = grantStat(char, gainSpec.stat, gainSpec.amount);
-        if (actual !== 0) events.push({ type: 'buff', targetId: char.id, stat: gainSpec.stat, amount: actual });
+        if (actual !== 0) events.push({ type: 'buff', source: 'trait', targetId: char.id, stat: gainSpec.stat, amount: actual });
       }
       // 回合开始削减首位敌人全部技能值 / 窃取生命 / 窃取法力（特质收尾批：
       // aspectoffamine 饥荒相「First enemy loses 3 Skill points」官方 "Skill points" =
@@ -705,7 +705,7 @@ export class TurnEngine {
               const removed = Math.min(Math.max(0, firstFoe[stat]), def.turnStartEnemyDrain.amount);
               if (removed <= 0 || firstFoe.defeated) continue;
               firstFoe[stat] -= removed;
-              events.push({ type: 'buff', targetId: firstFoe.id, stat, amount: -removed });
+              events.push({ type: 'buff', source: 'trait', targetId: firstFoe.id, stat, amount: -removed });
             }
           }
           if (def.turnStartStealLife) {
@@ -715,10 +715,10 @@ export class TurnEngine {
             const stolen = Math.min(def.turnStartStealMana.amount, firstFoe.mana);
             if (stolen > 0) {
               firstFoe.mana -= stolen;
-              events.push({ type: 'buff', targetId: firstFoe.id, stat: 'mana', amount: -stolen });
+              events.push({ type: 'buff', source: 'trait', targetId: firstFoe.id, stat: 'mana', amount: -stolen });
               const before = char.mana;
               char.mana = Math.min(char.manaCost, char.mana + stolen);
-              if (char.mana > before) events.push({ type: 'buff', targetId: char.id, stat: 'mana', amount: char.mana - before });
+              if (char.mana > before) events.push({ type: 'buff', source: 'trait', targetId: char.id, stat: 'mana', amount: char.mana - before });
             }
           }
           if (def.turnStartExplodeGem) {
@@ -1550,7 +1550,7 @@ export class TurnEngine {
       const gain = t.manaCost - t.mana;
       if (gain <= 0) continue;
       t.mana += gain;
-      events.push({ type: 'buff', targetId: t.id, stat: 'mana', amount: gain });
+      events.push({ type: 'buff', source: 'trait', targetId: t.id, stat: 'mana', amount: gain });
     }
   }
 
@@ -1605,7 +1605,7 @@ export class TurnEngine {
       const loss = Math.min(SPIRIT_GEM_DRAIN, foe.mana);
       if (loss <= 0) continue;
       foe.mana -= loss;
-      events.push({ type: 'buff', targetId: foe.id, stat: 'mana', amount: -loss });
+      events.push({ type: 'buff', source: 'trait', targetId: foe.id, stat: 'mana', amount: -loss });
     }
   }
 
@@ -1650,7 +1650,7 @@ export class TurnEngine {
       const gain = Math.min(CANDY_GEM_MANA, ally.manaCost - ally.mana);
       if (gain <= 0) continue;
       ally.mana += gain;
-      events.push({ type: 'buff', targetId: ally.id, stat: 'mana', amount: gain });
+      events.push({ type: 'buff', source: 'trait', targetId: ally.id, stat: 'mana', amount: gain });
     }
   }
 
@@ -1742,7 +1742,7 @@ export class TurnEngine {
         if (char.defeated || char.armor <= 0) continue;
         const loss = Math.min(gems, char.armor);
         char.armor -= loss;
-        events.push({ type: 'buff', targetId: char.id, stat: 'armor', amount: -loss });
+        events.push({ type: 'buff', source: 'trait', targetId: char.id, stat: 'armor', amount: -loss });
       }
     }
     return events;
@@ -2451,7 +2451,7 @@ export class TurnEngine {
           if (!def) continue;
           if (def.onExtraTurnGain) {
             const actual = grantStat(holder, def.onExtraTurnGain.stat, def.onExtraTurnGain.amount);
-            if (actual !== 0) events.push({ type: 'buff', targetId: holder.id, stat: def.onExtraTurnGain.stat, amount: actual });
+            if (actual !== 0) events.push({ type: 'buff', source: 'trait', targetId: holder.id, stat: def.onExtraTurnGain.stat, amount: actual });
           }
           if (def.onExtraTurnStatus) {
             const spec = def.onExtraTurnStatus;

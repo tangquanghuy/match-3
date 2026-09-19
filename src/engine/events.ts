@@ -46,6 +46,12 @@ export interface SkullDamageEvent {
   damage: number;
   resultingHp: number;
   resultingArmor: number;
+  /**
+   * 反弹伤害标记（炼狱护甲/荆棘/米提护甲 + Reflect 状态）：本次伤害是受击方反弹给
+   * 攻击者的，attackerId 是反弹方。表现层据此不播攻击冲撞（否则看起来像双方对撞），
+   * 只给受弹方受击反馈。
+   */
+  reflected?: boolean;
 }
 
 /**
@@ -118,12 +124,19 @@ export interface GemExplodeEvent {
 /** 清除类事件（摧毁/爆破）共用的 cells 结构别名，供效果原语内部复用 */
 export type GemClearEvent = GemDestroyEvent | GemExplodeEvent;
 
-/** 增益/资源变更（需求 8.5）。stat 指明被改的属性，amount 为实际变化量。 */
+/**
+ * 增益/资源变更（需求 8.5）。stat 指明被改的属性，amount 为实际变化量。
+ *
+ * source 标记（表现层轻量通道裁定 2026-09-19）：特质/被动触发的 buff（每回合回复、
+ * 受击增益、施法响应光环、回合开始削减……）触发频率高，表现层只飘字+刷新卡面，
+ * 不播音效、不占序列帧时长；技能段（effects/buff.ts 等）不带标记，走完整反馈。
+ */
 export interface BuffEvent {
   type: 'buff';
   targetId: number;
   stat: 'attack' | 'armor' | 'hp' | 'mana' | 'magic';
   amount: number;
+  source?: 'trait';
 }
 
 /** 施加状态（需求 9.1）。 */

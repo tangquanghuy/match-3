@@ -172,7 +172,7 @@ describe('织网 · 拦截魔法值增益', () => {
 
     const events = applyCastTriggers([caster, ally], []);
     // caster 未织网：+1 法强并发 buff；ally 织网：被拦截
-    expect(events).toEqual([{ type: 'buff', targetId: caster.id, stat: 'magic', amount: 1 }]);
+    expect(events).toEqual([{ type: 'buff', source: 'trait', targetId: caster.id, stat: 'magic', amount: 1 }]);
     expect(caster.magic).toBe(9);
     expect(ally.magic).toBe(8);
   });

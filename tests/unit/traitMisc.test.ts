@@ -135,8 +135,8 @@ describe('applyBigMatchTriggers：配对转换（trascend）', () => {
     const events = applyBigMatchTriggers([holder], { size: 4 });
     expect(holder.hp).toBe(8);
     expect(holder.magic).toBe(10);
-    expect(events).toContainEqual({ type: 'buff', targetId: 0, stat: 'hp', amount: -2 });
-    expect(events).toContainEqual({ type: 'buff', targetId: 0, stat: 'magic', amount: 2 });
+    expect(events).toContainEqual({ type: 'buff', source: 'trait', targetId: 0, stat: 'hp', amount: -2 });
+    expect(events).toContainEqual({ type: 'buff', source: 'trait', targetId: 0, stat: 'magic', amount: 2 });
   });
 
   it('生命不足时保底 1 点：hp=2 只换 1 点（特质不自杀）', () => {
@@ -162,7 +162,7 @@ describe('applyBigMatchTriggers：配对转换（trascend）', () => {
     const events = applyBigMatchTriggers([holder], { size: 4 });
     expect(holder.hp).toBe(8);
     expect(holder.magic).toBe(8);
-    expect(events).toContainEqual({ type: 'buff', targetId: 0, stat: 'hp', amount: -2 });
+    expect(events).toContainEqual({ type: 'buff', source: 'trait', targetId: 0, stat: 'hp', amount: -2 });
     expect(events.find((e) => e.type === 'buff' && (e as { stat: string }).stat === 'magic')).toBeUndefined();
   });
 
@@ -403,8 +403,8 @@ describe('TurnEngine 集成：trascend / deadlywaters / lumpofcoal', () => {
     const events = engine.resolveSwap({ row: 7, col: 2 }, { row: 6, col: 2 });
     expect(hero.hp).toBe(8);
     expect(hero.magic).toBe(10);
-    expect(events).toContainEqual({ type: 'buff', targetId: 0, stat: 'hp', amount: -2 });
-    expect(events).toContainEqual({ type: 'buff', targetId: 0, stat: 'magic', amount: 2 });
+    expect(events).toContainEqual({ type: 'buff', source: 'trait', targetId: 0, stat: 'hp', amount: -2 });
+    expect(events).toContainEqual({ type: 'buff', source: 'trait', targetId: 0, stat: 'magic', amount: 2 });
   });
 
   it('deadlywaters：4 连红 → 持有者一方获得骸骨风暴（storm-change + Team.storm）', () => {

@@ -23,12 +23,12 @@ function applyStatGains(char: Character, gains: StatGains, events: GameEvent[]):
       const before = char.mana;
       char.mana = Math.max(0, Math.min(char.manaCost, char.mana + amount));
       const delta = char.mana - before;
-      if (delta !== 0) events.push({ type: 'buff', targetId: char.id, stat, amount: delta });
+      if (delta !== 0) events.push({ type: 'buff', source: 'trait', targetId: char.id, stat, amount: delta });
       continue;
     } else {
       char[stat] = Math.max(0, char[stat] + amount);
     }
-    events.push({ type: 'buff', targetId: char.id, stat, amount });
+    events.push({ type: 'buff', source: 'trait', targetId: char.id, stat, amount });
   }
 }
 
@@ -210,11 +210,11 @@ export class CombatResolver {
       const stolen = Math.min(attackerPassive.onSkullHitStealMana, target.mana);
       if (stolen > 0) {
         target.mana -= stolen;
-        events.push({ type: 'buff', targetId: target.id, stat: 'mana', amount: -stolen });
+        events.push({ type: 'buff', source: 'trait', targetId: target.id, stat: 'mana', amount: -stolen });
         const before = attacker.mana;
         attacker.mana = Math.min(attacker.manaCost, attacker.mana + stolen);
         const gained = attacker.mana - before;
-        if (gained > 0) events.push({ type: 'buff', targetId: attacker.id, stat: 'mana', amount: gained });
+        if (gained > 0) events.push({ type: 'buff', source: 'trait', targetId: attacker.id, stat: 'mana', amount: gained });
       }
     }
 
@@ -257,6 +257,7 @@ export class CombatResolver {
           damage: reflected,
           resultingHp: attacker.hp,
           resultingArmor: attacker.armor,
+          reflected: true,
         });
         if (attacker.hp <= 0 && !attacker.defeated) {
           attacker.defeated = true;
@@ -280,6 +281,7 @@ export class CombatResolver {
         damage: reflected,
         resultingHp: attacker.hp,
         resultingArmor: attacker.armor,
+        reflected: true,
       });
       events.push(...consumeReflect(target));
       if (attacker.hp <= 0 && !attacker.defeated) {

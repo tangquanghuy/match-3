@@ -119,7 +119,7 @@ describe('开局族（allyStartMana / battleStartTypeAura / perAllyTrait）', ()
     const events = applyBattleStartTraits([holder, undead, other], []);
     expect(undead.mana).toBe(10);
     expect(other.mana).toBe(0);
-    expect(events.filter((e) => e.targetId === 1)).toEqual([{ type: 'buff', targetId: 1, stat: 'mana', amount: 6 }]);
+    expect(events.filter((e) => e.targetId === 1)).toEqual([{ type: 'buff', source: 'trait', targetId: 1, stat: 'mana', amount: 6 }]);
   });
 
   it('iceaura：蓝色盟友开局全部状态 +5（scopeMatches 认颜色、含持有者）', () => {
@@ -169,10 +169,10 @@ describe('回合开始范围光环（turnStartTypeAura）', () => {
     expect(beast.magic).toBe(9);
     expect(other.attack).toBe(5);
     expect(first.filter((e) => e.targetId === 1)).toEqual([
-      { type: 'buff', targetId: 1, stat: 'hp', amount: 0 },
-      { type: 'buff', targetId: 1, stat: 'armor', amount: 0 },
-      { type: 'buff', targetId: 1, stat: 'attack', amount: 1 },
-      { type: 'buff', targetId: 1, stat: 'magic', amount: 1 },
+      { type: 'buff', source: 'trait', targetId: 1, stat: 'hp', amount: 0 },
+      { type: 'buff', source: 'trait', targetId: 1, stat: 'armor', amount: 0 },
+      { type: 'buff', source: 'trait', targetId: 1, stat: 'attack', amount: 1 },
+      { type: 'buff', source: 'trait', targetId: 1, stat: 'magic', amount: 1 },
     ].filter((e: { amount: number }) => e.amount !== 0));
     // 第二回合再叠一次
     applyTurnStartPassives([holder, beast, other]);
@@ -261,8 +261,8 @@ describe('施法显式状态 / 敌方削减', () => {
       rng: rngOf([], calls), applyStatus: recorder([]), poolOf,
     });
     expect(events).toEqual([
-      { type: 'buff', targetId: 4, stat: 'magic', amount: -1 },
-      { type: 'buff', targetId: 5, stat: 'magic', amount: -1 },
+      { type: 'buff', source: 'trait', targetId: 4, stat: 'magic', amount: -1 },
+      { type: 'buff', source: 'trait', targetId: 5, stat: 'magic', amount: -1 },
     ]);
     expect(calls).toEqual([]);
   });
@@ -275,7 +275,7 @@ describe('施法显式状态 / 敌方削减', () => {
       rng: rngOf([0.99]), applyStatus: recorder([]), poolOf,
     });
     // floor(0.99*4)=3 → magic；夹零只减 2
-    expect(events).toEqual([{ type: 'buff', targetId: 4, stat: 'magic', amount: -2 }]);
+    expect(events).toEqual([{ type: 'buff', source: 'trait', targetId: 4, stat: 'magic', amount: -2 }]);
     expect(foe.magic).toBe(0);
   });
 

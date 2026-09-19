@@ -66,7 +66,7 @@ const frenzy: TraitHook = {
   code: 'frenzy',
   onHit: (char) => {
     char.attack += 1;
-    const ev: BuffEvent = { type: 'buff', targetId: char.id, stat: 'attack', amount: 1 };
+    const ev: BuffEvent = { type: 'buff', source: 'trait', targetId: char.id, stat: 'attack', amount: 1 };
     return [ev];
   },
 };
@@ -77,7 +77,7 @@ const regeneration: TraitHook = {
   onTurnStart: (char) => {
     if (char.hp >= char.maxHp) return [];
     char.hp = Math.min(char.maxHp, char.hp + 1);
-    const ev: BuffEvent = { type: 'buff', targetId: char.id, stat: 'hp', amount: 1 };
+    const ev: BuffEvent = { type: 'buff', source: 'trait', targetId: char.id, stat: 'hp', amount: 1 };
     return [ev];
   },
 };

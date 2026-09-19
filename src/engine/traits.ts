@@ -1461,7 +1461,7 @@ function applyTrigger(
     const gains = passivesOf(char)[field];
     for (const stat of ['hp', 'armor', 'attack', 'magic', 'mana'] as const) {
       const actual = grantStat(char, stat, gains[stat]);
-      if (actual !== 0) events.push({ type: 'buff', targetId: char.id, stat, amount: actual });
+      if (actual !== 0) events.push({ type: 'buff', source: 'trait', targetId: char.id, stat, amount: actual });
     }
   }
   return events;
@@ -1627,7 +1627,7 @@ export function applyPositionAuras(
         didGrant = true;
         for (const stat of GAIN_STAT_ORDER) {
           const actual = grantStat(char, stat, aura.gains[stat] ?? 0);
-          if (actual !== 0) events.push({ type: 'buff', targetId: char.id, stat, amount: actual });
+          if (actual !== 0) events.push({ type: 'buff', source: 'trait', targetId: char.id, stat, amount: actual });
         }
       }
       // 只有真正处于光环位次并授出过才登记：不在位次的持有者保留将来补授资格
@@ -1706,7 +1706,7 @@ function applyTypeAuraGains(
       if (aura.troopType !== 'all' && !(member.troopTypes ?? []).includes(aura.troopType)) continue;
       for (const stat of GAIN_STAT_ORDER) {
         const actual = grantStat(member, stat, aura.gains[stat] ?? 0);
-        if (actual !== 0) events.push({ type: 'buff', targetId: member.id, stat, amount: actual });
+        if (actual !== 0) events.push({ type: 'buff', source: 'trait', targetId: member.id, stat, amount: actual });
       }
     }
   }
@@ -1956,7 +1956,7 @@ export function applyColorMatchTriggers(
     if (!gains) continue;
     for (const stat of GAIN_STAT_ORDER) {
       const actual = grantStat(char, stat, gains[stat]);
-      if (actual !== 0) events.push({ type: 'buff', targetId: char.id, stat, amount: actual });
+      if (actual !== 0) events.push({ type: 'buff', source: 'trait', targetId: char.id, stat, amount: actual });
     }
   }
   // 配色团队光环：任意存活持有者 → 同队 scope 范围内成员（按持有者序 × 队伍序确定性结算）
@@ -1970,7 +1970,7 @@ export function applyColorMatchTriggers(
         if (!scopeMatches(member, scope)) continue;
         for (const stat of GAIN_STAT_ORDER) {
           const actual = grantStat(member, stat, gains[stat]);
-          if (actual !== 0) events.push({ type: 'buff', targetId: member.id, stat, amount: actual });
+          if (actual !== 0) events.push({ type: 'buff', source: 'trait', targetId: member.id, stat, amount: actual });
         }
       }
     }
@@ -2007,7 +2007,7 @@ export function applyColorMatchTriggers(
       if (!gains) continue;
       for (const stat of GAIN_STAT_ORDER) {
         const actual = grantStat(char, stat, gains[stat]);
-        if (actual !== 0) events.push({ type: 'buff', targetId: char.id, stat, amount: actual });
+        if (actual !== 0) events.push({ type: 'buff', source: 'trait', targetId: char.id, stat, amount: actual });
       }
     }
   }
@@ -2282,7 +2282,7 @@ function reduceStat(
   if (removed <= 0) return [];
   if (stat === 'mana') target.mana -= removed;
   else target[stat] -= removed;
-  return [{ type: 'buff', targetId: target.id, stat, amount: -removed }];
+  return [{ type: 'buff', source: 'trait', targetId: target.id, stat, amount: -removed }];
 }
 
 /** 触发循环里的成员匹配：scope 为 'all'（全队）/种族名（troopTypes）/颜色名（colors） */
@@ -2321,7 +2321,7 @@ export function applyBigMatchTriggers(
         if (!scopeMatches(member, troopType)) continue;
         for (const stat of GAIN_STAT_ORDER) {
           const actual = grantStat(member, stat, gains[stat]);
-          if (actual !== 0) events.push({ type: 'buff', targetId: member.id, stat, amount: actual });
+          if (actual !== 0) events.push({ type: 'buff', source: 'trait', targetId: member.id, stat, amount: actual });
         }
       }
     }
@@ -2335,7 +2335,7 @@ export function applyBigMatchTriggers(
       if (size < Number(minSize)) continue;
       for (const stat of GAIN_STAT_ORDER) {
         const actual = grantStat(char, stat, gains[stat]);
-        if (actual !== 0) events.push({ type: 'buff', targetId: char.id, stat, amount: actual });
+        if (actual !== 0) events.push({ type: 'buff', source: 'trait', targetId: char.id, stat, amount: actual });
       }
     }
   }
@@ -2482,9 +2482,9 @@ export function applyBigMatchTriggers(
     const loss = Math.min(spec.amount, holder.hp - 1);
     if (loss <= 0) continue;
     holder.hp -= loss;
-    events.push({ type: 'buff', targetId: holder.id, stat: 'hp', amount: -loss });
+    events.push({ type: 'buff', source: 'trait', targetId: holder.id, stat: 'hp', amount: -loss });
     const gained = grantStat(holder, 'magic', loss);
-    if (gained > 0) events.push({ type: 'buff', targetId: holder.id, stat: 'magic', amount: gained });
+    if (gained > 0) events.push({ type: 'buff', source: 'trait', targetId: holder.id, stat: 'magic', amount: gained });
   }
 
   // 配对召唤（T5 杂项批 genieslamp/stormflock「配对 4+ 有 N% 的几率召唤一名X」）：概率在
@@ -2629,21 +2629,21 @@ export function applyTurnStartPassives(characters: readonly Character[]): BuffEv
     const healed = Math.min(effectiveHealing(char, p.regenPerTurn), char.maxHp - char.hp);
     if (healed > 0) {
       char.hp += healed;
-      events.push({ type: 'buff', targetId: char.id, stat: 'hp', amount: healed });
+      events.push({ type: 'buff', source: 'trait', targetId: char.id, stat: 'hp', amount: healed });
     }
     if (p.regenArmorPerTurn > 0) {
       char.armor += p.regenArmorPerTurn;
-      events.push({ type: 'buff', targetId: char.id, stat: 'armor', amount: p.regenArmorPerTurn });
+      events.push({ type: 'buff', source: 'trait', targetId: char.id, stat: 'armor', amount: p.regenArmorPerTurn });
     }
     // 攻击/魔法回合增益（aspectofwar「每回合开始时获得 3 点攻击力」）：regen.stat 分路由的
     // 结算端；魔法走 grantStat（织网下无法获得魔法增益的官方口径）。
     if (p.regenAttackPerTurn !== 0) {
       const actual = grantStat(char, 'attack', p.regenAttackPerTurn);
-      if (actual !== 0) events.push({ type: 'buff', targetId: char.id, stat: 'attack', amount: actual });
+      if (actual !== 0) events.push({ type: 'buff', source: 'trait', targetId: char.id, stat: 'attack', amount: actual });
     }
     if (p.regenMagicPerTurn !== 0) {
       const actual = grantStat(char, 'magic', p.regenMagicPerTurn);
-      if (actual !== 0) events.push({ type: 'buff', targetId: char.id, stat: 'magic', amount: actual });
+      if (actual !== 0) events.push({ type: 'buff', source: 'trait', targetId: char.id, stat: 'magic', amount: actual });
     }
     // 回合开始范围光环（turnStartTypeAura，定义直读）：持有者存活时给同队 scope 成员叠加
     for (const code of char.traitIds ?? []) {
@@ -2654,7 +2654,7 @@ export function applyTurnStartPassives(characters: readonly Character[]): BuffEv
         if (!scopeMatches(member, aura.scope)) continue;
         for (const stat of GAIN_STAT_ORDER) {
           const actual = grantStat(member, stat, aura.gains[stat] ?? 0);
-          if (actual !== 0) events.push({ type: 'buff', targetId: member.id, stat, amount: actual });
+          if (actual !== 0) events.push({ type: 'buff', source: 'trait', targetId: member.id, stat, amount: actual });
         }
       }
     }
@@ -2679,7 +2679,7 @@ export function applyBattleStartTraits(
   const events: BuffEvent[] = [];
   const push = (char: Character, stat: PassiveStat, amount: number) => {
     const actual = grantStat(char, stat, amount);
-    if (actual !== 0) events.push({ type: 'buff', targetId: char.id, stat, amount: actual });
+    if (actual !== 0) events.push({ type: 'buff', source: 'trait', targetId: char.id, stat, amount: actual });
   };
 
   // 1. 全体光环：来源可能在任意一方，两边都要扫
@@ -2738,7 +2738,7 @@ export function applyBattleStartTraits(
         for (const stat of GAIN_STAT_ORDER) {
           if (stat === 'mana') continue; // 光环不授法力（官方句式只涉四项属性）
           const actual = grantStat(char, stat, (per.gains[stat] ?? 0) * count);
-          if (actual !== 0) events.push({ type: 'buff', targetId: char.id, stat, amount: actual });
+          if (actual !== 0) events.push({ type: 'buff', source: 'trait', targetId: char.id, stat, amount: actual });
         }
       }
     }
@@ -2758,7 +2758,7 @@ export function applyBattleStartTraits(
           if (!scopeMatches(target, aura.scope)) continue;
           for (const stat of GAIN_STAT_ORDER) {
             const actual = grantStat(target, stat, aura.gains[stat] ?? 0);
-            if (actual !== 0) events.push({ type: 'buff', targetId: target.id, stat, amount: actual });
+            if (actual !== 0) events.push({ type: 'buff', source: 'trait', targetId: target.id, stat, amount: actual });
           }
         }
       }
@@ -2785,7 +2785,7 @@ export function applyBattleStartTraits(
           if (gained > target.mana) {
             const delta = gained - target.mana;
             target.mana = gained;
-            events.push({ type: 'buff', targetId: target.id, stat: 'mana', amount: delta });
+            events.push({ type: 'buff', source: 'trait', targetId: target.id, stat: 'mana', amount: delta });
           }
         }
       }
@@ -2805,7 +2805,7 @@ export function applyBattleStartTraits(
     if (gained > char.mana) {
       const delta = gained - char.mana;
       char.mana = gained;
-      events.push({ type: 'buff', targetId: char.id, stat: 'mana', amount: delta });
+      events.push({ type: 'buff', source: 'trait', targetId: char.id, stat: 'mana', amount: delta });
     }
   }
 

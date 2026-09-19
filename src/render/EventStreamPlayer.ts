@@ -445,12 +445,18 @@ export class EventStreamPlayer {
     tl.to({}, { duration: hold });
   }
 
-  /** 增益：派发事件（App 上浮增益数字 + 刷新属性） */
+  /** 增益：派发事件（App 上浮增益数字 + 刷新属性）。
+   *  特质/被动触发（source:'trait'）走轻量通道：不按序列帧时长挂起时间线——高频触发
+   *  每次占 0.8s 会显著拖慢节奏；技能段增益保留原时长给帧动画留屏。 */
   private appendBuff(
     tl: gsap.core.Timeline,
     ev: Extract<GameEvent, { type: 'buff' }>,
   ): void {
     tl.add(() => this.onBattleEvent?.(ev));
+    if (ev.source === 'trait') {
+      tl.to({}, { duration: 0.12 });
+      return;
+    }
     const hold = ev.stat === 'hp'
       ? AnimConfig.frameFX.heal_cleanse.duration / 1000
       : ev.stat === 'armor'
