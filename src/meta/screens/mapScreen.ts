@@ -161,6 +161,122 @@ const MAP_CSS = `
   /* M-10：满溢警示（这条规则此前只写在钱币来源弹层里，等于没写） */
   .chip.over { border-color: #c45454; color: #ffd9d2; }
   .tribute-row.over #tributeCopy { color: #e7a79c; }
+
+  /* M-11：左右 rail 基线对齐。原 translateY(-58%) 对不同条目数给出不同基线（实测错开 58px） */
+  .map-shell .rail { top: 96px; transform: none; }
+  /* 锁态小锁原先压在副题文字上（入侵/战役/馈赠三处），挪到菱形右上角 */
+  .map-shell .rail .rail-lock { right: -6px; bottom: auto; top: -6px; }
+
+  /* M-5：标签防重叠——逐节点纵向让位，由 layoutLabels() 写入 --label-dy */
+  .knode .kmeta { transform: translateY(var(--label-dy, 0px)) scale(var(--label-s, 1)); }
+
+  /* M-6：王国检索抽屉（42 国此前没有任何检索手段，只能盲拖 5440×2920 的图） */
+  .map-tools {
+    position: absolute;
+    right: 18px; bottom: 18px;
+    display: flex; flex-direction: column; gap: 8px;
+    z-index: 7;
+  }
+  .kingdom-list-veil { justify-content: flex-start; }
+  .kingdom-drawer {
+    position: relative;
+    width: 420px;
+    height: 100%;
+    display: flex; flex-direction: column;
+    background: linear-gradient(160deg, #1b1722, #0e0d14 62%);
+    border-right: 1px solid rgba(216, 194, 144, .42);
+    box-shadow: 24px 0 80px #000c;
+    padding: 18px 16px 16px;
+    gap: 10px;
+  }
+  .kingdom-drawer header { display: flex; align-items: baseline; justify-content: space-between; }
+  .kingdom-drawer header small { display: block; letter-spacing: 3px; color: #91887a; }
+  .kingdom-drawer header h2 { font: 22px var(--display); letter-spacing: 4px; color: #f4e2b4; }
+  .kingdom-drawer input {
+    width: 100%;
+    padding: 9px 12px;
+    background: rgba(8, 8, 14, .8);
+    border: 1px solid #67563e;
+    border-radius: 4px;
+    color: #f2ead8;
+    font: 13px var(--body);
+  }
+  .kingdom-drawer input:focus { outline: none; border-color: #e1c891; box-shadow: 0 0 0 2px #e8cc8644; }
+  .kl-sorts { display: flex; gap: 6px; }
+  .kl-sorts button {
+    flex: 1;
+    padding: 6px 4px;
+    background: linear-gradient(180deg, #221d2b, #14121b);
+    border: 1px solid #67563e;
+    border-radius: 4px;
+    color: #c4b6a3;
+    font: 11px var(--body);
+  }
+  .kl-sorts button.on { border-color: #e1c891; color: #ffeebb; background: linear-gradient(180deg, #2e2636, #1a1724); }
+  .kl-rows { flex: 1; min-height: 0; overflow-y: auto; display: flex; flex-direction: column; gap: 6px; padding-right: 4px; }
+  .kl-row {
+    display: grid;
+    grid-template-columns: 30px 1fr auto;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 10px;
+    background: linear-gradient(#20202c, #16161f);
+    border: 1px solid rgba(186, 164, 139, .18);
+    border-radius: 6px;
+    text-align: left;
+    color: #f2ead8;
+    box-shadow: 0 3px 9px rgba(0, 0, 0, .28);
+  }
+  .kl-row:hover { border-color: #a1895c; transform: translateY(-1px); }
+  .kl-row.locked { color: #9a917f; }
+  .kl-row .kl-crest { width: 26px; height: 30px; display: block; overflow: hidden; }
+  .kl-row .kl-crest img, .kl-row .kl-crest svg { width: 100%; height: 100%; object-fit: contain; display: block; }
+  .kl-row.locked .kl-crest { filter: grayscale(1) brightness(.6); }
+  .kl-row b { display: block; font: 600 13px var(--body); }
+  .kl-row small { display: block; font-size: 11px; color: #91887a; }
+  .kl-row .kl-tag {
+    padding: 2px 7px 3px;
+    border: 1px solid #67563e;
+    border-radius: 999px;
+    font: 11px var(--body);
+    color: #c4b6a3;
+    white-space: nowrap;
+  }
+  .kl-row .kl-tag.gold { border-color: #e1c891; color: #ffeebb; }
+  .kl-row .kl-tag.over { border-color: #c45454; color: #ffd9d2; }
+  .kl-empty { padding: 18px 8px; color: #91887a; font: 12px var(--body); text-align: center; }
+
+  /* M-9：一键收贡的二次确认（改前无确认地一次性收全服，包括刚攒 1 小时、结了就亏的） */
+  .tribute-sheet {
+    width: 520px;
+    max-height: 78%;
+    display: flex; flex-direction: column; gap: 12px;
+    padding: 20px;
+    background: linear-gradient(160deg, #24222f, #14131d 55%);
+    border: 1px solid rgba(216, 194, 144, .42);
+    border-radius: 10px;
+    box-shadow: 0 24px 80px #000c, inset 0 1px #f0dab718;
+  }
+  .tribute-sheet small.eyebrow { letter-spacing: 3px; color: #91887a; }
+  .tribute-sheet h2 { font: 22px var(--display); letter-spacing: 4px; color: #f4e2b4; }
+  .tribute-sheet .tb-rows { flex: 1; min-height: 0; overflow-y: auto; display: flex; flex-direction: column; gap: 6px; }
+  .tb-row {
+    display: grid; grid-template-columns: 1fr auto; gap: 8px;
+    align-items: center;
+    padding: 8px 10px;
+    background: linear-gradient(#20202c, #16161f);
+    border: 1px solid rgba(186, 164, 139, .18);
+    border-radius: 6px;
+    font: 12px var(--body);
+    color: #f2ead8;
+  }
+  .tb-row.warn { border-color: #8a6a3a; }
+  .tb-row small { display: block; color: #91887a; font-size: 11px; }
+  .tb-row.warn small { color: #e0b46a; }
+  .tribute-sheet .tb-total { font: 13px var(--body); color: #c4b6a3; }
+  .tribute-sheet .tb-acts { display: flex; gap: 10px; justify-content: flex-end; align-items: stretch; }
+  .tribute-sheet .tb-acts .cancel { flex: 0 0 auto; width: auto; padding: 0 20px; white-space: nowrap; }
+  .tribute-sheet .tb-acts .primary { flex: 0 1 300px; }
 `;
 
 export class MapScreen implements Screen {
@@ -169,6 +285,10 @@ export class MapScreen implements Screen {
   private openName: string | null = null;
   private cam = { x: 0, y: 0, s: HOME_SCALE };
   private drag = { on: false, moved: false, id: null as string | null, lx: 0, ly: 0, vx: 0, vy: 0, t: 0, inertia: 0 };
+  /** 王国抽屉（M-6）的排序与搜索词 */
+  private listSort: 'progress' | 'tribute' | 'name' = 'progress';
+  private listQuery = '';
+  private labelJob = 0;
   private listeners: Array<[EventTarget, string, EventListenerOrEventListenerObject, AddEventListenerOptions?]> = [];
 
   html(ctx: ShellCtx): string {
@@ -201,6 +321,9 @@ export class MapScreen implements Screen {
               <div class="map-nodes" id="nodes"></div>
             </div>
             <div class="map-vignette" aria-hidden="true"></div>
+          </div>
+          <div class="map-tools">
+            <button class="chip" id="kingdomListBtn" type="button"><span data-icon="book"></span><span>王国列表 · 42</span></button>
           </div>
           <button class="compass" id="compass" type="button" aria-label="重置视野">
             <svg viewBox="0 0 88 88" aria-hidden="true">
@@ -275,6 +398,35 @@ export class MapScreen implements Screen {
         </section>
       </div>
 
+      <div class="modal-veil kingdom-list-veil" id="kingdomListVeil" hidden>
+        <aside class="kingdom-drawer" role="dialog" aria-modal="true" aria-label="王国列表">
+          <header>
+            <div><small>KINGDOMS</small><h2>42 王国</h2></div>
+            <button class="sheet-close" id="kingdomListClose" type="button" aria-label="关闭"><span data-icon="close"></span></button>
+          </header>
+          <input id="kingdomSearch" type="search" placeholder="搜索王国名 / 英文名…" autocomplete="off" spellcheck="false">
+          <div class="kl-sorts" role="group" aria-label="排序">
+            <button type="button" class="on" data-sort="progress">按推进度</button>
+            <button type="button" data-sort="tribute">按进贡</button>
+            <button type="button" data-sort="name">按名称</button>
+          </div>
+          <div class="kl-rows" id="kingdomListRows"></div>
+        </aside>
+      </div>
+
+      <div class="modal-veil" id="tributeVeil" hidden>
+        <section class="tribute-sheet" role="dialog" aria-modal="true" aria-labelledby="tributeSheetTitle">
+          <div><small class="eyebrow">TRIBUTE</small><h2 id="tributeSheetTitle">一键收取进贡</h2></div>
+          <p class="tb-total" id="tributeNote"></p>
+          <div class="tb-rows" id="tributeRows"></div>
+          <p class="tb-total" id="tributeTotal"></p>
+          <div class="tb-acts">
+            <button class="cancel" id="tributeCancel" type="button">取消</button>
+            <button class="primary" id="tributeConfirm" type="button"><span data-icon="coin"></span><span id="tributeConfirmLabel">确认收取</span></button>
+          </div>
+        </section>
+      </div>
+
       <div class="modal-veil tip-veil" id="moneyVeil" hidden>
         <section class="money-tip etched" role="dialog" aria-modal="true" aria-labelledby="moneyTitle">
           <small>INCOME</small>
@@ -314,7 +466,17 @@ export class MapScreen implements Screen {
       const claimed = ctx.save().dailyFirstWinAt >= todayStartOf(Date.now());
       toast(claimed ? '今日首胜已领取，明天再来。' : '打赢任意一场战斗，结算时自动领取每日首胜宝石。');
     });
-    this.on($('#dailyTribute'), 'click', () => void this.collectAllTribute(ctx));
+    // M-9：不可撤销的批量结算改走二次确认层（改前点一下就把全服收干）
+    this.on($('#dailyTribute'), 'click', () => this.openTributeConfirm(ctx));
+    this.on($('#tributeCancel'), 'click', () => ($('#tributeVeil').hidden = true));
+    this.on($('#tributeConfirm'), 'click', () => {
+      $('#tributeVeil').hidden = true;
+      void this.collectAllTribute(ctx);
+    });
+    this.on($('#tributeVeil'), 'click', (e) => {
+      if (e.target === $('#tributeVeil')) $('#tributeVeil').hidden = true;
+    });
+    this.bindKingdomList();
     this.on($('#dailyArena'), 'click', () => ctx.navigate('#arena'));
 
     this.bindRail(ctx);
@@ -356,6 +518,169 @@ export class MapScreen implements Screen {
       if ((e as KeyboardEvent).key === 'Escape') {
         this.closeKingdom();
         $('#moneyVeil').hidden = true;
+        $('#kingdomListVeil').hidden = true;
+        $('#tributeVeil').hidden = true;
+      }
+    });
+    // M-12（本屏局部）：底部提示的锁图标与「Lv.12 · 42 王国」毫无关系 → 换地图图标。
+    // 全局修法要改 chrome.ts:bottomNavHtml（L 独占），已在台账登记为对 L 的需求。
+    const hintIcon = $('.bottom-hint [data-icon]');
+    if (hintIcon) {
+      hintIcon.dataset.icon = 'map';
+      mountIcons($('.bottom-hint'));
+    }
+  }
+
+  // —— M-6 王国检索抽屉（42 国在 3 步内可达） ——
+
+  private bindKingdomList(): void {
+    this.on($('#kingdomListBtn'), 'click', () => {
+      this.listQuery = '';
+      ($('#kingdomSearch') as HTMLInputElement).value = '';
+      this.renderKingdomList();
+      $('#kingdomListVeil').hidden = false;
+      ($('#kingdomSearch') as HTMLInputElement).focus();
+    });
+    this.on($('#kingdomListClose'), 'click', () => ($('#kingdomListVeil').hidden = true));
+    this.on($('#kingdomListVeil'), 'click', (e) => {
+      if (e.target === $('#kingdomListVeil')) $('#kingdomListVeil').hidden = true;
+    });
+    this.on($('#kingdomSearch'), 'input', (e) => {
+      this.listQuery = (e.target as HTMLInputElement).value.trim().toLowerCase();
+      this.renderKingdomList();
+    });
+    $$('.kl-sorts button').forEach((btn) =>
+      this.on(btn, 'click', () => {
+        this.listSort = (btn.dataset.sort ?? 'progress') as typeof this.listSort;
+        $$('.kl-sorts button').forEach((b) => b.classList.toggle('on', b === btn));
+        this.renderKingdomList();
+      }),
+    );
+  }
+
+  private renderKingdomList(): void {
+    const q = this.listQuery;
+    const rows = this.nodes
+      .filter((n) => !q || n.view.name.toLowerCase().includes(q) || n.view.en.toLowerCase().includes(q))
+      .sort((a, b) => {
+        if (this.listSort === 'name') return a.view.name.localeCompare(b.view.name, 'zh-Hans-CN');
+        if (this.listSort === 'tribute') {
+          const av = a.tributeReady ? a.tributeGold + 1 : 0;
+          const bv = b.tributeReady ? b.tributeGold + 1 : 0;
+          if (av !== bv) return bv - av;
+        }
+        // 推进度：可玩优先（未锁 > 锁），其中未打完的在前，再按门槛等级
+        if (a.locked !== b.locked) return a.locked ? 1 : -1;
+        const ap = a.nextNode === null ? 1 : 0;
+        const bp = b.nextNode === null ? 1 : 0;
+        if (ap !== bp) return ap - bp;
+        return a.unlockLevel - b.unlockLevel;
+      });
+    const el = $('#kingdomListRows');
+    el.innerHTML = rows.length
+      ? rows
+          .map((n) => {
+            const tag = n.locked
+              ? `<span class="kl-tag">冒险者 Lv.${n.unlockLevel}</span>`
+              : n.tributeReady
+                ? `<span class="kl-tag ${n.tributeOverflowing ? 'over' : 'gold'}">进贡 ${fmt(n.tributeGold)}${n.tributeOverflowing ? ' · 满溢' : ''}</span>`
+                : `<span class="kl-tag">任务 ${n.questsDone}/8</span>`;
+            const sub = n.locked
+              ? `${n.view.en} · 未解锁`
+              : `${n.view.en} · Lv.${n.level} · 任务 ${n.questsDone}/8${n.exploreUnlocked ? ' · 探索已开' : ''}`;
+            return `<button class="kl-row${n.locked ? ' locked' : ''}" type="button" data-id="${n.view.name}">
+              <span class="kl-crest">${n.view.crest ? `<img src="${n.view.crest}" alt="">` : crestSvg(n.view)}</span>
+              <span><b>${n.view.name}</b><small>${sub}</small></span>
+              ${tag}
+            </button>`;
+          })
+          .join('')
+      : '<p class="kl-empty">没有匹配的王国。</p>';
+    $$('.kl-row', el).forEach((row) =>
+      this.on(row, 'click', () => {
+        $('#kingdomListVeil').hidden = true;
+        this.openKingdom(row.dataset.id!);
+      }),
+    );
+  }
+
+  // —— M-9 一键收贡的二次确认（不可撤销的批量结算必须先看清收什么） ——
+
+  private openTributeConfirm(ctx: ShellCtx): void {
+    const ready = this.nodes.filter((n) => !n.locked && n.tributeReady);
+    if (!ready.length) {
+      toast('尚无可领取进贡。');
+      return;
+    }
+    const gold = ready.reduce((s, n) => s + n.tributeGold, 0);
+    const souls = ready.reduce((s, n) => s + n.tributeSouls, 0);
+    const keys = ready.reduce((s, n) => s + n.tributeKeys, 0);
+    // 「还没攒满就收」= 把计时器拨回 now，未满溢的部分等于白亏（M-9 的核心风险）
+    const early = ready.filter((n) => !n.tributeOverflowing && n.tributeHours < TRIBUTE.capHours);
+    $('#tributeNote').textContent = early.length
+      ? `收取会把该国的累积计时拨回现在。下面 ${early.length} 国还没攒满 ${TRIBUTE.capHours} 小时，现在收等于少拿后面的产出。`
+      : '收取会把累积计时拨回现在。';
+    $('#tributeRows').innerHTML = ready
+      .map((n) => {
+        const earlyOne = !n.tributeOverflowing && n.tributeHours < TRIBUTE.capHours;
+        const parts = [
+          n.tributeGold ? `黄金 ${fmt(n.tributeGold)}` : '',
+          n.tributeSouls ? `灵魂 ${n.tributeSouls}` : '',
+          n.tributeKeys ? `金钥匙 ${n.tributeKeys}` : '',
+        ].filter(Boolean).join(' · ');
+        const note = n.tributeOverflowing
+          ? `已满 ${TRIBUTE.capHours} 小时并溢出，建议立刻收`
+          : earlyOne
+            ? `只累计 ${n.tributeHours}/${TRIBUTE.capHours} 小时，${clockOf(n.tributeCapAt)} 才满`
+            : `已攒满 ${TRIBUTE.capHours} 小时`;
+        return `<div class="tb-row${earlyOne ? ' warn' : ''}"><span><b>${n.view.name}</b><small>${note}</small></span><span>${parts}</span></div>`;
+      })
+      .join('');
+    $('#tributeTotal').textContent = `合计：黄金 ${fmt(gold)} · 灵魂 ${souls}${keys ? ` · 金钥匙 ${keys}` : ''}（${ready.length} 国）`;
+    $('#tributeConfirmLabel').textContent = `确认收取 ${ready.length} 国`;
+    mountIcons($('#tributeVeil'));
+    $('#tributeVeil').hidden = false;
+    void ctx;
+  }
+
+  // —— M-5 标签防重叠（逐节点纵向让位；缩放时标签跟着缩） ——
+
+  private layoutLabels(): void {
+    cancelAnimationFrame(this.labelJob);
+    this.labelJob = requestAnimationFrame(() => {
+      const nodes = $$('.knode');
+      const placed: Array<{ left: number; right: number; top: number; bottom: number }> = [];
+      // 从上到下贪心让位：先到先占，后来者纵向试几档偏移
+      const ordered = nodes
+        .map((el) => ({ el, label: $('.kmeta', el) }))
+        .filter((x) => x.label)
+        .sort((a, b) => a.el.getBoundingClientRect().top - b.el.getBoundingClientRect().top);
+      for (const { el, label } of ordered) {
+        label.style.setProperty('--label-dy', '0px');
+        const base = label.getBoundingClientRect();
+        let dy = 0;
+        for (const candidate of [0, 26, -84, 52, -110, 78]) {
+          const box = {
+            left: base.left,
+            right: base.right,
+            top: base.top + candidate,
+            bottom: base.bottom + candidate,
+          };
+          const clash = placed.some(
+            (p) => box.right > p.left + 1 && box.left < p.right - 1 && box.bottom > p.top + 1 && box.top < p.bottom - 1,
+          );
+          if (!clash) {
+            dy = candidate;
+            placed.push(box);
+            break;
+          }
+          if (candidate === 78) {
+            dy = candidate;
+            placed.push(box);
+          }
+        }
+        if (dy) label.style.setProperty('--label-dy', `${dy}px`);
+        void el;
       }
     });
   }
@@ -461,6 +786,7 @@ export class MapScreen implements Screen {
     $$('.knode', nodesEl).forEach((el) =>
       this.on(el, 'click', () => this.openKingdom(el.dataset.id!)),
     );
+    this.layoutLabels();
     void save;
   }
 
@@ -671,8 +997,12 @@ export class MapScreen implements Screen {
   private applyCam(): void {
     this.clampCam();
     $('#mapWorld').style.transform = `translate(${this.cam.x}px, ${this.cam.y}px) scale(${this.cam.s})`;
-    const labelS = Math.min(1.12, Math.max(1, 1 / this.cam.s));
+    // M-5：改前是 `1 / cam.s` 的**反向补偿**——越缩小标签越大（实测最小视野 --label-s=1.120），
+    // 于是"缩小看全局"这个动作本身在加剧标签重叠。改为跟随相机（以默认视野为 1.0），
+    // 下限 0.72 保住可读性，上限 1.0 不让放大视野时标签溢出。
+    const labelS = Math.min(1, Math.max(0.72, this.cam.s / HOME_SCALE));
     $('#nodes').style.setProperty('--label-s', labelS.toFixed(3));
+    this.layoutLabels();
   }
 
   private clampCam(): void {
@@ -782,6 +1112,7 @@ export class MapScreen implements Screen {
 
   dispose(): void {
     cancelAnimationFrame(this.drag.inertia);
+    cancelAnimationFrame(this.labelJob);
     for (const [target, type, fn, opts] of this.listeners.splice(0)) {
       target.removeEventListener(type, fn, opts);
     }
