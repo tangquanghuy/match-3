@@ -286,7 +286,10 @@ export class ArenaScreen implements Screen {
             <span>${RARITY_CN[troop.rarityIdx] ?? ''} · 耗蓝 ${troop.manaCost} · Lv.${level} 满配</span>
           </div>
           <span class="pos${i === 0 ? ' skull' : ''}">${i + 1}${i === 0 ? '<span data-icon="skull"></span>' : ''}</span>
-          <div class="shift" aria-hidden="true"><button type="button" data-shift="up" data-i="${i}">▲</button><button type="button" data-shift="down" data-i="${i}">▼</button></div>
+          <div class="shift" role="group" aria-label="${troop.name} 站位调整">
+            <button type="button" data-shift="up" data-i="${i}" aria-label="${troop.name} 前移一位" title="前移一位"${i === 0 ? ' disabled' : ''}>▲</button>
+            <button type="button" data-shift="down" data-i="${i}" aria-label="${troop.name} 后移一位" title="后移一位"${i === this.order.length - 1 ? ' disabled' : ''}>▼</button>
+          </div>
         </div>`;
       })
       .join('');

@@ -3,7 +3,7 @@
  * 榜单与候选都是纯函数读模型（systems/invasion）；出战与结算走网关 +
  * launchInvasionBattle（结算 toast 汇报 VP/荣耀/名次），跨周 lazy 周结在网关方法里触发。
  */
-import { INVASION, INVASION_LEAGUES, INVASION_ZONES } from '../data/economy';
+import { INVASION, INVASION_LEAGUES, INVASION_VP_TABLE, INVASION_ZONES } from '../data/economy';
 import { getTroopById } from '../../data/troops';
 import {
   invasionCandidates,
@@ -19,6 +19,38 @@ const LEAGUE_COLORS = [
   '#9a8f86', '#c0c7ce', '#e6b84c', '#67c1b5', '#4fb06d',
   '#4f8fd0', '#9a6fd0', '#d09a4f', '#d04f5f', '#e8d24a',
 ] as const;
+
+/**
+ * I-1：晋级/降级口径。`relegate === 0` 有两种含义——**本级是底层**（青铜，无降级区）
+ * 与**本级是顶端**（钻石，promote 也为 0）。此前一句话把两者混成「顶端联赛只升不降」，
+ * 青铜玩家第一眼就被告知自己打到头了。这里按 league 位置分开成句。
+ */
+function zoneText(league: number, leagueName: string): string {
+  const zone = INVASION_ZONES[league]!;
+  const isTop = league === INVASION_LEAGUES.length - 1;
+  if (isTop) return `<b>${leagueName}</b> 是最高官阶：本周名次不再晋级${zone.relegate > 0 ? `，<b>第 ${zone.relegate} 名以后</b> 降级` : '，也不会降级'}。`;
+  const promote = `本周名次 <b>前 ${zone.promote}</b> 晋级`;
+  if (zone.relegate > 0) return `${promote} · <b>第 ${zone.relegate} 名以后</b> 降级。`;
+  return `${promote} · <b>${leagueName}</b> 是最低官阶，不会降级。`;
+}
+
+/** VP 基础分区间（取官方表首末段的 base），例：`10~50` */
+function vpBaseRangeText(): string {
+  const first = INVASION_VP_TABLE[0]!;
+  const last = INVASION_VP_TABLE[INVASION_VP_TABLE.length - 1]!;
+  return `${first.base}~${last.base}`;
+}
+
+/**
+ * I-2：此前公示的「4 消加分」在合同层拿不到（`eventSummary` 只有类型计数，
+ * `TASK-META §6` 开放问题 2 已登记），而系统真正结算的是速胜/存活/额外回合三项。
+ * 这里整词删除「4 消」，并把三张官方表的真实数值直接派生成文案。
+ */
+const VP_BONUS_TEXT = [
+  `速胜 ≤${INVASION.speedBonuses.map((b) => b.maxTurns).join('/')} 回合 +${INVASION.speedBonuses.map((b) => b.bonus).join('/+')}`,
+  `存活 ${INVASION.survivorBonuses.map((b) => b.survivors).join('/')} 人 +${INVASION.survivorBonuses.map((b) => b.bonus).join('/+')}`,
+  `额外回合 ${INVASION.extraTurnBonuses.map((b) => b.count).join('/')} 次 +${INVASION.extraTurnBonuses.map((b) => b.bonus).join('/+')}`,
+].join('、');
 
 export class InvasionScreen implements Screen {
   private listeners: Array<[EventTarget, string, EventListenerOrEventListenerObject]> = [];
@@ -104,7 +136,8 @@ export class InvasionScreen implements Screen {
               <div class="inv-stat"><small>荣耀</small><b>${save.currencies.glory}</b></div>
             </div>
           </header>
-          <p class="inv-zone-hint">本周名次 <b>前 ${zone.promote}</b> 晋级${zone.relegate > 0 ? ` · <b>第 ${zone.relegate} 名以后</b> 降级` : ' · 顶端联赛只升不降'}；胜场得 VP（4 消/速胜/存活加分），20 荣耀可在宝箱殿换荣耀箱。</p>
+          <p class="inv-zone-hint">${zoneText(save.invasion.league, leagueName)}</p>
+          <p class="inv-zone-hint inv-vp-rule">胜场得 VP：基础分按对手平均等级 <b>${vpBaseRangeText()}</b>；加分——${VP_BONUS_TEXT}；血怒对手 VP 翻倍；战败 −${INVASION.vpLoss} VP。<br />20 荣耀可在宝箱殿换荣耀箱。</p>
 
           <div class="inv-cols">
             <section class="inv-candidates">

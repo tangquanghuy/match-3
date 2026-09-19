@@ -460,23 +460,46 @@
 }
 .run-slot .pos.skull { color: #f0c1b7; border-color: #c98e82; }
 .run-slot .pos [data-icon] { width: 11px; height: 11px; }
+/* A-1：站位按钮此前挂 pointer-events:none（配合模板的 aria-hidden）导致点击永远到不了
+   按钮本身，而页面写着「▲▼ 调整站位」。改为可命中的 32×32 图标钮。 */
 .run-slot .shift {
   position: absolute;
   right: 8px;
   bottom: 8px;
   display: flex;
   flex-direction: column;
-  gap: 3px;
-  pointer-events: none;
+  gap: 4px;
 }
 .run-slot .shift button {
-  width: 22px;
-  height: 16px;
-  color: #c4b08a;
-  background: #1c1822;
-  border: 1px solid #6a5840;
-  font-size: 9px;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #e3cd9e;
+  background: #221d2b;
+  border: 1px solid #8a7350;
+  border-radius: 4px;
+  font-size: 13px;
   line-height: 1;
+  cursor: pointer;
+  transition: background .12s linear, border-color .12s linear, color .12s linear;
+}
+.run-slot .shift button:hover:not(:disabled) {
+  color: #fff2cf;
+  background: #342a42;
+  border-color: #d7bb7e;
+}
+.run-slot .shift button:active:not(:disabled) {
+  background: #1a1622;
+}
+.run-slot .shift button:focus-visible {
+  outline: 2px solid #d7bb7e;
+  outline-offset: 1px;
+}
+.run-slot .shift button:disabled {
+  opacity: .32;
+  cursor: default;
 }
 .lineup-hint { margin-top: 10px; color: #766b78; font-size: 10px; }
 
