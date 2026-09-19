@@ -49,6 +49,42 @@ function fxClassOf(rarityIdx: number): 'common' | 'rare' | 'epic' | 'legend' {
 
 const rarityCn = (idx: number): string => RARITY_ORDER[Math.min(Math.max(idx, 0), 5)] ?? 'Common';
 
+/** 「最近获得」条容量（一次十连必须能全看见；CH-5 落存档在批次 3） */
+const RECENT_CAP = 10;
+
+type ChestPool = 'gem' | 'gold' | 'glory';
+type OpenKind = 'gem-1' | 'gem-10' | 'gold-1' | 'gold-10' | 'glory-1';
+
+interface OpenSpec {
+  pool: ChestPool;
+  /** 一次成交的张数（原子批量，CH-1） */
+  count: number;
+  /** 一次成交的货币总价 */
+  cost: number;
+  label: string;
+}
+
+/** 五枚开箱按钮的成交口径（数值全部来自 economy 单源） */
+const OPEN_SPECS: Record<OpenKind, OpenSpec> = {
+  'gold-1': { pool: 'gold', count: 1, cost: GOLD_CHEST.keyCost, label: '开启一次' },
+  'gold-10': { pool: 'gold', count: GOLD_CHEST.multiCount, cost: GOLD_CHEST.keyCost * GOLD_CHEST.multiCount, label: '开启十次' },
+  'gem-1': { pool: 'gem', count: 1, cost: GEM_CHEST.singleCost, label: '召唤一次' },
+  'gem-10': { pool: 'gem', count: GEM_CHEST.multiCount, cost: GEM_CHEST.multiCost, label: '召唤十次' },
+  'glory-1': { pool: 'glory', count: 1, cost: GLORY_CHEST.cost, label: '开启一次' },
+};
+
+const POOL_CN: Record<ChestPool, { currency: string; unit: string; title: string }> = {
+  gold: { currency: '金钥匙', unit: '把', title: 'KEY SUMMON' },
+  gem: { currency: '宝石', unit: '', title: 'GEM SUMMON' },
+  glory: { currency: '荣耀', unit: '', title: 'GLORY SUMMON' },
+};
+
+/** 「还差 3 把」/「还差 1,496 宝石」——余额不足的按钮文案（CH-1/CH-4） */
+function shortLabel(pool: ChestPool, missing: number): string {
+  const cn = POOL_CN[pool];
+  return cn.unit ? `还差 ${fmt(missing)} ${cn.unit}` : `还差 ${fmt(missing)} ${cn.currency}`;
+}
+
 interface RewardVm {
   troop: TroopData | null;
   name: string;
@@ -92,8 +128,8 @@ export class ChestsScreen implements Screen {
                 <span class="pool-balance"><span data-icon="key"></span>持有 <b id="dockKeyBalance">0</b></span>
               </div>
               <div class="chest-btns">
-                <button class="chest-btn" data-open="gold-1" type="button"><span>开启一次</span><small><span data-icon="key"></span>${GOLD_CHEST.keyCost}</small></button>
-                <button class="chest-btn featured" data-open="gold-10" type="button"><span>开启十次</span><small><span data-icon="key"></span>${GOLD_CHEST.keyCost * 10}</small></button>
+                <button class="chest-btn" data-open="gold-1" type="button"><span class="btn-label">开启一次</span><small><span data-icon="key"></span><b class="btn-cost">${GOLD_CHEST.keyCost}</b></small></button>
+                <button class="chest-btn featured" data-open="gold-10" type="button"><span class="btn-label">开启十次</span><small><span data-icon="key"></span><b class="btn-cost">${GOLD_CHEST.keyCost * GOLD_CHEST.multiCount}</b></small></button>
               </div>
               <div class="chest-note"><span>包含普通至超稀有部队</span><b>单抽即开 · 重复进同名副本</b></div>
             </div>
@@ -104,8 +140,8 @@ export class ChestsScreen implements Screen {
                 <span class="pool-balance gem-balance"><span data-icon="crystal"></span>持有 <b id="dockGemBalance">0</b></span>
               </div>
               <div class="chest-btns">
-                <button class="chest-btn gem" data-open="gem-1" type="button"><span>召唤一次</span><small><span data-icon="crystal"></span>${fmt(GEM_CHEST.singleCost)}</small></button>
-                <button class="chest-btn gem featured" data-open="gem-10" type="button"><span>召唤十次</span><small><span data-icon="crystal"></span>${fmt(GEM_CHEST.multiCost)}</small></button>
+                <button class="chest-btn gem" data-open="gem-1" type="button"><span class="btn-label">召唤一次</span><small><span data-icon="crystal"></span><b class="btn-cost">${fmt(GEM_CHEST.singleCost)}</b></small></button>
+                <button class="chest-btn gem featured" data-open="gem-10" type="button"><span class="btn-label">召唤十次</span><small><span data-icon="crystal"></span><b class="btn-cost">${fmt(GEM_CHEST.multiCost)}</b></small></button>
               </div>
               <div class="chest-note"><span>高阶部队概率提升</span><b>十连必得 Epic+</b></div>
             </div>
@@ -116,7 +152,7 @@ export class ChestsScreen implements Screen {
                 <span class="pool-balance"><span data-icon="swords"></span>持有 <b id="dockGloryBalance">0</b></span>
               </div>
               <div class="chest-btns">
-                <button class="chest-btn featured" data-open="glory-1" type="button"><span>开启一次</span><small><span data-icon="swords"></span>${GLORY_CHEST.cost}</small></button>
+                <button class="chest-btn featured" data-open="glory-1" type="button"><span class="btn-label">开启一次</span><small><span data-icon="swords"></span><b class="btn-cost">${GLORY_CHEST.cost}</b></small></button>
               </div>
               <div class="chest-note"><span>特质石为主 · 概率部队卡/金钥匙</span><b>入侵 PvP 产出荣耀</b></div>
             </div>
@@ -125,6 +161,22 @@ export class ChestsScreen implements Screen {
       </div>
       ${bottomNavHtml('宝箱', '概率与权重表同源')}
       ${toastHtml()}
+
+      <div class="modal-veil" id="partialVeil" hidden>
+        <section class="money-tip" role="dialog" aria-modal="true" aria-labelledby="partialTitle">
+          <small>PARTIAL SUMMON</small>
+          <h2 id="partialTitle">钥匙不够十连</h2>
+          <ul>
+            <li><span>十连需要</span><b>${GOLD_CHEST.keyCost * GOLD_CHEST.multiCount} 把金钥匙</b></li>
+            <li><span>你现在持有</span><b id="partialHave">0 把</b></li>
+            <li><span>可以立刻开启</span><b id="partialCount">0 次</b></li>
+          </ul>
+          <div class="chest-btns" style="margin-top:18px">
+            <button class="chest-btn featured" id="partialConfirm" type="button"><span class="btn-label">开启</span><small><span data-icon="key"></span><b class="btn-cost">0</b></small></button>
+          </div>
+          <button class="cancel" id="partialCancel" type="button">取消 · 先攒够十连</button>
+        </section>
+      </div>
 
       <div class="summon-modal" id="summonModal" hidden>
         <div class="summon-veil" data-summon-close></div>
@@ -171,13 +223,24 @@ export class ChestsScreen implements Screen {
     this.paintDrops();
     this.refreshBalances();
     $$('[data-open]').forEach((btn) =>
-      this.on(btn, 'click', () => void this.openSummon((btn as HTMLElement).dataset.open as 'gem-1' | 'gem-10' | 'gold-1' | 'gold-10' | 'glory-1')),
+      this.on(btn, 'click', () => void this.requestOpen((btn as HTMLElement).dataset.open as OpenKind)),
     );
+    this.bind('#partialConfirm', 'click', () => {
+      const count = this.partialCount;
+      this.closePartial();
+      if (count > 0) void this.openSummon('gold', count);
+    });
+    this.bind('#partialCancel', 'click', () => this.closePartial());
     this.bind('#summonAction', 'click', () => this.handleActionBtn());
     this.bind('#summonSkip', 'click', () => this.revealAll());
     $$('[data-summon-close]').forEach((el) => this.on(el, 'click', () => this.closeSummon()));
+    this.bind('#partialVeil', 'click', (e) => {
+      if ((e as MouseEvent).target === $('#partialVeil')) this.closePartial();
+    });
     this.on(document, 'keydown', (e) => {
-      if ((e as KeyboardEvent).key === 'Escape' && this.phase !== 'closed') this.closeSummon();
+      if ((e as KeyboardEvent).key !== 'Escape') return;
+      if (!$('#partialVeil').hidden) return void this.closePartial();
+      if (this.phase !== 'closed') this.closeSummon();
     });
     this.bind('#showOdds', 'click', () => this.showOdds());
     Object.values(FX).forEach((spec) => void loadStrip(spec.src));
@@ -195,20 +258,18 @@ export class ChestsScreen implements Screen {
       .join('');
   }
 
+  /** 池货币余额 */
+  private balanceOf(pool: ChestPool): number {
+    const c = this.ctx.save().currencies;
+    return pool === 'gold' ? c.goldKeys : pool === 'glory' ? c.glory : c.gems;
+  }
+
   private refreshBalances(): void {
     const c = this.ctx.save().currencies;
     $('#dockKeyBalance').textContent = String(c.goldKeys);
     $('#dockGemBalance').textContent = fmt(c.gems);
     $('#dockGloryBalance').textContent = fmt(c.glory);
-    const costs: Record<string, number> = { 'gold-1': 1, 'gold-10': 10, 'gem-1': GEM_CHEST.singleCost, 'gem-10': GEM_CHEST.multiCost, 'glory-1': GLORY_CHEST.cost };
-    $$('[data-open]').forEach((btn) => {
-      const el = btn as HTMLElement;
-      const kind = el.dataset.open!;
-      const balance = kind.startsWith('gold') ? c.goldKeys : kind.startsWith('glory') ? c.glory : c.gems;
-      const short = balance < costs[kind]!;
-      el.classList.toggle('is-unaffordable', short);
-      el.title = short ? '货币不足' : '';
-    });
+    $$('[data-open]').forEach((btn) => this.paintOpenButton(btn as HTMLButtonElement));
     // 顶栏钱包同步（外壳 bindChrome 之后 mutation 需要手动刷新）
     $('#keyBalance').textContent = String(c.goldKeys);
     $('#gemBalance').textContent = fmt(c.gems);
@@ -216,6 +277,68 @@ export class ChestsScreen implements Screen {
     $('#soulBalance').textContent = fmt(c.souls);
     const glory = $('#gloryBalance');
     if (glory) glory.textContent = fmt(c.glory);
+  }
+
+  /**
+   * 单枚开箱按钮的三态（CH-1 / CH-4）：
+   *  - 买得起：原文案 + 可点；
+   *  - 金钥匙十连但只够 N 抽（N≥1）：改「开启 N 次」+ 可点（点了走二次确认，原子开 N 次）；
+   *  - 买不起：改「还差 N」+ **真 disabled**（历史实现只加滤镜，玩家必踩 CH-1）。
+   */
+  private paintOpenButton(btn: HTMLButtonElement): void {
+    const kind = btn.dataset.open as OpenKind;
+    const spec = OPEN_SPECS[kind];
+    if (!spec) return;
+    const cn = POOL_CN[spec.pool];
+    const balance = this.balanceOf(spec.pool);
+    const labelEl = btn.querySelector('.btn-label');
+    const costEl = btn.querySelector('.btn-cost');
+    const paint = (label: string, cost: number, title: string): void => {
+      if (labelEl) labelEl.textContent = label;
+      if (costEl) costEl.textContent = fmt(cost);
+      btn.title = title;
+    };
+    if (balance >= spec.cost) {
+      btn.disabled = false;
+      btn.classList.remove('is-unaffordable', 'is-partial');
+      paint(spec.label, spec.cost, '');
+      return;
+    }
+    if (kind === 'gold-10' && balance >= GOLD_CHEST.keyCost) {
+      const missing = spec.cost - balance;
+      btn.disabled = false;
+      btn.classList.remove('is-unaffordable');
+      btn.classList.add('is-partial');
+      paint(`开启 ${balance} 次`, balance, `钥匙只够 ${balance} 抽 · 还差 ${missing} 把凑十连`);
+      return;
+    }
+    btn.disabled = true;
+    btn.classList.add('is-unaffordable');
+    btn.classList.remove('is-partial');
+    paint(shortLabel(spec.pool, spec.cost - balance), spec.cost, `${cn.currency}不足：需要 ${fmt(spec.cost)}，现有 ${fmt(balance)}`);
+  }
+
+  // —— 部分开启的二次确认（CH-1：不允许静默扣费，也不允许静默拦下） ——
+
+  private partialCount = 0;
+
+  private askPartial(count: number): void {
+    this.partialCount = count;
+    const veil = $('#partialVeil');
+    $('#partialHave').textContent = `${count} 把`;
+    $('#partialCount').textContent = `${count} 次`;
+    const ok = $('#partialConfirm');
+    const label = ok.querySelector('.btn-label');
+    const cost = ok.querySelector('.btn-cost');
+    if (label) label.textContent = `开启 ${count} 次`;
+    if (cost) cost.textContent = String(count);
+    veil.hidden = false;
+  }
+
+  private closePartial(): void {
+    this.partialCount = 0;
+    const veil = $('#partialVeil');
+    if (veil) veil.hidden = true;
   }
 
   private showOdds(): void {
@@ -228,22 +351,21 @@ export class ChestsScreen implements Screen {
 
   // —— 抽卡主流程 ——
 
-  private async drawRewards(kind: 'gem-1' | 'gem-10' | 'gold-1' | 'gold-10' | 'glory-1'): Promise<RewardVm[] | null> {
+  /**
+   * 拉一批开箱结果。**一次网关调用 = 一笔原子成交**（CH-1）：
+   * 历史实现把金钥匙十连做成"循环 10 次单抽"，第 8 次失败就丢弃前 7 次已持久化的结果。
+   */
+  private async drawRewards(pool: ChestPool, count: number): Promise<RewardVm[] | null> {
     const gateway = this.ctx.gateway;
-    const pull = async (k: 'gem' | 'gold', count: 1 | 10) => {
-      const { result } = await gateway.openChest(k, count);
+    let cards: Array<{ troopId: number; rarityIdx: number; duplicate: boolean }> = [];
+    if (pool === 'gem' || pool === 'gold') {
+      const { result } = await gateway.openChest(pool, count);
       if (isFailure(result)) {
         toast(result.message);
         return null;
       }
-      return result.cards;
-    };
-    let cards: Array<{ troopId: number; rarityIdx: number; duplicate: boolean }> = [];
-    if (kind === 'gem-1' || kind === 'gem-10') {
-      const got = await pull('gem', kind === 'gem-10' ? 10 : 1);
-      if (!got) return null;
-      cards = got;
-    } else if (kind === 'glory-1') {
+      cards = result.cards;
+    } else {
       // 荣耀箱：特质石为主——出卡走翻牌演出，纯素材直接 toast 上账
       const { result } = await gateway.openChest('glory', 1);
       if (isFailure(result)) {
@@ -261,13 +383,6 @@ export class ChestsScreen implements Screen {
       ].filter(Boolean);
       toast(`荣耀箱：${parts.join('，') || '空空如也'}`);
       cards = result.cards;
-    } else {
-      const times = kind === 'gold-10' ? 10 : 1;
-      for (let i = 0; i < times; i++) {
-        const got = await pull('gold', 1);
-        if (!got) return null;
-        cards = cards.concat(got);
-      }
     }
     return cards.map((c) => {
       const troop = getTroopById(c.troopId) ?? null;
@@ -284,29 +399,56 @@ export class ChestsScreen implements Screen {
     });
   }
 
-  private async openSummon(kind: 'gem-1' | 'gem-10' | 'gold-10' | 'gold-1' | 'glory-1'): Promise<void> {
+  /**
+   * 按钮点击入口：先按余额决定成交形态，再交给 openSummon。
+   * 余额不足时按钮已 disabled（paintOpenButton），这里再兜一层——
+   * 无论走哪条分支都不允许"扣了但没演出"，也不允许静默不动。
+   */
+  private async requestOpen(kind: OpenKind): Promise<void> {
     if (this.phase !== 'closed') return;
-    const rewards = await this.drawRewards(kind);
-    if (!rewards) return;
+    if (!$('#partialVeil').hidden) return;
+    const spec = OPEN_SPECS[kind];
+    if (!spec) return;
+    const balance = this.balanceOf(spec.pool);
+    if (balance >= spec.cost) return void (await this.openSummon(spec.pool, spec.count));
+    if (kind === 'gold-10' && balance >= GOLD_CHEST.keyCost) {
+      // 钥匙只够 N 抽：给明确选择（开 N 次 / 取消），不静默扣、不静默拦
+      this.askPartial(Math.floor(balance / GOLD_CHEST.keyCost));
+      return;
+    }
+    const cn = POOL_CN[spec.pool];
+    toast(`${cn.currency}不足：需要 ${fmt(spec.cost)}，现有 ${fmt(balance)}`);
+    this.refreshBalances();
+  }
+
+  private async openSummon(pool: ChestPool, count: number): Promise<void> {
+    if (this.phase !== 'closed') return;
+    const rewards = await this.drawRewards(pool, count);
+    // 失败分支也要刷新余额与按钮态（CH-1：旧实现失败时余额数字停在旧值）
+    if (!rewards) {
+      this.refreshBalances();
+      return;
+    }
     // 荣耀箱可能只出素材（无卡）：没有翻牌演出，直接刷新余额
     if (rewards.length === 0) {
       this.refreshBalances();
       return;
     }
 
-    // 入账成功：余额刷新 + 最近获得条
-    this.recent = rewards.concat(this.recent).slice(0, 6);
+    // 入账成功：余额刷新 + 最近获得条（容量 ≥ 一次十连，否则十连刚开完就看不全）
+    this.recent = rewards.concat(this.recent).slice(0, RECENT_CAP);
     this.paintDrops();
     this.refreshBalances();
 
     this.clearSummonTimers();
     this.slamLocked = false;
-    const count = rewards.length;
+    const dealt = rewards.length;
     const modal = $('#summonModal');
     modal.hidden = false;
-    modal.className = `summon-modal is-opening${count === 10 ? ' batch-10' : ''}`;
-    $('#summonPool').textContent = kind.startsWith('gold') ? 'KEY SUMMON' : 'GEM SUMMON';
-    $('#summonCounter').textContent = `0 / ${count}`;
+    // 多张一律走 batch-10 布局（部分开启可能是 2~9 张，CH-1 的 7 抽形态）
+    modal.className = `summon-modal is-opening${dealt > 1 ? ' batch-10' : ''}`;
+    $('#summonPool').textContent = POOL_CN[pool].title;
+    $('#summonCounter').textContent = `0 / ${dealt}`;
     $('#summonSkip').hidden = false;
     $('#legendSlam').hidden = true;
     this.renderSummonCards(rewards);

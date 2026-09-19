@@ -197,3 +197,29 @@ git worktree add ../match-3-gems -b special-gems
 | 日期 | 窗口 | 文件 | 动机与形态 | 状态 |
 |---|---|---|---|---|
 | 09-19 | P（批次 0 热修） | `src/meta/shell/styles/arena.css`（**L 领地，仅 `.run-slot .shift` 一段**）+ `src/meta/screens/invasionScreen.ts` + `src/meta/screens/arenaScreen.ts` | **A-1/I-1/I-2 三条 P0 热修**。①**A-1 竞技场站位 0% 可用**：`.run-slot .shift` 的 `pointer-events:none` + 模板 `aria-hidden="true"` 让点击永远落在 `slot-body` 上，而页面写着「▲▼ 调整站位」——删 `pointer-events:none`，按钮 22×16 → **32×32** 图标钮（hover/active/focus-visible/disabled 五态 + `cursor:pointer`），模板去 `aria-hidden` 改 `role="group"` + 逐钮 `aria-label`，并给首槽 ▲ / 末槽 ▼ 加 `disabled`。②**I-1**：`relegate === 0` 的两种含义（底层无降级区 / 顶端）此前合成一句「顶端联赛只升不降」，青铜玩家第一眼被告知已打到头——抽出 `zoneText(league, name)`，按 `league === INVASION_LEAGUES.length - 1` 判顶端、`league === 0` 判底层，两句分开。③**I-2**：删「4 消」整词（合同层拿不到，`TASK-META §6` 开放问题 2），新增 `VP_BONUS_TEXT` 从 `INVASION.speedBonuses/survivorBonuses/extraTurnBonuses` 与 `INVASION_VP_TABLE` **派生**真实数值文案（不手抄），并补「战败 −5 VP」。**未新增 CSS 类**（第二段规则条复用 `.inv-zone-hint`，`live.css` 零改动，留给 L 后续细化）。**验证**：`artifacts/ux-phase-b/p-b0-regress.mjs` 18/18 断言绿——`▲▼` 命中测试 `topElement` 由阶段 A 的 `slot-body` 变为 `BUTTON`、32×32、`cursor:pointer`、`aria-hidden=null`、真实点击（非 force）后站位顺序确实变化、端点禁用、按钮组不溢出槽体；规则条不含「顶端联赛」/「4 消」且三项数值齐全；console 零错误。改前/改后截图 `artifacts/ux-phase-b/shots/{before,after}-*`。**并发说明**：验证期间共享工作树被窗口 N 的在途 `events.ts`（`EVENT_ROTATION` 导出缺失）整体打挂，浏览器验证改在隔离 worktree `../match-3-p-verify`（HEAD + 本批三文件，dev server 5191，node_modules/public 走 junction）完成，不占 5180 | ✅ 已落 |
+
+---
+
+## 窗口 M · 武器域（UX 阶段 B，2026-09-19 开工）
+
+任务书：`TASK-WEAPONS-UI.md`（总纲 `TASK-UX-PHASE-B.md`）。所有权见任务书 §1。
+
+**两条用户裁定（2026-09-19，覆盖任务书原文）**：
+1. **首批 20 把 `w_*` 是早期随便造的假数据 → 整表抛弃**，改用「低级、无解锁条件的目录武器」替换。
+   因此任务书批次 1 步 1 的「20 把一对一指认表」降级为**存档迁移用的退役映射表**（不再追求"保住毕业武器手感"，
+   因为职业专属武器体系随假数据一起退役）；步 3 的「20 个手写 SkillPrototype 作废」直接执行。
+2. **窗口 L 的样式重设计已废弃** → `src/meta/shell/styles/**` 不再是 L 独占。
+   武器域相关样式（`screens.css` 的 `.vault-*` / `.detail-*` / `.rack-tile` / `.weapon-*` / `.wspell-*` 段）由 **M 接管**，
+   连带自行修 H-1（列表不可滚，8 把点不着）、H-2（装备按钮在弹层外，换武器 0% 可用）、F-1（卡面图压死四行文字）、F-7（配方列表裁切）。
+
+**并发现状（开工时实测，影响我的门槛口径）**：
+- 工作树同时有窗口 N（events 域，**在途且不可编译**：`systems/events.ts`/`eventsScreen.ts` 仍读 `save.eventWeek`，
+  schema 已改 `eventWeeks`；`EVENT_ROTATION`/`eventThemeOfWeek`/`rotationIndexOf` 导出缺失）与窗口 P（已 staged）的改动。
+- `npx tsc --noEmit` 当前 26 条错误，**零条来自武器域**（22 条 events 域 + 2 条 `r26Primitives` + 1 条 `traitFinalBatch` + 1 条 `metaEvents`）。
+- 因此本窗口的门槛口径：**范围内 typecheck（武器域文件零错误）+ 武器域测试子集全绿**；
+  全量 lint/test/build 待 N 落盘后补跑。浏览器验证走隔离 worktree（同窗口 P 的做法，不占 5180）。
+
+| 日期 | 窗口 | 文件 | 动机与形态 | 状态 |
+|---|---|---|---|---|
+| 09-19 | M（登记·批次 1 计划） | **独占**：`data/weapons.ts`（整表重写）、`data/weaponCatalog.ts`、`systems/forgeOps.ts`、`shell/weaponIcons.ts`（删除）、`screens/heroScreen.ts`、`tests/unit/{metaForge*,weaponData}.test.ts`；**共享·待 N 落盘后再动**：`state/schema.ts`（`META_SAVE_VERSION` 3→**4** 一行 + 注释）、`state/save.ts`（`MIGRATIONS[3]` 一行，实现体在我独占的 `data/weaponMigration.ts`）、`systems/hero.ts`（`canUseWeapon`/`equipWeapon` 去职业门槛） | **武器 id 空间统一到 `gw_*`**：①`WEAPONS` 20 条自造武器（含 20 个手写 `SkillPrototype`）整表删除；`WeaponDef` 接口保留为 `CatalogWeaponDef` 的基础形状；②起始池改「低档目录武器、零解锁条件、新档即拥有」；③`CatalogWeaponDef` 补搬 `attack/armor/health/magic/affixes/role/roleName/masteryRequirement`（`weapons.json` 侧 718/718 有四维、710/718 有词缀，此前 `weaponCatalog.ts:83` 写死 `affixes: []` 全丢）；④**weaponType 归一修一处真 bug**：`classes.json` 的 `selfStatIfWeapon` 引用 13 个类型键含 `relic`（8 次），而官方 `weapons.json` 用 `Artifact`（65 把），`weaponCatalog.ts:71` 只做 `toLowerCase()` → 这 8 条天赋对 718 把里任何一把都不生效；⑤`shell/weaponIcons.ts` 退役，取图统一 `catalogIconUrl`。**schema 版本占位：v3 已被窗口 N 的 per-event 占用，我占 v4**，其后窗口用 v5 | 🔄 进行中 |
+| 09-19 | O（阶段 B · 批次 0 · CH-1 热修） | `src/meta/data/economy.ts`（**仅追加** `GOLD_CHEST.multiCount = 10`）、`src/meta/gateway/types.ts`（`openChest` 签名 `count: 1\|10` → `count?: number`，加性放宽）、`src/meta/gateway/mockGateway.ts`（`openChest` 透传 count 给金箱）、`src/meta/systems/gacha.ts`（`openGoldChest(save, seed, count=1)` 原子批量；`openGemChest` count 形参放宽为 number，校验不变）、`src/meta/screens/chestsScreen.ts`（O 独占）、`tests/unit/metaGacha.test.ts`（O 独占） | **CH-1 资源损失热修（全仓最严重一条）**：金钥匙十连从"UI 层循环 10 次单抽"改为**一次网关调用的原子批量**（要么整批成交、要么一张不动）；余额不足的五枚按钮改真 `disabled` + 文案「还差 N 把/宝石/荣耀」（顺修 CH-4）；钥匙只够 N 抽时按钮改「开启 N 次」并弹二次确认（开 N 次 / 取消 / Esc / 点遮罩），复用 `.modal-veil`+`.money-tip` 既有类**不碰 `shell/styles/**`（L 独占）**；失败分支也走 `refreshBalances()`；最近获得条容量 6→10（一次十连能看全）。**未动其它窗口文件**；`data/events.ts` 相关 18 例红为窗口 N 在途（与本批无关） | ✅ 已落 |

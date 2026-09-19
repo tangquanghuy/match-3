@@ -233,12 +233,13 @@ export class MockGateway implements MetaGateway {
 
   // —— 宝箱 ——
 
-  async openChest(kind: 'gem' | 'gold' | 'glory', count: 1 | 10 = 1) {
+  /** 开箱：count 为原子批量（gem 只接 1|10，gold 接 1~10，glory 忽略），见 types.openChest */
+  async openChest(kind: 'gem' | 'gold' | 'glory', count = 1) {
     const seed = this.nextSeed();
     const result =
       kind === 'gem' ? openGemChest(this.save, seed, count)
       : kind === 'glory' ? openGloryChest(this.save, seed)
-      : openGoldChest(this.save, seed);
+      : openGoldChest(this.save, seed, count);
     if (result.ok) this.persist();
     return { result, save: this.save };
   }

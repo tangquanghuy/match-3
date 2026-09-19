@@ -119,8 +119,13 @@ export interface MetaGateway {
   ): Promise<GatewayUpdate<{ ok: true; slot: number; cost: { gold: number; souls: number } } | MetaFailure>>;
 
   // —— 宝箱（M4/荣耀箱） ——
-  /** kind='gem' 时 count 1|10（十连保底 Epic+）；'gold'/'glory' 忽略 count */
-  openChest(kind: 'gem' | 'gold' | 'glory', count: 1 | 10): Promise<GatewayUpdate<GachaDrawResult | GloryChestResult | MetaFailure>>;
+  /**
+   * 开箱。**count 是原子批量**：整批成交或一张不动（CH-1）。
+   * - 'gem'：count 只能 1|10（十连保底 Epic+）；
+   * - 'gold'：count 1~10（钥匙只够 7 抽时可显式开 7 次）；
+   * - 'glory'：忽略 count。
+   */
+  openChest(kind: 'gem' | 'gold' | 'glory', count?: number): Promise<GatewayUpdate<GachaDrawResult | GloryChestResult | MetaFailure>>;
 
   // —— 王国经营（M3） ——
   upgradeKingdomLevel(kingdom: string): Promise<GatewayUpdate<number | MetaFailure>>;

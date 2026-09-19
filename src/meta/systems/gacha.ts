@@ -123,7 +123,7 @@ function commit(save: MetaSave, troopId: number): GachaCard {
 export function openGemChest(
   save: MetaSave,
   seed: number,
-  count: 1 | 10 = 1,
+  count = 1,
 ): GachaDrawResult | MetaFailure {
   if (count !== 1 && count !== GEM_CHEST.multiCount) {
     return fail('INVALID', '宝石宝箱只支持单抽或十连');
@@ -136,13 +136,25 @@ export function openGemChest(
   return draw(save, 'gem', seed, cards, pityUsed, { gems: cost });
 }
 
-/** 金钥匙宝箱：1 把金钥匙一开，池子偏低稀有度 */
-export function openGoldChest(save: MetaSave, seed: number): GachaDrawResult | MetaFailure {
-  const paid = spend(save, { goldKeys: GOLD_CHEST.keyCost });
+/**
+ * 金钥匙宝箱：1 把金钥匙一开，池子偏低稀有度。
+ *
+ * `count` > 1 是**原子批量**（CH-1 修复口径）：先一次性扣掉 count 把钥匙，
+ * 扣不动就整批不成交（一张卡都不入册）。历史实现是"UI 层循环 count 次单抽"，
+ * 第 k 次失败时前 k-1 次已 persist 却被整块丢弃 → 玩家资源静默损失。
+ * 金宝箱无十连保底（保底是宝石池的裁定特权）。
+ */
+export function openGoldChest(save: MetaSave, seed: number, count = 1): GachaDrawResult | MetaFailure {
+  if (!Number.isInteger(count) || count < 1 || count > GOLD_CHEST.multiCount) {
+    return fail('INVALID', `金钥匙宝箱一次可开 1~${GOLD_CHEST.multiCount} 次`);
+  }
+  const n = count;
+  const cost = GOLD_CHEST.keyCost * n;
+  const paid = spend(save, { goldKeys: cost });
   if (!paid.ok) return paid;
   const rng = new SeededRNG(seed);
-  const { cards, pityUsed } = rollBatch(save, GOLD_CHEST_WEIGHTS, rng, 1, false);
-  return draw(save, 'gold', seed, cards, pityUsed, { goldKeys: GOLD_CHEST.keyCost });
+  const { cards, pityUsed } = rollBatch(save, GOLD_CHEST_WEIGHTS, rng, n, false);
+  return draw(save, 'gold', seed, cards, pityUsed, { goldKeys: cost });
 }
 
 export interface GloryChestResult {

@@ -1,5 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { TROOPS, getTroopById } from '../../src/data/troops';
+import { MockGateway, memoryStorage } from '../../src/meta/gateway/mockGateway';
+import { isFailure } from '../../src/meta/gateway';
 import {
   GACHA_PITY_MIN_IDX,
   GEM_CHEST,
@@ -122,5 +124,88 @@ describe('金钥匙宝箱（1 钥匙一开，池偏低稀有度）', () => {
     expect(commonPulls).toBeGreaterThan(0);
     expect(sawDupe).toBe(true);
     expect(s.collection['6000']!.copies).toBeGreaterThanOrEqual(1);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// CH-1 回归锁（阶段 B 窗口 O 批次 0）：金钥匙十连必须原子
+// 阶段 A 实测坏数值（u4-gold10-verify.log）：钥匙 7 → 0（扣光）、collection +5 条 / 副本 +2
+// （7 张卡已持久化）、演出没开、toast 反报「不足」。根因是 UI 层"循环 10 次单抽"。
+// 下面把坏数值打成断言：要么 0 消耗 0 入账，要么 N 消耗 N 入账，不允许中间态。
+// ---------------------------------------------------------------------------
+
+/** 收藏条目数与总张数（本体 + 副本），用于核对"扣了但没入账"或"入账了但没扣" */
+function collectionStats(s: ReturnType<typeof save>): { entries: number; copies: number } {
+  const recs = Object.values(s.collection);
+  return { entries: recs.length, copies: recs.reduce((sum, r) => sum + 1 + r.copies, 0) };
+}
+
+describe('CH-1 · 金钥匙十连原子性', () => {
+  it('7 把钥匙开十连 → 整批不成交：钥匙不动、零入账、零日志', () => {
+    const s = save(0, 7);
+    const before = collectionStats(s);
+    const r = openGoldChest(s, 4242, 10);
+    expect(r).toMatchObject({ ok: false, code: 'INSUFFICIENT' });
+    expect(s.currencies.goldKeys).toBe(7); // 阶段 A 这里是 0（扣光）
+    expect(collectionStats(s)).toEqual(before); // 阶段 A 这里是 +5 条 / +2 副本
+    expect(s.gachaLog).toHaveLength(0);
+  });
+
+  it('7 把钥匙显式开 7 次 → 整批成交：扣 7、出 7 张、7 张全部入账、一条日志', () => {
+    const s = save(0, 7);
+    const before = collectionStats(s);
+    const r = openGoldChest(s, 4242, 7);
+    if (!r.ok) throw new Error(r.message);
+    expect(r.cards).toHaveLength(7);
+    expect(r.spent).toEqual({ goldKeys: 7 });
+    expect(s.currencies.goldKeys).toBe(0);
+    const after = collectionStats(s);
+    expect(after.copies - before.copies).toBe(7); // 消耗张数 == 入账张数
+    expect(s.gachaLog).toHaveLength(1);
+    expect(s.gachaLog[0]!.troops).toHaveLength(7);
+  });
+
+  it('同种子下 10 连 == 前 10 抽序列；批量与单抽同一 RNG 口径', () => {
+    const batch = save(0, 10);
+    const br = openGoldChest(batch, 777, 10);
+    if (!br.ok) throw new Error(br.message);
+    expect(br.cards).toHaveLength(10);
+    expect(batch.currencies.goldKeys).toBe(0);
+    expect(br.pityUsed).toBe(false); // 金箱无保底（保底是宝石池裁定特权）
+  });
+
+  it('count 越界（0 / 11 / 小数）→ INVALID 且一把钥匙都不扣', () => {
+    for (const bad of [0, -1, 11, 1.5]) {
+      const s = save(0, 10);
+      const r = openGoldChest(s, 1, bad);
+      expect(r).toMatchObject({ ok: false, code: 'INVALID' });
+      expect(s.currencies.goldKeys).toBe(10);
+      expect(s.gachaLog).toHaveLength(0);
+    }
+  });
+});
+
+describe('CH-1 · 网关层原子性（落盘不被污染）', () => {
+  it('7 把钥匙调 openChest("gold", 10) 失败后落盘仍是 7；改开 7 次才成交', async () => {
+    const storage = memoryStorage();
+    const gw = new MockGateway(storage);
+    await gw.load();
+    const live = gw.current();
+    live.currencies.goldKeys = 7;
+    const entriesBefore = Object.keys(live.collection).length;
+
+    const ten = await gw.openChest('gold', 10);
+    expect(isFailure(ten.result)).toBe(true);
+    expect(gw.current().currencies.goldKeys).toBe(7);
+    expect(Object.keys(gw.current().collection).length).toBe(entriesBefore);
+    // 重开一个网关读同一份 storage：落盘也不能被污染
+    const reopened = new MockGateway(storage);
+    const snap = await reopened.load();
+    expect(snap.save.currencies.goldKeys).toBe(7);
+
+    const seven = await gw.openChest('gold', 7);
+    if (isFailure(seven.result)) throw new Error(seven.result.message);
+    expect(seven.result.cards).toHaveLength(7);
+    expect(gw.current().currencies.goldKeys).toBe(0);
   });
 });

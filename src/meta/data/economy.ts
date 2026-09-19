@@ -230,8 +230,11 @@ export const GEM_CHEST = {
   multiCost: 1500,
 } as const;
 
-/** 金宝箱：1 把金钥匙一开（金钥匙来自进贡/任务/成就/竞技场） */
-export const GOLD_CHEST = { keyCost: 1 } as const;
+/**
+ * 金宝箱：1 把金钥匙一开（金钥匙来自进贡/任务/成就/竞技场）。
+ * `multiCount` = 「开启十次」一次成交的张数（**原子批量**，CH-1：不允许循环单抽后半途失败）。
+ */
+export const GOLD_CHEST = { keyCost: 1, multiCount: 10 } as const;
 
 /**
  * 稀有度权重表（万分比，idx 0..5 = Common..Legendary）。
