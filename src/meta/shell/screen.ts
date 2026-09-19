@@ -21,6 +21,13 @@ export interface ShellCtx {
   currentHash(): string;
   /** 整屏重渲染（网关变更后调用） */
   refresh(): void;
+  /**
+   * 只刷新共享 chrome（顶栏钱包 / 主角等级与经验条 / 底部提示），不重建屏。
+   *
+   * UX 阶段 A M-3：屏内花钱或收钱后顶栏数字不动，玩家读成「没扣钱=没生效」
+   * 于是连点造成真实多次扣费。凡屏内发生网关写操作，结束时必须调一次。
+   */
+  refreshChrome(): void;
   /** 启动一场任务关战斗（结算后自动进结算屏） */
   launchQuest(kingdom: string, node: number): Promise<void>;
   /** 启动一场探索战斗 */

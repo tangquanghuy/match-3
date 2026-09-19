@@ -40,6 +40,11 @@ const ctx: ShellCtx = {
   },
   currentHash: () => location.hash || '#map',
   refresh: () => void render(),
+  // M-3：屏层在网关写操作后同步顶栏（不重建屏，避免弹层被关掉）
+  refreshChrome: () => {
+    refreshWallet();
+    refreshPlayer();
+  },
   launchQuest: (kingdom, node) => launcher.launchQuest(kingdom, node),
   launchExplore: (kingdom) => launcher.launchExplore(kingdom),
   launchArenaBattle: () => launcher.launchArenaBattle(),

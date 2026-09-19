@@ -42,11 +42,36 @@ describe('进贡（离线结算）', () => {
     const b = tributePreview(s, KINGDOM, t30h);
     expect(b).toEqual(a);
     expect(a.hours).toBe(TRIBUTE.capHours);
-    expect(a.ready).toBe(true);
     expect(a.hits).toBe(a.hours >= 0 ? expectHits(KINGDOM, 1, 0, t30h).hits : 0);
     expect(a.gold).toBe(a.hits * tributeGold(1));
     expect(a.souls).toBe(a.hits * tributeSouls(1));
     expect(a.goldKeys).toBeLessThanOrEqual(a.hits);
+    // UX M-4 口径：ready = 有可实际入账的产出，不是「累计了小时数」。
+    // 改前用 hours>0，于是「攒了小时数但一次没命中」时 chip 说已满、弹层说 0 袋、
+    // 按钮可点、点了又说暂无可领——四处互相打脸（新档必然遇到）。
+    expect(a.ready).toBe(a.gold > 0 || a.souls > 0 || a.goldKeys > 0);
+  });
+
+  it('M-4/M-10 口径：ready 只看产出；满溢与下一袋时刻可算（页面必须能显示）', () => {
+    const s = save();
+    // 12 小时整：刚好到上限，尚未溢出
+    const atCap = tributePreview(s, KINGDOM, TRIBUTE.capHours * HOUR_MS);
+    expect(atCap.hours).toBe(TRIBUTE.capHours);
+    expect(atCap.pendingHours).toBe(TRIBUTE.capHours);
+    expect(atCap.overflowing).toBe(false);
+    // 30 小时：累计 30 小时但只结 12，超出部分在收取瞬间永久丢失 → 必须能提示
+    const over = tributePreview(s, KINGDOM, 30 * HOUR_MS);
+    expect(over.pendingHours).toBe(30);
+    expect(over.hours).toBe(TRIBUTE.capHours);
+    expect(over.overflowing).toBe(true);
+    expect(over.capAt).toBe(TRIBUTE.capHours * HOUR_MS);
+    expect(over.nextHourAt).toBe(31 * HOUR_MS);
+    // 0 小时：没有任何产出 → ready 必须为假（收取按钮据此禁用）
+    const fresh = tributePreview(s, KINGDOM, 0);
+    expect(fresh.hours).toBe(0);
+    expect(fresh.ready).toBe(false);
+    expect(fresh.overflowing).toBe(false);
+    expect(fresh.nextHourAt).toBe(HOUR_MS);
   });
 
   it('收取入账并把锚点拨到 now；同一时刻再收为空（幂等）', () => {

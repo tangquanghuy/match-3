@@ -87,6 +87,17 @@ export interface KingdomNodeState {
   /** 进贡气泡：可结算小时数与命中数（锁定时不显示） */
   tributeHours: number;
   tributeHits: number;
+  /**
+   * 进贡产出与满溢信息（UX M-4/M-7/M-10 口径单源）：
+   * `tributeReady` 是「地图角标 / 底部 chip / 弹层收取按钮」三处共用的唯一判据。
+   */
+  tributeGold: number;
+  tributeSouls: number;
+  tributeKeys: number;
+  tributeReady: boolean;
+  tributeOverflowing: boolean;
+  tributeCapAt: number;
+  tributeNextHourAt: number;
 }
 
 export function kingdomNodeState(save: MetaSave, kingdom: string, now: number): KingdomNodeState {
@@ -104,5 +115,12 @@ export function kingdomNodeState(save: MetaSave, kingdom: string, now: number): 
     exploreUnlocked: !locked && exploreUnlocked(save, kingdom),
     tributeHours: locked ? 0 : tribute.hours,
     tributeHits: locked ? 0 : tribute.hits,
+    tributeGold: locked ? 0 : tribute.gold,
+    tributeSouls: locked ? 0 : tribute.souls,
+    tributeKeys: locked ? 0 : tribute.goldKeys,
+    tributeReady: locked ? false : tribute.ready,
+    tributeOverflowing: locked ? false : tribute.overflowing,
+    tributeCapAt: tribute.capAt,
+    tributeNextHourAt: tribute.nextHourAt,
   };
 }

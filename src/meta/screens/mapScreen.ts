@@ -7,7 +7,7 @@ import { isFailure, todayStartOf, weekStartOf, type MetaGateway } from '../gatew
 import { KINGDOM_MAX_LEVEL, kingdomNodeState } from '../systems/kingdomOps';
 import { kingdomBonusStat, kingdomTroopPool } from '../data/kingdoms';
 import { anyWeaponById } from '../data/weaponCatalog';
-import { kingdomUpgradeCost, INVASION } from '../data/economy';
+import { kingdomUpgradeCost, INVASION, TRIBUTE } from '../data/economy';
 import { bottomNavHtml, mountIcons, toast, toastHtml, topbarHtml, $, $$ } from '../shell/chrome';
 import type { Screen, ShellCtx } from '../shell/screen';
 import { ART, KINGDOM_VIEWS, kingdomViewOf, type KingdomView } from './mapData';
@@ -19,6 +19,12 @@ const START_KINGDOM = '破碎尖塔';
 
 const fmt = (n: number): string => n.toLocaleString('en-US');
 
+/** 时间戳 → 本地 HH:MM（进贡「下一袋 21:40」「21:40 满」文案用） */
+const clockOf = (ts: number): string => {
+  const d = new Date(ts);
+  return `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
+};
+
 export interface NodeVm {
   view: KingdomView;
   level: number;
@@ -29,6 +35,14 @@ export interface NodeVm {
   exploreUnlocked: boolean;
   tributeHours: number;
   tributeHits: number;
+  /** 进贡口径单源（M-4）：三处 UI 共用 tributeReady，不再各用一套判据 */
+  tributeGold: number;
+  tributeSouls: number;
+  tributeKeys: number;
+  tributeReady: boolean;
+  tributeOverflowing: boolean;
+  tributeCapAt: number;
+  tributeNextHourAt: number;
   ownedTroops: number;
   poolSize: number;
 }
@@ -50,6 +64,13 @@ function nodeVms(gateway: MetaGateway): NodeVm[] {
       exploreUnlocked: state.exploreUnlocked,
       tributeHours: state.tributeHours,
       tributeHits: state.tributeHits,
+      tributeGold: state.tributeGold,
+      tributeSouls: state.tributeSouls,
+      tributeKeys: state.tributeKeys,
+      tributeReady: state.tributeReady,
+      tributeOverflowing: state.tributeOverflowing,
+      tributeCapAt: state.tributeCapAt,
+      tributeNextHourAt: state.tributeNextHourAt,
       ownedTroops: pool.filter((t) => save.collection[String(t.id)]).length,
       poolSize: pool.length,
     };
@@ -84,6 +105,64 @@ function crestSvg(view: KingdomView): string {
   </svg>`;
 }
 
+/**
+ * 地图屏自有样式段（窗口 Q）。
+ *
+ * 为什么在 TS 里而不是 `shell/styles/*.css`：阶段 B 的文件所有权矩阵把
+ * `src/meta/shell/styles/**` 判给窗口 L 独占，其它窗口只能在自己的屏 CSS 段里写。
+ * L 的 `tokens.css`（`--ds-*`）交付后，本段的字面色值整体迁移到 token（见任务书批次 2 待办）。
+ */
+const MAP_CSS = `
+  /* M-2：锁态节点——门槛明文是主角，王国名退为第二行；不出现裸数字 */
+  .kmeta.locked {
+    flex-direction: column;
+    align-items: stretch;
+    background: rgba(20, 16, 10, .92);
+    border-color: rgba(216, 194, 144, .34);
+  }
+  .kgate {
+    display: inline-flex; align-items: center; justify-content: center; gap: 4px;
+    padding: 3px 8px 4px;
+    background: linear-gradient(180deg, #5a4c32, #2a2214);
+    font: 11px "Microsoft YaHei UI", "Microsoft YaHei", sans-serif;
+    color: #ead6a4;
+    text-shadow: 0 1px 2px #000;
+    white-space: nowrap;
+  }
+  .kgate [data-icon] { width: 12px; height: 12px; color: #ead6a4; }
+  .kname.sub {
+    padding: 2px 8px 3px;
+    font-size: 11px;
+    color: #a99f8c;
+    border-top: 1px solid rgba(216, 194, 144, .18);
+  }
+  /* M-7：可收进贡角标（系统层 ready 判据早就在，此前地图上根本没画） */
+  .ktrib {
+    position: absolute;
+    right: -6px; top: -4px;
+    display: inline-flex; align-items: center; gap: 3px;
+    padding: 2px 7px 3px;
+    background: linear-gradient(180deg, #6a5326, #3a2c11);
+    border: 1px solid #e1c891;
+    border-radius: 999px;
+    font: 600 11px "Microsoft YaHei UI", "Microsoft YaHei", sans-serif;
+    color: #ffeebb;
+    text-shadow: 0 1px 2px #000;
+    box-shadow: 0 2px 8px #000a;
+    pointer-events: none;
+    z-index: 2;
+  }
+  .ktrib [data-icon] { width: 11px; height: 11px; color: #ffd77a; }
+  .ktrib.over {
+    background: linear-gradient(180deg, #7a3a34, #3a1614);
+    border-color: #c45454;
+    color: #ffd9d2;
+  }
+  /* M-10：满溢警示（这条规则此前只写在钱币来源弹层里，等于没写） */
+  .chip.over { border-color: #c45454; color: #ffd9d2; }
+  .tribute-row.over #tributeCopy { color: #e7a79c; }
+`;
+
 export class MapScreen implements Screen {
   private nodes: NodeVm[] = [];
   private selected = START_KINGDOM;
@@ -94,6 +173,7 @@ export class MapScreen implements Screen {
 
   html(ctx: ShellCtx): string {
     return `
+      <style id="mapScreenCss">${MAP_CSS}</style>
       ${topbarHtml()}
       <div class="map-shell">
         <aside class="rail left" aria-label="玩法入口">
@@ -179,12 +259,12 @@ export class MapScreen implements Screen {
               <div class="growth-track"><i id="kingdomFill"></i></div>
               <button class="primary" id="kingdomUpgrade" type="button"><span data-icon="chevrons"></span><span id="upgradeLabel">投入升级</span><span class="price"><span data-icon="coin"></span><b id="upgradeCost">0</b></span></button>
             </div>
-            <div class="tribute-row">
+            <div class="tribute-row" id="tributeRow">
               <div>
                 <small>进贡收取</small>
                 <p id="tributeCopy">离线累计 · 黄金 / 灵魂 / 金钥匙</p>
               </div>
-              <button class="secondary" id="kingdomCollect" type="button"><span data-icon="bag"></span>收取进贡</button>
+              <button class="secondary" id="kingdomCollect" type="button"><span data-icon="coin"></span><span id="collectLabel">收取进贡</span></button>
             </div>
             <div class="entry-cards">
               <button class="entry" id="entryQuest" type="button"><span data-icon="flag"></span><b>王国任务</b><small id="questProgress">0 / 8</small></button>
@@ -352,12 +432,28 @@ export class MapScreen implements Screen {
           .filter(Boolean)
           .join(' ');
         const mark = n.view.crest ? `<img src="${n.view.crest}" alt="" draggable="false">` : crestSvg(n.view);
-        const lv = locked
-          ? `<span class="klv lock" title="冒险者 ${n.unlockLevel} 级解锁"><span data-icon="lock"></span>${n.unlockLevel}</span>`
-          : `<span class="klv" title="王国 ${n.level} 级">${n.level}</span>`;
-        return `<button class="${cls}" data-id="${n.view.name}" style="left:${n.view.x}%;top:${n.view.y}%" aria-label="${n.view.name}${locked ? '，未解锁' : '，' + n.level + ' 级'}">
-          <span class="crest">${mark}</span>
-          <span class="kmeta"><span class="kname">${n.view.name}</span>${lv}</span>
+        // M-2：锁态与王国等级不再共用一个「裸数字」槽位。
+        //   解锁 → 主角是王国名 + 蓝签王国等级（+ 可收进贡角标）；
+        //   锁态 → 主角是门槛明文「🔒 冒险者 Lv.N 解锁」，王国名退为第二行。
+        const meta = locked
+          ? `<span class="kmeta locked">
+               <span class="kgate"><span data-icon="lock"></span>冒险者 Lv.${n.unlockLevel} 解锁</span>
+               <span class="kname sub">${n.view.name}</span>
+             </span>`
+          : `<span class="kmeta">
+               <span class="kname">${n.view.name}</span>
+               <span class="klv" title="王国 ${n.level} 级">${n.level}</span>
+             </span>`;
+        // M-7：系统层早就备好了 ready 判据，节点上补角标——「哪个国有东西可收」一眼可见
+        const bubble = !locked && n.tributeReady
+          ? `<span class="ktrib${n.tributeOverflowing ? ' over' : ''}" title="${n.tributeOverflowing ? '已满 12 小时，正在溢出' : '有进贡可收'}"><span data-icon="coin"></span>${fmt(n.tributeGold)}</span>`
+          : '';
+        const aria = locked
+          ? `${n.view.name}，未解锁，需冒险者 ${n.unlockLevel} 级`
+          : `${n.view.name}，王国 ${n.level} 级${n.tributeReady ? '，有进贡可收' : ''}`;
+        return `<button class="${cls}" data-id="${n.view.name}" style="left:${n.view.x}%;top:${n.view.y}%" aria-label="${aria}">
+          <span class="crest">${mark}${bubble}</span>
+          ${meta}
         </button>`;
       })
       .join('');
@@ -373,11 +469,28 @@ export class MapScreen implements Screen {
     const winReady = save.dailyFirstWinAt < todayStartOf(now);
     $('#dailyWinCopy').textContent = winReady ? '每日首胜未领' : '每日首胜已领';
     $('#dailyWin').classList.toggle('hot', winReady);
-    const readyKingdoms = this.nodes.filter((n) => !n.locked && n.tributeHours > 0);
-    $('#dailyTributeCopy').textContent = readyKingdoms.length
-      ? `进贡已满 · ${readyKingdoms.length} 国`
-      : '进贡暂无可领';
+    // M-4：chip 与弹层、收取按钮同源（tributeReady = 有可实际入账的产出）。
+    // 「已满」这个词本身是错的（它表达的是"有可领"），改为「可收」；
+    // M-10：真正的"已满溢"单独出词，且给出下一袋时间。
+    const readyKingdoms = this.nodes.filter((n) => !n.locked && n.tributeReady);
+    const overflowCount = this.nodes.filter((n) => !n.locked && n.tributeOverflowing).length;
+    if (readyKingdoms.length) {
+      const gold = readyKingdoms.reduce((s, n) => s + n.tributeGold, 0);
+      $('#dailyTributeCopy').textContent = overflowCount
+        ? `进贡可收 · ${readyKingdoms.length} 国 · ${overflowCount} 国已满溢`
+        : `进贡可收 · ${readyKingdoms.length} 国 · 黄金 ${fmt(gold)}`;
+    } else {
+      const nextAt = this.nodes
+        .filter((n) => !n.locked)
+        .map((n) => n.tributeNextHourAt)
+        .filter((t) => t > now)
+        .sort((a, b) => a - b)[0];
+      $('#dailyTributeCopy').textContent = nextAt
+        ? `进贡累积中 · 下一袋 ${clockOf(nextAt)}`
+        : '进贡累积中';
+    }
     $('#dailyTribute').classList.toggle('gold', readyKingdoms.length > 0);
+    $('#dailyTribute').classList.toggle('over', overflowCount > 0);
     const freeTicket = save.arena.lastFreeEntryAt < weekStartOf(now);
     $('#dailyArenaCopy').textContent = freeTicket ? '竞技场免费票' : '竞技场';
     $('#dailyArena').classList.toggle('hot', freeTicket);
@@ -407,7 +520,19 @@ export class MapScreen implements Screen {
       ? `冒险者达到 Lv.${vm.unlockLevel} 后开放此王国。`
       : view.blurb || `${view.name}的领地等待着你的旗帜。`;
     $('#kingdomLevel').textContent = locked ? '—' : `${vm.level} / ${KINGDOM_MAX_LEVEL}`;
-    $('#kingdomTribute').textContent = locked ? '—' : vm.tributeHours > 0 ? `${vm.tributeHits} 袋` : '已领取';
+    // M-4/K-4：库存直接给数字（「袋」不是游戏里任何一处出现过的单位，玩家无法折算）
+    const stockParts = [
+      vm.tributeGold ? `黄金 ${fmt(vm.tributeGold)}` : '',
+      vm.tributeSouls ? `灵魂 ${vm.tributeSouls}` : '',
+      vm.tributeKeys ? `金钥匙 ${vm.tributeKeys}` : '',
+    ].filter(Boolean);
+    $('#kingdomTribute').textContent = locked
+      ? '—'
+      : vm.tributeReady
+        ? stockParts.join(' · ')
+        : vm.tributeHours > 0
+          ? '本轮无产出'
+          : '累积中';
     const statCn: Record<string, string> = { health: '生命', armor: '护甲', attack: '攻击', magic: '魔法' };
     const bonusStat = statCn[kingdomBonusStat(view.name)] ?? kingdomBonusStat(view.name);
     $('#kingdomBonus').textContent = vm.level >= KINGDOM_MAX_LEVEL ? `全体 ${bonusStat} +1` : `Lv.10 → ${bonusStat} +1`;
@@ -427,7 +552,18 @@ export class MapScreen implements Screen {
     ($('#kingdomUpgrade') as HTMLButtonElement).disabled = locked || vm.level >= KINGDOM_MAX_LEVEL;
     $('#upgradeLabel').textContent = locked ? '王国未解锁' : vm.level >= KINGDOM_MAX_LEVEL ? '已达满级' : '投入升级';
     $('.price', $('#kingdomUpgrade')).hidden = locked || vm.level >= KINGDOM_MAX_LEVEL;
-    ($('#kingdomCollect') as HTMLButtonElement).disabled = locked || vm.tributeHours <= 0;
+    // M-4：收取按钮的可用性与库存同源（改前用小时数判，于是「0 袋 + 按钮可点 + 点了说没有」）
+    ($('#kingdomCollect') as HTMLButtonElement).disabled = locked || !vm.tributeReady;
+    // K-5：按钮上直接写清收多少；M-10：12 小时上限与「下次几点满」在页面上可见
+    $('#collectLabel').textContent = vm.tributeReady
+      ? `收取 ${stockParts.join(' · ')}`
+      : '收取进贡';
+    $('#tributeRow').classList.toggle('over', !locked && vm.tributeOverflowing);
+    $('#tributeCopy').textContent = locked
+      ? '王国解锁后开始累积进贡'
+      : vm.tributeOverflowing
+        ? `⚠ 已满 ${TRIBUTE.capHours} 小时上限（${clockOf(vm.tributeCapAt)} 就满了），正在溢出——继续挂着的时间不再产出，请尽快收取`
+        : `离线按小时累积，上限 ${TRIBUTE.capHours} 小时 · 已累计 ${vm.tributeHours} 小时 · 下一袋 ${clockOf(vm.tributeNextHourAt)} · ${clockOf(vm.tributeCapAt)} 达上限`;
     $('#questProgress').textContent = locked ? '锁定' : `${vm.questsDone} / 8`;
     $('#exploreState').textContent = vm.exploreUnlocked ? '已开放 · 重复刷取' : '通关后开放';
     $('#troopProgress').textContent = locked ? '—' : `${vm.ownedTroops} / ${vm.poolSize}`;
@@ -468,7 +604,7 @@ export class MapScreen implements Screen {
   }
 
   private async collectAllTribute(ctx: ShellCtx): Promise<void> {
-    const ready = this.nodes.filter((n) => !n.locked && n.tributeHours > 0);
+    const ready = this.nodes.filter((n) => !n.locked && n.tributeReady);
     if (!ready.length) {
       toast('尚无可领取进贡。');
       return;
@@ -510,12 +646,14 @@ export class MapScreen implements Screen {
     await ctx.launchExplore(vm.view.name);
   }
 
-  /** 网关变更后：重算节点与弹层（存档对象不变，重读视图即可） */
+  /** 网关变更后：重算节点与弹层 + **同步顶栏钱包**（存档对象不变，重读视图即可） */
   private afterMutation(ctx: ShellCtx): void {
     this.nodes = nodeVms(ctx.gateway);
     this.renderNodes(ctx.save());
     this.refreshDaily(ctx.save(), ctx);
     if (this.openName) this.openKingdom(this.openName);
+    // M-3：地图上花钱/收钱后顶栏必须立即正确，否则玩家读成「没扣钱」而连点
+    ctx.refreshChrome();
   }
 
   // —— 相机与拖拽（小样原逻辑移植） ——

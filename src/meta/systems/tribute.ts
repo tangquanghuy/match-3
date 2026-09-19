@@ -44,8 +44,22 @@ export interface TributePreview {
   gold: number;
   souls: number;
   goldKeys: number;
-  /** 是否有可收取内容（地图进贡气泡的显示条件） */
+  /**
+   * 是否有可收取内容（地图进贡气泡与收取按钮的唯一判据）。
+   *
+   * **口径修正（UX 阶段 A M-4）**：改前用 `hours > 0`，于是「累计了小时数但一次没命中」
+   * 时 chip 说「已满」、弹层说「0 袋」、按钮可点、点了又说「暂无可领取」——四处互相打脸。
+   * 现在统一为「可实际入账的产出量 > 0」。
+   */
   ready: boolean;
+  /** 未截断的累计小时数；> capHours 即正在溢出（超出部分在收取瞬间永久丢失） */
+  pendingHours: number;
+  /** 是否已达 12 小时上限并开始溢出（M-10：这条规则必须在页面上可见） */
+  overflowing: boolean;
+  /** 达到 12 小时上限的时刻（毫秒时间戳）；已溢出时是过去的时刻 */
+  capAt: number;
+  /** 下一个小时结算的时刻（「下一袋 21:40」文案用） */
+  nextHourAt: number;
 }
 
 function levelOf(save: MetaSave, kingdom: string): number {
@@ -56,11 +70,13 @@ function lastTributeOf(save: MetaSave, kingdom: string): number {
   return save.kingdoms[kingdom]?.lastTributeAt ?? 0;
 }
 
-function settleHours(save: MetaSave, kingdom: string, now: number): { hours: number; hits: number; gold: number; souls: number; goldKeys: number } {
+function settleHours(save: MetaSave, kingdom: string, now: number): { hours: number; hits: number; gold: number; souls: number; goldKeys: number; pendingHours: number; capAt: number; nextHourAt: number } {
   const level = levelOf(save, kingdom);
   const last = lastTributeOf(save, kingdom);
   const pending = Math.max(0, Math.floor((now - last) / HOUR_MS));
   const hours = Math.min(pending, TRIBUTE.capHours);
+  const capAt = last + TRIBUTE.capHours * HOUR_MS;
+  const nextHourAt = last + (pending + 1) * HOUR_MS;
   const firstHour = Math.floor(last / HOUR_MS) + 1;
   let hits = 0;
   let gold = 0;
@@ -76,13 +92,27 @@ function settleHours(save: MetaSave, kingdom: string, now: number): { hours: num
     souls += tributeSouls(level);
     if (rng.next() < TRIBUTE.goldKeyChance) goldKeys += 1;
   }
-  return { hours, hits, gold, souls, goldKeys };
+  return { hours, hits, gold, souls, goldKeys, pendingHours: pending, capAt, nextHourAt };
 }
 
 /** 预览可收取的进贡（地图气泡数量、王国弹层的收取按钮），纯只读。 */
 export function tributePreview(save: MetaSave, kingdom: string, now: number): TributePreview {
   const settled = settleHours(save, kingdom, now);
-  return { kingdom, ...settled, ready: settled.hours > 0 };
+  return {
+    kingdom,
+    ...settled,
+    ready: settled.gold > 0 || settled.souls > 0 || settled.goldKeys > 0,
+    overflowing: settled.pendingHours > TRIBUTE.capHours,
+  };
+}
+
+/** 实际入账的进贡结果（收取动作的返回，形态与 TributePreview 的产出部分同源） */
+export interface TributeCollected {
+  hours: number;
+  hits: number;
+  gold: number;
+  souls: number;
+  goldKeys: number;
 }
 
 /** 收取进贡：入账并把锚点拨到 now。没有可结算内容返回 ok（幂等）。 */
@@ -90,7 +120,7 @@ export function collectTribute(
   save: MetaSave,
   kingdom: string,
   now: number,
-): { ok: true; collected: Omit<TributePreview, 'kingdom' | 'ready'> } {
+): { ok: true; collected: TributeCollected } {
   const settled = settleHours(save, kingdom, now);
   if (settled.gold > 0 || settled.souls > 0 || settled.goldKeys > 0) {
     earn(save, { gold: settled.gold, souls: settled.souls, goldKeys: settled.goldKeys });
