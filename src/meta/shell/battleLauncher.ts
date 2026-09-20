@@ -124,18 +124,15 @@ export class BattleLauncher {
     if (mode === 'arena') {
       const { result: settled } = await gateway.settleArenaBattle(result);
       if (!isFailure(settled)) {
-        toast(settled.runOver
-          ? settled.victory
-            ? `打满 ${settled.wins} 胜！奖励已入账：黄金 +${settled.rewards.gold}${settled.rewards.gems ? `，宝石 +${settled.rewards.gems}` : ''}${settled.rewards.goldKeys ? `，金钥匙 ×${settled.rewards.goldKeys}` : ''}`
-            : '本届现开赛结束，按已得胜场发奖。'
-          : settled.victory
-            ? `胜场 ${settled.wins} / 3，继续连战！`
-            : '败北。');
+        this.ctx.showResult(
+          { kind: 'arena', battle: result, settled },
+          { kingdom: '竞技场', sourceLabel: 'ARENA RUN', returnHash: '#arena' },
+        );
       } else {
         toast(settled.message);
+        this.ctx.navigate('#arena');
+        this.ctx.refresh();
       }
-      this.ctx.navigate('#arena');
-      this.ctx.refresh();
       return;
     }
     if (mode === 'invasion' && 'mirror' in plan) {
@@ -148,19 +145,19 @@ export class BattleLauncher {
         todayStartOf(now),
       );
       if (!isFailure(settled)) {
-        const parts = [
-          settled.victory ? `VP +${settled.vpDelta}` : `VP ${settled.vpDelta}`,
-          `当前 ${settled.vp} 分 · 第 ${settled.placement} 名`,
-        ];
-        if (settled.glory > 0) parts.push(`荣耀 +${settled.glory}`);
-        if (settled.gold > 0) parts.push(`黄金 +${settled.gold}`);
-        if (settled.firstWinToday) parts.push('每日首胜！');
-        toast(`${settled.victory ? '入侵胜利' : '入侵败北'} · ${parts.join(' · ')}`);
+        this.ctx.showResult(
+          { kind: 'invasion', battle: result, settled, frenzy: plan.mirror.frenzy },
+          {
+            kingdom: '入侵战',
+            sourceLabel: `INVASION · ${plan.mirror.name}`,
+            returnHash: '#invasion',
+          },
+        );
       } else {
         toast(settled.message);
+        this.ctx.navigate('#invasion');
+        this.ctx.refresh();
       }
-      this.ctx.navigate('#invasion');
-      this.ctx.refresh();
       return;
     }
     if (!('plan' in plan)) return;
@@ -179,6 +176,7 @@ export class BattleLauncher {
       kingdom: plan.plan.kingdom,
       sourceLabel,
       returnHash: source.kind === 'event' ? `#events/${source.typeId}` : undefined,
+      shopHash: source.kind === 'event' ? `#shop/${source.typeId}` : undefined,
     });
   }
 }

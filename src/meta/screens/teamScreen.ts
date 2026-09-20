@@ -808,9 +808,8 @@ export class TeamScreen implements Screen {
     mountIcons(dock);
     $('#inspectAct').onclick = () => (usedAt >= 0 ? this.removeInspected() : this.assignInspected());
     $('#inspectCodex').onclick = () => {
-      // TM-11：主角不再开新浏览器标签（阶段 A 直接跳出游戏）——走壳内英雄页的武器库
-      // 窗口 M 的 `#weapons` 屏上线后把这里换成 '#weapons'
-      if (troop.key === 'hero') this.ctx.navigate('#hero');
+      // TM-11：主角图鉴统一进入壳内武器中心，不再打开独立网页或绕回英雄页。
+      if (troop.key === 'hero') this.ctx.navigate('#weapons/owned');
       else this.ctx.navigate('#troop/' + troop.key);
     };
   }

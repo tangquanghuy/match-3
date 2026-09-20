@@ -6,7 +6,7 @@
  */
 import type { BattleResult } from '@session/index';
 import { SaveStore, type StorageLike } from '../state/save';
-import type { MetaSave } from '../state/schema';
+import type { Materials, MetaSave } from '../state/schema';
 import { fail, type MetaFailure } from '../types';
 import { starterTroopIds } from '../data/economy';
 import type { EventTypeId } from '../data/events';
@@ -91,6 +91,12 @@ export class MockGateway implements MetaGateway {
 
   current(): MetaSave {
     return this.save;
+  }
+
+  async markMaterialsSeen() {
+    this.save.materialsUnread = false;
+    this.persist();
+    return { result: false, save: this.save };
   }
 
   // —— 系统 ——
@@ -236,12 +242,16 @@ export class MockGateway implements MetaGateway {
 
   /** 开箱：count 为原子批量（gem 只接 1|10，gold 接 1~10，glory 忽略），见 types.openChest */
   async openChest(kind: 'gem' | 'gold' | 'glory', count = 1) {
+    const before = this.materialSnapshot();
     const seed = this.nextSeed();
     const result =
       kind === 'gem' ? openGemChest(this.save, seed, count)
       : kind === 'glory' ? openGloryChest(this.save, seed)
       : openGoldChest(this.save, seed, count);
-    if (result.ok) this.persist();
+    if (result.ok) {
+      this.markMaterialGains(before);
+      this.persist();
+    }
     return { result, save: this.save };
   }
 
@@ -338,7 +348,9 @@ export class MockGateway implements MetaGateway {
   }
 
   async applyBattleSettlement(result: BattleResult, ctx: SettlementContext) {
+    const before = this.materialSnapshot();
     const detail = applySettlement(this.save, result, ctx);
+    this.markMaterialGains(before);
     this.persist();
     return { result: detail, save: this.save };
   }
@@ -367,14 +379,22 @@ export class MockGateway implements MetaGateway {
   }
 
   async abandonTowerRun(weekStart: number) {
+    const before = this.materialSnapshot();
     const result = abandonTowerRun(this.save, weekStart);
-    if (result.ok) this.persist();
+    if (result.ok) {
+      this.markMaterialGains(before);
+      this.persist();
+    }
     return { result, save: this.save };
   }
 
   async buyEventGoods(goodsId: string, _now: number, weekStart: number, typeId: EventTypeId) {
+    const before = this.materialSnapshot();
     const result = buyEventGoods(this.save, goodsId, weekStart, typeId);
-    if (result.ok) this.persist();
+    if (result.ok) {
+      this.markMaterialGains(before);
+      this.persist();
+    }
     return { result, save: this.save };
   }
 
@@ -385,12 +405,46 @@ export class MockGateway implements MetaGateway {
   }
 
   async settleInvasionBattle(result: BattleResult, mirrorId: string, now: number, weekStart: number, todayStart: number) {
+    const before = this.materialSnapshot();
     const settled = settleInvasionBattle(this.save, result, mirrorId, now, weekStart, todayStart);
-    if (settled.ok) this.persist();
+    if (settled.ok) {
+      this.markMaterialGains(before);
+      this.persist();
+    }
     return { result: settled, save: this.save };
   }
 
   // —— 内部 ——
+
+  private materialSnapshot(): Materials {
+    return {
+      ingots: { ...this.save.materials.ingots },
+      forgeScrolls: this.save.materials.forgeScrolls,
+      traitstones: { ...this.save.materials.traitstones },
+    };
+  }
+
+  private markMaterialGains(before: Materials): void {
+    const after = this.save.materials;
+    const keys = new Set([...Object.keys(before.ingots), ...Object.keys(after.ingots)]);
+    for (const key of keys) {
+      if ((after.ingots[key] ?? 0) > (before.ingots[key] ?? 0)) {
+        this.save.materialsUnread = true;
+        return;
+      }
+    }
+    if (after.forgeScrolls > before.forgeScrolls) {
+      this.save.materialsUnread = true;
+      return;
+    }
+    const stoneKeys = new Set([...Object.keys(before.traitstones), ...Object.keys(after.traitstones)]);
+    for (const key of stoneKeys) {
+      if ((after.traitstones[key] ?? 0) > (before.traitstones[key] ?? 0)) {
+        this.save.materialsUnread = true;
+        return;
+      }
+    }
+  }
 
   private persist(): void {
     this.store.persist(this.save);

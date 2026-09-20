@@ -381,6 +381,8 @@ export function invasionVpBonuses(result: BattleResult): { speed: number; surviv
 export interface InvasionSettleResult {
   ok: true;
   victory: boolean;
+  /** 未计入加成与血怒倍率的官方基础 VP */
+  vpBase: number;
   /** 本场 VP 变化（败北为负） */
   vpDelta: number;
   vp: number;
@@ -416,6 +418,7 @@ export function settleInvasionBattle(
   const victory = result.winner === 'player';
   save.invasion.battles += 1;
   let vpDelta = 0;
+  let vpBase = 0;
   let glory = 0;
   let gold = 0;
   let bonuses: ReturnType<typeof invasionVpBonuses> = { speed: 0, survivors: 0, extraTurns: 0, total: 0 };
@@ -425,6 +428,7 @@ export function settleInvasionBattle(
     const avgLevel =
       mirror.defense.reduce((sum, d) => sum + d.level, 0) / Math.max(mirror.defense.length, 1);
     const band = vpBand(avgLevel);
+    vpBase = band.base;
     bonuses = invasionVpBonuses(result);
     vpDelta = Math.min(Math.max(band.base + bonuses.total, band.min), band.max);
     if (mirror.frenzy) vpDelta *= 2;
@@ -450,6 +454,7 @@ export function settleInvasionBattle(
   return {
     ok: true,
     victory,
+    vpBase,
     vpDelta,
     vp: save.invasion.vp,
     league: save.invasion.league,

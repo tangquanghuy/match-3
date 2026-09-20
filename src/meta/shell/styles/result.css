@@ -101,6 +101,67 @@
   color: #766d7c;
 }
 
+.pvp-settlement {
+  margin: 12px auto 4px;
+  width: min(680px, 100%);
+  border-top: 1px solid #66502e;
+  border-bottom: 1px solid #66502e;
+  padding: 14px 0 12px;
+}
+.pvp-heading { text-align: center; }
+.pvp-heading small {
+  color: #b8995f;
+  font: 10px Georgia;
+  letter-spacing: 3px;
+}
+.pvp-heading h2 {
+  margin: 5px 0 2px;
+  color: #f0d18a;
+  font: 25px var(--display);
+  letter-spacing: 4px;
+}
+.pvp-heading p { margin: 0; color: #9f92a2; font-size: 12px; }
+.pvp-stat-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+  margin: 14px 0 10px;
+}
+.pvp-stat-grid > div {
+  min-height: 58px;
+  padding: 9px 6px;
+  text-align: center;
+  background: linear-gradient(160deg, #211a20, #111019);
+  border: 1px solid #4b3d31;
+}
+.pvp-stat-grid small { display: block; color: #8c7e8f; font-size: 10px; }
+.pvp-stat-grid b { display: block; margin-top: 5px; color: #e8cf91; font: 20px Georgia; }
+.pvp-breakdown {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0 18px;
+  border-top: 1px solid #2b2530;
+}
+.pvp-line {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 7px 4px;
+  border-bottom: 1px solid #2b2530;
+  color: #9b8f9d;
+  font-size: 11px;
+}
+.pvp-line b { color: #d9c28f; font-family: Georgia, serif; }
+.pvp-reward {
+  margin-top: 10px;
+  padding: 9px 10px;
+  color: #e8d19b;
+  background: #211b15;
+  border: 1px solid #705833;
+  text-align: center;
+  font-size: 12px;
+}
+
 .reward-list {
   margin-top: 2px;
   border-top: 1px solid #5f4d36;
@@ -365,3 +426,8 @@
 }
 .result-screen.is-defeat .victory-en { color: #8a8078; }
 .result-screen.is-defeat .reward-row strong { color: #c8b8a0; }
+.result-screen.is-pvp .result-actions #again { min-width: 168px; }
+
+@media (max-width: 760px) {
+  .pvp-breakdown { grid-template-columns: 1fr; }
+}

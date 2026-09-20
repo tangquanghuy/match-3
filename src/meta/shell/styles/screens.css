@@ -743,12 +743,41 @@
   margin: 0 auto;
   background: #211a17;
 }
+.chest-tabs {
+  position: absolute;
+  inset: 0 0 auto;
+  z-index: 7;
+  height: 64px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  background: linear-gradient(180deg, #211a17f5, #211a17d9);
+  border-bottom: 1px solid #9d7947;
+}
+.chest-tab {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 2px;
+  padding: 0 26px;
+  color: #9f8f86;
+  text-decoration: none;
+  border-right: 1px solid #6c5238;
+  transition: background .2s ease, color .2s ease;
+}
+.chest-tab:last-child { border-right: 0; }
+.chest-tab:hover { background: #3a2a20b8; color: #efdbb0; }
+.chest-tab.active { color: #f5d89a; background: linear-gradient(90deg, #4a321fbb, #2b211dbb); }
+.chest-tab.active:after { content: ""; position: absolute; left: 26px; right: 26px; bottom: -1px; height: 3px; background: #e2b768; box-shadow: 0 0 12px #e2b76888; }
+.chest-tab small { color: #9d805a; font: 9px Georgia, serif; letter-spacing: 2px; }
+.chest-tab b { color: inherit; font: 19px var(--display); letter-spacing: 2px; }
+.chest-tab span { color: #aa9b92; font-size: 10px; }
 .chest-stage {
   position: absolute;
   left: 0;
   right: 0;
-  top: 0;
-  height: calc(100% - 132px);
+  top: 64px;
+  height: calc(100% - 212px);
   background: #211a17;
   overflow: hidden;
 }
@@ -765,7 +794,7 @@
   right: 0;
   bottom: 90px;
   z-index: 4;
-  height: 42px;
+  height: 58px;
   display: flex;
   align-items: center;
   gap: 16px;
@@ -799,6 +828,7 @@
   font-size: 11px;
 }
 .odds-link [data-icon] { width: 13px; height: 13px; transform: rotate(180deg); }
+.recent-empty { color: #8c7f78; font-size: 10px; }
 .chest-dock {
   position: absolute;
   left: 0;
@@ -816,6 +846,8 @@
   box-shadow: inset 0 1px #f4dca143;
   backdrop-filter: blur(7px);
 }
+.chest-dock.dual-dock { grid-template-columns: minmax(0, 1fr) 30px minmax(0, 1fr); }
+.chest-dock.single-dock { grid-template-columns: minmax(0, 760px); justify-content: center; }
 .chest-col {
   min-width: 0;
   display: grid;
@@ -824,6 +856,7 @@
   align-items: center;
   column-gap: 12px;
 }
+.chest-col-wide { width: 100%; }
 .pool-head {
   display: block;
   grid-row: 1 / 3;
@@ -903,21 +936,59 @@
 .dock-divider [data-icon] { width: 16px; height: 16px; }
 .drops {
   position: static;
-  display: flex; align-items: center; gap: 8px;
+  display: flex; align-items: center; gap: 6px;
   padding: 0;
   background: none;
   border: 0;
   box-shadow: none;
 }
 .drop {
-  width: 29px; height: 34px; padding: 0;
-  overflow: hidden;
+  width: 84px; height: 44px; padding: 3px 5px 3px 3px;
+  overflow: hidden; display: flex; align-items: center; gap: 5px;
+  text-align: left;
   border: 1px solid #d0ae72;
   background: #21191a;
 }
-.drop img { width: 100%; height: 100%; object-fit: cover; object-position: 50% 10%; }
+.drop img { flex: none; width: 27px; height: 36px; object-fit: cover; object-position: 50% 10%; }
+.drop span { min-width: 0; display: block; overflow: hidden; }
+.drop b, .drop small { display: block; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+.drop b { color: #f0dfbf; font-size: 9px; font-weight: 600; }
+.drop small { margin-top: 2px; color: #b59f88; font-size: 8px; }
 .drop.epic { border-color: #a074d4; box-shadow: 0 0 8px #a074d466; }
 .drop.legend { border-color: #d4b56a; box-shadow: 0 0 8px #d4b56a66; }
+
+/* ---- chest probability drawer / glory reward feedback ---- */
+.odds-drawer, .glory-feedback { position: absolute; inset: 0; z-index: 70; }
+.odds-drawer-veil, .glory-feedback-veil { position: absolute; inset: 0; background: #05050bcf; backdrop-filter: blur(4px); }
+.odds-sheet {
+  position: absolute; top: 0; right: 0; bottom: 0; width: 430px;
+  display: flex; flex-direction: column;
+  background: linear-gradient(165deg, #241b20, #0e0d15 75%);
+  border-left: 1px solid #b69762; box-shadow: -18px 0 46px #000a;
+}
+.odds-sheet header { display: flex; align-items: center; padding: 24px 24px 18px; border-bottom: 1px solid #6f5639; }
+.odds-sheet header small, .glory-feedback-sheet > small { color: #ad9062; font: 9px Georgia, serif; letter-spacing: 2px; }
+.odds-sheet h2 { margin-top: 6px; color: #f0d5a0; font: 24px var(--display); letter-spacing: 2px; }
+.odds-close { margin-left: auto; width: 32px; height: 32px; color: #ddc796; background: #17121a; border: 1px solid #836a45; font: 22px Georgia; }
+.odds-content { flex: 1; overflow: auto; padding: 20px 24px; }
+.odds-pool { padding: 14px 0 20px; border-bottom: 1px solid #493a32; }
+.odds-pool > small { color: #bca17b; font: 10px Georgia, serif; letter-spacing: 1px; }
+.odds-row { display: grid; grid-template-columns: 12px 1fr auto; align-items: center; gap: 9px; padding: 9px 0; color: #c4b7b2; border-bottom: 1px solid #2e2630; font-size: 12px; }
+.odds-row span:last-child { color: #f2d28e; font: 14px Georgia, serif; }
+.odds-swatch { width: 10px; height: 10px; border-radius: 50%; background: #aaa; }
+.odds-swatch.r-rare { background: #b57be0; }
+.odds-swatch.r-epic { background: #ffca45; }
+.odds-swatch.r-legend { background: #d47a36; }
+.odds-pool p, .odds-sheet footer { color: #8f8182; font-size: 10px; line-height: 1.6; }
+.glory-rate { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 15px; text-align: center; }
+.glory-rate b { color: #f1cb88; font: 20px Georgia, serif; }
+.glory-rate span { color: #a89891; font-size: 10px; }
+.odds-sheet footer { padding: 14px 24px; border-top: 1px solid #4a3b31; }
+.glory-feedback { display: grid; place-items: center; }
+.glory-feedback-sheet { position: relative; width: 420px; padding: 30px 34px 28px; text-align: center; background: linear-gradient(165deg, #2a1d2a, #11101a); border: 1px solid #cfaa63; box-shadow: 0 22px 70px #000c; }
+.glory-feedback-sheet h2 { margin: 9px 0 14px; color: #f1d49b; font: 28px var(--display); letter-spacing: 3px; }
+.glory-feedback-sheet p { min-height: 44px; color: #d1c1b7; font-size: 14px; line-height: 1.7; }
+.glory-feedback-sheet .primary { margin-top: 18px; min-width: 160px; }
 
 /* ---- summon: Hearthstone-style pack opening with sequence FX ---- */
 .summon-modal { position: absolute; inset: 0; z-index: 50; display: grid; place-items: center; }

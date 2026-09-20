@@ -440,6 +440,7 @@ export function hydrateSave(raw: Record<string, unknown>): MetaSave {
     dailyFirstWinAt: num(raw.dailyFirstWinAt, 0, 0),
     gachaLog,
     materials,
+    materialsUnread: typeof raw.materialsUnread === 'boolean' ? raw.materialsUnread : false,
     weaponTempering,
     invasion,
     eventWeeks,

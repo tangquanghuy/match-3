@@ -54,7 +54,7 @@
 | `src/meta/shell/screen.ts`（`ScreenName`） | **共享**（台账登记） | 同上，新增屏名 |
 | `src/meta/state/schema.ts` + `state/save.ts` | **共享**（台账登记，**顺序 N → M**） | N 做 per-event 周实例（schema +1），M 做武器 id 迁移（schema +1）。**N 先落，M rebase 后接** |
 | `src/meta/gateway/**`（types/mockGateway/demo） | **共享**（台账登记） | 各窗口按需加端点；签名即未来 D1 契约，加性为主 |
-| `src/meta/screens/heroScreen.ts`、新 `weaponsScreen.ts`、`data/weapon*`、`data/soulforge.ts`、`systems/forge*.ts`、`shell/weaponIcons.ts`、`src/render/WeaponCodexPage.ts`、`weapons-codex.html`、`src/codex-main.ts` | **M 独占** | 武器域全部 |
+| `src/meta/screens/heroScreen.ts`、新 `weaponsScreen.ts`、`data/weapon*`、`data/soulforge.ts`、`systems/forge*.ts`、`shell/weaponIcons.ts`、旧 `src/render/WeaponCodexPage.ts`（已删除）、旧 `weapons-codex.html` / `src/codex-main.ts`（已删除） | **M 独占** | 武器域全部；旧 Codex 仅保留在审计/历史文档中，不再是运行时入口 |
 | `src/meta/screens/eventsScreen.ts`、新 `eventShopScreen.ts`、`data/events.ts`、`systems/events.ts` | **N 独占** | 活动域全部 |
 | `src/meta/screens/{troopScreen,teamScreen,chestsScreen}.ts`、新 `bagScreen.ts`、`data/materials.ts` | **O 独占** | 收藏域全部 |
 | `src/render/**`、`src/meta/screens/{resultScreen,arenaScreen,invasionScreen}.ts`、`shell/battleLauncher.ts` | **P 独占** | 战斗与结算与 PvP |
@@ -85,9 +85,9 @@
 | **B1 风格定稿** | L | 2~3 套样稿 → 用户拍板 | UX-13 |
 | **B2 token 底座** | L | `tokens.css` + 拆 223 个重复选择器 + Z 轴归档 + 删死样式 | DS-1、DS-7、DS-8、DS-10、DS-11、DS-14 |
 | **B3 组件基类** | L | `.btn` 六态 + 面板四层 + 选中态四信号 + 滚动三禁则 + 稀有度单表 | DS-2~DS-6、DS-9、DS-12、DS-13 |
-| **B4 武器屏** | M | 官方贴图统一 + `#weapons` 四 tab | UX-1/2/3、H-1~H-12、F-1~F-7、C-1~C-10 |
-| **B5 活动域** | N | 全开放 + 六玩法图形化 + 商店独立页 | UX-4/5/6、E-1~E-13、S-1~S-7 |
-| **B6 收藏域** | O | 图鉴浏览层 + 编队 + 宝箱双页 + 背包页 | UX-7/9/10/11、T-1~T-16、TM-1~TM-11、CH-1~CH-9、MT-1~MT-8 |
+| **B4 武器屏** | M | 官方贴图统一 + `#weapons` 四 tab（旧 Codex 入口已退役） | UX-1/2/3、H-1~H-12、F-1~F-7、C-1~C-10 |
+| **B5 活动域** | N | 全开放 + 六玩法图形化 + 商店独立页 + 结算直达商店 | UX-4/5/6、E-1~E-13、S-1~S-7 |
+| **B6 收藏域** | O | 图鉴浏览层 + 编队 + 宝箱双页 + 背包页与材料入账提示 | UX-7/9/10/11、T-1~T-16、TM-1~TM-11、CH-1~CH-9、MT-1~MT-8 |
 | **B7 战斗与结算** | P | 施法三段式 + 卡面 + tooltip 体系 + 胜负面板 + 结算屏 + 竞技场 + 入侵 | B-1~B-11、R-1~R-9、A-1~A-9、I-1~I-9 |
 | **B8 地图与主线页** | Q | 地图四条 P0 + 弹层 + 设置 + M10 | M-1~M-12、K-*（弹层）、S-*（设置）、`TASK-META §9` |
 
@@ -97,6 +97,14 @@
 2. `DESIGN-SYSTEM.md` §4 的 22 条检查清单在 **16 屏逐屏通过**（前 6 条硬门槛无例外）。
 3. 视觉抽查：用户看改后截图认可"商业级、不丢人"——这是本阶段唯一的最终验收标准，量化指标（明度阶梯/按钮形状数/token 收敛数）只是过程护栏。
 4. 门槛全绿：lint / test / build。
+
+## 7. 本轮收口记录（2026-09-20）
+
+- **B6 收藏域**：宝箱已拆为 `#chests/keys`（金钥匙/荣耀）与 `#chests/gems`（宝石）两页；概率改为常驻侧抽屉，最近获得改为从 `gachaLog` 持久化读取；材料背包补齐入账红点、进入后清除和“可换 N 次 / 还差 N”换算提示。实现与探针记录见 `TASK-COLLECTION.md`。
+- **B7 战斗与结算**：竞技场、入侵成功战斗均进入 `#result`，结算页展示各自战果和入侵加分构成；R-5 已落地。A-3、A-6~A-9、I-8~I-9 以及真实结算截图仍未完成，不能把 B7 标成全闭环。
+- **B5 活动域**：活动战斗结算页可按同一 `typeId` 直达 `#shop/<typeId>`；普通任务、探索和 PvP 结算不显示该入口。六活动与商店最终视觉回归仍待完成。
+- **硬口径继续有效**：图鉴/编队以官方立绘为主体，浏览卡不堆攻/护/生、法术、种族等详情信息；部队稀有度只使用“普通、精良、稀有、传说、史诗、神话”及对应六档颜色。
+
 # 当前状态（2026-09-20 基线）
 
-本文件是阶段 B 总纲，不是实时完成清单。窗口 L 已取消；收藏、活动、战斗/PvP、武器、地图各域自行维护样式。实时状态见 `STATUS.md`。旧的 L 硬前置、批次排期和未更新的完成数字只保留作历史参考，不能阻塞当前域。
+本文件是阶段 B 总纲，不是实时完成清单。窗口 L 已取消；收藏、活动、战斗/PvP、武器、地图各域自行维护样式。实时状态见 `STATUS.md`。B6 的功能闭环、B5 的活动商店直达和 B7 的 R-5 结算已落地，但 16 页最终视觉验收、22 条设计系统清单、A/I 剩余条目和真实结算截图仍未闭环；旧的 L 硬前置、批次排期和未更新的完成数字只保留作历史参考，不能阻塞当前域。

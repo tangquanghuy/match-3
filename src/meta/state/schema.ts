@@ -239,6 +239,8 @@ export interface MetaSave {
   gachaLog: GachaLogEntry[];
   /** 素材库存（加性字段，version 仍为 2） */
   materials: Materials;
+  /** 有新素材入账且尚未进入材料库查看；加性 UI 状态，旧档默认为 false */
+  materialsUnread: boolean;
   /** 武器淬炼等级（加性字段，version 仍为 2） */
   weaponTempering: WeaponTempering;
   /** 入侵 PvP 赛季（加性字段，version 仍为 2） */
@@ -304,6 +306,7 @@ export function newSave(options: NewSaveOptions = {}): MetaSave {
     dailyFirstWinAt: 0,
     gachaLog: [],
     materials: { ingots: {}, forgeScrolls: 0, traitstones: {} },
+    materialsUnread: false,
     weaponTempering: {},
     invasion: { league: 0, vp: 0, weekStart: 0, seed: 0, lastWinDay: 0, battles: 0, bestLeague: 0, seasonsPlayed: 0 },
     eventWeeks: {},

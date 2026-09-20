@@ -65,7 +65,7 @@ export interface WeaponDef {
   /**
    * 已编译法术原型（curated W 系批次）。
    * `null` = 保真度 `mana-only` 的占位武器（15 把）——无真实法术，装上只会「仅扣法力」，
-   * 按诚实口径不可装备（`equippable: false`），但**仍进图鉴可浏览**（`07-weapons-codex.md` C-4：
+   * 按诚实口径不可装备（`equippable: false`），但**仍进图鉴可浏览**（武器图鉴审计 C-4：
    * 图鉴要如实告诉玩家「永远不可装备」，而不是把它们悄悄藏掉）。
    */
   skill: SkillPrototype | null;
@@ -94,7 +94,7 @@ export interface WeaponDef {
  *    `selfStatIfWeapon` 在新档就有得打（匕首/巨著/镰刀/标枪/狼牙棒…）。
  *
  * **不含 Rare 及以上**：Rare 28 把与其余 667 把留给「熔炉可造 / 暂无获取途径」两态，
- * 这样「全部 718」tab 的「拥有状态」维度才有意义（`07-weapons-codex.md` C-4）。
+ * 这样「全部 718」tab 的「拥有状态」维度才有意义（武器图鉴审计 C-4）。
  */
 export const STARTER_WEAPON_IDS: readonly string[] = [
   // —— Common（官方开局六把：六法力色 × 六类型）——

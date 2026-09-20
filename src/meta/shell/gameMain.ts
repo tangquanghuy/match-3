@@ -47,6 +47,7 @@ const ctx: ShellCtx = {
   refreshChrome: () => {
     refreshWallet();
     refreshPlayer();
+    refreshMaterialsIndicator();
   },
   launchQuest: (kingdom, node) => launcher.launchQuest(kingdom, node),
   launchExplore: (kingdom) => launcher.launchExplore(kingdom),
@@ -135,6 +136,7 @@ function bindChrome(name: string): void {
   $('#matVeil')?.remove(); // 兼容旧会话：切屏时清掉已挂载的旧材料弹层
   refreshWallet();
   refreshPlayer();
+  refreshMaterialsIndicator();
   // 货币来源说明弹层是地图屏专属；其它屏给轻量 toast
   if (!$('#moneyVeil')) {
     $$('[data-currency]').forEach((btn) => {
@@ -162,6 +164,15 @@ function refreshPlayer(): void {
   const next = heroXpToNext(hero.level);
   if ($('#playerXpFill')) $('#playerXpFill').style.width = `${Math.min(100, (hero.xp / next) * 100)}%`;
   if ($('#navHint')) $('#navHint').textContent = `Lv.${hero.level} · 42 王国`;
+}
+
+function refreshMaterialsIndicator(): void {
+  const button = $('#materialsBtn');
+  const alert = $('#materialsAlert');
+  if (!button || !alert) return;
+  const unread = ctx.save().materialsUnread;
+  button.classList.toggle('has-new', unread);
+  alert.hidden = !unread;
 }
 
 async function boot(): Promise<void> {

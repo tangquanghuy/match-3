@@ -56,11 +56,10 @@ export default defineConfig({
     sourcemap: false,
     rollupOptions: {
       input: {
-        // 主对局页 + 技能测试台页 + meta 外壳页 + 武器图鉴页（多页入口）
+        // 主对局页 + 技能测试台页 + meta 外壳页
         main: fileURLToPath(new URL('./index.html', import.meta.url)),
         skillsTest: fileURLToPath(new URL('./skills-test.html', import.meta.url)),
         game: fileURLToPath(new URL('./game.html', import.meta.url)),
-        weaponsCodex: fileURLToPath(new URL('./weapons-codex.html', import.meta.url)),
       },
     },
   },

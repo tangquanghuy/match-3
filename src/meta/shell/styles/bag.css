@@ -141,6 +141,13 @@
 .currency-item b { display: block; font-size: 13px; }
 .bag-item small,
 .currency-item small { display: block; margin-top: 3px; color: #918997; font-size: 10px; }
+.bag-conversion {
+  display: block;
+  margin-top: 4px;
+  color: #d4b675;
+  font-size: 10px;
+  font-style: normal;
+}
 .bag-item > strong,
 .currency-item > strong,
 .scroll-card > strong,
@@ -206,6 +213,16 @@
 }
 .stone-item b { color: #f0d9a5; font: 700 15px Georgia, serif; }
 .stone-item small { color: #a49a9e; font-size: 9px; }
+.stone-item .stone-hint {
+  display: block;
+  max-width: 100%;
+  overflow: hidden;
+  color: #d4b675;
+  font-size: 8px;
+  font-style: normal;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
 .stone-item span { position: absolute; inset: 0; }
 .celestial,
 .scroll-card {

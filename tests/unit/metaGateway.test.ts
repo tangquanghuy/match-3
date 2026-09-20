@@ -196,6 +196,18 @@ describe('MockGateway', () => {
     expect(fresh.save.hero.classId).toBeNull();
     expect(Object.keys(fresh.save.kingdoms)).toHaveLength(0);
   });
+
+  it('材料提示：进入材料库清除红点并在重新加载后保持', async () => {
+    const storage = memoryStorage();
+    const gw = new MockGateway(storage);
+    await gw.load();
+    gwSave(gw).materialsUnread = true;
+    const cleared = await gw.markMaterialsSeen();
+    expect(cleared.result).toBe(false);
+    expect(gwSave(gw).materialsUnread).toBe(false);
+    const reloaded = await new MockGateway(storage).load();
+    expect(reloaded.save.materialsUnread).toBe(false);
+  });
 });
 
 /** 网关当前权威存档（测试断言用） */

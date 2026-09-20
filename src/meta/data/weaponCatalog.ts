@@ -84,9 +84,9 @@ export function normalizeWeaponType(raw: string | null | undefined): string | nu
 /**
  * 中文词表（**共享单源**）。
  *
- * 此前存在三份重复：`heroScreen.ts` 自己一份稀有度中文表、`WeaponCodexPage.ts` 一份
+ * 此前存在三份重复：`heroScreen.ts` 自己一份稀有度中文表、旧独立 Codex 一份
  * （稀有度/类型/颜色，键是官方大写原文）、`troop.css`/`screens.css` 各一套稀有度色。
- * `07-weapons-codex.md` 的并入方案要求把这几张纯资产表提到共享模块——落在这里，
+ * 武器图鉴的并入方案要求把这几张纯资产表提到共享模块——落在这里，
  * 键统一用**归一后的小写类型键**（含 `relic`）。
  */
 export const RARITY_ZH: Readonly<Record<string, string>> = {

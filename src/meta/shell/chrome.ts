@@ -153,7 +153,7 @@ export function topbarHtml(): string {
         <button class="money crystal" data-currency="gem" type="button"><span data-icon="crystal"></span><div><small>宝石</small><b id="gemBalance">0</b></div></button>
         <button class="money key" data-currency="key" type="button"><span data-icon="key"></span><div><small>金钥匙</small><b id="keyBalance">0</b></div></button>
         <button class="money" data-currency="glory" type="button"><span data-icon="swords"></span><div><small>荣耀</small><b id="gloryBalance">0</b></div></button>
-        <button class="orb" id="materialsBtn" type="button" aria-label="材料库"><span data-icon="bag"></span></button>
+        <button class="orb" id="materialsBtn" type="button" aria-label="材料库"><span data-icon="bag"></span><i id="materialsAlert" class="materials-alert" aria-label="有新材料" hidden></i></button>
         <button class="orb" id="settings" type="button" aria-label="设置"><span data-icon="gear"></span></button>
       </div>
     </header>`;

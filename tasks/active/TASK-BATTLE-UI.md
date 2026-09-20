@@ -68,7 +68,7 @@
 - **I-4**：玩家进前 10 时**榜单画两遍玩家行**（`invasionScreen.ts:116` 末尾追加改条件渲染）。
 - **I-5**：青铜晋级区占 20/30 → 榜单改"晋级线/降级线 + 开窗显示邻居 + 玩家行带差多少"，不给 2/3 的行上色。
 - **I-6**：今日场次与刷新时刻（`save.invasion.battles` 有数据但不回显）。
-- **I-7**：结算加分构成（随 R-5 一起做）。
+- **I-7**：结算加分构成（已随 R-5 一起落地；保留真实结算截图作为最终验收证据）。
 - **I-8**：锁态 0 按钮 0 图形 → 给"主角经验从哪来 + 去世界地图"CTA + 联赛阶梯预告（`LEAGUE_COLORS` 十色已定义好但九成没用上）。
 - **I-9**：5 个 781×33 等权重巨型「出击」+ 官阶区三数字无轻重 → 把"晋级进度"提为主数字。
 
@@ -85,9 +85,10 @@
 
 | 日期 | 批次 | 内容 | 验证 |
 |---|---|---|---|
+| 2026-09-20 | **批次 3/4 R-5 结算收口** | 竞技场与入侵成功结算统一进入 `#result`。竞技场结算展示当前胜场、本场回合、我方存活、连战收官状态与奖励；入侵结算展示 VP 变化/当前 VP/排名，并逐项列出基础 VP、速胜、存活、额外回合、血怒倍率与加分合计，同时展示荣耀/黄金/每日首胜。保留返回竞技场/入侵来源按钮；失败结算仍回原页并保留错误提示。 | `metaArena` 10 例 + `metaInvasion` 14 例通过；R-5 相关 ESLint 通过；本轮全局 `tsc --noEmit`、全量 Vitest、`npm run build` 和 `metaLiveScreens` e2e 均通过。真实结算截图仍待补。 |
 | 2026-09-20 | **批次 3/4 回归收口** | 入侵榜单邻居区过滤玩家本人，避免玩家行在主榜与邻居卡重复；同步活动/收藏综合 e2e 将顶栏材料入口断言迁移到新的 `#bag` 独立页。 | `tests/e2e/metaLiveScreens.spec.ts` 1/1 通过；竞技场/入侵单测 24/24；targeted ESLint 通过 |
 | 09-20 | **批次 3/4 信息层重构** | **A-2**：竞技场 draft 卡接入官方满配等级四维（攻/护/生/魔）与技能名；选中态展开技能描述；与已锁定卡共享法力颜色时显示同色提示。**A-4**：连战页按与 `systems/arena` 相同的 seed/RNG 顺序生成每场王国、等级、规模和立绘阵容预览。**A-5**：弃赛改为屏内确认层，显示当前胜场和实际奖表，不再调用原生 `confirm()`。奖表去掉重复 tag。**I-3/I-4/I-5/I-6**：入侵候选改为防守立绘卡，补稀有度/阵级/等级/攻生摘要、预计 VP 区间、我方队伍攻/生/平均等级、今日候选与刷新提示；榜单避免前十内重复玩家行，显示晋级/降级线与邻居。 | `npx eslint src/meta/screens/arenaScreen.ts src/meta/screens/invasionScreen.ts` 通过（0 error）；全局 `tsc` 仍受共享 `gameMain.ts` 未完成材料背包改动影响，错误与本窗口无关。竞技场/入侵结算仍受共享 `battleLauncher.ts` 限制，未在本窗口越权修改。 |
 | 09-19 | **批次 0 热修** | **A-1**：`arena.css` 删 `.run-slot .shift{pointer-events:none}`、按钮 22×16 → 32×32 图标钮（hover/active/focus-visible/disabled 五态 + 手型光标）；`arenaScreen.ts` 去 `aria-hidden="true"` 改 `role="group"` + 逐钮 `aria-label`/`title`，首槽 ▲、末槽 ▼ 置 `disabled`。**A-1 关闭**。<br>**I-1**：抽出 `zoneText(league, name)`——`league === 9` 判顶端、`league === 0` 判底层，「顶端联赛只升不降」不再套在青铜头上。**I-1 关闭**。<br>**I-2**：删「4 消」整词；新增 `VP_BONUS_TEXT`/`vpBaseRangeText()` 从 `INVASION.speedBonuses/survivorBonuses/extraTurnBonuses` + `INVASION_VP_TABLE` 派生真实数值（不手抄），补「战败 −5 VP」。**I-2 关闭**。<br>`live.css` 零改动（第二段规则条复用 `.inv-zone-hint`）；`arena.css` 已在 `PARALLEL-WORK.md` 登记台账。 | `artifacts/ux-phase-b/p-b0-regress.mjs` **18/18 绿**（断言化阶段 A 坏数值）：`▲▼` 命中 `topElement` `slot-body` → `BUTTON`、32×32、`cursor:pointer`、`aria-hidden=null`、真实点击（非 force）站位顺序变化（投弹手/枪圣/考马尼 → 枪圣/投弹手/考马尼）、端点禁用、按钮不溢出槽体；规则条无「顶端联赛」「4 消」且三项数值齐全；console 0 错误。<br>改前/改后截图 `artifacts/ux-phase-b/shots/{before,after}-{arena-lineup,arena-slot,invasion-full,invasion-head}.png`。<br>`npx tsc --noEmit` 本批路径零错（残红全为窗口 G 在途测试文件）；`eslint` 两文件零 error；`metaArena` 10 例 + `metaInvasion` 14 例全绿。<br>⚠ 共享工作树当时被窗口 N 在途 `events.ts` 打挂（`EVENT_ROTATION` 导出缺失，全 app 起不来），浏览器验证在隔离 worktree `../match-3-p-verify` + 端口 5191 完成。 |
 # 当前状态（2026-09-20 基线）
 
-竞技场站位 P0、入侵联赛文案 P0 已完成；竞技场 draft 信息层/对手预览/弃赛确认和入侵候选卡/队伍摘要/榜单重复行已在 09-20 批次落地。竞技场与入侵的战斗结算仍只走共享 `battleLauncher.ts` toast，R-5 尚未完成；A-3、A-6~A-9、I-7~I-9、真实结算截图和全量回归仍待 root 继续推进。全局 `tsc` 当前受共享 `gameMain.ts` 材料背包改动影响，非本窗口引入。
+竞技场站位 P0、入侵联赛文案 P0 已完成；竞技场 draft 信息层/对手预览/弃赛确认和入侵候选卡/队伍摘要/榜单重复行已在 09-20 批次落地。R-5 竞技场/入侵真实结算屏与 I-7 加分构成已完成；A-3、A-6~A-9、I-8~I-9、真实结算截图和 22 条视觉回归仍待继续推进。全局 `tsc`、全量测试和构建已恢复通过，不再保留旧的宝箱阻断描述。

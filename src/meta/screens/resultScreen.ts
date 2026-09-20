@@ -6,7 +6,7 @@ import type { SettlementDetail } from '../systems/settlement';
 import { heroXpToNext } from '../data/classes';
 import { INGOT_NAMES, stoneName, type IngotKey } from '../data/materials';
 import { bottomNavHtml, toast, toastHtml, topbarHtml, $ } from '../shell/chrome';
-import type { Screen, ShellCtx } from '../shell/screen';
+import type { PvpSettlementView, Screen, ShellCtx } from '../shell/screen';
 
 const fmt = (n: number): string => n.toLocaleString('en-US');
 
@@ -15,15 +15,17 @@ interface ResultMeta {
   sourceLabel: string;
   /** 战斗来源页（活动战= '#events'）；有值时结算屏提供直达返回 */
   returnHash?: string;
+  /** 活动结算页的商店直达入口。 */
+  shopHash?: string;
 }
 
 export class ResultScreen implements Screen {
   private ctx!: ShellCtx;
-  private detail: SettlementDetail | null = null;
+  private detail: SettlementDetail | PvpSettlementView | null = null;
   private meta: ResultMeta = { kingdom: '', sourceLabel: '' };
   private listeners: Array<[EventTarget, string, EventListenerOrEventListenerObject]> = [];
 
-  setDetail(detail: SettlementDetail, meta: ResultMeta): void {
+  setDetail(detail: SettlementDetail | PvpSettlementView, meta: ResultMeta): void {
     this.detail = detail;
     this.meta = meta;
   }
@@ -46,14 +48,14 @@ export class ResultScreen implements Screen {
                 <p id="resultSub">—</p>
               </div>
 
-              <div class="xp-result">
+              <div class="xp-result" id="standardXp">
                 <span>冒险者经验</span>
                 <b id="xpGain">+0 XP</b>
                 <div class="xp-track"><i id="xpFill" style="width:0%"></i></div>
                 <small id="xpNote">—</small>
               </div>
 
-              <div class="reward-list">
+              <div class="reward-list" id="standardRewards">
                 <div class="reward-head">
                   <span>奖励明细</span>
                   <small>数字即入账结果</small>
@@ -84,10 +86,26 @@ export class ResultScreen implements Screen {
                 <button class="primary claim-btn" id="claim" type="button" disabled>已入账</button>
               </div>
 
+              <section class="pvp-settlement" id="pvpSettlement" hidden>
+                <div class="pvp-heading">
+                  <small id="pvpKicker">MATCH RESULT</small>
+                  <h2 id="pvpTitle">—</h2>
+                  <p id="pvpSubtitle">—</p>
+                </div>
+                <div class="pvp-stat-grid">
+                  <div><small id="pvpStatLabel1">—</small><b id="pvpStatValue1">—</b></div>
+                  <div><small id="pvpStatLabel2">—</small><b id="pvpStatValue2">—</b></div>
+                  <div><small id="pvpStatLabel3">—</small><b id="pvpStatValue3">—</b></div>
+                </div>
+                <div class="pvp-breakdown" id="pvpBreakdown"></div>
+                <div class="pvp-reward" id="pvpReward">—</div>
+              </section>
+
               <div class="result-actions">
                 <button class="primary" id="again" type="button">返回地图再战</button>
                 <button class="secondary" id="team" type="button">调整队伍</button>
                 <button class="ghost" id="backToSource" type="button" hidden>回到活动页</button>
+                <button class="ghost" id="backToShop" type="button" hidden>去活动商店</button>
                 <button class="ghost" id="map" type="button">返回地图</button>
               </div>
             </div>
@@ -131,7 +149,12 @@ export class ResultScreen implements Screen {
         back.addEventListener('click', () => ctx.navigate(hash));
       }
     }
-    this.bind('#again', 'click', () => ctx.navigate('#map'));
+    const shop = $('#backToShop');
+    if (shop && this.meta.shopHash) {
+      shop.hidden = false;
+      shop.addEventListener('click', () => ctx.navigate(this.meta.shopHash!));
+    }
+    this.bind('#again', 'click', () => ctx.navigate(this.meta.returnHash ?? '#map'));
     this.bind('#team', 'click', () => ctx.navigate('#team'));
     this.bind('#map', 'click', () => ctx.navigate('#map'));
     this.bind('#claim', 'click', () => toast('奖励已在此前结算时入账，无需重复领取。'));
@@ -141,6 +164,23 @@ export class ResultScreen implements Screen {
   private paint(): void {
     const d = this.detail;
     if (!d) return;
+    // ResultScreen 在路由间复用；从 PvP 返回普通战斗时恢复被 PvP 隐藏的标准区块。
+    const screen = document.querySelector('.result-screen');
+    screen?.classList.remove('is-pvp');
+    for (const selector of ['#standardXp', '#standardRewards', '#questRow']) {
+      const element = document.querySelector<HTMLElement>(selector);
+      if (element) element.hidden = false;
+    }
+    const dropRow = document.querySelector<HTMLElement>('#dropRow');
+    if (dropRow) dropRow.hidden = true;
+    const pvpPanel = $('#pvpSettlement');
+    if (pvpPanel) pvpPanel.hidden = true;
+    const shopButton = $('#backToShop');
+    if (shopButton) shopButton.hidden = this.isPvp(d) || !this.meta.shopHash;
+    if (this.isPvp(d)) {
+      this.paintPvp(d);
+      return;
+    }
     const save = this.ctx.save();
     const victory = d.victory;
     $('#kicker').textContent = `BATTLE COMPLETE · ${this.meta.sourceLabel}`;
@@ -255,6 +295,94 @@ export class ResultScreen implements Screen {
     $('#sumResult').textContent = victory ? '胜利' : '战败保底';
     $('#sumHeroLevel').textContent = d.heroLevelsGained > 0 ? `+${d.heroLevelsGained}` : '—';
     $('#sumClassUnlock').textContent = d.classUnlocked ?? '—';
+  }
+
+  private isPvp(detail: SettlementDetail | PvpSettlementView): detail is PvpSettlementView {
+    return 'kind' in detail && (detail.kind === 'arena' || detail.kind === 'invasion');
+  }
+
+  private paintPvp(view: PvpSettlementView): void {
+    const screen = document.querySelector('.result-screen');
+    screen?.classList.add('is-pvp');
+    for (const selector of ['#standardXp', '#standardRewards', '#dropRow', '#questRow']) {
+      const element = document.querySelector<HTMLElement>(selector);
+      if (element) element.hidden = true;
+    }
+    const pvp = $('#pvpSettlement');
+    pvp.hidden = false;
+    const victory = view.settled.victory;
+    $('#again').textContent = view.kind === 'arena'
+      ? (view.settled.runOver ? '返回竞技场' : '继续竞技场')
+      : '返回入侵页';
+    $('#kicker').textContent = `BATTLE COMPLETE · ${this.meta.sourceLabel}`;
+    $('#resultTitle').textContent = victory ? '胜 利' : '战 败';
+    $('#resultEn').textContent = victory ? 'VICTORY' : 'DEFEAT';
+    $('#resultSub').textContent = victory
+      ? view.kind === 'arena' ? '竞技场连战战果已入账' : '入侵战果已入账'
+      : view.kind === 'arena' ? '本届连战已结束，按已得胜场结算' : '入侵失败，保底奖励已入账';
+
+    $('#pvpKicker').textContent = view.kind === 'arena' ? 'ARENA RUN' : 'INVASION REPORT';
+    $('#pvpTitle').textContent = view.kind === 'arena' ? '竞技场连战' : '入侵战结算';
+    $('#pvpSubtitle').textContent = view.kind === 'arena'
+      ? (view.settled.runOver ? '本届连战已收官' : '胜利后可继续挑战下一场')
+      : `${view.settled.leagueName} · 第 ${view.settled.placement} 名`;
+
+    const setStat = (index: 1 | 2 | 3, label: string, value: string): void => {
+      $(`#pvpStatLabel${index}`).textContent = label;
+      $(`#pvpStatValue${index}`).textContent = value;
+    };
+    const survivors = view.battle.combatants.filter((combatant) =>
+      combatant.side === 'player' && !combatant.defeated,
+    ).length;
+    if (view.kind === 'arena') {
+      setStat(1, '当前胜场', `${view.settled.wins} / 3`);
+      setStat(2, '本场回合', `${view.battle.turns}`);
+      setStat(3, '我方存活', `${survivors} / ${view.battle.combatants.filter((c) => c.side === 'player').length}`);
+      $('#pvpBreakdown').innerHTML = view.settled.runOver
+        ? '<div class="pvp-line"><span>连战状态</span><b>已收官</b></div>'
+        : '<div class="pvp-line"><span>连战状态</span><b>继续挑战</b></div>';
+      const rewards = view.settled.rewards;
+      const rewardParts = [
+        rewards.gold > 0 ? `黄金 +${fmt(rewards.gold)}` : '',
+        rewards.gems > 0 ? `宝石 +${fmt(rewards.gems)}` : '',
+        rewards.goldKeys > 0 ? `金钥匙 ×${fmt(rewards.goldKeys)}` : '',
+      ].filter(Boolean);
+      $('#pvpReward').textContent = view.settled.runOver
+        ? `奖励已入账：${rewardParts.length ? rewardParts.join(' · ') : '暂无额外奖励'}`
+        : '收官奖励将在本届连战结束时入账';
+    } else {
+      const delta = view.settled.vpDelta;
+      setStat(1, 'VP 变化', `${delta >= 0 ? '+' : ''}${fmt(delta)}`);
+      setStat(2, '当前 VP', fmt(view.settled.vp));
+      setStat(3, '当前排名', `第 ${view.settled.placement} 名`);
+      const bonus = view.settled.bonuses;
+      const multiplier = view.frenzy ? 2 : 1;
+      const lines = [
+        ['基础 VP', victory ? `+${fmt(view.settled.vpBase)}` : '—'],
+        ['速胜', victory ? `+${fmt(bonus.speed)}` : '—'],
+        ['存活', victory ? `+${fmt(bonus.survivors)}` : '—'],
+        ['额外回合', victory ? `+${fmt(bonus.extraTurns)}` : '—'],
+        ['血怒倍率', view.frenzy && victory ? '×2' : '未触发'],
+        ['加分合计', victory ? `+${fmt(bonus.total)}${multiplier > 1 ? ` · ×${multiplier} 后计入` : ''}` : '—'],
+      ];
+      $('#pvpBreakdown').innerHTML = lines
+        .map(([label, value]) => `<div class="pvp-line"><span>${label}</span><b>${value}</b></div>`)
+        .join('');
+      const rewardParts = [
+        view.settled.glory > 0 ? `荣耀 +${fmt(view.settled.glory)}` : '',
+        view.settled.gold > 0 ? `黄金 +${fmt(view.settled.gold)}` : '',
+        view.settled.firstWinToday ? '每日首胜' : '',
+      ].filter(Boolean);
+      $('#pvpReward').textContent = rewardParts.length ? `奖励已入账：${rewardParts.join(' · ')}` : '本场无额外奖励';
+    }
+    $('#sumKingdom').textContent = this.meta.kingdom;
+    $('#sumName').textContent = view.kind === 'arena' ? 'ARENA RUN' : 'INVASION';
+    $('#sumEn').textContent = view.kind === 'arena' ? 'ARENA' : 'PVP';
+    $('#sumResult').textContent = victory ? '胜利' : '战败保底';
+    $('#sumHeroLevel').textContent = '—';
+    $('#sumClassUnlock').textContent = view.kind === 'arena'
+      ? `${view.settled.wins} 胜`
+      : `${view.settled.vp} VP`;
   }
 
   private on(target: EventTarget, type: string, fn: EventListenerOrEventListenerObject): void {

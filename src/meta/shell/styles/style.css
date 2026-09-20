@@ -96,6 +96,7 @@ i { font-style: normal; }
 .money.crystal > [data-icon] { color: #8dcbee; }
 .money.key > [data-icon] { width: 25px; }
 .orb {
+  position: relative;
   width: 42px; height: 42px; margin-left: 6px;
   display: grid; place-items: center;
   border-radius: 50%;
@@ -105,6 +106,17 @@ i { font-style: normal; }
   color: #e6d4a4;
 }
 .orb [data-icon] { width: 20px; height: 20px; }
+.materials-alert {
+  position: absolute;
+  top: 3px;
+  right: 3px;
+  width: 8px;
+  height: 8px;
+  border: 1px solid #17131e;
+  border-radius: 50%;
+  background: #ed5c63;
+  box-shadow: 0 0 0 2px rgba(237, 92, 99, .18), 0 0 8px rgba(237, 92, 99, .7);
+}
 
 .bottom-bar {
   position: absolute; bottom: 0; z-index: 12;

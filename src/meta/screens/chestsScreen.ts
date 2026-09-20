@@ -55,6 +55,11 @@ const RECENT_CAP = 10;
 
 type ChestPool = 'gem' | 'gold' | 'glory';
 type OpenKind = 'gem-1' | 'gem-10' | 'gold-1' | 'gold-10' | 'glory-1';
+type ChestPage = 'keys' | 'gems';
+
+function chestPageOf(param?: string): ChestPage {
+  return param === 'gems' ? 'gems' : 'keys';
+}
 
 interface OpenSpec {
   pool: ChestPool;
@@ -97,8 +102,21 @@ interface RewardVm {
   duplicate: boolean;
 }
 
+function oddsRows(weights: readonly number[]): string {
+  return weights
+    .map((weight, index) => `<div class="odds-row"><span class="odds-swatch r-${fxClassOf(index)}"></span><b>${rarityCn(index)}</b><span>${(weight / 100).toFixed(1)}%</span></div>`)
+    .join('');
+}
+
+interface DrawOutcome {
+  rewards: RewardVm[];
+  /** 荣耀箱可能没有部队卡；这段文字必须进入可见反馈面板，而不是只发 toast。 */
+  summary?: string;
+}
+
 export class ChestsScreen implements Screen {
   private ctx!: ShellCtx;
+  private page: ChestPage = 'keys';
   private phase: 'closed' | 'opening' | 'dealing' | 'ready' | 'revealing' | 'complete' = 'closed';
   private timers: ReturnType<typeof setTimeout>[] = [];
   private fxTimers = new Map<HTMLElement, number>();
@@ -108,21 +126,14 @@ export class ChestsScreen implements Screen {
   private recent: RewardVm[] = [];
   private listeners: Array<[EventTarget, string, EventListenerOrEventListenerObject]> = [];
 
-  html(ctx: ShellCtx): string {
+  html(ctx: ShellCtx, param?: string): string {
     void ctx;
-    return `
-      ${topbarHtml()}
-      <div class="screen chest-screen">
-        <section class="panel chest-panel">
-          <div class="chest-stage">
-            <img class="chest-art" src="/meta/assets/chest-vault.png" alt="宝箱殿堂：金钥匙箱与水晶宝石箱">
-          </div>
-          <div class="recent-bar">
-            <div class="recent-heading"><small>RECENT LOOT</small><b>最近获得</b></div>
-            <div class="drops" id="drops"></div>
-            <button class="odds-link" id="showOdds" type="button">查看奖池与概率 <span data-icon="arrow"></span></button>
-          </div>
-          <div class="chest-dock">
+    this.page = chestPageOf(param);
+    const keysPage = this.page === 'keys';
+    const heroArt = keysPage ? '/meta/assets/chests/key-glory-pool.webp' : '/meta/assets/chests/gem-pool.webp';
+    const pageLabel = keysPage ? '金钥匙与荣耀' : '宝石召唤';
+    const dock = keysPage
+      ? `
             <div class="chest-col key-pool">
               <div class="pool-head">
                 <div><small>KEY SUMMON</small><div class="chest-name">金钥匙宝箱</div></div>
@@ -132,19 +143,7 @@ export class ChestsScreen implements Screen {
                 <button class="chest-btn" data-open="gold-1" type="button"><span class="btn-label">开启一次</span><small><span data-icon="key"></span><b class="btn-cost">${GOLD_CHEST.keyCost}</b></small></button>
                 <button class="chest-btn featured" data-open="gold-10" type="button"><span class="btn-label">开启十次</span><small><span data-icon="key"></span><b class="btn-cost">${GOLD_CHEST.keyCost * GOLD_CHEST.multiCount}</b></small></button>
               </div>
-              <div class="chest-note"><span>包含普通至传说部队</span><b>单抽即开 · 重复进同名副本</b></div>
-            </div>
-            <div class="dock-divider" aria-hidden="true"><i></i><span data-icon="sparkles"></span><i></i></div>
-            <div class="chest-col gem-pool">
-              <div class="pool-head">
-                <div><small>GEM SUMMON</small><div class="chest-name">宝石宝箱</div></div>
-                <span class="pool-balance gem-balance"><span data-icon="crystal"></span>持有 <b id="dockGemBalance">0</b></span>
-              </div>
-              <div class="chest-btns">
-                <button class="chest-btn gem" data-open="gem-1" type="button"><span class="btn-label">召唤一次</span><small><span data-icon="crystal"></span><b class="btn-cost">${fmt(GEM_CHEST.singleCost)}</b></small></button>
-                <button class="chest-btn gem featured" data-open="gem-10" type="button"><span class="btn-label">召唤十次</span><small><span data-icon="crystal"></span><b class="btn-cost">${fmt(GEM_CHEST.multiCost)}</b></small></button>
-              </div>
-              <div class="chest-note"><span>高阶部队概率提升</span><b>十连必得 Epic+</b></div>
+              <div class="chest-note"><span>普通至传说部队</span><b>重复进同名副本</b></div>
             </div>
             <div class="dock-divider" aria-hidden="true"><i></i><span data-icon="sparkles"></span><i></i></div>
             <div class="chest-col glory-pool">
@@ -155,9 +154,38 @@ export class ChestsScreen implements Screen {
               <div class="chest-btns">
                 <button class="chest-btn featured" data-open="glory-1" type="button"><span class="btn-label">开启一次</span><small><span data-icon="swords"></span><b class="btn-cost">${GLORY_CHEST.cost}</b></small></button>
               </div>
-              <div class="chest-note"><span>特质石为主 · 概率部队卡/金钥匙</span><b>入侵 PvP 产出荣耀</b></div>
-            </div>
+              <div class="chest-note"><span>特质石为主 · 概率卡/金钥匙</span><b>20 荣耀 / 箱</b></div>
+            </div>`
+      : `
+            <div class="chest-col gem-pool chest-col-wide">
+              <div class="pool-head">
+                <div><small>GEM SUMMON</small><div class="chest-name">宝石宝箱</div></div>
+                <span class="pool-balance gem-balance"><span data-icon="crystal"></span>持有 <b id="dockGemBalance">0</b></span>
+              </div>
+              <div class="chest-btns">
+                <button class="chest-btn gem" data-open="gem-1" type="button"><span class="btn-label">召唤一次</span><small><span data-icon="crystal"></span><b class="btn-cost">${fmt(GEM_CHEST.singleCost)}</b></small></button>
+                <button class="chest-btn gem featured" data-open="gem-10" type="button"><span class="btn-label">召唤十次</span><small><span data-icon="crystal"></span><b class="btn-cost">${fmt(GEM_CHEST.multiCost)}</b></small></button>
+              </div>
+              <div class="chest-note"><span>高阶部队概率提升</span><b>十连必得史诗以上</b></div>
+            </div>`;
+    return `
+      ${topbarHtml()}
+      <div class="screen chest-screen">
+        <section class="panel chest-panel">
+          <nav class="chest-tabs" aria-label="宝箱类型">
+            <a class="chest-tab${keysPage ? ' active' : ''}" href="#chests/keys"><small>KEYS · GLORY</small><b>金钥匙与荣耀</b><span>部队卡、特质石与金钥匙</span></a>
+            <a class="chest-tab${!keysPage ? ' active' : ''}" href="#chests/gems"><small>GEM SUMMON</small><b>宝石宝箱</b><span>高阶部队 · 十连保底</span></a>
+          </nav>
+          <div class="chest-stage">
+            <img class="chest-art" src="${heroArt}" alt="${pageLabel}主视觉">
           </div>
+          <div class="recent-bar">
+            <div class="recent-heading"><small>RECENT LOOT</small><b>最近获得</b></div>
+            <div class="drops" id="drops"></div>
+            <span class="recent-empty" id="recentEmpty">本页还没有开箱记录</span>
+            <button class="odds-link" id="showOdds" type="button">奖池与概率 <span data-icon="arrow"></span></button>
+          </div>
+          <div class="chest-dock ${keysPage ? 'dual-dock' : 'single-dock'}">${dock}</div>
         </section>
       </div>
       ${bottomNavHtml('宝箱', '概率与权重表同源')}
@@ -192,7 +220,7 @@ export class ChestsScreen implements Screen {
           </header>
           <div class="summon-stage" id="summonStage">
             <div class="summon-scene" aria-hidden="true">
-              <img src="/meta/assets/chest-vault.png" alt="">
+              <img id="summonSceneArt" src="${heroArt}" alt="">
             </div>
             <div class="fx-stage" id="fxStage" aria-hidden="true">
               <canvas class="fx-layer fx-circle" id="fxCircle" hidden></canvas>
@@ -213,14 +241,37 @@ export class ChestsScreen implements Screen {
           <footer class="summon-foot">
             <span><i class="status-dot"></i><b id="summonStatus">等待翻牌</b></span>
             <span class="foot-tip">点击卡背逐张翻开 · 重复获得自动折入同名副本</span>
+            <small class="summon-extra" id="summonExtra" hidden></small>
             <button class="summon-skip" id="summonSkip" type="button">全部翻开</button>
           </footer>
+        </section>
+      </div>
+
+      <aside class="odds-drawer" id="oddsDrawer" hidden aria-labelledby="oddsTitle">
+        <div class="odds-drawer-veil" data-odds-close></div>
+        <section class="odds-sheet" role="dialog" aria-modal="true">
+          <header><div><small>DROP RATES</small><h2 id="oddsTitle">${this.page === 'keys' ? '金钥匙与荣耀' : '宝石'}奖池</h2></div><button type="button" class="odds-close" data-odds-close aria-label="关闭概率">×</button></header>
+          <div class="odds-content">
+            ${this.page === 'keys' ? `<section class="odds-pool"><small>KEY SUMMON · 金钥匙宝箱</small>${oddsRows(GOLD_CHEST_WEIGHTS)}<p>每把金钥匙开启一次；重复部队进入同名副本。</p></section><section class="odds-pool glory-odds"><small>GLORY SUMMON · 荣耀宝箱</small><div class="glory-rate"><b>25%</b><span>部队卡</span><b>10%</b><span>金钥匙</span><b>65%</b><span>特质石 / 圣辉石</span></div><p>荣耀箱以材料为主，20 荣耀开启一次。</p></section>` : `<section class="odds-pool"><small>GEM SUMMON · 宝石宝箱</small>${oddsRows(GEM_CHEST_WEIGHTS)}<p>十连最后一张保底史诗或神话部队。</p></section>`}
+          </div>
+          <footer>概率按当前权重表展示；同一批结果会完整写入最近获得记录。</footer>
+        </section>
+      </aside>
+
+      <div class="glory-feedback" id="gloryFeedback" hidden>
+        <div class="glory-feedback-veil" data-glory-close></div>
+        <section class="glory-feedback-sheet" role="dialog" aria-modal="true" aria-labelledby="gloryFeedbackTitle">
+          <small>GLORY CHEST · REWARD</small><h2 id="gloryFeedbackTitle">荣耀箱已开启</h2>
+          <p id="gloryFeedbackCopy"></p>
+          <button class="primary" type="button" data-glory-close>收下奖励</button>
         </section>
       </div>`;
   }
 
-  mount(ctx: ShellCtx): void {
+  mount(ctx: ShellCtx, _root: HTMLElement, param?: string): void {
     this.ctx = ctx;
+    this.page = chestPageOf(param);
+    this.loadRecent();
     this.paintDrops();
     this.refreshBalances();
     $$('[data-open]').forEach((btn) =>
@@ -241,22 +292,49 @@ export class ChestsScreen implements Screen {
     this.on(document, 'keydown', (e) => {
       if ((e as KeyboardEvent).key !== 'Escape') return;
       if (!$('#partialVeil').hidden) return void this.closePartial();
+      if (!$('#oddsDrawer').hidden) return void this.closeOdds();
+      if (!$('#gloryFeedback').hidden) return void this.closeGloryFeedback();
       if (this.phase !== 'closed') this.closeSummon();
     });
     this.bind('#showOdds', 'click', () => this.showOdds());
+    $$('[data-odds-close]').forEach((el) => this.on(el, 'click', () => this.closeOdds()));
+    $$('[data-glory-close]').forEach((el) => this.on(el, 'click', () => this.closeGloryFeedback()));
     Object.values(FX).forEach((spec) => void loadStrip(spec.src));
   }
 
   // —— 页面小件 ——
 
+  private loadRecent(): void {
+    const kinds: ChestPool[] = this.page === 'keys' ? ['gold', 'glory'] : ['gem'];
+    const save = this.ctx.save();
+    this.recent = save.gachaLog
+      .filter((entry) => kinds.includes(entry.kind))
+      .flatMap((entry) => entry.troops.map((troopId) => {
+        const troop = getTroopById(troopId) ?? null;
+        const record = save.collection[String(troopId)];
+        return {
+          troop,
+          name: troop?.name ?? `部队 #${troopId}`,
+          art: troopArt(troop),
+          fb: troopArtFallback(troop),
+          cls: fxClassOf(troop?.rarityIdx ?? 0),
+          rarity: rarityCn(troop?.rarityIdx ?? 0),
+          duplicate: (record?.copies ?? 0) > 0,
+        };
+      }))
+      .slice(0, RECENT_CAP);
+  }
+
   private paintDrops(): void {
     const dropsEl = $('#drops');
+    const empty = $('#recentEmpty');
     dropsEl.innerHTML = this.recent
       .map(
         (d) =>
-          `<button class="drop ${d.cls}" type="button" title="${d.rarity} · ${d.name}"><img src="${d.art}" alt="${d.name}" loading="lazy" onerror="this.onerror=null;this.src='${d.fb}'"></button>`,
+          `<button class="drop ${d.cls}" type="button" title="${d.rarity} · ${d.name}${d.duplicate ? ' · 重复' : ''}"><img src="${d.art}" alt="${d.name}" loading="lazy" onerror="this.onerror=null;this.src='${d.fb}'"><span><b>${d.name}</b><small>${d.rarity}${d.duplicate ? ' · 重复' : ''}</small></span></button>`,
       )
       .join('');
+    if (empty) empty.hidden = this.recent.length > 0;
   }
 
   /** 池货币余额 */
@@ -267,15 +345,19 @@ export class ChestsScreen implements Screen {
 
   private refreshBalances(): void {
     const c = this.ctx.save().currencies;
-    $('#dockKeyBalance').textContent = String(c.goldKeys);
-    $('#dockGemBalance').textContent = fmt(c.gems);
-    $('#dockGloryBalance').textContent = fmt(c.glory);
+    const set = (id: string, value: string): void => {
+      const el = $('#' + id);
+      if (el) el.textContent = value;
+    };
+    set('dockKeyBalance', String(c.goldKeys));
+    set('dockGemBalance', fmt(c.gems));
+    set('dockGloryBalance', fmt(c.glory));
     $$('[data-open]').forEach((btn) => this.paintOpenButton(btn as HTMLButtonElement));
     // 顶栏钱包同步（外壳 bindChrome 之后 mutation 需要手动刷新）
-    $('#keyBalance').textContent = String(c.goldKeys);
-    $('#gemBalance').textContent = fmt(c.gems);
-    $('#goldBalance').textContent = fmt(c.gold);
-    $('#soulBalance').textContent = fmt(c.souls);
+    set('keyBalance', String(c.goldKeys));
+    set('gemBalance', fmt(c.gems));
+    set('goldBalance', fmt(c.gold));
+    set('soulBalance', fmt(c.souls));
     const glory = $('#gloryBalance');
     if (glory) glory.textContent = fmt(c.glory);
   }
@@ -343,11 +425,26 @@ export class ChestsScreen implements Screen {
   }
 
   private showOdds(): void {
-    const pct = (weights: readonly number[]): string =>
-      weights
-        .map((w, i) => `${rarityCn(i)} ${(w / 100).toFixed(1)}%`)
-        .join(' · ');
-    toast(`宝石箱：${pct(GEM_CHEST_WEIGHTS)}；金箱：${pct(GOLD_CHEST_WEIGHTS)}。十连保底 Epic+（最后一抽结算）。`);
+    const drawer = $('#oddsDrawer');
+    if (drawer) drawer.hidden = false;
+  }
+
+  private closeOdds(): void {
+    const drawer = $('#oddsDrawer');
+    if (drawer) drawer.hidden = true;
+  }
+
+  private showGloryFeedback(summary: string): void {
+    const modal = $('#gloryFeedback');
+    const copy = $('#gloryFeedbackCopy');
+    if (!modal || !copy) return;
+    copy.textContent = summary;
+    modal.hidden = false;
+  }
+
+  private closeGloryFeedback(): void {
+    const modal = $('#gloryFeedback');
+    if (modal) modal.hidden = true;
   }
 
   // —— 抽卡主流程 ——
@@ -356,18 +453,18 @@ export class ChestsScreen implements Screen {
    * 拉一批开箱结果。**一次网关调用 = 一笔原子成交**（CH-1）：
    * 历史实现把金钥匙十连做成"循环 10 次单抽"，第 8 次失败就丢弃前 7 次已持久化的结果。
    */
-  private async drawRewards(pool: ChestPool, count: number): Promise<RewardVm[] | null> {
+  private async drawRewards(pool: ChestPool, count: number): Promise<DrawOutcome | null> {
     const gateway = this.ctx.gateway;
     let cards: Array<{ troopId: number; rarityIdx: number; duplicate: boolean }> = [];
     if (pool === 'gem' || pool === 'gold') {
       const { result } = await gateway.openChest(pool, count);
       if (isFailure(result)) {
         toast(result.message);
-        return null;
+      return null;
       }
       cards = result.cards;
     } else {
-      // 荣耀箱：特质石为主——出卡走翻牌演出，纯素材直接 toast 上账
+      // 荣耀箱：特质石为主——有卡走翻牌演出，无卡走明确的轻量反馈面板。
       const { result } = await gateway.openChest('glory', 1);
       if (isFailure(result)) {
         toast(result.message);
@@ -378,14 +475,28 @@ export class ChestsScreen implements Screen {
         .map(([key, n]) => `${stoneName(key)} ×${n}`)
         .join(' · ');
       const parts = [
-        ...result.cards.map(() => '部队卡 ×1'),
+        result.cards.length ? `部队卡 ×${result.cards.length}` : '',
         result.goldKeys ? `金钥匙 ×${result.goldKeys}` : '',
         stones,
       ].filter(Boolean);
-      toast(`荣耀箱：${parts.join('，') || '空空如也'}`);
+      const summary = parts.join('，') || '本次没有额外掉落';
       cards = result.cards;
+      const rewards = cards.map((c) => {
+        const troop = getTroopById(c.troopId) ?? null;
+        const cls = fxClassOf(c.rarityIdx);
+        return {
+          troop,
+          name: troop?.name ?? `部队 #${c.troopId}`,
+          art: troopArt(troop),
+          fb: troopArtFallback(troop),
+          cls,
+          rarity: rarityCn(c.rarityIdx),
+          duplicate: c.duplicate,
+        };
+      });
+      return { rewards, summary };
     }
-    return cards.map((c) => {
+    return { rewards: cards.map((c) => {
       const troop = getTroopById(c.troopId) ?? null;
       const cls = fxClassOf(c.rarityIdx);
       return {
@@ -397,7 +508,7 @@ export class ChestsScreen implements Screen {
         rarity: rarityCn(c.rarityIdx),
         duplicate: c.duplicate,
       };
-    });
+    }) };
   }
 
   /**
@@ -424,20 +535,24 @@ export class ChestsScreen implements Screen {
 
   private async openSummon(pool: ChestPool, count: number): Promise<void> {
     if (this.phase !== 'closed') return;
-    const rewards = await this.drawRewards(pool, count);
+    const outcome = await this.drawRewards(pool, count);
     // 失败分支也要刷新余额与按钮态（CH-1：旧实现失败时余额数字停在旧值）
-    if (!rewards) {
+    if (!outcome) {
       this.refreshBalances();
       return;
     }
+    const rewards = outcome.rewards;
+    this.loadRecent();
     // 荣耀箱可能只出素材（无卡）：没有翻牌演出，直接刷新余额
     if (rewards.length === 0) {
       this.refreshBalances();
+      if (outcome.summary) this.showGloryFeedback(outcome.summary);
       return;
     }
 
     // 入账成功：余额刷新 + 最近获得条（容量 ≥ 一次十连，否则十连刚开完就看不全）
-    this.recent = rewards.concat(this.recent).slice(0, RECENT_CAP);
+    // gachaLog 已在网关成交时落盘，重新读取可避免当前批次被重复显示。
+    this.loadRecent();
     this.paintDrops();
     this.refreshBalances();
 
@@ -449,7 +564,14 @@ export class ChestsScreen implements Screen {
     // 多张一律走 batch-10 布局（部分开启可能是 2~9 张，CH-1 的 7 抽形态）
     modal.className = `summon-modal is-opening${dealt > 1 ? ' batch-10' : ''}`;
     $('#summonPool').textContent = POOL_CN[pool].title;
+    const sceneArt = $('#summonSceneArt') as HTMLImageElement | null;
+    if (sceneArt) sceneArt.src = pool === 'gem' ? '/meta/assets/chests/gem-pool.webp' : '/meta/assets/chests/key-glory-pool.webp';
     $('#summonCounter').textContent = `0 / ${dealt}`;
+    const extra = $('#summonExtra');
+    if (extra) {
+      extra.textContent = outcome.summary ?? '';
+      extra.hidden = !outcome.summary;
+    }
     $('#summonSkip').hidden = false;
     $('#legendSlam').hidden = true;
     this.renderSummonCards(rewards);
@@ -597,6 +719,11 @@ export class ChestsScreen implements Screen {
     modal.hidden = true;
     modal.className = 'summon-modal';
     $('#legendSlam').hidden = true;
+    const extra = $('#summonExtra');
+    if (extra) {
+      extra.hidden = true;
+      extra.textContent = '';
+    }
     this.refreshBalances();
   }
 

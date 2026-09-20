@@ -4,6 +4,22 @@
 import type { MetaGateway } from '../gateway';
 import type { MetaSave } from '../state/schema';
 import type { SettlementDetail } from '../systems/settlement';
+import type { ArenaSettleResult } from '../systems/arena';
+import type { InvasionSettleResult } from '../systems/invasion';
+import type { BattleResult } from '@session/index';
+
+export type PvpSettlementView =
+  | {
+      kind: 'arena';
+      battle: BattleResult;
+      settled: ArenaSettleResult;
+    }
+  | {
+      kind: 'invasion';
+      battle: BattleResult;
+      settled: InvasionSettleResult;
+      frenzy: boolean;
+    };
 
 /** 所有屏名（hash 路由用） */
 export type ScreenName =
@@ -40,8 +56,11 @@ export interface ShellCtx {
   launchEventBattle(): Promise<void>;
   /** 启动一场入侵对战（mirrorId = 候选对手 id；结算走入侵屏自身） */
   launchInvasionBattle(mirrorId: string): Promise<void>;
-  /** 展示 meta 结算屏（meta 携带王国与来源标签供标题区；returnHash=战斗来源页直达返回） */
-  showResult(detail: SettlementDetail, meta: { kingdom: string; sourceLabel: string; returnHash?: string }): void;
+  /** 展示结算屏（普通战斗带逐行入账，PvP 带战果与加分构成） */
+  showResult(
+    detail: SettlementDetail | PvpSettlementView,
+    meta: { kingdom: string; sourceLabel: string; returnHash?: string; shopHash?: string },
+  ): void;
 }
 
 export interface Screen {

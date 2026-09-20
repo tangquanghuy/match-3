@@ -72,6 +72,9 @@ export interface MetaGateway {
   /** 当前权威存档（load 后可读；屏层渲染视图用） */
   current(): MetaSave;
 
+  /** 进入材料库后清除“有新材料”提示，并落盘该 UI 状态。 */
+  markMaterialsSeen(): Promise<GatewayUpdate<boolean>>;
+
   /** 熵源：抽卡/出敌/竞技场种子（mock 用 crypto，D1 由服务端掷） */
   nextSeed(): number;
 
