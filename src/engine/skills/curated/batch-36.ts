@@ -15,7 +15,7 @@
  * - 「对敌人造成…」（承前段指定敌）指回 enemyChosen 静态目标 → 多段同目标合法（batch-34 头注口径）。
  * - 「若有（一名）敌人陷入X状态」聚合存在判定原语批已落（anyEnemyStatus，spell-rules §9.7）。
  */
-import { skill, dmg, inflict, createGems, createSpecialGems, transform, transformToSpecial, steal, summonRef, explodeRandomGems } from '../builders';
+import { skill, dmg, inflict, createGems, createSpecialGems, transform, transformToSpecial, steal, summonRef, explodeRandomGems, CELL, explodeAt } from '../builders';
 import { BaseColor } from '../../types';
 import type { CuratedBatch } from './index';
 
@@ -39,8 +39,7 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 8091,
     desc: '爆破 1 颗宝石。对 2 名随机敌人造成 [魔法 + 3] 点伤害。再创造 2 颗炸弹宝石。',
     build: skill(
-      // 「宝石」不含骷髅 → include 'color'（batch-34 8823 口径）
-      explodeRandomGems(1, 0, 'color'),
+      explodeAt(CELL),
       dmg('enemyRandomN', 3, 1, { n: 2 }),
       createSpecialGems({ kind: 'bomb' }, 2, 0),
     ),

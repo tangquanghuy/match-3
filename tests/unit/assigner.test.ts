@@ -16,6 +16,7 @@ import {
   TIER_TRAIT_POOL,
 } from '@session/assigner';
 import { validateBattleRequest } from '@session/validateRequest';
+import { RULESET_VERSION } from '@session/contract';
 import { implementedTraitIds } from '@engine/traits';
 import { skillLibraryIds } from '@engine/skills/library';
 import { BaseColor } from '@engine/types';
@@ -128,7 +129,7 @@ describe('validateRequest 与分拣的契约', () => {
       schemaVersion: 1,
       battleId: 'b1',
       requestId: 'r1',
-      rulesetVersion: '1.0.0',
+      rulesetVersion: RULESET_VERSION,
       seed: 1,
       playerTeam: [snapshot({ externalId: 'p1', tier: '首领' })],
       enemyTeam: [snapshot({ externalId: 'e1', tier: 'minion' })],
@@ -142,7 +143,7 @@ describe('validateRequest 与分拣的契约', () => {
       schemaVersion: 1,
       battleId: 'b1',
       requestId: 'r1',
-      rulesetVersion: '1.0.0',
+      rulesetVersion: RULESET_VERSION,
       seed: 1,
       playerTeam: [snapshot({ externalId: 'p1' })],
       enemyTeam: [snapshot({ externalId: 'e1', tier: 'minion' })],
@@ -161,7 +162,7 @@ describe('validateRequest 与分拣的契约', () => {
       schemaVersion: 1,
       battleId: 'b1',
       requestId: 'r1',
-      rulesetVersion: '1.0.0',
+      rulesetVersion: RULESET_VERSION,
       seed: 1,
       playerTeam: [snapshot({ externalId: 'p1', tier: '神仙' })],
       enemyTeam: [snapshot({ externalId: 'e1', tier: 'minion' })],

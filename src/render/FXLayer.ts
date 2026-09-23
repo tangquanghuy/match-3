@@ -63,6 +63,43 @@ export class FXLayer extends Container {
     });
   }
 
+  /** 法力涌动：冲击环 + 碎晶 + 飘字 */
+  manaSurge(x: number, y: number, color: number): void {
+    this.shockwave(x, y, color);
+    this.burst(x, y, color, 2.4);
+    const style = new TextStyle({
+      fill: color,
+      fontSize: 26,
+      fontWeight: 'bold',
+      stroke: { color: 0x000000, width: 4 },
+    });
+    const t = new Text({ text: '涌动 ×2', style });
+    t.anchor.set(0.5);
+    t.x = x;
+    t.y = y;
+    this.addChild(t);
+    gsap.fromTo(
+      t,
+      { alpha: 0, y: y + 8, scale: 0.82 },
+      {
+        alpha: 1,
+        y: y - 28,
+        scale: 1,
+        duration: 0.32,
+        ease: 'back.out(2.2)',
+        onComplete: () => {
+          gsap.to(t, {
+            alpha: 0,
+            y: y - 54,
+            duration: 0.38,
+            delay: 0.12,
+            onComplete: () => t.destroy(),
+          });
+        },
+      },
+    );
+  }
+
   /** 连击飘字（需求 19.5） */
   comboText(x: number, y: number, chain: number): void {
     const style = new TextStyle({

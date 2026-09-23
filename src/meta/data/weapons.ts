@@ -8,7 +8,7 @@
  *
  * 随假数据一同退役的东西（以及为什么可以退）：
  *  - **20 个手写 `SkillPrototype`**（builders DSL）→ 目录武器的 `spellId` 已由 curated W 系批次
- *    编译成原型（`collectWeaponCurated()`，战斗可用 703/718），不需要 meta 层再自造法术；
+ *    编译成原型（`collectWeaponCurated()`，战斗可用 718/718），不需要 meta 层再自造法术；
  *  - **职业专属武器体系**（`classId` + 冠军等级 10/20 解锁）→ 官方口径本就是「每职业 1 把专属武器、
  *    250 胜解锁」，我们那套 8 职业 × 2 把是虚构的；真要做专属武器应从目录里挑，不是自造；
  *  - **`weaponRarity()` 按解锁档推导稀有度** → 目录武器自带官方 `rarity`，推导函数没有存在意义。
@@ -64,9 +64,9 @@ export interface WeaponDef {
   spellId: number;
   /**
    * 已编译法术原型（curated W 系批次）。
-   * `null` = 保真度 `mana-only` 的占位武器（15 把）——无真实法术，装上只会「仅扣法力」，
+   * `null` = 保真度 `mana-only` 的占位武器——无真实法术，装上只会「仅扣法力」，
    * 按诚实口径不可装备（`equippable: false`），但**仍进图鉴可浏览**（武器图鉴审计 C-4：
-   * 图鉴要如实告诉玩家「永远不可装备」，而不是把它们悄悄藏掉）。
+   * 图鉴要如实告诉玩家「永远不可装备」，而不是把它们悄悄藏掉）。W05 收官后目录 718 把均有原型。
    */
   skill: SkillPrototype | null;
   /** 是否可装备（= 有编译原型）。图鉴展示全部 718，装备池只收这一档 */
@@ -87,14 +87,14 @@ export interface WeaponDef {
  * 由 `weaponCatalog.ownedWeaponIds()` 并入——存档不膨胀，老档也自动获得）。
  *
  * 选取口径：
- *  - **Common 7 把**（`weapons.json` 里 Common 共 8 把，`gw_CrudeClub` 是 mana-only 占位、
- *    无编译原型不可装备，故排除）。前六把 1000–1005 正是官方开局武器：
+ *  - **Common 7 把**（`weapons.json` 里 Common 共 8 把，`gw_CrudeClub` 精通 6、不是官方开局六把，故排除）。前六把 1000–1005 正是官方开局武器：
  *    **六法力色 × 六武器类型一一对应**（蓝剑/绿弓/红斧/黄矛/紫杖/棕锤），精通要求 2；
  *  - **Uncommon 15 把**（全部战斗可用），把类型覆盖从 6 种扩到 11 种，让天赋
  *    `selfStatIfWeapon` 在新档就有得打（匕首/巨著/镰刀/标枪/狼牙棒…）。
  *
- * **不含 Rare 及以上**：Rare 28 把与其余 667 把留给「熔炉可造 / 暂无获取途径」两态，
- * 这样「全部 718」tab 的「拥有状态」维度才有意义（武器图鉴审计 C-4）。
+ * **不含 Rare 及以上**：Rare 28 把与其余 667 把按官方 MasteryRequirement 领取
+ * （主角等级 / 职业 / 王国 8 关 / 熔炉 / 宝石商店直购），这样「全部 718」tab 的「拥有状态」
+ * 与「获取途径」才有真实分母。
  */
 export const STARTER_WEAPON_IDS: readonly string[] = [
   // —— Common（官方开局六把：六法力色 × 六类型）——

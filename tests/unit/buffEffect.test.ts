@@ -105,4 +105,19 @@ describe('buffEffect 上限夹取', () => {
     expect(left[1].hp).toBe(35);
     expect(left[2].hp).toBe(20); // 阵亡不接受
   });
+
+  it('double 使当前护甲翻倍', () => {
+    const state = makeState([{ armor: 4 }]);
+    const targets = selectTargets('allySelf', state, 0, new SeededRNG(1));
+    const events = buffEffect({ targets, stat: 'armor', scaling: { base: 0, mult: 0 }, double: true }).apply(ctxFor(state, 0));
+    expect(state.teams[PlayerSide.Left].characters[0].armor).toBe(8);
+    expect(events[0]).toMatchObject({ type: 'buff', targetId: 0, stat: 'armor', amount: 4 });
+  });
+
+  it('double 使当前攻击翻倍', () => {
+    const state = makeState([{ attack: 7 }]);
+    const targets = selectTargets('allySelf', state, 0, new SeededRNG(1));
+    buffEffect({ targets, stat: 'attack', scaling: { base: 99, mult: 1 }, double: true }).apply(ctxFor(state, 0));
+    expect(state.teams[PlayerSide.Left].characters[0].attack).toBe(14);
+  });
 });

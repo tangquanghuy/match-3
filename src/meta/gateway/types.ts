@@ -20,10 +20,11 @@ import type { LevelUpResult, AscendResult, UnlockTraitResult, DecomposeResult } 
 import type { SetTeamResult } from '../systems/teamRules';
 import type { BridgeOutcome } from '../systems/battleBridge';
 import type { InvasionBridgeOutcome, InvasionSettleResult } from '../systems/invasion';
+import type { HuntMoveOk } from '../systems/treasureHunt';
 import type { EventBuyResult } from '../systems/events';
 import type { EventTypeId } from '../data/events';
 import type { TemperSaveResult } from '../systems/forgeOps';
-import type { TeamMember, MetaSave } from '../state/schema';
+import type { TeamMember, MetaSave, TreasureHuntState } from '../state/schema';
 
 /** load 的返回：save 是网关当前权威状态，屏层直接读 */
 export interface GatewaySnapshot {
@@ -107,6 +108,8 @@ export interface MetaGateway {
   equipHeroWeapon(weaponId: string): Promise<GatewayUpdate<string | MetaFailure>>;
   /** 熔炉锻造：按配方消耗灵魂+黄金，解锁目录武器（gw_*） */
   forgeCatalogWeapon(weaponId: string): Promise<GatewayUpdate<string | MetaFailure>>;
+  /** 按官方获取途径领取武器（精通/职业/王国/宝石商店直购；熔炉白名单除外） */
+  claimHeroWeapon(weaponId: string): Promise<GatewayUpdate<string | MetaFailure>>;
   /** 天赋档位选取（tierIndex 0..6，三树选一；可随时改配） */
   pickHeroTalent(
     classId: string,
@@ -121,13 +124,17 @@ export interface MetaGateway {
   unlockHeroTrait(
     slot: number,
   ): Promise<GatewayUpdate<{ ok: true; slot: number; cost: { gold: number; souls: number } } | MetaFailure>>;
+  /** 升级后的法力精通二选一 */
+  pickManaMastery(
+    color: string,
+  ): Promise<GatewayUpdate<{ ok: true; color: string; value: number } | MetaFailure>>;
 
   // —— 宝箱（M4/荣耀箱） ——
   /**
    * 开箱。**count 是原子批量**：整批成交或一张不动（CH-1）。
    * - 'gem'：count 只能 1|10（十连保底 Epic+）；
    * - 'gold'：count 1~10（钥匙只够 7 抽时可显式开 7 次）；
-   * - 'glory'：忽略 count。
+   * - 'glory'：count 只能 1|10，整批一次性结算。
    */
   openChest(kind: 'gem' | 'gold' | 'glory', count?: number): Promise<GatewayUpdate<GachaDrawResult | GloryChestResult | MetaFailure>>;
 
@@ -154,7 +161,7 @@ export interface MetaGateway {
   // —— 战斗闭环（M2） ——
   /** 任务关出战计划（只读组合：出敌 + 过会话校验的请求） */
   planQuestBattle(kingdom: string, node: number): Promise<BridgeOutcome | MetaFailure>;
-  /** 探索出战计划（档位取存档当前 exploreTier） */
+  /** 探索出战计划（档位取存档当前 Hard/VH 关） */
   planExploreBattle(kingdom: string): Promise<BridgeOutcome | MetaFailure>;
   /** 结算入账（击杀/胜利/首胜/任务推进/战败保底逐行明细） */
   applyBattleSettlement(
@@ -195,6 +202,11 @@ export interface MetaGateway {
     weekStart: number,
     todayStart: number,
   ): Promise<GatewayUpdate<InvasionSettleResult | MetaFailure>>;
+
+  /** 消耗 1 张藏宝图开始寻宝。已有未完成的一局时不重复扣图。 */
+  startTreasureHunt(seed: number): Promise<GatewayUpdate<{ ok: true; state: TreasureHuntState } | MetaFailure>>;
+  /** 交换相邻两格。步数归零时在同一次写入里开奖。 */
+  playTreasureHunt(from: number, to: number): Promise<GatewayUpdate<HuntMoveOk | MetaFailure>>;
 }
 
 /** 屏层便捷守卫：result 是否失败（MetaFailure） */

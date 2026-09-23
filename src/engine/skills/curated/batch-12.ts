@@ -7,7 +7,7 @@
  *   transformedGems/destroyedGems 来源才数得到（batch-04 7002 / batch-07 7248 头注同款）；
  *   本批 7160/7215/7235/7300/7383 的 desc 语序为效果在前、宝石操作在后，按先例重排，请复核。
  * - 「魔法值」= magic 属性、「法力值」= mana 资源（SOP 措辞裁定；7177/7225/7273/7335 同口径）。
- * - 「爆破一颗宝石」（无颜色、无选定/随机字样）→ explodeRandomGems(1,0,'color')
+ * - 「爆破一颗宝石」（无「随机」字样）→ explodeAt(CELL)
  *   （batch-03 头注 + batch-11 7041 同口径）。
  * - 「散射伤害」目标为全体时是类型词而非溅射链 → dmg('enemyAll',…,{range:'all'})
  *   （SOP 措辞裁定；自动编译产物曾误作 range:'splash'，以 SOP 为准）。
@@ -19,10 +19,7 @@
  * - 7225/7273/7335「如果(有)敌人身亡」= spell-rules.md §4 死亡条件家族
  *   （「如敌人身亡，则…」同款），按 §4 挂最近产目标段（enemyAll）判定。
  */
-import { skill, dmg, dmgAll, dmgSplash, trueDmg, heal, armor, attack, magic, steal,
-  cleanse, createGems, createSkulls, transform, destroyChosenCol,
-  destroyChosenRow, destroyColor, destroyRandomGems, explodeRandomGems,
-  inflict, summonRef, summonRandom, extraTurn, CHOSEN } from '../builders';
+import { skill, dmg, dmgAll, dmgSplash, trueDmg, heal, armor, attack, magic, steal, cleanse, createGems, createSkulls, transform, destroyChosenCol, destroyChosenRow, destroyColor, destroyRandomGems, explodeRandomGems, inflict, summonRef, summonRandom, extraTurn, CHOSEN, CELL, explodeAt } from '../builders';
 import { BaseColor } from '../../types';
 import type { CuratedBatch } from './index';
 
@@ -134,7 +131,7 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 7224,
     desc: '爆破一颗宝石。对一名随机敌人造成 [魔法 + 5] 点伤害，伤害值因被摧毁的棕色宝石数而增强。 [x5]',
     build: skill(
-      explodeRandomGems(1, 0, 'color'),
+      explodeAt(CELL),
       dmg('enemyRandom', 5, 1, {
         modifier: { mod: { kind: 'multiplier', a: 5 }, source: { kind: 'destroyedGems', color: BaseColor.Brown } },
       }),
@@ -165,7 +162,7 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 7243,
     desc: '爆破一颗宝石。对 1 名敌人造成 [魔法 + 3] 点轻微溅射伤害。获得一个额外回合。',
     build: skill(
-      explodeRandomGems(1, 0, 'color'),
+      explodeAt(CELL),
       dmgSplash('enemyChosen', 3),
       extraTurn(),
     ),

@@ -10,6 +10,7 @@ export * from './CombatResolver';
 export * from './GameState';
 export * from './teamRoster';
 export * from './TurnEngine';
+export * from './manaSurge';
 export * from './boardGen';
 export * from './boardUtils';
 export * from './registry';

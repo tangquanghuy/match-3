@@ -6,7 +6,7 @@
  * - 种族英文名经 troops.json troopTypes 核对：金牛座=Tauros、半人马=Centaur、
  *   元素=Elemental、不死族=Undead、神秘=Mystic（均为 troopTypes 取值域内）。
  * - 「魔法值」= magic 属性、「法力值」= mana 资源（SOP 措辞裁定；7022/9732 同口径）。
- * - 「爆破一颗宝石」（无颜色、无选定/随机字样）→ explodeRandomGems(1,0,'color')
+ * - 「爆破一颗宝石」（无「随机」字样）→ explodeAt(CELL)
  *   （batch-03 头注 + batch-07 7674「爆破 2 颗宝石」同口径）。
  * - 「对首位和末位敌人」= enemyFront + enemyLast 两段共用同一缩放（batch-05 7059/
  *   batch-07 7674「第一名和最后一名敌人」同款）；修饰子句辖本子句内全部同类段
@@ -20,9 +20,7 @@
  * - 7050「如果敌人身亡者获得 4 点攻击力」：「者」为「则」之笔误（batch-07 8041 处理笔误同款），
  *   逐字保留原文。
  */
-import { skill, dmg, dmgAll, trueDmg, heal, armor, attack, magic,
-  cleanse, reduce, inflict, createGems, createMix, createSkulls,
-  destroyChosenRow, destroyColor, explodeRandomGems, extraTurn } from '../builders';
+import { skill, dmg, dmgAll, trueDmg, heal, armor, attack, magic, cleanse, reduce, inflict, createGems, createMix, createSkulls, destroyChosenRow, destroyColor, explodeRandomGems, extraTurn, CELL, explodeAt } from '../builders';
 import { BaseColor } from '../../types';
 import type { CuratedBatch } from './index';
 
@@ -62,7 +60,7 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 7008,
     desc: '爆破一颗宝石。减除所有敌人 [魔法 + 1] 点护甲值，数值因被摧毁的棕色宝石而增强。 [1:1]',
     build: skill(
-      explodeRandomGems(1, 0, 'color'),
+      explodeAt(CELL),
       // 「因被摧毁的棕色宝石而增强」= destroyedGems 筛棕色（SOP 来源计数表）
       reduce('enemyAll', 'armor', 1, 1, {
         modifier: { mod: { kind: 'ratio', a: 1, b: 1 }, source: { kind: 'destroyedGems', color: BaseColor.Brown } },
@@ -101,7 +99,7 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 7041,
     desc: '爆破一颗宝石。对 1 名随机的敌人造成 [魔法 + 1] 点伤害。有 30% 的几率燃烧敌人。',
     build: skill(
-      explodeRandomGems(1, 0, 'color'),
+      explodeAt(CELL),
       dmg('enemyRandom', 1),
       // 「燃烧敌人」=「燃烧(一名)敌人」→ enemyChosen（batch-04 7006 同口径，见文件头备注）
       inflict('burning', 'enemyChosen', { chance: 0.3 }),

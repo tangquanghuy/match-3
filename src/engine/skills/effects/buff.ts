@@ -43,6 +43,11 @@ export interface BuffParams {
    * 与 halve 二选一同时给出时以 halve 为准。给出时忽略 scaling。
    */
   fraction?: number;
+  /**
+   * 属性翻倍（W05，stat 不限）：「使护甲值/攻击力翻倍」= 获得当前该属性等额（2×）。
+   * 给出时忽略 scaling；与 full 同时给出时仍走翻倍（full 只对 hp 有意义）。
+   */
+  double?: boolean;
   /** 二次缩放（[xN]/[N:M] + 来源），可选 */
   modifier?: ModifierSpec;
   /** 种族条件翻倍：目标 troopTypes 含该族时数值 ×2（五机制之一） */
@@ -73,6 +78,16 @@ export function applyBuffGain(target: Character, stat: BuffStat, amount: number)
 /**
  * 对单个角色施加增益，返回实际变化量（受上限夹取后可能小于名义值）。
  */
+function currentStat(target: Character, stat: BuffStat): number {
+  switch (stat) {
+    case 'attack': return target.attack;
+    case 'armor': return target.armor;
+    case 'hp': return target.hp;
+    case 'magic': return target.magic;
+    case 'mana': return target.mana;
+  }
+}
+
 function buffOne(target: Character, stat: BuffStat, amount: number): number {
   switch (stat) {
     case 'attack': {
@@ -200,6 +215,13 @@ export function buffEffect(params: BuffParams): EffectPrimitive {
         if (stat === 'mana' && (params.halve || params.fraction !== undefined)) {
           const ratio = params.halve ? 0.5 : (params.fraction as number);
           const applied = buffOne(target, 'mana', Math.floor(target.manaCost * ratio));
+          if (applied !== 0) {
+            events.push({ type: 'buff', targetId: target.id, stat, amount: applied });
+          }
+          continue;
+        }
+        if (params.double) {
+          const applied = buffOne(target, stat, currentStat(target, stat));
           if (applied !== 0) {
             events.push({ type: 'buff', targetId: target.id, stat, amount: applied });
           }

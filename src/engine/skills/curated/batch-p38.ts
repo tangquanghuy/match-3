@@ -16,10 +16,7 @@
  * - 种族口径：妖仙 = Fey、秘士 = Mystic（troops.json troopTypes，summonRandom 引用池内联）。
  */
 import type { CuratedBatch } from './index';
-import { skill, dmg, trueDmg, heal, armor, inflict, createGems, createSkulls,
-  createSpecialGems, createMix, transform, transformToSpecial, explodeSpecialGems,
-  explodeRandomGems, oneOf, createStorm, summonRef, summonRandom, extraTurn,
-  transformTroop, CHOSEN } from '../builders';
+import { skill, dmg, trueDmg, heal, armor, inflict, createGems, createSkulls, createSpecialGems, createMix, transform, transformToSpecial, explodeSpecialGems, explodeRandomGems, oneOf, createStorm, summonRef, summonRandom, extraTurn, transformTroop, CHOSEN, CELL, explodeAt } from '../builders';
 import { BaseColor } from '../../types';
 
 // 机械军队引用池（troopTypes 含 Mech，从 troops.json 内联）
@@ -75,7 +72,7 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 8213,
     desc: '爆破一颗宝石。对第一位敌人造成 [魔法 + 3] 点伤害，伤害值因被摧毁的紫色宝石而增强。再诅咒敌人。 [x3]',
     build: skill(
-      explodeRandomGems(1, 0),
+      explodeAt(CELL),
       dmg('enemyFront', 3, 1, { modifier: { mod: { kind: 'multiplier', a: 3 }, source: { kind: 'destroyedGems', color: BaseColor.Purple } } }),
       inflict('curse', 'lastTarget'),
     ),

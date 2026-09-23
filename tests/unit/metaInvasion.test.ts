@@ -5,8 +5,7 @@
 import { describe, it, expect } from 'vitest';
 import { newSave, type MetaSave } from '../../src/meta/state/schema';
 import { SeededRNG } from '../../src/engine/rng';
-import { starterTroopIds } from '../../src/meta/data/economy';
-import { INVASION, INVASION_LEAGUES, INVASION_VP_TABLE, INVASION_ZONES } from '../../src/meta/data/economy';
+import { starterTroopIds, INVASION, INVASION_LEAGUES, INVASION_VP_TABLE, INVASION_ZONES } from '../../src/meta/data/economy';
 import { WEEK_MS } from '../../src/meta/data/events';
 import {
   buildBracket,
@@ -18,10 +17,11 @@ import {
   planInvasionBattle,
   settleInvasionBattle,
 } from '../../src/meta/systems/invasion';
-import { buildMetaRegistry } from '../../src/meta/systems/battleBridge';
+import { buildMetaRegistry, metaKnownTraitIds } from '../../src/meta/systems/battleBridge';
 import { validateBattleRequest } from '../../src/session/validateRequest';
-import { KNOWN_TRAIT_CODES } from '../../src/meta/data/traitIndex';
 import { knownTroopTypes } from '../../src/data/troops';
+import { pickTalent } from '../../src/meta/systems/talents';
+import { setTeamPreset } from '../../src/meta/systems/teamRules';
 import { TurnEngine } from '../../src/engine/TurnEngine';
 import { BoardGenerator } from '../../src/engine/boardGen';
 import { BoardModel } from '../../src/engine/BoardModel';
@@ -211,10 +211,32 @@ describe('出战斗（过会话校验）', () => {
     );
     const check = validateBattleRequest(plan.request, {
       knownSkillIds: new Set([...registry.skills.keys(), ...registry.prototypes.keys()]),
-      knownTraitIds: KNOWN_TRAIT_CODES,
+      knownTraitIds: metaKnownTraitIds(),
       knownTroopTypes: knownTroopTypes(),
     });
     expect(check.ok).toBe(true);
+  });
+
+  it('主角点了静态效果天赋 ferocity 时仍过会话校验', () => {
+    const s = save();
+    const now = WEEK + 3_600_000;
+    s.hero.unlockedClasses.push('warrior');
+    s.hero.classId = 'warrior';
+    s.hero.classLevels['warrior'] = 12;
+    expect(pickTalent(s, 'warrior', 0, 'ferocity')).toMatchObject({ ok: true });
+    const starters = starterTroopIds();
+    setTeamPreset(s, 0, {
+      name: 't',
+      members: [{ kind: 'hero' }, ...starters.slice(0, 3).map((troopId) => ({ kind: 'troop' as const, troopId }))],
+      bannerKingdomId: null,
+    });
+    ensureInvasionSeason(s, now, WEEK);
+    const mirror = invasionCandidates(s, now, WEEK)[0]!;
+    const plan = planInvasionBattle(s, mirror.id, 424242, now, WEEK);
+    expect(plan).toMatchObject({ ok: true });
+    if (!plan.ok) return;
+    const hero = plan.request.playerTeam.find((c) => c.externalId.endsWith('-hero'));
+    expect(hero?.traitIds).toContain('ferocity');
   });
 
   it('非候选对手拒绝；门槛不足拒绝', () => {

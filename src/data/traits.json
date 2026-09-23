@@ -301,7 +301,7 @@
     "code": "invulnerable",
     "name": "无懈可击",
     "description": "对所有状态效果、吞噬、法力耗尽、转化、狼化和致命伤害免疫",
-    "troops": 38,
+    "troops": 40,
     "statusImmunities": [
       "*"
     ]
@@ -386,7 +386,7 @@
     "code": "huge",
     "name": "巨型",
     "description": "在配对 4 或 5 颗宝石时，获得 2 点生命值。",
-    "troops": 32,
+    "troops": 33,
     "onBigMatchGain": {
       "stat": "hp",
       "amount": 2
@@ -1225,7 +1225,7 @@
     "code": "merfolkbond",
     "name": "海族族亲",
     "description": "海族盟友获得 2 点生命值。",
-    "troops": 10,
+    "troops": 11,
     "typeAura": {
       "troopType": "Merfolk",
       "stat": "hp",
@@ -9358,6 +9358,27 @@
       "gem": "gargoyleGem",
       "tier": 1,
       "count": 1
+    }
+  },
+  {
+    "code": "oceansheart",
+    "name": "海洋之心",
+    "description": "当我的回合开始时，创造 2 颗沉没宝石。",
+    "troops": 1,
+    "turnStartCreateSpecialGem": {
+      "gem": "submergeGem",
+      "count": 2
+    }
+  },
+  {
+    "code": "giantgrowth",
+    "name": "巨人成长",
+    "description": "当我的回合开始时，创造 1 颗绿色巨人宝石。",
+    "troops": 1,
+    "turnStartCreateSpecialGem": {
+      "gem": "giantGem",
+      "count": 1,
+      "color": "Green"
     }
   }
 ]

@@ -30,7 +30,7 @@ describe('出敌生成器（同 seed 可复现）', () => {
     expect(c.enemies).not.toEqual(a.enemies);
   });
 
-  it('任务 1 关：2 名杂兵、同级、全部属于本王国且不重复', () => {
+  it('任务 1 关：4 名杂兵、同级、全部属于本王国且不重复', () => {
     const plan = planQuestEncounter(KINGDOM, 1, 7);
     expect(plan.source).toEqual({ kind: 'quest', node: 1 });
     expect(plan.enemies).toHaveLength(QUEST_TEAM_SIZES[0]);
@@ -53,20 +53,21 @@ describe('出敌生成器（同 seed 可复现）', () => {
     expect(plan.enemies.every((e) => getTroopById(e.troopId))).toBe(true);
   });
 
-  it('探索档位：3 档精英带队、5 档首领压阵；等级按档爬升', () => {
+  it('Hard 3 / Very Hard 2：精英带队与首领压阵；等级按档爬升', () => {
     const t3 = planExploreEncounter(KINGDOM, 3, 11);
     expect(t3.source).toEqual({ kind: 'explore', tier: 3 });
-    expect(t3.enemies.map((e) => e.tier)).toEqual(['elite', 'minion', 'minion']);
+    expect(t3.enemies.map((e) => e.tier)).toEqual(['elite', 'minion', 'minion', 'minion']);
     const t5 = planExploreEncounter(KINGDOM, 5, 11);
     expect(t5.enemies).toHaveLength(4);
     expect(t5.enemies.at(-1)!.tier).toBe('boss');
     expect(t5.enemies[0]!.level).toBe(exploreEnemyLevel(KINGDOM, 5));
+    expect(planExploreEncounter(KINGDOM, 6, 11).enemies).toHaveLength(4);
   });
 
   it('越界抛 RangeError', () => {
     expect(() => planQuestEncounter(KINGDOM, 0, 1)).toThrow(RangeError);
     expect(() => planQuestEncounter(KINGDOM, 9, 1)).toThrow(RangeError);
-    expect(() => planExploreEncounter(KINGDOM, 6, 1)).toThrow(RangeError);
+    expect(() => planExploreEncounter(KINGDOM, 7, 1)).toThrow(RangeError);
   });
 });
 

@@ -19,14 +19,7 @@
  * - 挽救候选复核后仍维持 SKIP 的 50 条记录保留在原批次文件（不重复计数），复核结论见批尾注记。
  */
 import type { CuratedBatch } from './index';
-import {
-  skill, dmg, dmgSplash, trueDmg, heal, armor, attack, magic, mana, reduce, steal, drainMana,
-  cleanse, dispelStatus, randomStat, inflict, inflictRandom, createGems, createSkulls, createMix,
-  createStorm, destroyColor, destroyRandomGems, destroyRandomRows, destroyRandomCols,
-  explodeColor, explodeRandomGems, explodeRandomCols, transform, transformToSpecial,
-  reposition, shuffleBoard, shuffleTeam, extraTurn, oneOf, summonRef, summonRandom, sacrifice,
-  gainGold, gainSouls, gainMaps, escape, CHOSEN,
-} from '../builders';
+import { skill, dmg, dmgSplash, trueDmg, heal, armor, attack, magic, mana, reduce, steal, drainMana, cleanse, dispelStatus, randomStat, inflict, inflictRandom, createGems, createSkulls, createMix, createStorm, destroyColor, destroyRandomGems, destroyRandomRows, destroyRandomCols, explodeColor, explodeRandomGems, explodeRandomCols, transform, transformToSpecial, reposition, shuffleBoard, shuffleTeam, extraTurn, oneOf, summonRef, summonRandom, sacrifice, gainGold, gainSouls, gainMaps, escape, CHOSEN, CELL, explodeAt } from '../builders';
 import type { SegmentOpts } from '../builders';
 import { BaseColor } from '../../types';
 import type { Condition, CondMult } from '../effects/secondary';
@@ -425,7 +418,7 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: "爆破一颗宝石。每摧毁一颗紫色宝石，则赋予一名随机盟友狂怒状态。创造 6 颗骷髅头。 [1:1]",
     // 【挽救】「每摧毁一颗紫色宝石则赋予狂怒」= perDestroyed（Wave4）；狂怒官方步骤 CauseEnrage → enraged（R10 拼写口径）；[1:1] = 驱动比率序列化
     build: skill(
-      explodeRandomGems(1, 0),
+      explodeAt(CELL),
       inflict('enraged', 'allyAll', { perDestroyed: { color: BaseColor.Purple } }),
       createSkulls(6),
     ),
@@ -458,7 +451,7 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: "爆破一颗宝石。消除一名随机敌人的所有正面增益效果并造成 [魔法 + 4] 点真实伤害，伤害值因被摧毁的蓝色宝石数而增强。 [x4]",
     // 「消除一名随机敌人…并对其造成」= lastTarget 跨段绑定；[x4] = destroyedGems Blue ×4
     build: skill(
-      explodeRandomGems(1, 0),
+      explodeAt(CELL),
       ...dispelPositives('enemyRandom'),
       trueDmg('lastTarget', 4, 1, {
     modifier: { mod: { kind: 'multiplier', a: 4 }, source: { kind: 'destroyedGems', color: BaseColor.Blue } },
@@ -1123,7 +1116,7 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: "爆破一颗宝石。每爆破一颗紫色宝石则诅咒一名随机敌人。获得 [魔法 + 1] 点护甲值和 10 黄金。 [1:1]",
     // 「每爆破一颗紫色宝石则诅咒一名随机敌人」= perDestroyed（Wave4）；[1:1] = 驱动比率序列化（r17 特例口径）
     build: skill(
-      explodeRandomGems(1, 0),
+      explodeAt(CELL),
       inflict('curse', 'enemyAll', { perDestroyed: { color: BaseColor.Purple } }),
       armor('allySelf', 1, 1),
       gainGold(10),
@@ -1307,7 +1300,7 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: "爆破一颗宝石。每摧毁一颗骷髅头，则赋予一名盟友反射效果。获得 [魔法 + 1] 点护甲值。 [1:1]",
     // 【挽救】「反射效果」= reflect（R10 落地）；「每摧毁一颗骷髅头」= perDestroyed skull（r17 8493 同款）；[1:1] = 驱动比率序列化
     build: skill(
-      explodeRandomGems(1, 0),
+      explodeAt(CELL),
       inflict('reflect', 'allyAll', { perDestroyed: { color: 'skull' } }),
       armor('allySelf', 1, 1),
     ),

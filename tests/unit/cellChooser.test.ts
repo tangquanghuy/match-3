@@ -7,7 +7,7 @@ import { SeededRNG } from '@engine/rng';
 import { AiCellChooser, FixedCellChooser, prototypeNeedsCell } from '@engine/skills/cellChooser';
 import { gemEffect } from '@engine/skills/effects/gems';
 import type { EffectContext } from '@engine/skills/effects/context';
-import { skill, explodeAt, CELL, dmg } from '@engine/skills/builders';
+import { skill, explodeAt, CELL, dmg, destroyArea } from '@engine/skills/builders';
 import { BaseColor, PlayerSide, colorGem } from '@engine/types';
 import type { Character, Team, Gem, GemType, CellPos } from '@engine/types';
 import type { GameState } from '@engine/GameState';
@@ -74,6 +74,9 @@ describe('prototypeNeedsCell', () => {
   });
   it('无宝石选格段 → false', () => {
     expect(prototypeNeedsCell(skill(dmg('enemyFront', 3)))).toBe(false);
+  });
+  it('面积爆破锚格 CELL → true', () => {
+    expect(prototypeNeedsCell(skill(destroyArea('row3', 'explode', CELL)))).toBe(true);
   });
 });
 

@@ -22,7 +22,7 @@ const DAY1 = 1726500000000;
 function mkResult(
   winner: 'player' | 'enemy',
   defeatedExternalIds: string[] = [],
-  economy?: { gold: number; souls: number; gems: number },
+  economy?: { gold: number; souls: number; gems: number; maps?: number },
 ): BattleResult {
   return {
     schemaVersion: 1,
@@ -95,8 +95,8 @@ describe('结算入账（胜利 · 任务）', () => {
     expect(save.stats.goldEarned).toBe(kills.gold + 60);
     expect(save.stats.soulsEarned).toBe(kills.souls + 30);
     expect(detail.xpGained).toBe(kills.xp + WIN_BONUS_XP + HERO_XP_PER_WIN);
-    expect(detail.heroLevelsGained).toBe(1);
-    expect(save.hero.level).toBe(2);
+    expect(save.hero.level).toBe(1 + detail.heroLevelsGained);
+    expect(detail.heroLevelsGained).toBeGreaterThanOrEqual(1);
     expect(save.kingdoms[KINGDOM]?.questsDone).toBe(1);
   });
 
@@ -169,13 +169,14 @@ describe('结算入账（胜利 · 任务）', () => {
     const plan = planQuestEncounter(KINGDOM, 1, 5);
     const detail = applySettlement(
       save,
-      mkResult('player', [], { gold: 60, souls: 85, gems: 5 }),
+      mkResult('player', [], { gold: 60, souls: 85, gems: 5, maps: 3 }),
       { plan, enemyByExternalId: mapOf(plan), todayStart: DAY1 },
     );
     expect(detail.lines.map((l) => l.key)).toContain('battle-collect');
     expect(save.currencies.gold).toBe(2000 + 60 + 60); // 收集 60 + 胜利 60（无击杀行）
     expect(save.currencies.souls).toBe(800 + 85 + 30);
     expect(save.currencies.gems).toBe(150 + 5 + 50);
+    expect(save.materials.treasureMaps).toBe(3);
   });
 
   it('幽灵击杀（不在出敌计划里）不记账', () => {

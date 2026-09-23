@@ -229,3 +229,22 @@ describe('gemEffect 摧毁（接入 TurnEngine 连锁）', () => {
     expect(right.characters[0].hp + right.characters[0].armor).toBeLessThan(hpBefore + armorBefore);
   });
 });
+
+describe('gemEffect 跨段清行（lastClearedAnchor）', () => {
+  it('爆破一颗宝石后摧毁该行', () => {
+    const board = new BoardModel();
+    fillBoard(board, [BaseColor.Red, BaseColor.Blue, BaseColor.Green, BaseColor.Yellow]);
+    const state = createGameState(board, makeTeam(PlayerSide.Left), makeTeam(PlayerSide.Right));
+    const ctx: EffectContext = {
+      ...pureCtx(state, 0),
+      castTracking: { destroyed: [], transformed: 0, drainedMana: 0, enemyDeaths: 0, allyDeaths: 0 },
+    };
+    gemEffect({ op: 'clear', mode: 'explode', target: { kind: 'randomGems', count: { base: 1, mult: 0 }, include: 'all' } }).apply(ctx);
+    const anchor = ctx.castTracking?.lastClearedAnchor;
+    expect(anchor).toBeTruthy();
+    gemEffect({ op: 'clear', mode: 'destroy', target: { kind: 'lastDestroyedLine', orientation: 'row' } }).apply(ctx);
+    for (let c = 0; c < 8; c++) {
+      expect(board.get({ row: anchor!.row, col: c })).toBeNull();
+    }
+  });
+});

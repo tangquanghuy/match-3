@@ -6,10 +6,12 @@ import {
   GACHA_PITY_MIN_IDX,
   GEM_CHEST,
   GEM_CHEST_WEIGHTS,
+  GLORY_CHEST,
   GOLD_CHEST_WEIGHTS,
   grantTroop,
   newSave,
   openGemChest,
+  openGloryChest,
   openGoldChest,
 } from '../../src/meta';
 
@@ -207,5 +209,46 @@ describe('CH-1 · 网关层原子性（落盘不被污染）', () => {
     if (isFailure(seven.result)) throw new Error(seven.result.message);
     expect(seven.result.cards).toHaveLength(7);
     expect(gw.current().currencies.goldKeys).toBe(0);
+  });
+});
+
+describe('荣耀宝箱单抽 / 十连原子性', () => {
+  it('荣耀不足十连时整批不成交，收藏、材料与日志均不变化', () => {
+    const s = save();
+    s.currencies.glory = GLORY_CHEST.cost * GLORY_CHEST.multiCount - 1;
+    const beforeCollection = collectionStats(s);
+    const beforeMaterials = structuredClone(s.materials);
+    const result = openGloryChest(s, 8801, GLORY_CHEST.multiCount);
+
+    expect(result).toMatchObject({ ok: false, code: 'INSUFFICIENT' });
+    expect(s.currencies.glory).toBe(GLORY_CHEST.cost * GLORY_CHEST.multiCount - 1);
+    expect(collectionStats(s)).toEqual(beforeCollection);
+    expect(s.materials).toEqual(beforeMaterials);
+    expect(s.gachaLog).toHaveLength(0);
+  });
+
+  it('荣耀十连一次扣总价、结算十箱并只写一条批次日志', () => {
+    const s = save();
+    s.currencies.glory = GLORY_CHEST.cost * GLORY_CHEST.multiCount;
+    const result = openGloryChest(s, 8802, GLORY_CHEST.multiCount);
+    if (!result.ok) throw new Error(result.message);
+
+    expect(result.count).toBe(GLORY_CHEST.multiCount);
+    expect(result.spent).toEqual({ glory: GLORY_CHEST.cost * GLORY_CHEST.multiCount });
+    expect(s.currencies.glory).toBe(0);
+    expect(s.gachaLog).toHaveLength(1);
+    expect(s.gachaLog[0]!.kind).toBe('glory');
+    expect(s.gachaLog[0]!.troops).toEqual(result.cards.map((card) => card.troopId));
+    expect(result.cards.length + result.goldKeys + Object.keys(result.stones.traitstones ?? {}).length).toBeGreaterThan(0);
+  });
+
+  it('荣耀箱拒绝非单抽/十连数量且不扣荣耀', () => {
+    for (const count of [0, 2, 9, 11, 1.5]) {
+      const s = save();
+      s.currencies.glory = 1_000;
+      expect(openGloryChest(s, 8803, count)).toMatchObject({ ok: false, code: 'INVALID' });
+      expect(s.currencies.glory).toBe(1_000);
+      expect(s.gachaLog).toHaveLength(0);
+    }
   });
 });

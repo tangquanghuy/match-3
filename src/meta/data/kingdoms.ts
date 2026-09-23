@@ -59,20 +59,59 @@ export function kingdomBaseLevel(kingdom: string): number {
   return Math.min(1 + idx * 2, 50);
 }
 
+/** 出战双方固定 4 人（不存在 3v3） */
+export const BATTLE_TEAM_SIZE = 4;
+
 /** 任务第 node 关（1 起）的敌人等级：基数 + node - 1 */
 export function questEnemyLevel(kingdom: string, node: number): number {
   return kingdomBaseLevel(kingdom) + Math.min(Math.max(node, 1), QUESTS_PER_KINGDOM) - 1;
 }
 
-/** 探索难度档 tier（1~5）的敌人等级：基数 + (tier-1)×5 */
-export function exploreEnemyLevel(kingdom: string, tier: number): number {
-  return kingdomBaseLevel(kingdom) + (Math.min(Math.max(tier, 1), 5) - 1) * 5;
+/** Hard 3 关 / Very Hard 3 关，内部仍用 1~6 档接现有探索出敌 */
+export const HARD_NODE_COUNT = 3;
+export const VERY_HARD_NODE_COUNT = 3;
+export const EXPLORE_MAX_TIER = HARD_NODE_COUNT + VERY_HARD_NODE_COUNT;
+
+export type KingdomStageMode = 'normal' | 'hard' | 'veryHard';
+
+/** Hard 1~3 → 档 1~3，Very Hard 1~3 → 档 4~6 */
+export function exploreTierForNode(mode: 'hard' | 'veryHard', node: number): number {
+  const count = mode === 'hard' ? HARD_NODE_COUNT : VERY_HARD_NODE_COUNT;
+  const index = Math.min(Math.max(node, 1), count);
+  return mode === 'hard' ? index : HARD_NODE_COUNT + index;
 }
 
-/** 任务各关敌人队伍规模（设计值）：1~8 关 → 2/3/3/3/3/4/4/4 */
-export const QUEST_TEAM_SIZES = [2, 3, 3, 3, 3, 4, 4, 4] as const;
-/** 探索各档队伍规模（设计值）：1~5 档 → 2/3/3/4/4 */
-export const EXPLORE_TEAM_SIZES = [2, 3, 3, 4, 4] as const;
+export function exploreNodeLabel(tier: number): string {
+  if (tier <= HARD_NODE_COUNT) return `HARD ${tier}`;
+  return `VERY HARD ${tier - HARD_NODE_COUNT}`;
+}
+
+/** 探索档 tier 的敌人等级：基数 + (tier-1)×5 */
+export function exploreEnemyLevel(kingdom: string, tier: number): number {
+  const clamped = Math.min(Math.max(tier, 1), EXPLORE_MAX_TIER);
+  return kingdomBaseLevel(kingdom) + (clamped - 1) * 5;
+}
+
+/** 主线 8 关一律 4 人队 */
+export const QUEST_TEAM_SIZES = [
+  BATTLE_TEAM_SIZE,
+  BATTLE_TEAM_SIZE,
+  BATTLE_TEAM_SIZE,
+  BATTLE_TEAM_SIZE,
+  BATTLE_TEAM_SIZE,
+  BATTLE_TEAM_SIZE,
+  BATTLE_TEAM_SIZE,
+  BATTLE_TEAM_SIZE,
+] as const;
+/** Hard 1~3 + Very Hard 1~3 一律 4 人队 */
+export const EXPLORE_TEAM_SIZES = [
+  BATTLE_TEAM_SIZE,
+  BATTLE_TEAM_SIZE,
+  BATTLE_TEAM_SIZE,
+  BATTLE_TEAM_SIZE,
+  BATTLE_TEAM_SIZE,
+  BATTLE_TEAM_SIZE,
+] as const;
 
 /**
  * 任务 4/8 关的王国部队奖励（对齐 GoW「王国部队投放」）：从该王国普通卡

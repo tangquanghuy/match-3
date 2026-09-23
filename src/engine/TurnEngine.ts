@@ -5,6 +5,7 @@ import { GravitySystem, STORM_DROP_WEIGHT, STORM_DOOMSKULL_DROP, STORM_UBER_DOOM
 import type { SkullDropBoost } from './GravitySystem';
 import { ManaDistributor } from './ManaDistributor';
 import { CombatResolver } from './CombatResolver';
+import { matchManaWithSurge } from './manaSurge';
 import { ExtensionRegistry } from './registry';
 import { SeededRNG } from './rng';
 import { reshuffle, hasLegalSwap } from './boardUtils';
@@ -91,6 +92,13 @@ export class TurnEngine {
    * 与 skullChance 同款公开字段注入模式：构造函数签名不动，宿主构造后赋值。
    */
   bannerBoosts: Partial<Record<BaseColor, number>> | null = null;
+
+  /**
+   * 双方法力精通（宿主注入；省略 = 0）。3 消按 chance = m/(m+100) 翻倍，4 消永不，
+   * 5 消及以上必翻倍。精通为 0 时不掷随机，既有 3 消事件流逐字节不变。
+   */
+  playerManaMastery: Partial<Record<BaseColor, number>> | null = null;
+  enemyManaMastery: Partial<Record<BaseColor, number>> | null = null;
 
   private nextGemId: () => number;
   /** 选色器（需求 2）：技能含 'CHOSEN' 时用它选色；默认 AI 策略 */
@@ -1154,6 +1162,12 @@ export class TurnEngine {
     };
   }
 
+  private masteryOf(side: PlayerSide, color: BaseColor): number {
+    const map = side === PlayerSide.Left ? this.playerManaMastery : this.enemyManaMastery;
+    const raw = Math.max(0, map?.[color] ?? 0);
+    return raw * this.masterySuppress[side];
+  }
+
   /**
    * 宝石法力结算口（战斗机制批 jinx「将敌人的宝石灵力减半」的抑制点）：宝石匹配/被摧毁
    * 产出的法力统一经此入账——归属方的敌方队伍持有 jinx 时产出按 masterySuppress 折减
@@ -1195,10 +1209,19 @@ export class TurnEngine {
     const settle = group.settle;
     const activeTeam = this.state.teams[this.state.activePlayer];
     if (settle.kind === 'color') {
-      // 颜色 → 产生法力，数量 = 宝石数 × 通配倍率（需求 11.1）；jinx 抑制在 distributeGemMana
-      events.push(
-        ...this.distributeGemMana(activeTeam, this.state.activePlayer, settle.color, group.cells.length * settle.manaMultiplier),
-      );
+      // 颜色 → 产生法力：3 消可涌动翻倍、4 消永不、5+ 必翻倍，再乘通配倍率。
+      // jinx 抑制在 distributeGemMana；旗帜 ±N 在抑制之后平展。
+      const gemCount = group.cells.length;
+      const mastery = this.masteryOf(this.state.activePlayer, settle.color);
+      const roll = gemCount === 3 && mastery > 0 ? this.rng.next() : 1;
+      const { amount, surged } = matchManaWithSurge(gemCount, settle.manaMultiplier, mastery, roll);
+      const gained = this.distributeGemMana(activeTeam, this.state.activePlayer, settle.color, amount);
+      if (surged) {
+        for (const ev of gained) {
+          if (ev.type === 'mana-gain') ev.surge = true;
+        }
+      }
+      events.push(...gained);
       // 星族随组加发（元素星四色各 +1 / 暗影星两色各 +1，官方 "1 Mana for ALL of those
       // colors"）：组归属色按其余宝石的颜色计（settle.color），星色法力逐色另发
       if (settle.bonusColors) {

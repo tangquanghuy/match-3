@@ -4,7 +4,7 @@
  * 新增状态时漏写文案会在这里红（点击说明是用户明确要求的功能）。
  */
 import { describe, it, expect } from 'vitest';
-import { STATUS_DESCRIPTIONS } from '@render/statusTooltip';
+import { STATUS_DESCRIPTIONS } from '../../src/data/statusDescriptions';
 import { statusBadge } from '@render/statusBadges';
 
 const CANONICAL_IDS = [

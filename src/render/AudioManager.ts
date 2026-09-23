@@ -18,6 +18,7 @@ import redSingleHitUrl from '../assets/audio/skills/skill_hit_red_single.wav?url
 import purpleSingleHitUrl from '../assets/audio/skills/skill_hit_purple_single.wav?url';
 import yellowSingleHitUrl from '../assets/audio/skills/skill_hit_yellow_single.mp3?url';
 import greenSingleHitUrl from '../assets/audio/skills/skill_hit_green_single.wav?url';
+import { applyPlayerPreferences, getPlayerPreferences } from '../preferences/playerPreferences';
 import { canonicalStatusSoundId, normalizeStatusKey, STATUS_SYNTHS } from './StatusSynth';
 
 /**
@@ -38,7 +39,7 @@ export const STATUS_SAMPLE_URLS: Record<string, string> = Object.fromEntries(
  * Web Audio API 统一管理程序化合成音效和预解码采样资源。
  * 三条音量总线（主/音效/音乐），首次用户交互后初始化以规避自动播放策略（需求 26.5）。
  */
-export type SfxName = 'swap' | 'eliminate' | 'damage' | 'skill' | 'extraTurn' | 'impact' | 'whoosh' | 'hit' | 'skillHitWater' | 'skillCastEarth' | 'skullHit' | 'gemExplosion' | 'summon' | 'poison' | 'healing' | 'armor' | 'frozen' | 'burning' | 'skillHitRedSingle' | 'skillHitPurpleSingle' | 'skillHitYellowSingle' | 'skillHitGreenSingle' | 'splashChainHit';
+export type SfxName = 'swap' | 'eliminate' | 'damage' | 'skill' | 'extraTurn' | 'impact' | 'whoosh' | 'hit' | 'skillHitWater' | 'skillCastEarth' | 'skullHit' | 'gemExplosion' | 'summon' | 'poison' | 'healing' | 'armor' | 'frozen' | 'burning' | 'skillHitRedSingle' | 'skillHitPurpleSingle' | 'skillHitYellowSingle' | 'skillHitGreenSingle' | 'splashChainHit' | 'manaSurge';
 
 
 type ColoredSingleHit = 'red' | 'purple' | 'yellow' | 'green';
@@ -113,12 +114,14 @@ export class AudioManager {
   private lastSplashChainHitAt = -Infinity;
 
   masterVolume = 0.8;
-  sfxVolume = 0.7;
+  sfxVolume = getPlayerPreferences().soundEffectsVolume;
   muted = false;
 
   /** 首次用户交互时调用（需求 26.5）；此时才开始请求采样，避免与首屏资源抢带宽。 */
   init(): void {
+    applyPlayerPreferences();
     if (this.ctx) {
+      this.syncPlayerPreferences();
       void this.resume();
       return;
     }
@@ -131,6 +134,7 @@ export class AudioManager {
       this.sfxBus = this.ctx.createGain();
       this.sfxBus.gain.value = this.sfxVolume;
       this.sfxBus.connect(this.master);
+      this.syncPlayerPreferences();
       this.startAudioFetches();
       void this.loadSkullHit();
       void this.loadGemExplosion();
@@ -184,12 +188,22 @@ export class AudioManager {
 
   setMuted(m: boolean): void {
     this.muted = m;
-    if (this.master) this.master.gain.value = m ? 0 : this.masterVolume;
+    this.syncPlayerPreferences();
+  }
+
+  /** 每次发声前读取共享偏好，保证设置页修改后无需重建 AudioManager。 */
+  private syncPlayerPreferences(): boolean {
+    const preferences = getPlayerPreferences();
+    this.sfxVolume = preferences.soundEffectsVolume;
+    if (this.sfxBus) this.sfxBus.gain.value = this.sfxVolume;
+    const enabled = preferences.soundEffectsEnabled && this.sfxVolume > 0 && !this.muted;
+    if (this.master) this.master.gain.value = enabled ? this.masterVolume : 0;
+    return enabled;
   }
 
   /** 播放一个合成音效 */
   play(name: SfxName): void {
-    if (!this.ctx || !this.sfxBus || this.muted) return;
+    if (!this.ctx || !this.sfxBus || !this.syncPlayerPreferences()) return;
     switch (name) {
       case 'swap':
         this.blip(420, 0.06, 'triangle', 0.18);
@@ -260,6 +274,9 @@ export class AudioManager {
       case 'splashChainHit':
         this.splashChainHit();
         break;
+      case 'manaSurge':
+        this.manaSurge();
+        break;
       case 'impact':
         // 撞击：低频下扫 thud + 短噪声层，营造厚重卡肉感
         this.thud();
@@ -275,7 +292,7 @@ export class AudioManager {
    * 采样源 newest-wins——新采样起播时旧的 70ms 快速淡出后停止。
    */
   playStatusApply(statusId: string): void {
-    if (!this.ctx || !this.sfxBus || this.muted) return;
+    if (!this.ctx || !this.sfxBus || !this.syncPlayerPreferences()) return;
     const normalized = normalizeStatusKey(statusId);
     const key = normalized in STATUS_SAMPLE_URLS ? normalized : canonicalStatusSoundId(statusId);
     if (!key) return;
@@ -752,6 +769,13 @@ export class AudioManager {
     source.start(now);
   }
 
+  /** Mana Surge：破空上扫 + 高亮过音 */
+  private manaSurge(): void {
+    this.whoosh();
+    this.blip(920, 0.14, 'sine', 0.22);
+    this.blip(1380, 0.1, 'triangle', 0.14);
+  }
+
   /** Filtered noise sweep used by the generic cast/projectile fallback. */
   private whoosh(): void {
     if (!this.ctx || !this.sfxBus) return;
@@ -854,7 +878,7 @@ export class AudioManager {
   }
 
   private playChainLevel(level: number): void {
-    if (!this.ctx || !this.sfxBus || this.muted) return;
+    if (!this.ctx || !this.sfxBus || !this.syncPlayerPreferences()) return;
     const index = Math.min(GEM_CHAIN_URLS.length, level) - 1;
     const buffer = this.gemChainBuffers[index];
     if (!buffer) {

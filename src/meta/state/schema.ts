@@ -44,7 +44,7 @@ export interface Currencies {
   glory: number;
 }
 
-/** 素材库存（2026-09-19 素材批：淬炼钢锭 / 熔铸符卷 / 特质石；词表见 data/materials.ts） */
+/** 素材库存（钢锭 / 熔铸符卷 / 特质石 / 藏宝图） */
 export interface Materials {
   /** 钢锭按档位（键 = data/materials IngotKey） */
   ingots: Record<string, number>;
@@ -52,6 +52,8 @@ export interface Materials {
   forgeScrolls: number;
   /** 特质石：键 = '{tier}:{color}' 或 'celestial'（见 data/materials.stoneKey） */
   traitstones: Record<string, number>;
+  /** 藏宝图。战斗内获得后入包；技能读的是本场数量，不把库存带进下一场。 */
+  treasureMaps: number;
 }
 
 /** 武器淬炼等级：weaponId → level（0 起步，上限 20；WEAPON-FORGE-DESIGN §1 F2 接线） */
@@ -86,6 +88,9 @@ export interface TeamPreset {
 // 主角 / 竞技场 / 王国（系统逻辑后续里程碑落地，schema 先占位定版）
 // ---------------------------------------------------------------------------
 
+/** 六色法力精通的色键（与引擎 BaseColor 字符串值对齐） */
+export type ManaColor = 'Red' | 'Green' | 'Blue' | 'Yellow' | 'Purple' | 'Brown';
+
 export interface HeroState {
   level: number;
   xp: number;
@@ -93,6 +98,8 @@ export interface HeroState {
   classLevels: Record<string, number>;
   /** 职业当前经验（冠军等级 1~100） */
   classXp: Record<string, number>;
+  /** 职业胜场（携带主角并以该职业出战的胜利次数，专属武器 250 胜门槛） */
+  classWins: Record<string, number>;
   unlockedClasses: string[];
   unlockedWeapons: string[];
   equippedWeapon: string | null;
@@ -103,6 +110,10 @@ export interface HeroState {
   talentPicks: Record<string, (string | null)[]>;
   /** classId → 职业专属特质三槽解锁状态（顺序同 classes.json perks） */
   classTraits: Record<string, [boolean, boolean, boolean]>;
+  /** 个人法力精通（武器解锁只看此表；王国加成另计涌动） */
+  manaMastery: Record<ManaColor, number>;
+  /** 升级时排队的二选一：每次从两色中点一色 +1 */
+  masteryOffers: Array<[ManaColor, ManaColor]>;
 }
 
 /** 进行中的一轮现开赛（draft 卡即用即弃，不进 collection——裁定④） */
@@ -186,6 +197,7 @@ export interface KingdomState {
   /** 1~10 */
   level: number;
   questsDone: number;
+  /** Hard 1~3 / Very Hard 1~3（内部 1~6；0=未选） */
   exploreTier: number;
   /** 进贡离线结算锚点（epoch ms） */
   lastTributeAt: number;
@@ -251,6 +263,19 @@ export interface MetaSave {
    */
   eventWeeks: Partial<Record<EventTypeId, EventWeekState>>;
   settings: MetaSettings;
+  /**
+   * 进行中的寻宝。null = 没有未打完的一局。
+   * 开局已扣掉的藏宝图记在这一局里，刷新后接着下。
+   */
+  treasureHunt: TreasureHuntState | null;
+}
+
+/** 寻宝棋盘。cells 为 8×8，0 铜币 … 7 金库。 */
+export interface TreasureHuntState {
+  cells: number[];
+  turns: number;
+  moves: number;
+  rng: number;
 }
 
 export interface NewSaveOptions {
@@ -271,11 +296,14 @@ function newHero(): HeroState {
     classId: null,
     classLevels: {},
     classXp: {},
+    classWins: {},
     unlockedClasses: [],
     unlockedWeapons: [STARTER_WEAPON_ID],
     equippedWeapon: STARTER_WEAPON_ID,
     talentPicks: {},
     classTraits: {},
+    manaMastery: { Red: 0, Green: 0, Blue: 0, Yellow: 0, Purple: 0, Brown: 0 },
+    masteryOffers: [],
   };
 }
 
@@ -305,12 +333,13 @@ export function newSave(options: NewSaveOptions = {}): MetaSave {
     stats: { battlesWon: 0, battlesLost: 0, soulsEarned: 0, goldEarned: 0 },
     dailyFirstWinAt: 0,
     gachaLog: [],
-    materials: { ingots: {}, forgeScrolls: 0, traitstones: {} },
+    materials: { ingots: {}, forgeScrolls: 0, traitstones: {}, treasureMaps: 0 },
     materialsUnread: false,
     weaponTempering: {},
     invasion: { league: 0, vp: 0, weekStart: 0, seed: 0, lastWinDay: 0, battles: 0, bestLeague: 0, seasonsPlayed: 0 },
     eventWeeks: {},
     settings: { language: 'zh', battleDebug: false },
+    treasureHunt: null,
   };
   const starters = options.starterTroopIds ?? [];
   for (const id of starters) {

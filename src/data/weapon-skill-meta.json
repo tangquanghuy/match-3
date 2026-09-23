@@ -30,13 +30,9 @@
   "skippedClauses": []
  },
  "7071": {
-  "fidelity": "mana-only",
-  "missingFeatures": [
-   "mt-garbage"
-  ],
-  "skippedClauses": [
-   "对第 1 名敌人造成 {1} 点伤害"
-  ]
+  "fidelity": "full",
+  "missingFeatures": [],
+  "skippedClauses": []
  },
  "7072": {
   "fidelity": "full",
@@ -383,13 +379,9 @@
   "skippedClauses": []
  },
  "7188": {
-  "fidelity": "mana-only",
-  "missingFeatures": [
-   "stat-double"
-  ],
-  "skippedClauses": [
-   "使 1 名盟友的护甲值翻倍"
-  ]
+  "fidelity": "full",
+  "missingFeatures": [],
+  "skippedClauses": []
  },
  "7189": {
   "fidelity": "full",
@@ -397,13 +389,9 @@
   "skippedClauses": []
  },
  "7190": {
-  "fidelity": "mana-only",
-  "missingFeatures": [
-   "dmg-base-targetStat"
-  ],
-  "skippedClauses": [
-   "对 1 名敌人造成等同于其攻击力的伤害"
-  ]
+  "fidelity": "full",
+  "missingFeatures": [],
+  "skippedClauses": []
  },
  "7191": {
   "fidelity": "full",
@@ -450,13 +438,9 @@
   "skippedClauses": []
  },
  "7199": {
-  "fidelity": "mana-only",
-  "missingFeatures": [
-   "stat-double"
-  ],
-  "skippedClauses": [
-   "使 1 名盟友的攻击力翻倍，并为其提供 [魔法 + 1] 点生命值"
-  ]
+  "fidelity": "full",
+  "missingFeatures": [],
+  "skippedClauses": []
  },
  "7200": {
   "fidelity": "full",
@@ -484,13 +468,9 @@
   "skippedClauses": []
  },
  "7217": {
-  "fidelity": "mana-only",
-  "missingFeatures": [
-   "clear-line-of-gem"
-  ],
-  "skippedClauses": [
-   "爆破一颗宝石，并摧毁该行"
-  ]
+  "fidelity": "full",
+  "missingFeatures": [],
+  "skippedClauses": []
  },
  "7218": {
   "fidelity": "full",
@@ -3700,13 +3680,9 @@
   "skippedClauses": []
  },
  "10045": {
-  "fidelity": "mana-only",
-  "missingFeatures": [
-   "en-only-text"
-  ],
-  "skippedClauses": [
-   "EN-only 快照（zh 法术文本缺失），待中文数据补全后回收"
-  ]
+  "fidelity": "full",
+  "missingFeatures": [],
+  "skippedClauses": []
  },
  "10046": {
   "fidelity": "full",
@@ -3734,21 +3710,13 @@
   "skippedClauses": []
  },
  "10063": {
-  "fidelity": "mana-only",
-  "missingFeatures": [
-   "en-only-text"
-  ],
-  "skippedClauses": [
-   "EN-only 快照（zh 法术文本缺失），待中文数据补全后回收"
-  ]
+  "fidelity": "full",
+  "missingFeatures": [],
+  "skippedClauses": []
  },
  "10065": {
-  "fidelity": "mana-only",
-  "missingFeatures": [
-   "en-only-text"
-  ],
-  "skippedClauses": [
-   "EN-only 快照（zh 法术文本缺失），待中文数据补全后回收"
-  ]
+  "fidelity": "full",
+  "missingFeatures": [],
+  "skippedClauses": []
  }
 }

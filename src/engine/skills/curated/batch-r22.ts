@@ -63,7 +63,7 @@ import {
   destroyRandomRows, destroyRandomCols, destroyArea, destroyChosenCross, explodeRandomGems,
   explodeRandomGemsAny, explodeRandomSkulls, summonRef, summonRandom, extraTurn, sacrifice,
   devour, summonCopy, swapPositions, transformSelfFrom, boostPer, gainSouls, gainGold, scale, flat,
-  oneOf, randomStat, reposition, skillOnce, stealRandomStat,
+  oneOf, randomStat, reposition, skillOnce, stealRandomStat, CELL, explodeAt,
 } from '../builders';
 import { BaseColor } from '../../types';
 import type { CondMult } from '../effects/secondary';
@@ -110,9 +110,9 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 7000,
     desc: '摧毁 1 颗宝石和其两侧的宝石。',
     // 官方句（9052 同款 EN「…a gem and the Gems either side of it」）= Block1x3 一行三格：
-    // 裸单颗 → 随机锚格 + 同行左右各一格（row3 + RANDOM 中心，R22 新原语）。
+    // 裸单颗 → 玩家点选锚格 + 同行左右各一格（row3 + CELL）。
     build: skill(
-    destroyArea('row3', 'destroy', 'RANDOM'),
+    destroyArea('row3', 'destroy', CELL),
     ),
   },
   {
@@ -593,9 +593,9 @@ const SPELLS: CuratedBatch['spells'] = [
   {
     id: 7977,
     desc: '爆破一颗宝石。创造 4 颗绿色宝石，数量因被摧毁的骷髅头数而增强。 [x3]',
-    // 裸单颗爆破 = 随机一颗（§11 追加口径）；「被摧毁的骷髅头数」= destroyedGems skulls。
+    // 裸单颗爆破 = 点选一格；「被摧毁的骷髅头数」= destroyedGems skulls。
     build: skill(
-    explodeRandomGems(1),
+    explodeAt(CELL),
     createGems(BaseColor.Green, 4, 0, { modifier: boostPer({ kind: 'destroyedGems', skulls: true }, 3) }),
     ),
   },
@@ -1009,9 +1009,9 @@ const SPELLS: CuratedBatch['spells'] = [
   {
     id: 8812,
     desc: '爆破一颗宝石。每有一颗骷髅头被摧毁，则再爆破一颗随机宝石。 [1:1]',
-    // 「每有一颗骷髅头被摧毁则再爆破一颗」= destroyedGems skulls 驱动爆破数量 [1:1]。
+    // 首颗点选；「每有一颗骷髅头被摧毁则再爆破一颗」= destroyedGems skulls 驱动爆破数量 [1:1]。
     build: skill(
-    explodeRandomGems(1),
+    explodeAt(CELL),
     explodeRandomGems(1, 0, 'all', undefined, { modifier: boostPer({ kind: 'destroyedGems', skulls: true }, 1) }),
     ),
   },
@@ -1061,10 +1061,10 @@ const SPELLS: CuratedBatch['spells'] = [
   {
     id: 9052,
     desc: '爆破一颗宝石和其两边的宝石。再使一名随机敌人陷入缠绕和织网状态。',
-    // 官方句「Explode a gem and the Gems either side of it」= row3 一行三格 + RANDOM 锚
-    // （R22 新原语，7000 同款 explode 版）；缠绕+织网双施加。
+    // 官方句「Explode a gem and the Gems either side of it」= row3 一行三格 + 点选锚
+    // （R22 原语，7000 同款 explode 版）；缠绕+织网双施加。
     build: skill(
-    destroyArea('row3', 'explode', 'RANDOM'),
+    destroyArea('row3', 'explode', CELL),
     inflict('entangle', 'enemyRandom'),
     inflict('web', 'enemyRandom'),
     ),

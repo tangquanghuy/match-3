@@ -3,7 +3,7 @@
   "schemaVersion": 1,
   "battleId": "standalone-local",
   "requestId": "standalone-local-1",
-  "rulesetVersion": "1.0.0",
+  "rulesetVersion": "1.1.0",
   "seed": 20260830,
   "playerTeam": [
     {

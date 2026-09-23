@@ -8,7 +8,7 @@
  * src/data/weapon-skill-meta.json）。组装规则锚定 scripts/spell-rules.md 与
  * 既有部队批次先例；生成器 scripts/_weapon_pools.mjs gen。
  */
-import { armor, attack, cleanse, createGems, createGemsMixAny, createMix, createSkulls, createSpecialGems, createStorm, destroyChosenCol, destroyChosenRow, destroyColor, destroyRandomGems, destroySkulls, devour, dmg, dmgSplash, drainMana, explodeRandomGems, extraTurn, flat, gainGold, gainMaps, gainSouls, heal, inflict, magic, mana, oneOf, randomStat, reduce, reposition, scale, shuffleBoard, skill, steal, stealRandomStat, summonRandom, summonRef, transformTroopRandom, trueDmg, CHOSEN, CASTER } from '../builders';
+import { armor, attack, cleanse, createGems, createGemsMixAny, createMix, createSkulls, createSpecialGems, createStorm, destroyChosenCol, destroyChosenRow, destroyColor, destroyRandomGems, destroySkulls, devour, dmg, dmgSplash, drainMana, explodeRandomGems, extraTurn, flat, gainGold, gainMaps, gainSouls, heal, inflict, magic, mana, oneOf, randomStat, reduce, reposition, scale, shuffleBoard, skill, steal, stealRandomStat, summonRandom, summonRef, transformTroopRandom, trueDmg, CHOSEN, CASTER, CELL, explodeAt } from '../builders';
 import { BaseColor } from '../../types';
 import type { CuratedBatch } from './index';
 
@@ -217,7 +217,7 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 7094,
     desc: '爆破一颗宝石。',
     build: skill(
-      explodeRandomGems(1, 0, 'color', undefined),
+      explodeAt(CELL),
     ),
   },
   {
@@ -1021,7 +1021,7 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 7306,
     desc: '爆破一颗宝石。对 1 名随机敌人造成 [魔法 + 5] 点伤害并将其燃烧。',
     build: skill(
-      explodeRandomGems(1, 0, 'color', undefined),
+      explodeAt(CELL),
       dmg('enemyRandom', 5, 1),
       inflict('burning', 'lastTarget'),
     ),

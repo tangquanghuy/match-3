@@ -15,7 +15,7 @@ export const BATTLE_SCHEMA_VERSION = 1;
  * 规则解释版本。回合顺序、结算次序、法力/伤害公式等发生行为变化时递增，
  * 用于让宿主知道同一份 request 在不同客户端版本下可能得出不同结果。
  */
-export const RULESET_VERSION = '1.0.0';
+export const RULESET_VERSION = '1.1.0';
 
 /** 战斗中的一方。宿主视角固定为 player / enemy，不暴露引擎的 Left/Right。 */
 export type BattleSideName = 'player' | 'enemy';
@@ -111,6 +111,12 @@ export interface BattleRequest {
    */
   playerBanner?: { boosts: Partial<Record<BaseColor, number>> };
   /**
+   * 玩家方法力精通（战斗涌动概率）。键省略 = 0。可选字段，不构成 schemaVersion 变更。
+   */
+  playerManaMastery?: Partial<Record<BaseColor, number>>;
+  /** 敌方法力精通（PvE 通常省略 = 永不 3 消涌动；5 消仍必涌动）。 */
+  enemyManaMastery?: Partial<Record<BaseColor, number>>;
+  /**
    * 战斗模式（可选，加性字段）。'pvp' = 竞技场对战（官方 PvP 场景映射）：
    * 引擎在该场启用 pvpBonus 类特质（exemplar「PvP 战斗中获得 5 点攻击力」等）与
    * PvP 结算经济（bloodandglory 的荣耀映射）。既有请求不传即无影响。
@@ -166,10 +172,10 @@ export interface BattleResult {
   /** 本场召唤物数量，供宿主核对战斗过程而无需完整事件流 */
   summonedCount: number;
   /**
-   * 战场经济三币总额（DECISIONS 四项拍板①）：金币/灵魂/宝石共用池的最终值
-   * （战后经济特质加成已放大）。可选字段，老宿主忽略即可。
+   * 战场经济：金币/灵魂/宝石，以及本场获得的藏宝图。
+   * maps 可选；战后入背包，下一场从 0 重新累计。
    */
-  economy?: { gold: number; souls: number; gems: number };
+  economy?: { gold: number; souls: number; gems: number; maps?: number };
   /** 行动序列摘要，用于复现校验：同 seed + 同 digest 应得到同一场战斗 */
   actionLogDigest: string;
   eventSummary: BattleEventSummary[];

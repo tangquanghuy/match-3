@@ -25,6 +25,7 @@ import { CATALOG_WEAPONS } from '../data/weaponCatalog';
 import { fail, type MetaFailure } from '../types';
 import { activeTeam } from './teamRules';
 import { equippedBannerOf } from './banners';
+import { combatManaMastery, toEngineMastery } from './manaMastery';
 import { getRecord } from './troopProgress';
 import { kingdomBonusOf } from './kingdomOps';
 import type { KingdomStatBonus } from './kingdomOps';
@@ -56,14 +57,29 @@ import { temperingLevelOf } from './forgeOps';
 import type { EncounterEnemy, EncounterPlan } from './encounter';
 
 /**
- * 已实现特质白名单（见 data/traitIndex.ts；与 App 的校验口径同源）。
- * troops.json 引用 785 种 code、引擎实现其中 361 种：快照组装时把未实现 code
- * 过滤掉（引擎本就安全忽略），既保住严格校验的意义，也不放行「假特质」。
+ * 会话校验用的特质白名单：兵种已实现 code + 动态天赋/职业特质 + 静态效果天赋 code。
+ * 静态天赋（如督军 ferocity）行为在快照期由 heroStatBonus 算进四维，引擎会安全忽略，
+ * 但校验必须放行，否则入侵/竞技场会把带天赋的主角队拦下。
  */
+export function metaKnownTraitIds(): Set<string> {
+  return new Set([
+    ...KNOWN_TRAIT_CODES,
+    ...dynamicTraitCodes(),
+    ...CLASSES.flatMap((c) => [
+      ...c.trees.flatMap((t) => t.talents.map((x) => x.code)),
+      ...c.perks.map((p) => p.code),
+    ]),
+  ]);
+}
 
-/** 按槽位开关过滤到客户端已实现的特质 code */
+/** 按槽位开关过滤到客户端已实现的特质 code（未实现 code 不进快照，避免假特质过校验） */
 function knownTraits(troop: TroopData, enabled: (index: number) => boolean): string[] {
   return troop.traits.filter((t, i) => enabled(i) && KNOWN_TRAIT_CODES.has(t.code)).map((t) => t.code);
+}
+
+/** 卡面展示槽：已解锁的特质都画出来（引擎未实现的也出图标）。 */
+function displayTraits(troop: TroopData, enabled: (index: number) => boolean): string[] {
+  return troop.traits.filter((_, i) => enabled(i)).map((t) => t.code);
 }
 
 /** 玩家部队 → 战斗快照（养成等级决定四维；特质只带已解锁槽；statBonus = 王国 10 级加成） */
@@ -95,7 +111,7 @@ export function troopToSnapshot(
     spellName: troop.spell.name,
     spellDescription: troop.spell.description,
     traitNames: Object.fromEntries(troop.traits.map((t) => [t.code, t.name])),
-    displayTraitIds: knownTraits(troop, (i) => rec.traits[i]),
+    displayTraitIds: displayTraits(troop, (i) => rec.traits[i]),
   };
 }
 
@@ -113,12 +129,13 @@ export function enemyToSnapshot(troop: TroopData, enemy: EncounterEnemy, index: 
     troopTypes: [...troop.troopTypes],
     manaColors: [...troop.manaColors],
     manaCost: troop.manaCost,
-    // 敌人满配特质（AI 无养成概念），同样只带已实现 code
+    // 引擎只带已实现 code；卡面三槽按图鉴全开，未实现的也出图标
     traitIds: knownTraits(troop, () => true),
     skillId: String(troop.spell.id),
     spellName: troop.spell.name,
     spellDescription: troop.spell.description,
     traitNames: Object.fromEntries(troop.traits.map((t) => [t.code, t.name])),
+    displayTraitIds: displayTraits(troop, () => true),
   };
 }
 
@@ -171,11 +188,6 @@ export function buildPlayerSnapshots(
   const talentEffects = selectedTalents(save);
   const talentCodes = heroTraitCodes(save);
   const heroBase = heroStatsOf(save);
-  // 淬炼面板加成（WEAPON-FORGE-DESIGN §2）：每 2 级 +1，按 攻/甲/血/魔 轮转分配
-  const temperPoints = Math.floor(temperingLevelOf(save, weapon?.id ?? '') / 2);
-  const temperSeq = ['attack', 'armor', 'health', 'magic'] as const;
-  const temperBonus = { attack: 0, armor: 0, health: 0, magic: 0 };
-  for (let i = 0; i < temperPoints; i++) temperBonus[temperSeq[i % 4]!] += 1;
   // 天赋加成的作用对象判定：全队种族计数（含主角采纳的职业类型）——
   // 「每有一名X盟友」按计数乘，「全队静态」按类型/颜色命中
   const allyTypeCounts = new Map<string, number>();
@@ -210,14 +222,14 @@ export function buildPlayerSnapshots(
       const displayTraitIds = heroDisplayTraitIds(save);
       playerTeam.push({
         externalId: `p${position}-hero`,
-        name: '法露特',
+        name: '主角',
         levelLabel: `Lv.${save.hero.level}`,
         portraitUrl: '/meta/assets/troops/hero.webp',
         stats: {
-          hp: heroBase.health + statBonus.health + heroTalent.health + heroAura.health + temperBonus.health,
-          attack: heroBase.attack + statBonus.attack + heroTalent.attack + heroAura.attack + temperBonus.attack,
-          armor: heroBase.armor + statBonus.armor + heroTalent.armor + heroAura.armor + temperBonus.armor,
-          magic: heroBase.magic + statBonus.magic + heroTalent.magic + heroAura.magic + temperBonus.magic,
+          hp: heroBase.health + statBonus.health + heroTalent.health + heroAura.health,
+          attack: heroBase.attack + statBonus.attack + heroTalent.attack + heroAura.attack,
+          armor: heroBase.armor + statBonus.armor + heroTalent.armor + heroAura.armor,
+          magic: heroBase.magic + statBonus.magic + heroTalent.magic + heroAura.magic,
         },
         troopTypes: [heroClass?.troopType ?? 'Human'],
         manaColors: weapon?.manaColors.length ? [...weapon.manaColors] : [BaseColor.Brown],
@@ -289,18 +301,15 @@ export function buildBattleRequest(save: MetaSave, plan: EncounterPlan): BridgeO
   if (banner && Object.keys(banner.boosts).length > 0) {
     request.playerBanner = { boosts: { ...banner.boosts } };
   }
+  const mastery = toEngineMastery(combatManaMastery(save));
+  if (Object.keys(mastery).length > 0) request.playerManaMastery = mastery;
 
   const registry = buildMetaRegistry(
     [...playerTeam, ...enemyTeam].map((s) => s.skillId as string),
   );
   const check = validateBattleRequest(request, {
     knownSkillIds: new Set([...registry.skills.keys(), ...registry.prototypes.keys()]),
-    knownTraitIds: new Set([
-      ...KNOWN_TRAIT_CODES,
-      ...dynamicTraitCodes(),
-      // 静态效果天赋的 code 无引擎定义（行为在快照期计算），也放进白名单供校验通过
-      ...CLASSES.flatMap((c) => c.trees.flatMap((t) => t.talents.map((x) => x.code))),
-    ]),
+    knownTraitIds: metaKnownTraitIds(),
     knownTroopTypes: knownTroopTypes(),
   });
   if (!check.ok) {

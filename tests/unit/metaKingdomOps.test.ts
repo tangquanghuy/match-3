@@ -67,7 +67,7 @@ describe('王国黄金升级', () => {
 });
 
 describe('探索与地图节点状态', () => {
-  it('任务链 8 关全通才解锁探索；档位 1~5', () => {
+  it('任务链 8 关全通才解锁 HARD / VERY HARD；档位 1~6', () => {
     const s = save();
     expect(exploreUnlocked(s, KINGDOM)).toBe(false);
     expect(setExploreTier(s, KINGDOM, 1)).toMatchObject({ ok: false, code: 'PREREQ_LOCKED' });
@@ -75,7 +75,8 @@ describe('探索与地图节点状态', () => {
     expect(exploreUnlocked(s, KINGDOM)).toBe(true);
     expect(setExploreTier(s, KINGDOM, 3)).toEqual({ ok: true, tier: 3 });
     expect(s.kingdoms[KINGDOM]?.exploreTier).toBe(3);
-    expect(setExploreTier(s, KINGDOM, 6)).toMatchObject({ ok: false, code: 'INVALID' });
+    expect(setExploreTier(s, KINGDOM, 6)).toEqual({ ok: true, tier: 6 });
+    expect(setExploreTier(s, KINGDOM, 7)).toMatchObject({ ok: false, code: 'INVALID' });
   });
 
   it('节点状态：主角等级门槛、任务进度、进贡气泡、探索标记', () => {

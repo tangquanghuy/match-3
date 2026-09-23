@@ -3,10 +3,7 @@
  * 加上状态宝石族（波A）清尾）。核对者：窗口 G，20 条。裁定依据 spell-rules §11。
  * 原批次 skipped 对应条目已同步剪除。
  */
-import { skill, dmg, dmgSplash, heal, armor, attack, mana, inflict, randomStat,
-  createGems, createSkulls, createSpecialGems, transformToSpecial, explodeRandomGems,
-  oneOf, summonRef, summonRandom, sacrifice, inflictRandom, transformTroopRandom,
-  gainMaps } from '../builders';
+import { skill, dmg, dmgSplash, heal, armor, attack, mana, inflict, randomStat, createGems, createSkulls, createSpecialGems, transformToSpecial, explodeRandomGems, oneOf, summonRef, summonRandom, sacrifice, inflictRandom, transformTroopRandom, gainMaps, CELL, explodeAt } from '../builders';
 import { BaseColor } from '../../types';
 import type { CuratedBatch } from './index';
 
@@ -117,7 +114,7 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 8841,
     desc: '爆破一颗宝石并造成 [魔法 + 6] 点散射伤害。若自身队伍有梁帝，则赋予首 2 位盟友屏障效果。',
     build: skill(
-      explodeRandomGems(1, 0),
+      explodeAt(CELL),
       // 裸散射重裁（2026-09-18）：官方 ScatterDamage@AllEnemies = 全体散射
       dmg('enemyAll', 6, 1, { range: 'all' }),
       inflict('barrier', 'allyFirstN', { n: 2, ifCond: { kind: 'troopPresent', side: 'ally', name: '梁帝' } }),

@@ -289,8 +289,9 @@
 - **selfStatus 条件**：「若自身身处狂怒状态」→ `{ kind: 'selfStatus', statusId: 'rage' }`（全局条件）。
 - **并列数值段共用 scaling**：「获得 [M+1] 点护甲值和攻击力」单方括号管两段 → 两段同值
   （meta.scalings 仅 1 条时的固定口径）。
-- **裸单颗宝石操作**：「爆破/摧毁一颗宝石」无 随机/选定 修饰词 = 随机一颗
-  （与裸伤害句式同理，汉化省略修饰词）。
+- **裸单颗宝石操作**：「爆破/摧毁一颗宝石」无 随机 修饰词 = 玩家点选一格
+  → `explodeAt(CELL)` / `destroyAt(CELL)`（「爆破一颗宝石和其两边」= `destroyArea('row3', …, CELL)`）。
+  文案写明「随机爆破」才走 `explodeRandomGems`。
 - **「有 N% 几率自毁」** = `sacrifice('allySelf', { chance: N })`。
 - **「有等同于自身魔法值的几率摧毁敌人」** = execute 段 `chance: 0` +
   `chanceBoost { multiplier 1, selfStat magic }`（概率 = chance + boost）。

@@ -8,7 +8,7 @@
  * 1. 可关：面板内「不再确认」复选框写 `battle.skipCastConfirm`（`battlePrefs.ts`），但**默认开**；
  * 2. 数字必须是**求值后**的——复用 `meta/shell/spellText.ts` 的 `renderSpell(desc, magic)`，
  *    与英雄页/武器图鉴同一套渲染（避免战斗层与养成页两套算法）；
- * 3. 目标预览：把候选/确定目标的卡片高亮（由调用方传入卡片元素），面板里也列出名字。
+ * 3. 目标预览：调用方在战场上高亮候选卡，本层同步列出候选名字与作用范围。
  *
  * 关闭方式三条齐全：取消钮 / 点背景 / Esc（与 `CharacterDetailPanel` 同口径）。
  */
@@ -34,6 +34,8 @@ export interface CastConfirmInfo {
    * - 全体/无目标 → 技能文本自带，留空。
    */
   targetNote: string;
+  /** 战场上的候选目标卡；确认层会在遮罩上方描出对应轮廓。 */
+  targetElements?: readonly HTMLElement[];
 }
 
 let stylesInjected = false;
@@ -46,7 +48,15 @@ function ensureStyles(): void {
     align-items:center;justify-content:center;
     font-family:"Oswald","PingFang SC","Microsoft YaHei",sans-serif}
   .ccp-backdrop.open{display:flex}
+  .ccp-preview-layer{position:absolute;inset:0;z-index:1;pointer-events:none}
+  .ccp-preview-target{position:absolute;border:2px solid #e6c979;border-radius:9px;
+    box-sizing:border-box;box-shadow:0 0 0 2px rgba(6,5,4,.7),0 0 16px rgba(230,201,121,.78);
+    animation:ccp-target-pulse 1.25s ease-in-out infinite}
+  .ccp-preview-target.friendly{border-color:#65d58a;box-shadow:0 0 0 2px rgba(6,5,4,.7),0 0 16px rgba(87,212,122,.8)}
+  .ccp-preview-target.hostile{border-color:#ee7b6f;box-shadow:0 0 0 2px rgba(6,5,4,.7),0 0 16px rgba(238,105,93,.8)}
+  @keyframes ccp-target-pulse{0%,100%{opacity:.62}50%{opacity:1}}
   .ccp{position:relative;width:min(380px,84vw);max-height:80%;overflow-y:auto;
+    z-index:2;
     background:linear-gradient(160deg,#171208 0%,#0d0a06 100%);
     border:1px solid rgba(216,194,144,.45);border-radius:10px;
     box-shadow:0 14px 42px rgba(0,0,0,.75);color:#f0e2bf;padding:16px 18px 14px;
@@ -77,7 +87,7 @@ function ensureStyles(): void {
   .ccp-skip{display:flex;align-items:center;gap:6px;margin-top:10px;font-size:11px;color:#8a7c5c;
     cursor:pointer;user-select:none}
   .ccp-skip input{width:14px;height:14px;accent-color:#c9a35c;cursor:pointer}
-  @media (prefers-reduced-motion:reduce){.ccp{animation:none}}
+  @media (prefers-reduced-motion:reduce){.ccp{animation:none}.ccp-preview-target{animation:none}}
   `;
   const style = document.createElement('style');
   style.id = 'ccp-styles';
@@ -91,6 +101,7 @@ function esc(s: string): string {
 
 export class CastConfirmPanel {
   private backdrop: HTMLDivElement;
+  private previewLayer: HTMLDivElement;
   private panel: HTMLDivElement;
   private pending: ((ok: boolean) => void) | null = null;
   private keyHandler: ((e: KeyboardEvent) => void) | null = null;
@@ -99,9 +110,16 @@ export class CastConfirmPanel {
     ensureStyles();
     this.backdrop = document.createElement('div');
     this.backdrop.className = 'ccp-backdrop';
+    this.backdrop.setAttribute('role', 'presentation');
+    this.previewLayer = document.createElement('div');
+    this.previewLayer.className = 'ccp-preview-layer';
+    this.previewLayer.setAttribute('aria-hidden', 'true');
     this.panel = document.createElement('div');
     this.panel.className = 'ccp';
-    this.backdrop.appendChild(this.panel);
+    this.panel.setAttribute('role', 'dialog');
+    this.panel.setAttribute('aria-modal', 'true');
+    this.panel.setAttribute('aria-label', '确认释放技能');
+    this.backdrop.append(this.previewLayer, this.panel);
     parent.appendChild(this.backdrop);
     this.backdrop.addEventListener('click', (e) => {
       if (e.target === this.backdrop) this.settle(false);
@@ -140,16 +158,18 @@ export class CastConfirmPanel {
         <button class="ccp-btn ccp-cancel" type="button">取 消</button>
         <button class="ccp-btn ccp-cast" type="button">释 放</button>
       </div>
-      <label class="ccp-skip"><input type="checkbox" class="ccp-skip-box">本场之后不再确认（可在设置里改回）</label>
+      <label class="ccp-skip"><input type="checkbox" class="ccp-skip-box">之后跳过技能确认（可在设置中恢复）</label>
     `;
-    this.panel.querySelector('.ccp-cast')?.addEventListener('click', () => {
+    const accept = () => {
       if ((this.panel.querySelector('.ccp-skip-box') as HTMLInputElement | null)?.checked) {
         setSkipCastConfirm(true);
       }
       this.settle(true);
-    });
-    this.panel.querySelector('.ccp-cancel')?.addEventListener('click', () => this.settle(false));
+    };
+    this.panel.querySelector('.ccp-cast')?.addEventListener('click', accept);
     this.backdrop.classList.add('open');
+    this.renderTargetPreviews(info.targetElements ?? []);
+    this.panel.querySelector('.ccp-cancel')?.addEventListener('click', () => this.settle(false));
     (this.panel.querySelector('.ccp-cast') as HTMLElement | null)?.focus();
 
     return new Promise<boolean>((resolve) => {
@@ -158,9 +178,6 @@ export class CastConfirmPanel {
         if (e.key === 'Escape') {
           e.stopPropagation();
           this.settle(false);
-        } else if (e.key === 'Enter') {
-          e.stopPropagation();
-          this.settle(true);
         }
       };
       window.addEventListener('keydown', this.keyHandler, true);
@@ -174,6 +191,7 @@ export class CastConfirmPanel {
 
   private settle(ok: boolean): void {
     this.backdrop.classList.remove('open');
+    this.previewLayer.replaceChildren();
     if (this.keyHandler) {
       window.removeEventListener('keydown', this.keyHandler, true);
       this.keyHandler = null;
@@ -181,5 +199,27 @@ export class CastConfirmPanel {
     const resolve = this.pending;
     this.pending = null;
     resolve?.(ok);
+  }
+
+  private renderTargetPreviews(targets: readonly HTMLElement[]): void {
+    this.previewLayer.replaceChildren();
+    if (targets.length === 0) return;
+    const host = this.backdrop.getBoundingClientRect();
+    const scaleX = host.width > 0 && this.backdrop.offsetWidth > 0
+      ? host.width / this.backdrop.offsetWidth
+      : 1;
+    const scaleY = host.height > 0 && this.backdrop.offsetHeight > 0
+      ? host.height / this.backdrop.offsetHeight
+      : scaleX;
+    for (const target of targets) {
+      const rect = target.getBoundingClientRect();
+      const outline = document.createElement('span');
+      outline.className = `ccp-preview-target ${target.classList.contains('ally') ? 'friendly' : 'hostile'}`;
+      outline.style.left = `${(rect.left - host.left) / scaleX}px`;
+      outline.style.top = `${(rect.top - host.top) / scaleY}px`;
+      outline.style.width = `${rect.width / scaleX}px`;
+      outline.style.height = `${rect.height / scaleY}px`;
+      this.previewLayer.appendChild(outline);
+    }
   }
 }

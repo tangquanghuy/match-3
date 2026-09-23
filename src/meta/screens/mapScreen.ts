@@ -3,12 +3,15 @@
  * 节点/弹层的运行时数值全部来自存档 + kingdoms/tribute/kingdomOps 纯函数；
  * 小样仅保留布局与美术。任务/探索入口经 BattleLauncher 打真实对局。
  */
-import { isFailure, todayStartOf, weekStartOf, type MetaGateway } from '../gateway';import type { MetaSave } from '../state/schema';
+import { isFailure, todayStartOf, weekStartOf, type MetaGateway } from '../gateway';
+import type { MetaSave } from '../state/schema';
 import { KINGDOM_MAX_LEVEL, kingdomNodeState } from '../systems/kingdomOps';
-import { kingdomBonusStat, kingdomTroopPool } from '../data/kingdoms';
+import { EXPLORE_MAX_TIER, kingdomBonusStat, kingdomTroopPool } from '../data/kingdoms';
+import { EVENT_MILESTONES, EVENT_TYPES, type EventTypeId } from '../data/events';
 import { anyWeaponById } from '../data/weaponCatalog';
 import { kingdomUpgradeCost, INVASION, TRIBUTE } from '../data/economy';
-import { bottomNavHtml, mountIcons, toast, toastHtml, topbarHtml, $, $$ } from '../shell/chrome';
+import { eventMetricOf, eventShopOf } from '../systems/events';
+import { bottomNavHtml, fitStage, mountIcons, toast, toastHtml, topbarHtml, $, $$ } from '../shell/chrome';
 import type { Screen, ShellCtx } from '../shell/screen';
 import { ART, KINGDOM_VIEWS, kingdomViewOf, type KingdomView } from './mapData';
 
@@ -25,6 +28,38 @@ const clockOf = (ts: number): string => {
   return `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
 };
 
+export interface EventRailStatus {
+  claimableActivities: number;
+  affordableShops: number;
+  actionableActivities: number;
+}
+
+/** 地图入口只聚合“现在进去有事可做”的活动，六活动常驻本身不算提醒。 */
+export function eventRailStatus(save: MetaSave, weekStart: number): EventRailStatus {
+  const claimable = new Set<EventTypeId>();
+  const affordable = new Set<EventTypeId>();
+
+  for (const def of EVENT_TYPES) {
+    const shop = eventShopOf(save, weekStart, def.id);
+    const metric = eventMetricOf(save, weekStart, def.id);
+    const reached = EVENT_MILESTONES[def.id].some(
+      (milestone, index) => metric.value >= milestone.points && !shop.week.claimed.includes(index),
+    );
+    if (reached) claimable.add(def.id);
+
+    const canBuy = shop.rows.some(
+      (row) => (row.stockLeft === null || row.stockLeft > 0) && shop.week.tokens >= row.goods.cost,
+    );
+    if (canBuy) affordable.add(def.id);
+  }
+
+  return {
+    claimableActivities: claimable.size,
+    affordableShops: affordable.size,
+    actionableActivities: new Set([...claimable, ...affordable]).size,
+  };
+}
+
 export interface NodeVm {
   view: KingdomView;
   level: number;
@@ -33,7 +68,7 @@ export interface NodeVm {
   questsDone: number;
   nextNode: number | null;
   exploreUnlocked: boolean;
-  /** 当前探索难度档（1~5；0=没设过，按 1 显示） */
+  /** 当前 Hard/VH 关（1~6；0=没设过，按 1 显示） */
   exploreTier: number;
   tributeHours: number;
   tributeHits: number;
@@ -64,7 +99,7 @@ function nodeVms(gateway: MetaGateway): NodeVm[] {
       questsDone: state.questsDone,
       nextNode: state.nextNode,
       exploreUnlocked: state.exploreUnlocked,
-      exploreTier: Math.min(5, Math.max(1, save.kingdoms[view.name]?.exploreTier || 1)),
+      exploreTier: Math.min(EXPLORE_MAX_TIER, Math.max(1, save.kingdoms[view.name]?.exploreTier || 1)),
       tributeHours: state.tributeHours,
       tributeHits: state.tributeHits,
       tributeGold: state.tributeGold,
@@ -139,36 +174,80 @@ const MAP_CSS = `
     color: #a99f8c;
     border-top: 1px solid rgba(216, 194, 144, .18);
   }
-  /* M-7：可收进贡角标（系统层 ready 判据早就在，此前地图上根本没画） */
+  /* 可收进贡：无底衬，落在盾尖上轻轻浮动。纹章图下方有一段透明边，数字要盖住尖端而不是掉进空隙。 */
   .ktrib {
     position: absolute;
-    right: -6px; top: -4px;
-    display: inline-flex; align-items: center; gap: 3px;
-    padding: 2px 7px 3px;
-    background: linear-gradient(180deg, #6a5326, #3a2c11);
-    border: 1px solid #e1c891;
-    border-radius: 999px;
-    font: 600 11px "Microsoft YaHei UI", "Microsoft YaHei", sans-serif;
-    color: #ffeebb;
-    text-shadow: 0 1px 2px #000;
-    box-shadow: 0 2px 8px #000a;
+    left: 0;
+    right: 0;
+    bottom: 8px;
+    width: fit-content;
+    margin-inline: auto;
+    display: inline-flex; align-items: center; gap: 4px;
+    padding: 0;
+    background: none;
+    border: 0;
+    border-radius: 0;
+    box-shadow: none;
+    font: 700 26px Georgia, "Times New Roman", serif;
+    letter-spacing: .2px;
+    line-height: 1;
+    color: #ffe7a4;
+    text-shadow:
+      0 1px 0 #140e06,
+      1px 0 0 #140e06,
+      -1px 0 0 #140e06,
+      0 -1px 0 #140e06;
     pointer-events: none;
-    z-index: 2;
+    z-index: 4;
+    white-space: nowrap;
+    animation: ktrib-bob 2.4s ease-in-out infinite;
   }
-  .ktrib [data-icon] { width: 11px; height: 11px; color: #ffd77a; }
+  .ktrib [data-icon] { width: 22px; height: 22px; color: #ffe7a4; filter: drop-shadow(0 1px 0 #140e06); }
   .ktrib.over {
-    background: linear-gradient(180deg, #7a3a34, #3a1614);
-    border-color: #c45454;
-    color: #ffd9d2;
+    color: #ffc8bc;
+    animation-duration: 1.6s;
   }
-  /* M-10：满溢警示（这条规则此前只写在钱币来源弹层里，等于没写） */
-  .chip.over { border-color: #c45454; color: #ffd9d2; }
-  .tribute-row.over #tributeCopy { color: #e7a79c; }
+  .ktrib.over [data-icon] { color: #ffc8bc; }
+  @keyframes ktrib-bob {
+    0%, 100% { transform: translateY(1px); }
+    50% { transform: translateY(-5px); }
+  }
+  /* 满溢时底栏按钮转红，文案只说「已满」，不再报国数 */
+  .chip.over { border-color: #c45454; color: #ffd9d2; background: linear-gradient(180deg, rgba(90, 36, 32, .96), rgba(28, 12, 12, .96)); }
+  .tribute-row.over #tributeCopy { color: #ffd0c8; }
 
   /* M-11：左右 rail 基线对齐。原 translateY(-58%) 对不同条目数给出不同基线（实测错开 58px） */
   .map-shell .rail { top: 96px; transform: none; }
   /* 锁态小锁原先压在副题文字上（入侵/战役/馈赠三处），挪到菱形右上角 */
   .map-shell .rail .rail-lock { right: -6px; bottom: auto; top: -6px; }
+  /* E-9：角标落在菱形外沿，不盖住活动图标；副题负责解释这个数字。 */
+  .map-shell .rail .rail-event-badge {
+    position: absolute;
+    top: -9px;
+    right: -24px;
+    min-width: 25px;
+    height: 22px;
+    padding: 0 6px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transform: rotate(-45deg);
+    border: 1px solid #f2d48d;
+    border-radius: 999px;
+    background: linear-gradient(180deg, #8d5b20, #4b2d0d);
+    color: #fff3c7;
+    font: 700 11px var(--body);
+    line-height: 1;
+    text-shadow: 0 1px 2px #000;
+    box-shadow: 0 2px 8px #000b, inset 0 1px rgba(255,255,255,.2);
+    pointer-events: none;
+  }
+  .map-shell .rail .rail-event-badge[hidden] { display: none; }
+  .map-shell #railEvents.has-actions .facet {
+    border-color: #e9c470;
+    box-shadow: 0 0 0 1px #0b0b13, 0 0 15px rgba(233,196,112,.3), inset 0 1px rgba(240,218,183,.45);
+  }
+  .map-shell #railEvents.has-actions .rail-copy small { color: #e1c47e; }
 
   /* M-5：标签防重叠——逐节点纵向让位，由 layoutLabels() 写入 --label-dy */
   .knode .kmeta { transform: translateY(var(--label-dy, 0px)) scale(var(--label-s, 1)); }
@@ -193,7 +272,6 @@ const MAP_CSS = `
     gap: 10px;
   }
   .kingdom-drawer header { display: flex; align-items: baseline; justify-content: space-between; }
-  .kingdom-drawer header small { display: block; letter-spacing: 3px; color: #91887a; }
   .kingdom-drawer header h2 { font: 22px var(--display); letter-spacing: 4px; color: #f4e2b4; }
   .kingdom-drawer input {
     width: 100%;
@@ -260,8 +338,8 @@ const MAP_CSS = `
     border-radius: 10px;
     box-shadow: 0 24px 80px #000c, inset 0 1px #f0dab718;
   }
-  .tribute-sheet small.eyebrow { letter-spacing: 3px; color: #91887a; }
   .tribute-sheet h2 { font: 22px var(--display); letter-spacing: 4px; color: #f4e2b4; }
+  .kingdom-info > h2, .tip-veil .money-tip h2 { margin-top: 0; }
   .tribute-sheet .tb-rows { flex: 1; min-height: 0; overflow-y: auto; display: flex; flex-direction: column; gap: 6px; }
   .tb-row {
     display: grid; grid-template-columns: 1fr auto; gap: 8px;
@@ -280,12 +358,340 @@ const MAP_CSS = `
   .tribute-sheet .tb-acts { display: flex; gap: 10px; justify-content: flex-end; align-items: stretch; }
   .tribute-sheet .tb-acts .cancel { flex: 0 0 auto; width: auto; padding: 0 20px; white-space: nowrap; }
   .tribute-sheet .tb-acts .primary { flex: 0 1 300px; }
+
+  /* K-1/K-6：战斗是唯一主行动；进贡是顺手拿，升级退到长线养成。 */
+  .kingdom-info { padding: 28px 38px 24px 34px; }
+  .kingdom-open-body { min-height: 0; display: flex; flex: 1; flex-direction: column; }
+  .kingdom-open-body .kv-grid {
+    gap: 8px;
+    margin: 12px 0 14px;
+    padding: 0;
+    border: 0;
+  }
+  .kstat {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-height: 64px;
+    padding: 8px 10px;
+    border: 1px solid rgba(198, 168, 112, .32);
+    border-radius: 10px;
+    background: linear-gradient(180deg, rgba(42, 36, 52, .95), rgba(16, 14, 22, .95));
+    box-shadow: inset 0 1px rgba(240, 218, 183, .12);
+  }
+  .kstat-mark {
+    width: 36px; height: 36px; flex: none;
+    display: grid; place-items: center;
+    border-radius: 9px;
+    background: rgba(8, 7, 12, .55);
+    border: 1px solid rgba(216, 194, 144, .4);
+    color: #f0d98c;
+  }
+  .kstat-mark svg, .kstat-mark .gic { width: 20px; height: 20px; }
+  .kstat small { display: block; margin: 0 0 2px; color: #9a9084; font-size: 11px; }
+  .kstat b {
+    display: flex; align-items: baseline; flex-wrap: wrap; gap: 6px;
+    font: 600 15px "Microsoft YaHei UI", "Microsoft YaHei", sans-serif;
+    color: #f6edd8;
+  }
+  .kstat b em { font-style: normal; font-size: 20px; color: #fff6df; letter-spacing: 0; }
+  .kstat b i { font-style: normal; font-size: 12px; color: #9a9084; }
+  .loot {
+    display: inline-flex; align-items: center; gap: 3px;
+    font: 700 16px Georgia, "Times New Roman", serif;
+    color: #ffe7a8;
+  }
+  .loot svg, .loot .gic { width: 15px; height: 15px; }
+  .loot.soul { color: #ddc8ff; }
+  .loot.key { color: #f3d48a; }
+  .kingdom-combat { display: flex; flex-direction: column; gap: 8px; }
+  .kingdom-section-kicker { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; }
+  .kingdom-section-kicker b { color: #d4c19e; font: 16px var(--display); letter-spacing: 2px; }
+  .kingdom-section-kicker small { color: #8e8493; font-size: 10px; }
+  .kingdom-main-entry {
+    min-height: 68px;
+    display: grid;
+    grid-template-columns: 38px minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 14px;
+    border-radius: 10px;
+    border-color: #c6ad73;
+    background: linear-gradient(105deg, #355c43, #223c2d 58%, #18271f);
+    box-shadow: inset 0 0 0 2px rgba(20, 38, 28, .5), inset 0 1px rgba(228, 242, 213, .2), 0 5px 14px rgba(0, 0, 0, .35);
+    text-align: left;
+  }
+  .kingdom-main-entry:hover:not(.locked) { border-color: #f0d99c; transform: translateY(-1px); }
+  .kingdom-main-entry > [data-icon] { width: 30px; height: 30px; margin: 0; color: #f2dc9e; }
+  .kingdom-main-entry .kingdom-action-copy { min-width: 0; }
+  .kingdom-main-entry .kingdom-action-copy b { margin: 0 0 4px; color: #fff0c7; font-size: 18px; letter-spacing: 1px; }
+  .kingdom-main-entry .kingdom-action-copy small { display: block; overflow: hidden; color: #c5d6c3; font-size: 11px; text-overflow: ellipsis; white-space: nowrap; }
+  .kingdom-main-entry .kingdom-action-go { display: inline-flex; align-items: center; gap: 5px; color: #ffe6a6; font: 14px var(--display); white-space: nowrap; }
+  .kingdom-main-entry .kingdom-action-go [data-icon] { width: 15px; height: 15px; transform: rotate(180deg); }
+  .kingdom-combat .entry-cards { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; margin-top: 0; }
+  .kingdom-combat .entry {
+    min-height: 64px;
+    display: grid;
+    grid-template-columns: 40px minmax(0, 1fr);
+    align-items: center;
+    gap: 10px;
+    padding: 8px 12px;
+    border-radius: 10px;
+  }
+  .kingdom-combat .entry > [data-icon] {
+    grid-row: 1 / span 2;
+    width: 36px; height: 36px; margin: 0;
+    display: grid; place-items: center;
+    border-radius: 9px;
+    background: rgba(8, 7, 12, .45);
+    border: 1px solid rgba(216, 194, 144, .32);
+    color: #f0d98c;
+  }
+  .kingdom-combat .entry > [data-icon] svg,
+  .kingdom-combat .entry > [data-icon] .gic { width: 18px; height: 18px; }
+  .kingdom-combat .entry b { margin: 0 0 2px; font-size: 15px; letter-spacing: 1px; }
+  .kingdom-combat .entry small { overflow: hidden; font-size: 12px; text-overflow: ellipsis; white-space: nowrap; }
+  .kingdom-combat .kingdom-main-entry { grid-template-columns: 38px minmax(0, 1fr) auto; }
+  .kingdom-combat .kingdom-main-entry > [data-icon] {
+    grid-row: auto;
+    width: 30px; height: 30px;
+    background: none;
+    border: 0;
+    color: #f2dc9e;
+  }
+  .kingdom-combat .kingdom-main-entry > [data-icon] svg,
+  .kingdom-combat .kingdom-main-entry > [data-icon] .gic { width: 30px; height: 30px; }
+  .kingdom-open-body .tribute-row {
+    align-items: center;
+    gap: 12px;
+    min-height: 0;
+    margin: 12px 0 10px;
+    padding: 0;
+    border: 0;
+  }
+  .tribute-meter { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 7px; }
+  .tribute-meter-head {
+    display: flex; align-items: center; gap: 6px;
+    color: #f0e2c4;
+    font: 600 14px "Microsoft YaHei UI", "Microsoft YaHei", sans-serif;
+  }
+  .tribute-meter-head [data-icon] { width: 16px; height: 16px; color: #e1c891; }
+  .tribute-meter-head [data-icon] svg, .tribute-meter-head .gic { width: 16px; height: 16px; }
+  .tribute-track {
+    height: 8px; border-radius: 999px;
+    background: #100e16;
+    border: 1px solid #5a4c3e;
+    overflow: hidden;
+  }
+  .tribute-track > i {
+    display: block; height: 100%; width: 0;
+    border-radius: inherit;
+    background: linear-gradient(90deg, #8a6730, #f0d98c);
+    box-shadow: 0 0 8px rgba(240, 217, 140, .35);
+  }
+  .tribute-row.over .tribute-track > i { background: linear-gradient(90deg, #8a3030, #e07070); box-shadow: 0 0 8px rgba(224, 112, 112, .4); }
+  .tribute-btn {
+    flex: 0 0 auto;
+    min-width: 108px;
+    height: 44px;
+    padding: 0 16px;
+    display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+    border-radius: 10px;
+    border: 1px solid #f0d7a0;
+    background: linear-gradient(180deg, #c9a15a, #7a5420 46%, #4a3010);
+    color: #fff8e8;
+    font: 600 16px "Microsoft YaHei UI", "Microsoft YaHei", sans-serif;
+    letter-spacing: 2px;
+    box-shadow: inset 0 1px rgba(255, 236, 190, .5), 0 4px 10px #0006;
+  }
+  .tribute-btn [data-icon] { width: 18px; height: 18px; color: #fff1c4; }
+  .tribute-btn:hover:not(:disabled) { filter: brightness(1.08); }
+  .tribute-btn:disabled { opacity: .4; filter: grayscale(.35); cursor: default; }
+  .kingdom-open-body .upgrade-block { margin-top: auto; }
+  .kingdom-open-body .upgrade-block .growth-track { height: 8px; border-radius: 999px; overflow: hidden; margin: 8px 0 10px; }
+  .kingdom-open-body .upgrade-block .growth-track > i { border-radius: inherit; }
+  .kingdom-upgrade {
+    width: 100%;
+    height: 46px;
+    border-radius: 10px;
+    font-size: 15px;
+    letter-spacing: 2px;
+  }
+  .kingdom-upgrade .price {
+    display: inline-flex; align-items: center; gap: 4px;
+    margin-left: 12px; padding: 3px 10px;
+    border: 0; border-radius: 999px;
+    background: rgba(0, 0, 0, .28);
+    font: 700 14px Georgia, "Times New Roman", serif;
+  }
+
+  /* K-3：锁定王国不再展示一屏破折号，改成只回答门槛与解锁收益。 */
+  .kingdom-lock-panel { flex: 1; display: flex; flex-direction: column; justify-content: center; gap: 18px; }
+  .kingdom-lock-level { display: flex; align-items: center; gap: 14px; padding: 16px; border: 1px solid #725f43; background: linear-gradient(120deg, #211d25, #15131b); }
+  .kingdom-lock-level > [data-icon] { width: 34px; height: 34px; color: #d8c290; }
+  .kingdom-lock-level small { display: block; margin-bottom: 5px; color: #91887a; }
+  .kingdom-lock-level b { color: #f4e2b4; font: 22px var(--display); }
+  .kingdom-lock-level span { display: block; margin-top: 5px; color: #b7ab9c; font-size: 12px; }
+  .kingdom-lock-benefits { display: grid; gap: 8px; padding: 0; margin: 0; list-style: none; }
+  .kingdom-lock-benefits li { display: flex; align-items: center; gap: 10px; color: #cfc3b0; font-size: 13px; }
+  .kingdom-lock-benefits li:before { content: ""; width: 7px; height: 7px; flex: none; transform: rotate(45deg); border: 1px solid #c3a66f; background: #6c5732; }
+  .kingdom-lock-panel .primary { margin-top: 4px; }
+
+  /* 地图在窄桌面、平板和手机上使用真实像素布局，不再把 1600px 舞台整体缩成缩略图。 */
+  @media (max-width: 1399px) {
+    .stage.map-responsive { width: 100vw; height: 100dvh; transform: none !important; }
+    .stage.map-responsive .topbar { height: 66px; padding: 0 12px; gap: 6px; }
+    .stage.map-responsive .player { flex: 1; min-width: 0; width: auto; gap: 8px; }
+    .stage.map-responsive .player > img { width: 38px; height: 38px; }
+    .stage.map-responsive .player strong { overflow: hidden; margin: 0; font-size: 14px; text-overflow: ellipsis; white-space: nowrap; }
+    .stage.map-responsive .player span { font-size: 9px; }
+    .stage.map-responsive .player span i { margin-left: 5px; }
+    .stage.map-responsive .player .xp { width: 90px; margin-top: 4px; }
+    .stage.map-responsive .top-title { display: none; }
+    .stage.map-responsive .wallet { flex: none; gap: 3px; }
+    .stage.map-responsive .money { gap: 3px; padding: 0; }
+    .stage.map-responsive .money:not([data-currency="gold"]) { display: none; }
+    .stage.map-responsive .money > [data-icon] { width: 19px; height: 19px; }
+    .stage.map-responsive .money small { font-size: 9px; margin-bottom: 1px; }
+    .stage.map-responsive .money b { font-size: 12px; }
+    .stage.map-responsive .orb { width: 29px; height: 29px; margin-left: 2px; }
+    .stage.map-responsive .orb [data-icon] { width: 16px; height: 16px; }
+    .stage.map-responsive .bottom-bar { height: 58px; padding: 0 6px; }
+    .stage.map-responsive .world-mark,
+    .stage.map-responsive .bottom-hint { display: none; }
+    .stage.map-responsive .bottom-bar nav { position: static; width: 100%; transform: none; gap: 0; }
+    .stage.map-responsive .bottom-bar nav button { flex: 1; min-width: 0; width: auto; flex-direction: column; gap: 1px; font-size: 10px; letter-spacing: 0; }
+    .stage.map-responsive .bottom-bar nav button > [data-icon] { width: 20px; height: 20px; }
+
+    .stage.map-responsive .map-shell { inset: 66px 0 58px; }
+    .stage.map-responsive .map-frame { left: 10px; right: 10px; top: 76px; bottom: 58px; }
+    .stage.map-responsive .map-shell .rail {
+      top: 5px;
+      bottom: auto;
+      width: calc(50% - 8px);
+      height: 64px;
+      flex-direction: row;
+      align-items: center;
+      justify-content: space-around;
+      gap: 2px;
+    }
+    .stage.map-responsive .map-shell .rail.left { left: 6px; right: auto; }
+    .stage.map-responsive .map-shell .rail.right { left: auto; right: 6px; }
+    .stage.map-responsive .rail button { flex: 1 1 0; width: auto; min-width: 0; gap: 3px; }
+    .stage.map-responsive .rail .facet { width: 34px; height: 34px; }
+    .stage.map-responsive .rail .facet > [data-icon]:not(.rail-lock) { width: 19px; height: 19px; }
+    .stage.map-responsive .rail .rail-copy { min-width: 0; }
+    .stage.map-responsive .rail .rail-copy b { max-width: 100%; overflow: hidden; font-size: 10px; text-overflow: ellipsis; white-space: nowrap; }
+    .stage.map-responsive .rail .rail-copy small { display: none; }
+    .stage.map-responsive .map-shell .rail .rail-lock { right: -7px; top: -7px; width: 14px !important; height: 14px !important; }
+    .stage.map-responsive .map-shell .rail .rail-event-badge { top: -9px; right: -18px; min-width: 20px; height: 18px; padding: 0 5px; font-size: 9px; }
+    .stage.map-responsive .compass { left: 9px; bottom: 8px; width: 55px; height: 55px; }
+    .stage.map-responsive .map-tools { right: 9px; bottom: 9px; }
+    .stage.map-responsive .map-tools .chip { min-height: 36px; padding: 6px 10px; font-size: 11px; }
+    .stage.map-responsive .daily { left: 8px; right: 8px; bottom: 7px; transform: none; gap: 5px; }
+    .stage.map-responsive .daily .chip { flex: 1 1 0; min-width: 0; min-height: 42px; justify-content: center; padding: 5px 7px; font-size: 10px; line-height: 1.25; }
+    .stage.map-responsive .daily .chip > span:last-child { overflow: hidden; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; }
+    .stage.map-responsive .toast { bottom: 70px; max-width: calc(100% - 24px); padding: 10px 14px; text-align: center; }
+
+    .stage.map-responsive .kingdom-sheet { width: min(1040px, calc(100vw - 32px)); height: min(700px, calc(100dvh - 32px)); grid-template-columns: minmax(280px, 38%) minmax(0, 1fr); }
+    .stage.map-responsive .kingdom-info { overflow-y: auto; padding: 28px 34px 24px 28px; }
+    .stage.map-responsive .kingdom-info h2 { font-size: 29px; }
+    .stage.map-responsive .kv-grid { margin: 16px 0; }
+    .stage.map-responsive .entry-cards { margin-top: 16px; }
+    .stage.map-responsive .kingdom-drawer { width: min(420px, 100vw); }
+    .stage.map-responsive .tribute-sheet,
+    .stage.map-responsive .money-tip { width: min(520px, calc(100vw - 24px)); }
+  }
+
+  @media (max-width: 699px) {
+    .stage.map-responsive .topbar { height: 59px; padding: 0 10px; }
+    .stage.map-responsive .player > img { width: 34px; height: 34px; }
+    .stage.map-responsive .player strong { font-size: 13px; }
+    .stage.map-responsive .player span i,
+    .stage.map-responsive .player .xp { display: none; }
+    .stage.map-responsive .money small { display: none; }
+    .stage.map-responsive .money b { font-size: 11px; }
+    .stage.map-responsive .orb { width: 30px; height: 30px; margin-left: 4px; }
+    .stage.map-responsive .bottom-bar { height: 57px; padding: 0 4px; }
+    .stage.map-responsive .map-shell { inset: 59px 0 57px; }
+    .stage.map-responsive .map-shell .rail { width: calc(50% - 5px); height: 59px; top: 3px; }
+    .stage.map-responsive .map-shell .rail.left { left: 3px; }
+    .stage.map-responsive .map-shell .rail.right { right: 3px; }
+    .stage.map-responsive .rail button.is-lock { display: none; }
+    .stage.map-responsive .rail .facet { width: 32px; height: 32px; }
+    .stage.map-responsive .rail .rail-copy b { font-size: 9px; }
+    .stage.map-responsive .map-frame { left: 5px; right: 5px; top: 66px; bottom: 61px; border-radius: 6px; }
+    .stage.map-responsive .map-frame:after { inset: 4px; }
+    .stage.map-responsive .daily { left: 5px; right: 5px; bottom: 6px; gap: 3px; }
+    .stage.map-responsive .daily .chip { min-height: 47px; padding: 4px; font-size: 9px; }
+    .stage.map-responsive .daily .chip [data-icon] { display: none; }
+    .stage.map-responsive .compass { width: 48px; height: 48px; }
+    .stage.map-responsive .map-tools .chip { min-height: 34px; padding: 5px 8px; }
+    .stage.map-responsive .map-tools .chip [data-icon] { width: 13px; height: 13px; }
+
+    .stage.map-responsive .modal-veil { align-items: end; padding: 0; }
+    .stage.map-responsive .kingdom-sheet {
+      width: 100%;
+      height: min(760px, calc(100dvh - 10px));
+      display: flex;
+      flex-direction: column;
+      overflow-y: auto;
+      border-width: 1px 0 0;
+    }
+    .stage.map-responsive .kingdom-art { flex: 0 0 218px; border-right: 0; border-bottom: 1px solid #7a6540; }
+    .stage.map-responsive .kingdom-art img { object-position: 50% 28%; }
+    .stage.map-responsive .kingdom-art .art-caption { display: none; }
+    .stage.map-responsive .kingdom-info { flex: none; overflow: visible; padding: 17px 15px 20px; }
+    .stage.map-responsive .kingdom-info h2 { margin: 0 0 8px; font-size: 24px; letter-spacing: 2px; }
+    .stage.map-responsive .kingdom-blurb { min-height: 0; font-size: 11px; line-height: 1.55; }
+    .stage.map-responsive .kv-grid { gap: 6px; margin: 12px 0; padding: 0; }
+    .stage.map-responsive .kstat { flex-direction: column; align-items: flex-start; gap: 4px; min-height: 0; padding: 8px 8px; }
+    .stage.map-responsive .kstat-mark { width: 26px; height: 26px; }
+    .stage.map-responsive .kstat-mark svg, .stage.map-responsive .kstat-mark .gic { width: 15px; height: 15px; }
+    .stage.map-responsive .kstat small { font-size: 10px; }
+    .stage.map-responsive .kstat b { font-size: 13px; }
+    .stage.map-responsive .kstat b em { font-size: 16px; }
+    .stage.map-responsive .loot { font-size: 13px; }
+    .stage.map-responsive .section-line { align-items: flex-start; gap: 8px; }
+    .stage.map-responsive .section-line h3 { flex: none; font-size: 15px; }
+    .stage.map-responsive .section-line span { text-align: right; }
+    .stage.map-responsive .primary { height: 46px; font-size: 15px; }
+    .stage.map-responsive .tribute-row { align-items: stretch; flex-direction: column; margin: 14px 0 12px; }
+    .stage.map-responsive .tribute-btn { width: 100%; min-height: 44px; }
+    .stage.map-responsive .kingdom-section-kicker small { display: none; }
+    .stage.map-responsive .kingdom-main-entry { grid-template-columns: 34px minmax(0, 1fr); min-height: 72px; padding: 9px 10px; }
+    .stage.map-responsive .kingdom-main-entry .kingdom-action-go { grid-column: 2; font-size: 11px; }
+    .stage.map-responsive .kingdom-main-entry .kingdom-action-copy b { font-size: 15px; }
+    .stage.map-responsive .kingdom-main-entry .kingdom-action-copy small { font-size: 9px; }
+    .stage.map-responsive .entry-cards { gap: 6px; margin-top: 0; }
+    .stage.map-responsive .entry { min-width: 0; padding: 10px 7px; text-align: center; }
+    .stage.map-responsive .kingdom-combat .entry { display: flex; min-height: 70px; flex-direction: column; gap: 4px; }
+    .stage.map-responsive .entry [data-icon] { margin: 0 auto 2px; }
+    .stage.map-responsive .entry b { font-size: 12px; letter-spacing: 0; }
+    .stage.map-responsive .entry small { display: block; overflow: hidden; font-size: 9px; text-overflow: ellipsis; white-space: nowrap; }
+    .stage.map-responsive .kingdom-combat .entry > [data-icon] { width: 28px; height: 28px; }
+    .stage.map-responsive .kingdom-combat .entry > [data-icon] svg,
+    .stage.map-responsive .kingdom-combat .entry > [data-icon] .gic { width: 16px; height: 16px; }
+    .stage.map-responsive .kingdom-open-body .upgrade-block { margin-top: 3px; }
+    .stage.map-responsive .kingdom-lock-panel { min-height: 360px; justify-content: flex-start; padding-top: 10px; }
+    .stage.map-responsive .kingdom-lock-level { padding: 13px; }
+    .stage.map-responsive .kingdom-lock-level b { font-size: 19px; }
+    .stage.map-responsive .sheet-close { width: 36px; height: 36px; }
+    .stage.map-responsive .kingdom-list-veil { align-items: stretch; }
+    .stage.map-responsive .kingdom-drawer { width: 100%; height: 100%; padding: 14px 12px 12px; border-right: 0; }
+    .stage.map-responsive .tribute-sheet,
+    .stage.map-responsive .money-tip { max-height: calc(100dvh - 12px); overflow-y: auto; padding: 20px 16px 16px; border-width: 1px 0 0; }
+    .stage.map-responsive .tribute-sheet .tb-acts { display: grid; grid-template-columns: 1fr 2fr; }
+    .stage.map-responsive .tribute-sheet .tb-acts .cancel,
+    .stage.map-responsive .tribute-sheet .tb-acts .primary { width: 100%; min-width: 0; margin: 0; padding-inline: 8px; }
+  }
 `;
 
 export class MapScreen implements Screen {
   private nodes: NodeVm[] = [];
   private selected = START_KINGDOM;
   private openName: string | null = null;
+  private heroLevel = 1;
   private cam = { x: 0, y: 0, s: HOME_SCALE };
   private drag = { on: false, moved: false, id: null as string | null, lx: 0, ly: 0, vx: 0, vy: 0, t: 0, inertia: 0 };
   /** 王国抽屉（M-6）的排序与搜索词 */
@@ -309,7 +715,7 @@ export class MapScreen implements Screen {
             <span class="rail-copy"><b>战役</b><small>敬请期待</small></span>
           </button>
           <button type="button" data-rail="活动中心" id="railEvents">
-            <span class="facet"><span data-icon="time"></span></span>
+            <span class="facet"><span data-icon="time"></span><span class="rail-event-badge" id="railEventsBadge" hidden><b id="railEventsBadgeCount">0</b></span></span>
             <span class="rail-copy"><b>活动中心</b><small id="railEventsCopy">限时活动</small></span>
           </button>
           <button type="button" class="is-lock" data-rail="入侵" id="railInvasion" data-locked="1">
@@ -357,13 +763,14 @@ export class MapScreen implements Screen {
           <button class="chip" id="dailyWin" type="button"><span data-icon="swords"></span><span id="dailyWinCopy">每日首胜</span></button>
           <button class="chip gold" id="dailyTribute" type="button"><span data-icon="bag"></span><span id="dailyTributeCopy">进贡</span></button>
           <button class="chip" id="dailyArena" type="button"><span data-icon="ticket"></span><span id="dailyArenaCopy">竞技场</span></button>
+          <button class="chip" id="dailyHunt" type="button"><span data-icon="compass"></span><span id="dailyHuntCopy">寻宝</span></button>
         </div>
       </div>
       ${bottomNavHtml('地图', `Lv.${ctx.save().hero.level} · 42 王国`)}
       ${toastHtml()}
 
       <div class="modal-veil" id="kingdomVeil" hidden>
-        <section class="kingdom-sheet" role="dialog" aria-modal="true" aria-labelledby="kingdomName">
+        <section class="kingdom-sheet" id="kingdomSheet" role="dialog" aria-modal="true" aria-labelledby="kingdomName">
           <button class="sheet-close" id="kingdomClose" type="button" aria-label="关闭"><span data-icon="close"></span></button>
           <div class="kingdom-art" id="kingdomArt">
             <img id="kingdomPortrait" alt="">
@@ -372,30 +779,60 @@ export class MapScreen implements Screen {
             <div class="art-caption"><small id="kingdomEn">BROKEN SPIRE</small><b id="kingdomArtName">破碎尖塔</b></div>
           </div>
           <div class="kingdom-info">
-            <small class="eyebrow">KINGDOM OVERVIEW</small>
             <h2 id="kingdomName">破碎尖塔</h2>
             <p class="kingdom-blurb" id="kingdomBlurb"></p>
-            <div class="kv-grid">
-              <div><small>王国等级</small><b id="kingdomLevel">1 / 10</b></div>
-              <div><small>进贡库存</small><b id="kingdomTribute">—</b></div>
-              <div><small>10 级加成</small><b id="kingdomBonus">—</b></div>
-            </div>
-            <div class="upgrade-block" id="upgradeBlock">
-              <div class="section-line"><h3>王国升级</h3><span id="upgradeHint">投入黄金提升进贡与解锁加成</span></div>
-              <div class="growth-track"><i id="kingdomFill"></i></div>
-              <button class="primary" id="kingdomUpgrade" type="button"><span data-icon="chevrons"></span><span id="upgradeLabel">投入升级</span><span class="price"><span data-icon="coin"></span><b id="upgradeCost">0</b></span></button>
-            </div>
-            <div class="tribute-row" id="tributeRow">
-              <div>
-                <small>进贡收取</small>
-                <p id="tributeCopy">离线累计 · 黄金 / 灵魂 / 金钥匙</p>
+            <section class="kingdom-lock-panel" id="kingdomLockPanel" hidden>
+              <div class="kingdom-lock-level">
+                <span data-icon="lock"></span>
+                <div><small>解锁门槛</small><b id="kingdomLockLevel">冒险者 Lv.1</b><span id="kingdomLockGap">当前等级不足</span></div>
               </div>
-              <button class="secondary" id="kingdomCollect" type="button"><span data-icon="coin"></span><span id="collectLabel">收取进贡</span></button>
-            </div>
-            <div class="entry-cards">
-              <button class="entry" id="entryQuest" type="button"><span data-icon="flag"></span><b>王国任务</b><small id="questProgress">0 / 8</small></button>
-              <button class="entry" id="entryExplore" type="button"><span data-icon="compass"></span><b>探索</b><small id="exploreState">通关后开放</small></button>
-              <button class="entry" id="entryTroops" type="button"><span data-icon="book"></span><b>王国部队</b><small id="troopProgress">0 / 8</small></button>
+              <div class="kingdom-section-kicker"><b>解锁后可获得</b><small>完成当前可推进的主线来提升等级</small></div>
+              <ul class="kingdom-lock-benefits">
+                <li>主线 · HARD · VERY HARD</li>
+                <li id="kingdomLockTroops">王国部队收藏</li>
+                <li id="kingdomLockBonus">满级王国加成</li>
+              </ul>
+              <button class="primary" id="kingdomLockedCta" type="button"><span data-icon="flag"></span><span>前往当前可推进的王国</span></button>
+            </section>
+            <div class="kingdom-open-body" id="kingdomOpenBody">
+              <div class="kv-grid">
+                <div class="kstat">
+                  <span class="kstat-mark" data-icon="flag"></span>
+                  <div><small>等级</small><b id="kingdomLevel"><em>1</em><i>/ 10</i></b></div>
+                </div>
+                <div class="kstat" id="kingdomStock">
+                  <span class="kstat-mark" data-icon="coin"></span>
+                  <div><small>进贡</small><b id="kingdomTribute">累积中</b></div>
+                </div>
+                <div class="kstat">
+                  <span class="kstat-mark" id="kingdomBonusIcon" data-icon="wing"></span>
+                  <div><small>满级</small><b id="kingdomBonus"><em>—</em></b></div>
+                </div>
+              </div>
+              <section class="kingdom-combat">
+                <div class="kingdom-section-kicker"><b>当前行动</b></div>
+                <button class="entry kingdom-main-entry" id="entryQuest" type="button">
+                  <span data-icon="flag"></span>
+                  <span class="kingdom-action-copy"><b id="questEntryTitle">王国任务</b><small id="questProgress">0 / 8</small></span>
+                  <span class="kingdom-action-go"><span id="questEntryAction">进入主线</span><span data-icon="arrow"></span></span>
+                </button>
+                <div class="entry-cards">
+                  <button class="entry" id="entryExplore" type="button"><span data-icon="compass"></span><span><b>HARD</b><small id="exploreState">通关后开放</small></span></button>
+                  <button class="entry" id="entryTroops" type="button"><span data-icon="book"></span><span><b>王国部队</b><small id="troopProgress">0 / 8</small></span></button>
+                </div>
+              </section>
+              <div class="tribute-row" id="tributeRow">
+                <div class="tribute-meter">
+                  <div class="tribute-meter-head"><span data-icon="time"></span><span id="tributeCopy">累积中</span></div>
+                  <div class="tribute-track" aria-hidden="true"><i id="tributeFill"></i></div>
+                </div>
+                <button class="tribute-btn" id="kingdomCollect" type="button"><span data-icon="bag"></span><span id="collectLabel">收取</span></button>
+              </div>
+              <div class="upgrade-block" id="upgradeBlock">
+                <div class="section-line"><h3>王国升级</h3><span id="upgradeHint"></span></div>
+                <div class="growth-track"><i id="kingdomFill"></i></div>
+                <button class="secondary kingdom-upgrade" id="kingdomUpgrade" type="button"><span data-icon="chevrons"></span><span id="upgradeLabel">投入升级</span><span class="price"><span data-icon="coin"></span><b id="upgradeCost">0</b></span></button>
+              </div>
             </div>
           </div>
         </section>
@@ -404,7 +841,7 @@ export class MapScreen implements Screen {
       <div class="modal-veil kingdom-list-veil" id="kingdomListVeil" hidden>
         <aside class="kingdom-drawer" role="dialog" aria-modal="true" aria-label="王国列表">
           <header>
-            <div><small>KINGDOMS</small><h2>42 王国</h2></div>
+            <div><h2>42 王国</h2></div>
             <button class="sheet-close" id="kingdomListClose" type="button" aria-label="关闭"><span data-icon="close"></span></button>
           </header>
           <input id="kingdomSearch" type="search" placeholder="搜索王国名 / 英文名…" autocomplete="off" spellcheck="false">
@@ -419,7 +856,7 @@ export class MapScreen implements Screen {
 
       <div class="modal-veil" id="tributeVeil" hidden>
         <section class="tribute-sheet" role="dialog" aria-modal="true" aria-labelledby="tributeSheetTitle">
-          <div><small class="eyebrow">TRIBUTE</small><h2 id="tributeSheetTitle">一键收取进贡</h2></div>
+          <div><h2 id="tributeSheetTitle">一键收取进贡</h2></div>
           <p class="tb-total" id="tributeNote"></p>
           <div class="tb-rows" id="tributeRows"></div>
           <p class="tb-total" id="tributeTotal"></p>
@@ -432,7 +869,6 @@ export class MapScreen implements Screen {
 
       <div class="modal-veil tip-veil" id="moneyVeil" hidden>
         <section class="money-tip etched" role="dialog" aria-modal="true" aria-labelledby="moneyTitle">
-          <small>INCOME</small>
           <h2 id="moneyTitle">黄金</h2>
           <ul id="moneyWays"></ul>
           <button class="cancel" id="moneyClose" type="button">关闭</button>
@@ -441,12 +877,16 @@ export class MapScreen implements Screen {
   }
 
   mount(ctx: ShellCtx): void {
+    // `render()` mounts the screen before the shared chrome pass. Establish native map sizing
+    // first so the initial camera uses the real viewport instead of the 1600px design canvas.
+    fitStage();
     const save = ctx.save();
+    this.heroLevel = save.hero.level;
     this.nodes = nodeVms(ctx.gateway);
     this.renderNodes(save);
     this.refreshDaily(save, ctx);
 
-    this.focusKingdom(this.selected, HOME_SCALE);
+    this.focusKingdom(this.selected, this.homeScale());
 
     const viewport = $('#mapViewport');
     this.on(viewport, 'pointerdown', (e) => this.onPointerDown(e as PointerEvent));
@@ -455,7 +895,7 @@ export class MapScreen implements Screen {
     this.on(window, 'pointercancel', (e) => this.endDrag(e as PointerEvent));
     this.on(viewport, 'wheel', (e) => this.onWheel(e as WheelEvent), { passive: false });
     this.on(viewport, 'dragstart', (e) => e.preventDefault());
-    this.on($('#compass'), 'click', () => this.focusKingdom(START_KINGDOM, HOME_SCALE));
+    this.on($('#compass'), 'click', () => this.focusKingdom(START_KINGDOM, this.homeScale()));
     this.on($('#kingdomClose'), 'click', () => this.closeKingdom());
     this.on($('#kingdomVeil'), 'click', (e) => {
       if (e.target === $('#kingdomVeil')) this.closeKingdom();
@@ -465,6 +905,10 @@ export class MapScreen implements Screen {
     this.on($('#entryQuest'), 'click', () => this.enterQuest(ctx));
     this.on($('#entryExplore'), 'click', () => this.enterExplore(ctx));
     this.on($('#entryTroops'), 'click', () => this.enterTroops(ctx));
+    this.on($('#kingdomLockedCta'), 'click', () => {
+      this.closeKingdom();
+      this.openRailQuest(ctx);
+    });
     this.on($('#dailyWin'), 'click', () => {
       const claimed = ctx.save().dailyFirstWinAt >= todayStartOf(Date.now());
       toast(claimed ? '今日首胜已领取，明天再来。' : '打赢任意一场战斗，结算时自动领取每日首胜宝石。');
@@ -481,6 +925,7 @@ export class MapScreen implements Screen {
     });
     this.bindKingdomList();
     this.on($('#dailyArena'), 'click', () => ctx.navigate('#arena'));
+    this.on($('#dailyHunt'), 'click', () => ctx.navigate('#hunt'));
 
     this.bindRail(ctx);
 
@@ -490,7 +935,7 @@ export class MapScreen implements Screen {
       if (unlocked) {
         invasionBtn.classList.remove('is-lock');
         invasionBtn.removeAttribute('data-locked');
-        $('#railInvasionCopy').textContent = '排位 PvP';
+        $('#railInvasionCopy').textContent = '入侵排位';
       }
       this.on(invasionBtn, 'click', () => {
         if (ctx.save().hero.level >= INVASION.unlockHeroLevel) ctx.navigate('#invasion');
@@ -508,6 +953,10 @@ export class MapScreen implements Screen {
     $$('[data-currency]').forEach((btn) =>
       this.on(btn, 'click', () => {
         const kind = (btn as HTMLElement).dataset.currency!;
+        if (kind === 'gem') {
+          ctx.navigate('#shop/gems');
+          return;
+        }
         $('#moneyTitle').textContent = titles[kind]!;
         $('#moneyWays').innerHTML = (ways[kind] ?? []).map(([a, b]) => `<li><span>${a}</span><b>${b}</b></li>`).join('');
         $('#moneyVeil').hidden = false;
@@ -590,7 +1039,7 @@ export class MapScreen implements Screen {
                 : `<span class="kl-tag">任务 ${n.questsDone}/8</span>`;
             const sub = n.locked
               ? `${n.view.en} · 未解锁`
-              : `${n.view.en} · Lv.${n.level} · 任务 ${n.questsDone}/8${n.exploreUnlocked ? ' · 探索已开' : ''}`;
+              : `${n.view.en} · Lv.${n.level} · 任务 ${n.questsDone}/8${n.exploreUnlocked ? ' · HARD' : ''}`;
             return `<button class="kl-row${n.locked ? ' locked' : ''}" type="button" data-id="${n.view.name}">
               <span class="kl-crest">${n.view.crest ? `<img src="${n.view.crest}" alt="">` : crestSvg(n.view)}</span>
               <span><b>${n.view.name}</b><small>${sub}</small></span>
@@ -718,8 +1167,30 @@ export class MapScreen implements Screen {
     // 左 2 · 战役：无对应系统 → 诚实锁态（不留亮着点了没反应的按钮）
     this.on($('#railCampaign'), 'click', () => toast('战役（主线剧情）尚未开放，敬请期待。'));
 
-    // 左 3 · 活动中心（原「世界事件」）→ 每周活动屏
-    this.on($('#railEvents'), 'click', () => ctx.navigate('#events'));
+    // 左 3 · 活动中心：用 per-event 周状态聚合真正可处理的奖励/兑换提醒。
+    const eventsButton = $('#railEvents');
+    const eventStatus = eventRailStatus(save, weekStartOf(Date.now()));
+    const statusParts = [
+      eventStatus.claimableActivities > 0 ? `${eventStatus.claimableActivities} 个奖励待领取` : '',
+      eventStatus.affordableShops > 0 ? `${eventStatus.affordableShops} 家商店可兑换` : '',
+    ].filter(Boolean);
+    const compactStatus = eventStatus.claimableActivities > 0 && eventStatus.affordableShops > 0
+      ? `待领 ${eventStatus.claimableActivities} · 可换 ${eventStatus.affordableShops}`
+      : eventStatus.claimableActivities > 0
+        ? `${eventStatus.claimableActivities} 个奖励待领`
+        : `${eventStatus.affordableShops} 家可兑换`;
+    if (eventStatus.actionableActivities > 0) {
+      eventsButton.classList.add('has-actions');
+      $('#railEventsBadge').hidden = false;
+      $('#railEventsBadgeCount').textContent = String(eventStatus.actionableActivities);
+      $('#railEventsCopy').textContent = compactStatus;
+      eventsButton.setAttribute('aria-label', `活动中心，${statusParts.join('，')}`);
+      eventsButton.title = statusParts.join('，');
+    } else {
+      $('#railEventsCopy').textContent = '本周活动';
+      eventsButton.setAttribute('aria-label', '活动中心，本周暂无可领取或可兑换内容');
+    }
+    this.on(eventsButton, 'click', () => ctx.navigate('#events'));
 
     // 右 1 · 武器库 → 英雄页武器区（窗口 M 的 #weapons 交付后改指向该屏）
     const weapon = anyWeaponById(save.hero.equippedWeapon);
@@ -756,7 +1227,7 @@ export class MapScreen implements Screen {
     nodesEl.innerHTML = this.nodes
       .map((n) => {
         const locked = n.locked;
-        const cls = ['knode', n.view.hero ? 'hero' : 'far', n.view.name === this.selected ? 'sel' : '', locked ? 'locked' : '']
+        const cls = ['knode', n.view.hero ? 'hero' : 'far', n.view.name === this.selected ? 'sel' : '', locked ? 'locked' : '', !locked && n.tributeReady ? 'has-trib' : '']
           .filter(Boolean)
           .join(' ');
         const mark = n.view.crest ? `<img src="${n.view.crest}" alt="" draggable="false">` : crestSvg(n.view);
@@ -772,9 +1243,13 @@ export class MapScreen implements Screen {
                <span class="kname">${n.view.name}</span>
                <span class="klv" title="王国 ${n.level} 级">${n.level}</span>
              </span>`;
-        // M-7：系统层早就备好了 ready 判据，节点上补角标——「哪个国有东西可收」一眼可见
+        const tributeMark = n.tributeGold
+          ? `<span data-icon="coin"></span>${fmt(n.tributeGold)}`
+          : n.tributeSouls
+            ? `<span data-icon="soul"></span>${n.tributeSouls}`
+            : `<span data-icon="key"></span>${n.tributeKeys}`;
         const bubble = !locked && n.tributeReady
-          ? `<span class="ktrib${n.tributeOverflowing ? ' over' : ''}" title="${n.tributeOverflowing ? '已满 12 小时，正在溢出' : '有进贡可收'}"><span data-icon="coin"></span>${fmt(n.tributeGold)}</span>`
+          ? `<span class="ktrib${n.tributeOverflowing ? ' over' : ''}" title="${n.tributeOverflowing ? '进贡已满，请收取' : '有进贡可收'}">${tributeMark}</span>`
           : '';
         const aria = locked
           ? `${n.view.name}，未解锁，需冒险者 ${n.unlockLevel} 级`
@@ -798,31 +1273,25 @@ export class MapScreen implements Screen {
     const winReady = save.dailyFirstWinAt < todayStartOf(now);
     $('#dailyWinCopy').textContent = winReady ? '每日首胜未领' : '每日首胜已领';
     $('#dailyWin').classList.toggle('hot', winReady);
-    // M-4：chip 与弹层、收取按钮同源（tributeReady = 有可实际入账的产出）。
-    // 「已满」这个词本身是错的（它表达的是"有可领"），改为「可收」；
-    // M-10：真正的"已满溢"单独出词，且给出下一袋时间。
+    // 底栏只说玩家要做的事：可收、已满、还在累积。国数和金额留在确认层。
     const readyKingdoms = this.nodes.filter((n) => !n.locked && n.tributeReady);
-    const overflowCount = this.nodes.filter((n) => !n.locked && n.tributeOverflowing).length;
-    if (readyKingdoms.length) {
-      const gold = readyKingdoms.reduce((s, n) => s + n.tributeGold, 0);
-      $('#dailyTributeCopy').textContent = overflowCount
-        ? `进贡可收 · ${readyKingdoms.length} 国 · ${overflowCount} 国已满溢`
-        : `进贡可收 · ${readyKingdoms.length} 国 · 黄金 ${fmt(gold)}`;
-    } else {
-      const nextAt = this.nodes
-        .filter((n) => !n.locked)
-        .map((n) => n.tributeNextHourAt)
-        .filter((t) => t > now)
-        .sort((a, b) => a - b)[0];
-      $('#dailyTributeCopy').textContent = nextAt
-        ? `进贡累积中 · 下一袋 ${clockOf(nextAt)}`
+    const urgent = readyKingdoms.some((n) => n.tributeOverflowing);
+    $('#dailyTributeCopy').textContent = urgent
+      ? '进贡已满'
+      : readyKingdoms.length
+        ? '收取进贡'
         : '进贡累积中';
-    }
     $('#dailyTribute').classList.toggle('gold', readyKingdoms.length > 0);
-    $('#dailyTribute').classList.toggle('over', overflowCount > 0);
+    $('#dailyTribute').classList.toggle('over', urgent);
     const freeTicket = save.arena.lastFreeEntryAt < weekStartOf(now);
     $('#dailyArenaCopy').textContent = freeTicket ? '竞技场免费票' : '竞技场';
     $('#dailyArena').classList.toggle('hot', freeTicket);
+    const maps = save.materials.treasureMaps;
+    $('#dailyHuntCopy').textContent = save.treasureHunt
+      ? '寻宝进行中'
+      : maps > 0
+        ? `寻宝 ${maps.toLocaleString('en-US')}`
+        : '寻宝';
     void ctx;
   }
 
@@ -838,6 +1307,9 @@ export class MapScreen implements Screen {
 
     const locked = vm.locked;
     const view = vm.view;
+    $('#kingdomSheet').classList.toggle('is-locked', locked);
+    $('#kingdomLockPanel').hidden = !locked;
+    $('#kingdomOpenBody').hidden = locked;
     const portrait = $('#kingdomPortrait') as HTMLImageElement;
     portrait.src = ART[view.biome] ?? ART.spire!;
     portrait.alt = view.name + '王国立绘';
@@ -848,23 +1320,33 @@ export class MapScreen implements Screen {
     $('#kingdomBlurb').textContent = locked
       ? `冒险者达到 Lv.${vm.unlockLevel} 后开放此王国。`
       : view.blurb || `${view.name}的领地等待着你的旗帜。`;
-    $('#kingdomLevel').textContent = locked ? '—' : `${vm.level} / ${KINGDOM_MAX_LEVEL}`;
-    // M-4/K-4：库存直接给数字（「袋」不是游戏里任何一处出现过的单位，玩家无法折算）
-    const stockParts = [
-      vm.tributeGold ? `黄金 ${fmt(vm.tributeGold)}` : '',
-      vm.tributeSouls ? `灵魂 ${vm.tributeSouls}` : '',
-      vm.tributeKeys ? `金钥匙 ${vm.tributeKeys}` : '',
+    $('#kingdomLevel').innerHTML = locked
+      ? '<em>—</em>'
+      : `<em>${vm.level}</em><i>/ ${KINGDOM_MAX_LEVEL}</i>`;
+    const loot = [
+      vm.tributeGold ? `<span class="loot"><span data-icon="coin"></span>${fmt(vm.tributeGold)}</span>` : '',
+      vm.tributeSouls ? `<span class="loot soul"><span data-icon="soul"></span>${vm.tributeSouls}</span>` : '',
+      vm.tributeKeys ? `<span class="loot key"><span data-icon="key"></span>${vm.tributeKeys}</span>` : '',
     ].filter(Boolean);
-    $('#kingdomTribute').textContent = locked
+    $('#kingdomTribute').innerHTML = locked
       ? '—'
       : vm.tributeReady
-        ? stockParts.join(' · ')
+        ? loot.join('')
         : vm.tributeHours > 0
-          ? '本轮无产出'
+          ? '这轮没有'
           : '累积中';
     const statCn: Record<string, string> = { health: '生命', armor: '护甲', attack: '攻击', magic: '魔法' };
-    const bonusStat = statCn[kingdomBonusStat(view.name)] ?? kingdomBonusStat(view.name);
-    $('#kingdomBonus').textContent = vm.level >= KINGDOM_MAX_LEVEL ? `全体 ${bonusStat} +1` : `Lv.10 → ${bonusStat} +1`;
+    const statIcon: Record<string, string> = { health: 'soul', armor: 'gear', attack: 'swords', magic: 'crystal' };
+    const bonusKey = kingdomBonusStat(view.name);
+    const bonusStat = statCn[bonusKey] ?? bonusKey;
+    $('#kingdomBonusIcon').dataset.icon = statIcon[bonusKey] ?? 'wing';
+    $('#kingdomBonus').innerHTML = vm.level >= KINGDOM_MAX_LEVEL
+      ? `<em>${bonusStat} +1</em><i>已生效</i>`
+      : `<em>${bonusStat} +1</em><i>${KINGDOM_MAX_LEVEL} 级</i>`;
+    $('#kingdomLockLevel').textContent = `冒险者 Lv.${vm.unlockLevel}`;
+    $('#kingdomLockGap').textContent = `你现在 Lv.${this.heroLevel}，还差 ${Math.max(0, vm.unlockLevel - this.heroLevel)} 级`;
+    $('#kingdomLockTroops').textContent = `${vm.poolSize} 名王国部队收藏`;
+    $('#kingdomLockBonus').textContent = `满级加成：全体${bonusStat} +1`;
     $('#kingdomFill').style.width = locked ? '0%' : `${(vm.level / KINGDOM_MAX_LEVEL) * 100}%`;
     let cost = 0;
     try {
@@ -872,39 +1354,40 @@ export class MapScreen implements Screen {
     } catch {
       cost = 0;
     }
-    $('#upgradeHint').textContent = locked
-      ? '未解锁'
-      : vm.level >= KINGDOM_MAX_LEVEL
-        ? '加成已对全体部队生效'
-        : `下一等级 ${fmt(cost)} 黄金`;
+    $('#upgradeHint').textContent = !locked && vm.level >= KINGDOM_MAX_LEVEL ? '已生效' : '';
     $('#upgradeCost').textContent = fmt(cost);
     ($('#kingdomUpgrade') as HTMLButtonElement).disabled = locked || vm.level >= KINGDOM_MAX_LEVEL;
     $('#upgradeLabel').textContent = locked ? '王国未解锁' : vm.level >= KINGDOM_MAX_LEVEL ? '已达满级' : '投入升级';
     $('.price', $('#kingdomUpgrade')).hidden = locked || vm.level >= KINGDOM_MAX_LEVEL;
     // M-4：收取按钮的可用性与库存同源（改前用小时数判，于是「0 袋 + 按钮可点 + 点了说没有」）
     ($('#kingdomCollect') as HTMLButtonElement).disabled = locked || !vm.tributeReady;
-    // K-5：按钮上直接写清收多少；M-10：12 小时上限与「下次几点满」在页面上可见
-    $('#collectLabel').textContent = vm.tributeReady
-      ? `收取 ${stockParts.join(' · ')}`
-      : '收取进贡';
+    $('#collectLabel').textContent = '收取';
     $('#tributeRow').classList.toggle('over', !locked && vm.tributeOverflowing);
+    $('#tributeFill').style.width = locked ? '0%' : `${Math.min(100, (vm.tributeHours / TRIBUTE.capHours) * 100)}%`;
     $('#tributeCopy').textContent = locked
-      ? '王国解锁后开始累积进贡'
+      ? '解锁后开始'
       : vm.tributeOverflowing
-        ? `⚠ 已满 ${TRIBUTE.capHours} 小时上限（${clockOf(vm.tributeCapAt)} 就满了），正在溢出——继续挂着的时间不再产出，请尽快收取`
-        : `离线按小时累积，上限 ${TRIBUTE.capHours} 小时 · 已累计 ${vm.tributeHours} 小时 · 下一袋 ${clockOf(vm.tributeNextHourAt)} · ${clockOf(vm.tributeCapAt)} 达上限`;
+        ? '已满'
+        : `下一笔 ${clockOf(vm.tributeNextHourAt)}`;
+    $('#tributeRow').title = locked
+      ? ''
+      : vm.tributeOverflowing
+        ? '已经攒满，再等也不会变多'
+        : `最多攒 ${TRIBUTE.capHours} 小时`;
+    mountIcons($('#kingdomOpenBody'));
     // K-10：把「你卡在第几关、下一步点哪」写在卡上，而不是让玩家自己从 8/8 推断
     $('#questProgress').textContent = locked
       ? `需冒险者 Lv.${vm.unlockLevel}`
       : vm.nextNode === null
         ? '8 / 8 已全通'
         : `${vm.questsDone}/8 · 下一关 第 ${vm.nextNode} 关`;
-    // K-3：锁定态口径统一（改前「任务=锁定」而「探索=通关后开放」两种说法）
+    $('#questEntryTitle').textContent = vm.nextNode === null ? 'HARD / VERY HARD' : `王国任务 · 第 ${vm.nextNode} 关`;
+    $('#questEntryAction').textContent = vm.nextNode === null ? '前往 HARD' : '进入主线';
     $('#exploreState').textContent = locked
       ? `需冒险者 Lv.${vm.unlockLevel}`
       : vm.exploreUnlocked
-        ? `已开放 · ${vm.exploreTier} 档`
-        : `任务 8/8 后开放（当前 ${vm.questsDone}/8）`;
+        ? '已开放'
+        : '主线 8/8 后开放';
     $('#troopProgress').textContent = locked ? `解锁后 ${vm.poolSize} 名` : `${vm.ownedTroops} / ${vm.poolSize}`;
     $('#entryExplore').classList.toggle('locked', locked || !vm.exploreUnlocked);
     $('#entryQuest').classList.toggle('locked', locked);
@@ -974,7 +1457,9 @@ export class MapScreen implements Screen {
       toast(`${this.openName} 尚未解锁：需冒险者 Lv.${vm?.unlockLevel ?? '?'}。`);
       return;
     }
-    ctx.navigate('#quest/' + encodeURIComponent(vm.view.name));
+    ctx.navigate(
+      '#quest/' + encodeURIComponent(vm.view.name) + (vm.nextNode === null ? '/hard' : ''),
+    );
   }
 
   private enterExplore(ctx: ShellCtx): void {
@@ -985,10 +1470,10 @@ export class MapScreen implements Screen {
       return;
     }
     if (!vm.exploreUnlocked) {
-      toast(`通关 8 章任务链后开放探索（当前 ${vm.questsDone}/8）。`);
+      toast(`主线通关后开放 HARD / VERY HARD（当前 ${vm.questsDone}/8）。`);
       return;
     }
-    ctx.navigate('#quest/' + encodeURIComponent(vm.view.name));
+    ctx.navigate('#quest/' + encodeURIComponent(vm.view.name) + '/hard');
   }
 
   /** K-2：王国部队不再只给一句 toast，跳图鉴并带王国筛选参数 */
@@ -999,6 +1484,7 @@ export class MapScreen implements Screen {
 
   /** 网关变更后：重算节点与弹层 + **同步顶栏钱包**（存档对象不变，重读视图即可） */
   private afterMutation(ctx: ShellCtx): void {
+    this.heroLevel = ctx.save().hero.level;
     this.nodes = nodeVms(ctx.gateway);
     this.renderNodes(ctx.save());
     this.refreshDaily(ctx.save(), ctx);
@@ -1010,7 +1496,15 @@ export class MapScreen implements Screen {
   // —— 相机与拖拽（小样原逻辑移植） ——
 
   private stageScale(): number {
+    if ($('#stage').classList.contains('map-responsive')) return 1;
     return $('#stage').getBoundingClientRect().width / 1600 || 1;
+  }
+
+  private homeScale(): number {
+    const width = $('#mapViewport').getBoundingClientRect().width;
+    if (width < 500) return 0.62;
+    if (width < 900) return 0.7;
+    return HOME_SCALE;
   }
 
   private viewSize(): { w: number; h: number } {

@@ -1,16 +1,14 @@
 /**
  * 特质徽章（卡面特质图标行 + 详情面板共用）。
  *
- * 对齐 GoW：角色卡底部一排小图标表示被动特质。本作没有逐特质美术，
- * 按「特质效果族」代码绘制 SVG（同 statusBadges 的零素材方案）：
- *   - 图标从特质的引擎效果字段推导（有减伤→盾、有反弹→回旋、隐匿→眼…）；
- *   - 同一族共用图标，靠 title（特质名）区分；
- *   - 未实现 code 返回 null，由调用方决定是否展示占位。
- * 纯字符串模板，无 DOM 依赖（可在 node 单测）。
+ * 战斗卡与养成页同一套 game-icons 剪影（traitGlyph / traitGlyphsFor），
+ * 按中文名+描述归族，未实现 code 只要有显示名也能出图。
  */
 import { getTrait } from '@engine/traits';
 import type { TraitDefinition } from '@engine/traits';
 import { CLASSES } from '../meta/data/classes';
+import { TROOPS } from '../data/troops';
+import { traitGlyph, traitGlyphsFor } from '../meta/shell/traitIcon';
 
 export interface TraitBadgeSpec {
   label: string;
@@ -267,13 +265,57 @@ const STATIC_TALENT_DISPLAY: ReadonlyMap<string, TraitDefinition> = (() => {
   return map;
 })();
 
-/** 生成 24×24 内联 SVG 图标；未实现 code 返回 null（调用方决定是否展示占位）。
- *  静态效果天赋（selfStat/alliesStat 族）回退到显示用定义。 */
+const CLASS_TEXT: ReadonlyMap<string, { name: string; description: string }> = (() => {
+  const map = new Map<string, { name: string; description: string }>();
+  for (const cls of CLASSES) {
+    for (const tree of cls.trees) {
+      for (const t of tree.talents) {
+        if (!map.has(t.code)) map.set(t.code, { name: t.nameZh, description: t.descriptionZh });
+      }
+    }
+    for (const perk of cls.perks) {
+      if (!map.has(perk.code)) map.set(perk.code, { name: perk.nameZh, description: perk.descriptionZh });
+    }
+  }
+  return map;
+})();
+
+/** 卡面/浮层用的中文名与描述：引擎库 → 职业天赋/专属 → 兵种图鉴 → 快照名。 */
+export function traitDisplayCopy(
+  code: string,
+  fallbackName?: string,
+  troopName?: string,
+): { name: string; description: string } {
+  const lib = getTrait(code) ?? STATIC_TALENT_DISPLAY.get(code);
+  if (lib) return { name: lib.name, description: lib.description };
+  const cls = CLASS_TEXT.get(code);
+  if (cls) return cls;
+  if (troopName) {
+    const official = TROOPS.find((t) => t.name === troopName)?.traits.find((t) => t.code === code);
+    if (official) return { name: official.name, description: official.description };
+  }
+  return { name: fallbackName || code, description: '' };
+}
+
+/** game-icons 内联 SVG；未知 code 且无显示名时返回 null。 */
 export function traitBadgeSvg(code: string): string | null {
-  const trait = getTrait(code) ?? STATIC_TALENT_DISPLAY.get(code);
-  if (!trait) return null;
-  const spec = specOf(trait);
-  return `<svg viewBox="0 0 24 24" aria-label="${spec.label}" role="img">${spec.svg}</svg>`;
+  const lib = getTrait(code) ?? STATIC_TALENT_DISPLAY.get(code);
+  if (lib) return traitGlyph(code, lib.name, lib.description, 2);
+  const cls = CLASS_TEXT.get(code);
+  if (cls) return traitGlyph(code, cls.name, cls.description, 2);
+  return null;
+}
+
+/** 一组卡面特质：同屏去重的 game-icons，未实现 code 也出图。 */
+export function traitCardGlyphs(
+  codes: string[],
+  names?: Record<string, string>,
+  troopName?: string,
+  tier = 2,
+): Array<{ code: string; name: string; description: string; svg: string }> {
+  const copies = codes.map((code) => ({ code, ...traitDisplayCopy(code, names?.[code], troopName) }));
+  const glyphs = traitGlyphsFor(copies, tier);
+  return copies.map((copy, i) => ({ ...copy, svg: glyphs[i]! }));
 }
 
 /** 图标规格（含中文标签），供卡面 tooltip / 调试页使用。 */

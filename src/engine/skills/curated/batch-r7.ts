@@ -14,13 +14,7 @@
  * 自我转化（「转化为X」主语缺省）= transformTroop('allySelf', …)，与诺斯费拉图/暗魄狼/
  * 蝙蝠群/狼人/村民的变身链一致（batch-r4 147 行同款）。
  */
-import { skill, dmg, dmgSplash, trueDmg, heal, armor, attack, magic, mana, cleanse, inflict,
-  inflictRandom, reduce, steal, createGems, createSkulls, createSpecialGems, transform,
-  transformToSpecial, destroyAllColors, destroyChosenRow, destroyChosenCol, destroyRandomRows,
-  destroyRandomCols, destroyRandomGems, explodeChosenRow, explodeChosenCol, explodeRandomGems,
-  explodeSpecialGems, oneOf, summonRef, summonRandom, extraTurn, reposition, shuffleTeam,
-  shuffleBoard, skillOnce, escape, sacrifice, transformTroop, transformTroopRandom, scale, flat,
-  CASTER } from '../builders';
+import { skill, dmg, dmgSplash, trueDmg, heal, armor, attack, magic, mana, cleanse, inflict, inflictRandom, reduce, steal, createGems, createSkulls, createSpecialGems, transform, transformToSpecial, destroyAllColors, destroyChosenRow, destroyChosenCol, destroyRandomRows, destroyRandomCols, destroyRandomGems, explodeChosenRow, explodeChosenCol, explodeRandomGems, explodeSpecialGems, oneOf, summonRef, summonRandom, extraTurn, reposition, shuffleTeam, shuffleBoard, skillOnce, escape, sacrifice, transformTroop, transformTroopRandom, scale, flat, CASTER, CELL, explodeAt } from '../builders';
 import { BaseColor } from '../../types';
 import type { SpecialGemKind } from '../../types';
 import type { GemSegment } from '../prototypes';
@@ -704,7 +698,7 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '爆破 1 颗宝石。召唤 1-3 只荒芜猎犬。',
     build: skill(
       // 裸单颗宝石操作 = 随机一颗（spell-rules §11 追加）
-      explodeRandomGems(1, 0, 'all'),
+      explodeAt(CELL),
       summonRef('BlightHound', undefined, { countRange: { min: 1, max: 3 } }),
     ),
   },

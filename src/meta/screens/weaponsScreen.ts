@@ -27,10 +27,22 @@ import {
   ownsWeapon,
   weaponTypeZh,
 } from '../data/weaponCatalog';
+import {
+  ACQUIRE_FILTERS,
+  acquireFilterKind,
+  acquireFilterLabel,
+  acquireIcon,
+  acquireOf,
+  acquireProgress,
+  kingdomQuestCleared,
+  type WeaponAcquireKind,
+} from '../data/weaponAcquire';
 import { SOULFORGE_RECIPES, type SoulforgeStock } from '../data/soulforge';
 import type { WeaponDef } from '../data/weapons';
 import { INGOT_NAMES, ingotKeyForRarity, type IngotKey } from '../data/materials';
+import { rarityMetaByKey, rarityStyle } from '../data/rarity';
 import { bottomNavHtml, COLOR_CN, gemSvg, mountIcons, toast, toastHtml, topbarHtml } from '../shell/chrome';
+import { ingotArt, materialImg, scrollArt } from '../shell/materialArt';
 import { isFailure } from '../gateway';
 import type { Screen, ShellCtx } from '../shell/screen';
 import { renderSpell } from '../shell/spellText';
@@ -38,39 +50,21 @@ import { renderSpell } from '../shell/spellText';
 type WeaponTab = 'owned' | 'all' | 'forge' | 'temper';
 type FilterName = 'rarity' | 'type' | 'color' | 'ownership' | 'source' | 'sort';
 
+function weaponsPerPage(): number {
+  if (window.innerWidth <= 600) return 4;
+  if (window.innerWidth <= 980) return 8;
+  return 12;
+}
+
 interface WeaponFilters {
   query: string;
   rarity: string;
   type: string;
   color: string;
   ownership: '' | 'owned' | 'usable' | 'unowned';
-  source: '' | 'forge' | 'none';
+  source: '' | WeaponAcquireKind;
   sort: 'default' | 'rarity' | 'cost' | 'name';
 }
-
-interface RarityMeta {
-  label: string;
-  color: string;
-  glow: string;
-}
-
-/**
- * 武器数据仍保留官方八档；玩家看到的是稳定、可扫读的中文名和统一边框色。
- * Uncommon/UltraRare 使用最新视觉口径「精良/传说」，避免旧的「非普通/超稀有」。
- */
-const RARITY_META: Readonly<Record<string, RarityMeta>> = {
-  Common: { label: '普通', color: '#aab2ad', glow: 'rgba(170,178,173,.18)' },
-  Uncommon: { label: '精良', color: '#4caf6a', glow: 'rgba(76,175,106,.2)' },
-  Rare: { label: '稀有', color: '#9a4fd4', glow: 'rgba(154,79,212,.2)' },
-  UltraRare: { label: '传说', color: '#ffe24a', glow: 'rgba(255,226,74,.2)' },
-  Epic: { label: '史诗', color: '#c56b2d', glow: 'rgba(197,107,45,.2)' },
-  Legendary: { label: '传奇', color: '#a94e23', glow: 'rgba(169,78,35,.2)' },
-  Mythic: { label: '神话', color: '#56d8ff', glow: 'rgba(86,216,255,.22)' },
-  Doomed: { label: '末日', color: '#d45b59', glow: 'rgba(212,91,89,.2)' },
-};
-
-const rarityMeta = (rarity: string): RarityMeta =>
-  RARITY_META[rarity] ?? { label: rarity, color: '#aab2ad', glow: 'rgba(170,178,173,.18)' };
 
 const escapeHtml = (value: unknown): string =>
   String(value ?? '')
@@ -82,27 +76,24 @@ const escapeHtml = (value: unknown): string =>
 
 const fmt = (value: number): string => Math.max(0, Math.floor(value)).toLocaleString('en-US');
 
+/** 词缀图标走属性语义（盾/剑/心/旋涡），不用特质图里的宝石/魔力珠。 */
+function affixIconOf(affix: { name?: string; description?: string }): 'shield' | 'swords' | 'heart' | 'swirl' | 'sparkles' {
+  const text = `${affix.name ?? ''} ${affix.description ?? ''}`;
+  if (/屏障|护盾|护甲|减伤/.test(text)) return 'shield';
+  if (/生命|治疗|回复|体型/.test(text)) return 'heart';
+  if (/攻击|伤害|重击|击杀/.test(text)) return 'swords';
+  if (/法力|魔力|魔法|施法/.test(text)) return 'swirl';
+  return 'sparkles';
+}
+
 function tabOf(value: string | undefined): WeaponTab {
   return value === 'all' || value === 'forge' || value === 'temper' ? value : 'owned';
 }
 
-function rarityStyle(rarity: string): string {
-  const meta = rarityMeta(rarity);
-  return `--rarity-line:${meta.color};--rarity-glow:${meta.glow}`;
-}
-
-function weaponImage(w: WeaponDef, className = ''): string {
+function weaponImage(w: WeaponDef, className = '', eager = false): string {
   const url = catalogIconUrl(w);
   if (!url) return `<div class="weapon-art-missing ${className}" aria-hidden="true"></div>`;
-  return `<img class="${className}" src="${escapeHtml(url)}" alt="${escapeHtml(w.name)}" loading="lazy">`;
-}
-
-function sourceOf(w: WeaponDef): string {
-  if (w.starter) return '初始武器 · 无需解锁';
-  const recipe = SOULFORGE_RECIPES.find((stock) => stock.recipe.weaponId === w.id);
-  if (recipe) return `熔炉锻造 · ${recipe.source}`;
-  if (!w.equippable) return '占位武器 · 无战斗法术 · 不可装备';
-  return '暂无获取途径';
+  return `<img class="${className}" src="${escapeHtml(url)}" alt="${escapeHtml(w.name)}" loading="${eager ? 'eager' : 'lazy'}">`;
 }
 
 function recipeOf(w: WeaponDef): SoulforgeStock | undefined {
@@ -119,7 +110,10 @@ export class WeaponsScreen implements Screen {
   private ctx!: ShellCtx;
   private root: HTMLElement | null = null;
   private tab: WeaponTab = 'owned';
+  private page = 1;
   private selectedId: string | null = null;
+  private detailMode: 'overview' | 'upgrade' = 'overview';
+  private renderedPageSize = 12;
   /** 高价配方的自绘二次确认状态（不使用原生 confirm，避免阻塞/样式脱节）。 */
   private forgeConfirmId: string | null = null;
   private filters: WeaponFilters = {
@@ -148,7 +142,31 @@ export class WeaponsScreen implements Screen {
         this.filters.source = '';
         this.filters.sort = 'default';
       }
+      this.page = 1;
       this.selectedId = null;
+      this.detailMode = 'overview';
+      this.render();
+      return;
+    }
+
+    const pageButton = target.closest<HTMLElement>('[data-weapon-page]');
+    if (pageButton && !pageButton.hasAttribute('disabled')) {
+      const totalPages = Math.max(1, Math.ceil(this.cardsForTab().length / weaponsPerPage()));
+      const direction = pageButton.dataset.weaponPage;
+      const requested = direction === 'prev' ? this.page - 1 : direction === 'next' ? this.page + 1 : Number(direction);
+      this.page = Math.min(totalPages, Math.max(1, Number.isFinite(requested) ? requested : this.page));
+      this.selectedId = null;
+      this.detailMode = 'overview';
+      this.render();
+      this.screenEl()?.scrollTo({ top: 0, behavior: 'smooth' });
+      return;
+    }
+
+    const detailClose = target.closest<HTMLElement>('[data-weapon-detail-close]');
+    if (detailClose || target.matches('[data-weapon-detail-veil]')) {
+      this.selectedId = null;
+      this.forgeConfirmId = null;
+      this.detailMode = 'overview';
       this.render();
       return;
     }
@@ -157,6 +175,7 @@ export class WeaponsScreen implements Screen {
     if (clearFilter) {
       const name = clearFilter.dataset.clearFilter as FilterName | undefined;
       if (name && name !== 'sort') this.clearFilter(name);
+      this.page = 1;
       this.render();
       return;
     }
@@ -164,6 +183,7 @@ export class WeaponsScreen implements Screen {
     const clearAll = target.closest<HTMLElement>('[data-clear-all-filters]');
     if (clearAll) {
       this.clearFilters();
+      this.page = 1;
       this.render();
       return;
     }
@@ -173,9 +193,26 @@ export class WeaponsScreen implements Screen {
       const kind = action.dataset.weaponAction;
       const id = action.dataset.weaponId ?? this.selectedId;
       if (!id || action.hasAttribute('disabled')) return;
+      if (kind === 'open-upgrade') {
+        this.detailMode = 'upgrade';
+        this.forgeConfirmId = null;
+        this.render();
+      }
+      if (kind === 'back-detail') {
+        this.detailMode = 'overview';
+        this.forgeConfirmId = null;
+        this.render();
+      }
       if (kind === 'equip') void this.equip(id);
+      if (kind === 'claim') void this.claim(id);
       if (kind === 'forge') void this.forge(id);
       if (kind === 'temper') void this.temper(id);
+      if (kind === 'goto-quest') {
+        const kingdom = action.dataset.kingdom;
+        if (kingdom) this.ctx.navigate(`#quest/${kingdom}`);
+      }
+      if (kind === 'goto-hero') this.ctx.navigate('#hero');
+      if (kind === 'goto-shop') this.ctx.navigate('#shop/gems');
       if (kind === 'goto-forge') {
         this.tab = 'forge';
         this.selectedId = id;
@@ -196,6 +233,9 @@ export class WeaponsScreen implements Screen {
     const card = target.closest<HTMLElement>('[data-weapon-id], [data-recipe-id]');
     if (card) {
       this.selectedId = card.dataset.weaponId ?? card.dataset.recipeId ?? null;
+      this.forgeConfirmId = null;
+      this.detailMode = 'overview';
+      this.screenEl()?.scrollTo({ top: 0 });
       this.render();
       return;
     }
@@ -206,14 +246,33 @@ export class WeaponsScreen implements Screen {
     const emptyReset = target.closest<HTMLElement>('[data-empty-reset]');
     if (emptyReset) {
       this.clearFilters();
+      this.page = 1;
       this.render();
     }
+  };
+
+  private readonly onKeydown = (event: KeyboardEvent): void => {
+    if (event.key !== 'Escape' || !this.selectedId) return;
+    this.selectedId = null;
+    this.forgeConfirmId = null;
+    this.detailMode = 'overview';
+    this.render();
+  };
+
+  private readonly onResize = (): void => {
+    const nextSize = weaponsPerPage();
+    if (nextSize === this.renderedPageSize) return;
+    const firstVisibleIndex = (this.page - 1) * this.renderedPageSize;
+    this.renderedPageSize = nextSize;
+    this.page = Math.floor(firstVisibleIndex / nextSize) + 1;
+    this.render();
   };
 
   private readonly onInput = (event: Event): void => {
     const input = event.target as HTMLInputElement;
     if (!input.matches('[data-weapon-search]')) return;
     this.filters.query = input.value;
+    this.page = 1;
     const position = input.selectionStart ?? input.value.length;
     this.render(true, position);
   };
@@ -228,17 +287,23 @@ export class WeaponsScreen implements Screen {
     else if (name === 'source') this.filters.source = value as WeaponFilters['source'];
     else if (name === 'sort') this.filters.sort = value as WeaponFilters['sort'];
     else this.filters[name] = value;
+    this.page = 1;
     this.render();
   };
 
   html(_ctx?: ShellCtx, param?: string): string {
-    if (param) this.tab = tabOf(param);
+    if (param) {
+      this.tab = tabOf(param);
+      this.page = 1;
+      this.selectedId = null;
+      this.detailMode = 'overview';
+    }
     return `
       ${topbarHtml()}
       <main class="screen weapons-screen" id="weaponsScreen">
         <header class="weapons-heading">
           <button class="weapons-back" type="button" aria-label="返回主角" data-weapons-back><span data-icon="arrow"></span></button>
-          <div><h1>武 器 中 心</h1><p>官方武器目录 · 装备 · 熔炉 · 淬炼</p></div>
+          <div><h1>武器中心</h1><p>英雄军械库</p></div>
           <span class="weapon-wallet"><span data-icon="soul"></span><b id="weaponsSoulBalance">0</b> 灵魂</span>
         </header>
         <nav class="weapons-tabs" id="weaponTabs" aria-label="武器分类"></nav>
@@ -259,6 +324,9 @@ export class WeaponsScreen implements Screen {
     root.addEventListener('click', this.onClick);
     root.addEventListener('input', this.onInput);
     root.addEventListener('change', this.onChange);
+    window.addEventListener('keydown', this.onKeydown);
+    window.addEventListener('resize', this.onResize);
+    this.renderedPageSize = weaponsPerPage();
     this.render();
   }
 
@@ -269,6 +337,9 @@ export class WeaponsScreen implements Screen {
   private render(focusQuery = false, queryPosition?: number): void {
     const screen = this.screenEl();
     if (!screen) return;
+    const oldList = screen.querySelector<HTMLElement>('.weapons-list');
+    const listTop = oldList?.scrollTop ?? 0;
+    const listLeft = oldList?.scrollLeft ?? 0;
     const save = this.ctx.save();
     const ownedCount = ownedWeaponIds(save).length;
     const allCount = ALL_CATALOG_WEAPONS.length;
@@ -292,6 +363,11 @@ export class WeaponsScreen implements Screen {
     }
     const content = screen.querySelector<HTMLElement>('#weaponsContent');
     if (content) content.innerHTML = this.renderContent();
+    const list = screen.querySelector<HTMLElement>('.weapons-list');
+    if (list) {
+      list.scrollTop = listTop;
+      list.scrollLeft = listLeft;
+    }
     const soul = screen.querySelector<HTMLElement>('#weaponsSoulBalance');
     if (soul) soul.textContent = fmt(save.currencies.souls);
     mountIcons(screen);
@@ -307,35 +383,76 @@ export class WeaponsScreen implements Screen {
 
   private renderContent(): string {
     const cards = this.cardsForTab();
-    if (cards.length > 0 && (!this.selectedId || !cards.some((card) => card.weapon.id === this.selectedId))) {
-      const save = this.ctx.save();
-      const equipped = anyWeaponById(save.hero.equippedWeapon)?.id;
-      this.selectedId = cards.find((card) => card.weapon.id === equipped)?.weapon.id ?? cards[0]!.weapon.id;
-    }
-    const selected = cards.find((card) => card.weapon.id === this.selectedId) ?? cards[0] ?? null;
+    const pageSize = weaponsPerPage();
+    this.renderedPageSize = pageSize;
+    const pageCount = Math.max(1, Math.ceil(cards.length / pageSize));
+    this.page = Math.min(pageCount, Math.max(1, this.page));
+    const pageStart = (this.page - 1) * pageSize;
+    const pageCards = cards.slice(pageStart, pageStart + pageSize);
+    const selected = this.selectedId ? cards.find((card) => card.weapon.id === this.selectedId) ?? null : null;
     const isFilterTab = this.tab === 'owned' || this.tab === 'all';
     const toolbar = this.renderToolbar(isFilterTab);
-    const note =
-      this.tab === 'forge'
-        ? '<p class="forge-note">配方只展示真实可用的活动武器；名称与官方目录保持单源。</p>'
-        : this.tab === 'temper'
-          ? '<p class="temper-note">淬炼等级、材料余额与下一档词缀解锁均来自当前存档。</p>'
-          : '';
     const empty = cards.length
       ? ''
       : `<div class="empty-state"><strong>${this.tab === 'temper' ? '没有待淬炼武器' : '没有符合条件的武器'}</strong><span>当前筛选没有结果。</span>${isFilterTab ? '<button type="button" data-empty-reset>清除筛选</button>' : ''}</div>`;
-    return `${toolbar}${note}
-      <div class="weapons-workspace">
-        <div class="weapons-list" role="listbox" aria-label="武器列表">${empty}${cards.map((card) => this.renderCard(card)).join('')}</div>
-        <aside class="weapon-detail" aria-label="武器详情">${selected ? this.renderDetail(selected) : '<div class="empty-state"><strong>选择一把武器</strong></div>'}</aside>
-      </div>`;
+    const items = this.tab === 'forge'
+      ? [1, 2].map((tier) => {
+          const group = pageCards.filter((card) => card.recipe?.tier === tier);
+          return group.length ? `<div class="recipe-group-label" role="presentation"><b>${tier === 1 ? '活动武器' : '珍藏配方'}</b><span>主角 Lv.${forgeTierUnlockLevel(tier as 1 | 2)} 解锁</span></div>${group.map((card) => this.renderCard(card)).join('')}` : '';
+        }).join('')
+      : pageCards.map((card) => this.renderCard(card)).join('');
+    return `${toolbar}
+      <div class="weapons-workspace weapons-workspace--${this.tab}">
+        <div class="weapons-list" role="listbox" aria-label="武器列表">${empty}${items}</div>
+        ${this.renderPagination(cards.length, pageCount, pageSize)}
+      </div>
+      ${selected ? this.renderDetailSheet(selected) : ''}`;
+  }
+
+  private renderDetailSheet(card: CardVm): string {
+    const upgrade = this.detailMode === 'upgrade';
+    const title = upgrade ? (card.kind === 'forge' || !ownsWeapon(this.ctx.save(), card.weapon.id) ? '锻造准备' : '淬炼准备') : '武器详情';
+    return `<div class="weapon-detail-veil" data-weapon-detail-veil>
+      <section class="weapon-detail-sheet" style="${rarityStyle(card.weapon.rarity)}" role="dialog" aria-modal="true" aria-label="${escapeHtml(card.weapon.name)}${title}">
+        <header class="weapon-detail-sheet-head">
+          ${upgrade ? '<button class="weapon-detail-back" type="button" data-weapon-action="back-detail" aria-label="返回武器详情" title="返回武器详情"><span data-icon="arrow"></span></button>' : ''}
+          <div><b>${title}</b></div>
+          <button class="weapon-detail-close" type="button" data-weapon-detail-close aria-label="关闭武器详情" title="关闭"><span data-icon="close"></span></button>
+        </header>
+        <aside class="weapon-detail" aria-label="${title}">${upgrade ? this.renderUpgrade(card) : this.renderDetail(card)}</aside>
+      </section>
+    </div>`;
+  }
+
+  private renderPagination(total: number, pageCount: number, pageSize: number): string {
+    const from = total === 0 ? 0 : (this.page - 1) * pageSize + 1;
+    const to = Math.min(total, this.page * pageSize);
+    return `<nav class="weapons-pagination" aria-label="武器分页">
+      <span class="weapons-page-total">${fmt(from)}-${fmt(to)} / ${fmt(total)}</span>
+      <div class="weapons-page-actions">
+        <button type="button" data-weapon-page="prev" aria-label="上一页" title="上一页"${this.page <= 1 ? ' disabled' : ''}><span data-icon="arrow"></span></button>
+        <b>第 ${this.page} / ${pageCount} 页</b>
+        <button class="is-next" type="button" data-weapon-page="next" aria-label="下一页" title="下一页"${this.page >= pageCount ? ' disabled' : ''}><span data-icon="arrow"></span></button>
+      </div>
+    </nav>`;
   }
 
   private renderToolbar(includeFilters: boolean): string {
     const resultCount = this.cardsForTab().length;
     const query = escapeHtml(this.filters.query);
     if (!includeFilters) {
-      return `<div class="weapons-toolbar"><input class="weapons-search" data-weapon-search value="${query}" placeholder="搜索武器、法术或词缀" aria-label="搜索武器"><span class="weapons-result-count">${fmt(resultCount)} 把</span></div>`;
+      const save = this.ctx.save();
+      if (this.tab === 'forge') {
+        const ready = SOULFORGE_RECIPES.filter(({ recipe }) => !ownsWeapon(save, recipe.weaponId) && save.hero.level >= forgeTierUnlockLevel(recipe.tier) && save.currencies.souls >= recipe.souls && save.currencies.gold >= recipe.gold).length;
+        return `<div class="weapons-toolbar workbench-toolbar"><div class="workbench-heading"><span data-icon="soul"></span><div><h2>灵魂熔炉</h2><small>${fmt(resultCount)} 份配方 · ${ready} 份可锻造</small></div></div><div class="workbench-wallet"><span>灵魂 <b>${fmt(save.currencies.souls)}</b></span><span>黄金 <b>${fmt(save.currencies.gold)}</b></span></div><input class="weapons-search" data-weapon-search value="${query}" placeholder="搜索配方" aria-label="搜索配方"></div>`;
+      }
+      const ready = ownedWeapons(save).filter((w) => {
+        if (temperingLevelOf(save, w.id) >= MAX_TEMPERING_LEVEL) return false;
+        const cost = temperingCost(w.rarity, temperingLevelOf(save, w.id));
+        const key = ingotKeyForRarity(w.rarity);
+        return save.currencies.gold >= cost.gold && (cost.scrolls ? save.materials.forgeScrolls >= cost.scrolls : key && (save.materials.ingots[key] ?? 0) >= cost.ingots);
+      }).length;
+      return `<div class="weapons-toolbar workbench-toolbar"><div class="workbench-heading"><span data-icon="swords"></span><div><h2>武器淬炼</h2><small>${fmt(resultCount)} 把待淬炼 · ${ready} 把材料齐备</small></div></div><div class="workbench-wallet"><span>黄金 <b>${fmt(save.currencies.gold)}</b></span></div><input class="weapons-search" data-weapon-search value="${query}" placeholder="搜索已拥有武器" aria-label="搜索已拥有武器"></div>`;
     }
     const options = this.filterOptions();
     const select = (name: FilterName, label: string, values: Array<[string, string]>, current: string): string =>
@@ -343,21 +460,23 @@ export class WeaponsScreen implements Screen {
         .map(([value, text]) => `<option value="${escapeHtml(value)}"${current === value ? ' selected' : ''}>${escapeHtml(text)}</option>`)
         .join('')}</select></label>`;
     const chips = [
-      this.filters.rarity ? `<span class="filter-chip">稀有度：${escapeHtml(rarityMeta(this.filters.rarity).label)}<button type="button" aria-label="移除稀有度筛选" data-clear-filter="rarity">×</button></span>` : '',
+      this.filters.rarity ? `<span class="filter-chip">稀有度：${escapeHtml(rarityMetaByKey(this.filters.rarity).label)}<button type="button" aria-label="移除稀有度筛选" data-clear-filter="rarity">×</button></span>` : '',
       this.filters.type ? `<span class="filter-chip">类型：${escapeHtml(weaponTypeZh(this.filters.type))}<button type="button" aria-label="移除类型筛选" data-clear-filter="type">×</button></span>` : '',
       this.filters.color ? `<span class="filter-chip">法力：${escapeHtml(COLOR_CN[this.filters.color] ?? this.filters.color)}<button type="button" aria-label="移除法力色筛选" data-clear-filter="color">×</button></span>` : '',
       this.filters.ownership ? `<span class="filter-chip">状态：${escapeHtml(this.ownershipLabel(this.filters.ownership))}<button type="button" aria-label="移除拥有状态筛选" data-clear-filter="ownership">×</button></span>` : '',
-      this.filters.source ? `<span class="filter-chip">获取：${this.filters.source === 'forge' ? '可熔炉锻造' : '暂无途径'}<button type="button" aria-label="移除获取途径筛选" data-clear-filter="source">×</button></span>` : '',
+      this.filters.source ? `<span class="filter-chip">获取：${escapeHtml(acquireFilterLabel(this.filters.source))}<button type="button" aria-label="移除获取途径筛选" data-clear-filter="source">×</button></span>` : '',
     ].filter(Boolean).join('');
     return `<div class="weapons-toolbar">
       <input class="weapons-search" data-weapon-search value="${query}" placeholder="搜索武器、法术或词缀" aria-label="搜索武器、法术或词缀">
-      ${select('rarity', '稀有度', options.rarities, this.filters.rarity)}
-      ${select('type', '类型', options.types, this.filters.type)}
-      ${select('color', '法力色', options.colors, this.filters.color)}
-      ${select('ownership', '拥有状态', [['owned', '已拥有'], ['usable', '可装备'], ['unowned', '未拥有']], this.filters.ownership)}
-      ${select('source', '获取途径', [['forge', '可熔炉锻造'], ['none', '暂无途径']], this.filters.source)}
-      ${select('sort', '排序', [['default', '默认顺序'], ['rarity', '稀有度'], ['cost', '耗蓝'], ['name', '名称']], this.filters.sort)}
-      <button class="filter-clear" type="button" data-clear-all-filters>清除全部</button>
+      <div class="weapon-filter-controls">
+        ${select('rarity', '稀有度', options.rarities, this.filters.rarity)}
+        ${select('type', '类型', options.types, this.filters.type)}
+        ${select('color', '法力色', options.colors, this.filters.color)}
+        ${select('ownership', '拥有状态', [['owned', '已拥有'], ['usable', '可装备'], ['unowned', '未拥有']], this.filters.ownership)}
+        ${select('source', '获取途径', [...ACQUIRE_FILTERS], this.filters.source)}
+        ${select('sort', '排序', [['default', '默认顺序'], ['rarity', '稀有度'], ['cost', '耗蓝'], ['name', '名称']], this.filters.sort)}
+        <button class="filter-clear" type="button" data-clear-all-filters>清除全部</button>
+      </div>
       <div class="weapons-summary">${chips || '<span>全部武器</span>'}<span class="weapons-result-count">${fmt(resultCount)} / ${fmt(ALL_CATALOG_WEAPONS.length)} 把</span></div>
     </div>`;
   }
@@ -369,7 +488,7 @@ export class WeaponsScreen implements Screen {
     const typeKeys = [...new Set(ALL_CATALOG_WEAPONS.map((w) => w.weaponType).filter((v): v is string => Boolean(v)))].sort();
     const colorKeys = [...new Set(ALL_CATALOG_WEAPONS.flatMap((w) => w.manaColors.map((c) => String(c).toLowerCase())))].sort();
     return {
-      rarities: rarityKeys.map((key) => [key, rarityMeta(key).label]),
+      rarities: rarityKeys.map((key) => [key, rarityMetaByKey(key).label]),
       types: typeKeys.map((key) => [key, weaponTypeZh(key)]),
       colors: colorKeys.map((key) => [key, COLOR_CN[key] ?? key]),
     };
@@ -408,8 +527,7 @@ export class WeaponsScreen implements Screen {
     if (this.filters.ownership === 'owned' && !ownsWeapon(save, w.id)) return false;
     if (this.filters.ownership === 'usable' && !canUseWeapon(save, w)) return false;
     if (this.filters.ownership === 'unowned' && ownsWeapon(save, w.id)) return false;
-    if (this.filters.source === 'forge' && !recipeOf(w)) return false;
-    if (this.filters.source === 'none' && (recipeOf(w) || w.starter)) return false;
+    if (this.filters.source && acquireFilterKind(acquireOf(w)) !== this.filters.source) return false;
     return true;
   }
 
@@ -423,7 +541,7 @@ export class WeaponsScreen implements Screen {
   private renderCard(card: CardVm): string {
     const save = this.ctx.save();
     const w = card.weapon;
-    const meta = rarityMeta(w.rarity);
+    const meta = rarityMetaByKey(w.rarity);
     const owned = ownsWeapon(save, w.id);
     const equipped = anyWeaponById(save.hero.equippedWeapon)?.id === w.id;
     const level = temperingLevelOf(save, w.id);
@@ -441,24 +559,41 @@ export class WeaponsScreen implements Screen {
       }
       else { status = '可锻造'; statusClass = 'is-good'; }
     } else if (equipped) { status = '装备中'; statusClass = 'is-good'; }
-    else if (!owned) { status = w.equippable ? '未拥有' : '不可装备'; statusClass = 'is-bad'; }
+    else if (!owned) {
+      const acquire = acquireOf(w);
+      const progress = acquireProgress(save, acquire);
+      if (!w.equippable) { status = '不可装备'; statusClass = 'is-bad'; }
+      else { status = progress.short; statusClass = progress.ready ? 'is-good' : 'is-warn'; }
+    }
     else if (!w.equippable) { status = '不可装备'; statusClass = 'is-bad'; }
     else { status = '已拥有'; statusClass = 'is-good'; }
-    const metaText = card.kind === 'forge' ? `${fmt(card.recipe!.souls)} 魂 · ${fmt(card.recipe!.gold)} 金` : `${weaponTypeZh(w.weaponType)} · ${w.kingdom}`;
-    return `<button class="weapon-card${this.selectedId === w.id ? ' is-selected' : ''}${!owned && card.kind === 'weapon' ? ' is-locked' : ''}" style="${rarityStyle(w.rarity)}" type="button" role="option" aria-selected="${this.selectedId === w.id}" data-${card.kind === 'forge' ? 'recipe' : 'weapon'}-id="${escapeHtml(w.id)}">
-      <span class="weapon-status ${statusClass}">${escapeHtml(status)}</span>
-      <span class="weapon-art">${weaponImage(w)}</span>
-      <span class="weapon-rarity">${escapeHtml(meta.label)}</span>
-      <b class="weapon-name" title="${escapeHtml(w.name)}">${escapeHtml(w.name)}</b>
-      <span class="weapon-meta">${card.kind === 'weapon' ? `${gemSvg(w.manaColors.map((c) => String(c).toLowerCase()))}<span>${escapeHtml(metaText)} · ${w.manaCost}</span>` : `<span>${escapeHtml(metaText)}</span>`}</span>
-      ${card.kind === 'weapon' && this.tab === 'temper' ? `<span class="weapon-meta">淬炼 ${level}/${MAX_TEMPERING_LEVEL}</span>` : ''}
+    if (this.tab === 'temper') {
+      const cost = temperingCost(w.rarity, level);
+      const key = ingotKeyForRarity(w.rarity);
+      const materialHeld = cost.scrolls ? save.materials.forgeScrolls : key ? save.materials.ingots[key] ?? 0 : 0;
+      const materialCost = cost.scrolls || cost.ingots;
+      status = save.currencies.gold >= cost.gold && materialHeld >= materialCost ? '可淬炼' : '材料不足';
+      statusClass = status === '可淬炼' ? 'is-good' : 'is-warn';
+    }
+    const workbenchNote = card.kind === 'forge'
+      ? `<span class="weapon-note">${fmt(card.recipe!.souls)} 魂 · ${fmt(card.recipe!.gold)} 金</span>`
+      : this.tab === 'temper'
+        ? `<span class="weapon-note">淬炼 ${level}/${MAX_TEMPERING_LEVEL}</span>`
+        : '';
+    const mana = card.kind === 'weapon'
+      ? `<span class="weapon-mana" title="法力 ${w.manaCost}">${gemSvg(w.manaColors.map((c) => String(c).toLowerCase()))}<i>${w.manaCost}</i></span>`
+      : '';
+    const statusHtml = `<span class="weapon-status ${statusClass}">${escapeHtml(status)}</span>`;
+    const workbench = this.tab === 'forge' || this.tab === 'temper';
+    return `<button class="weapon-card${this.selectedId === w.id ? ' is-selected' : ''}${!owned && card.kind === 'weapon' ? ' is-locked' : ''}" style="${rarityStyle(w.rarity)}" type="button" role="option" aria-selected="${this.selectedId === w.id}" aria-label="${escapeHtml(w.name)}，${escapeHtml(meta.label)}，法力 ${w.manaCost}" data-rarity="${escapeHtml(w.rarity)}" data-${card.kind === 'forge' ? 'recipe' : 'weapon'}-id="${escapeHtml(w.id)}">
+      <span class="weapon-art">${weaponImage(w, '', workbench)}${mana}${workbench ? '' : statusHtml}</span>
+      <span class="weapon-card-copy"><b class="weapon-name" title="${escapeHtml(w.name)}">${escapeHtml(w.name)}</b>${workbenchNote}${workbench ? statusHtml : ''}</span>
     </button>`;
   }
 
   private renderDetail(card: CardVm): string {
     const save = this.ctx.save();
     const w = card.weapon;
-    const meta = rarityMeta(w.rarity);
     const owned = ownsWeapon(save, w.id);
     const equipped = anyWeaponById(save.hero.equippedWeapon)?.id === w.id;
     const level = temperingLevelOf(save, w.id);
@@ -466,47 +601,97 @@ export class WeaponsScreen implements Screen {
     const tags = [weaponTypeZh(w.weaponType), w.kingdom, w.roleName].filter(Boolean).map((text) => `<span class="detail-tag">${escapeHtml(text)}</span>`).join('');
     const affixLevels = w.rarity === 'Doomed' ? DOOMED_AFFIX_UNLOCK_LEVELS : AFFIX_UNLOCK_LEVELS;
     const unlockedAffixes = affixUnlockedCount(w.rarity, level);
-    const affixes = w.affixes.length
-      ? `<section class="detail-section"><h4>淬炼词缀 ${unlockedAffixes}/${w.affixes.length}</h4><ul class="affix-list">${w.affixes
-          .map((affix, index) => `<li class="${index < unlockedAffixes ? '' : 'is-locked'}"><small>${index < unlockedAffixes ? '已解锁' : `Lv.${affixLevels[index] ?? '—'}`}</small><span><b>${escapeHtml(affix.name)}</b><br><small>${escapeHtml(affix.description)}</small></span></li>`)
-          .join('')}</ul><p class="detail-source">词缀效果按当前系统口径仅展示解锁状态。</p></section>`
-      : '';
-    const temper = owned
-      ? this.renderTemperSection(w, level)
-      : '';
+    const affixes = `<section class="detail-affixes${w.affixes.length ? '' : ' is-empty'}">
+        <div class="detail-section-heading"><span data-icon="swirl"></span><div><small>淬炼词缀</small><h3>${w.affixes.length ? `${unlockedAffixes}/${w.affixes.length} 已解锁` : '尚未生成'}</h3></div></div>
+        ${w.affixes.length
+          ? `<ul class="affix-list">${w.affixes.map((affix, index) => {
+              const on = index < unlockedAffixes;
+              const unlockAt = affixLevels[index] ?? 0;
+              return `<li class="affix-card${on ? '' : ' is-locked'}">
+                <span class="affix-icon" data-icon="${affixIconOf(affix)}"></span>
+                <span class="affix-copy"><b>${escapeHtml(affix.name)}</b><small>${escapeHtml(affix.description)}</small></span>
+                <span class="affix-state">${on ? '已解锁' : `淬炼 Lv.${unlockAt}`}</span>
+              </li>`;
+            }).join('')}</ul>`
+          : '<p class="affix-empty">这把武器还没有淬炼词缀。升级淬炼后会在这里解锁。</p>'}
+      </section>`;
+    const acquire = acquireOf(w);
+    const progress = acquireProgress(save, acquire);
     let actions = '';
     if (card.kind === 'forge') {
-      const recipe = card.recipe!;
-      const canForge = !owned && save.hero.level >= forgeTierUnlockLevel(recipe.tier) && save.currencies.souls >= recipe.souls && save.currencies.gold >= recipe.gold;
       actions = owned
         ? `<button class="primary-action" type="button" data-weapon-action="goto-owned" data-weapon-id="${escapeHtml(w.id)}">查看我的武器</button>`
-        : this.renderForgeActions(w.id, canForge);
-    } else {
+        : `<button class="primary-action" type="button" data-weapon-action="open-upgrade" data-weapon-id="${escapeHtml(w.id)}">查看锻造要求</button>`;
+    } else if (owned) {
       const canEquip = canUseWeapon(save, w) && !equipped;
-      const canTemper = owned && level < MAX_TEMPERING_LEVEL;
-      const recipe = recipeOf(w)?.recipe;
-      actions = `<button class="primary-action" type="button" data-weapon-action="equip" data-weapon-id="${escapeHtml(w.id)}"${canEquip ? '' : ' disabled'}>${equipped ? '已装备' : w.equippable && owned ? '装备' : '不可装备'}</button>
-        <button type="button" data-weapon-action="temper" data-weapon-id="${escapeHtml(w.id)}"${canTemper ? '' : ' disabled'}>${level >= MAX_TEMPERING_LEVEL ? '已满级' : '淬炼 +1'}</button>
-        ${!owned && recipe ? `<button type="button" data-weapon-action="goto-forge" data-weapon-id="${escapeHtml(w.id)}">去熔炉</button>` : ''}`;
+      actions = `<button class="primary-action" type="button" data-weapon-action="equip" data-weapon-id="${escapeHtml(w.id)}"${canEquip ? '' : ' disabled'}>${equipped ? '已装备' : w.equippable ? '装备' : '不可装备'}</button>
+        <button type="button" data-weapon-action="open-upgrade" data-weapon-id="${escapeHtml(w.id)}"${level >= MAX_TEMPERING_LEVEL ? ' disabled' : ''}>${level >= MAX_TEMPERING_LEVEL ? '淬炼已满级' : '淬炼与升级'}</button>`;
+    } else if (acquire.kind === 'forge' || recipeOf(w)) {
+      actions = `<button class="primary-action" type="button" data-weapon-action="open-upgrade" data-weapon-id="${escapeHtml(w.id)}">查看锻造要求</button>`;
+    } else if (acquire.kind === 'placeholder') {
+      actions = `<button class="primary-action" type="button" disabled>不可领取</button>`;
+    } else if (acquire.kind === 'buy') {
+      if (acquire.kingdom && !kingdomQuestCleared(save, acquire.kingdom)) {
+        actions = `<button class="primary-action" type="button" data-weapon-action="goto-quest" data-kingdom="${escapeHtml(acquire.kingdom)}">前往王国任务</button>`;
+      } else {
+        actions = progress.ready
+          ? `<button class="primary-action" type="button" data-weapon-action="claim" data-weapon-id="${escapeHtml(w.id)}">购买武器</button>
+        <button type="button" data-weapon-action="goto-shop">前往宝石商店</button>`
+          : `<button class="primary-action" type="button" data-weapon-action="goto-shop">前往宝石商店</button>`;
+      }
+    } else if (progress.ready) {
+      actions = `<button class="primary-action" type="button" data-weapon-action="claim" data-weapon-id="${escapeHtml(w.id)}">领取武器</button>`;
+    } else if (acquire.kind === 'mastery') {
+      actions = `<button class="primary-action" type="button" data-weapon-action="goto-hero">前往法力精通</button>`;
+    } else if (acquire.kind === 'class') {
+      const unlocked = Boolean(acquire.classId && save.hero.unlockedClasses.includes(acquire.classId));
+      actions = unlocked
+        ? `<button class="primary-action" type="button" disabled>${escapeHtml(progress.short)}</button>`
+        : `<button class="primary-action" type="button" data-weapon-action="goto-hero">前往职业圣殿</button>`;
+    } else {
+      actions = `<button class="primary-action" type="button" disabled>${escapeHtml(progress.short)}</button>`;
     }
-    const source = sourceOf(w);
-    const recipe = recipeOf(w)?.recipe;
-    const recipeCost = recipe ? this.renderForgeCost(recipe, save) : '';
-    return `<div class="detail-art" style="${rarityStyle(w.rarity)}">${weaponImage(w)}${!owned && card.kind !== 'forge' ? '<span class="detail-lock">未拥有</span>' : ''}</div>
-      <div class="detail-rarity" style="color:${meta.color}">${escapeHtml(meta.label)}</div>
-      <h2 class="detail-title">${escapeHtml(w.name)}<small>${escapeHtml(w.nameEn)}</small></h2>
-      <div class="detail-tags">${tags}</div>
-      <div class="detail-stats" role="group" aria-label="武器属性"><span class="detail-stat"><span data-icon="swords"></span><b>+${w.attack}</b><small>攻击</small></span><span class="detail-stat"><span data-icon="shield"></span><b>+${w.armor}</b><small>护甲</small></span><span class="detail-stat"><span data-icon="heart"></span><b>+${w.health}</b><small>生命</small></span><span class="detail-stat"><span data-icon="orb"></span><b>+${w.magic}</b><small>魔力</small></span></div>
-      <div class="detail-mana">${gemSvg(w.manaColors.map((c) => String(c).toLowerCase()))}<span>法力消耗 <b>${w.manaCost}</b></span></div>
-      <section class="detail-section"><h4>${escapeHtml(w.spellName || '武器法术')}</h4><p class="detail-copy">${spell.html || '暂无可用法术文本。'}</p></section>
-      ${affixes}${temper}
-      <p class="detail-source">获取途径：${escapeHtml(source)}</p>${recipeCost}
-      <div class="detail-actions">${actions}</div>`;
+    const spellHeading = w.spellName && w.spellName !== w.name
+      ? `<small>武器技能</small><h3>${escapeHtml(w.spellName)}</h3>`
+      : '<h3>武器技能</h3>';
+    return `<div class="detail-scroll"><div class="detail-overview">
+      <div class="detail-visual">
+        <div class="detail-art" style="${rarityStyle(w.rarity)}">${weaponImage(w, '', true)}${!owned && card.kind !== 'forge' ? '<span class="detail-lock">未拥有</span>' : ''}</div>
+        <div class="detail-stats" role="group" aria-label="武器属性加成">
+          <span class="detail-stat stat-attack"><span data-icon="swords"></span><span><small>攻击</small><b>+${w.attack}</b></span></span>
+          <span class="detail-stat stat-armor"><span data-icon="shield"></span><span><small>护甲</small><b>+${w.armor}</b></span></span>
+          <span class="detail-stat stat-health"><span data-icon="heart"></span><span><small>生命</small><b>+${w.health}</b></span></span>
+          <span class="detail-stat stat-magic"><span data-icon="orb"></span><span><small>魔力</small><b>+${w.magic}</b></span></span>
+        </div>
+      </div>
+      <div class="detail-identity">
+        <div class="detail-title-row"><div><h2 class="detail-title">${escapeHtml(w.name)}</h2><div class="detail-tags">${tags}</div></div><div class="detail-mana">${gemSvg(w.manaColors.map((c) => String(c).toLowerCase()))}<span><small>法力消耗</small><b>${w.manaCost}</b></span></div></div>
+        <section class="detail-acquire">
+          <div class="detail-section-heading"><span data-icon="${acquireIcon(acquireFilterKind(acquire))}"></span><div><small>获取途径</small><h3>${escapeHtml(acquire.label)}</h3></div></div>
+          ${owned ? '<p class="detail-acquire-hint is-owned">已拥有</p>' : ''}
+        </section>
+        <section class="detail-spell"><div class="detail-section-heading"><span data-icon="sparkles"></span><div>${spellHeading}</div></div><p class="detail-copy">${spell.html || '暂无可用法术文本。'}</p></section>
+        ${affixes}
+      </div>
+    </div></div>
+    <div class="detail-actions">${actions}</div>`;
   }
 
-  private renderTemperSection(w: WeaponDef, level: number): string {
+  private renderUpgrade(card: CardVm): string {
     const save = this.ctx.save();
-    if (level >= MAX_TEMPERING_LEVEL) return `<section class="detail-section detail-progress"><h4>淬炼</h4><div class="progress-copy"><span>已达上限</span><b>${level}/${MAX_TEMPERING_LEVEL}</b></div><div class="progress-line"><i style="width:100%"></i></div></section>`;
+    const w = card.weapon;
+    const recipe = card.recipe ?? recipeOf(w)?.recipe;
+    const owned = ownsWeapon(save, w.id);
+    if (card.kind === 'forge' || (!owned && recipe)) return this.renderForgeUpgrade(w, recipe!);
+    return this.renderTemperUpgrade(w);
+  }
+
+  private renderTemperUpgrade(w: WeaponDef): string {
+    const save = this.ctx.save();
+    const level = temperingLevelOf(save, w.id);
+    if (level >= MAX_TEMPERING_LEVEL) {
+      return `<div class="detail-scroll"><div class="upgrade-empty"><span data-icon="check"></span><h2>淬炼已满级</h2><p>「${escapeHtml(w.name)}」已达到 Lv.${MAX_TEMPERING_LEVEL}。</p></div></div><div class="detail-actions"><button type="button" data-weapon-action="back-detail">返回详情</button></div>`;
+    }
     const cost = temperingCost(w.rarity, level);
     const ingotKey = ingotKeyForRarity(w.rarity);
     const heldIngot = ingotKey ? save.materials.ingots[ingotKey] ?? 0 : 0;
@@ -516,26 +701,59 @@ export class WeaponsScreen implements Screen {
     const materialLabel = cost.scrolls > 0 ? '熔铸符卷' : INGOT_NAMES[ingotKey as IngotKey] ?? '钢锭';
     const materialGap = Math.max(0, materialCost - materialHeld);
     const goldGap = Math.max(0, cost.gold - save.currencies.gold);
-    const gap = materialGap || goldGap;
-    return `<section class="detail-section detail-progress"><h4>淬炼 Lv.${level} / ${MAX_TEMPERING_LEVEL}</h4><div class="progress-copy"><span>下一档消耗</span><b>${escapeHtml(materialLabel)} ${materialCost} · 黄金 ${fmt(cost.gold)}</b></div><div class="resource-compare"><span>持有 ${escapeHtml(materialLabel)} ${materialHeld} · 黄金 ${fmt(save.currencies.gold)}</span>${gap ? `<em>缺口 ${materialGap ? `${materialGap} ${escapeHtml(materialLabel)}` : ''}${materialGap && goldGap ? ' · ' : ''}${goldGap ? `${fmt(goldGap)} 黄金` : ''}</em>` : '<em class="is-ok">材料充足</em>'}</div><div class="progress-line"><i style="width:${Math.round((level / MAX_TEMPERING_LEVEL) * 100)}%"></i></div></section>`;
+    const nextAffix = (w.rarity === 'Doomed' ? DOOMED_AFFIX_UNLOCK_LEVELS : AFFIX_UNLOCK_LEVELS).find((unlock) => unlock > level);
+    const canTemper = materialGap === 0 && goldGap === 0;
+    return `<div class="detail-scroll"><div class="weapon-upgrade-view">
+      ${this.renderUpgradeWeapon(w)}
+      <section class="upgrade-ledger">
+        <div class="upgrade-heading"><span>淬炼进阶</span><h2>升至 Lv.${level + 1}</h2><p>${nextAffix ? `下一词缀将在 Lv.${nextAffix} 解锁` : '全部词缀已解锁，继续提升武器等级。'}</p></div>
+        <div class="upgrade-progress"><div><span>当前 Lv.${level}</span><b>${level + 1}</b><span>上限 Lv.${MAX_TEMPERING_LEVEL}</span></div><div class="progress-line"><i style="width:${Math.round(((level + 1) / MAX_TEMPERING_LEVEL) * 100)}%"></i></div></div>
+        <div class="upgrade-resources"><div class="upgrade-resource-head"><b>所需材料</b><span>需求</span><span>持有</span><span>缺口</span></div>${this.renderResourceRow(materialLabel, materialCost, materialHeld, cost.scrolls ? 'ticket' : 'bag', cost.scrolls ? scrollArt() : ingotKey ? ingotArt(ingotKey) : '')}${this.renderResourceRow('黄金', cost.gold, save.currencies.gold, 'coin')}</div>
+      </section>
+    </div></div>
+    <div class="detail-actions"><button type="button" data-weapon-action="back-detail">返回详情</button><button class="primary-action" type="button" data-weapon-action="temper" data-weapon-id="${escapeHtml(w.id)}"${canTemper ? '' : ' disabled'}>${canTemper ? `淬炼至 Lv.${level + 1}` : '材料尚未集齐'}</button></div>`;
   }
 
-  private renderForgeActions(weaponId: string, canForge: boolean): string {
-    if (!canForge) return `<button class="primary-action" type="button" data-weapon-action="forge" data-weapon-id="${escapeHtml(weaponId)}" disabled>材料/等级不足</button>`;
-    const armed = this.forgeConfirmId === weaponId;
-    const recipe = SOULFORGE_RECIPES.find((stock) => stock.recipe.weaponId === weaponId)?.recipe;
-    const highCost = Boolean(recipe && (recipe.souls >= 100_000 || recipe.gold >= 100_000));
-    if (highCost && armed) {
-      return `<button class="primary-action" type="button" data-weapon-action="forge" data-weapon-id="${escapeHtml(weaponId)}">确认锻造</button><button type="button" data-weapon-action="cancel-forge">取消</button>`;
-    }
-    return `<button class="primary-action" type="button" data-weapon-action="forge" data-weapon-id="${escapeHtml(weaponId)}">锻造</button>`;
-  }
-
-  private renderForgeCost(recipe: ForgeRecipe, save: ReturnType<ShellCtx['save']>): string {
-    const soulsGap = Math.max(0, recipe.souls - save.currencies.souls);
-    const goldGap = Math.max(0, recipe.gold - save.currencies.gold);
+  private renderForgeUpgrade(w: WeaponDef, recipe: ForgeRecipe): string {
+    const save = this.ctx.save();
     const gate = forgeTierUnlockLevel(recipe.tier);
-    return `<div class="detail-cost"><span>锻造消耗</span><div class="resource-compare"><span>灵魂 ${fmt(recipe.souls)} · 持有 ${fmt(save.currencies.souls)}</span>${soulsGap ? `<em>缺口 ${fmt(soulsGap)} 灵魂</em>` : '<em class="is-ok">充足</em>'}</div><div class="resource-compare"><span>黄金 ${fmt(recipe.gold)} · 持有 ${fmt(save.currencies.gold)}</span>${goldGap ? `<em>缺口 ${fmt(goldGap)} 黄金</em>` : '<em class="is-ok">充足</em>'}</div><p class="detail-source">熔炉 Tier ${recipe.tier} · 需要主角 Lv.${gate}</p></div>`;
+    const levelGap = Math.max(0, gate - save.hero.level);
+    const ingotKey = ingotKeyForRarity(recipe.rarity) as IngotKey | null;
+    const ingotHeld = ingotKey ? save.materials.ingots[ingotKey] ?? 0 : 0;
+    const scrollHeld = save.materials.forgeScrolls;
+    const missing = Math.max(0, recipe.souls - save.currencies.souls)
+      + Math.max(0, recipe.gold - save.currencies.gold)
+      + Math.max(0, (recipe.ingots ?? 0) - ingotHeld)
+      + Math.max(0, (recipe.scrolls ?? 0) - scrollHeld);
+    const canForge = levelGap === 0 && missing === 0 && !ownsWeapon(save, w.id);
+    const armed = this.forgeConfirmId === w.id;
+    const highCost = recipe.souls >= 100_000 || recipe.gold >= 100_000;
+    const extraRows = `${recipe.ingots ? this.renderResourceRow(INGOT_NAMES[ingotKey!] ?? '钢锭', recipe.ingots, ingotHeld, 'bag', ingotKey ? ingotArt(ingotKey) : '') : ''}${recipe.scrolls ? this.renderResourceRow('熔铸符卷', recipe.scrolls, scrollHeld, 'ticket', scrollArt()) : ''}`;
+    const action = canForge
+      ? highCost && armed
+        ? `<button type="button" data-weapon-action="cancel-forge">取消</button><button class="primary-action" type="button" data-weapon-action="forge" data-weapon-id="${escapeHtml(w.id)}">确认锻造</button>`
+        : `<button class="primary-action" type="button" data-weapon-action="forge" data-weapon-id="${escapeHtml(w.id)}">锻造武器</button>`
+      : `<button class="primary-action" type="button" disabled>${levelGap ? `还差 ${levelGap} 级解锁` : '材料尚未集齐'}</button>`;
+    return `<div class="detail-scroll"><div class="weapon-upgrade-view">
+      ${this.renderUpgradeWeapon(w)}
+      <section class="upgrade-ledger">
+        <div class="upgrade-gate${levelGap ? ' is-locked' : ''}"><span data-icon="${levelGap ? 'lock' : 'check'}"></span><div><small>等级门槛</small><b>主角 Lv.${gate}</b></div><strong>${levelGap ? `当前 Lv.${save.hero.level} · 还差 ${levelGap} 级` : '已解锁'}</strong></div>
+        <div class="upgrade-resources"><div class="upgrade-resource-head"><b>所需材料</b><span>需求</span><span>持有</span><span>缺口</span></div>${this.renderResourceRow('灵魂', recipe.souls, save.currencies.souls, 'soul')}${this.renderResourceRow('黄金', recipe.gold, save.currencies.gold, 'coin')}${extraRows}</div>
+        ${highCost && armed ? `<p class="forge-confirm"><span data-icon="lock"></span>这是高价配方。确认后将立即扣除材料并获得该武器。</p>` : ''}
+      </section>
+    </div></div>
+    <div class="detail-actions"><button type="button" data-weapon-action="back-detail">返回详情</button>${action}</div>`;
+  }
+
+  private renderUpgradeWeapon(w: WeaponDef): string {
+    const meta = rarityMetaByKey(w.rarity);
+    return `<aside class="upgrade-weapon" style="${rarityStyle(w.rarity)}"><div class="upgrade-weapon-art">${weaponImage(w, '', true)}</div><div><span style="color:${meta.color}">${escapeHtml(meta.label)}</span><h3>${escapeHtml(w.name)}</h3><p>${escapeHtml(weaponTypeZh(w.weaponType))} · ${escapeHtml(w.kingdom)}</p></div></aside>`;
+  }
+
+  private renderResourceRow(name: string, required: number, held: number, iconName: string, art = ''): string {
+    const gap = Math.max(0, required - held);
+    const mark = art ? materialImg(art) : `<span data-icon="${iconName}"></span>`;
+    return `<div class="resource-row${gap ? ' is-short' : ''}"><span class="resource-name">${mark}<b>${escapeHtml(name)}</b></span><span><small>需求</small><b>${fmt(required)}</b></span><span><small>持有</small><b>${fmt(held)}</b></span><span><small>缺口</small><b>${fmt(gap)}</b></span></div>`;
   }
 
   private ownershipLabel(value: WeaponFilters['ownership']): string {
@@ -568,6 +786,21 @@ export class WeaponsScreen implements Screen {
     toast(`已装备「${weapon.name}」`);
   }
 
+  private async claim(id: string): Promise<void> {
+    const weapon = anyWeaponById(id);
+    if (!weapon) return;
+    const update = await this.ctx.gateway.claimHeroWeapon(id);
+    if (isFailure(update.result)) {
+      toast(update.result.message);
+      return;
+    }
+    this.tab = 'owned';
+    this.selectedId = id;
+    this.ctx.refreshChrome();
+    this.render();
+    toast(`已领取「${weapon.name}」`);
+  }
+
   private async forge(id: string): Promise<void> {
     const weapon = anyWeaponById(id);
     if (!weapon) return;
@@ -575,7 +808,6 @@ export class WeaponsScreen implements Screen {
     if (recipe && (recipe.souls >= 100_000 || recipe.gold >= 100_000) && this.forgeConfirmId !== id) {
       this.forgeConfirmId = id;
       this.render();
-      toast('高价配方：再次点击确认锻造。');
       return;
     }
     this.forgeConfirmId = null;
@@ -609,6 +841,8 @@ export class WeaponsScreen implements Screen {
     this.root?.removeEventListener('click', this.onClick);
     this.root?.removeEventListener('input', this.onInput);
     this.root?.removeEventListener('change', this.onChange);
+    window.removeEventListener('keydown', this.onKeydown);
+    window.removeEventListener('resize', this.onResize);
     this.styleEl?.remove();
     this.styleEl = null;
     this.root = null;

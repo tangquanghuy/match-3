@@ -29,15 +29,7 @@
  * 9364/9369/9492/9812/9959）移出本批 SKIPPED，避免覆盖率报告对同一 id 重复记弃。
  */
 import type { CuratedBatch } from './index';
-import {
-  skill, dmg, dmgSplash, trueDmg, heal, armor, attack, magic, mana, reduce, steal,
-  cleanse, randomStat, inflict, inflictRandom, createGems, createGemsMixAny, createMix, createSkulls,
-  createSpecialGems, createSpecialGems2, transform, transformToSpecial, convertSpecial,
-  destroyColor, destroyAllColors, destroyRandomCols, destroyChosenCol, destroyRandomGems,
-  explodeRandomGems, explodeRandomSpecialGems, explodeSpecialGems, explodeSkulls,
-  createStorm, shuffleBoard, extraTurn, oneOf, reposition, sacrifice, summonRandom, summonRef,
-  gainGold, gainSouls, gainMaps, scale, CHOSEN,
-} from '../builders';
+import { skill, dmg, dmgSplash, trueDmg, heal, armor, attack, magic, mana, reduce, steal, cleanse, randomStat, inflict, inflictRandom, createGems, createGemsMixAny, createMix, createSkulls, createSpecialGems, createSpecialGems2, transform, transformToSpecial, convertSpecial, destroyColor, destroyAllColors, destroyRandomCols, destroyChosenCol, destroyRandomGems, explodeRandomGems, explodeRandomSpecialGems, explodeSpecialGems, explodeSkulls, createStorm, shuffleBoard, extraTurn, oneOf, reposition, sacrifice, summonRandom, summonRef, gainGold, gainSouls, gainMaps, scale, CHOSEN, CELL, explodeAt } from '../builders';
 import { BaseColor } from '../../types';
 import type { Condition, CondMult } from '../effects/secondary';
 
@@ -186,7 +178,7 @@ const SPELLS: CuratedBatch['spells'] = [
     // r14 卡点回收：convertSpecial（Wave4 特殊↔特殊）+ tiers [1,2] 善恶整段掷签（官方 Randomize AB-CD）
     build: skill(
       convertSpecial('stoneBlock', 'gargoyleGem', { count: 4, tiers: [1, 2] }),
-      explodeRandomGems(1, 0),
+      explodeAt(CELL),
     ),
   },
   {

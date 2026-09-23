@@ -11,9 +11,9 @@
  *   D. 淬炼词缀   —— affixes 结构合法（name/description 非空 + 稀有度白名单）
  *   E. 快照断言   —— 5 把已知武器（骑士之剑/雅思敏的弓/野性匕首/暗影使者/在劫难逃的匕首）
  *                    锁定中文名/费用/公式解析值，期望值从 raw dump 人工核对后写死
- *   F. 名称覆盖   —— 中文名覆盖率与英文回退清单锁定（1720/1721 两把新武器官方未翻译）
+ *   F. 名称覆盖   —— 中文名覆盖率与英文回退清单锁定（718/718 全量 CJK）
  *   G. 绑定保真度 —— spell.meta.fidelity ∈ {full, partial, mana-only}，三级分布写死对齐
- *                    （full 684 / partial 26 / mana-only 8，第六轮收官），逐条与 K-B 登记一致
+ *                    （full 691 / partial 27 / mana-only 0，W05 占位回收），逐条与 K-B 登记一致
  *
  * 人工核对只需复核本套件测不了的部分：法术文本的官方语义（归 K-B 组装批）。
  */
@@ -275,7 +275,7 @@ describe('C · 法术文本与缩放预解析', () => {
         problems.push(`${w.id} parsed=true 但无任何解析产物`);
       }
     }
-    expect(withFormula).toBe(666); // 与构建报告口径一致：666 含公式 / 52 纯文本
+    expect(withFormula).toBe(667); // 与构建报告口径一致：667 含公式 / 51 纯文本
     expect(problems, `前 ${Math.min(5, problems.length)} 条 → ${problems.slice(0, 5).join(' | ')}`).toEqual([]);
   });
 
@@ -507,13 +507,13 @@ describe('G · 绑定保真度（K-B 分保真度绑定元数据）', () => {
     expect(problems, `前 ${Math.min(5, problems.length)} 条 → ${problems.slice(0, 5).join(' | ')}`).toEqual([]);
   });
 
-  it('三级分布写死对齐（full 683 / partial 27 / mana-only 8 = 718；第六轮 K-B 收官）', () => {
+  it('三级分布写死对齐（full 691 / partial 27 / mana-only 0 = 718；W05 占位回收）', () => {
     const dist: Record<string, number> = { full: 0, partial: 0, 'mana-only': 0 };
     for (const w of WEAPONS) {
       expect(FIDELITIES.has(w.spell.meta.fidelity), `${w.id} fidelity 非法`).toBe(true);
       dist[w.spell.meta.fidelity]++;
     }
-    expect(dist).toEqual({ full: 683, partial: 27, 'mana-only': 8 });
+    expect(dist).toEqual({ full: 691, partial: 27, 'mana-only': 0 });
   });
 
   it('逐条与 weapon-skill-meta.json 登记一致（fidelity/missingFeatures/skippedClauses 三元组）', () => {
@@ -553,11 +553,8 @@ describe('G · 绑定保真度（K-B 分保真度绑定元数据）', () => {
 });
 
 describe('F · 名称中英覆盖', () => {
-  it('nameEn 全量非空；中文名 716/718，英文回退仅限官方未翻译的 2 把新武器', () => {
+  it('nameEn 全量非空；中文名 718/718', () => {
     const nonCJK = WEAPONS.filter((w) => !CJK_RE.test(w.name));
-    expect(nonCJK.map((w) => ({ id: w.id, name: w.name, nameEn: w.nameEn }))).toEqual([
-      { id: 1720, name: "Thalassa's Wavemaker", nameEn: "Thalassa's Wavemaker" },
-      { id: 1721, name: "Girthrok's Stonecleaver", nameEn: "Girthrok's Stonecleaver" },
-    ]);
+    expect(nonCJK.map((w) => ({ id: w.id, name: w.name, nameEn: w.nameEn }))).toEqual([]);
   });
 });

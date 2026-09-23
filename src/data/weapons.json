@@ -3555,18 +3555,19 @@
     "spell": {
       "id": 7071,
       "name": "粗糙棍棒",
-      "description": "对第 1 名敌人造成 {1} 点伤害。",
+      "description": "对第 1 名敌人造成 [魔法 + 1] 点伤害。",
       "meta": {
-        "scalings": [],
-        "raw": "对第 1 名敌人造成 {1} 点伤害。",
-        "parsed": false,
-        "fidelity": "mana-only",
-        "missingFeatures": [
-          "mt-garbage"
+        "scalings": [
+          {
+            "base": 1,
+            "mult": 1
+          }
         ],
-        "skippedClauses": [
-          "对第 1 名敌人造成 {1} 点伤害"
-        ]
+        "raw": "对第 1 名敌人造成 [魔法 + 1] 点伤害。",
+        "parsed": true,
+        "fidelity": "full",
+        "missingFeatures": [],
+        "skippedClauses": []
       }
     },
     "affixes": [],
@@ -4213,13 +4214,9 @@
           "a": 1,
           "b": 1
         },
-        "fidelity": "mana-only",
-        "missingFeatures": [
-          "stat-double"
-        ],
-        "skippedClauses": [
-          "使 1 名盟友的护甲值翻倍"
-        ]
+        "fidelity": "full",
+        "missingFeatures": [],
+        "skippedClauses": []
       }
     },
     "affixes": [
@@ -4342,13 +4339,9 @@
           "a": 1,
           "b": 1
         },
-        "fidelity": "mana-only",
-        "missingFeatures": [
-          "dmg-base-targetStat"
-        ],
-        "skippedClauses": [
-          "对 1 名敌人造成等同于其攻击力的伤害"
-        ]
+        "fidelity": "full",
+        "missingFeatures": [],
+        "skippedClauses": []
       }
     },
     "affixes": [
@@ -4935,13 +4928,9 @@
           "a": 1,
           "b": 1
         },
-        "fidelity": "mana-only",
-        "missingFeatures": [
-          "stat-double"
-        ],
-        "skippedClauses": [
-          "使 1 名盟友的攻击力翻倍，并为其提供 [魔法 + 1] 点生命值"
-        ]
+        "fidelity": "full",
+        "missingFeatures": [],
+        "skippedClauses": []
       }
     },
     "affixes": [
@@ -5327,13 +5316,9 @@
         "scalings": [],
         "raw": "爆破一颗宝石，并摧毁该行。",
         "parsed": false,
-        "fidelity": "mana-only",
-        "missingFeatures": [
-          "clear-line-of-gem"
-        ],
-        "skippedClauses": [
-          "爆破一颗宝石，并摧毁该行"
-        ]
+        "fidelity": "full",
+        "missingFeatures": [],
+        "skippedClauses": []
       }
     },
     "affixes": [
@@ -46719,7 +46704,7 @@
     "spell": {
       "id": 10045,
       "name": "火山杖",
-      "description": "Deal [魔法 + 3] damage to 3 random Enemies, boosted by Volcano Gems. If an Enemy dies, create 12 Volcano Gems. [x4]",
+      "description": "对 3 名随机敌人造成 [魔法 + 3] 点伤害，伤害值因火山宝石数而增强。若有敌人死亡，创造 12 颗火山宝石。[x4]",
       "meta": {
         "scalings": [
           {
@@ -46727,19 +46712,15 @@
             "mult": 1
           }
         ],
-        "raw": "Deal [魔法 + 3] damage to 3 random Enemies, boosted by Volcano Gems. If an Enemy dies, create 12 Volcano Gems. [x4]",
+        "raw": "对 3 名随机敌人造成 [魔法 + 3] 点伤害，伤害值因火山宝石数而增强。若有敌人死亡，创造 12 颗火山宝石。[x4]",
         "parsed": true,
         "modifier": {
           "kind": "multiplier",
           "a": 4
         },
-        "fidelity": "mana-only",
-        "missingFeatures": [
-          "en-only-text"
-        ],
-        "skippedClauses": [
-          "EN-only 快照（zh 法术文本缺失），待中文数据补全后回收"
-        ]
+        "fidelity": "full",
+        "missingFeatures": [],
+        "skippedClauses": []
       }
     },
     "affixes": [
@@ -47098,7 +47079,7 @@
   },
   {
     "id": 1720,
-    "name": "Thalassa's Wavemaker",
+    "name": "塔拉萨的造浪者",
     "nameEn": "Thalassa's Wavemaker",
     "referenceName": "ThalassasWavemaker",
     "rarity": "Mythic",
@@ -47117,8 +47098,8 @@
     "manaCost": 20,
     "spell": {
       "id": 10063,
-      "name": "Thalassa's Wavemaker",
-      "description": "Deal [魔法 + 3] damage to 2 random Enemies and knock them to the back. If Immortal Thalassa is in my team, Submerge and Enchant all Allies.",
+      "name": "塔拉萨的造浪者",
+      "description": "对 2 名随机敌人造成 [魔法 + 3] 点伤害，并将他们击至末位。若队伍中有不朽的塔拉萨，使所有盟友陷入下潜并获得法印。",
       "meta": {
         "scalings": [
           {
@@ -47126,15 +47107,11 @@
             "mult": 1
           }
         ],
-        "raw": "Deal [魔法 + 3] damage to 2 random Enemies and knock them to the back. If Immortal Thalassa is in my team, Submerge and Enchant all Allies.",
+        "raw": "对 2 名随机敌人造成 [魔法 + 3] 点伤害，并将他们击至末位。若队伍中有不朽的塔拉萨，使所有盟友陷入下潜并获得法印。",
         "parsed": true,
-        "fidelity": "mana-only",
-        "missingFeatures": [
-          "en-only-text"
-        ],
-        "skippedClauses": [
-          "EN-only 快照（zh 法术文本缺失），待中文数据补全后回收"
-        ]
+        "fidelity": "full",
+        "missingFeatures": [],
+        "skippedClauses": []
       }
     },
     "affixes": [
@@ -47171,7 +47148,7 @@
   },
   {
     "id": 1721,
-    "name": "Girthrok's Stonecleaver",
+    "name": "格思洛克的裂石器",
     "nameEn": "Girthrok's Stonecleaver",
     "referenceName": "GirthroksStonecleaver",
     "rarity": "Mythic",
@@ -47190,8 +47167,8 @@
     "manaCost": 20,
     "spell": {
       "id": 10065,
-      "name": "Girthrok's Stonecleaver",
-      "description": "Deal [魔法 + 4] damage to the first 2 Enemies. If Immortal Girthrok is in my team, give 12 Life to all Allies.",
+      "name": "格思洛克的裂石器",
+      "description": "对首 2 位敌人造成 [魔法 + 4] 点伤害。若队伍中有不朽的格思洛克，为所有盟友提供 12 点生命值。",
       "meta": {
         "scalings": [
           {
@@ -47199,15 +47176,11 @@
             "mult": 1
           }
         ],
-        "raw": "Deal [魔法 + 4] damage to the first 2 Enemies. If Immortal Girthrok is in my team, give 12 Life to all Allies.",
+        "raw": "对首 2 位敌人造成 [魔法 + 4] 点伤害。若队伍中有不朽的格思洛克，为所有盟友提供 12 点生命值。",
         "parsed": true,
-        "fidelity": "mana-only",
-        "missingFeatures": [
-          "en-only-text"
-        ],
-        "skippedClauses": [
-          "EN-only 快照（zh 法术文本缺失），待中文数据补全后回收"
-        ]
+        "fidelity": "full",
+        "missingFeatures": [],
+        "skippedClauses": []
       }
     },
     "affixes": [

@@ -31,6 +31,8 @@ function ensureStyles(): void {
   .cellaim-overlay .reticle .dot{fill:#fff3d6}
   .cellaim-overlay.locked .beam{stroke:url(#cellBeamGradLock)}
   .cellaim-overlay.locked .reticle .ring{stroke:#ffd089}
+  .cellaim-overlay.invalid .beam{stroke:#d66d62}
+  .cellaim-overlay.invalid .reticle .ring,.cellaim-overlay.invalid .reticle .bracket{stroke:#f08a7d}
   /* B-11（UX 阶段 B）：选择层此前零文案——玩家突然进入一个"必须点棋盘"的状态，
      棋盘上没有一句话说明要点什么（选颜色？选要炸的格子？），也没人告诉他 Esc 能退。 */
   .cellaim-hint{position:absolute;left:50%;top:10px;z-index:1210;transform:translateX(-50%);
@@ -40,8 +42,10 @@ function ensureStyles(): void {
     font-family:"Oswald","Microsoft YaHei",sans-serif;font-size:13px;letter-spacing:.04em;
     line-height:1.5;color:#f4e6c4;animation:cellHintIn .2s ease-out}
   .cellaim-hint em{font-style:normal;color:#a89974;margin-left:8px;font-size:12px}
+  .cellaim-hint.invalid{border-color:rgba(226,112,98,.78);color:#ffd7d1;animation:cellHintShake .24s ease-out}
   @keyframes cellHintIn{from{opacity:0;transform:translateX(-50%) translateY(-6px)}
     to{opacity:1;transform:translateX(-50%) translateY(0)}}
+  @keyframes cellHintShake{0%,100%{transform:translateX(-50%)}35%{transform:translateX(calc(-50% - 5px))}70%{transform:translateX(calc(-50% + 5px))}}
   @media (prefers-reduced-motion:reduce){.cellaim-hint{animation:none}}
   `;
   const style = document.createElement('style');
@@ -78,12 +82,15 @@ export class CellPicker {
    * @param coords 坐标适配器（由 App 提供，统一坐标换算）
    * @param hint 顶部提示文案（B-11）。缺省用"选择一枚宝石"的通用口径；
    *             `Esc 取消` 由本方法统一追加，调用方不必重复写。
+   * @param isValid 可选的有效格判断。命中无效格时保留选择态并给出反馈，不会静默取消技能。
    */
   pick(
     origin: CharacterCard,
     overlayParent: HTMLElement,
     coords: CellAimCoords,
     hint = '选择一枚宝石',
+    isValid?: (cell: CellPos) => boolean,
+    invalidHint = '这枚宝石不是有效目标，请重新选择',
   ): Promise<CellPos | null> {
     this.cancel();
     ensureStyles();
@@ -139,7 +146,10 @@ export class CellPicker {
       const hintEl = document.createElement('div');
       hintEl.className = 'cellaim-hint';
       hintEl.setAttribute('role', 'status');
-      hintEl.textContent = hint;
+      const hintText = document.createElement('span');
+      hintText.className = 'cellaim-hint-text';
+      hintText.textContent = hint;
+      hintEl.appendChild(hintText);
       const escNote = document.createElement('em');
       escNote.textContent = 'Esc 取消';
       hintEl.appendChild(escNote);
@@ -154,6 +164,22 @@ export class CellPicker {
       const start = () => coords.elementToAim(origin.el);
       let cursor = start();
       let hoverCell: CellPos | null = null;
+      let showingInvalid = false;
+
+      const showInvalid = () => {
+        showingInvalid = true;
+        hintText.textContent = invalidHint;
+        hintEl.classList.remove('invalid');
+        void hintEl.offsetWidth;
+        hintEl.classList.add('invalid');
+      };
+
+      const clearInvalid = () => {
+        if (!showingInvalid) return;
+        showingInvalid = false;
+        hintText.textContent = hint;
+        hintEl.classList.remove('invalid');
+      };
 
       const render = () => {
         const s = start();
@@ -173,12 +199,15 @@ export class CellPicker {
         originDot.setAttribute('cy', String(s.y));
         reticle.setAttribute('transform', `translate(${end.x} ${end.y})`);
         // 只用准星指示位置（不再画格子高亮框），锁定态变色
-        svg.classList.toggle('locked', !!hoverCell);
+        const valid = !!hoverCell && (!isValid || isValid(hoverCell));
+        svg.classList.toggle('locked', valid);
+        svg.classList.toggle('invalid', !!hoverCell && !valid);
       };
 
       const onMove = (e: PointerEvent) => {
         cursor = coords.clientToAim(e.clientX, e.clientY);
         hoverCell = coords.aimToCell(cursor.x, cursor.y);
+        if (!hoverCell || !isValid || isValid(hoverCell)) clearInvalid();
         render();
       };
       const done = (cell: CellPos | null) => {
@@ -193,7 +222,17 @@ export class CellPicker {
         const cell = coords.aimToCell(aim.x, aim.y);
         e.preventDefault();
         e.stopPropagation();
-        done(cell && BoardModel.inBounds(cell) ? cell : null);
+        if (!cell || !BoardModel.inBounds(cell)) {
+          done(null);
+          return;
+        }
+        if (isValid && !isValid(cell)) {
+          hoverCell = cell;
+          showInvalid();
+          render();
+          return;
+        }
+        done(cell);
       };
       const onCtx = (e: Event) => { e.preventDefault(); done(null); };
       const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') done(null); };

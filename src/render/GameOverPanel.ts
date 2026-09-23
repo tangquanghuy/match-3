@@ -3,41 +3,58 @@ function ensureStyles(): void {
   if (stylesInjected) return;
   stylesInjected = true;
   const css = `
-  .gop-backdrop{position:absolute;inset:0;z-index:1200;display:none;
-    background:rgba(6,5,4,.72);backdrop-filter:blur(3px);
-    align-items:center;justify-content:center;
+  .gop-backdrop{position:absolute;inset:0;z-index:4000;display:none;isolation:isolate;
+    align-items:center;justify-content:center;pointer-events:auto;
+    background:
+      linear-gradient(180deg, rgba(8,6,10,.78) 0%, rgba(6,5,8,.86) 42%, rgba(4,3,6,.9) 100%),
+      radial-gradient(ellipse at 50% 34%, rgba(86,62,28,.26) 0%, transparent 54%);
     font-family:"Oswald","PingFang SC","Microsoft YaHei",sans-serif}
   .gop-backdrop.open{display:flex;animation:gop-fade .45s ease-out}
+  .gop-open .gcard{visibility:hidden}
   @keyframes gop-fade{from{opacity:0}to{opacity:1}}
-  .gop{position:relative;width:min(360px,80vw);text-align:center;
-    background:linear-gradient(160deg,#171208 0%,#0d0a06 100%);
-    border:1px solid rgba(216,194,144,.4);border-radius:12px;
-    box-shadow:0 16px 48px rgba(0,0,0,.8);color:#f0e2bf;padding:34px 28px 28px;
+  .gop{position:relative;width:min(420px,78%);text-align:center;color:#f0e2bf;
+    padding:36px 32px 28px;border-radius:4px;
+    background:
+      linear-gradient(165deg, rgba(38,30,20,.94) 0%, rgba(16,13,14,.97) 46%, rgba(10,9,12,.98) 100%);
+    box-shadow:0 28px 64px rgba(0,0,0,.72), inset 0 1px 0 rgba(244,226,174,.2);
     animation:gop-pop .5s cubic-bezier(.22,1.4,.36,1)}
-  @keyframes gop-pop{from{transform:scale(.82);opacity:0}to{transform:scale(1);opacity:1}}
+  .gop:before{content:"";position:absolute;inset:0;pointer-events:none;padding:1px;border-radius:4px;
+    background:linear-gradient(135deg, rgba(244,226,174,.78), rgba(151,121,69,.4) 38%, rgba(224,197,132,.7) 72%, rgba(119,92,51,.48));
+    -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);
+    -webkit-mask-composite:xor;mask-composite:exclude}
+  .gop:after{content:"";position:absolute;inset:10px;pointer-events:none;opacity:.55;border-radius:2px;
+    background:
+      linear-gradient(90deg, rgba(239,217,158,.82), transparent) left top / 28px 1px no-repeat,
+      linear-gradient(180deg, rgba(239,217,158,.82), transparent) left top / 1px 28px no-repeat,
+      linear-gradient(270deg, rgba(239,217,158,.82), transparent) right top / 28px 1px no-repeat,
+      linear-gradient(180deg, rgba(239,217,158,.82), transparent) right top / 1px 28px no-repeat,
+      linear-gradient(90deg, rgba(239,217,158,.7), transparent) left bottom / 24px 1px no-repeat,
+      linear-gradient(0deg, rgba(239,217,158,.7), transparent) left bottom / 1px 24px no-repeat,
+      linear-gradient(270deg, rgba(239,217,158,.7), transparent) right bottom / 24px 1px no-repeat,
+      linear-gradient(0deg, rgba(239,217,158,.7), transparent) right bottom / 1px 24px no-repeat}
+  @keyframes gop-pop{from{transform:scale(.88);opacity:0}to{transform:scale(1);opacity:1}}
+  .gop-mark{display:flex;align-items:center;justify-content:center;gap:14px;margin:4px 0 2px}
+  .gop-mark i{width:46px;height:1px;background:linear-gradient(90deg,transparent,#d4b36a)}
+  .gop-mark i:last-child{transform:scaleX(-1)}
   .gop-title{font-family:"Playfair Display",Georgia,serif;font-weight:800;
-    font-size:44px;letter-spacing:.14em;margin:0 0 6px;text-indent:.14em}
+    font-size:42px;letter-spacing:.18em;margin:0;text-indent:.18em}
   .gop.victory .gop-title{color:#f6e3a8;
-    text-shadow:0 0 18px rgba(214,168,74,.55),0 2px 4px rgba(0,0,0,.6)}
-  .gop.defeat .gop-title{color:#c96a5c;
-    text-shadow:0 0 14px rgba(140,40,30,.5),0 2px 4px rgba(0,0,0,.6)}
-  .gop-sub{font-size:13px;letter-spacing:.22em;color:#a89974;
-    text-transform:uppercase;margin:0 0 18px;text-indent:.22em}
-  /* B-9（UX 阶段 B）：面板此前是「大标题 + 一行英文 + 继续」，出现在玩家情绪最高点
-     却零战果——而 exportResult() 里回合数/存活/战斗内收集全是现成的。 */
-  .gop-stats{margin:0 0 20px;padding:12px 0;display:flex;flex-direction:column;gap:7px;
+    text-shadow:0 0 22px rgba(214,168,74,.55),0 2px 0 #4a3414}
+  .gop.defeat .gop-title{color:#d4b8b0;
+    text-shadow:0 0 14px rgba(140,40,30,.35),0 2px 4px rgba(0,0,0,.6)}
+  .gop-stats{margin:18px 8px 22px;padding:12px 6px;display:flex;flex-direction:column;gap:8px;
     border-top:1px solid rgba(216,194,144,.22);border-bottom:1px solid rgba(216,194,144,.22)}
   .gop-stat{display:flex;align-items:baseline;justify-content:space-between;gap:12px;font-size:13px}
   .gop-stat .k{color:#a89974;letter-spacing:.08em}
   .gop-stat .v{color:#f6efe0;font-weight:600;font-variant-numeric:tabular-nums}
-  .gop-loot{display:flex;justify-content:center;gap:14px;font-size:13px;color:#f0dfae}
+  .gop-loot{display:flex;justify-content:flex-end;gap:14px;font-size:13px;color:#f0dfae}
   .gop-loot span{white-space:nowrap}
   .gop-loot i{font-style:normal;color:#a89974;margin-right:4px}
   .gop-continue{display:inline-flex;align-items:center;justify-content:center;
-    min-width:150px;min-height:44px;height:44px;padding:0 22px;cursor:pointer;
-    font-family:inherit;font-size:15px;font-weight:600;letter-spacing:.16em;text-indent:.16em;
+    min-width:168px;min-height:46px;height:46px;padding:0 22px;cursor:pointer;
+    font-family:inherit;font-size:16px;font-weight:600;letter-spacing:.16em;text-indent:.16em;
     color:#1a1206;background:linear-gradient(180deg,#e8cf94 0%,#c9a35c 100%);
-    border:1px solid #8a6b30;border-radius:8px;
+    border:1px solid #8a6b30;border-radius:4px;
     box-shadow:0 3px 10px rgba(0,0,0,.55),inset 0 1px 0 rgba(255,255,255,.35);
     transition:filter .15s,transform .15s}
   .gop-continue:hover{filter:brightness(1.08)}
@@ -59,7 +76,7 @@ export interface GameOverStats {
   /** 我方存活 / 出战人数 */
   survivors: number;
   teamSize: number;
-  /** 战斗内收集（战场经济池），三项都为 0 时整行不渲染 */
+  /** 战斗内收集（战场经济池）；三项都为 0 时显示诚实空态 */
   loot?: { gold: number; souls: number; gems: number };
 }
 
@@ -90,18 +107,23 @@ export class GameOverPanel {
     this.panel.classList.remove('victory', 'defeat');
     this.panel.classList.add(playerWon ? 'victory' : 'defeat');
     this.panel.innerHTML = `
-      <h1 class="gop-title">${playerWon ? '胜 利' : '战 败'}</h1>
-      <p class="gop-sub">${playerWon ? 'VICTORY' : 'DEFEAT'}</p>
+      <div class="gop-mark">
+        <i></i>
+        <h1 class="gop-title">${playerWon ? '胜 利' : '战 败'}</h1>
+        <i></i>
+      </div>
       ${stats ? renderStats(stats) : ''}
       <button class="gop-continue">继 续</button>
     `;
     this.panel.querySelector('.gop-continue')
       ?.addEventListener('click', () => this.onContinue(playerWon));
     this.backdrop.classList.add('open');
+    this.backdrop.parentElement?.classList.add('gop-open');
   }
 
   close(): void {
     this.backdrop.classList.remove('open');
+    this.backdrop.parentElement?.classList.remove('gop-open');
   }
 }
 
@@ -115,12 +137,12 @@ export function renderStats(stats: GameOverStats): string {
         loot.gems > 0 ? `<span><i>宝石</i>${loot.gems}</span>` : '',
       ].filter(Boolean)
     : [];
-  const lootRow = lootParts.length
-    ? `<div class="gop-loot">${lootParts.join('')}</div>`
-    : '';
+  const lootValue = lootParts.length
+    ? `<span class="gop-loot">${lootParts.join('')}</span>`
+    : '<span class="v">本场无额外收集</span>';
   return `<div class="gop-stats">
     <div class="gop-stat"><span class="k">回合</span><span class="v">${stats.turns}</span></div>
     <div class="gop-stat"><span class="k">我方存活</span><span class="v">${stats.survivors} / ${stats.teamSize}</span></div>
-    ${lootRow}
+    <div class="gop-stat"><span class="k">战场收集</span>${lootValue}</div>
   </div>`;
 }

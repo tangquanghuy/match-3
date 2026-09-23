@@ -2,7 +2,7 @@
  * 特质图形族图标（生成文件，勿手改）：scripts/build_meta_trait_icons.mjs。
  * 图源 game-icons.net（Lorc、Delapouite、Carl Olsen、Felbrigg、Sbed、Skoll、Badges 等，
  * 授权 CC BY 3.0 https://game-icons.net/）。
- * 每族三档质感：simple（低稀有度朴素剪影）/ normal（稀有~超稀有标准）/ ornate（史诗/传说华丽），
+ * 每族三档质感：simple（普通/精良朴素剪影）/ normal（稀有/传说标准）/ ornate（史诗/神话华丽），
  * body 为 512×512 viewBox 的原始内联内容，由使用方套 <svg viewBox="0 0 512 512" fill="颜色"> 着色。
  */
 

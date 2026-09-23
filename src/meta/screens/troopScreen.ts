@@ -3,6 +3,7 @@
  * 数据全部来自 troops.json + 收藏存档；升级/升阶/特质/分解/保护走网关。
  */
 import { getTroopById, TROOPS, type TroopData } from '../../data/troops';
+import { RARITY_NAMES as RARITY_CN } from '../data/rarity';
 import type { TeamPreset, TroopRecord } from '../state/schema';
 import { MAX_TEAM_SIZE, MIN_TEAM_SIZE } from '../systems/teamRules';
 import {
@@ -15,6 +16,7 @@ import {
 } from '../data/economy';
 import { getRecord, rarityTierOf, troopStatsOf } from '../systems/troopProgress';
 import { stoneColorKeyOf, stoneName } from '../data/materials';
+import { stoneMarkupForKey } from '../shell/materialArt';
 import { BaseColor } from '../../engine/types';
 import { traitGlyphsFor } from '../shell/traitIcon';
 import { bottomNavHtml, icon, mountIcons, toast, toastHtml, topbarHtml, gemSvg, $, $$ } from '../shell/chrome';
@@ -31,7 +33,6 @@ const fmt = (n: number): string => n.toLocaleString('en-US');
 
 const COLOR_CN: Record<string, string> = { red: '红', green: '绿', blue: '蓝', yellow: '黄', purple: '紫', brown: '棕' };
 /** 稀有度中文（与品质 chip 文案同源） */
-const RARITY_CN = ['普通', '精良', '稀有', '传说', '史诗', '神话'] as const;
 /** 筛选维度（摘要 chip 撤销 / 空态逐条回退用） */
 type FilterDim = 'rarity' | 'color' | 'type' | 'kingdom' | 'search' | 'tab';
 
@@ -82,10 +83,10 @@ const SORTS = [
 type SortKey = (typeof SORTS)[number]['key'];
 const DEFAULT_SORT: SortKey = 'level-desc';
 
-/** 「全部」态分段渲染的每段卡数（T-2：一次性 1798 张 = 38,073 节点 / 70ms 阻塞） */
-const SEGMENT = 200;
-/** 距底多少像素开始追加下一段 */
-const APPEND_MARGIN = 700;
+/** 图鉴分页容量：按真实可视高度完整容纳两行，避免分页后仍需滚动找本页末项。 */
+const PAGE_SIZE_DESKTOP = 16;
+const PAGE_SIZE_TABLET = 8;
+const PAGE_SIZE_MOBILE = 4;
 
 export class TroopScreen implements Screen {
   private ctx!: ShellCtx;
@@ -102,10 +103,9 @@ export class TroopScreen implements Screen {
   private groupMode: 'none' | 'kingdom' = 'none';
   /** 当前筛选+排序后的集合——详情页左右箭头只在这个集合内走（T-5） */
   private listIds: number[] = [];
-  /** 分段渲染游标 */
-  private flat: TroopData[] = [];
-  private sections: Array<[string, TroopData[]]> = [];
-  private cursor = 0;
+  private collectionPage = 1;
+  private collectionPages = 1;
+  private collectionPageSize = PAGE_SIZE_DESKTOP;
   /** 详情↔图鉴往返时保留的滚动位置（T-9） */
   private collectionScroll = 0;
   private listeners: Array<[EventTarget, string, EventListenerOrEventListenerObject]> = [];
@@ -190,7 +190,7 @@ export class TroopScreen implements Screen {
         </div>
       </main>
       <main id="collection" hidden>
-        <div class="collection-heading"><div><small>THE BESTIARY</small><h1>我的收藏</h1></div></div>
+        <div class="collection-heading"><div><h1>我的收藏</h1></div></div>
         <div class="collection-filter">
           <div class="filter-row">
             <div class="collection-scope" role="group" aria-label="显示范围">
@@ -229,6 +229,14 @@ export class TroopScreen implements Screen {
           </div>
         </div>
         <div id="collectionBands"></div>
+        <nav class="collection-pagination" id="collectionPagination" aria-label="图鉴分页" hidden>
+          <span class="collection-range" id="collectionRange">0 支</span>
+          <div class="collection-page-controls">
+            <button id="collectionPrev" type="button" aria-label="上一页"><span data-icon="arrow"></span><span>上一页</span></button>
+            <span class="collection-page-status" aria-live="polite">第 <b id="collectionPage">1</b> / <b id="collectionPages">1</b> 页</span>
+            <button id="collectionNext" type="button" aria-label="下一页"><span>下一页</span><span data-icon="arrow"></span></button>
+          </div>
+        </nav>
       </main>
       ${bottomNavHtml('图鉴', `全图鉴 ${fmt(TROOPS.length)} 支`)}
       ${toastHtml()}
@@ -239,6 +247,7 @@ export class TroopScreen implements Screen {
 
   mount(ctx: ShellCtx, _root: HTMLElement, param?: string): void {
     this.ctx = ctx;
+    _root.classList.add('collection-responsive');
     // 深链（#troop/123，如编队页「图鉴」按钮）直达详情；纯 #troop 落在图鉴列表
     const deepLink = !!(param && Number(param));
     if (deepLink) this.currentId = Number(param);
@@ -260,6 +269,8 @@ export class TroopScreen implements Screen {
     this.bind('#back', 'click', () => this.showView('collection', true));
     this.bind('#previous', 'click', () => this.stepOwned(-1));
     this.bind('#next', 'click', () => this.stepOwned(1));
+    this.bind('#collectionPrev', 'click', () => this.changeCollectionPage(-1));
+    this.bind('#collectionNext', 'click', () => this.changeCollectionPage(1));
     this.bind('#upgrade', 'click', () => this.openUpgradeModal());
     this.bind('#cancelUpgrade', 'click', () => ($('#modal').hidden = true));
     this.bind('#confirmUpgrade', 'click', () => void this.confirmUpgrade());
@@ -364,15 +375,21 @@ export class TroopScreen implements Screen {
       this.paintDetail();
       this.showView('detail', true);
     });
-    // 分段渲染：滚到段尾追加下一段（T-2）
-    this.on($('#collectionBands'), 'scroll', () => {
-      const el = $('#collectionBands');
-      if (el.scrollTop + el.clientHeight >= el.scrollHeight - APPEND_MARGIN) this.appendSegment();
-    });
     let searchTimer = 0;
     this.on($('#collectionSearch'), 'input', () => {
       window.clearTimeout(searchTimer);
       searchTimer = window.setTimeout(() => this.renderCollection(), 200);
+    });
+    let resizeTimer = 0;
+    this.on(window, 'resize', () => {
+      window.clearTimeout(resizeTimer);
+      resizeTimer = window.setTimeout(() => {
+        const nextSize = this.pageSize();
+        if (nextSize === this.collectionPageSize) return;
+        const firstVisibleIndex = (this.collectionPage - 1) * this.collectionPageSize;
+        this.collectionPage = Math.floor(firstVisibleIndex / nextSize) + 1;
+        this.renderCollection(false);
+      }, 120);
     });
     this.on($('.stage'), 'click', (e) => {
       if (!(e.target as HTMLElement).closest('#spellCopy .spell-stat, #spellTip')) this.closeSpellTip();
@@ -626,7 +643,7 @@ export class TroopScreen implements Screen {
       const stoneRows = Object.entries(cost.stones).map(([key, n]) => {
         const have = save.materials.traitstones[key] ?? 0;
         if (have < n) shortfalls.push(`${stoneName(key)}还差 ${n - have}`);
-        return `<span>${stoneName(key)} ×${n}<em class="${have < n ? 'short' : ''}">持有 ${fmt(have)}</em></span>`;
+        return `<span>${stoneMarkupForKey(key)}${stoneName(key)} ×${n}<em class="${have < n ? 'short' : ''}">持有 ${fmt(have)}</em></span>`;
       });
       $('#unlockLabel').textContent = shortfalls.length
         ? `材料不足 · ${shortfalls[0]}`
@@ -911,7 +928,7 @@ export class TroopScreen implements Screen {
 
   private afterMutation(): void {
     this.paintDetail();
-    this.renderCollection();
+    this.renderCollection(false);
   }
 
   // —— 图鉴视图 ——
@@ -929,20 +946,11 @@ export class TroopScreen implements Screen {
     if (view === 'collection') this.restoreCollectionScroll();
   }
 
-  /** T-9：详情返回图鉴恢复滚动位置（必要时先补渲染几段） */
+  /** T-9：详情返回图鉴时恢复当前页内的滚动位置。 */
   private restoreCollectionScroll(): void {
     const el = $('#collectionBands');
     if (!el) return;
-    const target = this.collectionScroll;
-    if (target <= 0) return;
-    let guard = 0;
-    while (el.scrollHeight < target + el.clientHeight && guard < 40) {
-      const before = this.cursor;
-      this.appendSegment();
-      if (this.cursor === before) break;
-      guard += 1;
-    }
-    el.scrollTop = target;
+    el.scrollTop = Math.min(this.collectionScroll, Math.max(0, el.scrollHeight - el.clientHeight));
   }
 
   // —— 筛选管线（T-1~T-4） ——
@@ -1047,7 +1055,20 @@ export class TroopScreen implements Screen {
     });
   }
 
-  private renderCollection(): void {
+  private pageSize(): number {
+    if (window.innerWidth <= 700) return PAGE_SIZE_MOBILE;
+    if (window.innerWidth <= 1100) return PAGE_SIZE_TABLET;
+    return PAGE_SIZE_DESKTOP;
+  }
+
+  private changeCollectionPage(delta: number): void {
+    const next = Math.min(this.collectionPages, Math.max(1, this.collectionPage + delta));
+    if (next === this.collectionPage) return;
+    this.collectionPage = next;
+    this.renderCollection(false);
+  }
+
+  private renderCollection(resetPage = true): void {
     this.syncFilterControls();
     const save = this.ctx.save();
     const ownedCount = Object.keys(save.collection).length;
@@ -1079,63 +1100,62 @@ export class TroopScreen implements Screen {
     $('#shownCount').textContent = active.some((f) => f.dim !== 'tab') ? `匹配 ${fmt(sorted.length)} 支` : '';
 
     const container = $('#collectionBands');
+    const pagination = $('#collectionPagination');
     if (!sorted.length) {
       container.innerHTML = this.emptyHtml(ownedCount, query, active);
       container.scrollTop = 0;
-      this.flat = [];
-      this.sections = [];
-      this.cursor = 0;
+      pagination.hidden = true;
+      this.collectionPage = 1;
+      this.collectionPages = 1;
+      this.collectionScroll = 0;
       return;
     }
 
-    // 王国分组降级为一个选项，且与王国筛选互斥（筛了单个王国就不再画条）
+    this.collectionPageSize = this.pageSize();
+    this.collectionPages = Math.max(1, Math.ceil(sorted.length / this.collectionPageSize));
+    this.collectionPage = resetPage ? 1 : Math.min(this.collectionPages, Math.max(1, this.collectionPage));
+    const start = (this.collectionPage - 1) * this.collectionPageSize;
+    const end = Math.min(sorted.length, start + this.collectionPageSize);
+    const pageItems = sorted.slice(start, end);
+
+    pagination.hidden = false;
+    $('#collectionRange').textContent = `${fmt(start + 1)}–${fmt(end)} / 共 ${fmt(sorted.length)} 支`;
+    $('#collectionPage').textContent = fmt(this.collectionPage);
+    $('#collectionPages').textContent = fmt(this.collectionPages);
+    ($('#collectionPrev') as HTMLButtonElement).disabled = this.collectionPage <= 1;
+    ($('#collectionNext') as HTMLButtonElement).disabled = this.collectionPage >= this.collectionPages;
+
+    // 王国分组只组织当前页；分组进度仍以完整筛选结果为分母。
     const grouped = this.groupMode === 'kingdom' && !this.kingdomFilter;
-    this.flat = sorted;
-    this.cursor = 0;
     if (grouped) {
-      const bands = new Map<string, TroopData[]>();
+      const allBands = new Map<string, TroopData[]>();
       for (const t of sorted) {
         const key = t.kingdom ?? '无王国';
-        if (!bands.has(key)) bands.set(key, []);
-        bands.get(key)!.push(t);
+        if (!allBands.has(key)) allBands.set(key, []);
+        allBands.get(key)!.push(t);
       }
-      this.sections = [...bands.entries()];
-      container.innerHTML = '';
+      const pageBands = new Map<string, TroopData[]>();
+      for (const t of pageItems) {
+        const key = t.kingdom ?? '无王国';
+        if (!pageBands.has(key)) pageBands.set(key, []);
+        pageBands.get(key)!.push(t);
+      }
+      container.innerHTML = [...pageBands.entries()]
+        .map(([kingdom, troops]) => this.sectionHtml(kingdom, troops, allBands.get(kingdom) ?? troops))
+        .join('');
     } else {
-      this.sections = [];
-      container.innerHTML = '<div class="collection-cards" id="denseGrid"></div>';
+      container.innerHTML = `<div class="collection-cards" id="denseGrid">${pageItems.map((t) => this.cardHtml(t)).join('')}</div>`;
     }
-    container.scrollTop = 0; // T-4：任何筛选/排序/切 tab 之后回顶，无例外
-    this.appendSegment();
+    container.scrollTop = 0;
+    this.collectionScroll = 0;
   }
 
-  /** 分段追加（T-2）：一段 200 张，滚到段尾继续 */
-  private appendSegment(): void {
-    const container = $('#collectionBands');
-    if (!container) return;
-    if (this.sections.length) {
-      let added = 0;
-      while (this.cursor < this.sections.length && added < SEGMENT) {
-        const [kingdom, troops] = this.sections[this.cursor]!;
-        container.insertAdjacentHTML('beforeend', this.sectionHtml(kingdom, troops));
-        added += troops.length;
-        this.cursor += 1;
-      }
-      return;
-    }
-    const grid = container.querySelector('#denseGrid');
-    if (!grid || this.cursor >= this.flat.length) return;
-    const slice = this.flat.slice(this.cursor, this.cursor + SEGMENT);
-    this.cursor += slice.length;
-    grid.insertAdjacentHTML('beforeend', slice.map((t) => this.cardHtml(t)).join(''));
-  }
-
-  private sectionHtml(kingdom: string, troops: TroopData[]): string {
+  private sectionHtml(kingdom: string, troops: TroopData[], allTroops = troops): string {
     const save = this.ctx.save();
-    const ownedInKingdom = troops.filter((t) => save.collection[String(t.id)]).length;
-    const pct = troops.length ? (ownedInKingdom / troops.length) * 100 : 0;
+    const ownedInKingdom = allTroops.filter((t) => save.collection[String(t.id)]).length;
+    const pct = allTroops.length ? (ownedInKingdom / allTroops.length) * 100 : 0;
     // kingdom-section 让分组头只在自身区间内 sticky，不会盖住其他王国
-    return `<div class="kingdom-section"><div class="kingdom-band"><span class="band-mark"></span><b>${kingdom}</b><small>收藏进度 ${ownedInKingdom} / ${troops.length}</small><div><i style="width:${pct}%"></i></div></div><div class="collection-cards">${troops.map((t) => this.cardHtml(t)).join('')}</div></div>`;
+    return `<div class="kingdom-section"><div class="kingdom-band"><span class="band-mark"></span><b>${kingdom}</b><small>本页 ${troops.length} 支 · 收藏 ${ownedInKingdom} / ${allTroops.length}</small><div><i style="width:${pct}%"></i></div></div><div class="collection-cards">${troops.map((t) => this.cardHtml(t)).join('')}</div></div>`;
   }
 
   /** 浏览卡只负责辨认立绘；战斗数值和副本资料在详情页查看。 */
@@ -1143,9 +1163,11 @@ export class TroopScreen implements Screen {
     const rec = this.ctx.save().collection[String(t.id)];
     const locked = !rec;
     const level = locked ? '未获得' : `Lv.${rec.level}`;
+    // 分页后每次最多只有 18 张，主动加载可避免翻页后的可见卡短暂空白。
+    const art = troopImg(t, false, 'alt=""').replace('loading="lazy"', 'loading="eager"');
     return `<button class="collection-card r-${t.rarityIdx}${locked ? ' locked' : ''}" data-troop="${t.id}" aria-label="查看${t.name}详情（${RARITY_CN[t.rarityIdx]}，${level}）">
       <i class="rarity-edge" aria-hidden="true"></i>
-      ${troopImg(t, false, 'alt=""')}
+      ${art}
       <span class="collection-mana">${gemSvg(t.manaColors.map((c) => c.toLowerCase()))}</span>
       ${locked ? `<span class="locked-mark" aria-hidden="true">${icon('lock')}</span>` : ''}
       <div class="collection-info"><h2>${t.name}</h2><span class="collection-level">${level}</span></div>
@@ -1207,6 +1229,7 @@ export class TroopScreen implements Screen {
   }
 
   dispose(): void {
+    document.getElementById('stage')?.classList.remove('collection-responsive');
     for (const [target, type, fn] of this.listeners.splice(0)) {
       target.removeEventListener(type, fn);
     }

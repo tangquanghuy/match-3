@@ -99,6 +99,12 @@ export interface CastTracking {
    */
   lastCreatedCell?: CellPos;
   /**
+   * 最近一次 clear 段解析出的**辐射前**首枚目标格（W05，7217「爆破一颗宝石，并摧毁该行」）：
+   * explode 会把 8 邻并入摧毁集，destroyed[0] 不一定是被点中的那颗；后段 lastDestroyedLine
+   * 读这里取整行/整列。doClear 在辐射前覆写。
+   */
+  lastClearedAnchor?: CellPos;
+  /**
    * randomAllyStat 来源本施法内掷中的盟友 id（batch-r28——7402「伤害值等同于一名盟友的
    * 攻击力……给予**其**攻击力和护甲值」跨段绑定同一名泛指盟友）：来源解析时掷签并缓存，
    * 同施法内重复读取复用同一名（缓存失效再重掷）。

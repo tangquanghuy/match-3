@@ -12,7 +12,8 @@
  */
 import { BaseColor } from '../types';
 import type { SkillPrototype } from './prototypes';
-import { collectCurated } from './curated';
+import { collectCurated, collectWeaponCurated } from './curated';
+import weaponsJson from '../../data/weapons.json';
 import {
   skill,
   dmg,
@@ -68,11 +69,41 @@ export function curatedBatches(): string[] {
 }
 
 /**
+ * 主角武器在战斗快照里的 skillId（`gw_<referenceName>`，与 weaponCatalog 同一条命名）。
+ * 武器法术批次按数字 spellId 编译，但 meta 出战键是 gw_*；两边都要写进注册表，
+ * 否则战斗层只挂部队库时主角放技能只会扣蓝、没有任何效果。
+ */
+function catalogWeaponSkillId(referenceName: string): string {
+  return `gw_${referenceName}`;
+}
+
+interface CatalogWeaponRow {
+  referenceName: string;
+  spell: { id: number };
+}
+
+/** 武器法术：数字 spellId + 出战用的 gw_* 键，共用同一份 compiled 原型 */
+function weaponSkillEntries(): Array<[string, SkillPrototype]> {
+  const bySpellId = collectWeaponCurated().byId;
+  const entries: Array<[string, SkillPrototype]> = [];
+  for (const [spellId, proto] of bySpellId) {
+    entries.push([String(spellId), proto]);
+  }
+  for (const row of weaponsJson as CatalogWeaponRow[]) {
+    const proto = bySpellId.get(row.spell.id);
+    if (!proto) continue;
+    entries.push([catalogWeaponSkillId(row.referenceName), proto]);
+  }
+  return entries;
+}
+
+/**
  * 技能库里全部已配置的 skillId（字符串形式，与注册表 key 一致）。
  * 供宿主快照校验判断「这个技能客户端认不认」，不必先建注册表。
+ * 含部队法术数字 id，以及武器的 spellId / gw_* 出战键。
  */
 export function skillLibraryIds(): string[] {
-  return Object.keys(SKILL_LIBRARY);
+  return [...Object.keys(SKILL_LIBRARY), ...weaponSkillEntries().map(([id]) => id)];
 }
 
 /** 取某技能的原型；未配置返回 undefined（运行时回退仅扣法力） */
@@ -82,10 +113,13 @@ export function getSkillPrototype(spellId: number): SkillPrototype | undefined {
 
 /**
  * 把技能库全部原型注册进一个注册表映射（key = String(spellId)），供 castSkill 按角色 skillId 查执行。
- * registerInto 接收 `Map<string, SkillPrototype>`（即 ExtensionRegistry.prototypes）。
+ * 同时挂上 curated 武器法术（数字 id + gw_*），战斗层与 meta 注册表走同一份内容。
  */
 export function registerSkillLibrary(prototypes: Map<string, SkillPrototype>): void {
   for (const [spellId, proto] of Object.entries(SKILL_LIBRARY)) {
     prototypes.set(String(spellId), proto);
+  }
+  for (const [id, proto] of weaponSkillEntries()) {
+    prototypes.set(id, proto);
   }
 }

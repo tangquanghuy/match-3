@@ -138,6 +138,11 @@ export interface BuffSegment extends SegmentOptions {
   halve?: boolean;
   /** 任意比例获得（R12 批，仅 stat='mana'）：floor(manaCost × fraction)（「4 分之一」= 0.25） */
   fraction?: number;
+  /**
+   * 属性翻倍（W05，7188「使 1 名盟友的护甲值翻倍」/ 7199「使 1 名盟友的攻击力翻倍」）：
+   * 增益额 = 目标当前该属性，给出时忽略 scaling。
+   */
+  double?: boolean;
   /** 二次缩放 */
   modifier?: ModifierSpec;
   /** 种族条件翻倍：受益者 troopTypes 含该族时数值 ×2 */
@@ -658,6 +663,7 @@ function compileSegment(segment: EffectSegment, ctx: EffectContext): EffectPrimi
         full: segment.full,
         halve: segment.halve,
         fraction: segment.fraction,
+        double: segment.double,
         modifier: segment.modifier,
         raceDouble: segment.raceDouble,
         raceTimes: segment.raceTimes,

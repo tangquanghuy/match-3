@@ -205,7 +205,7 @@ export function trueDmg(target: TargetMode, base: number, mult = 1, opts: DmgOpt
 
 // —— 增益（作用己方） ——
 
-type BuffOpts = SegmentOpts & NRangeOpts & { n?: number; full?: boolean; halve?: boolean; fraction?: number; rangeSpec?: { min: import('./scaling').ScalingSpec; max: import('./scaling').ScalingSpec } };
+type BuffOpts = SegmentOpts & NRangeOpts & { n?: number; full?: boolean; halve?: boolean; fraction?: number; double?: boolean; rangeSpec?: { min: import('./scaling').ScalingSpec; max: import('./scaling').ScalingSpec } };
 
 function buff(target: TargetMode, stat: BuffStat, base: number, mult: number, opts?: BuffOpts): BuffSegment {
   const seg: BuffSegment = { kind: 'buff', target, stat, scaling: scale(base, mult) };
@@ -214,6 +214,7 @@ function buff(target: TargetMode, stat: BuffStat, base: number, mult: number, op
   if (opts?.full) seg.full = true;
   if (opts?.halve) seg.halve = true;
   if (opts?.fraction !== undefined) seg.fraction = opts.fraction;
+  if (opts?.double) seg.double = true;
   if (opts?.rangeSpec !== undefined) seg.rangeSpec = opts.rangeSpec;
   return attach(seg, opts);
 }
@@ -550,6 +551,14 @@ export function destroyChosenCross(): GemSegment { return clearSeg('destroy', { 
 export function explodeChosenRow(): GemSegment { return clearSeg('explode', { kind: 'chosenLine', orientation: 'row' }); }
 export function explodeChosenCol(): GemSegment { return clearSeg('explode', { kind: 'chosenLine', orientation: 'col' }); }
 
+/**
+ * 摧毁前序 clear 段辐射前锚定格所在的整行/整列（W05，7217「爆破一颗宝石，并摧毁该行」）。
+ * 读 ctx.castTracking.lastClearedAnchor；无前序锚时安全跳过。不走玩家点选。
+ */
+export function destroyLineOfLastGem(orientation: 'row' | 'col', opts?: SegmentOpts): GemSegment {
+  return clearSeg('destroy', { kind: 'lastDestroyedLine', orientation }, opts);
+}
+
 // 随机 N 行/列（opts.modifier 支持数量二次缩放）
 export function destroyRandomRows(base: number, mult = 0, opts?: SegmentOpts): GemSegment { return clearSeg('destroy', { kind: 'randomLines', orientation: 'row', count: scale(base, mult) }, opts); }
 export function destroyRandomCols(base: number, mult = 0, opts?: SegmentOpts): GemSegment { return clearSeg('destroy', { kind: 'randomLines', orientation: 'col', count: scale(base, mult) }, opts); }
@@ -601,7 +610,9 @@ export function explodeRandomGemsAny(colors: [ColorSpec, ColorSpec], base: numbe
 // 以某格为中心（cell 可 CELL）：destroy=仅该格；explode=该格辐射一圈(3x3)
 export function destroyAt(cell: CellPos | typeof CELL): GemSegment { return clearSeg('destroy', { kind: 'cell', cell }); }
 /** 以选定格（或固定格）为中心引爆（3x3）——即 explode 单格辐射一圈 */
-export function explodeAt(cell: CellPos | typeof CELL): GemSegment { return clearSeg('explode', { kind: 'cell', cell }); }
+export function explodeAt(cell: CellPos | typeof CELL, opts?: SegmentOpts): GemSegment {
+  return clearSeg('explode', { kind: 'cell', cell }, opts);
+}
 /** @deprecated 旧名，等价 explodeAt（radius 已由"辐射一圈"取代） */
 export function destroyAround(cell: CellPos | typeof CELL): GemSegment { return explodeAt(cell); }
 

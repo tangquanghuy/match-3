@@ -111019,5 +111019,138 @@
       }
     ],
     "portrait": "Troop_K74_27"
+  },
+  {
+    "id": 7932,
+    "name": "不朽的塔拉萨",
+    "referenceName": "ImmortalThalassa",
+    "rarity": "Legendary",
+    "rarityIdx": 5,
+    "kingdom": "梅兰堤斯",
+    "troopTypes": [
+      "Merfolk",
+      "Immortal"
+    ],
+    "role": "Striker",
+    "attack": 32,
+    "armor": 30,
+    "health": 52,
+    "magic": 22,
+    "base": {
+      "attack": 21,
+      "armor": 16,
+      "health": 32,
+      "magic": 8
+    },
+    "manaColors": [
+      "Blue",
+      "Green",
+      "Purple"
+    ],
+    "manaCost": 30,
+    "spell": {
+      "id": 9880,
+      "name": "潮汐洋流",
+      "description": "对 3 名随机敌人造成 [(魔法 x 0.67) + 2] 点真实溅射伤害，伤害值因沉没宝石数而增强。若在星星湾使用，则伤害翻倍。 [x2]",
+      "meta": {
+        "scalings": [
+          {
+            "base": 2,
+            "mult": 0.67
+          }
+        ],
+        "raw": "对 3 名随机敌人造成 [(魔法 x 0.67) + 2] 点真实溅射伤害，伤害值因沉没宝石数而增强。若在星星湾使用，则伤害翻倍。 [x2]",
+        "parsed": true,
+        "modifier": {
+          "kind": "multiplier",
+          "a": 2
+        }
+      }
+    },
+    "traits": [
+      {
+        "code": "merfolkbond",
+        "name": "海族族亲",
+        "description": "海族盟友获得 2 点生命值。"
+      },
+      {
+        "code": "invulnerable",
+        "name": "无懈可击",
+        "description": "对所有状态效果、吞噬、法力耗尽、转化、狼化和致命伤害免疫"
+      },
+      {
+        "code": "oceansheart",
+        "name": "海洋之心",
+        "description": "当我的回合开始时，创造 2 颗沉没宝石。"
+      }
+    ],
+    "portrait": "Troop_K29_37"
+  },
+  {
+    "id": 7933,
+    "name": "不朽的格思洛克",
+    "referenceName": "ImmortalGirthrok",
+    "rarity": "Legendary",
+    "rarityIdx": 5,
+    "kingdom": "风暴峡湾",
+    "troopTypes": [
+      "Giant",
+      "Immortal"
+    ],
+    "role": "Warrior",
+    "attack": 29,
+    "armor": 38,
+    "health": 48,
+    "magic": 22,
+    "base": {
+      "attack": 17,
+      "armor": 26,
+      "health": 30,
+      "magic": 8
+    },
+    "manaColors": [
+      "Green",
+      "Yellow",
+      "Brown"
+    ],
+    "manaCost": 30,
+    "spell": {
+      "id": 10064,
+      "name": "大陆漂移",
+      "description": "对所有敌人造成 [(魔法 x 0.75) + 2] 点真实伤害，伤害值因自身生命值而增强。若在破碎之地使用，则伤害翻倍。 [10:1]",
+      "meta": {
+        "scalings": [
+          {
+            "base": 2,
+            "mult": 0.75
+          }
+        ],
+        "raw": "对所有敌人造成 [(魔法 x 0.75) + 2] 点真实伤害，伤害值因自身生命值而增强。若在破碎之地使用，则伤害翻倍。 [10:1]",
+        "parsed": true,
+        "modifier": {
+          "kind": "ratio",
+          "a": 10,
+          "b": 1
+        }
+      }
+    },
+    "traits": [
+      {
+        "code": "huge",
+        "name": "巨型",
+        "description": "在配对 4 或 5 颗宝石时，获得 2 点生命值。"
+      },
+      {
+        "code": "invulnerable",
+        "name": "无懈可击",
+        "description": "对所有状态效果、吞噬、法力耗尽、转化、狼化和致命伤害免疫"
+      },
+      {
+        "code": "giantgrowth",
+        "name": "巨人成长",
+        "description": "当我的回合开始时，创造 1 颗绿色巨人宝石。"
+      }
+    ],
+    "portrait": "Troop_K15_44"
   }
 ]

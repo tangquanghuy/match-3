@@ -3,6 +3,7 @@
  * 全流程走 arena 系统（draft 卡即用即弃，不进收藏）；奖表/费用从 economy 派生。
  */
 import { ARENA, ARENA_REWARDS, arenaDraftLevel } from '../data/economy';
+import { RARITY_CLASS_NAMES as RARITY_CLS, RARITY_NAMES as RARITY_CN } from '../data/rarity';
 import { getTroopById } from '../../data/troops';
 import { troopStatsAtLevel } from '../../data/leveling';
 import { currentDraftChoices } from '../systems/arena';
@@ -17,10 +18,23 @@ import { troopImg } from './teamScreen';
 
 const fmt = (n: number): string => n.toLocaleString('en-US');
 const ROMAN = ['Ⅰ', 'Ⅱ', 'Ⅲ'];
+const WEEK_MS = 7 * 24 * 60 * 60 * 1000;
+const HOUR_MS = 60 * 60 * 1000;
 
-const RARITY_CLS: Record<number, string> = { 0: 'common', 1: 'common', 2: 'rare', 3: 'epic', 4: 'legend', 5: 'mythic' };
-const RARITY_CN: Record<number, string> = { 0: '普通', 1: '精良', 2: '稀有', 3: '传说', 4: '史诗', 5: '神话' };
 const MANA_CN: Record<string, string> = { red: '红', green: '绿', blue: '蓝', yellow: '黄', purple: '紫', brown: '棕' };
+
+function arenaTroopImg(troop: Parameters<typeof troopImg>[0], attrs: string): string {
+  return troopImg(troop, false, attrs).replace('loading="lazy"', 'loading="eager"');
+}
+
+/** 竞技场免费票的周一重置提示，和网关的本地周历保持同一口径。 */
+export function arenaFreeTicketResetLabel(now: number): string {
+  const totalHours = Math.max(0, Math.ceil((weekStartOf(now) + WEEK_MS - now) / HOUR_MS));
+  const days = Math.floor(totalHours / 24);
+  const hours = totalHours % 24;
+  const remaining = days > 0 ? `${days} 天 ${hours} 小时` : `${hours} 小时`;
+  return `周一 0:00 重置 · 剩 ${remaining}`;
+}
 
 function opponentTiers(wins: number, size: number): EnemyTier[] {
   if (wins <= 0) return Array.from({ length: size }, () => 'minion' as const);
@@ -55,15 +69,27 @@ export class ArenaScreen implements Screen {
   /** 编队阶段本地站位（draft 卡 id 序），展示与确认都用它 */
   private order: number[] = [];
   private listeners: Array<[EventTarget, string, EventListenerOrEventListenerObject]> = [];
+  private ticketTimer: number | null = null;
 
   html(): string {
+    const showcase = [6029, 7478, 6194]
+      .map((id) => getTroopById(id))
+      .filter((troop) => troop !== undefined);
+    const showcaseArt = showcase
+      .map(
+        (troop, i) => `<figure class="arena-marquee-unit unit-${i + 1}">
+          ${arenaTroopImg(troop, `alt="${troop.name}"`)}
+          <figcaption>${troop.name}</figcaption>
+        </figure>`,
+      )
+      .join('');
     const rewardsCopy = ARENA_REWARDS.map((r, i) => {
       const parts = [`黄金 ${fmt(r.gold)}`];
       if (r.gems) parts.push(`宝石 ${fmt(r.gems)}`);
       if (r.goldKeys) parts.push(`金钥匙 ×${r.goldKeys}`);
       const tag = i === 3 ? '完胜' : i === 2 ? '进阶' : i === 1 ? '回本' : '保底';
-      return `<div class="prize${i === 3 ? ' featured' : ''}"><em>${i}</em><div><b>${i} 胜 · ${tag}</b><span>${parts.join(' · ')}</span></div></div>`;
-    }).join('');
+      return `<div class="prize${i === 3 ? ' featured' : ''}" data-wins="${i}"><em>${i}</em><div class="prize-copy"><b>${i} 胜</b><small class="prize-tier">${tag}</small><span class="prize-rewards">${parts.join(' · ')}</span></div></div>`;
+    }).reverse().join('');
     const matches = ARENA.opponentLevels
       .map(
         (lv, i) => `<div class="match ${i === 0 ? 'pending' : 'locked'}" data-match="${i}">
@@ -78,49 +104,57 @@ export class ArenaScreen implements Screen {
       <main class="screen arena-screen">
         <div class="arena-head">
           <div>
-            <small>WEEKLY DRAFT ARENA</small>
             <h1>现 开 赛</h1>
           </div>
           <div class="ticket">
             <span data-icon="ticket"></span>
             <b id="ticketCopy">免费票 ×1</b>
-            <small>本周首场免费 · 其后 宝石 ${ARENA.entryFeeGems}</small>
+            <small id="ticketRule">本周首场免费 · 其后宝石 ${ARENA.entryFeeGems}</small>
+            <small id="ticketReset">周一 0:00 重置</small>
           </div>
         </div>
 
         <div class="steps" role="list">
-          <button class="step on" data-step="signup" type="button">
+          <div class="step on" data-step="signup" role="listitem" aria-current="step">
             <span class="step-index">1</span>
             <span class="step-copy"><b>报名</b><small>规则与奖表</small></span>
-          </button>
+          </div>
           <i class="step-rail" aria-hidden="true"></i>
-          <button class="step" data-step="draft" type="button">
+          <div class="step" data-step="draft" role="listitem">
             <span class="step-index">2</span>
             <span class="step-copy"><b>现场抽卡</b><small>三轮 3 选 1</small></span>
-          </button>
+          </div>
           <i class="step-rail" aria-hidden="true"></i>
-          <button class="step" data-step="battle" type="button">
+          <div class="step" data-step="battle" role="listitem">
             <span class="step-index">3</span>
             <span class="step-copy"><b>编队连战</b><small>最多 ${ARENA.rounds} 场 AI</small></span>
-          </button>
+          </div>
         </div>
 
+        ${toastHtml()}
         <section class="panel arena-panel" id="signup">
           <div class="panel-inner signup-grid">
-            <div class="signup-copy">
-              <small class="eyebrow">ENTER THE ARENA</small>
-              <h2>一场定胜负的限定牌局</h2>
-              <p>${ARENA.rounds} 轮现场抽卡，组成 ${ARENA.rounds} 人临时队伍，连续挑战 ${ARENA.rounds} 场难度递增的 AI。卡片仅在本场使用，赛毕自动清除，不会进入收藏。</p>
-              <div class="kv-grid signup-kv">
-                <div><small>报名费用</small><b id="feeCopy">免费票 ×1</b></div>
-                <div><small>队伍限制</small><b>${ARENA.rounds} 人 · 无主角</b></div>
-                <div><small>每轮选择</small><b>${ARENA.choicesPerRound} 选 1 · 稀有度阶梯收官 Epic+</b></div>
+            <div class="signup-stage">
+              <div class="arena-marquee" aria-label="本周竞技场参赛阵容展示">
+                <div class="arena-marquee-art">${showcaseArt}</div>
+                <div class="arena-marquee-mark" aria-hidden="true"><span data-icon="swords"></span></div>
               </div>
-              <button class="primary" id="enter" type="button">使用免费票报名 <span data-icon="arrow"></span></button>
-              <button class="secondary" id="forfeit" type="button" hidden>弃赛（按已得胜场结算）</button>
+              <div class="signup-copy">
+                <h2>现场组牌，三战决胜</h2>
+                <p>${ARENA.rounds} 轮各选一张临时卡，再连续挑战 ${ARENA.rounds} 支难度递增的队伍。本届牌组赛后清除，不影响收藏。</p>
+                <div class="signup-kv" aria-label="竞技场规则摘要">
+                  <div><small>报名</small><b id="feeCopy">免费票 ×1</b></div>
+                  <div><small>阵容</small><b>${ARENA.rounds} 人 · 无主角</b></div>
+                  <div><small>选牌</small><b>${ARENA.choicesPerRound} 选 1 · 三轮</b></div>
+                </div>
+                <div class="signup-actions">
+                  <button class="primary" id="enter" type="button"><span id="enterLabel">使用免费票报名</span><span data-icon="arrow"></span></button>
+                  <button class="secondary" id="forfeit" type="button" hidden>弃赛（按已得胜场结算）</button>
+                </div>
+              </div>
             </div>
             <aside class="prize-card">
-              <small>胜场奖表</small>
+              <header><small>本届奖励</small><b>胜场奖表</b></header>
               ${rewardsCopy}
               <p>失败保留战斗内收集的灵魂。中途退出可弃赛，按已得胜场发奖。</p>
             </aside>
@@ -131,7 +165,7 @@ export class ArenaScreen implements Screen {
           <div class="panel-inner draft-layout">
             <div class="draft-top">
               <div>
-                <small class="eyebrow">DRAFT ROUND <b id="round">1</b> / ${ARENA.rounds}</small>
+                <small class="eyebrow">第 <b id="round">1</b> / ${ARENA.rounds} 轮</small>
                 <h2>选择一张加入临时牌组</h2>
               </div>
               <span class="draft-note" id="bandNote">本轮档位：—</span>
@@ -139,7 +173,7 @@ export class ArenaScreen implements Screen {
             <div class="draft-cards" id="draftCards"></div>
             <div class="draft-foot">
               <div class="picked-strip">
-                <small>已锁定</small>
+                <small id="pickedLabel">已锁定 0/${ARENA.rounds}</small>
                 <div class="picked-slots" id="pickedSlots"></div>
               </div>
               <button class="primary" id="nextDraft" type="button" disabled>确认选择</button>
@@ -152,7 +186,6 @@ export class ArenaScreen implements Screen {
             <div class="lineup-col">
               <div class="battle-head">
                 <div>
-                  <small class="eyebrow">DRAFTED TEAM</small>
                   <h2>限定编队</h2>
                 </div>
               </div>
@@ -162,7 +195,6 @@ export class ArenaScreen implements Screen {
             <div class="gauntlet-col">
               <div class="battle-head">
                 <div>
-                  <small class="eyebrow">ARENA RUN</small>
                   <h2>三战之路</h2>
                 </div>
                 <span class="run-score">胜场 <b id="wins">0</b> / ${ARENA.rounds}</span>
@@ -179,7 +211,6 @@ export class ArenaScreen implements Screen {
       </main>
       <div class="arena-modal-veil" id="forfeitModal" hidden>
         <section class="arena-confirm" role="dialog" aria-modal="true" aria-labelledby="forfeitTitle">
-          <small class="eyebrow">LEAVE THIS RUN</small>
           <h2 id="forfeitTitle">确定弃赛？</h2>
           <p id="forfeitCopy">当前牌组会清除，并按已得胜场自动发奖。</p>
           <div class="forfeit-reward" id="forfeitReward"></div>
@@ -189,8 +220,7 @@ export class ArenaScreen implements Screen {
           </div>
         </section>
       </div>
-      ${bottomNavHtml('', '现开赛卡组独立')}
-      ${toastHtml()}`;
+      ${bottomNavHtml('', '现开赛卡组独立')}`;
   }
 
   mount(ctx: ShellCtx): void {
@@ -206,6 +236,8 @@ export class ArenaScreen implements Screen {
       if ((event as KeyboardEvent).key === 'Escape' && !$('#forfeitModal').hidden) this.closeForfeitModal();
     });
     this.on($('#draftTeam'), 'click', (e) => this.shiftClicked(e));
+    if (this.ticketTimer !== null) window.clearInterval(this.ticketTimer);
+    this.ticketTimer = window.setInterval(() => this.renderTicket(), 60_000);
     this.render();
   }
 
@@ -234,6 +266,8 @@ export class ArenaScreen implements Screen {
       const reached = activeDraft ? (activeDraft.stage === 'fighting' ? 2 : activeDraft.stage === 'building' ? 2 : 1) >= i : i === 0;
       step.classList.toggle('on', i === idx);
       step.classList.toggle('done', i < idx && reached);
+      if (i === idx) step.setAttribute('aria-current', 'step');
+      else step.removeAttribute('aria-current');
       const indexEl = step.querySelector<HTMLElement>('.step-index');
       if (indexEl) indexEl.textContent = i < idx ? '✓' : String(i + 1);
     });
@@ -242,11 +276,30 @@ export class ArenaScreen implements Screen {
   private renderSignup(): void {
     const save = this.ctx.save();
     const free = save.arena.lastFreeEntryAt < weekStartOf(Date.now());
-    $('#ticketCopy').textContent = free ? '免费票 ×1' : '本周免费已用';
+    this.renderTicket();
     $('#feeCopy').textContent = free ? '免费票 ×1' : `宝石 ${ARENA.entryFeeGems}`;
-    ($('#enter') as HTMLButtonElement).disabled = false;
-    ($('#enter').querySelector('span') as HTMLElement | null);
+    const enter = $('#enter') as HTMLButtonElement;
+    const canPay = free || save.currencies.gems >= ARENA.entryFeeGems;
+    enter.disabled = !canPay;
+    enter.title = canPay ? '' : `宝石不足，还差 ${ARENA.entryFeeGems - save.currencies.gems}`;
+    $('#enterLabel').textContent = free ? '使用免费票报名' : canPay ? `使用 ${ARENA.entryFeeGems} 宝石报名` : '宝石不足';
     $('#forfeit').hidden = !save.arena.activeDraft;
+  }
+
+  private renderTicket(): void {
+    const save = this.ctx.save();
+    const now = Date.now();
+    const free = save.arena.lastFreeEntryAt < weekStartOf(now);
+    const copy = $('#ticketCopy');
+    const rule = $('#ticketRule');
+    const reset = $('#ticketReset');
+    if (copy) copy.textContent = free ? '免费票 ×1' : '本周免费已用';
+    if (rule) {
+      rule.textContent = free
+        ? `本周首场免费 · 其后宝石 ${ARENA.entryFeeGems}`
+        : `免费票已用 · 其后宝石 ${ARENA.entryFeeGems}`;
+    }
+    if (reset) reset.textContent = arenaFreeTicketResetLabel(now);
   }
 
   private renderDraft(): void {
@@ -269,14 +322,17 @@ export class ArenaScreen implements Screen {
         const stats = troopStatsAtLevel(troop, level);
         const spell = renderSpell(troop.spell.description, stats.magic, { interactive: false }).html;
         const conflicts = manaConflict(draft.picked, troop.id);
-        return `<button class="draft-card r-${cls}${conflicts.length ? ' has-conflict' : ''}" data-i="${i}" type="button">
-          ${troopImg(troop, false, `alt="${troop.name}"`)}
-          <span class="shade"></span>
-          <span class="mana">${gemSvg(troop.manaColors.map((c) => c.toLowerCase()))}<i>${troop.manaCost}</i></span>
-          <b class="rarity">${RARITY_CN[o.rarityIdx] ?? ''}</b>
+        return `<button class="draft-card r-${cls}${conflicts.length ? ' has-conflict' : ''}" data-i="${i}" type="button" aria-pressed="false">
+          <div class="draft-card-art">
+            ${arenaTroopImg(troop, `alt="${troop.name}"`)}
+            <span class="shade"></span>
+            <span class="mana">${gemSvg(troop.manaColors.map((c) => c.toLowerCase()))}<i>${troop.manaCost}</i></span>
+            <b class="rarity">${RARITY_CN[o.rarityIdx] ?? ''}</b>
+            <i class="pick-flag">已选</i>
+          </div>
           <div class="draft-card-info">
             <h3>${troop.name}</h3>
-            <small>${troop.kingdom ?? '无王国'} · 满配 Lv.${level} · 临时卡</small>
+            <small>${troop.kingdom ?? '无王国'} · Lv.${level} 满配</small>
             <div class="draft-stats" aria-label="攻击、护甲、生命、魔力">
               <span title="攻击"><b>攻</b>${stats.attack}</span>
               <span title="护甲"><b>护</b>${stats.armor}</span>
@@ -289,7 +345,6 @@ export class ArenaScreen implements Screen {
             </div>
             ${conflicts.length ? `<span class="mana-conflict" title="与已锁定部队共享法力颜色">同色法力：${conflicts.map((c) => MANA_CN[c] ?? c).join('、')}</span>` : ''}
           </div>
-          <i class="pick-flag">已选</i>
         </button>`;
       })
       .join('');
@@ -297,8 +352,12 @@ export class ArenaScreen implements Screen {
     this.renderPicked(draft.picked);
     $$('#draftCards .draft-card').forEach((btn) =>
       this.on(btn, 'click', () => {
-        $$('#draftCards .draft-card').forEach((el) => el.classList.remove('selected'));
+        $$('#draftCards .draft-card').forEach((el) => {
+          el.classList.remove('selected');
+          el.setAttribute('aria-pressed', 'false');
+        });
         btn.classList.add('selected');
+        btn.setAttribute('aria-pressed', 'true');
         this.selectedPick = Number((btn as HTMLElement).dataset.i);
         ($('#nextDraft') as HTMLButtonElement).disabled = false;
       }),
@@ -306,11 +365,16 @@ export class ArenaScreen implements Screen {
   }
 
   private renderPicked(picked: number[]): void {
-    const slots = [0, 1, 2]
+    const pickedLabel = $('#pickedLabel');
+    if (pickedLabel) pickedLabel.textContent = `已锁定 ${picked.length}/${ARENA.rounds}`;
+    const slots = Array.from({ length: ARENA.rounds }, (_, i) => i)
       .map((i) => {
         const troop = picked[i] !== undefined ? getTroopById(picked[i]!) : null;
-        if (!troop) return '<div class="picked-slot"></div>';
-        return `<div class="picked-slot filled">${troopImg(troop, false, `alt="${troop.name}"`)}</div>`;
+        if (!troop) {
+          return `<div class="picked-slot empty" aria-label="第 ${i + 1} 张待选择"><span class="picked-slot-index">${i + 1}</span><b>待选择</b><small>${i + 1}/${ARENA.rounds}</small></div>`;
+        }
+        const rarity = RARITY_CLS[troop.rarityIdx] ?? 'common';
+        return `<div class="picked-slot filled r-${rarity}" aria-label="第 ${i + 1} 张：${troop.name}">${arenaTroopImg(troop, `alt="${troop.name}"`)}<span class="picked-slot-index">${i + 1}</span><div class="picked-slot-copy"><b>${troop.name}</b><small>${RARITY_CN[troop.rarityIdx] ?? ''}</small></div></div>`;
       })
       .join('');
     $('#pickedSlots').innerHTML = slots;
@@ -347,8 +411,9 @@ export class ArenaScreen implements Screen {
         const troop = getTroopById(id);
         if (!troop) return '';
         const level = arenaDraftLevel(troop.rarityIdx);
-        return `<div class="run-slot">
-          ${troopImg(troop, false, `alt="${troop.name}"`)}
+        const rarity = RARITY_CLS[troop.rarityIdx] ?? 'common';
+        return `<div class="run-slot r-${rarity}">
+          ${arenaTroopImg(troop, `alt="${troop.name}"`)}
           <div class="slot-body">
             <b>${troop.name}</b>
             <span>${RARITY_CN[troop.rarityIdx] ?? ''} · 耗蓝 ${troop.manaCost} · Lv.${level} 满配</span>
@@ -378,10 +443,10 @@ export class ArenaScreen implements Screen {
           .map((enemy) => {
             const troop = getTroopById(enemy.troopId);
             if (!troop) return '';
-            return `<span class="match-enemy" title="${troop.name} · Lv.${enemy.level}">${troopImg(troop, false, `alt="${troop.name}"`)}<b>${troop.name}</b></span>`;
+            return `<span class="match-enemy" title="${troop.name} · Lv.${enemy.level}">${arenaTroopImg(troop, `alt="${troop.name}"`)}<b>${troop.name}</b></span>`;
           })
           .join('');
-        return `<div class="match ${cls}" data-match="${i}">
+        return `<div class="match ${cls}" data-match="${i}"${current ? ' aria-current="step"' : ''}>
           <span class="match-no">${ROMAN[i]}</span>
           <div class="match-copy"><b>第 ${i + 1} 战</b><small>${preview.kingdom} · 对手 Lv.${lv} · ${ARENA.opponentSizes[i]} 人</small><div class="match-preview">${enemyCards}</div></div>
           <i class="match-state">${state}</i>
@@ -489,6 +554,10 @@ export class ArenaScreen implements Screen {
   }
 
   dispose(): void {
+    if (this.ticketTimer !== null) {
+      window.clearInterval(this.ticketTimer);
+      this.ticketTimer = null;
+    }
     for (const [target, type, fn] of this.listeners.splice(0)) {
       target.removeEventListener(type, fn);
     }

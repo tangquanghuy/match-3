@@ -9,12 +9,13 @@ import type { MetaSave } from '../state/schema';
 import { fail, type MetaFailure } from '../types';
 import { kingdomUpgradeCost } from '../data/economy';
 import {
+  EXPLORE_MAX_TIER,
   KINGDOM_ORDER,
   kingdomBonusStat,
   kingdomUnlockLevel,
 } from '../data/kingdoms';
 import { spend } from './wallet';
-import { planQuestEncounter, questNodeUnlocked, type EncounterEnemy } from './encounter';
+import { planExploreEncounter, planQuestEncounter, questNodeUnlocked, type EncounterEnemy } from './encounter';
 import { tributePreview } from './tribute';
 
 export const KINGDOM_MAX_LEVEL = 10;
@@ -42,13 +43,13 @@ export function exploreUnlocked(save: MetaSave, kingdom: string): boolean {
   return (save.kingdoms[kingdom]?.questsDone ?? 0) >= 8;
 }
 
-/** 设置探索难度档（1~5），未解锁或越界拒绝 */
+/** 设置 Hard / Very Hard 关卡档（1~6），未解锁或越界拒绝 */
 export function setExploreTier(save: MetaSave, kingdom: string, tier: number): { ok: true; tier: number } | MetaFailure {
-  if (!Number.isInteger(tier) || tier < 1 || tier > 5) {
-    return fail('INVALID', '探索难度档须为 1~5');
+  if (!Number.isInteger(tier) || tier < 1 || tier > EXPLORE_MAX_TIER) {
+    return fail('INVALID', '关卡不存在');
   }
   if (!exploreUnlocked(save, kingdom)) {
-    return fail('PREREQ_LOCKED', '先通关该王国任务链（8/8）才能探索');
+    return fail('PREREQ_LOCKED', '先通关该王国主线');
   }
   const entry = save.kingdoms[kingdom]!;
   entry.exploreTier = tier;
@@ -79,9 +80,18 @@ export function questPreviewSeed(kingdom: string, node: number): number {
   return fnv1a32(`quest-${kingdom}-${node}`);
 }
 
-/** 任务关阵容预览（8 关节点卡上的"敌人是谁"）。node 越界抛 RangeError。 */
+/** 任务关阵容预览。node 越界抛 RangeError。 */
 export function questLineupPreview(kingdom: string, node: number): EncounterEnemy[] {
   return planQuestEncounter(kingdom, node, questPreviewSeed(kingdom, node)).enemies;
+}
+
+export function explorePreviewSeed(kingdom: string, tier: number): number {
+  return fnv1a32(`explore-${kingdom}-${tier}`);
+}
+
+/** Hard / Very Hard 关卡预览。tier 越界抛 RangeError。 */
+export function exploreLineupPreview(kingdom: string, tier: number): EncounterEnemy[] {
+  return planExploreEncounter(kingdom, tier, explorePreviewSeed(kingdom, tier)).enemies;
 }
 
 export interface KingdomStatBonus {

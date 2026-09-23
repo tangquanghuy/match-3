@@ -82,6 +82,11 @@ export function earnMaterials(save: MetaSave, gain: MaterialDelta): MaterialDelt
     save.materials.forgeScrolls += scrolls;
     applied.forgeScrolls = scrolls;
   }
+  const maps = Math.floor(gain.treasureMaps ?? 0);
+  if (maps > 0) {
+    save.materials.treasureMaps += maps;
+    applied.treasureMaps = maps;
+  }
   for (const [key, value] of Object.entries(gain.traitstones ?? {})) {
     const n = Math.floor(value ?? 0);
     if (n <= 0) continue;
@@ -91,6 +96,7 @@ export function earnMaterials(save: MetaSave, gain: MaterialDelta): MaterialDelt
   if (Object.keys(appliedIngots).length === 0) delete applied.ingots;
   if (Object.keys(appliedStones).length === 0) delete applied.traitstones;
   if (applied.forgeScrolls === undefined) delete applied.forgeScrolls;
+  if (applied.treasureMaps === undefined) delete applied.treasureMaps;
   return applied;
 }
 
@@ -99,6 +105,7 @@ function materialShort(save: MetaSave, cost: MaterialDelta): string | null {
     if ((save.materials.ingots[key] ?? 0) < value!) return `钢锭不足（${key}）`;
   }
   if ((cost.forgeScrolls ?? 0) > save.materials.forgeScrolls) return '熔铸符卷不足';
+  if ((cost.treasureMaps ?? 0) > save.materials.treasureMaps) return '藏宝图不足';
   for (const [key, value] of Object.entries(cost.traitstones ?? {})) {
     if ((save.materials.traitstones[key] ?? 0) < value!) return `${stoneName(key)}不足`;
   }
@@ -118,6 +125,7 @@ export function spendMaterials(save: MetaSave, cost: MaterialDelta): { ok: true 
     save.materials.ingots[key] = (save.materials.ingots[key] ?? 0) - value!;
   }
   save.materials.forgeScrolls -= cost.forgeScrolls ?? 0;
+  save.materials.treasureMaps -= cost.treasureMaps ?? 0;
   for (const [key, value] of Object.entries(cost.traitstones ?? {})) {
     save.materials.traitstones[key] = (save.materials.traitstones[key] ?? 0) - value!;
   }

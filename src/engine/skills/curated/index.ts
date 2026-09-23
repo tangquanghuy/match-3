@@ -102,8 +102,10 @@ import { BATCH_W01 } from './batch-w01';
 import { BATCH_W02 } from './batch-w02';
 import { BATCH_W03 } from './batch-w03';
 import { BATCH_W04 } from './batch-w04';
+import { BATCH_W05 } from './batch-w05';
 import { BATCH_R27 } from './batch-r27';
 import { BATCH_R28 } from './batch-r28';
+import { BATCH_R29 } from './batch-r29';
 
 /** 全部批次（新批次在此追加注册） */
 const BATCHES: CuratedBatch[] = [
@@ -177,6 +179,7 @@ const BATCHES: CuratedBatch[] = [
   BATCH_R26,
   BATCH_R27,
   BATCH_R28,
+  BATCH_R29,
 ];
 
 /** 合并全部批次的组装结果（id → 原型），并给出跳过清单 */
@@ -215,6 +218,7 @@ const WEAPON_BATCHES: CuratedBatch[] = [
   BATCH_W02,
   BATCH_W03,
   BATCH_W04,
+  BATCH_W05,
 ];
 
 /** 合并武器批次（id → 原型 + 跳过清单），供武器侧消费/校验 */

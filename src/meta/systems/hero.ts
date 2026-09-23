@@ -5,8 +5,9 @@
  *  - 主角经验来自战斗胜利（结算钩子调用 addHeroXp，多级一次连升）；
  *  - 冠军（职业）经验只在「主角编入队伍」的胜场里积累（与职业绑定，上限 100）；
  *  - 职业解锁 = 王国任务链 8 关通关（settlement 写 unlockedClasses，本模块只做装备校验）；
- *  - 武器 = 主角唯一施法手段：全部来自官方目录（data/weaponCatalog.ts），**无等级/职业门槛**——
- *    起始池 22 把零条件人人都有，其余靠获取途径拿所有权（假数据退役裁定，见 data/weapons.ts）；
+ *  - 武器 = 主角唯一施法手段：全部来自官方目录（data/weaponCatalog.ts）；
+ *    起始池 22 把零条件人人都有，其余按官方 MasteryRequirement 接线领取
+ *    （主角等级 / 职业 250 胜 / 熔炉 / 通关王国后宝石商店，见 data/weaponAcquire.ts）；
  *  - 天赋树/职业特质的选取与解锁在 systems/talents.ts（v2：7 档三树选一，可随时改配）。
  */
 import type { LeveledStats } from '../../data/leveling';
@@ -22,17 +23,52 @@ import {
 } from '../data/classes';
 import type { WeaponDef } from '../data/weapons';
 import { anyWeaponById, ownsWeapon } from '../data/weaponCatalog';
+import { acquireOf, acquireProgress, kingdomQuestCleared } from '../data/weaponAcquire';
 import { findRecipe } from '../data/soulforge';
 import { isFailure } from '../gateway/types';
 import { spend } from './wallet';
+import { temperingLevelOf } from './forgeOps';
+import { enqueueMasteryOffers } from './manaMastery';
 
-/** 主角四维（不含王国加成与天赋加成——桥接时统一加） */
+const TEMPER_STAT_SEQUENCE = ['attack', 'armor', 'health', 'magic'] as const;
+
+/** 当前武器淬炼转成四维面板加成；每 2 级 +1，按攻/甲/生/魔轮转。 */
+export function temperingBonusOf(save: MetaSave): LeveledStats {
+  const weaponId = save.hero.equippedWeapon;
+  const level = weaponId ? temperingLevelOf(save, weaponId) : 0;
+  const bonus: LeveledStats = { health: 0, armor: 0, attack: 0, magic: 0 };
+  const points = Math.floor(level / 2);
+  for (let i = 0; i < points; i++) {
+    bonus[TEMPER_STAT_SEQUENCE[i % TEMPER_STAT_SEQUENCE.length]!] += 1;
+  }
+  return bonus;
+}
+
+/** 主角战斗面板四维（不含王国加成与天赋加成——桥接时统一加）。 */
 export function heroStatsOf(save: MetaSave): LeveledStats {
-  return heroStatsAt(save.hero.level);
+  const base = heroStatsAt(save.hero.level);
+  const temper = temperingBonusOf(save);
+  return {
+    health: base.health + temper.health,
+    armor: base.armor + temper.armor,
+    attack: base.attack + temper.attack,
+    magic: base.magic + temper.magic,
+  };
 }
 
 export function classLevelOf(save: MetaSave, classId: string): number {
   return save.hero.classLevels[classId] ?? 0;
+}
+
+export function classWinsOf(save: MetaSave, classId: string): number {
+  return save.hero.classWins[classId] ?? 0;
+}
+
+/** 职业胜场 +1（携带主角并以该职业出战的胜利） */
+export function addClassWin(save: MetaSave, classId: string): number {
+  const next = classWinsOf(save, classId) + 1;
+  save.hero.classWins[classId] = next;
+  return next;
 }
 
 /** 主角加经验：可能连升多级；返回 {levelsGained, newLevel} */
@@ -44,6 +80,7 @@ export function addHeroXp(save: MetaSave, amount: number): { levelsGained: numbe
     save.hero.level += 1;
     gained += 1;
   }
+  enqueueMasteryOffers(save, gained);
   return { levelsGained: gained, newLevel: save.hero.level };
 }
 
@@ -77,12 +114,40 @@ export function equipClass(save: MetaSave, classId: string): { ok: true; classId
 /**
  * 武器是否可装备（只判定，不解锁）。
  *
- * 假数据退役后（见 data/weapons.ts 头注）武器**没有等级/职业门槛**了：
- * 起始池 22 把零条件人人都有，其余目录武器靠获取途径（熔炉等）拿到所有权。
- * 因此可用 = 已拥有 ∧ 有编译原型（mana-only 占位武器永远不可装备）。
+ * 假数据退役后武器本身不再另挂等级/职业门槛：能装 = 已拥有 ∧ 有编译原型。
+ * 未拥有的武器走 `claimWeapon`（官方解锁条件）或熔炉，而不是在装备时再判一次。
  */
 export function canUseWeapon(save: MetaSave, weapon: WeaponDef): boolean {
   return weapon.equippable && ownsWeapon(save, weapon.id);
+}
+
+/**
+ * 按获取途径领取武器（精通门槛、职业专属、宝石商店直购；王国包须先通关再买）。
+ * 熔炉白名单仍走 `forgeCatalogWeapon`，这里会拒绝以免绕过消耗。
+ */
+export function claimWeapon(save: MetaSave, weaponId: string): { ok: true; weaponId: string } | MetaFailure {
+  const weapon = anyWeaponById(weaponId);
+  if (!weapon) return fail('INVALID', `未知武器：${weaponId}`);
+  if (ownsWeapon(save, weapon.id)) return fail('INVALID', `「${weapon.name}」已拥有`);
+  const acquire = acquireOf(weapon);
+  if (acquire.kind === 'placeholder') {
+    return fail('INVALID', `「${weapon.name}」是占位武器（无法术实现），不可领取`);
+  }
+  if (acquire.kind === 'forge') {
+    return fail('INVALID', `「${weapon.name}」需在熔炉锻造`);
+  }
+  if (acquire.kind === 'buy') {
+    if (acquire.kingdom && !kingdomQuestCleared(save, acquire.kingdom)) {
+      return fail('PREREQ_LOCKED', `通关${acquire.kingdom}后于宝石商店购买`);
+    }
+    const paid = spend(save, { gems: acquire.gems ?? 0 });
+    if (isFailure(paid)) return paid;
+  } else {
+    const progress = acquireProgress(save, acquire);
+    if (!progress.ready) return fail('PREREQ_LOCKED', progress.hint);
+  }
+  if (!save.hero.unlockedWeapons.includes(weapon.id)) save.hero.unlockedWeapons.push(weapon.id);
+  return { ok: true, weaponId: weapon.id };
 }
 
 /** 装备武器：校验所有权与可装备性；`gw_*` 之外（含已退役的 `w_*`）一律归一后再判 */

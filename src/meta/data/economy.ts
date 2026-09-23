@@ -12,15 +12,8 @@
  */
 import { TROOPS } from '../../data/troops';
 
-/** 稀有度档位顺序（与 troops.json 的 rarityIdx 严格一致，勿改动顺序） */
-export const RARITY_ORDER = [
-  'Common',
-  'Uncommon',
-  'Rare',
-  'UltraRare',
-  'Epic',
-  'Legendary',
-] as const;
+/** 稀有度档位顺序（与 troops.json 的 rarityIdx 严格一致，定义见共享稀有度模块） */
+export { RARITY_ORDER } from './rarity';
 
 /** 部队等级上限按稀有度档（idx 0..5） */
 export const LEVEL_CAP_BY_RARITY = [15, 16, 17, 18, 19, 20] as const;
@@ -322,6 +315,8 @@ export const EXPLORE_DROPS = {
 export const GLORY_CHEST = {
   /** 官方口径：20 荣耀 = 1 荣耀箱 */
   cost: 20,
+  /** 批量开启数量；十连按单价结算，不额外改写奖池概率。 */
+  multiCount: 10,
   /** 出金钥匙概率 */
   goldKeyChance: 0.1,
   /** 出部队卡概率（低稀有度带，其余出特质石包） */
@@ -381,8 +376,8 @@ export const INVASION = {
   unlockHeroLevel: 10,
   /** 每组镜像对手数（官方 30 人小组 - 玩家自己） */
   bracketSize: 29,
-  /** 每日候选对手数（官方一次展示数目的单机口径） */
-  candidates: 5,
+  /** 每日三选一：主屏同一时间只呈现三名可出战对手。 */
+  candidates: 3,
   /** 败北扣 VP（保底 0；官方败场会掉分） */
   vpLoss: 5,
   /** 胜场荣耀基础（官方「排位主产荣耀」的设计值化） */

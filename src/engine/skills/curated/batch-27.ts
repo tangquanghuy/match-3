@@ -3,7 +3,7 @@
  * 核对者：agent 批次27
  *
  * 语义裁定备注：
- * - 「爆破一颗宝石」（无颜色、无选定/随机字样）→ explodeRandomGems(1,0,'color')
+ * - 「爆破一颗宝石」（无「随机」字样）→ explodeAt(CELL)
  *   （batch-11/12/14 头注同款）。
  * - 「耗掉/耗尽…（上至/最多）N 点法力值」= reduce('enemyChosen','mana',N,0)（夹零后至多 N）；
  *   「创造X（宝石/骷髅头），数量与所耗尽的法力值等同」= 基数 0 + [1:1] drainedMana
@@ -16,8 +16,7 @@
  *   「敌我双方兽人数/任意状态敌人数/其所有技能值」（二次缩放来源不支持）→ 各按既有批次口径
  *   SKIP（见下，均注先例）。
  */
-import { skill, dmg, heal, armor, magic, mana, reduce, trueDmg, createGems, createSkulls, destroyChosenRow, destroyRandomGems,
-  explodeRandomGems, inflict, extraTurn, summonRef } from '../builders';
+import { skill, dmg, heal, armor, magic, mana, reduce, trueDmg, createGems, createSkulls, destroyChosenRow, destroyRandomGems, explodeRandomGems, inflict, extraTurn, summonRef, CELL, explodeAt } from '../builders';
 import { BaseColor } from '../../types';
 import type { CuratedBatch } from './index';
 
@@ -46,7 +45,7 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 8226,
     desc: '爆破一颗宝石。获得 [魔法 + 1] 点生命值，数值因被摧毁的蓝色宝石而增强。使自身下潜并获得屏障效果。 [x2]',
     build: skill(
-      explodeRandomGems(1, 0, 'color'),
+      explodeAt(CELL),
       // 「数值因被摧毁的蓝色宝石而增强」点名生命值段 → destroyedGems 筛蓝色（batch-11 7008 同款）
       heal('allySelf', 1, 1, {
         modifier: { mod: { kind: 'multiplier', a: 2 }, source: { kind: 'destroyedGems', color: BaseColor.Blue } },

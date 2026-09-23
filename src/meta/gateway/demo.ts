@@ -98,6 +98,7 @@ export function buildDemoSave(now: number): MetaSave {
       'major:red': 3, 'major:blue': 2, 'major:green': 2,
       'runic:red': 1, celestial: 1,
     },
+    treasureMaps: 7,
   });
   earn(save, { glory: 120 });
 
@@ -108,5 +109,6 @@ export function buildDemoSave(now: number): MetaSave {
 
   save.stats.battlesWon = 34;
   save.stats.battlesLost = 7;
+  if (demoClass) save.hero.classWins[demoClass.id] = 34;
   return save;
 }

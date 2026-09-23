@@ -31,8 +31,7 @@ import {
 import { fnv1a32 } from '../data/hash';
 import { WEEK_MS } from '../data/events';
 import { allKingdoms, kingdomTroopPool } from '../data/kingdoms';
-import { KNOWN_TRAIT_CODES } from '../data/traitIndex';
-import { buildMetaRegistry, buildPlayerSnapshots, enemyToSnapshot } from './battleBridge';
+import { buildMetaRegistry, buildPlayerSnapshots, enemyToSnapshot, metaKnownTraitIds } from './battleBridge';
 import { earn } from './wallet';
 import type { EncounterEnemy, EnemyTier } from './encounter';
 
@@ -198,7 +197,7 @@ export interface StandingRow {
 export function invasionStandings(save: MetaSave, now: number, weekStart: number): { rows: StandingRow[]; placement: number } {
   const mirrors = hydrateMirrorVp(buildBracket(weekStart, save.invasion.league), now, weekStart);
   const rows: StandingRow[] = [
-    { id: 'player', name: '法露特（你）', vp: save.invasion.vp, frenzy: false, isPlayer: true },
+    { id: 'player', name: '你', vp: save.invasion.vp, frenzy: false, isPlayer: true },
     ...mirrors.map((m) => ({ id: m.id, name: m.name, vp: m.vp, frenzy: m.frenzy, isPlayer: false })),
   ].sort((a, b) => b.vp - a.vp);
   const placement = rows.findIndex((r) => r.isPlayer) + 1;
@@ -347,7 +346,7 @@ export function planInvasionBattle(
   );
   const check = validateBattleRequest(request, {
     knownSkillIds: new Set([...registry.skills.keys(), ...registry.prototypes.keys()]),
-    knownTraitIds: KNOWN_TRAIT_CODES,
+    knownTraitIds: metaKnownTraitIds(),
     knownTroopTypes: knownTroopTypes(),
   });
   if (!check.ok) {

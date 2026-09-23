@@ -19,8 +19,7 @@ import { fail, type MetaFailure } from '../types';
 import type { ActiveDraft, MetaSave } from '../state/schema';
 import { ARENA, ARENA_REWARDS, arenaDraftLevel } from '../data/economy';
 import { KINGDOM_ORDER } from '../data/kingdoms';
-import { KNOWN_TRAIT_CODES } from '../data/traitIndex';
-import { buildMetaRegistry, enemyToSnapshot, troopToSnapshot } from './battleBridge';
+import { buildMetaRegistry, enemyToSnapshot, metaKnownTraitIds, troopToSnapshot } from './battleBridge';
 import { pickEnemies, type EnemyTier, type EncounterEnemy } from './encounter';
 import { earn } from './wallet';
 
@@ -220,7 +219,7 @@ export function planArenaBattle(save: MetaSave, battleSeed: number): ArenaBridge
   );
   const check = validateBattleRequest(request, {
     knownSkillIds: new Set([...registry.skills.keys(), ...registry.prototypes.keys()]),
-    knownTraitIds: KNOWN_TRAIT_CODES,
+    knownTraitIds: metaKnownTraitIds(),
     knownTroopTypes: knownTroopTypes(),
   });
   if (!check.ok) {

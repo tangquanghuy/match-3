@@ -4,6 +4,8 @@ import {
   allKingdoms,
   EXPLORE_TEAM_SIZES,
   exploreEnemyLevel,
+  exploreNodeLabel,
+  exploreTierForNode,
   KINGDOM_ORDER,
   kingdomBaseLevel,
   kingdomQuestRewardTroop,
@@ -36,11 +38,18 @@ describe('王国元数据首版（kingdoms.ts）', () => {
     expect(questEnemyLevel('破碎尖塔', 8)).toBe(8);
     expect(exploreEnemyLevel('破碎尖塔', 1)).toBe(1);
     expect(exploreEnemyLevel('破碎尖塔', 5)).toBe(21);
+    expect(exploreEnemyLevel('破碎尖塔', 6)).toBe(26);
   });
 
-  it('任务 8 关规模 2/3/3/3/3/4/4/4，探索 5 档 2/3/3/4/4', () => {
-    expect([...QUEST_TEAM_SIZES]).toEqual([2, 3, 3, 3, 3, 4, 4, 4]);
-    expect([...EXPLORE_TEAM_SIZES]).toEqual([2, 3, 3, 4, 4]);
+  it('出战一律 4 人队；Hard 1~3 / Very Hard 1~3 映射到探索档 1~6', () => {
+    expect([...QUEST_TEAM_SIZES]).toEqual([4, 4, 4, 4, 4, 4, 4, 4]);
+    expect([...EXPLORE_TEAM_SIZES]).toEqual([4, 4, 4, 4, 4, 4]);
+    expect(exploreTierForNode('hard', 1)).toBe(1);
+    expect(exploreTierForNode('hard', 3)).toBe(3);
+    expect(exploreTierForNode('veryHard', 1)).toBe(4);
+    expect(exploreTierForNode('veryHard', 3)).toBe(6);
+    expect(exploreNodeLabel(2)).toBe('HARD 2');
+    expect(exploreNodeLabel(5)).toBe('VERY HARD 2');
   });
 
   it('任务 4/8 关奖励取该王国普通卡（按 id 序第 1/2 张）', () => {

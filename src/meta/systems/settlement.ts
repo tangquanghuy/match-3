@@ -37,7 +37,7 @@ import { kingdomBaseLevel, kingdomQuestRewardTroop, QUESTS_PER_KINGDOM } from '.
 import { earn, earnMaterials } from './wallet';
 import { grantTroop } from './troopProgress';
 import { activeTeam } from './teamRules';
-import { addClassXp, addHeroXp } from './hero';
+import { addClassWin, addClassXp, addHeroXp } from './hero';
 import { classByKingdom } from '../data/classes';
 import { xpBonusPct } from './talents';
 import type { EncounterEnemy, EncounterPlan } from './encounter';
@@ -158,6 +158,19 @@ export function applySettlement(
       souls: result.economy.souls,
       gems: result.economy.gems,
     }, '幽魂宝石 / 战斗内经济');
+    const maps = Math.floor(result.economy.maps ?? 0);
+    if (maps > 0) {
+      const mats = earnMaterials(save, { treasureMaps: maps });
+      if ((mats.treasureMaps ?? 0) > 0) {
+        lines.push({
+          key: 'battle-collect',
+          label: '藏宝图',
+          deltas: {},
+          mats,
+          note: '本场战斗获得',
+        });
+      }
+    }
   }
 
   let firstWinClaimed = false;
@@ -302,6 +315,7 @@ export function applySettlement(
       const trialMult = ctx.plan.source.kind === 'event' && ctx.plan.source.typeId === 'classTrials' ? 2 : 1;
       const r = addClassXp(save, save.hero.classId, CLASS_XP_PER_WIN * trialMult);
       if (r && r.levelsGained > 0) classLevelUp = { classId: save.hero.classId, newLevel: r.newLevel };
+      addClassWin(save, save.hero.classId);
     }
   }
 

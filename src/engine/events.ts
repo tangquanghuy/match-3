@@ -37,6 +37,8 @@ export interface ManaGainEvent {
   amount: number;
   characterId: number;
   player: PlayerSide;
+  /** 本次来自 Mana Surge（3 消概率翻倍 / 5+ 必翻倍）。缺省 = 普通入账。 */
+  surge?: boolean;
 }
 
 export interface SkullDamageEvent {

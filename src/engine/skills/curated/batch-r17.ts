@@ -19,12 +19,7 @@
  * - 王国/晋升度条件族条目本轮不碰（等并行批落地），见批尾复核注记。
  */
 import type { CuratedBatch } from './index';
-import {
-  skill, dmg, trueDmg, heal, armor, attack, mana, reduce, drainMana, cleanse,
-  inflict, inflictRandom, createGems, createSkulls, createSpecialGems, createSpecialGems2,
-  transformToSpecial, destroyRandomRows, destroyArea, explodeRandomGems,
-  reposition, summonRef, extraTurn, oneOf, sacrifice,
-} from '../builders';
+import { skill, dmg, trueDmg, heal, armor, attack, mana, reduce, drainMana, cleanse, inflict, inflictRandom, createGems, createSkulls, createSpecialGems, createSpecialGems2, transformToSpecial, destroyRandomRows, destroyArea, explodeRandomGems, reposition, summonRef, extraTurn, oneOf, sacrifice, CELL, explodeAt } from '../builders';
 import { BaseColor } from '../../types';
 
 const SKIPPED: { id: number; reason: string }[] = [];
@@ -45,7 +40,7 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '爆破一颗宝石。每摧毁一颗蓝色宝石，则冻结一名随机敌人。获得 [魔法 + 2] 点生命值。 [1:1]',
     // 尾缀 [1:1] = perDestroyed 驱动比率的序列化（r15 特例口径）；目标池 = 存活敌方逐次随机
     build: skill(
-      explodeRandomGems(1, 0),
+      explodeAt(CELL),
       inflict('frozen', 'enemyAll', { perDestroyed: { color: BaseColor.Blue } }),
       heal('allySelf', 2, 1),
     ),
@@ -85,7 +80,7 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '爆破一颗宝石。每摧毁一颗绿色宝石则随机使一名盟友下潜。获得 [魔法] 点生命值和护甲值。 [1:1]',
     // 下潜 = submerged（正面池，目标池 = 存活己方逐次随机）；单方括号 [魔法] 管两段同值
     build: skill(
-      explodeRandomGems(1, 0),
+      explodeAt(CELL),
       inflict('submerged', 'allyAll', { perDestroyed: { color: BaseColor.Green } }),
       heal('allySelf', 0, 1),
       armor('allySelf', 0, 1),
@@ -121,7 +116,7 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 7939,
     desc: '爆破一颗宝石。每摧毁一颗黄色宝石则击晕一名随机敌人。获得 [魔法 + 1] 点攻击力。 [1:1]',
     build: skill(
-      explodeRandomGems(1, 0),
+      explodeAt(CELL),
       inflict('stun', 'enemyAll', { perDestroyed: { color: BaseColor.Yellow } }),
       attack('allySelf', 1, 1),
     ),
@@ -130,7 +125,7 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 7988,
     desc: '爆破一颗宝石。每爆破一颗绿色宝石则缠绕一名随机敌人。获得  [魔法 + 1]  点生命值。 [1:1]',
     build: skill(
-      explodeRandomGems(1, 0),
+      explodeAt(CELL),
       inflict('entangle', 'enemyAll', { perDestroyed: { color: BaseColor.Green } }),
       heal('allySelf', 1, 1),
     ),
@@ -139,7 +134,7 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 8070,
     desc: '爆破一颗宝石。每摧毁一颗骷髅头则使一名随机敌人陷入死亡标记状态。获得 [魔法 + 1] 点攻击力和护甲值。 [1:1]',
     build: skill(
-      explodeRandomGems(1, 0),
+      explodeAt(CELL),
       inflict('death-mark', 'enemyAll', { perDestroyed: { color: 'skull' } }),
       attack('allySelf', 1, 1),
       armor('allySelf', 1, 1),
@@ -213,7 +208,7 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 8475,
     desc: '爆破一颗宝石。每爆破一颗红色宝石则燃烧一名随机敌人。获得 [魔法 + 1] 点生命值和护甲值。 [1:1]',
     build: skill(
-      explodeRandomGems(1, 0),
+      explodeAt(CELL),
       inflict('burning', 'enemyAll', { perDestroyed: { color: BaseColor.Red } }),
       heal('allySelf', 1, 1),
       armor('allySelf', 1, 1),
@@ -225,7 +220,7 @@ const SPELLS: CuratedBatch['spells'] = [
     // ZH「可保护一位同盟不受伤害」机翻噪声，EN/ST =「Barrier an Ally for each Skull destroyed」
     // → perDestroyed 'skull' 屏障族
     build: skill(
-      explodeRandomGems(1, 0),
+      explodeAt(CELL),
       inflict('barrier', 'allyAll', { perDestroyed: { color: 'skull' } }),
       heal('allySelf', 1, 1),
     ),
@@ -255,7 +250,7 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 8791,
     desc: '爆破一颗宝石。每爆破一颗棕色宝石则赋予一名随机盟友屏障效果。 [1:1]',
     build: skill(
-      explodeRandomGems(1, 0),
+      explodeAt(CELL),
       inflict('barrier', 'allyAll', { perDestroyed: { color: BaseColor.Brown } }),
     ),
   },
@@ -263,7 +258,7 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 8885,
     desc: '爆破一颗宝石。每摧毁一颗黄色宝石，则使一名随机敌人陷入沉默状态。 [1:1]',
     build: skill(
-      explodeRandomGems(1, 0),
+      explodeAt(CELL),
       inflict('silence', 'enemyAll', { perDestroyed: { color: BaseColor.Yellow } }),
     ),
   },
@@ -297,7 +292,7 @@ const SPELLS: CuratedBatch['spells'] = [
     // 中文名（7477 龙族指挥官，官方 CountArmyTroop Data:7477）；尾缀 [1:1] = 爆破数 1:1 计数序列化
     build: skill(
       transformToSpecial(BaseColor.Purple, 'lightningRow'),
-      explodeRandomGems(1, 0, 'all', undefined, {
+      explodeAt(CELL, {
         ifCond: { kind: 'troopPresent', side: 'ally', name: '龙族指挥官' },
       }),
     ),

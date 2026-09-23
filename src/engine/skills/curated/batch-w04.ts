@@ -8,7 +8,7 @@
  * src/data/weapon-skill-meta.json）。组装规则锚定 scripts/spell-rules.md 与
  * 既有部队批次先例；生成器 scripts/_weapon_pools.mjs gen。
  */
-import { armor, attack, cleanse, createGems, createGemsMixAny, createSkulls, createSpecialGems, destroyRandomCols, destroyRandomRows, dmg, dmgSplash, drainMana, explodeRandomGems, explodeRandomSpecialGems, explodeSpecialGems, extraTurn, heal, inflict, inflictRandom, mana, randomStat, reduce, reposition, scale, shuffleTeam, skill, summonRandom, summonRandomOfKingdom, transform, transformToSpecial, trueDmg } from '../builders';
+import { armor, attack, cleanse, createGems, createGemsMixAny, createSkulls, createSpecialGems, destroyRandomCols, destroyRandomRows, dmg, dmgSplash, drainMana, explodeRandomGems, explodeRandomSpecialGems, explodeSpecialGems, extraTurn, heal, inflict, inflictRandom, mana, randomStat, reduce, reposition, scale, shuffleTeam, skill, summonRandom, summonRandomOfKingdom, transform, transformToSpecial, trueDmg, CELL, explodeAt } from '../builders';
 import { BaseColor } from '../../types';
 import type { CuratedBatch } from './index';
 
@@ -284,7 +284,7 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '创造 16 颗混合鬼魂宝石和冻结宝石。再爆破一颗宝石。',
     build: skill(
       createGemsMixAny([{ kind: 'ghost' }, { kind: 'freezeGem' }], 16, 0),
-      explodeRandomGems(1, 0, 'color', undefined),
+      explodeAt(CELL),
     ),
   },
   {

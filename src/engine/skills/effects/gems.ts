@@ -267,6 +267,7 @@ export type AreaShape = 'square5' | 'square3' | 'cross3' | 'x' | 'circle5' | 'ro
  *   - cell：以某格为中心（cell 可 'CELL'）；本身即单格，靠 explode 辐射成片
  *   - area：固定形状格集合（面积原语批）——形状本身即完整目标集，**不再辐射**
  *   - chosenCross：选定宝石的行+列（R22 批，7253「选择一颗宝石，摧毁其行和列」）
+ *   - lastDestroyedLine：前序 clear 段辐射前锚定格所在整行/整列（W05，7217「爆破一颗宝石，并摧毁该行」）
  */
 export type ClearTarget =
   | { kind: 'lines'; rows?: number[]; cols?: number[] }
@@ -279,7 +280,8 @@ export type ClearTarget =
   | { kind: 'randomGems'; count: ScalingSpec; include?: 'color' | 'all' | 'skull'; color?: ColorSpec; colors?: ColorSpec[]; special?: SpecialGemKind; countRange?: { min: number; max: number } }
   | { kind: 'cell'; cell: CellPos | 'CELL' }
   | { kind: 'area'; shape: AreaShape; center?: CellPos | 'CELL' | 'RANDOM' }
-  | { kind: 'chosenCross' };
+  | { kind: 'chosenCross' }
+  | { kind: 'lastDestroyedLine'; orientation: 'row' | 'col' };
 
 /** 清除操作：destroy=仅目标本身；explode=目标并入每颗 8 邻格 */
 export interface ClearGemParams {
@@ -613,6 +615,11 @@ function resolveTargetCells(target: ClearTarget, ctx: EffectContext, modifier?: 
       if (ctx.chosenCell === undefined) return null;
       return [...cellsOfRow(ctx.chosenCell.row), ...cellsOfCol(ctx.chosenCell.col)];
     }
+    case 'lastDestroyedLine': {
+      const anchor = ctx.castTracking?.lastClearedAnchor;
+      if (!anchor) return null;
+      return target.orientation === 'row' ? cellsOfRow(anchor.row) : cellsOfCol(anchor.col);
+    }
     case 'area': {
       // 面积形状（原语批 R12）：形状格集合按中心格生成；越界格剔除（贴边中心时自动收边）。
       // center 'RANDOM'（R22 批）：随机取一颗有宝石的格为锚（「一颗宝石和其两侧的宝石」）。
@@ -700,6 +707,10 @@ function radiate(cells: CellPos[]): CellPos[] {
 function doClear(params: ClearGemParams, ctx: EffectContext): GameEvent[] {
   const targetCells = resolveTargetCells(params.target, ctx, params.modifier);
   if (targetCells === null) return []; // 选色/选行列/选格缺失，安全跳过
+  if (ctx.castTracking && targetCells.length > 0 && params.target.kind !== 'lastDestroyedLine') {
+    const anchor = targetCells[0];
+    ctx.castTracking.lastClearedAnchor = { row: anchor.row, col: anchor.col };
+  }
   // explode 辐射一圈；area 形状本身即完整目标集（官方 BoardTarget Block5x5 等是精确格集合，
   // 再辐射会越出官方形状），故只按 mode 区分事件类型、不做 8 邻扩展。
   const positions =

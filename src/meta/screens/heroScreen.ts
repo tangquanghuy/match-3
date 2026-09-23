@@ -13,7 +13,7 @@ import {
   type TalentDef,
 } from '../data/classes';
 import { type WeaponDef } from '../data/weapons';
-import { canUseWeapon, classLevelOf, heroStatsOf } from '../systems/hero';
+import { canUseWeapon, classLevelOf, classWinsOf, heroStatsOf, temperingBonusOf } from '../systems/hero';
 import {
   ALL_CATALOG_WEAPONS,
   STARTER_WEAPONS,
@@ -22,8 +22,9 @@ import {
   ownedWeapons,
   ownedWeaponIds,
   ownsWeapon,
-  weaponTypeZh,
 } from '../data/weaponCatalog';
+import { rarityMetaByKey } from '../data/rarity';
+import { acquireOf, CLASS_WEAPON_WINS } from '../data/weaponAcquire';
 import { SOULFORGE_RECIPES } from '../data/soulforge';
 import {
   AFFIX_UNLOCK_LEVELS,
@@ -39,6 +40,18 @@ import { bottomNavHtml, gemSvg, mountIcons, toast, toastHtml, topbarHtml, $, $$ 
 import { isFailure } from '../gateway';
 import type { Screen, ShellCtx } from '../shell/screen';
 import { formulaKind, formulaParts, formulaRule, renderSpell } from '../shell/spellText';
+import {
+  combatManaMastery,
+  kingdomMasteryBonus,
+  MASTERY_GEM,
+  MASTERY_HEX,
+  MASTERY_NAME,
+  MANA_COLORS,
+  pendingMasteryCount,
+  personalManaMastery,
+  surgeChancePct,
+  type ManaColor,
+} from '../systems/manaMastery';
 
 /** 职业图标（icon 库键；未列出的用 helmet 兜底） */
 const CLASS_ICON: Record<string, string> = {
@@ -70,15 +83,6 @@ const CLASS_ICON: Record<string, string> = {
   warden: 'swirl',
 };
 
-const RARITY: Record<string, { cn: string; cls: string }> = {
-  common: { cn: '普通', cls: 'r-common' },
-  rare: { cn: '稀有', cls: 'r-rare' },
-  epicplus: { cn: '史诗上', cls: 'r-epicplus' },
-  epic: { cn: '史诗', cls: 'r-epic' },
-  legend: { cn: '传说', cls: 'r-legend' },
-  mythic: { cn: '神话', cls: 'r-mythic' },
-};
-
 /**
  * 武器卡面（官方 webp，`public/gowhead-icons/`）。
  *
@@ -95,7 +99,27 @@ function weaponArtHtml(w: WeaponDef, lazy = false): string {
 
 const spaced = (s: string): string => s.split('').join(' ');
 
-/** 天赋效果是否实际产出数值（UI 灰显「未实现/不适用」标）；动态定义批视为已生效 */
+const RING_R = 31;
+const RING_C = 2 * Math.PI * RING_R;
+
+function masteryRingHtml(pct: number): string {
+  const offset = RING_C * (1 - Math.max(0, Math.min(1, pct)));
+  return `<svg class="mastery-ring" viewBox="0 0 72 72" aria-hidden="true">
+    <circle class="mastery-ring-track" cx="36" cy="36" r="${RING_R}"></circle>
+    <circle class="mastery-ring-fill" cx="36" cy="36" r="${RING_R}" stroke-dasharray="${RING_C.toFixed(2)}" stroke-dashoffset="${offset.toFixed(2)}"></circle>
+  </svg>`;
+}
+
+function masteryChoiceHtml(color: ManaColor, from: number): string {
+  return `<button type="button" class="mastery-choice" data-mastery-color="${color}" style="--mc:${MASTERY_HEX[color]}">
+    <span class="mastery-choice-gem">${gemSvg([MASTERY_GEM[color]])}</span>
+    <b>${MASTERY_NAME[color]}</b>
+    <span class="mastery-choice-delta"><i>${from}</i><em>→</em><strong>${from + 1}</strong></span>
+    <span class="mastery-choice-cta">点亮此色</span>
+  </button>`;
+}
+
+/** 天赋效果是否实际产出数值；不可用内容只以玩家口径的「暂未开放」呈现。 */
 function effectUsable(t: TalentDef): 'yes' | 'no' | 'na' {
   if (t.effect.kind === 'pvp') return 'na';
   if (t.effect.kind === 'unimplemented') return TALENT_DYNAMIC_CODES.has(t.code) ? 'yes' : 'no';
@@ -116,12 +140,13 @@ export class HeroScreen implements Screen {
       ${topbarHtml()}
       <div class="screen hero-screen">
         <section class="panel hero-card">
-          <img src="/meta/assets/seiji.webp" alt="法露特">
-          <div class="shade"></div>
-          <div class="hero-name">
-            <small>冒 险 者</small>
-            <b>法 露 特</b>
-            <div class="hero-stats" id="heroStats"></div>
+          <div class="hero-art">
+            <img src="/meta/assets/seiji.webp" alt="影织者">
+            <div class="shade"></div>
+          </div>
+          <div class="hero-metrics">
+            <div class="hero-stats" id="heroStats" role="group" aria-label="主角当前四维"></div>
+            <button class="mastery-compact" id="openMastery" type="button" aria-haspopup="dialog" aria-label="法力精通"></button>
           </div>
         </section>
         <section class="panel hero-info">
@@ -133,8 +158,9 @@ export class HeroScreen implements Screen {
                   <h2 class="career-name" id="careerName">无职业</h2>
                   <span class="career-level-badge level-tier-1" id="careerBadge">
                     <span class="level-dot"></span>
-                    <b class="level-num" id="careerLevel">Lv.0</b>
+                    <b class="level-num" id="careerLevel">冠军 Lv.0</b>
                   </span>
+                  <span class="career-wins-badge" id="careerWins" hidden>0 / 250 胜</span>
                 </div>
                 <p id="careerHint">通关王国任务链解锁职业</p>
               </div>
@@ -146,45 +172,54 @@ export class HeroScreen implements Screen {
             </div>
           </div>
           <section class="weapon-slab" id="weaponSlab" aria-label="已装备武器"></section>
-          <section class="perk-board career-perks-legacy" id="perkBoardCareerLegacy">
-            <div class="section-title">
-              <div><h3>职业特质</h3><small>金币与灵魂解锁 · 按顺序解锁 · 只对装备中的职业生效</small></div>
-            </div>
-            <div class="perk-slots" id="perkSlotsCareerLegacy"></div>
-          </section>
-          <section class="talent-board">
-            <div class="section-title">
-              <div><h3>天赋路径</h3><small>冠军等级解锁档位 · 每档三树选一 · 随时免费改配</small></div>
-              <button class="ghost" id="openTree" type="button">查看完整天赋树</button>
-            </div>
-            <div class="talent-path" id="talentPath" aria-label="0 / 7 已选"></div>
-          </section>
-          <section class="perk-board perk-board-legacy" id="perkBoardLegacy">
-            <div class="section-title">
-              <div><h3>职业特质</h3><small>金 + 灵魂解锁 · 顺序解锁 · 只对装备中的职业生效</small></div>
-            </div>
-            <div class="perk-slots" id="perkSlotsLegacy"></div>
-          </section>
           <section class="class-vault" id="classes">
             <div class="section-title">
               <div><h3>职业圣殿</h3><small>通关对应王国任务链 8 关解锁</small></div>
               <div class="class-vault-actions">
                 <span id="classUnlockCount">0 / 38 已解锁</span>
+                <button class="ghost class-expand talent-expand" id="openTree" type="button" aria-haspopup="dialog">
+                  天赋树 <b id="talentSummary">0 / 7</b>
+                </button>
                 <button class="ghost class-expand" id="classExpand" type="button" aria-haspopup="dialog">选择职业</button>
               </div>
             </div>
+            <div class="class-current" id="classCurrent" aria-live="polite"></div>
             <div class="career-perks" id="perkBoard">
               <div class="perk-summary-head">
-                <b>职业特质</b>
+                <b>当前职业特质</b>
                 <span>特质效果随当前职业生效</span>
               </div>
               <div class="perk-slots" id="perkSlots"></div>
             </div>
           </section>
+          <section class="talent-board">
+            <div class="section-title">
+              <div><h3>天赋路径</h3><small>冠军等级解锁档位 · 每档三树选一 · 随时免费改配</small></div>
+              <button class="ghost" id="openTreeBoard" type="button">查看完整天赋树</button>
+            </div>
+            <div class="talent-path" id="talentPath" aria-label="0 / 7 已选"></div>
+          </section>
         </section>
       </div>
       ${bottomNavHtml('英雄', '职业由王国任务链解锁')}
       ${toastHtml()}
+
+      </div>
+
+      <div class="modal-veil vault-veil mastery-veil" id="masteryVeil" hidden>
+        <section class="vault-sheet mastery-sheet" role="dialog" aria-modal="true" aria-labelledby="masteryTitle">
+          <header class="vault-head">
+            <div class="vault-mark"><span data-icon="swirl"></span></div>
+            <div class="vault-heading">
+              <h2 id="masteryTitle">法 力 精 通</h2>
+              <p>升级择一加色 · 三消涌动 · 五消必涌</p>
+            </div>
+            <div class="vault-count" id="masteryCount">待分配 <b>0</b></div>
+            <button class="vault-close" id="masteryClose" type="button" aria-label="关闭法力精通"><span data-icon="close"></span></button>
+          </header>
+          <div class="mastery-body" id="masteryBody"></div>
+        </section>
+      </div>
 
       <div class="modal-veil vault-veil tree-veil" id="treeVeil" hidden>
         <section class="vault-sheet tree-sheet" role="dialog" aria-modal="true" aria-labelledby="treeTitle">
@@ -267,6 +302,24 @@ export class HeroScreen implements Screen {
       if (e.target === $('#vaultVeil')) $('#vaultVeil').hidden = true;
     });
     this.bind('#openTree', 'click', () => this.openTree());
+    this.bind('#openTreeBoard', 'click', () => this.openTree());
+    this.bind('#openMastery', 'click', () => this.openMastery());
+    this.bind('#masteryClose', 'click', () => ($('#masteryVeil').hidden = true));
+    this.on($('#masteryVeil'), 'click', (e) => {
+      if (e.target === $('#masteryVeil')) $('#masteryVeil').hidden = true;
+    });
+    this.bind('#masteryBody', 'click', (e) => {
+      const btn = (e.target as HTMLElement).closest('[data-mastery-color]') as HTMLElement | null;
+      if (btn?.dataset.masteryColor) void this.pickMastery(btn.dataset.masteryColor);
+    });
+    this.bind('#masteryBody', 'keydown', (e) => {
+      const ke = e as KeyboardEvent;
+      if (ke.key !== 'Enter' && ke.key !== ' ') return;
+      const btn = (ke.target as HTMLElement).closest('[data-mastery-color]') as HTMLElement | null;
+      if (!btn?.dataset.masteryColor) return;
+      ke.preventDefault();
+      void this.pickMastery(btn.dataset.masteryColor);
+    });
     this.bind('#classExpand', 'click', () => {
       this.renderClasses();
       $('#classVeil').hidden = false;
@@ -297,6 +350,7 @@ export class HeroScreen implements Screen {
       $('#classVeil').hidden = true;
       $('#perkVeil').hidden = true;
       $('#vaultVeil').hidden = true;
+      $('#masteryVeil').hidden = true;
     });
     this.renderAll();
   }
@@ -305,28 +359,39 @@ export class HeroScreen implements Screen {
     const save = this.ctx.save();
     const hero = save.hero;
     const stats = heroStatsOf(save);
+    const temper = temperingBonusOf(save);
     const cls = hero.classId ? classById(hero.classId) : undefined;
     const level = hero.classId ? classLevelOf(save, hero.classId) : 0;
 
     // —— 主角卡与职业头 ——
-    $('#heroStats').innerHTML = `
-      <span title="攻击"><span data-icon="swords"></span><b>${stats.attack}</b></span>
-      <span title="护甲"><span data-icon="shield"></span><b>${stats.armor}</b></span>
-      <span title="生命"><span data-icon="heart"></span><b>${stats.health}</b></span>
-      <span title="魔力"><span data-icon="orb"></span><b>${stats.magic}</b></span>`;
+    const stat = (kind: string, label: string, icon: string, value: number, bonus: number): string => `
+      <span class="hero-stat stat-${kind}" title="${label}${bonus > 0 ? `（含淬炼 +${bonus}）` : ''}" aria-label="${label} ${value}${bonus > 0 ? `，淬炼加成 ${bonus}` : ''}">
+        <span data-icon="${icon}"></span><b>${value}</b>
+      </span>`;
+    $('#heroStats').innerHTML = [
+      stat('atk', '攻击', 'swords', stats.attack, temper.attack),
+      stat('armor', '护甲', 'shield', stats.armor, temper.armor),
+      stat('hp', '生命', 'heart', stats.health, temper.health),
+      stat('magic', '魔力', 'orb', stats.magic, temper.magic),
+    ].join('');
     $('#careerName').textContent = cls?.name ?? '无职业';
-    $('#careerLevel').textContent = `Lv.${level}`;
+    $('#careerLevel').textContent = `冠军 Lv.${level}`;
     const levelTier = level >= 60 ? 5 : level >= 40 ? 4 : level >= 20 ? 3 : level >= 10 ? 2 : 1;
     $('#careerBadge').className = `career-level-badge level-tier-${levelTier}`;
+    const winsEl = $('#careerWins');
     if (cls) {
+      const wins = classWinsOf(save, cls.id);
+      winsEl.hidden = false;
+      winsEl.textContent = `${wins} / ${CLASS_WEAPON_WINS} 胜`;
       const need = classXpToNext(level);
       const xp = hero.classXp[cls.id] ?? 0;
       $('#careerHint').innerHTML = `冠军经验来自携带主角的胜场 · 再获得 <b>${Math.max(0, need - xp)}</b> 点升级`;
       $('#classXpText').textContent = `${xp} / ${need}`;
       ($('#classXpFill') as HTMLElement).style.width = `${Math.min(100, (xp / need) * 100)}%`;
       const nextTier = CHAMPION_TIERS.find((t) => t > level);
-      $('#nextReward').textContent = nextTier ? `Lv.${nextTier} 解锁第 ${CHAMPION_TIERS.indexOf(nextTier) + 1} 档天赋` : '天赋已全部解锁';
+      $('#nextReward').textContent = nextTier ? `冠军 Lv.${nextTier} 解锁第 ${CHAMPION_TIERS.indexOf(nextTier) + 1} 档天赋` : '天赋已全部解锁';
     } else {
+      winsEl.hidden = true;
       $('#careerHint').textContent = '通关王国任务链解锁职业';
       $('#classXpText').textContent = '0';
       ($('#classXpFill') as HTMLElement).style.width = '0%';
@@ -334,6 +399,7 @@ export class HeroScreen implements Screen {
     }
 
     this.renderTalentPath(cls ?? null, level);
+    this.renderMasteryCompact();
     this.renderPerks();
     this.renderClasses();
     this.renderSlab();
@@ -345,16 +411,20 @@ export class HeroScreen implements Screen {
   private static readonly TIER_ICONS = ['shield', 'swords', 'heart', 'banner', 'crown', 'swirl', 'skull'];
 
   private renderTalentPath(cls: ClassDef | null, level: number): void {
+    const button = $('#openTree') as HTMLButtonElement;
+    const summary = $('#talentSummary');
     const path = $('#talentPath');
-    const save = this.ctx.save();
+    const pickedCount = cls ? talentPicksOf(this.ctx.save(), cls.id).filter(Boolean).length : 0;
+    summary.textContent = `${pickedCount} / 7`;
+    button.disabled = !cls;
+    button.setAttribute('aria-label', cls ? `打开天赋树，已选择 ${pickedCount} / 7` : '天赋树尚未解锁');
     if (!cls) {
       path.innerHTML = '<div class="talent-node"><span data-icon="helmet"></span><b>待解锁</b><small>装备职业后点亮天赋</small></div>';
       mountIcons(path);
       path.setAttribute('aria-label', '0 / 7 已选');
       return;
     }
-    const picks = talentPicksOf(save, cls.id);
-    const pickedCount = picks.filter(Boolean).length;
+    const picks = talentPicksOf(this.ctx.save(), cls.id);
     // 已选档位走 claimed；未选但已解锁的第一档走 current（V5 的「下一个 actionable」）；
     // 其余未选已解锁档位 plain；未解锁档位 small 显等级。
     let currentAssigned = false;
@@ -393,6 +463,91 @@ export class HeroScreen implements Screen {
     );
   }
 
+  private renderMasteryCompact(): void {
+    const el = $('#openMastery');
+    if (!el) return;
+    const save = this.ctx.save();
+    const personal = personalManaMastery(save);
+    const combat = combatManaMastery(save);
+    const pending = pendingMasteryCount(save);
+    const gems = MANA_COLORS.map((color) => {
+      const mine = personal[color];
+      const extra = combat[color] > mine ? `（战斗 ${combat[color]}）` : '';
+      return `<span class="mastery-mini${combat[color] <= 0 ? ' is-empty' : ''}" style="--mc:${MASTERY_HEX[color]}" title="${MASTERY_NAME[color]} ${mine}${extra}">
+        ${gemSvg([MASTERY_GEM[color]])}
+        <b>${mine}</b>
+      </span>`;
+    }).join('');
+    el.innerHTML = `<span class="mastery-compact-label">法力精通${pending > 0 ? `<em>${pending}</em>` : ''}</span><span class="mastery-minis">${gems}</span>`;
+    el.classList.toggle('has-pending', pending > 0);
+  }
+
+  private openMastery(): void {
+    this.renderMasteryModal();
+    $('#masteryVeil').hidden = false;
+  }
+
+  private renderMasteryModal(): void {
+    const save = this.ctx.save();
+    const personal = personalManaMastery(save);
+    const combat = combatManaMastery(save);
+    const bonus = kingdomMasteryBonus(save);
+    const pending = pendingMasteryCount(save);
+    const offer = save.hero.masteryOffers[0];
+    const offered = new Set(offer ?? []);
+    $('#masteryCount').innerHTML = pending > 0 ? `待分配 <b>${pending}</b>` : '已分配完毕';
+    const offerHtml = offer
+      ? `<section class="mastery-rite">
+          <div class="mastery-rite-head">
+            <small>升阶仪式</small>
+            <b>从两色中择一</b>
+            <em>还剩 ${pending} 点</em>
+          </div>
+          <div class="mastery-rite-row">
+            ${masteryChoiceHtml(offer[0], personal[offer[0]])}
+            <span class="mastery-or" aria-hidden="true"><span>或</span></span>
+            ${masteryChoiceHtml(offer[1], personal[offer[1]])}
+          </div>
+        </section>`
+      : '<p class="mastery-idle">升级主角后，会从随机两色中择一加一点精通。</p>';
+    const sigils = MANA_COLORS.map((color) => {
+      const mine = personal[color];
+      const kingdom = bonus[color];
+      const value = combat[color];
+      const lit = offered.has(color);
+      return `<article class="mastery-sigil${lit ? ' is-offered' : ''}${mine <= 0 ? ' is-empty' : ''}" style="--mc:${MASTERY_HEX[color]}"${lit ? ` data-mastery-color="${color}" role="button" tabindex="0"` : ''}>
+        <div class="mastery-sigil-orb">
+          ${masteryRingHtml(value / 50)}
+          ${gemSvg([MASTERY_GEM[color]])}
+        </div>
+        <div class="mastery-sigil-meta">
+          <b>${MASTERY_NAME[color]}</b>
+          <strong>${mine}</strong>
+          <span class="mastery-surge">涌动 ${surgeChancePct(value)}</span>
+          ${kingdom > 0 ? `<small class="mastery-kingdom">王国 +${kingdom}</small>` : ''}
+        </div>
+      </article>`;
+    }).join('');
+    $('#masteryBody').innerHTML = `${offerHtml}<div class="mastery-sigils">${sigils}</div>
+      <footer class="mastery-legend">
+        <span><i>3 消</i> 概率翻倍</span>
+        <span><i>4 消</i> 永不涌动</span>
+        <span><i>5 消</i> 必涌动</span>
+        <span>武器解锁只看个人精通</span>
+      </footer>`;
+  }
+
+  private async pickMastery(color: string): Promise<void> {
+    const { result } = await this.ctx.gateway.pickManaMastery(color);
+    if (isFailure(result)) {
+      toast(result.message);
+      return;
+    }
+    this.ctx.refreshChrome();
+    this.renderAll();
+    if (!$('#masteryVeil').hidden) this.renderMasteryModal();
+  }
+
   /** 次级页面：完整天赋树（与武器库同款 modal 模式） */
   private openTree(): void {
     const save = this.ctx.save();
@@ -427,14 +582,14 @@ export class HeroScreen implements Screen {
     for (let tier = 0; tier < 7; tier++) {
       const need = CHAMPION_TIERS[tier]!;
       const open = tierUnlocked(level, tier);
-      html += `<div class="tier-rail${open ? ' on' : ''}"><b>${need}</b><small>级</small></div>`;
+      html += `<div class="tier-rail${open ? ' on' : ''}"><b>Lv.${need}</b><small>冠军</small></div>`;
       for (const tree of cls.trees) {
         const talent = tree.talents[tier]!;
         const pickedHere = picks[tier] === talent.code;
         const usable = effectUsable(talent);
-        const state = pickedHere ? 'picked' : open ? 'pickable' : 'locked';
-        const badge =
-          usable === 'no' ? '<em class="talent-flag na">未实现</em>' : usable === 'na' ? '<em class="talent-flag na">PvP</em>' : '';
+        const state = pickedHere ? 'picked' : open && usable === 'yes' ? 'pickable' : 'locked';
+        const badge = usable !== 'yes' ? '<em class="talent-flag na">暂未开放</em>' : '';
+        const description = usable === 'yes' ? talent.descriptionZh : '该天赋尚未开放';
         const icon = traitBadgeSvg(talent.code);
         const iconHtml = icon
           ? `<i class="talent-cell-icon">${icon}</i>`
@@ -443,12 +598,12 @@ export class HeroScreen implements Screen {
         const cancel = pickedHere
           ? '<button class="talent-cancel" data-cancel="1" data-tier="' + tier + '" type="button" title="取消选取">✕</button>'
           : '';
-        const small = open ? (pickedHere ? '已选' : '点击选取') : `Lv.${need} 解锁`;
-        html += `<div class="talent-cell ${state}${usable !== 'yes' ? ' dim' : ''}" data-tier="${tier}" data-code="${talent.code}"
-          role="${open ? 'button' : 'note'}" title="${talent.descriptionZh}"
-          aria-disabled="${!open}">
+        const small = !open ? `冠军 Lv.${need} 解锁` : pickedHere ? '已选' : usable === 'yes' ? '点击选取' : '暂未开放';
+        html += `<div class="talent-cell ${state}${usable !== 'yes' ? ' dim' : ''}" data-tier="${tier}" data-code="${talent.code}" data-usable="${usable}"
+          role="${open && usable === 'yes' ? 'button' : 'note'}" title="${description}"
+          aria-disabled="${!open || usable !== 'yes'}">
           ${cancel}${iconHtml}<b>${talent.nameZh}</b>${badge}
-          <small class="talent-desc">${talent.descriptionZh}</small>
+          <small class="talent-desc">${description}</small>
           <small>${small}</small>
         </div>`;
       }
@@ -461,7 +616,11 @@ export class HeroScreen implements Screen {
       if (el.classList.contains('picked')) return; // 已选格正文点击 = 无操作（防误触取消）
       this.on(el, 'click', () => {
         if (el.classList.contains('locked')) {
-          toast(`第 ${Number(el.dataset.tier) + 1} 档天赋需要冠军等级 ${CHAMPION_TIERS[Number(el.dataset.tier)!]}。`);
+          if (el.dataset.usable !== 'yes' && tierUnlocked(level, Number(el.dataset.tier))) {
+            toast('该天赋暂未开放，当前不会产生效果。');
+          } else {
+            toast(`第 ${Number(el.dataset.tier) + 1} 档天赋需要冠军等级 ${CHAMPION_TIERS[Number(el.dataset.tier)!]}。`);
+          }
           return;
         }
         void this.talentClicked(cls.id, Number(el.dataset.tier), el.dataset.code!);
@@ -520,19 +679,22 @@ export class HeroScreen implements Screen {
         const unlocked = holder.state[i]!;
         // 已实现（引擎静态特质）或已收编（动态定义）都真实生效
         const implemented = p.implemented || TALENT_DYNAMIC_CODES.has(p.code);
-        const flag = implemented ? '' : '<em class="talent-flag na">未实现</em>';
+        const flag = implemented ? '' : '<em class="talent-flag na">暂未开放</em>';
         const badge = traitBadgeSvg(p.code);
         const icon = badge
           ? `<span class="perk-symbol">${badge}</span>`
           : '<span class="perk-symbol perk-symbol-fallback" data-icon="sparkles"></span>';
-        const action = unlocked
-          ? '<span class="perk-state"><i></i>生效中</span>'
-          : `<button class="ghost perk-unlock" data-slot="${i + 1}" type="button">解锁</button>`;
-        return `<div class="perk-slot${unlocked ? ' on' : ''}${implemented ? '' : ' dim'}" data-perk="${i}" role="button" tabindex="0" aria-label="${p.nameZh}：${p.descriptionZh}">
+        const action = !implemented
+          ? '<span class="perk-state is-locked">暂未开放</span>'
+          : unlocked
+            ? '<span class="perk-state"><i></i>生效中</span>'
+            : `<button class="ghost perk-unlock" data-slot="${i + 1}" type="button">解锁</button>`;
+        const description = implemented ? p.descriptionZh : '该特质尚未开放';
+        return `<div class="perk-slot${unlocked ? ' on' : ''}${implemented ? '' : ' dim locked'}" data-perk="${i}" role="button" tabindex="0" aria-label="${p.nameZh}：${description}">
           ${icon}
           <div class="perk-copy">
             <div class="perk-head"><b>${p.nameZh}</b>${flag}<i>特质 ${i + 1}</i></div>
-            <small><span>效果</span>${p.descriptionZh}</small>
+            <small><span>${implemented ? '效果' : '状态'}</span>${description}</small>
           </div>
           <div class="perk-foot">${action}</div>
         </div>`;
@@ -562,12 +724,19 @@ export class HeroScreen implements Screen {
     const perk = holder?.def.perks[index];
     if (!holder || !perk) return;
     const unlocked = holder.state[index]!;
+    const implemented = perk.implemented || TALENT_DYNAMIC_CODES.has(perk.code);
     $('#perkDetailTitle').textContent = perk.nameZh;
-    $('#perkDetailState').textContent = unlocked ? '已解锁 · 当前出战生效' : `特质 ${index + 1} · 尚未解锁`;
-    $('#perkDetailText').textContent = perk.descriptionZh;
-    $('#perkDetailAction').innerHTML = unlocked
-      ? '<span class="perk-detail-active">● 生效中</span>'
-      : `<button class="perk-detail-unlock primary" data-detail-unlock="${index + 1}" type="button">解锁特质</button>`;
+    $('#perkDetailState').textContent = !implemented
+      ? '暂未开放 · 当前不会产生效果'
+      : unlocked
+        ? '已解锁 · 当前出战生效'
+        : `特质 ${index + 1} · 尚未解锁`;
+    $('#perkDetailText').textContent = implemented ? perk.descriptionZh : '该特质尚未开放。';
+    $('#perkDetailAction').innerHTML = !implemented
+      ? '<span class="perk-detail-active is-locked">暂未开放</span>'
+      : unlocked
+        ? '<span class="perk-detail-active">● 生效中</span>'
+        : `<button class="perk-detail-unlock primary" data-detail-unlock="${index + 1}" type="button">解锁特质</button>`;
     const unlock = $('#perkDetailAction').querySelector<HTMLElement>('[data-detail-unlock]');
     if (unlock) {
       this.on(unlock, 'click', () => {
@@ -597,18 +766,34 @@ export class HeroScreen implements Screen {
       const rank = (c: ClassDef) => c.id === save.hero.classId ? 0 : save.hero.unlockedClasses.includes(c.id) ? 1 : 2;
       return rank(a) - rank(b);
     });
-    grid.innerHTML = ordered.map((c) => {
+    const classButton = (c: ClassDef, compact = false): string => {
       const unlocked = save.hero.unlockedClasses.includes(c.id);
       const equipped = save.hero.classId === c.id;
       const level = classLevelOf(save, c.id);
-      const small = equipped ? `Lv.${level} · 装备中` : unlocked ? `Lv.${level}` : `${c.kingdom} 8 关`;
-      return `<button class="class-btn${equipped ? ' on' : ''}${unlocked ? '' : ' lock'}" data-id="${c.id}" data-kind="${CLASS_ICON[c.id] ?? 'helmet'}" type="button" title="${c.nameEn}">
+      const wins = classWinsOf(save, c.id);
+      const small = equipped
+        ? `冠军 Lv.${level} · ${wins} 胜 · 装备中`
+        : unlocked
+          ? `冠军 Lv.${level} · ${wins} 胜`
+          : `${c.kingdom} 8 关`;
+      return `<button class="class-btn${equipped ? ' on' : ''}${unlocked ? '' : ' lock'}" data-id="${c.id}" data-kind="${CLASS_ICON[c.id] ?? 'helmet'}" type="button" title="${c.nameEn}"${compact ? ' data-preview="true"' : ''}>
         <span data-icon="${CLASS_ICON[c.id] ?? 'helmet'}"></span>
         <b>${c.name}</b>
         <small>${small}</small>
       </button>`;
-    }).join('');
+    };
+    grid.innerHTML = ordered.map((c) => classButton(c)).join('');
     mountIcons(grid);
+    const current = save.hero.classId ? classById(save.hero.classId) : undefined;
+    const currentEl = $('#classCurrent');
+    if (currentEl) {
+      currentEl.innerHTML = current
+        ? `<div class="class-current-emblem" data-kind="${CLASS_ICON[current.id] ?? 'helmet'}"><span data-icon="${CLASS_ICON[current.id] ?? 'helmet'}"></span></div>
+           <div class="class-current-copy"><b>${current.name}</b><small>${current.kingdom} · 当前装备职业</small></div>
+           <div class="class-current-level"><b>冠军 Lv.${classLevelOf(save, current.id)}</b><small>${classWinsOf(save, current.id)} / ${CLASS_WEAPON_WINS} 胜</small></div>`
+        : `<div class="class-current-empty"><span data-icon="helmet"></span><div><b>尚未装备职业</b><small>从职业圣殿选择已解锁职业</small></div></div>`;
+      mountIcons(currentEl);
+    }
     $('#classUnlockCount').textContent = `${save.hero.unlockedClasses.length} / ${CLASSES.length} 已解锁`;
     $('#classModalCount').textContent = `${save.hero.unlockedClasses.length} / ${CLASSES.length} 已解锁`;
     $('#classExpand').textContent = '选择职业';
@@ -625,7 +810,7 @@ export class HeroScreen implements Screen {
       return;
     }
     if (save.hero.classId === classId) {
-      toast(`当前职业：${def?.name} Lv.${classLevelOf(save, classId)}`);
+      toast(`当前职业：${def?.name} · 冠军 Lv.${classLevelOf(save, classId)} · ${classWinsOf(save, classId)} 胜`);
       return;
     }
     const { result } = await this.ctx.gateway.equipHeroClass(classId);
@@ -653,23 +838,13 @@ export class HeroScreen implements Screen {
    * 同屏既写「熔炉锻造获得」又写「主角 Lv.1 解锁」。现在只按真实途径回答。
    */
   private sourceText(w: WeaponDef): string {
-    if (w.starter) return '初始武器 · 无需解锁';
-    const recipe = SOULFORGE_RECIPES.find((r) => r.recipe.weaponId === w.id);
-    if (recipe) return `熔炉锻造 · ${recipe.source}`;
-    if (!w.equippable) return '占位武器 · 无法术实现，不可装备';
-    return '暂无获取途径';
+    const acquire = acquireOf(w);
+    return acquire.label;
   }
 
   private rarityClsOfRarity(rarity: string): { cn: string; cls: string } {
-    const keyMap: Record<string, string> = {
-      Common: 'common', Uncommon: 'common', Rare: 'rare', UltraRare: 'rare',
-      Epic: 'epic', Legendary: 'legend', Mythic: 'mythic', Doomed: 'mythic',
-    };
-    const cnMap: Record<string, string> = {
-      Common: '普通', Uncommon: '非普通', Rare: '稀有', UltraRare: '超稀有',
-      Epic: '史诗', Legendary: '传说', Mythic: '神话', Doomed: '末日',
-    };
-    return { cn: cnMap[rarity] ?? rarity, cls: RARITY[keyMap[rarity] ?? 'common']!.cls };
+    const meta = rarityMetaByKey(rarity);
+    return { cn: meta.label, cls: `r-${meta.className}` };
   }
 
   /** 稀有度：假数据退役后武器全部自带官方 rarity，不再有「按解锁档推导」的第二口径 */
@@ -693,9 +868,6 @@ export class HeroScreen implements Screen {
           ${extraHead ?? ''}
         </header>
         <div class="wspell-body">
-          <!-- H-9：这条分割线原来印的是「来源」，与面板上另外两处重复且对目录武器自相矛盾；
-               改印真正缺失的身份信息（类型 / 王国 / 角色），来源只在面板底部印一次 -->
-          <div class="ink-rule"><i></i><span>${[weaponTypeZh(w.weaponType), w.kingdom, w.roleName].filter(Boolean).join(' · ')}</span><i></i></div>
           <p class="spell-copy">${parsed.html}</p>
           ${bar}
           <div class="spell-tip" hidden><i class="spell-tip-arrow" aria-hidden="true"></i><small></small><em></em><ul></ul></div>
@@ -765,7 +937,10 @@ export class HeroScreen implements Screen {
         );
         if (bar) bar.style.visibility = 'hidden';
         tip.hidden = false;
-        const scale = Math.min(innerWidth / 1600, innerHeight / 900) || 1;
+        const stage = document.getElementById('stage');
+        const scale = stage?.classList.contains('hero-responsive')
+          ? 1
+          : Math.min(innerWidth / 1600, innerHeight / 900) || 1;
         const box = body.getBoundingClientRect();
         const r = btn.getBoundingClientRect();
         const maxW = box.width / scale - 28;
@@ -800,20 +975,12 @@ export class HeroScreen implements Screen {
     // 分母诚实（H-4）：这里是「我拥有的把数」，不是假的 5 / 730
     const owned = ownedWeaponIds(save).length;
     const plateArt = weaponArtHtml(w);
-    const captionSub = `${rarity.cn} · ${weaponTypeZh(w.weaponType)} · ${w.kingdom}`;
     $('#weaponSlab').innerHTML = `
       <div class="slab-body ${rarity.cls}">
-        <div class="weapon-plate">
-          <i class="plate-lamp"></i>
-          <i class="plate-corner tl"></i><i class="plate-corner tr"></i>
-          <i class="plate-corner bl"></i><i class="plate-corner br"></i>
+        <div class="weapon-plate" aria-label="${w.name}武器立绘">
           <div class="plate-art">${plateArt}</div>
-          <div class="plate-caption">
-            <b>${w.name}</b>
-            <span>${captionSub}</span>
-          </div>
         </div>
-        ${this.spellSheet(w, `<button class="secondary" id="swapWeapon" type="button"><span data-icon="bag"></span>武器库 <i>${owned}</i></button><button class="secondary" id="weaponCodex" type="button">武器图鉴</button>`)}
+        ${this.spellSheet(w, `<div class="weapon-slab-actions"><button class="secondary" id="swapWeapon" type="button"><span data-icon="bag"></span>武器库 <i>${owned}</i></button><button class="secondary" id="weaponCodex" type="button"><span data-icon="book"></span>武器图鉴</button></div>`)}
       </div>`;
     mountIcons($('#weaponSlab'));
     const slabSheet = document.querySelector('#weaponSlab .weapon-spell') as HTMLElement | null;

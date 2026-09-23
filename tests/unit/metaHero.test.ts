@@ -98,6 +98,18 @@ describe('主角成长曲线（设计值锚点 + 官方形状）', () => {
     expect(s.hero.xp).toBe(5);
     expect(heroStatsOf(s).health).toBe(heroStatsAt(3).health);
   });
+
+  it('淬炼面板加成与战斗桥接共用单一口径', () => {
+    const s = save();
+    s.weaponTempering[s.hero.equippedWeapon!] = 6;
+    const base = heroStatsAt(s.hero.level);
+    expect(heroStatsOf(s)).toEqual({
+      attack: base.attack + 1,
+      armor: base.armor + 1,
+      health: base.health + 1,
+      magic: base.magic,
+    });
+  });
 });
 
 describe('职业（官方 38 个，绑定王国任务链）', () => {
@@ -198,15 +210,15 @@ describe('武器（主角唯一施法手段；全部来自官方目录）', () =
     expect(equipWeapon(s, 'gw_不存在的武器')).toMatchObject({ ok: false, code: 'INVALID' });
   });
 
-  it('mana-only 占位武器永远不可装备（无法术实现，装上只会白扣法力）', () => {
+  it('粗糙棍棒现已可装备（W05 回收占位）', () => {
     const club = anyWeaponById('gw_CrudeClub');
     expect(club).toBeTruthy();
-    expect(club!.equippable).toBe(false);
-    expect(club!.skill).toBeNull();
+    expect(club!.equippable).toBe(true);
+    expect(club!.skill).not.toBeNull();
     const s = save();
-    s.hero.unlockedWeapons.push('gw_CrudeClub'); // 即便所有权在手
-    expect(canUseWeapon(s, club!)).toBe(false);
-    expect(equipWeapon(s, 'gw_CrudeClub')).toMatchObject({ ok: false, code: 'INVALID' });
+    s.hero.unlockedWeapons.push('gw_CrudeClub');
+    expect(canUseWeapon(s, club!)).toBe(true);
+    expect(equipWeapon(s, 'gw_CrudeClub')).toEqual({ ok: true, weaponId: 'gw_CrudeClub' });
   });
 
   it('已退役的假数据 id 运行时仍可解析（老档在 schema 迁移落地前不炸）', () => {
@@ -259,6 +271,19 @@ describe('武器（主角唯一施法手段；全部来自官方目录）', () =
 });
 
 describe('主角入队桥接与结算（天赋真实入战）', () => {
+  it('战斗快照不会把淬炼面板加成重复计算', () => {
+    const s = save();
+    s.weaponTempering[s.hero.equippedWeapon!] = 6;
+    teamWithHero(s);
+    const outcome = buildBattleRequest(s, planQuestEncounter(KINGDOM, 1, 7));
+    if (!outcome.ok) throw new Error(outcome.message);
+    const hero = outcome.request.playerTeam.find((c) => c.externalId.endsWith('-hero'))!;
+    const base = heroStatsAt(s.hero.level);
+    expect(hero.stats.attack).toBe(base.attack + 1);
+    expect(hero.stats.armor).toBe(base.armor + 1);
+    expect(hero.stats.hp).toBe(base.health + 1);
+  });
+
   it('天赋自身静态加成入快照；主角采纳职业兵种类型', () => {
     const s = save();
     s.hero.unlockedClasses.push(STARTER_CLASS);
@@ -271,7 +296,7 @@ describe('主角入队桥接与结算（天赋真实入战）', () => {
     const outcome = buildBattleRequest(s, planQuestEncounter(KINGDOM, 1, 7));
     if (!outcome.ok) throw new Error(outcome.message);
     const hero = outcome.request.playerTeam.find((c) => c.externalId.endsWith('-hero'))!;
-    expect(hero.name).toBe('法露特');
+    expect(hero.name).toBe('主角');
     expect(hero.skillId).toBe(STARTER_WEAPON_ID);
     expect(hero.manaColors).toEqual(equippedWeaponOf(s)!.manaColors);
     // 督军采纳 Orc? 否——无字面证据保持 Human；天赋凶悍 = 攻击 +4
@@ -326,6 +351,7 @@ describe('主角入队桥接与结算（天赋真实入战）', () => {
     expect(detail.heroLevelsGained).toBe(1); // 击杀 0 + 胜利 40 + 主角胜场 60 = 100 ≥ 首级 80
     expect(s.hero.level).toBe(2);
     expect(s.hero.classXp[STARTER_CLASS]).toBe(25);
+    expect(s.hero.classWins[STARTER_CLASS]).toBe(1);
     expect(classLevelOf(s, STARTER_CLASS)).toBe(1);
   });
 
@@ -340,6 +366,7 @@ describe('主角入队桥接与结算（天赋真实入战）', () => {
       todayStart: 1000,
     });
     expect(s.hero.classXp[STARTER_CLASS]).toBeUndefined();
+    expect(s.hero.classWins[STARTER_CLASS]).toBeUndefined();
   });
 
   it('任务链 8 关通关 → 解锁该王国绑定职业（42 王国中 38 个有职业）', () => {

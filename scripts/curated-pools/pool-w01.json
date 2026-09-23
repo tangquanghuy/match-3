@@ -1102,8 +1102,13 @@
   "weaponRef": "CrudeClub",
   "weaponName": "粗糙棍棒",
   "spellName": "粗糙棍棒",
-  "desc": "对第 1 名敌人造成 {1} 点伤害。",
-  "scalings": [],
+  "desc": "对第 1 名敌人造成 [魔法 + 1] 点伤害。",
+  "scalings": [
+   {
+    "base": 1,
+    "mult": 1
+   }
+  ],
   "manaCost": 3,
   "colors": [
    "Red"
@@ -13564,7 +13569,7 @@
   "weaponRef": "VolcanicStaff",
   "weaponName": "火山杖",
   "spellName": "火山杖",
-  "desc": "Deal [魔法 + 3] damage to 3 random Enemies, boosted by Volcano Gems. If an Enemy dies, create 12 Volcano Gems. [x4]",
+  "desc": "对 3 名随机敌人造成 [魔法 + 3] 点伤害，伤害值因火山宝石数而增强。若有敌人死亡，创造 12 颗火山宝石。[x4]",
   "scalings": [
    {
     "base": 3,
@@ -13676,9 +13681,9 @@
  {
   "spellId": 10063,
   "weaponRef": "ThalassasWavemaker",
-  "weaponName": "Thalassa's Wavemaker",
-  "spellName": "Thalassa's Wavemaker",
-  "desc": "Deal [魔法 + 3] damage to 2 random Enemies and knock them to the back. If Immortal Thalassa is in my team, Submerge and Enchant all Allies.",
+  "weaponName": "塔拉萨的造浪者",
+  "spellName": "塔拉萨的造浪者",
+  "desc": "对 2 名随机敌人造成 [魔法 + 3] 点伤害，并将他们击至末位。若队伍中有不朽的塔拉萨，使所有盟友陷入下潜并获得法印。",
   "scalings": [
    {
     "base": 3,
@@ -13693,9 +13698,9 @@
  {
   "spellId": 10065,
   "weaponRef": "GirthroksStonecleaver",
-  "weaponName": "Girthrok's Stonecleaver",
-  "spellName": "Girthrok's Stonecleaver",
-  "desc": "Deal [魔法 + 4] damage to the first 2 Enemies. If Immortal Girthrok is in my team, give 12 Life to all Allies.",
+  "weaponName": "格思洛克的裂石器",
+  "spellName": "格思洛克的裂石器",
+  "desc": "对首 2 位敌人造成 [魔法 + 4] 点伤害。若队伍中有不朽的格思洛克，为所有盟友提供 12 点生命值。",
   "scalings": [
    {
     "base": 4,

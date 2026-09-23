@@ -7,6 +7,7 @@
 import { Container, Graphics } from 'pixi.js';
 import { gsap } from 'gsap';
 import type { StatusGemKind } from '@engine/types';
+import { prefersReducedMotion } from '../preferences/playerPreferences';
 
 export interface StatusGemOverlay {
   container: Container;
@@ -35,12 +36,6 @@ const THEMES: Record<StatusGemKind, ParticleTheme> = {
   stunGem: { color: 0xffc741, accent: 0xfff3b0, motion: 'orbit', shape: 'spark' },
   barrierGem: { color: 0xffdc68, accent: 0xffffff, motion: 'shimmer', shape: 'spark' },
 };
-
-function prefersReducedMotion(): boolean {
-  return typeof window !== 'undefined'
-    && typeof window.matchMedia === 'function'
-    && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-}
 
 function drawSpark(target: Graphics, x: number, y: number, radius: number, color: number): void {
   target.poly([

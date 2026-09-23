@@ -112,17 +112,19 @@ export function stoneColorKeyOf(base: BaseColor): string {
   return STONE_COLORS.find((c) => c.base === base)?.key ?? 'brown';
 }
 
-/** 材料账目：钢锭 / 符卷 / 特质石的增量（数值恒正，方向由操作名决定） */
+/** 材料账目：钢锭 / 符卷 / 特质石 / 藏宝图的增量（数值恒正，方向由操作名决定） */
 export interface MaterialDelta {
   ingots?: Partial<Record<IngotKey, number>>;
   forgeScrolls?: number;
   traitstones?: Record<string, number>;
+  treasureMaps?: number;
 }
 
 /** 合并两个材料账目（结算明细聚合用） */
 export function addMaterialDelta(a: MaterialDelta, b: MaterialDelta): MaterialDelta {
   const out: MaterialDelta = { ingots: { ...a.ingots }, traitstones: { ...a.traitstones } };
   out.forgeScrolls = (a.forgeScrolls ?? 0) + (b.forgeScrolls ?? 0) || undefined;
+  out.treasureMaps = (a.treasureMaps ?? 0) + (b.treasureMaps ?? 0) || undefined;
   for (const [key, n] of Object.entries(b.ingots ?? {})) {
     out.ingots![key as IngotKey] = (out.ingots![key as IngotKey] ?? 0) + n!;
   }

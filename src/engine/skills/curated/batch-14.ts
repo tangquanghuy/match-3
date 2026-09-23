@@ -3,7 +3,7 @@
  * 核对者：agent 批次14
  *
  * 语义裁定备注：
- * - 「爆破一颗宝石」（无颜色、无选定/随机字样）→ explodeRandomGems(1,0,'color')
+ * - 「爆破一颗宝石」（无「随机」字样）→ explodeAt(CELL)
  *   （batch-03/batch-11 头注同口径；「宝石」不含骷髅）。
  * - 「因被摧毁的骷髅头数而增强」：batch-05 7052 口径——清除段本身只清骷髅时用
  *   不带色筛选的 destroyedGems（8297 同款）；8090 摧毁行混色无法筛骷髅 → SKIP。
@@ -19,9 +19,7 @@
  *   ctx.chosenCell，即选定宝石的行+列十字（无随机字样照 batch-01 7016「摧毁 1 行」选定口径）。
  * - 8160「上海」为「伤害」原文笔误、8160/8180 双空格均逐字保留（对号入座锚）。
  */
-import { skill, dmg, dmgSplash, heal, armor, attack,
-  createGems, createMix, transform, destroyChosenCol, destroyChosenRow,
-  destroySkulls, destroyColor, explodeRandomGems, inflict, extraTurn, CHOSEN } from '../builders';
+import { skill, dmg, dmgSplash, heal, armor, attack, createGems, createMix, transform, destroyChosenCol, destroyChosenRow, destroySkulls, destroyColor, explodeRandomGems, inflict, extraTurn, CHOSEN, CELL, explodeAt } from '../builders';
 import { BaseColor } from '../../types';
 import type { CuratedBatch } from './index';
 
@@ -104,8 +102,8 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 8157,
     desc: '爆破一颗宝石。对所有敌人造成 [魔法 + 1] 点伤害，伤害值因被摧毁的黄色宝石数而增强。 [x4]',
     build: skill(
-      // 「爆破一颗宝石」→ 随机色宝石（batch-03/batch-11 头注同口径）
-      explodeRandomGems(1, 0, 'color'),
+      // 「爆破一颗宝石」→ 点选一格（无「随机」字样）
+      explodeAt(CELL),
       // 「对所有敌人」伤害段要 opts（挂 modifier）→ dmg + range:'all'
       dmg('enemyAll', 1, 1, {
         range: 'all',

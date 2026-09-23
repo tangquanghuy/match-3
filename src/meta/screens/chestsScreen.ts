@@ -4,11 +4,13 @@
  */
 import { GEM_CHEST, GLORY_CHEST, GOLD_CHEST, GEM_CHEST_WEIGHTS, GOLD_CHEST_WEIGHTS } from '../data/economy';
 import { stoneName } from '../data/materials';
+import { rarityClassByIndex, rarityNameByIndex } from '../data/rarity';
 import { getTroopById, type TroopData } from '../../data/troops';
 import { isFailure } from '../gateway';
 import { bottomNavHtml, toast, toastHtml, topbarHtml, $, $$ } from '../shell/chrome';
 import type { Screen, ShellCtx } from '../shell/screen';
 import { troopArt, troopArtFallback } from './teamScreen';
+import { getPlayerPreferences, prefersReducedMotion } from '../../preferences/playerPreferences';
 
 const fmt = (n: number): string => n.toLocaleString('en-US');
 
@@ -39,22 +41,21 @@ function loadStrip(src: string): Promise<HTMLImageElement> {
   return stripCache.get(src)!;
 }
 
-/** 演出稀有度分档： Legendary 全场 slam / Epic 紫 burst / Rare+ 普通光 / 其余无演出 */
-function fxClassOf(rarityIdx: number): 'common' | 'rare' | 'epic' | 'legend' {
+type FxClass = 'common' | 'rare' | 'epic' | 'legend';
+
+/** 演出稀有度分档：神话全场 slam / 史诗紫 burst / 稀有与传说普通光 / 其余无演出。 */
+function fxClassOf(rarityIdx: number): FxClass {
   if (rarityIdx >= 5) return 'legend';
   if (rarityIdx >= 4) return 'epic';
   if (rarityIdx >= 2) return 'rare';
   return 'common';
 }
 
-const RARITY_CN = ['普通', '精良', '稀有', '传说', '史诗', '神话'] as const;
-const rarityCn = (idx: number): string => RARITY_CN[Math.min(Math.max(idx, 0), 5)] ?? '普通';
-
 /** 「最近获得」条容量（一次十连必须能全看见；CH-5 落存档在批次 3） */
 const RECENT_CAP = 10;
 
 type ChestPool = 'gem' | 'gold' | 'glory';
-type OpenKind = 'gem-1' | 'gem-10' | 'gold-1' | 'gold-10' | 'glory-1';
+type OpenKind = 'gem-1' | 'gem-10' | 'gold-1' | 'gold-10' | 'glory-1' | 'glory-10';
 type ChestPage = 'keys' | 'gems';
 
 function chestPageOf(param?: string): ChestPage {
@@ -70,19 +71,20 @@ interface OpenSpec {
   label: string;
 }
 
-/** 五枚开箱按钮的成交口径（数值全部来自 economy 单源） */
+/** 六枚开箱按钮的成交口径（数值全部来自 economy 单源） */
 const OPEN_SPECS: Record<OpenKind, OpenSpec> = {
   'gold-1': { pool: 'gold', count: 1, cost: GOLD_CHEST.keyCost, label: '开启一次' },
   'gold-10': { pool: 'gold', count: GOLD_CHEST.multiCount, cost: GOLD_CHEST.keyCost * GOLD_CHEST.multiCount, label: '开启十次' },
   'gem-1': { pool: 'gem', count: 1, cost: GEM_CHEST.singleCost, label: '召唤一次' },
   'gem-10': { pool: 'gem', count: GEM_CHEST.multiCount, cost: GEM_CHEST.multiCost, label: '召唤十次' },
   'glory-1': { pool: 'glory', count: 1, cost: GLORY_CHEST.cost, label: '开启一次' },
+  'glory-10': { pool: 'glory', count: GLORY_CHEST.multiCount, cost: GLORY_CHEST.cost * GLORY_CHEST.multiCount, label: '开启十次' },
 };
 
 const POOL_CN: Record<ChestPool, { currency: string; unit: string; title: string }> = {
-  gold: { currency: '金钥匙', unit: '把', title: 'KEY SUMMON' },
-  gem: { currency: '宝石', unit: '', title: 'GEM SUMMON' },
-  glory: { currency: '荣耀', unit: '', title: 'GLORY SUMMON' },
+  gold: { currency: '金钥匙', unit: '把', title: '金钥匙宝箱' },
+  gem: { currency: '宝石', unit: '', title: '宝石宝箱' },
+  glory: { currency: '荣耀', unit: '', title: '荣耀宝箱' },
 };
 
 /** 「还差 3 把」/「还差 1,496 宝石」——余额不足的按钮文案（CH-1/CH-4） */
@@ -97,14 +99,17 @@ interface RewardVm {
   art: string;
   /** CDN 未命中时的本地兜底立绘 */
   fb: string;
-  cls: string;
+  /** 六档部队稀有度索引，供卡牌边框和最近获得条使用。 */
+  rarityIdx: number;
+  /** 开箱演出仍使用四档特效分类，与视觉边框解耦。 */
+  fxClass: FxClass;
   rarity: string;
   duplicate: boolean;
 }
 
 function oddsRows(weights: readonly number[]): string {
   return weights
-    .map((weight, index) => `<div class="odds-row"><span class="odds-swatch r-${fxClassOf(index)}"></span><b>${rarityCn(index)}</b><span>${(weight / 100).toFixed(1)}%</span></div>`)
+    .map((weight, index) => `<div class="odds-row"><span class="odds-swatch ${rarityClassByIndex(index)}"></span><b>${rarityNameByIndex(index)}</b><span>${(weight / 100).toFixed(1)}%</span></div>`)
     .join('');
 }
 
@@ -136,7 +141,7 @@ export class ChestsScreen implements Screen {
       ? `
             <div class="chest-col key-pool">
               <div class="pool-head">
-                <div><small>KEY SUMMON</small><div class="chest-name">金钥匙宝箱</div></div>
+                <div class="chest-name">金钥匙宝箱</div>
                 <span class="pool-balance"><span data-icon="key"></span>持有 <b id="dockKeyBalance">0</b></span>
               </div>
               <div class="chest-btns">
@@ -148,18 +153,19 @@ export class ChestsScreen implements Screen {
             <div class="dock-divider" aria-hidden="true"><i></i><span data-icon="sparkles"></span><i></i></div>
             <div class="chest-col glory-pool">
               <div class="pool-head">
-                <div><small>GLORY SUMMON</small><div class="chest-name">荣耀宝箱</div></div>
+                <div class="chest-name">荣耀宝箱</div>
                 <span class="pool-balance"><span data-icon="swords"></span>持有 <b id="dockGloryBalance">0</b></span>
               </div>
               <div class="chest-btns">
-                <button class="chest-btn featured" data-open="glory-1" type="button"><span class="btn-label">开启一次</span><small><span data-icon="swords"></span><b class="btn-cost">${GLORY_CHEST.cost}</b></small></button>
+                <button class="chest-btn" data-open="glory-1" type="button"><span class="btn-label">开启一次</span><small><span data-icon="swords"></span><b class="btn-cost">${GLORY_CHEST.cost}</b></small></button>
+                <button class="chest-btn featured" data-open="glory-10" type="button"><span class="btn-label">开启十次</span><small><span data-icon="swords"></span><b class="btn-cost">${GLORY_CHEST.cost * GLORY_CHEST.multiCount}</b></small></button>
               </div>
-              <div class="chest-note"><span>特质石为主 · 概率卡/金钥匙</span><b>20 荣耀 / 箱</b></div>
+              <div class="chest-note"><span>特质石为主 · 概率卡/金钥匙</span><b>${GLORY_CHEST.cost} 荣耀 / 箱</b></div>
             </div>`
       : `
             <div class="chest-col gem-pool chest-col-wide">
               <div class="pool-head">
-                <div><small>GEM SUMMON</small><div class="chest-name">宝石宝箱</div></div>
+                <div class="chest-name">宝石宝箱</div>
                 <span class="pool-balance gem-balance"><span data-icon="crystal"></span>持有 <b id="dockGemBalance">0</b></span>
               </div>
               <div class="chest-btns">
@@ -171,16 +177,17 @@ export class ChestsScreen implements Screen {
     return `
       ${topbarHtml()}
       <div class="screen chest-screen">
-        <section class="panel chest-panel">
+        <section class="panel chest-panel ${keysPage ? 'keys-chest-page' : 'gem-chest-page'}">
           <nav class="chest-tabs" aria-label="宝箱类型">
-            <a class="chest-tab${keysPage ? ' active' : ''}" href="#chests/keys"><small>KEYS · GLORY</small><b>金钥匙与荣耀</b><span>部队卡、特质石与金钥匙</span></a>
-            <a class="chest-tab${!keysPage ? ' active' : ''}" href="#chests/gems"><small>GEM SUMMON</small><b>宝石宝箱</b><span>高阶部队 · 十连保底</span></a>
+            <a class="chest-tab${keysPage ? ' active' : ''}" href="#chests/keys"><b>金钥匙与荣耀</b><span>部队卡、特质石与金钥匙</span></a>
+            <a class="chest-tab${!keysPage ? ' active' : ''}" href="#chests/gems"><b>宝石宝箱</b><span>高阶部队 · 十连保底</span></a>
+            <a class="chest-tab" href="#shop/gems"><b>宝石商店</b><span>直购武器</span></a>
           </nav>
           <div class="chest-stage">
             <img class="chest-art" src="${heroArt}" alt="${pageLabel}主视觉">
           </div>
           <div class="recent-bar">
-            <div class="recent-heading"><small>RECENT LOOT</small><b>最近获得</b></div>
+            <div class="recent-heading"><b>最近获得</b></div>
             <div class="drops" id="drops"></div>
             <span class="recent-empty" id="recentEmpty">本页还没有开箱记录</span>
             <button class="odds-link" id="showOdds" type="button">奖池与概率 <span data-icon="arrow"></span></button>
@@ -193,7 +200,6 @@ export class ChestsScreen implements Screen {
 
       <div class="modal-veil" id="partialVeil" hidden>
         <section class="money-tip" role="dialog" aria-modal="true" aria-labelledby="partialTitle">
-          <small>PARTIAL SUMMON</small>
           <h2 id="partialTitle">钥匙不够十连</h2>
           <ul>
             <li><span>十连需要</span><b>${GOLD_CHEST.keyCost * GOLD_CHEST.multiCount} 把金钥匙</b></li>
@@ -212,10 +218,9 @@ export class ChestsScreen implements Screen {
         <section class="summon-sheet" role="dialog" aria-modal="true" aria-labelledby="summonTitle">
           <header class="summon-head">
             <div>
-              <small>VAULT · PACK OPENING</small>
               <h2 id="summonTitle">开启宝箱</h2>
             </div>
-            <div class="summon-meta"><span id="summonPool">KEY SUMMON</span><b id="summonCounter">0 / 1</b></div>
+            <div class="summon-meta"><span id="summonPool">金钥匙宝箱</span><b id="summonCounter">0 / 1</b></div>
             <button class="summon-close" type="button" aria-label="关闭" data-summon-close>×</button>
           </header>
           <div class="summon-stage" id="summonStage">
@@ -250,9 +255,9 @@ export class ChestsScreen implements Screen {
       <aside class="odds-drawer" id="oddsDrawer" hidden aria-labelledby="oddsTitle">
         <div class="odds-drawer-veil" data-odds-close></div>
         <section class="odds-sheet" role="dialog" aria-modal="true">
-          <header><div><small>DROP RATES</small><h2 id="oddsTitle">${this.page === 'keys' ? '金钥匙与荣耀' : '宝石'}奖池</h2></div><button type="button" class="odds-close" data-odds-close aria-label="关闭概率">×</button></header>
+          <header><div><h2 id="oddsTitle">${this.page === 'keys' ? '金钥匙与荣耀' : '宝石'}奖池</h2></div><button type="button" class="odds-close" data-odds-close aria-label="关闭概率">×</button></header>
           <div class="odds-content">
-            ${this.page === 'keys' ? `<section class="odds-pool"><small>KEY SUMMON · 金钥匙宝箱</small>${oddsRows(GOLD_CHEST_WEIGHTS)}<p>每把金钥匙开启一次；重复部队进入同名副本。</p></section><section class="odds-pool glory-odds"><small>GLORY SUMMON · 荣耀宝箱</small><div class="glory-rate"><b>25%</b><span>部队卡</span><b>10%</b><span>金钥匙</span><b>65%</b><span>特质石 / 圣辉石</span></div><p>荣耀箱以材料为主，20 荣耀开启一次。</p></section>` : `<section class="odds-pool"><small>GEM SUMMON · 宝石宝箱</small>${oddsRows(GEM_CHEST_WEIGHTS)}<p>十连最后一张保底史诗或神话部队。</p></section>`}
+            ${this.page === 'keys' ? `<section class="odds-pool"><h3>金钥匙宝箱</h3>${oddsRows(GOLD_CHEST_WEIGHTS)}<p>每把金钥匙开启一次；重复部队进入同名副本。</p></section><section class="odds-pool glory-odds"><h3>荣耀宝箱</h3><div class="glory-rate"><b>25%</b><span>部队卡</span><b>10%</b><span>金钥匙</span><b>65%</b><span>特质石 / 圣辉石</span></div><p>荣耀箱以材料为主，${GLORY_CHEST.cost} 荣耀开启一次。</p></section>` : `<section class="odds-pool"><h3>宝石宝箱</h3>${oddsRows(GEM_CHEST_WEIGHTS)}<p>十连最后一张保底史诗或神话部队。</p></section>`}
           </div>
           <footer>概率按当前权重表展示；同一批结果会完整写入最近获得记录。</footer>
         </section>
@@ -261,7 +266,7 @@ export class ChestsScreen implements Screen {
       <div class="glory-feedback" id="gloryFeedback" hidden>
         <div class="glory-feedback-veil" data-glory-close></div>
         <section class="glory-feedback-sheet" role="dialog" aria-modal="true" aria-labelledby="gloryFeedbackTitle">
-          <small>GLORY CHEST · REWARD</small><h2 id="gloryFeedbackTitle">荣耀箱已开启</h2>
+          <h2 id="gloryFeedbackTitle">荣耀箱已开启</h2>
           <p id="gloryFeedbackCopy"></p>
           <button class="primary" type="button" data-glory-close>收下奖励</button>
         </section>
@@ -270,6 +275,7 @@ export class ChestsScreen implements Screen {
 
   mount(ctx: ShellCtx, _root: HTMLElement, param?: string): void {
     this.ctx = ctx;
+    _root.classList.add('chests-responsive');
     this.page = chestPageOf(param);
     this.loadRecent();
     this.paintDrops();
@@ -312,13 +318,15 @@ export class ChestsScreen implements Screen {
       .flatMap((entry) => entry.troops.map((troopId) => {
         const troop = getTroopById(troopId) ?? null;
         const record = save.collection[String(troopId)];
+        const rarityIdx = troop?.rarityIdx ?? 0;
         return {
           troop,
           name: troop?.name ?? `部队 #${troopId}`,
           art: troopArt(troop),
           fb: troopArtFallback(troop),
-          cls: fxClassOf(troop?.rarityIdx ?? 0),
-          rarity: rarityCn(troop?.rarityIdx ?? 0),
+          rarityIdx,
+          fxClass: fxClassOf(rarityIdx),
+          rarity: rarityNameByIndex(rarityIdx),
           duplicate: (record?.copies ?? 0) > 0,
         };
       }))
@@ -331,9 +339,10 @@ export class ChestsScreen implements Screen {
     dropsEl.innerHTML = this.recent
       .map(
         (d) =>
-          `<button class="drop ${d.cls}" type="button" title="${d.rarity} · ${d.name}${d.duplicate ? ' · 重复' : ''}"><img src="${d.art}" alt="${d.name}" loading="lazy" onerror="this.onerror=null;this.src='${d.fb}'"><span><b>${d.name}</b><small>${d.rarity}${d.duplicate ? ' · 重复' : ''}</small></span></button>`,
+          `<button class="drop ${rarityClassByIndex(d.rarityIdx)}" type="button" title="${d.rarity} · ${d.name}${d.duplicate ? ' · 重复' : ''}"><img src="${d.art}" alt="${d.name}" loading="lazy" onerror="this.onerror=null;this.src='${d.fb}'"><span><b>${d.name}</b><small>${d.rarity}${d.duplicate ? ' · 重复' : ''}</small></span></button>`,
       )
       .join('');
+    dropsEl.hidden = this.recent.length === 0;
     if (empty) empty.hidden = this.recent.length > 0;
   }
 
@@ -465,7 +474,7 @@ export class ChestsScreen implements Screen {
       cards = result.cards;
     } else {
       // 荣耀箱：特质石为主——有卡走翻牌演出，无卡走明确的轻量反馈面板。
-      const { result } = await gateway.openChest('glory', 1);
+      const { result } = await gateway.openChest('glory', count);
       if (isFailure(result)) {
         toast(result.message);
         return null;
@@ -483,14 +492,15 @@ export class ChestsScreen implements Screen {
       cards = result.cards;
       const rewards = cards.map((c) => {
         const troop = getTroopById(c.troopId) ?? null;
-        const cls = fxClassOf(c.rarityIdx);
+        const rarityIdx = troop?.rarityIdx ?? c.rarityIdx;
         return {
           troop,
           name: troop?.name ?? `部队 #${c.troopId}`,
           art: troopArt(troop),
           fb: troopArtFallback(troop),
-          cls,
-          rarity: rarityCn(c.rarityIdx),
+          rarityIdx,
+          fxClass: fxClassOf(rarityIdx),
+          rarity: rarityNameByIndex(rarityIdx),
           duplicate: c.duplicate,
         };
       });
@@ -498,14 +508,15 @@ export class ChestsScreen implements Screen {
     }
     return { rewards: cards.map((c) => {
       const troop = getTroopById(c.troopId) ?? null;
-      const cls = fxClassOf(c.rarityIdx);
+      const rarityIdx = troop?.rarityIdx ?? c.rarityIdx;
       return {
         troop,
         name: troop?.name ?? `部队 #${c.troopId}`,
         art: troopArt(troop),
         fb: troopArtFallback(troop),
-        cls,
-        rarity: rarityCn(c.rarityIdx),
+        rarityIdx,
+        fxClass: fxClassOf(rarityIdx),
+        rarity: rarityNameByIndex(rarityIdx),
         duplicate: c.duplicate,
       };
     }) };
@@ -593,7 +604,7 @@ export class ChestsScreen implements Screen {
     cardsEl.innerHTML = rewards
       .map((d, i) => {
         const p = this.cardPosition(i, rewards.length);
-        return `<article class="summon-card r-${d.cls}" data-rarity="${d.cls}" data-name="${d.name}" data-art="${d.art}" data-fb="${d.fb}" data-dup="${d.duplicate ? 1 : 0}" style="--x:${p.x}px;--y:${p.y}px;--rot:${p.rot}deg;">
+        return `<article class="summon-card ${rarityClassByIndex(d.rarityIdx)} fx-${d.fxClass}" data-rarity="${d.fxClass}" data-rarity-idx="${d.rarityIdx}" data-name="${d.name}" data-art="${d.art}" data-fb="${d.fb}" data-dup="${d.duplicate ? 1 : 0}" style="--x:${p.x}px;--y:${p.y}px;--rot:${p.rot}deg;">
           <div class="card-3d">
             <div class="card-back" aria-hidden="true"></div>
             <div class="card-face">
@@ -609,6 +620,43 @@ export class ChestsScreen implements Screen {
 
   private cardPosition(index: number, count: number): { x: number; y: number; rot: number } {
     if (count === 1) return { x: 0, y: 0, rot: 0 };
+    const viewportWidth = document.documentElement.clientWidth || window.innerWidth;
+    if (viewportWidth <= 640) {
+      const columns = Math.min(3, count);
+      const rows = Math.ceil(count / columns);
+      const row = Math.floor(index / columns);
+      const rowCount = Math.min(columns, count - row * columns);
+      const col = index % columns;
+      return {
+        x: (col - (rowCount - 1) / 2) * 100,
+        y: (row - (rows - 1) / 2) * 132,
+        rot: (col - (rowCount - 1) / 2) * 1.2,
+      };
+    }
+    if (viewportWidth <= 900) {
+      const columns = Math.min(5, count);
+      const rows = Math.ceil(count / columns);
+      const row = Math.floor(index / columns);
+      const rowCount = Math.min(columns, count - row * columns);
+      const col = index % columns;
+      return {
+        x: (col - (rowCount - 1) / 2) * 132,
+        y: (row - (rows - 1) / 2) * 190,
+        rot: (col - (rowCount - 1) / 2) * 1.5,
+      };
+    }
+    if (viewportWidth < 1400) {
+      const columns = Math.min(5, count);
+      const rows = Math.ceil(count / columns);
+      const row = Math.floor(index / columns);
+      const rowCount = Math.min(columns, count - row * columns);
+      const col = index % columns;
+      return {
+        x: (col - (rowCount - 1) / 2) * 156,
+        y: (row - (rows - 1) / 2) * 210,
+        rot: (col - (rowCount - 1) / 2) * 1.8,
+      };
+    }
     const col = index % 5;
     const row = Math.floor(index / 5);
     return { x: (col - 2) * 192, y: row ? 116 : -116, rot: (col - 2) * 2.2 + (row ? -1 : 1) };
@@ -620,8 +668,9 @@ export class ChestsScreen implements Screen {
     modal.classList.remove('is-opening');
     modal.classList.add('is-dealing');
     this.phase = 'dealing';
-    cards.forEach((card, i) => this.later(i * 80, () => card.classList.add('is-dealt')));
-    this.later(cards.length * 80 + 200, () => {
+    const reduced = prefersReducedMotion();
+    cards.forEach((card, i) => this.later(reduced ? 0 : i * 80, () => card.classList.add('is-dealt')));
+    this.later(reduced ? 0 : cards.length * 80 + 200, () => {
       this.phase = 'ready';
       modal.classList.remove('is-dealing');
       modal.classList.add('is-ready');
@@ -647,6 +696,14 @@ export class ChestsScreen implements Screen {
       if (!this.slamLocked) $('#summonModal').classList.remove('is-bursting');
       this.checkSummonFinish();
     };
+
+    if (prefersReducedMotion()) {
+      if (rarity === 'legend') void this.playSfx('legend', isAuto);
+      else if (rarity === 'epic') void this.playSfx('rare', isAuto);
+      card.classList.add('is-revealed');
+      finishFlip();
+      return;
+    }
 
     if (rarity === 'legend') {
       void card.offsetWidth;
@@ -684,7 +741,8 @@ export class ChestsScreen implements Screen {
     this.phase = 'ready';
     this.slamLocked = false;
     const cards = $$('.summon-card:not(.is-revealed)', $('#summonCards'));
-    cards.forEach((card, i) => this.later(i * 150, () => this.revealSingleCard(card as HTMLElement, true)));
+    const reduced = prefersReducedMotion();
+    cards.forEach((card, i) => this.later(reduced ? 0 : i * 150, () => this.revealSingleCard(card as HTMLElement, true)));
   }
 
   private checkSummonFinish(): void {
@@ -792,6 +850,11 @@ export class ChestsScreen implements Screen {
 
   private async playFx(canvas: HTMLElement | null, spec: FxSpec, opts: { ondone?: () => void } = {}): Promise<void> {
     if (!canvas || !spec) return;
+    if (prefersReducedMotion()) {
+      this.stopFx(canvas);
+      opts.ondone?.();
+      return;
+    }
     const ctx2d = (canvas as HTMLCanvasElement).getContext('2d');
     if (!ctx2d) return;
     this.stopFx(canvas, false);
@@ -863,12 +926,17 @@ export class ChestsScreen implements Screen {
         legend: new Audio('/meta/assets/sfx/reveal-legend.wav'),
       };
     }
+    const volume = getPlayerPreferences().soundEffectsVolume;
+    Object.values(this.sfx).forEach((audio) => { audio.volume = volume; });
     return this.sfx;
   }
 
   private async playSfx(name: 'start' | 'rare' | 'legend', once = false): Promise<void> {
+    const preferences = getPlayerPreferences();
+    if (!preferences.soundEffectsEnabled || preferences.soundEffectsVolume <= 0) return;
     const sfx = this.ensureSfx()[name];
     if (!sfx) return;
+    sfx.volume = preferences.soundEffectsVolume;
     if (once && !sfx.paused) return;
     try {
       sfx.currentTime = 0;
@@ -918,6 +986,7 @@ export class ChestsScreen implements Screen {
   }
 
   dispose(): void {
+    document.getElementById('stage')?.classList.remove('chests-responsive');
     this.closeSummon();
     for (const [target, type, fn] of this.listeners.splice(0)) {
       target.removeEventListener(type, fn);

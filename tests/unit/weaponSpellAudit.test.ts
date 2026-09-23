@@ -157,12 +157,12 @@ describe('武器法术池与元数据（pool-w01 + weapon-skill-meta）', () => 
     }
   });
 
-  it('第六轮分布快照：full 683 / partial 27 / mana-only 8（前轮 610/96/12；K-B 收官轮小引擎批+解析收尾）', () => {
+  it('W05 分布快照：full 691 / partial 27 / mana-only 0（占位 8 把回收）', () => {
     const tier = { full: 0, partial: 0, 'mana-only': 0 };
     for (const v of Object.values(META)) tier[v.fidelity as keyof typeof tier] += 1;
-    expect(tier.full).toBe(683);
+    expect(tier.full).toBe(691);
     expect(tier.partial).toBe(27);
-    expect(tier['mana-only']).toBe(8);
+    expect(tier['mana-only']).toBe(0);
   });
 });
 
@@ -190,8 +190,7 @@ describe('武器法术组装审计（curated W 系批次 · 分保真度）', ()
     expect(new Set(builtIds).size).toBe(builtIds.length);
     expect(new Set(fullPartial).size).toBe(fullPartial.length);
     expect(new Set(builtIds)).toEqual(new Set(fullPartial));
-    //mana-only 占位绑定单独成类
-    expect(manaOnly.length).toBeGreaterThan(0);
+    expect(manaOnly.length).toBe(0);
     void weaponSkipped;
   });
 

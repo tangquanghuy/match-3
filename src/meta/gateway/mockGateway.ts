@@ -13,10 +13,11 @@ import type { EventTypeId } from '../data/events';
 import { newSave } from '../state/schema';
 import { levelUp, ascend, unlockTrait, decompose, getRecord } from '../systems/troopProgress';
 import { setTeamPreset } from '../systems/teamRules';
-import { equipClass, equipWeapon, forgeCatalogWeapon as forgeCatalogWeaponOp } from '../systems/hero';
+import { claimWeapon, equipClass, equipWeapon, forgeCatalogWeapon as forgeCatalogWeaponOp } from '../systems/hero';
 import { clearTalent, pickTalent, unlockHeroTrait } from '../systems/talents';
+import { pickManaMastery } from '../systems/manaMastery';
 import { openGemChest, openGoldChest, openGloryChest } from '../systems/gacha';
-import { upgradeKingdom, setExploreTier } from '../systems/kingdomOps';
+import { upgradeKingdom, setExploreTier, exploreUnlocked } from '../systems/kingdomOps';
 import { collectTribute } from '../systems/tribute';
 import type { SettlementContext } from '../systems/settlement';
 import { temperWeaponOnSave } from '../systems/forgeOps';
@@ -36,6 +37,7 @@ import {
 import { questNodeUnlocked, planQuestEncounter, planExploreEncounter } from '../systems/encounter';
 import { buildBattleRequest } from '../systems/battleBridge';
 import { applySettlement } from '../systems/settlement';
+import { beginHunt, commitMove } from '../systems/treasureHunt';
 import { buildDemoSave } from './demo';
 import type {
   GatewaySnapshot,
@@ -211,6 +213,13 @@ export class MockGateway implements MetaGateway {
     return { result: normalized, save: this.save };
   }
 
+  async claimHeroWeapon(weaponId: string) {
+    const result = claimWeapon(this.save, weaponId);
+    const normalized = result.ok ? result.weaponId : result;
+    if (result.ok) this.persist();
+    return { result: normalized, save: this.save };
+  }
+
   async equipHeroWeapon(weaponId: string) {
     const result = equipWeapon(this.save, weaponId);
     const normalized = result.ok ? result.weaponId : result;
@@ -238,15 +247,21 @@ export class MockGateway implements MetaGateway {
     return { result, save: this.save };
   }
 
+  async pickManaMastery(color: string) {
+    const result = pickManaMastery(this.save, color);
+    if (result.ok) this.persist();
+    return { result, save: this.save };
+  }
+
   // —— 宝箱 ——
 
-  /** 开箱：count 为原子批量（gem 只接 1|10，gold 接 1~10，glory 忽略），见 types.openChest */
+  /** 开箱：count 为原子批量（gem/glory 只接 1|10，gold 接 1~10），见 types.openChest */
   async openChest(kind: 'gem' | 'gold' | 'glory', count = 1) {
     const before = this.materialSnapshot();
     const seed = this.nextSeed();
     const result =
       kind === 'gem' ? openGemChest(this.save, seed, count)
-      : kind === 'glory' ? openGloryChest(this.save, seed)
+      : kind === 'glory' ? openGloryChest(this.save, seed, count)
       : openGoldChest(this.save, seed, count);
     if (result.ok) {
       this.markMaterialGains(before);
@@ -342,7 +357,11 @@ export class MockGateway implements MetaGateway {
   }
 
   async planExploreBattle(kingdom: string) {
-    const tier = this.save.kingdoms[kingdom]?.exploreTier ?? 1;
+    if (!exploreUnlocked(this.save, kingdom)) {
+      return fail('PREREQ_LOCKED', '先通关该王国主线');
+    }
+    const stored = this.save.kingdoms[kingdom]?.exploreTier ?? 0;
+    const tier = stored >= 1 ? stored : 1;
     const plan = planExploreEncounter(kingdom, tier, this.nextSeed());
     return buildBattleRequest(this.save, plan);
   }
@@ -414,6 +433,22 @@ export class MockGateway implements MetaGateway {
     return { result: settled, save: this.save };
   }
 
+  async startTreasureHunt(seed: number) {
+    const result = beginHunt(this.save, seed);
+    if (result.ok) this.persist();
+    return { result, save: this.save };
+  }
+
+  async playTreasureHunt(from: number, to: number) {
+    const before = this.materialSnapshot();
+    const result = commitMove(this.save, from, to);
+    if (result.ok) {
+      this.markMaterialGains(before);
+      this.persist();
+    }
+    return { result, save: this.save };
+  }
+
   // —— 内部 ——
 
   private materialSnapshot(): Materials {
@@ -421,6 +456,7 @@ export class MockGateway implements MetaGateway {
       ingots: { ...this.save.materials.ingots },
       forgeScrolls: this.save.materials.forgeScrolls,
       traitstones: { ...this.save.materials.traitstones },
+      treasureMaps: this.save.materials.treasureMaps,
     };
   }
 
@@ -433,7 +469,7 @@ export class MockGateway implements MetaGateway {
         return;
       }
     }
-    if (after.forgeScrolls > before.forgeScrolls) {
+    if (after.forgeScrolls > before.forgeScrolls || after.treasureMaps > before.treasureMaps) {
       this.save.materialsUnread = true;
       return;
     }

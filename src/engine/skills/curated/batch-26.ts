@@ -8,7 +8,7 @@
  *   = steal magic→magic（batch-01 8278 同款）；「耗掉/耗尽…法力值」= reduce stat:'mana'（batch-15 头注）。
  * - 「耗尽上至/最多 12 点法力值。创造X宝石，数量与所耗尽的法力值等同 [1:1]」=
  *   reduce mana 12 + createGems 基数 0 + [1:1] drainedMana（batch-25 7467/7206 同款）。
- * - 「爆破一颗宝石」= explodeRandomGems(1,0,'color')（batch-14 头注同口径）；「宝石」不含骷髅。
+ * - 「爆破一颗宝石」（无「随机」字样）→ explodeAt(CELL)（batch-14 头注同口径）；「宝石」不含骷髅。
  * - 「因被摧毁的骷髅头数而增强」：爆破/摧毁行列混色，destroyedGems 无法筛骷髅 → SKIP（batch-14 8090 同款）。
  * - 「因敌军/敌我双方的X族·X色数量而增强」：来源计数仅支持己方（alliesOfRace/alliesOfColor）→ SKIP。
  * - 「召唤一名荆棘森林/鳞雾沼泽军队」按王国随机，无法用种族列表表达（batch-16 8831 同款）→ SKIP。
@@ -18,9 +18,7 @@
  * - 「生命值和攻击力」共用一个 modifier 子句：挂最近数值段（batch-15 头注 / batch-14 8297 同款）。
  * - 8184「屏障效果。  [x3]」双空格逐字保留（对号入座锚）。
  */
-import { skill, dmg, trueDmg, heal, armor, attack, reduce, drainMana, steal, inflict,
-  createGems, createMix, createSkulls, explodeRandomGems, summonRef, summonRandom, transform,
-  destroyChosenRow, destroyChosenCol } from '../builders';
+import { skill, dmg, trueDmg, heal, armor, attack, reduce, drainMana, steal, inflict, createGems, createMix, createSkulls, explodeRandomGems, summonRef, summonRandom, transform, destroyChosenRow, destroyChosenCol, CELL, explodeAt } from '../builders';
 import { BaseColor } from '../../types';
 import type { CuratedBatch } from './index';
 
@@ -286,8 +284,8 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 8184,
     desc: '爆破一颗宝石。获得 [魔法 + 1] 点生命值和攻击力，数值因被摧毁的绿色宝石而增强。获得屏障效果。  [x3]',
     build: skill(
-      // 「爆破一颗宝石」→ 随机色宝石（batch-14 头注口径）
-      explodeRandomGems(1, 0, 'color'),
+      // 「爆破一颗宝石」→ 点选一格（无「随机」字样）
+      explodeAt(CELL),
       // 一个方括号喂双段（batch-03 8372 同款）；modifier 挂最近数值段（batch-14 8297 / batch-15 头注口径）
       heal('allySelf', 1),
       attack('allySelf', 1, 1, {

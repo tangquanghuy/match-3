@@ -35,7 +35,6 @@ import type { CharacterCard } from './TeamView';
 import { CharacterDetailPanel } from './CharacterDetailPanel';
 import { GameOverPanel, type GameOverStats } from './GameOverPanel';
 import { CastConfirmPanel } from './CastConfirmPanel';
-import { summarizeCastEvents } from './castSummary';
 import { gestureHintShown, markGestureHintShown } from './battlePrefs';
 import { TargetPicker } from './TargetPicker';
 import { CellPicker } from './CellPicker';
@@ -49,7 +48,8 @@ import { registerSkillLibrary } from '@engine/skills/library';
 import type { SkillPrototype } from '@engine/skills/prototypes';
 import { AiColorChooser, FixedColorChooser, prototypeNeedsColor } from '@engine/skills/colorChooser';
 import { AiTargetChooser, FixedTargetChooser, prototypeChosenTargetMode } from '@engine/skills/targetChooser';
-import { candidatesFor } from '@engine/skills/targeting';
+import { candidatesFor, selectTargets } from '@engine/skills/targeting';
+import type { TargetMode } from '@engine/skills/targeting';
 import { skillDisplayOf } from '@session/assigner';
 import { AiCellChooser, FixedCellChooser, prototypeNeedsCell } from '@engine/skills/cellChooser';
 import { loadGemTextures } from './gemTextures';
@@ -115,40 +115,6 @@ export function readTeamSize(): number {
 }
 
 /** 摘要条里的角色名来自数据文件，进 innerHTML 前转义 */
-function escapeHtml(s: string): string {
-  return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-}
-
-/**
- * 施法效果摘要条样式（B-4 第③段）。挂在 wrapper 顶部、棋盘上方，
- * 不占时间线、不拦输入（pointer-events:none），2.8s 后淡出。
- */
-let castSummaryStylesInjected = false;
-function ensureCastSummaryStyles(): void {
-  if (castSummaryStylesInjected) return;
-  castSummaryStylesInjected = true;
-  const style = document.createElement('style');
-  style.id = 'cast-summary-styles';
-  style.textContent = `
-  .cast-summary{position:absolute;left:50%;top:52px;z-index:1190;transform:translateX(-50%) translateY(-6px);
-    min-width:180px;max-width:62%;padding:8px 14px 9px;border-radius:8px;
-    pointer-events:none;opacity:0;visibility:hidden;
-    background:linear-gradient(160deg,rgba(23,18,8,.95),rgba(13,10,6,.95));
-    border:1px solid rgba(216,194,144,.5);box-shadow:0 6px 20px rgba(0,0,0,.6);
-    font-family:"Oswald","Microsoft YaHei",sans-serif;color:#f0e2bf;
-    transition:opacity .2s ease,transform .2s ease,visibility .2s}
-  .cast-summary.show{opacity:1;visibility:visible;transform:translateX(-50%) translateY(0)}
-  .cast-summary .cs-title{font-family:"Playfair Display",Georgia,serif;font-weight:700;font-size:15px;
-    color:#ffe6a8;letter-spacing:.02em;margin-bottom:4px;text-align:center}
-  .cast-summary ul{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:2px}
-  .cast-summary li{font-size:12.5px;line-height:1.5;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-  .cast-summary li::before{content:"·";color:#c9a35c;margin-right:6px}
-  .cast-summary .cs-empty{margin:0;font-size:12.5px;color:#a89974;text-align:center}
-  @media (prefers-reduced-motion:reduce){.cast-summary{transition:none}}
-  `;
-  document.head.appendChild(style);
-}
-
 const MANA_FLOW_COLOR: Record<BaseColor, string> = {
   [BaseColor.Red]: '#ff5968',
   [BaseColor.Green]: '#63dc78',
@@ -156,6 +122,14 @@ const MANA_FLOW_COLOR: Record<BaseColor, string> = {
   [BaseColor.Yellow]: '#ffd45a',
   [BaseColor.Purple]: '#bd7aff',
   [BaseColor.Brown]: '#d49355',
+};
+const MANA_FLOW_HEX: Record<BaseColor, number> = {
+  [BaseColor.Red]: 0xff5968,
+  [BaseColor.Green]: 0x63dc78,
+  [BaseColor.Blue]: 0x5eb5ff,
+  [BaseColor.Yellow]: 0xffd45a,
+  [BaseColor.Purple]: 0xbd7aff,
+  [BaseColor.Brown]: 0xd49355,
 };
 
 /** 增益飘字颜色（按属性区分） */
@@ -442,6 +416,7 @@ export class App {
   private rightTeamView!: TeamView;
   /** 角色卡 DOM 覆盖层 */
   private overlay!: HTMLDivElement;
+  private lastManaSurgeAt = 0;
   /**
    * 状态持续层（硬控/软控循环挂在角色卡上，直到状态解除）：
    * key = `${charId}:${statusId}` → 覆盖层 DOM 节点。status-apply 挂载、status-expire/cleanse 移除。
@@ -463,9 +438,6 @@ export class App {
    * 默认开、可在层内勾选关掉（`battlePrefs`）。
    */
   private castConfirm!: CastConfirmPanel;
-  /** 施法效果摘要条（B-4 第③段）：棋盘上方逐条列出本次释放的实际结果 */
-  private castSummaryEl: HTMLDivElement | null = null;
-  private castSummaryTimer: number | null = null;
   /** 手势引导（B-5）：法力首次攒满时提示一次「点击释放 · 长按查看详情」 */
   private gestureHintDone = false;
   /** 确认层开启中（B-4）：期间不受理新的短按释放 */
@@ -528,15 +500,21 @@ export class App {
    * @param request 宿主注入的战斗快照（需求 2.1）。省略时读独立模式配置
    *   `src/session/fixtures/standalone-battle.json`，并应用 3v3/4v4 调试开关；
    *   由宿主注入时以 request 的人数为准，调试开关不参与。
+   * @param registry 可选。meta 出战把 `buildMetaRegistry` 的结果传进来，
+   *   未收录法术的兜底原型才进战斗；部队+武器法术本身由 registerSkillLibrary 覆盖。
    */
-  async init(mount: HTMLElement, request?: BattleRequest): Promise<void> {
+  async init(mount: HTMLElement, request?: BattleRequest, registry?: ExtensionRegistry): Promise<void> {
     // Critical 只包含首屏棋盘资源；帧特效/音频均在可玩后延迟或首次使用时加载。
     const gemTexturesPromise = loadGemTextures();
     void App.preloadSlashStrip();
 
     // 技能注册要先于队伍解析：配置/宿主下发的 skillId 必须校验为已注册（需求 2.6）。
     this.registry = new ExtensionRegistry();
-    registerSkillLibrary(this.registry.prototypes); // 主游戏拥有全部技能内容（需求 2C）
+    registerSkillLibrary(this.registry.prototypes); // 部队法术 + 武器法术（数字 id 与 gw_*）
+    if (registry) {
+      for (const [id, proto] of registry.prototypes) this.registry.prototypes.set(id, proto);
+      for (const [id, effect] of registry.skills) this.registry.skills.set(id, effect);
+    }
     const knownSkillIds = new Set([
       ...this.registry.skills.keys(),
       ...this.registry.prototypes.keys(),
@@ -622,6 +600,8 @@ export class App {
     overlay.style.width = `${dimW}px`;
     overlay.style.height = `${dimH}px`;
     overlay.style.pointerEvents = 'none';
+    overlay.style.zIndex = '20';
+    overlay.style.isolation = 'isolate';
     wrapper.appendChild(overlay);
     this.overlay = overlay;
 
@@ -670,6 +650,14 @@ export class App {
     const bannerBoosts = battleRequest.playerBanner?.boosts;
     if (bannerBoosts && Object.keys(bannerBoosts).length > 0) {
       this.engine.bannerBoosts = { ...bannerBoosts };
+    }
+    const playerMastery = battleRequest.playerManaMastery;
+    if (playerMastery && Object.keys(playerMastery).length > 0) {
+      this.engine.playerManaMastery = { ...playerMastery };
+    }
+    const enemyMastery = battleRequest.enemyManaMastery;
+    if (enemyMastery && Object.keys(enemyMastery).length > 0) {
+      this.engine.enemyManaMastery = { ...enemyMastery };
     }
     // PvP 模式旗（职业天赋 exemplar/bloodandglory 族；竞技场对战 = 本作 PvP 场景）：
     // 须在首次 takeInitialEvents 前注入（pvpBonus 开局加成在该口一次性结算）。
@@ -760,14 +748,6 @@ export class App {
       if (e.code === 'Space') this.player.setSpeed(1);
     });
 
-    // B-1 降级路径：移动横屏卡片放不下常驻名字条，首回合各卡浮现名字 0.8s
-    // （非紧凑卡 flashName 自身是空操作，不必在这里判断视口）
-    for (const side of [PlayerSide.Left, PlayerSide.Right]) {
-      for (const ch of state.teams[side].characters) {
-        this.viewOf(side).getCard(ch.id)?.flashName();
-      }
-    }
-
     // 开局：我方行动；页面生命周期和方向门禁共同决定是否启用输入/待机。
     this.setTurn(PlayerSide.Left);
     this.bindPageLifecycle();
@@ -777,6 +757,13 @@ export class App {
 
     // 初始适配由统一布局入口处理；后续由 ResizeObserver/visualViewport 驱动。
     this.refreshLayout();
+    // B-1 降级路径必须在布局完成后判断：refreshLayout() 才会按真实舞台缩放写入
+    // name-compact。此前先 flash 再布局，移动横屏会因尚未进入紧凑态而直接跳过动画。
+    for (const side of [PlayerSide.Left, PlayerSide.Right]) {
+      for (const ch of state.teams[side].characters) {
+        this.viewOf(side).getCard(ch.id)?.flashName();
+      }
+    }
     App.scheduleDeferredFrameFX();
   }
   private createFullscreenButton(wrapper: HTMLDivElement): void {
@@ -861,7 +848,6 @@ export class App {
     if (this.destroyed) return;
     this.destroyed = true;
     if (this.hintTimer !== null) clearTimeout(this.hintTimer);
-    if (this.castSummaryTimer !== null) clearTimeout(this.castSummaryTimer);
     if (this.turnHudComboTimer !== null) clearTimeout(this.turnHudComboTimer);
     this.castConfirm?.cancel();
     for (const tween of this.hintTweens) tween.kill();
@@ -974,6 +960,20 @@ export class App {
       && !this.casting
       && state.state === MatchState.AwaitingInput
       && state.activePlayer === PlayerSide.Left;
+  }
+
+  /**
+   * 施法互斥结束：先放下 casting，再按当前回合把棋盘交还玩家。
+   * afterResolve 会在 casting 仍为 true 时跑一遍 syncPlayerInput，那一拍输入必然是关的；
+   * 若不在 casting=false 之后再同步一次，就会出现“技能放完点什么都没反应”。
+   */
+  private restoreAfterCast(): void {
+    this.casting = false;
+    const state = this.engine.getState();
+    if (state.state === MatchState.GameOver) return;
+    if (state.activePlayer === PlayerSide.Right) return;
+    this.syncPlayerInput();
+    if (this.input.enabled) this.startIdle();
   }
 
   /** 调试开关：切换 3 / 4 人队伍（左上角），切换后重载页面应用 */
@@ -1896,7 +1896,20 @@ export class App {
       y: (targetRect.top + targetRect.height / 2 - overlayRect.top) / scale,
     };
     const color = MANA_FLOW_COLOR[ev.color];
-    const sources = origins;
+    const surged = Boolean(ev.surge);
+    const sources = surged && origins.length > 0
+      ? origins.flatMap((point) => [point, point])
+      : origins;
+
+    if (surged && origins.length > 0) {
+      const now = performance.now();
+      if (now - this.lastManaSurgeAt > 120) {
+        this.lastManaSurgeAt = now;
+        const origin = origins[0]!;
+        this.fx.manaSurge(origin.x, origin.y, MANA_FLOW_HEX[ev.color]);
+        this.audio.play('manaSurge');
+      }
+    }
 
     sources.forEach((boardPoint, index) => {
       // Use Pixi's actual world transform rather than root + logical cell coordinates.
@@ -1908,7 +1921,7 @@ export class App {
       const distance = Math.max(1, Math.hypot(dx, dy));
       const normal = { x: -dy / distance, y: dx / distance };
       const curve = 28 + Math.min(48, distance * 0.075) + (index % 3) * 5;
-      const tailLength = Math.max(68, Math.min(112, Math.abs(dx) * 0.24));
+      const tailLength = Math.max(surged ? 88 : 68, Math.min(surged ? 136 : 112, Math.abs(dx) * (surged ? 0.3 : 0.24)));
       // Every control point advances along the source-to-target vector. The perpendicular offset
       // only bends the route, so a stream can no longer launch away from its recipient first.
       const points = [
@@ -1936,7 +1949,7 @@ export class App {
         'position:absolute', 'left:0', 'top:0', 'width:1px', 'height:1px',
         'pointer-events:none', 'z-index:31', 'transform-origin:0 0',
         'opacity:0',
-        `transform:translate(${points[0].x}px,${points[0].y}px) rotate(${angles[0]}deg) scale(.58)`,
+        `transform:translate(${points[0].x}px,${points[0].y}px) rotate(${angles[0]}deg) scale(${surged ? .72 : .58})`,
         'will-change:transform,opacity',
       ].join(';');
 
@@ -1988,7 +2001,7 @@ export class App {
       const duration = (AnimConfig.manaFlow.duration * 1000) / playbackScale;
       const delay = (index * AnimConfig.manaFlow.stagger * 1000) / playbackScale;
       const offsets = [0, 0.17, 0.52, 0.84, 1];
-      const scales = [0.58, 1.08, 1, 0.86, 0.16];
+      const scales = surged ? [0.72, 1.28, 1.16, 0.94, 0.2] : [0.58, 1.08, 1, 0.86, 0.16];
       const opacities = [0, 1, 1, 0.96, 0];
       const keyframes: Keyframe[] = points.map((point, pointIndex) => ({
         transform: `translate(${point.x}px,${point.y}px) rotate(${angles[pointIndex]}deg) scale(${scales[pointIndex]})`,
@@ -2798,7 +2811,6 @@ export class App {
     // 进入释放流程即禁用棋盘交换：选色/选目标/选宝石期间不允许拖动交换宝石（否则与选格点击冲突）
     this.stopIdle();
     this.input.enabled = false;
-    let resolved = false; // 是否真正释放（走到 afterResolve）；取消则在 finally 交还输入
     try {
       // 按需收集玩家选择；任一取消 → 放弃释放（不消耗法力、不改状态，需求 2C.6）
       if (proto) {
@@ -2812,10 +2824,12 @@ export class App {
             this.wrapper,
             this.cellAimCoords(),
             '选择一枚宝石以决定法术颜色',
+            (candidate) => this.engine.getState().board.get(candidate)?.type.kind === 'color',
+            '这枚宝石不能决定颜色，请选择红、黄、蓝、绿、紫或棕色宝石',
           );
           if (cell === null) return;
           const gem = this.engine.getState().board.get(cell);
-          // 只有颜色宝石可定色；点到骷髅/空格 → 放弃释放（不消耗法力）
+          // CellPicker 已阻止无效格结束选择；这里保留状态变化时的防御校验。
           if (!gem || gem.type.kind !== 'color') return;
           this.engine.setColorChooser(new FixedColorChooser(gem.type.color));
         }
@@ -2856,28 +2870,25 @@ export class App {
       const events = this.session.resolve({ type: 'cast', characterId: charId });
       this.onEventsProduced?.(events);
       if (events.length === 0) return;
-      resolved = true;
-      // B-4 第③段：效果摘要。事件流本来就在手，只是从没被翻译成人话。
-      // 先算（此刻引擎状态里还能查到召唤物/阵亡者的名字），演出结束再显示。
-      const summary = summarizeCastEvents(events, { nameOf: (id) => this.charNameOf(id) });
-      await this.player.play(events);
+      try {
+        await this.player.play(events);
+      } catch (err) {
+        console.warn('[battle] skill playback failed', err);
+      }
       this.advanceTurnHud(events);
       this.refreshTeams();
-      this.showCastSummary(this.skillNameOf(ch), summary);
       this.afterResolve();
+    } catch (err) {
+      console.warn('[battle] skill cast failed', err);
     } finally {
       // 释放后恢复 AI 选择器，避免玩家的 Fixed 选择泄漏到 AI 回合
       this.engine.setColorChooser(new AiColorChooser());
       this.engine.setTargetChooser(new AiTargetChooser());
       this.engine.setCellChooser(new AiCellChooser());
-      // 取消/未释放：把输入交还玩家并恢复待机（afterResolve 已按回合归属处理释放成功的情形）
-      if (!resolved) {
-        this.syncPlayerInput();
-        if (this.input.enabled) this.startIdle();
-      }
       // 延一帧再解除互斥：让"确认选目标/宝石的那次点击"引发的候选卡短按抬起
       // 落在 casting=true 窗口内被忽略，不会误触该卡自身技能。
-      window.setTimeout(() => { this.casting = false; }, 0);
+      // 必须在 casting=false 之后再 syncPlayerInput，否则棋盘会一直锁死。
+      window.setTimeout(() => this.restoreAfterCast(), 0);
     }
   }
 
@@ -2931,16 +2942,6 @@ export class App {
     card.showHint('法力已满：点击释放 · 长按查看详情', { ms: 3200 });
   }
 
-  /** 角色显示名（摘要/提示用）：两队都找，找不到返回 undefined 让调用方兜底 */
-  private charNameOf(charId: number): string | undefined {
-    const state = this.engine.getState();
-    for (const side of [PlayerSide.Left, PlayerSide.Right]) {
-      const hit = state.teams[side].characters.find((c) => c.id === charId);
-      if (hit) return hit.name;
-    }
-    return undefined;
-  }
-
   /**
    * 技能显示文本。取数链与 `CharacterDetailPanel.buildDetailViewModel` 严格一致，
    * 免得同一个技能在确认层叫「技能」、在详情面板叫「英灵再世」：
@@ -2977,11 +2978,65 @@ export class App {
     const needsCell = !!proto && prototypeNeedsCell(proto);
     const tMode = proto ? prototypeChosenTargetMode(proto) : null;
     const notes: string[] = [];
-    if (tMode) notes.push(tMode === 'allyChosen' ? '确认后点选一名盟友' : '确认后点选一名敌人');
+    const previewCards: CharacterCard[] = [];
+    if (tMode) {
+      const state = this.engine.getState();
+      const candidates = candidatesFor(tMode, state, ch.id);
+      const friendly = tMode === 'allyChosen';
+      const view = friendly ? this.leftTeamView : this.rightTeamView;
+      for (const candidate of candidates) {
+        const card = view.getCard(candidate.id);
+        if (card) previewCards.push(card);
+      }
+      const names = candidates.map((candidate) => candidate.name).join('、');
+      if (tMode === 'enemyChosenAndBelow') {
+        notes.push(`可选起点：${names || '暂无'}（命中所选目标及其下方）`);
+      } else if (tMode === 'enemyChosenAndAdjacent') {
+        notes.push(`可选锚点：${names || '暂无'}（命中其相邻敌人）`);
+      } else {
+        notes.push(`${friendly ? '可选盟友' : '可选敌人'}：${names || '暂无'}`);
+      }
+    }
+    if (!tMode && proto) {
+      let automaticMode: TargetMode | null = null;
+      let automaticCount = 1;
+      for (const segment of proto.segments) {
+        if (!('target' in segment) || typeof segment.target !== 'string') continue;
+        automaticMode = segment.target;
+        const count = 'n' in segment ? segment.n : undefined;
+        if (typeof count === 'number') automaticCount = count;
+        break;
+      }
+      if (automaticMode) {
+        const state = this.engine.getState();
+        const isRandom = automaticMode.includes('Random');
+        const isDeferred = automaticMode.startsWith('last')
+          || automaticMode.endsWith('Target')
+          || automaticMode === 'enemyNextDown';
+        const targets = isRandom
+          ? state.teams[automaticMode.startsWith('ally') ? PlayerSide.Left : PlayerSide.Right]
+              .characters.filter((candidate) => !candidate.defeated)
+          : isDeferred
+            ? []
+            : selectTargets(automaticMode, state, ch.id, new SeededRNG(0), automaticCount);
+        for (const target of targets) {
+          const card = this.cardOfChar(target.id);
+          if (card && !previewCards.includes(card)) previewCards.push(card);
+        }
+        const names = targets.map((target) => target.name).join('、');
+        if (names) {
+          if (isRandom) notes.push(`可能目标：${names}（随机选取）`);
+          else if (automaticMode === 'enemyAll') notes.push(`作用范围：全体敌人（${names}）`);
+          else if (automaticMode === 'allyAll') notes.push(`作用范围：全体盟友（${names}）`);
+          else if (targets.length === 1) notes.push(`目标：${names}`);
+          else notes.push(`作用范围：${names}`);
+        }
+      }
+    }
     if (needsColor) notes.push('确认后点选一枚宝石决定法术颜色');
     else if (needsCell) notes.push('确认后点选一枚宝石作为目标');
 
-    const ok = await this.castConfirm.confirm({
+    return this.castConfirm.confirm({
       casterName: ch.name,
       skillName: this.skillNameOf(ch),
       skillDescription: this.skillDescriptionOf(ch),
@@ -2989,41 +3044,8 @@ export class App {
       mana: Math.min(ch.mana, ch.manaCost),
       manaCost: ch.manaCost,
       targetNote: notes.join(' · '),
+      targetElements: previewCards.map((card) => card.el),
     });
-    return ok;
-  }
-
-  /**
-   * B-4 第③段：效果摘要条。棋盘上方浮出，逐条列本次释放的实际结果，2.8s 后淡出。
-   * 空摘要（纯棋盘操作且没产出任何可读事件）时只报技能名，不显示空框。
-   */
-  private showCastSummary(skillName: string, lines: string[]): void {
-    if (!this.wrapper) return;
-    if (this.castSummaryTimer !== null) {
-      window.clearTimeout(this.castSummaryTimer);
-      this.castSummaryTimer = null;
-    }
-    if (!this.castSummaryEl) {
-      const el = document.createElement('div');
-      el.className = 'cast-summary';
-      el.setAttribute('role', 'status');
-      el.setAttribute('aria-live', 'polite');
-      ensureCastSummaryStyles();
-      this.wrapper.appendChild(el);
-      this.castSummaryEl = el;
-    }
-    const el = this.castSummaryEl;
-    const body = lines.length
-      ? `<ul>${lines.map((t) => `<li>${escapeHtml(t)}</li>`).join('')}</ul>`
-      : '<p class="cs-empty">释放完成</p>';
-    el.innerHTML = `<div class="cs-title">${escapeHtml(skillName)}</div>${body}`;
-    el.classList.remove('show');
-    void el.offsetWidth;
-    el.classList.add('show');
-    this.castSummaryTimer = window.setTimeout(() => {
-      el.classList.remove('show');
-      this.castSummaryTimer = null;
-    }, 2800);
   }
 
   // —— 测试页调试钩子（供 SkillTestPage 薄壳复用主游戏，不另起逻辑）——

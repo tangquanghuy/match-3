@@ -8,6 +8,7 @@ import type { TeamMember } from '../state/schema';
 import { troopStatsOf } from '../systems/troopProgress';
 import { heroStatsOf } from '../systems/hero';
 import { anyWeaponById } from '../data/weaponCatalog';
+import { RARITY_NAMES as RARITY_CN_ROSTER } from '../data/rarity';
 import { bannerUnlocked } from '../systems/banners';
 import { MIN_TEAM_SIZE, validateTeam, type TeamIssue } from '../systems/teamRules';
 import { BANNERS, BANNER_COLOR_LABELS, bannerOf } from '../data/banners';
@@ -21,8 +22,6 @@ type SlotValue = number | 'hero' | null;
 const PAGE_SIZE = 12;
 const ROSTER_COLORS = ['red', 'green', 'blue', 'yellow', 'purple', 'brown'] as const;
 const COLOR_CN_ROSTER: Record<string, string> = { red: '红', green: '绿', blue: '蓝', yellow: '黄', purple: '紫', brown: '棕' };
-const RARITY_CN_ROSTER = ['普通', '精良', '稀有', '传说', '史诗', '神话'] as const;
-
 /** GOW 封面 CDN（与战斗渲染 App.ts 同源同命名）：重绘立绘批次的上传源，命中不了的条目继续沿链回退 */
 export function troopCdnArt(name: string): string {
   return `https://rpg.bolt.qzz.io/${encodeURIComponent('封面')}/${encodeURIComponent(name)}.webp`;
@@ -239,8 +238,7 @@ export class TeamScreen implements Screen {
       ${toastHtml()}
       <!-- TM-9/TM-10：破坏性操作的二次确认（替掉"点一下就清空/删除"） -->
       <div class="modal-veil" id="teamConfirm" hidden>
-        <section class="money-tip" role="dialog" aria-modal="true" aria-labelledby="teamConfirmTitle">
-          <small id="teamConfirmKicker">CONFIRM</small>
+        <section class="money-tip team-confirm-sheet" role="dialog" aria-modal="true" aria-labelledby="teamConfirmTitle">
           <h2 id="teamConfirmTitle">确认</h2>
           <ul id="teamConfirmLines"></ul>
           <button class="save-team" id="teamConfirmOk" type="button" style="width:100%;margin-top:18px">确认</button>
@@ -249,8 +247,9 @@ export class TeamScreen implements Screen {
       </div>`;
   }
 
-  mount(ctx: ShellCtx): void {
+  mount(ctx: ShellCtx, root: HTMLElement): void {
     this.ctx = ctx;
+    root.classList.add('team-responsive');
     const save = ctx.save();
     this.selectedTeamIndex = Math.min(save.activeTeamIndex, Math.max(0, save.teams.length - 1));
     this.loadTeamIntoSlots();
@@ -345,7 +344,6 @@ export class TeamScreen implements Screen {
       const count = this.slots.filter(Boolean).length;
       if (!count) return void toast('编队已经是空的。');
       this.askConfirm({
-        kicker: 'CLEAR LINEUP',
         title: '清空当前编队？',
         lines: [
           ['要清掉的成员', this.slots.filter(Boolean).map((s) => this.byKey(String(s))?.name ?? '?').join('、')],
@@ -424,7 +422,7 @@ export class TeamScreen implements Screen {
     const list: RosterEntry[] = [{
       key: 'hero',
       troop: null,
-      name: '法露特',
+      name: '主角',
       typeLabel: '主角',
       typeRaw: 'hero',
       level: save.hero.level,
@@ -892,7 +890,6 @@ export class TeamScreen implements Screen {
       return;
     }
     this.askConfirm({
-      kicker: 'DELETE PRESET',
       title: `删除预设队「${team?.name ?? ''}」？`,
       lines: [
         ['成员', String(team?.members.length ?? 0) + ' 人'],
@@ -973,7 +970,7 @@ export class TeamScreen implements Screen {
     veil.innerHTML = `
       <section class="banner-picker" role="dialog" aria-modal="true" aria-label="选择旗帜">
         <div class="banner-picker-head">
-          <div><small>BANNER</small><b>选择旗帜</b></div>
+          <div><b>选择旗帜</b></div>
           <span class="banner-used">队伍用色 ${usedCopy}</span>
           <button class="sheet-close" data-banner-close type="button" aria-label="关闭"><span data-icon="close"></span></button>
         </div>
@@ -1013,9 +1010,8 @@ export class TeamScreen implements Screen {
 
   // —— 二次确认（TM-9/TM-10） ——
 
-  private askConfirm(opts: { kicker: string; title: string; lines: Array<[string, string]>; okLabel: string; run: () => void }): void {
+  private askConfirm(opts: { title: string; lines: Array<[string, string]>; okLabel: string; run: () => void }): void {
     this.confirmAction = opts.run;
-    $('#teamConfirmKicker').textContent = opts.kicker;
     $('#teamConfirmTitle').textContent = opts.title;
     $('#teamConfirmLines').innerHTML = opts.lines.map(([k, v]) => `<li><span>${k}</span><b>${v}</b></li>`).join('');
     $('#teamConfirmOk').textContent = opts.okLabel;
@@ -1042,6 +1038,7 @@ export class TeamScreen implements Screen {
   }
 
   dispose(): void {
+    document.getElementById('stage')?.classList.remove('team-responsive');
     this.closeBannerPicker();
     this.closeConfirm();
     for (const [target, type, fn] of this.listeners.splice(0)) {

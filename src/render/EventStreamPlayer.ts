@@ -245,7 +245,8 @@ export class EventStreamPlayer {
           this.onManaFlow?.(ev, points);
         });
         const flowTime = AnimConfig.manaFlow.duration +
-          Math.max(0, manaOrigins.length - 1) * AnimConfig.manaFlow.stagger;
+          Math.max(0, manaOrigins.length - 1) * AnimConfig.manaFlow.stagger +
+          (ev.surge ? 0.12 : 0);
         tl.to({}, { duration: flowTime });
         tl.add(() => this.onBattleEvent?.(ev));
         break;

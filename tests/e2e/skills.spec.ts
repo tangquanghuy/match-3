@@ -13,6 +13,7 @@ type DebugAppWindow = Window & {
   __testPage: {
     app: {
       casting: boolean;
+      input: { enabled: boolean };
       triggerCast: (charId: number) => Promise<void>;
       setDebugSkill: (charId: number, proto: {
         segments: Array<{
@@ -21,6 +22,11 @@ type DebugAppWindow = Window & {
           scaling: { base: number; mult: number };
         }>;
       }) => void;
+      debugSetGems: (changes: Array<{
+        pos: DebugCell;
+        type: { kind: 'skull'; variant: 'normal' } | { kind: 'color'; color: 'Red' };
+      }>) => Promise<boolean>;
+      getBaseSize: () => { w: number; h: number };
       board: {
         sprites: Map<number, DebugSprite>;
         layer: { children: unknown[] };
@@ -124,9 +130,51 @@ async function expectBoardViewSettled(page: Page): Promise<void> {
 
 
 test.beforeEach(async ({ page }) => {
-  await page.goto('/skills-test.html');
-  await expect(page.locator('#app')).toHaveAttribute('data-test-ready', 'true');
-  await expect(page.getByTestId('skill-dmg-single')).toBeVisible();
+  // Bulk skill semantics tests exercise the cast result, not the confirmation preference.
+  // Keep that choice explicit so B-4's player-facing default confirmation cannot stall them.
+  await page.addInitScript(() => window.localStorage.setItem('battle.skipCastConfirm', '1'));
+  // The page intentionally defers a large frame/audio preload. Waiting for the browser `load`
+  // event makes unrelated skill tests depend on every asset download, while `data-test-ready`
+  // is the app's actual interaction boundary.
+  await page.goto('/skills-test.html', { waitUntil: 'domcontentloaded' });
+  await expect(page.locator('#app')).toHaveAttribute('data-test-ready', 'true', { timeout: 15_000 });
+  await expect(page.getByTestId('skill-dmg-single')).toBeVisible({ timeout: 15_000 });
+});
+
+test('cast confirmation previews candidates and preserves native button semantics', async ({ page }) => {
+  await page.evaluate(() => window.localStorage.setItem('battle.skipCastConfirm', '0'));
+  await assignSkill(page, 'dmg-chosen');
+  await shortPressCard(page, 0);
+
+  const panel = page.locator('.ccp-backdrop.open');
+  await expect(panel).toBeVisible();
+  await expect(panel.locator('.ccp-target')).toContainText('可选敌人');
+  await expect(panel.locator('.ccp-preview-target.hostile')).toHaveCount(3);
+
+  // Enter follows the focused native button. It must not globally force a cast while Cancel has focus.
+  await panel.locator('.ccp-cancel').focus();
+  await page.keyboard.press('Enter');
+  await expect(page.locator('.ccp-backdrop.open')).toHaveCount(0);
+  await expect(page.locator('.ccp-preview-target')).toHaveCount(0);
+  await expect(page.locator('.aim-overlay')).toHaveCount(0);
+
+  await assignSkill(page, 'dmg-single');
+  await shortPressCard(page, 0);
+  await expect(page.locator('.ccp-target')).toContainText('目标：夜斗');
+  await expect(page.locator('.ccp-preview-target.hostile')).toHaveCount(1);
+  await page.locator('.ccp-cancel').click();
+
+  await assignSkill(page, 'dmg-chosen');
+  await shortPressCard(page, 0);
+  await expect(page.locator('.ccp-backdrop.open')).toBeVisible();
+  await page.locator('.ccp-skip-box').check();
+  await page.locator('.ccp-cast').focus();
+  await page.keyboard.press('Enter');
+  await expect(page.locator('.aim-overlay')).toBeVisible();
+  await expect.poll(() => page.evaluate(() => window.localStorage.getItem('battle.skipCastConfirm'))).toBe('1');
+
+  await page.getByTestId('card-6').click();
+  await expect(page.getByTestId('event-log')).toContainText('skill-damage → 角色6');
 });
 
 
@@ -167,7 +215,8 @@ test('mana gem and cancelled card pointers never cast, then a clean short press 
   const card = page.getByTestId('card-0');
   const manaGem = card.locator('.gem');
   await manaGem.click();
-  await expect(manaGem).toHaveClass(/show-tip/);
+  await expect(page.locator('.status-tooltip .st-title')).toContainText('法力');
+  await expect(page.locator('.gem-tip')).toHaveCount(0);
   await expect(log).not.toContainText('skill-cast');
 
   const box = await card.boundingBox();
@@ -201,6 +250,30 @@ test('mana gem and cancelled card pointers never cast, then a clean short press 
   await expect(log).toContainText('skill-cast');
 });
 
+test('cast restores board input and does not show a released toast', async ({ page }) => {
+  await assignSkill(page, 'dmg-single');
+  await page.getByTestId('fill-mana').click();
+  const card = page.getByTestId('card-0');
+  await expect(card).toHaveClass(/castable/);
+  await expect(card.locator('.cast-flag')).toBeHidden();
+
+  await page.evaluate(() => { void (window as unknown as DebugAppWindow).__testPage.app.triggerCast(0); });
+  await expect(page.getByTestId('event-log')).toContainText('skill-cast');
+  await page.waitForFunction(() => !(window as unknown as DebugAppWindow).__testPage.app.casting);
+  await expect.poll(() => page.evaluate(() => (
+    window as unknown as DebugAppWindow
+  ).__testPage.app.input.enabled)).toBe(true);
+  await expect(page.locator('.cast-summary')).toHaveCount(0);
+
+  await page.getByTestId('fill-mana').click();
+  await page.evaluate(() => { void (window as unknown as DebugAppWindow).__testPage.app.triggerCast(0); });
+  await expect(page.getByTestId('event-log')).toContainText('skill-damage');
+  await page.waitForFunction(() => !(window as unknown as DebugAppWindow).__testPage.app.casting);
+  await expect.poll(() => page.evaluate(() => (
+    window as unknown as DebugAppWindow
+  ).__testPage.app.input.enabled)).toBe(true);
+});
+
 test('healing, cleanse, and armor buffs use their finalized numbered frame FX', async ({ page }) => {
   await page.evaluate(() => {
     const state = (window as unknown as DebugAppWindow).__testPage.app.engine.getState() as unknown as {
@@ -229,44 +302,78 @@ test('healing, cleanse, and armor buffs use their finalized numbered frame FX', 
   await expect(page.getByTestId('event-log')).toContainText('buff');
 });
 
-test('poison, frozen, burning, water single-target, and splash attacks use finalized numbered frame FX', async ({ page }) => {
+test('poison, frozen, burning, water single-target, and splash attacks route finalized frame FX', async ({ page }) => {
+  // Frame strips preload after first paint. Casting before that background work finishes legitimately skips
+  // the optional visual, so wait for the test's actual precondition instead of racing the loader.
+  await page.waitForFunction(() => {
+    const app = (window as unknown as DebugAppWindow).__testPage.app;
+    const ctor = app.constructor as unknown as {
+      FRAME_FX_URL: Record<string, string>;
+      frameFXReadyUrls: Set<string>;
+    };
+    const urls = [...new Set(Object.values(ctor.FRAME_FX_URL))];
+    return urls.every((url) => ctor.frameFXReadyUrls.has(url));
+  }, undefined, { timeout: 25_000 });
+  await page.evaluate(() => {
+    type FrameFxFn = (name: string, px: number, py: number, opts?: unknown) => void;
+    type SplashSwordFn = (
+      from: { x: number; y: number },
+      to: { x: number; y: number },
+      onArrive: () => void,
+    ) => void;
+    const app = (window as unknown as DebugAppWindow).__testPage.app as unknown as {
+      playFrameFX: FrameFxFn;
+      playSplashChainSword: SplashSwordFn;
+    };
+    const marker = window as unknown as { __frameFxCalls: string[] };
+    marker.__frameFxCalls = [];
+    const original = app.playFrameFX.bind(app);
+    app.playFrameFX = (name, px, py, opts) => {
+      marker.__frameFxCalls.push(name);
+      original(name, px, py, opts);
+    };
+    const originalSword = app.playSplashChainSword.bind(app);
+    app.playSplashChainSword = (from, to, onArrive) => {
+      marker.__frameFxCalls.push('splash_chain_sword');
+      originalSword(from, to, onArrive);
+    };
+  });
+  const frameFxCalls = () => page.evaluate(() => (
+    window as unknown as { __frameFxCalls: string[] }
+  ).__frameFxCalls);
   await assignSkill(page, 'poison');
   await page.getByTestId('fill-mana').click();
   await page.evaluate(() => { void (window as unknown as DebugAppWindow).__testPage.app.triggerCast(0); });
-  const poisonFx = page.locator('[data-fx="poison_apply"]');
-  await expect(poisonFx).toBeVisible();
-  expect((await poisonFx.boundingBox())?.height ?? 0).toBeGreaterThanOrEqual(145);
+  await expect.poll(frameFxCalls).toContain('poison_flash');
   await page.waitForFunction(() => !(window as unknown as DebugAppWindow).__testPage.app.casting);
 
   await page.evaluate(() => {
     const app = (window as unknown as DebugAppWindow).__testPage.app as unknown as {
-      audio: { play: (name: string) => void };
+      audio: { playStatusApply: (statusId: string) => void };
     };
-    const marker = window as unknown as { __frozenAudioCalls: string[] };
-    marker.__frozenAudioCalls = [];
-    const original = app.audio.play.bind(app.audio);
-    app.audio.play = (name) => {
-      marker.__frozenAudioCalls.push(name);
-      original(name);
+    const marker = window as unknown as { __statusAudioCalls: string[] };
+    marker.__statusAudioCalls = [];
+    const original = app.audio.playStatusApply.bind(app.audio);
+    app.audio.playStatusApply = (statusId) => {
+      marker.__statusAudioCalls.push(statusId);
+      original(statusId);
     };
   });
   await assignSkill(page, 'frozen');
   await page.getByTestId('fill-mana').click();
   await page.evaluate(() => { void (window as unknown as DebugAppWindow).__testPage.app.triggerCast(0); });
-  const frozenFx = page.locator('[data-fx="frozen_apply"]');
-  await expect(frozenFx).toBeVisible();
-  expect((await frozenFx.boundingBox())?.height ?? 0).toBeGreaterThanOrEqual(295);
+  await expect.poll(frameFxCalls).toContain('frozen_flash');
   expect(await page.evaluate(() =>
-    (window as unknown as { __frozenAudioCalls: string[] }).__frozenAudioCalls,
+    (window as unknown as { __statusAudioCalls: string[] }).__statusAudioCalls,
   )).toContain('frozen');
   await page.waitForFunction(() => !(window as unknown as DebugAppWindow).__testPage.app.casting);
 
   await assignSkill(page, 'burning');
   await page.getByTestId('fill-mana').click();
   await page.evaluate(() => { void (window as unknown as DebugAppWindow).__testPage.app.triggerCast(0); });
-  await expect(page.locator('[data-fx="burning_apply"]').first()).toBeVisible();
+  await expect.poll(frameFxCalls).toContain('burning_flash');
   expect(await page.evaluate(() =>
-    (window as unknown as { __frozenAudioCalls: string[] }).__frozenAudioCalls,
+    (window as unknown as { __statusAudioCalls: string[] }).__statusAudioCalls,
   )).toContain('burning');
   await page.waitForFunction(() => !(window as unknown as DebugAppWindow).__testPage.app.casting);
 
@@ -299,7 +406,7 @@ test('poison, frozen, burning, water single-target, and splash attacks use final
   await assignSkill(page, 'dmg-single');
   await page.getByTestId('fill-mana').click();
   await page.evaluate(() => { void (window as unknown as DebugAppWindow).__testPage.app.triggerCast(0); });
-  await expect(page.locator('[data-fx="water_single_hit"]')).toBeVisible();
+  await expect.poll(frameFxCalls).toContain('water_single_hit');
   expect(await page.evaluate(() => (window as unknown as { __skillProjectileCalls: number }).__skillProjectileCalls)).toBe(1);
   expect(await page.evaluate(() =>
     (window as unknown as { __skillAudioCalls: string[] }).__skillAudioCalls.filter((name) => name === 'skill').length,
@@ -316,9 +423,9 @@ test('poison, frozen, burning, water single-target, and splash attacks use final
   await page.evaluate(() => { void (window as unknown as DebugAppWindow).__testPage.app.triggerCast(0); });
   await page.waitForTimeout(80);
   await page.getByTestId('card-4').click();
-  await expect(page.locator('[data-fx="splash_chain_cast"]')).toBeVisible();
-  await expect(page.locator('[data-fx="splash_hit"]').first()).toBeVisible();
-  await expect(page.locator('[data-fx="splash_chain_sword"]').first()).toBeVisible({ timeout: 2_000 });
+  await expect.poll(frameFxCalls).toContain('splash_chain_cast');
+  await expect.poll(frameFxCalls).toContain('splash_hit');
+  await expect.poll(frameFxCalls).toContain('splash_chain_sword');
   expect(await page.evaluate(() => (window as unknown as { __skillProjectileCalls: number }).__skillProjectileCalls)).toBe(0);
   expect(await page.evaluate(() =>
     (window as unknown as { __skillAudioCalls: string[] }).__skillAudioCalls.filter((name) => name === 'skill').length,
@@ -383,10 +490,14 @@ test('single-target hit FX and audio route by caster color', async ({ page }) =>
       marker.__singleHitFxAt = {};
       void (window as unknown as DebugAppWindow).__testPage.app.triggerCast(0);
     });
-    await expect(page.locator(`[data-fx="${item.fx}"]`)).toBeVisible();
-    expect(await page.evaluate(() =>
-      (window as unknown as { __singleHitAudioCalls: string[] }).__singleHitAudioCalls,
-    )).toContain(item.sfx);
+    // Frame nodes live for only 360ms. Assert the stable routing probe rather than hoping
+    // Playwright samples the transient DOM during that window under a loaded full-suite run.
+    await expect.poll(() => page.evaluate((fx) =>
+      (window as unknown as { __singleHitFxAt: Record<string, number> }).__singleHitFxAt[fx] ?? null,
+    item.fx)).not.toBeNull();
+    await expect.poll(() => page.evaluate((sfx) =>
+      (window as unknown as { __singleHitAudioCalls: string[] }).__singleHitAudioCalls.includes(sfx),
+    item.sfx)).toBe(true);
     if (item.color === 'Yellow' || item.color === 'Purple') {
       const lead = await page.evaluate(({ sfx, fx }) => {
         const marker = window as unknown as {
@@ -598,26 +709,41 @@ test('玩家选一行摧毁：拖选行技能→短按→棋盘点一行→gem-d
 });
 
 test('点选宝石定色摧毁：拖摧毁指定色→短按→点一颗宝石取其色→gem-destroy', async ({ page }) => {
+  const changed = await page.evaluate(async () => {
+    const app = (window as unknown as DebugAppWindow).__testPage.app;
+    return app.debugSetGems([
+      { pos: { row: 3, col: 3 }, type: { kind: 'skull', variant: 'normal' } },
+      { pos: { row: 3, col: 4 }, type: { kind: 'color', color: 'Red' } },
+    ]);
+  });
+  expect(changed).toBe(true);
   await assignAndCast(page, 'gem-destroy-color');
-  const canvas = page.locator('canvas').first();
-  const box = await canvas.boundingBox();
   const log = page.getByTestId('event-log');
-  // 现在改为"点选一枚宝石取其颜色"（cellaim 选择器）；逐格尝试，点到颜色宝石即摧毁该色
-  if (box) {
-    const spots = [[0.5, 0.3], [0.3, 0.5], [0.7, 0.5], [0.5, 0.7], [0.4, 0.4]];
-    for (const [fx, fy] of spots) {
-      if ((await log.textContent())?.includes('gem-destroy')) break;
-      const x = box.x + box.width * fx;
-      const y = box.y + box.height * fy;
-      // 若不在选宝石态（上一轮点到骷髅被取消）则重新发起
-      const picking = await page.evaluate(() => !!document.querySelector('.cellaim-overlay'));
-      if (!picking) { await assignAndCast(page, 'gem-destroy-color'); await page.waitForTimeout(150); }
-      await page.mouse.move(x, y, { steps: 4 });
-      await page.waitForTimeout(150);
-      await page.mouse.click(x, y);
-      await page.waitForTimeout(300);
-    }
-  }
+  await expect(page.locator('.cellaim-overlay')).toBeVisible();
+  // CellPicker intentionally delays the global click handler briefly so the cast-opening click cannot self-select.
+  await page.waitForTimeout(100);
+  const pointFor = (cell: DebugCell) => page.evaluate((target) => {
+    const app = (window as unknown as DebugAppWindow).__testPage.app as unknown as {
+      getBaseSize(): { w: number; h: number };
+      cellAimCoords(): { cellToAim(pos: DebugCell): { x: number; y: number } };
+    };
+    const wrapper = document.querySelector('.battle-wrapper') as HTMLElement;
+    const rect = wrapper.getBoundingClientRect();
+    const base = app.getBaseSize();
+    const aim = app.cellAimCoords().cellToAim(target);
+    return { x: rect.left + aim.x * (rect.width / base.w), y: rect.top + aim.y * (rect.height / base.h) };
+  }, cell);
+
+  const skull = await pointFor({ row: 3, col: 3 });
+  await page.mouse.move(skull.x, skull.y, { steps: 4 });
+  await page.mouse.click(skull.x, skull.y);
+  await expect(page.locator('.cellaim-overlay')).toBeVisible();
+  await expect(page.locator('.cellaim-hint')).toContainText('这枚宝石不能决定颜色');
+  expect(await log.textContent()).not.toContain('gem-destroy');
+
+  const red = await pointFor({ row: 3, col: 4 });
+  await page.mouse.move(red.x, red.y, { steps: 4 });
+  await page.mouse.click(red.x, red.y);
   await expect(log).toContainText('gem-destroy');
 });
 

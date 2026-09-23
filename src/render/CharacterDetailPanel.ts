@@ -12,8 +12,8 @@ import type { Character } from '@engine/types';
 import { getTrait } from '@engine/traits';
 import { skillDisplayOf } from '@session/assigner';
 import type { TroopData } from '../data/troops';
+import { STATUS_DESCRIPTIONS } from '../data/statusDescriptions';
 import { statusBadge, statusBadgeIcon } from './statusBadges';
-import { STATUS_DESCRIPTIONS } from './statusTooltip';
 // 技能文案求值与英雄页/武器图鉴/施法确认层同一套渲染：面板里再出现裸的
 // `[魔法+N]` 占位就与确认层自相矛盾（B-4 三条规则之二）。先 esc 再渲染，
 // renderSpell 只改写 [..] 片段，对已转义文本安全。

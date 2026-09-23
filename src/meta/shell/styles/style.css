@@ -6,8 +6,40 @@
   --body: "Segoe UI", "Microsoft YaHei", sans-serif;
   --map-w: 5440px;
   --map-h: 2920px;
+  --scroll-track: #0d1115;
+  --scroll-thumb: #625f59;
+  --scroll-thumb-hover: #92836b;
 }
 * { box-sizing: border-box; }
+* {
+  scrollbar-width: thin !important;
+  scrollbar-color: var(--scroll-thumb) var(--scroll-track) !important;
+}
+*::-webkit-scrollbar {
+  width: 8px !important;
+  height: 8px !important;
+}
+*::-webkit-scrollbar-track {
+  background: var(--scroll-track) !important;
+}
+*::-webkit-scrollbar-thumb {
+  min-width: 28px;
+  min-height: 28px;
+  border: 2px solid var(--scroll-track) !important;
+  border-radius: 8px !important;
+  background: var(--scroll-thumb) !important;
+  background-clip: padding-box !important;
+}
+*::-webkit-scrollbar-thumb:hover {
+  background: var(--scroll-thumb-hover) !important;
+  background-clip: padding-box !important;
+}
+*::-webkit-scrollbar-button {
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
+}
+*::-webkit-scrollbar-corner { background: var(--scroll-track) !important; }
 html, body { margin: 0; width: 100%; height: 100%; overflow: hidden; }
 body {
   background: #080910;
@@ -83,18 +115,33 @@ i { font-style: normal; }
 .xp i { display: block; width: 61.5%; height: 100%; background: linear-gradient(90deg, #663b8d, #b797d4); }
 .top-title { text-align: center; position: absolute; left: 50%; transform: translateX(-50%); }
 .top-title span { display: block; letter-spacing: 4px; font: 9px Georgia; color: #9c8660; }
-.top-title b { display: block; font: 22px var(--display); letter-spacing: 5px; margin-top: 8px; color: #dfcd9e; }
+.top-title b { display: block; font: 22px var(--display); letter-spacing: 5px; margin-top: 0; color: #dfcd9e; }
 .wallet { display: flex; align-items: center; gap: 18px; }
 .money {
   display: flex; align-items: center; gap: 9px;
   background: none; text-align: left; padding: 4px 2px;
 }
-.money > [data-icon] { color: #ddbf73; width: 29px; height: 29px; filter: drop-shadow(0 2px 2px #000); }
+.money > [data-icon] {
+  color: #e8c56a;
+  width: 32px;
+  height: 32px;
+  filter: drop-shadow(0 1px 2px #000);
+}
+.money > [data-icon] > .chrome-art,
+.orb [data-icon] > .chrome-art {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+  overflow: visible;
+  pointer-events: none;
+  background: transparent;
+}
 .money small { display: block; font-size: 10px; color: #9c94a2; margin-bottom: 4px; }
 .money b { font-size: 17px; font-weight: 600; }
-.money.soul > [data-icon] { color: #bda0e1; }
-.money.crystal > [data-icon] { color: #8dcbee; }
-.money.key > [data-icon] { width: 25px; }
+.money.soul > [data-icon] { color: #c9a0e8; }
+.money.crystal > [data-icon] { color: #7ec8ee; }
+.money.key > [data-icon] { width: 30px; height: 30px; }
 .orb {
   position: relative;
   width: 42px; height: 42px; margin-left: 6px;
@@ -105,7 +152,7 @@ i { font-style: normal; }
   box-shadow: inset 0 1px #f0dab722, 0 2px 6px #0006;
   color: #e6d4a4;
 }
-.orb [data-icon] { width: 20px; height: 20px; }
+.orb [data-icon] { width: 22px; height: 22px; }
 .materials-alert {
   position: absolute;
   top: 3px;
@@ -690,4 +737,13 @@ i { font-style: normal; }
 
 @media (prefers-reduced-motion: reduce) {
   * { animation: none !important; transition: none !important; }
+}
+
+/* 设置页的显式减弱动效偏好；与系统 prefers-reduced-motion 采用同一降级口径。 */
+html[data-motion="reduced"] *,
+html[data-motion="reduced"] *::before,
+html[data-motion="reduced"] *::after {
+  animation: none !important;
+  scroll-behavior: auto !important;
+  transition: none !important;
 }

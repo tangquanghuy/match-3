@@ -8,6 +8,7 @@ import { App } from '@render/App';
 import type { BattleResult } from '@session/index';
 import { isFailure, todayStartOf, weekStartOf } from '../gateway';
 import { EVENT_TYPES } from '../data/events';
+import { exploreNodeLabel } from '../data/kingdoms';
 import type { BridgeOutcome } from '../systems/battleBridge';
 import type { ArenaBridgeOutcome } from '../systems/arena';
 import type { InvasionBridgeOutcome } from '../systems/invasion';
@@ -34,8 +35,15 @@ export class BattleLauncher {
     await this.run(plan, 'quest');
   }
 
-  /** 探索出战（档位取存档当前档） */
-  async launchExplore(kingdom: string): Promise<void> {
+  /** Hard / Very Hard 出战；传入 tier 时先写入存档再开战 */
+  async launchExplore(kingdom: string, tier?: number): Promise<void> {
+    if (tier != null) {
+      const { result } = await this.ctx.gateway.setKingdomExploreTier(kingdom, tier);
+      if (isFailure(result)) {
+        toast(result.message);
+        return;
+      }
+    }
     const plan = await this.ctx.gateway.planExploreBattle(kingdom);
     if (isFailure(plan)) {
       toast(plan.message);
@@ -103,7 +111,7 @@ export class BattleLauncher {
     app.onBattleDismissed = finish;
 
     try {
-      await app.init(this.root, plan.request);
+      await app.init(this.root, plan.request, plan.registry);
     } catch (error: unknown) {
       settled = true;
       app.destroy();
@@ -126,7 +134,7 @@ export class BattleLauncher {
       if (!isFailure(settled)) {
         this.ctx.showResult(
           { kind: 'arena', battle: result, settled },
-          { kingdom: '竞技场', sourceLabel: 'ARENA RUN', returnHash: '#arena' },
+          { kingdom: '竞技场', sourceLabel: '竞技场', returnHash: '#arena' },
         );
       } else {
         toast(settled.message);
@@ -149,7 +157,7 @@ export class BattleLauncher {
           { kind: 'invasion', battle: result, settled, frenzy: plan.mirror.frenzy },
           {
             kingdom: '入侵战',
-            sourceLabel: `INVASION · ${plan.mirror.name}`,
+            sourceLabel: `入侵 · ${plan.mirror.name}`,
             returnHash: '#invasion',
           },
         );
@@ -168,10 +176,10 @@ export class BattleLauncher {
     });
     const source = plan.plan.source;
     const sourceLabel = source.kind === 'quest'
-      ? `KINGDOM QUEST ${String(source.node).padStart(2, '0')}`
+      ? `NORMAL ${source.node}`
       : source.kind === 'event'
-        ? `LIVE EVENT ${source.typeId.toUpperCase()}`
-        : `EXPLORE TIER ${source.tier}`;
+        ? '每周活动'
+        : exploreNodeLabel(source.tier);
     this.ctx.showResult(detail, {
       kingdom: plan.plan.kingdom,
       sourceLabel,

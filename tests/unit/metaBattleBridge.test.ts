@@ -97,7 +97,7 @@ describe('buildBattleRequest（存档 → BattleRequest）', () => {
     const outcome = buildBattleRequest(save(), planExploreEncounter(KINGDOM, 3, 9));
     if (!outcome.ok) throw new Error(outcome.message);
     expect(outcome.request.requestId).toBe('meta-9-x3');
-    expect(outcome.request.enemyTeam).toHaveLength(3);
+    expect(outcome.request.enemyTeam).toHaveLength(4);
   });
 
   it('编队含主角 → 主角快照正常组装（M5 转正，旧 HERO_UNAVAILABLE 占位移除）', () => {
@@ -112,9 +112,15 @@ describe('buildBattleRequest（存档 → BattleRequest）', () => {
     if (!outcome.ok) throw new Error(outcome.message);
     expect(outcome.request.playerTeam).toHaveLength(3);
     const hero = outcome.request.playerTeam.find((c) => c.externalId.endsWith('-hero'))!;
-    expect(hero.name).toBe('法露特');
+    expect(hero.name).toBe('主角');
     // 新档默认装备官方开局武器「骑士之剑」（自造 w_* 假数据已整表退役）
     expect(hero.skillId).toBe('gw_KnightsSword');
+  });
+
+  it('寒冰阔剑等目录武器的 gw_* 键在战斗注册表里可执行，不是空兜底', () => {
+    const registry = buildMetaRegistry(['gw_IcyGlaive', 'gw_KnightsSword']);
+    expect(registry.prototypes.get('gw_IcyGlaive')!.segments.length).toBeGreaterThan(0);
+    expect(registry.prototypes.get('gw_KnightsSword')!.segments.length).toBeGreaterThan(0);
   });
 
   it('没有预设队 → NO_TEAM', () => {

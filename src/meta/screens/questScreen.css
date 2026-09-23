@@ -1,0 +1,359 @@
+.quest-screen {
+  position: absolute;
+  inset: 96px 0 82px;
+  overflow: hidden;
+  background: #201d2b;
+}
+.quest-map {
+  --quest-accent: #a5c1ac;
+  --quest-deep: #285f55;
+  position: absolute;
+  inset: 0;
+  isolation: isolate;
+}
+.quest-map[data-mode="hard"] { --quest-accent: #d9a88d; --quest-deep: #994c3c; }
+.quest-map[data-mode="veryHard"] { --quest-accent: #c7a8e2; --quest-deep: #79509e; }
+.quest-art {
+  position: absolute;
+  inset: -2%;
+  background: #292131 center 53% / cover no-repeat;
+  /*
+   * The kingdom illustration is scenery for the route. Keep its shapes
+   * readable, while taking away the sharp detail and contrast that compete
+   * with the level pins and the quest panel.
+   */
+  filter: blur(6px) saturate(.62) brightness(.76) contrast(.94);
+  transform: scale(1.04);
+  opacity: .82;
+  pointer-events: none;
+}
+.quest-atmosphere {
+  position: absolute;
+  inset: 0;
+  /* A denser veil keeps the center quiet enough for the route to read first. */
+  background: linear-gradient(180deg, #17151ef2, #17151e58 24%, #1a152046 62%, #13101ad0),
+    linear-gradient(90deg, #11131b78, #11131b1c 40%, #27172748);
+  pointer-events: none;
+}
+.quest-map[data-mode="veryHard"] .quest-atmosphere {
+  background: linear-gradient(180deg, #22142de8, #31174755 32%, #41276535 64%, #201325d8),
+    radial-gradient(ellipse at 70% 40%, #c18ff018, transparent 60%);
+}
+.quest-stage { position: absolute; inset: 135px 5% 167px; }
+.quest-route { position: relative; width: 100%; height: 100%; }
+.qpaths { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; pointer-events: none; }
+.qpaths-mobile { display: none; }
+.qpaths path { fill: none; stroke-linecap: round; stroke-linejoin: round; vector-effect: non-scaling-stroke; }
+.qpath-shadow { stroke: #15121e70; stroke-width: 10px; }
+.qpath-bed { stroke: #baa58445; stroke-width: 3px; stroke-dasharray: 2 12; }
+.qpath { stroke: #d5bd8b; stroke-width: 2.5px; stroke-dasharray: 2 12; filter: drop-shadow(0 1px 2px #0008); }
+.qhud { position: absolute; top: 24px; left: 30px; display: flex; align-items: center; gap: 12px; }
+.qhud .crest { width: 47px; height: 58px; object-fit: contain; filter: drop-shadow(0 3px 5px #0008); }
+.qhud small { display: block; margin-bottom: 5px; color: #c5bfae; font: 9px var(--body); letter-spacing: 3px; }
+.qhud h1 { margin: 0; color: #fff4db; font: 26px var(--display); letter-spacing: 3px; text-shadow: 0 2px 8px #0006; }
+.qh-progress { display: flex; align-items: center; gap: 10px; margin-top: 9px; color: #f7df9b; font: 11px Georgia, serif; }
+.qh-progress em { color: #b7ac9c; font-style: normal; }
+.qh-track { display: flex; gap: 3px; }
+.qh-track i { width: 10px; height: 3px; background: #ffffff30; border-radius: 2px; }
+.qh-track i.done { background: #e6c579; box-shadow: 0 0 5px #e6c57933; }
+.quest-map .qback { position: absolute; right: 28px; top: 28px; min-width: 0; height: 38px; padding: 0 14px; border-radius: 5px; font-size: 13px; }
+
+/* 深紫共用底座融入全局外壳；难度色只用于文字、选中底光与细线。 */
+.qtabs { position: absolute; top: 24px; left: 50%; transform: translateX(-50%); display: flex; align-items: stretch; gap: 0; padding: 5px; border: 1px solid #a68c586b; border-radius: 40px; background: linear-gradient(180deg, #292330f5, #15131df7); box-shadow: 0 5px 18px #0b091780, inset 0 1px #ead4a517; z-index: 5; }
+.qtab {
+  --tab-edge: #91b19a; --tab-dark: #b4c9b7; --tab-light: #2c4038;
+  position: relative; display: flex; align-items: center; gap: 12px;
+  width: 214px; height: 57px; padding: 8px 23px;
+  border: 0; border-radius: 30px; background: transparent; color: var(--tab-dark); text-align: left;
+  transition: background .18s, box-shadow .18s;
+}
+.qtab[data-mode="hard"] { --tab-edge: #c3927a; --tab-dark: #ddb49c; --tab-light: #4a302d; }
+.qtab[data-mode="veryHard"] { --tab-edge: #b090d0; --tab-dark: #d1b4e8; --tab-light: #3c2b50; width: 236px; }
+.qtab + .qtab::before { content: ''; position: absolute; top: 13px; bottom: 13px; left: 0; width: 1px; background: #aa978242; transform: rotate(14deg); }
+.qtab.on::before, .qtab.on + .qtab::before { opacity: 0; }
+.qtab:hover { background: #e2c99b0a; }
+.qtab.on { color: var(--light); background: linear-gradient(145deg, var(--tab-light), #211c29); box-shadow: 0 2px 8px #08060e70, inset 0 0 0 1px #d8c29038, inset 0 1px #e4d0a52b; }
+.qtab::after { content: ''; position: absolute; bottom: 4px; left: 24px; right: 24px; height: 2px; border-radius: 50%; background: var(--tab-edge); opacity: .25; }
+.qtab.on::after { opacity: 1; height: 3px; bottom: 3px; left: 30px; right: 30px; box-shadow: 0 1px 5px color-mix(in srgb, var(--tab-edge) 45%, transparent); }
+.qtab-copy { position: relative; z-index: 1; flex: none; }
+.qtab-copy b { display: block; font: italic 750 18px/1.1 Arial, sans-serif; letter-spacing: .2px; }
+.qtab-copy small { display: block; margin-top: 5px; font: 11px/1 var(--body); letter-spacing: 2px; opacity: .75; }
+.qtab-state { position: absolute; bottom: 9px; right: 14px; width: 10px; height: 10px; opacity: .6; }
+.qtab-state svg { display: block; width: 100%; height: 100%; }
+.qtab:not(.locked) .qtab-state { display: none; }
+.qtab.locked .qtab-loot { opacity: .6; }
+.qtab-loot { display: flex; flex: 1; min-width: 0; align-items: center; justify-content: flex-end; isolation: isolate; filter: drop-shadow(0 3px 2px #51413035); }
+.qtab-loot .qloot-tile { width: 33px; height: 37px; margin-left: -10px; border: 0; border-radius: 0; background: none; box-shadow: none; transform: rotate(-10deg); }
+.qtab-loot .qloot-tile + .qloot-tile { transform: translateY(4px) rotate(12deg); }
+.qtab-loot .qloot-portrait { width: 29px; height: 34px; border: 1px solid #aa8d56; border-radius: 4px; }
+.qtab[data-mode="veryHard"] .qtab-loot { filter: drop-shadow(0 0 6px #c28edc66) drop-shadow(0 3px 2px #51413035); }
+.qtab[data-mode="veryHard"] .qtab-loot .qloot-tile { width: 37px; height: 40px; }
+
+.qloot-tile { position: relative; display: inline-flex; flex: none; align-items: center; justify-content: center; width: 43px; height: 43px; border-radius: 7px; border: 1px solid #a18b6259; background: linear-gradient(145deg, #38303e, #1b1924); box-shadow: inset 0 1px #e3d0b011, 0 2px 4px #0003; }
+.qloot-symbol { display: inline-grid; place-items: center; width: 30px; height: 30px; color: #d8b971; }
+.qloot-symbol svg { width: 100%; height: 100%; }
+.qloot-symbol.soul { color: #b99ad3; }
+.qloot-symbol.stone,
+.qloot-symbol.ingot { width: 30px; height: 30px; background: none; clip-path: none; }
+.qloot-symbol.stone::after,
+.qloot-symbol.ingot::after { content: none; }
+.qloot-symbol .mat-art { width: 100%; height: 100%; object-fit: contain; }
+.qloot-portrait { width: 100%; height: 100%; border-radius: 6px; object-fit: cover; object-position: top; }
+.qloot-cluster { display: flex; align-items: center; justify-content: center; width: 100%; }
+.qloot-cluster .qloot-symbol.stone { flex: none; width: 18px; height: 22px; margin: 0 -4px; transform: none; }
+.qloot-cluster .qloot-symbol.stone:nth-child(2n) { transform: translateY(-2px); }
+.qloot-cluster .qloot-symbol.stone:last-child { transform: translateY(1px); }
+
+.qpins { position: absolute; inset: 0; }
+.qpin { position: absolute; left: var(--pin-x); top: var(--pin-y); width: 76px; height: 52px; transform: translate(-50%, -42px); padding: 0; border: 0; background: none; color: #376657; z-index: 1; }
+.qpin > *, .qpin::before, .qpin::after { pointer-events: none; }
+.qpin::before { content: ''; position: absolute; left: calc(50% - 17px); top: 36px; width: 34px; height: 12px; border: 1px solid #d4b77773; border-radius: 50%; background: #c0a6750d; box-shadow: 0 0 8px #cfb67d18; }
+.qpin::after { content: ''; position: absolute; left: calc(50% - 4px); top: 38px; width: 8px; height: 8px; border-radius: 50%; background: #d8bd85; box-shadow: 0 0 7px #d3b77d70; }
+.qpin-disc { position: absolute; left: 4px; right: 4px; top: 0; height: 30px; display: flex; align-items: center; justify-content: center; gap: 7px; border-radius: 17px 17px 17px 5px; background: linear-gradient(#332c3b, #1e1b29); border: 1px solid #af98648f; box-shadow: 0 3px 9px #0c081c80, inset 0 1px #efdab21c; color: var(--gold); font: italic 700 18px/1 Arial, sans-serif; transition: transform .18s, box-shadow .18s; }
+.qpin-disc::after { content: ''; position: absolute; left: calc(50% - 4px); bottom: -6px; border: 4px solid transparent; border-top: 5px solid #af9864; border-bottom: 0; }
+.qpin.hard .qpin-disc { color: #deb19a; }
+.qpin.veryHard .qpin-disc { color: #d2b6e8; }
+.qpin-status { display: grid; place-items: center; width: 15px; height: 15px; color: currentColor; opacity: .8; }
+.qpin-status svg { width: 13px; height: 13px; }
+.qpin.locked .qpin-disc { background: linear-gradient(#302c36e8, #201d29e8); border-color: #7168778c; color: #a59ba8; box-shadow: 0 3px 8px #17131c44; }
+.qpin.locked .qpin-disc::after { border-top-color: #716877; }
+.qpin.locked::after { background: #b2a9a1; box-shadow: none; }
+.qpin.locked::before { border-color: #b2a9a140; background: none; box-shadow: none; }
+.qpin.locked .qpin-stand, .qpin.locked .qpin-loot { filter: grayscale(.8) brightness(.7); }
+.qpin-focus { position: absolute; left: calc(50% - 25px); top: 31px; width: 50px; height: 22px; border-radius: 50%; opacity: 0; }
+.qpin.on { z-index: 3; }
+.qpin.on .qpin-focus { opacity: 1; border: 1px solid #ead092; box-shadow: 0 0 0 4px #dfc38914, 0 0 18px #dfc38959; }
+.qpin.on .qpin-disc { transform: translateY(-4px); border-color: #e4c78b; color: #ffedc3; background: linear-gradient(#4b3c42, #2c2331); box-shadow: 0 0 0 2px #d5b87926, 0 4px 14px #13102070; }
+.qpin:active:not(:disabled) { transform: translate(-50%, -41px); }
+.qpin:hover .qpin-disc { transform: translateY(-5px); }
+.qpin.current .qpin-disc { background: linear-gradient(#665137, #352b26); color: #ffe5a8; }
+.qpin.current .qpin-disc::after { border-top-color: #bfa16c; }
+.qpin-stand { position: absolute; width: 67px; height: 78px; left: 50%; bottom: 62px; transform: translateX(-50%); object-fit: cover; object-position: top; border: 1px solid #e1c58c; border-radius: 34px 34px 10px 10px; box-shadow: 0 5px 12px #0005; background: #24202a; pointer-events: none; }
+.qpin-boss { position: absolute; left: 50%; bottom: 58px; transform: translateX(-50%); padding: 3px 12px; background: linear-gradient(90deg, #773c3b00, #773c3bf5 20%, #773c3bf5 80%, #773c3b00); color: #ffe9c0; font: 700 8px Arial, sans-serif; letter-spacing: 1.5px; z-index: 2; }
+.qpin-chest { position: absolute; right: -12px; top: -13px; width: 28px; height: 28px; color: #f6d590; filter: drop-shadow(0 2px 3px #17111a); transform: rotate(9deg); }
+.qpin-chest svg { width: 100%; height: 100%; }
+.qpin-loot { position: absolute; top: 57px; left: 50%; transform: translateX(-50%); display: flex; align-items: center; gap: 2px; padding: 3px 6px; border-radius: 20px; background: radial-gradient(ellipse, #13101d99, #13101d00 72%); }
+.qpin-loot .qloot-tile { width: 29px; height: 29px; border: 0; background: none; box-shadow: none; filter: drop-shadow(0 2px 2px #0008); }
+.qpin-loot .qloot-symbol.ingot,
+.qpin-loot .qloot-symbol.stone { width: 26px; height: 26px; }
+.qmap-compass { position: absolute; left: 30px; bottom: 157px; width: 42px; height: 42px; color: #e3d4a885; pointer-events: none; }
+.qmap-compass [data-icon] { display: block; width: 100%; height: 100%; }
+.qmap-compass svg { width: 100%; height: 100%; }
+.qmap-compass i { position: absolute; left: 18px; top: -13px; font: 9px Georgia, serif; }
+
+/* 与顶部外壳同源的暗紫面板，物品与主行动保留局部亮度。 */
+.quest-dock { position: absolute; left: 28px; right: 28px; bottom: 22px; display: grid; grid-template-columns: minmax(220px, 1fr) auto minmax(260px, 1.2fr) 176px; align-items: center; gap: 26px; padding: 22px 24px; min-height: 115px; background: linear-gradient(125deg, #24202df5, #121019fa); border: 1px solid #bba16c66; border-radius: 12px; box-shadow: 0 10px 35px #09071199, inset 0 1px #e7d1a51c; z-index: 6; }
+.quest-dock::before { content: ''; position: absolute; top: 12px; left: 0; bottom: 12px; width: 2px; border-radius: 0 3px 3px 0; background: var(--quest-accent); opacity: .7; }
+.qd-copy { min-width: 0; }
+.qd-copy small { display: block; color: var(--quest-accent); font: 10px Georgia, serif; letter-spacing: 2px; }
+.qd-copy small i { margin: 0 5px; color: #8a7b6e; font-style: normal; }
+.qd-copy b { display: block; margin: 7px 0 5px; color: var(--light); font: 22px var(--display); letter-spacing: 1px; }
+.qd-copy > span { color: #b6a58d; font: 12px var(--body); }
+.qd-label { display: block; color: #b4a79c; font: 10px var(--body); letter-spacing: 2px; margin-bottom: 8px; }
+.qd-foes { display: flex; gap: 6px; }
+.qd-foe { width: 42px; height: 46px; overflow: hidden; border: 1px solid #b1a080; border-radius: 6px; background: #27222e; box-shadow: 0 2px 4px #51432d26; }
+.qd-foe img { width: 100%; height: 100%; object-fit: cover; object-position: top; }
+.qd-foe.boss { border-color: #b65e59; }
+.qd-foe.elite { border-color: #6190ad; }
+.qd-loot { align-self: stretch; display: flex; flex-direction: column; justify-content: center; padding-left: 26px; border-left: 1px solid #a58a5b38; min-width: 0; }
+.qd-rewards { display: flex; align-items: center; flex-wrap: wrap; gap: 6px; }
+.qd-action { display: flex; flex-direction: column; align-items: center; }
+.quest-dock .primary { width: 176px; height: 52px; border: 1px solid #c4a56b; border-radius: 7px; background: linear-gradient(#726044, #463726); color: #fff0c8; box-shadow: inset 0 1px #f0d69c47, 0 3px 0 #30251b, 0 5px 9px #0004; font: 20px var(--display); letter-spacing: 5px; }
+.quest-dock .primary::before, .quest-dock .primary::after { display: none; }
+.quest-dock .primary [data-icon] { width: 22px; height: 22px; margin-right: 8px; }
+.quest-dock .primary:hover:enabled { filter: brightness(1.1); transform: translateY(-1px); }
+.quest-dock .primary:disabled { opacity: 1; filter: none; border-color: #76675180; color: #aaa090; background: linear-gradient(#302b32, #211e26); box-shadow: inset 0 1px #b3a08712; cursor: default; }
+.qd-action > small { color: #aa9c8a; font-size: 10px; margin-top: 8px; }
+.qd-action > small:empty { display: none; }
+.qtab:focus-visible, .qpin:focus-visible, .quest-map button:focus-visible { outline: 3px solid #fff5c4; outline-offset: 5px; }
+.quest-dock button:focus-visible { outline-color: var(--gold); }
+.quest-locked { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px; text-align: center; }
+.quest-locked img.ql-art { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; filter: grayscale(.4) brightness(.4); }
+.quest-locked > :not(img) { position: relative; }
+.quest-locked h2 { margin: 0; font: 28px var(--display); color: #f4e2b4; letter-spacing: 4px; }
+.quest-locked p { margin: 0; font: 13px var(--body); color: #c4b6a3; }
+
+@media (max-width: 1399px) {
+  #stage.quest-responsive { width: 100vw; height: 100dvh; transform: none !important; }
+  #stage.quest-responsive .topbar { height: 66px; padding: 0 12px; gap: 6px; }
+  #stage.quest-responsive .player { flex: 1; min-width: 0; width: auto; gap: 8px; }
+  #stage.quest-responsive .player > img { width: 38px; height: 38px; }
+  #stage.quest-responsive .player strong { overflow: hidden; margin: 0; font-size: 14px; text-overflow: ellipsis; white-space: nowrap; }
+  #stage.quest-responsive .player span { font-size: 9px; }
+  #stage.quest-responsive .player span i { margin-left: 5px; }
+  #stage.quest-responsive .player .xp { width: 90px; margin-top: 4px; }
+  #stage.quest-responsive .top-title { display: none; }
+  #stage.quest-responsive .wallet { flex: none; gap: 3px; }
+  #stage.quest-responsive .money { gap: 3px; padding: 0; }
+  #stage.quest-responsive .money:not([data-currency="gold"]) { display: none; }
+  #stage.quest-responsive .money > [data-icon] { width: 19px; height: 19px; }
+  #stage.quest-responsive .money small { font-size: 9px; margin-bottom: 1px; }
+  #stage.quest-responsive .money b { font-size: 12px; }
+  #stage.quest-responsive .orb { width: 29px; height: 29px; margin-left: 2px; }
+  #stage.quest-responsive .orb [data-icon] { width: 16px; height: 16px; }
+  #stage.quest-responsive .bottom-bar { height: 58px; padding: 0 6px; }
+  #stage.quest-responsive .world-mark, #stage.quest-responsive .bottom-hint { display: none; }
+  #stage.quest-responsive .bottom-bar nav { position: static; width: 100%; transform: none; gap: 0; }
+  #stage.quest-responsive .bottom-bar nav button { flex: 1; min-width: 0; width: auto; flex-direction: column; gap: 1px; font-size: 10px; letter-spacing: 0; }
+  #stage.quest-responsive .bottom-bar nav button > [data-icon] { width: 20px; height: 20px; }
+  #stage.quest-responsive .quest-screen { inset: 66px 0 58px; }
+  .qhud { top: 16px; left: 22px; }
+  .qhud h1 { font-size: 22px; }
+  .qhud .crest { width: 36px; height: 45px; }
+  .qtabs { top: 100px; width: min(720px, calc(100% - 44px)); }
+  .qtab { width: auto; flex: 1; }
+  .quest-stage { top: 232px; bottom: 206px; }
+  .quest-dock { left: 20px; right: 20px; bottom: 18px; grid-template-columns: minmax(190px, 1fr) auto 160px; gap: 18px; padding: 17px 20px; }
+  .qd-copy { grid-column: 1; grid-row: 1; }
+  .qd-enemies { grid-column: 2; grid-row: 1 / 3; }
+  .qd-loot { grid-column: 1; grid-row: 2; padding: 0; border: 0; }
+  .qd-loot .qd-label { display: none; }
+  .qd-action { grid-column: 3; grid-row: 1 / 3; }
+  .quest-dock .primary { width: 160px; }
+  .qd-copy b { font-size: 20px; margin: 5px 0 3px; }
+  .qmap-compass { bottom: 196px; left: 24px; }
+}
+@media (min-width: 1000px) and (max-width: 1399px) {
+  .qtabs { left: auto; right: 110px; top: 22px; transform: none; width: 630px; }
+  .qtab { height: 57px; }
+  .qtab-copy b { font-size: 18px; }
+  .quest-stage { top: 150px; }
+}
+@media (max-width: 699px) {
+  #stage.quest-responsive .topbar { height: 59px; padding: 0 10px; }
+  #stage.quest-responsive .player > img { width: 34px; height: 34px; }
+  #stage.quest-responsive .player strong { font-size: 13px; }
+  #stage.quest-responsive .player span i, #stage.quest-responsive .player .xp { display: none; }
+  #stage.quest-responsive .money small { display: none; }
+  #stage.quest-responsive .money b { font-size: 11px; }
+  #stage.quest-responsive .orb { width: 30px; height: 30px; margin-left: 4px; }
+  #stage.quest-responsive .bottom-bar { height: 57px; padding: 0 4px; }
+  #stage.quest-responsive .quest-screen { inset: 59px 0 57px; }
+  .quest-art { background-position: 38% center; }
+  .qhud { top: 14px; left: 14px; gap: 7px; }
+  .qhud .crest { width: 27px; height: 34px; }
+  .qhud h1 { font-size: 18px; letter-spacing: 2px; }
+  .qhud small { font-size: 7px; letter-spacing: 2px; margin-bottom: 3px; }
+  .qh-progress { position: absolute; left: 190px; bottom: 2px; white-space: nowrap; }
+  .qh-track { display: none; }
+  .quest-map .qback { top: 17px; right: 12px; height: 30px; padding: 0 9px; font-size: 11px; }
+  .quest-map .qback [data-icon] { width: 13px; height: 13px; }
+  .qtabs { top: 66px; width: auto; left: 10px; right: 10px; transform: none; gap: 0; padding: 4px; border-radius: 20px; }
+  .qtab { min-width: 0; width: auto; height: 63px; padding: 8px 9px; align-items: flex-start; gap: 0; border-radius: 15px; }
+  .qtab[data-mode="veryHard"] { width: auto; flex: 1.15; }
+  .qtab-copy b { font-size: 12px; letter-spacing: 0; }
+  .qtab-copy small { font-size: 9px; letter-spacing: 1px; margin-top: 6px; }
+  .qtab::after, .qtab.on::after { left: 15px; right: 15px; bottom: 3px; height: 2px; }
+  .qtab-loot { position: absolute; bottom: 10px; right: 10px; height: 22px; }
+  .qtab-loot .qloot-tile, .qtab[data-mode="veryHard"] .qtab-loot .qloot-tile { width: 21px; height: 24px; margin-left: -6px; }
+  .qtab-loot .qloot-portrait { width: 17px; height: 22px; border-radius: 2px; }
+  .qtab-loot .qloot-symbol { width: 18px; height: 18px; }
+  .qtab-loot .qloot-symbol.stone,
+  .qtab-loot .qloot-symbol.ingot { width: 18px; height: 18px; }
+  .qtab-loot .qloot-cluster .qloot-symbol.stone { width: 12px; margin: 0 -4px; }
+  .qtab-state { width: 8px; height: 8px; right: 4px; bottom: 6px; }
+  .quest-stage { inset: 156px 18px 192px; overflow-y: auto; overflow-x: hidden; scrollbar-width: thin; scrollbar-color: #e7d6b04d transparent; }
+  .quest-route { min-height: 340px; }
+  .qpaths-wide { display: none; }
+  .qpaths-mobile { display: block; }
+  .qpin { left: var(--pin-mobile-x); top: var(--pin-mobile-y); width: 66px; height: 52px; }
+  .qpin-disc { font-size: 16px; gap: 5px; }
+  .qpin-status { width: 12px; height: 12px; }
+  .qpin-status svg { width: 11px; height: 11px; }
+  .qpin-stand { width: 39px; height: 47px; left: calc(100% + 2px); bottom: 15px; transform: none; border-radius: 20px 20px 7px 7px; }
+  .qpin.normal[data-node="7"] .qpin-stand { left: auto; right: calc(100% + 2px); }
+  .qpin-boss { left: calc(100% + 20px); bottom: 11px; padding: 2px 5px; font-size: 6px; letter-spacing: .8px; }
+  .qpin.normal[data-node="7"] .qpin-boss { left: -22px; }
+  .qpin-chest { width: 21px; height: 21px; right: -6px; top: -10px; }
+  .qpin-loot { top: 52px; gap: 2px; padding: 2px; }
+  .qpin-loot .qloot-tile { width: 24px; height: 25px; }
+  .qpin-loot .qloot-symbol.stone,
+  .qpin-loot .qloot-symbol.ingot { width: 22px; height: 22px; }
+  .qmap-compass { display: none; }
+  .quest-dock { left: 10px; right: 10px; bottom: 10px; padding: 12px; min-height: 164px; border-radius: 9px; gap: 10px 12px; grid-template-columns: minmax(0, 1fr) 130px; }
+  .qd-copy { grid-column: 1; grid-row: 1; }
+  .qd-copy small { font-size: 8px; letter-spacing: 1px; }
+  .qd-copy b { font-size: 16px; letter-spacing: 0; margin: 4px 0 3px; }
+  .qd-copy > span { font-size: 10px; }
+  .qd-enemies { grid-column: 2; grid-row: 1; }
+  .qd-label { font-size: 8px; letter-spacing: 1px; margin-bottom: 5px; }
+  .qd-foes { gap: 3px; }
+  .qd-foe { width: 30px; height: 33px; border-radius: 4px; }
+  .qd-loot { grid-column: 1; grid-row: 2; }
+  .qd-loot .qd-label { display: block; }
+  .qd-rewards { gap: 4px; }
+  .qd-rewards .qloot-tile { width: 29px; height: 31px; border-radius: 4px; }
+  .qd-rewards .qloot-symbol { width: 22px; height: 22px; }
+  .qd-rewards .qloot-symbol.stone,
+  .qd-rewards .qloot-symbol.ingot { width: 22px; height: 22px; }
+  .qd-action { grid-column: 2; grid-row: 2; align-self: end; padding-bottom: 3px; }
+  .quest-dock .primary { width: 130px; height: 44px; font-size: 17px; letter-spacing: 2px; }
+  .quest-dock .primary [data-icon] { width: 18px; height: 18px; margin-right: 5px; }
+  .qd-action > small { font-size: 9px; margin-top: 5px; }
+}
+@media (max-width: 359px) {
+  .qh-progress { left: 155px; font-size: 9px; }
+  .qhud h1 { font-size: 16px; }
+  .quest-dock { grid-template-columns: minmax(0, 1fr) 110px; gap: 9px; padding: 10px; }
+  .qd-foe { width: 25px; height: 30px; }
+  .quest-dock .primary { width: 110px; }
+  .qd-rewards .qloot-tile { width: 24px; height: 28px; }
+  .qd-copy b { font-size: 15px; }
+  .qtab { padding-left: 7px; }
+  .qtab-copy b { font-size: 10px; }
+}
+@media (max-width: 699px) and (max-height: 740px) {
+  .qtabs { top: 61px; }
+  .qtab { height: 58px; }
+  .quest-stage { top: 140px; bottom: 180px; }
+  .quest-dock { min-height: 150px; padding: 10px; gap: 8px; }
+}
+@media (max-height: 580px) and (min-width: 600px) and (max-width: 1399px) {
+  #stage.quest-responsive .topbar { height: 48px; }
+  #stage.quest-responsive .bottom-bar { height: 43px; }
+  #stage.quest-responsive .quest-screen { inset: 48px 0 43px; }
+  .qhud { top: 23px; left: 12px; }
+  .qhud h1 { font-size: 14px; letter-spacing: 1px; }
+  .qhud small, .qhud .crest, .qh-progress { display: none; }
+  .qtabs { left: 50%; right: auto; top: 9px; width: 405px; padding: 3px; border-radius: 28px; transform: translateX(-50%); }
+  .qtab, .qtab[data-mode="veryHard"] { height: 45px; width: auto; padding: 7px 10px; border-radius: 25px; }
+  .qtab-copy b { font-size: 11px; }
+  .qtab-copy small { font-size: 8px; margin-top: 4px; }
+  .qtab-loot { position: absolute; bottom: 7px; right: 9px; height: 25px; }
+  .qtab-loot .qloot-tile, .qtab[data-mode="veryHard"] .qtab-loot .qloot-tile { width: 20px; height: 24px; }
+  .qtab-loot .qloot-portrait { width: 17px; height: 23px; }
+  .qtab-loot .qloot-symbol { width: 20px; height: 20px; }
+  .quest-map .qback { right: 9px; top: 18px; height: 30px; padding: 0 9px; font-size: 11px; }
+  .quest-stage { inset: 70px 20px 88px; overflow-y: auto; overflow-x: hidden; scrollbar-width: thin; scrollbar-color: #e7d6b04d transparent; }
+  .quest-route { min-height: 200px; }
+  .qpaths-wide { display: block; }
+  .qpaths-mobile { display: none; }
+  .qpin { left: var(--pin-x); top: var(--pin-y); width: 60px; height: 52px; }
+  .qpin-disc { font-size: 15px; gap: 4px; }
+  .qpin-status svg { width: 10px; height: 10px; }
+  .qpin-stand { width: 35px; height: 40px; left: 50%; right: auto; bottom: 60px; transform: translateX(-50%); }
+  .qpin.normal .qpin-stand, .qpin.normal .qpin-boss { display: none; }
+  .qpin-boss { left: 50%; bottom: 57px; font-size: 6px; }
+  .qpin-loot { top: 52px; }
+  .qpin-loot .qloot-tile { width: 23px; height: 24px; }
+  .quest-dock { left: 10px; right: 10px; min-height: 0; height: 73px; bottom: 8px; padding: 9px 14px; gap: 12px; grid-template-columns: minmax(120px, 1fr) auto auto 105px; }
+  .qd-copy, .qd-enemies, .qd-loot, .qd-action { grid-column: auto; grid-row: 1; }
+  .qd-copy b { font-size: 15px; margin: 3px 0; }
+  .qd-copy small { font-size: 7px; }
+  .qd-copy > span { font-size: 9px; }
+  .qd-enemies .qd-label, .qd-loot .qd-label { display: none; }
+  .qd-foes { gap: 3px; }
+  .qd-foe { width: 25px; height: 30px; }
+  .qd-rewards { flex-wrap: nowrap; gap: 3px; }
+  .qd-rewards .qloot-tile { width: 23px; height: 28px; }
+  .qd-rewards .qloot-symbol { width: 19px; height: 19px; }
+  .qd-rewards .qloot-symbol.stone,
+  .qd-rewards .qloot-symbol.ingot { width: 18px; height: 18px; }
+  .quest-dock .primary { width: 105px; height: 39px; font-size: 16px; letter-spacing: 1px; }
+  .qd-action { align-self: center; padding: 0; }
+  .qd-action > small { font-size: 8px; margin-top: 3px; }
+  .qmap-compass { display: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .quest-map *, .quest-map *::before, .quest-map *::after { transition: none !important; }
+}

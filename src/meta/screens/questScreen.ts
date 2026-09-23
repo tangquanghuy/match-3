@@ -1,197 +1,206 @@
 /**
- * 王国主线页 `#quest/<王国>`（M10，任务书 `TASK-META §9` / `TASK-MAP-UI` 批次 3）。
+ * 王国关卡页 `#quest/<王国>` / `#quest/<王国>/hard` / `#quest/<王国>/veryhard`
  *
- * 为什么有这一屏：地图弹层的「任务/探索」此前**直接开战**，玩家看不到 8 关结构、
- * 敌人阵容、奖励位置与探索档位——"我在打什么、下一关是什么、打到第几关有部队奖励"
- * 三个问题在开战前全无答案（`02-kingdom-sheet.md` K-10）。
- *
- * 系统层零新逻辑：关卡状态/等级/规模/阵容预览/奖励部队全部是现有纯函数，
- * 出战与档位写入全走现有网关方法。
+ * 公主连结式：王国风景上铺编号节点，顶栏 NORMAL / HARD / VERY HARD。
+ * 主线 8 关线性推进；Hard 3 关 + Very Hard 3 关在主线通关后可重复刷。
  */
 import { isFailure } from '../gateway';
 import { getTroopById } from '../../data/troops';
 import {
-  EXPLORE_TEAM_SIZES,
-  exploreEnemyLevel,
+  EXPLORE_MAX_TIER,
+  HARD_NODE_COUNT,
   QUESTS_PER_KINGDOM,
-  QUEST_TEAM_SIZES,
-  questEnemyLevel,
-  kingdomQuestRewardTroop,
+  VERY_HARD_NODE_COUNT,
+  exploreEnemyLevel,
+  exploreTierForNode,
   kingdomUnlockLevel,
+  questEnemyLevel,
+  type KingdomStageMode,
 } from '../data/kingdoms';
-import { kingdomNodeState, questLineupPreview } from '../systems/kingdomOps';
+import {
+  exploreLineupPreview,
+  kingdomNodeState,
+  questLineupPreview,
+} from '../systems/kingdomOps';
 import type { EncounterEnemy } from '../systems/encounter';
-import { bottomNavHtml, mountIcons, toast, toastHtml, topbarHtml, $, $$ } from '../shell/chrome';
+import { bottomNavHtml, mountIcons, toastHtml, topbarHtml, $, $$ } from '../shell/chrome';
 import type { Screen, ShellCtx } from '../shell/screen';
 import { KINGDOM_VIEWS, kingdomViewOf, ART } from './mapData';
+import { questRewardsHtml, questModeLootHtml } from './questRewards';
+import QUEST_CSS from './questScreen.css?inline';
 
-/**
- * 本屏样式段（窗口 Q）。`shell/styles/**` 归 L 独占，新页样式先写在屏自己的段里；
- * L 的 `tokens.css` 交付后按下表迁移：
- *   面板底 → `--ds-l1`、卡片底 → `--ds-l2`/`--ds-l2-raise`、当前关卡 → `--ds-l3`
- *   描边 `#67563e` → `--ds-edge`、`#e1c891` → `--ds-edge-hot`
- *   主 CTA → `.btn.btn--lg.btn--primary`、次级 → `.btn--secondary`
- */
-const QUEST_CSS = `
-  .quest-screen {
-    position: absolute;
-    inset: 64px 0 72px;
-    padding: 18px 40px 24px;
-    display: flex; flex-direction: column; gap: 14px;
-    overflow-y: auto;
-  }
-  .quest-head {
-    display: grid;
-    grid-template-columns: 74px 1fr auto;
-    align-items: center;
-    gap: 16px;
-    padding: 12px 16px;
-    background: linear-gradient(160deg, #1b1722, #10101a 62%);
-    border: 1px solid rgba(216, 194, 144, .34);
-    border-radius: 10px;
-    box-shadow: 0 0 0 1px rgba(38, 31, 22, .96), 0 18px 40px #0008;
-  }
-  .quest-head .qh-crest { width: 64px; height: 72px; }
-  .quest-head .qh-crest img, .quest-head .qh-crest svg { width: 100%; height: 100%; object-fit: contain; }
-  .quest-head small.eyebrow { display: block; letter-spacing: 3px; color: #91887a; font-size: 10px; }
-  .quest-head h1 { margin: 0; font: 27px var(--display); letter-spacing: 5px; color: #f4e2b4; }
-  .quest-head .qh-sub { font: 12px var(--body); color: #c4b6a3; }
-  .quest-head .qh-acts { display: flex; align-items: center; gap: 10px; }
-  .qh-progress {
-    display: flex; align-items: center; gap: 8px;
-    font: 13px var(--body); color: #c4b6a3;
-  }
-  .qh-bar { width: 148px; height: 8px; background: #14121b; border: 1px solid #67563e; border-radius: 999px; overflow: hidden; }
-  .qh-bar i { display: block; height: 100%; background: linear-gradient(90deg, #8e7347, #f0d99c); }
+type PinPt = { x: number; y: number };
 
-  .quest-section { display: flex; flex-direction: column; gap: 10px; }
-  .quest-section > header { display: flex; align-items: baseline; gap: 12px; }
-  .quest-section > header h2 { font: 19px var(--display); letter-spacing: 2px; color: #f4e2b4; }
-  .quest-section > header span { font: 12px var(--body); color: #91887a; }
+const MODE_LABEL: Record<KingdomStageMode, string> = {
+  normal: 'NORMAL',
+  hard: 'HARD',
+  veryHard: 'VERY HARD',
+};
+const MODE_CN: Record<KingdomStageMode, string> = { normal: '普通', hard: '困难', veryHard: '非常困难' };
 
-  .quest-track { display: flex; gap: 10px; overflow-x: auto; padding: 4px 2px 10px; }
-  .qnode {
-    flex: 0 0 170px;
-    display: flex; flex-direction: column; gap: 6px;
-    padding: 10px;
-    text-align: left;
-    background: linear-gradient(#20202c, #16161f);
-    border: 1px solid rgba(186, 164, 139, .18);
-    border-radius: 6px;
-    box-shadow: 0 3px 9px rgba(0, 0, 0, .28);
-    color: #f2ead8;
-    transition: transform .12s, border-color .12s;
-  }
-  .qnode .qn-top { display: flex; align-items: center; justify-content: space-between; gap: 6px; }
-  .qnode .qn-no { font: 15px Georgia, serif; letter-spacing: 1px; color: #d8c290; }
-  .qnode .qn-state { font: 11px var(--body); padding: 1px 7px 2px; border: 1px solid #67563e; border-radius: 999px; color: #c4b6a3; }
-  .qnode .qn-line { font: 11px var(--body); color: #91887a; }
-  .qnode .qn-foes { display: flex; flex-direction: column; gap: 3px; }
-  .qnode .qn-foe { display: flex; align-items: center; gap: 6px; font: 11px var(--body); color: #c4b6a3; }
-  .qnode .qn-foe img { width: 20px; height: 20px; border-radius: 3px; object-fit: cover; background: #0d0d14; }
-  .qnode .qn-foe i.tier { width: 6px; height: 6px; border-radius: 50%; background: #67563e; flex: none; }
-  .qnode .qn-foe i.tier.elite { background: #4f8fd0; }
-  .qnode .qn-foe i.tier.boss { background: #c45454; }
-  .qnode .qn-reward {
-    display: flex; align-items: center; gap: 5px;
-    padding: 4px 6px;
-    background: rgba(106, 83, 38, .28);
-    border: 1px solid #8e7347;
-    border-radius: 4px;
-    font: 11px var(--body); color: #ffeebb;
-  }
-  .qnode .qn-reward [data-icon] { width: 12px; height: 12px; color: #ffd77a; }
-  .qnode.done { opacity: .78; }
-  .qnode.done .qn-state { border-color: #4f7d5f; color: #8fd0aa; }
-  .qnode.locked { color: #8d8576; background: #14141c; }
-  .qnode.locked .qn-no { color: #8a7c5d; }
-  .qnode.current {
-    flex: 0 0 210px;
-    background: linear-gradient(#2a2736, #1a1826);
-    border: 2px solid #e1c891;
-    box-shadow: 0 8px 18px #0006, inset 0 1px rgba(240, 218, 183, .12);
-    transform: translateY(-2px);
-  }
-  .qnode.current .qn-state { border-color: #e1c891; color: #ffeebb; }
+/** 路线与地标错落排布；窄屏使用同序的折返路线。 */
+const NORMAL_PINS: PinPt[] = [
+  { x: 9, y: 71 },
+  { x: 21, y: 48 },
+  { x: 33, y: 62 },
+  { x: 45, y: 36 },
+  { x: 57, y: 55 },
+  { x: 69, y: 28 },
+  { x: 81, y: 43 },
+  { x: 92, y: 21 },
+];
+const MOBILE_NORMAL_PINS: PinPt[] = [
+  { x: 24, y: 12 }, { x: 76, y: 12 },
+  { x: 76, y: 36 }, { x: 24, y: 36 },
+  { x: 24, y: 60 }, { x: 76, y: 60 },
+  { x: 76, y: 84 }, { x: 24, y: 84 },
+];
 
-  .quest-cta { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
-  .quest-cta .primary, .quest-cta .secondary { flex: 0 1 380px; }
-  .quest-cta .cta-note { font: 12px var(--body); color: #91887a; }
+const HARD_PINS: PinPt[] = [
+  { x: 20, y: 64 },
+  { x: 50, y: 35 },
+  { x: 80, y: 56 },
+];
 
-  .explore-box {
-    display: flex; flex-direction: column; gap: 10px;
-    padding: 14px 16px;
-    background: linear-gradient(160deg, #1b1722, #10101a 62%);
-    border: 1px solid rgba(216, 194, 144, .28);
-    border-radius: 10px;
-  }
-  .explore-box.locked { opacity: .82; }
-  .tier-row { display: flex; gap: 8px; }
-  .tier-row button {
-    flex: 0 0 84px;
-    padding: 8px 4px;
-    background: linear-gradient(#20202c, #16161f);
-    border: 1px solid rgba(186, 164, 139, .18);
-    border-radius: 6px;
-    color: #c4b6a3;
-    font: 12px var(--body);
-  }
-  .tier-row button b { display: block; font: 15px Georgia, serif; color: #f2ead8; }
-  .tier-row button.on {
-    border: 2px solid #e1c891;
-    background: linear-gradient(#2a2736, #1a1826);
-    color: #ffeebb;
-    transform: translateY(-2px);
-  }
-  .tier-row button.on b { color: #ffeebb; }
-  .explore-box .ex-line { font: 12px var(--body); color: #c4b6a3; }
-  .explore-box .ex-hint { font: 11px var(--body); color: #91887a; }
+const VERY_HARD_PINS: PinPt[] = [
+  { x: 22, y: 57 },
+  { x: 50, y: 34 },
+  { x: 78, y: 54 },
+];
+const MOBILE_FARM_PINS: PinPt[] = [{ x: 26, y: 22 }, { x: 73, y: 49 }, { x: 28, y: 78 }];
 
-  .quest-locked {
-    margin: 40px auto;
-    max-width: 560px;
-    display: flex; flex-direction: column; gap: 12px; align-items: center;
-    padding: 28px;
-    background: linear-gradient(160deg, #1b1722, #10101a 62%);
-    border: 1px solid rgba(216, 194, 144, .28);
-    border-radius: 10px;
-    text-align: center;
+
+function decodeSeg(value: string): string {
+  try {
+    return decodeURIComponent(value);
+  } catch {
+    return value;
   }
-  .quest-locked img { width: 210px; border-radius: 6px; filter: grayscale(1) brightness(.5); }
-  .quest-locked h2 { font: 22px var(--display); letter-spacing: 4px; color: #f4e2b4; }
-  .quest-locked p { font: 13px var(--body); color: #c4b6a3; }
-`;
+}
 
-const STATE_LABEL = { done: '✓ 已通关', current: '▶ 当前可战', locked: '🔒 未解锁' } as const;
+function parseMode(raw: string): KingdomStageMode {
+  const key = raw.toLowerCase().replace(/[\s_-]/g, '');
+  if (key === 'hard') return 'hard';
+  if (key === 'veryhard' || key === 'vh') return 'veryHard';
+  return 'normal';
+}
 
-function foeLine(enemy: EncounterEnemy): string {
-  const troop = getTroopById(enemy.troopId);
-  const name = troop?.name ?? `#${enemy.troopId}`;
-  // 立绘缺失的部队（本地 1828 张之外）不留空框，直接只显示名字
-  const art = troop?.portrait
-    ? `<img src="/meta/assets/portraits/${troop.portrait}.webp" alt="" loading="lazy" onerror="this.remove()">`
+function pinsFor(mode: KingdomStageMode): PinPt[] {
+  if (mode === 'hard') return HARD_PINS;
+  if (mode === 'veryHard') return VERY_HARD_PINS;
+  return NORMAL_PINS;
+}
+
+function mobilePinsFor(mode: KingdomStageMode): PinPt[] {
+  return mode === 'normal' ? MOBILE_NORMAL_PINS : MOBILE_FARM_PINS;
+}
+
+function routeHtml(mode: KingdomStageMode, nextNode: number | null, farmOpen: boolean): string {
+  return [false, true].map((mobile) => {
+    const pts = mobile ? mobilePinsFor(mode) : pinsFor(mode);
+    const reached = mode === 'normal' ? (nextNode ?? pts.length) : (farmOpen ? pts.length : 1);
+    return `<svg class="qpaths ${mobile ? 'qpaths-mobile' : 'qpaths-wide'}" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
+      <path class="qpath-shadow" d="${curvePath(pts)}"></path>
+      <path class="qpath-bed" d="${curvePath(pts)}"></path>
+      <path class="qpath" d="${curvePath(pts, reached)}"></path>
+    </svg>`;
+  }).join('');
+}
+
+function nodeCount(mode: KingdomStageMode): number {
+  if (mode === 'hard') return HARD_NODE_COUNT;
+  if (mode === 'veryHard') return VERY_HARD_NODE_COUNT;
+  return QUESTS_PER_KINGDOM;
+}
+
+function curvePath(pts: PinPt[], reached = pts.length): string {
+  if (!pts.length) return '';
+  if (pts.length === 1) return `M ${pts[0]!.x} ${pts[0]!.y}`;
+  const tension = 0.18;
+  let d = `M ${pts[0]!.x} ${pts[0]!.y}`;
+  for (let i = 0; i < Math.min(pts.length, reached) - 1; i++) {
+    const p0 = pts[i - 1] ?? pts[i]!;
+    const p1 = pts[i]!;
+    const p2 = pts[i + 1]!;
+    const p3 = pts[i + 2] ?? p2;
+    const c1x = p1.x + (p2.x - p0.x) * tension;
+    const c1y = p1.y + (p2.y - p0.y) * tension;
+    const c2x = p2.x - (p3.x - p1.x) * tension;
+    const c2y = p2.y - (p3.y - p1.y) * tension;
+    d += ` C ${c1x.toFixed(2)} ${c1y.toFixed(2)} ${c2x.toFixed(2)} ${c2y.toFixed(2)} ${p2.x} ${p2.y}`;
+  }
+  return d;
+}
+
+function portraitUrl(troopId: number): string | null {
+  const troop = getTroopById(troopId);
+  return troop?.portrait ? `/meta/assets/portraits/${troop.portrait}.webp` : null;
+}
+
+function lineupOf(kingdom: string, mode: KingdomStageMode, node: number): EncounterEnemy[] {
+  try {
+    if (mode === 'normal') return questLineupPreview(kingdom, node);
+    return exploreLineupPreview(kingdom, exploreTierForNode(mode, node));
+  } catch {
+    return [];
+  }
+}
+
+function leadPortrait(enemies: EncounterEnemy[]): string {
+  const lead = enemies.find((e) => e.tier === 'boss') ?? enemies[0];
+  if (!lead) return '';
+  const src = portraitUrl(lead.troopId);
+  return src
+    ? `<img class="qpin-stand" src="${src}" alt="" loading="lazy" onerror="this.remove()">`
     : '';
-  return `<span class="qn-foe"><i class="tier ${enemy.tier}"></i>${art}<span>${name}</span></span>`;
+}
+
+function foeTile(enemy: EncounterEnemy): string {
+  const troop = getTroopById(enemy.troopId);
+  const src = portraitUrl(enemy.troopId);
+  const name = troop?.name ?? `#${enemy.troopId}`;
+  const img = src
+    ? `<img src="${src}" alt="" loading="lazy" onerror="this.remove()">`
+    : '';
+  return `<span class="qd-foe ${enemy.tier}" title="${name}">${img}</span>`;
+}
+
+function enemyLevel(kingdom: string, mode: KingdomStageMode, node: number): number {
+  if (mode === 'normal') return questEnemyLevel(kingdom, node);
+  return exploreEnemyLevel(kingdom, exploreTierForNode(mode, node));
+}
+
+function storedTier(saveTier: number): number {
+  if (!Number.isInteger(saveTier) || saveTier < 1) return 1;
+  return Math.min(saveTier, EXPLORE_MAX_TIER);
 }
 
 export class QuestScreen implements Screen {
   private kingdom = '';
+  private mode: KingdomStageMode = 'normal';
+  private selectedNode = 1;
   private listeners: Array<[EventTarget, string, EventListenerOrEventListenerObject]> = [];
 
-  /** hash 里的王国名（中文）可能被浏览器百分号编码，两种形态都吃 */
-  private resolveKingdom(param?: string): string {
-    const raw = param ?? '';
-    let name = raw;
-    try {
-      name = decodeURIComponent(raw);
-    } catch {
-      name = raw;
-    }
-    return KINGDOM_VIEWS.some((v) => v.name === name) ? name : '';
+  private parseRoute(param?: string): { kingdom: string; mode: KingdomStageMode } {
+    const segs = (param ?? '').split('/').filter(Boolean).map(decodeSeg);
+    const kingdom = segs[0] ?? '';
+    const mode = parseMode(segs[1] ?? '');
+    return {
+      kingdom: KINGDOM_VIEWS.some((v) => v.name === kingdom) ? kingdom : '',
+      mode,
+    };
+  }
+
+  private hashFor(mode: KingdomStageMode): string {
+    const base = '#quest/' + encodeURIComponent(this.kingdom);
+    if (mode === 'normal') return base;
+    return `${base}/${mode === 'hard' ? 'hard' : 'veryhard'}`;
   }
 
   html(ctx: ShellCtx, param?: string): string {
-    this.kingdom = this.resolveKingdom(param);
+    const route = this.parseRoute(param);
+    this.kingdom = route.kingdom;
+    this.mode = route.mode;
     const shell = (body: string): string =>
       `<style id="questScreenCss">${QUEST_CSS}</style>
        ${topbarHtml()}
@@ -204,164 +213,204 @@ export class QuestScreen implements Screen {
         <section class="quest-locked">
           <h2>王国不存在</h2>
           <p>这个链接指向的王国不在克里斯塔拉的 42 国之内。</p>
-          <button class="secondary" id="questBack" type="button"><span data-icon="arrow"></span>返回地图</button>
+          <button class="secondary qback" id="questBack" type="button"><span data-icon="arrow"></span>返回地图</button>
         </section>`);
     }
 
     const save = ctx.save();
     const view = kingdomViewOf(this.kingdom);
     const state = kingdomNodeState(save, this.kingdom, Date.now());
+    const art = ART[view.biome] ?? ART.spire!;
 
-    // 直链访问未解锁王国：给锁态页而不是崩（`TASK-META §9.5` 验收 6）
     if (state.locked) {
       return shell(`
         <section class="quest-locked">
-          <img src="${ART[view.biome] ?? ART.spire!}" alt="">
+          <img class="ql-art" src="${art}" alt="">
           <small class="eyebrow">${view.en}</small>
-          <h2>🔒 ${this.kingdom} 尚未解锁</h2>
-          <p>需要冒险者 Lv.${kingdomUnlockLevel(this.kingdom)}（你现在 Lv.${save.hero.level}）。<br>解锁后开放 8 章王国任务与探索模式。</p>
+          <h2>${this.kingdom}</h2>
+          <p>冒险者 Lv.${kingdomUnlockLevel(this.kingdom)}</p>
           <button class="secondary" id="questBack" type="button"><span data-icon="arrow"></span>返回地图</button>
         </section>`);
     }
 
-    const done = state.questsDone;
-    const next = state.nextNode;
-    const tier = Math.min(5, Math.max(1, save.kingdoms[this.kingdom]?.exploreTier || 1));
+    const farmOpen = state.exploreUnlocked;
+    const count = nodeCount(this.mode);
+    const pts = pinsFor(this.mode);
+    const saveTier = storedTier(save.kingdoms[this.kingdom]?.exploreTier ?? 0);
+    this.selectedNode = this.defaultNode(state.nextNode, saveTier);
 
-    const nodes = Array.from({ length: QUESTS_PER_KINGDOM }, (_, i) => {
-      const node = i + 1;
-      const status: keyof typeof STATE_LABEL = node <= done ? 'done' : node === next ? 'current' : 'locked';
-      const size = QUEST_TEAM_SIZES[i]!;
-      const level = questEnemyLevel(this.kingdom, node);
-      const rewardId = node === 4 || node === 8 ? kingdomQuestRewardTroop(this.kingdom, node) : null;
-      const reward = rewardId ? getTroopById(rewardId) : null;
-      // 阵容预览只对"看得见的关"算（未解锁关也给，玩家需要知道前面有什么）
-      let foes = '';
-      try {
-        foes = questLineupPreview(this.kingdom, node).map(foeLine).join('');
-      } catch {
-        foes = '<span class="qn-line">阵容待定</span>';
-      }
-      return `<article class="qnode ${status}" data-node="${node}">
-        <div class="qn-top"><span class="qn-no">第 ${node} 关</span><span class="qn-state">${STATE_LABEL[status]}</span></div>
-        <div class="qn-line">敌人 Lv.${level} · ${size} 人队</div>
-        <div class="qn-foes">${foes}</div>
-        ${reward ? `<div class="qn-reward"><span data-icon="chest"></span>部队奖励：${reward.name}</div>` : ''}
-      </article>`;
-    }).join('');
-
-    const ctaLabel = next === null ? '任务链已全通' : `出战 · 第 ${next} 关`;
-    const ctaNote =
-      next === null
-        ? '8/8 已通关。继续刷这个王国的材料请走下方探索模式。'
-        : `第 ${next} 关：敌人 Lv.${questEnemyLevel(this.kingdom, next)} · ${QUEST_TEAM_SIZES[next - 1]} 人队${next === 4 || next === 8 ? ' · 通关得部队奖励' : ''}`;
-
-    const tiers = EXPLORE_TEAM_SIZES.map((size, i) => {
-      const t = i + 1;
-      return `<button type="button" class="${t === tier ? 'on' : ''}" data-tier="${t}">
-        <b>${t} 档</b>Lv.${exploreEnemyLevel(this.kingdom, t)} · ${size} 人
-      </button>`;
-    }).join('');
+    const pins = Array.from({ length: count }, (_, i) => this.pinHtml(i + 1, pts[i]!, farmOpen, state.nextNode)).join('');
+    const enemies = lineupOf(this.kingdom, this.mode, this.selectedNode);
+    const fightable = this.canFight(farmOpen, state.nextNode, this.selectedNode);
 
     return shell(`
-      <header class="quest-head">
-        <span class="qh-crest">${view.crest ? `<img src="${view.crest}" alt="">` : ''}</span>
-        <div>
-          <small class="eyebrow">${view.en} · KINGDOM QUESTS</small>
-          <h1>${this.kingdom}</h1>
-          <div class="qh-sub">王国 Lv.${state.kingdom ? save.kingdoms[this.kingdom]?.level ?? 1 : 1} · ${view.blurb || '主线 8 关，第 4 关与第 8 关各给一名部队奖励。'}</div>
+      <div class="quest-map" data-mode="${this.mode}">
+        <div class="quest-art" style="background-image:url('${art}')"></div>
+        <div class="quest-atmosphere" aria-hidden="true"></div>
+        <div class="quest-stage">
+          <div class="quest-route">
+          ${routeHtml(this.mode, state.nextNode, farmOpen)}
+          <div class="qpins">${pins}</div>
+          </div>
         </div>
-        <div class="qh-acts">
-          <span class="qh-progress"><b>${done} / ${QUESTS_PER_KINGDOM}</b><span class="qh-bar"><i style="width:${(done / QUESTS_PER_KINGDOM) * 100}%"></i></span></span>
-          <button class="secondary" id="questBack" type="button"><span data-icon="arrow"></span>返回地图</button>
+        <div class="qhud">
+          ${view.crest ? `<img class="crest" src="${view.crest}" alt="">` : ''}
+          <div>
+            <small>${view.en}</small>
+            <h1>${this.kingdom}</h1>
+            <div class="qh-progress" aria-label="普通关卡进度 ${state.questsDone}/${QUESTS_PER_KINGDOM}">
+              <span class="qh-track">${Array.from({ length: QUESTS_PER_KINGDOM }, (_, i) => `<i class="${i < state.questsDone ? 'done' : ''}"></i>`).join('')}</span>
+              <span>${state.questsDone}<em> / ${QUESTS_PER_KINGDOM}</em></span>
+            </div>
+          </div>
         </div>
-      </header>
-
-      <section class="quest-section">
-        <header><h2>任务链</h2><span>线性推进：只能打下一关，重复刷取走探索</span></header>
-        <div class="quest-track" id="questTrack">${nodes}</div>
-        <div class="quest-cta">
-          <button class="primary" id="questFight" type="button" ${next === null ? 'disabled' : ''}>
-            <span data-icon="swords"></span><span>${ctaLabel}</span>
-          </button>
-          <span class="cta-note">${ctaNote}</span>
-        </div>
-      </section>
-
-      <section class="quest-section">
-        <header><h2>探索模式</h2><span>${state.exploreUnlocked ? '重复刷取材料与灵魂' : '任务链 8/8 通关后开放'}</span></header>
-        <div class="explore-box ${state.exploreUnlocked ? '' : 'locked'}">
-          ${state.exploreUnlocked
-            ? `<div class="tier-row" id="tierRow">${tiers}</div>
-               <div class="ex-line" id="exLine">当前 ${tier} 档：敌人 Lv.${exploreEnemyLevel(this.kingdom, tier)} · ${EXPLORE_TEAM_SIZES[tier - 1]} 人队</div>
-               <p class="ex-hint">档位越高敌人越强、掉落越好；切换即保存。每日首胜额外双倍结算（当天第一场胜利，全局只算一次）。</p>
-               <div class="quest-cta">
-                 <!-- 一屏一主 CTA（DESIGN-SYSTEM §4 硬门槛 2）：主线未打完时探索是次级动作 -->
-                 <button class="${next === null ? 'primary' : 'secondary'}" id="exploreFight" type="button"><span data-icon="compass"></span><span>探索出战 · ${tier} 档</span></button>
-               </div>`
-            : `<div class="ex-line">🔒 需要先把任务链打到 8/8（当前 ${done}/8）。</div>
-               <p class="ex-hint">探索模式开放后可无限重复刷取该王国的材料、灵魂与部队掉落，并可选 1~5 档难度。</p>`}
-        </div>
-      </section>`);
+        <nav class="qtabs" aria-label="关卡难度">
+          ${this.tabBtn('normal', this.mode, true)}
+          ${this.tabBtn('hard', this.mode, farmOpen)}
+          ${this.tabBtn('veryHard', this.mode, farmOpen)}
+        </nav>
+        <button class="secondary qback" id="questBack" type="button"><span data-icon="arrow"></span>地图</button>
+        <div class="qmap-compass" aria-hidden="true"><span data-icon="compass"></span><i>N</i></div>
+        <footer class="quest-dock">
+          <div class="qd-copy" aria-live="polite">
+            <small id="qdMode">${MODE_LABEL[this.mode]} <i> / </i> ${String(this.selectedNode).padStart(2, '0')}</small>
+            <b id="qdTitle">${this.kingdom} ${this.selectedNode}</b>
+            <span id="qdSub">Lv.${enemyLevel(this.kingdom, this.mode, this.selectedNode)}</span>
+          </div>
+          <div class="qd-enemies"><span class="qd-label">敌方阵容</span><div class="qd-foes" id="qdFoes">${enemies.map(foeTile).join('')}</div></div>
+          <div class="qd-loot"><span class="qd-label">${this.mode === 'normal' ? '关卡奖励' : '可能获得'}</span><div class="qd-rewards" id="qdRewards">${questRewardsHtml(this.kingdom, this.mode, this.selectedNode)}</div></div>
+          <div class="qd-action"><button class="primary" id="questFight" type="button" ${fightable ? '' : 'disabled'}>
+            <span data-icon="${fightable ? 'swords' : this.mode === 'normal' && state.nextNode === null ? 'check' : 'lock'}"></span><span id="qdFightLabel">${this.fightLabel(state.nextNode, fightable)}</span>
+          </button><small id="qdGate">${this.mode !== 'normal' && !farmOpen ? `普通 ${state.questsDone} / ${QUESTS_PER_KINGDOM}` : ''}</small></div>
+        </footer>
+      </div>`);
   }
 
   mount(ctx: ShellCtx): void {
+    document.getElementById('stage')?.classList.add('quest-responsive');
     mountIcons(document);
     this.bind('#questBack', 'click', () => ctx.navigate('#map'));
     this.bind('#questFight', 'click', () => void this.fight(ctx));
-    this.bind('#exploreFight', 'click', () => void this.explore(ctx));
-    $$('.tier-row button').forEach((btn) =>
-      this.on(btn, 'click', () => void this.setTier(ctx, Number(btn.dataset.tier))),
-    );
-    // 节点卡：点已通关/未解锁的关给一句明确说明（不留"点了没反应"）
-    $$('.qnode').forEach((card) =>
-      this.on(card, 'click', () => {
-        if (card.classList.contains('current')) {
-          void this.fight(ctx);
-          return;
-        }
-        toast(
-          card.classList.contains('done')
-            ? '这一关已通关。任务链是线性的，重复刷取请走探索模式。'
-            : '要先按顺序打完前面的关卡才能进这一关。',
-        );
+    $$('.qtab').forEach((tab) =>
+      this.on(tab, 'click', () => {
+        const next = tab.dataset.mode as KingdomStageMode;
+        if (!next || next === this.mode) return;
+        ctx.navigate(this.hashFor(next));
       }),
     );
+    $$('.qpin').forEach((pin) =>
+      this.on(pin, 'click', () => void this.selectNode(ctx, Number(pin.dataset.node))),
+    );
+    const stage = $('.quest-stage');
+    const selected = $('.qpin.on');
+    if (stage && selected && stage.scrollHeight > stage.clientHeight) {
+      stage.scrollTop = selected.offsetTop - stage.clientHeight / 2;
+    }
+  }
+
+  private tabBtn(mode: KingdomStageMode, current: KingdomStageMode, open: boolean): string {
+    const locked = !open;
+    return `<button type="button" class="qtab ${mode === current ? 'on' : ''} ${locked ? 'locked' : ''}" data-mode="${mode}" aria-pressed="${mode === current}" aria-label="${MODE_CN[mode]} ${MODE_LABEL[mode]}${locked ? '，普通通关后解锁，可预览' : ''}">
+      <span class="qtab-copy"><b>${MODE_LABEL[mode]}</b><small>${MODE_CN[mode]}</small></span>
+      <span class="qtab-loot" aria-hidden="true">${questModeLootHtml(this.kingdom, mode)}</span>
+      <span class="qtab-state" data-icon="${locked ? 'lock' : mode === current ? 'check' : 'chevrons'}"></span>
+    </button>`;
+  }
+
+  private defaultNode(nextNode: number | null, saveTier: number): number {
+    if (this.mode === 'normal') return nextNode ?? QUESTS_PER_KINGDOM;
+    if (this.mode === 'hard') return saveTier <= HARD_NODE_COUNT ? saveTier : 1;
+    return saveTier > HARD_NODE_COUNT ? saveTier - HARD_NODE_COUNT : 1;
+  }
+
+  private pinStatus(node: number, nextNode: number | null): 'done' | 'current' | 'locked' | 'open' {
+    if (this.mode === 'normal') {
+      if (nextNode === null || node < nextNode) return 'done';
+      if (node === nextNode) return 'current';
+      return 'locked';
+    }
+    return 'open';
+  }
+
+  private pinHtml(node: number, pt: PinPt, farmOpen: boolean, nextNode: number | null): string {
+    const status = this.mode === 'normal' || farmOpen ? this.pinStatus(node, nextNode) : 'locked';
+    const enemies = lineupOf(this.kingdom, this.mode, node);
+    const hasBoss = enemies.some((enemy) => enemy.tier === 'boss');
+    const showStand = this.mode !== 'normal' || hasBoss;
+    const reward = this.mode === 'normal' && (node === 4 || node === 8);
+    const mobile = mobilePinsFor(this.mode)[node - 1]!;
+    const statusLabel = { done: '已通关', current: '当前关卡', locked: '未解锁', open: '可挑战' }[status];
+    const cls = [
+      'qpin',
+      this.mode,
+      status,
+      node === this.selectedNode ? 'on' : '',
+      reward ? 'reward' : '',
+      hasBoss ? 'has-boss' : '',
+    ]
+      .filter(Boolean)
+      .join(' ');
+    return `<button type="button" class="${cls}" style="--pin-x:${pt.x}%;--pin-y:${pt.y}%;--pin-mobile-x:${mobile.x}%;--pin-mobile-y:${mobile.y}%" data-node="${node}" aria-pressed="${node === this.selectedNode}" aria-label="${MODE_CN[this.mode]} 第 ${node} 关，${statusLabel}">
+      <span class="qpin-focus" aria-hidden="true"></span>
+      ${showStand ? leadPortrait(enemies) : ''}
+      ${hasBoss ? '<span class="qpin-boss">BOSS</span>' : ''}
+      <span class="qpin-disc"><span class="qpin-status" data-icon="${status === 'done' ? 'check' : status === 'locked' ? 'lock' : 'swords'}"></span><span>${String(node).padStart(2, '0')}</span></span>
+      ${this.mode !== 'normal' ? `<span class="qpin-loot" aria-hidden="true">${questModeLootHtml(this.kingdom, this.mode)}</span>` : reward ? '<span class="qpin-chest" data-icon="chest"></span>' : ''}
+    </button>`;
+  }
+
+  private fightLabel(nextNode: number | null, fightable: boolean): string {
+    if (fightable) return '出战';
+    if (this.mode === 'normal' && (nextNode === null || this.selectedNode < nextNode)) return '已通关';
+    return '未解锁';
+  }
+
+  private canFight(farmOpen: boolean, nextNode: number | null, node: number): boolean {
+    if (this.mode === 'normal') return node === nextNode;
+    return farmOpen;
+  }
+
+  private async selectNode(ctx: ShellCtx, node: number): Promise<void> {
+    if (!Number.isInteger(node) || node < 1 || node > nodeCount(this.mode)) return;
+    this.selectedNode = node;
+    $$('.qpin').forEach((pin) => {
+      const selected = Number(pin.dataset.node) === node;
+      pin.classList.toggle('on', selected);
+      pin.setAttribute('aria-pressed', String(selected));
+    });
+    const foes = $('#qdFoes');
+    if (foes) foes.innerHTML = lineupOf(this.kingdom, this.mode, node).map(foeTile).join('');
+    const title = $('#qdTitle');
+    if (title) title.textContent = `${this.kingdom} ${node}`;
+    const sub = $('#qdSub');
+    if (sub) sub.textContent = `Lv.${enemyLevel(this.kingdom, this.mode, node)}`;
+    const mode = $('#qdMode');
+    if (mode) mode.innerHTML = `${MODE_LABEL[this.mode]} <i> / </i> ${String(node).padStart(2, '0')}`;
+    const rewards = $('#qdRewards');
+    if (rewards) rewards.innerHTML = questRewardsHtml(this.kingdom, this.mode, node);
+    const fight = $('#questFight') as HTMLButtonElement | null;
+    const state = kingdomNodeState(ctx.save(), this.kingdom, Date.now());
+    if (fight) {
+      fight.disabled = !this.canFight(state.exploreUnlocked, state.nextNode, node);
+      $('#qdFightLabel').textContent = this.fightLabel(state.nextNode, !fight.disabled);
+      fight.querySelector<HTMLElement>('[data-icon]')!.dataset.icon = !fight.disabled ? 'swords' : this.fightLabel(state.nextNode, false) === '已通关' ? 'check' : 'lock';
+    }
+    mountIcons($('.quest-dock'));
+    if (this.mode !== 'normal' && state.exploreUnlocked) {
+      const tier = exploreTierForNode(this.mode, node);
+      const { result } = await ctx.gateway.setKingdomExploreTier(this.kingdom, tier);
+      if (isFailure(result)) return;
+    }
   }
 
   private async fight(ctx: ShellCtx): Promise<void> {
     const state = kingdomNodeState(ctx.save(), this.kingdom, Date.now());
-    if (state.nextNode === null) {
-      toast('任务链已 8/8 通关，去探索模式重复刷取材料。');
+    if (!this.canFight(state.exploreUnlocked, state.nextNode, this.selectedNode)) return;
+    if (this.mode === 'normal') {
+      await ctx.launchQuest(this.kingdom, this.selectedNode);
       return;
     }
-    await ctx.launchQuest(this.kingdom, state.nextNode);
-  }
-
-  private async explore(ctx: ShellCtx): Promise<void> {
-    const state = kingdomNodeState(ctx.save(), this.kingdom, Date.now());
-    if (!state.exploreUnlocked) {
-      toast('通关 8 章任务链后开放探索。');
-      return;
-    }
-    await ctx.launchExplore(this.kingdom);
-  }
-
-  private async setTier(ctx: ShellCtx, tier: number): Promise<void> {
-    const { result } = await ctx.gateway.setKingdomExploreTier(this.kingdom, tier);
-    if (isFailure(result)) {
-      toast(result.message);
-      return;
-    }
-    // 即时持久化 + 就地更新（不整屏重建，保持滚动位置）
-    $$('.tier-row button').forEach((b) => b.classList.toggle('on', Number(b.dataset.tier) === tier));
-    const line = $('#exLine');
-    if (line) {
-      line.textContent = `当前 ${tier} 档：敌人 Lv.${exploreEnemyLevel(this.kingdom, tier)} · ${EXPLORE_TEAM_SIZES[tier - 1]} 人队`;
-    }
-    const fight = $('#exploreFight span:last-child');
-    if (fight) fight.textContent = `探索出战 · ${tier} 档`;
-    toast(`探索难度已设为 ${tier} 档（已保存）。`);
+    await ctx.launchExplore(this.kingdom, exploreTierForNode(this.mode, this.selectedNode));
   }
 
   private on(target: EventTarget, type: string, fn: EventListenerOrEventListenerObject): void {
@@ -375,6 +424,7 @@ export class QuestScreen implements Screen {
   }
 
   dispose(): void {
+    document.getElementById('stage')?.classList.remove('quest-responsive');
     for (const [target, type, fn] of this.listeners.splice(0)) {
       target.removeEventListener(type, fn);
     }

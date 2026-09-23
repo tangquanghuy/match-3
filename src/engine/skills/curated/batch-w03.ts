@@ -8,7 +8,7 @@
  * src/data/weapon-skill-meta.json）。组装规则锚定 scripts/spell-rules.md 与
  * 既有部队批次先例；生成器 scripts/_weapon_pools.mjs gen。
  */
-import { armor, attack, cleanse, createGems, createGemsMixAny, createMix, createSpecialGems, createStorm, destroyArea, destroyChosenCol, destroyChosenRow, destroyColor, destroyRandomCols, destroyRandomGems, dmg, dmgSplash, explodeChosenCol, explodeChosenRow, explodeRandomGems, extraTurn, gainGold, heal, inflict, inflictRandom, magic, mana, oneOf, reduce, reposition, shuffleTeam, skill, steal, summonRandom, summonRandomOfKingdom, transform, transformToSpecial, trueDmg, CHOSEN } from '../builders';
+import { armor, attack, cleanse, createGems, createGemsMixAny, createMix, createSpecialGems, createStorm, destroyArea, destroyChosenCol, destroyChosenRow, destroyColor, destroyRandomCols, destroyRandomGems, dmg, dmgSplash, explodeChosenCol, explodeChosenRow, explodeRandomGems, extraTurn, gainGold, heal, inflict, inflictRandom, magic, mana, oneOf, reduce, reposition, shuffleTeam, skill, steal, summonRandom, summonRandomOfKingdom, transform, transformToSpecial, trueDmg, CHOSEN, CELL, explodeAt } from '../builders';
 import { BaseColor } from '../../types';
 import type { CuratedBatch } from './index';
 
@@ -979,7 +979,7 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 8806,
     desc: '爆破 1 颗宝石。创造 1 颗石像鬼宝石。每摧毁一颗石像鬼宝石，则再创造一颗 2。 [x2]',
     build: skill(
-      explodeRandomGems(1, 0, 'color', undefined),
+      explodeAt(CELL),
       createSpecialGems({ kind: 'gargoyleGem' }, 1, 0),
     ),
   },
@@ -1101,7 +1101,7 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '&& 将所有绿色宝石转换成一个选定颜色 && 爆破一颗宝石。创造 10 颗绿色宝石',
     build: skill(
       transform(BaseColor.Green, CHOSEN),
-      explodeRandomGems(1, 0, 'color', undefined),
+      explodeAt(CELL),
       createGems(BaseColor.Green, 10, 0),
     ),
   },
@@ -1361,7 +1361,7 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 8995,
     desc: '爆破一颗宝石。给予所有盟友 [魔法 + 1] 点护甲值，数值因被摧毁的炸弹宝石数而增强。 [x2]',
     build: skill(
-      explodeRandomGems(1, 0, 'color', undefined),
+      explodeAt(CELL),
       armor('allyAll', 1, 1, { modifier: { mod: { kind: 'multiplier', a: 2 }, source: { kind: 'boardSpecial', gem: 'bomb' } } }),
     ),
   },

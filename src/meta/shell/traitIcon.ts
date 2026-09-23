@@ -21,7 +21,7 @@ interface Family {
   color: string;
 }
 
-/** 稀有度档（0~5）→ 图标质感档：白/绿=朴素，稀有~超稀有=标准，史诗/传说=华丽 */
+/** 稀有度档（0~5）→ 图标质感档：普通/精良=朴素，稀有/传说=标准，史诗/神话=华丽 */
 export function styleOfTier(tier: number): 'simple' | 'normal' | 'ornate' {
   if (tier <= 1) return 'simple';
   if (tier <= 3) return 'normal';

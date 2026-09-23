@@ -29,6 +29,7 @@ import {
   randomStat, createGems, createSkulls, createMix, transform, transformToSpecial, createSpecialGems,
   destroySpecialGems, destroyColor, destroyChosenRow, destroyChosenCol, destroySkulls,
   explodeRandomGems, oneOf, extraTurn, summonRandom, summonRef, reposition, shuffleTeam, CHOSEN,
+  CELL, explodeAt,
 } from '../builders';
 import { BaseColor } from '../../types';
 
@@ -137,7 +138,7 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '爆破一颗宝石。创造 4 颗红色宝石，数量因被摧毁的骷髅头数量而增强。 [x3]',
     // 「被摧毁的骷髅头数量」= destroyedGems 无色（8039/8090 同批口径）
     build: skill(
-      explodeRandomGems(1),
+      explodeAt(CELL),
       createGems(BaseColor.Red, 4, 0, {
         modifier: { mod: { kind: 'multiplier', a: 3 }, source: { kind: 'destroyedGems' } },
       }),
@@ -490,7 +491,7 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '爆破一颗宝石。再创造 1 个 x3 通配符卡牌。每摧毁一颗棕色宝石，则再创造多 2 个卡牌。 [x2]',
     // WildCard3 = tier 3；「每摧毁一颗棕色宝石 +2」→ destroyedGems Brown 来源计数
     build: skill(
-      explodeRandomGems(1),
+      explodeAt(CELL),
       createSpecialGems({ kind: 'wildcard', tier: 3 }, 1),
       createSpecialGems({ kind: 'wildcard', tier: 3 }, 0, 0, {
         modifier: { mod: { kind: 'multiplier', a: 2 }, source: { kind: 'destroyedGems', color: BaseColor.Brown } },

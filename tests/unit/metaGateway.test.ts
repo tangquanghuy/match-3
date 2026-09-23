@@ -48,6 +48,7 @@ describe('buildDemoSave 演示档', () => {
     // 破碎尖塔 = 推进序第 1 王国，绑定官方职业「督军」（HeroClassCode warrior）
     expect(save.hero.unlockedClasses).toContain('warrior');
     expect(save.hero.classId).toBe('warrior');
+    expect(save.hero.classWins['warrior']).toBe(34);
     expect(save.hero.unlockedClasses).toContain('mechanist');
     expect(save.teams).toHaveLength(1);
     expect(save.teams[0]!.members[0]).toEqual({ kind: 'hero' });
@@ -70,6 +71,7 @@ describe('MockGateway', () => {
     expect(second.save.createdAt).toBe(snapshot.createdAt);
     // 回归：hydrateSave 曾漏掉 classLevels/unlockedClasses，刷新后职业进度回退
     expect(second.save.hero.classLevels['warrior']).toBe(12);
+    expect(second.save.hero.classWins['warrior']).toBe(34);
     expect(second.save.hero.unlockedClasses).toContain('warrior');
     expect(second.save.hero.unlockedClasses).toContain('mechanist');
   });

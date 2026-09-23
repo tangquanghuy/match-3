@@ -24,7 +24,7 @@ export type PvpSettlementView =
 /** 所有屏名（hash 路由用） */
 export type ScreenName =
   | 'map' | 'team' | 'hero' | 'troop' | 'chests' | 'arena' | 'settings' | 'result'
-  | 'events' | 'invasion' | 'shop' | 'weapons' | 'bag'
+  | 'events' | 'invasion' | 'shop' | 'weapons' | 'bag' | 'gems' | 'hunt'
   /** 王国主线页 `#quest/<王国>`（M10） */
   | 'quest';
 
@@ -48,8 +48,8 @@ export interface ShellCtx {
   refreshChrome(): void;
   /** 启动一场任务关战斗（结算后自动进结算屏） */
   launchQuest(kingdom: string, node: number): Promise<void>;
-  /** 启动一场探索战斗 */
-  launchExplore(kingdom: string): Promise<void>;
+  /** 启动一场 Hard / Very Hard 战斗 */
+  launchExplore(kingdom: string, tier?: number): Promise<void>;
   /** 启动一场竞技场连战（结算走竞技场屏自身） */
   launchArenaBattle(): Promise<void>;
   /** 启动一场本周活动战斗（结算走结算屏，活动积分/里程碑在结算行里） */

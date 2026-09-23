@@ -29,6 +29,9 @@ import {
   type WeaponDef,
 } from './weapons';
 
+/** 兼容旧导入路径；稀有度中文名与颜色的实际单源在 rarity.ts。 */
+export { RARITY_ZH } from './rarity';
+
 /** 兼容别名：假数据退役后武器只有一种形状（见 data/weapons.ts 的 WeaponDef 头注） */
 export type CatalogWeaponDef = WeaponDef;
 
@@ -82,24 +85,10 @@ export function normalizeWeaponType(raw: string | null | undefined): string | nu
 }
 
 /**
- * 中文词表（**共享单源**）。
+ * 武器类型与法力色中文词表。
  *
- * 此前存在三份重复：`heroScreen.ts` 自己一份稀有度中文表、旧独立 Codex 一份
- * （稀有度/类型/颜色，键是官方大写原文）、`troop.css`/`screens.css` 各一套稀有度色。
- * 武器图鉴的并入方案要求把这几张纯资产表提到共享模块——落在这里，
- * 键统一用**归一后的小写类型键**（含 `relic`）。
+ * 稀有度映射已集中到 rarity.ts；这里的类型键统一使用归一后的小写形式（含 `relic`）。
  */
-export const RARITY_ZH: Readonly<Record<string, string>> = {
-  Common: '普通',
-  Uncommon: '非普通',
-  Rare: '稀有',
-  UltraRare: '超稀有',
-  Epic: '史诗',
-  Legendary: '传说',
-  Mythic: '神话',
-  Doomed: '末日',
-};
-
 export const TYPE_ZH: Readonly<Record<string, string>> = {
   sword: '剑',
   bow: '弓',

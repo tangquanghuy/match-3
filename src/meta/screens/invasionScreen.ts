@@ -4,8 +4,8 @@
  * launchInvasionBattle（结算 toast 汇报 VP/荣耀/名次），跨周 lazy 周结在网关方法里触发。
  */
 import { INVASION, INVASION_LEAGUES, INVASION_VP_TABLE, INVASION_ZONES } from '../data/economy';
+import { RARITY_NAMES as RARITY_CN } from '../data/rarity';
 import { getTroopById } from '../../data/troops';
-import { troopStatsAtLevel } from '../../data/leveling';
 import {
   invasionCandidates,
   invasionStandings,
@@ -22,14 +22,45 @@ const LEAGUE_COLORS = [
   '#9a8f86', '#c0c7ce', '#e6b84c', '#67c1b5', '#4fb06d',
   '#4f8fd0', '#9a6fd0', '#d09a4f', '#d04f5f', '#e8d24a',
 ] as const;
-const RARITY_CN: Record<number, string> = { 0: '普通', 1: '精良', 2: '稀有', 3: '传说', 4: '史诗', 5: '神话' };
+const LEAGUE_ICONS = ['helmet', 'helmet', 'swords', 'swords', 'wing', 'wing', 'banner', 'banner', 'crown', 'crown'] as const;
 const TIER_CN: Record<string, string> = { minion: '普通', elite: '精英', boss: '首领' };
+
+function leagueEmblem(index: number, extraClass = ''): string {
+  return `<span class="inv-rank-emblem ${extraClass}" style="--rank-color:${LEAGUE_COLORS[index] ?? LEAGUE_COLORS[0]}" role="img" aria-label="${INVASION_LEAGUES[index] ?? INVASION_LEAGUES[0]}官阶徽记"><span data-icon="${LEAGUE_ICONS[index] ?? 'helmet'}"></span></span>`;
+}
 
 function expectedVpRange(defense: readonly { level: number }[], frenzy: boolean): [number, number] {
   const average = defense.reduce((sum, d) => sum + d.level, 0) / Math.max(defense.length, 1);
   const row = INVASION_VP_TABLE.find((entry) => average <= entry.maxLevel) ?? INVASION_VP_TABLE[INVASION_VP_TABLE.length - 1]!;
   const multiplier = frenzy ? 2 : 1;
   return [row.min * multiplier, row.max * multiplier];
+}
+
+/**
+ * 推荐目标只表达「预估收益 / 防守评分」的相对值，不改变匹配或结算规则。
+ * 分数相同保留原候选池的先后顺序；推荐目标在手机轮播中优先展示。
+ */
+function targetValueOf(target: { defense: readonly { level: number }[]; frenzy: boolean; rating: number }): number {
+  const [min, max] = expectedVpRange(target.defense, target.frenzy);
+  return ((min + max) / 2) / Math.max(target.rating, 1);
+}
+
+function promotionProgress(
+  league: number,
+  placement: number,
+  zone: { promote: number; relegate: number },
+): { headline: string; note: string; tone: 'up' | 'behind' | 'top' } {
+  if (league === INVASION_LEAGUES.length - 1) {
+    return { headline: `第 ${placement}`, note: '最高官阶 · 不再晋级', tone: 'top' };
+  }
+  if (placement <= zone.promote) {
+    return { headline: `第 ${placement}`, note: `已在晋级区 · 前 ${zone.promote} 名晋级`, tone: 'up' };
+  }
+  return {
+    headline: `第 ${placement}`,
+    note: `还差 ${placement - zone.promote} 名进入前 ${zone.promote}`,
+    tone: 'behind',
+  };
 }
 
 function nextRefreshText(now: number): string {
@@ -44,8 +75,6 @@ function nextRefreshText(now: number): string {
 function playerSummary(save: MetaSave): string {
   const team = save.teams[save.activeTeamIndex];
   if (!team || team.members.length === 0) return '<span class="inv-summary-empty">尚未编入队伍</span>';
-  let attack = 0;
-  let health = 0;
   const levels: number[] = [];
   let hero = false;
   for (const member of team.members) {
@@ -57,13 +86,10 @@ function playerSummary(save: MetaSave): string {
     const troop = getTroopById(member.troopId);
     if (!troop) continue;
     const rec = save.collection[String(member.troopId)];
-    const stats = troopStatsAtLevel(troop, rec?.level ?? 1);
-    attack += stats.attack;
-    health += stats.health;
     levels.push(rec?.level ?? 1);
   }
   const average = levels.length ? (levels.reduce((sum, level) => sum + level, 0) / levels.length).toFixed(1) : '—';
-  return `<span><b>${team.members.length}</b> 人${hero ? '（含主角）' : ''}</span><span>⚔ <b>${attack}</b></span><span>♥ <b>${health}</b></span><span>平均 Lv.<b>${average}</b></span>`;
+  return `<span>${team.members.length} 人${hero ? ' · 含主角' : ''}</span><span>平均 Lv.${average}</span>`;
 }
 
 /**
@@ -101,7 +127,7 @@ const VP_BONUS_TEXT = [
 export class InvasionScreen implements Screen {
   private listeners: Array<[EventTarget, string, EventListenerOrEventListenerObject]> = [];
 
-  html(ctx: ShellCtx): string {
+  html(ctx: ShellCtx, param?: string): string {
     const save = ctx.save();
     const now = Date.now();
     const weekStart = weekStartOf(now);
@@ -112,10 +138,31 @@ export class InvasionScreen implements Screen {
         ${topbarHtml()}
         <div class="screen inv-screen">
           <section class="panel inv-panel inv-locked">
-            <small>RANKED INVASION</small>
-            <h1>入 侵</h1>
-            <p>与其他指挥官的防守镜像对战，赢取荣耀与官阶。</p>
-            <p class="inv-lock-hint">主角达到 <b>Lv.${INVASION.unlockHeroLevel}</b> 后解锁（当前 Lv.${save.hero.level}）。</p>
+            <div class="inv-lock-layout">
+              <div class="inv-lock-hero">
+                <div class="inv-lock-sigil" aria-hidden="true">
+                  <i class="inv-lock-orbit orbit-a"></i><i class="inv-lock-orbit orbit-b"></i>
+                  <div class="inv-lock-emblem"><span data-icon="skull"></span><i data-icon="lock"></i></div>
+                </div>
+                <h1>入 侵</h1>
+                <p class="inv-lock-intro">与其他指挥官的防守镜像对战，赢取荣耀与官阶。</p>
+                <span class="inv-lock-rule" aria-hidden="true"></span>
+              </div>
+              <div class="inv-lock-command">
+                <div class="inv-lock-command-head">
+                  <h2>官阶战场尚未开放</h2>
+                  <p>先提升主角等级，解锁排位入侵。</p>
+                </div>
+                <div class="inv-lock-status" aria-label="入侵解锁进度">
+                  <span data-icon="lock" aria-hidden="true"></span>
+                  <div><small>解锁条件</small><b>主角 Lv.${INVASION.unlockHeroLevel}</b></div>
+                  <div class="inv-lock-level"><span>当前 Lv.${save.hero.level}</span><i aria-hidden="true"><em style="width:${Math.min(100, (save.hero.level / INVASION.unlockHeroLevel) * 100)}%"></em></i></div>
+                </div>
+                <p class="inv-lock-hint"><b>主角经验来源</b>：完成王国任务与探索战斗，在胜利结算中获得经验。</p>
+                <button class="primary inv-map-cta" id="invMapCta" type="button"><span data-icon="map" aria-hidden="true"></span><span>去世界地图打任务</span><span data-icon="arrow" aria-hidden="true"></span></button>
+              </div>
+              <div class="inv-lock-preview">${leagueEmblem(0)}<span><small>解锁后的起点</small><b>青铜官阶</b></span><span class="inv-lock-preview-note">每周凭对战积分争取晋级</span></div>
+            </div>
           </section>
         </div>
         ${bottomNavHtml('', '官阶=每周 VP 联赛')}
@@ -123,109 +170,124 @@ export class InvasionScreen implements Screen {
     }
 
     const leagueName = INVASION_LEAGUES[save.invasion.league]!;
-    const leagueColor = LEAGUE_COLORS[save.invasion.league]!;
     const standings = invasionStandings(save, now, weekStart);
     const zone = INVASION_ZONES[save.invasion.league]!;
     const candidates = invasionCandidates(save, now, weekStart);
+    const recommendedId = candidates.length
+      ? candidates.reduce((best, candidate) => (targetValueOf(candidate) > targetValueOf(best) ? candidate : best)).id
+      : '';
+    const orderedCandidates = [...candidates].sort((a, b) => Number(b.id === recommendedId) - Number(a.id === recommendedId));
+    const promotion = promotionProgress(save.invasion.league, standings.placement, zone);
 
-    const candidateRows = candidates
-      .map((m) => {
+    const candidateRows = orderedCandidates
+      .map((m, index) => {
         const [vpMin, vpMax] = expectedVpRange(m.defense, m.frenzy);
+        const recommended = m.id === recommendedId;
         const defense = m.defense
           .map((d) => {
             const troop = getTroopById(d.troopId);
             if (!troop) return '';
-            const stats = troopStatsAtLevel(troop, d.level);
-            return `<span class="inv-def" title="${troop.name} · ${TIER_CN[d.tier] ?? d.tier} · Lv.${d.level}">
+            return `<span class="inv-def r-${troop.rarityIdx}" title="${troop.name} · ${RARITY_CN[troop.rarityIdx] ?? ''} · ${TIER_CN[d.tier] ?? d.tier} · Lv.${d.level}">
               ${troopImg(troop, false, `alt="${troop.name}"`)}
-              <b>${troop.name}</b><small>${RARITY_CN[troop.rarityIdx] ?? ''} · ${TIER_CN[d.tier] ?? d.tier} · Lv.${d.level}</small>
-              <i>⚔${stats.attack} ♥${stats.health}</i>
+              <span class="inv-def-caption"><b>${troop.name}</b><small>${TIER_CN[d.tier] ?? d.tier} · Lv.${d.level}</small></span>
             </span>`;
           })
           .join('');
         return `
-          <div class="inv-rival${m.frenzy ? ' frenzy' : ''}">
+          <article class="inv-rival${m.frenzy ? ' frenzy' : ''}${recommended ? ' recommended' : ''}">
             <div class="inv-rival-head">
-              <b class="inv-rival-name">${m.name}${m.frenzy ? '<i class="inv-frenzy-tag" title="血怒：战胜 VP×2">血怒</i>' : ''}</b>
-              <span class="inv-rival-nums"><span title="防守评分">⚔ ${m.rating}</span><span title="本周积分">VP ${m.vp}</span></span>
+              <small>对手 ${String(index + 1).padStart(2, '0')}${recommended ? ' · 推荐' : ''}</small>
+              <h3 class="inv-rival-name">${m.name}</h3>
+              <span class="inv-rival-nums">防守评分 ${m.rating}${m.frenzy ? ' · 血怒' : ''}</span>
             </div>
-            <div class="inv-rival-expected"><small>预计胜场 VP</small><b>+${vpMin}~${vpMax}</b>${m.frenzy ? '<span>血怒 ×2</span>' : ''}</div>
             <div class="inv-rival-defense" aria-label="防守队阵容">${defense}</div>
-            <button class="inv-attack" data-invade="${m.id}" type="button">出 击</button>
-          </div>`;
+            <div class="inv-rival-footer">
+              <div class="inv-rival-expected"><small>胜利预计</small><b>+${vpMin}~${vpMax} <em>VP</em></b></div>
+              <small class="inv-rival-risk">战败 −${INVASION.vpLoss} VP${m.frenzy ? ' · 血怒奖励 ×2' : ''}</small>
+              <button class="inv-attack${recommended ? ' recommended' : ''}" data-invade="${m.id}" data-recommended="${recommended}" type="button" aria-label="出击 ${m.name}"><span data-icon="swords"></span>出击</button>
+            </div>
+          </article>`;
       })
       .join('');
 
-    const topRows = standings.rows.slice(0, 10);
-    const playerRow = standings.rows.find((r) => r.isPlayer)!;
-    const playerIndex = standings.rows.indexOf(playerRow);
-    const playerOutsideTop = playerIndex >= 10;
     const standingsRows = (rows: StandingRow[]): string =>
       rows
         .map((r) => {
           const place = standings.rows.indexOf(r) + 1;
-          const inPromote = zone.promote > 0 && place <= zone.promote;
-          const inRelegate = zone.relegate > 0 && place >= zone.relegate;
           return `
-            <div class="inv-row${r.isPlayer ? ' me' : ''}${inPromote ? ' up' : ''}${inRelegate ? ' down' : ''}">
-              <span class="inv-place">${place}</span>
-              <span class="inv-name">${r.name}${r.frenzy ? ' <i class="inv-frenzy-tag">血怒</i>' : ''}</span>
-              <span class="inv-vp">${r.vp}</span>
-            </div>`;
+            <div class="inv-row${r.isPlayer ? ' me' : ''}">
+              <span class="inv-place">${place}</span><span class="inv-name">${r.name}${r.isPlayer ? ' · 你' : ''}${r.frenzy ? ' · 血怒' : ''}</span><span class="inv-vp">${r.vp} VP</span>
+            </div>${zone.promote > 0 && place === zone.promote ? `<div class="inv-cutline">前 ${zone.promote} 名晋级</div>` : ''}${zone.relegate > 0 && place === zone.relegate - 1 ? `<div class="inv-cutline danger">第 ${zone.relegate} 名起降级</div>` : ''}`;
         })
         .join('');
-    const neighborRows = playerOutsideTop
-      ? standings.rows
-          .slice(Math.max(0, playerIndex - 1), Math.min(standings.rows.length, playerIndex + 2))
-          .filter((row) => !row.isPlayer)
-      : [];
-    const neighborHtml = neighborRows.length
-      ? `<div class="inv-neighbors"><small>你附近的名次</small>${standingsRows(neighborRows)}</div>`
-      : '';
+
+    const secondary = param === 'standings' || param === 'ranks' || param === 'rules' ? param : null;
+    const rankList = INVASION_LEAGUES.map((name, index) => `
+      <div class="inv-rank-row${index === save.invasion.league ? ' current' : ''}">
+        ${leagueEmblem(index)}<span><b>${name}</b><small>${index === save.invasion.league ? '当前官阶' : index < save.invasion.league ? '已达成' : '尚未到达'}</small></span>
+        <span class="inv-rank-condition">${index === INVASION_LEAGUES.length - 1 ? '最高官阶' : `前 ${INVASION_ZONES[index]!.promote} 名晋级`}</span>
+      </div>`).join('');
+    const rules = `<div class="inv-rules-body">
+      <h2>官阶与战绩</h2><p>${zoneText(save.invasion.league, leagueName)}</p>
+      <h2>胜负与积分</h2><p>胜利基础分按对手平均等级计算：${vpBaseRangeText()} VP。速胜、存活人数和额外回合可获得加分；血怒对手胜利积分翻倍。战败扣 ${INVASION.vpLoss} VP，积分不会低于零。</p>
+      <h2>加分档位</h2><p>${VP_BONUS_TEXT}。</p>
+      <h2>荣耀奖励</h2><p>胜利获得荣耀；每日首胜另有奖励。20 荣耀可在宝箱殿兑换荣耀箱。</p>
+    </div>`;
+    const secondaryContent = secondary === 'standings'
+      ? `<section class="inv-secondary-body"><header><h2>本周榜单</h2><p>${leagueName}官阶 · ${standings.rows.length} 人 · 你当前第 ${standings.placement} 名</p></header><div class="inv-rows">${standingsRows(standings.rows)}</div></section>`
+      : secondary === 'ranks'
+        ? `<section class="inv-secondary-body"><header><h2>官阶总览</h2><p>每周结算后按名次晋级；当前官阶以徽记标示。</p></header><div class="inv-rank-list">${rankList}</div></section>`
+        : `<section class="inv-secondary-body"><header><h2>对战规则</h2></header>${rules}</section>`;
 
     return `
       ${topbarHtml()}
-      <div class="screen inv-screen">
-        <section class="panel inv-panel">
-          <header class="inv-head">
-            <div class="inv-league" style="--league:${leagueColor}">
-              <small>YOUR LEAGUE</small>
-              <h1>${leagueName}</h1>
-              <span>历史最高 ${INVASION_LEAGUES[save.invasion.bestLeague]} · 第 ${save.invasion.seasonsPlayed + 1} 赛季</span>
-            </div>
-            <div class="inv-stats">
-              <div class="inv-stat"><small>本周 VP</small><b>${save.invasion.vp}</b></div>
-              <div class="inv-stat"><small>当前名次</small><b>${standings.placement}<i>/ 30</i></b></div>
-              <div class="inv-stat"><small>荣耀</small><b>${save.currencies.glory}</b></div>
-            </div>
+      <div class="screen inv-screen${secondary ? ' inv-screen-secondary' : ''}">
+        <section class="panel inv-panel inv-battle-hub">
+          ${secondary ? `<nav class="inv-subnav" aria-label="入侵信息"><a href="#invasion"><span data-icon="arrow"></span>返回对战</a><a href="#invasion/standings"${secondary === 'standings' ? ' aria-current="page"' : ''}>本周榜单</a><a href="#invasion/ranks"${secondary === 'ranks' ? ' aria-current="page"' : ''}>官阶</a><a href="#invasion/rules"${secondary === 'rules' ? ' aria-current="page"' : ''}>规则</a></nav>${secondaryContent}` : `
+          <header class="inv-hub-head">
+            <div class="inv-hub-rank">${leagueEmblem(save.invasion.league)}<div><small>当前官阶 · 第 ${save.invasion.seasonsPlayed + 1} 赛季</small><h1>${leagueName}</h1><p>${promotion.note}</p></div></div>
+            <div class="inv-hub-status"><span><small>本周 VP</small><b>${save.invasion.vp}</b></span><span><small>当前名次</small><b>${promotion.headline}<i> / 30</i></b></span></div>
+            <nav class="inv-hub-links" aria-label="入侵信息"><a href="#invasion/standings">榜单 <span data-icon="arrow"></span></a><a href="#invasion/ranks">官阶 <span data-icon="arrow"></span></a><a href="#invasion/rules">规则 <span data-icon="arrow"></span></a></nav>
           </header>
-          <p class="inv-zone-hint">${zoneText(save.invasion.league, leagueName)}</p>
-          <p class="inv-zone-hint inv-vp-rule">胜场得 VP：基础分按对手平均等级 <b>${vpBaseRangeText()}</b>；加分——${VP_BONUS_TEXT}；血怒对手 VP 翻倍；战败 −${INVASION.vpLoss} VP。<br />20 荣耀可在宝箱殿换荣耀箱。</p>
-
-          <div class="inv-player-summary" aria-label="我方队伍摘要">
-            <div><small>当前出战队伍</small><b>${save.teams[save.activeTeamIndex]?.name ?? '未命名队伍'}</b></div>
-            <div class="inv-summary-values">${playerSummary(save)}</div>
-          </div>
-
-          <div class="inv-cols">
-            <section class="inv-candidates">
-              <div class="inv-section-head"><h2><small>TODAY'S TARGETS</small>今日对手</h2><div class="inv-refresh"><b>今日候选 ${candidates.length} 人</b><span>每日 00:00 刷新 · ${nextRefreshText(now)}</span></div></div>
-              <div class="inv-rivals">${candidateRows}</div>
-            </section>
-            <section class="inv-board">
-              <h2><small>WEEKLY LEADERBOARD</small>本周榜单</h2>
-              <div class="inv-rows">${standingsRows(topRows)}${playerOutsideTop ? `<div class="inv-ellipsis">…</div>${standingsRows([playerRow])}` : ''}</div>
-              <div class="inv-zone-legend"><span><i class="up"></i>晋级前 ${zone.promote || '—'}</span><span><i class="down"></i>${zone.relegate ? `第 ${zone.relegate} 名以后降级` : '本级不降级'}</span></div>
-              ${neighborHtml}
-            </section>
-          </div>
+          <div class="inv-choice-head"><div><small>每日 00:00 更新</small><h2>选择对手</h2></div><span class="inv-choice-refresh">${nextRefreshText(now)}</span><div class="inv-choice-pager" aria-label="切换对手"><button type="button" data-inv-prev aria-label="上一名对手" title="上一名对手" disabled><span data-icon="arrow"></span></button><span class="inv-choice-position" aria-live="polite">1 / ${orderedCandidates.length}</span><button type="button" data-inv-next aria-label="下一名对手" title="下一名对手"${orderedCandidates.length < 2 ? ' disabled' : ''}><span data-icon="arrow"></span></button></div></div>
+          <div class="inv-rivals">${candidateRows}</div>
+          <footer class="inv-hub-foot"><div><small>当前出战</small><b>${save.teams[save.activeTeamIndex]?.name ?? '未命名队伍'}</b><span>${playerSummary(save)}</span></div><a href="#team">调整队伍 <span data-icon="arrow"></span></a></footer>
+          `}
         </section>
       </div>
-      ${bottomNavHtml('', '官阶=每周 VP 联赛')}
+      ${bottomNavHtml('', '入侵排位 · 每周结算')}
       ${toastHtml()}`;
   }
 
   mount(ctx: ShellCtx): void {
+    const mapCta = document.querySelector<HTMLElement>('#invMapCta');
+    if (mapCta) this.on(mapCta, 'click', () => ctx.navigate('#map'));
+    const scroller = document.querySelector<HTMLElement>('.inv-rivals');
+    const cards = scroller ? [...scroller.querySelectorAll<HTMLElement>('.inv-rival')] : [];
+    const prev = document.querySelector<HTMLButtonElement>('[data-inv-prev]');
+    const next = document.querySelector<HTMLButtonElement>('[data-inv-next]');
+    const position = document.querySelector<HTMLElement>('.inv-choice-position');
+    if (scroller && cards.length && prev && next && position) {
+      let currentIndex = 0;
+      const sync = () => {
+        const step = cards[0]!.offsetWidth + Number.parseFloat(getComputedStyle(scroller).columnGap || '0');
+        const index = Math.min(cards.length - 1, Math.max(0, Math.round(scroller.scrollLeft / step)));
+        if (currentIndex !== index) {
+          currentIndex = index;
+          position.textContent = `${index + 1} / ${cards.length}`;
+        }
+        prev.disabled = index === 0;
+        next.disabled = index === cards.length - 1;
+      };
+      const go = (offset: number) => {
+        const index = Math.min(cards.length - 1, Math.max(0, currentIndex + offset));
+        scroller.scrollTo({ left: cards[index]!.getBoundingClientRect().left - scroller.getBoundingClientRect().left + scroller.scrollLeft, behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' });
+      };
+      this.on(scroller, 'scroll', sync);
+      this.on(prev, 'click', () => go(-1));
+      this.on(next, 'click', () => go(1));
+      this.on(window, 'resize', sync);
+    }
     $$('[data-invade]').forEach((btn) =>
       this.on(btn, 'click', () => {
         const id = (btn as HTMLElement).dataset.invade!;

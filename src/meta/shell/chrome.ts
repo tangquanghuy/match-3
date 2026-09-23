@@ -37,6 +37,7 @@ const iconPaths: Record<string, string> = {
 };
 
 let iconUid = 0;
+
 export function icon(name: string): string {
   if (GAME_ICONS[name]) return GAME_ICONS[name]!;
   if (BATTLE_ICONS[name]) return BATTLE_ICONS[name]!.replaceAll('mgOrb', 'mgOrb' + ++iconUid);
@@ -62,6 +63,29 @@ export function fitStage(): void {
   if (!stage) return;
   const width = document.documentElement.clientWidth || window.innerWidth;
   const height = document.documentElement.clientHeight || window.innerHeight;
+  const nativeSize = width < 1400;
+  const responsiveScreens = [
+    ['invasion-mobile', '.inv-screen'],
+    ['events-responsive', '.ev-screen'],
+    ['event-shop-responsive', '.event-shop-screen'],
+    ['gem-shop-responsive', '.gem-shop-screen'],
+    ['weapons-responsive', '.weapons-screen'],
+    ['arena-responsive', '.arena-screen'],
+    ['map-responsive', '.map-shell'],
+    ['hero-responsive', '.hero-screen'],
+    ['result-responsive', '.result-screen'],
+    ['quest-responsive', '.quest-screen'],
+  ] as const;
+  let responsive = false;
+  for (const [className, selector] of responsiveScreens) {
+    const active = nativeSize && !!stage.querySelector(selector);
+    stage.classList.toggle(className, active);
+    responsive ||= active;
+  }
+  if (responsive) {
+    stage.style.transform = 'none';
+    return;
+  }
   stage.style.transform = 'scale(' + Math.min(width / 1600, height / 900) + ')';
 }
 
@@ -146,13 +170,13 @@ export function topbarHtml(): string {
           <div class="xp"><i id="playerXpFill"></i></div>
         </div>
       </div>
-      <div class="top-title"><span>CHRONICLES OF DAWN</span><b id="pageTitle">世 界 地 图</b></div>
+      <div class="top-title"><b id="pageTitle">世 界 地 图</b></div>
       <div class="wallet">
         <button class="money" data-currency="gold" type="button"><span data-icon="coin"></span><div><small>黄金</small><b id="goldBalance">0</b></div></button>
         <button class="money soul" data-currency="soul" type="button"><span data-icon="soul"></span><div><small>灵魂</small><b id="soulBalance">0</b></div></button>
         <button class="money crystal" data-currency="gem" type="button"><span data-icon="crystal"></span><div><small>宝石</small><b id="gemBalance">0</b></div></button>
         <button class="money key" data-currency="key" type="button"><span data-icon="key"></span><div><small>金钥匙</small><b id="keyBalance">0</b></div></button>
-        <button class="money" data-currency="glory" type="button"><span data-icon="swords"></span><div><small>荣耀</small><b id="gloryBalance">0</b></div></button>
+        <button class="money" data-currency="glory" type="button"><span data-icon="glory"></span><div><small>荣耀</small><b id="gloryBalance">0</b></div></button>
         <button class="orb" id="materialsBtn" type="button" aria-label="材料库"><span data-icon="bag"></span><i id="materialsAlert" class="materials-alert" aria-label="有新材料" hidden></i></button>
         <button class="orb" id="settings" type="button" aria-label="设置"><span data-icon="gear"></span></button>
       </div>
@@ -169,7 +193,7 @@ export function bottomNavHtml(active: string, hint = '42 王国'): string {
   ] as const;
   return `
     <footer class="bottom-bar">
-      <div class="world-mark"><span data-icon="compass"></span><span>破 晓 之 誓<small>CHRONICLES OF DAWN</small></span></div>
+      <div class="world-mark"><span data-icon="compass"></span><span>破 晓 之 誓</span></div>
       <nav aria-label="主导航">
         ${items
           .map(

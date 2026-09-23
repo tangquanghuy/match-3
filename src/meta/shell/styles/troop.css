@@ -194,6 +194,9 @@
   box-shadow: 0 1px 0 #4a3c2e, inset 0 1px 0 #322840, 0 6px 12px #0b0b12aa;
 }
 
+/* The shared chrome no longer renders a duplicate English brand eyebrow. */
+.top-title b { margin-top: 0; }
+
 /* 立绘铺满：官方图为 459×675 竖版卡面（带背景），cover 填满槽位不留黑边，
    纵向裁切偏顶部保留主体；资料留在选中详情。 */
 .collection-cards { grid-template-columns: repeat(auto-fill, minmax(168px, 1fr)); gap: 12px; }
@@ -517,6 +520,7 @@
   margin-bottom: 9px; color: #d1c9ba; font: 12px/1.3 var(--body);
 }
 #detail .unlock-cost > span { display: inline-flex; align-items: center; gap: 4px; white-space: nowrap; }
+#detail .unlock-cost .mat-art { width: 24px; height: 24px; flex: none; object-fit: contain; }
 #detail .unlock-cost em { margin-left: 3px; color: #a3b49e; font: 11px var(--body); }
 #detail .unlock-cost em.short { color: #dd9a8b; }
 #detail #unlock { height: 38px; font: 15px/1 var(--display); letter-spacing: 0; }
@@ -576,3 +580,227 @@
 #detail #characterCard { border: 3px solid var(--rc, #aab2ad); box-shadow: 0 0 0 3px #111016, 0 0 0 4px var(--rc, #aab2ad), 0 16px 38px #0009; }
 #detail #characterCard.unowned { border-color: var(--rc, #6f6558); }
 #detail .rarity-label { display: none; }
+
+/* Collection/detail responsive shell: keep cards at readable native pixels instead of
+   shrinking the complete 1600px stage into a phone-sized thumbnail. */
+@media (max-width: 1399px) {
+  #stage.collection-responsive {
+    width: 100vw !important;
+    height: 100dvh !important;
+    transform: none !important;
+  }
+  #stage.collection-responsive #collection,
+  #stage.collection-responsive #detail {
+    top: 72px;
+    bottom: 62px;
+  }
+  #stage.collection-responsive .collection-heading {
+    padding: 18px 24px 12px;
+  }
+  #stage.collection-responsive .collection-progress,
+  #stage.collection-responsive .collection-filter {
+    margin-right: 24px;
+    margin-left: 24px;
+  }
+  #stage.collection-responsive .collection-filter .filter-row {
+    flex-wrap: wrap;
+  }
+  #stage.collection-responsive .collection-cards {
+    grid-template-columns: repeat(auto-fill, minmax(154px, 1fr));
+    margin: 12px 24px 6px;
+  }
+  #stage.collection-responsive .kingdom-band {
+    margin-right: 24px;
+    margin-left: 24px;
+  }
+
+  #stage.collection-responsive #detail .page-heading {
+    height: 64px;
+    margin: 0 24px;
+  }
+  #stage.collection-responsive #detail .detail-layout {
+    grid-template-columns: minmax(286px, 330px) minmax(0, 1fr);
+    grid-template-areas:
+      "portrait traits"
+      "growth growth";
+    gap: 28px 22px;
+    width: auto;
+    margin: 0 24px 30px;
+  }
+  #stage.collection-responsive #detail .portrait-column { grid-area: portrait; min-width: 0; }
+  #stage.collection-responsive #detail .right-column { grid-area: traits; min-width: 0; }
+  #stage.collection-responsive #detail .left-column { grid-area: growth; min-width: 0; }
+  #stage.collection-responsive #detail .card-stage {
+    width: min(100%, 330px);
+    height: auto;
+    aspect-ratio: 354 / 522;
+  }
+  #stage.collection-responsive #detail #characterCard {
+    width: 100%;
+    height: 100%;
+  }
+  #stage.collection-responsive #detail .portrait-controls,
+  #stage.collection-responsive #detail .enlist-row {
+    width: min(100%, 354px);
+    margin-right: auto;
+    margin-left: auto;
+  }
+}
+
+.collection-heading h1 { margin-top: 0; }
+@media (min-width: 1400px) {
+  /* 1600px 舞台稳定显示八列，两行完整落在分页栏上方。 */
+  .collection-cards { grid-template-columns: repeat(8, minmax(0, 1fr)); }
+}
+.collection-pagination {
+  flex: none;
+  min-height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin: 4px 95px 10px;
+  padding: 7px 10px;
+  border-top: 1px solid #4d473c;
+  color: #aaa49d;
+  background: #11131a;
+}
+.collection-range { font-size: 11px; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.collection-page-controls { display: flex; align-items: center; gap: 8px; }
+.collection-page-controls button {
+  min-width: 78px;
+  height: 32px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 0 10px;
+  border: 1px solid #5d574b;
+  border-radius: 3px;
+  color: #dfd2b6;
+  background: #20232a;
+  font-size: 11px;
+}
+.collection-page-controls button:hover:not(:disabled) { border-color: #a68f65; background: #2a2d34; }
+.collection-page-controls button:disabled { opacity: .38; }
+.collection-page-controls button [data-icon] { width: 13px; height: 13px; }
+#collectionNext [data-icon] { transform: rotate(180deg); }
+.collection-page-status {
+  min-width: 90px;
+  color: #b7afa3;
+  font-size: 11px;
+  text-align: center;
+  white-space: nowrap;
+}
+.collection-page-status b { color: #ead19c; font: 700 13px Georgia, serif; }
+
+/* 详情只由页面本身滚动，法术正文随内容展开，避免嵌套滚动条。 */
+#detail .spell { height: auto; min-height: 286px; }
+#detail .spell-body { overflow-y: visible; }
+
+@media (max-width: 700px) {
+  #stage.collection-responsive #collection,
+  #stage.collection-responsive #detail {
+    top: 64px;
+    bottom: 58px;
+  }
+  #stage.collection-responsive .collection-heading {
+    padding: 13px 12px 9px;
+  }
+  #stage.collection-responsive .collection-heading h1 { font-size: 23px; }
+  #stage.collection-responsive .collection-pagination {
+    min-height: 44px;
+    gap: 8px;
+    margin: 3px 12px 7px;
+    padding: 6px 4px;
+  }
+  #stage.collection-responsive .collection-page-controls { gap: 4px; }
+  #stage.collection-responsive .collection-page-controls button {
+    min-width: 62px;
+    height: 30px;
+    gap: 4px;
+    padding: 0 6px;
+    font-size: 10px;
+  }
+  #stage.collection-responsive .collection-page-status { min-width: 72px; font-size: 10px; }
+  #stage.collection-responsive .collection-page-status b { font-size: 12px; }
+  #stage.collection-responsive .collection-range { font-size: 9px; }
+  #stage.collection-responsive .collection-progress,
+  #stage.collection-responsive .collection-filter {
+    margin-right: 12px;
+    margin-left: 12px;
+  }
+  #stage.collection-responsive .collection-filter {
+    padding: 6px;
+  }
+  #stage.collection-responsive .collection-filter .filter-row:first-child {
+    flex-wrap: nowrap;
+    min-height: 34px;
+    overflow-x: auto;
+    overscroll-behavior-inline: contain;
+    scrollbar-width: thin;
+  }
+  #stage.collection-responsive .collection-filter .filter-row:first-child > * {
+    flex: none;
+  }
+  #stage.collection-responsive .collection-filter .filter-row-foot {
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+  #stage.collection-responsive .collection-filter .active-filters {
+    order: 8;
+    flex-basis: 100%;
+  }
+  #stage.collection-responsive .collection-filter .filter-search {
+    order: 7;
+    width: 100%;
+    margin-left: 0;
+  }
+  #stage.collection-responsive .collection-filter .filter-search input {
+    width: auto;
+    min-width: 0;
+    flex: 1;
+  }
+  #stage.collection-responsive .collection-cards {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+    margin: 10px 12px 5px;
+  }
+  #stage.collection-responsive .collection-card {
+    min-height: 0;
+    aspect-ratio: 7 / 8;
+  }
+  #stage.collection-responsive .kingdom-band {
+    margin-right: 12px;
+    margin-left: 12px;
+  }
+
+  #stage.collection-responsive #detail .page-heading {
+    height: 56px;
+    margin: 0 12px;
+  }
+  #stage.collection-responsive #detail .heading-center { display: none; }
+  #stage.collection-responsive #detail .page-index { font-size: 10px; }
+  #stage.collection-responsive #detail .detail-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas:
+      "portrait"
+      "traits"
+      "growth";
+    gap: 28px;
+    margin: 0 12px 28px;
+  }
+  #stage.collection-responsive #detail .card-stage {
+    width: min(100%, 354px);
+  }
+  #stage.collection-responsive #detail .right-column,
+  #stage.collection-responsive #detail .left-column {
+    padding: 0;
+  }
+  #stage.collection-responsive #detail .trait-heading h2 { font-size: 20px; }
+  #stage.collection-responsive #detail .trait { min-height: 86px; }
+  #stage.collection-responsive #detail .spell-copy { font-size: 15px; }
+  #stage.collection-responsive #detail .decompose-row { flex-direction: column; }
+  #stage.collection-responsive #detail .enlist-row select { width: 126px; }
+}

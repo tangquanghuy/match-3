@@ -9,6 +9,7 @@ import { EVENT_ROTATION, WEEK_MS, type EventGoods, type EventTypeId } from '../d
 import { INGOT_NAMES, parseStoneKey, stoneName, type IngotKey } from '../data/materials';
 import { eventShopOf, type EventShopRow } from '../systems/events';
 import { bottomNavHtml, toast, toastHtml, topbarHtml } from '../shell/chrome';
+import { ingotArt, materialImg, scrollArt, stoneMarkupForKey } from '../shell/materialArt';
 import type { Screen, ShellCtx } from '../shell/screen';
 import type { MetaSave } from '../state/schema';
 
@@ -62,7 +63,7 @@ const INGOT_COLOR: Record<string, string> = {
 
 function rewardEntries(goods: EventGoods, save?: Pick<MetaSave, 'currencies' | 'materials'>): RewardEntry[] {
   const currencies = save?.currencies ?? { gold: 0, souls: 0, gems: 0, goldKeys: 0, glory: 0 };
-  const materials = save?.materials ?? { ingots: {}, forgeScrolls: 0, traitstones: {} };
+  const materials = save?.materials ?? { ingots: {}, forgeScrolls: 0, traitstones: {}, treasureMaps: 0 };
   const entries: RewardEntry[] = [];
   for (const key of ['gold', 'souls', 'gems', 'goldKeys', 'glory'] as const) {
     const amount = goods[key] ?? 0;
@@ -92,20 +93,35 @@ function rewardIcon(entry: RewardEntry): string {
     return `<span class="shop-reward-icon currency ${meta.className}" data-icon="${meta.icon}"></span>`;
   }
   if (entry.kind === 'stone') {
-    const stone = parseStoneKey(entry.key);
-    const color = stone?.colorKey ? STONE_COLOR[stone.colorKey] ?? '#aab2ad' : '#56d8ff';
-    return `<span class="shop-reward-icon stone" style="--stone:${color}" aria-hidden="true"></span>`;
+    return `<span class="shop-reward-icon stone" aria-hidden="true">${stoneMarkupForKey(entry.key)}</span>`;
   }
   if (entry.kind === 'ingot') {
-    return `<span class="shop-reward-icon ingot" style="--stone:${INGOT_COLOR[entry.key] ?? '#aab2ad'}" aria-hidden="true"></span>`;
+    return `<span class="shop-reward-icon ingot" aria-hidden="true">${materialImg(ingotArt(entry.key))}</span>`;
   }
-  return '<span class="shop-reward-icon scroll" data-icon="sparkles"></span>';
+  return `<span class="shop-reward-icon scroll" aria-hidden="true">${materialImg(scrollArt())}</span>`;
 }
 
-function rewardHtml(goods: EventGoods, save: MetaSave): string {
-  return rewardEntries(goods, save)
-    .map((entry) => `<span class="shop-reward ${entry.kind}">${rewardIcon(entry)}<b>${entry.amount}</b><small>${entry.label}</small><em>持有 ${fmt(entry.owned)} → ${fmt(entry.owned + entry.amount)}</em></span>`)
+function rewardHtml(goods: EventGoods, save: MetaSave, soldOut: boolean): string {
+  const entries = rewardEntries(goods, save);
+  return entries
+    .map((entry) => `<span class="shop-reward ${entry.kind}" aria-label="${entry.label} ${entry.amount}，${soldOut ? `当前持有 ${fmt(entry.owned)}` : `持有 ${fmt(entry.owned)}，兑换后 ${fmt(entry.owned + entry.amount)}`}">${rewardIcon(entry)}<span class="shop-reward-copy"><b>×${fmt(entry.amount)}</b>${entries.length > 1 || entry.label !== cleanName(goods.name) ? `<small>${entry.label}</small>` : ''}<em>${soldOut ? `当前持有 ${fmt(entry.owned)}` : `持有 ${fmt(entry.owned)} → ${fmt(entry.owned + entry.amount)}`}</em></span></span>`)
     .join('');
+}
+
+function goodsSymbol(goods: EventGoods): string {
+  const entry = rewardEntries(goods)[0];
+  return entry ? rewardIcon(entry) : '<span class="shop-reward-icon" data-icon="chest"></span>';
+}
+
+function goodsTone(goods: EventGoods): string {
+  const entry = rewardEntries(goods)[0];
+  if (entry?.kind === 'stone') {
+    const key = parseStoneKey(entry.key)?.colorKey;
+    return key ? STONE_COLOR[key] ?? '#b8e1ee' : '#b8e1ee';
+  }
+  if (entry?.kind === 'ingot') return INGOT_COLOR[entry.key] ?? '#c4c4c4';
+  if (entry?.kind === 'scroll') return '#bd9ce0';
+  return entry?.kind === 'souls' ? '#a68cc9' : entry?.kind === 'gems' ? '#69bcdb' : '#e2bf75';
 }
 
 function earnedTokens(week: ReturnType<typeof eventShopOf>['week'], rows: readonly EventShopRow[]): number {
@@ -113,16 +129,16 @@ function earnedTokens(week: ReturnType<typeof eventShopOf>['week'], rows: readon
   return Math.max(week.tokensEarned ?? 0, week.tokens + spent);
 }
 
-function tokenProgressHtml(tokens: number, earned: number, finiteCost: number, accent: string): string {
+function tokenProgressHtml(tokens: number, earned: number, finiteCost: number, tokenName: string): string {
   const clearCost = Math.max(0, finiteCost);
   const missing = Math.max(0, clearCost - tokens);
   const approxWins = missing > 0 ? Math.ceil(missing / 12) : 0;
   const pct = clearCost > 0 ? Math.min(100, (tokens / clearCost) * 100) : 100;
   return `
-    <section class="shop-token-bar" style="--shop-accent:${accent}">
-      <div class="shop-token-head"><span class="shop-token-orb" data-icon="sparkles"></span><div><small>ACTIVITY WALLET</small><b>本活动代币</b></div><strong>${fmt(tokens)}</strong><span class="shop-token-rule">每胜 3~12 枚 · 本周已赚 ${fmt(earned)} · 周一 0:00 清零</span></div>
-      <div class="shop-token-progress"><i style="width:${pct}%"></i></div>
-      <div class="shop-token-foot"><span>${missing > 0 ? `清空限量货还需 ${fmt(missing)} 枚，约 ${approxWins} 场胜利` : '限量货已可全部兑换'}</span><small>六活动代币独立，不可互换</small></div>
+    <section class="shop-token-bar" aria-label="${tokenName}余额 ${fmt(tokens)}">
+      <div class="shop-token-identity"><span class="shop-token-orb" data-icon="coin"></span><div><small>当前余额</small><b>${tokenName}</b></div><strong>${fmt(tokens)}</strong></div>
+      <div class="shop-token-detail"><span>每胜 <b>3~12</b> 枚</span><span>本周已赚 <b>${fmt(earned)}</b></span><span>周一 0:00 <b>清零</b></span></div>
+      <div class="shop-token-target"><div class="shop-token-progress" role="progressbar" aria-label="限量货兑换所需代币进度" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${Math.round(pct)}"><i style="width:${pct}%"></i></div><span>${missing > 0 ? `清空限量货还差 ${fmt(missing)} 枚 · 至少 ${approxWins} 场胜利` : finiteCost === 0 ? '本周限量货已兑换完毕' : '余额足够兑换剩余限量货'}</span></div>
     </section>`;
 }
 
@@ -133,17 +149,17 @@ function goodsCard(row: EventShopRow, save: MetaSave, tokens: number, featured: 
   const state = soldOut ? ' sold-out' : poor ? ' poor' : ' ready';
   const stock = row.stockLeft === null ? '不限量' : soldOut ? '本周已售罄' : `本周剩 ${row.stockLeft} / ${goods.stock}`;
   const action = soldOut
-    ? '<button class="shop-buy is-sold" type="button" disabled>本周已售罄</button>'
+    ? '<button class="shop-buy is-sold" type="button" disabled>周一补货</button>'
     : poor
-      ? `<button class="shop-buy is-poor" type="button" data-action="battle" data-missing="${goods.cost - tokens}">还差 ${goods.cost - tokens} 枚 · 去打一场 <span data-icon="swords"></span></button>`
-      : `<button class="shop-buy" type="button" data-buy="${goods.id}"><span data-icon="bag"></span>购买 · ${goods.cost} 代币</button>`;
+      ? `<button class="shop-buy is-poor" type="button" data-action="battle" data-missing="${goods.cost - tokens}" aria-label="${cleanName(goods.name)}还差 ${goods.cost - tokens} 枚，前往活动出战">还差 ${goods.cost - tokens} 枚 · 去出战 <span data-icon="swords"></span></button>`
+      : `<button class="shop-buy" type="button" data-buy="${goods.id}" aria-label="花费 ${goods.cost} 枚代币兑换${cleanName(goods.name)}"><span data-icon="bag"></span>兑换</button>`;
   return `
-    <article class="shop-goods${state}${featured ? ' featured' : ''}" data-goods-card="${goods.id}">
-      <div class="shop-goods-art"><span data-icon="${featured ? 'sparkles' : goods.mats?.traitstones ? 'sparkles' : goods.mats?.ingots ? 'helmet' : 'coin'}"></span>${featured ? '<b>本周招牌</b>' : ''}</div>
+    <article class="shop-goods${state}${featured ? ' featured' : ''}" data-goods-card="${goods.id}" style="--goods-tone:${goodsTone(goods)}">
+      <div class="shop-goods-art" aria-hidden="true"><div class="shop-goods-symbol">${goodsSymbol(goods)}</div>${featured ? '<b>每周优选</b>' : ''}</div>
       <div class="shop-goods-body"><div class="shop-goods-title"><h3>${cleanName(goods.name)}</h3><span class="shop-stock">${stock}</span></div>
-        <p class="shop-goods-blurb">${goods.blurb ?? '活动兑换包'}</p>
-        <div class="shop-rewards">${rewardHtml(goods, save)}</div>
-        <div class="shop-goods-foot"><span class="shop-price"><i data-icon="sparkles"></i><b>${goods.cost}</b> 代币</span>${action}</div>
+        ${goods.blurb ? `<p class="shop-goods-blurb">${goods.blurb}</p>` : ''}
+        <div class="shop-rewards">${rewardHtml(goods, save, soldOut)}</div>
+        <div class="shop-goods-foot"><span class="shop-price"><i data-icon="coin"></i><b>${goods.cost}</b><small>代币</small></span>${action}</div>
       </div>
     </article>`;
 }
@@ -165,24 +181,24 @@ export class EventShopScreen implements Screen {
     const tabs = EVENT_ROTATION.map((tab) => {
       const tabShop = eventShopOf(save, weekStart, tab.id);
       const active = tab.id === typeId;
-      return `<a class="shop-tab${active ? ' active' : ''}" href="#shop/${tab.id}" style="--shop-accent:${tab.accent}"><span>${tab.shortName}</span><b>${tabShop.week.tokens}</b></a>`;
+      return `<a class="shop-tab${active ? ' active' : ''}" href="#shop/${tab.id}" style="--shop-accent:${tab.accent}"${active ? ' aria-current="page"' : ''}><span>${tab.shortName}</span><b><i data-icon="coin"></i>${fmt(tabShop.week.tokens)}</b></a>`;
     }).join('');
     return `
       ${topbarHtml()}
       <div class="screen event-shop-screen">
         <section class="panel event-shop-panel" style="--shop-accent:${def.accent}">
-          <header class="shop-page-head"><a class="shop-back" href="#events/${typeId}"><span data-icon="arrow"></span>${def.name}</a><div><small>ACTIVITY EXCHANGE</small><h1>活动商店</h1></div><span class="shop-reset"><span data-icon="time"></span>周一 0:00 刷新限量 · 剩 ${remainingLabel(now, weekStart)}</span></header>
+          <header class="shop-page-head"><a class="shop-back" href="#events/${typeId}"><span data-icon="arrow"></span>返回${def.name}</a><div><small>活动兑换</small><h1>${def.name}<span>商店</span></h1></div><span class="shop-reset"><span data-icon="time"></span>距限量货补货 ${remainingLabel(now, weekStart)}</span></header>
           <nav class="shop-tabs" aria-label="活动商店页签">${tabs}</nav>
-          ${tokenProgressHtml(shop.week.tokens, earned, finiteCost, def.accent)}
+          ${tokenProgressHtml(shop.week.tokens, earned, finiteCost, def.tokenName)}
           <section class="shop-shelf">
-            <div class="shop-section-head"><div><small>FEATURED REWARD</small><h2>本周招牌</h2></div><span>${def.tokenName} · 仅本活动可用</span></div>
+            <div class="shop-section-head"><div><small>01 / 限量优选</small><h2>本周招牌</h2></div><span>优先兑换 · 售完待下周补货</span></div>
             ${featuredRow ? goodsCard(featuredRow, save, shop.week.tokens, true) : '<p class="shop-empty">本周暂无货架</p>'}
           </section>
-          <section class="shop-shelf regular"><div class="shop-section-head"><div><small>WEEKLY SHELF</small><h2>常规货架</h2></div><span>限量货按周一 0:00 补货</span></div><div class="shop-grid">${regularRows.map((row) => goodsCard(row, save, shop.week.tokens, false)).join('')}</div></section>
-          <footer class="shop-footnote"><span data-icon="lock"></span><span>活动代币只在「${def.name}」商店使用，跨周作废；购买后持有量会立即更新。</span></footer>
+          <section class="shop-shelf regular"><div class="shop-section-head"><div><small>02 / 兑换货架</small><h2>全部货品</h2></div><span>${def.tokenName}仅可在本店使用</span></div><div class="shop-grid shop-grid-${regularRows.length}">${regularRows.map((row) => goodsCard(row, save, shop.week.tokens, false)).join('')}</div></section>
+          <footer class="shop-footnote"><span data-icon="time"></span><span>活动代币周一 0:00 清零，各商店余额独立，不可互换。</span></footer>
         </section>
       </div>
-      ${bottomNavHtml('', '购买前可看到持有量与买后数量')}
+      ${bottomNavHtml('', '六活动钱包独立')}
       ${toastHtml()}`;
   }
 
@@ -193,9 +209,8 @@ export class EventShopScreen implements Screen {
       const action = target.closest<HTMLElement>('[data-action="battle"]');
       if (action) {
         const typeId = parseTypeId(ctx.currentHash().replace(/^#shop\/?/, '').split('/')[0] || undefined);
-        // BattleLauncher intentionally only accepts #events/<typeId>; move there first
-        // so the existing source/return contract remains authoritative.
         ctx.navigate(`#events/${typeId}`);
+        void ctx.launchEventBattle();
         return;
       }
       if (!buy) return;

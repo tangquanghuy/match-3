@@ -1,17 +1,19 @@
 /**
- * 出敌生成器（M2）——任务链 8 关 / 探索 5 档的敌队计划。
+ * 出敌生成器（M2）——主线 8 关 / Hard 3 关 / Very Hard 3 关的敌队计划。
  *
  * 纯函数 + 种子化 RNG（engine/rng 的 mulberry32）：同 seed 必出同一份计划，
  * 与会话层「同 seed 复现同一场战斗」的口径衔接。
  *
  * 分层规则（设计值）：
  *  - 任务 1~3 关：杂兵群；4~6 关：精英带队；7~8 关：精英群 + 首领压阵；
- *  - 探索 1~2 档杂兵、3 档精英带队、4~5 档精英 + 首领；
+ *  - Hard 1~2 杂兵、Hard 3 / Very Hard 1 精英带队、Very Hard 2~3 精英 + 首领；
  *  - 按稀有度带选人（杂兵 0~2 / 精英 2~4 / 首领 4~5），池内无货时逐档放宽
  *    （少数王国缺高稀有度内容，不因缺卡而无敌可出）。
  */
 import { SeededRNG } from '../../engine/rng';
 import {
+  BATTLE_TEAM_SIZE,
+  EXPLORE_MAX_TIER,
   EXPLORE_TEAM_SIZES,
   exploreEnemyLevel,
   kingdomTroopPool,
@@ -61,22 +63,24 @@ const BAND_BY_TIER: Record<EnemyTier, { min: number; max: number }> = {
   boss: { min: 4, max: 5 },
 };
 
+function squad(lead: EnemyTier, rest: EnemyTier, last?: EnemyTier): EnemyTier[] {
+  const size = BATTLE_TEAM_SIZE;
+  const mid = Array.from({ length: size - (last ? 2 : 1) }, () => rest);
+  return last ? [lead, ...mid, last] : [lead, ...mid];
+}
+
 function questTierPlan(node: number): EnemyTier[] {
-  const size = QUEST_TEAM_SIZES[node - 1];
+  const size = QUEST_TEAM_SIZES[node - 1] ?? BATTLE_TEAM_SIZE;
   if (node <= 3) return Array.from({ length: size }, () => 'minion' as const);
-  if (node <= 6) {
-    return ['elite' as const, ...Array.from({ length: size - 1 }, () => 'minion' as const)];
-  }
-  return [...Array.from({ length: size - 1 }, () => 'elite' as const), 'boss' as const];
+  if (node <= 6) return squad('elite', 'minion');
+  return squad('elite', 'elite', 'boss');
 }
 
 function exploreTierPlan(tier: number): EnemyTier[] {
-  const size = EXPLORE_TEAM_SIZES[tier - 1];
+  const size = EXPLORE_TEAM_SIZES[tier - 1] ?? BATTLE_TEAM_SIZE;
   if (tier <= 2) return Array.from({ length: size }, () => 'minion' as const);
-  if (tier === 3) {
-    return ['elite' as const, ...Array.from({ length: size - 1 }, () => 'minion' as const)];
-  }
-  return [...Array.from({ length: size - 1 }, () => 'elite' as const), 'boss' as const];
+  if (tier <= 4) return squad('elite', 'minion');
+  return squad('elite', 'elite', 'boss');
 }
 
 /** 按层级表从王国池选人（稀有度带逐档放宽）；供 encounter 与竞技场对手共用 */
@@ -116,9 +120,9 @@ export function planQuestEncounter(kingdom: string, node: number, seed: number):
   };
 }
 
-/** 探索出敌。tier 1~5，越界抛 RangeError。 */
+/** 探索出敌。tier 1~6（Hard 1~3 + Very Hard 1~3），越界抛 RangeError。 */
 export function planExploreEncounter(kingdom: string, tier: number, seed: number): EncounterPlan {
-  if (!Number.isInteger(tier) || tier < 1 || tier > 5) {
+  if (!Number.isInteger(tier) || tier < 1 || tier > EXPLORE_MAX_TIER) {
     throw new RangeError(`探索档越界: ${tier}`);
   }
   return {

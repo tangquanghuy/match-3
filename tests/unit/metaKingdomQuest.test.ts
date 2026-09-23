@@ -6,6 +6,7 @@ import { describe, it, expect } from 'vitest';
 import {
   EXPLORE_TEAM_SIZES,
   exploreEnemyLevel,
+  exploreLineupPreview,
   kingdomNodeState,
   kingdomQuestRewardTroop,
   newSave,
@@ -65,19 +66,19 @@ describe('M10 王国主线页 · 读模型', () => {
     }
   });
 
-  it('验收 4：探索档位 1~5 即时持久化，难度与队伍规模随档变化', () => {
+  it('验收 4：Hard / Very Hard 档位 1~6 即时持久化，敌人等级随档爬升', () => {
     const s = save();
     s.hero.level = 20;
     s.kingdoms[KINGDOM] = { level: 1, questsDone: QUESTS_PER_KINGDOM, exploreTier: 0, lastTributeAt: 0 };
     const ok = setExploreTier(s, KINGDOM, 4);
     expect(ok).toEqual({ ok: true, tier: 4 });
     expect(s.kingdoms[KINGDOM]!.exploreTier).toBe(4);
-    expect(exploreEnemyLevel(KINGDOM, 5)).toBeGreaterThan(exploreEnemyLevel(KINGDOM, 1));
-    expect(EXPLORE_TEAM_SIZES[4]).toBeGreaterThanOrEqual(EXPLORE_TEAM_SIZES[0]);
-    // 越界与未解锁一律拒绝（屏层把失败文案直接 toast）
-    expect('ok' in setExploreTier(s, KINGDOM, 6) && setExploreTier(s, KINGDOM, 6).ok).toBe(false);
+    expect(exploreEnemyLevel(KINGDOM, 6)).toBeGreaterThan(exploreEnemyLevel(KINGDOM, 1));
+    expect(EXPLORE_TEAM_SIZES.every((size) => size === 4)).toBe(true);
+    expect(exploreLineupPreview(KINGDOM, 4)).toHaveLength(4);
+    expect(setExploreTier(s, KINGDOM, 7)).toMatchObject({ ok: false, code: 'INVALID' });
     s.kingdoms[KINGDOM]!.questsDone = 0;
-    expect('ok' in setExploreTier(s, KINGDOM, 2) && setExploreTier(s, KINGDOM, 2).ok).toBe(false);
+    expect(setExploreTier(s, KINGDOM, 2)).toMatchObject({ ok: false, code: 'PREREQ_LOCKED' });
   });
 
   it('验收 6：未解锁王国的节点状态是锁态且不抛（直链访问要能显示锁态页）', () => {

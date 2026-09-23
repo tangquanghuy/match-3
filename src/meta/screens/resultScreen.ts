@@ -4,11 +4,57 @@
  */
 import type { SettlementDetail } from '../systems/settlement';
 import { heroXpToNext } from '../data/classes';
+import { getTroopById, type TroopData } from '../../data/troops';
 import { INGOT_NAMES, stoneName, type IngotKey } from '../data/materials';
-import { bottomNavHtml, toast, toastHtml, topbarHtml, $ } from '../shell/chrome';
+import { RARITY_NAMES } from '../data/rarity';
+import { ART, KINGDOM_VIEWS } from './mapData';
+import { troopArt } from './teamScreen';
+import { bottomNavHtml, gemSvg, toast, toastHtml, topbarHtml, $ } from '../shell/chrome';
+import { ingotArt, materialImg, scrollArt, stoneMarkupForKey, treasureMapMarkup } from '../shell/materialArt';
 import type { PvpSettlementView, Screen, ShellCtx } from '../shell/screen';
+import { isFailure } from '../gateway';
+import {
+  MASTERY_GEM,
+  MASTERY_HEX,
+  MASTERY_NAME,
+  personalManaMastery,
+} from '../systems/manaMastery';
 
 const fmt = (n: number): string => n.toLocaleString('en-US');
+
+/** 部队稀有度的唯一玩家口径（普通→神话），与图鉴/编队/宝箱共用六档。 */
+export const RESULT_RARITY_NAMES = RARITY_NAMES;
+const GENERIC_BATTLE_ART = '/meta/assets/world-map-mosaic-v2.webp';
+
+export interface TroopRewardView {
+  troop: TroopData | null;
+  name: string;
+  rarityIdx: number;
+  rarityName: string;
+  art: string;
+  note: string;
+}
+
+/** 把结算系统的 troopId 转成玩家可读的奖励卡资料，不带攻/护/生等战斗数值。 */
+export function troopRewardView(reward: { troopId: number; note: string }): TroopRewardView {
+  const troop = getTroopById(reward.troopId) ?? null;
+  const rarityIdx = Math.min(Math.max(troop?.rarityIdx ?? 0, 0), RESULT_RARITY_NAMES.length - 1);
+  return {
+    troop,
+    name: troop?.name ?? `未知部队 #${reward.troopId}`,
+    rarityIdx,
+    rarityName: RESULT_RARITY_NAMES[rarityIdx] ?? RESULT_RARITY_NAMES[0],
+    art: troop ? troopArt(troop) : '/meta/assets/troops/troop-veteran.png',
+    note: reward.note,
+  };
+}
+
+/** 结算背景只取王国主题图；竞技场/入侵等非王国来源使用中性世界图。 */
+export function resultSummaryArt(kingdom: string): string {
+  const view = KINGDOM_VIEWS.find((entry) => entry.name === kingdom);
+  if (!view) return GENERIC_BATTLE_ART;
+  return ART[view.biome] ?? ART.spire ?? GENERIC_BATTLE_ART;
+}
 
 interface ResultMeta {
   kingdom: string;
@@ -36,43 +82,48 @@ export class ResultScreen implements Screen {
       <main class="screen result-screen">
         <div class="result-layout">
           <section class="panel result-main">
+            <div class="result-main-art" id="summaryArt" hidden>
+              <img id="sumArt" alt="">
+            </div>
             <div class="panel-inner">
+              <div class="result-body">
               <div class="result-seal">
-                <small class="result-kicker" id="kicker">BATTLE COMPLETE</small>
                 <div class="victory-mark">
                   <i></i>
-                  <h1 id="resultTitle">胜 利</h1>
+                  <h1 id="resultTitle">暂无战报</h1>
                   <i></i>
                 </div>
-                <b class="victory-en" id="resultEn">VICTORY</b>
-                <p id="resultSub">—</p>
+                <p id="resultSub">完成一场战斗后，这里会显示奖励明细。</p>
               </div>
 
               <div class="xp-result" id="standardXp">
                 <span>冒险者经验</span>
-                <b id="xpGain">+0 XP</b>
+                <b id="xpGain">—</b>
                 <div class="xp-track"><i id="xpFill" style="width:0%"></i></div>
-                <small id="xpNote">—</small>
+                <small id="xpNote">暂无经验记录</small>
               </div>
 
-              <div class="reward-list" id="standardRewards">
-                <div class="reward-head">
-                  <span>奖励明细</span>
-                  <small>数字即入账结果</small>
-                </div>
-                <div id="rewardRows"></div>
-              </div>
+              <div class="mastery-pick" id="masteryPick" hidden></div>
 
-              <div class="drop-row" id="dropRow" hidden>
-                <div class="drop-copy">
-                  <small>任务部队奖励</small>
-                  <b id="dropName">—</b>
-                  <span id="dropNote">—</span>
+              <div class="result-income">
+                <div class="reward-list" id="standardRewards">
+                  <div class="reward-head">
+                    <span>奖励明细</span>
+                  </div>
+                  <div id="rewardRows"></div>
                 </div>
-                <article class="drop-card r-rare" id="dropCard">
-                  <img id="dropArt" alt="">
-                  <div class="card-label"><small id="dropRarity">—</small><b id="dropName2">—</b></div>
-                </article>
+
+                <div class="drop-row" id="dropRow" hidden>
+                  <article class="drop-card r-0" id="dropCard">
+                    <img id="dropArt" alt="">
+                  </article>
+                  <div class="drop-copy">
+                    <small>任务部队奖励</small>
+                    <b id="dropName">—</b>
+                    <span class="drop-rarity" id="dropRarity">—</span>
+                    <span id="dropNote">—</span>
+                  </div>
+                </div>
               </div>
 
               <div class="quest-row" id="questRow">
@@ -83,12 +134,10 @@ export class ResultScreen implements Screen {
                   <div class="quest-track"><i id="questFill" style="width:0%"></i></div>
                 </div>
                 <strong id="questProgressText">—</strong>
-                <button class="primary claim-btn" id="claim" type="button" disabled>已入账</button>
               </div>
 
               <section class="pvp-settlement" id="pvpSettlement" hidden>
                 <div class="pvp-heading">
-                  <small id="pvpKicker">MATCH RESULT</small>
                   <h2 id="pvpTitle">—</h2>
                   <p id="pvpSubtitle">—</p>
                 </div>
@@ -100,38 +149,15 @@ export class ResultScreen implements Screen {
                 <div class="pvp-breakdown" id="pvpBreakdown"></div>
                 <div class="pvp-reward" id="pvpReward">—</div>
               </section>
+              </div>
 
               <div class="result-actions">
-                <button class="primary" id="again" type="button">返回地图再战</button>
+                <button class="primary" id="again" type="button">返回地图</button>
                 <button class="secondary" id="team" type="button">调整队伍</button>
-                <button class="ghost" id="backToSource" type="button" hidden>回到活动页</button>
                 <button class="ghost" id="backToShop" type="button" hidden>去活动商店</button>
-                <button class="ghost" id="map" type="button">返回地图</button>
               </div>
             </div>
           </section>
-
-          <aside class="panel result-summary">
-            <div class="panel-inner">
-              <small class="eyebrow">BATTLE SUMMARY</small>
-              <h2 id="sumKingdom">—</h2>
-              <div class="summary-art">
-                <img id="sumArt" alt="">
-                <div class="art-shade"></div>
-                <div class="art-frame" aria-hidden="true"></div>
-                <div class="art-caption"><small id="sumEn">KINGDOM</small><b id="sumName">—</b></div>
-              </div>
-              <div class="kv-grid summary-kv">
-                <div><small>结局</small><b id="sumResult">—</b></div>
-                <div><small>主角升级</small><b id="sumHeroLevel">—</b></div>
-                <div><small>职业解锁</small><b id="sumClassUnlock">—</b></div>
-              </div>
-              <div class="summary-team">
-                <small>结算说明</small>
-                <p class="settle-note">奖励按结算行逐条入账：击杀按敌方稀有度 × 等级，战斗内收集从 BattleResult.economy 并入，首胜按本地日历判定。</p>
-              </div>
-            </div>
-          </aside>
         </div>
       </main>
       ${bottomNavHtml('', '战斗记录已保存')}
@@ -140,15 +166,6 @@ export class ResultScreen implements Screen {
 
   mount(ctx: ShellCtx): void {
     this.ctx = ctx;
-    const back = $('#backToSource');
-    if (back) {
-      const hash = this.meta.returnHash;
-      if (hash) {
-        back.hidden = false;
-        back.textContent = hash === '#events' ? '回到活动页' : '返回来源页';
-        back.addEventListener('click', () => ctx.navigate(hash));
-      }
-    }
     const shop = $('#backToShop');
     if (shop && this.meta.shopHash) {
       shop.hidden = false;
@@ -156,17 +173,60 @@ export class ResultScreen implements Screen {
     }
     this.bind('#again', 'click', () => ctx.navigate(this.meta.returnHash ?? '#map'));
     this.bind('#team', 'click', () => ctx.navigate('#team'));
-    this.bind('#map', 'click', () => ctx.navigate('#map'));
-    this.bind('#claim', 'click', () => toast('奖励已在此前结算时入账，无需重复领取。'));
+    this.bind('#masteryPick', 'click', (e) => {
+      const btn = (e.target as HTMLElement).closest('[data-mastery-color]') as HTMLElement | null;
+      if (btn?.dataset.masteryColor) void this.pickMastery(btn.dataset.masteryColor);
+    });
     this.paint();
+  }
+
+  /** 直链/刷新 #result 时的中性空态，不能沿用模板里的胜利默认值。 */
+  private paintEmpty(): void {
+    const screen = document.querySelector('.result-screen');
+    screen?.classList.add('is-empty');
+    for (const selector of ['#standardXp', '#standardRewards', '#dropRow', '#questRow', '#pvpSettlement', '#masteryPick']) {
+      const element = document.querySelector<HTMLElement>(selector);
+      if (element) element.hidden = true;
+    }
+    const summaryArt = $('#summaryArt');
+    if (summaryArt) summaryArt.hidden = true;
+    const image = $('#sumArt') as HTMLImageElement | null;
+    if (image) {
+      image.removeAttribute('src');
+      image.alt = '';
+    }
+    $('#resultTitle').textContent = '暂无战报';
+    $('#resultSub').textContent = '完成一场战斗后，这里会显示奖励明细。';
+    $('#again').textContent = '去世界地图';
+    $('#team').hidden = true;
+    $('#backToShop').hidden = true;
+  }
+
+  private paintSummaryArt(): void {
+    const frame = $('#summaryArt');
+    if (frame) frame.hidden = false;
+    const image = $('#sumArt') as HTMLImageElement | null;
+    if (!image) return;
+    image.src = resultSummaryArt(this.meta.kingdom);
+    image.alt = '';
+    image.hidden = false;
+  }
+
+  /** 普通战斗目前只返回来源页；在真正接入重放前不宣称「再战」。 */
+  private standardReturnLabel(): string {
+    const hash = this.meta.returnHash;
+    if (!hash || hash === '#map') return '返回地图';
+    if (hash.startsWith('#events')) return '返回活动页';
+    if (hash === '#arena') return '返回竞技场';
+    if (hash === '#invasion') return '返回入侵页';
+    return '返回来源页';
   }
 
   private paint(): void {
     const d = this.detail;
-    if (!d) return;
-    // ResultScreen 在路由间复用；从 PvP 返回普通战斗时恢复被 PvP 隐藏的标准区块。
     const screen = document.querySelector('.result-screen');
-    screen?.classList.remove('is-pvp');
+    screen?.classList.remove('is-pvp', 'is-empty', 'is-defeat', 'has-troop-reward');
+    // ResultScreen 在路由间复用：每次先恢复默认可见性，再按当前战报收口。
     for (const selector of ['#standardXp', '#standardRewards', '#questRow']) {
       const element = document.querySelector<HTMLElement>(selector);
       if (element) element.hidden = false;
@@ -175,17 +235,27 @@ export class ResultScreen implements Screen {
     if (dropRow) dropRow.hidden = true;
     const pvpPanel = $('#pvpSettlement');
     if (pvpPanel) pvpPanel.hidden = true;
+    const summaryArt = $('#summaryArt');
+    if (summaryArt) summaryArt.hidden = false;
     const shopButton = $('#backToShop');
-    if (shopButton) shopButton.hidden = this.isPvp(d) || !this.meta.shopHash;
+    if (shopButton) shopButton.hidden = !this.meta.shopHash;
+    $('#again').hidden = false;
+    $('#team').hidden = false;
+    if (!d) {
+      this.paintEmpty();
+      return;
+    }
+    this.paintSummaryArt();
+    $('#again').textContent = this.standardReturnLabel();
     if (this.isPvp(d)) {
+      if (shopButton) shopButton.hidden = true;
       this.paintPvp(d);
       return;
     }
     const save = this.ctx.save();
     const victory = d.victory;
-    $('#kicker').textContent = `BATTLE COMPLETE · ${this.meta.sourceLabel}`;
+    screen?.classList.toggle('is-defeat', !victory);
     $('#resultTitle').textContent = victory ? '胜 利' : '战 败';
-    $('#resultEn').textContent = victory ? 'VICTORY' : 'DEFEAT';
     const questText =
       d.questProgress != null
         ? `${this.meta.kingdom} · 第 ${d.questProgress.to} 章已完成`
@@ -203,6 +273,8 @@ export class ResultScreen implements Screen {
       `Lv.${save.hero.level} · ${fmt(save.hero.xp)} / ${fmt(need)}` +
       (d.heroLevelsGained > 0 ? ` · 升了 ${d.heroLevelsGained} 级` : '') +
       (d.classLevelUp ? ` · 职业 ${d.classLevelUp.classId} → Lv.${d.classLevelUp.newLevel}` : '');
+
+    this.paintMasteryPick();
 
     // 明细行按币种聚合（同一币种多行合并 note）
     const rows = document.createElement('div');
@@ -229,6 +301,7 @@ export class ResultScreen implements Screen {
       const entries: Array<[string, number]> = [
         ...Object.entries(line.mats?.ingots ?? {}).map(([k, n]) => [`ingot:${k}`, n] as [string, number]),
         line.mats?.forgeScrolls ? (['forgeScrolls', line.mats.forgeScrolls] as [string, number]) : null,
+        line.mats?.treasureMaps ? (['treasureMaps', line.mats.treasureMaps] as [string, number]) : null,
         ...Object.entries(line.mats?.traitstones ?? {}),
       ].filter((v): v is [string, number] => v !== null && (v[1] ?? 0) > 0);
       for (const [key, n] of entries) {
@@ -241,11 +314,20 @@ export class ResultScreen implements Screen {
         ? INGOT_NAMES[key.slice(6) as IngotKey] ?? key
         : key === 'forgeScrolls'
           ? '熔铸符卷'
-          : stoneName(key);
+          : key === 'treasureMaps'
+            ? '藏宝图'
+            : stoneName(key);
+      const art = key.startsWith('ingot:')
+        ? materialImg(ingotArt(key.slice(6)))
+        : key === 'forgeScrolls'
+          ? materialImg(scrollArt())
+          : key === 'treasureMaps'
+            ? treasureMapMarkup()
+            : stoneMarkupForKey(key);
       rows.insertAdjacentHTML(
         'beforeend',
         `<div class="reward-row">
-          <span class="reward-icon gem" data-icon="orb"></span>
+          <span class="reward-icon gem">${art}</span>
           <div><b>${label}</b><small>${(matNotes[key] ?? []).join(' + ')}</small></div>
           <strong>+${fmt(total)}</strong>
         </div>`,
@@ -263,7 +345,12 @@ export class ResultScreen implements Screen {
       );
     }
     if (!rows.childElementCount) {
-      rows.insertAdjacentHTML('beforeend', '<div class="reward-row"><div><b>战败保底</b><small>仍可获得的少量补给已入账</small></div></div>');
+      const emptyLabel = victory ? '本场暂无额外奖励' : '战败保底';
+      const emptyNote = victory ? '本场没有额外资源掉落，已完成的进度仍会保留。' : '仍可获得的少量补给已入账。';
+      rows.insertAdjacentHTML(
+        'beforeend',
+        `<div class="reward-row reward-row--empty"><div><b>${emptyLabel}</b><small>${emptyNote}</small></div></div>`,
+      );
     }
     $('#rewardRows').replaceWith(rows);
     rows.id = 'rewardRows';
@@ -271,10 +358,30 @@ export class ResultScreen implements Screen {
     // 部队掉落
     if (d.troopRewards.length) {
       $('#dropRow').hidden = false;
+      screen?.classList.add('has-troop-reward');
       const first = d.troopRewards[0]!;
-      $('#dropName').textContent = first.note;
-      $('#dropNote').textContent = d.troopRewards.map((r) => r.note).join(' · ');
-      $('#dropName2').textContent = first.note;
+      const reward = troopRewardView(first);
+      const card = $('#dropCard');
+      card.className = `drop-card r-${reward.rarityIdx}`;
+      $('#dropRow').className = `drop-row r-${reward.rarityIdx}`;
+      $('#dropName').textContent = reward.name;
+      $('#dropNote').textContent = d.troopRewards.length > 1
+        ? `${reward.note} · 另有 ${d.troopRewards.length - 1} 张奖励卡`
+        : reward.note;
+      $('#dropRarity').textContent = reward.rarityName;
+      const art = $('#dropArt') as HTMLImageElement | null;
+      if (art) {
+        art.src = reward.art;
+        art.alt = reward.name;
+        art.hidden = false;
+      }
+    } else {
+      const art = $('#dropArt') as HTMLImageElement | null;
+      if (art) {
+        art.removeAttribute('src');
+        art.alt = '';
+        art.hidden = true;
+      }
     }
 
     // 任务进度
@@ -288,13 +395,45 @@ export class ResultScreen implements Screen {
       $('#questProgressText').textContent = `${done} / 8`;
       $('#questFill').style.width = `${(done / 8) * 100}%`;
     }
+  }
 
-    // 侧栏
-    $('#sumKingdom').textContent = this.meta.kingdom || '野外遭遇';
-    $('#sumName').textContent = this.meta.kingdom || '—';
-    $('#sumResult').textContent = victory ? '胜利' : '战败保底';
-    $('#sumHeroLevel').textContent = d.heroLevelsGained > 0 ? `+${d.heroLevelsGained}` : '—';
-    $('#sumClassUnlock').textContent = d.classUnlocked ?? '—';
+  private paintMasteryPick(): void {
+    const panel = $('#masteryPick');
+    if (!panel) return;
+    const save = this.ctx.save();
+    const offers = save.hero?.masteryOffers;
+    const pending = offers?.length ?? 0;
+    const offer = offers?.[0];
+    if (pending <= 0 || !offer) {
+      panel.hidden = true;
+      panel.innerHTML = '';
+      return;
+    }
+    const personal = personalManaMastery(save);
+    panel.hidden = false;
+    panel.innerHTML = `<div class="mastery-rite-head">
+        <small>升阶仪式</small>
+        <b>法力精通</b>
+        <em>还剩 ${pending} 点</em>
+      </div>
+      <div class="mastery-rite-row">
+        ${offer.map((color) => `<button type="button" class="mastery-choice" data-mastery-color="${color}" style="--mc:${MASTERY_HEX[color]}">
+          <span class="mastery-choice-gem">${gemSvg([MASTERY_GEM[color]])}</span>
+          <b>${MASTERY_NAME[color]}</b>
+          <span class="mastery-choice-delta"><i>${personal[color]}</i><em>→</em><strong>${personal[color] + 1}</strong></span>
+          <span class="mastery-choice-cta">点亮此色</span>
+        </button>`).join('<span class="mastery-or" aria-hidden="true"><span>或</span></span>')}
+      </div>`;
+  }
+
+  private async pickMastery(color: string): Promise<void> {
+    const { result } = await this.ctx.gateway.pickManaMastery(color);
+    if (isFailure(result)) {
+      toast(result.message);
+      return;
+    }
+    this.ctx.refreshChrome();
+    this.paintMasteryPick();
   }
 
   private isPvp(detail: SettlementDetail | PvpSettlementView): detail is PvpSettlementView {
@@ -308,20 +447,18 @@ export class ResultScreen implements Screen {
       const element = document.querySelector<HTMLElement>(selector);
       if (element) element.hidden = true;
     }
+    this.paintMasteryPick();
     const pvp = $('#pvpSettlement');
     pvp.hidden = false;
     const victory = view.settled.victory;
     $('#again').textContent = view.kind === 'arena'
       ? (view.settled.runOver ? '返回竞技场' : '继续竞技场')
       : '返回入侵页';
-    $('#kicker').textContent = `BATTLE COMPLETE · ${this.meta.sourceLabel}`;
     $('#resultTitle').textContent = victory ? '胜 利' : '战 败';
-    $('#resultEn').textContent = victory ? 'VICTORY' : 'DEFEAT';
     $('#resultSub').textContent = victory
       ? view.kind === 'arena' ? '竞技场连战战果已入账' : '入侵战果已入账'
       : view.kind === 'arena' ? '本届连战已结束，按已得胜场结算' : '入侵失败，保底奖励已入账';
 
-    $('#pvpKicker').textContent = view.kind === 'arena' ? 'ARENA RUN' : 'INVASION REPORT';
     $('#pvpTitle').textContent = view.kind === 'arena' ? '竞技场连战' : '入侵战结算';
     $('#pvpSubtitle').textContent = view.kind === 'arena'
       ? (view.settled.runOver ? '本届连战已收官' : '胜利后可继续挑战下一场')
@@ -348,7 +485,7 @@ export class ResultScreen implements Screen {
         rewards.goldKeys > 0 ? `金钥匙 ×${fmt(rewards.goldKeys)}` : '',
       ].filter(Boolean);
       $('#pvpReward').textContent = view.settled.runOver
-        ? `奖励已入账：${rewardParts.length ? rewardParts.join(' · ') : '暂无额外奖励'}`
+        ? (rewardParts.length ? rewardParts.join(' · ') : '暂无额外奖励')
         : '收官奖励将在本届连战结束时入账';
     } else {
       const delta = view.settled.vpDelta;
@@ -373,16 +510,8 @@ export class ResultScreen implements Screen {
         view.settled.gold > 0 ? `黄金 +${fmt(view.settled.gold)}` : '',
         view.settled.firstWinToday ? '每日首胜' : '',
       ].filter(Boolean);
-      $('#pvpReward').textContent = rewardParts.length ? `奖励已入账：${rewardParts.join(' · ')}` : '本场无额外奖励';
+      $('#pvpReward').textContent = rewardParts.length ? rewardParts.join(' · ') : '本场无额外奖励';
     }
-    $('#sumKingdom').textContent = this.meta.kingdom;
-    $('#sumName').textContent = view.kind === 'arena' ? 'ARENA RUN' : 'INVASION';
-    $('#sumEn').textContent = view.kind === 'arena' ? 'ARENA' : 'PVP';
-    $('#sumResult').textContent = victory ? '胜利' : '战败保底';
-    $('#sumHeroLevel').textContent = '—';
-    $('#sumClassUnlock').textContent = view.kind === 'arena'
-      ? `${view.settled.wins} 胜`
-      : `${view.settled.vp} VP`;
   }
 
   private on(target: EventTarget, type: string, fn: EventListenerOrEventListenerObject): void {

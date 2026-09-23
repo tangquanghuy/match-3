@@ -10,6 +10,7 @@ import { META_SAVE_VERSION, newSave, type EventWeekState, type GachaLogEntry, ty
 import { EVENT_MILESTONES, EVENT_SHOP, EVENT_TYPES, EVENT_WEEKLY_PLAY_REWARD_CAP, WEEK_MS, type EventTypeId } from '../data/events';
 import { GACHA_LOG_CAP } from './schema';
 import { starterTroopIds } from '../data/economy';
+import { hydrateManaMastery } from '../systems/manaMastery';
 
 export interface StorageLike {
   getItem(key: string): string | null | undefined;
@@ -67,6 +68,7 @@ MIGRATIONS[1] = (raw) => {
       typeof id === 'string' ? (V2_CLASS_REMAP[id] ?? null) : null;
     if (isObject(hero.classLevels)) hero.classLevels = remapKeys(hero.classLevels, V2_CLASS_REMAP);
     if (isObject(hero.classXp)) hero.classXp = remapKeys(hero.classXp, V2_CLASS_REMAP);
+    if (isObject(hero.classWins)) hero.classWins = remapKeys(hero.classWins, V2_CLASS_REMAP);
     if (Array.isArray(hero.unlockedClasses)) {
       hero.unlockedClasses = [
         ...new Set(hero.unlockedClasses.map(remapId).filter((v): v is string => typeof v === 'string')),
@@ -138,6 +140,18 @@ function isObject(v: unknown): v is Record<string, unknown> {
 function num(v: unknown, fallback: number, min: number, max = Number.MAX_SAFE_INTEGER): number {
   if (typeof v !== 'number' || !Number.isFinite(v)) return fallback;
   return Math.min(Math.max(Math.floor(v), min), max);
+}
+
+function huntState(raw: unknown): MetaSave['treasureHunt'] {
+  if (!isObject(raw) || !Array.isArray(raw.cells) || raw.cells.length !== 64) return null;
+  const cells: number[] = [];
+  for (const value of raw.cells) {
+    if (typeof value !== 'number' || !Number.isInteger(value) || value < 0 || value > 7) return null;
+    cells.push(value);
+  }
+  const turns = num(raw.turns, 0, 0);
+  if (turns <= 0) return null;
+  return { cells, turns, moves: num(raw.moves, 0, 0), rng: num(raw.rng, 1, 0) };
 }
 
 function bool(v: unknown, fallback: boolean): boolean {
@@ -250,7 +264,7 @@ function sanitizeKingdom(v: unknown): KingdomState | null {
   return {
     level: num(v.level, 1, 1, 10),
     questsDone: num(v.questsDone, 0, 0, 8),
-    exploreTier: num(v.exploreTier, 0, 0, 5),
+    exploreTier: num(v.exploreTier, 0, 0, 6),
     lastTributeAt: num(v.lastTributeAt, 0, 0),
   };
 }
@@ -288,7 +302,10 @@ export function hydrateSave(raw: Record<string, unknown>): MetaSave {
       }
     }
     materials.forgeScrolls = num(raw.materials.forgeScrolls, 0, 0);
+    materials.treasureMaps = num(raw.materials.treasureMaps, 0, 0);
   }
+
+  const treasureHunt = huntState(raw.treasureHunt);
 
   // —— 武器淬炼等级（WEAPON-FORGE-DESIGN F2）：weaponId → 0..20 ——
   const weaponTempering: Record<string, number> = {};
@@ -358,6 +375,13 @@ export function hydrateSave(raw: Record<string, unknown>): MetaSave {
         }
       }
     }
+    if (isObject(raw.hero.classWins)) {
+      for (const [key, value] of Object.entries(raw.hero.classWins)) {
+        if (typeof value === 'number' && Number.isFinite(value) && value >= 0) {
+          hero.classWins[key] = Math.floor(value);
+        }
+      }
+    }
     // 职业等级 / 解锁集 / 天赋点（M5 加性字段；缺漏会导致刷新后职业进度回退）
     if (isObject(raw.hero.classLevels)) {
       for (const [key, value] of Object.entries(raw.hero.classLevels)) {
@@ -391,6 +415,7 @@ export function hydrateSave(raw: Record<string, unknown>): MetaSave {
         hero.classTraits[key] = [bool(value[0], false), bool(value[1], false), bool(value[2], false)];
       }
     }
+    hydrateManaMastery(hero, raw.hero, num(raw.createdAt, now, 0));
   }
 
   const arena = { ...base.arena };
@@ -445,6 +470,7 @@ export function hydrateSave(raw: Record<string, unknown>): MetaSave {
     invasion,
     eventWeeks,
     settings: { ...base.settings },
+    treasureHunt,
   };
 }
 

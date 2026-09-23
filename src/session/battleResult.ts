@@ -164,6 +164,7 @@ export function buildBattleResult(input: BuildResultInput): BattleResult {
       gold: state.economy.gold,
       souls: state.economy.souls,
       gems: state.economy.gems,
+      ...(state.economy.maps > 0 ? { maps: state.economy.maps } : {}),
     },
     actionLogDigest: digestString(encodeActionLog(state.actionLog)),
     eventSummary: summarizeEvents(events),

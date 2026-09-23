@@ -3,38 +3,13 @@
  *
  * 零侵入设计：不触碰 statusBadges/TeamView（设计窗口在途重构中），以 document 级
  * 点击委托工作——任何 `.status-badge` 命中即在其下方弹出说明面板，再点同一枚或
- * 点击面板外关闭。面板挂 body、fixed 定位（避免被卡片圆角裁剪），按视口夹取。
+ * 点击面板外关闭。状态、特质与法力书签共用这一层；面板挂 body、fixed 定位
+ * （避免被卡片圆角裁剪），按视口夹取。
  *
  * 效果文案按 BADGES 中文名对齐（标签唯一），语义与引擎实现一致：
  * 官方查证见 `.kiro/specs/combat-mechanics/GOW-STATUS-RESEARCH.md` 与 GEMS-SEMANTICS-2.md。
  */
-
-/** 状态效果说明（键 = BADGES 中文名）。只写机制，不写数值——
- *  实际数值由浮层下方「当前」行展示该实例的实时数据。 */
-export const STATUS_DESCRIPTIONS: Record<string, string> = {
-  中毒: '每回合受到毒素伤害，无视护甲。可叠加。',
-  燃烧: '每回合受到火焰伤害。',
-  沉默: '无法施放技能。',
-  冰冻: '无法攻击、施法或获得法力。',
-  击晕: '跳过行动，并禁用所有特质。',
-  缠绕: '无法攻击（仍可施法）。',
-  织网: '魔法值归零，技能只按基础数值生效。每回合有概率挣脱。',
-  屏障: '抵挡下一次受到的全部伤害，随后消失。',
-  出血: '每回合受到出血伤害。可叠加。',
-  疾病: '获得的法力减半。每回合有概率自愈。',
-  猎人标记: '受到的骷髅伤害提高。',
-  下潮: '无法被技能指定为目标。',
-  诅咒: '驱散所有正面状态；其它状态自行解除的概率减半。可无视免疫。',
-  死亡标记: '每回合有 10% 概率立即死亡。',
-  狼化: '每回合有概率变成随机野兽。',
-  狂怒: '骷髅伤害提高 50%，并无视目标的特质。攻击后消失。',
-  激怒: '骷髅伤害提高 50%，并无视目标的特质。攻击后消失。',
-  法力燃烧: '法力被清空。',
-  魅惑: '攻击改打己方下一名存活单位。',
-  精灵火: '受到的法术伤害提高 50%。每回合有概率自愈。',
-  恐怖: '每回合有概率与后排单位交换站位。',
-  状态: '效果未知。',
-};
+import { STATUS_DESCRIPTIONS } from '../data/statusDescriptions';
 
 const STYLE_ID = 'status-tooltip-style';
 let installed = false;
@@ -50,8 +25,9 @@ function ensureStyle(): void {
 .gcard .status-strip{pointer-events:auto}
 .gcard .status-badge{pointer-events:auto}
 .gcard .trait-badge{pointer-events:auto;cursor:pointer}
+.gcard .gem{pointer-events:auto;cursor:pointer}
 .gcard .photo,.gcard .art .vig{pointer-events:none}
-.status-tooltip{position:fixed;z-index:60;max-width:210px;padding:7px 9px;border-radius:7px;
+.status-tooltip{position:fixed;z-index:1260;max-width:min(210px,calc(100vw - 20px));padding:7px 9px;border-radius:7px;
   background:rgba(14,11,6,.96);border:1px solid var(--stc,#d8c290);
   box-shadow:0 4px 14px rgba(0,0,0,.55);font-family:"Oswald","Microsoft YaHei",sans-serif;
   font-size:11px;line-height:1.55;color:#efe2c0;pointer-events:auto;user-select:text}
@@ -60,6 +36,7 @@ function ensureStyle(): void {
   background:inherit;border-left:1px solid var(--stc,#d8c290);border-top:1px solid var(--stc,#d8c290);
   transform:translateX(-50%) rotate(45deg)}
 @media (prefers-reduced-motion:reduce){.status-tooltip{transition:none}}
+@media (max-width:760px){.status-tooltip{max-width:min(184px,calc(100vw - 16px));padding:6px 8px;font-size:10px}}
 `;
   document.head.appendChild(style);
 }
@@ -78,24 +55,33 @@ function openTipFor(badge: HTMLElement): void {
   closeTip();
 
   const isTrait = badge.classList.contains('trait-badge');
+  const isMana = badge.classList.contains('gem');
   // B-8（UX 阶段 B）：标题来源改 data-*。此前从原生 title 里切字符串——
   // 而 title 与自绘浮层双轨并存、内容不一致；TeamView 已撤掉 title，这里从
   // data-status-label / data-trait-name 取，单一事实源（旧 title 留作兜底）。
-  const title = isTrait
-    ? (badge.dataset.traitName ?? '特质')
-    : (badge.dataset.statusLabel ?? (badge.getAttribute('title') ?? '').split(' · ')[0].trim());
-  const desc = isTrait
-    ? (badge.dataset.traitDesc || '这条特质暂无描述。')
-    : (STATUS_DESCRIPTIONS[title] ?? '效果未知。');
-  const color = isTrait
-    ? (badge.dataset.traitOff === '1' ? '#8a7c5c' : '#e0c98a')
-    : badge.style.getPropertyValue('--sb') || '#d8c290';
+  const title = isMana
+    ? (badge.dataset.manaTitle ?? '法力')
+    : isTrait
+      ? (badge.dataset.traitName ?? '特质')
+      : (badge.dataset.statusLabel ?? (badge.getAttribute('title') ?? '').split(' · ')[0].trim());
+  const desc = isMana
+    ? (badge.dataset.manaDesc ?? '积攒法力后可以释放技能。')
+    : isTrait
+      ? (badge.dataset.traitDesc || '这条特质暂无描述。')
+      : (STATUS_DESCRIPTIONS[title] ?? '效果未知。');
+  const color = isMana
+    ? '#8fb8ff'
+    : isTrait
+      ? (badge.dataset.traitOff === '1' ? '#8a7c5c' : '#e0c98a')
+      : badge.style.getPropertyValue('--sb') || '#d8c290';
 
   // 实例实际数值行（TeamView renderStatuses 注入的 data-*）：
   // 带 magnitude 的（DoT 类）显示每回合伤害，其余显示剩余回合。
   // 特质用同一行位置说明「本场不生效」（未实现 code 的玩家口径）。
   const live: string[] = [];
-  if (isTrait) {
+  if (isMana) {
+    if (badge.dataset.manaColors) live.push(`关联颜色：${badge.dataset.manaColors}`);
+  } else if (isTrait) {
     if (badge.dataset.traitOff === '1') live.push('本场不生效');
   } else {
     const turns = badge.dataset.turns ?? '';
@@ -114,7 +100,7 @@ function openTipFor(badge: HTMLElement): void {
   if (liveLine) {
     const el = tip.querySelector('.st-live') as HTMLElement;
     el.style.opacity = '.8';
-    el.textContent = isTrait ? live.join(' · ') : `当前：${live.join(' · ')}`;
+    el.textContent = isTrait || isMana ? live.join(' · ') : `当前：${live.join(' · ')}`;
   }
   document.body.appendChild(tip);
 
@@ -144,10 +130,10 @@ export function installStatusTooltips(): void {
   installed = true;
   ensureStyle();
 
-  // B-8 覆盖面：同一套浮层扩到特质图标（此前特质只有一个原生 title、没有描述）
+  // B-8 覆盖面：状态、特质和法力书签共用同一套浮层。
   const badgeHit = (e: Event): HTMLElement | null => {
     const target = e.target as HTMLElement | null;
-    return target?.closest?.('.status-badge,.trait-badge') as HTMLElement | null;
+    return target?.closest?.('.status-badge,.trait-badge,.gcard .gem') as HTMLElement | null;
   };
 
   // 捕获阶段阻断：徽记点击不进卡面短按/长按逻辑
@@ -170,6 +156,15 @@ export function installStatusTooltips(): void {
       closeTip();
       return;
     }
+    e.stopPropagation();
+    e.preventDefault();
+    openTipFor(badge);
+  }, true);
+
+  document.addEventListener('keydown', (e) => {
+    if (!(e instanceof KeyboardEvent) || (e.key !== 'Enter' && e.key !== ' ')) return;
+    const badge = badgeHit(e);
+    if (!badge) return;
     e.stopPropagation();
     e.preventDefault();
     openTipFor(badge);
