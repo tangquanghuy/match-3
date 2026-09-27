@@ -31,6 +31,13 @@ v2 变更（用户决定）：**不再记录任何文件哈希**；取消全局 
 
 **签收记录只写结论**（用户决定 2026-09-28）：通过的项一行 `accept`，有问题的项一行 `issue`（问题 id + 一句话）。不写维度、子句、步骤说明，不用 scaffold 骨架。问题细节写在 `issues.json`。
 
+**先看对照表，不要先写测试**：`tasks/active/gow-skill-shards/trace/<车道>.md` 已列出每个待签技能的英文、原生步骤、实际施放结果（标准场景 L10 与击杀场景 K）和机械提示，由 `npx vite-node scripts/gow-trace.ts` 生成（全部 2518 项约 10 秒；只刷新本车道加 `--lane <L>`）。
+
+- 对照表里的结果与英文、原生一致 → `npx vite-node scripts/gow-golden.ts approve --lane <L> --by <agent> --keys k1,k2,…` 一次签收一批。它把 4 个标准场景的行为锁进 `lane-<L>/golden.json`，并写 accept 行（测试 = `tests/unit/gowCastGolden.test.ts`）。不需要手写测试。
+- 标准场景显示不出的部分（按盟友种族/颜色/王国增强、阈值、免疫、特殊棋盘）→ 用 `tests/helpers/gowCast.ts` 的 `castSpell({key, allies:[…], board:…})` 写**表驱动**小测试，放进 `tests/unit/gowLane<L>B<NN>.test.ts`，然后 `approve … --test <该文件>`。
+- 看某项的 4 个场景：`npx vite-node scripts/gow-golden.ts show --keys k1`。
+- 修改技能后：`gow-golden.ts diff --lane <L>` 列出行为变化的已签项，逐个复核后重新 `approve`，或 `drop` 并记 issue。
+
 1. `next --count 10` → `progress.md` 追加 `Bnn start <keys>` → `gow-signoff.mjs show`。requeue 来的 key 处理完追加 `{"key":…,"done":true,…}`。
 2. 三方对照：英文子句 ↔ 原生 `SpellSteps`（有序、每个字段）↔ 最终原型；spell id、费用、颜色、中文描述；武器核数字 ID 与 `gw_<referenceName>`。
 3. **同形态表驱动**：同一原生步骤形态的项放进一个参数表共用一套断言，每项仍有独立实体 ID 与独立期望值；真实 `TurnEngine.castSkill`、双方阵营、至少一条负例。只写当前一致的行为；差异复现写 `…Repro.test.ts` 且必须 `it.fails`。

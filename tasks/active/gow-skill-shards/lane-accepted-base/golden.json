@@ -1,0 +1,2882 @@
+{
+ "troop:6000": {
+  "lines": {
+   "L10": "explode 9  => A2:mana+1",
+   "R10": "explode 9  => A2:mana+1",
+   "L0": "explode 9  => A2:mana+1",
+   "K": "explode 9  => A2:mana+1"
+  },
+  "by": "coord (accepted before golden)",
+  "at": "2026-09-27T23:48:12.361Z"
+ },
+ "troop:6001": {
+  "lines": {
+   "L10": "dmg E11 12 (splash) ; dmg E10 6 (splash) ; dmg E12 6 (splash)  => E11:hp-2 arm-10 | E10:hp-1 arm-5 | E12:arm-6",
+   "R10": "dmg E11 12 (splash) ; dmg E10 6 (splash) ; dmg E12 6 (splash)  => E11:hp-2 arm-10 | E10:hp-1 arm-5 | E12:arm-6",
+   "L0": "dmg E11 2 (splash) ; dmg E10 1 (splash) ; dmg E12 1 (splash)  => E11:arm-2 | E10:arm-1 | E12:arm-1",
+   "K": "dmg E11 12 (splash) ; dmg E10 6 (splash) ; dmg E12 6 (splash) ; defeat E11 ; defeat E10 ; defeat E12  => E11:hp-1 DEAD | E10:hp-1 DEAD | E12:hp-1 DEAD"
+  },
+  "by": "coord (accepted before golden)",
+  "at": "2026-09-27T23:48:12.361Z"
+ },
+ "troop:6004": {
+  "lines": {
+   "L10": "dmg E11 12  => E11:hp-2 arm-10",
+   "R10": "dmg E11 12  => E11:hp-2 arm-10",
+   "L0": "dmg E11 2  => E11:arm-2",
+   "K": "dmg E11 12 ; defeat E11  => E11:hp-1 DEAD"
+  },
+  "by": "coord (accepted before golden)",
+  "at": "2026-09-27T23:48:12.361Z"
+ },
+ "troop:6009": {
+  "lines": {
+   "L10": "convert Green x3, Yellow x3, Blue x1, Purple x2 -> Brown x9 ; ~cascade~ ; buff C hp+10 max+10  => C:hp+10 max+10  cascade",
+   "R10": "convert Green x3, Yellow x3, Blue x1, Purple x2 -> Brown x9 ; ~cascade~ ; buff C hp+10 max+10  => C:hp+10 max+10  cascade",
+   "L0": "convert Green x3, Yellow x3, Blue x1, Purple x2 -> Brown x9 ; ~cascade~  cascade",
+   "K": "convert Green x3, Yellow x3, Blue x1, Purple x2 -> Brown x9 ; ~cascade~ ; buff C hp+10 max+10  => C:hp+10 max+10  cascade"
+  },
+  "by": "coord (accepted before golden)",
+  "at": "2026-09-27T23:48:12.361Z"
+ },
+ "troop:6011": {
+  "lines": {
+   "L10": "dmg E11 13  => E11:hp-3 arm-10",
+   "R10": "dmg E11 13  => E11:hp-3 arm-10",
+   "L0": "dmg E11 3  => E11:arm-3",
+   "K": "dmg E11 13 ; defeat E11 ; buff C hp+6 max+6  => E11:hp-1 DEAD | C:hp+6 max+6"
+  },
+  "by": "coord (accepted before golden)",
+  "at": "2026-09-27T23:48:12.361Z"
+ },
+ "troop:6016": {
+  "lines": {
+   "L10": "destroy 8 (Red x2, Blue x2, Green x1, Yellow x1, Purple x1, Brown x1) ; dmg E10 11  => A2:mana+2 | A1:mana+2 | E10:hp-6 arm-5",
+   "R10": "destroy 8 (Red x2, Blue x2, Green x1, Yellow x1, Purple x1, Brown x1) ; dmg E10 11  => A2:mana+2 | A1:mana+2 | E10:hp-6 arm-5",
+   "L0": "destroy 8 (Red x2, Blue x2, Green x1, Yellow x1, Purple x1, Brown x1) ; dmg E10 1  => A2:mana+2 | A1:mana+2 | E10:arm-1",
+   "K": "destroy 8 (Red x2, Blue x2, Green x1, Yellow x1, Purple x1, Brown x1) ; dmg E10 11 ; defeat E10  => A2:mana+2 | A1:mana+2 | E10:hp-1 DEAD"
+  },
+  "by": "coord (accepted before golden)",
+  "at": "2026-09-27T23:48:12.361Z"
+ },
+ "troop:6020": {
+  "lines": {
+   "L10": "dmg E11 13 ; status E11 +poison  => E11:hp-3 arm-10 +poison",
+   "R10": "dmg E11 13 ; status E11 +poison  => E11:hp-3 arm-10 +poison",
+   "L0": "dmg E11 3 ; status E11 +poison  => E11:arm-3 +poison",
+   "K": "dmg E11 13 ; defeat E11  => E11:hp-1 DEAD"
+  },
+  "by": "coord (accepted before golden)",
+  "at": "2026-09-27T23:48:12.361Z"
+ },
+ "troop:6026": {
+  "lines": {
+   "L10": "dmg E11 13 ; buff E11 attack-2  => E11:hp-3 arm-10 atk-2",
+   "R10": "dmg E11 13 ; buff E11 attack-2  => E11:hp-3 arm-10 atk-2",
+   "L0": "dmg E11 3 ; buff E11 attack-2  => E11:arm-3 atk-2",
+   "K": "dmg E11 13 ; defeat E11  => E11:hp-1 DEAD"
+  },
+  "by": "coord (accepted before golden)",
+  "at": "2026-09-27T23:48:12.361Z"
+ },
+ "troop:6027": {
+  "lines": {
+   "L10": "destroy 8 (Brown x8) ; ~cascade~ ; buff C armor+12 ; buff C attack+12  => C:arm+12 atk+12  cascade",
+   "R10": "destroy 8 (Brown x8) ; ~cascade~ ; buff C armor+12 ; buff C attack+12  => C:arm+12 atk+12  cascade",
+   "L0": "destroy 8 (Brown x8) ; ~cascade~ ; buff C armor+2 ; buff C attack+2  => C:arm+2 atk+2  cascade",
+   "K": "destroy 8 (Brown x8) ; ~cascade~ ; buff C armor+12 ; buff C attack+12  => C:arm+12 atk+12  cascade"
+  },
+  "by": "coord (accepted before golden)",
+  "at": "2026-09-27T23:48:12.361Z"
+ },
+ "troop:6029": {
+  "lines": {
+   "L10": "dmg E11 10  => E11:arm-10",
+   "R10": "dmg E11 10  => E11:arm-10",
+   "L0": "(no spell events)",
+   "K": "dmg E11 10 ; defeat E11  => E11:hp-1 DEAD"
+  },
+  "by": "coord (accepted before golden)",
+  "at": "2026-09-27T23:48:12.361Z"
+ },
+ "troop:6030": {
+  "lines": {
+   "L10": "dmg E11 21  => E11:hp-11 arm-10",
+   "R10": "dmg E11 21  => E11:hp-11 arm-10",
+   "L0": "dmg E11 11  => E11:hp-1 arm-10",
+   "K": "dmg E12 21 ; defeat E12  => E12:hp-1 DEAD"
+  },
+  "by": "coord (accepted before golden)",
+  "at": "2026-09-27T23:48:12.361Z"
+ },
+ "troop:6032": {
+  "lines": {
+   "L10": "buff E13 armor-2 ; buff C magic+2 ; dmg E13 16 ; extra-turn skill  => E13:hp-15 arm-3 | C:mag+2  extra:skill",
+   "R10": "buff E13 armor-2 ; buff C magic+2 ; dmg E13 16 ; extra-turn skill  => E13:hp-15 arm-3 | C:mag+2  extra:skill",
+   "L0": "buff E13 armor-2 ; buff C magic+2 ; dmg E13 6 ; extra-turn skill  => E13:hp-5 arm-3 | C:mag+2  extra:skill",
+   "K": "dmg E13 14 ; defeat E13 ; extra-turn skill  => E13:hp-1 DEAD  extra:skill"
+  },
+  "by": "coord (accepted before golden)",
+  "at": "2026-09-27T23:48:12.361Z"
+ },
+ "troop:6033": {
+  "lines": {
+   "L10": "status E11 +entangle ; buff E11 armor-10  => E11:arm-10 +entangle",
+   "R10": "status E11 +entangle ; buff E11 armor-10  => E11:arm-10 +entangle",
+   "L0": "status E11 +entangle ; buff E11 armor-1  => E11:arm-1 +entangle",
+   "K": "status E11 +entangle  => E11:+entangle"
+  },
+  "by": "coord (accepted before golden)",
+  "at": "2026-09-27T23:48:12.361Z"
+ },
+ "troop:6035": {
+  "lines": {
+   "L10": "dmg E10 8 (scatter) ; dmg E11 6 (scatter) ; dmg E12 10 (scatter) ; dmg E13 5 (scatter) ; buff E10 magic-4 ; buff C magic+4  => E10:hp-3 arm-5 mag-4 | E11:arm-6 | E12:arm-10 | E13:hp-2 arm-3 | C:mag+4",
+   "R10": "dmg E10 8 (scatter) ; dmg E11 6 (scatter) ; dmg E12 10 (scatter) ; dmg E13 5 (scatter) ; buff E10 magic-4 ; buff C magic+4  => E10:hp-3 arm-5 mag-4 | E11:arm-6 | E12:arm-10 | E13:hp-2 arm-3 | C:mag+4",
+   "L0": "dmg E10 4 (scatter) ; dmg E11 4 (scatter) ; dmg E12 8 (scatter) ; dmg E13 3 (scatter) ; buff E11 magic-4 ; buff C magic+4  => E10:arm-4 | E11:arm-4 mag-4 | E12:arm-8 | E13:arm-3 | C:mag+4",
+   "K": "dmg E10 3 (scatter) ; dmg E11 3 (scatter) ; dmg E12 5 (scatter) ; dmg E13 3 (scatter) ; defeat E10 ; defeat E11 ; defeat E12 ; defeat E13  => E10:hp-1 DEAD | E11:hp-1 DEAD | E12:hp-1 DEAD | E13:hp-1 DEAD"
+  },
+  "by": "coord (accepted before golden)",
+  "at": "2026-09-27T23:48:12.361Z"
+ },
+ "troop:6039": {
+  "lines": {
+   "L10": "jumble board ; extra-turn skill  extra:skill",
+   "R10": "jumble board ; extra-turn skill  extra:skill",
+   "L0": "jumble board ; extra-turn skill  extra:skill",
+   "K": "jumble board ; extra-turn skill  extra:skill"
+  },
+  "by": "coord (accepted before golden)",
+  "at": "2026-09-27T23:48:12.361Z"
+ },
+ "troop:6043": {
+  "lines": {
+   "L10": "dmg E12 15 ; status E12 +silence  => E12:hp-3 arm-12 +silence",
+   "R10": "dmg E12 15 ; status E12 +silence  => E12:hp-3 arm-12 +silence",
+   "L0": "dmg E12 5 ; status E12 +silence  => E12:arm-5 +silence",
+   "K": "dmg E12 15 ; defeat E12  => E12:hp-1 DEAD"
+  },
+  "by": "coord (accepted before golden)",
+  "at": "2026-09-27T23:48:12.361Z"
+ },
+ "troop:6044": {
+  "lines": {
+   "L10": "dmg E11 12 ; extra-turn skill  => E11:hp-2 arm-10  extra:skill",
+   "R10": "dmg E11 12 ; extra-turn skill  => E11:hp-2 arm-10  extra:skill",
+   "L0": "dmg E11 2 ; extra-turn skill  => E11:arm-2  extra:skill",
+   "K": "dmg E11 12 ; defeat E11 ; extra-turn skill  => E11:hp-1 DEAD  extra:skill"
+  },
+  "by": "coord (accepted before golden)",
+  "at": "2026-09-27T23:48:12.361Z"
+ },
+ "troop:6048": {
+  "lines": {
+   "L10": "dmg E10 12 ; status E10 +silence  => E10:hp-7 arm-5 +silence",
+   "R10": "dmg E10 12 ; status E10 +silence  => E10:hp-7 arm-5 +silence",
+   "L0": "dmg E10 2 ; status E10 +silence  => E10:arm-2 +silence",
+   "K": "dmg E10 12 ; defeat E10 ; status E11 +silence  => E10:hp-1 DEAD | E11:+silence"
+  },
+  "by": "coord (accepted before golden)",
+  "at": "2026-09-27T23:48:12.361Z"
+ },
+ "troop:6058": {
+  "lines": {
+   "L10": "dmg E12 14 ; convert Green x2, skull x1, Brown x1, Purple x2, Blue x1 -> Yellow x7  => E12:hp-2 arm-12",
+   "R10": "dmg E12 14 ; convert Green x2, skull x1, Brown x1, Purple x2, Blue x1 -> Yellow x7  => E12:hp-2 arm-12",
+   "L0": "dmg E12 4 ; convert Green x2, skull x1, Brown x1, Purple x2, Blue x1 -> Yellow x7  => E12:arm-4",
+   "K": "dmg E12 14 ; defeat E12 ; convert Green x2, skull x1, Brown x1, Purple x2, Blue x1 -> Yellow x7  => E12:hp-1 DEAD"
+  },
+  "by": "coord (accepted before golden)",
+  "at": "2026-09-27T23:48:12.361Z"
+ },
+ "troop:6063": {
+  "lines": {
+   "L10": "status E10 +poison ; status E11 +poison ; convert Yellow x2, Purple x3, Blue x2, Green x2 -> Red x9 ; ~cascade~ ; buff C hp+11 max+11  => E10:+poison | E11:+poison | A2:mana+3 | C:hp+11 max+11  cascade",
+   "R10": "status E10 +poison ; status E11 +poison ; convert Yellow x2, Purple x3, Blue x2, Green x2 -> Red x9 ; ~cascade~ ; buff C hp+11 max+11  => E10:+poison | E11:+poison | A2:mana+3 | C:hp+11 max+11  cascade",
+   "L0": "status E10 +poison ; status E11 +poison ; convert Yellow x2, Purple x3, Blue x2, Green x2 -> Red x9 ; ~cascade~ ; buff C hp+1 max+1  => E10:+poison | E11:+poison | A2:mana+3 | C:hp+1 max+1  cascade",
+   "K": "status E10 +poison ; status E11 +poison ; convert Yellow x2, Purple x3, Blue x2, Green x2 -> Red x9 ; ~cascade~ ; buff C hp+11 max+11  => E10:+poison | E11:+poison | A2:mana+3 | C:hp+11 max+11  cascade"
+  },
+  "by": "coord (accepted before golden)",
+  "at": "2026-09-27T23:48:12.361Z"
+ },
+ "troop:6068": {
+  "lines": {
+   "L10": "status E10 +poison ; status E11 +poison ; status E12 +poison ; status E13 +poison ; dmg E10 10 (all) ; dmg E11 10 (all) ; dmg E12 10 (all) ; dmg E13 10 (all) ; convert Yellow x2, Brown x2, skull x2, Blue x1, Red x2 -> Green x9 ; ~cascade~ ; extra-turn match  => E10:hp-5 arm-5 +poison | E11:arm-10 +poison | E12:arm-10 +poison | E13:hp-7 arm-3 +poison  extra:match  cascade",
+   "R10": "status E10 +poison ; status E11 +poison ; status E12 +poison ; status E13 +poison ; dmg E10 10 (all) ; dmg E11 10 (all) ; dmg E12 10 (all) ; dmg E13 10 (all) ; convert Yellow x2, Brown x2, skull x2, Blue x1, Red x2 -> Green x9 ; ~cascade~ ; extra-turn match  => E10:hp-5 arm-5 +poison | E11:arm-10 +poison | E12:arm-10 +poison | E13:hp-7 arm-3 +poison  extra:match  cascade",
+   "L0": "status E10 +poison ; status E11 +poison ; status E12 +poison ; status E13 +poison ; convert Yellow x2, Brown x2, skull x2, Blue x1, Red x2 -> Green x9 ; ~cascade~ ; extra-turn match  => E10:+poison | E11:+poison | E12:+poison | E13:+poison  extra:match  cascade",
+   "K": "status E10 +poison ; status E11 +poison ; status E12 +poison ; status E13 +poison ; dmg E10 10 (all) ; dmg E11 10 (all) ; dmg E12 10 (all) ; dmg E13 10 (all) ; defeat E10 ; defeat E11 ; defeat E12 ; defeat E13 ; convert Yellow x2, Brown x2, skull x2, Blue x1, Red x2 -> Green x9 ; ~cascade~  => E10:hp-1 +poison DEAD | E11:hp-1 +poison DEAD | E12:hp-1 +poison DEAD | E13:hp-1 +poison DEAD  cascade"
+  },
+  "by": "coord (accepted before golden)",
+  "at": "2026-09-27T23:48:12.361Z"
+ },
+ "troop:6071": {
+  "lines": {
+   "L10": "buff E10 armor-5 ; buff C armor+5 ; buff E11 armor-10 ; buff C armor+10 ; buff E12 armor-10 ; buff C armor+10 ; buff E13 armor-3 ; buff C armor+3 ; buff E10 attack-5 ; buff C attack+5 ; buff E11 attack-5 ; buff C attack+5 ; buff E12 attack-5 ; buff C attack+5 ; buff E13 attack-5 ; buff C attack+5  => E10:arm-5 atk-5 | C:arm+28 atk+20 | E11:arm-10 atk-5 | E12:arm-10 atk-5 | E13:arm-3 atk-5",
+   "R10": "buff E10 armor-5 ; buff C armor+5 ; buff E11 armor-10 ; buff C armor+10 ; buff E12 armor-10 ; buff C armor+10 ; buff E13 armor-3 ; buff C armor+3 ; buff E10 attack-5 ; buff C attack+5 ; buff E11 attack-5 ; buff C attack+5 ; buff E12 attack-5 ; buff C attack+5 ; buff E13 attack-5 ; buff C attack+5  => E10:arm-5 atk-5 | C:arm+28 atk+20 | E11:arm-10 atk-5 | E12:arm-10 atk-5 | E13:arm-3 atk-5",
+   "L0": "buff E10 attack-5 ; buff C attack+5 ; buff E11 attack-5 ; buff C attack+5 ; buff E12 attack-5 ; buff C attack+5 ; buff E13 attack-5 ; buff C attack+5  => E10:atk-5 | C:atk+20 | E11:atk-5 | E12:atk-5 | E13:atk-5",
+   "K": "buff E10 attack-5 ; buff C attack+5 ; buff E11 attack-5 ; buff C attack+5 ; buff E12 attack-5 ; buff C attack+5 ; buff E13 attack-5 ; buff C attack+5  => E10:atk-5 | C:atk+20 | E11:atk-5 | E12:atk-5 | E13:atk-5"
+  },
+  "by": "coord (accepted before golden)",
+  "at": "2026-09-27T23:48:12.361Z"
+ },
+ "troop:6073": {
+  "lines": {
+   "L10": "status E10 +silence ; status E11 +silence ; status E12 +silence ; status E13 +silence ; status C +silence  => E10:+silence | E11:+silence | E12:+silence | E13:+silence | C:+silence",
+   "R10": "status E10 +silence ; status E11 +silence ; status E12 +silence ; status E13 +silence ; status C +silence  => E10:+silence | E11:+silence | E12:+silence | E13:+silence | C:+silence",
+   "L0": "status E10 +silence ; status E11 +silence ; status E12 +silence ; status E13 +silence ; status C +silence  => E10:+silence | E11:+silence | E12:+silence | E13:+silence | C:+silence",
+   "K": "status E10 +silence ; status E11 +silence ; status E12 +silence ; status E13 +silence ; status C +silence  => E10:+silence | E11:+silence | E12:+silence | E13:+silence | C:+silence"
+  },
+  "by": "coord (accepted before golden)",
+  "at": "2026-09-27T23:48:12.361Z"
+ },
+ "troop:6074": {
+  "lines": {
+   "L10": "convert Blue x11 -> skull x11",
+   "R10": "convert Blue x11 -> skull x11",
+   "L0": "convert Blue x11 -> skull x11",
+   "K": "convert Blue x11 -> skull x11"
+  },
+  "by": "coord (accepted before golden)",
+  "at": "2026-09-27T23:48:12.361Z"
+ },
+ "troop:6078": {
+  "lines": {
+   "L10": "dmg E10 11 (all) ; dmg E11 11 (all) ; dmg E12 11 (all) ; dmg E13 11 (all) ; buff C hp+16 max+16  => E10:hp-11 | E11:hp-11 | E12:hp-11 | E13:hp-11 | C:hp+16 max+16",
+   "R10": "dmg E10 11 (all) ; dmg E11 11 (all) ; dmg E12 11 (all) ; dmg E13 11 (all) ; buff C hp+16 max+16  => E10:hp-11 | E11:hp-11 | E12:hp-11 | E13:hp-11 | C:hp+16 max+16",
+   "L0": "dmg E10 1 (all) ; dmg E11 1 (all) ; dmg E12 1 (all) ; dmg E13 1 (all) ; buff C hp+16 max+16  => E10:hp-1 | E11:hp-1 | E12:hp-1 | E13:hp-1 | C:hp+16 max+16",
+   "K": "dmg E10 11 (all) ; dmg E11 11 (all) ; dmg E12 11 (all) ; dmg E13 11 (all) ; defeat E10 ; defeat E11 ; defeat E12 ; defeat E13 ; buff C hp+16 max+16  => E10:hp-1 DEAD | E11:hp-1 DEAD | E12:hp-1 DEAD | E13:hp-1 DEAD | C:hp+16 max+16"
+  },
+  "by": "coord (accepted before golden)",
+  "at": "2026-09-27T23:48:12.361Z"
+ },
+ "troop:6081": {
+  "lines": {
+   "L10": "buff C attack+12 ; buff A1 attack+12 ; buff A2 attack+12 ; status C +barrier  => C:atk+12 +barrier | A1:atk+12 | A2:atk+12",
+   "R10": "buff C attack+12 ; buff A1 attack+12 ; buff A2 attack+12 ; status C +barrier  => C:atk+12 +barrier | A1:atk+12 | A2:atk+12",
+   "L0": "buff C attack+2 ; buff A1 attack+2 ; buff A2 attack+2 ; status C +barrier  => C:atk+2 +barrier | A1:atk+2 | A2:atk+2",
+   "K": "buff C attack+12 ; buff A1 attack+12 ; buff A2 attack+12 ; status C +barrier  => C:atk+12 +barrier | A1:atk+12 | A2:atk+12"
+  },
+  "by": "coord (accepted before golden)",
+  "at": "2026-09-27T23:48:12.361Z"
+ },
+ "troop:6082": {
+  "lines": {
+   "L10": "buff A1 attack+13 ; buff A1 armor+13  => A1:arm+13 atk+13",
+   "R10": "buff A1 attack+13 ; buff A1 armor+13  => A1:arm+13 atk+13",
+   "L0": "buff A1 attack+3 ; buff A1 armor+3  => A1:arm+3 atk+3",
+   "K": "buff A1 attack+13 ; buff A1 armor+13  => A1:arm+13 atk+13"
+  },
+  "by": "coord (accepted before golden)",
+  "at": "2026-09-27T23:48:12.361Z"
+ },
+ "troop:6083": {
+  "lines": {
+   "L10": "dmg E13 15 ; buff E13 mana-10  => E13:hp-12 arm-3 mana-10",
+   "R10": "dmg E13 15 ; buff E13 mana-10  => E13:hp-12 arm-3 mana-10",
+   "L0": "dmg E13 5 ; buff E13 mana-10  => E13:hp-2 arm-3 mana-10",
+   "K": "dmg E13 15 ; defeat E13 ; buff E12 mana-5  => E13:hp-1 DEAD | E12:mana-5"
+  },
+  "by": "coord (accepted before golden)",
+  "at": "2026-09-27T23:48:12.361Z"
+ },
+ "troop:6085": {
+  "lines": {
+   "L10": "dmg E10 12 (all) ; dmg E11 12 (all) ; dmg E12 12 (all) ; dmg E13 12 (all)  => E10:hp-7 arm-5 | E11:hp-2 arm-10 | E12:arm-12 | E13:hp-9 arm-3",
+   "R10": "dmg E10 12 (all) ; dmg E11 12 (all) ; dmg E12 12 (all) ; dmg E13 12 (all)  => E10:hp-7 arm-5 | E11:hp-2 arm-10 | E12:arm-12 | E13:hp-9 arm-3",
+   "L0": "dmg E10 2 (all) ; dmg E11 2 (all) ; dmg E12 2 (all) ; dmg E13 2 (all)  => E10:arm-2 | E11:arm-2 | E12:arm-2 | E13:arm-2",
+   "K": "dmg E10 12 (all) ; dmg E11 12 (all) ; dmg E12 12 (all) ; dmg E13 12 (all) ; defeat E10 ; defeat E11 ; defeat E12 ; defeat E13  => E10:hp-1 DEAD | E11:hp-1 DEAD | E12:hp-1 DEAD | E13:hp-1 DEAD"
+  },
+  "by": "coord (accepted before golden)",
+  "at": "2026-09-27T23:48:12.361Z"
+ },
+ "troop:6087": {
+  "lines": {
+   "L10": "dmg E10 2 (scatter) ; dmg E11 3 (scatter) ; dmg E12 5 (scatter) ; dmg E13 3 (scatter)  => E10:arm-2 | E11:arm-3 | E12:arm-5 | E13:arm-3",
+   "R10": "dmg E10 2 (scatter) ; dmg E11 3 (scatter) ; dmg E12 5 (scatter) ; dmg E13 3 (scatter)  => E10:arm-2 | E11:arm-3 | E12:arm-5 | E13:arm-3",
+   "L0": "dmg E11 1 (scatter) ; dmg E12 1 (scatter) ; dmg E13 1 (scatter)  => E11:arm-1 | E12:arm-1 | E13:arm-1",
+   "K": "dmg E10 3 (scatter) ; dmg E11 3 (scatter) ; dmg E12 4 (scatter) ; dmg E13 3 (scatter) ; defeat E10 ; defeat E11 ; defeat E12 ; defeat E13  => E10:hp-1 DEAD | E11:hp-1 DEAD | E12:hp-1 DEAD | E13:hp-1 DEAD"
+  },
+  "by": "coord (accepted before golden)",
+  "at": "2026-09-27T23:48:12.361Z"
+ },
+ "troop:6092": {
+  "lines": {
+   "L10": "buff A1 hp+11 max+11 ; buff A2 armor+11  => A1:hp+11 max+11 | A2:arm+11",
+   "R10": "buff A1 hp+11 max+11 ; buff A2 armor+11  => A1:hp+11 max+11 | A2:arm+11",
+   "L0": "buff A1 hp+1 max+1 ; buff A2 armor+1  => A1:hp+1 max+1 | A2:arm+1",
+   "K": "buff A1 hp+11 max+11 ; buff A2 armor+11  => A1:hp+11 max+11 | A2:arm+11"
+  },
+  "by": "coord (accepted before golden)",
+  "at": "2026-09-27T23:48:12.361Z"
+ },
+ "troop:6093": {
+  "lines": {
+   "L10": "convert skull x5 -> Blue x5 ; gold+15  eco:{\"gold\":15,\"goldMine\":15}",
+   "R10": "convert skull x5 -> Blue x5 ; gold+15  eco:{\"gold\":15,\"goldMine\":15}",
+   "L0": "convert skull x5 -> Blue x5 ; gold+5  eco:{\"gold\":5,\"goldMine\":5}",
+   "K": "convert skull x5 -> Blue x5 ; gold+15  eco:{\"gold\":15,\"goldMine\":15}"
+  },
+  "by": "coord (accepted before golden)",
+  "at": "2026-09-27T23:48:12.361Z"
+ },
+ "troop:6094": {
+  "lines": {
+   "L10": "dmg E11 14 ; souls+14  => E11:hp-4 arm-10  eco:{\"souls\":14}",
+   "R10": "dmg E11 14 ; souls+14  => E11:hp-4 arm-10  eco:{\"souls\":14}",
+   "L0": "dmg E11 4 ; souls+4  => E11:arm-4  eco:{\"souls\":4}",
+   "K": "dmg E11 14 ; defeat E11 ; souls+14  => E11:hp-1 DEAD  eco:{\"souls\":14}"
+  },
+  "by": "coord (accepted before golden)",
+  "at": "2026-09-27T23:48:12.361Z"
+ },
+ "troop:6098": {
+  "lines": {
+   "L10": "destroy 3 (Green x1, Yellow x1, Purple x1) ; ~cascade~  => A2:mana+1  cascade",
+   "R10": "destroy 3 (Green x1, Yellow x1, Purple x1) ; ~cascade~  => A2:mana+1  cascade",
+   "L0": "destroy 3 (Green x1, Yellow x1, Purple x1) ; ~cascade~  => A2:mana+1  cascade",
+   "K": "destroy 3 (Green x1, Yellow x1, Purple x1) ; ~cascade~  => A2:mana+1  cascade"
+  },
+  "by": "coord (accepted before golden)",
+  "at": "2026-09-27T23:48:12.361Z"
+ },
+ "troop:6101": {
+  "lines": {
+   "L10": "dmg E11 13  => E11:hp-3 arm-10",
+   "R10": "dmg E11 13  => E11:hp-3 arm-10",
+   "L0": "dmg E11 3  => E11:arm-3",
+   "K": "dmg E11 13 ; defeat E11  => E11:hp-1 DEAD"
+  },
+  "by": "coord (accepted before golden)",
+  "at": "2026-09-27T23:48:12.361Z"
+ },
+ "troop:6102": {
+  "lines": {
+   "L10": "dmg E11 14  => E11:hp-4 arm-10",
+   "R10": "dmg E11 14  => E11:hp-4 arm-10",
+   "L0": "dmg E11 4  => E11:arm-4",
+   "K": "dmg E11 14 ; defeat E11 ; buff C armor+8 ; buff A1 armor+8 ; buff A2 armor+8  => E11:hp-1 DEAD | C:arm+8 | A1:arm+8 | A2:arm+8"
+  },
+  "by": "coord (accepted before golden)",
+  "at": "2026-09-27T23:48:12.361Z"
+ },
+ "troop:6105": {
+  "lines": {
+   "L10": "explode 62 ; skulls E10 4 ; ~cascade~ ; extra-turn match  => A1:mana+5 | A2:mana+4 | E10:arm-4  extra:match  cascade",
+   "R10": "explode 62 ; skulls E10 4 ; ~cascade~ ; extra-turn match  => A1:mana+5 | A2:mana+4 | E10:arm-4  extra:match  cascade",
+   "L0": "explode 18 ; skulls E10 1  => A1:mana+1 | A2:mana+1 | E10:arm-1",
+   "K": "explode 62 ; skulls E10 4 ; defeat E10 ; ~cascade~ ; extra-turn match  => A1:mana+5 | A2:mana+4 | E10:hp-1 DEAD  extra:match  cascade"
+  },
+  "by": "coord (accepted before golden)",
+  "at": "2026-09-27T23:48:12.361Z"
+ },
+ "troop:6107": {
+  "lines": {
+   "L10": "buff E11 armor-10 ; dmg E11 14  => E11:hp-14 arm-10",
+   "R10": "buff E11 armor-10 ; dmg E11 14  => E11:hp-14 arm-10",
+   "L0": "buff E11 armor-10 ; dmg E11 4  => E11:hp-4 arm-10",
+   "K": "dmg E11 14 ; defeat E11  => E11:hp-1 DEAD"
+  },
+  "by": "coord (accepted before golden)",
+  "at": "2026-09-27T23:48:12.361Z"
+ },
+ "troop:6113": {
+  "lines": {
+   "L10": "status E10 +entangle ; status E10 +marked ; dmg E10 12 ; extra-turn skill  => E10:hp-7 arm-5 +entangle+marked  extra:skill",
+   "R10": "status E10 +entangle ; status E10 +marked ; dmg E10 12 ; extra-turn skill  => E10:hp-7 arm-5 +entangle+marked  extra:skill",
+   "L0": "status E10 +entangle ; status E10 +marked ; dmg E10 2 ; extra-turn skill  => E10:arm-2 +entangle+marked  extra:skill",
+   "K": "status E10 +entangle ; status E10 +marked ; dmg E10 12 ; defeat E10 ; extra-turn skill  => E10:hp-1 +entangle+marked DEAD  extra:skill"
+  },
+  "by": "coord (accepted before golden)",
+  "at": "2026-09-27T23:48:12.361Z"
+ },
+ "troop:6118": {
+  "lines": {
+   "L10": "dmg E11 16  => E11:hp-6 arm-10",
+   "R10": "dmg E11 16  => E11:hp-6 arm-10",
+   "L0": "dmg E11 6  => E11:arm-6",
+   "K": "dmg E11 16 ; defeat E11  => E11:hp-1 DEAD"
+  },
+  "by": "coord (accepted before golden)",
+  "at": "2026-09-27T23:48:12.361Z"
+ },
+ "troop:6136": {
+  "lines": {
+   "L10": "status E11 +poison ; dmg E11 12  => E11:hp-2 arm-10 +poison",
+   "R10": "status E11 +poison ; dmg E11 12  => E11:hp-2 arm-10 +poison",
+   "L0": "status E11 +poison ; dmg E11 2  => E11:arm-2 +poison",
+   "K": "status E11 +poison ; dmg E11 12 ; defeat E11  => E11:hp-1 +poison DEAD"
+  },
+  "by": "coord (accepted before golden)",
+  "at": "2026-09-27T23:48:12.361Z"
+ },
+ "troop:6162": {
+  "lines": {
+   "L10": "buff A1 attack+12 ; buff A1 hp+12 max+12  => A1:hp+12 max+12 atk+12",
+   "R10": "buff A1 attack+12 ; buff A1 hp+12 max+12  => A1:hp+12 max+12 atk+12",
+   "L0": "buff A1 attack+2 ; buff A1 hp+2 max+2  => A1:hp+2 max+2 atk+2",
+   "K": "buff A1 attack+12 ; buff A1 hp+12 max+12  => A1:hp+12 max+12 atk+12"
+  },
+  "by": "coord (accepted before golden)",
+  "at": "2026-09-27T23:48:12.361Z"
+ },
+ "troop:6164": {
+  "lines": {
+   "L10": "dmg E11 14 ; status E11 +burning  => E11:hp-4 arm-10 +burning",
+   "R10": "dmg E11 14 ; status E11 +burning  => E11:hp-4 arm-10 +burning",
+   "L0": "dmg E11 4 ; status E11 +burning  => E11:arm-4 +burning",
+   "K": "dmg E11 14 ; defeat E11  => E11:hp-1 DEAD"
+  },
+  "by": "coord (accepted before golden)",
+  "at": "2026-09-27T23:48:12.361Z"
+ },
+ "troop:6169": {
+  "lines": {
+   "L10": "dmg E10 15 (all) ; dmg E11 15 (all) ; dmg E12 15 (all) ; dmg E13 15 (all) ; buff C hp+60 max+60  => E10:hp-15 | E11:hp-15 | E12:hp-15 | E13:hp-15 | C:hp+60 max+60",
+   "R10": "dmg E10 15 (all) ; dmg E11 15 (all) ; dmg E12 15 (all) ; dmg E13 15 (all) ; buff C hp+60 max+60  => E10:hp-15 | E11:hp-15 | E12:hp-15 | E13:hp-15 | C:hp+60 max+60",
+   "L0": "dmg E10 5 (all) ; dmg E11 5 (all) ; dmg E12 5 (all) ; dmg E13 5 (all) ; buff C hp+20 max+20  => E10:hp-5 | E11:hp-5 | E12:hp-5 | E13:hp-5 | C:hp+20 max+20",
+   "K": "dmg E10 15 (all) ; dmg E11 15 (all) ; dmg E12 15 (all) ; dmg E13 15 (all) ; defeat E10 ; defeat E11 ; defeat E12 ; defeat E13 ; buff C hp+4 max+4  => E10:hp-1 DEAD | E11:hp-1 DEAD | E12:hp-1 DEAD | E13:hp-1 DEAD | C:hp+4 max+4"
+  },
+  "by": "coord (accepted before golden)",
+  "at": "2026-09-27T23:48:12.361Z"
+ },
+ "troop:6186": {
+  "lines": {
+   "L10": "dmg E11 11 ; status E11 +frozen  => E11:hp-1 arm-10 +frozen",
+   "R10": "dmg E11 11 ; status E11 +frozen  => E11:hp-1 arm-10 +frozen",
+   "L0": "dmg E11 1 ; status E11 +frozen  => E11:arm-1 +frozen",
+   "K": "dmg E11 11 ; defeat E11  => E11:hp-1 DEAD"
+  },
+  "by": "coord (accepted before golden)",
+  "at": "2026-09-27T23:48:12.361Z"
+ },
+ "troop:6196": {
+  "lines": {
+   "L10": "status E10 +frozen ; status E10 +marked ; dmg E10 14  => E10:hp-9 arm-5 +frozen+marked",
+   "R10": "status E10 +frozen ; status E10 +marked ; dmg E10 14  => E10:hp-9 arm-5 +frozen+marked",
+   "L0": "status E10 +frozen ; status E10 +marked ; dmg E10 4  => E10:arm-4 +frozen+marked",
+   "K": "status E10 +frozen ; status E10 +marked ; dmg E10 14 ; defeat E10  => E10:hp-1 +frozen+marked DEAD"
+  },
+  "by": "coord (accepted before golden)",
+  "at": "2026-09-27T23:48:12.361Z"
+ },
+ "troop:6211": {
+  "lines": {
+   "L10": "buff A1 armor+11 ; dmg E10 3 (scatter) ; dmg E11 4 (scatter) ; dmg E12 5 (scatter) ; dmg E13 3 (scatter)  => A1:arm+11 | E10:arm-3 | E11:arm-4 | E12:arm-5 | E13:arm-3",
+   "R10": "buff A1 armor+11 ; dmg E10 3 (scatter) ; dmg E11 4 (scatter) ; dmg E12 5 (scatter) ; dmg E13 3 (scatter)  => A1:arm+11 | E10:arm-3 | E11:arm-4 | E12:arm-5 | E13:arm-3",
+   "L0": "buff A1 armor+1 ; dmg E10 1 (scatter) ; dmg E11 1 (scatter) ; dmg E12 2 (scatter) ; dmg E13 1 (scatter)  => A1:arm+1 | E10:arm-1 | E11:arm-1 | E12:arm-2 | E13:arm-1",
+   "K": "buff A1 armor+11 ; dmg E10 3 (scatter) ; dmg E11 4 (scatter) ; dmg E12 5 (scatter) ; dmg E13 3 (scatter) ; defeat E10 ; defeat E11 ; defeat E12 ; defeat E13  => A1:arm+11 | E10:hp-1 DEAD | E11:hp-1 DEAD | E12:hp-1 DEAD | E13:hp-1 DEAD"
+  },
+  "by": "coord (accepted before golden)",
+  "at": "2026-09-27T23:48:12.361Z"
+ },
+ "troop:6217": {
+  "lines": {
+   "L10": "status E11 +disease ; dmg E11 13  => E11:hp-3 arm-10 +disease",
+   "R10": "status E11 +disease ; dmg E11 13  => E11:hp-3 arm-10 +disease",
+   "L0": "status E11 +disease ; dmg E11 3  => E11:arm-3 +disease",
+   "K": "status E11 +disease ; dmg E11 13 ; defeat E11  => E11:hp-1 +disease DEAD"
+  },
+  "by": "coord (accepted before golden)",
+  "at": "2026-09-27T23:48:12.361Z"
+ },
+ "troop:6220": {
+  "lines": {
+   "L10": "dmg E10 12 (all) ; dmg E11 12 (all) ; dmg E12 12 (all) ; dmg E13 12 (all) ; status E10 +burning ; status E11 +burning ; status E12 +burning ; status E13 +burning  => E10:hp-7 arm-5 +burning | E11:hp-2 arm-10 +burning | E12:arm-12 +burning | E13:hp-9 arm-3 +burning",
+   "R10": "dmg E10 12 (all) ; dmg E11 12 (all) ; dmg E12 12 (all) ; dmg E13 12 (all) ; status E10 +burning ; status E11 +burning ; status E12 +burning ; status E13 +burning  => E10:hp-7 arm-5 +burning | E11:hp-2 arm-10 +burning | E12:arm-12 +burning | E13:hp-9 arm-3 +burning",
+   "L0": "dmg E10 2 (all) ; dmg E11 2 (all) ; dmg E12 2 (all) ; dmg E13 2 (all) ; status E10 +burning ; status E11 +burning ; status E12 +burning ; status E13 +burning  => E10:arm-2 +burning | E11:arm-2 +burning | E12:arm-2 +burning | E13:arm-2 +burning",
+   "K": "dmg E10 12 (all) ; dmg E11 12 (all) ; dmg E12 12 (all) ; dmg E13 12 (all) ; defeat E10 ; defeat E11 ; defeat E12 ; defeat E13  => E10:hp-1 DEAD | E11:hp-1 DEAD | E12:hp-1 DEAD | E13:hp-1 DEAD"
+  },
+  "by": "coord (accepted before golden)",
+  "at": "2026-09-27T23:48:12.361Z"
+ },
+ "troop:6225": {
+  "lines": {
+   "L10": "status E11 +stun ; buff E11 mana-7 ; buff C attack+11  => E11:mana-7 +stun | C:atk+11",
+   "R10": "status E11 +stun ; buff E11 mana-7 ; buff C attack+11  => E11:mana-7 +stun | C:atk+11",
+   "L0": "status E11 +stun ; buff E11 mana-7 ; buff C attack+1  => E11:mana-7 +stun | C:atk+1",
+   "K": "status E11 +stun ; buff E11 mana-5 ; buff C attack+11  => E11:mana-5 +stun | C:atk+11"
+  },
+  "by": "coord (accepted before golden)",
+  "at": "2026-09-27T23:48:12.361Z"
+ },
+ "troop:6228": {
+  "lines": {
+   "L10": "dmg E11 15  => E11:hp-5 arm-10",
+   "R10": "dmg E11 15  => E11:hp-5 arm-10",
+   "L0": "dmg E11 5  => E11:arm-5",
+   "K": "dmg E11 15 ; defeat E11  => E11:hp-1 DEAD"
+  },
+  "by": "coord (accepted before golden)",
+  "at": "2026-09-27T23:48:12.361Z"
+ },
+ "troop:6229": {
+  "lines": {
+   "L10": "status E12 +disease ; status E12 +poison ; status E12 +stun  => E12:+disease+poison+stun",
+   "R10": "status E12 +disease ; status E12 +poison ; status E12 +stun  => E12:+disease+poison+stun",
+   "L0": "status E12 +disease ; status E12 +poison ; status E12 +stun  => E12:+disease+poison+stun",
+   "K": "status E12 +disease ; status E12 +poison ; status E12 +stun  => E12:+disease+poison+stun"
+  },
+  "by": "coord (accepted before golden)",
+  "at": "2026-09-27T23:48:12.361Z"
+ },
+ "troop:6249": {
+  "lines": {
+   "L10": "status E10 +death-mark ; status E13 +death-mark ; dmg C 3  => E10:+death-mark | E13:+death-mark | C:hp-3",
+   "R10": "status E10 +death-mark ; status E13 +death-mark ; dmg C 3  => E10:+death-mark | E13:+death-mark | C:hp-3",
+   "L0": "status E10 +death-mark ; status E13 +death-mark ; dmg C 3  => E10:+death-mark | E13:+death-mark | C:hp-3",
+   "K": "status E10 +death-mark ; status E13 +death-mark ; dmg C 3  => E10:+death-mark | E13:+death-mark | C:hp-3"
+  },
+  "by": "coord (accepted before golden)",
+  "at": "2026-09-27T23:48:12.361Z"
+ },
+ "troop:6252": {
+  "lines": {
+   "L10": "status E11 +stun ; status E11 +silence ; buff E11 mana-8  => E11:mana-8 +stun+silence",
+   "R10": "status E11 +stun ; status E11 +silence ; buff E11 mana-8  => E11:mana-8 +stun+silence",
+   "L0": "status E11 +stun ; status E11 +silence ; buff E11 mana-1  => E11:mana-1 +stun+silence",
+   "K": "status E11 +stun ; status E11 +silence ; buff E11 mana-5  => E11:mana-5 +stun+silence"
+  },
+  "by": "coord (accepted before golden)",
+  "at": "2026-09-27T23:48:12.361Z"
+ },
+ "troop:6255": {
+  "lines": {
+   "L10": "dmg E11 16  => E11:hp-6 arm-10",
+   "R10": "dmg E11 16  => E11:hp-6 arm-10",
+   "L0": "dmg E11 6  => E11:arm-6",
+   "K": "dmg E11 48 ; defeat E11  => E11:hp-1 DEAD"
+  },
+  "by": "coord (accepted before golden)",
+  "at": "2026-09-27T23:48:12.361Z"
+ },
+ "troop:6271": {
+  "lines": {
+   "L10": "buff C attack+11 ; gold+15  => C:atk+11  eco:{\"gold\":15,\"goldMine\":15}",
+   "R10": "buff C attack+11 ; gold+15  => C:atk+11  eco:{\"gold\":15,\"goldMine\":15}",
+   "L0": "buff C attack+1 ; gold+15  => C:atk+1  eco:{\"gold\":15,\"goldMine\":15}",
+   "K": "buff C attack+11 ; gold+15  => C:atk+11  eco:{\"gold\":15,\"goldMine\":15}"
+  },
+  "by": "coord (accepted before golden)",
+  "at": "2026-09-27T23:48:12.361Z"
+ },
+ "troop:6283": {
+  "lines": {
+   "L10": "dmg E11 14 ; buff E11 attack-8  => E11:hp-4 arm-10 atk-8",
+   "R10": "dmg E11 14 ; buff E11 attack-8  => E11:hp-4 arm-10 atk-8",
+   "L0": "dmg E11 4 ; buff E11 attack-8  => E11:arm-4 atk-8",
+   "K": "dmg E11 28 ; defeat E11  => E11:hp-1 DEAD"
+  },
+  "by": "coord (accepted before golden)",
+  "at": "2026-09-27T23:48:12.361Z"
+ },
+ "troop:6285": {
+  "lines": {
+   "L10": "status E11 +frozen ; status E11 +web  => E11:+frozen+web",
+   "R10": "status E11 +frozen ; status E11 +web  => E11:+frozen+web",
+   "L0": "status E11 +frozen ; status E11 +web  => E11:+frozen+web",
+   "K": "status E11 +frozen ; status E11 +web  => E11:+frozen+web"
+  },
+  "by": "coord (accepted before golden)",
+  "at": "2026-09-27T23:48:12.361Z"
+ },
+ "troop:6298": {
+  "lines": {
+   "L10": "convert Purple x9 -> skull x9 ; convert Brown x8 -> Green x8 ; status C +barrier  => C:+barrier",
+   "R10": "convert Purple x9 -> skull x9 ; convert Brown x8 -> Green x8 ; status C +barrier  => C:+barrier",
+   "L0": "convert Purple x9 -> skull x9 ; convert Brown x8 -> Green x8 ; status C +barrier  => C:+barrier",
+   "K": "convert Purple x9 -> skull x9 ; convert Brown x8 -> Green x8 ; status C +barrier  => C:+barrier"
+  },
+  "by": "coord (accepted before golden)",
+  "at": "2026-09-27T23:48:12.361Z"
+ },
+ "troop:6306": {
+  "lines": {
+   "L10": "dmg E12 24 (all) ; dmg E10 24 (all)  => E12:hp-12 arm-12 | E10:hp-19 arm-5",
+   "R10": "dmg E12 24 (all) ; dmg E10 24 (all)  => E12:hp-12 arm-12 | E10:hp-19 arm-5",
+   "L0": "dmg E12 4 (all) ; dmg E10 4 (all)  => E12:arm-4 | E10:arm-4",
+   "K": "dmg E12 24 (all) ; dmg E11 24 (all) ; defeat E12 ; defeat E11  => E12:hp-1 DEAD | E11:hp-1 DEAD"
+  },
+  "by": "coord (accepted before golden)",
+  "at": "2026-09-27T23:48:12.361Z"
+ },
+ "troop:6320": {
+  "lines": {
+   "L10": "dmg E10 5 (scatter) ; dmg E11 5 (scatter) ; dmg E12 8 (scatter) ; dmg E13 4 (scatter)  => E10:hp-5 | E11:hp-5 | E12:hp-8 | E13:hp-4",
+   "R10": "dmg E10 5 (scatter) ; dmg E11 5 (scatter) ; dmg E12 8 (scatter) ; dmg E13 4 (scatter)  => E10:hp-5 | E11:hp-5 | E12:hp-8 | E13:hp-4",
+   "L0": "dmg E10 5 (scatter) ; dmg E11 5 (scatter) ; dmg E12 8 (scatter) ; dmg E13 4 (scatter)  => E10:hp-5 | E11:hp-5 | E12:hp-8 | E13:hp-4",
+   "K": "dmg E10 3 (scatter) ; dmg E11 3 (scatter) ; dmg E12 4 (scatter) ; dmg E13 2 (scatter) ; defeat E10 ; defeat E11 ; defeat E12 ; defeat E13  => E10:hp-1 DEAD | E11:hp-1 DEAD | E12:hp-1 DEAD | E13:hp-1 DEAD"
+  },
+  "by": "coord (accepted before golden)",
+  "at": "2026-09-27T23:48:12.361Z"
+ },
+ "troop:6365": {
+  "lines": {
+   "L10": "status A1 +barrier ; status A2 +barrier ; buff A1 hp+11 max+11 ; buff A2 hp+11 max+11 ; convert Green x2, Purple x4, skull x1, Red x1, Yellow x2 -> Blue x10  => A1:hp+11 max+11 +barrier | A2:hp+11 max+11 +barrier",
+   "R10": "status A1 +barrier ; status A2 +barrier ; buff A1 hp+11 max+11 ; buff A2 hp+11 max+11 ; convert Green x2, Purple x4, skull x1, Red x1, Yellow x2 -> Blue x10  => A1:hp+11 max+11 +barrier | A2:hp+11 max+11 +barrier",
+   "L0": "status A1 +barrier ; status A2 +barrier ; buff A1 hp+1 max+1 ; buff A2 hp+1 max+1 ; convert Green x2, Purple x4, skull x1, Red x1, Yellow x2 -> Blue x10  => A1:hp+1 max+1 +barrier | A2:hp+1 max+1 +barrier",
+   "K": "status A1 +barrier ; status A2 +barrier ; buff A1 hp+11 max+11 ; buff A2 hp+11 max+11 ; convert Green x2, Purple x4, skull x1, Red x1, Yellow x2 -> Blue x10  => A1:hp+11 max+11 +barrier | A2:hp+11 max+11 +barrier"
+  },
+  "by": "coord (accepted before golden)",
+  "at": "2026-09-27T23:48:12.361Z"
+ },
+ "troop:6370": {
+  "lines": {
+   "L10": "dmg E11 33  => E11:hp-23 arm-10",
+   "R10": "dmg E11 33  => E11:hp-23 arm-10",
+   "L0": "dmg E11 3  => E11:arm-3",
+   "K": "dmg E11 11 ; defeat E11  => E11:hp-1 DEAD"
+  },
+  "by": "coord (accepted before golden)",
+  "at": "2026-09-27T23:48:12.361Z"
+ },
+ "troop:6373": {
+  "lines": {
+   "L10": "dmg E11 14  => E11:hp-4 arm-10",
+   "R10": "dmg E11 14  => E11:hp-4 arm-10",
+   "L0": "dmg E11 4  => E11:arm-4",
+   "K": "dmg E11 14 ; defeat E11  => E11:hp-1 DEAD"
+  },
+  "by": "coord (accepted before golden)",
+  "at": "2026-09-27T23:48:12.361Z"
+ },
+ "troop:6378": {
+  "lines": {
+   "L10": "status E12 +web ; summon mine troop:-1  => A14:new 蜘蛛魔 hp26 atk17 arm9 mag7 | E12:+web",
+   "R10": "status E12 +web ; summon mine troop:-1  => A14:new 蜘蛛魔 hp26 atk17 arm9 mag7 | E12:+web",
+   "L0": "status E12 +web ; summon mine troop:-1  => A14:new 蜘蛛魔 hp26 atk17 arm9 mag7 | E12:+web",
+   "K": "status E12 +web ; summon mine troop:-1  => A14:new 蜘蛛魔 hp26 atk17 arm9 mag7 | E12:+web"
+  },
+  "by": "coord (accepted before golden)",
+  "at": "2026-09-27T23:48:12.361Z"
+ },
+ "troop:6383": {
+  "lines": {
+   "L10": "cleanse A1 -poison ; buff A1 hp+11 max+11 ; buff A1 magic+2  => A1:hp+11 max+11 mag+2 -poison",
+   "R10": "cleanse A1 -poison ; buff A1 hp+11 max+11 ; buff A1 magic+2  => A1:hp+11 max+11 mag+2 -poison",
+   "L0": "cleanse A1 -poison ; buff A1 hp+1 max+1 ; buff A1 magic+2  => A1:hp+1 max+1 mag+2 -poison",
+   "K": "cleanse A1 -poison ; buff A1 hp+11 max+11 ; buff A1 magic+2  => A1:hp+11 max+11 mag+2 -poison"
+  },
+  "by": "coord (accepted before golden)",
+  "at": "2026-09-27T23:48:12.361Z"
+ },
+ "troop:6385": {
+  "lines": {
+   "L10": "status E11 +marked ; summon mine troop:-1 ; convert Yellow x2, Purple x2, Blue x2, Green x1 -> Red x7  => A14:new 战鹰 hp15 atk11 arm9 mag12 | E11:+marked",
+   "R10": "status E11 +marked ; summon mine troop:-1 ; convert Yellow x2, Purple x2, Blue x2, Green x1 -> Red x7  => A14:new 战鹰 hp15 atk11 arm9 mag12 | E11:+marked",
+   "L0": "status E11 +marked ; summon mine troop:-1 ; convert Yellow x2, Purple x2, Blue x2, Green x1 -> Red x7  => A14:new 战鹰 hp15 atk11 arm9 mag12 | E11:+marked",
+   "K": "status E11 +marked ; summon mine troop:-1 ; convert Yellow x2, Purple x2, Blue x2, Green x1 -> Red x7  => A14:new 战鹰 hp15 atk11 arm9 mag12 | E11:+marked"
+  },
+  "by": "coord (accepted before golden)",
+  "at": "2026-09-27T23:48:12.361Z"
+ },
+ "troop:6393": {
+  "lines": {
+   "L10": "dmg E10 16 ; status C +submerged  => E10:hp-11 arm-5 | C:+submerged",
+   "R10": "dmg E10 16 ; status C +submerged  => E10:hp-11 arm-5 | C:+submerged",
+   "L0": "dmg E10 6 ; status C +submerged  => E10:hp-1 arm-5 | C:+submerged",
+   "K": "dmg E10 16 ; defeat E10 ; status C +submerged  => E10:hp-1 DEAD | C:+submerged"
+  },
+  "by": "coord (accepted before golden)",
+  "at": "2026-09-27T23:48:12.361Z"
+ },
+ "troop:6406": {
+  "lines": {
+   "L10": "buff A1 armor+13 ; status A1 +barrier ; status A1 +submerged  => A1:arm+13 +barrier+submerged",
+   "R10": "buff A1 armor+13 ; status A1 +barrier ; status A1 +submerged  => A1:arm+13 +barrier+submerged",
+   "L0": "buff A1 armor+3 ; status A1 +barrier ; status A1 +submerged  => A1:arm+3 +barrier+submerged",
+   "K": "buff A1 armor+13 ; status A1 +barrier ; status A1 +submerged  => A1:arm+13 +barrier+submerged"
+  },
+  "by": "coord (accepted before golden)",
+  "at": "2026-09-27T23:48:12.361Z"
+ },
+ "troop:6416": {
+  "lines": {
+   "L10": "convert Blue x11 -> Yellow x11 ; cleanse C -poison ; cleanse A1 -poison  => C:-poison | A1:-poison",
+   "R10": "convert Blue x11 -> Yellow x11 ; cleanse C -poison ; cleanse A1 -poison  => C:-poison | A1:-poison",
+   "L0": "convert Blue x11 -> Yellow x11 ; cleanse C -poison ; cleanse A1 -poison  => C:-poison | A1:-poison",
+   "K": "convert Blue x11 -> Yellow x11 ; cleanse C -poison ; cleanse A1 -poison  => C:-poison | A1:-poison"
+  },
+  "by": "coord (accepted before golden)",
+  "at": "2026-09-27T23:48:12.361Z"
+ },
+ "troop:6420": {
+  "lines": {
+   "L10": "status E11 +faerie-fire ; extra-turn skill  => E11:+faerie-fire  extra:skill",
+   "R10": "status E11 +faerie-fire ; extra-turn skill  => E11:+faerie-fire  extra:skill",
+   "L0": "status E11 +faerie-fire ; extra-turn skill  => E11:+faerie-fire  extra:skill",
+   "K": "status E11 +faerie-fire ; extra-turn skill  => E11:+faerie-fire  extra:skill"
+  },
+  "by": "coord (accepted before golden)",
+  "at": "2026-09-27T23:48:12.361Z"
+ },
+ "troop:6427": {
+  "lines": {
+   "L10": "dmg E10 24 (all) ; dmg E11 24 (all) ; dmg E12 24 (all) ; dmg E13 24 (all)  => E10:hp-19 arm-5 | E11:hp-14 arm-10 | E12:hp-12 arm-12 | E13:hp-21 arm-3",
+   "R10": "dmg E10 24 (all) ; dmg E11 24 (all) ; dmg E12 24 (all) ; dmg E13 24 (all)  => E10:hp-19 arm-5 | E11:hp-14 arm-10 | E12:hp-12 arm-12 | E13:hp-21 arm-3",
+   "L0": "dmg E10 14 (all) ; dmg E11 14 (all) ; dmg E12 14 (all) ; dmg E13 14 (all)  => E10:hp-9 arm-5 | E11:hp-4 arm-10 | E12:hp-2 arm-12 | E13:hp-11 arm-3",
+   "K": "dmg E10 36 (all) ; dmg E11 36 (all) ; dmg E12 36 (all) ; dmg E13 36 (all) ; defeat E10 ; defeat E11 ; defeat E12 ; defeat E13  => E10:hp-1 DEAD | E11:hp-1 DEAD | E12:hp-1 DEAD | E13:hp-1 DEAD"
+  },
+  "by": "coord (accepted before golden)",
+  "at": "2026-09-27T23:48:12.361Z"
+ },
+ "troop:6453": {
+  "lines": {
+   "L10": "status E10 +death-mark ; status E11 +death-mark ; status E10 +marked ; status E11 +marked ; dmg E10 14 (all) ; dmg E11 14 (all) ; transform C -> 诺斯费拉图  => E10:hp-9 arm-5 +death-mark+marked | E11:hp-4 arm-10 +death-mark+marked | C:now 诺斯费拉图",
+   "R10": "status E10 +death-mark ; status E11 +death-mark ; status E10 +marked ; status E11 +marked ; dmg E10 14 (all) ; dmg E11 14 (all) ; transform C -> 诺斯费拉图  => E10:hp-9 arm-5 +death-mark+marked | E11:hp-4 arm-10 +death-mark+marked | C:now 诺斯费拉图",
+   "L0": "status E10 +death-mark ; status E11 +death-mark ; status E10 +marked ; status E11 +marked ; dmg E10 4 (all) ; dmg E11 4 (all) ; transform C -> 诺斯费拉图  => E10:arm-4 +death-mark+marked | E11:arm-4 +death-mark+marked | C:now 诺斯费拉图",
+   "K": "status E10 +death-mark ; status E11 +death-mark ; status E10 +marked ; status E11 +marked ; dmg E10 14 (all) ; dmg E11 14 (all) ; defeat E10 ; defeat E11 ; transform C -> 诺斯费拉图  => E10:hp-1 +death-mark+marked DEAD | E11:hp-1 +death-mark+marked DEAD | C:now 诺斯费拉图"
+  },
+  "by": "coord (accepted before golden)",
+  "at": "2026-09-27T23:48:12.361Z"
+ },
+ "troop:6469": {
+  "lines": {
+   "L10": "status E11 +web ; dmg E11 13  => E11:hp-3 arm-10 +web",
+   "R10": "status E11 +web ; dmg E11 13  => E11:hp-3 arm-10 +web",
+   "L0": "status E11 +web ; dmg E11 3  => E11:arm-3 +web",
+   "K": "status E11 +web ; dmg E11 13 ; defeat E11  => E11:hp-1 +web DEAD"
+  },
+  "by": "coord (accepted before golden)",
+  "at": "2026-09-27T23:48:12.361Z"
+ },
+ "troop:6472": {
+  "lines": {
+   "L10": "dmg E11 23  => E11:hp-13 arm-10",
+   "R10": "dmg E11 23  => E11:hp-13 arm-10",
+   "L0": "dmg E11 13  => E11:hp-3 arm-10",
+   "K": "dmg E11 23 ; defeat E11  => E11:hp-1 DEAD"
+  },
+  "by": "coord (accepted before golden)",
+  "at": "2026-09-27T23:48:12.361Z"
+ },
+ "troop:6474": {
+  "lines": {
+   "L10": "status E10 +frozen ; status E11 +frozen ; dmg E10 16 (all) ; dmg E11 18 (all) ; move E11 back ; move E10 back ; summon mine troop:6191  => A14:new 梅冰女王 hp32 atk15 arm15 mag8 | E10:hp-11 arm-5 +frozen | E11:hp-8 arm-10 +frozen",
+   "R10": "status E10 +frozen ; status E11 +frozen ; dmg E10 16 (all) ; dmg E11 18 (all) ; move E11 back ; move E10 back ; summon mine troop:6191  => A14:new 梅冰女王 hp32 atk15 arm15 mag8 | E10:hp-11 arm-5 +frozen | E11:hp-8 arm-10 +frozen",
+   "L0": "status E10 +frozen ; status E11 +frozen ; dmg E10 6 (all) ; dmg E11 8 (all) ; move E11 back ; move E10 back ; summon mine troop:6191  => A14:new 梅冰女王 hp32 atk15 arm15 mag8 | E10:hp-1 arm-5 +frozen | E11:arm-8 +frozen",
+   "K": "status E10 +frozen ; status E11 +frozen ; dmg E10 15 (all) ; dmg E11 15 (all) ; defeat E10 ; defeat E11 ; summon mine troop:6191  => A14:new 梅冰女王 hp32 atk15 arm15 mag8 | E10:hp-1 +frozen DEAD | E11:hp-1 +frozen DEAD"
+  },
+  "by": "coord (accepted before golden)",
+  "at": "2026-09-27T23:48:12.361Z"
+ },
+ "troop:6479": {
+  "lines": {
+   "L10": "convert Red x9 -> skull x9 ; convert Green x13 -> Yellow x13 ; status A1 +enchanted ; status C +enchanted  => A1:+enchanted | C:+enchanted",
+   "R10": "convert Red x9 -> skull x9 ; convert Green x13 -> Yellow x13 ; status A1 +enchanted ; status C +enchanted  => A1:+enchanted | C:+enchanted",
+   "L0": "convert Red x9 -> skull x9 ; convert Green x13 -> Yellow x13 ; status A1 +enchanted ; status C +enchanted  => A1:+enchanted | C:+enchanted",
+   "K": "convert Red x9 -> skull x9 ; convert Green x13 -> Yellow x13 ; status A1 +enchanted ; status C +enchanted  => A1:+enchanted | C:+enchanted"
+  },
+  "by": "coord (accepted before golden)",
+  "at": "2026-09-27T23:48:12.361Z"
+ },
+ "troop:6481": {
+  "lines": {
+   "L10": "status E11 +stun ; status E11 +silence ; buff E11 mana-8 ; dmg E11 16 (all) ; dmg E12 16 (all) ; dmg E13 16 (all)  => E11:hp-6 arm-10 mana-8 +stun+silence | E12:hp-4 arm-12 | E13:hp-13 arm-3",
+   "R10": "status E11 +stun ; status E11 +silence ; buff E11 mana-8 ; dmg E11 16 (all) ; dmg E12 16 (all) ; dmg E13 16 (all)  => E11:hp-6 arm-10 mana-8 +stun+silence | E12:hp-4 arm-12 | E13:hp-13 arm-3",
+   "L0": "status E11 +stun ; status E11 +silence ; buff E11 mana-8 ; dmg E11 6 (all) ; dmg E12 6 (all) ; dmg E13 6 (all)  => E11:arm-6 mana-8 +stun+silence | E12:arm-6 | E13:hp-3 arm-3",
+   "K": "status E11 +stun ; status E11 +silence ; buff E11 mana-5 ; dmg E11 16 (all) ; dmg E12 16 (all) ; dmg E13 16 (all) ; defeat E11 ; defeat E12 ; defeat E13  => E11:hp-1 mana-5 +stun+silence DEAD | E12:hp-1 DEAD | E13:hp-1 DEAD"
+  },
+  "by": "coord (accepted before golden)",
+  "at": "2026-09-27T23:48:12.361Z"
+ },
+ "troop:6518": {
+  "lines": {
+   "L10": "cleanse C -poison ; cleanse A1 -poison ; extra-turn skill  => C:-poison | A1:-poison  extra:skill",
+   "R10": "cleanse C -poison ; cleanse A1 -poison ; extra-turn skill  => C:-poison | A1:-poison  extra:skill",
+   "L0": "cleanse C -poison ; cleanse A1 -poison ; extra-turn skill  => C:-poison | A1:-poison  extra:skill",
+   "K": "cleanse C -poison ; cleanse A1 -poison ; extra-turn skill  => C:-poison | A1:-poison  extra:skill"
+  },
+  "by": "coord (accepted before golden)",
+  "at": "2026-09-27T23:48:12.361Z"
+ },
+ "troop:6535": {
+  "lines": {
+   "L10": "convert Brown x8 -> Red x8 ; status E12 +poison  => E12:+poison",
+   "R10": "convert Brown x8 -> Red x8 ; status E12 +poison  => E12:+poison",
+   "L0": "convert Brown x8 -> Red x8 ; status E12 +poison  => E12:+poison",
+   "K": "convert Brown x8 -> Red x8 ; status E12 +poison  => E12:+poison"
+  },
+  "by": "coord (accepted before golden)",
+  "at": "2026-09-27T23:48:12.361Z"
+ },
+ "troop:6542": {
+  "lines": {
+   "L10": "convert Green x13 -> Blue x13 ; gold+11  eco:{\"gold\":11,\"goldMine\":11}",
+   "R10": "convert Green x13 -> Blue x13 ; gold+11  eco:{\"gold\":11,\"goldMine\":11}",
+   "L0": "convert Green x13 -> Blue x13 ; gold+1  eco:{\"gold\":1,\"goldMine\":1}",
+   "K": "convert Green x13 -> Blue x13 ; gold+11  eco:{\"gold\":11,\"goldMine\":11}"
+  },
+  "by": "coord (accepted before golden)",
+  "at": "2026-09-27T23:48:12.361Z"
+ },
+ "troop:6546": {
+  "lines": {
+   "L10": "status E13 +rage ; dmg E13 16  => E13:hp-16 +rage",
+   "R10": "status E13 +rage ; dmg E13 16  => E13:hp-16 +rage",
+   "L0": "status E13 +rage ; dmg E13 6  => E13:hp-6 +rage",
+   "K": "status E13 +rage ; dmg E13 16 ; defeat E13  => E13:hp-1 +rage DEAD"
+  },
+  "by": "coord (accepted before golden)",
+  "at": "2026-09-27T23:48:12.361Z"
+ },
+ "troop:6548": {
+  "lines": {
+   "L10": "dmg E11 14  => E11:hp-4 arm-10",
+   "R10": "dmg E11 14  => E11:hp-4 arm-10",
+   "L0": "dmg E11 4  => E11:arm-4",
+   "K": "dmg E11 14 ; defeat E11  => E11:hp-1 DEAD"
+  },
+  "by": "coord (accepted before golden)",
+  "at": "2026-09-27T23:48:12.361Z"
+ },
+ "troop:6549": {
+  "lines": {
+   "L10": "buff E11 armor-3 ; buff C magic+3 ; dmg E11 15  => E11:hp-15 arm-3 | C:mag+3",
+   "R10": "buff E11 armor-3 ; buff C magic+3 ; dmg E11 15  => E11:hp-15 arm-3 | C:mag+3",
+   "L0": "buff E11 armor-3 ; buff C magic+3 ; dmg E11 5  => E11:hp-5 arm-3 | C:mag+3",
+   "K": "dmg E11 12 ; defeat E11  => E11:hp-1 DEAD"
+  },
+  "by": "coord (accepted before golden)",
+  "at": "2026-09-27T23:48:12.361Z"
+ },
+ "troop:6551": {
+  "lines": {
+   "L10": "dmg E11 21 ; souls+5  => E11:hp-11 arm-10  eco:{\"souls\":5}",
+   "R10": "dmg E11 21 ; souls+5  => E11:hp-11 arm-10  eco:{\"souls\":5}",
+   "L0": "dmg E11 11 ; souls+5  => E11:hp-1 arm-10  eco:{\"souls\":5}",
+   "K": "dmg E11 21 ; defeat E11 ; souls+5  => E11:hp-1 DEAD  eco:{\"souls\":5}"
+  },
+  "by": "coord (accepted before golden)",
+  "at": "2026-09-27T23:48:12.361Z"
+ },
+ "troop:6584": {
+  "lines": {
+   "L10": "dmg E10 4 (scatter) ; dmg E11 5 (scatter) ; dmg E12 8 (scatter) ; dmg E13 3 (scatter)  => E10:arm-4 | E11:arm-5 | E12:arm-8 | E13:arm-3",
+   "R10": "dmg E10 4 (scatter) ; dmg E11 5 (scatter) ; dmg E12 8 (scatter) ; dmg E13 3 (scatter)  => E10:arm-4 | E11:arm-5 | E12:arm-8 | E13:arm-3",
+   "L0": "dmg E10 1 (scatter) ; dmg E11 3 (scatter) ; dmg E12 4 (scatter) ; dmg E13 2 (scatter)  => E10:arm-1 | E11:arm-3 | E12:arm-4 | E13:arm-2",
+   "K": "dmg E10 5 (scatter) ; dmg E11 4 (scatter) ; dmg E12 8 (scatter) ; dmg E13 3 (scatter) ; defeat E10 ; defeat E11 ; defeat E12 ; defeat E13  => E10:hp-1 DEAD | E11:hp-1 DEAD | E12:hp-1 DEAD | E13:hp-1 DEAD"
+  },
+  "by": "coord (accepted before golden)",
+  "at": "2026-09-27T23:48:12.361Z"
+ },
+ "troop:6589": {
+  "lines": {
+   "L10": "status E11 +entangle ; convert Yellow x2, Brown x2, skull x2, Blue x2, Red x3, Purple x4 -> Green x15 ; ~cascade~ ; extra-turn match  => E11:+entangle  extra:match  cascade",
+   "R10": "status E11 +entangle ; convert Yellow x2, Brown x2, skull x2, Blue x2, Red x3, Purple x4 -> Green x15 ; ~cascade~ ; extra-turn match  => E11:+entangle  extra:match  cascade",
+   "L0": "status E11 +entangle ; convert Yellow x2, Brown x2, skull x2, Blue x2, Red x3, Purple x4 -> Green x15 ; ~cascade~ ; extra-turn match  => E11:+entangle  extra:match  cascade",
+   "K": "status E11 +entangle ; convert Yellow x2, Brown x2, skull x2, Blue x1, Red x2 -> Green x9 ; ~cascade~ ; extra-turn match  => E11:+entangle  extra:match  cascade"
+  },
+  "by": "coord (accepted before golden)",
+  "at": "2026-09-27T23:48:12.361Z"
+ },
+ "troop:6590": {
+  "lines": {
+   "L10": "convert Green x13 -> Brown x13 ; status C +rage ; buff C hp+11 max+11  => C:hp+11 max+11 +rage",
+   "R10": "convert Green x13 -> Brown x13 ; status C +rage ; buff C hp+11 max+11  => C:hp+11 max+11 +rage",
+   "L0": "convert Green x13 -> Brown x13 ; status C +rage ; buff C hp+1 max+1  => C:hp+1 max+1 +rage",
+   "K": "convert Green x13 -> Brown x13 ; status C +rage ; buff C hp+11 max+11  => C:hp+11 max+11 +rage"
+  },
+  "by": "coord (accepted before golden)",
+  "at": "2026-09-27T23:48:12.361Z"
+ },
+ "troop:6595": {
+  "lines": {
+   "L10": "dmg E11 14  => E11:hp-14",
+   "R10": "dmg E11 14  => E11:hp-14",
+   "L0": "dmg E11 4  => E11:hp-4",
+   "K": "dmg E11 11 ; defeat E11  => E11:hp-1 DEAD"
+  },
+  "by": "coord (accepted before golden)",
+  "at": "2026-09-27T23:48:12.361Z"
+ },
+ "troop:6604": {
+  "lines": {
+   "L10": "convert Blue x11 -> Brown x11 ; convert Yellow x9 -> skull x9 ; status C +rage ; status A1 +rage ; status A2 +rage ; status E10 +burning ; status E11 +burning ; status E12 +burning ; status E13 +burning  => C:+rage | A1:+rage | A2:+rage | E10:+burning | E11:+burning | E12:+burning | E13:+burning",
+   "R10": "convert Blue x11 -> Brown x11 ; convert Yellow x9 -> skull x9 ; status C +rage ; status A1 +rage ; status A2 +rage ; status E10 +burning ; status E11 +burning ; status E12 +burning ; status E13 +burning  => C:+rage | A1:+rage | A2:+rage | E10:+burning | E11:+burning | E12:+burning | E13:+burning",
+   "L0": "convert Blue x11 -> Brown x11 ; convert Yellow x9 -> skull x9 ; status C +rage ; status A1 +rage ; status A2 +rage ; status E10 +burning ; status E11 +burning ; status E12 +burning ; status E13 +burning  => C:+rage | A1:+rage | A2:+rage | E10:+burning | E11:+burning | E12:+burning | E13:+burning",
+   "K": "convert Blue x11 -> Brown x11 ; convert Yellow x9 -> skull x9 ; status C +rage ; status A1 +rage ; status A2 +rage ; status E10 +burning ; status E11 +burning ; status E12 +burning ; status E13 +burning  => C:+rage | A1:+rage | A2:+rage | E10:+burning | E11:+burning | E12:+burning | E13:+burning"
+  },
+  "by": "coord (accepted before golden)",
+  "at": "2026-09-27T23:48:12.361Z"
+ },
+ "troop:6611": {
+  "lines": {
+   "L10": "dmg E11 11  => E11:hp-11",
+   "R10": "dmg E11 11  => E11:hp-11",
+   "L0": "dmg E11 1  => E11:hp-1",
+   "K": "dmg E11 11 ; defeat E11  => E11:hp-1 DEAD"
+  },
+  "by": "coord (accepted before golden)",
+  "at": "2026-09-27T23:48:12.361Z"
+ },
+ "troop:6612": {
+  "lines": {
+   "L10": "convert Green x13 -> Purple x13 ; ~cascade~ ; status C +enchanted ; extra-turn match  => C:+enchanted  extra:match  cascade",
+   "R10": "convert Green x13 -> Purple x13 ; ~cascade~ ; status C +enchanted ; extra-turn match  => C:+enchanted  extra:match  cascade",
+   "L0": "convert Green x13 -> Purple x13 ; ~cascade~ ; status C +enchanted ; extra-turn match  => C:+enchanted  extra:match  cascade",
+   "K": "convert Green x13 -> Purple x13 ; ~cascade~ ; status C +enchanted ; extra-turn match  => C:+enchanted  extra:match  cascade"
+  },
+  "by": "coord (accepted before golden)",
+  "at": "2026-09-27T23:48:12.361Z"
+ },
+ "troop:6614": {
+  "lines": {
+   "L10": "gold+20  eco:{\"gold\":20,\"goldMine\":20}",
+   "R10": "gold+20  eco:{\"gold\":20,\"goldMine\":20}",
+   "L0": "gold+20  eco:{\"gold\":20,\"goldMine\":20}",
+   "K": "gold+20  eco:{\"gold\":20,\"goldMine\":20}"
+  },
+  "by": "coord (accepted before golden)",
+  "at": "2026-09-27T23:48:12.361Z"
+ },
+ "troop:6615": {
+  "lines": {
+   "L10": "gold+20  eco:{\"gold\":20,\"goldMine\":20}",
+   "R10": "gold+20  eco:{\"gold\":20,\"goldMine\":20}",
+   "L0": "gold+20  eco:{\"gold\":20,\"goldMine\":20}",
+   "K": "gold+20  eco:{\"gold\":20,\"goldMine\":20}"
+  },
+  "by": "coord (accepted before golden)",
+  "at": "2026-09-27T23:48:12.361Z"
+ },
+ "troop:6616": {
+  "lines": {
+   "L10": "gold+20  eco:{\"gold\":20,\"goldMine\":20}",
+   "R10": "gold+20  eco:{\"gold\":20,\"goldMine\":20}",
+   "L0": "gold+20  eco:{\"gold\":20,\"goldMine\":20}",
+   "K": "gold+20  eco:{\"gold\":20,\"goldMine\":20}"
+  },
+  "by": "coord (accepted before golden)",
+  "at": "2026-09-27T23:48:12.361Z"
+ },
+ "troop:6617": {
+  "lines": {
+   "L10": "gold+20  eco:{\"gold\":20,\"goldMine\":20}",
+   "R10": "gold+20  eco:{\"gold\":20,\"goldMine\":20}",
+   "L0": "gold+20  eco:{\"gold\":20,\"goldMine\":20}",
+   "K": "gold+20  eco:{\"gold\":20,\"goldMine\":20}"
+  },
+  "by": "coord (accepted before golden)",
+  "at": "2026-09-27T23:48:12.361Z"
+ },
+ "troop:6618": {
+  "lines": {
+   "L10": "gold+20  eco:{\"gold\":20,\"goldMine\":20}",
+   "R10": "gold+20  eco:{\"gold\":20,\"goldMine\":20}",
+   "L0": "gold+20  eco:{\"gold\":20,\"goldMine\":20}",
+   "K": "gold+20  eco:{\"gold\":20,\"goldMine\":20}"
+  },
+  "by": "coord (accepted before golden)",
+  "at": "2026-09-27T23:48:12.361Z"
+ },
+ "troop:6619": {
+  "lines": {
+   "L10": "gold+20  eco:{\"gold\":20,\"goldMine\":20}",
+   "R10": "gold+20  eco:{\"gold\":20,\"goldMine\":20}",
+   "L0": "gold+20  eco:{\"gold\":20,\"goldMine\":20}",
+   "K": "gold+20  eco:{\"gold\":20,\"goldMine\":20}"
+  },
+  "by": "coord (accepted before golden)",
+  "at": "2026-09-27T23:48:12.361Z"
+ },
+ "troop:6635": {
+  "lines": {
+   "L10": "dmg E11 12  => E11:hp-2 arm-10",
+   "R10": "dmg E11 12  => E11:hp-2 arm-10",
+   "L0": "dmg E11 2  => E11:arm-2",
+   "K": "dmg E11 12 ; defeat E11  => E11:hp-1 DEAD"
+  },
+  "by": "coord (accepted before golden)",
+  "at": "2026-09-27T23:48:12.361Z"
+ },
+ "troop:6646": {
+  "lines": {
+   "L10": "status E12 +poison ; dmg E12 12  => E12:arm-12 +poison",
+   "R10": "status E12 +poison ; dmg E12 12  => E12:arm-12 +poison",
+   "L0": "status E12 +poison ; dmg E12 2  => E12:arm-2 +poison",
+   "K": "status E12 +poison ; dmg E12 12 ; defeat E12  => E12:hp-1 +poison DEAD"
+  },
+  "by": "coord (accepted before golden)",
+  "at": "2026-09-27T23:48:12.361Z"
+ },
+ "troop:6677": {
+  "lines": {
+   "L10": "convert Blue x11 -> Yellow x11 ; remove C -poison ; status C +blessed ; buff A1 hp+11 max+11 ; buff A2 hp+11 max+11  => C:+blessed -poison | A1:hp+11 max+11 | A2:hp+11 max+11",
+   "R10": "convert Blue x11 -> Yellow x11 ; remove C -poison ; status C +blessed ; buff A1 hp+11 max+11 ; buff A2 hp+11 max+11  => C:+blessed -poison | A1:hp+11 max+11 | A2:hp+11 max+11",
+   "L0": "convert Blue x11 -> Yellow x11 ; remove C -poison ; status C +blessed ; buff A1 hp+1 max+1 ; buff A2 hp+1 max+1  => C:+blessed -poison | A1:hp+1 max+1 | A2:hp+1 max+1",
+   "K": "convert Blue x11 -> Yellow x11 ; remove C -poison ; status C +blessed ; buff A1 hp+11 max+11 ; buff A2 hp+11 max+11  => C:+blessed -poison | A1:hp+11 max+11 | A2:hp+11 max+11"
+  },
+  "by": "coord (accepted before golden)",
+  "at": "2026-09-27T23:48:12.361Z"
+ },
+ "troop:6678": {
+  "lines": {
+   "L10": "convert Purple x9 -> Red x9 ; convert Brown x8 -> skull x8 ; remove A1 -poison ; status A1 +blessed ; remove C -poison ; status C +blessed  => A1:+blessed -poison | C:+blessed -poison",
+   "R10": "convert Purple x9 -> Red x9 ; convert Brown x8 -> skull x8 ; remove A1 -poison ; status A1 +blessed ; remove C -poison ; status C +blessed  => A1:+blessed -poison | C:+blessed -poison",
+   "L0": "convert Purple x9 -> Red x9 ; convert Brown x8 -> skull x8 ; remove A1 -poison ; status A1 +blessed ; remove C -poison ; status C +blessed  => A1:+blessed -poison | C:+blessed -poison",
+   "K": "convert Purple x9 -> Red x9 ; convert Brown x8 -> skull x8 ; remove A1 -poison ; status A1 +blessed ; remove C -poison ; status C +blessed  => A1:+blessed -poison | C:+blessed -poison"
+  },
+  "by": "coord (accepted before golden)",
+  "at": "2026-09-27T23:48:12.361Z"
+ },
+ "troop:6687": {
+  "lines": {
+   "L10": "convert Green x13 -> skull x13 ; buff C hp+11 max+11  => C:hp+11 max+11",
+   "R10": "convert Green x13 -> skull x13 ; buff C hp+11 max+11  => C:hp+11 max+11",
+   "L0": "convert Green x13 -> skull x13 ; buff C hp+1 max+1  => C:hp+1 max+1",
+   "K": "convert Green x13 -> skull x13 ; buff C hp+11 max+11  => C:hp+11 max+11"
+  },
+  "by": "coord (accepted before golden)",
+  "at": "2026-09-27T23:48:12.361Z"
+ },
+ "troop:6694": {
+  "lines": {
+   "L10": "buff E11 armor-2 ; buff C armor+2 ; dmg E11 14  => E11:hp-6 arm-10 | C:arm+2",
+   "R10": "buff E11 armor-2 ; buff C armor+2 ; dmg E11 14  => E11:hp-6 arm-10 | C:arm+2",
+   "L0": "buff E11 armor-2 ; buff C armor+2 ; dmg E11 4  => E11:arm-6 | C:arm+2",
+   "K": "dmg E11 14 ; defeat E11  => E11:hp-1 DEAD"
+  },
+  "by": "coord (accepted before golden)",
+  "at": "2026-09-27T23:48:12.361Z"
+ },
+ "troop:6700": {
+  "lines": {
+   "L10": "remove A1 -barrier ; dmg E10 75 (scatter) ; dmg E11 87 (scatter) ; dmg E12 93 (scatter) ; dmg E13 77 (scatter)  => A1:-barrier | E10:hp-75 | E11:hp-87 | E12:hp-93 | E13:hp-77",
+   "R10": "remove A1 -barrier ; dmg E10 75 (scatter) ; dmg E11 87 (scatter) ; dmg E12 93 (scatter) ; dmg E13 77 (scatter)  => A1:-barrier | E10:hp-75 | E11:hp-87 | E12:hp-93 | E13:hp-77",
+   "L0": "remove A1 -barrier ; dmg E10 73 (scatter) ; dmg E11 84 (scatter) ; dmg E12 90 (scatter) ; dmg E13 75 (scatter)  => A1:-barrier | E10:hp-73 | E11:hp-84 | E12:hp-90 | E13:hp-75",
+   "K": "remove A1 -barrier ; dmg E10 75 (scatter) ; dmg E11 87 (scatter) ; dmg E12 93 (scatter) ; dmg E13 77 (scatter) ; defeat E10 ; defeat E11 ; defeat E12 ; defeat E13  => A1:-barrier | E10:hp-1 DEAD | E11:hp-1 DEAD | E12:hp-1 DEAD | E13:hp-1 DEAD"
+  },
+  "by": "coord (accepted before golden)",
+  "at": "2026-09-27T23:48:12.361Z"
+ },
+ "troop:6711": {
+  "lines": {
+   "L10": "cleanse A1 -poison ; status A1 +blessed ; convert Purple x3, skull x1, Red x1, Yellow x1, Brown x2, Green x2 -> Blue x10 ; ~cascade~  => A1:mana+3 +blessed -poison  cascade",
+   "R10": "cleanse A1 -poison ; status A1 +blessed ; convert Purple x3, skull x1, Red x1, Yellow x1, Brown x2, Green x2 -> Blue x10 ; ~cascade~  => A1:mana+3 +blessed -poison  cascade",
+   "L0": "cleanse A1 -poison ; status A1 +blessed ; convert Purple x3, skull x1, Red x1, Yellow x1, Brown x2, Green x2 -> Blue x10 ; ~cascade~  => A1:mana+3 +blessed -poison  cascade",
+   "K": "cleanse A1 -poison ; status A1 +blessed ; convert Purple x3, skull x1, Red x1, Yellow x1, Brown x2, Green x2 -> Blue x10 ; ~cascade~  => A1:mana+3 +blessed -poison  cascade"
+  },
+  "by": "coord (accepted before golden)",
+  "at": "2026-09-27T23:48:12.361Z"
+ },
+ "troop:6751": {
+  "lines": {
+   "L10": "remove E10 -rage ; status E10 +curse ; status E11 +curse ; status E12 +curse ; remove E13 -rage ; status E13 +curse ; convert Green x13 -> doomSkull x13  => E10:+curse -rage | E11:+curse | E12:+curse | E13:+curse -rage",
+   "R10": "remove E10 -rage ; status E10 +curse ; status E11 +curse ; status E12 +curse ; remove E13 -rage ; status E13 +curse ; convert Green x13 -> doomSkull x13  => E10:+curse -rage | E11:+curse | E12:+curse | E13:+curse -rage",
+   "L0": "remove E10 -rage ; status E10 +curse ; status E11 +curse ; status E12 +curse ; remove E13 -rage ; status E13 +curse ; convert Green x13 -> doomSkull x13  => E10:+curse -rage | E11:+curse | E12:+curse | E13:+curse -rage",
+   "K": "status E10 +curse ; status E11 +curse ; status E12 +curse ; status E13 +curse ; convert Green x13 -> doomSkull x13  => E10:+curse | E11:+curse | E12:+curse | E13:+curse"
+  },
+  "by": "coord (accepted before golden)",
+  "at": "2026-09-27T23:48:12.361Z"
+ },
+ "troop:6779": {
+  "lines": {
+   "L10": "convert Purple x9 -> Green x9 ; ~cascade~ ; status E10 +marked ; extra-turn match  => E10:+marked  extra:match  cascade",
+   "R10": "convert Purple x9 -> Green x9 ; ~cascade~ ; status E10 +marked ; extra-turn match  => E10:+marked  extra:match  cascade",
+   "L0": "convert Purple x9 -> Green x9 ; ~cascade~ ; status E10 +marked ; extra-turn match  => E10:+marked  extra:match  cascade",
+   "K": "convert Purple x9 -> Green x9 ; ~cascade~ ; status E10 +marked ; extra-turn match  => E10:+marked  extra:match  cascade"
+  },
+  "by": "coord (accepted before golden)",
+  "at": "2026-09-27T23:48:12.361Z"
+ },
+ "troop:6783": {
+  "lines": {
+   "L10": "status E11 +silence ; explode 27 ; skulls E10 2 ; extra-turn skill  => E11:+silence | A2:mana+4 | A1:mana+2 | E10:arm-2  extra:skill",
+   "R10": "status E11 +silence ; explode 27 ; skulls E10 2 ; extra-turn skill  => E11:+silence | A2:mana+4 | A1:mana+2 | E10:arm-2  extra:skill",
+   "L0": "status E11 +silence ; explode 9 ; skulls E10 1 ; extra-turn skill  => E11:+silence | A2:mana+1 | E10:arm-1  extra:skill",
+   "K": "status E11 +silence ; explode 27 ; skulls E10 2 ; defeat E10 ; extra-turn skill  => E11:+silence | A2:mana+3 | A1:mana+3 | E10:hp-1 DEAD  extra:skill"
+  },
+  "by": "coord (accepted before golden)",
+  "at": "2026-09-27T23:48:12.361Z"
+ },
+ "troop:6820": {
+  "lines": {
+   "L10": "convert Blue x11 -> Red x11 ; status E11 +bleed  => E11:+bleed",
+   "R10": "convert Blue x11 -> Red x11 ; status E11 +bleed  => E11:+bleed",
+   "L0": "convert Blue x11 -> Red x11 ; status E11 +bleed  => E11:+bleed",
+   "K": "convert Blue x11 -> Red x11 ; status E12 +bleed  => E12:+bleed"
+  },
+  "by": "coord (accepted before golden)",
+  "at": "2026-09-27T23:48:12.361Z"
+ },
+ "troop:6840": {
+  "lines": {
+   "L10": "status A1 +barrier ; buff A1 armor+11  => A1:arm+11 +barrier",
+   "R10": "status A1 +barrier ; buff A1 armor+11  => A1:arm+11 +barrier",
+   "L0": "status A1 +barrier ; buff A1 armor+1  => A1:arm+1 +barrier",
+   "K": "status A1 +barrier ; buff A1 armor+11  => A1:arm+11 +barrier"
+  },
+  "by": "coord (accepted before golden)",
+  "at": "2026-09-27T23:48:12.361Z"
+ },
+ "troop:6841": {
+  "lines": {
+   "L10": "convert Purple x9 -> Yellow x9 ; convert Green x13 -> skull x13 ; dmg E12 12 ; dmg E11 12  => E12:arm-12 | E11:hp-2 arm-10",
+   "R10": "convert Purple x9 -> Yellow x9 ; convert Green x13 -> skull x13 ; dmg E12 12 ; dmg E11 12  => E12:arm-12 | E11:hp-2 arm-10",
+   "L0": "convert Purple x9 -> Yellow x9 ; convert Green x13 -> skull x13 ; dmg E12 2 ; dmg E11 2  => E12:arm-2 | E11:arm-2",
+   "K": "convert Purple x9 -> Yellow x9 ; convert Green x13 -> skull x13 ; dmg E12 12 ; defeat E12 ; dmg E11 12 ; defeat E11  => E12:hp-1 DEAD | E11:hp-1 DEAD"
+  },
+  "by": "coord (accepted before golden)",
+  "at": "2026-09-27T23:48:12.361Z"
+ },
+ "troop:6848": {
+  "lines": {
+   "L10": "dmg E11 13  => E11:hp-13",
+   "R10": "dmg E11 13  => E11:hp-13",
+   "L0": "dmg E11 3  => E11:hp-3",
+   "K": "dmg E11 13 ; defeat E11  => E11:hp-1 DEAD"
+  },
+  "by": "coord (accepted before golden)",
+  "at": "2026-09-27T23:48:12.361Z"
+ },
+ "troop:6874": {
+  "lines": {
+   "L10": "dmg E11 33 ; souls+10  => E11:hp-23 arm-10  eco:{\"souls\":10}",
+   "R10": "dmg E11 33 ; souls+10  => E11:hp-23 arm-10  eco:{\"souls\":10}",
+   "L0": "dmg E11 23 ; souls+10  => E11:hp-13 arm-10  eco:{\"souls\":10}",
+   "K": "dmg E11 33 ; defeat E11 ; souls+10  => E11:hp-1 DEAD  eco:{\"souls\":10}"
+  },
+  "by": "coord (accepted before golden)",
+  "at": "2026-09-27T23:48:12.361Z"
+ },
+ "troop:6876": {
+  "lines": {
+   "L10": "buff C mana+5 ; buff A1 mana+8 ; extra-turn skill  => A1:mana+8  extra:skill",
+   "R10": "buff C mana+5 ; buff A1 mana+8 ; extra-turn skill  => A1:mana+8  extra:skill",
+   "L0": "buff C mana+5 ; buff A1 mana+8 ; extra-turn skill  => A1:mana+8  extra:skill",
+   "K": "buff C mana+5 ; buff A1 mana+8 ; extra-turn skill  => A1:mana+8  extra:skill"
+  },
+  "by": "coord (accepted before golden)",
+  "at": "2026-09-27T23:48:12.361Z"
+ },
+ "troop:6889": {
+  "lines": {
+   "L10": "dmg E11 23  => E11:hp-13 arm-10",
+   "R10": "dmg E11 23  => E11:hp-13 arm-10",
+   "L0": "dmg E11 13  => E11:hp-3 arm-10",
+   "K": "dmg E11 20 ; defeat E11  => E11:hp-1 DEAD"
+  },
+  "by": "coord (accepted before golden)",
+  "at": "2026-09-27T23:48:12.361Z"
+ },
+ "troop:6892": {
+  "lines": {
+   "L10": "status E12 +disease ; summon mine troop:-1  => A14:new 恶龙 hp21 atk13 arm22 mag12 | E12:+disease",
+   "R10": "status E12 +disease ; summon mine troop:-1  => A14:new 恶龙 hp21 atk13 arm22 mag12 | E12:+disease",
+   "L0": "status E12 +disease ; summon mine troop:-1  => A14:new 恶龙 hp21 atk13 arm22 mag12 | E12:+disease",
+   "K": "status E12 +disease ; summon mine troop:-1  => A14:new 恶龙 hp21 atk13 arm22 mag12 | E12:+disease"
+  },
+  "by": "coord (accepted before golden)",
+  "at": "2026-09-27T23:48:12.361Z"
+ },
+ "troop:6902": {
+  "lines": {
+   "L10": "status E11 +death-mark ; convert Green x5, Brown x2, Blue x1, Red x3, Yellow x4 -> Purple x15 ; ~cascade~ ; extra-turn match  => E11:+death-mark | A1:mana+3  extra:match  cascade",
+   "R10": "status E11 +death-mark ; convert Green x5, Brown x2, Blue x1, Red x3, Yellow x4 -> Purple x15 ; ~cascade~ ; extra-turn match  => E11:+death-mark | A1:mana+3  extra:match  cascade",
+   "L0": "status E11 +death-mark ; convert Green x5, Brown x2, Blue x1, Red x3, Yellow x4 -> Purple x15 ; ~cascade~ ; extra-turn match  => E11:+death-mark | A1:mana+3  extra:match  cascade",
+   "K": "status E11 +death-mark ; convert Green x3, Brown x2, Blue x1, Red x1, Yellow x2 -> Purple x9  => E11:+death-mark"
+  },
+  "by": "coord (accepted before golden)",
+  "at": "2026-09-27T23:48:12.361Z"
+ },
+ "troop:6924": {
+  "lines": {
+   "L10": "status C +rage ; status A1 +rage ; status A2 +rage ; status E10 +rage ; status E11 +rage ; status E12 +rage ; status E13 +rage  => C:+rage | A1:+rage | A2:+rage | E10:+rage | E11:+rage | E12:+rage | E13:+rage",
+   "R10": "status C +rage ; status A1 +rage ; status A2 +rage ; status E10 +rage ; status E11 +rage ; status E12 +rage ; status E13 +rage  => C:+rage | A1:+rage | A2:+rage | E10:+rage | E11:+rage | E12:+rage | E13:+rage",
+   "L0": "status C +rage ; status A1 +rage ; status A2 +rage ; status E10 +rage ; status E11 +rage ; status E12 +rage ; status E13 +rage  => C:+rage | A1:+rage | A2:+rage | E10:+rage | E11:+rage | E12:+rage | E13:+rage",
+   "K": "status C +rage ; status A1 +rage ; status A2 +rage ; status E10 +rage ; status E11 +rage ; status E12 +rage ; status E13 +rage  => C:+rage | A1:+rage | A2:+rage | E10:+rage | E11:+rage | E12:+rage | E13:+rage"
+  },
+  "by": "coord (accepted before golden)",
+  "at": "2026-09-27T23:48:12.361Z"
+ },
+ "troop:6941": {
+  "lines": {
+   "L10": "convert Green x3, Yellow x3, Blue x1, Purple x3 -> Brown x10 ; ~cascade~ ; status E12 +frozen ; extra-turn match  => E12:+frozen  extra:match  cascade",
+   "R10": "convert Green x3, Yellow x3, Blue x1, Purple x3 -> Brown x10 ; ~cascade~ ; status E12 +frozen ; extra-turn match  => E12:+frozen  extra:match  cascade",
+   "L0": "convert Green x3, Yellow x3, Blue x1, Purple x3 -> Brown x10 ; ~cascade~ ; status E12 +frozen ; extra-turn match  => E12:+frozen  extra:match  cascade",
+   "K": "convert Green x3, Yellow x3, Blue x1, Purple x3 -> Brown x10 ; ~cascade~ ; status E12 +frozen ; extra-turn match  => E12:+frozen  extra:match  cascade"
+  },
+  "by": "coord (accepted before golden)",
+  "at": "2026-09-27T23:48:12.361Z"
+ },
+ "troop:6944": {
+  "lines": {
+   "L10": "dmg E13 16 ; convert Blue x2, Green x2, skull x1, Brown x1, Purple x1 -> Yellow x7  => E13:hp-13 arm-3",
+   "R10": "dmg E13 16 ; convert Blue x2, Green x2, skull x1, Brown x1, Purple x1 -> Yellow x7  => E13:hp-13 arm-3",
+   "L0": "dmg E13 6 ; convert Blue x2, Green x2, skull x1, Brown x1, Purple x1 -> Yellow x7  => E13:hp-3 arm-3",
+   "K": "dmg E13 16 ; defeat E13 ; convert Blue x2, Green x2, skull x1, Brown x1, Purple x1 -> Yellow x7  => E13:hp-1 DEAD"
+  },
+  "by": "coord (accepted before golden)",
+  "at": "2026-09-27T23:48:12.361Z"
+ },
+ "troop:6958": {
+  "lines": {
+   "L10": "status E10 +stun ; status E11 +stun ; dmg E10 12 (all) ; dmg E11 12 (all) ; buff C armor+12  => E10:hp-7 arm-5 +stun | E11:hp-2 arm-10 +stun | C:arm+12",
+   "R10": "status E10 +stun ; status E11 +stun ; dmg E10 12 (all) ; dmg E11 12 (all) ; buff C armor+12  => E10:hp-7 arm-5 +stun | E11:hp-2 arm-10 +stun | C:arm+12",
+   "L0": "status E10 +stun ; status E11 +stun ; dmg E10 2 (all) ; dmg E11 2 (all) ; buff C armor+12  => E10:arm-2 +stun | E11:arm-2 +stun | C:arm+12",
+   "K": "status E10 +stun ; status E11 +stun ; dmg E10 12 (all) ; dmg E11 12 (all) ; defeat E10 ; defeat E11 ; buff C armor+12  => E10:hp-1 +stun DEAD | E11:hp-1 +stun DEAD | C:arm+12"
+  },
+  "by": "coord (accepted before golden)",
+  "at": "2026-09-27T23:48:12.361Z"
+ },
+ "troop:7004": {
+  "lines": {
+   "L10": "dmg E11 11  => E11:hp-1 arm-10",
+   "R10": "dmg E11 11  => E11:hp-1 arm-10",
+   "L0": "dmg E11 1  => E11:arm-1",
+   "K": "dmg E11 11 ; defeat E11  => E11:hp-1 DEAD"
+  },
+  "by": "coord (accepted before golden)",
+  "at": "2026-09-27T23:48:12.361Z"
+ },
+ "troop:7030": {
+  "lines": {
+   "L10": "convert Red x9 -> dragonGem/Yellow x9",
+   "R10": "convert Red x9 -> dragonGem/Yellow x9",
+   "L0": "convert Red x9 -> dragonGem/Yellow x9",
+   "K": "convert Red x9 -> dragonGem/Yellow x9"
+  },
+  "by": "coord (accepted before golden)",
+  "at": "2026-09-27T23:48:12.361Z"
+ },
+ "troop:7045": {
+  "lines": {
+   "L10": "buff C attack+15 ; buff C hp+15 max+15  => C:hp+15 max+15 atk+15",
+   "R10": "buff C attack+15 ; buff C hp+15 max+15  => C:hp+15 max+15 atk+15",
+   "L0": "buff C attack+5 ; buff C hp+5 max+5  => C:hp+5 max+5 atk+5",
+   "K": "buff C attack+15 ; buff C hp+15 max+15  => C:hp+15 max+15 atk+15"
+  },
+  "by": "coord (accepted before golden)",
+  "at": "2026-09-27T23:48:12.361Z"
+ },
+ "troop:7070": {
+  "lines": {
+   "L10": "status E10 +poison ; status E11 +poison ; status E12 +poison ; status E13 +poison ; buff E10 mana-6 ; buff E11 mana-7 ; buff E12 mana-4 ; buff E13 mana-7 ; destroy 5 (skull x5) ; skulls E10 5 ; ~cascade~  => E10:arm-5 mana-6 +poison | E11:mana-7 +poison | E12:mana-4 +poison | E13:mana-7 +poison  cascade",
+   "R10": "status E10 +poison ; status E11 +poison ; status E12 +poison ; status E13 +poison ; buff E10 mana-6 ; buff E11 mana-7 ; buff E12 mana-4 ; buff E13 mana-7 ; destroy 5 (skull x5) ; skulls E10 5 ; ~cascade~  => E10:arm-5 mana-6 +poison | E11:mana-7 +poison | E12:mana-4 +poison | E13:mana-7 +poison  cascade",
+   "L0": "status E10 +poison ; status E11 +poison ; status E12 +poison ; status E13 +poison ; buff E10 mana-6 ; buff E11 mana-7 ; buff E12 mana-4 ; buff E13 mana-7 ; destroy 5 (skull x5) ; skulls E10 5 ; ~cascade~  => E10:arm-5 mana-6 +poison | E11:mana-7 +poison | E12:mana-4 +poison | E13:mana-7 +poison  cascade",
+   "K": "status E10 +poison ; status E11 +poison ; status E12 +poison ; status E13 +poison ; buff E10 mana-5 ; buff E11 mana-5 ; buff E12 mana-5 ; buff E13 mana-5 ; destroy 5 (skull x5) ; skulls E10 5 ; defeat E10 ; ~cascade~  => E10:hp-1 mana-5 +poison DEAD | E11:mana-5 +poison | E12:mana-5 +poison | E13:mana-5 +poison  cascade"
+  },
+  "by": "coord (accepted before golden)",
+  "at": "2026-09-27T23:48:12.361Z"
+ },
+ "troop:7071": {
+  "lines": {
+   "L10": "convert Green x2, Purple x2, Brown x1, Red x1 -> skull x6",
+   "R10": "convert Green x2, Purple x2, Brown x1, Red x1 -> skull x6",
+   "L0": "convert Green x2, Purple x2, Brown x1, Red x1 -> skull x6",
+   "K": "convert Green x1, Purple x1, Brown x1, Red x1 -> skull x4"
+  },
+  "by": "coord (accepted before golden)",
+  "at": "2026-09-27T23:48:12.361Z"
+ },
+ "troop:7080": {
+  "lines": {
+   "L10": "convert Green x4, Purple x4, Brown x1, Red x1, Yellow x2 -> skull x12",
+   "R10": "convert Green x4, Purple x4, Brown x1, Red x1, Yellow x2 -> skull x12",
+   "L0": "convert Green x4, Purple x4, Brown x1, Red x1, Yellow x2 -> skull x12",
+   "K": "convert Green x4, Purple x4, Brown x1, Red x1, Yellow x2 -> skull x12"
+  },
+  "by": "coord (accepted before golden)",
+  "at": "2026-09-27T23:48:12.361Z"
+ },
+ "troop:7097": {
+  "lines": {
+   "L10": "status E11 +entangle ; dmg E11 13  => E11:hp-3 arm-10 +entangle",
+   "R10": "status E11 +entangle ; dmg E11 13  => E11:hp-3 arm-10 +entangle",
+   "L0": "status E11 +entangle ; dmg E11 3  => E11:arm-3 +entangle",
+   "K": "status E11 +entangle ; dmg E11 13 ; defeat E11 ; convert Purple x2 -> elementalStar x2 ; ~cascade~ ; trigger elementalStar ; destroy 4 (Blue x2, skull x1, Brown x1) ; trigger elementalStar ; destroy 2 (Yellow x1, Blue x1) ; skulls E10 1 ; defeat E10 ; extra-turn skill  => E11:hp-1 +entangle DEAD | A1:mana+5 | A2:mana+9 | E10:hp-1 DEAD  extra:skill  cascade"
+  },
+  "by": "coord (accepted before golden)",
+  "at": "2026-09-27T23:48:12.361Z"
+ },
+ "troop:7098": {
+  "lines": {
+   "L10": "status E11 +burning ; dmg E11 13  => E11:hp-3 arm-10 +burning",
+   "R10": "status E11 +burning ; dmg E11 13  => E11:hp-3 arm-10 +burning",
+   "L0": "status E11 +burning ; dmg E11 3  => E11:arm-3 +burning",
+   "K": "status E11 +burning ; dmg E11 13 ; defeat E11 ; convert Purple x2 -> elementalStar x2 ; ~cascade~ ; trigger elementalStar ; destroy 4 (Blue x2, skull x1, Brown x1) ; trigger elementalStar ; destroy 2 (Yellow x1, Blue x1) ; skulls E10 1 ; defeat E10 ; extra-turn skill  => E11:hp-1 +burning DEAD | A1:mana+5 | E10:hp-1 DEAD  extra:skill  cascade"
+  },
+  "by": "coord (accepted before golden)",
+  "at": "2026-09-27T23:48:12.361Z"
+ },
+ "troop:7099": {
+  "lines": {
+   "L10": "status E11 +frozen ; dmg E11 13  => E11:hp-3 arm-10 +frozen",
+   "R10": "status E11 +frozen ; dmg E11 13  => E11:hp-3 arm-10 +frozen",
+   "L0": "status E11 +frozen ; dmg E11 3  => E11:arm-3 +frozen",
+   "K": "status E11 +frozen ; dmg E11 13 ; defeat E11 ; convert Purple x2 -> elementalStar x2 ; ~cascade~ ; trigger elementalStar ; destroy 4 (Blue x2, skull x1, Brown x1) ; trigger elementalStar ; destroy 2 (Yellow x1, Blue x1) ; skulls E10 1 ; defeat E10 ; extra-turn skill  => E11:hp-1 +frozen DEAD | A2:mana+11 | E10:hp-1 DEAD  extra:skill  cascade"
+  },
+  "by": "coord (accepted before golden)",
+  "at": "2026-09-27T23:48:12.361Z"
+ },
+ "troop:7100": {
+  "lines": {
+   "L10": "status E11 +stun ; dmg E11 13  => E11:hp-3 arm-10 +stun",
+   "R10": "status E11 +stun ; dmg E11 13  => E11:hp-3 arm-10 +stun",
+   "L0": "status E11 +stun ; dmg E11 3  => E11:arm-3 +stun",
+   "K": "status E11 +stun ; dmg E11 13 ; defeat E11 ; convert Purple x2 -> elementalStar x2 ; ~cascade~ ; trigger elementalStar ; destroy 4 (Blue x2, skull x1, Brown x1) ; trigger elementalStar ; destroy 2 (Yellow x1, Blue x1) ; skulls E10 1 ; defeat E10 ; extra-turn skill  => E11:hp-1 +stun DEAD | A2:mana+11 | A1:mana+4 | E10:hp-1 DEAD  extra:skill  cascade"
+  },
+  "by": "coord (accepted before golden)",
+  "at": "2026-09-27T23:48:12.361Z"
+ },
+ "troop:7112": {
+  "lines": {
+   "L10": "convert Brown x8 -> skull x8",
+   "R10": "convert Brown x8 -> skull x8",
+   "L0": "convert Brown x8 -> skull x8",
+   "K": "convert Brown x8 -> skull x8"
+  },
+  "by": "coord (accepted before golden)",
+  "at": "2026-09-27T23:48:12.361Z"
+ },
+ "troop:7138": {
+  "lines": {
+   "L10": "status A1 +enchanted ; buff A1 magic+3 ; convert Purple x3, skull x1, Red x1, Yellow x2, Brown x3, Green x2 -> Blue x12 ; ~cascade~  => A1:mag+3 +enchanted  cascade",
+   "R10": "status A1 +enchanted ; buff A1 magic+3 ; convert Purple x3, skull x1, Red x1, Yellow x2, Brown x3, Green x2 -> Blue x12 ; ~cascade~  => A1:mag+3 +enchanted  cascade",
+   "L0": "status A1 +enchanted ; buff A1 magic+3 ; convert Purple x3, skull x1, Red x1, Yellow x2, Brown x3, Green x2 -> Blue x12 ; ~cascade~  => A1:mag+3 +enchanted  cascade",
+   "K": "status A1 +enchanted ; buff A1 magic+3 ; convert Purple x3, skull x1, Red x1, Yellow x2, Brown x3, Green x2 -> Blue x12 ; ~cascade~  => A1:mag+3 +enchanted  cascade"
+  },
+  "by": "coord (accepted before golden)",
+  "at": "2026-09-27T23:48:12.361Z"
+ },
+ "troop:7151": {
+  "lines": {
+   "L10": "convert Blue x11 -> burningGem x11",
+   "R10": "convert Blue x11 -> burningGem x11",
+   "L0": "convert Blue x11 -> burningGem x11",
+   "K": "convert Blue x11 -> burningGem x11"
+  },
+  "by": "coord (accepted before golden)",
+  "at": "2026-09-27T23:48:12.361Z"
+ },
+ "troop:7159": {
+  "lines": {
+   "L10": "dmg E12 12  => E12:arm-12",
+   "R10": "dmg E12 12  => E12:arm-12",
+   "L0": "dmg E12 2  => E12:arm-2",
+   "K": "dmg E12 12 ; defeat E12  => E12:hp-1 DEAD"
+  },
+  "by": "coord (accepted before golden)",
+  "at": "2026-09-27T23:48:12.361Z"
+ },
+ "troop:7160": {
+  "lines": {
+   "L10": "dmg E10 10  => E10:hp-5 arm-5",
+   "R10": "dmg E10 10  => E10:hp-5 arm-5",
+   "L0": "dmg E10 2  => E10:arm-2",
+   "K": "dmg E10 10 ; defeat E10  => E10:hp-1 DEAD"
+  },
+  "by": "coord (accepted before golden)",
+  "at": "2026-09-27T23:48:12.361Z"
+ },
+ "troop:7161": {
+  "lines": {
+   "L10": "dmg E11 9  => E11:arm-9",
+   "R10": "dmg E11 9  => E11:arm-9",
+   "L0": "dmg E11 3  => E11:arm-3",
+   "K": "dmg E11 9 ; defeat E11  => E11:hp-1 DEAD"
+  },
+  "by": "coord (accepted before golden)",
+  "at": "2026-09-27T23:48:12.361Z"
+ },
+ "troop:7162": {
+  "lines": {
+   "L10": "convert Purple x3, skull x1, Red x1, Yellow x1, Brown x2, Green x2 -> Blue x10 ; ~cascade~  => A1:mana+3  cascade",
+   "R10": "convert Purple x3, skull x1, Red x1, Yellow x1, Brown x2, Green x2 -> Blue x10 ; ~cascade~  => A1:mana+3  cascade",
+   "L0": "convert Purple x3, skull x1, Red x1, Yellow x1, Brown x2, Green x2 -> Blue x10 ; ~cascade~  => A1:mana+3  cascade",
+   "K": "convert Purple x3, skull x1, Red x1, Yellow x1, Brown x2, Green x2 -> Blue x10 ; ~cascade~  => A1:mana+3  cascade"
+  },
+  "by": "coord (accepted before golden)",
+  "at": "2026-09-27T23:48:12.361Z"
+ },
+ "troop:7163": {
+  "lines": {
+   "L10": "convert Green x13 -> skull x13",
+   "R10": "convert Green x13 -> skull x13",
+   "L0": "convert Green x13 -> skull x13",
+   "K": "convert Green x13 -> skull x13"
+  },
+  "by": "coord (accepted before golden)",
+  "at": "2026-09-27T23:48:12.361Z"
+ },
+ "troop:7164": {
+  "lines": {
+   "L10": "dmg E10 9 (all) ; dmg E11 9 (all) ; dmg E12 9 (all) ; dmg E13 9 (all)  => E10:hp-4 arm-5 | E11:arm-9 | E12:arm-9 | E13:hp-6 arm-3",
+   "R10": "dmg E10 9 (all) ; dmg E11 9 (all) ; dmg E12 9 (all) ; dmg E13 9 (all)  => E10:hp-4 arm-5 | E11:arm-9 | E12:arm-9 | E13:hp-6 arm-3",
+   "L0": "dmg E10 4 (all) ; dmg E11 4 (all) ; dmg E12 4 (all) ; dmg E13 4 (all)  => E10:arm-4 | E11:arm-4 | E12:arm-4 | E13:hp-1 arm-3",
+   "K": "dmg E10 9 (all) ; dmg E11 9 (all) ; dmg E12 9 (all) ; dmg E13 9 (all) ; defeat E10 ; defeat E11 ; defeat E12 ; defeat E13  => E10:hp-1 DEAD | E11:hp-1 DEAD | E12:hp-1 DEAD | E13:hp-1 DEAD"
+  },
+  "by": "coord (accepted before golden)",
+  "at": "2026-09-27T23:48:12.361Z"
+ },
+ "troop:7169": {
+  "lines": {
+   "L10": "convert Yellow x1 -> bomb x1 ; convert skull x1, Red x1, Purple x1 -> bomb x3",
+   "R10": "convert Yellow x1 -> bomb x1 ; convert skull x1, Red x1, Purple x1 -> bomb x3",
+   "L0": "convert Yellow x1 -> bomb x1 ; convert skull x1, Red x1, Purple x1 -> bomb x3",
+   "K": "convert Yellow x1 -> bomb x1 ; convert skull x1, Red x1, Purple x1 -> bomb x3"
+  },
+  "by": "coord (accepted before golden)",
+  "at": "2026-09-27T23:48:12.361Z"
+ },
+ "troop:7170": {
+  "lines": {
+   "L10": "convert Red x9 -> Green x9 ; convert Yellow x9 -> Brown x9",
+   "R10": "convert Red x9 -> Green x9 ; convert Yellow x9 -> Brown x9",
+   "L0": "convert Red x9 -> Green x9 ; convert Yellow x9 -> Brown x9",
+   "K": "convert Red x9 -> Green x9 ; convert Yellow x9 -> Brown x9"
+  },
+  "by": "coord (accepted before golden)",
+  "at": "2026-09-27T23:48:12.361Z"
+ },
+ "troop:7195": {
+  "lines": {
+   "L10": "convert Green x13 -> skull x13 ; status E10 +marked  => E10:+marked",
+   "R10": "convert Green x13 -> skull x13 ; status E10 +marked  => E10:+marked",
+   "L0": "convert Green x13 -> skull x13 ; status E10 +marked  => E10:+marked",
+   "K": "convert Green x13 -> skull x13 ; status E10 +marked  => E10:+marked"
+  },
+  "by": "coord (accepted before golden)",
+  "at": "2026-09-27T23:48:12.361Z"
+ },
+ "troop:7197": {
+  "lines": {
+   "L10": "convert Purple x3, Blue x2, Yellow x1 -> Red x4, Green x2 ; ~cascade~ ; extra-turn match  extra:match  cascade",
+   "R10": "convert Purple x3, Blue x2, Yellow x1 -> Red x4, Green x2 ; ~cascade~ ; extra-turn match  extra:match  cascade",
+   "L0": "convert Purple x3, Blue x2, Yellow x1 -> Red x4, Green x2 ; ~cascade~ ; extra-turn match  extra:match  cascade",
+   "K": "convert Purple x4, Blue x3, Yellow x2, Green x4, Brown x2 -> Red x6, Green x9 ; ~cascade~ ; extra-turn match  extra:match  cascade"
+  },
+  "by": "coord (accepted before golden)",
+  "at": "2026-09-27T23:48:12.361Z"
+ },
+ "troop:7200": {
+  "lines": {
+   "L10": "status C +rage ; status A1 +rage ; status A2 +rage ; buff C attack+11 ; buff A1 attack+11 ; buff A2 attack+11 ; convert Green x5, skull x2, Brown x2, Purple x4, Blue x6, Red x3 -> skull x14, Yellow x8 ; ~cascade~ ; extra-turn match  => C:atk+11 | A1:atk+11 +rage | A2:atk+11 +rage | E10:hp-65 arm-5  extra:match  cascade",
+   "R10": "status C +rage ; status A1 +rage ; status A2 +rage ; buff C attack+11 ; buff A1 attack+11 ; buff A2 attack+11 ; convert Green x5, skull x2, Brown x2, Purple x4, Blue x6, Red x3 -> skull x14, Yellow x8 ; ~cascade~ ; extra-turn match  => C:atk+11 | A1:atk+11 +rage | A2:atk+11 +rage | E10:hp-65 arm-5  extra:match  cascade",
+   "L0": "status C +rage ; status A1 +rage ; status A2 +rage ; buff C attack+1 ; buff A1 attack+1 ; buff A2 attack+1 ; convert Green x5, skull x2, Brown x2, Purple x4, Blue x6, Red x3 -> skull x14, Yellow x8 ; ~cascade~ ; extra-turn match  => C:atk+1 | A1:atk+1 +rage | A2:atk+1 +rage | E10:hp-40 arm-5  extra:match  cascade",
+   "K": "status C +rage ; status A1 +rage ; status A2 +rage ; buff C attack+11 ; buff A1 attack+11 ; buff A2 attack+11 ; convert Green x5, skull x2, Brown x2, Purple x4, Blue x6, Red x3 -> skull x14, Yellow x8 ; ~cascade~ ; defeat E10 ; defeat E11 ; extra-turn match  => C:atk+11 | A1:atk+11 +rage | A2:atk+11 +rage | E10:hp-1 DEAD | E11:hp-1 DEAD  extra:match  cascade"
+  },
+  "by": "coord (accepted before golden)",
+  "at": "2026-09-27T23:48:12.361Z"
+ },
+ "troop:7208": {
+  "lines": {
+   "L10": "status E12 +frozen ; convert skull x1, Red x1, Purple x1 -> gargoyleGem x3 ; extra-turn skill  => E12:+frozen  extra:skill",
+   "R10": "status E12 +frozen ; convert skull x1, Red x1, Purple x1 -> gargoyleGem x3 ; extra-turn skill  => E12:+frozen  extra:skill",
+   "L0": "status E12 +frozen ; convert skull x1, Red x1, Purple x1 -> gargoyleGem x3 ; extra-turn skill  => E12:+frozen  extra:skill",
+   "K": "status E12 +frozen ; convert skull x1, Red x1, Purple x1 -> gargoyleGem x3 ; extra-turn skill  => E12:+frozen  extra:skill"
+  },
+  "by": "coord (accepted before golden)",
+  "at": "2026-09-27T23:48:12.361Z"
+ },
+ "troop:7214": {
+  "lines": {
+   "L10": "explode 9 ; skulls E10 1  => A2:mana+1 | E10:arm-1",
+   "R10": "explode 9 ; skulls E10 1  => A2:mana+1 | E10:arm-1",
+   "L0": "explode 9 ; skulls E10 1  => A2:mana+1 | E10:arm-1",
+   "K": "explode 9 ; skulls E10 1 ; defeat E10  => A2:mana+1 | E10:hp-1 DEAD"
+  },
+  "by": "coord (accepted before golden)",
+  "at": "2026-09-27T23:48:12.361Z"
+ },
+ "troop:7227": {
+  "lines": {
+   "L10": "buff A1 armor+11  => A1:arm+11",
+   "R10": "buff A1 armor+11  => A1:arm+11",
+   "L0": "buff A1 armor+1  => A1:arm+1",
+   "K": "buff A1 armor+11  => A1:arm+11"
+  },
+  "by": "coord (accepted before golden)",
+  "at": "2026-09-27T23:48:12.361Z"
+ },
+ "troop:7260": {
+  "lines": {
+   "L10": "status E11 +curse ; status E11 +death-mark ; dmg E12 18 (all) ; dmg E13 18 (all) ; summon mine troop:-1  => A14:new 阿伯拉瑟 hp28 atk19 arm11 mag10 | E11:+curse+death-mark | E12:hp-6 arm-12 | E13:hp-15 arm-3",
+   "R10": "status E11 +curse ; status E11 +death-mark ; dmg E12 18 (all) ; dmg E13 18 (all) ; summon mine troop:-1  => A14:new 阿伯拉瑟 hp28 atk19 arm11 mag10 | E11:+curse+death-mark | E12:hp-6 arm-12 | E13:hp-15 arm-3",
+   "L0": "status E11 +curse ; status E11 +death-mark ; dmg E12 3 (all) ; dmg E13 3 (all) ; summon mine troop:-1  => A14:new 阿伯拉瑟 hp28 atk19 arm11 mag10 | E11:+curse+death-mark | E12:arm-3 | E13:arm-3",
+   "K": "status E11 +curse ; status E11 +death-mark ; dmg E12 18 (all) ; dmg E13 18 (all) ; defeat E12 ; defeat E13 ; summon mine troop:-1  => E11:+curse+death-mark | E12:hp-1 DEAD | E13:hp-1 DEAD"
+  },
+  "by": "coord (accepted before golden)",
+  "at": "2026-09-27T23:48:12.361Z"
+ },
+ "troop:7270": {
+  "lines": {
+   "L10": "convert Green x13 -> Brown x13 ; convert Yellow x1, Purple x1, Blue x1 -> dragonGem/Brown x3 ; ~cascade~ ; trigger dragonGem ; explode 1 ; trigger dragonGem  => A2:mana+1  cascade",
+   "R10": "convert Green x13 -> Brown x13 ; convert Yellow x1, Purple x1, Blue x1 -> dragonGem/Brown x3 ; ~cascade~ ; trigger dragonGem ; explode 1 ; trigger dragonGem  => A2:mana+1  cascade",
+   "L0": "convert Green x13 -> Brown x13 ; convert Yellow x1, Purple x1, Blue x1 -> dragonGem/Brown x3 ; ~cascade~ ; trigger dragonGem ; explode 1 ; trigger dragonGem  => A2:mana+1  cascade",
+   "K": "convert Green x13 -> Brown x13 ; convert Yellow x1, Purple x1, Blue x1 -> dragonGem/Brown x3 ; ~cascade~ ; trigger dragonGem ; explode 1 ; trigger dragonGem  => A2:mana+1  cascade"
+  },
+  "by": "coord (accepted before golden)",
+  "at": "2026-09-27T23:48:12.361Z"
+ },
+ "troop:7271": {
+  "lines": {
+   "L10": "dmg E11 13  => E11:hp-3 arm-10",
+   "R10": "dmg E11 13  => E11:hp-3 arm-10",
+   "L0": "dmg E11 3  => E11:arm-3",
+   "K": "dmg E11 13 ; defeat E11 ; convert Purple x4, Blue x2, Yellow x2, Green x2, Brown x2 -> dragonGem/Red x12 ; ~cascade~ ; trigger dragonGem ; explode 4 ; trigger dragonGem ; explode 4 ; trigger dragonGem ; trigger dragonGem ; trigger dragonGem ; explode 5 ; skulls E10 1 ; defeat E10  => E11:hp-1 DEAD | A1:mana+2 | A2:mana+3 | E10:hp-1 DEAD  cascade"
+  },
+  "by": "coord (accepted before golden)",
+  "at": "2026-09-27T23:48:12.361Z"
+ },
+ "troop:7272": {
+  "lines": {
+   "L10": "dmg E13 13 ; status C +submerged  => E13:hp-10 arm-3 | C:+submerged",
+   "R10": "dmg E13 13 ; status C +submerged  => E13:hp-10 arm-3 | C:+submerged",
+   "L0": "dmg E13 3 ; status C +submerged  => E13:arm-3 | C:+submerged",
+   "K": "dmg E13 13 ; defeat E13 ; status C +submerged  => E13:hp-1 DEAD | C:+submerged"
+  },
+  "by": "coord (accepted before golden)",
+  "at": "2026-09-27T23:48:12.361Z"
+ },
+ "troop:7297": {
+  "lines": {
+   "L10": "convert Yellow x9 -> spiritGem/Yellow x9",
+   "R10": "convert Yellow x9 -> spiritGem/Yellow x9",
+   "L0": "convert Yellow x9 -> spiritGem/Yellow x9",
+   "K": "convert Yellow x9 -> spiritGem/Yellow x9"
+  },
+  "by": "coord (accepted before golden)",
+  "at": "2026-09-27T23:48:12.361Z"
+ },
+ "troop:7306": {
+  "lines": {
+   "L10": "convert Green x13 -> spiritGem/Green x13",
+   "R10": "convert Green x13 -> spiritGem/Green x13",
+   "L0": "convert Green x13 -> spiritGem/Green x13",
+   "K": "convert Green x13 -> spiritGem/Green x13"
+  },
+  "by": "coord (accepted before golden)",
+  "at": "2026-09-27T23:48:12.361Z"
+ },
+ "troop:7322": {
+  "lines": {
+   "L10": "dmg E10 3 (scatter) ; dmg E11 4 (scatter) ; dmg E12 5 (scatter) ; dmg E13 3 (scatter)  => E10:hp-3 | E11:hp-4 | E12:hp-5 | E13:hp-3",
+   "R10": "dmg E10 3 (scatter) ; dmg E11 4 (scatter) ; dmg E12 5 (scatter) ; dmg E13 3 (scatter)  => E10:hp-3 | E11:hp-4 | E12:hp-5 | E13:hp-3",
+   "L0": "dmg E10 1 (scatter) ; dmg E11 1 (scatter) ; dmg E12 2 (scatter) ; dmg E13 1 (scatter)  => E10:hp-1 | E11:hp-1 | E12:hp-2 | E13:hp-1",
+   "K": "dmg E10 3 (scatter) ; dmg E11 4 (scatter) ; dmg E12 5 (scatter) ; dmg E13 3 (scatter) ; defeat E10 ; defeat E11 ; defeat E12 ; defeat E13  => E10:hp-1 DEAD | E11:hp-1 DEAD | E12:hp-1 DEAD | E13:hp-1 DEAD"
+  },
+  "by": "coord (accepted before golden)",
+  "at": "2026-09-27T23:48:12.361Z"
+ },
+ "troop:7326": {
+  "lines": {
+   "L10": "convert Blue x11 -> Green x11 ; convert Purple x9 -> Yellow x9 ; status C +enraged ; status A1 +enchanted ; status A2 +submerged ; status C +enraged ; remove A1 -poison ; status A1 +blessed ; status A2 +enraged  => C:+enraged | A1:+enchanted+blessed -poison | A2:+submerged+enraged",
+   "R10": "convert Blue x11 -> Green x11 ; convert Purple x9 -> Yellow x9 ; status C +enraged ; status A1 +enchanted ; status A2 +submerged ; status C +enraged ; remove A1 -poison ; status A1 +blessed ; status A2 +enraged  => C:+enraged | A1:+enchanted+blessed -poison | A2:+submerged+enraged",
+   "L0": "convert Blue x11 -> Green x11 ; convert Purple x9 -> Yellow x9 ; status C +enraged ; status A1 +enchanted ; status A2 +submerged ; status C +enraged ; remove A1 -poison ; status A1 +blessed ; status A2 +enraged  => C:+enraged | A1:+enchanted+blessed -poison | A2:+submerged+enraged",
+   "K": "convert Blue x11 -> Green x11 ; convert Purple x9 -> Yellow x9 ; status C +enraged ; status A1 +enchanted ; status A2 +submerged ; status C +enraged ; remove A1 -poison ; status A1 +blessed ; status A2 +enraged  => C:+enraged | A1:+enchanted+blessed -poison | A2:+submerged+enraged"
+  },
+  "by": "coord (accepted before golden)",
+  "at": "2026-09-27T23:48:12.361Z"
+ },
+ "troop:7328": {
+  "lines": {
+   "L10": "convert Brown x8 -> web x8",
+   "R10": "convert Brown x8 -> web x8",
+   "L0": "convert Brown x8 -> web x8",
+   "K": "convert Brown x8 -> web x8"
+  },
+  "by": "coord (accepted before golden)",
+  "at": "2026-09-27T23:48:12.361Z"
+ },
+ "troop:7335": {
+  "lines": {
+   "L10": "dmg E12 15  => E12:hp-3 arm-12",
+   "R10": "dmg E12 15  => E12:hp-3 arm-12",
+   "L0": "dmg E12 5  => E12:arm-5",
+   "K": "dmg E12 15 ; defeat E12  => E12:hp-1 DEAD"
+  },
+  "by": "coord (accepted before golden)",
+  "at": "2026-09-27T23:48:12.361Z"
+ },
+ "troop:7344": {
+  "lines": {
+   "L10": "dmg E12 12 ; dmg E11 12 ; dmg E13 12 ; dmg E12 12  => E12:hp-12 arm-12 | E11:hp-2 arm-10 | E13:hp-9 arm-3",
+   "R10": "dmg E12 12 ; dmg E11 12 ; dmg E13 12 ; dmg E12 12  => E12:hp-12 arm-12 | E11:hp-2 arm-10 | E13:hp-9 arm-3",
+   "L0": "dmg E12 2 ; dmg E11 2 ; dmg E13 2 ; dmg E12 2  => E12:arm-4 | E11:arm-2 | E13:arm-2",
+   "K": "dmg E12 12 ; defeat E12 ; dmg E11 12 ; defeat E11 ; dmg E13 12 ; defeat E13 ; dmg E10 12 ; defeat E10  => E12:hp-1 DEAD | E11:hp-1 DEAD | E13:hp-1 DEAD | E10:hp-1 DEAD"
+  },
+  "by": "coord (accepted before golden)",
+  "at": "2026-09-27T23:48:12.361Z"
+ },
+ "troop:7347": {
+  "lines": {
+   "L10": "convert Purple x2 -> deathMarkGem x2 ; convert Yellow x9 -> doomSkull x9",
+   "R10": "convert Purple x2 -> deathMarkGem x2 ; convert Yellow x9 -> doomSkull x9",
+   "L0": "convert Purple x2 -> deathMarkGem x2 ; convert Yellow x9 -> doomSkull x9",
+   "K": "convert Purple x2 -> deathMarkGem x2 ; convert Yellow x9 -> doomSkull x9"
+  },
+  "by": "coord (accepted before golden)",
+  "at": "2026-09-27T23:48:12.361Z"
+ },
+ "troop:7361": {
+  "lines": {
+   "L10": "convert Green x13 -> Blue x13 ; convert Purple x9 -> doomSkull x9 ; buff E10 mana-2 ; buff E11 mana-2 ; buff E12 mana-2 ; buff E13 mana-2  => E10:mana-2 | E11:mana-2 | E12:mana-2 | E13:mana-2",
+   "R10": "convert Green x13 -> Blue x13 ; convert Purple x9 -> doomSkull x9 ; buff E10 mana-2 ; buff E11 mana-2 ; buff E12 mana-2 ; buff E13 mana-2  => E10:mana-2 | E11:mana-2 | E12:mana-2 | E13:mana-2",
+   "L0": "convert Green x13 -> Blue x13 ; convert Purple x9 -> doomSkull x9 ; buff E10 mana-2 ; buff E11 mana-2 ; buff E12 mana-2 ; buff E13 mana-2  => E10:mana-2 | E11:mana-2 | E12:mana-2 | E13:mana-2",
+   "K": "convert Green x13 -> Blue x13 ; convert Purple x9 -> doomSkull x9 ; buff E10 mana-2 ; buff E11 mana-2 ; buff E12 mana-2 ; buff E13 mana-2  => E10:mana-2 | E11:mana-2 | E12:mana-2 | E13:mana-2"
+  },
+  "by": "coord (accepted before golden)",
+  "at": "2026-09-27T23:48:12.361Z"
+ },
+ "troop:7370": {
+  "lines": {
+   "L10": "dmg E11 16 ; convert Green x1, Purple x1, skull x1 -> gargoyleGem x3  => E11:hp-6 arm-10",
+   "R10": "dmg E11 16 ; convert Green x1, Purple x1, skull x1 -> gargoyleGem x3  => E11:hp-6 arm-10",
+   "L0": "dmg E11 6 ; convert Green x1, Purple x1, skull x1 -> gargoyleGem x3  => E11:arm-6",
+   "K": "dmg E11 16 ; defeat E11 ; convert Green x1, Purple x1, skull x1 -> gargoyleGem x3  => E11:hp-1 DEAD"
+  },
+  "by": "coord (accepted before golden)",
+  "at": "2026-09-27T23:48:12.361Z"
+ },
+ "troop:7375": {
+  "lines": {
+   "L10": "status C +barrier ; status A1 +barrier ; status A2 +barrier ; status C +enchanted ; status A1 +enchanted ; status A2 +enchanted ; buff C hp+21 max+21  => C:hp+21 max+21 +barrier+enchanted | A1:+barrier+enchanted | A2:+barrier+enchanted",
+   "R10": "status C +barrier ; status A1 +barrier ; status A2 +barrier ; status C +enchanted ; status A1 +enchanted ; status A2 +enchanted ; buff C hp+21 max+21  => C:hp+21 max+21 +barrier+enchanted | A1:+barrier+enchanted | A2:+barrier+enchanted",
+   "L0": "status C +barrier ; status A1 +barrier ; status A2 +barrier ; status C +enchanted ; status A1 +enchanted ; status A2 +enchanted ; buff C hp+1 max+1  => C:hp+1 max+1 +barrier+enchanted | A1:+barrier+enchanted | A2:+barrier+enchanted",
+   "K": "status C +barrier ; status A1 +barrier ; status A2 +barrier ; status C +enchanted ; status A1 +enchanted ; status A2 +enchanted ; buff C hp+21 max+21  => C:hp+21 max+21 +barrier+enchanted | A1:+barrier+enchanted | A2:+barrier+enchanted"
+  },
+  "by": "coord (accepted before golden)",
+  "at": "2026-09-27T23:48:12.361Z"
+ },
+ "troop:7377": {
+  "lines": {
+   "L10": "status E11 +death-mark ; buff E11 mana-8 ; dmg E11 24  => E11:hp-24 mana-8 +death-mark",
+   "R10": "status E11 +death-mark ; buff E11 mana-8 ; dmg E11 24  => E11:hp-24 mana-8 +death-mark",
+   "L0": "status E11 +death-mark ; buff E11 mana-8 ; dmg E11 4  => E11:hp-4 mana-8 +death-mark",
+   "K": "status E11 +death-mark ; buff E11 mana-5 ; dmg E11 24 ; defeat E11  => E11:hp-1 mana-5 +death-mark DEAD"
+  },
+  "by": "coord (accepted before golden)",
+  "at": "2026-09-27T23:48:12.361Z"
+ },
+ "troop:7386": {
+  "lines": {
+   "L10": "dmg E10 1 (scatter) ; dmg E11 2 (scatter) ; dmg E12 3 (scatter) ; dmg E13 1 (scatter)  => E10:arm-1 | E11:arm-2 | E12:arm-3 | E13:arm-1",
+   "R10": "dmg E10 1 (scatter) ; dmg E11 2 (scatter) ; dmg E12 3 (scatter) ; dmg E13 1 (scatter)  => E10:arm-1 | E11:arm-2 | E12:arm-3 | E13:arm-1",
+   "L0": "dmg E11 1 (scatter) ; dmg E12 1 (scatter)  => E11:arm-1 | E12:arm-1",
+   "K": "dmg E10 2 (scatter) ; dmg E11 1 (scatter) ; dmg E12 3 (scatter) ; dmg E13 1 (scatter) ; defeat E10 ; defeat E11 ; defeat E12 ; defeat E13  => E10:hp-1 DEAD | E11:hp-1 DEAD | E12:hp-1 DEAD | E13:hp-1 DEAD"
+  },
+  "by": "coord (accepted before golden)",
+  "at": "2026-09-27T23:48:12.361Z"
+ },
+ "troop:7400": {
+  "lines": {
+   "L10": "convert Green x5 -> burningGem x5 ; extra-turn skill  extra:skill",
+   "R10": "convert Green x5 -> burningGem x5 ; extra-turn skill  extra:skill",
+   "L0": "convert Green x5 -> burningGem x5 ; extra-turn skill  extra:skill",
+   "K": "convert Green x5 -> burningGem x5 ; extra-turn skill  extra:skill"
+  },
+  "by": "coord (accepted before golden)",
+  "at": "2026-09-27T23:48:12.361Z"
+ },
+ "troop:7412": {
+  "lines": {
+   "L10": "convert Brown x8 -> skull x8 ; buff A1 armor+11  => A1:arm+11",
+   "R10": "convert Brown x8 -> skull x8 ; buff A1 armor+11  => A1:arm+11",
+   "L0": "convert Brown x8 -> skull x8 ; buff A1 armor+1  => A1:arm+1",
+   "K": "convert Brown x8 -> skull x8 ; buff A1 armor+11  => A1:arm+11"
+  },
+  "by": "coord (accepted before golden)",
+  "at": "2026-09-27T23:48:12.361Z"
+ },
+ "troop:7418": {
+  "lines": {
+   "L10": "status E11 +terror ; buff E11 attack-11 ; buff C attack+11 ; buff E11 mana-7  => E11:atk-11 mana-7 +terror | C:atk+11",
+   "R10": "status E11 +terror ; buff E11 attack-11 ; buff C attack+11 ; buff E11 mana-7  => E11:atk-11 mana-7 +terror | C:atk+11",
+   "L0": "status E11 +terror ; buff E11 attack-1 ; buff C attack+1 ; buff E11 mana-7  => E11:atk-1 mana-7 +terror | C:atk+1",
+   "K": "status E11 +terror ; buff E11 attack-11 ; buff C attack+11 ; buff E11 mana-5  => E11:atk-11 mana-5 +terror | C:atk+11"
+  },
+  "by": "coord (accepted before golden)",
+  "at": "2026-09-27T23:48:12.361Z"
+ },
+ "troop:7425": {
+  "lines": {
+   "L10": "convert Green x3, Yellow x2, Blue x1, Purple x2 -> Brown x8 ; ~cascade~ ; convert Blue x1, Green x1, Purple x1, Brown x3, Red x1, skull x1 -> Yellow x8  cascade",
+   "R10": "convert Green x3, Yellow x2, Blue x1, Purple x2 -> Brown x8 ; ~cascade~ ; convert Blue x1, Green x1, Purple x1, Brown x3, Red x1, skull x1 -> Yellow x8  cascade",
+   "L0": "convert Green x3, Yellow x2, Blue x1, Purple x2 -> Brown x8 ; ~cascade~ ; convert Blue x1, Green x1, Purple x1, Brown x3, Red x1, skull x1 -> Yellow x8  cascade",
+   "K": "convert Green x3, Yellow x2, Blue x1, Purple x2 -> Brown x8 ; ~cascade~ ; convert Blue x1, Green x1, Purple x1, Brown x3, Red x1, skull x1 -> Yellow x8  cascade"
+  },
+  "by": "coord (accepted before golden)",
+  "at": "2026-09-27T23:48:12.361Z"
+ },
+ "troop:7446": {
+  "lines": {
+   "L10": "dmg E10 36 (all) ; dmg E11 36 (all) ; dmg E12 36 (all) ; dmg E13 36 (all) ; convert Purple x2, Yellow x1 -> elementalStar x3 ; ~cascade~ ; trigger elementalStar ; destroy 4 (Blue x2, skull x1, Brown x1) ; trigger elementalStar ; destroy 2 (Yellow x1, Blue x1) ; skulls E10 1 ; convert Green x1, Blue x1, Brown x1 -> umbralStar x3 ; trigger umbralStar ; destroy 12 (skull x1, Green x2, Yellow x3, Red x2, Purple x1, Brown x2, Blue x1) ; skulls E10 1 ; extra-turn skill  => E10:hp-33 arm-5 | E11:hp-26 arm-10 | E12:hp-24 arm-12 | E13:hp-33 arm-3 | A2:mana+14 | A1:mana+1  extra:skill  cascade",
+   "R10": "dmg E10 36 (all) ; dmg E11 36 (all) ; dmg E12 36 (all) ; dmg E13 36 (all) ; convert Purple x2, Yellow x1 -> elementalStar x3 ; ~cascade~ ; trigger elementalStar ; destroy 4 (Blue x2, skull x1, Brown x1) ; trigger elementalStar ; destroy 2 (Yellow x1, Blue x1) ; skulls E10 1 ; convert Green x1, Blue x1, Brown x1 -> umbralStar x3 ; trigger umbralStar ; destroy 12 (skull x1, Green x2, Yellow x3, Red x2, Purple x1, Brown x2, Blue x1) ; skulls E10 1 ; extra-turn skill  => E10:hp-33 arm-5 | E11:hp-26 arm-10 | E12:hp-24 arm-12 | E13:hp-33 arm-3 | A2:mana+14 | A1:mana+1  extra:skill  cascade",
+   "L0": "dmg E10 6 (all) ; dmg E11 6 (all) ; dmg E12 6 (all) ; dmg E13 6 (all) ; convert Purple x2, Yellow x1 -> elementalStar x3 ; ~cascade~ ; trigger elementalStar ; destroy 4 (Blue x2, skull x1, Brown x1) ; trigger elementalStar ; destroy 2 (Yellow x1, Blue x1) ; skulls E10 1 ; convert Green x1, Blue x1, Brown x1 -> umbralStar x3 ; trigger umbralStar ; destroy 12 (skull x1, Green x2, Yellow x3, Red x2, Purple x1, Brown x2, Blue x1) ; skulls E10 1 ; extra-turn skill  => E10:hp-3 arm-5 | E11:arm-6 | E12:arm-6 | E13:hp-3 arm-3 | A2:mana+14 | A1:mana+1  extra:skill  cascade",
+   "K": "dmg E10 36 (all) ; dmg E11 36 (all) ; dmg E12 36 (all) ; dmg E13 36 (all) ; defeat E10 ; defeat E11 ; defeat E12 ; defeat E13 ; convert Purple x2, Yellow x1 -> elementalStar x3 ; ~cascade~ ; trigger elementalStar ; destroy 4 (Blue x2, skull x1, Brown x1) ; trigger elementalStar ; destroy 2 (Yellow x1, Blue x1) ; create umbralStar x3 ; trigger umbralStar ; destroy 12 (Green x3, Blue x1, skull x2, Red x1, Yellow x2, Purple x1, Brown x2) ; extra-turn skill  => E10:hp-1 DEAD | E11:hp-1 DEAD | E12:hp-1 DEAD | E13:hp-1 DEAD | A1:mana+1 | A2:mana+3  extra:skill  cascade"
+  },
+  "by": "coord (accepted before golden)",
+  "at": "2026-09-27T23:48:12.361Z"
+ },
+ "troop:7453": {
+  "lines": {
+   "L10": "convert Green x13 -> terrorGem x13 ; ~cascade~ ; trigger terrorGem ; status E12 +terror ; trigger terrorGem ; status E11 +terror ; trigger terrorGem ; status E13 +terror ; dmg E12 12 ; extra-turn match  => E12:arm-12 +terror | E11:+terror | E13:+terror  extra:match  cascade",
+   "R10": "convert Green x13 -> terrorGem x13 ; ~cascade~ ; trigger terrorGem ; status E12 +terror ; trigger terrorGem ; status E11 +terror ; trigger terrorGem ; status E13 +terror ; dmg E12 12 ; extra-turn match  => E12:arm-12 +terror | E11:+terror | E13:+terror  extra:match  cascade",
+   "L0": "convert Green x13 -> terrorGem x13 ; ~cascade~ ; trigger terrorGem ; status E12 +terror ; trigger terrorGem ; status E11 +terror ; trigger terrorGem ; status E13 +terror ; dmg E12 2 ; extra-turn match  => E12:arm-2 +terror | E11:+terror | E13:+terror  extra:match  cascade",
+   "K": "convert Green x13 -> terrorGem x13 ; ~cascade~ ; trigger terrorGem ; status E12 +terror ; trigger terrorGem ; status E11 +terror ; trigger terrorGem ; status E13 +terror ; dmg E12 12 ; defeat E12 ; extra-turn match  => E12:hp-1 +terror DEAD | E11:+terror | E13:+terror  extra:match  cascade"
+  },
+  "by": "coord (accepted before golden)",
+  "at": "2026-09-27T23:48:12.361Z"
+ },
+ "troop:7459": {
+  "lines": {
+   "L10": "status E11 +stun ; dmg E11 12 (splash) ; dmg E10 9 (splash) ; dmg E12 9 (splash)  => E11:hp-2 arm-10 +stun | E10:hp-4 arm-5 | E12:arm-9",
+   "R10": "status E11 +stun ; dmg E11 12 (splash) ; dmg E10 9 (splash) ; dmg E12 9 (splash)  => E11:hp-2 arm-10 +stun | E10:hp-4 arm-5 | E12:arm-9",
+   "L0": "status E11 +stun ; dmg E11 2 (splash) ; dmg E10 1 (splash) ; dmg E12 1 (splash)  => E11:arm-2 +stun | E10:arm-1 | E12:arm-1",
+   "K": "status E11 +stun ; dmg E11 12 (splash) ; dmg E10 9 (splash) ; dmg E12 9 (splash) ; defeat E11 ; defeat E10 ; defeat E12  => E11:hp-1 +stun DEAD | E10:hp-1 DEAD | E12:hp-1 DEAD"
+  },
+  "by": "coord (accepted before golden)",
+  "at": "2026-09-27T23:48:12.361Z"
+ },
+ "troop:7475": {
+  "lines": {
+   "L10": "status C +barrier ; convert Green x3, skull x1, Brown x1, Purple x3, Blue x3 -> lightningCol x11 ; ~cascade~ ; trigger lightningCol ; destroy 7 (Green x2, lightningCol x1, Red x2, skull x1, Purple x1) ; trigger lightningCol ; destroy 7 (Purple x2, Red x3, Green x2) ; trigger lightningCol ; skulls E10 1  => C:+barrier | A2:mana+9 | E10:arm-1  cascade",
+   "R10": "status C +barrier ; convert Green x3, skull x1, Brown x1, Purple x3, Blue x3 -> lightningCol x11 ; ~cascade~ ; trigger lightningCol ; destroy 7 (Green x2, lightningCol x1, Red x2, skull x1, Purple x1) ; trigger lightningCol ; destroy 7 (Purple x2, Red x3, Green x2) ; trigger lightningCol ; skulls E10 1  => C:+barrier | A2:mana+9 | E10:arm-1  cascade",
+   "L0": "status C +barrier ; convert Green x3, skull x1, Brown x1, Purple x3, Blue x3 -> lightningCol x11 ; ~cascade~ ; trigger lightningCol ; destroy 7 (Green x2, lightningCol x1, Red x2, skull x1, Purple x1) ; trigger lightningCol ; destroy 7 (Purple x2, Red x3, Green x2) ; trigger lightningCol ; skulls E10 1  => C:+barrier | A2:mana+9 | E10:arm-1  cascade",
+   "K": "status C +barrier ; convert Green x3, skull x1, Brown x1, Purple x3, Blue x3 -> lightningCol x11 ; ~cascade~ ; trigger lightningCol ; destroy 7 (Green x2, lightningCol x1, Red x2, skull x1, Purple x1) ; trigger lightningCol ; destroy 7 (Purple x2, Red x3, Green x2) ; trigger lightningCol ; skulls E10 1 ; defeat E10  => C:+barrier | A2:mana+9 | E10:hp-1 DEAD  cascade"
+  },
+  "by": "coord (accepted before golden)",
+  "at": "2026-09-27T23:48:12.361Z"
+ },
+ "troop:7484": {
+  "lines": {
+   "L10": "status E11 +terror ; status E11 +disease ; dmg E11 12  => E11:hp-2 arm-10 +terror+disease",
+   "R10": "status E11 +terror ; status E11 +disease ; dmg E11 12  => E11:hp-2 arm-10 +terror+disease",
+   "L0": "status E11 +terror ; status E11 +disease ; dmg E11 2  => E11:arm-2 +terror+disease",
+   "K": "status E11 +terror ; status E11 +disease ; dmg E11 12 ; defeat E11  => E11:hp-1 +terror+disease DEAD"
+  },
+  "by": "coord (accepted before golden)",
+  "at": "2026-09-27T23:48:12.361Z"
+ },
+ "troop:7486": {
+  "lines": {
+   "L10": "convert Blue x11 -> gargoyleGem x11 ; dmg E11 19 (all) ; extra-turn skill  => E11:hp-9 arm-10  extra:skill",
+   "R10": "convert Blue x11 -> gargoyleGem x11 ; dmg E11 19 (all) ; extra-turn skill  => E11:hp-9 arm-10  extra:skill",
+   "L0": "convert Blue x11 -> gargoyleGem x11 ; dmg E11 4 (all) ; extra-turn skill  => E11:arm-4  extra:skill",
+   "K": "convert Blue x11 -> gargoyleGem x11 ; extra-turn skill  extra:skill"
+  },
+  "by": "coord (accepted before golden)",
+  "at": "2026-09-27T23:48:12.361Z"
+ },
+ "troop:7494": {
+  "lines": {
+   "L10": "status E12 +curse ; status E11 +curse ; summon mine troop:-1  => A14:new 火山渣巨人出生 hp28 atk15 arm11 mag10 | E12:+curse | E11:+curse",
+   "R10": "status E12 +curse ; status E11 +curse ; summon mine troop:-1  => A14:new 火山渣巨人出生 hp28 atk15 arm11 mag10 | E12:+curse | E11:+curse",
+   "L0": "status E12 +curse ; status E11 +curse ; summon mine troop:-1  => A14:new 火山渣巨人出生 hp28 atk15 arm11 mag10 | E12:+curse | E11:+curse",
+   "K": "status E12 +curse ; status E11 +curse ; summon mine troop:-1  => A14:new 火山渣巨人出生 hp28 atk15 arm11 mag10 | E12:+curse | E11:+curse"
+  },
+  "by": "coord (accepted before golden)",
+  "at": "2026-09-27T23:48:12.361Z"
+ },
+ "troop:7499": {
+  "lines": {
+   "L10": "convert Brown x8 -> dragonGem/Yellow x8 ; buff C magic+1 ; buff A2 magic+1  => C:mag+1 | A2:mag+1",
+   "R10": "convert Brown x8 -> dragonGem/Yellow x8 ; buff C magic+1 ; buff A2 magic+1  => C:mag+1 | A2:mag+1",
+   "L0": "convert Brown x8 -> dragonGem/Yellow x8 ; buff C magic+1 ; buff A2 magic+1  => C:mag+1 | A2:mag+1",
+   "K": "convert Brown x8 -> dragonGem/Yellow x8 ; buff C magic+1 ; buff A2 magic+1  => C:mag+1 | A2:mag+1"
+  },
+  "by": "coord (accepted before golden)",
+  "at": "2026-09-27T23:48:12.361Z"
+ },
+ "troop:7501": {
+  "lines": {
+   "L10": "dmg E11 17  => E11:hp-7 arm-10",
+   "R10": "dmg E11 17  => E11:hp-7 arm-10",
+   "L0": "dmg E11 7  => E11:arm-7",
+   "K": "dmg E11 17 ; defeat E11  => E11:hp-1 DEAD"
+  },
+  "by": "coord (accepted before golden)",
+  "at": "2026-09-27T23:48:12.361Z"
+ },
+ "troop:7517": {
+  "lines": {
+   "L10": "move E11 front ; dmg E11 14  => E11:hp-4 arm-10",
+   "R10": "move E11 front ; dmg E11 14  => E11:hp-4 arm-10",
+   "L0": "move E11 front ; dmg E11 3  => E11:arm-3",
+   "K": "move E11 front ; dmg E11 14 ; defeat E11  => E11:hp-1 DEAD"
+  },
+  "by": "coord (accepted before golden)",
+  "at": "2026-09-27T23:48:12.361Z"
+ },
+ "troop:7541": {
+  "lines": {
+   "L10": "status C +submerged ; status E12 +death-mark ; status E11 +death-mark  => C:+submerged | E12:+death-mark | E11:+death-mark",
+   "R10": "status C +submerged ; status E12 +death-mark ; status E11 +death-mark  => C:+submerged | E12:+death-mark | E11:+death-mark",
+   "L0": "status C +submerged ; status E12 +death-mark ; status E11 +death-mark  => C:+submerged | E12:+death-mark | E11:+death-mark",
+   "K": "status C +submerged ; status E12 +death-mark ; status E11 +death-mark  => C:+submerged | E12:+death-mark | E11:+death-mark"
+  },
+  "by": "coord (accepted before golden)",
+  "at": "2026-09-27T23:48:12.361Z"
+ },
+ "troop:7570": {
+  "lines": {
+   "L10": "convert Blue x11 -> Green x11 ; convert Red x9 -> skull x9",
+   "R10": "convert Blue x11 -> Green x11 ; convert Red x9 -> skull x9",
+   "L0": "convert Blue x11 -> Green x11 ; convert Red x9 -> skull x9",
+   "K": "convert Blue x11 -> Green x11 ; convert Red x9 -> skull x9"
+  },
+  "by": "coord (accepted before golden)",
+  "at": "2026-09-27T23:48:12.361Z"
+ },
+ "troop:7655": {
+  "lines": {
+   "L10": "convert Red x9 -> Purple x9 ; convert Yellow x9 -> skull x9 ; status C +enchanted ; buff C hp+11 max+11 ; buff C magic+4  => C:hp+11 max+11 mag+4 +enchanted",
+   "R10": "convert Red x9 -> Purple x9 ; convert Yellow x9 -> skull x9 ; status C +enchanted ; buff C hp+11 max+11 ; buff C magic+4  => C:hp+11 max+11 mag+4 +enchanted",
+   "L0": "convert Red x9 -> Purple x9 ; convert Yellow x9 -> skull x9 ; status C +enchanted ; buff C hp+1 max+1 ; buff C magic+4  => C:hp+1 max+1 mag+4 +enchanted",
+   "K": "convert Red x9 -> Purple x9 ; convert Yellow x9 -> skull x9 ; status C +enchanted ; buff C hp+11 max+11 ; buff C magic+4  => C:hp+11 max+11 mag+4 +enchanted"
+  },
+  "by": "coord (accepted before golden)",
+  "at": "2026-09-27T23:48:12.361Z"
+ },
+ "troop:7698": {
+  "lines": {
+   "L10": "convert Blue x10 -> enchantedGem x10 ; remove A1 -poison ; status A1 +blessed  => A1:+blessed -poison",
+   "R10": "convert Blue x10 -> enchantedGem x10 ; remove A1 -poison ; status A1 +blessed  => A1:+blessed -poison",
+   "L0": "convert Blue x10 -> enchantedGem x10 ; remove A1 -poison ; status A1 +blessed  => A1:+blessed -poison",
+   "K": "convert Blue x10 -> enchantedGem x10 ; remove A1 -poison ; status A1 +blessed  => A1:+blessed -poison"
+  },
+  "by": "coord (accepted before golden)",
+  "at": "2026-09-27T23:48:12.361Z"
+ },
+ "troop:7760": {
+  "lines": {
+   "L10": "convert Blue x9 -> spiritGem/Blue x9",
+   "R10": "convert Blue x9 -> spiritGem/Blue x9",
+   "L0": "convert Blue x9 -> spiritGem/Blue x9",
+   "K": "convert Green x9 -> spiritGem/Green x9"
+  },
+  "by": "coord (accepted before golden)",
+  "at": "2026-09-27T23:48:12.361Z"
+ },
+ "troop:7795": {
+  "lines": {
+   "L10": "buff E11 armor-10 ; convert Green x3, Brown x2, Blue x1, Red x1, Yellow x3 -> Purple x10 ; ~cascade~  => E11:arm-10  cascade",
+   "R10": "buff E11 armor-10 ; convert Green x3, Brown x2, Blue x1, Red x1, Yellow x3 -> Purple x10 ; ~cascade~  => E11:arm-10  cascade",
+   "L0": "buff E11 armor-10 ; convert Green x3, Brown x2, Blue x1, Red x1, Yellow x3 -> Purple x10 ; ~cascade~  => E11:arm-10  cascade",
+   "K": "convert Green x2, Brown x1, Blue x1, Red x1 -> Purple x5"
+  },
+  "by": "coord (accepted before golden)",
+  "at": "2026-09-27T23:48:12.361Z"
+ },
+ "troop:7809": {
+  "lines": {
+   "L10": "dmg E12 13  => E12:hp-1 arm-12",
+   "R10": "dmg E12 13  => E12:hp-1 arm-12",
+   "L0": "dmg E12 3  => E12:arm-3",
+   "K": "dmg E12 13 ; defeat E12 ; buff C armor+10  => E12:hp-1 DEAD | C:arm+10"
+  },
+  "by": "coord (accepted before golden)",
+  "at": "2026-09-27T23:48:12.361Z"
+ },
+ "troop:7833": {
+  "lines": {
+   "L10": "dmg E11 14 ; move E11 back  => E11:hp-4 arm-10",
+   "R10": "dmg E11 14 ; move E11 back  => E11:hp-4 arm-10",
+   "L0": "dmg E11 4 ; move E11 back  => E11:arm-4",
+   "K": "dmg E11 14 ; defeat E11  => E11:hp-1 DEAD"
+  },
+  "by": "coord (accepted before golden)",
+  "at": "2026-09-27T23:48:12.361Z"
+ },
+ "troop:7862": {
+  "lines": {
+   "L10": "status E10 +stun ; status E11 +stun ; status E12 +stun ; status E13 +stun ; dmg E12 15 (splash) ; dmg E11 7 (splash) ; dmg E13 7 (splash) ; dmg E11 15 (splash) ; dmg E10 7 (splash) ; dmg E12 7 (splash) ; dmg E13 15 (splash) ; dmg E12 7 (splash)  => E10:hp-2 arm-5 +stun | E11:hp-12 arm-10 +stun | E12:hp-17 arm-12 +stun | E13:hp-19 arm-3 +stun",
+   "R10": "status E10 +stun ; status E11 +stun ; status E12 +stun ; status E13 +stun ; dmg E12 15 (splash) ; dmg E11 7 (splash) ; dmg E13 7 (splash) ; dmg E11 15 (splash) ; dmg E10 7 (splash) ; dmg E12 7 (splash) ; dmg E13 15 (splash) ; dmg E12 7 (splash)  => E10:hp-2 arm-5 +stun | E11:hp-12 arm-10 +stun | E12:hp-17 arm-12 +stun | E13:hp-19 arm-3 +stun",
+   "L0": "status E10 +stun ; status E11 +stun ; status E12 +stun ; status E13 +stun ; dmg E12 5 (splash) ; dmg E11 2 (splash) ; dmg E13 2 (splash) ; dmg E11 5 (splash) ; dmg E10 2 (splash) ; dmg E12 2 (splash) ; dmg E13 5 (splash) ; dmg E12 2 (splash)  => E10:arm-2 +stun | E11:arm-7 +stun | E12:arm-9 +stun | E13:hp-4 arm-3 +stun",
+   "K": "status E10 +stun ; status E11 +stun ; status E12 +stun ; status E13 +stun ; dmg E12 15 (splash) ; dmg E11 7 (splash) ; dmg E13 7 (splash) ; defeat E12 ; defeat E11 ; defeat E13 ; dmg E10 15 (splash) ; defeat E10  => E10:hp-1 +stun DEAD | E11:hp-1 +stun DEAD | E12:hp-1 +stun DEAD | E13:hp-1 +stun DEAD"
+  },
+  "by": "coord (accepted before golden)",
+  "at": "2026-09-27T23:48:12.361Z"
+ },
+ "weapon:1001": {
+  "lines": {
+   "L10": "dmg E11 9  => E11:arm-9",
+   "R10": "dmg E11 9  => E11:arm-9",
+   "L0": "dmg E11 4  => E11:arm-4",
+   "K": "dmg E11 9 ; defeat E11  => E11:hp-1 DEAD"
+  },
+  "by": "coord (accepted before golden)",
+  "at": "2026-09-27T23:48:12.361Z"
+ },
+ "weapon:1002": {
+  "lines": {
+   "L10": "dmg E10 10  => E10:hp-5 arm-5",
+   "R10": "dmg E10 10  => E10:hp-5 arm-5",
+   "L0": "dmg E10 5  => E10:arm-5",
+   "K": "dmg E10 10 ; defeat E10  => E10:hp-1 DEAD"
+  },
+  "by": "coord (accepted before golden)",
+  "at": "2026-09-27T23:48:12.361Z"
+ },
+ "weapon:1003": {
+  "lines": {
+   "L10": "dmg E12 11  => E12:arm-11",
+   "R10": "dmg E12 11  => E12:arm-11",
+   "L0": "dmg E12 6  => E12:arm-6",
+   "K": "dmg E12 11 ; defeat E12  => E12:hp-1 DEAD"
+  },
+  "by": "coord (accepted before golden)",
+  "at": "2026-09-27T23:48:12.361Z"
+ },
+ "weapon:1004": {
+  "lines": {
+   "L10": "dmg E10 2 (scatter) ; dmg E11 3 (scatter) ; dmg E12 4 (scatter) ; dmg E13 2 (scatter)  => E10:arm-2 | E11:arm-3 | E12:arm-4 | E13:arm-2",
+   "R10": "dmg E10 2 (scatter) ; dmg E11 3 (scatter) ; dmg E12 4 (scatter) ; dmg E13 2 (scatter)  => E10:arm-2 | E11:arm-3 | E12:arm-4 | E13:arm-2",
+   "L0": "dmg E10 1 (scatter) ; dmg E11 1 (scatter) ; dmg E12 3 (scatter) ; dmg E13 1 (scatter)  => E10:arm-1 | E11:arm-1 | E12:arm-3 | E13:arm-1",
+   "K": "dmg E10 2 (scatter) ; dmg E11 3 (scatter) ; dmg E12 4 (scatter) ; dmg E13 2 (scatter) ; defeat E10 ; defeat E11 ; defeat E12 ; defeat E13  => E10:hp-1 DEAD | E11:hp-1 DEAD | E12:hp-1 DEAD | E13:hp-1 DEAD"
+  },
+  "by": "coord (accepted before golden)",
+  "at": "2026-09-27T23:48:12.361Z"
+ },
+ "weapon:1008": {
+  "lines": {
+   "L10": "dmg E10 13 (all) ; dmg E11 13 (all)  => E10:hp-8 arm-5 | E11:hp-3 arm-10",
+   "R10": "dmg E10 13 (all) ; dmg E11 13 (all)  => E10:hp-8 arm-5 | E11:hp-3 arm-10",
+   "L0": "dmg E10 3 (all) ; dmg E11 3 (all)  => E10:arm-3 | E11:arm-3",
+   "K": "dmg E10 13 (all) ; dmg E11 13 (all) ; defeat E10 ; defeat E11  => E10:hp-1 DEAD | E11:hp-1 DEAD"
+  },
+  "by": "coord (accepted before golden)",
+  "at": "2026-09-27T23:48:12.361Z"
+ },
+ "weapon:1010": {
+  "lines": {
+   "L10": "dmg E10 16  => E10:hp-11 arm-5",
+   "R10": "dmg E10 16  => E10:hp-11 arm-5",
+   "L0": "dmg E10 6  => E10:hp-1 arm-5",
+   "K": "dmg E10 16 ; defeat E10  => E10:hp-1 DEAD"
+  },
+  "by": "coord (accepted before golden)",
+  "at": "2026-09-27T23:48:12.361Z"
+ },
+ "weapon:1011": {
+  "lines": {
+   "L10": "dmg E11 13  => E11:hp-13",
+   "R10": "dmg E11 13  => E11:hp-13",
+   "L0": "dmg E11 3  => E11:hp-3",
+   "K": "dmg E11 13 ; defeat E11  => E11:hp-1 DEAD"
+  },
+  "by": "coord (accepted before golden)",
+  "at": "2026-09-27T23:48:12.361Z"
+ },
+ "weapon:1012": {
+  "lines": {
+   "L10": "dmg E12 15  => E12:hp-15",
+   "R10": "dmg E12 15  => E12:hp-15",
+   "L0": "dmg E12 5  => E12:hp-5",
+   "K": "dmg E12 15 ; defeat E12  => E12:hp-1 DEAD"
+  },
+  "by": "coord (accepted before golden)",
+  "at": "2026-09-27T23:48:12.361Z"
+ },
+ "weapon:1014": {
+  "lines": {
+   "L10": "dmg E11 15  => E11:hp-5 arm-10",
+   "R10": "dmg E11 15  => E11:hp-5 arm-10",
+   "L0": "dmg E11 5  => E11:arm-5",
+   "K": "dmg E11 15 ; defeat E11  => E11:hp-1 DEAD"
+  },
+  "by": "coord (accepted before golden)",
+  "at": "2026-09-27T23:48:12.361Z"
+ },
+ "weapon:1017": {
+  "lines": {
+   "L10": "dmg E10 16  => E10:hp-11 arm-5",
+   "R10": "dmg E10 16  => E10:hp-11 arm-5",
+   "L0": "dmg E10 6  => E10:hp-1 arm-5",
+   "K": "dmg E10 16 ; defeat E10  => E10:hp-1 DEAD"
+  },
+  "by": "coord (accepted before golden)",
+  "at": "2026-09-27T23:48:12.361Z"
+ },
+ "weapon:1018": {
+  "lines": {
+   "L10": "dmg E10 11 (all) ; dmg E11 11 (all) ; dmg E12 11 (all) ; dmg E13 11 (all)  => E10:hp-6 arm-5 | E11:hp-1 arm-10 | E12:arm-11 | E13:hp-8 arm-3",
+   "R10": "dmg E10 11 (all) ; dmg E11 11 (all) ; dmg E12 11 (all) ; dmg E13 11 (all)  => E10:hp-6 arm-5 | E11:hp-1 arm-10 | E12:arm-11 | E13:hp-8 arm-3",
+   "L0": "dmg E10 1 (all) ; dmg E11 1 (all) ; dmg E12 1 (all) ; dmg E13 1 (all)  => E10:arm-1 | E11:arm-1 | E12:arm-1 | E13:arm-1",
+   "K": "dmg E10 11 (all) ; dmg E11 11 (all) ; dmg E12 11 (all) ; dmg E13 11 (all) ; defeat E10 ; defeat E11 ; defeat E12 ; defeat E13  => E10:hp-1 DEAD | E11:hp-1 DEAD | E12:hp-1 DEAD | E13:hp-1 DEAD"
+  },
+  "by": "coord (accepted before golden)",
+  "at": "2026-09-27T23:48:12.361Z"
+ },
+ "weapon:1019": {
+  "lines": {
+   "L10": "dmg E12 17  => E12:hp-5 arm-12",
+   "R10": "dmg E12 17  => E12:hp-5 arm-12",
+   "L0": "dmg E12 7  => E12:arm-7",
+   "K": "dmg E12 17 ; defeat E12  => E12:hp-1 DEAD"
+  },
+  "by": "coord (accepted before golden)",
+  "at": "2026-09-27T23:48:12.361Z"
+ },
+ "weapon:1020": {
+  "lines": {
+   "L10": "dmg E10 3 (scatter) ; dmg E11 4 (scatter) ; dmg E12 6 (scatter) ; dmg E13 3 (scatter)  => E10:arm-3 | E11:arm-4 | E12:arm-6 | E13:arm-3",
+   "R10": "dmg E10 3 (scatter) ; dmg E11 4 (scatter) ; dmg E12 6 (scatter) ; dmg E13 3 (scatter)  => E10:arm-3 | E11:arm-4 | E12:arm-6 | E13:arm-3",
+   "L0": "dmg E10 1 (scatter) ; dmg E11 1 (scatter) ; dmg E12 3 (scatter) ; dmg E13 1 (scatter)  => E10:arm-1 | E11:arm-1 | E12:arm-3 | E13:arm-1",
+   "K": "dmg E10 4 (scatter) ; dmg E11 4 (scatter) ; dmg E12 5 (scatter) ; dmg E13 3 (scatter) ; defeat E10 ; defeat E11 ; defeat E12 ; defeat E13  => E10:hp-1 DEAD | E11:hp-1 DEAD | E12:hp-1 DEAD | E13:hp-1 DEAD"
+  },
+  "by": "coord (accepted before golden)",
+  "at": "2026-09-27T23:48:12.361Z"
+ },
+ "weapon:1023": {
+  "lines": {
+   "L10": "dmg E10 15 (all) ; dmg E11 15 (all)  => E10:hp-10 arm-5 | E11:hp-5 arm-10",
+   "R10": "dmg E10 15 (all) ; dmg E11 15 (all)  => E10:hp-10 arm-5 | E11:hp-5 arm-10",
+   "L0": "dmg E10 5 (all) ; dmg E11 5 (all)  => E10:arm-5 | E11:arm-5",
+   "K": "dmg E10 15 (all) ; dmg E11 15 (all) ; defeat E10 ; defeat E11  => E10:hp-1 DEAD | E11:hp-1 DEAD"
+  },
+  "by": "coord (accepted before golden)",
+  "at": "2026-09-27T23:48:12.361Z"
+ },
+ "weapon:1043": {
+  "lines": {
+   "L10": "destroy 15 (Red x2, Blue x4, Green x2, Yellow x3, Purple x1, Brown x2, skull x1) ; skulls E10 1  => A2:mana+5 | A1:mana+4 | E10:arm-1",
+   "R10": "destroy 15 (Red x2, Blue x4, Green x2, Yellow x3, Purple x1, Brown x2, skull x1) ; skulls E10 1  => A2:mana+5 | A1:mana+4 | E10:arm-1",
+   "L0": "destroy 15 (Red x2, Blue x4, Green x2, Yellow x3, Purple x1, Brown x2, skull x1) ; skulls E10 1  => A2:mana+5 | A1:mana+4 | E10:arm-1",
+   "K": "destroy 15 (Red x2, Blue x4, Green x2, Yellow x3, Purple x1, Brown x2, skull x1) ; skulls E10 1 ; defeat E10  => A2:mana+5 | A1:mana+4 | E10:hp-1 DEAD"
+  },
+  "by": "coord (accepted before golden)",
+  "at": "2026-09-27T23:48:12.361Z"
+ },
+ "weapon:1072": {
+  "lines": {
+   "L10": "status E10 +entangle ; dmg E10 12  => E10:hp-12 +entangle",
+   "R10": "status E10 +entangle ; dmg E10 12  => E10:hp-12 +entangle",
+   "L0": "status E10 +entangle ; dmg E10 2  => E10:hp-2 +entangle",
+   "K": "status E10 +entangle ; dmg E10 12 ; defeat E10  => E10:hp-1 +entangle DEAD"
+  },
+  "by": "coord (accepted before golden)",
+  "at": "2026-09-27T23:48:12.361Z"
+ },
+ "weapon:1075": {
+  "lines": {
+   "L10": "buff A1 armor+4  => A1:arm+4",
+   "R10": "buff A1 armor+4  => A1:arm+4",
+   "L0": "buff A1 armor+4  => A1:arm+4",
+   "K": "buff A1 armor+4  => A1:arm+4"
+  },
+  "by": "coord (accepted before golden)",
+  "at": "2026-09-27T23:48:12.361Z"
+ },
+ "weapon:1105": {
+  "lines": {
+   "L10": "dmg E11 17  => E11:hp-7 arm-10",
+   "R10": "dmg E11 17  => E11:hp-7 arm-10",
+   "L0": "dmg E11 7  => E11:arm-7",
+   "K": "dmg E11 17 ; defeat E11  => E11:hp-1 DEAD"
+  },
+  "by": "coord (accepted before golden)",
+  "at": "2026-09-27T23:48:12.361Z"
+ },
+ "weapon:1110": {
+  "lines": {
+   "L10": "buff E11 armor-10 ; dmg E11 11 ; buff C attack+10  => E11:hp-11 arm-10 | C:atk+10",
+   "R10": "buff E11 armor-10 ; dmg E11 11 ; buff C attack+10  => E11:hp-11 arm-10 | C:atk+10",
+   "L0": "buff E11 armor-10 ; dmg E11 1 ; buff C attack+10  => E11:hp-1 arm-10 | C:atk+10",
+   "K": "dmg E11 11 ; defeat E11  => E11:hp-1 DEAD"
+  },
+  "by": "coord (accepted before golden)",
+  "at": "2026-09-27T23:48:12.361Z"
+ },
+ "weapon:1129": {
+  "lines": {
+   "L10": "dmg E10 10 (all) ; dmg E11 10 (all) ; dmg E12 10 (all) ; dmg E13 10 (all)  => E10:hp-5 arm-5 | E11:arm-10 | E12:arm-10 | E13:hp-7 arm-3",
+   "R10": "dmg E10 10 (all) ; dmg E11 10 (all) ; dmg E12 10 (all) ; dmg E13 10 (all)  => E10:hp-5 arm-5 | E11:arm-10 | E12:arm-10 | E13:hp-7 arm-3",
+   "L0": "(no spell events)",
+   "K": "dmg E10 10 (all) ; dmg E11 10 (all) ; dmg E12 10 (all) ; dmg E13 10 (all) ; defeat E10 ; defeat E11 ; defeat E12 ; defeat E13  => E10:hp-1 DEAD | E11:hp-1 DEAD | E12:hp-1 DEAD | E13:hp-1 DEAD"
+  },
+  "by": "coord (accepted before golden)",
+  "at": "2026-09-27T23:48:12.361Z"
+ },
+ "weapon:1147": {
+  "lines": {
+   "L10": "status E11 +death-mark ; dmg E12 20 (all) ; dmg E13 20 (all)  => E11:+death-mark | E12:hp-20 | E13:hp-20",
+   "R10": "status E11 +death-mark ; dmg E12 20 (all) ; dmg E13 20 (all)  => E11:+death-mark | E12:hp-20 | E13:hp-20",
+   "L0": "status E11 +death-mark ; dmg E12 10 (all) ; dmg E13 10 (all)  => E11:+death-mark | E12:hp-10 | E13:hp-10",
+   "K": "status E11 +death-mark ; dmg E12 14 (all) ; dmg E13 14 (all) ; defeat E12 ; defeat E13  => E11:+death-mark | E12:hp-1 DEAD | E13:hp-1 DEAD"
+  },
+  "by": "coord (accepted before golden)",
+  "at": "2026-09-27T23:48:12.361Z"
+ },
+ "weapon:1187": {
+  "lines": {
+   "L10": "dmg E11 17  => E11:hp-7 arm-10",
+   "R10": "dmg E11 17  => E11:hp-7 arm-10",
+   "L0": "dmg E11 7  => E11:arm-7",
+   "K": "dmg E11 17 ; defeat E11  => E11:hp-1 DEAD"
+  },
+  "by": "coord (accepted before golden)",
+  "at": "2026-09-27T23:48:12.361Z"
+ },
+ "weapon:1188": {
+  "lines": {
+   "L10": "dmg E11 17  => E11:hp-7 arm-10",
+   "R10": "dmg E11 17  => E11:hp-7 arm-10",
+   "L0": "dmg E11 7  => E11:arm-7",
+   "K": "dmg E11 17 ; defeat E11  => E11:hp-1 DEAD"
+  },
+  "by": "coord (accepted before golden)",
+  "at": "2026-09-27T23:48:12.361Z"
+ },
+ "weapon:1189": {
+  "lines": {
+   "L10": "dmg E11 17  => E11:hp-7 arm-10",
+   "R10": "dmg E11 17  => E11:hp-7 arm-10",
+   "L0": "dmg E11 7  => E11:arm-7",
+   "K": "dmg E11 17 ; defeat E11  => E11:hp-1 DEAD"
+  },
+  "by": "coord (accepted before golden)",
+  "at": "2026-09-27T23:48:12.361Z"
+ },
+ "weapon:1190": {
+  "lines": {
+   "L10": "dmg E11 17  => E11:hp-7 arm-10",
+   "R10": "dmg E11 17  => E11:hp-7 arm-10",
+   "L0": "dmg E11 7  => E11:arm-7",
+   "K": "dmg E11 17 ; defeat E11  => E11:hp-1 DEAD"
+  },
+  "by": "coord (accepted before golden)",
+  "at": "2026-09-27T23:48:12.361Z"
+ },
+ "weapon:1191": {
+  "lines": {
+   "L10": "dmg E11 17  => E11:hp-7 arm-10",
+   "R10": "dmg E11 17  => E11:hp-7 arm-10",
+   "L0": "dmg E11 7  => E11:arm-7",
+   "K": "dmg E11 17 ; defeat E11  => E11:hp-1 DEAD"
+  },
+  "by": "coord (accepted before golden)",
+  "at": "2026-09-27T23:48:12.361Z"
+ },
+ "weapon:1192": {
+  "lines": {
+   "L10": "dmg E11 17  => E11:hp-7 arm-10",
+   "R10": "dmg E11 17  => E11:hp-7 arm-10",
+   "L0": "dmg E11 7  => E11:arm-7",
+   "K": "dmg E11 17 ; defeat E11  => E11:hp-1 DEAD"
+  },
+  "by": "coord (accepted before golden)",
+  "at": "2026-09-27T23:48:12.361Z"
+ },
+ "weapon:1194": {
+  "lines": {
+   "L10": "buff E11 armor-10 ; dmg E11 17  => E11:hp-17 arm-10",
+   "R10": "buff E11 armor-10 ; dmg E11 17  => E11:hp-17 arm-10",
+   "L0": "buff E11 armor-10 ; dmg E11 7  => E11:hp-7 arm-10",
+   "K": "dmg E11 14 ; defeat E11  => E11:hp-1 DEAD"
+  },
+  "by": "coord (accepted before golden)",
+  "at": "2026-09-27T23:48:12.361Z"
+ },
+ "weapon:1199": {
+  "lines": {
+   "L10": "buff E11 armor-10 ; dmg E11 15 ; buff C attack+5 ; buff A1 attack+5 ; buff A2 attack+5  => E11:hp-15 arm-10 | C:atk+5 | A1:atk+5 | A2:atk+5",
+   "R10": "buff E11 armor-10 ; dmg E11 15 ; buff C attack+5 ; buff A1 attack+5 ; buff A2 attack+5  => E11:hp-15 arm-10 | C:atk+5 | A1:atk+5 | A2:atk+5",
+   "L0": "buff E11 armor-10 ; dmg E11 5 ; buff C attack+5 ; buff A1 attack+5 ; buff A2 attack+5  => E11:hp-5 arm-10 | C:atk+5 | A1:atk+5 | A2:atk+5",
+   "K": "dmg E11 15 ; defeat E11 ; buff C attack+2 ; buff A1 attack+2 ; buff A2 attack+2  => E11:hp-1 DEAD | C:atk+2 | A1:atk+2 | A2:atk+2"
+  },
+  "by": "coord (accepted before golden)",
+  "at": "2026-09-27T23:48:12.361Z"
+ },
+ "weapon:1200": {
+  "lines": {
+   "L10": "buff E11 armor-10 ; buff C hp+14 max+14 ; buff A1 hp+14 max+14 ; buff A2 hp+14 max+14  => E11:arm-10 | C:hp+14 max+14 | A1:hp+14 max+14 | A2:hp+14 max+14",
+   "R10": "buff E11 armor-10 ; buff C hp+14 max+14 ; buff A1 hp+14 max+14 ; buff A2 hp+14 max+14  => E11:arm-10 | C:hp+14 max+14 | A1:hp+14 max+14 | A2:hp+14 max+14",
+   "L0": "buff E11 armor-10 ; buff C hp+4 max+4 ; buff A1 hp+4 max+4 ; buff A2 hp+4 max+4  => E11:arm-10 | C:hp+4 max+4 | A1:hp+4 max+4 | A2:hp+4 max+4",
+   "K": "buff C hp+11 max+11 ; buff A1 hp+11 max+11 ; buff A2 hp+11 max+11  => C:hp+11 max+11 | A1:hp+11 max+11 | A2:hp+11 max+11"
+  },
+  "by": "coord (accepted before golden)",
+  "at": "2026-09-27T23:48:12.361Z"
+ },
+ "weapon:1201": {
+  "lines": {
+   "L10": "buff E11 armor-10 ; dmg E11 13 ; buff C magic+5  => E11:hp-13 arm-10 | C:mag+5",
+   "R10": "buff E11 armor-10 ; dmg E11 13 ; buff C magic+5  => E11:hp-13 arm-10 | C:mag+5",
+   "L0": "buff E11 armor-10 ; dmg E11 3 ; buff C magic+5  => E11:hp-3 arm-10 | C:mag+5",
+   "K": "dmg E11 13 ; defeat E11 ; buff C magic+2  => E11:hp-1 DEAD | C:mag+2"
+  },
+  "by": "coord (accepted before golden)",
+  "at": "2026-09-27T23:48:12.361Z"
+ },
+ "weapon:1204": {
+  "lines": {
+   "L10": "buff E11 armor-10 ; gold+14  => E11:arm-10  eco:{\"gold\":14,\"goldMine\":14}",
+   "R10": "buff E11 armor-10 ; gold+14  => E11:arm-10  eco:{\"gold\":14,\"goldMine\":14}",
+   "L0": "buff E11 armor-10 ; gold+4  => E11:arm-10  eco:{\"gold\":4,\"goldMine\":4}",
+   "K": "gold+11  eco:{\"gold\":11,\"goldMine\":11}"
+  },
+  "by": "coord (accepted before golden)",
+  "at": "2026-09-27T23:48:12.361Z"
+ },
+ "weapon:1216": {
+  "lines": {
+   "L10": "dmg E11 17  => E11:hp-7 arm-10",
+   "R10": "dmg E11 17  => E11:hp-7 arm-10",
+   "L0": "dmg E11 7  => E11:arm-7",
+   "K": "dmg E11 17 ; defeat E11  => E11:hp-1 DEAD"
+  },
+  "by": "coord (accepted before golden)",
+  "at": "2026-09-27T23:48:12.361Z"
+ },
+ "weapon:1226": {
+  "lines": {
+   "L10": "dmg E10 13 (all) ; dmg E11 13 (all) ; dmg E12 13 (all) ; dmg E13 13 (all) ; convert Red x9 -> doomSkull x9 ; buff C mana+3  => E10:hp-8 arm-5 | E11:hp-3 arm-10 | E12:hp-1 arm-12 | E13:hp-10 arm-3",
+   "R10": "dmg E10 13 (all) ; dmg E11 13 (all) ; dmg E12 13 (all) ; dmg E13 13 (all) ; convert Red x9 -> doomSkull x9 ; buff C mana+3  => E10:hp-8 arm-5 | E11:hp-3 arm-10 | E12:hp-1 arm-12 | E13:hp-10 arm-3",
+   "L0": "dmg E10 3 (all) ; dmg E11 3 (all) ; dmg E12 3 (all) ; dmg E13 3 (all) ; convert Red x9 -> doomSkull x9 ; buff C mana+3  => E10:arm-3 | E11:arm-3 | E12:arm-3 | E13:arm-3",
+   "K": "dmg E10 13 (all) ; dmg E11 13 (all) ; dmg E12 13 (all) ; dmg E13 13 (all) ; defeat E10 ; defeat E11 ; defeat E12 ; defeat E13 ; convert Red x9 -> doomSkull x9  => E10:hp-1 DEAD | E11:hp-1 DEAD | E12:hp-1 DEAD | E13:hp-1 DEAD"
+  },
+  "by": "coord (accepted before golden)",
+  "at": "2026-09-27T23:48:12.361Z"
+ },
+ "weapon:1232": {
+  "lines": {
+   "L10": "dmg E11 17  => E11:hp-7 arm-10",
+   "R10": "dmg E11 17  => E11:hp-7 arm-10",
+   "L0": "dmg E11 7  => E11:arm-7",
+   "K": "dmg E11 17 ; defeat E11  => E11:hp-1 DEAD"
+  },
+  "by": "coord (accepted before golden)",
+  "at": "2026-09-27T23:48:12.361Z"
+ },
+ "weapon:1234": {
+  "lines": {
+   "L10": "dmg E11 17  => E11:hp-7 arm-10",
+   "R10": "dmg E11 17  => E11:hp-7 arm-10",
+   "L0": "dmg E11 7  => E11:arm-7",
+   "K": "dmg E11 17 ; defeat E11  => E11:hp-1 DEAD"
+  },
+  "by": "coord (accepted before golden)",
+  "at": "2026-09-27T23:48:12.361Z"
+ },
+ "weapon:1235": {
+  "lines": {
+   "L10": "dmg E11 17  => E11:hp-7 arm-10",
+   "R10": "dmg E11 17  => E11:hp-7 arm-10",
+   "L0": "dmg E11 7  => E11:arm-7",
+   "K": "dmg E11 17 ; defeat E11  => E11:hp-1 DEAD"
+  },
+  "by": "coord (accepted before golden)",
+  "at": "2026-09-27T23:48:12.361Z"
+ },
+ "weapon:1240": {
+  "lines": {
+   "L10": "dmg E11 17  => E11:hp-7 arm-10",
+   "R10": "dmg E11 17  => E11:hp-7 arm-10",
+   "L0": "dmg E11 7  => E11:arm-7",
+   "K": "dmg E11 17 ; defeat E11  => E11:hp-1 DEAD"
+  },
+  "by": "coord (accepted before golden)",
+  "at": "2026-09-27T23:48:12.361Z"
+ },
+ "weapon:1241": {
+  "lines": {
+   "L10": "dmg E11 17  => E11:hp-7 arm-10",
+   "R10": "dmg E11 17  => E11:hp-7 arm-10",
+   "L0": "dmg E11 7  => E11:arm-7",
+   "K": "dmg E11 17 ; defeat E11  => E11:hp-1 DEAD"
+  },
+  "by": "coord (accepted before golden)",
+  "at": "2026-09-27T23:48:12.361Z"
+ },
+ "weapon:1243": {
+  "lines": {
+   "L10": "dmg E11 17  => E11:hp-7 arm-10",
+   "R10": "dmg E11 17  => E11:hp-7 arm-10",
+   "L0": "dmg E11 7  => E11:arm-7",
+   "K": "dmg E11 17 ; defeat E11  => E11:hp-1 DEAD"
+  },
+  "by": "coord (accepted before golden)",
+  "at": "2026-09-27T23:48:12.361Z"
+ },
+ "weapon:1244": {
+  "lines": {
+   "L10": "dmg E11 17  => E11:hp-7 arm-10",
+   "R10": "dmg E11 17  => E11:hp-7 arm-10",
+   "L0": "dmg E11 7  => E11:arm-7",
+   "K": "dmg E11 17 ; defeat E11  => E11:hp-1 DEAD"
+  },
+  "by": "coord (accepted before golden)",
+  "at": "2026-09-27T23:48:12.361Z"
+ },
+ "weapon:1246": {
+  "lines": {
+   "L10": "dmg E11 17  => E11:hp-7 arm-10",
+   "R10": "dmg E11 17  => E11:hp-7 arm-10",
+   "L0": "dmg E11 7  => E11:arm-7",
+   "K": "dmg E11 17 ; defeat E11  => E11:hp-1 DEAD"
+  },
+  "by": "coord (accepted before golden)",
+  "at": "2026-09-27T23:48:12.361Z"
+ },
+ "weapon:1249": {
+  "lines": {
+   "L10": "dmg E11 17  => E11:hp-7 arm-10",
+   "R10": "dmg E11 17  => E11:hp-7 arm-10",
+   "L0": "dmg E11 7  => E11:arm-7",
+   "K": "dmg E11 17 ; defeat E11  => E11:hp-1 DEAD"
+  },
+  "by": "coord (accepted before golden)",
+  "at": "2026-09-27T23:48:12.361Z"
+ },
+ "weapon:1264": {
+  "lines": {
+   "L10": "dmg E11 17  => E11:hp-7 arm-10",
+   "R10": "dmg E11 17  => E11:hp-7 arm-10",
+   "L0": "dmg E11 7  => E11:arm-7",
+   "K": "dmg E11 17 ; defeat E11  => E11:hp-1 DEAD"
+  },
+  "by": "coord (accepted before golden)",
+  "at": "2026-09-27T23:48:12.361Z"
+ },
+ "weapon:1265": {
+  "lines": {
+   "L10": "dmg E11 17  => E11:hp-7 arm-10",
+   "R10": "dmg E11 17  => E11:hp-7 arm-10",
+   "L0": "dmg E11 7  => E11:arm-7",
+   "K": "dmg E11 17 ; defeat E11  => E11:hp-1 DEAD"
+  },
+  "by": "coord (accepted before golden)",
+  "at": "2026-09-27T23:48:12.361Z"
+ },
+ "weapon:1266": {
+  "lines": {
+   "L10": "dmg E11 17  => E11:hp-7 arm-10",
+   "R10": "dmg E11 17  => E11:hp-7 arm-10",
+   "L0": "dmg E11 7  => E11:arm-7",
+   "K": "dmg E11 17 ; defeat E11  => E11:hp-1 DEAD"
+  },
+  "by": "coord (accepted before golden)",
+  "at": "2026-09-27T23:48:12.361Z"
+ },
+ "weapon:1267": {
+  "lines": {
+   "L10": "dmg E11 17  => E11:hp-7 arm-10",
+   "R10": "dmg E11 17  => E11:hp-7 arm-10",
+   "L0": "dmg E11 7  => E11:arm-7",
+   "K": "dmg E11 17 ; defeat E11  => E11:hp-1 DEAD"
+  },
+  "by": "coord (accepted before golden)",
+  "at": "2026-09-27T23:48:12.361Z"
+ },
+ "weapon:1268": {
+  "lines": {
+   "L10": "dmg E11 17  => E11:hp-7 arm-10",
+   "R10": "dmg E11 17  => E11:hp-7 arm-10",
+   "L0": "dmg E11 7  => E11:arm-7",
+   "K": "dmg E11 17 ; defeat E11  => E11:hp-1 DEAD"
+  },
+  "by": "coord (accepted before golden)",
+  "at": "2026-09-27T23:48:12.361Z"
+ },
+ "weapon:1269": {
+  "lines": {
+   "L10": "dmg E11 17  => E11:hp-7 arm-10",
+   "R10": "dmg E11 17  => E11:hp-7 arm-10",
+   "L0": "dmg E11 7  => E11:arm-7",
+   "K": "dmg E11 17 ; defeat E11  => E11:hp-1 DEAD"
+  },
+  "by": "coord (accepted before golden)",
+  "at": "2026-09-27T23:48:12.361Z"
+ },
+ "weapon:1270": {
+  "lines": {
+   "L10": "dmg E11 17  => E11:hp-7 arm-10",
+   "R10": "dmg E11 17  => E11:hp-7 arm-10",
+   "L0": "dmg E11 7  => E11:arm-7",
+   "K": "dmg E11 17 ; defeat E11  => E11:hp-1 DEAD"
+  },
+  "by": "coord (accepted before golden)",
+  "at": "2026-09-27T23:48:12.361Z"
+ },
+ "weapon:1271": {
+  "lines": {
+   "L10": "dmg E11 17  => E11:hp-7 arm-10",
+   "R10": "dmg E11 17  => E11:hp-7 arm-10",
+   "L0": "dmg E11 7  => E11:arm-7",
+   "K": "dmg E11 17 ; defeat E11  => E11:hp-1 DEAD"
+  },
+  "by": "coord (accepted before golden)",
+  "at": "2026-09-27T23:48:12.361Z"
+ },
+ "weapon:1281": {
+  "lines": {
+   "L10": "dmg E11 17  => E11:hp-7 arm-10",
+   "R10": "dmg E11 17  => E11:hp-7 arm-10",
+   "L0": "dmg E11 7  => E11:arm-7",
+   "K": "dmg E11 17 ; defeat E11  => E11:hp-1 DEAD"
+  },
+  "by": "coord (accepted before golden)",
+  "at": "2026-09-27T23:48:12.361Z"
+ },
+ "weapon:1282": {
+  "lines": {
+   "L10": "dmg E11 17  => E11:hp-7 arm-10",
+   "R10": "dmg E11 17  => E11:hp-7 arm-10",
+   "L0": "dmg E11 7  => E11:arm-7",
+   "K": "dmg E11 17 ; defeat E11  => E11:hp-1 DEAD"
+  },
+  "by": "coord (accepted before golden)",
+  "at": "2026-09-27T23:48:12.361Z"
+ },
+ "weapon:1283": {
+  "lines": {
+   "L10": "dmg E11 17  => E11:hp-7 arm-10",
+   "R10": "dmg E11 17  => E11:hp-7 arm-10",
+   "L0": "dmg E11 7  => E11:arm-7",
+   "K": "dmg E11 17 ; defeat E11  => E11:hp-1 DEAD"
+  },
+  "by": "coord (accepted before golden)",
+  "at": "2026-09-27T23:48:12.361Z"
+ },
+ "weapon:1284": {
+  "lines": {
+   "L10": "dmg E11 17  => E11:hp-7 arm-10",
+   "R10": "dmg E11 17  => E11:hp-7 arm-10",
+   "L0": "dmg E11 7  => E11:arm-7",
+   "K": "dmg E11 17 ; defeat E11  => E11:hp-1 DEAD"
+  },
+  "by": "coord (accepted before golden)",
+  "at": "2026-09-27T23:48:12.361Z"
+ },
+ "weapon:1285": {
+  "lines": {
+   "L10": "dmg E11 17  => E11:hp-7 arm-10",
+   "R10": "dmg E11 17  => E11:hp-7 arm-10",
+   "L0": "dmg E11 7  => E11:arm-7",
+   "K": "dmg E11 17 ; defeat E11  => E11:hp-1 DEAD"
+  },
+  "by": "coord (accepted before golden)",
+  "at": "2026-09-27T23:48:12.361Z"
+ },
+ "weapon:1288": {
+  "lines": {
+   "L10": "dmg E11 17  => E11:hp-7 arm-10",
+   "R10": "dmg E11 17  => E11:hp-7 arm-10",
+   "L0": "dmg E11 7  => E11:arm-7",
+   "K": "dmg E11 17 ; defeat E11  => E11:hp-1 DEAD"
+  },
+  "by": "coord (accepted before golden)",
+  "at": "2026-09-27T23:48:12.361Z"
+ },
+ "weapon:1289": {
+  "lines": {
+   "L10": "dmg E11 17  => E11:hp-7 arm-10",
+   "R10": "dmg E11 17  => E11:hp-7 arm-10",
+   "L0": "dmg E11 7  => E11:arm-7",
+   "K": "dmg E11 17 ; defeat E11  => E11:hp-1 DEAD"
+  },
+  "by": "coord (accepted before golden)",
+  "at": "2026-09-27T23:48:12.361Z"
+ },
+ "weapon:1290": {
+  "lines": {
+   "L10": "dmg E11 17  => E11:hp-7 arm-10",
+   "R10": "dmg E11 17  => E11:hp-7 arm-10",
+   "L0": "dmg E11 7  => E11:arm-7",
+   "K": "dmg E11 17 ; defeat E11  => E11:hp-1 DEAD"
+  },
+  "by": "coord (accepted before golden)",
+  "at": "2026-09-27T23:48:12.361Z"
+ },
+ "weapon:1291": {
+  "lines": {
+   "L10": "dmg E11 17  => E11:hp-7 arm-10",
+   "R10": "dmg E11 17  => E11:hp-7 arm-10",
+   "L0": "dmg E11 7  => E11:arm-7",
+   "K": "dmg E11 17 ; defeat E11  => E11:hp-1 DEAD"
+  },
+  "by": "coord (accepted before golden)",
+  "at": "2026-09-27T23:48:12.361Z"
+ },
+ "weapon:1292": {
+  "lines": {
+   "L10": "dmg E11 17  => E11:hp-7 arm-10",
+   "R10": "dmg E11 17  => E11:hp-7 arm-10",
+   "L0": "dmg E11 7  => E11:arm-7",
+   "K": "dmg E11 17 ; defeat E11  => E11:hp-1 DEAD"
+  },
+  "by": "coord (accepted before golden)",
+  "at": "2026-09-27T23:48:12.361Z"
+ },
+ "weapon:1293": {
+  "lines": {
+   "L10": "dmg E11 17  => E11:hp-7 arm-10",
+   "R10": "dmg E11 17  => E11:hp-7 arm-10",
+   "L0": "dmg E11 7  => E11:arm-7",
+   "K": "dmg E11 17 ; defeat E11  => E11:hp-1 DEAD"
+  },
+  "by": "coord (accepted before golden)",
+  "at": "2026-09-27T23:48:12.361Z"
+ },
+ "weapon:1303": {
+  "lines": {
+   "L10": "dmg E11 17  => E11:hp-7 arm-10",
+   "R10": "dmg E11 17  => E11:hp-7 arm-10",
+   "L0": "dmg E11 7  => E11:arm-7",
+   "K": "dmg E11 17 ; defeat E11  => E11:hp-1 DEAD"
+  },
+  "by": "coord (accepted before golden)",
+  "at": "2026-09-27T23:48:12.361Z"
+ },
+ "weapon:1304": {
+  "lines": {
+   "L10": "dmg E11 17  => E11:hp-7 arm-10",
+   "R10": "dmg E11 17  => E11:hp-7 arm-10",
+   "L0": "dmg E11 7  => E11:arm-7",
+   "K": "dmg E11 17 ; defeat E11  => E11:hp-1 DEAD"
+  },
+  "by": "coord (accepted before golden)",
+  "at": "2026-09-27T23:48:12.361Z"
+ },
+ "weapon:1305": {
+  "lines": {
+   "L10": "dmg E11 17  => E11:hp-7 arm-10",
+   "R10": "dmg E11 17  => E11:hp-7 arm-10",
+   "L0": "dmg E11 7  => E11:arm-7",
+   "K": "dmg E11 17 ; defeat E11  => E11:hp-1 DEAD"
+  },
+  "by": "coord (accepted before golden)",
+  "at": "2026-09-27T23:48:12.361Z"
+ },
+ "weapon:1306": {
+  "lines": {
+   "L10": "dmg E11 17  => E11:hp-7 arm-10",
+   "R10": "dmg E11 17  => E11:hp-7 arm-10",
+   "L0": "dmg E11 7  => E11:arm-7",
+   "K": "dmg E11 17 ; defeat E11  => E11:hp-1 DEAD"
+  },
+  "by": "coord (accepted before golden)",
+  "at": "2026-09-27T23:48:12.361Z"
+ },
+ "weapon:1307": {
+  "lines": {
+   "L10": "dmg E11 17  => E11:hp-7 arm-10",
+   "R10": "dmg E11 17  => E11:hp-7 arm-10",
+   "L0": "dmg E11 7  => E11:arm-7",
+   "K": "dmg E11 17 ; defeat E11  => E11:hp-1 DEAD"
+  },
+  "by": "coord (accepted before golden)",
+  "at": "2026-09-27T23:48:12.361Z"
+ },
+ "weapon:1308": {
+  "lines": {
+   "L10": "dmg E11 17  => E11:hp-7 arm-10",
+   "R10": "dmg E11 17  => E11:hp-7 arm-10",
+   "L0": "dmg E11 7  => E11:arm-7",
+   "K": "dmg E11 17 ; defeat E11  => E11:hp-1 DEAD"
+  },
+  "by": "coord (accepted before golden)",
+  "at": "2026-09-27T23:48:12.361Z"
+ },
+ "weapon:1309": {
+  "lines": {
+   "L10": "dmg E11 17  => E11:hp-7 arm-10",
+   "R10": "dmg E11 17  => E11:hp-7 arm-10",
+   "L0": "dmg E11 7  => E11:arm-7",
+   "K": "dmg E11 17 ; defeat E11  => E11:hp-1 DEAD"
+  },
+  "by": "coord (accepted before golden)",
+  "at": "2026-09-27T23:48:12.361Z"
+ },
+ "weapon:1312": {
+  "lines": {
+   "L10": "dmg E11 17  => E11:hp-7 arm-10",
+   "R10": "dmg E11 17  => E11:hp-7 arm-10",
+   "L0": "dmg E11 7  => E11:arm-7",
+   "K": "dmg E11 17 ; defeat E11  => E11:hp-1 DEAD"
+  },
+  "by": "coord (accepted before golden)",
+  "at": "2026-09-27T23:48:12.361Z"
+ },
+ "weapon:1314": {
+  "lines": {
+   "L10": "dmg E11 17  => E11:hp-7 arm-10",
+   "R10": "dmg E11 17  => E11:hp-7 arm-10",
+   "L0": "dmg E11 7  => E11:arm-7",
+   "K": "dmg E11 17 ; defeat E11  => E11:hp-1 DEAD"
+  },
+  "by": "coord (accepted before golden)",
+  "at": "2026-09-27T23:48:12.361Z"
+ },
+ "weapon:1315": {
+  "lines": {
+   "L10": "dmg E11 17  => E11:hp-7 arm-10",
+   "R10": "dmg E11 17  => E11:hp-7 arm-10",
+   "L0": "dmg E11 7  => E11:arm-7",
+   "K": "dmg E11 17 ; defeat E11  => E11:hp-1 DEAD"
+  },
+  "by": "coord (accepted before golden)",
+  "at": "2026-09-27T23:48:12.361Z"
+ },
+ "weapon:1316": {
+  "lines": {
+   "L10": "dmg E11 17  => E11:hp-7 arm-10",
+   "R10": "dmg E11 17  => E11:hp-7 arm-10",
+   "L0": "dmg E11 7  => E11:arm-7",
+   "K": "dmg E11 17 ; defeat E11  => E11:hp-1 DEAD"
+  },
+  "by": "coord (accepted before golden)",
+  "at": "2026-09-27T23:48:12.361Z"
+ },
+ "weapon:1351": {
+  "lines": {
+   "L10": "cleanse C -poison ; cleanse A1 -poison ; buff C hp+11 max+11 ; buff A1 hp+11 max+11 ; buff A2 hp+11 max+11 ; summon mine troop:-1  => A14:new 幽暗眼球 hp26 atk15 arm7 mag10 | C:hp+11 max+11 -poison | A1:hp+11 max+11 -poison | A2:hp+11 max+11",
+   "R10": "cleanse C -poison ; cleanse A1 -poison ; buff C hp+11 max+11 ; buff A1 hp+11 max+11 ; buff A2 hp+11 max+11 ; summon mine troop:-1  => A14:new 幽暗眼球 hp26 atk15 arm7 mag10 | C:hp+11 max+11 -poison | A1:hp+11 max+11 -poison | A2:hp+11 max+11",
+   "L0": "cleanse C -poison ; cleanse A1 -poison ; buff C hp+1 max+1 ; buff A1 hp+1 max+1 ; buff A2 hp+1 max+1 ; summon mine troop:-1  => A14:new 幽暗眼球 hp26 atk15 arm7 mag10 | C:hp+1 max+1 -poison | A1:hp+1 max+1 -poison | A2:hp+1 max+1",
+   "K": "cleanse C -poison ; cleanse A1 -poison ; buff C hp+11 max+11 ; buff A1 hp+11 max+11 ; buff A2 hp+11 max+11 ; summon mine troop:-1  => A14:new 幽暗眼球 hp26 atk15 arm7 mag10 | C:hp+11 max+11 -poison | A1:hp+11 max+11 -poison | A2:hp+11 max+11"
+  },
+  "by": "coord (accepted before golden)",
+  "at": "2026-09-27T23:48:12.361Z"
+ },
+ "weapon:1353": {
+  "lines": {
+   "L10": "dmg E11 17  => E11:hp-7 arm-10",
+   "R10": "dmg E11 17  => E11:hp-7 arm-10",
+   "L0": "dmg E11 7  => E11:arm-7",
+   "K": "dmg E11 17 ; defeat E11  => E11:hp-1 DEAD"
+  },
+  "by": "coord (accepted before golden)",
+  "at": "2026-09-27T23:48:12.361Z"
+ },
+ "weapon:1355": {
+  "lines": {
+   "L10": "dmg E11 17  => E11:hp-7 arm-10",
+   "R10": "dmg E11 17  => E11:hp-7 arm-10",
+   "L0": "dmg E11 7  => E11:arm-7",
+   "K": "dmg E11 17 ; defeat E11  => E11:hp-1 DEAD"
+  },
+  "by": "coord (accepted before golden)",
+  "at": "2026-09-27T23:48:12.361Z"
+ },
+ "weapon:1356": {
+  "lines": {
+   "L10": "dmg E11 17  => E11:hp-7 arm-10",
+   "R10": "dmg E11 17  => E11:hp-7 arm-10",
+   "L0": "dmg E11 7  => E11:arm-7",
+   "K": "dmg E11 17 ; defeat E11  => E11:hp-1 DEAD"
+  },
+  "by": "coord (accepted before golden)",
+  "at": "2026-09-27T23:48:12.361Z"
+ },
+ "weapon:1368": {
+  "lines": {
+   "L10": "status C +barrier ; dmg E11 13 ; status E11 +silence  => C:+barrier | E11:hp-3 arm-10 +silence",
+   "R10": "status C +barrier ; dmg E11 13 ; status E11 +silence  => C:+barrier | E11:hp-3 arm-10 +silence",
+   "L0": "status C +barrier ; dmg E11 3 ; status E11 +silence  => C:+barrier | E11:arm-3 +silence",
+   "K": "status C +barrier ; dmg E11 13 ; defeat E11  => C:+barrier | E11:hp-1 DEAD"
+  },
+  "by": "coord (accepted before golden)",
+  "at": "2026-09-27T23:48:12.361Z"
+ },
+ "weapon:1369": {
+  "lines": {
+   "L10": "status C +barrier ; buff A1 hp+16 max+16 ; cleanse A1 -poison ; status A1 +enchanted  => C:+barrier | A1:hp+16 max+16 +enchanted -poison",
+   "R10": "status C +barrier ; buff A1 hp+16 max+16 ; cleanse A1 -poison ; status A1 +enchanted  => C:+barrier | A1:hp+16 max+16 +enchanted -poison",
+   "L0": "status C +barrier ; buff A1 hp+1 max+1 ; cleanse A1 -poison ; status A1 +enchanted  => C:+barrier | A1:hp+1 max+1 +enchanted -poison",
+   "K": "status C +barrier ; buff A1 hp+16 max+16 ; cleanse A1 -poison ; status A1 +enchanted  => C:+barrier | A1:hp+16 max+16 +enchanted -poison"
+  },
+  "by": "coord (accepted before golden)",
+  "at": "2026-09-27T23:48:12.361Z"
+ },
+ "weapon:1372": {
+  "lines": {
+   "L10": "dmg E11 17  => E11:hp-7 arm-10",
+   "R10": "dmg E11 17  => E11:hp-7 arm-10",
+   "L0": "dmg E11 7  => E11:arm-7",
+   "K": "dmg E11 17 ; defeat E11  => E11:hp-1 DEAD"
+  },
+  "by": "coord (accepted before golden)",
+  "at": "2026-09-27T23:48:12.361Z"
+ },
+ "weapon:1389": {
+  "lines": {
+   "L10": "dmg E11 17  => E11:hp-7 arm-10",
+   "R10": "dmg E11 17  => E11:hp-7 arm-10",
+   "L0": "dmg E11 7  => E11:arm-7",
+   "K": "dmg E11 17 ; defeat E11  => E11:hp-1 DEAD"
+  },
+  "by": "coord (accepted before golden)",
+  "at": "2026-09-27T23:48:12.361Z"
+ },
+ "weapon:1390": {
+  "lines": {
+   "L10": "dmg E11 17  => E11:hp-7 arm-10",
+   "R10": "dmg E11 17  => E11:hp-7 arm-10",
+   "L0": "dmg E11 7  => E11:arm-7",
+   "K": "dmg E11 17 ; defeat E11  => E11:hp-1 DEAD"
+  },
+  "by": "coord (accepted before golden)",
+  "at": "2026-09-27T23:48:12.361Z"
+ },
+ "weapon:1400": {
+  "lines": {
+   "L10": "dmg E11 17  => E11:hp-7 arm-10",
+   "R10": "dmg E11 17  => E11:hp-7 arm-10",
+   "L0": "dmg E11 7  => E11:arm-7",
+   "K": "dmg E11 17 ; defeat E11  => E11:hp-1 DEAD"
+  },
+  "by": "coord (accepted before golden)",
+  "at": "2026-09-27T23:48:12.361Z"
+ },
+ "weapon:1403": {
+  "lines": {
+   "L10": "dmg E11 17  => E11:hp-7 arm-10",
+   "R10": "dmg E11 17  => E11:hp-7 arm-10",
+   "L0": "dmg E11 7  => E11:arm-7",
+   "K": "dmg E11 17 ; defeat E11  => E11:hp-1 DEAD"
+  },
+  "by": "coord (accepted before golden)",
+  "at": "2026-09-27T23:48:12.361Z"
+ },
+ "weapon:1423": {
+  "lines": {
+   "L10": "dmg E11 17  => E11:hp-7 arm-10",
+   "R10": "dmg E11 17  => E11:hp-7 arm-10",
+   "L0": "dmg E11 7  => E11:arm-7",
+   "K": "dmg E11 17 ; defeat E11  => E11:hp-1 DEAD"
+  },
+  "by": "coord (accepted before golden)",
+  "at": "2026-09-27T23:48:12.361Z"
+ },
+ "weapon:1432": {
+  "lines": {
+   "L10": "dmg E11 17  => E11:hp-7 arm-10",
+   "R10": "dmg E11 17  => E11:hp-7 arm-10",
+   "L0": "dmg E11 7  => E11:arm-7",
+   "K": "dmg E11 17 ; defeat E11  => E11:hp-1 DEAD"
+  },
+  "by": "coord (accepted before golden)",
+  "at": "2026-09-27T23:48:12.361Z"
+ },
+ "weapon:1434": {
+  "lines": {
+   "L10": "status E10 +stun ; status E11 +stun ; status E12 +stun ; status E13 +stun ; convert Purple x2, Yellow x1 -> elementalStar x3 ; ~cascade~ ; trigger elementalStar ; destroy 4 (Blue x2, skull x1, Brown x1) ; trigger elementalStar ; destroy 2 (Yellow x1, Blue x1) ; skulls E10 1 ; extra-turn match  => E10:arm-1 +stun | E11:+stun | E12:+stun | E13:+stun | A1:mana+5 | A2:mana+6  extra:match  cascade",
+   "R10": "status E10 +stun ; status E11 +stun ; status E12 +stun ; status E13 +stun ; convert Purple x2, Yellow x1 -> elementalStar x3 ; ~cascade~ ; trigger elementalStar ; destroy 4 (Blue x2, skull x1, Brown x1) ; trigger elementalStar ; destroy 2 (Yellow x1, Blue x1) ; skulls E10 1 ; extra-turn match  => E10:arm-1 +stun | E11:+stun | E12:+stun | E13:+stun | A1:mana+5 | A2:mana+6  extra:match  cascade",
+   "L0": "status E10 +stun ; status E11 +stun ; status E12 +stun ; status E13 +stun ; convert Purple x2, Yellow x1 -> elementalStar x3 ; ~cascade~ ; trigger elementalStar ; destroy 4 (Blue x2, skull x1, Brown x1) ; trigger elementalStar ; destroy 2 (Yellow x1, Blue x1) ; skulls E10 1 ; extra-turn match  => E10:arm-1 +stun | E11:+stun | E12:+stun | E13:+stun | A1:mana+5 | A2:mana+6  extra:match  cascade",
+   "K": "status E10 +stun ; status E11 +stun ; status E12 +stun ; status E13 +stun ; convert Purple x2, Yellow x1 -> elementalStar x3 ; ~cascade~ ; trigger elementalStar ; destroy 4 (Blue x2, skull x1, Brown x1) ; trigger elementalStar ; destroy 2 (Yellow x1, Blue x1) ; skulls E10 1 ; defeat E10 ; extra-turn match  => E10:hp-1 +stun DEAD | E11:+stun | E12:+stun | E13:+stun | A1:mana+5 | A2:mana+6  extra:match  cascade"
+  },
+  "by": "coord (accepted before golden)",
+  "at": "2026-09-27T23:48:12.361Z"
+ },
+ "weapon:1436": {
+  "lines": {
+   "L10": "status E11 +curse ; status E11 +poison ; status E11 +burning ; status E11 +bleed ; status E11 +silence ; status E11 +frozen ; status E11 +stun ; status E11 +entangle ; status E11 +web ; status E11 +disease ; status E11 +death-mark ; status E11 +faerie-fire ; status E11 +marked ; status E11 +terror ; status E11 +lycanthropy ; status C +barrier ; status C +enchanted ; status C +enraged ; status C +reflect ; status C +submerged ; remove C -poison ; status C +blessed  => E11:+curse+poison+burning+bleed+silence+frozen+stun+entangle+web+disease+death-mark+faerie-fire+marked+terror+lycanthropy | C:+barrier+enchanted+enraged+reflect+submerged+blessed -poison",
+   "R10": "status E11 +curse ; status E11 +poison ; status E11 +burning ; status E11 +bleed ; status E11 +silence ; status E11 +frozen ; status E11 +stun ; status E11 +entangle ; status E11 +web ; status E11 +disease ; status E11 +death-mark ; status E11 +faerie-fire ; status E11 +marked ; status E11 +terror ; status E11 +lycanthropy ; status C +barrier ; status C +enchanted ; status C +enraged ; status C +reflect ; status C +submerged ; remove C -poison ; status C +blessed  => E11:+curse+poison+burning+bleed+silence+frozen+stun+entangle+web+disease+death-mark+faerie-fire+marked+terror+lycanthropy | C:+barrier+enchanted+enraged+reflect+submerged+blessed -poison",
+   "L0": "status E11 +curse ; status E11 +poison ; status E11 +burning ; status E11 +bleed ; status E11 +silence ; status E11 +frozen ; status E11 +stun ; status E11 +entangle ; status E11 +web ; status E11 +disease ; status E11 +death-mark ; status E11 +faerie-fire ; status E11 +marked ; status E11 +terror ; status E11 +lycanthropy ; status C +barrier ; status C +enchanted ; status C +enraged ; status C +reflect ; status C +submerged ; remove C -poison ; status C +blessed  => E11:+curse+poison+burning+bleed+silence+frozen+stun+entangle+web+disease+death-mark+faerie-fire+marked+terror+lycanthropy | C:+barrier+enchanted+enraged+reflect+submerged+blessed -poison",
+   "K": "status E11 +curse ; status E11 +poison ; status E11 +burning ; status E11 +bleed ; status E11 +silence ; status E11 +frozen ; status E11 +stun ; status E11 +entangle ; status E11 +web ; status E11 +disease ; status E11 +death-mark ; status E11 +faerie-fire ; status E11 +marked ; status E11 +terror ; status E11 +lycanthropy ; status C +barrier ; status C +enchanted ; status C +enraged ; status C +reflect ; status C +submerged ; remove C -poison ; status C +blessed  => E11:+curse+poison+burning+bleed+silence+frozen+stun+entangle+web+disease+death-mark+faerie-fire+marked+terror+lycanthropy | C:+barrier+enchanted+enraged+reflect+submerged+blessed -poison"
+  },
+  "by": "coord (accepted before golden)",
+  "at": "2026-09-27T23:48:12.361Z"
+ },
+ "weapon:1437": {
+  "lines": {
+   "L10": "dmg E11 17  => E11:hp-7 arm-10",
+   "R10": "dmg E11 17  => E11:hp-7 arm-10",
+   "L0": "dmg E11 7  => E11:arm-7",
+   "K": "dmg E11 17 ; defeat E11  => E11:hp-1 DEAD"
+  },
+  "by": "coord (accepted before golden)",
+  "at": "2026-09-27T23:48:12.361Z"
+ },
+ "weapon:1473": {
+  "lines": {
+   "L10": "dmg E11 11  => E11:hp-11",
+   "R10": "dmg E11 11  => E11:hp-11",
+   "L0": "dmg E11 1  => E11:hp-1",
+   "K": "dmg E11 11 ; defeat E11  => E11:hp-1 DEAD"
+  },
+  "by": "coord (accepted before golden)",
+  "at": "2026-09-27T23:48:12.361Z"
+ },
+ "weapon:1476": {
+  "lines": {
+   "L10": "dmg E10 11 (all) ; dmg E11 11 (all)  => E10:hp-6 arm-5 | E11:hp-1 arm-10",
+   "R10": "dmg E10 11 (all) ; dmg E11 11 (all)  => E10:hp-6 arm-5 | E11:hp-1 arm-10",
+   "L0": "dmg E10 1 (all) ; dmg E11 1 (all)  => E10:arm-1 | E11:arm-1",
+   "K": "dmg E10 11 (all) ; dmg E11 11 (all) ; defeat E10 ; defeat E11  => E10:hp-1 DEAD | E11:hp-1 DEAD"
+  },
+  "by": "coord (accepted before golden)",
+  "at": "2026-09-27T23:48:12.361Z"
+ },
+ "weapon:1500": {
+  "lines": {
+   "L10": "convert Green x13 -> Blue x13",
+   "R10": "convert Green x13 -> Blue x13",
+   "L0": "convert Green x13 -> Blue x13",
+   "K": "convert Green x13 -> Blue x13"
+  },
+  "by": "coord (accepted before golden)",
+  "at": "2026-09-27T23:48:12.361Z"
+ },
+ "weapon:1504": {
+  "lines": {
+   "L10": "convert Blue x11 -> spiritGem/Blue x11",
+   "R10": "convert Blue x11 -> spiritGem/Blue x11",
+   "L0": "convert Blue x11 -> spiritGem/Blue x11",
+   "K": "convert Green x13 -> spiritGem/Green x13"
+  },
+  "by": "coord (accepted before golden)",
+  "at": "2026-09-27T23:48:12.361Z"
+ },
+ "weapon:1532": {
+  "lines": {
+   "L10": "convert Green x3 -> bootyGem x3 ; convert Yellow x9 -> doomSkull x9",
+   "R10": "convert Green x3 -> bootyGem x3 ; convert Yellow x9 -> doomSkull x9",
+   "L0": "convert Green x3 -> bootyGem x3 ; convert Yellow x9 -> doomSkull x9",
+   "K": "convert Green x3 -> bootyGem x3 ; convert Yellow x9 -> doomSkull x9"
+  },
+  "by": "coord (accepted before golden)",
+  "at": "2026-09-27T23:48:12.361Z"
+ },
+ "weapon:1546": {
+  "lines": {
+   "L10": "convert Red x9 -> curseGem x9 ; dmg E11 16  => E11:hp-6 arm-10",
+   "R10": "convert Red x9 -> curseGem x9 ; dmg E11 16  => E11:hp-6 arm-10",
+   "L0": "convert Red x9 -> curseGem x9 ; dmg E11 6  => E11:arm-6",
+   "K": "convert Red x9 -> curseGem x9 ; dmg E11 16 ; defeat E11  => E11:hp-1 DEAD"
+  },
+  "by": "coord (accepted before golden)",
+  "at": "2026-09-27T23:48:12.361Z"
+ },
+ "weapon:1547": {
+  "lines": {
+   "L10": "convert Purple x9 -> doomSkull x9 ; dmg E11 16  => E11:hp-6 arm-10",
+   "R10": "convert Purple x9 -> doomSkull x9 ; dmg E11 16  => E11:hp-6 arm-10",
+   "L0": "convert Purple x9 -> doomSkull x9 ; dmg E11 6  => E11:arm-6",
+   "K": "convert Purple x9 -> doomSkull x9 ; dmg E11 16 ; defeat E11  => E11:hp-1 DEAD"
+  },
+  "by": "coord (accepted before golden)",
+  "at": "2026-09-27T23:48:12.361Z"
+ },
+ "weapon:1603": {
+  "lines": {
+   "L10": "dmg E11 23 (splash) ; dmg E10 5 (splash) ; dmg E12 5 (splash)  => E11:hp-13 arm-10 | E10:arm-5 | E12:arm-5",
+   "R10": "dmg E11 23 (splash) ; dmg E10 5 (splash) ; dmg E12 5 (splash)  => E11:hp-13 arm-10 | E10:arm-5 | E12:arm-5",
+   "L0": "dmg E11 3 (splash)  => E11:arm-3",
+   "K": "dmg E11 23 (splash) ; dmg E10 5 (splash) ; dmg E12 5 (splash) ; defeat E11 ; defeat E10 ; defeat E12  => E11:hp-1 DEAD | E10:hp-1 DEAD | E12:hp-1 DEAD"
+  },
+  "by": "coord (accepted before golden)",
+  "at": "2026-09-27T23:48:12.361Z"
+ },
+ "weapon:1620": {
+  "lines": {
+   "L10": "cleanse C -poison ; status E12 +bleed ; status E11 +bleed ; status E13 +bleed ; status E12 +bleed ; status E10 +bleed ; status E12 +bleed ; status E11 +bleed ; status E12 +bleed ; status E13 +bleed  => C:-poison | E12:+bleed | E11:+bleed | E13:+bleed | E10:+bleed",
+   "R10": "cleanse C -poison ; status E12 +bleed ; status E11 +bleed ; status E13 +bleed ; status E12 +bleed ; status E10 +bleed ; status E12 +bleed ; status E11 +bleed ; status E12 +bleed ; status E13 +bleed  => C:-poison | E12:+bleed | E11:+bleed | E13:+bleed | E10:+bleed",
+   "L0": "cleanse C -poison ; status E12 +bleed ; status E11 +bleed ; status E13 +bleed ; status E12 +bleed ; status E10 +bleed ; status E12 +bleed ; status E11 +bleed ; status E12 +bleed ; status E13 +bleed  => C:-poison | E12:+bleed | E11:+bleed | E13:+bleed | E10:+bleed",
+   "K": "cleanse C -poison ; status E12 +bleed ; status E11 +bleed ; status E13 +bleed ; status E12 +bleed ; status E10 +bleed ; status E12 +bleed ; status E11 +bleed ; status E12 +bleed ; status E13 +bleed  => C:-poison | E12:+bleed | E11:+bleed | E13:+bleed | E10:+bleed"
+  },
+  "by": "coord (accepted before golden)",
+  "at": "2026-09-27T23:48:12.361Z"
+ },
+ "weapon:1721": {
+  "lines": {
+   "L10": "dmg E10 14 (all) ; dmg E11 14 (all)  => E10:hp-9 arm-5 | E11:hp-4 arm-10",
+   "R10": "dmg E10 14 (all) ; dmg E11 14 (all)  => E10:hp-9 arm-5 | E11:hp-4 arm-10",
+   "L0": "dmg E10 4 (all) ; dmg E11 4 (all)  => E10:arm-4 | E11:arm-4",
+   "K": "dmg E10 14 (all) ; dmg E11 14 (all) ; defeat E10 ; defeat E11  => E10:hp-1 DEAD | E11:hp-1 DEAD"
+  },
+  "by": "coord (accepted before golden)",
+  "at": "2026-09-27T23:48:12.361Z"
+ }
+}
