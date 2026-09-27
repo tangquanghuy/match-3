@@ -122,6 +122,10 @@ function next() {
   if (!members.size) throw new Error(`unknown lane ${lane}`);
   const legacy = fs.readdirSync(abs(base)).filter(f => /^signoff-.*\.json$/.test(f)).map(f => `${base}/${f}`);
   const taken = new Set([...laneFiles(), ...legacy].flatMap(f => read(f).reviews.map(r => r.key)));
+  for (const d of fs.readdirSync(abs(base)).filter(d => d.startsWith('lane-'))) {
+    const p = abs(`${base}/${d}/signoffs.jsonl`);
+    if (fs.existsSync(p)) for (const l of fs.readFileSync(p, 'utf8').split('\n').filter(Boolean)) taken.add(JSON.parse(l).key);
+  }
   const stored = new Set(read('data/audit/gow-skill-reviews.json').reviews.map(r => r.key));
   const out = [];
   // Requeued keys: stale accepts or reopened drafts, even if already present in a lane file (that entry gets rewritten).

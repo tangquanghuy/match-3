@@ -86,14 +86,48 @@ export function assessWholeSkillReview(row,review,{receipt,fingerprint,readEvide
  for(const b of review?.branchReviews??[])fail(b.status==='verified'&&nonempty(b.note)&&hasEvidence(b)&&testPass(b),`branch:${b.id}`);
  return {eligible:failures.length===0,failures};
 }
+/** Compact signoff (user decision 2026-09-28): one line per entity.
+ *  {format:'compact', key, decision:'accept'|'issue', reviewer, reviewedAt:ISO, tests:[path], note?, issue?, waived?:[{part:'clause'|'step', id, mode}]}
+ * Accepted only if: decision accept, named/dated, no confirmed ledger difference, binding ok, both snapshot sources,
+ * current passing full run that includes every listed test file, every waiver matches R000 source text, and no
+ * CHANGES.jsonl entry touching this spell/key after reviewedAt (changes: [{at, spells[], keys[]}]). */
+export function assessCompactSignoff(row,review,{receipt,fingerprint,changes=[]}){
+ const failures=[];const fail=(condition,code)=>{if(!condition)failures.push(code);};
+ fail(review?.key===row.key,'entity-key');
+ fail(row.status!=='custom-excluded','custom-out-of-scope');
+ fail(nonempty(review?.reviewer)&&nonempty(review?.reviewedAt)&&!Number.isNaN(Date.parse(review.reviewedAt)),'named-dated-review');
+ fail(review?.decision==='accept','explicit-accept-decision');
+ fail(row.confirmedDifferences.length===0,'confirmed-differences');
+ fail(Object.values(row.bindingChecks).every(v=>v!==false),'binding-identity-cost-colors');
+ fail(row.sourceStatus==='native-and-english-snapshot','independent-snapshot-sources');
+ fail(receipt?.fingerprint===fingerprint&&receipt?.testExitCode===0&&receipt?.typecheckExitCode===0&&receipt?.failed===0&&receipt?.passed>0,'current-full-verification');
+ const tests=review?.tests??[];
+ fail(tests.length>0&&tests.every(p=>receipt?.suites?.some(s=>s.path===p&&s.status==='passed'&&s.failed===0&&s.passed>0)),'real-cast-tests');
+ for(const w of review?.waived??[]){
+  const src=w.part==='step'?row.source.native?.SpellSteps?.[Number(w.id)]:row.sourceClauses.find(c=>c.id===w.id);
+  fail(!!src&&sourceAllowsExclusion(src,WAIVED_KIND,w.part==='step',w.mode),`waiver:${w.part}:${w.id}`);
+ }
+ const t=Date.parse(review?.reviewedAt??'');
+ const later=changes.find(c=>Date.parse(c.at)>t&&((c.spells??[]).map(String).includes(String(row.spellId))||(c.keys??[]).includes(row.key)));
+ fail(!later,'changed-after-signoff');
+ return {eligible:failures.length===0,failures,...(later?{changedBy:`${later.issue??''} ${later.at}`}:{})};
+}
 export function applyWholeSkillReviews(rows,{reviews=[],...opts}){
  const groups=new Map();for(const r of reviews){const list=groups.get(r.key)??[];list.push(r);groups.set(r.key,list);}
  for(const row of rows){
   const matches=groups.get(row.key)??[];if(!matches.length)continue;
-  const assessment=matches.length===1?assessWholeSkillReview(row,matches[0],opts):{eligible:false,failures:['duplicate-review-key']};
-  row.wholeSkillReview={recordPath:REVIEW_PATH,decision:matches[0].decision,sourceDigest:matches[0].sourceDigest,...assessment};
+  const compact=matches[0].format==='compact';
+  const assessment=matches.length!==1?{eligible:false,failures:['duplicate-review-key']}:compact?assessCompactSignoff(row,matches[0],opts):assessWholeSkillReview(row,matches[0],opts);
+  row.wholeSkillReview={recordPath:REVIEW_PATH,format:compact?'compact':'detailed',decision:matches[0].decision,issue:matches[0].issue??null,note:matches[0].note??null,...assessment};
   if(!assessment.eligible)continue;
   const review=matches[0];
+  if(compact){
+   const waivedClause=new Map((review.waived??[]).filter(w=>w.part==='clause').map(w=>[w.id,w]));
+   row.dimensions=Object.fromEntries(AUDIT_DIMENSIONS.map(d=>[d,'verified']));
+   row.sourceClauses=row.sourceClauses.map(c=>({...c,review:waivedClause.has(c.id)?'excluded':'verified',exclusion:waivedClause.has(c.id)?{kind:WAIVED_KIND,mode:waivedClause.get(c.id).mode}:null}));
+   row.acceptance={accepted:true,scope:'stored-gow-snapshot',reviewer:review.reviewer,reviewedAt:review.reviewedAt,tests:review.tests,note:review.note??'',fingerprint:opts.fingerprint,waived:review.waived??[]};
+   row.status='accepted-snapshot';continue;
+  }
   row.dimensions=Object.fromEntries(AUDIT_DIMENSIONS.map(d=>[d,review.dimensions[d].status]));
   row.sourceClauses=row.sourceClauses.map(c=>({...c,review:review.clauseReviews.find(x=>x.id===c.id).status,exclusion:review.clauseReviews.find(x=>x.id===c.id).exclusion??null}));
   row.acceptance={accepted:true,scope:review.scope,reviewer:review.reviewer,reviewedAt:review.reviewedAt,sourceDigest:review.sourceDigest,tests:[...new Set(Object.values(review.dimensions).flatMap(d=>d.tests??[]))],fingerprint:opts.fingerprint,

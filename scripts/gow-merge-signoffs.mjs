@@ -32,8 +32,26 @@ for (const d of fs.readdirSync(abs(base)).filter(d => d.startsWith('lane-'))) {
     }
   }
 }
-const report = { merged: [], replaced: [], stale: [], duplicate: [], laneMismatch: [] };
+const report = { merged: [], replaced: [], stale: [], duplicate: [], laneMismatch: [], compactAccept: [], compactIssue: [] };
 const byKey = new Map(total.reviews.map((r, i) => [r.key, i]));
+// Compact signoffs (lane-*/signoffs.jsonl): last line per key wins inside a lane; both accept and issue are stored,
+// so the ledger shows which entities have a problem. A compact line always replaces an older record for the key.
+const compact = new Map();
+for (const d of fs.readdirSync(abs(base)).filter(d => d.startsWith('lane-'))) {
+  const p = `${base}/${d}/signoffs.jsonl`; if (!fs.existsSync(abs(p))) continue;
+  for (const l of fs.readFileSync(abs(p), 'utf8').split('\n').filter(Boolean)) {
+    const e = JSON.parse(l); const prev = compact.get(e.key);
+    if (!prev || Date.parse(e.reviewedAt) >= Date.parse(prev.reviewedAt)) compact.set(e.key, { ...e, lane: d.slice(5) });
+  }
+}
+for (const [key, { lane, ...e }] of compact) {
+  if (!rows.has(key)) { report.stale.push(`${key} unknown`); continue; }
+  found.delete(key); // compact line supersedes any detailed lane record for the same key
+  if (laneOf.has(key) && laneOf.get(key) !== lane) report.laneMismatch.push(`${key}: lane ${laneOf.get(key)} reviewed in ${lane}`);
+  (e.decision === 'accept' ? report.compactAccept : report.compactIssue).push(key);
+  if (byKey.has(key)) { if (JSON.stringify(total.reviews[byKey.get(key)]) !== JSON.stringify(e)) { total.reviews[byKey.get(key)] = e; report.replaced.push(key); } }
+  else { byKey.set(key, total.reviews.length); total.reviews.push(e); report.merged.push(key); }
+}
 for (const [key, list] of found) {
   if (list.length > 1) { report.duplicate.push(`${key}: ${list.map(x => x.p).join(' , ')}`); continue; }
   const { r, lane, p } = list[0]; const row = rows.get(key);
@@ -46,7 +64,8 @@ for (const [key, list] of found) {
   if (byKey.has(key)) { if (JSON.stringify(total.reviews[byKey.get(key)]) === JSON.stringify(clean)) continue; total.reviews[byKey.get(key)] = clean; report.replaced.push(key); }
   else { byKey.set(key, total.reviews.length); total.reviews.push(clean); report.merged.push(key); }
 }
-const waived = total.reviews.flatMap(r => [...(r.clauseReviews ?? []).map(c => ['clause', c]), ...(r.nativeStepReviews ?? []).map(s => ['step', s])]
+const waived = total.reviews.flatMap(r => r.format === 'compact' ? (r.decision === 'accept' ? (r.waived ?? []).map(w => ({ key: r.key, name: rows.get(r.key)?.referenceName ?? null, ...w,
+  text: w.part === 'clause' ? rows.get(r.key)?.sourceClauses.find(c => c.id === w.id)?.text ?? null : JSON.stringify(rows.get(r.key)?.source.native?.SpellSteps?.[Number(w.id)] ?? null), note: r.note ?? '' })) : []) : [...(r.clauseReviews ?? []).map(c => ['clause', c]), ...(r.nativeStepReviews ?? []).map(s => ['step', s])]
   .filter(([, x]) => x.exclusion?.kind === WAIVED_KIND)
   .map(([part, x]) => ({ key: r.key, name: rows.get(r.key)?.referenceName ?? null, part, id: x.id, mode: x.exclusion.mode, text: x.text ?? rows.get(r.key)?.sourceClauses.find(c => c.id === x.id)?.text ?? null, note: x.note })));
 console.log(JSON.stringify({ ...report, counts: Object.fromEntries(Object.entries(report).map(([k, v]) => [k, v.length])), waivedEntries: waived.length }, null, 1));

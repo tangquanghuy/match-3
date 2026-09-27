@@ -4,7 +4,7 @@ import fs from 'node:fs';
 import {createHash} from 'node:crypto';
 import {describe,it,expect} from 'vitest';
 // @ts-expect-error Node audit library
-import {assessWholeSkillReview,applyWholeSkillReviews,reviewSourceDigest,nativeBranchKeys} from '../../scripts/lib/gow-whole-skill-reviews.mjs';
+import {assessWholeSkillReview,assessCompactSignoff,applyWholeSkillReviews,reviewSourceDigest,nativeBranchKeys} from '../../scripts/lib/gow-whole-skill-reviews.mjs';
 // @ts-expect-error Node audit dimensions
 import {AUDIT_DIMENSIONS} from '../../scripts/lib/gow-skill-audit.mjs';
 function fixture(){
@@ -98,6 +98,32 @@ describe('explicit whole-skill signoff, never compiler/scoped default pass',()=>
  it('evidence files are not content-hashed: an edited evidence file keeps the record eligible',()=>{
   const f=fixture();f.review.sourceEvidence[0].sha256='outdated';delete f.review.sourceEvidence[1].sha256;
   expect(assessWholeSkillReview(f.row,f.review,f.opts)).toEqual({eligible:true,failures:[]});
+ });
+ const compact=(o:Record<string,unknown>={})=>({format:'compact',key:'troop:1',decision:'accept',reviewer:'sa-x',reviewedAt:'2026-09-28T10:00:00Z',tests:['tests/unit/fixture.test.ts'],...o});
+ it('compact signoff: one line with key/decision/reviewer/time/test is enough and is applied as accepted',()=>{
+  const f=fixture();const r=compact();
+  expect(assessCompactSignoff(f.row,r,f.opts)).toEqual({eligible:true,failures:[]});
+  applyWholeSkillReviews([f.row],{...f.opts,reviews:[r]});expect(f.row.acceptance).toMatchObject({accepted:true,reviewer:'sa-x',tests:['tests/unit/fixture.test.ts']});
+ });
+ for(const [label,mut,code] of [
+  ['issue decision',{decision:'issue',issue:'X-1'},'explicit-accept-decision'],
+  ['no test',{tests:[]},'real-cast-tests'],
+  ['test not in passing receipt',{tests:['tests/unit/other.test.ts']},'real-cast-tests'],
+  ['no reviewer',{reviewer:''},'named-dated-review'],
+ ] as const)it(`compact signoff rejected: ${label}`,()=>{
+  const f=fixture();expect(assessCompactSignoff(f.row,compact(mut),f.opts).failures).toContain(code);
+ });
+ it('compact signoff is revoked by a later CHANGES.jsonl entry for the same spell or key, not by an earlier one',()=>{
+  const f=fixture();
+  expect(assessCompactSignoff(f.row,compact(),{...f.opts,changes:[{at:'2026-09-28T09:00:00Z',spells:['7001']}]}).eligible).toBe(true);
+  expect(assessCompactSignoff(f.row,compact(),{...f.opts,changes:[{at:'2026-09-28T11:00:00Z',spells:['7001']}]}).failures).toContain('changed-after-signoff');
+  expect(assessCompactSignoff(f.row,compact(),{...f.opts,changes:[{at:'2026-09-28T11:00:00Z',keys:['troop:1']}]}).failures).toContain('changed-after-signoff');
+  expect(assessCompactSignoff(f.row,compact(),{...f.opts,changes:[{at:'2026-09-28T11:00:00Z',spells:['9999']}]}).eligible).toBe(true);
+ });
+ it('compact waiver must match the R000 mode in the source text',()=>{
+  const f=fixture();f.row.sourceClauses[0].text='If they are a Boss, deal 3x damage.';
+  expect(assessCompactSignoff(f.row,compact({waived:[{part:'clause',id:'c1',mode:'boss'}]}),f.opts).eligible).toBe(true);
+  expect(assessCompactSignoff(f.row,compact({waived:[{part:'clause',id:'c1',mode:'tower'}]}),f.opts).failures).toContain('waiver:clause:c1');
  });
  it('ordinary Boss damage is not an unimplemented-mode exclusion',()=>{
   const f=fixture();f.row.sourceClauses[0].text='Deal damage to a Boss.';f.review.sourceDigest=reviewSourceDigest(f.row);

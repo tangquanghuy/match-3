@@ -9,9 +9,10 @@ v2 变更（用户决定）：**不再记录任何文件哈希**；取消全局 
 | 命令 | 用途 |
 |---|---|
 | `node scripts/gow-review-scaffold.mjs next --lane <L> --count 10` | 取下一批 10 个 key（先返回 requeue，跳过已签收／已被记录的项） |
-| `node scripts/gow-review-scaffold.mjs scaffold --keys k1,k2 --reviewer <agent> --out <file>` | 生成草稿骨架（不含哈希） |
-| `node scripts/gow-review-scaffold.mjs check --file <file>` | 结构／sourceDigest／证据文件存在性检查；accept 必须 ok |
-| `node scripts/gow-review-scaffold.mjs stale` | sourceDigest 过期的 accept（该技能原型被改过） |
+| `node scripts/gow-signoff.mjs show --keys k1,k2` | 打印对照所需：英文子句、原生步骤、费用颜色、中文、最终原型 |
+| `node scripts/gow-signoff.mjs accept --lane <L> --by <agent> --test <测试文件> --keys k1,k2 [--note "…"] [--waive "troop:7501:clause:c2:boss"]` | 签收（每项一行，写入 `lane-<L>/signoffs.jsonl`） |
+| `node scripts/gow-signoff.mjs issue --lane <L> --by <agent> --keys k1 --id <问题id> --note "<一句话>"` | 登记有问题的项 |
+| `node scripts/gow-signoff.mjs check --lane <L>` | 检查 key、测试文件、豁免是否合法 |
 | `node scripts/gow-lock.mjs acquire --name <文件路径> --owner <agent> --wait 300` / `release …` | **单文件**锁，只用于 §4 的技能定义文件 |
 | `node scripts/gow-changelog.mjs add …` | 改动留档（必做） |
 | `node scripts/audit-gow-skills.mjs` | 重建账本（约 3 秒） |
@@ -28,16 +29,19 @@ v2 变更（用户决定）：**不再记录任何文件哈希**；取消全局 
 
 ## 3. 车道 agent：每批（10 项）
 
-1. `next --count 10` → `progress.md` 追加 `Bnn start <keys>` → scaffold。requeue 来的 key 处理完追加 `{"key":…,"done":true,…}`。
-2. 三方对照：英文子句 ↔ 原生 `SpellSteps`（有序、每个字段）↔ 账本 `runtime.prototype`；spell id、费用、颜色、中文描述；武器核数字 ID 与 `gw_<referenceName>`。
+**签收记录只写结论**（用户决定 2026-09-28）：通过的项一行 `accept`，有问题的项一行 `issue`（问题 id + 一句话）。不写维度、子句、步骤说明，不用 scaffold 骨架。问题细节写在 `issues.json`。
+
+1. `next --count 10` → `progress.md` 追加 `Bnn start <keys>` → `gow-signoff.mjs show`。requeue 来的 key 处理完追加 `{"key":…,"done":true,…}`。
+2. 三方对照：英文子句 ↔ 原生 `SpellSteps`（有序、每个字段）↔ 最终原型；spell id、费用、颜色、中文描述；武器核数字 ID 与 `gw_<referenceName>`。
 3. **同形态表驱动**：同一原生步骤形态的项放进一个参数表共用一套断言，每项仍有独立实体 ID 与独立期望值；真实 `TurnEngine.castSkill`、双方阵营、至少一条负例。只写当前一致的行为；差异复现写 `…Repro.test.ts` 且必须 `it.fails`。
-4. 判定：
-   - 一致 → accept。
-   - R000 豁免 → 对应子句／步骤 `excluded` + `{"kind":"user-waived-mode","mode":…}`，其余照常，整项可 accept；`progress.md` 写 `WAIVED` 行。
+4. 判定（测试通过后再写签收行）：
+   - 一致 → `gow-signoff.mjs accept`。
+   - R000 豁免 → `accept` 加 `--waive "<key>:clause|step:<id>:<mode>"`，其余部分照常验证。
    - 差异只在本技能定义里（顺序、目标、数值、池、缺步骤、中文） → §4 自己修，修完 accept。
-   - 差异在公共原语 → 追加一行到 `primitive-queue.jsonl`（`{"id","keys","summary","repro","by","at"}`），该项 draft，**立即继续下一项，不等**。
-   - 来源不明 → §5；不能定则 draft + `issues.json` `source-dispute`。
-5. `npx vitest run tests/unit/gowLane<L>B<NN>*.test.ts` 通过 → `check` 通过 → `progress.md` 追加 `Bnn done accept=a draft=d waived=w fixed=f queued=q`。
+   - 差异在公共原语 → 追加一行到 `primitive-queue.jsonl`（`{"id","keys","summary","repro","by","at"}`），该项 `gow-signoff.mjs issue`，**立即继续下一项，不等**。
+   - 来源不明 → §6；不能定则 `issue`，`issues.json` 标 `source-dispute`。
+5. `npx vitest run tests/unit/gowLane<L>B<NN>*.test.ts` 通过 → `gow-signoff.mjs check` 通过 → `progress.md` 追加 `Bnn done accept=a issue=i waived=w fixed=f`。
+   签收后若该技能被任何人改动（`CHANGES.jsonl` 里出现它的技能 ID 或 key，时间晚于签收），签收自动失效，需重新 accept。所以**改技能必须写 changelog**。
 6. **不跑全量测试、不跑 tsc 全量**（协调窗口合并时统一跑，失败会退回）。每 3 批跑一次 `npx vitest run tests/unit/gowLane<L>` 确认本车道全部绿。
 
 ## 4. 车道 agent：改本车道技能定义
@@ -46,7 +50,7 @@ v2 变更（用户决定）：**不再记录任何文件哈希**；取消全局 
 2. 只改相关技能条目；武器同步 `gowWeaponReviewedOverrides.json`，中文改生成源头后重建产物。
 3. 跑本技能的 lane 测试 + `npx vitest run tests/unit -t <spellId>`（若有）→ release。持锁 ≤ 5 分钟，超时先 release 再想。
 4. `node scripts/gow-changelog.mjs add --by <agent> --issue <id> --kind assembler|data --files "<文件>" --spells <技能ID> --keys <实体> --before "<改前>" --after "<改后>"`。
-5. `audit-gow-skills` → `stale` → 过期的 accept 追加 requeue。
+5. 修完直接对该项 `accept`（签收时间晚于 changelog 条目即有效）。
 
 ## 5. 原语 agent
 

@@ -84,7 +84,9 @@ if(fs.existsSync(receiptPath)) {
   if(candidate.fingerprint===fingerprint && candidate.resultSha256===hash) receipt=candidate;
 }
 Object.assign(summary, attachScopedEvidence(rows, receipt));
-Object.assign(summary, applyWholeSkillReviews(rows,{reviews:read(REVIEW_PATH).reviews,receipt,fingerprint,readEvidence:p=>{
+const changesPath = path.join(root, 'tasks/active/gow-skill-shards/CHANGES.jsonl');
+const changes = fs.existsSync(changesPath) ? fs.readFileSync(changesPath, 'utf8').split('\n').filter(Boolean).map(l => JSON.parse(l)) : [];
+Object.assign(summary, applyWholeSkillReviews(rows,{reviews:read(REVIEW_PATH).reviews,receipt,fingerprint,changes,readEvidence:p=>{
  const resolved=path.resolve(root,p);if(!resolved.startsWith(root+path.sep))throw new Error('Evidence must remain inside project');return fs.readFileSync(resolved);
 }}));
 Object.assign(summary,summarizeAudit(rows));
