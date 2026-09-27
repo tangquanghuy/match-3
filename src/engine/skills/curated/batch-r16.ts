@@ -60,7 +60,7 @@ const SKIPPED: { id: number; reason: string }[] = [];
 const SPELLS: CuratedBatch['spells'] = [
   {
     id: 7672,
-    desc: '摧毁所有指定颜色的宝石。给予所有拥有此颜色法力值的盟友 [魔法 + 1] 点生命值和 4 点魔法值。',
+    desc: '摧毁所有指定颜色的宝石。给予所有拥有此颜色法力值的盟友 [魔法 + 1] 点生命值和 4 点魔力值。',
     // 「所有拥有此颜色法力值的盟友」= allyAll + ifCond targetColor CHOSEN（r11 8180/8477 动态色口径）
     build: skill(
       destroyColor(CHOSEN),
@@ -123,7 +123,7 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 9223,
-    desc: '创建 9 颗紫色宝石。窃取一名敌人 [魔法 + 1] 点魔法值，移用到自身的生命值。 [100:1]',
+    desc: '创建 9 颗紫色宝石。窃取一名敌人 [魔法 + 1] 点魔力值，移用到自身的生命值。 [100:1]',
     // CountMagic 100 = ratio 100:1 targetStat magic；「移用到自身的生命值」= gainStat hp
     build: skill(
       createGems(BaseColor.Purple, 9, 0),
@@ -134,7 +134,7 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 9473,
-    desc: '对敌人造成 [魔法 + 2] 点伤害。如果敌人是塔，则根据我的升天数造成 3 倍 - 5 倍伤害。如果发生风暴，则消除 5 点魔法。然后召唤随机风暴。',
+    desc: '对敌人造成 [魔法 + 2] 点伤害。如果敌人是塔，则基于我已晋升的稀有度造成 3 到 5 倍伤害。如果发生风暴，则消除 5 点魔法。然后召唤随机风暴。',
     // MultiplyForAscensionCastle（塔 = 官方 Castle 型，惰性建模）；「如果发生风暴，则消除 5 点魔法」= 官方 DecreaseSpellPower+AddForAnyStorm → ifCond stormPresent（8658 同款读法）；StormRandom = oneOf 六色（p37 先例）
     build: skill(
       dmg('enemyChosen', 2, 1, { condMult: CASTLE_ASC3 }),
@@ -144,7 +144,7 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 9479,
-    desc: '对敌人造成 [魔法 + 2] 点伤害，伤害值因恶魔传送门宝石而增强。如果敌人是塔，则根据我的升天数造成 3 倍 - 5 倍伤害。如果敌人死亡，则将 2 颗红宝石转换为恶魔传送门宝石。 [x4]',
+    desc: '对敌人造成 [魔法 + 2] 点伤害，伤害值因恶魔传送门宝石而增强。如果敌人是塔，则基于我已晋升的稀有度造成 3 到 5 倍伤害。如果敌人死亡，则将 2 颗红宝石转换为恶魔传送门宝石。 [x4]',
     // CountGems DaemonicPortal 400 = ×4（波B 落地）；MultiplyForAscensionCastle；「敌人死亡→转换」= ifTargetDied（AddForKill，单一伤害主目标精确判定）
     build: skill(
       dmg('enemyChosen', 2, 1, {
@@ -169,7 +169,7 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 9544,
-    desc: '对敌人造成 [魔法 + 2] 点伤害。如果敌人是塔，则根据我的升天造成 3 倍 - 5 倍伤害。召唤一条腐烂的蛇。',
+    desc: '对敌人造成 [魔法 + 2] 点伤害。如果敌人是塔，则基于我已晋升的稀有度造成 3 到 5 倍伤害。召唤一条腐烂的蛇。',
     // MultiplyForAscensionCastle；Summoning 7639 = RottingSerpent
     build: skill(
       dmg('enemyChosen', 2, 1, { condMult: CASTLE_ASC3 }),
@@ -179,10 +179,10 @@ const SPELLS: CuratedBatch['spells'] = [
   {
     id: 9565,
     desc: "从前 2 名敌人身上窃取 [(魔法 x 0.8) + 3] 点生命值，数量因紫宝石而增加。如果在 Winter's Reach 中使用，效果加倍。 [x2]",
-    // StealLife FirstTwoEnemies = steal hp→hp n:2；CountGems Purple 200 = ×2；MultiplyForRegion4005（冬之拥/凛冬之境，r11 9377 同名）
+    // Native StealLife: steal from the first two enemies, boosted by purple gems and region.
     build: skill(
-      steal('enemyFirstN', 'hp', 'hp', 3, 0.8, {
-        n: 2,
+      dmg('enemyFirstN', 3, 0.8, {
+        n: 2, drain: true,
         modifier: { mod: { kind: 'multiplier', a: 2 }, source: { kind: 'boardGems', color: BaseColor.Purple } },
         condMult: REGION2('WintersReach'),
       }),
@@ -190,7 +190,7 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 9595,
-    desc: '对一名敌人造成[魔法 + 2]点伤害。如果敌人是塔，则根据我的升华值造成3-5倍伤害。然后召唤一场随机风暴。',
+    desc: '对一名敌人造成[魔法 + 2]点伤害。如果敌人是塔，则基于我已晋升的稀有度造成 3 到 5 倍伤害。然后召唤一场随机风暴。',
     // MultiplyForAscensionCastle；StormRandom = oneOf 六色风暴等概率掷选（p37 7787 先例）
     build: skill(
       dmg('enemyChosen', 2, 1, { condMult: CASTLE_ASC3 }),
@@ -199,7 +199,7 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 9603,
-    desc: '对一名敌人造成[魔法 + 2]点伤害。如果敌人是塔，则根据我的升华效果造成3-5倍伤害。引爆2-3颗宝石并获得额外回合。',
+    desc: '对一名敌人造成[魔法 + 2]点伤害。如果敌人是塔，则基于我已晋升的稀有度造成 3 到 5 倍伤害。引爆2-3颗宝石并获得额外回合。',
     // 官方步骤序：ExtraTurn → 引爆 2 → 50% 引爆 1（「2-3 颗」= 2 + 50%×1，段序按官方步骤）
     build: skill(
       dmg('enemyChosen', 2, 1, { condMult: CASTLE_ASC3 }),
@@ -210,7 +210,7 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 9665,
-    desc: '对一名敌人造成[魔法 + 2]点伤害。如果敌人是塔，则根据我的升天次数，造成3倍到5倍的伤害。摧毁一根随机柱子。',
+    desc: '对一名敌人造成[魔法 + 2]点伤害。如果敌人是塔，则基于我已晋升的稀有度造成 3 到 5 倍伤害。摧毁一根随机柱子。',
     // MultiplyForAscensionCastle；「摧毁一根随机柱子」= destroyRandomCols(1)
     build: skill(
       dmg('enemyChosen', 2, 1, { condMult: CASTLE_ASC3 }),
@@ -219,7 +219,7 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 9672,
-    desc: '对一名敌人造成[魔法 + 2]点伤害。如果敌人是塔，则根据我的升天等级，造成3-5倍伤害。如果敌人死亡，则祝福所有盟友。',
+    desc: '对一名敌人造成[魔法 + 2]点伤害。如果敌人是塔，则基于我已晋升的稀有度造成 3 到 5 倍伤害。如果敌人死亡，则祝福所有盟友。',
     // MultiplyForAscensionCastle；「敌人死亡→祝福所有盟友」= ifTargetDied（官方 AddForKill，单一伤害主目标精确判定）；blessed r10 落地
     build: skill(
       dmg('enemyChosen', 2, 1, { condMult: CASTLE_ASC3 }),
@@ -228,7 +228,7 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 9730,
-    desc: '对一名敌人造成[魔法 + 2]点伤害。如果敌人是塔，则根据我的升华效果造成3-5倍伤害。然后创造5颗燃烧宝石。',
+    desc: '对一名敌人造成[魔法 + 2]点伤害。如果敌人是塔，则基于我已晋升的稀有度造成 3 到 5 倍伤害。然后创造5颗燃烧宝石。',
     // MultiplyForAscensionCastle；燃烧宝石 = burningGem（状态宝石波A）
     build: skill(
       dmg('enemyChosen', 2, 1, { condMult: CASTLE_ASC3 }),
@@ -237,7 +237,7 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 9738,
-    desc: '对一名敌人造成 [魔法 + 2] 点伤害，伤害值因我的生命值而增强。如果敌人是防御塔，则造成 3 倍 - 5 倍伤害，伤害值取决于我的升华值。 [10:1]',
+    desc: '对一名敌人造成 [魔法 + 2] 点伤害，伤害值因我的生命值而增强。如果敌人是防御塔，则基于我已晋升的稀有度造成 3 到 5 倍伤害。 [10:1]',
     // CountLife Self 10 = ratio 10:1 selfStat hp（r11 9668 CountAttack 同款）；MultiplyForAscensionCastle
     build: skill(
       dmg('enemyChosen', 2, 1, {
@@ -258,7 +258,7 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 9785,
-    desc: '对一名敌人造成[魔法 + 2]点伤害。如果该敌人是防御塔，则根据我的升阶等级造成3倍至5倍伤害。将9颗蓝色宝石转化为流血宝石。',
+    desc: '对一名敌人造成[魔法 + 2]点伤害。如果该敌人是防御塔，则基于我已晋升的稀有度造成 3 到 5 倍伤害。将9颗蓝色宝石转化为流血宝石。',
     // MultiplyForAscensionCastle；流血宝石 = bleedGem（波A）定量转换 count 9
     build: skill(
       dmg('enemyChosen', 2, 1, { condMult: CASTLE_ASC3 }),
@@ -267,7 +267,7 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 9794,
-    desc: '对一名敌人造成[魔法 + 2]点伤害。如果该敌人是防御塔，则根据我的升华等级造成3倍至5倍伤害。生成7颗流血宝石。',
+    desc: '对一名敌人造成[魔法 + 2]点伤害。如果该敌人是防御塔，则基于我已晋升的稀有度造成 3 到 5 倍伤害。生成7颗流血宝石。',
     // MultiplyForAscensionCastle；创造 7 颗流血宝石 = createSpecialGems bleedGem
     build: skill(
       dmg('enemyChosen', 2, 1, { condMult: CASTLE_ASC3 }),
@@ -276,7 +276,7 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 9866,
-    desc: '对一名敌人造成[魔法 + 2]点伤害。如果该敌人是防御塔，则根据我的升华等级造成3倍至5倍伤害。生成5个毒宝石和5个腐朽宝石。',
+    desc: '对一名敌人造成[魔法 + 2]点伤害。如果该敌人是防御塔，则基于我已晋升的稀有度造成 3 到 5 倍伤害。生成5个毒宝石和5个腐朽宝石。',
     // MultiplyForAscensionCastle；毒宝石 poisonGem（波A）+ 腐朽宝石 decayGem（波B）各 5（官方两步 CreateGems）
     build: skill(
       dmg('enemyChosen', 2, 1, { condMult: CASTLE_ASC3 }),
@@ -286,7 +286,7 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 9875,
-    desc: '对敌人造成[魔法 + 2]点伤害，蓝色宝石和友军可提升伤害。如果敌人是防御塔，则根据我的升阶等级造成3倍至5倍伤害。 [x2]',
+    desc: '对敌人造成[魔法 + 2]点伤害，蓝色宝石和友军可提升伤害。如果敌人是防御塔，则基于我已晋升的稀有度造成 3 到 5 倍伤害。 [x2]',
     // 「蓝色宝石和友军」双来源各 ×2（r11 9563 双计数口径）；MultiplyForAscensionCastle
     build: skill(
       dmg('enemyChosen', 2, 1, {
@@ -303,7 +303,7 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 9948,
-    desc: '对一名敌人造成[魔法 + 2]点伤害，伤害由冰冻宝石提升。如果敌人是防御塔，则根据我的升华等级造成3倍至5倍伤害。如果敌人死亡，则生成8颗冰冻宝石。 [x2]',
+    desc: '对一名敌人造成[魔法 + 2]点伤害，伤害由冰冻宝石提升。如果敌人是防御塔，则基于我已晋升的稀有度造成 3 到 5 倍伤害。如果敌人死亡，则生成8颗冰冻宝石。 [x2]',
     // 冰冻宝石 = boardSpecial freezeGem ×2；MultiplyForAscensionCastle；「敌人死亡→生成」= ifTargetDied（AddForKill）
     build: skill(
       dmg('enemyChosen', 2, 1, {
@@ -315,7 +315,7 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 9955,
-    desc: '对敌人造成[魔法 + 2]点伤害，紫色宝石可提升伤害。如果敌人是防御塔，则根据我的升阶等级造成3倍至5倍伤害。 [2:1]',
+    desc: '对敌人造成[魔法 + 2]点伤害，紫色宝石可提升伤害。如果敌人是防御塔，则基于我已晋升的稀有度造成 3 到 5 倍伤害。 [2:1]',
     // [2:1] 紫色宝石 = ratio 2:1 boardGems Purple；MultiplyForAscensionCastle
     build: skill(
       dmg('enemyChosen', 2, 1, {
@@ -359,7 +359,7 @@ const SPELLS: CuratedBatch['spells'] = [
  * - 7463/9287/8804：每摧毁/每在场 N 颗宝石→施加状态（计数驱动施加）无原语（8885 族）。
  * - 7483：「等同自身攻击力」与「×10 棕色敌军」两套不同系数无法共存于单段 modifier。
  * - 7507：「减除生命值并转化为攻击力」同额双段动态绑定无原语（reduce hp 现可表达）。
- * - 8368：减半现可表达，残余卡点 =「爆破等值于失去的魔法值的紫色宝石」动态数量无来源。
+ * - 8368：减半现可表达，残余卡点 =「爆破等值于失去的魔力值的紫色宝石」动态数量无来源。
  * - 9638：选定单格宝石转换（BoardTarget SingleGem FromTarget）无对应原语（暗影之星本体
  *   已实现）。
  * - 8801：石块→善恶石像鬼（ConvertGems Block→Gargoyle）特殊→特殊转换无原语。

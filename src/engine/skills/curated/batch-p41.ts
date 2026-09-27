@@ -27,7 +27,7 @@
  *   段 2 解析目标即更新 castTracking.lastTarget（prototypes.ts resolveTargetsTracked），
  *   modifier targetStat 指向段 2 首目标而非段 1 选定者——「同等伤害」跨段同额绑定仍无
  *   来源（无 lastDamage 追踪）。
- * - 9181（batch-30）：GenerateRandomMana「3-10 点法力」数值型随机区间无原语（nRange 是
+ * - 9181（batch-30）：GenerateRandomMana「3-10 点法力值」数值型随机区间无原语（nRange 是
  *   目标数区间、countRange 是宝石数区间）。四选一召唤（summonRandom）本身可表。
  * - 8248（batch-31）：官方 TrueDamage 第二段目标 = NextDownFromTarget（正下方单个），
  *   引擎只有「下方全部」形态（enemyBelowTarget/enemyChosenAndBelow 均超集）；

@@ -136,13 +136,13 @@ describe('K-E · tempering 缩放来源（Character.temperingLevel）', () => {
     void state;
   });
 
-  it('官方 7655 样例形态：散射伤害基数 + 每段位 +4（splash 段共享池同样吃到增项）', () => {
+  it('官方 7655 样例形态：散射伤害基数 + 每段位 +4（scatter 总池只加一次增项）', () => {
     const { ctx } = primitiveCtx({ magic: 0, temperingLevel: 3 });
     const events = executePrototype(
-      { segments: [dmg('enemyFront', 10, 0, { range: 'splash', modifier: temperingBoost(4) })] },
+      { segments: [dmg('enemyAll', 10, 0, { range: 'scatter', modifier: temperingBoost(4) })] },
       ctx,
     );
-    // 共享池 = scaling 求值 10（mult=0、magic=0）+ 增项 4×3 = 22；溅射链分配总额始终
+    // 共享池 = scaling 求值 10（mult=0、magic=0）+ 增项 4×3 = 22；散射分配总额始终
     // 等于池（3 名敌人容量足够），不丢伤
     const total = damageEvents(events).reduce((s, e) => s + e.damage, 0);
     expect(total).toBe(22);

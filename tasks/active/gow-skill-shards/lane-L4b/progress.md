@@ -1,0 +1,100 @@
+# Lane L4b progress (reviewer sa-L4b)
+
+- 2026-09-28T00:00:00Z B01 start: read dispatch/guide/template; ledger rows for troop:6365,6751,6902,7138,7200 dumped
+- 2026-09-27T17:52:36Z B01 scaffold signoff-b01.json generated (5 drafts); writing tests/unit/gowLaneL4bB01.test.ts
+- 2026-09-27T17:56:39Z troop:6365 verified: Barrier(3)+[Magic+1] Life to other allies (blessed/dead/lone cases), 10 CHOSEN colour create (full board/3 empty/4 convertible) both sides -> accept
+- 2026-09-27T17:56:39Z troop:6751 DIFF: zh desc says 骷髅头 not 末日骷髅; runtime Green->doomSkull, match+explosion triggers verified -> draft (L4b-6751-zh)
+- 2026-09-27T17:56:39Z troop:6902 verified: Death Mark chosen + 6+3*marked Purple (9/15/18, no double modifier, dead/blessed) -> accept
+- 2026-09-27T17:56:39Z troop:7138 DIFF: LAST_TARGET colour re-rolled per gem (two-colour ally gets mix); zh typo 发力颜色 -> draft (L4b-7138-onecolour, L4b-7138-zh)
+- 2026-09-27T17:56:39Z troop:7200 DIFF: mixAny full-board pool filtered by probe only -> Yellow->Yellow no-op (seed 7); status 'rage' not counted by allyStatusCount 'enraged' -> draft (L4b-7200-noop, L4b-7200-rage-alias)
+- 2026-09-27T17:56:39Z B01 test: npx vitest run tests/unit/gowLaneL4bB01.test.ts 53/53 pass (5 it.fails repro verified failing for stated reason); tsc: no errors in gowLaneL4b*; sha256=8046e098acf7b91a0e0aec914db3f9a1d3ef3dcc35488e6d140b8620d3ee3ef8
+- 2026-09-27T17:58:56Z B01 signoff-b01.json: 6365 accept ok, 6902 accept ok; 6751/7138/7200 draft (issues.json 5 entries); check ok for accepts. B01 DONE
+- 2026-09-27T17:58:56Z B02 start: troop:6589,6196,6063,6068,6340
+- 2026-09-27T18:03:09Z B02 tests drafted in tests/unit/gowLaneL4bB02.test.ts; running
+- 2026-09-27T18:05:11Z B02 test: npx vitest run tests/unit/gowLaneL4bB02.test.ts 54/54 pass (1 it.fails repro verified); tsc: no errors in gowLaneL4b*; sha256=3c6cba23e1044c3f0f74d14e4a111a0daaf85c6154d14b20e716c313c201e458
+- 2026-09-27T18:05:11Z troop:6589 verified -> accept
+- 2026-09-27T18:05:11Z troop:6196 SOURCE-DISPUTE: native AddFor10BlueGems vs English 13; community forum says condition is 13 (not ingested) -> draft
+- 2026-09-27T18:05:11Z troop:6063 verified -> accept
+- 2026-09-27T18:05:11Z troop:6068 DIFF: native CausePoison before Damage, prototype damage first -> draft (L4b-6068-order)
+- 2026-09-27T18:05:11Z troop:6340 SOURCE-DISPUTE: CreateGems2Colors same-colour overwrite + CauseStun Amount4/CauseBurning Amount3 semantics -> draft; L4b-7200-noop reclassified source-dispute (community: 2-colour spawns can overwrite same colour)
+- 2026-09-27T18:06:38Z B02 signoff-b02.json: 6589 accept ok, 6063 accept ok; 6196/6068/6340 draft; issues.json now 8 entries (4 difference, 3 source-dispute incl. reclassified L4b-7200-noop, +L4b-6196-threshold, L4b-6340-mix-stun). B02 DONE
+- 2026-09-27T18:07:01Z FINAL: B01 53/53 + B02 54/54 = 107 pass; check: accepts 6365/6902/6589/6063 ok, drafts FAIL as expected; issues.json 8 entries; test hashes unchanged since signoff (B01 8046e098..., B02 3c6cba23...)
+- 2026-09-27T18:07:09Z correction: issues.json = 5 difference + 3 source-dispute (8 total)
+- 2026-09-27T18:40:27Z ROUND2 start (sa-L4b); src lock held by sa-L5; reading rulings/guide
+- 2026-09-27T18:47:14Z SOURCE ingested gold-primary-sources/community-2019-08-12-two-colour-create-overwrite.json (t/57024); ruling rulings/RL4b-01-two-colour-overwrite.md written; Cause* Amount semantics: no source found (web search) -> 6340 stays source-dispute
+- 2026-09-27T18:53:20Z SOURCE ingested gold-primary-sources/community-2018-08-02-weakest-life-plus-armor.json (t/43465, single community answer: weakest = lowest Life+Armor; runtime uses hp only) -> source-dispute class for Strongest/Weakest targets
+- 2026-09-27T18:55:42Z SOURCE ingested gold-primary-sources/official-heroic-gems-freshdesk.html (Infinity Plus 2 help centre Heroic Gems: Uber Doomskull/Dragon/Elemental Star/Death Mark/Booty/...) and official-5-5-update-uber-doomskull.html
+- 2026-09-27T19:01:53Z B03 start troop:6677,troop:7112,troop:6779,troop:7170,weapon:1434 (fresh keys picked from next while src lock busy; requeued 6751/7138/7200/6196/6068/6340 wait for fixes)
+- 2026-09-27T19:04:23Z B03 test: npx vitest run tests/unit/gowLaneL4bB03.test.ts 43/43 pass; tsc: 0 errors in gowLaneL4b*; sha256=c1e77ad05ed110a8eb0c22909b67c8861f736c02b629bde92cbdedbadf49b9b3
+- 2026-09-27T19:04:23Z B03 done accept=5 draft=0 waived=0 fixed=0 (6677, 7112, 6779, 7170, weapon:1434; check ok)
+- 2026-09-27T19:09:34Z B04 start troop:6590,troop:6535,troop:6298,troop:7347,weapon:1532 (fresh keys; tests 43/43 drafted)
+- 2026-09-27T19:11:21Z B04 test: gowLaneL4bB04.test.ts 43/43 pass; tsc 0 errors in gowLaneL4b*; sha256=bc5b18b2d440425aa7beaf0febaaa65a3b9794b6c2c788a53f5e488e9ac19e4e
+- 2026-09-27T19:11:21Z B04 done accept=5 draft=0 waived=0 fixed=0 (6590, 6535, 6298, 7347, weapon:1532; check ok)
+- 2026-09-27T19:14:47Z REPRO tests/unit/gowLaneL4bB05Repro.test.ts written: 46 cases all failing for the stated reasons (onecolour x4 specs, rage alias counters, 7030 dragon, 7276 single gem, 7195 order, 6824 random ally, 6068 order, zh 6751/7138/6824)
+- 2026-09-27T19:19:38Z B05 start troop:6678,troop:6479,troop:7655,troop:6604,troop:7453 (fresh keys; lock now sa-L5 again)
+- 2026-09-27T19:20:39Z B05 test: gowLaneL4bB05.test.ts 42/42 pass; tsc 0 errors in gowLaneL4b*; sha256=f2bae6038ea58d2fa90d66e74037901b9258c78861f32afbd5273d4b947c6334
+- 2026-09-27T19:20:39Z B05 done accept=5 draft=0 waived=0 fixed=0 (6678, 6479, 7655, 6604, 7453; check ok)
+- 2026-09-27T19:23:59Z B06 start weapon:1546,weapon:1547,troop:6542,troop:7412,troop:6687
+- 2026-09-27T19:23:59Z B06 test: gowLaneL4bB06.test.ts 49/49 pass; tsc 0 errors in gowLaneL4b*; sha256=85abbfd205c9727b9ffe2a64a50b0ca1c961d9d09fe63966105f979467a62c2c
+- 2026-09-27T19:23:59Z B06 done accept=5 draft=0 waived=0 fixed=0 (check ok)
+- 2026-09-27T19:24:56Z ISSUES +12 (7030-dragon, 7276-singlegem, 7195-order, 6824-random-ally, 6841-prefnotprev, 7068-potion-colour, 1548-missing-steps, 7270-dragon, 7524-zh, chosen-any, chosen-colour-exclusion, strongest-metric source-dispute)
+- 2026-09-27T19:34:49Z B07 start troop:7795,troop:7080,troop:6941,troop:7197,troop:7370
+- 2026-09-27T19:34:49Z B07 test: gowLaneL4bB07.test.ts 48/48 pass; tsc 0 errors in gowLaneL4b*; sha256=1c3f9364a4a38e308f9c47608379432727f6acc0c1928544c56ed158f7953781
+- 2026-09-27T19:34:49Z B07 done accept=5 draft=0 waived=0 fixed=0 (check ok)
+- 2026-09-27T19:39:12Z B08 start weapon:1105,weapon:1186,weapon:1188,weapon:1191,weapon:1234 (kingdom x6 weapons)
+- 2026-09-27T19:39:12Z B08 test: gowLaneL4bB08.test.ts 65/65 pass; tsc 0 errors in gowLaneL4b*; sha256=428b50655b5e3169ee1b8e81656515d414e27f984137129fe61cf05ffba21a36
+- 2026-09-27T19:39:12Z B08 done accept=4 draft=1 waived=0 fixed=0 (1186 draft: L4b-1186-zh typo); issues +6 (1186-zh, 1193-zh, 1488-lastTarget, 7071-base, 7499-dragon, 6129-order)
+- 2026-09-27T19:42:34Z B09 start (kingdom x6 weapons, table-driven test)
+- 2026-09-27T19:42:34Z B09 test: gowLaneL4bB09.test.ts 65/65 pass (B09+B10 130/130); tsc 0 errors in gowLaneL4b*; sha256=192a628144f07898e6f1cfd108787f543db99a313596ea1ba469e2ff0a1a69e2
+- 2026-09-27T19:42:34Z B09 done accept=5 draft=0 waived=0 fixed=0 (check ok)
+- 2026-09-27T19:42:34Z B10 start (kingdom x6 weapons, table-driven test)
+- 2026-09-27T19:42:34Z B10 test: gowLaneL4bB10.test.ts 65/65 pass (B09+B10 130/130); tsc 0 errors in gowLaneL4b*; sha256=96bffe770ac8bb531a5b05db8bfb5f7015deefc3732bd9af93ffa20eba6e8365
+- 2026-09-27T19:42:34Z B10 done accept=5 draft=0 waived=0 fixed=0 (check ok)
+- 2026-09-27T19:44:23Z B11 start (kingdom x6 weapons, table-driven test)
+- 2026-09-27T19:44:23Z B11 test: gowLaneL4bB11.test.ts 65/65 pass (B11-B14 260/260); tsc 0 errors in gowLaneL4b*; sha256=b218a68d692be0147f5eb03a3f24bbd6578d0f30ae1c788400199bbc29f71ddd
+- 2026-09-27T19:44:23Z B11 done accept=5 draft=0 waived=0 fixed=0 (check ok)
+- 2026-09-27T19:44:23Z B12 start (kingdom x6 weapons, table-driven test)
+- 2026-09-27T19:44:23Z B12 test: gowLaneL4bB12.test.ts 65/65 pass (B11-B14 260/260); tsc 0 errors in gowLaneL4b*; sha256=b4c0371ace79a8a7d1c8688d478823fa6aec3f04ec6f8ce9abdf41fa2262f870
+- 2026-09-27T19:44:23Z B12 done accept=5 draft=0 waived=0 fixed=0 (check ok)
+- 2026-09-27T19:44:23Z B13 start (kingdom x6 weapons, table-driven test)
+- 2026-09-27T19:44:23Z B13 test: gowLaneL4bB13.test.ts 65/65 pass (B11-B14 260/260); tsc 0 errors in gowLaneL4b*; sha256=3957eb74111318bd9d3d679aff6109c4aad05262053c1513a4191f9b408a980f
+- 2026-09-27T19:44:23Z B13 done accept=5 draft=0 waived=0 fixed=0 (check ok)
+- 2026-09-27T19:44:23Z B14 start (kingdom x6 weapons, table-driven test)
+- 2026-09-27T19:44:23Z B14 test: gowLaneL4bB14.test.ts 65/65 pass (B11-B14 260/260); tsc 0 errors in gowLaneL4b*; sha256=ffbbf5a813555556a295ba2ebac6d942b0a6f394a490cdad4d313ef13cf840fe
+- 2026-09-27T19:44:23Z B14 done accept=4 draft=1 waived=0 fixed=0 (check ok; 1481 draft L4b-1481-zh)
+- 2026-09-27T19:48:53Z B15 start (race x6 weapons CountArmyType, table-driven test)
+- 2026-09-27T19:48:53Z B15 test: gowLaneL4bB15.test.ts 65/65 pass (B15-B19 325/325); tsc 0 errors in gowLaneL4b*; sha256=f2b33ddee6aa32d433c31ab35feab549e114e235f104da4f9602a222d282fa28
+- 2026-09-27T19:48:53Z B15 done accept=5 draft=0 waived=0 fixed=0 (check ok)
+- 2026-09-27T19:48:53Z B16 start (race x6 weapons CountArmyType, table-driven test)
+- 2026-09-27T19:48:53Z B16 test: gowLaneL4bB16.test.ts 65/65 pass (B15-B19 325/325); tsc 0 errors in gowLaneL4b*; sha256=9b3a0d36f1367d4e2e926d8d8e428eb59b284cf4f61192debe8c266d9a64107e
+- 2026-09-27T19:48:53Z B16 done accept=5 draft=0 waived=0 fixed=0 (check ok)
+- 2026-09-27T19:48:53Z B17 start (race x6 weapons CountArmyType, table-driven test)
+- 2026-09-27T19:48:53Z B17 test: gowLaneL4bB17.test.ts 65/65 pass (B15-B19 325/325); tsc 0 errors in gowLaneL4b*; sha256=5a2d19d74d211fa09de8e0dfdce076550bf518fa9573d069e54dd65eadc73d46
+- 2026-09-27T19:48:53Z B17 done accept=5 draft=0 waived=0 fixed=0 (check ok)
+- 2026-09-27T19:48:53Z B18 start (race x6 weapons CountArmyType, table-driven test)
+- 2026-09-27T19:48:53Z B18 test: gowLaneL4bB18.test.ts 65/65 pass (B15-B19 325/325); tsc 0 errors in gowLaneL4b*; sha256=c6556d0952ecc0a672ff810314e324e6fed436025a04c289ad2f02ba79adb788
+- 2026-09-27T19:48:53Z B18 done accept=5 draft=0 waived=0 fixed=0 (check ok)
+- 2026-09-27T19:48:53Z B19 start (race x6 weapons CountArmyType, table-driven test)
+- 2026-09-27T19:48:53Z B19 test: gowLaneL4bB19.test.ts 65/65 pass (B15-B19 325/325); tsc 0 errors in gowLaneL4b*; sha256=d9e5046407fb063718883b6d4b17e8279d2e41cd4201785fa11bad9c92aa1855
+- 2026-09-27T19:48:53Z B19 done accept=5 draft=0 waived=0 fixed=0 (check ok)
+- 2026-09-27T19:49:14Z LOCK src held by sa-L4b (acquired 19:44:45Z by background waiter); starting fix pass: baseline full vitest
+- 2026-09-27T20:05:11Z FIX L4b-7138-onecolour src/engine/skills/effects/gems.ts (resolveCreateSpec: colour placeholders resolved once per create cast) affected accepted: troop:7162 (requeued)
+- 2026-09-27T20:05:11Z FIX L4b-7200-rage-alias src/engine/skills/effects/secondary.ts (sameStatus: rage/enraged alias in status counters + conditions) affected accepted: troop:6548 (requeued)
+- 2026-09-27T20:05:11Z FIX L4b-6068-order batch-05 7138 (poison before damage, R001) 1 key
+- 2026-09-27T20:05:11Z FIX L4b-7195-order batch-36 8782 (convert before Hunter's Mark) 1 key
+- 2026-09-27T20:05:11Z FIX L4b-6824-random-ally batch-14 8234 (Barrier allyRandom then Submerged lastTarget) + zh 1 key
+- 2026-09-27T20:05:11Z FIX L4b-7276-singlegem batch-r4 8901 (transform from CELL) 1 key
+- 2026-09-27T20:05:11Z FIX L4b-7030-dragon batch-r8 8557, L4b-7270-dragon batch-r8 8889, L4b-7499-dragon batch-r11 9244 (dragonGem specials) 3 keys
+- 2026-09-27T20:05:11Z FIX L4b-7068-potion-colour batch-r21 8596; L4b-7071-base batch-r13 8599; L4b-6841-prefnotprev batch-08 8246 3 keys
+- 2026-09-27T20:05:11Z FIX L4b-6751-zh / L4b-7138-zh / L4b-6824-zh via src/data/gowSnapshotOverrides.json + curated desc + pool desc; node scripts/build_troops.mjs (only 3 troops changed) 3 keys
+- 2026-09-27T20:05:11Z VERIFY full vitest 10861/10861 (baseline had only my 46 repro failures), tsc 0 errors, audit-gow-skills rebuilt, stale: none; B01/B02 it.fails flipped + accept sha256 updated (B01 1b27cf23..., B02 83bd3778...); lock released
+- 2026-09-27T20:06:03Z B20 start (requeue) troop:6751,troop:7138,troop:7200,troop:6196,troop:6068: old draft entries removed from signoff-b01/b02, scaffolded into signoff-b20; evidence = flipped B01/B02 test files
+- 2026-09-27T20:07:37Z B20 test: gowLaneL4bB01+B02 110/110 pass (flipped); tsc 0; evidence sha B01 1b27cf23..., B02 83bd3778...
+- 2026-09-27T20:07:37Z B20 done accept=5 draft=0 waived=0 fixed=6 (6751 zh, 7138 onecolour+zh, 7200 rage alias + RL4b-01, 6196 R003, 6068 order); requeue done x5; 6340 re-reviewed -> stays draft source-dispute (requeue done)
+- 2026-09-27T20:11:20Z B21 start troop:7030,troop:7276,troop:7195,troop:6711,troop:7270 (post-fix)
+- 2026-09-27T20:11:20Z B21 test: gowLaneL4bB21.test.ts 38/38 pass; tsc 0 errors in gowLaneL4b*; sha256=a79737caee7a18b5cffb29a83967e41d24414ae66b3f5ad28faf7dfad51a63d1
+- 2026-09-27T20:11:20Z B21 done accept=4 draft=1 waived=0 fixed=4 (7276 draft: AI cell chooser ignores ManaGemsOnly, L4b-chosen-colour-exclusion)
+- 2026-09-27T20:14:30Z B22 start troop:7499,troop:6841,troop:7071,troop:6093,troop:7068 (post-fix)
+- 2026-09-27T20:14:30Z B22 test: gowLaneL4bB22.test.ts 32/32 pass; tsc 0 errors in gowLaneL4b*; sha256=53b4e03dfacad229f39fa497b42db5d01653476b3bae8ec64378d73199f195c2
+- 2026-09-27T20:14:30Z B22 done accept=4 draft=1 waived=0 fixed=4 (7068 draft: L4b-7068-zh garbled display)
+- 2026-09-27T20:15:00Z ROUND2 END: reviewed 101 (B03-B22 = 100 keys + troop:6340 re-review), accept 96 / draft 5 (1186, 1481, 7276, 7068, 6340); fixes 16 issues; lane tests 22 files 1231/1231; tsc 0; stale none; lock not held

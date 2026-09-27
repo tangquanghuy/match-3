@@ -1,4 +1,4 @@
-/**
+﻿/**
  * 被动特质系统（需求 7.1；原 GAP-4）。
  *
  * ## 设计
@@ -30,11 +30,13 @@
  * 生成器侧缺机制归档见 `artifacts/trait-build.txt`（历史归档，收尾批后归零）。
  */
 import traitTable from '../data/traits.json';
+import { normalizeCombatText } from '../data/combatText';
+import { COMMUNITY_TRAITS } from '../data/communityTraits';
 import { effectiveHealing } from './healing';
 import type { BuffEvent, GameEvent } from './events';
 import type { Character, PassiveModifiers, SpecialGemKind, StatGains, PlayerSide, StatusInstance, StormSummon, TraitEconomyGain } from './types';
 import { BaseColor } from './types';
-import type { SeededRNG } from './rng';
+import { SeededRNG } from './rng';
 
 /** 状态免疫通配符：免疫所有状态 */
 export const ALL_STATUSES = '*';
@@ -139,7 +141,7 @@ export interface TraitDefinition {
   /** 自己一方匹配 4/5 连时，给同队指定种族（或全队）盟友的增益 */
   onBigMatchTypeAura?: { troopType: string; gains: Partial<StatGains> };
   /** 战斗开始时对全体盟友/敌人的固定增减 */
-  teamAura?: { scope: 'allies' | 'enemies'; stat: PassiveStat; amount: number };
+  teamAura?: { scope: 'allies' | 'enemies'; stat: PassiveStat | 'random'; amount: number };
   /** 战斗开始时给同队指定种族的盟友加值（族亲 / 之盾） */
   typeAura?: { troopType: string; stat: PassiveStat; amount: number };
   /** 战斗开始时按「关联该色的盟友数量」给自己叠加 */
@@ -152,6 +154,8 @@ export interface TraitDefinition {
   manaLink?: { color: string; amount: number };
   /** 匹配该色宝石时获得数值；alsoStats 为共享数值的附加属性（ragingbull「N 点攻击力、护甲值和生命值」） */
   onColorMatchGain?: { color: string; stat: PassiveStat; amount: number; alsoStats?: PassiveStat[] };
+  /** 同一次配色可给予不同属性不同点数（自定义部队）。 */
+  onColorMatchGains?: readonly { color: string; stat: PassiveStat; amount: number }[];
   /**
    * 自己一方匹配 4/5 连时施加状态（条件光环批：celestialshield 屏障 / provocation 狂怒 /
    * tsunami 下潜 / mirrorimage 反射 / dragonsblessing 随机正面增益 / lotusblessing 50% 赐福全队）。
@@ -201,7 +205,7 @@ export interface TraitDefinition {
    * 配对某色（或骷髅）宝石时窃取首位敌人的生命（T5 窃取批 5 code：corruption/poisontide/
    * justabite/darkesthunger/ladyofdesire「在配对X色宝石时窃取第一/首位敌人 N 点生命值」）。
    * 口径与技能 drain（settleDrain）一致：对首位存活敌人造成 amount 伤害（TurnEngine 注入
-   * drainLife 回调走 damageOne 管线），持有者按实际伤害额等量治疗；编译进
+   * drainLife 回调走 damageOne 管线），持有者按目标实际失血增加当前与最大生命；编译进
    * PassiveModifiers.colorMatchDrain 的同色键。
    */
   onColorMatchDrain?: { color: BaseColor | 'skull'; amount: number };
@@ -251,7 +255,7 @@ export interface TraitDefinition {
   };
   /**
    * 配对 N 连时把生命转换为魔法（T5 杂项批 trascend「在配对 4 或 5 颗宝石时，将 2 点
-   * 生命值替换成 2 点魔法值」）：持有者自身 1:1 交换（from 侧减、to 侧加），生命侧保底
+   * 生命值替换成 2 点魔力值」）：持有者自身 1:1 交换（from 侧减、to 侧加），生命侧保底
    * 1 点（特质不自杀），实际减少额 = 魔法获得额；不掷随机数。minSize 缺省 4。
    */
   onBigMatchConvert?: { from: 'hp'; to: 'magic'; amount: number; minSize?: number };
@@ -348,7 +352,7 @@ export interface TraitDefinition {
    * buff 事件，不给自己进账）；目标=持有者对面阵营队伍序首位存活（确定性、零随机消耗）。
    */
   turnStartEnemyDrain?: { amount: number };
-  /** 回合开始时从首位敌人窃取生命（死亡相 aspectofdeath「Steal 2 Life from the first enemy」）：伤害经 traitDrainLife（damageOne 管线 + 持有者按实际伤害额等量治疗）。 */
+  /** 回合开始时从首位敌人窃取生命（死亡相 aspectofdeath「Steal 2 Life from the first enemy」）：伤害经 traitDrainLife（damageOne 管线 + 持有者按目标实际失血增加当前与最大生命）。 */
   turnStartStealLife?: { amount: number };
   /** 回合开始时从首位敌人窃取法力（猴王魔法 monkeymagic「Steal 2 Magic from the first enemy」）：削减口径同 onSkullHitStealMana（目标夹零、manashield 免疫整体跳过、自己按 manaCost 夹取）。 */
   turnStartStealMana?: { amount: number };
@@ -434,7 +438,7 @@ export interface TraitDefinition {
   /**
    * 自己一方配对 4/5 连时窃取首位敌人生命（职业天赋 lifesiphon「配对 4 或 5 颗宝石时，
    * 窃取第一名敌人 2 点生命值」）。同色窃取批 onColorMatchDrain 的大连版：front 目标
-   * 确定性、伤害经 drainLife 注入（持有者按实际伤害等量治疗）。编译进
+   * 确定性、伤害经 drainLife 注入（持有者按目标实际失血增长生命及上限）。编译进
    * PassiveModifiers.onBigMatchDrainLife。
    */
   onBigMatchDrainLife?: { amount: number; minSize?: number };
@@ -504,7 +508,7 @@ export interface TraitDefinition {
   onSelfDeathEnemyAllStatus?: { statuses: readonly { id: string; magnitude?: number }[]; turns: number };
   /** 骷髅伤害即死概率（职业天赋 bullseye「骷髅头伤害有 15% 的几率一击致命」）：结算口判定 */
   skullLethalChance?: number;
-  /** 回合开始按概率获得属性（职业天赋 darkchannel「每回合有 50% 的几率获得 1 点魔法值」）。
+  /** 回合开始按概率获得属性（职业天赋 darkchannel「每回合有 50% 的几率获得 1 点魔力值」）。
    *  定义直读键（TurnEngine 回合开始结算口消费）；魔法走 grantStat（织网拦截口径不变）。 */
   turnStartChanceGain?: { chance: number; stat: PassiveStat; amount: number };
   /** 造成骷髅伤害时按概率猎杀末位敌人（职业天赋 assassinate「造成骷髅头伤害时，10% 猎杀最后一名敌人」） */
@@ -593,7 +597,7 @@ export interface TraitDefinition {
   };
   /**
    * 战斗开始时给同队匹配范围的盟友按 manaCost 比例授予开局法力（职业天赋 windspeed
-   * 「所有黄色盟友以 10% 法力开始战斗」/ inspiration「所有盟友以 15% 法力开始战斗」）。
+   * 「所有黄色盟友以 10% 法力值开始战斗」/ inspiration「所有盟友以 15% 法力值开始战斗」）。
    * 定义直读字段（同 battleStartStorm 族）；scope 认 'all'/种族/颜色（scopeMatches 同款）。
    * 自身版为 battleStartManaRatio（快速/赐能），两者叠加各自独立结算。
    */
@@ -683,7 +687,7 @@ export interface TraitDefinition {
     chance?: number;
   };
   /**
-   * 施法响应·敌方属性削减（psychicaffliction「消除所有敌人 1 点魔法值」/ succumb「敌人
+   * 施法响应·敌方属性削减（psychicaffliction「消除所有敌人 1 点魔力值」/ succumb「敌人
    * 失去 4 点随机技能值」）。reduce 语义（持有者不进账）：stat 'random' 每次触发经 rng
    * 在四项属性中掷一条（无 rng 按随机技能值口径落 magic）；allEnemies 逐个削减。
    */
@@ -715,7 +719,7 @@ export interface TraitDefinition {
   pvpEconomyGain?: { currency: 'gold' | 'souls'; amount: number };
 }
 
-export const TRAIT_LIBRARY: readonly TraitDefinition[] = traitTable as TraitDefinition[];
+export const TRAIT_LIBRARY: readonly TraitDefinition[] = (traitTable as TraitDefinition[]).map(t => ({ ...t, description: normalizeCombatText(t.description) }));
 
 const BY_CODE = new Map(TRAIT_LIBRARY.map((t) => [t.code, t]));
 
@@ -729,8 +733,11 @@ const DYNAMIC_DEFS = new Map<string, TraitDefinition>();
 
 /** 注册动态特质定义（meta 职业天赋；调用方保证幂等或接受覆盖语义） */
 export function registerDynamicTraits(defs: readonly TraitDefinition[]): void {
-  for (const d of defs) DYNAMIC_DEFS.set(d.code, d);
+  for (const d of defs) DYNAMIC_DEFS.set(d.code, { ...d, description: normalizeCombatText(d.description) });
 }
+
+// 自定义部队特质独立注册；官方审计仅覆盖上面的原版 traitTable。
+registerDynamicTraits(COMMUNITY_TRAITS);
 
 /** 已注册的动态特质 code（供宿主快照校验把天赋 code 放进 knownTraitIds） */
 export function dynamicTraitCodes(): string[] {
@@ -943,14 +950,17 @@ export function resolvePassives(
         passive[into][stat] += gain.amount;
       }
     }
+    const addColorGain = (color: string, stat: PassiveStat, amount: number) => {
+      colorMatchGains[color] ??= noGains();
+      colorMatchGains[color][stat] += amount;
+    };
     if (trait.onColorMatchGain) {
-      const k = trait.onColorMatchGain.color;
-      colorMatchGains[k] ??= noGains();
-      colorMatchGains[k][trait.onColorMatchGain.stat] += trait.onColorMatchGain.amount;
-      // 共享数值附加属性（ragingbull「2 点攻击力、护甲值和生命值」）
-      for (const stat of trait.onColorMatchGain.alsoStats ?? []) {
-        colorMatchGains[k][stat] += trait.onColorMatchGain.amount;
-      }
+      const { color, stat, amount, alsoStats } = trait.onColorMatchGain;
+      addColorGain(color, stat, amount);
+      for (const otherStat of alsoStats ?? []) addColorGain(color, otherStat, amount);
+    }
+    for (const { color, stat, amount } of trait.onColorMatchGains ?? []) {
+      addColorGain(color, stat, amount);
     }
     if (trait.manaLink) {
       manaLink[trait.manaLink.color] = (manaLink[trait.manaLink.color] ?? 0) + trait.manaLink.amount;
@@ -1382,7 +1392,14 @@ export function attachPassives(char: Character, lookup: TraitLookup = getTrait):
 }
 
 /** 取角色的被动修正；未编译过时返回中性值。 */
+export function activeTraitIds(char: Character): readonly string[] {
+  return char.statuses.some(st => st.id === 'stun' && st.turns > 0) ? [] : (char.traitIds ?? []);
+}
+
 export function passivesOf(char: Character): PassiveModifiers {
+  // Stun suppresses all trait-derived modifiers until the status is removed.
+  // Keep the compiled passive on the Character so cleansing restores it.
+  if (char.statuses.some(st => st.id === 'stun' && st.turns > 0)) return NEUTRAL_PASSIVES;
   return char.passive ?? NEUTRAL_PASSIVES;
 }
 
@@ -1398,6 +1415,14 @@ export function isImmuneToStatus(char: Character, statusId: string): boolean {
  * 多个条件同时命中时取**最强的一项**而不是相乘：龙族杀手 ×2 叠上烈焰之恨 ×2 变 ×4
  * 会让特定队伍组合瞬秒，且玩家无法从描述预期实际倍率。
  */
+/** 仅宿主明确标记的活动目标触发，普通战斗完全不变；当前品质0..5（基础品质+晋升）对应3..5倍。 */
+export function eventDamageMultiplier(attacker: Character, target: Character): number {
+  if (!target.eventTarget || attacker.statuses.some(s => s.id === 'stun')) return 1;
+  const progress = Math.max(0, Math.min(5, attacker.eventRarity ?? 0)) / 5;
+  return passivesOf(attacker).vsAscendedMultipliers.reduce((mult, spec) =>
+    spec.target === target.eventTarget ? Math.max(mult, spec.min + (spec.max - spec.min) * progress) : mult, 1);
+}
+
 export function skullDamageMultiplier(attacker: Character, target: Character): number {
   const p = passivesOf(attacker);
   let mult = 1;
@@ -1411,7 +1436,7 @@ export function skullDamageMultiplier(attacker: Character, target: Character): n
     mult = Math.max(mult, p.skullMultVsColor[color] ?? 1);
   }
   if (target.hp < target.maxHp) mult = Math.max(mult, p.skullMultVsWounded);
-  return mult;
+  return mult * eventDamageMultiplier(attacker, target);
 }
 
 /** 匹配某色宝石时该角色的法力灵链加成（含彩虹灵链）。 */
@@ -1423,8 +1448,10 @@ export function manaLinkBonus(char: Character, color: BaseColor): number {
 /** 就地给角色某项数值加值，hp/armor 同时抬上限，返回实际变化量。 */
 export function grantStat(char: Character, stat: PassiveStat, amount: number): number {
   if (amount === 0 || char.defeated) return 0;
+  // Entangle prevents Attack buffs from spells and traits until it is removed.
+  if (stat === 'attack' && amount > 0 && char.statuses.some(s => s.id === 'entangle' && s.turns > 0)) return 0;
   if (stat === 'magic') {
-    // 织网（GoW Web）期间无法获得魔法值增益。字面量与 status.ts 的 WEB_STATUS_ID 一致；
+    // 织网（GoW Web）期间无法获得魔力值增益。字面量与 status.ts 的 WEB_STATUS_ID 一致；
     // 不直接 import 是为避免 traits ↔ status 的运行时循环依赖（status 依赖本模块）。
     if (char.statuses.some((s) => s.id === 'web' && s.turns > 0)) return 0;
   }
@@ -1481,7 +1508,7 @@ export function applyCastTriggers(
     // 盟友施法队伍光环（virtueofloyalty「当一名盟友施放法术时，所有盟友获得…」）：
     // 持有者在施法方队伍时生效，受益者为该队存活盟友。
     ...applyTypeAuraGains(casterTeam, casterTeam, 'onAllyCastTypeAura'),
-    // 敌方施法队伍光环（职业天赋 portent「当敌人施放法术时，所有人马族获得 2 点魔法值」）：
+    // 敌方施法队伍光环（职业天赋 portent「当敌人施放法术时，所有人马族获得 2 点魔力值」）：
     // 持有者在受击方（对方施法时的己方）队伍，受益者为同队存活盟友。
     ...applyTypeAuraGains(opposingTeam, opposingTeam, 'onEnemyCastTypeAura'),
   ];
@@ -1576,7 +1603,7 @@ export function applyCastRandomStatusTriggers(
     if (holder.defeated) continue;
     const spec = passivesOf(holder).castEnemyDrain;
     if (!spec) continue;
-    // scope randomEnemy（职业天赋 spiritdrain「耗掉一名随机敌人 2 点法力」）：每持有者
+    // scope randomEnemy（职业天赋 spiritdrain「耗掉一名随机敌人 2 点法力值」）：每持有者
     // 耗一次 rng 掷目标；allEnemies（psychicaffliction/succumb 原口径）逐个确定性削减。
     const targets = spec.scope === 'randomEnemy'
       ? (ctx.rng && foeAlive.length > 0 ? [foeAlive[Math.floor(ctx.rng.next() * foeAlive.length)]] : [])
@@ -1720,7 +1747,7 @@ function applyTypeAuraGains(
  * 持有者为死者的对方全队存活角色，按队伍序结算。三类变体：
  *   - onEnemyDeathStatus：持有者自身获得状态（bloodlust「在敌人身亡时获得狂怒效果」）；
  *   - onEnemyDeathTypeAura：持有者一方指定种族的存活盟友获得数值，含持有者本人
- *     （lordofdeath「所有不死族在一名敌人身亡时获得 5 点生命值和魔法值」）；
+ *     （lordofdeath「所有不死族在一名敌人身亡时获得 5 点生命值和魔力值」）；
  *   - onEnemyDeathEnemyStatus：死者已被移出编队，目标取死者一方队伍序首个存活角色
  *     （sharedfate「在一名敌人身亡时，使另一名敌人陷入死亡标记状态」），确定性、不耗随机数。
  * applyStatus 由 TurnEngine 注入（与 onBigMatchStatus 同口径，免疫在 applyStatus 内拦截）；
@@ -1828,7 +1855,7 @@ export function collectBattleStartStorms(
   const specs: BattleStartStormSpec[] = [];
   for (const char of characters) {
     if (char.defeated) continue;
-    for (const code of char.traitIds ?? []) {
+    for (const code of activeTraitIds(char)) {
       const storm = lookup(code)?.battleStartStorm;
       if (!storm) continue;
       specs.push({
@@ -1919,7 +1946,7 @@ function resolveSummonTemplate(spec: DeathSummonSpec): Omit<Character, 'id' | 'd
  *
  * T5 窃取批扩展：onColorMatchDrain（corruption/poisontide/justabite/darkesthunger/ladyofdesire
  * 「在配对X色宝石时窃取第一/首位敌人 N 点生命值」）——色键命中时对首位存活敌人造成伤害、
- * 持有者按实际伤害额等量治疗（结算经 opts.drainLife 注入，TurnEngine 传 damageOne+治疗）；
+ * 持有者按目标实际失血增长生命及上限（结算经 opts.drainLife 注入）；
  * front 目标确定性选取、零随机消耗，无 drainLife/enemyTeam 注入时整块跳过。
  */
 export function applyColorMatchTriggers(
@@ -1934,7 +1961,7 @@ export function applyColorMatchTriggers(
     applyStatus?: (char: Character, status: StatusInstance) => GameEvent[];
     /**
      * 窃取生命口（T5 窃取批，TurnEngine 注入：damageOne 管线伤害 + 持有者按实际伤害额
-     * 等量治疗）；缺省时窃取类跳过（纯逻辑环境零事件）。
+     * 增长当前与最大生命）；缺省时窃取类跳过（纯逻辑环境零事件）。
      */
     drainLife?: (target: Character, holder: Character, amount: number) => GameEvent[];
     /**
@@ -2050,8 +2077,8 @@ export function applyColorMatchTriggers(
     }
   }
   // 配色窃取生命（T5 窃取批 5 code：corruption/poisontide/justabite/darkesthunger/ladyofdesire）：
-  // 匹配色命中持有者的 colorMatchDrain 键时，对首位存活敌人造成伤害、持有者等量治疗。
-  // 结算经 opts.drainLife 注入（TurnEngine 传 damageOne+治疗，defeat 出编队同骷髅口径）；
+  // 匹配色命中持有者的 colorMatchDrain 键时，对首位存活敌人窃取生命、持有者增长生命及上限。
+  // 结算经 opts.drainLife 注入（TurnEngine 传绕甲伤害+生命增长，defeat 出编队同骷髅口径）；
   // front 目标确定性选取、不耗随机数——无新键特质零事件、零随机消耗。前一个持有者的
   // 窃取若击杀首位，后续持有者重取当前首位（同一触发点内逐个现算）。
   if (opts.drainLife && opts.enemyTeam) {
@@ -2099,7 +2126,7 @@ export function applyColorMatchTriggers(
   if (opts.explodeSpec) {
     for (const holder of team) {
       if (holder.defeated) continue;
-      for (const code of holder.traitIds ?? []) {
+      for (const code of activeTraitIds(holder)) {
         const spec = getTrait(code)?.onColorMatchExplodeGem;
         if (!spec || spec.color !== color) continue;
         events.push(...opts.explodeSpec({ kind: 'random', count: spec.count }));
@@ -2204,7 +2231,7 @@ export interface BigMatchTriggerContext {
   kill?: (target: Character) => GameEvent[];
   /**
    * 窃取生命口（职业天赋 lifesiphon，同配色窃取批的 opts.drainLife：damageOne 伤害 +
-   * 持有者按实际伤害等量治疗）；缺省时窃取类跳过。
+   * 持有者按目标实际失血增长生命及上限）；缺省时窃取类跳过。
    */
   drainLife?: (target: Character, holder: Character, amount: number) => GameEvent[];
   /**
@@ -2472,7 +2499,7 @@ export function applyBigMatchTriggers(
     }
   }
 
-  // 配对转换（T5 杂项批 trascend「将 2 点生命值替换成 2 点魔法值」）：持有者自身 1:1 交换，
+  // 配对转换（T5 杂项批 trascend「将 2 点生命值替换成 2 点魔力值」）：持有者自身 1:1 交换，
   // 生命侧保底 1 点（特质不自杀），实际减少多少生命就等量加多少魔法（织网下的魔法增益
   // 拦截走 grantStat 既有口径）；纯数值操作不掷随机数——无新键特质零事件、零随机消耗。
   for (const holder of matchingTeam) {
@@ -2545,7 +2572,7 @@ export function applyBigMatchTriggers(
     if (passivesOf(holder).onBigMatchCleanseSelf) events.push(...cleanseNegative(holder));
   }
   // 配对窃取首位敌人生命（lifesiphon）：front 目标确定性、伤害经 ctx.drainLife（持有者按
-  // 实际伤害等量治疗，与配色窃取批同源）；同类取先声明的一条（编译期保证）。
+  // 目标实际失血增长生命及上限，与配色窃取批同源）；同类取先声明的一条（编译期保证）。
   if (ctx.drainLife && ctx.enemyTeam) {
     for (const holder of matchingTeam) {
       if (holder.defeated) continue;
@@ -2646,7 +2673,7 @@ export function applyTurnStartPassives(characters: readonly Character[]): BuffEv
       if (actual !== 0) events.push({ type: 'buff', source: 'trait', targetId: char.id, stat: 'magic', amount: actual });
     }
     // 回合开始范围光环（turnStartTypeAura，定义直读）：持有者存活时给同队 scope 成员叠加
-    for (const code of char.traitIds ?? []) {
+    for (const code of activeTraitIds(char)) {
       const aura = getTrait(code)?.turnStartTypeAura;
       if (!aura) continue;
       for (const member of characters) {
@@ -2664,7 +2691,7 @@ export function applyTurnStartPassives(characters: readonly Character[]): BuffEv
 
 /**
  * 战斗开始时的一次性特质结算，顺序固定以保证确定性：
- *   1. 全体光环（崇敬 +2 法强 / 诅咒 -2 法强）
+ *   1. 全体光环（崇敬：盟友每人随机获得 2 点技能值；诅咒：敌人 -2 魔力）
  *   2. 按颜色盟友计数的自身光环（水系之心…）
  *   3. 开局法力（快速 / 赐能）
  *
@@ -2675,6 +2702,7 @@ export function applyBattleStartTraits(
   allies: readonly Character[],
   enemies: readonly Character[],
   lookup: TraitLookup = getTrait,
+  rng: SeededRNG = new SeededRNG(0),
 ): BuffEvent[] {
   const events: BuffEvent[] = [];
   const push = (char: Character, stat: PassiveStat, amount: number) => {
@@ -2686,10 +2714,20 @@ export function applyBattleStartTraits(
   for (const [source, own, foe] of [[allies, allies, enemies], [enemies, enemies, allies]] as const) {
     for (const char of source) {
       if (char.defeated) continue;
-      for (const code of char.traitIds ?? []) {
+      for (const code of activeTraitIds(char)) {
         const aura = lookup(code)?.teamAura;
         if (!aura) continue;
-        for (const target of aura.scope === 'allies' ? own : foe) push(target, aura.stat, aura.amount);
+        for (const target of aura.scope === 'allies' ? own : foe) {
+          if (aura.stat === 'random') {
+            // One seeded roll for each skill point, matching randomStatEffect's stat pool.
+            const stats: readonly PassiveStat[] = ['attack', 'armor', 'hp', 'magic'];
+            for (let i = 0; i < Math.abs(aura.amount); i++) {
+              push(target, stats[rng.nextInt(stats.length)]!, Math.sign(aura.amount));
+            }
+          } else {
+            push(target, aura.stat, aura.amount);
+          }
+        }
       }
     }
   }
@@ -2698,7 +2736,7 @@ export function applyBattleStartTraits(
   for (const team of [allies, enemies]) {
     for (const char of team) {
       if (char.defeated) continue;
-      for (const code of char.traitIds ?? []) {
+      for (const code of activeTraitIds(char)) {
         const aura = lookup(code)?.typeAura;
         if (!aura) continue;
         for (const target of team) {
@@ -2714,7 +2752,7 @@ export function applyBattleStartTraits(
   for (const team of [allies, enemies]) {
     for (const char of team) {
       if (char.defeated) continue;
-      for (const code of char.traitIds ?? []) {
+      for (const code of activeTraitIds(char)) {
         const per = lookup(code)?.perAllyColor;
         if (!per) continue;
         const count = team.filter((c) => !c.defeated && c.colors.includes(per.color as BaseColor)).length;
@@ -2731,7 +2769,7 @@ export function applyBattleStartTraits(
   for (const team of [allies, enemies]) {
     for (const char of team) {
       if (char.defeated) continue;
-      for (const code of char.traitIds ?? []) {
+      for (const code of activeTraitIds(char)) {
         const per = lookup(code)?.perAllyTrait;
         if (!per) continue;
         const count = team.filter((c) => !c.defeated && (c.traitIds ?? []).some(isBandingTrait)).length;
@@ -2750,7 +2788,7 @@ export function applyBattleStartTraits(
   for (const team of [allies, enemies]) {
     for (const char of team) {
       if (char.defeated) continue;
-      for (const code of char.traitIds ?? []) {
+      for (const code of activeTraitIds(char)) {
         const aura = lookup(code)?.battleStartTypeAura;
         if (!aura) continue;
         for (const target of team) {
@@ -2773,7 +2811,7 @@ export function applyBattleStartTraits(
   for (const team of [allies, enemies]) {
     for (const char of team) {
       if (char.defeated) continue;
-      for (const code of char.traitIds ?? []) {
+      for (const code of activeTraitIds(char)) {
         const spec = lookup(code)?.allyStartMana;
         if (!spec) continue;
         const scope = spec.scope ?? spec.troopType;
@@ -2796,7 +2834,7 @@ export function applyBattleStartTraits(
   for (const char of [...allies, ...enemies]) {
     if (char.defeated) continue;
     let ratio = 0;
-    for (const code of char.traitIds ?? []) {
+    for (const code of activeTraitIds(char)) {
       const r = lookup(code)?.battleStartManaRatio;
       if (r !== undefined) ratio = Math.max(ratio, r);
     }

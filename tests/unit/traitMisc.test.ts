@@ -1,6 +1,6 @@
 /**
  * T5 杂项机制批测试（配对转换/召唤/风暴/首位敌人/随机负面池/即杀/配色伤害，11 code）：
- *   1. 配对转换——trascend「配对 4/5 将 2 点生命值替换成 2 点魔法值」（onBigMatchConvert）；
+ *   1. 配对转换——trascend「配对 4/5 将 2 点生命值替换成 2 点魔力值」（onBigMatchConvert）；
  *   2. 配对召唤——genieslamp 30% 神灯之灵 / stormflock 35% 鸟妖法师（onBigMatchSummon，
  *      复用死亡召唤基建 applyDeathSummons：概率走种子化 rng、入队走容量/FIFO 规则）；
  *   3. 配对风暴——deadlywaters「创造骸骨风暴」（onBigMatchStorm，走全局唯一顶替裁定）；
@@ -94,7 +94,7 @@ describe('编译正确性（新键 → 定义/resolvePassives 产物）', () => 
     const trait = getTrait('experiment')?.onBigMatchStatus;
     expect(trait?.scope).toBe('randomEnemy');
     expect(trait?.randomNegative).toBe(true);
-    expect(trait?.statuses).toHaveLength(12);
+    expect(trait?.statuses).toHaveLength(15); // official status list negatives (L2-random-status-pools)
     expect(trait?.statuses?.[0]).toEqual({ id: 'poison', magnitude: 1 });
     // DoT 带 magnitude，其余不带（与全局施加口径一致）
     expect(trait?.statuses?.find((s) => s.id === 'death-mark')).toEqual({ id: 'death-mark' });
@@ -308,15 +308,15 @@ describe('applyBigMatchTriggers：首位敌人（dragonvines）/ 随机负面池
     attachPassives(holder);
     const log: [number, string][] = [];
     const calls: number[] = [];
-    // 目标：floor(0.9*2)=1 → 第二名；状态：floor(0.9*12)=10 → death-mark
+    // 目标：floor(0.9*2)=1 → 第二名；状态：floor(0.7*15)=10 → death-mark（15 项官方负面池）
     applyBigMatchTriggers([holder], {
       size: 4,
       enemyTeam: [makeChar(4), makeChar(5)],
-      rng: rngOf([0.9, 0.9], calls),
+      rng: rngOf([0.9, 0.7], calls),
       applyStatus: recorder(log),
     });
     expect(log).toEqual([[5, 'death-mark']]);
-    expect(calls).toEqual([0.9, 0.9]);
+    expect(calls).toEqual([0.9, 0.7]);
   });
 
   it('experiment：无 rng 时整条跳过（概率性语义不退化为必发全池）', () => {

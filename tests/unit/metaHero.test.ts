@@ -356,7 +356,8 @@ describe('主角入队桥接与结算（天赋真实入战）', () => {
   });
 
   it('主角未编队时不积冠军经验', () => {
-    const s = save();
+    const s = newSave({ now: 0, starterTroopIds: [6000, 6097, 6457, 6169] });
+    s.teams[0]!.members = [6000, 6097, 6457, 6169].map(troopId => ({ kind: 'troop', troopId }));
     s.hero.unlockedClasses.push(STARTER_CLASS);
     equipClass(s, STARTER_CLASS);
     const plan = planQuestEncounter(KINGDOM, 1, 5);

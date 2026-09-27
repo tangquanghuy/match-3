@@ -1,0 +1,460 @@
+{
+ "weapon:1142": {
+  "test": "tests/unit/gowLaneL5B02.test.ts",
+  "extra": [
+   {
+    "id": "r004",
+    "role": "coordinator-ruling",
+    "path": "tasks/active/gow-skill-shards/rulings/R004-status-durations.md",
+    "note": "R004: negatives no turn cap, shared cumulative self-cleanse 10%/+10% (+5% Cursed), Poison never; positives end on trigger (Barrier/Reflect damage, Enchanted cast, Enraged skull damage, Submerged/Blessed holder action)."
+   },
+   {
+    "id": "r3",
+    "role": "lane-battle-test",
+    "path": "tests/unit/gowLaneL5R3.test.ts",
+    "note": "Round-3 real castSkill both sides: statuses from this cast unchanged after 6 failed turn-start rolls; one successful roll removes all recoverable negatives together (Poison/positives stay)."
+   },
+   {
+    "id": "srcR004",
+    "role": "community-source",
+    "path": "artifacts/gow-skill-audit/gold-primary-sources/community-2026-09-28-status-durations.json",
+    "note": "Saved community corroboration for R004 (staff reply: new negative resets, all negatives cleanse together)."
+   },
+   {
+    "id": "r006",
+    "role": "coordinator-ruling",
+    "path": "tasks/active/gow-skill-shards/rulings/R006-hidden-mechanics-conventions.md",
+    "note": "R006 conventions C1 (half-up rounding) / C2 (Cause* Amount ignored)."
+   }
+  ],
+  "en": "weapon 1142 Dragonator 8000: gowhead English \"Scientifically Burn, Freeze, Silence, and deal [Magic + 3] damage to random Enemies.\", cost 11 Brown, 7338 + gw_Dragonator8000.",
+  "native": "spell 7338 Target None: CauseBurning RandomEnemy Amount 2; CauseFrozen RandomPrefNotPrevEnemy Amount 2; CauseSilence RandomPrefNotPrevEnemy Amount 2; Damage RandomPrefNotPrevEnemy Amount 3 SPM 1.",
+  "dims": {
+   "identity-cost-colors": [
+    "v",
+    "Weapon 1142 -> spell 7338, cost 11, Brown; both aliases."
+   ],
+   "target-count-range": [
+    "v",
+    "Step 1 random enemy; steps 2-4 each avoid the previous target while another enemy lives (40 seeds); lone survivor gets all."
+   ],
+   "base-formula-rounding": [
+    "v",
+    "Magic+3 damage to one random enemy."
+   ],
+   "boost-source-ratio-cap": [
+    "na",
+    "No boost/count source."
+   ],
+   "conditions-probabilities-branches": [
+    "v",
+    "Random picks via seeded RNG; prefer-not-previous verified over 40 seeds."
+   ],
+   "status-duration-immunity": [
+    "v",
+    "Burning/Frozen/Silence R004: no turn cap; persists through 6 failed turn-start rolls, removed by one successful shared self-cleanse roll (gowLaneL5R3). Cause* Amount 2 ignored convention:R006-C2; Invulnerable immune."
+   ],
+   "gems-types-selection-resolution": [
+    "na",
+    "No gem steps."
+   ],
+   "summon-transform-pools": [
+    "na",
+    "No summon/transform."
+   ],
+   "order-death-retargeting": [
+    "v",
+    "Burn -> Freeze -> Silence -> Damage native order."
+   ],
+   "mana-economy-extra-turn": [
+    "v",
+    "Cast spends full mana and passes the turn; low mana and Silence block the real cast (no mana/action spent)."
+   ],
+   "display-description": [
+    "v",
+    "Chinese description asserted verbatim; wording matches the English effect."
+   ],
+   "battle-pipeline": [
+    "v",
+    "Real TurnEngine.castSkill both sides (lane file + round-3 R004 file)."
+   ]
+  },
+  "clauses": {
+   "c1": [
+    "v",
+    "Burn, Freeze, Silence and Magic+3 damage on random enemies with prefer-not-previous; durations R004, Amount 2 ignored convention:R006-C2."
+   ]
+  },
+  "steps": {
+   "0": [
+    "v",
+    "CauseBurning RandomEnemy -> enemyRandom burning; Amount ignored convention:R006-C2."
+   ],
+   "1": [
+    "v",
+    "CauseFrozen RandomPrefNotPrevEnemy -> enemyRandomPrefNotPrev; convention:R006-C2."
+   ],
+   "2": [
+    "v",
+    "CauseSilence RandomPrefNotPrevEnemy; convention:R006-C2."
+   ],
+   "3": [
+    "v",
+    "Damage RandomPrefNotPrevEnemy 3/1."
+   ]
+  },
+  "branches": {
+   "main": [
+    "v",
+    "Single unconditional branch."
+   ]
+  },
+  "decision": "accept",
+  "rule": {
+   "path": "artifacts/gow-skill-audit/gold-primary-sources/official-status-effects.html",
+   "note": "Official status guide: status semantics (Barrier, Silence, Stun, Disease, Death Mark, Enrage, Submerged, cumulative cleanse chance via Cursed/Lycanthropy entries)."
+  }
+ },
+ "weapon:1436": {
+  "test": "tests/unit/gowLaneL5B02.test.ts",
+  "extra": [
+   {
+    "id": "r004",
+    "role": "coordinator-ruling",
+    "path": "tasks/active/gow-skill-shards/rulings/R004-status-durations.md",
+    "note": "R004: negatives no turn cap, shared cumulative self-cleanse 10%/+10% (+5% Cursed), Poison never; positives end on trigger (Barrier/Reflect damage, Enchanted cast, Enraged skull damage, Submerged/Blessed holder action)."
+   },
+   {
+    "id": "r3",
+    "role": "lane-battle-test",
+    "path": "tests/unit/gowLaneL5R3.test.ts",
+    "note": "Round-3 real castSkill both sides: statuses from this cast unchanged after 6 failed turn-start rolls; one successful roll removes all recoverable negatives together (Poison/positives stay)."
+   },
+   {
+    "id": "srcR004",
+    "role": "community-source",
+    "path": "artifacts/gow-skill-audit/gold-primary-sources/community-2026-09-28-status-durations.json",
+    "note": "Saved community corroboration for R004 (staff reply: new negative resets, all negatives cleanse together)."
+   },
+   {
+    "id": "r001",
+    "role": "coordinator-ruling",
+    "path": "tasks/active/gow-skill-shards/rulings/R001-native-step-order.md",
+    "note": "R001: native SpellSteps order governs observable order."
+   },
+   {
+    "id": "r002",
+    "role": "coordinator-ruling",
+    "path": "tasks/active/gow-skill-shards/rulings/R002-barrier-enchant-cleanse.md",
+    "note": "R002: Barrier/Enchanted no time limit; Cleanse removes negatives only."
+   }
+  ],
+  "en": "weapon 1436 Trick and Treat: gowhead English \"Inflict all negative status effects on an Enemy, and grant myself all positive status effects.\", cost 22 Red/Yellow/Purple, 8668 + gw_TrickAndTreat.",
+  "native": "spell 8668 Target Enemy: CauseCursed FromTarget Amount 1; CauseAllNegativeStatusEffects FromTarget Delay 1; CauseAllPositiveStatusEffects Self.",
+  "dims": {
+   "identity-cost-colors": [
+    "v",
+    "Weapon 1436 -> spell 8668, cost 22, Red/Yellow/Purple; both aliases."
+   ],
+   "target-count-range": [
+    "v",
+    "Negatives on the chosen enemy only; positives on the caster only."
+   ],
+   "base-formula-rounding": [
+    "na",
+    "No numeric formula."
+   ],
+   "boost-source-ratio-cap": [
+    "na",
+    "No boost/count source."
+   ],
+   "conditions-probabilities-branches": [
+    "na",
+    "No condition, chance or Randomize."
+   ],
+   "status-duration-immunity": [
+    "v",
+    "Official negative list (15 incl. Faerie Fire/Hunter's Mark/Terror/Lycanthropy, no Charm); six positives, Enrage once; R004: no turn cap; persists through 6 failed turn-start rolls, removed by one successful shared self-cleanse roll (gowLaneL5R3). Poison stays; positives persist. Curse strips Barrier and penetrates immunity; Invulnerable blocks; Blessed enemy cancels with Curse."
+   ],
+   "gems-types-selection-resolution": [
+    "na",
+    "No gem steps."
+   ],
+   "summon-transform-pools": [
+    "na",
+    "No summon/transform."
+   ],
+   "order-death-retargeting": [
+    "v",
+    "Curse first (native), then remaining negatives, then self positives with Blessed last."
+   ],
+   "mana-economy-extra-turn": [
+    "v",
+    "Cast spends full mana and passes the turn; low mana and Silence block the real cast (no mana/action spent)."
+   ],
+   "display-description": [
+    "v",
+    "Chinese description asserted verbatim; wording matches the English effect."
+   ],
+   "battle-pipeline": [
+    "v",
+    "Real TurnEngine.castSkill both sides (lane file + round-3 R004 file)."
+   ]
+  },
+  "clauses": {
+   "c1": [
+    "v",
+    "All official negatives on the enemy, all positives on self; durations R004."
+   ]
+  },
+  "steps": {
+   "0": [
+    "v",
+    "CauseCursed FromTarget -> curse enemyChosen first."
+   ],
+   "1": [
+    "v",
+    "CauseAllNegativeStatusEffects -> 14 further negative segments on enemyChosen."
+   ],
+   "2": [
+    "v",
+    "CauseAllPositiveStatusEffects Self -> randomStatus allPositive (Enrage once, Blessed last)."
+   ]
+  },
+  "branches": {
+   "main": [
+    "v",
+    "Single unconditional branch."
+   ]
+  },
+  "decision": "accept",
+  "rule": {
+   "path": "artifacts/gow-skill-audit/gold-primary-sources/official-status-effects.html",
+   "note": "Official status guide: status semantics (Barrier, Silence, Stun, Disease, Death Mark, Enrage, Submerged, cumulative cleanse chance via Cursed/Lycanthropy entries)."
+  }
+ },
+ "troop:6249": {
+  "test": "tests/unit/gowLaneL5B02.test.ts",
+  "extra": [
+   {
+    "id": "r004",
+    "role": "coordinator-ruling",
+    "path": "tasks/active/gow-skill-shards/rulings/R004-status-durations.md",
+    "note": "R004: negatives no turn cap, shared cumulative self-cleanse 10%/+10% (+5% Cursed), Poison never; positives end on trigger (Barrier/Reflect damage, Enchanted cast, Enraged skull damage, Submerged/Blessed holder action)."
+   },
+   {
+    "id": "r3",
+    "role": "lane-battle-test",
+    "path": "tests/unit/gowLaneL5R3.test.ts",
+    "note": "Round-3 real castSkill both sides: statuses from this cast unchanged after 6 failed turn-start rolls; one successful roll removes all recoverable negatives together (Poison/positives stay)."
+   },
+   {
+    "id": "srcR004",
+    "role": "community-source",
+    "path": "artifacts/gow-skill-audit/gold-primary-sources/community-2026-09-28-status-durations.json",
+    "note": "Saved community corroboration for R004 (staff reply: new negative resets, all negatives cleanse together)."
+   }
+  ],
+  "en": "troop 6249 Penitent: spell 7392 \"Death Mark the first and last Enemies. Take 3 damage.\", cost 7 Blue.",
+  "native": "spell 7392 Target None: CauseDeathMark FrontEnemy Amount 1; CauseDeathMark LastEnemy; Damage Self Amount 3.",
+  "dims": {
+   "identity-cost-colors": [
+    "v",
+    "Troop 6249 -> spell 7392, cost 7, Blue."
+   ],
+   "target-count-range": [
+    "v",
+    "First and last living enemies; single survivor marked once; dead edges skip to living edge."
+   ],
+   "base-formula-rounding": [
+    "v",
+    "Self damage fixed 3, magic-independent (magic 0/10)."
+   ],
+   "boost-source-ratio-cap": [
+    "na",
+    "No boost/count source."
+   ],
+   "conditions-probabilities-branches": [
+    "na",
+    "No condition, chance or Randomize."
+   ],
+   "status-duration-immunity": [
+    "v",
+    "Death Mark R004: no turn cap; persists through 6 failed turn-start rolls, removed by one successful shared self-cleanse roll (gowLaneL5R3). death roll unchanged (graceTicks); Warded immune."
+   ],
+   "gems-types-selection-resolution": [
+    "na",
+    "No gem steps."
+   ],
+   "summon-transform-pools": [
+    "na",
+    "No summon/transform."
+   ],
+   "order-death-retargeting": [
+    "v",
+    "Mark front -> mark last -> self damage; self damage absorbed by caster Barrier, else Armor then Life; 3 Life defeats caster."
+   ],
+   "mana-economy-extra-turn": [
+    "v",
+    "Cast spends full mana and passes the turn; low mana and Silence block the real cast (no mana/action spent)."
+   ],
+   "display-description": [
+    "v",
+    "Chinese description asserted verbatim; wording matches the English effect."
+   ],
+   "battle-pipeline": [
+    "v",
+    "Real TurnEngine.castSkill both sides (lane file + round-3 R004 file)."
+   ]
+  },
+  "clauses": {
+   "c1": [
+    "v",
+    "Front and last enemies Death Marked; R004 duration."
+   ],
+   "c2": [
+    "v",
+    "Caster takes 3 ordinary damage (Barrier/Armor first)."
+   ]
+  },
+  "steps": {
+   "0": [
+    "v",
+    "CauseDeathMark FrontEnemy -> enemyFront."
+   ],
+   "1": [
+    "v",
+    "CauseDeathMark LastEnemy -> enemyLast."
+   ],
+   "2": [
+    "v",
+    "Damage Self 3 -> damage allySelf base 3."
+   ]
+  },
+  "branches": {
+   "main": [
+    "v",
+    "Single unconditional branch."
+   ]
+  },
+  "decision": "accept",
+  "rule": {
+   "path": "artifacts/gow-skill-audit/gold-primary-sources/official-status-effects.html",
+   "note": "Official status guide: status semantics (Barrier, Silence, Stun, Disease, Death Mark, Enrage, Submerged, cumulative cleanse chance via Cursed/Lycanthropy entries)."
+  }
+ },
+ "weapon:1147": {
+  "test": "tests/unit/gowLaneL5B02.test.ts",
+  "extra": [
+   {
+    "id": "r004",
+    "role": "coordinator-ruling",
+    "path": "tasks/active/gow-skill-shards/rulings/R004-status-durations.md",
+    "note": "R004: negatives no turn cap, shared cumulative self-cleanse 10%/+10% (+5% Cursed), Poison never; positives end on trigger (Barrier/Reflect damage, Enchanted cast, Enraged skull damage, Submerged/Blessed holder action)."
+   },
+   {
+    "id": "r3",
+    "role": "lane-battle-test",
+    "path": "tests/unit/gowLaneL5R3.test.ts",
+    "note": "Round-3 real castSkill both sides: statuses from this cast unchanged after 6 failed turn-start rolls; one successful roll removes all recoverable negatives together (Poison/positives stay)."
+   },
+   {
+    "id": "srcR004",
+    "role": "community-source",
+    "path": "artifacts/gow-skill-audit/gold-primary-sources/community-2026-09-28-status-durations.json",
+    "note": "Saved community corroboration for R004 (staff reply: new negative resets, all negatives cleanse together)."
+   }
+  ],
+  "en": "weapon 1147 Crypt Keeper: gowhead English \"Death Mark an enemy. Deal [Magic + 1] true damage to all enemies below them, boosted by enemy Death Marks. [x3]\", cost 13 Purple, 7444 + gw_CryptKeeper.",
+  "native": "spell 7444 Target Enemy: CauseDeathMark FromTarget; CountSpecificStatusEffect AllEnemies deathmark Amount 300; TrueDamage BelowTarget UseCounterForAmount Amount 1 SPM 1.",
+  "dims": {
+   "identity-cost-colors": [
+    "v",
+    "Weapon 1147 -> spell 7444, cost 13, Purple; both aliases."
+   ],
+   "target-count-range": [
+    "v",
+    "Chosen enemy marked and untouched; every living enemy below it takes damage; last enemy chosen -> nobody below."
+   ],
+   "base-formula-rounding": [
+    "v",
+    "True damage Magic+1+3*marks."
+   ],
+   "boost-source-ratio-cap": [
+    "v",
+    "x3 per Death Marked enemy counted after step 0 (1 mark +3, 3 marks +9; pre-existing marks count)."
+   ],
+   "conditions-probabilities-branches": [
+    "na",
+    "No condition, chance or Randomize."
+   ],
+   "status-duration-immunity": [
+    "v",
+    "Death Mark R004: no turn cap; persists through 6 failed turn-start rolls, removed by one successful shared self-cleanse roll (gowLaneL5R3). Warded chosen enemy gets no mark."
+   ],
+   "gems-types-selection-resolution": [
+    "na",
+    "No gem steps."
+   ],
+   "summon-transform-pools": [
+    "na",
+    "No summon/transform."
+   ],
+   "order-death-retargeting": [
+    "v",
+    "Mark -> count -> damage native order."
+   ],
+   "mana-economy-extra-turn": [
+    "v",
+    "Cast spends full mana and passes the turn; low mana and Silence block the real cast (no mana/action spent)."
+   ],
+   "display-description": [
+    "v",
+    "Chinese description asserted verbatim; wording matches the English effect."
+   ],
+   "battle-pipeline": [
+    "v",
+    "Real TurnEngine.castSkill both sides (lane file + round-3 R004 file)."
+   ]
+  },
+  "clauses": {
+   "c1": [
+    "v",
+    "Chosen enemy Death Marked (R004)."
+   ],
+   "c2": [
+    "v",
+    "True damage Magic+1 to all enemies below."
+   ],
+   "c3": [
+    "v",
+    "[x3] per Death Marked enemy."
+   ]
+  },
+  "steps": {
+   "0": [
+    "v",
+    "CauseDeathMark FromTarget."
+   ],
+   "1": [
+    "v",
+    "CountSpecificStatusEffect deathmark 300 -> modifier multiplier 3 enemyStatusCount."
+   ],
+   "2": [
+    "v",
+    "TrueDamage BelowTarget -> enemyBelowTarget trueDamage."
+   ]
+  },
+  "branches": {
+   "main": [
+    "v",
+    "Single unconditional branch."
+   ]
+  },
+  "decision": "accept",
+  "rule": {
+   "path": "artifacts/gow-skill-audit/gold-primary-sources/official-status-effects.html",
+   "note": "Official status guide: status semantics (Barrier, Silence, Stun, Disease, Death Mark, Enrage, Submerged, cumulative cleanse chance via Cursed/Lycanthropy entries)."
+  }
+ }
+}

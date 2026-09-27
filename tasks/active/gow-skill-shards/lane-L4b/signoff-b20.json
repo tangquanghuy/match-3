@@ -1,0 +1,1734 @@
+{
+  "schemaVersion": 1,
+  "scope": "stored-gow-snapshot",
+  "reviews": [
+    {
+      "key": "troop:6751",
+      "scope": "stored-gow-snapshot",
+      "sourceDigest": "83fe5298893d5687939a16434f07c9df84e964e758e341b5cf46b9acee22fce1",
+      "reviewer": "sa-L4b",
+      "reviewedAt": "2026-09-27",
+      "decision": "accept",
+      "ledgerFingerprintAtReview": "885d7cf3a115bcb41e08fa6dd542fc823aa554770cee677532947c1f67eb6982",
+      "_reference": {
+        "spellId": 8129,
+        "english": "Curse all Enemies. Convert all Green Gems to Doomskulls.",
+        "nativeTarget": "None",
+        "randomize": null,
+        "steps": [
+          {
+            "Target": "AllEnemies",
+            "Type": "CauseCursed"
+          },
+          {
+            "Color1": "Green",
+            "Amount": 100,
+            "Color2": "Doomskull",
+            "Type": "ConvertGems"
+          }
+        ],
+        "prototype": {
+          "segments": [
+            {
+              "kind": "status",
+              "target": "enemyAll",
+              "statusId": "curse",
+              "turns": 3
+            },
+            {
+              "kind": "gem",
+              "params": {
+                "op": "transform",
+                "from": "Green",
+                "to": "SKULL",
+                "toSpecial": "doomSkull"
+              }
+            }
+          ]
+        }
+      },
+      "sourceEvidence": [
+        {
+          "id": "en",
+          "role": "english-snapshot",
+          "path": "data/raw/troops.gow.en.json",
+          "note": "Entity troop:6751 SpellId/English text/ManaCost/ManaColors asserted verbatim in tests/unit/gowLaneL4bB01.test.ts."
+        },
+        {
+          "id": "native",
+          "role": "native-snapshot",
+          "path": "data/raw/spells.gow.en.json",
+          "note": "SpellId 8129 Cost and every SpellSteps field (ordered, toEqual) asserted in tests/unit/gowLaneL4bB01.test.ts."
+        },
+        {
+          "id": "rule",
+          "role": "official-shared-rule",
+          "path": "artifacts/gow-skill-audit/gold-primary-sources/official-heroic-gems-freshdesk.html",
+          "note": "Heroic Gems (Infinity Plus 2 help centre): Doomskull family; Doomskulls explode surrounding gems when matched or exploded (match + ring-explosion triggers asserted)."
+        },
+        {
+          "id": "rule2",
+          "role": "official-shared-rule",
+          "path": "artifacts/gow-skill-audit/gold-primary-sources/official-status-effects.html",
+          "note": "official-status-effects.html: Cursed dispels positive statuses (Barrier removed case)."
+        },
+        {
+          "id": "laneTest",
+          "role": "lane-battle-test",
+          "path": "tests/unit/gowLaneL4bB01.test.ts",
+          "note": "Lane L4b frozen test file: binding + real castSkill cases for troop:6751."
+        }
+      ],
+      "dimensions": {
+        "identity-cost-colors": {
+          "status": "verified",
+          "note": "troop 6751 -> spell 8129; raw ManaCost 15 = native Cost 15; colours Blue+Red; spell.id binding asserted.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "rule2",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB01.test.ts"
+          ]
+        },
+        "target-count-range": {
+          "status": "verified",
+          "note": "CauseCursed AllEnemies -> curse enemyAll: all 4 enemies.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "rule2",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB01.test.ts"
+          ]
+        },
+        "base-formula-rounding": {
+          "status": "not-applicable",
+          "note": "No numeric formula.",
+          "evidenceIds": [
+            "en",
+            "native"
+          ],
+          "tests": []
+        },
+        "boost-source-ratio-cap": {
+          "status": "not-applicable",
+          "note": "No boost/ratio/cap.",
+          "evidenceIds": [
+            "en",
+            "native"
+          ],
+          "tests": []
+        },
+        "conditions-probabilities-branches": {
+          "status": "not-applicable",
+          "note": "No condition/chance.",
+          "evidenceIds": [
+            "en",
+            "native"
+          ],
+          "tests": []
+        },
+        "status-duration-immunity": {
+          "status": "verified",
+          "note": "curse turns 3 on every enemy; Curse removes an enemy Barrier.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "rule2",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB01.test.ts"
+          ]
+        },
+        "gems-types-selection-resolution": {
+          "status": "verified",
+          "note": "ConvertGems Green -> Doomskull Amount 100: exactly the 6 Green cells become doomSkull; Skulls/other colours untouched; matched (0,0..0,2) and ring-exploded (1,3) Doomskulls trigger, isolated ones stay.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "rule2",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB01.test.ts"
+          ]
+        },
+        "summon-transform-pools": {
+          "status": "not-applicable",
+          "note": "No summon or troop transform.",
+          "evidenceIds": [
+            "en",
+            "native"
+          ],
+          "tests": []
+        },
+        "order-death-retargeting": {
+          "status": "verified",
+          "note": "Native order Curse then convert; no-Green board still curses.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "rule2",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB01.test.ts"
+          ]
+        },
+        "mana-economy-extra-turn": {
+          "status": "verified",
+          "note": "Caster mana 0 after cast except cascade mana-gain events; no skill extra turn; one action-log entry; turn passes (or cascade 4+/5 extra turn only).",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "rule2",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB01.test.ts"
+          ]
+        },
+        "display-description": {
+          "status": "verified",
+          "note": "Chinese now '诅咒所有敌人。将所有绿色宝石转换成末日骷髅头。' (round-2 fix L4b-6751-zh via gowSnapshotOverrides.json) matches English Doomskulls; asserted verbatim.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "rule2",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB01.test.ts"
+          ]
+        },
+        "battle-pipeline": {
+          "status": "verified",
+          "note": "Real TurnEngine.castSkill on both sides (Left/Right); low mana (cost-1) and Silence refuse without spending mana or touching board/statuses/turn.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "rule2",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB01.test.ts"
+          ],
+          "realBattleEntry": true
+        }
+      },
+      "clauseReviews": [
+        {
+          "id": "c1",
+          "text": "Curse all Enemies.",
+          "status": "verified",
+          "note": "All enemies Cursed (turns 3).",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "rule2",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB01.test.ts"
+          ]
+        },
+        {
+          "id": "c2",
+          "text": "Convert all Green Gems to Doomskulls.",
+          "status": "verified",
+          "note": "All Green gems become Doomskulls; Doomskull match/explosion triggers asserted.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "rule2",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB01.test.ts"
+          ]
+        }
+      ],
+      "nativeStepReviews": [
+        {
+          "id": "0",
+          "type": "CauseCursed",
+          "status": "verified",
+          "note": "CauseCursed AllEnemies -> status curse enemyAll.",
+          "evidenceIds": [
+            "native",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB01.test.ts"
+          ]
+        },
+        {
+          "id": "1",
+          "type": "ConvertGems",
+          "status": "verified",
+          "note": "ConvertGems Green->Doomskull Amount 100 -> transform Green to SKULL toSpecial doomSkull.",
+          "evidenceIds": [
+            "native",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB01.test.ts"
+          ]
+        }
+      ],
+      "branchReviews": [
+        {
+          "id": "main",
+          "status": "verified",
+          "note": "Single branch; Green/no-Green boards, Skull untouched, Barrier strip.",
+          "evidenceIds": [
+            "native",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB01.test.ts"
+          ]
+        }
+      ]
+    },
+    {
+      "key": "troop:7138",
+      "scope": "stored-gow-snapshot",
+      "sourceDigest": "bbd5024c1b54cb92f0e241d24061da7657a89541478d92c50f040609a11199a3",
+      "reviewer": "sa-L4b",
+      "reviewedAt": "2026-09-27",
+      "decision": "accept",
+      "ledgerFingerprintAtReview": "885d7cf3a115bcb41e08fa6dd542fc823aa554770cee677532947c1f67eb6982",
+      "_reference": {
+        "spellId": 8687,
+        "english": "Enchant an Ally, and give 3 Magic to them. Then create 12 Gems of one of their Mana Colors.",
+        "nativeTarget": "Ally",
+        "randomize": null,
+        "steps": [
+          {
+            "Target": "FromTarget",
+            "Amount": 1,
+            "Type": "CauseEnchanted"
+          },
+          {
+            "Target": "FromTarget",
+            "Amount": 3,
+            "Type": "IncreaseSpellPower"
+          },
+          {
+            "Color1": "FromTarget",
+            "Amount": 12,
+            "Type": "CreateGems"
+          }
+        ],
+        "prototype": {
+          "segments": [
+            {
+              "kind": "status",
+              "target": "allyChosen",
+              "statusId": "enchanted",
+              "turns": 3
+            },
+            {
+              "kind": "buff",
+              "target": "allyChosen",
+              "stat": "magic",
+              "scaling": {
+                "base": 3,
+                "mult": 0
+              }
+            },
+            {
+              "kind": "gem",
+              "params": {
+                "op": "create",
+                "gem": {
+                  "kind": "color",
+                  "color": "LAST_TARGET"
+                },
+                "count": {
+                  "base": 12,
+                  "mult": 0
+                }
+              }
+            }
+          ]
+        }
+      },
+      "sourceEvidence": [
+        {
+          "id": "en",
+          "role": "english-snapshot",
+          "path": "data/raw/troops.gow.en.json",
+          "note": "Entity troop:7138 SpellId/English text/ManaCost/ManaColors asserted verbatim in tests/unit/gowLaneL4bB01.test.ts."
+        },
+        {
+          "id": "native",
+          "role": "native-snapshot",
+          "path": "data/raw/spells.gow.en.json",
+          "note": "SpellId 8687 Cost and every SpellSteps field (ordered, toEqual) asserted in tests/unit/gowLaneL4bB01.test.ts."
+        },
+        {
+          "id": "rule",
+          "role": "official-shared-rule",
+          "path": "artifacts/gow-skill-audit/gold-primary-sources/official-status-effects.html",
+          "note": "official-status-effects.html: Enchanted (extra mana each turn, removed on cast per R002)."
+        },
+        {
+          "id": "laneTest",
+          "role": "lane-battle-test",
+          "path": "tests/unit/gowLaneL4bB01.test.ts",
+          "note": "Lane L4b frozen test file: binding + real castSkill cases for troop:7138."
+        }
+      ],
+      "dimensions": {
+        "identity-cost-colors": {
+          "status": "verified",
+          "note": "troop 7138 -> spell 8687; raw ManaCost 12 = native Cost 12; colours Blue+Yellow; spell.id binding asserted.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB01.test.ts"
+          ]
+        },
+        "target-count-range": {
+          "status": "verified",
+          "note": "FromTarget (spell Target Ally) -> allyChosen for all three steps (LAST_TARGET colour source); caster may target itself; enemy id refused before mana.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB01.test.ts"
+          ]
+        },
+        "base-formula-rounding": {
+          "status": "verified",
+          "note": "IncreaseSpellPower Amount 3: chosen ally magic +3 (11 -> 14); CreateGems Amount 12 fixed.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB01.test.ts"
+          ]
+        },
+        "boost-source-ratio-cap": {
+          "status": "not-applicable",
+          "note": "No boost/ratio/cap.",
+          "evidenceIds": [
+            "en",
+            "native"
+          ],
+          "tests": []
+        },
+        "conditions-probabilities-branches": {
+          "status": "verified",
+          "note": "Colour choice among the target's mana colours is seeded random, drawn ONCE per cast (round-2 fix L4b-7138-onecolour): seeds 1/7/42/99 each give 12 gems of a single Red or Purple colour.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB01.test.ts"
+          ]
+        },
+        "status-duration-immunity": {
+          "status": "verified",
+          "note": "enchanted status-apply turns 3 on the chosen ally; self-target keeps Enchanted after the cast.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB01.test.ts"
+          ]
+        },
+        "gems-types-selection-resolution": {
+          "status": "verified",
+          "note": "Single-colour ally -> 12 Green on non-Green cells; two-colour ally -> 12 gems all of one of Red/Purple, never converting a cell that already had that colour.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB01.test.ts"
+          ]
+        },
+        "summon-transform-pools": {
+          "status": "not-applicable",
+          "note": "No summon or troop transform.",
+          "evidenceIds": [
+            "en",
+            "native"
+          ],
+          "tests": []
+        },
+        "order-death-retargeting": {
+          "status": "verified",
+          "note": "Enchant -> +3 Magic -> create (native order); colour read from the chosen ally after the buffs.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB01.test.ts"
+          ]
+        },
+        "mana-economy-extra-turn": {
+          "status": "verified",
+          "note": "Caster mana 0 after cast except cascade mana-gain events; no skill extra turn; one action-log entry; turn passes (or cascade 4+/5 extra turn only).",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB01.test.ts"
+          ]
+        },
+        "display-description": {
+          "status": "verified",
+          "note": "Chinese now '赐予一名盟友法印效果，并给予其 3 点魔力值。再创建 12 颗其法力颜色之一的宝石。' (round-2 fix L4b-7138-zh) asserted verbatim.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB01.test.ts"
+          ]
+        },
+        "battle-pipeline": {
+          "status": "verified",
+          "note": "Real TurnEngine.castSkill on both sides (Left/Right); low mana (cost-1) and Silence refuse without spending mana or touching board/statuses/turn.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB01.test.ts"
+          ],
+          "realBattleEntry": true
+        }
+      },
+      "clauseReviews": [
+        {
+          "id": "c1",
+          "text": "Enchant an Ally, and give 3 Magic to them.",
+          "status": "verified",
+          "note": "Chosen ally Enchanted and +3 Magic.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB01.test.ts"
+          ]
+        },
+        {
+          "id": "c2",
+          "text": "Then create 12 Gems of one of their Mana Colors.",
+          "status": "verified",
+          "note": "12 gems of ONE of the chosen ally's mana colours.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB01.test.ts"
+          ]
+        }
+      ],
+      "nativeStepReviews": [
+        {
+          "id": "0",
+          "type": "CauseEnchanted",
+          "status": "verified",
+          "note": "CauseEnchanted FromTarget Amount 1 -> status enchanted allyChosen.",
+          "evidenceIds": [
+            "native",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB01.test.ts"
+          ]
+        },
+        {
+          "id": "1",
+          "type": "IncreaseSpellPower",
+          "status": "verified",
+          "note": "IncreaseSpellPower FromTarget Amount 3 -> buff magic allyChosen {3,0}.",
+          "evidenceIds": [
+            "native",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB01.test.ts"
+          ]
+        },
+        {
+          "id": "2",
+          "type": "CreateGems",
+          "status": "verified",
+          "note": "CreateGems FromTarget Amount 12 -> create color LAST_TARGET count 12 (resolved once).",
+          "evidenceIds": [
+            "native",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB01.test.ts"
+          ]
+        }
+      ],
+      "branchReviews": [
+        {
+          "id": "main",
+          "status": "verified",
+          "note": "Single branch; single/two-colour ally, self target, illegal enemy target.",
+          "evidenceIds": [
+            "native",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB01.test.ts"
+          ]
+        }
+      ]
+    },
+    {
+      "key": "troop:7200",
+      "scope": "stored-gow-snapshot",
+      "sourceDigest": "71a52809195d2abca0e38218584f35b1d417bdfae0628b2af9feaf25a130269e",
+      "reviewer": "sa-L4b",
+      "reviewedAt": "2026-09-27",
+      "decision": "accept",
+      "ledgerFingerprintAtReview": "885d7cf3a115bcb41e08fa6dd542fc823aa554770cee677532947c1f67eb6982",
+      "_reference": {
+        "spellId": 8787,
+        "english": "Enrage all Allies and give them [Magic + 1] Attack. Then create a mix of 22 Skulls and Yellow Gems.",
+        "nativeTarget": "None",
+        "randomize": null,
+        "steps": [
+          {
+            "Target": "AllAllies",
+            "Type": "CauseEnraged"
+          },
+          {
+            "SpellPowerMultiplier": 1,
+            "Target": "AllAllies",
+            "Amount": 1,
+            "Primarypower": true,
+            "Type": "IncreaseAttack"
+          },
+          {
+            "Color1": "Skull",
+            "Amount": 22,
+            "Color2": "Yellow",
+            "Type": "CreateGems2Colors"
+          }
+        ],
+        "prototype": {
+          "segments": [
+            {
+              "kind": "status",
+              "target": "allyAll",
+              "statusId": "rage",
+              "turns": 3
+            },
+            {
+              "kind": "buff",
+              "target": "allyAll",
+              "stat": "attack",
+              "scaling": {
+                "base": 1,
+                "mult": 1
+              }
+            },
+            {
+              "kind": "gem",
+              "params": {
+                "op": "create",
+                "gem": {
+                  "kind": "mixAny",
+                  "entries": [
+                    "SKULL",
+                    "Yellow"
+                  ]
+                },
+                "count": {
+                  "base": 22,
+                  "mult": 0
+                }
+              }
+            }
+          ]
+        }
+      },
+      "sourceEvidence": [
+        {
+          "id": "en",
+          "role": "english-snapshot",
+          "path": "data/raw/troops.gow.en.json",
+          "note": "Entity troop:7200 SpellId/English text/ManaCost/ManaColors asserted verbatim in tests/unit/gowLaneL4bB01.test.ts."
+        },
+        {
+          "id": "native",
+          "role": "native-snapshot",
+          "path": "data/raw/spells.gow.en.json",
+          "note": "SpellId 8787 Cost and every SpellSteps field (ordered, toEqual) asserted in tests/unit/gowLaneL4bB01.test.ts."
+        },
+        {
+          "id": "rule",
+          "role": "official-shared-rule",
+          "path": "artifacts/gow-skill-audit/gold-primary-sources/official-status-effects.html",
+          "note": "official-status-effects.html: Enraged (skull damage boost, consumed on attack); stored as rage and recognised by every Enraged reader."
+        },
+        {
+          "id": "rl01",
+          "role": "user-ruling",
+          "path": "tasks/active/gow-skill-shards/rulings/RL4b-01-two-colour-overwrite.md",
+          "note": "RL4b-01: 2-colour creation selects 22 distinct cells, each Skull or Yellow; same-colour overwrite allowed (closes L4b-7200-noop)."
+        },
+        {
+          "id": "laneTest",
+          "role": "lane-battle-test",
+          "path": "tests/unit/gowLaneL4bB01.test.ts",
+          "note": "Lane L4b frozen test file: binding + real castSkill cases for troop:7200."
+        }
+      ],
+      "dimensions": {
+        "identity-cost-colors": {
+          "status": "verified",
+          "note": "troop 7200 -> spell 8787; raw ManaCost 22 = native Cost 22; colours Blue+Green+Yellow; spell.id binding asserted.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "rl01",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB01.test.ts"
+          ]
+        },
+        "target-count-range": {
+          "status": "verified",
+          "note": "AllAllies -> allyAll (caster + 2 allies) for Enrage and Attack; enemies untouched.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "rl01",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB01.test.ts"
+          ]
+        },
+        "base-formula-rounding": {
+          "status": "verified",
+          "note": "IncreaseAttack Amount 1 x Magic: [Magic+1] attack (17 -> 18 / 28) for magic 0/10.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "rl01",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB01.test.ts"
+          ]
+        },
+        "boost-source-ratio-cap": {
+          "status": "not-applicable",
+          "note": "No boost/ratio/cap in this spell; Enraged allies it creates are counted by allyStatusCount enraged readers (3) after round-2 fix L4b-7200-rage-alias.",
+          "evidenceIds": [
+            "en",
+            "native"
+          ],
+          "tests": []
+        },
+        "conditions-probabilities-branches": {
+          "status": "verified",
+          "note": "Per-gem Skull/Yellow choice seeded random (RL4b-01); both types present.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "rl01",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB01.test.ts"
+          ]
+        },
+        "status-duration-immunity": {
+          "status": "verified",
+          "note": "rage status-apply on caster and allies; isEnraged true; counted as enraged by status readers.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "rl01",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB01.test.ts"
+          ]
+        },
+        "gems-types-selection-resolution": {
+          "status": "verified",
+          "note": "CreateGems2Colors Skull/Yellow 22: 22 distinct cells, all Skull or Yellow, both present; Yellow-bearing board: 22 distinct cells selected (RL4b-01).",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "rl01",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB01.test.ts"
+          ]
+        },
+        "summon-transform-pools": {
+          "status": "not-applicable",
+          "note": "No summon or troop transform.",
+          "evidenceIds": [
+            "en",
+            "native"
+          ],
+          "tests": []
+        },
+        "order-death-retargeting": {
+          "status": "verified",
+          "note": "Enrage -> Attack -> create (native order).",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "rl01",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB01.test.ts"
+          ]
+        },
+        "mana-economy-extra-turn": {
+          "status": "verified",
+          "note": "Caster mana 0 after cast except cascade mana-gain events; no skill extra turn; one action-log entry; turn passes (or cascade 4+/5 extra turn only).",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "rl01",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB01.test.ts"
+          ]
+        },
+        "display-description": {
+          "status": "verified",
+          "note": "Chinese '使所有盟友获得狂怒效果，并给予他们 [魔法 + 1] 点攻击力。再创建 22 颗混合骷髅头和黄色宝石。' matches English; asserted verbatim.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "rl01",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB01.test.ts"
+          ]
+        },
+        "battle-pipeline": {
+          "status": "verified",
+          "note": "Real TurnEngine.castSkill on both sides (Left/Right); low mana (cost-1) and Silence refuse without spending mana or touching board/statuses/turn.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "rl01",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB01.test.ts"
+          ],
+          "realBattleEntry": true
+        }
+      },
+      "clauseReviews": [
+        {
+          "id": "c1",
+          "text": "Enrage all Allies and give them [Magic + 1] Attack.",
+          "status": "verified",
+          "note": "All allies Enraged and +[Magic+1] Attack.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "rl01",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB01.test.ts"
+          ]
+        },
+        {
+          "id": "c2",
+          "text": "Then create a mix of 22 Skulls and Yellow Gems.",
+          "status": "verified",
+          "note": "Mix of 22 Skulls and Yellow gems on distinct cells.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "rl01",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB01.test.ts"
+          ]
+        }
+      ],
+      "nativeStepReviews": [
+        {
+          "id": "0",
+          "type": "CauseEnraged",
+          "status": "verified",
+          "note": "CauseEnraged AllAllies -> status rage allyAll.",
+          "evidenceIds": [
+            "native",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB01.test.ts"
+          ]
+        },
+        {
+          "id": "1",
+          "type": "IncreaseAttack",
+          "status": "verified",
+          "note": "IncreaseAttack AllAllies Amount 1 x Magic -> buff attack allyAll {1,1}.",
+          "evidenceIds": [
+            "native",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB01.test.ts"
+          ]
+        },
+        {
+          "id": "2",
+          "type": "CreateGems2Colors",
+          "status": "verified",
+          "note": "CreateGems2Colors Skull/Yellow Amount 22 -> create mixAny [SKULL, Yellow] count 22.",
+          "evidenceIds": [
+            "native",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB01.test.ts"
+          ]
+        }
+      ],
+      "branchReviews": [
+        {
+          "id": "main",
+          "status": "verified",
+          "note": "Single branch; magic 0/10 both sides, Yellow-bearing board, enraged counter.",
+          "evidenceIds": [
+            "native",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB01.test.ts"
+          ]
+        }
+      ]
+    },
+    {
+      "key": "troop:6196",
+      "scope": "stored-gow-snapshot",
+      "sourceDigest": "ec4e68ccc12bdf8c58454c42bf91e9af1e8cce1e9997a56778b639b0f71d065e",
+      "reviewer": "sa-L4b",
+      "reviewedAt": "2026-09-27",
+      "decision": "accept",
+      "ledgerFingerprintAtReview": "885d7cf3a115bcb41e08fa6dd542fc823aa554770cee677532947c1f67eb6982",
+      "_reference": {
+        "spellId": 7337,
+        "english": "Freeze and Hunter's Mark the first Enemy. Deal [Magic + 4] damage to them. If there are 13 or more Blue Gems, create 5 more.",
+        "nativeTarget": "None",
+        "randomize": null,
+        "steps": [
+          {
+            "Target": "FrontEnemy",
+            "Amount": 1,
+            "Type": "CauseFrozen"
+          },
+          {
+            "Target": "FrontEnemy",
+            "Amount": 1,
+            "Type": "CauseHuntersMark"
+          },
+          {
+            "SpellPowerMultiplier": 1,
+            "Target": "FrontEnemy",
+            "Amount": 4,
+            "Primarypower": true,
+            "Type": "Damage"
+          },
+          {
+            "StatusAmount": 5,
+            "Color1": "Blue",
+            "StatusModifier": "AddFor10BlueGems",
+            "Type": "CreateGems"
+          }
+        ],
+        "prototype": {
+          "segments": [
+            {
+              "kind": "status",
+              "target": "enemyFront",
+              "statusId": "frozen",
+              "turns": 3
+            },
+            {
+              "kind": "status",
+              "target": "enemyFront",
+              "statusId": "marked",
+              "turns": 3
+            },
+            {
+              "kind": "damage",
+              "target": "enemyFront",
+              "scaling": {
+                "base": 4,
+                "mult": 1
+              }
+            },
+            {
+              "kind": "gem",
+              "params": {
+                "op": "create",
+                "gem": {
+                  "kind": "color",
+                  "color": "Blue"
+                },
+                "count": {
+                  "base": 5,
+                  "mult": 0
+                }
+              },
+              "ifCond": {
+                "kind": "boardAtLeast",
+                "color": "Blue",
+                "n": 13
+              }
+            }
+          ]
+        }
+      },
+      "sourceEvidence": [
+        {
+          "id": "en",
+          "role": "english-snapshot",
+          "path": "data/raw/troops.gow.en.json",
+          "note": "Entity troop:6196 SpellId/English text/ManaCost/ManaColors asserted verbatim in tests/unit/gowLaneL4bB02.test.ts."
+        },
+        {
+          "id": "native",
+          "role": "native-snapshot",
+          "path": "data/raw/spells.gow.en.json",
+          "note": "SpellId 7337 Cost and every SpellSteps field (ordered, toEqual) asserted in tests/unit/gowLaneL4bB02.test.ts."
+        },
+        {
+          "id": "rule",
+          "role": "official-shared-rule",
+          "path": "tasks/active/gow-skill-shards/rulings/R003-count-threshold-labels.md",
+          "note": "R003 item 1: AddFor10<Color>Gems is a legacy name; the English snapshot (frozen evidence) and every same-family spell say 13 or more -> threshold 13."
+        },
+        {
+          "id": "rule2",
+          "role": "official-shared-rule",
+          "path": "artifacts/gow-skill-audit/gold-primary-sources/official-status-effects.html",
+          "note": "official-status-effects.html: Frozen and Hunter's Mark statuses; Barrier absorbs one instance of damage."
+        },
+        {
+          "id": "laneTest",
+          "role": "lane-battle-test",
+          "path": "tests/unit/gowLaneL4bB02.test.ts",
+          "note": "Lane L4b frozen test file: binding + real castSkill cases for troop:6196."
+        }
+      ],
+      "dimensions": {
+        "identity-cost-colors": {
+          "status": "verified",
+          "note": "troop 6196 -> spell 7337; raw ManaCost 12 = native Cost 12; colours Blue+Purple; spell.id binding asserted.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "rule2",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB02.test.ts"
+          ]
+        },
+        "target-count-range": {
+          "status": "verified",
+          "note": "FrontEnemy for all steps -> enemyFront: first living enemy (11 when 10 dead); others untouched.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "rule2",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB02.test.ts"
+          ]
+        },
+        "base-formula-rounding": {
+          "status": "verified",
+          "note": "Damage Amount 4 x Magic: [Magic+4] armor first (armor 3 case), 14 hp for magic 10 without armor.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "rule2",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB02.test.ts"
+          ]
+        },
+        "boost-source-ratio-cap": {
+          "status": "verified",
+          "note": "StatusModifier AddFor10BlueGems StatusAmount 5 -> +5 Blue gems when the board has >= 13 Blue (R003): 12 -> none, 13 -> 5, 16 -> 5.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "rule2",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB02.test.ts"
+          ]
+        },
+        "conditions-probabilities-branches": {
+          "status": "verified",
+          "note": "boardAtLeast Blue 13 condition: false at 12 (no gems, statuses + damage still resolve), true at 13/16.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "rule2",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB02.test.ts"
+          ]
+        },
+        "status-duration-immunity": {
+          "status": "verified",
+          "note": "frozen and marked turns 3 on the front enemy; statuses kept when Barrier absorbs the hit.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "rule2",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB02.test.ts"
+          ]
+        },
+        "gems-types-selection-resolution": {
+          "status": "verified",
+          "note": "Exactly 5 Blue created on non-Blue cells when the condition holds.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "rule2",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB02.test.ts"
+          ]
+        },
+        "summon-transform-pools": {
+          "status": "not-applicable",
+          "note": "No summon or troop transform.",
+          "evidenceIds": [
+            "en",
+            "native"
+          ],
+          "tests": []
+        },
+        "order-death-retargeting": {
+          "status": "verified",
+          "note": "Freeze -> Mark -> Damage -> conditional create (native order); lethal hit still creates the Blue gems; dead front retargets.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "rule2",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB02.test.ts"
+          ]
+        },
+        "mana-economy-extra-turn": {
+          "status": "verified",
+          "note": "Caster mana 0 after cast except cascade mana-gain events; no skill extra turn; one action-log entry; turn passes (or cascade 4+/5 extra turn only).",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "rule2",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB02.test.ts"
+          ]
+        },
+        "display-description": {
+          "status": "verified",
+          "note": "Chinese '冻结第一名敌人并使其陷入猎人标记状态。对其造成 [魔法 + 4] 点伤害。如果板面上有 13 颗或更多蓝色宝石，则再创造 5 颗蓝色宝石。' matches English (13 or more).",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "rule2",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB02.test.ts"
+          ]
+        },
+        "battle-pipeline": {
+          "status": "verified",
+          "note": "Real TurnEngine.castSkill on both sides (Left/Right); low mana (cost-1) and Silence refuse without spending mana or touching board/statuses/turn.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "rule2",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB02.test.ts"
+          ],
+          "realBattleEntry": true
+        }
+      },
+      "clauseReviews": [
+        {
+          "id": "c1",
+          "text": "Freeze and Hunter's Mark the first Enemy.",
+          "status": "verified",
+          "note": "Front enemy Frozen and Hunter's Marked.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "rule2",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB02.test.ts"
+          ]
+        },
+        {
+          "id": "c2",
+          "text": "Deal [Magic + 4] damage to them.",
+          "status": "verified",
+          "note": "[Magic+4] damage to the same enemy.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "rule2",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB02.test.ts"
+          ]
+        },
+        {
+          "id": "c3",
+          "text": "If there are 13 or more Blue Gems, create 5 more.",
+          "status": "verified",
+          "note": ">= 13 Blue on board -> 5 more Blue (R003 threshold 13).",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "rule2",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB02.test.ts"
+          ]
+        }
+      ],
+      "nativeStepReviews": [
+        {
+          "id": "0",
+          "type": "CauseFrozen",
+          "status": "verified",
+          "note": "CauseFrozen FrontEnemy Amount 1 -> status frozen enemyFront.",
+          "evidenceIds": [
+            "native",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB02.test.ts"
+          ]
+        },
+        {
+          "id": "1",
+          "type": "CauseHuntersMark",
+          "status": "verified",
+          "note": "CauseHuntersMark FrontEnemy Amount 1 -> status marked enemyFront.",
+          "evidenceIds": [
+            "native",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB02.test.ts"
+          ]
+        },
+        {
+          "id": "2",
+          "type": "Damage",
+          "status": "verified",
+          "note": "Damage FrontEnemy Amount 4 x Magic -> damage enemyFront {4,1}.",
+          "evidenceIds": [
+            "native",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB02.test.ts"
+          ]
+        },
+        {
+          "id": "3",
+          "type": "CreateGems",
+          "status": "verified",
+          "note": "CreateGems Blue StatusModifier AddFor10BlueGems StatusAmount 5 -> create Blue 5 ifCond boardAtLeast Blue 13 (R003).",
+          "evidenceIds": [
+            "native",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB02.test.ts"
+          ]
+        }
+      ],
+      "branchReviews": [
+        {
+          "id": "main",
+          "status": "verified",
+          "note": "Single branch; 12/13/16 Blue, dead front, lethal, Barrier.",
+          "evidenceIds": [
+            "native",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB02.test.ts"
+          ]
+        }
+      ]
+    },
+    {
+      "key": "troop:6068",
+      "scope": "stored-gow-snapshot",
+      "sourceDigest": "0e4fdf115fdadc8bb9c9535bca5fd8860ffbb9df85190867073c1e82f1a1c4c9",
+      "reviewer": "sa-L4b",
+      "reviewedAt": "2026-09-27",
+      "decision": "accept",
+      "ledgerFingerprintAtReview": "885d7cf3a115bcb41e08fa6dd542fc823aa554770cee677532947c1f67eb6982",
+      "_reference": {
+        "spellId": 7138,
+        "english": "Deal [Magic] damage to all Enemies and Poison them. Create 9 Green Gems.",
+        "nativeTarget": "None",
+        "randomize": null,
+        "steps": [
+          {
+            "Target": "AllEnemies",
+            "Type": "CausePoison"
+          },
+          {
+            "SpellPowerMultiplier": 1,
+            "Target": "AllEnemies",
+            "Primarypower": true,
+            "Type": "Damage"
+          },
+          {
+            "Color1": "Green",
+            "Amount": 9,
+            "Type": "CreateGems"
+          }
+        ],
+        "prototype": {
+          "segments": [
+            {
+              "kind": "status",
+              "target": "enemyAll",
+              "statusId": "poison",
+              "turns": 3,
+              "magnitude": 3
+            },
+            {
+              "kind": "damage",
+              "target": "enemyAll",
+              "scaling": {
+                "base": 0,
+                "mult": 1
+              },
+              "range": "all"
+            },
+            {
+              "kind": "gem",
+              "params": {
+                "op": "create",
+                "gem": {
+                  "kind": "color",
+                  "color": "Green"
+                },
+                "count": {
+                  "base": 9,
+                  "mult": 0
+                }
+              }
+            }
+          ]
+        }
+      },
+      "sourceEvidence": [
+        {
+          "id": "en",
+          "role": "english-snapshot",
+          "path": "data/raw/troops.gow.en.json",
+          "note": "Entity troop:6068 SpellId/English text/ManaCost/ManaColors asserted verbatim in tests/unit/gowLaneL4bB02.test.ts."
+        },
+        {
+          "id": "native",
+          "role": "native-snapshot",
+          "path": "data/raw/spells.gow.en.json",
+          "note": "SpellId 7138 Cost and every SpellSteps field (ordered, toEqual) asserted in tests/unit/gowLaneL4bB02.test.ts."
+        },
+        {
+          "id": "rule",
+          "role": "official-shared-rule",
+          "path": "artifacts/gow-skill-audit/gold-primary-sources/official-status-effects.html",
+          "note": "official-status-effects.html: Poison deals damage at turn start."
+        },
+        {
+          "id": "r001",
+          "role": "user-ruling",
+          "path": "tasks/active/gow-skill-shards/rulings/R001-native-step-order.md",
+          "note": "R001: native CausePoison precedes Damage; prototype fixed in round 2 (L4b-6068-order) so a troop killed by the hit was Poisoned first."
+        },
+        {
+          "id": "laneTest",
+          "role": "lane-battle-test",
+          "path": "tests/unit/gowLaneL4bB02.test.ts",
+          "note": "Lane L4b frozen test file: binding + real castSkill cases for troop:6068."
+        }
+      ],
+      "dimensions": {
+        "identity-cost-colors": {
+          "status": "verified",
+          "note": "troop 6068 -> spell 7138; raw ManaCost 16 = native Cost 16; colours Blue+Green; spell.id binding asserted.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "r001",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB02.test.ts"
+          ]
+        },
+        "target-count-range": {
+          "status": "verified",
+          "note": "AllEnemies -> enemyAll for Poison and Damage (4 enemies).",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "r001",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB02.test.ts"
+          ]
+        },
+        "base-formula-rounding": {
+          "status": "verified",
+          "note": "Damage [Magic] (SpellPowerMultiplier 1, no Amount): 10 per enemy (armor 4 -> 994), 0 for magic 0.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "r001",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB02.test.ts"
+          ]
+        },
+        "boost-source-ratio-cap": {
+          "status": "not-applicable",
+          "note": "No boost/ratio/cap.",
+          "evidenceIds": [
+            "en",
+            "native"
+          ],
+          "tests": []
+        },
+        "conditions-probabilities-branches": {
+          "status": "not-applicable",
+          "note": "No condition/chance.",
+          "evidenceIds": [
+            "en",
+            "native"
+          ],
+          "tests": []
+        },
+        "status-duration-immunity": {
+          "status": "verified",
+          "note": "poison turns 3 (magnitude 3, shared rule) on every enemy, applied before the hit.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "r001",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB02.test.ts"
+          ]
+        },
+        "gems-types-selection-resolution": {
+          "status": "verified",
+          "note": "CreateGems Green Amount 9: 9 Green on non-Green cells.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "r001",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB02.test.ts"
+          ]
+        },
+        "summon-transform-pools": {
+          "status": "not-applicable",
+          "note": "No summon or troop transform.",
+          "evidenceIds": [
+            "en",
+            "native"
+          ],
+          "tests": []
+        },
+        "order-death-retargeting": {
+          "status": "verified",
+          "note": "Native order Poison -> Damage -> create: status-apply precedes skill-damage; an enemy killed by the hit had been Poisoned (10,11,12,13 all receive status-apply).",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "r001",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB02.test.ts"
+          ]
+        },
+        "mana-economy-extra-turn": {
+          "status": "verified",
+          "note": "Caster mana 0 after cast except cascade mana-gain events; no skill extra turn; one action-log entry; turn passes (or cascade 4+/5 extra turn only).",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "r001",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB02.test.ts"
+          ]
+        },
+        "display-description": {
+          "status": "verified",
+          "note": "Chinese '对所有敌人造成 [魔法] 点伤害，并使他们陷入中毒状态。创造 9 颗绿色宝石。' matches English (clause order is English; execution follows native R001).",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "r001",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB02.test.ts"
+          ]
+        },
+        "battle-pipeline": {
+          "status": "verified",
+          "note": "Real TurnEngine.castSkill on both sides (Left/Right); low mana (cost-1) and Silence refuse without spending mana or touching board/statuses/turn.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "r001",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB02.test.ts"
+          ],
+          "realBattleEntry": true
+        }
+      },
+      "clauseReviews": [
+        {
+          "id": "c1",
+          "text": "Deal [Magic] damage to all Enemies and Poison them.",
+          "status": "verified",
+          "note": "[Magic] damage to all enemies and Poison them (Poison applied first per native order).",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "r001",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB02.test.ts"
+          ]
+        },
+        {
+          "id": "c2",
+          "text": "Create 9 Green Gems.",
+          "status": "verified",
+          "note": "9 Green gems created.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "r001",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB02.test.ts"
+          ]
+        }
+      ],
+      "nativeStepReviews": [
+        {
+          "id": "0",
+          "type": "CausePoison",
+          "status": "verified",
+          "note": "CausePoison AllEnemies -> status poison enemyAll (first).",
+          "evidenceIds": [
+            "native",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB02.test.ts"
+          ]
+        },
+        {
+          "id": "1",
+          "type": "Damage",
+          "status": "verified",
+          "note": "Damage AllEnemies x Magic -> damage enemyAll {0,1} range all.",
+          "evidenceIds": [
+            "native",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB02.test.ts"
+          ]
+        },
+        {
+          "id": "2",
+          "type": "CreateGems",
+          "status": "verified",
+          "note": "CreateGems Green Amount 9 -> create Green 9.",
+          "evidenceIds": [
+            "native",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB02.test.ts"
+          ]
+        }
+      ],
+      "branchReviews": [
+        {
+          "id": "main",
+          "status": "verified",
+          "note": "Single branch; magic 0/10 both sides, lethal hit, order case.",
+          "evidenceIds": [
+            "native",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB02.test.ts"
+          ]
+        }
+      ]
+    }
+  ]
+}

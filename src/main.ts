@@ -1,7 +1,7 @@
 import { App, readTeamSize } from './render/App';
 import { HostStatusBanner } from './render/hostStatusBanner';
 import { skillLibraryIds } from '@engine/skills/library';
-import { implementedTraitIds } from '@engine/traits';
+import { implementedTraitIds, dynamicTraitCodes } from '@engine/traits';
 import { knownTroopTypes as knownTroopTypesOf } from './data/troops';
 import {
   PostMessageHostBridge,
@@ -38,7 +38,7 @@ function hostOrigins(): string[] {
 function createBridge(): { bridge: HostBridge; kind: 'postMessage' | 'standalone' } {
   const knownSkillIds = new Set(skillLibraryIds());
   // 特质系统已上线：宿主可以下发已实现的 trait code，未实现的仍会被校验拒绝
-  const knownTraitIds = new Set(implementedTraitIds());
+  const knownTraitIds = new Set([...implementedTraitIds(), ...dynamicTraitCodes()]);
   // 种族用于族亲光环，取值域直接从兵种数据派生
   const knownTroopTypes = knownTroopTypesOf();
   const embedded = window.parent !== window;

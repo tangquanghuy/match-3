@@ -1,0 +1,1792 @@
+{
+  "schemaVersion": 1,
+  "scope": "stored-gow-snapshot",
+  "reviews": [
+    {
+      "key": "weapon:1504",
+      "scope": "stored-gow-snapshot",
+      "sourceDigest": "7dad944e8b97d4973ffa690951d386743573e001df8ed0be07afd483b1e0642e",
+      "reviewer": "sa-L2",
+      "reviewedAt": "2026-09-27",
+      "decision": "accept",
+      "ledgerFingerprintAtReview": "a127a0f1f9748275f97ee7f672fe3ddd3fa32bd0652294d9db90f25e045ba9b5",
+      "_reference": {
+        "spellId": 8900,
+        "english": "&& Convert all Gems of a chosen Enemy Mana Color to Spirit Gems. && Deal [Magic + 2] damage to an Enemy, boosted by Spirit Gems. [x4]",
+        "nativeTarget": "Enemy",
+        "randomize": "Choose:ABC-DEF",
+        "steps": [
+          {
+            "Color1": "FromTarget",
+            "Amount": 100,
+            "Color2": "Spirit",
+            "Type": "ConvertGems"
+          },
+          {
+            "PercentageChance": 0,
+            "Type": "None"
+          },
+          {
+            "PercentageChance": 0,
+            "Type": "None"
+          },
+          {
+            "Color1": "Spirit",
+            "Amount": 400,
+            "Type": "CountGems"
+          },
+          {
+            "SpellPowerMultiplier": 1,
+            "Target": "FromTarget",
+            "UseCounterForAmount": true,
+            "Amount": 2,
+            "Primarypower": true,
+            "Type": "Damage"
+          }
+        ],
+        "prototype": {
+          "inputTarget": "enemyChosen",
+          "segments": [
+            {
+              "kind": "choose",
+              "labels": [
+                "将所选敌人一种法力颜色的宝石转化为灵魂宝石",
+                "对所选敌人造成［魔法＋2］伤害，每颗灵魂宝石增强4点"
+              ],
+              "options": [
+                [
+                  {
+                    "kind": "gem",
+                    "params": {
+                      "op": "transform",
+                      "from": "CHOSEN_TARGET",
+                      "to": "SKULL",
+                      "spiritColorFromSource": true,
+                      "toSpecial": "spiritGem"
+                    }
+                  }
+                ],
+                [
+                  {
+                    "kind": "damage",
+                    "target": "enemyChosen",
+                    "scaling": {
+                      "base": 2,
+                      "mult": 1
+                    },
+                    "modifier": {
+                      "mod": {
+                        "kind": "multiplier",
+                        "a": 4
+                      },
+                      "source": {
+                        "kind": "boardSpecial",
+                        "gem": "spiritGem"
+                      }
+                    }
+                  }
+                ]
+              ]
+            }
+          ]
+        }
+      },
+      "sourceEvidence": [
+        {
+          "id": "en",
+          "role": "english-snapshot",
+          "path": "artifacts/gowhead-weapons/weapons.json",
+          "note": "Entity weapon:1504 SpellId/English text/ManaCost/ManaColors asserted verbatim in tests/unit/gowLaneL2B04.test.ts."
+        },
+        {
+          "id": "native",
+          "role": "native-snapshot",
+          "path": "data/raw/spells.gow.en.json",
+          "note": "SpellId 8900 Target/Cost/Randomize and every SpellSteps field (ordered, toEqual) asserted in tests/unit/gowLaneL2B04.test.ts."
+        },
+        {
+          "id": "rule",
+          "role": "official-shared-rule",
+          "path": "artifacts/gow-skill-audit/gold-primary-sources/official-heroic-gems-freshdesk.html",
+          "note": "Heroic Gems help centre: Spirit Gems take the colour of the converted gems."
+        },
+        {
+          "id": "r003",
+          "role": "user-ruling",
+          "path": "tasks/active/gow-skill-shards/rulings/R003-count-threshold-labels.md",
+          "note": "R003: CountGems Spirit Amount 400 = x4 per Spirit Gem."
+        },
+        {
+          "id": "laneTest",
+          "role": "lane-battle-test",
+          "path": "tests/unit/gowLaneL2B04.test.ts",
+          "note": "Lane L2 frozen test file: binding + real castSkill cases for weapon:1504."
+        }
+      ],
+      "dimensions": {
+        "identity-cost-colors": {
+          "status": "verified",
+          "note": "weapon 1504 CourtScepter -> spell 8900 (numeric and gw_CourtScepter); ManaCost 14 = native Cost 14; colours Green+Red.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "r003",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL2B04.test.ts"
+          ]
+        },
+        "target-count-range": {
+          "status": "verified",
+          "note": "Target Enemy: branch 0 reads the chosen enemy colour; branch 1 damages only the chosen enemy.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "r003",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL2B04.test.ts"
+          ]
+        },
+        "base-formula-rounding": {
+          "status": "verified",
+          "note": "Branch 1 [Magic+2] = 2 / 12; armor absorbs.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "r003",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL2B04.test.ts"
+          ]
+        },
+        "boost-source-ratio-cap": {
+          "status": "verified",
+          "note": "+4 per Spirit Gem of any colour on board (3 -> +12, 0 -> +0, 2 mixed -> +8); no cap.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "r003",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL2B04.test.ts"
+          ]
+        },
+        "conditions-probabilities-branches": {
+          "status": "verified",
+          "note": "Player Choose ABC / DEF (0/1/null).",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "r003",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL2B04.test.ts"
+          ]
+        },
+        "status-duration-immunity": {
+          "status": "not-applicable",
+          "note": "No status.",
+          "evidenceIds": [
+            "en",
+            "native"
+          ],
+          "tests": []
+        },
+        "gems-types-selection-resolution": {
+          "status": "verified",
+          "note": "Branch 0: all 16 gems of the chosen enemy colour (Purple) -> spiritGem.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "r003",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL2B04.test.ts"
+          ]
+        },
+        "summon-transform-pools": {
+          "status": "not-applicable",
+          "note": "No summon or troop transform.",
+          "evidenceIds": [
+            "en",
+            "native"
+          ],
+          "tests": []
+        },
+        "order-death-retargeting": {
+          "status": "verified",
+          "note": "Branch 1: count then damage (native order).",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "r003",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL2B04.test.ts"
+          ]
+        },
+        "mana-economy-extra-turn": {
+          "status": "verified",
+          "note": "Caster mana 0; no extra turn; turn passes.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "r003",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL2B04.test.ts"
+          ]
+        },
+        "display-description": {
+          "status": "verified",
+          "note": "Chinese '选择一项：将选定敌人一种法力颜色的所有宝石转化为灵魂宝石；或对一名敌人造成 [魔法 + 2] 点伤害，每颗灵魂宝石增加 4 点伤害。' matches English.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "r003",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL2B04.test.ts"
+          ]
+        },
+        "battle-pipeline": {
+          "status": "verified",
+          "note": "Real TurnEngine.castSkill on both sides with FixedBranchChooser 0/1; low mana, Silence and a cancelled choice (null) refuse without spending mana or touching the board.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "r003",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL2B04.test.ts"
+          ],
+          "realBattleEntry": true
+        }
+      },
+      "clauseReviews": [
+        {
+          "id": "c1",
+          "text": "Convert all Gems of a chosen Enemy Mana Color to Spirit Gems.",
+          "status": "verified",
+          "note": "Branch 0: all gems of the chosen enemy colour -> Spirit Gems.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "r003",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL2B04.test.ts"
+          ]
+        },
+        {
+          "id": "c2",
+          "text": "Deal [Magic + 2] damage to an Enemy, boosted by Spirit Gems.",
+          "status": "verified",
+          "note": "Branch 1: [Magic+2] to the chosen enemy, boosted by Spirit Gems.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "r003",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL2B04.test.ts"
+          ]
+        },
+        {
+          "id": "c3",
+          "text": "[x4]",
+          "status": "verified",
+          "note": "[x4] = +4 per Spirit Gem.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "r003",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL2B04.test.ts"
+          ]
+        }
+      ],
+      "nativeStepReviews": [
+        {
+          "id": "0",
+          "type": "ConvertGems",
+          "status": "verified",
+          "note": "ConvertGems FromTarget 100 -> Spirit -> transform CHOSEN_TARGET spiritGem.",
+          "evidenceIds": [
+            "native",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL2B04.test.ts"
+          ]
+        },
+        {
+          "id": "3",
+          "type": "CountGems",
+          "status": "verified",
+          "note": "CountGems Spirit 400 -> modifier multiplier 4 boardSpecial spiritGem.",
+          "evidenceIds": [
+            "native",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL2B04.test.ts"
+          ]
+        },
+        {
+          "id": "4",
+          "type": "Damage",
+          "status": "verified",
+          "note": "Damage FromTarget 2 x Magic UseCounterForAmount -> damage enemyChosen {2,1} + modifier.",
+          "evidenceIds": [
+            "native",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL2B04.test.ts"
+          ]
+        }
+      ],
+      "branchReviews": [
+        {
+          "id": "ABC",
+          "status": "verified",
+          "note": "Branch 0 both sides x aliases.",
+          "evidenceIds": [
+            "native",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL2B04.test.ts"
+          ]
+        },
+        {
+          "id": "DEF",
+          "status": "verified",
+          "note": "Branch 1 both sides x magic, 0/3/mixed Spirit Gems.",
+          "evidenceIds": [
+            "native",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL2B04.test.ts"
+          ]
+        }
+      ]
+    },
+    {
+      "key": "troop:7169",
+      "scope": "stored-gow-snapshot",
+      "sourceDigest": "de8fe7d9bdcc17a3f7e56f5efbca4eb06cb21f8a731f92e16f88719c424d8547",
+      "reviewer": "sa-L2",
+      "reviewedAt": "2026-09-27",
+      "decision": "accept",
+      "ledgerFingerprintAtReview": "a127a0f1f9748275f97ee7f672fe3ddd3fa32bd0652294d9db90f25e045ba9b5",
+      "_reference": {
+        "spellId": 8722,
+        "english": "Convert a Gem into a Bomb Gem, and either create 3 more Bomb Gems, or explode all Bomb Gems.",
+        "nativeTarget": "Board",
+        "randomize": "AB-CD",
+        "steps": [
+          {
+            "Color1": "FromTarget",
+            "Amount": 1,
+            "Color2": "Bomb",
+            "BoardTarget": "SingleGem",
+            "Type": "ConvertGems",
+            "Delay": 800
+          },
+          {
+            "Color1": "Bomb",
+            "Amount": 3,
+            "Type": "CreateGems"
+          },
+          {
+            "Color1": "FromTarget",
+            "Amount": 1,
+            "Color2": "Bomb",
+            "BoardTarget": "SingleGem",
+            "Type": "ConvertGems",
+            "Delay": 800
+          },
+          {
+            "Color1": "Bomb",
+            "Amount": 100,
+            "Type": "ExplodeColor"
+          }
+        ],
+        "prototype": {
+          "segments": [
+            {
+              "kind": "gem",
+              "params": {
+                "op": "transform",
+                "from": "CELL",
+                "to": "SKULL",
+                "toSpecial": "bomb",
+                "count": {
+                  "base": 1,
+                  "mult": 0
+                }
+              }
+            },
+            {
+              "kind": "oneOf",
+              "options": [
+                [
+                  {
+                    "kind": "gem",
+                    "params": {
+                      "op": "create",
+                      "gem": {
+                        "kind": "special",
+                        "spec": {
+                          "kind": "bomb"
+                        }
+                      },
+                      "count": {
+                        "base": 3,
+                        "mult": 0
+                      }
+                    }
+                  }
+                ],
+                [
+                  {
+                    "kind": "gem",
+                    "params": {
+                      "op": "clear",
+                      "mode": "explode",
+                      "target": {
+                        "kind": "special",
+                        "gem": "bomb"
+                      }
+                    }
+                  }
+                ]
+              ]
+            }
+          ]
+        }
+      },
+      "sourceEvidence": [
+        {
+          "id": "en",
+          "role": "english-snapshot",
+          "path": "data/raw/troops.gow.en.json",
+          "note": "Entity troop:7169 SpellId/English text/ManaCost/ManaColors asserted verbatim in tests/unit/gowLaneL2B04.test.ts."
+        },
+        {
+          "id": "native",
+          "role": "native-snapshot",
+          "path": "data/raw/spells.gow.en.json",
+          "note": "SpellId 8722 Target/Cost/Randomize and every SpellSteps field (ordered, toEqual) asserted in tests/unit/gowLaneL2B04.test.ts."
+        },
+        {
+          "id": "rule",
+          "role": "official-shared-rule",
+          "path": "tasks/active/gow-skill-shards/rulings/R001-native-step-order.md",
+          "note": "R001: native ConvertGems BoardTarget SingleGem (spell Target Board) converts the chosen gem; A/C shared conversion hoisted before the random pick (identical in both branches, no RNG). Fixed this round (L2-singlegem-cell)."
+        },
+        {
+          "id": "laneTest",
+          "role": "lane-battle-test",
+          "path": "tests/unit/gowLaneL2B04.test.ts",
+          "note": "Lane L2 frozen test file: binding + real castSkill cases for troop:7169."
+        }
+      ],
+      "dimensions": {
+        "identity-cost-colors": {
+          "status": "verified",
+          "note": "troop 7169 -> spell 8722; raw ManaCost 10 = native Cost 10; colours Blue+Brown; spell Target Board.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL2B04.test.ts"
+          ]
+        },
+        "target-count-range": {
+          "status": "verified",
+          "note": "The chosen cell (2,5) / (6,1) is the converted gem (same gem id).",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL2B04.test.ts"
+          ]
+        },
+        "base-formula-rounding": {
+          "status": "verified",
+          "note": "Convert 1; branch AB creates 3 more Bombs (4 total).",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL2B04.test.ts"
+          ]
+        },
+        "boost-source-ratio-cap": {
+          "status": "not-applicable",
+          "note": "No boost/ratio/cap.",
+          "evidenceIds": [
+            "en",
+            "native"
+          ],
+          "tests": []
+        },
+        "conditions-probabilities-branches": {
+          "status": "verified",
+          "note": "Randomize AB-CD -> oneOf 2: both reachable on both sides; 200 seeds 80..120.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL2B04.test.ts"
+          ]
+        },
+        "status-duration-immunity": {
+          "status": "not-applicable",
+          "note": "No status.",
+          "evidenceIds": [
+            "en",
+            "native"
+          ],
+          "tests": []
+        },
+        "gems-types-selection-resolution": {
+          "status": "verified",
+          "note": "Chosen gem -> bomb; AB: +3 bombs; CD: explode all Bombs (the converted one explodes).",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL2B04.test.ts"
+          ]
+        },
+        "summon-transform-pools": {
+          "status": "not-applicable",
+          "note": "No summon or troop transform.",
+          "evidenceIds": [
+            "en",
+            "native"
+          ],
+          "tests": []
+        },
+        "order-death-retargeting": {
+          "status": "verified",
+          "note": "Convert first, then the random follow-up (native order).",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL2B04.test.ts"
+          ]
+        },
+        "mana-economy-extra-turn": {
+          "status": "verified",
+          "note": "One action-log entry; cascades may refill mana; no skill extra turn.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL2B04.test.ts"
+          ]
+        },
+        "display-description": {
+          "status": "verified",
+          "note": "Chinese '将一颗宝石转换成炸弹宝石。再创造 3 颗炸弹宝石或爆破所有炸弹宝石。' matches English.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL2B04.test.ts"
+          ]
+        },
+        "battle-pipeline": {
+          "status": "verified",
+          "note": "Real TurnEngine.castSkill on both sides (Left/Right); low mana (cost-1) and Silence refuse without spending mana or touching board/turn.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL2B04.test.ts"
+          ],
+          "realBattleEntry": true
+        }
+      },
+      "clauseReviews": [
+        {
+          "id": "c1",
+          "text": "Convert a Gem into a Bomb Gem, and either create 3 more Bomb Gems, or explode all Bomb Gems.",
+          "status": "verified",
+          "note": "Chosen gem -> Bomb, then either 3 more Bombs OR explode all Bombs.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL2B04.test.ts"
+          ]
+        }
+      ],
+      "nativeStepReviews": [
+        {
+          "id": "0",
+          "type": "ConvertGems",
+          "status": "verified",
+          "note": "ConvertGems FromTarget SingleGem -> Bomb -> transformToSpecial CELL bomb x1.",
+          "evidenceIds": [
+            "native",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL2B04.test.ts"
+          ]
+        },
+        {
+          "id": "1",
+          "type": "CreateGems",
+          "status": "verified",
+          "note": "CreateGems Bomb 3 -> option 0.",
+          "evidenceIds": [
+            "native",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL2B04.test.ts"
+          ]
+        },
+        {
+          "id": "2",
+          "type": "ConvertGems",
+          "status": "verified",
+          "note": "ConvertGems SingleGem -> same hoisted conversion.",
+          "evidenceIds": [
+            "native",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL2B04.test.ts"
+          ]
+        },
+        {
+          "id": "3",
+          "type": "ExplodeColor",
+          "status": "verified",
+          "note": "ExplodeColor Bomb -> option 1 explode special bomb.",
+          "evidenceIds": [
+            "native",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL2B04.test.ts"
+          ]
+        }
+      ],
+      "branchReviews": [
+        {
+          "id": "AB",
+          "status": "verified",
+          "note": "Option 0 seeds (4 bombs).",
+          "evidenceIds": [
+            "native",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL2B04.test.ts"
+          ]
+        },
+        {
+          "id": "CD",
+          "status": "verified",
+          "note": "Option 1 seeds (explosion).",
+          "evidenceIds": [
+            "native",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL2B04.test.ts"
+          ]
+        }
+      ]
+    },
+    {
+      "key": "troop:7817",
+      "scope": "stored-gow-snapshot",
+      "sourceDigest": "2f1c73a1eb4b80752c68cc0a65d188eca2b154663e2fa884d1711245ac6162c9",
+      "reviewer": "sa-L2",
+      "reviewedAt": "2026-09-27",
+      "decision": "draft",
+      "ledgerFingerprintAtReview": "a127a0f1f9748275f97ee7f672fe3ddd3fa32bd0652294d9db90f25e045ba9b5",
+      "_reference": {
+        "spellId": 9861,
+        "english": "Convert all Gems of a chosen Color to Poison Gems. Then eliminate [Magic + 1] points of a random skill from a random Enemy.",
+        "nativeTarget": "ManaGemsOnly",
+        "randomize": null,
+        "steps": [
+          {
+            "Color1": "FromTarget",
+            "Amount": 100,
+            "Color2": "Poison",
+            "Type": "ConvertGems"
+          },
+          {
+            "SpellPowerMultiplier": 1,
+            "Target": "RandomEnemy",
+            "Amount": 1,
+            "Primarypower": true,
+            "Type": "DecreaseRandom"
+          }
+        ],
+        "prototype": {
+          "segments": [
+            {
+              "kind": "gem",
+              "params": {
+                "op": "transform",
+                "from": "CHOSEN",
+                "to": "SKULL",
+                "toSpecial": "poisonGem"
+              }
+            },
+            {
+              "kind": "reduce",
+              "target": "enemyRandom",
+              "stat": "random",
+              "scaling": {
+                "base": 1,
+                "mult": 1
+              }
+            }
+          ]
+        }
+      },
+      "sourceEvidence": [
+        {
+          "id": "en",
+          "role": "english-snapshot",
+          "path": "data/raw/troops.gow.en.json",
+          "note": "Entity troop:7817 SpellId/English text/ManaCost/ManaColors asserted verbatim in tests/unit/gowLaneL2B04.test.ts."
+        },
+        {
+          "id": "native",
+          "role": "native-snapshot",
+          "path": "data/raw/spells.gow.en.json",
+          "note": "SpellId 9861 Target/Cost/Randomize and every SpellSteps field (ordered, toEqual) asserted in tests/unit/gowLaneL2B04.test.ts."
+        },
+        {
+          "id": "rule",
+          "role": "official-shared-rule",
+          "path": "artifacts/gow-skill-audit/gold-primary-sources/official-heroic-gems-freshdesk.html",
+          "note": "Heroic Gems help centre: Poison Gems match with Green."
+        },
+        {
+          "id": "laneTest",
+          "role": "lane-battle-test",
+          "path": "tests/unit/gowLaneL2B04.test.ts",
+          "note": "Lane L2 frozen test file: binding + real castSkill cases for troop:7817."
+        }
+      ],
+      "dimensions": {
+        "identity-cost-colors": {
+          "status": "verified",
+          "note": "troop 7817 -> spell 9861; raw ManaCost 12 = native Cost 12; colours Blue+Green; spell Target ManaGemsOnly.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL2B04.test.ts"
+          ]
+        },
+        "target-count-range": {
+          "status": "verified",
+          "note": "RandomEnemy: exactly one living enemy; all living reachable over 20 seeds; dead never.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL2B04.test.ts"
+          ]
+        },
+        "base-formula-rounding": {
+          "status": "verified",
+          "note": "[Magic+1] = 11.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL2B04.test.ts"
+          ]
+        },
+        "boost-source-ratio-cap": {
+          "status": "not-applicable",
+          "note": "No boost/ratio/cap.",
+          "evidenceIds": [
+            "en",
+            "native"
+          ],
+          "tests": []
+        },
+        "conditions-probabilities-branches": {
+          "status": "difference",
+          "note": "DecreaseRandom pool attack/armor/magic only (Life excluded) - disputed, see issues L2-decrease-random-pool.",
+          "evidenceIds": [
+            "en",
+            "native"
+          ],
+          "tests": []
+        },
+        "status-duration-immunity": {
+          "status": "not-applicable",
+          "note": "No status.",
+          "evidenceIds": [
+            "en",
+            "native"
+          ],
+          "tests": []
+        },
+        "gems-types-selection-resolution": {
+          "status": "verified",
+          "note": "All 16 gems of the chosen colour (Purple) -> poisonGem.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL2B04.test.ts"
+          ]
+        },
+        "summon-transform-pools": {
+          "status": "not-applicable",
+          "note": "No summon or troop transform.",
+          "evidenceIds": [
+            "en",
+            "native"
+          ],
+          "tests": []
+        },
+        "order-death-retargeting": {
+          "status": "verified",
+          "note": "Convert then reduce (native order).",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL2B04.test.ts"
+          ]
+        },
+        "mana-economy-extra-turn": {
+          "status": "verified",
+          "note": "Caster mana 0; no extra turn; turn passes.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL2B04.test.ts"
+          ]
+        },
+        "display-description": {
+          "status": "verified",
+          "note": "Chinese '将指定颜色的所有宝石转化为毒宝石。然后随机减少一名敌人的[魔法 + 1]点随机技能点数。' matches English.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL2B04.test.ts"
+          ]
+        },
+        "battle-pipeline": {
+          "status": "verified",
+          "note": "Real TurnEngine.castSkill on both sides.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL2B04.test.ts"
+          ],
+          "realBattleEntry": true
+        }
+      },
+      "clauseReviews": [
+        {
+          "id": "c1",
+          "text": "Convert all Gems of a chosen Color to Poison Gems.",
+          "status": "verified",
+          "note": "Chosen colour -> Poison Gems.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL2B04.test.ts"
+          ]
+        },
+        {
+          "id": "c2",
+          "text": "Then eliminate [Magic + 1] points of a random skill from a random Enemy.",
+          "status": "difference",
+          "note": "Random enemy loses [Magic+1] of a random Skill; pool excludes Life (disputed).",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL2B04.test.ts"
+          ]
+        }
+      ],
+      "nativeStepReviews": [
+        {
+          "id": "0",
+          "type": "ConvertGems",
+          "status": "verified",
+          "note": "ConvertGems FromTarget -> Poison -> transform CHOSEN poisonGem.",
+          "evidenceIds": [
+            "native",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL2B04.test.ts"
+          ]
+        },
+        {
+          "id": "1",
+          "type": "DecreaseRandom",
+          "status": "difference",
+          "note": "DecreaseRandom RandomEnemy -> reduce random enemyRandom (3-stat pool, disputed).",
+          "evidenceIds": [
+            "native",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL2B04.test.ts"
+          ]
+        }
+      ],
+      "branchReviews": [
+        {
+          "id": "main",
+          "status": "verified",
+          "note": "Single branch.",
+          "evidenceIds": [
+            "native",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL2B04.test.ts"
+          ]
+        }
+      ],
+      "openIssues": [
+        "L2-decrease-random-pool"
+      ]
+    },
+    {
+      "key": "troop:7214",
+      "scope": "stored-gow-snapshot",
+      "sourceDigest": "9eecf11f58aa35c70c97f3084d3b0c824da882a8eefef22b2315d46f767d7f0a",
+      "reviewer": "sa-L2",
+      "reviewedAt": "2026-09-27",
+      "decision": "accept",
+      "ledgerFingerprintAtReview": "a127a0f1f9748275f97ee7f672fe3ddd3fa32bd0652294d9db90f25e045ba9b5",
+      "_reference": {
+        "spellId": 8801,
+        "english": "Convert 4 Stone Blocks to either Good or Evil Gargoyle Gems. Then explode a Gem.",
+        "nativeTarget": "Board",
+        "randomize": "AB-CD",
+        "steps": [
+          {
+            "Color1": "Block",
+            "Amount": 4,
+            "Color2": "GoodGargoyle",
+            "Type": "ConvertGems",
+            "Delay": 400
+          },
+          {
+            "Amount": 1,
+            "BoardTarget": "SingleGem",
+            "Type": "ExplodeGems"
+          },
+          {
+            "Color1": "Block",
+            "Amount": 4,
+            "Color2": "BadGargoyle",
+            "Type": "ConvertGems",
+            "Delay": 400
+          },
+          {
+            "Amount": 1,
+            "BoardTarget": "SingleGem",
+            "Type": "ExplodeGems"
+          }
+        ],
+        "prototype": {
+          "segments": [
+            {
+              "kind": "gem",
+              "params": {
+                "op": "transform",
+                "from": "ANY",
+                "to": "SKULL",
+                "fromSpecial": "stoneBlock",
+                "toSpecial": "gargoyleGem",
+                "count": {
+                  "base": 4,
+                  "mult": 0
+                },
+                "tiers": [
+                  1,
+                  2
+                ]
+              }
+            },
+            {
+              "kind": "gem",
+              "params": {
+                "op": "clear",
+                "mode": "explode",
+                "target": {
+                  "kind": "cell",
+                  "cell": "CELL"
+                }
+              }
+            }
+          ]
+        }
+      },
+      "sourceEvidence": [
+        {
+          "id": "en",
+          "role": "english-snapshot",
+          "path": "data/raw/troops.gow.en.json",
+          "note": "Entity troop:7214 SpellId/English text/ManaCost/ManaColors asserted verbatim in tests/unit/gowLaneL2B04.test.ts."
+        },
+        {
+          "id": "native",
+          "role": "native-snapshot",
+          "path": "data/raw/spells.gow.en.json",
+          "note": "SpellId 8801 Target/Cost/Randomize and every SpellSteps field (ordered, toEqual) asserted in tests/unit/gowLaneL2B04.test.ts."
+        },
+        {
+          "id": "rule",
+          "role": "official-shared-rule",
+          "path": "tasks/active/gow-skill-shards/rulings/R001-native-step-order.md",
+          "note": "R001: native AB-CD = one roll for Good vs Evil (tiers [1,2] once per cast); ExplodeGems SingleGem = the chosen gem; the explosion is identical in both branches."
+        },
+        {
+          "id": "laneTest",
+          "role": "lane-battle-test",
+          "path": "tests/unit/gowLaneL2B04.test.ts",
+          "note": "Lane L2 frozen test file: binding + real castSkill cases for troop:7214."
+        }
+      ],
+      "dimensions": {
+        "identity-cost-colors": {
+          "status": "verified",
+          "note": "troop 7214 -> spell 8801; raw ManaCost 10 = native Cost 10; colours Blue+Brown; spell Target Board.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL2B04.test.ts"
+          ]
+        },
+        "target-count-range": {
+          "status": "verified",
+          "note": "Chosen cell (4,4) / (0,3) is the explosion centre.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL2B04.test.ts"
+          ]
+        },
+        "base-formula-rounding": {
+          "status": "verified",
+          "note": "ConvertGems Amount 4: 4 of 5 Stone Blocks; fewer -> all; explode 3x3 = 9 (edge 6).",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL2B04.test.ts"
+          ]
+        },
+        "boost-source-ratio-cap": {
+          "status": "not-applicable",
+          "note": "No boost/ratio/cap.",
+          "evidenceIds": [
+            "en",
+            "native"
+          ],
+          "tests": []
+        },
+        "conditions-probabilities-branches": {
+          "status": "verified",
+          "note": "One tier per cast (all 4 same); Good (tier 1) / Evil (tier 2) both reachable; 200 seeds 80..120.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL2B04.test.ts"
+          ]
+        },
+        "status-duration-immunity": {
+          "status": "not-applicable",
+          "note": "No status.",
+          "evidenceIds": [
+            "en",
+            "native"
+          ],
+          "tests": []
+        },
+        "gems-types-selection-resolution": {
+          "status": "verified",
+          "note": "stoneBlock -> gargoyleGem tier 1 (Good) or 2 (Evil); no block -> no transform, explosion still happens.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL2B04.test.ts"
+          ]
+        },
+        "summon-transform-pools": {
+          "status": "not-applicable",
+          "note": "No summon or troop transform.",
+          "evidenceIds": [
+            "en",
+            "native"
+          ],
+          "tests": []
+        },
+        "order-death-retargeting": {
+          "status": "verified",
+          "note": "Convert then explode (native order).",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL2B04.test.ts"
+          ]
+        },
+        "mana-economy-extra-turn": {
+          "status": "verified",
+          "note": "One action-log entry; no skill extra turn.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL2B04.test.ts"
+          ]
+        },
+        "display-description": {
+          "status": "verified",
+          "note": "Chinese '将 4 颗石块转换成善或恶石像鬼宝石。再爆破一颗宝石。' matches English.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL2B04.test.ts"
+          ]
+        },
+        "battle-pipeline": {
+          "status": "verified",
+          "note": "Real TurnEngine.castSkill on both sides (Left/Right); low mana (cost-1) and Silence refuse without spending mana or touching board/turn.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL2B04.test.ts"
+          ],
+          "realBattleEntry": true
+        }
+      },
+      "clauseReviews": [
+        {
+          "id": "c1",
+          "text": "Convert 4 Stone Blocks to either Good or Evil Gargoyle Gems.",
+          "status": "verified",
+          "note": "4 Stone Blocks -> Good OR Evil Gargoyle Gems (one roll).",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL2B04.test.ts"
+          ]
+        },
+        {
+          "id": "c2",
+          "text": "Then explode a Gem.",
+          "status": "verified",
+          "note": "Then explode the chosen gem.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL2B04.test.ts"
+          ]
+        }
+      ],
+      "nativeStepReviews": [
+        {
+          "id": "0",
+          "type": "ConvertGems",
+          "status": "verified",
+          "note": "ConvertGems Block 4 -> GoodGargoyle -> tier 1.",
+          "evidenceIds": [
+            "native",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL2B04.test.ts"
+          ]
+        },
+        {
+          "id": "1",
+          "type": "ExplodeGems",
+          "status": "verified",
+          "note": "ExplodeGems SingleGem -> explode cell CELL.",
+          "evidenceIds": [
+            "native",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL2B04.test.ts"
+          ]
+        },
+        {
+          "id": "2",
+          "type": "ConvertGems",
+          "status": "verified",
+          "note": "ConvertGems Block 4 -> BadGargoyle -> tier 2.",
+          "evidenceIds": [
+            "native",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL2B04.test.ts"
+          ]
+        },
+        {
+          "id": "3",
+          "type": "ExplodeGems",
+          "status": "verified",
+          "note": "ExplodeGems SingleGem -> same explode segment.",
+          "evidenceIds": [
+            "native",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL2B04.test.ts"
+          ]
+        }
+      ],
+      "branchReviews": [
+        {
+          "id": "AB",
+          "status": "verified",
+          "note": "Tier 1 seeds.",
+          "evidenceIds": [
+            "native",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL2B04.test.ts"
+          ]
+        },
+        {
+          "id": "CD",
+          "status": "verified",
+          "note": "Tier 2 seeds.",
+          "evidenceIds": [
+            "native",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL2B04.test.ts"
+          ]
+        }
+      ]
+    },
+    {
+      "key": "weapon:1500",
+      "scope": "stored-gow-snapshot",
+      "sourceDigest": "91d9f724952943e9483f0dac93817b367c70308f054b03b7f7a1d2ac5e339f81",
+      "reviewer": "sa-L2",
+      "reviewedAt": "2026-09-27",
+      "decision": "accept",
+      "ledgerFingerprintAtReview": "a127a0f1f9748275f97ee7f672fe3ddd3fa32bd0652294d9db90f25e045ba9b5",
+      "_reference": {
+        "spellId": 8876,
+        "english": "&& Convert all Green Gems to a chosen Color. && Explode a Gem, and create 10 Green Gems.",
+        "nativeTarget": "NotGreenOrSkullGems",
+        "randomize": "Choose:ABC-DEF",
+        "steps": [
+          {
+            "Color1": "Green",
+            "Amount": 100,
+            "Color2": "FromTarget",
+            "Type": "ConvertGems"
+          },
+          {
+            "PercentageChance": 0,
+            "Type": "None"
+          },
+          {
+            "PercentageChance": 0,
+            "Type": "None"
+          },
+          {
+            "Amount": 1,
+            "BoardTarget": "SingleGem",
+            "Type": "ExplodeGems"
+          },
+          {
+            "Color1": "Green",
+            "Amount": 10,
+            "Type": "CreateGems"
+          }
+        ],
+        "prototype": {
+          "segments": [
+            {
+              "kind": "choose",
+              "labels": [
+                "将所有绿色宝石转化为所选颜色",
+                "爆破所选宝石，创造10颗绿色宝石"
+              ],
+              "options": [
+                [
+                  {
+                    "kind": "gem",
+                    "params": {
+                      "op": "transform",
+                      "from": "Green",
+                      "to": "CHOSEN"
+                    }
+                  }
+                ],
+                [
+                  {
+                    "kind": "gem",
+                    "params": {
+                      "op": "clear",
+                      "mode": "explode",
+                      "target": {
+                        "kind": "cell",
+                        "cell": "CELL"
+                      }
+                    }
+                  },
+                  {
+                    "kind": "gem",
+                    "params": {
+                      "op": "create",
+                      "gem": {
+                        "kind": "color",
+                        "color": "Green"
+                      },
+                      "count": {
+                        "base": 10,
+                        "mult": 0
+                      }
+                    }
+                  }
+                ]
+              ]
+            }
+          ]
+        }
+      },
+      "sourceEvidence": [
+        {
+          "id": "en",
+          "role": "english-snapshot",
+          "path": "artifacts/gowhead-weapons/weapons.json",
+          "note": "Entity weapon:1500 SpellId/English text/ManaCost/ManaColors asserted verbatim in tests/unit/gowLaneL2B04.test.ts."
+        },
+        {
+          "id": "native",
+          "role": "native-snapshot",
+          "path": "data/raw/spells.gow.en.json",
+          "note": "SpellId 8876 Target/Cost/Randomize and every SpellSteps field (ordered, toEqual) asserted in tests/unit/gowLaneL2B04.test.ts."
+        },
+        {
+          "id": "rule",
+          "role": "official-shared-rule",
+          "path": "tasks/active/gow-skill-shards/rulings/R001-native-step-order.md",
+          "note": "R001: branch DEF native order ExplodeGems (chosen gem) then CreateGems Green 10."
+        },
+        {
+          "id": "laneTest",
+          "role": "lane-battle-test",
+          "path": "tests/unit/gowLaneL2B04.test.ts",
+          "note": "Lane L2 frozen test file: binding + real castSkill cases for weapon:1500."
+        }
+      ],
+      "dimensions": {
+        "identity-cost-colors": {
+          "status": "verified",
+          "note": "weapon 1500 Foxglove -> spell 8876 (numeric and gw_Foxglove); ManaCost 14 = native Cost 14; colours Blue+Purple; spell Target NotGreenOrSkullGems.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL2B04.test.ts"
+          ]
+        },
+        "target-count-range": {
+          "status": "verified",
+          "note": "Chosen cell (3,3) / corner (0,0) is the explosion centre.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL2B04.test.ts"
+          ]
+        },
+        "base-formula-rounding": {
+          "status": "verified",
+          "note": "Branch 0: every Green (16); branch 1: explode 9 (corner 4), create exactly 10 Green.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL2B04.test.ts"
+          ]
+        },
+        "boost-source-ratio-cap": {
+          "status": "not-applicable",
+          "note": "No boost/ratio/cap.",
+          "evidenceIds": [
+            "en",
+            "native"
+          ],
+          "tests": []
+        },
+        "conditions-probabilities-branches": {
+          "status": "verified",
+          "note": "Player Choose ABC / DEF (0/1/null); colour via FixedColorChooser (Red / Yellow).",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL2B04.test.ts"
+          ]
+        },
+        "status-duration-immunity": {
+          "status": "not-applicable",
+          "note": "No status.",
+          "evidenceIds": [
+            "en",
+            "native"
+          ],
+          "tests": []
+        },
+        "gems-types-selection-resolution": {
+          "status": "verified",
+          "note": "Branch 0: Green -> chosen colour; branch 1: 10 plain Green created after the explosion.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL2B04.test.ts"
+          ]
+        },
+        "summon-transform-pools": {
+          "status": "not-applicable",
+          "note": "No summon or troop transform.",
+          "evidenceIds": [
+            "en",
+            "native"
+          ],
+          "tests": []
+        },
+        "order-death-retargeting": {
+          "status": "verified",
+          "note": "Explode before create (event order).",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL2B04.test.ts"
+          ]
+        },
+        "mana-economy-extra-turn": {
+          "status": "verified",
+          "note": "One action-log entry; no skill extra turn.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL2B04.test.ts"
+          ]
+        },
+        "display-description": {
+          "status": "verified",
+          "note": "Chinese '选择一项：将所有绿色宝石转化为选定颜色；或爆破一颗选定宝石，再创造 10 颗绿色宝石。' matches English.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL2B04.test.ts"
+          ]
+        },
+        "battle-pipeline": {
+          "status": "verified",
+          "note": "Real TurnEngine.castSkill on both sides with FixedBranchChooser 0/1; low mana, Silence and a cancelled choice (null) refuse without spending mana or touching the board.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL2B04.test.ts"
+          ],
+          "realBattleEntry": true
+        }
+      },
+      "clauseReviews": [
+        {
+          "id": "c1",
+          "text": "Convert all Green Gems to a chosen Color.",
+          "status": "verified",
+          "note": "Branch 0: all Green -> chosen colour.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL2B04.test.ts"
+          ]
+        },
+        {
+          "id": "c2",
+          "text": "Explode a Gem, and create 10 Green Gems.",
+          "status": "verified",
+          "note": "Branch 1: explode a chosen gem, then create 10 Green.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL2B04.test.ts"
+          ]
+        }
+      ],
+      "nativeStepReviews": [
+        {
+          "id": "0",
+          "type": "ConvertGems",
+          "status": "verified",
+          "note": "ConvertGems Green -> FromTarget -> transform Green CHOSEN.",
+          "evidenceIds": [
+            "native",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL2B04.test.ts"
+          ]
+        },
+        {
+          "id": "3",
+          "type": "ExplodeGems",
+          "status": "verified",
+          "note": "ExplodeGems SingleGem -> explode cell CELL.",
+          "evidenceIds": [
+            "native",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL2B04.test.ts"
+          ]
+        },
+        {
+          "id": "4",
+          "type": "CreateGems",
+          "status": "verified",
+          "note": "CreateGems Green 10 -> create color Green x10.",
+          "evidenceIds": [
+            "native",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL2B04.test.ts"
+          ]
+        }
+      ],
+      "branchReviews": [
+        {
+          "id": "ABC",
+          "status": "verified",
+          "note": "Branch 0 both sides x aliases x colours.",
+          "evidenceIds": [
+            "native",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL2B04.test.ts"
+          ]
+        },
+        {
+          "id": "DEF",
+          "status": "verified",
+          "note": "Branch 1 both sides + corner.",
+          "evidenceIds": [
+            "native",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL2B04.test.ts"
+          ]
+        }
+      ]
+    }
+  ]
+}

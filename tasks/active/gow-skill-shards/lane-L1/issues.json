@@ -1,0 +1,198 @@
+{
+ "issues": [
+  {
+   "id": "L1-7260-target",
+   "key": "troop:7260",
+   "spellId": 8894,
+   "kind": "assembler+data",
+   "layer": "batch-r13 + zh display",
+   "summary": "Prototype curses/deathmarks allyChosen (from the official zh text 使一名盟友); English 'Curse and Deathmark an Enemy', native Target Enemy + FromTarget. Below-target damage anchored on an ally slot.",
+   "fix": "batch-r13 8894 inflict curse/death-mark on enemyChosen; zh display 一名敌人 via gowSnapshotOverrides.json + batch desc + pool",
+   "repro": "tests/unit/gowLaneL1B01Repro.test.ts",
+   "fixedBy": "sa-L1",
+   "fixedAt": "2026-09-27T21:37:59.091Z"
+  },
+  {
+   "id": "L1-6453-order",
+   "key": "troop:6453",
+   "spellId": 7631,
+   "kind": "assembler",
+   "layer": "batch-r7",
+   "summary": "Prototype runs damage before Death Mark / Hunter's Mark (English order). Native: CauseDeathMark, CauseHuntersMark, Damage. Observable when the hit kills a front enemy: enemyFirstN is re-read and the third enemy gets both marks.",
+   "fix": "batch-r7 7631 order death-mark, marked, damage, transform (R001)",
+   "repro": "tests/unit/gowLaneL1B01Repro.test.ts",
+   "fixedBy": "sa-L1",
+   "fixedAt": "2026-09-27T21:37:59.092Z"
+  },
+  {
+   "id": "L1-6474-knockback",
+   "key": "troop:6474",
+   "spellId": 7652,
+   "kind": "withdrawn",
+   "layer": "batch-r17",
+   "summary": "Withdrawn: the live-roster reading (native SecondEnemy/FrontEnemy re-read after a Mana Burn kill) conflicts with tests/unit/gowManaBurnTowerAudit.test.ts ('reposition never selects an untouched enemy', i.e. killed troops keep their slot during the spell). Current runtime (original first/second, dead skipped) kept; troop:6474 accepted on that reading.",
+   "fix": null,
+   "repro": "tests/unit/gowLaneL1B01Repro.test.ts"
+  },
+  {
+   "id": "L1-roster-gap",
+   "key": "troop:7494",
+   "spellId": 9239,
+   "kind": "info",
+   "layer": "data scope",
+   "summary": "27 raw troops (ids 7834-7935, mostly pvp_type null) are absent from src/data/troops.json; SummoningType pools can only contain roster troops. troop:7494 Mystic pool lacks raw-only Cultist 7888. Accepted as roster-scoped; coordinator may want a ruling if the roster is expanded.",
+   "fix": null
+  },
+  {
+   "id": "L1-6378-pool",
+   "key": "troop:6378",
+   "spellId": 7533,
+   "kind": "assembler",
+   "layer": "batch-r4",
+   "summary": "Native Randomize A+(B-C-D-E-F): Web always, then one of Summoning 6136 SpiderSwarm / 6110 GiantSpider / 6395 Spinnerette / 6512 TombSpider / 6068 Webspinner. Prototype pool is 11 spider troops (incl. SpiderQueen, SpiderKnight, TheSpiderThrone...) and lacks Webspinner.",
+   "fix": "batch-r4 7533 summonRandom of the 5 native ids",
+   "repro": "tests/unit/gowLaneL1B02Repro.test.ts",
+   "fixedBy": "sa-L1",
+   "fixedAt": "2026-09-27T21:37:59.092Z"
+  },
+  {
+   "id": "L1-charm-instant",
+   "key": "troop:7677,troop:6769,troop:6534 (+13 more native Charm skills)",
+   "spellId": null,
+   "kind": "source-dispute",
+   "layer": "primitive (status.ts charm / CombatResolver)",
+   "summary": "Engine models Charm as a persistent status (skulls hit own next ally). Official status guide excludes Charmed (spell effect applied once at cast, not a status); Lyya (TL4) 2017: instant mechanic, no persistence. Community: charmed troop damages adjacent allies by its Attack; which neighbours (both vs one) and armor/Barrier handling are not settled. 16 native Charm skills: troop:6023,6177,6305,6363,6498,6534,6605,6647,6657,6769,6885,7515,7677,7793,7803, weapon:1310.",
+   "evidence": "artifacts/gow-skill-audit/gold-primary-sources/community-2026-09-28-charm-instant.json",
+   "repro": "tests/unit/gowLaneL1B02Repro.test.ts",
+   "fix": null
+  },
+  {
+   "id": "L1-6534-order",
+   "key": "troop:6534",
+   "spellId": 7728,
+   "kind": "assembler",
+   "layer": "batch file",
+   "summary": "Native Charm -> Damage -> Poison; prototype Damage -> Charm -> Poison (English order). Observable only in events when the hit kills (R001: follow native).",
+   "fix": "reorder (still draft on L1-charm-instant)",
+   "repro": "tests/unit/gowLaneL1B02Repro.test.ts",
+   "fixedBy": "sa-L1",
+   "fixedAt": "2026-09-27T21:37:59.092Z"
+  },
+  {
+   "id": "L1-7803-order",
+   "key": "troop:7803",
+   "spellId": 9844,
+   "kind": "assembler",
+   "layer": "batch file",
+   "summary": "Native Charm -> StealLife -> LethalDamageConditional(AddForSubmerged 50%) -> CauseSubmerged. Prototype applies Submerged BEFORE the kill check, so the 'if they were already Submerged' 50% execute always qualifies.",
+   "fix": null,
+   "blockedBy": "L1-charm-instant (draft anyway); fix order when Charm lands"
+  },
+  {
+   "id": "L1-7793-prefnotprev",
+   "key": "troop:7793",
+   "spellId": 9812,
+   "kind": "assembler",
+   "layer": "batch file",
+   "summary": "Native RandomEnemy Charm + drain 8 FromPrevious, then RandomPrefNotPrevEnemy Charm + drain 8. Prototype enemyRandomN n=2 (distinct): with one living enemy native drains 16 from it, runtime 8 (same class as L4b-6841-prefnotprev).",
+   "fix": null,
+   "blockedBy": "L1-charm-instant"
+  },
+  {
+   "id": "L1-6305-repeat",
+   "key": "troop:6305",
+   "spellId": 7455,
+   "kind": "assembler",
+   "layer": "batch file",
+   "summary": "Native two independent RandomEnemy Charm steps (may repeat the same enemy); prototype enemyRandomN n=2 distinct. Observable once Charm is an instant hit.",
+   "fix": null,
+   "blockedBy": "L1-charm-instant"
+  },
+  {
+   "id": "L1-1351-pool",
+   "key": "weapon:1351",
+   "spellId": 8357,
+   "kind": "assembler",
+   "layer": "batch-w02 + gowWeaponReviewedOverrides.json",
+   "summary": "Native SummoningKingdomNoError Data 3039 = 6 raw troops (OcularenLeech, Ocularen, BurningOcularen, GloomOcularen, Xerodar 6609, WatchMother 6606), all in the roster. Prototype pool has only the first 4.",
+   "fix": "batch-w02 8357 randomOf all 6",
+   "repro": "tests/unit/gowLaneL1B02Repro.test.ts",
+   "fixedBy": "sa-L1",
+   "fixedAt": "2026-09-27T21:37:59.092Z"
+  },
+  {
+   "id": "L1-6469-order",
+   "key": "troop:6469",
+   "spellId": 7647,
+   "kind": "assembler",
+   "layer": "batch-r22",
+   "summary": "Native Consume(20%) -> CauseWeb -> Damage; prototype Damage -> Web -> Devour. Observable: runtime can Web and hit an enemy that is then devoured; native devoured enemy never receives Web/hit, and a lethal hit prevents the devour roll only in the runtime order.",
+   "fix": "batch-r22 7647 devour(enemyChosen 0.2) -> web lastTarget -> dmg lastTarget",
+   "repro": "tests/unit/gowLaneL1B02Repro.test.ts",
+   "fixedBy": "sa-L1",
+   "fixedAt": "2026-09-27T21:37:59.092Z"
+  },
+  {
+   "id": "L1-7515-summon-dist",
+   "key": "troop:7515",
+   "spellId": 9279,
+   "kind": "assembler",
+   "layer": "batch-p38",
+   "summary": "Native: Summoning 6305 Incubus (always), 6180 Succubus 50%, 6305 Incubus 25% (independent). Prototype countRange 1-3 uniform of one randomOf [Succubus,Incubus] repeated. Different count distribution and composition (native always has >=1 Incubus).",
+   "fix": null,
+   "blockedBy": "L1-charm-instant"
+  },
+  {
+   "id": "L1-6605-pairs",
+   "key": "troop:6605",
+   "spellId": 7814,
+   "kind": "assembler",
+   "layer": "batch-r4",
+   "summary": "Native: Charm, 40% TransformEnemy Succubus(6180), Charm again, 40% TransformEnemy Incubus(6305) on the same target (two independent rolls; Incubus may overwrite). Prototype: one Charm + one 40% transform into random Succubus/Incubus.",
+   "fix": null,
+   "blockedBy": "L1-charm-instant"
+  },
+  {
+   "id": "L1-devour-double-roll",
+   "key": "troop:6118,troop:6469,troop:7271,troop:7272,weapon:1129 (+every devour segment with chance<1)",
+   "spellId": null,
+   "kind": "primitive",
+   "layer": "src/engine/skills/prototypes.ts runSegment",
+   "summary": "devour segments carry chance; runSegment's generic chance gate rolled it once and devourEffect rolled it again: effective probability p^2 (40% -> 16%, 20% -> 4%), and a failed gate skipped target tracking so FromTarget follow-up steps lost their target. chanceBoost was only honoured by the gate.",
+   "fix": "runSegment skips the generic gate for kind 'devour'; devourEffect receives chanceBoost",
+   "repro": "tests/unit/gowLaneL1B02Repro.test.ts",
+   "fixedBy": "sa-L1",
+   "fixedAt": "2026-09-27T21:37:59.092Z"
+  },
+  {
+   "id": "L1-consume-first",
+   "key": "troop:6118,weapon:1129,troop:7271,troop:7272",
+   "spellId": null,
+   "kind": "assembler",
+   "layer": "batch-r22 7210, batch-w01 7293, batch-r19 8890/8891",
+   "summary": "Native Consume precedes Damage (R001); 8890/8891 modelled Consume as a plain execute (no Attack/Armor/Life gain).",
+   "fix": "devour first, damage on lastTarget; 8890/8891 use devour",
+   "fixedBy": "sa-L1",
+   "fixedAt": "2026-09-27T21:37:59.092Z"
+  },
+  {
+   "id": "L1-6160-create-interleave",
+   "key": "troop:6160",
+   "spellId": 7280,
+   "kind": "primitive-suspect",
+   "layer": "TurnEngine cast pipeline / gem segments",
+   "summary": "Real cast (seed 42): events are devour, T8 Yellow, elimination, mana-gain, gravity, refill, T8 Brown, extra-turn. The second native CreateGems (Brown) lands after the first cascade instead of within the spell, so Brown creation interacts with refilled gems and matches resolve in two waves. Not investigated further (root cause not located; may affect every spell with two gem steps). troop:6160 kept draft.",
+   "repro": "tests/unit/gowLaneL1B02Repro.test.ts",
+   "fix": null
+  },
+  {
+   "id": "L1-6161-count-attack",
+   "key": "troop:6161",
+   "spellId": 7281,
+   "kind": "assembler-suspect",
+   "layer": "batch-r22 7281",
+   "summary": "Not in a reviewed batch; seen while reverse-searching Consume. Native CountAttack > Consume > Damage but prototype has no Attack modifier and damage-first order. Needs its own review.",
+   "fix": null
+  }
+ ]
+}

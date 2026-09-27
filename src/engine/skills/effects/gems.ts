@@ -15,9 +15,9 @@
  */
 import { BoardModel } from '../../BoardModel';
 import { reshuffle } from '../../boardUtils';
-import { colorGem, skullGem, isSameMatchType, posKey, specialGem, ALL_BASE_COLORS } from '../../types';
+import { colorGem, skullGem, isSameMatchType, posKey, specialGem } from '../../types';
 import type { BaseColor, CellPos, Gem, GemType, SpecialGemKind, SpecialGemSpec } from '../../types';
-import { PlayerSide } from '../../types';
+import { PlayerSide, ALL_BASE_COLORS } from '../../types';
 import type {
   GameEvent,
   GemCreateEvent,
@@ -29,6 +29,8 @@ import { evaluateScaling } from '../scaling';
 import type { EffectContext, EffectPrimitive, DestroyedGem } from './context';
 import { casterMagic, findCharacter, findSide } from './context';
 import { evaluateWithModifier, modifierBonus } from './secondary';
+import { mostUsedManaColorForCast } from './manaColor';
+export { mostUsedManaColor } from './manaColor';
 import type { ModifierSpec } from './secondary';
 
 /**
@@ -46,6 +48,7 @@ export type ColorSpec =
   | 'CASTER'
   | 'SKULL'
   | 'ENEMY'
+  | 'TRACKED_ENEMY' // Bind the randomly chosen color source for subsequent effects.
   | 'LAST_TARGET'
   | 'ENEMY_MOST_USED'
   | 'ALLY_MOST_USED'
@@ -53,41 +56,6 @@ export type ColorSpec =
    *  宝石」——该咒语的首段即创造段、无前序 chosen 段，直接读 ctx.chosenTargetId（其候选
    *  集由同技能后段 allyChosen 驱动）；未选目标/无色 → null 整段跳过）。 */
   | 'CHOSEN_TARGET';
-
-/**
- * 某方「已用法力最多」的颜色（R11 批，官方 MostUsedManaEnemy / MostUsedManaAlly）：
- * 从行动日志聚合该方全部施法行动——每次施法按施法者 manaCost 均摊到其法力色上计账
- * （官方口径是「使用/收集最多的法力色」；引擎无逐色法力流水，以此为确定性代理，
- * 用当前 manaCost 快照，平行批 R12 的 LAST_TARGET chosenTargetId 回退同款权衡）。
- * 平局取 ALL_BASE_COLORS 固定序更前者；该方尚无施法记录 → null（调用段安全跳过）。
- */
-export function mostUsedManaColor(
-  state: import('../../GameState').GameState,
-  side: PlayerSide,
-): BaseColor | null {
-  const tally = new Map<BaseColor, number>();
-  for (const entry of state.actionLog) {
-    if (entry.side !== side) continue;
-    const action = entry.action;
-    if (action.type !== 'cast') continue;
-    const caster = state.teams[side].characters.find((c) => c.id === action.characterId);
-    if (!caster || caster.colors.length === 0) continue;
-    const share = caster.manaCost / caster.colors.length;
-    for (const color of caster.colors) {
-      tally.set(color, (tally.get(color) ?? 0) + share);
-    }
-  }
-  let best: BaseColor | null = null;
-  let bestN = 0;
-  for (const color of ALL_BASE_COLORS) {
-    const n = tally.get(color) ?? 0;
-    if (n > bestN) {
-      bestN = n;
-      best = color;
-    }
-  }
-  return best;
-}
 
 /** 把 ColorSpec 解析为具体基础色；占位符取 ctx，缺省返回 null（'SKULL' 无对应基色） */
 function resolveColor(spec: ColorSpec, ctx: EffectContext): BaseColor | null {
@@ -106,7 +74,7 @@ function resolveColor(spec: ColorSpec, ctx: EffectContext): BaseColor | null {
   // 「指定/该敌人的一种法力颜色」（2026-09-17 回收批）：随机存活敌方 / 跨段追踪目标，
   // 多法力色时 rng 掷选其一（确定性）。LAST_TARGET 无跨段追踪时回退到玩家选定的敌人
   // （「选择一名敌人。摧毁其法力颜色的宝石」——清除段本身是首段，追踪尚无主目标）。
-  if (spec === 'ENEMY' || spec === 'LAST_TARGET') {
+  if (spec === 'ENEMY' || spec === 'TRACKED_ENEMY' || spec === 'LAST_TARGET') {
     let char = undefined;
     if (spec === 'LAST_TARGET') {
       const last = ctx.castTracking?.lastTarget;
@@ -123,17 +91,23 @@ function resolveColor(spec: ColorSpec, ctx: EffectContext): BaseColor | null {
       char = alive[ctx.rng.nextInt(alive.length)];
     }
     if (!char || char.colors.length === 0) return null;
+    if (spec === 'TRACKED_ENEMY' && ctx.castTracking) {
+      const snapshot = { id: char.id, aliveBefore: !char.defeated };
+      ctx.castTracking.lastTarget = snapshot;
+      ctx.castTracking.lastTargets = [snapshot];
+      (ctx.castTracking.allTargets ??= []).push(snapshot);
+    }
     return char.colors[ctx.rng.nextInt(char.colors.length)];
   }
   // 「敌人/自身队伍使用最多的颜色宝石」（R11 批，官方 MostUsedManaEnemy/Ally）：
-  // 行动日志聚合（见 mostUsedManaColor）；无施法记录 → null，宝石段安全跳过。
+  // Count live troop mana colors; a tie is drawn once per cast.
   if (spec === 'ENEMY_MOST_USED' || spec === 'ALLY_MOST_USED') {
     const mySide = findSide(ctx.state, ctx.casterId);
     if (mySide === null) return null;
     const targetSide = spec === 'ALLY_MOST_USED'
       ? mySide
       : mySide === PlayerSide.Left ? PlayerSide.Right : PlayerSide.Left;
-    return mostUsedManaColor(ctx.state, targetSide);
+    return mostUsedManaColorForCast(ctx, targetSide);
   }
   return spec;
 }
@@ -216,9 +190,12 @@ export interface TransformGemParams {
    * 8966「Convert a selected Mana Gem into a x3 Wildcard」）。两种形态运行时等价。
    */
   toSpecial?: SpecialGemKind | SpecialGemSpec;
+  /** Resolve the Spirit Gem's color from the source of this transform. */
+  spiritColorFromSource?: boolean;
   /** from 端点为特殊宝石时给出（优先于 from）——特殊↔特殊（Wave4，8801 石块端点）。
    *  池匹配按 kind 精确对位（石块/石像鬼等不可匹配宝石 isSameMatchType 恒 false） */
   fromSpecial?: SpecialGemKind;
+  diagonal?: 'left' | 'right';
   /**
    * toSpecial 的 tier 掷签（原语 Wave4 批，8801「Convert 4 Stone Blocks to either Good
    * or Evil Gargoyle Gems」官方 Randomize AB-CD 两分支 = 整段一次掷签、本次转换的
@@ -290,6 +267,7 @@ export interface ClearGemParams {
   target: ClearTarget;
   /** 二次缩放（随机 N 行列/颗的数量因来源而增强：「爆破 [M+1] 颗宝石，数量因X而增强」） */
   modifier?: ModifierSpec;
+  countAdjacentSpecial?: SpecialGemKind;
 }
 
 export type GemParams = CreateGemParams | TransformGemParams | ClearGemParams;
@@ -377,10 +355,34 @@ function pickCreateGemType(spec: CreateGemSpec, ctx: EffectContext): GemType | n
   return colorGem(color);
 }
 
+const CONCRETE_COLORS: ReadonlySet<string> = new Set<string>(ALL_BASE_COLORS);
+
+/** 本次施放把创造规格里的颜色占位符（CHOSEN_TARGET/ENEMY/TRACKED_ENEMY/LAST_TARGET 等）**只解析一次**
+ *  （L4b-7138-onecolour：「创造 12 颗其法力颜色之一的宝石」= 本次选定一色，全部同色；混合规格的端点
+ *  同样先定色、再逐颗在已定端点间掷选）。具体基色端点原样保留（不耗随机）；任一占位符无法解析 → null。 */
+function resolveCreateSpec(spec: CreateGemSpec, ctx: EffectContext): CreateGemSpec | null {
+  const fix = (c: ColorSpec): ColorSpec | null => (c === 'SKULL' || CONCRETE_COLORS.has(c) ? c : resolveColor(c, ctx));
+  if (spec.kind === 'color') {
+    const color = fix(spec.color);
+    return color === null ? null : { ...spec, color };
+  }
+  if (spec.kind === 'mix') {
+    const colors = spec.colors.map(fix);
+    return colors.some((c) => c === null) ? null : { ...spec, colors: colors as ColorSpec[] };
+  }
+  if (spec.kind === 'mixAny') {
+    const entries = spec.entries.map((e) => (typeof e === 'string' ? fix(e) : e));
+    return entries.some((e) => e === null) ? null : { ...spec, entries: entries as typeof spec.entries };
+  }
+  return spec;
+}
+
 function doCreate(params: CreateGemParams, ctx: EffectContext): GameEvent[] {
   const board = ctx.state.board;
+  const gemSpec = resolveCreateSpec(params.gem, ctx);
+  if (gemSpec === null) return [];
   // 骷髅/单色可提前判跳过；混合色逐颗取色，先确认全部占位符可解析
-  const probe = pickCreateGemType(params.gem, ctx);
+  const probe = pickCreateGemType(gemSpec, ctx);
   if (probe === null) return [];
 
   // 数量区间（「创造 8-12 颗」）优先于缩放规格；两者互斥，缺省走缩放（旧路径随机序列不变）
@@ -396,7 +398,7 @@ function doCreate(params: CreateGemParams, ctx: EffectContext): GameEvent[] {
   const slots = pickN(emptyCells(board), n, ctx);
   const spawns: GemCreateEvent['spawns'] = [];
   for (const pos of slots) {
-    const gemType = pickCreateGemType(params.gem, ctx)!;
+    const gemType = pickCreateGemType(gemSpec, ctx)!;
     const gem: Gem = { id: ctx.nextGemId(), type: gemType };
     board.set(pos, gem);
     spawns.push({ pos, gemId: gem.id, gemType: gem.type });
@@ -418,7 +420,7 @@ function doCreate(params: CreateGemParams, ctx: EffectContext): GameEvent[] {
     for (const pos of targets) {
       const gem = board.get(pos)!;
       const from = gem.type;
-      const to = pickCreateGemType(params.gem, ctx)!;
+      const to = pickCreateGemType(gemSpec, ctx)!;
       gem.type = to;
       changes.push({ pos, gemId: gem.id, from, to });
     }
@@ -449,19 +451,32 @@ function gemTypeEquals(a: GemType, b: GemType): boolean {
 
 function doTransform(params: TransformGemParams, ctx: EffectContext): GameEvent[] {
   const board = ctx.state.board;
-  const toType = transformEndpointOf(params, 'to', ctx);
+  // Resolve source and target together; never instantiate an uncolored Spirit Gem.
+  const sourceColor = params.spiritColorFromSource && params.from !== undefined
+    && params.from !== 'ANY' && params.from !== 'CELL' ? resolveColor(params.from, ctx) : null;
+  if (params.spiritColorFromSource && sourceColor === null) return [];
+  const toType = params.spiritColorFromSource
+    ? specialGem('spiritGem', undefined, sourceColor!)
+    : transformEndpointOf(params, 'to', ctx);
   if (toType === null) return [];
   // from = 'ANY'/缺省 → 不限来源（「将一颗宝石转换成炸弹宝石」）；否则解析来源端点。
   // from = 'CELL'（Wave4，9638）→ 选定单格那颗宝石，不走端点类型解析。
   const fromAny = params.from === undefined || params.from === 'ANY';
   const fromCell = params.from === 'CELL';
-  const fromType = fromAny || fromCell ? null : transformEndpointOf(params, 'from', ctx);
+  const fromType = fromAny || fromCell ? null : (sourceColor !== null ? colorGem(sourceColor) : transformEndpointOf(params, 'from', ctx));
   if (!fromAny && !fromCell && fromType === null) return [];
   if (!fromAny && !fromCell && params.from === params.to && !params.toSpecial && !params.fromSpecial) return [];
 
   // 收集匹配来源的宝石格；'ANY' 时排除「已是目标类型」的宝石（转了等于没转）
   const pool: CellPos[] = [];
-  if (fromCell) {
+  if (params.diagonal) {
+    board.forEach((gem, pos) => {
+      if (!gem) return;
+      if (params.diagonal === 'left' ? pos.row === pos.col : pos.row + pos.col === BoardModel.COLS - 1) {
+        if (!gemTypeEquals(gem.type, toType)) pool.push(pos);
+      }
+    });
+  } else if (fromCell) {
     // 选定单格端点（9638「Choose a Gem. Convert it」）：只收 ctx.chosenCell 一格；
     // 未选格 / 该格无宝石 / 已是目标类型 → 安全跳过
     const cell = ctx.chosenCell;
@@ -717,6 +732,20 @@ function doClear(params: ClearGemParams, ctx: EffectContext): GameEvent[] {
     params.mode === 'explode' && params.target.kind !== 'area' ? radiate(targetCells) : targetCells;
 
   const board = ctx.state.board;
+  if (params.countAdjacentSpecial && ctx.castTracking) {
+    const anchor = targetCells[0];
+    let count = 0;
+    if (anchor) {
+      for (let dr = -1; dr <= 1; dr++) for (let dc = -1; dc <= 1; dc++) {
+        if (dr === 0 && dc === 0) continue;
+        const pos = { row: anchor.row + dr, col: anchor.col + dc };
+        if (!BoardModel.inBounds(pos)) continue;
+        const gem = board.get(pos);
+        if (gem?.type.kind === 'special' && gem.type.spec.kind === params.countAdjacentSpecial) count++;
+      }
+    }
+    ctx.castTracking.countedAdjacentSpecial = count;
+  }
   const cells: GemClearEvent['cells'] = [];
   const destroyed: DestroyedGem[] = [];
   const seen = new Set<string>();
@@ -740,7 +769,7 @@ function doClear(params: ClearGemParams, ctx: EffectContext): GameEvent[] {
     params.mode === 'explode'
       ? [{ type: 'gem-explode', cells }]
       : [{ type: 'gem-destroy', cells }];
-  ctx.resolveBoardChange?.(destroyed, events);
+  ctx.resolveBoardChange?.(destroyed, events, params.mode);
   return events;
 }
 

@@ -1,0 +1,1478 @@
+{
+  "schemaVersion": 1,
+  "scope": "stored-gow-snapshot",
+  "reviews": [
+    {
+      "key": "weapon:1546",
+      "scope": "stored-gow-snapshot",
+      "sourceDigest": "9a24a9483f75f296ee5071ee338acb4b6b09efedd614ec9ee0d2a0352db66f93",
+      "reviewer": "sa-L4b",
+      "reviewedAt": "2026-09-27",
+      "decision": "accept",
+      "ledgerFingerprintAtReview": "b11eaf00bc4e64b650d2a253ec6c7aff706de690793f0c1fb61302a07c0f6a97",
+      "_reference": {
+        "spellId": 9159,
+        "english": "Convert all Red Gems to Cursed Gems. Then deal [Magic + 6] damage to an Enemy.",
+        "nativeTarget": "Enemy",
+        "randomize": null,
+        "steps": [
+          {
+            "Color1": "Red",
+            "Amount": 100,
+            "Color2": "Cursed",
+            "Type": "ConvertGems",
+            "Delay": 1
+          },
+          {
+            "SpellPowerMultiplier": 1,
+            "Target": "FromTarget",
+            "Amount": 6,
+            "Primarypower": true,
+            "Type": "Damage"
+          }
+        ],
+        "prototype": {
+          "segments": [
+            {
+              "kind": "gem",
+              "params": {
+                "op": "transform",
+                "from": "Red",
+                "to": "SKULL",
+                "toSpecial": "curseGem"
+              }
+            },
+            {
+              "kind": "damage",
+              "target": "enemyChosen",
+              "scaling": {
+                "base": 6,
+                "mult": 1
+              }
+            }
+          ]
+        }
+      },
+      "sourceEvidence": [
+        {
+          "id": "en",
+          "role": "english-snapshot",
+          "path": "artifacts/gowhead-weapons/weapons.json",
+          "note": "Weapon 1546 (SolarWinds) spell id 9159, English text, ManaCost 14, ManaColors Red+Yellow asserted from gowhead weapons.json in tests/unit/gowLaneL4bB06.test.ts."
+        },
+        {
+          "id": "native",
+          "role": "native-snapshot",
+          "path": "data/raw/spells.gow.en.json",
+          "note": "SpellId 9159 Cost/Target and every SpellSteps field (ordered, toEqual) asserted in tests/unit/gowLaneL4bB06.test.ts."
+        },
+        {
+          "id": "rule",
+          "role": "official-shared-rule",
+          "path": "artifacts/gow-skill-audit/gold-primary-sources/official-heroic-gems-freshdesk.html",
+          "note": "Heroic Gems (Infinity Plus 2 help centre): Cursed Gems match with Brown Gems for Brown mana and curse a random enemy when matched; created curseGem joins Brown."
+        },
+        {
+          "id": "laneTest",
+          "role": "lane-battle-test",
+          "path": "tests/unit/gowLaneL4bB06.test.ts",
+          "note": "Lane L4b frozen test file: binding + real castSkill cases for weapon:1546."
+        }
+      ],
+      "dimensions": {
+        "identity-cost-colors": {
+          "status": "verified",
+          "note": "weapon 1546 -> spell 9159; gowhead ManaCost 14 = native Cost 14; colours Red+Yellow; src weapons.json id/referenceName SolarWinds/manaCost/manaColors/spell.id; numeric 9159 and gw_SolarWinds aliases resolve to the same prototype.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB06.test.ts"
+          ]
+        },
+        "target-count-range": {
+          "status": "verified",
+          "note": "FromTarget (spell Target Enemy) -> enemyChosen: only the chosen enemy is damaged; ally id refused before mana is spent (1546).",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB06.test.ts"
+          ]
+        },
+        "base-formula-rounding": {
+          "status": "verified",
+          "note": "Damage Amount 6 x Magic: [Magic+6] = 6 / 16; armor absorbed first (armor 2 case), integer.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB06.test.ts"
+          ]
+        },
+        "boost-source-ratio-cap": {
+          "status": "not-applicable",
+          "note": "No boost/ratio/cap.",
+          "evidenceIds": [
+            "en",
+            "native"
+          ],
+          "tests": []
+        },
+        "conditions-probabilities-branches": {
+          "status": "not-applicable",
+          "note": "No condition/chance.",
+          "evidenceIds": [
+            "en",
+            "native"
+          ],
+          "tests": []
+        },
+        "status-duration-immunity": {
+          "status": "not-applicable",
+          "note": "Cast applies no status; Barrier on the target absorbs the hit and is consumed (1547).",
+          "evidenceIds": [
+            "en",
+            "native"
+          ],
+          "tests": []
+        },
+        "gems-types-selection-resolution": {
+          "status": "verified",
+          "note": "ConvertGems Amount 100: all 16 source gems -> special curseGem.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB06.test.ts"
+          ]
+        },
+        "summon-transform-pools": {
+          "status": "not-applicable",
+          "note": "No summon or troop transform.",
+          "evidenceIds": [
+            "en",
+            "native"
+          ],
+          "tests": []
+        },
+        "order-death-retargeting": {
+          "status": "verified",
+          "note": "Conversion (Delay 1 timing only) precedes the damage event; lethal hit defeats the chosen enemy.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB06.test.ts"
+          ]
+        },
+        "mana-economy-extra-turn": {
+          "status": "verified",
+          "note": "Caster mana 0 after cast except cascade mana-gain events; no skill extra turn; one action-log entry; turn passes (or cascade 4+/5 extra turn only).",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB06.test.ts"
+          ]
+        },
+        "display-description": {
+          "status": "verified",
+          "note": "Chinese '将所有红色宝石转换成诅咒宝石。再对一名敌人造成 [魔法 + 6] 点伤害。' matches English.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB06.test.ts"
+          ]
+        },
+        "battle-pipeline": {
+          "status": "verified",
+          "note": "Real TurnEngine.castSkill via both aliases (numeric, gw_SolarWinds) on both sides and magic 0/10; low mana and Silence refuse without spending mana or touching board/statuses/turn.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB06.test.ts"
+          ],
+          "realBattleEntry": true
+        }
+      },
+      "clauseReviews": [
+        {
+          "id": "c1",
+          "text": "Convert all Red Gems to Cursed Gems.",
+          "status": "verified",
+          "note": "All source gems converted to curseGem (16).",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB06.test.ts"
+          ]
+        },
+        {
+          "id": "c2",
+          "text": "Then deal [Magic + 6] damage to an Enemy.",
+          "status": "verified",
+          "note": "[Magic+6] damage to the chosen enemy.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB06.test.ts"
+          ]
+        }
+      ],
+      "nativeStepReviews": [
+        {
+          "id": "0",
+          "type": "ConvertGems",
+          "status": "verified",
+          "note": "ConvertGems Amount 100 Delay 1 -> transform to curseGem.",
+          "evidenceIds": [
+            "native",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB06.test.ts"
+          ]
+        },
+        {
+          "id": "1",
+          "type": "Damage",
+          "status": "verified",
+          "note": "Damage FromTarget Amount 6 x Magic -> damage enemyChosen {6,1}.",
+          "evidenceIds": [
+            "native",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB06.test.ts"
+          ]
+        }
+      ],
+      "branchReviews": [
+        {
+          "id": "main",
+          "status": "verified",
+          "note": "Single branch; aliases x sides x magic, lethal/Barrier/illegal-target cases.",
+          "evidenceIds": [
+            "native",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB06.test.ts"
+          ]
+        }
+      ]
+    },
+    {
+      "key": "weapon:1547",
+      "scope": "stored-gow-snapshot",
+      "sourceDigest": "2c6b0b495f4d00ed0b9c88a33ce00abcab883f22573b68c99568b1e8f09f9143",
+      "reviewer": "sa-L4b",
+      "reviewedAt": "2026-09-27",
+      "decision": "accept",
+      "ledgerFingerprintAtReview": "b11eaf00bc4e64b650d2a253ec6c7aff706de690793f0c1fb61302a07c0f6a97",
+      "_reference": {
+        "spellId": 9160,
+        "english": "Convert all Purple Gems to Doomskulls. Then deal [Magic + 6] damage to an Enemy.",
+        "nativeTarget": "Enemy",
+        "randomize": null,
+        "steps": [
+          {
+            "Color1": "Purple",
+            "Amount": 100,
+            "Color2": "Doomskull",
+            "Type": "ConvertGems",
+            "Delay": 1
+          },
+          {
+            "SpellPowerMultiplier": 1,
+            "Target": "FromTarget",
+            "Amount": 6,
+            "Primarypower": true,
+            "Type": "Damage"
+          }
+        ],
+        "prototype": {
+          "segments": [
+            {
+              "kind": "gem",
+              "params": {
+                "op": "transform",
+                "from": "Purple",
+                "to": "SKULL",
+                "toSpecial": "doomSkull"
+              }
+            },
+            {
+              "kind": "damage",
+              "target": "enemyChosen",
+              "scaling": {
+                "base": 6,
+                "mult": 1
+              }
+            }
+          ]
+        }
+      },
+      "sourceEvidence": [
+        {
+          "id": "en",
+          "role": "english-snapshot",
+          "path": "artifacts/gowhead-weapons/weapons.json",
+          "note": "Weapon 1547 (LunarTide) spell id 9160, English text, ManaCost 14, ManaColors Green+Purple asserted from gowhead weapons.json in tests/unit/gowLaneL4bB06.test.ts."
+        },
+        {
+          "id": "native",
+          "role": "native-snapshot",
+          "path": "data/raw/spells.gow.en.json",
+          "note": "SpellId 9160 Cost/Target and every SpellSteps field (ordered, toEqual) asserted in tests/unit/gowLaneL4bB06.test.ts."
+        },
+        {
+          "id": "rule",
+          "role": "official-shared-rule",
+          "path": "artifacts/gow-skill-audit/gold-primary-sources/official-heroic-gems-freshdesk.html",
+          "note": "Heroic Gems (Infinity Plus 2 help centre): Doomskull family (skull-joining explosive gems); created doomSkull."
+        },
+        {
+          "id": "laneTest",
+          "role": "lane-battle-test",
+          "path": "tests/unit/gowLaneL4bB06.test.ts",
+          "note": "Lane L4b frozen test file: binding + real castSkill cases for weapon:1547."
+        }
+      ],
+      "dimensions": {
+        "identity-cost-colors": {
+          "status": "verified",
+          "note": "weapon 1547 -> spell 9160; gowhead ManaCost 14 = native Cost 14; colours Green+Purple; src weapons.json id/referenceName LunarTide/manaCost/manaColors/spell.id; numeric 9160 and gw_LunarTide aliases resolve to the same prototype.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB06.test.ts"
+          ]
+        },
+        "target-count-range": {
+          "status": "verified",
+          "note": "FromTarget (spell Target Enemy) -> enemyChosen: only the chosen enemy is damaged; ally id refused before mana is spent (1546).",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB06.test.ts"
+          ]
+        },
+        "base-formula-rounding": {
+          "status": "verified",
+          "note": "Damage Amount 6 x Magic: [Magic+6] = 6 / 16; armor absorbed first (armor 2 case), integer.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB06.test.ts"
+          ]
+        },
+        "boost-source-ratio-cap": {
+          "status": "not-applicable",
+          "note": "No boost/ratio/cap.",
+          "evidenceIds": [
+            "en",
+            "native"
+          ],
+          "tests": []
+        },
+        "conditions-probabilities-branches": {
+          "status": "not-applicable",
+          "note": "No condition/chance.",
+          "evidenceIds": [
+            "en",
+            "native"
+          ],
+          "tests": []
+        },
+        "status-duration-immunity": {
+          "status": "not-applicable",
+          "note": "Cast applies no status; Barrier on the target absorbs the hit and is consumed (1547).",
+          "evidenceIds": [
+            "en",
+            "native"
+          ],
+          "tests": []
+        },
+        "gems-types-selection-resolution": {
+          "status": "verified",
+          "note": "ConvertGems Amount 100: all 16 source gems -> special doomSkull.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB06.test.ts"
+          ]
+        },
+        "summon-transform-pools": {
+          "status": "not-applicable",
+          "note": "No summon or troop transform.",
+          "evidenceIds": [
+            "en",
+            "native"
+          ],
+          "tests": []
+        },
+        "order-death-retargeting": {
+          "status": "verified",
+          "note": "Conversion (Delay 1 timing only) precedes the damage event; lethal hit defeats the chosen enemy.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB06.test.ts"
+          ]
+        },
+        "mana-economy-extra-turn": {
+          "status": "verified",
+          "note": "Caster mana 0 after cast except cascade mana-gain events; no skill extra turn; one action-log entry; turn passes (or cascade 4+/5 extra turn only).",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB06.test.ts"
+          ]
+        },
+        "display-description": {
+          "status": "verified",
+          "note": "Chinese '将所有紫色宝石转换成末日骷髅头。再对一名敌人造成 [魔法 + 6] 点伤害。' matches English.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB06.test.ts"
+          ]
+        },
+        "battle-pipeline": {
+          "status": "verified",
+          "note": "Real TurnEngine.castSkill via both aliases (numeric, gw_LunarTide) on both sides and magic 0/10; low mana and Silence refuse without spending mana or touching board/statuses/turn.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB06.test.ts"
+          ],
+          "realBattleEntry": true
+        }
+      },
+      "clauseReviews": [
+        {
+          "id": "c1",
+          "text": "Convert all Purple Gems to Doomskulls.",
+          "status": "verified",
+          "note": "All source gems converted to doomSkull (16).",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB06.test.ts"
+          ]
+        },
+        {
+          "id": "c2",
+          "text": "Then deal [Magic + 6] damage to an Enemy.",
+          "status": "verified",
+          "note": "[Magic+6] damage to the chosen enemy.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB06.test.ts"
+          ]
+        }
+      ],
+      "nativeStepReviews": [
+        {
+          "id": "0",
+          "type": "ConvertGems",
+          "status": "verified",
+          "note": "ConvertGems Amount 100 Delay 1 -> transform to doomSkull.",
+          "evidenceIds": [
+            "native",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB06.test.ts"
+          ]
+        },
+        {
+          "id": "1",
+          "type": "Damage",
+          "status": "verified",
+          "note": "Damage FromTarget Amount 6 x Magic -> damage enemyChosen {6,1}.",
+          "evidenceIds": [
+            "native",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB06.test.ts"
+          ]
+        }
+      ],
+      "branchReviews": [
+        {
+          "id": "main",
+          "status": "verified",
+          "note": "Single branch; aliases x sides x magic, lethal/Barrier/illegal-target cases.",
+          "evidenceIds": [
+            "native",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB06.test.ts"
+          ]
+        }
+      ]
+    },
+    {
+      "key": "troop:6542",
+      "scope": "stored-gow-snapshot",
+      "sourceDigest": "ab1b999501af152fd984e8e5256a2c6c11dab621ccfaf9cf3dfc642e950c5020",
+      "reviewer": "sa-L4b",
+      "reviewedAt": "2026-09-27",
+      "decision": "accept",
+      "ledgerFingerprintAtReview": "b11eaf00bc4e64b650d2a253ec6c7aff706de690793f0c1fb61302a07c0f6a97",
+      "_reference": {
+        "spellId": 7736,
+        "english": "Transform all Green Gems to Blue. Give [Magic + 1] Gold.",
+        "nativeTarget": "None",
+        "randomize": null,
+        "steps": [
+          {
+            "Color1": "Green",
+            "Amount": 100,
+            "Color2": "Blue",
+            "Type": "ConvertGems"
+          },
+          {
+            "SpellPowerMultiplier": 1,
+            "Target": "Self",
+            "Amount": 1,
+            "Primarypower": true,
+            "Type": "GiveGold"
+          }
+        ],
+        "prototype": {
+          "segments": [
+            {
+              "kind": "gem",
+              "params": {
+                "op": "transform",
+                "from": "Green",
+                "to": "Blue"
+              }
+            },
+            {
+              "kind": "gainEconomy",
+              "currency": "gold",
+              "scaling": {
+                "base": 1,
+                "mult": 1
+              }
+            }
+          ]
+        }
+      },
+      "sourceEvidence": [
+        {
+          "id": "en",
+          "role": "english-snapshot",
+          "path": "data/raw/troops.gow.en.json",
+          "note": "Entity troop:6542 SpellId/English text/ManaCost/ManaColors asserted verbatim in tests/unit/gowLaneL4bB06.test.ts."
+        },
+        {
+          "id": "native",
+          "role": "native-snapshot",
+          "path": "data/raw/spells.gow.en.json",
+          "note": "SpellId 7736 Cost/Target and every SpellSteps field (ordered, toEqual) asserted in tests/unit/gowLaneL4bB06.test.ts."
+        },
+        {
+          "id": "rule",
+          "role": "official-shared-rule",
+          "path": "tasks/active/gow-skill-shards/rulings/R001-native-step-order.md",
+          "note": "R001 (coordination ruling): native SpellSteps order governs. Convert then GiveGold; gold goes to the caster side battle pool (economy-gain event)."
+        },
+        {
+          "id": "laneTest",
+          "role": "lane-battle-test",
+          "path": "tests/unit/gowLaneL4bB06.test.ts",
+          "note": "Lane L4b frozen test file: binding + real castSkill cases for troop:6542."
+        }
+      ],
+      "dimensions": {
+        "identity-cost-colors": {
+          "status": "verified",
+          "note": "troop 6542 -> spell 7736; raw ManaCost 12 = native Cost 12; colours Red+Yellow; spell.id binding asserted.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB06.test.ts"
+          ]
+        },
+        "target-count-range": {
+          "status": "verified",
+          "note": "GiveGold Target Self -> caster side gold pool only; opponent pool unchanged.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB06.test.ts"
+          ]
+        },
+        "base-formula-rounding": {
+          "status": "verified",
+          "note": "GiveGold Amount 1 x Magic: [Magic+1] = 1 / 11 gold.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB06.test.ts"
+          ]
+        },
+        "boost-source-ratio-cap": {
+          "status": "not-applicable",
+          "note": "No boost/ratio/cap.",
+          "evidenceIds": [
+            "en",
+            "native"
+          ],
+          "tests": []
+        },
+        "conditions-probabilities-branches": {
+          "status": "not-applicable",
+          "note": "No condition/chance.",
+          "evidenceIds": [
+            "en",
+            "native"
+          ],
+          "tests": []
+        },
+        "status-duration-immunity": {
+          "status": "not-applicable",
+          "note": "No status.",
+          "evidenceIds": [
+            "en",
+            "native"
+          ],
+          "tests": []
+        },
+        "gems-types-selection-resolution": {
+          "status": "verified",
+          "note": "ConvertGems Green -> Blue Amount 100: all 16 Green become Blue; none -> skipped (gold still granted).",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB06.test.ts"
+          ]
+        },
+        "summon-transform-pools": {
+          "status": "not-applicable",
+          "note": "No summon or troop transform.",
+          "evidenceIds": [
+            "en",
+            "native"
+          ],
+          "tests": []
+        },
+        "order-death-retargeting": {
+          "status": "verified",
+          "note": "Native order convert then gold.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB06.test.ts"
+          ]
+        },
+        "mana-economy-extra-turn": {
+          "status": "verified",
+          "note": "economy-gain gold [Magic+1] with side = caster side; caster mana 0 after cast except cascade mana; no extra turn; turn passes.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB06.test.ts"
+          ]
+        },
+        "display-description": {
+          "status": "verified",
+          "note": "Chinese '将所有绿色宝石转换成蓝色。给予 [魔法 + 1] 黄金。' matches English.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB06.test.ts"
+          ]
+        },
+        "battle-pipeline": {
+          "status": "verified",
+          "note": "Real TurnEngine.castSkill on both sides (Left/Right); low mana (cost-1) and Silence refuse without spending mana or touching board/statuses/turn.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB06.test.ts"
+          ],
+          "realBattleEntry": true
+        }
+      },
+      "clauseReviews": [
+        {
+          "id": "c1",
+          "text": "Transform all Green Gems to Blue.",
+          "status": "verified",
+          "note": "All Green -> Blue.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB06.test.ts"
+          ]
+        },
+        {
+          "id": "c2",
+          "text": "Give [Magic + 1] Gold.",
+          "status": "verified",
+          "note": "[Magic+1] gold to the caster side.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB06.test.ts"
+          ]
+        }
+      ],
+      "nativeStepReviews": [
+        {
+          "id": "0",
+          "type": "ConvertGems",
+          "status": "verified",
+          "note": "ConvertGems Green->Blue Amount 100 -> transform Green to Blue.",
+          "evidenceIds": [
+            "native",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB06.test.ts"
+          ]
+        },
+        {
+          "id": "1",
+          "type": "GiveGold",
+          "status": "verified",
+          "note": "GiveGold Self Amount 1 x Magic -> gainEconomy gold {1,1}.",
+          "evidenceIds": [
+            "native",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB06.test.ts"
+          ]
+        }
+      ],
+      "branchReviews": [
+        {
+          "id": "main",
+          "status": "verified",
+          "note": "Single branch; sides x magic and no-Green board.",
+          "evidenceIds": [
+            "native",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB06.test.ts"
+          ]
+        }
+      ]
+    },
+    {
+      "key": "troop:7412",
+      "scope": "stored-gow-snapshot",
+      "sourceDigest": "1cc375f654334b508d78103d624ade6fc61a6602d496140d301e13088611bdc7",
+      "reviewer": "sa-L4b",
+      "reviewedAt": "2026-09-27",
+      "decision": "accept",
+      "ledgerFingerprintAtReview": "b11eaf00bc4e64b650d2a253ec6c7aff706de690793f0c1fb61302a07c0f6a97",
+      "_reference": {
+        "spellId": 9061,
+        "english": "Convert all Brown Gems to Skulls. Give [Magic + 1] Armor to an Ally.",
+        "nativeTarget": "Ally",
+        "randomize": null,
+        "steps": [
+          {
+            "Color1": "Brown",
+            "Amount": 100,
+            "Color2": "Skull",
+            "Type": "ConvertGems"
+          },
+          {
+            "SpellPowerMultiplier": 1,
+            "Target": "FromTarget",
+            "Amount": 1,
+            "Primarypower": true,
+            "Type": "IncreaseArmor"
+          }
+        ],
+        "prototype": {
+          "segments": [
+            {
+              "kind": "gem",
+              "params": {
+                "op": "transform",
+                "from": "Brown",
+                "to": "SKULL"
+              }
+            },
+            {
+              "kind": "buff",
+              "target": "allyChosen",
+              "stat": "armor",
+              "scaling": {
+                "base": 1,
+                "mult": 1
+              }
+            }
+          ]
+        }
+      },
+      "sourceEvidence": [
+        {
+          "id": "en",
+          "role": "english-snapshot",
+          "path": "data/raw/troops.gow.en.json",
+          "note": "Entity troop:7412 SpellId/English text/ManaCost/ManaColors asserted verbatim in tests/unit/gowLaneL4bB06.test.ts."
+        },
+        {
+          "id": "native",
+          "role": "native-snapshot",
+          "path": "data/raw/spells.gow.en.json",
+          "note": "SpellId 9061 Cost/Target and every SpellSteps field (ordered, toEqual) asserted in tests/unit/gowLaneL4bB06.test.ts."
+        },
+        {
+          "id": "rule",
+          "role": "official-shared-rule",
+          "path": "tasks/active/gow-skill-shards/rulings/R001-native-step-order.md",
+          "note": "R001 (coordination ruling): native SpellSteps order governs. Convert then IncreaseArmor on the chosen ally (spell Target Ally)."
+        },
+        {
+          "id": "laneTest",
+          "role": "lane-battle-test",
+          "path": "tests/unit/gowLaneL4bB06.test.ts",
+          "note": "Lane L4b frozen test file: binding + real castSkill cases for troop:7412."
+        }
+      ],
+      "dimensions": {
+        "identity-cost-colors": {
+          "status": "verified",
+          "note": "troop 7412 -> spell 9061; raw ManaCost 13 = native Cost 13; colours Yellow+Purple; spell.id binding asserted.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB06.test.ts"
+          ]
+        },
+        "target-count-range": {
+          "status": "verified",
+          "note": "FromTarget with spell Target Ally -> allyChosen: chosen ally only (self allowed); enemy id refused before mana is spent.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB06.test.ts"
+          ]
+        },
+        "base-formula-rounding": {
+          "status": "verified",
+          "note": "IncreaseArmor Amount 1 x Magic: [Magic+1] = 1 / 11 armor.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB06.test.ts"
+          ]
+        },
+        "boost-source-ratio-cap": {
+          "status": "not-applicable",
+          "note": "No boost/ratio/cap.",
+          "evidenceIds": [
+            "en",
+            "native"
+          ],
+          "tests": []
+        },
+        "conditions-probabilities-branches": {
+          "status": "not-applicable",
+          "note": "No condition/chance.",
+          "evidenceIds": [
+            "en",
+            "native"
+          ],
+          "tests": []
+        },
+        "status-duration-immunity": {
+          "status": "not-applicable",
+          "note": "No status.",
+          "evidenceIds": [
+            "en",
+            "native"
+          ],
+          "tests": []
+        },
+        "gems-types-selection-resolution": {
+          "status": "verified",
+          "note": "ConvertGems Brown -> Skull Amount 100: 16 Brown -> plain Skull.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB06.test.ts"
+          ]
+        },
+        "summon-transform-pools": {
+          "status": "not-applicable",
+          "note": "No summon or troop transform.",
+          "evidenceIds": [
+            "en",
+            "native"
+          ],
+          "tests": []
+        },
+        "order-death-retargeting": {
+          "status": "verified",
+          "note": "Native order convert then armor.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB06.test.ts"
+          ]
+        },
+        "mana-economy-extra-turn": {
+          "status": "verified",
+          "note": "Caster mana 0 after cast except cascade mana-gain events; no skill extra turn; one action-log entry; turn passes (or cascade 4+/5 extra turn only).",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB06.test.ts"
+          ]
+        },
+        "display-description": {
+          "status": "verified",
+          "note": "Chinese '将所有棕色宝石转换成骷髅头。给予一名盟友 [魔法 + 1] 点护甲值。' matches English.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB06.test.ts"
+          ]
+        },
+        "battle-pipeline": {
+          "status": "verified",
+          "note": "Real TurnEngine.castSkill on both sides (Left/Right); low mana (cost-1) and Silence refuse without spending mana or touching board/statuses/turn.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB06.test.ts"
+          ],
+          "realBattleEntry": true
+        }
+      },
+      "clauseReviews": [
+        {
+          "id": "c1",
+          "text": "Convert all Brown Gems to Skulls.",
+          "status": "verified",
+          "note": "All Brown -> Skulls.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB06.test.ts"
+          ]
+        },
+        {
+          "id": "c2",
+          "text": "Give [Magic + 1] Armor to an Ally.",
+          "status": "verified",
+          "note": "[Magic+1] Armor to the chosen ally.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB06.test.ts"
+          ]
+        }
+      ],
+      "nativeStepReviews": [
+        {
+          "id": "0",
+          "type": "ConvertGems",
+          "status": "verified",
+          "note": "ConvertGems Brown->Skull Amount 100 -> transform Brown to SKULL.",
+          "evidenceIds": [
+            "native",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB06.test.ts"
+          ]
+        },
+        {
+          "id": "1",
+          "type": "IncreaseArmor",
+          "status": "verified",
+          "note": "IncreaseArmor FromTarget Amount 1 x Magic -> buff armor allyChosen {1,1}.",
+          "evidenceIds": [
+            "native",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB06.test.ts"
+          ]
+        }
+      ],
+      "branchReviews": [
+        {
+          "id": "main",
+          "status": "verified",
+          "note": "Single branch; sides x magic, self target, illegal enemy target.",
+          "evidenceIds": [
+            "native",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB06.test.ts"
+          ]
+        }
+      ]
+    },
+    {
+      "key": "troop:6687",
+      "scope": "stored-gow-snapshot",
+      "sourceDigest": "2b5cae66d35186fc46b07007e3bf6a5c1b129a53a0078cb851fc47fc0b442d68",
+      "reviewer": "sa-L4b",
+      "reviewedAt": "2026-09-27",
+      "decision": "accept",
+      "ledgerFingerprintAtReview": "b11eaf00bc4e64b650d2a253ec6c7aff706de690793f0c1fb61302a07c0f6a97",
+      "_reference": {
+        "spellId": 8033,
+        "english": "Convert Green Gems to Skulls. Give [Magic + 1] Life to the first Ally.",
+        "nativeTarget": "None",
+        "randomize": null,
+        "steps": [
+          {
+            "Color1": "Green",
+            "Amount": 100,
+            "Color2": "Skull",
+            "Type": "ConvertGems"
+          },
+          {
+            "SpellPowerMultiplier": 1,
+            "Target": "FrontAlly",
+            "Amount": 1,
+            "Primarypower": true,
+            "Type": "IncreaseHealth"
+          }
+        ],
+        "prototype": {
+          "segments": [
+            {
+              "kind": "gem",
+              "params": {
+                "op": "transform",
+                "from": "Green",
+                "to": "SKULL"
+              }
+            },
+            {
+              "kind": "buff",
+              "target": "allyFront",
+              "stat": "hp",
+              "scaling": {
+                "base": 1,
+                "mult": 1
+              },
+              "lifeMode": "gain"
+            }
+          ]
+        }
+      },
+      "sourceEvidence": [
+        {
+          "id": "en",
+          "role": "english-snapshot",
+          "path": "data/raw/troops.gow.en.json",
+          "note": "Entity troop:6687 SpellId/English text/ManaCost/ManaColors asserted verbatim in tests/unit/gowLaneL4bB06.test.ts."
+        },
+        {
+          "id": "native",
+          "role": "native-snapshot",
+          "path": "data/raw/spells.gow.en.json",
+          "note": "SpellId 8033 Cost/Target and every SpellSteps field (ordered, toEqual) asserted in tests/unit/gowLaneL4bB06.test.ts."
+        },
+        {
+          "id": "rule",
+          "role": "official-shared-rule",
+          "path": "tasks/active/gow-skill-shards/rulings/R001-native-step-order.md",
+          "note": "R001 (coordination ruling): native SpellSteps order governs. Convert then IncreaseHealth on the front ally."
+        },
+        {
+          "id": "laneTest",
+          "role": "lane-battle-test",
+          "path": "tests/unit/gowLaneL4bB06.test.ts",
+          "note": "Lane L4b frozen test file: binding + real castSkill cases for troop:6687."
+        }
+      ],
+      "dimensions": {
+        "identity-cost-colors": {
+          "status": "verified",
+          "note": "troop 6687 -> spell 8033; raw ManaCost 12 = native Cost 12; colours Red+Yellow; spell.id binding asserted.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB06.test.ts"
+          ]
+        },
+        "target-count-range": {
+          "status": "verified",
+          "note": "FrontAlly -> allyFront: caster when front, ally in front otherwise, dead front skipped.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB06.test.ts"
+          ]
+        },
+        "base-formula-rounding": {
+          "status": "verified",
+          "note": "IncreaseHealth Amount 1 x Magic: [Magic+1] Life gain (maxHp and hp).",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB06.test.ts"
+          ]
+        },
+        "boost-source-ratio-cap": {
+          "status": "not-applicable",
+          "note": "No boost/ratio/cap.",
+          "evidenceIds": [
+            "en",
+            "native"
+          ],
+          "tests": []
+        },
+        "conditions-probabilities-branches": {
+          "status": "not-applicable",
+          "note": "No condition/chance.",
+          "evidenceIds": [
+            "en",
+            "native"
+          ],
+          "tests": []
+        },
+        "status-duration-immunity": {
+          "status": "not-applicable",
+          "note": "No status.",
+          "evidenceIds": [
+            "en",
+            "native"
+          ],
+          "tests": []
+        },
+        "gems-types-selection-resolution": {
+          "status": "verified",
+          "note": "ConvertGems Green -> Skull Amount 100: 16 Green -> plain Skull.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB06.test.ts"
+          ]
+        },
+        "summon-transform-pools": {
+          "status": "not-applicable",
+          "note": "No summon or troop transform.",
+          "evidenceIds": [
+            "en",
+            "native"
+          ],
+          "tests": []
+        },
+        "order-death-retargeting": {
+          "status": "verified",
+          "note": "Native order convert then Life; dead front retargets.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB06.test.ts"
+          ]
+        },
+        "mana-economy-extra-turn": {
+          "status": "verified",
+          "note": "Caster mana 0 after cast except cascade mana-gain events; no skill extra turn; one action-log entry; turn passes (or cascade 4+/5 extra turn only).",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB06.test.ts"
+          ]
+        },
+        "display-description": {
+          "status": "verified",
+          "note": "Chinese '将绿色宝石转换成骷髅头。给予第一位盟友 [魔法 + 1] 点生命值。' matches English.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB06.test.ts"
+          ]
+        },
+        "battle-pipeline": {
+          "status": "verified",
+          "note": "Real TurnEngine.castSkill on both sides (Left/Right); low mana (cost-1) and Silence refuse without spending mana or touching board/statuses/turn.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB06.test.ts"
+          ],
+          "realBattleEntry": true
+        }
+      },
+      "clauseReviews": [
+        {
+          "id": "c1",
+          "text": "Convert Green Gems to Skulls.",
+          "status": "verified",
+          "note": "All Green -> Skulls.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB06.test.ts"
+          ]
+        },
+        {
+          "id": "c2",
+          "text": "Give [Magic + 1] Life to the first Ally.",
+          "status": "verified",
+          "note": "[Magic+1] Life to the first living ally.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB06.test.ts"
+          ]
+        }
+      ],
+      "nativeStepReviews": [
+        {
+          "id": "0",
+          "type": "ConvertGems",
+          "status": "verified",
+          "note": "ConvertGems Green->Skull Amount 100 -> transform Green to SKULL.",
+          "evidenceIds": [
+            "native",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB06.test.ts"
+          ]
+        },
+        {
+          "id": "1",
+          "type": "IncreaseHealth",
+          "status": "verified",
+          "note": "IncreaseHealth FrontAlly Amount 1 x Magic -> buff hp allyFront {1,1} gain.",
+          "evidenceIds": [
+            "native",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB06.test.ts"
+          ]
+        }
+      ],
+      "branchReviews": [
+        {
+          "id": "main",
+          "status": "verified",
+          "note": "Single branch; sides x magic, front ally, dead front.",
+          "evidenceIds": [
+            "native",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB06.test.ts"
+          ]
+        }
+      ]
+    }
+  ]
+}

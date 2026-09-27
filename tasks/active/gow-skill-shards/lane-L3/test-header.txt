@@ -1,0 +1,79 @@
+// Lane L3 batch B02 (sa-L3): turn / mana lane, stored-snapshot scope. Per-entity source/native/prototype
+// binding + real TurnEngine.castSkill cases (both sides, boundaries, refusals). Evidence file (frozen on delivery).
+// @ts-expect-error Node-only audit fixture
+import fs from 'node:fs';
+import {describe,it,expect} from 'vitest';
+// @ts-expect-error Independent saved native-step reader
+import {indexNativeSpells} from '../../scripts/lib/gow-native-source.mjs';
+import {BoardModel} from '@engine/BoardModel';
+import {createGameState} from '@engine/GameState';
+import {SeededRNG} from '@engine/rng';
+import {ExtensionRegistry} from '@engine/registry';
+import {registerSkillLibrary} from '@engine/skills/library';
+import {TurnEngine} from '@engine/TurnEngine';
+import {FixedTargetChooser} from '@engine/skills/targetChooser';
+import {BaseColor,PlayerSide,colorGem,type Character,type GemType} from '@engine/types';
+import type {GameEvent} from '@engine/events';
+import {damageCharacter} from '../helpers/damageFixture';
+import {TROOPS} from '../../src/data/troops';
+
+const original=JSON.parse(fs.readFileSync('data/raw/troops.gow.en.json','utf8')).troops;
+const native=indexNativeSpells(JSON.parse(fs.readFileSync('data/raw/spells.gow.en.json','utf8')).spells);
+const registry=new ExtensionRegistry();registerSkillLibrary(registry.prototypes);
+const SIDES=[PlayerSide.Left,PlayerSide.Right] as const;
+type BoardFn=(r:number,c:number)=>GemType|null;
+/** (r+c)%4 diagonal pattern: no line of 3; each colour class is 16 isolated cells. */
+const pattern=(cols:BaseColor[],over:Record<string,BaseColor>={}):BoardFn=>(r,c)=>colorGem(over[`${r},${c}`]??cols[(r+c)%4]);
+interface Opts{skill:string;cost:number;colors:BaseColor[];side?:PlayerSide;magic?:number;board?:BoardFn;
+ allies?:Partial<Character>[];enemies?:Partial<Character>[];target?:number;seed?:number;caster?:Partial<Character>}
+function setup(o:Opts){
+ const side=o.side??PlayerSide.Left;const board=new BoardModel();
+ const fn=o.board??pattern([BaseColor.Blue,BaseColor.Yellow,BaseColor.Purple,BaseColor.Brown]);let id=1;
+ for(let r=0;r<8;r++)for(let c=0;c<8;c++){const t=fn(r,c);board.set({row:r,col:c},t?{id:id++,type:t}:null);}
+ const caster=damageCharacter(0,{skillId:o.skill,mana:o.cost,manaCost:o.cost,colors:[...o.colors],magic:o.magic??10,...o.caster});
+ const allies=(o.allies??[]).map((a,i)=>damageCharacter(1+i,{mana:0,...a}));
+ const enemies=(o.enemies??[{},{},{},{}]).map((e,i)=>damageCharacter(10+i,{mana:0,...e}));
+ const mine={player:side,characters:[caster,...allies]};
+ const theirs={player:side===PlayerSide.Left?PlayerSide.Right:PlayerSide.Left,characters:[...enemies]};
+ const state=side===PlayerSide.Left?createGameState(board,mine,theirs):createGameState(board,theirs,mine,PlayerSide.Right);
+ state.activePlayer=side;let gid=5000;
+ const engine=new TurnEngine(state,new SeededRNG(o.seed??42),()=>gid++,registry);engine.skullChance=0;
+ engine.setTargetChooser(new FixedTargetChooser(o.target??12));
+ const hp0=enemies.map(e=>e.hp);
+ return {board,state,engine,caster,allies,enemies,side,opponent:theirs.player,cast:()=>engine.castSkill(caster.id),
+  loss:()=>enemies.map((e,i)=>hp0[i]-e.hp)};
+}
+const created=(ev:GameEvent[])=>{const out:GemType[]=[];for(const e of ev){
+ if(e.type==='gem-create')for(const s of e.spawns)out.push(s.gemType);
+ if(e.type==='gem-transform')for(const s of e.changes)out.push(s.to);}return out;};
+const specials=(ev:GameEvent[],kind:string)=>created(ev).filter(t=>t.kind==='special'&&t.spec.kind===kind);
+const applied=(ev:GameEvent[])=>ev.filter(e=>e.type==='status-apply').map(e=>e.type==='status-apply'?[e.targetId,e.statusId]:[]);
+const skillExtra=(ev:GameEvent[])=>ev.filter(e=>e.type==='extra-turn'&&e.source==='skill').length;
+const matchExtra=(ev:GameEvent[])=>ev.some(e=>e.type==='extra-turn'&&e.source!=='skill');
+/** Turn bookkeeping after a real cast: one log entry; turn kept iff an extra turn was granted. */
+function turnAfter(f:ReturnType<typeof setup>,ev:GameEvent[],skillExtraTurn:boolean){
+ expect(ev[0]).toMatchObject({type:'skill-cast',characterId:0});
+ expect(skillExtra(ev)).toBe(skillExtraTurn?1:0);
+ expect(f.state.actionLog).toHaveLength(1);
+ const kept=skillExtraTurn||matchExtra(ev);
+ expect(f.state.activePlayer).toBe(kept?f.side:f.opponent);
+ expect(f.state.actionLog[0].outcome).toBe(kept?'extra-turn':'switched');
+}
+function troopBinding(id:number,spell:number,cost:number,colors:BaseColor[],desc:string,steps:object[],zh:string,target:string){
+ const en=original.find((t:{id:number})=>t.id===id)!,troop=TROOPS.find(t=>t.id===id)!,n=native.get(spell).raw;
+ expect(en.stats.spell.id).toBe(spell);expect(en.stats.spell.desc).toBe(desc);expect(en.ManaCost).toBe(cost);
+ expect(Object.keys(en._ManaColors_parsed).sort()).toEqual(colors.map(x=>`Color${x}`).sort());
+ expect(n.Cost).toBe(cost);expect(n.Target).toBe(target);expect(n.SpellSteps).toEqual(steps);
+ expect(troop).toMatchObject({id,manaCost:cost,manaColors:[...colors],spell:{id:spell}});
+ expect(troop.spell.description).toBe(zh);
+}
+function refusal(o:Opts){
+ for(const mode of ['low-mana','silence'] as const)it(`${mode}: real entry refuses; no log, no turn change, mana kept`,()=>{
+  const f=setup(o);
+  if(mode==='low-mana')f.caster.mana=o.cost-1;else f.caster.statuses=[{id:'silence',turns:3}];
+  expect(f.cast()).toEqual([]);expect(f.caster.mana).toBe(mode==='low-mana'?o.cost-1:o.cost);
+  expect(f.state.actionLog).toHaveLength(0);expect(f.state.activePlayer).toBe(f.side);
+  expect(f.enemies.every(e=>e.statuses.length===0&&e.hp===1000)).toBe(true);
+ });
+}
+

@@ -1,0 +1,53 @@
+=== troop:6583 Stormsinger spell 7787 cost 10/10 colors Yellow,Purple status pending-review target NotBlueOrSkullGems rand A+(B-C-D-E-F)
+EN : Transform a selected Mana color to Blue. Summon a random Storm.
+ZH : 将指定法力的颜色转换为蓝色。召唤一个随机风暴。
+CL : c1=Transform a selected Mana color to Blue. | c2=Summon a random Storm.
+  0 {"Color1":"FromTarget","Amount":100,"Color2":"Blue","Type":"ConvertGems"}
+  1 {"Amount":1,"Type":"StormBlue"}
+  2 {"Amount":1,"Type":"StormGreen"}
+  3 {"Amount":1,"Type":"StormRed"}
+  4 {"Amount":1,"Type":"StormYellow"}
+  5 {"Amount":1,"Type":"StormPurple"}
+PROTO {"segments":[{"kind":"gem","params":{"op":"transform","from":"CHOSEN","to":"Blue"}},{"kind":"oneOf","options":[[{"kind":"storm","color":"Green","turns":8}],[{"kind":"storm","color":"Red","turns":8}],[{"kind":"storm","color":"Blue","turns":8}],[{"kind":"storm","color":"Yellow","turns":8}],[{"kind":"storm","color":"Purple","turns":8}],[{"kind":"storm","color":"Brown","turns":8}]]}]}
+META null
+=== troop:6652 DarkDryad spell 7987 cost 10/10 colors Purple,Brown status pending-review target Enemy rand -
+EN : Steal [Magic + 1] Armor from an enemy. Transform it into a random Skill and grant it to the first Ally. [100:1]
+ZH : 窃取一名敌人 [魔法 + 1] 点护甲值，再将窃取的护甲值转换为第一位盟友的一项随机属性。 [100:1]
+CL : c1=Steal [Magic + 1] Armor from an enemy. | c2=Transform it into a random Skill and grant it to the first Ally. | c3=[100:1]
+  0 {"Target":"FromTarget","Amount":100,"Type":"CountArmor"}
+  1 {"SpellPowerMultiplier":1,"Amount":1,"Primarypower":true,"Type":"CountMaxWithMagic"}
+  2 {"Target":"FromTarget","UseCounterForAmount":true,"Type":"DecreaseArmor"}
+  3 {"Target":"FrontAlly","UseCounterForAmount":true,"Type":"IncreaseRandom"}
+PROTO {"segments":[{"kind":"reduce","target":"enemyChosen","stat":"armor","scaling":{"base":1,"mult":1}},{"kind":"randomStat","target":"allyFront","scaling":{"base":0,"mult":0},"oneSkill":true,"modifier":{"mod":{"kind":"multiplier","a":1},"source":{"kind":"lastReduce"}}}]}
+META null
+=== troop:6630 LadyGarnetia spell 7954 cost 12/12 colors Blue,Red status pending-review target Enemy rand -
+EN : Deal [Magic + 4] damage to an enemy, boosted by my Armor. If they are a Boss, deal 3x - 5x damage, based on my Ascensions. Increase a random Skill Point by 3. [3:1]
+ZH : 对一名敌人造成 [魔法 + 4] 点伤害，伤害值因自身的护甲值而增强。如果敌人是个魔头，则基于我已晋升的稀有度造成 3 到 5 倍伤害。自身一项随机属性获得 3 点。 [3:1]
+CL : c1=Deal [Magic + 4] damage to an enemy, boosted by my Armor. | c2=If they are a Boss, deal 3x - 5x damage, based on my Ascensions. | c3=Increase a random Skill Point by 3. | c4=[3:1]
+  0 {"Target":"Self","Amount":34,"Type":"CountArmor"}
+  1 {"SpellPowerMultiplier":1,"Target":"FromTarget","StatusAmount":3,"UseCounterForAmount":true,"Amount":4,"Primarypower":true,"StatusModifier":"MultiplyForAscensionBoss","Type":"Damage"}
+  2 {"Target":"Self","Amount":3,"Type":"IncreaseRandom"}
+PROTO {"segments":[{"kind":"damage","target":"enemyChosen","scaling":{"base":4,"mult":1},"modifier":{"mod":{"kind":"ratio","a":3,"b":1},"source":{"kind":"selfStat","stat":"armor"}},"condMult":{"times":3,"cond":{"kind":"allOf","of":[{"kind":"targetRace","race":"Boss"},{"kind":"ascended","min":3}]}}},{"kind":"randomStat","target":"allySelf","scaling":{"base":3,"mult":0},"oneSkill":true}]}
+META null
+=== weapon:1563 DoomedCorseque spell 9211 cost 18/18 colors Blue status pending-review target None rand -
+EN : Deal [Magic + 5] damage to the first 2 Enemies, +2 per Tempering level. Create 2 Blue Gems for each Blue Ally and Enemy. If the Enemy has a Doom, gain a random Status Effect. [x2]
+ZH : 对首 2 位敌人造成 [魔法 + 5] 点伤害，每锻炼 1 个武器段位则 +2 点伤害值。每有一名蓝色盟友和敌人则创造 2 颗蓝色宝石。若敌方有劫数则获得一个随机正面增益状态效果。 [x2]
+CL : c1=Deal [Magic + 5] damage to the first 2 Enemies, +2 per Tempering level. | c2=Create 2 Blue Gems for each Blue Ally and Enemy. | c3=If the Enemy has a Doom, gain a random Status Effect. | c4=[x2]
+  0 {"Target":"AllAllies","Amount":200,"Type":"CountArmyColor","Data":"0"}
+  1 {"Target":"AllEnemies","Amount":200,"Type":"CountArmyColor","Data":"0"}
+  2 {"SpellPowerMultiplier":1,"Target":"FirstTwoEnemies","StatusAmount":2,"Amount":5,"Primarypower":true,"StatusModifier":"AddForTempering","Type":"Damage"}
+  3 {"UseCounterForAmount":true,"Color1":"Blue","Type":"CreateGems"}
+  4 {"Target":"Self","StatusAmount":100,"StatusModifier":"AddIfEnemyHasDoom","Type":"RandomPositiveStatusEffectConditional"}
+PROTO {"segments":[{"kind":"damage","target":"enemyFirstN","scaling":{"base":5,"mult":1},"n":2,"modifier":{"mod":{"kind":"multiplier","a":2},"source":{"kind":"tempering"}}},{"kind":"gem","params":{"op":"create","gem":{"kind":"color","color":"Blue"},"count":{"base":2,"mult":0},"modifier":{"mod":{"kind":"multiplier","a":2},"sources":[{"kind":"alliesOfColor","color":"Blue"},{"kind":"enemiesOfColor","color":"Blue"}]}},"modifier":{"mod":{"kind":"multiplier","a":2},"sources":[{"kind":"alliesOfColor","color":"Blue"},{"kind":"enemiesOfColor","color":"Blue"}]}},{"kind":"randomStatus","target":"allySelf","ifCond":{"kind":"targetHasDoom"},"pool":"positive"}]}
+SRC artifacts/gowhead-weapons/weapons.json null
+=== weapon:1564 DoomedFauchard spell 9212 cost 18/18 colors Green status pending-review target None rand -
+EN : Deal [Magic + 5] damage to the first 2 Enemies, +2 per Tempering level. Create 2 Green Gems for each Green Ally and Enemy. If the Enemy has a Doom, gain a random Status Effect. [x2]
+ZH : 对首 2 位敌人造成 [魔法 + 5] 点伤害，每锻炼 1 个武器段位则 +2 点伤害值。每有一名绿色盟友和敌人则创造 2 颗绿色宝石。若敌方有劫数则获得一个随机正面增益状态效果。 [x2]
+CL : c1=Deal [Magic + 5] damage to the first 2 Enemies, +2 per Tempering level. | c2=Create 2 Green Gems for each Green Ally and Enemy. | c3=If the Enemy has a Doom, gain a random Status Effect. | c4=[x2]
+  0 {"Target":"AllAllies","Amount":200,"Type":"CountArmyColor","Data":"1"}
+  1 {"Target":"AllEnemies","Amount":200,"Type":"CountArmyColor","Data":"1"}
+  2 {"SpellPowerMultiplier":1,"Target":"FirstTwoEnemies","StatusAmount":2,"Amount":5,"Primarypower":true,"StatusModifier":"AddForTempering","Type":"Damage"}
+  3 {"UseCounterForAmount":true,"Color1":"Green","Type":"CreateGems"}
+  4 {"Target":"Self","StatusAmount":100,"StatusModifier":"AddIfEnemyHasDoom","Type":"RandomPositiveStatusEffectConditional"}
+PROTO {"segments":[{"kind":"damage","target":"enemyFirstN","scaling":{"base":5,"mult":1},"n":2,"modifier":{"mod":{"kind":"multiplier","a":2},"source":{"kind":"tempering"}}},{"kind":"gem","params":{"op":"create","gem":{"kind":"color","color":"Green"},"count":{"base":2,"mult":0},"modifier":{"mod":{"kind":"multiplier","a":2},"sources":[{"kind":"alliesOfColor","color":"Green"},{"kind":"enemiesOfColor","color":"Green"}]}},"modifier":{"mod":{"kind":"multiplier","a":2},"sources":[{"kind":"alliesOfColor","color":"Green"},{"kind":"enemiesOfColor","color":"Green"}]}},{"kind":"randomStatus","target":"allySelf","ifCond":{"kind":"targetHasDoom"},"pool":"positive"}]}
+SRC artifacts/gowhead-weapons/weapons.json null

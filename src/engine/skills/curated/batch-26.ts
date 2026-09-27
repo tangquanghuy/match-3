@@ -4,7 +4,7 @@
  *
  * 语义裁定备注：
  * - 「对其/这两名敌人」确定性目标回指 → 复用同一 TargetMode（非随机绑定，batch-05「对其」口径）。
- * - 「魔法值」= magic 属性、「法力值」= mana 资源（SOP 措辞裁定）：7576「窃取 4 点魔法值」
+ * - 「魔力值」= magic 属性、「法力值」= mana 资源（SOP 措辞裁定）：7576「窃取 4 点魔力值」
  *   = steal magic→magic（batch-01 8278 同款）；「耗掉/耗尽…法力值」= reduce stat:'mana'（batch-15 头注）。
  * - 「耗尽上至/最多 12 点法力值。创造X宝石，数量与所耗尽的法力值等同 [1:1]」=
  *   reduce mana 12 + createGems 基数 0 + [1:1] drainedMana（batch-25 7467/7206 同款）。
@@ -42,7 +42,7 @@ const SKIPPED: { id: number; reason: string }[] = [
   { id: 7598, reason: '二次缩放来源不支持（「因敌军的妖仙数量而增强」敌方种族计数无对应 kind，alliesOfRace 仅己方）' },
   { id: 7599, reason: '缺失状态（妖火，batch-08 8433 同款）' },
   { id: 7600, reason: '二次缩放来源不支持（「因敌我双方的红色军队数量而增强」——alliesOfColor 仅己方、无敌方色计数 kind）' },
-  { id: 7602, reason: '语义拿不准（「窃取…一半魔法值」按当前值减半无原语，batch-11 9816 同款）；「召唤 1 到 3 名」数量区间亦无原语（batch-22 8546 同款）' },
+  { id: 7602, reason: '语义拿不准（「窃取…一半魔力值」按当前值减半无原语，batch-11 9816 同款）；「召唤 1 到 3 名」数量区间亦无原语（batch-22 8546 同款）' },
   { id: 7651, reason: '语义拿不准（「因其他所有盟友的法力值而增强」——allyStatSum 为己方全体含自身，手册未覆盖「其他盟友」句式，batch-20 7506 同款）' },
   { id: 7797, reason: '二次缩放来源「神祗敌军数量」无对应 kind（敌方侧种族计数不支持，仅 alliesOfRace 己方，batch-13 7546/7547 同款）；「爆破 3 颗末日骷髅头」与沉默段现可表达（explodeRandomSpecialGems doomSkull / targetRace Divine）' },
   { id: 7798, reason: '二次缩放来源不支持（「因敌我双方的恶魔军队数量而增强」无敌方种族计数 kind）；「转化成一名恶魔」兵种转化亦不做（SOP 措辞裁定）' },
@@ -51,7 +51,7 @@ const SKIPPED: { id: number; reason: string }[] = [
   { id: 8039, reason: '二次缩放来源不支持（「因被摧毁的骷髅头数而增强」——行+列混色无法筛骷髅，batch-14 8090 同款）' },
   { id: 8055, reason: '伤害区间（[魔法 + 4] – [(魔法 x 2) + 8]，batch-25 7213 同款）' },
   { id: 8101, reason: '隐匿/位置操作（「打回后方」，batch-05 7255 同款）' },
-  { id: 8108, reason: '语义拿不准（「有 50% 的几率伤害值会打中另一名随机敌人」弹射二段随机绑定无原语，batch-25 7314 同款）；「若敌人使用紫色法力则 3 倍伤害」条件倍率现可表达但整条仍卡' },
+  { id: 8108, reason: '语义拿不准（「有 50% 的几率伤害值会打中另一名随机敌人」弹射二段随机绑定无原语，batch-25 7314 同款）；「若敌人使用紫色法力值则 3 倍伤害」条件倍率现可表达但整条仍卡' },
   { id: 8116, reason: '句子式不明（「摧毁一整块大小为 5x5 的宝石」无对应面积清除原语，batch-08 8164 同款）' },
   { id: 8163, reason: '语义拿不准（「将敌人的护甲值和生命值减半」减半无原语，batch-11 9816 同款）；「创造 9 - 13 颗」数量区间亦无原语' },
   { id: 8168, reason: '二次缩放来源不支持（「因被摧毁的骷髅头数量而增强」——爆破段混色无法筛骷髅，batch-14 8090 同款）' },
@@ -75,7 +75,7 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 7556,
-    desc: '摧毁 1 行。给一个随机的盟友增加 [魔法 + 1] 点生命值，点数因被摧毁的黄色宝石数而增强。如果盟友使用蓝色法力则效果双倍。 [x3]',
+    desc: '摧毁 1 行。给一个随机的盟友增加 [魔法 + 1] 点生命值，点数因被摧毁的黄色宝石数而增强。如果盟友使用蓝色法力值则效果双倍。 [x3]',
     build: skill(
       destroyChosenRow(),
       // 回收：condMult 现支持 targetColor 条件倍率（按受益目标 manaColors 含该色判定）；
@@ -103,14 +103,14 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 7576,
-    desc: '对前两名敌人造成 [魔法 + 2] 点伤害，伤害值因自身生命值而增强。窃取这两名敌人 4 点魔法值。将所有紫色宝石转换成红色。 [3:1]',
+    desc: '对前两名敌人造成 [魔法 + 2] 点伤害，伤害值因自身生命值而增强。窃取这两名敌人 4 点魔力值。将所有紫色宝石转换成红色。 [3:1]',
     build: skill(
       dmg('enemyFirstN', 2, 1, {
         n: 2,
         // 「因自身生命值」= selfStat hp 当前值（batch-08 8171 同款）
         modifier: { mod: { kind: 'ratio', a: 3, b: 1 }, source: { kind: 'selfStat', stat: 'hp' } },
       }),
-      // 「这两名敌人」回指「前两名敌人」；「魔法值」= magic 属性（batch-01 8278 同款）
+      // 「这两名敌人」回指「前两名敌人」；「魔力值」= magic 属性（batch-01 8278 同款）
       steal('enemyFirstN', 'magic', 'magic', 4, 0, { n: 2 }),
       transform(BaseColor.Purple, BaseColor.Red),
     ),

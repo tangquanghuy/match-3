@@ -70,6 +70,11 @@ export interface CombatantSnapshot {
    * 可选字段，缺省按 0 计（增项为 0），不构成 `schemaVersion` 不兼容变更。
    */
   temperingLevel?: number;
+  /** 跨战斗保留的当前生命；stats.hp 仍为生命上限。 */
+  initialHp?: number;
+  eventTarget?: 'boss' | 'tower';
+  /** 当前品质0..5（基础品质+晋升），活动专精伤害使用。 */
+  eventRarity?: number;
   /** 关联法力颜色，任一色的匹配共同充能同一条法力条 */
   manaColors: BaseColor[];
   /** 释放技能所需法力总量 */
@@ -102,6 +107,8 @@ export interface BattleRequest {
   rulesetVersion: string;
   /** 确定性随机种子，同 seed + 同行动序列必须复现同一场战斗 */
   seed: number;
+  /** Arena summons/transformations also use level 15 with no traits. */
+  arenaRules?: boolean;
   playerTeam: CombatantSnapshot[];
   enemyTeam: CombatantSnapshot[];
   /**
@@ -110,6 +117,8 @@ export interface BattleRequest {
    * 惩罚色向下保底 0）。可选字段，省略 = 无旗帜，不构成 schemaVersion 变更。
    */
   playerBanner?: { boosts: Partial<Record<BaseColor, number>> };
+  /** Optional NPC defense banner; identical mana semantics on the enemy side. */
+  enemyBanner?: { boosts: Partial<Record<BaseColor, number>> };
   /**
    * 玩家方法力精通（战斗涌动概率）。键省略 = 0。可选字段，不构成 schemaVersion 变更。
    */
@@ -162,6 +171,7 @@ export interface BattleResult {
   rulesetVersion: string;
   seed: number;
   winner: BattleSideName;
+  endReason?: 'surrender';
   /** 完成的回合数。额外回合不另计一回合，故一个回合可能包含多次行动 */
   turns: number;
   /** 只包含 request 下发的角色；场上召唤物不属于宿主资产，见 summonedCount */

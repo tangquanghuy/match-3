@@ -15,8 +15,8 @@
  * - 9014 纯 '&&' 拼接按 §13.1 顺序组装（官方步骤为两段变体顺序排列）。
  */
 import type { CuratedBatch } from './index';
-import { skill, dmg, dmgSplash, trueDmg, heal, armor, attack, inflict, cleanse, reduce,
-  transform, createGems, createSkulls, createMix, destroyChosenRow, explodeChosenRow, explodeChosenCol,
+import { chooseSkill, skill, dmg, dmgSplash, trueDmg, heal, armor, attack, inflict, cleanse, reduce,
+  transform, transformToSpecial, createGems, createSpecialGems, createSkulls, createMix, destroyChosenRow, explodeChosenRow, explodeChosenCol,
   reposition, extraTurn, summonRandom } from '../builders';
 import { BaseColor } from '../../types';
 // 龙族引用池（从 troops.json troopTypes='Dragon' 内联，与 batch-r7 同源）
@@ -98,7 +98,8 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 8557,
     desc: '将所有红色宝石转换成黄龙宝石。',
     // Color1=Red → Color2=DragonYellow（ZH 色名「黄」）→ 全量转换
-    build: skill(transform(BaseColor.Red, BaseColor.Yellow)),
+    // DragonYellow = Yellow dragonGem special (L4b-7030-dragon).
+    build: skill(transformToSpecial(BaseColor.Red, { kind: 'dragonGem', color: BaseColor.Yellow })),
   },
   {
     id: 8601,
@@ -322,7 +323,8 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '将所有绿色宝石转换成棕色。再创造 3 颗棕色龙宝石。',
     build: skill(
       transform(BaseColor.Green, BaseColor.Brown),
-      createGems(BaseColor.Brown, 3),
+      // DragonBrown = Brown dragonGem special (L4b-7270-dragon).
+      createSpecialGems({ kind: 'dragonGem', color: BaseColor.Brown }, 3),
     ),
   },
   {
@@ -337,12 +339,8 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 9014,
     desc: '&& 创造 7 颗蓝龙宝石。召唤一名随机龙族 && 创造 7 颗绿龙宝石。召唤一名随机龙族',
     // 纯 '&&' 拼接按 §13.1 顺序组装；SummoningType dragon → 龙族引用池随机
-    build: skill(
-      createGems(BaseColor.Blue, 7),
-      summonRandom(DRAGON_REFS),
-      createGems(BaseColor.Green, 7),
-      summonRandom(DRAGON_REFS),
-    ),
+    // Native Choose:ABC-DEF; DragonBlue and DragonGreen are special gems.
+    build: skill(chooseSkill(['创造七颗蓝龙宝石并召唤龙族', '创造七颗绿龙宝石并召唤龙族'], [createSpecialGems({ kind: 'dragonGem', color: BaseColor.Blue }, 7), summonRandom(DRAGON_REFS)], [createSpecialGems({ kind: 'dragonGem', color: BaseColor.Green }, 7), summonRandom(DRAGON_REFS)])),
   },
   {
     id: 9132,

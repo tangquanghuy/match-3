@@ -1,3 +1,4 @@
+import { emptyGachaWishlist, type GachaWishlist, type GachaAudit } from '../data/gachaRules';
 /**
  * Meta 层存档 schema（v2）——对齐 META-GAME-PLAN.md §3.3 草案。
  *
@@ -5,7 +6,7 @@
  * 字段语义要点：
  *  - collection 以 troopId 十进制字符串为键（JSON 对象键只能是字符串），**每卡一条**，
  *    升级/升阶/特质对同卡全副本生效（官方语义）；`copies` 是本体之外的同名卡数。
- *  - teams 的数组顺序 = 站位：队首吃骷髅伤害；主角可编入也可不编入（裁定①，3~4 人）。
+ *  - teams 的数组顺序 = 站位：队首吃骷髅伤害；主角可编入也可不编入（裁定①，4 人）。
  *  - kingdoms 缺条目 = 1 级 / 0 任务进度（首次交互时才写入条目）。
  */
 
@@ -40,6 +41,8 @@ export interface Currencies {
   souls: number;
   gems: number;
   goldKeys: number;
+  gloryKeys: number;
+  trophies: number;
   /** 荣耀（官方 Glory：排位 PvP 主产，20 荣耀=1 荣耀箱；2026-09-19 素材批加性字段） */
   glory: number;
 }
@@ -78,7 +81,7 @@ export type TeamMember = { kind: 'hero' } | { kind: 'troop'; troopId: number };
 
 export interface TeamPreset {
   name: string;
-  /** 3~4 人；数组顺序 = 站位，队首吃骷髅伤害 */
+  /** 4 人；数组顺序 = 站位，队首吃骷髅伤害 */
   members: TeamMember[];
   /** 旗帜王国（null = 未选；两主色匹配给 +1 法力，M6 接引擎） */
   bannerKingdomId: string | null;
@@ -122,18 +125,26 @@ export interface ActiveDraft {
   picked: number[];
   stage: 'picking' | 'building' | 'fighting';
   wins: number;
+  losses?: number;
+  rulesVersion?: number;
 }
 
 export interface ArenaState {
   activeDraft: ActiveDraft | null;
   seasonWins: number;
   bestRun: number;
-  /** 最近一次使用本周免费票的时刻（epoch ms）；< weekStart 即本周免费可用。加性字段 */
+  /** 旧版免费票时间戳，仅保留读档兼容；现开赛每届支付黄金 */
   lastFreeEntryAt: number;
 }
 
 /** 入侵 PvP（2026-09-19）：联赛官阶 + 每周 VP 赛季（系统逻辑见 systems/invasion.ts） */
 export interface InvasionState {
+  /** This week's earned VP; losses do not reduce it, weekly reset clears it. */
+  progressionVp: number;
+  /** Reward IDs claimed this week; cleared on weekly reset. */
+  claimedRanks: string[];
+  /** Persistent, free opponent reroll sequence. */
+  refreshCount: number;
   /** 联赛 idx 0..9（0=青铜；INVASION_LEAGUES 词表） */
   league: number;
   /** 本周 VP */
@@ -157,6 +168,11 @@ export interface InvasionState {
  * 六活动各持一份（`MetaSave.eventWeeks`）：积分/代币/已购/里程碑/玩法状态全部独立，
  * 互不通兑、互不串号。周一 0:00 六份统一重置。
  */
+export interface EventShopState {
+  periodStart: number;
+  bought: Record<string, number>;
+}
+
 export interface EventWeekState {
   /** 本活动周锚点（weekStart） */
   weekStart: number;
@@ -171,12 +187,11 @@ export interface EventWeekState {
   /** 本周累计已赚代币（商店页「本周已赚 N」用；只增不减，购买不扣它） */
   tokensEarned: number;
   /**
-   * 本周已发放的「玩法推进奖励」次数（守土成功/讨伐成功/登塔结算）。
-   * 达到 `EVENT_WEEKLY_PLAY_REWARD_CAP[typeId]` 后继续打只给积分与代币——
-   * 这是六活动全开放后的产出封口（`data/events.ts` 单源）。
+   * 本周已发放的玩法推进奖励次数：守土成功/讨伐成功受独立周额限制。
+   * 塔仅保留兼容诊断计数；实际按 eventData.towerPaidFloors 记录本周已奖励的新高楼层。
    */
   playRewards: number;
-  /** 活动商店已购计数：goodsId → 次数（限量货架按它判库存） */
+  /** 本周累计购买记录；兼容旧档迁移，现行限购由 eventShops 独立记录。 */
   bought: Record<string, number>;
   /**
    * 六种活动的玩法状态（键约定见 systems/events.ts EVENT_STATE_KEYS）：
@@ -199,6 +214,8 @@ export interface KingdomState {
   questsDone: number;
   /** Hard 1~3 / Very Hard 1~3（内部 1~6；0=未选） */
   exploreTier: number;
+  /** 已首通的探索关，1~3=困难，4~6=非常困难；旧档缺省空表。选中档位不代表通关。 */
+  clearedExploreTiers?: number[];
   /** 进贡离线结算锚点（epoch ms） */
   lastTributeAt: number;
 }
@@ -217,6 +234,8 @@ export interface MetaSettings {
 
 /** 一次开箱记录（计划 §4.7：存最近 N 次供对账审计；上限由 gacha 系统维护） */
 export interface GachaLogEntry {
+  /** 新规则审计快照；旧记录可缺省。 */
+  audit?: GachaAudit;
   /** 开箱时刻 epoch ms（调用方传入） */
   at: number;
   kind: 'gem' | 'gold' | 'glory';
@@ -239,6 +258,12 @@ export interface MetaSave {
   hero: HeroState;
   /** key = troopId 十进制字符串 */
   collection: Record<string, TroopRecord>;
+  /**
+   * 真实收集备份。null = 当前 collection 就是真实收集。
+   * 非 null = 修改器改过当前收藏，这里留着打开修改器之前的真实进度。
+   * 解锁王国、还原初始都不会写这个字段。
+   */
+  collectionTruth: Record<string, TroopRecord> | null;
   teams: TeamPreset[];
   activeTeamIndex: number;
   arena: ArenaState;
@@ -249,6 +274,7 @@ export interface MetaSave {
   dailyFirstWinAt: number;
   /** 最近开箱记录（新的在前，最多 GACHA_LOG_CAP 条）。加性字段，version 仍为 1 */
   gachaLog: GachaLogEntry[];
+  gachaWishlist: GachaWishlist;
   /** 素材库存（加性字段，version 仍为 2） */
   materials: Materials;
   /** 有新素材入账且尚未进入材料库查看；加性 UI 状态，旧档默认为 false */
@@ -262,6 +288,8 @@ export interface MetaSave {
    * 六活动常驻全开放，进度/代币/已购/里程碑各自独立（不拆会串号，见 v3 迁移说明）。
    */
   eventWeeks: Partial<Record<EventTypeId, EventWeekState>>;
+  /** 两天货架库存；周结只清活动账本，不额外补货。 */
+  eventShops: Partial<Record<EventTypeId, EventShopState>>;
   settings: MetaSettings;
   /**
    * 进行中的寻宝。null = 没有未打完的一局。
@@ -315,7 +343,7 @@ function newTroopRecord(): TroopRecord {
 export function newSave(options: NewSaveOptions = {}): MetaSave {
   const now = options.now ?? Date.now();
   const currencies: Currencies = Object.assign(
-    { gold: 0, souls: 0, gems: 0, goldKeys: 0, glory: 0 },
+    { gold: 0, souls: 0, gems: 0, goldKeys: 0, glory: 0, gloryKeys: 0, trophies: 0 },
     STARTING_CURRENCIES,
     options.currencies,
   );
@@ -326,6 +354,7 @@ export function newSave(options: NewSaveOptions = {}): MetaSave {
     currencies,
     hero: newHero(),
     collection: {},
+    collectionTruth: null,
     teams: [],
     activeTeamIndex: 0,
     arena: { activeDraft: null, seasonWins: 0, bestRun: 0, lastFreeEntryAt: 0 },
@@ -333,11 +362,13 @@ export function newSave(options: NewSaveOptions = {}): MetaSave {
     stats: { battlesWon: 0, battlesLost: 0, soulsEarned: 0, goldEarned: 0 },
     dailyFirstWinAt: 0,
     gachaLog: [],
+    gachaWishlist: emptyGachaWishlist(),
     materials: { ingots: {}, forgeScrolls: 0, traitstones: {}, treasureMaps: 0 },
     materialsUnread: false,
     weaponTempering: {},
-    invasion: { league: 0, vp: 0, weekStart: 0, seed: 0, lastWinDay: 0, battles: 0, bestLeague: 0, seasonsPlayed: 0 },
+    invasion: { progressionVp: 0, claimedRanks: [], refreshCount: 0, league: 0, vp: 0, weekStart: 0, seed: 0, lastWinDay: 0, battles: 0, bestLeague: 0, seasonsPlayed: 0 },
     eventWeeks: {},
+    eventShops: {},
     settings: { language: 'zh', battleDebug: false },
     treasureHunt: null,
   };
@@ -348,7 +379,7 @@ export function newSave(options: NewSaveOptions = {}): MetaSave {
   if (starters.length >= 3 && options.starterTeamName !== null) {
     save.teams.push({
       name: options.starterTeamName ?? '先锋队',
-      members: starters.slice(0, 4).map((troopId) => ({ kind: 'troop' as const, troopId })),
+      members: [...starters.slice(0, 3).map((troopId) => ({ kind: 'troop' as const, troopId })), { kind: 'hero' }],
       bannerKingdomId: null,
     });
   }

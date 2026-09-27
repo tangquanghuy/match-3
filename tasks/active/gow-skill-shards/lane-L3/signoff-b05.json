@@ -1,0 +1,2263 @@
+{
+  "schemaVersion": 1,
+  "scope": "stored-gow-snapshot",
+  "reviews": [
+    {
+      "key": "troop:6032",
+      "scope": "stored-gow-snapshot",
+      "sourceDigest": "56315b95fc47b115741c317ee4f774154cc45e80d7bda008d25f619601b2e322",
+      "reviewer": "sa-L3",
+      "reviewedAt": "2026-09-27",
+      "decision": "accept",
+      "ledgerFingerprintAtReview": "511f706bcad1f519cc41526f99cc8f56c54ad1dd6a2f4b2a7c9ef8f32dcb9ce0",
+      "_reference": {
+        "spellId": 7032,
+        "english": "Steal 2 Armor from the last Enemy, and shift it to Magic, then deal [Magic + 4] damage. Gain an extra turn. [1:1]",
+        "nativeTarget": "None",
+        "randomize": null,
+        "steps": [
+          {
+            "Target": "LastEnemy",
+            "Amount": 100,
+            "Type": "CountArmor"
+          },
+          {
+            "Amount": 2,
+            "Type": "CountMax"
+          },
+          {
+            "Target": "LastEnemy",
+            "UseCounterForAmount": true,
+            "Type": "DecreaseArmor"
+          },
+          {
+            "Target": "Self",
+            "UseCounterForAmount": true,
+            "Type": "IncreaseSpellPower",
+            "Delay": 1
+          },
+          {
+            "SpellPowerMultiplier": 1,
+            "Target": "LastEnemy",
+            "Amount": 4,
+            "Primarypower": true,
+            "Type": "Damage"
+          },
+          {
+            "Target": "Self",
+            "Type": "ExtraTurn"
+          }
+        ],
+        "prototype": {
+          "segments": [
+            {
+              "kind": "reduce",
+              "target": "enemyLast",
+              "stat": "armor",
+              "scaling": {
+                "base": 2,
+                "mult": 0
+              },
+              "gainStat": "magic"
+            },
+            {
+              "kind": "damage",
+              "target": "enemyLast",
+              "scaling": {
+                "base": 4,
+                "mult": 1
+              }
+            },
+            {
+              "kind": "extraTurn"
+            }
+          ]
+        }
+      },
+      "sourceEvidence": [
+        {
+          "id": "en",
+          "role": "english-snapshot",
+          "path": "data/raw/troops.gow.en.json",
+          "note": "troop:6032 Satyr SpellId 7032, cost 8, Green; \"Steal 2 Armor from the last Enemy, and shift it to Magic, then deal [Magic + 4] damage. Gain an extra turn. [1:1]\""
+        },
+        {
+          "id": "native",
+          "role": "native-snapshot",
+          "path": "data/raw/spells.gow.en.json",
+          "note": "Spell 7032 Cost 8 Target None; CountArmor LastEnemy 100 -> CountMax 2 -> DecreaseArmor LastEnemy (counter) -> IncreaseSpellPower Self (counter) -> Damage LastEnemy 4 SPM 1 -> ExtraTurn Self."
+        },
+        {
+          "id": "rule",
+          "role": "official-shared-rule",
+          "path": "artifacts/gow-skill-audit/gold-primary-sources/official-status-effects.html",
+          "note": "Web: Magic boosts do not apply while Webbed."
+        },
+        {
+          "id": "laneTest",
+          "role": "lane-battle-test",
+          "path": "tests/unit/gowLaneL3B05.test.ts",
+          "note": "troop:6032: real TurnEngine.castSkill both sides + boundaries"
+        },
+        {
+          "id": "r001",
+          "role": "user-ruling",
+          "path": "tasks/active/gow-skill-shards/rulings/R001-native-step-order.md",
+          "note": "Native SpellSteps order governs observable ordering."
+        },
+        {
+          "id": "r003",
+          "role": "user-ruling",
+          "path": "tasks/active/gow-skill-shards/rulings/R003-count-threshold-labels.md",
+          "note": "AddFor10<Color>Gems threshold is 13."
+        },
+        {
+          "id": "frozen",
+          "role": "official-shared-rule",
+          "path": "artifacts/gow-skill-audit/gold-primary-sources/official-frozen-1-0-9.json",
+          "note": "Frozen caster: no spell extra turn."
+        }
+      ],
+      "dimensions": {
+        "identity-cost-colors": {
+          "status": "verified",
+          "note": "troop:6032 -> 7032, cost 8, Green.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r001",
+            "r003",
+            "frozen"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL3B05.test.ts"
+          ]
+        },
+        "target-count-range": {
+          "status": "verified",
+          "note": "Last living enemy (dead last -> next living last).",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r001",
+            "r003",
+            "frozen"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL3B05.test.ts"
+          ]
+        },
+        "base-formula-rounding": {
+          "status": "verified",
+          "note": "Damage Magic+4 using the Magic raised by the steal (armor 5, magic 10 -> 16 total, 3 absorbed by remaining armor).",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r001",
+            "r003",
+            "frozen"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL3B05.test.ts"
+          ]
+        },
+        "boost-source-ratio-cap": {
+          "status": "verified",
+          "note": "[1:1] = CountArmor 100% capped by CountMax 2: armor 5 -> 2, armor 1 -> 1, armor 0 -> 0.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r001",
+            "r003",
+            "frozen"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL3B05.test.ts"
+          ]
+        },
+        "conditions-probabilities-branches": {
+          "status": "not-applicable",
+          "note": "Unconditional single branch.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r001",
+            "r003",
+            "frozen"
+          ],
+          "tests": []
+        },
+        "status-duration-immunity": {
+          "status": "not-applicable",
+          "note": "No status effect.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r001",
+            "r003",
+            "frozen"
+          ],
+          "tests": []
+        },
+        "gems-types-selection-resolution": {
+          "status": "not-applicable",
+          "note": "No gem creation / destruction.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r001",
+            "r003",
+            "frozen"
+          ],
+          "tests": []
+        },
+        "summon-transform-pools": {
+          "status": "not-applicable",
+          "note": "No summon / transform.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r001",
+            "r003",
+            "frozen"
+          ],
+          "tests": []
+        },
+        "order-death-retargeting": {
+          "status": "verified",
+          "note": "FIXED L3-017: steal before damage (R001; English \"then deal\").",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r001",
+            "r003",
+            "frozen"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL3B05.test.ts"
+          ]
+        },
+        "mana-economy-extra-turn": {
+          "status": "verified",
+          "note": "Unconditional skill extra turn.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r001",
+            "r003",
+            "frozen"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL3B05.test.ts"
+          ]
+        },
+        "display-description": {
+          "status": "verified",
+          "note": "zh lists damage first then the steal; runtime follows native/English order (display wording order only, values match).",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r001",
+            "r003",
+            "frozen"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL3B05.test.ts"
+          ]
+        },
+        "battle-pipeline": {
+          "status": "verified",
+          "note": "Real TurnEngine.castSkill both sides: skill-cast first, mana spent, one action-log entry, turn switch / extra-turn asserted; low-mana and Silence refusals leave board/log/turn untouched.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r001",
+            "r003",
+            "frozen"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL3B05.test.ts"
+          ],
+          "realBattleEntry": true
+        }
+      },
+      "clauseReviews": [
+        {
+          "id": "c1",
+          "text": "Steal 2 Armor from the last Enemy, and shift it to Magic, then deal [Magic + 4] damage.",
+          "status": "verified",
+          "note": "Steal up to 2 Armor -> Magic, then [Magic+4] to the last enemy.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r001",
+            "r003",
+            "frozen"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL3B05.test.ts"
+          ]
+        },
+        {
+          "id": "c2",
+          "text": "Gain an extra turn.",
+          "status": "verified",
+          "note": "Extra turn.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r001",
+            "r003",
+            "frozen"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL3B05.test.ts"
+          ]
+        },
+        {
+          "id": "c3",
+          "text": "[1:1]",
+          "status": "verified",
+          "note": "[1:1] conversion ratio label.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r001",
+            "r003",
+            "frozen"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL3B05.test.ts"
+          ]
+        }
+      ],
+      "nativeStepReviews": [
+        {
+          "id": "0",
+          "type": "CountArmor",
+          "status": "verified",
+          "note": "CountArmor LastEnemy 100%.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r001",
+            "r003",
+            "frozen"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL3B05.test.ts"
+          ]
+        },
+        {
+          "id": "1",
+          "type": "CountMax",
+          "status": "verified",
+          "note": "CountMax 2.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r001",
+            "r003",
+            "frozen"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL3B05.test.ts"
+          ]
+        },
+        {
+          "id": "2",
+          "type": "DecreaseArmor",
+          "status": "verified",
+          "note": "DecreaseArmor by counter.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r001",
+            "r003",
+            "frozen"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL3B05.test.ts"
+          ]
+        },
+        {
+          "id": "3",
+          "type": "IncreaseSpellPower",
+          "status": "verified",
+          "note": "IncreaseSpellPower by counter (0 while Webbed).",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r001",
+            "r003",
+            "frozen"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL3B05.test.ts"
+          ]
+        },
+        {
+          "id": "4",
+          "type": "Damage",
+          "status": "verified",
+          "note": "Damage LastEnemy Magic+4.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r001",
+            "r003",
+            "frozen"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL3B05.test.ts"
+          ]
+        },
+        {
+          "id": "5",
+          "type": "ExtraTurn",
+          "status": "verified",
+          "note": "ExtraTurn Self.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r001",
+            "r003",
+            "frozen"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL3B05.test.ts"
+          ]
+        }
+      ],
+      "branchReviews": [
+        {
+          "id": "main",
+          "status": "verified",
+          "note": "Single branch.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r001",
+            "r003",
+            "frozen"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL3B05.test.ts"
+          ]
+        }
+      ]
+    },
+    {
+      "key": "troop:6035",
+      "scope": "stored-gow-snapshot",
+      "sourceDigest": "88381cf79dc08d6c75559e15e321e393a9b03fa3558cf834c239feedb06aaa32",
+      "reviewer": "sa-L3",
+      "reviewedAt": "2026-09-27",
+      "decision": "accept",
+      "ledgerFingerprintAtReview": "511f706bcad1f519cc41526f99cc8f56c54ad1dd6a2f4b2a7c9ef8f32dcb9ce0",
+      "_reference": {
+        "spellId": 7035,
+        "english": "Deal [Magic + 4] scatter damage, boosted by all enemy Armor. Steal 4 Magic from a random Enemy. [2:1]",
+        "nativeTarget": "None",
+        "randomize": null,
+        "steps": [
+          {
+            "Target": "AllEnemies",
+            "Amount": 50,
+            "Type": "CountArmor"
+          },
+          {
+            "SpellPowerMultiplier": 1,
+            "Target": "AllEnemies",
+            "UseCounterForAmount": true,
+            "Amount": 4,
+            "Primarypower": true,
+            "Type": "ScatterDamage"
+          },
+          {
+            "Type": "DelayUntilEffectsComplete"
+          },
+          {
+            "Type": "ResetTargets"
+          },
+          {
+            "Target": "RandomEnemy",
+            "Amount": 4,
+            "Type": "StealMagic"
+          }
+        ],
+        "prototype": {
+          "segments": [
+            {
+              "kind": "damage",
+              "target": "enemyAll",
+              "scaling": {
+                "base": 4,
+                "mult": 1
+              },
+              "range": "scatter",
+              "modifier": {
+                "mod": {
+                  "kind": "ratio",
+                  "a": 2,
+                  "b": 1
+                },
+                "source": {
+                  "kind": "enemyStatSum",
+                  "stat": "armor"
+                }
+              }
+            },
+            {
+              "kind": "reduce",
+              "target": "enemyRandom",
+              "stat": "magic",
+              "scaling": {
+                "base": 4,
+                "mult": 0
+              },
+              "gainStat": "magic"
+            }
+          ]
+        }
+      },
+      "sourceEvidence": [
+        {
+          "id": "en",
+          "role": "english-snapshot",
+          "path": "data/raw/troops.gow.en.json",
+          "note": "troop:6035 Blade Dancer SpellId 7035, cost 11, Green/Yellow; \"Deal [Magic + 4] scatter damage, boosted by all enemy Armor. Steal 4 Magic from a random Enemy. [2:1]\""
+        },
+        {
+          "id": "native",
+          "role": "native-snapshot",
+          "path": "data/raw/spells.gow.en.json",
+          "note": "Spell 7035 Cost 11 Target None; CountArmor AllEnemies 50 -> ScatterDamage AllEnemies 4 SPM 1 (counter) -> DelayUntilEffectsComplete -> ResetTargets -> StealMagic RandomEnemy 4."
+        },
+        {
+          "id": "rule",
+          "role": "official-shared-rule",
+          "path": "artifacts/gow-skill-audit/gold-primary-sources/official-status-effects.html",
+          "note": "Scatter damage semantics shared rule."
+        },
+        {
+          "id": "laneTest",
+          "role": "lane-battle-test",
+          "path": "tests/unit/gowLaneL3B05.test.ts",
+          "note": "troop:6035: real TurnEngine.castSkill both sides + boundaries"
+        },
+        {
+          "id": "r003",
+          "role": "user-ruling",
+          "path": "tasks/active/gow-skill-shards/rulings/R003-count-threshold-labels.md",
+          "note": "AddFor10<Color>Gems threshold is 13."
+        }
+      ],
+      "dimensions": {
+        "identity-cost-colors": {
+          "status": "verified",
+          "note": "troop:6035 -> 7035, cost 11, Green/Yellow.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r003"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL3B05.test.ts"
+          ]
+        },
+        "target-count-range": {
+          "status": "verified",
+          "note": "Scatter over living enemies; random living enemy for the steal.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r003"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL3B05.test.ts"
+          ]
+        },
+        "base-formula-rounding": {
+          "status": "verified",
+          "note": "Scatter pool Magic+4 + floor(living enemy armor x 50%) (armor 9 -> +4), total removed asserted.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r003"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL3B05.test.ts"
+          ]
+        },
+        "boost-source-ratio-cap": {
+          "status": "verified",
+          "note": "R003: [2:1] = CountArmor 50%.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r003"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL3B05.test.ts"
+          ]
+        },
+        "conditions-probabilities-branches": {
+          "status": "not-applicable",
+          "note": "Unconditional single branch.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r003"
+          ],
+          "tests": []
+        },
+        "status-duration-immunity": {
+          "status": "not-applicable",
+          "note": "No status effect.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r003"
+          ],
+          "tests": []
+        },
+        "gems-types-selection-resolution": {
+          "status": "not-applicable",
+          "note": "No gem creation / destruction.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r003"
+          ],
+          "tests": []
+        },
+        "summon-transform-pools": {
+          "status": "not-applicable",
+          "note": "No summon / transform.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r003"
+          ],
+          "tests": []
+        },
+        "order-death-retargeting": {
+          "status": "verified",
+          "note": "Count -> scatter -> steal matches native (Delay/ResetTargets are presentation).",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r003"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL3B05.test.ts"
+          ]
+        },
+        "mana-economy-extra-turn": {
+          "status": "verified",
+          "note": "FIXED L3-018: steals Magic (target 11 -> 7, caster +4, clamp to target Magic); no Mana moves; turn passes.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r003"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL3B05.test.ts"
+          ]
+        },
+        "display-description": {
+          "status": "verified",
+          "note": "zh matches.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r003"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL3B05.test.ts"
+          ]
+        },
+        "battle-pipeline": {
+          "status": "verified",
+          "note": "Real TurnEngine.castSkill both sides: skill-cast first, mana spent, one action-log entry, turn switch / extra-turn asserted; low-mana and Silence refusals leave board/log/turn untouched.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r003"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL3B05.test.ts"
+          ],
+          "realBattleEntry": true
+        }
+      },
+      "clauseReviews": [
+        {
+          "id": "c1",
+          "text": "Deal [Magic + 4] scatter damage, boosted by all enemy Armor.",
+          "status": "verified",
+          "note": "Scatter [Magic+4] boosted by enemy armor.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r003"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL3B05.test.ts"
+          ]
+        },
+        {
+          "id": "c2",
+          "text": "Steal 4 Magic from a random Enemy.",
+          "status": "verified",
+          "note": "Steal 4 Magic from a random enemy.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r003"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL3B05.test.ts"
+          ]
+        },
+        {
+          "id": "c3",
+          "text": "[2:1]",
+          "status": "verified",
+          "note": "[2:1] label.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r003"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL3B05.test.ts"
+          ]
+        }
+      ],
+      "nativeStepReviews": [
+        {
+          "id": "0",
+          "type": "CountArmor",
+          "status": "verified",
+          "note": "CountArmor AllEnemies 50%.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r003"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL3B05.test.ts"
+          ]
+        },
+        {
+          "id": "1",
+          "type": "ScatterDamage",
+          "status": "verified",
+          "note": "ScatterDamage Magic+4+counter.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r003"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL3B05.test.ts"
+          ]
+        },
+        {
+          "id": "2",
+          "type": "DelayUntilEffectsComplete",
+          "status": "verified",
+          "note": "DelayUntilEffectsComplete: scatter fully resolves before the steal (steal sees post-damage state; tested).",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r003"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL3B05.test.ts"
+          ]
+        },
+        {
+          "id": "3",
+          "type": "ResetTargets",
+          "status": "verified",
+          "note": "ResetTargets: the steal picks a fresh random living enemy (enemyRandom, independent of scatter targets; tested).",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r003"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL3B05.test.ts"
+          ]
+        },
+        {
+          "id": "4",
+          "type": "StealMagic",
+          "status": "verified",
+          "note": "StealMagic RandomEnemy 4.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r003"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL3B05.test.ts"
+          ]
+        }
+      ],
+      "branchReviews": [
+        {
+          "id": "main",
+          "status": "verified",
+          "note": "Single branch.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r003"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL3B05.test.ts"
+          ]
+        }
+      ]
+    },
+    {
+      "key": "troop:6427",
+      "scope": "stored-gow-snapshot",
+      "sourceDigest": "6189d6e796793106a2b604e5075380fd7b1de5b898c3dab55050d35cbe031681",
+      "reviewer": "sa-L3",
+      "reviewedAt": "2026-09-27",
+      "decision": "accept",
+      "ledgerFingerprintAtReview": "511f706bcad1f519cc41526f99cc8f56c54ad1dd6a2f4b2a7c9ef8f32dcb9ce0",
+      "_reference": {
+        "spellId": 7600,
+        "english": "Deal [Magic + 2] damage to all enemies, boosted by Red enemies and allies. If there are 13 or more Red Gems, gain an extra turn. [x4]",
+        "nativeTarget": "None",
+        "randomize": null,
+        "steps": [
+          {
+            "Target": "AllAllies",
+            "Amount": 400,
+            "Type": "CountArmyColor",
+            "Data": "2"
+          },
+          {
+            "Target": "AllEnemies",
+            "UseCounterForAmount": true,
+            "Amount": 400,
+            "Type": "CountArmyColor",
+            "Data": "2"
+          },
+          {
+            "SpellPowerMultiplier": 1,
+            "Target": "AllEnemies",
+            "UseCounterForAmount": true,
+            "Amount": 2,
+            "Primarypower": true,
+            "Type": "Damage"
+          },
+          {
+            "StatusAmount": 100,
+            "StatusModifier": "AddFor10RedGems",
+            "Type": "ExtraTurnConditional"
+          }
+        ],
+        "prototype": {
+          "segments": [
+            {
+              "kind": "damage",
+              "target": "enemyAll",
+              "scaling": {
+                "base": 2,
+                "mult": 1
+              },
+              "range": "all",
+              "modifier": {
+                "mod": {
+                  "kind": "multiplier",
+                  "a": 4
+                },
+                "sources": [
+                  {
+                    "kind": "alliesOfColor",
+                    "color": "Red"
+                  },
+                  {
+                    "kind": "enemiesOfColor",
+                    "color": "Red"
+                  }
+                ]
+              }
+            },
+            {
+              "kind": "extraTurn",
+              "ifCond": {
+                "kind": "boardAtLeast",
+                "color": "Red",
+                "n": 13
+              }
+            }
+          ]
+        }
+      },
+      "sourceEvidence": [
+        {
+          "id": "en",
+          "role": "english-snapshot",
+          "path": "data/raw/troops.gow.en.json",
+          "note": "troop:6427 Queen Titania SpellId 7600, cost 16, Red/Purple; \"Deal [Magic + 2] damage to all enemies, boosted by Red enemies and allies. If there are 13 or more Red Gems, gain an extra turn. [x4]\""
+        },
+        {
+          "id": "native",
+          "role": "native-snapshot",
+          "path": "data/raw/spells.gow.en.json",
+          "note": "Spell 7600 Cost 16 Target None; CountArmyColor AllAllies Red 400 -> CountArmyColor AllEnemies Red 400 (counter) -> Damage AllEnemies 2 SPM 1 (counter) -> ExtraTurnConditional AddFor10RedGems."
+        },
+        {
+          "id": "rule",
+          "role": "official-shared-rule",
+          "path": "artifacts/gow-skill-audit/gold-primary-sources/official-frozen-1-0-9.json",
+          "note": "Frozen caster: no spell extra turn."
+        },
+        {
+          "id": "laneTest",
+          "role": "lane-battle-test",
+          "path": "tests/unit/gowLaneL3B05.test.ts",
+          "note": "troop:6427: real TurnEngine.castSkill both sides + boundaries"
+        },
+        {
+          "id": "r003",
+          "role": "user-ruling",
+          "path": "tasks/active/gow-skill-shards/rulings/R003-count-threshold-labels.md",
+          "note": "AddFor10<Color>Gems threshold is 13."
+        }
+      ],
+      "dimensions": {
+        "identity-cost-colors": {
+          "status": "verified",
+          "note": "troop:6427 -> 7600, cost 16, Red/Purple.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r003"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL3B05.test.ts"
+          ]
+        },
+        "target-count-range": {
+          "status": "verified",
+          "note": "All living enemies.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r003"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL3B05.test.ts"
+          ]
+        },
+        "base-formula-rounding": {
+          "status": "verified",
+          "note": "Magic+2 + 4 x (living Red allies incl. caster + living Red enemies); armor absorbs first.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r003"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL3B05.test.ts"
+          ]
+        },
+        "boost-source-ratio-cap": {
+          "status": "verified",
+          "note": "[x4] multiplier; dead Red troops not counted.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r003"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL3B05.test.ts"
+          ]
+        },
+        "conditions-probabilities-branches": {
+          "status": "verified",
+          "note": "R003: 13 Red -> extra turn, 12 -> none.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r003"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL3B05.test.ts"
+          ]
+        },
+        "status-duration-immunity": {
+          "status": "not-applicable",
+          "note": "No status effect.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r003"
+          ],
+          "tests": []
+        },
+        "gems-types-selection-resolution": {
+          "status": "not-applicable",
+          "note": "No gem creation / destruction.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r003"
+          ],
+          "tests": []
+        },
+        "summon-transform-pools": {
+          "status": "not-applicable",
+          "note": "No summon / transform.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r003"
+          ],
+          "tests": []
+        },
+        "order-death-retargeting": {
+          "status": "verified",
+          "note": "Counts -> damage -> extra turn matches native.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r003"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL3B05.test.ts"
+          ]
+        },
+        "mana-economy-extra-turn": {
+          "status": "verified",
+          "note": "Skill extra turn on 13+ Red; frozen caster none; otherwise switched.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r003"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL3B05.test.ts"
+          ]
+        },
+        "display-description": {
+          "status": "verified",
+          "note": "zh matches.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r003"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL3B05.test.ts"
+          ]
+        },
+        "battle-pipeline": {
+          "status": "verified",
+          "note": "Real TurnEngine.castSkill both sides: skill-cast first, mana spent, one action-log entry, turn switch / extra-turn asserted; low-mana and Silence refusals leave board/log/turn untouched.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r003"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL3B05.test.ts"
+          ],
+          "realBattleEntry": true
+        }
+      },
+      "clauseReviews": [
+        {
+          "id": "c1",
+          "text": "Deal [Magic + 2] damage to all enemies, boosted by Red enemies and allies.",
+          "status": "verified",
+          "note": "Damage all, boosted x4 by Red allies and enemies.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r003"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL3B05.test.ts"
+          ]
+        },
+        {
+          "id": "c2",
+          "text": "If there are 13 or more Red Gems, gain an extra turn.",
+          "status": "verified",
+          "note": "13+ Red -> extra turn.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r003"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL3B05.test.ts"
+          ]
+        },
+        {
+          "id": "c3",
+          "text": "[x4]",
+          "status": "verified",
+          "note": "[x4] label.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r003"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL3B05.test.ts"
+          ]
+        }
+      ],
+      "nativeStepReviews": [
+        {
+          "id": "0",
+          "type": "CountArmyColor",
+          "status": "verified",
+          "note": "CountArmyColor AllAllies Red x4.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r003"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL3B05.test.ts"
+          ]
+        },
+        {
+          "id": "1",
+          "type": "CountArmyColor",
+          "status": "verified",
+          "note": "CountArmyColor AllEnemies Red x4 (accumulated).",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r003"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL3B05.test.ts"
+          ]
+        },
+        {
+          "id": "2",
+          "type": "Damage",
+          "status": "verified",
+          "note": "Damage AllEnemies Magic+2+counter.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r003"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL3B05.test.ts"
+          ]
+        },
+        {
+          "id": "3",
+          "type": "ExtraTurnConditional",
+          "status": "verified",
+          "note": "ExtraTurnConditional AddFor10RedGems = 13.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r003"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL3B05.test.ts"
+          ]
+        }
+      ],
+      "branchReviews": [
+        {
+          "id": "main",
+          "status": "verified",
+          "note": "Threshold both sides tested.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r003"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL3B05.test.ts"
+          ]
+        }
+      ]
+    },
+    {
+      "key": "troop:7198",
+      "scope": "stored-gow-snapshot",
+      "sourceDigest": "0a72596079df8eb938e99957151c3c6ddf534e76e86b0979e353ed135e2191dc",
+      "reviewer": "sa-L3",
+      "reviewedAt": "2026-09-27",
+      "decision": "draft",
+      "ledgerFingerprintAtReview": "511f706bcad1f519cc41526f99cc8f56c54ad1dd6a2f4b2a7c9ef8f32dcb9ce0",
+      "_reference": {
+        "spellId": 8785,
+        "english": "Create 1 Elemental Star, +1 more for every 3 Green Allies and +1 more for every 3 Green Gems. If the Enemy has a Beast, gain an extra turn. [3:1]",
+        "nativeTarget": "None",
+        "randomize": null,
+        "steps": [
+          {
+            "Target": "AllAllies",
+            "Amount": 34,
+            "Type": "CountArmyColor",
+            "Data": "1"
+          },
+          {
+            "Color1": "Green",
+            "Amount": 34,
+            "Type": "CountGems"
+          },
+          {
+            "UseCounterForAmount": true,
+            "Color1": "ElementalStar",
+            "Amount": 1,
+            "Type": "CreateGems"
+          },
+          {
+            "StatusAmount": 100,
+            "StatusModifier": "AddIfEnemyHasBeast",
+            "Type": "ExtraTurnConditional"
+          }
+        ],
+        "prototype": {
+          "segments": [
+            {
+              "kind": "gem",
+              "params": {
+                "op": "create",
+                "gem": {
+                  "kind": "special",
+                  "spec": {
+                    "kind": "elementalStar"
+                  }
+                },
+                "count": {
+                  "base": 1,
+                  "mult": 0
+                },
+                "modifier": {
+                  "mod": {
+                    "kind": "ratio",
+                    "a": 3,
+                    "b": 1
+                  },
+                  "sources": [
+                    {
+                      "kind": "alliesOfColor",
+                      "color": "Green"
+                    },
+                    {
+                      "kind": "boardGems",
+                      "color": "Green"
+                    }
+                  ]
+                }
+              },
+              "modifier": {
+                "mod": {
+                  "kind": "ratio",
+                  "a": 3,
+                  "b": 1
+                },
+                "sources": [
+                  {
+                    "kind": "alliesOfColor",
+                    "color": "Green"
+                  },
+                  {
+                    "kind": "boardGems",
+                    "color": "Green"
+                  }
+                ]
+              }
+            },
+            {
+              "kind": "extraTurn",
+              "ifCond": {
+                "kind": "enemyRacePresent",
+                "race": "Beast"
+              }
+            }
+          ]
+        }
+      },
+      "sourceEvidence": [
+        {
+          "id": "en",
+          "role": "english-snapshot",
+          "path": "data/raw/troops.gow.en.json",
+          "note": "troop:7198 Natureborn Hunter SpellId 8785, cost 12, Blue/Green; \"Create 1 Elemental Star, +1 more for every 3 Green Allies and +1 more for every 3 Green Gems. If the Enemy has a Beast, gain an extra turn. [3:1]\""
+        },
+        {
+          "id": "native",
+          "role": "native-snapshot",
+          "path": "data/raw/spells.gow.en.json",
+          "note": "Spell 8785 Cost 12 Target None; CountArmyColor AllAllies Green 34 -> CountGems Green 34 -> CreateGems ElementalStar 1 (counter) -> ExtraTurnConditional AddIfEnemyHasBeast."
+        },
+        {
+          "id": "rule",
+          "role": "official-shared-rule",
+          "path": "artifacts/gow-skill-audit/gold-primary-sources/official-frozen-1-0-9.json",
+          "note": "Frozen caster: no spell extra turn."
+        },
+        {
+          "id": "laneTest",
+          "role": "lane-battle-test",
+          "path": "tests/unit/gowLaneL3B05.test.ts",
+          "note": "troop:7198: real TurnEngine.castSkill both sides + boundaries"
+        },
+        {
+          "id": "r003",
+          "role": "user-ruling",
+          "path": "tasks/active/gow-skill-shards/rulings/R003-count-threshold-labels.md",
+          "note": "AddFor10<Color>Gems threshold is 13."
+        },
+        {
+          "id": "gems",
+          "role": "official-shared-rule",
+          "path": "artifacts/gow-skill-audit/gold-primary-sources/official-heroic-gems-freshdesk.html",
+          "note": "Elemental Star / Doomskull definitions."
+        }
+      ],
+      "dimensions": {
+        "identity-cost-colors": {
+          "status": "verified",
+          "note": "troop:7198 -> 8785, cost 12, Blue/Green.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r003",
+            "gems"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL3B05.test.ts"
+          ]
+        },
+        "target-count-range": {
+          "status": "verified",
+          "note": "Board / enemy race check only.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r003",
+            "gems"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL3B05.test.ts"
+          ]
+        },
+        "base-formula-rounding": {
+          "status": "not-applicable",
+          "note": "No numeric formula in this spell.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r003",
+            "gems"
+          ],
+          "tests": []
+        },
+        "boost-source-ratio-cap": {
+          "status": "disputed",
+          "note": "L3-014 source-dispute: runtime floors (Green allies + Green gems) x 34% once; native has two Count steps and English says +1 per 3 allies AND +1 per 3 gems (per-step floors). Values agree when either count is < 3 or the sum does not cross a boundary (tested 16 gems + 1 ally -> 6 stars).",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r003",
+            "gems"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL3B05.test.ts"
+          ]
+        },
+        "conditions-probabilities-branches": {
+          "status": "verified",
+          "note": "Enemy Beast -> extra turn; none -> switched.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r003",
+            "gems"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL3B05.test.ts"
+          ]
+        },
+        "status-duration-immunity": {
+          "status": "not-applicable",
+          "note": "No status effect.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r003",
+            "gems"
+          ],
+          "tests": []
+        },
+        "gems-types-selection-resolution": {
+          "status": "verified",
+          "note": "Elemental Stars created (1 base).",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r003",
+            "gems"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL3B05.test.ts"
+          ]
+        },
+        "summon-transform-pools": {
+          "status": "not-applicable",
+          "note": "No summon / transform.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r003",
+            "gems"
+          ],
+          "tests": []
+        },
+        "order-death-retargeting": {
+          "status": "verified",
+          "note": "Counts -> create -> extra turn matches native.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r003",
+            "gems"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL3B05.test.ts"
+          ]
+        },
+        "mana-economy-extra-turn": {
+          "status": "verified",
+          "note": "Skill extra turn only with an enemy Beast.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r003",
+            "gems"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL3B05.test.ts"
+          ]
+        },
+        "display-description": {
+          "status": "verified",
+          "note": "zh matches.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r003",
+            "gems"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL3B05.test.ts"
+          ]
+        },
+        "battle-pipeline": {
+          "status": "verified",
+          "note": "Real TurnEngine.castSkill both sides: skill-cast first, mana spent, one action-log entry, turn switch / extra-turn asserted; low-mana and Silence refusals leave board/log/turn untouched.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r003",
+            "gems"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL3B05.test.ts"
+          ],
+          "realBattleEntry": true
+        }
+      },
+      "clauseReviews": [
+        {
+          "id": "c1",
+          "text": "Create 1 Elemental Star, +1 more for every 3 Green Allies and +1 more for every 3 Green Gems.",
+          "status": "disputed",
+          "note": "Base 1 verified; per-source vs combined flooring disputed (L3-014).",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r003",
+            "gems"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL3B05.test.ts"
+          ]
+        },
+        {
+          "id": "c2",
+          "text": "If the Enemy has a Beast, gain an extra turn.",
+          "status": "verified",
+          "note": "Enemy Beast -> extra turn.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r003",
+            "gems"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL3B05.test.ts"
+          ]
+        },
+        {
+          "id": "c3",
+          "text": "[3:1]",
+          "status": "verified",
+          "note": "[3:1] = 34% label (R003).",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r003",
+            "gems"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL3B05.test.ts"
+          ]
+        }
+      ],
+      "nativeStepReviews": [
+        {
+          "id": "0",
+          "type": "CountArmyColor",
+          "status": "disputed",
+          "note": "CountArmyColor 34 (flooring scope L3-014).",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r003",
+            "gems"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL3B05.test.ts"
+          ]
+        },
+        {
+          "id": "1",
+          "type": "CountGems",
+          "status": "disputed",
+          "note": "CountGems 34 (flooring scope L3-014).",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r003",
+            "gems"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL3B05.test.ts"
+          ]
+        },
+        {
+          "id": "2",
+          "type": "CreateGems",
+          "status": "verified",
+          "note": "CreateGems ElementalStar 1 + counter.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r003",
+            "gems"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL3B05.test.ts"
+          ]
+        },
+        {
+          "id": "3",
+          "type": "ExtraTurnConditional",
+          "status": "verified",
+          "note": "ExtraTurnConditional AddIfEnemyHasBeast.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r003",
+            "gems"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL3B05.test.ts"
+          ]
+        }
+      ],
+      "branchReviews": [
+        {
+          "id": "main",
+          "status": "verified",
+          "note": "Beast / no Beast tested.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r003",
+            "gems"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL3B05.test.ts"
+          ]
+        }
+      ]
+    },
+    {
+      "key": "weapon:1226",
+      "scope": "stored-gow-snapshot",
+      "sourceDigest": "c7039740e01f6ba502ca3564d283bbcef67c1a94e1c26ad345c038adaec0079a",
+      "reviewer": "sa-L3",
+      "reviewedAt": "2026-09-27",
+      "decision": "accept",
+      "ledgerFingerprintAtReview": "511f706bcad1f519cc41526f99cc8f56c54ad1dd6a2f4b2a7c9ef8f32dcb9ce0",
+      "_reference": {
+        "spellId": 7952,
+        "english": "Deal [Magic + 3] damage to all Enemies, +1 per Tempering level. Transform Red Gems to Doomskulls, if the Enemy has a Doom, create 5 more. Gain 3 Mana for each Blue Enemy. [x3]",
+        "nativeTarget": "None",
+        "randomize": null,
+        "steps": [
+          {
+            "Target": "AllEnemies",
+            "Amount": 300,
+            "Type": "CountArmyColor",
+            "Data": "0"
+          },
+          {
+            "SpellPowerMultiplier": 1,
+            "Target": "AllEnemies",
+            "StatusAmount": 1,
+            "Amount": 3,
+            "Primarypower": true,
+            "StatusModifier": "AddForTempering",
+            "Type": "Damage"
+          },
+          {
+            "Color1": "Red",
+            "Amount": 100,
+            "Color2": "Doomskull",
+            "Type": "ConvertGems"
+          },
+          {
+            "Target": "AllEnemies",
+            "StatusAmount": 5,
+            "Color1": "Doomskull",
+            "StatusModifier": "AddIfEnemyHasDoom",
+            "Type": "CreateGems"
+          },
+          {
+            "Target": "Self",
+            "UseCounterForAmount": true,
+            "Type": "GenerateMana"
+          }
+        ],
+        "prototype": {
+          "segments": [
+            {
+              "kind": "damage",
+              "target": "enemyAll",
+              "scaling": {
+                "base": 3,
+                "mult": 1
+              },
+              "range": "all",
+              "modifier": {
+                "mod": {
+                  "kind": "multiplier",
+                  "a": 1
+                },
+                "source": {
+                  "kind": "tempering"
+                }
+              }
+            },
+            {
+              "kind": "gem",
+              "params": {
+                "op": "transform",
+                "from": "Red",
+                "to": "SKULL",
+                "toSpecial": "doomSkull"
+              }
+            },
+            {
+              "kind": "gem",
+              "params": {
+                "op": "create",
+                "gem": {
+                  "kind": "special",
+                  "spec": {
+                    "kind": "doomSkull"
+                  }
+                },
+                "count": {
+                  "base": 5,
+                  "mult": 0
+                }
+              },
+              "ifCond": {
+                "kind": "targetHasDoom"
+              }
+            },
+            {
+              "kind": "buff",
+              "target": "allySelf",
+              "stat": "mana",
+              "scaling": {
+                "base": 0,
+                "mult": 0
+              },
+              "modifier": {
+                "mod": {
+                  "kind": "multiplier",
+                  "a": 3
+                },
+                "source": {
+                  "kind": "enemiesOfColor",
+                  "color": "Blue"
+                }
+              }
+            }
+          ]
+        }
+      },
+      "sourceEvidence": [
+        {
+          "id": "en",
+          "role": "english-snapshot",
+          "path": "artifacts/gowhead-weapons/weapons.json",
+          "note": "weapon:1226 Doomed Blade (gw_DoomedBlade) SpellId 7952, cost 18, Blue; \"Deal [Magic + 3] damage to all Enemies, +1 per Tempering level. Transform Red Gems to Doomskulls, if the Enemy has a Doom, create 5 more. Gain 3 Mana for each Blue Enemy. [x3]\""
+        },
+        {
+          "id": "native",
+          "role": "native-snapshot",
+          "path": "data/raw/spells.gow.en.json",
+          "note": "Spell 7952 Cost 18 Target None; CountArmyColor AllEnemies Blue 300 -> Damage AllEnemies 3 SPM 1 AddForTempering 1 -> ConvertGems Red->Doomskull -> CreateGems Doomskull 5 AddIfEnemyHasDoom -> GenerateMana Self (counter)."
+        },
+        {
+          "id": "rule",
+          "role": "official-shared-rule",
+          "path": "artifacts/gow-skill-audit/gold-primary-sources/official-weapon-list.html",
+          "note": "Weapon identity list."
+        },
+        {
+          "id": "laneTest",
+          "role": "lane-battle-test",
+          "path": "tests/unit/gowLaneL3B05.test.ts",
+          "note": "weapon:1226: real TurnEngine.castSkill both sides + boundaries"
+        },
+        {
+          "id": "gems",
+          "role": "official-shared-rule",
+          "path": "artifacts/gow-skill-audit/gold-primary-sources/official-heroic-gems-freshdesk.html",
+          "note": "Elemental Star / Doomskull definitions."
+        }
+      ],
+      "dimensions": {
+        "identity-cost-colors": {
+          "status": "verified",
+          "note": "weapon:1226 numeric 7952 and gw_DoomedBlade aliases, ReferenceName DoomedBlade, cost 18, Blue; weapons.json binding.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "gems"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL3B05.test.ts"
+          ]
+        },
+        "target-count-range": {
+          "status": "verified",
+          "note": "All living enemies; Blue count over living enemies only.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "gems"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL3B05.test.ts"
+          ]
+        },
+        "base-formula-rounding": {
+          "status": "verified",
+          "note": "Magic+3 + tempering level (0 -> +0, 2 -> +2).",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "gems"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL3B05.test.ts"
+          ]
+        },
+        "boost-source-ratio-cap": {
+          "status": "verified",
+          "note": "[x3] mana per Blue enemy (2 -> 6, 0 -> 0).",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "gems"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL3B05.test.ts"
+          ]
+        },
+        "conditions-probabilities-branches": {
+          "status": "verified",
+          "note": "Enemy Doom -> 5 extra Doomskulls; none -> no creation.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "gems"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL3B05.test.ts"
+          ]
+        },
+        "status-duration-immunity": {
+          "status": "not-applicable",
+          "note": "No status effect.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "gems"
+          ],
+          "tests": []
+        },
+        "gems-types-selection-resolution": {
+          "status": "verified",
+          "note": "FIXED L3-016: all Red -> Doomskull and +5 Doomskulls (never plain Skulls).",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "gems"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL3B05.test.ts"
+          ]
+        },
+        "summon-transform-pools": {
+          "status": "not-applicable",
+          "note": "No summon / transform.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "gems"
+          ],
+          "tests": []
+        },
+        "order-death-retargeting": {
+          "status": "verified",
+          "note": "Count -> damage -> convert -> create -> mana matches native.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "gems"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL3B05.test.ts"
+          ]
+        },
+        "mana-economy-extra-turn": {
+          "status": "verified",
+          "note": "FIXED L3-015: mana = 3 x Blue enemies only (no base 3); no extra turn.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "gems"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL3B05.test.ts"
+          ]
+        },
+        "display-description": {
+          "status": "verified",
+          "note": "zh matches.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "gems"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL3B05.test.ts"
+          ]
+        },
+        "battle-pipeline": {
+          "status": "verified",
+          "note": "Real TurnEngine.castSkill both sides: skill-cast first, mana spent, one action-log entry, turn switch / extra-turn asserted; low-mana and Silence refusals leave board/log/turn untouched.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "gems"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL3B05.test.ts"
+          ],
+          "realBattleEntry": true
+        }
+      },
+      "clauseReviews": [
+        {
+          "id": "c1",
+          "text": "Deal [Magic + 3] damage to all Enemies, +1 per Tempering level.",
+          "status": "verified",
+          "note": "Damage all +1 per Tempering.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "gems"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL3B05.test.ts"
+          ]
+        },
+        {
+          "id": "c2",
+          "text": "Transform Red Gems to Doomskulls, if the Enemy has a Doom, create 5 more.",
+          "status": "verified",
+          "note": "Red -> Doomskulls; +5 Doomskulls if an enemy Doom.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "gems"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL3B05.test.ts"
+          ]
+        },
+        {
+          "id": "c3",
+          "text": "Gain 3 Mana for each Blue Enemy.",
+          "status": "verified",
+          "note": "3 Mana per Blue enemy.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "gems"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL3B05.test.ts"
+          ]
+        },
+        {
+          "id": "c4",
+          "text": "[x3]",
+          "status": "verified",
+          "note": "[x3] label.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "gems"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL3B05.test.ts"
+          ]
+        }
+      ],
+      "nativeStepReviews": [
+        {
+          "id": "0",
+          "type": "CountArmyColor",
+          "status": "verified",
+          "note": "CountArmyColor Blue x3.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "gems"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL3B05.test.ts"
+          ]
+        },
+        {
+          "id": "1",
+          "type": "Damage",
+          "status": "verified",
+          "note": "Damage Magic+3 + tempering.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "gems"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL3B05.test.ts"
+          ]
+        },
+        {
+          "id": "2",
+          "type": "ConvertGems",
+          "status": "verified",
+          "note": "ConvertGems Red->Doomskull.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "gems"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL3B05.test.ts"
+          ]
+        },
+        {
+          "id": "3",
+          "type": "CreateGems",
+          "status": "verified",
+          "note": "CreateGems Doomskull 5 AddIfEnemyHasDoom.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "gems"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL3B05.test.ts"
+          ]
+        },
+        {
+          "id": "4",
+          "type": "GenerateMana",
+          "status": "verified",
+          "note": "GenerateMana Self counter.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "gems"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL3B05.test.ts"
+          ]
+        }
+      ],
+      "branchReviews": [
+        {
+          "id": "main",
+          "status": "verified",
+          "note": "Doom / no Doom tested.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "gems"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL3B05.test.ts"
+          ]
+        }
+      ]
+    }
+  ]
+}

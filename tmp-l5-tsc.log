@@ -1,0 +1,5 @@
+tests/unit/gowLaneL1B02.test.ts(19,38): error TS6133: 'troopsByType' is declared but its value is never read.
+tests/unit/gowLaneL1B02.test.ts(72,7): error TS6133: 'rawByType' is declared but its value is never read.
+tests/unit/gowLaneL1B02.test.ts(73,7): error TS6133: 'rawByKingdom' is declared but its value is never read.
+tests/unit/gowLaneL1B02.test.ts(74,7): error TS6133: 'poolOf' is declared but its value is never read.
+tests/unit/gowLaneL1B02Repro.test.ts(25,7): error TS6133: 'applied' is declared but its value is never read.

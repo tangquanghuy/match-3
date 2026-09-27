@@ -11,7 +11,6 @@ import { skill, dmg, dmgSplash, dmgAll, trueDmg, heal, armor, attack, mana, infl
   transformTroopRandom, CHOSEN } from '../builders';
 import { BaseColor } from '../../types';
 // 蜘蛛族引用池（生成器从 troops.json 内联）
-const SPIDER_REFS = ["SpiderQueen","GiantSpider","SpiderSwarm","SpiderKnight","Spinnerette","TombSpider","NightSpider","TheSpiderThrone","LeapingSpider","DeepSpider","FrostSpider"];
 const WRAITH_REFS = ["Wraith","IceWraith","FrostfireWraith"];
 
 const SKIPPED: { id: number; reason: string }[] = [];
@@ -27,7 +26,7 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 7376,
-    desc: '对 1 名敌人造成 [魔法 + 1] 点伤害。对所有使用黄色法力的敌人造成 [魔法 + 1] 点额外伤害，并将其燃烧。',
+    desc: '对 1 名敌人造成 [魔法 + 1] 点伤害。对所有使用黄色法力值的敌人造成 [魔法 + 1] 点额外伤害，并将其燃烧。',
     build: skill(
       dmg('enemyChosen', 1),
       dmg('enemyAll', 1, 1, { range: 'all', ifCond: { kind: 'targetColor', color: BaseColor.Yellow } }),
@@ -45,7 +44,8 @@ const SPELLS: CuratedBatch['spells'] = [
   {
     id: 7533,
     desc: '使一名随机敌人陷入织网状态。召唤一只随机蜘蛛。',
-    build: skill(inflict('web', 'enemyRandom'), summonRandom(SPIDER_REFS)),
+    // L1-6378-pool: native Randomize A+(B-C-D-E-F) over Summoning 6136/6110/6395/6512/6068.
+    build: skill(inflict('web', 'enemyRandom'), summonRandom(['SpiderSwarm', 'GiantSpider', 'Spinnerette', 'TombSpider', 'Webspinner'])),
   },
   {
     id: 7593,
@@ -56,9 +56,10 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 7668,
     desc: '耗尽一名敌人的法力值，并将其击晕和使其陷入沉默状态。对其和其下方的所有敌人造成 [魔法 + 6] 点伤害。',
     build: skill(
-      drainMana('enemyChosen'),
+      // L3-010: native CauseStun -> CauseSilence -> DecreaseMana 100 (R001; Stun disables Mana Shield)
       inflict('stun', 'enemyChosen'),
       inflict('silence', 'enemyChosen'),
+      drainMana('enemyChosen'),
       dmg('enemyChosenAndBelow', 6, 1, { range: 'all' }),
     ),
   },
@@ -107,7 +108,7 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 7968,
-    desc: '给予所有盟友 4 点魔法值。有 50% 的几率获得下列其一：对所有敌人造成 [魔法 + 1] 点伤害；爆破 8 颗随机宝石；给予所有盟友 [魔法 + 1] 点生命值。',
+    desc: '给予所有盟友 4 点魔力值。有 50% 的几率获得下列其一：对所有敌人造成 [魔法 + 1] 点伤害；爆破 8 颗随机宝石；给予所有盟友 [魔法 + 1] 点生命值。',
     build: skill(
       mana('allyAll', 4),
       { ...oneOf([dmgAll(1)], [explodeRandomGems(8, 0)], [heal('allyAll', 1, 1)]), chance: 0.5 },
@@ -168,7 +169,7 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 8236,
-    desc: '对一名敌人和一名随机敌人造成 [魔法 + 3] 点伤害，伤害值因中毒的敌人数而增强。若敌人使用蓝色法力，则造成双倍伤害。 [x5]',
+    desc: '对一名敌人和一名随机敌人造成 [魔法 + 3] 点伤害，伤害值因中毒的敌人数而增强。若敌人使用蓝色法力值，则造成双倍伤害。 [x5]',
     build: skill(
       dmg('enemyChosen', 3, 1, {
         modifier: { mod: { kind: 'multiplier', a: 5 }, source: { kind: 'enemyStatusCount', statusId: 'poison' } },
@@ -182,7 +183,7 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 8241,
-    desc: '对一名敌人和一名随机敌人造成 [魔法 + 3] 点伤害，伤害值因狂怒盟友数而增强。若敌人使用棕色法力，则造成双倍伤害。 [x5]',
+    desc: '对一名敌人和一名随机敌人造成 [魔法 + 3] 点伤害，伤害值因狂怒盟友数而增强。若敌人使用棕色法力值，则造成双倍伤害。 [x5]',
     build: skill(
       dmg('enemyChosen', 3, 1, {
         modifier: { mod: { kind: 'multiplier', a: 5 }, source: { kind: 'allyStatusCount', statusId: 'rage' } },
@@ -276,14 +277,15 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 8458,
     desc: '对前 2 位敌人造成 [魔法 + 2] 点伤害，再将他们击晕。再获得一个额外回合或获得 12 点护甲值。',
     build: skill(
-      dmg('enemyFirstN', 2, 1, { n: 2 }),
+      // R001: native CauseStun precedes Damage (Stun suppresses the targets' traits before the hit)
       inflict('stun', 'enemyFirstN', { n: 2 }),
+      dmg('enemyFirstN', 2, 1, { n: 2 }),
       oneOf([extraTurn()], [armor('allySelf', 12, 0)]),
     ),
   },
   {
     id: 8547,
-    desc: '对一名敌人造成 [(魔法 x 1.5) + 7] 点伤害。有等同于自身魔法值的几率摧毁敌人。若敌人身亡则召唤一名勒梅尔。 [1:1]',
+    desc: '对一名敌人造成 [(魔法 x 1.5) + 7] 点伤害。有等同于自身魔力值的几率摧毁敌人。若敌人身亡则召唤一名勒梅尔。 [1:1]',
     build: skill(
       dmg('enemyChosen', 7, 1.5),
       dmg('enemyChosen', 0, 0, { execute: true, chance: 0, chanceBoost: { mod: { kind: 'multiplier', a: 1 }, source: { kind: 'selfStat', stat: 'magic' } } }),
@@ -349,7 +351,8 @@ const SPELLS: CuratedBatch['spells'] = [
   {
     id: 8901,
     desc: '将一个选定的法力颜色宝石转换成一颗超级末日骷髅头。',
-    build: skill(transformToSpecial(CHOSEN, 'uberDoomSkull')),
+    // Native ConvertGems FromTarget BoardTarget SingleGem Amount 1: only the chosen cell (L4b-7276-singlegem).
+    build: skill(transformToSpecial('CELL', 'uberDoomSkull')),
   },
   {
     id: 8903,
@@ -370,7 +373,7 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 8963,
-    desc: '对 3 名随机敌人造成 [魔法 + 6] 点伤害。然后创建 3-6 x3 万能牌。',
+    desc: '对 3 名随机敌人造成 [魔法 + 6] 点伤害。然后创建 3-6 颗 x3 通配宝石。',
     build: skill(
       dmg('enemyRandomN', 6, 1, { n: 3 }),
       createSpecialGems({ kind: 'wildcard', tier: 3 }, 3, 0, { countRange: { min: 3, max: 6 } }),
@@ -455,7 +458,8 @@ const SPELLS: CuratedBatch['spells'] = [
     build: skill(
       inflict('terror', 'enemyChosen'),
       steal('enemyChosen', 'attack', 'attack', 1, 1),
-      reduce('enemyChosen', 'mana', 7),
+      // L3-008: native DecreaseMana Amount 7, no SpellPowerMultiplier → fixed 7
+      reduce('enemyChosen', 'mana', 7, 0),
     ),
   },
   {

@@ -30,6 +30,14 @@ export interface DestroyedGem {
  * 效果原语只写不建——纯原语单测（不走 executePrototype）时为 undefined，相关来源按 0 计。
  */
 export interface CastTracking {
+  /** One tie draw per side and cast; shared by gem effects and board-gem counts. */
+  mostUsedManaColors?: Partial<Record<PlayerSide, BaseColor | null>>;
+  /** Skull-family gems before any spell segment; native CountGems(Skull) precedes gem creation. */
+  skullsAtCastStart?: number;
+  /** Selected-column gems before any spell segment, for native CountGems -> Explode -> Create. */
+  chosenColumnAtCastStart?: GemType[];
+  /** Adjacent specials captured before the chosen-gem explosion. */
+  countedAdjacentSpecial?: number;
   /** 本技能效果段直接摧毁的宝石（不含连锁；按执行顺序累积） */
   destroyed: DestroyedGem[];
   /** 本技能效果段直接转化的宝石数 */
@@ -37,13 +45,15 @@ export interface CastTracking {
   /** 本技能耗掉的敌方法力总和 */
   drainedMana: number;
   /**
-   * 本技能效果段直接造成的敌方/己方阵亡数（原语 Wave3 批，官方 CountEnemyDeaths /
+   * 本技能效果段直接造成的敌方/己方阵亡数（叠加此前行动的全战斗计数）（原语 Wave3 批，官方 CountEnemyDeaths /
    * CountAllyDeaths——Glutmaw「因敌方阵亡数而增强 [x5]」、Dullahan 双来源）。
    * executePrototype 在每段结算时数 defeat 事件（参考 drainedMana 先例；
-   * 官方口径是全战斗累计，受技能层可动范围限制先落「本次施法内」口径，见 runSegment）。
+   * 官方口径是全战斗累计；本次施法的新增阵亡由 runSegment 单独追踪）。
    */
   enemyDeaths: number;
   allyDeaths: number;
+  /** An actual defeat caused by a sacrifice segment in this cast. */
+  sacrificeSucceeded?: boolean;
   /** 最近被献祭的盟友属性快照（「因献祭军队的攻击力而增强」跨段追踪） */
   sacrificed?: { attack: number; armor: number; magic: number; hp: number };
   /**
@@ -61,7 +71,7 @@ export interface CastTracking {
   lastTarget?: { id: number; aliveBefore: boolean };
   /**
    * 最近一个产目标段的**全目标列表**（R22 批，'lastTargets'/'lastTargetFirst'/'lastTargetLast'
-   * 目标模式的解析源——「吸取其 8 点法力」）。
+   * 目标模式的解析源——「吸取其 8 点法力值」）。
    */
   lastTargets?: { id: number; aliveBefore: boolean }[];
   /**
@@ -83,8 +93,7 @@ export interface CastTracking {
   /**
    * 本技能前序窃取黄金段的实际入账总额（batch-r28，modifier 来源 goldStolen——
    * 8087/8904「伤害/数值因被窃取的黄金数而增强」、8141「数量因窃取的黄金数而增强」）。
-   * economy.ts stealGold 结算按实际入账累加（drainedMana 先例）；all 全额句式记
-   * 「池内黄金全额易主」的零和转移额（见 effects/economy.ts 口径注释）。
+   * economy.ts stealGold 按独立敌方余额的实际扣减额累加；不是己方当前持有量。
    */
   goldStolen?: number;
   /**
@@ -120,8 +129,12 @@ export interface CastTracking {
 
 /** 效果原语执行上下文（施法者、状态、随机源、宝石 id 分配器） */
 export interface EffectContext {
+  /** Explicit choice index for direct prototype callers. */
+  chosenBranch?: number;
   state: GameState;
   casterId: number;
+  /** Ownership captured before the first segment; survives caster removal mid-cast. */
+  casterSide?: PlayerSide;
   rng: SeededRNG;
   /** 分配新宝石稳定 id（创造宝石时用；由 TurnEngine 注入） */
   nextGemId: () => number;
@@ -130,7 +143,7 @@ export interface EffectContext {
    * 结算被直接摧毁宝石的法力/骷髅 → 重力补充 → 解析由此产生的连锁。
    * 由 TurnEngine 注入；缺省（纯原语单测）时宝石操作只改棋盘、不结算连锁。
    */
-  resolveBoardChange?: (destroyed: DestroyedGem[], events: GameEvent[]) => void;
+  resolveBoardChange?: (destroyed: DestroyedGem[], events: GameEvent[], mode?: 'destroy' | 'explode') => void;
   /**
    * 额外回合信号（需求 10.2）：调用后当前玩家保留回合。
    * 由 TurnEngine 注入；缺省时额外回合原语只发事件、不改回合归属（供纯单测）。
@@ -195,6 +208,11 @@ export function findSide(state: GameState, id: number): PlayerSide | null {
     if (state.teams[side].characters.some((c) => c.id === id)) return side;
   }
   return null;
+}
+
+/** Stable spell ownership, including later economy segments after caster defeat. */
+export function effectCasterSide(ctx: EffectContext): PlayerSide {
+  return ctx.casterSide ?? findSide(ctx.state, ctx.casterId) ?? Side.Left;
 }
 
 /**

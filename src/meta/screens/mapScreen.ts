@@ -9,7 +9,7 @@ import { KINGDOM_MAX_LEVEL, kingdomNodeState } from '../systems/kingdomOps';
 import { EXPLORE_MAX_TIER, kingdomBonusStat, kingdomTroopPool } from '../data/kingdoms';
 import { EVENT_MILESTONES, EVENT_TYPES, type EventTypeId } from '../data/events';
 import { anyWeaponById } from '../data/weaponCatalog';
-import { kingdomUpgradeCost, INVASION, TRIBUTE } from '../data/economy';
+import { kingdomUpgradeCost, INVASION, TRIBUTE, KINGDOM_FIRST_CLEAR_GEMS } from '../data/economy';
 import { eventMetricOf, eventShopOf } from '../systems/events';
 import { bottomNavHtml, fitStage, mountIcons, toast, toastHtml, topbarHtml, $, $$ } from '../shell/chrome';
 import type { Screen, ShellCtx } from '../shell/screen';
@@ -35,12 +35,12 @@ export interface EventRailStatus {
 }
 
 /** 地图入口只聚合“现在进去有事可做”的活动，六活动常驻本身不算提醒。 */
-export function eventRailStatus(save: MetaSave, weekStart: number): EventRailStatus {
+export function eventRailStatus(save: MetaSave, weekStart: number, now = weekStart): EventRailStatus {
   const claimable = new Set<EventTypeId>();
   const affordable = new Set<EventTypeId>();
 
   for (const def of EVENT_TYPES) {
-    const shop = eventShopOf(save, weekStart, def.id);
+    const shop = eventShopOf(save, weekStart, def.id, now);
     const metric = eventMetricOf(save, weekStart, def.id);
     const reached = EVENT_MILESTONES[def.id].some(
       (milestone, index) => metric.value >= milestone.points && !shop.week.claimed.includes(index),
@@ -946,7 +946,7 @@ export class MapScreen implements Screen {
     const ways: Record<string, Array<[string, string]>> = {
       gold: [['战斗结算', '击杀与首胜'], ['王国进贡', '按小时累积，上限 12 小时'], ['分解多余卡', '不回收已投入养成']],
       soul: [['战斗结算', '按敌人稀有度 × 等级'], ['幽魂宝石', '战斗内拾取'], ['王国进贡', '与黄金一并结算']],
-      gem: [['竞技场胜场', '主产出，无内购'], ['每日首胜', '本地日期判定'], ['任务与成就', '里程碑发放']],
+      gem: [['王国逐关首通', `普通 ${KINGDOM_FIRST_CLEAR_GEMS.normal} / 困难 ${KINGDOM_FIRST_CLEAR_GEMS.hard} / 非常困难 ${KINGDOM_FIRST_CLEAR_GEMS.veryHard} 宝石，每关仅一次`], ['竞技场胜场', '按最终胜场结算'], ['每日首胜', '本地日期判定'], ['每周活动', '里程碑与守土奖励']],
       key: [['进贡概率', '随王国等级提高'], ['任务奖励', '章节节点'], ['成就', '长期目标']],
     };
     const titles: Record<string, string> = { gold: '黄金', soul: '灵魂', gem: '宝石', key: '金钥匙' };
@@ -1169,7 +1169,7 @@ export class MapScreen implements Screen {
 
     // 左 3 · 活动中心：用 per-event 周状态聚合真正可处理的奖励/兑换提醒。
     const eventsButton = $('#railEvents');
-    const eventStatus = eventRailStatus(save, weekStartOf(Date.now()));
+    const eventStatus = eventRailStatus(save, weekStartOf(Date.now()), Date.now());
     const statusParts = [
       eventStatus.claimableActivities > 0 ? `${eventStatus.claimableActivities} 个奖励待领取` : '',
       eventStatus.affordableShops > 0 ? `${eventStatus.affordableShops} 家商店可兑换` : '',
@@ -1283,9 +1283,8 @@ export class MapScreen implements Screen {
         : '进贡累积中';
     $('#dailyTribute').classList.toggle('gold', readyKingdoms.length > 0);
     $('#dailyTribute').classList.toggle('over', urgent);
-    const freeTicket = save.arena.lastFreeEntryAt < weekStartOf(now);
-    $('#dailyArenaCopy').textContent = freeTicket ? '竞技场免费票' : '竞技场';
-    $('#dailyArena').classList.toggle('hot', freeTicket);
+    $('#dailyArenaCopy').textContent = save.arena.activeDraft ? '继续竞技场' : '竞技场 · 1000黄金';
+    $('#dailyArena').classList.toggle('hot', !!save.arena.activeDraft);
     const maps = save.materials.treasureMaps;
     $('#dailyHuntCopy').textContent = save.treasureHunt
       ? '寻宝进行中'

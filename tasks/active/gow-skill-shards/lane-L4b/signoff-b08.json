@@ -1,0 +1,1917 @@
+{
+  "schemaVersion": 1,
+  "scope": "stored-gow-snapshot",
+  "reviews": [
+    {
+      "key": "weapon:1105",
+      "scope": "stored-gow-snapshot",
+      "sourceDigest": "1a8d4ec8c4066051ca5be6334bb502fdab80f7b9984cf12537e10cfba7812e07",
+      "reviewer": "sa-L4b",
+      "reviewedAt": "2026-09-27",
+      "decision": "accept",
+      "ledgerFingerprintAtReview": "06aa2a101d6e83fb370b9037d5881835987be6d8e92f0fa379a4305043873d14",
+      "_reference": {
+        "spellId": 7241,
+        "english": "Deal [Magic + 7] damage to an Enemy boosted by Khetar Allies. Then create a mix of 6 Purple and Brown Gems for each Khetar Ally. [x6]",
+        "nativeTarget": "Enemy",
+        "randomize": null,
+        "steps": [
+          {
+            "Target": "AllAllies",
+            "Amount": 600,
+            "Type": "CountArmyKingdom",
+            "Data": "3020"
+          },
+          {
+            "SpellPowerMultiplier": 1,
+            "Target": "FromTarget",
+            "UseCounterForAmount": true,
+            "Amount": 7,
+            "Primarypower": true,
+            "Type": "Damage"
+          },
+          {
+            "UseCounterForAmount": true,
+            "Color1": "Purple",
+            "Color2": "Brown",
+            "Type": "CreateGems2Colors"
+          }
+        ],
+        "prototype": {
+          "segments": [
+            {
+              "kind": "damage",
+              "target": "enemyChosen",
+              "scaling": {
+                "base": 7,
+                "mult": 1
+              },
+              "modifier": {
+                "mod": {
+                  "kind": "multiplier",
+                  "a": 6
+                },
+                "source": {
+                  "kind": "alliesOfKingdom",
+                  "kingdom": "盖塔尔"
+                }
+              }
+            },
+            {
+              "kind": "gem",
+              "params": {
+                "op": "create",
+                "gem": {
+                  "kind": "mix",
+                  "colors": [
+                    "Purple",
+                    "Brown"
+                  ]
+                },
+                "count": {
+                  "base": 0,
+                  "mult": 0
+                },
+                "modifier": {
+                  "mod": {
+                    "kind": "multiplier",
+                    "a": 6
+                  },
+                  "source": {
+                    "kind": "alliesOfKingdom",
+                    "kingdom": "盖塔尔"
+                  }
+                }
+              },
+              "modifier": {
+                "mod": {
+                  "kind": "multiplier",
+                  "a": 6
+                },
+                "source": {
+                  "kind": "alliesOfKingdom",
+                  "kingdom": "盖塔尔"
+                }
+              }
+            }
+          ]
+        }
+      },
+      "sourceEvidence": [
+        {
+          "id": "en",
+          "role": "english-snapshot",
+          "path": "artifacts/gowhead-weapons/weapons.json",
+          "note": "Weapon 1105 (BoneShield) spell id 7241, English text, ManaCost 14, ManaColors Blue+Red asserted from gowhead weapons.json in tests/unit/gowLaneL4bB08.test.ts."
+        },
+        {
+          "id": "native",
+          "role": "native-snapshot",
+          "path": "data/raw/spells.gow.en.json",
+          "note": "SpellId 7241 Cost/Target and every SpellSteps field (ordered, toEqual) asserted in tests/unit/gowLaneL4bB08.test.ts."
+        },
+        {
+          "id": "rule",
+          "role": "official-shared-rule",
+          "path": "tasks/active/gow-skill-shards/rulings/R003-count-threshold-labels.md",
+          "note": "R003: CountArmyKingdom Amount 600 = x6 per counted ally; Data 3020 = 盖塔尔 (Khetar): the majority src kingdom name of raw troops with KingdomId 3020 is asserted."
+        },
+        {
+          "id": "rl01",
+          "role": "user-ruling",
+          "path": "tasks/active/gow-skill-shards/rulings/RL4b-01-two-colour-overwrite.md",
+          "note": "RL4b-01: 2-colour creation selects N distinct cells, each one of the two colours."
+        },
+        {
+          "id": "laneTest",
+          "role": "lane-battle-test",
+          "path": "tests/unit/gowLaneL4bB08.test.ts",
+          "note": "Lane L4b frozen test file: binding + real castSkill cases for weapon:1105."
+        }
+      ],
+      "dimensions": {
+        "identity-cost-colors": {
+          "status": "verified",
+          "note": "weapon 1105 -> spell 7241; gowhead ManaCost 14 = native Cost 14; colours Blue+Red; src weapons.json id/referenceName BoneShield/manaCost/manaColors/spell.id; numeric 7241 and gw_BoneShield aliases resolve to the same prototype.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "rl01",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB08.test.ts"
+          ]
+        },
+        "target-count-range": {
+          "status": "verified",
+          "note": "FromTarget (spell Target Enemy) -> enemyChosen 11 only; ally id refused before mana is spent.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "rl01",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB08.test.ts"
+          ]
+        },
+        "base-formula-rounding": {
+          "status": "verified",
+          "note": "[Magic+7] + 6 per living Khetar ally (caster included when of that kingdom): 7 / 29 for magic 0 / 10 with 0 / 2 allies; dead Khetar ally and Khetar enemies not counted (17 + 6 = 23 case).",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "rl01",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB08.test.ts"
+          ]
+        },
+        "boost-source-ratio-cap": {
+          "status": "verified",
+          "note": "multiplier a=6 alliesOfKingdom 盖塔尔 shared by the damage and the create segments (same counter as native step 0); no cap.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "rl01",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB08.test.ts"
+          ]
+        },
+        "conditions-probabilities-branches": {
+          "status": "not-applicable",
+          "note": "No condition; per-gem colour choice is seeded random (RL4b-01).",
+          "evidenceIds": [
+            "en",
+            "native"
+          ],
+          "tests": []
+        },
+        "status-duration-immunity": {
+          "status": "not-applicable",
+          "note": "No status; Barrier on the target absorbs the damage, gems still created.",
+          "evidenceIds": [
+            "en",
+            "native"
+          ],
+          "tests": []
+        },
+        "gems-types-selection-resolution": {
+          "status": "verified",
+          "note": "CreateGems2Colors Purple/Brown UseCounterForAmount, no Amount: 6n gems on distinct cells, all Purple/Brown, both colours present when n > 0.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "rl01",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB08.test.ts"
+          ]
+        },
+        "summon-transform-pools": {
+          "status": "not-applicable",
+          "note": "No summon or troop transform.",
+          "evidenceIds": [
+            "en",
+            "native"
+          ],
+          "tests": []
+        },
+        "order-death-retargeting": {
+          "status": "verified",
+          "note": "Count -> Damage -> Create (native order): skill-damage precedes the gem events.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "rl01",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB08.test.ts"
+          ]
+        },
+        "mana-economy-extra-turn": {
+          "status": "verified",
+          "note": "Caster mana 0 after cast except cascade mana-gain events; no skill extra turn; one action-log entry; turn passes.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "rl01",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB08.test.ts"
+          ]
+        },
+        "display-description": {
+          "status": "verified",
+          "note": "Chinese '对一名敌人造成 [魔法 + 7] 点伤害，伤害值因盖塔尔盟友数而增强。每有一名盖塔尔盟友，则创造 6 颗宝石，所创造的宝石混合紫色和棕色两种颜色。 [x6]' matches English (kingdom 盖塔尔, [Magic + 7], mix Purple/Brown, [x6]).",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "rl01",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB08.test.ts"
+          ]
+        },
+        "battle-pipeline": {
+          "status": "verified",
+          "note": "Real TurnEngine.castSkill via both aliases (7241, gw_BoneShield) on both sides with magic 0/10; low mana and Silence refuse without spending mana or touching board/statuses/turn.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "rl01",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB08.test.ts"
+          ],
+          "realBattleEntry": true
+        }
+      },
+      "clauseReviews": [
+        {
+          "id": "c1",
+          "text": "Deal [Magic + 7] damage to an Enemy boosted by Khetar Allies.",
+          "status": "verified",
+          "note": "[Magic+7] damage to the chosen enemy +6 per Khetar ally.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "rl01",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB08.test.ts"
+          ]
+        },
+        {
+          "id": "c2",
+          "text": "Then create a mix of 6 Purple and Brown Gems for each Khetar Ally.",
+          "status": "verified",
+          "note": "Mix of Purple/Brown gems, 6 per Khetar ally (0 when none), distinct cells, both colours present.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "rl01",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB08.test.ts"
+          ]
+        },
+        {
+          "id": "c3",
+          "text": "[x6]",
+          "status": "verified",
+          "note": "[x6] = +6 damage and 6 gems per kingdom ally.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "rl01",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB08.test.ts"
+          ]
+        }
+      ],
+      "nativeStepReviews": [
+        {
+          "id": "0",
+          "type": "CountArmyKingdom",
+          "status": "verified",
+          "note": "CountArmyKingdom AllAllies Data 3020 Amount 600 -> alliesOfKingdom 盖塔尔 x6.",
+          "evidenceIds": [
+            "native",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB08.test.ts"
+          ]
+        },
+        {
+          "id": "1",
+          "type": "Damage",
+          "status": "verified",
+          "note": "Damage FromTarget Amount 7 x Magic UseCounterForAmount -> damage enemyChosen {7,1} + modifier.",
+          "evidenceIds": [
+            "native",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB08.test.ts"
+          ]
+        },
+        {
+          "id": "2",
+          "type": "CreateGems2Colors",
+          "status": "verified",
+          "note": "CreateGems2Colors Purple/Brown UseCounterForAmount -> create mix base 0 + modifier.",
+          "evidenceIds": [
+            "native",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB08.test.ts"
+          ]
+        }
+      ],
+      "branchReviews": [
+        {
+          "id": "main",
+          "status": "verified",
+          "note": "Single branch; aliases x sides x (magic, allies), caster-of-kingdom, dead ally, enemy of kingdom, Barrier, illegal target.",
+          "evidenceIds": [
+            "native",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB08.test.ts"
+          ]
+        }
+      ]
+    },
+    {
+      "key": "weapon:1186",
+      "scope": "stored-gow-snapshot",
+      "sourceDigest": "fdfbef7caa255d0ce6fe472d9ec5ec24db397b53e8d4f57d43adf33a15d6c2ec",
+      "reviewer": "sa-L4b",
+      "reviewedAt": "2026-09-27",
+      "decision": "draft",
+      "ledgerFingerprintAtReview": "06aa2a101d6e83fb370b9037d5881835987be6d8e92f0fa379a4305043873d14",
+      "_reference": {
+        "spellId": 7662,
+        "english": "Deal [Magic + 7] damage to an Enemy boosted by Pan's Vale Allies. Then create a mix of 6 Green and Yellow Gems for each Pan's Vale Ally. [x6]",
+        "nativeTarget": "Enemy",
+        "randomize": null,
+        "steps": [
+          {
+            "Target": "AllAllies",
+            "Amount": 600,
+            "Type": "CountArmyKingdom",
+            "Data": "3003"
+          },
+          {
+            "SpellPowerMultiplier": 1,
+            "Target": "FromTarget",
+            "UseCounterForAmount": true,
+            "Amount": 7,
+            "Primarypower": true,
+            "Type": "Damage"
+          },
+          {
+            "UseCounterForAmount": true,
+            "Color1": "Green",
+            "Color2": "Yellow",
+            "Type": "CreateGems2Colors"
+          }
+        ],
+        "prototype": {
+          "segments": [
+            {
+              "kind": "damage",
+              "target": "enemyChosen",
+              "scaling": {
+                "base": 7,
+                "mult": 1
+              },
+              "modifier": {
+                "mod": {
+                  "kind": "multiplier",
+                  "a": 6
+                },
+                "source": {
+                  "kind": "alliesOfKingdom",
+                  "kingdom": "潘神之谷"
+                }
+              }
+            },
+            {
+              "kind": "gem",
+              "params": {
+                "op": "create",
+                "gem": {
+                  "kind": "mix",
+                  "colors": [
+                    "Green",
+                    "Yellow"
+                  ]
+                },
+                "count": {
+                  "base": 0,
+                  "mult": 0
+                },
+                "modifier": {
+                  "mod": {
+                    "kind": "multiplier",
+                    "a": 6
+                  },
+                  "source": {
+                    "kind": "alliesOfKingdom",
+                    "kingdom": "潘神之谷"
+                  }
+                }
+              },
+              "modifier": {
+                "mod": {
+                  "kind": "multiplier",
+                  "a": 6
+                },
+                "source": {
+                  "kind": "alliesOfKingdom",
+                  "kingdom": "潘神之谷"
+                }
+              }
+            }
+          ]
+        }
+      },
+      "sourceEvidence": [
+        {
+          "id": "en",
+          "role": "english-snapshot",
+          "path": "artifacts/gowhead-weapons/weapons.json",
+          "note": "Weapon 1186 (RadiantJewel) spell id 7662, English text, ManaCost 14, ManaColors Red+Purple asserted from gowhead weapons.json in tests/unit/gowLaneL4bB08.test.ts."
+        },
+        {
+          "id": "native",
+          "role": "native-snapshot",
+          "path": "data/raw/spells.gow.en.json",
+          "note": "SpellId 7662 Cost/Target and every SpellSteps field (ordered, toEqual) asserted in tests/unit/gowLaneL4bB08.test.ts."
+        },
+        {
+          "id": "rule",
+          "role": "official-shared-rule",
+          "path": "tasks/active/gow-skill-shards/rulings/R003-count-threshold-labels.md",
+          "note": "R003: CountArmyKingdom Amount 600 = x6 per counted ally; Data 3003 = 潘神之谷 (Pan's Vale): the majority src kingdom name of raw troops with KingdomId 3003 is asserted."
+        },
+        {
+          "id": "rl01",
+          "role": "user-ruling",
+          "path": "tasks/active/gow-skill-shards/rulings/RL4b-01-two-colour-overwrite.md",
+          "note": "RL4b-01: 2-colour creation selects N distinct cells, each one of the two colours."
+        },
+        {
+          "id": "laneTest",
+          "role": "lane-battle-test",
+          "path": "tests/unit/gowLaneL4bB08.test.ts",
+          "note": "Lane L4b frozen test file: binding + real castSkill cases for weapon:1186."
+        }
+      ],
+      "dimensions": {
+        "identity-cost-colors": {
+          "status": "verified",
+          "note": "weapon 1186 -> spell 7662; gowhead ManaCost 14 = native Cost 14; colours Red+Purple; src weapons.json id/referenceName RadiantJewel/manaCost/manaColors/spell.id; numeric 7662 and gw_RadiantJewel aliases resolve to the same prototype.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "rl01",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB08.test.ts"
+          ]
+        },
+        "target-count-range": {
+          "status": "verified",
+          "note": "FromTarget (spell Target Enemy) -> enemyChosen 11 only; ally id refused before mana is spent.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "rl01",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB08.test.ts"
+          ]
+        },
+        "base-formula-rounding": {
+          "status": "verified",
+          "note": "[Magic+7] + 6 per living Pan's Vale ally (caster included when of that kingdom): 7 / 29 for magic 0 / 10 with 0 / 2 allies; dead Pan's Vale ally and Pan's Vale enemies not counted (17 + 6 = 23 case).",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "rl01",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB08.test.ts"
+          ]
+        },
+        "boost-source-ratio-cap": {
+          "status": "verified",
+          "note": "multiplier a=6 alliesOfKingdom 潘神之谷 shared by the damage and the create segments (same counter as native step 0); no cap.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "rl01",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB08.test.ts"
+          ]
+        },
+        "conditions-probabilities-branches": {
+          "status": "not-applicable",
+          "note": "No condition; per-gem colour choice is seeded random (RL4b-01).",
+          "evidenceIds": [
+            "en",
+            "native"
+          ],
+          "tests": []
+        },
+        "status-duration-immunity": {
+          "status": "not-applicable",
+          "note": "No status; Barrier on the target absorbs the damage, gems still created.",
+          "evidenceIds": [
+            "en",
+            "native"
+          ],
+          "tests": []
+        },
+        "gems-types-selection-resolution": {
+          "status": "verified",
+          "note": "CreateGems2Colors Green/Yellow UseCounterForAmount, no Amount: 6n gems on distinct cells, all Green/Yellow, both colours present when n > 0.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "rl01",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB08.test.ts"
+          ]
+        },
+        "summon-transform-pools": {
+          "status": "not-applicable",
+          "note": "No summon or troop transform.",
+          "evidenceIds": [
+            "en",
+            "native"
+          ],
+          "tests": []
+        },
+        "order-death-retargeting": {
+          "status": "verified",
+          "note": "Count -> Damage -> Create (native order): skill-damage precedes the gem events.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "rl01",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB08.test.ts"
+          ]
+        },
+        "mana-economy-extra-turn": {
+          "status": "verified",
+          "note": "Caster mana 0 after cast except cascade mana-gain events; no skill extra turn; one action-log entry; turn passes.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "rl01",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB08.test.ts"
+          ]
+        },
+        "display-description": {
+          "status": "difference",
+          "note": "Chinese '对一名敌人造成 [魔法 + 7] 点伤害，伤害值因潘神之谷友数而增强。每有一名潘神之谷盟友，则创造混合绿色和黄色的 6 颗宝石。 [x6]' has a typo: '潘神之谷友数' drops 盟 (should read 潘神之谷盟友数). See issues.json L4b-1186-zh.",
+          "evidenceIds": [
+            "en",
+            "native"
+          ],
+          "tests": []
+        },
+        "battle-pipeline": {
+          "status": "verified",
+          "note": "Real TurnEngine.castSkill via both aliases (7662, gw_RadiantJewel) on both sides with magic 0/10; low mana and Silence refuse without spending mana or touching board/statuses/turn.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "rl01",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB08.test.ts"
+          ],
+          "realBattleEntry": true
+        }
+      },
+      "clauseReviews": [
+        {
+          "id": "c1",
+          "text": "Deal [Magic + 7] damage to an Enemy boosted by Pan's Vale Allies.",
+          "status": "verified",
+          "note": "[Magic+7] damage to the chosen enemy +6 per Pan's Vale ally.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "rl01",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB08.test.ts"
+          ]
+        },
+        {
+          "id": "c2",
+          "text": "Then create a mix of 6 Green and Yellow Gems for each Pan's Vale Ally.",
+          "status": "verified",
+          "note": "Mix of Green/Yellow gems, 6 per Pan's Vale ally (0 when none), distinct cells, both colours present.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "rl01",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB08.test.ts"
+          ]
+        },
+        {
+          "id": "c3",
+          "text": "[x6]",
+          "status": "verified",
+          "note": "[x6] = +6 damage and 6 gems per kingdom ally.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "rl01",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB08.test.ts"
+          ]
+        }
+      ],
+      "nativeStepReviews": [
+        {
+          "id": "0",
+          "type": "CountArmyKingdom",
+          "status": "verified",
+          "note": "CountArmyKingdom AllAllies Data 3003 Amount 600 -> alliesOfKingdom 潘神之谷 x6.",
+          "evidenceIds": [
+            "native",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB08.test.ts"
+          ]
+        },
+        {
+          "id": "1",
+          "type": "Damage",
+          "status": "verified",
+          "note": "Damage FromTarget Amount 7 x Magic UseCounterForAmount -> damage enemyChosen {7,1} + modifier.",
+          "evidenceIds": [
+            "native",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB08.test.ts"
+          ]
+        },
+        {
+          "id": "2",
+          "type": "CreateGems2Colors",
+          "status": "verified",
+          "note": "CreateGems2Colors Green/Yellow UseCounterForAmount -> create mix base 0 + modifier.",
+          "evidenceIds": [
+            "native",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB08.test.ts"
+          ]
+        }
+      ],
+      "branchReviews": [
+        {
+          "id": "main",
+          "status": "verified",
+          "note": "Single branch; aliases x sides x (magic, allies), caster-of-kingdom, dead ally, enemy of kingdom, Barrier, illegal target.",
+          "evidenceIds": [
+            "native",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB08.test.ts"
+          ]
+        }
+      ],
+      "openIssues": [
+        "L4b-1186-zh"
+      ]
+    },
+    {
+      "key": "weapon:1188",
+      "scope": "stored-gow-snapshot",
+      "sourceDigest": "e62b54321f86596222e2f046dd6731db8c3e437ff0e0e77b5f54ae920929e72a",
+      "reviewer": "sa-L4b",
+      "reviewedAt": "2026-09-27",
+      "decision": "accept",
+      "ledgerFingerprintAtReview": "06aa2a101d6e83fb370b9037d5881835987be6d8e92f0fa379a4305043873d14",
+      "_reference": {
+        "spellId": 7692,
+        "english": "Deal [Magic + 7] damage to an Enemy, boosted by Glacial Peak Allies. Then create a mix of 6 Blue and Purple Gems for each Glacial Peak Ally. [x6]",
+        "nativeTarget": "Enemy",
+        "randomize": null,
+        "steps": [
+          {
+            "Target": "AllAllies",
+            "Amount": 600,
+            "Type": "CountArmyKingdom",
+            "Data": "3011"
+          },
+          {
+            "SpellPowerMultiplier": 1,
+            "Target": "FromTarget",
+            "UseCounterForAmount": true,
+            "Amount": 7,
+            "Primarypower": true,
+            "Type": "Damage"
+          },
+          {
+            "UseCounterForAmount": true,
+            "Color1": "Blue",
+            "Color2": "Purple",
+            "Type": "CreateGems2Colors"
+          }
+        ],
+        "prototype": {
+          "segments": [
+            {
+              "kind": "damage",
+              "target": "enemyChosen",
+              "scaling": {
+                "base": 7,
+                "mult": 1
+              },
+              "modifier": {
+                "mod": {
+                  "kind": "multiplier",
+                  "a": 6
+                },
+                "source": {
+                  "kind": "alliesOfKingdom",
+                  "kingdom": "冰峰之巅"
+                }
+              }
+            },
+            {
+              "kind": "gem",
+              "params": {
+                "op": "create",
+                "gem": {
+                  "kind": "mix",
+                  "colors": [
+                    "Blue",
+                    "Purple"
+                  ]
+                },
+                "count": {
+                  "base": 0,
+                  "mult": 0
+                },
+                "modifier": {
+                  "mod": {
+                    "kind": "multiplier",
+                    "a": 6
+                  },
+                  "source": {
+                    "kind": "alliesOfKingdom",
+                    "kingdom": "冰峰之巅"
+                  }
+                }
+              },
+              "modifier": {
+                "mod": {
+                  "kind": "multiplier",
+                  "a": 6
+                },
+                "source": {
+                  "kind": "alliesOfKingdom",
+                  "kingdom": "冰峰之巅"
+                }
+              }
+            }
+          ]
+        }
+      },
+      "sourceEvidence": [
+        {
+          "id": "en",
+          "role": "english-snapshot",
+          "path": "artifacts/gowhead-weapons/weapons.json",
+          "note": "Weapon 1188 (GlacialCrystal) spell id 7692, English text, ManaCost 14, ManaColors Green+Yellow asserted from gowhead weapons.json in tests/unit/gowLaneL4bB08.test.ts."
+        },
+        {
+          "id": "native",
+          "role": "native-snapshot",
+          "path": "data/raw/spells.gow.en.json",
+          "note": "SpellId 7692 Cost/Target and every SpellSteps field (ordered, toEqual) asserted in tests/unit/gowLaneL4bB08.test.ts."
+        },
+        {
+          "id": "rule",
+          "role": "official-shared-rule",
+          "path": "tasks/active/gow-skill-shards/rulings/R003-count-threshold-labels.md",
+          "note": "R003: CountArmyKingdom Amount 600 = x6 per counted ally; Data 3011 = 冰峰之巅 (Glacial Peak): the majority src kingdom name of raw troops with KingdomId 3011 is asserted."
+        },
+        {
+          "id": "rl01",
+          "role": "user-ruling",
+          "path": "tasks/active/gow-skill-shards/rulings/RL4b-01-two-colour-overwrite.md",
+          "note": "RL4b-01: 2-colour creation selects N distinct cells, each one of the two colours."
+        },
+        {
+          "id": "laneTest",
+          "role": "lane-battle-test",
+          "path": "tests/unit/gowLaneL4bB08.test.ts",
+          "note": "Lane L4b frozen test file: binding + real castSkill cases for weapon:1188."
+        }
+      ],
+      "dimensions": {
+        "identity-cost-colors": {
+          "status": "verified",
+          "note": "weapon 1188 -> spell 7692; gowhead ManaCost 14 = native Cost 14; colours Green+Yellow; src weapons.json id/referenceName GlacialCrystal/manaCost/manaColors/spell.id; numeric 7692 and gw_GlacialCrystal aliases resolve to the same prototype.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "rl01",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB08.test.ts"
+          ]
+        },
+        "target-count-range": {
+          "status": "verified",
+          "note": "FromTarget (spell Target Enemy) -> enemyChosen 11 only; ally id refused before mana is spent.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "rl01",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB08.test.ts"
+          ]
+        },
+        "base-formula-rounding": {
+          "status": "verified",
+          "note": "[Magic+7] + 6 per living Glacial Peak ally (caster included when of that kingdom): 7 / 29 for magic 0 / 10 with 0 / 2 allies; dead Glacial Peak ally and Glacial Peak enemies not counted (17 + 6 = 23 case).",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "rl01",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB08.test.ts"
+          ]
+        },
+        "boost-source-ratio-cap": {
+          "status": "verified",
+          "note": "multiplier a=6 alliesOfKingdom 冰峰之巅 shared by the damage and the create segments (same counter as native step 0); no cap.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "rl01",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB08.test.ts"
+          ]
+        },
+        "conditions-probabilities-branches": {
+          "status": "not-applicable",
+          "note": "No condition; per-gem colour choice is seeded random (RL4b-01).",
+          "evidenceIds": [
+            "en",
+            "native"
+          ],
+          "tests": []
+        },
+        "status-duration-immunity": {
+          "status": "not-applicable",
+          "note": "No status; Barrier on the target absorbs the damage, gems still created.",
+          "evidenceIds": [
+            "en",
+            "native"
+          ],
+          "tests": []
+        },
+        "gems-types-selection-resolution": {
+          "status": "verified",
+          "note": "CreateGems2Colors Blue/Purple UseCounterForAmount, no Amount: 6n gems on distinct cells, all Blue/Purple, both colours present when n > 0.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "rl01",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB08.test.ts"
+          ]
+        },
+        "summon-transform-pools": {
+          "status": "not-applicable",
+          "note": "No summon or troop transform.",
+          "evidenceIds": [
+            "en",
+            "native"
+          ],
+          "tests": []
+        },
+        "order-death-retargeting": {
+          "status": "verified",
+          "note": "Count -> Damage -> Create (native order): skill-damage precedes the gem events.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "rl01",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB08.test.ts"
+          ]
+        },
+        "mana-economy-extra-turn": {
+          "status": "verified",
+          "note": "Caster mana 0 after cast except cascade mana-gain events; no skill extra turn; one action-log entry; turn passes.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "rl01",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB08.test.ts"
+          ]
+        },
+        "display-description": {
+          "status": "verified",
+          "note": "Chinese '对一名敌人造成 [魔法 + 7] 点伤害，伤害值因冰峰之巅盟友数而增强。每有一名冰峰之巅盟友，则创造 6 颗宝石，所创造的宝石混合蓝色和紫色两种颜色。 [x6]' matches English (kingdom 冰峰之巅, [Magic + 7], mix Blue/Purple, [x6]).",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "rl01",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB08.test.ts"
+          ]
+        },
+        "battle-pipeline": {
+          "status": "verified",
+          "note": "Real TurnEngine.castSkill via both aliases (7692, gw_GlacialCrystal) on both sides with magic 0/10; low mana and Silence refuse without spending mana or touching board/statuses/turn.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "rl01",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB08.test.ts"
+          ],
+          "realBattleEntry": true
+        }
+      },
+      "clauseReviews": [
+        {
+          "id": "c1",
+          "text": "Deal [Magic + 7] damage to an Enemy, boosted by Glacial Peak Allies.",
+          "status": "verified",
+          "note": "[Magic+7] damage to the chosen enemy +6 per Glacial Peak ally.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "rl01",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB08.test.ts"
+          ]
+        },
+        {
+          "id": "c2",
+          "text": "Then create a mix of 6 Blue and Purple Gems for each Glacial Peak Ally.",
+          "status": "verified",
+          "note": "Mix of Blue/Purple gems, 6 per Glacial Peak ally (0 when none), distinct cells, both colours present.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "rl01",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB08.test.ts"
+          ]
+        },
+        {
+          "id": "c3",
+          "text": "[x6]",
+          "status": "verified",
+          "note": "[x6] = +6 damage and 6 gems per kingdom ally.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "rl01",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB08.test.ts"
+          ]
+        }
+      ],
+      "nativeStepReviews": [
+        {
+          "id": "0",
+          "type": "CountArmyKingdom",
+          "status": "verified",
+          "note": "CountArmyKingdom AllAllies Data 3011 Amount 600 -> alliesOfKingdom 冰峰之巅 x6.",
+          "evidenceIds": [
+            "native",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB08.test.ts"
+          ]
+        },
+        {
+          "id": "1",
+          "type": "Damage",
+          "status": "verified",
+          "note": "Damage FromTarget Amount 7 x Magic UseCounterForAmount -> damage enemyChosen {7,1} + modifier.",
+          "evidenceIds": [
+            "native",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB08.test.ts"
+          ]
+        },
+        {
+          "id": "2",
+          "type": "CreateGems2Colors",
+          "status": "verified",
+          "note": "CreateGems2Colors Blue/Purple UseCounterForAmount -> create mix base 0 + modifier.",
+          "evidenceIds": [
+            "native",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB08.test.ts"
+          ]
+        }
+      ],
+      "branchReviews": [
+        {
+          "id": "main",
+          "status": "verified",
+          "note": "Single branch; aliases x sides x (magic, allies), caster-of-kingdom, dead ally, enemy of kingdom, Barrier, illegal target.",
+          "evidenceIds": [
+            "native",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB08.test.ts"
+          ]
+        }
+      ]
+    },
+    {
+      "key": "weapon:1191",
+      "scope": "stored-gow-snapshot",
+      "sourceDigest": "9eb365f99f1bf39ad0fa5ba0637ce41099673e6481a2da062131a712ab685607",
+      "reviewer": "sa-L4b",
+      "reviewedAt": "2026-09-27",
+      "decision": "accept",
+      "ledgerFingerprintAtReview": "06aa2a101d6e83fb370b9037d5881835987be6d8e92f0fa379a4305043873d14",
+      "_reference": {
+        "spellId": 7707,
+        "english": "Deal [Magic + 7] damage to an Enemy, boosted by Sword's Edge Allies.Then create a mix of 6 Blue and Yellow Gems for each Sword's Edge Ally. [x6]",
+        "nativeTarget": "Enemy",
+        "randomize": null,
+        "steps": [
+          {
+            "Target": "AllAllies",
+            "Amount": 600,
+            "Type": "CountArmyKingdom",
+            "Data": "3006"
+          },
+          {
+            "SpellPowerMultiplier": 1,
+            "Target": "FromTarget",
+            "UseCounterForAmount": true,
+            "Amount": 7,
+            "Primarypower": true,
+            "Type": "Damage"
+          },
+          {
+            "UseCounterForAmount": true,
+            "Color1": "Blue",
+            "Color2": "Yellow",
+            "Type": "CreateGems2Colors"
+          }
+        ],
+        "prototype": {
+          "segments": [
+            {
+              "kind": "damage",
+              "target": "enemyChosen",
+              "scaling": {
+                "base": 7,
+                "mult": 1
+              },
+              "modifier": {
+                "mod": {
+                  "kind": "multiplier",
+                  "a": 6
+                },
+                "source": {
+                  "kind": "alliesOfKingdom",
+                  "kingdom": "剑锋崖"
+                }
+              }
+            },
+            {
+              "kind": "gem",
+              "params": {
+                "op": "create",
+                "gem": {
+                  "kind": "mix",
+                  "colors": [
+                    "Blue",
+                    "Yellow"
+                  ]
+                },
+                "count": {
+                  "base": 0,
+                  "mult": 0
+                },
+                "modifier": {
+                  "mod": {
+                    "kind": "multiplier",
+                    "a": 6
+                  },
+                  "source": {
+                    "kind": "alliesOfKingdom",
+                    "kingdom": "剑锋崖"
+                  }
+                }
+              },
+              "modifier": {
+                "mod": {
+                  "kind": "multiplier",
+                  "a": 6
+                },
+                "source": {
+                  "kind": "alliesOfKingdom",
+                  "kingdom": "剑锋崖"
+                }
+              }
+            }
+          ]
+        }
+      },
+      "sourceEvidence": [
+        {
+          "id": "en",
+          "role": "english-snapshot",
+          "path": "artifacts/gowhead-weapons/weapons.json",
+          "note": "Weapon 1191 (TheEdgedBlade) spell id 7707, English text, ManaCost 14, ManaColors Green+Brown asserted from gowhead weapons.json in tests/unit/gowLaneL4bB08.test.ts."
+        },
+        {
+          "id": "native",
+          "role": "native-snapshot",
+          "path": "data/raw/spells.gow.en.json",
+          "note": "SpellId 7707 Cost/Target and every SpellSteps field (ordered, toEqual) asserted in tests/unit/gowLaneL4bB08.test.ts."
+        },
+        {
+          "id": "rule",
+          "role": "official-shared-rule",
+          "path": "tasks/active/gow-skill-shards/rulings/R003-count-threshold-labels.md",
+          "note": "R003: CountArmyKingdom Amount 600 = x6 per counted ally; Data 3006 = 剑锋崖 (Sword's Edge): the majority src kingdom name of raw troops with KingdomId 3006 is asserted."
+        },
+        {
+          "id": "rl01",
+          "role": "user-ruling",
+          "path": "tasks/active/gow-skill-shards/rulings/RL4b-01-two-colour-overwrite.md",
+          "note": "RL4b-01: 2-colour creation selects N distinct cells, each one of the two colours."
+        },
+        {
+          "id": "laneTest",
+          "role": "lane-battle-test",
+          "path": "tests/unit/gowLaneL4bB08.test.ts",
+          "note": "Lane L4b frozen test file: binding + real castSkill cases for weapon:1191."
+        }
+      ],
+      "dimensions": {
+        "identity-cost-colors": {
+          "status": "verified",
+          "note": "weapon 1191 -> spell 7707; gowhead ManaCost 14 = native Cost 14; colours Green+Brown; src weapons.json id/referenceName TheEdgedBlade/manaCost/manaColors/spell.id; numeric 7707 and gw_TheEdgedBlade aliases resolve to the same prototype.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "rl01",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB08.test.ts"
+          ]
+        },
+        "target-count-range": {
+          "status": "verified",
+          "note": "FromTarget (spell Target Enemy) -> enemyChosen 11 only; ally id refused before mana is spent.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "rl01",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB08.test.ts"
+          ]
+        },
+        "base-formula-rounding": {
+          "status": "verified",
+          "note": "[Magic+7] + 6 per living Sword's Edge ally (caster included when of that kingdom): 7 / 29 for magic 0 / 10 with 0 / 2 allies; dead Sword's Edge ally and Sword's Edge enemies not counted (17 + 6 = 23 case).",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "rl01",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB08.test.ts"
+          ]
+        },
+        "boost-source-ratio-cap": {
+          "status": "verified",
+          "note": "multiplier a=6 alliesOfKingdom 剑锋崖 shared by the damage and the create segments (same counter as native step 0); no cap.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "rl01",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB08.test.ts"
+          ]
+        },
+        "conditions-probabilities-branches": {
+          "status": "not-applicable",
+          "note": "No condition; per-gem colour choice is seeded random (RL4b-01).",
+          "evidenceIds": [
+            "en",
+            "native"
+          ],
+          "tests": []
+        },
+        "status-duration-immunity": {
+          "status": "not-applicable",
+          "note": "No status; Barrier on the target absorbs the damage, gems still created.",
+          "evidenceIds": [
+            "en",
+            "native"
+          ],
+          "tests": []
+        },
+        "gems-types-selection-resolution": {
+          "status": "verified",
+          "note": "CreateGems2Colors Blue/Yellow UseCounterForAmount, no Amount: 6n gems on distinct cells, all Blue/Yellow, both colours present when n > 0.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "rl01",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB08.test.ts"
+          ]
+        },
+        "summon-transform-pools": {
+          "status": "not-applicable",
+          "note": "No summon or troop transform.",
+          "evidenceIds": [
+            "en",
+            "native"
+          ],
+          "tests": []
+        },
+        "order-death-retargeting": {
+          "status": "verified",
+          "note": "Count -> Damage -> Create (native order): skill-damage precedes the gem events.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "rl01",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB08.test.ts"
+          ]
+        },
+        "mana-economy-extra-turn": {
+          "status": "verified",
+          "note": "Caster mana 0 after cast except cascade mana-gain events; no skill extra turn; one action-log entry; turn passes.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "rl01",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB08.test.ts"
+          ]
+        },
+        "display-description": {
+          "status": "verified",
+          "note": "Chinese '对一名敌人造成 [魔法 + 7] 点伤害，伤害值因剑锋崖盟友数而增强。每有一名剑锋崖盟友，则创造 6 颗宝石，所创造的宝石混合蓝色和黄色两种颜色。 [x6]' matches English (kingdom 剑锋崖, [Magic + 7], mix Blue/Yellow, [x6]).",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "rl01",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB08.test.ts"
+          ]
+        },
+        "battle-pipeline": {
+          "status": "verified",
+          "note": "Real TurnEngine.castSkill via both aliases (7707, gw_TheEdgedBlade) on both sides with magic 0/10; low mana and Silence refuse without spending mana or touching board/statuses/turn.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "rl01",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB08.test.ts"
+          ],
+          "realBattleEntry": true
+        }
+      },
+      "clauseReviews": [
+        {
+          "id": "c1",
+          "text": "Deal [Magic + 7] damage to an Enemy, boosted by Sword's Edge Allies.Then create a mix of 6 Blue and Yellow Gems for each Sword's Edge Ally.",
+          "status": "verified",
+          "note": "[Magic+7] damage to the chosen enemy +6 per Sword's Edge ally. Then Mix of Blue/Yellow gems, 6 per Sword's Edge ally (0 when none), distinct cells, both colours present.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "rl01",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB08.test.ts"
+          ]
+        },
+        {
+          "id": "c2",
+          "text": "[x6]",
+          "status": "verified",
+          "note": "[x6] = +6 damage and 6 gems per kingdom ally.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "rl01",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB08.test.ts"
+          ]
+        }
+      ],
+      "nativeStepReviews": [
+        {
+          "id": "0",
+          "type": "CountArmyKingdom",
+          "status": "verified",
+          "note": "CountArmyKingdom AllAllies Data 3006 Amount 600 -> alliesOfKingdom 剑锋崖 x6.",
+          "evidenceIds": [
+            "native",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB08.test.ts"
+          ]
+        },
+        {
+          "id": "1",
+          "type": "Damage",
+          "status": "verified",
+          "note": "Damage FromTarget Amount 7 x Magic UseCounterForAmount -> damage enemyChosen {7,1} + modifier.",
+          "evidenceIds": [
+            "native",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB08.test.ts"
+          ]
+        },
+        {
+          "id": "2",
+          "type": "CreateGems2Colors",
+          "status": "verified",
+          "note": "CreateGems2Colors Blue/Yellow UseCounterForAmount -> create mix base 0 + modifier.",
+          "evidenceIds": [
+            "native",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB08.test.ts"
+          ]
+        }
+      ],
+      "branchReviews": [
+        {
+          "id": "main",
+          "status": "verified",
+          "note": "Single branch; aliases x sides x (magic, allies), caster-of-kingdom, dead ally, enemy of kingdom, Barrier, illegal target.",
+          "evidenceIds": [
+            "native",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB08.test.ts"
+          ]
+        }
+      ]
+    },
+    {
+      "key": "weapon:1234",
+      "scope": "stored-gow-snapshot",
+      "sourceDigest": "296ed2c293c5ebad895804d4870f65e63260ee9cd2a2bb6a702634c71ef7159e",
+      "reviewer": "sa-L4b",
+      "reviewedAt": "2026-09-27",
+      "decision": "accept",
+      "ledgerFingerprintAtReview": "06aa2a101d6e83fb370b9037d5881835987be6d8e92f0fa379a4305043873d14",
+      "_reference": {
+        "spellId": 7976,
+        "english": "Deal [Magic + 7] damage to an Enemy, boosted by Wild Plains Allies, then create a mix of 6 Green and Red Gems for each Wild Plains Ally. [x6]",
+        "nativeTarget": "Enemy",
+        "randomize": null,
+        "steps": [
+          {
+            "Target": "AllAllies",
+            "Amount": 600,
+            "Type": "CountArmyKingdom",
+            "Data": "3027"
+          },
+          {
+            "SpellPowerMultiplier": 1,
+            "Target": "FromTarget",
+            "UseCounterForAmount": true,
+            "Amount": 7,
+            "Primarypower": true,
+            "Type": "Damage"
+          },
+          {
+            "UseCounterForAmount": true,
+            "Color1": "Green",
+            "Color2": "Red",
+            "Type": "CreateGems2Colors"
+          }
+        ],
+        "prototype": {
+          "segments": [
+            {
+              "kind": "damage",
+              "target": "enemyChosen",
+              "scaling": {
+                "base": 7,
+                "mult": 1
+              },
+              "modifier": {
+                "mod": {
+                  "kind": "multiplier",
+                  "a": 6
+                },
+                "source": {
+                  "kind": "alliesOfKingdom",
+                  "kingdom": "狂野平原"
+                }
+              }
+            },
+            {
+              "kind": "gem",
+              "params": {
+                "op": "create",
+                "gem": {
+                  "kind": "mix",
+                  "colors": [
+                    "Green",
+                    "Red"
+                  ]
+                },
+                "count": {
+                  "base": 0,
+                  "mult": 0
+                },
+                "modifier": {
+                  "mod": {
+                    "kind": "multiplier",
+                    "a": 6
+                  },
+                  "source": {
+                    "kind": "alliesOfKingdom",
+                    "kingdom": "狂野平原"
+                  }
+                }
+              },
+              "modifier": {
+                "mod": {
+                  "kind": "multiplier",
+                  "a": 6
+                },
+                "source": {
+                  "kind": "alliesOfKingdom",
+                  "kingdom": "狂野平原"
+                }
+              }
+            }
+          ]
+        }
+      },
+      "sourceEvidence": [
+        {
+          "id": "en",
+          "role": "english-snapshot",
+          "path": "artifacts/gowhead-weapons/weapons.json",
+          "note": "Weapon 1234 (PrimalAxe) spell id 7976, English text, ManaCost 14, ManaColors Yellow+Brown asserted from gowhead weapons.json in tests/unit/gowLaneL4bB08.test.ts."
+        },
+        {
+          "id": "native",
+          "role": "native-snapshot",
+          "path": "data/raw/spells.gow.en.json",
+          "note": "SpellId 7976 Cost/Target and every SpellSteps field (ordered, toEqual) asserted in tests/unit/gowLaneL4bB08.test.ts."
+        },
+        {
+          "id": "rule",
+          "role": "official-shared-rule",
+          "path": "tasks/active/gow-skill-shards/rulings/R003-count-threshold-labels.md",
+          "note": "R003: CountArmyKingdom Amount 600 = x6 per counted ally; Data 3027 = 狂野平原 (Wild Plains): the majority src kingdom name of raw troops with KingdomId 3027 is asserted."
+        },
+        {
+          "id": "rl01",
+          "role": "user-ruling",
+          "path": "tasks/active/gow-skill-shards/rulings/RL4b-01-two-colour-overwrite.md",
+          "note": "RL4b-01: 2-colour creation selects N distinct cells, each one of the two colours."
+        },
+        {
+          "id": "laneTest",
+          "role": "lane-battle-test",
+          "path": "tests/unit/gowLaneL4bB08.test.ts",
+          "note": "Lane L4b frozen test file: binding + real castSkill cases for weapon:1234."
+        }
+      ],
+      "dimensions": {
+        "identity-cost-colors": {
+          "status": "verified",
+          "note": "weapon 1234 -> spell 7976; gowhead ManaCost 14 = native Cost 14; colours Yellow+Brown; src weapons.json id/referenceName PrimalAxe/manaCost/manaColors/spell.id; numeric 7976 and gw_PrimalAxe aliases resolve to the same prototype.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "rl01",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB08.test.ts"
+          ]
+        },
+        "target-count-range": {
+          "status": "verified",
+          "note": "FromTarget (spell Target Enemy) -> enemyChosen 11 only; ally id refused before mana is spent.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "rl01",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB08.test.ts"
+          ]
+        },
+        "base-formula-rounding": {
+          "status": "verified",
+          "note": "[Magic+7] + 6 per living Wild Plains ally (caster included when of that kingdom): 7 / 29 for magic 0 / 10 with 0 / 2 allies; dead Wild Plains ally and Wild Plains enemies not counted (17 + 6 = 23 case).",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "rl01",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB08.test.ts"
+          ]
+        },
+        "boost-source-ratio-cap": {
+          "status": "verified",
+          "note": "multiplier a=6 alliesOfKingdom 狂野平原 shared by the damage and the create segments (same counter as native step 0); no cap.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "rl01",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB08.test.ts"
+          ]
+        },
+        "conditions-probabilities-branches": {
+          "status": "not-applicable",
+          "note": "No condition; per-gem colour choice is seeded random (RL4b-01).",
+          "evidenceIds": [
+            "en",
+            "native"
+          ],
+          "tests": []
+        },
+        "status-duration-immunity": {
+          "status": "not-applicable",
+          "note": "No status; Barrier on the target absorbs the damage, gems still created.",
+          "evidenceIds": [
+            "en",
+            "native"
+          ],
+          "tests": []
+        },
+        "gems-types-selection-resolution": {
+          "status": "verified",
+          "note": "CreateGems2Colors Green/Red UseCounterForAmount, no Amount: 6n gems on distinct cells, all Green/Red, both colours present when n > 0.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "rl01",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB08.test.ts"
+          ]
+        },
+        "summon-transform-pools": {
+          "status": "not-applicable",
+          "note": "No summon or troop transform.",
+          "evidenceIds": [
+            "en",
+            "native"
+          ],
+          "tests": []
+        },
+        "order-death-retargeting": {
+          "status": "verified",
+          "note": "Count -> Damage -> Create (native order): skill-damage precedes the gem events.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "rl01",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB08.test.ts"
+          ]
+        },
+        "mana-economy-extra-turn": {
+          "status": "verified",
+          "note": "Caster mana 0 after cast except cascade mana-gain events; no skill extra turn; one action-log entry; turn passes.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "rl01",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB08.test.ts"
+          ]
+        },
+        "display-description": {
+          "status": "verified",
+          "note": "Chinese '对一名敌人造成 [魔法 + 7] 点伤害，伤害值因狂野平原盟友的数量而增强。每有一名狂野平原盟友，则创造混合绿色和红色的 6 颗宝石。 [x6]' matches English (kingdom 狂野平原, [Magic + 7], mix Green/Red, [x6]).",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "rl01",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB08.test.ts"
+          ]
+        },
+        "battle-pipeline": {
+          "status": "verified",
+          "note": "Real TurnEngine.castSkill via both aliases (7976, gw_PrimalAxe) on both sides with magic 0/10; low mana and Silence refuse without spending mana or touching board/statuses/turn.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "rl01",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB08.test.ts"
+          ],
+          "realBattleEntry": true
+        }
+      },
+      "clauseReviews": [
+        {
+          "id": "c1",
+          "text": "Deal [Magic + 7] damage to an Enemy, boosted by Wild Plains Allies, then create a mix of 6 Green and Red Gems for each Wild Plains Ally.",
+          "status": "verified",
+          "note": "[Magic+7] damage to the chosen enemy +6 per Wild Plains ally. Then Mix of Green/Red gems, 6 per Wild Plains ally (0 when none), distinct cells, both colours present.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "rl01",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB08.test.ts"
+          ]
+        },
+        {
+          "id": "c2",
+          "text": "[x6]",
+          "status": "verified",
+          "note": "[x6] = +6 damage and 6 gems per kingdom ally.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "rl01",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB08.test.ts"
+          ]
+        }
+      ],
+      "nativeStepReviews": [
+        {
+          "id": "0",
+          "type": "CountArmyKingdom",
+          "status": "verified",
+          "note": "CountArmyKingdom AllAllies Data 3027 Amount 600 -> alliesOfKingdom 狂野平原 x6.",
+          "evidenceIds": [
+            "native",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB08.test.ts"
+          ]
+        },
+        {
+          "id": "1",
+          "type": "Damage",
+          "status": "verified",
+          "note": "Damage FromTarget Amount 7 x Magic UseCounterForAmount -> damage enemyChosen {7,1} + modifier.",
+          "evidenceIds": [
+            "native",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB08.test.ts"
+          ]
+        },
+        {
+          "id": "2",
+          "type": "CreateGems2Colors",
+          "status": "verified",
+          "note": "CreateGems2Colors Green/Red UseCounterForAmount -> create mix base 0 + modifier.",
+          "evidenceIds": [
+            "native",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB08.test.ts"
+          ]
+        }
+      ],
+      "branchReviews": [
+        {
+          "id": "main",
+          "status": "verified",
+          "note": "Single branch; aliases x sides x (magic, allies), caster-of-kingdom, dead ally, enemy of kingdom, Barrier, illegal target.",
+          "evidenceIds": [
+            "native",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB08.test.ts"
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -99,6 +99,7 @@ describe('装备校验（setTeamPreset 统一拦截）', () => {
   it('已解锁可挂；未解锁/未知旗帜报 BAD_BANNER；null 恒合法', () => {
     const s = saveWithProgress();
     const members = [
+      { kind: 'hero' as const },
       { kind: 'troop' as const, troopId: 6000 },
       { kind: 'troop' as const, troopId: 6097 },
       { kind: 'troop' as const, troopId: 6457 },
@@ -315,5 +316,25 @@ describe('TurnEngine.bannerBoosts（官方旗帜法力语义）', () => {
     // 敌方（Right）事件不受旗帜影响：Right 侧 mana-gain 数量一致
     const rightOf = (events: GameEvent[]) => events.filter((e) => e.type === 'mana-gain' && e.player === PlayerSide.Right);
     expect(rightOf(boostedEvents)).toHaveLength(rightOf(baseEvents).length);
+  });
+});
+
+
+describe('enemy defense banner is independent of the player banner', () => {
+  it('enemy receives its own +2, not the player -1; player receives no enemy bonus', () => {
+    const enemy = makeEngine(RED_LAYOUT);
+    enemy.getState().activePlayer = PlayerSide.Right;
+    enemy.bannerBoosts = { [BaseColor.Red]: -1 };
+    enemy.enemyBannerBoosts = { [BaseColor.Red]: 2 };
+    expect(firstRedGain(enemy.resolveSwap({ row: 4, col: 3 }, { row: 4, col: 4 }))).toBe(5);
+    const player = makeEngine(RED_LAYOUT);
+    player.enemyBannerBoosts = { [BaseColor.Red]: 2 };
+    expect(firstRedGain(player.resolveSwap({ row: 4, col: 3 }, { row: 4, col: 4 }))).toBe(3);
+  });
+  it('enemy penalty applies per match', () => {
+    const engine = makeEngine(BROWN_LAYOUT);
+    engine.getState().activePlayer = PlayerSide.Right;
+    engine.enemyBannerBoosts = { [BaseColor.Brown]: -1 };
+    expect(firstBrownGain(engine.resolveSwap({ row: 4, col: 3 }, { row: 4, col: 4 }))).toBe(2);
   });
 });

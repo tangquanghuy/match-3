@@ -2,18 +2,19 @@
  * 召唤与额外回合技能效果（战斗技能系统 · 需求 10.2, 10.3, 10.4）。
  *
  * - extraTurnEffect：使当前玩家保留回合（复用回合经济，需求 10.2），发 extra-turn 事件。
- * - summonEffect: fills up to four active slots, then appends further summons to a FIFO bench.
+ * - summonEffect: fills up to four active slots; at four active troops the summon is a no-op.
  *
  * 纯逻辑：无 pixi/gsap/dom 依赖。
  */
 import type { GameEvent, ExtraTurnEvent } from '../../events';
 import type { Character } from '../../types';
 import { PlayerSide } from '../../types';
-import { MAX_ACTIVE_TEAM_SIZE, summonQueueOf, resolveDefeatEvents } from '../../teamRoster';
+import { MAX_ACTIVE_TEAM_SIZE, resolveDefeatEvents } from '../../teamRoster';
 import type { EffectContext, EffectPrimitive } from './context';
 import { attachPassives } from '../../traits';
 import { findSide } from './context';
 import { selectTargets } from '../targeting';
+import { hasStatus } from './status';
 
 /**
  * 额外回合效果（需求 10.2）。发 extra-turn 事件并（若引擎注入）保留当前玩家回合。
@@ -23,6 +24,8 @@ export function extraTurnEffect(): EffectPrimitive {
     apply(ctx: EffectContext): GameEvent[] {
       const side = findSide(ctx.state, ctx.casterId);
       if (side === null) return [];
+      const caster = ctx.state.teams[side].characters.find((c) => c.id === ctx.casterId);
+      if (!caster || hasStatus(caster, 'frozen')) return [];
       ctx.grantExtraTurn?.();
       const ev: ExtraTurnEvent = { type: 'extra-turn', player: side, source: 'skill' };
       return [ev];
@@ -48,6 +51,7 @@ export interface TransformTroopParams {
   troopId?: number;
   /** referenceName → 模板映射（由装配层注入；缺省用 ctx.resolveSummonRef） */
   resolveRef?: (referenceName: string) => SummonTemplate | null;
+  fullMana?: boolean;
 }
 
 /** 从现存角色提取召唤模板（复制召唤 / TransformSelf 共用，R22 批）：
@@ -92,26 +96,35 @@ export function transformTroopEffect(params: TransformTroopParams): EffectPrimit
       const events: GameEvent[] = [];
       for (const target of params.targets) {
         if (target.defeated) continue;
-        target.name = template.name;
-        target.maxHp = template.maxHp;
-        target.hp = template.hp;
-        target.attack = template.attack;
-        target.armor = template.armor;
-        target.magic = template.magic;
-        target.colors = [...template.colors];
-        target.manaCost = template.manaCost;
-        target.mana = 0;
-        target.skillId = template.skillId;
-        target.traitIds = [...(template.traitIds ?? [])];
-        target.troopTypes = [...(template.troopTypes ?? [])];
-        attachPassives(target);
-        const ev: GameEvent = { type: 'troop-transform', targetId: target.id, name: template.name };
+        applyTransformTemplate(target, template);
+        if (params.fullMana) target.mana = template.manaCost;
+        const ev: GameEvent = { type: 'troop-transform', targetId: target.id, name: template.name,
+          sourceSide: findSide(ctx.state, ctx.casterId) ?? undefined };
         if (params.troopId !== undefined) ev.troopId = params.troopId;
         events.push(ev);
       }
       return events;
     },
   };
+}
+
+/** Apply a troop template without changing its stable battle identity or slot. */
+export function applyTransformTemplate(target: Character, template: SummonTemplate): void {
+  target.name = template.name;
+  target.maxHp = template.maxHp;
+  target.hp = template.hp;
+  target.attack = template.attack;
+  target.armor = template.armor;
+  target.magic = template.magic;
+  target.colors = [...template.colors];
+  target.manaCost = template.manaCost;
+  target.mana = 0;
+  target.skillId = template.skillId;
+  target.traitIds = [...(template.traitIds ?? [])];
+  target.troopTypes = [...(template.troopTypes ?? [])];
+  target.kingdom = template.kingdom;
+  target.statuses = [];
+  attachPassives(target);
 }
 
 /** 队伍最大容量（与 4 人上限一致；队伍数组长度可小于此值时有空位） */
@@ -139,8 +152,10 @@ export type SummonSource =
 export interface SummonParams {
   /** 召唤物来源 */
   source: SummonSource;
-  /** 召唤数量区间（「召唤 1-3 名X」，rng 掷选；缺省 1。超额进召唤队列） */
+  /** 召唤数量区间（「召唤 1-3 名X」，rng 掷选；缺省 1；超过空位的部分失效） */
   countRange?: { min: number; max: number };
+  /** 召唤成功后的站位；缺省 back（队尾），front 会在入场后推至队首。 */
+  position?: 'front' | 'back';
   /**
    * referenceName → 召唤物模板的映射器（由装配层注入，来自 troops 数据）。
    * ref/randomOf 需要它；template 来源不需要。缺失或映射失败时安全跳过。
@@ -190,7 +205,8 @@ function resolveTemplate(params: SummonParams, ctx: EffectContext): SummonTempla
   return params.resolveRef?.(pick) ?? null;
 }
 
-/** 把一只召唤物追加进编队（未满进场上、满员进 FIFO 召唤队列），发 summon 事件。
+/** 把一只召唤物追加到编队末尾；满四人时召唤失效。
+ *  position='front' 时先在末位入场，再发换位事件推至队首。
  *  summonEffect / summonCopyEffect（R22 批复制召唤）共用。 */
 function appendSummon(
   team: import('../../types').Team,
@@ -199,36 +215,37 @@ function appendSummon(
   troopId: number,
   ctx: EffectContext,
   events: GameEvent[],
-): void {
+  position: 'front' | 'back' = 'back',
+): Character | null {
+  if (team.characters.length >= MAX_ACTIVE_TEAM_SIZE) return null;
   const id = deriveCharId(ctx);
-  const summoned: Character = { ...template, id, defeated: false, statuses: [] };
-  if (team.characters.length < MAX_ACTIVE_TEAM_SIZE) {
-    team.characters.push(summoned);
-    events.push({
-      type: 'summon',
-      player: side,
-      slot: team.characters.length - 1,
-      troopId,
-      characterId: id,
-      destination: 'field',
-    });
-  } else {
-    const queue = summonQueueOf(team);
-    queue.push({ character: summoned, troopId });
-    events.push({
-      type: 'summon',
-      player: side,
-      slot: queue.length - 1,
-      troopId,
-      characterId: id,
-      destination: 'queue',
-    });
+  const summoned: Character = {
+    ...template, id, defeated: false, statuses: [],
+    colors: [...template.colors], traitIds: [...(template.traitIds ?? [])],
+    troopTypes: [...(template.troopTypes ?? [])],
+  };
+  attachPassives(summoned);
+  team.characters.push(summoned);
+  const slot = team.characters.length - 1;
+  events.push({
+    type: 'summon',
+    player: side,
+    slot,
+    troopId,
+    characterId: id,
+    destination: 'field',
+  });
+  if (position === 'front' && slot > 0) {
+    team.characters.pop();
+    team.characters.unshift(summoned);
+    events.push({ type: 'troop-reposition', targetId: id, to: 'front', index: 0 });
   }
+  return summoned;
 }
 
 /**
  * Append a summon to the active bottom while below four characters.
- * A full active roster stores subsequent summons on a FIFO bench.
+ * A full active roster makes the summon portion a no-op.
  */
 export function summonEffect(params: SummonParams): EffectPrimitive {
   return {
@@ -249,7 +266,7 @@ export function summonEffect(params: SummonParams): EffectPrimitive {
         : 1;
       const events: GameEvent[] = [];
       for (let i = 0; i < count; i++) {
-        appendSummon(team, side, template, params.troopId ?? src_troopId(params.source), ctx, events);
+        appendSummon(team, side, template, params.troopId ?? src_troopId(params.source), ctx, events, params.position);
       }
       return events;
     },
@@ -438,9 +455,15 @@ export function repositionEffect(params: RepositionParams): EffectPrimitive {
         team.characters.splice(idx, 1);
         if (params.to === 'front') team.characters.unshift(target);
         else team.characters.push(target);
-        events.push({ type: 'troop-reposition', targetId: target.id, to: params.to });
+        // 事件按实际搬动顺序发出。表现层逐条把卡滑到 index，顺序反了就会滑错。
+        events.push({
+          type: 'troop-reposition',
+          targetId: target.id,
+          to: params.to,
+          index: team.characters.indexOf(target),
+        });
       }
-      return events.reverse();
+      return events;
     },
   };
 }
@@ -466,7 +489,7 @@ export function shuffleTeamEffect(params: TeamShuffleParams): EffectPrimitive {
         team.characters[i] = team.characters[j];
         team.characters[j] = tmp;
       }
-      return [{ type: 'team-shuffle', player: side }];
+      return [{ type: 'team-shuffle', player: side, order: team.characters.map((c) => c.id) }];
     },
   };
 }
@@ -499,8 +522,8 @@ export function swapPositionsEffect(params: SwapPositionsParams): EffectPrimitiv
       team.characters[ia] = b;
       team.characters[ib] = a;
       return [
-        { type: 'troop-reposition', targetId: a.id, to: ib === team.characters.length - 1 ? 'back' : 'front' },
-        { type: 'troop-reposition', targetId: b.id, to: ia === team.characters.length - 1 ? 'back' : 'front' },
+        { type: 'troop-reposition', targetId: a.id, to: ib === team.characters.length - 1 ? 'back' : 'front', index: ib },
+        { type: 'troop-reposition', targetId: b.id, to: ia === team.characters.length - 1 ? 'back' : 'front', index: ia },
       ];
     },
   };

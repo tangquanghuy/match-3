@@ -224,11 +224,18 @@ describe('受击 / 命中触发特质', () => {
     expect(target.attack).toBe(11);
   });
 
-  it('攻击落空时不触发狂暴', () => {
+  it('被纠缠时攻击落空，不触发狂暴', () => {
+    const { attacker, target, left, right, combat } = duel([], ['frenzy']);
+    applyStatus(attacker, { id: 'entangle', turns: 2 });
+    combat.resolveSkullDamage(left, right, 3);
+    expect(target.attack).toBe(10);
+  });
+
+  it('被冻结仍能造成骷髅伤害并触发受击狂暴；冻结限制额外回合而非攻击', () => {
     const { attacker, target, left, right, combat } = duel([], ['frenzy']);
     applyStatus(attacker, { id: 'frozen', turns: 2 });
     combat.resolveSkullDamage(left, right, 3);
-    expect(target.attack).toBe(10);
+    expect(target.attack).toBe(11);
   });
 
   it('毒液：造成骷髅伤害时让目标中毒，并产出 status-apply', () => {
@@ -687,15 +694,17 @@ describe('回合开始与战斗开始特质', () => {
     return state;
   }
 
-  it('崇敬给全体盟友 +2 法强，不影响敌方', () => {
+  it('revered gives every ally two random skill points instead of always granting magic', () => {
     const revered = makeChar(0, { traitIds: ['revered'], magic: 5 });
     const ally = makeChar(1, { magic: 5 });
     const foe = makeChar(4, { magic: 5 });
+    const skillTotal = (c: Character) => c.attack + c.armor + c.maxHp + c.magic;
+    const before = [skillTotal(revered), skillTotal(ally), skillTotal(foe)];
     startBattle([revered, ally], [foe]);
 
-    expect(ally.magic).toBe(7);
-    expect(revered.magic).toBe(7); // 光环包含自己
-    expect(foe.magic).toBe(5);
+    expect(skillTotal(revered)).toBe(before[0]! + 2);
+    expect(skillTotal(ally)).toBe(before[1]! + 2);
+    expect(skillTotal(foe)).toBe(before[2]);
   });
 
   it('诅咒给全体敌人 -2 法强，不影响自己一方', () => {
@@ -709,17 +718,18 @@ describe('回合开始与战斗开始特质', () => {
     expect(teammate.magic).toBe(5);
   });
 
-  it('双方各有崇敬与诅咒时两者叠加抵消', () => {
+  it('revered rolls two skill points while enemy accursed still subtracts magic', () => {
     const revered = makeChar(0, { traitIds: ['revered'], magic: 5 });
     const ally = makeChar(1, { magic: 5 });
     const cursed = makeChar(4, { traitIds: ['accursed'], magic: 5 });
+    const skillTotal = (c: Character) => c.attack + c.armor + c.maxHp + c.magic;
+    const before = [skillTotal(revered), skillTotal(ally), skillTotal(cursed)];
     startBattle([revered, ally], [cursed], 12);
 
-    // 左队 +2（崇敬）-2（对方诅咒）= 净 0
-    expect(ally.magic).toBe(5);
-    expect(revered.magic).toBe(5);
-    // 右队只被自己的诅咒的 scope 排除，不受崇敬影响
-    expect(cursed.magic).toBe(5);
+    // Each ally gets two random points, then loses two magic from the opposing aura.
+    expect(skillTotal(revered)).toBe(before[0]);
+    expect(skillTotal(ally)).toBe(before[1]);
+    expect(skillTotal(cursed)).toBe(before[2]);
   });
 
   it('骑士族亲只给同队骑士 +2 生命，不影响其它种族与敌方骑士', () => {

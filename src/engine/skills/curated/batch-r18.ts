@@ -19,7 +19,7 @@
  * - 挽救候选复核后仍维持 SKIP 的 50 条记录保留在原批次文件（不重复计数），复核结论见批尾注记。
  */
 import type { CuratedBatch } from './index';
-import { skill, dmg, dmgSplash, trueDmg, heal, armor, attack, magic, mana, reduce, steal, drainMana, cleanse, dispelStatus, randomStat, inflict, inflictRandom, createGems, createSkulls, createMix, createStorm, destroyColor, destroyRandomGems, destroyRandomRows, destroyRandomCols, explodeColor, explodeRandomGems, explodeRandomCols, transform, transformToSpecial, reposition, shuffleBoard, shuffleTeam, extraTurn, oneOf, summonRef, summonRandom, sacrifice, gainGold, gainSouls, gainMaps, escape, CHOSEN, CELL, explodeAt } from '../builders';
+import { skill, dmg, dmgSplash, trueDmg, heal, armor, attack, magic, mana, reduce, steal, cleanse, dispelStatus, randomStat, inflict, inflictRandom, createGems, createSkulls, createMix, createStorm, destroyColor, destroyRandomGems, destroyRandomRows, destroyRandomCols, explodeColor, explodeRandomGems, explodeRandomCols, transform, transformToSpecial, reposition, shuffleBoard, shuffleTeam, extraTurn, oneOf, summonRef, summonRandom, sacrifice, gainGold, gainSouls, gainMaps, escape, CHOSEN, CELL, explodeAt } from '../builders';
 import type { SegmentOpts } from '../builders';
 import { BaseColor } from '../../types';
 import type { Condition, CondMult } from '../effects/secondary';
@@ -81,7 +81,7 @@ const SKIPPED: { id: number; reason: string }[] = [
   { id: 7450, reason: "语义拿不准（官方 Devour 吞噬成长机制引擎无对应原语，r18 口径）（死亡条件触发的吞噬）" },
   { id: 7460, reason: "语义拿不准（「花费我所有的黄金」经济支出无对应原语）" },
   { id: 7480, reason: "语义拿不准（官方 Devour 吞噬成长机制引擎无对应原语，r18 口径）" },
-  { id: 7493, reason: "句子式不明（「随机发生任何情况」混沌技能，§7 永久排除）" },
+  { id: 7493, reason: '历史跳过；现已依据原始 A-B-C-D-E-F 六步骤在 batch-acceptance 恢复，非永久排除。共享吞噬、转化池及状态规则另待认证。' },
   { id: 7505, reason: "二次缩放来源不支持（尾缀 [25:1] 内部编码无法判读，r15 [100:1] 族同口径；「偷取黄金」按 gainGold 入账可表达但整条维持）" },
   { id: 7559, reason: "语义拿不准（官方 Devour 吞噬成长机制引擎无对应原语，r18 口径）（蓝色法力条件吞噬）" },
   { id: 7566, reason: "语义拿不准（官方 Devour 吞噬成长机制引擎无对应原语，r18 口径）（上下方军队逐一致升天度机会，位置+晋升复合）" },
@@ -124,8 +124,8 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 7018,
-    desc: "对一名敌人造成 [魔法 + 2] 点伤害。然后为所有其他盟友提供相当于其法力消耗四分之一的法力。",
-    // 「相当于其法力消耗四分之一的法力」= mana fraction 1/4（R12 原语，逐目标按各自 manaCost 现算）
+    desc: "对一名敌人造成 [魔法 + 2] 点伤害。然后为所有其他盟友提供相当于其法力值消耗四分之一的法力值。",
+    // 「相当于其法力值消耗四分之一的法力值」= mana fraction 1/4（R12 原语，逐目标按各自 manaCost 现算）
     build: skill(
       dmg('enemyChosen', 2, 1),
       mana('allyOthers', 0, 0, { fraction: 0.25 }),
@@ -214,7 +214,7 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 7316,
-    desc: "对所有敌人造成  [魔法 + 9] 点散射伤害。魅惑一名随机敌人。若自身的生命值受损，赐福 化所有的盟友，或所有盟友获得 3 点魔法值。",
+    desc: "对所有敌人造成  [魔法 + 9] 点散射伤害。魅惑一名随机敌人。若自身的生命值受损，赐福 化所有的盟友，或所有盟友获得 3 点魔力值。",
     // 「若自身生命值受损，二选一」= oneOf 两支各挂 selfHpDamaged（§9.3 + 全局条件）
     build: skill(
       dmg('enemyAll', 9, 1, { range: 'all' }),
@@ -227,10 +227,10 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 7332,
-    desc: "对所有敌人施放法力灼烧，伤害值因自身魔法值而增强。如果板面上有 13 颗或更多蓝色宝石，则获得一个额外回合。",
-    // 【挽救】EN 原句「Mana Burn all Enemies」无「因自身魔法值增强」子句——ZH 机翻噪声（r17 7652 同口径）；法力灼烧 = drainMana 清蓝
+    desc: "对所有敌人施放法力灼烧，伤害值因自身魔力值而增强。如果板面上有 13 颗或更多蓝色宝石，则获得一个额外回合。",
+    // Native ManaBurn: Magic + each enemy Mana; no drain. Blue threshold is handled separately.
     build: skill(
-      drainMana('enemyAll'),
+      dmg('enemyAll', 0, 1, { manaBurn: true }),
       extraTurn({ ifCond: { kind: 'boardAtLeast', color: BaseColor.Blue, n: 13 } }),
     ),
   },
@@ -238,9 +238,10 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 7364,
     desc: "将一名敌人拉到首位并将之击晕。",
     // 「拉到首位」= reposition front（§12.1）；「之」= lastTarget 跨段绑定
+    // Native order CauseStun -> Delay -> TroopOrderFront (rulings/R001, L5-013).
     build: skill(
-      reposition('enemyChosen', 'front'),
-      inflict('stun', 'lastTarget'),
+      inflict('stun', 'enemyChosen'),
+      reposition('lastTarget', 'front'),
     ),
   },
   {
@@ -331,8 +332,8 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 7473,
-    desc: "给予一名盟友 2 点魔法值，给予其自身一半的法力并赋予法印效果。 [2:1]",
-    // 「一半的法力」= mana halve（§9.6，按其自身 manaCost 现算）；[2:1] = 减半比率序列化（r15 口径）
+    desc: "给予一名盟友 2 点魔力值，给予其自身一半的法力值并赋予法印效果。 [2:1]",
+    // 「一半的法力值」= mana halve（§9.6，按其自身 manaCost 现算）；[2:1] = 减半比率序列化（r15 口径）
     build: skill(
       magic('allyChosen', 2, 0),
       mana('allyChosen', 0, 0, { halve: true }),
@@ -435,7 +436,7 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 7539,
-    desc: "对 1 名敌人造成 [魔法 + 4] 点溅射伤害，伤害值因蛮族盟友数而增强。窃取所有受法术伤害的敌人 1  点魔法值，再燃烧所有敌人。 [x6]",
+    desc: "对 1 名敌人造成 [魔法 + 4] 点溅射伤害，伤害值因蛮族盟友数而增强。窃取所有受法术伤害的敌人 1  点魔力值，再燃烧所有敌人。 [x6]",
     // 【挽救】「所有受法术伤害的敌人」= 溅射对集拆两段（r11 8485 口径：enemyChosen + enemyChosenAndAdjacent）；「因蛮族盟友数 [x6]」= alliesOfRace Wildfolk
     build: skill(
       dmgSplash('enemyChosen', 4, 1, {
@@ -460,7 +461,7 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 7554,
-    desc: "将所有蓝色宝石转换为指定颜色。为一名随机盟友赋予法印效果并给予 3 点魔法值。",
+    desc: "将所有蓝色宝石转换为指定颜色。为一名随机盟友赋予法印效果并给予 3 点魔力值。",
     // 「转换为指定颜色」= transform(Blue, CHOSEN)；「其」= lastTarget
     build: skill(
       transform(BaseColor.Blue, CHOSEN),
@@ -515,15 +516,18 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 7574,
-    desc: "将一个指定颜色转换为黄色，并获得下列其一：赋予所有盟友法印效果，或给予所有盟友 [(魔法 / 2) + 1] 点魔法值，或净化所有盟友。",
-    // 「下列其一」= oneOf 三支（§9.3）
+    desc: "将一个指定颜色转换为黄色，并获得下列其一：赋予所有盟友法印效果，或给予所有盟友 [(魔法 / 2) + 1] 点魔力值，或净化所有盟友。",
+    // 「下列其一」= 原生 Randomize A+(B-C-D-E-F)：B..F 五支等概率 = Cleanse、Enchant、Magic、
+    // Cleanse、Enchant（净化 2/5、法印 2/5、魔力 1/5；L2-6416-branch-weights，非三支各 1/3）
     build: skill(
       transform(CHOSEN, BaseColor.Yellow),
       oneOf(
-    [inflict('enchanted', 'allyAll')],
-    [magic('allyAll', 1, 0.5)],
-    [cleanse('allyAll')],
-  )
+        [cleanse('allyAll')],
+        [inflict('enchanted', 'allyAll')],
+        [magic('allyAll', 1, 0.5)],
+        [cleanse('allyAll')],
+        [inflict('enchanted', 'allyAll')],
+      ),
     ),
   },
   {
@@ -684,7 +688,7 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 7720,
-    desc: "对一名敌人造成 [魔法 + 3] 点伤害并消除其所有正面增益效果。获得 4 点魔法值和法印效果。",
+    desc: "对一名敌人造成 [魔法 + 3] 点伤害并消除其所有正面增益效果。获得 4 点魔力值和法印效果。",
     // 「其所有正面增益」= lastTarget 驱散族（dispel 段更新跨段追踪）
     build: skill(
       dmg('enemyChosen', 3, 1),
@@ -758,7 +762,7 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 7744,
-    desc: "对一名敌人造成 [魔法 + 4] 点伤害。如果敌人是个魔头，则基于我已晋升的稀有度造成 3 到 5 倍伤害。窃取 4 点攻击力并将之转换成魔法值。 [1:1]",
+    desc: "对一名敌人造成 [魔法 + 4] 点伤害。如果敌人是个魔头，则基于我已晋升的稀有度造成 3 到 5 倍伤害。窃取 4 点攻击力并将之转换成魔力值。 [1:1]",
     // 「窃取攻击并转换成魔法」= steal armor→magic；[1:1] = 转换比率序列化（r15 7032 口径）
     build: skill(
       dmg('enemyChosen', 4, 1, { condMult: BOSS_ASC3 }),
@@ -912,14 +916,14 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 7954,
-    desc: "对一名敌人造成 [魔法 + 4] 点伤害，伤害值因自身的护甲值而增强。如果敌人是个魔头，则基于我已晋升的稀有度造成 3 到 5 倍伤害。给予 3 点随机技能值。 [3:1]",
+    desc: "对一名敌人造成 [魔法 + 4] 点伤害，伤害值因自身的护甲值而增强。如果敌人是个魔头，则基于我已晋升的稀有度造成 3 到 5 倍伤害。自身一项随机属性获得 3 点。 [3:1]",
     // 「因自身护甲 [3:1]」= selfStat armor；「随机技能值 +3」= randomStat
     build: skill(
       dmg('enemyChosen', 4, 1, {
     modifier: { mod: { kind: 'ratio', a: 3, b: 1 }, source: { kind: 'selfStat', stat: 'armor' } },
     condMult: BOSS_ASC3,
   }),
-      randomStat('allySelf', 3, 0),
+      randomStat('allySelf', 3, 0, { oneSkill: true }),
     ),
   },
   {
@@ -1228,20 +1232,20 @@ const SPELLS: CuratedBatch['spells'] = [
   {
     id: 8144,
     desc: "对一名敌人造成 [魔法 + 4] 点伤害。所有技能值增加 3 点，增加数因自身黄金数而增强。 [5:1]",
-    // 「所有技能值 +3，因自身黄金数增强」= 官方 CountMyGold 20（每 20 黄金 +3，UseCounterForAmount）；尾缀 [5:1] 与官方步骤不一致，按官方步骤编码
+    // 「所有技能值 +3，因自身黄金数增强」= 英文及中文 [5:1] = 每5黄金额外+1；CountMyGold Amount:20 是计数系数，非每20黄金+3（参见同快照8142/7958）
     build: skill(
       dmg('enemyChosen', 4, 1),
       attack('allySelf', 3, 0, {
-    modifier: { mod: { kind: 'ratio', a: 20, b: 3 }, source: { kind: 'battleGold' } },
+    modifier: { mod: { kind: 'ratio', a: 5, b: 1 }, source: { kind: 'battleGold' } },
   }),
       armor('allySelf', 3, 0, {
-    modifier: { mod: { kind: 'ratio', a: 20, b: 3 }, source: { kind: 'battleGold' } },
+    modifier: { mod: { kind: 'ratio', a: 5, b: 1 }, source: { kind: 'battleGold' } },
   }),
       magic('allySelf', 3, 0, {
-    modifier: { mod: { kind: 'ratio', a: 20, b: 3 }, source: { kind: 'battleGold' } },
+    modifier: { mod: { kind: 'ratio', a: 5, b: 1 }, source: { kind: 'battleGold' } },
   }),
       heal('allySelf', 3, 0, {
-    modifier: { mod: { kind: 'ratio', a: 20, b: 3 }, source: { kind: 'battleGold' } },
+    modifier: { mod: { kind: 'ratio', a: 5, b: 1 }, source: { kind: 'battleGold' } },
   }),
     ),
   },
@@ -1392,7 +1396,7 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 8244,
-    desc: "对一名敌人造成 [魔法 + 4] 点伤害。如果敌人是个魔头，则基于我已晋升的稀有度造成 3 到 5 倍伤害。若敌人身亡，则窃取所有剩余敌人 4 点魔法值。",
+    desc: "对一名敌人造成 [魔法 + 4] 点伤害。如果敌人是个魔头，则基于我已晋升的稀有度造成 3 到 5 倍伤害。若敌人身亡，则窃取所有剩余敌人 4 点魔力值。",
     // 「若敌人身亡则窃取所有剩余敌人 4 法力」= ifTargetDied；enemyAll 天然排除阵亡者
     build: skill(
       dmg('enemyChosen', 4, 1, { condMult: BOSS_ASC3 }),

@@ -3,14 +3,12 @@
  * 新裁定见 spell-rules §13：casterStatBeatsTarget（属性比较 vs 跨段追踪目标）、
  * anyEnemyColor（聚合存在判定超集口径）、'&&' 为合法子句切分符（本就如此，按段顺序组装）。
  */
-import { skill, dmg, dmgSplash, trueDmg, heal, armor, magic, mana, inflict, steal,
-  createGems, createSpecialGems, summonRef, summonRandom, extraTurn,
+import { chooseSkill, skill, dmg, dmgSplash, trueDmg, heal, armor, magic, mana, inflict, steal,
+  createGems, createSpecialGems, summonRef, extraTurn,
   scale } from '../builders';
 import { BaseColor } from '../../types';
 import type { CuratedBatch } from './index';
 
-// 狐族引用池（生成器从 troops.json 内联）
-const FOX_REFS = ["SpiritFox","ArcticFox","VulpineMage","Kitsune","RedFox","FennecThief","FennecMage","VulpphireHunter","VulpineChampion","VulpineWatcher","PhantomFox","ShadowFox","TheFoxfireKing","Foxglove"];
 
 const SKIPPED: { id: number; reason: string }[] = [];
 
@@ -18,53 +16,34 @@ const SPELLS: CuratedBatch['spells'] = [
   {
     id: 8857,
     desc: '&& 给予所有盟友 [魔法 + 1] 点生命值 && 给予所有其他盟友半数法力值',
-    build: skill(
-      heal('allyAll', 1, 1),
-      mana('allyOthers', 0, 0, { halve: true }),
-    ),
+    build: skill(chooseSkill(['给予所有盟友［魔法＋1］生命', '给予其他盟友半数法力'], [heal('allyAll', 1, 1)], [mana('allyOthers', 0, 0, { halve: true })])),
   },
   {
     id: 8860,
-    desc: '&& 给予所有盟友 3 点魔法值 && 造成 [魔法 + 6] 点散射伤害',
-    // 修正（2026-09-18 官方复核）：「魔法值」= magic（官方 IncreaseSpellPower@AllAllies），非 mana；
+    desc: '&& 给予所有盟友 3 点魔力值 && 造成 [魔法 + 6] 点散射伤害',
+    // 修正（2026-09-18 官方复核）：「魔力值」= magic（官方 IncreaseSpellPower@AllAllies），非 mana；
     // 裸散射重裁：官方 ScatterDamage@AllEnemies = 全体散射
-    build: skill(
-      magic('allyAll', 3, 0),
-      dmg('enemyAll', 6, 1, { range: 'all' }),
-    ),
+    build: skill(chooseSkill(["给予所有盟友3点魔法","造成［魔法＋6］点散射伤害"], [magic('allyAll', 3, 0)], [dmg('enemyAll', 6, 1, { range: 'all' })])),
   },
   {
     id: 8862,
     desc: '&& 对一名敌人造成 [魔法 + 4] 点真实伤害，伤害值因蓝色宝石数而增强 && 对一名敌人造成 [魔法 + 4] 点溅射伤害，伤害值因蓝色宝石数而增强 [x2]',
-    build: skill(
-      trueDmg('enemyChosen', 4, 1, { modifier: { mod: { kind: 'multiplier', a: 2 }, source: { kind: 'boardGems', color: BaseColor.Blue } } }),
-      dmgSplash('enemyChosen', 4, 1, { modifier: { mod: { kind: 'multiplier', a: 2 }, source: { kind: 'boardGems', color: BaseColor.Blue } } }),
-    ),
+    build: skill(chooseSkill(["对一名敌人造成［魔法＋4］真实伤害，蓝色宝石每颗增加2点","对一名敌人造成［魔法＋4］溅射伤害，蓝色宝石每颗增加2点"], [trueDmg('enemyChosen', 4, 1, { modifier: { mod: { kind: 'multiplier', a: 2 }, source: { kind: 'boardGems', color: BaseColor.Blue } } })], [dmgSplash('enemyChosen', 4, 1, { modifier: { mod: { kind: 'multiplier', a: 2 }, source: { kind: 'boardGems', color: BaseColor.Blue } } })])),
   },
   {
     id: 8863,
     desc: '&& 随所有敌人造成 [魔法 + 5] 点真实伤害 && 召唤 1-3 名狐族猎人',
-    build: skill(
-      trueDmg('enemyAll', 5, 1, { range: 'all' }),
-      summonRandom(FOX_REFS, undefined, { countRange: { min: 1, max: 3 } }),
-    ),
+    build: skill(chooseSkill(["对所有敌人造成［魔法＋5］真实伤害","召唤1–3名狐族猎人"], [trueDmg('enemyAll', 5, 1, { range: 'all' })], [summonRef('VulpphireHunter', 7288), summonRef('VulpphireHunter', 7288, { chance: 0.5 }), summonRef('VulpphireHunter', 7288, { chance: 0.5 })])),
   },
   {
     id: 8866,
     desc: '&& 对一名敌人造成 [魔法 + 3] 点伤害，伤害只因其敌人攻击力而增强 && 对一名敌人造成 [魔法 + 3] 点伤害，伤害值因敌人护甲值而增强 [3:1]',
-    build: skill(
-      dmg('enemyChosen', 3, 1, { modifier: { mod: { kind: 'multiplier', a: 1 }, source: { kind: 'targetStat', stat: 'attack' } } }),
-      dmg('enemyChosen', 3, 1, { modifier: { mod: { kind: 'ratio', a: 3, b: 1 }, source: { kind: 'enemyStatSum', stat: 'armor' } } }),
-    ),
+    build: skill(chooseSkill(["对一名敌人造成［魔法＋3］伤害，每3攻击增强1点","对一名敌人造成［魔法＋3］伤害，每3护甲增强1点"], [dmg('enemyChosen', 3, 1, { modifier: { mod: { kind: 'ratio', a: 3, b: 1 }, source: { kind: 'targetStat', stat: 'attack' } } })], [dmg('enemyChosen', 3, 1, { modifier: { mod: { kind: 'ratio', a: 3, b: 1 }, source: { kind: 'targetStat', stat: 'armor' } } })])),
   },
   {
     id: 8868,
     desc: '&& 创造 3 颗冻结宝石，并获得一个额外回合 &&窃取一名随机敌人 [魔法 + 1] 点护甲值',
-    build: skill(
-      createSpecialGems({ kind: 'freezeGem' }, 3),
-      extraTurn(),
-      steal('enemyRandom', 'armor', 'armor', 1, 1),
-    ),
+    build: skill(chooseSkill(["创造3颗冻结宝石并获得额外回合","窃取一名随机敌人［魔法＋1］护甲"], [createSpecialGems({ kind: 'freezeGem' }, 3), extraTurn()], [steal('enemyRandom', 'armor', 'armor', 1, 1)])),
   },
   {
     id: 7458,
@@ -76,7 +55,7 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 7471,
-    desc: '对第一名敌人造成 [魔法 + 1] 点伤害并将其冻结。如果敌人的魔法值高于自身，则创造 8 颗蓝色宝石。',
+    desc: '对第一名敌人造成 [魔法 + 1] 点伤害并将其冻结。如果敌人的魔力值高于自身，则创造 8 颗蓝色宝石。',
     build: skill(
       dmg('enemyFront', 1),
       inflict('frozen', 'enemyFront'),
@@ -102,9 +81,9 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 8418,
-    desc: '对首位和末位敌人造成 [魔法 + 2] 点伤害。若其中一个使用蓝色法力，则造成双倍伤害。若其中一个使用紫色法力，则赋予自身屏障效果。',
+    desc: '对首位和末位敌人造成 [魔法 + 2] 点伤害。若其中一个使用蓝色法力值，则造成双倍伤害。若其中一个使用紫色法力值，则赋予自身屏障效果。',
     // 修正（2026-09-18 官方复核）：官方 Damage@FirstLastEnemies 带条件倍率——补漏
-    // 「若其中一个使用蓝色法力，则双倍伤害」（anyEnemyColor Blue ×2 辖两段伤害，§13.3 超集口径）
+    // 「若其中一个使用蓝色法力值，则双倍伤害」（anyEnemyColor Blue ×2 辖两段伤害，§13.3 超集口径）
     build: skill(
       dmg('enemyFront', 2, 1, { condMult: { times: 2, cond: { kind: 'anyEnemyColor', color: BaseColor.Blue } } }),
       dmg('enemyLast', 2, 1, { condMult: { times: 2, cond: { kind: 'anyEnemyColor', color: BaseColor.Blue } } }),

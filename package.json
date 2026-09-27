@@ -5,13 +5,16 @@
   "type": "module",
   "description": "网页三消战斗游戏核心引擎（灵感来源 Gems of War）",
   "scripts": {
+    "economy:gacha": "node scripts/gacha-economy.mjs",
     "dev": "vite",
     "build": "tsc --noEmit && vite build",
     "preview": "vite preview",
     "test": "vitest run",
     "test:watch": "vitest",
     "test:e2e": "playwright test",
-    "lint": "eslint . --ext .ts"
+    "lint": "eslint . --ext .ts",
+    "sort-images": "node tools/image-sorter/server.mjs",
+    "sort-sets": "node tools/set-sorter/server.mjs"
   },
   "devDependencies": {
     "@playwright/test": "^1.61.1",

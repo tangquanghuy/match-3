@@ -8,7 +8,7 @@
  */
 
 /** 货币五件套（裁定③：宝石=抽卡货币，只产出于玩法，无内购；glory=荣耀，入侵 PvP 主产） */
-export type CurrencyKey = 'gold' | 'souls' | 'gems' | 'goldKeys' | 'glory';
+export type CurrencyKey = 'gold' | 'souls' | 'gems' | 'goldKeys' | 'glory' | 'gloryKeys' | 'trophies';
 
 /** 一次消耗/收益的账目（缺省币种 = 不涉及；数值恒为正，方向由操作名决定） */
 export type CurrencyDelta = Partial<Record<CurrencyKey, number>>;

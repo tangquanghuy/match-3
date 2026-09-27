@@ -1,0 +1,220 @@
+[
+  {
+    "id": "L3-001",
+    "keys": [
+      "troop:7097",
+      "troop:7098",
+      "troop:7099",
+      "troop:7100"
+    ],
+    "kind": "assembler",
+    "summary": "Elemental-birth family 8632/8633/8634/8635: prototype runs Damage then Cause*; native CauseEntangle/Burning/Frozen/Stun FromTarget precedes Damage (R001). Observable: an enemy killed by the hit never receives the status / status-apply event.",
+    "repro": "tests/unit/gowLaneL3B01Repro.test.ts",
+    "fixedBy": "sa-L3",
+    "fixedAt": "2026-09-27T21:19:46.463Z"
+  },
+  {
+    "id": "L3-002",
+    "keys": [
+      "troop:6285"
+    ],
+    "kind": "assembler",
+    "summary": "Frostling 7431: prototype targets enemyRandom but native spell Target Enemy (Cause* FromTarget) = chosen enemy; mana segment is halve (floor(manaCost/2)) but native GenerateMana StatusAmount 4 AddFor10BlueGems = fixed 4 (equal only while manaCost is 8).",
+    "repro": "tests/unit/gowLaneL3B01Repro.test.ts",
+    "fixedBy": "sa-L3",
+    "fixedAt": "2026-09-27T21:19:46.463Z"
+  },
+  {
+    "id": "L3-003",
+    "keys": [
+      "troop:7208"
+    ],
+    "kind": "assembler",
+    "summary": "Eternal Sentinel 8795: native CreateGems2Colors GoodGargoyle/BadGargoyle; prototype creates tier-less gargoyleGem (engine treats as Good) so Evil Gargoyles never appear. builders.createSpecialGems2 already documents the correct form for this spell.",
+    "repro": "tests/unit/gowLaneL3B01Repro.test.ts",
+    "fixedBy": "sa-L3",
+    "fixedAt": "2026-09-27T21:19:46.463Z"
+  },
+  {
+    "id": "L3-004",
+    "keys": [
+      "troop:7313"
+    ],
+    "kind": "primitive",
+    "summary": "Spell mana grants (buff.ts buffOne 'mana', incl. halve/fraction) ignore Silence; official status list: Silence prevents a troop from gaining any mana (ManaDistributor/enchanted already honour canGainMana).",
+    "repro": "tests/unit/gowLaneL3B01Repro.test.ts",
+    "fixedBy": "sa-L3",
+    "fixedAt": "2026-09-27T21:19:46.463Z"
+  },
+  {
+    "id": "L3-005",
+    "keys": [
+      "troop:7313"
+    ],
+    "kind": "source-dispute",
+    "summary": "GenerateHalfMana / GenerateQuarterMana rounding for odd mana costs: runtime floor(manaCost x ratio) (DECISIONS.md project ruling); no English/native/official source found for floor vs round vs ceil. Observable for any target whose manaCost is not divisible (Relic Knight targets any ally)."
+  },
+  {
+    "id": "L3-006",
+    "keys": [
+      "troop:7313"
+    ],
+    "kind": "source-dispute",
+    "summary": "Relic Knight 8925 CreateGems Color1 Spirit has no colour; project creates Purple Spirit Gems (CLAN-GEM-SOURCE-CHECK: provisional colour, colour set unverified)."
+  },
+  {
+    "id": "L3-007",
+    "keys": [
+      "troop:7070",
+      "troop:7613",
+      "troop:7625",
+      "troop:7778",
+      "troop:7882"
+    ],
+    "kind": "assembler",
+    "summary": "Native DecreaseMana (English 'drain') assembled as steal(..., 'mana', 'mana') so the caster refills with the drained mana: 8598, 9513, 9534, 9784, 9957. Native StealMana is a separate step type.",
+    "repro": "tests/unit/gowLaneL3B02Repro.test.ts",
+    "fixedBy": "sa-L3",
+    "fixedAt": "2026-09-27T21:19:46.463Z"
+  },
+  {
+    "id": "L3-008",
+    "keys": [
+      "troop:6151",
+      "troop:7070",
+      "troop:7111",
+      "troop:7401",
+      "troop:7418"
+    ],
+    "kind": "assembler",
+    "summary": "Native DecreaseMana with fixed Amount and no SpellPowerMultiplier assembled via reduce()/steal() default mult=1, i.e. drain [Amount + Magic]: 7265, 8598, 8654, 9051, 9067 (lane-L3/mana-audit.mjs SUSPECT-MULT).",
+    "repro": "tests/unit/gowLaneL3B02Repro.test.ts",
+    "fixedBy": "sa-L3",
+    "fixedAt": "2026-09-27T21:19:46.463Z"
+  },
+  {
+    "id": "L3-009",
+    "keys": [
+      "troop:7070"
+    ],
+    "kind": "primitive",
+    "summary": "oncePerBattle (native DisableMySpell Self) is checked as actionLog.some(entry.skillId === skillId): an enemy (or another ally) casting the same spell id disables my troop's spell. DisableMySpell targets Self, i.e. the casting troop only.",
+    "repro": "tests/unit/gowLaneL3B02Repro.test.ts",
+    "fixedBy": "sa-L3",
+    "fixedAt": "2026-09-27T21:19:46.463Z"
+  },
+  {
+    "id": "L3-010",
+    "keys": [
+      "troop:6481"
+    ],
+    "kind": "assembler",
+    "summary": "Champion of Anu 7668: prototype drainAll -> stun -> silence; native CauseStun -> CauseSilence -> DecreaseMana 100 (R001). Observable: Stun disables Mana Shield (isImmuneToManaDrain), so native order drains a Mana Shield target, prototype order does not.",
+    "repro": "tests/unit/gowLaneL3B02Repro.test.ts",
+    "fixedBy": "sa-L3",
+    "fixedAt": "2026-09-27T21:19:46.463Z"
+  },
+  {
+    "id": "L3-011",
+    "keys": [
+      "troop:6252"
+    ],
+    "kind": "assembler",
+    "summary": "DRACOS-1337 7395: prototype silence -> stun; native CauseStun -> CauseSilence (R001). Observable: Stun disables immunity traits first, so native order lands Silence on a Silence-immune troop.",
+    "repro": "tests/unit/gowLaneL3B03Repro.test.ts",
+    "fixedBy": "sa-L3",
+    "fixedAt": "2026-09-27T21:19:46.463Z"
+  },
+  {
+    "id": "L3-012",
+    "keys": [
+      "troop:7796"
+    ],
+    "kind": "primitive+assembler",
+    "summary": "Jellymaid 9816: native second Cleanse targets RandomPrefNotPrevAlly; prototype uses allyRandom twice, so the same ally can be picked twice while others are available. No ally prefer-not-previous TargetMode exists (only enemyRandomPrefNotPrev).",
+    "repro": "tests/unit/gowLaneL3B03Repro.test.ts",
+    "fixedBy": "sa-L3",
+    "fixedAt": "2026-09-27T21:19:46.463Z",
+    "note": "16 other pending native RandomPrefNotPrevAlly spells still assembled without the new mode: 7666 7786 7945 8024 8390 8650 9199 8970 9528 9529 9530 9531 9641 9776 9874 weapon 7654."
+  },
+  {
+    "id": "L3-013",
+    "keys": [
+      "troop:6319",
+      "troop:6259",
+      "troop:7319",
+      "troop:7405",
+      "troop:7465",
+      "weapon:1146"
+    ],
+    "kind": "source-dispute",
+    "summary": "Native GenerateRandomMana Amount N (English '3-N Mana' to several allies): runtime rolls once per segment and gives every recipient the same value (R22 batch convention, no source). Independent per-ally rolls are equally plausible; community t/80087 only reports a min-3 bug. The implicit min 3 is consistent across all English texts."
+  },
+  {
+    "id": "L3-014",
+    "keys": [
+      "troop:7198"
+    ],
+    "kind": "source-dispute",
+    "summary": "secondary.ts modifierBonus sums all `sources` then applies one ratio floor; native has one Count* step per source, each floored (R003 per-step counter), and 8785 English says '+1 more for every 3 Green Allies and +1 more for every 3 Green Gems'. 2 allies + 2 gems -> runtime 1 bonus, native 0. Affects ~45 pending ratio multi-source prototypes (lane-L3 reverse search: 7252 7454 7470 7489 7644 ... 9882, weapon 7568); none accepted.",
+    "repro": "tests/unit/gowLaneL3B05Repro.test.ts",
+    "note": "Trial primitive fix (per-source floor) reverted: accepted troop:6320 (7470, same native two-CountArmor-34 shape, L7 accepted combined floor(total x 34%)) and custom Lianka/YeLuo tests assert combined flooring. Needs a coordinator ruling on per-step vs combined counters; repro kept as it.fails."
+  },
+  {
+    "id": "L3-015",
+    "keys": [
+      "troop:7052",
+      "troop:7103",
+      "troop:7806",
+      "weapon:1226",
+      "weapon:1229",
+      "weapon:1233",
+      "weapon:1248",
+      "weapon:1257",
+      "weapon:1258"
+    ],
+    "kind": "assembler",
+    "summary": "Native GenerateMana with UseCounterForAmount and no Amount ('Gain N Mana for each X') assembled as mana(base N, modifier N x count) = N + N x count: 8580 8638 9847 7952 7963 7973 8053 8077 8078. Same pattern still open (not fixed here): troop:6454 7632 (base 2, no counter at all) and weapon:1211 7806 (CountSet chain).",
+    "repro": "tests/unit/gowLaneL3B05Repro.test.ts",
+    "fixedBy": "sa-L3",
+    "fixedAt": "2026-09-27T22:33:55.458Z"
+  },
+  {
+    "id": "L3-016",
+    "keys": [
+      "weapon:1226",
+      "weapon:1229",
+      "weapon:1233",
+      "weapon:1248",
+      "weapon:1257",
+      "weapon:1258"
+    ],
+    "kind": "assembler",
+    "summary": "Doomed weapon family 7952/7963/7973/8053/8077/8078: 'if the Enemy has a Doom, create 5 more' (native CreateGems Color1 Doomskull StatusAmount 5 AddIfEnemyHasDoom) creates 5 plain Skulls.",
+    "repro": "tests/unit/gowLaneL3B05Repro.test.ts",
+    "fixedBy": "sa-L3",
+    "fixedAt": "2026-09-27T22:33:55.458Z"
+  },
+  {
+    "id": "L3-017",
+    "keys": [
+      "troop:6032"
+    ],
+    "kind": "assembler",
+    "summary": "Satyr 7032: prototype damage then steal Armor->Magic; native CountArmor/CountMax 2/DecreaseArmor/IncreaseSpellPower before Damage (R001; English also 'then deal'). Observable: damage should use the raised Magic and the reduced armor.",
+    "repro": "tests/unit/gowLaneL3B05Repro.test.ts",
+    "fixedBy": "sa-L3",
+    "fixedAt": "2026-09-27T22:33:55.458Z"
+  },
+  {
+    "id": "L3-018",
+    "keys": [
+      "troop:6035"
+    ],
+    "kind": "assembler",
+    "summary": "Blade Dancer 7035: native StealMagic RandomEnemy 4 ('Steal 4 Magic'); prototype steal('enemyRandom','mana','mana',4) moves Mana instead of Magic.",
+    "repro": "tests/unit/gowLaneL3B05Repro.test.ts",
+    "fixedBy": "sa-L3",
+    "fixedAt": "2026-09-27T22:33:55.458Z"
+  }
+]

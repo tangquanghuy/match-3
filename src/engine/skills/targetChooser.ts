@@ -56,11 +56,13 @@ export class FixedTargetChooser implements TargetChooser {
  * 供 TurnEngine 决定是否调用 TargetChooser；取首个手动选目标段的模式。
  */
 export function prototypeChosenTargetMode(proto: SkillPrototype): ChosenTargetMode | null {
+  if (proto.inputTarget) return proto.inputTarget;
   for (const seg of proto.segments) {
     // 溅射仅当主目标本身就是手动指定时才需要选目标（enemyFront/enemyRandomN 等自带模式）
     if (seg.kind === 'damage' && seg.range === 'splash' && seg.target === 'enemyChosen') return 'enemyChosen';
     if ('target' in seg && seg.target === 'enemyChosen') return 'enemyChosen';
     if ('target' in seg && seg.target === 'allyChosen') return 'allyChosen';
+    if ('target' in seg && seg.target === 'enemyChosenAndNextDown') return 'enemyChosenAndNextDown';
     if ('target' in seg && seg.target === 'enemyChosenAndBelow') return 'enemyChosenAndBelow';
     if ('target' in seg && seg.target === 'enemyChosenAndAdjacent') return 'enemyChosenAndAdjacent';
     // 创造段驱动（batch-r28，8737「选择一个盟友。创造10颗盟友对应法力颜色的宝石」官方

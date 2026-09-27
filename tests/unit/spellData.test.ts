@@ -23,7 +23,7 @@ import { SKILL_OVERRIDES, SKILL_LIBRARY, curatedBatches, curatedSkipped } from '
 import type { EffectSegment } from '@engine/skills/prototypes';
 import { BaseColor, PlayerSide, colorGem } from '@engine/types';
 import type { Character, Team, GemType } from '@engine/types';
-import { TROOPS, getTroopByRef, knownTroopTypes } from '../../src/data/troops';
+import { SOURCE_TROOPS, TROOPS, getTroopByRef, knownTroopTypes } from '../../src/data/troops';
 
 // —— 数据索引 ——
 
@@ -200,7 +200,7 @@ describe('组装器校验（curated 批次对号入座）', () => {
     for (const [id, desc] of descs) {
       const troop = TROOP_BY_SPELL_ID.get(id);
       if (!troop) continue;
-      if (troop.spell.description !== desc) {
+      if ((SOURCE_TROOPS.find(t => t.spell.id === id)?.spell.description) !== desc) {
         errs.push(`spell ${id}: desc 与 troops.json 不一致\n  curated:  ${desc}\n  database: ${troop.spell.description}`);
       }
     }
@@ -218,18 +218,19 @@ describe('组装器校验（curated 批次对号入座）', () => {
   });
 
   it('写入覆盖率报告 artifacts/spell-build.txt', () => {
-    const total = TROOPS.length;
+    const total = new Set(TROOPS.map(t => t.spell.id)).size;
     const curated = curatedById.size;
     const byReason = new Map<string, number>();
     for (const s of curatedSkipped()) byReason.set(s.reason, (byReason.get(s.reason) ?? 0) + 1);
-    const notCurated = total - curated - curatedSkipped().length;
+    const activeSkipped = [...new Set(curatedSkipped().filter(s => !SKILL_LIBRARY[s.id]).map(s => s.id))];
+    const notCurated = [...new Set(TROOPS.map(t => t.spell.id))].filter(id => !SKILL_LIBRARY[id] && !activeSkipped.includes(id)).length;
     const lines: string[] = [];
     lines.push('============================================================');
     lines.push('技能组装覆盖率报告（人工核对组装 · scripts/spell-assembler.md）');
     lines.push('============================================================');
     lines.push(`技能总数: ${total}`);
     lines.push(`已核对组装 (compiled): ${curated}`);
-    lines.push(`核对后放弃 (skipped):  ${curatedSkipped().length}`);
+    lines.push(`核对后放弃 (skipped):  ${activeSkipped.length}（历史记录 ${curatedSkipped().length}，已恢复的不计入缺口）`);
     lines.push(`尚未核对 (pending):    ${notCurated}`);
     lines.push(`已核对批次: ${curatedBatches().join(', ')}`);
     lines.push('');

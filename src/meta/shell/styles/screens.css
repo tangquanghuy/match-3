@@ -750,7 +750,7 @@
   z-index: 7;
   height: 64px;
   display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   background: linear-gradient(180deg, #211a17f5, #211a17d9);
   border-bottom: 1px solid #9d7947;
 }
@@ -4612,4 +4612,24 @@
     text-overflow: ellipsis;
     white-space: nowrap;
   }
+}
+
+/* Compact wishlist entry; progress and rules live on the wishlist page. */
+#openWishlist { display:inline-flex; align-items:center; justify-content:center; gap:6px; min-height:44px; margin-left:12px; padding:0 14px; border:1px solid #a48e58; border-radius:6px; background:#30332f; color:#f0dcaa; font:13px var(--body); vertical-align:middle; cursor:pointer; }
+#openWishlist:hover { background:#42483e; }
+#openWishlist:focus-visible { outline:2px solid #aadbd7; outline-offset:3px; }
+#wishlistSummary { color:#d0cab8; font-size:12px; }
+
+#openWishlist, #wishlistSummary { white-space:nowrap; flex-shrink:0; }
+@media(min-width:701px) {
+ #stage.chests-responsive .gem-pool { grid-template-columns:280px minmax(0,1fr); }
+ #stage.chests-responsive .gem-pool .chest-name { display:flex; align-items:center; gap:12px; letter-spacing:0; }
+ #stage.chests-responsive .gem-pool #openWishlist { margin:0; }
+}
+@media(max-width:700px) {
+ #stage.chests-responsive .gem-pool { display:flex; flex-direction:column; align-items:stretch; gap:12px; }
+ #stage.chests-responsive .gem-pool .chest-name { display:flex; align-items:center; justify-content:space-between; gap:12px; }
+ #stage.chests-responsive .gem-pool #openWishlist { margin:0; }
+ #stage.chests-responsive .gem-pool .chest-btns { gap:12px; }
+ #stage.chests-responsive .gem-pool .chest-btn { min-height:48px; font-size:14px; }
 }

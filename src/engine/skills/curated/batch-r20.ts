@@ -17,7 +17,7 @@
  *   alliesOfColor + enemiesOfColor 双来源（8312）。
  * - 「几率与黄金数等量」= chance 0 + chanceBoost battleGold ×1（§11 追加 selfStat magic 同构，8268）。
  * - 「窃取生命并转为护甲」= steal('enemyChosen','hp','armor',…)（9282 hp 窃取 + 7744 转换端点，8274）。
- * - 「每耗掉一点法力则有 N% 几率吞噬」= chanceBoost drainedMana（9118 口径，8587）。
+ * - 「每耗掉一点法力值则有 N% 几率吞噬」= chanceBoost drainedMana（9118 口径，8587）。
  * - 「AddForKill 数值翻倍」= 基础段 + 追加段同挂 ifTargetDied（r16 9716 口径，8304）。
  * - 板面/状态计数驱动的「施加状态」（8566）、敌方侧种族计数（8584）、敌方黄金（8568）、
  *   狼化状态施加（8553）等仍无对应原语 → 留弃（见批尾分组）。
@@ -238,7 +238,7 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 8421,
-    desc: '给予一名盟友 2 点魔法值，和半数法力值。若他是龙族，则赋予其屏障和法印效果。',
+    desc: '给予一名盟友 2 点魔力值，和半数法力值。若他是龙族，则赋予其屏障和法印效果。',
     // 「半数法力」= mana halve（§9.6，按其自身 manaCost 现算）；「若他是龙族」= targetRace 挂 lastTarget 段（目标域正确）
     build: skill(
       magic('allyChosen', 2, 0),
@@ -249,7 +249,7 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 8469,
-    desc: '给予一名盟友 4 点魔法值而等于其法力的半数法力值。若他是一名妖仙，则给予其赐福和法印效果。',
+    desc: '给予一名盟友 4 点魔力值而等于其法力的半数法力值。若他是一名妖仙，则给予其赐福和法印效果。',
     // 同 8421 结构，妖仙 = Fey、赐福+法印
     build: skill(
       magic('allyChosen', 4, 0),
@@ -476,7 +476,8 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '板面上每有一颗狼化宝石，则给予所有其他盟友 3 点法力值。再将黄色宝石转换成骷髅头。 [x3]',
     // 「每颗狼化宝石 +3 法力 [x3]」= buff 段挂 boardSpecial ×3（8088 mana 段 modifier 口径）
     build: skill(
-      mana('allyOthers', 3, 0, {
+      // L3-015: native GenerateMana UseCounterForAmount (no Amount) = 3 x count only
+      mana('allyOthers', 0, 0, {
         modifier: { mod: { kind: 'multiplier', a: 3 }, source: { kind: 'boardSpecial', gem: 'lycanthropyGem' } },
       }),
       transform(BaseColor.Yellow, 'SKULL'),
@@ -484,7 +485,7 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 8582,
-    desc: '使一名敌人陷入出血状态。若敌人使用蓝色法力，则叠加 2 次出血状态。每有一颗狼化宝石，则有 5% 的几率吞噬敌人。 [x5]',
+    desc: '使一名敌人陷入出血状态。若敌人使用蓝色法力值，则叠加 2 次出血状态。每有一颗狼化宝石，则有 5% 的几率吞噬敌人。 [x5]',
     // 「蓝色法力再叠 2 次」= AddForBlueTarget ×2 实锤 → 两段条件出血（叠层累加合并）；
     // 「每颗狼化宝石 +5%」= chance 0 + chanceBoost boardSpecial ×5
     build: skill(
@@ -539,7 +540,7 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 8636,
-    desc: '对一名敌人造成 [魔法 + 4] 点伤害，若对方是个魔头，则基于我已晋升的稀有度造成 3 到 5 倍伤害。板面上每有一颗元素星则获得 2 点魔法值。 [x2]',
+    desc: '对一名敌人造成 [魔法 + 4] 点伤害，若对方是个魔头，则基于我已晋升的稀有度造成 3 到 5 倍伤害。板面上每有一颗元素星则获得 2 点魔力值。 [x2]',
     // [x2] = CountGems ElementalStar 200 → boardSpecial elementalStar ×2（8125 天使宝石同族）
     build: skill(
       dmg('enemyChosen', 4, 1, { condMult: BOSS_ASC3 }),
@@ -553,7 +554,8 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '对一名敌人造成 [魔法 + 4] 点伤害。如果敌人是个高塔，则基于我已晋升的稀有度造成 3 到 5 倍伤害。板面上每有一颗元素星则获得 2 点法力值。 [x2]',
     build: skill(
       dmg('enemyChosen', 4, 1, { condMult: CASTLE_ASC3 }),
-      mana('allySelf', 2, 0, {
+      // L3-015: native GenerateMana UseCounterForAmount (no Amount) = 2 x count only
+      mana('allySelf', 0, 0, {
         modifier: { mod: { kind: 'multiplier', a: 2 }, source: { kind: 'boardSpecial', gem: 'elementalStar' } },
       }),
     ),
@@ -595,7 +597,7 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 8687,
-    desc: '赐予一名盟友法印效果，并给予其 3 点魔法值。再创建 12 颗其发力颜色之一的宝石。',
+    desc: '赐予一名盟友法印效果，并给予其 3 点魔力值。再创建 12 颗其法力颜色之一的宝石。',
     // 【挽救】r19 8737 卡点回收：「其法力颜色之一」= LAST_TARGET（前序 chosen 段更新跨段追踪，
     // 首段回退 chosenTargetId，9745/8216 口径）；「发力」为「法力」误植
     build: skill(

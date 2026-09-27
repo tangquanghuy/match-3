@@ -1,0 +1,2208 @@
+{
+  "schemaVersion": 1,
+  "scope": "stored-gow-snapshot",
+  "reviews": [
+    {
+      "key": "troop:6518",
+      "scope": "stored-gow-snapshot",
+      "sourceDigest": "734e64cb02f1c68174972bcc977f1c4a71d1162c20c2c2af173d3b6012a471cd",
+      "reviewer": "sa-L3",
+      "reviewedAt": "2026-09-27",
+      "decision": "accept",
+      "ledgerFingerprintAtReview": "ad06742a1d37e34d4e3c0f9076d73ac1e0ab334f00a61502e1e4261defdfb67a",
+      "_reference": {
+        "spellId": 7710,
+        "english": "Cleanse all Allies. Dispel and Stun Daemon and Undead Enemies. Gain an extra turn.",
+        "nativeTarget": "None",
+        "randomize": null,
+        "steps": [
+          {
+            "Target": "AllAllies",
+            "Amount": 1,
+            "Type": "Cleanse"
+          },
+          {
+            "Target": "EnemyType",
+            "Amount": 1,
+            "Type": "Dispel",
+            "Data": "daemon"
+          },
+          {
+            "Target": "EnemyType",
+            "Amount": 1,
+            "Type": "Dispel",
+            "Data": "undead"
+          },
+          {
+            "Target": "EnemyType",
+            "Amount": 1,
+            "Type": "CauseStun",
+            "Data": "daemon"
+          },
+          {
+            "Target": "EnemyType",
+            "Amount": 1,
+            "Type": "CauseStun",
+            "Data": "undead"
+          },
+          {
+            "Target": "Self",
+            "Type": "ExtraTurn"
+          }
+        ],
+        "prototype": {
+          "segments": [
+            {
+              "kind": "cleanse",
+              "target": "allyAll"
+            },
+            {
+              "kind": "dispel",
+              "target": "enemyAll",
+              "statusId": "barrier",
+              "ifCond": {
+                "kind": "allOf",
+                "of": [
+                  {
+                    "kind": "targetStatus",
+                    "statusId": "barrier"
+                  },
+                  {
+                    "kind": "anyOf",
+                    "of": [
+                      {
+                        "kind": "targetRace",
+                        "race": "Daemon"
+                      },
+                      {
+                        "kind": "targetRace",
+                        "race": "Undead"
+                      }
+                    ]
+                  }
+                ]
+              }
+            },
+            {
+              "kind": "dispel",
+              "target": "enemyAll",
+              "statusId": "submerged",
+              "ifCond": {
+                "kind": "allOf",
+                "of": [
+                  {
+                    "kind": "targetStatus",
+                    "statusId": "submerged"
+                  },
+                  {
+                    "kind": "anyOf",
+                    "of": [
+                      {
+                        "kind": "targetRace",
+                        "race": "Daemon"
+                      },
+                      {
+                        "kind": "targetRace",
+                        "race": "Undead"
+                      }
+                    ]
+                  }
+                ]
+              }
+            },
+            {
+              "kind": "dispel",
+              "target": "enemyAll",
+              "statusId": "blessed",
+              "ifCond": {
+                "kind": "allOf",
+                "of": [
+                  {
+                    "kind": "targetStatus",
+                    "statusId": "blessed"
+                  },
+                  {
+                    "kind": "anyOf",
+                    "of": [
+                      {
+                        "kind": "targetRace",
+                        "race": "Daemon"
+                      },
+                      {
+                        "kind": "targetRace",
+                        "race": "Undead"
+                      }
+                    ]
+                  }
+                ]
+              }
+            },
+            {
+              "kind": "dispel",
+              "target": "enemyAll",
+              "statusId": "enchanted",
+              "ifCond": {
+                "kind": "allOf",
+                "of": [
+                  {
+                    "kind": "targetStatus",
+                    "statusId": "enchanted"
+                  },
+                  {
+                    "kind": "anyOf",
+                    "of": [
+                      {
+                        "kind": "targetRace",
+                        "race": "Daemon"
+                      },
+                      {
+                        "kind": "targetRace",
+                        "race": "Undead"
+                      }
+                    ]
+                  }
+                ]
+              }
+            },
+            {
+              "kind": "dispel",
+              "target": "enemyAll",
+              "statusId": "reflect",
+              "ifCond": {
+                "kind": "allOf",
+                "of": [
+                  {
+                    "kind": "targetStatus",
+                    "statusId": "reflect"
+                  },
+                  {
+                    "kind": "anyOf",
+                    "of": [
+                      {
+                        "kind": "targetRace",
+                        "race": "Daemon"
+                      },
+                      {
+                        "kind": "targetRace",
+                        "race": "Undead"
+                      }
+                    ]
+                  }
+                ]
+              }
+            },
+            {
+              "kind": "dispel",
+              "target": "enemyAll",
+              "statusId": "enraged",
+              "ifCond": {
+                "kind": "allOf",
+                "of": [
+                  {
+                    "kind": "targetStatus",
+                    "statusId": "enraged"
+                  },
+                  {
+                    "kind": "anyOf",
+                    "of": [
+                      {
+                        "kind": "targetRace",
+                        "race": "Daemon"
+                      },
+                      {
+                        "kind": "targetRace",
+                        "race": "Undead"
+                      }
+                    ]
+                  }
+                ]
+              }
+            },
+            {
+              "kind": "dispel",
+              "target": "enemyAll",
+              "statusId": "rage",
+              "ifCond": {
+                "kind": "allOf",
+                "of": [
+                  {
+                    "kind": "targetStatus",
+                    "statusId": "rage"
+                  },
+                  {
+                    "kind": "anyOf",
+                    "of": [
+                      {
+                        "kind": "targetRace",
+                        "race": "Daemon"
+                      },
+                      {
+                        "kind": "targetRace",
+                        "race": "Undead"
+                      }
+                    ]
+                  }
+                ]
+              }
+            },
+            {
+              "kind": "status",
+              "target": "enemyAll",
+              "statusId": "stun",
+              "turns": 3,
+              "ifCond": {
+                "kind": "anyOf",
+                "of": [
+                  {
+                    "kind": "targetRace",
+                    "race": "Daemon"
+                  },
+                  {
+                    "kind": "targetRace",
+                    "race": "Undead"
+                  }
+                ]
+              }
+            },
+            {
+              "kind": "extraTurn"
+            }
+          ]
+        }
+      },
+      "sourceEvidence": [
+        {
+          "id": "en",
+          "role": "english-snapshot",
+          "path": "data/raw/troops.gow.en.json",
+          "note": "troop:6518 Sister Superior SpellId 7710, cost 6, Green/Yellow; \"Cleanse all Allies. Dispel and Stun Daemon and Undead Enemies. Gain an extra turn.\""
+        },
+        {
+          "id": "native",
+          "role": "native-snapshot",
+          "path": "data/raw/spells.gow.en.json",
+          "note": "Spell 7710 Cost 6 Target None; Cleanse AllAllies -> Dispel EnemyType daemon -> Dispel EnemyType undead -> CauseStun EnemyType daemon -> CauseStun EnemyType undead -> ExtraTurn Self."
+        },
+        {
+          "id": "rule",
+          "role": "official-shared-rule",
+          "path": "artifacts/gow-skill-audit/gold-primary-sources/official-status-effects.html",
+          "note": "Cleanse removes negatives; Dispel removes positives; Stun definition."
+        },
+        {
+          "id": "laneTest",
+          "role": "lane-battle-test",
+          "path": "tests/unit/gowLaneL3B04.test.ts",
+          "note": "troop:6518: real TurnEngine.castSkill both sides + boundaries"
+        },
+        {
+          "id": "r002",
+          "role": "user-ruling",
+          "path": "tasks/active/gow-skill-shards/rulings/R002-barrier-enchant-cleanse.md",
+          "note": "Barrier until damaged; Cleanse removes negatives only."
+        },
+        {
+          "id": "r004",
+          "role": "user-ruling",
+          "path": "tasks/active/gow-skill-shards/rulings/R004-status-durations.md",
+          "note": "Status durations: no hard cap, cumulative recovery; Cause* Amount ignored."
+        },
+        {
+          "id": "r006",
+          "role": "user-ruling",
+          "path": "tasks/active/gow-skill-shards/rulings/R006-hidden-mechanics-conventions.md",
+          "note": "Project conventions C1 (round) / C2 (Cause* Amount ignored)."
+        },
+        {
+          "id": "frozen",
+          "role": "official-shared-rule",
+          "path": "artifacts/gow-skill-audit/gold-primary-sources/official-frozen-1-0-9.json",
+          "note": "Frozen caster: no spell extra turn."
+        }
+      ],
+      "dimensions": {
+        "identity-cost-colors": {
+          "status": "verified",
+          "note": "troop:6518 -> 7710, cost 6, Green/Yellow.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r002",
+            "r004",
+            "r006",
+            "frozen"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL3B04.test.ts"
+          ]
+        },
+        "target-count-range": {
+          "status": "verified",
+          "note": "All allies cleansed; only Daemon / Undead enemies dispelled and stunned (a Daemon+Undead troop once).",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r002",
+            "r004",
+            "r006",
+            "frozen"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL3B04.test.ts"
+          ]
+        },
+        "base-formula-rounding": {
+          "status": "not-applicable",
+          "note": "No numeric formula in this spell.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r002",
+            "r004",
+            "r006",
+            "frozen"
+          ],
+          "tests": []
+        },
+        "boost-source-ratio-cap": {
+          "status": "not-applicable",
+          "note": "No boost / ratio / cap clause.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r002",
+            "r004",
+            "r006",
+            "frozen"
+          ],
+          "tests": []
+        },
+        "conditions-probabilities-branches": {
+          "status": "verified",
+          "note": "Race filter Daemon OR Undead; no such enemy -> only cleanse + extra turn.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r002",
+            "r004",
+            "r006",
+            "frozen"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL3B04.test.ts"
+          ]
+        },
+        "status-duration-immunity": {
+          "status": "verified",
+          "note": "Cleanse keeps Barrier (R002); Dispel removes Barrier/Enchanted/Reflect/Blessed etc. before Stun (a Blessed Daemon is stunned); R004 durations.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r002",
+            "r004",
+            "r006",
+            "frozen"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL3B04.test.ts"
+          ]
+        },
+        "gems-types-selection-resolution": {
+          "status": "not-applicable",
+          "note": "No gem creation / destruction.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r002",
+            "r004",
+            "r006",
+            "frozen"
+          ],
+          "tests": []
+        },
+        "summon-transform-pools": {
+          "status": "not-applicable",
+          "note": "No summon / transform.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r002",
+            "r004",
+            "r006",
+            "frozen"
+          ],
+          "tests": []
+        },
+        "order-death-retargeting": {
+          "status": "verified",
+          "note": "Cleanse -> Dispel -> Stun -> ExtraTurn matches native (daemon/undead split steps equivalent to one filtered segment).",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r002",
+            "r004",
+            "r006",
+            "frozen"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL3B04.test.ts"
+          ]
+        },
+        "mana-economy-extra-turn": {
+          "status": "verified",
+          "note": "Unconditional skill extra turn; a Frozen caster is cleansed at step 0 and therefore still gains it (native order).",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r002",
+            "r004",
+            "r006",
+            "frozen"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL3B04.test.ts"
+          ]
+        },
+        "display-description": {
+          "status": "verified",
+          "note": "zh matches.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r002",
+            "r004",
+            "r006",
+            "frozen"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL3B04.test.ts"
+          ]
+        },
+        "battle-pipeline": {
+          "status": "verified",
+          "note": "Real TurnEngine.castSkill both sides: skill-cast first, mana spent, one action-log entry, turn switch / extra-turn asserted; low-mana and Silence refusals leave board/log/turn untouched.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r002",
+            "r004",
+            "r006",
+            "frozen"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL3B04.test.ts"
+          ],
+          "realBattleEntry": true
+        }
+      },
+      "clauseReviews": [
+        {
+          "id": "c1",
+          "text": "Cleanse all Allies.",
+          "status": "verified",
+          "note": "All allies cleansed (negatives only).",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r002",
+            "r004",
+            "r006",
+            "frozen"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL3B04.test.ts"
+          ]
+        },
+        {
+          "id": "c2",
+          "text": "Dispel and Stun Daemon and Undead Enemies.",
+          "status": "verified",
+          "note": "Daemon/Undead enemies dispelled + stunned.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r002",
+            "r004",
+            "r006",
+            "frozen"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL3B04.test.ts"
+          ]
+        },
+        {
+          "id": "c3",
+          "text": "Gain an extra turn.",
+          "status": "verified",
+          "note": "Extra turn.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r002",
+            "r004",
+            "r006",
+            "frozen"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL3B04.test.ts"
+          ]
+        }
+      ],
+      "nativeStepReviews": [
+        {
+          "id": "0",
+          "type": "Cleanse",
+          "status": "verified",
+          "note": "Cleanse AllAllies.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r002",
+            "r004",
+            "r006",
+            "frozen"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL3B04.test.ts"
+          ]
+        },
+        {
+          "id": "1",
+          "type": "Dispel",
+          "status": "verified",
+          "note": "Dispel daemon.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r002",
+            "r004",
+            "r006",
+            "frozen"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL3B04.test.ts"
+          ]
+        },
+        {
+          "id": "2",
+          "type": "Dispel",
+          "status": "verified",
+          "note": "Dispel undead.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r002",
+            "r004",
+            "r006",
+            "frozen"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL3B04.test.ts"
+          ]
+        },
+        {
+          "id": "3",
+          "type": "CauseStun",
+          "status": "verified",
+          "note": "CauseStun daemon.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r002",
+            "r004",
+            "r006",
+            "frozen"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL3B04.test.ts"
+          ]
+        },
+        {
+          "id": "4",
+          "type": "CauseStun",
+          "status": "verified",
+          "note": "CauseStun undead.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r002",
+            "r004",
+            "r006",
+            "frozen"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL3B04.test.ts"
+          ]
+        },
+        {
+          "id": "5",
+          "type": "ExtraTurn",
+          "status": "verified",
+          "note": "ExtraTurn Self.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r002",
+            "r004",
+            "r006",
+            "frozen"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL3B04.test.ts"
+          ]
+        }
+      ],
+      "branchReviews": [
+        {
+          "id": "main",
+          "status": "verified",
+          "note": "Single branch.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r002",
+            "r004",
+            "r006",
+            "frozen"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL3B04.test.ts"
+          ]
+        }
+      ]
+    },
+    {
+      "key": "troop:6319",
+      "scope": "stored-gow-snapshot",
+      "sourceDigest": "dfff95b7a5fb804de5e6d6848db1b08baf4816ac5585790135909d76489b06b0",
+      "reviewer": "sa-L3",
+      "reviewedAt": "2026-09-27",
+      "decision": "draft",
+      "ledgerFingerprintAtReview": "ad06742a1d37e34d4e3c0f9076d73ac1e0ab334f00a61502e1e4261defdfb67a",
+      "_reference": {
+        "spellId": 7469,
+        "english": "Cleanse all other Allies, and give 3-8 Mana to them. Create 3 Bomb Gems.",
+        "nativeTarget": "None",
+        "randomize": null,
+        "steps": [
+          {
+            "SpellPowerMultiplier": 0.5,
+            "Target": "AllAlliesButNotSelf",
+            "Amount": 1,
+            "Primarypower": true,
+            "Type": "Cleanse"
+          },
+          {
+            "Target": "AllAlliesButNotSelf",
+            "Amount": 8,
+            "Type": "GenerateRandomMana"
+          },
+          {
+            "Color1": "Bomb",
+            "Amount": 3,
+            "Type": "CreateGems"
+          }
+        ],
+        "prototype": {
+          "segments": [
+            {
+              "kind": "cleanse",
+              "target": "allyOthers"
+            },
+            {
+              "kind": "buff",
+              "target": "allyOthers",
+              "stat": "mana",
+              "scaling": {
+                "base": 0,
+                "mult": 0
+              },
+              "rangeSpec": {
+                "min": {
+                  "base": 3,
+                  "mult": 0
+                },
+                "max": {
+                  "base": 8,
+                  "mult": 0
+                }
+              }
+            },
+            {
+              "kind": "gem",
+              "params": {
+                "op": "create",
+                "gem": {
+                  "kind": "special",
+                  "spec": {
+                    "kind": "bomb"
+                  }
+                },
+                "count": {
+                  "base": 3,
+                  "mult": 0
+                }
+              }
+            }
+          ]
+        }
+      },
+      "sourceEvidence": [
+        {
+          "id": "en",
+          "role": "english-snapshot",
+          "path": "data/raw/troops.gow.en.json",
+          "note": "troop:6319 Sentry Bot SpellId 7469, cost 10, Yellow; \"Cleanse all other Allies, and give 3-8 Mana to them. Create 3 Bomb Gems.\""
+        },
+        {
+          "id": "native",
+          "role": "native-snapshot",
+          "path": "data/raw/spells.gow.en.json",
+          "note": "Spell 7469 Cost 10 Target None; Cleanse AllAlliesButNotSelf -> GenerateRandomMana AllAlliesButNotSelf Amount 8 -> CreateGems Bomb 3."
+        },
+        {
+          "id": "rule",
+          "role": "official-shared-rule",
+          "path": "artifacts/gow-skill-audit/gold-primary-sources/official-status-effects.html",
+          "note": "Cleanse removes negatives (Silence lifted before mana)."
+        },
+        {
+          "id": "laneTest",
+          "role": "lane-battle-test",
+          "path": "tests/unit/gowLaneL3B04.test.ts",
+          "note": "troop:6319: real TurnEngine.castSkill both sides + boundaries"
+        },
+        {
+          "id": "r002",
+          "role": "user-ruling",
+          "path": "tasks/active/gow-skill-shards/rulings/R002-barrier-enchant-cleanse.md",
+          "note": "Barrier until damaged; Cleanse removes negatives only."
+        },
+        {
+          "id": "gems",
+          "role": "official-shared-rule",
+          "path": "artifacts/gow-skill-audit/gold-primary-sources/official-heroic-gems-freshdesk.html",
+          "note": "Special gem definitions (Gargoyle, Burning, Doomskull, Bomb)."
+        }
+      ],
+      "dimensions": {
+        "identity-cost-colors": {
+          "status": "verified",
+          "note": "troop:6319 -> 7469, cost 10, Yellow.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r002",
+            "gems"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL3B04.test.ts"
+          ]
+        },
+        "target-count-range": {
+          "status": "verified",
+          "note": "Other allies only (caster excluded).",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r002",
+            "gems"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL3B04.test.ts"
+          ]
+        },
+        "base-formula-rounding": {
+          "status": "disputed",
+          "note": "L3-013 source-dispute: one shared 3..8 roll for all recipients (runtime) vs independent rolls per ally; range 3..8 and cap verified.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r002",
+            "gems"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL3B04.test.ts"
+          ]
+        },
+        "boost-source-ratio-cap": {
+          "status": "not-applicable",
+          "note": "No boost / ratio / cap clause.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r002",
+            "gems"
+          ],
+          "tests": []
+        },
+        "conditions-probabilities-branches": {
+          "status": "not-applicable",
+          "note": "Unconditional single branch.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r002",
+            "gems"
+          ],
+          "tests": []
+        },
+        "status-duration-immunity": {
+          "status": "verified",
+          "note": "Cleanse other allies (Silence removed before the grant).",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r002",
+            "gems"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL3B04.test.ts"
+          ]
+        },
+        "gems-types-selection-resolution": {
+          "status": "verified",
+          "note": "3 Bomb Gems created.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r002",
+            "gems"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL3B04.test.ts"
+          ]
+        },
+        "summon-transform-pools": {
+          "status": "not-applicable",
+          "note": "No summon / transform.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r002",
+            "gems"
+          ],
+          "tests": []
+        },
+        "order-death-retargeting": {
+          "status": "verified",
+          "note": "Cleanse -> mana -> bombs matches native.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r002",
+            "gems"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL3B04.test.ts"
+          ]
+        },
+        "mana-economy-extra-turn": {
+          "status": "verified",
+          "note": "Recipients gain 3..8 capped at manaCost; caster 0; no extra turn.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r002",
+            "gems"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL3B04.test.ts"
+          ]
+        },
+        "display-description": {
+          "status": "verified",
+          "note": "zh matches.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r002",
+            "gems"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL3B04.test.ts"
+          ]
+        },
+        "battle-pipeline": {
+          "status": "verified",
+          "note": "Real TurnEngine.castSkill both sides: skill-cast first, mana spent, one action-log entry, turn switch / extra-turn asserted; low-mana and Silence refusals leave board/log/turn untouched.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r002",
+            "gems"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL3B04.test.ts"
+          ],
+          "realBattleEntry": true
+        }
+      },
+      "clauseReviews": [
+        {
+          "id": "c1",
+          "text": "Cleanse all other Allies, and give 3-8 Mana to them.",
+          "status": "disputed",
+          "note": "Cleanse verified; roll scope disputed (L3-013).",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r002",
+            "gems"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL3B04.test.ts"
+          ]
+        },
+        {
+          "id": "c2",
+          "text": "Create 3 Bomb Gems.",
+          "status": "verified",
+          "note": "3 Bomb Gems.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r002",
+            "gems"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL3B04.test.ts"
+          ]
+        }
+      ],
+      "nativeStepReviews": [
+        {
+          "id": "0",
+          "type": "Cleanse",
+          "status": "verified",
+          "note": "Cleanse AllAlliesButNotSelf.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r002",
+            "gems"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL3B04.test.ts"
+          ]
+        },
+        {
+          "id": "1",
+          "type": "GenerateRandomMana",
+          "status": "disputed",
+          "note": "GenerateRandomMana roll scope (L3-013).",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r002",
+            "gems"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL3B04.test.ts"
+          ]
+        },
+        {
+          "id": "2",
+          "type": "CreateGems",
+          "status": "verified",
+          "note": "CreateGems Bomb 3.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r002",
+            "gems"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL3B04.test.ts"
+          ]
+        }
+      ],
+      "branchReviews": [
+        {
+          "id": "main",
+          "status": "verified",
+          "note": "Single branch.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r002",
+            "gems"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL3B04.test.ts"
+          ]
+        }
+      ]
+    },
+    {
+      "key": "troop:7361",
+      "scope": "stored-gow-snapshot",
+      "sourceDigest": "223e76602aeaf334b373242d26d1ed1780985f674ab1e2b17ee5029c1fed8c32",
+      "reviewer": "sa-L3",
+      "reviewedAt": "2026-09-27",
+      "decision": "accept",
+      "ledgerFingerprintAtReview": "ad06742a1d37e34d4e3c0f9076d73ac1e0ab334f00a61502e1e4261defdfb67a",
+      "_reference": {
+        "spellId": 9001,
+        "english": "Convert Green Gems to Blue, and convert Purple Gems to Doomskulls. Drain 2 Mana from all Enemies.",
+        "nativeTarget": "None",
+        "randomize": null,
+        "steps": [
+          {
+            "Target": "Self",
+            "Color1": "Green",
+            "Amount": 100,
+            "Color2": "Blue",
+            "Type": "ConvertGems"
+          },
+          {
+            "Color1": "Purple",
+            "Amount": 100,
+            "Color2": "Doomskull",
+            "Type": "ConvertGems"
+          },
+          {
+            "Target": "AllEnemies",
+            "Amount": 2,
+            "Type": "DecreaseMana"
+          }
+        ],
+        "prototype": {
+          "segments": [
+            {
+              "kind": "gem",
+              "params": {
+                "op": "transform",
+                "from": "Green",
+                "to": "Blue"
+              }
+            },
+            {
+              "kind": "gem",
+              "params": {
+                "op": "transform",
+                "from": "Purple",
+                "to": "SKULL",
+                "toSpecial": "doomSkull"
+              }
+            },
+            {
+              "kind": "reduce",
+              "target": "enemyAll",
+              "stat": "mana",
+              "scaling": {
+                "base": 2,
+                "mult": 0
+              }
+            }
+          ]
+        }
+      },
+      "sourceEvidence": [
+        {
+          "id": "en",
+          "role": "english-snapshot",
+          "path": "data/raw/troops.gow.en.json",
+          "note": "troop:7361 Geryon SpellId 9001, cost 20, Yellow/Brown; \"Convert Green Gems to Blue, and convert Purple Gems to Doomskulls. Drain 2 Mana from all Enemies.\""
+        },
+        {
+          "id": "native",
+          "role": "native-snapshot",
+          "path": "data/raw/spells.gow.en.json",
+          "note": "Spell 9001 Cost 20 Target None; ConvertGems Green->Blue 100 -> ConvertGems Purple->Doomskull 100 -> DecreaseMana AllEnemies 2 (no SPM)."
+        },
+        {
+          "id": "rule",
+          "role": "official-shared-rule",
+          "path": "artifacts/gow-skill-audit/gold-primary-sources/official-status-effects.html",
+          "note": "Blessed blocks Mana Drain."
+        },
+        {
+          "id": "laneTest",
+          "role": "lane-battle-test",
+          "path": "tests/unit/gowLaneL3B04.test.ts",
+          "note": "troop:7361: real TurnEngine.castSkill both sides + boundaries"
+        },
+        {
+          "id": "gems",
+          "role": "official-shared-rule",
+          "path": "artifacts/gow-skill-audit/gold-primary-sources/official-heroic-gems-freshdesk.html",
+          "note": "Special gem definitions (Gargoyle, Burning, Doomskull, Bomb)."
+        }
+      ],
+      "dimensions": {
+        "identity-cost-colors": {
+          "status": "verified",
+          "note": "troop:7361 -> 9001, cost 20, Yellow/Brown.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "gems"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL3B04.test.ts"
+          ]
+        },
+        "target-count-range": {
+          "status": "verified",
+          "note": "All living enemies drained.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "gems"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL3B04.test.ts"
+          ]
+        },
+        "base-formula-rounding": {
+          "status": "verified",
+          "note": "Fixed drain 2 (magic 0/10 same), clamped at 0.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "gems"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL3B04.test.ts"
+          ]
+        },
+        "boost-source-ratio-cap": {
+          "status": "not-applicable",
+          "note": "No boost / ratio / cap clause.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "gems"
+          ],
+          "tests": []
+        },
+        "conditions-probabilities-branches": {
+          "status": "not-applicable",
+          "note": "Unconditional single branch.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "gems"
+          ],
+          "tests": []
+        },
+        "status-duration-immunity": {
+          "status": "not-applicable",
+          "note": "No status effect.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "gems"
+          ],
+          "tests": []
+        },
+        "gems-types-selection-resolution": {
+          "status": "verified",
+          "note": "All 16 Green -> Blue, all 16 Purple -> Doomskull; none when absent.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "gems"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL3B04.test.ts"
+          ]
+        },
+        "summon-transform-pools": {
+          "status": "not-applicable",
+          "note": "No summon / transform.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "gems"
+          ],
+          "tests": []
+        },
+        "order-death-retargeting": {
+          "status": "verified",
+          "note": "Green->Blue, Purple->Doomskull, drain matches native.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "gems"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL3B04.test.ts"
+          ]
+        },
+        "mana-economy-extra-turn": {
+          "status": "verified",
+          "note": "Drain only; Blessed / Mana Shield keep mana; caster 0; turn passes.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "gems"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL3B04.test.ts"
+          ]
+        },
+        "display-description": {
+          "status": "verified",
+          "note": "zh matches.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "gems"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL3B04.test.ts"
+          ]
+        },
+        "battle-pipeline": {
+          "status": "verified",
+          "note": "Real TurnEngine.castSkill both sides: skill-cast first, mana spent, one action-log entry, turn switch / extra-turn asserted; low-mana and Silence refusals leave board/log/turn untouched.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "gems"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL3B04.test.ts"
+          ],
+          "realBattleEntry": true
+        }
+      },
+      "clauseReviews": [
+        {
+          "id": "c1",
+          "text": "Convert Green Gems to Blue, and convert Purple Gems to Doomskulls.",
+          "status": "verified",
+          "note": "Both conversions.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "gems"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL3B04.test.ts"
+          ]
+        },
+        {
+          "id": "c2",
+          "text": "Drain 2 Mana from all Enemies.",
+          "status": "verified",
+          "note": "Drain 2 from all enemies.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "gems"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL3B04.test.ts"
+          ]
+        }
+      ],
+      "nativeStepReviews": [
+        {
+          "id": "0",
+          "type": "ConvertGems",
+          "status": "verified",
+          "note": "ConvertGems Green->Blue.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "gems"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL3B04.test.ts"
+          ]
+        },
+        {
+          "id": "1",
+          "type": "ConvertGems",
+          "status": "verified",
+          "note": "ConvertGems Purple->Doomskull.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "gems"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL3B04.test.ts"
+          ]
+        },
+        {
+          "id": "2",
+          "type": "DecreaseMana",
+          "status": "verified",
+          "note": "DecreaseMana 2.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "gems"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL3B04.test.ts"
+          ]
+        }
+      ],
+      "branchReviews": [
+        {
+          "id": "main",
+          "status": "verified",
+          "note": "Single branch.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "gems"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL3B04.test.ts"
+          ]
+        }
+      ]
+    },
+    {
+      "key": "troop:7486",
+      "scope": "stored-gow-snapshot",
+      "sourceDigest": "ffc745ad123501c3870b4ba401d8b8fadaf5f1023d15250ef13f7a9b1fd84288",
+      "reviewer": "sa-L3",
+      "reviewedAt": "2026-09-27",
+      "decision": "accept",
+      "ledgerFingerprintAtReview": "ad06742a1d37e34d4e3c0f9076d73ac1e0ab334f00a61502e1e4261defdfb67a",
+      "_reference": {
+        "spellId": 9219,
+        "english": "Convert all Gems of a chosen Color to Good Gargoyle Gems. Deal [(Magic x 1.5) + 4] damage to all Enemies of that Mana Color. Gain an extra turn.",
+        "nativeTarget": "ManaGemsOnly",
+        "randomize": null,
+        "steps": [
+          {
+            "Color1": "FromTarget",
+            "Amount": 100,
+            "Color2": "GoodGargoyle",
+            "Type": "ConvertGems"
+          },
+          {
+            "SpellPowerMultiplier": 1.5,
+            "Target": "FromManaColorEnemy",
+            "Amount": 4,
+            "Primarypower": true,
+            "Type": "Damage"
+          },
+          {
+            "Target": "Self",
+            "Type": "ExtraTurn"
+          }
+        ],
+        "prototype": {
+          "segments": [
+            {
+              "kind": "gem",
+              "params": {
+                "op": "transform",
+                "from": "CHOSEN",
+                "to": "SKULL",
+                "toSpecial": "gargoyleGem"
+              }
+            },
+            {
+              "kind": "damage",
+              "target": "enemyAll",
+              "scaling": {
+                "base": 4,
+                "mult": 1.5
+              },
+              "range": "all",
+              "ifCond": {
+                "kind": "targetColor",
+                "color": "CHOSEN"
+              }
+            },
+            {
+              "kind": "extraTurn"
+            }
+          ]
+        }
+      },
+      "sourceEvidence": [
+        {
+          "id": "en",
+          "role": "english-snapshot",
+          "path": "data/raw/troops.gow.en.json",
+          "note": "troop:7486 Groevanga SpellId 9219, cost 24, Blue/Yellow/Brown; \"Convert all Gems of a chosen Color to Good Gargoyle Gems. Deal [(Magic x 1.5) + 4] damage to all Enemies of that Mana Color. Gain an extra turn.\""
+        },
+        {
+          "id": "native",
+          "role": "native-snapshot",
+          "path": "data/raw/spells.gow.en.json",
+          "note": "Spell 9219 Cost 24 Target ManaGemsOnly; ConvertGems FromTarget->GoodGargoyle 100 -> Damage FromManaColorEnemy 4 SPM 1.5 -> ExtraTurn Self."
+        },
+        {
+          "id": "rule",
+          "role": "official-shared-rule",
+          "path": "artifacts/gow-skill-audit/gold-primary-sources/official-frozen-1-0-9.json",
+          "note": "Frozen caster: no spell extra turn."
+        },
+        {
+          "id": "laneTest",
+          "role": "lane-battle-test",
+          "path": "tests/unit/gowLaneL3B04.test.ts",
+          "note": "troop:7486: real TurnEngine.castSkill both sides + boundaries"
+        },
+        {
+          "id": "r006",
+          "role": "user-ruling",
+          "path": "tasks/active/gow-skill-shards/rulings/R006-hidden-mechanics-conventions.md",
+          "note": "Project conventions C1 (round) / C2 (Cause* Amount ignored)."
+        },
+        {
+          "id": "gems",
+          "role": "official-shared-rule",
+          "path": "artifacts/gow-skill-audit/gold-primary-sources/official-heroic-gems-freshdesk.html",
+          "note": "Special gem definitions (Gargoyle, Burning, Doomskull, Bomb)."
+        }
+      ],
+      "dimensions": {
+        "identity-cost-colors": {
+          "status": "verified",
+          "note": "troop:7486 -> 9219, cost 24, Blue/Yellow/Brown.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r006",
+            "gems"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL3B04.test.ts"
+          ]
+        },
+        "target-count-range": {
+          "status": "verified",
+          "note": "Chosen colour; damage only enemies whose mana colours include it (10 and 12 for Purple).",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r006",
+            "gems"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL3B04.test.ts"
+          ]
+        },
+        "base-formula-rounding": {
+          "status": "verified",
+          "note": "round(Magic x 1.5 + 4) (convention:R006-C1): magic 0/3/10 -> 4/9/19.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r006",
+            "gems"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL3B04.test.ts"
+          ]
+        },
+        "boost-source-ratio-cap": {
+          "status": "not-applicable",
+          "note": "No boost / ratio / cap clause.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r006",
+            "gems"
+          ],
+          "tests": []
+        },
+        "conditions-probabilities-branches": {
+          "status": "verified",
+          "note": "Colour with no matching enemy -> no damage.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r006",
+            "gems"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL3B04.test.ts"
+          ]
+        },
+        "status-duration-immunity": {
+          "status": "not-applicable",
+          "note": "No status effect.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r006",
+            "gems"
+          ],
+          "tests": []
+        },
+        "gems-types-selection-resolution": {
+          "status": "verified",
+          "note": "All 16 chosen-colour gems -> gargoyleGem, Good tier (tier 1 / untiered = Good).",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r006",
+            "gems"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL3B04.test.ts"
+          ]
+        },
+        "summon-transform-pools": {
+          "status": "not-applicable",
+          "note": "No summon / transform.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r006",
+            "gems"
+          ],
+          "tests": []
+        },
+        "order-death-retargeting": {
+          "status": "verified",
+          "note": "Convert -> damage -> extra turn matches native.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r006",
+            "gems"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL3B04.test.ts"
+          ]
+        },
+        "mana-economy-extra-turn": {
+          "status": "verified",
+          "note": "Unconditional skill extra turn; frozen caster -> none.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r006",
+            "gems"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL3B04.test.ts"
+          ]
+        },
+        "display-description": {
+          "status": "verified",
+          "note": "zh matches.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r006",
+            "gems"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL3B04.test.ts"
+          ]
+        },
+        "battle-pipeline": {
+          "status": "verified",
+          "note": "Real TurnEngine.castSkill both sides: skill-cast first, mana spent, one action-log entry, turn switch / extra-turn asserted; low-mana and Silence refusals leave board/log/turn untouched.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r006",
+            "gems"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL3B04.test.ts"
+          ],
+          "realBattleEntry": true
+        }
+      },
+      "clauseReviews": [
+        {
+          "id": "c1",
+          "text": "Convert all Gems of a chosen Color to Good Gargoyle Gems.",
+          "status": "verified",
+          "note": "Chosen colour -> Good Gargoyles.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r006",
+            "gems"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL3B04.test.ts"
+          ]
+        },
+        {
+          "id": "c2",
+          "text": "Deal [(Magic x 1.5) + 4] damage to all Enemies of that Mana Color.",
+          "status": "verified",
+          "note": "Damage to enemies of that colour.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r006",
+            "gems"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL3B04.test.ts"
+          ]
+        },
+        {
+          "id": "c3",
+          "text": "Gain an extra turn.",
+          "status": "verified",
+          "note": "Extra turn.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r006",
+            "gems"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL3B04.test.ts"
+          ]
+        }
+      ],
+      "nativeStepReviews": [
+        {
+          "id": "0",
+          "type": "ConvertGems",
+          "status": "verified",
+          "note": "ConvertGems FromTarget->GoodGargoyle.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r006",
+            "gems"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL3B04.test.ts"
+          ]
+        },
+        {
+          "id": "1",
+          "type": "Damage",
+          "status": "verified",
+          "note": "Damage FromManaColorEnemy 1.5M+4.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r006",
+            "gems"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL3B04.test.ts"
+          ]
+        },
+        {
+          "id": "2",
+          "type": "ExtraTurn",
+          "status": "verified",
+          "note": "ExtraTurn Self.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r006",
+            "gems"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL3B04.test.ts"
+          ]
+        }
+      ],
+      "branchReviews": [
+        {
+          "id": "main",
+          "status": "verified",
+          "note": "Single branch.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r006",
+            "gems"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL3B04.test.ts"
+          ]
+        }
+      ]
+    },
+    {
+      "key": "troop:7400",
+      "scope": "stored-gow-snapshot",
+      "sourceDigest": "4c2735414a9c380e09e330d76140447b4e0401292ac08d722156341ca52db8d0",
+      "reviewer": "sa-L3",
+      "reviewedAt": "2026-09-27",
+      "decision": "accept",
+      "ledgerFingerprintAtReview": "ad06742a1d37e34d4e3c0f9076d73ac1e0ab334f00a61502e1e4261defdfb67a",
+      "_reference": {
+        "spellId": 9050,
+        "english": "Convert 5 Green Gems to Burning Gems. Gain an extra turn.",
+        "nativeTarget": "None",
+        "randomize": null,
+        "steps": [
+          {
+            "Color1": "Green",
+            "Amount": 5,
+            "Color2": "Burning",
+            "Type": "ConvertGems"
+          },
+          {
+            "Target": "Self",
+            "Type": "ExtraTurn"
+          }
+        ],
+        "prototype": {
+          "segments": [
+            {
+              "kind": "gem",
+              "params": {
+                "op": "transform",
+                "from": "Green",
+                "to": "SKULL",
+                "toSpecial": "burningGem",
+                "count": {
+                  "base": 5,
+                  "mult": 0
+                }
+              }
+            },
+            {
+              "kind": "extraTurn"
+            }
+          ]
+        }
+      },
+      "sourceEvidence": [
+        {
+          "id": "en",
+          "role": "english-snapshot",
+          "path": "data/raw/troops.gow.en.json",
+          "note": "troop:7400 Cinderhand Goblin SpellId 9050, cost 10, Red/Yellow; \"Convert 5 Green Gems to Burning Gems. Gain an extra turn.\""
+        },
+        {
+          "id": "native",
+          "role": "native-snapshot",
+          "path": "data/raw/spells.gow.en.json",
+          "note": "Spell 9050 Cost 10 Target None; ConvertGems Green->Burning Amount 5 -> ExtraTurn Self."
+        },
+        {
+          "id": "rule",
+          "role": "official-shared-rule",
+          "path": "artifacts/gow-skill-audit/gold-primary-sources/official-frozen-1-0-9.json",
+          "note": "Frozen caster: no spell extra turn."
+        },
+        {
+          "id": "laneTest",
+          "role": "lane-battle-test",
+          "path": "tests/unit/gowLaneL3B04.test.ts",
+          "note": "troop:7400: real TurnEngine.castSkill both sides + boundaries"
+        },
+        {
+          "id": "gems",
+          "role": "official-shared-rule",
+          "path": "artifacts/gow-skill-audit/gold-primary-sources/official-heroic-gems-freshdesk.html",
+          "note": "Special gem definitions (Gargoyle, Burning, Doomskull, Bomb)."
+        }
+      ],
+      "dimensions": {
+        "identity-cost-colors": {
+          "status": "verified",
+          "note": "troop:7400 -> 9050, cost 10, Red/Yellow.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "gems"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL3B04.test.ts"
+          ]
+        },
+        "target-count-range": {
+          "status": "verified",
+          "note": "Board only.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "gems"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL3B04.test.ts"
+          ]
+        },
+        "base-formula-rounding": {
+          "status": "verified",
+          "note": "Fixed 5 (magic-independent); fewer Green -> all of them (3 -> 3, 0 -> 0).",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "gems"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL3B04.test.ts"
+          ]
+        },
+        "boost-source-ratio-cap": {
+          "status": "not-applicable",
+          "note": "No boost / ratio / cap clause.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "gems"
+          ],
+          "tests": []
+        },
+        "conditions-probabilities-branches": {
+          "status": "not-applicable",
+          "note": "Unconditional single branch.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "gems"
+          ],
+          "tests": []
+        },
+        "status-duration-immunity": {
+          "status": "not-applicable",
+          "note": "No status effect.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "gems"
+          ],
+          "tests": []
+        },
+        "gems-types-selection-resolution": {
+          "status": "verified",
+          "note": "Exactly 5 Green -> burningGem.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "gems"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL3B04.test.ts"
+          ]
+        },
+        "summon-transform-pools": {
+          "status": "not-applicable",
+          "note": "No summon / transform.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "gems"
+          ],
+          "tests": []
+        },
+        "order-death-retargeting": {
+          "status": "verified",
+          "note": "Convert -> extra turn matches native.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "gems"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL3B04.test.ts"
+          ]
+        },
+        "mana-economy-extra-turn": {
+          "status": "verified",
+          "note": "Unconditional skill extra turn; frozen caster -> none.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "gems"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL3B04.test.ts"
+          ]
+        },
+        "display-description": {
+          "status": "verified",
+          "note": "zh matches.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "gems"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL3B04.test.ts"
+          ]
+        },
+        "battle-pipeline": {
+          "status": "verified",
+          "note": "Real TurnEngine.castSkill both sides: skill-cast first, mana spent, one action-log entry, turn switch / extra-turn asserted; low-mana and Silence refusals leave board/log/turn untouched.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "gems"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL3B04.test.ts"
+          ],
+          "realBattleEntry": true
+        }
+      },
+      "clauseReviews": [
+        {
+          "id": "c1",
+          "text": "Convert 5 Green Gems to Burning Gems.",
+          "status": "verified",
+          "note": "5 Green -> Burning Gems.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "gems"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL3B04.test.ts"
+          ]
+        },
+        {
+          "id": "c2",
+          "text": "Gain an extra turn.",
+          "status": "verified",
+          "note": "Extra turn.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "gems"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL3B04.test.ts"
+          ]
+        }
+      ],
+      "nativeStepReviews": [
+        {
+          "id": "0",
+          "type": "ConvertGems",
+          "status": "verified",
+          "note": "ConvertGems Green->Burning 5.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "gems"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL3B04.test.ts"
+          ]
+        },
+        {
+          "id": "1",
+          "type": "ExtraTurn",
+          "status": "verified",
+          "note": "ExtraTurn Self.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "gems"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL3B04.test.ts"
+          ]
+        }
+      ],
+      "branchReviews": [
+        {
+          "id": "main",
+          "status": "verified",
+          "note": "Single branch.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "gems"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL3B04.test.ts"
+          ]
+        }
+      ]
+    }
+  ]
+}

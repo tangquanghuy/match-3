@@ -1,0 +1,1364 @@
+{
+  "schemaVersion": 1,
+  "scope": "stored-gow-snapshot",
+  "note": "Staged signoff drafts, independent of shared review registry. No tests or audit generators were executed in this assignment. Evidence roles are strictly scoped; official status page does not certify spell-specific mechanisms. Coordinator parallel test reviewed by reading source only; receipt lacks this newly added suite; all five remain draft pending full evidence.",
+  "ledgerFingerprintAtReview": "40b01f972eaecffaf9afcf60a47fbe4fd4fa6da384e54e82d4fd5834deb93ac4",
+  "receiptGeneratedAt": "2026-09-27T15:06:24.415Z",
+  "reviews": [
+    {
+      "key": "troop:7135",
+      "scope": "stored-gow-snapshot",
+      "sourceDigest": "5b86d4e8b3331498bcd5aff38c2db8557a671ea90361fefeb55c7724a1ad6900",
+      "reviewer": "worker-fast-02 (stored snapshot; staged draft)",
+      "reviewedAt": "2026-09-27",
+      "decision": "draft",
+      "sourceEvidence": [
+        {
+          "id": "en",
+          "role": "english-snapshot",
+          "path": "data/raw/troops.gow.en.json",
+          "sha256": "be77c2dd9838435f5461b763e9f1e1436e53ae9be36fc35eaadea71060e6b757",
+          "note": "Stored entity 7135, spell 8684: Eliminate [Magic + 1] points of a random skill from all Enemies.; not live official confirmation."
+        },
+        {
+          "id": "native",
+          "role": "native-snapshot",
+          "path": "data/raw/spells.gow.en.json",
+          "sha256": "ddc7e03e23a6ea880e34fc8f1b7f0572b15f42041e979c443642d735f89dd63b",
+          "note": "Stored RawData spell 8684, all ordered steps and spell cost; independent of translation."
+        },
+        {
+          "id": "official",
+          "role": "official-shared-rule",
+          "path": "artifacts/gow-skill-audit/gold-primary-sources/official-status-effects.html",
+          "sha256": "4dca585515e9c7ca9287f75b9555079a2b50c747e6c35293ae6b57981360755c",
+          "note": "Official shared statuses/immunity guide; relevant to future battle interaction tests ONLY; does not prove this entity formula, random selection, gem conversion or current online version."
+        },
+        {
+          "id": "native-test",
+          "role": "scoped-test-source",
+          "path": "tests/unit/gowNativeSourceAudit.test.ts",
+          "sha256": "61be77bd557a120f2afb083ad3dc5a5030979b35fb3732d42850c08e2fecdbf5",
+          "note": "Source inspects every entity spell ID and native Cost; receipt 2026-09-27T15:06:24.415Z reports passed 2520; it does not assert colors, full spell or battle."
+        },
+        {
+          "id": "receipt",
+          "role": "verification-receipt",
+          "path": "artifacts/gow-skill-audit/verification-receipt.json",
+          "sha256": "860ea939f281c5228582eee20815f9234111f77b08e05a72250db3b1d19affa7",
+          "note": "Previously generated receipt 2026-09-27T15:06:24.415Z, fingerprint 40b01f972eaecffaf9afcf60a47fbe4fd4fa6da384e54e82d4fd5834deb93ac4; no test run in this assignment."
+        }
+      ],
+      "dimensions": {
+        "identity-cost-colors": {
+          "status": "pending",
+          "note": "Native identity/Cost scoped test passed; manually compare source mana colors to src/data/troops.json and binding 8684. No per-entity test verifies color/identity/initial mana and all battle bindings; pending.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "native-test",
+            "receipt"
+          ],
+          "tests": []
+        },
+        "target-count-range": {
+          "status": "pending",
+          "note": "Expected: All enemies each lose min(current stat, Magic+1) from exactly one independently selected attack/armor/magic stat. Negative: Allies and other stats remain unchanged; zero stat cannot underflow; no mana drain. Pending target boundary/empty and status interactions.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "native-test",
+            "receipt"
+          ],
+          "tests": []
+        },
+        "base-formula-rounding": {
+          "status": "pending",
+          "note": "Source fields: [{\"Type\":\"DecreaseRandom\",\"Amount\":1,\"SpellPowerMultiplier\":1}]; prototype {\"kind\":\"reduce\",\"target\":\"enemyAll\",\"stat\":\"random\",\"scaling\":{\"base\":1,\"mult\":1}}. Pending low/odd Magic and rounding/seed bounds.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "native-test",
+            "receipt"
+          ],
+          "tests": []
+        },
+        "boost-source-ratio-cap": {
+          "status": "not-applicable",
+          "note": "No native boost/counter/ratio/cap step or English rider; based on stored snapshot only.",
+          "evidenceIds": [
+            "en",
+            "native"
+          ],
+          "tests": []
+        },
+        "conditions-probabilities-branches": {
+          "status": "pending",
+          "note": "native Randomize=null, single main step; random target/stat/damage or color selection must not become an extra branch. Pending cancellation/RNG and condition boundaries.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "native-test",
+            "receipt"
+          ],
+          "tests": []
+        },
+        "status-duration-immunity": {
+          "status": "pending",
+          "note": "No status application in native spell; pending actual Barrier/Submerged/Stealthy/Reflect/Spell Armor/Block, Silence/Web as applicable; official guide only covers shared status definitions.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "native-test",
+            "receipt"
+          ],
+          "tests": []
+        },
+        "gems-types-selection-resolution": {
+          "status": "not-applicable",
+          "note": "Neither English nor native steps include gem creation, conversion, destruction, or board target.",
+          "evidenceIds": [
+            "en",
+            "native"
+          ],
+          "tests": []
+        },
+        "summon-transform-pools": {
+          "status": "not-applicable",
+          "note": "Neither English nor native steps include troop summon or transformation.",
+          "evidenceIds": [
+            "en",
+            "native"
+          ],
+          "tests": []
+        },
+        "order-death-retargeting": {
+          "status": "pending",
+          "note": "Single native step, no explicit sequential rider; still pending dead-target/no-target/cascade or resolution order during real cast.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "native-test",
+            "receipt"
+          ],
+          "tests": []
+        },
+        "mana-economy-extra-turn": {
+          "status": "pending",
+          "note": "Native spell Cost=12; existing identity suite checks cost, not real-cast spend, cancellation, extra-turn or action log.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "native-test",
+            "receipt"
+          ],
+          "tests": []
+        },
+        "display-description": {
+          "status": "pending",
+          "note": "EN \"Eliminate [Magic + 1] points of a random skill from all Enemies.\" vs ZH \"消除所有敌人 [魔法 + 1] 点随机技能值。\" statically reviewed; no per-entity rendering/dynamic placeholder assertion.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "native-test",
+            "receipt"
+          ],
+          "tests": []
+        },
+        "battle-pipeline": {
+          "status": "pending",
+          "note": "No full per-entity two-sided TurnEngine cast test covers all relevant positive/negative boundaries. No matching per-entity real-cast evidence located by spell/entity ID or fully equivalent complete fixture.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "native-test",
+            "receipt"
+          ],
+          "tests": [],
+          "realBattleEntry": false
+        }
+      },
+      "clauseReviews": [
+        {
+          "id": "c1",
+          "status": "pending",
+          "note": "English clause \"Eliminate [Magic + 1] points of a random skill from all Enemies.\"; static mapping to prototype is plausible, but dedicated whole-spell positive/negative real-cast tests missing. ",
+          "evidenceIds": [
+            "en",
+            "native",
+            "native-test",
+            "receipt"
+          ],
+          "tests": [
+            "tests/unit/gowNativeSourceAudit.test.ts"
+          ],
+          "positiveExpectation": "All enemies each lose min(current stat, Magic+1) from exactly one independently selected attack/armor/magic stat.",
+          "negativeExpectation": "Allies and other stats remain unchanged; zero stat cannot underflow; no mana drain."
+        }
+      ],
+      "nativeStepReviews": [
+        {
+          "id": "0",
+          "status": "pending",
+          "note": "Ordered native step 0={\"SpellPowerMultiplier\":1,\"Target\":\"AllEnemies\",\"Amount\":1,\"Primarypower\":true,\"Type\":\"DecreaseRandom\"}; final prototype=[{\"kind\":\"reduce\",\"target\":\"enemyAll\",\"stat\":\"random\",\"scaling\":{\"base\":1,\"mult\":1}}]; per-step real battle boundaries not fully verified.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "native-test",
+            "receipt"
+          ],
+          "tests": [
+            "tests/unit/gowNativeSourceAudit.test.ts"
+          ],
+          "positiveExpectation": "All enemies each lose min(current stat, Magic+1) from exactly one independently selected attack/armor/magic stat.",
+          "negativeExpectation": "Allies and other stats remain unchanged; zero stat cannot underflow; no mana drain."
+        }
+      ],
+      "branchReviews": [
+        {
+          "id": "main",
+          "status": "pending",
+          "note": "Native main branch; Randomize=null, step order DecreaseRandom; neither negative nor boundary case has complete independent battle proof.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "native-test",
+            "receipt"
+          ],
+          "tests": [
+            "tests/unit/gowNativeSourceAudit.test.ts"
+          ],
+          "positiveExpectation": "All enemies each lose min(current stat, Magic+1) from exactly one independently selected attack/armor/magic stat.",
+          "negativeExpectation": "Allies and other stats remain unchanged; zero stat cannot underflow; no mana drain."
+        }
+      ],
+      "coordinationFollowup": [
+        "Real TurnEngine.castSkill for 8684 with 1/4 enemies, multiple seeded choices and negative checks for allies and unchanged stats.",
+        "Magic=0/odd, zero and depleted stats, Web/Silence, defeated enemies and resistance/retargeting; assert mana and action events."
+      ],
+      "partialEvidence": {
+        "nativeIdentityCost": {
+          "path": "tests/unit/gowNativeSourceAudit.test.ts",
+          "receiptStatus": "passed",
+          "verifiedScope": "native spell ID and Cost only"
+        }
+      },
+      "decisionReason": "Draft: full per-entity test coverage and complete official shared semantics are not established. No explicit entity-specific whole-skill real cast suite found."
+    },
+    {
+      "key": "troop:7151",
+      "scope": "stored-gow-snapshot",
+      "sourceDigest": "cd970c35790ead87a8513d24f1bd7c5806301b5e9e7e87cc799952e645af127d",
+      "reviewer": "worker-fast-02 (stored snapshot; staged draft)",
+      "reviewedAt": "2026-09-27",
+      "decision": "draft",
+      "sourceEvidence": [
+        {
+          "id": "en",
+          "role": "english-snapshot",
+          "path": "data/raw/troops.gow.en.json",
+          "sha256": "be77c2dd9838435f5461b763e9f1e1436e53ae9be36fc35eaadea71060e6b757",
+          "note": "Stored entity 7151, spell 8710: Convert all Gems of a Chosen Color to Burning Gems.; not live official confirmation."
+        },
+        {
+          "id": "native",
+          "role": "native-snapshot",
+          "path": "data/raw/spells.gow.en.json",
+          "sha256": "ddc7e03e23a6ea880e34fc8f1b7f0572b15f42041e979c443642d735f89dd63b",
+          "note": "Stored RawData spell 8710, all ordered steps and spell cost; independent of translation."
+        },
+        {
+          "id": "official",
+          "role": "official-shared-rule",
+          "path": "artifacts/gow-skill-audit/gold-primary-sources/official-status-effects.html",
+          "sha256": "4dca585515e9c7ca9287f75b9555079a2b50c747e6c35293ae6b57981360755c",
+          "note": "Official shared statuses/immunity guide; relevant to future battle interaction tests ONLY; does not prove this entity formula, random selection, gem conversion or current online version."
+        },
+        {
+          "id": "native-test",
+          "role": "scoped-test-source",
+          "path": "tests/unit/gowNativeSourceAudit.test.ts",
+          "sha256": "61be77bd557a120f2afb083ad3dc5a5030979b35fb3732d42850c08e2fecdbf5",
+          "note": "Source inspects every entity spell ID and native Cost; receipt 2026-09-27T15:06:24.415Z reports passed 2520; it does not assert colors, full spell or battle."
+        },
+        {
+          "id": "receipt",
+          "role": "verification-receipt",
+          "path": "artifacts/gow-skill-audit/verification-receipt.json",
+          "sha256": "860ea939f281c5228582eee20815f9234111f77b08e05a72250db3b1d19affa7",
+          "note": "Previously generated receipt 2026-09-27T15:06:24.415Z, fingerprint 40b01f972eaecffaf9afcf60a47fbe4fd4fa6da384e54e82d4fd5834deb93ac4; no test run in this assignment."
+        }
+      ],
+      "dimensions": {
+        "identity-cost-colors": {
+          "status": "pending",
+          "note": "Native identity/Cost scoped test passed; manually compare source mana colors to src/data/troops.json and binding 8710. No per-entity test verifies color/identity/initial mana and all battle bindings; pending.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "native-test",
+            "receipt"
+          ],
+          "tests": []
+        },
+        "target-count-range": {
+          "status": "pending",
+          "note": "Expected: Selecting a color converts all gems of that one color into burningGem, then resolves board. Negative: Other colors and already nonmatching specials stay unchanged; invalid/cancelled choice does not spend mana. Pending target boundary/empty and status interactions.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "native-test",
+            "receipt"
+          ],
+          "tests": []
+        },
+        "base-formula-rounding": {
+          "status": "pending",
+          "note": "Source fields: [{\"Type\":\"ConvertGems\",\"Amount\":100}]; prototype {\"kind\":\"gem\",\"params\":{\"op\":\"transform\",\"from\":\"CHOSEN\",\"to\":\"SKULL\",\"toSpecial\":\"burningGem\"}}. Pending low/odd Magic and rounding/seed bounds.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "native-test",
+            "receipt"
+          ],
+          "tests": []
+        },
+        "boost-source-ratio-cap": {
+          "status": "pending",
+          "note": "Check source for unlisted boosts/ratio and cap; chosen color -> burning gems has no confirmed battle-level test of those exclusions.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "native-test",
+            "receipt"
+          ],
+          "tests": []
+        },
+        "conditions-probabilities-branches": {
+          "status": "pending",
+          "note": "native Randomize=null, single main step; random target/stat/damage or color selection must not become an extra branch. Pending cancellation/RNG and condition boundaries.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "native-test",
+            "receipt"
+          ],
+          "tests": []
+        },
+        "status-duration-immunity": {
+          "status": "pending",
+          "note": "No status application in native spell; pending actual Barrier/Submerged/Stealthy/Reflect/Spell Armor/Block, Silence/Web as applicable; official guide only covers shared status definitions.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "native-test",
+            "receipt"
+          ],
+          "tests": []
+        },
+        "gems-types-selection-resolution": {
+          "status": "pending",
+          "note": "For spell 8710, verify chosenColor selection, Burning Gem type and match/cascade against {\"Color1\":\"FromTarget\",\"Amount\":100,\"Color2\":\"Burning\",\"Type\":\"ConvertGems\"}; no real-cast entity fixture found.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "native-test",
+            "receipt"
+          ],
+          "tests": []
+        },
+        "summon-transform-pools": {
+          "status": "not-applicable",
+          "note": "Neither English nor native steps include troop summon or transformation.",
+          "evidenceIds": [
+            "en",
+            "native"
+          ],
+          "tests": []
+        },
+        "order-death-retargeting": {
+          "status": "pending",
+          "note": "Single native step, no explicit sequential rider; still pending dead-target/no-target/cascade or resolution order during real cast.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "native-test",
+            "receipt"
+          ],
+          "tests": []
+        },
+        "mana-economy-extra-turn": {
+          "status": "pending",
+          "note": "Native spell Cost=12; existing identity suite checks cost, not real-cast spend, cancellation, extra-turn or action log.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "native-test",
+            "receipt"
+          ],
+          "tests": []
+        },
+        "display-description": {
+          "status": "pending",
+          "note": "EN \"Convert all Gems of a Chosen Color to Burning Gems.\" vs ZH \"将所有选定颜色的宝石转换成燃烧宝石。\" statically reviewed; no per-entity rendering/dynamic placeholder assertion.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "native-test",
+            "receipt"
+          ],
+          "tests": []
+        },
+        "battle-pipeline": {
+          "status": "pending",
+          "note": "No full per-entity two-sided TurnEngine cast test covers all relevant positive/negative boundaries. No matching per-entity real-cast evidence located by spell/entity ID or fully equivalent complete fixture.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "native-test",
+            "receipt"
+          ],
+          "tests": [],
+          "realBattleEntry": false
+        }
+      },
+      "clauseReviews": [
+        {
+          "id": "c1",
+          "status": "pending",
+          "note": "English clause \"Convert all Gems of a Chosen Color to Burning Gems.\"; static mapping to prototype is plausible, but dedicated whole-spell positive/negative real-cast tests missing. ",
+          "evidenceIds": [
+            "en",
+            "native",
+            "native-test",
+            "receipt"
+          ],
+          "tests": [
+            "tests/unit/gowNativeSourceAudit.test.ts"
+          ],
+          "positiveExpectation": "Selecting a color converts all gems of that one color into burningGem, then resolves board.",
+          "negativeExpectation": "Other colors and already nonmatching specials stay unchanged; invalid/cancelled choice does not spend mana."
+        }
+      ],
+      "nativeStepReviews": [
+        {
+          "id": "0",
+          "status": "pending",
+          "note": "Ordered native step 0={\"Color1\":\"FromTarget\",\"Amount\":100,\"Color2\":\"Burning\",\"Type\":\"ConvertGems\"}; final prototype=[{\"kind\":\"gem\",\"params\":{\"op\":\"transform\",\"from\":\"CHOSEN\",\"to\":\"SKULL\",\"toSpecial\":\"burningGem\"}}]; per-step real battle boundaries not fully verified.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "native-test",
+            "receipt"
+          ],
+          "tests": [
+            "tests/unit/gowNativeSourceAudit.test.ts"
+          ],
+          "positiveExpectation": "Selecting a color converts all gems of that one color into burningGem, then resolves board.",
+          "negativeExpectation": "Other colors and already nonmatching specials stay unchanged; invalid/cancelled choice does not spend mana."
+        }
+      ],
+      "branchReviews": [
+        {
+          "id": "main",
+          "status": "pending",
+          "note": "Native main branch; Randomize=null, step order ConvertGems; neither negative nor boundary case has complete independent battle proof.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "native-test",
+            "receipt"
+          ],
+          "tests": [
+            "tests/unit/gowNativeSourceAudit.test.ts"
+          ],
+          "positiveExpectation": "Selecting a color converts all gems of that one color into burningGem, then resolves board.",
+          "negativeExpectation": "Other colors and already nonmatching specials stay unchanged; invalid/cancelled choice does not spend mana."
+        }
+      ],
+      "coordinationFollowup": [
+        "Real TurnEngine.castSkill for 8710 with two colors, chosenColor A/B, board event counts, resulting burningGem special types and match/cascade behavior.",
+        "Invalid/cancelled selection, no matching gems, caster silence, mana/extra-turn and seed determinism; verify burning-gem match/explosion shared rule from a relevant source."
+      ],
+      "partialEvidence": {
+        "nativeIdentityCost": {
+          "path": "tests/unit/gowNativeSourceAudit.test.ts",
+          "receiptStatus": "passed",
+          "verifiedScope": "native spell ID and Cost only"
+        }
+      },
+      "decisionReason": "Draft: full per-entity test coverage and complete official shared semantics are not established. No explicit entity-specific whole-skill real cast suite found."
+    },
+    {
+      "key": "troop:7159",
+      "scope": "stored-gow-snapshot",
+      "sourceDigest": "c25c33cfd31c33a0f85205b43bf0a4e902cd4273cec4f8ee19d42a2f9b028fdd",
+      "reviewer": "worker-fast-02 (stored snapshot; staged draft)",
+      "reviewedAt": "2026-09-27",
+      "decision": "draft",
+      "sourceEvidence": [
+        {
+          "id": "en",
+          "role": "english-snapshot",
+          "path": "data/raw/troops.gow.en.json",
+          "sha256": "be77c2dd9838435f5461b763e9f1e1436e53ae9be36fc35eaadea71060e6b757",
+          "note": "Stored entity 7159, spell 8734: Deal [Magic + 2] damage to a random Enemy.; not live official confirmation."
+        },
+        {
+          "id": "native",
+          "role": "native-snapshot",
+          "path": "data/raw/spells.gow.en.json",
+          "sha256": "ddc7e03e23a6ea880e34fc8f1b7f0572b15f42041e979c443642d735f89dd63b",
+          "note": "Stored RawData spell 8734, all ordered steps and spell cost; independent of translation."
+        },
+        {
+          "id": "official",
+          "role": "official-shared-rule",
+          "path": "artifacts/gow-skill-audit/gold-primary-sources/official-status-effects.html",
+          "sha256": "4dca585515e9c7ca9287f75b9555079a2b50c747e6c35293ae6b57981360755c",
+          "note": "Official shared statuses/immunity guide; relevant to future battle interaction tests ONLY; does not prove this entity formula, random selection, gem conversion or current online version."
+        },
+        {
+          "id": "native-test",
+          "role": "scoped-test-source",
+          "path": "tests/unit/gowNativeSourceAudit.test.ts",
+          "sha256": "61be77bd557a120f2afb083ad3dc5a5030979b35fb3732d42850c08e2fecdbf5",
+          "note": "Source inspects every entity spell ID and native Cost; receipt 2026-09-27T15:06:24.415Z reports passed 2520; it does not assert colors, full spell or battle."
+        },
+        {
+          "id": "receipt",
+          "role": "verification-receipt",
+          "path": "artifacts/gow-skill-audit/verification-receipt.json",
+          "sha256": "860ea939f281c5228582eee20815f9234111f77b08e05a72250db3b1d19affa7",
+          "note": "Previously generated receipt 2026-09-27T15:06:24.415Z, fingerprint 40b01f972eaecffaf9afcf60a47fbe4fd4fa6da384e54e82d4fd5834deb93ac4; no test run in this assignment."
+        },
+        {
+          "id": "simple-test",
+          "role": "scoped-real-cast-test-source",
+          "path": "tests/unit/gowSimpleDamageAudit.test.ts",
+          "sha256": "0c030c369090a9b14561ec65ee2b3d4d418badb622c107bdbe8d75383beb27c9",
+          "note": "Regex over full English text selects 8734 dynamically; per-entity TurnEngine.castSkill tests M=0/1/11/20, armor=0/10, target count, RNG variety across 20 seeds. Historical receipt: 217 passed. Only ordinary statuses/one side."
+        },
+        {
+          "id": "parallel-test",
+          "role": "scoped-per-entity-real-cast-test-source",
+          "path": "tests/unit/gowParallelSignoffTroops.test.ts",
+          "sha256": "531d9e3791ff468e0d0f7cc2c4b4f3e9db96666ef908eb787cab7558dff4797d",
+          "note": "Coordinator reports 42 tests passed locally; source confirms this entity appears in per-entity parameterized tests for two sides, Magic=0/10, source ID/cost/color/native type, one hit, mana/turn, low-mana/Silence. This test suite is NOT included in current verification-receipt; no independent test run here."
+        }
+      ],
+      "dimensions": {
+        "identity-cost-colors": {
+          "status": "pending",
+          "note": "Native identity/Cost scoped test passed; manually compare source mana colors to src/data/troops.json and binding 8734. No per-entity test verifies color/identity/initial mana and all battle bindings; pending. Coordinator added a scoped 42-case suite including this entity; not in the stored receipt, so this dimension remains pending; test only proves assertions present in its source.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "simple-test",
+            "receipt",
+            "parallel-test"
+          ],
+          "tests": [
+            "tests/unit/gowParallelSignoffTroops.test.ts"
+          ]
+        },
+        "target-count-range": {
+          "status": "verified",
+          "note": "Scoped ordinary battle: 8734 dynamically selected from complete English; one random surviving enemy, >1 unique targets in 20 seeds; not first/chosen and not four hits. Other battle/status boundaries remain pending in separate dimensions.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "simple-test",
+            "receipt"
+          ],
+          "tests": [
+            "tests/unit/gowSimpleDamageAudit.test.ts"
+          ]
+        },
+        "base-formula-rounding": {
+          "status": "verified",
+          "note": "Scoped ordinary battle: 8734 M=0/1/11/20 x enemy armor=0/10 tests Magic+2, HP and armor arithmetic; status/rule rounding is pending under status/battle dimensions.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "simple-test",
+            "receipt"
+          ],
+          "tests": [
+            "tests/unit/gowSimpleDamageAudit.test.ts"
+          ]
+        },
+        "boost-source-ratio-cap": {
+          "status": "not-applicable",
+          "note": "No native boost/counter/ratio/cap step or English rider; based on stored snapshot only.",
+          "evidenceIds": [
+            "en",
+            "native"
+          ],
+          "tests": []
+        },
+        "conditions-probabilities-branches": {
+          "status": "pending",
+          "note": "native Randomize=null, single main step; random target/stat/damage or color selection must not become an extra branch. Pending cancellation/RNG and condition boundaries. Coordinator added a scoped 42-case suite including this entity; not in the stored receipt, so this dimension remains pending; test only proves assertions present in its source.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "simple-test",
+            "receipt",
+            "parallel-test"
+          ],
+          "tests": [
+            "tests/unit/gowParallelSignoffTroops.test.ts"
+          ]
+        },
+        "status-duration-immunity": {
+          "status": "pending",
+          "note": "No status application in native spell; pending actual Barrier/Submerged/Stealthy/Reflect/Spell Armor/Block, Silence/Web as applicable; official guide only covers shared status definitions. Coordinator added a scoped 42-case suite including this entity; not in the stored receipt, so this dimension remains pending; test only proves assertions present in its source.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "simple-test",
+            "receipt",
+            "parallel-test"
+          ],
+          "tests": [
+            "tests/unit/gowParallelSignoffTroops.test.ts"
+          ]
+        },
+        "gems-types-selection-resolution": {
+          "status": "not-applicable",
+          "note": "Neither English nor native steps include gem creation, conversion, destruction, or board target.",
+          "evidenceIds": [
+            "en",
+            "native"
+          ],
+          "tests": []
+        },
+        "summon-transform-pools": {
+          "status": "not-applicable",
+          "note": "Neither English nor native steps include troop summon or transformation.",
+          "evidenceIds": [
+            "en",
+            "native"
+          ],
+          "tests": []
+        },
+        "order-death-retargeting": {
+          "status": "pending",
+          "note": "Single native step, no explicit sequential rider; still pending dead-target/no-target/cascade or resolution order during real cast.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "simple-test",
+            "receipt"
+          ],
+          "tests": []
+        },
+        "mana-economy-extra-turn": {
+          "status": "pending",
+          "note": "Native spell Cost=7; existing identity suite checks cost, not real-cast spend, cancellation, extra-turn or action log. Coordinator added a scoped 42-case suite including this entity; not in the stored receipt, so this dimension remains pending; test only proves assertions present in its source.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "simple-test",
+            "receipt",
+            "parallel-test"
+          ],
+          "tests": [
+            "tests/unit/gowParallelSignoffTroops.test.ts"
+          ]
+        },
+        "display-description": {
+          "status": "pending",
+          "note": "EN \"Deal [Magic + 2] damage to a random Enemy.\" vs ZH \"对 1 名随机的敌人造成 [魔法 + 2] 点伤害。\" statically reviewed; no per-entity rendering/dynamic placeholder assertion. Coordinator added a scoped 42-case suite including this entity; not in the stored receipt, so this dimension remains pending; test only proves assertions present in its source.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "simple-test",
+            "receipt",
+            "parallel-test"
+          ],
+          "tests": [
+            "tests/unit/gowParallelSignoffTroops.test.ts"
+          ]
+        },
+        "battle-pipeline": {
+          "status": "pending",
+          "note": "No full per-entity two-sided TurnEngine cast test covers all relevant positive/negative boundaries. SimpleDamage scoped real cast covers ordinary one-side damage and seeded targeting only. Coordinator added a scoped 42-case suite including this entity; not in the stored receipt, so this dimension remains pending; test only proves assertions present in its source.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "simple-test",
+            "receipt",
+            "parallel-test"
+          ],
+          "tests": [
+            "tests/unit/gowParallelSignoffTroops.test.ts"
+          ],
+          "realBattleEntry": false
+        }
+      },
+      "clauseReviews": [
+        {
+          "id": "c1",
+          "status": "pending",
+          "note": "English clause \"Deal [Magic + 2] damage to a random Enemy.\"; static mapping to prototype is plausible, but dedicated whole-spell positive/negative real-cast tests missing. Generic simple-damage cases cover only ordinary targeting/formula. Parallel suite only partially covers this entity; not in current receipt. Full positive/negative boundary coverage remains pending.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "simple-test",
+            "receipt",
+            "parallel-test"
+          ],
+          "tests": [
+            "tests/unit/gowNativeSourceAudit.test.ts",
+            "tests/unit/gowSimpleDamageAudit.test.ts",
+            "tests/unit/gowParallelSignoffTroops.test.ts"
+          ],
+          "positiveExpectation": "Exactly one random surviving enemy receives Magic+2 normal damage; ordinary armor absorbs damage.",
+          "negativeExpectation": "Not always first/chosen; no other enemy or ally receives damage."
+        }
+      ],
+      "nativeStepReviews": [
+        {
+          "id": "0",
+          "status": "pending",
+          "note": "Ordered native step 0={\"SpellPowerMultiplier\":1,\"Target\":\"RandomEnemy\",\"Amount\":2,\"Primarypower\":true,\"Type\":\"Damage\"}; final prototype=[{\"kind\":\"damage\",\"target\":\"enemyRandom\",\"scaling\":{\"base\":2,\"mult\":1}}]; per-step real battle boundaries not fully verified. Parallel suite only partially covers this entity; not in current receipt. Full positive/negative boundary coverage remains pending.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "simple-test",
+            "receipt",
+            "parallel-test"
+          ],
+          "tests": [
+            "tests/unit/gowNativeSourceAudit.test.ts",
+            "tests/unit/gowSimpleDamageAudit.test.ts",
+            "tests/unit/gowParallelSignoffTroops.test.ts"
+          ],
+          "positiveExpectation": "Exactly one random surviving enemy receives Magic+2 normal damage; ordinary armor absorbs damage.",
+          "negativeExpectation": "Not always first/chosen; no other enemy or ally receives damage."
+        }
+      ],
+      "branchReviews": [
+        {
+          "id": "main",
+          "status": "pending",
+          "note": "Native main branch; Randomize=null, step order Damage; neither negative nor boundary case has complete independent battle proof. Parallel suite only partially covers this entity; not in current receipt. Full positive/negative boundary coverage remains pending.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "simple-test",
+            "receipt",
+            "parallel-test"
+          ],
+          "tests": [
+            "tests/unit/gowNativeSourceAudit.test.ts",
+            "tests/unit/gowSimpleDamageAudit.test.ts",
+            "tests/unit/gowParallelSignoffTroops.test.ts"
+          ],
+          "positiveExpectation": "Exactly one random surviving enemy receives Magic+2 normal damage; ordinary armor absorbs damage.",
+          "negativeExpectation": "Not always first/chosen; no other enemy or ally receives damage."
+        }
+      ],
+      "coordinationFollowup": [
+        "Obtain current-fingerprint full verification receipt listing tests/unit/gowParallelSignoffTroops.test.ts as passed; then re-check all twelve dimensions and concrete assertions before accept.",
+        "Extend 8734 real-cast tests beyond existing ordinary M=0/1/11/20, armor=0/10 and twenty-seed random choice: Barrier, Submerged, Stealthy, Reflect, Spell Armor/Block, Web/Silence.",
+        "Both battle sides, mana/turn/action events, dead-target retargeting and 0/1/4 surviving enemies, no extra board/summon effects."
+      ],
+      "partialEvidence": {
+        "nativeIdentityCost": {
+          "path": "tests/unit/gowNativeSourceAudit.test.ts",
+          "receiptStatus": "passed",
+          "verifiedScope": "native spell ID and Cost only"
+        },
+        "ordinaryDamage": {
+          "path": "tests/unit/gowSimpleDamageAudit.test.ts",
+          "receiptStatus": "passed",
+          "verifiedScope": "single-side ordinary damage formula and seeded random targeting"
+        },
+        "coordinatorParallelSuite": {
+          "path": "tests/unit/gowParallelSignoffTroops.test.ts",
+          "reportedBy": "coordinator",
+          "reportedPassed": 42,
+          "receiptStatus": "not-in-current-receipt",
+          "verifiedScope": "entity case; both sides, magic=0/10, basic enemy HP and mana/turn, low-mana and Silence",
+          "limitations": "English sentence only length-checked; no exact ZH equality; no status matrix, dead-target/retarget, all random-roll bounds or canceled chosen target"
+        }
+      },
+      "decisionReason": "Draft: full per-entity test coverage and complete official shared semantics are not established. Scoped real battle evidence is incomplete. Coordinator reports 42 scoped tests passing, but current stored verification receipt omits that suite and the tests do not cover all boundaries; retain draft."
+    },
+    {
+      "key": "troop:7160",
+      "scope": "stored-gow-snapshot",
+      "sourceDigest": "1aaca00d69471b03e4035df8defc2c678453a43c8021d8c6260ab0bb1a49fc03",
+      "reviewer": "worker-fast-02 (stored snapshot; staged draft)",
+      "reviewedAt": "2026-09-27",
+      "decision": "draft",
+      "sourceEvidence": [
+        {
+          "id": "en",
+          "role": "english-snapshot",
+          "path": "data/raw/troops.gow.en.json",
+          "sha256": "be77c2dd9838435f5461b763e9f1e1436e53ae9be36fc35eaadea71060e6b757",
+          "note": "Stored entity 7160, spell 8735: Deal [(Magic / 2) + 1] – [Magic + 2] damage to the first Enemy.; not live official confirmation."
+        },
+        {
+          "id": "native",
+          "role": "native-snapshot",
+          "path": "data/raw/spells.gow.en.json",
+          "sha256": "ddc7e03e23a6ea880e34fc8f1b7f0572b15f42041e979c443642d735f89dd63b",
+          "note": "Stored RawData spell 8735, all ordered steps and spell cost; independent of translation."
+        },
+        {
+          "id": "official",
+          "role": "official-shared-rule",
+          "path": "artifacts/gow-skill-audit/gold-primary-sources/official-status-effects.html",
+          "sha256": "4dca585515e9c7ca9287f75b9555079a2b50c747e6c35293ae6b57981360755c",
+          "note": "Official shared statuses/immunity guide; relevant to future battle interaction tests ONLY; does not prove this entity formula, random selection, gem conversion or current online version."
+        },
+        {
+          "id": "native-test",
+          "role": "scoped-test-source",
+          "path": "tests/unit/gowNativeSourceAudit.test.ts",
+          "sha256": "61be77bd557a120f2afb083ad3dc5a5030979b35fb3732d42850c08e2fecdbf5",
+          "note": "Source inspects every entity spell ID and native Cost; receipt 2026-09-27T15:06:24.415Z reports passed 2520; it does not assert colors, full spell or battle."
+        },
+        {
+          "id": "receipt",
+          "role": "verification-receipt",
+          "path": "artifacts/gow-skill-audit/verification-receipt.json",
+          "sha256": "860ea939f281c5228582eee20815f9234111f77b08e05a72250db3b1d19affa7",
+          "note": "Previously generated receipt 2026-09-27T15:06:24.415Z, fingerprint 40b01f972eaecffaf9afcf60a47fbe4fd4fa6da384e54e82d4fd5834deb93ac4; no test run in this assignment."
+        },
+        {
+          "id": "parallel-test",
+          "role": "scoped-per-entity-real-cast-test-source",
+          "path": "tests/unit/gowParallelSignoffTroops.test.ts",
+          "sha256": "531d9e3791ff468e0d0f7cc2c4b4f3e9db96666ef908eb787cab7558dff4797d",
+          "note": "Coordinator reports 42 tests passed locally; source confirms this entity appears in per-entity parameterized tests for two sides, Magic=0/10, source ID/cost/color/native type, one hit, mana/turn, low-mana/Silence. This test suite is NOT included in current verification-receipt; no independent test run here."
+        }
+      ],
+      "dimensions": {
+        "identity-cost-colors": {
+          "status": "pending",
+          "note": "Native identity/Cost scoped test passed; manually compare source mana colors to src/data/troops.json and binding 8735. No per-entity test verifies color/identity/initial mana and all battle bindings; pending. Coordinator added a scoped 42-case suite including this entity; not in the stored receipt, so this dimension remains pending; test only proves assertions present in its source.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "native-test",
+            "receipt",
+            "parallel-test"
+          ],
+          "tests": [
+            "tests/unit/gowParallelSignoffTroops.test.ts"
+          ]
+        },
+        "target-count-range": {
+          "status": "pending",
+          "note": "Expected: Only current first enemy receives one rolled normal damage between floor(Magic/2)+1 and Magic+2 (rounding to verify). Negative: Other enemies/allies untouched; roll never outside source range; no hit when no target. Pending target boundary/empty and status interactions. Coordinator added a scoped 42-case suite including this entity; not in the stored receipt, so this dimension remains pending; test only proves assertions present in its source.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "native-test",
+            "receipt",
+            "parallel-test"
+          ],
+          "tests": [
+            "tests/unit/gowParallelSignoffTroops.test.ts"
+          ]
+        },
+        "base-formula-rounding": {
+          "status": "pending",
+          "note": "Source fields: [{\"Type\":\"RandomHighDamage\",\"Amount\":2,\"SpellPowerMultiplier\":1}]; prototype {\"kind\":\"damage\",\"target\":\"enemyFront\",\"scaling\":{\"base\":0,\"mult\":0},\"rangeSpec\":{\"min\":{\"base\":1,\"mult\":0.5},\"max\":{\"base\":2,\"mult\":1}}}. Pending low/odd Magic and rounding/seed bounds. Coordinator added a scoped 42-case suite including this entity; not in the stored receipt, so this dimension remains pending; test only proves assertions present in its source.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "native-test",
+            "receipt",
+            "parallel-test"
+          ],
+          "tests": [
+            "tests/unit/gowParallelSignoffTroops.test.ts"
+          ]
+        },
+        "boost-source-ratio-cap": {
+          "status": "not-applicable",
+          "note": "No native boost/counter/ratio/cap step or English rider; based on stored snapshot only.",
+          "evidenceIds": [
+            "en",
+            "native"
+          ],
+          "tests": []
+        },
+        "conditions-probabilities-branches": {
+          "status": "pending",
+          "note": "native Randomize=null, single main step; random target/stat/damage or color selection must not become an extra branch. Pending cancellation/RNG and condition boundaries. Coordinator added a scoped 42-case suite including this entity; not in the stored receipt, so this dimension remains pending; test only proves assertions present in its source.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "native-test",
+            "receipt",
+            "parallel-test"
+          ],
+          "tests": [
+            "tests/unit/gowParallelSignoffTroops.test.ts"
+          ]
+        },
+        "status-duration-immunity": {
+          "status": "pending",
+          "note": "No status application in native spell; pending actual Barrier/Submerged/Stealthy/Reflect/Spell Armor/Block, Silence/Web as applicable; official guide only covers shared status definitions. Coordinator added a scoped 42-case suite including this entity; not in the stored receipt, so this dimension remains pending; test only proves assertions present in its source.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "native-test",
+            "receipt",
+            "parallel-test"
+          ],
+          "tests": [
+            "tests/unit/gowParallelSignoffTroops.test.ts"
+          ]
+        },
+        "gems-types-selection-resolution": {
+          "status": "not-applicable",
+          "note": "Neither English nor native steps include gem creation, conversion, destruction, or board target.",
+          "evidenceIds": [
+            "en",
+            "native"
+          ],
+          "tests": []
+        },
+        "summon-transform-pools": {
+          "status": "not-applicable",
+          "note": "Neither English nor native steps include troop summon or transformation.",
+          "evidenceIds": [
+            "en",
+            "native"
+          ],
+          "tests": []
+        },
+        "order-death-retargeting": {
+          "status": "pending",
+          "note": "Single native step, no explicit sequential rider; still pending dead-target/no-target/cascade or resolution order during real cast.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "native-test",
+            "receipt"
+          ],
+          "tests": []
+        },
+        "mana-economy-extra-turn": {
+          "status": "pending",
+          "note": "Native spell Cost=7; existing identity suite checks cost, not real-cast spend, cancellation, extra-turn or action log. Coordinator added a scoped 42-case suite including this entity; not in the stored receipt, so this dimension remains pending; test only proves assertions present in its source.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "native-test",
+            "receipt",
+            "parallel-test"
+          ],
+          "tests": [
+            "tests/unit/gowParallelSignoffTroops.test.ts"
+          ]
+        },
+        "display-description": {
+          "status": "pending",
+          "note": "EN \"Deal [(Magic / 2) + 1] – [Magic + 2] damage to the first Enemy.\" vs ZH \"对第一名敌人造成 [(魔法 / 2) + 1] – [魔法 + 2] 点伤害。\" statically reviewed; no per-entity rendering/dynamic placeholder assertion. Coordinator added a scoped 42-case suite including this entity; not in the stored receipt, so this dimension remains pending; test only proves assertions present in its source.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "native-test",
+            "receipt",
+            "parallel-test"
+          ],
+          "tests": [
+            "tests/unit/gowParallelSignoffTroops.test.ts"
+          ]
+        },
+        "battle-pipeline": {
+          "status": "pending",
+          "note": "No full per-entity two-sided TurnEngine cast test covers all relevant positive/negative boundaries. No matching per-entity real-cast evidence located by spell/entity ID or fully equivalent complete fixture. Coordinator added a scoped 42-case suite including this entity; not in the stored receipt, so this dimension remains pending; test only proves assertions present in its source.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "native-test",
+            "receipt",
+            "parallel-test"
+          ],
+          "tests": [
+            "tests/unit/gowParallelSignoffTroops.test.ts"
+          ],
+          "realBattleEntry": false
+        }
+      },
+      "clauseReviews": [
+        {
+          "id": "c1",
+          "status": "pending",
+          "note": "English clause \"Deal [(Magic / 2) + 1] – [Magic + 2] damage to the first Enemy.\"; static mapping to prototype is plausible, but dedicated whole-spell positive/negative real-cast tests missing.  Parallel suite only partially covers this entity; not in current receipt. Full positive/negative boundary coverage remains pending.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "native-test",
+            "receipt",
+            "parallel-test"
+          ],
+          "tests": [
+            "tests/unit/gowNativeSourceAudit.test.ts",
+            "tests/unit/gowParallelSignoffTroops.test.ts"
+          ],
+          "positiveExpectation": "Only current first enemy receives one rolled normal damage between floor(Magic/2)+1 and Magic+2 (rounding to verify).",
+          "negativeExpectation": "Other enemies/allies untouched; roll never outside source range; no hit when no target."
+        }
+      ],
+      "nativeStepReviews": [
+        {
+          "id": "0",
+          "status": "pending",
+          "note": "Ordered native step 0={\"SpellPowerMultiplier\":1,\"Target\":\"FrontEnemy\",\"Amount\":2,\"Primarypower\":true,\"Type\":\"RandomHighDamage\"}; final prototype=[{\"kind\":\"damage\",\"target\":\"enemyFront\",\"scaling\":{\"base\":0,\"mult\":0},\"rangeSpec\":{\"min\":{\"base\":1,\"mult\":0.5},\"max\":{\"base\":2,\"mult\":1}}}]; per-step real battle boundaries not fully verified. Parallel suite only partially covers this entity; not in current receipt. Full positive/negative boundary coverage remains pending.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "native-test",
+            "receipt",
+            "parallel-test"
+          ],
+          "tests": [
+            "tests/unit/gowNativeSourceAudit.test.ts",
+            "tests/unit/gowParallelSignoffTroops.test.ts"
+          ],
+          "positiveExpectation": "Only current first enemy receives one rolled normal damage between floor(Magic/2)+1 and Magic+2 (rounding to verify).",
+          "negativeExpectation": "Other enemies/allies untouched; roll never outside source range; no hit when no target."
+        }
+      ],
+      "branchReviews": [
+        {
+          "id": "main",
+          "status": "pending",
+          "note": "Native main branch; Randomize=null, step order RandomHighDamage; neither negative nor boundary case has complete independent battle proof. Parallel suite only partially covers this entity; not in current receipt. Full positive/negative boundary coverage remains pending.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "native-test",
+            "receipt",
+            "parallel-test"
+          ],
+          "tests": [
+            "tests/unit/gowNativeSourceAudit.test.ts",
+            "tests/unit/gowParallelSignoffTroops.test.ts"
+          ],
+          "positiveExpectation": "Only current first enemy receives one rolled normal damage between floor(Magic/2)+1 and Magic+2 (rounding to verify).",
+          "negativeExpectation": "Other enemies/allies untouched; roll never outside source range; no hit when no target."
+        }
+      ],
+      "coordinationFollowup": [
+        "Obtain current-fingerprint full verification receipt listing tests/unit/gowParallelSignoffTroops.test.ts as passed; then re-check all twelve dimensions and concrete assertions before accept.",
+        "Real TurnEngine.castSkill for 8735: M=0/1/odd/large and many seeds; assert native RandomHighDamage lower/upper bounds and rounding, first alive target and zero-enemy case.",
+        "Armor, status/trait immunities, Web/Silence, reflect/submerge, death, mana/turn/action events and both sides."
+      ],
+      "partialEvidence": {
+        "nativeIdentityCost": {
+          "path": "tests/unit/gowNativeSourceAudit.test.ts",
+          "receiptStatus": "passed",
+          "verifiedScope": "native spell ID and Cost only"
+        },
+        "coordinatorParallelSuite": {
+          "path": "tests/unit/gowParallelSignoffTroops.test.ts",
+          "reportedBy": "coordinator",
+          "reportedPassed": 42,
+          "receiptStatus": "not-in-current-receipt",
+          "verifiedScope": "entity case; both sides, magic=0/10, basic enemy HP and mana/turn, low-mana and Silence",
+          "limitations": "English sentence only length-checked; no exact ZH equality; no status matrix, dead-target/retarget, all random-roll bounds or canceled chosen target"
+        }
+      },
+      "decisionReason": "Draft: full per-entity test coverage and complete official shared semantics are not established. No explicit entity-specific whole-skill real cast suite found. Coordinator reports 42 scoped tests passing, but current stored verification receipt omits that suite and the tests do not cover all boundaries; retain draft."
+    },
+    {
+      "key": "troop:7161",
+      "scope": "stored-gow-snapshot",
+      "sourceDigest": "61e465ea94bdade3d16c647c8dc70cc65cf5b8708bcfc6905025f23f076384e3",
+      "reviewer": "worker-fast-02 (stored snapshot; staged draft)",
+      "reviewedAt": "2026-09-27",
+      "decision": "draft",
+      "sourceEvidence": [
+        {
+          "id": "en",
+          "role": "english-snapshot",
+          "path": "data/raw/troops.gow.en.json",
+          "sha256": "be77c2dd9838435f5461b763e9f1e1436e53ae9be36fc35eaadea71060e6b757",
+          "note": "Stored entity 7161, spell 8736: Deal 3-[Magic + 2] damage to an Enemy.; not live official confirmation."
+        },
+        {
+          "id": "native",
+          "role": "native-snapshot",
+          "path": "data/raw/spells.gow.en.json",
+          "sha256": "ddc7e03e23a6ea880e34fc8f1b7f0572b15f42041e979c443642d735f89dd63b",
+          "note": "Stored RawData spell 8736, all ordered steps and spell cost; independent of translation."
+        },
+        {
+          "id": "official",
+          "role": "official-shared-rule",
+          "path": "artifacts/gow-skill-audit/gold-primary-sources/official-status-effects.html",
+          "sha256": "4dca585515e9c7ca9287f75b9555079a2b50c747e6c35293ae6b57981360755c",
+          "note": "Official shared statuses/immunity guide; relevant to future battle interaction tests ONLY; does not prove this entity formula, random selection, gem conversion or current online version."
+        },
+        {
+          "id": "native-test",
+          "role": "scoped-test-source",
+          "path": "tests/unit/gowNativeSourceAudit.test.ts",
+          "sha256": "61be77bd557a120f2afb083ad3dc5a5030979b35fb3732d42850c08e2fecdbf5",
+          "note": "Source inspects every entity spell ID and native Cost; receipt 2026-09-27T15:06:24.415Z reports passed 2520; it does not assert colors, full spell or battle."
+        },
+        {
+          "id": "receipt",
+          "role": "verification-receipt",
+          "path": "artifacts/gow-skill-audit/verification-receipt.json",
+          "sha256": "860ea939f281c5228582eee20815f9234111f77b08e05a72250db3b1d19affa7",
+          "note": "Previously generated receipt 2026-09-27T15:06:24.415Z, fingerprint 40b01f972eaecffaf9afcf60a47fbe4fd4fa6da384e54e82d4fd5834deb93ac4; no test run in this assignment."
+        },
+        {
+          "id": "parallel-test",
+          "role": "scoped-per-entity-real-cast-test-source",
+          "path": "tests/unit/gowParallelSignoffTroops.test.ts",
+          "sha256": "531d9e3791ff468e0d0f7cc2c4b4f3e9db96666ef908eb787cab7558dff4797d",
+          "note": "Coordinator reports 42 tests passed locally; source confirms this entity appears in per-entity parameterized tests for two sides, Magic=0/10, source ID/cost/color/native type, one hit, mana/turn, low-mana/Silence. This test suite is NOT included in current verification-receipt; no independent test run here."
+        }
+      ],
+      "dimensions": {
+        "identity-cost-colors": {
+          "status": "pending",
+          "note": "Native identity/Cost scoped test passed; manually compare source mana colors to src/data/troops.json and binding 8736. No per-entity test verifies color/identity/initial mana and all battle bindings; pending. Coordinator added a scoped 42-case suite including this entity; not in the stored receipt, so this dimension remains pending; test only proves assertions present in its source.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "native-test",
+            "receipt",
+            "parallel-test"
+          ],
+          "tests": [
+            "tests/unit/gowParallelSignoffTroops.test.ts"
+          ]
+        },
+        "target-count-range": {
+          "status": "pending",
+          "note": "Expected: One chosen enemy receives one normal damage roll from 3 through Magic+2. Negative: Other targets unchanged; never random/all; cancelled/invalid choice has no effects or mana loss. Pending target boundary/empty and status interactions. Coordinator added a scoped 42-case suite including this entity; not in the stored receipt, so this dimension remains pending; test only proves assertions present in its source.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "native-test",
+            "receipt",
+            "parallel-test"
+          ],
+          "tests": [
+            "tests/unit/gowParallelSignoffTroops.test.ts"
+          ]
+        },
+        "base-formula-rounding": {
+          "status": "pending",
+          "note": "Source fields: [{\"Type\":\"RandomDamage\",\"Amount\":2,\"SpellPowerMultiplier\":1}]; prototype {\"kind\":\"damage\",\"target\":\"enemyChosen\",\"scaling\":{\"base\":0,\"mult\":0},\"rangeSpec\":{\"min\":{\"base\":3,\"mult\":0},\"max\":{\"base\":2,\"mult\":1}}}. Pending low/odd Magic and rounding/seed bounds. Coordinator added a scoped 42-case suite including this entity; not in the stored receipt, so this dimension remains pending; test only proves assertions present in its source.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "native-test",
+            "receipt",
+            "parallel-test"
+          ],
+          "tests": [
+            "tests/unit/gowParallelSignoffTroops.test.ts"
+          ]
+        },
+        "boost-source-ratio-cap": {
+          "status": "not-applicable",
+          "note": "No native boost/counter/ratio/cap step or English rider; based on stored snapshot only.",
+          "evidenceIds": [
+            "en",
+            "native"
+          ],
+          "tests": []
+        },
+        "conditions-probabilities-branches": {
+          "status": "pending",
+          "note": "native Randomize=null, single main step; random target/stat/damage or color selection must not become an extra branch. Pending cancellation/RNG and condition boundaries. Coordinator added a scoped 42-case suite including this entity; not in the stored receipt, so this dimension remains pending; test only proves assertions present in its source.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "native-test",
+            "receipt",
+            "parallel-test"
+          ],
+          "tests": [
+            "tests/unit/gowParallelSignoffTroops.test.ts"
+          ]
+        },
+        "status-duration-immunity": {
+          "status": "pending",
+          "note": "No status application in native spell; pending actual Barrier/Submerged/Stealthy/Reflect/Spell Armor/Block, Silence/Web as applicable; official guide only covers shared status definitions. Coordinator added a scoped 42-case suite including this entity; not in the stored receipt, so this dimension remains pending; test only proves assertions present in its source.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "native-test",
+            "receipt",
+            "parallel-test"
+          ],
+          "tests": [
+            "tests/unit/gowParallelSignoffTroops.test.ts"
+          ]
+        },
+        "gems-types-selection-resolution": {
+          "status": "not-applicable",
+          "note": "Neither English nor native steps include gem creation, conversion, destruction, or board target.",
+          "evidenceIds": [
+            "en",
+            "native"
+          ],
+          "tests": []
+        },
+        "summon-transform-pools": {
+          "status": "not-applicable",
+          "note": "Neither English nor native steps include troop summon or transformation.",
+          "evidenceIds": [
+            "en",
+            "native"
+          ],
+          "tests": []
+        },
+        "order-death-retargeting": {
+          "status": "pending",
+          "note": "Single native step, no explicit sequential rider; still pending dead-target/no-target/cascade or resolution order during real cast.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "native-test",
+            "receipt"
+          ],
+          "tests": []
+        },
+        "mana-economy-extra-turn": {
+          "status": "pending",
+          "note": "Native spell Cost=7; existing identity suite checks cost, not real-cast spend, cancellation, extra-turn or action log. Coordinator added a scoped 42-case suite including this entity; not in the stored receipt, so this dimension remains pending; test only proves assertions present in its source.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "native-test",
+            "receipt",
+            "parallel-test"
+          ],
+          "tests": [
+            "tests/unit/gowParallelSignoffTroops.test.ts"
+          ]
+        },
+        "display-description": {
+          "status": "pending",
+          "note": "EN \"Deal 3-[Magic + 2] damage to an Enemy.\" vs ZH \"对一名敌人造成 3-[魔法 + 2] 点伤害。\" statically reviewed; no per-entity rendering/dynamic placeholder assertion. Coordinator added a scoped 42-case suite including this entity; not in the stored receipt, so this dimension remains pending; test only proves assertions present in its source.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "native-test",
+            "receipt",
+            "parallel-test"
+          ],
+          "tests": [
+            "tests/unit/gowParallelSignoffTroops.test.ts"
+          ]
+        },
+        "battle-pipeline": {
+          "status": "pending",
+          "note": "No full per-entity two-sided TurnEngine cast test covers all relevant positive/negative boundaries. No matching per-entity real-cast evidence located by spell/entity ID or fully equivalent complete fixture. Coordinator added a scoped 42-case suite including this entity; not in the stored receipt, so this dimension remains pending; test only proves assertions present in its source.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "native-test",
+            "receipt",
+            "parallel-test"
+          ],
+          "tests": [
+            "tests/unit/gowParallelSignoffTroops.test.ts"
+          ],
+          "realBattleEntry": false
+        }
+      },
+      "clauseReviews": [
+        {
+          "id": "c1",
+          "status": "pending",
+          "note": "English clause \"Deal 3-[Magic + 2] damage to an Enemy.\"; static mapping to prototype is plausible, but dedicated whole-spell positive/negative real-cast tests missing.  Parallel suite only partially covers this entity; not in current receipt. Full positive/negative boundary coverage remains pending.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "native-test",
+            "receipt",
+            "parallel-test"
+          ],
+          "tests": [
+            "tests/unit/gowNativeSourceAudit.test.ts",
+            "tests/unit/gowParallelSignoffTroops.test.ts"
+          ],
+          "positiveExpectation": "One chosen enemy receives one normal damage roll from 3 through Magic+2.",
+          "negativeExpectation": "Other targets unchanged; never random/all; cancelled/invalid choice has no effects or mana loss."
+        }
+      ],
+      "nativeStepReviews": [
+        {
+          "id": "0",
+          "status": "pending",
+          "note": "Ordered native step 0={\"SpellPowerMultiplier\":1,\"Target\":\"FromTarget\",\"Amount\":2,\"Primarypower\":true,\"Type\":\"RandomDamage\"}; final prototype=[{\"kind\":\"damage\",\"target\":\"enemyChosen\",\"scaling\":{\"base\":0,\"mult\":0},\"rangeSpec\":{\"min\":{\"base\":3,\"mult\":0},\"max\":{\"base\":2,\"mult\":1}}}]; per-step real battle boundaries not fully verified. Parallel suite only partially covers this entity; not in current receipt. Full positive/negative boundary coverage remains pending.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "native-test",
+            "receipt",
+            "parallel-test"
+          ],
+          "tests": [
+            "tests/unit/gowNativeSourceAudit.test.ts",
+            "tests/unit/gowParallelSignoffTroops.test.ts"
+          ],
+          "positiveExpectation": "One chosen enemy receives one normal damage roll from 3 through Magic+2.",
+          "negativeExpectation": "Other targets unchanged; never random/all; cancelled/invalid choice has no effects or mana loss."
+        }
+      ],
+      "branchReviews": [
+        {
+          "id": "main",
+          "status": "pending",
+          "note": "Native main branch; Randomize=null, step order RandomDamage; neither negative nor boundary case has complete independent battle proof. Parallel suite only partially covers this entity; not in current receipt. Full positive/negative boundary coverage remains pending.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "native-test",
+            "receipt",
+            "parallel-test"
+          ],
+          "tests": [
+            "tests/unit/gowNativeSourceAudit.test.ts",
+            "tests/unit/gowParallelSignoffTroops.test.ts"
+          ],
+          "positiveExpectation": "One chosen enemy receives one normal damage roll from 3 through Magic+2.",
+          "negativeExpectation": "Other targets unchanged; never random/all; cancelled/invalid choice has no effects or mana loss."
+        }
+      ],
+      "coordinationFollowup": [
+        "Obtain current-fingerprint full verification receipt listing tests/unit/gowParallelSignoffTroops.test.ts as passed; then re-check all twelve dimensions and concrete assertions before accept.",
+        "Real TurnEngine.castSkill for 8736: manually choose each target, M=0/1/11, many RNG seeds, both bounds and degenerate min>max behavior.",
+        "Cancelled/missing/dead target, armor and status/trait immunities, Web/Silence, mana/turn/action events and both sides."
+      ],
+      "partialEvidence": {
+        "nativeIdentityCost": {
+          "path": "tests/unit/gowNativeSourceAudit.test.ts",
+          "receiptStatus": "passed",
+          "verifiedScope": "native spell ID and Cost only"
+        },
+        "coordinatorParallelSuite": {
+          "path": "tests/unit/gowParallelSignoffTroops.test.ts",
+          "reportedBy": "coordinator",
+          "reportedPassed": 42,
+          "receiptStatus": "not-in-current-receipt",
+          "verifiedScope": "entity case; both sides, magic=0/10, basic enemy HP and mana/turn, low-mana and Silence",
+          "limitations": "English sentence only length-checked; no exact ZH equality; no status matrix, dead-target/retarget, all random-roll bounds or canceled chosen target"
+        }
+      },
+      "decisionReason": "Draft: full per-entity test coverage and complete official shared semantics are not established. No explicit entity-specific whole-skill real cast suite found. Coordinator reports 42 scoped tests passing, but current stored verification receipt omits that suite and the tests do not cover all boundaries; retain draft."
+    }
+  ]
+}

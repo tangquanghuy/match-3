@@ -5,7 +5,9 @@
  * 经 TurnEngine.castSkill 全管线执行，断言事件形态与战场状态变化。
  * 代表集覆盖批次里的主要效果段家族；逐条断言值以种子化棋盘保持确定性。
  */
+import { FixedBranchChooser } from '@engine/skills/branchChooser';
 import { describe, it, expect } from 'vitest';
+import type { GameEvent } from '@engine/events';
 import { BoardModel } from '@engine/BoardModel';
 import { TurnEngine } from '@engine/TurnEngine';
 import { createGameState } from '@engine/GameState';
@@ -42,12 +44,13 @@ function makeChar(id: number, over: Partial<Character> = {}): Character {
 }
 
 interface Harness {
-  events: { type: string }[];
+  events: GameEvent[];
   state: ReturnType<typeof createGameState>;
 }
 
 /** 建局 + 注册武器技能 + castSkill(casterId)；rng 固定种子保证确定性 */
 function castWeapon(spellId: number, opts: {
+  branch?: number;
   seed?: number;
   allyTroopTypes?: string[];
   enemyTroopTypes?: string[];
@@ -89,6 +92,7 @@ function castWeapon(spellId: number, opts: {
   registry.prototypes.set(String(spellId), proto);
   let idg = 200000;
   const engine = new TurnEngine(state, new SeededRNG(opts.seed ?? 20260917), () => idg++, registry);
+  if (opts.branch !== undefined) engine.setBranchChooser(new FixedBranchChooser(opts.branch));
   engine.skullChance = 0;
   engine.setSummonResolver((ref) => troopToSummonTemplate(ref));
   const events = engine.castSkill(0);
@@ -202,14 +206,14 @@ describe('武器法术语义冒烟（第三轮 · 新引擎词汇代表）', () 
     expect(caster.armor).toBeGreaterThan(4); // 应获得 [魔法+1] 护甲
   });
 
-  it('8623 星辰法杖：元素星/暗影之星创造（Wave B）+ 赐福全体 + 诅咒全体', () => {
-    const { events, state } = castWeapon(8623);
-    const creates = events.filter((e) => e.type === 'gem-create');
-    expect(creates.length, '应创造元素星与暗影之星').toBeGreaterThan(0);
-    const blessed = state.teams[PlayerSide.Left].characters.every((c) => c.statuses.some((s) => s.id === 'blessed'));
-    const cursed = state.teams[PlayerSide.Right].characters.every((c) => c.statuses.some((s) => s.id === 'curse'));
-    expect(blessed, '全体盟友赐福').toBe(true);
-    expect(cursed, '全体敌人诅咒').toBe(true);
+  for (const branch of [0, 1]) it(`8623: choose only star/status branch ${branch}`, () => {
+    const { events, state } = castWeapon(8623, { branch });
+    const creates = events.filter(e => e.type === 'gem-create');
+    expect(creates.length).toBeGreaterThan(0);
+    const blessed = state.teams[PlayerSide.Left].characters.every(c => c.statuses.some(s => s.id === 'blessed'));
+    const cursed = state.teams[PlayerSide.Right].characters.every(c => c.statuses.some(s => s.id === 'curse'));
+    expect(blessed).toBe(branch === 0);
+    expect(cursed).toBe(branch === 1);
   });
 
   it('9647 怒岩锤：对4名随机敌人流血 + 条件复用创造（troopPresent 条件不满足时空过）', () => {
@@ -239,14 +243,14 @@ describe('武器法术语义冒烟（第三轮 · 新引擎词汇代表）', () 
 describe('武器法术语义冒烟（partial 保真度代表）', () => {
   it('7655 劫数之卷（Doomed · 收官轮升 full）：散射 + 每蓝色敌人 6 混合宝石落盘连锁', () => {
     const { events, state } = castWeapon(7655);
-    // 散射 [魔法 + 10] = 17 - 甲 4 = 13/敌（45 → 32）；默认敌队含蓝色 → 收官轮接入的
-    // createGemsMixAny（6×2 混合蓝宝石/骷髅）落盘连锁 → 骷髅结算对首位敌人追加 16 点。
-    // 种子棋盘确定性期望：45-13-16=16、其余两位 45-13=32。
+    // M+10 = 17 is ONE shared pool; each enemy then absorbs its own share with armor.
+    // Scatter consumes seeded RNG, so subsequent gem generation/cascades use the new stream.
     const damages = events.filter((e) => e.type === 'skill-damage');
     expect(damages.length, '全体散射应产生多条 skill-damage').toBeGreaterThanOrEqual(3);
     expect(typesOf(events), '混合创造段应产生 gem-create').toContain('gem-create');
     const hps = state.teams[PlayerSide.Right].characters.map((c) => c.hp);
-    expect(hps).toEqual([16, 32, 32]);
+    expect(damages.filter(e=>e.range==='scatter').reduce((n,e)=>n+e.damage,0)).toBe(17);
+    expect(hps).toEqual([44, 45, 41]);
   });
 
   it('7250 纹章盾（partial）：主效果照编（伤害+屏障），王国增项略去', () => {
@@ -269,10 +273,11 @@ describe('武器法术语义冒烟（partial 保真度代表）', () => {
 
 describe('武器法术语义冒烟（第五轮 · K-E 原语接线）', () => {
   it('7655 劫数之卷（tempering level 2）：淬炼来源修饰随段位缩放（+4/段 × 2 = +8 伤）', () => {
-    // level 2：散射 17+8=25-甲 4=21/敌（45→24）；首位敌人含同一连锁骷髅 16 点 → 8
-    const { state } = castWeapon(7655, { temperingLevel: 2 });
+    // level 2: the shared pool grows from 17 to 25; not +8 per enemy.
+    const { state, events } = castWeapon(7655, { temperingLevel: 2 });
     const hps = state.teams[PlayerSide.Right].characters.map((c) => c.hp);
-    expect(hps).toEqual([8, 24, 24]);
+    expect(events.reduce((n,e)=>n+(e.type==='skill-damage'&&e.range==='scatter'?e.damage:0),0)).toBe(25);
+    expect(hps).toEqual([35, 42, 37]);
   });
 
   it('7655 劫数 condBonus：敌方编有 Doom 部队 → 全体盟友魔法 3+5=8', () => {

@@ -12,7 +12,7 @@ const hero = (): TeamMember => ({ kind: 'hero' });
 describe('编队 3~4 人校验（裁定①）', () => {
   it('3 人与 4 人（主角补位）都合法；主角不编入也合法', () => {
     const s = save();
-    expect(validateTeam(s, { members: OWNED.map(troop) }).ok).toBe(true);
+    expect(validateTeam(s, { members: OWNED.map(troop) }).ok).toBe(false);
 
     // 第四人由主角担任：需要先拥有第四张部队吗——主角不是部队，不占收藏
     const four = { members: [troop(OWNED[0]), troop(OWNED[1]), troop(OWNED[2]), hero()] };
@@ -66,7 +66,7 @@ describe('预设队保存', () => {
     const s = save();
     // 旗帜（M6）需该王国任务链 8/8 解锁后才可装备
     s.kingdoms['破碎尖塔'] = { level: 1, questsDone: 8, exploreTier: 0, lastTributeAt: 0 };
-    const members = [troop(6457), troop(6000), troop(6097)]; // 故意乱序：站位即数组顺序
+    const members = [troop(6457), troop(6000), troop(6097), { kind: 'hero' as const }]; // 故意乱序：站位即数组顺序
     const r = setTeamPreset(s, 1, { name: '二号队', members, bannerKingdomId: '破碎尖塔' });
     expect(r).toMatchObject({ ok: true, index: 1 });
     expect(s.teams[1]!.name).toBe('二号队');
@@ -87,8 +87,8 @@ describe('预设队保存', () => {
 
   it('activeTeam 取当前索引，越界回退 0 号', () => {
     const s = save();
-    expect(activeTeam(s)!.members).toEqual(OWNED.map(troop));
+    expect(activeTeam(s)!.members).toEqual([...OWNED.map(troop), { kind: 'hero' }]);
     s.activeTeamIndex = 99;
-    expect(activeTeam(s)!.members).toEqual(OWNED.map(troop));
+    expect(activeTeam(s)!.members).toEqual([...OWNED.map(troop), { kind: 'hero' }]);
   });
 });

@@ -1,5 +1,5 @@
-# 任务书已迁移
+# 历史任务书入口
 
-当前任务书总索引已集中到 [tasks/active/TASK-MASTER-PLAN.md](tasks/active/TASK-MASTER-PLAN.md)。
+原任务已于 2026-09-27 退出 active，历史内容保存在 [tasks/reference/TASK-MASTER-PLAN.md](tasks/reference/TASK-MASTER-PLAN.md)；其中未完成事项保留为历史待办。
 
-实时状态见 [tasks/active/STATUS.md](tasks/active/STATUS.md)。根目录入口保留用于兼容历史链接。
+当前唯一执行任务：[技能一致性逐项核对](tasks/active/TASK-GOW-SKILL-REVIEW.md)；[实时状态](tasks/active/STATUS.md)。

@@ -23,7 +23,7 @@ describe('货币账本', () => {
     const s = save();
     const result = spend(s, { gold: 60, souls: 50, gems: 10 });
     expect(result.ok).toBe(true);
-    expect(s.currencies).toEqual({ gold: 40, souls: 0, gems: 0, goldKeys: 1, glory: 0 });
+    expect(s.currencies).toEqual({ gold: 40, souls: 0, gems: 0, goldKeys: 1, glory: 0, gloryKeys: 0, trophies: 0 });
   });
 
   it('spend 任一不足 → 整笔不动（原子性）', () => {

@@ -5,7 +5,7 @@
  * 语义裁定备注：
  * - 「宝石」不含骷髅（GoW 术语：Gem=色宝石，Skull=骷髅），随机宝石段 include:'color'。
  * - 「选定/指定类型的宝石」= 指定颜色 → CHOSEN（运行时选色，同 7062 先例）。
- * - 「魔法值」= magic 属性（spell-rules.md §3：「将之转为魔法值」→ gainStat='magic'）；
+ * - 「魔力值」= magic 属性（spell-rules.md §3：「将之转为魔力值」→ gainStat='magic'）；
  *   「法力值」= mana 资源（「耗尽法力值」= drainMana）。
  * - 「前两名敌人」= enemyFirstN + n:2（确定性目标，跨段复用同一批目标，同 7063 先例）。
  * - 7663 的死亡条件：destroy 系构造函数无 opts 参，按 spell-rules.md §4「可挂任何段」
@@ -23,7 +23,7 @@ const SKIPPED: { id: number; reason: string }[] = [
   { id: 7374, reason: '句子式不明（「造成 1 到 5 项随机状态效果」：随机状态未指定具体状态，无法映射白名单）' },
   { id: 7396, reason: '语义拿不准（「两名随机敌人」的伤害/窃取/沉默须同一目标，跨段随机目标各自重掷无法绑定）' },
   { id: 7397, reason: '「击退至末位」隐匿/位置操作（不做清单）' },
-  { id: 7472, reason: '二次缩放来源不支持（「因敌人所需的法力值而增强」：targetStat 仅支持 attack/armor/hp/magic，无法力消耗）' },
+  { id: 7472, reason: '二次缩放来源不支持（「因敌人所需的法力值而增强」：targetStat 仅支持 attack/armor/hp/magic，无法力值消耗）' },
     { id: 7484, reason: '语义拿不准（「恢复自身原有生命值」治疗量原文未给出，同 batch-01 7161）' },
   { id: 7500, reason: '语义拿不准（「1 名随机敌人…并将其冻结」跨段随机目标绑定问题，同 7396）' },
   { id: 7504, reason: '句子式不明（「两名最强大的敌人」无对应目标模式）' },
@@ -89,8 +89,9 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 7395,
     desc: '使一名敌人陷入沉默和击晕状态，并耗掉他 [魔法 + 1] 点法力值。有 30% 的几率摧毁他。',
     build: skill(
-      inflict('silence', 'enemyChosen'),
+      // L3-011: native CauseStun -> CauseSilence (R001; Stun disables immunity traits first)
       inflict('stun', 'enemyChosen'),
+      inflict('silence', 'enemyChosen'),
       reduce('enemyChosen', 'mana', 1),
       // 回收：「摧毁他」= 即杀 dmg execute（b03:7789 先例，原跳过理由过时）；概率只辖本子句
       dmg('enemyChosen', 0, 0, { execute: true, chance: 0.3 }),
@@ -98,7 +99,7 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 7398,
-    desc: '对 1 名敌人造成 [魔法 + 6] 点伤害。如果对方使用红色法力，则造成三倍伤害。',
+    desc: '对 1 名敌人造成 [魔法 + 6] 点伤害。如果对方使用红色法力值，则造成三倍伤害。',
     build: skill(
       // 回收：condMult 现支持 targetColor 条件倍率（按目标 manaColors 含该色判定）
       dmg('enemyChosen', 6, 1, { condMult: { times: 3, cond: { kind: 'targetColor', color: BaseColor.Red } } }),
@@ -158,7 +159,7 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 7465,
-    desc: '给予一名盟友 [魔法 + 1] 点生命值和 2 点魔法值。如果盟友是一名元素军队，则效果翻倍。',
+    desc: '给予一名盟友 [魔法 + 1] 点生命值和 2 点魔力值。如果盟友是一名元素军队，则效果翻倍。',
     build: skill(
       heal('allyChosen', 1, 1, { raceDouble: 'Elemental' }),
       magic('allyChosen', 2, 0, { raceDouble: 'Elemental' }),
@@ -183,7 +184,7 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 7522,
-    desc: '对 1 名敌人造成 [魔法 + 1] 点伤害。如果敌人使用蓝色法力，则造成三倍伤害。',
+    desc: '对 1 名敌人造成 [魔法 + 1] 点伤害。如果敌人使用蓝色法力值，则造成三倍伤害。',
     build: skill(
       // 回收：condMult 现支持 targetColor 条件倍率（按目标 manaColors 含该色判定）
       dmg('enemyChosen', 1, 1, { condMult: { times: 3, cond: { kind: 'targetColor', color: BaseColor.Blue } } }),

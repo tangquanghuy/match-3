@@ -23,7 +23,7 @@ export type PvpSettlementView =
 
 /** 所有屏名（hash 路由用） */
 export type ScreenName =
-  | 'map' | 'team' | 'hero' | 'troop' | 'chests' | 'arena' | 'settings' | 'result'
+  | 'wishlist' | 'map' | 'team' | 'hero' | 'troop' | 'chests' | 'arena' | 'settings' | 'result'
   | 'events' | 'invasion' | 'shop' | 'weapons' | 'bag' | 'gems' | 'hunt'
   /** 王国主线页 `#quest/<王国>`（M10） */
   | 'quest';
@@ -53,7 +53,7 @@ export interface ShellCtx {
   /** 启动一场竞技场连战（结算走竞技场屏自身） */
   launchArenaBattle(): Promise<void>;
   /** 启动一场本周活动战斗（结算走结算屏，活动积分/里程碑在结算行里） */
-  launchEventBattle(): Promise<void>;
+  launchEventBattle(choice?: string): Promise<void>;
   /** 启动一场入侵对战（mirrorId = 候选对手 id；结算走入侵屏自身） */
   launchInvasionBattle(mirrorId: string): Promise<void>;
   /** 展示结算屏（普通战斗带逐行入账，PvP 带战果与加分构成） */

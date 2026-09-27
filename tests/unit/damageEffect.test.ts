@@ -101,14 +101,11 @@ describe('damageEffect 范围', () => {
 
   it('溅射：主目标 + 相邻位（需求 6.3）', () => {
     const state = makeState([{}], [{ hp: 50 }, { hp: 50 }, { hp: 50 }]);
-    // 以中间角色(id=5)为主目标 → 溅射链从主目标向后环绕：id5→id6→id4
+    // 中间主目标全伤，相邻两名各一半，无环绕。
     const target = state.teams[PlayerSide.Right].characters[1];
     const events = damageEffect({ targets: [target], scaling: { base: 0, mult: 1 }, range: 'splash' }).apply(ctxFor(state, 0));
     const right = state.teams[PlayerSide.Right].characters;
-    // 溅射是"共享伤害池"按权重 [0.5,0.3,0.2] 分配（非每人满伤）：
-    // magic=10 → 池 10；链序 [id5,id6,id4] 分得 [5,3,2]。
-    // 按 id 顺序 [4,5,6] 的血量：id4=50-2=48, id5=50-5=45, id6=50-3=47。
-    expect(right.map((c) => c.hp)).toEqual([48, 45, 47]);
+    expect(right.map((c) => c.hp)).toEqual([45, 40, 45]);
     const damageEvents = events.filter((e) => e.type === 'skill-damage');
     expect(damageEvents.length).toBe(3);
     expect(damageEvents.every((event) => event.range === 'splash')).toBe(true);

@@ -7,23 +7,32 @@ import { defineConfig, type Connect, type Plugin } from 'vite';
 // 例如部署到 https://user.github.io/gems/ 时，构建用 VITE_BASE=/gems/ npm run build
 const base = process.env.VITE_BASE ?? '/';
 
-// 本地 GOW 官方立绘库（1827 张 · 164MB，459×675 官方卡面带背景版，
-// /assets/troops/cards/ 端点；旧透明底 1024² 备份在 portraits-flat-1024/）。
-// 体积原因不进 git、不进构建产物：dev/preview 由中间件按
-// /meta/assets/portraits/<fileBase>.webp 提供；纯静态部署时该路径 404，
-// 图鉴立绘会沿 onerror 兜底链回退（生成图 CDN → 通用类型图）。
+// 部队立绘只提供自定义图。官方 GOW 部队立绘已移到「三消原图/待废弃」，不再兜底。
+// 武器卡面仍在 public/gowhead-icons/，不经过这条路径。
+// dev/preview 由中间件按 /meta/assets/portraits/<fileBase>.webp 提供；
+// 没有对应文件时沿 onerror 兜底链回退（生成图 CDN → 通用类型图）。
 const PORTRAIT_ROOT = fileURLToPath(new URL('./data/raw/gow-2026-09-18/portraits', import.meta.url));
+const CUSTOM_PORTRAIT_ROOT = fileURLToPath(new URL('./data/raw/custom-portraits', import.meta.url));
+
+function resolvePortrait(raw: string): string | null {
+  const filename = `${decodeURIComponent(raw)}.webp`;
+  for (const root of [CUSTOM_PORTRAIT_ROOT, PORTRAIT_ROOT]) {
+    const file = normalize(join(root, filename));
+    if (file.startsWith(root + sep) && existsSync(file) && statSync(file).isFile()) return file;
+  }
+  return null;
+}
 
 function serveGowPortraits(): Plugin {
   const handler: Connect.NextHandleFunction = (req, res, next) => {
     const raw = (req.url ?? '').split('?')[0]!.replace(/^\//, '').replace(/\.webp$/i, '');
-    let file: string;
+    let file: string | null;
     try {
-      file = normalize(join(PORTRAIT_ROOT, `${decodeURIComponent(raw)}.webp`));
+      file = resolvePortrait(raw);
     } catch {
       return next();
     }
-    if (!file.startsWith(PORTRAIT_ROOT + sep) || !existsSync(file) || !statSync(file).isFile()) return next();
+    if (!file) return next();
     res.setHeader('Content-Type', 'image/webp');
     res.setHeader('Cache-Control', 'public, max-age=86400');
     createReadStream(file).pipe(res);

@@ -1,3 +1,4 @@
+import { PARTICIPATION_XP } from './battleRewards';
 /**
  * 战斗结算（M2）——BattleResult → 账本入账 + 任务推进 + 逐行明细。
  *
@@ -12,6 +13,7 @@
  *  - 任务只线性推进（打赢 questsDone+1 关才推进），4/8 关发王国部队奖励，8 关解锁职业；
  *  - 主角/职业经验在胜利时结算（M5）：多级一次连升，职业经验只在主角编队时积累。
  */
+import { TROOP_PROGRESSION } from '../../data/leveling';
 import { getTroopById } from '../../data/troops';
 import { SeededRNG } from '../../engine/rng';
 import { BaseColor } from '../../engine/types';
@@ -23,6 +25,7 @@ import { INGOT_KEYS, stoneColorKeyOf, stoneKey } from '../data/materials';
 import {
   DEFEAT_CONSOLATION,
   DAILY_FIRST_WIN_GEMS,
+  KINGDOM_FIRST_CLEAR_GEMS,
   EXPLORE_DROPS,
   killGoldReward,
   killSoulReward,
@@ -33,7 +36,7 @@ import {
   HERO_XP_PER_WIN,
   CLASS_XP_PER_WIN,
 } from '../data/economy';
-import { kingdomBaseLevel, kingdomQuestRewardTroop, QUESTS_PER_KINGDOM } from '../data/kingdoms';
+import { EXPLORE_MAX_TIER, HARD_NODE_COUNT, KINGDOM_ORDER, kingdomBaseLevel, kingdomQuestRewardTroop, QUESTS_PER_KINGDOM } from '../data/kingdoms';
 import { earn, earnMaterials } from './wallet';
 import { grantTroop } from './troopProgress';
 import { activeTeam } from './teamRules';
@@ -42,7 +45,7 @@ import { classByKingdom } from '../data/classes';
 import { xpBonusPct } from './talents';
 import type { EncounterEnemy, EncounterPlan } from './encounter';
 import {
-  ensureEventWeek,
+  ensureEventWeek, claimEventWeeklyGems,
   eventBattleProgress,
   eventMilestonesReached,
   eventPointsOf,
@@ -51,7 +54,7 @@ import {
   EVENT_TRIAL_POINTS_CAP,
   EVENT_STATE_KEYS,
 } from './events';
-import type { EventTypeId } from '../data/events';
+import { EVENT_WEEKLY_RULES, WEEK_MS, type EventTypeId } from '../data/events';
 
 export interface SettlementContext {
   plan: EncounterPlan;
@@ -66,6 +69,7 @@ export type SettlementLineKey =
   | 'victory'
   | 'battle-collect'
   | 'first-win'
+  | 'kingdom-first-clear'
   | 'quest'
   | 'defeat'
   | 'event-points'
@@ -109,7 +113,21 @@ export function applySettlement(
 ): SettlementDetail {
   const lines: SettlementLine[] = [];
   const victory = result.winner === 'player';
-  let xpGained = 0;
+  // 周实例不回拨；战斗重放不重复发放货币、成长、积分或首领进度。
+  if (ctx.plan.source.kind === 'event') {
+    const source = ctx.plan.source;
+    const newestWeek = Math.max(0, ...Object.values(save.eventWeeks).map(w => w?.weekStart ?? 0));
+    const expired = source.weekStart < newestWeek || ctx.todayStart >= source.weekStart + WEEK_MS;
+    const week = expired ? undefined : ensureEventWeek(save, source.weekStart, source.typeId as EventTypeId);
+    const key = `settled:${result.battleId}`;
+    if (!week || week.eventData[key]) return {
+      victory, lines: [{ key: 'event-progress', label: expired ? '上周活动已结束，本场周奖励已关闭' : '本场已结算', deltas: {} }],
+      xpGained: 0, heroLevelsGained: 0, classLevelUp: null, classUnlocked: null,
+      questProgress: null, troopRewards: [], firstWinClaimed: false,
+    };
+    week.eventData[key] = 1;
+  }
+  let xpGained = victory ? 0 : PARTICIPATION_XP;
   let goldEarned = 0;
   let soulsEarned = 0;
 
@@ -191,11 +209,12 @@ export function applySettlement(
         // 连胜试炼：连续胜利积分 ×1.3/×1.6/×2.0（封顶 ×2），败场清零
         const streak = (week.eventData[EVENT_STATE_KEYS.trialStreak] ?? 0) + 1;
         week.eventData[EVENT_STATE_KEYS.trialStreak] = streak;
-        points = Math.min(EVENT_TRIAL_POINTS_CAP, Math.round(points * trialMultiplier(streak)));
+        const ordeal = source.choice === 'ordeal' && result.combatants.some(c => c.side === 'player' && c.externalId.endsWith('-hero') && !c.defeated && c.hp > 0);
+        points = Math.min(EVENT_TRIAL_POINTS_CAP, Math.round(points * trialMultiplier(streak) * (ordeal ? 1.25 : 1)));
       }
       week.points += points;
       week.wins += 1;
-      const tokensGain = eventTokensFor(points);
+      const tokensGain = Math.min(eventTokensFor(points), Math.max(0, EVENT_WEEKLY_RULES.tokenCap - week.tokensEarned));
       week.tokens += tokensGain;
       week.tokensEarned += tokensGain;
       lines.push({
@@ -220,7 +239,7 @@ export function applySettlement(
       const m = gain.milestone;
       week.claimed.push(gain.index);
       const applied = earn(save, {
-        gold: m.gold, souls: m.souls, gems: m.gems, goldKeys: m.goldKeys, glory: m.glory,
+        gold: m.gold ?? 0, souls: m.souls ?? 0, goldKeys: m.goldKeys ?? 0, glory: m.glory ?? 0,
       });
       const mats = earnMaterials(save, m.mats ?? {});
       lines.push({
@@ -230,6 +249,9 @@ export function applySettlement(
         mats,
         note: typeId === 'worldEvent' ? `${m.points} 物资达成` : `${m.points} 分达成`,
       });
+    }
+    for (const reward of claimEventWeeklyGems(save, source.weekStart, typeId)) {
+      lines.push({ key: 'event-milestone', ...reward });
     }
   }
 
@@ -248,6 +270,18 @@ export function applySettlement(
       const key = stoneKey('minor', stoneColorKeyOf(lead.manaColors[0] ?? BaseColor.Brown))!;
       mats.traitstones![key] = (mats.traitstones![key] ?? 0) + 1;
     }
+    // Project economy: one useful stone per exploration, selected from next locked recipes.
+    // All imported tiers/pairs are obtainable without introducing a paid-only material gate.
+    const missing = Object.entries(save.collection).flatMap(([id, rec]) => {
+      const slot = rec.traits.findIndex(unlocked => !unlocked);
+      const recipe = TROOP_PROGRESSION[id]?.traits[slot];
+      return Object.entries(recipe ?? {}).filter(([key, n]) => (save.materials.traitstones[key] ?? 0) < n).map(([key]) => key);
+    });
+    const useful = [...new Set(missing)];
+    if (useful.length) {
+      const key = useful[dropRng.nextInt(useful.length)]!;
+      mats.traitstones![key] = (mats.traitstones![key] ?? 0) + 1;
+    }
     const appliedMats = earnMaterials(save, mats);
     if (Object.keys(appliedMats).length > 0) {
       lines.push({
@@ -257,6 +291,23 @@ export function applySettlement(
         mats: appliedMats,
         note: `${ctx.plan.kingdom} 探索`,
       });
+    }
+  }
+
+  // 探索可重复刷；仅实际首次胜利领取该档奖励，记录与钱包一起持久化。
+  if (victory && ctx.plan.source.kind === 'explore' && KINGDOM_ORDER.includes(ctx.plan.kingdom)) {
+    const tier = ctx.plan.source.tier;
+    if (Number.isInteger(tier) && tier >= 1 && tier <= EXPLORE_MAX_TIER) {
+      const entry = save.kingdoms[ctx.plan.kingdom] ?? newKingdomEntry();
+      const cleared = entry.clearedExploreTiers ?? [];
+      if (!cleared.includes(tier)) {
+        save.kingdoms[ctx.plan.kingdom] = entry;
+        entry.clearedExploreTiers = [...cleared, tier].sort((a, b) => a - b);
+        const mode = tier <= HARD_NODE_COUNT ? 'hard' : 'veryHard';
+        const node = mode === 'hard' ? tier : tier - HARD_NODE_COUNT;
+        earnLine('kingdom-first-clear', '关卡首通', { gems: KINGDOM_FIRST_CLEAR_GEMS[mode] },
+          `${ctx.plan.kingdom} · ${mode === 'hard' ? '困难' : '非常困难'} ${node} · 仅一次`);
+      }
     }
   }
 
@@ -272,6 +323,8 @@ export function applySettlement(
       save.kingdoms[ctx.plan.kingdom] = entry;
       questProgress = { from: done, to: node };
       entry.questsDone = node;
+      earnLine('kingdom-first-clear', '关卡首通', { gems: KINGDOM_FIRST_CLEAR_GEMS.normal },
+        `${ctx.plan.kingdom} · 普通 ${node} · 仅一次`);
       // 金钥匙经济收口（M6）：任务链全通发钥匙（来源=进贡/任务/竞技场，去向=金宝箱），
       // 与旗帜解锁同刻——通关一个王国 = 解锁它的旗帜 + 领一把钥匙
       lines.push({
@@ -312,7 +365,8 @@ export function applySettlement(
   if (victory && save.hero.classId) {
     const team = activeTeam(save);
     if (team?.members.some((m) => m.kind === 'hero')) {
-      const trialMult = ctx.plan.source.kind === 'event' && ctx.plan.source.typeId === 'classTrials' ? 2 : 1;
+      const trialMult = ctx.plan.source.kind === 'event' && ctx.plan.source.typeId === 'classTrials'
+        ? (ctx.plan.source.choice === 'ordeal' && result.combatants.some(c => c.side === 'player' && c.externalId.endsWith('-hero') && !c.defeated && c.hp > 0) ? 3 : 2) : 1;
       const r = addClassXp(save, save.hero.classId, CLASS_XP_PER_WIN * trialMult);
       if (r && r.levelsGained > 0) classLevelUp = { classId: save.hero.classId, newLevel: r.newLevel };
       addClassWin(save, save.hero.classId);

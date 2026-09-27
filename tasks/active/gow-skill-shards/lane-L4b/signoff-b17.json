@@ -1,0 +1,1971 @@
+{
+  "schemaVersion": 1,
+  "scope": "stored-gow-snapshot",
+  "reviews": [
+    {
+      "key": "weapon:1266",
+      "scope": "stored-gow-snapshot",
+      "sourceDigest": "4c3ddc818e1338d31abd91009350fb6463e5763c6d038aee0d2ddac693ed0fd8",
+      "reviewer": "sa-L4b",
+      "reviewedAt": "2026-09-27",
+      "decision": "accept",
+      "ledgerFingerprintAtReview": "142f456ff232aeddaa80e84d53b0616119c1a4e46acbd5bed70468225b58d488",
+      "_reference": {
+        "spellId": 8120,
+        "english": "Deal [Magic + 7] damage to an Enemy boosted by Construct Allies. Then create a mix of 6 Purple and Brown Gems for each Construct Ally. [x6]",
+        "nativeTarget": "Enemy",
+        "randomize": null,
+        "steps": [
+          {
+            "Target": "AllAllies",
+            "Amount": 600,
+            "Type": "CountArmyType",
+            "Data": "construct"
+          },
+          {
+            "SpellPowerMultiplier": 1,
+            "Target": "FromTarget",
+            "UseCounterForAmount": true,
+            "Amount": 7,
+            "Primarypower": true,
+            "Type": "Damage"
+          },
+          {
+            "UseCounterForAmount": true,
+            "Color1": "Purple",
+            "Color2": "Brown",
+            "Type": "CreateGems2Colors"
+          }
+        ],
+        "prototype": {
+          "segments": [
+            {
+              "kind": "damage",
+              "target": "enemyChosen",
+              "scaling": {
+                "base": 7,
+                "mult": 1
+              },
+              "modifier": {
+                "mod": {
+                  "kind": "multiplier",
+                  "a": 6
+                },
+                "source": {
+                  "kind": "alliesOfRace",
+                  "race": "Construct"
+                }
+              }
+            },
+            {
+              "kind": "gem",
+              "params": {
+                "op": "create",
+                "gem": {
+                  "kind": "mix",
+                  "colors": [
+                    "Purple",
+                    "Brown"
+                  ]
+                },
+                "count": {
+                  "base": 0,
+                  "mult": 0
+                },
+                "modifier": {
+                  "mod": {
+                    "kind": "multiplier",
+                    "a": 6
+                  },
+                  "sources": [
+                    {
+                      "kind": "alliesOfRace",
+                      "race": "Construct"
+                    }
+                  ]
+                }
+              },
+              "modifier": {
+                "mod": {
+                  "kind": "multiplier",
+                  "a": 6
+                },
+                "sources": [
+                  {
+                    "kind": "alliesOfRace",
+                    "race": "Construct"
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      },
+      "sourceEvidence": [
+        {
+          "id": "en",
+          "role": "english-snapshot",
+          "path": "artifacts/gowhead-weapons/weapons.json",
+          "note": "Weapon 1266 (StoneSlicer) spell id 8120, English text, ManaCost 14, ManaColors Blue+Purple asserted from gowhead weapons.json in tests/unit/gowLaneL4bB17.test.ts."
+        },
+        {
+          "id": "native",
+          "role": "native-snapshot",
+          "path": "data/raw/spells.gow.en.json",
+          "note": "SpellId 8120 Cost/Target and every SpellSteps field (ordered, toEqual) asserted in tests/unit/gowLaneL4bB17.test.ts."
+        },
+        {
+          "id": "rule",
+          "role": "official-shared-rule",
+          "path": "tasks/active/gow-skill-shards/rulings/R003-count-threshold-labels.md",
+          "note": "R003: CountArmyType Amount 600 = x6 per counted ally; Data construct = troopType Construct (Construct; asserted to exist on src troops)."
+        },
+        {
+          "id": "rl01",
+          "role": "user-ruling",
+          "path": "tasks/active/gow-skill-shards/rulings/RL4b-01-two-colour-overwrite.md",
+          "note": "RL4b-01: 2-colour creation selects N distinct cells, each one of the two colours."
+        },
+        {
+          "id": "laneTest",
+          "role": "lane-battle-test",
+          "path": "tests/unit/gowLaneL4bB17.test.ts",
+          "note": "Lane L4b frozen test file: binding + real castSkill cases for weapon:1266."
+        }
+      ],
+      "dimensions": {
+        "identity-cost-colors": {
+          "status": "verified",
+          "note": "weapon 1266 -> spell 8120; gowhead ManaCost 14 = native Cost; colours Blue+Purple; src weapons.json id/referenceName StoneSlicer/manaCost/manaColors/spell.id; numeric 8120 and gw_StoneSlicer aliases resolve to the same prototype.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "rl01",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB17.test.ts"
+          ]
+        },
+        "target-count-range": {
+          "status": "verified",
+          "note": "FromTarget (spell Target Enemy) -> enemyChosen 11 only; ally id refused before mana is spent.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "rl01",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB17.test.ts"
+          ]
+        },
+        "base-formula-rounding": {
+          "status": "verified",
+          "note": "[Magic+7] + 6 per living Construct ally (caster counted when of that type; dual-type ally counted): 7 / 29 for magic 0 / 10 with 0 / 2 allies; 23 with caster-of-type only.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "rl01",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB17.test.ts"
+          ]
+        },
+        "boost-source-ratio-cap": {
+          "status": "verified",
+          "note": "multiplier a=6 alliesOfRace Construct on damage and create (same counter as native step 0); dead ally / enemy of that type not counted; no cap.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "rl01",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB17.test.ts"
+          ]
+        },
+        "conditions-probabilities-branches": {
+          "status": "not-applicable",
+          "note": "No condition; per-gem colour choice is seeded random (RL4b-01).",
+          "evidenceIds": [
+            "en",
+            "native"
+          ],
+          "tests": []
+        },
+        "status-duration-immunity": {
+          "status": "not-applicable",
+          "note": "No status; Barrier on the target absorbs the damage, gems still created.",
+          "evidenceIds": [
+            "en",
+            "native"
+          ],
+          "tests": []
+        },
+        "gems-types-selection-resolution": {
+          "status": "verified",
+          "note": "CreateGems2Colors Purple/Brown (no Amount): 6n gems on distinct cells, all of the two colours, both present when n > 0; prototype colour order is irrelevant (set equality asserted).",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "rl01",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB17.test.ts"
+          ]
+        },
+        "summon-transform-pools": {
+          "status": "not-applicable",
+          "note": "No summon or troop transform.",
+          "evidenceIds": [
+            "en",
+            "native"
+          ],
+          "tests": []
+        },
+        "order-death-retargeting": {
+          "status": "verified",
+          "note": "Count -> Damage -> Create (native order): skill-damage precedes the gem events.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "rl01",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB17.test.ts"
+          ]
+        },
+        "mana-economy-extra-turn": {
+          "status": "verified",
+          "note": "Caster mana 0 after cast except cascade mana-gain events; no skill extra turn; one action-log entry; turn passes.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "rl01",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB17.test.ts"
+          ]
+        },
+        "display-description": {
+          "status": "verified",
+          "note": "Chinese '对一名敌人造成 [魔法 + 7] 点伤害，伤害值因建造盟友的数量而增强。每有一名建造盟友，则创造混合紫色和棕色的 6 颗宝石。 [x6]' matches English (type Construct, [Magic + 7], mix Purple/Brown, [x6]).",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "rl01",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB17.test.ts"
+          ]
+        },
+        "battle-pipeline": {
+          "status": "verified",
+          "note": "Real TurnEngine.castSkill via both aliases (8120, gw_StoneSlicer) on both sides with magic 0/10; low mana and Silence refuse without spending mana or touching board/statuses/turn.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "rl01",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB17.test.ts"
+          ],
+          "realBattleEntry": true
+        }
+      },
+      "clauseReviews": [
+        {
+          "id": "c1",
+          "text": "Deal [Magic + 7] damage to an Enemy boosted by Construct Allies.",
+          "status": "verified",
+          "note": "[Magic+7] damage to the chosen enemy +6 per Construct ally.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "rl01",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB17.test.ts"
+          ]
+        },
+        {
+          "id": "c2",
+          "text": "Then create a mix of 6 Purple and Brown Gems for each Construct Ally.",
+          "status": "verified",
+          "note": "Mix of Purple/Brown gems, 6 per Construct ally (0 when none), distinct cells, both colours present.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "rl01",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB17.test.ts"
+          ]
+        },
+        {
+          "id": "c3",
+          "text": "[x6]",
+          "status": "verified",
+          "note": "[x6] = +6 damage and 6 gems per ally of that type.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "rl01",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB17.test.ts"
+          ]
+        }
+      ],
+      "nativeStepReviews": [
+        {
+          "id": "0",
+          "type": "CountArmyType",
+          "status": "verified",
+          "note": "CountArmyType AllAllies Data construct Amount 600 -> alliesOfRace Construct x6.",
+          "evidenceIds": [
+            "native",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB17.test.ts"
+          ]
+        },
+        {
+          "id": "1",
+          "type": "Damage",
+          "status": "verified",
+          "note": "Damage FromTarget Amount 7 x Magic UseCounterForAmount -> damage enemyChosen {7,1} + modifier.",
+          "evidenceIds": [
+            "native",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB17.test.ts"
+          ]
+        },
+        {
+          "id": "2",
+          "type": "CreateGems2Colors",
+          "status": "verified",
+          "note": "CreateGems2Colors Purple/Brown UseCounterForAmount -> create mix base 0 + modifier.",
+          "evidenceIds": [
+            "native",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB17.test.ts"
+          ]
+        }
+      ],
+      "branchReviews": [
+        {
+          "id": "main",
+          "status": "verified",
+          "note": "Single branch; aliases x sides x (magic, allies), caster-of-type, dead ally, enemy of that type, Barrier, illegal target.",
+          "evidenceIds": [
+            "native",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB17.test.ts"
+          ]
+        }
+      ]
+    },
+    {
+      "key": "weapon:1268",
+      "scope": "stored-gow-snapshot",
+      "sourceDigest": "7a51d55feb900406b53a9ceecf98e6be4da22a1a89af98e5a9c7ca485b87feb5",
+      "reviewer": "sa-L4b",
+      "reviewedAt": "2026-09-27",
+      "decision": "accept",
+      "ledgerFingerprintAtReview": "142f456ff232aeddaa80e84d53b0616119c1a4e46acbd5bed70468225b58d488",
+      "_reference": {
+        "spellId": 8122,
+        "english": "Deal [Magic + 7] damage to an Enemy boosted by Giant Allies. Then create a mix of 6 Blue and Brown Gems for each Giant Ally. [x6]",
+        "nativeTarget": "Enemy",
+        "randomize": null,
+        "steps": [
+          {
+            "Target": "AllAllies",
+            "Amount": 600,
+            "Type": "CountArmyType",
+            "Data": "giant"
+          },
+          {
+            "SpellPowerMultiplier": 1,
+            "Target": "FromTarget",
+            "UseCounterForAmount": true,
+            "Amount": 7,
+            "Primarypower": true,
+            "Type": "Damage"
+          },
+          {
+            "UseCounterForAmount": true,
+            "Color1": "Blue",
+            "Color2": "Brown",
+            "Type": "CreateGems2Colors"
+          }
+        ],
+        "prototype": {
+          "segments": [
+            {
+              "kind": "damage",
+              "target": "enemyChosen",
+              "scaling": {
+                "base": 7,
+                "mult": 1
+              },
+              "modifier": {
+                "mod": {
+                  "kind": "multiplier",
+                  "a": 6
+                },
+                "source": {
+                  "kind": "alliesOfRace",
+                  "race": "Giant"
+                }
+              }
+            },
+            {
+              "kind": "gem",
+              "params": {
+                "op": "create",
+                "gem": {
+                  "kind": "mix",
+                  "colors": [
+                    "Blue",
+                    "Brown"
+                  ]
+                },
+                "count": {
+                  "base": 0,
+                  "mult": 0
+                },
+                "modifier": {
+                  "mod": {
+                    "kind": "multiplier",
+                    "a": 6
+                  },
+                  "sources": [
+                    {
+                      "kind": "alliesOfRace",
+                      "race": "Giant"
+                    }
+                  ]
+                }
+              },
+              "modifier": {
+                "mod": {
+                  "kind": "multiplier",
+                  "a": 6
+                },
+                "sources": [
+                  {
+                    "kind": "alliesOfRace",
+                    "race": "Giant"
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      },
+      "sourceEvidence": [
+        {
+          "id": "en",
+          "role": "english-snapshot",
+          "path": "artifacts/gowhead-weapons/weapons.json",
+          "note": "Weapon 1268 (SheggrasSpine) spell id 8122, English text, ManaCost 14, ManaColors Green+Red asserted from gowhead weapons.json in tests/unit/gowLaneL4bB17.test.ts."
+        },
+        {
+          "id": "native",
+          "role": "native-snapshot",
+          "path": "data/raw/spells.gow.en.json",
+          "note": "SpellId 8122 Cost/Target and every SpellSteps field (ordered, toEqual) asserted in tests/unit/gowLaneL4bB17.test.ts."
+        },
+        {
+          "id": "rule",
+          "role": "official-shared-rule",
+          "path": "tasks/active/gow-skill-shards/rulings/R003-count-threshold-labels.md",
+          "note": "R003: CountArmyType Amount 600 = x6 per counted ally; Data giant = troopType Giant (Giant; asserted to exist on src troops)."
+        },
+        {
+          "id": "rl01",
+          "role": "user-ruling",
+          "path": "tasks/active/gow-skill-shards/rulings/RL4b-01-two-colour-overwrite.md",
+          "note": "RL4b-01: 2-colour creation selects N distinct cells, each one of the two colours."
+        },
+        {
+          "id": "laneTest",
+          "role": "lane-battle-test",
+          "path": "tests/unit/gowLaneL4bB17.test.ts",
+          "note": "Lane L4b frozen test file: binding + real castSkill cases for weapon:1268."
+        }
+      ],
+      "dimensions": {
+        "identity-cost-colors": {
+          "status": "verified",
+          "note": "weapon 1268 -> spell 8122; gowhead ManaCost 14 = native Cost; colours Green+Red; src weapons.json id/referenceName SheggrasSpine/manaCost/manaColors/spell.id; numeric 8122 and gw_SheggrasSpine aliases resolve to the same prototype.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "rl01",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB17.test.ts"
+          ]
+        },
+        "target-count-range": {
+          "status": "verified",
+          "note": "FromTarget (spell Target Enemy) -> enemyChosen 11 only; ally id refused before mana is spent.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "rl01",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB17.test.ts"
+          ]
+        },
+        "base-formula-rounding": {
+          "status": "verified",
+          "note": "[Magic+7] + 6 per living Giant ally (caster counted when of that type; dual-type ally counted): 7 / 29 for magic 0 / 10 with 0 / 2 allies; 23 with caster-of-type only.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "rl01",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB17.test.ts"
+          ]
+        },
+        "boost-source-ratio-cap": {
+          "status": "verified",
+          "note": "multiplier a=6 alliesOfRace Giant on damage and create (same counter as native step 0); dead ally / enemy of that type not counted; no cap.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "rl01",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB17.test.ts"
+          ]
+        },
+        "conditions-probabilities-branches": {
+          "status": "not-applicable",
+          "note": "No condition; per-gem colour choice is seeded random (RL4b-01).",
+          "evidenceIds": [
+            "en",
+            "native"
+          ],
+          "tests": []
+        },
+        "status-duration-immunity": {
+          "status": "not-applicable",
+          "note": "No status; Barrier on the target absorbs the damage, gems still created.",
+          "evidenceIds": [
+            "en",
+            "native"
+          ],
+          "tests": []
+        },
+        "gems-types-selection-resolution": {
+          "status": "verified",
+          "note": "CreateGems2Colors Blue/Brown (no Amount): 6n gems on distinct cells, all of the two colours, both present when n > 0; prototype colour order is irrelevant (set equality asserted).",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "rl01",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB17.test.ts"
+          ]
+        },
+        "summon-transform-pools": {
+          "status": "not-applicable",
+          "note": "No summon or troop transform.",
+          "evidenceIds": [
+            "en",
+            "native"
+          ],
+          "tests": []
+        },
+        "order-death-retargeting": {
+          "status": "verified",
+          "note": "Count -> Damage -> Create (native order): skill-damage precedes the gem events.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "rl01",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB17.test.ts"
+          ]
+        },
+        "mana-economy-extra-turn": {
+          "status": "verified",
+          "note": "Caster mana 0 after cast except cascade mana-gain events; no skill extra turn; one action-log entry; turn passes.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "rl01",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB17.test.ts"
+          ]
+        },
+        "display-description": {
+          "status": "verified",
+          "note": "Chinese '对一名敌人造成 [魔法 + 7] 点伤害，伤害值因巨人盟友的数量而增强。每有一名巨人盟友，则创造混合蓝色和棕色的 6 颗宝石。 [x6]' matches English (type Giant, [Magic + 7], mix Blue/Brown, [x6]).",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "rl01",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB17.test.ts"
+          ]
+        },
+        "battle-pipeline": {
+          "status": "verified",
+          "note": "Real TurnEngine.castSkill via both aliases (8122, gw_SheggrasSpine) on both sides with magic 0/10; low mana and Silence refuse without spending mana or touching board/statuses/turn.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "rl01",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB17.test.ts"
+          ],
+          "realBattleEntry": true
+        }
+      },
+      "clauseReviews": [
+        {
+          "id": "c1",
+          "text": "Deal [Magic + 7] damage to an Enemy boosted by Giant Allies.",
+          "status": "verified",
+          "note": "[Magic+7] damage to the chosen enemy +6 per Giant ally.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "rl01",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB17.test.ts"
+          ]
+        },
+        {
+          "id": "c2",
+          "text": "Then create a mix of 6 Blue and Brown Gems for each Giant Ally.",
+          "status": "verified",
+          "note": "Mix of Blue/Brown gems, 6 per Giant ally (0 when none), distinct cells, both colours present.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "rl01",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB17.test.ts"
+          ]
+        },
+        {
+          "id": "c3",
+          "text": "[x6]",
+          "status": "verified",
+          "note": "[x6] = +6 damage and 6 gems per ally of that type.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "rl01",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB17.test.ts"
+          ]
+        }
+      ],
+      "nativeStepReviews": [
+        {
+          "id": "0",
+          "type": "CountArmyType",
+          "status": "verified",
+          "note": "CountArmyType AllAllies Data giant Amount 600 -> alliesOfRace Giant x6.",
+          "evidenceIds": [
+            "native",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB17.test.ts"
+          ]
+        },
+        {
+          "id": "1",
+          "type": "Damage",
+          "status": "verified",
+          "note": "Damage FromTarget Amount 7 x Magic UseCounterForAmount -> damage enemyChosen {7,1} + modifier.",
+          "evidenceIds": [
+            "native",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB17.test.ts"
+          ]
+        },
+        {
+          "id": "2",
+          "type": "CreateGems2Colors",
+          "status": "verified",
+          "note": "CreateGems2Colors Blue/Brown UseCounterForAmount -> create mix base 0 + modifier.",
+          "evidenceIds": [
+            "native",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB17.test.ts"
+          ]
+        }
+      ],
+      "branchReviews": [
+        {
+          "id": "main",
+          "status": "verified",
+          "note": "Single branch; aliases x sides x (magic, allies), caster-of-type, dead ally, enemy of that type, Barrier, illegal target.",
+          "evidenceIds": [
+            "native",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB17.test.ts"
+          ]
+        }
+      ]
+    },
+    {
+      "key": "weapon:1270",
+      "scope": "stored-gow-snapshot",
+      "sourceDigest": "ac7e39d72794065a9d4f4649929820a039ac23bde14552c708843e6f2461efd7",
+      "reviewer": "sa-L4b",
+      "reviewedAt": "2026-09-27",
+      "decision": "accept",
+      "ledgerFingerprintAtReview": "142f456ff232aeddaa80e84d53b0616119c1a4e46acbd5bed70468225b58d488",
+      "_reference": {
+        "spellId": 8124,
+        "english": "Deal [Magic + 7] damage to an Enemy boosted by Human Allies. Then create a mix of 6 Blue and Yellow Gems for each Human Ally. [x6]",
+        "nativeTarget": "Enemy",
+        "randomize": null,
+        "steps": [
+          {
+            "Target": "AllAllies",
+            "Amount": 600,
+            "Type": "CountArmyType",
+            "Data": "human"
+          },
+          {
+            "SpellPowerMultiplier": 1,
+            "Target": "FromTarget",
+            "UseCounterForAmount": true,
+            "Amount": 7,
+            "Primarypower": true,
+            "Type": "Damage"
+          },
+          {
+            "UseCounterForAmount": true,
+            "Color1": "Blue",
+            "Color2": "Yellow",
+            "Type": "CreateGems2Colors"
+          }
+        ],
+        "prototype": {
+          "segments": [
+            {
+              "kind": "damage",
+              "target": "enemyChosen",
+              "scaling": {
+                "base": 7,
+                "mult": 1
+              },
+              "modifier": {
+                "mod": {
+                  "kind": "multiplier",
+                  "a": 6
+                },
+                "source": {
+                  "kind": "alliesOfRace",
+                  "race": "Human"
+                }
+              }
+            },
+            {
+              "kind": "gem",
+              "params": {
+                "op": "create",
+                "gem": {
+                  "kind": "mix",
+                  "colors": [
+                    "Blue",
+                    "Yellow"
+                  ]
+                },
+                "count": {
+                  "base": 0,
+                  "mult": 0
+                },
+                "modifier": {
+                  "mod": {
+                    "kind": "multiplier",
+                    "a": 6
+                  },
+                  "sources": [
+                    {
+                      "kind": "alliesOfRace",
+                      "race": "Human"
+                    }
+                  ]
+                }
+              },
+              "modifier": {
+                "mod": {
+                  "kind": "multiplier",
+                  "a": 6
+                },
+                "sources": [
+                  {
+                    "kind": "alliesOfRace",
+                    "race": "Human"
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      },
+      "sourceEvidence": [
+        {
+          "id": "en",
+          "role": "english-snapshot",
+          "path": "artifacts/gowhead-weapons/weapons.json",
+          "note": "Weapon 1270 (OrpheusVerse) spell id 8124, English text, ManaCost 14, ManaColors Red+Purple asserted from gowhead weapons.json in tests/unit/gowLaneL4bB17.test.ts."
+        },
+        {
+          "id": "native",
+          "role": "native-snapshot",
+          "path": "data/raw/spells.gow.en.json",
+          "note": "SpellId 8124 Cost/Target and every SpellSteps field (ordered, toEqual) asserted in tests/unit/gowLaneL4bB17.test.ts."
+        },
+        {
+          "id": "rule",
+          "role": "official-shared-rule",
+          "path": "tasks/active/gow-skill-shards/rulings/R003-count-threshold-labels.md",
+          "note": "R003: CountArmyType Amount 600 = x6 per counted ally; Data human = troopType Human (Human; asserted to exist on src troops)."
+        },
+        {
+          "id": "rl01",
+          "role": "user-ruling",
+          "path": "tasks/active/gow-skill-shards/rulings/RL4b-01-two-colour-overwrite.md",
+          "note": "RL4b-01: 2-colour creation selects N distinct cells, each one of the two colours."
+        },
+        {
+          "id": "laneTest",
+          "role": "lane-battle-test",
+          "path": "tests/unit/gowLaneL4bB17.test.ts",
+          "note": "Lane L4b frozen test file: binding + real castSkill cases for weapon:1270."
+        }
+      ],
+      "dimensions": {
+        "identity-cost-colors": {
+          "status": "verified",
+          "note": "weapon 1270 -> spell 8124; gowhead ManaCost 14 = native Cost; colours Red+Purple; src weapons.json id/referenceName OrpheusVerse/manaCost/manaColors/spell.id; numeric 8124 and gw_OrpheusVerse aliases resolve to the same prototype.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "rl01",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB17.test.ts"
+          ]
+        },
+        "target-count-range": {
+          "status": "verified",
+          "note": "FromTarget (spell Target Enemy) -> enemyChosen 11 only; ally id refused before mana is spent.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "rl01",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB17.test.ts"
+          ]
+        },
+        "base-formula-rounding": {
+          "status": "verified",
+          "note": "[Magic+7] + 6 per living Human ally (caster counted when of that type; dual-type ally counted): 7 / 29 for magic 0 / 10 with 0 / 2 allies; 23 with caster-of-type only.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "rl01",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB17.test.ts"
+          ]
+        },
+        "boost-source-ratio-cap": {
+          "status": "verified",
+          "note": "multiplier a=6 alliesOfRace Human on damage and create (same counter as native step 0); dead ally / enemy of that type not counted; no cap.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "rl01",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB17.test.ts"
+          ]
+        },
+        "conditions-probabilities-branches": {
+          "status": "not-applicable",
+          "note": "No condition; per-gem colour choice is seeded random (RL4b-01).",
+          "evidenceIds": [
+            "en",
+            "native"
+          ],
+          "tests": []
+        },
+        "status-duration-immunity": {
+          "status": "not-applicable",
+          "note": "No status; Barrier on the target absorbs the damage, gems still created.",
+          "evidenceIds": [
+            "en",
+            "native"
+          ],
+          "tests": []
+        },
+        "gems-types-selection-resolution": {
+          "status": "verified",
+          "note": "CreateGems2Colors Blue/Yellow (no Amount): 6n gems on distinct cells, all of the two colours, both present when n > 0; prototype colour order is irrelevant (set equality asserted).",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "rl01",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB17.test.ts"
+          ]
+        },
+        "summon-transform-pools": {
+          "status": "not-applicable",
+          "note": "No summon or troop transform.",
+          "evidenceIds": [
+            "en",
+            "native"
+          ],
+          "tests": []
+        },
+        "order-death-retargeting": {
+          "status": "verified",
+          "note": "Count -> Damage -> Create (native order): skill-damage precedes the gem events.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "rl01",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB17.test.ts"
+          ]
+        },
+        "mana-economy-extra-turn": {
+          "status": "verified",
+          "note": "Caster mana 0 after cast except cascade mana-gain events; no skill extra turn; one action-log entry; turn passes.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "rl01",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB17.test.ts"
+          ]
+        },
+        "display-description": {
+          "status": "verified",
+          "note": "Chinese '对一名敌人造成 [魔法 + 7] 点伤害，伤害值因人类盟友的数量而增强。每有一名人类盟友，则创造混合蓝色和黄色的 6 颗宝石。 [x6]' matches English (type Human, [Magic + 7], mix Blue/Yellow, [x6]).",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "rl01",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB17.test.ts"
+          ]
+        },
+        "battle-pipeline": {
+          "status": "verified",
+          "note": "Real TurnEngine.castSkill via both aliases (8124, gw_OrpheusVerse) on both sides with magic 0/10; low mana and Silence refuse without spending mana or touching board/statuses/turn.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "rl01",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB17.test.ts"
+          ],
+          "realBattleEntry": true
+        }
+      },
+      "clauseReviews": [
+        {
+          "id": "c1",
+          "text": "Deal [Magic + 7] damage to an Enemy boosted by Human Allies.",
+          "status": "verified",
+          "note": "[Magic+7] damage to the chosen enemy +6 per Human ally.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "rl01",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB17.test.ts"
+          ]
+        },
+        {
+          "id": "c2",
+          "text": "Then create a mix of 6 Blue and Yellow Gems for each Human Ally.",
+          "status": "verified",
+          "note": "Mix of Blue/Yellow gems, 6 per Human ally (0 when none), distinct cells, both colours present.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "rl01",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB17.test.ts"
+          ]
+        },
+        {
+          "id": "c3",
+          "text": "[x6]",
+          "status": "verified",
+          "note": "[x6] = +6 damage and 6 gems per ally of that type.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "rl01",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB17.test.ts"
+          ]
+        }
+      ],
+      "nativeStepReviews": [
+        {
+          "id": "0",
+          "type": "CountArmyType",
+          "status": "verified",
+          "note": "CountArmyType AllAllies Data human Amount 600 -> alliesOfRace Human x6.",
+          "evidenceIds": [
+            "native",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB17.test.ts"
+          ]
+        },
+        {
+          "id": "1",
+          "type": "Damage",
+          "status": "verified",
+          "note": "Damage FromTarget Amount 7 x Magic UseCounterForAmount -> damage enemyChosen {7,1} + modifier.",
+          "evidenceIds": [
+            "native",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB17.test.ts"
+          ]
+        },
+        {
+          "id": "2",
+          "type": "CreateGems2Colors",
+          "status": "verified",
+          "note": "CreateGems2Colors Blue/Yellow UseCounterForAmount -> create mix base 0 + modifier.",
+          "evidenceIds": [
+            "native",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB17.test.ts"
+          ]
+        }
+      ],
+      "branchReviews": [
+        {
+          "id": "main",
+          "status": "verified",
+          "note": "Single branch; aliases x sides x (magic, allies), caster-of-type, dead ally, enemy of that type, Barrier, illegal target.",
+          "evidenceIds": [
+            "native",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB17.test.ts"
+          ]
+        }
+      ]
+    },
+    {
+      "key": "weapon:1281",
+      "scope": "stored-gow-snapshot",
+      "sourceDigest": "074dbab5243b22066bd82986b878ed90f7352baf8e889777bb8d2959452d5822",
+      "reviewer": "sa-L4b",
+      "reviewedAt": "2026-09-27",
+      "decision": "accept",
+      "ledgerFingerprintAtReview": "142f456ff232aeddaa80e84d53b0616119c1a4e46acbd5bed70468225b58d488",
+      "_reference": {
+        "spellId": 8161,
+        "english": "Deal [Magic + 7] damage to an Enemy boosted by Dragon Allies. Then create a mix of 6 Red and Purple Gems for each Dragon Ally. [x6]",
+        "nativeTarget": "Enemy",
+        "randomize": null,
+        "steps": [
+          {
+            "Target": "AllAllies",
+            "Amount": 600,
+            "Type": "CountArmyType",
+            "Data": "dragon"
+          },
+          {
+            "SpellPowerMultiplier": 1,
+            "Target": "FromTarget",
+            "UseCounterForAmount": true,
+            "Amount": 7,
+            "Primarypower": true,
+            "Type": "Damage"
+          },
+          {
+            "UseCounterForAmount": true,
+            "Color1": "Red",
+            "Color2": "Purple",
+            "Type": "CreateGems2Colors"
+          }
+        ],
+        "prototype": {
+          "segments": [
+            {
+              "kind": "damage",
+              "target": "enemyChosen",
+              "scaling": {
+                "base": 7,
+                "mult": 1
+              },
+              "modifier": {
+                "mod": {
+                  "kind": "multiplier",
+                  "a": 6
+                },
+                "source": {
+                  "kind": "alliesOfRace",
+                  "race": "Dragon"
+                }
+              }
+            },
+            {
+              "kind": "gem",
+              "params": {
+                "op": "create",
+                "gem": {
+                  "kind": "mix",
+                  "colors": [
+                    "Red",
+                    "Purple"
+                  ]
+                },
+                "count": {
+                  "base": 0,
+                  "mult": 0
+                },
+                "modifier": {
+                  "mod": {
+                    "kind": "multiplier",
+                    "a": 6
+                  },
+                  "sources": [
+                    {
+                      "kind": "alliesOfRace",
+                      "race": "Dragon"
+                    }
+                  ]
+                }
+              },
+              "modifier": {
+                "mod": {
+                  "kind": "multiplier",
+                  "a": 6
+                },
+                "sources": [
+                  {
+                    "kind": "alliesOfRace",
+                    "race": "Dragon"
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      },
+      "sourceEvidence": [
+        {
+          "id": "en",
+          "role": "english-snapshot",
+          "path": "artifacts/gowhead-weapons/weapons.json",
+          "note": "Weapon 1281 (MaceOfClaws) spell id 8161, English text, ManaCost 14, ManaColors Green+Brown asserted from gowhead weapons.json in tests/unit/gowLaneL4bB17.test.ts."
+        },
+        {
+          "id": "native",
+          "role": "native-snapshot",
+          "path": "data/raw/spells.gow.en.json",
+          "note": "SpellId 8161 Cost/Target and every SpellSteps field (ordered, toEqual) asserted in tests/unit/gowLaneL4bB17.test.ts."
+        },
+        {
+          "id": "rule",
+          "role": "official-shared-rule",
+          "path": "tasks/active/gow-skill-shards/rulings/R003-count-threshold-labels.md",
+          "note": "R003: CountArmyType Amount 600 = x6 per counted ally; Data dragon = troopType Dragon (Dragon; asserted to exist on src troops)."
+        },
+        {
+          "id": "rl01",
+          "role": "user-ruling",
+          "path": "tasks/active/gow-skill-shards/rulings/RL4b-01-two-colour-overwrite.md",
+          "note": "RL4b-01: 2-colour creation selects N distinct cells, each one of the two colours."
+        },
+        {
+          "id": "laneTest",
+          "role": "lane-battle-test",
+          "path": "tests/unit/gowLaneL4bB17.test.ts",
+          "note": "Lane L4b frozen test file: binding + real castSkill cases for weapon:1281."
+        }
+      ],
+      "dimensions": {
+        "identity-cost-colors": {
+          "status": "verified",
+          "note": "weapon 1281 -> spell 8161; gowhead ManaCost 14 = native Cost; colours Green+Brown; src weapons.json id/referenceName MaceOfClaws/manaCost/manaColors/spell.id; numeric 8161 and gw_MaceOfClaws aliases resolve to the same prototype.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "rl01",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB17.test.ts"
+          ]
+        },
+        "target-count-range": {
+          "status": "verified",
+          "note": "FromTarget (spell Target Enemy) -> enemyChosen 11 only; ally id refused before mana is spent.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "rl01",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB17.test.ts"
+          ]
+        },
+        "base-formula-rounding": {
+          "status": "verified",
+          "note": "[Magic+7] + 6 per living Dragon ally (caster counted when of that type; dual-type ally counted): 7 / 29 for magic 0 / 10 with 0 / 2 allies; 23 with caster-of-type only.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "rl01",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB17.test.ts"
+          ]
+        },
+        "boost-source-ratio-cap": {
+          "status": "verified",
+          "note": "multiplier a=6 alliesOfRace Dragon on damage and create (same counter as native step 0); dead ally / enemy of that type not counted; no cap.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "rl01",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB17.test.ts"
+          ]
+        },
+        "conditions-probabilities-branches": {
+          "status": "not-applicable",
+          "note": "No condition; per-gem colour choice is seeded random (RL4b-01).",
+          "evidenceIds": [
+            "en",
+            "native"
+          ],
+          "tests": []
+        },
+        "status-duration-immunity": {
+          "status": "not-applicable",
+          "note": "No status; Barrier on the target absorbs the damage, gems still created.",
+          "evidenceIds": [
+            "en",
+            "native"
+          ],
+          "tests": []
+        },
+        "gems-types-selection-resolution": {
+          "status": "verified",
+          "note": "CreateGems2Colors Red/Purple (no Amount): 6n gems on distinct cells, all of the two colours, both present when n > 0; prototype colour order is irrelevant (set equality asserted).",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "rl01",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB17.test.ts"
+          ]
+        },
+        "summon-transform-pools": {
+          "status": "not-applicable",
+          "note": "No summon or troop transform.",
+          "evidenceIds": [
+            "en",
+            "native"
+          ],
+          "tests": []
+        },
+        "order-death-retargeting": {
+          "status": "verified",
+          "note": "Count -> Damage -> Create (native order): skill-damage precedes the gem events.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "rl01",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB17.test.ts"
+          ]
+        },
+        "mana-economy-extra-turn": {
+          "status": "verified",
+          "note": "Caster mana 0 after cast except cascade mana-gain events; no skill extra turn; one action-log entry; turn passes.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "rl01",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB17.test.ts"
+          ]
+        },
+        "display-description": {
+          "status": "verified",
+          "note": "Chinese '对一名敌人造成 [魔法 + 7] 点伤害，伤害值因龙族盟友数而增强。每有一名龙族盟友，则创造 6 颗混合红色和紫色的宝石。 [x6]' matches English (type Dragon, [Magic + 7], mix Red/Purple, [x6]).",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "rl01",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB17.test.ts"
+          ]
+        },
+        "battle-pipeline": {
+          "status": "verified",
+          "note": "Real TurnEngine.castSkill via both aliases (8161, gw_MaceOfClaws) on both sides with magic 0/10; low mana and Silence refuse without spending mana or touching board/statuses/turn.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "rl01",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB17.test.ts"
+          ],
+          "realBattleEntry": true
+        }
+      },
+      "clauseReviews": [
+        {
+          "id": "c1",
+          "text": "Deal [Magic + 7] damage to an Enemy boosted by Dragon Allies.",
+          "status": "verified",
+          "note": "[Magic+7] damage to the chosen enemy +6 per Dragon ally.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "rl01",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB17.test.ts"
+          ]
+        },
+        {
+          "id": "c2",
+          "text": "Then create a mix of 6 Red and Purple Gems for each Dragon Ally.",
+          "status": "verified",
+          "note": "Mix of Red/Purple gems, 6 per Dragon ally (0 when none), distinct cells, both colours present.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "rl01",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB17.test.ts"
+          ]
+        },
+        {
+          "id": "c3",
+          "text": "[x6]",
+          "status": "verified",
+          "note": "[x6] = +6 damage and 6 gems per ally of that type.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "rl01",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB17.test.ts"
+          ]
+        }
+      ],
+      "nativeStepReviews": [
+        {
+          "id": "0",
+          "type": "CountArmyType",
+          "status": "verified",
+          "note": "CountArmyType AllAllies Data dragon Amount 600 -> alliesOfRace Dragon x6.",
+          "evidenceIds": [
+            "native",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB17.test.ts"
+          ]
+        },
+        {
+          "id": "1",
+          "type": "Damage",
+          "status": "verified",
+          "note": "Damage FromTarget Amount 7 x Magic UseCounterForAmount -> damage enemyChosen {7,1} + modifier.",
+          "evidenceIds": [
+            "native",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB17.test.ts"
+          ]
+        },
+        {
+          "id": "2",
+          "type": "CreateGems2Colors",
+          "status": "verified",
+          "note": "CreateGems2Colors Red/Purple UseCounterForAmount -> create mix base 0 + modifier.",
+          "evidenceIds": [
+            "native",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB17.test.ts"
+          ]
+        }
+      ],
+      "branchReviews": [
+        {
+          "id": "main",
+          "status": "verified",
+          "note": "Single branch; aliases x sides x (magic, allies), caster-of-type, dead ally, enemy of that type, Barrier, illegal target.",
+          "evidenceIds": [
+            "native",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB17.test.ts"
+          ]
+        }
+      ]
+    },
+    {
+      "key": "weapon:1283",
+      "scope": "stored-gow-snapshot",
+      "sourceDigest": "755a098d053a12c04ae62d56e5abcd18402e027906923c55d323ce53ba88b2b9",
+      "reviewer": "sa-L4b",
+      "reviewedAt": "2026-09-27",
+      "decision": "accept",
+      "ledgerFingerprintAtReview": "142f456ff232aeddaa80e84d53b0616119c1a4e46acbd5bed70468225b58d488",
+      "_reference": {
+        "spellId": 8177,
+        "english": "Deal [Magic + 7] damage to an Enemy boosted by Mystic Allies. Then create a mix of 6 Yellow and Purple Gems for each Mystic Ally. [x6]",
+        "nativeTarget": "Enemy",
+        "randomize": null,
+        "steps": [
+          {
+            "Target": "AllAllies",
+            "Amount": 600,
+            "Type": "CountArmyType",
+            "Data": "mystic"
+          },
+          {
+            "SpellPowerMultiplier": 1,
+            "Target": "FromTarget",
+            "UseCounterForAmount": true,
+            "Amount": 7,
+            "Primarypower": true,
+            "Type": "Damage"
+          },
+          {
+            "UseCounterForAmount": true,
+            "Color1": "Yellow",
+            "Color2": "Purple",
+            "Type": "CreateGems2Colors"
+          }
+        ],
+        "prototype": {
+          "segments": [
+            {
+              "kind": "damage",
+              "target": "enemyChosen",
+              "scaling": {
+                "base": 7,
+                "mult": 1
+              },
+              "modifier": {
+                "mod": {
+                  "kind": "multiplier",
+                  "a": 6
+                },
+                "source": {
+                  "kind": "alliesOfRace",
+                  "race": "Mystic"
+                }
+              }
+            },
+            {
+              "kind": "gem",
+              "params": {
+                "op": "create",
+                "gem": {
+                  "kind": "mix",
+                  "colors": [
+                    "Yellow",
+                    "Purple"
+                  ]
+                },
+                "count": {
+                  "base": 0,
+                  "mult": 0
+                },
+                "modifier": {
+                  "mod": {
+                    "kind": "multiplier",
+                    "a": 6
+                  },
+                  "sources": [
+                    {
+                      "kind": "alliesOfRace",
+                      "race": "Mystic"
+                    }
+                  ]
+                }
+              },
+              "modifier": {
+                "mod": {
+                  "kind": "multiplier",
+                  "a": 6
+                },
+                "sources": [
+                  {
+                    "kind": "alliesOfRace",
+                    "race": "Mystic"
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      },
+      "sourceEvidence": [
+        {
+          "id": "en",
+          "role": "english-snapshot",
+          "path": "artifacts/gowhead-weapons/weapons.json",
+          "note": "Weapon 1283 (GraspingGrimoire) spell id 8177, English text, ManaCost 14, ManaColors Blue+Brown asserted from gowhead weapons.json in tests/unit/gowLaneL4bB17.test.ts."
+        },
+        {
+          "id": "native",
+          "role": "native-snapshot",
+          "path": "data/raw/spells.gow.en.json",
+          "note": "SpellId 8177 Cost/Target and every SpellSteps field (ordered, toEqual) asserted in tests/unit/gowLaneL4bB17.test.ts."
+        },
+        {
+          "id": "rule",
+          "role": "official-shared-rule",
+          "path": "tasks/active/gow-skill-shards/rulings/R003-count-threshold-labels.md",
+          "note": "R003: CountArmyType Amount 600 = x6 per counted ally; Data mystic = troopType Mystic (Mystic; asserted to exist on src troops)."
+        },
+        {
+          "id": "rl01",
+          "role": "user-ruling",
+          "path": "tasks/active/gow-skill-shards/rulings/RL4b-01-two-colour-overwrite.md",
+          "note": "RL4b-01: 2-colour creation selects N distinct cells, each one of the two colours."
+        },
+        {
+          "id": "laneTest",
+          "role": "lane-battle-test",
+          "path": "tests/unit/gowLaneL4bB17.test.ts",
+          "note": "Lane L4b frozen test file: binding + real castSkill cases for weapon:1283."
+        }
+      ],
+      "dimensions": {
+        "identity-cost-colors": {
+          "status": "verified",
+          "note": "weapon 1283 -> spell 8177; gowhead ManaCost 14 = native Cost; colours Blue+Brown; src weapons.json id/referenceName GraspingGrimoire/manaCost/manaColors/spell.id; numeric 8177 and gw_GraspingGrimoire aliases resolve to the same prototype.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "rl01",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB17.test.ts"
+          ]
+        },
+        "target-count-range": {
+          "status": "verified",
+          "note": "FromTarget (spell Target Enemy) -> enemyChosen 11 only; ally id refused before mana is spent.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "rl01",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB17.test.ts"
+          ]
+        },
+        "base-formula-rounding": {
+          "status": "verified",
+          "note": "[Magic+7] + 6 per living Mystic ally (caster counted when of that type; dual-type ally counted): 7 / 29 for magic 0 / 10 with 0 / 2 allies; 23 with caster-of-type only.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "rl01",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB17.test.ts"
+          ]
+        },
+        "boost-source-ratio-cap": {
+          "status": "verified",
+          "note": "multiplier a=6 alliesOfRace Mystic on damage and create (same counter as native step 0); dead ally / enemy of that type not counted; no cap.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "rl01",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB17.test.ts"
+          ]
+        },
+        "conditions-probabilities-branches": {
+          "status": "not-applicable",
+          "note": "No condition; per-gem colour choice is seeded random (RL4b-01).",
+          "evidenceIds": [
+            "en",
+            "native"
+          ],
+          "tests": []
+        },
+        "status-duration-immunity": {
+          "status": "not-applicable",
+          "note": "No status; Barrier on the target absorbs the damage, gems still created.",
+          "evidenceIds": [
+            "en",
+            "native"
+          ],
+          "tests": []
+        },
+        "gems-types-selection-resolution": {
+          "status": "verified",
+          "note": "CreateGems2Colors Yellow/Purple (no Amount): 6n gems on distinct cells, all of the two colours, both present when n > 0; prototype colour order is irrelevant (set equality asserted).",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "rl01",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB17.test.ts"
+          ]
+        },
+        "summon-transform-pools": {
+          "status": "not-applicable",
+          "note": "No summon or troop transform.",
+          "evidenceIds": [
+            "en",
+            "native"
+          ],
+          "tests": []
+        },
+        "order-death-retargeting": {
+          "status": "verified",
+          "note": "Count -> Damage -> Create (native order): skill-damage precedes the gem events.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "rl01",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB17.test.ts"
+          ]
+        },
+        "mana-economy-extra-turn": {
+          "status": "verified",
+          "note": "Caster mana 0 after cast except cascade mana-gain events; no skill extra turn; one action-log entry; turn passes.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "rl01",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB17.test.ts"
+          ]
+        },
+        "display-description": {
+          "status": "verified",
+          "note": "Chinese '对一名敌人造成 [魔法 + 7] 点伤害，伤害值因秘士盟友的数量而增强。每有一名秘士盟友，则创造混合黄色和紫色的 6 颗宝石。 [x6]' matches English (type Mystic, [Magic + 7], mix Yellow/Purple, [x6]).",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "rl01",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB17.test.ts"
+          ]
+        },
+        "battle-pipeline": {
+          "status": "verified",
+          "note": "Real TurnEngine.castSkill via both aliases (8177, gw_GraspingGrimoire) on both sides with magic 0/10; low mana and Silence refuse without spending mana or touching board/statuses/turn.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "rl01",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB17.test.ts"
+          ],
+          "realBattleEntry": true
+        }
+      },
+      "clauseReviews": [
+        {
+          "id": "c1",
+          "text": "Deal [Magic + 7] damage to an Enemy boosted by Mystic Allies.",
+          "status": "verified",
+          "note": "[Magic+7] damage to the chosen enemy +6 per Mystic ally.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "rl01",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB17.test.ts"
+          ]
+        },
+        {
+          "id": "c2",
+          "text": "Then create a mix of 6 Yellow and Purple Gems for each Mystic Ally.",
+          "status": "verified",
+          "note": "Mix of Yellow/Purple gems, 6 per Mystic ally (0 when none), distinct cells, both colours present.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "rl01",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB17.test.ts"
+          ]
+        },
+        {
+          "id": "c3",
+          "text": "[x6]",
+          "status": "verified",
+          "note": "[x6] = +6 damage and 6 gems per ally of that type.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "rl01",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB17.test.ts"
+          ]
+        }
+      ],
+      "nativeStepReviews": [
+        {
+          "id": "0",
+          "type": "CountArmyType",
+          "status": "verified",
+          "note": "CountArmyType AllAllies Data mystic Amount 600 -> alliesOfRace Mystic x6.",
+          "evidenceIds": [
+            "native",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB17.test.ts"
+          ]
+        },
+        {
+          "id": "1",
+          "type": "Damage",
+          "status": "verified",
+          "note": "Damage FromTarget Amount 7 x Magic UseCounterForAmount -> damage enemyChosen {7,1} + modifier.",
+          "evidenceIds": [
+            "native",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB17.test.ts"
+          ]
+        },
+        {
+          "id": "2",
+          "type": "CreateGems2Colors",
+          "status": "verified",
+          "note": "CreateGems2Colors Yellow/Purple UseCounterForAmount -> create mix base 0 + modifier.",
+          "evidenceIds": [
+            "native",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB17.test.ts"
+          ]
+        }
+      ],
+      "branchReviews": [
+        {
+          "id": "main",
+          "status": "verified",
+          "note": "Single branch; aliases x sides x (magic, allies), caster-of-type, dead ally, enemy of that type, Barrier, illegal target.",
+          "evidenceIds": [
+            "native",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB17.test.ts"
+          ]
+        }
+      ]
+    }
+  ]
+}

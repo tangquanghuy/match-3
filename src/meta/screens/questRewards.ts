@@ -1,6 +1,6 @@
 import { getTroopById } from '../../data/troops';
 import { BaseColor } from '../../engine/types';
-import { EXPLORE_DROPS } from '../data/economy';
+import { EXPLORE_DROPS, KINGDOM_FIRST_CLEAR_GEMS } from '../data/economy';
 import {
   exploreTierForNode,
   kingdomBaseLevel,
@@ -9,6 +9,8 @@ import {
   type KingdomStageMode,
 } from '../data/kingdoms';
 import { INGOT_KEYS, INGOT_NAMES, STONE_COLORS, stoneColorKeyOf, stoneName } from '../data/materials';
+import type { KingdomState } from '../state/schema';
+import { kingdomStageCleared } from '../systems/kingdomFirstClear';
 import { ingotArt, materialImg, stoneMarkup } from '../shell/materialArt';
 
 function escapeAttr(value: string): string {
@@ -70,14 +72,17 @@ function stoneTile(color: string): string {
   return tile('stone', key, label, stoneSymbol(color), 'minor');
 }
 
-/** Reward candidates only; no quantities are implied by the number of tiles. */
-export function questRewardsHtml(kingdom: string, mode: KingdomStageMode, node: number): string {
+/** 随机材料展示候选；首通宝石另列确定金额与完成状态。 */
+export function questRewardsHtml(kingdom: string, mode: KingdomStageMode, node: number, entry?: KingdomState): string {
+  const cleared = kingdomStageCleared(entry, mode, node);
+  const amount = KINGDOM_FIRST_CLEAR_GEMS[mode];
+  const gems = `<span class="qfirst-clear ${cleared ? 'claimed' : ''}" data-reward="currency:gems" data-first-clear="${cleared ? 'completed' : 'available'}" title="每个王国、每关独立首通奖励；重复挑战不再发放，可与每日首胜叠加"><span data-icon="crystal"></span><b>${cleared ? '首通已完成' : `首通 +${amount} 宝石`}</b></span>`;
   if (mode === 'normal') {
     return currencyTile('coin') + currencyTile('soul')
       + (node === 4 || node === 8 ? troopTile(kingdom, node) : '')
-      + (node === 8 ? currencyTile('key') : '');
+      + (node === 8 ? currencyTile('key') : '') + gems;
   }
-  return ingotTile(kingdom) + possibleStoneColors(kingdom, mode, node).map(stoneTile).join('');
+  return ingotTile(kingdom) + possibleStoneColors(kingdom, mode, node).map(stoneTile).join('') + gems;
 }
 
 /** Compact tab artwork, reusing the same material silhouettes as reward tiles. */

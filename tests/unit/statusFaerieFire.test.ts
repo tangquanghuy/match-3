@@ -108,14 +108,15 @@ describe('妖火状态：每回合累计 10% 自愈（AUTO_RECOVER 通道）', (
     expect(hasStatus(char, FAERIE_FIRE_STATUS_ID)).toBe(false);
   });
 
-  it('被诅咒时自愈基准减半（5% 起步累计）', () => {
+  it('被诅咒时累积步长减半（R004：10% 起步，每回合 +5%）', () => {
     const char = withFaerieFire();
     char.statuses.push({ id: 'curse', turns: 4 });
     const rng = new SeededRNG(4); // 首掷失败（同上）
     const events = tickStatuses(char, rng);
     expect(events.some((e) => e.type === 'status-expire' && e.statusId === FAERIE_FIRE_STATUS_ID)).toBe(false);
     const ff = char.statuses.find((s) => s.id === FAERIE_FIRE_STATUS_ID)!;
-    expect(ff.recoveryChance).toBe(10); // 5% 基准 + 5% 步长（诅咒下基准与步长均减半）
+    expect(ff.recoveryChance).toBe(15); // R004：10% 起步 + 诅咒下 5% 步长（共用概率，诅咒实例同值）
+    expect(char.statuses.find((s) => s.id === 'curse')!.recoveryChance).toBe(15);
   });
 });
 

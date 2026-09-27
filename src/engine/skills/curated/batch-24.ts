@@ -6,7 +6,7 @@
  * - 本池大量「塔/Boss + 升华·升天·升阶 3-5 倍」条件 → 晋升度条件（batch-20 7790 /
  *   batch-25 9866/9875 同款）；「冰冻/沉没/愤怒/流血/石像鬼/妖精之火/末日骷髅/万能牌/
  *   天使/激怒/战利品/X形宝石」→ 特殊宝石家族（batch-10/16/23 同族）。
- * - 「使用X法力则加倍/三倍」「我的魔法值更高则双倍」「来自 Merlantis 则双倍」→
+ * - 「使用X法力则加倍/三倍」「我的魔力值更高则双倍」「来自 Merlantis 则双倍」→
  *   条件倍率/条件触发，语义拿不准（batch-12 7254 / batch-22 8418/8467/8607 同款）。
  * - 「因被附魔/祝福/精灵射击/激怒的盟友和敌人数量而增强」→ 二次缩放来源不支持
  *   （附魔等非白名单状态 + 敌方侧无计数 kind，batch-04 9664 / batch-22 8656 同款）。
@@ -19,7 +19,7 @@
  * - 9613「杀死一名敌人」本可 execute（batch-20 7723 同款），因「随机法力药水宝石」
  *   无对应宝石原语整体 SKIP（batch-22 8602「红色法力药水」同款）。
  */
-import { skill, dmg, heal, createMix, inflict, transform, transformToSpecial,
+import { chooseSkill, skill, dmg, heal, createMix, inflict, transform, transformToSpecial,
   summonRandom } from '../builders';
 import { BaseColor } from '../../types';
 import type { CuratedBatch } from './index';
@@ -29,14 +29,14 @@ const SKIPPED: { id: number; reason: string }[] = [
   { id: 9587, reason: '特殊宝石（冰冻宝石）' },
   { id: 9589, reason: '二次缩放来源不支持（「因沉没宝石数而增强」：boardGems 仅支持棋盘色宝石，batch-16 8798 同款）；「使敌方队伍混乱」亦为缺失状态' },
   { id: 9593, reason: '语义拿不准（「如果敌人来自 Merlantis」按王国限定条件无对应原语，batch-22 8607「光明森林」同款）' },
-  { id: 9603, reason: '晋升度条件（「根据我的升华效果造成3-5倍伤害」，batch-20 7790 / batch-25 9866 同款）；「引爆2-3颗宝石」数量区间亦无原语' },
+  { id: 9603, reason: '晋升度条件（「基于我已晋升的稀有度造成 3 到 5 倍伤害」，batch-20 7790 / batch-25 9866 同款）；「引爆2-3颗宝石」数量区间亦无原语' },
   { id: 9613, reason: '语义拿不准（「随机法力药水宝石」制作物无法对应宝石原语，batch-22 8602 同款）' },
   { id: 9614, reason: '二次缩放来源不支持（「因精灵射击敌人而增强」：精灵射击为缺失状态，batch-04 9664 附魔同族）；「将 3 个骷髅转换为 2 个万能牌」部分转化亦无原语（万能牌为特殊宝石）' },
-  { id: 9651, reason: '语义拿不准（条件倍率：「如果我的魔法值更高，则造成双倍伤害」属性比较条件不在 condMult 条件域）' },
+  { id: 9651, reason: '语义拿不准（条件倍率：「如果我的魔力值更高，则造成双倍伤害」属性比较条件不在 condMult 条件域）' },
   { id: 9658, reason: '「合成18颗冰冻宝石和末日骷髅头」混合特殊宝石创造无原语（createMix 仅颜色，batch-36 9312 口径）；来源「冰冻宝石和骷髅头数量」本身已可表达（sources boardSpecial freezeGem + boardSkulls，batch-38 复核）' },
   { id: 9660, reason: '比例法力（「如果敌人死亡，则恢复一半法力值」无比例法力原语，batch-14 8292 / batch-23 8857 同款；「因敌人攻击力而增强」来源卡点已经第五遍裁定解决，仅剩比例法力）' },
-  { id: 9665, reason: '晋升度条件（「根据我的升天次数造成3倍到5倍的伤害」，batch-20 7790 同款）；「摧毁一根随机柱子」亦无原语' },
-  { id: 9668, reason: '晋升度条件（「如果敌人是Boss，则根据我的升华值造成3-5倍伤害」，batch-20 7790 / batch-25 9866 同款；「因敌人攻击力而增强」来源卡点已经第五遍裁定解决，仅剩晋升度条件）' },
+  { id: 9665, reason: '晋升度条件（「基于我已晋升的稀有度造成 3 到 5 倍伤害」，batch-20 7790 同款）；「摧毁一根随机柱子」亦无原语' },
+  { id: 9668, reason: '晋升度条件（「如果敌人是Boss，则基于我已晋升的稀有度造成 3 到 5 倍伤害」，batch-20 7790 / batch-25 9866 同款；「因敌人攻击力而增强」来源卡点已经第五遍裁定解决，仅剩晋升度条件）' },
   { id: 9669, reason: '语义拿不准（「对所有使用该法力颜色的敌人」按法力色限定目标无对应原语，batch-22 8477 同款）' },
   { id: 9672, reason: '晋升度条件（塔/升天等级 3-5 倍，batch-20 7790 同款）；「祝福所有盟友」亦为缺失状态' },
   { id: 9676, reason: '晋升度条件（Boss/升华 3-5 倍，batch-20 7790 同款）仍卡；「引爆3个末日骷髅」现可表达（explodeRandomSpecialGems doomSkull）' },
@@ -61,7 +61,7 @@ const SKIPPED: { id: number; reason: string }[] = [
 const SPELLS: CuratedBatch['spells'] = [
   {
     id: 9552,
-    desc: '为一名盟友赋予 [魔法 + 1] 点生命值，由黄色宝石增强。如果他们使用黄色法力，则效果增加三倍。 [2:1]',
+    desc: '为一名盟友赋予 [魔法 + 1] 点生命值，由黄色宝石增强。如果他们使用黄色法力值，则效果增加三倍。 [2:1]',
     build: skill(
       // 回收：condMult 现支持 targetColor 条件倍率（按目标 manaColors 含该色判定）；
       // 「由黄色宝石增强」无「被摧毁/转换」字样 → boardGems 现读棋盘（batch-05 7334 / batch-19 7297 口径）
@@ -73,7 +73,7 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 9568,
-    desc: '对敌人造成 [魔法 + 6] 点伤害，伤害值因骷髅数而增强。如果他们使用紫色法力，则伤害加倍并对其造成流血。 [x4]',
+    desc: '对敌人造成 [魔法 + 6] 点伤害，伤害值因骷髅数而增强。如果他们使用紫色法力值，则伤害加倍并对其造成流血。 [x4]',
     build: skill(
       // 回收：condMult 现支持 targetColor 条件倍率（batch-24 9552 同款）；条件下的施加状态 =
       // inflict + ifCond（目标相对条件按该段自己的目标过滤，SOP「通用条件触发 / 条件加成」节）；
@@ -100,11 +100,11 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 9596,
-    desc: '对一名敌人造成[魔法 + 3]点伤害，伤害值因敌人攻击力而增强。如果敌人使用红色法力，则使其叠加2层流血效果。 [4:1]',
+    desc: '对一名敌人造成[魔法 + 3]点伤害，伤害值因敌人攻击力而增强。如果敌人使用红色法力值，则使其叠加2层流血效果。 [4:1]',
     build: skill(
       // 回收（第五遍）：「因敌人(的)X而增强」来源归属已裁定——前段目标为单体（enemyChosen）
       // → targetStat（受击目标自己的攻击力），不再是 targetStat/enemyStatSum 二选一（batch-13 7436 卡点解除）；
-      // 「使用红色法力则叠加2层流血」= ifCond targetColor + inflict stacks（batch-24 9568 同款，引擎均已支持）
+      // 「使用红色法力值则叠加2层流血」= ifCond targetColor + inflict stacks（batch-24 9568 同款，引擎均已支持）
       dmg('enemyChosen', 3, 1, {
         modifier: { mod: { kind: 'ratio', a: 4, b: 1 }, source: { kind: 'targetStat', stat: 'attack' } },
       }),
@@ -149,14 +149,7 @@ const SPELLS: CuratedBatch['spells'] = [
   {
     id: 9818,
     desc: '对前两个敌人造成[魔法 + 4]点伤害，并将所有绿色宝石转化为末日骷髅。对后两个敌人造成[魔法 + 4]点伤害，并将所有红色宝石转化为末日骷髅。',
-    build: skill(
-      dmg('enemyFirstN', 4, 1, { n: 2 }),
-      // 回收（第六遍）：「末日骷髅」= doomSkull 同物异名（SOP「特殊宝石」词表对照）；
-      // 四个子句按描述顺序各成一段，无「以增强」修饰
-      transformToSpecial(BaseColor.Green, 'doomSkull'),
-      dmg('enemyLastN', 4, 1, { n: 2 }),
-      transformToSpecial(BaseColor.Red, 'doomSkull'),
-    ),
+    build: skill(chooseSkill(["对前两名敌人造成［魔法＋4］伤害，绿色转末日骷髅","对末两名敌人造成［魔法＋4］伤害，红色转末日骷髅"], [dmg('enemyFirstN', 4, 1, { n: 2, range: 'all' }), transformToSpecial(BaseColor.Green, 'doomSkull')], [dmg('enemyLastN', 4, 1, { n: 2, range: 'all' }), transformToSpecial(BaseColor.Red, 'doomSkull')])),
   },
 ];
 

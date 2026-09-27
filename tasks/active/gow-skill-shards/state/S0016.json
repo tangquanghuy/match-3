@@ -1,0 +1,6 @@
+{
+  "state": "needs-repair",
+  "worker": "worker-fast-04",
+  "updatedAt": "2026-09-27T15:32:18.369Z",
+  "note": "静态核验报告已写：troop:6548/7742 enraged 目标漏判；待测试/签收复核"
+}

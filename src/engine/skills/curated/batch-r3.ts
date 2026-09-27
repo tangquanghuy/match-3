@@ -3,7 +3,7 @@
  * 敌方颜色动态取色占位符 'ENEMY'（随机存活敌人的一种法力色）与 'LAST_TARGET'（跨段该敌人））。
  * 核对者：窗口 G，5 条。裁定依据 spell-rules §11 补充。
  */
-import { skill, dmg, heal, reduce, steal, inflictRandom,
+import { skill, dmg, heal, reduce, inflictRandom,
   createGems, transformToSpecial, transformTroop } from '../builders';
 import { BaseColor } from '../../types';
 import type { CuratedBatch } from './index';
@@ -45,9 +45,10 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 9957,
-    desc: '从敌人身上吸取 6 点法力，并将该敌人的一种法力颜色的所有宝石转化为毒宝石。',
+    desc: '从敌人身上吸取 6 点法力值，并将该敌人的一种法力颜色的所有宝石转化为毒宝石。',
     build: skill(
-      steal('enemyChosen', 'mana', 'mana', 6, 0),
+      // L3-007: native DecreaseMana (drain) — no refill to the caster
+      reduce('enemyChosen', 'mana', 6, 0),
       transformToSpecial('LAST_TARGET', 'poisonGem'),
     ),
   },

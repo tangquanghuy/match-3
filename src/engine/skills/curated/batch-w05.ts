@@ -4,7 +4,7 @@
  * 回收原 8 条 mana-only 占位：补齐 buff.double / lastDestroyedLine 后手写组装；
  * 三把 EN-only 武器按英文名与描述译出中文效果。desc 与 weapons.json / pool-w01 逐字锚定。
  */
-import { anyEnemyDied, armor, attack, boostPer, createSpecialGems, destroyLineOfLastGem, dmg, heal, inflict, reposition, skill, CELL, explodeAt } from '../builders';
+import { anyEnemyDied, armor, attack, boostPer, createSpecialGems, destroyLineOfLastGem, dmg, explodeRandomGems, heal, inflict, reposition, skill, CELL, explodeAt } from '../builders';
 import type { CuratedBatch } from './index';
 
 const SKIPPED: { id: number; reason: string }[] = [];
@@ -12,9 +12,9 @@ const SKIPPED: { id: number; reason: string }[] = [];
 const SPELLS: CuratedBatch['spells'] = [
   {
     id: 7071,
-    desc: '对第 1 名敌人造成 [魔法 + 1] 点伤害。',
+    desc: '?????????',
     build: skill(
-      dmg('enemyFront', 1, 1),
+      explodeRandomGems(1, 0),
     ),
   },
   {
@@ -23,6 +23,11 @@ const SPELLS: CuratedBatch['spells'] = [
     build: skill(
       armor('allyChosen', 0, 0, { double: true }),
     ),
+  },
+  {
+    id: 7189,
+    desc: '减除一名敌人全部魔力值。',
+    build: skill({ kind: 'reduce', target: 'enemyChosen', stat: 'magic', scaling: { base: 0, mult: 0 }, drainAll: true }),
   },
   {
     id: 7190,

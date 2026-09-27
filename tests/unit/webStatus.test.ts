@@ -3,7 +3,7 @@
  *
  * 官方规则（见 .kiro/specs/combat-mechanics/GEMS-SEMANTICS.md）：
  *   - 魔力归零：技能数值只剩基础项；基础能力值不受影响；
- *   - 无法获得魔法值增益（技能 buff 与特质触发两条路都要拦）；
+ *   - 无法获得魔力值增益（技能 buff 与特质触发两条路都要拦）；
  *   - 每回合累计 10% 几率自行挣脱；存续回合照常递减；
  *   - 不禁行动：可攻击、可施法、可充能（与缠绕=攻击归零区分）。
  */
@@ -88,16 +88,18 @@ describe('织网 · 施加与行动限制', () => {
 });
 
 describe('织网 · 挣脱判定（累计 10%/回合）', () => {
-  it('判定失败：几率按 10/20/30 累计，回合照常递减，到期自然解除', () => {
+  it('判定失败：几率按 10/20/30 累计（共用 recoveryChance），无回合上限（R004）', () => {
     const c = makeChar(1);
     applyStatus(c, { id: 'web', turns: 3 });
     const fail = stubRng(0.99); // next()*100 = 99，恒大于几率
     tickStatuses(c, fail);
     tickStatuses(c, fail);
     expect(isWebbed(c)).toBe(true);
-    expect(c.statuses[0].magnitude).toBe(WEB_RECOVERY_BASE + WEB_RECOVERY_STEP * 2);
-    tickStatuses(c, fail); // turns 3→0，到期移除
-    expect(isWebbed(c)).toBe(false);
+    expect(c.statuses[0].recoveryChance).toBe(WEB_RECOVERY_BASE + WEB_RECOVERY_STEP * 2);
+    tickStatuses(c, fail); // R004：不再 3 回合到期
+    tickStatuses(c, fail);
+    expect(isWebbed(c)).toBe(true);
+    expect(c.statuses[0].turns).toBe(3);
   });
 
   it('判定成功：立即移除并发 status-expire', () => {
@@ -109,14 +111,15 @@ describe('织网 · 挣脱判定（累计 10%/回合）', () => {
     expect(events).toEqual([{ type: 'status-expire', targetId: 1, statusId: 'web' }]);
   });
 
-  it('未传 rng（纯逻辑调用）不判定不累计，只走正常到期', () => {
+  it('未传 rng（纯逻辑调用）不判定不累计，也不到期（R004）', () => {
     const c = makeChar(1);
     applyStatus(c, { id: 'web', turns: 2 });
     tickStatuses(c);
     expect(isWebbed(c)).toBe(true);
-    expect(c.statuses[0].magnitude).toBeUndefined();
+    expect(c.statuses[0].recoveryChance).toBeUndefined();
     tickStatuses(c);
-    expect(isWebbed(c)).toBe(false);
+    tickStatuses(c);
+    expect(isWebbed(c)).toBe(true);
   });
 });
 
@@ -144,7 +147,7 @@ describe('织网 · 魔力归零（技能数值只剩基础项）', () => {
   });
 });
 
-describe('织网 · 拦截魔法值增益', () => {
+describe('织网 · 拦截魔力值增益', () => {
   it('buffEffect 加魔法：织网目标不增益不发事件；护甲增益不受影响', () => {
     const target = makeChar(0);
     const state = makeState([target], []);

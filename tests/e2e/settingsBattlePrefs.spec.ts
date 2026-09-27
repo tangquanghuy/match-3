@@ -11,7 +11,7 @@ async function freshSettings(page: Page): Promise<void> {
   await expect(page.locator('.settings-preferences-panel')).toBeVisible({ timeout: 15_000 });
 }
 
-test('设置页可全局跳过并恢复技能释放确认', async ({ page }) => {
+test('设置页可全局开启并关闭快速释放', async ({ page }) => {
   await page.goto('/game.html#settings');
   await page.evaluate((key) => localStorage.removeItem(key), KEY);
   await page.reload();
@@ -19,9 +19,10 @@ test('设置页可全局跳过并恢复技能释放确认', async ({ page }) => 
   const toggle = page.locator('#skipCastConfirm');
   await expect(toggle).toBeVisible({ timeout: 15_000 });
   await expect(toggle).not.toBeChecked();
-  await expect(page.locator('label[for="skipCastConfirm"], .check-row').filter({ has: toggle })).toContainText(
-    '满法力角色将直接选色、选目标或施放',
-  );
+  await expect(page.getByRole('checkbox', { name: '快速释放' })).toBeVisible();
+  const row = page.locator('label[for="skipCastConfirm"], .check-row').filter({ has: toggle });
+  await expect(row).toContainText('快速释放');
+  await expect(row).toContainText('点击法力值已满的角色直接释放技能');
 
   await toggle.check();
   await expect.poll(() => page.evaluate((key) => localStorage.getItem(key), KEY)).toBe('1');
@@ -41,7 +42,8 @@ test('玩家音效与减弱动效偏好持久化，并被宝箱音效和翻牌�
     Object.defineProperty(HTMLMediaElement.prototype, 'play', {
       configurable: true,
       value(this: HTMLMediaElement) {
-        playedVolumes.push(this.volume);
+        // The music channel is independent; this assertion observes chest SFX only.
+        if (!this.src.includes('/assets/audio/bgm/')) playedVolumes.push(this.volume);
         return Promise.resolve();
       },
     });
@@ -100,7 +102,7 @@ test('玩家音效与减弱动效偏好持久化，并被宝箱音效和翻牌�
   await page.locator('[data-open="gold-1"]').click();
   await expect.poll(() => page.evaluate(() =>
     (window as unknown as { __playedVolumes: number[] }).__playedVolumes.at(-1),
-  )).toBe(0.35);
+  )).toBeCloseTo(0.8 * 0.35);
 });
 
 for (const viewport of [
@@ -130,7 +132,11 @@ for (const viewport of [
     expect(geometry.preferencesTop).toBeGreaterThanOrEqual(0);
     expect(geometry.preferencesBottom).toBeLessThanOrEqual(geometry.screenBottom + 1);
     expect(geometry.panelScrollers).toBe(0);
-    if (viewport.width === 1600) expect(geometry.screenScrollable).toBe(false);
+    // Four independent audio channels may extend the page; keep one page scroller,
+    // and ensure lower save-management actions remain reachable.
+    await page.locator('#resetNew').scrollIntoViewIfNeeded();
+    await expect(page.locator('#resetNew')).toBeInViewport();
+    await page.locator('.settings-screen').evaluate(el => { el.scrollTop = 0; });
     await page.screenshot({ path: `${ARTIFACT_DIR}/settings-${viewport.label}.png`, fullPage: false });
   });
 }

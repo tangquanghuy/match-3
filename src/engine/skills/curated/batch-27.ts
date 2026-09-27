@@ -16,19 +16,19 @@
  *   「敌我双方兽人数/任意状态敌人数/其所有技能值」（二次缩放来源不支持）→ 各按既有批次口径
  *   SKIP（见下，均注先例）。
  */
-import { skill, dmg, heal, armor, magic, mana, reduce, trueDmg, createGems, createSkulls, destroyChosenRow, destroyRandomGems, explodeRandomGems, inflict, extraTurn, summonRef, CELL, explodeAt } from '../builders';
+import { chooseSkill, skill, dmg, heal, armor, magic, mana, reduce, trueDmg, createGems, createSkulls, destroyChosenRow, destroyRandomGems, explodeRandomGems, inflict, extraTurn, summonRef, CELL, explodeAt } from '../builders';
 import { BaseColor } from '../../types';
 import type { CuratedBatch } from './index';
 
 const SKIPPED: { id: number; reason: string }[] = [
   { id: 8228, reason: '二次缩放来源不支持（「伤害值因其所有技能值而增强」——目标全属性计数无对应 kind，targetStat 仅支持单一属性）' },
-  { id: 8238, reason: '语义拿不准（「对一名敌人和一名随机敌人」共用一段缩放的复合目标，batch-23 9220 同款；「若敌人使用红色法力，则造成双倍伤害」条件倍率现可表达但整条仍卡）' },
+  { id: 8238, reason: '语义拿不准（「对一名敌人和一名随机敌人」共用一段缩放的复合目标，batch-23 9220 同款；「若敌人使用红色法力值，则造成双倍伤害」条件倍率现可表达但整条仍卡）' },
   { id: 8272, reason: '二次缩放来源不支持（「数量因敌我双方的兽人军队数量而增强」——敌方侧种族计数无对应 kind，batch-23 8915 / batch-13 7546 同款）' },
   { id: 8282, reason: '句子式不明（「造成…真实散射伤害」未指明目标，batch-02 7265 同款）；「半数法力值」比例法力不做（batch-23 9179 同款）、「几率因棕色宝石数而增强」现可用 chanceBoost 表达但整条仍卡' },
   { id: 8291, reason: '隐匿/位置操作（「将一名敌人击回末位」，batch-01 7439/7534 同款）' },
   { id: 8408, reason: '语义拿不准（「召唤 1-3 名」数量区间无原语，batch-25 7501 同款）' },
   { id: 8489, reason: '语义拿不准（「爆破敌人的法力颜色之一的所有宝石」按敌方动态法力色选色无对应原语，动态颜色族暂不支持）' },
-  { id: 8498, reason: '比例法力（「充满他们的法力」按法力条回满无对应原语，batch-14 8292 同族）；「此咒语只能使用一次」使用次数限制亦无原语' },
+  { id: 8498, reason: '比例法力（「充满他们的法力值」按法力条回满无对应原语，batch-14 8292 同族）；「此咒语只能使用一次」使用次数限制亦无原语' },
   { id: 8499, reason: '语义拿不准（「消除…随机技能值」无对应削减原语，随机属性只支持获得，batch-01 7319 同款）；「摧毁8种宝石的法力颜色之一」「可在任何敌人身上重复使用两次」亦无法表达' },
   { id: 8500, reason: '语义拿不准（「消除敌人的…随机技能」无对应削减原语，batch-01 7319 同款）；「由紫色宝石增强」未指明来源口径亦不明' },
   { id: 8523, reason: '句子式不明（「给予…第一名同盟所以技能」「每个蓝色宝石都有7％的额外几率旋转」机翻残缺无法解析）' },
@@ -69,12 +69,7 @@ const SPELLS: CuratedBatch['spells'] = [
   {
     id: 8300,
     desc: '&& 创造 9 颗绿色宝石 && 摧毁 9 颗绿色宝石',
-    build: skill(
-      // 「&&」分隔子句（spell-rules.md §0.1，batch-23 8855/8867 同款）
-      createGems(BaseColor.Green, 9, 0),
-      // 「摧毁 9 颗绿色宝石」= 限定绿色随机清除 9 颗（batch-07 destroyRandomGems(5,0,'color',…) 同款）
-      destroyRandomGems(9, 0, 'color', BaseColor.Green),
-    ),
+    build: skill(chooseSkill(['创造9颗绿色宝石', '摧毁9颗绿色宝石'], [createGems(BaseColor.Green, 9, 0)], [destroyRandomGems(9, 0, 'color', BaseColor.Green)])),
   },
   {
     id: 8301,
@@ -151,7 +146,7 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 8688,
-    desc: '摧毁一行。给予所有盟友 [魔法 + 1] 点护甲值，数值因被摧毁的黄色宝石而增强。若有一名秘士盟友，则给予其 3 点魔法值。 [x3]',
+    desc: '摧毁一行。给予所有盟友 [魔法 + 1] 点护甲值，数值因被摧毁的黄色宝石而增强。若有一名秘士盟友，则给予其 3 点魔力值。 [x3]',
     build: skill(
       // 「摧毁一行」照 batch-01 7016 / batch-03 先例 → 选定行；护甲段同 batch-11 7056 结构
       destroyChosenRow(),
@@ -166,9 +161,9 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 8759,
-    desc: '给予一名盟友 1 点魔法值。板面上每有一颗红色宝石，则有 7% 的几率获得一个额外回合。 [x7]',
+    desc: '给予一名盟友 1 点魔力值。板面上每有一颗红色宝石，则有 7% 的几率获得一个额外回合。 [x7]',
     build: skill(
-      // 「魔法值」= magic 属性（SOP 措辞裁定）；缩放为空 → 常数（mult=0）
+      // 「魔力值」= magic 属性（SOP 措辞裁定）；缩放为空 → 常数（mult=0）
       magic('allyChosen', 1, 0),
       // 回收：chanceBoost 现支持「每颗X宝石 7% 几率」（SOP 示例句式；boardGems Red）
       extraTurn({ chanceBoost: { mod: { kind: 'multiplier', a: 7 }, source: { kind: 'boardGems', color: BaseColor.Red } } }),

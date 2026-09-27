@@ -37,7 +37,7 @@ import giantGemGreenUrl from '../assets/gems/special/giantGemGreen.png';
 import giantGemPurpleUrl from '../assets/gems/special/giantGemPurple.png';
 import giantGemRedUrl from '../assets/gems/special/giantGemRed.png';
 import giantGemYellowUrl from '../assets/gems/special/giantGemYellow.png';
-// 灵力宝石：官方颜色集合存疑缺省紫，无 spec.color 实例回退 spiritGem.png（紫版同图）
+// 灵力宝石：颜色必须由生产端指定；无色贴图仅供旧数据兼容渲染，不代表造石缺省色
 import spiritGemUrl from '../assets/gems/special/spiritGem.png';
 import spiritGemBlueUrl from '../assets/gems/special/spiritGemBlue.png';
 import spiritGemBrownUrl from '../assets/gems/special/spiritGemBrown.png';
@@ -134,7 +134,7 @@ const SPECIAL_URL: Partial<Record<SpecialGemKind, string>> = {
   stunGem: stunGemUrl,
   barrierGem: barrierGemUrl,
   // 波B 单色/星族/无色族真贴图
-  spiritGem: spiritGemUrl, // 无 spec.color 缺省（官方缺省紫）
+  spiritGem: spiritGemUrl, // 旧数据无归属色时的兼容贴图，非宝石创建默认色
   elementalStar: elementalStarUrl,
   umbralStar: umbralStarUrl,
   angelGem: angelGemUrl,
@@ -150,7 +150,7 @@ const SPECIAL_URL: Partial<Record<SpecialGemKind, string>> = {
 
 /**
  * 波B 六色族分色贴图（dragonGem/giantGem/spiritGem/manaPotionGem/candyGem），
- * 键 `${kind}:${color}`（见 specialKey）；spiritGem 另有无 color 缺省项（上表）。
+ * 键 `${kind}:${color}`（见 specialKey）；spiritGem 另有供旧数据展示的无 color 兼容项（上表）。
  */
 const SIX_COLOR_URL: Record<
   'dragonGem' | 'giantGem' | 'spiritGem' | 'manaPotionGem' | 'candyGem',

@@ -8,7 +8,7 @@
  *
  * 消费点：TurnEngine.applySkullDevourTriggers（骷髅主结算 skull-damage 事件之后）与
  * processDeathTriggers（敌亡结算）。复用 devourEffect 原语：即杀走 damageOne 管线、
- * 吞噬者 +2 攻/甲/魔 +5 生命、devourImmunity 在原语口整体跳过（不杀不成长不耗 rng）。
+ * 吞噬者获得目标当前攻击、护甲、生命而不获取魔法、devourImmunity 在原语口整体跳过（不杀不成长不耗 rng）。
  *
  * 护栏：无新键特质零事件（事件类型序列与基线逐字节一致）、同种子确定性；
  * 概率 <1 经种子化 rng 判定（种子扫描覆盖命中与落空两种情形）。
@@ -92,15 +92,15 @@ describe('voracious 贪食：骷髅命中吞噬受击目标（TurnEngine.applySk
     let sawMiss = false;
     for (let seed = 1; seed <= 120 && (!sawDevour || !sawMiss); seed++) {
       const { engine, state } = skullMatchBattle(
-        // 攻击者预扣生命（30/50）：吞噬的 +5 生命成长走治疗口径，预扣后才可见
+        // 攻击者预扣生命（30/50）：吞噬按目标当前生命增加上限和当前生命
         [makeChar(0, { attack: 10, hp: 30, traitIds: ['voracious'] })],
         [makeChar(4, { hp: 50 })],
         seed,
       );
       const events = engine.resolveSwap({ row: 7, col: 1 }, { row: 6, col: 1 });
       const attacker = state.teams[PlayerSide.Left].characters[0];
-      // 吞噬命中以攻击者成长（攻 10→12）为信号——不受链式骷髅伤害干扰
-      const devoured = attacker.attack === 12;
+      // 以本次伤害事件的吞噬标记识别命中
+      const devoured = events.some((e) => e.type === 'skill-damage' && e.targetId === 4 && e.devoured === true);
       if (devoured && !sawDevour) {
         sawDevour = true;
         // 即杀走 damageOne 管线：skill-damage 事件（伤害=当时有效耐久 50-10=40）+ 目标归零
@@ -110,12 +110,12 @@ describe('voracious 贪食：骷髅命中吞噬受击目标（TurnEngine.applySk
         );
         expect(kill).toBeDefined();
         expect(events.some((e) => e.type === 'defeat' && (e as { characterId: number }).characterId === 4)).toBe(true);
-        // 成长：+2 攻/甲/魔、+5 生命（治疗口径：30→35，maxHp 不变）
-        expect(attacker.attack).toBe(12);
-        expect(attacker.armor).toBe(2);
-        expect(attacker.magic).toBe(10);
-        expect(attacker.hp).toBe(35);
-        expect(attacker.maxHp).toBe(50);
+        // 成长：获取目标当前攻击、护甲、生命，不获取魔法
+        expect(attacker.attack).toBe(20);
+        expect(attacker.armor).toBe(0);
+        expect(attacker.magic).toBe(8);
+        expect(attacker.hp).toBeGreaterThan(30);
+        expect(attacker.maxHp).toBeGreaterThan(50);
       }
       if (!devoured && !sawMiss) {
         sawMiss = true;
@@ -137,8 +137,8 @@ describe('voracious 贪食：骷髅命中吞噬受击目标（TurnEngine.applySk
         [makeChar(4, { hp: 50 })],
         seed,
       );
-      probe.engine.resolveSwap({ row: 7, col: 1 }, { row: 6, col: 1 });
-      if (probe.state.teams[PlayerSide.Left].characters[0].attack === 12) {
+      const probeEvents = probe.engine.resolveSwap({ row: 7, col: 1 }, { row: 6, col: 1 });
+      if (probeEvents.some((e) => e.type === 'skill-damage' && e.targetId === 4 && e.devoured === true)) {
         // 同种子换成免疫目标：骷髅伤害照常结算（链式可能追加，不断言精确血量），
         // 吞噬被原语口整体拦截——目标存活、无成长、无 defeat 事件
         const { engine, state } = skullMatchBattle(
@@ -171,17 +171,17 @@ describe('consumefuel 消耗燃料：受击吞噬攻击者（onSkullDamagedDevou
       );
       const events = engine.resolveSwap({ row: 7, col: 1 }, { row: 6, col: 1 });
       const holder = state.teams[PlayerSide.Right].characters[0];
-      // 吞噬命中以持有者成长（攻 10→12）为信号——不受链式骷髅伤害干扰
-      const devoured = holder.attack === 12;
+      // 以本次伤害事件的吞噬标记识别命中
+      const devoured = events.some((e) => e.type === 'skill-damage' && e.targetId === 0 && e.devoured === true);
       if (devoured && !sawDevour) {
         sawDevour = true;
         // 攻击者被吞（即杀=有效耐久 10）
         expect(events.some((e) => e.type === 'defeat' && (e as { characterId: number }).characterId === 0)).toBe(true);
-        // 持有者成长 +2/+2/+2/+5（生命走治疗口径，maxHp 不变；受击后必有余量可回）
-        expect(holder.attack).toBe(12);
-        expect(holder.armor).toBe(2);
-        expect(holder.magic).toBe(10);
-        expect(holder.maxHp).toBe(100);
+        // 持有者获得目标当前攻击、护甲、生命，不获取魔法
+        expect(holder.attack).toBe(20);
+        expect(holder.armor).toBe(0);
+        expect(holder.magic).toBe(8);
+        expect(holder.maxHp).toBe(150);
         expect(state.teams[PlayerSide.Left].characters.length).toBe(0);
       }
       if (!devoured && !sawMiss) {
@@ -199,8 +199,8 @@ describe('consumefuel 消耗燃料：受击吞噬攻击者（onSkullDamagedDevou
 
 describe('bloodyfeast 血腥盛宴：敌亡吞噬随机存活（processDeathTriggers）', () => {
   /** 左方=击杀者+血腥盛宴持有者，右方=低血受害者+一名队友；受害者被骷髅击杀后触发。
-   *  吞噬命中以持有者成长（攻 5→7）为信号——不受链式骷髅伤害干扰。持有者预扣生命
-   *  （30/50），吞噬 +5 生命走治疗口径（左方不受击，30→35 确定性可见）。 */
+   *  以本次伤害事件的吞噬标记识别命中。持有者预扣生命
+   *  （30/50），吞噬目标当前生命增加自身最大生命与当前生命。 */
   const feast = (seed: number, mateOver: Partial<Character> = {}) => {
     const victim = makeChar(4, { hp: 5 });
     const mate = makeChar(5, { hp: 60, ...mateOver });
@@ -212,7 +212,7 @@ describe('bloodyfeast 血腥盛宴：敌亡吞噬随机存活（processDeathTrig
     const events = engine.resolveSwap({ row: 7, col: 1 }, { row: 6, col: 1 });
     const right = state.teams[PlayerSide.Right].characters;
     const holder = state.teams[PlayerSide.Left].characters[1];
-    return { events, state, right, holder, devoured: holder.attack === 7 };
+    return { events, state, right, holder, devoured: events.some((e) => e.type === 'skill-damage' && e.targetId === 5 && e.devoured === true) };
   };
 
   it('敌亡吞噬：受害者阵亡后按概率吞掉随机存活（持有者获官方成长）；落空种子无成长', () => {
@@ -225,8 +225,8 @@ describe('bloodyfeast 血腥盛宴：敌亡吞噬随机存活（processDeathTrig
       if (devoured && !sawDevour) {
         sawDevour = true;
         expect(right.length).toBe(0); // 唯一候选（队友）被吞
-        expect(holder.attack).toBe(7);
-        expect(holder.hp).toBe(35);
+        expect(holder.attack).toBe(15);
+        expect(holder.hp).toBe(90);
       }
       if (!devoured && !sawMiss) {
         sawMiss = true;

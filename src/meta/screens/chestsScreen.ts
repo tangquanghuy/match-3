@@ -1,8 +1,9 @@
+import type { GachaCard } from '../systems/gacha';
 /**
- * 宝箱 / 抽卡屏（计划 §5.7）。开箱结果来自 gacha 系统（种子化 + 十连保底 Epic+），
+ * 宝箱 / 抽卡屏（计划 §5.7）。开箱结果来自 gacha 系统（种子化 + 十连保底稀有或以上），
  * 翻牌演出/音效沿用小样资产；概率公示从 economy 权重表派生（数值单源）。
  */
-import { GEM_CHEST, GLORY_CHEST, GOLD_CHEST, GEM_CHEST_WEIGHTS, GOLD_CHEST_WEIGHTS } from '../data/economy';
+import { GACHA_PITY_MIN_IDX, GEM_CHEST, GLORY_CHEST, GOLD_CHEST, GEM_CHEST_WEIGHTS, GOLD_CHEST_WEIGHTS } from '../data/economy';
 import { stoneName } from '../data/materials';
 import { rarityClassByIndex, rarityNameByIndex } from '../data/rarity';
 import { getTroopById, type TroopData } from '../../data/troops';
@@ -105,11 +106,12 @@ interface RewardVm {
   fxClass: FxClass;
   rarity: string;
   duplicate: boolean;
+  wishLabel?: string;
 }
 
 function oddsRows(weights: readonly number[]): string {
   return weights
-    .map((weight, index) => `<div class="odds-row"><span class="odds-swatch ${rarityClassByIndex(index)}"></span><b>${rarityNameByIndex(index)}</b><span>${(weight / 100).toFixed(1)}%</span></div>`)
+    .map((weight, index) => `<div class="odds-row"><span class="odds-swatch ${rarityClassByIndex(index)}"></span><b>${rarityNameByIndex(index)}</b><span>${(weight / weights.reduce((sum, w) => sum + w, 0) * 100).toFixed(1)}%</span></div>`)
     .join('');
 }
 
@@ -165,14 +167,14 @@ export class ChestsScreen implements Screen {
       : `
             <div class="chest-col gem-pool chest-col-wide">
               <div class="pool-head">
-                <div class="chest-name">宝石宝箱</div>
+                <div class="chest-name">宝石宝箱 <button id="openWishlist" type="button">愿望单 <span id="wishlistSummary"></span></button></div>
                 <span class="pool-balance gem-balance"><span data-icon="crystal"></span>持有 <b id="dockGemBalance">0</b></span>
               </div>
               <div class="chest-btns">
                 <button class="chest-btn gem" data-open="gem-1" type="button"><span class="btn-label">召唤一次</span><small><span data-icon="crystal"></span><b class="btn-cost">${fmt(GEM_CHEST.singleCost)}</b></small></button>
                 <button class="chest-btn gem featured" data-open="gem-10" type="button"><span class="btn-label">召唤十次</span><small><span data-icon="crystal"></span><b class="btn-cost">${fmt(GEM_CHEST.multiCost)}</b></small></button>
               </div>
-              <div class="chest-note"><span>高阶部队概率提升</span><b>十连必得史诗以上</b></div>
+              <div class="chest-note"><span>高阶部队概率提升</span><b>十连至少一张${rarityNameByIndex(GACHA_PITY_MIN_IDX)}或以上</b></div>
             </div>`;
     return `
       ${topbarHtml()}
@@ -181,7 +183,6 @@ export class ChestsScreen implements Screen {
           <nav class="chest-tabs" aria-label="宝箱类型">
             <a class="chest-tab${keysPage ? ' active' : ''}" href="#chests/keys"><b>金钥匙与荣耀</b><span>部队卡、特质石与金钥匙</span></a>
             <a class="chest-tab${!keysPage ? ' active' : ''}" href="#chests/gems"><b>宝石宝箱</b><span>高阶部队 · 十连保底</span></a>
-            <a class="chest-tab" href="#shop/gems"><b>宝石商店</b><span>直购武器</span></a>
           </nav>
           <div class="chest-stage">
             <img class="chest-art" src="${heroArt}" alt="${pageLabel}主视觉">
@@ -195,7 +196,7 @@ export class ChestsScreen implements Screen {
           <div class="chest-dock ${keysPage ? 'dual-dock' : 'single-dock'}">${dock}</div>
         </section>
       </div>
-      ${bottomNavHtml('宝箱', '概率与权重表同源')}
+      ${bottomNavHtml('宝箱', '')}
       ${toastHtml()}
 
       <div class="modal-veil" id="partialVeil" hidden>
@@ -257,7 +258,7 @@ export class ChestsScreen implements Screen {
         <section class="odds-sheet" role="dialog" aria-modal="true">
           <header><div><h2 id="oddsTitle">${this.page === 'keys' ? '金钥匙与荣耀' : '宝石'}奖池</h2></div><button type="button" class="odds-close" data-odds-close aria-label="关闭概率">×</button></header>
           <div class="odds-content">
-            ${this.page === 'keys' ? `<section class="odds-pool"><h3>金钥匙宝箱</h3>${oddsRows(GOLD_CHEST_WEIGHTS)}<p>每把金钥匙开启一次；重复部队进入同名副本。</p></section><section class="odds-pool glory-odds"><h3>荣耀宝箱</h3><div class="glory-rate"><b>25%</b><span>部队卡</span><b>10%</b><span>金钥匙</span><b>65%</b><span>特质石 / 圣辉石</span></div><p>荣耀箱以材料为主，${GLORY_CHEST.cost} 荣耀开启一次。</p></section>` : `<section class="odds-pool"><h3>宝石宝箱</h3>${oddsRows(GEM_CHEST_WEIGHTS)}<p>十连最后一张保底史诗或神话部队。</p></section>`}
+            ${this.page === 'keys' ? `<section class="odds-pool"><h3>金钥匙宝箱</h3>${oddsRows(GOLD_CHEST_WEIGHTS)}<p>每把金钥匙开启一次；重复部队进入同名副本。</p></section><section class="odds-pool glory-odds"><h3>荣耀宝箱</h3><div class="glory-rate"><b>25%</b><span>部队卡</span><b>10%</b><span>金钥匙</span><b>65%</b><span>特质石 / 圣辉石</span></div><p>荣耀箱以材料为主，${GLORY_CHEST.cost} 荣耀开启一次。</p></section>` : `<section class="odds-pool"><h3>宝石宝箱</h3>${oddsRows(GEM_CHEST_WEIGHTS)}<p>十连至少获得一张${rarityNameByIndex(GACHA_PITY_MIN_IDX)}或以上部队；仅在整批未达标时提升最后一张，不降低自然抽出的高档结果。</p><p>以上为基础品质概率。愿望单只调整档内角色概率；神话追寻会替换触发抽，其额外产出未计入基础概率。<a href="#wishlist">查看愿望单、实时名单概率与追寻进度</a></p></section>`}
           </div>
           <footer>概率按当前权重表展示；同一批结果会完整写入最近获得记录。</footer>
         </section>
@@ -277,6 +278,7 @@ export class ChestsScreen implements Screen {
     this.ctx = ctx;
     _root.classList.add('chests-responsive');
     this.page = chestPageOf(param);
+    this.bind('#openWishlist', 'click', () => this.ctx.navigate('#wishlist'));
     this.loadRecent();
     this.paintDrops();
     this.refreshBalances();
@@ -315,7 +317,7 @@ export class ChestsScreen implements Screen {
     const save = this.ctx.save();
     this.recent = save.gachaLog
       .filter((entry) => kinds.includes(entry.kind))
-      .flatMap((entry) => entry.troops.map((troopId) => {
+      .flatMap((entry) => entry.troops.map((troopId, index) => {
         const troop = getTroopById(troopId) ?? null;
         const record = save.collection[String(troopId)];
         const rarityIdx = troop?.rarityIdx ?? 0;
@@ -328,6 +330,7 @@ export class ChestsScreen implements Screen {
           fxClass: fxClassOf(rarityIdx),
           rarity: rarityNameByIndex(rarityIdx),
           duplicate: (record?.copies ?? 0) > 0,
+          wishLabel: entry.audit?.reasons[index] === 'pursuit' ? ' · 追寻保底' : entry.audit?.wishlistIds.includes(troopId) ? ' · 愿望命中' : '',
         };
       }))
       .slice(0, RECENT_CAP);
@@ -339,7 +342,7 @@ export class ChestsScreen implements Screen {
     dropsEl.innerHTML = this.recent
       .map(
         (d) =>
-          `<button class="drop ${rarityClassByIndex(d.rarityIdx)}" type="button" title="${d.rarity} · ${d.name}${d.duplicate ? ' · 重复' : ''}"><img src="${d.art}" alt="${d.name}" loading="lazy" onerror="this.onerror=null;this.src='${d.fb}'"><span><b>${d.name}</b><small>${d.rarity}${d.duplicate ? ' · 重复' : ''}</small></span></button>`,
+          `<button class="drop ${rarityClassByIndex(d.rarityIdx)}" type="button" title="${d.rarity} · ${d.name}${d.duplicate ? ' · 重复' : ''}"><img src="${d.art}" alt="${d.name}" loading="lazy" onerror="this.onerror=null;this.src='${d.fb}'"><span><b>${d.name}</b><small>${d.rarity}${d.duplicate ? ' · 重复' : ''}${d.wishLabel ?? ''}</small></span></button>`,
       )
       .join('');
     dropsEl.hidden = this.recent.length === 0;
@@ -348,8 +351,11 @@ export class ChestsScreen implements Screen {
 
   /** 池货币余额 */
   private balanceOf(pool: ChestPool): number {
+    const wish = this.ctx.save().gachaWishlist;
+    const summary = $('#wishlistSummary');
+    if (summary) summary.textContent = wish.troopIds.length ? `· 已选 ${wish.troopIds.length}` : '';
     const c = this.ctx.save().currencies;
-    return pool === 'gold' ? c.goldKeys : pool === 'glory' ? c.glory : c.gems;
+    return pool === 'gold' ? c.goldKeys : pool === 'glory' ? c.glory + c.gloryKeys * GLORY_CHEST.cost : c.gems;
   }
 
   private refreshBalances(): void {
@@ -360,7 +366,7 @@ export class ChestsScreen implements Screen {
     };
     set('dockKeyBalance', String(c.goldKeys));
     set('dockGemBalance', fmt(c.gems));
-    set('dockGloryBalance', fmt(c.glory));
+    set('dockGloryBalance', `${fmt(c.glory)} · 钥匙 ${c.gloryKeys}`);
     $$('[data-open]').forEach((btn) => this.paintOpenButton(btn as HTMLButtonElement));
     // 顶栏钱包同步（外壳 bindChrome 之后 mutation 需要手动刷新）
     set('keyBalance', String(c.goldKeys));
@@ -383,6 +389,19 @@ export class ChestsScreen implements Screen {
     if (!spec) return;
     const cn = POOL_CN[spec.pool];
     const balance = this.balanceOf(spec.pool);
+    if (spec.pool === 'glory') {
+      const c = this.ctx.save().currencies;
+      const keys = Math.min(c.gloryKeys, spec.count);
+      const glory = (spec.count - keys) * GLORY_CHEST.cost;
+      const label = btn.querySelector('.btn-label');
+      const cost = btn.querySelector('.btn-cost');
+      if (label) label.textContent = spec.label;
+      if (cost) cost.textContent = keys ? `${keys} 钥匙${glory ? ` + ${glory} 荣耀` : ''}` : `${glory} 荣耀`;
+      btn.disabled = c.glory < glory;
+      btn.title = `优先消耗荣耀钥匙，再消耗荣耀`;
+      return;
+    }
+
     const labelEl = btn.querySelector('.btn-label');
     const costEl = btn.querySelector('.btn-cost');
     const paint = (label: string, cost: number, title: string): void => {
@@ -464,7 +483,7 @@ export class ChestsScreen implements Screen {
    */
   private async drawRewards(pool: ChestPool, count: number): Promise<DrawOutcome | null> {
     const gateway = this.ctx.gateway;
-    let cards: Array<{ troopId: number; rarityIdx: number; duplicate: boolean }> = [];
+    let cards: GachaCard[] = [];
     if (pool === 'gem' || pool === 'gold') {
       const { result } = await gateway.openChest(pool, count);
       if (isFailure(result)) {
@@ -502,6 +521,7 @@ export class ChestsScreen implements Screen {
           fxClass: fxClassOf(rarityIdx),
           rarity: rarityNameByIndex(rarityIdx),
           duplicate: c.duplicate,
+          wishLabel: c.pursuitGuaranteed ? ' · 追寻保底' : c.wishlistHit ? ' · 愿望命中' : '',
         };
       });
       return { rewards, summary };
@@ -518,6 +538,7 @@ export class ChestsScreen implements Screen {
         fxClass: fxClassOf(rarityIdx),
         rarity: rarityNameByIndex(rarityIdx),
         duplicate: c.duplicate,
+          wishLabel: c.pursuitGuaranteed ? ' · 追寻保底' : c.wishlistHit ? ' · 愿望命中' : '',
       };
     }) };
   }
@@ -609,7 +630,7 @@ export class ChestsScreen implements Screen {
             <div class="card-back" aria-hidden="true"></div>
             <div class="card-face">
               <img src="${d.art}" alt="${d.name}" loading="lazy" onerror="this.onerror=null;this.src='${d.fb}'">
-              <div class="card-label"><small>${d.rarity}${d.duplicate ? ' · 重复' : ''}</small><b>${d.name}</b></div>
+              <div class="card-label"><small>${d.rarity}${d.duplicate ? ' · 重复' : ''}${d.wishLabel ?? ''}</small><b>${d.name}</b></div>
             </div>
           </div>
         </article>`;
@@ -926,17 +947,18 @@ export class ChestsScreen implements Screen {
         legend: new Audio('/meta/assets/sfx/reveal-legend.wav'),
       };
     }
-    const volume = getPlayerPreferences().soundEffectsVolume;
+    const p = getPlayerPreferences();
+    const volume = p.masterEnabled && p.soundEffectsEnabled ? p.masterVolume * p.soundEffectsVolume : 0;
     Object.values(this.sfx).forEach((audio) => { audio.volume = volume; });
     return this.sfx;
   }
 
   private async playSfx(name: 'start' | 'rare' | 'legend', once = false): Promise<void> {
     const preferences = getPlayerPreferences();
-    if (!preferences.soundEffectsEnabled || preferences.soundEffectsVolume <= 0) return;
+    if (!preferences.masterEnabled || preferences.masterVolume <= 0 || !preferences.soundEffectsEnabled || preferences.soundEffectsVolume <= 0) return;
     const sfx = this.ensureSfx()[name];
     if (!sfx) return;
-    sfx.volume = preferences.soundEffectsVolume;
+    sfx.volume = preferences.masterVolume * preferences.soundEffectsVolume;
     if (once && !sfx.paused) return;
     try {
       sfx.currentTime = 0;

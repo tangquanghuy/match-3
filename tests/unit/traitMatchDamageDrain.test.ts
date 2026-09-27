@@ -27,6 +27,7 @@ import {
   attachPassives,
   applyColorMatchTriggers,
   applyBigMatchTriggers,
+  registerDynamicTraits,
 } from '@engine/traits';
 import { TurnEngine } from '@engine/TurnEngine';
 import { BoardModel } from '@engine/BoardModel';
@@ -39,6 +40,7 @@ import { PlayerSide, BaseColor } from '@engine/types';
 import type { Character, Team } from '@engine/types';
 import type { GameEvent } from '@engine/events';
 import { colorGem } from '@engine/types';
+import { TALENT_DYNAMIC_DEFS } from '../../src/meta/data/talentDefs';
 
 function makeChar(id: number, over: Partial<Character> = {}): Character {
   return {
@@ -360,17 +362,57 @@ function buildWithNMatch(
 }
 
 describe('TurnEngine 集成：真实对局中的三机制', () => {
-  it('红匹配 → corruption 窃取首位敌人 3 点生命，持有者等量治疗（skill-damage + buff 事件）', () => {
+  it('corruption steals actual Life through Armor and grows current + maximum Life', () => {
     const hero = makeChar(0, { traitIds: ['corruption'], hp: 40, maxHp: 50 });
     attachPassives(hero);
-    const foes = [makeChar(4), makeChar(5)];
+    const foes = [makeChar(4, { armor: 20 }), makeChar(5)];
     const { engine } = buildWithNMatch(4, BaseColor.Red, [hero, makeChar(1)], foes);
     const events = engine.resolveSwap({ row: 7, col: 2 }, { row: 6, col: 2 });
-    const dmg = events.find((e) => e.type === 'skill-damage' && e.casterId === 0 && e.damage === 3);
-    expect(dmg).toBeDefined();
-    expect(foes[0].hp).toBe(47);
-    expect(events).toContainEqual({ type: 'buff', source: 'trait', targetId: 0, stat: 'hp', amount: 3 });
-    expect(hero.hp).toBe(43);
+    expect(events).toContainEqual({ type: 'buff', source: 'trait', targetId: 0,
+      stat: 'hp', amount: 3, maxHpGain: 3 });
+    expect([foes[0].hp, foes[0].armor, hero.hp, hero.maxHp]).toEqual([47, 20, 43, 53]);
+  });
+
+  it('Life Siphon big-match trait uses the same Armor-bypassing Life growth path', () => {
+    registerDynamicTraits(TALENT_DYNAMIC_DEFS.filter(def => def.code === 'lifesiphon'));
+    const hero = makeChar(0, { traitIds: ['lifesiphon'], hp: 40, maxHp: 50 });
+    const foe = makeChar(4, { armor: 20 });
+    const { engine } = buildWithNMatch(4, BaseColor.Red, [hero, makeChar(1)], [foe, makeChar(5)]);
+    const events = engine.resolveSwap({ row: 7, col: 2 }, { row: 6, col: 2 });
+    expect([foe.hp, foe.armor, hero.hp, hero.maxHp]).toEqual([48, 20, 42, 52]);
+    expect(events).toContainEqual({ type: 'buff', source: 'trait', targetId: 0,
+      stat: 'hp', amount: 2, maxHpGain: 2 });
+  });
+
+  it('at full Life, trait theft still grows maximum Life; overkill transfers only lost Life', () => {
+    const hero = makeChar(0, { traitIds: ['corruption'] });
+    const foe = makeChar(4, { hp: 2, armor: 20 });
+    const { engine } = buildWithNMatch(4, BaseColor.Red, [hero, makeChar(1)], [foe, makeChar(5)]);
+    const events = engine.resolveSwap({ row: 7, col: 2 }, { row: 6, col: 2 });
+    expect([foe.hp, foe.armor, hero.hp, hero.maxHp]).toEqual([0, 20, 52, 52]);
+    expect(events).toContainEqual({ type: 'buff', source: 'trait', targetId: 0,
+      stat: 'hp', amount: 2, maxHpGain: 2 });
+  });
+
+  it('Barrier blocks the trait transfer without generating Life', () => {
+    const hero = makeChar(0, { traitIds: ['corruption'] });
+    const foe = makeChar(4, { armor: 20, statuses: [{ id: 'barrier', turns: 3 }] });
+    const { engine } = buildWithNMatch(4, BaseColor.Red, [hero, makeChar(1)], [foe, makeChar(5)]);
+    const events = engine.resolveSwap({ row: 7, col: 2 }, { row: 6, col: 2 });
+    expect([foe.hp, foe.armor, hero.hp, hero.maxHp]).toEqual([50, 20, 50, 50]);
+    expect(events.filter(e => e.type === 'buff' && e.targetId === hero.id && e.stat === 'hp')).toEqual([]);
+  });
+
+  it('revival does not alter the Life transferred from the lethal hit', () => {
+    const hero = makeChar(0, { traitIds: ['corruption'] });
+    const foe = makeChar(4, { hp: 2, armor: 20 });
+    const { engine } = buildWithNMatch(4, BaseColor.Red, [hero, makeChar(1)], [foe, makeChar(5)]);
+    foe.passive = { ...neutralPassives(), selfRevive: { chance: 1, healPct: 0.5 } };
+    const events = engine.resolveSwap({ row: 7, col: 2 }, { row: 6, col: 2 });
+    expect([foe.hp, foe.defeated, foe.armor, hero.hp, hero.maxHp]).toEqual([25, false, 20, 52, 52]);
+    expect(events).toContainEqual({ type: 'buff', source: 'trait', targetId: 0,
+      stat: 'hp', amount: 2, maxHpGain: 2 });
+    expect(events.some(e => e.type === 'defeat' && e.characterId === foe.id)).toBe(false);
   });
 
   it('4 连 → tentacles 对所有敌人各 3 点（两条 skill-damage 事件）', () => {

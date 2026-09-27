@@ -1,0 +1,20 @@
+- 2026-09-28T02:00:00+08:00 B01 start; read dispatch/guide/templates; dumped ledger rows for troop:6549,7833,6803,7809,weapon:1194
+- 2026-09-28T02:20:00+08:00 B01 scaffolded signoff-b01.json (5 keys)
+- 2026-09-28T02:40:00+08:00 troop:6549 draft: native IncreaseSpellPower precedes TrueDamage (hp loss magic+5 vs runtime magic+2); issue logged; repro it.fails 'DIFF 6549-order'
+- 2026-09-28T02:40:00+08:00 troop:7833 draft: native CountArmor+LethalDamageConditional precede Damage; runtime reads post-damage armor (armor100/magic10: 18% vs 20%); repro 'DIFF 7833-order'
+- 2026-09-28T02:40:00+08:00 troop:6803 draft: Tower 3x-5x (MultiplyForAscensionCastle) never fires in standard battle + StealArmor self-armor semantics unclear; repro 'DIFF 6803-tower'; source-dispute
+- 2026-09-28T02:40:00+08:00 troop:7809 consistent -> accept candidate
+- 2026-09-28T02:40:00+08:00 weapon:1194 draft: CountArmor 34% vs runtime floor(armor/3) diverge at armor>=50; repro 'DIFF 1194-rounding'; source-dispute
+- 2026-09-28T02:41:00+08:00 B01 tests: npx vitest run tests/unit/gowLaneL6B01.test.ts 60/60 pass; tsc: 0 errors in gowLaneL6B01
+- 2026-09-28T02:50:00+08:00 troop:7809 accept written (laneTest sha256 7003e0f8…cb087, rule official-brian-guide.html); check: 7809 ok, other 4 draft
+- 2026-09-28T02:50:00+08:00 issues.json: 5 entries (6549, 7833, 6803 x2, 1194)
+- 2026-09-28T02:51:00+08:00 B01 done. B02 start
+- 2026-09-28T03:05:00+08:00 weapon:1110 consistent (CountArmor 100% = [1:1] exact) -> accept candidate
+- 2026-09-28T03:05:00+08:00 weapon:1199 draft: same CountArmor 34% vs [3:1] source-dispute as 1194; repro 'DIFF 1199-rounding'
+- 2026-09-28T03:05:00+08:00 weapon:1201 draft: same 34% source-dispute; repro 'DIFF 1201-rounding'
+- 2026-09-28T03:05:00+08:00 weapon:1204 draft: same 34% source-dispute; repro 'DIFF 1204-rounding'
+- 2026-09-28T03:05:00+08:00 weapon:1200 draft: same 34% source-dispute; repro 'DIFF 1200-rounding'
+- 2026-09-28T03:06:00+08:00 B02 tests: npx vitest run tests/unit/gowLaneL6B02.test.ts 49/49 pass; tsc: 0 errors in gowLaneL6B0x; B02 hash 4f1499c1…a046
+- 2026-09-28T03:15:00+08:00 weapon:1110 accept written (laneTest sha256 4f1499c1…a046, rule official-weapon-list.html Mang entry)
+- 2026-09-28T03:15:00+08:00 issues.json: +4 source-dispute (1199,1201,1204,1200) -> 9 entries total
+- 2026-09-28T03:16:00+08:00 check b01: 7809 accept ok, 4 draft; check b02: 1110 accept ok, 4 draft. B01+B02 done; test files frozen

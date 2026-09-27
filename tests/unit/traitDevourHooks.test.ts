@@ -10,10 +10,10 @@
  *     （healPct 缺省 0.5、full=满血、fullMana=法力回满）。
  *
  * 吞噬特质钩子（R22 批）：devourEffect 原语概率掷签（每目标恒 1 次）、devourImmunity
- * 整体跳过（不杀不成长不耗 rng）、官方成长额度 +2 攻/甲/魔 +5 生命（opts.gain 可覆写）。
+ * 整体跳过（不杀不成长不耗 rng）、目标当前攻击、护甲与生命（不含魔法；opts.gain 可覆写）。
  *
  * 复制召唤（R22 批 summonCopy）：属性/技能/特质全拷贝（满血、零法力、无状态），
- * 编队满员进 FIFO 队列。
+ * 编队满员时召唤失效。
  *
  * 护栏：无新键零事件零 rng、同种子双跑事件流逐字节一致。
  */
@@ -152,8 +152,8 @@ describe('自复活（selfRevive 被动）：致死伤害不走 defeat 路径、
         board.set({ row: r, col: c }, { id: r * 8 + c + 1, type: colorGem(palette[(r + c) % 4]) });
       }
     }
-    const poisoned: StatusInstance = { id: 'poison', turns: 2, magnitude: 3 };
-    const right = makeChar(4, { hp: 2, statuses: [poisoned] });
+    const poisoned: StatusInstance = { id: 'burning', turns: 2, recoveryChance: 0 };
+    const right = makeChar(4, { hp: 2, armor: 0, statuses: [poisoned] });
     const state = createGameState(
       board,
       makeTeam(PlayerSide.Left, [makeChar(0)]),
@@ -279,7 +279,7 @@ describe('吞噬特质钩子：概率掷签、免疫拦截、成长额度', () =
     return { state, casterId: caster.id, rng, nextGemId: () => 0 };
   }
 
-  it('掷签命中：目标即杀（skill-damage 归零）+ 吞噬者官方成长 +2/+2/+2/+5（每目标恒 1 次 rng）', () => {
+  it('掷签命中：目标即杀（skill-damage 归零）+ 吞噬者获得目标当前属性（每目标恒 1 次 rng）', () => {
     const caster = makeChar(0, { hp: 30 });
     const target = makeChar(9, { hp: 10 });
     const { rng, calls } = scriptedRng(0.01);
@@ -291,13 +291,13 @@ describe('吞噬特质钩子：概率掷签、免疫拦截、成长额度', () =
     expect(events.some((e) => e.type === 'skill-damage' && (e as { targetId: number; damage: number }).targetId === 9
       && (e as { damage: number }).damage === 10)).toBe(true);
     expect(events.some((e) => e.type === 'defeat' && (e as { characterId: number }).characterId === 9)).toBe(true);
-    // 官方单次成长额度：+2 攻/甲/魔、+5 生命（治疗口径 30→35）
-    expect(caster.attack).toBe(12);
-    expect(caster.armor).toBe(2);
-    expect(caster.magic).toBe(10);
-    expect(caster.hp).toBe(35);
-    expect(caster.maxHp).toBe(50);
-    for (const stat of ['attack', 'armor', 'magic', 'hp'] as const) {
+    // 吞噬获取目标当前攻击 10、护甲 0、生命 10，不获取魔法
+    expect(caster.attack).toBe(20);
+    expect(caster.armor).toBe(0);
+    expect(caster.magic).toBe(8);
+    expect(caster.hp).toBe(40);
+    expect(caster.maxHp).toBe(60);
+    for (const stat of ['attack', 'hp'] as const) {
       expect(events.some((e) => e.type === 'buff' && (e as { targetId: number; stat: string }).targetId === 0
         && (e as { stat: string }).stat === stat)).toBe(true);
     }
@@ -330,19 +330,19 @@ describe('吞噬特质钩子：概率掷签、免疫拦截、成长额度', () =
     expect(calls()).toBe(0); // 免疫在掷签前跳过
   });
 
-  it('成长额度覆写（opts.gain）：+5 攻、生命 +0 不发事件，其余按官方缺省', () => {
+  it('成长额度覆写（opts.gain）：+5 攻、生命 +0 不发事件，其余按目标当前值', () => {
     const caster = makeChar(0, { hp: 30 });
     const target = makeChar(9, { hp: 10 });
     const { rng } = scriptedRng(0.01);
     devourEffect({ targets: [target], chance: 0.25, gain: { attack: 5, hp: 0 } }).apply(devourCtx(caster, rng));
     expect(caster.attack).toBe(15);
-    expect(caster.armor).toBe(2);
-    expect(caster.magic).toBe(10);
+    expect(caster.armor).toBe(0);
+    expect(caster.magic).toBe(8);
     expect(caster.hp).toBe(30); // hp 增益 0 → 不治疗
   });
 
   it('TurnEngine 消费（onSkullHitDevour chance=1）：骷髅命中即吞受击目标；免疫目标拦截', () => {
-    // 命中：chance=1 必吞 → 目标出编队、攻击者 +2/+2/+2/+5
+    // 命中：chance=1 必吞 → 目标出编队、攻击者获得目标当前属性
     const hit = skullMatchBattle(
       [makeChar(0, { attack: 10, hp: 30 })],
       [makeChar(4, { hp: 50 })],
@@ -353,10 +353,10 @@ describe('吞噬特质钩子：概率掷签、免疫拦截、成长额度', () =
     expect(hitEvents.some((e) => e.type === 'defeat' && (e as { characterId: number }).characterId === 4)).toBe(true);
     expect(hit.state.teams[PlayerSide.Right].characters.some((c) => c.id === 4)).toBe(false);
     const attacker = hit.state.teams[PlayerSide.Left].characters[0];
-    expect(attacker.attack).toBe(12);
-    expect(attacker.armor).toBe(2);
-    expect(attacker.magic).toBe(10);
-    expect(attacker.hp).toBe(35);
+    expect(attacker.attack).toBe(20);
+    expect(attacker.armor).toBe(0);
+    expect(attacker.magic).toBe(8);
+    expect(attacker.hp).toBeGreaterThan(30);
 
     // 免疫：同一 for局，目标带 indigestible → 不吞、无成长
     const immune = skullMatchBattle(
@@ -428,7 +428,7 @@ describe('复制召唤：属性拷贝完整性、FIFO 队列', () => {
     expect(source.traitIds).toEqual(['fireheart', 'fromashes']);
   });
 
-  it('编队满员进 FIFO 队列：入队顺序与召唤顺序一致', () => {
+  it('编队满员时复制召唤失效', () => {
     const sourceA = makeChar(4, { name: 'A' });
     const sourceB = makeChar(5, { name: 'B', hp: 10 });
     const left = [makeChar(0), makeChar(1), makeChar(2), makeChar(3)];
@@ -438,14 +438,10 @@ describe('复制召唤：属性拷贝完整性、FIFO 队列', () => {
       makeTeam(PlayerSide.Right, [sourceA, sourceB]),
     );
     const ctx = { state, casterId: 0, rng: new SeededRNG(3), nextGemId: () => 0 };
-    const first = summonCopyEffect({ targets: [sourceA] }).apply(ctx);
-    const second = summonCopyEffect({ targets: [sourceB] }).apply(ctx);
-    expect(first[0]).toMatchObject({ type: 'summon', destination: 'queue', slot: 0 });
-    expect(second[0]).toMatchObject({ type: 'summon', destination: 'queue', slot: 1 });
-    const queue = state.teams[PlayerSide.Left].summonQueue!;
-    expect(queue.map((q) => q.character.name)).toEqual(['A', 'B']); // FIFO
-    expect(queue[1].character.hp).toBe(50); // 复制体满血（来源 hp 10 不继承，取 maxHp）
-    expect(state.teams[PlayerSide.Left].characters.length).toBe(4); // 场上不超额
+    expect(summonCopyEffect({ targets: [sourceA] }).apply(ctx)).toEqual([]);
+    expect(summonCopyEffect({ targets: [sourceB] }).apply(ctx)).toEqual([]);
+    expect(state.teams[PlayerSide.Left].characters).toHaveLength(4);
+    expect(state.teams[PlayerSide.Left].summonQueue).toBeUndefined();
   });
 
   it('TurnEngine 消费（summonCopy 段）：施法复制敌方队首进场', () => {

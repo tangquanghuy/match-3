@@ -22,6 +22,8 @@ import {
   kingdomNodeState,
   questLineupPreview,
 } from '../systems/kingdomOps';
+import type { KingdomState } from '../state/schema';
+import { kingdomStageCleared } from '../systems/kingdomFirstClear';
 import type { EncounterEnemy } from '../systems/encounter';
 import { bottomNavHtml, mountIcons, toastHtml, topbarHtml, $, $$ } from '../shell/chrome';
 import type { Screen, ShellCtx } from '../shell/screen';
@@ -177,6 +179,7 @@ function storedTier(saveTier: number): number {
 
 export class QuestScreen implements Screen {
   private kingdom = '';
+  private kingdomEntry: KingdomState | undefined;
   private mode: KingdomStageMode = 'normal';
   private selectedNode = 1;
   private listeners: Array<[EventTarget, string, EventListenerOrEventListenerObject]> = [];
@@ -218,6 +221,7 @@ export class QuestScreen implements Screen {
     }
 
     const save = ctx.save();
+    this.kingdomEntry = save.kingdoms[this.kingdom];
     const view = kingdomViewOf(this.kingdom);
     const state = kingdomNodeState(save, this.kingdom, Date.now());
     const art = ART[view.biome] ?? ART.spire!;
@@ -278,7 +282,7 @@ export class QuestScreen implements Screen {
             <span id="qdSub">Lv.${enemyLevel(this.kingdom, this.mode, this.selectedNode)}</span>
           </div>
           <div class="qd-enemies"><span class="qd-label">敌方阵容</span><div class="qd-foes" id="qdFoes">${enemies.map(foeTile).join('')}</div></div>
-          <div class="qd-loot"><span class="qd-label">${this.mode === 'normal' ? '关卡奖励' : '可能获得'}</span><div class="qd-rewards" id="qdRewards">${questRewardsHtml(this.kingdom, this.mode, this.selectedNode)}</div></div>
+          <div class="qd-loot"><span class="qd-label">${this.mode === 'normal' ? '关卡奖励' : '首通奖励 / 概率掉落'}</span><div class="qd-rewards" id="qdRewards">${questRewardsHtml(this.kingdom, this.mode, this.selectedNode, this.kingdomEntry)}</div></div>
           <div class="qd-action"><button class="primary" id="questFight" type="button" ${fightable ? '' : 'disabled'}>
             <span data-icon="${fightable ? 'swords' : this.mode === 'normal' && state.nextNode === null ? 'check' : 'lock'}"></span><span id="qdFightLabel">${this.fightLabel(state.nextNode, fightable)}</span>
           </button><small id="qdGate">${this.mode !== 'normal' && !farmOpen ? `普通 ${state.questsDone} / ${QUESTS_PER_KINGDOM}` : ''}</small></div>
@@ -329,7 +333,7 @@ export class QuestScreen implements Screen {
       if (node === nextNode) return 'current';
       return 'locked';
     }
-    return 'open';
+    return kingdomStageCleared(this.kingdomEntry, this.mode, node) ? 'done' : 'open';
   }
 
   private pinHtml(node: number, pt: PinPt, farmOpen: boolean, nextNode: number | null): string {
@@ -387,7 +391,7 @@ export class QuestScreen implements Screen {
     const mode = $('#qdMode');
     if (mode) mode.innerHTML = `${MODE_LABEL[this.mode]} <i> / </i> ${String(node).padStart(2, '0')}`;
     const rewards = $('#qdRewards');
-    if (rewards) rewards.innerHTML = questRewardsHtml(this.kingdom, this.mode, node);
+    if (rewards) rewards.innerHTML = questRewardsHtml(this.kingdom, this.mode, node, ctx.save().kingdoms[this.kingdom]);
     const fight = $('#questFight') as HTMLButtonElement | null;
     const state = kingdomNodeState(ctx.save(), this.kingdom, Date.now());
     if (fight) {

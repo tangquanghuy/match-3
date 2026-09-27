@@ -5,10 +5,14 @@
  * 货架只读 `eventShopOf`，成交仍交给 gateway，屏层不直接改存档。
  */
 import { isFailure, weekStartOf } from '../gateway';
-import { EVENT_ROTATION, WEEK_MS, type EventGoods, type EventTypeId } from '../data/events';
+import { EVENT_ROTATION, EVENT_WEEKLY_RULES, type EventGoods, type EventTypeId } from '../data/events';
 import { INGOT_NAMES, parseStoneKey, stoneName, type IngotKey } from '../data/materials';
+import { RARITY_NAMES } from '../data/rarity';
+import { getTroopById } from '../../data/troops';
+import { troopImg } from './teamScreen';
+import { eventShopPeriodOf } from '../systems/eventShopClock';
 import { eventShopOf, type EventShopRow } from '../systems/events';
-import { bottomNavHtml, toast, toastHtml, topbarHtml } from '../shell/chrome';
+import { bottomNavHtml, shopNavHtml, mountIcons, toast, toastHtml, topbarHtml } from '../shell/chrome';
 import { ingotArt, materialImg, scrollArt, stoneMarkupForKey } from '../shell/materialArt';
 import type { Screen, ShellCtx } from '../shell/screen';
 import type { MetaSave } from '../state/schema';
@@ -24,18 +28,17 @@ function fmt(value: number): string {
   return value.toLocaleString('en-US');
 }
 
-function remainingLabel(now: number, weekStart: number): string {
-  const totalHours = Math.max(0, Math.ceil((weekStart + WEEK_MS - now) / 3_600_000));
-  const days = Math.floor(totalHours / 24);
-  const hours = totalHours % 24;
-  return days > 0 ? `${days} 天 ${hours} 小时` : `${hours} 小时`;
+function remainingLabel(now: number, end: number): string {
+  const minutes = Math.max(1, Math.ceil((end - now) / 60_000));
+  const hours = Math.floor(minutes / 60);
+  return hours > 0 ? `${hours}小时${minutes % 60 ? ` ${minutes % 60}分` : ''}` : `${minutes}分钟`;
 }
 
 function cleanName(name: string): string {
   return name.replace(/\s*[×x]\s*\d+\s*$/, '').trim();
 }
 
-type RewardKind = 'gold' | 'souls' | 'gems' | 'goldKeys' | 'glory' | 'ingot' | 'scroll' | 'stone';
+type RewardKind = 'gold' | 'souls' | 'gems' | 'goldKeys' | 'glory' | 'ingot' | 'scroll' | 'stone' | 'troop' | 'classXp';
 
 interface RewardEntry {
   kind: RewardKind;
@@ -61,7 +64,7 @@ const INGOT_COLOR: Record<string, string> = {
   common: '#aab2ad', uncommon: '#4caf6a', rare: '#9a4fd4', ultraRare: '#ffe24a', epic: '#c56b2d', legendary: '#56d8ff', mythic: '#f1a1ff',
 };
 
-function rewardEntries(goods: EventGoods, save?: Pick<MetaSave, 'currencies' | 'materials'>): RewardEntry[] {
+function rewardEntries(goods: EventGoods, save?: MetaSave): RewardEntry[] {
   const currencies = save?.currencies ?? { gold: 0, souls: 0, gems: 0, goldKeys: 0, glory: 0 };
   const materials = save?.materials ?? { ingots: {}, forgeScrolls: 0, traitstones: {}, treasureMaps: 0 };
   const entries: RewardEntry[] = [];
@@ -78,6 +81,11 @@ function rewardEntries(goods: EventGoods, save?: Pick<MetaSave, 'currencies' | '
   for (const [key, amount] of Object.entries(goods.mats?.traitstones ?? {})) {
     if ((amount ?? 0) > 0) entries.push({ kind: 'stone', key, label: stoneName(key), amount: amount!, owned: materials.traitstones[key] ?? 0 });
   }
+  if (goods.troopId) {
+    const troop = getTroopById(goods.troopId);
+    if (troop) entries.push({ kind: 'troop', key: String(troop.id), label: troop.name, amount: 1, owned: save?.collection[String(troop.id)] ? save.collection[String(troop.id)]!.copies + 1 : 0 });
+  }
+  if (goods.classXp) entries.push({ kind: 'classXp', key: 'classXp', label: '职业经验', amount: goods.classXp, owned: 0 });
   return entries;
 }
 
@@ -88,6 +96,8 @@ function rewardText(goods: EventGoods): string {
 }
 
 function rewardIcon(entry: RewardEntry): string {
+  if (entry.kind === 'troop') return `<span class="shop-reward-icon troop" aria-hidden="true">${troopImg(getTroopById(Number(entry.key)) ?? null, false, 'alt=""')}</span>`;
+  if (entry.kind === 'classXp') return '<span class="shop-reward-icon class-xp" data-icon="book"></span>';
   if (entry.kind in CURRENCY_META) {
     const meta = CURRENCY_META[entry.kind as keyof typeof CURRENCY_META];
     return `<span class="shop-reward-icon currency ${meta.className}" data-icon="${meta.icon}"></span>`;
@@ -104,7 +114,10 @@ function rewardIcon(entry: RewardEntry): string {
 function rewardHtml(goods: EventGoods, save: MetaSave, soldOut: boolean): string {
   const entries = rewardEntries(goods, save);
   return entries
-    .map((entry) => `<span class="shop-reward ${entry.kind}" aria-label="${entry.label} ${entry.amount}，${soldOut ? `当前持有 ${fmt(entry.owned)}` : `持有 ${fmt(entry.owned)}，兑换后 ${fmt(entry.owned + entry.amount)}`}">${rewardIcon(entry)}<span class="shop-reward-copy"><b>×${fmt(entry.amount)}</b>${entries.length > 1 || entry.label !== cleanName(goods.name) ? `<small>${entry.label}</small>` : ''}<em>${soldOut ? `当前持有 ${fmt(entry.owned)}` : `持有 ${fmt(entry.owned)} → ${fmt(entry.owned + entry.amount)}`}</em></span></span>`)
+    .map((entry) => {
+      const owned = entry.kind === 'classXp' ? '当前装备职业' : soldOut ? `当前持有 ${fmt(entry.owned)}` : `持有 ${fmt(entry.owned)} → ${fmt(entry.owned + entry.amount)}`;
+      return `<span class="shop-reward ${entry.kind}" aria-label="${entry.label} ${entry.amount}，${owned}">${rewardIcon(entry)}<span class="shop-reward-copy"><b>×${fmt(entry.amount)}</b>${entries.length > 1 || entry.label !== cleanName(goods.name) ? `<small>${entry.label}</small>` : ''}<em>${owned}</em></span></span>`;
+    })
     .join('');
 }
 
@@ -115,6 +128,8 @@ function goodsSymbol(goods: EventGoods): string {
 
 function goodsTone(goods: EventGoods): string {
   const entry = rewardEntries(goods)[0];
+  if (entry?.kind === 'troop') return '#d4af74';
+  if (entry?.kind === 'classXp') return '#a58ac6';
   if (entry?.kind === 'stone') {
     const key = parseStoneKey(entry.key)?.colorKey;
     return key ? STONE_COLOR[key] ?? '#b8e1ee' : '#b8e1ee';
@@ -124,93 +139,173 @@ function goodsTone(goods: EventGoods): string {
   return entry?.kind === 'souls' ? '#a68cc9' : entry?.kind === 'gems' ? '#69bcdb' : '#e2bf75';
 }
 
-function earnedTokens(week: ReturnType<typeof eventShopOf>['week'], rows: readonly EventShopRow[]): number {
-  const spent = rows.reduce((sum, row) => sum + row.goods.cost * (week.bought[row.goods.id] ?? 0), 0);
-  return Math.max(week.tokensEarned ?? 0, week.tokens + spent);
+function tokenBalanceHtml(tokens: number, tokenName: string): string {
+  return `<div class="shop-token-bar" aria-label="${tokenName}余额 ${fmt(tokens)}，周一清零"><span class="shop-token-orb" data-icon="mark"></span><b>${tokenName}</b><strong>${fmt(tokens)}</strong><small>周一清零</small></div>`;
 }
 
-function tokenProgressHtml(tokens: number, earned: number, finiteCost: number, tokenName: string): string {
-  const clearCost = Math.max(0, finiteCost);
-  const missing = Math.max(0, clearCost - tokens);
-  const approxWins = missing > 0 ? Math.ceil(missing / 12) : 0;
-  const pct = clearCost > 0 ? Math.min(100, (tokens / clearCost) * 100) : 100;
-  return `
-    <section class="shop-token-bar" aria-label="${tokenName}余额 ${fmt(tokens)}">
-      <div class="shop-token-identity"><span class="shop-token-orb" data-icon="coin"></span><div><small>当前余额</small><b>${tokenName}</b></div><strong>${fmt(tokens)}</strong></div>
-      <div class="shop-token-detail"><span>每胜 <b>3~12</b> 枚</span><span>本周已赚 <b>${fmt(earned)}</b></span><span>周一 0:00 <b>清零</b></span></div>
-      <div class="shop-token-target"><div class="shop-token-progress" role="progressbar" aria-label="限量货兑换所需代币进度" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${Math.round(pct)}"><i style="width:${pct}%"></i></div><span>${missing > 0 ? `清空限量货还差 ${fmt(missing)} 枚 · 至少 ${approxWins} 场胜利` : finiteCost === 0 ? '本周限量货已兑换完毕' : '余额足够兑换剩余限量货'}</span></div>
-    </section>`;
+const SHOP_CATEGORIES = [
+  { id: 'all', name: '全部', icon: 'bag' },
+  { id: 'troop', name: '角色', icon: 'helmet' },
+  { id: 'forge', name: '锻造', icon: 'swords' },
+  { id: 'trait', name: '特质', icon: 'crystal' },
+  { id: 'growth', name: '补给', icon: 'chest' },
+] as const;
+type ShopCategory = typeof SHOP_CATEGORIES[number]['id'];
+function goodsCategory(goods: EventGoods): ShopCategory {
+  if (goods.troopId) return 'troop';
+  if (goods.mats?.ingots || goods.mats?.forgeScrolls) return 'forge';
+  if (goods.mats?.traitstones) return 'trait';
+  return 'growth';
+}
+function troopLink(goods: EventGoods, type: EventTypeId): string {
+  return goods.troopId ? `<a class="shop-atlas-link" data-shop-troop="${goods.id}" href="#troop/${goods.troopId}/shop/${type}"><span data-icon="book"></span>查看图鉴 <span aria-hidden="true">↗</span></a>` : '';
 }
 
-function goodsCard(row: EventShopRow, save: MetaSave, tokens: number, featured: boolean): string {
+function goodsCard(row: EventShopRow, save: MetaSave, tokens: number, featured: boolean, capped: boolean, type: EventTypeId, filter: ShopCategory): string {
   const goods = row.goods;
+  const entries = rewardEntries(goods, save);
+  const category = SHOP_CATEGORIES.find(item => item.id === goodsCategory(goods))!;
+  const troop = goods.troopId ? getTroopById(goods.troopId) : undefined;
   const soldOut = row.stockLeft !== null && row.stockLeft <= 0;
   const poor = !soldOut && tokens < goods.cost;
-  const state = soldOut ? ' sold-out' : poor ? ' poor' : ' ready';
-  const stock = row.stockLeft === null ? '不限量' : soldOut ? '本周已售罄' : `本周剩 ${row.stockLeft} / ${goods.stock}`;
+  const needsClass = !!goods.classXp && (!save.hero.classId || !save.hero.unlockedClasses.includes(save.hero.classId) || (save.hero.classLevels[save.hero.classId] ?? 0) < 1);
+  const state = soldOut ? ' sold-out' : needsClass || poor ? ' poor' : ' ready';
+  const stock = row.stockLeft === null ? '' : soldOut ? '已售罄' : `本期剩 ${row.stockLeft}`;
   const action = soldOut
-    ? '<button class="shop-buy is-sold" type="button" disabled>周一补货</button>'
+    ? '<button class="shop-buy is-sold" type="button" disabled>待补货</button>'
+    : needsClass
+      ? '<button class="shop-buy is-poor" type="button" data-action="class">先装备职业</button>'
+    : poor && capped
+      ? '<button class="shop-buy is-sold" type="button" disabled>已领满</button>'
     : poor
-      ? `<button class="shop-buy is-poor" type="button" data-action="battle" data-missing="${goods.cost - tokens}" aria-label="${cleanName(goods.name)}还差 ${goods.cost - tokens} 枚，前往活动出战">还差 ${goods.cost - tokens} 枚 · 去出战 <span data-icon="swords"></span></button>`
-      : `<button class="shop-buy" type="button" data-buy="${goods.id}" aria-label="花费 ${goods.cost} 枚代币兑换${cleanName(goods.name)}"><span data-icon="bag"></span>兑换</button>`;
+      ? `<button class="shop-buy is-poor" type="button" data-action="battle" data-missing="${goods.cost - tokens}" aria-label="${cleanName(goods.name)}还差 ${goods.cost - tokens} 枚印记，前往活动出战">获取印记</button>`
+      : `<button class="shop-buy" type="button" data-buy="${goods.id}" aria-label="花费 ${goods.cost} 枚印记兑换${cleanName(goods.name)}"><span data-icon="bag"></span>兑换</button>`;
   return `
-    <article class="shop-goods${state}${featured ? ' featured' : ''}" data-goods-card="${goods.id}" style="--goods-tone:${goodsTone(goods)}">
-      <div class="shop-goods-art" aria-hidden="true"><div class="shop-goods-symbol">${goodsSymbol(goods)}</div>${featured ? '<b>每周优选</b>' : ''}</div>
-      <div class="shop-goods-body"><div class="shop-goods-title"><h3>${cleanName(goods.name)}</h3><span class="shop-stock">${stock}</span></div>
-        ${goods.blurb ? `<p class="shop-goods-blurb">${goods.blurb}</p>` : ''}
-        <div class="shop-rewards">${rewardHtml(goods, save, soldOut)}</div>
-        <div class="shop-goods-foot"><span class="shop-price"><i data-icon="coin"></i><b>${goods.cost}</b><small>代币</small></span>${action}</div>
+    <article class="shop-goods${state}${featured ? ' featured' : ''}" data-goods-card="${goods.id}" data-category="${category.id}" ${filter!=='all'&&filter!==category.id?'hidden':''} style="--goods-tone:${goodsTone(goods)}">
+      <button class="shop-goods-art" type="button" data-inspect="${goods.id}" aria-label="查看${cleanName(goods.name)}详情"><span class="shop-goods-symbol">${goodsSymbol(goods)}</span><span class="shop-kind"><span data-icon="${category.icon}"></span>${category.name}</span>${featured ? '<b>本期精选</b>' : ''}</button>
+      <div class="shop-goods-body"><div class="shop-goods-title"><h3><button type="button" data-inspect="${goods.id}">${cleanName(goods.name)}</button></h3><span class="shop-stock">${stock}</span></div>
+        ${troop?`<p class="shop-troop-meta">${RARITY_NAMES[troop.rarityIdx]} · ${troop.kingdom ?? '无王国'}</p>${troopLink(goods,type)}`:`<div class="shop-rewards">${entries.map(entry=>`<span class="shop-reward ${entry.kind}">${rewardIcon(entry)}<span class="shop-reward-copy"><small>${entry.label}</small><b>×${fmt(entry.amount)}</b></span></span>`).join('')}</div>`}
+        <div class="shop-goods-foot"><span class="shop-price"><i data-icon="mark"></i><b>${goods.cost}</b><small>印记</small></span>${action}</div>
       </div>
     </article>`;
 }
 
 export class EventShopScreen implements Screen {
+  private displayedPeriod = 0;
+  private displayedWeek = 0;
+  private refreshTimer: ReturnType<typeof setTimeout> | null = null;
+  private filters = new Map<EventTypeId, ShopCategory>();
+  private scrollPositions = new Map<EventTypeId, number>();
+  private returnGoods = new Map<EventTypeId, string>();
   private listeners: Array<[EventTarget, string, EventListenerOrEventListenerObject]> = [];
 
   html(ctx: ShellCtx, param?: string): string {
     const typeId = parseTypeId(param);
+    const filter = this.filters.get(typeId) ?? 'all';
     const now = Date.now();
     const weekStart = weekStartOf(now);
     const save = ctx.save();
-    const shop = eventShopOf(save, weekStart, typeId);
+    const shop = eventShopOf(save, weekStart, typeId, now);
+    this.displayedPeriod = shop.period.start;
+    this.displayedWeek = weekStart;
     const def = shop.theme.type;
     const featuredRow = shop.rows.find((row) => row.goods.stock === 1) ?? [...shop.rows].sort((a, b) => b.goods.cost - a.goods.cost)[0];
-    const regularRows = shop.rows.filter((row) => row !== featuredRow);
-    const finiteCost = shop.rows.reduce((sum, row) => sum + (row.stockLeft === null ? 0 : row.stockLeft * row.goods.cost), 0);
-    const earned = earnedTokens(shop.week, shop.rows);
+    const surplus = shop.rows.find(row => row.goods.id.endsWith('_surplus'));
+    const regularRows = shop.rows.filter((row) => row !== featuredRow && row !== surplus);
+    const capped = shop.week.tokensEarned >= EVENT_WEEKLY_RULES.tokenCap;
     const tabs = EVENT_ROTATION.map((tab) => {
-      const tabShop = eventShopOf(save, weekStart, tab.id);
+      const tabShop = eventShopOf(save, weekStart, tab.id, now);
       const active = tab.id === typeId;
-      return `<a class="shop-tab${active ? ' active' : ''}" href="#shop/${tab.id}" style="--shop-accent:${tab.accent}"${active ? ' aria-current="page"' : ''}><span>${tab.shortName}</span><b><i data-icon="coin"></i>${fmt(tabShop.week.tokens)}</b></a>`;
+      return `<a class="shop-tab${active ? ' active' : ''}" href="#shop/${tab.id}" style="--shop-accent:${tab.accent}"${active ? ' aria-current="page"' : ''}><span>${tab.shortName}</span><b><i data-icon="mark"></i>${fmt(tabShop.week.tokens)}</b></a>`;
     }).join('');
     return `
       ${topbarHtml()}
       <div class="screen event-shop-screen">
-        <section class="panel event-shop-panel" style="--shop-accent:${def.accent}">
-          <header class="shop-page-head"><a class="shop-back" href="#events/${typeId}"><span data-icon="arrow"></span>返回${def.name}</a><div><small>活动兑换</small><h1>${def.name}<span>商店</span></h1></div><span class="shop-reset"><span data-icon="time"></span>距限量货补货 ${remainingLabel(now, weekStart)}</span></header>
-          <nav class="shop-tabs" aria-label="活动商店页签">${tabs}</nav>
-          ${tokenProgressHtml(shop.week.tokens, earned, finiteCost, def.tokenName)}
-          <section class="shop-shelf">
-            <div class="shop-section-head"><div><small>01 / 限量优选</small><h2>本周招牌</h2></div><span>优先兑换 · 售完待下周补货</span></div>
-            ${featuredRow ? goodsCard(featuredRow, save, shop.week.tokens, true) : '<p class="shop-empty">本周暂无货架</p>'}
+        <section class="panel event-shop-panel shop-v2" style="--shop-accent:${def.accent}">
+          <header class="shop-page-head"><h1>商店</h1><div class="shop-page-meta">${tokenBalanceHtml(shop.week.tokens, def.tokenName)}<span class="shop-reset"><span data-icon="time"></span><span id="shopRefreshLabel">${remainingLabel(now, shop.period.end)}后刷新</span></span></div></header>
+          ${shopNavHtml('events')}
+          <nav class="shop-tabs" aria-label="活动商店页签">${tabs}</nav><label class="shop-mobile-picker"><span>活动兑换</span><select id="shopTypePicker" aria-label="选择活动商店">${EVENT_ROTATION.map(t=>`<option value="${t.id}" ${t.id===typeId?'selected':''}>${t.name}</option>`).join('')}</select></label>
+          <section class="shop-catalog"><div class="shop-section-head"><div><h2>${def.shortName}兑换</h2><span class="shop-catalog-count">本期 ${shop.rows.length-1} 款</span></div><a class="shop-earn-link" href="#events/${typeId}">前往活动 →</a></div>
+            <nav class="shop-categories" aria-label="商品分类">${SHOP_CATEGORIES.filter(category=>category.id==='all'||shop.rows.some(row=>row!==surplus&&goodsCategory(row.goods)===category.id)).map(category=>`<button type="button" data-shop-category="${category.id}" aria-pressed="${filter===category.id}"><span data-icon="${category.icon}"></span>${category.name}<span class="shop-category-count">${shop.rows.filter(row=>row!==surplus&&(category.id==='all'||goodsCategory(row.goods)===category.id)).length}</span></button>`).join('')}</nav>
+            <div class="shop-grid">${[...(featuredRow?[featuredRow]:[]),...regularRows].map(row=>goodsCard(row, save, shop.week.tokens, row===featuredRow, capped, typeId, filter)).join('')}</div>
           </section>
-          <section class="shop-shelf regular"><div class="shop-section-head"><div><small>02 / 兑换货架</small><h2>全部货品</h2></div><span>${def.tokenName}仅可在本店使用</span></div><div class="shop-grid shop-grid-${regularRows.length}">${regularRows.map((row) => goodsCard(row, save, shop.week.tokens, false)).join('')}</div></section>
-          <footer class="shop-footnote"><span data-icon="time"></span><span>活动代币周一 0:00 清零，各商店余额独立，不可互换。</span></footer>
+          <footer class="shop-week-budget"><button class="shop-details-link" type="button" data-shop-rules>兑换说明 ↗</button>
+            ${surplus ? `<span class="shop-surplus">${surplus.goods.cost} 印记 → ${surplus.goods.gold} 黄金 <button class="shop-buy" type="button" data-buy="${surplus.goods.id}" ${shop.week.tokens < surplus.goods.cost ? 'disabled' : ''}>兑换</button></span>` : ''}
+          </footer>
         </section>
       </div>
-      ${bottomNavHtml('', '六活动钱包独立')}
+      <dialog class="shop-item-dialog" id="shopItemDialog" aria-labelledby="shopItemTitle"><header><h2 id="shopItemTitle">物品详情</h2><button type="button" data-close-item aria-label="关闭物品详情">×</button></header><div id="shopItemContent"></div><footer><button type="button" data-close-item>返回货架</button></footer></dialog>
+      ${bottomNavHtml('商店')}
       ${toastHtml()}`;
   }
 
   mount(ctx: ShellCtx): void {
+    const currentShop = parseTypeId(ctx.currentHash().replace(/^#shop\/?/, '').split('/')[0]);
+    const panel = document.querySelector<HTMLElement>('.event-shop-panel')!;
+    panel.scrollTop = this.scrollPositions.get(currentShop) ?? 0;
+    const returnId = this.returnGoods.get(currentShop);
+    if (returnId) { panel.querySelector<HTMLAnchorElement>(`[data-shop-troop="${returnId}"]`)?.focus({preventScroll:true}); this.returnGoods.delete(currentShop); }
+    this.on(panel, 'scroll', () => this.scrollPositions.set(currentShop, panel.scrollTop));
+    const picker=document.querySelector<HTMLSelectElement>('#shopTypePicker');
+    if(picker)this.on(picker,'change',()=>ctx.navigate(`#shop/${picker.value}`));
+    const checkRefresh = (): boolean => {
+      const now = Date.now();
+      const period = eventShopPeriodOf(now);
+      if (period.start !== this.displayedPeriod || weekStartOf(now) !== this.displayedWeek) {
+        ctx.refresh();
+        return true;
+      }
+      const label = document.querySelector('#shopRefreshLabel');
+      if (label) label.textContent = `${remainingLabel(now, period.end)}后刷新`;
+      return false;
+    };
+    const tick = (): void => {
+      if (checkRefresh()) return;
+      this.refreshTimer = setTimeout(tick, Math.min(60_000, Math.max(1, eventShopPeriodOf(Date.now()).end - Date.now())));
+    };
+    tick();
+    this.on(document, 'visibilitychange', () => { if (!document.hidden) checkRefresh(); });
+    this.on(window, 'focus', () => checkRefresh());
     this.on(document, 'click', (event) => {
       const target = event.target as HTMLElement;
+      // Never buy a newly rotated character through an old shelf or stale dialog.
+      if (target.closest('[data-buy], [data-inspect], [data-shop-troop]') && checkRefresh()) {
+        event.preventDefault();
+        setTimeout(() => toast('货品已刷新，请确认新货架'), 0);
+        return;
+      }
+      const atlas = target.closest<HTMLElement>('[data-shop-troop]');
+      if (atlas) this.returnGoods.set(currentShop, atlas.dataset.shopTroop!);
+      const category = target.closest<HTMLButtonElement>('[data-shop-category]');
+      if (category) {
+        const filter = category.dataset.shopCategory as ShopCategory;
+        this.filters.set(currentShop, filter);
+        panel.querySelectorAll<HTMLButtonElement>('[data-shop-category]').forEach(button => button.setAttribute('aria-pressed', String(button===category)));
+        panel.querySelectorAll<HTMLElement>('[data-goods-card]').forEach(card => { card.hidden=filter!=='all'&&card.dataset.category!==filter; });
+        return;
+      }
+      const dialog=document.querySelector<HTMLDialogElement>('#shopItemDialog')!;
+      if(target.closest('[data-close-item]')){dialog.close();return;}
+      const inspect=target.closest<HTMLElement>('[data-inspect]');
+      if(inspect||target.closest('[data-shop-rules]')) {
+        const typeId=parseTypeId(ctx.currentHash().replace(/^#shop\/?/, '').split('/')[0] || undefined);
+        const shop=eventShopOf(ctx.save(),weekStartOf(Date.now()),typeId,Date.now());
+        const row=shop.rows.find(row=>row.goods.id===inspect?.dataset.inspect);
+        document.querySelector('#shopItemTitle')!.textContent=row?cleanName(row.goods.name):'兑换说明';
+        document.querySelector('#shopItemContent')!.innerHTML=row
+          ? `<div class="shop-detail-art" style="--goods-tone:${goodsTone(row.goods)}">${goodsSymbol(row.goods)}</div>${row.goods.blurb?`<p>${row.goods.blurb}</p>`:''}${troopLink(row.goods,typeId)}<h3>兑换所得</h3><div class="shop-rewards">${rewardHtml(row.goods,ctx.save(),row.stockLeft===0)}</div><p>${row.goods.cost} 印记${row.stockLeft!==null?` · 本期剩余 ${Math.max(0,row.stockLeft)} 件`:''}</p>`
+          : `<p>参与对应活动获得印记，在此兑换奖励。</p><p>本周已获得 ${shop.week.tokensEarned} / ${EVENT_WEEKLY_RULES.tokenCap} 印记。</p><p>货品每两天刷新，限购次数同时重置；补货不消耗印记。</p><p>活动进度与印记仍在周一 0:00 重置。</p>`;
+        mountIcons(dialog);dialog.showModal();return;
+      }
       const buy = target.closest<HTMLElement>('[data-buy]');
       const action = target.closest<HTMLElement>('[data-action="battle"]');
+      if (target.closest('[data-action="class"]')) {
+        ctx.navigate('#hero');
+        return;
+      }
       if (action) {
         const typeId = parseTypeId(ctx.currentHash().replace(/^#shop\/?/, '').split('/')[0] || undefined);
         ctx.navigate(`#events/${typeId}`);
-        void ctx.launchEventBattle();
         return;
       }
       if (!buy) return;
@@ -218,15 +313,15 @@ export class EventShopScreen implements Screen {
       if (!goodsId) return;
       const typeId = parseTypeId(ctx.currentHash().replace(/^#shop\/?/, '').split('/')[0] || undefined);
       const now = Date.now();
-      const before = eventShopOf(ctx.save(), weekStartOf(now), typeId).rows.find((row) => row.goods.id === goodsId)?.goods;
+      const before = eventShopOf(ctx.save(), weekStartOf(now), typeId, now).rows.find((row) => row.goods.id === goodsId)?.goods;
       if (!before) return;
-      void ctx.gateway.buyEventGoods(goodsId, now, weekStartOf(now), typeId).then(({ result }) => {
+      void ctx.gateway.buyEventGoods(goodsId, now, weekStartOf(now), typeId, this.displayedPeriod).then(({ result }) => {
         if (isFailure(result)) {
           toast(result.message);
           return;
         }
         ctx.refresh();
-        const message = `已购入 ${cleanName(before.name)} · ${rewardText(before)} · 代币余额 ${result.tokensLeft}`;
+        const message = `已购入 ${cleanName(before.name)} · ${rewardText(before)} · 印记余额 ${result.tokensLeft}`;
         setTimeout(() => toast(message), 0);
       });
     });
@@ -238,6 +333,8 @@ export class EventShopScreen implements Screen {
   }
 
   dispose(): void {
+    if (this.refreshTimer !== null) clearTimeout(this.refreshTimer);
+    this.refreshTimer = null;
     for (const [target, type, fn] of this.listeners.splice(0)) target.removeEventListener(type, fn);
   }
 }

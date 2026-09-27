@@ -9,6 +9,17 @@ import { AnimConfig } from './AnimationConfig';
 export class FXLayer extends Container {
   private maxParticles = 240;
   private activeParticles = 0;
+  onFiniteAnimation?: (animation: gsap.core.Animation) => void;
+  private finiteTo(targets: gsap.TweenTarget, vars: gsap.TweenVars): gsap.core.Tween {
+    const tween = gsap.to(targets, vars);
+    this.onFiniteAnimation?.(tween);
+    return tween;
+  }
+  private finiteFromTo(targets: gsap.TweenTarget, fromVars: gsap.TweenVars, toVars: gsap.TweenVars): gsap.core.Tween {
+    const tween = gsap.fromTo(targets, fromVars, toVars);
+    this.onFiniteAnimation?.(tween);
+    return tween;
+  }
 
   constructor(_cellSize = 64) {
     super();
@@ -31,7 +42,7 @@ export class FXLayer extends Container {
 
       const angle = Math.random() * Math.PI * 2;
       const dist = (14 + Math.random() * 20) * intensity;
-      gsap.to(p, {
+      this.finiteTo(p, {
         x: x + Math.cos(angle) * dist,
         y: y + Math.sin(angle) * dist,
         alpha: 0,
@@ -54,8 +65,8 @@ export class FXLayer extends Container {
     this.addChild(ring);
     const s = ring as unknown as { scale: { set: (v: number) => void }; alpha: number };
     s.scale.set(0.4);
-    gsap.to(s.scale, { x: 3.2, y: 3.2, duration: 0.34, ease: 'power2.out' });
-    gsap.to(ring, {
+    this.finiteTo(s.scale, { x: 3.2, y: 3.2, duration: 0.34, ease: 'power2.out' });
+    this.finiteTo(ring, {
       alpha: 0,
       duration: 0.34,
       ease: 'power1.out',
@@ -78,7 +89,7 @@ export class FXLayer extends Container {
     t.x = x;
     t.y = y;
     this.addChild(t);
-    gsap.fromTo(
+    this.finiteFromTo(
       t,
       { alpha: 0, y: y + 8, scale: 0.82 },
       {
@@ -88,7 +99,7 @@ export class FXLayer extends Container {
         duration: 0.32,
         ease: 'back.out(2.2)',
         onComplete: () => {
-          gsap.to(t, {
+          this.finiteTo(t, {
             alpha: 0,
             y: y - 54,
             duration: 0.38,
@@ -113,7 +124,7 @@ export class FXLayer extends Container {
     t.x = x;
     t.y = y;
     this.addChild(t);
-    gsap.fromTo(
+    this.finiteFromTo(
       t,
       { alpha: 0, y: y + 10 },
       {
@@ -122,7 +133,7 @@ export class FXLayer extends Container {
         duration: 0.5,
         ease: 'back.out(2)',
         onComplete: () => {
-          gsap.to(t, {
+          this.finiteTo(t, {
             alpha: 0,
             y: y - 60,
             duration: 0.4,
@@ -136,7 +147,7 @@ export class FXLayer extends Container {
 }
 
 /** 屏幕震动（需求 19.5, 19.7）：作用于传入的容器 */
-export function screenShake(target: Container, chain: number): void {
+export function screenShake(target: Container, chain: number): gsap.core.Timeline {
   const cfg = AnimConfig.shake;
   const amp = Math.min(cfg.baseAmplitude + chain * cfg.perChain, cfg.maxAmplitude);
   const ox = target.x;
@@ -152,6 +163,7 @@ export function screenShake(target: Container, chain: number): void {
     });
   }
   tl.to(target, { x: ox, y: oy, duration: cfg.duration / steps, ease: 'power2.out' });
+  return tl;
 }
 
 /**

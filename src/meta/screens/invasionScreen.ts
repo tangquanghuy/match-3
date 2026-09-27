@@ -1,75 +1,29 @@
+import { INVASION_RANKS, invasionRankAt, INVASION_VP_BY_DIFFICULTY, INVASION_RANK_GEMS_TOTAL } from '../data/invasionRanks';
+import { enemyTraitCount } from '../data/enemyDifficulty';
 /**
  * 入侵 PvP 屏（素材批 2026-09-19）——排位官网阶/每周 VP/镜像对手一览。
  * 榜单与候选都是纯函数读模型（systems/invasion）；出战与结算走网关 +
  * launchInvasionBattle（结算 toast 汇报 VP/荣耀/名次），跨周 lazy 周结在网关方法里触发。
  */
-import { INVASION, INVASION_LEAGUES, INVASION_VP_TABLE, INVASION_ZONES } from '../data/economy';
+import { INVASION, INVASION_LEAGUES } from '../data/economy';
 import { RARITY_NAMES as RARITY_CN } from '../data/rarity';
 import { getTroopById } from '../../data/troops';
 import {
   invasionCandidates,
+  invasionVictoryVp,
   invasionStandings,
   type StandingRow,
 } from '../systems/invasion';
 import { weekStartOf } from '../gateway';
-import { bottomNavHtml, toastHtml, topbarHtml, $$ } from '../shell/chrome';
+import { bottomNavHtml, toastHtml, topbarHtml, toast, $$ } from '../shell/chrome';
 import type { Screen, ShellCtx } from '../shell/screen';
 import type { MetaSave } from '../state/schema';
 import { troopImg } from './teamScreen';
 
-/** 联赛徽章色（与稀有度色系对齐的官阶梯度） */
-const LEAGUE_COLORS = [
-  '#9a8f86', '#c0c7ce', '#e6b84c', '#67c1b5', '#4fb06d',
-  '#4f8fd0', '#9a6fd0', '#d09a4f', '#d04f5f', '#e8d24a',
-] as const;
-const LEAGUE_ICONS = ['helmet', 'helmet', 'swords', 'swords', 'wing', 'wing', 'banner', 'banner', 'crown', 'crown'] as const;
 const TIER_CN: Record<string, string> = { minion: '普通', elite: '精英', boss: '首领' };
-
-function leagueEmblem(index: number, extraClass = ''): string {
-  return `<span class="inv-rank-emblem ${extraClass}" style="--rank-color:${LEAGUE_COLORS[index] ?? LEAGUE_COLORS[0]}" role="img" aria-label="${INVASION_LEAGUES[index] ?? INVASION_LEAGUES[0]}官阶徽记"><span data-icon="${LEAGUE_ICONS[index] ?? 'helmet'}"></span></span>`;
-}
-
-function expectedVpRange(defense: readonly { level: number }[], frenzy: boolean): [number, number] {
-  const average = defense.reduce((sum, d) => sum + d.level, 0) / Math.max(defense.length, 1);
-  const row = INVASION_VP_TABLE.find((entry) => average <= entry.maxLevel) ?? INVASION_VP_TABLE[INVASION_VP_TABLE.length - 1]!;
-  const multiplier = frenzy ? 2 : 1;
-  return [row.min * multiplier, row.max * multiplier];
-}
-
-/**
- * 推荐目标只表达「预估收益 / 防守评分」的相对值，不改变匹配或结算规则。
- * 分数相同保留原候选池的先后顺序；推荐目标在手机轮播中优先展示。
- */
-function targetValueOf(target: { defense: readonly { level: number }[]; frenzy: boolean; rating: number }): number {
-  const [min, max] = expectedVpRange(target.defense, target.frenzy);
-  return ((min + max) / 2) / Math.max(target.rating, 1);
-}
-
-function promotionProgress(
-  league: number,
-  placement: number,
-  zone: { promote: number; relegate: number },
-): { headline: string; note: string; tone: 'up' | 'behind' | 'top' } {
-  if (league === INVASION_LEAGUES.length - 1) {
-    return { headline: `第 ${placement}`, note: '最高官阶 · 不再晋级', tone: 'top' };
-  }
-  if (placement <= zone.promote) {
-    return { headline: `第 ${placement}`, note: `已在晋级区 · 前 ${zone.promote} 名晋级`, tone: 'up' };
-  }
-  return {
-    headline: `第 ${placement}`,
-    note: `还差 ${placement - zone.promote} 名进入前 ${zone.promote}`,
-    tone: 'behind',
-  };
-}
-
-function nextRefreshText(now: number): string {
-  const next = new Date(now);
-  next.setHours(24, 0, 0, 0);
-  const mins = Math.max(1, Math.ceil((next.getTime() - now) / 60_000));
-  const hours = Math.floor(mins / 60);
-  const rest = mins % 60;
-  return `约 ${hours} 小时 ${String(rest).padStart(2, '0')} 分钟后`;
+function leagueEmblem(index: number): string {
+  const rank = INVASION_RANKS[index] ?? INVASION_RANKS[0]!;
+  return `<span class="inv-rank-emblem"><img src="${rank.icon}" alt="${rank.name} 官阶徽记" width="72" height="80"></span>`;
 }
 
 function playerSummary(save: MetaSave): string {
@@ -91,38 +45,6 @@ function playerSummary(save: MetaSave): string {
   const average = levels.length ? (levels.reduce((sum, level) => sum + level, 0) / levels.length).toFixed(1) : '—';
   return `<span>${team.members.length} 人${hero ? ' · 含主角' : ''}</span><span>平均 Lv.${average}</span>`;
 }
-
-/**
- * I-1：晋级/降级口径。`relegate === 0` 有两种含义——**本级是底层**（青铜，无降级区）
- * 与**本级是顶端**（钻石，promote 也为 0）。此前一句话把两者混成「顶端联赛只升不降」，
- * 青铜玩家第一眼就被告知自己打到头了。这里按 league 位置分开成句。
- */
-function zoneText(league: number, leagueName: string): string {
-  const zone = INVASION_ZONES[league]!;
-  const isTop = league === INVASION_LEAGUES.length - 1;
-  if (isTop) return `<b>${leagueName}</b> 是最高官阶：本周名次不再晋级${zone.relegate > 0 ? `，<b>第 ${zone.relegate} 名以后</b> 降级` : '，也不会降级'}。`;
-  const promote = `本周名次 <b>前 ${zone.promote}</b> 晋级`;
-  if (zone.relegate > 0) return `${promote} · <b>第 ${zone.relegate} 名以后</b> 降级。`;
-  return `${promote} · <b>${leagueName}</b> 是最低官阶，不会降级。`;
-}
-
-/** VP 基础分区间（取官方表首末段的 base），例：`10~50` */
-function vpBaseRangeText(): string {
-  const first = INVASION_VP_TABLE[0]!;
-  const last = INVASION_VP_TABLE[INVASION_VP_TABLE.length - 1]!;
-  return `${first.base}~${last.base}`;
-}
-
-/**
- * I-2：此前公示的「4 消加分」在合同层拿不到（`eventSummary` 只有类型计数，
- * `TASK-META §6` 开放问题 2 已登记），而系统真正结算的是速胜/存活/额外回合三项。
- * 这里整词删除「4 消」，并把三张官方表的真实数值直接派生成文案。
- */
-const VP_BONUS_TEXT = [
-  `速胜 ≤${INVASION.speedBonuses.map((b) => b.maxTurns).join('/')} 回合 +${INVASION.speedBonuses.map((b) => b.bonus).join('/+')}`,
-  `存活 ${INVASION.survivorBonuses.map((b) => b.survivors).join('/')} 人 +${INVASION.survivorBonuses.map((b) => b.bonus).join('/+')}`,
-  `额外回合 ${INVASION.extraTurnBonuses.map((b) => b.count).join('/')} 次 +${INVASION.extraTurnBonuses.map((b) => b.bonus).join('/+')}`,
-].join('、');
 
 export class InvasionScreen implements Screen {
   private listeners: Array<[EventTarget, string, EventListenerOrEventListenerObject]> = [];
@@ -161,27 +83,31 @@ export class InvasionScreen implements Screen {
                 <p class="inv-lock-hint"><b>主角经验来源</b>：完成王国任务与探索战斗，在胜利结算中获得经验。</p>
                 <button class="primary inv-map-cta" id="invMapCta" type="button"><span data-icon="map" aria-hidden="true"></span><span>去世界地图打任务</span><span data-icon="arrow" aria-hidden="true"></span></button>
               </div>
-              <div class="inv-lock-preview">${leagueEmblem(0)}<span><small>解锁后的起点</small><b>青铜官阶</b></span><span class="inv-lock-preview-note">每周凭对战积分争取晋级</span></div>
+              <div class="inv-lock-preview">${leagueEmblem(0)}<span><small>解锁后的起点</small><b>青铜官阶</b></span><span class="inv-lock-preview-note">本周晋阶 VP 达标即可晋阶</span></div>
             </div>
           </section>
         </div>
-        ${bottomNavHtml('', '官阶=每周 VP 联赛')}
+        ${bottomNavHtml('', '官阶 · 本周晋阶 VP 晋阶')}
         ${toastHtml()}`;
     }
 
-    const leagueName = INVASION_LEAGUES[save.invasion.league]!;
+    const rank = invasionRankAt(save.invasion.progressionVp);
+    const nextRank = INVASION_RANKS[rank.index + 1];
+    const isTop = !nextRank;
+    const leagueName = rank.name;
+    const unclaimed = INVASION_RANKS.filter(r => r.vp <= save.invasion.progressionVp && !save.invasion.claimedRanks.includes(r.id));
+    const progress = nextRank ? Math.min(100, (save.invasion.progressionVp - rank.vp) / (nextRank.vp - rank.vp) * 100) : 100;
+    const progressNote = nextRank ? `再获 ${nextRank.vp - save.invasion.progressionVp} VP 晋升 ${nextRank.name}` : '已达最高官阶 · 参与每周排名';
     const standings = invasionStandings(save, now, weekStart);
-    const zone = INVASION_ZONES[save.invasion.league]!;
     const candidates = invasionCandidates(save, now, weekStart);
-    const recommendedId = candidates.length
-      ? candidates.reduce((best, candidate) => (targetValueOf(candidate) > targetValueOf(best) ? candidate : best)).id
-      : '';
-    const orderedCandidates = [...candidates].sort((a, b) => Number(b.id === recommendedId) - Number(a.id === recommendedId));
-    const promotion = promotionProgress(save.invasion.league, standings.placement, zone);
+    // Always show low -> middle -> high; do not recommend a complete combo just
+    // because raw stats miss its strength or Blood Frenzy doubles its rewards.
+    const recommendedId = candidates.find(m => m.difficulty === 'easy')?.id ?? '';
+    const orderedCandidates = candidates;
 
     const candidateRows = orderedCandidates
-      .map((m, index) => {
-        const [vpMin, vpMax] = expectedVpRange(m.defense, m.frenzy);
+      .map((m) => {
+        const victoryVp = invasionVictoryVp(m);
         const recommended = m.id === recommendedId;
         const defense = m.defense
           .map((d) => {
@@ -189,21 +115,20 @@ export class InvasionScreen implements Screen {
             if (!troop) return '';
             return `<span class="inv-def r-${troop.rarityIdx}" title="${troop.name} · ${RARITY_CN[troop.rarityIdx] ?? ''} · ${TIER_CN[d.tier] ?? d.tier} · Lv.${d.level}">
               ${troopImg(troop, false, `alt="${troop.name}"`)}
-              <span class="inv-def-caption"><b>${troop.name}</b><small>${TIER_CN[d.tier] ?? d.tier} · Lv.${d.level}</small></span>
+              <span class="inv-def-caption"><b>${troop.name}</b><small>Lv.${d.level} · ${d.traitCount ?? enemyTraitCount(d.level)}/3 特质</small></span>
             </span>`;
           })
           .join('');
         return `
-          <article class="inv-rival${m.frenzy ? ' frenzy' : ''}${recommended ? ' recommended' : ''}">
+          <article data-difficulty="${m.difficulty}" data-vp-multiplier="${m.frenzyMultiplier}" class="inv-rival${m.frenzy ? ' frenzy' : ''}${m.frenzyMultiplier === 2 ? ' frenzy-double' : ''}${recommended ? ' recommended' : ''}">
             <div class="inv-rival-head">
-              <small>对手 ${String(index + 1).padStart(2, '0')}${recommended ? ' · 推荐' : ''}</small>
               <h3 class="inv-rival-name">${m.name}</h3>
-              <span class="inv-rival-nums">防守评分 ${m.rating}${m.frenzy ? ' · 血怒' : ''}</span>
+              <span class="inv-rival-nums"><span>属性分 ${m.rating}</span>${m.frenzy ? `<span class="inv-frenzy-badge" title="基础属性提升 ${Math.round(((m.defense[0]?.statMultiplier ?? 1) - 1) * 100)}%，更强的敌方阵容"><i aria-hidden="true">◆</i>血怒 <b>VP ×${m.frenzyMultiplier}</b></span>` : ''}</span>
             </div>
             <div class="inv-rival-defense" aria-label="防守队阵容">${defense}</div>
             <div class="inv-rival-footer">
-              <div class="inv-rival-expected"><small>胜利预计</small><b>+${vpMin}~${vpMax} <em>VP</em></b></div>
-              <small class="inv-rival-risk">战败 −${INVASION.vpLoss} VP${m.frenzy ? ' · 血怒奖励 ×2' : ''}</small>
+              <div class="inv-rival-expected"><small>胜利获得</small><b>+${victoryVp} <em>VP</em></b></div>
+              <small class="inv-rival-risk">战败 −${INVASION.vpLoss} VP</small>
               <button class="inv-attack${recommended ? ' recommended' : ''}" data-invade="${m.id}" data-recommended="${recommended}" type="button" aria-label="出击 ${m.name}"><span data-icon="swords"></span>出击</button>
             </div>
           </article>`;
@@ -216,50 +141,82 @@ export class InvasionScreen implements Screen {
           const place = standings.rows.indexOf(r) + 1;
           return `
             <div class="inv-row${r.isPlayer ? ' me' : ''}">
-              <span class="inv-place">${place}</span><span class="inv-name">${r.name}${r.isPlayer ? ' · 你' : ''}${r.frenzy ? ' · 血怒' : ''}</span><span class="inv-vp">${r.vp} VP</span>
-            </div>${zone.promote > 0 && place === zone.promote ? `<div class="inv-cutline">前 ${zone.promote} 名晋级</div>` : ''}${zone.relegate > 0 && place === zone.relegate - 1 ? `<div class="inv-cutline danger">第 ${zone.relegate} 名起降级</div>` : ''}`;
+              <span class="inv-place">${place}</span><span class="inv-name">${r.name}${r.isPlayer ? ' · 你' : ''}</span><span class="inv-vp">${r.vp} VP</span>
+            </div>`;
         })
         .join('');
 
-    const secondary = param === 'standings' || param === 'ranks' || param === 'rules' ? param : null;
-    const rankList = INVASION_LEAGUES.map((name, index) => `
-      <div class="inv-rank-row${index === save.invasion.league ? ' current' : ''}">
-        ${leagueEmblem(index)}<span><b>${name}</b><small>${index === save.invasion.league ? '当前官阶' : index < save.invasion.league ? '已达成' : '尚未到达'}</small></span>
-        <span class="inv-rank-condition">${index === INVASION_LEAGUES.length - 1 ? '最高官阶' : `前 ${INVASION_ZONES[index]!.promote} 名晋级`}</span>
-      </div>`).join('');
+    const route = param?.split('/')[0];
+    const secondary = route === 'standings' || route === 'ranks' || route === 'rules' ? route : null;
+    const pageSize = typeof window !== 'undefined' && window.innerWidth <= 900 ? 3 : 6;
+    const pageCount = Math.ceil(INVASION_RANKS.length / pageSize);
+    const rawPage = Number(param?.split('/')[1]);
+    const defaultPage = Math.floor((unclaimed[0]?.index ?? rank.index) / pageSize);
+    const rankPage = param?.includes('/') && Number.isFinite(rawPage) ? Math.min(pageCount - 1, Math.max(0, Math.floor(rawPage))) : defaultPage;
+    const rankList = INVASION_RANKS.slice(rankPage * pageSize, (rankPage + 1) * pageSize).map(r => {
+      const claimed = save.invasion.claimedRanks.includes(r.id);
+      const reached = save.invasion.progressionVp >= r.vp;
+      return `<article class="inv-rank-row${r.index === rank.index ? ' current' : ''}${reached ? ' reached' : ''}">
+        ${leagueEmblem(r.index)}<div class="inv-rank-copy"><b>${r.name}</b><small>${r.vp.toLocaleString()} VP${r.index === rank.index ? ' · 当前' : ''}</small></div>
+        <div class="inv-rank-reward"><span><i data-icon="gem"></i>${r.gems} 宝石</span><button type="button" data-claim-rank="${r.id}"${claimed || !reached ? ' disabled' : ''}>${claimed ? '已领取' : reached ? '领取' : '未达成'}</button></div>
+      </article>`;
+    }).join('');
+    const rankOverview = `<section class="inv-rank-overview">${leagueEmblem(rank.index)}<div><small>当前官阶</small><h2>${rank.name}</h2><p>${progressNote}</p><progress aria-label="晋阶进度" max="100" value="${progress}"></progress><small>本周 ${save.invasion.progressionVp.toLocaleString()} VP${nextRank ? ` / ${nextRank.vp.toLocaleString()} VP` : ''}</small></div><div class="inv-rank-claimable"><b>${unclaimed.reduce((sum, r) => sum + r.gems, 0)}</b><small>待领宝石</small></div></section>`;
+    const rankPager = `<nav class="inv-rank-pager" aria-label="官阶分页">${Array.from({length: pageCount}, (_, i) => `<a href="#invasion/ranks/${i}"${i === rankPage ? ' aria-current="page"' : ''}>${pageSize === 3 ? INVASION_LEAGUES[i] : `${INVASION_LEAGUES[i * 2]} · ${INVASION_LEAGUES[i * 2 + 1]}`}</a>`).join('')}</nav>`;
     const rules = `<div class="inv-rules-body">
-      <h2>官阶与战绩</h2><p>${zoneText(save.invasion.league, leagueName)}</p>
-      <h2>胜负与积分</h2><p>胜利基础分按对手平均等级计算：${vpBaseRangeText()} VP。速胜、存活人数和额外回合可获得加分；血怒对手胜利积分翻倍。战败扣 ${INVASION.vpLoss} VP，积分不会低于零。</p>
-      <h2>加分档位</h2><p>${VP_BONUS_TEXT}。</p>
+      <h2>官阶与战绩</h2><p>本周获得的 VP 达到门槛立即晋阶，战败不减少晋阶进度。每周重置官阶进度和领奖记录，每阶每周领取一次；钻石 III 开放周榜排名。</p>
+      <h2>三档对手</h2><p>每次提供三名对手，自由选择挑战。免费刷新，不限次数；官阶越高，对手越强。</p><h2>胜负与积分</h2><p>三档对手每胜分别获得 ${INVASION_VP_BY_DIFFICULTY.easy}／${INVASION_VP_BY_DIFFICULTY.normal}／${INVASION_VP_BY_DIFFICULTY.hard} VP，不受等级、回合数或存活人数影响。血怒对手随机出现，阵容与基础属性更强：×1.5 血怒基础属性提升 25%，×2 血怒提升 50%，胜利 VP 按标示倍率增加；并非每次刷新都会出现。战败扣 ${INVASION.vpLoss} 榜单 VP，保底为零，不扣晋阶 VP。每周一重置，未领取奖励过期；每周全部领取共 ${INVASION_RANK_GEMS_TOTAL.toLocaleString()} 宝石。</p>
       <h2>荣耀奖励</h2><p>胜利获得荣耀；每日首胜另有奖励。20 荣耀可在宝箱殿兑换荣耀箱。</p>
     </div>`;
     const secondaryContent = secondary === 'standings'
-      ? `<section class="inv-secondary-body"><header><h2>本周榜单</h2><p>${leagueName}官阶 · ${standings.rows.length} 人 · 你当前第 ${standings.placement} 名</p></header><div class="inv-rows">${standingsRows(standings.rows)}</div></section>`
+      ? `<section class="inv-secondary-body"><header><h2>本周榜单</h2><p>${isTop ? `${leagueName} · ${standings.rows.length} 人 · 你当前第 ${standings.placement} 名` : '达到钻石 III 后开放排名；当前晋阶只看本周晋阶 VP。'}</p></header>${isTop ? `<div class="inv-rows">${standingsRows(standings.rows)}</div>` : '<a class="inv-rank-link" href="#invasion/ranks">查看官阶进度</a>'}</section>`
       : secondary === 'ranks'
-        ? `<section class="inv-secondary-body"><header><h2>官阶总览</h2><p>每周结算后按名次晋级；当前官阶以徽记标示。</p></header><div class="inv-rank-list">${rankList}</div></section>`
+        ? `<section class="inv-secondary-body inv-ranks-page"><header><h2>官阶与奖励</h2><p>每周 ${INVASION_RANK_GEMS_TOTAL.toLocaleString()} 宝石 · 每周一重置</p></header>${rankOverview}${rankPager}<div class="inv-rank-list">${rankList}</div><p class="inv-rank-page-note">第 ${rankPage + 1} / ${pageCount} 页 · 共 30 阶</p></section>`
         : `<section class="inv-secondary-body"><header><h2>对战规则</h2></header>${rules}</section>`;
 
     return `
       ${topbarHtml()}
       <div class="screen inv-screen${secondary ? ' inv-screen-secondary' : ''}">
         <section class="panel inv-panel inv-battle-hub">
-          ${secondary ? `<nav class="inv-subnav" aria-label="入侵信息"><a href="#invasion"><span data-icon="arrow"></span>返回对战</a><a href="#invasion/standings"${secondary === 'standings' ? ' aria-current="page"' : ''}>本周榜单</a><a href="#invasion/ranks"${secondary === 'ranks' ? ' aria-current="page"' : ''}>官阶</a><a href="#invasion/rules"${secondary === 'rules' ? ' aria-current="page"' : ''}>规则</a></nav>${secondaryContent}` : `
+          ${secondary ? `<nav class="inv-subnav" aria-label="入侵信息"><a href="#invasion"><span data-icon="arrow"></span>返回对战</a>${isTop ? `<a href="#invasion/standings"${secondary === 'standings' ? ' aria-current="page"' : ''}>本周榜单</a>` : ''}<a href="#invasion/ranks"${secondary === 'ranks' ? ' aria-current="page"' : ''}>官阶</a><a href="#invasion/rules"${secondary === 'rules' ? ' aria-current="page"' : ''}>规则</a></nav>${secondaryContent}` : `
           <header class="inv-hub-head">
-            <div class="inv-hub-rank">${leagueEmblem(save.invasion.league)}<div><small>当前官阶 · 第 ${save.invasion.seasonsPlayed + 1} 赛季</small><h1>${leagueName}</h1><p>${promotion.note}</p></div></div>
-            <div class="inv-hub-status"><span><small>本周 VP</small><b>${save.invasion.vp}</b></span><span><small>当前名次</small><b>${promotion.headline}<i> / 30</i></b></span></div>
-            <nav class="inv-hub-links" aria-label="入侵信息"><a href="#invasion/standings">榜单 <span data-icon="arrow"></span></a><a href="#invasion/ranks">官阶 <span data-icon="arrow"></span></a><a href="#invasion/rules">规则 <span data-icon="arrow"></span></a></nav>
+            <div class="inv-hub-rank">${leagueEmblem(rank.index)}<div><small>当前官阶</small><h1>${leagueName}</h1><p>${progressNote}</p></div></div>
+            <div class="inv-hub-status"><span><small>本周 VP</small><b>${save.invasion.vp}</b></span><span><small>${isTop ? '当前名次' : '本周晋阶 VP'}</small><b>${isTop ? `第 ${standings.placement}` : save.invasion.progressionVp}</b></span></div>
+            <nav class="inv-hub-links" aria-label="入侵信息">${isTop ? '<a href="#invasion/standings">榜单 <span data-icon="arrow"></span></a>' : ''}<a href="#invasion/ranks">官阶${unclaimed.length ? `<i class="inv-reward-dot">${unclaimed.length} 可领</i>` : ''} <span data-icon="arrow"></span></a><a href="#invasion/rules">规则 <span data-icon="arrow"></span></a></nav>
           </header>
-          <div class="inv-choice-head"><div><small>每日 00:00 更新</small><h2>选择对手</h2></div><span class="inv-choice-refresh">${nextRefreshText(now)}</span><div class="inv-choice-pager" aria-label="切换对手"><button type="button" data-inv-prev aria-label="上一名对手" title="上一名对手" disabled><span data-icon="arrow"></span></button><span class="inv-choice-position" aria-live="polite">1 / ${orderedCandidates.length}</span><button type="button" data-inv-next aria-label="下一名对手" title="下一名对手"${orderedCandidates.length < 2 ? ' disabled' : ''}><span data-icon="arrow"></span></button></div></div>
+          <div class="inv-choice-head"><div><small>免费刷新 · 不限次数</small><h2>选择对手</h2></div><button type="button" class="inv-choice-refresh" data-inv-refresh>刷新对手</button><div class="inv-choice-pager" aria-label="切换对手"><button type="button" data-inv-prev aria-label="上一名对手" title="上一名对手" disabled><span data-icon="arrow"></span></button><span class="inv-choice-position" aria-live="polite">1 / ${orderedCandidates.length}</span><button type="button" data-inv-next aria-label="下一名对手" title="下一名对手"${orderedCandidates.length < 2 ? ' disabled' : ''}><span data-icon="arrow"></span></button></div></div>
           <div class="inv-rivals">${candidateRows}</div>
           <footer class="inv-hub-foot"><div><small>当前出战</small><b>${save.teams[save.activeTeamIndex]?.name ?? '未命名队伍'}</b><span>${playerSummary(save)}</span></div><a href="#team">调整队伍 <span data-icon="arrow"></span></a></footer>
           `}
         </section>
       </div>
-      ${bottomNavHtml('', '入侵排位 · 每周结算')}
+      ${bottomNavHtml('', '本周晋阶 VP 晋阶 · 官阶页领取宝石')}
       ${toastHtml()}`;
   }
 
   mount(ctx: ShellCtx): void {
+    const now = Date.now();
+    if (ctx.save().hero.level >= INVASION.unlockHeroLevel && ctx.save().invasion.weekStart !== weekStartOf(now)) {
+      void ctx.gateway.syncInvasionSeason(now, weekStartOf(now)).then(() => ctx.refresh());
+      return;
+    }
+    const refreshButton = document.querySelector<HTMLButtonElement>('[data-inv-refresh]');
+    if (refreshButton) this.on(refreshButton, 'click', () => {
+      refreshButton.disabled = true;
+      const time = Date.now();
+      void ctx.gateway.refreshInvasionOpponents(time, weekStartOf(time)).then(update => {
+        ctx.refresh();
+        if (!update.result.ok) toast(update.result.message);
+      }).catch(() => { refreshButton.disabled = false; toast('刷新失败，请重试'); });
+    });
+    $$('[data-claim-rank]').forEach(button => this.on(button, 'click', () => {
+      const btn = button as HTMLButtonElement;
+      btn.disabled = true;
+      void ctx.gateway.claimInvasionRank(btn.dataset.claimRank!, Date.now(), ctx.save().invasion.weekStart).then(update => {
+        ctx.refresh();
+        toast(update.result.ok ? `已领取 ${update.result.gems} 宝石` : update.result.message);
+      }).catch(() => { btn.disabled = false; toast('领取失败，请重试'); });
+    }));
     const mapCta = document.querySelector<HTMLElement>('#invMapCta');
     if (mapCta) this.on(mapCta, 'click', () => ctx.navigate('#map'));
     const scroller = document.querySelector<HTMLElement>('.inv-rivals');

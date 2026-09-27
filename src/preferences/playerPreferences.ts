@@ -5,6 +5,12 @@
  * localStorage 不可用时退回内存值，设置页仍可在当前会话内正常工作。
  */
 export interface PlayerPreferences {
+  masterEnabled: boolean;
+  masterVolume: number;
+  musicEnabled: boolean;
+  musicVolume: number;
+  narrationEnabled: boolean;
+  narrationVolume: number;
   soundEffectsEnabled: boolean;
   soundEffectsVolume: number;
   reducedMotion: boolean;
@@ -13,22 +19,43 @@ export interface PlayerPreferences {
 export const PLAYER_PREFERENCES_KEY = 'gems.player.preferences.v1';
 
 export const DEFAULT_PLAYER_PREFERENCES: Readonly<PlayerPreferences> = {
+  masterEnabled: true,
+  masterVolume: 0.8,
+  musicEnabled: true,
+  musicVolume: 0.5,
+  narrationEnabled: true,
+  narrationVolume: 0.7,
   soundEffectsEnabled: true,
   soundEffectsVolume: 0.7,
   reducedMotion: false,
 };
 
+const listeners = new Set<(preferences: PlayerPreferences) => void>();
+export function subscribePlayerPreferences(listener: (preferences: PlayerPreferences) => void): () => void {
+  listeners.add(listener);
+  return () => { listeners.delete(listener); };
+}
+function notifyPreferences(): void {
+  for (const listener of listeners) listener({ ...memoryPreferences });
+}
+
 let memoryPreferences: PlayerPreferences = { ...DEFAULT_PLAYER_PREFERENCES };
 
-const clampVolume = (value: unknown): number => {
+const clampVolume = (value: unknown, fallback = DEFAULT_PLAYER_PREFERENCES.soundEffectsVolume): number => {
   const numeric = typeof value === 'number' ? value : Number(value);
-  if (!Number.isFinite(numeric)) return DEFAULT_PLAYER_PREFERENCES.soundEffectsVolume;
+  if (value == null || !Number.isFinite(numeric)) return fallback;
   return Math.round(Math.min(1, Math.max(0, numeric)) * 100) / 100;
 };
 
 function normalize(raw: unknown): PlayerPreferences {
   const value = raw && typeof raw === 'object' ? raw as Partial<PlayerPreferences> : {};
   return {
+    masterEnabled: typeof value.masterEnabled === 'boolean' ? value.masterEnabled : true,
+    masterVolume: clampVolume(value.masterVolume, 0.8),
+    musicEnabled: typeof value.musicEnabled === 'boolean' ? value.musicEnabled : true,
+    musicVolume: clampVolume(value.musicVolume, 0.5),
+    narrationEnabled: typeof value.narrationEnabled === 'boolean' ? value.narrationEnabled : true,
+    narrationVolume: clampVolume(value.narrationVolume, 0.7),
     soundEffectsEnabled: typeof value.soundEffectsEnabled === 'boolean'
       ? value.soundEffectsEnabled
       : DEFAULT_PLAYER_PREFERENCES.soundEffectsEnabled,
@@ -99,6 +126,7 @@ export function setPlayerPreferences(patch: Partial<PlayerPreferences>): PlayerP
     }
   }
   applyPlayerPreferences();
+  notifyPreferences();
   return { ...memoryPreferences };
 }
 
@@ -114,4 +142,5 @@ export function resetPlayerPreferences(): void {
     }
   }
   applyPlayerPreferences();
+  notifyPreferences();
 }

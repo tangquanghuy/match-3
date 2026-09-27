@@ -73,6 +73,23 @@ export function applyStormToTeam(
 }
 
 /** 技能侧造风暴的虚拟 troopId 号段（与 TurnEngine.debugSetStorm 同口径，供表现层查表兜底） */
+/** End the active storm, regardless of which side summoned it. No storm is a no-op. */
+export function removeStormEffect(): EffectPrimitive {
+  return {
+    apply(ctx: EffectContext): GameEvent[] {
+      const events: StormChangeEvent[] = [];
+      for (const side of [PlayerSide.Left, PlayerSide.Right]) {
+        const team = ctx.state.teams[side];
+        if (!team.storm) continue;
+        const prevColor = team.storm.color;
+        team.storm = undefined;
+        events.push({ type: 'storm-change', player: side, color: null, reason: 'removed', prevColor });
+      }
+      return events;
+    },
+  };
+}
+
 export function skillStormTroopId(color: BaseColor): number {
   return 9900 + Object.values(BaseColor).indexOf(color);
 }

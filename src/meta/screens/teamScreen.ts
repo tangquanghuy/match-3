@@ -47,19 +47,20 @@ export function troopArtFallback(troop: TroopData | null, hero = false): string 
 }
 
 /**
- * 立绘兜底链（依次尝试）：本地 GOW 官方图（troops.json `portrait` 字段，data/raw 1828 张全量，
+ * 立绘兜底链（依次尝试）：自定义立绘（troops.json `portrait`，data/raw/custom-portraits，
  * dev/preview 由 vite 中间件服务）→ 点名定制图 → 生成图 CDN → 种族通用图。
  */
 export function troopArtChain(troop: TroopData | null, hero = false): string[] {
   if (hero || !troop) return [troopArtFallback(troop, hero)];
   const chain: string[] = [];
+  if (troop.artUrl) chain.push(troop.artUrl);
   if (troop.portrait) chain.push(`/meta/assets/portraits/${troop.portrait}.webp`);
   if (NAMED_ART[troop.name]) chain.push(NAMED_ART[troop.name]!);
   chain.push(troopCdnArt(troop.name), troopArtFallback(troop, hero));
   return chain;
 }
 
-/** 立绘地址（链首）：本地 GOW 官方图 */
+/** 立绘地址（链首）：自定义立绘 */
 export function troopArt(troop: TroopData | null, hero = false): string {
   return troopArtChain(troop, hero)[0]!;
 }
@@ -77,6 +78,7 @@ const TYPE_CN: Record<string, string> = {
   Divine: '神圣', Undead: '亡灵', Construct: '构装', Elemental: '元素', Fey: '妖精',
   Wargare: '鱼人', Centaur: '半人马', Raksha: '罗刹', Stryx: '鸦人', Naga: '娜迦',
   Merfolk: '人鱼', Urska: '熊族', Tauros: '牛族', Mech: '机械', Gnome: '侏儒', Immortal: '不朽',
+  OtherworldVisitor: '异界来客',
   // 阶段 A T-筛选器表：种族下拉里 Daemon 等条目漏译，直接把英文抛给玩家
   Daemon: '恶魔', Wildfolk: '野民', Boss: '首领', Doom: '厄祸', Castle: '城塞',
 };
@@ -84,7 +86,7 @@ export function typeCn(types: readonly string[]): string {
   return types.map((t) => TYPE_CN[t] ?? t).join('/');
 }
 
-/** [魔法+N] 类公式按当前魔法值求值（共享渲染器，非交互粗体高亮） */
+/** [魔法+N] 类公式按当前魔力值求值（共享渲染器，非交互粗体高亮） */
 function spellText(desc: string, magic: number): string {
   return renderSpell(desc, magic, { interactive: false }).html;
 }
@@ -486,7 +488,7 @@ export class TeamScreen implements Screen {
     const count = this.slots.filter(Boolean).length;
     const dirty = this.isDirty();
     $('#teamName').textContent = team?.name ?? '—';
-    // TM-9：0 人/不足 3 人的编辑态不许再挂「出战中」
+    // TM-9：0 人/不足 4 人的编辑态不许再挂「出战中」
     const badgeState = count < MIN_TEAM_SIZE ? 'incomplete' : active ? 'active' : '';
     $('#activeBadge').textContent = count === 0 ? '空编队' : count < MIN_TEAM_SIZE ? `未完成 ${count}/3` : active ? '出战中' : '备用队伍';
     $('#activeBadge').className = 'active-badge' + (badgeState ? ' ' + badgeState : '');
@@ -519,7 +521,7 @@ export class TeamScreen implements Screen {
       .map((s) => this.byKey(String(s)))
       .filter((t): t is RosterEntry => !!t);
     if (!members.length) {
-      box.innerHTML = '<span class="gauge-summary">空编队 · 还差 3 人 · 法力色覆盖</span><span class="gauge-count">0 / 4</span>';
+      box.innerHTML = '<span class="gauge-summary">空编队 · 还差 4 人 · 法力色覆盖</span><span class="gauge-count">0 / 4</span>';
       return;
     }
     const averageLevel = Math.round(members.reduce((sum, member) => sum + member.level, 0) / members.length);
@@ -841,7 +843,7 @@ export class TeamScreen implements Screen {
   }
 
   private async addTeam(): Promise<void> {
-    // 存档要求每支预设队合法（3~4 人）：新建 = 复制当前队成员起底
+    // 存档要求每支预设队合法（4 人）：新建 = 复制当前队成员起底
     const save = this.ctx.save();
     const source = this.currentTeam();
     const members = source && !this.isDirty() ? source.members : this.slotsToMembers();
@@ -949,7 +951,7 @@ export class TeamScreen implements Screen {
       const chips = Object.entries(def.boosts)
         .map(([color, mana]) => {
           const key = color as keyof typeof BANNER_COLOR_LABELS;
-          return `<span class="banner-gem" title="${color} ${mana! > 0 ? '+' : '−'}${Math.abs(mana!)} 法力">${gemSvg([color.toLowerCase()])}<i>${BANNER_COLOR_LABELS[key]} ${mana! > 0 ? '+' : '−'}${Math.abs(mana!)}</i></span>`;
+          return `<span class="banner-gem" title="${color} ${mana! > 0 ? '+' : '−'}${Math.abs(mana!)} 法力值">${gemSvg([color.toLowerCase()])}<i>${BANNER_COLOR_LABELS[key]} ${mana! > 0 ? '+' : '−'}${Math.abs(mana!)}</i></span>`;
         })
         .join('');
       const hits = hitCount(kingdom);
@@ -974,7 +976,7 @@ export class TeamScreen implements Screen {
           <span class="banner-used">队伍用色 ${usedCopy}</span>
           <button class="sheet-close" data-banner-close type="button" aria-label="关闭"><span data-icon="close"></span></button>
         </div>
-        <p class="banner-picker-note">匹配加成色时该色法力 ±N（每次匹配，官方王国旗帜语义）· 已解锁 ${unlockedList.length} / ${all.length}</p>
+        <p class="banner-picker-note">匹配加成色时该色法力值 ±N（每次匹配，官方王国旗帜语义）· 已解锁 ${unlockedList.length} / ${all.length}</p>
         <div class="banner-picker-list">
           <div class="banner-group">已解锁（按命中你的用色排序）</div>
           ${row(null)}

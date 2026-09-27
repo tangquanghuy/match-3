@@ -51,7 +51,7 @@ const SKIPPED: { id: number; reason: string }[] = [
   { id: 7402, reason: '「伤害值等同于一名盟友的攻击力」= 泛指单体盟友（哪一名？）无来源 kind（allyStatSum 为总和、chosenStat 为本次手动选定目标——本咒语无 chosen 段且源是盟友非选定敌人）；「给予其攻甲」EN them=首敌/ZH=盟友 两读并存（r17-r26 口径维持）；3-8 法力区间与尾缀本身可表' },
   { id: 7435, reason: '「如果自身有 12 个或更多灵魂」= 经济阈值条件不在条件域（无 economy 阈值叶子）；「召唤一位随机恶魔」= 无按种族召唤通道（Daemon 179 个兵种、summonRandom 需显式名册、summonRandomOfKingdom 仅王国维度），r24/r26 口径维持' },
   { id: 7483, reason: '「伤害值等同于自身的攻击力，并因棕色敌军数量而增强 [x10]」= 伤害基数=攻击力（×1）与来源计数（×10）双系数结构：modifier 单通道，sources 只做计数相加后乘同一系数，数学上不可同表（r21-r26 口径维持）' },
-  { id: 7493, reason: '「随机发生任何情况」= 混沌技能，spell-rules §7 永久排除（r26 复核维持）' },
+  { id: 7493, reason: '历史跳过；现已依据原始 A-B-C-D-E-F 六步骤在 batch-acceptance 恢复，非永久排除。共享吞噬、转化池及状态规则另待认证。' },
   { id: 7690, reason: '「并将其冻结。如果该敌人已被冻结，则再造成 5 点伤害」= 条件须读施加冻结**之前**的状态快照，段序执行后 targetStatus 恒真（时序绑定无原语，r17-r26 口径维持）；enemyChosenAndAdjacent 相邻冻结目标模式已落，仅卡时序' },
   { id: 7810, reason: '「爆破 4 颗敌军法力颜色的宝石、20% 几率吞噬敌军」= ColorSpec ENEMY 逐段独立掷签且不落跨段追踪（resolveColor ENEMY 分支只回色不记来源），「them」= 出色敌人绑定断裂；7xxx 无步骤数据可考（r18-r26 口径维持）' },
   { id: 8037, reason: '「伤害值因其法力值而增强」官方 CountMana@FromTarget = 目标现行法力，targetStat 无 mana（仅 attack/armor/hp/magic/missingHp/manaCost）；「魔头×升华 3-5 倍」区间倍率亦不可表（r18-r26 口径维持）' },

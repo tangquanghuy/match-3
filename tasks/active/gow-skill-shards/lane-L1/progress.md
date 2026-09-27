@@ -1,0 +1,27 @@
+﻿- 2026-09-28T02:27:26.1201186+08:00 B01 start troop:7494,troop:7260,troop:6453,troop:6892,troop:6474
+- 2026-09-28T04:39:33.5287330+08:00 B01 resume (restart): src lock held by sa-L5; diffs found 7260 allyChosen vs native Enemy, 6453 order (marks before damage), 6474 reposition native SecondEnemy/FrontEnemy re-evaluated; writing tests
+- 2026-09-28T04:43:52.4908862+08:00 B02 start troop:6385,troop:6378,troop:7677,troop:6769,troop:6534
+- 2026-09-28T04:48:42.5236542+08:00 B02 tests written (6385 ok, 6378 pool diff, 7677/6769/6534 Charm source-dispute); awaiting src lock
+- 2026-09-28T04:48:42.5236542+08:00 B03 start troop:6885,troop:7793,troop:6305,troop:6023,troop:7803
+- 2026-09-28T04:49:13.1783710+08:00 B03 done accept=0 draft=5 waived=0 fixed=0 (all native Charm: blocked by L1-charm-instant; extra diffs L1-7803-order, L1-7793-prefnotprev, L1-6305-repeat)
+- 2026-09-28T04:49:34.5853869+08:00 B03 done accept=0 draft=5 waived=0 fixed=0 (all native Charm: blocked by L1-charm-instant; extra diffs L1-7803-order, L1-7793-prefnotprev, L1-6305-repeat)
+- 2026-09-28T04:49:47.0102451+08:00 B04 start troop:7515,troop:6605,weapon:1351,troop:6469,troop:6700
+- 2026-09-28T04:54:19.2701848+08:00 B04 tests written: 6700 consistent; weapon:1351 pool diff (L1-1351-pool); 6469 order diff (L1-6469-order); 7515/6605 Charm drafts
+- 2026-09-28T05:19:30.6533491+08:00 B05 start troop:6160,troop:6118,weapon:1129,troop:7272,troop:7271
+- 2026-09-28T05:20:14.8843214+08:00 LOCK src acquired by sa-L1 (fix set: L1-7260-target, L1-6453-order, L1-6474-knockback, L1-6378-pool, L1-6534-order, L1-1351-pool, L1-6469-order + Consume-first family)
+- 2026-09-28T05:37:59.0277196+08:00 FIX L1-7260-target batch-r13.ts,gowSnapshotOverrides.json,pool-39.json,troops.json 1
+- 2026-09-28T05:37:59.0277196+08:00 FIX L1-6453-order batch-r7.ts 1
+- 2026-09-28T05:37:59.0277196+08:00 FIX L1-6378-pool batch-r4.ts 1
+- 2026-09-28T05:37:59.0277196+08:00 FIX L1-6534-order batch-34.ts 1
+- 2026-09-28T05:37:59.0277196+08:00 FIX L1-1351-pool batch-w02.ts,batch-08.ts,gowWeaponReviewedOverrides.json 3
+- 2026-09-28T05:37:59.0277196+08:00 FIX L1-6469-order batch-r22.ts 1
+- 2026-09-28T05:37:59.0277196+08:00 FIX L1-consume-first batch-r22.ts,batch-w01.ts,batch-r19.ts 4
+- 2026-09-28T05:37:59.0277196+08:00 FIX L1-devour-double-roll prototypes.ts 5 (no accepted records affected; stale=0; full vitest: no new failures vs baseline except in-progress gowLaneL5B06; tsc 0)
+- 2026-09-28T05:37:59.0277196+08:00 WITHDRAWN L1-6474-knockback (conflicts with gowManaBurnTowerAudit; current runtime kept)
+- 2026-09-28T05:37:59.0277196+08:00 LOCK src released by sa-L1
+- 2026-09-28T05:41:26.6058911+08:00 B01 done accept=5 draft=0 waived=0 fixed=2 (7260 target+zh, 6453 order; 6474 kept current per gowManaBurnTowerAudit)
+- 2026-09-28T05:41:26.6058911+08:00 B02 done accept=2 draft=3 waived=0 fixed=2 (6378 pool, 6534 order; drafts 7677/6769/6534 blocked by L1-charm-instant)
+- 2026-09-28T05:41:26.6058911+08:00 B04 done accept=3 draft=2 waived=0 fixed=3 (1351 pool, 6469 order, devour double-roll primitive; drafts 7515/6605 Charm)
+- 2026-09-28T05:41:26.6058911+08:00 B05 in progress: troop:6160,troop:6118,weapon:1129,troop:7272,troop:7271 (fixes already landed: L1-consume-first, L1-devour-double-roll); tests pending
+- 2026-09-28T05:49:51.3911182+08:00 B05 done accept=4 draft=1 waived=0 fixed=0 (fixes landed in B04 lock session; 6160 draft on L1-6160-create-interleave)
+- 2026-09-28T05:49:51.3911182+08:00 ROUND STOP at batch boundary (context budget): 25 reviewed, accept 14, draft 11

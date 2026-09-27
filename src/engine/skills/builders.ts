@@ -34,6 +34,7 @@ import type {
   StormSegment,
   ShuffleBoardSegment,
   OneOfSegment,
+  ChooseSegment,
   EffectSegment,
   ExtraTurnSegment,
   SummonSegment,
@@ -121,6 +122,17 @@ function attach<T extends object>(seg: T, opts?: SegmentOpts): T {
 }
 
 /** 组装技能：把若干效果段按顺序组成一个技能原型 */
+/** Root-level player choice: branches have visible effect labels, not random selection. */
+export function chooseSkill(labels: string[], ...options: SkillPrototype['segments'][]): ChooseSegment {
+  if (labels.length !== options.length || options.length < 2) throw new Error('Invalid skill choices');
+  return { kind: 'choose', labels, options };
+}
+
+/** Declares a player-selected anchor even when no branch segment directly hits it. */
+export function targetedSkill(inputTarget: NonNullable<SkillPrototype['inputTarget']>, ...segments: SkillPrototype['segments']): SkillPrototype {
+  return { inputTarget, segments };
+}
+
 export function skill(...segments: SkillPrototype['segments']): SkillPrototype {
   return { segments };
 }
@@ -145,7 +157,15 @@ export interface NRangeOpts {
 /** 伤害段公共选项：范围/真实伤害之外，还支持概率、二次缩放、种族翻倍、死亡条件 */
 export interface DmgOpts extends SegmentOpts, NRangeOpts {
   range?: DamageRange;
+  /** Adjacent splash fraction (0.25 / 0.5 / 0.75). */
+  splashRatio?: number;
+  /** Independent probabilities for enemyRandomN splash waves; overrides n/nRange. */
+  splashChances?: number[];
+  /** Native repeated random damage steps, including repeat hits when fewer enemies remain. */
+  randomWaves?: number;
   trueDamage?: boolean;
+  /** Native ManaBurn: add each victim's current Mana, never drain it. */
+  manaBurn?: boolean;
   /** enemyFirstN/allyFirstN/allyRandomN/enemyRandomN 的 N */
   n?: number;
   /**
@@ -176,7 +196,11 @@ export function dmg(
 ): DamageSegment {
   const seg: DamageSegment = { kind: 'damage', target, scaling: scale(base, mult) };
   if (opts.range) seg.range = opts.range;
+  if (opts.splashRatio !== undefined) seg.splashRatio = opts.splashRatio;
+  if (opts.splashChances !== undefined) seg.splashChances = [...opts.splashChances];
+  if (opts.randomWaves !== undefined) seg.randomWaves = opts.randomWaves;
   if (opts.trueDamage) seg.trueDamage = true;
+  if (opts.manaBurn) seg.manaBurn = true;
   if (opts.n !== undefined) seg.n = opts.n;
   if (opts.nRange !== undefined) seg.nRange = opts.nRange;
   if (opts.rangeSpec) seg.rangeSpec = opts.rangeSpec;
@@ -222,6 +246,10 @@ function buff(target: TargetMode, stat: BuffStat, base: number, mult: number, op
 export function heal(target: TargetMode, base: number, mult = 1, opts: BuffOpts = {}): BuffSegment {
   return buff(target, 'hp', base, mult, opts);
 }
+/** Native IncreaseHealth: increase current and maximum Life by the same amount. */
+export function gainLife(target: TargetMode, base: number, mult = 1, opts: BuffOpts = {}): BuffSegment {
+  return { ...buff(target, 'hp', base, mult, opts), lifeMode: 'gain' };
+}
 /** 加护甲 */
 export function armor(target: TargetMode, base: number, mult = 1, opts: BuffOpts = {}): BuffSegment {
   return buff(target, 'armor', base, mult, opts);
@@ -230,7 +258,7 @@ export function armor(target: TargetMode, base: number, mult = 1, opts: BuffOpts
 export function attack(target: TargetMode, base: number, mult = 1, opts: BuffOpts = {}): BuffSegment {
   return buff(target, 'attack', base, mult, opts);
 }
-/** 加魔法值 */
+/** 加魔力值 */
 export function magic(target: TargetMode, base: number, mult = 1, opts: BuffOpts = {}): BuffSegment {
   return buff(target, 'magic', base, mult, opts);
 }
@@ -240,7 +268,7 @@ export function mana(target: TargetMode, base: number, mult = 1, opts: BuffOpts 
   return buff(target, 'mana', base, mult, opts);
 }
 
-/** Remove all current statuses from selected allies. */
+/** Cleanse: remove negative statuses from selected targets (positives kept, R002). */
 export function cleanse(target: TargetMode, n?: number, opts: SegmentOpts & NRangeOpts = {}): CleanseSegment {
   const segment: CleanseSegment = { kind: 'cleanse', target };
   if (n !== undefined) segment.n = n;
@@ -259,9 +287,10 @@ export function dispelStatus(statusId: string, target: TargetMode, opts: Segment
 }
 
 /** 随机属性获得（「获得 [魔法] 点随机技能值」：每点随机分给攻/甲/血/魔） */
-export function randomStat(target: TargetMode, base: number, mult = 1, opts: SegmentOpts & NRangeOpts = {}): import('./prototypes').RandomStatSegment {
+export function randomStat(target: TargetMode, base: number, mult = 1, opts: SegmentOpts & NRangeOpts & { oneSkill?: boolean } = {}): import('./prototypes').RandomStatSegment {
   const seg: import('./prototypes').RandomStatSegment = { kind: 'randomStat', target, scaling: scale(base, mult) };
   if (opts.nRange !== undefined) seg.nRange = opts.nRange;
+  if (opts.oneSkill !== undefined) seg.oneSkill = opts.oneSkill;
   return attach(seg, opts);
 }
 
@@ -318,7 +347,7 @@ export function drainMana(target: TargetMode, opts: ReduceOpts = {}): ReduceSegm
 
 /**
  * 窃取：目标 stat 削减（夹零），施法者获得同额 ×gainRatio 的 gainStat。
- * 「窃取 2 点护甲值并将之转为魔法值」= steal(t, 'armor', 'magic', 2, 0)。
+ * 「窃取 2 点护甲值并将之转为魔力值」= steal(t, 'armor', 'magic', 2, 0)。
  * stat='random'（R12 批，官方 StealRandom）：gainStat 仅作窃取标记，
  * 实际获得 = 掷中的那项属性；一般用 stealRandomStat() 构造。
  */
@@ -377,6 +406,7 @@ export function createSkulls(base: number, mult = 0, opts: CreateOpts = {}): Gem
  * 纯基色/占位符数组维持旧 `{ kind: 'mix' }` 序列化逐字节不变（零事件零 rng 护栏）。
  */
 export function createMix(colors: (ColorSpec | SpecialGemSpec)[], base: number, mult = 0, opts: CreateOpts = {}): GemSegment {
+  colors.forEach((color) => { if (typeof color !== 'string') requireSpiritColor(color); });
   const hasMixedEndpoint = colors.some((c) => typeof c !== 'string' || c === 'SKULL');
   const params: CreateGemParams = hasMixedEndpoint
     ? { op: 'create', gem: { kind: 'mixAny', entries: colors }, count: scale(base, mult) }
@@ -389,7 +419,13 @@ export function createMix(colors: (ColorSpec | SpecialGemSpec)[], base: number, 
  * kind 取值域见 types.ts SpecialGemKind（doomSkull/uberDoomSkull/bomb/web/lightningRow/
  * lightningCol/wildcard/wish/hourglass/ghost）；wildcard 带 tier（2/4）。
  */
+function requireSpiritColor(spec: SpecialGemSpec): void {
+  if (spec.kind === 'spiritGem' && spec.color === undefined)
+    throw new Error('Creating Spirit Gems requires an explicit color');
+}
+
 export function createSpecialGems(spec: SpecialGemSpec, base: number, mult = 0, opts: CreateOpts = {}): GemSegment {
+  requireSpiritColor(spec);
   const params: CreateGemParams = { op: 'create', gem: { kind: 'special', spec }, count: scale(base, mult) };
   return createSeg(params, opts);
 }
@@ -408,6 +444,7 @@ export function createSpecialGems2(
   mult = 0,
   opts: CreateOpts = {},
 ): GemSegment {
+  kinds.forEach(requireSpiritColor);
   const params: CreateGemParams = { op: 'create', gem: { kind: 'mixSpecial', specs: [kinds[0], kinds[1]] }, count: scale(base, mult) };
   return createSeg(params, opts);
 }
@@ -483,6 +520,12 @@ export function transformToSpecial(from: TransformFrom, gem: SpecialGemKind | Sp
   const spec: SpecialGemSpec = typeof gem === 'string' ? { kind: gem } : gem;
   const tier = opts.tier ?? spec.tier;
   const params: TransformGemParamsLike = { op: 'transform', from, to: 'SKULL' };
+  if (spec.kind === 'spiritGem' && spec.color === undefined) {
+    // Bind the new gem's color to its source, including dynamic target-color selectors.
+    if (from === 'ANY' || from === 'CELL' || from === 'SKULL')
+      throw new Error('Spirit Gem conversion needs a mana color source');
+    params.spiritColorFromSource = true;
+  }
   if (tier !== undefined || spec.color !== undefined) {
     // spec 形态（新通道）：仅带 tier/color 时升级为对象，字段按定义序收敛
     const specOut: SpecialGemSpec = { kind: spec.kind };
@@ -707,11 +750,11 @@ export function oneOf(...branches: (EffectSegment | EffectSegment[])[]): OneOfSe
  *   summonRandom(['Goblin', ...])    随机族（种子化选一个）
  *   summonTemplate({ name, maxHp,... }) 手写模板
  */
-export function summonRef(referenceName: string, troopId?: number, opts?: SegmentOpts & { countRange?: { min: number; max: number } }): SummonSegment {
+export function summonRef(referenceName: string, troopId?: number, opts?: SegmentOpts & { countRange?: { min: number; max: number }; position?: 'front' | 'back' }): SummonSegment {
   const source: SummonSource = troopId !== undefined
     ? { ref: referenceName, troopId }
     : { ref: referenceName };
-  const seg = attach({ kind: 'summon', params: { source, countRange: opts?.countRange } } as SummonSegment, opts);
+  const seg = attach({ kind: 'summon', params: { source, countRange: opts?.countRange, position: opts?.position } } as SummonSegment, opts);
   return seg;
 }
 export function summonRandom(refs: string[], troopId?: number, opts?: SegmentOpts & { countRange?: { min: number; max: number } }): SummonSegment {
@@ -783,24 +826,18 @@ export function gainGems(base: number, mult = 0, opts: SegmentOpts = {}): GainEc
   return attach({ kind: 'gainEconomy', currency: 'gems', scaling: scale(base, mult) }, opts);
 }
 
-/**
- * 窃取黄金（batch-r28，官方 CountEnemyGold+TakeEnemyGold+GiveGold——8087「窃取一名敌人
- * 最多 50 黄金」= stealGold(50, 0)（cap 缺省即按额定入账）、8904「窃取 [魔法 + 2] 黄金」=
- * stealGold(2)、8141/9189「窃取(所有)敌人的黄金」= stealGold(0, 0, { all: true })）。
- * 口径见 effects/economy.ts stealGoldEffect：定量 = gainGold 同款入账 + goldStolen 跨段
- * 追踪；all = 池内黄金全额易主（零和、不入账），goldStolen 记池总额供
- * 「因窃取的黄金数而增强」来源（goldStolen）跨段挂载。
- */
-export function stealGold(base: number, mult = 0, opts: SegmentOpts & { cap?: number; all?: boolean } = {}): StealGoldSegment {
+/** Transfer available enemy Gold; optionally defer native GiveGold until after another step. */
+export function stealGold(base: number, mult = 0, opts: SegmentOpts & { cap?: number; all?: boolean; deferCredit?: boolean } = {}): StealGoldSegment {
   const seg = attach({ kind: 'stealGold', scaling: scale(base, mult) } as StealGoldSegment, opts);
   if (opts.cap !== undefined) seg.cap = opts.cap;
   if (opts.all) seg.all = true;
+  if (opts.deferCredit) seg.deferCredit = true;
   return seg;
 }
 
 /**
  * 花费/失去黄金（batch-r28，官方 TakeMyGold——7460「花费我所有的黄金以增强伤害」/
- * 8243「失去所有黄金」）：spendGold() 全额扣减共用池（夹零），实际扣减额入
+ * 8243「失去所有黄金」）：spendGold() 全额扣减施法者黄金计数（夹零），实际扣减额入
  * castTracking.goldSpent，后续伤害段以 { multiplier 1, source: goldSpent } 引用同额
  * （「花费的黄金转化为伤害加成」；支出段须排在消费段之前）。
  */
@@ -835,9 +872,10 @@ export function inflictRandom(target: TargetMode, opts?: SegmentOpts & { turns?:
 
 /** 兵种转化（「将一名随机敌人转化为怨灵」）：ref 为 troops.json 的 referenceName（英文）。
  *  就地替换、保留编队位，不触发阵亡钩子（官方「转化不是死亡」）。 */
-export function transformTroop(target: TargetMode, ref: string, opts?: SegmentOpts & { troopId?: number }): TransformTroopSegment {
+export function transformTroop(target: TargetMode, ref: string, opts?: SegmentOpts & { troopId?: number; fullMana?: boolean }): TransformTroopSegment {
   const seg = attach({ kind: 'transformTroop', target, ref } as TransformTroopSegment, opts);
   if (opts?.troopId !== undefined) seg.troopId = opts.troopId;
+  if (opts?.fullMana !== undefined) seg.fullMana = opts.fullMana;
   return seg;
 }
 
@@ -965,13 +1003,14 @@ export function createGemsMixAny(
   mult = 0,
   opts: CreateOpts = {},
 ): GemSegment {
+  entries.forEach((entry) => { if (typeof entry !== 'string') requireSpiritColor(entry); });
   const params: CreateGemParams = { op: 'create', gem: { kind: 'mixAny', entries }, count: scale(base, mult) };
   return createSeg(params, opts);
 }
 
 /**
  * 吞噬（R22 批，官方 Devour——8573/9364/9492）：即杀目标（走伤害管线，阵亡钩子照常）+
- * 吞噬者官方额度成长（+2 攻/甲/魔、+5 生命，opts.gain 可覆写）。「免疫吞噬」特质目标跳过。
+ * 吞噬者获得目标当前攻击、护甲、生命而非魔法（opts.gain 可覆写）。「免疫吞噬」特质目标跳过。
  * opts.chance（基础概率，恒必填）/ opts.chanceMult（条件倍率）/ opts.chanceBoost（加成
  * 百分点）在原语内部掷签——掷签失败时目标解析照常入跨段追踪，后段 dmg('lastTarget') 在
  * 成功时自动空转（目标已死）、失败时正常生效（8573「否则则造成伤害」无需额外条件）。

@@ -1,3 +1,4 @@
+import { spellDescription } from '../../data/combatText';
 /**
  * 官方 718 目录武器 → meta 武器域（UX 阶段 B · 窗口 M 批次 1 重写）。
  *
@@ -142,7 +143,7 @@ function buildDef(row: CatalogJsonRow): WeaponDef {
     magic: row.magic,
     manaColors: row.manaColors as BaseColor[],
     manaCost: Math.min(100, Math.max(1, row.manaCost)),
-    description: row.spell.description,
+    description: spellDescription(row.spell.id, row.spell.description),
     spellName: row.spell.name,
     spellId: row.spell.id,
     skill,

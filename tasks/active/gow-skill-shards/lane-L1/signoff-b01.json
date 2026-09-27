@@ -1,0 +1,2204 @@
+{
+  "schemaVersion": 1,
+  "scope": "stored-gow-snapshot",
+  "reviews": [
+    {
+      "key": "troop:7494",
+      "scope": "stored-gow-snapshot",
+      "sourceDigest": "3ad642b05d33ce8fe9fbf7d786fd63780791b01a50b3a583f291f947ba692c2a",
+      "reviewer": "sa-L1",
+      "reviewedAt": "2026-09-27",
+      "decision": "accept",
+      "ledgerFingerprintAtReview": "6e4fd65d5476c4a9b2d6adc8056a61e9a8beea98f4f8b2b2dccd845bd8f8e6b0",
+      "_reference": {
+        "spellId": 9239,
+        "english": "Curse 2 random Enemies. Summon a random Mystic.",
+        "nativeTarget": "None",
+        "randomize": null,
+        "steps": [
+          {
+            "Target": "RandomEnemy",
+            "Type": "CauseCursed"
+          },
+          {
+            "Target": "RandomPrefNotPrevEnemy",
+            "Type": "CauseCursed"
+          },
+          {
+            "Type": "SummoningType",
+            "Data": "mystic"
+          }
+        ],
+        "prototype": {
+          "segments": [
+            {
+              "kind": "status",
+              "target": "enemyRandomN",
+              "statusId": "curse",
+              "turns": 3,
+              "n": 2
+            },
+            {
+              "kind": "summon",
+              "params": {
+                "source": {
+                  "randomOf": [
+                    "Ettin",
+                    "Acolyte",
+                    "Warlock",
+                    "Lamia",
+                    "GoblinShaman",
+                    "IceWitch",
+                    "Aziris",
+                    "Druid",
+                    "Dokkalfar",
+                    "Summoner",
+                    "Soothsayer",
+                    "Hag",
+                    "Faunessa",
+                    "Tassarion",
+                    "Runesmith",
+                    "Famine",
+                    "SacrificialPriest",
+                    "TalRae",
+                    "AnubiteWarrior",
+                    "MadProphet",
+                    "TheDragonSoul",
+                    "LadyAnariel",
+                    "CorruptSorceress",
+                    "Apothecary",
+                    "VoidPortal",
+                    "NightHag",
+                    "DragonianMonk",
+                    "ElvenBard",
+                    "Enchantress",
+                    "Unicorn",
+                    "PrincessElspeth",
+                    "Heronath",
+                    "Owleth",
+                    "Tezca",
+                    "Sekhma",
+                    "DarkPriestess",
+                    "Anthea",
+                    "Wisp",
+                    "BabaYaga",
+                    "Necrezza",
+                    "Nax",
+                    "PrincessFizzbang",
+                    "AncientGolem",
+                    "Asha",
+                    "Azura",
+                    "QueenTitania",
+                    "Xathenos",
+                    "SolZara",
+                    "Spiritmane",
+                    "Morterra",
+                    "Viper",
+                    "Spiritdancer",
+                    "Caprinicus",
+                    "Bonebinder",
+                    "Igneus",
+                    "Medea",
+                    "Urskula",
+                    "Nimue",
+                    "FallenValdis",
+                    "Lust",
+                    "GraveSeer",
+                    "SilentSentinel",
+                    "SeaWitch",
+                    "Tarantella",
+                    "SibylOfLust",
+                    "Earthcaller",
+                    "TianYi",
+                    "Luna",
+                    "Nightwing",
+                    "MoonRabbit",
+                    "FistOfZorn",
+                    "SilverOak",
+                    "LordEhrondil",
+                    "QueenOfSin",
+                    "ShamanOfSet",
+                    "HexRat",
+                    "VanyaSoulmourn",
+                    "Grimcorn",
+                    "Starflower",
+                    "PavosDawnwind",
+                    "HarpyMage",
+                    "QueenXochi",
+                    "Fungomancer",
+                    "Aquaticus",
+                    "CorruptMagus",
+                    "Ahrimas",
+                    "GorThrum",
+                    "Kobra",
+                    "QueenMoonclaw",
+                    "Spell-Paw",
+                    "ShahbanuVespera",
+                    "Malcandessa",
+                    "Lyrasza",
+                    "OgrakShaman",
+                    "WillOfNysha",
+                    "MothMage",
+                    "QueenBeetrix",
+                    "Patience",
+                    "VulpineMage",
+                    "BlindGuardian",
+                    "Sycorax",
+                    "Thaumataur",
+                    "PandaskaMage",
+                    "KeeperOfLore",
+                    "BookOfSecrets",
+                    "GaelSpiritwhisperer",
+                    "IllithianServitor",
+                    "StarryMage",
+                    "Auspecia",
+                    "Orrery",
+                    "DragonianSage",
+                    "DeepMagus",
+                    "SpringEmissary",
+                    "Cyrene",
+                    "Argos",
+                    "Dao",
+                    "DarkDjinnBottle",
+                    "RegentKhalif",
+                    "DragonSpirit",
+                    "Essencia",
+                    "SkyMage",
+                    "Grimmoira",
+                    "Leanansidhe",
+                    "LadyEstelle",
+                    "Kalika",
+                    "MoonPhoenix",
+                    "Leocorn",
+                    "Stormchaser",
+                    "Draxxius",
+                    "IcespireShaman",
+                    "DarkbornWarlock",
+                    "WuHao",
+                    "Ostryx",
+                    "HornedHag",
+                    "Saga",
+                    "TheGemini",
+                    "LapinaHealer",
+                    "FakyrTheWise",
+                    "Carmina",
+                    "DeathlockDreilak",
+                    "Morganite",
+                    "EldritchDisciple",
+                    "SetauriMage",
+                    "Harper",
+                    "FennecMage",
+                    "SableSpiritbane",
+                    "Chiron",
+                    "Spirittooth",
+                    "Tuzi",
+                    "TheSilkenQueen",
+                    "AssessorOfMahat",
+                    "AravatarsTusk",
+                    "SeaHag",
+                    "HauntedDoll",
+                    "DaemonChild",
+                    "Feyr",
+                    "TheMidnightQueen",
+                    "Half-DaemonKnight",
+                    "LadyOfBones",
+                    "TheMydnightKing",
+                    "BoneHound",
+                    "VoidManticore",
+                    "LadyOfRuin",
+                    "Khronos",
+                    "MantisMage",
+                    "DaughterOfTime",
+                    "Ehecatl",
+                    "Caprichor",
+                    "FireJuggler",
+                    "Ringmaster",
+                    "ArcaneSabercat",
+                    "RuneChanter",
+                    "Unagh",
+                    "Amatiel",
+                    "BookOfWitches",
+                    "TheCartographer",
+                    "Bearlock",
+                    "Isban",
+                    "SuccubusQueen",
+                    "LioraMistveil",
+                    "Ignarion",
+                    "GuardianSpirit",
+                    "ArchdruidBlackwood",
+                    "LordDesollatus",
+                    "Al-Mundhir",
+                    "SoulSummoner",
+                    "CrestedAva",
+                    "AlaAl-Din",
+                    "Bahamata",
+                    "CorruptedCrystalem",
+                    "HeldrTheGrave",
+                    "Chargrimax",
+                    "Abraxas",
+                    "Yue-She",
+                    "ScoriaGiant-born",
+                    "ToxicHag",
+                    "Muireann",
+                    "Woodseer",
+                    "LightbornEnchantress",
+                    "Scrollweaver",
+                    "Sarathiel",
+                    "Cosmo",
+                    "TheDarkOracle",
+                    "Mayahuel",
+                    "Astrotaur",
+                    "Eridana",
+                    "Ariosa",
+                    "Amethony",
+                    "MorZarn",
+                    "SpiritcallerLila",
+                    "QueenWilhelmina",
+                    "BloodSpore",
+                    "Merneith",
+                    "Yohaulticetl",
+                    "CromCruach",
+                    "MotherMalice",
+                    "GreenHag",
+                    "TwistedHag",
+                    "DarkWitch",
+                    "TheWebbedPrince",
+                    "DuskWitch",
+                    "Ciaran",
+                    "ErendrielDarkweave",
+                    "FacelessLord",
+                    "Jezebel",
+                    "ImmortalByblios",
+                    "TheWeepingDuchess",
+                    "TheBansheeQueen"
+                  ]
+                }
+              }
+            }
+          ]
+        }
+      },
+      "sourceEvidence": [
+        {
+          "id": "en",
+          "role": "english-snapshot",
+          "path": "data/raw/troops.gow.en.json",
+          "note": "troop 7494 SpellId 9239 cost 11 Red/Purple; English 2 clauses"
+        },
+        {
+          "id": "native",
+          "role": "native-snapshot",
+          "path": "data/raw/spells.gow.en.json",
+          "note": "9239: CauseCursed RandomEnemy, CauseCursed RandomPrefNotPrevEnemy, SummoningType mystic"
+        },
+        {
+          "id": "rule",
+          "role": "official-shared-rule",
+          "path": "artifacts/gow-skill-audit/gold-primary-sources/official-status-effects.html",
+          "note": "Official status guide: Curse/Death Mark/Hunter's Mark/Web/Disease/Frozen/Poison semantics; Blessed immune to status effects, Devour and Mana Burn. Durations per rulings/R004 (convention:R006-C2 for Cause* Amount)."
+        },
+        {
+          "id": "laneTest",
+          "role": "lane-battle-test",
+          "path": "tests/unit/gowLaneL1B01.test.ts",
+          "note": "troop:7494: real TurnEngine.castSkill both sides, fixed RNG, boundaries"
+        },
+        {
+          "id": "transform",
+          "role": "community-rule",
+          "path": "artifacts/gow-skill-audit/gold-primary-sources/community-2026-09-28-transform-summon.json",
+          "note": "Transform restores Life/Armor and takes level + traits of the troop; summons arrive at level 20 (project roster is level 20)."
+        }
+      ],
+      "dimensions": {
+        "identity-cost-colors": {
+          "status": "verified",
+          "note": "entity id, SpellId, cost and colours match raw EN + native + src/data (binding test)",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "transform"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL1B01.test.ts"
+          ]
+        },
+        "target-count-range": {
+          "status": "verified",
+          "note": "enemyRandomN n=2 distinct = RandomEnemy + RandomPrefNotPrevEnemy; one living enemy -> one Curse (equivalent to cursing twice, test)",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "transform"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL1B01.test.ts"
+          ]
+        },
+        "base-formula-rounding": {
+          "status": "not-applicable",
+          "note": "no numeric formula",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "transform"
+          ],
+          "tests": []
+        },
+        "boost-source-ratio-cap": {
+          "status": "not-applicable",
+          "note": "no boost source",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "transform"
+          ],
+          "tests": []
+        },
+        "conditions-probabilities-branches": {
+          "status": "not-applicable",
+          "note": "single unconditional branch",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "transform"
+          ],
+          "tests": []
+        },
+        "status-duration-immunity": {
+          "status": "verified",
+          "note": "Curse applied to 2 enemies",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "transform"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL1B01.test.ts"
+          ]
+        },
+        "gems-types-selection-resolution": {
+          "status": "not-applicable",
+          "note": "no gem effect",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "transform"
+          ],
+          "tests": []
+        },
+        "summon-transform-pools": {
+          "status": "verified",
+          "note": "pool = all 228 raw Mystic (TroopType/TroopType2) troops in the project roster; raw-only Cultist 7888 not in roster (issue L1-roster-gap); level-20 template stats/traits, 0 mana; full team -> no summon; 3 active -> 4th slot",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "transform"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL1B01.test.ts"
+          ]
+        },
+        "order-death-retargeting": {
+          "status": "verified",
+          "note": "Curses before summon (event order test)",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "transform"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL1B01.test.ts"
+          ]
+        },
+        "mana-economy-extra-turn": {
+          "status": "verified",
+          "note": "cast spends mana, one action logged, turn passes (no extra turn); low-mana / Silence refused",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "transform"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL1B01.test.ts"
+          ]
+        },
+        "display-description": {
+          "status": "verified",
+          "note": "zh description matches English meaning (binding test)",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "transform"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL1B01.test.ts"
+          ]
+        },
+        "battle-pipeline": {
+          "status": "verified",
+          "note": "real TurnEngine.castSkill, both sides",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "transform"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL1B01.test.ts"
+          ],
+          "realBattleEntry": true
+        }
+      },
+      "clauseReviews": [
+        {
+          "id": "c1",
+          "text": "Curse 2 random Enemies.",
+          "status": "verified",
+          "note": "2 distinct random enemies Cursed, both sides",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "transform"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL1B01.test.ts"
+          ]
+        },
+        {
+          "id": "c2",
+          "text": "Summon a random Mystic.",
+          "status": "verified",
+          "note": "one Mystic from the roster-scoped raw Mystic pool, fixed seeds",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "transform"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL1B01.test.ts"
+          ]
+        }
+      ],
+      "nativeStepReviews": [
+        {
+          "id": "0",
+          "type": "CauseCursed",
+          "status": "verified",
+          "note": "RandomEnemy Curse",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "transform"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL1B01.test.ts"
+          ]
+        },
+        {
+          "id": "1",
+          "type": "CauseCursed",
+          "status": "verified",
+          "note": "RandomPrefNotPrevEnemy Curse (distinct; lone enemy reuse is equivalent)",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "transform"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL1B01.test.ts"
+          ]
+        },
+        {
+          "id": "2",
+          "type": "SummoningType",
+          "status": "verified",
+          "note": "SummoningType mystic pool check vs data/raw",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "transform"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL1B01.test.ts"
+          ]
+        }
+      ],
+      "branchReviews": [
+        {
+          "id": "main",
+          "status": "verified",
+          "note": "single branch",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "transform"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL1B01.test.ts"
+          ]
+        }
+      ]
+    },
+    {
+      "key": "troop:7260",
+      "scope": "stored-gow-snapshot",
+      "sourceDigest": "6e6dfdd743143683404b043d33aedc66c6951a50d046e989112ea41a56a20d2e",
+      "reviewer": "sa-L1",
+      "reviewedAt": "2026-09-27",
+      "decision": "accept",
+      "ledgerFingerprintAtReview": "6e4fd65d5476c4a9b2d6adc8056a61e9a8beea98f4f8b2b2dccd845bd8f8e6b0",
+      "_reference": {
+        "spellId": 8894,
+        "english": "Curse and Deathmark an Enemy. Then deal [(Magic x 1.5) + 3] damage to all Enemies below them. Then summon Abhorath.",
+        "nativeTarget": "Enemy",
+        "randomize": null,
+        "steps": [
+          {
+            "Target": "FromTarget",
+            "Amount": 1,
+            "Type": "CauseCursed"
+          },
+          {
+            "Target": "FromTarget",
+            "Amount": 1,
+            "Type": "CauseDeathMark"
+          },
+          {
+            "SpellPowerMultiplier": 1.5,
+            "Target": "BelowTarget",
+            "Amount": 3,
+            "Primarypower": true,
+            "Type": "Damage"
+          },
+          {
+            "Amount": 6067,
+            "Type": "Summoning"
+          }
+        ],
+        "prototype": {
+          "segments": [
+            {
+              "kind": "status",
+              "target": "enemyChosen",
+              "statusId": "curse",
+              "turns": 3
+            },
+            {
+              "kind": "status",
+              "target": "enemyChosen",
+              "statusId": "death-mark",
+              "turns": 3
+            },
+            {
+              "kind": "damage",
+              "target": "enemyBelowTarget",
+              "scaling": {
+                "base": 3,
+                "mult": 1.5
+              },
+              "range": "all"
+            },
+            {
+              "kind": "summon",
+              "params": {
+                "source": {
+                  "ref": "Abhorath"
+                }
+              }
+            }
+          ]
+        }
+      },
+      "sourceEvidence": [
+        {
+          "id": "en",
+          "role": "english-snapshot",
+          "path": "data/raw/troops.gow.en.json",
+          "note": "troop 7260 SpellId 8894 cost 22 Green/Red/Purple; English 3 clauses"
+        },
+        {
+          "id": "native",
+          "role": "native-snapshot",
+          "path": "data/raw/spells.gow.en.json",
+          "note": "8894 Target Enemy: CauseCursed FromTarget, CauseDeathMark FromTarget, Damage BelowTarget x1.5+3, Summoning 6067 Abhorath"
+        },
+        {
+          "id": "rule",
+          "role": "official-shared-rule",
+          "path": "artifacts/gow-skill-audit/gold-primary-sources/official-status-effects.html",
+          "note": "Official status guide: Curse/Death Mark/Hunter's Mark/Web/Disease/Frozen/Poison semantics; Blessed immune to status effects, Devour and Mana Burn. Durations per rulings/R004 (convention:R006-C2 for Cause* Amount)."
+        },
+        {
+          "id": "laneTest",
+          "role": "lane-battle-test",
+          "path": "tests/unit/gowLaneL1B01.test.ts",
+          "note": "troop:7260: real TurnEngine.castSkill both sides, fixed RNG, boundaries"
+        },
+        {
+          "id": "transform",
+          "role": "community-rule",
+          "path": "artifacts/gow-skill-audit/gold-primary-sources/community-2026-09-28-transform-summon.json",
+          "note": "Transform restores Life/Armor and takes level + traits of the troop; summons arrive at level 20 (project roster is level 20)."
+        }
+      ],
+      "dimensions": {
+        "identity-cost-colors": {
+          "status": "verified",
+          "note": "entity id, SpellId, cost and colours match raw EN + native + src/data (binding test)",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "transform"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL1B01.test.ts"
+          ]
+        },
+        "target-count-range": {
+          "status": "verified",
+          "note": "chosen enemy (fixed L1-7260-target, was allyChosen); damage to every living enemy below it; last enemy chosen -> none, first -> 3",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "transform"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL1B01.test.ts"
+          ]
+        },
+        "base-formula-rounding": {
+          "status": "verified",
+          "note": "round(Magic x 1.5) + 3 (magic 10 -> 18, 7 -> 14; convention:R006-C1)",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "transform"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL1B01.test.ts"
+          ]
+        },
+        "boost-source-ratio-cap": {
+          "status": "not-applicable",
+          "note": "no boost source",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "transform"
+          ],
+          "tests": []
+        },
+        "conditions-probabilities-branches": {
+          "status": "not-applicable",
+          "note": "single unconditional branch",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "transform"
+          ],
+          "tests": []
+        },
+        "status-duration-immunity": {
+          "status": "verified",
+          "note": "Curse + Death Mark on the chosen enemy only",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "transform"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL1B01.test.ts"
+          ]
+        },
+        "gems-types-selection-resolution": {
+          "status": "not-applicable",
+          "note": "no gem effect",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "transform"
+          ],
+          "tests": []
+        },
+        "summon-transform-pools": {
+          "status": "verified",
+          "note": "Summoning 6067 = Abhorath template; full team -> no summon",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "transform"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL1B01.test.ts"
+          ]
+        },
+        "order-death-retargeting": {
+          "status": "verified",
+          "note": "statuses -> damage -> summon (native order)",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "transform"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL1B01.test.ts"
+          ]
+        },
+        "mana-economy-extra-turn": {
+          "status": "verified",
+          "note": "cast spends mana, one action logged, turn passes (no extra turn); low-mana / Silence refused",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "transform"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL1B01.test.ts"
+          ]
+        },
+        "display-description": {
+          "status": "verified",
+          "note": "zh corrected to 一名敌人 via gowSnapshotOverrides.json (L1-7260-target)",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "transform"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL1B01.test.ts"
+          ]
+        },
+        "battle-pipeline": {
+          "status": "verified",
+          "note": "real TurnEngine.castSkill, both sides",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "transform"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL1B01.test.ts"
+          ],
+          "realBattleEntry": true
+        }
+      },
+      "clauseReviews": [
+        {
+          "id": "c1",
+          "text": "Curse and Deathmark an Enemy.",
+          "status": "verified",
+          "note": "chosen enemy Cursed + Deathmarked",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "transform"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL1B01.test.ts"
+          ]
+        },
+        {
+          "id": "c2",
+          "text": "Then deal [(Magic x 1.5) + 3] damage to all Enemies below them.",
+          "status": "verified",
+          "note": "enemies below take round(1.5M)+3",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "transform"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL1B01.test.ts"
+          ]
+        },
+        {
+          "id": "c3",
+          "text": "Then summon Abhorath.",
+          "status": "verified",
+          "note": "Abhorath summoned",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "transform"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL1B01.test.ts"
+          ]
+        }
+      ],
+      "nativeStepReviews": [
+        {
+          "id": "0",
+          "type": "CauseCursed",
+          "status": "verified",
+          "note": "Curse FromTarget",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "transform"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL1B01.test.ts"
+          ]
+        },
+        {
+          "id": "1",
+          "type": "CauseDeathMark",
+          "status": "verified",
+          "note": "DeathMark FromTarget",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "transform"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL1B01.test.ts"
+          ]
+        },
+        {
+          "id": "2",
+          "type": "Damage",
+          "status": "verified",
+          "note": "Damage BelowTarget",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "transform"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL1B01.test.ts"
+          ]
+        },
+        {
+          "id": "3",
+          "type": "Summoning",
+          "status": "verified",
+          "note": "Summoning 6067",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "transform"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL1B01.test.ts"
+          ]
+        }
+      ],
+      "branchReviews": [
+        {
+          "id": "main",
+          "status": "verified",
+          "note": "single branch",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "transform"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL1B01.test.ts"
+          ]
+        }
+      ]
+    },
+    {
+      "key": "troop:6453",
+      "scope": "stored-gow-snapshot",
+      "sourceDigest": "28d6a274dbe0926fba4c0ddb471840b36c167a543044c72e75c65dc6c6df8241",
+      "reviewer": "sa-L1",
+      "reviewedAt": "2026-09-27",
+      "decision": "accept",
+      "ledgerFingerprintAtReview": "6e4fd65d5476c4a9b2d6adc8056a61e9a8beea98f4f8b2b2dccd845bd8f8e6b0",
+      "_reference": {
+        "spellId": 7631,
+        "english": "Deal [Magic + 4] damage to the first 2 enemies. Place Hunter's Mark and Death Mark on them. Then transform into a Nosferatu.",
+        "nativeTarget": "None",
+        "randomize": null,
+        "steps": [
+          {
+            "Target": "FirstTwoEnemies",
+            "Type": "CauseDeathMark"
+          },
+          {
+            "Target": "FirstTwoEnemies",
+            "Type": "CauseHuntersMark"
+          },
+          {
+            "SpellPowerMultiplier": 1,
+            "Target": "FirstTwoEnemies",
+            "Amount": 4,
+            "Primarypower": true,
+            "Type": "Damage"
+          },
+          {
+            "Target": "Self",
+            "Type": "Transform",
+            "Data": "6451"
+          }
+        ],
+        "prototype": {
+          "segments": [
+            {
+              "kind": "status",
+              "target": "enemyFirstN",
+              "statusId": "death-mark",
+              "turns": 3,
+              "n": 2
+            },
+            {
+              "kind": "status",
+              "target": "enemyFirstN",
+              "statusId": "marked",
+              "turns": 3,
+              "n": 2
+            },
+            {
+              "kind": "damage",
+              "target": "enemyFirstN",
+              "scaling": {
+                "base": 4,
+                "mult": 1
+              },
+              "n": 2
+            },
+            {
+              "kind": "transformTroop",
+              "target": "allySelf",
+              "ref": "Nosferatu"
+            }
+          ]
+        }
+      },
+      "sourceEvidence": [
+        {
+          "id": "en",
+          "role": "english-snapshot",
+          "path": "data/raw/troops.gow.en.json",
+          "note": "troop 6453 SpellId 7631 cost 16 Red/Purple; English 3 clauses"
+        },
+        {
+          "id": "native",
+          "role": "native-snapshot",
+          "path": "data/raw/spells.gow.en.json",
+          "note": "7631: CauseDeathMark, CauseHuntersMark FirstTwoEnemies, Damage FirstTwoEnemies M+4, Transform Self 6451 Nosferatu"
+        },
+        {
+          "id": "rule",
+          "role": "official-shared-rule",
+          "path": "artifacts/gow-skill-audit/gold-primary-sources/official-status-effects.html",
+          "note": "Official status guide: Curse/Death Mark/Hunter's Mark/Web/Disease/Frozen/Poison semantics; Blessed immune to status effects, Devour and Mana Burn. Durations per rulings/R004 (convention:R006-C2 for Cause* Amount)."
+        },
+        {
+          "id": "laneTest",
+          "role": "lane-battle-test",
+          "path": "tests/unit/gowLaneL1B01.test.ts",
+          "note": "troop:6453: real TurnEngine.castSkill both sides, fixed RNG, boundaries"
+        },
+        {
+          "id": "transform",
+          "role": "community-rule",
+          "path": "artifacts/gow-skill-audit/gold-primary-sources/community-2026-09-28-transform-summon.json",
+          "note": "Transform restores Life/Armor and takes level + traits of the troop; summons arrive at level 20 (project roster is level 20)."
+        },
+        {
+          "id": "r001",
+          "role": "user-ruling",
+          "path": "tasks/active/gow-skill-shards/rulings/R001-native-step-order.md",
+          "note": "Native SpellSteps order is authoritative."
+        }
+      ],
+      "dimensions": {
+        "identity-cost-colors": {
+          "status": "verified",
+          "note": "entity id, SpellId, cost and colours match raw EN + native + src/data (binding test)",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "transform",
+            "r001"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL1B01.test.ts"
+          ]
+        },
+        "target-count-range": {
+          "status": "verified",
+          "note": "first 2 living enemies; one living enemy -> only it",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "transform",
+            "r001"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL1B01.test.ts"
+          ]
+        },
+        "base-formula-rounding": {
+          "status": "verified",
+          "note": "Magic + 4",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "transform",
+            "r001"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL1B01.test.ts"
+          ]
+        },
+        "boost-source-ratio-cap": {
+          "status": "not-applicable",
+          "note": "no boost source",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "transform",
+            "r001"
+          ],
+          "tests": []
+        },
+        "conditions-probabilities-branches": {
+          "status": "not-applicable",
+          "note": "single unconditional branch",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "transform",
+            "r001"
+          ],
+          "tests": []
+        },
+        "status-duration-immunity": {
+          "status": "verified",
+          "note": "Death Mark + Hunter's Mark on the first two",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "transform",
+            "r001"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL1B01.test.ts"
+          ]
+        },
+        "gems-types-selection-resolution": {
+          "status": "not-applicable",
+          "note": "no gem effect",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "transform",
+            "r001"
+          ],
+          "tests": []
+        },
+        "summon-transform-pools": {
+          "status": "verified",
+          "note": "caster transforms in place into Nosferatu (6451): id/slot kept, template stats/spell/traits, full Life; mana already spent by the cast",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "transform",
+            "r001"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL1B01.test.ts"
+          ]
+        },
+        "order-death-retargeting": {
+          "status": "verified",
+          "note": "fixed L1-6453-order: marks before damage; lethal hit no longer re-selects the third enemy",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "transform",
+            "r001"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL1B01.test.ts"
+          ]
+        },
+        "mana-economy-extra-turn": {
+          "status": "verified",
+          "note": "cast spends mana, one action logged, turn passes (no extra turn); low-mana / Silence refused",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "transform",
+            "r001"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL1B01.test.ts"
+          ]
+        },
+        "display-description": {
+          "status": "verified",
+          "note": "zh description matches English meaning (binding test)",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "transform",
+            "r001"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL1B01.test.ts"
+          ]
+        },
+        "battle-pipeline": {
+          "status": "verified",
+          "note": "real TurnEngine.castSkill, both sides",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "transform",
+            "r001"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL1B01.test.ts"
+          ],
+          "realBattleEntry": true
+        }
+      },
+      "clauseReviews": [
+        {
+          "id": "c1",
+          "text": "Deal [Magic + 4] damage to the first 2 enemies.",
+          "status": "verified",
+          "note": "first two take Magic+4",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "transform",
+            "r001"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL1B01.test.ts"
+          ]
+        },
+        {
+          "id": "c2",
+          "text": "Place Hunter's Mark and Death Mark on them.",
+          "status": "verified",
+          "note": "both marks on them",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "transform",
+            "r001"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL1B01.test.ts"
+          ]
+        },
+        {
+          "id": "c3",
+          "text": "Then transform into a Nosferatu.",
+          "status": "verified",
+          "note": "transform into Nosferatu",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "transform",
+            "r001"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL1B01.test.ts"
+          ]
+        }
+      ],
+      "nativeStepReviews": [
+        {
+          "id": "0",
+          "type": "CauseDeathMark",
+          "status": "verified",
+          "note": "DeathMark",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "transform",
+            "r001"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL1B01.test.ts"
+          ]
+        },
+        {
+          "id": "1",
+          "type": "CauseHuntersMark",
+          "status": "verified",
+          "note": "HuntersMark",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "transform",
+            "r001"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL1B01.test.ts"
+          ]
+        },
+        {
+          "id": "2",
+          "type": "Damage",
+          "status": "verified",
+          "note": "Damage",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "transform",
+            "r001"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL1B01.test.ts"
+          ]
+        },
+        {
+          "id": "3",
+          "type": "Transform",
+          "status": "verified",
+          "note": "Transform Self 6451",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "transform",
+            "r001"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL1B01.test.ts"
+          ]
+        }
+      ],
+      "branchReviews": [
+        {
+          "id": "main",
+          "status": "verified",
+          "note": "single branch",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "transform",
+            "r001"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL1B01.test.ts"
+          ]
+        }
+      ]
+    },
+    {
+      "key": "troop:6892",
+      "scope": "stored-gow-snapshot",
+      "sourceDigest": "b6b0c25a6e18605769a60a1f3e0fabe46f199113f0434a37aa87d1b3c891d083",
+      "reviewer": "sa-L1",
+      "reviewedAt": "2026-09-27",
+      "decision": "accept",
+      "ledgerFingerprintAtReview": "6e4fd65d5476c4a9b2d6adc8056a61e9a8beea98f4f8b2b2dccd845bd8f8e6b0",
+      "_reference": {
+        "spellId": 8318,
+        "english": "Disease a random Enemy. Summon a Fell Roost Troop.",
+        "nativeTarget": "None",
+        "randomize": null,
+        "steps": [
+          {
+            "Target": "RandomEnemy",
+            "Amount": 1,
+            "Type": "CauseDisease"
+          },
+          {
+            "Type": "SummoningKingdomNoError",
+            "Data": "3061"
+          }
+        ],
+        "prototype": {
+          "segments": [
+            {
+              "kind": "status",
+              "target": "enemyRandom",
+              "statusId": "disease",
+              "turns": 3
+            },
+            {
+              "kind": "summon",
+              "params": {
+                "source": {
+                  "randomOf": [
+                    "FellHydra",
+                    "Nocturnia",
+                    "FellDragon",
+                    "FellDragonEgg",
+                    "UndeadDrake"
+                  ]
+                }
+              }
+            }
+          ]
+        }
+      },
+      "sourceEvidence": [
+        {
+          "id": "en",
+          "role": "english-snapshot",
+          "path": "data/raw/troops.gow.en.json",
+          "note": "troop 6892 SpellId 8318 cost 11 Red/Yellow; English 2 clauses"
+        },
+        {
+          "id": "native",
+          "role": "native-snapshot",
+          "path": "data/raw/spells.gow.en.json",
+          "note": "8318: CauseDisease RandomEnemy, SummoningKingdomNoError 3061"
+        },
+        {
+          "id": "rule",
+          "role": "official-shared-rule",
+          "path": "artifacts/gow-skill-audit/gold-primary-sources/official-status-effects.html",
+          "note": "Official status guide: Curse/Death Mark/Hunter's Mark/Web/Disease/Frozen/Poison semantics; Blessed immune to status effects, Devour and Mana Burn. Durations per rulings/R004 (convention:R006-C2 for Cause* Amount)."
+        },
+        {
+          "id": "laneTest",
+          "role": "lane-battle-test",
+          "path": "tests/unit/gowLaneL1B01.test.ts",
+          "note": "troop:6892: real TurnEngine.castSkill both sides, fixed RNG, boundaries"
+        },
+        {
+          "id": "transform",
+          "role": "community-rule",
+          "path": "artifacts/gow-skill-audit/gold-primary-sources/community-2026-09-28-transform-summon.json",
+          "note": "Transform restores Life/Armor and takes level + traits of the troop; summons arrive at level 20 (project roster is level 20)."
+        }
+      ],
+      "dimensions": {
+        "identity-cost-colors": {
+          "status": "verified",
+          "note": "entity id, SpellId, cost and colours match raw EN + native + src/data (binding test)",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "transform"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL1B01.test.ts"
+          ]
+        },
+        "target-count-range": {
+          "status": "verified",
+          "note": "one random living enemy",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "transform"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL1B01.test.ts"
+          ]
+        },
+        "base-formula-rounding": {
+          "status": "not-applicable",
+          "note": "no numeric formula",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "transform"
+          ],
+          "tests": []
+        },
+        "boost-source-ratio-cap": {
+          "status": "not-applicable",
+          "note": "no boost source",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "transform"
+          ],
+          "tests": []
+        },
+        "conditions-probabilities-branches": {
+          "status": "not-applicable",
+          "note": "single unconditional branch",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "transform"
+          ],
+          "tests": []
+        },
+        "status-duration-immunity": {
+          "status": "verified",
+          "note": "Disease on one enemy",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "transform"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL1B01.test.ts"
+          ]
+        },
+        "gems-types-selection-resolution": {
+          "status": "not-applicable",
+          "note": "no gem effect",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "transform"
+          ],
+          "tests": []
+        },
+        "summon-transform-pools": {
+          "status": "verified",
+          "note": "pool = the 5 raw KingdomId 3061 troops, all reachable with fixed seeds; NoError on full team",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "transform"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL1B01.test.ts"
+          ]
+        },
+        "order-death-retargeting": {
+          "status": "verified",
+          "note": "Disease then summon",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "transform"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL1B01.test.ts"
+          ]
+        },
+        "mana-economy-extra-turn": {
+          "status": "verified",
+          "note": "cast spends mana, one action logged, turn passes (no extra turn); low-mana / Silence refused",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "transform"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL1B01.test.ts"
+          ]
+        },
+        "display-description": {
+          "status": "verified",
+          "note": "zh description matches English meaning (binding test)",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "transform"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL1B01.test.ts"
+          ]
+        },
+        "battle-pipeline": {
+          "status": "verified",
+          "note": "real TurnEngine.castSkill, both sides",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "transform"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL1B01.test.ts"
+          ],
+          "realBattleEntry": true
+        }
+      },
+      "clauseReviews": [
+        {
+          "id": "c1",
+          "text": "Disease a random Enemy.",
+          "status": "verified",
+          "note": "one enemy Diseased",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "transform"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL1B01.test.ts"
+          ]
+        },
+        {
+          "id": "c2",
+          "text": "Summon a Fell Roost Troop.",
+          "status": "verified",
+          "note": "one Fell Roost troop",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "transform"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL1B01.test.ts"
+          ]
+        }
+      ],
+      "nativeStepReviews": [
+        {
+          "id": "0",
+          "type": "CauseDisease",
+          "status": "verified",
+          "note": "CauseDisease RandomEnemy",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "transform"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL1B01.test.ts"
+          ]
+        },
+        {
+          "id": "1",
+          "type": "SummoningKingdomNoError",
+          "status": "verified",
+          "note": "SummoningKingdomNoError 3061",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "transform"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL1B01.test.ts"
+          ]
+        }
+      ],
+      "branchReviews": [
+        {
+          "id": "main",
+          "status": "verified",
+          "note": "single branch",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "transform"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL1B01.test.ts"
+          ]
+        }
+      ]
+    },
+    {
+      "key": "troop:6474",
+      "scope": "stored-gow-snapshot",
+      "sourceDigest": "c9c55c13a4d411608d8b18fb83f51b6759ee50871509ded25e1e4cf5515a9d92",
+      "reviewer": "sa-L1",
+      "reviewedAt": "2026-09-27",
+      "decision": "accept",
+      "ledgerFingerprintAtReview": "6e4fd65d5476c4a9b2d6adc8056a61e9a8beea98f4f8b2b2dccd845bd8f8e6b0",
+      "_reference": {
+        "spellId": 7652,
+        "english": "Freeze and Mana Burn the first 2 Enemies. Knock them to last position. Summon Queen Mab.",
+        "nativeTarget": "None",
+        "randomize": null,
+        "steps": [
+          {
+            "Target": "FirstTwoEnemies",
+            "Amount": 1,
+            "Type": "CauseFrozen"
+          },
+          {
+            "SpellPowerMultiplier": 1,
+            "Target": "FirstTwoEnemies",
+            "Primarypower": true,
+            "Type": "ManaBurn"
+          },
+          {
+            "Target": "SecondEnemy",
+            "Type": "TroopOrderBack"
+          },
+          {
+            "Amount": 800,
+            "Type": "Delay"
+          },
+          {
+            "Target": "FrontEnemy",
+            "Type": "TroopOrderBack"
+          },
+          {
+            "Amount": 6191,
+            "Type": "SummoningNoError"
+          }
+        ],
+        "prototype": {
+          "segments": [
+            {
+              "kind": "status",
+              "target": "enemyFirstN",
+              "statusId": "frozen",
+              "turns": 3,
+              "n": 2
+            },
+            {
+              "kind": "damage",
+              "target": "enemyFirstN",
+              "scaling": {
+                "base": 0,
+                "mult": 1
+              },
+              "manaBurn": true,
+              "n": 2
+            },
+            {
+              "kind": "reposition",
+              "target": "lastTargets",
+              "to": "back"
+            },
+            {
+              "kind": "summon",
+              "params": {
+                "source": {
+                  "ref": "QueenMab",
+                  "troopId": 6191
+                }
+              }
+            }
+          ]
+        }
+      },
+      "sourceEvidence": [
+        {
+          "id": "en",
+          "role": "english-snapshot",
+          "path": "data/raw/troops.gow.en.json",
+          "note": "troop 6474 SpellId 7652 cost 20 Blue/Yellow/Purple; English 3 clauses"
+        },
+        {
+          "id": "native",
+          "role": "native-snapshot",
+          "path": "data/raw/spells.gow.en.json",
+          "note": "7652: CauseFrozen FirstTwo, ManaBurn FirstTwo x1, TroopOrderBack SecondEnemy, Delay, TroopOrderBack FrontEnemy, SummoningNoError 6191"
+        },
+        {
+          "id": "rule",
+          "role": "official-shared-rule",
+          "path": "artifacts/gow-skill-audit/gold-primary-sources/official-status-effects.html",
+          "note": "Official status guide: Curse/Death Mark/Hunter's Mark/Web/Disease/Frozen/Poison semantics; Blessed immune to status effects, Devour and Mana Burn. Durations per rulings/R004 (convention:R006-C2 for Cause* Amount)."
+        },
+        {
+          "id": "laneTest",
+          "role": "lane-battle-test",
+          "path": "tests/unit/gowLaneL1B01.test.ts",
+          "note": "troop:6474: real TurnEngine.castSkill both sides, fixed RNG, boundaries"
+        },
+        {
+          "id": "manaburn",
+          "role": "official-shared-rule",
+          "path": "artifacts/gow-skill-audit/gold-primary-sources/official-mana-burn-2-0.html",
+          "note": "Mana Burn deals damage based on the enemy's current mana and does not drain it."
+        },
+        {
+          "id": "transform",
+          "role": "community-rule",
+          "path": "artifacts/gow-skill-audit/gold-primary-sources/community-2026-09-28-transform-summon.json",
+          "note": "Transform restores Life/Armor and takes level + traits of the troop; summons arrive at level 20 (project roster is level 20)."
+        }
+      ],
+      "dimensions": {
+        "identity-cost-colors": {
+          "status": "verified",
+          "note": "entity id, SpellId, cost and colours match raw EN + native + src/data (binding test)",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "manaburn",
+            "transform"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL1B01.test.ts"
+          ]
+        },
+        "target-count-range": {
+          "status": "verified",
+          "note": "first two enemies; second then first moved to the back -> [12,13,11,10]; two enemies -> [11,10]; one -> unchanged",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "manaburn",
+            "transform"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL1B01.test.ts"
+          ]
+        },
+        "base-formula-rounding": {
+          "status": "verified",
+          "note": "Mana Burn = Magic + victim current mana, no drain (official 2.0)",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "manaburn",
+            "transform"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL1B01.test.ts"
+          ]
+        },
+        "boost-source-ratio-cap": {
+          "status": "not-applicable",
+          "note": "no boost source",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "manaburn",
+            "transform"
+          ],
+          "tests": []
+        },
+        "conditions-probabilities-branches": {
+          "status": "not-applicable",
+          "note": "single unconditional branch",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "manaburn",
+            "transform"
+          ],
+          "tests": []
+        },
+        "status-duration-immunity": {
+          "status": "verified",
+          "note": "Frozen on both; Blessed front enemy immune to Frozen and Mana Burn",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "manaburn",
+            "transform"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL1B01.test.ts"
+          ]
+        },
+        "gems-types-selection-resolution": {
+          "status": "not-applicable",
+          "note": "no gem effect",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "manaburn",
+            "transform"
+          ],
+          "tests": []
+        },
+        "summon-transform-pools": {
+          "status": "verified",
+          "note": "Summoning 6191 Queen Mab; NoError on full team",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "manaburn",
+            "transform"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL1B01.test.ts"
+          ]
+        },
+        "order-death-retargeting": {
+          "status": "verified",
+          "note": "killed original troop keeps no slot to move; only surviving original targets move (consistent with tests/unit/gowManaBurnTowerAudit.test.ts)",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "manaburn",
+            "transform"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL1B01.test.ts"
+          ]
+        },
+        "mana-economy-extra-turn": {
+          "status": "verified",
+          "note": "cast spends mana, one action logged, turn passes (no extra turn); low-mana / Silence refused",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "manaburn",
+            "transform"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL1B01.test.ts"
+          ]
+        },
+        "display-description": {
+          "status": "verified",
+          "note": "zh description matches English meaning (binding test)",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "manaburn",
+            "transform"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL1B01.test.ts"
+          ]
+        },
+        "battle-pipeline": {
+          "status": "verified",
+          "note": "real TurnEngine.castSkill, both sides",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "manaburn",
+            "transform"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL1B01.test.ts"
+          ],
+          "realBattleEntry": true
+        }
+      },
+      "clauseReviews": [
+        {
+          "id": "c1",
+          "text": "Freeze and Mana Burn the first 2 Enemies.",
+          "status": "verified",
+          "note": "Frozen + Mana Burn first two",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "manaburn",
+            "transform"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL1B01.test.ts"
+          ]
+        },
+        {
+          "id": "c2",
+          "text": "Knock them to last position.",
+          "status": "verified",
+          "note": "both knocked to last",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "manaburn",
+            "transform"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL1B01.test.ts"
+          ]
+        },
+        {
+          "id": "c3",
+          "text": "Summon Queen Mab.",
+          "status": "verified",
+          "note": "Queen Mab summoned",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "manaburn",
+            "transform"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL1B01.test.ts"
+          ]
+        }
+      ],
+      "nativeStepReviews": [
+        {
+          "id": "0",
+          "type": "CauseFrozen",
+          "status": "verified",
+          "note": "CauseFrozen",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "manaburn",
+            "transform"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL1B01.test.ts"
+          ]
+        },
+        {
+          "id": "1",
+          "type": "ManaBurn",
+          "status": "verified",
+          "note": "ManaBurn",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "manaburn",
+            "transform"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL1B01.test.ts"
+          ]
+        },
+        {
+          "id": "2",
+          "type": "TroopOrderBack",
+          "status": "verified",
+          "note": "TroopOrderBack SecondEnemy",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "manaburn",
+            "transform"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL1B01.test.ts"
+          ]
+        },
+        {
+          "id": "3",
+          "type": "Delay",
+          "status": "verified",
+          "note": "Delay 800: presentation pause only, no state change between the two knock-backs (order test)",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "manaburn",
+            "transform"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL1B01.test.ts"
+          ]
+        },
+        {
+          "id": "4",
+          "type": "TroopOrderBack",
+          "status": "verified",
+          "note": "TroopOrderBack FrontEnemy",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "manaburn",
+            "transform"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL1B01.test.ts"
+          ]
+        },
+        {
+          "id": "5",
+          "type": "SummoningNoError",
+          "status": "verified",
+          "note": "SummoningNoError 6191",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "manaburn",
+            "transform"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL1B01.test.ts"
+          ]
+        }
+      ],
+      "branchReviews": [
+        {
+          "id": "main",
+          "status": "verified",
+          "note": "single branch",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "manaburn",
+            "transform"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL1B01.test.ts"
+          ]
+        }
+      ]
+    }
+  ]
+}

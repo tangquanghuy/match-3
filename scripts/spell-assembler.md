@@ -72,12 +72,9 @@ export const BATCH_XX: CuratedBatch = { batch: 'XX', spells: SPELLS, skipped: SK
 
 ### 措辞裁定（本仓库引擎词汇的固定口径）
 - **「魔法值」= magic 属性**（法术强度）；**「法力值 / 魔力」= mana**。窃取/给予/减除同口径。
-- **「对所有敌人…散射伤害」**：散射只是伤害类型词，目标是全体 → `dmg('enemyAll', …, { range: 'all' })`；
-  **「对 1 名敌人…散射/溅射」**才是溅射链 → `dmgSplash('enemyChosen', …)`。
-- 「摧毁/消灭该敌人」（即杀）→ `dmg(target, 0, 0, { execute: true })`。
-- **裸散射句式（2026-09-18 官方 SpellSteps 重裁，推翻 09-17 旧裁定）**：「造成…点(真实)散射伤害」
-  无目标词 = **全体散射** → `dmg('enemyAll', …, { range: 'all' })`（官方 ScatterDamage/
-  TrueScatterDamage@AllEnemies 16/16 实锤、无一带 FromTarget；裸散射段**不再**走 enemyChosen 溅射链）。
+- **散射 Scatter**（含裸散射）：`dmg('enemyAll', …, { range: 'scatter' })`，公式为一个随机分配总池；穿透伤害再加 `trueDamage: true`。`AllEnemies` 不是“每敌各受完整伤害”。
+- **溅射 Splash**：`dmg(target, …, { range: 'splash', splashRatio: 0.5 })`；主目标完整伤害，邻位各一半；轻度 `0.25`、重度 `0.75`。随机 N 名敌人使用 `enemyRandomN` + `n`，每个中心分别完整结算。 原始步骤有独立触发概率时使用 `splashChances: [1, 0.9, 0.35, 0.25]`（优先于 `n/nRange`），逐段独立判定、失败不截断后续段，保留逐段判定，而非均匀随机段数。
+- **普通全体伤害**才使用 `range: 'all'`。既有批次的源文校正表位于 `src/data/gowDamageRules.json`，新编译直接使用正确语义。
 - **裸伤害句式·非散射（2026-09-17 用户裁定，维持）**：「造成…点伤害」无目标词 = 对 1 名敌人（`enemyChosen`）。
 - 「减除(全部)生命值」「减血」→ `reduce(target, 'hp', …)`（直接扣血夹零，击杀会走 defeat）；
   「减除全部护甲值」→ `reduce(target, 'armor', 0, 0, { drainAll: true })`。
@@ -109,9 +106,9 @@ export const BATCH_XX: CuratedBatch = { batch: 'XX', spells: SPELLS, skipped: SK
 
 ### 伤害
 ```ts
-dmg(target, base, mult?, opts?)          // [魔法×mult + base]；opts: { range:'splash'|'all', trueDamage, n, chance, ifTargetDied, modifier, raceDouble, rangeSpec }
+dmg(target, base, mult?, opts?)          // [魔法×mult + base]；opts: { range:'splash'|'scatter'|'all', splashRatio, trueDamage, n, chance, ifTargetDied, modifier, raceDouble, rangeSpec }
 dmgAll(base, mult?, trueDamage?)         // = dmg('enemyAll', …, {range:'all'})，无 opts（要 opts 用 dmg）
-dmgSplash(target, base, mult?)           // 溅射（轻微溅射也是它）
+dmgSplash(target, base, mult?)           // 普通溅射；轻/重用 dmg(...,{range:"splash",splashRatio:0.25/0.75})
 trueDmg(target, base, mult?, opts?)      // 真实/穿透伤害（跳护甲）
 ```
 

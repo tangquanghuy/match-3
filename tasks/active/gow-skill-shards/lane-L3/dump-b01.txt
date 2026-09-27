@@ -1,0 +1,47 @@
+=== troop:7313 RelicKnight spell 8925 cost 12/12 colors Blue,Green status pending-review target Ally rand -
+EN : Barrier an Ally, and give them Mana equal to half their Mana cost. If they are a Knight, create 3 Spirit Gems.
+ZH : 赋予一名盟友屏障效果，并给予其半数法力值。若对方是一名骑士，则创造 3 颗灵力宝石。
+CL : c1=Barrier an Ally, and give them Mana equal to half their Mana cost. | c2=If they are a Knight, create 3 Spirit Gems.
+  0 {"Target":"FromTarget","Amount":1,"Type":"CauseBarrier"}
+  1 {"Target":"FromTarget","Type":"GenerateHalfMana"}
+  2 {"Target":"FromTarget","StatusAmount":3,"Color1":"Spirit","StatusModifier":"AddForKnight","Type":"CreateGems"}
+PROTO {"segments":[{"kind":"status","target":"allyChosen","statusId":"barrier","turns":3},{"kind":"buff","target":"allyChosen","stat":"mana","scaling":{"base":0,"mult":0},"halve":true},{"kind":"gem","params":{"op":"create","gem":{"kind":"special","spec":{"kind":"spiritGem","color":"Purple"}},"count":{"base":3,"mult":0}},"ifCond":{"kind":"lastTargetRace","race":"Knight"}}]}
+META null
+=== troop:7098 FirebornEagle spell 8633 cost 11/11 colors Red,Yellow status pending-review target Enemy rand -
+EN : Deal [Magic + 3] damage to an Enemy, and Burn them. If the Enemy dies, create 2 Elemental Stars and gain an extra turn.
+ZH : 对一名敌人造成 [魔法 + 3] 点伤害，并燃烧他。若敌人身亡，则创建 2 颗元素星，并获得一个额外回合。
+CL : c1=Deal [Magic + 3] damage to an Enemy, and Burn them. | c2=If the Enemy dies, create 2 Elemental Stars and gain an extra turn.
+  0 {"Target":"FromTarget","Amount":1,"Type":"CauseBurning"}
+  1 {"SpellPowerMultiplier":1,"Target":"FromTarget","Amount":3,"Primarypower":true,"Type":"Damage","Delay":1}
+  2 {"StatusAmount":2,"Color1":"ElementalStar","StatusModifier":"AddForKill","Type":"CreateGems","Delay":1}
+  3 {"Target":"Self","StatusAmount":100,"StatusModifier":"AddForKill","Type":"ExtraTurnConditional"}
+PROTO {"segments":[{"kind":"damage","target":"enemyChosen","scaling":{"base":3,"mult":1}},{"kind":"status","target":"enemyChosen","statusId":"burning","turns":3,"magnitude":3},{"kind":"gem","params":{"op":"create","gem":{"kind":"special","spec":{"kind":"elementalStar"}},"count":{"base":2,"mult":0}},"ifTargetDied":true},{"kind":"extraTurn","ifTargetDied":true}]}
+META null
+=== troop:7097 NaturebornWolf spell 8632 cost 11/11 colors Green,Red status pending-review target Enemy rand -
+EN : Deal [Magic + 3] damage to an Enemy, and Entangle them. If the Enemy dies, create 2 Elemental Stars and gain an extra turn.
+ZH : 对一名敌人造成 [魔法 + 3] 点伤害，并缠绕他。若敌人身亡，则创建 2 颗元素星，并获得一个额外回合。
+CL : c1=Deal [Magic + 3] damage to an Enemy, and Entangle them. | c2=If the Enemy dies, create 2 Elemental Stars and gain an extra turn.
+  0 {"Target":"FromTarget","Amount":1,"Type":"CauseEntangle"}
+  1 {"SpellPowerMultiplier":1,"Target":"FromTarget","Amount":3,"Primarypower":true,"Type":"Damage","Delay":1}
+  2 {"StatusAmount":2,"Color1":"ElementalStar","StatusModifier":"AddForKill","Type":"CreateGems","Delay":1}
+  3 {"Target":"Self","StatusAmount":100,"StatusModifier":"AddForKill","Type":"ExtraTurnConditional"}
+PROTO {"segments":[{"kind":"damage","target":"enemyChosen","scaling":{"base":3,"mult":1}},{"kind":"status","target":"enemyChosen","statusId":"entangle","turns":3},{"kind":"gem","params":{"op":"create","gem":{"kind":"special","spec":{"kind":"elementalStar"}},"count":{"base":2,"mult":0}},"ifTargetDied":true},{"kind":"extraTurn","ifTargetDied":true}]}
+META null
+=== troop:6285 Frostling spell 7431 cost 8/8 colors Blue status pending-review target Enemy rand -
+EN : Freeze and Web an Enemy. If there are 13 or more Blue Gems, gain 4 Mana.
+ZH : 冻结一名敌人并使其陷入织网状态。如果板面上有 13 颗或更多蓝色宝石，则自身恢复一半的法力值。
+CL : c1=Freeze and Web an Enemy. | c2=If there are 13 or more Blue Gems, gain 4 Mana.
+  0 {"Target":"FromTarget","Type":"CauseFrozen"}
+  1 {"Target":"FromTarget","Type":"CauseWeb"}
+  2 {"Target":"Self","StatusAmount":4,"StatusModifier":"AddFor10BlueGems","Type":"GenerateMana"}
+PROTO {"segments":[{"kind":"status","target":"enemyRandom","statusId":"frozen","turns":3},{"kind":"status","target":"lastTarget","statusId":"web","turns":3},{"kind":"buff","target":"allySelf","stat":"mana","scaling":{"base":0,"mult":0},"halve":true,"ifCond":{"kind":"boardAtLeast","color":"Blue","n":13}}]}
+META null
+=== troop:7208 EternalSentinel spell 8795 cost 11/11 colors Yellow,Purple status pending-review target None rand -
+EN : Freeze a random Enemy. Create 3 Gargoyle Gems, and gain an extra turn.
+ZH : 冻结一名随机敌人。创造 3 颗石像鬼宝石并获得一个额外回合。
+CL : c1=Freeze a random Enemy. | c2=Create 3 Gargoyle Gems, and gain an extra turn.
+  0 {"Target":"RandomEnemy","Amount":1,"Type":"CauseFrozen","Delay":1}
+  1 {"Color1":"GoodGargoyle","Amount":3,"Color2":"BadGargoyle","Type":"CreateGems2Colors"}
+  2 {"Target":"Self","Type":"ExtraTurn"}
+PROTO {"segments":[{"kind":"status","target":"enemyRandom","statusId":"frozen","turns":3},{"kind":"gem","params":{"op":"create","gem":{"kind":"special","spec":{"kind":"gargoyleGem"}},"count":{"base":3,"mult":0}}},{"kind":"extraTurn"}]}
+META null

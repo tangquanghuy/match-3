@@ -103,13 +103,13 @@ export class GameOverPanel {
    * 弹出结算：playerWon 为 true 显示胜利，否则显示战败。
    * @param stats 本场战果（B-9）。缺省时退回旧的两行版式，不报错。
    */
-  open(playerWon: boolean, stats?: GameOverStats): void {
+  open(playerWon: boolean, stats?: GameOverStats, surrendered = false): void {
     this.panel.classList.remove('victory', 'defeat');
     this.panel.classList.add(playerWon ? 'victory' : 'defeat');
     this.panel.innerHTML = `
       <div class="gop-mark">
         <i></i>
-        <h1 class="gop-title">${playerWon ? '胜 利' : '战 败'}</h1>
+        <h1 class="gop-title">${surrendered ? '已放弃' : playerWon ? '胜 利' : '战 败'}</h1>
         <i></i>
       </div>
       ${stats ? renderStats(stats) : ''}

@@ -1,0 +1,1437 @@
+{
+  "schemaVersion": 1,
+  "scope": "stored-gow-snapshot",
+  "reviews": [
+    {
+      "key": "troop:7030",
+      "scope": "stored-gow-snapshot",
+      "sourceDigest": "f52f887a4062106db3dc992c6e578766b266e5bac3d17ff1962b5cf26d8a7073",
+      "reviewer": "sa-L4b",
+      "reviewedAt": "2026-09-27",
+      "decision": "accept",
+      "ledgerFingerprintAtReview": "885d7cf3a115bcb41e08fa6dd542fc823aa554770cee677532947c1f67eb6982",
+      "_reference": {
+        "spellId": 8557,
+        "english": "Convert all Red Gems into Yellow Dragon Gems.",
+        "nativeTarget": "None",
+        "randomize": null,
+        "steps": [
+          {
+            "Color1": "Red",
+            "Amount": 100,
+            "Color2": "DragonYellow",
+            "Type": "ConvertGems"
+          }
+        ],
+        "prototype": {
+          "segments": [
+            {
+              "kind": "gem",
+              "params": {
+                "op": "transform",
+                "from": "Red",
+                "to": "SKULL",
+                "toSpecial": {
+                  "kind": "dragonGem",
+                  "color": "Yellow"
+                }
+              }
+            }
+          ]
+        }
+      },
+      "sourceEvidence": [
+        {
+          "id": "en",
+          "role": "english-snapshot",
+          "path": "data/raw/troops.gow.en.json",
+          "note": "Entity troop:7030 SpellId/English text/ManaCost/ManaColors asserted verbatim in tests/unit/gowLaneL4bB21.test.ts."
+        },
+        {
+          "id": "native",
+          "role": "native-snapshot",
+          "path": "data/raw/spells.gow.en.json",
+          "note": "SpellId 8557 Cost/Target and every SpellSteps field (ordered, toEqual) asserted in tests/unit/gowLaneL4bB21.test.ts."
+        },
+        {
+          "id": "rule",
+          "role": "official-shared-rule",
+          "path": "artifacts/gow-skill-audit/gold-primary-sources/official-heroic-gems-freshdesk.html",
+          "note": "Heroic Gems (Infinity Plus 2 help centre): Dragon Gems match with their colour and, when matched or destroyed, explode the column below; exist in all 6 colours (spec.color carried)."
+        },
+        {
+          "id": "laneTest",
+          "role": "lane-battle-test",
+          "path": "tests/unit/gowLaneL4bB21.test.ts",
+          "note": "Lane L4b frozen test file: binding + real castSkill cases for troop:7030."
+        }
+      ],
+      "dimensions": {
+        "identity-cost-colors": {
+          "status": "verified",
+          "note": "troop 7030 -> spell 8557; raw ManaCost 13 = native Cost 13; colours Blue+Green; spell.id binding asserted.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB21.test.ts"
+          ]
+        },
+        "target-count-range": {
+          "status": "not-applicable",
+          "note": "No troop target.",
+          "evidenceIds": [
+            "en",
+            "native"
+          ],
+          "tests": []
+        },
+        "base-formula-rounding": {
+          "status": "not-applicable",
+          "note": "No numeric formula.",
+          "evidenceIds": [
+            "en",
+            "native"
+          ],
+          "tests": []
+        },
+        "boost-source-ratio-cap": {
+          "status": "not-applicable",
+          "note": "No boost/ratio/cap.",
+          "evidenceIds": [
+            "en",
+            "native"
+          ],
+          "tests": []
+        },
+        "conditions-probabilities-branches": {
+          "status": "not-applicable",
+          "note": "No condition/chance.",
+          "evidenceIds": [
+            "en",
+            "native"
+          ],
+          "tests": []
+        },
+        "status-duration-immunity": {
+          "status": "not-applicable",
+          "note": "No status.",
+          "evidenceIds": [
+            "en",
+            "native"
+          ],
+          "tests": []
+        },
+        "gems-types-selection-resolution": {
+          "status": "verified",
+          "note": "ConvertGems Red -> DragonYellow Amount 100: all 16 Red become special dragonGem colour Yellow (round-2 fix L4b-7030-dragon); Yellow join key; no Red -> nothing.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB21.test.ts"
+          ]
+        },
+        "summon-transform-pools": {
+          "status": "not-applicable",
+          "note": "No summon or troop transform.",
+          "evidenceIds": [
+            "en",
+            "native"
+          ],
+          "tests": []
+        },
+        "order-death-retargeting": {
+          "status": "not-applicable",
+          "note": "Single step.",
+          "evidenceIds": [
+            "en",
+            "native"
+          ],
+          "tests": []
+        },
+        "mana-economy-extra-turn": {
+          "status": "verified",
+          "note": "Caster mana 0 after cast except cascade mana-gain events; no skill extra turn; one action-log entry; turn passes (or cascade 4+/5 extra turn only).",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB21.test.ts"
+          ]
+        },
+        "display-description": {
+          "status": "verified",
+          "note": "Chinese '将所有红色宝石转换成黄龙宝石。' matches English Yellow Dragon Gems.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB21.test.ts"
+          ]
+        },
+        "battle-pipeline": {
+          "status": "verified",
+          "note": "Real TurnEngine.castSkill on both sides (Left/Right); low mana (cost-1) and Silence refuse without spending mana or touching board/statuses/turn.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB21.test.ts"
+          ],
+          "realBattleEntry": true
+        }
+      },
+      "clauseReviews": [
+        {
+          "id": "c1",
+          "text": "Convert all Red Gems into Yellow Dragon Gems.",
+          "status": "verified",
+          "note": "All Red -> Yellow Dragon Gems.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB21.test.ts"
+          ]
+        }
+      ],
+      "nativeStepReviews": [
+        {
+          "id": "0",
+          "type": "ConvertGems",
+          "status": "verified",
+          "note": "ConvertGems Red->DragonYellow Amount 100 -> transformToSpecial Red -> {dragonGem, Yellow}.",
+          "evidenceIds": [
+            "native",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB21.test.ts"
+          ]
+        }
+      ],
+      "branchReviews": [
+        {
+          "id": "main",
+          "status": "verified",
+          "note": "Single branch; Red / no-Red boards, both sides.",
+          "evidenceIds": [
+            "native",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB21.test.ts"
+          ]
+        }
+      ]
+    },
+    {
+      "key": "troop:7276",
+      "scope": "stored-gow-snapshot",
+      "sourceDigest": "68be238934df5f01280247d850346ff9a715f7f31875e71327bcbc881a697d8c",
+      "reviewer": "sa-L4b",
+      "reviewedAt": "2026-09-27",
+      "decision": "draft",
+      "ledgerFingerprintAtReview": "885d7cf3a115bcb41e08fa6dd542fc823aa554770cee677532947c1f67eb6982",
+      "_reference": {
+        "spellId": 8901,
+        "english": "Convert a chosen Mana Gem to an Uber Doomskull.",
+        "nativeTarget": "ManaGemsOnly",
+        "randomize": null,
+        "steps": [
+          {
+            "Color1": "FromTarget",
+            "Amount": 1,
+            "Color2": "UberDoomskull",
+            "BoardTarget": "SingleGem",
+            "Type": "ConvertGems"
+          }
+        ],
+        "prototype": {
+          "segments": [
+            {
+              "kind": "gem",
+              "params": {
+                "op": "transform",
+                "from": "CELL",
+                "to": "SKULL",
+                "toSpecial": "uberDoomSkull"
+              }
+            }
+          ]
+        }
+      },
+      "sourceEvidence": [
+        {
+          "id": "en",
+          "role": "english-snapshot",
+          "path": "data/raw/troops.gow.en.json",
+          "note": "Entity troop:7276 SpellId/English text/ManaCost/ManaColors asserted verbatim in tests/unit/gowLaneL4bB21.test.ts."
+        },
+        {
+          "id": "native",
+          "role": "native-snapshot",
+          "path": "data/raw/spells.gow.en.json",
+          "note": "SpellId 8901 Cost/Target and every SpellSteps field (ordered, toEqual) asserted in tests/unit/gowLaneL4bB21.test.ts."
+        },
+        {
+          "id": "rule",
+          "role": "official-shared-rule",
+          "path": "artifacts/gow-skill-audit/gold-primary-sources/official-heroic-gems-freshdesk.html",
+          "note": "Heroic Gems (Infinity Plus 2 help centre): Uber Doomskull matches with Skulls/Doomskulls, deals 10 damage to the first enemy and explodes a large area when matched or exploded."
+        },
+        {
+          "id": "laneTest",
+          "role": "lane-battle-test",
+          "path": "tests/unit/gowLaneL4bB21.test.ts",
+          "note": "Lane L4b frozen test file: binding + real castSkill cases for troop:7276."
+        }
+      ],
+      "dimensions": {
+        "identity-cost-colors": {
+          "status": "verified",
+          "note": "troop 7276 -> spell 8901; raw ManaCost 12 = native Cost 12; colours Red+Brown; native Target ManaGemsOnly; spell.id binding asserted.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB21.test.ts"
+          ]
+        },
+        "target-count-range": {
+          "status": "difference",
+          "note": "Player-chosen cell (FixedCellChooser) is correct after round-2 fix L4b-7276-singlegem; but the AI cell chooser picks the centre-most gem of any type and does not honour native Target ManaGemsOnly (can pick a Skull/special): see issues.json L4b-chosen-colour-exclusion.",
+          "evidenceIds": [
+            "en",
+            "native"
+          ],
+          "tests": []
+        },
+        "base-formula-rounding": {
+          "status": "verified",
+          "note": "Amount 1: exactly one gem converted.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB21.test.ts"
+          ]
+        },
+        "boost-source-ratio-cap": {
+          "status": "not-applicable",
+          "note": "No boost/ratio/cap.",
+          "evidenceIds": [
+            "en",
+            "native"
+          ],
+          "tests": []
+        },
+        "conditions-probabilities-branches": {
+          "status": "not-applicable",
+          "note": "No condition/chance.",
+          "evidenceIds": [
+            "en",
+            "native"
+          ],
+          "tests": []
+        },
+        "status-duration-immunity": {
+          "status": "not-applicable",
+          "note": "No status.",
+          "evidenceIds": [
+            "en",
+            "native"
+          ],
+          "tests": []
+        },
+        "gems-types-selection-resolution": {
+          "status": "verified",
+          "note": "Chosen cell -> uberDoomSkull (skull join key); 15 other Blue untouched.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB21.test.ts"
+          ]
+        },
+        "summon-transform-pools": {
+          "status": "not-applicable",
+          "note": "No summon or troop transform.",
+          "evidenceIds": [
+            "en",
+            "native"
+          ],
+          "tests": []
+        },
+        "order-death-retargeting": {
+          "status": "not-applicable",
+          "note": "Single step.",
+          "evidenceIds": [
+            "en",
+            "native"
+          ],
+          "tests": []
+        },
+        "mana-economy-extra-turn": {
+          "status": "verified",
+          "note": "Caster mana 0 after cast except cascade mana-gain events; no skill extra turn; one action-log entry; turn passes (or cascade 4+/5 extra turn only).",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB21.test.ts"
+          ]
+        },
+        "display-description": {
+          "status": "verified",
+          "note": "Chinese '将一个选定的法力颜色宝石转换成一颗超级末日骷髅头。' matches English.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB21.test.ts"
+          ]
+        },
+        "battle-pipeline": {
+          "status": "verified",
+          "note": "Real TurnEngine.castSkill on both sides (Left/Right); low mana (cost-1) and Silence refuse without spending mana or touching board/statuses/turn.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB21.test.ts"
+          ],
+          "realBattleEntry": true
+        }
+      },
+      "clauseReviews": [
+        {
+          "id": "c1",
+          "text": "Convert a chosen Mana Gem to an Uber Doomskull.",
+          "status": "verified",
+          "note": "Only the chosen cell becomes an Uber Doomskull.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB21.test.ts"
+          ]
+        }
+      ],
+      "nativeStepReviews": [
+        {
+          "id": "0",
+          "type": "ConvertGems",
+          "status": "verified",
+          "note": "ConvertGems FromTarget BoardTarget SingleGem -> transformToSpecial('CELL', uberDoomSkull).",
+          "evidenceIds": [
+            "native",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB21.test.ts"
+          ]
+        }
+      ],
+      "branchReviews": [
+        {
+          "id": "main",
+          "status": "verified",
+          "note": "Single branch; two chosen cells both sides.",
+          "evidenceIds": [
+            "native",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB21.test.ts"
+          ]
+        }
+      ],
+      "openIssues": [
+        "L4b-chosen-colour-exclusion"
+      ]
+    },
+    {
+      "key": "troop:7195",
+      "scope": "stored-gow-snapshot",
+      "sourceDigest": "5129a7016aeddd8f25b15de66da487eb30848673937e88c53f36a9891655eb1b",
+      "reviewer": "sa-L4b",
+      "reviewedAt": "2026-09-27",
+      "decision": "accept",
+      "ledgerFingerprintAtReview": "885d7cf3a115bcb41e08fa6dd542fc823aa554770cee677532947c1f67eb6982",
+      "_reference": {
+        "spellId": 8782,
+        "english": "Inflict Hunter’s Mark on the first Enemy. Then convert all Green Gems to Skulls.",
+        "nativeTarget": "None",
+        "randomize": null,
+        "steps": [
+          {
+            "Color1": "Green",
+            "Amount": 100,
+            "Color2": "Skull",
+            "Type": "ConvertGems"
+          },
+          {
+            "Target": "FrontEnemy",
+            "Type": "CauseHuntersMark"
+          }
+        ],
+        "prototype": {
+          "segments": [
+            {
+              "kind": "gem",
+              "params": {
+                "op": "transform",
+                "from": "Green",
+                "to": "SKULL"
+              }
+            },
+            {
+              "kind": "status",
+              "target": "enemyFront",
+              "statusId": "marked",
+              "turns": 3
+            }
+          ]
+        }
+      },
+      "sourceEvidence": [
+        {
+          "id": "en",
+          "role": "english-snapshot",
+          "path": "data/raw/troops.gow.en.json",
+          "note": "Entity troop:7195 SpellId/English text/ManaCost/ManaColors asserted verbatim in tests/unit/gowLaneL4bB21.test.ts."
+        },
+        {
+          "id": "native",
+          "role": "native-snapshot",
+          "path": "data/raw/spells.gow.en.json",
+          "note": "SpellId 8782 Cost/Target and every SpellSteps field (ordered, toEqual) asserted in tests/unit/gowLaneL4bB21.test.ts."
+        },
+        {
+          "id": "rule",
+          "role": "official-shared-rule",
+          "path": "artifacts/gow-skill-audit/gold-primary-sources/official-status-effects.html",
+          "note": "official-status-effects.html: Hunter's Mark status; Blessed troops immune."
+        },
+        {
+          "id": "r001",
+          "role": "user-ruling",
+          "path": "tasks/active/gow-skill-shards/rulings/R001-native-step-order.md",
+          "note": "R001: native ConvertGems precedes CauseHuntersMark (English lists the Mark first); prototype fixed in round 2 (L4b-7195-order)."
+        },
+        {
+          "id": "laneTest",
+          "role": "lane-battle-test",
+          "path": "tests/unit/gowLaneL4bB21.test.ts",
+          "note": "Lane L4b frozen test file: binding + real castSkill cases for troop:7195."
+        }
+      ],
+      "dimensions": {
+        "identity-cost-colors": {
+          "status": "verified",
+          "note": "troop 7195 -> spell 8782; raw ManaCost 12 = native Cost 12; colours Red+Yellow; spell.id binding asserted.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "r001",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB21.test.ts"
+          ]
+        },
+        "target-count-range": {
+          "status": "verified",
+          "note": "FrontEnemy -> enemyFront (dead front -> next living).",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "r001",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB21.test.ts"
+          ]
+        },
+        "base-formula-rounding": {
+          "status": "not-applicable",
+          "note": "No numeric formula.",
+          "evidenceIds": [
+            "en",
+            "native"
+          ],
+          "tests": []
+        },
+        "boost-source-ratio-cap": {
+          "status": "not-applicable",
+          "note": "No boost/ratio/cap.",
+          "evidenceIds": [
+            "en",
+            "native"
+          ],
+          "tests": []
+        },
+        "conditions-probabilities-branches": {
+          "status": "not-applicable",
+          "note": "No condition/chance.",
+          "evidenceIds": [
+            "en",
+            "native"
+          ],
+          "tests": []
+        },
+        "status-duration-immunity": {
+          "status": "verified",
+          "note": "marked turns 3; Blessed front resists.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "r001",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB21.test.ts"
+          ]
+        },
+        "gems-types-selection-resolution": {
+          "status": "verified",
+          "note": "All 16 Green -> plain Skull.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "r001",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB21.test.ts"
+          ]
+        },
+        "summon-transform-pools": {
+          "status": "not-applicable",
+          "note": "No summon or troop transform.",
+          "evidenceIds": [
+            "en",
+            "native"
+          ],
+          "tests": []
+        },
+        "order-death-retargeting": {
+          "status": "verified",
+          "note": "gem-transform precedes status-apply (native order, R001).",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "r001",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB21.test.ts"
+          ]
+        },
+        "mana-economy-extra-turn": {
+          "status": "verified",
+          "note": "Caster mana 0 after cast except cascade mana-gain events; no skill extra turn; one action-log entry; turn passes (or cascade 4+/5 extra turn only).",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "r001",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB21.test.ts"
+          ]
+        },
+        "display-description": {
+          "status": "verified",
+          "note": "Chinese '使首位敌人陷入猎人标记状态。再将所有绿色宝石转换成骷髅头。' matches English text (execution follows native order per R001).",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "r001",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB21.test.ts"
+          ]
+        },
+        "battle-pipeline": {
+          "status": "verified",
+          "note": "Real TurnEngine.castSkill on both sides (Left/Right); low mana (cost-1) and Silence refuse without spending mana or touching board/statuses/turn.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "r001",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB21.test.ts"
+          ],
+          "realBattleEntry": true
+        }
+      },
+      "clauseReviews": [
+        {
+          "id": "c1",
+          "text": "Inflict Hunter’s Mark on the first Enemy.",
+          "status": "verified",
+          "note": "Front enemy Hunter's Marked (after the conversion, native order).",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "r001",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB21.test.ts"
+          ]
+        },
+        {
+          "id": "c2",
+          "text": "Then convert all Green Gems to Skulls.",
+          "status": "verified",
+          "note": "All Green -> Skulls.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "r001",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB21.test.ts"
+          ]
+        }
+      ],
+      "nativeStepReviews": [
+        {
+          "id": "0",
+          "type": "ConvertGems",
+          "status": "verified",
+          "note": "ConvertGems Green->Skull Amount 100 -> transform Green to SKULL (first).",
+          "evidenceIds": [
+            "native",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB21.test.ts"
+          ]
+        },
+        {
+          "id": "1",
+          "type": "CauseHuntersMark",
+          "status": "verified",
+          "note": "CauseHuntersMark FrontEnemy -> status marked enemyFront.",
+          "evidenceIds": [
+            "native",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB21.test.ts"
+          ]
+        }
+      ],
+      "branchReviews": [
+        {
+          "id": "main",
+          "status": "verified",
+          "note": "Single branch; both sides, dead front, Blessed.",
+          "evidenceIds": [
+            "native",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB21.test.ts"
+          ]
+        }
+      ]
+    },
+    {
+      "key": "troop:6711",
+      "scope": "stored-gow-snapshot",
+      "sourceDigest": "2bb17bdb120e1af968c3a8670c223cdff8ebfad71965c3d9a624bc37cb7fcad8",
+      "reviewer": "sa-L4b",
+      "reviewedAt": "2026-09-27",
+      "decision": "accept",
+      "ledgerFingerprintAtReview": "885d7cf3a115bcb41e08fa6dd542fc823aa554770cee677532947c1f67eb6982",
+      "_reference": {
+        "spellId": 8069,
+        "english": "Cleanse and Bless an Ally. Create 10 Gems of one of their Mana Colors.",
+        "nativeTarget": "Ally",
+        "randomize": null,
+        "steps": [
+          {
+            "Target": "FromTarget",
+            "Amount": 1,
+            "Type": "Cleanse"
+          },
+          {
+            "Target": "FromTarget",
+            "Type": "CauseBlessed"
+          },
+          {
+            "Color1": "FromTarget",
+            "Amount": 10,
+            "Type": "CreateGems"
+          }
+        ],
+        "prototype": {
+          "segments": [
+            {
+              "kind": "cleanse",
+              "target": "allyChosen"
+            },
+            {
+              "kind": "status",
+              "target": "lastTarget",
+              "statusId": "blessed",
+              "turns": 3
+            },
+            {
+              "kind": "gem",
+              "params": {
+                "op": "create",
+                "gem": {
+                  "kind": "color",
+                  "color": "LAST_TARGET"
+                },
+                "count": {
+                  "base": 10,
+                  "mult": 0
+                }
+              }
+            }
+          ]
+        }
+      },
+      "sourceEvidence": [
+        {
+          "id": "en",
+          "role": "english-snapshot",
+          "path": "data/raw/troops.gow.en.json",
+          "note": "Entity troop:6711 SpellId/English text/ManaCost/ManaColors asserted verbatim in tests/unit/gowLaneL4bB21.test.ts."
+        },
+        {
+          "id": "native",
+          "role": "native-snapshot",
+          "path": "data/raw/spells.gow.en.json",
+          "note": "SpellId 8069 Cost/Target and every SpellSteps field (ordered, toEqual) asserted in tests/unit/gowLaneL4bB21.test.ts."
+        },
+        {
+          "id": "rule",
+          "role": "official-shared-rule",
+          "path": "tasks/active/gow-skill-shards/rulings/R002-barrier-enchant-cleanse.md",
+          "note": "R002: Cleanse removes negative statuses only (Poison removed, Barrier kept)."
+        },
+        {
+          "id": "status",
+          "role": "official-shared-rule",
+          "path": "artifacts/gow-skill-audit/gold-primary-sources/official-status-effects.html",
+          "note": "official-status-effects.html: Blessed status."
+        },
+        {
+          "id": "laneTest",
+          "role": "lane-battle-test",
+          "path": "tests/unit/gowLaneL4bB21.test.ts",
+          "note": "Lane L4b frozen test file: binding + real castSkill cases for troop:6711."
+        }
+      ],
+      "dimensions": {
+        "identity-cost-colors": {
+          "status": "verified",
+          "note": "troop 6711 -> spell 8069; raw ManaCost 10 = native Cost 10; colours Red+Purple; spell Target Ally; spell.id binding asserted.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "status",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB21.test.ts"
+          ]
+        },
+        "target-count-range": {
+          "status": "verified",
+          "note": "FromTarget -> allyChosen (Cleanse) then lastTarget (Bless, same ally) and LAST_TARGET colour; self allowed; enemy refused before mana.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "status",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB21.test.ts"
+          ]
+        },
+        "base-formula-rounding": {
+          "status": "verified",
+          "note": "CreateGems Amount 10 fixed.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "status",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB21.test.ts"
+          ]
+        },
+        "boost-source-ratio-cap": {
+          "status": "not-applicable",
+          "note": "No boost/ratio/cap.",
+          "evidenceIds": [
+            "en",
+            "native"
+          ],
+          "tests": []
+        },
+        "conditions-probabilities-branches": {
+          "status": "verified",
+          "note": "Colour among the ally's mana colours drawn once per cast (round-2 fix L4b-7138-onecolour): seeds 1/7/42/99 give 10 gems of one of Blue/Yellow.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "status",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB21.test.ts"
+          ]
+        },
+        "status-duration-immunity": {
+          "status": "verified",
+          "note": "Cleanse removes Poison, keeps Barrier (R002); blessed turns 3 on the same ally.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "status",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB21.test.ts"
+          ]
+        },
+        "gems-types-selection-resolution": {
+          "status": "verified",
+          "note": "Single-colour ally -> 10 Green on non-Green cells; two-colour ally -> one colour only.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "status",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB21.test.ts"
+          ]
+        },
+        "summon-transform-pools": {
+          "status": "not-applicable",
+          "note": "No summon or troop transform.",
+          "evidenceIds": [
+            "en",
+            "native"
+          ],
+          "tests": []
+        },
+        "order-death-retargeting": {
+          "status": "verified",
+          "note": "Cleanse -> Bless -> create (native order).",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "status",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB21.test.ts"
+          ]
+        },
+        "mana-economy-extra-turn": {
+          "status": "verified",
+          "note": "Caster mana 0 after cast except cascade mana-gain events; no skill extra turn; one action-log entry; turn passes (or cascade 4+/5 extra turn only).",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "status",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB21.test.ts"
+          ]
+        },
+        "display-description": {
+          "status": "verified",
+          "note": "Chinese '净化和赐福一名盟友。创造与其法力颜色相同的 10 颗宝石。' matches English (one colour of the ally).",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "status",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB21.test.ts"
+          ]
+        },
+        "battle-pipeline": {
+          "status": "verified",
+          "note": "Real TurnEngine.castSkill on both sides (Left/Right); low mana (cost-1) and Silence refuse without spending mana or touching board/statuses/turn.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "status",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB21.test.ts"
+          ],
+          "realBattleEntry": true
+        }
+      },
+      "clauseReviews": [
+        {
+          "id": "c1",
+          "text": "Cleanse and Bless an Ally.",
+          "status": "verified",
+          "note": "Chosen ally cleansed (negatives only) and Blessed.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "status",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB21.test.ts"
+          ]
+        },
+        {
+          "id": "c2",
+          "text": "Create 10 Gems of one of their Mana Colors.",
+          "status": "verified",
+          "note": "10 gems of one of that ally's mana colours.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "status",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB21.test.ts"
+          ]
+        }
+      ],
+      "nativeStepReviews": [
+        {
+          "id": "0",
+          "type": "Cleanse",
+          "status": "verified",
+          "note": "Cleanse FromTarget Amount 1 -> cleanse allyChosen.",
+          "evidenceIds": [
+            "native",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB21.test.ts"
+          ]
+        },
+        {
+          "id": "1",
+          "type": "CauseBlessed",
+          "status": "verified",
+          "note": "CauseBlessed FromTarget -> status blessed lastTarget.",
+          "evidenceIds": [
+            "native",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB21.test.ts"
+          ]
+        },
+        {
+          "id": "2",
+          "type": "CreateGems",
+          "status": "verified",
+          "note": "CreateGems FromTarget Amount 10 -> create color LAST_TARGET 10 (resolved once).",
+          "evidenceIds": [
+            "native",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB21.test.ts"
+          ]
+        }
+      ],
+      "branchReviews": [
+        {
+          "id": "main",
+          "status": "verified",
+          "note": "Single branch; single/two-colour ally, self, illegal target.",
+          "evidenceIds": [
+            "native",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB21.test.ts"
+          ]
+        }
+      ]
+    },
+    {
+      "key": "troop:7270",
+      "scope": "stored-gow-snapshot",
+      "sourceDigest": "73752845f6ca8c6afbb1c89bdf7e99cd1d80b9f399e7cd7bcfdc84e665d792b0",
+      "reviewer": "sa-L4b",
+      "reviewedAt": "2026-09-27",
+      "decision": "accept",
+      "ledgerFingerprintAtReview": "885d7cf3a115bcb41e08fa6dd542fc823aa554770cee677532947c1f67eb6982",
+      "_reference": {
+        "spellId": 8889,
+        "english": "Convert all Green Gems to Brown. Then create 3 Brown Dragon Gems.",
+        "nativeTarget": "None",
+        "randomize": null,
+        "steps": [
+          {
+            "Color1": "Green",
+            "Amount": 100,
+            "Color2": "Brown",
+            "Type": "ConvertGems",
+            "Delay": 600
+          },
+          {
+            "Color1": "DragonBrown",
+            "Amount": 3,
+            "Type": "CreateGems"
+          }
+        ],
+        "prototype": {
+          "segments": [
+            {
+              "kind": "gem",
+              "params": {
+                "op": "transform",
+                "from": "Green",
+                "to": "Brown"
+              }
+            },
+            {
+              "kind": "gem",
+              "params": {
+                "op": "create",
+                "gem": {
+                  "kind": "special",
+                  "spec": {
+                    "kind": "dragonGem",
+                    "color": "Brown"
+                  }
+                },
+                "count": {
+                  "base": 3,
+                  "mult": 0
+                }
+              }
+            }
+          ]
+        }
+      },
+      "sourceEvidence": [
+        {
+          "id": "en",
+          "role": "english-snapshot",
+          "path": "data/raw/troops.gow.en.json",
+          "note": "Entity troop:7270 SpellId/English text/ManaCost/ManaColors asserted verbatim in tests/unit/gowLaneL4bB21.test.ts."
+        },
+        {
+          "id": "native",
+          "role": "native-snapshot",
+          "path": "data/raw/spells.gow.en.json",
+          "note": "SpellId 8889 Cost/Target and every SpellSteps field (ordered, toEqual) asserted in tests/unit/gowLaneL4bB21.test.ts."
+        },
+        {
+          "id": "rule",
+          "role": "official-shared-rule",
+          "path": "artifacts/gow-skill-audit/gold-primary-sources/official-heroic-gems-freshdesk.html",
+          "note": "Heroic Gems (Infinity Plus 2 help centre): Dragon Gems match with their colour and, when matched or destroyed, explode the column below; exist in all 6 colours (spec.color carried)."
+        },
+        {
+          "id": "laneTest",
+          "role": "lane-battle-test",
+          "path": "tests/unit/gowLaneL4bB21.test.ts",
+          "note": "Lane L4b frozen test file: binding + real castSkill cases for troop:7270."
+        }
+      ],
+      "dimensions": {
+        "identity-cost-colors": {
+          "status": "verified",
+          "note": "troop 7270 -> spell 8889; raw ManaCost 12 = native Cost 12; colours Purple+Brown; spell.id binding asserted.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB21.test.ts"
+          ]
+        },
+        "target-count-range": {
+          "status": "not-applicable",
+          "note": "No troop target.",
+          "evidenceIds": [
+            "en",
+            "native"
+          ],
+          "tests": []
+        },
+        "base-formula-rounding": {
+          "status": "verified",
+          "note": "CreateGems Amount 3 fixed: exactly 3 Dragon Gems.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB21.test.ts"
+          ]
+        },
+        "boost-source-ratio-cap": {
+          "status": "not-applicable",
+          "note": "No boost/ratio/cap.",
+          "evidenceIds": [
+            "en",
+            "native"
+          ],
+          "tests": []
+        },
+        "conditions-probabilities-branches": {
+          "status": "not-applicable",
+          "note": "No condition/chance.",
+          "evidenceIds": [
+            "en",
+            "native"
+          ],
+          "tests": []
+        },
+        "status-duration-immunity": {
+          "status": "not-applicable",
+          "note": "No status.",
+          "evidenceIds": [
+            "en",
+            "native"
+          ],
+          "tests": []
+        },
+        "gems-types-selection-resolution": {
+          "status": "verified",
+          "note": "16 Green -> Brown, then 3 special dragonGem colour Brown (round-2 fix L4b-7270-dragon; Brown join key); no-Green board -> only the 3 Dragon Gems.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB21.test.ts"
+          ]
+        },
+        "summon-transform-pools": {
+          "status": "not-applicable",
+          "note": "No summon or troop transform.",
+          "evidenceIds": [
+            "en",
+            "native"
+          ],
+          "tests": []
+        },
+        "order-death-retargeting": {
+          "status": "verified",
+          "note": "Convert (Delay 600 timing) then create (native order).",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB21.test.ts"
+          ]
+        },
+        "mana-economy-extra-turn": {
+          "status": "verified",
+          "note": "Caster mana 0 after cast except cascade mana-gain events; no skill extra turn; one action-log entry; turn passes (or cascade 4+/5 extra turn only).",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB21.test.ts"
+          ]
+        },
+        "display-description": {
+          "status": "verified",
+          "note": "Chinese '将所有绿色宝石转换成棕色。再创造 3 颗棕色龙宝石。' matches English.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB21.test.ts"
+          ]
+        },
+        "battle-pipeline": {
+          "status": "verified",
+          "note": "Real TurnEngine.castSkill on both sides (Left/Right); low mana (cost-1) and Silence refuse without spending mana or touching board/statuses/turn.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB21.test.ts"
+          ],
+          "realBattleEntry": true
+        }
+      },
+      "clauseReviews": [
+        {
+          "id": "c1",
+          "text": "Convert all Green Gems to Brown.",
+          "status": "verified",
+          "note": "All Green -> Brown.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB21.test.ts"
+          ]
+        },
+        {
+          "id": "c2",
+          "text": "Then create 3 Brown Dragon Gems.",
+          "status": "verified",
+          "note": "3 Brown Dragon Gems created.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB21.test.ts"
+          ]
+        }
+      ],
+      "nativeStepReviews": [
+        {
+          "id": "0",
+          "type": "ConvertGems",
+          "status": "verified",
+          "note": "ConvertGems Green->Brown Amount 100 Delay 600 -> transform Green to Brown.",
+          "evidenceIds": [
+            "native",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB21.test.ts"
+          ]
+        },
+        {
+          "id": "1",
+          "type": "CreateGems",
+          "status": "verified",
+          "note": "CreateGems DragonBrown Amount 3 -> createSpecialGems {dragonGem, Brown} 3.",
+          "evidenceIds": [
+            "native",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB21.test.ts"
+          ]
+        }
+      ],
+      "branchReviews": [
+        {
+          "id": "main",
+          "status": "verified",
+          "note": "Single branch; Green / no-Green boards, both sides.",
+          "evidenceIds": [
+            "native",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB21.test.ts"
+          ]
+        }
+      ]
+    }
+  ]
+}

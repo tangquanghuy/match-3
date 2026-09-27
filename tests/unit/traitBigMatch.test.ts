@@ -489,19 +489,17 @@ describe('护栏 · 无新键特质的对局随机序列不变', () => {
     return { rngState: rng.getState(), eventCount: count };
   }
 
-  it('多组种子下 rng 终态与事件数与改前基线逐字节一致', () => {
-    // 基线说明：本组数字在条件光环批**改动前**采集（legacy 特质对局）。
+  it('多组种子下 rng 终态与有效事件数保持基线一致', () => {
+    // 基线说明：本组数字在条件光环批改动前采集，事件数已扣除退役的特殊宝石占位钩子。
     // 触发器扩展对「不含新键特质」的对局必须零随机消耗、零额外事件——
     // 若触发器意外消耗随机数或多发事件，rngState/eventCount 会偏离基线而红。
     const BASELINE: Record<number, { rngState: number; eventCount: number }> = {
-      7: { rngState: 1496707235, eventCount: 77 },
-      42: { rngState: 2440672625, eventCount: 95 },
-      2026: { rngState: 1368826860, eventCount: 87 },
+      7: { rngState: 1496707235, eventCount: 76 },
+      42: { rngState: 2440672625, eventCount: 94 },
+      2026: { rngState: 1368826860, eventCount: 86 },
     };
-    for (const [seed, expected] of Object.entries(BASELINE)) {
-      expect({ seed: Number(seed), ...drive(Number(seed), 12) })
-        .toEqual({ seed: Number(seed), ...expected });
-    }
+    const actual = Object.fromEntries(Object.keys(BASELINE).map((seed) => [seed, drive(Number(seed), 12)]));
+    expect(actual).toEqual(BASELINE);
   });
 
   it('同一驱动跑两遍事件流完全一致（确定性）', () => {

@@ -175,7 +175,7 @@ describe('数据落地（骷髅受击/命中钩子 7 code + 收编批）', () =>
     expect(getTrait('carcass')?.onDeathCreateGem).toEqual({ gem: 'decayGem', count: 1 });
   });
 
-  it('收编批：六色族 color 贯通（kinof* 龙宝石族 / *shard 巨人宝石族 / 法力药水族 / 灵力缺省紫）', () => {
+  it('收编批：六色族 color 贯通（kinof* 龙宝石族 / *shard 巨人宝石族 / 法力药水族 / 灵力转化承接来源色）', () => {
     expect(getTrait('kinofthedeep')?.turnStartColorToSpecial).toEqual({ color: 'Blue', gem: 'dragonGem', gemColor: 'Blue', count: 2, chance: 0.4 });
     expect(getTrait('kinofbones')?.turnStartColorToSpecial).toEqual({ color: 'Brown', gem: 'dragonGem', gemColor: 'Brown', count: 2, chance: 0.4 });
     expect(getTrait('sapphireshard')?.onDamagedCreateGem).toEqual({ gem: 'giantGem', color: 'Blue', count: 1 });
@@ -183,8 +183,8 @@ describe('数据落地（骷髅受击/命中钩子 7 code + 收编批）', () =>
     expect(getTrait('stonefragment')?.onDamagedCreateGem).toEqual({ gem: 'manaPotionGem', color: 'Brown', count: 1 });
     expect(getTrait('icefragment')?.onDamagedCreateGem).toEqual({ gem: 'manaPotionGem', color: 'Blue', count: 1 });
     expect(getTrait('alchemistfire')?.turnStartColorToSpecial).toEqual({ color: 'Red', gem: 'manaPotionGem', gemColor: 'Red', count: 1, chance: 0.5 });
-    // spiritGem 官方颜色集合存疑 → 引擎既定缺省紫（可匹配）
-    expect(getTrait('murderofravens')?.turnStartColorToSpecial).toEqual({ color: 'Blue', gem: 'spiritGem', gemColor: 'Purple', count: 2 });
+    // 灵力转化承接蓝色来源；无色来源的创造在特质生成端显式标记项目暂定紫色
+    expect(getTrait('murderofravens')?.turnStartColorToSpecial).toEqual({ color: 'Blue', gem: 'spiritGem', gemColor: 'Blue', count: 2 });
     expect(getTrait('ancestralspirits')?.turnStartCreateSpecialGem).toEqual({ gem: 'spiritGem', color: 'Purple', count: 1 });
   });
 

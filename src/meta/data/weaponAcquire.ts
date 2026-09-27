@@ -77,12 +77,13 @@ export const ACQUIRE_FILTERS: ReadonlyArray<[WeaponAcquireKind, string]> = [
   ['placeholder', '占位不可装备'],
 ];
 
-/** 宝石商店标价（设计值；对照宝石箱单抽 150） */
+/** 宝石商店标价（对照宝石箱单抽 150，直购稀有武器需明显高于抽取成本） */
 export function gemBuyCost(rarity: string): number {
-  if (rarity === 'Doomed') return 1_200;
-  if (rarity === 'Mythic' || rarity === 'Legendary') return 800;
-  if (rarity === 'Epic') return 400;
-  return 250;
+  if (rarity === 'Doomed') return 6_000;
+  if (rarity === 'Mythic' || rarity === 'Legendary') return 4_000;
+  if (rarity === 'Epic') return 2_400;
+  if (rarity === 'UltraRare') return 1_600;
+  return 900;
 }
 
 export function kingdomQuestCleared(save: MetaSave, kingdom: string): boolean {

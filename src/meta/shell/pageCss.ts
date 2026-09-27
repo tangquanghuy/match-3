@@ -1,3 +1,4 @@
+import wishlistCss from './styles/wishlist.css?raw';
 /**
  * 页面级 CSS 管理：小样各页的级联顺序各不相同（troop.css 要排在 style.css
  * 之前被压回；arena/result 要排在最后做覆盖），全局一次性 import 会互相打架。
@@ -13,6 +14,7 @@ import liveCss from './styles/live.css?raw';
 import bagCss from './styles/bag.css?raw';
 import eventShopCss from './styles/event-shop.css?raw';
 import gemShopCss from './styles/gem-shop.css?raw';
+import marketCss from './styles/market.css?raw';
 import huntCss from './styles/hunt.css?raw';
 
 interface PageCssSpec {
@@ -21,14 +23,15 @@ interface PageCssSpec {
 }
 
 const PAGE_CSS: Record<string, PageCssSpec> = {
+  wishlist: { css: wishlistCss, position: 'last' },
   troop: { css: troopCss, position: 'first' },
   arena: { css: arenaCss, position: 'last' },
   result: { css: resultCss, position: 'last' },
   events: { css: liveCss, position: 'last' },
   invasion: { css: liveCss, position: 'last' },
   bag: { css: bagCss, position: 'last' },
-  shop: { css: eventShopCss, position: 'last' },
-  gems: { css: gemShopCss, position: 'last' },
+  shop: { css: eventShopCss + marketCss, position: 'last' },
+  gems: { css: gemShopCss + marketCss, position: 'last' },
   hunt: { css: huntCss, position: 'last' },
 };
 

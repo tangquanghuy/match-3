@@ -1,4 +1,5 @@
 import { BoardModel } from './BoardModel';
+import { creditGoldForSide } from './battleGold';
 import { MatchResolver, grantsExtraTurn } from './MatchResolver';
 import type { MatchGroup } from './MatchResolver';
 import { GravitySystem, STORM_DROP_WEIGHT, STORM_DOOMSKULL_DROP, STORM_UBER_DOOMSKULL_DROP } from './GravitySystem';
@@ -11,10 +12,11 @@ import { SeededRNG } from './rng';
 import { reshuffle, hasLegalSwap } from './boardUtils';
 import { tickTeamStatuses, canCastSkill, applyStatus, canGainMana, WEB_STATUS_ID,
   RANDOM_POSITIVE_STATUS_POOL, RANDOM_NEGATIVE_STATUS_POOL,
-  hasStatus, ENCHANTED_STATUS_ID } from './skills/effects/status';
+  hasStatus, ENCHANTED_STATUS_ID, endActionStatuses } from './skills/effects/status';
 import { executePrototype } from './skills/prototypes';
 import { damageOne } from './skills/effects/damage';
 import { devourEffect } from './skills/effects/devour';
+import { gemEffect } from './skills/effects/gems';
 import { applyBuffGain } from './skills/effects/buff';
 import { applyStormToTeam } from './skills/effects/storm';
 import type { EffectContext, DestroyedGem } from './skills/effects/context';
@@ -23,9 +25,12 @@ import { AiColorChooser, prototypeNeedsColor } from './skills/colorChooser';
 import type { ColorChooser } from './skills/colorChooser';
 import { AiTargetChooser, prototypeChosenTargetMode } from './skills/targetChooser';
 import type { TargetChooser } from './skills/targetChooser';
+import { candidatesFor, sideOf } from './skills/targeting';
+import { AiBranchChooser, skillChoices, selectSkillBranch } from './skills/branchChooser';
+import type { BranchChooser } from './skills/branchChooser';
 import { AiCellChooser, prototypeNeedsCell } from './skills/cellChooser';
 import type { CellChooser } from './skills/cellChooser';
-import { MatchState, PlayerSide, BaseColor, opponentOf, colorGem, specialGem, posKey, WEB_GEM_TURNS,
+import { MatchState, PlayerSide, BaseColor, opponentOf, colorGem, specialGem, posKey, SPECIAL_MATCH_COLOR, WEB_GEM_TURNS,
   MATCH_STATUS_GEMS, DESTROY_STATUS_GEMS, STATUS_GEM_EFFECTS, isStatusGemKind, BOOTY_GEM_GOLD,
   MANA_BONUS_GIANT, SPIRIT_GEM_DRAIN, MANA_POTION_GEM_RANGE, CANDY_GEM_MANA, TRAP_GEM_OPTIONS,
   ANGEL_GEM_TURNS, LYCANTHROPY_GEM_TURNS, GARGOYLE_GEM_TURNS,
@@ -41,7 +46,7 @@ import type { SkullStormDropKind, StatusGemKind, StatusInstance, SpecialGemKind,
 const EXPLODED_SKULL_DAMAGE = { normal: 1, doom: 5, uber: 10 } as const;
 import type { ActionLogEntry, BattleAction, CellPos, GemType, Character, Team } from './types';
 import type { GameState } from './GameState';
-import { resolveDefeatEvents, summonQueueOf, MAX_ACTIVE_TEAM_SIZE } from './teamRoster';
+import { resolveDefeatEvents, MAX_ACTIVE_TEAM_SIZE } from './teamRoster';
 import { resolveDefeatAfterRevive } from './skills/effects/summon';
 import {
   applyBattleStartTraits,
@@ -59,15 +64,14 @@ import {
   attachPassives,
   getTrait,
   passivesOf,
+  activeTraitIds,
 } from './traits';
 import type { DeathSummonSpec } from './traits';
 import type {
   GameEvent,
   EliminationEvent,
-  SpecialGemHookEvent,
   GemTransformEvent,
   GemClearEvent,
-  GemCreateEvent,
   StormChangeEvent,
 } from './events';
 
@@ -86,12 +90,20 @@ export class TurnEngine {
   skullChance = 0;
 
   /**
+   * 补充的「连消倾向」强度（GravitySystem.apply 的 comboBias，机制见 comboBias.ts）：> 0 时
+   * 补充更常留下 4/5 连机会与连锁，额外回合连段中自动收敛。默认 0 = 关闭（既有对局随机数
+   * 序列逐字节不变）；与 skullChance 同款公开字段注入，App 实战设为 BATTLE_COMBO_BIAS。
+   */
+  comboBias = 0;
+
+  /**
    * 玩家方旗帜加成（GoW 王国旗帜语义，meta M6 宿主注入；形如 `{ Red: 2, Brown: -1 }`）。
    * 玩家侧（Left）匹配对应色宝石时按**每次匹配事件**平展 ±N 法力、向下保底 0；
    * null = 无旗帜，`distributeGemMana` 走原路径（既有对局事件流逐字节不变）。
    * 与 skullChance 同款公开字段注入模式：构造函数签名不动，宿主构造后赋值。
    */
   bannerBoosts: Partial<Record<BaseColor, number>> | null = null;
+  enemyBannerBoosts: Partial<Record<BaseColor, number>> | null = null;
 
   /**
    * 双方法力精通（宿主注入；省略 = 0）。3 消按 chance = m/(m+100) 翻倍，4 消永不，
@@ -107,8 +119,10 @@ export class TurnEngine {
   private targetChooser: TargetChooser = new AiTargetChooser();
   /** 选格器：技能含"点选一枚宝石"的段（引爆某格 / 摧毁其所在行列）时用它；默认 AI 策略 */
   private cellChooser: CellChooser = new AiCellChooser();
+  private branchChooser: BranchChooser = new AiBranchChooser();
   /** 召唤物 referenceName → 属性模板 解析器（需求 7）；默认无（ref/randomOf 来源将安全跳过） */
   private summonResolver: ((referenceName: string) => SummonTemplate | null) | null = null;
+  private beastPool: readonly string[] = [];
   /** 行动开始时的「角色 id → 所属方」快照，供阵亡响应在角色离场后仍能判定归属 */
   private readonly rosterSideAtActionStart = new Map<number, PlayerSide>();
   /** 行动开始时的角色引用快照：阵亡者被移出编队后，死亡召唤仍需读它编译过的被动 */
@@ -134,18 +148,19 @@ export class TurnEngine {
   /**
    * PvP 模式旗（职业天赋 exemplar/bloodandglory 族）：由宿主（App 从 BattleRequest.mode）
    * 构造后、首次 takeInitialEvents 前注入。true 时一次性应用持有者的 pvpBonuses
-   *（battle=自身 / attack=己方全队；本作竞技场玩家恒为进攻方，defense 惰性）。
+   *（battle=自身；attack=左方进攻队，defense=右方防守队）。
    */
   pvpMode = false;
   private pvpApplied = false;
   /**
    * 条件经济光环入账口（条件经济批，注入 traits 触发器 ctx/opts.gainEconomy）：
-   * 灵魂/黄金/宝石直接入战场经济池（GameState.economy，全场共用），发既有
+   * 黄金按阵营入账，灵魂/宝石保持既有奖励模型，发既有
    * economy-gain 事件（不新增事件类型）；side 记录获得发生时的行动方。
    */
-  private readonly creditEconomy = (currency: keyof TraitEconomyGain, amount: number): GameEvent[] => {
-    this.state.economy[currency] += amount;
-    return [{ type: 'economy-gain', currency, amount, side: this.state.activePlayer }];
+  private readonly creditEconomy = (currency: keyof TraitEconomyGain, amount: number, side = this.state.activePlayer): GameEvent[] => {
+    if (currency === 'gold') creditGoldForSide(this.state, side, amount);
+    else this.state.economy[currency] += amount;
+    return [{ type: 'economy-gain', currency, amount, side }];
   };
 
   /**
@@ -154,22 +169,21 @@ export class TurnEngine {
    * resolveDefeatEvents 出编队（与骷髅命中同口径）。
    */
   private readonly traitDamage = (target: Character, caster: Character, amount: number): GameEvent[] =>
-    this.resolveDefeatWithRevive(damageOne(target, caster.id, amount, false, 'single', undefined, caster));
+    this.resolveDefeatWithRevive(damageOne(target, caster.id, amount, false, 'single', undefined, caster,
+      sideOf(this.state, target.id) !== sideOf(this.state, caster.id)));
 
-  /**
-   * 特质窃取生命口（T5 窃取批 corruption 族，注入 opts.drainLife）：对首位敌人 damageOne
-   * 伤害 + 持有者按实际伤害额等量治疗（applyBuffGain 口径：出血禁疗/疾病减半/上限夹取，
-   * 与技能 drain 的 settleDrain 同源）。零伤害（屏障全吸等）不治疗。
-   */
+  /** Trait Steal Life bypasses Armor and grows Life by the target's actual Life loss. */
   private readonly traitDrainLife = (target: Character, holder: Character, amount: number): GameEvent[] => {
-    const produced = this.traitDamage(target, holder, amount);
-    let dealt = 0;
-    for (const e of produced) {
-      if (e.type === 'skill-damage') dealt += e.damage;
-    }
-    if (dealt <= 0 || holder.defeated) return produced;
-    const healed = applyBuffGain(holder, 'hp', dealt);
-    if (healed > 0) produced.push({ type: 'buff', source: 'trait', targetId: holder.id, stat: 'hp', amount: healed });
+    const before = target.hp;
+    // Capture loss before revival can change HP; normal trait damage must still hit Armor.
+    const hit = damageOne(target, holder.id, amount, true, 'single', undefined, holder,
+      sideOf(this.state, target.id) !== sideOf(this.state, holder.id));
+    const stolen = hit.some(e => e.type === 'skill-damage') ? Math.max(0, before - target.hp) : 0;
+    const produced = this.resolveDefeatWithRevive(hit);
+    if (stolen <= 0 || holder.defeated) return produced;
+    const gained = applyBuffGain(holder, 'hp', stolen, 'gain');
+    if (gained > 0) produced.push({ type: 'buff', source: 'trait', targetId: holder.id,
+      stat: 'hp', amount: gained, maxHpGain: gained });
     return produced;
   };
 
@@ -210,7 +224,7 @@ export class TurnEngine {
 
   /**
    * 特质吞噬口（R22 吞噬批 voracious/consumefuel/bloodyfeast）：复用技能吞噬原语
-   * devourEffect（即杀走 damageOne 伤害管线 + 官方成长额度 2/2/2/+5；吞噬免疫在原语口
+   * devourEffect（即杀走 damageOne 伤害管线 + 目标当前攻击、护甲与生命（不含魔法）；吞噬免疫在原语口
    * 整体跳过——不杀、不成长、不耗 rng；概率在原语内部经同一条种子化 rng 掷签），defeat
    * 事件统一经 resolveDefeatEvents 出编队（召唤队列顶替照常，与 traitDamage 同口径）。
    * 目标列表由调用方解析（命中侧=受击目标 / 受击侧=攻击者 / 敌亡侧=随机存活）；
@@ -309,6 +323,8 @@ export class TurnEngine {
     applyBattleStartTraits(
       state.teams[PlayerSide.Left].characters,
       state.teams[PlayerSide.Right].characters,
+      undefined,
+      this.rng,
     );
     // 位次条件光环（leader 族）：战斗开始时各队首位/末位补授（与开局光环同口径静默）。
     applyPositionAuras(
@@ -341,19 +357,22 @@ export class TurnEngine {
   takeInitialEvents(): GameEvent[] {
     if (this.pvpMode && !this.pvpApplied) {
       this.pvpApplied = true;
-      // PvP 加成（缺口清扫批 pvpBonus 惰性字段的结算口）：battle=持有者自身、
-      // attack=持有者己方全队（本作竞技场玩家恒为进攻方；defense 惰性不结算）。
-      // 静默授予（与开局光环同口径，构造期事件流未开始）。
-      for (const char of this.state.teams[PlayerSide.Left].characters) {
-        if (char.defeated) continue;
-        for (const bonus of passivesOf(char).pvpBonuses) {
-          if (bonus.phase === 'defense') continue;
-          const targets = bonus.phase === 'battle' ? [char] : this.state.teams[PlayerSide.Left].characters;
-          for (const target of targets) {
-            if (target.defeated) continue;
-            for (const stat of ['hp', 'armor', 'attack', 'magic'] as const) {
-              const amount = bonus.gains[stat] ?? 0;
-              if (amount > 0) grantStat(target, stat, amount);
+      // Left attacks; Right defends. Battle bonuses affect the holder on either
+      // side; attack/defense bonuses affect that holder's own matching-role team.
+      for (const side of [PlayerSide.Left, PlayerSide.Right]) {
+        const team = this.state.teams[side].characters;
+        for (const char of team) {
+          if (char.defeated) continue;
+          for (const bonus of passivesOf(char).pvpBonuses) {
+            if (bonus.phase === 'attack' && side !== PlayerSide.Left) continue;
+            if (bonus.phase === 'defense' && side !== PlayerSide.Right) continue;
+            const targets = bonus.phase === 'battle' ? [char] : team;
+            for (const target of targets) {
+              if (target.defeated) continue;
+              for (const stat of ['hp', 'armor', 'attack', 'magic'] as const) {
+                const amount = bonus.gains[stat] ?? 0;
+                if (amount > 0) grantStat(target, stat, amount);
+              }
             }
           }
         }
@@ -377,7 +396,7 @@ export class TurnEngine {
     for (const side of [PlayerSide.Left, PlayerSide.Right]) {
       for (const char of this.state.teams[side].characters) {
         if (char.defeated) continue;
-        for (const code of char.traitIds ?? []) {
+        for (const code of activeTraitIds(char)) {
           const spec = getTrait(code)?.battleStartDestroy;
           if (!spec) continue;
           const candidates: CellPos[] = [];
@@ -396,8 +415,9 @@ export class TurnEngine {
             ? candidates[0]
             : candidates[this.rng.nextInt(candidates.length)];
           const gem = this.state.board.get(pos)!;
+          events.push({ type: 'gem-explode', cells: [{ pos, gemId: gem.id, gemType: gem.type }] });
           this.state.board.set(pos, null);
-          this.resolveBoardChange([{ gemType: gem.type, pos }], events, side);
+          this.resolveBoardChange([{ gemType: gem.type, pos }], events, side, 'explode');
         }
       }
     }
@@ -419,7 +439,7 @@ export class TurnEngine {
       const foes = this.state.teams[opponentOf(side)].characters;
       for (const char of own) {
         if (char.defeated) continue;
-        for (const code of char.traitIds ?? []) {
+        for (const code of activeTraitIds(char)) {
           const spec = getTrait(code)?.battleStartStatus;
           if (!spec) continue;
           const statuses: readonly { id: string; magnitude?: number }[] = spec.randomPositive
@@ -459,7 +479,7 @@ export class TurnEngine {
     for (const side of [PlayerSide.Left, PlayerSide.Right]) {
       for (const char of this.state.teams[side].characters) {
         if (char.defeated) continue;
-        for (const code of char.traitIds ?? []) {
+        for (const code of activeTraitIds(char)) {
           const spec = getTrait(code)?.battleStartConvertGems;
           if (!spec) continue;
           if (this.rng.next() >= spec.chance) continue;
@@ -469,7 +489,7 @@ export class TurnEngine {
             const from = pos ? this.state.board.get(pos) : null;
             if (!pos || !from) continue;
             const to = specialGem(spec.gem, spec.tier);
-            const gemId = this.nextGemId();
+            const gemId = from.id;
             this.state.board.set(pos, { id: gemId, type: to });
             changes.push({ pos, gemId, from: from.type, to });
           }
@@ -510,8 +530,9 @@ export class TurnEngine {
       if (candidates.length === 0) break;
       const pos = candidates.length === 1 ? candidates[0] : candidates[this.rng.nextInt(candidates.length)];
       const gem = this.state.board.get(pos)!;
+      events.push({ type: 'gem-explode', cells: [{ pos, gemId: gem.id, gemType: gem.type }] });
       this.state.board.set(pos, null);
-      this.resolveBoardChange([{ gemType: gem.type, pos }], events, side);
+      this.resolveBoardChange([{ gemType: gem.type, pos }], events, side, 'explode');
     }
     return events;
   }
@@ -536,15 +557,16 @@ export class TurnEngine {
       if (candidates.length === 0) break;
       const pos = candidates.length === 1 ? candidates[0] : candidates[this.rng.nextInt(candidates.length)];
       const gem = this.state.board.get(pos)!;
+      events.push({ type: 'gem-explode', cells: [{ pos, gemId: gem.id, gemType: gem.type }] });
       this.state.board.set(pos, null);
-      this.resolveBoardChange([{ gemType: gem.type, pos }], events, this.state.activePlayer);
+      this.resolveBoardChange([{ gemType: gem.type, pos }], events, this.state.activePlayer, 'explode');
     }
     return events;
   }
 
   /**
    * 行动内召唤事件的后置触发（特质收尾批：callnature 召唤自然「当一名盟友召唤部队时，
-   * 召唤一场叶风暴」/ summoningritual 召唤仪式「当一名盟友被召唤后，获得 8 点魔法值」）。
+   * 召唤一场叶风暴」/ summoningritual 召唤仪式「当一名盟友被召唤后，获得 8 点魔力值」）。
    * 扫描本次行动产出的 summon 事件，按事件 player 归属触发该方存活持有者（事件序 ×
    * 队伍序确定性）；风暴经 traitSetStorm 全局唯一顶替裁定（虚拟风暴号段由特质表提供）；
    * colors 为官方 BoostColors 惰性建模，引擎契约取 colors[0]（与 turnStartStorm 同口径）。
@@ -556,7 +578,7 @@ export class TurnEngine {
     for (const ev of summonEvents) {
       for (const holder of this.state.teams[ev.player].characters) {
         if (holder.defeated) continue;
-        for (const code of holder.traitIds ?? []) {
+        for (const code of activeTraitIds(holder)) {
           const def = getTrait(code);
           if (!def) continue;
           if (def.onAllySummonStorm) {
@@ -611,7 +633,7 @@ export class TurnEngine {
         }
       }
       if (!holder || side === null) continue;
-      for (const code of holder.traitIds ?? []) {
+      for (const code of activeTraitIds(holder)) {
         const spec = getTrait(code)?.onSkullHitExplodeGem;
         if (!spec) continue;
         // 处在组结算中途（skull-damage 结算口）：入队延迟到本轮组结算后（见队列注释）
@@ -687,9 +709,9 @@ export class TurnEngine {
         events.push(...this.traitSummon(summon));
         events.push(...this.applySelfSummonStatus(char));
       }
-      // 回合开始按概率获得属性（职业天赋 darkchannel「每回合 50% 几率获得 1 点魔法值」）：
+      // 回合开始按概率获得属性（职业天赋 darkchannel「每回合 50% 几率获得 1 点魔力值」）：
       // 定义直读键；概率经同一条 rng。
-      for (const code of char.traitIds ?? []) {
+      for (const code of activeTraitIds(char)) {
         const gainSpec = getTrait(code)?.turnStartChanceGain;
         if (!gainSpec) continue;
         if (this.rng.next() >= gainSpec.chance) continue;
@@ -705,7 +727,7 @@ export class TurnEngine {
       const foesOfHolder = this.state.teams[opponentOf(this.state.activePlayer)].characters;
       const firstFoe = foesOfHolder.find((c) => !c.defeated);
       if (firstFoe) {
-        for (const code of char.traitIds ?? []) {
+        for (const code of activeTraitIds(char)) {
           const def = getTrait(code);
           if (!def) continue;
           if (def.turnStartEnemyDrain) {
@@ -740,7 +762,7 @@ export class TurnEngine {
       // 回合开始棋盘/状态惰性字段（缺口清扫批）+ 职业天赋（wrathofanu 击晕随机敌 /
       // getbehindme 屏障随机盟友 / ancientmysteries 随机正面 / stormsoul·heatwave 开风暴）：
       // 定义直读键（getTrait，同 turnStartTypeAura 口径），概率与随机目标经同一条 rng。
-      for (const code of char.traitIds ?? []) {
+      for (const code of activeTraitIds(char)) {
         const def = getTrait(code);
         if (!def) continue;
         const statusSpec = def.turnStartStatus;
@@ -817,7 +839,7 @@ export class TurnEngine {
       // 3 点伤害」/ artillerysupport 炮火支援「对所有敌人造成 5 点伤害」经 traitDamage
       // 管线；clairvoyance 天眼通「创造一颗善石像鬼宝石」经 spawnSpecialGems 随机现存格
       // 就地翻新）。定义直读；随机目标耗一次种子化 rng，无 rng 退化不适用（本处恒有 rng）。
-      for (const code of holder.traitIds ?? []) {
+      for (const code of activeTraitIds(holder)) {
         const def = getTrait(code);
         if (!def) continue;
         if (def.onAllyCastEnemyDamage) {
@@ -888,11 +910,17 @@ export class TurnEngine {
   }
 
   /** 注入选格器（玩家已点选宝石时传 FixedCellChooser；AI 用默认） */
+  setBranchChooser(chooser: BranchChooser): void { this.branchChooser = chooser; }
+
   setCellChooser(chooser: CellChooser): void {
     this.cellChooser = chooser;
   }
 
   /** 注入召唤物解析器（装配层从 troops 数据提供） */
+  setBeastPool(refs: readonly string[]): void {
+    this.beastPool = [...refs];
+  }
+
   setSummonResolver(resolver: (referenceName: string) => SummonTemplate | null): void {
     this.summonResolver = resolver;
   }
@@ -926,6 +954,16 @@ export class TurnEngine {
    * 统一执行一次交换或施法行动。旧的 resolveSwap/castSkill 保留为兼容薄包装，
    * 玩家与 AI 可逐步迁移到此入口而不复制回合生命周期。
    */
+  /** End a match without fabricating casualties or resolving another action. */
+  surrender(side: PlayerSide): GameEvent[] {
+    if (this.state.winner !== null || this.state.state === MatchState.GameOver) return [];
+    const winner = opponentOf(side);
+    this.state.winner = winner;
+    this.state.state = MatchState.GameOver;
+    this.state.economy = { gold: 0, souls: 0, gems: 0, maps: 0 };
+    return [{ type: 'game-over', winner, reason: 'surrender' }];
+  }
+
   resolveAction(action: BattleAction): GameEvent[] {
     switch (action.type) {
       case 'swap':
@@ -970,10 +1008,23 @@ export class TurnEngine {
     return entry;
   }
 
+  /** Count actual defeats at action end, after revival and death-trigger resolution. */
+  private recordBattleDeaths(events: GameEvent[], sideAtStart: ReadonlyMap<number, PlayerSide>): void {
+    const counts = this.state.battleDeaths ??= { [PlayerSide.Left]: 0, [PlayerSide.Right]: 0 };
+    const summonedSides = new Map<number, PlayerSide>();
+    for (const event of events) {
+      if (event.type === 'summon') summonedSides.set(event.characterId, event.player);
+      if (event.type !== 'defeat') continue;
+      const side = sideAtStart.get(event.characterId) ?? summonedSides.get(event.characterId)
+        ?? this.sideOfCharacter(event.characterId);
+      if (side !== null && side !== undefined) counts[side] += 1;
+    }
+  }
+
   /** 回合尾结算完成后回填回合归属。GameOver 优先于额外回合。 */
-  private endActionLog(entry: ActionLogEntry, freeAction = false): void {
+  private endActionLog(entry: ActionLogEntry, events: GameEvent[]): void {
+    this.recordBattleDeaths(events, this.rosterSideAtActionStart);
     if (this.state.state === MatchState.GameOver) entry.outcome = 'game-over';
-    else if (freeAction) entry.outcome = 'held'; // 释放技能不消耗回合：行动方未变，也不是额外回合
     else if (this.state.activePlayer === entry.side) entry.outcome = 'extra-turn';
     else entry.outcome = 'switched';
   }
@@ -1011,7 +1062,7 @@ export class TurnEngine {
     this.finishTurn(events);
     this.applyActionSummonTriggers(events);
     this.processDeathTriggers(events);
-    this.endActionLog(logEntry);
+    this.endActionLog(logEntry, events);
     return events;
   }
 
@@ -1031,7 +1082,7 @@ export class TurnEngine {
       const destroyTriggers: { gemType: GemType; pos: CellPos; viaMatch: boolean }[] = [];
       for (const group of matches) {
         events.push(this.makeEliminationEvent(group, chain));
-        if (grantsExtraTurn(group.shape)) grantedExtra = true;
+        if (grantsExtraTurn(group.shape) && !this.isMatchExtraTurnFrozen(group)) grantedExtra = true;
 
         // 4/5 连响应特质（庞然/巨型/修理…）：只给匹配方自己一队，按组结算。
         // ctx 只服务条件光环批新键（施加状态/5 连限定/净化/条件经济）与大连创造批
@@ -1074,16 +1125,6 @@ export class TurnEngine {
           ));
         }
 
-        // 特殊宝石钩子（需求 7.4, 7.5）—— 仅标记不生成
-        if (group.shape === 'T' || group.shape === 'L' || group.cells.length >= 5) {
-          const hook: SpecialGemHookEvent = {
-            type: 'special-gem-hook',
-            pos: group.cells[0],
-            reason: group.cells.length >= 5 ? 'match5' : group.shape === 'L' ? 'L' : 'T',
-          };
-          events.push(hook);
-        }
-
         // 结算法力 / 骷髅伤害（颜色组含通配倍率；骷髅组含末日骷髅加伤）
         this.applyGroupEffects(group, events);
 
@@ -1101,7 +1142,8 @@ export class TurnEngine {
 
       // 3. 特殊宝石破坏链：末日骷髅引爆相邻一圈 / 闪电清整行整列，
       //    以及连带的炸弹/闪电/许愿连锁；链上摧毁照常结算法力/骷髅
-      this.settleDestroyed(this.expandSpecialDestruction(destroyTriggers, events), events);
+      const manaPotions: BaseColor[] = [];
+      this.settleDestroyed(this.expandSpecialDestruction(destroyTriggers, events, manaPotions), events);
 
       // 3.5 特质爆破统一落地（收尾批延迟队列）：本轮组已全部遍历完，此处改盘安全——
       // 爆破自带重力+连锁吸收，内层连锁跑完后再做本轮胜负/重力。
@@ -1111,9 +1153,10 @@ export class TurnEngine {
       if (this.checkVictory(events)) return;
 
       // 5. 重力 + 补充（需求 8.1-8.4）；风暴激活时对应色按 STORM_DROP_WEIGHT 加权
-      const result = this.gravity.apply(this.state.board, this.skullChance, this.stormDropWeights(), this.stormSkullDrop());
+      const result = this.gravity.apply(this.state.board, this.skullChance, this.stormDropWeights(), this.stormSkullDrop(), this.comboBias, this.state.actionLog);
       events.push({ type: 'gravity', chainCount: chain, moves: result.moves });
       events.push({ type: 'refill', chainCount: chain, spawns: result.spawns });
+      this.scatterManaPotionGems(manaPotions, events);
       // 循环：再次检测匹配（需求 8.5, 8.6）
     }
 
@@ -1124,7 +1167,18 @@ export class TurnEngine {
     }
   }
 
-  private pendingExtraTurnSource: 'match' | 'skill' | null = null;
+  /** 冻结只抑制关联颜色的匹配额外回合；骷髅看当前第一名存活部队。 */
+  private isMatchExtraTurnFrozen(group: MatchGroup): boolean {
+    const living = this.state.teams[this.state.activePlayer].characters.filter((c) => !c.defeated);
+    const settle = group.settle;
+    if (settle.kind === 'skull') return !!living[0] && hasStatus(living[0], 'frozen');
+    if (settle.kind === 'color') {
+      return living.some((c) => hasStatus(c, 'frozen') && c.colors.includes(settle.color));
+    }
+    return false;
+  }
+
+  private pendingExtraTurnSource: 'match' | 'skill' | 'destroy' | null = null;
 
   /**
    * 特质爆破延迟队列（特质收尾批）：大连/配色/骷髅命中触发的爆破发生在 runCascades
@@ -1178,10 +1232,11 @@ export class TurnEngine {
   private distributeGemMana(team: Team, side: PlayerSide, color: BaseColor, amount: number): GameEvent[] {
     const mult = this.masterySuppress[side];
     let effective = mult < 1 ? Math.max(1, Math.floor(amount * mult)) : amount;
-    // 旗帜加成（meta M6）：仅玩家方（Left），按匹配事件平展 ±N、向下保底 0。
+    // 双方旗帜独立生效，按匹配事件平展 ±N、向下保底 0。
     // 加成并入「宝石本体产出」一起走分配管线，故吃 jinx/Mastery 抑制之后应用。
-    if (side === PlayerSide.Left && this.bannerBoosts) {
-      const boost = this.bannerBoosts[color];
+    const banner = side === PlayerSide.Left ? this.bannerBoosts : this.enemyBannerBoosts;
+    if (banner) {
+      const boost = banner[color];
       if (boost) effective = Math.max(0, effective + boost);
     }
     return this.mana.distribute(team, side, color, effective);
@@ -1300,9 +1355,8 @@ export class TurnEngine {
    *   - 末日骷髅 / 闪电：破坏型，登记到 destroyTriggers 统一引爆（见 runCascades 步骤 3）
    *   - 织网：随机一名存活敌人获得 web 状态
    *   - 沙漏：本方获得一次额外回合
-   *   - 「被匹配」型状态宝石（燃烧/冻结/诅咒/毒/恐怖）：即时施加（GEMS-SEMANTICS-2 A 组）
-   *   - 「被摧毁」型状态宝石（流血/缠绕/打昏/屏障/激怒/沉没/精灵火）：被匹配同样视为
-   *     被摧毁（A 组共性），登记到 destroyTriggers 走摧毁链统一施加
+   *   - 五种即时匹配状态宝石（燃烧/冻结/诅咒/毒/恐怖）：立即施加；摧毁同样触发
+   *   - 其余可匹配状态宝石：登记到 destroyTriggers 统一施加；死亡标记不可匹配
    *   - 通配无匹配触发（倍率在组结算里）；炸弹/许愿/死亡标记不可匹配，不会出现在组里
    */
   private collectMatchTriggers(
@@ -1336,11 +1390,12 @@ export class TurnEngine {
         //（匹配宝石不入摧毁队列，管线天然去重）。星族的多色法力加发在组结算（MatchSettle.bonusColors）。
         destroyTriggers.push({ gemType: gem.type, pos: cell, viaMatch: true });
       } else if (kind === 'candyGem') {
-        // 糖果（官方 "when matched"）：仅被匹配触发——己方全体该色存活盟友各 +1 法力
+        // 糖果匹配入口：己方该色存活盟友各 +1 法力；摧毁入口共用 applyCandyGem。
         this.applyCandyGem(gem.type.spec, cell, events);
+      } else if (kind === 'enchantedGem') {
+        this.applyEnchantedGem(cell, events);
       }
-      // decayGem/stoneBlock/enchantedGem/mimicGem：可匹配（或不可匹配）但无"被匹配"触发
-      //（腐朽只有盘上光环，见 applyDecayGemAura；石块=惰性；附魔/宝箱怪行为句待官方核实）
+      // decayGem/stoneBlock/mimicGem：无被移除时的独立效果。
     }
   }
 
@@ -1379,7 +1434,7 @@ export class TurnEngine {
   /**
    * 特殊宝石"被摧毁"触发链（clear 管线路径 + 匹配路径共用的引爆引擎）。
    * 队列 FIFO：炸弹→引爆相邻一圈（gem-explode）、闪电→清空整行/列（gem-destroy）、
-   * 许愿→5 选 1 随机回蓝；末日骷髅仅在 viaMatch（匹配路径登记）时引爆相邻一圈。
+   * 许愿→5 选 1 随机回蓝；末日骷髅匹配和直接摧毁均引爆相邻一圈。
    * 链上新摧毁的宝石继续入队（炸弹可连环引爆）。
    *
    * `initial` 里 viaMatch 的宝石视为匹配触发的登记（已被随组移除并结算，只触发其效果），
@@ -1389,6 +1444,7 @@ export class TurnEngine {
   private expandSpecialDestruction(
     initial: ReadonlyArray<{ gemType: GemType; pos?: CellPos; viaMatch?: boolean }>,
     events: GameEvent[],
+    manaPotions: BaseColor[],
   ): DestroyedGem[] {
     const chain: DestroyedGem[] = [];
     const queue = initial.slice();
@@ -1400,11 +1456,11 @@ export class TurnEngine {
         events.push({ type: 'special-gem-trigger', kind: 'bomb', pos: d.pos });
         this.clearCellsForSpecial(this.ringCells(d.pos), 'gem-explode', events, queue, chain);
       } else if (kind === 'doomSkull' || kind === 'uberDoomSkull') {
-        // 末日骷髅/至尊末日骷髅只在"被匹配"时引爆；被摧毁（炸弹波及等）静默移除
-        if (!d.viaMatch) continue;
+        // 匹配和直接摧毁都引爆；同一颗只经破坏链处理一次。
         events.push({ type: 'special-gem-trigger', kind, pos: d.pos });
         this.clearCellsForSpecial(this.ringCells(d.pos), 'gem-explode', events, queue, chain);
       } else if (kind === 'lightningRow' || kind === 'lightningCol') {
+        // 项目统一裁定：匹配与摧毁均触发行／列清除。
         events.push({
           type: 'special-gem-trigger',
           kind,
@@ -1426,7 +1482,7 @@ export class TurnEngine {
         // 赃物宝石（官方 Booty Gem）：被摧毁时给摧毁方 +10 金币（战场经济池）。
         // 不可匹配（SPECIAL_MATCH_COLOR 无键），只能经清除管线/末日骷髅爆炸圈抵达这里。
         events.push({ type: 'special-gem-trigger', kind: 'bootyGem', pos: d.pos });
-        this.state.economy.gold += BOOTY_GEM_GOLD;
+        creditGoldForSide(this.state, this.state.activePlayer, BOOTY_GEM_GOLD);
         events.push({
           type: 'economy-gain', currency: 'gold', amount: BOOTY_GEM_GOLD, side: this.state.activePlayer,
         });
@@ -1449,14 +1505,17 @@ export class TurnEngine {
       } else if (kind === 'spiritGem') {
         this.applySpiritGem(d.gemType.spec, d.pos, events);
       } else if (kind === 'manaPotionGem') {
-        this.scatterManaPotionGems(d.gemType.spec, d.pos, events);
+        const color = d.gemType.spec.color ?? BaseColor.Red;
+        events.push({ type: 'special-gem-trigger', kind, pos: d.pos, color });
+        // 只登记本轮效果；等破坏链与补盘完成，再按普通造石规则全盘铺色。
+        manaPotions.push(color);
       } else if (kind === 'elementalStar') {
-        // 元素星（官方 "destroys diagonal Gems"）：摧毁对角线四格 {±1,±1}（非 8 邻环）；
+        // 项目统一裁定：匹配与摧毁均触发。元素星：摧毁对角线四格 {±1,±1}（非 8 邻环）；
         // 四色各 +1 法力在组结算加发（MatchSettle.bonusColors）
         events.push({ type: 'special-gem-trigger', kind, pos: d.pos });
         this.clearCellsForSpecial(this.diagonalCells(d.pos), 'gem-destroy', events, queue, chain);
       } else if (kind === 'umbralStar') {
-        // 暗影星（官方 "destroys Gems in the row and column"）：清整行+整列，
+        // 项目统一裁定：匹配与摧毁均触发。暗影星：清整行+整列，
         // 行/列交叉点=自身、只登记一次；两色各 +1 法力在组结算加发
         events.push({ type: 'special-gem-trigger', kind, pos: d.pos, line: d.pos.row });
         this.clearCellsForSpecial(
@@ -1464,9 +1523,7 @@ export class TurnEngine {
           'gem-destroy', events, queue, chain,
         );
       } else if (kind === 'volcanoGem') {
-        // 火山（官方 guide "match with reds and explode up vertically and diagonally"）：
-        // 仅被匹配时触发（doomSkull 同款 viaMatch 门）；向上垂直列 + 对角延伸
-        if (!d.viaMatch) continue;
+        // Heroic Gems guide: when destroyed, including matching and direct destruction.
         events.push({ type: 'special-gem-trigger', kind, pos: d.pos, color: BaseColor.Red });
         this.clearCellsForSpecial(this.upwardBlastCells(d.pos), 'gem-explode', events, queue, chain);
       } else if (kind === 'lycanthropyGem') {
@@ -1499,15 +1556,19 @@ export class TurnEngine {
         this.applyGargoyleGem(d.gemType.spec, d.pos, events);
       } else if (kind === 'trapGem') {
         this.applyTrapGem(d.pos, events);
+      } else if (kind === 'hourglass' && !d.viaMatch) {
+        events.push({ type: 'special-gem-trigger', kind, pos: d.pos });
+        if (this.pendingExtraTurnSource === null) this.pendingExtraTurnSource = 'destroy';
+      } else if (kind === 'candyGem') {
+        this.applyCandyGem(d.gemType.spec, d.pos, events);
+      } else if (kind === 'enchantedGem') {
+        this.applyEnchantedGem(d.pos, events);
       } else if (isStatusGemKind(kind) && DESTROY_STATUS_GEMS.has(kind)) {
-        // 「被摧毁」型状态宝石（流血/缠绕/打昏/屏障/激怒/沉没/精灵火/死亡标记）：
-        // 被技能清除/爆破波及/匹配三路都汇到这里，按考证规格施加状态（不清相邻格）。
-        // 「被匹配」型（燃烧/冻结/诅咒/毒/恐怖）被普通摧毁不触发——官方文本只写 When matched。
+        // 13 种状态宝石均可被摧毁触发；匹配时即时施加的 5 种不会重复进队列。
         this.applyStatusGem(kind, d.pos, events);
       }
-      // ghost/wildcard/stoneBlock/enchantedGem/mimicGem：无"被摧毁"触发
-      //（wildcard 倍率在组结算里；ghost 语义待定；石块=惰性障碍；
-      // 附魔/宝箱怪行为句官方未证实，摧毁仅按普通移除处理）
+      // ghost/wildcard/stoneBlock/mimicGem 未定义被移除时可复用的触发效果；
+      // wildcard 的匹配倍率仍只在匹配组结算，幽魂/宝箱怪的原版效果另列缺口。
     }
     return chain;
   }
@@ -1633,38 +1694,41 @@ export class TurnEngine {
   }
 
   /**
-   * 法力药水宝石（官方 "create 7-11 Mana Gems of that color randomly across the board"）：
-   * rng.nextInt 定数量、空格不放回随机采样（开放问题按建议只落空格——覆盖会顶掉特殊宝石），
-   * 发既有 gem-create 事件。**不在此调用 resolveBoardChange**：两条外层触发路径
-   *（runCascades 步骤5 / resolveBoardChange 步骤2-3）都会在摧毁链之后做重力+连锁，
-   * 撒落的宝石自然下落并被下一轮扫描吸收；此处再调会递归重入连锁循环。
+   * 法力药水：本轮每颗被匹配/摧毁的药水独立创造 7-11 颗同色普通宝石。
+   * 队列属于当前消除/破坏批次，避免特质爆破重入时提前消耗外层待结算的药水。
+   * 在重力补盘后复用 gemEffect 的创造规则：全盘不放回抽取非同色匹配宝石，
+   * 就地转换并发 gem-transform；特殊宝石的覆盖行为也与普通造石保持一致。
+   * 不传 resolveBoardChange：避免递归重入，本批造石后的匹配由外层连锁循环吸收。
    */
-  private scatterManaPotionGems(spec: SpecialGemSpec, pos: CellPos, events: GameEvent[]): void {
-    const color = spec.color ?? BaseColor.Red;
-    events.push({ type: 'special-gem-trigger', kind: 'manaPotionGem', pos, color });
-    const count = MANA_POTION_GEM_RANGE.min
-      + this.rng.nextInt(MANA_POTION_GEM_RANGE.max - MANA_POTION_GEM_RANGE.min + 1);
-    const empties: CellPos[] = [];
-    for (let row = 0; row < BoardModel.ROWS; row++) {
-      for (let col = 0; col < BoardModel.COLS; col++) {
-        if (this.state.board.get({ row, col }) === null) empties.push({ row, col });
-      }
+  private scatterManaPotionGems(colors: readonly BaseColor[], events: GameEvent[]): void {
+    for (const color of colors) {
+      events.push(...gemEffect({
+        op: 'create',
+        gem: { kind: 'color', color },
+        count: { base: 0, mult: 0 },
+        countRange: MANA_POTION_GEM_RANGE,
+      }).apply({
+        state: this.state,
+        casterId: -1, // 棋盘效果，无施法者；数量由固定区间决定。
+        rng: this.rng,
+        nextGemId: this.nextGemId,
+      }));
     }
-    const spawns: GemCreateEvent['spawns'] = [];
-    for (let i = 0; i < count && empties.length > 0; i++) {
-      const p = empties.splice(this.rng.nextInt(empties.length), 1)[0];
-      const gem = { id: this.nextGemId(), type: colorGem(color) };
-      this.state.board.set(p, gem);
-      spawns.push({ pos: p, gemId: gem.id, gemType: gem.type });
-    }
-    if (spawns.length > 0) events.push({ type: 'gem-create', spawns });
   }
 
   /**
-   * 糖果宝石（官方 "give 1 mana to all allies of that colour when matched"）：仅被匹配触发
+   * 糖果宝石：匹配和直接摧毁共用该效果；每颗仅处理一次
    *（collectMatchTriggers 登记口）。己方全体该色存活盟友各 +1——直接授予不走分配器
    *（官方是"给每个该色盟友"而非产出到池），但保持 canGainMana 沉默拦截 + manaCost 夹取口径。
    */
+  private applyEnchantedGem(pos: CellPos, events: GameEvent[]): void {
+    events.push({ type: 'special-gem-trigger', kind: 'enchantedGem', pos, color: BaseColor.Purple });
+    const allies = this.state.teams[this.state.activePlayer].characters.filter((c) => !c.defeated);
+    if (allies.length > 0) {
+      events.push(...applyStatus(allies[this.rng.nextInt(allies.length)], { id: 'enchanted', turns: 3 }));
+    }
+  }
+
   private applyCandyGem(spec: SpecialGemSpec, pos: CellPos, events: GameEvent[]): void {
     const color = spec.color ?? BaseColor.Red;
     events.push({ type: 'special-gem-trigger', kind: 'candyGem', pos, color });
@@ -1787,25 +1851,39 @@ export class TurnEngine {
     destroyed: ReadonlyArray<{ gemType: GemType; pos?: CellPos }>,
     events: GameEvent[],
     side: PlayerSide = this.state.activePlayer,
+    explosion = false,
+    explosionChain: ReadonlyArray<{ gemType: GemType; pos?: CellPos }> = [],
   ): void {
-    if (destroyed.length === 0) return;
-    const colorCounts = new Map<string, { type: GemType; n: number }>();
+    if (destroyed.length === 0 && explosionChain.length === 0) return;
+    const colorCounts = new Map<string, { type: GemType; matched: number; exploded: number }>();
     let skullCount = 0;
     let doomCount = 0;
     let uberCount = 0;
     const skullCells: CellPos[] = [];
-    for (const d of destroyed) {
+    for (const [d, isExplosion] of [
+      ...destroyed.map(d => [d, explosion] as const),
+      ...explosionChain.map(d => [d, true] as const),
+    ]) {
       if (d.gemType.kind === 'color') {
         const key = d.gemType.color;
-        const cur = colorCounts.get(key) ?? { type: d.gemType, n: 0 };
-        cur.n += 1;
+        const cur = colorCounts.get(key) ?? { type: d.gemType, matched: 0, exploded: 0 };
+        if (isExplosion) cur.exploded += 1;
+        else cur.matched += 1;
         colorCounts.set(key, cur);
       } else if (d.gemType.kind === 'skull') {
         skullCount += 1;
         if (d.pos) skullCells.push(d.pos);
       } else if (d.gemType.kind === 'special') {
-        // 被炸毁的末日/至尊末日骷髅：不引爆（引爆环只在被匹配时触发），
-        // 但按官方口径造成炸毁伤害（5/10 点，见 settleExplodedSkulls）
+        // Colored Heroic Gems yield their own color mana when directly destroyed;
+        // explosion chains follow the same half-mana-per-color rule as ordinary gems.
+        const color = d.gemType.spec.color ?? SPECIAL_MATCH_COLOR[d.gemType.spec.kind];
+        if (color !== undefined) {
+          const cur = colorCounts.get(color) ?? { type: colorGem(color), matched: 0, exploded: 0 };
+          if (isExplosion) cur.exploded += 1;
+          else cur.matched += 1;
+          colorCounts.set(color, cur);
+        }
+        // 被炸毁的末日/至尊末日骷髅：破坏链已引爆，仍按炸毁伤害结算（5/10 点）。
         if (d.gemType.spec.kind === 'doomSkull') {
           doomCount += 1;
           if (d.pos) skullCells.push(d.pos);
@@ -1815,7 +1893,12 @@ export class TurnEngine {
         }
       }
     }
-    for (const { type, n } of colorCounts.values()) this.settleGems(type, n, events, side);
+    // GoW 4.0 patch: each colour from an explosion gives half Mana (floor),
+    // while regular matches triggered by the ensuing cascade retain full Mana.
+    for (const { type, matched, exploded } of colorCounts.values()) {
+      const mana = matched + Math.floor(exploded / 2);
+      if (mana > 0) this.settleGems(type, mana, events, side);
+    }
     this.settleExplodedSkulls(skullCount, doomCount, uberCount, skullCells, events, side);
   }
 
@@ -1934,20 +2017,24 @@ export class TurnEngine {
     destroyed: DestroyedGem[],
     events: GameEvent[],
     side: PlayerSide = this.state.activePlayer,
+    mode: 'destroy' | 'explode' = 'destroy',
   ): void {
-    // 1. 特殊宝石"被摧毁"触发链（炸弹/闪电/许愿；末日骷髅只在被匹配时引爆）
-    const chain = this.expandSpecialDestruction(destroyed, events);
+    // 1. 特殊宝石摧毁触发链（可匹配宝石匹配时亦触发，单颗只处理一次）
+    const manaPotions: BaseColor[] = [];
+    const chain = this.expandSpecialDestruction(destroyed, events, manaPotions);
 
     // 2. 被直接摧毁宝石的法力/骷髅结算：按类型归并数量（含链上新摧毁的）
-    this.settleDestroyed([...destroyed, ...chain], events, side);
+    this.settleDestroyed(destroyed, events, side, mode === 'explode', chain);
 
     // 2. 重力 + 补充（风暴激活时对应色加权）
-    const result = this.gravity.apply(this.state.board, this.skullChance, this.stormDropWeights(), this.stormSkullDrop());
+    const result = this.gravity.apply(this.state.board, this.skullChance, this.stormDropWeights(), this.stormSkullDrop(), this.comboBias, this.state.actionLog);
     if (result.moves.length > 0 || result.spawns.length > 0) {
       const chain = this.state.chainCount;
       events.push({ type: 'gravity', chainCount: chain, moves: result.moves });
       events.push({ type: 'refill', chainCount: chain, spawns: result.spawns });
     }
+
+    this.scatterManaPotionGems(manaPotions, events);
 
     // 3. 解析由此产生的连锁
     this.runCascades(events);
@@ -1973,7 +2060,7 @@ export class TurnEngine {
 
     for (const char of team) {
       if (char.defeated) continue;
-      for (const code of char.traitIds ?? []) {
+      for (const code of activeTraitIds(char)) {
         const trait = getTrait(code);
         if (trait?.turnStartCreateGem) {
           const count = trait.turnStartCreateGem.count ?? 1;
@@ -1985,7 +2072,7 @@ export class TurnEngine {
               const to: GemType = c === 'skull'
                 ? { kind: 'skull', variant: 'normal' }
                 : colorGem(c as BaseColor);
-              const gemId = this.nextGemId();
+              const gemId = from.id;
               this.state.board.set(pos, { id: gemId, type: to });
               changes.push({ pos, gemId, from: from.type, to });
             }
@@ -1996,7 +2083,7 @@ export class TurnEngine {
           const from = pos ? this.state.board.get(pos) : null;
           if (pos && from) {
             const to: GemType = { kind: 'skull', variant: 'normal' };
-            const gemId = this.nextGemId();
+            const gemId = from.id;
             this.state.board.set(pos, { id: gemId, type: to });
             changes.push({ pos, gemId, from: from.type, to });
           }
@@ -2009,7 +2096,7 @@ export class TurnEngine {
               if (!from) continue;
               // color：六色族宝石（dragonGem/giantGem/spiritGem/manaPotionGem）归属基色
               const to = specialGem(spec.gem, spec.tier, spec.color as BaseColor | undefined);
-              const gemId = this.nextGemId();
+              const gemId = from.id;
               this.state.board.set(pos, { id: gemId, type: to });
               changes.push({ pos, gemId, from: from.type, to });
             }
@@ -2028,7 +2115,7 @@ export class TurnEngine {
               if (!pos || !from) continue;
               // gemColor：六色族目标宝石的归属基色（kinof*「蓝色宝石→蓝龙宝石」族）
               const to = specialGem(spec.gem, spec.tier, spec.gemColor as BaseColor | undefined);
-              const gemId = this.nextGemId();
+              const gemId = from.id;
               this.state.board.set(pos, { id: gemId, type: to });
               changes.push({ pos, gemId, from: from.type, to });
             }
@@ -2117,7 +2204,7 @@ export class TurnEngine {
       const from = this.state.board.get(pos);
       if (!from) continue;
       const to = specialGem(kind, tier, color);
-      const gemId = this.nextGemId();
+      const gemId = from.id;
       this.state.board.set(pos, { id: gemId, type: to });
       changes.push({ pos, gemId, from: from.type, to });
     }
@@ -2137,7 +2224,7 @@ export class TurnEngine {
       const from = this.state.board.get(pos);
       if (!from) continue;
       const to = colorGem(color);
-      const gemId = this.nextGemId();
+      const gemId = from.id;
       this.state.board.set(pos, { id: gemId, type: to });
       changes.push({ pos, gemId, from: from.type, to });
     }
@@ -2172,10 +2259,10 @@ export class TurnEngine {
       if (side === null) continue; // 已不在编队里，无法判定归属，跳过
       // 身亡经济（valuable「在自身身亡时获得 25 黄金」）：死者本人持有的战场经济入账。
       // 死者已移出编队，编译被动随对象走，从行动开始的引用快照取；入账复用 creditEconomy
-      //（战场经济池全场共用，economy-gain 的 side 记行动方），每名死者至多入账一次。
+      //（黄金归死者阵营，economy-gain 的 side 记其归属方），每名死者至多入账一次。
       const dead = this.rosterCharAtActionStart.get(id);
       const deathEco = dead ? passivesOf(dead).onDeathEconomy : undefined;
-      if (deathEco) events.push(...this.creditEconomy(deathEco.currency, deathEco.amount));
+      if (deathEco) events.push(...this.creditEconomy(deathEco.currency, deathEco.amount, side));
       // 自身亡→敌方全体陷入状态（职业天赋 deathcurse「我身亡时，使所有敌人陷入死亡标记」）：
       // 死者被动随行动开始引用快照取（死者已移出编队），确定性逐个施加、零随机消耗。
       const selfDeathStatus = dead ? passivesOf(dead).onSelfDeathEnemyAllStatus : undefined;
@@ -2395,22 +2482,15 @@ export class TurnEngine {
     return max + 1;
   }
 
-  /** 已完成 id 分配的召唤物入队：有空位进场上，否则进 FIFO 队列（与 summon 技能效果同一语义） */
+  /** 已完成 id 分配的召唤物入场：有空位追加到队尾；满四人时召唤失效。 */
   private enqueueSummon(summoned: Character, troopId: number, side: PlayerSide): GameEvent[] {
     const team = this.state.teams[side];
     team.characters = team.characters.filter((c) => !c.defeated);
-    if (team.characters.length < MAX_ACTIVE_TEAM_SIZE) {
-      team.characters.push(summoned);
-      return [{
-        type: 'summon', player: side, slot: team.characters.length - 1,
-        troopId, characterId: summoned.id, destination: 'field',
-      }];
-    }
-    const queue = summonQueueOf(team);
-    queue.push({ character: summoned, troopId });
+    if (team.characters.length >= MAX_ACTIVE_TEAM_SIZE) return [];
+    team.characters.push(summoned);
     return [{
-      type: 'summon', player: side, slot: queue.length - 1,
-      troopId, characterId: summoned.id, destination: 'queue',
+      type: 'summon', player: side, slot: team.characters.length - 1,
+      troopId, characterId: summoned.id, destination: 'field',
     }];
   }
 
@@ -2452,8 +2532,8 @@ export class TurnEngine {
     const grantedExtraTurn = this.pendingExtraTurnSource !== null;
     if (this.pendingExtraTurnSource !== null) {
       // 技能额外回合的 source:'skill' 事件已由效果原语发出；匹配额外回合在这里发一次。
-      if (this.pendingExtraTurnSource === 'match') {
-        events.push({ type: 'extra-turn', player: this.state.activePlayer, source: 'match' });
+      if (this.pendingExtraTurnSource === 'match' || this.pendingExtraTurnSource === 'destroy') {
+        events.push({ type: 'extra-turn', player: this.state.activePlayer, source: this.pendingExtraTurnSource });
       }
     } else {
       // 交给对手（需求 9.1）
@@ -2464,12 +2544,12 @@ export class TurnEngine {
     this.pendingExtraTurnSource = null;
     // 额外回合触发特质（特质收尾批：bigteeth 大牙「当盟友获得额外回合时获得 1 点攻击力」/
     // essenceoftime 时间精华「当自身获得额外回合时使所有盟友陷入法印状态」）。匹配/技能
-    // 两种来源统一在此结算（技能额外回合按既有契约延迟到本次回合尾）；按持有者一方
+    // 两种来源统一在当前行动末尾结算（技能额外回合当次生效，不积存）；按持有者一方
     // 全员结算、定义直读、确定性顺序，无新键特质零事件零随机消耗。
     if (grantedExtraTurn) {
       for (const holder of this.state.teams[this.state.activePlayer].characters) {
         if (holder.defeated) continue;
-        for (const code of holder.traitIds ?? []) {
+        for (const code of activeTraitIds(holder)) {
           const def = getTrait(code);
           if (!def) continue;
           if (def.onExtraTurnGain) {
@@ -2503,7 +2583,9 @@ export class TurnEngine {
       // 状态结算：对「即将行动方」的角色触发（DoT 扣血 / 织网挣脱 / 到期移除，需求 9.2, 9.4, 9.5）
       events.push(
         ...this.resolveDefeatWithRevive(
-          tickTeamStatuses(this.state.teams[this.state.activePlayer].characters, this.rng),
+          tickTeamStatuses(this.state.teams[this.state.activePlayer].characters, this.rng, this.state.activePlayer,
+            () => this.summonResolver && this.beastPool.length
+              ? this.summonResolver(this.beastPool[this.rng.nextInt(this.beastPool.length)]) : null),
         ),
       );
       // DoT 可能致死，重新判定胜负（game-over 仍排在末尾）
@@ -2544,9 +2626,14 @@ export class TurnEngine {
   passTurn(): GameEvent[] {
     if (this.state.state !== MatchState.AwaitingInput) return [];
     const events: GameEvent[] = [];
+    const sides = new Map<number, PlayerSide>();
+    for (const side of [PlayerSide.Left, PlayerSide.Right]) {
+      for (const char of this.state.teams[side].characters) sides.set(char.id, side);
+    }
     this.state.state = MatchState.Resolving;
     this.pendingExtraTurnSource = null;
     this.finishTurn(events);
+    this.recordBattleDeaths(events, sides);
     return events;
   }
 
@@ -2566,13 +2653,45 @@ export class TurnEngine {
       return []; // 法力不足，拒绝（需求 16.2）
     }
 
-    // 控制类状态：沉默/冰冻禁用技能释放。
+    // 沉默禁用技能释放；冰冻仅限制额外回合。
     if (!canCastSkill(ch)) return [];
 
     // once-per-battle（「此咒语只能使用一次」）：本场行动日志里已释放过同 id → 拒绝（不占号）
+    // L3-009: native DisableMySpell targets Self — only this troop's own earlier cast disables it
+    // (an enemy or another ally casting the same spell id does not).
     if (this.registry.prototypes.get(ch.skillId)?.oncePerBattle
-      && this.state.actionLog.some((entry) => entry.skillId === ch.skillId)) {
+      && this.state.actionLog.some((entry) => entry.skillId === ch.skillId
+        && entry.side === this.state.activePlayer
+        && entry.action.type === 'cast' && entry.action.characterId === ch.id)) {
       return [];
+    }
+
+    // Select the actual branch BEFORE mana, logs, triggers or RNG-consuming effects.
+    // Legacy low-level effects retain precedence and do not ask unused prototype inputs.
+    let selectedProto = this.registry.prototypes.get(ch.skillId);
+    if (selectedProto && !this.registry.skills.has(ch.skillId)) {
+      const choice = skillChoices(selectedProto);
+      if (choice) {
+        const selected = selectSkillBranch(selectedProto, this.branchChooser.choose(choice.labels, this.state, ch.id));
+        if (!selected) return [];
+        selectedProto = selected;
+      }
+    }
+
+    // Resolve required target input before spending Mana or firing cast triggers.
+    // A cancelled, stale, friendly or hidden selection is not a committed cast.
+    let chosenTargetId: number | undefined;
+    if (selectedProto && !this.registry.skills.has(ch.skillId)) {
+      const mode = prototypeChosenTargetMode(selectedProto);
+      if (mode) {
+        const rngBeforeChoice = this.rng.getState();
+        const selected = this.targetChooser.choose(mode, this.state, ch.id, this.rng);
+        if (selected === null || !candidatesFor(mode, this.state, ch.id).some(c => c.id === selected)) {
+          this.rng.setState(rngBeforeChoice);
+          return [];
+        }
+        chosenTargetId = selected;
+      }
     }
 
     // 所有前置校验通过后才进入解析态和消费法力。
@@ -2591,6 +2710,8 @@ export class TurnEngine {
       ch.statuses = ch.statuses.filter((s) => s.id !== ENCHANTED_STATUS_ID);
       events.push({ type: 'status-expire', targetId: ch.id, statusId: ENCHANTED_STATUS_ID });
     }
+    // 潜水／祝福（R004）：持有者行动即移除；同样先于效果本体（自身重新施加的新实例保留）。
+    events.push(...endActionStatuses(ch));
     // 位次条件光环（leader 族）：行动开始按当前编队位次补授（首位易主在此生效）
     events.push(...this.applyPositionAuraTriggers());
     // 施法响应特质（秘法/铭刻/怨恨…）：在技能效果之前结算，
@@ -2619,17 +2740,13 @@ export class TurnEngine {
     if (effect) {
       events.push(...this.resolveDefeatWithRevive(effect.apply(this.state, ch.id)));
     } else {
-      const proto = this.registry.prototypes.get(ch.skillId);
+      const proto = selectedProto;
       if (proto) {
         // 含选色段时先选色（需求 2）；无可选色 → chosenColor 为 undefined，相关段安全跳过
         const chosenColor = prototypeNeedsColor(proto)
           ? this.colorChooser.choose(this.state, ch.id) ?? undefined
           : undefined;
-        // 含手动选目标段时先选目标；无候选 → undefined，相关段安全跳过
-        const chosenMode = prototypeChosenTargetMode(proto);
-        const chosenTargetId = chosenMode
-          ? this.targetChooser.choose(chosenMode, this.state, ch.id, this.rng) ?? undefined
-          : undefined;
+        // chosenTargetId was validated before committing this action.
         // 含"点选一枚宝石"的段时先选格（引爆某格 / 摧毁其所在行列共用此选择）
         const chosenCell = prototypeNeedsCell(proto)
           ? this.cellChooser.choose(this.state, ch.id, this.rng) ?? undefined
@@ -2651,27 +2768,14 @@ export class TurnEngine {
       }
     }
 
-    // 释放技能不消耗回合（用户裁定，对齐 GoW）：不切换行动方、不做回合尾结算
-    // （回合开始被动 / DoT / 风暴递减均属换边后的回合尾流程）。致胜仍立即判定；
-    // 技能可能改写盘面（创造/转化宝石），死局重排检测保留，随后直接回到等待输入。
-    // 「额外回合」技能的 pendingExtraTurnSource 保留到下一次交换行动的回合尾生效——
-    // 即施放免费、下一次行动后仍不换边（再行动一次）。
-    const gameOver = this.checkVictory(events);
-    if (!gameOver) {
-      if (this.state.board.isFull() && !hasLegalSwap(this.state.board)) {
-        const moves = reshuffle(this.state.board, this.rng);
-        events.push({ type: 'reshuffle', moves });
-        if (this.resolver.hasAnyMatch(this.state.board)) {
-          this.runCascades(events);
-          this.checkVictory(events);
-        }
-      }
-      this.state.state = MatchState.AwaitingInput;
-    }
-    this.flushTraitExplosions(events); // 兜底：连锁外入队的爆破
+    // 合法施法消耗一次行动，复用交换的完整回合生命周期。额外回合在本次结算，
+    // 不积存到后续行动；致胜先于换边，回合开始状态、风暴与日志均走统一入口。
+    this.flushTraitExplosions(events);
+    this.checkVictory(events);
+    this.finishTurn(events);
     this.applyActionSummonTriggers(events);
     this.processDeathTriggers(events);
-    this.endActionLog(logEntry, true);
+    this.endActionLog(logEntry, events);
     return events;
   }
 
@@ -2692,7 +2796,7 @@ export class TurnEngine {
       casterId,
       rng: this.rng,
       nextGemId: this.nextGemId,
-      resolveBoardChange: (destroyed, events) => this.resolveBoardChange(destroyed, events),
+      resolveBoardChange: (destroyed, events, mode) => this.resolveBoardChange(destroyed, events, this.state.activePlayer, mode),
       grantExtraTurn: () => {
         this.pendingExtraTurnSource = 'skill';
       },

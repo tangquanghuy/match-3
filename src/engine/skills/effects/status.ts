@@ -5,12 +5,15 @@
  * 状态实例存于 Character.statuses（需求 9.1）。
  *
  * DoT 类（poison/burning）在结算时对宿主造成伤害并发 status-tick（需求 9.2）。
- * 结算末尾对每个状态 turns 递减，归零移除并发 status-expire（需求 9.5）。
+ * 官方状态无固定回合上限（rulings/R004 取代需求 9.5 的 3 回合倒计时）：负面状态靠共用累积
+ * 自愈概率移除，正面状态按各自触发移除；只有非官方的辅助状态仍按 turns 递减到期。
  *
  * 结算时机由 TurnEngine 在固定时机（对即将行动方角色）调用 tickStatuses，保证确定性（需求 9.4）。
  * 纯逻辑：无 pixi/gsap/dom 依赖。
  */
 import { isImmuneToStatus, passivesOf } from '../../traits';
+import { applyTransformTemplate } from './summon';
+import type { SummonTemplate } from './summon';
 // 治疗修正定义在 engine/healing.ts（特质模块也要用，放这里会形成循环 import）；
 // 从状态模块转出一次，调用方按「状态相关」的直觉就能找到。
 export {
@@ -22,13 +25,12 @@ export {
   effectiveHealing,
 } from '../../healing';
 import type { Character, StatusInstance } from '../../types';
-import { isSameMatchType, colorGem, skullGem } from '../../types';
+import { isSameMatchType, colorGem, skullGem, PlayerSide } from '../../types';
 import type { BaseColor } from '../../types';
 import type { SeededRNG } from '../../rng';
 import type {
   GameEvent,
   StatusApplyEvent,
-  StatusTickEvent,
   StatusExpireEvent,
   StatusCleanseEvent,
   DefeatEvent,
@@ -67,18 +69,18 @@ export const TERROR_DROP_CHANCE = 0.1;
 /**
  * 赐福状态（GoW Blessed，官方语义已核实——官方帮助中心「All status effects」+ wiki 状态表
  * 交叉，见 GEMS-SEMANTICS-2 ⭐官方数据核验节）：施加时**净化全部负面状态**，存续期间
- * **免疫一切状态效果**（正面负面皆拦，Devour/法力燃烧引擎暂无对应机制；诅咒例外——
+ * **免疫一切状态效果**（正面负面皆拦，吞噬/法力燃烧分别在对应入口处理；诅咒例外——
  * 官方「诅咒落在赐福单位上时两者互相抵消」，且诅咒本就穿透普通免疫）。
  * gowhead 数据的施加步骤名为 CauseBlessed；中文数据「赐福/祝福」同义。
- * 无「施法/骷髅后结束」条款（纯时限），按施加时的 turns 自然到期，不入自动解除集合。
+ * 无时限（R004）：持有者行动（施法，或作为首位兵种造成骷髅伤害）后移除，见 endActionStatuses。
  */
 export const BLESS_STATUS_IDS = new Set(['blessed']);
 
 /**
  * 附魔状态（GoW Enchanted，官方语义已核实——官方帮助中心 + wiki 状态表交叉）：
- * 持有者**每回合开始获得 2 点法力，直到其施放法术**。移除时机：
- * 回合自然到期（施加时的 turns 兜底）或施放法术（TurnEngine 在效果执行前移除——
- * 法术若给自身重新附魔，新实例不被同一次施法消耗）。
+ * 持有者**每回合开始获得 2 点法力值，直到其施放法术**。无时间上限（R002，tick 不递减）；
+ * 移除时机：施放法术（TurnEngine 在效果执行前移除——法术若给自身重新附魔，新实例
+ * 不被同一次施法消耗）、驱散或诅咒。
  * 沉默期间不可获得法力（canGainMana 同口径），故 +2 被沉默拦截。
  */
 export const ENCHANTED_STATUS_ID = 'enchanted';
@@ -107,25 +109,51 @@ const NEGATIVE_STATUS_IDS = new Set([
   'faerie-fire', 'terror', 'wolf', 'wolf-form', 'lycanthropy',
 ]);
 
-/** GoW 自动解除：中毒是唯一不会自行解除的负面状态。 */
-/** GoW 自动解除（GOW-STATUS-RESEARCH 逐状态核对）：中毒与诅咒不会自行解除——
- *  诅咒只「使他状态自愈概率减半」，自身无自愈通道（UX 审查 P1#6 回归：
- *  误入本集合时诅咒宝石上靶会在首个回合尾被 5% 骰立即清掉，场上零痕迹）。 */
+/**
+ * 可自愈负面状态（rulings/R004）：无固定回合上限；持有者回合开始共用**一个**累积自愈
+ * 概率（首次 10%，此后每回合 +10%，诅咒在身时每回合 +5%），掷中一次移除全部可自愈负面。
+ * 中毒不在此集合（不自愈，只能被净化等效果移除）。
+ * 官方状态表（official-status-effects.html：Cursed / Lycanthropy / Bleed 条目）+
+ * 社区入库 community-2026-09-28-status-durations.json。
+ */
 const AUTO_RECOVER_STATUS_IDS = new Set([
-  'burning', 'bleed', 'silence', 'frozen', 'stun', 'entangle', 'web', 'disease',
-  'marked', 'submerged', 'death-mark', 'death_mark',
+  'burning', 'bleed', 'silence', 'frozen', 'stun', 'entangle', 'web', 'disease', 'curse', 'cursed',
+  'marked', 'death-mark', 'death_mark',
   'wolf', 'wolf-form', 'lycanthropy', 'charm', 'charmed', 'mana-burn', 'mana_burn',
   'faerie-fire', 'terror',
 ]);
+/** 获得时重置累积自愈概率的负面状态（R004：任何负面状态，含中毒）。 */
+const RESETTING_NEGATIVE_STATUS_IDS = new Set([...AUTO_RECOVER_STATUS_IDS, 'poison']);
+/**
+ * 无时限状态（tick 不递减 turns，R002/R004）：中毒（仅净化解除）、屏障／反射（受一次伤害后
+ * 移除）、附魔（施放法术后移除）、狂怒（造成一次骷髅伤害后移除）、潜水／祝福（持有者行动后
+ * 移除：施放技能，或作为首位兵种用骷髅造成伤害）。可自愈负面同样不递减（见上）。
+ */
+const NON_EXPIRING_STATUS_IDS = new Set([
+  'poison', 'barrier', 'enchanted', 'reflect', 'rage', 'enraged', 'submerged', 'blessed',
+]);
+/** 持有者行动（施法／首位骷髅伤害）即移除的正面状态（R004）。 */
+export const ACTION_ENDED_STATUS_IDS: ReadonlySet<string> = new Set(['submerged', 'blessed']);
 const RECOVERY_BASE = 10;
-const RECOVERY_CURSED = 5;
+const RECOVERY_STEP = 10;
+const RECOVERY_STEP_CURSED = 5;
 
 /**
- * 不可被技能「指定」为目标的状态（GoW Submerged 下潮）。
- * 与 `stealthy`（隐匿）特质同一机制，见 `PassiveModifiers.untargetable`。
- * 群体技能照常命中——官方描述限定的是「法术指定攻击目标」。
+ * 移除持有者因「行动」而结束的正面状态（潜水、祝福，R004）。返回 status-expire 事件。
+ * 调用点：TurnEngine 施法（效果执行前）、CombatResolver 首位骷髅伤害成立后。
  */
-export const UNTARGETABLE_STATUS_IDS = new Set(['submerged']);
+export function endActionStatuses(char: Character): GameEvent[] {
+  const ended = char.statuses.filter((s) => ACTION_ENDED_STATUS_IDS.has(s.id));
+  if (ended.length === 0) return [];
+  char.statuses = char.statuses.filter((s) => !ACTION_ENDED_STATUS_IDS.has(s.id));
+  return ended.map((s): StatusExpireEvent => ({ type: 'status-expire', targetId: char.id, statusId: s.id }));
+}
+
+/** Compatibility export: no status currently prevents selection. Stealthy is a
+ * trait; Submerged instead avoids whole-team spell damage (damageEffect).
+ * Official status rule: infinityplus2.freshdesk.com/support/solutions/articles/150000208274
+ */
+export const UNTARGETABLE_STATUS_IDS = new Set<string>();
 
 /**
  * 屏障状态 id（GoW Barrier）：完整吸收下一次伤害（骷髅或技能任一），随即消失。
@@ -144,10 +172,9 @@ export const MARK_STATUS_ID = 'marked';
  * 控制类状态 id 及各自限制（对齐 GoW 官方语义，见 `.kiro/specs/combat-mechanics/GEMS-SEMANTICS.md`）：
  *   - entangle 缠绕：官方=攻击力归零（骷髅匹配无伤害，仍可行动/施法/充能）。
  *     本作以 canAttack=false（攻击落空）表达，净效果一致。
- *   - frozen   冰冻：官方=不可施法、（法力色被冻结时）4/5 连不给额外回合。
- *     本作从紧：另加不可攻击，仍可充能（已知偏差，待对齐清单处理）。
+ *   - frozen   冰冻：官方=冻结色的4/5连及受冻结单位施法不给额外回合；施法、攻击、充能照常。
  *   - silence  沉默：官方=不可施法、不可获得法力。一致。
- *   - stun     击晕：官方=禁用全部特质。本作被动系统尚无"禁用"分支，暂无效果（偏差）。
+ *   - stun     击晕：官方=禁用全部特质。passivesOf/activeTraitIds 屏蔽全部特质。
  * 织网（web）不是控制类——不禁行动，只锁魔力，见 WEB_STATUS_ID。
  */
 export const CONTROL_STATUS_IDS = new Set(['silence', 'frozen', 'entangle']);
@@ -155,9 +182,9 @@ export const CONTROL_STATUS_IDS = new Set(['silence', 'frozen', 'entangle']);
 /**
  * 织网状态 id（GoW Web，官方语义）：
  *   - 魔力归零：技能数值只剩基础项（`casterMagic()` 对织网角色按 0 计）；
- *   - 无法获得魔法值增益（buff/特质触发在施加口拦截）；
- *   - 每回合**累计** 10% 几率自行挣脱（首回合 10%，之后每回合 +10%）；
- *   - 存续回合数照常递减，到期自然解除。
+ *   - 无法获得魔力值增益（buff/特质触发在施加口拦截）；
+ *   - 与其他可自愈负面共用累积自愈概率（首回合 10%，之后每回合 +10%，R004）；
+ *   - 无固定回合上限（R004）。
  * 与缠绕（entangle，攻击归零）是两个状态——中文数据里"织网/缠绕"曾混用，已按官方拆分。
  */
 export const WEB_STATUS_ID = 'web';
@@ -200,6 +227,14 @@ export function isCursed(char: Character): boolean {
   return char.statuses.some((s) => s.turns > 0 && CURSE_STATUS_IDS.has(s.id));
 }
 
+/** Mana Drain/Steal are blocked by Blessed, Mana Shield and Invulnerable.
+ * Impervious alone protects Mana Burn, not Mana Drain. Ordinary trait immunity
+ * is bypassed by Curse or Stun; Invulnerable is retained. */
+export function isImmuneToManaDrain(char: Character): boolean {
+  if (hasStatus(char, 'blessed') || char.traitIds?.includes('invulnerable')) return true;
+  return !!passivesOf(char).manaOpsImmunity && !isCursed(char) && !isStunned(char);
+}
+
 export function isEnraged(char: Character): boolean {
   return char.statuses.some((s) => s.turns > 0 && RAGE_STATUS_IDS.has(s.id));
 }
@@ -219,7 +254,8 @@ export function hasBarrier(char: Character): boolean {
  * （官方描述：「除非场上已无任何其他目标」），否则技能会无目标空放。
  */
 export function isUntargetable(char: Character): boolean {
-  if (passivesOf(char).untargetable) return true;
+  // Official Stun disables traits; status-granted invisibility is independent.
+  if (!hasStatus(char, 'stun') && passivesOf(char).untargetable) return true;
   return char.statuses.some((s) => s.turns > 0 && UNTARGETABLE_STATUS_IDS.has(s.id));
 }
 
@@ -238,9 +274,9 @@ export function consumeBarrier(char: Character): { consumed: boolean; events: Ga
   return { consumed: true, events: [ev] };
 }
 
-/** 反弹量折算（官方口径：所受伤害的 50%，至少 1 点） */
+/** Official 4.5 patch: Reflect is floor(50% damage), minimum 1. */
 export function reflectDamageAmount(damageTaken: number): number {
-  return Math.max(REFLECT_MIN, Math.round(damageTaken * REFLECT_RATIO));
+  return Math.max(REFLECT_MIN, Math.floor(damageTaken * REFLECT_RATIO));
 }
 
 /**
@@ -260,18 +296,18 @@ export function consumeReflect(char: Character): GameEvent[] {
 
 /**
  * 该角色当前能否释放技能：
- * 被沉默或冰冻时不可释放；击晕、缠绕不影响技能。
+ * 沉默限制施法；冰冻限制额外回合，仍可施法。击晕、缠绕不限制施法。
  */
 export function canCastSkill(char: Character): boolean {
-  return !isSilenced(char) && !isFrozen(char);
+  return !isSilenced(char);
 }
 
 /**
  * 该角色当前能否发动普通（骷髅）攻击：
- * 被冰冻或缠绕时不可攻击（原地挣扎，攻击落空）。击晕暂不影响（待被动系统）。
+ * 缠绕使攻击力为零（以攻击落空表达）；冰冻和击晕不限制攻击。
  */
 export function canAttack(char: Character): boolean {
-  return !isFrozen(char) && !isEntangled(char);
+  return !isEntangled(char);
 }
 
 /**
@@ -305,8 +341,10 @@ export function applyStatus(
   // GoW Curse penetrates ordinary immunities. Invulnerable remains the one
   // exception; its trait id is retained on Character for this distinction.
   const invulnerable = char.traitIds?.includes('invulnerable') ?? false;
-  if (isImmuneToStatus(char, status.id) && (!isCursed(char) || invulnerable)) return [];
+  if (isImmuneToStatus(char, status.id) && (invulnerable || (!isCursed(char) && !isStunned(char) && !CURSE_STATUS_IDS.has(status.id)))) return [];
 
+  const cancelledByOpposite = (CURSE_STATUS_IDS.has(status.id) && char.statuses.some(s => BLESS_STATUS_IDS.has(s.id) && s.turns > 0))
+    || (BLESS_STATUS_IDS.has(status.id) && isCursed(char));
   const existing = char.statuses.find((s) => s.id === status.id);
   const events: GameEvent[] = [];
   // Curse removes positive statuses and resets their recovery chance.
@@ -331,16 +369,33 @@ export function applyStatus(
       for (const negative of negatives) events.push({ type: 'status-expire', targetId: char.id, statusId: negative.id });
     }
   }
+  // Applying either member cancels the opposite status; the incoming member
+  // is not retained after its dispel/cleanse action.
+  if (cancelledByOpposite) return events;
+  // R004：获得（新施加或再次施加）任何负面状态 → 共用累积自愈概率重置为 10%。
+  // 出血例外：官方只在第 4 层之后再叠才重置（见下方 bleed 分支）。
+  if (RESETTING_NEGATIVE_STATUS_IDS.has(status.id) && !(status.id === 'bleed' && existing)) {
+    for (const s of char.statuses) s.recoveryChance = undefined;
+  }
   if (existing) {
     existing.turns = Math.max(existing.turns, status.turns);
-    if (status.magnitude !== undefined) {
+    if (DEATH_MARK_STATUS_IDS.has(status.id)) existing.graceTicks = 1;
+    if (status.id === 'bleed') {
+      // GoW Bleed stacks on every application (even a single layer), up to four.
+      const oldStacks = existing.magnitude ?? 1;
+      existing.magnitude = Math.min(4, Math.max(0, oldStacks) + Math.max(1, status.magnitude ?? 1));
+      // A fifth Bleed application refreshes the accumulated cleanse chance.
+      if (oldStacks >= 4) existing.recoveryChance = undefined;
+    } else if (status.magnitude !== undefined) {
       existing.magnitude = opts.stack
         ? (existing.magnitude ?? 0) + status.magnitude
         : Math.max(existing.magnitude ?? 0, status.magnitude);
     }
   } else {
     const inst: StatusInstance = { id: status.id, turns: status.turns };
-    if (status.magnitude !== undefined) inst.magnitude = status.magnitude;
+    if (DEATH_MARK_STATUS_IDS.has(status.id)) inst.graceTicks = 1;
+    if (status.id === 'bleed') inst.magnitude = Math.min(4, Math.max(1, status.magnitude ?? 1));
+    else if (status.magnitude !== undefined) inst.magnitude = status.magnitude;
     char.statuses.push(inst);
   }
 
@@ -360,31 +415,44 @@ export function applyStatus(
  *   2. 全部状态 turns 递减；归零移除 → status-expire
  * 直接修改角色。返回事件（tick / defeat / expire 按序）。
  */
-export function tickStatuses(char: Character, rng?: SeededRNG): GameEvent[] {
-  if (char.defeated || char.statuses.length === 0) return [];
+export function tickStatuses(
+  char: Character, rng?: SeededRNG, lycanthropyTemplate?: () => SummonTemplate | null,
+): GameEvent[] {
+  if (char.defeated || char.fled || char.statuses.length === 0) return [];
 
   const events: GameEvent[] = [];
 
-  // 0. 自动解除：首次 10%，之后每回合累计 +10%；诅咒下固定按 5% 基准累计。
+  // 0. 累积自愈（rulings/R004）：全部可自愈负面共用一个概率，每回合只掷一次。
+  //    概率 = 各实例 recoveryChance 的最小值（缺省 10%；新获得负面状态时被清空 = 重置）。
+  //    掷中 → 一次移除全部可自愈负面；未中 → 所有实例 +10%（诅咒在身 +5%），上限 100%。
   if (rng) {
-    for (const status of [...char.statuses]) {
-      if (status.turns <= 0 || !AUTO_RECOVER_STATUS_IDS.has(status.id)) continue;
-      const isWeb = status.id === WEB_STATUS_ID;
-      const cursed = isCursed(char);
-      // 诅咒在场 → 其他状态的自愈基准减半（诅咒本身已不在 AUTO_RECOVER 集合）
-      const base = cursed ? RECOVERY_CURSED : RECOVERY_BASE;
-      const chance = isWeb ? (status.magnitude ?? base) : (status.recoveryChance ?? base);
+    const recoverable = char.statuses.filter((s) => s.turns > 0 && AUTO_RECOVER_STATUS_IDS.has(s.id));
+    if (recoverable.length > 0) {
+      const chance = Math.min(...recoverable.map((s) => s.recoveryChance ?? RECOVERY_BASE));
       if (rng.next() * 100 < chance) {
-        char.statuses = char.statuses.filter((s) => s !== status);
-        events.push({
-          type: 'status-expire',
-          targetId: char.id,
-          statusId: status.id,
-        });
+        char.statuses = char.statuses.filter((s) => !recoverable.includes(s));
+        for (const status of recoverable) {
+          events.push({ type: 'status-expire', targetId: char.id, statusId: status.id });
+        }
       } else {
-        if (isWeb) status.magnitude = Math.min(100, chance + (cursed ? 5 : 10));
-        else status.recoveryChance = Math.min(100, chance + (cursed ? 5 : 10));
+        const next = Math.min(100, chance + (isCursed(char) ? RECOVERY_STEP_CURSED : RECOVERY_STEP));
+        for (const status of recoverable) status.recoveryChance = next;
       }
+    }
+  }
+
+  // Each turn with active Lycanthropy has a 15% Beast-transformation roll.
+  // Recovering from the status above preempts this roll.
+  if (rng && lycanthropyTemplate && char.statuses.some(s => s.turns > 0 && WOLF_STATUS_IDS.has(s.id))
+    && rng.next() < 0.15) {
+    const template = lycanthropyTemplate();
+    if (template) {
+      for (const status of char.statuses) {
+        events.push({ type: 'status-expire', targetId: char.id, statusId: status.id });
+      }
+      applyTransformTemplate(char, template);
+      events.push({ type: 'troop-transform', targetId: char.id, name: template.name });
+      return events;
     }
   }
 
@@ -401,24 +469,38 @@ export function tickStatuses(char: Character, rng?: SeededRNG): GameEvent[] {
   for (const s of char.statuses) {
     if (s.turns <= 0) continue;
     if (DOT_STATUS_IDS.has(s.id)) {
-      const dmg = Math.max(0, s.magnitude ?? 0);
-      if (dmg > 0) {
-        // DoT 直接扣血（跳过护甲，符合中毒/燃烧的持续伤害语义）
-        char.hp = Math.max(0, char.hp - dmg);
+      // The original status rules differ for each DoT; magnitude on Poison and
+      // Burning was legacy fixture data, not a damage multiplier in GoW.
+      const raw = s.id === 'poison'
+        ? (rng && rng.next() < 0.5 ? 1 : 0)
+        : s.id === 'burning' ? 3
+        : [0, 1, 3, 6, 10][Math.min(4, Math.max(1, s.magnitude ?? 1))];
+      let damage = 0;
+      let armorDamage = 0;
+      if (raw > 0) {
+        const barrier = consumeBarrier(char);
+        if (barrier.consumed) events.push(...barrier.events);
+        else if (s.id === 'burning') {
+          armorDamage = Math.min(char.armor, raw);
+          char.armor -= armorDamage;
+          damage = raw - armorDamage;
+          char.hp = Math.max(0, char.hp - damage);
+        } else {
+          damage = Math.min(char.hp, raw);
+          char.hp -= damage;
+        }
       }
-      const tick: StatusTickEvent = {
-        type: 'status-tick',
-        targetId: char.id,
-        statusId: s.id,
-        damage: dmg,
-      };
-      events.push(tick);
+      events.push({ type: 'status-tick', targetId: char.id, statusId: s.id, damage, ...(armorDamage > 0 ? { armorDamage } : {}) });
       if (char.hp <= 0 && !char.defeated) {
         char.defeated = true;
         const def: DefeatEvent = { type: 'defeat', characterId: char.id };
         events.push(def);
-        break; // 已阵亡，停止后续 DoT
+        break;
       }
+    }
+    if (DEATH_MARK_STATUS_IDS.has(s.id) && (s.graceTicks ?? 0) > 0) {
+      s.graceTicks!--;
+      continue;
     }
     if (DEATH_MARK_STATUS_IDS.has(s.id) && rng && !char.defeated && rng.next() < 0.1) {
       char.hp = 0;
@@ -432,7 +514,12 @@ export function tickStatuses(char: Character, rng?: SeededRNG): GameEvent[] {
   // 2. 递减存续并移除到期状态
   const survivors: StatusInstance[] = [];
   for (const s of char.statuses) {
-    const remaining = s.turns - 1;
+    // R002/R004: no hard turn cap for official statuses. Poison stays until
+    // cleansed; recoverable negatives end only via the cumulative roll above;
+    // positive statuses end on their trigger (damage / cast / skull hit / action).
+    // Only non-official helper statuses keep the legacy turns countdown.
+    const remaining = NON_EXPIRING_STATUS_IDS.has(s.id) || AUTO_RECOVER_STATUS_IDS.has(s.id)
+      ? s.turns : s.turns - 1;
     if (remaining <= 0) {
       const exp: StatusExpireEvent = {
         type: 'status-expire',
@@ -455,29 +542,42 @@ export function tickStatuses(char: Character, rng?: SeededRNG): GameEvent[] {
  * 无后位、或后位已阵亡则空过**不掷签**（与织网挣脱同款护栏：状态不在场零随机消耗）。
  * 事件复用既有 status-tick（无 damage 字段 = 表现层按状态徽记闪动处理），不新增事件类型。
  */
-function tickTerrorRoster(characters: Character[], rng: SeededRNG): GameEvent[] {
+function tickTerrorRoster(characters: Character[], rng: SeededRNG, player: PlayerSide): GameEvent[] {
   const events: GameEvent[] = [];
-  for (let i = 0; i < characters.length - 1; i++) {
+  const checked = new Set<number>();
+  for (let i = 0; i < characters.length; i++) {
     const ch = characters[i];
-    if (ch.defeated || !hasStatus(ch, TERROR_STATUS_ID)) continue;
-    const next = characters[i + 1];
-    if (!next || next.defeated) continue;
-    if (rng.next() < TERROR_DROP_CHANCE) {
-      characters[i] = next;
+    if (ch.defeated || !hasStatus(ch, TERROR_STATUS_ID) || checked.has(ch.id)) continue;
+    checked.add(ch.id);
+    if (rng.next() >= TERROR_DROP_CHANCE) continue;
+    events.push({ type: 'status-tick', targetId: ch.id, statusId: TERROR_STATUS_ID });
+    if (i === characters.length - 1) {
+      // At the final position Terror causes a Flee, not a death. Reuse the
+      // existing flee resolution pipeline (no death triggers or resurrection).
+      ch.fled = true;
+      events.push({ type: 'flee', characterId: ch.id, player, hp: ch.hp, armor: ch.armor });
+      // Leave the unit in the roster until resolveDefeatEvents processes the
+      // flee event, so a queued summon can occupy its newly freed slot.
+    } else if (!characters[i + 1].defeated) {
+      characters[i] = characters[i + 1];
       characters[i + 1] = ch;
-      events.push({ type: 'status-tick', targetId: ch.id, statusId: TERROR_STATUS_ID });
     }
   }
   return events;
 }
 
 /** 结算整队每个存活角色的状态，按队伍索引顺序（确定性，需求 9.4） */
-export function tickTeamStatuses(characters: Character[], rng?: SeededRNG): GameEvent[] {
+export function tickTeamStatuses(
+  characters: Character[], rng?: SeededRNG, player: PlayerSide = PlayerSide.Left,
+  lycanthropyTemplate?: () => SummonTemplate | null,
+): GameEvent[] {
   const events: GameEvent[] = [];
   // 恐怖位次交换先于逐角色 DoT/到期结算（同一回合窗口内，顺序固定保证确定性）
-  if (rng) events.push(...tickTerrorRoster(characters, rng));
+  if (rng) events.push(...tickTerrorRoster(characters, rng, player));
   for (const ch of characters) {
-    events.push(...tickStatuses(ch, rng));
+    const ticks = tickStatuses(ch, rng, lycanthropyTemplate);
+    for (const event of ticks) if (event.type === 'troop-transform') event.sourceSide = player;
+    events.push(...ticks);
   }
   return events;
 }
@@ -586,14 +686,23 @@ export function statusEffect(params: StatusApplyParams): EffectPrimitive {
 
 
 
-/** 随机状态效果（「造成随机状态效果」）的负面池：施加给敌方阵营（2026-09-17 回收批裁定）。 */
+/**
+ * 随机状态效果（「造成随机状态效果」/ 官方 RandomStatusEffect 敌方分支）的负面池：施加给敌方阵营。
+ * L2-random-status-pools：按已入库 official-status-effects.html 的负面状态全集（15 项，等概率）；
+ * Charm 不在官方状态表内，已剔除；补入 Faerie Fire、Hunter's Mark（marked）、Lycanthropy、Terror。
+ */
 export const RANDOM_NEGATIVE_STATUS_POOL: readonly string[] = [
-  'poison', 'burning', 'bleed', 'silence', 'frozen', 'stun', 'entangle', 'web', 'disease', 'curse', 'death-mark', 'charm',
+  'poison', 'burning', 'bleed', 'silence', 'frozen', 'stun', 'entangle', 'web', 'disease', 'curse', 'death-mark',
+  'faerie-fire', 'marked', 'lycanthropy', 'terror',
 ];
 
-/** 随机状态的正面池：施加给盟友阵营（引擎已实现施加管线的正面状态）。 */
+/**
+ * 随机状态的正面池：施加给盟友阵营（官方 RandomPositiveStatusEffect 与「随机状态效果」盟友分支）。
+ * L2-random-status-pools：官方状态表的 6 个正面状态，各一次（等概率）；Enrage 只用规范 id
+ * 'enraged'，不再经 'rage' 别名双倍权重。
+ */
 export const RANDOM_POSITIVE_STATUS_POOL: readonly string[] = [
-  'barrier', 'rage', 'submerged',
+  'barrier', 'blessed', 'enchanted', 'enraged', 'reflect', 'submerged',
 ];
 
 /**
@@ -601,8 +710,8 @@ export const RANDOM_POSITIVE_STATUS_POOL: readonly string[] = [
  * 「Cause a random status effect on all Enemies or Allies」的盟友分支步骤
  * {Target: AllAllies, Type: RandomPositiveStatusEffect}）：与 traits.ts 的
  * POSITIVE_STATUS_IDS 同集（净化口径的正面状态；traits 内为私有常量，此处镜像、
- * 改动需两处同步）。inflictRandom pool:'positive' 掷签用这个全集；
- * 缺省盟友路径仍用 RANDOM_POSITIVE_STATUS_POOL（既有 goodtarot 等消费点分布不变）。
+ * 改动需两处同步）。仅作净化/驱散的「正面」判定集（含 rage 别名）；随机掷签一律用
+ * RANDOM_POSITIVE_STATUS_POOL（L2-random-status-pools，官方 6 项各一次）。
  */
 export const POSITIVE_STATUS_IDS: readonly string[] = [
   'barrier', 'blessed', 'enchanted', 'enraged', 'rage', 'reflect', 'submerged',
@@ -614,8 +723,9 @@ export interface RandomStatusParams {
   turns?: number;
   /** 每目标连续施加的随机状态个数（「使其陷入 3 个随机状态效果」= 3；缺省 1） */
   times?: number;
+  allPositive?: boolean;
   /**
-   * 池强制（原语 Wave3 批）：'positive' = 正面全集 POSITIVE_STATUS_IDS
+   * 池强制（原语 Wave3 批）：'positive' = 正面池 RANDOM_POSITIVE_STATUS_POOL
    * （官方 RandomPositiveStatusEffect 步骤），无视目标阵营；缺省按目标阵营选池
    * （盟友=正面池、敌方=负面池，2026-09-17 回收批口径不变）。
    */
@@ -636,9 +746,18 @@ export function randomStatusEffect(params: RandomStatusParams): EffectPrimitive 
       for (const target of params.targets) {
         if (target.defeated) continue;
         const negative = mySide !== null && findSide(ctx.state, target.id) !== mySide;
+        // pool:'positive' 强制正面池（无视阵营）；POSITIVE_STATUS_IDS 含 rage 别名，不能直接作掷签池
         const pool = params.pool === 'positive'
-          ? POSITIVE_STATUS_IDS
+          ? RANDOM_POSITIVE_STATUS_POOL
           : negative ? RANDOM_NEGATIVE_STATUS_POOL : RANDOM_POSITIVE_STATUS_POOL;
+        if (params.allPositive) {
+          // Blessed blocks subsequently applied statuses: grant it last. 'rage' is an
+          // alias of 'enraged' (RAGE_STATUS_IDS): grant Enrage once (L5-007).
+          for (const statusId of [...POSITIVE_STATUS_IDS.filter(id => id !== 'blessed' && id !== 'rage'), 'blessed']) {
+            events.push(...applyStatus(target, { id: statusId, turns: params.turns ?? 3 }));
+          }
+          continue;
+        }
         const times = Math.max(1, params.times ?? 1);
         for (let i = 0; i < times; i++) {
           const statusId = pool[ctx.rng.nextInt(pool.length)];
@@ -655,15 +774,21 @@ export interface CleanseParams {
   targets: Character[];
 }
 
-/** Remove every current status from each living target and emit one presentation event. */
+/**
+ * Cleanse (R002, official status guide): remove every **negative** status from each
+ * living target; positive statuses (POSITIVE_STATUS_IDS: Barrier, Enchanted, …) are kept.
+ * Same rule as traits.ts cleanseNegative. One presentation event per target with removals.
+ */
 export function cleanseEffect(params: CleanseParams): EffectPrimitive {
   return {
     apply(_ctx: EffectContext): GameEvent[] {
       const events: GameEvent[] = [];
+      const positive = new Set(POSITIVE_STATUS_IDS);
       for (const target of params.targets) {
         if (target.defeated || target.statuses.length === 0) continue;
-        const statusIds = target.statuses.map((status) => status.id);
-        target.statuses = [];
+        const statusIds = target.statuses.filter((s) => !positive.has(s.id)).map((status) => status.id);
+        if (statusIds.length === 0) continue;
+        target.statuses = target.statuses.filter((s) => positive.has(s.id));
         const event: StatusCleanseEvent = {
           type: 'status-cleanse',
           targetId: target.id,
@@ -703,3 +828,4 @@ export function dispelStatusEffect(params: DispelStatusParams): EffectPrimitive 
     },
   };
 }
+

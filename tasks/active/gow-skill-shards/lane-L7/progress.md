@@ -1,0 +1,69 @@
+- 2026-09-28T01:46:33.8865008+08:00 B01 start; scaffold
+- 2026-09-28T01:49:33.6032686+08:00 troop:6472 start: 3-way checked (spell 7650 cost22 R/P/Br; CountAllyDeaths+CountEnemyDeaths 1500=x15; Damage FromTarget 13+Magic); consistent pending tests
+- 2026-09-28T01:49:33.6032686+08:00 troop:6320 start: spell 7470 cost15 B/R; CountArmor x2 Amount34 ~[3:1]; TrueScatterDamage 8 AllEnemies; consistent pending tests
+- 2026-09-28T01:49:33.6032686+08:00 troop:6228 start: spell 7370 cost12 G/R; CountArmor AllAllies 25=[4:1]; consistent pending tests
+- 2026-09-28T01:49:33.6032686+08:00 troop:6352 start: TwoStrongestEnemies -> runtime enemyHealthiestN (hp only); community says strength=Life+Armor -> source-dispute candidate
+- 2026-09-28T01:49:33.6032686+08:00 troop:7501 start: MultiplyForAscensionBoss 3x-5x modeled as flat x3 at ascension>=3 -> difference/source-dispute candidate
+- 2026-09-28T01:53:20.1505502+08:00 troop:6352 DIFF: real cast hits only 1 of 2 strongest; prototypes.ts omitted-range list lacks enemyHealthiestN (has nonexistent enemyStrongestN) -> range single (primitive)
+- 2026-09-28T01:55:14.8903103+08:00 B01 tests: npx vitest run tests/unit/gowLaneL7B01.test.ts -> 36 passed; tsc --noEmit 0 errors
+- 2026-09-28T01:55:14.8903103+08:00 troop:6472 verdict: consistent -> accept
+- 2026-09-28T01:55:14.8903103+08:00 troop:6320 verdict: consistent (CountArmor Amount 34 read as English/official [3:1] = floor(sum/3)) -> accept
+- 2026-09-28T01:55:14.8903103+08:00 troop:6228 verdict: consistent -> accept
+- 2026-09-28T01:55:14.8903103+08:00 troop:6352 verdict: draft (L7-6352-a primitive diff; L7-6352-b strongest ranking source-dispute)
+- 2026-09-28T01:55:14.8903103+08:00 troop:7501 verdict: draft (L7-7501 source-dispute 3x-5x by Ascensions modeled flat x3)
+- 2026-09-28T01:57:42.1817327+08:00 B01 signoff-b01.json filled: 6472/6320/6228 accept (check ok); 6352/7501 draft; issues.json L7-6352-a, L7-6352-b, L7-7501
+- 2026-09-28T01:57:42.1817327+08:00 B01 done. B02 start; scaffold
+- 2026-09-28T02:07:39.4341781+08:00 troop:7344 verdict: draft (L7-7344 assembler: enemyRandomN n=4 lacks randomWaves; 2 living enemies get 2 hits not 4)
+- 2026-09-28T02:07:39.4341781+08:00 troop:6087 verdict: consistent -> accept
+- 2026-09-28T02:07:39.4341781+08:00 troop:6595 verdict: consistent (CountArmor 34 read as [3:1]) -> accept
+- 2026-09-28T02:07:39.4341781+08:00 troop:6848 verdict: consistent -> accept
+- 2026-09-28T02:07:39.4341781+08:00 troop:6889 verdict: draft (L7-6889 source-dispute ascension 3x-5x)
+- 2026-09-28T02:07:39.4341781+08:00 B02 tests: npx vitest run tests/unit/gowLaneL7B02.test.ts -> 38 passed; tsc 0 errors; signoff-b02 check: 3 accept ok, 2 draft FAIL(expected)
+- 2026-09-28T02:07:58.7130710+08:00 B01+B02 final rerun ok; lane L7 batches B01/B02 delivered (6 accept, 4 draft, 5 issues)
+- 2026-09-28T02:40:30.1197493+08:00 round2 sa-L76 start (L7+L6 combined, work dir lane-L7); src lock held by sa-L5 -> start with non-src checks
+- 2026-09-28T02:47:32.1794339+08:00 B03 start troop:7501,troop:6889,troop:6803,weapon:1075,troop:6211 (requeued 7501/6889/6803 removed from lane-L7 b01/b02, lane-L6 b01)
+- 2026-09-28T02:54:30.6108285+08:00 WAIVED troop:7501 boss c2 (MultiplyForAscensionBoss 3x-5x by Ascensions)
+- 2026-09-28T02:54:30.6108285+08:00 WAIVED troop:6889 boss c2 (MultiplyForAscensionBoss 3x-5x by Ascensions)
+- 2026-09-28T02:54:30.6108285+08:00 WAIVED troop:6803 tower c3 (MultiplyForAscensionCastle); c1 StealArmor source-dispute still open -> draft
+- 2026-09-28T02:54:30.6108285+08:00 troop:6211 DIFF L7-6211: scatter pool uses targetStat=first enemy, not chosen ally armor (repro gowLaneL7B03Repro) -> draft, fix queued (needs src lock)
+- 2026-09-28T02:54:30.6108285+08:00 weapon:1075 consistent (official weapon list 'Double an ally's Armor 1:1') -> accept
+- 2026-09-28T02:55:10.2218201+08:00 B03 tests: gowLaneL7B03 + Repro 43 passed; tsc 0 errors; check: 7501/6889/1075 accept ok, 6803/6211 draft
+- 2026-09-28T02:55:10.2218201+08:00 B03 done accept=3 draft=2 waived=3 fixed=0
+- 2026-09-28T02:59:29.2841230+08:00 B04 start troop:7517,troop:6694,weapon:1476,weapon:1473,weapon:1721
+- 2026-09-28T02:59:44.9326051+08:00 LOCK acquired src (sa-L76); running full vitest baseline
+- 2026-09-28T03:16:22.6617643+08:00 baseline full vitest before fixes: 9565 passed / 0 failed; after fixes: 9652 passed / 0 failed (other lanes added tests meanwhile; one transient L4bB04 failure in an intermediate run was an in-progress file of another lane, green in the final run); tsc 0 errors; audit-gow-skills rebuilt; stale: none
+- 2026-09-28T03:16:22.6617643+08:00 FIX L7-6352-a src/engine/skills/prototypes.ts (omitted-range multi-victim list enemyStrongestN -> enemyHealthiestN) affected keys 6: troop:6352, troop:6566, troop:6599, troop:7835, weapon:1159 (none accepted)
+- 2026-09-28T03:16:22.6617643+08:00 FIX R003-2 src/engine/skills/effects/secondary.ts modifierBonus ratio = floor(count x pct/100), pct 34/17/13 for [3:1]/[6:1]/[8:1] and exact pct otherwise (legacy for non-integer b>1 300:10 only) affected: every [3:1]/[6:1]/[8:1]/[20:3] prototype; accepted: troop:6320, troop:6595 -> requeued
+- 2026-09-28T03:16:22.6617643+08:00 FIX L6-6549 src/engine/skills/curated/batch-r15.ts 7743 steal-before-trueDmg (R001) keys 1
+- 2026-09-28T03:16:22.6617643+08:00 FIX L6-7833 src/engine/skills/curated/batch-r28.ts 10061 execute(chosenStat armor, pre-damage) -> damage -> pull back (R001) keys 1
+- 2026-09-28T03:16:22.6617643+08:00 FIX L7-7344 src/engine/skills/curated/batch-10.ts 8969 RandomEnemy + 3x RandomPrefNotPrev segments keys 1
+- 2026-09-28T03:16:22.6617643+08:00 FIX L7-6211 src/engine/skills/curated/batch-r15.ts 7353 scatter pool chosenStat armor keys 1
+- 2026-09-28T03:16:22.6617643+08:00 FIX L7-7517 src/engine/skills/curated/batch-r19.ts 9281 split:2 removed (zh '- {2}' is an official zh localisation artefact, kept) keys 1
+- 2026-09-28T03:16:22.6617643+08:00 frozen tests updated in lock: gowLaneL7B01 (6352 it.fails flipped), gowLaneL7B02 (7344), gowLaneL6B01 (6549/7833/1194), gowLaneL6B02 (1199/1201/1204/1200), gowLaneL7B03 (6211 prototype); sha256 refreshed in lane-L7 b01/b02/b03, lane-L6 b01/b02; requeue.jsonl hash-refresh notes for data/audit copies
+- 2026-09-28T03:16:22.6617643+08:00 LOCK released src
+- 2026-09-28T03:20:52.8458394+08:00 WAIVED troop:6694 tower c2 (MultiplyForAscensionCastle 3x-5x)
+- 2026-09-28T03:20:52.8458394+08:00 B03 re-fill after fix: troop:6211 accept (L7-6211 fixed); B03 final accept=4 draft=1 (6803 source-dispute)
+- 2026-09-28T03:20:52.8458394+08:00 B04 tests: gowLaneL7B04 + Repro pass (97 with B03); tsc 0; check 5/5 ok
+- 2026-09-28T03:20:52.8458394+08:00 B04 done accept=5 draft=0 waived=1 fixed=1 (L7-7517)
+- 2026-09-28T03:21:13.6856604+08:00 B05 start troop:6352,troop:7344,troop:6549,troop:7833,weapon:1194 (requeued; removed from lane-L7 b01/b02, lane-L6 b01)
+- 2026-09-28T03:23:57.9695293+08:00 B05 tests gowLaneL7B05 38 passed; check 4 accept ok, 6352 draft (L7-6352-b)
+- 2026-09-28T03:23:57.9695293+08:00 B05 done accept=4 draft=1 waived=0 fixed=4 (L7-7344, L6-6549, L6-7833, R003/1194 re-verified)
+- 2026-09-28T03:24:41.3995578+08:00 B06 start weapon:1199,weapon:1201,weapon:1204,weapon:1200,troop:6320 (requeued; removed from lane-L6 b02 / lane-L7 b01)
+- 2026-09-28T03:29:04.8541492+08:00 B06 tests gowLaneL7B06 46 passed; check 5/5 ok
+- 2026-09-28T03:29:04.8541492+08:00 B06 done accept=5 draft=0 waived=0 fixed=0 (R003 fix verified on 1199/1201/1204/1200/6320)
+- 2026-09-28T03:30:04.9585413+08:00 B07 start troop:6595,weapon:1603,troop:7045,troop:6551,troop:6271; LOCK acquired src (L7-7045 attack segment missing counter)
+- 2026-09-28T03:37:59.7837056+08:00 FIX L7-7045 src/engine/skills/curated/batch-33.ts 8570 attack segment gets the counter modifier keys 1
+- 2026-09-28T03:37:59.7837056+08:00 FIX L7-7201 src/engine/skills/curated/batch-15.ts 8788 damage segment gets the enemy-magic modifier ('both boosted') keys 1
+- 2026-09-28T03:37:59.7837056+08:00 FIX L7-7615 src/engine/skills/curated/batch-17.ts 9522 heal segment gets the Red+Green gem modifier ('both boosted') keys 1
+- 2026-09-28T03:37:59.7837056+08:00 FIX L7-6193 src/engine/skills/curated/batch-05.ts 7334 attack segment gets the Red gem modifier keys 1
+- 2026-09-28T03:37:59.7837056+08:00 reverse check: scan-counter-use.cjs over L7+L6 (native non-Count steps with UseCounterForAmount vs runtime modifiers); the 4 above were the two-stat 'boosted' family; remaining hits are multi-step->one-segment shapes, reviewed when their batch comes up
+- 2026-09-28T03:37:59.7837056+08:00 full vitest 10014 tests: 46 failed, all in tests/unit/gowLaneL4bB05Repro.test.ts (another lane's pending repros, unrelated: gem colour/rage/zh) -> env-note; tsc: 3 errors all in tests/unit/gowLaneL4bB08.test.ts (other lane, in progress) -> env-note; my files 0; audit rebuilt; stale: none
+- 2026-09-28T03:37:59.7837056+08:00 LOCK released src
+- 2026-09-28T03:37:59.7837056+08:00 B07 tests gowLaneL7B07 34 passed
+- 2026-09-28T03:39:23.0104472+08:00 B07 check 5/5 ok
+- 2026-09-28T03:39:23.0104472+08:00 B07 done accept=5 draft=0 waived=0 fixed=1 (L7-7045; plus L7-7201/7615/6193 fixed ahead of review)
+- 2026-09-28T03:40:46.2755195+08:00 B08 start troop:6550,troop:7069,troop:7755,troop:6283,troop:6874
+- 2026-09-28T03:45:21.4066053+08:00 B08 tests gowLaneL7B08 16 passed + Repro 4 passed (3 it.fails confirm diffs); check 6283/6874 accept ok
+- 2026-09-28T03:45:21.4066053+08:00 WAIVED-pending troop:6550 boss c2 (draft for L7-6550 order diff)
+- 2026-09-28T03:45:21.4066053+08:00 B08 done accept=2 draft=3 waived=0 fixed=0 (L7-6550 / L7-7755 fixes ready but src lock held by sa-L5 since 19:38Z; L7-7069 primitive, deferred)
+- 2026-09-28T03:50:52.2851694+08:00 final full vitest: 10859 tests, 46 failed all in tests/unit/gowLaneL4bB05Repro.test.ts (other lane, env-01); all L7/L6 lane files green; checks: every accept ok. src lock held by sa-L4b -> stop at batch boundary after B08 (round 2: 30 reviewed, 25 accept, 5 draft, 11 fixes)

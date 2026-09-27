@@ -1,0 +1,2171 @@
+{
+  "schemaVersion": 1,
+  "scope": "stored-gow-snapshot",
+  "reviews": [
+    {
+      "key": "troop:7313",
+      "scope": "stored-gow-snapshot",
+      "sourceDigest": "4800b648faf50d71354b8f76d97e1fe65c948df39b763bae9d388b3981c3264a",
+      "reviewer": "sa-L3",
+      "reviewedAt": "2026-09-27",
+      "decision": "draft",
+      "ledgerFingerprintAtReview": "ad06742a1d37e34d4e3c0f9076d73ac1e0ab334f00a61502e1e4261defdfb67a",
+      "_reference": {
+        "spellId": 8925,
+        "english": "Barrier an Ally, and give them Mana equal to half their Mana cost. If they are a Knight, create 3 Spirit Gems.",
+        "nativeTarget": "Ally",
+        "randomize": null,
+        "steps": [
+          {
+            "Target": "FromTarget",
+            "Amount": 1,
+            "Type": "CauseBarrier"
+          },
+          {
+            "Target": "FromTarget",
+            "Type": "GenerateHalfMana"
+          },
+          {
+            "Target": "FromTarget",
+            "StatusAmount": 3,
+            "Color1": "Spirit",
+            "StatusModifier": "AddForKnight",
+            "Type": "CreateGems"
+          }
+        ],
+        "prototype": {
+          "segments": [
+            {
+              "kind": "status",
+              "target": "allyChosen",
+              "statusId": "barrier",
+              "turns": 3
+            },
+            {
+              "kind": "buff",
+              "target": "allyChosen",
+              "stat": "mana",
+              "scaling": {
+                "base": 0,
+                "mult": 0
+              },
+              "halve": true
+            },
+            {
+              "kind": "gem",
+              "params": {
+                "op": "create",
+                "gem": {
+                  "kind": "special",
+                  "spec": {
+                    "kind": "spiritGem",
+                    "color": "Purple"
+                  }
+                },
+                "count": {
+                  "base": 3,
+                  "mult": 0
+                }
+              },
+              "ifCond": {
+                "kind": "lastTargetRace",
+                "race": "Knight"
+              }
+            }
+          ]
+        }
+      },
+      "sourceEvidence": [
+        {
+          "id": "en",
+          "role": "english-snapshot",
+          "path": "data/raw/troops.gow.en.json",
+          "note": "troop:7313 Relic Knight SpellId 8925, cost 12, Blue/Green; \"Barrier an Ally, and give them Mana equal to half their Mana cost. If they are a Knight, create 3 Spirit Gems.\""
+        },
+        {
+          "id": "native",
+          "role": "native-snapshot",
+          "path": "data/raw/spells.gow.en.json",
+          "note": "Spell 8925 Cost 12 Target Ally; CauseBarrier FromTarget -> GenerateHalfMana FromTarget -> CreateGems Spirit StatusAmount 3 AddForKnight."
+        },
+        {
+          "id": "rule",
+          "role": "official-shared-rule",
+          "path": "artifacts/gow-skill-audit/gold-primary-sources/official-status-effects.html",
+          "note": "Barrier until one damage instance; Silence prevents gaining any mana."
+        },
+        {
+          "id": "laneTest",
+          "role": "lane-battle-test",
+          "path": "tests/unit/gowLaneL3B01.test.ts",
+          "note": "troop:7313: real TurnEngine.castSkill both sides + boundaries"
+        },
+        {
+          "id": "r002",
+          "role": "user-ruling",
+          "path": "tasks/active/gow-skill-shards/rulings/R002-barrier-enchant-cleanse.md",
+          "note": "Barrier until damaged; Cleanse removes negatives only."
+        },
+        {
+          "id": "r004",
+          "role": "user-ruling",
+          "path": "tasks/active/gow-skill-shards/rulings/R004-status-durations.md",
+          "note": "Status durations: no hard cap, cumulative recovery; Cause* Amount ignored."
+        }
+      ],
+      "dimensions": {
+        "identity-cost-colors": {
+          "status": "verified",
+          "note": "troop:7313 -> 8925, cost 12, Blue/Green.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r002",
+            "r004"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL3B01.test.ts"
+          ]
+        },
+        "target-count-range": {
+          "status": "verified",
+          "note": "Chosen ally (incl. self) receives Barrier and mana; others untouched.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r002",
+            "r004"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL3B01.test.ts"
+          ]
+        },
+        "base-formula-rounding": {
+          "status": "disputed",
+          "note": "L3-005 source-dispute: half of an odd mana cost (floor per DECISIONS.md) has no English/native/official rounding source; even costs verified (12 -> 6).",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r002",
+            "r004"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL3B01.test.ts"
+          ]
+        },
+        "boost-source-ratio-cap": {
+          "status": "not-applicable",
+          "note": "No boost / ratio / cap clause.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r002",
+            "r004"
+          ],
+          "tests": []
+        },
+        "conditions-probabilities-branches": {
+          "status": "verified",
+          "note": "AddForKnight: Knight ally -> 3 Spirit Gems; non-Knight -> none.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r002",
+            "r004"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL3B01.test.ts"
+          ]
+        },
+        "status-duration-immunity": {
+          "status": "verified",
+          "note": "Barrier on chosen ally, no expiry (R002).",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r002",
+            "r004"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL3B01.test.ts"
+          ]
+        },
+        "gems-types-selection-resolution": {
+          "status": "disputed",
+          "note": "L3-006 source-dispute: native Color1 Spirit has no colour; project creates Purple Spirit Gems.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r002",
+            "r004"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL3B01.test.ts"
+          ]
+        },
+        "summon-transform-pools": {
+          "status": "not-applicable",
+          "note": "No summon / transform.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r002",
+            "r004"
+          ],
+          "tests": []
+        },
+        "order-death-retargeting": {
+          "status": "verified",
+          "note": "Barrier -> mana -> gems matches native order.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r002",
+            "r004"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL3B01.test.ts"
+          ]
+        },
+        "mana-economy-extra-turn": {
+          "status": "verified",
+          "note": "Caster pays 12; ally +half cost capped at manaCost; FIXED L3-004 silenced ally gains 0; turn passes.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r002",
+            "r004"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL3B01.test.ts"
+          ]
+        },
+        "display-description": {
+          "status": "verified",
+          "note": "zh matches.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r002",
+            "r004"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL3B01.test.ts"
+          ]
+        },
+        "battle-pipeline": {
+          "status": "verified",
+          "note": "Real TurnEngine.castSkill both sides: skill-cast first, mana spent, one action-log entry, turn switch / extra-turn asserted; low-mana and Silence refusals leave board/log/turn untouched.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r002",
+            "r004"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL3B01.test.ts"
+          ],
+          "realBattleEntry": true
+        }
+      },
+      "clauseReviews": [
+        {
+          "id": "c1",
+          "text": "Barrier an Ally, and give them Mana equal to half their Mana cost.",
+          "status": "disputed",
+          "note": "Barrier verified; half-mana rounding for odd costs disputed (L3-005).",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r002",
+            "r004"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL3B01.test.ts"
+          ]
+        },
+        {
+          "id": "c2",
+          "text": "If they are a Knight, create 3 Spirit Gems.",
+          "status": "disputed",
+          "note": "Knight condition verified; Spirit colour disputed (L3-006).",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r002",
+            "r004"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL3B01.test.ts"
+          ]
+        }
+      ],
+      "nativeStepReviews": [
+        {
+          "id": "0",
+          "type": "CauseBarrier",
+          "status": "verified",
+          "note": "CauseBarrier FromTarget.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r002",
+            "r004"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL3B01.test.ts"
+          ]
+        },
+        {
+          "id": "1",
+          "type": "GenerateHalfMana",
+          "status": "disputed",
+          "note": "GenerateHalfMana: even cost verified, odd cost rounding L3-005.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r002",
+            "r004"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL3B01.test.ts"
+          ]
+        },
+        {
+          "id": "2",
+          "type": "CreateGems",
+          "status": "disputed",
+          "note": "CreateGems Spirit AddForKnight: colour L3-006.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r002",
+            "r004"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL3B01.test.ts"
+          ]
+        }
+      ],
+      "branchReviews": [
+        {
+          "id": "main",
+          "status": "verified",
+          "note": "Knight / non-Knight paths tested.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r002",
+            "r004"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL3B01.test.ts"
+          ]
+        }
+      ]
+    },
+    {
+      "key": "troop:7098",
+      "scope": "stored-gow-snapshot",
+      "sourceDigest": "427ef28f32dfc10f6dbc65d7d5f4a712ae7a0706c4858c48cf4017460329038c",
+      "reviewer": "sa-L3",
+      "reviewedAt": "2026-09-27",
+      "decision": "accept",
+      "ledgerFingerprintAtReview": "ad06742a1d37e34d4e3c0f9076d73ac1e0ab334f00a61502e1e4261defdfb67a",
+      "_reference": {
+        "spellId": 8633,
+        "english": "Deal [Magic + 3] damage to an Enemy, and Burn them. If the Enemy dies, create 2 Elemental Stars and gain an extra turn.",
+        "nativeTarget": "Enemy",
+        "randomize": null,
+        "steps": [
+          {
+            "Target": "FromTarget",
+            "Amount": 1,
+            "Type": "CauseBurning"
+          },
+          {
+            "SpellPowerMultiplier": 1,
+            "Target": "FromTarget",
+            "Amount": 3,
+            "Primarypower": true,
+            "Type": "Damage",
+            "Delay": 1
+          },
+          {
+            "StatusAmount": 2,
+            "Color1": "ElementalStar",
+            "StatusModifier": "AddForKill",
+            "Type": "CreateGems",
+            "Delay": 1
+          },
+          {
+            "Target": "Self",
+            "StatusAmount": 100,
+            "StatusModifier": "AddForKill",
+            "Type": "ExtraTurnConditional"
+          }
+        ],
+        "prototype": {
+          "segments": [
+            {
+              "kind": "status",
+              "target": "enemyChosen",
+              "statusId": "burning",
+              "turns": 3,
+              "magnitude": 3
+            },
+            {
+              "kind": "damage",
+              "target": "enemyChosen",
+              "scaling": {
+                "base": 3,
+                "mult": 1
+              }
+            },
+            {
+              "kind": "gem",
+              "params": {
+                "op": "create",
+                "gem": {
+                  "kind": "special",
+                  "spec": {
+                    "kind": "elementalStar"
+                  }
+                },
+                "count": {
+                  "base": 2,
+                  "mult": 0
+                }
+              },
+              "ifTargetDied": true
+            },
+            {
+              "kind": "extraTurn",
+              "ifTargetDied": true
+            }
+          ]
+        }
+      },
+      "sourceEvidence": [
+        {
+          "id": "en",
+          "role": "english-snapshot",
+          "path": "data/raw/troops.gow.en.json",
+          "note": "troop:7098 Fireborn Eagle SpellId 8633, cost 11, Red/Yellow; \"Deal [Magic + 3] damage to an Enemy, and Burn them. If the Enemy dies, create 2 Elemental Stars and gain an extra turn.\""
+        },
+        {
+          "id": "native",
+          "role": "native-snapshot",
+          "path": "data/raw/spells.gow.en.json",
+          "note": "Spell 8633 Cost 11 Target Enemy; CauseBurning FromTarget -> Damage FromTarget Amount 3 SPM 1 -> CreateGems ElementalStar StatusAmount 2 AddForKill -> ExtraTurnConditional Self AddForKill 100."
+        },
+        {
+          "id": "rule",
+          "role": "official-shared-rule",
+          "path": "artifacts/gow-skill-audit/gold-primary-sources/official-status-effects.html",
+          "note": "Burning: 3 damage per turn, armor first; Barrier blocks one damage instance."
+        },
+        {
+          "id": "laneTest",
+          "role": "lane-battle-test",
+          "path": "tests/unit/gowLaneL3B01.test.ts",
+          "note": "troop:7098: real TurnEngine.castSkill both sides + boundaries"
+        },
+        {
+          "id": "r001",
+          "role": "user-ruling",
+          "path": "tasks/active/gow-skill-shards/rulings/R001-native-step-order.md",
+          "note": "Native SpellSteps order governs observable ordering."
+        },
+        {
+          "id": "r004",
+          "role": "user-ruling",
+          "path": "tasks/active/gow-skill-shards/rulings/R004-status-durations.md",
+          "note": "Status durations: no hard cap, cumulative recovery; Cause* Amount ignored."
+        },
+        {
+          "id": "r006",
+          "role": "user-ruling",
+          "path": "tasks/active/gow-skill-shards/rulings/R006-hidden-mechanics-conventions.md",
+          "note": "Project conventions C1 (round) / C2 (Cause* Amount ignored)."
+        },
+        {
+          "id": "frozen",
+          "role": "official-shared-rule",
+          "path": "artifacts/gow-skill-audit/gold-primary-sources/official-frozen-1-0-9.json",
+          "note": "Frozen caster: no spell extra turn."
+        }
+      ],
+      "dimensions": {
+        "identity-cost-colors": {
+          "status": "verified",
+          "note": "troop:7098 -> spell 8633, ManaCost 11, colours Red/Yellow; TROOPS binding and native Cost equal.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r001",
+            "r004",
+            "r006",
+            "frozen"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL3B01.test.ts"
+          ]
+        },
+        "target-count-range": {
+          "status": "verified",
+          "note": "Chosen enemy only (enemyChosen); other enemies untouched; FixedTargetChooser 12 on both sides.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r001",
+            "r004",
+            "r006",
+            "frozen"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL3B01.test.ts"
+          ]
+        },
+        "base-formula-rounding": {
+          "status": "verified",
+          "note": "Damage Magic+3 (magic 0 -> 3, magic 10 -> 13); armor absorbs first.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r001",
+            "r004",
+            "r006",
+            "frozen"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL3B01.test.ts"
+          ]
+        },
+        "boost-source-ratio-cap": {
+          "status": "not-applicable",
+          "note": "No boost / ratio / cap clause.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r001",
+            "r004",
+            "r006",
+            "frozen"
+          ],
+          "tests": []
+        },
+        "conditions-probabilities-branches": {
+          "status": "verified",
+          "note": "AddForKill: stars + extra turn only when the damaged enemy dies (Life 3 at magic 0 dies; Life 4 / Barrier survive -> neither).",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r001",
+            "r004",
+            "r006",
+            "frozen"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL3B01.test.ts"
+          ]
+        },
+        "status-duration-immunity": {
+          "status": "verified",
+          "note": "burning applied to the chosen enemy (status-apply), duration per R004 (convention:R006-C2 Cause* Amount ignored); burning ticks 3 at the victim turn start; Barrier does not block the status.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r001",
+            "r004",
+            "r006",
+            "frozen"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL3B01.test.ts"
+          ]
+        },
+        "gems-types-selection-resolution": {
+          "status": "verified",
+          "note": "Exactly 2 elementalStar special gems created on kill, none otherwise.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r001",
+            "r004",
+            "r006",
+            "frozen"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL3B01.test.ts"
+          ]
+        },
+        "summon-transform-pools": {
+          "status": "not-applicable",
+          "note": "No summon / transform.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r001",
+            "r004",
+            "r006",
+            "frozen"
+          ],
+          "tests": []
+        },
+        "order-death-retargeting": {
+          "status": "verified",
+          "note": "FIXED L3-001: native Cause* precedes Damage (R001): status-apply before skill-damage; a killed enemy still receives the status. ifTargetDied keyed on the damage segment.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r001",
+            "r004",
+            "r006",
+            "frozen"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL3B01.test.ts"
+          ]
+        },
+        "mana-economy-extra-turn": {
+          "status": "verified",
+          "note": "Mana to 0 on cast; on kill skill extra turn (source skill), activePlayer kept, outcome extra-turn; survivor -> switched; frozen caster kill -> no spell extra turn.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r001",
+            "r004",
+            "r006",
+            "frozen"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL3B01.test.ts"
+          ]
+        },
+        "display-description": {
+          "status": "verified",
+          "note": "zh description matches (damage, status, 2 elemental stars, extra turn on death).",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r001",
+            "r004",
+            "r006",
+            "frozen"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL3B01.test.ts"
+          ]
+        },
+        "battle-pipeline": {
+          "status": "verified",
+          "note": "Real TurnEngine.castSkill both sides: skill-cast first, mana spent, one action-log entry, turn switch / extra-turn asserted; low-mana and Silence refusals leave board/log/turn untouched.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r001",
+            "r004",
+            "r006",
+            "frozen"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL3B01.test.ts"
+          ],
+          "realBattleEntry": true
+        }
+      },
+      "clauseReviews": [
+        {
+          "id": "c1",
+          "text": "Deal [Magic + 3] damage to an Enemy, and Burn them.",
+          "status": "verified",
+          "note": "Chosen enemy gets burning then [Magic+3] damage.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r001",
+            "r004",
+            "r006",
+            "frozen"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL3B01.test.ts"
+          ]
+        },
+        {
+          "id": "c2",
+          "text": "If the Enemy dies, create 2 Elemental Stars and gain an extra turn.",
+          "status": "verified",
+          "note": "On kill: 2 Elemental Stars + extra turn; no kill -> neither.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r001",
+            "r004",
+            "r006",
+            "frozen"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL3B01.test.ts"
+          ]
+        }
+      ],
+      "nativeStepReviews": [
+        {
+          "id": "0",
+          "type": "CauseBurning",
+          "status": "verified",
+          "note": "CauseBurning FromTarget = chosen enemy, first.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r001",
+            "r004",
+            "r006",
+            "frozen"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL3B01.test.ts"
+          ]
+        },
+        {
+          "id": "1",
+          "type": "Damage",
+          "status": "verified",
+          "note": "Damage Magic+3 on the chosen enemy.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r001",
+            "r004",
+            "r006",
+            "frozen"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL3B01.test.ts"
+          ]
+        },
+        {
+          "id": "2",
+          "type": "CreateGems",
+          "status": "verified",
+          "note": "CreateGems ElementalStar x2 AddForKill.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r001",
+            "r004",
+            "r006",
+            "frozen"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL3B01.test.ts"
+          ]
+        },
+        {
+          "id": "3",
+          "type": "ExtraTurnConditional",
+          "status": "verified",
+          "note": "ExtraTurnConditional AddForKill.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r001",
+            "r004",
+            "r006",
+            "frozen"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL3B01.test.ts"
+          ]
+        }
+      ],
+      "branchReviews": [
+        {
+          "id": "main",
+          "status": "verified",
+          "note": "Kill / no-kill paths both tested.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r001",
+            "r004",
+            "r006",
+            "frozen"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL3B01.test.ts"
+          ]
+        }
+      ]
+    },
+    {
+      "key": "troop:7097",
+      "scope": "stored-gow-snapshot",
+      "sourceDigest": "ba015a18e372114579d4083c30f1f708e9c2686da79439c0fa8017fac661d3e5",
+      "reviewer": "sa-L3",
+      "reviewedAt": "2026-09-27",
+      "decision": "accept",
+      "ledgerFingerprintAtReview": "ad06742a1d37e34d4e3c0f9076d73ac1e0ab334f00a61502e1e4261defdfb67a",
+      "_reference": {
+        "spellId": 8632,
+        "english": "Deal [Magic + 3] damage to an Enemy, and Entangle them. If the Enemy dies, create 2 Elemental Stars and gain an extra turn.",
+        "nativeTarget": "Enemy",
+        "randomize": null,
+        "steps": [
+          {
+            "Target": "FromTarget",
+            "Amount": 1,
+            "Type": "CauseEntangle"
+          },
+          {
+            "SpellPowerMultiplier": 1,
+            "Target": "FromTarget",
+            "Amount": 3,
+            "Primarypower": true,
+            "Type": "Damage",
+            "Delay": 1
+          },
+          {
+            "StatusAmount": 2,
+            "Color1": "ElementalStar",
+            "StatusModifier": "AddForKill",
+            "Type": "CreateGems",
+            "Delay": 1
+          },
+          {
+            "Target": "Self",
+            "StatusAmount": 100,
+            "StatusModifier": "AddForKill",
+            "Type": "ExtraTurnConditional"
+          }
+        ],
+        "prototype": {
+          "segments": [
+            {
+              "kind": "status",
+              "target": "enemyChosen",
+              "statusId": "entangle",
+              "turns": 3
+            },
+            {
+              "kind": "damage",
+              "target": "enemyChosen",
+              "scaling": {
+                "base": 3,
+                "mult": 1
+              }
+            },
+            {
+              "kind": "gem",
+              "params": {
+                "op": "create",
+                "gem": {
+                  "kind": "special",
+                  "spec": {
+                    "kind": "elementalStar"
+                  }
+                },
+                "count": {
+                  "base": 2,
+                  "mult": 0
+                }
+              },
+              "ifTargetDied": true
+            },
+            {
+              "kind": "extraTurn",
+              "ifTargetDied": true
+            }
+          ]
+        }
+      },
+      "sourceEvidence": [
+        {
+          "id": "en",
+          "role": "english-snapshot",
+          "path": "data/raw/troops.gow.en.json",
+          "note": "troop:7097 Natureborn Wolf SpellId 8632, cost 11, Green/Red; \"Deal [Magic + 3] damage to an Enemy, and Entangle them. If the Enemy dies, create 2 Elemental Stars and gain an extra turn.\""
+        },
+        {
+          "id": "native",
+          "role": "native-snapshot",
+          "path": "data/raw/spells.gow.en.json",
+          "note": "Spell 8632 Cost 11 Target Enemy; CauseEntangle FromTarget -> Damage FromTarget Amount 3 SPM 1 -> CreateGems ElementalStar StatusAmount 2 AddForKill -> ExtraTurnConditional Self AddForKill 100."
+        },
+        {
+          "id": "rule",
+          "role": "official-shared-rule",
+          "path": "artifacts/gow-skill-audit/gold-primary-sources/official-status-effects.html",
+          "note": "Entangle: Attack 0 while applied; Barrier blocks one damage instance."
+        },
+        {
+          "id": "laneTest",
+          "role": "lane-battle-test",
+          "path": "tests/unit/gowLaneL3B01.test.ts",
+          "note": "troop:7097: real TurnEngine.castSkill both sides + boundaries"
+        },
+        {
+          "id": "r001",
+          "role": "user-ruling",
+          "path": "tasks/active/gow-skill-shards/rulings/R001-native-step-order.md",
+          "note": "Native SpellSteps order governs observable ordering."
+        },
+        {
+          "id": "r004",
+          "role": "user-ruling",
+          "path": "tasks/active/gow-skill-shards/rulings/R004-status-durations.md",
+          "note": "Status durations: no hard cap, cumulative recovery; Cause* Amount ignored."
+        },
+        {
+          "id": "r006",
+          "role": "user-ruling",
+          "path": "tasks/active/gow-skill-shards/rulings/R006-hidden-mechanics-conventions.md",
+          "note": "Project conventions C1 (round) / C2 (Cause* Amount ignored)."
+        },
+        {
+          "id": "frozen",
+          "role": "official-shared-rule",
+          "path": "artifacts/gow-skill-audit/gold-primary-sources/official-frozen-1-0-9.json",
+          "note": "Frozen caster: no spell extra turn."
+        }
+      ],
+      "dimensions": {
+        "identity-cost-colors": {
+          "status": "verified",
+          "note": "troop:7097 -> spell 8632, ManaCost 11, colours Green/Red; TROOPS binding and native Cost equal.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r001",
+            "r004",
+            "r006",
+            "frozen"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL3B01.test.ts"
+          ]
+        },
+        "target-count-range": {
+          "status": "verified",
+          "note": "Chosen enemy only (enemyChosen); other enemies untouched; FixedTargetChooser 12 on both sides.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r001",
+            "r004",
+            "r006",
+            "frozen"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL3B01.test.ts"
+          ]
+        },
+        "base-formula-rounding": {
+          "status": "verified",
+          "note": "Damage Magic+3 (magic 0 -> 3, magic 10 -> 13); armor absorbs first.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r001",
+            "r004",
+            "r006",
+            "frozen"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL3B01.test.ts"
+          ]
+        },
+        "boost-source-ratio-cap": {
+          "status": "not-applicable",
+          "note": "No boost / ratio / cap clause.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r001",
+            "r004",
+            "r006",
+            "frozen"
+          ],
+          "tests": []
+        },
+        "conditions-probabilities-branches": {
+          "status": "verified",
+          "note": "AddForKill: stars + extra turn only when the damaged enemy dies (Life 3 at magic 0 dies; Life 4 / Barrier survive -> neither).",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r001",
+            "r004",
+            "r006",
+            "frozen"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL3B01.test.ts"
+          ]
+        },
+        "status-duration-immunity": {
+          "status": "verified",
+          "note": "entangle applied to the chosen enemy (status-apply), duration per R004 (convention:R006-C2 Cause* Amount ignored); Barrier does not block the status.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r001",
+            "r004",
+            "r006",
+            "frozen"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL3B01.test.ts"
+          ]
+        },
+        "gems-types-selection-resolution": {
+          "status": "verified",
+          "note": "Exactly 2 elementalStar special gems created on kill, none otherwise.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r001",
+            "r004",
+            "r006",
+            "frozen"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL3B01.test.ts"
+          ]
+        },
+        "summon-transform-pools": {
+          "status": "not-applicable",
+          "note": "No summon / transform.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r001",
+            "r004",
+            "r006",
+            "frozen"
+          ],
+          "tests": []
+        },
+        "order-death-retargeting": {
+          "status": "verified",
+          "note": "FIXED L3-001: native Cause* precedes Damage (R001): status-apply before skill-damage; a killed enemy still receives the status. ifTargetDied keyed on the damage segment.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r001",
+            "r004",
+            "r006",
+            "frozen"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL3B01.test.ts"
+          ]
+        },
+        "mana-economy-extra-turn": {
+          "status": "verified",
+          "note": "Mana to 0 on cast; on kill skill extra turn (source skill), activePlayer kept, outcome extra-turn; survivor -> switched; frozen caster kill -> no spell extra turn.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r001",
+            "r004",
+            "r006",
+            "frozen"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL3B01.test.ts"
+          ]
+        },
+        "display-description": {
+          "status": "verified",
+          "note": "zh description matches (damage, status, 2 elemental stars, extra turn on death).",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r001",
+            "r004",
+            "r006",
+            "frozen"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL3B01.test.ts"
+          ]
+        },
+        "battle-pipeline": {
+          "status": "verified",
+          "note": "Real TurnEngine.castSkill both sides: skill-cast first, mana spent, one action-log entry, turn switch / extra-turn asserted; low-mana and Silence refusals leave board/log/turn untouched.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r001",
+            "r004",
+            "r006",
+            "frozen"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL3B01.test.ts"
+          ],
+          "realBattleEntry": true
+        }
+      },
+      "clauseReviews": [
+        {
+          "id": "c1",
+          "text": "Deal [Magic + 3] damage to an Enemy, and Entangle them.",
+          "status": "verified",
+          "note": "Chosen enemy gets entangle then [Magic+3] damage.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r001",
+            "r004",
+            "r006",
+            "frozen"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL3B01.test.ts"
+          ]
+        },
+        {
+          "id": "c2",
+          "text": "If the Enemy dies, create 2 Elemental Stars and gain an extra turn.",
+          "status": "verified",
+          "note": "On kill: 2 Elemental Stars + extra turn; no kill -> neither.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r001",
+            "r004",
+            "r006",
+            "frozen"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL3B01.test.ts"
+          ]
+        }
+      ],
+      "nativeStepReviews": [
+        {
+          "id": "0",
+          "type": "CauseEntangle",
+          "status": "verified",
+          "note": "CauseEntangle FromTarget = chosen enemy, first.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r001",
+            "r004",
+            "r006",
+            "frozen"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL3B01.test.ts"
+          ]
+        },
+        {
+          "id": "1",
+          "type": "Damage",
+          "status": "verified",
+          "note": "Damage Magic+3 on the chosen enemy.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r001",
+            "r004",
+            "r006",
+            "frozen"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL3B01.test.ts"
+          ]
+        },
+        {
+          "id": "2",
+          "type": "CreateGems",
+          "status": "verified",
+          "note": "CreateGems ElementalStar x2 AddForKill.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r001",
+            "r004",
+            "r006",
+            "frozen"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL3B01.test.ts"
+          ]
+        },
+        {
+          "id": "3",
+          "type": "ExtraTurnConditional",
+          "status": "verified",
+          "note": "ExtraTurnConditional AddForKill.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r001",
+            "r004",
+            "r006",
+            "frozen"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL3B01.test.ts"
+          ]
+        }
+      ],
+      "branchReviews": [
+        {
+          "id": "main",
+          "status": "verified",
+          "note": "Kill / no-kill paths both tested.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r001",
+            "r004",
+            "r006",
+            "frozen"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL3B01.test.ts"
+          ]
+        }
+      ]
+    },
+    {
+      "key": "troop:6285",
+      "scope": "stored-gow-snapshot",
+      "sourceDigest": "86287828293c3d41eb38f457288711e516c09295dc76b25cf6bd9983ff34f7d4",
+      "reviewer": "sa-L3",
+      "reviewedAt": "2026-09-27",
+      "decision": "accept",
+      "ledgerFingerprintAtReview": "ad06742a1d37e34d4e3c0f9076d73ac1e0ab334f00a61502e1e4261defdfb67a",
+      "_reference": {
+        "spellId": 7431,
+        "english": "Freeze and Web an Enemy. If there are 13 or more Blue Gems, gain 4 Mana.",
+        "nativeTarget": "Enemy",
+        "randomize": null,
+        "steps": [
+          {
+            "Target": "FromTarget",
+            "Type": "CauseFrozen"
+          },
+          {
+            "Target": "FromTarget",
+            "Type": "CauseWeb"
+          },
+          {
+            "Target": "Self",
+            "StatusAmount": 4,
+            "StatusModifier": "AddFor10BlueGems",
+            "Type": "GenerateMana"
+          }
+        ],
+        "prototype": {
+          "segments": [
+            {
+              "kind": "status",
+              "target": "enemyChosen",
+              "statusId": "frozen",
+              "turns": 3
+            },
+            {
+              "kind": "status",
+              "target": "lastTarget",
+              "statusId": "web",
+              "turns": 3
+            },
+            {
+              "kind": "buff",
+              "target": "allySelf",
+              "stat": "mana",
+              "scaling": {
+                "base": 4,
+                "mult": 0
+              },
+              "ifCond": {
+                "kind": "boardAtLeast",
+                "color": "Blue",
+                "n": 13
+              }
+            }
+          ]
+        }
+      },
+      "sourceEvidence": [
+        {
+          "id": "en",
+          "role": "english-snapshot",
+          "path": "data/raw/troops.gow.en.json",
+          "note": "troop:6285 Frostling SpellId 7431, cost 8, Blue; \"Freeze and Web an Enemy. If there are 13 or more Blue Gems, gain 4 Mana.\""
+        },
+        {
+          "id": "native",
+          "role": "native-snapshot",
+          "path": "data/raw/spells.gow.en.json",
+          "note": "Spell 7431 Cost 8 Target Enemy; CauseFrozen FromTarget -> CauseWeb FromTarget -> GenerateMana Self StatusAmount 4 AddFor10BlueGems."
+        },
+        {
+          "id": "rule",
+          "role": "official-shared-rule",
+          "path": "artifacts/gow-skill-audit/gold-primary-sources/official-status-effects.html",
+          "note": "Frozen blocks extra turns / Web sets Magic to 0."
+        },
+        {
+          "id": "laneTest",
+          "role": "lane-battle-test",
+          "path": "tests/unit/gowLaneL3B01.test.ts",
+          "note": "troop:6285: real TurnEngine.castSkill both sides + boundaries"
+        },
+        {
+          "id": "r003",
+          "role": "user-ruling",
+          "path": "tasks/active/gow-skill-shards/rulings/R003-count-threshold-labels.md",
+          "note": "AddFor10<Color>Gems threshold is 13."
+        },
+        {
+          "id": "r004",
+          "role": "user-ruling",
+          "path": "tasks/active/gow-skill-shards/rulings/R004-status-durations.md",
+          "note": "Status durations: no hard cap, cumulative recovery; Cause* Amount ignored."
+        },
+        {
+          "id": "r006",
+          "role": "user-ruling",
+          "path": "tasks/active/gow-skill-shards/rulings/R006-hidden-mechanics-conventions.md",
+          "note": "Project conventions C1 (round) / C2 (Cause* Amount ignored)."
+        }
+      ],
+      "dimensions": {
+        "identity-cost-colors": {
+          "status": "verified",
+          "note": "troop:6285 -> 7431, cost 8, Blue.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r003",
+            "r004",
+            "r006"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL3B01.test.ts"
+          ]
+        },
+        "target-count-range": {
+          "status": "verified",
+          "note": "FIXED L3-002: chosen enemy (native spell Target Enemy), tested targets 10 and 13; others untouched.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r003",
+            "r004",
+            "r006"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL3B01.test.ts"
+          ]
+        },
+        "base-formula-rounding": {
+          "status": "verified",
+          "note": "Fixed +4 Mana (StatusAmount 4), independent of Magic and of the mana bar (manaCost 12 case -> 4).",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r003",
+            "r004",
+            "r006"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL3B01.test.ts"
+          ]
+        },
+        "boost-source-ratio-cap": {
+          "status": "not-applicable",
+          "note": "No boost / ratio / cap clause.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r003",
+            "r004",
+            "r006"
+          ],
+          "tests": []
+        },
+        "conditions-probabilities-branches": {
+          "status": "verified",
+          "note": "R003: 13 Blue -> +4, 12 Blue -> +0, 16 -> +4.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r003",
+            "r004",
+            "r006"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL3B01.test.ts"
+          ]
+        },
+        "status-duration-immunity": {
+          "status": "verified",
+          "note": "Frozen then Web on the same chosen enemy; durations R004 (convention:R006-C2).",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r003",
+            "r004",
+            "r006"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL3B01.test.ts"
+          ]
+        },
+        "gems-types-selection-resolution": {
+          "status": "not-applicable",
+          "note": "No gem creation / destruction.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r003",
+            "r004",
+            "r006"
+          ],
+          "tests": []
+        },
+        "summon-transform-pools": {
+          "status": "not-applicable",
+          "note": "No summon / transform.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r003",
+            "r004",
+            "r006"
+          ],
+          "tests": []
+        },
+        "order-death-retargeting": {
+          "status": "verified",
+          "note": "Frozen -> Web -> mana matches native.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r003",
+            "r004",
+            "r006"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL3B01.test.ts"
+          ]
+        },
+        "mana-economy-extra-turn": {
+          "status": "verified",
+          "note": "Caster pays 8 then +4 when 13+ Blue; no extra turn; turn passes.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r003",
+            "r004",
+            "r006"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL3B01.test.ts"
+          ]
+        },
+        "display-description": {
+          "status": "verified",
+          "note": "zh 「自身恢复一半的法力值」 equals the English 4 Mana for this cost-8 troop (half of 8); runtime uses the native fixed 4.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r003",
+            "r004",
+            "r006"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL3B01.test.ts"
+          ]
+        },
+        "battle-pipeline": {
+          "status": "verified",
+          "note": "Real TurnEngine.castSkill both sides: skill-cast first, mana spent, one action-log entry, turn switch / extra-turn asserted; low-mana and Silence refusals leave board/log/turn untouched.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r003",
+            "r004",
+            "r006"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL3B01.test.ts"
+          ],
+          "realBattleEntry": true
+        }
+      },
+      "clauseReviews": [
+        {
+          "id": "c1",
+          "text": "Freeze and Web an Enemy.",
+          "status": "verified",
+          "note": "Chosen enemy Frozen and Webbed.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r003",
+            "r004",
+            "r006"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL3B01.test.ts"
+          ]
+        },
+        {
+          "id": "c2",
+          "text": "If there are 13 or more Blue Gems, gain 4 Mana.",
+          "status": "verified",
+          "note": "13+ Blue -> gain 4 Mana; 12 -> 0.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r003",
+            "r004",
+            "r006"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL3B01.test.ts"
+          ]
+        }
+      ],
+      "nativeStepReviews": [
+        {
+          "id": "0",
+          "type": "CauseFrozen",
+          "status": "verified",
+          "note": "CauseFrozen FromTarget (chosen).",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r003",
+            "r004",
+            "r006"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL3B01.test.ts"
+          ]
+        },
+        {
+          "id": "1",
+          "type": "CauseWeb",
+          "status": "verified",
+          "note": "CauseWeb FromTarget (lastTarget = chosen).",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r003",
+            "r004",
+            "r006"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL3B01.test.ts"
+          ]
+        },
+        {
+          "id": "2",
+          "type": "GenerateMana",
+          "status": "verified",
+          "note": "GenerateMana Self 4 AddFor10BlueGems (13).",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r003",
+            "r004",
+            "r006"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL3B01.test.ts"
+          ]
+        }
+      ],
+      "branchReviews": [
+        {
+          "id": "main",
+          "status": "verified",
+          "note": "Threshold both sides tested.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r003",
+            "r004",
+            "r006"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL3B01.test.ts"
+          ]
+        }
+      ]
+    },
+    {
+      "key": "troop:7208",
+      "scope": "stored-gow-snapshot",
+      "sourceDigest": "c937b02f9ca94a718771f373f3189b6b69ccd485171976c680a801012bb08266",
+      "reviewer": "sa-L3",
+      "reviewedAt": "2026-09-27",
+      "decision": "accept",
+      "ledgerFingerprintAtReview": "ad06742a1d37e34d4e3c0f9076d73ac1e0ab334f00a61502e1e4261defdfb67a",
+      "_reference": {
+        "spellId": 8795,
+        "english": "Freeze a random Enemy. Create 3 Gargoyle Gems, and gain an extra turn.",
+        "nativeTarget": "None",
+        "randomize": null,
+        "steps": [
+          {
+            "Target": "RandomEnemy",
+            "Amount": 1,
+            "Type": "CauseFrozen",
+            "Delay": 1
+          },
+          {
+            "Color1": "GoodGargoyle",
+            "Amount": 3,
+            "Color2": "BadGargoyle",
+            "Type": "CreateGems2Colors"
+          },
+          {
+            "Target": "Self",
+            "Type": "ExtraTurn"
+          }
+        ],
+        "prototype": {
+          "segments": [
+            {
+              "kind": "status",
+              "target": "enemyRandom",
+              "statusId": "frozen",
+              "turns": 3
+            },
+            {
+              "kind": "gem",
+              "params": {
+                "op": "create",
+                "gem": {
+                  "kind": "mixSpecial",
+                  "specs": [
+                    {
+                      "kind": "gargoyleGem",
+                      "tier": 1
+                    },
+                    {
+                      "kind": "gargoyleGem",
+                      "tier": 2
+                    }
+                  ]
+                },
+                "count": {
+                  "base": 3,
+                  "mult": 0
+                }
+              }
+            },
+            {
+              "kind": "extraTurn"
+            }
+          ]
+        }
+      },
+      "sourceEvidence": [
+        {
+          "id": "en",
+          "role": "english-snapshot",
+          "path": "data/raw/troops.gow.en.json",
+          "note": "troop:7208 Eternal Sentinel SpellId 8795, cost 11, Yellow/Purple; \"Freeze a random Enemy. Create 3 Gargoyle Gems, and gain an extra turn.\""
+        },
+        {
+          "id": "native",
+          "role": "native-snapshot",
+          "path": "data/raw/spells.gow.en.json",
+          "note": "Spell 8795 Cost 11 Target None; CauseFrozen RandomEnemy -> CreateGems2Colors GoodGargoyle/BadGargoyle Amount 3 -> ExtraTurn Self."
+        },
+        {
+          "id": "rule",
+          "role": "official-shared-rule",
+          "path": "artifacts/gow-skill-audit/gold-primary-sources/official-frozen-1-0-9.json",
+          "note": "Frozen caster cannot gain a spell extra turn."
+        },
+        {
+          "id": "laneTest",
+          "role": "lane-battle-test",
+          "path": "tests/unit/gowLaneL3B01.test.ts",
+          "note": "troop:7208: real TurnEngine.castSkill both sides + boundaries"
+        },
+        {
+          "id": "r004",
+          "role": "user-ruling",
+          "path": "tasks/active/gow-skill-shards/rulings/R004-status-durations.md",
+          "note": "Status durations: no hard cap, cumulative recovery; Cause* Amount ignored."
+        },
+        {
+          "id": "r006",
+          "role": "user-ruling",
+          "path": "tasks/active/gow-skill-shards/rulings/R006-hidden-mechanics-conventions.md",
+          "note": "Project conventions C1 (round) / C2 (Cause* Amount ignored)."
+        },
+        {
+          "id": "rl4b01",
+          "role": "user-ruling",
+          "path": "tasks/active/gow-skill-shards/rulings/RL4b-01-two-colour-overwrite.md",
+          "note": "Two-colour create: each selected cell gets A or B."
+        }
+      ],
+      "dimensions": {
+        "identity-cost-colors": {
+          "status": "verified",
+          "note": "troop:7208 -> 8795, cost 11, Yellow/Purple.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r006",
+            "rl4b01"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL3B01.test.ts"
+          ]
+        },
+        "target-count-range": {
+          "status": "verified",
+          "note": "One random living enemy Frozen; dead enemies skipped.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r006",
+            "rl4b01"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL3B01.test.ts"
+          ]
+        },
+        "base-formula-rounding": {
+          "status": "not-applicable",
+          "note": "No numeric formula in this spell.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r006",
+            "rl4b01"
+          ],
+          "tests": []
+        },
+        "boost-source-ratio-cap": {
+          "status": "not-applicable",
+          "note": "No boost / ratio / cap clause.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r006",
+            "rl4b01"
+          ],
+          "tests": []
+        },
+        "conditions-probabilities-branches": {
+          "status": "not-applicable",
+          "note": "Unconditional single branch.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r006",
+            "rl4b01"
+          ],
+          "tests": []
+        },
+        "status-duration-immunity": {
+          "status": "verified",
+          "note": "Frozen on a random enemy, duration R004 (convention:R006-C2).",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r006",
+            "rl4b01"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL3B01.test.ts"
+          ]
+        },
+        "gems-types-selection-resolution": {
+          "status": "verified",
+          "note": "FIXED L3-003: exactly 3 gargoyle gems per cast, each tier 1 (Good) or 2 (Evil); both tiers observed over seeds (RL4b-01).",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r006",
+            "rl4b01"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL3B01.test.ts"
+          ]
+        },
+        "summon-transform-pools": {
+          "status": "not-applicable",
+          "note": "No summon / transform.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r006",
+            "rl4b01"
+          ],
+          "tests": []
+        },
+        "order-death-retargeting": {
+          "status": "verified",
+          "note": "Freeze -> create -> extra turn matches native.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r006",
+            "rl4b01"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL3B01.test.ts"
+          ]
+        },
+        "mana-economy-extra-turn": {
+          "status": "verified",
+          "note": "Unconditional skill extra turn (activePlayer kept, outcome extra-turn); frozen caster -> none.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r006",
+            "rl4b01"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL3B01.test.ts"
+          ]
+        },
+        "display-description": {
+          "status": "verified",
+          "note": "zh matches.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r006",
+            "rl4b01"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL3B01.test.ts"
+          ]
+        },
+        "battle-pipeline": {
+          "status": "verified",
+          "note": "Real TurnEngine.castSkill both sides: skill-cast first, mana spent, one action-log entry, turn switch / extra-turn asserted; low-mana and Silence refusals leave board/log/turn untouched.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r006",
+            "rl4b01"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL3B01.test.ts"
+          ],
+          "realBattleEntry": true
+        }
+      },
+      "clauseReviews": [
+        {
+          "id": "c1",
+          "text": "Freeze a random Enemy.",
+          "status": "verified",
+          "note": "Random enemy Frozen.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r006",
+            "rl4b01"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL3B01.test.ts"
+          ]
+        },
+        {
+          "id": "c2",
+          "text": "Create 3 Gargoyle Gems, and gain an extra turn.",
+          "status": "verified",
+          "note": "3 Good/Evil Gargoyle Gems + extra turn.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r006",
+            "rl4b01"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL3B01.test.ts"
+          ]
+        }
+      ],
+      "nativeStepReviews": [
+        {
+          "id": "0",
+          "type": "CauseFrozen",
+          "status": "verified",
+          "note": "CauseFrozen RandomEnemy.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r006",
+            "rl4b01"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL3B01.test.ts"
+          ]
+        },
+        {
+          "id": "1",
+          "type": "CreateGems2Colors",
+          "status": "verified",
+          "note": "CreateGems2Colors Good/Bad Gargoyle x3.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r006",
+            "rl4b01"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL3B01.test.ts"
+          ]
+        },
+        {
+          "id": "2",
+          "type": "ExtraTurn",
+          "status": "verified",
+          "note": "ExtraTurn Self.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r006",
+            "rl4b01"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL3B01.test.ts"
+          ]
+        }
+      ],
+      "branchReviews": [
+        {
+          "id": "main",
+          "status": "verified",
+          "note": "Single branch.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r006",
+            "rl4b01"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL3B01.test.ts"
+          ]
+        }
+      ]
+    }
+  ]
+}

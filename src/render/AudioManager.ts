@@ -1,3 +1,6 @@
+import { backgroundMusic } from '../audio/BackgroundMusic';
+import { NarrationAudio } from './NarrationAudio';
+import type { NarrationClip } from './NarrationCatalog';
 import skullHitUrl from '../assets/audio/combat/skull_hit.wav?url';
 import gemExplosionUrl from '../assets/audio/gems/gem_explode.wav?url';
 import gemChain1Url from '../assets/audio/gems/chains/gem_chain_1.wav?url';
@@ -18,7 +21,7 @@ import redSingleHitUrl from '../assets/audio/skills/skill_hit_red_single.wav?url
 import purpleSingleHitUrl from '../assets/audio/skills/skill_hit_purple_single.wav?url';
 import yellowSingleHitUrl from '../assets/audio/skills/skill_hit_yellow_single.mp3?url';
 import greenSingleHitUrl from '../assets/audio/skills/skill_hit_green_single.wav?url';
-import { applyPlayerPreferences, getPlayerPreferences } from '../preferences/playerPreferences';
+import { applyPlayerPreferences, getPlayerPreferences, subscribePlayerPreferences } from '../preferences/playerPreferences';
 import { canonicalStatusSoundId, normalizeStatusKey, STATUS_SYNTHS } from './StatusSynth';
 
 /**
@@ -55,9 +58,14 @@ const GEM_CHAIN_URLS = [gemChain1Url, gemChain2Url, gemChain3Url, gemChain4Url, 
 const GEM_CHAIN_PREVIEW_GAP_MS = 850;
 
 export class AudioManager {
+  private static finishingAudio: AudioManager | null = null;
   private ctx: AudioContext | null = null;
   private master: GainNode | null = null;
   private sfxBus: GainNode | null = null;
+  private narrationBus: GainNode | null = null;
+  private narration: NarrationAudio | null = null;
+  private speaking = false;
+  private disposed = false;
   private skullHitBuffer: AudioBuffer | null = null;
   private gemExplosionBuffer: AudioBuffer | null = null;
   private activeGemExplosionSource: AudioBufferSourceNode | null = null;
@@ -113,12 +121,25 @@ export class AudioManager {
   private lastBurningTreeAt = -Infinity;
   private lastSplashChainHitAt = -Infinity;
 
+  private unsubscribePreferences = subscribePlayerPreferences(() => {
+    this.syncPlayerPreferences();
+    if (!this.narrationEnabled()) this.stopNarration();
+  });
+
+  private narrationEnabled(): boolean {
+    const p = getPlayerPreferences();
+    return !this.disposed && !this.muted && p.masterEnabled && p.masterVolume > 0
+      && p.narrationEnabled && p.narrationVolume > 0;
+  }
+
   masterVolume = 0.8;
   sfxVolume = getPlayerPreferences().soundEffectsVolume;
   muted = false;
 
   /** 首次用户交互时调用（需求 26.5）；此时才开始请求采样，避免与首屏资源抢带宽。 */
   init(): void {
+    if (this.disposed || this.drainingNarration) return;
+    if (AudioManager.finishingAudio && AudioManager.finishingAudio !== this) AudioManager.finishingAudio.dispose();
     applyPlayerPreferences();
     if (this.ctx) {
       this.syncPlayerPreferences();
@@ -134,6 +155,14 @@ export class AudioManager {
       this.sfxBus = this.ctx.createGain();
       this.sfxBus.gain.value = this.sfxVolume;
       this.sfxBus.connect(this.master);
+      this.narrationBus = this.ctx.createGain();
+      this.narrationBus.connect(this.master);
+      this.narration = new NarrationAudio(this.ctx, this.narrationBus,
+        () => this.narrationEnabled(), (speaking) => {
+          this.speaking = speaking;
+          backgroundMusic.setDucking('narration', speaking);
+          this.syncPlayerPreferences();
+        });
       this.syncPlayerPreferences();
       this.startAudioFetches();
       void this.loadSkullHit();
@@ -154,6 +183,43 @@ export class AudioManager {
       // 音频不可用时降级为静音，不阻塞游戏（需求 26.5）
       this.ctx = null;
     }
+  }
+
+  playNarration(clip: NarrationClip, interrupt = false): boolean {
+    return !this.drainingNarration && (this.narration?.play(clip, interrupt) ?? false);
+  }
+
+  preloadNarration(clip: NarrationClip): void { this.narration?.preload(clip); }
+  isNarrationBusy(): boolean { return this.narration?.isBusy() ?? false; }
+  stopNarration(): void { this.narration?.stop(); }
+
+  /** Keep only the result voice alive across destruction of the battle view. */
+  private drainingNarration = false;
+
+  disposeAfterNarration(): void {
+    this.drainingNarration = true;
+    if (AudioManager.finishingAudio && AudioManager.finishingAudio !== this) AudioManager.finishingAudio.dispose();
+    AudioManager.finishingAudio = this;
+    for (const timer of this.chainPreviewTimers) clearTimeout(timer);
+    this.chainPreviewTimers = [];
+    if (this.sfxBus) this.sfxBus.gain.value = 0;
+    const narration = this.narration;
+    if (!narration?.isBusy()) { this.dispose(); return; }
+    void narration.whenIdle().then(() => this.dispose());
+  }
+
+  dispose(): void {
+    if (this.disposed) return;
+    if (AudioManager.finishingAudio === this) AudioManager.finishingAudio = null;
+    this.disposed = true;
+    this.unsubscribePreferences();
+    this.narration?.dispose();
+    this.narration = null;
+    for (const timer of this.chainPreviewTimers) clearTimeout(timer);
+    this.chainPreviewTimers = [];
+    const ctx = this.ctx;
+    this.ctx = null;
+    if (ctx && ctx.state !== 'closed') void ctx.close().catch(() => {});
   }
 
   private startAudioFetches(): void {
@@ -182,22 +248,27 @@ export class AudioManager {
   }
 
   async suspend(): Promise<void> {
+    this.stopNarration();
     if (!this.ctx || this.ctx.state !== 'running') return;
     try { await this.ctx.suspend(); } catch { /* 页面隐藏不应中断游戏生命周期 */ }
   }
 
   setMuted(m: boolean): void {
     this.muted = m;
+    if (m) this.stopNarration();
     this.syncPlayerPreferences();
   }
 
   /** 每次发声前读取共享偏好，保证设置页修改后无需重建 AudioManager。 */
   private syncPlayerPreferences(): boolean {
     const preferences = getPlayerPreferences();
+    this.masterVolume = preferences.masterVolume;
     this.sfxVolume = preferences.soundEffectsVolume;
-    if (this.sfxBus) this.sfxBus.gain.value = this.sfxVolume;
-    const enabled = preferences.soundEffectsEnabled && this.sfxVolume > 0 && !this.muted;
-    if (this.master) this.master.gain.value = enabled ? this.masterVolume : 0;
+    if (this.sfxBus) this.sfxBus.gain.value = (preferences.soundEffectsEnabled && !this.drainingNarration ? this.sfxVolume : 0) * (this.speaking ? .55 : 1);
+    if (this.narrationBus) this.narrationBus.gain.value = preferences.narrationEnabled ? preferences.narrationVolume : 0;
+    const audible = preferences.masterEnabled && this.masterVolume > 0 && !this.muted;
+    const enabled = !this.drainingNarration && audible && preferences.soundEffectsEnabled && this.sfxVolume > 0;
+    if (this.master) this.master.gain.value = audible ? this.masterVolume : 0;
     return enabled;
   }
 

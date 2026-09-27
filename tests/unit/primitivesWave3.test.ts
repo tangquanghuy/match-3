@@ -158,7 +158,8 @@ describe('Wave3 · inflictRandom pool 正面池 / times 连掷', () => {
   });
 
   it('缺省（无 pool）：敌对目标仍掷负面池（2026-09-17 回收批口径不变）', () => {
-    const NEGATIVE = new Set(['poison', 'burning', 'bleed', 'silence', 'frozen', 'stun', 'entangle', 'web', 'disease', 'curse', 'death-mark', 'charm']);
+    // Official status-list negatives (L2-random-status-pools: charm removed; faerie-fire/marked/lycanthropy/terror added)
+    const NEGATIVE = new Set(['poison', 'burning', 'bleed', 'silence', 'frozen', 'stun', 'entangle', 'web', 'disease', 'curse', 'death-mark', 'faerie-fire', 'marked', 'lycanthropy', 'terror']);
     const { ctx } = setup({ seed: 7 });
     const events = executePrototype(skill(inflictRandom('enemyAll')), ctx);
     const applies = events.filter((e) => e.type === 'status-apply');

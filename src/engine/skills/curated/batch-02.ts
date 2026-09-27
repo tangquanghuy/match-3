@@ -31,10 +31,10 @@ const SKIPPED: { id: number; reason: string }[] = [
 const SPELLS: CuratedBatch['spells'] = [
   {
     id: 7009,
-    desc: '创造 9 颗棕色宝石。获得 [魔法] 点随机技能值。',
+    desc: "创造 9 颗棕色宝石。自身一项随机属性获得 [魔法] 点。",
     build: skill(
       createGems(BaseColor.Brown, 9, 0),
-      randomStat('allySelf', 0),
+      randomStat('allySelf', 0, 1, { oneSkill: true }),
     ),
   },
   {

@@ -1,0 +1,47 @@
+=== troop:6518 SisterSuperior spell 7710 cost 6/6 colors Green,Yellow status pending-review target None rand -
+EN : Cleanse all Allies. Dispel and Stun Daemon and Undead Enemies. Gain an extra turn.
+ZH : 净化所有盟友。击晕所有恶魔与不死族，并消除其所有正面增益效果。获得一个额外回合。
+CL : c1=Cleanse all Allies. | c2=Dispel and Stun Daemon and Undead Enemies. | c3=Gain an extra turn.
+  0 {"Target":"AllAllies","Amount":1,"Type":"Cleanse"}
+  1 {"Target":"EnemyType","Amount":1,"Type":"Dispel","Data":"daemon"}
+  2 {"Target":"EnemyType","Amount":1,"Type":"Dispel","Data":"undead"}
+  3 {"Target":"EnemyType","Amount":1,"Type":"CauseStun","Data":"daemon"}
+  4 {"Target":"EnemyType","Amount":1,"Type":"CauseStun","Data":"undead"}
+  5 {"Target":"Self","Type":"ExtraTurn"}
+PROTO {"segments":[{"kind":"cleanse","target":"allyAll"},{"kind":"dispel","target":"enemyAll","statusId":"barrier","ifCond":{"kind":"allOf","of":[{"kind":"targetStatus","statusId":"barrier"},{"kind":"anyOf","of":[{"kind":"targetRace","race":"Daemon"},{"kind":"targetRace","race":"Undead"}]}]}},{"kind":"dispel","target":"enemyAll","statusId":"submerged","ifCond":{"kind":"allOf","of":[{"kind":"targetStatus","statusId":"submerged"},{"kind":"anyOf","of":[{"kind":"targetRace","race":"Daemon"},{"kind":"targetRace","race":"Undead"}]}]}},{"kind":"dispel","target":"enemyAll","statusId":"blessed","ifCond":{"kind":"allOf","of":[{"kind":"targetStatus","statusId":"blessed"},{"kind":"anyOf","of":[{"kind":"targetRace","race":"Daemon"},{"kind":"targetRace","race":"Undead"}]}]}},{"kind":"dispel","target":"enemyAll","statusId":"enchanted","ifCond":{"kind":"allOf","of":[{"kind":"targetStatus","statusId":"enchanted"},{"kind":"anyOf","of":[{"kind":"targetRace","race":"Daemon"},{"kind":"targetRace","race":"Undead"}]}]}},{"kind":"dispel","target":"enemyAll","statusId":"reflect","ifCond":{"kind":"allOf","of":[{"kind":"targetStatus","statusId":"reflect"},{"kind":"anyOf","of":[{"kind":"targetRace","race":"Daemon"},{"kind":"targetRace","race":"Undead"}]}]}},{"kind":"dispel","target":"enemyAll","statusId":"enraged","ifCond":{"kind":"allOf","of":[{"kind":"targetStatus","statusId":"enraged"},{"kind":"anyOf","of":[{"kind":"targetRace","race":"Daemon"},{"kind":"targetRace","race":"Undead"}]}]}},{"kind":"dispel","target":"enemyAll","statusId":"rage","ifCond":{"kind":"allOf","of":[{"kind":"targetStatus","statusId":"rage"},{"kind":"anyOf","of":[{"kind":"targetRace","race":"Daemon"},{"kind":"targetRace","race":"Undead"}]}]}},{"kind":"status","target":"enemyAll","statusId":"stun","turns":3,"ifCond":{"kind":"anyOf","of":[{"kind":"targetRace","race":"Daemon"},{"kind":"targetRace","race":"Undead"}]}},{"kind":"extraTurn"}]}
+META null
+=== troop:6319 SentryBot spell 7469 cost 10/10 colors Yellow status pending-review target None rand -
+EN : Cleanse all other Allies, and give 3-8 Mana to them. Create 3 Bomb Gems.
+ZH : 净化所有其他盟友，再给予他们 3-8 点法力值。创造 3 颗炸弹宝石。
+CL : c1=Cleanse all other Allies, and give 3-8 Mana to them. | c2=Create 3 Bomb Gems.
+  0 {"SpellPowerMultiplier":0.5,"Target":"AllAlliesButNotSelf","Amount":1,"Primarypower":true,"Type":"Cleanse"}
+  1 {"Target":"AllAlliesButNotSelf","Amount":8,"Type":"GenerateRandomMana"}
+  2 {"Color1":"Bomb","Amount":3,"Type":"CreateGems"}
+PROTO {"segments":[{"kind":"cleanse","target":"allyOthers"},{"kind":"buff","target":"allyOthers","stat":"mana","scaling":{"base":0,"mult":0},"rangeSpec":{"min":{"base":3,"mult":0},"max":{"base":8,"mult":0}}},{"kind":"gem","params":{"op":"create","gem":{"kind":"special","spec":{"kind":"bomb"}},"count":{"base":3,"mult":0}}}]}
+META null
+=== troop:7361 Geryon spell 9001 cost 20/20 colors Yellow,Brown status pending-review target None rand -
+EN : Convert Green Gems to Blue, and convert Purple Gems to Doomskulls. Drain 2 Mana from all Enemies.
+ZH : 将绿色宝石转换成蓝色，将紫色宝石转换成末日骷髅头。耗掉所有敌人 2 点法力值。
+CL : c1=Convert Green Gems to Blue, and convert Purple Gems to Doomskulls. | c2=Drain 2 Mana from all Enemies.
+  0 {"Target":"Self","Color1":"Green","Amount":100,"Color2":"Blue","Type":"ConvertGems"}
+  1 {"Color1":"Purple","Amount":100,"Color2":"Doomskull","Type":"ConvertGems"}
+  2 {"Target":"AllEnemies","Amount":2,"Type":"DecreaseMana"}
+PROTO {"segments":[{"kind":"gem","params":{"op":"transform","from":"Green","to":"Blue"}},{"kind":"gem","params":{"op":"transform","from":"Purple","to":"SKULL","toSpecial":"doomSkull"}},{"kind":"reduce","target":"enemyAll","stat":"mana","scaling":{"base":2,"mult":0}}]}
+META null
+=== troop:7486 Groevanga spell 9219 cost 24/24 colors Blue,Yellow,Brown status pending-review target ManaGemsOnly rand -
+EN : Convert all Gems of a chosen Color to Good Gargoyle Gems. Deal [(Magic x 1.5) + 4] damage to all Enemies of that Mana Color. Gain an extra turn.
+ZH : 将所有选定颜色的宝石转换成善石像鬼宝石。对所有拥有其法力颜色的敌人造成 [(魔法 x 1.5) + 4] 点伤害。获得一个额外回合。
+CL : c1=Convert all Gems of a chosen Color to Good Gargoyle Gems. | c2=Deal [(Magic x 1.5) + 4] damage to all Enemies of that Mana Color. | c3=Gain an extra turn.
+  0 {"Color1":"FromTarget","Amount":100,"Color2":"GoodGargoyle","Type":"ConvertGems"}
+  1 {"SpellPowerMultiplier":1.5,"Target":"FromManaColorEnemy","Amount":4,"Primarypower":true,"Type":"Damage"}
+  2 {"Target":"Self","Type":"ExtraTurn"}
+PROTO {"segments":[{"kind":"gem","params":{"op":"transform","from":"CHOSEN","to":"SKULL","toSpecial":"gargoyleGem"}},{"kind":"damage","target":"enemyAll","scaling":{"base":4,"mult":1.5},"range":"all","ifCond":{"kind":"targetColor","color":"CHOSEN"}},{"kind":"extraTurn"}]}
+META null
+=== troop:7400 CinderhandGoblin spell 9050 cost 10/10 colors Red,Yellow status pending-review target None rand -
+EN : Convert 5 Green Gems to Burning Gems. Gain an extra turn.
+ZH : 将 5 颗绿色宝石转换成燃烧宝石。获得一个额外回合。
+CL : c1=Convert 5 Green Gems to Burning Gems. | c2=Gain an extra turn.
+  0 {"Color1":"Green","Amount":5,"Color2":"Burning","Type":"ConvertGems"}
+  1 {"Target":"Self","Type":"ExtraTurn"}
+PROTO {"segments":[{"kind":"gem","params":{"op":"transform","from":"Green","to":"SKULL","toSpecial":"burningGem","count":{"base":5,"mult":0}}},{"kind":"extraTurn"}]}
+META null

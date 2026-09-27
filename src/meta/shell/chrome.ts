@@ -17,6 +17,7 @@ export const $$ = (s: string, r: ParentNode = document): HTMLElement[] =>
 const iconPaths: Record<string, string> = {
   arrow: '<path d="M14 5l-7 7 7 7M7 12h14"/>',
   coin: '<circle cx="12" cy="12" r="9.5" fill="currentColor" fill-opacity=".18"/><circle cx="12" cy="12" r="7"/><path d="M8 7l4 11 4-11M10 6h4"/>',
+  mark: '<path d="M12 2l8 4v8c0 4-3 6.5-8 8-5-1.5-8-4-8-8V6z" fill="currentColor" fill-opacity=".16"/><path d="M12 5l3 6-3 6-3-6zm-5 6h10"/>',
   soul: '<path d="M14 2c2 7-8 6-5 13-5-2-2-6-2-6C-2 19 10 25 17 20c7-6 0-12 0-12s1 5-2 5c3-6-1-11-1-11z" fill="currentColor" fill-opacity=".45"/>',
   crystal: '<path d="M6 3h12l5 7-11 12L1 10z" fill="currentColor" fill-opacity=".22"/><path d="M1 10h22M6 3l3 7 3 12 3-12 3-7M9 10l3-7 3 7"/>',
   key: '<circle cx="16" cy="7" r="5"/><circle cx="16" cy="7" r="2" opacity=".4"/><path d="M12 11L3 20l2 2 3-3-2-2m3-3 2 2"/>',
@@ -65,6 +66,7 @@ export function fitStage(): void {
   const height = document.documentElement.clientHeight || window.innerHeight;
   const nativeSize = width < 1400;
   const responsiveScreens = [
+    ['wishlist-responsive', '.wishlist-screen'],
     ['invasion-mobile', '.inv-screen'],
     ['events-responsive', '.ev-screen'],
     ['event-shop-responsive', '.event-shop-screen'],
@@ -190,6 +192,7 @@ export function bottomNavHtml(active: string, hint = '42 王国'): string {
     ['英雄', 'swords'],
     ['图鉴', 'book'],
     ['宝箱', 'chest'],
+    ['商店', 'bag'],
   ] as const;
   return `
     <footer class="bottom-bar">
@@ -204,6 +207,13 @@ export function bottomNavHtml(active: string, hint = '42 王国'): string {
       </nav>
       <div class="bottom-hint"><span data-icon="lock"></span><span id="navHint">${hint}</span></div>
     </footer>`;
+}
+
+export function shopNavHtml(active: 'events' | 'gems'): string {
+  return `<nav class="market-switch" aria-label="商店分类">
+    <a href="#shop"${active === 'events' ? ' class="active" aria-current="page"' : ''}><span data-icon="bag"></span>活动商店</a>
+    <a href="#shop/gems"${active === 'gems' ? ' class="active" aria-current="page"' : ''}><span data-icon="crystal"></span>宝石商店</a>
+  </nav>`;
 }
 
 export function toastHtml(): string {

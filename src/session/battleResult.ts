@@ -167,6 +167,7 @@ export function buildBattleResult(input: BuildResultInput): BattleResult {
       ...(state.economy.maps > 0 ? { maps: state.economy.maps } : {}),
     },
     actionLogDigest: digestString(encodeActionLog(state.actionLog)),
+    ...(events.some(e => e.type === 'game-over' && e.reason === 'surrender') ? { endReason: 'surrender' as const } : {}),
     eventSummary: summarizeEvents(events),
   };
 }

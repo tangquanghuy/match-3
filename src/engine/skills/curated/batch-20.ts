@@ -10,7 +10,7 @@
  *   base 0 + sources 计数相加。
  * - 一个方括号喂双段（7477「护甲值和生命值」）= batch-05 7152 / batch-03 8372 同款；
  *   modifier 挂最近数值段（batch-05 7334 / batch-14 8297 / batch-15 8614 口径）。
- * - 「魔法值」= magic 属性、「法力值」= mana（SOP 措辞裁定；7503/7551 同口径）。
+ * - 「魔力值」= magic 属性、「法力值」= mana（SOP 措辞裁定；7503/7551 同口径）。
  * - 「最强大的敌人」= enemyHealthiest（spell-rules.md §0 / batch-14 头注）；
  *   「最强大的两名敌人」= enemyHealthiestN + { n: 2 }。
  * - 「杀掉一名敌人」= execute（batch-03 7789「处死」同款）；「所有剩余的敌人」（7723）=
@@ -52,14 +52,14 @@ const GIANTS = [
 
 const SKIPPED: { id: number; reason: string }[] = [
   { id: 7483, reason: '句子式不明（「造成散射伤害」未指明目标，batch-11 9471 / batch-12 7353 同款；「棕色敌军数量」敌方侧颜色计数亦无对应 kind）' },
-  { id: 7506, reason: '语义拿不准（「伤害值因其他盟友的魔法值而增强」来源口径无法裁定：allyStatSum 为己方全体含自身，手册未覆盖「其他盟友」句式，batch-13 7436 同款）' },
+  { id: 7506, reason: '语义拿不准（「伤害值因其他盟友的魔力值而增强」来源口径无法裁定：allyStatSum 为己方全体含自身，手册未覆盖「其他盟友」句式，batch-13 7436 同款）' },
   { id: 7558, reason: '语义拿不准（复合目标「对 1 名敌人和一个随机敌人」SOP 措辞裁定不支持；「如果敌人已陷入沉默状态，则造成的双倍伤害」条件倍率现可表达但整条仍卡）' },
   { id: 7636, reason: '语义拿不准（「每摧毁一颗绿色宝石则随机使一名盟友下潜」逐来源重复施加状态无对应原语（状态段数量不支持二次缩放）；[1:1] 亦无明确来源子句可绑定）' },
   { id: 7645, reason: '语义拿不准（「对生命值和护甲值造成伤害」双池伤害口径手册未裁定，无法对号入座）' },
   { id: 7698, reason: '二次缩放来源不支持（「因敌我双方的不死族军队数量」双侧种族计数无对应 kind，batch-13 7546/7547 同款）' },
   { id: 7713, reason: '语义拿不准（「窃取……并将之给予你第一位盟友」窃取所得无法重定向给施法者以外目标，steal 仅支持施法者获得）' },
   { id: 7747, reason: '语义拿不准（「若其中一名敌人身亡，则击杀另一名敌人」：ifTargetDied 仅判定最近段主目标，「其中一名/另一名」目标绑定无对应原语；首句现可完整表达——enemyWeakestN n:2 + sources allyStatSum/enemyStatSum attack，仅剩死亡绑定卡点）' },
-  { id: 7790, reason: '晋升度条件（「如果是Boss，则根据我的升华效果造成3-5倍伤害」）；「沉默上方和下方的敌人」位置目标亦不支持' },
+  { id: 7790, reason: '晋升度条件（「如果是Boss，则基于我已晋升的稀有度造成 3 到 5 倍伤害」）；「沉默上方和下方的敌人」位置目标亦不支持' },
 ];
 
 const SPELLS: CuratedBatch['spells'] = [
@@ -79,9 +79,9 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 7503,
-    desc: '给予一名盟友 [(魔法 / 2) + 4] 点护甲值以及 1 点魔法值。如果盟友是一名神祇军队，则效果翻倍。',
+    desc: '给予一名盟友 [(魔法 / 2) + 4] 点护甲值以及 1 点魔力值。如果盟友是一名神祇军队，则效果翻倍。',
     build: skill(
-      // 「魔法值」= magic 属性（SOP 措辞裁定）；「效果翻倍」两段各自挂 raceDouble（神祇 = Divine，batch-05 7152 同款）
+      // 「魔力值」= magic 属性（SOP 措辞裁定）；「效果翻倍」两段各自挂 raceDouble（神祇 = Divine，batch-05 7152 同款）
       armor('allyChosen', 4, 0.5, { raceDouble: 'Divine' }),
       magic('allyChosen', 1, 0, { raceDouble: 'Divine' }),
     ),

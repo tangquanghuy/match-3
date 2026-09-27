@@ -2,9 +2,11 @@
  * 吞噬原语（R22 批，官方 Devour 机制——8573「有 25% 的几率吞噬一名敌人」9364/9492
  * 「有 N% 的几率吞噬敌人，几率随X增强」）：
  *
- * 官方口径（GoW 帮助中心 Devour 词条）：吞噬 = 目标**立即被杀**（计入阵亡、阵亡钩子照常，
- * 走 damageOne 伤害管线以保留屏障/护甲/阵亡结算），吞噬者获得 **+2 攻击、+2 护甲、+2 魔法、
- * +5 生命**的成长（本批三条均为单次吞噬 → 成长按官方单次额度固定，opts 可覆写）。
+ * Original Devour adds the victim's current Attack, Armor and Life (not Magic).
+ * Barrier has protected against Devour since the official 3.0.5 patch;
+ * spell resistance is not Devour immunity.
+ * https://gemsofwar.com/pcmobile-3-0-5-patch-notes/
+ * https://community.gemsofwar.com/posts/3588.json
  *
  * 「免疫吞噬」（特质 indigestible → devourImmunity）目标整体跳过：不杀、不成长。
  * 概率在原语内部掷签（不走段级 chance 通用管线）：即使掷签失败，目标也已解析并入跨段
@@ -16,13 +18,14 @@
 import type { GameEvent } from '../../events';
 import type { Character } from '../../types';
 import type { EffectContext, EffectPrimitive } from './context';
-import { findCharacter } from './context';
+import { findCharacter, findSide } from './context';
 import { damageOne } from './damage';
 import { applyBuffGain } from './buff';
 import { conditionMet } from './secondary';
 import type { Condition, ModifierSpec } from './secondary';
 import { modifierBonus } from './secondary';
 import { passivesOf } from '../../traits';
+import { hasStatus, isCursed } from './status';
 
 export interface DevourParams {
   targets: Character[];
@@ -32,7 +35,7 @@ export interface DevourParams {
   chanceMult?: { times: number; cond: Condition };
   /** 概率随来源增强（「几率随被摧毁的头骨数量而增强 [x6]」= 每来源 +6 百分点） */
   chanceBoost?: ModifierSpec;
-  /** 成长额度（缺省官方口径 2/2/2/+5） */
+  /** 可覆写收益（缺省获取目标当前攻击、护甲、生命；不获取魔法） */
   gain?: { attack?: number; armor?: number; magic?: number; hp?: number };
 }
 
@@ -44,7 +47,9 @@ export function devourEffect(params: DevourParams): EffectPrimitive {
       const boost = modifierBonus(params.chanceBoost, ctx) / 100;
       for (const target of params.targets) {
         if (target.defeated) continue;
-        if (passivesOf(target).devourImmunity) continue;
+        // Official Blessed protects from Devour independently of trait immunity.
+        const invulnerable = target.traitIds?.includes('invulnerable') ?? false;
+        if (hasStatus(target, 'blessed') || invulnerable || (passivesOf(target).devourImmunity && !isCursed(target))) continue;
         // 概率 = chance ×（条件倍率）+ 加成百分点，夹在 [0,1]；掷签恒发生（确定性）
         const mult = params.chanceMult && conditionMet(params.chanceMult.cond, ctx, target)
           ? params.chanceMult.times
@@ -52,16 +57,24 @@ export function devourEffect(params: DevourParams): EffectPrimitive {
         const p = Math.min(1, Math.max(0, params.chance * mult + boost));
         const devoured = ctx.rng.next() < p;
         if (!devoured) continue;
-        // 即杀：走伤害管线（amount = 有效耐久，屏障/护甲/法术减伤/阵亡事件同口径）
+        // 即杀：走伤害管线（屏障与阵亡事件共用；吞噬不受普通法术减伤影响）
         const durability = target.hp + target.armor;
-        events.push(...damageOne(target, ctx.casterId, Math.max(1, durability), false, 'single', undefined, caster ?? undefined));
-        // 成长：吞噬者 +2 攻/甲/魔、+5 生命（官方单次额度；织网者 magic 获得走 buffOne 拦截）
-        if (caster && !caster.defeated) {
+        const victimAttack = hasStatus(target, 'entangle') ? 0 : target.attack;
+        const victimArmor = target.armor;
+        const victimLife = target.hp;
+        const damageEvents = damageOne(target, ctx.casterId, Math.max(1, durability), false, 'single', undefined, caster ?? undefined, findSide(ctx.state, target.id) !== findSide(ctx.state, ctx.casterId), true);
+        if (target.defeated) for (const event of damageEvents) {
+          if (event.type === 'skill-damage' && event.targetId === target.id && event.resultingHp <= 0)
+            event.devoured = true;
+        }
+        events.push(...damageEvents);
+        // 成长：获得目标当前攻击、护甲、生命，不获得魔法；特质限制由 applyBuffGain 处理
+        if (caster && !caster.defeated && target.defeated) {
           const gain = params.gain ?? {};
-          const ga = gain.attack ?? 2;
-          const gm = gain.armor ?? 2;
-          const gg = gain.magic ?? 2;
-          const gh = gain.hp ?? 5;
+          const ga = gain.attack ?? victimAttack;
+          const gm = gain.armor ?? victimArmor;
+          const gg = gain.magic ?? 0;
+          const gh = gain.hp ?? victimLife;
           if (ga > 0) {
             const applied = applyBuffGain(caster, 'attack', ga);
             if (applied !== 0) events.push({ type: 'buff', targetId: caster.id, stat: 'attack', amount: applied });
@@ -75,7 +88,7 @@ export function devourEffect(params: DevourParams): EffectPrimitive {
             if (applied !== 0) events.push({ type: 'buff', targetId: caster.id, stat: 'magic', amount: applied });
           }
           if (gh > 0) {
-            const applied = applyBuffGain(caster, 'hp', gh);
+            const applied = applyBuffGain(caster, 'hp', gh, 'gain');
             if (applied !== 0) events.push({ type: 'buff', targetId: caster.id, stat: 'hp', amount: applied });
           }
         }

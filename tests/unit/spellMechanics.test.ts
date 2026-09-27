@@ -1,4 +1,4 @@
-/**
+﻿/**
  * 五机制单测（窗口 B）：二次缩放 / 概率子句 / 敌方削弱 / 死亡条件 / 种族翻倍。
  *
  * 边界用例按 DoD 要求覆盖：无资源时 [N:M] 退化为 0 加成（数值不变）、chance 0/1。
@@ -562,7 +562,7 @@ describe('状态叠加层数（stacks）', () => {
       ],
     }, ctx);
     const st = rightTeam(state)[0].statuses.find((x) => x.id === 'bleed');
-    expect(st?.magnitude).toBe(5);
+    expect(st?.magnitude).toBe(4);
     expect(st?.turns).toBe(4);
   });
 
@@ -706,3 +706,4 @@ describe('特殊宝石创造（createSpecialGems）', () => {
   });
 
 });
+

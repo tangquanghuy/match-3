@@ -38,7 +38,7 @@ const SKIPPED: { id: number; reason: string }[] = [
 const SPELLS: CuratedBatch['spells'] = [
   {
     id: 7139,
-    desc: '对 1 名敌人造成 [(魔法 / 2) + 4] – [魔法 + 9] 伤害，并使其陷入猎人标记状态。获得 +5 点魔法值。',
+    desc: '对 1 名敌人造成 [(魔法 / 2) + 4] – [魔法 + 9] 伤害，并使其陷入猎人标记状态。获得 +5 点魔力值。',
     build: skill(
       dmg('enemyChosen', 0, 0, { rangeSpec: { min: scale(4, 0.5), max: scale(9, 1) } }),
       inflict('marked', 'enemyChosen'),
@@ -205,7 +205,7 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 8239,
-    desc: '对一名敌人和一名随机敌人造成 [魔法 + 3] 点伤害，。若敌人使用黄色法力则造成双倍伤害。若存在任一风暴则给予所有其他盟友 6 点法力值。',
+    desc: '对一名敌人和一名随机敌人造成 [魔法 + 3] 点伤害，。若敌人使用黄色法力值则造成双倍伤害。若存在任一风暴则给予所有其他盟友 6 点法力值。',
     build: skill(
       dmg('enemyChosen', 3, 1, { condMult: { times: 2, cond: { kind: 'targetColor', color: BaseColor.Yellow } } }),
       dmg('enemyRandom', 3, 1, { condMult: { times: 2, cond: { kind: 'targetColor', color: BaseColor.Yellow } } }),
@@ -214,7 +214,7 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 8361,
-    desc: '对第一名敌人造成 [魔法 + 1] 点伤害。若对方使用紫色法力，则造成双倍伤害。如果对方是恶魔或野兽，则使对方陷入猎人标记和出血状态。',
+    desc: '对第一名敌人造成 [魔法 + 1] 点伤害。若对方使用紫色法力值，则造成双倍伤害。如果对方是恶魔或野兽，则使对方陷入猎人标记和出血状态。',
     build: skill(
       dmg('enemyFront', 1, 1, { condMult: { times: 2, cond: { kind: 'targetColor', color: BaseColor.Purple } } }),
       inflict('marked', 'enemyFront', { ifCond: { kind: 'anyOf', of: [{ kind: 'targetRace', race: 'Daemon' }, { kind: 'targetRace', race: 'Beast' }] } }),

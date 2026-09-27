@@ -109,9 +109,9 @@ describe('字段存在：8 code 全部落地、数值与官方描述逐条对账
       const t = getTrait(code);
       expect(t, code).toBeDefined();
       // 描述重新抽数对账
-      const m = /^在淘宝模式中获得\s*(\d+)\s*点(生命值|魔法值|护甲值|攻击力)。?$/.exec(t!.description);
+      const m = /^在淘宝模式中获得\s*(\d+)\s*点(生命值|魔力值|护甲值|攻击力)。?$/.exec(t!.description);
       expect(m, `${code} 描述不是淘宝模式句式`).not.toBeNull();
-      const wordOf: Record<string, string> = { 生命值: 'hp', 魔法值: 'magic', 护甲值: 'armor', 攻击力: 'attack' };
+      const wordOf: Record<string, string> = { 生命值: 'hp', 魔力值: 'magic', 护甲值: 'armor', 攻击力: 'attack' };
       expect(Number(m![1])).toBe(want.amount);
       expect(wordOf[m![2]]).toBe(want.stat);
       // 字段存在且一致

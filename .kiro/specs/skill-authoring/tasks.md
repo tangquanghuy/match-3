@@ -34,8 +34,8 @@
 
 - [x] 3. 实现召唤物定义解析 `src/engine/skills/effects/summon.ts` + `src/data/troops.ts`
   - `summon` 段支持 ref/randomOf/template 三来源；`troopToSummonTemplate(refName)` 从兵种取引擎所需属性
-  - randomOf 用 `ctx.rng` 确定性选一个；场上最多 4 人，满员后进入 FIFO 召唤队列
-  - 单元测试：三来源属性正确、随机族同种子同结果、满员入队与阵亡顺序补位
+  - randomOf 用 `ctx.rng` 确定性选一个；场上最多 4 人，满员时召唤失效
+  - 单元测试：三来源属性正确、随机族同种子同结果、满员无效果与空位追加队尾
   - _需求: 7.1, 7.2, 7.3, 7.6_
 
 - [x]* 3.1 随机召唤确定性属性测试
@@ -231,7 +231,7 @@ flowchart TD
 | gem-destroy（摧毁） | ✅ | ✅ 碎裂缩放淡出 | ❌ 无 | 半 | 摧毁无专属音效（区别于爆破） | P2 |
 | gem-explode（爆破） | ✅ | ✅ 0046能量爆+外溅 | ✅ gemExplosion | ✅ | — | — |
 | summon · field | ✅ | ✅ 0011召唤符印 | ✅ summon | ✅ | — | — |
-| summon · queue | ✅ | ✅（不建卡，合理） | —（合理） | — | — | — |
+| summon · full-team no-op | ✅ | ✅（满员不建卡） | — | — | — | — |
 | extra-turn | ✅ | ✅ 0082棋盘中央（任务20） | ✅ 连击音阶梯 | ✅ | — | — |
 | defeat | ✅ | ✅ 0353阵亡飘散 | ✅（沿用） | ✅ | — | — |
 

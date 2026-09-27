@@ -357,3 +357,12 @@
 @media (prefers-reduced-motion: reduce) {
   .quest-map *, .quest-map *::before, .quest-map *::after { transition: none !important; }
 }
+
+/* 首通金额始终可见（包括触屏），独立于随机材料掉落。 */
+.qd-rewards .qfirst-clear { display: flex; flex-basis: 100%; align-items: center; gap: 4px; color: #bce8ff; font: 11px var(--body); white-space: nowrap; }
+.qfirst-clear [data-icon] { display: inline-flex; width: 16px; height: 16px; }
+.qfirst-clear.claimed { color: #a4ad9c; }
+@media (max-height: 540px) and (orientation: landscape) {
+  .qd-rewards { flex-wrap: wrap; }
+  .qd-rewards .qfirst-clear { font-size: 9px; }
+}

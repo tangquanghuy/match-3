@@ -1,5 +1,5 @@
 {
-    "_comment": "独立网页调试用的默认战斗配置。结构就是宿主要下发的 BattleRequest，改这个文件即可换队伍，不需要改代码。宿主接入后由 postMessage 传入同结构的 request 覆盖它。每队写满 4 人，3v3 调试模式取前 3 人。skillId 必须是已注册技能（见 src/engine/skills/library.ts 的 SKILL_LIBRARY key）；也可以省略 skillId/traitIds 改传 \"tier\"（杂兵/精英/首领/领主/传奇），由分拣引擎（src/session/assigner.ts）按阶级+种族自动编配。",
+    "_comment": "独立网页调试用的默认战斗配置。结构就是宿主要下发的 BattleRequest，改这个文件即可换队伍，不需要改代码。宿主接入后由 postMessage 传入同结构的 request 覆盖它。每队写满 4 人，四人同时入场。skillId 必须是已注册技能（见 src/engine/skills/library.ts 的 SKILL_LIBRARY key）；也可以省略 skillId/traitIds 改传 \"tier\"（杂兵/精英/首领/领主/传奇），由分拣引擎（src/session/assigner.ts）按阶级+种族自动编配。",
   "schemaVersion": 1,
   "battleId": "standalone-local",
   "requestId": "standalone-local-1",

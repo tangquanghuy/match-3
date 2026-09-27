@@ -218,7 +218,7 @@ const TALENT_EFFECTS = {
 // ---------------------------------------------------------------------------
 
 /** 通用词条 */
-const STAT_ZH = { Attack: '攻击力', Armor: '护甲值', Life: '生命值', Magic: '魔法值' };
+const STAT_ZH = { Attack: '攻击力', Armor: '护甲值', Life: '生命值', Magic: '魔力值' };
 const COLOR_ZH = {
   Red: '红色', Blue: '蓝色', Green: '绿色', Yellow: '黄色', Purple: '紫色', Brown: '棕色',
 };
@@ -330,7 +330,7 @@ const DESC_ZH = {
   darkhunger: '匹配紫色宝石时，窃取第一名敌人 1 点生命值。',
   plaguebearer: '配对 4 或 5 颗宝石时，使一名随机敌人陷入疾病状态。',
   spawnofhell: '当敌人身亡时，有 50% 的几率召唤一个地狱之子。',
-  delirium: '当自身生命值受到伤害时，获得 2 点魔法值和攻击力。',
+  delirium: '当自身生命值受到伤害时，获得 2 点魔力值和攻击力。',
   chaoswave: '匹配骷髅头时，所有敌人随机损失 1 点技能值。',
   shadowscall: '当敌人身亡时，有 20% 的几率召唤一名暗影姐妹。',
   stealthy: '无法成为法术指定攻击目标（除非场上已无任何其他目标）。',
@@ -340,7 +340,7 @@ const DESC_ZH = {
   lightfingers: '每回合获得 5 点黄金。',
   backup: '当盟友身亡时，有 35% 的几率召唤一名强盗。',
   dodge: '有 30% 的几率闪避骷髅头伤害。',
-  thievesguild: '配对 4 或 5 颗宝石时，所有盗贼盟友获得 1 点魔法值。',
+  thievesguild: '配对 4 或 5 颗宝石时，所有盗贼盟友获得 1 点魔力值。',
   serendipity: '给一名随机盟友施加一个随机状态效果。',
   golemprotector: '当自身生命值受到伤害时，有 20% 的几率召唤一只远古魔像。',
   rocksolid: '匹配棕色宝石时获得屏障效果。',
@@ -363,24 +363,24 @@ const DESC_ZH = {
   feyvengeance: '当盟友身亡时，使一名随机敌人陷入妖火状态。',
   purification: '配对 4 或 5 颗宝石时，净化自身。',
   hauntedweave: '当我召唤部队时，织网一名随机敌人。',
-  antiquity: '使用遗物时获得 4 点魔法值。',
+  antiquity: '使用遗物时获得 4 点魔力值。',
   childofsky: '当盟友施放法术时，有 25% 的几率召唤一只苍鹭巨兽。',
   exemplar: 'PvP 战斗中获得 5 点攻击力。',
   impact: '敌人对自身造成骷髅头伤害时，使其陷入击晕状态。',
   soulcaller: '每回合获得 1 点灵魂。',
   bullseye: '骷髅头伤害有 15% 的几率一击致命。',
-  darkchannel: '每回合有 50% 的几率获得 1 点魔法值。',
+  darkchannel: '每回合有 50% 的几率获得 1 点魔力值。',
   divineaura: '每回合所有盟友回复 2 点生命值。',
   ensoul: '配对 4 或 5 颗宝石时获得额外 1 点灵魂。',
   insulated: '对冻结免疫。',
   fireproof: '对燃烧和妖火状态效果免疫。',
-  mysticchannel: '当敌人身亡时，所有秘士盟友获得 2 点魔法值和生命值。',
-  unholyblessing: '当盟友身亡时，所有不死族获得 2 点护甲值和魔法值。',
-  aquaticglory: '当敌人身亡时，所有海族盟友获得 2 点魔法值。',
-  lordofstorms: '当盟友施放法术时，元素盟友获得 1 点魔法值。',
+  mysticchannel: '当敌人身亡时，所有秘士盟友获得 2 点魔力值和生命值。',
+  unholyblessing: '当盟友身亡时，所有不死族获得 2 点护甲值和魔力值。',
+  aquaticglory: '当敌人身亡时，所有海族盟友获得 2 点魔力值。',
+  lordofstorms: '当盟友施放法术时，元素盟友获得 1 点魔力值。',
   // —— 职业特质例外 ——
   spiritdrain: '当盟友施放法术时，耗掉一名随机敌人 2 点法力值。',
-  infusestone: '所有建造盟友以 50% 法力开始战斗。',
+  infusestone: '所有建造盟友以 50% 法力值开始战斗。',
   elementalforce: '匹配 4 颗或更多宝石时，击晕、冻结、燃烧并缠绕一名随机敌人。',
   doomsight: '匹配 4 颗或更多宝石时，有 25% 的几率使一名随机敌人陷入死亡标记。',
   barbaricfury: '匹配红色宝石时获得 3 点攻击力。',
@@ -397,17 +397,17 @@ const DESC_ZH = {
   frostbite: '当盟友施放法术时，有 25% 的几率冻结一名随机敌人。',
   sneakattack: '配对 4 或 5 颗宝石时，对最后一名敌人造成 7 点伤害。',
   bardicinspiration: '每回合开始时，所有黄色盟友全技能值获得 1 点。',
-  portent: '当敌人施放法术时，所有人马族获得 2 点魔法值。',
+  portent: '当敌人施放法术时，所有人马族获得 2 点魔力值。',
   deathcurse: '我身亡时，使所有敌人陷入死亡标记。',
   familiar: '当我受到伤害时，有 35% 的几率召唤一只巨蛛。',
   hellsteed: '当盟友施放法术时，有 25% 的几率召唤一匹梦魇。',
   assassinate: '造成骷髅头伤害时，有 10% 的几率猎杀最后一名敌人。',
-  clockwork: '所有机械盟友以 50% 法力开始战斗。',
+  clockwork: '所有机械盟友以 50% 法力值开始战斗。',
   dwarvenmettle: '配对 4 或 5 颗宝石时，所有矮人盟友获得 2 点生命值和攻击力。',
-  dragonsgrace: '配对 4 或 5 颗宝石时，所有龙族盟友获得 1 点生命值和魔法值。',
+  dragonsgrace: '配对 4 或 5 颗宝石时，所有龙族盟友获得 1 点生命值和魔力值。',
   monstrouskin: '配对 4 或 5 颗宝石时，所有怪物盟友获得 2 点全技能值。',
-  bullishvigor: '所有牛头族盟友以 50% 法力开始战斗。',
-  giantlord: '所有巨人盟友以 50% 法力开始战斗。',
+  bullishvigor: '所有牛头族盟友以 50% 法力值开始战斗。',
+  giantlord: '所有巨人盟友以 50% 法力值开始战斗。',
   heatwave: '每回合开始时创造一个火风暴。',
   accursed: '所有敌人损失 2 点随机技能值。',
   omenofdark: '在战斗开始的时候爆破一颗紫色宝石。',
@@ -433,7 +433,7 @@ const DESC_ZH = {
   monsterbond: '怪物盟友获得 2 点生命值。',
   immune: '对疾病和狼化免疫。',
   taurosbond: '牛头族盟友获得 2 点生命值。',
-  naturespirit: '每有一名绿色盟友则获得 1 点魔法值。',
+  naturespirit: '每有一名绿色盟友则获得 1 点魔力值。',
   dwarfbond: '矮人盟友获得 2 点生命值。',
   rockydeath: '当敌人身亡时召唤一个尘风暴。',
   dragonshield: '龙族盟友获得 2 点护甲值。',
@@ -452,7 +452,7 @@ const DESC_ZH = {
   mechbond: '机械盟友获得 2 点生命值。',
   firebrand: '每有一名红色盟友则获得 1 点攻击力。',
   mysticbond: '秘士盟友获得 2 点生命值。',
-  arcane: '当一名盟友施放法术时获得 1 点魔法值。',
+  arcane: '当一名盟友施放法术时获得 1 点魔力值。',
   knightbond: '骑士盟友获得 2 点生命值。',
   wargarebond: '狼族盟友获得 2 点生命值。',
   elementalbond: '元素盟友获得 2 点生命值。',
@@ -550,14 +550,14 @@ function translateDesc(code, desc, kind) {
     if (t) return `每有一名${t}盟友则获得 ${m[1]} 点${STAT_ZH[m[2]]}。`;
   }
   if ((m = desc.match(/^All [Aa]llies start with (\d+)% Mana\.$/))) {
-    return `所有盟友以 ${m[1]}% 法力开始战斗。`;
+    return `所有盟友以 ${m[1]}% 法力值开始战斗。`;
   }
   if ((m = desc.match(/^All (\w+) [Aa]llies start with (\d+)% Mana\.$/))) {
     const t = typeZh(m[1]);
-    if (t) return `所有${t}盟友以 ${m[2]}% 法力开始战斗。`;
+    if (t) return `所有${t}盟友以 ${m[2]}% 法力值开始战斗。`;
   }
   if ((m = desc.match(/^Start battles with (\d+)% Mana\.$/))) {
-    return `战斗开始时获得 ${m[1]}% 法力。`;
+    return `战斗开始时获得 ${m[1]}% 法力值。`;
   }
   if ((m = desc.match(/^Gain bonus (Red|Blue|Green|Yellow|Purple|Brown) Mana from \w+ Gem matches\.$/))) {
     return `从${COLOR_ZH[m[1]]}宝石配对中获得额外的${COLOR_ZH[m[1]]}法力。`;

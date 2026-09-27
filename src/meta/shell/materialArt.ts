@@ -25,12 +25,18 @@ export function stoneArt(tier: string, color = 'blue'): string {
 }
 
 export function stoneMarkup(tier: string, color = 'blue'): string {
+  if (tier === 'arcane') {
+    const colors: Record<string, string> = { blue: '#6ab8f5', green: '#6fc279', red: '#e76b62', yellow: '#e9cb63', purple: '#b487df', brown: '#ba9168' };
+    const [a, b = a] = color.split(':');
+    return svg(`<path d="M32 5 55 22 45 53 19 53 9 22Z" fill="${colors[a] ?? colors.blue}" stroke="#e6d9ba" stroke-width="3"/><path d="M32 5 55 22 45 53 32 43Z" fill="${colors[b] ?? colors.blue}"/><path d="M23 24 32 17 41 24 37 38 27 38Z" fill="none" stroke="#fff" stroke-width="2"/>`);
+  }
   return materialImg(stoneArt(tier, color));
 }
 
 export function stoneMarkupForKey(key: string): string {
   if (key === 'celestial') return stoneMarkup('celestial');
-  const [tier, color] = key.split(':');
+  const [tier, ...colors] = key.split(':');
+  const color = colors.join(':');
   if (tier && color) return stoneMarkup(tier, color);
   return stoneMarkup('minor', 'blue');
 }

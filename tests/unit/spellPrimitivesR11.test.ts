@@ -21,7 +21,7 @@ import { selectTargets } from '@engine/skills/targeting';
 import { executePrototype } from '@engine/skills/prototypes';
 import { skill, dmg, destroyColor, createGems } from '@engine/skills/builders';
 import { mostUsedManaColor } from '@engine/skills/effects/gems';
-import { conditionMet, type Condition } from '@engine/skills/effects/secondary';
+import { conditionMet, modifierBonus, type Condition } from '@engine/skills/effects/secondary';
 import { prototypeNeedsColor } from '@engine/skills/colorChooser';
 
 let gid = 0;
@@ -97,66 +97,65 @@ describe('R11 · enemyChosenAndAdjacent（编队前后各一位）', () => {
   });
 });
 
-describe('R11 · ENEMY_MOST_USED / ALLY_MOST_USED（行动日志聚合）', () => {
-  function withLog(state: ReturnType<typeof createGameState>, casts: { side: PlayerSide; characterId: number }[]): void {
-    for (const [i, c] of casts.entries()) {
-      state.actionLog.push({
-        index: i, side: c.side, action: { type: 'cast', characterId: c.characterId }, outcome: 'held',
-      });
-    }
-  }
-
-  it('按 manaCost 均摊到施法者法力色计账：用得多的色胜出', () => {
+describe('R11 most-used mana color: troop composition, never cast history', () => {
+  it('counts each living troop once per color, not the mana cost or prior casts', () => {
     const { state } = setup({
       right: [
-        { colors: [BaseColor.Blue], manaCost: 12 },
-        { colors: [BaseColor.Purple], manaCost: 8 },
+        { colors: [BaseColor.Blue], manaCost: 4 },
+        { colors: [BaseColor.Blue, BaseColor.Yellow], manaCost: 8 },
+        { colors: [BaseColor.Yellow], manaCost: 50 },
+        { colors: [BaseColor.Blue], manaCost: 5 },
       ],
     });
-    withLog(state, [
-      { side: PlayerSide.Right, characterId: 4 },
-      { side: PlayerSide.Right, characterId: 4 },
-      { side: PlayerSide.Right, characterId: 5 },
-    ]);
-    // 蓝 12×2=24 > 紫 8 → 敌方最常用 = Blue；施法方（左）无施法记录 → null
-    expect(mostUsedManaColor(state, PlayerSide.Right)).toBe(BaseColor.Blue);
-    expect(mostUsedManaColor(state, PlayerSide.Left)).toBeNull();
+    expect(mostUsedManaColor(state, PlayerSide.Right, new SeededRNG(7))).toBe(BaseColor.Blue);
+    state.actionLog.push({ index: 0, side: PlayerSide.Right,
+      action: { type: 'cast', characterId: 6 }, outcome: 'held' });
+    expect(mostUsedManaColor(state, PlayerSide.Right, new SeededRNG(7))).toBe(BaseColor.Blue);
   });
 
-  it('多色施法者按色均摊；平局取 ALL_BASE_COLORS 固定序更前者', () => {
-    const { state } = setup({
-      right: [{ colors: [BaseColor.Green, BaseColor.Yellow], manaCost: 10 }],
-    });
-    withLog(state, [{ side: PlayerSide.Right, characterId: 4 }]);
-    // 绿黄各 5 —— 平局取固定序更前（Green 在 Yellow 前）
-    expect(mostUsedManaColor(state, PlayerSide.Right)).toBe(BaseColor.Green);
+  it('resolves before any cast; ties are seeded draws, not first color order', () => {
+    const { state } = setup({ right: [{ colors: [BaseColor.Green, BaseColor.Yellow] }] });
+    const drawn = new Set(Array.from({ length: 32 }, (_, n) =>
+      mostUsedManaColor(state, PlayerSide.Right, new SeededRNG(n + 1))));
+    expect(drawn).toEqual(new Set([BaseColor.Green, BaseColor.Yellow]));
+    expect(mostUsedManaColor(state, PlayerSide.Left, new SeededRNG(1))).toBe(BaseColor.Red);
+    state.teams[PlayerSide.Right].characters[0].defeated = true;
+    expect(mostUsedManaColor(state, PlayerSide.Right, new SeededRNG(1))).toBeNull();
   });
 
-  it('destroyColor(ENEMY_MOST_USED) 只清该色宝石；无施法记录 → 段安全跳过', () => {
-    const a = setup({ right: [{ colors: [BaseColor.Blue], manaCost: 12 }] });
-    withLog(a.state, [{ side: PlayerSide.Right, characterId: 4 }]);
-    // 板面全红：敌方最常用蓝 → 摧毁 0 颗（无蓝宝石），但段可解析（不跳过）
-    const events = executePrototype(skill(destroyColor('ENEMY_MOST_USED')), a.ctx);
-    expect(events).toEqual([]);
-    // 对照：板面加蓝宝石后清除的是蓝而不是红
-    const b = setup({ right: [{ colors: [BaseColor.Blue], manaCost: 12 }] });
-    withLog(b.state, [{ side: PlayerSide.Right, characterId: 4 }]);
-    b.state.board.set({ row: 0, col: 0 }, g(colorGem(BaseColor.Blue)));
-    executePrototype(skill(destroyColor('ENEMY_MOST_USED')), b.ctx);
-    expect(b.state.board.get({ row: 0, col: 0 })).toBeNull();
-    expect(b.state.board.get({ row: 1, col: 0 })).not.toBeNull();
-    // 无日志 → ENEMY_MOST_USED 无法解析 → gem-destroy 不发
-    const c = setup({});
-    expect(executePrototype(skill(destroyColor('ENEMY_MOST_USED')), c.ctx)).toEqual([]);
+  it('ENEMY_MOST_USED destruction reads team composition without a cast', () => {
+    const { ctx, state } = setup({ right: [{ colors: [BaseColor.Blue] }] });
+    state.board.set({ row: 0, col: 0 }, g(colorGem(BaseColor.Blue)));
+    executePrototype(skill(destroyColor('ENEMY_MOST_USED')), ctx);
+    expect(state.board.get({ row: 0, col: 0 })).toBeNull();
+    expect(state.board.get({ row: 1, col: 0 })).not.toBeNull();
   });
 
-  it('createGems(ALLY_MOST_USED)：施法方（左）最常用色创造', () => {
-    const a = setup({ left: [{ colors: [BaseColor.Purple], manaCost: 9 }] });
-    withLog(a.state, [{ side: PlayerSide.Left, characterId: 0 }]);
+  it('secondary board count and gem effects share the same tie choice within a cast', () => {
+    const { ctx, state } = setup({ right: [
+      { colors: [BaseColor.Blue] }, { colors: [BaseColor.Yellow] },
+    ] });
+    ctx.castTracking = { destroyed: [], transformed: 0, drainedMana: 0,
+      enemyDeaths: 0, allyDeaths: 0 };
+    state.board.set({ row: 0, col: 0 }, g(colorGem(BaseColor.Blue)));
+    state.board.set({ row: 0, col: 1 }, g(colorGem(BaseColor.Yellow)));
+    state.board.set({ row: 0, col: 2 }, g(colorGem(BaseColor.Yellow)));
+    const spec = { mod: { kind: 'multiplier' as const, a: 1 },
+      source: { kind: 'boardGems' as const, color: 'ENEMY_MOST_USED' as const } };
+    const first = modifierBonus(spec, ctx);
+    const selected = ctx.castTracking.mostUsedManaColors?.[PlayerSide.Right];
+    expect(first).toBe(selected === BaseColor.Blue ? 1 : 2);
+    const randomState = ctx.rng.getState();
+    expect(modifierBonus(spec, ctx)).toBe(first);
+    expect(ctx.rng.getState()).toBe(randomState);
+  });
+
+  it('ALLY_MOST_USED creation selects current allied troop color', () => {
+    const a = setup({ left: [{ colors: [BaseColor.Purple] }] });
     executePrototype(skill(createGems('ALLY_MOST_USED', 3, 0)), a.ctx);
     let created = 0;
-    a.state.board.forEach((gem) => { if (gem && gem.type.kind === 'color' && gem.type.color === BaseColor.Purple) created += 1; });
-    expect(created).toBeGreaterThanOrEqual(3); // 板面初始全红，至少新造 3 颗紫
+    a.state.board.forEach((gem) => { if (gem && gem.type.kind === 'color' && gem.type.color === BaseColor.Purple) created++; });
+    expect(created).toBeGreaterThanOrEqual(3);
   });
 });
 

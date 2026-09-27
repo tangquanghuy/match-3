@@ -1,0 +1,21 @@
+- 2026-09-28T02:27:14.9051282+08:00 B01 start troop:7468,weapon:1498,troop:7475,troop:6775,troop:7377
+- 2026-09-28T04:45:29.1504835+08:00 B01 issues L2-7468-source L2-1498-source L2-decrease-random-pool (source-dispute, no src change)
+- 2026-09-28T04:45:29.1504835+08:00 B01 done accept=2 draft=3 waived=0 fixed=0
+- 2026-09-28T04:45:39.0872996+08:00 B02 start troop:6876,troop:6958,troop:6383,weapon:1620,troop:7698
+- 2026-09-28T04:53:14.7084627+08:00 LOCK src acquired (fix L2-1620-random-bleed, L2-6958-order)
+- 2026-09-28T05:03:22.5533714+08:00 FIX L2-1620-random-bleed batch-w04.ts+gowWeaponReviewedOverrides.json 3 keys (weapon:1620,1621,1622)
+- 2026-09-28T05:03:22.5533714+08:00 FIX L2-6958-order batch-r4.ts 1 key (troop:6958)
+- 2026-09-28T05:03:22.5533714+08:00 LOCK src released (full suite: no new failures in touched areas; tsc 0 src errors; audit rebuilt; stale empty)
+- 2026-09-28T05:13:45.9493317+08:00 B02 tests written; blocked on run (src mid-edit by sa-L3: 'reduce is not defined' at import)
+- 2026-09-28T05:13:45.9493317+08:00 B03 start troop:7760,troop:6416,troop:7297,troop:7570,troop:7326
+- 2026-09-28T05:21:39.1059282+08:00 B02 done accept=5 draft=0 waived=0 fixed=2
+- 2026-09-28T06:33:36.8188844+08:00 LOCK src acquired (fix L2-6416-branch-weights, L2-random-status-pools, L2-singlegem-cell)
+- 2026-09-28T06:45:58.0441207+08:00 FIX L2-random-status-pools status.ts+traits.json+build_traits.mjs (+3 core tests updated) ~98 rows, 0 accepted affected
+- 2026-09-28T06:45:58.0441207+08:00 FIX L2-6416-branch-weights batch-r18.ts 1 key
+- 2026-09-28T06:45:58.0441207+08:00 FIX L2-singlegem-cell batch-37.ts+batch-r15.ts 2 keys (troop:7169, troop:7480)
+- 2026-09-28T06:45:58.0441207+08:00 NOTE a PowerShell [IO.File] call wrote to tmp/lanes/a (NET cwd); reverted, that worktree git status clean
+- 2026-09-28T06:45:58.0441207+08:00 LOCK src released (full suite 7 failures all pre-existing/other lanes -> 0 new after test updates; tsc 0; audit rebuilt; stale empty)
+- 2026-09-28T06:47:59.4818841+08:00 B04 start weapon:1504,troop:7169,troop:7817,troop:7214,weapon:1500
+- 2026-09-28T06:50:16.7644871+08:00 B03 done accept=5 draft=0 waived=0 fixed=2 (L2-6416-branch-weights, L2-random-status-pools)
+- 2026-09-28T06:50:16.7644871+08:00 B04 done accept=4 draft=1 (troop:7817 L2-decrease-random-pool) waived=0 fixed=1 (L2-singlegem-cell)
+- 2026-09-28T06:50:50.7249719+08:00 ROUND-1 STOP at batch boundary after B04 (context budget). Pre-triage for next round (not started, not recorded): troop:6583 storm oneOf has 6 options incl. Brown vs native 5 (Blue/Green/Red/Yellow/Purple); weapon:1563/1564 CreateGems count = base 2 + 2 x troops with duplicated modifier vs native counter only (2 x troops), 'If the Enemy has a Doom' = R000 event waiver; troop:6630 Boss/ascension waiver + R003 34%; troop:6652 looks consistent. Branch-weight candidates: tools/branchweights-2026-09-28.txt

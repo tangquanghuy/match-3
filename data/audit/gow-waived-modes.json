@@ -1,0 +1,33 @@
+{
+ "schemaVersion": 1,
+ "rule": "User ruling 2026-09-28: Boss / Tower(Castle) / Ascension / Delve / Treasure-hunt(gold rush) / event-mode clauses are not implemented and are waived; listed here separately from verified behaviour.",
+ "entries": [
+  {
+   "key": "troop:7501",
+   "name": "LionCommander",
+   "part": "clause",
+   "id": "c2",
+   "mode": "boss",
+   "text": "If they are a Boss, deal 3x - 5x damage, based on my Ascensions.",
+   "note": "Waived per R000: 'If they are a Boss, deal 3x - 5x damage, based on my Ascensions' (Boss target + ascension scaling not implemented in this project; existing condMult x3 placeholder untouched)."
+  },
+  {
+   "key": "troop:6889",
+   "name": "Tuskor",
+   "part": "clause",
+   "id": "c2",
+   "mode": "boss",
+   "text": "If they are a Boss, deal 3x - 5x damage, based on my Ascensions.",
+   "note": "Waived per R000: 'If they are a Boss, deal 3x - 5x damage, based on my Ascensions' (Boss + ascension scaling not implemented; placeholder condMult untouched)."
+  },
+  {
+   "key": "troop:6694",
+   "name": "SirEbonheart",
+   "part": "clause",
+   "id": "c2",
+   "mode": "tower",
+   "text": "If they are a Tower, deal 3x - 5x damage, based on my Ascensions.",
+   "note": "Waived per R000: 'If they are a Tower, deal 3x - 5x damage, based on my Ascensions' (Tower target + ascension scaling not implemented; existing Castle condMult placeholder untouched)."
+  }
+ ]
+}

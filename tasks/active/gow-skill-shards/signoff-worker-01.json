@@ -1,0 +1,1571 @@
+{
+  "schemaVersion": 1,
+  "scope": "stored-gow-snapshot",
+  "note": "Independent S0001 staged whole-skill reviews: troop:6614/6615/6616 decision=accept on reviewed per-entity source/real-cast test evidence, pending coordinator same-fingerprint suite receipt and shared merge; troop:6169/6178 remain draft pending dedicated per-entity complete tests. No new test or regression executed here.",
+  "reviews": [
+    {
+      "key": "troop:6169",
+      "scope": "stored-gow-snapshot",
+      "sourceDigest": "5fe90a2e73c129a187315a4f2b45dbe3d74118a85d32cedba42ea0d22c17d5dc",
+      "reviewer": "worker-fast-01 (per-entity source/test audit; no new tests)",
+      "reviewedAt": "2026-09-27",
+      "decision": "draft",
+      "sourceEvidence": [
+        {
+          "id": "en",
+          "role": "english-snapshot",
+          "path": "data/raw/troops.gow.en.json",
+          "sha256": "be77c2dd9838435f5461b763e9f1e1436e53ae9be36fc35eaadea71060e6b757",
+          "note": "Entity ID/SpellId, English clause, mana colours/cost; stored extracted snapshot, not live certification."
+        },
+        {
+          "id": "native",
+          "role": "native-snapshot",
+          "path": "data/raw/spells.gow.en.json",
+          "sha256": "ddc7e03e23a6ea880e34fc8f1b7f0572b15f42041e979c443642d735f89dd63b",
+          "note": "SpellId-indexed native data/RawData: Cost, Target, and every non-None SpellSteps field."
+        },
+        {
+          "id": "catalog",
+          "role": "project-final-catalogue",
+          "path": "src/data/troops.json",
+          "sha256": "98c20b7260205040fe4e6387b3011b18b9fe6b4bb110282578a9c7b1adb366b6",
+          "note": "Final per-entity spell.id, cost, mana colours, and Chinese description; static evidence only."
+        },
+        {
+          "id": "register",
+          "role": "project-registration",
+          "path": "src/engine/skills/library.ts",
+          "sha256": "33abdce3ba610a2ed0fca0f7c573a1ec0c11bb7a96a03c8b7cef3e8357b0f381",
+          "note": "Shared registration path maps curated spell ID to combat prototype; not proof of casting any specific troop."
+        },
+        {
+          "id": "receipt",
+          "role": "historical-verification-receipt",
+          "path": "artifacts/gow-skill-audit/verification-receipt.json",
+          "sha256": "860ea939f281c5228582eee20815f9234111f77b08e05a72250db3b1d19affa7",
+          "note": "Saved receipt reports suites passing at ledger fingerprint; not a new run or guarantee that present source is unchanged."
+        },
+        {
+          "id": "drain",
+          "role": "project-implementation",
+          "path": "src/engine/skills/curated/batch-01.ts",
+          "sha256": "f1ab5ebb8be3b536aa627b2e1b7d4eabcf4eba42aef6096ec950aa81cf67500d",
+          "note": "7302 explicitly compiles damage enemyAll Magic+5 drain; tested entry must bind real troop."
+        },
+        {
+          "id": "drainEffect",
+          "role": "project-implementation",
+          "path": "src/engine/skills/effects/damage.ts",
+          "sha256": "88cd6b109fb8dbb8830ad3a2137e5ce4d2e137e7b5c82a07d9f4c2e147274a8c",
+          "note": "Drain implementation uses actual lost Life; barrier/resistance/overkill need entity-level boundary checks."
+        },
+        {
+          "id": "drainTest",
+          "role": "existing-direct-spell-test",
+          "path": "tests/unit/gowLifeStealRules.test.ts",
+          "sha256": "1557bf0635e10d66807f8c3a513f5d83a38eb479d3b90e43f60817bd4cc3c114",
+          "note": "Named 7302 executePrototype with four enemies plus real TurnEngine.castSkill on generic fixture skillId 7302; fixture is not troop 6169."
+        },
+        {
+          "id": "officialLife",
+          "role": "official-shared-rule",
+          "path": "artifacts/gow-skill-audit/gold-primary-sources/official-brian-guide.html",
+          "sha256": "cb2924f8f48fb400e5918ad2c75d7f3a40ae12e4d839c0c84e5168ab452e89a7",
+          "note": "Historical official guide lists another troop Life Drain: Steal [1+Magic] Life from an enemy; only evidence that Life-steal action exists, NOT 7302 values, all-enemy targeting, or precise transfer implementation."
+        },
+        {
+          "id": "officialBarrier",
+          "role": "official-shared-rule",
+          "path": "artifacts/gow-skill-audit/gold-primary-sources/official-status-effects.html",
+          "sha256": "4dca585515e9c7ca9287f75b9555079a2b50c747e6c35293ae6b57981360755c",
+          "note": "Official status guide states Barrier protects one instance of damage and separately says it does not block lethal damage; do not generalize the stored 7302 generic Barrier test to lethal without resolving this nuance."
+        }
+      ],
+      "dimensions": {
+        "identity-cost-colors": {
+          "status": "pending",
+          "note": "identity-cost-colors: Source ID, native Cost and final ID/cost/colours match statically; no per-entity actual cast proves all identity and colour conditions.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "catalog"
+          ],
+          "tests": []
+        },
+        "target-count-range": {
+          "status": "pending",
+          "note": "target-count-range: Need bound target count/selection tested on actual troop including absent/dead/selected-target cases.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "catalog"
+          ],
+          "tests": []
+        },
+        "base-formula-rounding": {
+          "status": "pending",
+          "note": "base-formula-rounding: Need specific Magic 0/nonzero/full/zero-stat outcome or fixed 20 Gold and any floor/cap tested at real entry.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "catalog"
+          ],
+          "tests": [
+            "tests/unit/gowLifeStealRules.test.ts"
+          ]
+        },
+        "boost-source-ratio-cap": {
+          "status": "pending",
+          "note": "boost-source-ratio-cap: Native has no secondary source or cap; ensure no invented boost at full and zero board in bound cast.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "catalog"
+          ],
+          "tests": []
+        },
+        "conditions-probabilities-branches": {
+          "status": "pending",
+          "note": "conditions-probabilities-branches: Native has only main unconditional branch; RNG random stat selection or side effects need per-entity positive/negative cast.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "catalog"
+          ],
+          "tests": []
+        },
+        "status-duration-immunity": {
+          "status": "pending",
+          "note": "status-duration-immunity: Need actual per-entity barrier, resistance/immune, silence/stealth interaction as applicable.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "catalog"
+          ],
+          "tests": []
+        },
+        "gems-types-selection-resolution": {
+          "status": "not-applicable",
+          "note": "gems-types-selection-resolution: No gem step; ensure no stray gem events in real cast if applicable. English/native both single step; no mechanic of this dimension to validate for this skill.",
+          "evidenceIds": [
+            "en",
+            "native"
+          ]
+        },
+        "summon-transform-pools": {
+          "status": "not-applicable",
+          "note": "summon-transform-pools: No summon/transform step appears in either source. English/native both single step; no mechanic of this dimension to validate for this skill.",
+          "evidenceIds": [
+            "en",
+            "native"
+          ]
+        },
+        "order-death-retargeting": {
+          "status": "pending",
+          "note": "order-death-retargeting: Need real cast with dead target, death-on-hit, 0/1/2/4 living enemies as applicable.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "catalog"
+          ],
+          "tests": []
+        },
+        "mana-economy-extra-turn": {
+          "status": "pending",
+          "note": "mana-economy-extra-turn: Need real per-entity cost, caster-side Gold/Life distribution, failed-cast non-effect and turn handoff.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "catalog"
+          ],
+          "tests": [
+            "tests/unit/gowLifeStealRules.test.ts"
+          ]
+        },
+        "display-description": {
+          "status": "pending",
+          "note": "display-description: Chinese text semantically matches English statically; no per-entity display/assertion test.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "catalog"
+          ],
+          "tests": []
+        },
+        "battle-pipeline": {
+          "status": "pending",
+          "note": "battle-pipeline: Entity-specific bound catalogue troop cast via TurnEngine.castSkill and negative case not present in existing tests. Existing tests/unit/gowLifeStealRules.test.ts uses real cast skillId 7302, but generic fixture not troop 6169.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "catalog",
+            "register",
+            "drainTest"
+          ],
+          "tests": [
+            "tests/unit/gowLifeStealRules.test.ts"
+          ],
+          "realBattleEntry": false
+        }
+      },
+      "clauseReviews": [
+        {
+          "id": "c1",
+          "status": "pending",
+          "note": "Original cc1=\"Steal [Magic + 5] Life from all Enemies.\". English: Steal [Magic + 5] Life from all Enemies. Native 7302 Cost20 Target None; SpellSteps[0] StealLife, AllEnemies, Amount5, SpellPowerMultiplier1, Primarypower true. Runtime damage/enemyAll/range all/scaling base5 mult1/drain true; Chinese 窃取所有敌人 [魔法 + 5] 点生命值。 Positive expectation: Magic 11 and one living enemy: nominal 16 life removed (bypasses armour), caster gains only actual life lost; 4 living enemies each receive a separate hit. Negative expectation: Barrier or zero actual Life loss must not create Life; out-of-mana/no living enemies must not produce theft. Test lethal Barrier separately (official guide notes caveat). Existing 7302 real skill-ID cast and generic negative Barrier/resistance/overkill tests do not establish per-troop complete signoff.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "catalog",
+            "drainTest"
+          ],
+          "tests": [
+            "tests/unit/gowLifeStealRules.test.ts"
+          ]
+        }
+      ],
+      "nativeStepReviews": [
+        {
+          "id": "0",
+          "status": "pending",
+          "note": "Native SpellSteps[0]={\"SpellPowerMultiplier\":1,\"Target\":\"AllEnemies\",\"Amount\":5,\"Primarypower\":true,\"Type\":\"StealLife\"}; Target=None; Cost=20. English: Steal [Magic + 5] Life from all Enemies. Native 7302 Cost20 Target None; SpellSteps[0] StealLife, AllEnemies, Amount5, SpellPowerMultiplier1, Primarypower true. Runtime damage/enemyAll/range all/scaling base5 mult1/drain true; Chinese 窃取所有敌人 [魔法 + 5] 点生命值。 Positive expectation: Magic 11 and one living enemy: nominal 16 life removed (bypasses armour), caster gains only actual life lost; 4 living enemies each receive a separate hit. Negative expectation: Barrier or zero actual Life loss must not create Life; out-of-mana/no living enemies must not produce theft. Test lethal Barrier separately (official guide notes caveat). Existing 7302 real skill-ID cast and generic negative Barrier/resistance/overkill tests do not establish per-troop complete signoff.",
+          "evidenceIds": [
+            "native",
+            "en",
+            "catalog",
+            "drainTest"
+          ],
+          "tests": [
+            "tests/unit/gowLifeStealRules.test.ts"
+          ]
+        }
+      ],
+      "branchReviews": [
+        {
+          "id": "main",
+          "status": "pending",
+          "note": "Native branch main; no Randomize branch; English: Steal [Magic + 5] Life from all Enemies. Native 7302 Cost20 Target None; SpellSteps[0] StealLife, AllEnemies, Amount5, SpellPowerMultiplier1, Primarypower true. Runtime damage/enemyAll/range all/scaling base5 mult1/drain true; Chinese 窃取所有敌人 [魔法 + 5] 点生命值。 Positive expectation: Magic 11 and one living enemy: nominal 16 life removed (bypasses armour), caster gains only actual life lost; 4 living enemies each receive a separate hit. Negative expectation: Barrier or zero actual Life loss must not create Life; out-of-mana/no living enemies must not produce theft. Test lethal Barrier separately (official guide notes caveat). Existing 7302 real skill-ID cast and generic negative Barrier/resistance/overkill tests do not establish per-troop complete signoff.",
+          "evidenceIds": [
+            "native",
+            "en",
+            "drainTest"
+          ],
+          "tests": [
+            "tests/unit/gowLifeStealRules.test.ts"
+          ]
+        }
+      ],
+      "pendingReasons": [
+        "Existing tests/unit/gowLifeStealRules.test.ts does cast skillId 7302 in TurnEngine and checks mana 20 -> 0 and hp+16; caster is generic fixture, not catalogue troop:6169 (its ID/colours/base stats are not checked).",
+        "Coordinator: add isolated troop:6169 real TurnEngine.castSkill test built from src/data/troops.json: source SpellId 7302, 20 Blue/Green/Red, Magic 0/11; verify +5/+16 per living enemy, health stolen equals actual lost, maxHP increase, enemy armour unchanged, initial 0/1/2/4 enemies.",
+        "Coordinator: add real cast negatives: insufficient mana, Barrier (especially lethal/nonlethal per historical official guide nuance), resistance, overkill, dead enemies, no eligible enemies, opposing side/turn flow; check no unearned Life, wrong target, extra action, or double debit; verify Chinese text and battle event ordering.",
+        "Official historical guide does NOT independently validate Draakulis 7302 or the lethal Barrier exception; coordinator should reconcile source scope before signoff."
+      ],
+      "scopedEvidence": {
+        "existingEntitySkillTests": [
+          "tests/unit/gowLifeStealRules.test.ts"
+        ],
+        "sharedPrimitiveTests": [
+          "tests/unit/gowLifeStealRules.test.ts"
+        ],
+        "historicalReceiptAt": "2026-09-27T15:06:24.415Z",
+        "historicalReceiptFingerprint": "40b01f972eaecffaf9afcf60a47fbe4fd4fa6da384e54e82d4fd5834deb93ac4",
+        "matchedLedgerFingerprint": true,
+        "receiptSuites": [
+          {
+            "path": "tests/unit/gowLifeStealRules.test.ts",
+            "status": "passed",
+            "passed": 8,
+            "failed": 0
+          }
+        ],
+        "note": "No test run performed for this staging file; historical suite PASS is not entity-specific PASS unless test source actually casts that entity; current tree/source fingerprint not reverified."
+      }
+    },
+    {
+      "key": "troop:6178",
+      "scope": "stored-gow-snapshot",
+      "sourceDigest": "a74e383994964f1437f48958ab20217298010386f8c69490b2f84db206871ba8",
+      "reviewer": "worker-fast-01 (per-entity source/test audit; no new tests)",
+      "reviewedAt": "2026-09-27",
+      "decision": "draft",
+      "sourceEvidence": [
+        {
+          "id": "en",
+          "role": "english-snapshot",
+          "path": "data/raw/troops.gow.en.json",
+          "sha256": "be77c2dd9838435f5461b763e9f1e1436e53ae9be36fc35eaadea71060e6b757",
+          "note": "Entity ID/SpellId, English clause, mana colours/cost; stored extracted snapshot, not live certification."
+        },
+        {
+          "id": "native",
+          "role": "native-snapshot",
+          "path": "data/raw/spells.gow.en.json",
+          "sha256": "ddc7e03e23a6ea880e34fc8f1b7f0572b15f42041e979c443642d735f89dd63b",
+          "note": "SpellId-indexed native data/RawData: Cost, Target, and every non-None SpellSteps field."
+        },
+        {
+          "id": "catalog",
+          "role": "project-final-catalogue",
+          "path": "src/data/troops.json",
+          "sha256": "98c20b7260205040fe4e6387b3011b18b9fe6b4bb110282578a9c7b1adb366b6",
+          "note": "Final per-entity spell.id, cost, mana colours, and Chinese description; static evidence only."
+        },
+        {
+          "id": "register",
+          "role": "project-registration",
+          "path": "src/engine/skills/library.ts",
+          "sha256": "33abdce3ba610a2ed0fca0f7c573a1ec0c11bb7a96a03c8b7cef3e8357b0f381",
+          "note": "Shared registration path maps curated spell ID to combat prototype; not proof of casting any specific troop."
+        },
+        {
+          "id": "receipt",
+          "role": "historical-verification-receipt",
+          "path": "artifacts/gow-skill-audit/verification-receipt.json",
+          "sha256": "860ea939f281c5228582eee20815f9234111f77b08e05a72250db3b1d19affa7",
+          "note": "Saved receipt reports suites passing at ledger fingerprint; not a new run or guarantee that present source is unchanged."
+        },
+        {
+          "id": "random",
+          "role": "project-implementation",
+          "path": "src/engine/skills/curated/batch-r12.ts",
+          "sha256": "7013fa09058d6e18dc73461d00f705466c440756434829e63e3572e3167cc82a",
+          "note": "7319 curated reduce enemyChosen random Magic+1."
+        },
+        {
+          "id": "randomEffect",
+          "role": "project-implementation",
+          "path": "src/engine/skills/effects/debuff.ts",
+          "sha256": "99e687560bcc16370d1a6f0daf1dc0dae68f3d318d8205e36fd3caad41ee6c30",
+          "note": "Shared DecreaseRandom picks attack/armor/magic using RNG and applies actual decrement."
+        },
+        {
+          "id": "randomTest",
+          "role": "existing-shared-primitive-test",
+          "path": "tests/unit/spellR12Primitives.test.ts",
+          "sha256": "00eaed58a13d559f9ec64eb68ad9f6510f79a3722dda9d4a37ac5004a08b9092",
+          "note": "Generic reduce(random) positive/seeded tests; no 7319 or troop 6178 cast."
+        }
+      ],
+      "dimensions": {
+        "identity-cost-colors": {
+          "status": "pending",
+          "note": "identity-cost-colors: Source ID, native Cost and final ID/cost/colours match statically; no per-entity actual cast proves all identity and colour conditions.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "catalog"
+          ],
+          "tests": []
+        },
+        "target-count-range": {
+          "status": "pending",
+          "note": "target-count-range: Need bound target count/selection tested on actual troop including absent/dead/selected-target cases.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "catalog"
+          ],
+          "tests": []
+        },
+        "base-formula-rounding": {
+          "status": "pending",
+          "note": "base-formula-rounding: Need specific Magic 0/nonzero/full/zero-stat outcome or fixed 20 Gold and any floor/cap tested at real entry.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "catalog"
+          ],
+          "tests": []
+        },
+        "boost-source-ratio-cap": {
+          "status": "pending",
+          "note": "boost-source-ratio-cap: Native has no secondary source or cap; ensure no invented boost at full and zero board in bound cast.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "catalog"
+          ],
+          "tests": []
+        },
+        "conditions-probabilities-branches": {
+          "status": "pending",
+          "note": "conditions-probabilities-branches: Native has only main unconditional branch; RNG random stat selection or side effects need per-entity positive/negative cast.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "catalog"
+          ],
+          "tests": []
+        },
+        "status-duration-immunity": {
+          "status": "not-applicable",
+          "note": "status-duration-immunity: Need actual per-entity barrier, resistance/immune, silence/stealth interaction as applicable. English/native both single step; no mechanic of this dimension to validate for this skill.",
+          "evidenceIds": [
+            "en",
+            "native"
+          ]
+        },
+        "gems-types-selection-resolution": {
+          "status": "not-applicable",
+          "note": "gems-types-selection-resolution: No gem step; ensure no stray gem events in real cast if applicable. English/native both single step; no mechanic of this dimension to validate for this skill.",
+          "evidenceIds": [
+            "en",
+            "native"
+          ]
+        },
+        "summon-transform-pools": {
+          "status": "not-applicable",
+          "note": "summon-transform-pools: No summon/transform step appears in either source. English/native both single step; no mechanic of this dimension to validate for this skill.",
+          "evidenceIds": [
+            "en",
+            "native"
+          ]
+        },
+        "order-death-retargeting": {
+          "status": "pending",
+          "note": "order-death-retargeting: Need real cast with dead target, death-on-hit, 0/1/2/4 living enemies as applicable.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "catalog"
+          ],
+          "tests": []
+        },
+        "mana-economy-extra-turn": {
+          "status": "pending",
+          "note": "mana-economy-extra-turn: Need real per-entity cost, caster-side Gold/Life distribution, failed-cast non-effect and turn handoff.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "catalog"
+          ],
+          "tests": []
+        },
+        "display-description": {
+          "status": "pending",
+          "note": "display-description: Chinese text semantically matches English statically; no per-entity display/assertion test.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "catalog"
+          ],
+          "tests": []
+        },
+        "battle-pipeline": {
+          "status": "pending",
+          "note": "battle-pipeline: Entity-specific bound catalogue troop cast via TurnEngine.castSkill and negative case not present in existing tests.  Shared random-reduce primitive tests do not cast 7319.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "catalog",
+            "register",
+            "randomTest"
+          ],
+          "tests": [],
+          "realBattleEntry": false
+        }
+      },
+      "clauseReviews": [
+        {
+          "id": "c1",
+          "status": "pending",
+          "note": "Original cc1=\"Eliminate [Magic + 1] points of a random Skill from an Enemy.\". English: Eliminate [Magic + 1] points of a random Skill from an Enemy. Native 7319 Cost9 Target Enemy; SpellSteps[0] DecreaseRandom, FromTarget, Amount1, SpellPowerMultiplier1, Primarypower true. Runtime reduce/enemyChosen/stat random/scaling base1 mult1; Chinese 减除一名敌人 [魔法 + 1] 点随机技能值。 Positive expectation: A selected eligible enemy loses min(current stat, Magic+1) from exactly one RNG-selected Attack/Armor/Magic stat. Negative expectation: Must not reduce HP, Mana, two stats, an unchosen enemy, or any stat on a failed/under-funded cast. Shared primitive tests cover only generic decrease random.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "catalog",
+            "randomTest"
+          ],
+          "tests": []
+        }
+      ],
+      "nativeStepReviews": [
+        {
+          "id": "0",
+          "status": "pending",
+          "note": "Native SpellSteps[0]={\"SpellPowerMultiplier\":1,\"Target\":\"FromTarget\",\"Amount\":1,\"Primarypower\":true,\"Type\":\"DecreaseRandom\"}; Target=Enemy; Cost=9. English: Eliminate [Magic + 1] points of a random Skill from an Enemy. Native 7319 Cost9 Target Enemy; SpellSteps[0] DecreaseRandom, FromTarget, Amount1, SpellPowerMultiplier1, Primarypower true. Runtime reduce/enemyChosen/stat random/scaling base1 mult1; Chinese 减除一名敌人 [魔法 + 1] 点随机技能值。 Positive expectation: A selected eligible enemy loses min(current stat, Magic+1) from exactly one RNG-selected Attack/Armor/Magic stat. Negative expectation: Must not reduce HP, Mana, two stats, an unchosen enemy, or any stat on a failed/under-funded cast. Shared primitive tests cover only generic decrease random.",
+          "evidenceIds": [
+            "native",
+            "en",
+            "catalog",
+            "randomTest"
+          ],
+          "tests": []
+        }
+      ],
+      "branchReviews": [
+        {
+          "id": "main",
+          "status": "pending",
+          "note": "Native branch main; no Randomize branch; English: Eliminate [Magic + 1] points of a random Skill from an Enemy. Native 7319 Cost9 Target Enemy; SpellSteps[0] DecreaseRandom, FromTarget, Amount1, SpellPowerMultiplier1, Primarypower true. Runtime reduce/enemyChosen/stat random/scaling base1 mult1; Chinese 减除一名敌人 [魔法 + 1] 点随机技能值。 Positive expectation: A selected eligible enemy loses min(current stat, Magic+1) from exactly one RNG-selected Attack/Armor/Magic stat. Negative expectation: Must not reduce HP, Mana, two stats, an unchosen enemy, or any stat on a failed/under-funded cast. Shared primitive tests cover only generic decrease random.",
+          "evidenceIds": [
+            "native",
+            "en",
+            "randomTest"
+          ],
+          "tests": []
+        }
+      ],
+      "pendingReasons": [
+        "Existing tests/unit/spellR12Primitives.test.ts checks generic reduce(random) but has no 7319/6178 binding and no troop-specific TurnEngine cast; no specific official shared DecreaseRandom source located in stored primary-source set (do not use unrelated official random-gain text as proof).",
+        "Coordinator: add per-entity 6178 real TurnEngine.castSkill test with ID 7319, cost9 Purple, player-chosen enemy; Magic=0 and e.g. 5: exactly one of Attack/Armor/Magic decreases by 1/6 with seeded RNG, unaffected other stats, HP/Mana untouched and zero-floor clamp.",
+        "Coordinator: add negative tests for insufficient mana, no chosen target, wrong side/Stealthy targeting, already-zero chosen stat, zero enemies, opposite-side cast, turn/extra-turn semantics; independently source/resolve any required official shared random-stat ruling."
+      ],
+      "scopedEvidence": {
+        "existingEntitySkillTests": [],
+        "sharedPrimitiveTests": [
+          "tests/unit/spellR12Primitives.test.ts"
+        ],
+        "historicalReceiptAt": "2026-09-27T15:06:24.415Z",
+        "historicalReceiptFingerprint": "40b01f972eaecffaf9afcf60a47fbe4fd4fa6da384e54e82d4fd5834deb93ac4",
+        "matchedLedgerFingerprint": true,
+        "receiptSuites": [
+          {
+            "path": "tests/unit/spellR12Primitives.test.ts",
+            "status": "passed",
+            "passed": 26,
+            "failed": 0
+          }
+        ],
+        "note": "No test run performed for this staging file; historical suite PASS is not entity-specific PASS unless test source actually casts that entity; current tree/source fingerprint not reverified."
+      }
+    },
+    {
+      "key": "troop:6614",
+      "scope": "stored-gow-snapshot",
+      "sourceDigest": "4dc897e4825b4210ca08955c78727f7525e7b7db8fc2cf87f3938bc380e898fb",
+      "reviewer": "worker-fast-01 (per-entity source/test audit; no new tests)",
+      "reviewedAt": "2026-09-27",
+      "decision": "accept",
+      "sourceEvidence": [
+        {
+          "id": "en",
+          "role": "english-snapshot",
+          "path": "data/raw/troops.gow.en.json",
+          "sha256": "be77c2dd9838435f5461b763e9f1e1436e53ae9be36fc35eaadea71060e6b757",
+          "note": "Entity ID/SpellId, English clause, mana colours/cost; stored extracted snapshot, not live certification."
+        },
+        {
+          "id": "native",
+          "role": "native-snapshot",
+          "path": "data/raw/spells.gow.en.json",
+          "sha256": "ddc7e03e23a6ea880e34fc8f1b7f0572b15f42041e979c443642d735f89dd63b",
+          "note": "SpellId-indexed native data/RawData: Cost, Target, and every non-None SpellSteps field."
+        },
+        {
+          "id": "catalog",
+          "role": "project-final-catalogue",
+          "path": "src/data/troops.json",
+          "sha256": "98c20b7260205040fe4e6387b3011b18b9fe6b4bb110282578a9c7b1adb366b6",
+          "note": "Final per-entity spell.id, cost, mana colours, and Chinese description; static evidence only."
+        },
+        {
+          "id": "register",
+          "role": "project-registration",
+          "path": "src/engine/skills/library.ts",
+          "sha256": "33abdce3ba610a2ed0fca0f7c573a1ec0c11bb7a96a03c8b7cef3e8357b0f381",
+          "note": "Shared registration path maps curated spell ID to combat prototype; not proof of casting any specific troop."
+        },
+        {
+          "id": "receipt",
+          "role": "historical-verification-receipt",
+          "path": "artifacts/gow-skill-audit/verification-receipt.json",
+          "sha256": "860ea939f281c5228582eee20815f9234111f77b08e05a72250db3b1d19affa7",
+          "note": "Saved receipt reports suites passing at ledger fingerprint; not a new run or guarantee that present source is unchanged."
+        },
+        {
+          "id": "gold",
+          "role": "project-implementation",
+          "path": "src/engine/skills/curated/batch-r18.ts",
+          "sha256": "2fcbd7aae535e4b8403dbe45fd8d9032cd3a472544084fb223b64f84668271dd",
+          "note": "7946 curated gainGold(20), shared by the three independently bound troops."
+        },
+        {
+          "id": "goldEffect",
+          "role": "project-implementation",
+          "path": "src/engine/skills/effects/economy.ts",
+          "sha256": "0d1a1919e772bde64b6f473d6ee92aa050f13e708e994dddc944624f9ffb3de5",
+          "note": "Gain gold credits caster side and emits economy-gain event."
+        },
+        {
+          "id": "goldTest",
+          "role": "existing-shared-primitive-test",
+          "path": "tests/unit/economyEngine.test.ts",
+          "sha256": "230dae0abc59ea547b81e5faab81e7039b1eac9584192fe45f61c295c99fcd5a",
+          "note": "Generic gainGold(10) primitive and synthetic gold10 cast; no 7946 or source troop 6614/6615/6616 cast."
+        },
+        {
+          "id": "goldSideTest",
+          "role": "existing-shared-primitive-test",
+          "path": "tests/unit/gowGoldOwnershipAudit.test.ts",
+          "sha256": "c5d42209db461cda278a49ebfbd2630fb78e7131e21c2916c694d00c3716e0d7",
+          "note": "Generic gainGold(4) for both sides; no 7946 or one of the three troop entities."
+        },
+        {
+          "id": "officialGold",
+          "role": "official-shared-rule",
+          "path": "artifacts/gow-skill-audit/gold-primary-sources/official-brian-guide.html",
+          "sha256": "cb2924f8f48fb400e5918ad2c75d7f3a40ae12e4d839c0c84e5168ab452e89a7",
+          "note": "Historical official Alchemy example uses Gain [3+Magic] Gold; only generic gain-gold precedent, NOT 7946, fixed 20, any treasure ID, or gold ownership rules."
+        },
+        {
+          "id": "parallel",
+          "role": "existing-entity-parameterized-battle-test",
+          "path": "tests/unit/gowParallelSignoffTroops.test.ts",
+          "sha256": "531d9e3791ff468e0d0f7cc2c4b4f3e9db96666ef908eb787cab7558dff4797d",
+          "note": "Actual troop:6614 parameterized case: independent source/final binding and Brown, stored native GiveGold/20, registry prototype, both sides x Magic 0/10 real TurnEngine.castSkill (own +20, opponent unchanged, one gold event, enemies unchanged, mana 7->0, action log 1/opponent turn, no extra turn); under-mana and Silence yield []/no action/unchanged mana. Test builds a generic caster using c.spell/cost/colors rather than instantiating final troop object; separate same-case catalogue assertions establish the entity binding. Test only checks Chinese description is nonempty: exact semantic translation independently cross-checked against English/native in this record. Coordinator reports 42 examples passed; historical verification receipt does not yet include this file."
+        }
+      ],
+      "dimensions": {
+        "identity-cost-colors": {
+          "status": "verified",
+          "note": "Independently checks source troop:6614 binds SpellId 7946 / cost7 / Brown, native Cost7, final TROOPS identity cost and Brown; cast fixture selects that c.spell/cost/colors. Separate identity assertions and actual skill cast share this entity's parameter case.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "catalog",
+            "register",
+            "gold",
+            "goldEffect",
+            "officialGold",
+            "parallel"
+          ],
+          "tests": [
+            "tests/unit/gowParallelSignoffTroops.test.ts"
+          ]
+        },
+        "target-count-range": {
+          "status": "not-applicable",
+          "note": "target-count-range: native has exactly one unconditional GiveGold Self Amount20 step (no enemies, gems, summon/transform, secondary boost or target-death/retargeting); per-entity cast confirms enemies take zero damage and no extra turn. English/natural-language scope is fixed 20 Gold; independent Brown binding checked.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "catalog",
+            "parallel"
+          ]
+        },
+        "base-formula-rounding": {
+          "status": "verified",
+          "note": "English Gain 20 Gold.; native GiveGold Self Amount20 without Magic multiplier; registered gainEconomy gold scaling base20/mult0; Magic 0 and 10 on both sides each add exactly 20. No rounding or cap in this single step.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "catalog",
+            "register",
+            "gold",
+            "goldEffect",
+            "officialGold",
+            "parallel"
+          ],
+          "tests": [
+            "tests/unit/gowParallelSignoffTroops.test.ts"
+          ]
+        },
+        "boost-source-ratio-cap": {
+          "status": "not-applicable",
+          "note": "boost-source-ratio-cap: native has exactly one unconditional GiveGold Self Amount20 step (no enemies, gems, summon/transform, secondary boost or target-death/retargeting); per-entity cast confirms enemies take zero damage and no extra turn. English/natural-language scope is fixed 20 Gold; independent Brown binding checked.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "catalog",
+            "parallel"
+          ]
+        },
+        "conditions-probabilities-branches": {
+          "status": "not-applicable",
+          "note": "conditions-probabilities-branches: native has exactly one unconditional GiveGold Self Amount20 step (no enemies, gems, summon/transform, secondary boost or target-death/retargeting); per-entity cast confirms enemies take zero damage and no extra turn. English/natural-language scope is fixed 20 Gold; independent Brown binding checked.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "catalog",
+            "parallel"
+          ]
+        },
+        "status-duration-immunity": {
+          "status": "not-applicable",
+          "note": "status-duration-immunity: native has exactly one unconditional GiveGold Self Amount20 step (no enemies, gems, summon/transform, secondary boost or target-death/retargeting); per-entity cast confirms enemies take zero damage and no extra turn. English/natural-language scope is fixed 20 Gold; independent Brown binding checked.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "catalog",
+            "parallel"
+          ]
+        },
+        "gems-types-selection-resolution": {
+          "status": "not-applicable",
+          "note": "gems-types-selection-resolution: native has exactly one unconditional GiveGold Self Amount20 step (no enemies, gems, summon/transform, secondary boost or target-death/retargeting); per-entity cast confirms enemies take zero damage and no extra turn. English/natural-language scope is fixed 20 Gold; independent Brown binding checked.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "catalog",
+            "parallel"
+          ]
+        },
+        "summon-transform-pools": {
+          "status": "not-applicable",
+          "note": "summon-transform-pools: native has exactly one unconditional GiveGold Self Amount20 step (no enemies, gems, summon/transform, secondary boost or target-death/retargeting); per-entity cast confirms enemies take zero damage and no extra turn. English/natural-language scope is fixed 20 Gold; independent Brown binding checked.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "catalog",
+            "parallel"
+          ]
+        },
+        "order-death-retargeting": {
+          "status": "not-applicable",
+          "note": "order-death-retargeting: native has exactly one unconditional GiveGold Self Amount20 step (no enemies, gems, summon/transform, secondary boost or target-death/retargeting); per-entity cast confirms enemies take zero damage and no extra turn. English/natural-language scope is fixed 20 Gold; independent Brown binding checked.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "catalog",
+            "parallel"
+          ]
+        },
+        "mana-economy-extra-turn": {
+          "status": "verified",
+          "note": "Two sides x Magic 0/10: own Gold 3->23, other side stays 11, exactly one economy-gain(gold,20,side); 7 Mana spent, one action and opponent turn, no extra-turn event. Low mana6/Silence yield []/no action/unchanged mana; low-mana negative test does not explicitly assert Gold remains unchanged, but no event is emitted and one economy-only prototype has no other effect.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "catalog",
+            "register",
+            "gold",
+            "goldEffect",
+            "officialGold",
+            "parallel"
+          ],
+          "tests": [
+            "tests/unit/gowParallelSignoffTroops.test.ts"
+          ]
+        },
+        "display-description": {
+          "status": "verified",
+          "note": "Stored English Gain 20 Gold. and native GiveGold/20 agree with Chinese “给予 20 黄金。” on troop:6614; suite checks final description nonempty only; exact wording is reviewed directly from src/data/troops.json and raw English, not attributed to a nonexistent exact-string test.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "catalog",
+            "register",
+            "gold",
+            "goldEffect",
+            "officialGold",
+            "parallel"
+          ],
+          "tests": [
+            "tests/unit/gowParallelSignoffTroops.test.ts"
+          ]
+        },
+        "battle-pipeline": {
+          "status": "verified",
+          "note": "Real TurnEngine.castSkill in per-entity troop:6614 case registers skill 7946 and casts with c.cost7/c.colors Brown on Left and Right; asserts correct side gold/event, mana/action/turn, negative under-mana & Silence. Fixture caster is generic with matching spell/cost/colors; binding independently asserted against actual TROOPS[id].",
+          "evidenceIds": [
+            "en",
+            "native",
+            "catalog",
+            "register",
+            "gold",
+            "goldEffect",
+            "officialGold",
+            "parallel"
+          ],
+          "tests": [
+            "tests/unit/gowParallelSignoffTroops.test.ts"
+          ],
+          "realBattleEntry": true
+        }
+      },
+      "clauseReviews": [
+        {
+          "id": "c1",
+          "status": "verified",
+          "note": "troop:6614: English “Gain 20 Gold.” (one c1 clause) / native SpellSteps[0] GiveGold Target:Self Amount:20, no Randomize (main branch), Cost7 and Brown; final skill 7946 gainEconomy gold base20 mult0 and Chinese “给予 20 黄金。” Verified by this per-entity test source identity and registered prototype; four real casts (Left/Right × Magic0/10) add exactly 20 own Gold and no opponent Gold, pay 7 Mana and pass turn; two failed casts (mana6/Silence) return []/no action/unchanged Mana. Test asserts display nonempty; exact wording is a separate static comparison. Historical official guide uses a DIFFERENT Gold-gain skill as generic precedent only.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "catalog",
+            "register",
+            "gold",
+            "goldEffect",
+            "officialGold",
+            "parallel"
+          ],
+          "tests": [
+            "tests/unit/gowParallelSignoffTroops.test.ts"
+          ]
+        }
+      ],
+      "nativeStepReviews": [
+        {
+          "id": "0",
+          "status": "verified",
+          "note": "troop:6614: English “Gain 20 Gold.” (one c1 clause) / native SpellSteps[0] GiveGold Target:Self Amount:20, no Randomize (main branch), Cost7 and Brown; final skill 7946 gainEconomy gold base20 mult0 and Chinese “给予 20 黄金。” Verified by this per-entity test source identity and registered prototype; four real casts (Left/Right × Magic0/10) add exactly 20 own Gold and no opponent Gold, pay 7 Mana and pass turn; two failed casts (mana6/Silence) return []/no action/unchanged Mana. Test asserts display nonempty; exact wording is a separate static comparison. Historical official guide uses a DIFFERENT Gold-gain skill as generic precedent only.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "catalog",
+            "register",
+            "gold",
+            "goldEffect",
+            "officialGold",
+            "parallel"
+          ],
+          "tests": [
+            "tests/unit/gowParallelSignoffTroops.test.ts"
+          ]
+        }
+      ],
+      "branchReviews": [
+        {
+          "id": "main",
+          "status": "verified",
+          "note": "troop:6614: English “Gain 20 Gold.” (one c1 clause) / native SpellSteps[0] GiveGold Target:Self Amount:20, no Randomize (main branch), Cost7 and Brown; final skill 7946 gainEconomy gold base20 mult0 and Chinese “给予 20 黄金。” Verified by this per-entity test source identity and registered prototype; four real casts (Left/Right × Magic0/10) add exactly 20 own Gold and no opponent Gold, pay 7 Mana and pass turn; two failed casts (mana6/Silence) return []/no action/unchanged Mana. Test asserts display nonempty; exact wording is a separate static comparison. Historical official guide uses a DIFFERENT Gold-gain skill as generic precedent only.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "catalog",
+            "register",
+            "gold",
+            "goldEffect",
+            "officialGold",
+            "parallel"
+          ],
+          "tests": [
+            "tests/unit/gowParallelSignoffTroops.test.ts"
+          ]
+        }
+      ],
+      "pendingReasons": [
+        "Coordinator must merge this isolated record and rerun same-source-fingerprint full verification/typecheck: current verification-receipt.json does NOT include tests/unit/gowParallelSignoffTroops.test.ts; this staging accept is not yet ledger acceptance.",
+        "Direct negative test asserts no events/action and unchanged mana but not unchanged Gold balance; consider explicit Gold balance assertion before final coordinator acceptance if requiring that stronger negative invariant.",
+        "Historical official guide confirms generic Gain Gold action only; exact 7946/20/colours come from independent stored English/native snapshots, not from historical official example."
+      ],
+      "scopedEvidence": {
+        "existingEntitySkillTests": [
+          "tests/unit/gowParallelSignoffTroops.test.ts"
+        ],
+        "sharedPrimitiveTests": [
+          "tests/unit/economyEngine.test.ts",
+          "tests/unit/gowGoldOwnershipAudit.test.ts"
+        ],
+        "historicalReceiptAt": "2026-09-27T15:06:24.415Z",
+        "historicalReceiptFingerprint": "40b01f972eaecffaf9afcf60a47fbe4fd4fa6da384e54e82d4fd5834deb93ac4",
+        "matchedLedgerFingerprint": true,
+        "receiptSuites": [
+          {
+            "path": "tests/unit/economyEngine.test.ts",
+            "status": "passed",
+            "passed": 15,
+            "failed": 0
+          },
+          {
+            "path": "tests/unit/gowGoldOwnershipAudit.test.ts",
+            "status": "passed",
+            "passed": 149,
+            "failed": 0
+          }
+        ],
+        "note": "Four per-entity actual TurnEngine casts with positive assertions; negative mana/Silence casts; historic receipt predates this suite. Do not promote to whole-skill eligible until coordinator same-fingerprint verification.",
+        "testSourceSha256": "531d9e3791ff468e0d0f7cc2c4b4f3e9db96666ef908eb787cab7558dff4797d",
+        "userReportedTargetedRun": {
+          "path": "tests/unit/gowParallelSignoffTroops.test.ts",
+          "examples": 42,
+          "reportedBy": "coordinator via user",
+          "note": "User reports targeted run passing; not independently run by this worker and not yet present in saved full verification receipt."
+        },
+        "historicalReceiptHasTargetSuite": false
+      }
+    },
+    {
+      "key": "troop:6615",
+      "scope": "stored-gow-snapshot",
+      "sourceDigest": "efae9ba94df3b7d1d7f41b8a48806c835702fd17d123d60ff179124743ec5b0c",
+      "reviewer": "worker-fast-01 (per-entity source/test audit; no new tests)",
+      "reviewedAt": "2026-09-27",
+      "decision": "accept",
+      "sourceEvidence": [
+        {
+          "id": "en",
+          "role": "english-snapshot",
+          "path": "data/raw/troops.gow.en.json",
+          "sha256": "be77c2dd9838435f5461b763e9f1e1436e53ae9be36fc35eaadea71060e6b757",
+          "note": "Entity ID/SpellId, English clause, mana colours/cost; stored extracted snapshot, not live certification."
+        },
+        {
+          "id": "native",
+          "role": "native-snapshot",
+          "path": "data/raw/spells.gow.en.json",
+          "sha256": "ddc7e03e23a6ea880e34fc8f1b7f0572b15f42041e979c443642d735f89dd63b",
+          "note": "SpellId-indexed native data/RawData: Cost, Target, and every non-None SpellSteps field."
+        },
+        {
+          "id": "catalog",
+          "role": "project-final-catalogue",
+          "path": "src/data/troops.json",
+          "sha256": "98c20b7260205040fe4e6387b3011b18b9fe6b4bb110282578a9c7b1adb366b6",
+          "note": "Final per-entity spell.id, cost, mana colours, and Chinese description; static evidence only."
+        },
+        {
+          "id": "register",
+          "role": "project-registration",
+          "path": "src/engine/skills/library.ts",
+          "sha256": "33abdce3ba610a2ed0fca0f7c573a1ec0c11bb7a96a03c8b7cef3e8357b0f381",
+          "note": "Shared registration path maps curated spell ID to combat prototype; not proof of casting any specific troop."
+        },
+        {
+          "id": "receipt",
+          "role": "historical-verification-receipt",
+          "path": "artifacts/gow-skill-audit/verification-receipt.json",
+          "sha256": "860ea939f281c5228582eee20815f9234111f77b08e05a72250db3b1d19affa7",
+          "note": "Saved receipt reports suites passing at ledger fingerprint; not a new run or guarantee that present source is unchanged."
+        },
+        {
+          "id": "gold",
+          "role": "project-implementation",
+          "path": "src/engine/skills/curated/batch-r18.ts",
+          "sha256": "2fcbd7aae535e4b8403dbe45fd8d9032cd3a472544084fb223b64f84668271dd",
+          "note": "7946 curated gainGold(20), shared by the three independently bound troops."
+        },
+        {
+          "id": "goldEffect",
+          "role": "project-implementation",
+          "path": "src/engine/skills/effects/economy.ts",
+          "sha256": "0d1a1919e772bde64b6f473d6ee92aa050f13e708e994dddc944624f9ffb3de5",
+          "note": "Gain gold credits caster side and emits economy-gain event."
+        },
+        {
+          "id": "goldTest",
+          "role": "existing-shared-primitive-test",
+          "path": "tests/unit/economyEngine.test.ts",
+          "sha256": "230dae0abc59ea547b81e5faab81e7039b1eac9584192fe45f61c295c99fcd5a",
+          "note": "Generic gainGold(10) primitive and synthetic gold10 cast; no 7946 or source troop 6614/6615/6616 cast."
+        },
+        {
+          "id": "goldSideTest",
+          "role": "existing-shared-primitive-test",
+          "path": "tests/unit/gowGoldOwnershipAudit.test.ts",
+          "sha256": "c5d42209db461cda278a49ebfbd2630fb78e7131e21c2916c694d00c3716e0d7",
+          "note": "Generic gainGold(4) for both sides; no 7946 or one of the three troop entities."
+        },
+        {
+          "id": "officialGold",
+          "role": "official-shared-rule",
+          "path": "artifacts/gow-skill-audit/gold-primary-sources/official-brian-guide.html",
+          "sha256": "cb2924f8f48fb400e5918ad2c75d7f3a40ae12e4d839c0c84e5168ab452e89a7",
+          "note": "Historical official Alchemy example uses Gain [3+Magic] Gold; only generic gain-gold precedent, NOT 7946, fixed 20, any treasure ID, or gold ownership rules."
+        },
+        {
+          "id": "parallel",
+          "role": "existing-entity-parameterized-battle-test",
+          "path": "tests/unit/gowParallelSignoffTroops.test.ts",
+          "sha256": "531d9e3791ff468e0d0f7cc2c4b4f3e9db96666ef908eb787cab7558dff4797d",
+          "note": "Actual troop:6615 parameterized case: independent source/final binding and Green, stored native GiveGold/20, registry prototype, both sides x Magic 0/10 real TurnEngine.castSkill (own +20, opponent unchanged, one gold event, enemies unchanged, mana 7->0, action log 1/opponent turn, no extra turn); under-mana and Silence yield []/no action/unchanged mana. Test builds a generic caster using c.spell/cost/colors rather than instantiating final troop object; separate same-case catalogue assertions establish the entity binding. Test only checks Chinese description is nonempty: exact semantic translation independently cross-checked against English/native in this record. Coordinator reports 42 examples passed; historical verification receipt does not yet include this file."
+        }
+      ],
+      "dimensions": {
+        "identity-cost-colors": {
+          "status": "verified",
+          "note": "Independently checks source troop:6615 binds SpellId 7946 / cost7 / Green, native Cost7, final TROOPS identity cost and Green; cast fixture selects that c.spell/cost/colors. Separate identity assertions and actual skill cast share this entity's parameter case.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "catalog",
+            "register",
+            "gold",
+            "goldEffect",
+            "officialGold",
+            "parallel"
+          ],
+          "tests": [
+            "tests/unit/gowParallelSignoffTroops.test.ts"
+          ]
+        },
+        "target-count-range": {
+          "status": "not-applicable",
+          "note": "target-count-range: native has exactly one unconditional GiveGold Self Amount20 step (no enemies, gems, summon/transform, secondary boost or target-death/retargeting); per-entity cast confirms enemies take zero damage and no extra turn. English/natural-language scope is fixed 20 Gold; independent Green binding checked.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "catalog",
+            "parallel"
+          ]
+        },
+        "base-formula-rounding": {
+          "status": "verified",
+          "note": "English Gain 20 Gold.; native GiveGold Self Amount20 without Magic multiplier; registered gainEconomy gold scaling base20/mult0; Magic 0 and 10 on both sides each add exactly 20. No rounding or cap in this single step.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "catalog",
+            "register",
+            "gold",
+            "goldEffect",
+            "officialGold",
+            "parallel"
+          ],
+          "tests": [
+            "tests/unit/gowParallelSignoffTroops.test.ts"
+          ]
+        },
+        "boost-source-ratio-cap": {
+          "status": "not-applicable",
+          "note": "boost-source-ratio-cap: native has exactly one unconditional GiveGold Self Amount20 step (no enemies, gems, summon/transform, secondary boost or target-death/retargeting); per-entity cast confirms enemies take zero damage and no extra turn. English/natural-language scope is fixed 20 Gold; independent Green binding checked.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "catalog",
+            "parallel"
+          ]
+        },
+        "conditions-probabilities-branches": {
+          "status": "not-applicable",
+          "note": "conditions-probabilities-branches: native has exactly one unconditional GiveGold Self Amount20 step (no enemies, gems, summon/transform, secondary boost or target-death/retargeting); per-entity cast confirms enemies take zero damage and no extra turn. English/natural-language scope is fixed 20 Gold; independent Green binding checked.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "catalog",
+            "parallel"
+          ]
+        },
+        "status-duration-immunity": {
+          "status": "not-applicable",
+          "note": "status-duration-immunity: native has exactly one unconditional GiveGold Self Amount20 step (no enemies, gems, summon/transform, secondary boost or target-death/retargeting); per-entity cast confirms enemies take zero damage and no extra turn. English/natural-language scope is fixed 20 Gold; independent Green binding checked.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "catalog",
+            "parallel"
+          ]
+        },
+        "gems-types-selection-resolution": {
+          "status": "not-applicable",
+          "note": "gems-types-selection-resolution: native has exactly one unconditional GiveGold Self Amount20 step (no enemies, gems, summon/transform, secondary boost or target-death/retargeting); per-entity cast confirms enemies take zero damage and no extra turn. English/natural-language scope is fixed 20 Gold; independent Green binding checked.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "catalog",
+            "parallel"
+          ]
+        },
+        "summon-transform-pools": {
+          "status": "not-applicable",
+          "note": "summon-transform-pools: native has exactly one unconditional GiveGold Self Amount20 step (no enemies, gems, summon/transform, secondary boost or target-death/retargeting); per-entity cast confirms enemies take zero damage and no extra turn. English/natural-language scope is fixed 20 Gold; independent Green binding checked.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "catalog",
+            "parallel"
+          ]
+        },
+        "order-death-retargeting": {
+          "status": "not-applicable",
+          "note": "order-death-retargeting: native has exactly one unconditional GiveGold Self Amount20 step (no enemies, gems, summon/transform, secondary boost or target-death/retargeting); per-entity cast confirms enemies take zero damage and no extra turn. English/natural-language scope is fixed 20 Gold; independent Green binding checked.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "catalog",
+            "parallel"
+          ]
+        },
+        "mana-economy-extra-turn": {
+          "status": "verified",
+          "note": "Two sides x Magic 0/10: own Gold 3->23, other side stays 11, exactly one economy-gain(gold,20,side); 7 Mana spent, one action and opponent turn, no extra-turn event. Low mana6/Silence yield []/no action/unchanged mana; low-mana negative test does not explicitly assert Gold remains unchanged, but no event is emitted and one economy-only prototype has no other effect.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "catalog",
+            "register",
+            "gold",
+            "goldEffect",
+            "officialGold",
+            "parallel"
+          ],
+          "tests": [
+            "tests/unit/gowParallelSignoffTroops.test.ts"
+          ]
+        },
+        "display-description": {
+          "status": "verified",
+          "note": "Stored English Gain 20 Gold. and native GiveGold/20 agree with Chinese “给予 20 黄金。” on troop:6615; suite checks final description nonempty only; exact wording is reviewed directly from src/data/troops.json and raw English, not attributed to a nonexistent exact-string test.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "catalog",
+            "register",
+            "gold",
+            "goldEffect",
+            "officialGold",
+            "parallel"
+          ],
+          "tests": [
+            "tests/unit/gowParallelSignoffTroops.test.ts"
+          ]
+        },
+        "battle-pipeline": {
+          "status": "verified",
+          "note": "Real TurnEngine.castSkill in per-entity troop:6615 case registers skill 7946 and casts with c.cost7/c.colors Green on Left and Right; asserts correct side gold/event, mana/action/turn, negative under-mana & Silence. Fixture caster is generic with matching spell/cost/colors; binding independently asserted against actual TROOPS[id].",
+          "evidenceIds": [
+            "en",
+            "native",
+            "catalog",
+            "register",
+            "gold",
+            "goldEffect",
+            "officialGold",
+            "parallel"
+          ],
+          "tests": [
+            "tests/unit/gowParallelSignoffTroops.test.ts"
+          ],
+          "realBattleEntry": true
+        }
+      },
+      "clauseReviews": [
+        {
+          "id": "c1",
+          "status": "verified",
+          "note": "troop:6615: English “Gain 20 Gold.” (one c1 clause) / native SpellSteps[0] GiveGold Target:Self Amount:20, no Randomize (main branch), Cost7 and Green; final skill 7946 gainEconomy gold base20 mult0 and Chinese “给予 20 黄金。” Verified by this per-entity test source identity and registered prototype; four real casts (Left/Right × Magic0/10) add exactly 20 own Gold and no opponent Gold, pay 7 Mana and pass turn; two failed casts (mana6/Silence) return []/no action/unchanged Mana. Test asserts display nonempty; exact wording is a separate static comparison. Historical official guide uses a DIFFERENT Gold-gain skill as generic precedent only.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "catalog",
+            "register",
+            "gold",
+            "goldEffect",
+            "officialGold",
+            "parallel"
+          ],
+          "tests": [
+            "tests/unit/gowParallelSignoffTroops.test.ts"
+          ]
+        }
+      ],
+      "nativeStepReviews": [
+        {
+          "id": "0",
+          "status": "verified",
+          "note": "troop:6615: English “Gain 20 Gold.” (one c1 clause) / native SpellSteps[0] GiveGold Target:Self Amount:20, no Randomize (main branch), Cost7 and Green; final skill 7946 gainEconomy gold base20 mult0 and Chinese “给予 20 黄金。” Verified by this per-entity test source identity and registered prototype; four real casts (Left/Right × Magic0/10) add exactly 20 own Gold and no opponent Gold, pay 7 Mana and pass turn; two failed casts (mana6/Silence) return []/no action/unchanged Mana. Test asserts display nonempty; exact wording is a separate static comparison. Historical official guide uses a DIFFERENT Gold-gain skill as generic precedent only.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "catalog",
+            "register",
+            "gold",
+            "goldEffect",
+            "officialGold",
+            "parallel"
+          ],
+          "tests": [
+            "tests/unit/gowParallelSignoffTroops.test.ts"
+          ]
+        }
+      ],
+      "branchReviews": [
+        {
+          "id": "main",
+          "status": "verified",
+          "note": "troop:6615: English “Gain 20 Gold.” (one c1 clause) / native SpellSteps[0] GiveGold Target:Self Amount:20, no Randomize (main branch), Cost7 and Green; final skill 7946 gainEconomy gold base20 mult0 and Chinese “给予 20 黄金。” Verified by this per-entity test source identity and registered prototype; four real casts (Left/Right × Magic0/10) add exactly 20 own Gold and no opponent Gold, pay 7 Mana and pass turn; two failed casts (mana6/Silence) return []/no action/unchanged Mana. Test asserts display nonempty; exact wording is a separate static comparison. Historical official guide uses a DIFFERENT Gold-gain skill as generic precedent only.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "catalog",
+            "register",
+            "gold",
+            "goldEffect",
+            "officialGold",
+            "parallel"
+          ],
+          "tests": [
+            "tests/unit/gowParallelSignoffTroops.test.ts"
+          ]
+        }
+      ],
+      "pendingReasons": [
+        "Coordinator must merge this isolated record and rerun same-source-fingerprint full verification/typecheck: current verification-receipt.json does NOT include tests/unit/gowParallelSignoffTroops.test.ts; this staging accept is not yet ledger acceptance.",
+        "Direct negative test asserts no events/action and unchanged mana but not unchanged Gold balance; consider explicit Gold balance assertion before final coordinator acceptance if requiring that stronger negative invariant.",
+        "Historical official guide confirms generic Gain Gold action only; exact 7946/20/colours come from independent stored English/native snapshots, not from historical official example."
+      ],
+      "scopedEvidence": {
+        "existingEntitySkillTests": [
+          "tests/unit/gowParallelSignoffTroops.test.ts"
+        ],
+        "sharedPrimitiveTests": [
+          "tests/unit/economyEngine.test.ts",
+          "tests/unit/gowGoldOwnershipAudit.test.ts"
+        ],
+        "historicalReceiptAt": "2026-09-27T15:06:24.415Z",
+        "historicalReceiptFingerprint": "40b01f972eaecffaf9afcf60a47fbe4fd4fa6da384e54e82d4fd5834deb93ac4",
+        "matchedLedgerFingerprint": true,
+        "receiptSuites": [
+          {
+            "path": "tests/unit/economyEngine.test.ts",
+            "status": "passed",
+            "passed": 15,
+            "failed": 0
+          },
+          {
+            "path": "tests/unit/gowGoldOwnershipAudit.test.ts",
+            "status": "passed",
+            "passed": 149,
+            "failed": 0
+          }
+        ],
+        "note": "Four per-entity actual TurnEngine casts with positive assertions; negative mana/Silence casts; historic receipt predates this suite. Do not promote to whole-skill eligible until coordinator same-fingerprint verification.",
+        "testSourceSha256": "531d9e3791ff468e0d0f7cc2c4b4f3e9db96666ef908eb787cab7558dff4797d",
+        "userReportedTargetedRun": {
+          "path": "tests/unit/gowParallelSignoffTroops.test.ts",
+          "examples": 42,
+          "reportedBy": "coordinator via user",
+          "note": "User reports targeted run passing; not independently run by this worker and not yet present in saved full verification receipt."
+        },
+        "historicalReceiptHasTargetSuite": false
+      }
+    },
+    {
+      "key": "troop:6616",
+      "scope": "stored-gow-snapshot",
+      "sourceDigest": "9756f6abba6e03221a7eef28e5b8efae3e030959ac6bb05221e35c7645a4e5d9",
+      "reviewer": "worker-fast-01 (per-entity source/test audit; no new tests)",
+      "reviewedAt": "2026-09-27",
+      "decision": "accept",
+      "sourceEvidence": [
+        {
+          "id": "en",
+          "role": "english-snapshot",
+          "path": "data/raw/troops.gow.en.json",
+          "sha256": "be77c2dd9838435f5461b763e9f1e1436e53ae9be36fc35eaadea71060e6b757",
+          "note": "Entity ID/SpellId, English clause, mana colours/cost; stored extracted snapshot, not live certification."
+        },
+        {
+          "id": "native",
+          "role": "native-snapshot",
+          "path": "data/raw/spells.gow.en.json",
+          "sha256": "ddc7e03e23a6ea880e34fc8f1b7f0572b15f42041e979c443642d735f89dd63b",
+          "note": "SpellId-indexed native data/RawData: Cost, Target, and every non-None SpellSteps field."
+        },
+        {
+          "id": "catalog",
+          "role": "project-final-catalogue",
+          "path": "src/data/troops.json",
+          "sha256": "98c20b7260205040fe4e6387b3011b18b9fe6b4bb110282578a9c7b1adb366b6",
+          "note": "Final per-entity spell.id, cost, mana colours, and Chinese description; static evidence only."
+        },
+        {
+          "id": "register",
+          "role": "project-registration",
+          "path": "src/engine/skills/library.ts",
+          "sha256": "33abdce3ba610a2ed0fca0f7c573a1ec0c11bb7a96a03c8b7cef3e8357b0f381",
+          "note": "Shared registration path maps curated spell ID to combat prototype; not proof of casting any specific troop."
+        },
+        {
+          "id": "receipt",
+          "role": "historical-verification-receipt",
+          "path": "artifacts/gow-skill-audit/verification-receipt.json",
+          "sha256": "860ea939f281c5228582eee20815f9234111f77b08e05a72250db3b1d19affa7",
+          "note": "Saved receipt reports suites passing at ledger fingerprint; not a new run or guarantee that present source is unchanged."
+        },
+        {
+          "id": "gold",
+          "role": "project-implementation",
+          "path": "src/engine/skills/curated/batch-r18.ts",
+          "sha256": "2fcbd7aae535e4b8403dbe45fd8d9032cd3a472544084fb223b64f84668271dd",
+          "note": "7946 curated gainGold(20), shared by the three independently bound troops."
+        },
+        {
+          "id": "goldEffect",
+          "role": "project-implementation",
+          "path": "src/engine/skills/effects/economy.ts",
+          "sha256": "0d1a1919e772bde64b6f473d6ee92aa050f13e708e994dddc944624f9ffb3de5",
+          "note": "Gain gold credits caster side and emits economy-gain event."
+        },
+        {
+          "id": "goldTest",
+          "role": "existing-shared-primitive-test",
+          "path": "tests/unit/economyEngine.test.ts",
+          "sha256": "230dae0abc59ea547b81e5faab81e7039b1eac9584192fe45f61c295c99fcd5a",
+          "note": "Generic gainGold(10) primitive and synthetic gold10 cast; no 7946 or source troop 6614/6615/6616 cast."
+        },
+        {
+          "id": "goldSideTest",
+          "role": "existing-shared-primitive-test",
+          "path": "tests/unit/gowGoldOwnershipAudit.test.ts",
+          "sha256": "c5d42209db461cda278a49ebfbd2630fb78e7131e21c2916c694d00c3716e0d7",
+          "note": "Generic gainGold(4) for both sides; no 7946 or one of the three troop entities."
+        },
+        {
+          "id": "officialGold",
+          "role": "official-shared-rule",
+          "path": "artifacts/gow-skill-audit/gold-primary-sources/official-brian-guide.html",
+          "sha256": "cb2924f8f48fb400e5918ad2c75d7f3a40ae12e4d839c0c84e5168ab452e89a7",
+          "note": "Historical official Alchemy example uses Gain [3+Magic] Gold; only generic gain-gold precedent, NOT 7946, fixed 20, any treasure ID, or gold ownership rules."
+        },
+        {
+          "id": "parallel",
+          "role": "existing-entity-parameterized-battle-test",
+          "path": "tests/unit/gowParallelSignoffTroops.test.ts",
+          "sha256": "531d9e3791ff468e0d0f7cc2c4b4f3e9db96666ef908eb787cab7558dff4797d",
+          "note": "Actual troop:6616 parameterized case: independent source/final binding and Blue, stored native GiveGold/20, registry prototype, both sides x Magic 0/10 real TurnEngine.castSkill (own +20, opponent unchanged, one gold event, enemies unchanged, mana 7->0, action log 1/opponent turn, no extra turn); under-mana and Silence yield []/no action/unchanged mana. Test builds a generic caster using c.spell/cost/colors rather than instantiating final troop object; separate same-case catalogue assertions establish the entity binding. Test only checks Chinese description is nonempty: exact semantic translation independently cross-checked against English/native in this record. Coordinator reports 42 examples passed; historical verification receipt does not yet include this file."
+        }
+      ],
+      "dimensions": {
+        "identity-cost-colors": {
+          "status": "verified",
+          "note": "Independently checks source troop:6616 binds SpellId 7946 / cost7 / Blue, native Cost7, final TROOPS identity cost and Blue; cast fixture selects that c.spell/cost/colors. Separate identity assertions and actual skill cast share this entity's parameter case.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "catalog",
+            "register",
+            "gold",
+            "goldEffect",
+            "officialGold",
+            "parallel"
+          ],
+          "tests": [
+            "tests/unit/gowParallelSignoffTroops.test.ts"
+          ]
+        },
+        "target-count-range": {
+          "status": "not-applicable",
+          "note": "target-count-range: native has exactly one unconditional GiveGold Self Amount20 step (no enemies, gems, summon/transform, secondary boost or target-death/retargeting); per-entity cast confirms enemies take zero damage and no extra turn. English/natural-language scope is fixed 20 Gold; independent Blue binding checked.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "catalog",
+            "parallel"
+          ]
+        },
+        "base-formula-rounding": {
+          "status": "verified",
+          "note": "English Gain 20 Gold.; native GiveGold Self Amount20 without Magic multiplier; registered gainEconomy gold scaling base20/mult0; Magic 0 and 10 on both sides each add exactly 20. No rounding or cap in this single step.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "catalog",
+            "register",
+            "gold",
+            "goldEffect",
+            "officialGold",
+            "parallel"
+          ],
+          "tests": [
+            "tests/unit/gowParallelSignoffTroops.test.ts"
+          ]
+        },
+        "boost-source-ratio-cap": {
+          "status": "not-applicable",
+          "note": "boost-source-ratio-cap: native has exactly one unconditional GiveGold Self Amount20 step (no enemies, gems, summon/transform, secondary boost or target-death/retargeting); per-entity cast confirms enemies take zero damage and no extra turn. English/natural-language scope is fixed 20 Gold; independent Blue binding checked.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "catalog",
+            "parallel"
+          ]
+        },
+        "conditions-probabilities-branches": {
+          "status": "not-applicable",
+          "note": "conditions-probabilities-branches: native has exactly one unconditional GiveGold Self Amount20 step (no enemies, gems, summon/transform, secondary boost or target-death/retargeting); per-entity cast confirms enemies take zero damage and no extra turn. English/natural-language scope is fixed 20 Gold; independent Blue binding checked.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "catalog",
+            "parallel"
+          ]
+        },
+        "status-duration-immunity": {
+          "status": "not-applicable",
+          "note": "status-duration-immunity: native has exactly one unconditional GiveGold Self Amount20 step (no enemies, gems, summon/transform, secondary boost or target-death/retargeting); per-entity cast confirms enemies take zero damage and no extra turn. English/natural-language scope is fixed 20 Gold; independent Blue binding checked.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "catalog",
+            "parallel"
+          ]
+        },
+        "gems-types-selection-resolution": {
+          "status": "not-applicable",
+          "note": "gems-types-selection-resolution: native has exactly one unconditional GiveGold Self Amount20 step (no enemies, gems, summon/transform, secondary boost or target-death/retargeting); per-entity cast confirms enemies take zero damage and no extra turn. English/natural-language scope is fixed 20 Gold; independent Blue binding checked.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "catalog",
+            "parallel"
+          ]
+        },
+        "summon-transform-pools": {
+          "status": "not-applicable",
+          "note": "summon-transform-pools: native has exactly one unconditional GiveGold Self Amount20 step (no enemies, gems, summon/transform, secondary boost or target-death/retargeting); per-entity cast confirms enemies take zero damage and no extra turn. English/natural-language scope is fixed 20 Gold; independent Blue binding checked.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "catalog",
+            "parallel"
+          ]
+        },
+        "order-death-retargeting": {
+          "status": "not-applicable",
+          "note": "order-death-retargeting: native has exactly one unconditional GiveGold Self Amount20 step (no enemies, gems, summon/transform, secondary boost or target-death/retargeting); per-entity cast confirms enemies take zero damage and no extra turn. English/natural-language scope is fixed 20 Gold; independent Blue binding checked.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "catalog",
+            "parallel"
+          ]
+        },
+        "mana-economy-extra-turn": {
+          "status": "verified",
+          "note": "Two sides x Magic 0/10: own Gold 3->23, other side stays 11, exactly one economy-gain(gold,20,side); 7 Mana spent, one action and opponent turn, no extra-turn event. Low mana6/Silence yield []/no action/unchanged mana; low-mana negative test does not explicitly assert Gold remains unchanged, but no event is emitted and one economy-only prototype has no other effect.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "catalog",
+            "register",
+            "gold",
+            "goldEffect",
+            "officialGold",
+            "parallel"
+          ],
+          "tests": [
+            "tests/unit/gowParallelSignoffTroops.test.ts"
+          ]
+        },
+        "display-description": {
+          "status": "verified",
+          "note": "Stored English Gain 20 Gold. and native GiveGold/20 agree with Chinese “给予 20 黄金。” on troop:6616; suite checks final description nonempty only; exact wording is reviewed directly from src/data/troops.json and raw English, not attributed to a nonexistent exact-string test.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "catalog",
+            "register",
+            "gold",
+            "goldEffect",
+            "officialGold",
+            "parallel"
+          ],
+          "tests": [
+            "tests/unit/gowParallelSignoffTroops.test.ts"
+          ]
+        },
+        "battle-pipeline": {
+          "status": "verified",
+          "note": "Real TurnEngine.castSkill in per-entity troop:6616 case registers skill 7946 and casts with c.cost7/c.colors Blue on Left and Right; asserts correct side gold/event, mana/action/turn, negative under-mana & Silence. Fixture caster is generic with matching spell/cost/colors; binding independently asserted against actual TROOPS[id].",
+          "evidenceIds": [
+            "en",
+            "native",
+            "catalog",
+            "register",
+            "gold",
+            "goldEffect",
+            "officialGold",
+            "parallel"
+          ],
+          "tests": [
+            "tests/unit/gowParallelSignoffTroops.test.ts"
+          ],
+          "realBattleEntry": true
+        }
+      },
+      "clauseReviews": [
+        {
+          "id": "c1",
+          "status": "verified",
+          "note": "troop:6616: English “Gain 20 Gold.” (one c1 clause) / native SpellSteps[0] GiveGold Target:Self Amount:20, no Randomize (main branch), Cost7 and Blue; final skill 7946 gainEconomy gold base20 mult0 and Chinese “给予 20 黄金。” Verified by this per-entity test source identity and registered prototype; four real casts (Left/Right × Magic0/10) add exactly 20 own Gold and no opponent Gold, pay 7 Mana and pass turn; two failed casts (mana6/Silence) return []/no action/unchanged Mana. Test asserts display nonempty; exact wording is a separate static comparison. Historical official guide uses a DIFFERENT Gold-gain skill as generic precedent only.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "catalog",
+            "register",
+            "gold",
+            "goldEffect",
+            "officialGold",
+            "parallel"
+          ],
+          "tests": [
+            "tests/unit/gowParallelSignoffTroops.test.ts"
+          ]
+        }
+      ],
+      "nativeStepReviews": [
+        {
+          "id": "0",
+          "status": "verified",
+          "note": "troop:6616: English “Gain 20 Gold.” (one c1 clause) / native SpellSteps[0] GiveGold Target:Self Amount:20, no Randomize (main branch), Cost7 and Blue; final skill 7946 gainEconomy gold base20 mult0 and Chinese “给予 20 黄金。” Verified by this per-entity test source identity and registered prototype; four real casts (Left/Right × Magic0/10) add exactly 20 own Gold and no opponent Gold, pay 7 Mana and pass turn; two failed casts (mana6/Silence) return []/no action/unchanged Mana. Test asserts display nonempty; exact wording is a separate static comparison. Historical official guide uses a DIFFERENT Gold-gain skill as generic precedent only.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "catalog",
+            "register",
+            "gold",
+            "goldEffect",
+            "officialGold",
+            "parallel"
+          ],
+          "tests": [
+            "tests/unit/gowParallelSignoffTroops.test.ts"
+          ]
+        }
+      ],
+      "branchReviews": [
+        {
+          "id": "main",
+          "status": "verified",
+          "note": "troop:6616: English “Gain 20 Gold.” (one c1 clause) / native SpellSteps[0] GiveGold Target:Self Amount:20, no Randomize (main branch), Cost7 and Blue; final skill 7946 gainEconomy gold base20 mult0 and Chinese “给予 20 黄金。” Verified by this per-entity test source identity and registered prototype; four real casts (Left/Right × Magic0/10) add exactly 20 own Gold and no opponent Gold, pay 7 Mana and pass turn; two failed casts (mana6/Silence) return []/no action/unchanged Mana. Test asserts display nonempty; exact wording is a separate static comparison. Historical official guide uses a DIFFERENT Gold-gain skill as generic precedent only.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "catalog",
+            "register",
+            "gold",
+            "goldEffect",
+            "officialGold",
+            "parallel"
+          ],
+          "tests": [
+            "tests/unit/gowParallelSignoffTroops.test.ts"
+          ]
+        }
+      ],
+      "pendingReasons": [
+        "Coordinator must merge this isolated record and rerun same-source-fingerprint full verification/typecheck: current verification-receipt.json does NOT include tests/unit/gowParallelSignoffTroops.test.ts; this staging accept is not yet ledger acceptance.",
+        "Direct negative test asserts no events/action and unchanged mana but not unchanged Gold balance; consider explicit Gold balance assertion before final coordinator acceptance if requiring that stronger negative invariant.",
+        "Historical official guide confirms generic Gain Gold action only; exact 7946/20/colours come from independent stored English/native snapshots, not from historical official example."
+      ],
+      "scopedEvidence": {
+        "existingEntitySkillTests": [
+          "tests/unit/gowParallelSignoffTroops.test.ts"
+        ],
+        "sharedPrimitiveTests": [
+          "tests/unit/economyEngine.test.ts",
+          "tests/unit/gowGoldOwnershipAudit.test.ts"
+        ],
+        "historicalReceiptAt": "2026-09-27T15:06:24.415Z",
+        "historicalReceiptFingerprint": "40b01f972eaecffaf9afcf60a47fbe4fd4fa6da384e54e82d4fd5834deb93ac4",
+        "matchedLedgerFingerprint": true,
+        "receiptSuites": [
+          {
+            "path": "tests/unit/economyEngine.test.ts",
+            "status": "passed",
+            "passed": 15,
+            "failed": 0
+          },
+          {
+            "path": "tests/unit/gowGoldOwnershipAudit.test.ts",
+            "status": "passed",
+            "passed": 149,
+            "failed": 0
+          }
+        ],
+        "note": "Four per-entity actual TurnEngine casts with positive assertions; negative mana/Silence casts; historic receipt predates this suite. Do not promote to whole-skill eligible until coordinator same-fingerprint verification.",
+        "testSourceSha256": "531d9e3791ff468e0d0f7cc2c4b4f3e9db96666ef908eb787cab7558dff4797d",
+        "userReportedTargetedRun": {
+          "path": "tests/unit/gowParallelSignoffTroops.test.ts",
+          "examples": 42,
+          "reportedBy": "coordinator via user",
+          "note": "User reports targeted run passing; not independently run by this worker and not yet present in saved full verification receipt."
+        },
+        "historicalReceiptHasTargetSuite": false
+      }
+    }
+  ]
+}

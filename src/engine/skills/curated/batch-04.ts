@@ -9,8 +9,8 @@
  *   来源不带色筛选，色限定由宝石操作段本身承担（同测试口径）。
  * - 「窃取 X 名敌人生命值」= 伤害段 + drain（batch-01 7302 同款）。
  * - 一个方括号喂双属性：「赋予 [魔法+1] 点生命值和护甲」= heal + armor 共用同一缩放值（9667/7027）。
- * - 「获得攻击力和护甲值，并移除所有X宝石以增强效果」：modifier 挂最近数值段 = 护甲段
- *   （spell-rules.md「否则挂最近的数值段」；一条技能至多一个 modifier）。
+ * - 「获得攻击力和护甲值，并移除所有X宝石以增强效果」：7027 原始 CountGems + 两个 UseCounterForAmount：护甲、攻击均按移除棕宝石数获得 [4:1] 加成
+ *   （7027 以 native 步骤为准，不能套用单修饰段启发式）。
  * - 7025「赋予其屏障效果」的「其」= 前文盟友（自指会用「自己/自身」，如 7145「净化自身」）。
  */
 import { skill, dmg, dmgAll, dmgSplash, heal, armor, attack, randomStat, inflict,
@@ -64,10 +64,10 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 7011,
-    desc: '对 1 名敌人造成 [魔法 + 3] 点伤害。如果该敌人身亡，获得 6 点随机技能值。',
+    desc: "对 1 名敌人造成 [魔法 + 3] 点伤害。如果该敌人身亡，自身一项随机属性获得 6 点。",
     build: skill(
       dmg('enemyChosen', 3),
-      randomStat('allySelf', 6, 0, { ifTargetDied: true }),
+      randomStat('allySelf', 6, 0, { ifTargetDied: true, oneSkill: true }),
     ),
   },
   {
@@ -91,7 +91,7 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '给予盟友 5 点生命值，并恢复  [魔法 + 1]  点生命值。赋予其屏障效果，并创造 8 颗绿色宝石。',
     build: skill(
       heal('allyChosen', 5, 0),
-      heal('allySelf', 1), // 「恢复…生命值」未点名对象 = 自身（spell-rules.md §6）
+      heal('allyChosen', 1), // Native Heal Target=FromTarget: same selected Ally as the Life gain.
       inflict('barrier', 'allyChosen'), // 「其」= 前文盟友
       createGems(BaseColor.Green, 8, 0),
     ),
@@ -101,8 +101,8 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '获得 [魔法] 点攻击力和护甲值，并移除所有棕色宝石以增强效果。 [4:1]',
     build: skill(
       destroyColor(BaseColor.Brown),
-      attack('allySelf', 0, 1),
-      armor('allySelf', 0, 1, { modifier: { mod: { kind: 'ratio', a: 4, b: 1 }, source: { kind: 'destroyedGems' } } }),
+      armor('allySelf', 0, 1, { modifier: { mod: { kind: 'ratio', a: 4, b: 1 }, source: { kind: 'destroyedGems', color: BaseColor.Brown } } }),
+      attack('allySelf', 0, 1, { modifier: { mod: { kind: 'ratio', a: 4, b: 1 }, source: { kind: 'destroyedGems', color: BaseColor.Brown } } }),
     ),
   },
   {
@@ -147,9 +147,10 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 8957,
-    desc: '随机摧毁 8 颗宝石。',
+    desc: '随机摧毁 8 颗宝石。使首位盟友获得屏障。',
     build: skill(
       destroyRandomGems(8, 0, 'color'),
+      inflict('barrier', 'allyFront'),
     ),
   },
   {

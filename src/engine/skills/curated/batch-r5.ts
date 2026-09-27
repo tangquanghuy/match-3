@@ -4,7 +4,7 @@
  * reposition/shuffleTeam（位置）、dmg split（分摊 {N}）、'lastTarget' 目标模式（跨段绑定）、
  * summon countRange（召唤数量区间）、skillOnce/oncePerBattle、'not' 条件 + selfStat manaCost。
  */
-import { skill, dmg, trueDmg, heal, armor, attack, mana, inflict, reduce, steal,
+import { skill, dmg, trueDmg, heal, armor, attack, mana, inflict, reduce,
   createGems, createSpecialGems, transformToSpecial, explodeRandomGems, destroyChosenCol,
   destroySkulls, shuffleBoard, summonRef, extraTurn, reposition, shuffleTeam,
   skillOnce, scale } from '../builders';
@@ -31,19 +31,23 @@ const SPELLS: CuratedBatch['spells'] = [
   {
     id: 7371,
     desc: '击晕一名随机敌人，并使其陷入中毒和疾病状态。',
+    // Native order CauseDisease RandomEnemy -> CausePoison FromPrevious -> CauseStun FromPrevious (rulings/R001, L5-013):
+    // Stun disables immunity traits, so applying it first let Disease/Poison bypass immunity.
     build: skill(
-      inflict('stun', 'enemyRandom'),
+      inflict('disease', 'enemyRandom'),
       inflict('poison', 'lastTarget'),
-      inflict('disease', 'lastTarget'),
+      inflict('stun', 'lastTarget'),
     ),
   },
   {
     id: 7431,
     desc: '冻结一名敌人并使其陷入织网状态。如果板面上有 13 颗或更多蓝色宝石，则自身恢复一半的法力值。',
+    // L3-002: native spell Target Enemy + CauseFrozen/CauseWeb FromTarget = chosen enemy;
+    // GenerateMana Self StatusAmount 4 AddFor10BlueGems = fixed 4 Mana when 13+ Blue (R003).
     build: skill(
-      inflict('frozen', 'enemyRandom'),
+      inflict('frozen', 'enemyChosen'),
       inflict('web', 'lastTarget'),
-      mana('allySelf', 0, 0, { halve: true, ifCond: { kind: 'boardAtLeast', color: BaseColor.Blue, n: 13 } }),
+      mana('allySelf', 4, 0, { ifCond: { kind: 'boardAtLeast', color: BaseColor.Blue, n: 13 } }),
     ),
   },
   {
@@ -52,7 +56,8 @@ const SPELLS: CuratedBatch['spells'] = [
     build: skill(
       trueDmg('enemyRandom', 2),
       inflict('poison', 'lastTarget'),
-      reduce('lastTarget', 'mana', 5),
+      // L3-008: native DecreaseMana FromPrevious Amount 5, no SpellPowerMultiplier → fixed 5
+      reduce('lastTarget', 'mana', 5, 0),
     ),
   },
   {
@@ -121,12 +126,14 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 9131,
     desc: '将一名敌人打回末位并将其击晕。再将自身移至首位，并获得 [(魔法 x 2) + 1] 点攻击力、生命值和护甲值。',
     build: skill(
-      reposition('enemyRandom', 'back'),
-      inflict('stun', 'lastTarget'),
-      reposition('allySelf', 'front'),
+      // Native Target Enemy (L5-016): CauseStun FromTarget -> TroopOrderBack FromTarget ->
+      // Attack/Life/Armor on Self -> TroopOrderFront Self (R001 native order).
+      inflict('stun', 'enemyChosen'),
+      reposition('lastTarget', 'back'),
       attack('allySelf', 1, 2),
       heal('allySelf', 1, 2),
       armor('allySelf', 1, 2),
+      reposition('allySelf', 'front'),
     ),
   },
   {
@@ -184,7 +191,8 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 8654,
     desc: '耗掉所有敌人 7 点法力值，并使他们陷入妖火和燃烧状态。再召唤 1-3 只梦魇马。',
     build: skill(
-      reduce('enemyAll', 'mana', 7),
+      // L3-008: native DecreaseMana Amount 7, no SpellPowerMultiplier → fixed 7
+      reduce('enemyAll', 'mana', 7, 0),
       inflict('faerie-fire', 'enemyAll'),
       inflict('burning', 'enemyAll'),
       summonRef('Nightmare', undefined, { countRange: { min: 1, max: 3 } }),
@@ -195,7 +203,8 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '使所有敌人中毒并吸取 7 点法力值。然后移除所有头骨。此咒语只能使用一次。',
     build: skillOnce(
       inflict('poison', 'enemyAll'),
-      steal('enemyAll', 'mana', 'mana', 7),
+      // L3-007/L3-008: native DecreaseMana AllEnemies Amount 7 = drain a fixed 7 (no refill, no Magic)
+      reduce('enemyAll', 'mana', 7, 0),
       destroySkulls(),
     ),
   },

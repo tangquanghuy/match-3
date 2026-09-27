@@ -263,8 +263,9 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 8722,
     desc: '将一颗宝石转换成炸弹宝石。再创造 3 颗炸弹宝石或爆破所有炸弹宝石。',
     build: skill(
-      // 定量转换（原语批 §9.4）：'ANY' 不限来源取 1 颗 → 炸弹宝石
-      transformToSpecial('ANY', 'bomb', { count: 1 }),
+      // 原生 ConvertGems BoardTarget SingleGem + Color1 FromTarget（spell Target Board）= 玩家选定的
+      // 那颗宝石 → 炸弹宝石（L2-singlegem-cell；原 'ANY' 为随机一颗）
+      transformToSpecial('CELL', 'bomb', { count: 1 }),
       oneOf(
         [createSpecialGems({ kind: 'bomb' }, 3, 0)],
         [explodeSpecialGems('bomb')],
@@ -342,8 +343,8 @@ const SPELLS: CuratedBatch['spells'] = [
       // 条件子句辖三段：该敌人处于流血才生效（ifCond targetStatus 逐目标过滤，静态同目标合法）
       dispelStatus('bleed', 'enemyChosen', { ifCond: { kind: 'targetStatus', statusId: 'bleed' } }),
       inflict('curse', 'enemyChosen', { ifCond: { kind: 'targetStatus', statusId: 'bleed' } }),
-      // 「吸取其 3 点法力值」= steal mana→mana（窃取族口径）
-      steal('enemyChosen', 'mana', 'mana', 3, 0, { ifCond: { kind: 'targetStatus', statusId: 'bleed' } }),
+      // L3-007: 「吸取其 3 点法力值」native DecreaseMana (drain) — no refill to the caster
+      reduce('enemyChosen', 'mana', 3, 0, { ifCond: { kind: 'targetStatus', statusId: 'bleed' } }),
     ),
   },
 ];

@@ -20,15 +20,14 @@
  * - 「数量因地精盟友而增强 [xN]」= alliesOfRace 'Goblin' multiplier（种族计数只数己方存活，SOP §二次缩放；
  *   「召唤一名随机哥布林」才需要名单，本批无此类条目）。
  * - 「伤害值由我的金币加成 [N:M]」= battleGold 来源 ratio（本批新原语；读战场经济池当前金币）。
- * - 「窃取 5 枚金币」= gainGold(5)（金币从（共用）经济池意义上获得，不减敌方的——官方为
- *   元经济句式，本作落战场经济入账）。
+ * - 「窃取 5 枚金币」现由 stealGold(5, 0) 从独立敌方余额转移；旧共享池实现已修正。
  * - 「战利品宝石」= 赃物宝石 Booty Gem 的另一译名（GEMS-SEMANTICS-2 译名表）；createSpecialGems
  *   { kind:'bootyGem' } 合法（不可匹配、被摧毁 +10 金币）。
  * - 「召唤一名随机野兽/龙族」= summonRandom(全兵种数据里该种族 referenceName 名单)
  *   （batch-20 GIANTS 同口径，名单由 SOP §6 查询命令生成）。
  */
 import { skill, dmg, steal, armor, attack, createSkulls, createSpecialGems, explodeRandomGems,
-  destroyRandomRows, destroyRandomCols, destroyColor, summonRandom, gainGold, escape, CHOSEN } from '../builders';
+  destroyRandomRows, destroyRandomCols, destroyColor, summonRandom, stealGold, escape, CHOSEN } from '../builders';
 import type { CuratedBatch } from './index';
 
 
@@ -109,7 +108,7 @@ const SPELLS: CuratedBatch['spells'] = [
     build: skill(
       // 未写转为何属性 → 同属性回填（batch-01 7141 口径）；
       // 「一名敌人」= 指定单敌（SOP §0；2026-09-18 与 8196/8594/9736 同批校正，官方同族均 FromTarget）
-      steal('enemyChosen', 'hp', 'hp', 2, 1),
+      dmg('enemyChosen', 2, 1, { drain: true }),
       escape(0.3),
     ),
   },
@@ -217,10 +216,11 @@ const SPELLS: CuratedBatch['spells'] = [
   // ───── 经济三币种回收（battleGold 来源 + gainGold + 赃物宝石创造） ─────
   {
     id: 9783,
-    desc: '对随机一名敌人造成1点伤害，伤害值由我的金币加成。然后窃取5枚金币。 [10:1]',
+    desc: "对随机一名敌人造成1点伤害，伤害值由我的金币加成。然后窃取5枚金币。 [10:1]",
+    // English/native: Magic+2 random damage, boosted 10:1 before Gold gain. Gold theft is settled against the independent opposing balance.
     build: skill(
-      dmg('enemyRandom', 1, 0, { modifier: { mod: { kind: 'ratio', a: 10, b: 1 }, source: { kind: 'battleGold' } } }),
-      gainGold(5),
+      dmg('enemyRandom', 2, 1, { modifier: { mod: { kind: 'ratio', a: 10, b: 1 }, source: { kind: 'battleGold' } } }),
+      stealGold(5, 0),
     ),
   },
   {

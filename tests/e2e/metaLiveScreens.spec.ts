@@ -5,7 +5,7 @@ test('素材批冒烟：活动屏/入侵屏/荣耀箱', async ({ page }) => {
   await expect(page.locator('.ev-banner h1')).toBeVisible({ timeout: 15000 });
   await expect(page.locator('#evFight')).toBeVisible();
   await expect(page.locator('.ev-mile').first()).toBeVisible();
-  await expect(page.locator('.ev-goods-item').first()).toBeVisible(); // 活动商店货架
+  await expect(page.locator('[data-nav="商店"]')).toBeVisible();
   await expect(page.locator('#evTokenBalance')).toBeVisible();
   await expect(page.locator('.ev-tab')).toHaveCount(6); // 六活动页签
 

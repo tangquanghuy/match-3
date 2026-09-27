@@ -23,7 +23,7 @@ describe('SaveStore（双槽防损 + 导入导出）', () => {
     expect(fresh).toBe(true);
     expect(warning).toBeNull();
     expect(save.teams).toHaveLength(1);
-    expect(save.teams[0].members).toHaveLength(3);
+    expect(save.teams[0].members).toHaveLength(4);
   });
 
   it('persist → load 往返一致；双槽轮转正确', () => {
@@ -83,5 +83,17 @@ describe('SaveStore（双槽防损 + 导入导出）', () => {
     const store = new SaveStore(memStorage());
     expect(() => store.importJson('不是JSON')).toThrow(MetaSaveError);
     expect(() => store.importJson('{"version":99}')).toThrow(MetaSaveError);
+  });
+});
+
+ describe('legacy three-member team migration', () => {
+  it('appends the hero and preserves all three existing positions', () => {
+    const save = seedSave();
+    save.teams[0]!.members = save.teams[0]!.members.filter(m => m.kind !== 'hero');
+    const original = structuredClone(save.teams[0]!.members);
+    const store = new SaveStore(memStorage());
+    const loaded = store.importJson(JSON.stringify(save));
+    expect(loaded.teams[0]!.members).toEqual([...original, { kind: 'hero' }]);
+    expect(store.importJson(JSON.stringify(loaded)).teams).toEqual(loaded.teams);
   });
 });

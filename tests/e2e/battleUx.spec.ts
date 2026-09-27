@@ -115,7 +115,8 @@ test('667x375 3v3 keeps the original battle-card information layout', async ({ p
   await expect(cards).toHaveCount(6);
   await expectRestoredCard(cards.first());
 
-  await cards.first().locator('.gem').click();
+  // 徽记说明改为鼠标悬停（点宝石=点卡片，打开详情窗）
+  await cards.first().locator('.gem').hover();
   const manaTip = page.locator('.status-tooltip');
   await expect(manaTip.locator('.st-title')).toContainText('法力');
   await expect(manaTip).toContainText('关联颜色');
@@ -155,4 +156,175 @@ test('desktop battle cards keep magic and traits without the rejected name or ma
   await expect(cards.locator('.trait-row')).toHaveCount(6);
   await expect(cards.locator('.name-band,.name-flash,.mana-num')).toHaveCount(0);
   await page.screenshot({ path: 'artifacts/ux-phase-b/shots/battle-card-restored-desktop.png' });
+});
+
+// —— 部队详情窗 / 施法演出（lane A）——
+
+type LaneWindow = Window & {
+  __app: {
+    getEngine(): { getState(): {
+      activePlayer: string;
+      state: string;
+      teams: Record<'Left' | 'Right', { characters: Array<{ id: number; mana: number; manaCost: number; skillId: string }> }>;
+    } };
+    fillAllMana(): void;
+    getAllyIds(): number[];
+    triggerCast(id: number): Promise<void>;
+    startupPlaying: boolean;
+    casting: boolean;
+    visualPlaying: boolean;
+    player: { isPlaying(): boolean };
+    onEventsProduced: ((events: Array<{ type: string; characterId?: number }>) => void) | null;
+    playEventsWithTail(events: unknown[]): Promise<void>;
+  };
+  __casts: number[];
+};
+
+async function openStandalone(page: Page, quick: boolean, viewport = { width: 1440, height: 900 }): Promise<void> {
+  await page.setViewportSize(viewport);
+  await page.addInitScript((q) => {
+    window.localStorage.setItem('battle.gestureHintShown', '1');
+    window.localStorage.setItem('battle.skipCastConfirm', q ? '1' : '0');
+  }, quick);
+  await page.goto('/index.html');
+  await page.waitForFunction(() => {
+    const app = (window as unknown as LaneWindow).__app;
+    return !!app && document.querySelectorAll('.gcard').length === 8 && !app.startupPlaying;
+  }, undefined, { timeout: 30_000 });
+  await page.evaluate(() => {
+    const w = window as unknown as LaneWindow;
+    w.__casts = [];
+    // 只记我方施放：敌方 AI 现在也会放技能（满法力时），不属于这些用例要断言的玩家操作
+    const allies = new Set(w.__app.getAllyIds());
+    w.__app.onEventsProduced = (events) => {
+      for (const e of events) {
+        if (e.type === 'skill-cast' && e.characterId !== undefined && allies.has(e.characterId)) w.__casts.push(e.characterId);
+      }
+    };
+  });
+}
+
+async function tap(page: Page, id: number, holdMs = 60): Promise<void> {
+  const box = await page.getByTestId(`card-${id}`).boundingBox();
+  if (!box) throw new Error(`card-${id} 无边界`);
+  await page.mouse.move(box.x + box.width * 0.6, box.y + box.height * 0.4);
+  await page.mouse.down();
+  await page.waitForTimeout(holdMs);
+  await page.mouse.up();
+}
+
+const castButton = (page: Page) => page.locator('.usw.open [data-testid="unit-sheet-cast"]');
+
+test('unit window covers only the board, keeps both columns tappable, and badges never swallow the tap', async ({ page }) => {
+  await openStandalone(page, false);
+  // 点法力宝石（最显眼的位置）也是卡片动作
+  await page.getByTestId('card-1').locator('.gem').click();
+  const sheet = page.locator('.usw.open');
+  await expect(sheet).toBeVisible();
+  await expect(sheet).toHaveAttribute('data-char-id', '1');
+  const geo = await page.evaluate(() => {
+    const r = document.querySelector('.usw')!.getBoundingClientRect();
+    const cols = [...document.querySelectorAll('.gcol')].map((c) => c.getBoundingClientRect());
+    return { left: r.left, right: r.right, allyRight: cols[0].right, enemyLeft: cols[1].left };
+  });
+  expect(geo.left).toBeGreaterThanOrEqual(geo.allyRight);
+  expect(geo.right).toBeLessThanOrEqual(geo.enemyLeft);
+  // 另一张（敌方）卡切换内容；同一张再点收起
+  await tap(page, 6);
+  await expect(sheet).toHaveAttribute('data-char-id', '6');
+  await tap(page, 6);
+  await expect(page.locator('.usw.open')).toHaveCount(0);
+  // 默认模式下长按与点按相同：不画进度环
+  const box = await page.getByTestId('card-0').boundingBox();
+  await page.mouse.move(box!.x + box!.width / 2, box!.y + box!.height / 2);
+  await page.mouse.down();
+  await page.waitForTimeout(150);
+  await expect(page.getByTestId('card-0')).not.toHaveClass(/pressing/);
+  await page.waitForTimeout(450);
+  await page.mouse.up();
+  await expect(sheet).toHaveAttribute('data-char-id', '0');
+  await page.getByRole('button', { name: '关闭详情' }).click();
+  await expect(page.locator('.usw.open')).toHaveCount(0);
+  expect(await page.evaluate(() => (window as unknown as LaneWindow).__casts)).toEqual([]);
+});
+
+test('tap during playback opens the window (结算中) and the cast button enables itself later', async ({ page }) => {
+  test.setTimeout(90_000);
+  await openStandalone(page, true);
+  await page.evaluate(() => (window as unknown as LaneWindow).__app.fillAllMana());
+  await page.evaluate(() => { void (window as unknown as LaneWindow).__app.triggerCast(3); });
+  await page.waitForFunction(() => {
+    const app = (window as unknown as LaneWindow).__app;
+    return app.player.isPlaying() || app.visualPlaying;
+  });
+  // 快速释放开着，但演出中不能立刻施放 → 打开详情窗，不排队
+  await tap(page, 0);
+  await expect(castButton(page)).toHaveText('结算中');
+  await expect(castButton(page)).toBeDisabled();
+  await expect(castButton(page)).toHaveText('对手回合', { timeout: 20_000 });
+  await expect(castButton(page)).toHaveText('释放技能', { timeout: 60_000 });
+  await expect(castButton(page)).toBeEnabled();
+  expect(await page.evaluate(() => (window as unknown as LaneWindow).__casts)).toEqual([3]);
+});
+
+test('quick cast: tap casts at once with the ally cut-in; long press opens the window with the ring', async ({ page }) => {
+  await openStandalone(page, true);
+  await page.evaluate(() => (window as unknown as LaneWindow).__app.fillAllMana());
+  await tap(page, 3);
+  await expect(page.getByTestId('cast-cutin')).toBeVisible();
+  await expect(page.locator('.usw.open')).toHaveCount(0);
+  expect(await page.evaluate(() => (window as unknown as LaneWindow).__casts)).toEqual([3]);
+  // 施放瞬间卡面法力清零（宝石数字 0、撤掉可释放态），不等整段演出结束
+  await expect(page.getByTestId('card-3').locator('.gem-mana')).toHaveText('0');
+  await expect(page.getByTestId('card-3')).not.toHaveClass(/castable/);
+  await page.waitForFunction(() => {
+    const app = (window as unknown as LaneWindow).__app;
+    const s = app.getEngine().getState();
+    return !app.casting && !app.visualPlaying && !app.player.isPlaying() && s.activePlayer === 'Left'
+      && !(app as unknown as { rightTeamView: { isTurnActive(): boolean } }).rightTeamView.isTurnActive();
+  }, undefined, { timeout: 60_000 });
+  await page.evaluate(() => (window as unknown as LaneWindow).__app.fillAllMana());
+  const box = await page.getByTestId('card-2').boundingBox();
+  await page.mouse.move(box!.x + box!.width / 2, box!.y + box!.height / 2);
+  await page.mouse.down();
+  await page.waitForTimeout(120);
+  await expect(page.getByTestId('card-2')).toHaveClass(/pressing/);
+  await page.waitForTimeout(500);
+  await page.mouse.up();
+  await expect(page.locator('.usw.open')).toHaveAttribute('data-char-id', '2');
+  expect(await page.evaluate(() => (window as unknown as LaneWindow).__casts)).toEqual([3]);
+});
+
+test('enemy skill-cast drains the gem without a portrait cut-in', async ({ page }) => {
+  await openStandalone(page, false);
+  await page.evaluate(() => (window as unknown as LaneWindow).__app.fillAllMana());
+  await expect(page.getByTestId('card-4').locator('.gem-mana')).toHaveText(/\d+/);
+  await page.evaluate(() => {
+    const app = (window as unknown as LaneWindow).__app;
+    void app.playEventsWithTail([{ type: 'skill-cast', characterId: 4, skillId: 'probe' }]);
+  });
+  await expect(page.getByTestId('card-4').locator('.gem-mana')).toHaveText('0');
+  await page.waitForTimeout(300);
+  await expect(page.getByTestId('cast-cutin')).toHaveCount(0);
+});
+
+test('target reticle lands on the hovered enemy card at 1440×900', async ({ page }) => {
+  await openStandalone(page, false);
+  await page.evaluate(() => (window as unknown as LaneWindow).__app.fillAllMana());
+  // 0 号（法露特）是选敌技能
+  await page.evaluate(() => { void (window as unknown as LaneWindow).__app.triggerCast(0); });
+  await expect(page.locator('.aim-overlay')).toBeVisible();
+  for (const id of [4, 5, 6, 7]) {
+    const b = await page.getByTestId(`card-${id}`).boundingBox();
+    await page.mouse.move(b!.x + b!.width / 2, b!.y + b!.height / 2, { steps: 3 });
+    await page.waitForTimeout(260);
+    const delta = await page.evaluate((cid) => {
+      const dot = document.querySelector('.aim-reticle .dot')!.getBoundingClientRect();
+      const card = document.querySelector(`[data-testid="card-${cid}"]`)!.getBoundingClientRect();
+      return Math.hypot(dot.left + dot.width / 2 - (card.left + card.width / 2), dot.top + dot.height / 2 - (card.top + card.height / 2));
+    }, id);
+    expect(delta).toBeLessThan(4);
+  }
+  await page.keyboard.press('Escape');
+  await expect(page.locator('.aim-overlay')).toHaveCount(0);
 });

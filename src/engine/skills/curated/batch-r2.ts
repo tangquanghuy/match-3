@@ -1,9 +1,9 @@
-/**
+﻿/**
  * 放弃桶回收批 R2（2026-09-17 用户裁定：献祭/兵种转化/随机状态/藏宝图/特定兵种在场五原语落地；
  * 加上状态宝石族（波A）清尾）。核对者：窗口 G，20 条。裁定依据 spell-rules §11。
  * 原批次 skipped 对应条目已同步剪除。
  */
-import { skill, dmg, dmgSplash, heal, armor, attack, mana, inflict, randomStat, createGems, createSkulls, createSpecialGems, transformToSpecial, explodeRandomGems, oneOf, summonRef, summonRandom, sacrifice, inflictRandom, transformTroopRandom, gainMaps, CELL, explodeAt } from '../builders';
+import { skill, dmg, dmgSplash, heal, armor, attack, mana, magic, inflict, randomStat, createGems, createSkulls, createSpecialGems, transformToSpecial, explodeRandomGems, oneOf, summonRef, summonRandom, sacrifice, inflictRandom, transformTroopRandom, gainMaps, CELL, explodeAt } from '../builders';
 import { BaseColor } from '../../types';
 import type { CuratedBatch } from './index';
 
@@ -21,8 +21,8 @@ const SKIPPED: { id: number; reason: string }[] = [
 const SPELLS: CuratedBatch['spells'] = [
   {
     id: 7261,
-    desc: '对 1 名敌人造成一项随机状态效果。为一名随机盟友提升 [魔法 + 1] 点随机技能值。',
-    build: skill(inflictRandom('enemyChosen'), randomStat('allyRandom', 1, 1)),
+    desc: "对 1 名敌人造成一项随机状态效果。一名随机盟友的一项随机属性获得 [魔法 + 1] 点。",
+    build: skill(inflictRandom('enemyChosen'), randomStat('allyRandom', 1, 1, { oneSkill: true })),
   },
   {
     id: 7279,
@@ -44,12 +44,12 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 7413,
-    desc: '对所有敌人造成 [魔法 + 9] 点散射伤害，并获得下列其一：将一名随机敌人转化为怨灵，或所有盟友获得 3 点魔法值。',
+    desc: '对所有敌人造成 [魔法 + 9] 点散射伤害，并获得下列其一：将一名随机敌人转化为怨灵，或所有盟友获得 3 点魔力值。',
     build: skill(
       dmg('enemyAll', 9, 1, { range: 'all' }),
       oneOf(
         [transformTroopRandom('enemyRandom', WRAITH_REFS)],
-        [mana('allyAll', 3, 0)],
+        [magic('allyAll', 3, 0)],
       ),
     ),
   },
@@ -80,7 +80,7 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 7780,
-    desc: '给予所有其他盟友 [魔法 + 1] 点生命值、5 点护甲值、3 点攻击力和 2 点魔法值。献祭自身。',
+    desc: '给予所有其他盟友 [魔法 + 1] 点生命值、5 点护甲值、3 点攻击力和 2 点魔力值。献祭自身。',
     build: skill(
       heal('allyOthers', 1),
       armor('allyOthers', 5, 0),

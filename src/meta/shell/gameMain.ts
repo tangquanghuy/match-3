@@ -1,3 +1,6 @@
+import { backgroundMusic } from '../../audio/BackgroundMusic';
+import { musicForScreen } from '../../audio/MusicCatalog';
+import { WishlistScreen } from '../screens/wishlistScreen';
 /**
  * meta 外壳入口（game.html 唯一脚本）。
  *
@@ -55,7 +58,7 @@ const ctx: ShellCtx = {
   launchQuest: (kingdom, node) => launcher.launchQuest(kingdom, node),
   launchExplore: (kingdom, tier) => launcher.launchExplore(kingdom, tier),
   launchArenaBattle: () => launcher.launchArenaBattle(),
-  launchEventBattle: () => launcher.launchEventBattle(),
+  launchEventBattle: (choice) => launcher.launchEventBattle(choice),
   launchInvasionBattle: (mirrorId) => launcher.launchInvasionBattle(mirrorId),
   showResult: (detail, meta) => {
     resultScreen.setDetail(detail, meta);
@@ -72,6 +75,7 @@ const SCREENS: Record<string, Screen> = {
   troop: new TroopScreen(),
   hero: new HeroScreen(),
   chests: new ChestsScreen(),
+  wishlist: new WishlistScreen(),
   arena: new ArenaScreen(),
   events: new EventsScreen(),
   invasion: new InvasionScreen(),
@@ -91,6 +95,7 @@ const PAGE_TITLES: Record<string, string> = {
   hero: '主 角',
   troop: '部 队 图 鉴',
   chests: '宝 箱',
+  wishlist: '愿 望 单',
   arena: '竞 技 场',
   events: '每 周 活 动',
   invasion: '入 侵',
@@ -108,11 +113,12 @@ const PAGE_TITLES: Record<string, string> = {
 const NAV_OF: Record<string, string> = {
   map: '地图', team: '队伍', hero: '英雄', troop: '图鉴', chests: '宝箱',
   // 王国主线页是地图的下一层，导航仍高亮「地图」（避免设置页那种"孤儿页"观感）
+  wishlist: '宝箱',
   quest: '地图',
   hunt: '地图',
   weapons: '英雄',
-  gems: '宝箱',
-  shop: '地图',
+  gems: '商店',
+  shop: '商店',
 };
 
 let current: { name: string; screen: Screen; param?: string } | null = null;
@@ -121,7 +127,7 @@ async function render(): Promise<void> {
   const raw = (location.hash || '#map').replace(/^#/, '');
   const [rawName, ...parts] = raw.split('/') as [ScreenName | 'result', ...string[]];
   let name = rawName;
-  let param = parts.length ? parts.join('/') : undefined;
+  const param = parts.length ? parts.join('/') : undefined;
   if (name === 'shop' && isGemShopParam(param)) name = 'gems';
   const screen = SCREENS[name] ?? SCREENS['map']!;
   current?.screen.dispose?.();
@@ -130,6 +136,8 @@ async function render(): Promise<void> {
   screen.mount(ctx, stage, param);
   current = { name, screen, param };
   bindChrome(name);
+  const musicScene = musicForScreen(name);
+  if (musicScene) backgroundMusic.setAmbientScene(musicScene);
 }
 
 /** 共享 chrome：图标、缩放、顶栏钱包、玩家徽章、底部导航、设置入口 */
@@ -140,7 +148,7 @@ function bindChrome(name: string): void {
   $$('[data-nav]').forEach((btn) => {
     const label = (btn as HTMLElement).dataset.nav!;
     btn.classList.toggle('active', NAV_OF[name] === label);
-    btn.onclick = () => ctx.navigate('#' + ({ 地图: 'map', 队伍: 'team', 英雄: 'hero', 图鉴: 'troop', 宝箱: 'chests' } as Record<string, string>)[label]);
+    btn.onclick = () => ctx.navigate('#' + ({ 地图: 'map', 队伍: 'team', 英雄: 'hero', 图鉴: 'troop', 宝箱: 'chests', 商店: 'shop' } as Record<string, string>)[label]);
   });
   const settings = $('#settings');
   if (settings) settings.onclick = () => ctx.navigate('#settings');
@@ -194,6 +202,8 @@ function refreshMaterialsIndicator(): void {
 
 async function boot(): Promise<void> {
   applyPlayerPreferences();
+  backgroundMusic.start();
+  backgroundMusic.setScene('meta');
   const snapshot = await gateway.load();
   window.addEventListener('hashchange', () => void render());
   window.addEventListener('resize', fitStage);

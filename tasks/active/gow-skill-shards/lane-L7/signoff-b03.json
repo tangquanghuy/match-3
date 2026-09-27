@@ -1,0 +1,1695 @@
+{
+  "schemaVersion": 1,
+  "scope": "stored-gow-snapshot",
+  "reviews": [
+    {
+      "key": "troop:7501",
+      "scope": "stored-gow-snapshot",
+      "sourceDigest": "cb16947e8b761c4e2c275e86334e758a106c32a80309f37c6a92197c770f87a6",
+      "reviewer": "sa-L76",
+      "reviewedAt": "2026-09-27",
+      "decision": "accept",
+      "ledgerFingerprintAtReview": "2267675b18d947711b5f7ad1a9ce7888539836036f4653aeb838597a661ebffb",
+      "_reference": {
+        "spellId": 9246,
+        "english": "Deal [Magic + 4] damage to an Enemy, boosted by all Ally Armor. If they are a Boss, deal 3x - 5x damage, based on my Ascensions. [4:1]",
+        "nativeTarget": "Enemy",
+        "randomize": null,
+        "steps": [
+          {
+            "Target": "AllAllies",
+            "Amount": 25,
+            "Type": "CountArmor"
+          },
+          {
+            "SpellPowerMultiplier": 1,
+            "Target": "FromTarget",
+            "StatusAmount": 3,
+            "UseCounterForAmount": true,
+            "Amount": 4,
+            "Primarypower": true,
+            "StatusModifier": "MultiplyForAscensionBoss",
+            "Type": "Damage"
+          }
+        ],
+        "prototype": {
+          "segments": [
+            {
+              "kind": "damage",
+              "target": "enemyChosen",
+              "scaling": {
+                "base": 4,
+                "mult": 1
+              },
+              "modifier": {
+                "mod": {
+                  "kind": "ratio",
+                  "a": 4,
+                  "b": 1
+                },
+                "source": {
+                  "kind": "allyStatSum",
+                  "stat": "armor"
+                }
+              },
+              "condMult": {
+                "times": 3,
+                "cond": {
+                  "kind": "allOf",
+                  "of": [
+                    {
+                      "kind": "targetRace",
+                      "race": "Boss"
+                    },
+                    {
+                      "kind": "ascended",
+                      "min": 3
+                    }
+                  ]
+                }
+              }
+            }
+          ]
+        }
+      },
+      "sourceEvidence": [
+        {
+          "id": "en",
+          "role": "english-snapshot",
+          "path": "data/raw/troops.gow.en.json",
+          "note": "troop 7501: stats.spell.id 9246, ManaCost 12, Blue/Red, English 'Deal [Magic + 4] damage to an Enemy, boosted by all Ally Armor. If they are a Boss, deal 3x - 5x damage, based on my Ascensions. [4:1]' asserted verbatim."
+        },
+        {
+          "id": "native",
+          "role": "native-snapshot",
+          "path": "data/raw/spells.gow.en.json",
+          "note": "spell 9246 Target Enemy Cost 12; SpellSteps asserted with toEqual: CountArmor AllAllies 25; Damage FromTarget Amount 4 SPM 1 UseCounterForAmount Primarypower StatusModifier MultiplyForAscensionBoss StatusAmount 3."
+        },
+        {
+          "id": "rule",
+          "role": "official-shared-rule",
+          "path": "artifacts/gow-skill-audit/gold-primary-sources/official-brian-guide.html",
+          "note": "Official Brian guide writes armor/gem boosted spells as '(Boost Ratio N:1)', e.g. Resolve 'Give all allies [0+Magic] Armor ... (Boost Ratio 4:1)'; supports +1 per 4 armor counted."
+        },
+        {
+          "id": "laneTest",
+          "role": "lane-battle-test",
+          "path": "tests/unit/gowLaneL7B03.test.ts",
+          "note": "L7B03 troop:7501 describe: binding/prototype/zh; 4 real castSkill cases both sides; ratio boundaries 3/4/8; dead ally and enemy armor excluded; armor absorption, barrier, low-mana/silence."
+        },
+        {
+          "id": "r000",
+          "role": "user-ruling",
+          "path": "tasks/active/gow-skill-shards/rulings/R000-waived-modes.md",
+          "note": "R000: Boss / ascension-dependent clauses are waived (user-waived-mode); base damage still verified."
+        }
+      ],
+      "dimensions": {
+        "identity-cost-colors": {
+          "status": "verified",
+          "note": "Entity 7501 -> spell 9246, cost 12, Blue/Red in raw and src troops; ledger binding checks true.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r000"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL7B03.test.ts"
+          ]
+        },
+        "target-count-range": {
+          "status": "verified",
+          "note": "FromTarget -> enemyChosen; only the chosen enemy (12) loses Life.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r000"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL7B03.test.ts"
+          ]
+        },
+        "base-formula-rounding": {
+          "status": "verified",
+          "note": "[Magic+4] + floor(allyArmor/4): magic 0/10 with ally armor 13 -> +3.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r000"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL7B03.test.ts"
+          ]
+        },
+        "boost-source-ratio-cap": {
+          "status": "verified",
+          "note": "CountArmor AllAllies Amount 25 (= [4:1]) over living allies incl. caster: 3->+0, 4->+1, 8->+2; dead ally 40 and enemy armor excluded; no cap.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r000"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL7B03.test.ts"
+          ]
+        },
+        "conditions-probabilities-branches": {
+          "status": "verified",
+          "note": "Only condition is the Boss x ascension multiplier, waived per R000 (clause c2); no chance or Randomize.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r000"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL7B03.test.ts"
+          ]
+        },
+        "status-duration-immunity": {
+          "status": "not-applicable",
+          "note": "No status applied; barrier on target blocks the hit (battle-pipeline).",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": []
+        },
+        "gems-types-selection-resolution": {
+          "status": "not-applicable",
+          "note": "No gem steps.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": []
+        },
+        "summon-transform-pools": {
+          "status": "not-applicable",
+          "note": "No summon/transform.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": []
+        },
+        "order-death-retargeting": {
+          "status": "verified",
+          "note": "Count step precedes damage (native order kept); defeated ally not counted.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r000"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL7B03.test.ts"
+          ]
+        },
+        "mana-economy-extra-turn": {
+          "status": "verified",
+          "note": "Real cast spends 12 mana and ends the turn; low mana and silence block.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r000"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL7B03.test.ts"
+          ]
+        },
+        "display-description": {
+          "status": "verified",
+          "note": "zh '对一名敌人造成 [魔法 + 4] 点伤害，伤害值因所有盟友护甲值数而增强。如果敌人是个魔头，则基于我已晋升的稀有度造成 3 到 5 倍伤害。 [4:1]' matches English.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r000"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL7B03.test.ts"
+          ]
+        },
+        "battle-pipeline": {
+          "status": "verified",
+          "note": "TurnEngine.castSkill both sides; normal damage consumes target armor first (armor 2 -> 0, Life -3 of 5); barrier blocks.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r000"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL7B03.test.ts"
+          ],
+          "realBattleEntry": true
+        }
+      },
+      "clauseReviews": [
+        {
+          "id": "c1",
+          "text": "Deal [Magic + 4] damage to an Enemy, boosted by all Ally Armor.",
+          "status": "verified",
+          "note": "[Magic + 4] to the chosen enemy boosted by all ally armor: exact Life loss both sides at magic 0/10; enemy armor not a source.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL7B03.test.ts"
+          ]
+        },
+        {
+          "id": "c2",
+          "text": "If they are a Boss, deal 3x - 5x damage, based on my Ascensions.",
+          "status": "excluded",
+          "exclusion": {
+            "kind": "user-waived-mode",
+            "mode": "boss"
+          },
+          "note": "Waived per R000: 'If they are a Boss, deal 3x - 5x damage, based on my Ascensions' (Boss target + ascension scaling not implemented in this project; existing condMult x3 placeholder untouched).",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r000"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL7B03.test.ts"
+          ]
+        },
+        {
+          "id": "c3",
+          "text": "[4:1]",
+          "status": "verified",
+          "note": "[4:1]: +1 per 4 ally armor, floor: 13 -> +3, 4 -> +1, 3 -> +0.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL7B03.test.ts"
+          ]
+        }
+      ],
+      "nativeStepReviews": [
+        {
+          "id": "0",
+          "type": "CountArmor",
+          "status": "verified",
+          "note": "CountArmor AllAllies 25 -> allyStatSum armor ratio 4:1 over living allies incl. caster.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL7B03.test.ts"
+          ]
+        },
+        {
+          "id": "1",
+          "type": "Damage",
+          "status": "verified",
+          "note": "Damage FromTarget Amount 4 SPM 1 UseCounterForAmount -> damage enemyChosen base 4 mult 1 + counter; base part asserted both sides. Its StatusModifier MultiplyForAscensionBoss part is the waived Boss clause c2 (R000).",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL7B03.test.ts"
+          ]
+        }
+      ],
+      "branchReviews": [
+        {
+          "id": "main",
+          "status": "verified",
+          "note": "Single unconditional branch; covered by all real cast cases.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL7B03.test.ts"
+          ]
+        }
+      ]
+    },
+    {
+      "key": "troop:6889",
+      "scope": "stored-gow-snapshot",
+      "sourceDigest": "8afc9fdea44c5f6cd06b151bba1cc03909d36b8576ea1574153451f153f4b2d5",
+      "reviewer": "sa-L76",
+      "reviewedAt": "2026-09-27",
+      "decision": "accept",
+      "ledgerFingerprintAtReview": "2267675b18d947711b5f7ad1a9ce7888539836036f4653aeb838597a661ebffb",
+      "_reference": {
+        "spellId": 8312,
+        "english": "Deal [Magic + 4] damage to an Enemy, boosted by Blue Allies and Enemies. If they are a Boss, deal 3x - 5x damage, based on my Ascensions. [x3]",
+        "nativeTarget": "Enemy",
+        "randomize": null,
+        "steps": [
+          {
+            "Target": "AllAllies",
+            "Amount": 300,
+            "Type": "CountArmyColor",
+            "Data": "0"
+          },
+          {
+            "Target": "AllEnemies",
+            "UseCounterForAmount": true,
+            "Amount": 300,
+            "Type": "CountArmyColor",
+            "Data": "0"
+          },
+          {
+            "SpellPowerMultiplier": 1,
+            "Target": "FromTarget",
+            "StatusAmount": 3,
+            "UseCounterForAmount": true,
+            "Amount": 4,
+            "Primarypower": true,
+            "StatusModifier": "MultiplyForAscensionBoss",
+            "Type": "Damage"
+          }
+        ],
+        "prototype": {
+          "segments": [
+            {
+              "kind": "damage",
+              "target": "enemyChosen",
+              "scaling": {
+                "base": 4,
+                "mult": 1
+              },
+              "modifier": {
+                "mod": {
+                  "kind": "multiplier",
+                  "a": 3
+                },
+                "sources": [
+                  {
+                    "kind": "alliesOfColor",
+                    "color": "Blue"
+                  },
+                  {
+                    "kind": "enemiesOfColor",
+                    "color": "Blue"
+                  }
+                ]
+              },
+              "condMult": {
+                "times": 3,
+                "cond": {
+                  "kind": "allOf",
+                  "of": [
+                    {
+                      "kind": "targetRace",
+                      "race": "Boss"
+                    },
+                    {
+                      "kind": "ascended",
+                      "min": 3
+                    }
+                  ]
+                }
+              }
+            }
+          ]
+        }
+      },
+      "sourceEvidence": [
+        {
+          "id": "en",
+          "role": "english-snapshot",
+          "path": "data/raw/troops.gow.en.json",
+          "note": "troop 6889: stats.spell.id 8312, ManaCost 12, Blue/Green, English 'Deal [Magic + 4] damage to an Enemy, boosted by Blue Allies and Enemies. If they are a Boss, deal 3x - 5x damage, based on my Ascensions. [x3]' asserted verbatim."
+        },
+        {
+          "id": "native",
+          "role": "native-snapshot",
+          "path": "data/raw/spells.gow.en.json",
+          "note": "spell 8312 Target Enemy Cost 12; SpellSteps asserted: CountArmyColor AllAllies 300 Data '0'; CountArmyColor AllEnemies 300 Data '0' UseCounterForAmount; Damage FromTarget 4 SPM 1 UseCounterForAmount StatusModifier MultiplyForAscensionBoss StatusAmount 3."
+        },
+        {
+          "id": "rule",
+          "role": "official-shared-rule",
+          "path": "artifacts/gow-skill-audit/gold-primary-sources/official-brian-guide.html",
+          "note": "Official Brian guide documents count-boosted spells with '(Boost Ratio N:1)' labels; the [x3] multiplier (native Amount 300 = x3 per counted Blue troop) follows the English/native snapshot."
+        },
+        {
+          "id": "laneTest",
+          "role": "lane-battle-test",
+          "path": "tests/unit/gowLaneL7B03.test.ts",
+          "note": "L7B03 troop:6889 describe: binding/prototype/zh; 4 real casts both sides (caster + 1 Blue ally + 2 Blue enemies = x4); non-Blue caster, dead Blue ally/enemy excluded; armor absorption; low-mana/silence."
+        },
+        {
+          "id": "r000",
+          "role": "user-ruling",
+          "path": "tasks/active/gow-skill-shards/rulings/R000-waived-modes.md",
+          "note": "R000: Boss / ascension-dependent clauses are waived (user-waived-mode); base damage still verified."
+        }
+      ],
+      "dimensions": {
+        "identity-cost-colors": {
+          "status": "verified",
+          "note": "Entity 6889 -> spell 8312, cost 12, Blue/Green; ledger binding checks true.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r000"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL7B03.test.ts"
+          ]
+        },
+        "target-count-range": {
+          "status": "verified",
+          "note": "FromTarget -> enemyChosen; only enemy 12 damaged.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r000"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL7B03.test.ts"
+          ]
+        },
+        "base-formula-rounding": {
+          "status": "verified",
+          "note": "[Magic+4] + 3 x count: magic 0/10 with 4 Blue troops -> +12.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r000"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL7B03.test.ts"
+          ]
+        },
+        "boost-source-ratio-cap": {
+          "status": "verified",
+          "note": "CountArmyColor Data '0' (Blue) Amount 300 on AllAllies + AllEnemies -> multiplier 3 over alliesOfColor + enemiesOfColor Blue; caster counted only when Blue; dead troops excluded; no cap.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r000"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL7B03.test.ts"
+          ]
+        },
+        "conditions-probabilities-branches": {
+          "status": "verified",
+          "note": "Only condition is the Boss x ascension multiplier, waived per R000 (c2).",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r000"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL7B03.test.ts"
+          ]
+        },
+        "status-duration-immunity": {
+          "status": "not-applicable",
+          "note": "No status applied.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": []
+        },
+        "gems-types-selection-resolution": {
+          "status": "not-applicable",
+          "note": "No gem steps.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": []
+        },
+        "summon-transform-pools": {
+          "status": "not-applicable",
+          "note": "No summon/transform.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": []
+        },
+        "order-death-retargeting": {
+          "status": "verified",
+          "note": "Both count steps precede damage; defeated Blue ally/enemy not counted.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r000"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL7B03.test.ts"
+          ]
+        },
+        "mana-economy-extra-turn": {
+          "status": "verified",
+          "note": "Real cast spends 12 mana and ends turn; low mana / silence block.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r000"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL7B03.test.ts"
+          ]
+        },
+        "display-description": {
+          "status": "verified",
+          "note": "zh '对一名敌人造成 [魔法 + 4] 伤害，伤害值因蓝色盟友和敌人数而增强。如果敌人是个魔头，则基于我已晋升的稀有度造成 3 到 5 倍伤害。 [x3]' matches English.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r000"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL7B03.test.ts"
+          ]
+        },
+        "battle-pipeline": {
+          "status": "verified",
+          "note": "TurnEngine.castSkill both sides; normal damage consumes armor first (armor 5 -> 0, Life -2 of 7).",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r000"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL7B03.test.ts"
+          ],
+          "realBattleEntry": true
+        }
+      },
+      "clauseReviews": [
+        {
+          "id": "c1",
+          "text": "Deal [Magic + 4] damage to an Enemy, boosted by Blue Allies and Enemies.",
+          "status": "verified",
+          "note": "[Magic + 4] boosted by Blue allies and enemies: exact loss on the chosen enemy both sides; counting includes caster only when Blue, living only.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL7B03.test.ts"
+          ]
+        },
+        {
+          "id": "c2",
+          "text": "If they are a Boss, deal 3x - 5x damage, based on my Ascensions.",
+          "status": "excluded",
+          "exclusion": {
+            "kind": "user-waived-mode",
+            "mode": "boss"
+          },
+          "note": "Waived per R000: 'If they are a Boss, deal 3x - 5x damage, based on my Ascensions' (Boss + ascension scaling not implemented; placeholder condMult untouched).",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r000"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL7B03.test.ts"
+          ]
+        },
+        {
+          "id": "c3",
+          "text": "[x3]",
+          "status": "verified",
+          "note": "[x3]: +3 per counted Blue troop (4 -> +12, 1 -> +3).",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL7B03.test.ts"
+          ]
+        }
+      ],
+      "nativeStepReviews": [
+        {
+          "id": "0",
+          "type": "CountArmyColor",
+          "status": "verified",
+          "note": "CountArmyColor AllAllies Data '0' Amount 300 -> alliesOfColor Blue x3 (caster included when Blue).",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL7B03.test.ts"
+          ]
+        },
+        {
+          "id": "1",
+          "type": "CountArmyColor",
+          "status": "verified",
+          "note": "CountArmyColor AllEnemies Data '0' Amount 300 UseCounterForAmount -> enemiesOfColor Blue added to the same counter.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL7B03.test.ts"
+          ]
+        },
+        {
+          "id": "2",
+          "type": "Damage",
+          "status": "verified",
+          "note": "Damage FromTarget 4 SPM 1 UseCounterForAmount -> enemyChosen base 4 mult 1 + counter; base part asserted. StatusModifier MultiplyForAscensionBoss is the waived Boss clause c2 (R000).",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL7B03.test.ts"
+          ]
+        }
+      ],
+      "branchReviews": [
+        {
+          "id": "main",
+          "status": "verified",
+          "note": "Single unconditional branch; covered by all real cast cases.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL7B03.test.ts"
+          ]
+        }
+      ]
+    },
+    {
+      "key": "troop:6803",
+      "scope": "stored-gow-snapshot",
+      "sourceDigest": "4bd82e1a54113ea89e10765f34085d787762daefdb93417b0f3299c0c2170e17",
+      "reviewer": "sa-L76",
+      "reviewedAt": "2026-09-27",
+      "decision": "draft",
+      "ledgerFingerprintAtReview": "2267675b18d947711b5f7ad1a9ce7888539836036f4653aeb838597a661ebffb",
+      "_reference": {
+        "spellId": 8206,
+        "english": "Steal 4 Armor, then shift it to Attack. Deal [Magic + 4] damage to an Enemy. If they are a Tower, deal 3x - 5x damage, based on my Ascensions.  [1:1]",
+        "nativeTarget": "Enemy",
+        "randomize": null,
+        "steps": [
+          {
+            "Target": "FromTarget",
+            "Amount": 100,
+            "Type": "CountArmor"
+          },
+          {
+            "Amount": 4,
+            "Type": "CountMax"
+          },
+          {
+            "Target": "FromTarget",
+            "UseCounterForAmount": true,
+            "Type": "StealArmor"
+          },
+          {
+            "Target": "Self",
+            "UseCounterForAmount": true,
+            "Type": "IncreaseAttack"
+          },
+          {
+            "SpellPowerMultiplier": 1,
+            "Target": "FromTarget",
+            "StatusAmount": 3,
+            "Amount": 4,
+            "Primarypower": true,
+            "StatusModifier": "MultiplyForAscensionCastle",
+            "Type": "Damage"
+          }
+        ],
+        "prototype": {
+          "segments": [
+            {
+              "kind": "reduce",
+              "target": "enemyChosen",
+              "stat": "armor",
+              "scaling": {
+                "base": 4,
+                "mult": 0
+              },
+              "gainStat": "attack"
+            },
+            {
+              "kind": "damage",
+              "target": "enemyChosen",
+              "scaling": {
+                "base": 4,
+                "mult": 1
+              },
+              "condMult": {
+                "times": 3,
+                "cond": {
+                  "kind": "allOf",
+                  "of": [
+                    {
+                      "kind": "targetRace",
+                      "race": "Castle"
+                    },
+                    {
+                      "kind": "ascended",
+                      "min": 3
+                    }
+                  ]
+                }
+              }
+            }
+          ]
+        }
+      },
+      "sourceEvidence": [
+        {
+          "id": "en",
+          "role": "english-snapshot",
+          "path": "data/raw/troops.gow.en.json",
+          "note": "TODO: entity id / SpellId / English clause / cost / colours checked"
+        },
+        {
+          "id": "native",
+          "role": "native-snapshot",
+          "path": "data/raw/spells.gow.en.json",
+          "note": "TODO: SpellId-indexed Cost/Target/every non-None SpellSteps field checked"
+        },
+        {
+          "id": "rule",
+          "role": "official-shared-rule",
+          "path": "artifacts/gow-skill-audit/gold-primary-sources/official-status-effects.html",
+          "note": "TODO: replace with the official rule file actually relevant to this skill, and say what it supports"
+        }
+      ],
+      "dimensions": {
+        "identity-cost-colors": {
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        },
+        "target-count-range": {
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        },
+        "base-formula-rounding": {
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        },
+        "boost-source-ratio-cap": {
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        },
+        "conditions-probabilities-branches": {
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        },
+        "status-duration-immunity": {
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        },
+        "gems-types-selection-resolution": {
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        },
+        "summon-transform-pools": {
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        },
+        "order-death-retargeting": {
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        },
+        "mana-economy-extra-turn": {
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        },
+        "display-description": {
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        },
+        "battle-pipeline": {
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": [],
+          "realBattleEntry": true
+        }
+      },
+      "clauseReviews": [
+        {
+          "id": "c1",
+          "text": "Steal 4 Armor, then shift it to Attack.",
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        },
+        {
+          "id": "c2",
+          "text": "Deal [Magic + 4] damage to an Enemy.",
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        },
+        {
+          "id": "c3",
+          "text": "If they are a Tower, deal 3x - 5x damage, based on my Ascensions.",
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        },
+        {
+          "id": "c4",
+          "text": "[1:1]",
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        }
+      ],
+      "nativeStepReviews": [
+        {
+          "id": "0",
+          "type": "CountArmor",
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        },
+        {
+          "id": "1",
+          "type": "CountMax",
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        },
+        {
+          "id": "2",
+          "type": "StealArmor",
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        },
+        {
+          "id": "3",
+          "type": "IncreaseAttack",
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        },
+        {
+          "id": "4",
+          "type": "Damage",
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        }
+      ],
+      "branchReviews": [
+        {
+          "id": "main",
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        }
+      ]
+    },
+    {
+      "key": "weapon:1075",
+      "scope": "stored-gow-snapshot",
+      "sourceDigest": "9e41b44993a96213eb657edda182798d6d20386dc7a05c2b9dd72d41e4265ea4",
+      "reviewer": "sa-L76",
+      "reviewedAt": "2026-09-27",
+      "decision": "accept",
+      "ledgerFingerprintAtReview": "2267675b18d947711b5f7ad1a9ce7888539836036f4653aeb838597a661ebffb",
+      "_reference": {
+        "spellId": 7188,
+        "english": "Give Armor to an Ally equal to their current Armor. [1:1]",
+        "nativeTarget": "Ally",
+        "randomize": null,
+        "steps": [
+          {
+            "Target": "FromTarget",
+            "Amount": 100,
+            "Type": "CountArmor"
+          },
+          {
+            "Target": "FromTarget",
+            "UseCounterForAmount": true,
+            "Type": "IncreaseArmor"
+          }
+        ],
+        "prototype": {
+          "segments": [
+            {
+              "kind": "buff",
+              "target": "allyChosen",
+              "stat": "armor",
+              "scaling": {
+                "base": 0,
+                "mult": 0
+              },
+              "double": true
+            }
+          ]
+        }
+      },
+      "sourceEvidence": [
+        {
+          "id": "en",
+          "role": "english-snapshot",
+          "path": "artifacts/gowhead-weapons/weapons.json",
+          "note": "weapon 1075 GoldenCog: SpellId 7188, ManaCost 15, Red/Yellow, English 'Give Armor to an Ally equal to their current Armor. [1:1]' asserted (artifacts/gowhead-weapons/weapons.json)."
+        },
+        {
+          "id": "native",
+          "role": "native-snapshot",
+          "path": "data/raw/spells.gow.en.json",
+          "note": "spell 7188 Target Ally Cost 15; SpellSteps asserted: CountArmor FromTarget 100; IncreaseArmor FromTarget UseCounterForAmount."
+        },
+        {
+          "id": "rule",
+          "role": "official-shared-rule",
+          "path": "artifacts/gow-skill-audit/gold-primary-sources/official-weapon-list.html",
+          "note": "Official weapon list: Golden Cog (Mana Cost 15 Red Yellow) 'Double an ally's Armor. (Boost Ratio 1:1)'."
+        },
+        {
+          "id": "laneTest",
+          "role": "lane-battle-test",
+          "path": "tests/unit/gowLaneL7B03.test.ts",
+          "note": "L7B03 weapon:1075 describe: raw + src binding, numeric and gw_GoldenCog aliases, prototype, zh; 8 real casts (2 sides x 2 aliases x magic 0/10); self target, 0 armor, dead ally; low-mana/silence."
+        }
+      ],
+      "dimensions": {
+        "identity-cost-colors": {
+          "status": "verified",
+          "note": "Weapon 1075 -> spell 7188, cost 15, Red/Yellow, ReferenceName GoldenCog; numeric and gw_GoldenCog prototypes identical.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL7B03.test.ts"
+          ]
+        },
+        "target-count-range": {
+          "status": "verified",
+          "note": "Target Ally / FromTarget -> allyChosen: only the chosen ally (20) changes; caster and other ally untouched; self can be chosen.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL7B03.test.ts"
+          ]
+        },
+        "base-formula-rounding": {
+          "status": "verified",
+          "note": "Counter = 100% of the ally armor, added once: 13 -> 26, 9 -> 18, 0 -> 0; magic-independent.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL7B03.test.ts"
+          ]
+        },
+        "boost-source-ratio-cap": {
+          "status": "verified",
+          "note": "CountArmor FromTarget Amount 100 = [1:1] of the target own armor; no cap.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL7B03.test.ts"
+          ]
+        },
+        "conditions-probabilities-branches": {
+          "status": "not-applicable",
+          "note": "No condition/chance.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": []
+        },
+        "status-duration-immunity": {
+          "status": "not-applicable",
+          "note": "No status.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": []
+        },
+        "gems-types-selection-resolution": {
+          "status": "not-applicable",
+          "note": "No gem steps.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": []
+        },
+        "summon-transform-pools": {
+          "status": "not-applicable",
+          "note": "No summon/transform.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": []
+        },
+        "order-death-retargeting": {
+          "status": "verified",
+          "note": "Count then increase on the same target; dead ally is not buffed (armor 30 kept).",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL7B03.test.ts"
+          ]
+        },
+        "mana-economy-extra-turn": {
+          "status": "verified",
+          "note": "Real cast spends 15 mana and ends the turn; low mana / silence block.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL7B03.test.ts"
+          ]
+        },
+        "display-description": {
+          "status": "verified",
+          "note": "zh '使 1 名盟友的护甲值翻倍。 [1:1]' matches English/official 'Double an ally's Armor'.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL7B03.test.ts"
+          ]
+        },
+        "battle-pipeline": {
+          "status": "verified",
+          "note": "TurnEngine.castSkill both sides with numeric and gw_ alias skill ids.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL7B03.test.ts"
+          ],
+          "realBattleEntry": true
+        }
+      },
+      "clauseReviews": [
+        {
+          "id": "c1",
+          "text": "Give Armor to an Ally equal to their current Armor.",
+          "status": "verified",
+          "note": "Chosen ally gains Armor equal to its current Armor (doubling): 13 -> 26 both sides, both aliases.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL7B03.test.ts"
+          ]
+        },
+        {
+          "id": "c2",
+          "text": "[1:1]",
+          "status": "verified",
+          "note": "[1:1]: 100% of the counted armor added (native Amount 100).",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL7B03.test.ts"
+          ]
+        }
+      ],
+      "nativeStepReviews": [
+        {
+          "id": "0",
+          "type": "CountArmor",
+          "status": "verified",
+          "note": "CountArmor FromTarget 100 -> counter = chosen ally armor (double:true reads currentStat armor).",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL7B03.test.ts"
+          ]
+        },
+        {
+          "id": "1",
+          "type": "IncreaseArmor",
+          "status": "verified",
+          "note": "IncreaseArmor FromTarget UseCounterForAmount -> buff allyChosen armor by that counter; asserted exact values.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL7B03.test.ts"
+          ]
+        }
+      ],
+      "branchReviews": [
+        {
+          "id": "main",
+          "status": "verified",
+          "note": "Single unconditional branch; covered by all real casts.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL7B03.test.ts"
+          ]
+        }
+      ]
+    },
+    {
+      "key": "troop:6211",
+      "scope": "stored-gow-snapshot",
+      "sourceDigest": "9f9024cb940c7d8c223e9017082c11e56a969112431b200972905d5af4e205bc",
+      "reviewer": "sa-L76",
+      "reviewedAt": "2026-09-27",
+      "decision": "accept",
+      "ledgerFingerprintAtReview": "b11eaf00bc4e64b650d2a253ec6c7aff706de690793f0c1fb61302a07c0f6a97",
+      "_reference": {
+        "spellId": 7353,
+        "english": "Give [Magic + 1] Armor to an Ally. Deal scatter damage equal to the Ally's Armor. [1:1]",
+        "nativeTarget": "Ally",
+        "randomize": null,
+        "steps": [
+          {
+            "Target": "FromTarget",
+            "Amount": 100,
+            "Type": "CountArmor"
+          },
+          {
+            "SpellPowerMultiplier": 1,
+            "Target": "FromTarget",
+            "Amount": 1,
+            "Primarypower": true,
+            "Type": "IncreaseArmor"
+          },
+          {
+            "SpellPowerMultiplier": 1,
+            "Target": "AllEnemies",
+            "UseCounterForAmount": true,
+            "Amount": 1,
+            "Type": "ScatterDamage"
+          }
+        ],
+        "prototype": {
+          "segments": [
+            {
+              "kind": "buff",
+              "target": "allyChosen",
+              "stat": "armor",
+              "scaling": {
+                "base": 1,
+                "mult": 1
+              }
+            },
+            {
+              "kind": "damage",
+              "target": "enemyAll",
+              "scaling": {
+                "base": 0,
+                "mult": 0
+              },
+              "range": "scatter",
+              "modifier": {
+                "mod": {
+                  "kind": "ratio",
+                  "a": 1,
+                  "b": 1
+                },
+                "source": {
+                  "kind": "chosenStat",
+                  "stat": "armor"
+                }
+              }
+            }
+          ]
+        }
+      },
+      "sourceEvidence": [
+        {
+          "id": "en",
+          "role": "english-snapshot",
+          "path": "data/raw/troops.gow.en.json",
+          "note": "troop 6211: stats.spell.id 7353, ManaCost 13, Green/Brown, English \"Give [Magic + 1] Armor to an Ally. Deal scatter damage equal to the Ally's Armor. [1:1]\" asserted verbatim."
+        },
+        {
+          "id": "native",
+          "role": "native-snapshot",
+          "path": "data/raw/spells.gow.en.json",
+          "note": "spell 7353 Target Ally Cost 13; SpellSteps asserted: CountArmor FromTarget 100; IncreaseArmor FromTarget Amount 1 SPM 1 Primarypower; ScatterDamage AllEnemies Amount 1 SPM 1 UseCounterForAmount."
+        },
+        {
+          "id": "rule",
+          "role": "official-shared-rule",
+          "path": "artifacts/gow-skill-audit/gold-primary-sources/official-brian-guide.html",
+          "note": "Official Brian guide uses '(Boost Ratio N:1)' for stat-boosted amounts (1:1 = equal to the counted stat). No stored official page describes scatter allocation; scatter semantics follow the engine's existing scatter primitive (pool total asserted)."
+        },
+        {
+          "id": "laneTest",
+          "role": "lane-battle-test",
+          "path": "tests/unit/gowLaneL7B03.test.ts",
+          "note": "L7B03 troop:6211 describe: binding/prototype(chosenStat)/zh; 4 real casts ally buff; 4 real casts scatter pool (ally armor 5 + [Magic+1]); R001 equivalence for ally armor 0/1/33; dead enemy skipped, caster/other-ally armor not the source; low-mana/silence."
+        },
+        {
+          "id": "r001",
+          "role": "coordinator-ruling",
+          "path": "tasks/active/gow-skill-shards/rulings/R001-native-step-order.md",
+          "note": "R001: native step order governs; unobservable order differences need an equivalence test (pre-buff counter + Amount 1 + Magic == post-buff armor)."
+        }
+      ],
+      "dimensions": {
+        "identity-cost-colors": {
+          "status": "verified",
+          "note": "Entity 6211 -> spell 7353, cost 13, Green/Brown; ledger binding checks true.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r001"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL7B03.test.ts"
+          ]
+        },
+        "target-count-range": {
+          "status": "verified",
+          "note": "IncreaseArmor FromTarget -> allyChosen (only ally 20 changes); ScatterDamage AllEnemies -> enemyAll range scatter over living enemies.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r001"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL7B03.test.ts"
+          ]
+        },
+        "base-formula-rounding": {
+          "status": "verified",
+          "note": "Buff = Magic + 1; scatter pool = counted ally armor + Amount 1 + Magic = post-buff ally armor (5 + magic + 1 at magic 0/10).",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r001"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL7B03.test.ts"
+          ]
+        },
+        "boost-source-ratio-cap": {
+          "status": "verified",
+          "note": "CountArmor FromTarget 100 = [1:1] of the chosen ally armor (chosenStat after fix L7-6211); caster armor 40/90 and other ally 70/90 not counted; no cap.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r001"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL7B03.test.ts"
+          ]
+        },
+        "conditions-probabilities-branches": {
+          "status": "not-applicable",
+          "note": "No condition/chance; scatter allocation randomness only affects the split, pool total asserted.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": []
+        },
+        "status-duration-immunity": {
+          "status": "not-applicable",
+          "note": "No status.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": []
+        },
+        "gems-types-selection-resolution": {
+          "status": "not-applicable",
+          "note": "No gem steps.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": []
+        },
+        "summon-transform-pools": {
+          "status": "not-applicable",
+          "note": "No summon/transform.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": []
+        },
+        "order-death-retargeting": {
+          "status": "verified",
+          "note": "Native counts before the buff and adds Amount 1 + Magic; runtime reads post-buff armor: equivalence asserted for armor 0/1/33 (R001). Dead enemy receives no scatter.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r001"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL7B03.test.ts"
+          ]
+        },
+        "mana-economy-extra-turn": {
+          "status": "verified",
+          "note": "Real cast spends 13 mana and ends the turn; low mana / silence block.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r001"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL7B03.test.ts"
+          ]
+        },
+        "display-description": {
+          "status": "verified",
+          "note": "zh '给予一名盟友 [魔法 + 1] 点护甲值。造成散射伤害，伤害值等同于盟友护甲值。 [1:1]' matches English.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r001"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL7B03.test.ts"
+          ]
+        },
+        "battle-pipeline": {
+          "status": "verified",
+          "note": "TurnEngine.castSkill both sides; scatter is normal damage (armor+Life removed totals the pool), events carry range scatter.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r001"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL7B03.test.ts"
+          ],
+          "realBattleEntry": true
+        }
+      },
+      "clauseReviews": [
+        {
+          "id": "c1",
+          "text": "Give [Magic + 1] Armor to an Ally.",
+          "status": "verified",
+          "note": "Chosen ally gains [Magic + 1] Armor both sides (5 -> 6 / 16); other ally and caster unchanged.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL7B03.test.ts"
+          ]
+        },
+        {
+          "id": "c2",
+          "text": "Deal scatter damage equal to the Ally's Armor.",
+          "status": "verified",
+          "note": "Scatter pool equals the ally's armor after the buff; total armor+Life removed from enemies = 5 + magic + 1.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL7B03.test.ts"
+          ]
+        },
+        {
+          "id": "c3",
+          "text": "[1:1]",
+          "status": "verified",
+          "note": "[1:1]: counter = 100% of the ally armor.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL7B03.test.ts"
+          ]
+        }
+      ],
+      "nativeStepReviews": [
+        {
+          "id": "0",
+          "type": "CountArmor",
+          "status": "verified",
+          "note": "CountArmor FromTarget 100 on the chosen ally (pre-buff) -> runtime chosenStat armor read after the buff; equivalent with the +Amount 1 + Magic of step 2 (R001 equivalence test).",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL7B03.test.ts"
+          ]
+        },
+        {
+          "id": "1",
+          "type": "IncreaseArmor",
+          "status": "verified",
+          "note": "IncreaseArmor FromTarget Amount 1 SPM 1 -> buff allyChosen armor base 1 mult 1.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL7B03.test.ts"
+          ]
+        },
+        {
+          "id": "2",
+          "type": "ScatterDamage",
+          "status": "verified",
+          "note": "ScatterDamage AllEnemies Amount 1 SPM 1 UseCounterForAmount -> damage enemyAll range scatter, pool = post-buff ally armor.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL7B03.test.ts"
+          ]
+        }
+      ],
+      "branchReviews": [
+        {
+          "id": "main",
+          "status": "verified",
+          "note": "Single unconditional branch; covered by real casts.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL7B03.test.ts"
+          ]
+        }
+      ]
+    }
+  ]
+}

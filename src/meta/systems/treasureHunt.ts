@@ -48,6 +48,9 @@ const OPTIONS: readonly (readonly Option[])[] = [
   [{ gold: 1250 }, { souls: 125 }, { glory: 40 }, { gems: 3 }, { goldKeys: 6 }, { goldKeys: 2 }],
 ];
 
+/** 每个结算物件的宝石期望，供预算模型按实测终盘构成估算。 */
+export const HUNT_EXPECTED_GEMS = OPTIONS.map(pool => pool.reduce((sum, option) => sum + (option.gems ?? 0), 0) / pool.length);
+
 export interface HuntGrant {
   gold: number;
   souls: number;

@@ -1,3 +1,4 @@
+import { audioControlsHtml, bindAudioControls } from '../../preferences/audioControls';
 /**
  * 设置屏（存档导出/导入/重置 + 开发者选项）。
  *
@@ -11,6 +12,8 @@ import { bottomNavHtml, mountIcons, toast, toastHtml, topbarHtml, $ } from '../s
 import type { MetaSave } from '../state/schema';
 import type { Screen, ShellCtx } from '../shell/screen';
 import { setSkipCastConfirm, skipCastConfirm } from '../../render/battlePrefs';
+import { allKingdoms } from '../data/kingdoms';
+import { COMMUNITY_KINGDOM } from '../../data/communityTroops';
 import {
   getPlayerPreferences,
   setPlayerPreferences,
@@ -161,6 +164,7 @@ const SETTINGS_CSS = `
     grid-template-columns: minmax(420px, .9fr) minmax(0, 1.2fr);
     grid-template-areas:
       "preferences save"
+      "modifier save"
       "danger save";
     align-items: start;
     gap: 16px;
@@ -168,6 +172,7 @@ const SETTINGS_CSS = `
   }
   .settings-screen .settings-save-panel { grid-area: save; align-self: start; }
   .settings-screen .settings-preferences-panel { grid-area: preferences; }
+  .settings-screen .settings-modifier-panel { grid-area: modifier; }
   .settings-screen .danger-zone { grid-area: danger; }
   .settings-screen .settings-side { display: grid; gap: 14px; }
   .settings-screen .panel {
@@ -394,6 +399,17 @@ const SETTINGS_CSS = `
   .settings-screen .settings-dev-options summary:focus-visible { outline: 2px solid #a6dff9; outline-offset: -2px; }
   .settings-screen .settings-dev-options .check-row { min-height: 50px; }
   .settings-screen .settings-dev-options .check-row:last-child { border-bottom: 0; }
+  .settings-screen .modifier-status { margin: 0; }
+  .settings-screen .modifier-kingdom {
+    min-width: 180px;
+    height: 36px;
+    padding: 0 28px 0 10px;
+    color: #d8cdb9;
+    border: 1px solid #665b4c;
+    border-radius: 3px;
+    background: #171721;
+    font: 13px var(--body);
+  }
 
   .settings-screen .panel.danger-zone {
     background: linear-gradient(155deg, rgba(34, 20, 23, .98), rgba(15, 11, 16, .98));
@@ -485,7 +501,7 @@ const SETTINGS_CSS = `
     #stage.settings-responsive .settings-screen { inset: 72px 0 62px; padding: 15px 18px 28px; }
     #stage.settings-responsive .settings-layout {
       grid-template-columns: minmax(0, 1fr);
-      grid-template-areas: "preferences" "save" "danger";
+      grid-template-areas: "preferences" "modifier" "save" "danger";
     }
     #stage.settings-responsive .settings-side { grid-template-columns: repeat(2, minmax(0, 1fr)); }
     #stage.settings-responsive .danger-zone { grid-column: 1 / -1; }
@@ -524,7 +540,9 @@ const SETTINGS_CSS = `
     #stage.settings-responsive .settings-row button { width: 100%; min-width: 0; min-height: 43px; padding: 7px 9px; font-size: 11px; white-space: normal; }
     #stage.settings-responsive #downloadBtn,
     #stage.settings-responsive #pickFileBtn,
-    #stage.settings-responsive #validateBtn { grid-column: 1 / -1; }
+    #stage.settings-responsive #validateBtn,
+    #stage.settings-responsive #collectionKingdom,
+    #stage.settings-responsive #unlockKingdomBtn { grid-column: 1 / -1; }
     #stage.settings-responsive textarea#saveText { min-height: 126px; font-size: 10px; }
     #stage.settings-responsive .settings-subhead { padding-top: 13px; }
     #stage.settings-responsive .warn-line { padding: 9px 10px; font-size: 10px; }
@@ -574,6 +592,11 @@ function digestOf(save: MetaSave): SaveDigest {
 }
 
 const fmt = (n: number): string => n.toLocaleString('en-US');
+const escapeAttr = (value: string): string => value
+  .replace(/&/g, '&amp;')
+  .replace(/</g, '&lt;')
+  .replace(/>/g, '&gt;')
+  .replace(/"/g, '&quot;');
 const digestLine = (d: SaveDigest): string =>
   `Lv.${d.level} · 收藏 ${fmt(d.collection)} 张 · 黄金 ${fmt(d.gold)} · 宝石 ${fmt(d.gems)} · 王国 ${d.kingdoms} 个`;
 
@@ -584,16 +607,25 @@ export class SettingsScreen implements Screen {
   private notice: { kind: 'ok' | 'bad'; text: string } | null = null;
   /** 待导入的已校验文本 + 摘要（S-2：确认前先看清覆盖成什么） */
   private pending: { text: string; digest: SaveDigest } | null = null;
-  /** 重置按钮的"再点一次确认"状态（S-5：破坏性操作要费力） */
   private armed: 'demo' | 'new' | null = null;
+  /** 修改器王国选择，刷新后还停在刚才那个王国 */
+  private modifierKingdom: string | null = null;
 
   html(ctx: ShellCtx): string {
     const cur = digestOf(ctx.save());
     const preferences = getPlayerPreferences();
-    const soundVolume = Math.round(preferences.soundEffectsVolume * 100);
     const notice = this.notice
       ? `<div class="settings-result ${this.notice.kind}" id="settingsResult">${this.notice.text}</div>`
       : '';
+    const save = ctx.save();
+    const kingdoms = [...allKingdoms(), COMMUNITY_KINGDOM];
+    const selected = this.modifierKingdom && kingdoms.includes(this.modifierKingdom) ? this.modifierKingdom : kingdoms[0] ?? '';
+    const owned = Object.keys(save.collection).length;
+    const realOwned = Object.keys(save.collectionTruth ?? save.collection).length;
+    const modifierStatus = save.collectionTruth
+      ? `当前显示的是修改后的收集，共 ${fmt(owned)} 张。真实收集 ${fmt(realOwned)} 张另外保存着，解锁和还原初始都不会覆盖它。`
+      : `当前就是真实收集，共 ${fmt(owned)} 张。点解锁或还原初始之前，会先把这份进度另存。`;
+    const kingdomOptions = kingdoms.map((name) => `<option value="${escapeAttr(name)}"${name === selected ? ' selected' : ''}>${escapeAttr(name)}</option>`).join('');
     return `
       <style id="settingsScreenCss">${SETTINGS_CSS}</style>
       ${topbarHtml()}
@@ -611,15 +643,7 @@ export class SettingsScreen implements Screen {
             <section class="panel settings-preferences-panel">
               <div class="panel-head"><div><h2>游戏设置</h2></div></div>
               <div class="panel-inner settings-body">
-                <label class="check-row">
-                  <span class="setting-copy"><b>音效</b></span>
-                  <input type="checkbox" id="soundEffectsEnabled" aria-label="启用音效"${preferences.soundEffectsEnabled ? ' checked' : ''}>
-                </label>
-                <div class="preference-row volume-row">
-                  <label class="setting-copy" for="soundEffectsVolume"><b>音效音量</b></label>
-                  <input id="soundEffectsVolume" type="range" min="0" max="100" step="5" value="${soundVolume}" aria-label="音效音量"${preferences.soundEffectsEnabled ? '' : ' disabled'}>
-                  <output id="soundEffectsVolumeValue" for="soundEffectsVolume">${soundVolume}%</output>
-                </div>
+                ${audioControlsHtml()}
                 <label class="check-row">
                   <span class="setting-copy"><b>减弱动效</b></span>
                   <input type="checkbox" id="reducedMotion" aria-label="减弱动效"${preferences.reducedMotion ? ' checked' : ''}>
@@ -629,8 +653,8 @@ export class SettingsScreen implements Screen {
                   <select class="language-select" aria-label="界面语言" disabled><option>简体中文</option></select>
                 </div>
                 <label class="check-row">
-                  <span class="setting-copy"><b>跳过技能释放确认</b><small>满法力角色将直接选色、选目标或施放</small></span>
-                  <input type="checkbox" id="skipCastConfirm" aria-label="跳过技能释放确认"${skipCastConfirm() ? ' checked' : ''}>
+                  <span class="setting-copy"><b>快速释放</b><small>点击法力值已满的角色直接释放技能；长按查看详情</small></span>
+                  <input type="checkbox" id="skipCastConfirm" aria-label="快速释放"${skipCastConfirm() ? ' checked' : ''}>
                 </label>
                 <details class="settings-dev-options">
                   <summary>开发者选项</summary>
@@ -639,6 +663,20 @@ export class SettingsScreen implements Screen {
                     <input type="checkbox" id="battleDebug" aria-label="战斗调试钩子">
                   </label>
                 </details>
+              </div>
+            </section>
+
+            <section class="panel settings-modifier-panel">
+              <div class="panel-head"><div><h2>收集修改器</h2></div></div>
+              <div class="panel-inner settings-body">
+                <p class="settings-note modifier-status">${modifierStatus}</p>
+                <div class="settings-row">
+                  <select id="collectionKingdom" class="modifier-kingdom" aria-label="要解锁的王国">${kingdomOptions}</select>
+                  <button class="secondary" id="unlockKingdomBtn" type="button">解锁该王国全部部队</button>
+                  <button class="secondary" id="restoreRealBtn" type="button">还原真实收集</button>
+                  <button class="secondary" id="restoreInitialBtn" type="button">还原初始收集</button>
+                </div>
+                <p class="settings-note">初始收集是新档的三张破碎尖塔普通卡。修改期间新开出来的卡会记进真实收集；在修改状态下升级的等级，还原后回到打开修改器之前。</p>
               </div>
             </section>
 
@@ -718,12 +756,19 @@ export class SettingsScreen implements Screen {
     this.bind('#validateBtn', 'click', () => this.validate(($('#saveText') as HTMLTextAreaElement).value));
     this.bind('#pickFileBtn', 'click', () => ($('#saveFile') as HTMLInputElement).click());
     this.bind('#saveFile', 'change', (e) => void this.readFile(e));
+    bindAudioControls(document, undefined, ['master', 'music', 'narration']);
     this.bind('#soundEffectsEnabled', 'change', () => this.toggleSoundEffects());
     this.bind('#soundEffectsVolume', 'input', () => this.updateSoundEffectsVolume(false));
     this.bind('#soundEffectsVolume', 'change', () => this.updateSoundEffectsVolume(true));
     this.bind('#reducedMotion', 'change', () => this.toggleReducedMotion());
     this.bind('#skipCastConfirm', 'change', () => this.toggleCastConfirm());
     this.bind('#battleDebug', 'change', () => void this.toggleDebug());
+    this.bind('#collectionKingdom', 'change', () => {
+      this.modifierKingdom = ($('#collectionKingdom') as HTMLSelectElement).value;
+    });
+    this.bind('#unlockKingdomBtn', 'click', () => void this.unlockKingdom());
+    this.bind('#restoreRealBtn', 'click', () => void this.restoreCollection('restore-real'));
+    this.bind('#restoreInitialBtn', 'click', () => void this.restoreCollection('restore-initial'));
     this.bind('#resetNew', 'click', () => void this.reset(false));
     this.bind('#resetDemo', 'click', () => void this.reset(true));
     this.bind('#settingsBack', 'click', () => ctx.navigate('#map'));
@@ -856,6 +901,34 @@ export class SettingsScreen implements Screen {
     } catch (error: unknown) {
       this.showResult('bad', '导入失败：' + (error instanceof Error ? error.message : String(error)));
     }
+  }
+
+  private async unlockKingdom(): Promise<void> {
+    const kingdom = ($('#collectionKingdom') as HTMLSelectElement).value;
+    this.modifierKingdom = kingdom;
+    const { result } = await this.ctx.gateway.applyCollectionModifier({ kind: 'unlock-kingdom', kingdom });
+    if (!result.ok) {
+      this.showResult('bad', result.message);
+      return;
+    }
+    const extra = result.added > 0 ? `新解锁 ${fmt(result.added)} 张。` : '这些部队本来就在当前收集里。';
+    this.notice = {
+      kind: 'ok',
+      text: `<b>${escapeAttr(kingdom)}</b> 已解锁到当前收集。${extra}真实收集仍是 ${fmt(result.realOwned)} 张。`,
+    };
+    this.ctx.refresh();
+  }
+
+  private async restoreCollection(kind: 'restore-real' | 'restore-initial'): Promise<void> {
+    const { result } = await this.ctx.gateway.applyCollectionModifier({ kind });
+    if (!result.ok) return;
+    this.notice = {
+      kind: 'ok',
+      text: kind === 'restore-real'
+        ? `<b>已还原真实收集</b>，当前 ${fmt(result.owned)} 张。`
+        : `<b>已还原初始收集</b>，当前 ${fmt(result.owned)} 张。真实收集 ${fmt(result.realOwned)} 张还在。`,
+    };
+    this.ctx.refresh();
   }
 
   private async toggleDebug(): Promise<void> {

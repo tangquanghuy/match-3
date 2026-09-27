@@ -1,0 +1,226 @@
+{
+ "troop:6219": {
+  "test": "tests/unit/gowLaneL5B04.test.ts",
+  "extra": [
+   {
+    "id": "r004",
+    "role": "coordinator-ruling",
+    "path": "tasks/active/gow-skill-shards/rulings/R004-status-durations.md",
+    "note": "R004: negatives no turn cap, shared cumulative self-cleanse 10%/+10% (+5% Cursed), Poison never; positives end on trigger (Barrier/Reflect damage, Enchanted cast, Enraged skull damage, Submerged/Blessed holder action)."
+   },
+   {
+    "id": "r3",
+    "role": "lane-battle-test",
+    "path": "tests/unit/gowLaneL5R3.test.ts",
+    "note": "Round-3 real castSkill both sides: statuses from this cast unchanged after 6 failed turn-start rolls; one successful roll removes all recoverable negatives together (Poison/positives stay)."
+   },
+   {
+    "id": "srcR004",
+    "role": "community-source",
+    "path": "artifacts/gow-skill-audit/gold-primary-sources/community-2026-09-28-status-durations.json",
+    "note": "Saved community corroboration for R004 (staff reply: new negative resets, all negatives cleanse together)."
+   },
+   {
+    "id": "r001",
+    "role": "coordinator-ruling",
+    "path": "tasks/active/gow-skill-shards/rulings/R001-native-step-order.md",
+    "note": "R001: native SpellSteps order governs observable order."
+   }
+  ],
+  "en": "troop 6219 Moa: spell 7361 \"Deal [Magic + 3] damage to an enemy and Stun them.\", cost 7 Yellow.",
+  "native": "spell 7361 Target Enemy: CauseStun FromTarget Amount 1; Delay 1000; Damage FromTarget Amount 3 SPM 1.",
+  "dims": {
+   "identity-cost-colors": [
+    "v",
+    "Troop 6219 -> spell 7361, cost 7, Yellow."
+   ],
+   "target-count-range": [
+    "v",
+    "Chosen enemy only."
+   ],
+   "base-formula-rounding": [
+    "v",
+    "Magic+3: magic 0 -> 3, magic 8 -> 11."
+   ],
+   "boost-source-ratio-cap": [
+    "na",
+    "No boost/count source."
+   ],
+   "conditions-probabilities-branches": [
+    "na",
+    "No condition, chance or Randomize."
+   ],
+   "status-duration-immunity": [
+    "v",
+    "Stun R004: no turn cap; persists through 6 failed turn-start rolls, removed by one successful shared self-cleanse roll (gowLaneL5R3). Stun-immune (Thick Head) still takes damage."
+   ],
+   "gems-types-selection-resolution": [
+    "na",
+    "No gem steps."
+   ],
+   "summon-transform-pools": [
+    "na",
+    "No summon/transform."
+   ],
+   "order-death-retargeting": [
+    "v",
+    "Stun -> Damage native order; Barrier absorbs damage but Stun lands; lethal."
+   ],
+   "mana-economy-extra-turn": [
+    "v",
+    "Cast spends full mana and passes the turn; low mana and Silence block the real cast (no mana/action spent)."
+   ],
+   "display-description": [
+    "v",
+    "Chinese description asserted verbatim; wording matches the English effect."
+   ],
+   "battle-pipeline": [
+    "v",
+    "Real TurnEngine.castSkill both sides (lane file + round-3 R004 file)."
+   ]
+  },
+  "clauses": {
+   "c1": [
+    "v",
+    "Chosen enemy Stunned then takes Magic+3."
+   ]
+  },
+  "steps": {
+   "0": [
+    "v",
+    "CauseStun FromTarget."
+   ],
+   "1": [
+    "v",
+    "Delay 1000: presentation pause only; real cast shows Stun then damage with no event in between."
+   ],
+   "2": [
+    "v",
+    "Damage FromTarget 3/1."
+   ]
+  },
+  "branches": {
+   "main": [
+    "v",
+    "Single unconditional branch."
+   ]
+  },
+  "decision": "accept",
+  "rule": {
+   "path": "artifacts/gow-skill-audit/gold-primary-sources/official-status-effects.html",
+   "note": "Official status guide: status semantics (Barrier, Silence, Stun, Disease, Death Mark, Enrage, Submerged, cumulative cleanse chance via Cursed/Lycanthropy entries)."
+  }
+ },
+ "troop:6222": {
+  "test": "tests/unit/gowLaneL5B04.test.ts",
+  "extra": [
+   {
+    "id": "r004",
+    "role": "coordinator-ruling",
+    "path": "tasks/active/gow-skill-shards/rulings/R004-status-durations.md",
+    "note": "R004: negatives no turn cap, shared cumulative self-cleanse 10%/+10% (+5% Cursed), Poison never; positives end on trigger (Barrier/Reflect damage, Enchanted cast, Enraged skull damage, Submerged/Blessed holder action)."
+   },
+   {
+    "id": "r3",
+    "role": "lane-battle-test",
+    "path": "tests/unit/gowLaneL5R3.test.ts",
+    "note": "Round-3 real castSkill both sides: statuses from this cast unchanged after 6 failed turn-start rolls; one successful roll removes all recoverable negatives together (Poison/positives stay)."
+   },
+   {
+    "id": "srcR004",
+    "role": "community-source",
+    "path": "artifacts/gow-skill-audit/gold-primary-sources/community-2026-09-28-status-durations.json",
+    "note": "Saved community corroboration for R004 (staff reply: new negative resets, all negatives cleanse together)."
+   },
+   {
+    "id": "r001",
+    "role": "coordinator-ruling",
+    "path": "tasks/active/gow-skill-shards/rulings/R001-native-step-order.md",
+    "note": "R001: native SpellSteps order governs observable order."
+   }
+  ],
+  "en": "troop 6222 Khopeshi: spell 7364 \"Pull an Enemy to first position and Stun them.\", cost 7 Blue.",
+  "native": "spell 7364 Target Enemy: CauseStun FromTarget Amount 1; Delay 1000; TroopOrderFront FromTarget.",
+  "dims": {
+   "identity-cost-colors": [
+    "v",
+    "Troop 6222 -> spell 7364, cost 7, Blue."
+   ],
+   "target-count-range": [
+    "v",
+    "Chosen enemy; others keep relative order."
+   ],
+   "base-formula-rounding": [
+    "na",
+    "No numeric formula."
+   ],
+   "boost-source-ratio-cap": [
+    "na",
+    "No boost/count source."
+   ],
+   "conditions-probabilities-branches": [
+    "na",
+    "No condition, chance or Randomize."
+   ],
+   "status-duration-immunity": [
+    "v",
+    "Stun R004: no turn cap; persists through 6 failed turn-start rolls, removed by one successful shared self-cleanse roll (gowLaneL5R3). Stun-immune enemy still pulled to front."
+   ],
+   "gems-types-selection-resolution": [
+    "na",
+    "No gem steps."
+   ],
+   "summon-transform-pools": [
+    "na",
+    "No summon/transform."
+   ],
+   "order-death-retargeting": [
+    "v",
+    "Stun -> TroopOrderFront native order; front enemy chosen stays first."
+   ],
+   "mana-economy-extra-turn": [
+    "v",
+    "Cast spends full mana and passes the turn; low mana and Silence block the real cast (no mana/action spent)."
+   ],
+   "display-description": [
+    "v",
+    "Chinese description asserted verbatim; wording matches the English effect."
+   ],
+   "battle-pipeline": [
+    "v",
+    "Real TurnEngine.castSkill both sides (lane file + round-3 R004 file)."
+   ]
+  },
+  "clauses": {
+   "c1": [
+    "v",
+    "Chosen enemy Stunned and moved to first position."
+   ]
+  },
+  "steps": {
+   "0": [
+    "v",
+    "CauseStun FromTarget."
+   ],
+   "1": [
+    "v",
+    "Delay 1000: presentation pause only; real cast shows Stun then reposition with no event in between."
+   ],
+   "2": [
+    "v",
+    "TroopOrderFront FromTarget -> reposition lastTarget front."
+   ]
+  },
+  "branches": {
+   "main": [
+    "v",
+    "Single unconditional branch."
+   ]
+  },
+  "decision": "accept",
+  "rule": {
+   "path": "artifacts/gow-skill-audit/gold-primary-sources/official-status-effects.html",
+   "note": "Official status guide: status semantics (Barrier, Silence, Stun, Disease, Death Mark, Enrage, Submerged, cumulative cleanse chance via Cursed/Lycanthropy entries)."
+  }
+ }
+}

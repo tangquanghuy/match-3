@@ -1,0 +1,334 @@
+[
+  {
+    "id": "L5-001",
+    "kind": "difference",
+    "keys": [
+      "troop:7375",
+      "weapon:1368",
+      "troop:6840",
+      "troop:6406",
+      "weapon:1369"
+    ],
+    "clause": "Barrier (CauseBarrier steps; 'Barrier all Allies' / 'Gain a Barrier' / 'Barrier an Ally')",
+    "expected": "Barrier has no time limit: it stays until it absorbs one instance of damage (or is removed by dispel/Curse). Official status guide: 'Protects from one instance or turn of damage ..., after which the Barrier is removed'; the in-game text quoted on the community wiki: 'It lasts until it is used.'",
+    "actual": "Assembler emits {kind:'status',statusId:'barrier',turns:3}; tickStatuses decrements every non-poison status at the owner's turn start, so an unused Barrier disappears after 3 owner turn-starts (real TurnEngine.passTurn flow).",
+    "repro": [
+      "tests/unit/gowLaneL5B01.test.ts > L5 troop:7375 / spell:9015 ... > REPRO L5-001/L5-002: Barrier and Enchanted vanish after 3 owner turn-starts with no damage and no cast",
+      "tests/unit/gowLaneL5B01.test.ts > L5 troop:6840 / spell:8245 ... > REPRO L5-001: Barrier on the chosen ally expires after 3 owner turn-starts without damage"
+    ],
+    "suspectedLayer": "primitive",
+    "layerNote": "src/engine/skills/effects/status.ts tickStatuses step 2 (only poison is exempt from decrement); assembler default turns:3 for CauseBarrier. Affects every CauseBarrier skill, barrier gem and trait source, not just this lane.",
+    "sources": [
+      "artifacts/gow-skill-audit/gold-primary-sources/official-status-effects.html (sha256 4dca585515e9c7ca9287f75b9555079a2b50c747e6c35293ae6b57981360755c) - Barrier entry",
+      "https://gems-of-war.fandom.com/wiki/Status_Effect (community wiki, Barrier: lasts until it is used)",
+      "https://community.gemsofwar.com/t/not-a-bug-why-does-submerged-blessed-etc-vanish-after-spell-cast/80861/40 (community discussion: barrier/reflect end on taking damage)"
+    ],
+    "note": "Content was rephrased for compliance with licensing restrictions. Web pages are not yet saved to gold-primary-sources (fix window owns that).",
+    "fixedBy": "sa-L5",
+    "fixedAt": "2026-09-28T02:58:00+08:00",
+    "fixNote": "status.ts NON_EXPIRING_STATUS_IDS += barrier (R002); all CauseBarrier/gem/trait sources via tickStatuses"
+  },
+  {
+    "id": "L5-002",
+    "kind": "difference",
+    "keys": [
+      "troop:7375",
+      "weapon:1369"
+    ],
+    "clause": "Enchant (CauseEnchanted)",
+    "expected": "Enchanted lasts until the troop casts its spell (official status guide: extra 2 mana per turn 'until their spell is cast'); no time limit.",
+    "actual": "Assembler emits turns:3; TurnEngine removes Enchanted on cast (correct) but tickStatuses also expires it after 3 owner turn-starts even if no spell was cast (at most 3 x +2 mana instead of unlimited until cast).",
+    "repro": [
+      "tests/unit/gowLaneL5B01.test.ts > L5 troop:7375 / spell:9015 ... > REPRO L5-001/L5-002: Barrier and Enchanted vanish after 3 owner turn-starts with no damage and no cast"
+    ],
+    "suspectedLayer": "primitive",
+    "layerNote": "status.ts ENCHANTED doc says 'turns 仅兜底' but the fallback is a real expiry; CLAN-GEM-SOURCE-CHECK.md records turns=3 only as a proxy.",
+    "sources": [
+      "artifacts/gow-skill-audit/gold-primary-sources/official-status-effects.html (sha256 4dca585515e9c7ca9287f75b9555079a2b50c747e6c35293ae6b57981360755c) - Enchanted entry",
+      "https://community.gemsofwar.com/t/not-a-bug-why-does-submerged-blessed-etc-vanish-after-spell-cast/80861/40 (community: enchant ends on casting a spell)"
+    ],
+    "fixedBy": "sa-L5",
+    "fixedAt": "2026-09-28T02:58:00+08:00",
+    "fixNote": "status.ts NON_EXPIRING_STATUS_IDS += enchanted (R002); removed on cast/dispel/Curse"
+  },
+  {
+    "id": "L5-003",
+    "kind": "difference",
+    "keys": [
+      "weapon:1369"
+    ],
+    "clause": "c3 'Then Cleanse and Enchant them.' / native step 2 {Target:FromTarget, Type:Cleanse}",
+    "expected": "Cleanse removes negative status effects only (official status guide tip: 'All negative status effects can be removed if a troop is Cleansed'). Choosing the wielder as the Ally keeps the Barrier gained in step 0; an ally's existing Barrier/Enchant/etc. is kept.",
+    "actual": "cleanseEffect clears target.statuses entirely. Self-target: status-cleanse [0,['barrier']] removes the Barrier just gained; ally with barrier+burning ends with only enchanted.",
+    "repro": [
+      "tests/unit/gowLaneL5B01.test.ts > L5 weapon:1369 / spell:8404 ... > REPRO L5-003: Cleanse also strips positive statuses (self-target loses the Barrier just gained; ally loses its Barrier)"
+    ],
+    "suspectedLayer": "primitive",
+    "layerNote": "src/engine/skills/effects/status.ts cleanseEffect; scripts/spell-rules.md line ~166 also documents cleanse as 'remove all statuses' so the rule doc needs the same correction. Reverse-search every kind:'cleanse' prototype.",
+    "sources": [
+      "artifacts/gow-skill-audit/gold-primary-sources/official-status-effects.html (sha256 4dca585515e9c7ca9287f75b9555079a2b50c747e6c35293ae6b57981360755c) - Web entry TIP on Cleanse"
+    ],
+    "fixedBy": "sa-L5",
+    "fixedAt": "2026-09-28T02:58:00+08:00",
+    "fixNote": "status.ts cleanseEffect keeps POSITIVE_STATUS_IDS (R002); builders.ts doc + spell-rules.md updated; 47 native Cleanse/cleanse prototypes share the primitive"
+  },
+  {
+    "id": "L5-004",
+    "kind": "source-dispute",
+    "keys": [
+      "troop:6406"
+    ],
+    "clause": "'then Submerge them' / native step 2 CauseSubmerged",
+    "expected": "Unclear. The official status guide gives no duration. A community forum thread says Submerged (and Blessed) end when the troop takes an action.",
+    "actual": "turns:3 hard expiry, plus Submerged is in AUTO_RECOVER_STATUS_IDS (10% cumulative natural removal per owner turn).",
+    "repro": [
+      "tests/unit/gowLaneL5B01.test.ts > L5 troop:6406 / spell:7561 ... > REPRO L5-004: Submerged is hard-removed after 3 ticks (no rng)"
+    ],
+    "suspectedLayer": "primitive",
+    "sources": [
+      "artifacts/gow-skill-audit/gold-primary-sources/official-status-effects.html (Submerged entry: no duration given)",
+      "https://community.gemsofwar.com/t/not-a-bug-why-does-submerged-blessed-etc-vanish-after-spell-cast/80861 (community bug-report thread marked 'Not a bug': positive statuses removed when the troop casts)",
+      "https://community.gemsofwar.com/t/not-a-bug-why-does-submerged-blessed-etc-vanish-after-spell-cast/80861/40 (community: submerged/blessed end on taking an action)"
+    ],
+    "note": "Community-grade only; needs fix-window ruling and a saved source. Content was rephrased for compliance with licensing restrictions.",
+    "fixedBy": "sa-L5",
+    "fixedAt": "2026-09-27T20:52:52.696Z",
+    "fixNote": "resolved by rulings/R004: status.ts shared cumulative self-cleanse, no turn cap for official statuses; Submerged/Blessed end on holder action (TurnEngine cast + CombatResolver skull hit); Enraged ends on skull damage only. tests/unit/statusDurationsR004.test.ts; changelog R004"
+  },
+  {
+    "id": "L5-005",
+    "kind": "source-dispute",
+    "keys": [
+      "weapon:1368",
+      "weapon:1142",
+      "weapon:1436",
+      "troop:7182",
+      "troop:6249",
+      "weapon:1147",
+      "troop:6229",
+      "troop:6217",
+      "weapon:1072",
+      "troop:6192",
+      "troop:6219",
+      "troop:6222"
+    ],
+    "clause": "'and Silence them' / native step 2 CauseSilence (applies to every negative status with turns:3)",
+    "expected": "Official guide describes negative statuses as wearing off through a cumulative cleanse chance per turn (Curse text: 10% -> 5% cumulative; Terror: 'chance to cleanse at the start of each turn similar to other negative status effects'); no fixed duration is stated.",
+    "actual": "Silence gets 10% cumulative recovery AND a hard 3-turn cap. Because the victim's turn start ticks right after the cast, the enemy is silenced for at most 2 of its own turns (turns 3 -> 2 at its first turn start).",
+    "repro": [
+      "tests/unit/gowLaneL5B01.test.ts > L5 weapon:1368 / spell:8403 ... > REPRO L5-005: Silence is hard-removed after 3 ticks even without the cumulative cleanse roll",
+      "tests/unit/gowLaneL5B01.test.ts > L5 weapon:1368 / spell:8403 ... > real cast Left/8403/magic=9: caster Barrier, enemy 12 takes M+3 and is Silenced"
+    ],
+    "suspectedLayer": "primitive",
+    "sources": [
+      "artifacts/gow-skill-audit/gold-primary-sources/official-status-effects.html (sha256 4dca585515e9c7ca9287f75b9555079a2b50c747e6c35293ae6b57981360755c) - Cursed, Lycanthropy, Terror entries"
+    ],
+    "note": "Hard cap is not an explicit official rule and not an explicit user ruling (GEMS-SEMANTICS-2 lists the 3-turn value as an open question). Needs fix-window ruling.",
+    "update0340": "Official guide (saved official-status-effects.html) describes negative statuses as removed only by a cumulative per-turn cleanse chance (10%, 5% when Cursed); Lycanthropy entry gives the example 30% after 3 turns then 40%, which is incompatible with a 3-turn hard cap. Death Mark = 10%/turn death roll (engine already does this). Trial fix (sa-L5, 03:20, reverted): tickStatuses skips turns decrement for AUTO_RECOVER statuses except submerged. Blast radius: 7 non-lane unit tests assert the old countdown (statusEffect.test.ts x2 incl. requirement 9.5 expiry, webStatus.test.ts x2, passTurn.test.ts x1, castTurnLifecycle.test.ts x2) + 10 own L5B01 cases; no frozen evidence of other lanes broke. Not applied because it changes a spec requirement (9.5) and every negative status across lanes; needs coordinator ruling, then it is a 1-line primitive change. This blocks acceptance of almost every L5 key that inflicts a negative status.",
+    "update0355": "Community corroboration (not evidence): in-game tooltips of most negative statuses say there is a cumulative 10% chance to recover each turn, Poison excepted (community.gemsofwar.com/t/poison-the-unnatural-status-effect/68824); a single self-cleanse roll removes all negatives and any newly applied effect resets it (community.gemsofwar.com/t/essence-of-evil-effects-are-lumped-together-resolved/53455). Engine rolls per status and additionally hard-caps at 3 turns. Content was rephrased for compliance with licensing restrictions.",
+    "fixedBy": "sa-L5",
+    "fixedAt": "2026-09-27T20:52:52.696Z",
+    "fixNote": "resolved by rulings/R004: status.ts shared cumulative self-cleanse, no turn cap for official statuses; Submerged/Blessed end on holder action (TurnEngine cast + CombatResolver skull hit); Enraged ends on skull damage only. tests/unit/statusDurationsR004.test.ts; changelog R004"
+  },
+  {
+    "id": "L5-006",
+    "kind": "difference",
+    "keys": [
+      "weapon:1142"
+    ],
+    "clause": "c1 '... and deal [Magic + 3] damage to random Enemies' / native step 3 {Type:Damage, Target:RandomPrefNotPrevEnemy, Amount:3, SpellPowerMultiplier:1}; also targets of steps 1-2",
+    "expected": "Four ordered steps: Burn a random enemy; Freeze, then Silence a random enemy preferring one not hit by the previous step (RandomPrefNotPrevEnemy); then Magic+3 damage to a random enemy preferring not the previous one.",
+    "actual": "Registered prototype has only three status segments (burning/frozen/silence, each an independent enemyRandomN n=1). The Damage step is missing (no skill-damage event, 0 spell damage), and prefer-not-previous targeting (engine mode enemyRandomPrefNotPrev exists) is not used, so the same enemy can be picked repeatedly.",
+    "repro": [
+      "tests/unit/gowLaneL5B02.test.ts > L5 weapon:1142 ... > REPRO L5-006: real cast Left/7338 applies the three statuses but deals no damage",
+      "tests/unit/gowLaneL5B02.test.ts > L5 weapon:1142 ... > REPRO L5-006: steps 2-4 use independent enemyRandomN, not RandomPrefNotPrevEnemy (repeat target observed over seeds)"
+    ],
+    "suspectedLayer": "assembler",
+    "layerNote": "Prototype for spell 7338 (numeric key and gw_Dragonator8000). Amount:2 on the three Cause* steps has no documented meaning; engine uses turns 3 (see L5-005).",
+    "fixedBy": "sa-L5",
+    "fixedAt": "2026-09-28T02:58:00+08:00",
+    "fixNote": "batch-w01 7338 = Burn@enemyRandom, Freeze/Silence/Damage M+3 @enemyRandomPrefNotPrev; gowWeaponReviewedOverrides.json entry added"
+  },
+  {
+    "id": "L5-007",
+    "kind": "difference",
+    "keys": [
+      "weapon:1436"
+    ],
+    "clause": "c1 'Inflict all negative status effects on an Enemy, and grant myself all positive status effects' / native CauseAllNegativeStatusEffects, CauseAllPositiveStatusEffects",
+    "expected": "Every negative status in the official status guide (Bleed, Burning, Cursed, Death Mark, Disease, Entangle, Faerie Fire, Frozen, Hunter's Mark, Lycanthropy, Poison, Silence, Stun, Terror, Web) on the enemy; each positive status (Barrier, Blessed, Enchanted, Enrage, Reflect, Submerged) once on self.",
+    "actual": "Enemy gets curse, poison, burning, bleed, silence, frozen, stun, entangle, web, disease, death-mark, charm: Faerie Fire, Terror, Hunter's Mark (marked) and Lycanthropy (wolf) are missing; Charm (not in the official list) is added. Self gets barrier, enchanted, enraged, rage, reflect, submerged, blessed: Enrage is granted twice under alias ids 'enraged' and 'rage'.",
+    "repro": [
+      "tests/unit/gowLaneL5B02.test.ts > L5 weapon:1436 ... > REPRO L5-007: negative set omits Faerie Fire / Terror / Hunter's Mark / Lycanthropy and adds Charm; positive set grants both rage aliases"
+    ],
+    "suspectedLayer": "assembler",
+    "layerNote": "Negative list is spelled out in the 8668 prototype; the positive set comes from POSITIVE_STATUS_IDS in status.ts (primitive) which contains both alias ids. Scope caveat: statuses added after the snapshot date may not belong to the in-game set; fix window should confirm the snapshot-era list.",
+    "sources": [
+      "artifacts/gow-skill-audit/gold-primary-sources/official-status-effects.html (sha256 4dca585515e9c7ca9287f75b9555079a2b50c747e6c35293ae6b57981360755c) - full status list",
+      "https://community.gemsofwar.com/t/not-a-bug-why-does-submerged-blessed-etc-vanish-after-spell-cast/80861/40 (community: six positive status effects)"
+    ],
+    "fixedBy": "sa-L5",
+    "fixedAt": "2026-09-28T02:58:00+08:00",
+    "fixNote": "batch-w03 8668 negative list per official guide (+faerie-fire/marked/terror/lycanthropy, -charm); status.ts allPositive grants Enrage once (drops rage alias); overrides JSON updated; weaponNativeStepRepair 8668/8084 expectations"
+  },
+  {
+    "id": "L5-008",
+    "kind": "source-dispute",
+    "keys": [
+      "troop:7182"
+    ],
+    "clause": "c1 'Steal [Magic + 1] Life from the 2 weakest Enemies, then inflict Curse and 3 stacks of Bleed on them' / native steps 0-4",
+    "expected": "English: steal first, then Curse + Bleed. Native order: CauseCursed, CauseBleed x3, StealLife last. The order is observable: native order lets Curse strip an enemy Barrier before the steal lands. TwoWeakestEnemies (lowest Life vs power, tie order) is also undocumented.",
+    "actual": "Prototype follows the English order (drain first, then curse, then 3-stack bleed). A Barrier on a weakest enemy absorbs the steal, then Curse lands. Weakest = lowest current HP, ties by team index.",
+    "repro": [
+      "tests/unit/gowLaneL5B02.test.ts > L5 troop:7182 ... > REPRO L5-008: registered order steals first, so a Barrier on a weakest enemy absorbs the steal before Curse"
+    ],
+    "suspectedLayer": "assembler",
+    "note": "English vs native conflict; kept draft per operator guide section 4. Fix window to rule which order governs.",
+    "fixedBy": "sa-L5",
+    "fixedAt": "2026-09-28T02:58:00+08:00",
+    "fixNote": "resolved by rulings/R001: batch-r9 8752 reordered Curse -> Bleed x3 -> StealLife"
+  },
+  {
+    "id": "L5-009",
+    "kind": "difference",
+    "keys": [
+      "troop:6249"
+    ],
+    "clause": "c2 'Take 3 damage.' / native step 2 {Target:Self, Amount:3, Type:Damage}",
+    "expected": "Native Damage step on Self: ordinary 3 damage to the caster, absorbed by a caster Barrier and applied to Armor before Life.",
+    "actual": "Registered as {kind:'reduce', target:'allySelf', stat:'hp', base 3}: Life is reduced directly; caster Armor 5 and Barrier both untouched (hp 1000 -> 997).",
+    "repro": [
+      "tests/unit/gowLaneL5B02.test.ts > L5 troop:6249 ... > REPRO L5-009: self \"Take 3 damage\" bypasses caster Armor and Barrier (reduce hp, not Damage)"
+    ],
+    "suspectedLayer": "assembler",
+    "sources": [
+      "artifacts/gow-skill-audit/gold-primary-sources/official-status-effects.html (sha256 4dca585515e9c7ca9287f75b9555079a2b50c747e6c35293ae6b57981360755c) - Barrier protects from one instance of damage including spells"
+    ],
+    "fixedBy": "sa-L5",
+    "fixedAt": "2026-09-28T02:58:00+08:00",
+    "fixNote": "batch-35 7392 self Take 3 damage = dmg allySelf (Barrier/Armor first)"
+  },
+  {
+    "id": "L5-010",
+    "kind": "difference",
+    "keys": [
+      "weapon:1147"
+    ],
+    "clause": "c2 'Deal [Magic + 1] true damage to all enemies below them' / native step 2 Target:BelowTarget",
+    "expected": "True damage Magic+1 (+3 per Death Marked enemy, counted after step 0) to every living enemy below the chosen target, excluding the chosen target.",
+    "actual": "Prototype target is enemyChosenAndBelow, and at runtime only the chosen enemy is damaged: chosen 11 loses 8, enemies 12 and 13 lose 0 (both sides, both aliases). The x3 Death Mark boost counts correctly (1 mark +3, 3 marks +9).",
+    "repro": [
+      "tests/unit/gowLaneL5B02.test.ts > L5 weapon:1147 ... > REPRO L5-010: real cast Left/7444: only the chosen (Death Marked) enemy 11 is damaged; enemies below (12,13) untouched"
+    ],
+    "suspectedLayer": "assembler",
+    "layerNote": "BelowTarget should map to the existing enemyBelowTarget mode. Separately check why enemyChosenAndBelow damage resolved to the chosen target only; that may be a primitive issue affecting other enemyChosenAndBelow skills.",
+    "fixedBy": "sa-L5",
+    "fixedAt": "2026-09-28T02:58:00+08:00",
+    "fixNote": "batch-w01 7444 target enemyBelowTarget; prototypes.ts column-slice modes resolve multi-victim damage; overrides JSON entry added"
+  },
+  {
+    "id": "L5-011",
+    "kind": "source-dispute",
+    "keys": [
+      "weapon:1369"
+    ],
+    "clause": "c2 Give [(Magic x 1.5) + 1] Life to an Ally / native IncreaseHealth SPM 1.5",
+    "expected": "Unclear: no stored official rule for rounding fractional SpellPowerMultiplier results (half-up vs floor).",
+    "actual": "Math.round half-up: Magic 7 -> 11.5 -> 12, Magic 9 -> 14.5 -> 15.",
+    "repro": [
+      "tests/unit/gowLaneL5B01.test.ts > L5 weapon:1369 ... > Gain Life half rounding: Magic 7 -> 1.5*7+1 = 11.5 -> 12"
+    ],
+    "suspectedLayer": "primitive",
+    "note": "All other 1369 dimensions consistent after L5-001/002/003 fixes; kept draft only for this rounding rule. Needs coordinator ruling on fractional multiplier rounding. Round 3: accepted with note convention:R006-C1.",
+    "resolvedBy": "rulings/R006 C1 (convention, no code change)",
+    "resolvedAt": "2026-09-27T20:59:35.304Z"
+  },
+  {
+    "id": "L5-012",
+    "kind": "difference",
+    "keys": [
+      "weapon:1072"
+    ],
+    "clause": "c1 ... and deal [Magic + 2] true damage / native step 1 TrueDamage FrontEnemy Amount 2 SPM 1",
+    "expected": "Entangle the front enemy, then Magic+2 true damage to it.",
+    "actual": "Prototype had only the Entangle segment (no damage).",
+    "suspectedLayer": "assembler",
+    "fixedBy": "sa-L5",
+    "fixedAt": "2026-09-28T03:40:00+08:00",
+    "fixNote": "batch-w01 7185 + trueDmg enemyFront 2/1; gowWeaponReviewedOverrides.json entry added",
+    "repro": [
+      "tests/unit/gowLaneL5B03.test.ts > L5 weapon:1072 ... > FIXED L5-012"
+    ]
+  },
+  {
+    "id": "L5-013",
+    "kind": "difference",
+    "keys": [
+      "troop:6229",
+      "troop:6217",
+      "troop:6924",
+      "troop:6546",
+      "troop:6646",
+      "troop:6219",
+      "troop:6222"
+    ],
+    "clause": "segment order vs native SpellSteps",
+    "expected": "Native order (rulings/R001): 7371 Disease->Poison->Stun; 7359 Disease->Damage; 8393 AllAllies->AllEnemies; 7740 Enrage->TrueDamage.",
+    "actual": "Prototypes followed the Chinese/English order. Observable for 7371: Stun first disables immunity traits so Disease/Poison bypassed immunity.",
+    "suspectedLayer": "assembler",
+    "fixedBy": "sa-L5",
+    "fixedAt": "2026-09-28T03:40:00+08:00",
+    "fixNote": "batch-r5 7371, batch-34 7359, batch-33 8393/7740 reordered; batch-01 7978 (Poison WeakestEnemy -> Damage FromPrevious) and 7361 (Stun -> Damage), batch-r18 7364 (Stun -> TroopOrderFront)",
+    "repro": [
+      "tests/unit/gowLaneL5B03.test.ts > L5 troop:6229 ... > FIXED L5-013: Disease-immune lone enemy blocks Disease"
+    ]
+  },
+  {
+    "id": "L5-014",
+    "kind": "source-dispute",
+    "keys": [
+      "troop:6924",
+      "troop:6546"
+    ],
+    "clause": "CauseEnraged duration",
+    "expected": "Unclear: official guide gives no duration for Enrage (text only describes the skull-damage bonus).",
+    "actual": "rage turns 3, hard expiry after 3 owner turn-starts (not in natural-cleanse set).",
+    "suspectedLayer": "primitive",
+    "sources": [
+      "artifacts/gow-skill-audit/gold-primary-sources/official-status-effects.html (Enrage entry: no duration)"
+    ],
+    "note": "Same family as L5-004 (Submerged). Needs coordinator ruling on positive-status durations (Enraged, Submerged, Reflect, Blessed).",
+    "fixedBy": "sa-L5",
+    "fixedAt": "2026-09-27T20:52:52.696Z",
+    "fixNote": "resolved by rulings/R004: status.ts shared cumulative self-cleanse, no turn cap for official statuses; Submerged/Blessed end on holder action (TurnEngine cast + CombatResolver skull hit); Enraged ends on skull damage only. tests/unit/statusDurationsR004.test.ts; changelog R004"
+  },
+  {
+    "id": "L5-015",
+    "kind": "source-dispute",
+    "keys": [
+      "weapon:1142"
+    ],
+    "clause": "native RandomPrefNotPrevEnemy x3 after RandomEnemy (spell 7338)",
+    "expected": "rulings/R006-C3: random steps prefer enemies not yet hit in this cast, repeat only when every living enemy was hit (4 steps on 4 enemies -> 4 distinct).",
+    "actual": "targeting.ts enemyRandomPrefNotPrev excludes only castTracking.lastTarget (immediately previous step); step 4 can hit the step-2 target while an unhit enemy lives. The same primitive is used by batch-08 (L4b-6841), batch-10 (comment: alternating with 2 enemies), batch-r9/r10/r12/r22 splash chains; damage.ts randomSplashCount / randomDamageWaves already implement the C3 reading (prefer not-yet-hit).",
+    "suspectedLayer": "primitive",
+    "note": "Two readings coexist in the engine; changing enemyRandomPrefNotPrev affects other lanes (L4b and others). Needs coordinator confirmation that C3 applies to the targeting mode as well, then a one-line primitive change (exclude all castTracking.allTargets).",
+    "at": "2026-09-27T21:03:53.385Z"
+  },
+  {
+    "id": "L5-016",
+    "kind": "difference",
+    "keys": [
+      "troop:7439"
+    ],
+    "clause": "Knock an Enemy to the back and Stun them / native Target Enemy, CauseStun FromTarget, TroopOrderBack FromTarget",
+    "expected": "The player-chosen enemy is Stunned and knocked to the back (native spell Target Enemy; Chinese text 将一名敌人).",
+    "actual": "batch-r5 9131 prototype repositions enemyRandom back then stuns lastTarget; a random enemy is affected regardless of the choice.",
+    "repro": [
+      "tests/unit/gowLaneL5B05Repro.test.ts > L5-016 troop:7439 spell 9131 ... the chosen enemy 11 is the one Stunned and knocked to the back on every seed"
+    ],
+    "suspectedLayer": "assembler",
+    "at": "2026-09-27T21:07:45.941Z"
+  }
+]

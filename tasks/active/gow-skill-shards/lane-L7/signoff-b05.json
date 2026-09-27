@@ -1,0 +1,1838 @@
+{
+  "schemaVersion": 1,
+  "scope": "stored-gow-snapshot",
+  "reviews": [
+    {
+      "key": "troop:6352",
+      "scope": "stored-gow-snapshot",
+      "sourceDigest": "2c0cb9c1ef3e25a25fec9db6202680e724fe5ea799ccaf4525706ccb163455a5",
+      "reviewer": "sa-L76",
+      "reviewedAt": "2026-09-27",
+      "decision": "draft",
+      "ledgerFingerprintAtReview": "b11eaf00bc4e64b650d2a253ec6c7aff706de690793f0c1fb61302a07c0f6a97",
+      "_reference": {
+        "spellId": 7504,
+        "english": "Deal [Magic + 1] damage to the 2 strongest enemies, boosted by my Armor. [2:1]",
+        "nativeTarget": "None",
+        "randomize": null,
+        "steps": [
+          {
+            "Target": "Self",
+            "Amount": 50,
+            "Type": "CountArmor"
+          },
+          {
+            "SpellPowerMultiplier": 1,
+            "Target": "TwoStrongestEnemies",
+            "UseCounterForAmount": true,
+            "Amount": 1,
+            "Primarypower": true,
+            "Type": "Damage"
+          }
+        ],
+        "prototype": {
+          "segments": [
+            {
+              "kind": "damage",
+              "target": "enemyHealthiestN",
+              "scaling": {
+                "base": 1,
+                "mult": 1
+              },
+              "n": 2,
+              "modifier": {
+                "mod": {
+                  "kind": "ratio",
+                  "a": 2,
+                  "b": 1
+                },
+                "source": {
+                  "kind": "selfStat",
+                  "stat": "armor"
+                }
+              }
+            }
+          ]
+        }
+      },
+      "sourceEvidence": [
+        {
+          "id": "en",
+          "role": "english-snapshot",
+          "path": "data/raw/troops.gow.en.json",
+          "note": "TODO: entity id / SpellId / English clause / cost / colours checked"
+        },
+        {
+          "id": "native",
+          "role": "native-snapshot",
+          "path": "data/raw/spells.gow.en.json",
+          "note": "TODO: SpellId-indexed Cost/Target/every non-None SpellSteps field checked"
+        },
+        {
+          "id": "rule",
+          "role": "official-shared-rule",
+          "path": "artifacts/gow-skill-audit/gold-primary-sources/official-status-effects.html",
+          "note": "TODO: replace with the official rule file actually relevant to this skill, and say what it supports"
+        }
+      ],
+      "dimensions": {
+        "identity-cost-colors": {
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        },
+        "target-count-range": {
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        },
+        "base-formula-rounding": {
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        },
+        "boost-source-ratio-cap": {
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        },
+        "conditions-probabilities-branches": {
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        },
+        "status-duration-immunity": {
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        },
+        "gems-types-selection-resolution": {
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        },
+        "summon-transform-pools": {
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        },
+        "order-death-retargeting": {
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        },
+        "mana-economy-extra-turn": {
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        },
+        "display-description": {
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        },
+        "battle-pipeline": {
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": [],
+          "realBattleEntry": true
+        }
+      },
+      "clauseReviews": [
+        {
+          "id": "c1",
+          "text": "Deal [Magic + 1] damage to the 2 strongest enemies, boosted by my Armor.",
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        },
+        {
+          "id": "c2",
+          "text": "[2:1]",
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        }
+      ],
+      "nativeStepReviews": [
+        {
+          "id": "0",
+          "type": "CountArmor",
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        },
+        {
+          "id": "1",
+          "type": "Damage",
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        }
+      ],
+      "branchReviews": [
+        {
+          "id": "main",
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        }
+      ]
+    },
+    {
+      "key": "troop:7344",
+      "scope": "stored-gow-snapshot",
+      "sourceDigest": "846213e9cff5ddf2c9ccb8a2be04d3a40dd0a32ed19e53520e284417c859722c",
+      "reviewer": "sa-L76",
+      "reviewedAt": "2026-09-27",
+      "decision": "accept",
+      "ledgerFingerprintAtReview": "b11eaf00bc4e64b650d2a253ec6c7aff706de690793f0c1fb61302a07c0f6a97",
+      "_reference": {
+        "spellId": 8969,
+        "english": "Deal [Magic + 2] damage to 4 random Enemies, boosted by my Armor. [3:1]",
+        "nativeTarget": "None",
+        "randomize": null,
+        "steps": [
+          {
+            "Target": "Self",
+            "Amount": 34,
+            "Type": "CountArmor"
+          },
+          {
+            "SpellPowerMultiplier": 1,
+            "Target": "RandomEnemy",
+            "UseCounterForAmount": true,
+            "Amount": 2,
+            "Primarypower": true,
+            "Type": "Damage",
+            "Delay": 400,
+            "ResetTargets": true
+          },
+          {
+            "SpellPowerMultiplier": 1,
+            "Target": "RandomPrefNotPrevEnemy",
+            "UseCounterForAmount": true,
+            "Amount": 2,
+            "Type": "Damage",
+            "Delay": 400,
+            "ResetTargets": true
+          },
+          {
+            "SpellPowerMultiplier": 1,
+            "Target": "RandomPrefNotPrevEnemy",
+            "UseCounterForAmount": true,
+            "Amount": 2,
+            "Type": "Damage",
+            "Delay": 400,
+            "ResetTargets": true
+          },
+          {
+            "SpellPowerMultiplier": 1,
+            "Target": "RandomPrefNotPrevEnemy",
+            "UseCounterForAmount": true,
+            "Amount": 2,
+            "Type": "Damage"
+          }
+        ],
+        "prototype": {
+          "segments": [
+            {
+              "kind": "damage",
+              "target": "enemyRandom",
+              "scaling": {
+                "base": 2,
+                "mult": 1
+              },
+              "modifier": {
+                "mod": {
+                  "kind": "ratio",
+                  "a": 3,
+                  "b": 1
+                },
+                "source": {
+                  "kind": "selfStat",
+                  "stat": "armor"
+                }
+              }
+            },
+            {
+              "kind": "damage",
+              "target": "enemyRandomPrefNotPrev",
+              "scaling": {
+                "base": 2,
+                "mult": 1
+              },
+              "modifier": {
+                "mod": {
+                  "kind": "ratio",
+                  "a": 3,
+                  "b": 1
+                },
+                "source": {
+                  "kind": "selfStat",
+                  "stat": "armor"
+                }
+              }
+            },
+            {
+              "kind": "damage",
+              "target": "enemyRandomPrefNotPrev",
+              "scaling": {
+                "base": 2,
+                "mult": 1
+              },
+              "modifier": {
+                "mod": {
+                  "kind": "ratio",
+                  "a": 3,
+                  "b": 1
+                },
+                "source": {
+                  "kind": "selfStat",
+                  "stat": "armor"
+                }
+              }
+            },
+            {
+              "kind": "damage",
+              "target": "enemyRandomPrefNotPrev",
+              "scaling": {
+                "base": 2,
+                "mult": 1
+              },
+              "modifier": {
+                "mod": {
+                  "kind": "ratio",
+                  "a": 3,
+                  "b": 1
+                },
+                "source": {
+                  "kind": "selfStat",
+                  "stat": "armor"
+                }
+              }
+            }
+          ]
+        }
+      },
+      "sourceEvidence": [
+        {
+          "id": "en",
+          "role": "english-snapshot",
+          "path": "data/raw/troops.gow.en.json",
+          "note": "troop 7344: stats.spell.id 8969, ManaCost 16, Yellow/Brown, English 'Deal [Magic + 2] damage to 4 random Enemies, boosted by my Armor. [3:1]' asserted verbatim."
+        },
+        {
+          "id": "native",
+          "role": "native-snapshot",
+          "path": "data/raw/spells.gow.en.json",
+          "note": "spell 8969 Target None Cost 16; SpellSteps asserted: CountArmor Self 34; Damage RandomEnemy; 3 x Damage RandomPrefNotPrevEnemy (Amount 2 SPM 1 UseCounterForAmount, ResetTargets/Delay)."
+        },
+        {
+          "id": "rule",
+          "role": "official-shared-rule",
+          "path": "artifacts/gow-skill-audit/gold-primary-sources/official-brian-guide.html",
+          "note": "Official Brian guide '(Boost Ratio 3:1)' notation (e.g. Frenzy); the separate-hit semantics follow the native RandomEnemy / RandomPrefNotPrevEnemy steps."
+        },
+        {
+          "id": "laneTest",
+          "role": "lane-battle-test",
+          "path": "tests/unit/gowLaneL7B05.test.ts",
+          "note": "L7B05 troop:7344 describe: binding/prototype (4 segments)/zh; 4 real casts (4 hits, no consecutive repeat, armor 53 -> +18); 2 living alternate, 1 living x4, all enemies reachable over seeds; killed enemy not reselected; low-mana/silence."
+        },
+        {
+          "id": "r003",
+          "role": "coordinator-ruling",
+          "path": "tasks/active/gow-skill-shards/rulings/R003-count-threshold-labels.md",
+          "note": "R003 item 2: Count* Amount is a percentage; [3:1] = 34% (armor 50 -> 17); implemented in round 2."
+        }
+      ],
+      "dimensions": {
+        "identity-cost-colors": {
+          "status": "verified",
+          "note": "Entity 7344 -> spell 8969, cost 16, Yellow/Brown; ledger binding checks true.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r003"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL7B05.test.ts"
+          ]
+        },
+        "target-count-range": {
+          "status": "verified",
+          "note": "Four separate single-target hits: RandomEnemy then 3 x RandomPrefNotPrevEnemy (prefer anyone but the previous victim, reuse if alone) -> 4 hits even with 1-2 living enemies.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r003"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL7B05.test.ts"
+          ]
+        },
+        "base-formula-rounding": {
+          "status": "verified",
+          "note": "Each hit [Magic+2] + floor(own armor x 34%): armor 53 -> +18 (R003), magic 0/10.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r003"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL7B05.test.ts"
+          ]
+        },
+        "boost-source-ratio-cap": {
+          "status": "verified",
+          "note": "CountArmor Self Amount 34 = [3:1] label -> selfStat armor, 34% floor; ally armor 60 ignored; no cap.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r003"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL7B05.test.ts"
+          ]
+        },
+        "conditions-probabilities-branches": {
+          "status": "verified",
+          "note": "Random selection only: seeds 1-12 reach all 4 enemies; consecutive hits never share a target while 2+ alive.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r003"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL7B05.test.ts"
+          ]
+        },
+        "status-duration-immunity": {
+          "status": "not-applicable",
+          "note": "No status applied.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": []
+        },
+        "gems-types-selection-resolution": {
+          "status": "not-applicable",
+          "note": "No gem steps.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": []
+        },
+        "summon-transform-pools": {
+          "status": "not-applicable",
+          "note": "No summon/transform.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": []
+        },
+        "order-death-retargeting": {
+          "status": "verified",
+          "note": "Counter first; an enemy killed by an earlier hit is never selected again (Life 2 case: exactly 1 hit on it).",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r003"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL7B05.test.ts"
+          ]
+        },
+        "mana-economy-extra-turn": {
+          "status": "verified",
+          "note": "Real cast spends 16 mana and ends turn; low mana / silence block.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r003"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL7B05.test.ts"
+          ]
+        },
+        "display-description": {
+          "status": "verified",
+          "note": "zh '对 4 名随机敌人造成 [魔法 + 2] 点伤害，伤害值因我的护甲值而增强。 [3:1]' matches English.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r003"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL7B05.test.ts"
+          ]
+        },
+        "battle-pipeline": {
+          "status": "verified",
+          "note": "TurnEngine.castSkill both sides; 4 skill-damage events with exact damage.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r003"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL7B05.test.ts"
+          ],
+          "realBattleEntry": true
+        }
+      },
+      "clauseReviews": [
+        {
+          "id": "c1",
+          "text": "Deal [Magic + 2] damage to 4 random Enemies, boosted by my Armor.",
+          "status": "verified",
+          "note": "4 random hits of [Magic + 2] boosted by my armor, as separate native steps (L7-7344 fixed).",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL7B05.test.ts"
+          ]
+        },
+        {
+          "id": "c2",
+          "text": "[3:1]",
+          "status": "verified",
+          "note": "[3:1] = 34% of own armor, floor (53 -> 18).",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL7B05.test.ts"
+          ]
+        }
+      ],
+      "nativeStepReviews": [
+        {
+          "id": "0",
+          "type": "CountArmor",
+          "status": "verified",
+          "note": "CountArmor Self 34 -> selfStat armor ratio 3:1 evaluated as 34% (R003).",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL7B05.test.ts"
+          ]
+        },
+        {
+          "id": "1",
+          "type": "Damage",
+          "status": "verified",
+          "note": "Damage RandomEnemy Amount 2 SPM 1 UseCounterForAmount -> damage enemyRandom.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL7B05.test.ts"
+          ]
+        },
+        {
+          "id": "2",
+          "type": "Damage",
+          "status": "verified",
+          "note": "Damage RandomPrefNotPrevEnemy -> damage enemyRandomPrefNotPrev (prefers other than previous).",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL7B05.test.ts"
+          ]
+        },
+        {
+          "id": "3",
+          "type": "Damage",
+          "status": "verified",
+          "note": "Damage RandomPrefNotPrevEnemy -> damage enemyRandomPrefNotPrev.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL7B05.test.ts"
+          ]
+        },
+        {
+          "id": "4",
+          "type": "Damage",
+          "status": "verified",
+          "note": "Damage RandomPrefNotPrevEnemy -> damage enemyRandomPrefNotPrev.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL7B05.test.ts"
+          ]
+        }
+      ],
+      "branchReviews": [
+        {
+          "id": "main",
+          "status": "verified",
+          "note": "Single unconditional branch; covered by real casts.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL7B05.test.ts"
+          ]
+        }
+      ]
+    },
+    {
+      "key": "troop:6549",
+      "scope": "stored-gow-snapshot",
+      "sourceDigest": "41e26e8e9324e39f09c1118a4437137cf81451ffe4fa0872df7c02946e6d3076",
+      "reviewer": "sa-L76",
+      "reviewedAt": "2026-09-27",
+      "decision": "accept",
+      "ledgerFingerprintAtReview": "b11eaf00bc4e64b650d2a253ec6c7aff706de690793f0c1fb61302a07c0f6a97",
+      "_reference": {
+        "spellId": 7743,
+        "english": "Deal [Magic + 2] true damage to an enemy. Steal 3 Armor and shift it to Magic. [1:1]",
+        "nativeTarget": "Enemy",
+        "randomize": null,
+        "steps": [
+          {
+            "Target": "FromTarget",
+            "Amount": 100,
+            "Type": "CountArmor"
+          },
+          {
+            "Amount": 3,
+            "Type": "CountMax"
+          },
+          {
+            "Target": "FromTarget",
+            "UseCounterForAmount": true,
+            "Type": "DecreaseArmor"
+          },
+          {
+            "Target": "Self",
+            "UseCounterForAmount": true,
+            "Type": "IncreaseSpellPower"
+          },
+          {
+            "SpellPowerMultiplier": 1,
+            "Target": "FromTarget",
+            "Amount": 2,
+            "Primarypower": true,
+            "Type": "TrueDamage"
+          }
+        ],
+        "prototype": {
+          "segments": [
+            {
+              "kind": "reduce",
+              "target": "enemyChosen",
+              "stat": "armor",
+              "scaling": {
+                "base": 3,
+                "mult": 0
+              },
+              "gainStat": "magic"
+            },
+            {
+              "kind": "damage",
+              "target": "enemyChosen",
+              "scaling": {
+                "base": 2,
+                "mult": 1
+              },
+              "trueDamage": true
+            }
+          ]
+        }
+      },
+      "sourceEvidence": [
+        {
+          "id": "en",
+          "role": "english-snapshot",
+          "path": "data/raw/troops.gow.en.json",
+          "note": "troop 6549: stats.spell.id 7743, ManaCost 11, Yellow/Purple, English 'Deal [Magic + 2] true damage to an enemy. Steal 3 Armor and shift it to Magic. [1:1]' asserted verbatim."
+        },
+        {
+          "id": "native",
+          "role": "native-snapshot",
+          "path": "data/raw/spells.gow.en.json",
+          "note": "spell 7743 Target Enemy Cost 11; SpellSteps asserted: CountArmor FromTarget 100; CountMax 3; DecreaseArmor FromTarget counter; IncreaseSpellPower Self counter; TrueDamage FromTarget 2 SPM 1."
+        },
+        {
+          "id": "rule",
+          "role": "official-shared-rule",
+          "path": "artifacts/gow-skill-audit/gold-primary-sources/official-brian-guide.html",
+          "note": "Official Brian guide uses the same true damage wording (Curse of Weakness 'Deal [3+Magic] true damage') and '(Boost Ratio N:1)' notation; armor-to-Magic shift follows the native DecreaseArmor + IncreaseSpellPower steps."
+        },
+        {
+          "id": "laneTest",
+          "role": "lane-battle-test",
+          "path": "tests/unit/gowLaneL7B05.test.ts",
+          "note": "L7B05 troop:6549 describe: binding/prototype (reduce before trueDmg)/zh; 4 real casts (armor 5 -> 2, Magic +3, Life loss magic+5); armor 1 / 0 boundaries; true damage ignores armor, chosen only; low-mana/silence."
+        },
+        {
+          "id": "r001",
+          "role": "coordinator-ruling",
+          "path": "tasks/active/gow-skill-shards/rulings/R001-native-step-order.md",
+          "note": "R001: native SpellSteps order governs observable order (fixed L6-6549 / L6-7833 in round 2)."
+        }
+      ],
+      "dimensions": {
+        "identity-cost-colors": {
+          "status": "verified",
+          "note": "Entity 6549 -> spell 7743, cost 11, Yellow/Purple; ledger binding checks true.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r001"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL7B05.test.ts"
+          ]
+        },
+        "target-count-range": {
+          "status": "verified",
+          "note": "FromTarget -> enemyChosen for both armor reduction and true damage; others untouched.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r001"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL7B05.test.ts"
+          ]
+        },
+        "base-formula-rounding": {
+          "status": "verified",
+          "note": "Stolen = min(armor, 3); true damage = (Magic + stolen) + 2.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r001"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL7B05.test.ts"
+          ]
+        },
+        "boost-source-ratio-cap": {
+          "status": "verified",
+          "note": "CountArmor 100% capped by CountMax 3 -> reduce armor 3 gainStat magic 1:1; caster armor unchanged (DecreaseArmor, not StealArmor).",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r001"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL7B05.test.ts"
+          ]
+        },
+        "conditions-probabilities-branches": {
+          "status": "not-applicable",
+          "note": "No condition/chance.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": []
+        },
+        "status-duration-immunity": {
+          "status": "not-applicable",
+          "note": "No status applied.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": []
+        },
+        "gems-types-selection-resolution": {
+          "status": "not-applicable",
+          "note": "No gem steps.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": []
+        },
+        "summon-transform-pools": {
+          "status": "not-applicable",
+          "note": "No summon/transform.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": []
+        },
+        "order-death-retargeting": {
+          "status": "verified",
+          "note": "Native order kept (R001, L6-6549 fixed): Magic raised before TrueDamage, so damage uses the new Magic.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r001"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL7B05.test.ts"
+          ]
+        },
+        "mana-economy-extra-turn": {
+          "status": "verified",
+          "note": "Real cast spends 11 mana and ends turn; low mana / silence block (no Magic change).",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r001"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL7B05.test.ts"
+          ]
+        },
+        "display-description": {
+          "status": "verified",
+          "note": "zh '对一名敌人造成 [魔法 + 2] 点真实伤害。窃取 3 点护甲值并将之转换成魔力值。 [1:1]' matches English.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r001"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL7B05.test.ts"
+          ]
+        },
+        "battle-pipeline": {
+          "status": "verified",
+          "note": "TurnEngine.castSkill both sides; true damage bypasses target armor (40 -> 37 only from the steal).",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r001"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL7B05.test.ts"
+          ],
+          "realBattleEntry": true
+        }
+      },
+      "clauseReviews": [
+        {
+          "id": "c1",
+          "text": "Deal [Magic + 2] true damage to an enemy.",
+          "status": "verified",
+          "note": "[Magic + 2] true damage to the chosen enemy, computed with the Magic after the shift.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL7B05.test.ts"
+          ]
+        },
+        {
+          "id": "c2",
+          "text": "Steal 3 Armor and shift it to Magic.",
+          "status": "verified",
+          "note": "Target loses min(armor, 3) armor; caster gains the same Magic.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL7B05.test.ts"
+          ]
+        },
+        {
+          "id": "c3",
+          "text": "[1:1]",
+          "status": "verified",
+          "note": "[1:1]: armor to Magic one for one.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL7B05.test.ts"
+          ]
+        }
+      ],
+      "nativeStepReviews": [
+        {
+          "id": "0",
+          "type": "CountArmor",
+          "status": "verified",
+          "note": "CountArmor FromTarget 100 -> counter = target armor.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL7B05.test.ts"
+          ]
+        },
+        {
+          "id": "1",
+          "type": "CountMax",
+          "status": "verified",
+          "note": "CountMax 3 -> counter capped at 3 (reduce base 3 limited by actual armor).",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL7B05.test.ts"
+          ]
+        },
+        {
+          "id": "2",
+          "type": "DecreaseArmor",
+          "status": "verified",
+          "note": "DecreaseArmor FromTarget counter -> reduce enemyChosen armor.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL7B05.test.ts"
+          ]
+        },
+        {
+          "id": "3",
+          "type": "IncreaseSpellPower",
+          "status": "verified",
+          "note": "IncreaseSpellPower Self counter -> gainStat magic of the reduced amount.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL7B05.test.ts"
+          ]
+        },
+        {
+          "id": "4",
+          "type": "TrueDamage",
+          "status": "verified",
+          "note": "TrueDamage FromTarget 2 SPM 1 -> damage enemyChosen trueDamage base 2 mult 1 after the Magic gain.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL7B05.test.ts"
+          ]
+        }
+      ],
+      "branchReviews": [
+        {
+          "id": "main",
+          "status": "verified",
+          "note": "Single unconditional branch.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL7B05.test.ts"
+          ]
+        }
+      ]
+    },
+    {
+      "key": "troop:7833",
+      "scope": "stored-gow-snapshot",
+      "sourceDigest": "8b204adb7e8db73dc325176a6437ae8b0b64170186b9a952b1b2f0a6b95be8d3",
+      "reviewer": "sa-L76",
+      "reviewedAt": "2026-09-27",
+      "decision": "accept",
+      "ledgerFingerprintAtReview": "b11eaf00bc4e64b650d2a253ec6c7aff706de690793f0c1fb61302a07c0f6a97",
+      "_reference": {
+        "spellId": 10061,
+        "english": "Deal [Magic + 4] damage to an Enemy, then pull them to the back. There is a 10% chance to slay them, boosted by their Armor (up to 30%). [10:1]",
+        "nativeTarget": "Enemy",
+        "randomize": null,
+        "steps": [
+          {
+            "Target": "FromTarget",
+            "Amount": 10,
+            "Type": "CountArmor"
+          },
+          {
+            "Amount": 20,
+            "Type": "CountMax"
+          },
+          {
+            "Target": "FromTarget",
+            "UseCounterForAmount": true,
+            "Amount": 10,
+            "Type": "LethalDamageConditional"
+          },
+          {
+            "SpellPowerMultiplier": 1,
+            "Target": "FromTarget",
+            "Amount": 4,
+            "Primarypower": true,
+            "Type": "Damage",
+            "Delay": 400
+          },
+          {
+            "Target": "FromTarget",
+            "Type": "TroopOrderBack"
+          }
+        ],
+        "prototype": {
+          "segments": [
+            {
+              "kind": "damage",
+              "target": "enemyChosen",
+              "scaling": {
+                "base": 0,
+                "mult": 0
+              },
+              "execute": true,
+              "chance": 0.1,
+              "chanceBoost": {
+                "mod": {
+                  "kind": "ratio",
+                  "a": 10,
+                  "b": 1
+                },
+                "source": {
+                  "kind": "chosenStat",
+                  "stat": "armor"
+                },
+                "max": 20
+              }
+            },
+            {
+              "kind": "damage",
+              "target": "enemyChosen",
+              "scaling": {
+                "base": 4,
+                "mult": 1
+              }
+            },
+            {
+              "kind": "reposition",
+              "target": "lastTarget",
+              "to": "back"
+            }
+          ]
+        }
+      },
+      "sourceEvidence": [
+        {
+          "id": "en",
+          "role": "english-snapshot",
+          "path": "data/raw/troops.gow.en.json",
+          "note": "troop 7833: stats.spell.id 10061, ManaCost 17, Blue/Green, English 'Deal [Magic + 4] damage to an Enemy, then pull them to the back. There is a 10% chance to slay them, boosted by their Armor (up to 30%). [10:1]' asserted verbatim."
+        },
+        {
+          "id": "native",
+          "role": "native-snapshot",
+          "path": "data/raw/spells.gow.en.json",
+          "note": "spell 10061 Target Enemy Cost 17; SpellSteps asserted: CountArmor FromTarget 10; CountMax 20; LethalDamageConditional FromTarget Amount 10 counter; Damage FromTarget 4 SPM 1 Delay 400; TroopOrderBack FromTarget."
+        },
+        {
+          "id": "rule",
+          "role": "official-shared-rule",
+          "path": "artifacts/gow-skill-audit/gold-primary-sources/official-brian-guide.html",
+          "note": "Official Brian guide '(Boost Ratio N:1)' notation; here [10:1] = +1 percentage point of slay chance per 10 armor (native CountArmor 10 + CountMax 20)."
+        },
+        {
+          "id": "laneTest",
+          "role": "lane-battle-test",
+          "path": "tests/unit/gowLaneL7B05.test.ts",
+          "note": "L7B05 troop:7833 describe: binding/prototype (execute first)/zh; 4 real casts failed roll (damage + pull back); pre-damage armor 100 -> 20% (0.19 vs 0.2001); 0 armor 10%; cap 30% at armor 400; armor 99 -> 19%; low-mana/silence."
+        },
+        {
+          "id": "r001",
+          "role": "coordinator-ruling",
+          "path": "tasks/active/gow-skill-shards/rulings/R001-native-step-order.md",
+          "note": "R001: native SpellSteps order governs observable order (fixed L6-6549 / L6-7833 in round 2)."
+        }
+      ],
+      "dimensions": {
+        "identity-cost-colors": {
+          "status": "verified",
+          "note": "Entity 7833 -> spell 10061, cost 17, Blue/Green; ledger binding checks true.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r001"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL7B05.test.ts"
+          ]
+        },
+        "target-count-range": {
+          "status": "verified",
+          "note": "All steps FromTarget -> enemyChosen (slay, damage, then pull to back).",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r001"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL7B05.test.ts"
+          ]
+        },
+        "base-formula-rounding": {
+          "status": "verified",
+          "note": "[Magic+4] damage; slay chance 10% + min(floor(armor x 10%), 20) points.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r001"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL7B05.test.ts"
+          ]
+        },
+        "boost-source-ratio-cap": {
+          "status": "verified",
+          "note": "CountArmor FromTarget 10 -> chosenStat armor ratio 10:1, CountMax 20 -> max 20 points (30% total cap).",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r001"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL7B05.test.ts"
+          ]
+        },
+        "conditions-probabilities-branches": {
+          "status": "verified",
+          "note": "Slay roll: 0 armor 0.0999 slays / 0.1 not; armor 99 0.1899 / 0.19; armor 100 0.19 / 0.2001; armor 400 0.2999 / 0.3001.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r001"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL7B05.test.ts"
+          ]
+        },
+        "status-duration-immunity": {
+          "status": "not-applicable",
+          "note": "No status applied.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": []
+        },
+        "gems-types-selection-resolution": {
+          "status": "not-applicable",
+          "note": "No gem steps.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": []
+        },
+        "summon-transform-pools": {
+          "status": "not-applicable",
+          "note": "No summon/transform.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": []
+        },
+        "order-death-retargeting": {
+          "status": "verified",
+          "note": "Native order (R001, L6-7833 fixed): slay rolled on pre-damage armor; slain target is not damaged or moved (order [10,11,13]); survivor pulled to the back.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r001"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL7B05.test.ts"
+          ]
+        },
+        "mana-economy-extra-turn": {
+          "status": "verified",
+          "note": "Real cast spends 17 mana and ends turn; low mana / silence block.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r001"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL7B05.test.ts"
+          ]
+        },
+        "display-description": {
+          "status": "verified",
+          "note": "zh '对敌人造成[魔法 + 4]点伤害，然后将其拉到后方。有10%的几率将其击杀，击杀几率受其护甲值提升（最高可达30%）。 [10:1]' matches English.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r001"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL7B05.test.ts"
+          ]
+        },
+        "battle-pipeline": {
+          "status": "verified",
+          "note": "TurnEngine.castSkill both sides with scripted rolls; reposition observed in team order.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r001"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL7B05.test.ts"
+          ],
+          "realBattleEntry": true
+        }
+      },
+      "clauseReviews": [
+        {
+          "id": "c1",
+          "text": "Deal [Magic + 4] damage to an Enemy, then pull them to the back.",
+          "status": "verified",
+          "note": "[Magic + 4] to the chosen enemy, then it moves to the back (order [10,11,13,12]).",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL7B05.test.ts"
+          ]
+        },
+        {
+          "id": "c2",
+          "text": "There is a 10% chance to slay them, boosted by their Armor (up to 30%).",
+          "status": "verified",
+          "note": "10% slay chance + 1 point per 10 pre-damage armor, capped at 30%.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL7B05.test.ts"
+          ]
+        },
+        {
+          "id": "c3",
+          "text": "[10:1]",
+          "status": "verified",
+          "note": "[10:1] = +1% per 10 armor.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL7B05.test.ts"
+          ]
+        }
+      ],
+      "nativeStepReviews": [
+        {
+          "id": "0",
+          "type": "CountArmor",
+          "status": "verified",
+          "note": "CountArmor FromTarget 10 -> chosenStat armor, 10%.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL7B05.test.ts"
+          ]
+        },
+        {
+          "id": "1",
+          "type": "CountMax",
+          "status": "verified",
+          "note": "CountMax 20 -> chanceBoost max 20.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL7B05.test.ts"
+          ]
+        },
+        {
+          "id": "2",
+          "type": "LethalDamageConditional",
+          "status": "verified",
+          "note": "LethalDamageConditional FromTarget Amount 10 counter -> execute enemyChosen chance 0.1 + boost, rolled first.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL7B05.test.ts"
+          ]
+        },
+        {
+          "id": "3",
+          "type": "Damage",
+          "status": "verified",
+          "note": "Damage FromTarget 4 SPM 1 -> damage enemyChosen base 4 mult 1 (skipped if slain).",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL7B05.test.ts"
+          ]
+        },
+        {
+          "id": "4",
+          "type": "TroopOrderBack",
+          "status": "verified",
+          "note": "TroopOrderBack FromTarget -> reposition lastTarget back (skipped if slain).",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL7B05.test.ts"
+          ]
+        }
+      ],
+      "branchReviews": [
+        {
+          "id": "main",
+          "status": "verified",
+          "note": "Single branch with a slay roll; both outcomes asserted.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL7B05.test.ts"
+          ]
+        }
+      ]
+    },
+    {
+      "key": "weapon:1194",
+      "scope": "stored-gow-snapshot",
+      "sourceDigest": "6b29a295bdc30350bede1dba404dbcfa6a9c1d12502451601b2cc3d92a01e2d1",
+      "reviewer": "sa-L76",
+      "reviewedAt": "2026-09-27",
+      "decision": "accept",
+      "ledgerFingerprintAtReview": "b11eaf00bc4e64b650d2a253ec6c7aff706de690793f0c1fb61302a07c0f6a97",
+      "_reference": {
+        "spellId": 7752,
+        "english": "Eliminate all Armor from an Enemy. Deal [Magic + 4] damage, boosted by Armor eliminated. [3:1]",
+        "nativeTarget": "Enemy",
+        "randomize": null,
+        "steps": [
+          {
+            "Target": "FromTarget",
+            "Amount": 34,
+            "Type": "CountArmor"
+          },
+          {
+            "Target": "FromTarget",
+            "Amount": 10001,
+            "Type": "DecreaseArmor"
+          },
+          {
+            "SpellPowerMultiplier": 1,
+            "Target": "FromTarget",
+            "UseCounterForAmount": true,
+            "Amount": 4,
+            "Primarypower": true,
+            "Type": "Damage"
+          }
+        ],
+        "prototype": {
+          "segments": [
+            {
+              "kind": "reduce",
+              "target": "enemyChosen",
+              "stat": "armor",
+              "scaling": {
+                "base": 0,
+                "mult": 0
+              },
+              "drainAll": true
+            },
+            {
+              "kind": "damage",
+              "target": "enemyChosen",
+              "scaling": {
+                "base": 4,
+                "mult": 1
+              },
+              "modifier": {
+                "mod": {
+                  "kind": "ratio",
+                  "a": 3,
+                  "b": 1
+                },
+                "source": {
+                  "kind": "lastReduce"
+                }
+              }
+            }
+          ]
+        }
+      },
+      "sourceEvidence": [
+        {
+          "id": "en",
+          "role": "english-snapshot",
+          "path": "artifacts/gowhead-weapons/weapons.json",
+          "note": "weapon 1194 Fleshripper: SpellId 7752, ManaCost 15, Red/Yellow, English 'Eliminate all Armor from an Enemy. Deal [Magic + 4] damage, boosted by Armor eliminated. [3:1]' asserted."
+        },
+        {
+          "id": "native",
+          "role": "native-snapshot",
+          "path": "data/raw/spells.gow.en.json",
+          "note": "spell 7752 Target Enemy Cost 15; SpellSteps asserted: CountArmor FromTarget 34; DecreaseArmor FromTarget 10001; Damage FromTarget 4 SPM 1 UseCounterForAmount."
+        },
+        {
+          "id": "rule",
+          "role": "official-shared-rule",
+          "path": "artifacts/gow-skill-audit/gold-primary-sources/official-weapon-list.html",
+          "note": "Official weapon list Mang entry (same eliminate-armor family): 'Destroy an enemy's Armor. Deal [1+Magic] Damage. Increase my Attack by the amount of Armor destroyed. (Boost Ratio 1:1)'. Fleshripper itself is not in the stored list; its [3:1] label is evaluated as 34% per R003."
+        },
+        {
+          "id": "laneTest",
+          "role": "lane-battle-test",
+          "path": "tests/unit/gowLaneL7B05.test.ts",
+          "note": "L7B05 weapon:1194 describe: raw + src binding, numeric/gw_ prototypes, zh; 8 real casts (armor 50 -> +17); R003 boundaries 2/3/30/53/0; low-mana/silence."
+        },
+        {
+          "id": "r003",
+          "role": "coordinator-ruling",
+          "path": "tasks/active/gow-skill-shards/rulings/R003-count-threshold-labels.md",
+          "note": "R003 item 2: Count* Amount is a percentage; [3:1] = 34% (armor 50 -> 17); implemented in round 2."
+        }
+      ],
+      "dimensions": {
+        "identity-cost-colors": {
+          "status": "verified",
+          "note": "Weapon 1194 -> spell 7752, cost 15, Red/Yellow, ReferenceName Fleshripper; numeric and gw_ prototypes identical.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r003"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL7B05.test.ts"
+          ]
+        },
+        "target-count-range": {
+          "status": "verified",
+          "note": "FromTarget -> enemyChosen only; enemy 10 keeps armor 5.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r003"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL7B05.test.ts"
+          ]
+        },
+        "base-formula-rounding": {
+          "status": "verified",
+          "note": "[Magic+4] + floor(eliminated armor x 34%) (R003): 50 -> 17, 53 -> 18, 30 -> 10, 3 -> 1, 2 -> 0.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r003"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL7B05.test.ts"
+          ]
+        },
+        "boost-source-ratio-cap": {
+          "status": "verified",
+          "note": "CountArmor FromTarget Amount 34 before elimination -> lastReduce (all armor removed) ratio 3:1 = 34%; no cap.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r003"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL7B05.test.ts"
+          ]
+        },
+        "conditions-probabilities-branches": {
+          "status": "not-applicable",
+          "note": "No condition/chance.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": []
+        },
+        "status-duration-immunity": {
+          "status": "not-applicable",
+          "note": "No status applied.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": []
+        },
+        "gems-types-selection-resolution": {
+          "status": "not-applicable",
+          "note": "No gem steps.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": []
+        },
+        "summon-transform-pools": {
+          "status": "not-applicable",
+          "note": "No summon/transform.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": []
+        },
+        "order-death-retargeting": {
+          "status": "verified",
+          "note": "Count -> eliminate -> damage: damage hits Life directly after the armor is gone.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r003"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL7B05.test.ts"
+          ]
+        },
+        "mana-economy-extra-turn": {
+          "status": "verified",
+          "note": "Real cast spends 15 mana and ends turn; low mana / silence block.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r003"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL7B05.test.ts"
+          ]
+        },
+        "display-description": {
+          "status": "verified",
+          "note": "zh '减除一名敌人全部护甲值，并造成 [魔法 + 4] 点伤害，数量因被减除的护甲值数而增强。 [3:1]' matches English.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r003"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL7B05.test.ts"
+          ]
+        },
+        "battle-pipeline": {
+          "status": "verified",
+          "note": "TurnEngine.castSkill both sides with numeric and gw_ skill ids.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r003"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL7B05.test.ts"
+          ],
+          "realBattleEntry": true
+        }
+      },
+      "clauseReviews": [
+        {
+          "id": "c1",
+          "text": "Eliminate all Armor from an Enemy.",
+          "status": "verified",
+          "note": "All armor of the chosen enemy removed (50 -> 0); caster gains none.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL7B05.test.ts"
+          ]
+        },
+        {
+          "id": "c2",
+          "text": "Deal [Magic + 4] damage, boosted by Armor eliminated.",
+          "status": "verified",
+          "note": "[Magic + 4] damage boosted by the armor eliminated.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL7B05.test.ts"
+          ]
+        },
+        {
+          "id": "c3",
+          "text": "[3:1]",
+          "status": "verified",
+          "note": "[3:1] = 34% of the eliminated armor, floor (R003).",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL7B05.test.ts"
+          ]
+        }
+      ],
+      "nativeStepReviews": [
+        {
+          "id": "0",
+          "type": "CountArmor",
+          "status": "verified",
+          "note": "CountArmor FromTarget 34 -> counter = 34% of target armor (lastReduce ratio 3:1 under R003).",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL7B05.test.ts"
+          ]
+        },
+        {
+          "id": "1",
+          "type": "DecreaseArmor",
+          "status": "verified",
+          "note": "DecreaseArmor FromTarget 10001 -> reduce enemyChosen armor drainAll.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL7B05.test.ts"
+          ]
+        },
+        {
+          "id": "2",
+          "type": "Damage",
+          "status": "verified",
+          "note": "Damage FromTarget 4 SPM 1 UseCounterForAmount -> damage enemyChosen base 4 mult 1 + counter.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL7B05.test.ts"
+          ]
+        }
+      ],
+      "branchReviews": [
+        {
+          "id": "main",
+          "status": "verified",
+          "note": "Single unconditional branch.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL7B05.test.ts"
+          ]
+        }
+      ]
+    }
+  ]
+}

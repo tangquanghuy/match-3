@@ -6,7 +6,7 @@
  * - 「(1/一名)敌人」按官方语义 = 施法方指定目标 → enemyChosen（spell-rules.md §0）。
  * - 「对所有敌人…散射伤害」= dmg('enemyAll', …, { range: 'all' })（SOP 措辞裁定）。
  * - 「宝石」不含骷髅（随机宝石段 include:'color'）；transform 终点可为 'SKULL'。
- * - 「魔法值」= magic 属性；「法力值」= mana（SOP 措辞裁定）。
+ * - 「魔力值」= magic 属性；「法力值」= mana（SOP 措辞裁定）。
  * - 「致命伤害」= 即杀 execute（batch-03 7789「处死」同款）；「摧毁一组行跟列」= 选定行 + 选定列
  *   （batch-01 7016「摧毁 1 行」同口径）；「爆破一行」= explodeChosenRow（batch-05/10 先例）。
  * - 种族核对（troops.json troopTypes）：野兽 = Beast、狼族 = Wargare（batch-10 8864 先例）、
@@ -89,7 +89,7 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 7485,
-    desc: '给予一名盟友 [魔法 + 1] 点生命值和攻击力。净化该盟友。如果盟友使用红色法力，给予 3 点魔法值。',
+    desc: '给予一名盟友 [魔法 + 1] 点生命值和攻击力。净化该盟友。如果盟友使用红色法力值，给予 3 点魔力值。',
     build: skill(
       heal('allyChosen', 1),
       attack('allyChosen', 1),
@@ -180,13 +180,13 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 7538,
-    desc: '净化一名盟友。给予 [魔法 + 1] 点随机技能值和 2 点魔法值。如果盟友是蛮族，则效果两倍。',
+    desc: "净化一名盟友。使其一项随机属性获得 [魔法 + 1] 点，并获得 2 点魔力值。如果盟友是蛮族，则效果两倍。",
     build: skill(
       cleanse('allyChosen'),
       // 蛮族 = Wildfolk（troops.json 6383 纳克斯特质 wildfolkbond「蛮族族亲」核对）；
       // raceDouble 逐受益者判定，数值段逐段挂（batch-04 7686 同款）
-      randomStat('allyChosen', 1, 1, { raceDouble: 'Wildfolk' }),
-      // 「魔法值」= magic 属性（SOP 措辞裁定）
+      randomStat('allyChosen', 1, 1, { oneSkill: true, raceDouble: 'Wildfolk' }),
+      // 「魔力值」= magic 属性（SOP 措辞裁定）
       magic('allyChosen', 2, 0, { raceDouble: 'Wildfolk' }),
     ),
   },
@@ -279,11 +279,11 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 7735,
-    desc: '将指定的法力颜色转换为红色。给予所有其他盟友 1 点魔法值。',
+    desc: '将指定的法力颜色转换为红色。给予所有其他盟友 1 点魔力值。',
     build: skill(
       // 「指定的法力颜色」= 选定颜色 → CHOSEN 占位符（builders.ts「指定/选定颜色」语义）
       transform(CHOSEN, BaseColor.Red),
-      // 「魔法值」= magic 属性（SOP 措辞裁定）
+      // 「魔力值」= magic 属性（SOP 措辞裁定）
       magic('allyOthers', 1, 0),
     ),
   },

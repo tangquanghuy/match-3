@@ -1,0 +1,5171 @@
+{
+  "schemaVersion": 1,
+  "scope": "stored-gow-snapshot",
+  "owner": "worker-fast-04",
+  "date": "2026-09-27",
+  "note": "独立逐实体签收暂存：原已正式签收5项 7159/7335/6255/6043/6083；本批额外10项 accept 候选 6011/6039/6071/6107/6611/6619/6635/7151/7163/7227，专项三文件合计84/84、tsc --noEmit通过；本批正式新增仍需协调端将独立文件并入共享账本、取得匹配全量凭证。仅稳定英文/原生/官方规则/实现/中文/测试源码作SHA证据，不哈希动态账本或receipt。",
+  "reviews": [
+    {
+      "key": "troop:7159",
+      "scope": "stored-gow-snapshot",
+      "sourceDigest": "c25c33cfd31c33a0f85205b43bf0a4e902cd4273cec4f8ee19d42a2f9b028fdd",
+      "reviewer": "worker-fast-04（英文、SpellSteps、中文和真实施法逐实体独立复核）",
+      "reviewedAt": "2026-09-27",
+      "decision": "accept",
+      "sourceEvidence": [
+        {
+          "id": "en",
+          "role": "english-snapshot",
+          "path": "data/raw/troops.gow.en.json",
+          "note": "原始英文实体 7159：技能 8734、费用 7、绿/紫 及完整英文技能描述；独立读取。",
+          "sha256": "be77c2dd9838435f5461b763e9f1e1436e53ae9be36fc35eaadea71060e6b757"
+        },
+        {
+          "id": "native",
+          "role": "native-snapshot",
+          "path": "data/raw/spells.gow.en.json",
+          "note": "原始 SpellSteps 8734：Damage/RandomEnemy，Amount=2、SpellPowerMultiplier=1，Cost=7。",
+          "sha256": "ddc7e03e23a6ea880e34fc8f1b7f0572b15f42041e979c443642d735f89dd63b"
+        },
+        {
+          "id": "official",
+          "role": "official-shared-rule",
+          "path": "artifacts/gow-skill-audit/gold-primary-sources/official-status-effects.html",
+          "note": "官方状态效果规则：屏障、沉默等共享效果；具体技能数值仍以英文/原生为准。",
+          "sha256": "4dca585515e9c7ca9287f75b9555079a2b50c747e6c35293ae6b57981360755c"
+        },
+        {
+          "id": "cn",
+          "role": "localized-display",
+          "path": "src/data/troops.json",
+          "note": "成品中文 7159 spell.description 精确为“对 1 名随机的敌人造成 [魔法 + 2] 点伤害。”。",
+          "sha256": "98c20b7260205040fe4e6387b3011b18b9fe6b4bb110282578a9c7b1adb366b6"
+        },
+        {
+          "id": "impl",
+          "role": "runtime-implementation",
+          "path": "src/engine/skills/curated/batch-02.ts",
+          "note": "最终技能 8734 注册源码：单段 enemyRandom/base2/mult1；与最终原型独立交叉核对。",
+          "sha256": "97ec178ba39f81090ad95752fcb1c50ec080f61316dc72e40ecc2cbfd812e358"
+        },
+        {
+          "id": "test0",
+          "role": "existing-test-source",
+          "path": "tests/unit/gowParallelSignoffTroops.test.ts",
+          "note": "gowParallelSignoffTroops：该实体的英文/原生/原型、双阵营实际施法、费用、低蓝/沉默。",
+          "sha256": "531d9e3791ff468e0d0f7cc2c4b4f3e9db96666ef908eb787cab7558dff4797d"
+        },
+        {
+          "id": "test1",
+          "role": "existing-test-source",
+          "path": "tests/unit/gowSimpleDamageAudit.test.ts",
+          "note": "gowSimpleDamageAudit：通用伤害魔法/护甲边界和随机目标实战。",
+          "sha256": "0c030c369090a9b14561ec65ee2b3d4d418badb622c107bdbe8d75383beb27c9"
+        },
+        {
+          "id": "official-damage",
+          "role": "official-shared-rule",
+          "path": "artifacts/gow-skill-audit/gold-primary-sources/official-brian-guide.html",
+          "sha256": "cb2924f8f48fb400e5918ad2c75d7f3a40ae12e4d839c0c84e5168ab452e89a7",
+          "note": "官方伤害与魔法共享规则；具体技能数值依本地原始英文/SpellSteps。"
+        }
+      ],
+      "dimensions": {
+        "identity-cost-colors": {
+          "status": "verified",
+          "note": "原文实体7159/技能8734，费用7绿/紫；原生及成品绑定一致，实体级参数测试断言。",
+          "evidenceIds": [
+            "en",
+            "native",
+            "impl",
+            "cn",
+            "official-damage",
+            "test0",
+            "test1"
+          ],
+          "tests": [
+            "tests/unit/gowParallelSignoffTroops.test.ts",
+            "tests/unit/gowSimpleDamageAudit.test.ts"
+          ]
+        },
+        "target-count-range": {
+          "status": "verified",
+          "note": "英文随机敌人、原生 RandomEnemy、原型 enemyRandom；双侧每次仅一敌人受伤，多种子目标变化。",
+          "evidenceIds": [
+            "en",
+            "native",
+            "impl",
+            "cn",
+            "official-damage",
+            "test0",
+            "test1"
+          ],
+          "tests": [
+            "tests/unit/gowParallelSignoffTroops.test.ts",
+            "tests/unit/gowSimpleDamageAudit.test.ts"
+          ]
+        },
+        "base-formula-rounding": {
+          "status": "verified",
+          "note": "原生 Amount=2、SpellPowerMultiplier=1；原型 Magic+2；实战魔法0/1/10/11/20、护甲0/10断言，无额外取整。",
+          "evidenceIds": [
+            "en",
+            "native",
+            "impl",
+            "cn",
+            "official-damage",
+            "test0",
+            "test1"
+          ],
+          "tests": [
+            "tests/unit/gowParallelSignoffTroops.test.ts",
+            "tests/unit/gowSimpleDamageAudit.test.ts"
+          ]
+        },
+        "boost-source-ratio-cap": {
+          "status": "not-applicable",
+          "note": "英文及原生无额外增幅/比例/上限，仅线性 Magic+2。",
+          "evidenceIds": [
+            "en",
+            "native",
+            "impl",
+            "cn",
+            "official-damage",
+            "test0",
+            "test1"
+          ],
+          "tests": [
+            "tests/unit/gowParallelSignoffTroops.test.ts",
+            "tests/unit/gowSimpleDamageAudit.test.ts"
+          ]
+        },
+        "conditions-probabilities-branches": {
+          "status": "verified",
+          "note": "原文无条件概率，随机仅用于目标；低蓝/沉默为施法资格反例。",
+          "evidenceIds": [
+            "en",
+            "native",
+            "impl",
+            "cn",
+            "official-damage",
+            "test0",
+            "test1"
+          ],
+          "tests": [
+            "tests/unit/gowParallelSignoffTroops.test.ts",
+            "tests/unit/gowSimpleDamageAudit.test.ts"
+          ]
+        },
+        "status-duration-immunity": {
+          "status": "not-applicable",
+          "note": "不施加状态；原生单步 Damage，无状态时长/免疫分支。",
+          "evidenceIds": [
+            "en",
+            "native",
+            "impl",
+            "cn",
+            "official-damage",
+            "test0",
+            "test1"
+          ],
+          "tests": [
+            "tests/unit/gowParallelSignoffTroops.test.ts",
+            "tests/unit/gowSimpleDamageAudit.test.ts"
+          ]
+        },
+        "gems-types-selection-resolution": {
+          "status": "not-applicable",
+          "note": "原文/原生 Damage 步骤/原型均无宝石操作。",
+          "evidenceIds": [
+            "en",
+            "native",
+            "impl",
+            "cn",
+            "official-damage",
+            "test0",
+            "test1"
+          ],
+          "tests": [
+            "tests/unit/gowParallelSignoffTroops.test.ts",
+            "tests/unit/gowSimpleDamageAudit.test.ts"
+          ]
+        },
+        "summon-transform-pools": {
+          "status": "not-applicable",
+          "note": "原文/原生/原型均无召唤与变形。",
+          "evidenceIds": [
+            "en",
+            "native",
+            "impl",
+            "cn",
+            "official-damage",
+            "test0",
+            "test1"
+          ],
+          "tests": [
+            "tests/unit/gowParallelSignoffTroops.test.ts",
+            "tests/unit/gowSimpleDamageAudit.test.ts"
+          ]
+        },
+        "order-death-retargeting": {
+          "status": "not-applicable",
+          "note": "仅单次随机伤害；无死亡奖励/再次选目标，实战一次仅一敌人受伤。",
+          "evidenceIds": [
+            "en",
+            "native",
+            "impl",
+            "cn",
+            "official-damage",
+            "test0",
+            "test1"
+          ],
+          "tests": [
+            "tests/unit/gowParallelSignoffTroops.test.ts",
+            "tests/unit/gowSimpleDamageAudit.test.ts"
+          ]
+        },
+        "mana-economy-extra-turn": {
+          "status": "verified",
+          "note": "费用7；双侧施法后蓝归零且切回合；低蓝6或沉默时无行动；无额外回合。",
+          "evidenceIds": [
+            "en",
+            "native",
+            "impl",
+            "cn",
+            "official-damage",
+            "test0",
+            "test1"
+          ],
+          "tests": [
+            "tests/unit/gowParallelSignoffTroops.test.ts",
+            "tests/unit/gowSimpleDamageAudit.test.ts"
+          ]
+        },
+        "display-description": {
+          "status": "verified",
+          "note": "原文“Deal [Magic + 2] damage to a random Enemy.”；成品中文“对 1 名随机的敌人造成 [魔法 + 2] 点伤害。”，目标与 Magic+2 一致。",
+          "evidenceIds": [
+            "en",
+            "native",
+            "impl",
+            "cn",
+            "official-damage",
+            "test0",
+            "test1"
+          ],
+          "tests": [
+            "tests/unit/gowParallelSignoffTroops.test.ts",
+            "tests/unit/gowSimpleDamageAudit.test.ts"
+          ]
+        },
+        "battle-pipeline": {
+          "status": "verified",
+          "note": "TurnEngine.castSkill 双侧魔法0/10及低蓝/沉默正反例；通用伤害套件魔法0/1/11/20、护甲0/10及多种子。",
+          "evidenceIds": [
+            "en",
+            "native",
+            "impl",
+            "cn",
+            "official-damage",
+            "test0",
+            "test1"
+          ],
+          "tests": [
+            "tests/unit/gowParallelSignoffTroops.test.ts",
+            "tests/unit/gowSimpleDamageAudit.test.ts"
+          ],
+          "realBattleEntry": true
+        }
+      },
+      "clauseReviews": [
+        {
+          "id": "c1",
+          "status": "verified",
+          "note": "唯一英文子句：随机敌人 Magic+2；双侧正反施法与通用魔法护甲边界覆盖。",
+          "evidenceIds": [
+            "en",
+            "native",
+            "impl",
+            "cn",
+            "official-damage",
+            "test0",
+            "test1"
+          ],
+          "tests": [
+            "tests/unit/gowParallelSignoffTroops.test.ts",
+            "tests/unit/gowSimpleDamageAudit.test.ts"
+          ]
+        }
+      ],
+      "nativeStepReviews": [
+        {
+          "id": "0",
+          "status": "verified",
+          "note": "原生第0步 Damage/RandomEnemy/Amount=2/SpellPowerMultiplier=1/Primarypower=true 对应最终 enemyRandom/base2/mult1。",
+          "evidenceIds": [
+            "en",
+            "native",
+            "impl",
+            "cn",
+            "official-damage",
+            "test0",
+            "test1"
+          ],
+          "tests": [
+            "tests/unit/gowParallelSignoffTroops.test.ts",
+            "tests/unit/gowSimpleDamageAudit.test.ts"
+          ]
+        }
+      ],
+      "branchReviews": [
+        {
+          "id": "main",
+          "status": "verified",
+          "note": "原生 main 单分支；随机目标双侧实战、低蓝/沉默反例。",
+          "evidenceIds": [
+            "en",
+            "native",
+            "impl",
+            "cn",
+            "official-damage",
+            "test0",
+            "test1"
+          ],
+          "tests": [
+            "tests/unit/gowParallelSignoffTroops.test.ts",
+            "tests/unit/gowSimpleDamageAudit.test.ts"
+          ]
+        }
+      ],
+      "pendingReasons": [],
+      "scopedEvidence": [
+        {
+          "testPath": "tests/unit/gowParallelSignoffTroops.test.ts",
+          "scope": "7159/8734 ??????????????????????? M=0/10 ????/??6/?????????/??/????"
+        },
+        {
+          "testPath": "tests/unit/gowSimpleDamageAudit.test.ts",
+          "scope": "??????????7159?M=0/1/11/20???0/10???/????????1..20??? TurnEngine.castSkill?"
+        }
+      ],
+      "independentFindings": {
+        "entityId": 7159,
+        "spellId": 8734,
+        "english": "Deal [Magic + 2] damage to a random Enemy.",
+        "englishCost": 7,
+        "englishManaColorKeys": [
+          "ColorGreen",
+          "ColorPurple"
+        ],
+        "nativeCost": 7,
+        "nativeTarget": "None",
+        "nativeSteps": [
+          {
+            "SpellPowerMultiplier": 1,
+            "Target": "RandomEnemy",
+            "Amount": 2,
+            "Primarypower": true,
+            "Type": "Damage"
+          }
+        ],
+        "prototype": {
+          "segments": [
+            {
+              "kind": "damage",
+              "target": "enemyRandom",
+              "scaling": {
+                "base": 2,
+                "mult": 1
+              }
+            }
+          ]
+        },
+        "chinese": "对 1 名随机的敌人造成 [魔法 + 2] 点伤害。",
+        "runtimeCost": 7,
+        "runtimeColors": [
+          "Green",
+          "Purple"
+        ],
+        "bindingChecks": {
+          "binding": true,
+          "spellId": true,
+          "manaCost": true,
+          "manaColors": true,
+          "numericAndEquippedAlias": null
+        },
+        "existingSharedDraftDecision": "draft",
+        "staticInterpretation": "enemyRandom ?? Magic+2???????????????",
+        "nativeRawField": "RawData",
+        "nativeWrapperId": 8734,
+        "englishColorsIndependentlyMatched": true,
+        "nativeRawIndependentlyMatched": true
+      },
+      "coordinatorTestsToAdd": [],
+      "acceptanceNote": "????????????????????????????+typecheck receipt ??????????????/??/????????????????????"
+    },
+    {
+      "key": "troop:7335",
+      "scope": "stored-gow-snapshot",
+      "sourceDigest": "760586aaa2869f23fa654e696de63f4ba18809c2f610b553900323822e644bea",
+      "reviewer": "worker-fast-04（逐实体独立核对英文、原生步骤、中文、原型与真实施法）",
+      "reviewedAt": "2026-09-27",
+      "decision": "accept",
+      "sourceEvidence": [
+        {
+          "id": "en",
+          "role": "english-snapshot",
+          "path": "data/raw/troops.gow.en.json",
+          "note": "原始英文实体 7335：技能 8958、费用 6、红/紫 及完整英文技能描述；独立读取。",
+          "sha256": "be77c2dd9838435f5461b763e9f1e1436e53ae9be36fc35eaadea71060e6b757"
+        },
+        {
+          "id": "native",
+          "role": "native-snapshot",
+          "path": "data/raw/spells.gow.en.json",
+          "note": "原始 SpellSteps 8958：Damage/RandomEnemy，Amount=5、SpellPowerMultiplier=1，Cost=6。",
+          "sha256": "ddc7e03e23a6ea880e34fc8f1b7f0572b15f42041e979c443642d735f89dd63b"
+        },
+        {
+          "id": "official",
+          "role": "official-shared-rule",
+          "path": "artifacts/gow-skill-audit/gold-primary-sources/official-status-effects.html",
+          "note": "官方状态效果规则：屏障、沉默等共享效果；具体技能数值仍以英文/原生为准。",
+          "sha256": "4dca585515e9c7ca9287f75b9555079a2b50c747e6c35293ae6b57981360755c"
+        },
+        {
+          "id": "cn",
+          "role": "localized-display",
+          "path": "src/data/troops.json",
+          "note": "成品中文 7335 spell.description 精确为“对一名随机敌人造成 [魔法 + 5] 点伤害。”。",
+          "sha256": "98c20b7260205040fe4e6387b3011b18b9fe6b4bb110282578a9c7b1adb366b6"
+        },
+        {
+          "id": "impl",
+          "role": "runtime-implementation",
+          "path": "src/engine/skills/curated/batch-02.ts",
+          "note": "最终技能 8958 注册源码：单段 enemyRandom/base5/mult1；与最终原型独立交叉核对。",
+          "sha256": "97ec178ba39f81090ad95752fcb1c50ec080f61316dc72e40ecc2cbfd812e358"
+        },
+        {
+          "id": "test0",
+          "role": "existing-test-source",
+          "path": "tests/unit/gowSimpleDamageAudit.test.ts",
+          "note": "gowSimpleDamageAudit：完整英文句匹配、魔法0/1/11/20、护甲0/10随机单目标实战。",
+          "sha256": "0c030c369090a9b14561ec65ee2b3d4d418badb622c107bdbe8d75383beb27c9"
+        },
+        {
+          "id": "test1",
+          "role": "existing-test-source",
+          "path": "tests/unit/gowRandomTroopCompletion.test.ts",
+          "note": "gowRandomTroopCompletion：7335双阵营各128种子、屏障与低蓝/沉默反例。",
+          "sha256": "2ed78fec9d3b6671a90f4be3871b1bed83c87e78a53aebb96ec470ee8add40a8"
+        },
+        {
+          "id": "official-damage",
+          "role": "official-shared-rule",
+          "path": "artifacts/gow-skill-audit/gold-primary-sources/official-brian-guide.html",
+          "note": "官方伤害与魔法共享规则；具体技能数值依本地原始英文/SpellSteps。",
+          "sha256": "cb2924f8f48fb400e5918ad2c75d7f3a40ae12e4d839c0c84e5168ab452e89a7"
+        }
+      ],
+      "dimensions": {
+        "identity-cost-colors": {
+          "status": "verified",
+          "note": "英文 7335/8958 ManaCost=6 红/紫；原生 Cost=6，成品绑定、费用与颜色一致；专项测试断言。",
+          "evidenceIds": [
+            "en",
+            "native",
+            "official",
+            "cn",
+            "impl",
+            "test1",
+            "official-damage"
+          ],
+          "tests": [
+            "tests/unit/gowRandomTroopCompletion.test.ts",
+            "tests/unit/gowSimpleDamageAudit.test.ts"
+          ]
+        },
+        "target-count-range": {
+          "status": "verified",
+          "note": "英文 random Enemy、原生 RandomEnemy、prototype enemyRandom；双阵营各128个随机种子，仅一处伤害且目标确实变化。",
+          "evidenceIds": [
+            "en",
+            "native",
+            "official",
+            "cn",
+            "impl",
+            "test1",
+            "official-damage"
+          ],
+          "tests": [
+            "tests/unit/gowRandomTroopCompletion.test.ts",
+            "tests/unit/gowSimpleDamageAudit.test.ts"
+          ]
+        },
+        "base-formula-rounding": {
+          "status": "verified",
+          "note": "原生 Amount=5、SpellPowerMultiplier=1，对应 base=5/mult=1；通用实战 Magic=0/1/11/20×Armor=0/10 断言伤害及护甲生命；专项 Magic=10 命中15，无取整分支。",
+          "evidenceIds": [
+            "en",
+            "native",
+            "official",
+            "cn",
+            "impl",
+            "test1",
+            "official-damage"
+          ],
+          "tests": [
+            "tests/unit/gowRandomTroopCompletion.test.ts",
+            "tests/unit/gowSimpleDamageAudit.test.ts"
+          ]
+        },
+        "boost-source-ratio-cap": {
+          "status": "not-applicable",
+          "note": "英文/原生只有普通 Damage，无增强来源/比例/上限；最终原型仅 Magic+5。",
+          "evidenceIds": [
+            "en",
+            "native",
+            "official",
+            "cn",
+            "impl",
+            "test1",
+            "official-damage"
+          ]
+        },
+        "conditions-probabilities-branches": {
+          "status": "verified",
+          "note": "无技能条件或概率；随机只确定单一目标，双阵营多种子专项实战验证。屏障是共享伤害规则。",
+          "evidenceIds": [
+            "en",
+            "native",
+            "official",
+            "cn",
+            "impl",
+            "test1",
+            "official-damage"
+          ],
+          "tests": [
+            "tests/unit/gowRandomTroopCompletion.test.ts",
+            "tests/unit/gowSimpleDamageAudit.test.ts"
+          ]
+        },
+        "status-duration-immunity": {
+          "status": "not-applicable",
+          "note": "该技能不施加状态；原生唯一 Damage 步骤，无状态持续时间或免疫目标；屏障阻挡由专项反例另核。",
+          "evidenceIds": [
+            "en",
+            "native",
+            "official",
+            "cn",
+            "impl",
+            "test1",
+            "official-damage"
+          ]
+        },
+        "gems-types-selection-resolution": {
+          "status": "not-applicable",
+          "note": "英文/原生/原型均无宝石操作。",
+          "evidenceIds": [
+            "en",
+            "native",
+            "official",
+            "cn",
+            "impl",
+            "test1",
+            "official-damage"
+          ]
+        },
+        "summon-transform-pools": {
+          "status": "not-applicable",
+          "note": "英文/原生/原型均无召唤或变形。",
+          "evidenceIds": [
+            "en",
+            "native",
+            "official",
+            "cn",
+            "impl",
+            "test1",
+            "official-damage"
+          ]
+        },
+        "order-death-retargeting": {
+          "status": "verified",
+          "note": "仅一次对随机敌人的伤害，无击杀奖励、顺序依赖或二次重定向；专项断言仅一个目标受伤，屏障时零伤害。",
+          "evidenceIds": [
+            "en",
+            "native",
+            "official",
+            "cn",
+            "impl",
+            "test1",
+            "official-damage"
+          ],
+          "tests": [
+            "tests/unit/gowRandomTroopCompletion.test.ts",
+            "tests/unit/gowSimpleDamageAudit.test.ts"
+          ]
+        },
+        "mana-economy-extra-turn": {
+          "status": "verified",
+          "note": "费用6；专项双阵营施法后蓝归零、切换回合、恰一行动；低蓝5及沉默时无事件无行动；无额外回合。",
+          "evidenceIds": [
+            "en",
+            "native",
+            "official",
+            "cn",
+            "impl",
+            "test1",
+            "official-damage"
+          ],
+          "tests": [
+            "tests/unit/gowRandomTroopCompletion.test.ts",
+            "tests/unit/gowSimpleDamageAudit.test.ts"
+          ]
+        },
+        "display-description": {
+          "status": "verified",
+          "note": "英文“Deal [Magic + 5] damage to a random Enemy.”；独立检查成品中文“对一名随机敌人造成 [魔法 + 5] 点伤害。”，目标与公式均匹配。",
+          "evidenceIds": [
+            "en",
+            "native",
+            "official",
+            "cn",
+            "impl",
+            "test1",
+            "official-damage"
+          ],
+          "tests": [
+            "tests/unit/gowRandomTroopCompletion.test.ts",
+            "tests/unit/gowSimpleDamageAudit.test.ts"
+          ]
+        },
+        "battle-pipeline": {
+          "status": "verified",
+          "note": "真实 TurnEngine.castSkill：双阵营各128种子单目标命中及费用/回合，屏障阻挡、低蓝和沉默反例；通用伤害测试交叉验证公式。",
+          "evidenceIds": [
+            "en",
+            "native",
+            "official",
+            "cn",
+            "impl",
+            "test1",
+            "official-damage"
+          ],
+          "tests": [
+            "tests/unit/gowRandomTroopCompletion.test.ts",
+            "tests/unit/gowSimpleDamageAudit.test.ts"
+          ],
+          "realBattleEntry": true
+        }
+      },
+      "clauseReviews": [
+        {
+          "id": "c1",
+          "status": "verified",
+          "note": "唯一英文子句 Magic+5 随机敌人：双阵营128种子仅一目标，通用魔法/护甲公式，屏障及拒绝施法反例。",
+          "evidenceIds": [
+            "en",
+            "native",
+            "official",
+            "cn",
+            "impl",
+            "test1",
+            "official-damage"
+          ],
+          "tests": [
+            "tests/unit/gowRandomTroopCompletion.test.ts",
+            "tests/unit/gowSimpleDamageAudit.test.ts"
+          ]
+        }
+      ],
+      "nativeStepReviews": [
+        {
+          "id": "0",
+          "status": "verified",
+          "note": "原生第0步 Damage/RandomEnemy/Amount=5/SpellPowerMultiplier=1，对应最终 enemyRandom/base5/mult1；专项+通用施法交叉核验。",
+          "evidenceIds": [
+            "en",
+            "native",
+            "official",
+            "cn",
+            "impl",
+            "test1",
+            "official-damage"
+          ],
+          "tests": [
+            "tests/unit/gowRandomTroopCompletion.test.ts",
+            "tests/unit/gowSimpleDamageAudit.test.ts"
+          ]
+        }
+      ],
+      "branchReviews": [
+        {
+          "id": "main",
+          "status": "verified",
+          "note": "原生唯一 main 分支，无 Randomize；双阵营随机命中及屏障/低蓝/沉默正反施法。",
+          "evidenceIds": [
+            "en",
+            "native",
+            "official",
+            "cn",
+            "impl",
+            "test1",
+            "official-damage"
+          ],
+          "tests": [
+            "tests/unit/gowRandomTroopCompletion.test.ts",
+            "tests/unit/gowSimpleDamageAudit.test.ts"
+          ]
+        }
+      ],
+      "pendingReasons": [],
+      "scopedEvidence": [
+        {
+          "testPath": "tests/unit/gowRandomTroopCompletion.test.ts",
+          "scope": "7335 专项原始快照/绑定、双阵营各128种子、屏障、低蓝、沉默正反真实施法。"
+        },
+        {
+          "testPath": "tests/unit/gowSimpleDamageAudit.test.ts",
+          "scope": "完整英文句筛选的随机单目标伤害，Magic=0/1/11/20、护甲0/10，真实施法公式断言。"
+        }
+      ],
+      "independentFindings": {
+        "entityId": 7335,
+        "spellId": 8958,
+        "english": "Deal [Magic + 5] damage to a random Enemy.",
+        "englishCost": 6,
+        "englishManaColorKeys": [
+          "ColorRed",
+          "ColorPurple"
+        ],
+        "nativeCost": 6,
+        "nativeTarget": "None",
+        "nativeSteps": [
+          {
+            "SpellPowerMultiplier": 1,
+            "Target": "RandomEnemy",
+            "Amount": 5,
+            "Primarypower": true,
+            "Type": "Damage"
+          }
+        ],
+        "prototype": {
+          "segments": [
+            {
+              "kind": "damage",
+              "target": "enemyRandom",
+              "scaling": {
+                "base": 5,
+                "mult": 1
+              }
+            }
+          ]
+        },
+        "chinese": "对一名随机敌人造成 [魔法 + 5] 点伤害。",
+        "runtimeCost": 6,
+        "runtimeColors": [
+          "Red",
+          "Purple"
+        ],
+        "bindingChecks": {
+          "binding": true,
+          "spellId": true,
+          "manaCost": true,
+          "manaColors": true,
+          "numericAndEquippedAlias": null
+        },
+        "existingSharedDraftDecision": null,
+        "staticInterpretation": "enemyRandom ?? Magic+5???????????????",
+        "nativeRawField": "RawData",
+        "nativeWrapperId": 8958,
+        "englishColorsIndependentlyMatched": true,
+        "nativeRawIndependentlyMatched": true
+      },
+      "coordinatorTestsToAdd": []
+    },
+    {
+      "key": "troop:6011",
+      "scope": "stored-gow-snapshot",
+      "sourceDigest": "f1d9ec2585dec9c1dddeb55bfd989a4ed1b2acfbfdd141c9182ca9ac7a1b1be7",
+      "reviewer": "worker-fast-04（原始英文、原生步骤、中文展示与实体真施法独立复核）",
+      "reviewedAt": "2026-09-27",
+      "decision": "accept",
+      "sourceEvidence": [
+        {
+          "id": "en",
+          "role": "english-snapshot",
+          "path": "data/raw/troops.gow.en.json",
+          "note": "实体6011原始英文全文“Deal [Magic + 3] damage to an Enemy. If the Enemy dies, gain 6 points to a random Skill.”、SpellId=7011及本实体费用/颜色。",
+          "sha256": "be77c2dd9838435f5461b763e9f1e1436e53ae9be36fc35eaadea71060e6b757"
+        },
+        {
+          "id": "native",
+          "role": "native-snapshot",
+          "path": "data/raw/spells.gow.en.json",
+          "note": "原生技能7011有序SpellSteps：[{\"SpellPowerMultiplier\":1,\"Target\":\"FromTarget\",\"Amount\":3,\"Primarypower\":true,\"Type\":\"Damage\"},{\"Type\":\"Delay\"},{\"Target\":\"Self\",\"StatusAmount\":6,\"StatusModifier\":\"AddForKill\",\"Type\":\"IncreaseRandom\"}]。",
+          "sha256": "ddc7e03e23a6ea880e34fc8f1b7f0572b15f42041e979c443642d735f89dd63b"
+        },
+        {
+          "id": "official",
+          "role": "official-shared-rule",
+          "path": "artifacts/gow-skill-audit/gold-primary-sources/official-status-effects.html",
+          "note": "官方共享状态规则静态材料；技能自身精确数值仍以英文和原生步骤为准。",
+          "sha256": "4dca585515e9c7ca9287f75b9555079a2b50c747e6c35293ae6b57981360755c"
+        },
+        {
+          "id": "official-damage",
+          "role": "official-shared-rule",
+          "path": "artifacts/gow-skill-audit/gold-primary-sources/official-brian-guide.html",
+          "note": "官方共享伤害/护甲材料；具体技能效果另据原始英文和原生步骤。",
+          "sha256": "cb2924f8f48fb400e5918ad2c75d7f3a40ae12e4d839c0c84e5168ab452e89a7"
+        },
+        {
+          "id": "cn",
+          "role": "localized-display",
+          "path": "src/data/troops.json",
+          "note": "实体6011中文展示“对 1 名敌人造成 [魔法 + 3] 点伤害。如果该敌人身亡，自身一项随机属性获得 6 点。”及费用/颜色。",
+          "sha256": "98c20b7260205040fe4e6387b3011b18b9fe6b4bb110282578a9c7b1adb366b6"
+        },
+        {
+          "id": "impl",
+          "role": "runtime-implementation",
+          "path": "src/engine/skills/curated/batch-04.ts",
+          "note": "最终注册原型：[{\"kind\":\"damage\",\"target\":\"enemyChosen\",\"scaling\":{\"base\":3,\"mult\":1}},{\"kind\":\"randomStat\",\"target\":\"allySelf\",\"scaling\":{\"base\":6,\"mult\":0},\"oneSkill\":true,\"ifTargetDied\":true}]；Magic+3，对选中敌人先护甲后生命；若本次击杀，延迟后自身一项随机属性恰好+6（生命上限随生命提升）；未击杀零奖励。",
+          "sha256": "1ceb701686d4b179a83d64ba2ba52849a225fddf8594969277ab5a625535801c"
+        },
+        {
+          "id": "test0",
+          "role": "entity-test-source",
+          "path": "tests/unit/gowWorker04Combat.test.ts",
+          "note": "实体6011真实 TurnEngine.castSkill 专项：双侧 Magic0/1/10×护甲0/10×是否致命，检查目标生命/护甲、buff恰一项及先伤后增益；低蓝9/沉默拒施法。",
+          "sha256": "f855b6cade487bfe2d36deb5be791466afdabe6fee5d1e7528de9edbd952cd98"
+        },
+        {
+          "id": "test-prior",
+          "role": "existing-test-source",
+          "path": "tests/unit/gowAncientHorrorRandomSkillAudit.test.ts",
+          "note": "既有双阵营击杀与不击杀真实施法佐证；专属测试补齐护甲与低蓝边界。",
+          "sha256": "c5c4d05676df2ebcc69d68799c0c3d8b62d068e516c8fe56ad5af676e450a513"
+        }
+      ],
+      "dimensions": {
+        "identity-cost-colors": {
+          "status": "verified",
+          "note": "实体6011/原文技能7011；原始英文与原生费用10、成品费用10，颜色Purple/Brown，实体参数测试逐项断言。",
+          "evidenceIds": [
+            "en",
+            "native",
+            "official",
+            "official-damage",
+            "cn",
+            "impl",
+            "test0",
+            "test-prior"
+          ],
+          "tests": [
+            "tests/unit/gowWorker04Combat.test.ts"
+          ]
+        },
+        "target-count-range": {
+          "status": "verified",
+          "note": "英文“Deal [Magic + 3] damage to an Enemy. If the Enemy dies, gain 6 points to a random Skill.”；原生目标FromTarget→None→Self，最终原型enemyChosen→allySelf；Magic+3，对选中敌人先护甲后生命；若本次击杀，延迟后自身一项随机属性恰好+6（生命上限随生命提升）；未击杀零奖励。",
+          "evidenceIds": [
+            "en",
+            "native",
+            "official",
+            "official-damage",
+            "cn",
+            "impl",
+            "test0",
+            "test-prior"
+          ],
+          "tests": [
+            "tests/unit/gowWorker04Combat.test.ts"
+          ]
+        },
+        "base-formula-rounding": {
+          "status": "verified",
+          "note": "Magic+3，对选中敌人先护甲后生命；若本次击杀，延迟后自身一项随机属性恰好+6（生命上限随生命提升）；未击杀零奖励。 双侧 Magic0/1/10×护甲0/10×是否致命，检查目标生命/护甲、buff恰一项及先伤后增益；低蓝9/沉默拒施法。",
+          "evidenceIds": [
+            "en",
+            "native",
+            "official",
+            "official-damage",
+            "cn",
+            "impl",
+            "test0",
+            "test-prior"
+          ],
+          "tests": [
+            "tests/unit/gowWorker04Combat.test.ts"
+          ]
+        },
+        "boost-source-ratio-cap": {
+          "status": "verified",
+          "note": "Magic+3，对选中敌人先护甲后生命；若本次击杀，延迟后自身一项随机属性恰好+6（生命上限随生命提升）；未击杀零奖励。 没有未证实的额外系数、比例或上限。",
+          "evidenceIds": [
+            "en",
+            "native",
+            "official",
+            "official-damage",
+            "cn",
+            "impl",
+            "test0",
+            "test-prior"
+          ],
+          "tests": [
+            "tests/unit/gowWorker04Combat.test.ts"
+          ]
+        },
+        "conditions-probabilities-branches": {
+          "status": "verified",
+          "note": "Magic+3，对选中敌人先护甲后生命；若本次击杀，延迟后自身一项随机属性恰好+6（生命上限随生命提升）；未击杀零奖励。 双侧 Magic0/1/10×护甲0/10×是否致命，检查目标生命/护甲、buff恰一项及先伤后增益；低蓝9/沉默拒施法。",
+          "evidenceIds": [
+            "en",
+            "native",
+            "official",
+            "official-damage",
+            "cn",
+            "impl",
+            "test0",
+            "test-prior"
+          ],
+          "tests": [
+            "tests/unit/gowWorker04Combat.test.ts"
+          ]
+        },
+        "status-duration-immunity": {
+          "status": "not-applicable",
+          "note": "该技能不直接施加单位状态；沉默施法者不能施法。原文/原生无其他状态持续或免疫分支。",
+          "evidenceIds": [
+            "en",
+            "native",
+            "official",
+            "official-damage",
+            "cn",
+            "impl",
+            "test0",
+            "test-prior"
+          ],
+          "tests": []
+        },
+        "gems-types-selection-resolution": {
+          "status": "not-applicable",
+          "note": "原文/原生均无宝石操作，最终原型也不改棋盘。",
+          "evidenceIds": [
+            "en",
+            "native",
+            "official",
+            "official-damage",
+            "cn",
+            "impl",
+            "test0",
+            "test-prior"
+          ],
+          "tests": []
+        },
+        "summon-transform-pools": {
+          "status": "not-applicable",
+          "note": "原文、原生、成品均无兵种召唤、变身或候选池；若有宝石转换，那是棋盘特效而非兵种变形。",
+          "evidenceIds": [
+            "en",
+            "native",
+            "official",
+            "official-damage",
+            "cn",
+            "impl",
+            "test0",
+            "test-prior"
+          ],
+          "tests": []
+        },
+        "order-death-retargeting": {
+          "status": "verified",
+          "note": "Magic+3，对选中敌人先护甲后生命；若本次击杀，延迟后自身一项随机属性恰好+6（生命上限随生命提升）；未击杀零奖励。 原生执行顺序Damage→Delay→IncreaseRandom，真实施法逐目标核对。",
+          "evidenceIds": [
+            "en",
+            "native",
+            "official",
+            "official-damage",
+            "cn",
+            "impl",
+            "test0",
+            "test-prior"
+          ],
+          "tests": [
+            "tests/unit/gowWorker04Combat.test.ts"
+          ]
+        },
+        "mana-economy-extra-turn": {
+          "status": "verified",
+          "note": "费用10，成功后法力归零；低蓝/沉默无行动；双侧 Magic0/1/10×护甲0/10×是否致命，检查目标生命/护甲、buff恰一项及先伤后增益；低蓝9/沉默拒施法。",
+          "evidenceIds": [
+            "en",
+            "native",
+            "official",
+            "official-damage",
+            "cn",
+            "impl",
+            "test0",
+            "test-prior"
+          ],
+          "tests": [
+            "tests/unit/gowWorker04Combat.test.ts"
+          ]
+        },
+        "display-description": {
+          "status": "verified",
+          "note": "英文“Deal [Magic + 3] damage to an Enemy. If the Enemy dies, gain 6 points to a random Skill.”，中文“对 1 名敌人造成 [魔法 + 3] 点伤害。如果该敌人身亡，自身一项随机属性获得 6 点。”；数值/目标/条件与原生一致。",
+          "evidenceIds": [
+            "en",
+            "native",
+            "official",
+            "official-damage",
+            "cn",
+            "impl",
+            "test0",
+            "test-prior"
+          ],
+          "tests": [
+            "tests/unit/gowWorker04Combat.test.ts"
+          ]
+        },
+        "battle-pipeline": {
+          "status": "verified",
+          "note": "真实 TurnEngine.castSkill，双侧 Magic0/1/10×护甲0/10×是否致命，检查目标生命/护甲、buff恰一项及先伤后增益；低蓝9/沉默拒施法。 专项文件 tests/unit/gowWorker04Combat.test.ts；三份 worker04 测试定向合计84/84、tsc --noEmit 通过；正式入账需协调端合账与全量凭证。",
+          "evidenceIds": [
+            "en",
+            "native",
+            "official",
+            "official-damage",
+            "cn",
+            "impl",
+            "test0",
+            "test-prior"
+          ],
+          "tests": [
+            "tests/unit/gowWorker04Combat.test.ts"
+          ],
+          "realBattleEntry": true
+        }
+      },
+      "clauseReviews": [
+        {
+          "id": "c1",
+          "status": "verified",
+          "note": "英文独立子句“Deal [Magic + 3] damage to an Enemy.”；Magic+3，对选中敌人先护甲后生命；若本次击杀，延迟后自身一项随机属性恰好+6（生命上限随生命提升）；未击杀零奖励。 双侧 Magic0/1/10×护甲0/10×是否致命，检查目标生命/护甲、buff恰一项及先伤后增益；低蓝9/沉默拒施法。",
+          "evidenceIds": [
+            "en",
+            "native",
+            "official",
+            "official-damage",
+            "cn",
+            "impl",
+            "test0",
+            "test-prior"
+          ],
+          "tests": [
+            "tests/unit/gowWorker04Combat.test.ts"
+          ]
+        },
+        {
+          "id": "c2",
+          "status": "verified",
+          "note": "英文独立子句“If the Enemy dies, gain 6 points to a random Skill.”；Magic+3，对选中敌人先护甲后生命；若本次击杀，延迟后自身一项随机属性恰好+6（生命上限随生命提升）；未击杀零奖励。 双侧 Magic0/1/10×护甲0/10×是否致命，检查目标生命/护甲、buff恰一项及先伤后增益；低蓝9/沉默拒施法。",
+          "evidenceIds": [
+            "en",
+            "native",
+            "official",
+            "official-damage",
+            "cn",
+            "impl",
+            "test0",
+            "test-prior"
+          ],
+          "tests": [
+            "tests/unit/gowWorker04Combat.test.ts"
+          ]
+        }
+      ],
+      "nativeStepReviews": [
+        {
+          "id": "0",
+          "status": "verified",
+          "note": "原生有序步骤[0]：{\"SpellPowerMultiplier\":1,\"Target\":\"FromTarget\",\"Amount\":3,\"Primarypower\":true,\"Type\":\"Damage\"}；Magic+3，对选中敌人先护甲后生命；若本次击杀，延迟后自身一项随机属性恰好+6（生命上限随生命提升）；未击杀零奖励。 双侧 Magic0/1/10×护甲0/10×是否致命，检查目标生命/护甲、buff恰一项及先伤后增益；低蓝9/沉默拒施法。",
+          "evidenceIds": [
+            "en",
+            "native",
+            "official",
+            "official-damage",
+            "cn",
+            "impl",
+            "test0",
+            "test-prior"
+          ],
+          "tests": [
+            "tests/unit/gowWorker04Combat.test.ts"
+          ]
+        },
+        {
+          "id": "1",
+          "status": "verified",
+          "note": "原生有序步骤[1]：{\"Type\":\"Delay\"}；Magic+3，对选中敌人先护甲后生命；若本次击杀，延迟后自身一项随机属性恰好+6（生命上限随生命提升）；未击杀零奖励。 双侧 Magic0/1/10×护甲0/10×是否致命，检查目标生命/护甲、buff恰一项及先伤后增益；低蓝9/沉默拒施法。",
+          "evidenceIds": [
+            "en",
+            "native",
+            "official",
+            "official-damage",
+            "cn",
+            "impl",
+            "test0",
+            "test-prior"
+          ],
+          "tests": [
+            "tests/unit/gowWorker04Combat.test.ts"
+          ]
+        },
+        {
+          "id": "2",
+          "status": "verified",
+          "note": "原生有序步骤[2]：{\"Target\":\"Self\",\"StatusAmount\":6,\"StatusModifier\":\"AddForKill\",\"Type\":\"IncreaseRandom\"}；Magic+3，对选中敌人先护甲后生命；若本次击杀，延迟后自身一项随机属性恰好+6（生命上限随生命提升）；未击杀零奖励。 双侧 Magic0/1/10×护甲0/10×是否致命，检查目标生命/护甲、buff恰一项及先伤后增益；低蓝9/沉默拒施法。",
+          "evidenceIds": [
+            "en",
+            "native",
+            "official",
+            "official-damage",
+            "cn",
+            "impl",
+            "test0",
+            "test-prior"
+          ],
+          "tests": [
+            "tests/unit/gowWorker04Combat.test.ts"
+          ]
+        }
+      ],
+      "branchReviews": [
+        {
+          "id": "main",
+          "status": "verified",
+          "note": "原生分支main，Magic+3，对选中敌人先护甲后生命；若本次击杀，延迟后自身一项随机属性恰好+6（生命上限随生命提升）；未击杀零奖励。 双侧 Magic0/1/10×护甲0/10×是否致命，检查目标生命/护甲、buff恰一项及先伤后增益；低蓝9/沉默拒施法。",
+          "evidenceIds": [
+            "en",
+            "native",
+            "official",
+            "official-damage",
+            "cn",
+            "impl",
+            "test0",
+            "test-prior"
+          ],
+          "tests": [
+            "tests/unit/gowWorker04Combat.test.ts"
+          ]
+        }
+      ]
+    },
+    {
+      "key": "troop:6039",
+      "scope": "stored-gow-snapshot",
+      "sourceDigest": "ac3f44747c742839d761c176a7e085b25c061a24861dd64efb84b90eda0c4a4b",
+      "reviewer": "worker-fast-04（原始英文、原生步骤、中文展示与实体真施法独立复核）",
+      "reviewedAt": "2026-09-27",
+      "decision": "accept",
+      "sourceEvidence": [
+        {
+          "id": "en",
+          "role": "english-snapshot",
+          "path": "data/raw/troops.gow.en.json",
+          "note": "实体6039原始英文全文“Jumble the Board. Gain an extra turn.”、SpellId=7039及本实体费用/颜色。",
+          "sha256": "be77c2dd9838435f5461b763e9f1e1436e53ae9be36fc35eaadea71060e6b757"
+        },
+        {
+          "id": "native",
+          "role": "native-snapshot",
+          "path": "data/raw/spells.gow.en.json",
+          "note": "原生技能7039有序SpellSteps：[{\"Type\":\"JumbleBoard\"},{\"Amount\":100,\"Type\":\"ExtraTurn\"}]。",
+          "sha256": "ddc7e03e23a6ea880e34fc8f1b7f0572b15f42041e979c443642d735f89dd63b"
+        },
+        {
+          "id": "official",
+          "role": "official-shared-rule",
+          "path": "artifacts/gow-skill-audit/gold-primary-sources/official-status-effects.html",
+          "note": "官方共享状态规则静态材料；技能自身精确数值仍以英文和原生步骤为准。",
+          "sha256": "4dca585515e9c7ca9287f75b9555079a2b50c747e6c35293ae6b57981360755c"
+        },
+        {
+          "id": "cn",
+          "role": "localized-display",
+          "path": "src/data/troops.json",
+          "note": "实体6039中文展示“弄乱板面。获得一个额外回合。”及费用/颜色。",
+          "sha256": "98c20b7260205040fe4e6387b3011b18b9fe6b4bb110282578a9c7b1adb366b6"
+        },
+        {
+          "id": "impl",
+          "role": "runtime-implementation",
+          "path": "src/engine/skills/curated/batch-r15.ts",
+          "note": "最终注册原型：[{\"kind\":\"shuffleBoard\"},{\"kind\":\"extraTurn\"}]；原生 JumbleBoard 后确定额外回合(Amount100)；全盘宝石ID与类型多重集合不变，仅位置重新排列。",
+          "sha256": "86b1a54abafdbb65f7f20a15d52ae6234cf62cb867f8e5c1498cab4a374f0b6b"
+        },
+        {
+          "id": "test0",
+          "role": "entity-test-source",
+          "path": "tests/unit/gowWorker04Board.test.ts",
+          "note": "实体6039真实 TurnEngine.castSkill 专项：双侧×两种初始棋盘，检查reshuffle与extra-turn事件各一、位置改变、同侧继续；低蓝6/沉默无行动。",
+          "sha256": "571539419b519613e93b2534678c54e8b2d35e3c4f0912b911d01dca28764a7c"
+        }
+      ],
+      "dimensions": {
+        "identity-cost-colors": {
+          "status": "verified",
+          "note": "实体6039/原文技能7039；原始英文与原生费用7、成品费用7，颜色Blue/Purple，实体参数测试逐项断言。",
+          "evidenceIds": [
+            "en",
+            "native",
+            "official",
+            "cn",
+            "impl",
+            "test0"
+          ],
+          "tests": [
+            "tests/unit/gowWorker04Board.test.ts"
+          ]
+        },
+        "target-count-range": {
+          "status": "verified",
+          "note": "英文“Jumble the Board. Gain an extra turn.”；原生目标None→None，最终原型shuffleBoard→extraTurn；原生 JumbleBoard 后确定额外回合(Amount100)；全盘宝石ID与类型多重集合不变，仅位置重新排列。",
+          "evidenceIds": [
+            "en",
+            "native",
+            "official",
+            "cn",
+            "impl",
+            "test0"
+          ],
+          "tests": [
+            "tests/unit/gowWorker04Board.test.ts"
+          ]
+        },
+        "base-formula-rounding": {
+          "status": "verified",
+          "note": "原生 JumbleBoard 后确定额外回合(Amount100)；全盘宝石ID与类型多重集合不变，仅位置重新排列。 双侧×两种初始棋盘，检查reshuffle与extra-turn事件各一、位置改变、同侧继续；低蓝6/沉默无行动。",
+          "evidenceIds": [
+            "en",
+            "native",
+            "official",
+            "cn",
+            "impl",
+            "test0"
+          ],
+          "tests": [
+            "tests/unit/gowWorker04Board.test.ts"
+          ]
+        },
+        "boost-source-ratio-cap": {
+          "status": "not-applicable",
+          "note": "原生 JumbleBoard 后确定额外回合(Amount100)；全盘宝石ID与类型多重集合不变，仅位置重新排列。 没有未证实的额外系数、比例或上限。",
+          "evidenceIds": [
+            "en",
+            "native",
+            "official",
+            "cn",
+            "impl",
+            "test0"
+          ],
+          "tests": []
+        },
+        "conditions-probabilities-branches": {
+          "status": "verified",
+          "note": "原生 JumbleBoard 后确定额外回合(Amount100)；全盘宝石ID与类型多重集合不变，仅位置重新排列。 双侧×两种初始棋盘，检查reshuffle与extra-turn事件各一、位置改变、同侧继续；低蓝6/沉默无行动。",
+          "evidenceIds": [
+            "en",
+            "native",
+            "official",
+            "cn",
+            "impl",
+            "test0"
+          ],
+          "tests": [
+            "tests/unit/gowWorker04Board.test.ts"
+          ]
+        },
+        "status-duration-immunity": {
+          "status": "not-applicable",
+          "note": "该技能不直接施加单位状态；沉默施法者不能施法。原文/原生无其他状态持续或免疫分支。",
+          "evidenceIds": [
+            "en",
+            "native",
+            "official",
+            "cn",
+            "impl",
+            "test0"
+          ],
+          "tests": []
+        },
+        "gems-types-selection-resolution": {
+          "status": "verified",
+          "note": "原生 JumbleBoard 后确定额外回合(Amount100)；全盘宝石ID与类型多重集合不变，仅位置重新排列。 双侧×两种初始棋盘，检查reshuffle与extra-turn事件各一、位置改变、同侧继续；低蓝6/沉默无行动。",
+          "evidenceIds": [
+            "en",
+            "native",
+            "official",
+            "cn",
+            "impl",
+            "test0"
+          ],
+          "tests": [
+            "tests/unit/gowWorker04Board.test.ts"
+          ]
+        },
+        "summon-transform-pools": {
+          "status": "not-applicable",
+          "note": "原文、原生、成品均无兵种召唤、变身或候选池；若有宝石转换，那是棋盘特效而非兵种变形。",
+          "evidenceIds": [
+            "en",
+            "native",
+            "official",
+            "cn",
+            "impl",
+            "test0"
+          ],
+          "tests": []
+        },
+        "order-death-retargeting": {
+          "status": "verified",
+          "note": "原生 JumbleBoard 后确定额外回合(Amount100)；全盘宝石ID与类型多重集合不变，仅位置重新排列。 原生执行顺序JumbleBoard→ExtraTurn，真实施法逐目标核对。",
+          "evidenceIds": [
+            "en",
+            "native",
+            "official",
+            "cn",
+            "impl",
+            "test0"
+          ],
+          "tests": [
+            "tests/unit/gowWorker04Board.test.ts"
+          ]
+        },
+        "mana-economy-extra-turn": {
+          "status": "verified",
+          "note": "费用7，成功后法力归零；低蓝/沉默无行动；双侧×两种初始棋盘，检查reshuffle与extra-turn事件各一、位置改变、同侧继续；低蓝6/沉默无行动。",
+          "evidenceIds": [
+            "en",
+            "native",
+            "official",
+            "cn",
+            "impl",
+            "test0"
+          ],
+          "tests": [
+            "tests/unit/gowWorker04Board.test.ts"
+          ]
+        },
+        "display-description": {
+          "status": "verified",
+          "note": "英文“Jumble the Board. Gain an extra turn.”，中文“弄乱板面。获得一个额外回合。”；数值/目标/条件与原生一致。",
+          "evidenceIds": [
+            "en",
+            "native",
+            "official",
+            "cn",
+            "impl",
+            "test0"
+          ],
+          "tests": [
+            "tests/unit/gowWorker04Board.test.ts"
+          ]
+        },
+        "battle-pipeline": {
+          "status": "verified",
+          "note": "真实 TurnEngine.castSkill，双侧×两种初始棋盘，检查reshuffle与extra-turn事件各一、位置改变、同侧继续；低蓝6/沉默无行动。 专项文件 tests/unit/gowWorker04Board.test.ts；三份 worker04 测试定向合计84/84、tsc --noEmit 通过；正式入账需协调端合账与全量凭证。",
+          "evidenceIds": [
+            "en",
+            "native",
+            "official",
+            "cn",
+            "impl",
+            "test0"
+          ],
+          "tests": [
+            "tests/unit/gowWorker04Board.test.ts"
+          ],
+          "realBattleEntry": true
+        }
+      },
+      "clauseReviews": [
+        {
+          "id": "c1",
+          "status": "verified",
+          "note": "英文独立子句“Jumble the Board.”；原生 JumbleBoard 后确定额外回合(Amount100)；全盘宝石ID与类型多重集合不变，仅位置重新排列。 双侧×两种初始棋盘，检查reshuffle与extra-turn事件各一、位置改变、同侧继续；低蓝6/沉默无行动。",
+          "evidenceIds": [
+            "en",
+            "native",
+            "official",
+            "cn",
+            "impl",
+            "test0"
+          ],
+          "tests": [
+            "tests/unit/gowWorker04Board.test.ts"
+          ]
+        },
+        {
+          "id": "c2",
+          "status": "verified",
+          "note": "英文独立子句“Gain an extra turn.”；原生 JumbleBoard 后确定额外回合(Amount100)；全盘宝石ID与类型多重集合不变，仅位置重新排列。 双侧×两种初始棋盘，检查reshuffle与extra-turn事件各一、位置改变、同侧继续；低蓝6/沉默无行动。",
+          "evidenceIds": [
+            "en",
+            "native",
+            "official",
+            "cn",
+            "impl",
+            "test0"
+          ],
+          "tests": [
+            "tests/unit/gowWorker04Board.test.ts"
+          ]
+        }
+      ],
+      "nativeStepReviews": [
+        {
+          "id": "0",
+          "status": "verified",
+          "note": "原生有序步骤[0]：{\"Type\":\"JumbleBoard\"}；原生 JumbleBoard 后确定额外回合(Amount100)；全盘宝石ID与类型多重集合不变，仅位置重新排列。 双侧×两种初始棋盘，检查reshuffle与extra-turn事件各一、位置改变、同侧继续；低蓝6/沉默无行动。",
+          "evidenceIds": [
+            "en",
+            "native",
+            "official",
+            "cn",
+            "impl",
+            "test0"
+          ],
+          "tests": [
+            "tests/unit/gowWorker04Board.test.ts"
+          ]
+        },
+        {
+          "id": "1",
+          "status": "verified",
+          "note": "原生有序步骤[1]：{\"Amount\":100,\"Type\":\"ExtraTurn\"}；原生 JumbleBoard 后确定额外回合(Amount100)；全盘宝石ID与类型多重集合不变，仅位置重新排列。 双侧×两种初始棋盘，检查reshuffle与extra-turn事件各一、位置改变、同侧继续；低蓝6/沉默无行动。",
+          "evidenceIds": [
+            "en",
+            "native",
+            "official",
+            "cn",
+            "impl",
+            "test0"
+          ],
+          "tests": [
+            "tests/unit/gowWorker04Board.test.ts"
+          ]
+        }
+      ],
+      "branchReviews": [
+        {
+          "id": "main",
+          "status": "verified",
+          "note": "原生分支main，原生 JumbleBoard 后确定额外回合(Amount100)；全盘宝石ID与类型多重集合不变，仅位置重新排列。 双侧×两种初始棋盘，检查reshuffle与extra-turn事件各一、位置改变、同侧继续；低蓝6/沉默无行动。",
+          "evidenceIds": [
+            "en",
+            "native",
+            "official",
+            "cn",
+            "impl",
+            "test0"
+          ],
+          "tests": [
+            "tests/unit/gowWorker04Board.test.ts"
+          ]
+        }
+      ]
+    },
+    {
+      "key": "troop:6043",
+      "scope": "stored-gow-snapshot",
+      "sourceDigest": "1a45b9cc866430ef119e9209e601ebc26620d182e35e23a3934ef28d324fc098",
+      "reviewer": "worker-fast-04（逐实体核对英文、两条 SpellSteps、12维及双阵营真实施法）",
+      "reviewedAt": "2026-09-27",
+      "decision": "accept",
+      "sourceEvidence": [
+        {
+          "id": "en",
+          "role": "english-snapshot",
+          "path": "data/raw/troops.gow.en.json",
+          "note": "原始英文 6043/7043 费用12及完整子句：“Deal [Magic + 5] damage to a random Enemy, and Silence them.”。",
+          "sha256": "be77c2dd9838435f5461b763e9f1e1436e53ae9be36fc35eaadea71060e6b757"
+        },
+        {
+          "id": "native",
+          "role": "native-snapshot",
+          "path": "data/raw/spells.gow.en.json",
+          "note": "原始 SpellSteps 7043：先 Damage/RandomEnemy/Magic+5，再 CauseSilence/FromPrevious。",
+          "sha256": "ddc7e03e23a6ea880e34fc8f1b7f0572b15f42041e979c443642d735f89dd63b"
+        },
+        {
+          "id": "official",
+          "role": "official-shared-rule",
+          "path": "artifacts/gow-skill-audit/gold-primary-sources/official-status-effects.html",
+          "note": "官方状态共享规则：沉默等状态；具体步骤与目标依原始英文/SpellSteps。",
+          "sha256": "4dca585515e9c7ca9287f75b9555079a2b50c747e6c35293ae6b57981360755c"
+        },
+        {
+          "id": "cn",
+          "role": "localized-display",
+          "path": "src/data/troops.json",
+          "note": "成品中文原始字段精确为“对 1 名随机的敌人造成 [魔法 + 5] 点伤害，并使其陷入沉默状态。”。",
+          "sha256": "98c20b7260205040fe4e6387b3011b18b9fe6b4bb110282578a9c7b1adb366b6"
+        },
+        {
+          "id": "impl",
+          "role": "runtime-implementation",
+          "path": "src/engine/skills/curated/batch-r5.ts",
+          "note": "成品技能7043 注册源码与最终原型：先enemyRandom 伤害，再silence。",
+          "sha256": "e0242161dd5541dea51fc0b68ebf59cd7bca1951665d73e0a6adee0c52c58116"
+        },
+        {
+          "id": "test0",
+          "role": "existing-test-source",
+          "path": "tests/unit/gowRiderTroopCompletion.test.ts",
+          "note": "已再次读取现存测试文件字节计算 SHA-256；6043 双侧真施法与同目标后续步骤，施加/自然消退事件分辨、低蓝/沉默边界；定向8/8通过由协调端报告，全量仍以 receipt 为准。",
+          "sha256": "316a10fa61378d22f4e5377abb393ca0bddfd450fce52d8443be0ca1a27bc47d"
+        }
+      ],
+      "dimensions": {
+        "identity-cost-colors": {
+          "status": "verified",
+          "note": "英文实体6043/技能7043，费用12、颜色ColorBrown/ColorRed；原生费用及成品绑定一致，专项断言。",
+          "evidenceIds": [
+            "en",
+            "native",
+            "official",
+            "cn",
+            "impl",
+            "test0"
+          ],
+          "tests": [
+            "tests/unit/gowRiderTroopCompletion.test.ts"
+          ]
+        },
+        "target-count-range": {
+          "status": "verified",
+          "note": "英文 random Enemy、原生 RandomEnemy；双阵营各24种子仅一处命中15，目标变化且沉默只给同一被击敌人。",
+          "evidenceIds": [
+            "en",
+            "native",
+            "official",
+            "cn",
+            "impl",
+            "test0"
+          ],
+          "tests": [
+            "tests/unit/gowRiderTroopCompletion.test.ts"
+          ]
+        },
+        "base-formula-rounding": {
+          "status": "verified",
+          "note": "原生 Damage/Amount5/SpellPowerMultiplier1，成品 scaling(base5,mult1)；专项 Magic=10 时单次伤害15，整数无额外取整。",
+          "evidenceIds": [
+            "en",
+            "native",
+            "official",
+            "cn",
+            "impl",
+            "test0"
+          ],
+          "tests": [
+            "tests/unit/gowRiderTroopCompletion.test.ts"
+          ]
+        },
+        "boost-source-ratio-cap": {
+          "status": "not-applicable",
+          "note": "完整英文、两条原生步骤与原型均无增强/比率/上限，只有 Magic+5。",
+          "evidenceIds": [
+            "en",
+            "native",
+            "official",
+            "cn",
+            "impl",
+            "test0"
+          ]
+        },
+        "conditions-probabilities-branches": {
+          "status": "verified",
+          "note": "原生无 Randomize 条件；随机目标由多种子验证，后续效果跟随本次命中目标；低蓝/沉默阻止两步执行。",
+          "evidenceIds": [
+            "en",
+            "native",
+            "official",
+            "cn",
+            "impl",
+            "test0"
+          ],
+          "tests": [
+            "tests/unit/gowRiderTroopCompletion.test.ts"
+          ]
+        },
+        "status-duration-immunity": {
+          "status": "verified",
+          "note": "原生 CauseSilence/FromPrevious；原型 lastTarget/silence/turns=3。专项真施法核 status-apply 只针对刚受击敌人，同时允许回合交接后该目标自然自愈而出现 status-expire；不以回合末仍留状态冒充施加事件。",
+          "evidenceIds": [
+            "en",
+            "native",
+            "official",
+            "cn",
+            "impl",
+            "test0"
+          ],
+          "tests": [
+            "tests/unit/gowRiderTroopCompletion.test.ts"
+          ]
+        },
+        "gems-types-selection-resolution": {
+          "status": "not-applicable",
+          "note": "英文/原生/原型均无棋盘操作。",
+          "evidenceIds": [
+            "en",
+            "native",
+            "official",
+            "cn",
+            "impl",
+            "test0"
+          ]
+        },
+        "summon-transform-pools": {
+          "status": "not-applicable",
+          "note": "英文/原生/原型均无召唤或变形。",
+          "evidenceIds": [
+            "en",
+            "native",
+            "official",
+            "cn",
+            "impl",
+            "test0"
+          ]
+        },
+        "order-death-retargeting": {
+          "status": "verified",
+          "note": "原生 Damage→CauseSilence/FromPrevious；成品 enemyRandom→lastTarget。专项核每次 status-apply 的 targetId 与命中相等；对方回合若自愈产生 status-expire 不改变已施加的目标绑定。",
+          "evidenceIds": [
+            "en",
+            "native",
+            "official",
+            "cn",
+            "impl",
+            "test0"
+          ],
+          "tests": [
+            "tests/unit/gowRiderTroopCompletion.test.ts"
+          ]
+        },
+        "mana-economy-extra-turn": {
+          "status": "verified",
+          "note": "英文/原生费用12；双阵营正常蓝归零、切回合、一行动；低蓝11与沉默不发动；无额外回合。",
+          "evidenceIds": [
+            "en",
+            "native",
+            "official",
+            "cn",
+            "impl",
+            "test0"
+          ],
+          "tests": [
+            "tests/unit/gowRiderTroopCompletion.test.ts"
+          ]
+        },
+        "display-description": {
+          "status": "verified",
+          "note": "英文“Deal [Magic + 5] damage to a random Enemy, and Silence them.”；成品中文“对 1 名随机的敌人造成 [魔法 + 5] 点伤害，并使其陷入沉默状态。”；先 Magic+5 后续silence目标吻合。",
+          "evidenceIds": [
+            "en",
+            "native",
+            "official",
+            "cn",
+            "impl",
+            "test0"
+          ],
+          "tests": [
+            "tests/unit/gowRiderTroopCompletion.test.ts"
+          ]
+        },
+        "battle-pipeline": {
+          "status": "verified",
+          "note": "TurnEngine.castSkill 双阵营各24种子：Magic10→15伤害，后续silence归属、耗蓝、回合；目标满蓝与低蓝/沉默反例。",
+          "evidenceIds": [
+            "en",
+            "native",
+            "official",
+            "cn",
+            "impl",
+            "test0"
+          ],
+          "tests": [
+            "tests/unit/gowRiderTroopCompletion.test.ts"
+          ],
+          "realBattleEntry": true
+        }
+      },
+      "clauseReviews": [
+        {
+          "id": "c1",
+          "status": "verified",
+          "note": "原文完整子句“Deal [Magic + 5] damage to a random Enemy, and Silence them.”；双阵营真实施法 Magic10 伤害15，仅首次命中的目标承接后续 CauseSilence，费用与反例明确断言。",
+          "evidenceIds": [
+            "en",
+            "native",
+            "official",
+            "cn",
+            "impl",
+            "test0"
+          ],
+          "tests": [
+            "tests/unit/gowRiderTroopCompletion.test.ts"
+          ]
+        }
+      ],
+      "nativeStepReviews": [
+        {
+          "id": "0",
+          "status": "verified",
+          "note": "原生第0步 Damage/RandomEnemy/Amount5/SpellPowerMultiplier1；双侧各24种子仅一次实际15伤害。",
+          "evidenceIds": [
+            "en",
+            "native",
+            "official",
+            "cn",
+            "impl",
+            "test0"
+          ],
+          "tests": [
+            "tests/unit/gowRiderTroopCompletion.test.ts"
+          ]
+        },
+        {
+          "id": "1",
+          "status": "verified",
+          "note": "原生第1步 CauseSilence/FromPrevious：专项保证仅上一命中目标承接，清蓝时目标8/16→0、非目标不变。",
+          "evidenceIds": [
+            "en",
+            "native",
+            "official",
+            "cn",
+            "impl",
+            "test0"
+          ],
+          "tests": [
+            "tests/unit/gowRiderTroopCompletion.test.ts"
+          ]
+        }
+      ],
+      "branchReviews": [
+        {
+          "id": "main",
+          "status": "verified",
+          "note": "原生 main 顺序执行 Damage→CauseSilence；双侧命中目标与后续目标绑定、低蓝/沉默负例。",
+          "evidenceIds": [
+            "en",
+            "native",
+            "official",
+            "cn",
+            "impl",
+            "test0"
+          ],
+          "tests": [
+            "tests/unit/gowRiderTroopCompletion.test.ts"
+          ]
+        }
+      ],
+      "pendingReasons": [],
+      "scopedEvidence": [
+        {
+          "testPath": "tests/unit/gowRiderTroopCompletion.test.ts",
+          "scope": "实体 6043 独立英文/原生/成品绑定，双阵营各24种子、满蓝/低蓝/沉默真实施法。"
+        }
+      ],
+      "independentFindings": {
+        "entityId": 6043,
+        "spellId": 7043,
+        "english": "Deal [Magic + 5] damage to a random Enemy, and Silence them.",
+        "englishCost": 12,
+        "englishManaColorKeys": [
+          "ColorRed",
+          "ColorBrown"
+        ],
+        "nativeCost": 12,
+        "nativeTarget": "None",
+        "nativeSteps": [
+          {
+            "SpellPowerMultiplier": 1,
+            "Target": "RandomEnemy",
+            "Amount": 5,
+            "Primarypower": true,
+            "Type": "Damage"
+          },
+          {
+            "Target": "FromPrevious",
+            "Amount": 1,
+            "Type": "CauseSilence"
+          }
+        ],
+        "prototype": {
+          "segments": [
+            {
+              "kind": "damage",
+              "target": "enemyRandom",
+              "scaling": {
+                "base": 5,
+                "mult": 1
+              }
+            },
+            {
+              "kind": "status",
+              "target": "lastTarget",
+              "statusId": "silence",
+              "turns": 3
+            }
+          ]
+        },
+        "chinese": "对 1 名随机的敌人造成 [魔法 + 5] 点伤害，并使其陷入沉默状态。",
+        "runtimeCost": 12,
+        "runtimeColors": [
+          "Red",
+          "Brown"
+        ],
+        "bindingChecks": {
+          "binding": true,
+          "spellId": true,
+          "manaCost": true,
+          "manaColors": true,
+          "numericAndEquippedAlias": null
+        },
+        "existingSharedDraftDecision": null,
+        "staticInterpretation": "??????? Magic+5 ???FromPrevious ????? Silence",
+        "nativeRawField": "data",
+        "nativeWrapperId": 7043,
+        "englishColorsIndependentlyMatched": true,
+        "nativeRawIndependentlyMatched": true
+      },
+      "coordinatorTestsToAdd": []
+    },
+    {
+      "key": "troop:6083",
+      "scope": "stored-gow-snapshot",
+      "sourceDigest": "36c55aea094aa0ae43d54b602c130cd8c3e64d4b2c344681a2aff3dafd221609",
+      "reviewer": "worker-fast-04（逐实体核对英文、两条 SpellSteps、12维及双阵营真实施法）",
+      "reviewedAt": "2026-09-27",
+      "decision": "accept",
+      "sourceEvidence": [
+        {
+          "id": "en",
+          "role": "english-snapshot",
+          "path": "data/raw/troops.gow.en.json",
+          "note": "原始英文 6083/7153 费用10及完整子句：“Deal [Magic + 5] damage to the last Enemy, and drain all Mana from them.”。",
+          "sha256": "be77c2dd9838435f5461b763e9f1e1436e53ae9be36fc35eaadea71060e6b757"
+        },
+        {
+          "id": "native",
+          "role": "native-snapshot",
+          "path": "data/raw/spells.gow.en.json",
+          "note": "原始 SpellSteps 7153：先 Damage/LastEnemy/Magic+5，再 DecreaseMana/LastEnemy。",
+          "sha256": "ddc7e03e23a6ea880e34fc8f1b7f0572b15f42041e979c443642d735f89dd63b"
+        },
+        {
+          "id": "official",
+          "role": "official-shared-rule",
+          "path": "artifacts/gow-skill-audit/gold-primary-sources/official-status-effects.html",
+          "note": "官方状态共享规则：沉默等状态；具体步骤与目标依原始英文/SpellSteps。",
+          "sha256": "4dca585515e9c7ca9287f75b9555079a2b50c747e6c35293ae6b57981360755c"
+        },
+        {
+          "id": "cn",
+          "role": "localized-display",
+          "path": "src/data/troops.json",
+          "note": "成品中文原始字段精确为“对最后一名敌人造成 [魔法 + 5] 点伤害，并耗尽其法力值。”。",
+          "sha256": "98c20b7260205040fe4e6387b3011b18b9fe6b4bb110282578a9c7b1adb366b6"
+        },
+        {
+          "id": "impl",
+          "role": "runtime-implementation",
+          "path": "src/engine/skills/curated/batch-01.ts",
+          "note": "成品技能7153 注册源码与最终原型：先enemyLast 伤害，再drain。",
+          "sha256": "f1ab5ebb8be3b536aa627b2e1b7d4eabcf4eba42aef6096ec950aa81cf67500d"
+        },
+        {
+          "id": "test0",
+          "role": "existing-test-source",
+          "path": "tests/unit/gowRiderTroopCompletion.test.ts",
+          "note": "已再次读取现存测试文件字节计算 SHA-256；6083 双侧真施法与同目标后续步骤，施加/自然消退事件分辨、低蓝/沉默边界；定向8/8通过由协调端报告，全量仍以 receipt 为准。",
+          "sha256": "316a10fa61378d22f4e5377abb393ca0bddfd450fce52d8443be0ca1a27bc47d"
+        }
+      ],
+      "dimensions": {
+        "identity-cost-colors": {
+          "status": "verified",
+          "note": "英文实体6083/技能7153，费用10、颜色ColorBrown/ColorPurple；原生费用及成品绑定一致，专项断言。",
+          "evidenceIds": [
+            "en",
+            "native",
+            "official",
+            "cn",
+            "impl",
+            "test0"
+          ],
+          "tests": [
+            "tests/unit/gowRiderTroopCompletion.test.ts"
+          ]
+        },
+        "target-count-range": {
+          "status": "verified",
+          "note": "英文 last Enemy、原生 LastEnemy；双阵营各24种子仅末位 id=13 命中15且只有该位置蓝被耗尽。",
+          "evidenceIds": [
+            "en",
+            "native",
+            "official",
+            "cn",
+            "impl",
+            "test0"
+          ],
+          "tests": [
+            "tests/unit/gowRiderTroopCompletion.test.ts"
+          ]
+        },
+        "base-formula-rounding": {
+          "status": "verified",
+          "note": "原生 Damage/Amount5/SpellPowerMultiplier1，成品 scaling(base5,mult1)；专项 Magic=10 时单次伤害15，整数无额外取整。",
+          "evidenceIds": [
+            "en",
+            "native",
+            "official",
+            "cn",
+            "impl",
+            "test0"
+          ],
+          "tests": [
+            "tests/unit/gowRiderTroopCompletion.test.ts"
+          ]
+        },
+        "boost-source-ratio-cap": {
+          "status": "not-applicable",
+          "note": "完整英文、两条原生步骤与原型均无增强/比率/上限，只有 Magic+5。",
+          "evidenceIds": [
+            "en",
+            "native",
+            "official",
+            "cn",
+            "impl",
+            "test0"
+          ]
+        },
+        "conditions-probabilities-branches": {
+          "status": "verified",
+          "note": "原生无 Randomize 条件；随机目标由多种子验证，后续效果跟随本次命中目标；低蓝/沉默阻止两步执行。",
+          "evidenceIds": [
+            "en",
+            "native",
+            "official",
+            "cn",
+            "impl",
+            "test0"
+          ],
+          "tests": [
+            "tests/unit/gowRiderTroopCompletion.test.ts"
+          ]
+        },
+        "status-duration-immunity": {
+          "status": "not-applicable",
+          "note": "该技能不施加状态；原生仅 Damage、DecreaseMana 两步。敌人的沉默不会作为本技能自身分支。",
+          "evidenceIds": [
+            "en",
+            "native",
+            "official",
+            "cn",
+            "impl",
+            "test0"
+          ]
+        },
+        "gems-types-selection-resolution": {
+          "status": "not-applicable",
+          "note": "英文/原生/原型均无棋盘操作。",
+          "evidenceIds": [
+            "en",
+            "native",
+            "official",
+            "cn",
+            "impl",
+            "test0"
+          ]
+        },
+        "summon-transform-pools": {
+          "status": "not-applicable",
+          "note": "英文/原生/原型均无召唤或变形。",
+          "evidenceIds": [
+            "en",
+            "native",
+            "official",
+            "cn",
+            "impl",
+            "test0"
+          ]
+        },
+        "order-death-retargeting": {
+          "status": "verified",
+          "note": "原生 Damage→DecreaseMana 均 LastEnemy，原型 enemyLast 两步；实战只末位受伤及清蓝，其他三敌生命/法力保持。",
+          "evidenceIds": [
+            "en",
+            "native",
+            "official",
+            "cn",
+            "impl",
+            "test0"
+          ],
+          "tests": [
+            "tests/unit/gowRiderTroopCompletion.test.ts"
+          ]
+        },
+        "mana-economy-extra-turn": {
+          "status": "verified",
+          "note": "英文/原生费用10；双阵营正常蓝归零、切回合、一行动；低蓝9与沉默不发动；无额外回合。",
+          "evidenceIds": [
+            "en",
+            "native",
+            "official",
+            "cn",
+            "impl",
+            "test0"
+          ],
+          "tests": [
+            "tests/unit/gowRiderTroopCompletion.test.ts"
+          ]
+        },
+        "display-description": {
+          "status": "verified",
+          "note": "英文“Deal [Magic + 5] damage to the last Enemy, and drain all Mana from them.”；成品中文“对最后一名敌人造成 [魔法 + 5] 点伤害，并耗尽其法力值。”；先 Magic+5 后续drain目标吻合。",
+          "evidenceIds": [
+            "en",
+            "native",
+            "official",
+            "cn",
+            "impl",
+            "test0"
+          ],
+          "tests": [
+            "tests/unit/gowRiderTroopCompletion.test.ts"
+          ]
+        },
+        "battle-pipeline": {
+          "status": "verified",
+          "note": "TurnEngine.castSkill 双阵营各24种子：Magic10→15伤害，后续drain归属、耗蓝、回合；目标满蓝与低蓝/沉默反例。",
+          "evidenceIds": [
+            "en",
+            "native",
+            "official",
+            "cn",
+            "impl",
+            "test0"
+          ],
+          "tests": [
+            "tests/unit/gowRiderTroopCompletion.test.ts"
+          ],
+          "realBattleEntry": true
+        }
+      },
+      "clauseReviews": [
+        {
+          "id": "c1",
+          "status": "verified",
+          "note": "原文完整子句“Deal [Magic + 5] damage to the last Enemy, and drain all Mana from them.”；双阵营真实施法 Magic10 伤害15，仅首次命中的目标承接后续 DecreaseMana，费用与反例明确断言。",
+          "evidenceIds": [
+            "en",
+            "native",
+            "official",
+            "cn",
+            "impl",
+            "test0"
+          ],
+          "tests": [
+            "tests/unit/gowRiderTroopCompletion.test.ts"
+          ]
+        }
+      ],
+      "nativeStepReviews": [
+        {
+          "id": "0",
+          "status": "verified",
+          "note": "原生第0步 Damage/LastEnemy/Amount5/SpellPowerMultiplier1；双侧各24种子仅一次实际15伤害。",
+          "evidenceIds": [
+            "en",
+            "native",
+            "official",
+            "cn",
+            "impl",
+            "test0"
+          ],
+          "tests": [
+            "tests/unit/gowRiderTroopCompletion.test.ts"
+          ]
+        },
+        {
+          "id": "1",
+          "status": "verified",
+          "note": "原生第1步 DecreaseMana/LastEnemy：专项保证仅上一命中目标承接，清蓝时目标8/16→0、非目标不变。",
+          "evidenceIds": [
+            "en",
+            "native",
+            "official",
+            "cn",
+            "impl",
+            "test0"
+          ],
+          "tests": [
+            "tests/unit/gowRiderTroopCompletion.test.ts"
+          ]
+        }
+      ],
+      "branchReviews": [
+        {
+          "id": "main",
+          "status": "verified",
+          "note": "原生 main 顺序执行 Damage→DecreaseMana；双侧命中目标与后续目标绑定、低蓝/沉默负例。",
+          "evidenceIds": [
+            "en",
+            "native",
+            "official",
+            "cn",
+            "impl",
+            "test0"
+          ],
+          "tests": [
+            "tests/unit/gowRiderTroopCompletion.test.ts"
+          ]
+        }
+      ],
+      "pendingReasons": [],
+      "scopedEvidence": [
+        {
+          "testPath": "tests/unit/gowRiderTroopCompletion.test.ts",
+          "scope": "实体 6083 独立英文/原生/成品绑定，双阵营各24种子、满蓝/低蓝/沉默真实施法。"
+        }
+      ],
+      "independentFindings": {
+        "entityId": 6083,
+        "spellId": 7153,
+        "english": "Deal [Magic + 5] damage to the last Enemy, and drain all Mana from them.",
+        "englishCost": 10,
+        "englishManaColorKeys": [
+          "ColorPurple",
+          "ColorBrown"
+        ],
+        "nativeCost": 10,
+        "nativeTarget": "None",
+        "nativeSteps": [
+          {
+            "SpellPowerMultiplier": 1,
+            "Target": "LastEnemy",
+            "Amount": 5,
+            "Primarypower": true,
+            "Type": "Damage"
+          },
+          {
+            "Target": "LastEnemy",
+            "Amount": 100,
+            "Type": "DecreaseMana"
+          }
+        ],
+        "prototype": {
+          "segments": [
+            {
+              "kind": "damage",
+              "target": "enemyLast",
+              "scaling": {
+                "base": 5,
+                "mult": 1
+              }
+            },
+            {
+              "kind": "reduce",
+              "target": "enemyLast",
+              "stat": "mana",
+              "scaling": {
+                "base": 0,
+                "mult": 0
+              },
+              "drainAll": true
+            }
+          ]
+        },
+        "chinese": "对最后一名敌人造成 [魔法 + 5] 点伤害，并耗尽其法力值。",
+        "runtimeCost": 10,
+        "runtimeColors": [
+          "Purple",
+          "Brown"
+        ],
+        "bindingChecks": {
+          "binding": true,
+          "spellId": true,
+          "manaCost": true,
+          "manaColors": true,
+          "numericAndEquippedAlias": null
+        },
+        "existingSharedDraftDecision": null,
+        "staticInterpretation": "LastEnemy Magic+5 ????????? Mana ??",
+        "nativeRawField": "data",
+        "nativeWrapperId": 7153,
+        "englishColorsIndependentlyMatched": true,
+        "nativeRawIndependentlyMatched": true
+      },
+      "coordinatorTestsToAdd": []
+    },
+    {
+      "key": "troop:6107",
+      "scope": "stored-gow-snapshot",
+      "sourceDigest": "dce74dd8ebb36ded81bae1e7b2bafbaf538b01ff14be5fa9eccd0555a0a823b0",
+      "reviewer": "worker-fast-04（原始英文、原生步骤、中文展示与实体真施法独立复核）",
+      "reviewedAt": "2026-09-27",
+      "decision": "accept",
+      "sourceEvidence": [
+        {
+          "id": "en",
+          "role": "english-snapshot",
+          "path": "data/raw/troops.gow.en.json",
+          "note": "实体6107原始英文全文“Eliminate all Armor from an Enemy, and deal [Magic + 4] damage.”、SpellId=7175及本实体费用/颜色。",
+          "sha256": "be77c2dd9838435f5461b763e9f1e1436e53ae9be36fc35eaadea71060e6b757"
+        },
+        {
+          "id": "native",
+          "role": "native-snapshot",
+          "path": "data/raw/spells.gow.en.json",
+          "note": "原生技能7175有序SpellSteps：[{\"Target\":\"FromTarget\",\"Amount\":10001,\"Type\":\"DecreaseArmor\"},{\"SpellPowerMultiplier\":1,\"Target\":\"FromTarget\",\"Amount\":4,\"Primarypower\":true,\"Type\":\"Damage\"}]。",
+          "sha256": "ddc7e03e23a6ea880e34fc8f1b7f0572b15f42041e979c443642d735f89dd63b"
+        },
+        {
+          "id": "official",
+          "role": "official-shared-rule",
+          "path": "artifacts/gow-skill-audit/gold-primary-sources/official-status-effects.html",
+          "note": "官方共享状态规则静态材料；技能自身精确数值仍以英文和原生步骤为准。",
+          "sha256": "4dca585515e9c7ca9287f75b9555079a2b50c747e6c35293ae6b57981360755c"
+        },
+        {
+          "id": "official-damage",
+          "role": "official-shared-rule",
+          "path": "artifacts/gow-skill-audit/gold-primary-sources/official-brian-guide.html",
+          "note": "官方共享伤害/护甲材料；具体技能效果另据原始英文和原生步骤。",
+          "sha256": "cb2924f8f48fb400e5918ad2c75d7f3a40ae12e4d839c0c84e5168ab452e89a7"
+        },
+        {
+          "id": "cn",
+          "role": "localized-display",
+          "path": "src/data/troops.json",
+          "note": "实体6107中文展示“减除一名敌人全部护甲值，并造成 [魔法 + 4] 点伤害。”及费用/颜色。",
+          "sha256": "98c20b7260205040fe4e6387b3011b18b9fe6b4bb110282578a9c7b1adb366b6"
+        },
+        {
+          "id": "impl",
+          "role": "runtime-implementation",
+          "path": "src/engine/skills/curated/batch-01.ts",
+          "note": "最终注册原型：[{\"kind\":\"reduce\",\"target\":\"enemyChosen\",\"stat\":\"armor\",\"scaling\":{\"base\":0,\"mult\":0},\"drainAll\":true},{\"kind\":\"damage\",\"target\":\"enemyChosen\",\"scaling\":{\"base\":4,\"mult\":1}}]；步骤0清除选定目标全部护甲(Amount10001→drainAll)，步骤1再对同一目标生命造成 Magic+4，护甲不吸收后续伤害。",
+          "sha256": "f1ab5ebb8be3b536aa627b2e1b7d4eabcf4eba42aef6096ec950aa81cf67500d"
+        },
+        {
+          "id": "test0",
+          "role": "entity-test-source",
+          "path": "tests/unit/gowWorker04Core.test.ts",
+          "note": "实体6107真实 TurnEngine.castSkill 专项：双侧 Magic0/1/10×护甲0/10/25，生命损4/5/14，其他敌人不变；低蓝10/沉默拒施法。",
+          "sha256": "8bc460d0bc2b6642e4c2e19cd7d70e58e86374c7596a4cbd8cef9748807f1793"
+        }
+      ],
+      "dimensions": {
+        "identity-cost-colors": {
+          "status": "verified",
+          "note": "实体6107/原文技能7175；原始英文与原生费用11、成品费用11，颜色Purple/Brown，实体参数测试逐项断言。",
+          "evidenceIds": [
+            "en",
+            "native",
+            "official",
+            "official-damage",
+            "cn",
+            "impl",
+            "test0"
+          ],
+          "tests": [
+            "tests/unit/gowWorker04Core.test.ts"
+          ]
+        },
+        "target-count-range": {
+          "status": "verified",
+          "note": "英文“Eliminate all Armor from an Enemy, and deal [Magic + 4] damage.”；原生目标FromTarget→FromTarget，最终原型enemyChosen→enemyChosen；步骤0清除选定目标全部护甲(Amount10001→drainAll)，步骤1再对同一目标生命造成 Magic+4，护甲不吸收后续伤害。",
+          "evidenceIds": [
+            "en",
+            "native",
+            "official",
+            "official-damage",
+            "cn",
+            "impl",
+            "test0"
+          ],
+          "tests": [
+            "tests/unit/gowWorker04Core.test.ts"
+          ]
+        },
+        "base-formula-rounding": {
+          "status": "verified",
+          "note": "步骤0清除选定目标全部护甲(Amount10001→drainAll)，步骤1再对同一目标生命造成 Magic+4，护甲不吸收后续伤害。 双侧 Magic0/1/10×护甲0/10/25，生命损4/5/14，其他敌人不变；低蓝10/沉默拒施法。",
+          "evidenceIds": [
+            "en",
+            "native",
+            "official",
+            "official-damage",
+            "cn",
+            "impl",
+            "test0"
+          ],
+          "tests": [
+            "tests/unit/gowWorker04Core.test.ts"
+          ]
+        },
+        "boost-source-ratio-cap": {
+          "status": "verified",
+          "note": "步骤0清除选定目标全部护甲(Amount10001→drainAll)，步骤1再对同一目标生命造成 Magic+4，护甲不吸收后续伤害。 没有未证实的额外系数、比例或上限。",
+          "evidenceIds": [
+            "en",
+            "native",
+            "official",
+            "official-damage",
+            "cn",
+            "impl",
+            "test0"
+          ],
+          "tests": [
+            "tests/unit/gowWorker04Core.test.ts"
+          ]
+        },
+        "conditions-probabilities-branches": {
+          "status": "verified",
+          "note": "步骤0清除选定目标全部护甲(Amount10001→drainAll)，步骤1再对同一目标生命造成 Magic+4，护甲不吸收后续伤害。 双侧 Magic0/1/10×护甲0/10/25，生命损4/5/14，其他敌人不变；低蓝10/沉默拒施法。",
+          "evidenceIds": [
+            "en",
+            "native",
+            "official",
+            "official-damage",
+            "cn",
+            "impl",
+            "test0"
+          ],
+          "tests": [
+            "tests/unit/gowWorker04Core.test.ts"
+          ]
+        },
+        "status-duration-immunity": {
+          "status": "not-applicable",
+          "note": "该技能不直接施加单位状态；沉默施法者不能施法。原文/原生无其他状态持续或免疫分支。",
+          "evidenceIds": [
+            "en",
+            "native",
+            "official",
+            "official-damage",
+            "cn",
+            "impl",
+            "test0"
+          ],
+          "tests": []
+        },
+        "gems-types-selection-resolution": {
+          "status": "not-applicable",
+          "note": "原文/原生均无宝石操作，最终原型也不改棋盘。",
+          "evidenceIds": [
+            "en",
+            "native",
+            "official",
+            "official-damage",
+            "cn",
+            "impl",
+            "test0"
+          ],
+          "tests": []
+        },
+        "summon-transform-pools": {
+          "status": "not-applicable",
+          "note": "原文、原生、成品均无兵种召唤、变身或候选池；若有宝石转换，那是棋盘特效而非兵种变形。",
+          "evidenceIds": [
+            "en",
+            "native",
+            "official",
+            "official-damage",
+            "cn",
+            "impl",
+            "test0"
+          ],
+          "tests": []
+        },
+        "order-death-retargeting": {
+          "status": "verified",
+          "note": "步骤0清除选定目标全部护甲(Amount10001→drainAll)，步骤1再对同一目标生命造成 Magic+4，护甲不吸收后续伤害。 原生执行顺序DecreaseArmor→Damage，真实施法逐目标核对。",
+          "evidenceIds": [
+            "en",
+            "native",
+            "official",
+            "official-damage",
+            "cn",
+            "impl",
+            "test0"
+          ],
+          "tests": [
+            "tests/unit/gowWorker04Core.test.ts"
+          ]
+        },
+        "mana-economy-extra-turn": {
+          "status": "verified",
+          "note": "费用11，成功后法力归零；低蓝/沉默无行动；双侧 Magic0/1/10×护甲0/10/25，生命损4/5/14，其他敌人不变；低蓝10/沉默拒施法。",
+          "evidenceIds": [
+            "en",
+            "native",
+            "official",
+            "official-damage",
+            "cn",
+            "impl",
+            "test0"
+          ],
+          "tests": [
+            "tests/unit/gowWorker04Core.test.ts"
+          ]
+        },
+        "display-description": {
+          "status": "verified",
+          "note": "英文“Eliminate all Armor from an Enemy, and deal [Magic + 4] damage.”，中文“减除一名敌人全部护甲值，并造成 [魔法 + 4] 点伤害。”；数值/目标/条件与原生一致。",
+          "evidenceIds": [
+            "en",
+            "native",
+            "official",
+            "official-damage",
+            "cn",
+            "impl",
+            "test0"
+          ],
+          "tests": [
+            "tests/unit/gowWorker04Core.test.ts"
+          ]
+        },
+        "battle-pipeline": {
+          "status": "verified",
+          "note": "真实 TurnEngine.castSkill，双侧 Magic0/1/10×护甲0/10/25，生命损4/5/14，其他敌人不变；低蓝10/沉默拒施法。 专项文件 tests/unit/gowWorker04Core.test.ts；三份 worker04 测试定向合计84/84、tsc --noEmit 通过；正式入账需协调端合账与全量凭证。",
+          "evidenceIds": [
+            "en",
+            "native",
+            "official",
+            "official-damage",
+            "cn",
+            "impl",
+            "test0"
+          ],
+          "tests": [
+            "tests/unit/gowWorker04Core.test.ts"
+          ],
+          "realBattleEntry": true
+        }
+      },
+      "clauseReviews": [
+        {
+          "id": "c1",
+          "status": "verified",
+          "note": "英文独立子句“Eliminate all Armor from an Enemy, and deal [Magic + 4] damage.”；步骤0清除选定目标全部护甲(Amount10001→drainAll)，步骤1再对同一目标生命造成 Magic+4，护甲不吸收后续伤害。 双侧 Magic0/1/10×护甲0/10/25，生命损4/5/14，其他敌人不变；低蓝10/沉默拒施法。",
+          "evidenceIds": [
+            "en",
+            "native",
+            "official",
+            "official-damage",
+            "cn",
+            "impl",
+            "test0"
+          ],
+          "tests": [
+            "tests/unit/gowWorker04Core.test.ts"
+          ]
+        }
+      ],
+      "nativeStepReviews": [
+        {
+          "id": "0",
+          "status": "verified",
+          "note": "原生有序步骤[0]：{\"Target\":\"FromTarget\",\"Amount\":10001,\"Type\":\"DecreaseArmor\"}；步骤0清除选定目标全部护甲(Amount10001→drainAll)，步骤1再对同一目标生命造成 Magic+4，护甲不吸收后续伤害。 双侧 Magic0/1/10×护甲0/10/25，生命损4/5/14，其他敌人不变；低蓝10/沉默拒施法。",
+          "evidenceIds": [
+            "en",
+            "native",
+            "official",
+            "official-damage",
+            "cn",
+            "impl",
+            "test0"
+          ],
+          "tests": [
+            "tests/unit/gowWorker04Core.test.ts"
+          ]
+        },
+        {
+          "id": "1",
+          "status": "verified",
+          "note": "原生有序步骤[1]：{\"SpellPowerMultiplier\":1,\"Target\":\"FromTarget\",\"Amount\":4,\"Primarypower\":true,\"Type\":\"Damage\"}；步骤0清除选定目标全部护甲(Amount10001→drainAll)，步骤1再对同一目标生命造成 Magic+4，护甲不吸收后续伤害。 双侧 Magic0/1/10×护甲0/10/25，生命损4/5/14，其他敌人不变；低蓝10/沉默拒施法。",
+          "evidenceIds": [
+            "en",
+            "native",
+            "official",
+            "official-damage",
+            "cn",
+            "impl",
+            "test0"
+          ],
+          "tests": [
+            "tests/unit/gowWorker04Core.test.ts"
+          ]
+        }
+      ],
+      "branchReviews": [
+        {
+          "id": "main",
+          "status": "verified",
+          "note": "原生分支main，步骤0清除选定目标全部护甲(Amount10001→drainAll)，步骤1再对同一目标生命造成 Magic+4，护甲不吸收后续伤害。 双侧 Magic0/1/10×护甲0/10/25，生命损4/5/14，其他敌人不变；低蓝10/沉默拒施法。",
+          "evidenceIds": [
+            "en",
+            "native",
+            "official",
+            "official-damage",
+            "cn",
+            "impl",
+            "test0"
+          ],
+          "tests": [
+            "tests/unit/gowWorker04Core.test.ts"
+          ]
+        }
+      ]
+    },
+    {
+      "key": "troop:6071",
+      "scope": "stored-gow-snapshot",
+      "sourceDigest": "a37b84d27375c13cbffc301a7d80c4f64c3e3fa9d2416b6f6c5ed2dec7f43ae3",
+      "reviewer": "worker-fast-04（原始英文、原生步骤、中文展示与实体真施法独立复核）",
+      "reviewedAt": "2026-09-27",
+      "decision": "accept",
+      "sourceEvidence": [
+        {
+          "id": "en",
+          "role": "english-snapshot",
+          "path": "data/raw/troops.gow.en.json",
+          "note": "实体6071原始英文全文“Steal [Magic] Armor and 5 Attack from all Enemies.”、SpellId=7141及本实体费用/颜色。",
+          "sha256": "be77c2dd9838435f5461b763e9f1e1436e53ae9be36fc35eaadea71060e6b757"
+        },
+        {
+          "id": "native",
+          "role": "native-snapshot",
+          "path": "data/raw/spells.gow.en.json",
+          "note": "原生技能7141有序SpellSteps：[{\"SpellPowerMultiplier\":1,\"Target\":\"AllEnemies\",\"Primarypower\":true,\"Type\":\"StealArmor\"},{\"Target\":\"AllEnemies\",\"Amount\":5,\"Type\":\"StealAttack\"}]。",
+          "sha256": "ddc7e03e23a6ea880e34fc8f1b7f0572b15f42041e979c443642d735f89dd63b"
+        },
+        {
+          "id": "official",
+          "role": "official-shared-rule",
+          "path": "artifacts/gow-skill-audit/gold-primary-sources/official-status-effects.html",
+          "note": "官方共享状态规则静态材料；技能自身精确数值仍以英文和原生步骤为准。",
+          "sha256": "4dca585515e9c7ca9287f75b9555079a2b50c747e6c35293ae6b57981360755c"
+        },
+        {
+          "id": "official-damage",
+          "role": "official-shared-rule",
+          "path": "artifacts/gow-skill-audit/gold-primary-sources/official-brian-guide.html",
+          "note": "官方共享伤害/护甲材料；具体技能效果另据原始英文和原生步骤。",
+          "sha256": "cb2924f8f48fb400e5918ad2c75d7f3a40ae12e4d839c0c84e5168ab452e89a7"
+        },
+        {
+          "id": "cn",
+          "role": "localized-display",
+          "path": "src/data/troops.json",
+          "note": "实体6071中文展示“窃取所有敌人的 [魔法] 护甲值和 5 点攻击力。”及费用/颜色。",
+          "sha256": "98c20b7260205040fe4e6387b3011b18b9fe6b4bb110282578a9c7b1adb366b6"
+        },
+        {
+          "id": "impl",
+          "role": "runtime-implementation",
+          "path": "src/engine/skills/curated/batch-01.ts",
+          "note": "最终注册原型：[{\"kind\":\"reduce\",\"target\":\"enemyAll\",\"stat\":\"armor\",\"scaling\":{\"base\":0,\"mult\":1},\"gainStat\":\"armor\"},{\"kind\":\"reduce\",\"target\":\"enemyAll\",\"stat\":\"attack\",\"scaling\":{\"base\":5,\"mult\":0},\"gainStat\":\"attack\"}]；先对四名敌人分别偷取 min(现有护甲,Magic)，再分别偷取 min(现有攻击,5)；自身仅增加四敌实际被盗的两类数值总和。",
+          "sha256": "f1ab5ebb8be3b536aa627b2e1b7d4eabcf4eba42aef6096ec950aa81cf67500d"
+        },
+        {
+          "id": "test0",
+          "role": "entity-test-source",
+          "path": "tests/unit/gowWorker04Combat.test.ts",
+          "note": "实体6071真实 TurnEngine.castSkill 专项：双侧 Magic0/1/10×四敌原护甲和攻击[0,2,20,50]，逐目标和自身精确断言；低蓝13/沉默零行动。",
+          "sha256": "f855b6cade487bfe2d36deb5be791466afdabe6fee5d1e7528de9edbd952cd98"
+        }
+      ],
+      "dimensions": {
+        "identity-cost-colors": {
+          "status": "verified",
+          "note": "实体6071/原文技能7141；原始英文与原生费用14、成品费用14，颜色Green/Red，实体参数测试逐项断言。",
+          "evidenceIds": [
+            "en",
+            "native",
+            "official",
+            "official-damage",
+            "cn",
+            "impl",
+            "test0"
+          ],
+          "tests": [
+            "tests/unit/gowWorker04Combat.test.ts"
+          ]
+        },
+        "target-count-range": {
+          "status": "verified",
+          "note": "英文“Steal [Magic] Armor and 5 Attack from all Enemies.”；原生目标AllEnemies→AllEnemies，最终原型enemyAll→enemyAll；先对四名敌人分别偷取 min(现有护甲,Magic)，再分别偷取 min(现有攻击,5)；自身仅增加四敌实际被盗的两类数值总和。",
+          "evidenceIds": [
+            "en",
+            "native",
+            "official",
+            "official-damage",
+            "cn",
+            "impl",
+            "test0"
+          ],
+          "tests": [
+            "tests/unit/gowWorker04Combat.test.ts"
+          ]
+        },
+        "base-formula-rounding": {
+          "status": "verified",
+          "note": "先对四名敌人分别偷取 min(现有护甲,Magic)，再分别偷取 min(现有攻击,5)；自身仅增加四敌实际被盗的两类数值总和。 双侧 Magic0/1/10×四敌原护甲和攻击[0,2,20,50]，逐目标和自身精确断言；低蓝13/沉默零行动。",
+          "evidenceIds": [
+            "en",
+            "native",
+            "official",
+            "official-damage",
+            "cn",
+            "impl",
+            "test0"
+          ],
+          "tests": [
+            "tests/unit/gowWorker04Combat.test.ts"
+          ]
+        },
+        "boost-source-ratio-cap": {
+          "status": "verified",
+          "note": "先对四名敌人分别偷取 min(现有护甲,Magic)，再分别偷取 min(现有攻击,5)；自身仅增加四敌实际被盗的两类数值总和。 没有未证实的额外系数、比例或上限。",
+          "evidenceIds": [
+            "en",
+            "native",
+            "official",
+            "official-damage",
+            "cn",
+            "impl",
+            "test0"
+          ],
+          "tests": [
+            "tests/unit/gowWorker04Combat.test.ts"
+          ]
+        },
+        "conditions-probabilities-branches": {
+          "status": "verified",
+          "note": "先对四名敌人分别偷取 min(现有护甲,Magic)，再分别偷取 min(现有攻击,5)；自身仅增加四敌实际被盗的两类数值总和。 双侧 Magic0/1/10×四敌原护甲和攻击[0,2,20,50]，逐目标和自身精确断言；低蓝13/沉默零行动。",
+          "evidenceIds": [
+            "en",
+            "native",
+            "official",
+            "official-damage",
+            "cn",
+            "impl",
+            "test0"
+          ],
+          "tests": [
+            "tests/unit/gowWorker04Combat.test.ts"
+          ]
+        },
+        "status-duration-immunity": {
+          "status": "not-applicable",
+          "note": "该技能不直接施加单位状态；沉默施法者不能施法。原文/原生无其他状态持续或免疫分支。",
+          "evidenceIds": [
+            "en",
+            "native",
+            "official",
+            "official-damage",
+            "cn",
+            "impl",
+            "test0"
+          ],
+          "tests": []
+        },
+        "gems-types-selection-resolution": {
+          "status": "not-applicable",
+          "note": "原文/原生均无宝石操作，最终原型也不改棋盘。",
+          "evidenceIds": [
+            "en",
+            "native",
+            "official",
+            "official-damage",
+            "cn",
+            "impl",
+            "test0"
+          ],
+          "tests": []
+        },
+        "summon-transform-pools": {
+          "status": "not-applicable",
+          "note": "原文、原生、成品均无兵种召唤、变身或候选池；若有宝石转换，那是棋盘特效而非兵种变形。",
+          "evidenceIds": [
+            "en",
+            "native",
+            "official",
+            "official-damage",
+            "cn",
+            "impl",
+            "test0"
+          ],
+          "tests": []
+        },
+        "order-death-retargeting": {
+          "status": "verified",
+          "note": "先对四名敌人分别偷取 min(现有护甲,Magic)，再分别偷取 min(现有攻击,5)；自身仅增加四敌实际被盗的两类数值总和。 原生执行顺序StealArmor→StealAttack，真实施法逐目标核对。",
+          "evidenceIds": [
+            "en",
+            "native",
+            "official",
+            "official-damage",
+            "cn",
+            "impl",
+            "test0"
+          ],
+          "tests": [
+            "tests/unit/gowWorker04Combat.test.ts"
+          ]
+        },
+        "mana-economy-extra-turn": {
+          "status": "verified",
+          "note": "费用14，成功后法力归零；低蓝/沉默无行动；双侧 Magic0/1/10×四敌原护甲和攻击[0,2,20,50]，逐目标和自身精确断言；低蓝13/沉默零行动。",
+          "evidenceIds": [
+            "en",
+            "native",
+            "official",
+            "official-damage",
+            "cn",
+            "impl",
+            "test0"
+          ],
+          "tests": [
+            "tests/unit/gowWorker04Combat.test.ts"
+          ]
+        },
+        "display-description": {
+          "status": "verified",
+          "note": "英文“Steal [Magic] Armor and 5 Attack from all Enemies.”，中文“窃取所有敌人的 [魔法] 护甲值和 5 点攻击力。”；数值/目标/条件与原生一致。",
+          "evidenceIds": [
+            "en",
+            "native",
+            "official",
+            "official-damage",
+            "cn",
+            "impl",
+            "test0"
+          ],
+          "tests": [
+            "tests/unit/gowWorker04Combat.test.ts"
+          ]
+        },
+        "battle-pipeline": {
+          "status": "verified",
+          "note": "真实 TurnEngine.castSkill，双侧 Magic0/1/10×四敌原护甲和攻击[0,2,20,50]，逐目标和自身精确断言；低蓝13/沉默零行动。 专项文件 tests/unit/gowWorker04Combat.test.ts；三份 worker04 测试定向合计84/84、tsc --noEmit 通过；正式入账需协调端合账与全量凭证。",
+          "evidenceIds": [
+            "en",
+            "native",
+            "official",
+            "official-damage",
+            "cn",
+            "impl",
+            "test0"
+          ],
+          "tests": [
+            "tests/unit/gowWorker04Combat.test.ts"
+          ],
+          "realBattleEntry": true
+        }
+      },
+      "clauseReviews": [
+        {
+          "id": "c1",
+          "status": "verified",
+          "note": "英文独立子句“Steal [Magic] Armor and 5 Attack from all Enemies.”；先对四名敌人分别偷取 min(现有护甲,Magic)，再分别偷取 min(现有攻击,5)；自身仅增加四敌实际被盗的两类数值总和。 双侧 Magic0/1/10×四敌原护甲和攻击[0,2,20,50]，逐目标和自身精确断言；低蓝13/沉默零行动。",
+          "evidenceIds": [
+            "en",
+            "native",
+            "official",
+            "official-damage",
+            "cn",
+            "impl",
+            "test0"
+          ],
+          "tests": [
+            "tests/unit/gowWorker04Combat.test.ts"
+          ]
+        }
+      ],
+      "nativeStepReviews": [
+        {
+          "id": "0",
+          "status": "verified",
+          "note": "原生有序步骤[0]：{\"SpellPowerMultiplier\":1,\"Target\":\"AllEnemies\",\"Primarypower\":true,\"Type\":\"StealArmor\"}；先对四名敌人分别偷取 min(现有护甲,Magic)，再分别偷取 min(现有攻击,5)；自身仅增加四敌实际被盗的两类数值总和。 双侧 Magic0/1/10×四敌原护甲和攻击[0,2,20,50]，逐目标和自身精确断言；低蓝13/沉默零行动。",
+          "evidenceIds": [
+            "en",
+            "native",
+            "official",
+            "official-damage",
+            "cn",
+            "impl",
+            "test0"
+          ],
+          "tests": [
+            "tests/unit/gowWorker04Combat.test.ts"
+          ]
+        },
+        {
+          "id": "1",
+          "status": "verified",
+          "note": "原生有序步骤[1]：{\"Target\":\"AllEnemies\",\"Amount\":5,\"Type\":\"StealAttack\"}；先对四名敌人分别偷取 min(现有护甲,Magic)，再分别偷取 min(现有攻击,5)；自身仅增加四敌实际被盗的两类数值总和。 双侧 Magic0/1/10×四敌原护甲和攻击[0,2,20,50]，逐目标和自身精确断言；低蓝13/沉默零行动。",
+          "evidenceIds": [
+            "en",
+            "native",
+            "official",
+            "official-damage",
+            "cn",
+            "impl",
+            "test0"
+          ],
+          "tests": [
+            "tests/unit/gowWorker04Combat.test.ts"
+          ]
+        }
+      ],
+      "branchReviews": [
+        {
+          "id": "main",
+          "status": "verified",
+          "note": "原生分支main，先对四名敌人分别偷取 min(现有护甲,Magic)，再分别偷取 min(现有攻击,5)；自身仅增加四敌实际被盗的两类数值总和。 双侧 Magic0/1/10×四敌原护甲和攻击[0,2,20,50]，逐目标和自身精确断言；低蓝13/沉默零行动。",
+          "evidenceIds": [
+            "en",
+            "native",
+            "official",
+            "official-damage",
+            "cn",
+            "impl",
+            "test0"
+          ],
+          "tests": [
+            "tests/unit/gowWorker04Combat.test.ts"
+          ]
+        }
+      ]
+    },
+    {
+      "key": "troop:7151",
+      "scope": "stored-gow-snapshot",
+      "sourceDigest": "cd970c35790ead87a8513d24f1bd7c5806301b5e9e7e87cc799952e645af127d",
+      "reviewer": "worker-fast-04（原始英文、原生步骤、中文展示与实体真施法独立复核）",
+      "reviewedAt": "2026-09-27",
+      "decision": "accept",
+      "sourceEvidence": [
+        {
+          "id": "en",
+          "role": "english-snapshot",
+          "path": "data/raw/troops.gow.en.json",
+          "note": "实体7151原始英文全文“Convert all Gems of a Chosen Color to Burning Gems.”、SpellId=8710及本实体费用/颜色。",
+          "sha256": "be77c2dd9838435f5461b763e9f1e1436e53ae9be36fc35eaadea71060e6b757"
+        },
+        {
+          "id": "native",
+          "role": "native-snapshot",
+          "path": "data/raw/spells.gow.en.json",
+          "note": "原生技能8710有序SpellSteps：[{\"Color1\":\"FromTarget\",\"Amount\":100,\"Color2\":\"Burning\",\"Type\":\"ConvertGems\"}]。",
+          "sha256": "ddc7e03e23a6ea880e34fc8f1b7f0572b15f42041e979c443642d735f89dd63b"
+        },
+        {
+          "id": "official",
+          "role": "official-shared-rule",
+          "path": "artifacts/gow-skill-audit/gold-primary-sources/official-status-effects.html",
+          "note": "官方共享状态规则静态材料；技能自身精确数值仍以英文和原生步骤为准。",
+          "sha256": "4dca585515e9c7ca9287f75b9555079a2b50c747e6c35293ae6b57981360755c"
+        },
+        {
+          "id": "cn",
+          "role": "localized-display",
+          "path": "src/data/troops.json",
+          "note": "实体7151中文展示“将所有选定颜色的宝石转换成燃烧宝石。”及费用/颜色。",
+          "sha256": "98c20b7260205040fe4e6387b3011b18b9fe6b4bb110282578a9c7b1adb366b6"
+        },
+        {
+          "id": "impl",
+          "role": "runtime-implementation",
+          "path": "src/engine/skills/curated/batch-r4.ts",
+          "note": "最终注册原型：[{\"kind\":\"gem\",\"params\":{\"op\":\"transform\",\"from\":\"CHOSEN\",\"to\":\"SKULL\",\"toSpecial\":\"burningGem\"}}]；原生 Color1=FromTarget,Color2=Burning,Amount100；选定颜色的全部宝石变 burningGem，绝不是普通骷髅；四色以颜色选择为准。",
+          "sha256": "57363c2d7bb879c73620026a66df08fd9d89b3457f251686d3361fb4a4b75468"
+        },
+        {
+          "id": "test0",
+          "role": "entity-test-source",
+          "path": "tests/unit/gowWorker04Board.test.ts",
+          "note": "实体7151真实 TurnEngine.castSkill 专项：双侧选择Green(0/9颗)与Blue(存在)，逐位置/特殊宝石类型断言；低蓝11/沉默拒施法；四连额外回合来自棋盘，不来自技能。",
+          "sha256": "571539419b519613e93b2534678c54e8b2d35e3c4f0912b911d01dca28764a7c"
+        }
+      ],
+      "dimensions": {
+        "identity-cost-colors": {
+          "status": "verified",
+          "note": "实体7151/原文技能8710；原始英文与原生费用12、成品费用12，颜色Yellow/Brown，实体参数测试逐项断言。",
+          "evidenceIds": [
+            "en",
+            "native",
+            "official",
+            "cn",
+            "impl",
+            "test0"
+          ],
+          "tests": [
+            "tests/unit/gowWorker04Board.test.ts"
+          ]
+        },
+        "target-count-range": {
+          "status": "verified",
+          "note": "英文“Convert all Gems of a Chosen Color to Burning Gems.”；原生目标None，最终原型gem；原生 Color1=FromTarget,Color2=Burning,Amount100；选定颜色的全部宝石变 burningGem，绝不是普通骷髅；四色以颜色选择为准。",
+          "evidenceIds": [
+            "en",
+            "native",
+            "official",
+            "cn",
+            "impl",
+            "test0"
+          ],
+          "tests": [
+            "tests/unit/gowWorker04Board.test.ts"
+          ]
+        },
+        "base-formula-rounding": {
+          "status": "verified",
+          "note": "原生 Color1=FromTarget,Color2=Burning,Amount100；选定颜色的全部宝石变 burningGem，绝不是普通骷髅；四色以颜色选择为准。 双侧选择Green(0/9颗)与Blue(存在)，逐位置/特殊宝石类型断言；低蓝11/沉默拒施法；四连额外回合来自棋盘，不来自技能。",
+          "evidenceIds": [
+            "en",
+            "native",
+            "official",
+            "cn",
+            "impl",
+            "test0"
+          ],
+          "tests": [
+            "tests/unit/gowWorker04Board.test.ts"
+          ]
+        },
+        "boost-source-ratio-cap": {
+          "status": "not-applicable",
+          "note": "原生 Color1=FromTarget,Color2=Burning,Amount100；选定颜色的全部宝石变 burningGem，绝不是普通骷髅；四色以颜色选择为准。 没有未证实的额外系数、比例或上限。",
+          "evidenceIds": [
+            "en",
+            "native",
+            "official",
+            "cn",
+            "impl",
+            "test0"
+          ],
+          "tests": []
+        },
+        "conditions-probabilities-branches": {
+          "status": "verified",
+          "note": "原生 Color1=FromTarget,Color2=Burning,Amount100；选定颜色的全部宝石变 burningGem，绝不是普通骷髅；四色以颜色选择为准。 双侧选择Green(0/9颗)与Blue(存在)，逐位置/特殊宝石类型断言；低蓝11/沉默拒施法；四连额外回合来自棋盘，不来自技能。",
+          "evidenceIds": [
+            "en",
+            "native",
+            "official",
+            "cn",
+            "impl",
+            "test0"
+          ],
+          "tests": [
+            "tests/unit/gowWorker04Board.test.ts"
+          ]
+        },
+        "status-duration-immunity": {
+          "status": "not-applicable",
+          "note": "该技能不直接施加单位状态；沉默施法者不能施法。原文/原生无其他状态持续或免疫分支。",
+          "evidenceIds": [
+            "en",
+            "native",
+            "official",
+            "cn",
+            "impl",
+            "test0"
+          ],
+          "tests": []
+        },
+        "gems-types-selection-resolution": {
+          "status": "verified",
+          "note": "原生 Color1=FromTarget,Color2=Burning,Amount100；选定颜色的全部宝石变 burningGem，绝不是普通骷髅；四色以颜色选择为准。 双侧选择Green(0/9颗)与Blue(存在)，逐位置/特殊宝石类型断言；低蓝11/沉默拒施法；四连额外回合来自棋盘，不来自技能。",
+          "evidenceIds": [
+            "en",
+            "native",
+            "official",
+            "cn",
+            "impl",
+            "test0"
+          ],
+          "tests": [
+            "tests/unit/gowWorker04Board.test.ts"
+          ]
+        },
+        "summon-transform-pools": {
+          "status": "not-applicable",
+          "note": "原文、原生、成品均无兵种召唤、变身或候选池；若有宝石转换，那是棋盘特效而非兵种变形。",
+          "evidenceIds": [
+            "en",
+            "native",
+            "official",
+            "cn",
+            "impl",
+            "test0"
+          ],
+          "tests": []
+        },
+        "order-death-retargeting": {
+          "status": "verified",
+          "note": "原生 Color1=FromTarget,Color2=Burning,Amount100；选定颜色的全部宝石变 burningGem，绝不是普通骷髅；四色以颜色选择为准。 原生执行顺序ConvertGems，真实施法逐目标核对。",
+          "evidenceIds": [
+            "en",
+            "native",
+            "official",
+            "cn",
+            "impl",
+            "test0"
+          ],
+          "tests": [
+            "tests/unit/gowWorker04Board.test.ts"
+          ]
+        },
+        "mana-economy-extra-turn": {
+          "status": "verified",
+          "note": "费用12，成功后法力归零；低蓝/沉默无行动；双侧选择Green(0/9颗)与Blue(存在)，逐位置/特殊宝石类型断言；低蓝11/沉默拒施法；四连额外回合来自棋盘，不来自技能。",
+          "evidenceIds": [
+            "en",
+            "native",
+            "official",
+            "cn",
+            "impl",
+            "test0"
+          ],
+          "tests": [
+            "tests/unit/gowWorker04Board.test.ts"
+          ]
+        },
+        "display-description": {
+          "status": "verified",
+          "note": "英文“Convert all Gems of a Chosen Color to Burning Gems.”，中文“将所有选定颜色的宝石转换成燃烧宝石。”；数值/目标/条件与原生一致。",
+          "evidenceIds": [
+            "en",
+            "native",
+            "official",
+            "cn",
+            "impl",
+            "test0"
+          ],
+          "tests": [
+            "tests/unit/gowWorker04Board.test.ts"
+          ]
+        },
+        "battle-pipeline": {
+          "status": "verified",
+          "note": "真实 TurnEngine.castSkill，双侧选择Green(0/9颗)与Blue(存在)，逐位置/特殊宝石类型断言；低蓝11/沉默拒施法；四连额外回合来自棋盘，不来自技能。 专项文件 tests/unit/gowWorker04Board.test.ts；三份 worker04 测试定向合计84/84、tsc --noEmit 通过；正式入账需协调端合账与全量凭证。",
+          "evidenceIds": [
+            "en",
+            "native",
+            "official",
+            "cn",
+            "impl",
+            "test0"
+          ],
+          "tests": [
+            "tests/unit/gowWorker04Board.test.ts"
+          ],
+          "realBattleEntry": true
+        }
+      },
+      "clauseReviews": [
+        {
+          "id": "c1",
+          "status": "verified",
+          "note": "英文独立子句“Convert all Gems of a Chosen Color to Burning Gems.”；原生 Color1=FromTarget,Color2=Burning,Amount100；选定颜色的全部宝石变 burningGem，绝不是普通骷髅；四色以颜色选择为准。 双侧选择Green(0/9颗)与Blue(存在)，逐位置/特殊宝石类型断言；低蓝11/沉默拒施法；四连额外回合来自棋盘，不来自技能。",
+          "evidenceIds": [
+            "en",
+            "native",
+            "official",
+            "cn",
+            "impl",
+            "test0"
+          ],
+          "tests": [
+            "tests/unit/gowWorker04Board.test.ts"
+          ]
+        }
+      ],
+      "nativeStepReviews": [
+        {
+          "id": "0",
+          "status": "verified",
+          "note": "原生有序步骤[0]：{\"Color1\":\"FromTarget\",\"Amount\":100,\"Color2\":\"Burning\",\"Type\":\"ConvertGems\"}；原生 Color1=FromTarget,Color2=Burning,Amount100；选定颜色的全部宝石变 burningGem，绝不是普通骷髅；四色以颜色选择为准。 双侧选择Green(0/9颗)与Blue(存在)，逐位置/特殊宝石类型断言；低蓝11/沉默拒施法；四连额外回合来自棋盘，不来自技能。",
+          "evidenceIds": [
+            "en",
+            "native",
+            "official",
+            "cn",
+            "impl",
+            "test0"
+          ],
+          "tests": [
+            "tests/unit/gowWorker04Board.test.ts"
+          ]
+        }
+      ],
+      "branchReviews": [
+        {
+          "id": "main",
+          "status": "verified",
+          "note": "原生分支main，原生 Color1=FromTarget,Color2=Burning,Amount100；选定颜色的全部宝石变 burningGem，绝不是普通骷髅；四色以颜色选择为准。 双侧选择Green(0/9颗)与Blue(存在)，逐位置/特殊宝石类型断言；低蓝11/沉默拒施法；四连额外回合来自棋盘，不来自技能。",
+          "evidenceIds": [
+            "en",
+            "native",
+            "official",
+            "cn",
+            "impl",
+            "test0"
+          ],
+          "tests": [
+            "tests/unit/gowWorker04Board.test.ts"
+          ]
+        }
+      ]
+    },
+    {
+      "key": "troop:6255",
+      "scope": "stored-gow-snapshot",
+      "sourceDigest": "ba632938a5b6e22ef30e8429955eded700b75dce92ea5b94a79c9e724b4f9dc1",
+      "reviewer": "worker-fast-04（逐实体完整英文两子句、原生 Damage 条件步骤、中文、12维与双侧真施法核对）",
+      "reviewedAt": "2026-09-27",
+      "decision": "accept",
+      "sourceEvidence": [
+        {
+          "id": "en",
+          "role": "english-snapshot",
+          "path": "data/raw/troops.gow.en.json",
+          "note": "原始英文实体6255/技能7398，蓝/黄、费用12，两句完整原文：Deal [Magic + 6] damage to an enemy. Deal triple damage if they use Red Mana.",
+          "sha256": "be77c2dd9838435f5461b763e9f1e1436e53ae9be36fc35eaadea71060e6b757"
+        },
+        {
+          "id": "native",
+          "role": "native-snapshot",
+          "path": "data/raw/spells.gow.en.json",
+          "note": "原生 SpellSteps 唯一 Damage/FromTarget/Amount=6/SpellPowerMultiplier=1、MultiplyForRedTarget/StatusAmount=3、Cost=12。",
+          "sha256": "ddc7e03e23a6ea880e34fc8f1b7f0572b15f42041e979c443642d735f89dd63b"
+        },
+        {
+          "id": "official",
+          "role": "official-shared-rule",
+          "path": "artifacts/gow-skill-audit/gold-primary-sources/official-status-effects.html",
+          "note": "官方屏障/沉默等共享状态规则；技能条件以英文和原生为准。",
+          "sha256": "4dca585515e9c7ca9287f75b9555079a2b50c747e6c35293ae6b57981360755c"
+        },
+        {
+          "id": "cn",
+          "role": "localized-display",
+          "path": "src/data/troops.json",
+          "note": "成品中文精确为“对 1 名敌人造成 [魔法 + 6] 点伤害。如果对方使用红色法力值，则造成三倍伤害。”。",
+          "sha256": "98c20b7260205040fe4e6387b3011b18b9fe6b4bb110282578a9c7b1adb366b6"
+        },
+        {
+          "id": "impl",
+          "role": "runtime-implementation",
+          "path": "src/engine/skills/curated/batch-06.ts",
+          "note": "最终技能7398注册源码：enemyChosen、Magic+6、目标 Red 时 condMult.times=3。",
+          "sha256": "b0762e688b91fd92b5fb933f6f9261b0dc7ef76fb2293e435e690fed413f7fc1"
+        },
+        {
+          "id": "test0",
+          "role": "existing-test-source",
+          "path": "tests/unit/gowRedTargetTroopCompletion.test.ts",
+          "note": "6255 专项真施法：独立英文/原生/绑定；双侧目标红/非红各断言48/16，屏障、低蓝11、沉默反例。",
+          "sha256": "9385ab8c13ceb61ba5cc9f8daa0a062c02f71027308b3711b701c8b54eb46312"
+        },
+        {
+          "id": "official-damage",
+          "role": "official-shared-rule",
+          "path": "artifacts/gow-skill-audit/gold-primary-sources/official-brian-guide.html",
+          "note": "伤害、魔法等官方共享规则；目标红色三倍具体条件以英文/原生 MultiplyForRedTarget 为准。",
+          "sha256": "cb2924f8f48fb400e5918ad2c75d7f3a40ae12e4d839c0c84e5168ab452e89a7"
+        }
+      ],
+      "dimensions": {
+        "identity-cost-colors": {
+          "status": "verified",
+          "note": "实体6255/技能7398；英文费用12、蓝/黄，原生 Cost=12，成品绑定和颜色吻合；专项测试明确逐项断言。",
+          "evidenceIds": [
+            "en",
+            "native",
+            "official",
+            "cn",
+            "impl",
+            "test0",
+            "official-damage"
+          ],
+          "tests": [
+            "tests/unit/gowRedTargetTroopCompletion.test.ts"
+          ]
+        },
+        "target-count-range": {
+          "status": "verified",
+          "note": "英文 an enemy、原生 Target Enemy 与 Damage/FromTarget，原型 enemyChosen；双侧选中 id=12 受单次伤害，其余三敌生命不变。",
+          "evidenceIds": [
+            "en",
+            "native",
+            "official",
+            "cn",
+            "impl",
+            "test0",
+            "official-damage"
+          ],
+          "tests": [
+            "tests/unit/gowRedTargetTroopCompletion.test.ts"
+          ]
+        },
+        "base-formula-rounding": {
+          "status": "verified",
+          "note": "原生 Damage Amount=6、SpellPowerMultiplier=1；成品 base6/mult1；专项 Magic=10 实战基本16，红色目标三倍48，整数无取整分支；测试未断言护甲10，不把该边界冒充已有测试。",
+          "evidenceIds": [
+            "en",
+            "native",
+            "official",
+            "cn",
+            "impl",
+            "test0",
+            "official-damage"
+          ],
+          "tests": [
+            "tests/unit/gowRedTargetTroopCompletion.test.ts"
+          ]
+        },
+        "boost-source-ratio-cap": {
+          "status": "verified",
+          "note": "原生 StatusModifier=MultiplyForRedTarget、StatusAmount=3，仅当目标使用红色法力才乘3；最终 condMult(targetColor Red,times3)，实战蓝目标16/红目标48，无额外上限。",
+          "evidenceIds": [
+            "en",
+            "native",
+            "official",
+            "cn",
+            "impl",
+            "test0",
+            "official-damage"
+          ],
+          "tests": [
+            "tests/unit/gowRedTargetTroopCompletion.test.ts"
+          ]
+        },
+        "conditions-probabilities-branches": {
+          "status": "verified",
+          "note": "两句原文共基础伤害及红色目标条件；双侧 red=true/false 均实战：命中48/16。判定使用目标颜色而非施法者颜色（施法者蓝/黄）。",
+          "evidenceIds": [
+            "en",
+            "native",
+            "official",
+            "cn",
+            "impl",
+            "test0",
+            "official-damage"
+          ],
+          "tests": [
+            "tests/unit/gowRedTargetTroopCompletion.test.ts"
+          ]
+        },
+        "status-duration-immunity": {
+          "status": "not-applicable",
+          "note": "该技能不施加持续状态，只有原生 Damage 步骤；屏障属于共享伤害阻挡，专项反例已核。",
+          "evidenceIds": [
+            "en",
+            "native",
+            "official",
+            "cn",
+            "impl",
+            "test0",
+            "official-damage"
+          ]
+        },
+        "gems-types-selection-resolution": {
+          "status": "not-applicable",
+          "note": "英文/唯一原生 Damage 步与原型均无改棋盘操作。",
+          "evidenceIds": [
+            "en",
+            "native",
+            "official",
+            "cn",
+            "impl",
+            "test0",
+            "official-damage"
+          ]
+        },
+        "summon-transform-pools": {
+          "status": "not-applicable",
+          "note": "英文/原生/原型均不召唤或变形。",
+          "evidenceIds": [
+            "en",
+            "native",
+            "official",
+            "cn",
+            "impl",
+            "test0",
+            "official-damage"
+          ]
+        },
+        "order-death-retargeting": {
+          "status": "verified",
+          "note": "仅选定同一敌人进行一次条件伤害，未描述击杀后补目标/死亡奖励；实战其余三名敌人不受影响。",
+          "evidenceIds": [
+            "en",
+            "native",
+            "official",
+            "cn",
+            "impl",
+            "test0",
+            "official-damage"
+          ],
+          "tests": [
+            "tests/unit/gowRedTargetTroopCompletion.test.ts"
+          ]
+        },
+        "mana-economy-extra-turn": {
+          "status": "verified",
+          "note": "费用12；双阵营成功施法后蓝0、切换回合并仅一条行动；低蓝11与沉默零事件零行动；没有额外回合。",
+          "evidenceIds": [
+            "en",
+            "native",
+            "official",
+            "cn",
+            "impl",
+            "test0",
+            "official-damage"
+          ],
+          "tests": [
+            "tests/unit/gowRedTargetTroopCompletion.test.ts"
+          ]
+        },
+        "display-description": {
+          "status": "verified",
+          "note": "英文“Deal [Magic + 6] damage to an enemy. Deal triple damage if they use Red Mana.”；成品中文“对 1 名敌人造成 [魔法 + 6] 点伤害。如果对方使用红色法力值，则造成三倍伤害。”；目标用红色法力→三倍条件、Magic+6 一致。",
+          "evidenceIds": [
+            "en",
+            "native",
+            "official",
+            "cn",
+            "impl",
+            "test0",
+            "official-damage"
+          ],
+          "tests": [
+            "tests/unit/gowRedTargetTroopCompletion.test.ts"
+          ]
+        },
+        "battle-pipeline": {
+          "status": "verified",
+          "note": "专项真实 TurnEngine.castSkill：双阵营×目标红/非红，命中48/16及其余敌人不变；红目标 Barrier 无伤害、低蓝11与沉默拦截施法。",
+          "evidenceIds": [
+            "en",
+            "native",
+            "official",
+            "cn",
+            "impl",
+            "test0",
+            "official-damage"
+          ],
+          "tests": [
+            "tests/unit/gowRedTargetTroopCompletion.test.ts"
+          ],
+          "realBattleEntry": true
+        }
+      },
+      "clauseReviews": [
+        {
+          "id": "c1",
+          "status": "verified",
+          "note": "英文句1 Deal [Magic + 6] damage to an enemy：原生单步 Damage/FromTarget，双侧命中id=12的非红分支伤害16，其他目标不变。",
+          "evidenceIds": [
+            "en",
+            "native",
+            "official",
+            "cn",
+            "impl",
+            "test0",
+            "official-damage"
+          ],
+          "tests": [
+            "tests/unit/gowRedTargetTroopCompletion.test.ts"
+          ]
+        },
+        {
+          "id": "c2",
+          "status": "verified",
+          "note": "英文句2 Deal triple damage if they use Red Mana：原生 MultiplyForRedTarget/3，双侧同一目标红色时48、非红色时16，不依施法者颜色。",
+          "evidenceIds": [
+            "en",
+            "native",
+            "official",
+            "cn",
+            "impl",
+            "test0",
+            "official-damage"
+          ],
+          "tests": [
+            "tests/unit/gowRedTargetTroopCompletion.test.ts"
+          ]
+        }
+      ],
+      "nativeStepReviews": [
+        {
+          "id": "0",
+          "status": "verified",
+          "note": "原生第0步 Damage/FromTarget/Amount6/SpellPowerMultiplier1/MultiplyForRedTarget/StatusAmount3 对应最终 enemyChosen/(Magic+6)×3；红与非红分支48/16，屏障及低蓝/沉默反例。",
+          "evidenceIds": [
+            "en",
+            "native",
+            "official",
+            "cn",
+            "impl",
+            "test0",
+            "official-damage"
+          ],
+          "tests": [
+            "tests/unit/gowRedTargetTroopCompletion.test.ts"
+          ]
+        }
+      ],
+      "branchReviews": [
+        {
+          "id": "main",
+          "status": "verified",
+          "note": "原生 main 一步 Damage 内含目标是否使用红色法力双分支；双侧实战 red=true/false 分别48/16，屏障及不能施法反例。",
+          "evidenceIds": [
+            "en",
+            "native",
+            "official",
+            "cn",
+            "impl",
+            "test0",
+            "official-damage"
+          ],
+          "tests": [
+            "tests/unit/gowRedTargetTroopCompletion.test.ts"
+          ]
+        }
+      ],
+      "pendingReasons": [],
+      "scopedEvidence": [
+        {
+          "testPath": "tests/unit/gowRedTargetTroopCompletion.test.ts",
+          "scope": "独立英文/SpellSteps/原型断言；双侧目标颜色真/假分支、屏障/低蓝/沉默真实施法。"
+        }
+      ],
+      "independentFindings": {
+        "entityId": 6255,
+        "spellId": 7398,
+        "english": "Deal [Magic + 6] damage to an enemy. Deal triple damage if they use Red Mana.",
+        "englishCost": 12,
+        "englishManaColorKeys": [
+          "ColorBlue",
+          "ColorYellow"
+        ],
+        "nativeCost": 12,
+        "nativeTarget": "Enemy",
+        "nativeSteps": [
+          {
+            "SpellPowerMultiplier": 1,
+            "Target": "FromTarget",
+            "StatusAmount": 3,
+            "Amount": 6,
+            "Primarypower": true,
+            "StatusModifier": "MultiplyForRedTarget",
+            "Type": "Damage"
+          }
+        ],
+        "prototype": {
+          "segments": [
+            {
+              "kind": "damage",
+              "target": "enemyChosen",
+              "scaling": {
+                "base": 6,
+                "mult": 1
+              },
+              "condMult": {
+                "times": 3,
+                "cond": {
+                  "kind": "targetColor",
+                  "color": "Red"
+                }
+              }
+            }
+          ]
+        },
+        "chinese": "对 1 名敌人造成 [魔法 + 6] 点伤害。如果对方使用红色法力值，则造成三倍伤害。",
+        "runtimeCost": 12,
+        "runtimeColors": [
+          "Blue",
+          "Yellow"
+        ],
+        "bindingChecks": {
+          "binding": true,
+          "spellId": true,
+          "manaCost": true,
+          "manaColors": true,
+          "numericAndEquippedAlias": null
+        },
+        "existingSharedDraftDecision": null,
+        "staticInterpretation": "???? Magic+6 ???????????????3????????",
+        "nativeRawField": "data",
+        "nativeWrapperId": 7398,
+        "englishColorsIndependentlyMatched": true,
+        "nativeRawIndependentlyMatched": true
+      },
+      "coordinatorTestsToAdd": []
+    },
+    {
+      "key": "troop:6619",
+      "scope": "stored-gow-snapshot",
+      "sourceDigest": "4221a75a46353e24dc4c7f3e9ad4005739840c2627e5ae268c08ce7a503a6deb",
+      "reviewer": "worker-fast-04（原始英文、原生步骤、中文展示与实体真施法独立复核）",
+      "reviewedAt": "2026-09-27",
+      "decision": "accept",
+      "sourceEvidence": [
+        {
+          "id": "en",
+          "role": "english-snapshot",
+          "path": "data/raw/troops.gow.en.json",
+          "note": "实体6619原始英文全文“Gain 20 Gold.”、SpellId=7946及本实体费用/颜色。",
+          "sha256": "be77c2dd9838435f5461b763e9f1e1436e53ae9be36fc35eaadea71060e6b757"
+        },
+        {
+          "id": "native",
+          "role": "native-snapshot",
+          "path": "data/raw/spells.gow.en.json",
+          "note": "原生技能7946有序SpellSteps：[{\"Target\":\"Self\",\"Amount\":20,\"Type\":\"GiveGold\"}]。",
+          "sha256": "ddc7e03e23a6ea880e34fc8f1b7f0572b15f42041e979c443642d735f89dd63b"
+        },
+        {
+          "id": "official",
+          "role": "official-shared-rule",
+          "path": "artifacts/gow-skill-audit/gold-primary-sources/official-status-effects.html",
+          "note": "官方共享状态规则静态材料；技能自身精确数值仍以英文和原生步骤为准。",
+          "sha256": "4dca585515e9c7ca9287f75b9555079a2b50c747e6c35293ae6b57981360755c"
+        },
+        {
+          "id": "official-damage",
+          "role": "official-shared-rule",
+          "path": "artifacts/gow-skill-audit/gold-primary-sources/official-brian-guide.html",
+          "note": "官方共享伤害/护甲材料；具体技能效果另据原始英文和原生步骤。",
+          "sha256": "cb2924f8f48fb400e5918ad2c75d7f3a40ae12e4d839c0c84e5168ab452e89a7"
+        },
+        {
+          "id": "cn",
+          "role": "localized-display",
+          "path": "src/data/troops.json",
+          "note": "实体6619中文展示“给予 20 黄金。”及费用/颜色。",
+          "sha256": "98c20b7260205040fe4e6387b3011b18b9fe6b4bb110282578a9c7b1adb366b6"
+        },
+        {
+          "id": "impl",
+          "role": "runtime-implementation",
+          "path": "src/engine/skills/curated/batch-r18.ts",
+          "note": "最终注册原型：[{\"kind\":\"gainEconomy\",\"currency\":\"gold\",\"scaling\":{\"base\":20,\"mult\":0}}]；原生 GiveGold(Self,20)；自身队伍金币固定+20，与Magic无关，对手金币不变。",
+          "sha256": "2fcbd7aae535e4b8403dbe45fd8d9032cd3a472544084fb223b64f84668271dd"
+        },
+        {
+          "id": "test0",
+          "role": "entity-test-source",
+          "path": "tests/unit/gowWorker04Core.test.ts",
+          "note": "实体6619真实 TurnEngine.castSkill 专项：双侧 Magic0/11 自身金币3→23、对方11不变；低蓝6/沉默拒施法，法力/回合断言。",
+          "sha256": "8bc460d0bc2b6642e4c2e19cd7d70e58e86374c7596a4cbd8cef9748807f1793"
+        }
+      ],
+      "dimensions": {
+        "identity-cost-colors": {
+          "status": "verified",
+          "note": "实体6619/原文技能7946；原始英文与原生费用7、成品费用7，颜色Red，实体参数测试逐项断言。",
+          "evidenceIds": [
+            "en",
+            "native",
+            "official",
+            "official-damage",
+            "cn",
+            "impl",
+            "test0"
+          ],
+          "tests": [
+            "tests/unit/gowWorker04Core.test.ts"
+          ]
+        },
+        "target-count-range": {
+          "status": "verified",
+          "note": "英文“Gain 20 Gold.”；原生目标Self，最终原型gainEconomy；原生 GiveGold(Self,20)；自身队伍金币固定+20，与Magic无关，对手金币不变。",
+          "evidenceIds": [
+            "en",
+            "native",
+            "official",
+            "official-damage",
+            "cn",
+            "impl",
+            "test0"
+          ],
+          "tests": [
+            "tests/unit/gowWorker04Core.test.ts"
+          ]
+        },
+        "base-formula-rounding": {
+          "status": "verified",
+          "note": "原生 GiveGold(Self,20)；自身队伍金币固定+20，与Magic无关，对手金币不变。 双侧 Magic0/11 自身金币3→23、对方11不变；低蓝6/沉默拒施法，法力/回合断言。",
+          "evidenceIds": [
+            "en",
+            "native",
+            "official",
+            "official-damage",
+            "cn",
+            "impl",
+            "test0"
+          ],
+          "tests": [
+            "tests/unit/gowWorker04Core.test.ts"
+          ]
+        },
+        "boost-source-ratio-cap": {
+          "status": "not-applicable",
+          "note": "原生 GiveGold(Self,20)；自身队伍金币固定+20，与Magic无关，对手金币不变。 没有未证实的额外系数、比例或上限。",
+          "evidenceIds": [
+            "en",
+            "native",
+            "official",
+            "official-damage",
+            "cn",
+            "impl",
+            "test0"
+          ],
+          "tests": []
+        },
+        "conditions-probabilities-branches": {
+          "status": "verified",
+          "note": "原生 GiveGold(Self,20)；自身队伍金币固定+20，与Magic无关，对手金币不变。 双侧 Magic0/11 自身金币3→23、对方11不变；低蓝6/沉默拒施法，法力/回合断言。",
+          "evidenceIds": [
+            "en",
+            "native",
+            "official",
+            "official-damage",
+            "cn",
+            "impl",
+            "test0"
+          ],
+          "tests": [
+            "tests/unit/gowWorker04Core.test.ts"
+          ]
+        },
+        "status-duration-immunity": {
+          "status": "not-applicable",
+          "note": "该技能不直接施加单位状态；沉默施法者不能施法。原文/原生无其他状态持续或免疫分支。",
+          "evidenceIds": [
+            "en",
+            "native",
+            "official",
+            "official-damage",
+            "cn",
+            "impl",
+            "test0"
+          ],
+          "tests": []
+        },
+        "gems-types-selection-resolution": {
+          "status": "not-applicable",
+          "note": "原文/原生均无宝石操作，最终原型也不改棋盘。",
+          "evidenceIds": [
+            "en",
+            "native",
+            "official",
+            "official-damage",
+            "cn",
+            "impl",
+            "test0"
+          ],
+          "tests": []
+        },
+        "summon-transform-pools": {
+          "status": "not-applicable",
+          "note": "原文、原生、成品均无兵种召唤、变身或候选池；若有宝石转换，那是棋盘特效而非兵种变形。",
+          "evidenceIds": [
+            "en",
+            "native",
+            "official",
+            "official-damage",
+            "cn",
+            "impl",
+            "test0"
+          ],
+          "tests": []
+        },
+        "order-death-retargeting": {
+          "status": "verified",
+          "note": "原生 GiveGold(Self,20)；自身队伍金币固定+20，与Magic无关，对手金币不变。 原生执行顺序GiveGold，真实施法逐目标核对。",
+          "evidenceIds": [
+            "en",
+            "native",
+            "official",
+            "official-damage",
+            "cn",
+            "impl",
+            "test0"
+          ],
+          "tests": [
+            "tests/unit/gowWorker04Core.test.ts"
+          ]
+        },
+        "mana-economy-extra-turn": {
+          "status": "verified",
+          "note": "费用7，成功后法力归零；低蓝/沉默无行动；双侧 Magic0/11 自身金币3→23、对方11不变；低蓝6/沉默拒施法，法力/回合断言。",
+          "evidenceIds": [
+            "en",
+            "native",
+            "official",
+            "official-damage",
+            "cn",
+            "impl",
+            "test0"
+          ],
+          "tests": [
+            "tests/unit/gowWorker04Core.test.ts"
+          ]
+        },
+        "display-description": {
+          "status": "verified",
+          "note": "英文“Gain 20 Gold.”，中文“给予 20 黄金。”；数值/目标/条件与原生一致。",
+          "evidenceIds": [
+            "en",
+            "native",
+            "official",
+            "official-damage",
+            "cn",
+            "impl",
+            "test0"
+          ],
+          "tests": [
+            "tests/unit/gowWorker04Core.test.ts"
+          ]
+        },
+        "battle-pipeline": {
+          "status": "verified",
+          "note": "真实 TurnEngine.castSkill，双侧 Magic0/11 自身金币3→23、对方11不变；低蓝6/沉默拒施法，法力/回合断言。 专项文件 tests/unit/gowWorker04Core.test.ts；三份 worker04 测试定向合计84/84、tsc --noEmit 通过；正式入账需协调端合账与全量凭证。",
+          "evidenceIds": [
+            "en",
+            "native",
+            "official",
+            "official-damage",
+            "cn",
+            "impl",
+            "test0"
+          ],
+          "tests": [
+            "tests/unit/gowWorker04Core.test.ts"
+          ],
+          "realBattleEntry": true
+        }
+      },
+      "clauseReviews": [
+        {
+          "id": "c1",
+          "status": "verified",
+          "note": "英文独立子句“Gain 20 Gold.”；原生 GiveGold(Self,20)；自身队伍金币固定+20，与Magic无关，对手金币不变。 双侧 Magic0/11 自身金币3→23、对方11不变；低蓝6/沉默拒施法，法力/回合断言。",
+          "evidenceIds": [
+            "en",
+            "native",
+            "official",
+            "official-damage",
+            "cn",
+            "impl",
+            "test0"
+          ],
+          "tests": [
+            "tests/unit/gowWorker04Core.test.ts"
+          ]
+        }
+      ],
+      "nativeStepReviews": [
+        {
+          "id": "0",
+          "status": "verified",
+          "note": "原生有序步骤[0]：{\"Target\":\"Self\",\"Amount\":20,\"Type\":\"GiveGold\"}；原生 GiveGold(Self,20)；自身队伍金币固定+20，与Magic无关，对手金币不变。 双侧 Magic0/11 自身金币3→23、对方11不变；低蓝6/沉默拒施法，法力/回合断言。",
+          "evidenceIds": [
+            "en",
+            "native",
+            "official",
+            "official-damage",
+            "cn",
+            "impl",
+            "test0"
+          ],
+          "tests": [
+            "tests/unit/gowWorker04Core.test.ts"
+          ]
+        }
+      ],
+      "branchReviews": [
+        {
+          "id": "main",
+          "status": "verified",
+          "note": "原生分支main，原生 GiveGold(Self,20)；自身队伍金币固定+20，与Magic无关，对手金币不变。 双侧 Magic0/11 自身金币3→23、对方11不变；低蓝6/沉默拒施法，法力/回合断言。",
+          "evidenceIds": [
+            "en",
+            "native",
+            "official",
+            "official-damage",
+            "cn",
+            "impl",
+            "test0"
+          ],
+          "tests": [
+            "tests/unit/gowWorker04Core.test.ts"
+          ]
+        }
+      ]
+    },
+    {
+      "key": "troop:7163",
+      "scope": "stored-gow-snapshot",
+      "sourceDigest": "d047d5d356cbc9cff3757a899bbc767a861c9a74ea8529989c5db18724000d86",
+      "reviewer": "worker-fast-04（原始英文、原生步骤、中文展示与实体真施法独立复核）",
+      "reviewedAt": "2026-09-27",
+      "decision": "accept",
+      "sourceEvidence": [
+        {
+          "id": "en",
+          "role": "english-snapshot",
+          "path": "data/raw/troops.gow.en.json",
+          "note": "实体7163原始英文全文“Convert all Green Gems to Skulls.”、SpellId=8738及本实体费用/颜色。",
+          "sha256": "be77c2dd9838435f5461b763e9f1e1436e53ae9be36fc35eaadea71060e6b757"
+        },
+        {
+          "id": "native",
+          "role": "native-snapshot",
+          "path": "data/raw/spells.gow.en.json",
+          "note": "原生技能8738有序SpellSteps：[{\"Color1\":\"Green\",\"Amount\":100,\"Color2\":\"Skull\",\"Type\":\"ConvertGems\"}]。",
+          "sha256": "ddc7e03e23a6ea880e34fc8f1b7f0572b15f42041e979c443642d735f89dd63b"
+        },
+        {
+          "id": "official",
+          "role": "official-shared-rule",
+          "path": "artifacts/gow-skill-audit/gold-primary-sources/official-status-effects.html",
+          "note": "官方共享状态规则静态材料；技能自身精确数值仍以英文和原生步骤为准。",
+          "sha256": "4dca585515e9c7ca9287f75b9555079a2b50c747e6c35293ae6b57981360755c"
+        },
+        {
+          "id": "cn",
+          "role": "localized-display",
+          "path": "src/data/troops.json",
+          "note": "实体7163中文展示“将绿色宝石转换成骷髅头。”及费用/颜色。",
+          "sha256": "98c20b7260205040fe4e6387b3011b18b9fe6b4bb110282578a9c7b1adb366b6"
+        },
+        {
+          "id": "impl",
+          "role": "runtime-implementation",
+          "path": "src/engine/skills/curated/batch-03.ts",
+          "note": "最终注册原型：[{\"kind\":\"gem\",\"params\":{\"op\":\"transform\",\"from\":\"Green\",\"to\":\"SKULL\"}}]；原生 Green→Skull,Amount100；全盘仅绿色转普通骷髅，零绿色时成功施法但零变动。",
+          "sha256": "862573cc1207705c701e9d4b397ca29f3ffdccfb1bb0ca0a5b3bc846ed81d8a1"
+        },
+        {
+          "id": "test0",
+          "role": "entity-test-source",
+          "path": "tests/unit/gowWorker04Board.test.ts",
+          "note": "实体7163真实 TurnEngine.castSkill 专项：双侧绿色0/9，逐位置核对且 to.kind=skull；低蓝9/沉默拒施法；四连额外回合仅来自棋盘。",
+          "sha256": "571539419b519613e93b2534678c54e8b2d35e3c4f0912b911d01dca28764a7c"
+        }
+      ],
+      "dimensions": {
+        "identity-cost-colors": {
+          "status": "verified",
+          "note": "实体7163/原文技能8738；原始英文与原生费用10、成品费用10，颜色Brown，实体参数测试逐项断言。",
+          "evidenceIds": [
+            "en",
+            "native",
+            "official",
+            "cn",
+            "impl",
+            "test0"
+          ],
+          "tests": [
+            "tests/unit/gowWorker04Board.test.ts"
+          ]
+        },
+        "target-count-range": {
+          "status": "verified",
+          "note": "英文“Convert all Green Gems to Skulls.”；原生目标None，最终原型gem；原生 Green→Skull,Amount100；全盘仅绿色转普通骷髅，零绿色时成功施法但零变动。",
+          "evidenceIds": [
+            "en",
+            "native",
+            "official",
+            "cn",
+            "impl",
+            "test0"
+          ],
+          "tests": [
+            "tests/unit/gowWorker04Board.test.ts"
+          ]
+        },
+        "base-formula-rounding": {
+          "status": "verified",
+          "note": "原生 Green→Skull,Amount100；全盘仅绿色转普通骷髅，零绿色时成功施法但零变动。 双侧绿色0/9，逐位置核对且 to.kind=skull；低蓝9/沉默拒施法；四连额外回合仅来自棋盘。",
+          "evidenceIds": [
+            "en",
+            "native",
+            "official",
+            "cn",
+            "impl",
+            "test0"
+          ],
+          "tests": [
+            "tests/unit/gowWorker04Board.test.ts"
+          ]
+        },
+        "boost-source-ratio-cap": {
+          "status": "not-applicable",
+          "note": "原生 Green→Skull,Amount100；全盘仅绿色转普通骷髅，零绿色时成功施法但零变动。 没有未证实的额外系数、比例或上限。",
+          "evidenceIds": [
+            "en",
+            "native",
+            "official",
+            "cn",
+            "impl",
+            "test0"
+          ],
+          "tests": []
+        },
+        "conditions-probabilities-branches": {
+          "status": "verified",
+          "note": "原生 Green→Skull,Amount100；全盘仅绿色转普通骷髅，零绿色时成功施法但零变动。 双侧绿色0/9，逐位置核对且 to.kind=skull；低蓝9/沉默拒施法；四连额外回合仅来自棋盘。",
+          "evidenceIds": [
+            "en",
+            "native",
+            "official",
+            "cn",
+            "impl",
+            "test0"
+          ],
+          "tests": [
+            "tests/unit/gowWorker04Board.test.ts"
+          ]
+        },
+        "status-duration-immunity": {
+          "status": "not-applicable",
+          "note": "该技能不直接施加单位状态；沉默施法者不能施法。原文/原生无其他状态持续或免疫分支。",
+          "evidenceIds": [
+            "en",
+            "native",
+            "official",
+            "cn",
+            "impl",
+            "test0"
+          ],
+          "tests": []
+        },
+        "gems-types-selection-resolution": {
+          "status": "verified",
+          "note": "原生 Green→Skull,Amount100；全盘仅绿色转普通骷髅，零绿色时成功施法但零变动。 双侧绿色0/9，逐位置核对且 to.kind=skull；低蓝9/沉默拒施法；四连额外回合仅来自棋盘。",
+          "evidenceIds": [
+            "en",
+            "native",
+            "official",
+            "cn",
+            "impl",
+            "test0"
+          ],
+          "tests": [
+            "tests/unit/gowWorker04Board.test.ts"
+          ]
+        },
+        "summon-transform-pools": {
+          "status": "not-applicable",
+          "note": "原文、原生、成品均无兵种召唤、变身或候选池；若有宝石转换，那是棋盘特效而非兵种变形。",
+          "evidenceIds": [
+            "en",
+            "native",
+            "official",
+            "cn",
+            "impl",
+            "test0"
+          ],
+          "tests": []
+        },
+        "order-death-retargeting": {
+          "status": "verified",
+          "note": "原生 Green→Skull,Amount100；全盘仅绿色转普通骷髅，零绿色时成功施法但零变动。 原生执行顺序ConvertGems，真实施法逐目标核对。",
+          "evidenceIds": [
+            "en",
+            "native",
+            "official",
+            "cn",
+            "impl",
+            "test0"
+          ],
+          "tests": [
+            "tests/unit/gowWorker04Board.test.ts"
+          ]
+        },
+        "mana-economy-extra-turn": {
+          "status": "verified",
+          "note": "费用10，成功后法力归零；低蓝/沉默无行动；双侧绿色0/9，逐位置核对且 to.kind=skull；低蓝9/沉默拒施法；四连额外回合仅来自棋盘。",
+          "evidenceIds": [
+            "en",
+            "native",
+            "official",
+            "cn",
+            "impl",
+            "test0"
+          ],
+          "tests": [
+            "tests/unit/gowWorker04Board.test.ts"
+          ]
+        },
+        "display-description": {
+          "status": "verified",
+          "note": "英文“Convert all Green Gems to Skulls.”，中文“将绿色宝石转换成骷髅头。”；数值/目标/条件与原生一致。",
+          "evidenceIds": [
+            "en",
+            "native",
+            "official",
+            "cn",
+            "impl",
+            "test0"
+          ],
+          "tests": [
+            "tests/unit/gowWorker04Board.test.ts"
+          ]
+        },
+        "battle-pipeline": {
+          "status": "verified",
+          "note": "真实 TurnEngine.castSkill，双侧绿色0/9，逐位置核对且 to.kind=skull；低蓝9/沉默拒施法；四连额外回合仅来自棋盘。 专项文件 tests/unit/gowWorker04Board.test.ts；三份 worker04 测试定向合计84/84、tsc --noEmit 通过；正式入账需协调端合账与全量凭证。",
+          "evidenceIds": [
+            "en",
+            "native",
+            "official",
+            "cn",
+            "impl",
+            "test0"
+          ],
+          "tests": [
+            "tests/unit/gowWorker04Board.test.ts"
+          ],
+          "realBattleEntry": true
+        }
+      },
+      "clauseReviews": [
+        {
+          "id": "c1",
+          "status": "verified",
+          "note": "英文独立子句“Convert all Green Gems to Skulls.”；原生 Green→Skull,Amount100；全盘仅绿色转普通骷髅，零绿色时成功施法但零变动。 双侧绿色0/9，逐位置核对且 to.kind=skull；低蓝9/沉默拒施法；四连额外回合仅来自棋盘。",
+          "evidenceIds": [
+            "en",
+            "native",
+            "official",
+            "cn",
+            "impl",
+            "test0"
+          ],
+          "tests": [
+            "tests/unit/gowWorker04Board.test.ts"
+          ]
+        }
+      ],
+      "nativeStepReviews": [
+        {
+          "id": "0",
+          "status": "verified",
+          "note": "原生有序步骤[0]：{\"Color1\":\"Green\",\"Amount\":100,\"Color2\":\"Skull\",\"Type\":\"ConvertGems\"}；原生 Green→Skull,Amount100；全盘仅绿色转普通骷髅，零绿色时成功施法但零变动。 双侧绿色0/9，逐位置核对且 to.kind=skull；低蓝9/沉默拒施法；四连额外回合仅来自棋盘。",
+          "evidenceIds": [
+            "en",
+            "native",
+            "official",
+            "cn",
+            "impl",
+            "test0"
+          ],
+          "tests": [
+            "tests/unit/gowWorker04Board.test.ts"
+          ]
+        }
+      ],
+      "branchReviews": [
+        {
+          "id": "main",
+          "status": "verified",
+          "note": "原生分支main，原生 Green→Skull,Amount100；全盘仅绿色转普通骷髅，零绿色时成功施法但零变动。 双侧绿色0/9，逐位置核对且 to.kind=skull；低蓝9/沉默拒施法；四连额外回合仅来自棋盘。",
+          "evidenceIds": [
+            "en",
+            "native",
+            "official",
+            "cn",
+            "impl",
+            "test0"
+          ],
+          "tests": [
+            "tests/unit/gowWorker04Board.test.ts"
+          ]
+        }
+      ]
+    },
+    {
+      "key": "troop:6611",
+      "scope": "stored-gow-snapshot",
+      "sourceDigest": "00297e6b43bf425ace1bdc8268eb599c679ed8d1ae7c800c65d605fc64e0f2a3",
+      "reviewer": "worker-fast-04（原始英文、原生步骤、中文展示与实体真施法独立复核）",
+      "reviewedAt": "2026-09-27",
+      "decision": "accept",
+      "sourceEvidence": [
+        {
+          "id": "en",
+          "role": "english-snapshot",
+          "path": "data/raw/troops.gow.en.json",
+          "note": "实体6611原始英文全文“Deal [Magic + 1] true damage to an enemy. Deal double damage if the enemy has a status effect.”、SpellId=7935及本实体费用/颜色。",
+          "sha256": "be77c2dd9838435f5461b763e9f1e1436e53ae9be36fc35eaadea71060e6b757"
+        },
+        {
+          "id": "native",
+          "role": "native-snapshot",
+          "path": "data/raw/spells.gow.en.json",
+          "note": "原生技能7935有序SpellSteps：[{\"SpellPowerMultiplier\":1,\"Target\":\"FromTarget\",\"StatusAmount\":2,\"Amount\":1,\"Primarypower\":true,\"StatusModifier\":\"MultiplyForAnyStatusEffect\",\"Type\":\"TrueDamage\"}]。",
+          "sha256": "ddc7e03e23a6ea880e34fc8f1b7f0572b15f42041e979c443642d735f89dd63b"
+        },
+        {
+          "id": "official",
+          "role": "official-shared-rule",
+          "path": "artifacts/gow-skill-audit/gold-primary-sources/official-status-effects.html",
+          "note": "官方共享状态规则静态材料；技能自身精确数值仍以英文和原生步骤为准。",
+          "sha256": "4dca585515e9c7ca9287f75b9555079a2b50c747e6c35293ae6b57981360755c"
+        },
+        {
+          "id": "official-damage",
+          "role": "official-shared-rule",
+          "path": "artifacts/gow-skill-audit/gold-primary-sources/official-brian-guide.html",
+          "note": "官方共享伤害/护甲材料；具体技能效果另据原始英文和原生步骤。",
+          "sha256": "cb2924f8f48fb400e5918ad2c75d7f3a40ae12e4d839c0c84e5168ab452e89a7"
+        },
+        {
+          "id": "cn",
+          "role": "localized-display",
+          "path": "src/data/troops.json",
+          "note": "实体6611中文展示“对一名敌人造成 [魔法 + 1] 点真实伤害。若敌人身负状态效果，则造成双倍伤害。”及费用/颜色。",
+          "sha256": "98c20b7260205040fe4e6387b3011b18b9fe6b4bb110282578a9c7b1adb366b6"
+        },
+        {
+          "id": "impl",
+          "role": "runtime-implementation",
+          "path": "src/engine/skills/curated/batch-r22.ts",
+          "note": "最终注册原型：[{\"kind\":\"damage\",\"target\":\"enemyChosen\",\"scaling\":{\"base\":1,\"mult\":1},\"trueDamage\":true,\"condMult\":{\"times\":2,\"cond\":{\"kind\":\"targetHasAnyStatus\"}}}]；单体真伤 Magic+1 绕过护甲；目标已有任意状态时乘2；条件依目标而非施法者。",
+          "sha256": "5441719add89ccb3e416d99e2f423a29e68e97f870fa9ca2ec8576525521e8e0"
+        },
+        {
+          "id": "test0",
+          "role": "entity-test-source",
+          "path": "tests/unit/gowWorker04Core.test.ts",
+          "note": "实体6611真实 TurnEngine.castSkill 专项：双侧 Magic0/1/10/11×护甲0/25×目标有无沉默，生命损1/2/11/12或双倍、护甲保持；低蓝11/施法者沉默反例。",
+          "sha256": "8bc460d0bc2b6642e4c2e19cd7d70e58e86374c7596a4cbd8cef9748807f1793"
+        }
+      ],
+      "dimensions": {
+        "identity-cost-colors": {
+          "status": "verified",
+          "note": "实体6611/原文技能7935；原始英文与原生费用12、成品费用12，颜色Red/Purple，实体参数测试逐项断言。",
+          "evidenceIds": [
+            "en",
+            "native",
+            "official",
+            "official-damage",
+            "cn",
+            "impl",
+            "test0"
+          ],
+          "tests": [
+            "tests/unit/gowWorker04Core.test.ts"
+          ]
+        },
+        "target-count-range": {
+          "status": "verified",
+          "note": "英文“Deal [Magic + 1] true damage to an enemy. Deal double damage if the enemy has a status effect.”；原生目标FromTarget，最终原型enemyChosen；单体真伤 Magic+1 绕过护甲；目标已有任意状态时乘2；条件依目标而非施法者。",
+          "evidenceIds": [
+            "en",
+            "native",
+            "official",
+            "official-damage",
+            "cn",
+            "impl",
+            "test0"
+          ],
+          "tests": [
+            "tests/unit/gowWorker04Core.test.ts"
+          ]
+        },
+        "base-formula-rounding": {
+          "status": "verified",
+          "note": "单体真伤 Magic+1 绕过护甲；目标已有任意状态时乘2；条件依目标而非施法者。 双侧 Magic0/1/10/11×护甲0/25×目标有无沉默，生命损1/2/11/12或双倍、护甲保持；低蓝11/施法者沉默反例。",
+          "evidenceIds": [
+            "en",
+            "native",
+            "official",
+            "official-damage",
+            "cn",
+            "impl",
+            "test0"
+          ],
+          "tests": [
+            "tests/unit/gowWorker04Core.test.ts"
+          ]
+        },
+        "boost-source-ratio-cap": {
+          "status": "verified",
+          "note": "单体真伤 Magic+1 绕过护甲；目标已有任意状态时乘2；条件依目标而非施法者。 没有未证实的额外系数、比例或上限。",
+          "evidenceIds": [
+            "en",
+            "native",
+            "official",
+            "official-damage",
+            "cn",
+            "impl",
+            "test0"
+          ],
+          "tests": [
+            "tests/unit/gowWorker04Core.test.ts"
+          ]
+        },
+        "conditions-probabilities-branches": {
+          "status": "verified",
+          "note": "单体真伤 Magic+1 绕过护甲；目标已有任意状态时乘2；条件依目标而非施法者。 双侧 Magic0/1/10/11×护甲0/25×目标有无沉默，生命损1/2/11/12或双倍、护甲保持；低蓝11/施法者沉默反例。",
+          "evidenceIds": [
+            "en",
+            "native",
+            "official",
+            "official-damage",
+            "cn",
+            "impl",
+            "test0"
+          ],
+          "tests": [
+            "tests/unit/gowWorker04Core.test.ts"
+          ]
+        },
+        "status-duration-immunity": {
+          "status": "verified",
+          "note": "目标已有任意状态是伤害倍率条件；沉默施法者不能施法。原文/原生无其他状态持续或免疫分支。",
+          "evidenceIds": [
+            "en",
+            "native",
+            "official",
+            "official-damage",
+            "cn",
+            "impl",
+            "test0"
+          ],
+          "tests": [
+            "tests/unit/gowWorker04Core.test.ts"
+          ]
+        },
+        "gems-types-selection-resolution": {
+          "status": "not-applicable",
+          "note": "原文/原生均无宝石操作，最终原型也不改棋盘。",
+          "evidenceIds": [
+            "en",
+            "native",
+            "official",
+            "official-damage",
+            "cn",
+            "impl",
+            "test0"
+          ],
+          "tests": []
+        },
+        "summon-transform-pools": {
+          "status": "not-applicable",
+          "note": "原文、原生、成品均无兵种召唤、变身或候选池；若有宝石转换，那是棋盘特效而非兵种变形。",
+          "evidenceIds": [
+            "en",
+            "native",
+            "official",
+            "official-damage",
+            "cn",
+            "impl",
+            "test0"
+          ],
+          "tests": []
+        },
+        "order-death-retargeting": {
+          "status": "verified",
+          "note": "单体真伤 Magic+1 绕过护甲；目标已有任意状态时乘2；条件依目标而非施法者。 原生执行顺序TrueDamage，真实施法逐目标核对。",
+          "evidenceIds": [
+            "en",
+            "native",
+            "official",
+            "official-damage",
+            "cn",
+            "impl",
+            "test0"
+          ],
+          "tests": [
+            "tests/unit/gowWorker04Core.test.ts"
+          ]
+        },
+        "mana-economy-extra-turn": {
+          "status": "verified",
+          "note": "费用12，成功后法力归零；低蓝/沉默无行动；双侧 Magic0/1/10/11×护甲0/25×目标有无沉默，生命损1/2/11/12或双倍、护甲保持；低蓝11/施法者沉默反例。",
+          "evidenceIds": [
+            "en",
+            "native",
+            "official",
+            "official-damage",
+            "cn",
+            "impl",
+            "test0"
+          ],
+          "tests": [
+            "tests/unit/gowWorker04Core.test.ts"
+          ]
+        },
+        "display-description": {
+          "status": "verified",
+          "note": "英文“Deal [Magic + 1] true damage to an enemy. Deal double damage if the enemy has a status effect.”，中文“对一名敌人造成 [魔法 + 1] 点真实伤害。若敌人身负状态效果，则造成双倍伤害。”；数值/目标/条件与原生一致。",
+          "evidenceIds": [
+            "en",
+            "native",
+            "official",
+            "official-damage",
+            "cn",
+            "impl",
+            "test0"
+          ],
+          "tests": [
+            "tests/unit/gowWorker04Core.test.ts"
+          ]
+        },
+        "battle-pipeline": {
+          "status": "verified",
+          "note": "真实 TurnEngine.castSkill，双侧 Magic0/1/10/11×护甲0/25×目标有无沉默，生命损1/2/11/12或双倍、护甲保持；低蓝11/施法者沉默反例。 专项文件 tests/unit/gowWorker04Core.test.ts；三份 worker04 测试定向合计84/84、tsc --noEmit 通过；正式入账需协调端合账与全量凭证。",
+          "evidenceIds": [
+            "en",
+            "native",
+            "official",
+            "official-damage",
+            "cn",
+            "impl",
+            "test0"
+          ],
+          "tests": [
+            "tests/unit/gowWorker04Core.test.ts"
+          ],
+          "realBattleEntry": true
+        }
+      },
+      "clauseReviews": [
+        {
+          "id": "c1",
+          "status": "verified",
+          "note": "英文独立子句“Deal [Magic + 1] true damage to an enemy.”；单体真伤 Magic+1 绕过护甲；目标已有任意状态时乘2；条件依目标而非施法者。 双侧 Magic0/1/10/11×护甲0/25×目标有无沉默，生命损1/2/11/12或双倍、护甲保持；低蓝11/施法者沉默反例。",
+          "evidenceIds": [
+            "en",
+            "native",
+            "official",
+            "official-damage",
+            "cn",
+            "impl",
+            "test0"
+          ],
+          "tests": [
+            "tests/unit/gowWorker04Core.test.ts"
+          ]
+        },
+        {
+          "id": "c2",
+          "status": "verified",
+          "note": "英文独立子句“Deal double damage if the enemy has a status effect.”；单体真伤 Magic+1 绕过护甲；目标已有任意状态时乘2；条件依目标而非施法者。 双侧 Magic0/1/10/11×护甲0/25×目标有无沉默，生命损1/2/11/12或双倍、护甲保持；低蓝11/施法者沉默反例。",
+          "evidenceIds": [
+            "en",
+            "native",
+            "official",
+            "official-damage",
+            "cn",
+            "impl",
+            "test0"
+          ],
+          "tests": [
+            "tests/unit/gowWorker04Core.test.ts"
+          ]
+        }
+      ],
+      "nativeStepReviews": [
+        {
+          "id": "0",
+          "status": "verified",
+          "note": "原生有序步骤[0]：{\"SpellPowerMultiplier\":1,\"Target\":\"FromTarget\",\"StatusAmount\":2,\"Amount\":1,\"Primarypower\":true,\"StatusModifier\":\"MultiplyForAnyStatusEffect\",\"Type\":\"TrueDamage\"}；单体真伤 Magic+1 绕过护甲；目标已有任意状态时乘2；条件依目标而非施法者。 双侧 Magic0/1/10/11×护甲0/25×目标有无沉默，生命损1/2/11/12或双倍、护甲保持；低蓝11/施法者沉默反例。",
+          "evidenceIds": [
+            "en",
+            "native",
+            "official",
+            "official-damage",
+            "cn",
+            "impl",
+            "test0"
+          ],
+          "tests": [
+            "tests/unit/gowWorker04Core.test.ts"
+          ]
+        }
+      ],
+      "branchReviews": [
+        {
+          "id": "main",
+          "status": "verified",
+          "note": "原生分支main，单体真伤 Magic+1 绕过护甲；目标已有任意状态时乘2；条件依目标而非施法者。 双侧 Magic0/1/10/11×护甲0/25×目标有无沉默，生命损1/2/11/12或双倍、护甲保持；低蓝11/施法者沉默反例。",
+          "evidenceIds": [
+            "en",
+            "native",
+            "official",
+            "official-damage",
+            "cn",
+            "impl",
+            "test0"
+          ],
+          "tests": [
+            "tests/unit/gowWorker04Core.test.ts"
+          ]
+        }
+      ]
+    },
+    {
+      "key": "troop:6635",
+      "scope": "stored-gow-snapshot",
+      "sourceDigest": "7e2c68bf2f97def5c36280ccaad1db480932ffa035b4a872fe0ed4d2d8af10a4",
+      "reviewer": "worker-fast-04（原始英文、原生步骤、中文展示与实体真施法独立复核）",
+      "reviewedAt": "2026-09-27",
+      "decision": "accept",
+      "sourceEvidence": [
+        {
+          "id": "en",
+          "role": "english-snapshot",
+          "path": "data/raw/troops.gow.en.json",
+          "note": "实体6635原始英文全文“Deal [Magic + 2] damage to an Enemy. If the Enemy's Attack is greater, deal double damage.”、SpellId=7960及本实体费用/颜色。",
+          "sha256": "be77c2dd9838435f5461b763e9f1e1436e53ae9be36fc35eaadea71060e6b757"
+        },
+        {
+          "id": "native",
+          "role": "native-snapshot",
+          "path": "data/raw/spells.gow.en.json",
+          "note": "原生技能7960有序SpellSteps：[{\"SpellPowerMultiplier\":1,\"Target\":\"FromTarget\",\"StatusAmount\":2,\"Amount\":2,\"Primarypower\":true,\"StatusModifier\":\"MultiplyForMoreAttackOnTarget\",\"Type\":\"Damage\"}]。",
+          "sha256": "ddc7e03e23a6ea880e34fc8f1b7f0572b15f42041e979c443642d735f89dd63b"
+        },
+        {
+          "id": "official",
+          "role": "official-shared-rule",
+          "path": "artifacts/gow-skill-audit/gold-primary-sources/official-status-effects.html",
+          "note": "官方共享状态规则静态材料；技能自身精确数值仍以英文和原生步骤为准。",
+          "sha256": "4dca585515e9c7ca9287f75b9555079a2b50c747e6c35293ae6b57981360755c"
+        },
+        {
+          "id": "official-damage",
+          "role": "official-shared-rule",
+          "path": "artifacts/gow-skill-audit/gold-primary-sources/official-brian-guide.html",
+          "note": "官方共享伤害/护甲材料；具体技能效果另据原始英文和原生步骤。",
+          "sha256": "cb2924f8f48fb400e5918ad2c75d7f3a40ae12e4d839c0c84e5168ab452e89a7"
+        },
+        {
+          "id": "cn",
+          "role": "localized-display",
+          "path": "src/data/troops.json",
+          "note": "实体6635中文展示“对一名敌人造成 [魔法 + 2] 点伤害。若其攻击力比较大，则造成双倍伤害。”及费用/颜色。",
+          "sha256": "98c20b7260205040fe4e6387b3011b18b9fe6b4bb110282578a9c7b1adb366b6"
+        },
+        {
+          "id": "impl",
+          "role": "runtime-implementation",
+          "path": "src/engine/skills/curated/batch-r22.ts",
+          "note": "最终注册原型：[{\"kind\":\"damage\",\"target\":\"enemyChosen\",\"scaling\":{\"base\":2,\"mult\":1},\"condMult\":{\"times\":2,\"cond\":{\"kind\":\"targetStatBeatsCaster\",\"stat\":\"attack\"}}}]；单体基础伤 Magic+2，仅目标Attack>施法者Attack17时乘2；相等17不翻倍，护甲照常抵伤。",
+          "sha256": "5441719add89ccb3e416d99e2f423a29e68e97f870fa9ca2ec8576525521e8e0"
+        },
+        {
+          "id": "test0",
+          "role": "entity-test-source",
+          "path": "tests/unit/gowWorker04Core.test.ts",
+          "note": "实体6635真实 TurnEngine.castSkill 专项：双侧 Magic0/1/10/11×目标Attack16/17/18×护甲0/10，逐次精确护甲/生命；低蓝9/沉默拦截。",
+          "sha256": "8bc460d0bc2b6642e4c2e19cd7d70e58e86374c7596a4cbd8cef9748807f1793"
+        }
+      ],
+      "dimensions": {
+        "identity-cost-colors": {
+          "status": "verified",
+          "note": "实体6635/原文技能7960；原始英文与原生费用10、成品费用10，颜色Red/Yellow，实体参数测试逐项断言。",
+          "evidenceIds": [
+            "en",
+            "native",
+            "official",
+            "official-damage",
+            "cn",
+            "impl",
+            "test0"
+          ],
+          "tests": [
+            "tests/unit/gowWorker04Core.test.ts"
+          ]
+        },
+        "target-count-range": {
+          "status": "verified",
+          "note": "英文“Deal [Magic + 2] damage to an Enemy. If the Enemy's Attack is greater, deal double damage.”；原生目标FromTarget，最终原型enemyChosen；单体基础伤 Magic+2，仅目标Attack>施法者Attack17时乘2；相等17不翻倍，护甲照常抵伤。",
+          "evidenceIds": [
+            "en",
+            "native",
+            "official",
+            "official-damage",
+            "cn",
+            "impl",
+            "test0"
+          ],
+          "tests": [
+            "tests/unit/gowWorker04Core.test.ts"
+          ]
+        },
+        "base-formula-rounding": {
+          "status": "verified",
+          "note": "单体基础伤 Magic+2，仅目标Attack>施法者Attack17时乘2；相等17不翻倍，护甲照常抵伤。 双侧 Magic0/1/10/11×目标Attack16/17/18×护甲0/10，逐次精确护甲/生命；低蓝9/沉默拦截。",
+          "evidenceIds": [
+            "en",
+            "native",
+            "official",
+            "official-damage",
+            "cn",
+            "impl",
+            "test0"
+          ],
+          "tests": [
+            "tests/unit/gowWorker04Core.test.ts"
+          ]
+        },
+        "boost-source-ratio-cap": {
+          "status": "verified",
+          "note": "单体基础伤 Magic+2，仅目标Attack>施法者Attack17时乘2；相等17不翻倍，护甲照常抵伤。 没有未证实的额外系数、比例或上限。",
+          "evidenceIds": [
+            "en",
+            "native",
+            "official",
+            "official-damage",
+            "cn",
+            "impl",
+            "test0"
+          ],
+          "tests": [
+            "tests/unit/gowWorker04Core.test.ts"
+          ]
+        },
+        "conditions-probabilities-branches": {
+          "status": "verified",
+          "note": "单体基础伤 Magic+2，仅目标Attack>施法者Attack17时乘2；相等17不翻倍，护甲照常抵伤。 双侧 Magic0/1/10/11×目标Attack16/17/18×护甲0/10，逐次精确护甲/生命；低蓝9/沉默拦截。",
+          "evidenceIds": [
+            "en",
+            "native",
+            "official",
+            "official-damage",
+            "cn",
+            "impl",
+            "test0"
+          ],
+          "tests": [
+            "tests/unit/gowWorker04Core.test.ts"
+          ]
+        },
+        "status-duration-immunity": {
+          "status": "not-applicable",
+          "note": "该技能不直接施加单位状态；沉默施法者不能施法。原文/原生无其他状态持续或免疫分支。",
+          "evidenceIds": [
+            "en",
+            "native",
+            "official",
+            "official-damage",
+            "cn",
+            "impl",
+            "test0"
+          ],
+          "tests": []
+        },
+        "gems-types-selection-resolution": {
+          "status": "not-applicable",
+          "note": "原文/原生均无宝石操作，最终原型也不改棋盘。",
+          "evidenceIds": [
+            "en",
+            "native",
+            "official",
+            "official-damage",
+            "cn",
+            "impl",
+            "test0"
+          ],
+          "tests": []
+        },
+        "summon-transform-pools": {
+          "status": "not-applicable",
+          "note": "原文、原生、成品均无兵种召唤、变身或候选池；若有宝石转换，那是棋盘特效而非兵种变形。",
+          "evidenceIds": [
+            "en",
+            "native",
+            "official",
+            "official-damage",
+            "cn",
+            "impl",
+            "test0"
+          ],
+          "tests": []
+        },
+        "order-death-retargeting": {
+          "status": "verified",
+          "note": "单体基础伤 Magic+2，仅目标Attack>施法者Attack17时乘2；相等17不翻倍，护甲照常抵伤。 原生执行顺序Damage，真实施法逐目标核对。",
+          "evidenceIds": [
+            "en",
+            "native",
+            "official",
+            "official-damage",
+            "cn",
+            "impl",
+            "test0"
+          ],
+          "tests": [
+            "tests/unit/gowWorker04Core.test.ts"
+          ]
+        },
+        "mana-economy-extra-turn": {
+          "status": "verified",
+          "note": "费用10，成功后法力归零；低蓝/沉默无行动；双侧 Magic0/1/10/11×目标Attack16/17/18×护甲0/10，逐次精确护甲/生命；低蓝9/沉默拦截。",
+          "evidenceIds": [
+            "en",
+            "native",
+            "official",
+            "official-damage",
+            "cn",
+            "impl",
+            "test0"
+          ],
+          "tests": [
+            "tests/unit/gowWorker04Core.test.ts"
+          ]
+        },
+        "display-description": {
+          "status": "verified",
+          "note": "英文“Deal [Magic + 2] damage to an Enemy. If the Enemy's Attack is greater, deal double damage.”，中文“对一名敌人造成 [魔法 + 2] 点伤害。若其攻击力比较大，则造成双倍伤害。”；数值/目标/条件与原生一致。",
+          "evidenceIds": [
+            "en",
+            "native",
+            "official",
+            "official-damage",
+            "cn",
+            "impl",
+            "test0"
+          ],
+          "tests": [
+            "tests/unit/gowWorker04Core.test.ts"
+          ]
+        },
+        "battle-pipeline": {
+          "status": "verified",
+          "note": "真实 TurnEngine.castSkill，双侧 Magic0/1/10/11×目标Attack16/17/18×护甲0/10，逐次精确护甲/生命；低蓝9/沉默拦截。 专项文件 tests/unit/gowWorker04Core.test.ts；三份 worker04 测试定向合计84/84、tsc --noEmit 通过；正式入账需协调端合账与全量凭证。",
+          "evidenceIds": [
+            "en",
+            "native",
+            "official",
+            "official-damage",
+            "cn",
+            "impl",
+            "test0"
+          ],
+          "tests": [
+            "tests/unit/gowWorker04Core.test.ts"
+          ],
+          "realBattleEntry": true
+        }
+      },
+      "clauseReviews": [
+        {
+          "id": "c1",
+          "status": "verified",
+          "note": "英文独立子句“Deal [Magic + 2] damage to an Enemy.”；单体基础伤 Magic+2，仅目标Attack>施法者Attack17时乘2；相等17不翻倍，护甲照常抵伤。 双侧 Magic0/1/10/11×目标Attack16/17/18×护甲0/10，逐次精确护甲/生命；低蓝9/沉默拦截。",
+          "evidenceIds": [
+            "en",
+            "native",
+            "official",
+            "official-damage",
+            "cn",
+            "impl",
+            "test0"
+          ],
+          "tests": [
+            "tests/unit/gowWorker04Core.test.ts"
+          ]
+        },
+        {
+          "id": "c2",
+          "status": "verified",
+          "note": "英文独立子句“If the Enemy's Attack is greater, deal double damage.”；单体基础伤 Magic+2，仅目标Attack>施法者Attack17时乘2；相等17不翻倍，护甲照常抵伤。 双侧 Magic0/1/10/11×目标Attack16/17/18×护甲0/10，逐次精确护甲/生命；低蓝9/沉默拦截。",
+          "evidenceIds": [
+            "en",
+            "native",
+            "official",
+            "official-damage",
+            "cn",
+            "impl",
+            "test0"
+          ],
+          "tests": [
+            "tests/unit/gowWorker04Core.test.ts"
+          ]
+        }
+      ],
+      "nativeStepReviews": [
+        {
+          "id": "0",
+          "status": "verified",
+          "note": "原生有序步骤[0]：{\"SpellPowerMultiplier\":1,\"Target\":\"FromTarget\",\"StatusAmount\":2,\"Amount\":2,\"Primarypower\":true,\"StatusModifier\":\"MultiplyForMoreAttackOnTarget\",\"Type\":\"Damage\"}；单体基础伤 Magic+2，仅目标Attack>施法者Attack17时乘2；相等17不翻倍，护甲照常抵伤。 双侧 Magic0/1/10/11×目标Attack16/17/18×护甲0/10，逐次精确护甲/生命；低蓝9/沉默拦截。",
+          "evidenceIds": [
+            "en",
+            "native",
+            "official",
+            "official-damage",
+            "cn",
+            "impl",
+            "test0"
+          ],
+          "tests": [
+            "tests/unit/gowWorker04Core.test.ts"
+          ]
+        }
+      ],
+      "branchReviews": [
+        {
+          "id": "main",
+          "status": "verified",
+          "note": "原生分支main，单体基础伤 Magic+2，仅目标Attack>施法者Attack17时乘2；相等17不翻倍，护甲照常抵伤。 双侧 Magic0/1/10/11×目标Attack16/17/18×护甲0/10，逐次精确护甲/生命；低蓝9/沉默拦截。",
+          "evidenceIds": [
+            "en",
+            "native",
+            "official",
+            "official-damage",
+            "cn",
+            "impl",
+            "test0"
+          ],
+          "tests": [
+            "tests/unit/gowWorker04Core.test.ts"
+          ]
+        }
+      ]
+    },
+    {
+      "key": "troop:7227",
+      "scope": "stored-gow-snapshot",
+      "sourceDigest": "072a96472158371e383532021aae85b2bafa3927d9acd97dd9e1fe80cbf78315",
+      "reviewer": "worker-fast-04（原始英文、原生步骤、中文展示与实体真施法独立复核）",
+      "reviewedAt": "2026-09-27",
+      "decision": "accept",
+      "sourceEvidence": [
+        {
+          "id": "en",
+          "role": "english-snapshot",
+          "path": "data/raw/troops.gow.en.json",
+          "note": "实体7227原始英文全文“Give [Magic + 1] Armor to an Ally. If they are Mech, triple the  effect.”、SpellId=8822及本实体费用/颜色。",
+          "sha256": "be77c2dd9838435f5461b763e9f1e1436e53ae9be36fc35eaadea71060e6b757"
+        },
+        {
+          "id": "native",
+          "role": "native-snapshot",
+          "path": "data/raw/spells.gow.en.json",
+          "note": "原生技能8822有序SpellSteps：[{\"SpellPowerMultiplier\":1,\"Target\":\"FromTarget\",\"StatusAmount\":3,\"Amount\":1,\"Primarypower\":true,\"StatusModifier\":\"MultiplyForMech\",\"Type\":\"IncreaseArmor\"}]。",
+          "sha256": "ddc7e03e23a6ea880e34fc8f1b7f0572b15f42041e979c443642d735f89dd63b"
+        },
+        {
+          "id": "official",
+          "role": "official-shared-rule",
+          "path": "artifacts/gow-skill-audit/gold-primary-sources/official-status-effects.html",
+          "note": "官方共享状态规则静态材料；技能自身精确数值仍以英文和原生步骤为准。",
+          "sha256": "4dca585515e9c7ca9287f75b9555079a2b50c747e6c35293ae6b57981360755c"
+        },
+        {
+          "id": "official-damage",
+          "role": "official-shared-rule",
+          "path": "artifacts/gow-skill-audit/gold-primary-sources/official-brian-guide.html",
+          "note": "官方共享伤害/护甲材料；具体技能效果另据原始英文和原生步骤。",
+          "sha256": "cb2924f8f48fb400e5918ad2c75d7f3a40ae12e4d839c0c84e5168ab452e89a7"
+        },
+        {
+          "id": "cn",
+          "role": "localized-display",
+          "path": "src/data/troops.json",
+          "note": "实体7227中文展示“给予一名盟友 [魔法 + 1] 点护甲值。若盟友是机械，则效果翻 3 倍。”及费用/颜色。",
+          "sha256": "98c20b7260205040fe4e6387b3011b18b9fe6b4bb110282578a9c7b1adb366b6"
+        },
+        {
+          "id": "impl",
+          "role": "runtime-implementation",
+          "path": "src/engine/skills/curated/batch-10.ts",
+          "note": "最终注册原型：[{\"kind\":\"buff\",\"target\":\"allyChosen\",\"stat\":\"armor\",\"scaling\":{\"base\":1,\"mult\":1},\"raceDouble\":\"Mech\",\"raceTimes\":3}]；只给选中盟友护甲 Magic+1；目标兵种为Mech时乘3、Human时不翻倍，施法者护甲不变。",
+          "sha256": "7e106c2a17d24c256d98e2c59add2154cceb2ca6831a669914026f6f8ede8fef"
+        },
+        {
+          "id": "test0",
+          "role": "entity-test-source",
+          "path": "tests/unit/gowWorker04Core.test.ts",
+          "note": "实体7227真实 TurnEngine.castSkill 专项：双侧 Magic0/1/10×Mech/Human盟友，分别增1/2/11或3/6/33；低蓝11/沉默反例。",
+          "sha256": "8bc460d0bc2b6642e4c2e19cd7d70e58e86374c7596a4cbd8cef9748807f1793"
+        }
+      ],
+      "dimensions": {
+        "identity-cost-colors": {
+          "status": "verified",
+          "note": "实体7227/原文技能8822；原始英文与原生费用12、成品费用12，颜色Blue/Brown，实体参数测试逐项断言。",
+          "evidenceIds": [
+            "en",
+            "native",
+            "official",
+            "official-damage",
+            "cn",
+            "impl",
+            "test0"
+          ],
+          "tests": [
+            "tests/unit/gowWorker04Core.test.ts"
+          ]
+        },
+        "target-count-range": {
+          "status": "verified",
+          "note": "英文“Give [Magic + 1] Armor to an Ally. If they are Mech, triple the  effect.”；原生目标FromTarget，最终原型allyChosen；只给选中盟友护甲 Magic+1；目标兵种为Mech时乘3、Human时不翻倍，施法者护甲不变。",
+          "evidenceIds": [
+            "en",
+            "native",
+            "official",
+            "official-damage",
+            "cn",
+            "impl",
+            "test0"
+          ],
+          "tests": [
+            "tests/unit/gowWorker04Core.test.ts"
+          ]
+        },
+        "base-formula-rounding": {
+          "status": "verified",
+          "note": "只给选中盟友护甲 Magic+1；目标兵种为Mech时乘3、Human时不翻倍，施法者护甲不变。 双侧 Magic0/1/10×Mech/Human盟友，分别增1/2/11或3/6/33；低蓝11/沉默反例。",
+          "evidenceIds": [
+            "en",
+            "native",
+            "official",
+            "official-damage",
+            "cn",
+            "impl",
+            "test0"
+          ],
+          "tests": [
+            "tests/unit/gowWorker04Core.test.ts"
+          ]
+        },
+        "boost-source-ratio-cap": {
+          "status": "verified",
+          "note": "只给选中盟友护甲 Magic+1；目标兵种为Mech时乘3、Human时不翻倍，施法者护甲不变。 没有未证实的额外系数、比例或上限。",
+          "evidenceIds": [
+            "en",
+            "native",
+            "official",
+            "official-damage",
+            "cn",
+            "impl",
+            "test0"
+          ],
+          "tests": [
+            "tests/unit/gowWorker04Core.test.ts"
+          ]
+        },
+        "conditions-probabilities-branches": {
+          "status": "verified",
+          "note": "只给选中盟友护甲 Magic+1；目标兵种为Mech时乘3、Human时不翻倍，施法者护甲不变。 双侧 Magic0/1/10×Mech/Human盟友，分别增1/2/11或3/6/33；低蓝11/沉默反例。",
+          "evidenceIds": [
+            "en",
+            "native",
+            "official",
+            "official-damage",
+            "cn",
+            "impl",
+            "test0"
+          ],
+          "tests": [
+            "tests/unit/gowWorker04Core.test.ts"
+          ]
+        },
+        "status-duration-immunity": {
+          "status": "not-applicable",
+          "note": "该技能不直接施加单位状态；沉默施法者不能施法。原文/原生无其他状态持续或免疫分支。",
+          "evidenceIds": [
+            "en",
+            "native",
+            "official",
+            "official-damage",
+            "cn",
+            "impl",
+            "test0"
+          ],
+          "tests": []
+        },
+        "gems-types-selection-resolution": {
+          "status": "not-applicable",
+          "note": "原文/原生均无宝石操作，最终原型也不改棋盘。",
+          "evidenceIds": [
+            "en",
+            "native",
+            "official",
+            "official-damage",
+            "cn",
+            "impl",
+            "test0"
+          ],
+          "tests": []
+        },
+        "summon-transform-pools": {
+          "status": "not-applicable",
+          "note": "原文、原生、成品均无兵种召唤、变身或候选池；若有宝石转换，那是棋盘特效而非兵种变形。",
+          "evidenceIds": [
+            "en",
+            "native",
+            "official",
+            "official-damage",
+            "cn",
+            "impl",
+            "test0"
+          ],
+          "tests": []
+        },
+        "order-death-retargeting": {
+          "status": "verified",
+          "note": "只给选中盟友护甲 Magic+1；目标兵种为Mech时乘3、Human时不翻倍，施法者护甲不变。 原生执行顺序IncreaseArmor，真实施法逐目标核对。",
+          "evidenceIds": [
+            "en",
+            "native",
+            "official",
+            "official-damage",
+            "cn",
+            "impl",
+            "test0"
+          ],
+          "tests": [
+            "tests/unit/gowWorker04Core.test.ts"
+          ]
+        },
+        "mana-economy-extra-turn": {
+          "status": "verified",
+          "note": "费用12，成功后法力归零；低蓝/沉默无行动；双侧 Magic0/1/10×Mech/Human盟友，分别增1/2/11或3/6/33；低蓝11/沉默反例。",
+          "evidenceIds": [
+            "en",
+            "native",
+            "official",
+            "official-damage",
+            "cn",
+            "impl",
+            "test0"
+          ],
+          "tests": [
+            "tests/unit/gowWorker04Core.test.ts"
+          ]
+        },
+        "display-description": {
+          "status": "verified",
+          "note": "英文“Give [Magic + 1] Armor to an Ally. If they are Mech, triple the  effect.”，中文“给予一名盟友 [魔法 + 1] 点护甲值。若盟友是机械，则效果翻 3 倍。”；数值/目标/条件与原生一致。",
+          "evidenceIds": [
+            "en",
+            "native",
+            "official",
+            "official-damage",
+            "cn",
+            "impl",
+            "test0"
+          ],
+          "tests": [
+            "tests/unit/gowWorker04Core.test.ts"
+          ]
+        },
+        "battle-pipeline": {
+          "status": "verified",
+          "note": "真实 TurnEngine.castSkill，双侧 Magic0/1/10×Mech/Human盟友，分别增1/2/11或3/6/33；低蓝11/沉默反例。 专项文件 tests/unit/gowWorker04Core.test.ts；三份 worker04 测试定向合计84/84、tsc --noEmit 通过；正式入账需协调端合账与全量凭证。",
+          "evidenceIds": [
+            "en",
+            "native",
+            "official",
+            "official-damage",
+            "cn",
+            "impl",
+            "test0"
+          ],
+          "tests": [
+            "tests/unit/gowWorker04Core.test.ts"
+          ],
+          "realBattleEntry": true
+        }
+      },
+      "clauseReviews": [
+        {
+          "id": "c1",
+          "status": "verified",
+          "note": "英文独立子句“Give [Magic + 1] Armor to an Ally.”；只给选中盟友护甲 Magic+1；目标兵种为Mech时乘3、Human时不翻倍，施法者护甲不变。 双侧 Magic0/1/10×Mech/Human盟友，分别增1/2/11或3/6/33；低蓝11/沉默反例。",
+          "evidenceIds": [
+            "en",
+            "native",
+            "official",
+            "official-damage",
+            "cn",
+            "impl",
+            "test0"
+          ],
+          "tests": [
+            "tests/unit/gowWorker04Core.test.ts"
+          ]
+        },
+        {
+          "id": "c2",
+          "status": "verified",
+          "note": "英文独立子句“If they are Mech, triple the  effect.”；只给选中盟友护甲 Magic+1；目标兵种为Mech时乘3、Human时不翻倍，施法者护甲不变。 双侧 Magic0/1/10×Mech/Human盟友，分别增1/2/11或3/6/33；低蓝11/沉默反例。",
+          "evidenceIds": [
+            "en",
+            "native",
+            "official",
+            "official-damage",
+            "cn",
+            "impl",
+            "test0"
+          ],
+          "tests": [
+            "tests/unit/gowWorker04Core.test.ts"
+          ]
+        }
+      ],
+      "nativeStepReviews": [
+        {
+          "id": "0",
+          "status": "verified",
+          "note": "原生有序步骤[0]：{\"SpellPowerMultiplier\":1,\"Target\":\"FromTarget\",\"StatusAmount\":3,\"Amount\":1,\"Primarypower\":true,\"StatusModifier\":\"MultiplyForMech\",\"Type\":\"IncreaseArmor\"}；只给选中盟友护甲 Magic+1；目标兵种为Mech时乘3、Human时不翻倍，施法者护甲不变。 双侧 Magic0/1/10×Mech/Human盟友，分别增1/2/11或3/6/33；低蓝11/沉默反例。",
+          "evidenceIds": [
+            "en",
+            "native",
+            "official",
+            "official-damage",
+            "cn",
+            "impl",
+            "test0"
+          ],
+          "tests": [
+            "tests/unit/gowWorker04Core.test.ts"
+          ]
+        }
+      ],
+      "branchReviews": [
+        {
+          "id": "main",
+          "status": "verified",
+          "note": "原生分支main，只给选中盟友护甲 Magic+1；目标兵种为Mech时乘3、Human时不翻倍，施法者护甲不变。 双侧 Magic0/1/10×Mech/Human盟友，分别增1/2/11或3/6/33；低蓝11/沉默反例。",
+          "evidenceIds": [
+            "en",
+            "native",
+            "official",
+            "official-damage",
+            "cn",
+            "impl",
+            "test0"
+          ],
+          "tests": [
+            "tests/unit/gowWorker04Core.test.ts"
+          ]
+        }
+      ]
+    }
+  ],
+  "backupCandidates": [
+    {
+      "key": "troop:6075",
+      "spellId": 7145,
+      "status": "candidate-only",
+      "english": "Explode [Magic + 3] Gems. Cleanse myself.",
+      "reason": "??? ExplodeGems ? Cleanse????????????????????????????????10??????"
+    },
+    {
+      "key": "troop:7135",
+      "spellId": 8684,
+      "status": "draft-replaced",
+      "reason": "????????????????????????? draft ???????????????"
+    },
+    {
+      "key": "troop:6615",
+      "spellId": 7946,
+      "status": "historically-accepted-outside-round2",
+      "reason": "?????????? accepted??????????????? 10 ??"
+    },
+    {
+      "key": "troop:6619",
+      "spellId": 7946,
+      "status": "entity-reviewed-accept-in-round2",
+      "english": "Gain 20 Gold.",
+      "reason": "已升级为逐实体正式签收候选；实际入账以协调端全量凭证为准。"
+    },
+    {
+      "key": "troop:7163",
+      "spellId": 8738,
+      "status": "entity-reviewed-accept-in-round2",
+      "english": "Convert all Green Gems to Skulls.",
+      "reason": "已升级为逐实体正式签收候选；实际入账以协调端全量凭证为准。"
+    }
+  ],
+  "excludedDuringSelection": [
+    {
+      "key": "troop:6007",
+      "spellId": 7006,
+      "classification": "??????",
+      "field": "native.SpellSteps[1].Target vs runtime.prototype.segments[1].target",
+      "native": "RandomEnemy (20% CauseBurning)",
+      "runtime": "enemyChosen (20% burning)",
+      "english": "20% chance to Burn an Enemy",
+      "disposition": "???????????????????????10???????/??????????????"
+    },
+    {
+      "key": "troop:6015",
+      "spellId": 7015,
+      "classification": "??????",
+      "field": "native.SpellSteps order vs runtime.prototype.segments order",
+      "native": "DecreaseMana?DecreaseArmor?CauseWeb",
+      "runtime": "reduce armor?Web?reduce mana",
+      "english": "Eliminate Armor, Web, and drain Mana",
+      "disposition": "?????????????????????????????????10???????????????"
+    },
+    {
+      "key": "troop:6051",
+      "spellId": 7051,
+      "classification": "????",
+      "field": "native.SpellSteps[1..2].Target vs runtime.prototype.segments[1..2].target",
+      "native": "FromPrevious",
+      "runtime": "enemyHealthiest each status",
+      "english": "the strongest Enemy, then Poison and Burn them",
+      "disposition": "?????????????????????????????????10??"
+    }
+  ],
+  "coordinatorHandoff": {
+    "troop:7335": "已在匹配最新全量凭证（8646通过、失败0、类型检查0）合账为 accepted；本轮新增 +1。",
+    "troop:6011": "独立专项 tests/unit/gowWorker04Combat.test.ts 的稳定 SHA256=f855b6cade487bfe2d36deb5be791466afdabe6fee5d1e7528de9edbd952cd98；双侧 Magic0/1/10×护甲0/10×是否致命，检查目标生命/护甲、buff恰一项及先伤后增益；低蓝9/沉默拒施法。 已在三套 worker04 专属测试84/84通过，tsc --noEmit通过；仅待协调端合账及全量凭证。",
+    "troop:6039": "独立专项 tests/unit/gowWorker04Board.test.ts 的稳定 SHA256=571539419b519613e93b2534678c54e8b2d35e3c4f0912b911d01dca28764a7c；双侧×两种初始棋盘，检查reshuffle与extra-turn事件各一、位置改变、同侧继续；低蓝6/沉默无行动。 已在三套 worker04 专属测试84/84通过，tsc --noEmit通过；仅待协调端合账及全量凭证。",
+    "troop:6043": "????? accept?tests/unit/gowRiderTroopCompletion.test.ts ??? SHA-256=316a10fa61378d22f4e5377abb393ca0bddfd450fce52d8443be0ca1a27bc47d????????????????",
+    "troop:6083": "????? accept?tests/unit/gowRiderTroopCompletion.test.ts ??? SHA-256=316a10fa61378d22f4e5377abb393ca0bddfd450fce52d8443be0ca1a27bc47d????????????????",
+    "troop:6107": "独立专项 tests/unit/gowWorker04Core.test.ts 的稳定 SHA256=8bc460d0bc2b6642e4c2e19cd7d70e58e86374c7596a4cbd8cef9748807f1793；双侧 Magic0/1/10×护甲0/10/25，生命损4/5/14，其他敌人不变；低蓝10/沉默拒施法。 已在三套 worker04 专属测试84/84通过，tsc --noEmit通过；仅待协调端合账及全量凭证。",
+    "troop:6071": "独立专项 tests/unit/gowWorker04Combat.test.ts 的稳定 SHA256=f855b6cade487bfe2d36deb5be791466afdabe6fee5d1e7528de9edbd952cd98；双侧 Magic0/1/10×四敌原护甲和攻击[0,2,20,50]，逐目标和自身精确断言；低蓝13/沉默零行动。 已在三套 worker04 专属测试84/84通过，tsc --noEmit通过；仅待协调端合账及全量凭证。",
+    "troop:7151": "独立专项 tests/unit/gowWorker04Board.test.ts 的稳定 SHA256=571539419b519613e93b2534678c54e8b2d35e3c4f0912b911d01dca28764a7c；双侧选择Green(0/9颗)与Blue(存在)，逐位置/特殊宝石类型断言；低蓝11/沉默拒施法；四连额外回合来自棋盘，不来自技能。 已在三套 worker04 专属测试84/84通过，tsc --noEmit通过；仅待协调端合账及全量凭证。",
+    "troop:6255": "共享账本已 accepted；匹配全量凭证 8666 通过、失败0、该专项 gowRedTargetTroopCompletion.test.ts 6/6；本轮净新增+1。",
+    "troop:6619": "独立专项 tests/unit/gowWorker04Core.test.ts 的稳定 SHA256=8bc460d0bc2b6642e4c2e19cd7d70e58e86374c7596a4cbd8cef9748807f1793；双侧 Magic0/11 自身金币3→23、对方11不变；低蓝6/沉默拒施法，法力/回合断言。 已在三套 worker04 专属测试84/84通过，tsc --noEmit通过；仅待协调端合账及全量凭证。",
+    "troop:7163": "独立专项 tests/unit/gowWorker04Board.test.ts 的稳定 SHA256=571539419b519613e93b2534678c54e8b2d35e3c4f0912b911d01dca28764a7c；双侧绿色0/9，逐位置核对且 to.kind=skull；低蓝9/沉默拒施法；四连额外回合仅来自棋盘。 已在三套 worker04 专属测试84/84通过，tsc --noEmit通过；仅待协调端合账及全量凭证。",
+    "troop:6611": "独立专项 tests/unit/gowWorker04Core.test.ts 的稳定 SHA256=8bc460d0bc2b6642e4c2e19cd7d70e58e86374c7596a4cbd8cef9748807f1793；双侧 Magic0/1/10/11×护甲0/25×目标有无沉默，生命损1/2/11/12或双倍、护甲保持；低蓝11/施法者沉默反例。 已在三套 worker04 专属测试84/84通过，tsc --noEmit通过；仅待协调端合账及全量凭证。",
+    "troop:6635": "独立专项 tests/unit/gowWorker04Core.test.ts 的稳定 SHA256=8bc460d0bc2b6642e4c2e19cd7d70e58e86374c7596a4cbd8cef9748807f1793；双侧 Magic0/1/10/11×目标Attack16/17/18×护甲0/10，逐次精确护甲/生命；低蓝9/沉默拦截。 已在三套 worker04 专属测试84/84通过，tsc --noEmit通过；仅待协调端合账及全量凭证。",
+    "troop:7227": "独立专项 tests/unit/gowWorker04Core.test.ts 的稳定 SHA256=8bc460d0bc2b6642e4c2e19cd7d70e58e86374c7596a4cbd8cef9748807f1793；双侧 Magic0/1/10×Mech/Human盟友，分别增1/2/11或3/6/33；低蓝11/沉默反例。 已在三套 worker04 专属测试84/84通过，tsc --noEmit通过；仅待协调端合账及全量凭证。"
+  }
+}

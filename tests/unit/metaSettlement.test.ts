@@ -82,12 +82,12 @@ describe('结算入账（胜利 · 任务）', () => {
     expect(detail.victory).toBe(true);
     expect(detail.firstWinClaimed).toBe(true);
     expect(detail.questProgress).toEqual({ from: 0, to: 1 });
-    expect(detail.lines.map((l) => l.key)).toEqual(['kills', 'victory', 'first-win', 'quest']);
+    expect(detail.lines.map((l) => l.key)).toEqual(['kills', 'victory', 'first-win', 'kingdom-first-clear', 'quest']);
 
     // 账本：击杀 + 胜利 60/30 + 首胜宝石 50
     expect(save.currencies.gold).toBe(2000 + kills.gold + 60);
     expect(save.currencies.souls).toBe(800 + kills.souls + 30);
-    expect(save.currencies.gems).toBe(150 + 50);
+    expect(save.currencies.gems).toBe(150 + 50 + 100);
     expect(save.dailyFirstWinAt).toBe(DAY1);
 
     // stats 与 xp（M5：胜利加 60 主角经验，100 ≥ 首级 80 → 升 1 级）
@@ -115,7 +115,7 @@ describe('结算入账（胜利 · 任务）', () => {
     });
     expect(detail2.firstWinClaimed).toBe(false);
     expect(detail2.lines.map((l) => l.key)).not.toContain('first-win');
-    expect(save.currencies.gems).toBe(200); // 只领过一次
+    expect(save.currencies.gems).toBe(400); // 每日首胜一次 + 普通首通两关
     expect(detail2.questProgress).toEqual({ from: 1, to: 2 });
   });
 
@@ -175,7 +175,7 @@ describe('结算入账（胜利 · 任务）', () => {
     expect(detail.lines.map((l) => l.key)).toContain('battle-collect');
     expect(save.currencies.gold).toBe(2000 + 60 + 60); // 收集 60 + 胜利 60（无击杀行）
     expect(save.currencies.souls).toBe(800 + 85 + 30);
-    expect(save.currencies.gems).toBe(150 + 5 + 50);
+    expect(save.currencies.gems).toBe(150 + 5 + 50 + 100);
     expect(save.materials.treasureMaps).toBe(3);
   });
 
@@ -206,7 +206,7 @@ describe('结算入账（探索首胜双倍）', () => {
     expect(line.deltas.gold).toBe(kills.gold * 2);
     expect(line.note).toBe('每日首胜双倍');
     expect(detail.firstWinClaimed).toBe(true);
-    expect(save.currencies.gems).toBe(200);
+    expect(save.currencies.gems).toBe(400);
   });
 
   it('当日已领过首胜：探索击杀不双倍', () => {
@@ -241,7 +241,7 @@ describe('结算入账（战败）', () => {
     expect(save.currencies.gems).toBe(150);
     expect(save.dailyFirstWinAt).toBe(0);
     expect(save.stats.battlesLost).toBe(1);
-    expect(save.hero.xp).toBe(0);
+    expect(save.hero.xp).toBe(20);
     expect(save.kingdoms[KINGDOM]).toBeUndefined();
   });
 });

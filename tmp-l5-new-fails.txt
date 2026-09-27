@@ -1,0 +1,435 @@
+tests/property/spellData.property.test.ts > 组装产物确定性（同种子 → 同事件流） 任意（spellId, seed）组合执行两遍事件流逐字相等
+tests/property/spellData.property.test.ts > 组装产物确定性（同种子 → 同事件流） 技能事件顺序契约：无引擎回合事件混入；defeat 后无该角色再受击
+tests/property/spellData.property.test.ts > 组装产物确定性（同种子 → 同事件流） 抽样全量可用性：全部 spellId 都能构建出非空执行（含空效果技能除外）
+tests/unit/economyEngine.test.ts > gainEconomy 效果段（金币/灵魂/宝石） 二次缩放 battleGold：「获得 [1:10] 颗宝石」按金币总数折算（35 金币 → 1+3=4）
+tests/unit/economyEngine.test.ts > gainEconomy 效果段（金币/灵魂/宝石） 伤害段的 battleGold 来源：「对随机敌人造成 1 点伤害，伤害由我的金币加成 [10:1]」（batch-39 · 9783 句式）
+tests/unit/gowConditionalWeaponClausesAudit.test.ts > 7754 Boss branch, 7815 Yellow bonus, 9378 dispel (scoped) 7815 Left Yellow=false Divine=false: independently stack both native bonuses
+tests/unit/gowConditionalWeaponClausesAudit.test.ts > 7754 Boss branch, 7815 Yellow bonus, 9378 dispel (scoped) 7815 Left Yellow=false Divine=true: independently stack both native bonuses
+tests/unit/gowConditionalWeaponClausesAudit.test.ts > 7754 Boss branch, 7815 Yellow bonus, 9378 dispel (scoped) 7815 Left Yellow=true Divine=false: independently stack both native bonuses
+tests/unit/gowConditionalWeaponClausesAudit.test.ts > 7754 Boss branch, 7815 Yellow bonus, 9378 dispel (scoped) 7815 Left Yellow=true Divine=true: independently stack both native bonuses
+tests/unit/gowConditionalWeaponClausesAudit.test.ts > 7754 Boss branch, 7815 Yellow bonus, 9378 dispel (scoped) 7815 Right Yellow=false Divine=false: independently stack both native bonuses
+tests/unit/gowConditionalWeaponClausesAudit.test.ts > 7754 Boss branch, 7815 Yellow bonus, 9378 dispel (scoped) 7815 Right Yellow=false Divine=true: independently stack both native bonuses
+tests/unit/gowConditionalWeaponClausesAudit.test.ts > 7754 Boss branch, 7815 Yellow bonus, 9378 dispel (scoped) 7815 Right Yellow=true Divine=false: independently stack both native bonuses
+tests/unit/gowConditionalWeaponClausesAudit.test.ts > 7754 Boss branch, 7815 Yellow bonus, 9378 dispel (scoped) 7815 Right Yellow=true Divine=true: independently stack both native bonuses
+tests/unit/gowConditionalWeaponClausesAudit.test.ts > 7754 Boss branch, 7815 Yellow bonus, 9378 dispel (scoped) 7815 retains native separate-hit semantics when Barrier absorbs base damage
+tests/unit/gowConditionalWeaponClausesAudit.test.ts > 7754 Boss branch, 7815 Yellow bonus, 9378 dispel (scoped) 7815 does not retarget conditional bonus hits after base hit kills the chosen target
+tests/unit/gowGoldenThiefDamageAudit.test.ts > 9783 Golden Thief damage formula and pre-gain boost (scoped) real cast: M=0, Gold=9, target 0; boost uses pre-gain Gold
+tests/unit/gowGoldenThiefDamageAudit.test.ts > 9783 Golden Thief damage formula and pre-gain boost (scoped) real cast: M=0, Gold=9, target 3; boost uses pre-gain Gold
+tests/unit/gowGoldenThiefDamageAudit.test.ts > 9783 Golden Thief damage formula and pre-gain boost (scoped) real cast: M=0, Gold=10, target 0; boost uses pre-gain Gold
+tests/unit/gowGoldenThiefDamageAudit.test.ts > 9783 Golden Thief damage formula and pre-gain boost (scoped) real cast: M=0, Gold=10, target 3; boost uses pre-gain Gold
+tests/unit/gowGoldenThiefDamageAudit.test.ts > 9783 Golden Thief damage formula and pre-gain boost (scoped) real cast: M=0, Gold=20, target 0; boost uses pre-gain Gold
+tests/unit/gowGoldenThiefDamageAudit.test.ts > 9783 Golden Thief damage formula and pre-gain boost (scoped) real cast: M=0, Gold=20, target 3; boost uses pre-gain Gold
+tests/unit/gowGoldenThiefDamageAudit.test.ts > 9783 Golden Thief damage formula and pre-gain boost (scoped) real cast: M=1, Gold=9, target 0; boost uses pre-gain Gold
+tests/unit/gowGoldenThiefDamageAudit.test.ts > 9783 Golden Thief damage formula and pre-gain boost (scoped) real cast: M=1, Gold=9, target 3; boost uses pre-gain Gold
+tests/unit/gowGoldenThiefDamageAudit.test.ts > 9783 Golden Thief damage formula and pre-gain boost (scoped) real cast: M=1, Gold=10, target 0; boost uses pre-gain Gold
+tests/unit/gowGoldenThiefDamageAudit.test.ts > 9783 Golden Thief damage formula and pre-gain boost (scoped) real cast: M=1, Gold=10, target 3; boost uses pre-gain Gold
+tests/unit/gowGoldenThiefDamageAudit.test.ts > 9783 Golden Thief damage formula and pre-gain boost (scoped) real cast: M=1, Gold=20, target 0; boost uses pre-gain Gold
+tests/unit/gowGoldenThiefDamageAudit.test.ts > 9783 Golden Thief damage formula and pre-gain boost (scoped) real cast: M=1, Gold=20, target 3; boost uses pre-gain Gold
+tests/unit/gowGoldenThiefDamageAudit.test.ts > 9783 Golden Thief damage formula and pre-gain boost (scoped) real cast: M=11, Gold=9, target 0; boost uses pre-gain Gold
+tests/unit/gowGoldenThiefDamageAudit.test.ts > 9783 Golden Thief damage formula and pre-gain boost (scoped) real cast: M=11, Gold=9, target 3; boost uses pre-gain Gold
+tests/unit/gowGoldenThiefDamageAudit.test.ts > 9783 Golden Thief damage formula and pre-gain boost (scoped) real cast: M=11, Gold=10, target 0; boost uses pre-gain Gold
+tests/unit/gowGoldenThiefDamageAudit.test.ts > 9783 Golden Thief damage formula and pre-gain boost (scoped) real cast: M=11, Gold=10, target 3; boost uses pre-gain Gold
+tests/unit/gowGoldenThiefDamageAudit.test.ts > 9783 Golden Thief damage formula and pre-gain boost (scoped) real cast: M=11, Gold=20, target 0; boost uses pre-gain Gold
+tests/unit/gowGoldenThiefDamageAudit.test.ts > 9783 Golden Thief damage formula and pre-gain boost (scoped) real cast: M=11, Gold=20, target 3; boost uses pre-gain Gold
+tests/unit/gowGoldenThiefDamageAudit.test.ts > 9783 Golden Thief damage formula and pre-gain boost (scoped) real cast: M=20, Gold=9, target 0; boost uses pre-gain Gold
+tests/unit/gowGoldenThiefDamageAudit.test.ts > 9783 Golden Thief damage formula and pre-gain boost (scoped) real cast: M=20, Gold=9, target 3; boost uses pre-gain Gold
+tests/unit/gowGoldenThiefDamageAudit.test.ts > 9783 Golden Thief damage formula and pre-gain boost (scoped) real cast: M=20, Gold=10, target 0; boost uses pre-gain Gold
+tests/unit/gowGoldenThiefDamageAudit.test.ts > 9783 Golden Thief damage formula and pre-gain boost (scoped) real cast: M=20, Gold=10, target 3; boost uses pre-gain Gold
+tests/unit/gowGoldenThiefDamageAudit.test.ts > 9783 Golden Thief damage formula and pre-gain boost (scoped) real cast: M=20, Gold=20, target 0; boost uses pre-gain Gold
+tests/unit/gowGoldenThiefDamageAudit.test.ts > 9783 Golden Thief damage formula and pre-gain boost (scoped) real cast: M=20, Gold=20, target 3; boost uses pre-gain Gold
+tests/unit/gowGoldOwnershipAudit.test.ts > Gold side-owned counters and available-balance transfer (scoped) real TurnEngine cast 8904, Left, enemy=3
+tests/unit/gowGoldOwnershipAudit.test.ts > Gold side-owned counters and available-balance transfer (scoped) real TurnEngine cast 8904, Left, enemy=100
+tests/unit/gowGoldOwnershipAudit.test.ts > Gold side-owned counters and available-balance transfer (scoped) real TurnEngine cast 9783, Left, enemy=0
+tests/unit/gowGoldOwnershipAudit.test.ts > Gold side-owned counters and available-balance transfer (scoped) real TurnEngine cast 9783, Left, enemy=3
+tests/unit/gowGoldOwnershipAudit.test.ts > Gold side-owned counters and available-balance transfer (scoped) real TurnEngine cast 9783, Left, enemy=100
+tests/unit/gowGoldOwnershipAudit.test.ts > Gold side-owned counters and available-balance transfer (scoped) real TurnEngine cast 8904, Right, enemy=3
+tests/unit/gowGoldOwnershipAudit.test.ts > Gold side-owned counters and available-balance transfer (scoped) real TurnEngine cast 8904, Right, enemy=100
+tests/unit/gowGoldOwnershipAudit.test.ts > Gold side-owned counters and available-balance transfer (scoped) real TurnEngine cast 9783, Right, enemy=0
+tests/unit/gowGoldOwnershipAudit.test.ts > Gold side-owned counters and available-balance transfer (scoped) real TurnEngine cast 9783, Right, enemy=3
+tests/unit/gowGoldOwnershipAudit.test.ts > Gold side-owned counters and available-balance transfer (scoped) real TurnEngine cast 9783, Right, enemy=100
+tests/unit/gowGoldOwnershipAudit.test.ts > Gold side-owned counters and available-balance transfer (scoped) equipped Golden Gun Left, M=0, Gold=0,9: combined boost rounded once
+tests/unit/gowGoldOwnershipAudit.test.ts > Gold side-owned counters and available-balance transfer (scoped) equipped Golden Gun Left, M=0, Gold=9,0: combined boost rounded once
+tests/unit/gowGoldOwnershipAudit.test.ts > Gold side-owned counters and available-balance transfer (scoped) equipped Golden Gun Left, M=0, Gold=1,1: combined boost rounded once
+tests/unit/gowGoldOwnershipAudit.test.ts > Gold side-owned counters and available-balance transfer (scoped) equipped Golden Gun Left, M=0, Gold=3,5: combined boost rounded once
+tests/unit/gowGoldOwnershipAudit.test.ts > Gold side-owned counters and available-balance transfer (scoped) equipped Golden Gun Left, M=0, Gold=4,5: combined boost rounded once
+tests/unit/gowGoldOwnershipAudit.test.ts > Gold side-owned counters and available-balance transfer (scoped) equipped Golden Gun Left, M=0, Gold=100,100: combined boost rounded once
+tests/unit/gowGoldOwnershipAudit.test.ts > Gold side-owned counters and available-balance transfer (scoped) equipped Golden Gun Left, M=1, Gold=0,9: combined boost rounded once
+tests/unit/gowGoldOwnershipAudit.test.ts > Gold side-owned counters and available-balance transfer (scoped) equipped Golden Gun Left, M=1, Gold=9,0: combined boost rounded once
+tests/unit/gowGoldOwnershipAudit.test.ts > Gold side-owned counters and available-balance transfer (scoped) equipped Golden Gun Left, M=1, Gold=1,1: combined boost rounded once
+tests/unit/gowGoldOwnershipAudit.test.ts > Gold side-owned counters and available-balance transfer (scoped) equipped Golden Gun Left, M=1, Gold=3,5: combined boost rounded once
+tests/unit/gowGoldOwnershipAudit.test.ts > Gold side-owned counters and available-balance transfer (scoped) equipped Golden Gun Left, M=1, Gold=4,5: combined boost rounded once
+tests/unit/gowGoldOwnershipAudit.test.ts > Gold side-owned counters and available-balance transfer (scoped) equipped Golden Gun Left, M=1, Gold=100,100: combined boost rounded once
+tests/unit/gowGoldOwnershipAudit.test.ts > Gold side-owned counters and available-balance transfer (scoped) equipped Golden Gun Left, M=11, Gold=0,9: combined boost rounded once
+tests/unit/gowGoldOwnershipAudit.test.ts > Gold side-owned counters and available-balance transfer (scoped) equipped Golden Gun Left, M=11, Gold=9,0: combined boost rounded once
+tests/unit/gowGoldOwnershipAudit.test.ts > Gold side-owned counters and available-balance transfer (scoped) equipped Golden Gun Left, M=11, Gold=1,1: combined boost rounded once
+tests/unit/gowGoldOwnershipAudit.test.ts > Gold side-owned counters and available-balance transfer (scoped) equipped Golden Gun Left, M=11, Gold=3,5: combined boost rounded once
+tests/unit/gowGoldOwnershipAudit.test.ts > Gold side-owned counters and available-balance transfer (scoped) equipped Golden Gun Left, M=11, Gold=4,5: combined boost rounded once
+tests/unit/gowGoldOwnershipAudit.test.ts > Gold side-owned counters and available-balance transfer (scoped) equipped Golden Gun Left, M=11, Gold=100,100: combined boost rounded once
+tests/unit/gowGoldOwnershipAudit.test.ts > Gold side-owned counters and available-balance transfer (scoped) equipped Golden Gun Left, M=20, Gold=0,9: combined boost rounded once
+tests/unit/gowGoldOwnershipAudit.test.ts > Gold side-owned counters and available-balance transfer (scoped) equipped Golden Gun Left, M=20, Gold=9,0: combined boost rounded once
+tests/unit/gowGoldOwnershipAudit.test.ts > Gold side-owned counters and available-balance transfer (scoped) equipped Golden Gun Left, M=20, Gold=1,1: combined boost rounded once
+tests/unit/gowGoldOwnershipAudit.test.ts > Gold side-owned counters and available-balance transfer (scoped) equipped Golden Gun Left, M=20, Gold=3,5: combined boost rounded once
+tests/unit/gowGoldOwnershipAudit.test.ts > Gold side-owned counters and available-balance transfer (scoped) equipped Golden Gun Left, M=20, Gold=4,5: combined boost rounded once
+tests/unit/gowGoldOwnershipAudit.test.ts > Gold side-owned counters and available-balance transfer (scoped) equipped Golden Gun Left, M=20, Gold=100,100: combined boost rounded once
+tests/unit/gowGoldOwnershipAudit.test.ts > Gold side-owned counters and available-balance transfer (scoped) equipped Golden Gun Right, M=0, Gold=0,9: combined boost rounded once
+tests/unit/gowGoldOwnershipAudit.test.ts > Gold side-owned counters and available-balance transfer (scoped) equipped Golden Gun Right, M=0, Gold=9,0: combined boost rounded once
+tests/unit/gowGoldOwnershipAudit.test.ts > Gold side-owned counters and available-balance transfer (scoped) equipped Golden Gun Right, M=0, Gold=1,1: combined boost rounded once
+tests/unit/gowGoldOwnershipAudit.test.ts > Gold side-owned counters and available-balance transfer (scoped) equipped Golden Gun Right, M=0, Gold=3,5: combined boost rounded once
+tests/unit/gowGoldOwnershipAudit.test.ts > Gold side-owned counters and available-balance transfer (scoped) equipped Golden Gun Right, M=0, Gold=4,5: combined boost rounded once
+tests/unit/gowGoldOwnershipAudit.test.ts > Gold side-owned counters and available-balance transfer (scoped) equipped Golden Gun Right, M=0, Gold=100,100: combined boost rounded once
+tests/unit/gowGoldOwnershipAudit.test.ts > Gold side-owned counters and available-balance transfer (scoped) equipped Golden Gun Right, M=1, Gold=0,9: combined boost rounded once
+tests/unit/gowGoldOwnershipAudit.test.ts > Gold side-owned counters and available-balance transfer (scoped) equipped Golden Gun Right, M=1, Gold=9,0: combined boost rounded once
+tests/unit/gowGoldOwnershipAudit.test.ts > Gold side-owned counters and available-balance transfer (scoped) equipped Golden Gun Right, M=1, Gold=1,1: combined boost rounded once
+tests/unit/gowGoldOwnershipAudit.test.ts > Gold side-owned counters and available-balance transfer (scoped) equipped Golden Gun Right, M=1, Gold=3,5: combined boost rounded once
+tests/unit/gowGoldOwnershipAudit.test.ts > Gold side-owned counters and available-balance transfer (scoped) equipped Golden Gun Right, M=1, Gold=4,5: combined boost rounded once
+tests/unit/gowGoldOwnershipAudit.test.ts > Gold side-owned counters and available-balance transfer (scoped) equipped Golden Gun Right, M=1, Gold=100,100: combined boost rounded once
+tests/unit/gowGoldOwnershipAudit.test.ts > Gold side-owned counters and available-balance transfer (scoped) equipped Golden Gun Right, M=11, Gold=0,9: combined boost rounded once
+tests/unit/gowGoldOwnershipAudit.test.ts > Gold side-owned counters and available-balance transfer (scoped) equipped Golden Gun Right, M=11, Gold=9,0: combined boost rounded once
+tests/unit/gowGoldOwnershipAudit.test.ts > Gold side-owned counters and available-balance transfer (scoped) equipped Golden Gun Right, M=11, Gold=1,1: combined boost rounded once
+tests/unit/gowGoldOwnershipAudit.test.ts > Gold side-owned counters and available-balance transfer (scoped) equipped Golden Gun Right, M=11, Gold=3,5: combined boost rounded once
+tests/unit/gowGoldOwnershipAudit.test.ts > Gold side-owned counters and available-balance transfer (scoped) equipped Golden Gun Right, M=11, Gold=4,5: combined boost rounded once
+tests/unit/gowGoldOwnershipAudit.test.ts > Gold side-owned counters and available-balance transfer (scoped) equipped Golden Gun Right, M=11, Gold=100,100: combined boost rounded once
+tests/unit/gowGoldOwnershipAudit.test.ts > Gold side-owned counters and available-balance transfer (scoped) equipped Golden Gun Right, M=20, Gold=0,9: combined boost rounded once
+tests/unit/gowGoldOwnershipAudit.test.ts > Gold side-owned counters and available-balance transfer (scoped) equipped Golden Gun Right, M=20, Gold=9,0: combined boost rounded once
+tests/unit/gowGoldOwnershipAudit.test.ts > Gold side-owned counters and available-balance transfer (scoped) equipped Golden Gun Right, M=20, Gold=1,1: combined boost rounded once
+tests/unit/gowGoldOwnershipAudit.test.ts > Gold side-owned counters and available-balance transfer (scoped) equipped Golden Gun Right, M=20, Gold=3,5: combined boost rounded once
+tests/unit/gowGoldOwnershipAudit.test.ts > Gold side-owned counters and available-balance transfer (scoped) equipped Golden Gun Right, M=20, Gold=4,5: combined boost rounded once
+tests/unit/gowGoldOwnershipAudit.test.ts > Gold side-owned counters and available-balance transfer (scoped) equipped Golden Gun Right, M=20, Gold=100,100: combined boost rounded once
+tests/unit/gowGoldOwnershipAudit.test.ts > Gold side-owned counters and available-balance transfer (scoped) 9783 with no available Gold still damages, but never mints Gold (Left)
+tests/unit/gowGoldOwnershipAudit.test.ts > Gold side-owned counters and available-balance transfer (scoped) 9783 with no available Gold still damages, but never mints Gold (Right)
+tests/unit/gowGoldOwnershipAudit.test.ts > Gold side-owned counters and available-balance transfer (scoped) Gold gain after enemy knockout uses the retained caster ownership Left
+tests/unit/gowGoldOwnershipAudit.test.ts > Gold side-owned counters and available-balance transfer (scoped) Gold gain after enemy knockout uses the retained caster ownership Right
+tests/unit/gowGoldOwnershipAudit.test.ts > Gold side-owned counters and available-balance transfer (scoped) caster removed by reflection mid-cast retains Gold ownership 9783, Left
+tests/unit/gowGoldOwnershipAudit.test.ts > Gold side-owned counters and available-balance transfer (scoped) caster removed by reflection mid-cast retains Gold ownership 9783, Right
+tests/unit/gowGoldStatBoostAudit.test.ts > 8144 King of Treasure all-Skills Gold ratio (scoped) actual cast: M=0, Gold=4, four gains = 3+floor(Gold/5)
+tests/unit/gowGoldStatBoostAudit.test.ts > 8144 King of Treasure all-Skills Gold ratio (scoped) actual cast: M=0, Gold=5, four gains = 3+floor(Gold/5)
+tests/unit/gowGoldStatBoostAudit.test.ts > 8144 King of Treasure all-Skills Gold ratio (scoped) actual cast: M=0, Gold=9, four gains = 3+floor(Gold/5)
+tests/unit/gowGoldStatBoostAudit.test.ts > 8144 King of Treasure all-Skills Gold ratio (scoped) actual cast: M=0, Gold=10, four gains = 3+floor(Gold/5)
+tests/unit/gowGoldStatBoostAudit.test.ts > 8144 King of Treasure all-Skills Gold ratio (scoped) actual cast: M=0, Gold=19, four gains = 3+floor(Gold/5)
+tests/unit/gowGoldStatBoostAudit.test.ts > 8144 King of Treasure all-Skills Gold ratio (scoped) actual cast: M=0, Gold=20, four gains = 3+floor(Gold/5)
+tests/unit/gowGoldStatBoostAudit.test.ts > 8144 King of Treasure all-Skills Gold ratio (scoped) actual cast: M=0, Gold=21, four gains = 3+floor(Gold/5)
+tests/unit/gowGoldStatBoostAudit.test.ts > 8144 King of Treasure all-Skills Gold ratio (scoped) actual cast: M=0, Gold=24, four gains = 3+floor(Gold/5)
+tests/unit/gowGoldStatBoostAudit.test.ts > 8144 King of Treasure all-Skills Gold ratio (scoped) actual cast: M=0, Gold=25, four gains = 3+floor(Gold/5)
+tests/unit/gowGoldStatBoostAudit.test.ts > 8144 King of Treasure all-Skills Gold ratio (scoped) actual cast: M=0, Gold=99, four gains = 3+floor(Gold/5)
+tests/unit/gowGoldStatBoostAudit.test.ts > 8144 King of Treasure all-Skills Gold ratio (scoped) actual cast: M=0, Gold=100, four gains = 3+floor(Gold/5)
+tests/unit/gowGoldStatBoostAudit.test.ts > 8144 King of Treasure all-Skills Gold ratio (scoped) actual cast: M=1, Gold=4, four gains = 3+floor(Gold/5)
+tests/unit/gowGoldStatBoostAudit.test.ts > 8144 King of Treasure all-Skills Gold ratio (scoped) actual cast: M=1, Gold=5, four gains = 3+floor(Gold/5)
+tests/unit/gowGoldStatBoostAudit.test.ts > 8144 King of Treasure all-Skills Gold ratio (scoped) actual cast: M=1, Gold=9, four gains = 3+floor(Gold/5)
+tests/unit/gowGoldStatBoostAudit.test.ts > 8144 King of Treasure all-Skills Gold ratio (scoped) actual cast: M=1, Gold=10, four gains = 3+floor(Gold/5)
+tests/unit/gowGoldStatBoostAudit.test.ts > 8144 King of Treasure all-Skills Gold ratio (scoped) actual cast: M=1, Gold=19, four gains = 3+floor(Gold/5)
+tests/unit/gowGoldStatBoostAudit.test.ts > 8144 King of Treasure all-Skills Gold ratio (scoped) actual cast: M=1, Gold=20, four gains = 3+floor(Gold/5)
+tests/unit/gowGoldStatBoostAudit.test.ts > 8144 King of Treasure all-Skills Gold ratio (scoped) actual cast: M=1, Gold=21, four gains = 3+floor(Gold/5)
+tests/unit/gowGoldStatBoostAudit.test.ts > 8144 King of Treasure all-Skills Gold ratio (scoped) actual cast: M=1, Gold=24, four gains = 3+floor(Gold/5)
+tests/unit/gowGoldStatBoostAudit.test.ts > 8144 King of Treasure all-Skills Gold ratio (scoped) actual cast: M=1, Gold=25, four gains = 3+floor(Gold/5)
+tests/unit/gowGoldStatBoostAudit.test.ts > 8144 King of Treasure all-Skills Gold ratio (scoped) actual cast: M=1, Gold=99, four gains = 3+floor(Gold/5)
+tests/unit/gowGoldStatBoostAudit.test.ts > 8144 King of Treasure all-Skills Gold ratio (scoped) actual cast: M=1, Gold=100, four gains = 3+floor(Gold/5)
+tests/unit/gowGoldStatBoostAudit.test.ts > 8144 King of Treasure all-Skills Gold ratio (scoped) actual cast: M=11, Gold=4, four gains = 3+floor(Gold/5)
+tests/unit/gowGoldStatBoostAudit.test.ts > 8144 King of Treasure all-Skills Gold ratio (scoped) actual cast: M=11, Gold=5, four gains = 3+floor(Gold/5)
+tests/unit/gowGoldStatBoostAudit.test.ts > 8144 King of Treasure all-Skills Gold ratio (scoped) actual cast: M=11, Gold=9, four gains = 3+floor(Gold/5)
+tests/unit/gowGoldStatBoostAudit.test.ts > 8144 King of Treasure all-Skills Gold ratio (scoped) actual cast: M=11, Gold=10, four gains = 3+floor(Gold/5)
+tests/unit/gowGoldStatBoostAudit.test.ts > 8144 King of Treasure all-Skills Gold ratio (scoped) actual cast: M=11, Gold=19, four gains = 3+floor(Gold/5)
+tests/unit/gowGoldStatBoostAudit.test.ts > 8144 King of Treasure all-Skills Gold ratio (scoped) actual cast: M=11, Gold=20, four gains = 3+floor(Gold/5)
+tests/unit/gowGoldStatBoostAudit.test.ts > 8144 King of Treasure all-Skills Gold ratio (scoped) actual cast: M=11, Gold=21, four gains = 3+floor(Gold/5)
+tests/unit/gowGoldStatBoostAudit.test.ts > 8144 King of Treasure all-Skills Gold ratio (scoped) actual cast: M=11, Gold=24, four gains = 3+floor(Gold/5)
+tests/unit/gowGoldStatBoostAudit.test.ts > 8144 King of Treasure all-Skills Gold ratio (scoped) actual cast: M=11, Gold=25, four gains = 3+floor(Gold/5)
+tests/unit/gowGoldStatBoostAudit.test.ts > 8144 King of Treasure all-Skills Gold ratio (scoped) actual cast: M=11, Gold=99, four gains = 3+floor(Gold/5)
+tests/unit/gowGoldStatBoostAudit.test.ts > 8144 King of Treasure all-Skills Gold ratio (scoped) actual cast: M=11, Gold=100, four gains = 3+floor(Gold/5)
+tests/unit/gowGoldStatBoostAudit.test.ts > 8144 King of Treasure all-Skills Gold ratio (scoped) actual cast: M=20, Gold=4, four gains = 3+floor(Gold/5)
+tests/unit/gowGoldStatBoostAudit.test.ts > 8144 King of Treasure all-Skills Gold ratio (scoped) actual cast: M=20, Gold=5, four gains = 3+floor(Gold/5)
+tests/unit/gowGoldStatBoostAudit.test.ts > 8144 King of Treasure all-Skills Gold ratio (scoped) actual cast: M=20, Gold=9, four gains = 3+floor(Gold/5)
+tests/unit/gowGoldStatBoostAudit.test.ts > 8144 King of Treasure all-Skills Gold ratio (scoped) actual cast: M=20, Gold=10, four gains = 3+floor(Gold/5)
+tests/unit/gowGoldStatBoostAudit.test.ts > 8144 King of Treasure all-Skills Gold ratio (scoped) actual cast: M=20, Gold=19, four gains = 3+floor(Gold/5)
+tests/unit/gowGoldStatBoostAudit.test.ts > 8144 King of Treasure all-Skills Gold ratio (scoped) actual cast: M=20, Gold=20, four gains = 3+floor(Gold/5)
+tests/unit/gowGoldStatBoostAudit.test.ts > 8144 King of Treasure all-Skills Gold ratio (scoped) actual cast: M=20, Gold=21, four gains = 3+floor(Gold/5)
+tests/unit/gowGoldStatBoostAudit.test.ts > 8144 King of Treasure all-Skills Gold ratio (scoped) actual cast: M=20, Gold=24, four gains = 3+floor(Gold/5)
+tests/unit/gowGoldStatBoostAudit.test.ts > 8144 King of Treasure all-Skills Gold ratio (scoped) actual cast: M=20, Gold=25, four gains = 3+floor(Gold/5)
+tests/unit/gowGoldStatBoostAudit.test.ts > 8144 King of Treasure all-Skills Gold ratio (scoped) actual cast: M=20, Gold=99, four gains = 3+floor(Gold/5)
+tests/unit/gowGoldStatBoostAudit.test.ts > 8144 King of Treasure all-Skills Gold ratio (scoped) actual cast: M=20, Gold=100, four gains = 3+floor(Gold/5)
+tests/unit/gowLaneL1B04.test.ts > L1 troop:6700/spell:8056 Devour an Ally, summon a Daemon if devoured, [Magic+16] true scatter boosted by Life [3:1]=34% real cast side=Left magic=10: ally 1 devoured (+Atk/Armor/Life), Daemon summoned, scatter total = 10+16+floor(Life*34/100)
+tests/unit/gowLaneL1B04.test.ts > L1 troop:6700/spell:8056 Devour an Ally, summon a Daemon if devoured, [Magic+16] true scatter boosted by Life [3:1]=34% real cast side=Left magic=0: ally 1 devoured (+Atk/Armor/Life), Daemon summoned, scatter total = 0+16+floor(Life*34/100)
+tests/unit/gowLaneL1B04.test.ts > L1 troop:6700/spell:8056 Devour an Ally, summon a Daemon if devoured, [Magic+16] true scatter boosted by Life [3:1]=34% real cast side=Right magic=10: ally 1 devoured (+Atk/Armor/Life), Daemon summoned, scatter total = 10+16+floor(Life*34/100)
+tests/unit/gowLaneL1B04.test.ts > L1 troop:6700/spell:8056 Devour an Ally, summon a Daemon if devoured, [Magic+16] true scatter boosted by Life [3:1]=34% real cast side=Right magic=0: ally 1 devoured (+Atk/Armor/Life), Daemon summoned, scatter total = 0+16+floor(Life*34/100)
+tests/unit/gowLaneL1B04.test.ts > L1 troop:6700/spell:8056 Devour an Ally, summon a Daemon if devoured, [Magic+16] true scatter boosted by Life [3:1]=34% R003: Life 1000 without a devour -> floor(1000*0.34)=340 (not floor(1000/3)=333); no ally died -> no Daemon
+tests/unit/gowLaneL1B04.test.ts > L1 troop:6700/spell:8056 Devour an Ally, summon a Daemon if devoured, [Magic+16] true scatter boosted by Life [3:1]=34% R001 equivalence: native summons after the scatter; runtime summons before. The Daemon is not an enemy and does not change caster Life, so totals match native
+tests/unit/gowLaneL1B04.test.ts > L1 troop:6700/spell:8056 Devour an Ally, summon a Daemon if devoured, [Magic+16] true scatter boosted by Life [3:1]=34% Barrier on the ally blocks the devour: ally survives, Barrier consumed, no Daemon
+tests/unit/gowLaneL1B05.test.ts > L1 troop:6160/spell:7280 Devour an Enemy. Create 8 Yellow and 8 Brown Gems. One cast only. real cast side=Left: chosen enemy devoured (caster +Atk/Armor/Life), 8 Yellow + 8 Brown created
+tests/unit/gowLaneL1B05.test.ts > L1 troop:6160/spell:7280 Devour an Enemy. Create 8 Yellow and 8 Brown Gems. One cast only. real cast side=Right: chosen enemy devoured (caster +Atk/Armor/Life), 8 Yellow + 8 Brown created
+tests/unit/gowLaneL3B05Repro.test.ts > L3-014 8785 per-source floor 2 Green allies (caster+1) and 2 Green gems -> 1 star (floor(2x.34)+floor(2x.34)=0 bonus), not 2
+tests/unit/gowLaneL3B05Repro.test.ts > L3-015 counter-only mana 9847: no bleeding enemy -> 0 mana (not 2)
+tests/unit/gowLaneL3B05Repro.test.ts > L3-015 counter-only mana 8638: no Elemental Star -> 0 mana
+tests/unit/gowLaneL3B05Repro.test.ts > L3-015 counter-only mana 8580: no Lycanthropy Gem -> others 0 mana
+tests/unit/gowLaneL3B05Repro.test.ts > L3-016 Doomed weapons create Doomskulls 7952: enemy Doom -> 5 extra Doomskulls, no plain Skulls created
+tests/unit/gowLaneL3B05Repro.test.ts > L3-016 Doomed weapons create Doomskulls 7963: enemy Doom -> 5 extra Doomskulls, no plain Skulls created
+tests/unit/gowLaneL3B05Repro.test.ts > L3-016 Doomed weapons create Doomskulls 7973: enemy Doom -> 5 extra Doomskulls, no plain Skulls created
+tests/unit/gowLaneL3B05Repro.test.ts > L3-016 Doomed weapons create Doomskulls 8053: enemy Doom -> 5 extra Doomskulls, no plain Skulls created
+tests/unit/gowLaneL3B05Repro.test.ts > L3-016 Doomed weapons create Doomskulls 8077: enemy Doom -> 5 extra Doomskulls, no plain Skulls created
+tests/unit/gowLaneL3B05Repro.test.ts > L3-016 Doomed weapons create Doomskulls 8078: enemy Doom -> 5 extra Doomskulls, no plain Skulls created
+tests/unit/gowLaneL3B05Repro.test.ts > L3-017 Satyr 7032 steal before damage last enemy armor 2 -> caster Magic +2 then [Magic+4] = 16 at magic 10
+tests/unit/gowLaneL3B05Repro.test.ts > L3-018 Blade Dancer 7035 steals Magic random enemy loses 4 Magic, caster +4 Magic, no mana moved
+tests/unit/gowLaneL4bB07.test.ts > L4b troop:7795/spell:9815 Eliminate up to 14 Armor, create 5 Purple + 1 per 2 Armor eliminated real cast side=Left armor=5: armor -> 0, 7 Purple
+tests/unit/gowLaneL4bB07.test.ts > L4b troop:7795/spell:9815 Eliminate up to 14 Armor, create 5 Purple + 1 per 2 Armor eliminated real cast side=Left armor=14: armor -> 0, 12 Purple
+tests/unit/gowLaneL4bB07.test.ts > L4b troop:7795/spell:9815 Eliminate up to 14 Armor, create 5 Purple + 1 per 2 Armor eliminated real cast side=Left armor=30: armor -> 16, 12 Purple
+tests/unit/gowLaneL4bB07.test.ts > L4b troop:7795/spell:9815 Eliminate up to 14 Armor, create 5 Purple + 1 per 2 Armor eliminated real cast side=Right armor=5: armor -> 0, 7 Purple
+tests/unit/gowLaneL4bB07.test.ts > L4b troop:7795/spell:9815 Eliminate up to 14 Armor, create 5 Purple + 1 per 2 Armor eliminated real cast side=Right armor=14: armor -> 0, 12 Purple
+tests/unit/gowLaneL4bB07.test.ts > L4b troop:7795/spell:9815 Eliminate up to 14 Armor, create 5 Purple + 1 per 2 Armor eliminated real cast side=Right armor=30: armor -> 16, 12 Purple
+tests/unit/gowLaneL4bB07.test.ts > L4b troop:7795/spell:9815 Eliminate up to 14 Armor, create 5 Purple + 1 per 2 Armor eliminated odd armor rounds down (armor 9 -> +4 = 9 Purple); Barrier does not stop armor elimination
+tests/unit/gowLaneL5B04.test.ts > L5 troop:6646 / spell:7978 Poison the weakest enemy, then Magic+2 damage to the same enemy lethal on the weakest: defeated after being Poisoned; tie on Life picks the earlier position
+tests/unit/gowLaneL6B01.test.ts > L6B01 troop:7833 Ipanema / spell 10061 Riptide slay chance cap: armor 400 -> counter 40 capped at 20 -> 30% (0.2999 slays, 0.3001 does not)
+tests/unit/gowLaneL6B01.test.ts > L6B01 troop:7833 Ipanema / spell 10061 Riptide FIXED 7833-order (sa-L76 round 2): native counts armor & rolls slay BEFORE damage (armor 100 -> 20%); roll 0.19 must slay
+tests/unit/gowLaneL6B01.test.ts > L6B01 troop:7809 Armadillo / spell 9850 Plated Shell real cast Left magic=0: one random enemy takes magic+3+floor(armor*25%), survivor -> no armor gain
+tests/unit/gowLaneL6B01.test.ts > L6B01 troop:7809 Armadillo / spell 9850 Plated Shell real cast Left magic=10: one random enemy takes magic+3+floor(armor*25%), survivor -> no armor gain
+tests/unit/gowLaneL6B01.test.ts > L6B01 troop:7809 Armadillo / spell 9850 Plated Shell real cast Right magic=0: one random enemy takes magic+3+floor(armor*25%), survivor -> no armor gain
+tests/unit/gowLaneL6B01.test.ts > L6B01 troop:7809 Armadillo / spell 9850 Plated Shell real cast Right magic=10: one random enemy takes magic+3+floor(armor*25%), survivor -> no armor gain
+tests/unit/gowLaneL6B01.test.ts > L6B01 troop:7809 Armadillo / spell 9850 Plated Shell kill Left magic=0: target dies -> caster gains exactly 10 armor
+tests/unit/gowLaneL6B01.test.ts > L6B01 troop:7809 Armadillo / spell 9850 Plated Shell kill Left magic=10: target dies -> caster gains exactly 10 armor
+tests/unit/gowLaneL6B01.test.ts > L6B01 troop:7809 Armadillo / spell 9850 Plated Shell kill Right magic=0: target dies -> caster gains exactly 10 armor
+tests/unit/gowLaneL6B01.test.ts > L6B01 troop:7809 Armadillo / spell 9850 Plated Shell kill Right magic=10: target dies -> caster gains exactly 10 armor
+tests/unit/gowLaneL6B01.test.ts > L6B01 troop:7809 Armadillo / spell 9850 Plated Shell boundary: armor 3 -> floor(3*25%)=0 bonus; armor 4 -> +1; dead enemies never picked
+tests/unit/gowLaneL6B01.test.ts > L6B01 troop:7809 Armadillo / spell 9850 Plated Shell enemy armor absorbs first; surviving armored enemy gives no armor to caster
+tests/unit/gowLaneL6B01.test.ts > L6B01 weapon:1194 Fleshripper / spell 7752 real cast Left/7752/magic=0: all 30 armor removed, hp loss magic+4+floor(30*34%)=magic+14
+tests/unit/gowLaneL6B01.test.ts > L6B01 weapon:1194 Fleshripper / spell 7752 real cast Left/7752/magic=10: all 30 armor removed, hp loss magic+4+floor(30*34%)=magic+14
+tests/unit/gowLaneL6B01.test.ts > L6B01 weapon:1194 Fleshripper / spell 7752 real cast Left/gw_Fleshripper/magic=0: all 30 armor removed, hp loss magic+4+floor(30*34%)=magic+14
+tests/unit/gowLaneL6B01.test.ts > L6B01 weapon:1194 Fleshripper / spell 7752 real cast Left/gw_Fleshripper/magic=10: all 30 armor removed, hp loss magic+4+floor(30*34%)=magic+14
+tests/unit/gowLaneL6B01.test.ts > L6B01 weapon:1194 Fleshripper / spell 7752 real cast Right/7752/magic=0: all 30 armor removed, hp loss magic+4+floor(30*34%)=magic+14
+tests/unit/gowLaneL6B01.test.ts > L6B01 weapon:1194 Fleshripper / spell 7752 real cast Right/7752/magic=10: all 30 armor removed, hp loss magic+4+floor(30*34%)=magic+14
+tests/unit/gowLaneL6B01.test.ts > L6B01 weapon:1194 Fleshripper / spell 7752 real cast Right/gw_Fleshripper/magic=0: all 30 armor removed, hp loss magic+4+floor(30*34%)=magic+14
+tests/unit/gowLaneL6B01.test.ts > L6B01 weapon:1194 Fleshripper / spell 7752 real cast Right/gw_Fleshripper/magic=10: all 30 armor removed, hp loss magic+4+floor(30*34%)=magic+14
+tests/unit/gowLaneL6B01.test.ts > L6B01 weapon:1194 Fleshripper / spell 7752 boundary: armor 0 -> no boost, plain [Magic+4]; armor 2 -> floor(0.68)=0 boost
+tests/unit/gowLaneL6B01.test.ts > L6B01 weapon:1194 Fleshripper / spell 7752 FIXED 1194-rounding (R003, sa-L76 round 2): native CountArmor 34% of 50 armor = 17 -> hp loss 10+4+17 = 31
+tests/unit/gowLaneL6B02.test.ts > L6B02 weapon:1110 Mang / spell 7247 real cast Left/7247/magic=0: armor 53 eliminated first, full [Magic+1] to hp, +53 Attack
+tests/unit/gowLaneL6B02.test.ts > L6B02 weapon:1110 Mang / spell 7247 real cast Left/7247/magic=10: armor 53 eliminated first, full [Magic+1] to hp, +53 Attack
+tests/unit/gowLaneL6B02.test.ts > L6B02 weapon:1110 Mang / spell 7247 real cast Left/gw_Mang/magic=0: armor 53 eliminated first, full [Magic+1] to hp, +53 Attack
+tests/unit/gowLaneL6B02.test.ts > L6B02 weapon:1110 Mang / spell 7247 real cast Left/gw_Mang/magic=10: armor 53 eliminated first, full [Magic+1] to hp, +53 Attack
+tests/unit/gowLaneL6B02.test.ts > L6B02 weapon:1110 Mang / spell 7247 real cast Right/7247/magic=0: armor 53 eliminated first, full [Magic+1] to hp, +53 Attack
+tests/unit/gowLaneL6B02.test.ts > L6B02 weapon:1110 Mang / spell 7247 real cast Right/7247/magic=10: armor 53 eliminated first, full [Magic+1] to hp, +53 Attack
+tests/unit/gowLaneL6B02.test.ts > L6B02 weapon:1110 Mang / spell 7247 real cast Right/gw_Mang/magic=0: armor 53 eliminated first, full [Magic+1] to hp, +53 Attack
+tests/unit/gowLaneL6B02.test.ts > L6B02 weapon:1110 Mang / spell 7247 real cast Right/gw_Mang/magic=10: armor 53 eliminated first, full [Magic+1] to hp, +53 Attack
+tests/unit/gowLaneL6B02.test.ts > L6B02 weapon:1110 Mang / spell 7247 boundary: target armor 0 -> no Attack gain, plain [Magic+1]; armor 1 -> +1
+tests/unit/gowLaneL6B02.test.ts > L6B02 weapon:1110 Mang / spell 7247 lethal: target with 1 hp and 20 armor dies; Attack gain still equals armor eliminated
+tests/unit/gowLaneL6B02.test.ts > L6B02 weapon:1199 Earth's Fury / spell 7757 real cast Left magic=0: armor 30 eliminated, [Magic+5] to hp, every living ally +2+10 Attack
+tests/unit/gowLaneL6B02.test.ts > L6B02 weapon:1199 Earth's Fury / spell 7757 real cast Left magic=10: armor 30 eliminated, [Magic+5] to hp, every living ally +2+10 Attack
+tests/unit/gowLaneL6B02.test.ts > L6B02 weapon:1199 Earth's Fury / spell 7757 real cast Right magic=0: armor 30 eliminated, [Magic+5] to hp, every living ally +2+10 Attack
+tests/unit/gowLaneL6B02.test.ts > L6B02 weapon:1199 Earth's Fury / spell 7757 real cast Right magic=10: armor 30 eliminated, [Magic+5] to hp, every living ally +2+10 Attack
+tests/unit/gowLaneL6B02.test.ts > L6B02 weapon:1199 Earth's Fury / spell 7757 boundary: armor 0 -> fixed +2 Attack; armor 2 -> floor(0.68)=0 -> still +2
+tests/unit/gowLaneL6B02.test.ts > L6B02 weapon:1199 Earth's Fury / spell 7757 FIXED 1199-rounding (R003, sa-L76 round 2): native 34% of 50 armor = 17 -> allies +2+17 = +19 Attack
+tests/unit/gowLaneL6B02.test.ts > L6B02 weapon:1201 Trickster's Shot / spell 7759 real cast Left magic=0: armor 30 eliminated, [Magic+3] with pre-gain Magic, then self +2+10 Magic only
+tests/unit/gowLaneL6B02.test.ts > L6B02 weapon:1201 Trickster's Shot / spell 7759 real cast Left magic=10: armor 30 eliminated, [Magic+3] with pre-gain Magic, then self +2+10 Magic only
+tests/unit/gowLaneL6B02.test.ts > L6B02 weapon:1201 Trickster's Shot / spell 7759 real cast Right magic=0: armor 30 eliminated, [Magic+3] with pre-gain Magic, then self +2+10 Magic only
+tests/unit/gowLaneL6B02.test.ts > L6B02 weapon:1201 Trickster's Shot / spell 7759 real cast Right magic=10: armor 30 eliminated, [Magic+3] with pre-gain Magic, then self +2+10 Magic only
+tests/unit/gowLaneL6B02.test.ts > L6B02 weapon:1201 Trickster's Shot / spell 7759 boundary: armor 0 -> +2 Magic only; Web on caster blocks the Magic gain
+tests/unit/gowLaneL6B02.test.ts > L6B02 weapon:1201 Trickster's Shot / spell 7759 FIXED 1201-rounding (R003, sa-L76 round 2): native 34% of 50 armor = 17 -> self +2+17 = +19 Magic
+tests/unit/gowLaneL6B02.test.ts > L6B02 weapon:1204 Golden Sun / spell 7799 real cast Left magic=0: armor 30 eliminated, no damage, own side gold +magic+1+10
+tests/unit/gowLaneL6B02.test.ts > L6B02 weapon:1204 Golden Sun / spell 7799 real cast Left magic=10: armor 30 eliminated, no damage, own side gold +magic+1+10
+tests/unit/gowLaneL6B02.test.ts > L6B02 weapon:1204 Golden Sun / spell 7799 real cast Right magic=0: armor 30 eliminated, no damage, own side gold +magic+1+10
+tests/unit/gowLaneL6B02.test.ts > L6B02 weapon:1204 Golden Sun / spell 7799 real cast Right magic=10: armor 30 eliminated, no damage, own side gold +magic+1+10
+tests/unit/gowLaneL6B02.test.ts > L6B02 weapon:1204 Golden Sun / spell 7799 boundary: armor 0 -> [Magic+1] gold only; armor 2 -> 0 boost
+tests/unit/gowLaneL6B02.test.ts > L6B02 weapon:1204 Golden Sun / spell 7799 FIXED 1204-rounding (R003, sa-L76 round 2): native 34% of 50 armor = 17 -> gold +0+1+17 = 18
+tests/unit/gowLaneL6B02.test.ts > L6B02 weapon:1200 Yasmine's Pride / spell 7758 real cast Left magic=0: armor 30 eliminated, each living ally gains magic+1+10 Life and max Life
+tests/unit/gowLaneL6B02.test.ts > L6B02 weapon:1200 Yasmine's Pride / spell 7758 real cast Left magic=10: armor 30 eliminated, each living ally gains magic+1+10 Life and max Life
+tests/unit/gowLaneL6B02.test.ts > L6B02 weapon:1200 Yasmine's Pride / spell 7758 real cast Right magic=0: armor 30 eliminated, each living ally gains magic+1+10 Life and max Life
+tests/unit/gowLaneL6B02.test.ts > L6B02 weapon:1200 Yasmine's Pride / spell 7758 real cast Right magic=10: armor 30 eliminated, each living ally gains magic+1+10 Life and max Life
+tests/unit/gowLaneL6B02.test.ts > L6B02 weapon:1200 Yasmine's Pride / spell 7758 boundary: armor 0 -> [Magic+1] Life only; armor 2 -> 0 boost
+tests/unit/gowLaneL6B02.test.ts > L6B02 weapon:1200 Yasmine's Pride / spell 7758 FIXED 1200-rounding (R003, sa-L76 round 2): native 34% of 50 armor = 17 -> allies +0+1+17 = +18 Life
+tests/unit/gowLaneL7B01.test.ts > L7B01 troop:6320 spell 7470 true scatter boosted by all armor [3:1] real cast side=Left magic=0: pool 8 + floor(30 armor / 3), magic-independent, true
+tests/unit/gowLaneL7B01.test.ts > L7B01 troop:6320 spell 7470 true scatter boosted by all armor [3:1] real cast side=Left magic=10: pool 8 + floor(30 armor / 3), magic-independent, true
+tests/unit/gowLaneL7B01.test.ts > L7B01 troop:6320 spell 7470 true scatter boosted by all armor [3:1] real cast side=Right magic=0: pool 8 + floor(30 armor / 3), magic-independent, true
+tests/unit/gowLaneL7B01.test.ts > L7B01 troop:6320 spell 7470 true scatter boosted by all armor [3:1] real cast side=Right magic=10: pool 8 + floor(30 armor / 3), magic-independent, true
+tests/unit/gowLaneL7B01.test.ts > L7B01 troop:6320 spell 7470 true scatter boosted by all armor [3:1] armor source changes the pool: 0 armor -> 8; 2 armor -> 8; 3 armor -> 9; enemy armor alone counts
+tests/unit/gowLaneL7B01.test.ts > L7B01 troop:6228 spell 7370 single damage boosted by all ally armor [4:1] real cast side=Left magic=0: [Magic+2] + floor(ally armor 13 / 4)
+tests/unit/gowLaneL7B01.test.ts > L7B01 troop:6228 spell 7370 single damage boosted by all ally armor [4:1] real cast side=Left magic=10: [Magic+2] + floor(ally armor 13 / 4)
+tests/unit/gowLaneL7B01.test.ts > L7B01 troop:6228 spell 7370 single damage boosted by all ally armor [4:1] real cast side=Right magic=0: [Magic+2] + floor(ally armor 13 / 4)
+tests/unit/gowLaneL7B01.test.ts > L7B01 troop:6228 spell 7370 single damage boosted by all ally armor [4:1] real cast side=Right magic=10: [Magic+2] + floor(ally armor 13 / 4)
+tests/unit/gowLaneL7B01.test.ts > L7B01 troop:6228 spell 7370 single damage boosted by all ally armor [4:1] enemy armor does not boost; dead ally armor excluded; 3 ally armor gives no boost
+tests/unit/gowLaneL7B01.test.ts > L7B01 troop:6228 spell 7370 single damage boosted by all ally armor [4:1] target armor absorbs first; low mana / silence block
+tests/unit/gowLaneL7B01.test.ts > L7B01 troop:6352 spell 7504 two strongest enemies boosted by my armor [2:1] fixed L7-6352-a side=Left magic=0: both highest-Life enemies take [Magic+1] + floor(my armor 7 / 2); others untouched
+tests/unit/gowLaneL7B01.test.ts > L7B01 troop:6352 spell 7504 two strongest enemies boosted by my armor [2:1] fixed L7-6352-a side=Left magic=10: both highest-Life enemies take [Magic+1] + floor(my armor 7 / 2); others untouched
+tests/unit/gowLaneL7B01.test.ts > L7B01 troop:6352 spell 7504 two strongest enemies boosted by my armor [2:1] fixed L7-6352-a side=Right magic=0: both highest-Life enemies take [Magic+1] + floor(my armor 7 / 2); others untouched
+tests/unit/gowLaneL7B01.test.ts > L7B01 troop:6352 spell 7504 two strongest enemies boosted by my armor [2:1] fixed L7-6352-a side=Right magic=10: both highest-Life enemies take [Magic+1] + floor(my armor 7 / 2); others untouched
+tests/unit/gowLaneL7B01.test.ts > L7B01 troop:6352 spell 7504 two strongest enemies boosted by my armor [2:1] fixed L7-6352-a native expectation: TwoStrongestEnemies hits BOTH strongest enemies
+tests/unit/gowLaneL7B01.test.ts > L7B01 troop:6352 spell 7504 two strongest enemies boosted by my armor [2:1] repro L7-6352-b source-dispute: runtime ranks strength by current Life only, ignoring Armor
+tests/unit/gowLaneL7B01.test.ts > L7B01 troop:7501 spell 9246 ally-armor damage with Boss x ascension multiplier [4:1] real cast side=Left magic=0: non-Boss [Magic+4] + floor(ally armor 9 / 4)
+tests/unit/gowLaneL7B01.test.ts > L7B01 troop:7501 spell 9246 ally-armor damage with Boss x ascension multiplier [4:1] real cast side=Left magic=10: non-Boss [Magic+4] + floor(ally armor 9 / 4)
+tests/unit/gowLaneL7B01.test.ts > L7B01 troop:7501 spell 9246 ally-armor damage with Boss x ascension multiplier [4:1] real cast side=Right magic=0: non-Boss [Magic+4] + floor(ally armor 9 / 4)
+tests/unit/gowLaneL7B01.test.ts > L7B01 troop:7501 spell 9246 ally-armor damage with Boss x ascension multiplier [4:1] real cast side=Right magic=10: non-Boss [Magic+4] + floor(ally armor 9 / 4)
+tests/unit/gowLaneL7B02.test.ts > L7B02 troop:7344 spell 8969 four random-enemy hits boosted by my armor [3:1] real cast side=Left magic=0: 4 hits of [Magic+2] + floor(my armor 7 x 34%), consecutive hits never repeat an enemy
+tests/unit/gowLaneL7B02.test.ts > L7B02 troop:7344 spell 8969 four random-enemy hits boosted by my armor [3:1] real cast side=Left magic=10: 4 hits of [Magic+2] + floor(my armor 7 x 34%), consecutive hits never repeat an enemy
+tests/unit/gowLaneL7B02.test.ts > L7B02 troop:7344 spell 8969 four random-enemy hits boosted by my armor [3:1] real cast side=Right magic=0: 4 hits of [Magic+2] + floor(my armor 7 x 34%), consecutive hits never repeat an enemy
+tests/unit/gowLaneL7B02.test.ts > L7B02 troop:7344 spell 8969 four random-enemy hits boosted by my armor [3:1] real cast side=Right magic=10: 4 hits of [Magic+2] + floor(my armor 7 x 34%), consecutive hits never repeat an enemy
+tests/unit/gowLaneL7B02.test.ts > L7B02 troop:7344 spell 8969 four random-enemy hits boosted by my armor [3:1] fixed L7-7344: with 2 living enemies the 4 hits alternate (2 each)
+tests/unit/gowLaneL7B02.test.ts > L7B02 troop:7344 spell 8969 four random-enemy hits boosted by my armor [3:1] fixed L7-7344: a single living enemy takes all 4 hits; [3:1] is 34% (armor 50 -> +17)
+tests/unit/gowLaneL7B02.test.ts > L7B02 troop:6595 spell 7817 true damage boosted by the target armor [3:1] real cast side=Left magic=0: [Magic+1] + floor(target armor 11 / 3), armor untouched
+tests/unit/gowLaneL7B02.test.ts > L7B02 troop:6595 spell 7817 true damage boosted by the target armor [3:1] real cast side=Left magic=10: [Magic+1] + floor(target armor 11 / 3), armor untouched
+tests/unit/gowLaneL7B02.test.ts > L7B02 troop:6595 spell 7817 true damage boosted by the target armor [3:1] real cast side=Right magic=0: [Magic+1] + floor(target armor 11 / 3), armor untouched
+tests/unit/gowLaneL7B02.test.ts > L7B02 troop:6595 spell 7817 true damage boosted by the target armor [3:1] real cast side=Right magic=10: [Magic+1] + floor(target armor 11 / 3), armor untouched
+tests/unit/gowLaneL7B02.test.ts > L7B02 troop:6595 spell 7817 true damage boosted by the target armor [3:1] only the chosen target armor counts: target armor 0 -> no boost even when others are armored; 2 -> 0; 3 -> 1
+tests/unit/gowLaneL7B02.test.ts > L7B02 troop:6595 spell 7817 true damage boosted by the target armor [3:1] barrier blocks the true hit; low mana / silence block
+tests/unit/gowLaneL7B02.test.ts > L7B02 troop:6848 spell 8267 true damage then 10% kill chance boosted by their armor [5:1] real cast side=Left magic=0: [Magic+3] true damage, failed kill roll leaves target alive (armor 12 -> 12%, roll 0.1201)
+tests/unit/gowLaneL7B02.test.ts > L7B02 troop:6848 spell 8267 true damage then 10% kill chance boosted by their armor [5:1] real cast side=Left magic=10: [Magic+3] true damage, failed kill roll leaves target alive (armor 12 -> 12%, roll 0.1201)
+tests/unit/gowLaneL7B02.test.ts > L7B02 troop:6848 spell 8267 true damage then 10% kill chance boosted by their armor [5:1] real cast side=Right magic=0: [Magic+3] true damage, failed kill roll leaves target alive (armor 12 -> 12%, roll 0.1201)
+tests/unit/gowLaneL7B02.test.ts > L7B02 troop:6848 spell 8267 true damage then 10% kill chance boosted by their armor [5:1] real cast side=Right magic=10: [Magic+3] true damage, failed kill roll leaves target alive (armor 12 -> 12%, roll 0.1201)
+tests/unit/gowLaneL7B02.test.ts > L7B02 troop:6848 spell 8267 true damage then 10% kill chance boosted by their armor [5:1] real cast side=Left: kill roll 0.1199 < 12% kills the target through armor
+tests/unit/gowLaneL7B02.test.ts > L7B02 troop:6848 spell 8267 true damage then 10% kill chance boosted by their armor [5:1] real cast side=Right: kill roll 0.1199 < 12% kills the target through armor
+tests/unit/gowLaneL7B02.test.ts > L7B02 troop:6848 spell 8267 true damage then 10% kill chance boosted by their armor [5:1] base chance 10% with 0-4 armor (+0); armor 5 -> 11%; armor 450 -> 100%; only the target armor counts
+tests/unit/gowLaneL7B03.test.ts > L7B03 troop:7501 spell 9246 ally-armor damage [4:1] (Boss x ascension clause waived R000) real cast side=Left magic=0: [Magic+4] + floor(ally armor 13 / 4) to the chosen enemy only
+tests/unit/gowLaneL7B03.test.ts > L7B03 troop:7501 spell 9246 ally-armor damage [4:1] (Boss x ascension clause waived R000) real cast side=Left magic=10: [Magic+4] + floor(ally armor 13 / 4) to the chosen enemy only
+tests/unit/gowLaneL7B03.test.ts > L7B03 troop:7501 spell 9246 ally-armor damage [4:1] (Boss x ascension clause waived R000) real cast side=Right magic=0: [Magic+4] + floor(ally armor 13 / 4) to the chosen enemy only
+tests/unit/gowLaneL7B03.test.ts > L7B03 troop:7501 spell 9246 ally-armor damage [4:1] (Boss x ascension clause waived R000) real cast side=Right magic=10: [Magic+4] + floor(ally armor 13 / 4) to the chosen enemy only
+tests/unit/gowLaneL7B03.test.ts > L7B03 troop:7501 spell 9246 ally-armor damage [4:1] (Boss x ascension clause waived R000) ratio boundaries: 3 ally armor -> +0, 4 -> +1; dead ally and enemy armor not counted
+tests/unit/gowLaneL7B03.test.ts > L7B03 troop:7501 spell 9246 ally-armor damage [4:1] (Boss x ascension clause waived R000) target armor absorbs first; barrier blocks; low mana / silence block (waived Boss multiplier not asserted)
+tests/unit/gowLaneL7B03.test.ts > L7B03 troop:6211 spell 7353 ally armor +[Magic+1] then scatter equal to that armor [1:1] real cast side=Left magic=0: chosen ally gains [Magic+1] Armor, other allies/caster untouched
+tests/unit/gowLaneL7B03.test.ts > L7B03 troop:6211 spell 7353 ally armor +[Magic+1] then scatter equal to that armor [1:1] real cast side=Left magic=10: chosen ally gains [Magic+1] Armor, other allies/caster untouched
+tests/unit/gowLaneL7B03.test.ts > L7B03 troop:6211 spell 7353 ally armor +[Magic+1] then scatter equal to that armor [1:1] real cast side=Right magic=0: chosen ally gains [Magic+1] Armor, other allies/caster untouched
+tests/unit/gowLaneL7B03.test.ts > L7B03 troop:6211 spell 7353 ally armor +[Magic+1] then scatter equal to that armor [1:1] real cast side=Right magic=10: chosen ally gains [Magic+1] Armor, other allies/caster untouched
+tests/unit/gowLaneL7B03.test.ts > L7B03 troop:6211 spell 7353 ally armor +[Magic+1] then scatter equal to that armor [1:1] fixed L7-6211 side=Left magic=0: scatter pool = ally armor 5 + [Magic+1] (native pre-buff counter + Amount 1 + Magic)
+tests/unit/gowLaneL7B03.test.ts > L7B03 troop:6211 spell 7353 ally armor +[Magic+1] then scatter equal to that armor [1:1] fixed L7-6211 side=Left magic=10: scatter pool = ally armor 5 + [Magic+1] (native pre-buff counter + Amount 1 + Magic)
+tests/unit/gowLaneL7B03.test.ts > L7B03 troop:6211 spell 7353 ally armor +[Magic+1] then scatter equal to that armor [1:1] fixed L7-6211 side=Right magic=0: scatter pool = ally armor 5 + [Magic+1] (native pre-buff counter + Amount 1 + Magic)
+tests/unit/gowLaneL7B03.test.ts > L7B03 troop:6211 spell 7353 ally armor +[Magic+1] then scatter equal to that armor [1:1] fixed L7-6211 side=Right magic=10: scatter pool = ally armor 5 + [Magic+1] (native pre-buff counter + Amount 1 + Magic)
+tests/unit/gowLaneL7B03.test.ts > L7B03 troop:6211 spell 7353 ally armor +[Magic+1] then scatter equal to that armor [1:1] R001 order equivalence: pre-buff counter + [Magic+1] equals post-buff armor for ally armor 0 / 1 / 33
+tests/unit/gowLaneL7B03.test.ts > L7B03 troop:6211 spell 7353 ally armor +[Magic+1] then scatter equal to that armor [1:1] scatter never hits dead enemies; caster/other-ally armor not the source; low mana / silence block
+tests/unit/gowLaneL7B03Repro.test.ts > repro L7-6211 troop:6211 spell 7353 scatter equal to the Ally armor fixed: native expectation side=Left magic=0: scatter pool = ally armor after +[Magic+1] (5 + magic + 1)
+tests/unit/gowLaneL7B03Repro.test.ts > repro L7-6211 troop:6211 spell 7353 scatter equal to the Ally armor fixed: native expectation side=Left magic=10: scatter pool = ally armor after +[Magic+1] (5 + magic + 1)
+tests/unit/gowLaneL7B03Repro.test.ts > repro L7-6211 troop:6211 spell 7353 scatter equal to the Ally armor fixed: native expectation side=Right magic=0: scatter pool = ally armor after +[Magic+1] (5 + magic + 1)
+tests/unit/gowLaneL7B03Repro.test.ts > repro L7-6211 troop:6211 spell 7353 scatter equal to the Ally armor fixed: native expectation side=Right magic=10: scatter pool = ally armor after +[Magic+1] (5 + magic + 1)
+tests/unit/gowLaneL7B04.test.ts > L7B04 troop:7517 spell 9281 pull to front, ranged damage boosted by my armor [2:1], 15% self destruct real cast side=Left magic=0: chosen enemy pulled to front, takes [2..4] + floor(armor 21 / 2) only; no self destruct at roll 0.5
+tests/unit/gowLaneL7B04.test.ts > L7B04 troop:7517 spell 9281 pull to front, ranged damage boosted by my armor [2:1], 15% self destruct real cast side=Left magic=8: chosen enemy pulled to front, takes [7..14] + floor(armor 21 / 2) only; no self destruct at roll 0.5
+tests/unit/gowLaneL7B04.test.ts > L7B04 troop:7517 spell 9281 pull to front, ranged damage boosted by my armor [2:1], 15% self destruct real cast side=Right magic=0: chosen enemy pulled to front, takes [2..4] + floor(armor 21 / 2) only; no self destruct at roll 0.5
+tests/unit/gowLaneL7B04.test.ts > L7B04 troop:7517 spell 9281 pull to front, ranged damage boosted by my armor [2:1], 15% self destruct real cast side=Right magic=8: chosen enemy pulled to front, takes [7..14] + floor(armor 21 / 2) only; no self destruct at roll 0.5
+tests/unit/gowLaneL7B04Repro.test.ts > repro L7-7517 troop:7517 spell 9281 damage goes to the pulled enemy only fixed: native expectation side=Left magic=0: pulled enemy 12 takes the whole roll, others untouched
+tests/unit/gowLaneL7B04Repro.test.ts > repro L7-7517 troop:7517 spell 9281 damage goes to the pulled enemy only fixed: native expectation side=Left magic=10: pulled enemy 12 takes the whole roll, others untouched
+tests/unit/gowLaneL7B04Repro.test.ts > repro L7-7517 troop:7517 spell 9281 damage goes to the pulled enemy only fixed: native expectation side=Right magic=0: pulled enemy 12 takes the whole roll, others untouched
+tests/unit/gowLaneL7B04Repro.test.ts > repro L7-7517 troop:7517 spell 9281 damage goes to the pulled enemy only fixed: native expectation side=Right magic=10: pulled enemy 12 takes the whole roll, others untouched
+tests/unit/gowLaneL7B05.test.ts > L7B05 troop:6352 spell 7504 two strongest enemies boosted by my armor [2:1] real cast side=Left magic=0: both highest-Life enemies take [Magic+1] + floor(my armor 7 / 2)
+tests/unit/gowLaneL7B05.test.ts > L7B05 troop:6352 spell 7504 two strongest enemies boosted by my armor [2:1] real cast side=Left magic=10: both highest-Life enemies take [Magic+1] + floor(my armor 7 / 2)
+tests/unit/gowLaneL7B05.test.ts > L7B05 troop:6352 spell 7504 two strongest enemies boosted by my armor [2:1] real cast side=Right magic=0: both highest-Life enemies take [Magic+1] + floor(my armor 7 / 2)
+tests/unit/gowLaneL7B05.test.ts > L7B05 troop:6352 spell 7504 two strongest enemies boosted by my armor [2:1] real cast side=Right magic=10: both highest-Life enemies take [Magic+1] + floor(my armor 7 / 2)
+tests/unit/gowLaneL7B05.test.ts > L7B05 troop:6352 spell 7504 two strongest enemies boosted by my armor [2:1] source-dispute L7-6352-b (runtime): strength ranked by current Life only, armor ignored
+tests/unit/gowLaneL7B05.test.ts > L7B05 troop:7344 spell 8969 four separate random hits boosted by my armor [3:1] real cast side=Left magic=0: 4 hits of [Magic+2] + floor(armor 53 x 34%) = +18; no two consecutive hits on the same enemy
+tests/unit/gowLaneL7B05.test.ts > L7B05 troop:7344 spell 8969 four separate random hits boosted by my armor [3:1] real cast side=Left magic=10: 4 hits of [Magic+2] + floor(armor 53 x 34%) = +18; no two consecutive hits on the same enemy
+tests/unit/gowLaneL7B05.test.ts > L7B05 troop:7344 spell 8969 four separate random hits boosted by my armor [3:1] real cast side=Right magic=0: 4 hits of [Magic+2] + floor(armor 53 x 34%) = +18; no two consecutive hits on the same enemy
+tests/unit/gowLaneL7B05.test.ts > L7B05 troop:7344 spell 8969 four separate random hits boosted by my armor [3:1] real cast side=Right magic=10: 4 hits of [Magic+2] + floor(armor 53 x 34%) = +18; no two consecutive hits on the same enemy
+tests/unit/gowLaneL7B05.test.ts > L7B05 troop:7833 spell 10061 slay roll on pre-damage armor, [Magic+4] damage, pull to back [10:1] slay chance uses PRE-damage armor (R001): armor 100 -> 20%: roll 0.19 slays, 0.2001 does not (armor then 86)
+tests/unit/gowLaneL7B05.test.ts > L7B05 troop:7833 spell 10061 slay roll on pre-damage armor, [Magic+4] damage, pull to back [10:1] base 10% at 0 armor (0.0999 slays, 0.1 not); cap 30% at armor 400 (0.2999 slays, 0.3001 not)
+tests/unit/gowLaneL7B05.test.ts > L7B05 weapon:1194 Fleshripper spell 7752 eliminate all armor, [Magic+4] boosted by armor eliminated [3:1]=34% real cast Left/7752/magic=0: armor 50 eliminated, Life loss [Magic+4] + floor(50 x 34%) = +17
+tests/unit/gowLaneL7B05.test.ts > L7B05 weapon:1194 Fleshripper spell 7752 eliminate all armor, [Magic+4] boosted by armor eliminated [3:1]=34% real cast Left/7752/magic=10: armor 50 eliminated, Life loss [Magic+4] + floor(50 x 34%) = +17
+tests/unit/gowLaneL7B05.test.ts > L7B05 weapon:1194 Fleshripper spell 7752 eliminate all armor, [Magic+4] boosted by armor eliminated [3:1]=34% real cast Left/gw_Fleshripper/magic=0: armor 50 eliminated, Life loss [Magic+4] + floor(50 x 34%) = +17
+tests/unit/gowLaneL7B05.test.ts > L7B05 weapon:1194 Fleshripper spell 7752 eliminate all armor, [Magic+4] boosted by armor eliminated [3:1]=34% real cast Left/gw_Fleshripper/magic=10: armor 50 eliminated, Life loss [Magic+4] + floor(50 x 34%) = +17
+tests/unit/gowLaneL7B05.test.ts > L7B05 weapon:1194 Fleshripper spell 7752 eliminate all armor, [Magic+4] boosted by armor eliminated [3:1]=34% real cast Right/7752/magic=0: armor 50 eliminated, Life loss [Magic+4] + floor(50 x 34%) = +17
+tests/unit/gowLaneL7B05.test.ts > L7B05 weapon:1194 Fleshripper spell 7752 eliminate all armor, [Magic+4] boosted by armor eliminated [3:1]=34% real cast Right/7752/magic=10: armor 50 eliminated, Life loss [Magic+4] + floor(50 x 34%) = +17
+tests/unit/gowLaneL7B05.test.ts > L7B05 weapon:1194 Fleshripper spell 7752 eliminate all armor, [Magic+4] boosted by armor eliminated [3:1]=34% real cast Right/gw_Fleshripper/magic=0: armor 50 eliminated, Life loss [Magic+4] + floor(50 x 34%) = +17
+tests/unit/gowLaneL7B05.test.ts > L7B05 weapon:1194 Fleshripper spell 7752 eliminate all armor, [Magic+4] boosted by armor eliminated [3:1]=34% real cast Right/gw_Fleshripper/magic=10: armor 50 eliminated, Life loss [Magic+4] + floor(50 x 34%) = +17
+tests/unit/gowLaneL7B05.test.ts > L7B05 weapon:1194 Fleshripper spell 7752 eliminate all armor, [Magic+4] boosted by armor eliminated [3:1]=34% R003 percentage boundaries: armor 2 -> +0, 3 -> +1, 30 -> +10, 53 -> +18 (floor(53/3) would be 17), 0 -> plain
+tests/unit/gowLaneL7B06.test.ts > L7B06 weapon:1199 Earth's Fury spell 7757 real cast Left/7757/magic=0: armor 50 eliminated, [Magic+5] to Life, living allies +2+17 Attack
+tests/unit/gowLaneL7B06.test.ts > L7B06 weapon:1199 Earth's Fury spell 7757 real cast Left/7757/magic=10: armor 50 eliminated, [Magic+5] to Life, living allies +2+17 Attack
+tests/unit/gowLaneL7B06.test.ts > L7B06 weapon:1199 Earth's Fury spell 7757 real cast Left/gw_EarthsFury/magic=0: armor 50 eliminated, [Magic+5] to Life, living allies +2+17 Attack
+tests/unit/gowLaneL7B06.test.ts > L7B06 weapon:1199 Earth's Fury spell 7757 real cast Left/gw_EarthsFury/magic=10: armor 50 eliminated, [Magic+5] to Life, living allies +2+17 Attack
+tests/unit/gowLaneL7B06.test.ts > L7B06 weapon:1199 Earth's Fury spell 7757 real cast Right/7757/magic=0: armor 50 eliminated, [Magic+5] to Life, living allies +2+17 Attack
+tests/unit/gowLaneL7B06.test.ts > L7B06 weapon:1199 Earth's Fury spell 7757 real cast Right/7757/magic=10: armor 50 eliminated, [Magic+5] to Life, living allies +2+17 Attack
+tests/unit/gowLaneL7B06.test.ts > L7B06 weapon:1199 Earth's Fury spell 7757 real cast Right/gw_EarthsFury/magic=0: armor 50 eliminated, [Magic+5] to Life, living allies +2+17 Attack
+tests/unit/gowLaneL7B06.test.ts > L7B06 weapon:1199 Earth's Fury spell 7757 real cast Right/gw_EarthsFury/magic=10: armor 50 eliminated, [Magic+5] to Life, living allies +2+17 Attack
+tests/unit/gowLaneL7B06.test.ts > L7B06 weapon:1199 Earth's Fury spell 7757 R003 boundaries: armor 0 -> +2, 2 -> +2, 3 -> +3, 53 -> +2+18
+tests/unit/gowLaneL7B06.test.ts > L7B06 weapon:1201 Trickster's Shot spell 7759 real cast Left/7759/magic=0: armor 50 eliminated, [Magic+3] with pre-gain Magic, then self +2+17 Magic only
+tests/unit/gowLaneL7B06.test.ts > L7B06 weapon:1201 Trickster's Shot spell 7759 real cast Left/7759/magic=10: armor 50 eliminated, [Magic+3] with pre-gain Magic, then self +2+17 Magic only
+tests/unit/gowLaneL7B06.test.ts > L7B06 weapon:1201 Trickster's Shot spell 7759 real cast Left/gw_TrickstersShot/magic=0: armor 50 eliminated, [Magic+3] with pre-gain Magic, then self +2+17 Magic only
+tests/unit/gowLaneL7B06.test.ts > L7B06 weapon:1201 Trickster's Shot spell 7759 real cast Left/gw_TrickstersShot/magic=10: armor 50 eliminated, [Magic+3] with pre-gain Magic, then self +2+17 Magic only
+tests/unit/gowLaneL7B06.test.ts > L7B06 weapon:1201 Trickster's Shot spell 7759 real cast Right/7759/magic=0: armor 50 eliminated, [Magic+3] with pre-gain Magic, then self +2+17 Magic only
+tests/unit/gowLaneL7B06.test.ts > L7B06 weapon:1201 Trickster's Shot spell 7759 real cast Right/7759/magic=10: armor 50 eliminated, [Magic+3] with pre-gain Magic, then self +2+17 Magic only
+tests/unit/gowLaneL7B06.test.ts > L7B06 weapon:1201 Trickster's Shot spell 7759 real cast Right/gw_TrickstersShot/magic=0: armor 50 eliminated, [Magic+3] with pre-gain Magic, then self +2+17 Magic only
+tests/unit/gowLaneL7B06.test.ts > L7B06 weapon:1201 Trickster's Shot spell 7759 real cast Right/gw_TrickstersShot/magic=10: armor 50 eliminated, [Magic+3] with pre-gain Magic, then self +2+17 Magic only
+tests/unit/gowLaneL7B06.test.ts > L7B06 weapon:1201 Trickster's Shot spell 7759 R003 boundaries 0/2/3/53; Web on caster blocks the Magic gain
+tests/unit/gowLaneL7B06.test.ts > L7B06 weapon:1204 Golden Sun spell 7799 real cast Left/7799/magic=0: armor 50 eliminated, no damage, own side gold + magic+1+17
+tests/unit/gowLaneL7B06.test.ts > L7B06 weapon:1204 Golden Sun spell 7799 real cast Left/7799/magic=10: armor 50 eliminated, no damage, own side gold + magic+1+17
+tests/unit/gowLaneL7B06.test.ts > L7B06 weapon:1204 Golden Sun spell 7799 real cast Left/gw_GoldenSun/magic=0: armor 50 eliminated, no damage, own side gold + magic+1+17
+tests/unit/gowLaneL7B06.test.ts > L7B06 weapon:1204 Golden Sun spell 7799 real cast Left/gw_GoldenSun/magic=10: armor 50 eliminated, no damage, own side gold + magic+1+17
+tests/unit/gowLaneL7B06.test.ts > L7B06 weapon:1204 Golden Sun spell 7799 real cast Right/7799/magic=0: armor 50 eliminated, no damage, own side gold + magic+1+17
+tests/unit/gowLaneL7B06.test.ts > L7B06 weapon:1204 Golden Sun spell 7799 real cast Right/7799/magic=10: armor 50 eliminated, no damage, own side gold + magic+1+17
+tests/unit/gowLaneL7B06.test.ts > L7B06 weapon:1204 Golden Sun spell 7799 real cast Right/gw_GoldenSun/magic=0: armor 50 eliminated, no damage, own side gold + magic+1+17
+tests/unit/gowLaneL7B06.test.ts > L7B06 weapon:1204 Golden Sun spell 7799 real cast Right/gw_GoldenSun/magic=10: armor 50 eliminated, no damage, own side gold + magic+1+17
+tests/unit/gowLaneL7B06.test.ts > L7B06 weapon:1204 Golden Sun spell 7799 R003 boundaries 0/2/3/53
+tests/unit/gowLaneL7B06.test.ts > L7B06 weapon:1200 Yasmine's Pride spell 7758 real cast Left/7758/magic=0: armor 50 eliminated, each living ally +magic+1+17 Life and max Life
+tests/unit/gowLaneL7B06.test.ts > L7B06 weapon:1200 Yasmine's Pride spell 7758 real cast Left/7758/magic=10: armor 50 eliminated, each living ally +magic+1+17 Life and max Life
+tests/unit/gowLaneL7B06.test.ts > L7B06 weapon:1200 Yasmine's Pride spell 7758 real cast Left/gw_YasminesPride/magic=0: armor 50 eliminated, each living ally +magic+1+17 Life and max Life
+tests/unit/gowLaneL7B06.test.ts > L7B06 weapon:1200 Yasmine's Pride spell 7758 real cast Left/gw_YasminesPride/magic=10: armor 50 eliminated, each living ally +magic+1+17 Life and max Life
+tests/unit/gowLaneL7B06.test.ts > L7B06 weapon:1200 Yasmine's Pride spell 7758 real cast Right/7758/magic=0: armor 50 eliminated, each living ally +magic+1+17 Life and max Life
+tests/unit/gowLaneL7B06.test.ts > L7B06 weapon:1200 Yasmine's Pride spell 7758 real cast Right/7758/magic=10: armor 50 eliminated, each living ally +magic+1+17 Life and max Life
+tests/unit/gowLaneL7B06.test.ts > L7B06 weapon:1200 Yasmine's Pride spell 7758 real cast Right/gw_YasminesPride/magic=0: armor 50 eliminated, each living ally +magic+1+17 Life and max Life
+tests/unit/gowLaneL7B06.test.ts > L7B06 weapon:1200 Yasmine's Pride spell 7758 real cast Right/gw_YasminesPride/magic=10: armor 50 eliminated, each living ally +magic+1+17 Life and max Life
+tests/unit/gowLaneL7B06.test.ts > L7B06 weapon:1200 Yasmine's Pride spell 7758 R003 boundaries 0/2/3/53
+tests/unit/gowLaneL7B06.test.ts > L7B06 troop:6320 spell 7470 true scatter boosted by all armor [3:1]=34% real cast side=Left magic=0: pool 8 + floor(50 total armor x 34%) = 25, magic-independent, true
+tests/unit/gowLaneL7B06.test.ts > L7B06 troop:6320 spell 7470 true scatter boosted by all armor [3:1]=34% real cast side=Left magic=10: pool 8 + floor(50 total armor x 34%) = 25, magic-independent, true
+tests/unit/gowLaneL7B06.test.ts > L7B06 troop:6320 spell 7470 true scatter boosted by all armor [3:1]=34% real cast side=Right magic=0: pool 8 + floor(50 total armor x 34%) = 25, magic-independent, true
+tests/unit/gowLaneL7B06.test.ts > L7B06 troop:6320 spell 7470 true scatter boosted by all armor [3:1]=34% real cast side=Right magic=10: pool 8 + floor(50 total armor x 34%) = 25, magic-independent, true
+tests/unit/gowLaneL7B06.test.ts > L7B06 troop:6320 spell 7470 true scatter boosted by all armor [3:1]=34% R003 boundaries on the summed count: 0 -> 8, 2 -> 8, 3 -> 9, 12 -> 12, 53 -> 26; dead troops armor excluded
+tests/unit/gowLaneL7B07.test.ts > L7B07 troop:6595 spell 7817 true damage boosted by the target armor [3:1]=34% real cast side=Left magic=0: target armor 50 -> +17 (34%), true damage leaves armor
+tests/unit/gowLaneL7B07.test.ts > L7B07 troop:6595 spell 7817 true damage boosted by the target armor [3:1]=34% real cast side=Left magic=10: target armor 50 -> +17 (34%), true damage leaves armor
+tests/unit/gowLaneL7B07.test.ts > L7B07 troop:6595 spell 7817 true damage boosted by the target armor [3:1]=34% real cast side=Right magic=0: target armor 50 -> +17 (34%), true damage leaves armor
+tests/unit/gowLaneL7B07.test.ts > L7B07 troop:6595 spell 7817 true damage boosted by the target armor [3:1]=34% real cast side=Right magic=10: target armor 50 -> +17 (34%), true damage leaves armor
+tests/unit/gowLaneL7B07.test.ts > L7B07 troop:6595 spell 7817 true damage boosted by the target armor [3:1]=34% R003 boundaries on the target own armor: 0 -> +0, 2 -> +0, 3 -> +1, 53 -> +18; other armor ignored
+tests/unit/gowLaneL7B08.test.ts > L7B08 troop:6874 spell 8298 [Magic+6] damage boosted by their Attack [1:1], gain 10 Souls real cast side=Left magic=0: [Magic+6] + target Attack 23; other Attack ignored
+tests/unit/gowLaneL7B08.test.ts > L7B08 troop:6874 spell 8298 [Magic+6] damage boosted by their Attack [1:1], gain 10 Souls real cast side=Left magic=10: [Magic+6] + target Attack 23; other Attack ignored
+tests/unit/gowLaneL7B08.test.ts > L7B08 troop:6874 spell 8298 [Magic+6] damage boosted by their Attack [1:1], gain 10 Souls real cast side=Right magic=0: [Magic+6] + target Attack 23; other Attack ignored
+tests/unit/gowLaneL7B08.test.ts > L7B08 troop:6874 spell 8298 [Magic+6] damage boosted by their Attack [1:1], gain 10 Souls real cast side=Right magic=10: [Magic+6] + target Attack 23; other Attack ignored
+tests/unit/gowLifeSemanticsAudit.test.ts > source-backed IncreaseHealth / IncreaseAllStats versus Heal (direct hp buffs) 7756 equipped alias gains all eliminated Armor as Life at hp=40
+tests/unit/gowLifeSemanticsAudit.test.ts > source-backed IncreaseHealth / IncreaseAllStats versus Heal (direct hp buffs) 7756 equipped alias gains all eliminated Armor as Life at hp=100
+tests/unit/gowMultiTargetDamageAudit.test.ts > multi-victim damage compared with repository native/English snapshot troop:6418/7576 segment 0: 2 victims
+tests/unit/gowMultiTargetDamageAudit.test.ts > multi-victim damage compared with repository native/English snapshot troop:6553/7747 segment 0: 2 victims
+tests/unit/gowMultiTargetDamageAudit.test.ts > multi-victim damage compared with repository native/English snapshot troop:7039/8563 segment 0: 4 victims
+tests/unit/gowMultiTargetDamageAudit.test.ts > multi-victim damage compared with repository native/English snapshot troop:7318/8930 segment 0: 2 victims
+tests/unit/gowMultiTargetDamageAudit.test.ts > multi-victim damage compared with repository native/English snapshot troop:7467/9184 segment 0: 2 victims
+tests/unit/gowMultiTargetDamageAudit.test.ts > multi-victim damage compared with repository native/English snapshot troop:7596/9475 segment 0: 2 victims
+tests/unit/gowMultiTargetDamageAudit.test.ts > multi-victim damage compared with repository native/English snapshot troop:7838/9882 segment 0: 3 victims
+tests/unit/gowMultiTargetDamageAudit.test.ts > multi-victim damage compared with repository native/English snapshot troop:7902/9986 segment 0: 3 victims
+tests/unit/gowMultiTargetDamageAudit.test.ts > multi-victim damage compared with repository native/English snapshot TurnEngine 7748: original source multi-target spell actually damages 2 enemies
+tests/unit/gowPaladinJusticeAudit.test.ts > Paladin 6029 / Justice 7029 full skill snapshot audit Left: target 10, caster Armor=7 adds exactly 7 to Magic; target Armor absorbs first
+tests/unit/gowPaladinJusticeAudit.test.ts > Paladin 6029 / Justice 7029 full skill snapshot audit Left: target 11, caster Armor=7 adds exactly 7 to Magic; target Armor absorbs first
+tests/unit/gowPaladinJusticeAudit.test.ts > Paladin 6029 / Justice 7029 full skill snapshot audit Left: target 12, caster Armor=7 adds exactly 7 to Magic; target Armor absorbs first
+tests/unit/gowPaladinJusticeAudit.test.ts > Paladin 6029 / Justice 7029 full skill snapshot audit Left: target 13, caster Armor=7 adds exactly 7 to Magic; target Armor absorbs first
+tests/unit/gowPaladinJusticeAudit.test.ts > Paladin 6029 / Justice 7029 full skill snapshot audit Right: target 10, caster Armor=7 adds exactly 7 to Magic; target Armor absorbs first
+tests/unit/gowPaladinJusticeAudit.test.ts > Paladin 6029 / Justice 7029 full skill snapshot audit Right: target 11, caster Armor=7 adds exactly 7 to Magic; target Armor absorbs first
+tests/unit/gowPaladinJusticeAudit.test.ts > Paladin 6029 / Justice 7029 full skill snapshot audit Right: target 12, caster Armor=7 adds exactly 7 to Magic; target Armor absorbs first
+tests/unit/gowPaladinJusticeAudit.test.ts > Paladin 6029 / Justice 7029 full skill snapshot audit Right: target 13, caster Armor=7 adds exactly 7 to Magic; target Armor absorbs first
+tests/unit/gowPaladinJusticeAudit.test.ts > Paladin 6029 / Justice 7029 full skill snapshot audit Magic=0, Armor=1: scaling and no rounding or accidental target-armor boost
+tests/unit/gowPaladinJusticeAudit.test.ts > Paladin 6029 / Justice 7029 full skill snapshot audit Magic=0, Armor=23: scaling and no rounding or accidental target-armor boost
+tests/unit/gowPaladinJusticeAudit.test.ts > Paladin 6029 / Justice 7029 full skill snapshot audit Magic=1, Armor=1: scaling and no rounding or accidental target-armor boost
+tests/unit/gowPaladinJusticeAudit.test.ts > Paladin 6029 / Justice 7029 full skill snapshot audit Magic=1, Armor=23: scaling and no rounding or accidental target-armor boost
+tests/unit/gowPaladinJusticeAudit.test.ts > Paladin 6029 / Justice 7029 full skill snapshot audit Magic=21, Armor=1: scaling and no rounding or accidental target-armor boost
+tests/unit/gowPaladinJusticeAudit.test.ts > Paladin 6029 / Justice 7029 full skill snapshot audit Magic=21, Armor=23: scaling and no rounding or accidental target-armor boost
+tests/unit/gowPaladinJusticeAudit.test.ts > Paladin 6029 / Justice 7029 full skill snapshot audit Web suppresses only Magic; self Armor is still counted
+tests/unit/gowPaladinJusticeAudit.test.ts > Paladin 6029 / Justice 7029 full skill snapshot audit Barrier negates the single hit and is consumed, without changing caster Armor
+tests/unit/gowPaladinJusticeAudit.test.ts > Paladin 6029 / Justice 7029 full skill snapshot audit lethal hit defeats only the chosen enemy
+tests/unit/gowPlayerChoiceAudit.test.ts > native Choose: source-backed branch repairs (not whole-skill certification) 8866 choice 0: chosen enemy attack or armor, both at 3:1
+tests/unit/gowPlayerChoiceAudit.test.ts > native Choose: source-backed branch repairs (not whole-skill certification) 8866 choice 1: chosen enemy attack or armor, both at 3:1
+tests/unit/gowPlayerChoiceAudit.test.ts > native Choose: source-backed branch repairs (not whole-skill certification) 10058 choice 0: restored magic formula and both last enemies OR full healing and extra-turn signal
+tests/unit/gowTreantBarkskinAudit.test.ts > Treant 6027 / Barkskin 7027 source and real-battle audit Left: removes 3 Brown and gives BOTH Armor then Attack Magic+floor(Brown/4)
+tests/unit/gowTreantBarkskinAudit.test.ts > Treant 6027 / Barkskin 7027 source and real-battle audit Left: removes 4 Brown and gives BOTH Armor then Attack Magic+floor(Brown/4)
+tests/unit/gowTreantBarkskinAudit.test.ts > Treant 6027 / Barkskin 7027 source and real-battle audit Left: removes 7 Brown and gives BOTH Armor then Attack Magic+floor(Brown/4)
+tests/unit/gowTreantBarkskinAudit.test.ts > Treant 6027 / Barkskin 7027 source and real-battle audit Left: removes 8 Brown and gives BOTH Armor then Attack Magic+floor(Brown/4)
+tests/unit/gowTreantBarkskinAudit.test.ts > Treant 6027 / Barkskin 7027 source and real-battle audit Left: removes 16 Brown and gives BOTH Armor then Attack Magic+floor(Brown/4)
+tests/unit/gowTreantBarkskinAudit.test.ts > Treant 6027 / Barkskin 7027 source and real-battle audit Right: removes 3 Brown and gives BOTH Armor then Attack Magic+floor(Brown/4)
+tests/unit/gowTreantBarkskinAudit.test.ts > Treant 6027 / Barkskin 7027 source and real-battle audit Right: removes 4 Brown and gives BOTH Armor then Attack Magic+floor(Brown/4)
+tests/unit/gowTreantBarkskinAudit.test.ts > Treant 6027 / Barkskin 7027 source and real-battle audit Right: removes 7 Brown and gives BOTH Armor then Attack Magic+floor(Brown/4)
+tests/unit/gowTreantBarkskinAudit.test.ts > Treant 6027 / Barkskin 7027 source and real-battle audit Right: removes 8 Brown and gives BOTH Armor then Attack Magic+floor(Brown/4)
+tests/unit/gowTreantBarkskinAudit.test.ts > Treant 6027 / Barkskin 7027 source and real-battle audit Right: removes 16 Brown and gives BOTH Armor then Attack Magic+floor(Brown/4)
+tests/unit/gowTreantBarkskinAudit.test.ts > Treant 6027 / Barkskin 7027 source and real-battle audit Web disables Magic scaling while retaining the Brown boost to both stats
+tests/unit/gowWeaponLifeAudit.test.ts > native weapon Life gains previously absent/misdirected (scoped) 7756 source eliminates selected Armor then gains Life, not Armor
+tests/unit/liankaTroop.test.ts > Lianka / 日轮坠灭 / 蚀日魔焰 3 red + 0 yellow deal 14 per enemy with combined flooring and no +6 cap
+tests/unit/liankaTroop.test.ts > Lianka / 日轮坠灭 / 蚀日魔焰 3 red + 1 yellow deal 15 per enemy with combined flooring and no +6 cap
+tests/unit/liankaTroop.test.ts > Lianka / 日轮坠灭 / 蚀日魔焰 16 red + 16 yellow deal 22 per enemy with combined flooring and no +6 cap
+tests/unit/liankaTroop.test.ts > Lianka / 日轮坠灭 / 蚀日魔焰 32 red + 32 yellow deal 30 per enemy with combined flooring and no +6 cap
+tests/unit/liankaTroop.test.ts > Lianka / 日轮坠灭 / 蚀日魔焰 excludes colored special gems, respects armor, and skips defeated enemies
+tests/unit/spellData.test.ts > 组装器校验（curated 批次对号入座） 全量原型固定种子烟雾执行不抛错
+tests/unit/spellMechanics.test.ts > 二次缩放（[xN]=每来源+N，[N:M]=每N来源+M） [N:M] 伤害因被摧毁宝石数而增强：每 2 颗 +1（术士句式）
+tests/unit/spellMechanics.test.ts > 多同类段 modifier 辖域（spell-rules §1 · 2026-09-16 裁定） 点名「伤害效果」：同子句两段伤害都吃加成（7059/9344 锁死）
+tests/unit/spellMechanics.test.ts > 多同类段 modifier 辖域（spell-rules §1 · 2026-09-16 裁定） 对照：modifier 只挂一段时按段独立（未挂段吃基础值，8181 窃取段语义）
+tests/unit/spellMechanics.test.ts > 多同类段 modifier 辖域（spell-rules §1 · 2026-09-16 裁定） drainedMana 双方都计：耗尽盟友与敌军法力按总量结算（7807 口径锁死）
+tests/unit/targeting.test.ts > selectTargets 敌方模式（施法者为左队 id 0） weakest 平局取队伍索引更小者（需求 5.2）
+tests/unit/targeting.test.ts > selectTargets 敌方模式（施法者为左队 id 0） healthiest 平局取队伍索引更小者
+tests/unit/troopAcceptance.test.ts > roster acceptance inventory records every troop binding, all trait references and three complete resolution chains
+tests/unit/weaponSpellAudit.test.ts > 武器法术组装审计（curated W 系批次 · 分保真度） 全量原型固定种子烟雾执行不抛错
+tests/unit/weaponSpellSmoke.test.ts > 武器法术语义冒烟（partial 保真度代表） 8322 阿达纳石板（partial · kingdom-condition 略去）：移除+增幅伤害生效
+tests/unit/weaponSpellSmoke.test.ts > 武器法术语义冒烟（第五轮 · K-E 原语接线） 8322 阿达纳石板（kingdom 条件）：战斗发生在阿达纳/敌人来自阿达纳 → 伤害翻倍
+tests/unit/yeluoTroop.test.ts > YeLuo / 猩红谢幕 / 赤月留痕 integration combines 1 red and 0 green before flooring, primary damage 15
+tests/unit/yeluoTroop.test.ts > YeLuo / 猩红谢幕 / 赤月留痕 integration combines 1 red and 1 green before flooring, primary damage 16
+tests/unit/yeluoTroop.test.ts > YeLuo / 猩红谢幕 / 赤月留痕 integration combines 3 red and 2 green before flooring, primary damage 17
+tests/unit/yeluoTroop.test.ts > YeLuo / 猩红谢幕 / 赤月留痕 integration combines 16 red and 16 green before flooring, primary damage 31
+tests/unit/yeluoTroop.test.ts > YeLuo / 猩红谢幕 / 赤月留痕 integration combines 32 red and 32 green before flooring, primary damage 47
+tests/unit/yeluoTroop.test.ts > YeLuo / 猩红谢幕 / 赤月留痕 integration excludes colored special gems from the boost

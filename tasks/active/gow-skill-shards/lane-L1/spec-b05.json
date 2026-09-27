@@ -1,0 +1,390 @@
+{
+ "troop:6118": {
+  "en": "troop 6118 SpellId 7210 cost 16 Purple/Brown; English 1 clause",
+  "native": "7210 Target Enemy: Consume 40% FromTarget, Damage FromTarget M+6",
+  "rule": {
+   "path": "artifacts/gow-skill-audit/gold-primary-sources/official-status-effects.html",
+   "note": "Official status guide: Curse/Death Mark/Hunter's Mark/Web/Disease/Frozen/Poison semantics; Blessed immune to status effects, Devour and Mana Burn. Durations per rulings/R004 (convention:R006-C2 for Cause* Amount)."
+  },
+  "extra": [
+   {
+    "id": "r001",
+    "role": "user-ruling",
+    "path": "tasks/active/gow-skill-shards/rulings/R001-native-step-order.md",
+    "note": "Native SpellSteps order is authoritative."
+   }
+  ],
+  "dims": {
+   "identity-cost-colors": [
+    "v",
+    "entity id, SpellId, cost and colours match raw EN + native + src/data (binding test)"
+   ],
+   "target-count-range": [
+    "v",
+    "chosen enemy only"
+   ],
+   "base-formula-rounding": [
+    "v",
+    "Magic + 6"
+   ],
+   "boost-source-ratio-cap": [
+    "na",
+    "no boost source"
+   ],
+   "conditions-probabilities-branches": [
+    "v",
+    "40%: 80 seeds give 20..46 devours"
+   ],
+   "status-duration-immunity": [
+    "v",
+    "Blessed chosen enemy never devoured, still hit"
+   ],
+   "gems-types-selection-resolution": [
+    "na",
+    "no gem effect"
+   ],
+   "summon-transform-pools": [
+    "v",
+    "devour kills the target and the caster gains its Attack/Armor/Life; Blessed immune (official); one roll per target (fixed L1-devour-double-roll)"
+   ],
+   "order-death-retargeting": [
+    "v",
+    "fixed L1-consume-first: devour roll before the hit; devoured enemy is not hit again"
+   ],
+   "mana-economy-extra-turn": [
+    "v",
+    "cast spends mana, one action logged, turn passes (no extra turn); low-mana / Silence refused"
+   ],
+   "display-description": [
+    "v",
+    "zh description matches English meaning (binding test)"
+   ],
+   "battle-pipeline": [
+    "v",
+    "real TurnEngine.castSkill, both sides"
+   ]
+  },
+  "clauses": {
+   "c1": [
+    "v",
+    "hit M+6 or devour 40%"
+   ]
+  },
+  "steps": {
+   "0": [
+    "v",
+    "Consume 40%"
+   ],
+   "1": [
+    "v",
+    "Damage M+6"
+   ]
+  },
+  "branches": {
+   "main": [
+    "v",
+    "devour / no devour both covered"
+   ]
+  },
+  "decision": "accept",
+  "test": "tests/unit/gowLaneL1B05.test.ts",
+  "testNote": "troop:6118: real TurnEngine.castSkill both sides, fixed RNG, boundaries"
+ },
+ "weapon:1129": {
+  "en": "weapon 1129 BlackManacles SpellId 7293 cost 15 Purple/Brown (artifacts/gowhead-weapons + src/data/weapons.json)",
+  "native": "7293: Consume 20% RandomEnemy, Damage AllEnemies x1",
+  "rule": {
+   "path": "artifacts/gow-skill-audit/gold-primary-sources/official-status-effects.html",
+   "note": "Official status guide: Curse/Death Mark/Hunter's Mark/Web/Disease/Frozen/Poison semantics; Blessed immune to status effects, Devour and Mana Burn. Durations per rulings/R004 (convention:R006-C2 for Cause* Amount)."
+  },
+  "extra": [
+   {
+    "id": "r001",
+    "role": "user-ruling",
+    "path": "tasks/active/gow-skill-shards/rulings/R001-native-step-order.md",
+    "note": "Native SpellSteps order is authoritative."
+   }
+  ],
+  "dims": {
+   "identity-cost-colors": [
+    "v",
+    "entity id, SpellId, cost and colours match raw EN + native + src/data (binding test)"
+   ],
+   "target-count-range": [
+    "v",
+    "devour: one random living enemy; damage: every living enemy"
+   ],
+   "base-formula-rounding": [
+    "v",
+    "Magic (10 and 3)"
+   ],
+   "boost-source-ratio-cap": [
+    "na",
+    "no boost source"
+   ],
+   "conditions-probabilities-branches": [
+    "v",
+    "20%: 80 seeds give 6..30 devours"
+   ],
+   "status-duration-immunity": [
+    "na",
+    "no status"
+   ],
+   "gems-types-selection-resolution": [
+    "na",
+    "no gem effect"
+   ],
+   "summon-transform-pools": [
+    "v",
+    "devour kills the target and the caster gains its Attack/Armor/Life; Blessed immune (official); one roll per target (fixed L1-devour-double-roll)"
+   ],
+   "order-death-retargeting": [
+    "v",
+    "fixed L1-consume-first: devour first, the devoured enemy is not damaged"
+   ],
+   "mana-economy-extra-turn": [
+    "v",
+    "cast spends mana, one action logged, turn passes (no extra turn); low-mana / Silence refused"
+   ],
+   "display-description": [
+    "v",
+    "zh weapon description matches"
+   ],
+   "battle-pipeline": [
+    "v",
+    "real TurnEngine.castSkill, both sides"
+   ]
+  },
+  "clauses": {
+   "c1": [
+    "v",
+    "Magic to all enemies"
+   ],
+   "c2": [
+    "v",
+    "20% devour a random enemy"
+   ]
+  },
+  "steps": {
+   "0": [
+    "v",
+    "Consume 20% RandomEnemy"
+   ],
+   "1": [
+    "v",
+    "Damage AllEnemies"
+   ]
+  },
+  "branches": {
+   "main": [
+    "v",
+    "devour / no devour both covered"
+   ]
+  },
+  "decision": "accept",
+  "test": "tests/unit/gowLaneL1B05.test.ts",
+  "testNote": "weapon:1129: real TurnEngine.castSkill both sides, fixed RNG, boundaries"
+ },
+ "troop:7272": {
+  "en": "troop 7272 SpellId 8891 cost 12 Blue/Red; English 2 clauses",
+  "native": "8891: Consume 20% LastEnemy, Damage LastEnemy M+3, CauseSubmerged Self",
+  "rule": {
+   "path": "artifacts/gow-skill-audit/gold-primary-sources/official-status-effects.html",
+   "note": "Official status guide: Curse/Death Mark/Hunter's Mark/Web/Disease/Frozen/Poison semantics; Blessed immune to status effects, Devour and Mana Burn. Durations per rulings/R004 (convention:R006-C2 for Cause* Amount)."
+  },
+  "extra": [
+   {
+    "id": "r001",
+    "role": "user-ruling",
+    "path": "tasks/active/gow-skill-shards/rulings/R001-native-step-order.md",
+    "note": "Native SpellSteps order is authoritative."
+   }
+  ],
+  "dims": {
+   "identity-cost-colors": [
+    "v",
+    "entity id, SpellId, cost and colours match raw EN + native + src/data (binding test)"
+   ],
+   "target-count-range": [
+    "v",
+    "last living enemy (dead last slot skipped); damage stays on the same (English \"them\"; slot kept during the spell as in gowManaBurnTowerAudit)"
+   ],
+   "base-formula-rounding": [
+    "v",
+    "Magic + 3"
+   ],
+   "boost-source-ratio-cap": [
+    "na",
+    "no boost source"
+   ],
+   "conditions-probabilities-branches": [
+    "v",
+    "20%: 80 seeds give 6..30 devours"
+   ],
+   "status-duration-immunity": [
+    "v",
+    "caster Submerged either way"
+   ],
+   "gems-types-selection-resolution": [
+    "na",
+    "no gem effect"
+   ],
+   "summon-transform-pools": [
+    "v",
+    "devour kills the target and the caster gains its Attack/Armor/Life; Blessed immune (official); one roll per target (fixed L1-devour-double-roll); was a plain execute before L1-consume-first"
+   ],
+   "order-death-retargeting": [
+    "v",
+    "devour -> hit -> Submerge (native)"
+   ],
+   "mana-economy-extra-turn": [
+    "v",
+    "cast spends mana, one action logged, turn passes (no extra turn); low-mana / Silence refused"
+   ],
+   "display-description": [
+    "v",
+    "zh description matches English meaning (binding test)"
+   ],
+   "battle-pipeline": [
+    "v",
+    "real TurnEngine.castSkill, both sides"
+   ]
+  },
+  "clauses": {
+   "c1": [
+    "v",
+    "hit last enemy M+3, 20% devour"
+   ],
+   "c2": [
+    "v",
+    "Submerge self"
+   ]
+  },
+  "steps": {
+   "0": [
+    "v",
+    "Consume 20% LastEnemy"
+   ],
+   "1": [
+    "v",
+    "Damage LastEnemy"
+   ],
+   "2": [
+    "v",
+    "CauseSubmerged Self"
+   ]
+  },
+  "branches": {
+   "main": [
+    "v",
+    "devour / no devour both covered"
+   ]
+  },
+  "decision": "accept",
+  "test": "tests/unit/gowLaneL1B05.test.ts",
+  "testNote": "troop:7272: real TurnEngine.castSkill both sides, fixed RNG, boundaries"
+ },
+ "troop:7271": {
+  "en": "troop 7271 SpellId 8890 cost 12 Red/Yellow; English 3 clauses",
+  "native": "8890 Target Enemy: Consume 20% FromTarget, Damage FromTarget M+3, CreateGems DragonRed 12 AddForKill",
+  "rule": {
+   "path": "artifacts/gow-skill-audit/gold-primary-sources/official-status-effects.html",
+   "note": "Official status guide: Curse/Death Mark/Hunter's Mark/Web/Disease/Frozen/Poison semantics; Blessed immune to status effects, Devour and Mana Burn. Durations per rulings/R004 (convention:R006-C2 for Cause* Amount)."
+  },
+  "extra": [
+   {
+    "id": "r001",
+    "role": "user-ruling",
+    "path": "tasks/active/gow-skill-shards/rulings/R001-native-step-order.md",
+    "note": "Native SpellSteps order is authoritative."
+   }
+  ],
+  "dims": {
+   "identity-cost-colors": [
+    "v",
+    "entity id, SpellId, cost and colours match raw EN + native + src/data (binding test)"
+   ],
+   "target-count-range": [
+    "v",
+    "chosen enemy"
+   ],
+   "base-formula-rounding": [
+    "v",
+    "Magic + 3"
+   ],
+   "boost-source-ratio-cap": [
+    "na",
+    "no boost source"
+   ],
+   "conditions-probabilities-branches": [
+    "v",
+    "20% devour; dragon gems only if the enemy died (devour or lethal hit), none when it survives"
+   ],
+   "status-duration-immunity": [
+    "na",
+    "no status"
+   ],
+   "gems-types-selection-resolution": [
+    "v",
+    "12 Red Dragon Gems on death"
+   ],
+   "summon-transform-pools": [
+    "v",
+    "devour kills the target and the caster gains its Attack/Armor/Life; Blessed immune (official); one roll per target (fixed L1-devour-double-roll); was a plain execute before L1-consume-first"
+   ],
+   "order-death-retargeting": [
+    "v",
+    "devour -> hit -> gems (native)"
+   ],
+   "mana-economy-extra-turn": [
+    "v",
+    "cast spends mana, one action logged, turn passes (no extra turn); low-mana / Silence refused"
+   ],
+   "display-description": [
+    "v",
+    "zh description matches English meaning (binding test)"
+   ],
+   "battle-pipeline": [
+    "v",
+    "real TurnEngine.castSkill, both sides"
+   ]
+  },
+  "clauses": {
+   "c1": [
+    "v",
+    "hit M+3"
+   ],
+   "c2": [
+    "v",
+    "20% devour"
+   ],
+   "c3": [
+    "v",
+    "12 Red Dragon Gems if the enemy dies"
+   ]
+  },
+  "steps": {
+   "0": [
+    "v",
+    "Consume 20%"
+   ],
+   "1": [
+    "v",
+    "Damage M+3"
+   ],
+   "2": [
+    "v",
+    "CreateGems DragonRed AddForKill"
+   ]
+  },
+  "branches": {
+   "main": [
+    "v",
+    "devoured / lethal / survived covered"
+   ]
+  },
+  "decision": "accept",
+  "test": "tests/unit/gowLaneL1B05.test.ts",
+  "testNote": "troop:7271: real TurnEngine.castSkill both sides, fixed RNG, boundaries"
+ }
+}

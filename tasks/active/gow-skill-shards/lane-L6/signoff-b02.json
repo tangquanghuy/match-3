@@ -1,0 +1,307 @@
+{
+  "schemaVersion": 1,
+  "scope": "stored-gow-snapshot",
+  "reviews": [
+    {
+      "key": "weapon:1110",
+      "scope": "stored-gow-snapshot",
+      "sourceDigest": "568b4e0ba73b482dbef873bbca2512be4a78611b3a80d93fd2788b90304ac3e6",
+      "reviewer": "sa-L6",
+      "reviewedAt": "2026-09-28",
+      "decision": "accept",
+      "ledgerFingerprintAtReview": "74aed74e24f50d0f8bc19b89a5413c14101081734608d1c764c45ebade5a241a",
+      "sourceEvidence": [
+        {
+          "id": "en",
+          "role": "english-snapshot",
+          "path": "artifacts/gowhead-weapons/weapons.json",
+          "note": "weapon 1110 Mang: SpellId 7247, ManaCost 15, colours Red+Brown, ReferenceName Mang; English \"Eliminate all Armor from an Enemy, then deal [Magic + 1] damage. Gain Attack equal to Armor eliminated. [1:1]\" asserted verbatim."
+        },
+        {
+          "id": "native",
+          "role": "native-snapshot",
+          "path": "data/raw/spells.gow.en.json",
+          "note": "Spell 7247 Cost 15 Target Enemy; steps CountArmor FromTarget 100 -> DecreaseArmor FromPrevious 10001 -> Damage FromPrevious Amount 1 SPM 1 -> IncreaseAttack Self UseCounterForAmount; asserted with toEqual."
+        },
+        {
+          "id": "rule",
+          "role": "official-shared-rule",
+          "path": "artifacts/gow-skill-audit/gold-primary-sources/official-weapon-list.html",
+          "note": "Official weapon list entry \"Mang (Mana Cost:15 Red Brown)\": destroy an enemy's Armor, deal [1+Magic] damage, increase my Attack by the amount of Armor destroyed (Boost Ratio 1:1); independently confirms cost, colours, order and 1:1 gain."
+        },
+        {
+          "id": "laneTest",
+          "role": "lane-battle-test",
+          "path": "tests/unit/gowLaneL6B02.test.ts",
+          "note": "L6B02 weapon:1110 describe block: binding (numeric 7247 + gw_Mang), real castSkill Left/Right x both aliases x Magic 0/10, armor 0/1 boundary, lethal target, low-mana, silence."
+        }
+      ],
+      "dimensions": {
+        "identity-cost-colors": {
+          "status": "verified",
+          "note": "Stored weapon 1110 -> SpellId 7247, ManaCost 15 = native Cost 15, Red/Brown; src weapons.json id 1110 referenceName Mang manaCost 15 manaColors [Red,Brown] spell.id 7247; registry has identical prototype under \"7247\" and \"gw_Mang\"; ledger binding (incl. numericAndEquippedAlias) all true.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL6B02.test.ts"
+          ]
+        },
+        "target-count-range": {
+          "status": "verified",
+          "note": "Native Target Enemy / FromTarget / FromPrevious all resolve to the chosen enemy -> enemyChosen; tests show only enemy 12 changes, enemy 10 keeps its 4 armor, others untouched, both sides.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL6B02.test.ts"
+          ]
+        },
+        "base-formula-rounding": {
+          "status": "verified",
+          "note": "Damage = Magic*1 + 1 into hp after armor removal: Magic 0/10 -> 1/11 hp loss with 53 armor on target; integer, no rounding involved.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL6B02.test.ts"
+          ]
+        },
+        "boost-source-ratio-cap": {
+          "status": "verified",
+          "note": "CountArmor 100% -> counter = armor eliminated exactly ([1:1]); runtime lastReduce ratio 1:1: armor 53 -> +53, 1 -> +1, 0 -> +0; no CountMax cap in native.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL6B02.test.ts"
+          ]
+        },
+        "conditions-probabilities-branches": {
+          "status": "not-applicable",
+          "note": "No condition, chance or Randomize step in native 7247; English has no conditional clause.",
+          "evidenceIds": [
+            "en",
+            "native"
+          ],
+          "tests": []
+        },
+        "status-duration-immunity": {
+          "status": "not-applicable",
+          "note": "No status step or clause.",
+          "evidenceIds": [
+            "en",
+            "native"
+          ],
+          "tests": []
+        },
+        "gems-types-selection-resolution": {
+          "status": "not-applicable",
+          "note": "No gem step or clause.",
+          "evidenceIds": [
+            "en",
+            "native"
+          ],
+          "tests": []
+        },
+        "summon-transform-pools": {
+          "status": "not-applicable",
+          "note": "No summon/transform step or clause.",
+          "evidenceIds": [
+            "en",
+            "native"
+          ],
+          "tests": []
+        },
+        "order-death-retargeting": {
+          "status": "verified",
+          "note": "Order CountArmor -> DecreaseArmor -> Damage -> IncreaseAttack: damage lands entirely on hp (armor already 0); Attack gain still applied when the target dies from the hit (1 hp, 20 armor -> defeat event, +20 Attack).",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL6B02.test.ts"
+          ]
+        },
+        "mana-economy-extra-turn": {
+          "status": "verified",
+          "note": "Cast spends 15 mana, one action, passes the turn on both sides; low mana (14) and silence block without consuming mana/action and leave target armor intact.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL6B02.test.ts"
+          ]
+        },
+        "display-description": {
+          "status": "verified",
+          "note": "zh \"??????????????? [?? + 1] ???????????????????? [1:1]\" matches English clauses, order and ratio.",
+          "evidenceIds": [
+            "en",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL6B02.test.ts"
+          ]
+        },
+        "battle-pipeline": {
+          "status": "verified",
+          "note": "Real TurnEngine.castSkill through registerSkillLibrary under numeric and gw_Mang keys, Left and Right sides; armor buff/damage/defeat observed on state.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL6B02.test.ts"
+          ],
+          "realBattleEntry": true
+        }
+      },
+      "clauseReviews": [
+        {
+          "id": "c1",
+          "text": "Eliminate all Armor from an Enemy, then deal [Magic + 1] damage.",
+          "status": "verified",
+          "note": "Chosen enemy armor 53 -> 0, then [Magic+1] fully to hp (1/11 at Magic 0/10), both sides and aliases; other enemies untouched.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL6B02.test.ts"
+          ]
+        },
+        {
+          "id": "c2",
+          "text": "Gain Attack equal to Armor eliminated.",
+          "status": "verified",
+          "note": "Caster Attack +armor eliminated: 53 -> +53, 20 (lethal) -> +20, 1 -> +1, 0 -> no gain; caster armor unchanged.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL6B02.test.ts"
+          ]
+        },
+        {
+          "id": "c3",
+          "text": "[1:1]",
+          "status": "verified",
+          "note": "[1:1] = native CountArmor Amount 100 with IncreaseAttack UseCounterForAmount; exact for all integers.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL6B02.test.ts"
+          ]
+        }
+      ],
+      "nativeStepReviews": [
+        {
+          "id": "0",
+          "type": "CountArmor",
+          "status": "verified",
+          "note": "CountArmor FromTarget 100% read before removal -> lastReduce amount (equal to full armor for drainAll).",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL6B02.test.ts"
+          ]
+        },
+        {
+          "id": "1",
+          "type": "DecreaseArmor",
+          "status": "verified",
+          "note": "DecreaseArmor FromPrevious 10001 (all) -> reduce armor drainAll on enemyChosen; clamps at 0.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL6B02.test.ts"
+          ]
+        },
+        {
+          "id": "2",
+          "type": "Damage",
+          "status": "verified",
+          "note": "Damage FromPrevious Amount 1 SPM 1 -> damage enemyChosen {base 1, mult 1}, after armor removal.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL6B02.test.ts"
+          ]
+        },
+        {
+          "id": "3",
+          "type": "IncreaseAttack",
+          "status": "verified",
+          "note": "IncreaseAttack Self UseCounterForAmount (no Amount) -> buff allySelf attack base 0 + lastReduce 1:1.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL6B02.test.ts"
+          ]
+        }
+      ],
+      "branchReviews": [
+        {
+          "id": "main",
+          "status": "verified",
+          "note": "Single main branch; no Randomize/conditional steps.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL6B02.test.ts"
+          ]
+        }
+      ]
+    }
+  ]
+}

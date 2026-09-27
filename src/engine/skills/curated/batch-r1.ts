@@ -25,10 +25,11 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 7035,
-    desc: '造成 [魔法 + 4] 点散射伤害，伤害值因所有敌人的护甲值而增强。窃取一名随机敌人 4 点魔法值。 [2:1]',
+    desc: '造成 [魔法 + 4] 点散射伤害，伤害值因所有敌人的护甲值而增强。窃取一名随机敌人 4 点魔力值。 [2:1]',
     build: skill(
       dmg('enemyAll', 4, 1, { range: 'all', modifier: { mod: { kind: 'ratio', a: 2, b: 1 }, source: { kind: 'enemyStatSum', stat: 'armor' } } }),
-      steal('enemyRandom', 'mana', 'mana', 4, 0),
+      // L3-018: native StealMagic RandomEnemy 4 (Magic, not Mana)
+      steal('enemyRandom', 'magic', 'magic', 4, 0),
     ),
   },
   {
@@ -36,7 +37,8 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '造成 [魔法 + 6] 点真实的散射伤害。耗掉所有敌人 7 点法力值。',
     build: skill(
       dmg('enemyAll', 6, 1, { range: 'all', trueDamage: true }),
-      reduce('enemyAll', 'mana', 7),
+      // L3-008: native DecreaseMana Amount 7, no SpellPowerMultiplier → fixed 7
+      reduce('enemyAll', 'mana', 7, 0),
     ),
   },
   {
@@ -59,7 +61,7 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 8459,
-    desc: '摧毁一列。造成 [魔法 + 7] 点散射伤害。再获得一个额外回合或获得 12 点魔法值。',
+    desc: '摧毁一列。造成 [魔法 + 7] 点散射伤害。再获得一个额外回合或获得 12 点魔力值。',
     build: skill(
       destroyChosenCol(),
       dmg('enemyAll', 7, 1, { range: 'all' }),
@@ -113,7 +115,10 @@ const SPELLS: CuratedBatch['spells'] = [
   {
     id: 9493,
     desc: '造成 [魔法 + 8] 点散射伤害，由绿宝石增强两次。 [x2]',
-    build: skill(dmg('enemyAll', 8, 1, { range: 'all', modifier: { mod: { kind: 'multiplier', a: 2 }, source: { kind: 'boardGems', color: BaseColor.Green } } })),
+    build: skill(
+      dmg('enemyAll', 8, 1, { range: 'scatter', modifier: { mod: { kind: 'multiplier', a: 2 }, source: { kind: 'boardGems', color: BaseColor.Green } } }),
+      dmg('enemyAll', 8, 1, { range: 'scatter', modifier: { mod: { kind: 'multiplier', a: 2 }, source: { kind: 'boardGems', color: BaseColor.Green } } }),
+    ),
   },
   {
     id: 9673,
@@ -133,10 +138,10 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 7213,
-    desc: '对随机敌人造成 [(魔法 / 2) + 5] – [魔法 + 10] 点伤害。增加一项随机技能 12 点。然后有 50% 的几率获得额外回合。',
+    desc: "对随机敌人造成 [(魔法 / 2) + 5] – [魔法 + 10] 点伤害。自身一项随机属性获得 12 点。然后有 50% 的几率获得额外回合。",
     build: skill(
       dmg('enemyRandom', 0, 0, { rangeSpec: { min: scale(5, 0.5), max: scale(10, 1) } }),
-      randomStat('allySelf', 12, 0),
+      randomStat('allySelf', 12, 0, { oneSkill: true }),
       extraTurn({ chance: 0.5 }),
     ),
   },
@@ -154,7 +159,7 @@ const SPELLS: CuratedBatch['spells'] = [
   {
     id: 8410,
     desc: '对 6 名随机敌人造成 [(魔法 x 0.625) + 1] – [(魔法 x 1.25) + 2] 伤害。',
-    build: skill(dmg('enemyRandomN', 0, 0, { n: 6, rangeSpec: { min: scale(1, 0.625), max: scale(2, 1.25) } })),
+    build: skill(dmg('enemyRandomN', 0, 0, { n: 6, randomWaves: 6, rangeSpec: { min: scale(1, 0.625), max: scale(2, 1.25) } })),
   },
   {
     id: 8563,

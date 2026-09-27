@@ -3,6 +3,7 @@ import { MatchResolver } from './MatchResolver';
 import { SeededRNG } from './rng';
 import { colorGem, skullGem, ALL_BASE_COLORS } from './types';
 import type { Gem, CellPos, GemType } from './types';
+import { bestSwapTier } from './comboBias';
 
 /**
  * 初始棋盘生成（需求 3）。
@@ -16,18 +17,29 @@ export class BoardGenerator {
     private nextGemId: () => number,
     /** 初始棋盘骷髅占比（0 = 纯颜色）。Gems of War 风格下骷髅为常驻成分 */
     private skullChance = 0,
+    /**
+     * 开局「连消倾向」（0 = 关闭，随机数序列与旧版逐字节一致）。> 0 时最多试
+     * 1 + round(setupBias) 张合规开局，优先有 4+ 交换的那张；App 实战用 BATTLE_SETUP_BIAS。
+     */
+    private setupBias = 0,
   ) {}
 
   generate(): BoardModel {
+    // 开局连消倾向：合规开局最多试 1 + round(setupBias) 张，优先留下有 4+ 交换的那张；
+    // 都没有则用第一张合规开局。setupBias = 0 时首张合规即返回（与旧版一致）。
+    const tries = this.setupBias > 0 ? 1 + Math.round(this.setupBias) : 1;
+    let firstValid: BoardModel | null = null;
+    let validCount = 0;
     // 反复生成直到满足两个条件。8x8 6 色下通常一两次即成。
     for (let attempt = 0; attempt < 200; attempt++) {
       const board = this.fillWithoutMatches();
-      if (this.hasLegalSwap(board)) {
-        return board;
-      }
+      if (!this.hasLegalSwap(board)) continue;
+      if (tries === 1 || bestSwapTier(board) > 0) return board;
+      firstValid ??= board;
+      if (++validCount >= tries) return firstValid;
     }
     // 极端兜底：返回一个无匹配棋盘（合法交换检测失败概率极低）
-    return this.fillWithoutMatches();
+    return firstValid ?? this.fillWithoutMatches();
   }
 
   /** 该类型的"匹配键"（同色或同为骷髅视为同键） */

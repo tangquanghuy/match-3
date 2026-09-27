@@ -3,16 +3,17 @@
  *
  * 数值走一次缩放（[魔法+N]，按施法者魔力）+ 二次缩放（modifier，来源可为
  * battleGold/battleSouls/battleGems 等战场经济自身），与伤害/增益段同一套管线。
- * 全场共用一个经济池（GameState.economy），side 只作归因记录。
+ * 黄金按施法者阵营入账；其它货币维持现有玩家奖励模型。
  * 纯逻辑：无 pixi/gsap/dom 依赖。
  */
-import { PlayerSide } from '../../types';
+import { opponentOf } from '../../types';
+import { goldForSide, setGoldForSide, creditGoldForSide } from '../../battleGold';
 import type { GameEvent } from '../../events';
 import type { EconomyGainEvent } from '../../events';
 import type { ScalingSpec } from '../scaling';
 import { evaluateScaling } from '../scaling';
 import type { EffectContext, EffectPrimitive } from './context';
-import { findSide, casterMagic } from './context';
+import { effectCasterSide, casterMagic } from './context';
 import { evaluateWithModifier } from './secondary';
 import type { ModifierSpec } from './secondary';
 
@@ -35,37 +36,29 @@ export function economyGainEffect(params: EconomyGainParams): EffectPrimitive {
         ctx,
       );
       if (amount <= 0) return [];
-      ctx.state.economy[params.currency] += amount;
+      const side = effectCasterSide(ctx);
+      if (params.currency === 'gold') creditGoldForSide(ctx.state, side, amount);
+      else ctx.state.economy[params.currency] += amount;
       const event: EconomyGainEvent = {
         type: 'economy-gain',
         currency: params.currency,
         amount,
-        side: findSide(ctx.state, ctx.casterId) ?? PlayerSide.Left,
+        side,
       };
       return [event];
     },
   };
 }
 
-/**
- * 窃取黄金段（batch-r28，官方 CountEnemyGold + TakeEnemyGold + GiveGold 步骤族——
- * 8087/8904/9189/8141）。共用池口径裁定（GameState.economy 不分阵营，§10.2）：
- * - **定量句式**（「窃取 [M+2] 黄金」「最多 50 黄金」）：维持 §10.2 既有口径 =
- *   gainGold(N)——入账 economy.gold 并发 economy-gain（敌方扣减无池可落，不建模）；
- *   「最多 N」= 入账额 = min(N, cap)（无敌方池可查，up-to 上限按上限值入账）。
- *   实际入账额累加进 castTracking.goldStolen，供「因窃取的黄金数而增强」来源挂载
- *   （battleGold 是池总额、≠本次窃取额——r27 卡点的解）。
- * - **全额句式**（all: true，「窃取(所有)敌人的黄金」）：官方为零和转移；共用池模型下
- *   「敌方手中的黄金」≈ 池内黄金全额（战斗中敌我收入混账的唯一在场代理）——裁定为
- *   **池内黄金全额易主**：池总额不变（奖励不重复计）、不发事件，goldStolen 记池内
- *   黄金总额供后续段引用（池为 0 时窃取额自然为 0，与「无敌方可劫」语义一致）。
- */
+/** Gold theft transfers only available enemy Gold; goldStolen tracks the actual transfer. */
 export interface StealGoldParams {
+  /** Debit and track now; a later gainGold segment credits the native GiveGold step. */
+  deferCredit?: boolean;
   /** 窃取额缩放（定量句式；all 时忽略） */
   scaling: ScalingSpec;
   /** 「最多 N」入账上限（8087 官方 CountMax 50） */
   cap?: number;
-  /** 全额句式（「窃取所有敌人的黄金」）：零和易主，见上方裁定 */
+  /** 全额句式：转移敌方全部黄金 */
   all?: boolean;
   /** 窃取额二次缩放 */
   modifier?: ModifierSpec;
@@ -74,29 +67,25 @@ export interface StealGoldParams {
 export function stealGoldEffect(params: StealGoldParams): EffectPrimitive {
   return {
     apply(ctx: EffectContext): GameEvent[] {
-      if (params.all) {
-        const total = ctx.state.economy.gold;
-        if (total > 0 && ctx.castTracking) {
-          ctx.castTracking.goldStolen = (ctx.castTracking.goldStolen ?? 0) + total;
-        }
-        return [];
-      }
-      const amount = evaluateWithModifier(
-        evaluateScaling(params.scaling, casterMagic(ctx)),
-        params.modifier,
-        ctx,
+      const side = effectCasterSide(ctx);
+      const enemySide = opponentOf(side);
+      const available = goldForSide(ctx.state, enemySide);
+      const requested = params.all ? available : evaluateWithModifier(
+        evaluateScaling(params.scaling, casterMagic(ctx)), params.modifier, ctx,
       );
-      const gain = params.cap !== undefined ? Math.min(amount, params.cap) : amount;
+      const gain = Math.max(0, Math.min(available, requested, params.cap ?? Infinity));
       if (gain <= 0) return [];
-      ctx.state.economy.gold += gain;
+      setGoldForSide(ctx.state, enemySide, available - gain);
+      if (!params.deferCredit) creditGoldForSide(ctx.state, side, gain);
       if (ctx.castTracking) {
         ctx.castTracking.goldStolen = (ctx.castTracking.goldStolen ?? 0) + gain;
       }
+      if (params.deferCredit) return [];
       const event: EconomyGainEvent = {
         type: 'economy-gain',
         currency: 'gold',
         amount: gain,
-        side: findSide(ctx.state, ctx.casterId) ?? PlayerSide.Left,
+        side,
       };
       return [event];
     },
@@ -105,10 +94,10 @@ export function stealGoldEffect(params: StealGoldParams): EffectPrimitive {
 
 /**
  * 经济支出段（batch-r28，官方 TakeMyGold 步骤——7460「花费我所有的黄金」/ 8243
- * 「失去所有黄金」）：从共用池扣减（夹零——池为 0 时实际支出 0）。
+ * 「失去所有黄金」）：从施法者自己的计数扣减（夹零——池为 0 时实际支出 0）。
  * 货币为 gold 时把**实际扣减额**累加进 castTracking.goldSpent，供「花费的黄金转化为
  * 加成」来源挂载（7460：支出段在前、伤害段以 { multiplier 1, source goldSpent } 读同额）。
- * 不发事件：共用池总额在战斗结算时按 state.economy 直读，支出只是池内减项
+ * 不发事件：支出只扣施法阵营黄金余额，不影响另一方余额
  * （economy-gain 语义是「获得」，复用负数额会误导表现层——待渲染侧需要时再议事件形态）。
  */
 export interface SpendEconomyParams {
@@ -126,9 +115,11 @@ export function spendEconomyEffect(params: SpendEconomyParams): EffectPrimitive 
       const requested = params.all
         ? Number.POSITIVE_INFINITY
         : evaluateWithModifier(evaluateScaling(params.scaling, casterMagic(ctx)), params.modifier, ctx);
-      const actual = Math.min(ctx.state.economy[params.currency], requested);
+      const side = effectCasterSide(ctx);
+      const available = goldForSide(ctx.state, side);
+      const actual = Math.min(available, requested);
       if (actual <= 0) return [];
-      ctx.state.economy[params.currency] -= actual;
+      setGoldForSide(ctx.state, side, available - actual);
       if (params.currency === 'gold' && ctx.castTracking) {
         ctx.castTracking.goldSpent = (ctx.castTracking.goldSpent ?? 0) + actual;
       }

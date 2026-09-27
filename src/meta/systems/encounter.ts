@@ -10,6 +10,7 @@
  *  - 按稀有度带选人（杂兵 0~2 / 精英 2~4 / 首领 4~5），池内无货时逐档放宽
  *    （少数王国缺高稀有度内容，不因缺卡而无敌可出）。
  */
+import { enemyLevel, enemyTraitCount } from '../data/enemyDifficulty';
 import { SeededRNG } from '../../engine/rng';
 import {
   BATTLE_TEAM_SIZE,
@@ -29,13 +30,17 @@ export interface EncounterEnemy {
   troopId: number;
   level: number;
   tier: EnemyTier;
+  /** Explicit training policy; omitted legacy plans use level-based NPC defaults. */
+  traitCount?: number;
+  /** Encounter-only base-stat boost; does not unlock extra traits or change mana costs. */
+  statMultiplier?: number;
 }
 
 export type EncounterSource =
   | { kind: 'quest'; node: number }
   | { kind: 'explore'; tier: number }
   /** 每周活动战斗（素材批 2026-09-19）：weekStart 锚定活动周实例，typeId 定主题 */
-  | { kind: 'event'; weekStart: number; typeId: string };
+  | { kind: 'event'; weekStart: number; typeId: string; choice?: string; matchingTroops?: number; bossStartHp?: number };
 
 export interface EncounterPlan {
   kingdom: string;
@@ -103,7 +108,7 @@ export function pickEnemies(
     }
     const troop = pool[rng.nextInt(pool.length)];
     chosen.add(troop.id);
-    return { troopId: troop.id, level, tier };
+    return { troopId: troop.id, level: enemyLevel(level), tier, traitCount: enemyTraitCount(level) };
   });
 }
 

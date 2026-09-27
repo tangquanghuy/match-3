@@ -13,7 +13,7 @@
  *   点名「伤害值」→ 挂伤害段）；「将我的生命值恢复至满值」= heal full（SOP 裁定）；
  *   「最后两名敌人」= enemyLastN + n:2（SOP §3 目标表）。
  */
-import { skill, dmg, heal, inflict, extraTurn } from '../builders';
+import { chooseSkill, skill, dmg, heal, inflict, extraTurn } from '../builders';
 import type { CuratedBatch } from './index';
 
 const SKIPPED: { id: number; reason: string }[] = [
@@ -25,15 +25,10 @@ const SPELLS: CuratedBatch['spells'] = [
   {
     id: 10058,
     desc: '&& 对最后两名敌人造成1点伤害，伤害值由我的生命值提升。&& 纠缠所有敌人。然后将我的生命值恢复至满值，并获得额外回合。 [1:1]',
-    build: skill(
-      dmg('enemyLastN', 1, 0, {
-        n: 2,
+    build: skill(chooseSkill(["对最后两名敌人造成［魔法＋2＋自身生命］伤害","缠绕所有敌人，自身恢复全部生命并获得额外回合"], [dmg('enemyLastN', 2, 1, {
+        n: 2, range: 'all',
         modifier: { mod: { kind: 'ratio', a: 1, b: 1 }, source: { kind: 'selfStat', stat: 'hp' } },
-      }),
-      inflict('entangle', 'enemyAll'),
-      heal('allySelf', 0, 0, { full: true }),
-      extraTurn(),
-    ),
+      })], [inflict('entangle', 'enemyAll'), heal('allySelf', 0, 0, { full: true }), extraTurn()])),
   },
 ];
 

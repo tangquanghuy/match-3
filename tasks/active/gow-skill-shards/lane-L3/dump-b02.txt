@@ -1,0 +1,40 @@
+=== troop:6113 DireWolf spell 7205 cost 8/8 colors Green status pending-review target None rand -
+EN : Entangle and Hunter's Mark the first Enemy. Deal [Magic + 2] damage to them. If there are 13 or more Green Gems, gain an extra turn.
+ZH : 使第一名敌人陷入缠绕和猎人标记状态。对其造成 [魔法 + 2] 点伤害。如果板面上有 13 颗或更多绿色宝石，则获得一个额外回合。
+CL : c1=Entangle and Hunter's Mark the first Enemy. | c2=Deal [Magic + 2] damage to them. | c3=If there are 13 or more Green Gems, gain an extra turn.
+  0 {"Target":"FrontEnemy","Type":"CauseHuntersMark"}
+  1 {"Target":"FrontEnemy","Type":"CauseEntangle"}
+  2 {"SpellPowerMultiplier":1,"Target":"FrontEnemy","Amount":2,"Primarypower":true,"Type":"Damage"}
+  3 {"StatusAmount":100,"StatusModifier":"AddFor10GreenGems","Type":"ExtraTurnConditional"}
+PROTO {"segments":[{"kind":"status","target":"enemyFront","statusId":"entangle","turns":3},{"kind":"status","target":"enemyFront","statusId":"marked","turns":3},{"kind":"damage","target":"enemyFront","scaling":{"base":2,"mult":1}},{"kind":"extraTurn","ifCond":{"kind":"boardAtLeast","color":"Green","n":13}}]}
+META null
+=== troop:7070 SkyScorpion spell 8598 cost 10/10 colors Green,Yellow status pending-review target None rand -
+EN : Poison and drain 7 Mana from all Enemies. Then remove all Skulls. Can only be cast once.
+ZH : 使所有敌人中毒并吸取 7 点法力值。然后移除所有头骨。此咒语只能使用一次。
+CL : c1=Poison and drain 7 Mana from all Enemies. | c2=Then remove all Skulls. | c3=Can only be cast once.
+  0 {"Target":"AllEnemies","Amount":1,"Type":"CausePoison"}
+  1 {"Target":"AllEnemies","Amount":7,"Type":"DecreaseMana"}
+  2 {"Color1":"Skull","Amount":100,"Type":"RemoveColor"}
+  3 {"Target":"Self","Amount":1,"Type":"DisableMySpell"}
+PROTO {"segments":[{"kind":"status","target":"enemyAll","statusId":"poison","turns":3,"magnitude":3},{"kind":"reduce","target":"enemyAll","stat":"mana","scaling":{"base":7,"mult":1},"gainStat":"mana"},{"kind":"gem","params":{"op":"clear","mode":"destroy","target":{"kind":"skulls"}}}],"oncePerBattle":true}
+META null
+=== troop:6783 Stringfiddler spell 8173 cost 14/14 colors Green,Purple status pending-review target Enemy rand -
+EN : Silence an Enemy. Explode [(Magic / 4) + 1] Gems of one of their Mana Colors. Gain an Extra Turn.
+ZH : 使一名敌人陷入沉默状态。爆破其法力颜色 [(魔法 / 4) + 1] 颗宝石。获得一个额外回合。
+CL : c1=Silence an Enemy. | c2=Explode [(Magic / 4) + 1] Gems of one of their Mana Colors. | c3=Gain an Extra Turn.
+  0 {"Target":"FromTarget","Amount":1,"Type":"CauseSilence","Delay":1}
+  1 {"SpellPowerMultiplier":0.25,"Color1":"FromTarget","Amount":1,"Primarypower":true,"Type":"ExplodeColor"}
+  2 {"Target":"Self","Amount":100,"Type":"ExtraTurn"}
+PROTO {"segments":[{"kind":"status","target":"enemyChosen","statusId":"silence","turns":3},{"kind":"gem","params":{"op":"clear","mode":"explode","target":{"kind":"randomGems","count":{"base":1,"mult":0.25},"include":"color","color":"LAST_TARGET"}}},{"kind":"extraTurn"}]}
+META null
+=== troop:6481 ChampionOfAnu spell 7668 cost 22/22 colors Blue,Red,Yellow status pending-review target Enemy rand -
+EN : Silence, Stun and drain all Mana from an enemy. Deal [Magic + 6] damage to them, and all enemies below them.
+ZH : 耗尽一名敌人的法力值，并将其击晕和使其陷入沉默状态。对其和其下方的所有敌人造成 [魔法 + 6] 点伤害。
+CL : c1=Silence, Stun and drain all Mana from an enemy. | c2=Deal [Magic + 6] damage to them, and all enemies below them.
+  0 {"Target":"FromTarget","Amount":1,"Type":"CauseStun"}
+  1 {"Target":"FromTarget","Amount":1,"Type":"CauseSilence"}
+  2 {"Target":"FromTarget","Amount":100,"Type":"DecreaseMana"}
+  3 {"SpellPowerMultiplier":1,"Target":"FromTarget","Amount":6,"Primarypower":true,"Type":"Damage"}
+  4 {"SpellPowerMultiplier":1,"Target":"BelowTarget","Amount":6,"Type":"Damage"}
+PROTO {"segments":[{"kind":"reduce","target":"enemyChosen","stat":"mana","scaling":{"base":0,"mult":0},"drainAll":true},{"kind":"status","target":"enemyChosen","statusId":"stun","turns":3},{"kind":"status","target":"enemyChosen","statusId":"silence","turns":3},{"kind":"damage","target":"enemyChosenAndBelow","scaling":{"base":6,"mult":1},"range":"all"}]}
+META null

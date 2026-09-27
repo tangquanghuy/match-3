@@ -1,34 +1,24 @@
-/**
- * 角色等级与数值曲线（1～100 级）。
- *
- * ## 设计依据
- *
- * Gems of War 官方数据里每个兵种都带一张逐级成长表（`*_Base` 是 1 级值，
- * `*Increase[20]` 是 2～20 级的每级增量）。本曲线的做法是：
- *
- *  - **1～20 级**：完全对齐官方。两端锚点精确等于官方的 1 级基础值与 20 级满级值，
- *    中间用官方增量数组的平均归一化形状插值（见 `GROWTH_SHAPE`）。
- *  - **21～100 级**：官方没有这一段（GoW 兵种只到 20 级），按固定节奏外推，
- *    保持官方那套「生命 > 护甲 ≫ 攻击 > 法强」的相对关系。
- *
- * ## 形状特征（直接来自官方数据的统计）
- *
- * 生命/护甲在 2～15 级平稳约 3%/级，16～20 级加速到 8～14%/级；
- * 攻击在 10、15 级各跳一次；法强只在 4、10、15、20 级跳。也就是官方本身就是
- * 「生命护甲每级涨、攻击法强隔几级涨」，与本项目要的手感一致，无需另造一套。
- *
- * ## 数值规模
- *
- * 一个中等兵种 20 级约 20 生命 / 14 护甲 / 13 攻击 / 8 法强，100 级约
- * 73 生命 / 54 护甲 / 29 攻击 / 18 法强——保持两位数，不做指数膨胀。
+/** Player/hero/sandbox progression (1..100).
+ * Imported GoWHead rows use actual per-level gains through 20. Index 0 is level 1;
+ * indices 1..19 are increments for levels 2..20. The legacy average shape remains
+ * only for heroes and community troops without imported progression.
+ * Levels 21..100 retain the project sandbox extension; NPC difficulty is separate
+ * in meta/data/enemyDifficulty.ts. Provenance and deviations: docs/GOW-NUMERIC-AUDIT.md.
  */
 import type { TroopData } from './troops';
+import progressionData from './troop-progression.json';
+
+export interface TroopProgression {
+  growth: Record<StatKey, number[]>;
+  traits: Record<string, number>[];
+}
+export const TROOP_PROGRESSION: Readonly<Record<string, TroopProgression>> = progressionData as unknown as Readonly<Record<string, TroopProgression>>;
 
 /** 曲线版本。改动任何锚点或外推节奏都要递增，便于宿主判断数值口径。 */
-export const LEVEL_CURVE_VERSION = 1;
+export const LEVEL_CURVE_VERSION = 2;
 
 export const MIN_LEVEL = 1;
-/** 官方逐级表覆盖到这一级；之后走外推段 */
+/** 导入逐级表覆盖到这一级；之后走外推段 */
 export const OFFICIAL_MAX_LEVEL = 20;
 export const MAX_LEVEL = 100;
 
@@ -69,7 +59,7 @@ export const GROWTH_SHAPE: Readonly<Record<StatKey, readonly number[]>> = {
  * 21～100 级的外推节奏：每 `everyLevels` 级增加 `points` 点。
  *
  * 取值理由：生命 0.667/级、护甲 0.5/级、攻击 0.2/级、法强 0.125/级，
- * 沿用官方的相对关系（生命最快、法强最慢），并让 100 级生命落在 70～80 的目标区间。
+ * 沿用项目既有相对节奏（生命最快、法强最慢），并让 100 级生命落在 70～80 的目标区间。
  */
 export const EXTENDED_GROWTH: Readonly<Record<StatKey, { points: number; everyLevels: number }>> = {
   health: { points: 2, everyLevels: 3 },
@@ -111,11 +101,13 @@ export function statAtLevel(stat: StatKey, base: number, maxOfficial: number, le
 
 /** 兵种在指定等级的四项战斗数值。 */
 export function troopStatsAtLevel(troop: TroopData, level: number): LeveledStats {
-  const b = troop.base;
-  return {
-    health: statAtLevel('health', b?.health ?? 0, troop.health, level),
-    armor: statAtLevel('armor', b?.armor ?? 0, troop.armor, level),
-    attack: statAtLevel('attack', b?.attack ?? 0, troop.attack, level),
-    magic: statAtLevel('magic', b?.magic ?? 0, troop.magic, level),
+  const lv = clampLevel(level);
+  const progression = TROOP_PROGRESSION[troop.id];
+  const value = (stat: StatKey): number => {
+    if (!progression) return statAtLevel(stat, troop.base?.[stat] ?? 0, troop[stat], lv);
+    // Index 0 belongs to level 1 (zero); indices 1..19 are actual level-up gains.
+    const gain = progression.growth[stat].slice(0, Math.min(lv, OFFICIAL_MAX_LEVEL)).reduce((sum, n) => sum + n, 0);
+    return (troop.base?.[stat] ?? 0) + gain + extendedGain(stat, lv);
   };
+  return { health: value('health'), armor: value('armor'), attack: value('attack'), magic: value('magic') };
 }

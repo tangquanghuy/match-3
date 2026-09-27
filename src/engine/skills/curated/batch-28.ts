@@ -9,7 +9,7 @@
  *   （batch-26 7930「绿色宝石和骷髅头数」同款）。
  * - 「因陷入冻结与燃烧状态的敌人数而增强」= 冻结敌人数 + 燃烧敌人数 双来源计数相加
  *   （batch-26 7565「纳迦和不死族盟友数」同款；GoW「boosted by A and B」为计数列表口径）。
- * - 「魔法值」= magic 属性（SOP 措辞裁定）；「因转换宝石数而增强」= transformedGems，
+ * - 「魔力值」= magic 属性（SOP 措辞裁定）；「因转换宝石数而增强」= transformedGems，
  *   转化段前置才数得到（batch-04 7002 同款）。
  * - 塔罗牌家族「板面上每有一颗X宝石，则有 7% 的几率获得一个额外回合。[x7]」：
  *   几率随来源增强经 chanceBoost 回收（8953/9029/9062）；「N 名盟友」裸复数（8970/9528-9530）
@@ -43,7 +43,7 @@ const SKIPPED: { id: number; reason: string }[] = [
   { id: 9375, reason: '句子式不明（「真实散射伤害」未指明目标，batch-23 9376 同款）；「因妖仙宝石数而增强」来源亦不明' },
   { id: 9377, reason: '语义拿不准（「若在寒冬堡垒使用，则伤害翻倍」王国条件倍率，batch-23 9376 同款）' },
   { id: 9462, reason: '二次缩放来源不支持（「因敌我双方队伍的龙族军队数而增强」——来源计数仅支持己方，batch-26 头注 / 7598 同款）' },
-  { id: 9476, reason: '晋升度条件（「如果敌人是 Boss，则根据我的升天造成 3 倍 - 5 倍伤害」，SOP 措辞裁定）；「恶魔传送门宝石」亦为特殊宝石' },
+  { id: 9476, reason: '晋升度条件（「如果敌人是 Boss，则基于我已晋升的稀有度造成 3 到 5 倍伤害」，SOP 措辞裁定）；「恶魔传送门宝石」亦为特殊宝石' },
   { id: 9485, reason: '语义拿不准（「消除所有敌人 2 个随机技能中的 X 点」随机属性削减无原语，batch-26 7596 同款）；「如果在 Geheron 使用」王国条件、「随机负面状态」亦无原语' },
   { id: 9489, reason: '语义拿不准（「如果在中央尖塔中使用，效果加倍」王国条件倍率，batch-23 9376 同款）' },
   { id: 9512, reason: '句子式不明（「摧毁一个 5x5 的方块」无对应面积清除原语，batch-26 8116 / batch-08 8164 同款）' },
@@ -101,9 +101,9 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 9007,
-    desc: '将所有黄色宝石转换成棕色。给予所有盟友 2 点魔法值，数值因转换宝石数而增强。 [3:1]',
+    desc: '将所有黄色宝石转换成棕色。给予所有盟友 2 点魔力值，数值因转换宝石数而增强。 [3:1]',
     build: skill(
-      // 「魔法值」= magic 属性（SOP 措辞裁定，batch-01 7401 同款）
+      // 「魔力值」= magic 属性（SOP 措辞裁定，batch-01 7401 同款）
       transform(BaseColor.Yellow, BaseColor.Brown),
       // 转化段前置，transformedGems 来源才数得到（batch-04 7002 同款）
       magic('allyAll', 2, 0, {
@@ -113,9 +113,9 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 9029,
-    desc: '给予一名盟友 2 点魔法值。板面上每有一颗红色宝石则有 7% 的几率获得一个额外回合。 [x7]',
+    desc: '给予一名盟友 2 点魔力值。板面上每有一颗红色宝石则有 7% 的几率获得一个额外回合。 [x7]',
     build: skill(
-      // 「魔法值」= magic 属性（SOP 措辞裁定）；缩放为空 → 常数（mult=0）
+      // 「魔力值」= magic 属性（SOP 措辞裁定）；缩放为空 → 常数（mult=0）
       magic('allyChosen', 2, 0),
       // 回收：chanceBoost 现支持「每颗X宝石 7% 几率」（SOP 示例句式；boardGems Red）
       extraTurn({ chanceBoost: { mod: { kind: 'multiplier', a: 7 }, source: { kind: 'boardGems', color: BaseColor.Red } } }),
@@ -123,7 +123,7 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 9062,
-    desc: '给予所有盟友 3 点魔法值。板面上每有一颗红色宝石，则有 7% 的几率获得一个额外回合。 [x7]',
+    desc: '给予所有盟友 3 点魔力值。板面上每有一颗红色宝石，则有 7% 的几率获得一个额外回合。 [x7]',
     build: skill(
       magic('allyAll', 3, 0),
       // 回收：chanceBoost 现支持「每颗X宝石 7% 几率」（SOP 示例句式；boardGems Red）

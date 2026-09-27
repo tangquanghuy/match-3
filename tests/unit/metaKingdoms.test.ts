@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { TROOPS } from '../../src/data/troops';
+import { COMMUNITY_KINGDOM } from '../../src/data/communityTroops';
 import {
   allKingdoms,
   EXPLORE_TEAM_SIZES,
@@ -16,8 +17,8 @@ import {
 } from '../../src/meta';
 
 describe('王国元数据首版（kingdoms.ts）', () => {
-  it('42 个王国全部入表，与 troops.json 的 kingdom 字段一一对应', () => {
-    const dataKingdoms = new Set(TROOPS.map((t) => t.kingdom).filter((k): k is string => !!k));
+  it('42 个常规王国全部入表，异界王国不进入推进序', () => {
+    const dataKingdoms = new Set(TROOPS.map((t) => t.kingdom).filter((k): k is string => !!k && k !== COMMUNITY_KINGDOM));
     expect(allKingdoms().length).toBe(dataKingdoms.size);
     expect(new Set(allKingdoms())).toEqual(dataKingdoms);
   });
@@ -36,9 +37,9 @@ describe('王国元数据首版（kingdoms.ts）', () => {
   it('任务/探索敌人等级表（设计值）', () => {
     expect(questEnemyLevel('破碎尖塔', 1)).toBe(1);
     expect(questEnemyLevel('破碎尖塔', 8)).toBe(8);
-    expect(exploreEnemyLevel('破碎尖塔', 1)).toBe(1);
-    expect(exploreEnemyLevel('破碎尖塔', 5)).toBe(21);
-    expect(exploreEnemyLevel('破碎尖塔', 6)).toBe(26);
+    expect(exploreEnemyLevel('破碎尖塔', 1)).toBe(13);
+    expect(exploreEnemyLevel('破碎尖塔', 5)).toBe(63);
+    expect(exploreEnemyLevel('破碎尖塔', 6)).toBe(88);
   });
 
   it('出战一律 4 人队；Hard 1~3 / Very Hard 1~3 映射到探索档 1~6', () => {

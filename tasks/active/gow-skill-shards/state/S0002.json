@@ -1,0 +1,6 @@
+{
+  "state": "needs-repair",
+  "worker": "worker-fast-01",
+  "updatedAt": "2026-09-27T15:29:45.7452335Z",
+  "note": "恢复误认领前的 needs-repair：本片既有静态报告记录差异，待修复/测试/签收复核"
+}

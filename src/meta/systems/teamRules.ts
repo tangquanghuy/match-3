@@ -1,5 +1,5 @@
 /**
- * 编队规则（M1）——裁定①的落地：3~4 人、主角可编入也可不编入、部队不重复且已拥有。
+ * 编队规则（M1）——裁定①的落地：4 人、主角可编入也可不编入、部队不重复且已拥有。
  *
  * 校验**汇总全部问题**而不是见错即返：ASSETS-NEEDED.md §6.3 要求校验规则可见，
  * UI 层把 issues 全部列出来（人数、耗蓝、色覆盖、种族计数等可视化由屏层做，
@@ -9,7 +9,7 @@ import { getTroopById } from '../../data/troops';
 import { bannerEquipIssue } from './banners';
 import type { MetaSave, TeamMember, TeamPreset } from '../state/schema';
 
-export const MIN_TEAM_SIZE = 3;
+export const MIN_TEAM_SIZE = 4;
 export const MAX_TEAM_SIZE = 4;
 
 export type TeamRuleCode =

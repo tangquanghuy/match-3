@@ -7,7 +7,7 @@
  * - 裸「造成…散射伤害」未指明目标 → SKIP 句子式不明（batch-02 7265 / batch-18 头注同款；
  *   本批 8860/9175/9376 三条均因此放弃）。
  * - 「消除一名敌人所有护甲值」= reduce armor + drainAll（batch-01 7175「减除全部护甲值」同口径）。
- * - 「吸取一名敌人的所有法力值」= drainMana（batch-17 9572「吸取敌人的所有法力」同款）；
+ * - 「吸取一名敌人的所有法力值」= drainMana（batch-17 9572「吸取敌人的所有法力值」同款）；
  *   「因吸取的法力值而增强」= source drainedMana（batch-05 7142 / batch-17 9572 同口径）。
  * - 「若有敌人身亡」= spell-rules.md §4 死亡条件家族，挂最近产目标段（batch-12 7225 同款）；
  *   「前 2 位敌人…消除他们」= enemyFirstN 确定性目标跨段复用（batch-06 7063 先例）。
@@ -21,7 +21,7 @@
  * - 「半数法力值」= 比例法力（batch-14 8292 同款）；「N-M 点/颗/只」区间数值无原语
  *   （batch-08 8356 / batch-11 9466 同款）；「摧毁 5x5 圈」无面积清除原语（batch-10 8927 同款）。
  */
-import { skill, dmg, trueDmg, heal, armor, attack, magic, reduce, drainMana, inflict,
+import { chooseSkill, skill, dmg, trueDmg, heal, armor, attack, magic, reduce, drainMana, inflict,
   createGems, transform, transformToSpecial, destroyChosenCol, destroyChosenRow,
   extraTurn } from '../builders';
 import { BaseColor } from '../../types';
@@ -43,7 +43,7 @@ const SKIPPED: { id: number; reason: string }[] = [
   { id: 9339, reason: '数值不明（「召唤 1-3 只」区间数量无原语，batch-11 9466 同款）；「爆破 1 颗宝石」对象亦未指明（batch-10 8841 同款）' },
   { id: 9376, reason: '句子式不明（「造成…真实散射伤害」未指明目标，batch-02 7265 同款）；「若在阿达尼亚使用」王国条件亦不支持' },
   { id: 9465, reason: '特殊宝石（恶魔传送门宝石，batch-11 9466 同款）' },
-  { id: 9468, reason: '晋升度条件（「如果敌人是 Boss，则根据我的升级造成 3 倍 - 5 倍伤害」）；「变得愤怒」狂怒亦为缺失状态（batch-01 7740 同款）' },
+  { id: 9468, reason: '晋升度条件（「如果敌人是 Boss，则基于我已晋升的稀有度造成 3 到 5 倍伤害」）；「变得愤怒」狂怒亦为缺失状态（batch-01 7740 同款）' },
   { id: 9475, reason: '特殊宝石（恶魔传送门宝石，batch-11 9466 同款）' },
   { id: 9514, reason: '句子式不明（「通过随机技能消灭敌人的 [魔法 + 1] 个」机翻无法解析）；「造成恐惧」恐惧亦为缺失状态' },
   { id: 9532, reason: '特殊宝石（红龙宝石，batch-16 8795 同族）；「末位 2 名对人」机翻亦不明' },
@@ -54,19 +54,12 @@ const SPELLS: CuratedBatch['spells'] = [
   {
     id: 8855,
     desc: '&&摧毁一列 && 摧毁一行',
-    build: skill(
-      destroyChosenCol(),
-      destroyChosenRow(),
-    ),
+    build: skill(chooseSkill(['摧毁所选的一列', '摧毁所选的一行'], [destroyChosenCol()], [destroyChosenRow()])),
   },
   {
     id: 8867,
     desc: '&&  对一名敌人造成 [魔法 + 3] 点伤害 && 消除一名敌人所有护甲值',
-    build: skill(
-      dmg('enemyChosen', 3),
-      // 「消除…所有护甲值」= 减除全部护甲（batch-01 7175 同口径）
-      reduce('enemyChosen', 'armor', 0, 0, { drainAll: true }),
-    ),
+    build: skill(chooseSkill(["对一名敌人造成［魔法＋3］伤害","消除一名敌人的全部护甲"], [dmg('enemyChosen', 3)], [reduce('enemyChosen', 'armor', 0, 0, { drainAll: true })])),
   },
   {
     id: 8883,

@@ -384,7 +384,7 @@ describe('StandaloneHostBridge（需求 2.5、3.7）', () => {
       teamSize: 3,
     });
     const request = await bridge.waitForBattle();
-    expect(request.playerTeam).toHaveLength(3);
+    expect(request.playerTeam).toHaveLength(4);
     bridge.dispose();
   });
 

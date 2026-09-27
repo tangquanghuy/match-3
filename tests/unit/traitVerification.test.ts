@@ -238,7 +238,7 @@ describe('漏子句补齐', () => {
 });
 
 describe('收编批行为抽查', () => {
-  it('zornsfury：受击获得 4 点法力（按法力上限夹取）', async () => {
+  it('zornsfury：受击获得 4 点法力值（按法力上限夹取）', async () => {
     const { CombatResolver } = await import('@engine/CombatResolver');
     const target = makeChar(0, { traitIds: ['zornsfury'] });
     attachPassives(target);

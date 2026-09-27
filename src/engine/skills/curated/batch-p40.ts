@@ -24,7 +24,7 @@
  *   dmg('enemyAll',10,0,{range:'all',ifCond:stormPresent})——现按 §0 裁定落 enemyChosen。
  */
 import type { CuratedBatch } from './index';
-import { skill, dmg, createStorm, shuffleTeam, createSpecialGems, explodeSpecialGems, extraTurn } from '../builders';
+import { chooseSkill, skill, dmg, createStorm, shuffleTeam, createSpecialGems, explodeSpecialGems, extraTurn } from '../builders';
 import { BaseColor } from '../../types';
 
 const SKIPPED: { id: number; reason: string }[] = [
@@ -51,13 +51,8 @@ const SPELLS: CuratedBatch['spells'] = [
   {
     id: 9185,
     desc: '&&创造一颗蓝色闪电宝石。板面上每有一颗蓝色宝石，则有 7% 的几率获得一个额外回合 && 创造一颗黄色闪电宝石。板面上每有一颗蓝色宝石，则有 7% 的几率获得一个额外回合  [x7]',
-    build: skill(
-      // 蓝/黄闪电颜色→行列归属：引擎 SPECIAL_MATCH_COLOR（lightningRow=Blue，lightningCol=Yellow）
-      createSpecialGems({ kind: 'lightningRow' }, 1),
-      extraTurn({ chance: 0.07, chanceBoost: { mod: { kind: 'multiplier', a: 7 }, source: { kind: 'boardGems', color: BaseColor.Blue } } }),
-      createSpecialGems({ kind: 'lightningCol' }, 1),
-      extraTurn({ chance: 0.07, chanceBoost: { mod: { kind: 'multiplier', a: 7 }, source: { kind: 'boardGems', color: BaseColor.Blue } } }),
-    ),
+    // Both raw CountGems steps use Yellow while description says Blue: source conflict pending independent check.
+    build: skill(chooseSkill(['蓝闪电宝石与额外回合', '黄闪电宝石与额外回合'], [createSpecialGems({ kind: 'lightningRow' }, 1), extraTurn({ chance: 0, chanceBoost: { mod: { kind: 'multiplier', a: 7 }, source: { kind: 'boardGems', color: BaseColor.Yellow } } })], [createSpecialGems({ kind: 'lightningCol' }, 1), extraTurn({ chance: 0, chanceBoost: { mod: { kind: 'multiplier', a: 7 }, source: { kind: 'boardGems', color: BaseColor.Yellow } } })])),
   },
   {
     id: 9567,

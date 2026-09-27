@@ -20,18 +20,8 @@ export interface SpellRender {
   formulas: Formula[];
 }
 
-/** 显示层病句修正表（数据侧修正后即可删除对应条目） */
-const PHRASE_FIXES: Array<[RegExp, string]> = [
-  [/随机爆破\s*一颗的宝石/g, '随机选择一颗宝石爆破'],
-];
-
-/** CJK 字符间的空格是分词管道痕迹，显示时收紧 */
-export function normalizeText(text: string): string {
-  let out = text;
-  for (const [re, to] of PHRASE_FIXES) out = out.replace(re, to);
-  out = out.replace(/([\u4e00-\u9fff])[ \t]+(?=[\u4e00-\u9fff])/g, '$1');
-  return out;
-}
+import { normalizeCombatText } from '../../data/combatText';
+export const normalizeText = normalizeCombatText;
 
 export function evalMagicExpr(inner: string, magic: number): number | null {
   const expr = inner.replace(/\s+/g, '').replace(/×/g, 'x').replace(/Ｘ/g, 'x');
@@ -59,7 +49,7 @@ export function renderSpell(desc: string, magic: number, opts: { interactive?: b
   const clean = normalizeText(desc ?? '');
   if (!clean) return { html: '', formulas: [] };
   const formulas: Formula[] = [];
-  const unit = '点(?:真实)?(?:伤害|生命值|生命|护甲值|护甲|攻击力|攻击|法力值|法力|魔法值)?';
+  const unit = '点(?:真实)?(?:伤害|生命值|生命|护甲值|护甲|攻击力|攻击|法力值|法力|魔力值)?';
   const mark = (value: number, suffix: string): string =>
     interactive
       ? `<button type="button" class="spell-stat" aria-expanded="false">${value} ${suffix}</button>`
@@ -86,16 +76,16 @@ export function renderSpell(desc: string, magic: number, opts: { interactive?: b
 export function formulaRule(expr: string): string {
   const compact = expr.replace(/\s+/g, '').replace(/×/g, 'x');
   let m = compact.match(/^魔法\+([\d.]+)$/);
-  if (m) return '魔法 + ' + m[1];
-  if (/^魔法$/.test(compact)) return '魔法';
+  if (m) return '魔力 + ' + m[1];
+  if (/^魔法$/.test(compact)) return '魔力';
   m = compact.match(/^魔法\/([\d.]+)$/) || compact.match(/^\(魔法\/([\d.]+)\)$/);
-  if (m) return '魔法 ÷ ' + m[1];
+  if (m) return '魔力 ÷ ' + m[1];
   m = compact.match(/^\(魔法\/([\d.]+)\)\+([\d.]+)$/);
-  if (m) return `魔法 ÷ ${m[1]} + ${m[2]}`;
+  if (m) return `魔力 ÷ ${m[1]} + ${m[2]}`;
   m = compact.match(/^\(魔法[x*]([\d.]+)\)\+([\d.]+)$/);
-  if (m) return `魔法 × ${m[1]} + ${m[2]}`;
+  if (m) return `魔力 × ${m[1]} + ${m[2]}`;
   m = compact.match(/^\(魔法-([\d.]+)\)$/);
-  if (m) return `魔法 − ${m[1]}`;
+  if (m) return `魔力 − ${m[1]}`;
   return expr;
 }
 
@@ -104,7 +94,8 @@ export function formulaKind(unit: string): string {
   if (/生命/.test(unit)) return '生命';
   if (/护甲/.test(unit)) return '护甲';
   if (/攻击/.test(unit)) return '攻击';
-  if (/法力|魔法/.test(unit)) return '法力';
+  if (/魔力|魔法/.test(unit)) return '魔力';
+  if (/法力/.test(unit)) return '法力';
   return '效果';
 }
 

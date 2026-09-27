@@ -17,8 +17,8 @@ const STAT_CN: Record<string, string> = {
   attack: '攻击',
   armor: '护甲',
   hp: '生命',
-  mana: '法力',
-  magic: '魔力',
+  mana: '法力值',
+  magic: '魔力值',
 };
 
 const CURRENCY_CN: Record<string, string> = {

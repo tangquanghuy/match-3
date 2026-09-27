@@ -1,0 +1,6 @@
+{
+  "state": "needs-repair",
+  "worker": "worker-fast-04",
+  "updatedAt": "2026-09-27T15:32:18.255Z",
+  "note": "静态核验报告已写：troop:6117/7209 野兽倍率×2≠原生×3；troop:6189/7330 中文双倍倍；待测试/签收复核"
+}

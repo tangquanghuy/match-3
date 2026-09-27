@@ -1,0 +1,167 @@
+troop:6015 7015 pending-review | DecreaseMana(FromTarget A=100 SPM=-) || reduce:enemyChosen mana 0+0M drainAll
+troop:6018 7018 pending-review | GenerateQuarterMana(AllAlliesButNotSelf A=- SPM=-) || buff:allyOthers mana 0+0M frac0.25
+troop:6023 7023 pending-review | GenerateMana(Self A=- SPM=- AddForKill:8) || buff:allySelf mana 8+0M
+troop:6072 7142 pending-review | DecreaseMana(FromTarget A=100 SPM=-) || reduce:enemyChosen mana 0+0M drainAll
+troop:6083 7153 pending-review | DecreaseMana(LastEnemy A=100 SPM=-) || reduce:enemyLast mana 0+0M drainAll
+troop:6086 7156 pending-review | GenerateMana(Self A=- SPM=- AddForKill:9) || buff:allySelf mana 9+0M
+troop:6111 7181 pending-review | GenerateMana(Self A=- SPM=- AddFor10PurpleGems:6) || buff:allySelf mana 6+0M
+troop:6114 7206 pending-review | DecreaseMana(FromTarget A=100 SPM=-) || reduce:enemyChosen mana 0+0M drainAll
+troop:6134 7236 pending-review | StealMana(FromTarget A=- SPM=- AddForDaemon:6) ; StealMana(FromTarget A=- SPM=- AddForOrc:6) || reduce:lastTarget mana->mana 6+0M
+troop:6142 7256 pending-review | GenerateMana(FromTarget A=6 SPM=-) || buff:allyChosen mana 6+0M
+troop:6149 7263 pending-review | DecreaseMana(FromTarget A=- SPM=- AddForAnyStatusEffect:100) || reduce:lastTarget mana 0+0M drainAll
+troop:6151 7265 pending-review | DecreaseMana(AllEnemies A=7 SPM=-) || reduce:enemyAll mana 7+0M
+troop:6180 7321 pending-review | DecreaseMana(FromTarget A=1 SPM=1) || reduce:enemyChosen mana 1+1M
+troop:6187 7328 pending-review | ManaBurn(FromTarget A=- SPM=1) || 
+troop:6191 7332 pending-review | ManaBurn(AllEnemies A=- SPM=1) || 
+troop:6199 7341 pending-review | DecreaseMana(AllEnemies A=100 SPM=-) || reduce:enemyAll mana 0+0M drainAll
+troop:6205 7347 pending-review | DecreaseMana(FromTarget A=100 SPM=1) ; GenerateMana(Self A=- SPM=- ctr) || reduce:enemyChosen mana->mana 0+0M drainAll
+troop:6206 7348 pending-review | StealMana(FromTarget A=100 SPM=-) || reduce:enemyChosen mana->mana 0+0M drainAll
+troop:6207 7349 pending-review | DecreaseMana(FromTarget A=7 SPM=-) || reduce:enemyChosen mana 7+0M
+troop:6213 7355 pending-review | GenerateMana(AllAlliesButNotSelf A=3 SPM=0.5) || buff:allyOthers mana 3+0.5M
+troop:6225 7367 pending-review | DecreaseMana(FromTarget A=7 SPM=-) || reduce:enemyChosen mana 7+0M
+troop:6227 7369 pending-review | DecreaseMana(FrontEnemy A=100 SPM=-) ; DecreaseMana(SecondEnemy A=100 SPM=-) || reduce:enemyFirstN mana 0+0M drainAll
+troop:6252 7395 pending-review | DecreaseMana(FromTarget A=1 SPM=1) || reduce:enemyChosen mana 1+1M
+troop:6285 7431 pending-review | GenerateMana(Self A=- SPM=- AddFor10BlueGems:4) || buff:allySelf mana 4+0M
+troop:6307 7457 pending-review | GenerateFullManaConditional(Self A=- SPM=- ctr) || buff:allySelf mana 0+0M mod
+troop:6317 7467 pending-review | DecreaseMana(FromTarget A=- SPM=- ctr) || reduce:enemyChosen mana 12+0M
+troop:6323 7473 pending-review | GenerateMana(FromTarget A=- SPM=- ctr) || buff:allyChosen mana 0+0M halve
+troop:6396 7551 pending-review | GenerateMana(AllAlliesButNotSelf A=5 SPM=-) || buff:allyOthers mana 5+0M
+troop:6423 7596 pending-review | StealMana(LastEnemy A=4 SPM=-) || reduce:enemyLast mana->mana 4+0M
+troop:6424 7597 pending-review | DecreaseMana(FromTarget A=- SPM=- ctr) || reduce:enemyChosen mana 12+0M
+troop:6454 7632 pending-review | GenerateMana(Self A=- SPM=- ctr) || buff:allySelf mana 2+0M
+troop:6473 7651 pending-review | GenerateMana(AllAlliesButNotSelf A=5 SPM=-) || buff:allyOthers mana 5+0M
+troop:6474 7652 pending-review | ManaBurn(FirstTwoEnemies A=- SPM=1) || 
+troop:6481 7668 pending-review | DecreaseMana(FromTarget A=100 SPM=-) || reduce:enemyChosen mana 0+0M drainAll
+troop:6508 7698 pending-review | GenerateMana(AllAlliesButNotSelf A=5 SPM=-) || buff:allyOthers mana 5+0M
+troop:6526 7719 pending-review | StealMana(FromTarget A=- SPM=- AddForFrozen:5) || reduce:enemyChosen mana->mana 5+0M
+troop:6543 7737 pending-review | GenerateMana(Self A=- SPM=- AddForKill:12) || buff:allySelf mana 12+0M
+troop:6569 7773 pending-review | StealMana(FromTarget A=6 SPM=-) || reduce:enemyChosen mana->mana 6+0M
+troop:6598 7807 pending-review | DecreaseMana(AllAllies A=100 SPM=-) ; DecreaseMana(AllEnemies A=100 SPM=-) || reduce:allyAll mana 0+0M drainAll ; reduce:enemyAll mana 0+0M drainAll
+troop:6636 7962 pending-review | GenerateMana(Self A=- SPM=- AddForKill:12) || buff:allySelf mana 12+0M
+troop:6648 7981 pending-review | GenerateMana(AllAlliesButNotSelf A=5 SPM=-) || buff:allyOthers mana 5+0M
+troop:6680 8026 pending-review | GenerateMana(Self A=12 SPM=-) || buff:allySelf mana 12+0M
+troop:6710 8068 pending-review | DecreaseMana(FromTarget A=- SPM=- ctr) || reduce:enemyChosen mana 12+0M
+troop:6718 8088 pending-review | GenerateMana(Self A=2 SPM=- ctr) || buff:allySelf mana 2+0M mod
+troop:6735 8105 pending-review | DecreaseMana(FromTarget A=- SPM=- AddForWeb:5) || reduce:enemyChosen mana 5+0M
+troop:6752 8131 pending-review | DecreaseMana(AllEnemies A=- SPM=- AddForAnyStorm:4) || reduce:enemyAll mana 4+0M
+troop:6789 8180 pending-review | DecreaseMana(FromManaColorEnemy A=100 SPM=-) || reduce:enemyAll mana 0+0M drainAll
+troop:6792 8183 pending-review | DecreaseMana(FromTarget A=- SPM=- ctr) || reduce:enemyChosen mana 12+0M
+troop:6804 8207 pending-review | DecreaseMana(FromTarget A=- SPM=- AddForDaemon:100) ; DecreaseMana(FromTarget A=- SPM=- AddForUndead:100) || reduce:enemyChosen mana 0+0M drainAll
+troop:6825 8235 pending-review | GenerateMana(FromManaColor A=6 SPM=- ctr) || buff:allyAll mana 6+0M mod
+troop:6834 8239 pending-review | GenerateMana(AllAlliesButNotSelf A=- SPM=- AddForAnyStorm:6) || buff:allyOthers mana 6+0M
+troop:6845 8250 pending-review | DecreaseMana(FromTarget A=100 SPM=-) || reduce:enemyChosen mana 0+0M drainAll
+troop:6852 8271 pending-review | DecreaseMana(FromTarget A=- SPM=- ctr) || reduce:enemyChosen mana 12+0M
+troop:6861 8280 pending-review | GenerateHalfManaConditional(Self A=25 SPM=- ctr) || buff:allySelf mana 0+0M halve
+troop:6862 8281 pending-review | GenerateHalfManaConditional(Self A=25 SPM=- ctr) || buff:allySelf mana 0+0M halve
+troop:6863 8282 pending-review | GenerateHalfMana(Self A=- SPM=-) || buff:allySelf mana 0+0M halve
+troop:6867 8289 pending-review | GenerateQuarterMana(AllAlliesButNotSelf A=- SPM=-) || buff:allyOthers mana 0+0M frac0.25
+troop:6871 8295 pending-review | GenerateQuarterMana(AllyColor A=- SPM=-) || buff:allyAll mana 0+0M frac0.25
+troop:6876 8292 pending-review | GenerateHalfMana(FirstTwoAllies A=- SPM=-) || buff:allyFirstN mana 0+0M halve
+troop:6878 8301 pending-review | DecreaseMana(FromTarget A=- SPM=- ctr) || reduce:enemyChosen mana 10+0M
+troop:6885 8308 pending-review | DecreaseMana(FrontEnemy A=3 SPM=-) || reduce:enemyFront mana 3+0M
+troop:6886 8309 pending-review | DecreaseMana(AllEnemies A=2 SPM=-) || reduce:enemyAll mana 2+0M
+troop:6896 8356 pending-review | DecreaseMana(EnemyColor A=- SPM=- ctr) || reduce:enemyAll mana 0+0M
+troop:6897 8358 pending-review | GenerateQuarterMana(AllAlliesButNotSelf A=- SPM=-) || buff:allyAll mana 0+0M frac0.25
+troop:6906 8367 pending-review | DecreaseMana(EnemyColor A=5 SPM=-) || reduce:enemyAll mana 5+0M
+troop:6911 8372 pending-review | DecreaseMana(AllEnemies A=4 SPM=-) || reduce:enemyAll mana 4+0M
+troop:6921 8387 pending-review | GenerateHalfMana(FromTarget A=- SPM=-) || buff:lastTarget mana 0+0M halve
+troop:6926 8414 pending-review | DecreaseMana(BelowTarget A=7 SPM=-) || reduce:enemyChosenAndBelow mana 7+0M
+troop:6928 8406 pending-review | GenerateQuarterMana(AllAlliesButNotSelf A=- SPM=-) || buff:allyOthers mana 0+0M frac0.25
+troop:6940 8421 pending-review | GenerateHalfMana(FromTarget A=- SPM=-) || buff:lastTarget mana 0+0M halve
+troop:6966 8469 pending-review | GenerateHalfMana(FromTarget A=- SPM=-) || buff:lastTarget mana 0+0M halve
+troop:6967 8470 pending-review | DecreaseMana(FromTarget A=7 SPM=-) || reduce:enemyChosen mana 7+0M
+troop:6970 8473 pending-review | DecreaseMana(FrontEnemy A=- SPM=- ctr) || reduce:enemyFront mana 0+0M mod
+troop:6975 8478 pending-review | DecreaseMana(FromTarget A=100 SPM=-) || reduce:enemyChosen mana 0+0M drainAll
+troop:6978 8482 pending-review | StealMana(FromTarget A=7 SPM=-) || reduce:enemyChosen mana->mana 7+0M
+troop:6984 8488 pending-review | GenerateMana(Self A=- SPM=- ctr) || buff:allySelf mana 0+0M mod
+troop:6992 8498 pending-review | GenerateFullMana(FromTarget A=- SPM=-) || buff:allyChosen mana 0+0M frac1
+troop:7004 8532 pending-review | DecreaseMana(FromTarget A=- SPM=- AddForFullMana:100) || reduce:lastTarget mana 0+0M drainAll
+troop:7035 8565 pending-review | DecreaseMana(AllEnemies A=2 SPM=- ctr) || reduce:enemyAll mana 2+0M mod
+troop:7040 8564 pending-review | DecreaseMana(TwoStrongestEnemies A=100 SPM=-) || reduce:enemyHealthiestN mana 0+0M drainAll
+troop:7042 8567 pending-review | GenerateFullManaConditional(Self A=- SPM=- ctr) || buff:allySelf mana 0+0M mod
+troop:7043 8568 pending-review | DecreaseMana(FromTarget A=8 SPM=-) || reduce:enemyChosen mana 8+0M
+troop:7049 8574 pending-review | DecreaseMana(FromTarget A=8 SPM=-) || reduce:enemyChosen mana 8+0M
+troop:7052 8580 pending-review | GenerateMana(AllAlliesButNotSelf A=- SPM=- ctr) || buff:allyOthers mana 3+0M mod
+troop:7059 8587 pending-review | DecreaseMana(FromTarget A=6 SPM=-) || reduce:enemyChosen mana 6+0M
+troop:7060 8588 pending-review | DecreaseMana(FromTarget A=- SPM=- ctr) || reduce:enemyChosen mana 12+0M
+troop:7061 8589 pending-review | DecreaseMana(FrontEnemy A=- SPM=- ctr) || reduce:enemyFront mana 4+0M mod
+troop:7062 8590 pending-review | DecreaseMana(FromTarget A=100 SPM=-) || reduce:enemyChosen mana 0+0M drainAll
+troop:7070 8598 pending-review | DecreaseMana(AllEnemies A=7 SPM=-) || reduce:enemyAll mana 7+0M
+troop:7085 8613 pending-review | DecreaseMana(FromTarget A=- SPM=- ctr) || reduce:enemyChosen mana 12+0M
+troop:7103 8638 pending-review | GenerateMana(Self A=- SPM=- ctr) || buff:allySelf mana 2+0M mod
+troop:7111 8654 pending-review | DecreaseMana(AllEnemies A=7 SPM=-) || reduce:enemyAll mana 7+0M
+troop:7121 8676 pending-review | StealMana(FromTarget A=4 SPM=-) || reduce:enemyChosen mana->mana 4+0M
+troop:7172 8743 pending-review | GenerateHalfManaConditional(Self A=- SPM=- ctr) || buff:allySelf mana 0+0M halve
+troop:7186 8756 pending-review | DecreaseMana(FromTarget A=7 SPM=-) ; DecreaseMana(FromTarget A=7 SPM=-) ; DecreaseMana(FromTarget A=7 SPM=-) || reduce:allyChosen mana 7+0M
+troop:7211 8798 pending-review | DecreaseMana(AllEnemies A=4 SPM=- ctr) || reduce:enemyAll mana 4+0M mod
+troop:7283 8857 pending-review | GenerateHalfMana(AllAlliesButNotSelf A=- SPM=-) || buff:allyOthers mana 0+0M halve
+troop:7291 8865 pending-review | DecreaseMana(FromTarget A=5 SPM=-) || 
+troop:7296 8897 pending-review | ManaBurn(FirstTwoEnemies A=- SPM=1) || 
+troop:7311 8923 pending-review | GenerateQuarterMana(AllAlliesButNotSelf A=- SPM=-) || buff:allyOthers mana 0+0M frac0.25
+troop:7313 8925 pending-review | GenerateHalfMana(FromTarget A=- SPM=-) || buff:allyChosen mana 0+0M halve
+troop:7329 8941 pending-review | DecreaseMana(FromTarget A=4 SPM=- ctr) || reduce:enemyChosen mana 4+0M mod
+troop:7361 9001 pending-review | DecreaseMana(AllEnemies A=2 SPM=-) || reduce:enemyAll mana 2+0M
+troop:7372 9012 pending-review | DecreaseMana(FromTarget A=7 SPM=-) || reduce:enemyChosen mana 7+0M
+troop:7377 9017 pending-review | DecreaseMana(FromTarget A=100 SPM=-) || reduce:enemyChosen mana 0+0M drainAll
+troop:7401 9051 pending-review | DecreaseMana(FromPrevious A=5 SPM=-) || reduce:lastTarget mana 5+0M
+troop:7418 9067 pending-review | DecreaseMana(FromTarget A=7 SPM=-) || reduce:enemyChosen mana 7+0M
+troop:7424 9118 pending-review | StealMana(FromTarget A=6 SPM=-) || reduce:enemyChosen mana->mana 6+0M
+troop:7462 9179 pending-review | GenerateHalfManaConditional(Self A=25 SPM=- ctr) || buff:allySelf mana 0+0M halve
+troop:7502 9247 pending-review | DecreaseMana(FromTarget A=20 SPM=-) || reduce:enemyChosen mana 20+0M
+troop:7531 9288 pending-review | GenerateQuarterMana(AllAlliesButNotSelf A=- SPM=-) || buff:allyOthers mana 0+0M frac0.25
+troop:7582 9401 pending-review | GenerateMana(AllAllies A=8 SPM=-) || buff:allyAll mana 8+0M
+troop:7584 9463 pending-review | GenerateQuarterMana(AllAlliesButNotSelf A=- SPM=-) || buff:allyOthers mana 0+0M frac0.25
+troop:7608 9491 pending-review | DecreaseMana(FromTarget A=100 SPM=-) || reduce:enemyChosen mana 0+0M drainAll
+troop:7613 9513 pending-review | DecreaseMana(FromTarget A=4 SPM=- ctr) || reduce:enemyChosen mana 4+0M mod
+troop:7625 9534 pending-review | DecreaseMana(FromPrevious A=8 SPM=- MultiplyForPoison:2) ; DecreaseMana(FromPrevious A=8 SPM=- MultiplyForPoison:2) ; DecreaseMana(FromPrevious A=8 SPM=- MultiplyForPoison:2) || reduce:enemyRandomN mana 8+0M
+troop:7646 9550 pending-review | GenerateHalfManaConditional(Self A=- SPM=- ctr) || buff:allySelf mana 0+0M halve
+troop:7657 9572 pending-review | DecreaseMana(FromTarget A=100 SPM=-) || reduce:enemyChosen mana 0+0M drainAll
+troop:7691 9660 pending-review | GenerateHalfManaConditional(Self A=- SPM=- AddForKill:100) || buff:allySelf mana 0+0M halve
+troop:7749 9734 pending-review | GenerateHalfManaConditional(FromTarget A=- SPM=- AddForTauros:100) || buff:allyChosen mana 0+0M halve
+troop:7760 9745 pending-review | ManaBurn(FromTarget A=- SPM=1) || 
+troop:7778 9784 pending-review | DecreaseMana(FromTarget A=- SPM=- AddForBleed:3) || reduce:enemyChosen mana 3+0M
+troop:7793 9812 pending-review | DecreaseMana(FromPrevious A=8 SPM=-) ; DecreaseMana(FromPrevious A=8 SPM=-) || reduce:lastTargets mana 8+0M
+troop:7796 9816 pending-review | GenerateHalfMana(FromPrevious A=- SPM=-) ; GenerateHalfMana(FromPrevious A=- SPM=-) || buff:lastTarget mana 0+0M halve ; buff:lastTarget mana 0+0M halve
+troop:7802 9843 pending-review | GenerateFullManaConditional(Self A=- SPM=- AddForKill:100) || buff:allySelf mana 0+0M mod
+troop:7804 9845 pending-review | GenerateHalfManaConditional(AllAllies A=- SPM=- AddForKill:100) || buff:allyAll mana 0+0M halve
+troop:7806 9847 pending-review | GenerateMana(Self A=- SPM=- ctr) || buff:allySelf mana 2+0M mod
+troop:7882 9957 pending-review | DecreaseMana(FromTarget A=6 SPM=-) || reduce:enemyChosen mana 6+0M
+weapon:1068 7176 pending-review | DecreaseMana(FrontEnemy A=100 SPM=-) || reduce:enemyChosen mana 0+0M drainAll
+weapon:1085 7198 pending-review | DecreaseMana(FrontEnemy A=100 SPM=-) ; DecreaseMana(LastEnemy A=100 SPM=-) || reduce:enemyFront mana 0+0M drainAll ; reduce:enemyLast mana 0+0M drainAll
+weapon:1095 7220 pending-review | DecreaseMana(FromTarget A=100 SPM=-) || reduce:lastTarget mana 0+0M drainAll
+weapon:1144 7410 pending-review | DecreaseMana(FromTarget A=1000 SPM=-) || reduce:lastTarget mana 0+0M drainAll
+weapon:1145 7412 pending-review | ManaBurn(FromTarget A=- SPM=1) || 
+weapon:1157 7567 pending-review | GenerateMana(LastEnemy A=- SPM=- AddForTransform:100) || 
+weapon:1175 7624 pending-review | GenerateMana(FromTarget A=- SPM=- ctr) || buff:allyChosen mana 0+0M halve mod
+weapon:1177 7626 pending-review | StealMana(FromTarget A=100 SPM=-) || reduce:lastTarget mana->mana 0+0M drainAll
+weapon:1211 7806 pending-review | GenerateMana(AllAllies A=- SPM=- ctr) || buff:allyAll mana 2+0M mod
+weapon:1219 7866 pending-review | DecreaseMana(FromTarget A=- SPM=- ctr) || reduce:enemyChosen mana 12+0M
+weapon:1226 7952 pending-review | GenerateMana(Self A=- SPM=- ctr) || buff:allySelf mana 3+0M mod
+weapon:1229 7963 pending-review | GenerateMana(Self A=- SPM=- ctr) || buff:allySelf mana 3+0M mod
+weapon:1233 7973 pending-review | GenerateMana(Self A=- SPM=- ctr) || buff:allySelf mana 3+0M mod
+weapon:1236 7982 pending-review | GenerateMana(AllAlliesButNotSelf A=5 SPM=- ctr) || buff:allyOthers mana 5+0M
+weapon:1242 8047 pending-review | GenerateMana(AllAlliesButNotSelf A=5 SPM=- ctr) || buff:allyOthers mana 5+0M
+weapon:1245 8050 pending-review | GenerateMana(AllAlliesButNotSelf A=5 SPM=- ctr) || buff:allyOthers mana 5+0M
+weapon:1248 8053 pending-review | GenerateMana(Self A=- SPM=- ctr) || buff:allySelf mana 3+0M mod
+weapon:1251 8067 pending-review | DecreaseMana(LastEnemy A=100 SPM=-) || reduce:lastTarget mana 0+0M drainAll
+weapon:1257 8077 pending-review | GenerateMana(Self A=- SPM=- ctr) || buff:allySelf mana 3+0M mod
+weapon:1258 8078 pending-review | GenerateMana(Self A=- SPM=- ctr) || buff:allySelf mana 3+0M mod
+weapon:1259 8079 pending-review | GenerateMana(AllAlliesButNotSelf A=5 SPM=- ctr) || buff:allyOthers mana 5+0M
+weapon:1260 8080 pending-review | GenerateMana(AllAlliesButNotSelf A=5 SPM=- ctr) || buff:allyOthers mana 5+0M
+weapon:1261 8081 pending-review | GenerateMana(AllAlliesButNotSelf A=5 SPM=- ctr) || buff:allyOthers mana 5+0M
+weapon:1296 8253 pending-review | DecreaseMana(AllEnemies A=5 SPM=-) || reduce:enemyAll mana 5+0M
+weapon:1310 8283 pending-review | GenerateHalfMana(Self A=- SPM=-) || buff:allySelf mana 0+0M halve
+weapon:1362 8397 pending-review | DecreaseMana(FromTarget A=100 SPM=-) || reduce:enemyChosen mana 0+0M drainAll
+weapon:1365 8400 pending-review | DecreaseMana(AllEnemies A=2 SPM=- ctr) || reduce:enemyAll mana 2+0M mod
+weapon:1376 8439 pending-review | GenerateQuarterMana(FromTarget A=- SPM=-) || buff:allyAll mana 0+0M frac0.25
+weapon:1395 8516 pending-review | GenerateMana(FromTarget A=4 SPM=-) || buff:allyChosen mana 4+0M
+weapon:1503 8879 pending-review | StealMana(LastEnemy A=6 SPM=-) || reduce:enemyLast mana->mana 6+0M
+weapon:1623 9564 pending-review | GenerateHalfManaConditional(AllAlliesButNotSelf A=- SPM=- ctr) || buff:allyOthers mana 0+0M halve
+weapon:1631 9579 pending-review | DecreaseMana(FromTarget A=- SPM=- ctr) || reduce:lastTarget mana 3+0M mod
+weapon:1632 9580 pending-review | GenerateQuarterManaConditional(Self A=- SPM=- AddIfEnemyHasDoom:100) || buff:allySelf mana 0+0M frac0.25
+weapon:1633 9581 pending-review | GenerateQuarterManaConditional(Self A=- SPM=- AddIfEnemyHasDoom:100) || buff:allySelf mana 0+0M frac0.25
+weapon:1634 9582 pending-review | GenerateQuarterManaConditional(Self A=- SPM=- AddIfEnemyHasDoom:100) || buff:allySelf mana 0+0M frac0.25
+weapon:1635 9583 pending-review | GenerateQuarterManaConditional(Self A=- SPM=- AddIfEnemyHasDoom:100) || buff:allySelf mana 0+0M frac0.25
+weapon:1636 9584 pending-review | GenerateQuarterManaConditional(Self A=- SPM=- AddIfEnemyHasDoom:100) || buff:allySelf mana 0+0M frac0.25
+weapon:1637 9585 pending-review | GenerateQuarterManaConditional(Self A=- SPM=- AddIfEnemyHasDoom:100) || buff:allySelf mana 0+0M frac0.25
+weapon:1667 9811 pending-review | DecreaseMana(FromTarget A=- SPM=- ctr) || reduce:lastTarget mana 0+0M drainAll

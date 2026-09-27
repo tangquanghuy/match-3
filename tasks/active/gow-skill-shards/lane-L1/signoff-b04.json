@@ -1,0 +1,1820 @@
+{
+  "schemaVersion": 1,
+  "scope": "stored-gow-snapshot",
+  "reviews": [
+    {
+      "key": "troop:7515",
+      "scope": "stored-gow-snapshot",
+      "sourceDigest": "f0c2a6c96b30c0bcd24d6705d4562f476b4f9a9041fa5f58aa80fde3235e8848",
+      "reviewer": "sa-L1",
+      "reviewedAt": "2026-09-27",
+      "decision": "draft",
+      "ledgerFingerprintAtReview": "6e4fd65d5476c4a9b2d6adc8056a61e9a8beea98f4f8b2b2dccd845bd8f8e6b0",
+      "_reference": {
+        "spellId": 9279,
+        "english": "Charm an Enemy, and steal [(Magic x 2) + 1] Life from them. Summon 1-3 Succubi or Incubi.",
+        "nativeTarget": "Enemy",
+        "randomize": null,
+        "steps": [
+          {
+            "Target": "FromTarget",
+            "Type": "Charm"
+          },
+          {
+            "SpellPowerMultiplier": 2,
+            "Target": "FromTarget",
+            "Amount": 1,
+            "Primarypower": true,
+            "Type": "StealLife"
+          },
+          {
+            "Amount": 6305,
+            "Type": "Summoning"
+          },
+          {
+            "Amount": 6180,
+            "PercentageChance": 50,
+            "Type": "Summoning"
+          },
+          {
+            "Amount": 6305,
+            "PercentageChance": 25,
+            "Type": "Summoning"
+          }
+        ],
+        "prototype": {
+          "segments": [
+            {
+              "kind": "status",
+              "target": "enemyChosen",
+              "statusId": "charm",
+              "turns": 3
+            },
+            {
+              "kind": "damage",
+              "target": "enemyChosen",
+              "scaling": {
+                "base": 1,
+                "mult": 2
+              },
+              "drain": true
+            },
+            {
+              "kind": "summon",
+              "params": {
+                "source": {
+                  "randomOf": [
+                    "Succubus",
+                    "Incubus"
+                  ]
+                },
+                "countRange": {
+                  "min": 1,
+                  "max": 3
+                }
+              }
+            }
+          ]
+        }
+      },
+      "sourceEvidence": [
+        {
+          "id": "en",
+          "role": "english-snapshot",
+          "path": "data/raw/troops.gow.en.json",
+          "note": "TODO: entity id / SpellId / English clause / cost / colours checked"
+        },
+        {
+          "id": "native",
+          "role": "native-snapshot",
+          "path": "data/raw/spells.gow.en.json",
+          "note": "TODO: SpellId-indexed Cost/Target/every non-None SpellSteps field checked"
+        },
+        {
+          "id": "rule",
+          "role": "official-shared-rule",
+          "path": "artifacts/gow-skill-audit/gold-primary-sources/official-status-effects.html",
+          "note": "TODO: replace with the official rule file actually relevant to this skill, and say what it supports"
+        }
+      ],
+      "dimensions": {
+        "identity-cost-colors": {
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        },
+        "target-count-range": {
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        },
+        "base-formula-rounding": {
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        },
+        "boost-source-ratio-cap": {
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        },
+        "conditions-probabilities-branches": {
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        },
+        "status-duration-immunity": {
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        },
+        "gems-types-selection-resolution": {
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        },
+        "summon-transform-pools": {
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        },
+        "order-death-retargeting": {
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        },
+        "mana-economy-extra-turn": {
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        },
+        "display-description": {
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        },
+        "battle-pipeline": {
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": [],
+          "realBattleEntry": true
+        }
+      },
+      "clauseReviews": [
+        {
+          "id": "c1",
+          "text": "Charm an Enemy, and steal [(Magic x 2) + 1] Life from them.",
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        },
+        {
+          "id": "c2",
+          "text": "Summon 1-3 Succubi or Incubi.",
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        }
+      ],
+      "nativeStepReviews": [
+        {
+          "id": "0",
+          "type": "Charm",
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        },
+        {
+          "id": "1",
+          "type": "StealLife",
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        },
+        {
+          "id": "2",
+          "type": "Summoning",
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        },
+        {
+          "id": "3",
+          "type": "Summoning",
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        },
+        {
+          "id": "4",
+          "type": "Summoning",
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        }
+      ],
+      "branchReviews": [
+        {
+          "id": "main",
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        }
+      ]
+    },
+    {
+      "key": "troop:6605",
+      "scope": "stored-gow-snapshot",
+      "sourceDigest": "ba1156e8e609089a81419006158b1805ab693ebf7c1466e78243f58a8e9bf075",
+      "reviewer": "sa-L1",
+      "reviewedAt": "2026-09-27",
+      "decision": "draft",
+      "ledgerFingerprintAtReview": "6e4fd65d5476c4a9b2d6adc8056a61e9a8beea98f4f8b2b2dccd845bd8f8e6b0",
+      "_reference": {
+        "spellId": 7814,
+        "english": "Charm an enemy. 40% chance to transform them into a Succubus or Incubus.",
+        "nativeTarget": "Enemy",
+        "randomize": "AB-CD",
+        "steps": [
+          {
+            "Target": "FromTarget",
+            "Amount": 1,
+            "Type": "Charm"
+          },
+          {
+            "Target": "FromTarget",
+            "Amount": 10,
+            "PercentageChance": 40,
+            "Type": "TransformEnemy",
+            "Data": "6180"
+          },
+          {
+            "Target": "FromTarget",
+            "Type": "Charm"
+          },
+          {
+            "Target": "FromTarget",
+            "Amount": 10,
+            "PercentageChance": 40,
+            "Type": "TransformEnemy",
+            "Data": "6305"
+          }
+        ],
+        "prototype": {
+          "segments": [
+            {
+              "kind": "status",
+              "target": "enemyChosen",
+              "statusId": "charm",
+              "turns": 3
+            },
+            {
+              "kind": "transformTroop",
+              "target": "enemyChosen",
+              "randomOf": [
+                "Succubus",
+                "Incubus"
+              ],
+              "chance": 0.4
+            }
+          ]
+        }
+      },
+      "sourceEvidence": [
+        {
+          "id": "en",
+          "role": "english-snapshot",
+          "path": "data/raw/troops.gow.en.json",
+          "note": "TODO: entity id / SpellId / English clause / cost / colours checked"
+        },
+        {
+          "id": "native",
+          "role": "native-snapshot",
+          "path": "data/raw/spells.gow.en.json",
+          "note": "TODO: SpellId-indexed Cost/Target/every non-None SpellSteps field checked"
+        },
+        {
+          "id": "rule",
+          "role": "official-shared-rule",
+          "path": "artifacts/gow-skill-audit/gold-primary-sources/official-status-effects.html",
+          "note": "TODO: replace with the official rule file actually relevant to this skill, and say what it supports"
+        }
+      ],
+      "dimensions": {
+        "identity-cost-colors": {
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        },
+        "target-count-range": {
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        },
+        "base-formula-rounding": {
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        },
+        "boost-source-ratio-cap": {
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        },
+        "conditions-probabilities-branches": {
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        },
+        "status-duration-immunity": {
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        },
+        "gems-types-selection-resolution": {
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        },
+        "summon-transform-pools": {
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        },
+        "order-death-retargeting": {
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        },
+        "mana-economy-extra-turn": {
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        },
+        "display-description": {
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        },
+        "battle-pipeline": {
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": [],
+          "realBattleEntry": true
+        }
+      },
+      "clauseReviews": [
+        {
+          "id": "c1",
+          "text": "Charm an enemy.",
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        },
+        {
+          "id": "c2",
+          "text": "40% chance to transform them into a Succubus or Incubus.",
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        }
+      ],
+      "nativeStepReviews": [
+        {
+          "id": "0",
+          "type": "Charm",
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        },
+        {
+          "id": "1",
+          "type": "TransformEnemy",
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        },
+        {
+          "id": "2",
+          "type": "Charm",
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        },
+        {
+          "id": "3",
+          "type": "TransformEnemy",
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        }
+      ],
+      "branchReviews": [
+        {
+          "id": "AB",
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        },
+        {
+          "id": "CD",
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        }
+      ]
+    },
+    {
+      "key": "weapon:1351",
+      "scope": "stored-gow-snapshot",
+      "sourceDigest": "0bba42655d576ea87cbaa8abdcdb901b9ab101c45f52dcb8c422d26179983281",
+      "reviewer": "sa-L1",
+      "reviewedAt": "2026-09-27",
+      "decision": "accept",
+      "ledgerFingerprintAtReview": "6e4fd65d5476c4a9b2d6adc8056a61e9a8beea98f4f8b2b2dccd845bd8f8e6b0",
+      "_reference": {
+        "spellId": 8357,
+        "english": "Cleanse and give [Magic + 1] Life to all Allies. Summon an All-Seeing Eye Troop.",
+        "nativeTarget": "None",
+        "randomize": null,
+        "steps": [
+          {
+            "Target": "AllAllies",
+            "Amount": 1,
+            "Type": "Cleanse"
+          },
+          {
+            "SpellPowerMultiplier": 1,
+            "Target": "AllAllies",
+            "Amount": 1,
+            "Primarypower": true,
+            "Type": "IncreaseHealth"
+          },
+          {
+            "Type": "SummoningKingdomNoError",
+            "Data": "3039"
+          }
+        ],
+        "prototype": {
+          "segments": [
+            {
+              "kind": "cleanse",
+              "target": "allyAll"
+            },
+            {
+              "kind": "buff",
+              "target": "allyAll",
+              "stat": "hp",
+              "scaling": {
+                "base": 1,
+                "mult": 1
+              },
+              "lifeMode": "gain"
+            },
+            {
+              "kind": "summon",
+              "params": {
+                "source": {
+                  "randomOf": [
+                    "OcularenLeech",
+                    "Ocularen",
+                    "BurningOcularen",
+                    "GloomOcularen",
+                    "Xerodar",
+                    "WatchMother"
+                  ]
+                }
+              }
+            }
+          ]
+        }
+      },
+      "sourceEvidence": [
+        {
+          "id": "en",
+          "role": "english-snapshot",
+          "path": "artifacts/gowhead-weapons/weapons.json",
+          "note": "weapon 1351 ChaliceOfEyes SpellId 8357 cost 14 Red/Purple (artifacts/gowhead-weapons + src/data/weapons.json)"
+        },
+        {
+          "id": "native",
+          "role": "native-snapshot",
+          "path": "data/raw/spells.gow.en.json",
+          "note": "8357: Cleanse AllAllies, IncreaseHealth AllAllies M+1, SummoningKingdomNoError 3039"
+        },
+        {
+          "id": "rule",
+          "role": "official-shared-rule",
+          "path": "artifacts/gow-skill-audit/gold-primary-sources/official-status-effects.html",
+          "note": "Official status guide: Curse/Death Mark/Hunter's Mark/Web/Disease/Frozen/Poison semantics; Blessed immune to status effects, Devour and Mana Burn. Durations per rulings/R004 (convention:R006-C2 for Cause* Amount)."
+        },
+        {
+          "id": "laneTest",
+          "role": "lane-battle-test",
+          "path": "tests/unit/gowLaneL1B04.test.ts",
+          "note": "weapon:1351: real TurnEngine.castSkill both sides, fixed RNG, boundaries"
+        },
+        {
+          "id": "transform",
+          "role": "community-rule",
+          "path": "artifacts/gow-skill-audit/gold-primary-sources/community-2026-09-28-transform-summon.json",
+          "note": "Transform restores Life/Armor and takes level + traits of the troop; summons arrive at level 20 (project roster is level 20)."
+        }
+      ],
+      "dimensions": {
+        "identity-cost-colors": {
+          "status": "verified",
+          "note": "entity id, SpellId, cost and colours match raw EN + native + src/data (binding test)",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "transform"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL1B04.test.ts"
+          ]
+        },
+        "target-count-range": {
+          "status": "verified",
+          "note": "all living allies",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "transform"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL1B04.test.ts"
+          ]
+        },
+        "base-formula-rounding": {
+          "status": "verified",
+          "note": "Magic + 1 Life (magic 10 -> 11, 4 -> 5)",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "transform"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL1B04.test.ts"
+          ]
+        },
+        "boost-source-ratio-cap": {
+          "status": "not-applicable",
+          "note": "no boost source",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "transform"
+          ],
+          "tests": []
+        },
+        "conditions-probabilities-branches": {
+          "status": "not-applicable",
+          "note": "single unconditional branch",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "transform"
+          ],
+          "tests": []
+        },
+        "status-duration-immunity": {
+          "status": "verified",
+          "note": "Cleanse removes negatives, keeps Barrier (R002)",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "transform"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL1B04.test.ts"
+          ]
+        },
+        "gems-types-selection-resolution": {
+          "status": "not-applicable",
+          "note": "no gem effect",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "transform"
+          ],
+          "tests": []
+        },
+        "summon-transform-pools": {
+          "status": "verified",
+          "note": "fixed L1-1351-pool: all 6 raw KingdomId 3039 troops reachable; summon after heal keeps template Life; NoError on full team",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "transform"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL1B04.test.ts"
+          ]
+        },
+        "order-death-retargeting": {
+          "status": "verified",
+          "note": "cleanse -> heal -> summon",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "transform"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL1B04.test.ts"
+          ]
+        },
+        "mana-economy-extra-turn": {
+          "status": "verified",
+          "note": "cast spends mana, one action logged, turn passes (no extra turn); low-mana / Silence refused",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "transform"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL1B04.test.ts"
+          ]
+        },
+        "display-description": {
+          "status": "verified",
+          "note": "zh weapon description matches",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "transform"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL1B04.test.ts"
+          ]
+        },
+        "battle-pipeline": {
+          "status": "verified",
+          "note": "real TurnEngine.castSkill, both sides",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "transform"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL1B04.test.ts"
+          ],
+          "realBattleEntry": true
+        }
+      },
+      "clauseReviews": [
+        {
+          "id": "c1",
+          "text": "Cleanse and give [Magic + 1] Life to all Allies.",
+          "status": "verified",
+          "note": "cleanse + Life to all allies",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "transform"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL1B04.test.ts"
+          ]
+        },
+        {
+          "id": "c2",
+          "text": "Summon an All-Seeing Eye Troop.",
+          "status": "verified",
+          "note": "one All-Seeing Eye troop",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "transform"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL1B04.test.ts"
+          ]
+        }
+      ],
+      "nativeStepReviews": [
+        {
+          "id": "0",
+          "type": "Cleanse",
+          "status": "verified",
+          "note": "Cleanse",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "transform"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL1B04.test.ts"
+          ]
+        },
+        {
+          "id": "1",
+          "type": "IncreaseHealth",
+          "status": "verified",
+          "note": "IncreaseHealth",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "transform"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL1B04.test.ts"
+          ]
+        },
+        {
+          "id": "2",
+          "type": "SummoningKingdomNoError",
+          "status": "verified",
+          "note": "SummoningKingdomNoError 3039",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "transform"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL1B04.test.ts"
+          ]
+        }
+      ],
+      "branchReviews": [
+        {
+          "id": "main",
+          "status": "verified",
+          "note": "single branch",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "transform"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL1B04.test.ts"
+          ]
+        }
+      ]
+    },
+    {
+      "key": "troop:6469",
+      "scope": "stored-gow-snapshot",
+      "sourceDigest": "8e36e98d23afca4474f80dc4d55553fddcb67e7a0593361d1c531239a710844e",
+      "reviewer": "sa-L1",
+      "reviewedAt": "2026-09-27",
+      "decision": "accept",
+      "ledgerFingerprintAtReview": "6e4fd65d5476c4a9b2d6adc8056a61e9a8beea98f4f8b2b2dccd845bd8f8e6b0",
+      "_reference": {
+        "spellId": 7647,
+        "english": "Deal [Magic + 3] damage to an enemy, and Web them, with a 20% chance to devour them.",
+        "nativeTarget": "Enemy",
+        "randomize": null,
+        "steps": [
+          {
+            "Target": "FromTarget",
+            "PercentageChance": 20,
+            "Type": "Consume"
+          },
+          {
+            "Target": "FromTarget",
+            "Type": "CauseWeb"
+          },
+          {
+            "SpellPowerMultiplier": 1,
+            "Target": "FromTarget",
+            "Amount": 3,
+            "Primarypower": true,
+            "Type": "Damage"
+          }
+        ],
+        "prototype": {
+          "segments": [
+            {
+              "kind": "devour",
+              "target": "enemyChosen",
+              "chance": 0.2
+            },
+            {
+              "kind": "status",
+              "target": "lastTarget",
+              "statusId": "web",
+              "turns": 3
+            },
+            {
+              "kind": "damage",
+              "target": "lastTarget",
+              "scaling": {
+                "base": 3,
+                "mult": 1
+              }
+            }
+          ]
+        }
+      },
+      "sourceEvidence": [
+        {
+          "id": "en",
+          "role": "english-snapshot",
+          "path": "data/raw/troops.gow.en.json",
+          "note": "troop 6469 SpellId 7647 cost 11 Green/Purple; English 1 clause"
+        },
+        {
+          "id": "native",
+          "role": "native-snapshot",
+          "path": "data/raw/spells.gow.en.json",
+          "note": "7647 Target Enemy: Consume 20% FromTarget, CauseWeb FromTarget, Damage FromTarget M+3"
+        },
+        {
+          "id": "rule",
+          "role": "official-shared-rule",
+          "path": "artifacts/gow-skill-audit/gold-primary-sources/official-status-effects.html",
+          "note": "Official status guide: Curse/Death Mark/Hunter's Mark/Web/Disease/Frozen/Poison semantics; Blessed immune to status effects, Devour and Mana Burn. Durations per rulings/R004 (convention:R006-C2 for Cause* Amount)."
+        },
+        {
+          "id": "laneTest",
+          "role": "lane-battle-test",
+          "path": "tests/unit/gowLaneL1B04.test.ts",
+          "note": "troop:6469: real TurnEngine.castSkill both sides, fixed RNG, boundaries"
+        },
+        {
+          "id": "r001",
+          "role": "user-ruling",
+          "path": "tasks/active/gow-skill-shards/rulings/R001-native-step-order.md",
+          "note": "Native SpellSteps order is authoritative."
+        }
+      ],
+      "dimensions": {
+        "identity-cost-colors": {
+          "status": "verified",
+          "note": "entity id, SpellId, cost and colours match raw EN + native + src/data (binding test)",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r001"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL1B04.test.ts"
+          ]
+        },
+        "target-count-range": {
+          "status": "verified",
+          "note": "chosen enemy only",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r001"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL1B04.test.ts"
+          ]
+        },
+        "base-formula-rounding": {
+          "status": "verified",
+          "note": "Magic + 3 (armor first)",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r001"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL1B04.test.ts"
+          ]
+        },
+        "boost-source-ratio-cap": {
+          "status": "not-applicable",
+          "note": "no boost source",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r001"
+          ],
+          "tests": []
+        },
+        "conditions-probabilities-branches": {
+          "status": "verified",
+          "note": "20% devour: 60 seeds give 4..24 devours (fixed L1-devour-double-roll)",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r001"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL1B04.test.ts"
+          ]
+        },
+        "status-duration-immunity": {
+          "status": "verified",
+          "note": "Web unless devoured; Blessed immune to Devour and Web",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r001"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL1B04.test.ts"
+          ]
+        },
+        "gems-types-selection-resolution": {
+          "status": "not-applicable",
+          "note": "no gem effect",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r001"
+          ],
+          "tests": []
+        },
+        "summon-transform-pools": {
+          "status": "verified",
+          "note": "devour kills the target, caster gains its Attack/Armor/Life",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r001"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL1B04.test.ts"
+          ]
+        },
+        "order-death-retargeting": {
+          "status": "verified",
+          "note": "fixed L1-6469-order: devour -> Web -> damage; devoured enemy never Webbed/hit",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r001"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL1B04.test.ts"
+          ]
+        },
+        "mana-economy-extra-turn": {
+          "status": "verified",
+          "note": "cast spends mana, one action logged, turn passes (no extra turn); low-mana / Silence refused",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r001"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL1B04.test.ts"
+          ]
+        },
+        "display-description": {
+          "status": "verified",
+          "note": "zh description matches English meaning (binding test)",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r001"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL1B04.test.ts"
+          ]
+        },
+        "battle-pipeline": {
+          "status": "verified",
+          "note": "real TurnEngine.castSkill, both sides",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r001"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL1B04.test.ts"
+          ],
+          "realBattleEntry": true
+        }
+      },
+      "clauseReviews": [
+        {
+          "id": "c1",
+          "text": "Deal [Magic + 3] damage to an enemy, and Web them, with a 20% chance to devour them.",
+          "status": "verified",
+          "note": "damage + Web, 20% devour",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r001"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL1B04.test.ts"
+          ]
+        }
+      ],
+      "nativeStepReviews": [
+        {
+          "id": "0",
+          "type": "Consume",
+          "status": "verified",
+          "note": "Consume 20%",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r001"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL1B04.test.ts"
+          ]
+        },
+        {
+          "id": "1",
+          "type": "CauseWeb",
+          "status": "verified",
+          "note": "CauseWeb",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r001"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL1B04.test.ts"
+          ]
+        },
+        {
+          "id": "2",
+          "type": "Damage",
+          "status": "verified",
+          "note": "Damage M+3",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r001"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL1B04.test.ts"
+          ]
+        }
+      ],
+      "branchReviews": [
+        {
+          "id": "main",
+          "status": "verified",
+          "note": "devour vs not both covered",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r001"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL1B04.test.ts"
+          ]
+        }
+      ]
+    },
+    {
+      "key": "troop:6700",
+      "scope": "stored-gow-snapshot",
+      "sourceDigest": "e8132e1caed16e0a04d8b59112f85850841d75b54de23ea5d3b1f238d1d73781",
+      "reviewer": "sa-L1",
+      "reviewedAt": "2026-09-27",
+      "decision": "accept",
+      "ledgerFingerprintAtReview": "6e4fd65d5476c4a9b2d6adc8056a61e9a8beea98f4f8b2b2dccd845bd8f8e6b0",
+      "_reference": {
+        "spellId": 8056,
+        "english": "Devour an Ally, then summon a Daemon if the Ally is devoured. Deal [Magic + 16] true scatter damage, boosted by my Life. [3:1]",
+        "nativeTarget": "Ally",
+        "randomize": null,
+        "steps": [
+          {
+            "Target": "FromTarget",
+            "Type": "Consume",
+            "Delay": 1,
+            "ResetTargets": true
+          },
+          {
+            "Target": "Self",
+            "Amount": 34,
+            "Type": "CountLife",
+            "Delay": 1,
+            "ResetTargets": true
+          },
+          {
+            "SpellPowerMultiplier": 1,
+            "Target": "AllEnemies",
+            "UseCounterForAmount": true,
+            "Amount": 16,
+            "Primarypower": true,
+            "Type": "TrueScatterDamage",
+            "Delay": 1
+          },
+          {
+            "StatusAmount": 100,
+            "StatusModifier": "AddForAllyDeath",
+            "Type": "SummoningTypeConditional",
+            "Data": "daemon"
+          }
+        ],
+        "prototype": {
+          "segments": [
+            {
+              "kind": "devour",
+              "target": "allyChosen",
+              "chance": 1
+            },
+            {
+              "kind": "summon",
+              "params": {
+                "source": {
+                  "randomOf": [
+                    "AncientHorror",
+                    "SpiderQueen",
+                    "Abhorath",
+                    "Webspinner",
+                    "Moloch",
+                    "TheSilentOne",
+                    "Gorgotha",
+                    "Kerberos",
+                    "Cthyryzyx",
+                    "Terraxis",
+                    "Psion",
+                    "Abynissia",
+                    "Quasit",
+                    "Hellhound",
+                    "Succubus",
+                    "HeraldOfChaos",
+                    "InfernalKing",
+                    "Venbarak",
+                    "War",
+                    "Plague",
+                    "Famine",
+                    "Death",
+                    "Marilith",
+                    "Hellcat",
+                    "Creeper",
+                    "KruargTheDread",
+                    "Desdaemona",
+                    "Warg",
+                    "Incubus",
+                    "DarkMonolith",
+                    "Myzmer",
+                    "Elemaugrim",
+                    "CorruptedUrska",
+                    "BoneDaemon",
+                    "Hellspawn",
+                    "Spinnerette",
+                    "Doomclaw",
+                    "YaoGuai",
+                    "Erinyes",
+                    "Tzathoth",
+                    "Gargantaur",
+                    "TomeOfEvil",
+                    "Hellcackle",
+                    "Glaycion",
+                    "Nightmare",
+                    "SirMordayne",
+                    "Umbraxis",
+                    "ThePossessedKing",
+                    "Sloth",
+                    "Envy",
+                    "Greed",
+                    "Gluttony",
+                    "Barghast",
+                    "Pride",
+                    "Wrath",
+                    "Lust",
+                    "SibylOfLust",
+                    "SoldierOfWrath",
+                    "WallOfTentacles",
+                    "Bael",
+                    "VashDagon",
+                    "QueenOfSin",
+                    "Glutmaw",
+                    "Obsidius",
+                    "Lamashtu",
+                    "PossessedUrska",
+                    "BrokerOfGreed",
+                    "EnvoyOfPride",
+                    "MotherOfDarkness",
+                    "GateOfSouls",
+                    "Lucifria",
+                    "Blightwing",
+                    "Deminaga",
+                    "TheInfernalMachine",
+                    "Ironjaw",
+                    "Tartarus",
+                    "Netherhound",
+                    "EldritchGuardian",
+                    "FellDragonEgg",
+                    "FellDragon",
+                    "Nocturnia",
+                    "HeraldOfWoe",
+                    "IndolatorOfSloth",
+                    "ShadeOfKurandara",
+                    "Kurandara",
+                    "EnragedKurandara",
+                    "DaemonGnome",
+                    "Mambasira",
+                    "Arcturion",
+                    "HeraldOfDamnation",
+                    "Baphomet",
+                    "TheScourgeOfHonor",
+                    "DeepGolem",
+                    "NyarMel",
+                    "HoundOfYaoGuai",
+                    "MaidOfEnvy",
+                    "TheArchduke",
+                    "Lemure",
+                    "Fury",
+                    "Charonas",
+                    "JudgeOfTheDead",
+                    "HellclawHunter",
+                    "HellclawMage",
+                    "HellclawWarrior",
+                    "Indrajit",
+                    "HelgorTheGuardian",
+                    "FlamingOni",
+                    "Oneiros",
+                    "RedAhriman",
+                    "AbjectOfDespond",
+                    "Despond",
+                    "BileBlackheart",
+                    "AnimusOfEnvy",
+                    "HornedHag",
+                    "ConsortOfDarkness",
+                    "EldritchMinion",
+                    "Uvhash-Ka",
+                    "WarMachine",
+                    "HellclawRager",
+                    "HeraldOfBlight",
+                    "HellstoneGate",
+                    "HeraldOfTorpor",
+                    "Czernobog",
+                    "Nabassu",
+                    "Xenith",
+                    "Tourmaline",
+                    "Chalcedony",
+                    "Petrahulk",
+                    "StoneMefyt",
+                    "TheElderDragon",
+                    "VrawkDaemon",
+                    "EldritchDisciple",
+                    "Voidcaller",
+                    "TheBaneOfMercy",
+                    "EyeOfArges",
+                    "InfernalVoyager",
+                    "TheIronMaiden",
+                    "TriTerror",
+                    "DaemonChild",
+                    "TheVoidDragon",
+                    "Tempurath",
+                    "DaemonicSentinel",
+                    "Hellborer",
+                    "DarkHerald",
+                    "Groevanga",
+                    "FellHydra",
+                    "Isban",
+                    "Goethite",
+                    "SuccubusQueen",
+                    "Bieska",
+                    "HoundmasterGor",
+                    "BlightHound",
+                    "Astaroth",
+                    "DaeDrak",
+                    "MelekTauss",
+                    "DoomedGuardian",
+                    "StingBat",
+                    "TheBaneOfValor",
+                    "Redreaver",
+                    "LionOfYaoGuai",
+                    "Discordia",
+                    "ImmortalAbaddon",
+                    "BlightedHusk",
+                    "BaneOfAmbition",
+                    "HellclawShadowpriest",
+                    "Polymetis",
+                    "DagoNath",
+                    "FelineOfEnvy",
+                    "Skarn",
+                    "MaidenOfPain",
+                    "HeraldOfWar",
+                    "Azbeel",
+                    "OkraNosTheSleeper",
+                    "Voidjaw",
+                    "ChampionOfRot",
+                    "BloodSpore",
+                    "InfernalTrickster",
+                    "Seditius",
+                    "ImmortalZephaar"
+                  ]
+                }
+              },
+              "ifTargetDied": true
+            },
+            {
+              "kind": "damage",
+              "target": "enemyAll",
+              "scaling": {
+                "base": 16,
+                "mult": 1
+              },
+              "range": "scatter",
+              "trueDamage": true,
+              "modifier": {
+                "mod": {
+                  "kind": "ratio",
+                  "a": 3,
+                  "b": 1
+                },
+                "source": {
+                  "kind": "selfStat",
+                  "stat": "hp"
+                }
+              }
+            }
+          ]
+        }
+      },
+      "sourceEvidence": [
+        {
+          "id": "en",
+          "role": "english-snapshot",
+          "path": "data/raw/troops.gow.en.json",
+          "note": "troop 6700 SpellId 8056 cost 24 Blue/Green/Brown; English 3 clauses"
+        },
+        {
+          "id": "native",
+          "role": "native-snapshot",
+          "path": "data/raw/spells.gow.en.json",
+          "note": "8056 Target Ally: Consume FromTarget, CountLife Self 34, TrueScatterDamage AllEnemies M+16 counter, SummoningTypeConditional daemon AddForAllyDeath"
+        },
+        {
+          "id": "rule",
+          "role": "official-shared-rule",
+          "path": "artifacts/gow-skill-audit/gold-primary-sources/official-status-effects.html",
+          "note": "Official status guide: Curse/Death Mark/Hunter's Mark/Web/Disease/Frozen/Poison semantics; Blessed immune to status effects, Devour and Mana Burn. Durations per rulings/R004 (convention:R006-C2 for Cause* Amount)."
+        },
+        {
+          "id": "laneTest",
+          "role": "lane-battle-test",
+          "path": "tests/unit/gowLaneL1B04.test.ts",
+          "note": "troop:6700: real TurnEngine.castSkill both sides, fixed RNG, boundaries"
+        },
+        {
+          "id": "r003",
+          "role": "user-ruling",
+          "path": "tasks/active/gow-skill-shards/rulings/R003-count-threshold-labels.md",
+          "note": "Count* Amount is a percentage: [3:1] = 34%."
+        },
+        {
+          "id": "r001",
+          "role": "user-ruling",
+          "path": "tasks/active/gow-skill-shards/rulings/R001-native-step-order.md",
+          "note": "Native SpellSteps order is authoritative."
+        },
+        {
+          "id": "transform",
+          "role": "community-rule",
+          "path": "artifacts/gow-skill-audit/gold-primary-sources/community-2026-09-28-transform-summon.json",
+          "note": "Transform restores Life/Armor and takes level + traits of the troop; summons arrive at level 20 (project roster is level 20)."
+        }
+      ],
+      "dimensions": {
+        "identity-cost-colors": {
+          "status": "verified",
+          "note": "entity id, SpellId, cost and colours match raw EN + native + src/data (binding test)",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r003",
+            "r001",
+            "transform"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL1B04.test.ts"
+          ]
+        },
+        "target-count-range": {
+          "status": "verified",
+          "note": "chosen ally devoured; scatter over all enemies",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r003",
+            "r001",
+            "transform"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL1B04.test.ts"
+          ]
+        },
+        "base-formula-rounding": {
+          "status": "verified",
+          "note": "total = Magic + 16 + floor(Life x 34/100), true damage ignores armor",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r003",
+            "r001",
+            "transform"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL1B04.test.ts"
+          ]
+        },
+        "boost-source-ratio-cap": {
+          "status": "verified",
+          "note": "Life after devour (1200 -> +408); no devour 1000 -> +340 (R003, not 333)",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r003",
+            "r001",
+            "transform"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL1B04.test.ts"
+          ]
+        },
+        "conditions-probabilities-branches": {
+          "status": "verified",
+          "note": "Daemon only if the ally was devoured (Blessed / Barrier ally -> none)",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r003",
+            "r001",
+            "transform"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL1B04.test.ts"
+          ]
+        },
+        "status-duration-immunity": {
+          "status": "not-applicable",
+          "note": "no status",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r003",
+            "r001",
+            "transform"
+          ],
+          "tests": []
+        },
+        "gems-types-selection-resolution": {
+          "status": "not-applicable",
+          "note": "no gem effect",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r003",
+            "r001",
+            "transform"
+          ],
+          "tests": []
+        },
+        "summon-transform-pools": {
+          "status": "verified",
+          "note": "Daemon pool = all roster Daemons (raw minus 3 raw-only troops); devour gains Attack/Armor/Life",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r003",
+            "r001",
+            "transform"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL1B04.test.ts"
+          ]
+        },
+        "order-death-retargeting": {
+          "status": "verified",
+          "note": "runtime summons before the scatter; R001 equivalence test: summon does not change enemies or caster Life, totals equal native",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r003",
+            "r001",
+            "transform"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL1B04.test.ts"
+          ]
+        },
+        "mana-economy-extra-turn": {
+          "status": "verified",
+          "note": "cast spends mana, one action logged, turn passes (no extra turn); low-mana / Silence refused",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r003",
+            "r001",
+            "transform"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL1B04.test.ts"
+          ]
+        },
+        "display-description": {
+          "status": "verified",
+          "note": "zh description matches English meaning (binding test)",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r003",
+            "r001",
+            "transform"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL1B04.test.ts"
+          ]
+        },
+        "battle-pipeline": {
+          "status": "verified",
+          "note": "real TurnEngine.castSkill, both sides",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r003",
+            "r001",
+            "transform"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL1B04.test.ts"
+          ],
+          "realBattleEntry": true
+        }
+      },
+      "clauseReviews": [
+        {
+          "id": "c1",
+          "text": "Devour an Ally, then summon a Daemon if the Ally is devoured.",
+          "status": "verified",
+          "note": "devour ally, Daemon if devoured",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r003",
+            "r001",
+            "transform"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL1B04.test.ts"
+          ]
+        },
+        {
+          "id": "c2",
+          "text": "Deal [Magic + 16] true scatter damage, boosted by my Life.",
+          "status": "verified",
+          "note": "true scatter boosted by Life",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r003",
+            "r001",
+            "transform"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL1B04.test.ts"
+          ]
+        },
+        {
+          "id": "c3",
+          "text": "[3:1]",
+          "status": "verified",
+          "note": "[3:1] = 34% (R003)",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r003",
+            "r001",
+            "transform"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL1B04.test.ts"
+          ]
+        }
+      ],
+      "nativeStepReviews": [
+        {
+          "id": "0",
+          "type": "Consume",
+          "status": "verified",
+          "note": "Consume ally",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r003",
+            "r001",
+            "transform"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL1B04.test.ts"
+          ]
+        },
+        {
+          "id": "1",
+          "type": "CountLife",
+          "status": "verified",
+          "note": "CountLife 34%",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r003",
+            "r001",
+            "transform"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL1B04.test.ts"
+          ]
+        },
+        {
+          "id": "2",
+          "type": "TrueScatterDamage",
+          "status": "verified",
+          "note": "TrueScatterDamage",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r003",
+            "r001",
+            "transform"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL1B04.test.ts"
+          ]
+        },
+        {
+          "id": "3",
+          "type": "SummoningTypeConditional",
+          "status": "verified",
+          "note": "SummoningTypeConditional daemon",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r003",
+            "r001",
+            "transform"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL1B04.test.ts"
+          ]
+        }
+      ],
+      "branchReviews": [
+        {
+          "id": "main",
+          "status": "verified",
+          "note": "devoured / not devoured both covered",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r003",
+            "r001",
+            "transform"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL1B04.test.ts"
+          ]
+        }
+      ]
+    }
+  ]
+}

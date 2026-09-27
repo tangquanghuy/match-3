@@ -18,10 +18,12 @@
  *   - 种族翻倍：段级 raceDouble 字段（目标含该族时数值 ×2）。
  * 全部自包含在本文件与效果原语内，不动行动生命周期（TurnEngine 无改动）。
  */
+import { selectSkillBranch } from './branchChooser';
 import type { GameEvent } from '../events';
-import type { Character, BaseColor } from '../types';
+import type { Character, BaseColor, GemType } from '../types';
+import { isSameMatchType, skullGem } from '../types';
 import type { ScalingSpec } from './scaling';
-import type { TargetMode } from './targeting';
+import type { TargetMode, ChosenTargetMode } from './targeting';
 import { selectTargets } from './targeting';
 import type { EffectContext, EffectPrimitive, CastTracking } from './effects/context';
 import { findCharacter, findSide } from './effects/context';
@@ -38,7 +40,7 @@ import type { GemParams } from './effects/gems';
 import { cleanseEffect, statusEffect, dispelStatusEffect, randomStatusEffect } from './effects/status';
 import { summonEffect, extraTurnEffect, transformTroopEffect, repositionEffect, shuffleTeamEffect, summonCopyEffect, swapPositionsEffect, selfReviveEffect, resolveDefeatAfterRevive } from './effects/summon';
 import { devourEffect } from './effects/devour';
-import { stormEffect } from './effects/storm';
+import { stormEffect, removeStormEffect } from './effects/storm';
 import { escapeEffect } from './effects/escape';
 import { economyGainEffect, stealGoldEffect, spendEconomyEffect } from './effects/economy';
 import { shuffleBoardEffect } from './effects/gems';
@@ -83,7 +85,15 @@ export interface DamageSegment extends SegmentOptions {
   target: TargetMode;
   scaling: ScalingSpec;
   range?: DamageRange;
+  /** Adjacent splash fraction (0.25 / 0.5 / 0.75). */
+  splashRatio?: number;
+  /** Independent probabilities for enemyRandomN splash waves; overrides n/nRange. */
+  splashChances?: number[];
+  /** Source has this many separate RandomEnemy/RandomPrefNotPrevEnemy damage steps. */
+  randomWaves?: number;
   trueDamage?: boolean;
+  /** Native ManaBurn: add each victim's current Mana, never drain it. */
+  manaBurn?: boolean;
   /** enemyFirstN/allyFirstN 的 N */
   n?: number;
   /** 目标数量区间（「使 1 到 4 名敌人中毒」）：给出时忽略 n，rng 掷选 */
@@ -122,6 +132,8 @@ export interface DamageSegment extends SegmentOptions {
 /** 增益段（作用己方目标） */
 export interface BuffSegment extends SegmentOptions {
   kind: 'buff';
+  /** Native Life growth vs restoration; legacy/custom segments can omit it. */
+  lifeMode?: import('./effects/buff').LifeMode;
   target: TargetMode;
   stat: BuffStat;
   scaling: ScalingSpec;
@@ -211,6 +223,8 @@ export interface RandomStatSegment extends SegmentOptions {
   kind: 'randomStat';
   target: TargetMode;
   scaling: ScalingSpec;
+  /** Give the full value to one randomly chosen Skill per target (native IncreaseRandom). */
+  oneSkill?: boolean;
   n?: number;
   /** 目标数量区间：给出时忽略 n，rng 掷选 */
   nRange?: NRangeSpec;
@@ -301,6 +315,10 @@ export interface StormSegment extends SegmentOptions {
 }
 
 /** 打乱板面段（引擎原语批）：复用 boardUtils.reshuffle + 既有 reshuffle 事件 */
+export interface RemoveStormSegment extends SegmentOptions {
+  kind: 'removeStorm';
+}
+
 export interface ShuffleBoardSegment extends SegmentOptions {
   kind: 'shuffleBoard';
 }
@@ -313,6 +331,13 @@ export interface ShuffleBoardSegment extends SegmentOptions {
 export interface OneOfSegment extends SegmentOptions {
   kind: 'oneOf';
   /** 分支列表；每支为一至多个段（单段分支序列化为长度 1 的数组） */
+  options: EffectSegment[][];
+}
+
+/** Player-selected branch; never equivalent to random oneOf. Root-level only. */
+export interface ChooseSegment {
+  kind: 'choose';
+  labels: string[];
   options: EffectSegment[][];
 }
 
@@ -349,6 +374,8 @@ export interface RandomStatusSegment extends SegmentOptions {
   turns?: number;
   /** 每目标连续施加个数（「陷入 3 个随机状态效果」） */
   times?: number;
+  /** Apply the full positive-status pool to every target. */
+  allPositive?: boolean;
   /** 池强制（原语 Wave3 批）：'positive' = 正面全集（官方 RandomPositiveStatusEffect，
    *  Book of Secrets 8369 @AllAllies 分支）；缺省按目标阵营选池 */
   pool?: 'positive';
@@ -366,6 +393,8 @@ export interface TransformTroopSegment extends SegmentOptions {
    *  给出时模板 = 该目标模式解析出的现存角色快照，targets 被就地改写（与 ref/randomOf 互斥） */
   copyOf?: TargetMode;
   troopId?: number;
+  /** Empowered transformations start at full mana; normal transformations remain empty. */
+  fullMana?: boolean;
 }
 
 /** 吞噬段（R22 批，官方 Devour——8573/9364/9492）：即杀目标 + 吞噬者官方额度成长；
@@ -440,11 +469,13 @@ export interface GainEconomySegment extends SegmentOptions {
 
 /**
  * 窃取黄金段（batch-r28，官方 CountEnemyGold+TakeEnemyGold+GiveGold——8087/8904/9189/8141）。
- * 口径见 effects/economy.ts stealGoldEffect：定量 = 入账并发 economy-gain；all = 零和易主。
+ * 口径见 effects/economy.ts stealGoldEffect：定量／all 均只转移敌方可用黄金；立即入账时发 economy-gain。
  * 实际窃取额入 castTracking.goldStolen，供来源 goldStolen 跨段挂载。
  */
 export interface StealGoldSegment extends SegmentOptions {
   kind: 'stealGold';
+  /** Native TakeEnemyGold before Damage, GiveGold after Damage. */
+  deferCredit?: boolean;
   scaling: ScalingSpec;
   /** 「最多 N」入账上限（8087 官方 CountMax 50） */
   cap?: number;
@@ -455,7 +486,7 @@ export interface StealGoldSegment extends SegmentOptions {
 
 /**
  * 经济支出段（batch-r28，官方 TakeMyGold——7460「花费我所有的黄金」/8243「失去所有黄金」）：
- * 从共用池扣减（夹零）；实际扣减额入 castTracking.goldSpent 供来源 goldSpent 挂载。
+ * 从施法者一方的黄金计数扣减（夹零）；实际扣减额入 castTracking.goldSpent 供来源 goldSpent 挂载。
  */
 export interface SpendEconomySegment extends SegmentOptions {
   kind: 'spendEconomy';
@@ -482,8 +513,10 @@ export type EffectSegment =
   | CleanseSegment
   | DispelSegment
   | StormSegment
+  | RemoveStormSegment
   | ShuffleBoardSegment
   | OneOfSegment
+  | ChooseSegment
   | SummonSegment
   | ExtraTurnSegment
   | EscapeChanceSegment
@@ -502,6 +535,8 @@ export type EffectSegment =
 
 /** 技能原型：有序效果段数组 */
 export interface SkillPrototype {
+  /** Explicit input anchor, including branches that only read a selected target's colors or neighbors. */
+  inputTarget?: ChosenTargetMode;
   segments: EffectSegment[];
   /** 一场战斗只能释放一次（「此咒语只能使用一次」）：TurnEngine 按 actionLog 拒绝重复 */
   oncePerBattle?: boolean;
@@ -513,26 +548,10 @@ export function fallbackPrototype(): SkillPrototype {
 }
 
 /** 为需要目标选择的段解析目标 */
-function resolveTargets(
-  segment: { target: TargetMode; n?: number; nRange?: NRangeSpec; targetRace?: string; targetKingdom?: string; ifCond?: import('./effects/secondary').Condition },
-  ctx: EffectContext,
-  overrideMode?: TargetMode,
-): Character[] {
-  // 目标数量区间（「使 1 到 4 名敌人中毒」）：掷选一次 n（种子化），随后照常走目标模式
-  let n = segment.n ?? 1;
-  if (segment.nRange) {
-    const lo = Math.max(0, Math.floor(Math.min(segment.nRange.min, segment.nRange.max)));
-    const hi = Math.max(lo, Math.floor(Math.max(segment.nRange.min, segment.nRange.max)));
-    n = lo + ctx.rng.nextInt(hi - lo + 1);
-  }
-  const picked = selectTargets(
-    overrideMode ?? segment.target,
-    ctx.state,
-    ctx.casterId,
-    ctx.rng,
-    n,
-    ctx.chosenTargetId,
-  );
+type TargetSelection = { target: TargetMode; n?: number; nRange?: NRangeSpec; targetRace?: string; targetKingdom?: string; ifCond?: import('./effects/secondary').Condition };
+
+/** All targets, including cross-segment cached targets, obey identical filters. */
+function filterResolvedTargets(segment: TargetSelection, ctx: EffectContext, picked: Character[]): Character[] {
   let result = picked;
   // 种族限定目标：命中不了的段整体跳过（空列表由调用方安全跳过）
   if (segment.targetRace) {
@@ -550,12 +569,36 @@ function resolveTargets(
   return result;
 }
 
+function resolveTargets(
+  segment: TargetSelection,
+  ctx: EffectContext,
+  overrideMode?: TargetMode,
+): Character[] {
+  // 目标数量区间（「使 1 到 4 名敌人中毒」）：掷选一次 n（种子化），随后照常走目标模式
+  let n = segment.n ?? 1;
+  if (segment.nRange) {
+    const lo = Math.max(0, Math.floor(Math.min(segment.nRange.min, segment.nRange.max)));
+    const hi = Math.max(lo, Math.floor(Math.max(segment.nRange.min, segment.nRange.max)));
+    n = lo + ctx.rng.nextInt(hi - lo + 1);
+  }
+  const picked = selectTargets(
+    overrideMode ?? segment.target,
+    ctx.state,
+    ctx.casterId,
+    ctx.rng,
+    n,
+    ctx.chosenTargetId,
+    ctx.castTracking?.lastTarget?.id,
+  );
+  return filterResolvedTargets(segment, ctx, picked);
+}
+
 /**
  * 解析目标并更新跨段追踪（死亡条件的「该敌人」指向这里的首个目标）。
  * aliveBefore 必须在效果执行前取值。
  */
 function resolveTargetsTracked(
-  segment: { target: TargetMode; n?: number; nRange?: NRangeSpec },
+  segment: TargetSelection,
   ctx: EffectContext,
   overrideMode?: TargetMode,
 ): Character[] {
@@ -564,7 +607,7 @@ function resolveTargetsTracked(
   if (mode === 'lastTarget') {
     const last = ctx.castTracking?.lastTarget;
     const ch = last ? findCharacter(ctx.state, last.id) : undefined;
-    const targets = ch && !ch.defeated ? [ch] : [];
+    const targets = filterResolvedTargets(segment, ctx, ch && !ch.defeated ? [ch] : []);
     if (targets.length > 0 && ctx.castTracking) {
       ctx.castTracking.lastTarget = { id: targets[0].id, aliveBefore: targets[0].defeated === false };
     }
@@ -585,9 +628,9 @@ function resolveTargetsTracked(
       else if (mode === 'lastTargetFirst') ids = [list[0].id];
       else ids = [list[list.length - 1].id];
     }
-    const targets = ids
+    const targets = filterResolvedTargets(segment, ctx, ids
       .map((id) => findCharacter(ctx.state, id))
-      .filter((c): c is Character => !!c && !c.defeated);
+      .filter((c): c is Character => !!c && !c.defeated));
     if (targets.length > 0) {
       tracking.lastTargets = targets.map((c) => ({ id: c.id, aliveBefore: !c.defeated }));
       tracking.lastTarget = { id: targets[0].id, aliveBefore: true };
@@ -600,7 +643,7 @@ function resolveTargetsTracked(
     const tracking = ctx.castTracking;
     if (!tracking || tracking.randomAllyId === undefined) return [];
     const ch = findCharacter(ctx.state, tracking.randomAllyId);
-    const targets = ch && !ch.defeated ? [ch] : [];
+    const targets = filterResolvedTargets(segment, ctx, ch && !ch.defeated ? [ch] : []);
     if (targets.length > 0) {
       tracking.lastTarget = { id: targets[0].id, aliveBefore: true };
     }
@@ -634,15 +677,35 @@ function lastTargetDied(ctx: EffectContext): boolean {
  */
 function compileSegment(segment: EffectSegment, ctx: EffectContext): EffectPrimitive | null {
   switch (segment.kind) {
-    case 'damage':
+    case 'damage': {
+      const randomSplash = segment.range === 'splash' && segment.target === 'enemyRandomN';
+      const randomCount = randomSplash ? (segment.splashChances?.length ?? (segment.nRange
+        ? segment.nRange.min + ctx.rng.nextInt(segment.nRange.max - segment.nRange.min + 1)
+        : segment.n ?? 1)) : undefined;
       return damageEffect({
         // 溅射的主目标 = 段自己的 target 模式（enemyChosen 时由选择器给 id；
         // enemyFront/enemyRandomN 等按各自模式解析，不再强制覆写——覆写会让
         // 「对 N 名随机敌人溅射」在无手动目标时整段落空）
-        targets: resolveTargetsTracked(segment, ctx),
+        targets: randomSplash
+          ? resolveTargets({ ...segment, target: 'enemyAll', nRange: undefined }, ctx)
+          : resolveTargetsTracked(segment, ctx),
+        randomSplashCount: randomCount,
+        randomSplashChances: randomSplash ? segment.splashChances : undefined,
+        randomDamageWaves: segment.target === 'enemyRandomN' && segment.range !== 'splash' ? segment.randomWaves : undefined,
         scaling: segment.scaling,
-        range: segment.range,
+        // Target modes ending in N and enemyAll resolve several distinct victims.
+        // An omitted range means full damage PER resolved victim, not "first victim only".
+        // Explicit splash/scatter/split semantics keep their own dedicated branches.
+        // Column-slice modes (chosen+below, above/below target, adjacent, all-other) are
+        // multi-victim too: every resolved enemy takes full damage (L5-010).
+        range: segment.range ?? (['enemyAll', 'enemyFirstN', 'enemyLastN',
+          'enemyRandomN', 'enemyWeakestN', 'enemyHealthiestN',
+          'enemyChosenAndBelow', 'enemyAboveTarget', 'enemyBelowTarget',
+          'enemyChosenAndAdjacent', 'enemyAllOther'].includes(segment.target)
+          ? 'all' : 'single'),
+        splashRatio: segment.splashRatio,
         trueDamage: segment.trueDamage,
+        manaBurn: segment.manaBurn,
         modifier: segment.modifier,
         modifiers: segment.modifiers,
         raceDouble: segment.raceDouble,
@@ -654,9 +717,12 @@ function compileSegment(segment: EffectSegment, ctx: EffectContext): EffectPrimi
         execute: segment.execute,
         split: segment.split,
         splitRandom: segment.splitRandom,
+        wholeTeamDamage: segment.target === 'enemyAll' || segment.target === 'allyAll',
       });
+    }
     case 'buff':
       return buffEffect({
+        lifeMode: segment.lifeMode,
         targets: resolveTargetsTracked(segment, ctx),
         stat: segment.stat,
         scaling: segment.scaling,
@@ -695,6 +761,7 @@ function compileSegment(segment: EffectSegment, ctx: EffectContext): EffectPrimi
       return randomStatEffect({
         targets: resolveTargetsTracked(segment, ctx),
         scaling: segment.scaling,
+        oneSkill: segment.oneSkill,
         modifier: segment.modifier,
         raceDouble: segment.raceDouble,
         raceTimes: segment.raceTimes,
@@ -720,6 +787,8 @@ function compileSegment(segment: EffectSegment, ctx: EffectContext): EffectPrimi
       });
     case 'storm':
       return stormEffect({ color: segment.color, turns: segment.turns, dropKind: segment.dropKind });
+    case 'removeStorm':
+      return removeStormEffect();
     case 'shuffleBoard':
       return shuffleBoardEffect();
     case 'summon':
@@ -740,6 +809,7 @@ function compileSegment(segment: EffectSegment, ctx: EffectContext): EffectPrimi
         scaling: segment.scaling,
         cap: segment.cap,
         all: segment.all,
+        deferCredit: segment.deferCredit,
         modifier: segment.modifier,
       });
     case 'spendEconomy':
@@ -770,6 +840,7 @@ function compileSegment(segment: EffectSegment, ctx: EffectContext): EffectPrimi
         turns: segment.turns,
         times: segment.times,
         pool: segment.pool,
+        allPositive: segment.allPositive,
       });
     case 'transformTroop': {
       // R22 批 copyOf 形态（TransformSelfFromTarget，8187）：模板来自 copyOf 目标解析
@@ -782,6 +853,7 @@ function compileSegment(segment: EffectSegment, ctx: EffectContext): EffectPrimi
         randomOf: segment.randomOf,
         copyOf: copyTargets.length > 0 ? copyTargets : undefined,
         troopId: segment.troopId,
+        fullMana: segment.fullMana,
       });
     }
     case 'devour':
@@ -789,6 +861,8 @@ function compileSegment(segment: EffectSegment, ctx: EffectContext): EffectPrimi
         targets: resolveTargetsTracked(segment, ctx),
         chance: segment.chance,
         chanceMult: segment.chanceMult,
+        // L1-devour-double-roll: the devour primitive owns its roll (runSegment skips the generic gate).
+        chanceBoost: segment.chanceBoost,
       });
     case 'summonCopy':
       return summonCopyEffect({ targets: resolveTargetsTracked(segment, ctx) });
@@ -805,11 +879,10 @@ function compileSegment(segment: EffectSegment, ctx: EffectContext): EffectPrimi
     }
     case 'swapPositions':
       return swapPositionsEffect({ a: segment.a, b: segment.b });
-    case 'reposition':
-      return repositionEffect({
-        targets: resolveTargetsTracked(segment, ctx),
-        to: segment.to,
-      });
+    case 'reposition': {
+      const targets = resolveTargetsTracked(segment, ctx);
+      return repositionEffect({ targets, to: segment.to });
+    }
     case 'shuffleTeam':
       return shuffleTeamEffect({ side: segment.side });
     default: {
@@ -832,7 +905,20 @@ function ensureCastTracking(ctx: EffectContext): CastTracking {
         if (active.length > 0) snapshot[c.id] = active;
       }
     }
+    const chosenColumnAtCastStart: GemType[] = [];
+    if (ctx.chosenCell) ctx.state.board.forEach((gem, pos) => {
+      if (gem && pos.col === ctx.chosenCell!.col) {
+        chosenColumnAtCastStart.push(gem.type.kind === 'special'
+          ? { kind: 'special', spec: { ...gem.type.spec } } : { ...gem.type });
+      }
+    });
+    let skullsAtCastStart = 0;
+    ctx.state.board.forEach((gem) => {
+      if (gem && isSameMatchType(gem.type, skullGem())) skullsAtCastStart += 1;
+    });
     ctx.castTracking = {
+      skullsAtCastStart,
+      chosenColumnAtCastStart,
       destroyed: [],
       transformed: 0,
       drainedMana: 0,
@@ -890,8 +976,12 @@ function runSegment(
   ctx: EffectContext,
   castRevive?: { casterId: number } & import('./effects/summon').SelfReviveSpec,
 ): GameEvent[] {
+  if (segment.kind === 'choose') return []; // Resolved before execution; nested choices are invalid.
   // 概率子句：掷签不通过 → 整段跳过（rng 消耗固定发生，保证同种子同事件流）
-  if (segment.chance !== undefined || segment.chanceBoost) {
+  // L1-devour-double-roll: devour rolls chance / chanceMult / chanceBoost per target inside
+  // devourEffect (and keeps the target tracked on a failed roll); gating it here as well squared
+  // the probability (20% -> 4%) and dropped lastTarget for the following FromTarget steps.
+  if (segment.kind !== 'devour' && (segment.chance !== undefined || segment.chanceBoost)) {
     const boost = modifierBonus(segment.chanceBoost, ctx) / 100;
     const p = Math.min(1, Math.max(0, (segment.chance ?? 0) + boost));
     if (!(ctx.rng.next() < p)) return [];
@@ -919,7 +1009,19 @@ function runSegment(
 
   const primitive = compileSegment(segment, ctx);
   if (!primitive) return [];
+  // A fully blocked damage wave must not leave the preceding wave's hit list behind.
+  if (segment.kind === 'damage' && ctx.castTracking) {
+    ctx.castTracking.lastDamaged = [];
+    ctx.castTracking.lastDamage = 0;
+  }
   const produced = primitive.apply(ctx);
+  if (segment.kind === 'sacrifice' && ctx.castTracking) {
+    const targets = ctx.castTracking.lastTargets ?? [];
+    if (produced.some(event => event.type === 'defeat'
+      && targets.some(target => target.id === event.characterId && target.aliveBefore))) {
+      ctx.castTracking.sacrificeSucceeded = true;
+    }
+  }
   countCastDeaths(produced, ctx);
   return resolveDefeatAfterRevive(ctx.state, produced, ctx.rng, castRevive);
 }
@@ -931,7 +1033,15 @@ function runSegment(
  * 事件在各段出编队前被拦截撤销并复活——「Die and rise from the Ashes」。
  */
 export function executePrototype(proto: SkillPrototype, ctx: EffectContext): GameEvent[] {
-  ensureCastTracking(ctx);
+  // Direct prototype callers must also supply a valid explicit branch. The engine
+  // normally resolves it before collecting branch-specific targets and spending mana.
+  if (proto.segments.some(s => s.kind === 'choose')) {
+    const selected = selectSkillBranch(proto, ctx.chosenBranch);
+    if (!selected) return [];
+    proto = selected;
+  }
+  ctx.casterSide = findSide(ctx.state, ctx.casterId) ?? ctx.casterSide;
+  ensureCastTracking(ctx).sacrificeSucceeded = false;
   const reviveSeg = proto.segments.find((s): s is SelfReviveSegment => s.kind === 'selfRevive');
   const castRevive = reviveSeg
     ? {

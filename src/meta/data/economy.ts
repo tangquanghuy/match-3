@@ -1,16 +1,23 @@
 /**
  * Meta 数值单源（设计值）——META-GAME-PLAN.md §4.1/§4.2 的落地常量。
  *
- * 官方口径（对齐 GoW，页面文案不得写错）：
+ * 规则来源及项目差异见 docs/GOW-NUMERIC-AUDIT.md：
  *  - 部队等级上限按基础稀有度：15/16/17/18/19/20（rarityIdx 0..5，升阶提档即提高上限）；
- *  - 升阶同名卡 5/10/25 张（不耗本体，即持有 6/11/26 张起可升）；
+ *  - 项目保留三阶升阶 5/10/25 张（不耗本体；并非完整官方升阶表）；
  *  - 灵魂成本按**基础稀有度**与目标等级查表，升阶不改成本表；
- *  - 特质解锁（裁定②简化版）：特质1=黄金+灵魂；特质2=特质1 代价×5+同名卡2；特质3=更高额黄金+同名卡5。
+ *  - 特质按导入逐卡配方顺序解锁，只耗特质石；灵魂逐级消耗使用项目调整公式。
  *
  * 其余数字为设计值（首版宁紧勿松）：调经济节奏只改本文件；
  * 概率公示等玩家可见文案必须从这里派生，禁止两处硬编码。
  */
+import { TROOP_PROGRESSION } from '../../data/leveling';
 import { TROOPS } from '../../data/troops';
+import type { KingdomStageMode } from './kingdoms';
+
+/** 每个王国、每个关卡独立的一次性首通奖励；重复胜利不发。 */
+export const KINGDOM_FIRST_CLEAR_GEMS: Readonly<Record<KingdomStageMode, number>> = {
+  normal: 100, hard: 200, veryHard: 300,
+};
 
 /** 稀有度档位顺序（与 troops.json 的 rarityIdx 严格一致，定义见共享稀有度模块） */
 export { RARITY_ORDER } from './rarity';
@@ -44,10 +51,11 @@ export function ascensionCopiesNeeded(ascension: number): number {
 }
 
 /**
- * 灵魂成本曲线（设计值）：升到 targetLevel 级消耗 base[idx] × (targetLevel-1)^1.25，就近取 5。
+ * 灵魂成本曲线（设计值）：升到 targetLevel 级消耗 base[idx] × (targetLevel-1)^1.25（项目调整表，非官方逐级表），就近取 5。
  * 查表用**基础稀有度**（升阶不抬成本，对齐官方）。
  */
-const SOUL_COST_BASE = [30, 60, 120, 240, 480, 960] as const;
+// Project tuning, NOT an official published soul table. Base rarity remains the cost key.
+const SOUL_COST_BASE = [10, 12, 14, 16, 18, 20] as const;
 
 export function soulCostForLevel(rarityIdx: number, targetLevel: number): number {
   const idx = Math.min(Math.max(Math.floor(rarityIdx), 0), SOUL_COST_BASE.length - 1);
@@ -68,11 +76,7 @@ export function totalSoulCost(rarityIdx: number, fromLevel: number, toLevel: num
 /** 特质槽位数（GoW 每部队 3 槽） */
 export const TRAIT_SLOT_COUNT = 3;
 
-/**
- * 特质解锁代价（**裁定②修订，2026-09-19**：对齐官方「特质线只吃特质石」的口径——
- * 黄金+特质石；同名卡不再消耗，同名卡竞争保留在升阶线 5/10/25）。
- * 石键色位 = 部队主色（data/materials.stoneColorKeyOf）；celestial 为万能圣辉石。
- */
+/** Traitstone-only costs. Imported recipes take precedence; gold stays zero for API compatibility. */
 export interface TraitStoneCost {
   gold: number;
   /** 特质石键 → 数量（不含黄金） */
@@ -80,17 +84,17 @@ export interface TraitStoneCost {
 }
 
 /** 解锁第 slot（1 起）个特质的代价（primaryColor = 部队主色的元素键） */
-export function traitUnlockCost(slot: number, primaryColor: string): TraitStoneCost {
+export function traitUnlockCost(slot: number, primaryColor: string, troopId?: number): TraitStoneCost {
   if (slot < 1 || slot > TRAIT_SLOT_COUNT) {
     throw new RangeError(`特质槽位越界: ${slot}`);
   }
-  if (slot === 1) {
-    return { gold: 2000, stones: { [`minor:${primaryColor}`]: 8 } };
-  }
-  if (slot === 2) {
-    return { gold: 5000, stones: { [`minor:${primaryColor}`]: 12, [`major:${primaryColor}`]: 6, [`runic:${primaryColor}`]: 2 } };
-  }
-  return { gold: 12000, stones: { [`major:${primaryColor}`]: 10, [`runic:${primaryColor}`]: 4, celestial: 2 } };
+  const recipe = troopId === undefined ? undefined : TROOP_PROGRESSION[String(troopId)]?.traits[slot - 1];
+  if (recipe && Object.keys(recipe).length) return { gold: 0, stones: { ...recipe } };
+  // Community troops absent from the imported snapshot: explicit common-tier fallback.
+  const stones: Record<string, number> = { [`minor:${primaryColor}`]: 6 + slot * 4, [`major:${primaryColor}`]: 4 };
+  if (slot === 2) stones[`runic:${primaryColor}`] = 4;
+  if (slot === 3) stones[`arcane:${primaryColor}:${primaryColor}`] = 1;
+  return { gold: 0, stones };
 }
 
 /** 分解多余卡收益（设计值，按基础稀有度档）：只拆 copies（本体不拆），不回收已投入养成 */
@@ -216,7 +220,7 @@ export function kingdomUpgradeCost(currentLevel: number): number {
 // 抽卡（M4）——官方调研结论见 TASK-META.md §7，权重为设计值单源
 // ---------------------------------------------------------------------------
 
-/** 宝石宝箱：单抽 150 / 十连 1500（裁定③，价格不随官方变动）；十连保底 Epic+ */
+/** 宝石宝箱：单抽 150 / 十连 1500（裁定③，价格不随官方变动）；十连保底稀有或以上 */
 export const GEM_CHEST = {
   singleCost: 150,
   multiCount: 10,
@@ -240,8 +244,8 @@ export const GEM_CHEST_WEIGHTS = [5200, 2400, 1700, 500, 180, 20] as const;
 /** 金宝箱权重（万分比）：官方口径金宝箱只出 Common/Rare，本作放宽到 UR（裁定池偏低稀有度） */
 export const GOLD_CHEST_WEIGHTS = [5600, 3000, 1200, 200, 0, 0] as const;
 
-/** 十连保底档：稀有度 idx ≥ 4（Epic/Legendary）至少一张 */
-export const GACHA_PITY_MIN_IDX = 4;
+/** 十连至少一张稀有或以上；仅将未达标批次的末张低档结果提升到 Rare。 */
+export const GACHA_PITY_MIN_IDX = 2;
 
 // ---------------------------------------------------------------------------
 // 主角成长（M5 设计值）
@@ -256,42 +260,39 @@ export const CLASS_XP_PER_WIN = 25;
 // 竞技场 · 现开赛（M7 设计值；2026-09-18 对照官方调研修正 draft 结构）
 // ---------------------------------------------------------------------------
 
+/** Official normal Arena (help center + 5.2 reward table, checked 2026-09-27). */
 export const ARENA = {
-  /** 宝石报名费（本周首场免费，裁定④；官方改版后为 150 宝石/次） */
-  entryFeeGems: 150,
-  /** 三轮 3 选 1（官方改版口径：draft 3 张、打 3 场） */
-  rounds: 3,
+  entryFeeGold: 1000,
+  rounds: 4,
   choicesPerRound: 3,
-  /**
-   * draft 固定稀有度阶梯（官方旧版 Arena 的招牌规则：3 张普通 / 3 张稀有 / 3 张超稀
-   * 各选 1，见 fandom Wiki「Arena」；本作按六档稀有度适配成三档递升——
-   * 首轮低档、次轮中档、末轮 Epic+，保底由结构自保证，不再靠随机抬档）。
-   */
-  roundBands: [
-    { min: 0, max: 1 }, // Common / Uncommon
-    { min: 2, max: 3 }, // Rare / Ultra-Rare
-    { min: 4, max: 5 }, // Epic / Legendary
-  ] as const,
-  /** 三场对手的敌人等级（递增，设计值；官方为「难度递增的 draft 队」） */
-  opponentLevels: [10, 14, 18],
-  /** 三场对手的队伍规模（递增，设计值） */
-  opponentSizes: [3, 3, 4],
+  winsToFinish: 6,
+  lossesToFinish: 2,
+  level: 15,
+  // Numeric source rarities: Common, Rare, Ultra-Rare, Epic (legacy English aliases differ).
+  roundBands: [{ min: 0, max: 0 }, { min: 1, max: 1 }, { min: 2, max: 2 }, { min: 3, max: 3 }],
+  rarityLabels: ['普通', '稀有', '超稀有', '史诗'],
+  opponentLevels: [15, 15, 15, 15, 15, 15],
+  opponentSizes: [4, 4, 4, 4, 4, 4],
 } as const;
 
-/** 按最终胜场的奖励（0~3 胜；官方改版数字：1 胜 3000 金、2 胜 +120 宝石、3 胜 12000 金+400 宝石+2 钥匙） */
-export const ARENA_REWARDS: ReadonlyArray<{ gold: number; gems: number; goldKeys: number }> = [
-  { gold: 50, gems: 0, goldKeys: 0 },
-  { gold: 3000, gems: 0, goldKeys: 0 },
-  { gold: 6000, gems: 120, goldKeys: 0 },
-  { gold: 12000, gems: 400, goldKeys: 2 },
+export interface ArenaRewards { gold: number; souls: number; gloryKeys: number; trophies: number }
+/** Official base rewards, without VIP/difficulty multipliers. */
+export const ARENA_REWARDS: readonly ArenaRewards[] = [
+  { gold: 50, souls: 0, gloryKeys: 0, trophies: 0 },
+  { gold: 100, souls: 0, gloryKeys: 0, trophies: 0 },
+  { gold: 500, souls: 75, gloryKeys: 1, trophies: 3 },
+  { gold: 1000, souls: 200, gloryKeys: 1, trophies: 8 },
+  { gold: 2000, souls: 350, gloryKeys: 2, trophies: 18 },
+  { gold: 3000, souls: 500, gloryKeys: 2, trophies: 30 },
+  { gold: 4000, souls: 750, gloryKeys: 3, trophies: 50 },
 ];
 
-/** 任务链全通（8/8）奖励的金钥匙数（金钥匙经济收口 M6：来源=进贡/任务/竞技场，去向=金宝箱） */
+/** 任务链全通（8/8）奖励的金钥匙数（金钥匙经济收口 M6：来源=进贡/任务，去向=金宝箱） */
 export const QUEST_COMPLETE_GOLD_KEYS = 1;
 
-/** draft 部队的等级口径：按基础稀有度档的等级上限（公平卡组、满配特质） */
-export function arenaDraftLevel(rarityIdx: number): number {
-  return levelCapFor(rarityIdx, 0);
+/** draft 部队的等级口径：双方固定 15 级，无特质、无外部属性加成 */
+export function arenaDraftLevel(_rarityIdx: number): number {
+  return 15;
 }
 
 // ---------------------------------------------------------------------------
@@ -336,6 +337,7 @@ export const INVASION_LEAGUES = [
 
 /** 官方晋级/降级区（30 人小组按每周最终 VP 排名；1 起名次）：
  *  promote = 达到该名次以内晋级；relegate = 落入该名次及以后降级（0 = 本级是底，无降级） */
+/** @deprecated Historic league table, not used by permanent VP ranks. */
 export const INVASION_ZONES: ReadonlyArray<{ promote: number; relegate: number }> = [
   { promote: 20, relegate: 0 }, // 青铜：前 20 晋级，无降级
   { promote: 15, relegate: 26 }, // 白银：前 15 / 末 5（26-30）
@@ -350,6 +352,7 @@ export const INVASION_ZONES: ReadonlyArray<{ promote: number; relegate: number }
 ];
 
 /** 周结奖励（官方结构、设计数值）：晋级 / 守级（中间带）/ 降级 */
+/** @deprecated Old automatic weekly rewards; disabled by the VP rank/claim system. */
 export const INVASION_SEASON_REWARDS = {
   promote: { glory: 150, gems: 100 },
   stay: { glory: 75, gems: 30 },
@@ -362,7 +365,7 @@ export const INVASION_SEASON_REWARDS = {
   },
 } as const;
 
-/** VP 基础分（官方表）：对手平均等级段 → [基础, 下限, 上限] */
+/** 旧 VP 表（仅兼容历史测试，实际使用 INVASION_VP_BY_DIFFICULTY）：对手平均等级段 → [基础, 下限, 上限] */
 export const INVASION_VP_TABLE: ReadonlyArray<{ maxLevel: number; base: number; min: number; max: number }> = [
   { maxLevel: 9, base: 10, min: 5, max: 25 },
   { maxLevel: 19, base: 20, min: 10, max: 45 },
@@ -376,7 +379,7 @@ export const INVASION = {
   unlockHeroLevel: 10,
   /** 每组镜像对手数（官方 30 人小组 - 玩家自己） */
   bracketSize: 29,
-  /** 每日三选一：主屏同一时间只呈现三名可出战对手。 */
+  /** 三选一：主屏同一时间呈现三名对手，可免费无限刷新。 */
   candidates: 3,
   /** 败北扣 VP（保底 0；官方败场会掉分） */
   vpLoss: 5,
@@ -386,8 +389,8 @@ export const INVASION = {
   gloryRivalBonus: 5,
   /** 每日入侵首胜荣耀加成（官方每日首胜语义） */
   gloryFirstWinOfDay: 15,
-  /** 血怒对手：VP×2（官方 Blood Frenzy 语义；每组标 2 人） */
-  frenzyCount: 2,
+  /** 兼容旧榜单字段：候选血怒随机规则见 invasionFrenzy.ts，不由榜单人数决定 */
+  frenzyCount: 0,
   /** 速胜加分（官方表）：≤turns → 加分，每类取最高 */
   speedBonuses: [
     { maxTurns: 10, bonus: 2 },
@@ -411,7 +414,7 @@ export const INVASION = {
   ] as const,
 } as const;
 
-/** 首次定级（官方 Path 段的主角等级映射）：返回联赛 idx 0..4 */
+/** @deprecated 旧版项目等级压缩映射；新角色从青铜 I 起步，不再使用此定级方法 */
 export function invasionInitialLeague(heroLevel: number): number {
   if (heroLevel >= 81) return 4;
   if (heroLevel >= 61) return 3;

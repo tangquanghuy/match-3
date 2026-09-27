@@ -5,7 +5,7 @@
  *   - 减攻/减甲/减魔：目标属性扣减，Math.max(0, …) 夹零（属性不会变负）；
  *   - 耗蓝（法力燃烧/耗尽）：清减目标当前法力，至多到 0；
  *   - 窃取：目标削减 + 施法者等量（可按比例）获得另一属性
- *     （「窃取 2 点护甲值并将之转为魔法值」= stat='armor' + gainStat='magic'）。
+ *     （「窃取 2 点护甲值并将之转为魔力值」= stat='armor' + gainStat='magic'）。
  *
  * 与织网（web）的交互（任务书明示）：web 锁的是 magic **属性增益**，不是 mana 充能——
  * 被织网者仍可被耗蓝/偷法力；施法者被织网时，「窃取转为 magic」的自身获得走
@@ -23,7 +23,7 @@ import type { EffectContext, EffectPrimitive } from './context';
 import { casterMagic, findCharacter } from './context';
 import { hasTroopType, evaluateWithModifier, DEFAULT_RACE_DOUBLE, condMultiplier, condBonusValue } from './secondary';
 import type { ModifierSpec, CondMult, CondBonus } from './secondary';
-import { passivesOf } from '../../traits';
+import { isImmuneToManaDrain } from './status';
 import { applyBuffGain } from './buff';
 import type { BuffStat } from './buff';
 
@@ -121,7 +121,7 @@ export function reduceEffect(params: ReduceParams): EffectPrimitive {
         // 法力操作免疫（manashield「对法力灼烧、法力耗尽和法力窃取免疫」）：
         // 三动词共用本入口（stat='mana' 的耗蓝/耗尽/减半与 stat='mana'+gainStat 的窃取），
         // 免疫目标整体跳过——不削减、不回事件、窃取者也不进账。
-        if (stat === 'mana' && passivesOf(target).manaOpsImmunity) continue;
+        if (stat === 'mana' && isImmuneToManaDrain(target)) continue;
         for (let step = 0; step < steps; step++) {
           // 官方 DecreaseRandom：每步独立掷签攻/甲/魔其一（可能重复掷中同一属性）
           const statNow: 'attack' | 'armor' | 'magic' | 'mana' | 'hp' =

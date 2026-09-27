@@ -1,4 +1,4 @@
-/**
+﻿/**
  * 人工核对组装 · 批次 05（池：scripts/curated-pools/pool-05.json）
  * 核对者：agent 批次05
  *
@@ -9,7 +9,7 @@
  * - 7052「因所移除的骷髅头数而增强」：destroySkulls 的清除记录进 castTracking.destroyed，
  *   来源用不带色筛选的 destroyedGems（boardSkulls 是执行时刻现读棋盘，清除后为 0，时序不符）。
  * - 「宝石」不含骷髅（GoW 术语：Gem=色宝石，Skull=骷髅），随机宝石段 include:'color'。
- * - 「魔法值」= magic 属性、「法力值」= mana 资源（SOP 措辞裁定；7049/7055/7256 同口径）。
+ * - 「魔力值」= magic 属性、「法力值」= mana 资源（SOP 措辞裁定；7049/7055/7256 同口径）。
  * - 7165「所有技能值增加」按技能值域（攻/甲/血/魔，spell-rules.md randomStat 口径）拆 4 个增益段。
  * - 7209「如果对方是野兽，则造成双倍伤害」：raceDouble 逐受击目标判定（damage.ts），不只限盟友措辞。
  * - 「爆破一行」= explodeChosenRow（batch-03 7384「爆破一列」同款，无随机字样）。
@@ -47,10 +47,10 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 7049,
-    desc: '对 1 名敌人造成 [魔法 + 3] 点伤害。如果该敌人身亡，则获得 5 点魔法值。',
+    desc: '对 1 名敌人造成 [魔法 + 3] 点伤害。如果该敌人身亡，则获得 5 点魔力值。',
     build: skill(
       dmg('enemyChosen', 3),
-      // 「魔法值」= magic 属性（SOP 措辞裁定）；死亡条件只辖本段
+      // 「魔力值」= magic 属性（SOP 措辞裁定）；死亡条件只辖本段
       magic('allySelf', 5, 0, { ifTargetDied: true }),
     ),
   },
@@ -65,11 +65,11 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 7055,
-    desc: '爆破一行。获得 [魔法 + 2] 点生命值，并减除所有敌人 1 点魔法值。',
+    desc: '爆破一行。获得 [魔法 + 2] 点生命值，并减除所有敌人 1 点魔力值。',
     build: skill(
       explodeChosenRow(),
       heal('allySelf', 2),
-      // 「魔法值」= magic 属性（SOP 措辞裁定）
+      // 「魔力值」= magic 属性（SOP 措辞裁定）
       reduce('enemyAll', 'magic', 1, 0),
     ),
   },
@@ -89,7 +89,7 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '随机爆破 一颗的宝石，摧毁其周围的其他宝石。',
     build: skill(
       // explode 模式 = 目标 ∪ 8 邻格（gems.ts）：随机一颗宝石 + 周围一圈，与描述一致
-      explodeRandomGems(1, 0, 'color'),
+      explodeRandomGems(1, 0, 'all'),
     ),
   },
   {
@@ -105,8 +105,9 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 7138,
     desc: '对所有敌人造成 [魔法] 点伤害，并使他们陷入中毒状态。创造 9 颗绿色宝石。',
     build: skill(
-      dmgAll(0),
+      // Native order (R001, L4b-6068-order): CausePoison AllEnemies, then Damage AllEnemies.
       inflict('poison', 'enemyAll'),
+      dmgAll(0),
       createGems(BaseColor.Green, 9),
     ),
   },
@@ -142,7 +143,7 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 7166,
-    desc: '对一名敌人造成 [魔法 + 4] 点伤害，并减除其 5 点魔法值。如果敌人是一名巨人，则造成 3 倍伤害。',
+    desc: '对一名敌人造成 [魔法 + 4] 点伤害，并减除其 5 点魔力值。如果敌人是一名巨人，则造成 3 倍伤害。',
     build: skill(
       // 回收：condMult 现支持 targetRace 条件倍率（SOP「如果敌人是恶魔/怪兽（族），则造成 3 倍伤害」同款）
       dmg('enemyChosen', 4, 1, { condMult: { times: 3, cond: { kind: 'targetRace', race: 'Giant' } } }),
@@ -230,20 +231,20 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 7289,
-    desc: '创造 5 颗绿色宝石，然后将所有绿色宝石转换为紫色。获得 [魔法 + 2] 点随机技能值。',
+    desc: "创造 5 颗绿色宝石，然后将所有绿色宝石转换为紫色。自身一项随机属性获得 [魔法 + 2] 点。",
     build: skill(
       createGems(BaseColor.Green, 5),
       transform(BaseColor.Green, BaseColor.Purple),
-      randomStat('allySelf', 2),
+      randomStat('allySelf', 2, 1, { oneSkill: true }),
     ),
   },
   {
     id: 7322,
-    desc: '创造 5 颗红色和紫色宝石。为一名随机盟友给予 [魔法 + 1] 点随机技能值。',
+    desc: "创造 5 颗红色和紫色宝石。一名随机盟友的一项随机属性获得 [魔法 + 1] 点。",
     build: skill(
       // 5 颗总数、红紫混色 → createMix 逐颗随机取色
       createMix([BaseColor.Red, BaseColor.Purple], 5),
-      randomStat('allyRandom', 1),
+      randomStat('allyRandom', 1, 1, { oneSkill: true }),
     ),
   },
   {
@@ -268,8 +269,9 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 7334,
     desc: '给予一名盟友 [魔法 + 1] 点攻击力和护甲值，点数因红色宝石数量而增强。 [3:1]',
     build: skill(
-      // boardGems 为段执行时刻现读棋盘，无时序要求；modifier 挂最近数值段（batch-04 7027 同款）
-      attack('allyChosen', 1),
+      // boardGems 为段执行时刻现读棋盘，无时序要求。
+      // L7-6193（sa-L76）：原生 IncreaseAttack 与 IncreaseArmor 都 UseCounterForAmount → 两段同挂 modifier。
+      attack('allyChosen', 1, 1, { modifier: { mod: { kind: 'ratio', a: 3, b: 1 }, source: { kind: 'boardGems', color: BaseColor.Red } } }),
       armor('allyChosen', 1, 1, { modifier: { mod: { kind: 'ratio', a: 3, b: 1 }, source: { kind: 'boardGems', color: BaseColor.Red } } }),
     ),
   },

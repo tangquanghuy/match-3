@@ -43,7 +43,10 @@ interface FrameState {
 interface FrameApp {
   engine: { getState(): FrameState };
   getBattleRequest(): { battleId: string; requestId: string; seed: number };
-  castPlayerSkill(id: number): void;
+  castPlayerSkill(id: number): Promise<void>;
+  startupPlaying: boolean;
+  casting: boolean;
+  player: { isPlaying(): boolean };
   input?: unknown;
   root?: unknown;
 }
@@ -74,9 +77,17 @@ async function waitForBattleFrame(page: Page): Promise<FrameLocator> {
 
 /** 在 iframe 内驱动一场必胜战斗：敌方压到 1 血，反复用队首技能点掉。 */
 async function finishBattleInFrame(page: Page): Promise<void> {
+  // This harness tests the host protocol, not the optional cast-confirm UI.
+  // Engine AwaitingInput precedes animation completion, so wait for the view too.
+  await page.waitForFunction(() => {
+    const win = document.querySelector<HTMLIFrameElement>('[data-testid="battle-frame"]')!
+      .contentWindow as FrameWindow;
+    return !win.__app.startupPlaying && !win.__app.player.isPlaying();
+  });
   await page.evaluate(() => {
     const win = document.querySelector<HTMLIFrameElement>('[data-testid="battle-frame"]')!
       .contentWindow as FrameWindow;
+    win.localStorage.setItem('battle.skipCastConfirm', '1');
     for (const c of win.__app.engine.getState().teams.Right.characters) {
       c.hp = 1;
       c.armor = 0;
@@ -95,8 +106,9 @@ async function finishBattleInFrame(page: Page): Promise<void> {
       const win = document.querySelector<HTMLIFrameElement>('[data-testid="battle-frame"]')!
         .contentWindow as FrameWindow;
       const s = win.__app.engine.getState();
-      return s.winner !== null || (s.activePlayer === 'Left' && s.state === 'AwaitingInput');
-    }, { timeout: 15_000 });
+      return s.winner !== null || (s.activePlayer === 'Left' && s.state === 'AwaitingInput'
+        && !win.__app.casting && !win.__app.startupPlaying && !win.__app.player.isPlaying());
+    }, null, { timeout: 15_000 });
 
     await page.evaluate(() => {
       const win = document.querySelector<HTMLIFrameElement>('[data-testid="battle-frame"]')!
@@ -105,15 +117,16 @@ async function finishBattleInFrame(page: Page): Promise<void> {
       if (app.engine.getState().winner !== null) return;
       const caster = app.engine.getState().teams.Left.characters[0];
       caster.mana = caster.manaCost;
-      app.castPlayerSkill(0);
+      return app.castPlayerSkill(0);
     });
     // 条件等待而不是固定 sleep：等到本次行动的演出与 AI 回合都结束（或已分出胜负）
     await page.waitForFunction(() => {
       const win = document.querySelector<HTMLIFrameElement>('[data-testid="battle-frame"]')!
         .contentWindow as FrameWindow;
       const s = win.__app.engine.getState();
-      return s.winner !== null || (s.activePlayer === 'Left' && s.state === 'AwaitingInput');
-    }, { timeout: 20_000 });
+      return s.winner !== null || (s.activePlayer === 'Left' && s.state === 'AwaitingInput'
+        && !win.__app.casting && !win.__app.startupPlaying && !win.__app.player.isPlaying());
+    }, null, { timeout: 20_000 });
   }
 }
 

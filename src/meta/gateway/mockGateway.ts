@@ -1,14 +1,22 @@
+import { setWishlist, setPursuitTarget } from '../systems/wishlist';
 /**
  * mock 网关：SaveStore(localStorage, 双槽防损) + 本地纯 systems。
  *
  * 职责边界：唯一持有可变 MetaSave 的地方。每个写方法 = 应用纯系统函数 →
  * 落盘 → 返回 { result, save }。将来切 D1 时换实现类，接口不动。
  */
+import { weekStartOf } from './clock';
+import type { InvasionMirror } from '../systems/invasion';
 import type { BattleResult } from '@session/index';
 import { SaveStore, type StorageLike } from '../state/save';
 import type { Materials, MetaSave } from '../state/schema';
 import { fail, type MetaFailure } from '../types';
 import { starterTroopIds } from '../data/economy';
+import {
+  restoreInitialCollection,
+  restoreRealCollection,
+  unlockKingdomTroops,
+} from '../systems/collectionModifier';
 import type { EventTypeId } from '../data/events';
 import { newSave } from '../state/schema';
 import { levelUp, ascend, unlockTrait, decompose, getRecord } from '../systems/troopProgress';
@@ -21,8 +29,8 @@ import { upgradeKingdom, setExploreTier, exploreUnlocked } from '../systems/king
 import { collectTribute } from '../systems/tribute';
 import type { SettlementContext } from '../systems/settlement';
 import { temperWeaponOnSave } from '../systems/forgeOps';
-import { planEventEncounter, currentEventTheme, eventBattleReady, buyEventGoods, applyEventBattleModifiers, abandonTowerRun } from '../systems/events';
-import { planInvasionBattle, settleInvasionBattle } from '../systems/invasion';
+import { planEventEncounter, currentEventTheme, ensureEventWeek, eventBattleReady, buyEventGoods, applyEventBattleModifiers, abandonTowerRun } from '../systems/events';
+import { planInvasionBattle, settleInvasionBattle, refreshInvasionOpponents, claimInvasionRank, ensureInvasionSeason } from '../systems/invasion';
 import { activeTeam } from '../systems/teamRules';
 import {
   entryArena,
@@ -61,6 +69,7 @@ export class MockGateway implements MetaGateway {
   readonly backend = 'mock' as const;
   private readonly store: SaveStore;
   private save!: MetaSave;
+  private pendingInvasion: { requestId: string; mirrorId: string; weekStart: number; mirror: InvasionMirror } | null = null;
 
   constructor(storage: StorageLike = typeof localStorage !== 'undefined' ? localStorage : memoryStorage()) {
     this.store = new SaveStore(storage);
@@ -69,6 +78,7 @@ export class MockGateway implements MetaGateway {
   // —— 生命周期 ——
 
   async load(): Promise<GatewaySnapshot> {
+    this.pendingInvasion = null;
     const loaded = this.store.load();
     if (!loaded.fresh) {
       this.save = loaded.save;
@@ -108,12 +118,14 @@ export class MockGateway implements MetaGateway {
   }
 
   async importSaveJson(text: string): Promise<GatewaySnapshot> {
+    this.pendingInvasion = null;
     this.save = this.store.importJson(text); // 结构问题抛 MetaSaveError
     this.store.persist(this.save);
     return { save: this.save, fresh: false, warning: null };
   }
 
   async resetToDemo(): Promise<GatewaySnapshot> {
+    this.pendingInvasion = null;
     this.save = buildDemoSave(Date.now());
     this.store.persist(this.save);
     return { save: this.save, fresh: true, warning: null };
@@ -129,6 +141,16 @@ export class MockGateway implements MetaGateway {
     this.save.settings.battleDebug = on;
     this.persist();
     return { result: on, save: this.save };
+  }
+
+  async applyCollectionModifier(action: { kind: 'unlock-kingdom'; kingdom: string } | { kind: 'restore-real' } | { kind: 'restore-initial' }) {
+    const result = action.kind === 'unlock-kingdom'
+      ? unlockKingdomTroops(this.save, action.kingdom)
+      : action.kind === 'restore-real'
+        ? restoreRealCollection(this.save)
+        : restoreInitialCollection(this.save);
+    if (result.ok) this.persist();
+    return { result, save: this.save };
   }
 
   // —— 养成 ——
@@ -253,6 +275,17 @@ export class MockGateway implements MetaGateway {
     return { result, save: this.save };
   }
 
+  async setWishlist(ids: readonly number[]) {
+    const result = setWishlist(this.save, ids);
+    if (result.ok) this.persist();
+    return { result, save: this.save };
+  }
+  async setPursuitTarget(id: number | null) {
+    const result = setPursuitTarget(this.save, id);
+    if (result.ok) this.persist();
+    return { result, save: this.save };
+  }
+
   // —— 宝箱 ——
 
   /** 开箱：count 为原子批量（gem/glory 只接 1|10，gold 接 1~10），见 types.openChest */
@@ -305,6 +338,7 @@ export class MockGateway implements MetaGateway {
   async pickDraftCard(troopId: number) {
     const result = pickDraftCard(this.save, troopId);
     if (!result.ok) return { result, save: this.save };
+    this.persist();
     const state = currentDraftChoices(this.save);
     return {
       result:
@@ -384,16 +418,25 @@ export class MockGateway implements MetaGateway {
 
   // —— 每周活动（素材批 2026-09-19） ——
 
-  async planEventBattle(_now: number, weekStart: number, typeId: EventTypeId) {
+  async planEventBattle(_now: number, weekStart: number, typeId: EventTypeId, choice?: string) {
+    ensureEventWeek(this.save, weekStart, typeId);
     const theme = currentEventTheme(weekStart, typeId);
     const team = activeTeam(this.save);
     const hasHero = team?.members.some((m) => m.kind === 'hero') ?? false;
     const notReady = eventBattleReady(this.save, theme.type.id, hasHero);
     if (notReady) return fail('INVALID', notReady);
-    const plan = planEventEncounter(this.save, weekStart, this.nextSeed(), typeId);
+    if (typeId === 'towerOfDoom' && choice === 'rest' && ((this.save.eventWeeks.towerOfDoom?.eventData.floor ?? 1) <= 1 || (this.save.eventWeeks.towerOfDoom?.eventData.floor ?? 1) % 5 !== 1)) return fail('INVALID', '营地休整仅在首领后的第6/11/16/21层开放');
+    const beforeWeek = structuredClone(this.save.eventWeeks[typeId]!);
+    const plan = planEventEncounter(this.save, weekStart, this.nextSeed(), typeId, choice);
     const outcome = buildBattleRequest(this.save, plan);
-    // 活动玩法对面板的修改（阵营 buff / 塔层减员残血）：构建后、启动前应用
-    if (outcome.ok) applyEventBattleModifiers(this.save, outcome);
+    if (outcome.ok) {
+      applyEventBattleModifiers(this.save, outcome);
+      if (outcome.request.playerTeam.length === 0) {
+        this.save.eventWeeks[typeId] = beforeWeek;
+        return fail('INVALID', '本轮已无存活成员，请放弃本轮重新登塔');
+      }
+      this.persist();
+    } else this.save.eventWeeks[typeId] = beforeWeek;
     return outcome;
   }
 
@@ -407,9 +450,9 @@ export class MockGateway implements MetaGateway {
     return { result, save: this.save };
   }
 
-  async buyEventGoods(goodsId: string, _now: number, weekStart: number, typeId: EventTypeId) {
+  async buyEventGoods(goodsId: string, now: number, weekStart: number, typeId: EventTypeId, expectedPeriodStart?: number) {
     const before = this.materialSnapshot();
-    const result = buyEventGoods(this.save, goodsId, weekStart, typeId);
+    const result = buyEventGoods(this.save, goodsId, weekStart, typeId, now, expectedPeriodStart);
     if (result.ok) {
       this.markMaterialGains(before);
       this.persist();
@@ -419,14 +462,48 @@ export class MockGateway implements MetaGateway {
 
   // —— 入侵 PvP（素材批 2026-09-19） ——
 
+  async syncInvasionSeason(now: number, weekStart: number) {
+    ensureInvasionSeason(this.save, now, weekStart);
+    this.persist();
+    return { result: { ok: true as const }, save: this.save };
+  }
+
+  async refreshInvasionOpponents(now: number, weekStart: number) {
+    const result = refreshInvasionOpponents(this.save, now, weekStart);
+    if (result.ok) { this.pendingInvasion = null; this.persist(); }
+    return { result, save: this.save };
+  }
+
+  async claimInvasionRank(id: string, now = Date.now(), expectedWeek?: number) {
+    const week = weekStartOf(now);
+    ensureInvasionSeason(this.save, now, week);
+    this.persist();
+    if (expectedWeek !== undefined && expectedWeek !== this.save.invasion.weekStart) {
+      return { result: fail('INVALID', '新一周已开始，请刷新官阶页面'), save: this.save };
+    }
+    const result = claimInvasionRank(this.save, id);
+    if (result.ok) this.persist();
+    return { result, save: this.save };
+  }
+
   async planInvasionBattle(mirrorId: string, now: number, weekStart: number) {
-    return planInvasionBattle(this.save, mirrorId, this.nextSeed(), now, weekStart);
+    const plan = planInvasionBattle(this.save, mirrorId, this.nextSeed(), now, weekStart);
+    this.pendingInvasion = plan.ok ? { requestId: plan.request.requestId, mirrorId, weekStart, mirror: structuredClone(plan.mirror) } : null;
+    this.persist();
+    return plan;
   }
 
   async settleInvasionBattle(result: BattleResult, mirrorId: string, now: number, weekStart: number, todayStart: number) {
+    const pending = this.pendingInvasion;
+    if (!pending || pending.requestId !== result.requestId || pending.mirrorId !== mirrorId) {
+      return { result: fail('INVALID', '战斗已结算或对手已刷新'), save: this.save };
+    }
     const before = this.materialSnapshot();
-    const settled = settleInvasionBattle(this.save, result, mirrorId, now, weekStart, todayStart);
+    // Preserve the launched roster; credit victories to the settlement week, never roll state backward.
+    const settled = settleInvasionBattle(this.save, result, mirrorId, now, weekStart, todayStart, pending.mirror);
     if (settled.ok) {
+      this.pendingInvasion = null;
+      ensureInvasionSeason(this.save, now, weekStart);
       this.markMaterialGains(before);
       this.persist();
     }

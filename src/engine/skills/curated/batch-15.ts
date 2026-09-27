@@ -3,7 +3,7 @@
  * 核对者：agent 批次15
  *
  * 语义裁定备注：
- * - 「魔法值」= magic 属性、「法力值」= mana 资源（SOP 措辞裁定；batch-08 头注同款）：
+ * - 「魔力值」= magic 属性、「法力值」= mana 资源（SOP 措辞裁定；batch-08 头注同款）：
  *   「耗掉 X 点法力值」= reduce stat:'mana' 带数值、「耗掉…所有法力值」= drainMana（spell-rules.md §3）。
  * - 「窃取 X 点生命值」= dmg + drain（batch-01 7302 同款）；「最强(健康)的敌人」= enemyHealthiest
  *   （spell-rules.md §0 目标措辞表）；「消除…全部护甲值」= reduce armor + drainAll（batch-01 7175 同款）。
@@ -61,11 +61,11 @@ const SKIPPED: { id: number; reason: string }[] = [
 const SPELLS: CuratedBatch['spells'] = [
   {
     id: 8470,
-    desc: '耗掉一名敌人 7 点法力值，并消除其 [(魔法 / 2) + 1] 点魔法值。再将其击晕与缠绕。',
+    desc: '耗掉一名敌人 7 点法力值，并消除其 [(魔法 / 2) + 1] 点魔力值。再将其击晕与缠绕。',
     build: skill(
       // 「耗掉 X 点法力值」= reduce stat:'mana' 带数值（spell-rules.md §3）；7 为常数
       reduce('enemyChosen', 'mana', 7, 0),
-      // 「魔法值」= magic 属性（SOP 措辞裁定）；[(魔法 / 2) + 1] = base 1, mult 0.5
+      // 「魔力值」= magic 属性（SOP 措辞裁定）；[(魔法 / 2) + 1] = base 1, mult 0.5
       reduce('enemyChosen', 'magic', 1, 0.5),
       // 「其」= 前文选定敌人，enemyChosen 跨段一致
       inflict('stun', 'enemyChosen'),
@@ -95,11 +95,11 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 8564,
-    desc: '消除首 2 名敌人 [魔法 + 1] 点攻击力、后 2 名敌人 [魔法 + 1] 点魔法值。再耗掉最强的 2 名敌人所有法力值。',
+    desc: '消除首 2 名敌人 [魔法 + 1] 点攻击力、后 2 名敌人 [魔法 + 1] 点魔力值。再耗掉最强的 2 名敌人所有法力值。',
     build: skill(
       // 「首 2 名敌人」= enemyFirstN + n:2；「消除…攻击力」= reduce
       reduce('enemyFirstN', 'attack', 1, 1, { n: 2 }),
-      // 「后 2 名敌人」= enemyLastN + n:2；「魔法值」= magic 属性（SOP 措辞裁定）
+      // 「后 2 名敌人」= enemyLastN + n:2；「魔力值」= magic 属性（SOP 措辞裁定）
       reduce('enemyLastN', 'magic', 1, 1, { n: 2 }),
       // 「最强的敌人」= enemyHealthiest（spell-rules.md §0）；「耗掉…所有法力值」= drainAll
       drainMana('enemyHealthiestN', { n: 2 }),
@@ -238,11 +238,14 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 8788,
-    desc: '对一名敌人造成 [魔法 + 4] 点伤害，再获得 [魔法 + 4] 点护甲值，数量因所有敌人的魔法值而增强。 [2:1]',
+    desc: '对一名敌人造成 [魔法 + 4] 点伤害，再获得 [魔法 + 4] 点护甲值，数量因所有敌人的魔力值而增强。 [2:1]',
     build: skill(
-      dmg('enemyChosen', 4),
-      // 「数量因…而增强」点名护甲段；「所有敌人的魔法值」= enemyStatSum magic
-      // （「魔法值」= magic 属性，SOP 措辞裁定）
+      // 「所有敌人的魔力值」= enemyStatSum magic（「魔力值」= magic 属性，SOP 措辞裁定）
+      // L7-7201（sa-L76）：EN「both boosted by all Enemy Magic」+ 原生 Damage 与 IncreaseArmor 都
+      // UseCounterForAmount → 伤害段与护甲段同挂 modifier（原先只挂护甲段）。
+      dmg('enemyChosen', 4, 1, {
+        modifier: { mod: { kind: 'ratio', a: 2, b: 1 }, source: { kind: 'enemyStatSum', stat: 'magic' } },
+      }),
       armor('allySelf', 4, 1, {
         modifier: { mod: { kind: 'ratio', a: 2, b: 1 }, source: { kind: 'enemyStatSum', stat: 'magic' } },
       }),

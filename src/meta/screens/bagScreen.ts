@@ -3,6 +3,7 @@ import {
   INGOT_NAMES,
   STONE_COLORS,
   TRAITSTONE_TIERS,
+  ARCANE_STONE_KEYS,
   ingotKeyForRarity,
   stoneColorKeyOf,
   stoneKey,
@@ -16,10 +17,10 @@ import { temperingLevelOf } from '../systems/forgeOps';
 import { traitUnlockCost } from '../data/economy';
 import { getRecord } from '../systems/troopProgress';
 import { TROOPS } from '../../data/troops';
-import { bottomNavHtml, mountIcons, toastHtml, topbarHtml, $ } from '../shell/chrome';
+import { bottomNavHtml, mountIcons, toastHtml, topbarHtml } from '../shell/chrome';
 import { ingotArt, materialImg, scrollArt, stoneMarkup, treasureMapMarkup } from '../shell/materialArt';
 import type { Screen, ShellCtx } from '../shell/screen';
-import type { Materials, MetaSave } from '../state/schema';
+import type { MetaSave } from '../state/schema';
 
 const INGOT_TONE: Record<IngotKey, string> = {
   common: '#aab2ad',
@@ -40,11 +41,31 @@ const STONE_TONE: Record<string, string> = {
   brown: '#c0823f',
 };
 
-type BagTab = 'ingots' | 'stones' | 'scrolls' | 'tickets';
+type BagTab = 'ingots' | 'stones' | 'supplies';
+
+const TAB_ICONS: Record<BagTab, string> = {
+  ingots: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m4 16 3-8h10l3 8-3 3H7Z"/><path d="M7 8h10M4 16h16"/></svg>',
+  stones: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m12 2 9 8-9 12-9-12Z"/><path d="M3 10h18M12 2l-4 8 4 12 4-12Z"/></svg>',
+  supplies: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 4h12v16H6zM9 4v16m3-11h4m-4 4h4"/></svg>',
+};
+
+interface BagItem {
+  id: string;
+  name: string;
+  count: number;
+  art: string;
+  tone: string;
+  group: string;
+  purpose: string;
+  hint: string;
+  source: string;
+  destination: string;
+  action: string;
+}
 
 function tabOf(param?: string): BagTab {
-  if (param === 'stones' || param === 'scrolls' || param === 'tickets') return param;
-  if (param === 'currencies') return 'tickets';
+  if (param?.split('/')[0] === 'stones') return 'stones';
+  if (param === 'supplies' || param === 'scrolls' || param === 'tickets' || param === 'currencies') return 'supplies';
   return 'ingots';
 }
 
@@ -53,35 +74,53 @@ function tabHref(tab: string): string {
 }
 
 export class BagScreen implements Screen {
+  private closeOnEscape: ((event: KeyboardEvent) => void) | null = null;
+
   html(ctx: ShellCtx, param?: string): string {
     const tab = tabOf(param);
     const save = ctx.save();
     const materials = save.materials;
+    const allItems = this.itemsFor(tab, save);
+    const pageSize = 19;
+    const pageCount = Math.ceil(allItems.length / pageSize);
+    const page = Math.min(pageCount, Math.max(1, Number.parseInt(param?.split('/')[1] ?? '1', 10) || 1));
+    const items = allItems.slice((page - 1) * pageSize, page * pageSize);
+    const pager = pageCount > 1 ? `<nav class="bag-pagination" aria-label="材料分页"><a href="#bag/${tab}/${Math.max(1, page - 1)}" aria-label="上一页" aria-disabled="${page === 1}">‹</a><span>${page} / ${pageCount}</span><a href="#bag/${tab}/${Math.min(pageCount, page + 1)}" aria-label="下一页" aria-disabled="${page === pageCount}">›</a></nav>` : '';
+    const selected = items.find((item) => item.count > 0) ?? items[0];
+    const tabCounts: Record<BagTab, number> = {
+      ingots: Object.values(materials.ingots).filter((count) => count > 0).length,
+      stones: Object.values(materials.traitstones).filter((count) => count > 0).length,
+      supplies: Number(materials.forgeScrolls > 0) + Number(materials.treasureMaps > 0)
+        + save.currencies.gloryKeys,
+    };
     const tabs = [
       ['ingots', '钢锭'],
       ['stones', '特质石'],
-      ['scrolls', '熔铸符卷'],
-      ['tickets', '门票'],
+      ['supplies', '符卷·门票'],
     ] as const;
 
     return `
       ${topbarHtml()}
       <div class="screen bag-screen">
         <section class="panel bag-panel">
-          <header class="bag-head">
-            <div>
-              <h1>材料库</h1>
-              <p>所有素材、当前数量和可前往的使用场景。</p>
-            </div>
-            <div class="bag-head-stat"><b>${this.totalCount(materials)}</b><small>已持有素材种类</small></div>
-          </header>
+          <header class="bag-head"><h1>材料库</h1></header>
           <nav class="bag-tabs" aria-label="材料分类">
-            ${tabs.map(([id, label]) => `<a class="bag-tab${tab === id ? ' active' : ''}" href="${tabHref(id)}"><b>${label}</b></a>`).join('')}
+            ${tabs.map(([id, label]) => `<a class="bag-tab${tab === id ? ' active' : ''}" href="${tabHref(id)}" ${tab === id ? 'aria-current="page"' : ''}><span class="bag-tab-icon">${TAB_ICONS[id]}</span><b>${label}</b><small>${tabCounts[id]}</small></a>`).join('')}
           </nav>
-          <div class="bag-content">${this.contentHtml(tab, save)}</div>
+          <div class="bag-body">
+            <div class="bag-content">
+              <div class="bag-section-head"><h2>${tabs.find(([id]) => id === tab)?.[1]}</h2>${pager}<label class="bag-owned-toggle"><input id="bagOwnedOnly" type="checkbox">${pageCount > 1 ? '本页持有' : '只看持有'}</label></div>
+              <div class="bag-shelf"><div class="bag-grid" data-bag-category="${tab}">${items.map((item) => `<button type="button" class="bag-item${item.count === 0 ? ' empty' : ''}${item.id === selected?.id ? ' selected' : ''}" style="--mat:${item.tone}" data-bag-item="${item.id}" aria-label="${item.name}，${item.count > 0 ? `持有 ${item.count}` : '未获得'}" aria-pressed="${item.id === selected?.id}"><span class="bag-rarity-line"></span><span class="bag-item-art">${item.art}</span><span class="bag-item-name">${item.name}</span><span class="bag-item-count">${item.count > 0 ? `×${item.count.toLocaleString('en-US')}` : '未获得'}</span></button>`).join('')}</div><p class="bag-filter-empty" hidden>暂无持有材料</p></div>
+            </div>
+            <aside class="bag-detail" aria-label="材料详情">
+              <button type="button" class="bag-detail-close" aria-label="关闭材料详情">×</button>
+              ${items.map((item) => `<div class="bag-detail-card" data-bag-detail="${item.id}" ${item.id === selected?.id ? '' : 'hidden'}><span class="bag-detail-kicker">${item.group}</span><div class="bag-detail-art" style="--mat:${item.tone}">${item.art}</div><h3>${item.name}</h3><p class="bag-detail-count">${item.id === 'arenaTicket' ? '本周剩余' : '持有'} <strong>${item.count.toLocaleString('en-US')}</strong></p><div class="bag-detail-section"><small>用途</small><p>${item.purpose}</p><em>${item.hint}</em></div><div class="bag-detail-section"><small>来源</small><p>${item.source}</p></div><button type="button" class="bag-detail-action" data-bag-nav="${item.destination}">${item.action} →</button></div>`).join('')}
+            </aside>
+          </div>
+          <div class="bag-detail-backdrop" hidden></div>
         </section>
       </div>
-      ${bottomNavHtml('', '素材来源与去向可直接跳转')}
+      ${bottomNavHtml('', '')}
       ${toastHtml()}`;
   }
 
@@ -95,72 +134,102 @@ export class BagScreen implements Screen {
         if (href) ctx.navigate(href);
       });
     });
-    root.querySelectorAll<HTMLElement>('[data-bag-source]').forEach((el) => {
-      el.addEventListener('click', () => {
-        const label = el.dataset.bagSource ?? '';
-        if (label) {
-          const toast = $('#toast');
-          if (toast) {
-            toast.textContent = `${label}：从对应页面继续操作`;
-            toast.classList.add('show');
-          }
-        }
+    const panel = root.querySelector<HTMLElement>('.bag-panel')!;
+    const backdrop = root.querySelector<HTMLElement>('.bag-detail-backdrop')!;
+    const detail = root.querySelector<HTMLElement>('.bag-detail')!;
+    const selectItem = (button: HTMLButtonElement, openSheet: boolean): void => {
+      root.querySelectorAll<HTMLButtonElement>('[data-bag-item]').forEach((item) => {
+        item.classList.toggle('selected', item === button);
+        item.setAttribute('aria-pressed', String(item === button));
       });
+      root.querySelectorAll<HTMLElement>('[data-bag-detail]').forEach((card) => {
+        card.hidden = card.dataset.bagDetail !== button.dataset.bagItem;
+      });
+      if (openSheet && window.matchMedia('(max-width: 640px)').matches) {
+        panel.classList.add('detail-open');
+        backdrop.hidden = false;
+        root.querySelector<HTMLButtonElement>('.bag-detail-close')?.focus({ preventScroll: true });
+      }
+    };
+    root.querySelectorAll<HTMLButtonElement>('[data-bag-item]').forEach((button) => {
+      button.addEventListener('click', () => selectItem(button, true));
+    });
+    const closeDetail = (): void => {
+      panel.classList.remove('detail-open');
+      backdrop.hidden = true;
+      root.querySelector<HTMLButtonElement>('[data-bag-item].selected')?.focus({ preventScroll: true });
+    };
+    root.querySelector('.bag-detail-close')?.addEventListener('click', closeDetail);
+    backdrop.addEventListener('click', closeDetail);
+    this.closeOnEscape = (event: KeyboardEvent) => {
+      if (event.key === 'Escape' && panel.classList.contains('detail-open')) closeDetail();
+    };
+    root.addEventListener('keydown', this.closeOnEscape);
+    root.querySelector<HTMLInputElement>('#bagOwnedOnly')?.addEventListener('change', (event) => {
+      const onlyOwned = (event.currentTarget as HTMLInputElement).checked;
+      root.querySelectorAll<HTMLButtonElement>('.bag-item.empty').forEach((item) => { item.hidden = onlyOwned; });
+      const visible = root.querySelector<HTMLButtonElement>('.bag-item:not([hidden])');
+      const empty = !visible;
+      root.querySelector<HTMLElement>('.bag-filter-empty')!.hidden = !empty;
+      detail.hidden = empty;
+      if (onlyOwned && visible && root.querySelector('.bag-item.selected[hidden]')) selectItem(visible, false);
     });
   }
 
-  private totalCount(materials: Materials): number {
-    const ingots = Object.values(materials.ingots).filter((n) => n > 0).length;
-    const stones = Object.values(materials.traitstones).filter((n) => n > 0).length;
-    return ingots + stones + (materials.forgeScrolls > 0 ? 1 : 0) + (materials.treasureMaps > 0 ? 1 : 0);
-  }
-
-  private contentHtml(tab: BagTab, save: MetaSave): string {
+  private itemsFor(tab: BagTab, save: MetaSave): BagItem[] {
     const { materials } = save;
-    if (tab === 'ingots') {
-      const rows = INGOT_KEYS.map((key) => {
-        const count = materials.ingots[key] ?? 0;
-        return `<article class="bag-item ${count === 0 ? 'empty' : ''}" style="--mat:${INGOT_TONE[key]}">
-          <span class="bag-swatch">${materialImg(ingotArt(key))}</span><div><b>${INGOT_NAMES[key]}</b><small>淬炼 ${key === 'mythic' ? '神话' : '武器'}</small><em class="bag-conversion">${this.ingotHint(save, key, count)}</em></div><strong>${count.toLocaleString('en-US')}</strong>
-          <button type="button" class="bag-source" data-bag-nav="#weapons/temper">去淬炼</button>
-        </article>`;
-      }).join('');
-      return `<section class="bag-section"><header><div><h2>淬炼钢锭</h2></div><span>按稀有度分档</span></header><div class="bag-list">${rows}</div></section>`;
-    }
-    if (tab === 'scrolls') {
-      const count = materials.forgeScrolls;
-      return `<section class="bag-section bag-scrolls"><header><div><h2>熔铸符卷</h2></div><span>神话武器淬炼专用</span></header>
-        <article class="scroll-card ${count === 0 ? 'empty' : ''}"><div class="scroll-glyph">${materialImg(scrollArt())}</div><div><b>熔铸符卷</b><p>用于高阶武器的淬炼进度，消耗前会显示完整预览。</p><em class="bag-conversion">${this.scrollHint(save, count)}</em></div><strong>${count.toLocaleString('en-US')}</strong><button type="button" class="bag-source" data-bag-nav="#weapons/temper">去淬炼</button></article>
-        <div class="bag-empty-note">来源：活动里程碑、入侵赛季奖励和活动商店。</div></section>`;
-    }
-    if (tab === 'tickets') return this.ticketsHtml(save);
-    return `<section class="bag-section"><header><div><h2>特质石</h2></div></header>${this.stoneSlots(save)}</section>`;
+    if (tab === 'ingots') return INGOT_KEYS.map((key) => {
+      const count = materials.ingots[key] ?? 0;
+      return {
+        id: key, name: INGOT_NAMES[key], count, art: materialImg(ingotArt(key)), tone: INGOT_TONE[key],
+        group: '钢锭', purpose: '同稀有度武器淬炼', hint: this.ingotHint(save, key, count),
+        source: '战斗 · 活动 · 宝箱', destination: '#weapons/temper', action: '查看可淬炼武器',
+      };
+    });
+    if (tab === 'stones') return this.stoneItems(save);
+    return [{
+      id: 'forgeScrolls', name: '熔铸符卷', count: materials.forgeScrolls,
+      art: materialImg(scrollArt()), tone: '#a596e6', group: '符卷',
+      purpose: '末日武器淬炼', hint: this.scrollHint(save, materials.forgeScrolls),
+      source: '活动 · 赛季奖励', destination: '#weapons/temper', action: '查看末日武器',
+    }, {
+      id: 'gloryKeys', name: '荣耀钥匙', count: save.currencies.gloryKeys,
+      art: '<span class="bag-ticket-art" data-icon="key"></span>', tone: '#b78a50', group: '钥匙',
+      purpose: '开启荣耀宝箱，一把开启一次',
+      hint: '开启荣耀箱时优先使用钥匙，不足部分使用荣耀',
+      source: '竞技场胜场奖励', destination: '#chests/keys', action: '前往荣耀宝箱',
+    }, {
+      id: 'treasureMaps', name: '藏宝图', count: materials.treasureMaps,
+      art: treasureMapMarkup(), tone: '#c4a36a', group: '门票',
+      purpose: '寻宝 · 每次消耗 1 张', hint: '',
+      source: '活动 · 冒险', destination: '#hunt', action: '前往寻宝',
+    }];
   }
 
-  private stoneSlots(save: MetaSave): string {
-    const tiers = TRAITSTONE_TIERS.filter((tier) => tier !== 'celestial') as TraitstoneTier[];
-    const groups = tiers.map((tier) => {
-      const cells = STONE_COLORS.map((color) => {
-        const key = stoneKey(tier, color.key)!;
-        const count = save.materials.traitstones[key] ?? 0;
-        return `<button type="button" class="bag-slot${count === 0 ? ' empty' : ''}" style="--stone:${STONE_TONE[color.key]}" title="${stoneName(key)} · ${this.stoneHint(save, key, count)}" data-bag-nav="#troop">${stoneMarkup(tier, color.key)}<b>${count}</b><small>${color.name}</small></button>`;
-      }).join('');
-      return `<p class="bag-slot-tier">${this.tierName(tier)}</p>${cells}`;
-    }).join('');
-    const celestial = save.materials.traitstones.celestial ?? 0;
-    return `<div class="bag-slots">${groups}<p class="bag-slot-tier">圣辉</p><button type="button" class="bag-slot${celestial === 0 ? ' empty' : ''}" title="圣辉石 · ${this.stoneHint(save, 'celestial', celestial)}" data-bag-nav="#troop">${stoneMarkup('celestial')}<b>${celestial}</b><small>圣辉</small></button></div>`;
-  }
-
-  private ticketsHtml(save: MetaSave): string {
-    const maps = save.materials.treasureMaps;
-    return `<section class="bag-section"><header><div><h2>门票</h2></div></header><div class="bag-list">
-      <article class="bag-item" style="--mat:#c4a36a">
-        <span class="bag-swatch">${treasureMapMarkup()}</span>
-        <div><b>藏宝图</b><small>寻宝门票。每局消耗 1 张。</small></div>
-        <strong>${maps.toLocaleString('en-US')}</strong>
-        <button type="button" class="bag-source" data-bag-nav="#hunt">去寻宝</button>
-      </article>
-    </div></section>`;
+  private stoneItems(save: MetaSave): BagItem[] {
+    const tiers = TRAITSTONE_TIERS.filter((tier) => tier !== 'celestial' && tier !== 'arcane');
+    const stones = tiers.flatMap((tier) => STONE_COLORS.map((color) => {
+      const key = stoneKey(tier, color.key)!;
+      const count = save.materials.traitstones[key] ?? 0;
+      return {
+        id: key, name: stoneName(key), count, art: stoneMarkup(tier, color.key), tone: STONE_TONE[color.key],
+        group: `${this.tierName(tier)} · ${color.name}`, purpose: `解锁${color.name}系部队特质`,
+        hint: this.stoneHint(save, key, count), source: '活动 · 商店 · 宝箱',
+        destination: '#troop', action: '查看部队特质',
+      };
+    }));
+    const count = save.materials.traitstones.celestial ?? 0;
+    const arcane = ARCANE_STONE_KEYS.map(key => ({
+      id: key, name: stoneName(key), count: save.materials.traitstones[key] ?? 0,
+      art: stoneMarkup('arcane', key.slice(7)), tone: '#b487df', group: '奥术',
+      purpose: '高阶特质解锁', hint: this.stoneHint(save, key, save.materials.traitstones[key] ?? 0),
+      source: '探索（定向产出已拥有部队所需材料）', destination: '#troop', action: '查看部队特质',
+    }));
+    return [...stones, {
+      id: 'celestial', name: '圣辉石', count, art: stoneMarkup('celestial'), tone: '#a5d8eb',
+      group: '圣辉', purpose: '高阶部队特质解锁', hint: this.stoneHint(save, 'celestial', count),
+      source: '探索 · 活动 · 宝箱', destination: '#troop', action: '查看部队特质',
+    }, ...arcane];
   }
 
   private ingotHint(save: MetaSave, key: IngotKey, held: number): string {
@@ -197,21 +266,23 @@ export class BagScreen implements Screen {
       const slot = rec.traits.findIndex((unlocked) => !unlocked);
       if (slot < 0) return [];
       const color = stoneColorKeyOf(troop.manaColors[0]!);
-      const cost = traitUnlockCost(slot + 1, color).stones[key] ?? 0;
-      return cost > 0 ? [{ cost, total: traitUnlockCost(slot + 1, color) }] : [];
+      const cost = traitUnlockCost(slot + 1, color, troop.id).stones[key] ?? 0;
+      return cost > 0 ? [{ cost, total: traitUnlockCost(slot + 1, color, troop.id) }] : [];
     });
     if (candidates.length === 0) return '暂无对应槽位';
-    const ready = candidates.filter(({ cost, total }) => cost <= held && total.gold <= save.currencies.gold).length;
+    const ready = candidates.filter(({ cost, total }) => cost <= held && total.gold <= save.currencies.gold && Object.entries(total.stones).every(([key, n]) => (save.materials.traitstones[key] ?? 0) >= n)).length;
     if (ready > 0) return `可解 ${ready} 槽`;
     const missing = Math.min(...candidates.map(({ cost }) => Math.max(0, cost - held)).filter((n) => n > 0));
-    return Number.isFinite(missing) ? `还差 ${missing} 颗` : '还差黄金';
+    return Number.isFinite(missing) ? `还差 ${missing} 颗` : '还差其他特质石';
   }
 
   private tierName(tier: TraitstoneTier): string {
-    return tier === 'minor' ? '初级' : tier === 'major' ? '高级' : tier === 'runic' ? '符文' : '圣辉';
+    return tier === 'minor' ? '初级' : tier === 'major' ? '高级' : tier === 'runic' ? '符文' : tier === 'arcane' ? '奥术' : '圣辉';
   }
 
   dispose(): void {
+    if (this.closeOnEscape) document.getElementById('stage')?.removeEventListener('keydown', this.closeOnEscape);
+    this.closeOnEscape = null;
     document.getElementById('stage')?.classList.remove('bag-responsive');
   }
 }

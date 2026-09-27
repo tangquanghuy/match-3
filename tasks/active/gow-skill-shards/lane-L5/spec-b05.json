@@ -1,0 +1,404 @@
+{
+ "troop:7459": {
+  "decision": "accept",
+  "test": "tests/unit/gowLaneL5B05.test.ts",
+  "en": "troop 7459: spell 9176 Hurl Boulder 'Stun an Enemy, and deal [Magic + 2] heavy splash damage to them.', ManaCost 12, Brown/Green asserted verbatim.",
+  "native": "spell 9176 Target Enemy Cost 12; SpellSteps toEqual: CauseStun FromTarget; SplashHeavyDamage FromTarget Amount 2 SPM 1 Primarypower.",
+  "rule": {
+   "path": "artifacts/gow-skill-audit/gold-primary-sources/official-status-effects.html",
+   "note": "Official status guide: Stun disables traits; negatives removed by cumulative cleanse chance (with R004)."
+  },
+  "extra": [
+   {
+    "id": "r004",
+    "role": "coordinator-ruling",
+    "path": "tasks/active/gow-skill-shards/rulings/R004-status-durations.md",
+    "note": "R004 status durations."
+   }
+  ],
+  "dims": {
+   "identity-cost-colors": [
+    "v",
+    "Entity 7459 -> spell 9176, cost 12, Green/Brown in raw and src troops."
+   ],
+   "target-count-range": [
+    "v",
+    "Chosen enemy is the splash centre; living formation neighbours take the heavy splash; front chosen -> one neighbour, no wraparound."
+   ],
+   "base-formula-rounding": [
+    "v",
+    "Centre Magic+2 (magic 0 -> 2, 6 -> 8); neighbours floor(75%) (8 -> 6, 2 -> 1). Heavy = 75% per spell-rules splash table (SplashHeavyDamage)."
+   ],
+   "boost-source-ratio-cap": [
+    "na",
+    "No boost/count source."
+   ],
+   "conditions-probabilities-branches": [
+    "na",
+    "No condition, chance or Randomize."
+   ],
+   "status-duration-immunity": [
+    "v",
+    "Stun only on the chosen enemy; Stun-immune (Thick Head) still takes splash; R004: no cap, removed by one successful self-cleanse roll."
+   ],
+   "gems-types-selection-resolution": [
+    "na",
+    "No gem steps."
+   ],
+   "summon-transform-pools": [
+    "na",
+    "No summon/transform."
+   ],
+   "order-death-retargeting": [
+    "v",
+    "Stun precedes damage (native order); centre Barrier absorbs its hit while neighbours still take splash."
+   ],
+   "mana-economy-extra-turn": [
+    "v",
+    "Cast spends 12 and passes the turn; low mana and Silence block."
+   ],
+   "display-description": [
+    "v",
+    "Chinese '击晕一名敌人，并对其造成 [魔法 + 2] 点重度溅射伤害。' asserted; matches English."
+   ],
+   "battle-pipeline": [
+    "v",
+    "Real TurnEngine.castSkill both sides."
+   ]
+  },
+  "clauses": {
+   "c1": [
+    "v",
+    "Chosen enemy Stunned, then Magic+2 heavy splash (75% to neighbours)."
+   ]
+  },
+  "steps": {
+   "0": [
+    "v",
+    "CauseStun FromTarget -> status stun enemyChosen."
+   ],
+   "1": [
+    "v",
+    "SplashHeavyDamage 2/1 -> damage enemyChosen range splash splashRatio 0.75."
+   ]
+  },
+  "branches": {
+   "main": [
+    "v",
+    "Single unconditional branch."
+   ]
+  }
+ },
+ "troop:7862": {
+  "decision": "accept",
+  "test": "tests/unit/gowLaneL5B05.test.ts",
+  "en": "troop 7862: spell 9937 Mountain Crash 'Stun all Enemies. Then deal [Magic + 5] splash damage to 3 random Enemies.', ManaCost 24, Blue/Brown/Yellow asserted verbatim.",
+  "native": "spell 9937 Target None Cost 24; SpellSteps toEqual: CauseStun AllEnemies (Delay 900 ResetTargets); SplashHighDamage RandomEnemy 5/1; SplashHighDamage RandomPrefNotPrevEnemy 5/1 x2.",
+  "rule": {
+   "path": "artifacts/gow-skill-audit/gold-primary-sources/official-status-effects.html",
+   "note": "Official status guide: Stun semantics; durations per R004."
+  },
+  "extra": [
+   {
+    "id": "r004",
+    "role": "coordinator-ruling",
+    "path": "tasks/active/gow-skill-shards/rulings/R004-status-durations.md",
+    "note": "R004 status durations."
+   },
+   {
+    "id": "r006",
+    "role": "coordinator-ruling",
+    "path": "tasks/active/gow-skill-shards/rulings/R006-hidden-mechanics-conventions.md",
+    "note": "R006-C3: RandomPrefNotPrev* prefers not-yet-hit, repeats only when insufficient."
+   }
+  ],
+  "dims": {
+   "identity-cost-colors": [
+    "v",
+    "Entity 7862 -> spell 9937, cost 24, Blue/Yellow/Brown."
+   ],
+   "target-count-range": [
+    "v",
+    "All living enemies Stunned; three splash waves with 3 distinct centres while 3+ live; 2 alive -> third wave re-hits one; lone enemy takes all three. convention:R006-C3"
+   ],
+   "base-formula-rounding": [
+    "v",
+    "Centre Magic+5, neighbours floor(50%) (SplashHighDamage = normal splash); per-wave totals replayed exactly."
+   ],
+   "boost-source-ratio-cap": [
+    "na",
+    "No boost/count source."
+   ],
+   "conditions-probabilities-branches": [
+    "v",
+    "Centres drawn with the seeded RNG, vary over 30 seeds. convention:R006-C3"
+   ],
+   "status-duration-immunity": [
+    "v",
+    "Stun-immune enemy not Stunned but still a valid centre; R004 Stun persists without cap."
+   ],
+   "gems-types-selection-resolution": [
+    "na",
+    "No gem steps."
+   ],
+   "summon-transform-pools": [
+    "na",
+    "No summon/transform."
+   ],
+   "order-death-retargeting": [
+    "v",
+    "All Stun applies precede the first damage (native order); waves pick living centres."
+   ],
+   "mana-economy-extra-turn": [
+    "v",
+    "Cast spends 24 and passes the turn; low mana and Silence block."
+   ],
+   "display-description": [
+    "v",
+    "Chinese '击晕所有敌人。然后对3个随机敌人造成[魔法 + 5]点溅射伤害。' asserted."
+   ],
+   "battle-pipeline": [
+    "v",
+    "Real TurnEngine.castSkill both sides."
+   ]
+  },
+  "clauses": {
+   "c1": [
+    "v",
+    "Every living enemy Stunned."
+   ],
+   "c2": [
+    "v",
+    "Three Magic+5 splash waves on random centres, prefer not-yet-hit. convention:R006-C3"
+   ]
+  },
+  "steps": {
+   "0": [
+    "v",
+    "CauseStun AllEnemies -> status stun enemyAll; Delay/ResetTargets presentation only."
+   ],
+   "1": [
+    "v",
+    "SplashHighDamage RandomEnemy -> wave 1 of enemyRandomN splash n 3 (randomSplashCount)."
+   ],
+   "2": [
+    "v",
+    "SplashHighDamage RandomPrefNotPrevEnemy -> wave 2, prefers a not-yet-hit centre. convention:R006-C3"
+   ],
+   "3": [
+    "v",
+    "SplashHighDamage RandomPrefNotPrevEnemy -> wave 3, prefers a not-yet-hit centre, repeats when exhausted. convention:R006-C3"
+   ]
+  },
+  "branches": {
+   "main": [
+    "v",
+    "Single unconditional branch."
+   ]
+  }
+ },
+ "troop:7541": {
+  "decision": "accept",
+  "test": "tests/unit/gowLaneL5B05.test.ts",
+  "en": "troop 7541: spell 9298 Sunken Grave 'Submerge myself, and Death Mark 2 random Enemies.', ManaCost 11, Blue/Red asserted verbatim.",
+  "native": "spell 9298 Target None Cost 11; SpellSteps toEqual: CauseSubmerged Self (ResetTargets); CauseDeathMark RandomEnemy (ResetTargets); CauseDeathMark RandomPrefNotPrevEnemy.",
+  "rule": {
+   "path": "artifacts/gow-skill-audit/gold-primary-sources/official-status-effects.html",
+   "note": "Official status guide: Submerged, Death Mark (10% per turn death roll after first turn)."
+  },
+  "extra": [
+   {
+    "id": "r004",
+    "role": "coordinator-ruling",
+    "path": "tasks/active/gow-skill-shards/rulings/R004-status-durations.md",
+    "note": "R004: Submerged ends on holder action; Death Mark roll unchanged, no cap."
+   },
+   {
+    "id": "r006",
+    "role": "coordinator-ruling",
+    "path": "tasks/active/gow-skill-shards/rulings/R006-hidden-mechanics-conventions.md",
+    "note": "R006-C3 prefer not-yet-hit."
+   }
+  ],
+  "dims": {
+   "identity-cost-colors": [
+    "v",
+    "Entity 7541 -> spell 9298, cost 11, Blue/Red."
+   ],
+   "target-count-range": [
+    "v",
+    "Caster only Submerged; exactly 2 different enemies Death Marked (pairs vary); lone enemy marked once (second step re-uses it = refresh). convention:R006-C3"
+   ],
+   "base-formula-rounding": [
+    "na",
+    "No numeric formula."
+   ],
+   "boost-source-ratio-cap": [
+    "na",
+    "No boost/count source."
+   ],
+   "conditions-probabilities-branches": [
+    "v",
+    "Random picks via seeded RNG; enemyRandomN n=2 is equivalent to RandomEnemy + RandomPrefNotPrevEnemy (second never repeats while 2+ live). convention:R006-C3"
+   ],
+   "status-duration-immunity": [
+    "v",
+    "R004: Submerged no timer, ends when the caster next casts (real castSkill); Death Mark grace tick kept, no cap, no death on failed rolls >= 10%."
+   ],
+   "gems-types-selection-resolution": [
+    "na",
+    "No gem steps."
+   ],
+   "summon-transform-pools": [
+    "na",
+    "No summon/transform."
+   ],
+   "order-death-retargeting": [
+    "v",
+    "Submerged applied before the marks (native order); no damage."
+   ],
+   "mana-economy-extra-turn": [
+    "v",
+    "Cast spends 11 and passes the turn; low mana and Silence block."
+   ],
+   "display-description": [
+    "v",
+    "Chinese '下潜自身，并使 2 名随机敌人陷入死亡标记状态。' asserted."
+   ],
+   "battle-pipeline": [
+    "v",
+    "Real TurnEngine.castSkill both sides."
+   ]
+  },
+  "clauses": {
+   "c1": [
+    "v",
+    "Self Submerged, 2 random enemies Death Marked. convention:R006-C3"
+   ]
+  },
+  "steps": {
+   "0": [
+    "v",
+    "CauseSubmerged Self -> submerged allySelf."
+   ],
+   "1": [
+    "v",
+    "CauseDeathMark RandomEnemy -> first of enemyRandomN n 2."
+   ],
+   "2": [
+    "v",
+    "CauseDeathMark RandomPrefNotPrevEnemy -> second, distinct while 2+ live. convention:R006-C3"
+   ]
+  },
+  "branches": {
+   "main": [
+    "v",
+    "Single unconditional branch."
+   ]
+  }
+ },
+ "troop:7484": {
+  "decision": "accept",
+  "test": "tests/unit/gowLaneL5B05.test.ts",
+  "en": "troop 7484: spell 9217 Decaying Roar 'Inflict Terror and Disease on an Enemy. Then deal [Magic + 2] damage to them.', ManaCost 12, Green/Purple asserted verbatim.",
+  "native": "spell 9217 Target Enemy Cost 12; SpellSteps toEqual: CauseTerror FromTarget Amount 1; CauseDisease FromTarget Amount 1; Damage FromTarget Amount 2 SPM 1 Primarypower.",
+  "rule": {
+   "path": "artifacts/gow-skill-audit/gold-primary-sources/official-status-effects.html",
+   "note": "Official status guide: Terror, Disease; cumulative cleanse chance."
+  },
+  "extra": [
+   {
+    "id": "r004",
+    "role": "coordinator-ruling",
+    "path": "tasks/active/gow-skill-shards/rulings/R004-status-durations.md",
+    "note": "R004 status durations; one roll removes all recoverable negatives."
+   },
+   {
+    "id": "r006",
+    "role": "coordinator-ruling",
+    "path": "tasks/active/gow-skill-shards/rulings/R006-hidden-mechanics-conventions.md",
+    "note": "R006-C2: Cause* Amount ignored."
+   }
+  ],
+  "dims": {
+   "identity-cost-colors": [
+    "v",
+    "Entity 7484 -> spell 9217, cost 12, Green/Purple."
+   ],
+   "target-count-range": [
+    "v",
+    "Chosen enemy only; others untouched."
+   ],
+   "base-formula-rounding": [
+    "v",
+    "Magic+2 (armor first): magic 0 -> 2, magic 7 -> 9 vs 3 armor."
+   ],
+   "boost-source-ratio-cap": [
+    "na",
+    "No boost/count source."
+   ],
+   "conditions-probabilities-branches": [
+    "na",
+    "No condition, chance or Randomize."
+   ],
+   "status-duration-immunity": [
+    "v",
+    "Disease-immune target still gets Terror and damage; R004: Terror+Disease no cap and leave together on one successful roll. Cause* Amount 1 ignored convention:R006-C2."
+   ],
+   "gems-types-selection-resolution": [
+    "na",
+    "No gem steps."
+   ],
+   "summon-transform-pools": [
+    "na",
+    "No summon/transform."
+   ],
+   "order-death-retargeting": [
+    "v",
+    "terror -> disease -> damage native order; Barrier absorbs the damage but both statuses land; lethal hit after statuses."
+   ],
+   "mana-economy-extra-turn": [
+    "v",
+    "Cast spends 12 and passes the turn; low mana and Silence block."
+   ],
+   "display-description": [
+    "v",
+    "Chinese '使一名敌人陷入恐怖和疾病状态，再对他造成 [魔法 + 2] 点伤害。' asserted."
+   ],
+   "battle-pipeline": [
+    "v",
+    "Real TurnEngine.castSkill both sides."
+   ]
+  },
+  "clauses": {
+   "c1": [
+    "v",
+    "Chosen enemy gets Terror and Disease (R004)."
+   ],
+   "c2": [
+    "v",
+    "Then Magic+2 damage to the same enemy."
+   ]
+  },
+  "steps": {
+   "0": [
+    "v",
+    "CauseTerror FromTarget -> terror enemyChosen; Amount ignored convention:R006-C2."
+   ],
+   "1": [
+    "v",
+    "CauseDisease FromTarget -> disease enemyChosen."
+   ],
+   "2": [
+    "v",
+    "Damage FromTarget 2/1 -> damage lastTarget."
+   ]
+  },
+  "branches": {
+   "main": [
+    "v",
+    "Single unconditional branch."
+   ]
+  }
+ }
+}

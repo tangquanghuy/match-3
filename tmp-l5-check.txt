@@ -1,0 +1,6 @@
+troop:7459 [accept] ok
+troop:7862 [accept] ok
+troop:7439 [draft] FAIL: dimension:identity-cost-colors, dimension:target-count-range, dimension:base-formula-rounding, dimension:boost-source-ratio-cap, dimension:conditions-probabilities-branches, dimension:status-duration-immunity, dimension:gems-types-selection-resolution, dimension:summon-transform-pools, dimension:order-death-retargeting, dimension:mana-economy-extra-turn, dimension:display-description, dimension:battle-pipeline, real-battle-entry
+troop:7541 [accept] ok
+troop:7484 [accept] ok
+5 records, 1 with problems

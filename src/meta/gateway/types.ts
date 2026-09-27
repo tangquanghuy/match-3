@@ -25,6 +25,7 @@ import type { EventBuyResult } from '../systems/events';
 import type { EventTypeId } from '../data/events';
 import type { TemperSaveResult } from '../systems/forgeOps';
 import type { TeamMember, MetaSave, TreasureHuntState } from '../state/schema';
+import type { CollectionModifierOk } from '../systems/collectionModifier';
 
 /** load 的返回：save 是网关当前权威状态，屏层直接读 */
 export interface GatewaySnapshot {
@@ -60,7 +61,7 @@ export interface TributeCollect {
 /** 弃赛结果 */
 export interface ArenaForfeit {
   wins: number;
-  rewards: { gold: number; gems: number; goldKeys: number };
+  rewards: import('../data/economy').ArenaRewards;
 }
 
 export interface MetaGateway {
@@ -89,6 +90,10 @@ export interface MetaGateway {
   /** 重建全新档（起始队 + 起始货币，无演示进度） */
   resetToNewGame(): Promise<GatewaySnapshot>;
   setBattleDebug(on: boolean): Promise<GatewayUpdate<boolean>>;
+  /** 临时改当前收藏。真实收集留在 collectionTruth，不会被解锁或还原初始覆盖。 */
+  applyCollectionModifier(
+    action: { kind: 'unlock-kingdom'; kingdom: string } | { kind: 'restore-real' } | { kind: 'restore-initial' },
+  ): Promise<GatewayUpdate<CollectionModifierOk | MetaFailure>>;
 
   // —— 养成（M1） ——
   levelUpTroop(troopId: number): Promise<GatewayUpdate<LevelUpResult | MetaFailure>>;
@@ -129,10 +134,13 @@ export interface MetaGateway {
     color: string,
   ): Promise<GatewayUpdate<{ ok: true; color: string; value: number } | MetaFailure>>;
 
+  setWishlist(ids: readonly number[]): Promise<GatewayUpdate<{ ok: true } | MetaFailure>>;
+  setPursuitTarget(id: number | null): Promise<GatewayUpdate<{ ok: true } | MetaFailure>>;
+
   // —— 宝箱（M4/荣耀箱） ——
   /**
    * 开箱。**count 是原子批量**：整批成交或一张不动（CH-1）。
-   * - 'gem'：count 只能 1|10（十连保底 Epic+）；
+   * - 'gem'：count 只能 1|10（十连保底稀有或以上）；
    * - 'gold'：count 1~10（钥匙只够 7 抽时可显式开 7 次）；
    * - 'glory'：count 只能 1|10，整批一次性结算。
    */
@@ -175,7 +183,7 @@ export interface MetaGateway {
 
   // —— 每周活动（素材批 2026-09-19） ——
   /** 指定活动的出战计划（主题出敌 + 结算所需 plan；plan.source.kind === 'event'） */
-  planEventBattle(now: number, weekStart: number, typeId: EventTypeId): Promise<BridgeOutcome | MetaFailure>;
+  planEventBattle(now: number, weekStart: number, typeId: EventTypeId, choice?: string): Promise<BridgeOutcome | MetaFailure>;
 
   /** 主动放弃登塔（按败北同口径收尾发奖；= 未来 D1 端点） */
   abandonTowerRun(weekStart: number): Promise<GatewayUpdate<{ ok: true; floorReached: number; glory: number; scrolls: number } | MetaFailure>>;
@@ -185,9 +193,13 @@ export interface MetaGateway {
     now: number,
     weekStart: number,
     typeId: EventTypeId,
+    expectedPeriodStart?: number,
   ): Promise<GatewayUpdate<EventBuyResult | MetaFailure>>;
 
   // —— 入侵 PvP（素材批 2026-09-19） ——
+  syncInvasionSeason(now: number, weekStart: number): Promise<GatewayUpdate<{ ok: true }>>;
+  refreshInvasionOpponents(now: number, weekStart: number): Promise<GatewayUpdate<{ ok: true } | MetaFailure>>;
+  claimInvasionRank(id: string, now?: number, expectedWeek?: number): Promise<GatewayUpdate<{ ok: true; gems: number } | MetaFailure>>;
   /** 对一只镜像对手的出战斗计划（候选校验 + 过会话校验；跨周 lazy 周结在此触发） */
   planInvasionBattle(
     mirrorId: string,

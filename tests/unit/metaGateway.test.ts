@@ -116,15 +116,15 @@ describe('MockGateway', () => {
     expect(second.result.gold).toBe(0);
   });
 
-  it('竞技场整环：免费报名 → 三轮选卡 → 编队 → 出敌计划 → 败北收官发奖', async () => {
+  it('竞技场整环：黄金报名 → 四轮选卡 → 编队 → 出敌计划 → 两败收官发奖', async () => {
     const gw = new MockGateway(memoryStorage());
     await gw.load();
     const now = 1_700_000_000_000;
     const entered = await gw.enterArena(now, now - 2 * DAY);
-    expect(entered.result).toBe(true); // 本周免费票
+    expect(entered.result).toBe(false); // 正常黄金报名
 
     // 三轮三选一（选项从当前 draft 状态读，种子在网关内部）
-    for (let round = 0; round < 3; round++) {
+    for (let round = 0; round < 4; round++) {
       const state = currentDraftChoices(gwSave(gw));
       expect(state).not.toBeNull();
       const first = state!.options[0]!;
@@ -151,7 +151,9 @@ describe('MockGateway', () => {
     expect(settled.result.ok).toBe(true);
     if (!settled.result.ok) return;
     expect(settled.result.victory).toBe(false);
-    expect(settled.result.runOver).toBe(true); // 败北即收官
+    expect(settled.result.runOver).toBe(false); // 第一次失败仍可继续
+    const second = await gw.settleArenaBattle(fakeResult({ winner: 'enemy', defeatedExternalIds: [] }));
+    expect(second.result).toMatchObject({ ok: true, runOver: true, losses: 2 });
     expect(gwSave(gw).arena.activeDraft).toBeNull();
     expect(todayStartOf(now)).toBeLessThanOrEqual(now);
   });

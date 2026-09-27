@@ -1,0 +1,366 @@
+{
+ "weapon:1368": {
+  "test": "tests/unit/gowLaneL5B01.test.ts",
+  "extra": [
+   {
+    "id": "r004",
+    "role": "coordinator-ruling",
+    "path": "tasks/active/gow-skill-shards/rulings/R004-status-durations.md",
+    "note": "R004: negatives no turn cap, shared cumulative self-cleanse 10%/+10% (+5% Cursed), Poison never; positives end on trigger (Barrier/Reflect damage, Enchanted cast, Enraged skull damage, Submerged/Blessed holder action)."
+   },
+   {
+    "id": "r3",
+    "role": "lane-battle-test",
+    "path": "tests/unit/gowLaneL5R3.test.ts",
+    "note": "Round-3 real castSkill both sides: statuses from this cast unchanged after 6 failed turn-start rolls; one successful roll removes all recoverable negatives together (Poison/positives stay)."
+   },
+   {
+    "id": "srcR004",
+    "role": "community-source",
+    "path": "artifacts/gow-skill-audit/gold-primary-sources/community-2026-09-28-status-durations.json",
+    "note": "Saved community corroboration for R004 (staff reply: new negative resets, all negatives cleanse together)."
+   },
+   {
+    "id": "r002",
+    "role": "coordinator-ruling",
+    "path": "tasks/active/gow-skill-shards/rulings/R002-barrier-enchant-cleanse.md",
+    "note": "R002: Barrier/Enchanted no time limit; Cleanse removes negatives only."
+   }
+  ],
+  "en": "weapon 1368 Lockstone: gowhead English \"Gain a Barrier. Deal [Magic + 3] damage to an Enemy, and Silence them.\", cost 13 Green, numeric 8403 + gw_Lockstone aliases.",
+  "native": "spell 8403 Target Enemy: CauseBarrier Self Amount 1; Damage FromTarget Amount 3 SPM 1; CauseSilence FromTarget.",
+  "dims": {
+   "identity-cost-colors": [
+    "v",
+    "Weapon 1368 -> spell 8403, cost 13, Green; both aliases resolve to the same prototype."
+   ],
+   "target-count-range": [
+    "v",
+    "Self Barrier (caster only, allies untouched); chosen enemy 12 takes damage and Silence; other enemies untouched."
+   ],
+   "base-formula-rounding": [
+    "v",
+    "Magic+3: magic 0 -> 3, magic 9 -> 12 (armor first)."
+   ],
+   "boost-source-ratio-cap": [
+    "na",
+    "No boost/count source."
+   ],
+   "conditions-probabilities-branches": [
+    "na",
+    "No condition, chance or Randomize."
+   ],
+   "status-duration-immunity": [
+    "v",
+    "Barrier no time limit (R002); Silence R004: no turn cap; persists through 6 failed turn-start rolls, removed by one successful shared self-cleanse roll (gowLaneL5R3). Invulnerable immune; re-apply refreshes (single instance, resets chance)."
+   ],
+   "gems-types-selection-resolution": [
+    "na",
+    "No gem steps."
+   ],
+   "summon-transform-pools": [
+    "na",
+    "No summon/transform."
+   ],
+   "order-death-retargeting": [
+    "v",
+    "Events barrier -> dmg -> silence = native order; enemy Barrier absorbs damage but Silence lands; lethal hit leaves no Silence."
+   ],
+   "mana-economy-extra-turn": [
+    "v",
+    "Cast spends full mana and passes the turn; low mana and Silence block the real cast (no mana/action spent)."
+   ],
+   "display-description": [
+    "v",
+    "Chinese description asserted verbatim; wording matches the English effect."
+   ],
+   "battle-pipeline": [
+    "v",
+    "Real TurnEngine.castSkill both sides (lane file + round-3 R004 file)."
+   ]
+  },
+  "clauses": {
+   "c1": [
+    "v",
+    "Caster gains Barrier (no time limit, R002)."
+   ],
+   "c2": [
+    "v",
+    "Chosen enemy takes Magic+3 then is Silenced; Silence per R004."
+   ]
+  },
+  "steps": {
+   "0": [
+    "v",
+    "CauseBarrier Self -> status barrier allySelf; Amount ignored (R006-C2)."
+   ],
+   "1": [
+    "v",
+    "Damage FromTarget 3/1 -> enemyChosen base 3 mult 1."
+   ],
+   "2": [
+    "v",
+    "CauseSilence FromTarget -> lastTarget silence; duration R004."
+   ]
+  },
+  "branches": {
+   "main": [
+    "v",
+    "Single unconditional branch."
+   ]
+  },
+  "decision": "accept",
+  "rule": {
+   "path": "artifacts/gow-skill-audit/gold-primary-sources/official-status-effects.html",
+   "note": "Official status guide: status semantics (Barrier, Silence, Stun, Disease, Death Mark, Enrage, Submerged, cumulative cleanse chance via Cursed/Lycanthropy entries)."
+  }
+ },
+ "troop:6406": {
+  "test": "tests/unit/gowLaneL5B01.test.ts",
+  "extra": [
+   {
+    "id": "r004",
+    "role": "coordinator-ruling",
+    "path": "tasks/active/gow-skill-shards/rulings/R004-status-durations.md",
+    "note": "R004: negatives no turn cap, shared cumulative self-cleanse 10%/+10% (+5% Cursed), Poison never; positives end on trigger (Barrier/Reflect damage, Enchanted cast, Enraged skull damage, Submerged/Blessed holder action)."
+   },
+   {
+    "id": "r3",
+    "role": "lane-battle-test",
+    "path": "tests/unit/gowLaneL5R3.test.ts",
+    "note": "Round-3 real castSkill both sides: statuses from this cast unchanged after 6 failed turn-start rolls; one successful roll removes all recoverable negatives together (Poison/positives stay)."
+   },
+   {
+    "id": "srcR004",
+    "role": "community-source",
+    "path": "artifacts/gow-skill-audit/gold-primary-sources/community-2026-09-28-status-durations.json",
+    "note": "Saved community corroboration for R004 (staff reply: new negative resets, all negatives cleanse together)."
+   },
+   {
+    "id": "r001",
+    "role": "coordinator-ruling",
+    "path": "tasks/active/gow-skill-shards/rulings/R001-native-step-order.md",
+    "note": "R001: native SpellSteps order governs observable order."
+   },
+   {
+    "id": "r002",
+    "role": "coordinator-ruling",
+    "path": "tasks/active/gow-skill-shards/rulings/R002-barrier-enchant-cleanse.md",
+    "note": "R002: Barrier/Enchanted no time limit; Cleanse removes negatives only."
+   }
+  ],
+  "en": "troop 6406 Waverider: spell 7561 \"Give an ally [Magic + 3] Armor and Barrier, then Submerge them.\", cost 10 Blue/Yellow.",
+  "native": "spell 7561 Target Ally: CauseBarrier FromTarget; IncreaseArmor FromTarget Amount 3 SPM 1; CauseSubmerged FromTarget.",
+  "dims": {
+   "identity-cost-colors": [
+    "v",
+    "Troop 6406 -> spell 7561, cost 10, Blue/Yellow."
+   ],
+   "target-count-range": [
+    "v",
+    "Only the chosen ally (caster may choose itself); dead ally not a legal target (cast refused)."
+   ],
+   "base-formula-rounding": [
+    "v",
+    "Armor +Magic+3: magic 0 -> 3, magic 11 -> 14."
+   ],
+   "boost-source-ratio-cap": [
+    "na",
+    "No boost/count source."
+   ],
+   "conditions-probabilities-branches": [
+    "na",
+    "No condition, chance or Randomize."
+   ],
+   "status-duration-immunity": [
+    "v",
+    "Barrier no time limit (R002); Submerged no timer and no natural cleanse, ends when the holder casts (real castSkill in gowLaneL5R3) (R004); Blessed ally blocks Barrier/Submerge but keeps Armor."
+   ],
+   "gems-types-selection-resolution": [
+    "na",
+    "No gem steps."
+   ],
+   "summon-transform-pools": [
+    "na",
+    "No summon/transform."
+   ],
+   "order-death-retargeting": [
+    "v",
+    "Prototype Armor->Barrier->Submerge vs native Barrier->Armor->Submerge: unobservable (Armor gain unaffected by Barrier; Blessed case shows the same result), per R001 equivalence case in B01."
+   ],
+   "mana-economy-extra-turn": [
+    "v",
+    "Cast spends full mana and passes the turn; low mana and Silence block the real cast (no mana/action spent)."
+   ],
+   "display-description": [
+    "v",
+    "Chinese description asserted verbatim; wording matches the English effect."
+   ],
+   "battle-pipeline": [
+    "v",
+    "Real TurnEngine.castSkill both sides (lane file + round-3 R004 file)."
+   ]
+  },
+  "clauses": {
+   "c1": [
+    "v",
+    "Chosen ally gains Magic+3 Armor, Barrier, then Submerged (R004: ends on holder action)."
+   ]
+  },
+  "steps": {
+   "0": [
+    "v",
+    "CauseBarrier FromTarget -> barrier allyChosen."
+   ],
+   "1": [
+    "v",
+    "IncreaseArmor 3/1 -> buff armor allyChosen."
+   ],
+   "2": [
+    "v",
+    "CauseSubmerged -> submerged allyChosen; R004 duration."
+   ]
+  },
+  "branches": {
+   "main": [
+    "v",
+    "Single unconditional branch."
+   ]
+  },
+  "decision": "accept",
+  "rule": {
+   "path": "artifacts/gow-skill-audit/gold-primary-sources/official-status-effects.html",
+   "note": "Official status guide: status semantics (Barrier, Silence, Stun, Disease, Death Mark, Enrage, Submerged, cumulative cleanse chance via Cursed/Lycanthropy entries)."
+  }
+ },
+ "weapon:1369": {
+  "test": "tests/unit/gowLaneL5B01.test.ts",
+  "extra": [
+   {
+    "id": "r004",
+    "role": "coordinator-ruling",
+    "path": "tasks/active/gow-skill-shards/rulings/R004-status-durations.md",
+    "note": "R004: negatives no turn cap, shared cumulative self-cleanse 10%/+10% (+5% Cursed), Poison never; positives end on trigger (Barrier/Reflect damage, Enchanted cast, Enraged skull damage, Submerged/Blessed holder action)."
+   },
+   {
+    "id": "r3",
+    "role": "lane-battle-test",
+    "path": "tests/unit/gowLaneL5R3.test.ts",
+    "note": "Round-3 real castSkill both sides: statuses from this cast unchanged after 6 failed turn-start rolls; one successful roll removes all recoverable negatives together (Poison/positives stay)."
+   },
+   {
+    "id": "srcR004",
+    "role": "community-source",
+    "path": "artifacts/gow-skill-audit/gold-primary-sources/community-2026-09-28-status-durations.json",
+    "note": "Saved community corroboration for R004 (staff reply: new negative resets, all negatives cleanse together)."
+   },
+   {
+    "id": "r002",
+    "role": "coordinator-ruling",
+    "path": "tasks/active/gow-skill-shards/rulings/R002-barrier-enchant-cleanse.md",
+    "note": "R002: Barrier/Enchanted no time limit; Cleanse removes negatives only."
+   },
+   {
+    "id": "r006",
+    "role": "coordinator-ruling",
+    "path": "tasks/active/gow-skill-shards/rulings/R006-hidden-mechanics-conventions.md",
+    "note": "R006 conventions C1 (half-up rounding) / C2 (Cause* Amount ignored)."
+   }
+  ],
+  "en": "weapon 1369 Keystone: gowhead English \"Gain a Barrier. Give [(Magic x 1.5) + 1] Life to an Ally. Then Cleanse and Enchant them.\", cost 13 Red, 8404 + gw_Keystone aliases.",
+  "native": "spell 8404 Target Ally: CauseBarrier Self Amount 1; IncreaseHealth FromTarget Amount 1 SPM 1.5; Cleanse FromTarget; CauseEnchanted FromTarget.",
+  "dims": {
+   "identity-cost-colors": [
+    "v",
+    "Weapon 1369 -> spell 8404, cost 13, Red; both aliases."
+   ],
+   "target-count-range": [
+    "v",
+    "Self Barrier; chosen ally (self allowed) gains Life, Cleanse, Enchant; dead ally refused."
+   ],
+   "base-formula-rounding": [
+    "v",
+    "Life 1.5*Magic+1 rounded half-up: magic 7 -> 12, magic 9 -> 15, magic 0 -> 1. convention:R006-C1"
+   ],
+   "boost-source-ratio-cap": [
+    "na",
+    "No boost/count source."
+   ],
+   "conditions-probabilities-branches": [
+    "na",
+    "No condition, chance or Randomize."
+   ],
+   "status-duration-immunity": [
+    "v",
+    "Cleanse removes negatives only, keeps Barrier (R002); Enchanted until cast (R002/R004)."
+   ],
+   "gems-types-selection-resolution": [
+    "na",
+    "No gem steps."
+   ],
+   "summon-transform-pools": [
+    "na",
+    "No summon/transform."
+   ],
+   "order-death-retargeting": [
+    "v",
+    "Native order Barrier -> Life -> Cleanse -> Enchant; self-target keeps the Barrier gained in step 0."
+   ],
+   "mana-economy-extra-turn": [
+    "v",
+    "Cast spends full mana and passes the turn; low mana and Silence block the real cast (no mana/action spent)."
+   ],
+   "display-description": [
+    "v",
+    "Chinese description asserted verbatim; wording matches the English effect."
+   ],
+   "battle-pipeline": [
+    "v",
+    "Real TurnEngine.castSkill both sides (lane file + round-3 R004 file)."
+   ]
+  },
+  "clauses": {
+   "c1": [
+    "v",
+    "Caster Barrier."
+   ],
+   "c2": [
+    "v",
+    "Ally gains round(1.5M)+1 Life. convention:R006-C1"
+   ],
+   "c3": [
+    "v",
+    "Cleanse (negatives only) then Enchanted."
+   ]
+  },
+  "steps": {
+   "0": [
+    "v",
+    "CauseBarrier Self."
+   ],
+   "1": [
+    "v",
+    "IncreaseHealth SPM 1.5 base 1 -> buff hp lifeMode gain; half-up rounding convention:R006-C1."
+   ],
+   "2": [
+    "v",
+    "Cleanse FromTarget -> cleanse lastTarget (R002)."
+   ],
+   "3": [
+    "v",
+    "CauseEnchanted -> enchanted lastTarget."
+   ]
+  },
+  "branches": {
+   "main": [
+    "v",
+    "Single unconditional branch."
+   ]
+  },
+  "decision": "accept",
+  "rule": {
+   "path": "artifacts/gow-skill-audit/gold-primary-sources/official-status-effects.html",
+   "note": "Official status guide: status semantics (Barrier, Silence, Stun, Disease, Death Mark, Enrage, Submerged, cumulative cleanse chance via Cursed/Lycanthropy entries)."
+  }
+ }
+}

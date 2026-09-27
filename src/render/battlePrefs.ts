@@ -2,10 +2,11 @@
  * 战斗层本地偏好（UX 阶段 B · 窗口 P）。
  *
  * 两个开关：
- * - `skipCastConfirm`：全局跳过施法确认层（B-4）。**默认关**（= 确认层默认开）——
- *   法力是跨回合积累的资源，误触代价高（`15-battle.md` 重设计提案三条规则之一）。
- *   该偏好保存在当前浏览器，适用于之后所有战斗，并可随时从设置页恢复确认。
- * - `gestureHintShown`：短按/长按手势引导是否已展示过（B-5，一次性）。
+ * - `skipCastConfirm`（键名沿用 `battle.skipCastConfirm`）：「快速释放」。**默认关**——
+ *   关：点战斗卡打开部队详情窗，在窗里按「释放技能」；
+ *   开：点此刻可施放的我方角色直接进施法流程，长按才打开详情窗。
+ *   详情窗内的复选框与设置页共用这一项，保存在当前浏览器，适用于之后所有战斗。
+ * - `gestureHintShown`：一次性手势引导是否已展示过（B-5）。
  *
  * localStorage 在隐私模式/无头环境可能抛错或缺失，全部读写都做兜底，
  * 失败时退回内存值——战斗层不能因为存储不可用而崩。
@@ -35,12 +36,12 @@ function write(key: string, value: string): void {
   }
 }
 
-/** 是否在之后所有战斗中跳过施法确认层（默认 false = 确认层开着） */
+/** 「快速释放」是否开启（默认 false：点卡先打开详情窗） */
 export function skipCastConfirm(): boolean {
   return read(KEY_SKIP_CONFIRM) === '1';
 }
 
-/** 设置全局「跳过施法确认」偏好——供确认层与设置页共用 */
+/** 设置全局「快速释放」偏好——供详情窗复选框与设置页共用 */
 export function setSkipCastConfirm(skip: boolean): void {
   write(KEY_SKIP_CONFIRM, skip ? '1' : '0');
 }

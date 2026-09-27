@@ -581,11 +581,11 @@ export class WeaponsScreen implements Screen {
         ? `<span class="weapon-note">淬炼 ${level}/${MAX_TEMPERING_LEVEL}</span>`
         : '';
     const mana = card.kind === 'weapon'
-      ? `<span class="weapon-mana" title="法力 ${w.manaCost}">${gemSvg(w.manaColors.map((c) => String(c).toLowerCase()))}<i>${w.manaCost}</i></span>`
+      ? `<span class="weapon-mana" title="法力值 ${w.manaCost}">${gemSvg(w.manaColors.map((c) => String(c).toLowerCase()))}<i>${w.manaCost}</i></span>`
       : '';
     const statusHtml = `<span class="weapon-status ${statusClass}">${escapeHtml(status)}</span>`;
     const workbench = this.tab === 'forge' || this.tab === 'temper';
-    return `<button class="weapon-card${this.selectedId === w.id ? ' is-selected' : ''}${!owned && card.kind === 'weapon' ? ' is-locked' : ''}" style="${rarityStyle(w.rarity)}" type="button" role="option" aria-selected="${this.selectedId === w.id}" aria-label="${escapeHtml(w.name)}，${escapeHtml(meta.label)}，法力 ${w.manaCost}" data-rarity="${escapeHtml(w.rarity)}" data-${card.kind === 'forge' ? 'recipe' : 'weapon'}-id="${escapeHtml(w.id)}">
+    return `<button class="weapon-card${this.selectedId === w.id ? ' is-selected' : ''}${!owned && card.kind === 'weapon' ? ' is-locked' : ''}" style="${rarityStyle(w.rarity)}" type="button" role="option" aria-selected="${this.selectedId === w.id}" aria-label="${escapeHtml(w.name)}，${escapeHtml(meta.label)}，法力值 ${w.manaCost}" data-rarity="${escapeHtml(w.rarity)}" data-${card.kind === 'forge' ? 'recipe' : 'weapon'}-id="${escapeHtml(w.id)}">
       <span class="weapon-art">${weaponImage(w, '', workbench)}${mana}${workbench ? '' : statusHtml}</span>
       <span class="weapon-card-copy"><b class="weapon-name" title="${escapeHtml(w.name)}">${escapeHtml(w.name)}</b>${workbenchNote}${workbench ? statusHtml : ''}</span>
     </button>`;
@@ -665,7 +665,7 @@ export class WeaponsScreen implements Screen {
         </div>
       </div>
       <div class="detail-identity">
-        <div class="detail-title-row"><div><h2 class="detail-title">${escapeHtml(w.name)}</h2><div class="detail-tags">${tags}</div></div><div class="detail-mana">${gemSvg(w.manaColors.map((c) => String(c).toLowerCase()))}<span><small>法力消耗</small><b>${w.manaCost}</b></span></div></div>
+        <div class="detail-title-row"><div><h2 class="detail-title">${escapeHtml(w.name)}</h2><div class="detail-tags">${tags}</div></div><div class="detail-mana">${gemSvg(w.manaColors.map((c) => String(c).toLowerCase()))}<span><small>法力值消耗</small><b>${w.manaCost}</b></span></div></div>
         <section class="detail-acquire">
           <div class="detail-section-heading"><span data-icon="${acquireIcon(acquireFilterKind(acquire))}"></span><div><small>获取途径</small><h3>${escapeHtml(acquire.label)}</h3></div></div>
           ${owned ? '<p class="detail-acquire-hint is-owned">已拥有</p>' : ''}

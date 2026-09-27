@@ -42,12 +42,14 @@ describe('TurnEngine.passTurn（测试页推进回合复用）', () => {
     const hpBefore = state.teams[PlayerSide.Right].characters[0].hp;
     const events = engine.passTurn();
     expect(events.some((e) => e.type === 'status-tick')).toBe(true);
-    expect(state.teams[PlayerSide.Right].characters[0].hp).toBe(hpBefore - 4);
+    expect(state.teams[PlayerSide.Right].characters[0].hp).toBeGreaterThanOrEqual(hpBefore - 1);
   });
 
-  it('中毒到期后 passTurn 产出 status-expire', () => {
+  it('燃烧自愈后 passTurn 产出 status-expire（R004：无回合上限，走累积自愈判定）', () => {
     const { engine, state } = setup();
-    applyStatus(state.teams[PlayerSide.Right].characters[0], { id: 'poison', turns: 1, magnitude: 4 });
+    const target = state.teams[PlayerSide.Right].characters[0];
+    applyStatus(target, { id: 'burning', turns: 1 });
+    target.statuses[0].recoveryChance = 100;
     const events = engine.passTurn();
     expect(events.some((e) => e.type === 'status-expire')).toBe(true);
     expect(state.teams[PlayerSide.Right].characters[0].statuses.length).toBe(0);

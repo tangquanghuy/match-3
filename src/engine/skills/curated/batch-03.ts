@@ -7,7 +7,7 @@
  *   （宝石不含骷髅；batch-04 9020「摧毁 8 颗宝石」同款）。
  * - 「爆破一列」→ explodeChosenCol（batch-01 7016「摧毁 1 行」→ chosen 同款，无随机字样）。
  * - 「窃取 X 点生命值」= 伤害段 + drain（batch-01 7302 / batch-04 9016 同款）；
- *   「窃取 X 点攻击力/魔法值」= steal 同属性自身获得（batch-01 7141 同款）。
+ *   「窃取 X 点攻击力/魔力值」= steal 同属性自身获得（batch-01 7141 同款）。
  * - 一个方括号喂双段：「获得护甲值和生命值」= armor + heal 共用同一缩放值
  *   （batch-04 9667「生命值和护甲」同款）。
  * - 「有 10% 的几率处死敌人」= execute 段挂 chance:0.1（概率只辖所在子句，spell-rules.md §2）。
@@ -107,9 +107,9 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 7748,
-    desc: '窃取最虚弱的两名敌人 [魔法 + 3] 点生命值，并窃取最强大的两名敌人 8 点魔法值。',
+    desc: '窃取最虚弱的两名敌人 [魔法 + 3] 点生命值，并窃取最强大的两名敌人 8 点魔力值。',
     build: skill(
-      // 「窃取生命」= 伤害 + drain；「窃取魔法值」= steal 同属性（文件头备注）
+      // 「窃取生命」= 伤害 + drain；「窃取魔力值」= steal 同属性（文件头备注）
       dmg('enemyWeakestN', 3, 1, { n: 2, drain: true }),
       steal('enemyHealthiestN', 'mana', 'mana', 8, 0, { n: 2 }),
     ),
@@ -190,7 +190,7 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 8288,
     desc: '对 6 名随机敌人造成 [(魔法 / 2) + 4] 点伤害。',
     build: skill(
-      dmg('enemyRandomN', 4, 0.5, { n: 6 }),
+      dmg('enemyRandomN', 4, 0.5, { n: 6, randomWaves: 6 }),
     ),
   },
   {

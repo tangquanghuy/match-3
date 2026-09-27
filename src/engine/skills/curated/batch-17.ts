@@ -17,6 +17,12 @@ import { skill, dmg, trueDmg, heal, armor, createGems, createMix, summonRef, inf
 import { BaseColor } from '../../types';
 import type { CuratedBatch } from './index';
 
+/** 9522「均由红宝石和绿宝石增强 [3:1]」（原生 CountGems Red/Green 34） */
+const M9522 = {
+  mod: { kind: 'ratio' as const, a: 3, b: 1 },
+  sources: [{ kind: 'boardGems' as const, color: BaseColor.Red }, { kind: 'boardGems' as const, color: BaseColor.Green }],
+};
+
 const SKIPPED: { id: number; reason: string }[] = [
   { id: 9244, reason: '特殊宝石（「黄龙宝石」无法创造/引用）' },
   { id: 9245, reason: '二次缩放来源不支持（「狮心帝国盟友数」按王国计数，非种族）' },
@@ -151,16 +157,12 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 9522,
     desc: '对所有敌人造成 [魔法 + 1] 点伤害，并为盟友带来 [魔法 + 1] 点生命值，伤害值均由红宝石和绿宝石增强。 [3:1]',
     build: skill(
-      // 「对所有敌人」伤害段带 range:'all'；modifier 点名伤害段，多来源计数相加（SOP §3）
-      dmg('enemyAll', 1, 1, {
-        range: 'all',
-        modifier: {
-          mod: { kind: 'ratio', a: 3, b: 1 },
-          sources: [{ kind: 'boardGems', color: BaseColor.Red }, { kind: 'boardGems', color: BaseColor.Green }],
-        },
-      }),
+      // 「对所有敌人」伤害段带 range:'all'；多来源计数相加（SOP §3）
+      // L7-7615（sa-L76）：EN「both boosted」+ 原生 Damage 与 IncreaseHealth 都 UseCounterForAmount →
+      // 两段同挂 modifier（原先只挂伤害段）；两段都不改棋盘，现读宝石数与原生先计数等价。
+      dmg('enemyAll', 1, 1, { range: 'all', modifier: M9522 }),
       // 裸「盟友」按全体盟友（spell-rules.md §6「给予盟友」）
-      heal('allyAll', 1),
+      heal('allyAll', 1, 1, { modifier: M9522 }),
     ),
   },
   {
@@ -175,7 +177,7 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 9572,
-    desc: '吸取敌人的所有法力。为最弱的盟友赋予 [魔法 + 1] 点生命值，生命值因吸取的法力值而增强。 [1:1]',
+    desc: '吸取敌人的所有法力值。为最弱的盟友赋予 [魔法 + 1] 点生命值，生命值因吸取的法力值而增强。 [1:1]',
     build: skill(
       // 裸「敌人」= 一名敌人（官方语义：施法方指定目标，同 9592 口径）
       drainMana('enemyChosen'),
@@ -221,11 +223,11 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 9616,
-    desc: '对敌人造成 [魔法 + 3] 点伤害并窃取 2 点魔法值，并有 5% 的几率杀死他们，每个末日骷髅增加 5%。 [x5]',
+    desc: '对敌人造成 [魔法 + 3] 点伤害并窃取 2 点魔力值，并有 5% 的几率杀死他们，每个末日骷髅增加 5%。 [x5]',
     build: skill(
       // 裸「敌人」= enemyChosen（batch-17 头注 9572/9592 口径）
       dmg('enemyChosen', 3),
-      // 「魔法值」= magic 属性（SOP 措辞裁定）
+      // 「魔力值」= magic 属性（SOP 措辞裁定）
       steal('enemyChosen', 'magic', 'magic', 2, 0),
       // 回收（第六遍）：「杀死他们」= 即杀 execute；几率增强 = chanceBoost + boardSpecial
       // （文本明说『每个末日骷髅』→ boardSpecial 精确计数；『因骷髅头数』才用 boardSkulls）

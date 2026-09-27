@@ -11,14 +11,14 @@
  * - 「每摧毁一颗X宝石则耗掉 N 点法力值」：常数 N 为基础、[xN] 每来源叠加
  *   （batch-21 8167「每摧毁一颗黄色宝石则爆破 2 颗」同款）。
  * - 「陷入法力燃烧状态」（8897）= 清蓝语义 drainMana（spell-rules.md §3「法力燃烧」行）。
- * - 「魔法值」= magic 属性、「法力值」= mana 资源（SOP 措辞裁定）。
+ * - 「魔力值」= magic 属性、「法力值」= mana 资源（SOP 措辞裁定）。
  * - 「宝石」不含骷髅（GoW 术语），随机宝石段 include:'color'。
  * - GOBLINS / ORCS 常量 = SOP §6 查询命令对 troops.json 按 troopTypes 过滤的程序核实结果
  *   （含三体合一种 'Murk,Lurk,AndDurk'，referenceName 真实存在）。
  * - 「若在X王国/地点使用则翻倍」= 王国条件倍率 → SKIP（batch-23 9376 同款）。
  */
-import { skill, dmg, dmgAll, trueDmg, heal, armor, attack, magic, mana,
-  reduce, drainMana, createGems, createMix, destroyColor, destroyChosenRow,
+import { chooseSkill, skill, dmg, dmgAll, trueDmg, heal, armor, attack, magic, mana,
+  reduce, createGems, createMix, destroyColor, destroyChosenRow,
   destroyChosenCol, explodeRandomGems, explodeSkulls, inflict, summonRandom, extraTurn, CHOSEN } from '../builders';
 import { BaseColor } from '../../types';
 import type { CuratedBatch } from './index';
@@ -48,7 +48,7 @@ const ORCS = [
 
 const SKIPPED: { id: number; reason: string }[] = [
   { id: 7523, reason: '缺失状态（狂怒：「每摧毁一颗紫色宝石，则赋予一名随机盟友狂怒状态」，batch-01 7740 同款）' },
-  { id: 7652, reason: '语义拿不准（「施放法力灼烧，伤害值因自身魔法值而增强」batch-19 7328 同款）；「把这两名敌人推到后方」隐匿/位置操作亦不做' },
+  { id: 7652, reason: '语义拿不准（「施放法力灼烧，伤害值因自身魔力值而增强」batch-19 7328 同款）；「把这两名敌人推到后方」隐匿/位置操作亦不做' },
   { id: 8060, reason: '二次缩放来源不支持（「创造与此色宝石数等量的红色宝石」需按选定色计棋盘宝石，boardGems 来源 color 仅支持 BaseColor、不支持 CHOSEN）' },
   { id: 8204, reason: '二次缩放来源不支持（「因绿色的敌人和盟友数而增强」敌方侧无按色计数 kind，batch-24 9563 同款）' },
   { id: 8460, reason: '语义拿不准（「再获得一个额外回合或召唤另一名科博」二选一分支无法表达，batch-05 7277 同款）' },
@@ -67,11 +67,11 @@ const SKIPPED: { id: number; reason: string }[] = [
   { id: 9371, reason: '语义拿不准（「使其下方敌受到其所受伤害的一半」位置目标/伤害回显无原语，batch-04 9258 同款）；「若在星星湾使用」王国条件（batch-23 9376 同款）、「蓝龙宝石」来源（特殊宝石）亦不支持' },
   { id: 9374, reason: '伤害区间（「3- [(魔法 x 1.33) + 2] 点真实随机伤害」）；「若在破碎之地使用」王国条件亦不支持（batch-23 9376 同款）' },
   { id: 9487, reason: '语义拿不准（「如果在古代 Khet 使用，则造成双倍伤害」王国条件倍率，batch-23 9376 同款）' },
-  { id: 9539, reason: '晋升度条件（「如果敌人是 Boss，则根据我的升级造成 3 倍 - 5 倍伤害」，batch-20 7790 同款）' },
+  { id: 9539, reason: '晋升度条件（「如果敌人是 Boss，则基于我已晋升的稀有度造成 3 到 5 倍伤害」，batch-20 7790 同款）' },
   { id: 9565, reason: '语义拿不准（「如果在 Winter\'s Reach 中使用，效果加倍」王国条件倍率，batch-23 9376 同款）' },
   { id: 9599, reason: '特殊宝石（冰冻宝石/精灵火宝石，batch-24 9587 冰冻宝石同款）' },
   { id: 9716, reason: '语义拿不准（「如果敌人死亡，则获得伤害值增加三倍」：死亡后增益条件不在 condMult 条件域（无 targetDied 条件，ifTargetDied 仅辖后段动作），译文句式本身亦不明）' },
-  { id: 9948, reason: '晋升度条件（「如果敌人是防御塔，则根据我的升华等级造成3倍至5倍伤害」，batch-24 9746 同款）' },
+  { id: 9948, reason: '晋升度条件（「如果敌人是防御塔，则基于我已晋升的稀有度造成 3 到 5 倍伤害」，batch-24 9746 同款）' },
 ];
 
 const SPELLS: CuratedBatch['spells'] = [
@@ -148,45 +148,23 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 8856,
-    desc: '&& 对 3 名随机敌人造成 [(魔法 / 2) + 2] 点伤害 && 消除 3 名随机敌人 3 点魔法值',
-    build: skill(
-      dmg('enemyRandomN', 2, 0.5, { n: 3 }),
-      // 「魔法值」= magic 属性（SOP 措辞裁定，batch-05 7055 / batch-16 8792「消除…魔法值」同款）
-      reduce('enemyRandomN', 'magic', 3, 0, { n: 3 }),
-    ),
+    desc: '&& 对 3 名随机敌人造成 [(魔法 / 2) + 2] 点伤害 && 消除 3 名随机敌人 3 点魔力值',
+    build: skill(chooseSkill(['三名随机敌人受到伤害', '削减三名随机敌人各三点魔法'], [dmg('enemyRandomN', 2, 0.5, { n: 3 })], [reduce('enemyRandomN', 'magic', 3, 0, { n: 3 })])),
   },
   {
     id: 8858,
     desc: '&& 摧毁所有紫色宝石，并对前 2 名敌人造成 [魔法 + 4] 点伤害 && 创建 12 颗紫色宝石并对末 2 位敌人造成 [魔法 + 4] 点伤害',
-    build: skill(
-      destroyColor(BaseColor.Purple),
-      dmg('enemyFirstN', 4, 1, { n: 2 }),
-      createGems(BaseColor.Purple, 12, 0),
-      dmg('enemyLastN', 4, 1, { n: 2 }),
-    ),
+    build: skill(chooseSkill(['摧毁全部紫色宝石，对前两名敌人造成［魔法＋4］伤害', '创造12颗紫色宝石，对末两名敌人造成［魔法＋4］伤害'], [destroyColor(BaseColor.Purple), dmg('enemyFirstN', 4, 1, { n: 2, range: 'all' })], [createGems(BaseColor.Purple, 12, 0), dmg('enemyLastN', 4, 1, { n: 2, range: 'all' })])),
   },
   {
     id: 8897,
     desc: '&& 爆破 [魔法 + 1] 颗紫色宝石。&&  使首 2 位敌人陷入法力燃烧状态。',
-    build: skill(
-      explodeRandomGems(1, 1, 'color', BaseColor.Purple),
-      // 「陷入法力燃烧状态」= 清蓝语义 drainMana（spell-rules.md §3「法力燃烧」行）
-      drainMana('enemyFirstN', { n: 2 }),
-    ),
+    build: skill(chooseSkill(['爆破紫色宝石', '前两名敌人法力燃烧'], [explodeRandomGems(1, 1, 'color', BaseColor.Purple)], [dmg('enemyFirstN', 0, 1, { n: 2, manaBurn: true })])),
   },
   {
     id: 9401,
     desc: '&& 给予所有盟友 8 点法力值和屏障效果 && 给予所有其他盟友 [(魔法 x 0.75) + 1] 所有技能值',
-    build: skill(
-      // 「法力值」= mana 资源（SOP 措辞裁定）
-      mana('allyAll', 8, 0),
-      inflict('barrier', 'allyAll'),
-      // 「所有技能值」拆 4 个增益段（batch-05 7165 口径），一个方括号喂四段共用缩放
-      attack('allyOthers', 1, 0.75),
-      armor('allyOthers', 1, 0.75),
-      heal('allyOthers', 1, 0.75),
-      magic('allyOthers', 1, 0.75),
-    ),
+    build: skill(chooseSkill(["所有盟友获得8法力及屏障","其他盟友获得［魔法×0.75＋1］所有属性"], [mana('allyAll', 8, 0), inflict('barrier', 'allyAll')], [attack('allyOthers', 1, 0.75), armor('allyOthers', 1, 0.75), heal('allyOthers', 1, 0.75), magic('allyOthers', 1, 0.75)])),
   },
   {
     id: 9521,

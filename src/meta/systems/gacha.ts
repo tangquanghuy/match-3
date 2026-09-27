@@ -3,12 +3,14 @@
  *
  * 官方调研（详见 TASK-META.md §7）：GoW 不公布概率；社区实测宝石箱顶档 ≈1/1000、
  * 官方文档称宝石箱的传说/神话权重为普通箱的 4×/10×；官方十连只有折扣没有保底。
- * 本作口径：价格 150/1500 与「十连保底 Epic+」为用户裁定（ASSETS-NEEDED §1.3），
+ * 本作口径：价格 150/1500 与「十连保底稀有或以上」为用户裁定（ASSETS-NEEDED §1.3），
  * 权重按计划 §4.2 的「顶两档 2.0%」落成万分比表（economy.ts 单源）。
  *
- * 确定性：同 seed 必出同一批结果；每次开箱记入 save.gachaLog（容量 50，新的在前），
+ * 确定性：同 seed、规则和初始存档必出同一批结果；每次开箱记入 save.gachaLog（容量 50，新的在前），
  * 供对账脚本/测试审计概率与权重表一致。
  */
+import { GACHA_RULES, type GachaAudit } from '../data/gachaRules';
+import { reallyOwned } from './wishlist';
 import { TROOPS, getTroopById, type TroopData } from '../../data/troops';
 import { SeededRNG } from '../../engine/rng';
 import { BaseColor } from '../../engine/types';
@@ -57,6 +59,8 @@ export interface GachaCard {
   rarityIdx: number;
   /** true = 重复获得（进了 copies，可升阶/特质/分解） */
   duplicate: boolean;
+  wishlistHit?: boolean;
+  pursuitGuaranteed?: boolean;
 }
 
 export interface GachaDrawResult {
@@ -65,7 +69,7 @@ export interface GachaDrawResult {
   /** 实际消耗 */
   spent: { gems?: number; goldKeys?: number };
   cards: GachaCard[];
-  /** true = 十连保底被触发（第 10 张被抬到 Epic+） */
+  /** true = 十连保底被触发（第 10 张低档结果被抬到稀有） */
   pityUsed: boolean;
 }
 
@@ -76,12 +80,14 @@ function draw(
   cards: GachaCard[],
   pityUsed: boolean,
   spent: { gems?: number; goldKeys?: number },
+  audit?: GachaAudit,
 ): GachaDrawResult {
   const entry: GachaLogEntry = {
     at: Date.now(),
     kind,
     seed: seed >>> 0,
     troops: cards.map((c) => c.troopId),
+    ...(audit ? { audit } : {}),
   };
   save.gachaLog.unshift(entry);
   if (save.gachaLog.length > GACHA_LOG_CAP) save.gachaLog.length = GACHA_LOG_CAP;
@@ -94,32 +100,62 @@ function rollBatch(
   rng: SeededRNG,
   count: number,
   pity: boolean,
+  audit?: GachaAudit,
 ): { cards: GachaCard[]; pityUsed: boolean } {
   const cards: GachaCard[] = [];
   let pityUsed = false;
   for (let i = 0; i < count; i++) {
     const lastRoll = i === count - 1;
-    // 保底在最后一抽结算：前 count-1 张都没有保底档时，最后一抽直接从保底档取人
-    // （先判定再入册，不会出现「多送一张再撤回」的账目问题）
-    if (pity && lastRoll && !cards.some((c) => c.rarityIdx >= GACHA_PITY_MIN_IDX)) {
-      cards.push(commit(save, pickTroopInBand(GACHA_PITY_MIN_IDX, rng)));
+    // 先正常掷稀有度，再在整批未达标时抬底；保底不覆盖自然抽出的高档卡。
+    // 最终结果只入册一次，既不额外发卡，也不吞掉第十张自然出高档的机会。
+    const pursuit = save.gachaWishlist.pursuit;
+    if (audit && pursuit.targetId !== null && reallyOwned(save, pursuit.targetId)) pursuit.targetId = null;
+    const pursuing = !!audit && pursuit.targetId !== null;
+    const guaranteed = pursuing && pursuit.progress + 1 >= pursuit.limit;
+    let reason: GachaAudit['reasons'][number] = 'normal';
+    let band = pickBand(weights, rng);
+    if (!guaranteed && pity && lastRoll && band < GACHA_PITY_MIN_IDX
+      && !cards.some((c) => c.rarityIdx >= GACHA_PITY_MIN_IDX)) {
+      band = GACHA_PITY_MIN_IDX;
       pityUsed = true;
-      continue;
+      reason = 'ten-pity';
     }
-    cards.push(commit(save, pickTroopInBand(pickBand(weights, rng), rng)));
+    let troopId: number;
+    if (guaranteed) { troopId = pursuit.targetId!; reason = 'pursuit'; }
+    else if (audit) {
+      const selected = audit.wishlistIds.filter((id) => getTroopById(id)?.rarityIdx === band);
+      const chance = (GACHA_RULES.wishlistShares[band] ?? 0) * selected.length / GACHA_RULES.slotsPerRarity;
+      if (selected.length && rng.next() < chance) troopId = rng.pick(selected);
+      else if (selected.length) troopId = rng.pick(BY_RARITY_IDX[band]!.filter((t) => !selected.includes(t.id))).id;
+      else troopId = pickTroopInBand(band, rng);
+    } else troopId = pickTroopInBand(band, rng);
+    if (pursuing) {
+      pursuit.progress++;
+      if (troopId === pursuit.targetId) {
+        pursuit.targetId = null; pursuit.progress = 0; pursuit.completed++;
+        pursuit.limit = GACHA_RULES.repeatPursuitLimit;
+      }
+    }
+    const card = commit(save, troopId);
+    if (audit) {
+      card.wishlistHit = audit.wishlistIds.includes(troopId);
+      card.pursuitGuaranteed = guaranteed;
+      audit.reasons.push(reason);
+    }
+    cards.push(card);
   }
   return { cards, pityUsed };
 }
 
 /** 入册 + 重复标记（GoW：重复卡进升阶材料，语义一致） */
 function commit(save: MetaSave, troopId: number): GachaCard {
-  const duplicate = save.collection[String(troopId)] !== undefined;
+  const duplicate = reallyOwned(save, troopId);
   grantTroop(save, troopId, 1);
   const rarityIdx = getTroopById(troopId)?.rarityIdx ?? 0;
   return { troopId, rarityIdx, duplicate };
 }
 
-/** 宝石宝箱：count = 1（150 宝石）或 10（1500 宝石，保底 Epic+） */
+/** 宝石宝箱：count = 1（150 宝石）或 10（1500 宝石，保底稀有或以上） */
 export function openGemChest(
   save: MetaSave,
   seed: number,
@@ -132,8 +168,11 @@ export function openGemChest(
   const paid = spend(save, { gems: cost });
   if (!paid.ok) return paid;
   const rng = new SeededRNG(seed);
-  const { cards, pityUsed } = rollBatch(save, GEM_CHEST_WEIGHTS, rng, count, count === 10);
-  return draw(save, 'gem', seed, cards, pityUsed, { gems: cost });
+  const audit: GachaAudit = { rulesVersion: GACHA_RULES.version, wishlistIds: [...save.gachaWishlist.troopIds],
+    pursuitBefore: { ...save.gachaWishlist.pursuit }, pursuitAfter: { ...save.gachaWishlist.pursuit }, reasons: [] };
+  const { cards, pityUsed } = rollBatch(save, GEM_CHEST_WEIGHTS, rng, count, count === GEM_CHEST.multiCount, audit);
+  audit.pursuitAfter = { ...save.gachaWishlist.pursuit };
+  return draw(save, 'gem', seed, cards, pityUsed, { gems: cost }, audit);
 }
 
 /**
@@ -161,7 +200,7 @@ export interface GloryChestResult {
   ok: true;
   kind: 'glory';
   count: number;
-  spent: { glory: number };
+  spent: { glory: number; gloryKeys: number };
   /** 出的部队卡（可能为空——荣耀箱以特质石为主） */
   cards: GachaCard[];
   goldKeys: number;
@@ -177,8 +216,9 @@ export function openGloryChest(save: MetaSave, seed: number, count = 1): GloryCh
   if (count !== 1 && count !== GLORY_CHEST.multiCount) {
     return fail('INVALID', '荣耀宝箱只支持单抽或十连');
   }
-  const totalCost = GLORY_CHEST.cost * count;
-  const paid = spend(save, { glory: totalCost });
+  const usedKeys = Math.min(save.currencies.gloryKeys, count);
+  const totalCost = GLORY_CHEST.cost * (count - usedKeys);
+  const paid = spend(save, { glory: totalCost, gloryKeys: usedKeys });
   if (!paid.ok) return paid;
   const rng = new SeededRNG(seed);
   const cards: GachaCard[] = [];
@@ -210,5 +250,5 @@ export function openGloryChest(save: MetaSave, seed: number, count = 1): GloryCh
   const entry: GachaLogEntry = { at: Date.now(), kind: 'glory', seed: seed >>> 0, troops: cards.map((c) => c.troopId) };
   save.gachaLog.unshift(entry);
   if (save.gachaLog.length > GACHA_LOG_CAP) save.gachaLog.length = GACHA_LOG_CAP;
-  return { ok: true, kind: 'glory', count, spent: { glory: totalCost }, cards, goldKeys, stones };
+  return { ok: true, kind: 'glory', count, spent: { glory: totalCost, gloryKeys: usedKeys }, cards, goldKeys, stones };
 }

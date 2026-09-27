@@ -1,0 +1,1831 @@
+{
+  "schemaVersion": 1,
+  "scope": "stored-gow-snapshot",
+  "reviews": [
+    {
+      "key": "troop:7795",
+      "scope": "stored-gow-snapshot",
+      "sourceDigest": "340b07852b001fd8178846d53f655d741ab845cb9350fbadb9d97deced931df0",
+      "reviewer": "sa-L4b",
+      "reviewedAt": "2026-09-27",
+      "decision": "accept",
+      "ledgerFingerprintAtReview": "06aa2a101d6e83fb370b9037d5881835987be6d8e92f0fa379a4305043873d14",
+      "_reference": {
+        "spellId": 9815,
+        "english": "Eliminate up to 14 Armor from an Enemy. Create 5 Purple Gems, boosted by Armor eliminated. [2:1]",
+        "nativeTarget": "Enemy",
+        "randomize": null,
+        "steps": [
+          {
+            "Target": "FromTarget",
+            "Amount": 50,
+            "Type": "CountArmor"
+          },
+          {
+            "Amount": 7,
+            "Type": "CountMax"
+          },
+          {
+            "Target": "FromTarget",
+            "Amount": 14,
+            "Type": "DecreaseArmor",
+            "Delay": 200
+          },
+          {
+            "UseCounterForAmount": true,
+            "Color1": "Purple",
+            "Amount": 5,
+            "Type": "CreateGems"
+          }
+        ],
+        "prototype": {
+          "segments": [
+            {
+              "kind": "reduce",
+              "target": "enemyChosen",
+              "stat": "armor",
+              "scaling": {
+                "base": 14,
+                "mult": 0
+              }
+            },
+            {
+              "kind": "gem",
+              "params": {
+                "op": "create",
+                "gem": {
+                  "kind": "color",
+                  "color": "Purple"
+                },
+                "count": {
+                  "base": 5,
+                  "mult": 0
+                },
+                "modifier": {
+                  "mod": {
+                    "kind": "ratio",
+                    "a": 2,
+                    "b": 1
+                  },
+                  "source": {
+                    "kind": "lastReduce"
+                  }
+                }
+              },
+              "modifier": {
+                "mod": {
+                  "kind": "ratio",
+                  "a": 2,
+                  "b": 1
+                },
+                "source": {
+                  "kind": "lastReduce"
+                }
+              }
+            }
+          ]
+        }
+      },
+      "sourceEvidence": [
+        {
+          "id": "en",
+          "role": "english-snapshot",
+          "path": "data/raw/troops.gow.en.json",
+          "note": "Entity troop:7795 SpellId/English text/ManaCost/ManaColors asserted verbatim in tests/unit/gowLaneL4bB07.test.ts."
+        },
+        {
+          "id": "native",
+          "role": "native-snapshot",
+          "path": "data/raw/spells.gow.en.json",
+          "note": "SpellId 9815 Cost and every SpellSteps field (ordered, toEqual) asserted in tests/unit/gowLaneL4bB07.test.ts."
+        },
+        {
+          "id": "rule",
+          "role": "official-shared-rule",
+          "path": "tasks/active/gow-skill-shards/rulings/R003-count-threshold-labels.md",
+          "note": "R003: Count* Amount is a percentage (Amount 100/200/300/400 = x1/x2/x3/x4 per counted troop). CountArmor Amount 50 = floor(armor x 50%) capped by CountMax 7; equals floor(min(armor,14)/2) for every armor 0..60 (asserted), so the runtime lastReduce ratio 2:1 is equivalent."
+        },
+        {
+          "id": "status",
+          "role": "official-shared-rule",
+          "path": "artifacts/gow-skill-audit/gold-primary-sources/official-status-effects.html",
+          "note": "official-status-effects.html: Barrier protects from damage; armor elimination is not damage (Barrier kept case shows armor still removed)."
+        },
+        {
+          "id": "laneTest",
+          "role": "lane-battle-test",
+          "path": "tests/unit/gowLaneL4bB07.test.ts",
+          "note": "Lane L4b frozen test file: binding + real castSkill cases for troop:7795."
+        }
+      ],
+      "dimensions": {
+        "identity-cost-colors": {
+          "status": "verified",
+          "note": "troop 7795 -> spell 9815; raw ManaCost 13 = native Cost 13; colours Red+Brown; spell Target Enemy; spell.id binding asserted.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "status",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB07.test.ts"
+          ]
+        },
+        "target-count-range": {
+          "status": "verified",
+          "note": "FromTarget -> enemyChosen (11): only the chosen enemy loses armor; ally id refused before mana is spent.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "status",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB07.test.ts"
+          ]
+        },
+        "base-formula-rounding": {
+          "status": "verified",
+          "note": "DecreaseArmor Amount 14 (up to 14): armor 0/5/14/30 -> 0/0/0/16; count floor(eliminated/2) (odd 9 -> 4).",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "status",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB07.test.ts"
+          ]
+        },
+        "boost-source-ratio-cap": {
+          "status": "verified",
+          "note": "Counter = min(floor(armor*50/100),7) (R003 percent + CountMax 7) == runtime ratio 2:1 of lastReduce with reduce cap 14: 5/7/12/12 Purple for armor 0/5/14/30.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "status",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB07.test.ts"
+          ]
+        },
+        "conditions-probabilities-branches": {
+          "status": "not-applicable",
+          "note": "No condition/chance.",
+          "evidenceIds": [
+            "en",
+            "native"
+          ],
+          "tests": []
+        },
+        "status-duration-immunity": {
+          "status": "verified",
+          "note": "No status applied; target Barrier does not block armor elimination (armor 6 -> 0, 8 gems).",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "status",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB07.test.ts"
+          ]
+        },
+        "gems-types-selection-resolution": {
+          "status": "verified",
+          "note": "CreateGems Purple: every created gem Purple from distinct non-Purple cells.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "status",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB07.test.ts"
+          ]
+        },
+        "summon-transform-pools": {
+          "status": "not-applicable",
+          "note": "No summon or troop transform.",
+          "evidenceIds": [
+            "en",
+            "native"
+          ],
+          "tests": []
+        },
+        "order-death-retargeting": {
+          "status": "verified",
+          "note": "Native Count -> CountMax -> DecreaseArmor -> Create: runtime reduce -> create gives identical counts (counter derived from pre-reduction armor equals eliminated/2).",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "status",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB07.test.ts"
+          ]
+        },
+        "mana-economy-extra-turn": {
+          "status": "verified",
+          "note": "Caster mana 0 after cast except cascade mana-gain events; no skill extra turn; one action-log entry; turn passes (or cascade 4+/5 extra turn only).",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "status",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB07.test.ts"
+          ]
+        },
+        "display-description": {
+          "status": "verified",
+          "note": "Chinese '消除敌人最多14点护甲。生成5颗紫色宝石，宝石数量根据消除的护甲值提升。 [2:1]' matches English and ratio.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "status",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB07.test.ts"
+          ]
+        },
+        "battle-pipeline": {
+          "status": "verified",
+          "note": "Real TurnEngine.castSkill on both sides (Left/Right); low mana (cost-1) and Silence refuse without spending mana or touching board/statuses/turn.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "status",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB07.test.ts"
+          ],
+          "realBattleEntry": true
+        }
+      },
+      "clauseReviews": [
+        {
+          "id": "c1",
+          "text": "Eliminate up to 14 Armor from an Enemy.",
+          "status": "verified",
+          "note": "Chosen enemy loses up to 14 armor.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "status",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB07.test.ts"
+          ]
+        },
+        {
+          "id": "c2",
+          "text": "Create 5 Purple Gems, boosted by Armor eliminated.",
+          "status": "verified",
+          "note": "5 Purple + boost from armor eliminated.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "status",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB07.test.ts"
+          ]
+        },
+        {
+          "id": "c3",
+          "text": "[2:1]",
+          "status": "verified",
+          "note": "[2:1] = +1 Purple per 2 armor eliminated (max +7).",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "status",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB07.test.ts"
+          ]
+        }
+      ],
+      "nativeStepReviews": [
+        {
+          "id": "0",
+          "type": "CountArmor",
+          "status": "verified",
+          "note": "CountArmor FromTarget Amount 50 -> counter = 50% of armor (R003), folded into lastReduce/2.",
+          "evidenceIds": [
+            "native",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB07.test.ts"
+          ]
+        },
+        {
+          "id": "1",
+          "type": "CountMax",
+          "status": "verified",
+          "note": "CountMax Amount 7 -> counter cap 7 == reduce cap 14 / 2 (equivalence asserted 0..60).",
+          "evidenceIds": [
+            "native",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB07.test.ts"
+          ]
+        },
+        {
+          "id": "2",
+          "type": "DecreaseArmor",
+          "status": "verified",
+          "note": "DecreaseArmor FromTarget Amount 14 Delay 200 -> reduce armor enemyChosen base 14.",
+          "evidenceIds": [
+            "native",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB07.test.ts"
+          ]
+        },
+        {
+          "id": "3",
+          "type": "CreateGems",
+          "status": "verified",
+          "note": "CreateGems Purple Amount 5 UseCounterForAmount -> create Purple base 5 + modifier ratio 2:1 lastReduce.",
+          "evidenceIds": [
+            "native",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB07.test.ts"
+          ]
+        }
+      ],
+      "branchReviews": [
+        {
+          "id": "main",
+          "status": "verified",
+          "note": "Single branch; armor 0/5/9/14/30 and Barrier, both sides.",
+          "evidenceIds": [
+            "native",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB07.test.ts"
+          ]
+        }
+      ]
+    },
+    {
+      "key": "troop:7080",
+      "scope": "stored-gow-snapshot",
+      "sourceDigest": "08ebe50601669cc01aa67284e65fe0dba3847b7b067b4b8a448028f032d5f0a7",
+      "reviewer": "sa-L4b",
+      "reviewedAt": "2026-09-27",
+      "decision": "accept",
+      "ledgerFingerprintAtReview": "06aa2a101d6e83fb370b9037d5881835987be6d8e92f0fa379a4305043873d14",
+      "_reference": {
+        "spellId": 8608,
+        "english": "Create 4 Skulls, boosted by Blue Allies. [x4]",
+        "nativeTarget": "None",
+        "randomize": null,
+        "steps": [
+          {
+            "Target": "AllAllies",
+            "Amount": 400,
+            "Type": "CountArmyColor",
+            "Data": "0"
+          },
+          {
+            "UseCounterForAmount": true,
+            "Color1": "Skull",
+            "Amount": 4,
+            "Type": "CreateGems"
+          }
+        ],
+        "prototype": {
+          "segments": [
+            {
+              "kind": "gem",
+              "params": {
+                "op": "create",
+                "gem": {
+                  "kind": "skull"
+                },
+                "count": {
+                  "base": 4,
+                  "mult": 0
+                },
+                "modifier": {
+                  "mod": {
+                    "kind": "multiplier",
+                    "a": 4
+                  },
+                  "source": {
+                    "kind": "alliesOfColor",
+                    "color": "Blue"
+                  }
+                }
+              },
+              "modifier": {
+                "mod": {
+                  "kind": "multiplier",
+                  "a": 4
+                },
+                "source": {
+                  "kind": "alliesOfColor",
+                  "color": "Blue"
+                }
+              }
+            }
+          ]
+        }
+      },
+      "sourceEvidence": [
+        {
+          "id": "en",
+          "role": "english-snapshot",
+          "path": "data/raw/troops.gow.en.json",
+          "note": "Entity troop:7080 SpellId/English text/ManaCost/ManaColors asserted verbatim in tests/unit/gowLaneL4bB07.test.ts."
+        },
+        {
+          "id": "native",
+          "role": "native-snapshot",
+          "path": "data/raw/spells.gow.en.json",
+          "note": "SpellId 8608 Cost and every SpellSteps field (ordered, toEqual) asserted in tests/unit/gowLaneL4bB07.test.ts."
+        },
+        {
+          "id": "rule",
+          "role": "official-shared-rule",
+          "path": "tasks/active/gow-skill-shards/rulings/R003-count-threshold-labels.md",
+          "note": "R003: Count* Amount is a percentage (Amount 100/200/300/400 = x1/x2/x3/x4 per counted troop). CountArmyColor AllAllies Data 0 (Blue) Amount 400 = +4 per living Blue ally (caster included)."
+        },
+        {
+          "id": "laneTest",
+          "role": "lane-battle-test",
+          "path": "tests/unit/gowLaneL4bB07.test.ts",
+          "note": "Lane L4b frozen test file: binding + real castSkill cases for troop:7080."
+        }
+      ],
+      "dimensions": {
+        "identity-cost-colors": {
+          "status": "verified",
+          "note": "troop 7080 -> spell 8608; raw ManaCost 12 = native Cost 12; colours Blue+Red; spell.id binding asserted.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB07.test.ts"
+          ]
+        },
+        "target-count-range": {
+          "status": "verified",
+          "note": "Counter over living allies incl. caster whose colours include Blue; enemies and dead allies excluded.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB07.test.ts"
+          ]
+        },
+        "base-formula-rounding": {
+          "status": "verified",
+          "note": "4 + 4n: 8 (caster only), 12 (+1 Blue ally), 20 (+3), non-Blue caster alone 4.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB07.test.ts"
+          ]
+        },
+        "boost-source-ratio-cap": {
+          "status": "verified",
+          "note": "multiplier a=4 alliesOfColor Blue (Data 0 = Blue, confirmed across the snapshot); no cap.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB07.test.ts"
+          ]
+        },
+        "conditions-probabilities-branches": {
+          "status": "not-applicable",
+          "note": "No condition/chance.",
+          "evidenceIds": [
+            "en",
+            "native"
+          ],
+          "tests": []
+        },
+        "status-duration-immunity": {
+          "status": "not-applicable",
+          "note": "No status.",
+          "evidenceIds": [
+            "en",
+            "native"
+          ],
+          "tests": []
+        },
+        "gems-types-selection-resolution": {
+          "status": "verified",
+          "note": "Plain Skulls on distinct cells converted from colour gems.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB07.test.ts"
+          ]
+        },
+        "summon-transform-pools": {
+          "status": "not-applicable",
+          "note": "No summon or troop transform.",
+          "evidenceIds": [
+            "en",
+            "native"
+          ],
+          "tests": []
+        },
+        "order-death-retargeting": {
+          "status": "verified",
+          "note": "Count then create (native order); dead Blue ally not counted.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB07.test.ts"
+          ]
+        },
+        "mana-economy-extra-turn": {
+          "status": "verified",
+          "note": "Caster mana 0 after cast except cascade mana-gain events; no skill extra turn; one action-log entry; turn passes (or cascade 4+/5 extra turn only).",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB07.test.ts"
+          ]
+        },
+        "display-description": {
+          "status": "verified",
+          "note": "Chinese '制造4个头骨，由蓝色盟友激发。 [x4]' matches English and x4.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB07.test.ts"
+          ]
+        },
+        "battle-pipeline": {
+          "status": "verified",
+          "note": "Real TurnEngine.castSkill on both sides (Left/Right); low mana (cost-1) and Silence refuse without spending mana or touching board/statuses/turn.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB07.test.ts"
+          ],
+          "realBattleEntry": true
+        }
+      },
+      "clauseReviews": [
+        {
+          "id": "c1",
+          "text": "Create 4 Skulls, boosted by Blue Allies.",
+          "status": "verified",
+          "note": "4 Skulls + boost per Blue ally.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB07.test.ts"
+          ]
+        },
+        {
+          "id": "c2",
+          "text": "[x4]",
+          "status": "verified",
+          "note": "[x4] = +4 per Blue ally.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB07.test.ts"
+          ]
+        }
+      ],
+      "nativeStepReviews": [
+        {
+          "id": "0",
+          "type": "CountArmyColor",
+          "status": "verified",
+          "note": "CountArmyColor AllAllies Data 0 Amount 400 -> alliesOfColor Blue x4.",
+          "evidenceIds": [
+            "native",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB07.test.ts"
+          ]
+        },
+        {
+          "id": "1",
+          "type": "CreateGems",
+          "status": "verified",
+          "note": "CreateGems Skull Amount 4 UseCounterForAmount -> create skull base 4 + modifier.",
+          "evidenceIds": [
+            "native",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB07.test.ts"
+          ]
+        }
+      ],
+      "branchReviews": [
+        {
+          "id": "main",
+          "status": "verified",
+          "note": "Single branch; 0/1/3 Blue allies, dead Blue ally, Blue enemy, non-Blue caster.",
+          "evidenceIds": [
+            "native",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB07.test.ts"
+          ]
+        }
+      ]
+    },
+    {
+      "key": "troop:6941",
+      "scope": "stored-gow-snapshot",
+      "sourceDigest": "6f58c8a5a78f8e503c919c8a7264e60197f5212f57bc2b7ccd799566a87061f8",
+      "reviewer": "sa-L4b",
+      "reviewedAt": "2026-09-27",
+      "decision": "accept",
+      "ledgerFingerprintAtReview": "06aa2a101d6e83fb370b9037d5881835987be6d8e92f0fa379a4305043873d14",
+      "_reference": {
+        "spellId": 8422,
+        "english": "Create 4 Brown Gems, boosted by Blue Allies. Freeze a random Enemy. [x3]",
+        "nativeTarget": "None",
+        "randomize": null,
+        "steps": [
+          {
+            "Target": "AllAllies",
+            "Amount": 300,
+            "Type": "CountArmyColor",
+            "Data": "0"
+          },
+          {
+            "UseCounterForAmount": true,
+            "Color1": "Brown",
+            "Amount": 4,
+            "Type": "CreateGems",
+            "Delay": 0
+          },
+          {
+            "Target": "RandomEnemy",
+            "Type": "CauseFrozen"
+          }
+        ],
+        "prototype": {
+          "segments": [
+            {
+              "kind": "gem",
+              "params": {
+                "op": "create",
+                "gem": {
+                  "kind": "color",
+                  "color": "Brown"
+                },
+                "count": {
+                  "base": 4,
+                  "mult": 0
+                },
+                "modifier": {
+                  "mod": {
+                    "kind": "multiplier",
+                    "a": 3
+                  },
+                  "source": {
+                    "kind": "alliesOfColor",
+                    "color": "Blue"
+                  }
+                }
+              },
+              "modifier": {
+                "mod": {
+                  "kind": "multiplier",
+                  "a": 3
+                },
+                "source": {
+                  "kind": "alliesOfColor",
+                  "color": "Blue"
+                }
+              }
+            },
+            {
+              "kind": "status",
+              "target": "enemyRandom",
+              "statusId": "frozen",
+              "turns": 3
+            }
+          ]
+        }
+      },
+      "sourceEvidence": [
+        {
+          "id": "en",
+          "role": "english-snapshot",
+          "path": "data/raw/troops.gow.en.json",
+          "note": "Entity troop:6941 SpellId/English text/ManaCost/ManaColors asserted verbatim in tests/unit/gowLaneL4bB07.test.ts."
+        },
+        {
+          "id": "native",
+          "role": "native-snapshot",
+          "path": "data/raw/spells.gow.en.json",
+          "note": "SpellId 8422 Cost and every SpellSteps field (ordered, toEqual) asserted in tests/unit/gowLaneL4bB07.test.ts."
+        },
+        {
+          "id": "rule",
+          "role": "official-shared-rule",
+          "path": "tasks/active/gow-skill-shards/rulings/R003-count-threshold-labels.md",
+          "note": "R003: Count* Amount is a percentage (Amount 100/200/300/400 = x1/x2/x3/x4 per counted troop). CountArmyColor AllAllies Data 0 Amount 300 = +3 per living Blue ally."
+        },
+        {
+          "id": "status",
+          "role": "official-shared-rule",
+          "path": "artifacts/gow-skill-audit/gold-primary-sources/official-status-effects.html",
+          "note": "official-status-effects.html: Frozen status; Blessed troops immune to status effects."
+        },
+        {
+          "id": "laneTest",
+          "role": "lane-battle-test",
+          "path": "tests/unit/gowLaneL4bB07.test.ts",
+          "note": "Lane L4b frozen test file: binding + real castSkill cases for troop:6941."
+        }
+      ],
+      "dimensions": {
+        "identity-cost-colors": {
+          "status": "verified",
+          "note": "troop 6941 -> spell 8422; raw ManaCost 12 = native Cost 12; colours Blue+Green; spell.id binding asserted.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "status",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB07.test.ts"
+          ]
+        },
+        "target-count-range": {
+          "status": "verified",
+          "note": "Counter over living Blue allies incl. caster; Freeze RandomEnemy -> enemyRandom: one living enemy (dead never over 12 seeds).",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "status",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB07.test.ts"
+          ]
+        },
+        "base-formula-rounding": {
+          "status": "verified",
+          "note": "4 + 3n Brown: 7 (caster only), 10 (+1 Blue ally).",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "status",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB07.test.ts"
+          ]
+        },
+        "boost-source-ratio-cap": {
+          "status": "verified",
+          "note": "multiplier a=3 alliesOfColor Blue; no cap.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "status",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB07.test.ts"
+          ]
+        },
+        "conditions-probabilities-branches": {
+          "status": "verified",
+          "note": "Seeded random Freeze target; no condition.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "status",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB07.test.ts"
+          ]
+        },
+        "status-duration-immunity": {
+          "status": "verified",
+          "note": "frozen status-apply turns 3; Blessed lone enemy resists.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "status",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB07.test.ts"
+          ]
+        },
+        "gems-types-selection-resolution": {
+          "status": "verified",
+          "note": "Brown gems created on distinct non-Brown cells.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "status",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB07.test.ts"
+          ]
+        },
+        "summon-transform-pools": {
+          "status": "not-applicable",
+          "note": "No summon or troop transform.",
+          "evidenceIds": [
+            "en",
+            "native"
+          ],
+          "tests": []
+        },
+        "order-death-retargeting": {
+          "status": "verified",
+          "note": "Count, create (Delay 0), then Freeze: gem event precedes status-apply.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "status",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB07.test.ts"
+          ]
+        },
+        "mana-economy-extra-turn": {
+          "status": "verified",
+          "note": "Caster mana 0 after cast except cascade mana-gain events; no skill extra turn; one action-log entry; turn passes (or cascade 4+/5 extra turn only).",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "status",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB07.test.ts"
+          ]
+        },
+        "display-description": {
+          "status": "verified",
+          "note": "Chinese '创造 4 颗棕色宝石，数量因蓝色盟友数而增强。冻结一名随机敌人。 [x3]' matches English.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "status",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB07.test.ts"
+          ]
+        },
+        "battle-pipeline": {
+          "status": "verified",
+          "note": "Real TurnEngine.castSkill on both sides (Left/Right); low mana (cost-1) and Silence refuse without spending mana or touching board/statuses/turn.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "status",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB07.test.ts"
+          ],
+          "realBattleEntry": true
+        }
+      },
+      "clauseReviews": [
+        {
+          "id": "c1",
+          "text": "Create 4 Brown Gems, boosted by Blue Allies.",
+          "status": "verified",
+          "note": "4 Brown + boost per Blue ally.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "status",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB07.test.ts"
+          ]
+        },
+        {
+          "id": "c2",
+          "text": "Freeze a random Enemy.",
+          "status": "verified",
+          "note": "Freeze one random living enemy.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "status",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB07.test.ts"
+          ]
+        },
+        {
+          "id": "c3",
+          "text": "[x3]",
+          "status": "verified",
+          "note": "[x3] = +3 per Blue ally.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "status",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB07.test.ts"
+          ]
+        }
+      ],
+      "nativeStepReviews": [
+        {
+          "id": "0",
+          "type": "CountArmyColor",
+          "status": "verified",
+          "note": "CountArmyColor AllAllies Data 0 Amount 300 -> alliesOfColor Blue x3.",
+          "evidenceIds": [
+            "native",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB07.test.ts"
+          ]
+        },
+        {
+          "id": "1",
+          "type": "CreateGems",
+          "status": "verified",
+          "note": "CreateGems Brown Amount 4 UseCounterForAmount Delay 0 -> create Brown base 4 + modifier.",
+          "evidenceIds": [
+            "native",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB07.test.ts"
+          ]
+        },
+        {
+          "id": "2",
+          "type": "CauseFrozen",
+          "status": "verified",
+          "note": "CauseFrozen RandomEnemy -> status frozen enemyRandom.",
+          "evidenceIds": [
+            "native",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB07.test.ts"
+          ]
+        }
+      ],
+      "branchReviews": [
+        {
+          "id": "main",
+          "status": "verified",
+          "note": "Single branch; 0/1 Blue ally, dead enemy sweep, Blessed.",
+          "evidenceIds": [
+            "native",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB07.test.ts"
+          ]
+        }
+      ]
+    },
+    {
+      "key": "troop:7197",
+      "scope": "stored-gow-snapshot",
+      "sourceDigest": "5fa0828775baa1ae5ee2829d47b21787b94edbaafc7a11357ecab126830334ed",
+      "reviewer": "sa-L4b",
+      "reviewedAt": "2026-09-27",
+      "decision": "accept",
+      "ledgerFingerprintAtReview": "06aa2a101d6e83fb370b9037d5881835987be6d8e92f0fa379a4305043873d14",
+      "_reference": {
+        "spellId": 8784,
+        "english": "Create a mix of 3 Green and Red Gems for each Green Ally and Enemy. [x3]",
+        "nativeTarget": "None",
+        "randomize": null,
+        "steps": [
+          {
+            "Target": "AllAllies",
+            "Amount": 300,
+            "Type": "CountArmyColor",
+            "Data": "1"
+          },
+          {
+            "Target": "AllEnemies",
+            "UseCounterForAmount": true,
+            "Amount": 300,
+            "Type": "CountArmyColor",
+            "Data": "1"
+          },
+          {
+            "UseCounterForAmount": true,
+            "Color1": "Green",
+            "Color2": "Red",
+            "Type": "CreateGems2Colors"
+          }
+        ],
+        "prototype": {
+          "segments": [
+            {
+              "kind": "gem",
+              "params": {
+                "op": "create",
+                "gem": {
+                  "kind": "mix",
+                  "colors": [
+                    "Green",
+                    "Red"
+                  ]
+                },
+                "count": {
+                  "base": 0,
+                  "mult": 0
+                },
+                "modifier": {
+                  "mod": {
+                    "kind": "multiplier",
+                    "a": 3
+                  },
+                  "sources": [
+                    {
+                      "kind": "alliesOfColor",
+                      "color": "Green"
+                    },
+                    {
+                      "kind": "enemiesOfColor",
+                      "color": "Green"
+                    }
+                  ]
+                }
+              },
+              "modifier": {
+                "mod": {
+                  "kind": "multiplier",
+                  "a": 3
+                },
+                "sources": [
+                  {
+                    "kind": "alliesOfColor",
+                    "color": "Green"
+                  },
+                  {
+                    "kind": "enemiesOfColor",
+                    "color": "Green"
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      },
+      "sourceEvidence": [
+        {
+          "id": "en",
+          "role": "english-snapshot",
+          "path": "data/raw/troops.gow.en.json",
+          "note": "Entity troop:7197 SpellId/English text/ManaCost/ManaColors asserted verbatim in tests/unit/gowLaneL4bB07.test.ts."
+        },
+        {
+          "id": "native",
+          "role": "native-snapshot",
+          "path": "data/raw/spells.gow.en.json",
+          "note": "SpellId 8784 Cost and every SpellSteps field (ordered, toEqual) asserted in tests/unit/gowLaneL4bB07.test.ts."
+        },
+        {
+          "id": "rule",
+          "role": "official-shared-rule",
+          "path": "tasks/active/gow-skill-shards/rulings/R003-count-threshold-labels.md",
+          "note": "R003: Count* Amount is a percentage (Amount 100/200/300/400 = x1/x2/x3/x4 per counted troop). Two CountArmyColor Data 1 (Green) Amount 300 steps (allies, then enemies with UseCounterForAmount = accumulate) -> 3 per Green troop on either side; CreateGems2Colors has no Amount so the count is the counter alone."
+        },
+        {
+          "id": "rl01",
+          "role": "user-ruling",
+          "path": "tasks/active/gow-skill-shards/rulings/RL4b-01-two-colour-overwrite.md",
+          "note": "RL4b-01: 2-colour creation selects N distinct cells, each Green or Red; assertions limited to N distinct cells, all Green/Red, both colours present."
+        },
+        {
+          "id": "laneTest",
+          "role": "lane-battle-test",
+          "path": "tests/unit/gowLaneL4bB07.test.ts",
+          "note": "Lane L4b frozen test file: binding + real castSkill cases for troop:7197."
+        }
+      ],
+      "dimensions": {
+        "identity-cost-colors": {
+          "status": "verified",
+          "note": "troop 7197 -> spell 8784; raw ManaCost 13 = native Cost 13; colours Green+Yellow; spell.id binding asserted.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "rl01",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB07.test.ts"
+          ]
+        },
+        "target-count-range": {
+          "status": "verified",
+          "note": "Counter over living Green allies (caster included) and living Green enemies (dual-colour included); dead Green enemy excluded.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "rl01",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB07.test.ts"
+          ]
+        },
+        "base-formula-rounding": {
+          "status": "verified",
+          "note": "3 x (Green allies + Green enemies): 12 for 2+2, 3 for lone Green caster, 0 when none.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "rl01",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB07.test.ts"
+          ]
+        },
+        "boost-source-ratio-cap": {
+          "status": "verified",
+          "note": "multiplier a=3 over sources alliesOfColor Green + enemiesOfColor Green; base 0; no cap.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "rl01",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB07.test.ts"
+          ]
+        },
+        "conditions-probabilities-branches": {
+          "status": "not-applicable",
+          "note": "No condition; colour per gem is seeded random (RL4b-01).",
+          "evidenceIds": [
+            "en",
+            "native"
+          ],
+          "tests": []
+        },
+        "status-duration-immunity": {
+          "status": "not-applicable",
+          "note": "No status.",
+          "evidenceIds": [
+            "en",
+            "native"
+          ],
+          "tests": []
+        },
+        "gems-types-selection-resolution": {
+          "status": "verified",
+          "note": "mix Green/Red: N distinct cells, all Green or Red, both colours present (RL4b-01).",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "rl01",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB07.test.ts"
+          ]
+        },
+        "summon-transform-pools": {
+          "status": "not-applicable",
+          "note": "No summon or troop transform.",
+          "evidenceIds": [
+            "en",
+            "native"
+          ],
+          "tests": []
+        },
+        "order-death-retargeting": {
+          "status": "verified",
+          "note": "Counts then create (native order).",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "rl01",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB07.test.ts"
+          ]
+        },
+        "mana-economy-extra-turn": {
+          "status": "verified",
+          "note": "Caster mana 0 after cast except cascade mana-gain events; no skill extra turn; one action-log entry; turn passes (or cascade 4+/5 extra turn only).",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "rl01",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB07.test.ts"
+          ]
+        },
+        "display-description": {
+          "status": "verified",
+          "note": "Chinese '每有一名绿色盟友或敌人，则创建 3 颗混合绿色和红色的宝石。 [x3]' matches English.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "rl01",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB07.test.ts"
+          ]
+        },
+        "battle-pipeline": {
+          "status": "verified",
+          "note": "Real TurnEngine.castSkill on both sides (Left/Right); low mana (cost-1) and Silence refuse without spending mana or touching board/statuses/turn.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "rl01",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB07.test.ts"
+          ],
+          "realBattleEntry": true
+        }
+      },
+      "clauseReviews": [
+        {
+          "id": "c1",
+          "text": "Create a mix of 3 Green and Red Gems for each Green Ally and Enemy.",
+          "status": "verified",
+          "note": "3 Green/Red mix per Green ally and enemy.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "rl01",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB07.test.ts"
+          ]
+        },
+        {
+          "id": "c2",
+          "text": "[x3]",
+          "status": "verified",
+          "note": "[x3] = 3 per Green troop.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "rl01",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB07.test.ts"
+          ]
+        }
+      ],
+      "nativeStepReviews": [
+        {
+          "id": "0",
+          "type": "CountArmyColor",
+          "status": "verified",
+          "note": "CountArmyColor AllAllies Data 1 Amount 300 -> source alliesOfColor Green.",
+          "evidenceIds": [
+            "native",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB07.test.ts"
+          ]
+        },
+        {
+          "id": "1",
+          "type": "CountArmyColor",
+          "status": "verified",
+          "note": "CountArmyColor AllEnemies Data 1 Amount 300 UseCounterForAmount -> source enemiesOfColor Green (accumulated).",
+          "evidenceIds": [
+            "native",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB07.test.ts"
+          ]
+        },
+        {
+          "id": "2",
+          "type": "CreateGems2Colors",
+          "status": "verified",
+          "note": "CreateGems2Colors Green/Red UseCounterForAmount -> create mix Green/Red base 0 + modifier x3.",
+          "evidenceIds": [
+            "native",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB07.test.ts"
+          ]
+        }
+      ],
+      "branchReviews": [
+        {
+          "id": "main",
+          "status": "verified",
+          "note": "Single branch; 2+2 Green troops, none, lone Green caster.",
+          "evidenceIds": [
+            "native",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB07.test.ts"
+          ]
+        }
+      ]
+    },
+    {
+      "key": "troop:7370",
+      "scope": "stored-gow-snapshot",
+      "sourceDigest": "310de6547a5776e0e88eb5972c8b563b207c5f238abc9173745ea9a32377c8cb",
+      "reviewer": "sa-L4b",
+      "reviewedAt": "2026-09-27",
+      "decision": "accept",
+      "ledgerFingerprintAtReview": "06aa2a101d6e83fb370b9037d5881835987be6d8e92f0fa379a4305043873d14",
+      "_reference": {
+        "spellId": 9010,
+        "english": "Deal [Magic + 3] damage to an Enemy, boosted by Brown Allies. Then create 3 Good Gargoyle Gems. [x3]",
+        "nativeTarget": "Enemy",
+        "randomize": null,
+        "steps": [
+          {
+            "Target": "AllAllies",
+            "Amount": 300,
+            "Type": "CountArmyColor",
+            "Data": "5"
+          },
+          {
+            "SpellPowerMultiplier": 1,
+            "Target": "FromTarget",
+            "UseCounterForAmount": true,
+            "Amount": 3,
+            "Primarypower": true,
+            "Type": "Damage",
+            "Delay": 200
+          },
+          {
+            "Color1": "GoodGargoyle",
+            "Amount": 3,
+            "Type": "CreateGems"
+          }
+        ],
+        "prototype": {
+          "segments": [
+            {
+              "kind": "damage",
+              "target": "enemyChosen",
+              "scaling": {
+                "base": 3,
+                "mult": 1
+              },
+              "modifier": {
+                "mod": {
+                  "kind": "multiplier",
+                  "a": 3
+                },
+                "source": {
+                  "kind": "alliesOfColor",
+                  "color": "Brown"
+                }
+              }
+            },
+            {
+              "kind": "gem",
+              "params": {
+                "op": "create",
+                "gem": {
+                  "kind": "special",
+                  "spec": {
+                    "kind": "gargoyleGem",
+                    "tier": 1
+                  }
+                },
+                "count": {
+                  "base": 3,
+                  "mult": 0
+                }
+              }
+            }
+          ]
+        }
+      },
+      "sourceEvidence": [
+        {
+          "id": "en",
+          "role": "english-snapshot",
+          "path": "data/raw/troops.gow.en.json",
+          "note": "Entity troop:7370 SpellId/English text/ManaCost/ManaColors asserted verbatim in tests/unit/gowLaneL4bB07.test.ts."
+        },
+        {
+          "id": "native",
+          "role": "native-snapshot",
+          "path": "data/raw/spells.gow.en.json",
+          "note": "SpellId 9010 Cost and every SpellSteps field (ordered, toEqual) asserted in tests/unit/gowLaneL4bB07.test.ts."
+        },
+        {
+          "id": "rule",
+          "role": "official-shared-rule",
+          "path": "artifacts/gow-skill-audit/gold-primary-sources/official-heroic-gems-freshdesk.html",
+          "note": "Heroic Gems (Infinity Plus 2 help centre): Good Gargoyle Gems cannot be matched and give all allies a random positive status when destroyed; created gargoyleGem tier 1 (good) with null join key."
+        },
+        {
+          "id": "r003",
+          "role": "user-ruling",
+          "path": "tasks/active/gow-skill-shards/rulings/R003-count-threshold-labels.md",
+          "note": "R003: CountArmyColor AllAllies Data 5 (Brown) Amount 300 = +3 damage per living Brown ally (caster included)."
+        },
+        {
+          "id": "laneTest",
+          "role": "lane-battle-test",
+          "path": "tests/unit/gowLaneL4bB07.test.ts",
+          "note": "Lane L4b frozen test file: binding + real castSkill cases for troop:7370."
+        }
+      ],
+      "dimensions": {
+        "identity-cost-colors": {
+          "status": "verified",
+          "note": "troop 7370 -> spell 9010; raw ManaCost 12 = native Cost 12; colours Red+Brown; spell.id binding asserted.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "r003",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB07.test.ts"
+          ]
+        },
+        "target-count-range": {
+          "status": "verified",
+          "note": "FromTarget (spell Target Enemy) -> enemyChosen 12 only; ally id refused.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "r003",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB07.test.ts"
+          ]
+        },
+        "base-formula-rounding": {
+          "status": "verified",
+          "note": "[Magic+3] + 3 x Brown allies (caster is Brown): magic 0 alone -> 6; magic 10 +1 -> 19; +3 -> 25.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "r003",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB07.test.ts"
+          ]
+        },
+        "boost-source-ratio-cap": {
+          "status": "verified",
+          "note": "multiplier a=3 alliesOfColor Brown on the damage segment; no cap.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "r003",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB07.test.ts"
+          ]
+        },
+        "conditions-probabilities-branches": {
+          "status": "not-applicable",
+          "note": "No condition/chance.",
+          "evidenceIds": [
+            "en",
+            "native"
+          ],
+          "tests": []
+        },
+        "status-duration-immunity": {
+          "status": "not-applicable",
+          "note": "No status.",
+          "evidenceIds": [
+            "en",
+            "native"
+          ],
+          "tests": []
+        },
+        "gems-types-selection-resolution": {
+          "status": "verified",
+          "note": "CreateGems GoodGargoyle Amount 3 -> 3 special gargoyleGem tier 1 (unmatchable).",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "r003",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB07.test.ts"
+          ]
+        },
+        "summon-transform-pools": {
+          "status": "not-applicable",
+          "note": "No summon or troop transform.",
+          "evidenceIds": [
+            "en",
+            "native"
+          ],
+          "tests": []
+        },
+        "order-death-retargeting": {
+          "status": "verified",
+          "note": "Count -> Damage (Delay 200) -> create: skill-damage precedes gem events; lethal hit still creates the Gargoyles.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "r003",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB07.test.ts"
+          ]
+        },
+        "mana-economy-extra-turn": {
+          "status": "verified",
+          "note": "Caster mana 0 after cast except cascade mana-gain events; no skill extra turn; one action-log entry; turn passes (or cascade 4+/5 extra turn only).",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "r003",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB07.test.ts"
+          ]
+        },
+        "display-description": {
+          "status": "verified",
+          "note": "Chinese '对一名敌人造成 [魔法 + 3] 点伤害，伤害值因棕色盟友数而增强。再创造 3 颗善石像鬼宝石。 [x3]' matches English.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "r003",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB07.test.ts"
+          ]
+        },
+        "battle-pipeline": {
+          "status": "verified",
+          "note": "Real TurnEngine.castSkill on both sides (Left/Right); low mana (cost-1) and Silence refuse without spending mana or touching board/statuses/turn.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "r003",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB07.test.ts"
+          ],
+          "realBattleEntry": true
+        }
+      },
+      "clauseReviews": [
+        {
+          "id": "c1",
+          "text": "Deal [Magic + 3] damage to an Enemy, boosted by Brown Allies.",
+          "status": "verified",
+          "note": "[Magic+3] damage to the chosen enemy boosted by Brown allies.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "r003",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB07.test.ts"
+          ]
+        },
+        {
+          "id": "c2",
+          "text": "Then create 3 Good Gargoyle Gems.",
+          "status": "verified",
+          "note": "3 Good Gargoyle Gems created.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "r003",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB07.test.ts"
+          ]
+        },
+        {
+          "id": "c3",
+          "text": "[x3]",
+          "status": "verified",
+          "note": "[x3] = +3 damage per Brown ally.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "r003",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB07.test.ts"
+          ]
+        }
+      ],
+      "nativeStepReviews": [
+        {
+          "id": "0",
+          "type": "CountArmyColor",
+          "status": "verified",
+          "note": "CountArmyColor AllAllies Data 5 Amount 300 -> alliesOfColor Brown x3.",
+          "evidenceIds": [
+            "native",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB07.test.ts"
+          ]
+        },
+        {
+          "id": "1",
+          "type": "Damage",
+          "status": "verified",
+          "note": "Damage FromTarget Amount 3 x Magic UseCounterForAmount -> damage enemyChosen {3,1} + modifier.",
+          "evidenceIds": [
+            "native",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB07.test.ts"
+          ]
+        },
+        {
+          "id": "2",
+          "type": "CreateGems",
+          "status": "verified",
+          "note": "CreateGems GoodGargoyle Amount 3 -> create special gargoyleGem tier 1 count 3.",
+          "evidenceIds": [
+            "native",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB07.test.ts"
+          ]
+        }
+      ],
+      "branchReviews": [
+        {
+          "id": "main",
+          "status": "verified",
+          "note": "Single branch; 0/1/3 extra Brown allies, lethal, illegal target.",
+          "evidenceIds": [
+            "native",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB07.test.ts"
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -1,14 +1,14 @@
 import { BoardModel } from './BoardModel';
-import type { Gem, CellPos, GemType, BaseColor } from './types';
+import { COMBO_CLUMP, comboStreakFade, extraTurnStreakOf, hasBigHolePattern, refillScore } from './comboBias';
+import type { Gem, CellPos, GemType, BaseColor, ActionLogEntry } from './types';
 import type { SeededRNG } from './rng';
 import { colorGem, specialGem, ALL_BASE_COLORS } from './types';
 import type { SpecialGemKind } from './types';
 
-/**
- * 风暴（Storm）掉落加成：风暴激活时对应色新宝石的权重倍率（其余色权重 1）。
- * 官方实测火风暴下新宝石约 27.1% 为对应色（正常 14.3% = 1/7）≈ ×1.9；
- * 引擎加权后对应色概率 = 1.9/(5+1.9) ≈ 27.5%，与实测吻合。可调常量。
- * 查证来源见 DECISIONS.md「风暴（Storm）全局掉落修正」。
+/** Storm-color weight is a project tuning value, not an official published drop rate.
+ * Within the six-color draw the chosen color gets 1.9 / (5 + 1.9) ~= 27.5%.
+ * Its unconditional board-spawn rate additionally depends on skull/special odds.
+ * The Steam discussion gives a different hypothetical 7-gem model, not a measured rate.
  */
 export const STORM_DROP_WEIGHT = 1.9;
 
@@ -27,6 +27,14 @@ export interface SkullDropBoost {
 export const STORM_DOOMSKULL_DROP = 0.04;
 /** 超级末日风暴：至尊末日骷髅从顶部掉落的概率（官方未公开数值，设计值） */
 export const STORM_UBER_DOOMSKULL_DROP = 0.02;
+
+/** 连消倾向补充的落点上下文 */
+interface ComboContext {
+  board: BoardModel;
+  pos: CellPos;
+  /** 有效强度：> 0 同色加权，< 0 同色减权（打散） */
+  bias: number;
+}
 
 /** 重力造成的单个宝石移动（需求 8.3） */
 export interface GemMove {
@@ -75,6 +83,10 @@ export class GravitySystem {
     'hourglass',
   ];
 
+  /** 连消倾向的行动内记忆：当前行动序号，及本次行动是否已出现过大消空洞 */
+  private comboActionIndex = -1;
+  private comboBigClearSeen = false;
+
   constructor(
     private rng: SeededRNG,
     private nextGemId: () => number,
@@ -87,39 +99,39 @@ export class GravitySystem {
    *                     缺省/空表时颜色分布与旧版完全一致（均匀 pick，随机数消耗序列不变）。
    * @param skullDrop 骷髅系风暴的掉落修正（骸骨/末日/超级末日，见 SkullDropBoost）。
    *                  缺省时不进骷髅系分支——随机数消耗序列与旧版一致（回归护栏）。
+   * @param comboBias 连消倾向强度（见 comboBias.ts；0 = 关闭，走旧路径，随机数/id 序列逐字节不变）。
+   * @param actionLog 本场行动日志（只读；连消倾向的连段护栏据此判断下一个决策点属于谁）。
    */
   apply(
     board: BoardModel,
     skullChance = 0,
     stormWeights?: ReadonlyMap<BaseColor, number>,
     skullDrop?: SkullDropBoost,
+    comboBias = 0,
+    actionLog?: readonly ActionLogEntry[],
   ): GravityResult {
+    // 连消倾向开启时走两段式：先让全部列落定，再逐列补充——补充色要看左右邻列
+    // 落定后的真实邻居。关闭时保持旧的逐列交错路径（随机数与 id 消耗序列逐字节不变）。
+    if (comboBias > 0) {
+      // 本次行动是否已打出过大消（→ 行动结束后同一方还会拿到额外回合）：看落定前的空洞形状，
+      // 按行动序号（actionLog 长度）分段记忆。技能炸出的整行/方块也会命中——只会让倾向更保守。
+      const actionIndex = actionLog?.length ?? 0;
+      if (actionIndex !== this.comboActionIndex) {
+        this.comboActionIndex = actionIndex;
+        this.comboBigClearSeen = false;
+      }
+      if (!this.comboBigClearSeen && hasBigHolePattern(board)) this.comboBigClearSeen = true;
+      // 这次补充决定的是「下一个决策点」的棋盘：没打出大消 → 轮到对手的新回合（满额倾向）；
+      // 已打出大消 → 还是行动方，其连段 +1（按护栏表衰减/打散）。
+      const nextStreak = this.comboBigClearSeen ? extraTurnStreakOf(actionLog) + 1 : 0;
+      return this.applyWithComboBias(board, skullChance, stormWeights, skullDrop, comboBias * comboStreakFade(nextStreak));
+    }
+
     const moves: GemMove[] = [];
     const spawns: GemSpawn[] = [];
 
     for (let col = 0; col < BoardModel.COLS; col++) {
-      // 1. 自底向上收集该列现存宝石（保序），同时记录其原始行号
-      const survivors: { gem: Gem; fromRow: number }[] = [];
-      for (let row = BoardModel.ROWS - 1; row >= 0; row--) {
-        const gem = board.get({ row, col });
-        if (gem !== null) survivors.push({ gem, fromRow: row });
-      }
-
-      // 2. 清空该列
-      for (let row = 0; row < BoardModel.ROWS; row++) {
-        board.set({ row, col }, null);
-      }
-
-      // 3. 从底部回填现存宝石，记录移动（仅当行号变化时才算移动）
-      let writeRow = BoardModel.ROWS - 1;
-      for (const { gem, fromRow } of survivors) {
-        const to: CellPos = { row: writeRow, col };
-        board.set(to, gem);
-        if (fromRow !== writeRow) {
-          moves.push({ gemId: gem.id, from: { row: fromRow, col }, to });
-        }
-        writeRow--;
-      }
+      const writeRow = this.settleColumn(board, col, moves);
 
       // 4. 顶部剩余空格补充新宝石（writeRow 及以上）
       for (let row = writeRow; row >= 0; row--) {
@@ -134,10 +146,93 @@ export class GravitySystem {
     return { moves, spawns };
   }
 
+  /**
+   * 单列重力（步骤 1-3）：现存宝石保序落到底部，记录移动。
+   * @returns 落定后最高的空行号（-1 = 该列已满）
+   */
+  private settleColumn(board: BoardModel, col: number, moves: GemMove[]): number {
+    // 1. 自底向上收集该列现存宝石（保序），同时记录其原始行号
+    const survivors: { gem: Gem; fromRow: number }[] = [];
+    for (let row = BoardModel.ROWS - 1; row >= 0; row--) {
+      const gem = board.get({ row, col });
+      if (gem !== null) survivors.push({ gem, fromRow: row });
+    }
+
+    // 2. 清空该列
+    for (let row = 0; row < BoardModel.ROWS; row++) {
+      board.set({ row, col }, null);
+    }
+
+    // 3. 从底部回填现存宝石，记录移动（仅当行号变化时才算移动）
+    let writeRow = BoardModel.ROWS - 1;
+    for (const { gem, fromRow } of survivors) {
+      const to: CellPos = { row: writeRow, col };
+      board.set(to, gem);
+      if (fromRow !== writeRow) {
+        moves.push({ gemId: gem.id, from: { row: fromRow, col }, to });
+      }
+      writeRow--;
+    }
+    return writeRow;
+  }
+
+  /**
+   * 连消倾向补充（comboBias > 0）：全部列先落定，再按列序、每列自底向上补充
+   * （与默认路径同一 id 分配顺序）。
+   *   1. 逐格选色时按「邻居同色」轻度加权（COMBO_CLUMP × 强度，见 pickComboColor）；
+   *   2. 同一批空位试掷 1 + round(|强度|) 份补充，按 refillScore 取最好的一份
+   *      （强度 < 0 时取最差的一份 = 打散）。所有试掷都走同一条种子化 RNG，仍确定性。
+   */
+  private applyWithComboBias(
+    board: BoardModel,
+    skullChance: number,
+    stormWeights: ReadonlyMap<BaseColor, number> | undefined,
+    skullDrop: SkullDropBoost | undefined,
+    strength: number,
+  ): GravityResult {
+    const moves: GemMove[] = [];
+    const spawns: GemSpawn[] = [];
+    const tops: number[] = [];
+    for (let col = 0; col < BoardModel.COLS; col++) tops.push(this.settleColumn(board, col, moves));
+    const cells: CellPos[] = [];
+    for (let col = 0; col < BoardModel.COLS; col++) {
+      for (let row = tops[col]; row >= 0; row--) cells.push({ row, col });
+    }
+    if (cells.length === 0) return { moves, spawns };
+
+    const tries = 1 + Math.round(Math.abs(strength));
+    const clump = COMBO_CLUMP * strength;
+    let best: GemType[] = [];
+    let bestScore = -Infinity;
+    for (let attempt = 0; attempt < tries; attempt++) {
+      // 每份试掷都从同一批空位起步，不读上一份留下的临时宝石
+      if (attempt > 0) for (const to of cells) board.set(to, null);
+      // 逐格落子（选色要看已落下的邻居），临时 id 为负，定稿时统一换真实 id
+      const types = cells.map((to, i) => {
+        const gemType = this.randomGemType(skullChance, stormWeights, skullDrop, { board, pos: to, bias: clump });
+        board.set(to, { id: -1 - i, type: gemType });
+        return gemType;
+      });
+      if (tries === 1) { best = types; break; }
+      const score = strength > 0 ? refillScore(board) : -refillScore(board, true);
+      if (score > bestScore) {
+        bestScore = score;
+        best = types;
+      }
+    }
+    cells.forEach((to, i) => {
+      const gem: Gem = { id: this.nextGemId(), type: best[i] };
+      board.set(to, gem);
+      spawns.push({ gemId: gem.id, to, gemType: gem.type });
+    });
+    return { moves, spawns };
+  }
+
   private randomGemType(
     skullChance: number,
     stormWeights?: ReadonlyMap<BaseColor, number>,
     skullDrop?: SkullDropBoost,
+    combo?: ComboContext,
   ): GemType {
     if (this.specialSpawnChance > 0 && this.rng.next() < this.specialSpawnChance) {
       return specialGem(this.rng.pick(GravitySystem.SPAWNABLE_SPECIALS));
@@ -152,7 +247,39 @@ export class GravitySystem {
     if (effectiveSkullChance > 0 && this.rng.next() < effectiveSkullChance) {
       return { kind: 'skull', variant: 'normal' };
     }
-    return colorGem(this.pickColor(stormWeights));
+    return colorGem(combo ? this.pickComboColor(stormWeights, combo) : this.pickColor(stormWeights));
+  }
+
+  /**
+   * 连消倾向选色：在风暴权重之上，按落点邻居的同色情况加权（仍只消耗一个随机数）。
+   *   亲和度 = 相邻同色数（左/右/下）+ 0.5 × 隔一格同色数（左二/右二/下二）；
+   *   权重 = 风暴权重 × (1 + bias × 亲和度)；bias < 0（长连段护栏）时为 风暴权重 / (1 + |bias| × 亲和度)。
+   * 同色成团 → 两连/隔空两连变多 → 玩家更常看到「补一颗成 4/5 连」的机会，也更常出连锁；
+   * bias = 0 时退化为均匀分布（该路径不会被调用，见 apply）。
+   */
+  private pickComboColor(stormWeights: ReadonlyMap<BaseColor, number> | undefined, combo: ComboContext): BaseColor {
+    const { board, pos, bias } = combo;
+    const colorAt = (row: number, col: number): BaseColor | null => {
+      if (row < 0 || row >= BoardModel.ROWS || col < 0 || col >= BoardModel.COLS) return null;
+      const gem = board.get({ row, col });
+      return gem && gem.type.kind === 'color' ? gem.type.color : null;
+    };
+    const near = [colorAt(pos.row, pos.col - 1), colorAt(pos.row, pos.col + 1), colorAt(pos.row + 1, pos.col)];
+    const far = [colorAt(pos.row, pos.col - 2), colorAt(pos.row, pos.col + 2), colorAt(pos.row + 2, pos.col)];
+    const weights = ALL_BASE_COLORS.map((color) => {
+      let affinity = 0;
+      for (const c of near) if (c === color) affinity += 1;
+      for (const c of far) if (c === color) affinity += 0.5;
+      const lean = bias >= 0 ? 1 + bias * affinity : 1 / (1 - bias * affinity);
+      return (stormWeights?.get(color) ?? 1) * lean;
+    });
+    const total = weights.reduce((a, b) => a + b, 0);
+    let roll = this.rng.next() * total;
+    for (let i = 0; i < ALL_BASE_COLORS.length; i++) {
+      roll -= weights[i];
+      if (roll < 0) return ALL_BASE_COLORS[i];
+    }
+    return ALL_BASE_COLORS[ALL_BASE_COLORS.length - 1];
   }
 
   /**

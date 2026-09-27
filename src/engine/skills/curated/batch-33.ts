@@ -24,6 +24,16 @@ import type { CuratedBatch } from './index';
 
 const SKIPPED: { id: number; reason: string }[] = [];
 
+/** 8570「数值因元素、精灵和绿色盟友数而增强 [x2]」（原生 CountArmyType elemental/elf + CountArmyColor 1，各 200） */
+const M8570 = {
+  mod: { kind: 'multiplier' as const, a: 2 },
+  sources: [
+    { kind: 'alliesOfRace' as const, race: 'Elemental' },
+    { kind: 'alliesOfRace' as const, race: 'Elf' },
+    { kind: 'alliesOfColor' as const, color: BaseColor.Green },
+  ],
+};
+
 const SPELLS: CuratedBatch['spells'] = [
   {
     id: 7232,
@@ -61,9 +71,10 @@ const SPELLS: CuratedBatch['spells'] = [
   {
     id: 7740,
     desc: '对最后一名敌人造成 [魔法 + 6] 点真实伤害，并使其获得狂怒状态。',
+    // Native order CauseEnraged LastEnemy -> TrueDamage LastEnemy (rulings/R001, L5-013).
     build: skill(
-      trueDmg('enemyLast', 6, 1),
       inflict('rage', 'enemyLast'),
+      trueDmg('enemyLast', 6, 1),
     ),
   },
   {
@@ -137,28 +148,21 @@ const SPELLS: CuratedBatch['spells'] = [
   {
     id: 8393,
     desc: '赋予所有敌人和盟友狂怒效果。',
+    // Native order CauseEnraged AllAllies -> AllEnemies (rulings/R001, L5-013).
     build: skill(
-      inflict('rage', 'enemyAll'),
       inflict('rage', 'allyAll'),
+      inflict('rage', 'enemyAll'),
     ),
   },
   {
     id: 8570,
     desc: '给予第一位盟友 [魔法 + 1] 点攻击力和生命值，数值因元素、精灵和绿色盟友数而增强。 [x2]',
     build: skill(
-      // 一个方括号喂双段（8372 口径）；泛指「数值」→ modifier 挂最近数值段 = heal；
-      // sources[] 三重来源：Elemental + Elf + alliesOfColor Green（2026-09-16 回收）
-      attack('allyFront', 1, 1),
-      heal('allyFront', 1, 1, {
-        modifier: {
-          mod: { kind: 'multiplier', a: 2 },
-          sources: [
-            { kind: 'alliesOfRace', race: 'Elemental' },
-            { kind: 'alliesOfRace', race: 'Elf' },
-            { kind: 'alliesOfColor', color: BaseColor.Green },
-          ],
-        },
-      }),
+      // 一个方括号喂双段（8372 口径）；sources[] 三重来源：Elemental + Elf + alliesOfColor Green（2026-09-16 回收）
+      // L7-7045（sa-L76）：原生 IncreaseAttack 与 IncreaseHealth 两步都 UseCounterForAmount →
+      // 攻击段与生命段同挂 modifier（原先只挂 heal）。
+      attack('allyFront', 1, 1, { modifier: M8570 }),
+      heal('allyFront', 1, 1, { modifier: M8570 }),
     ),
   },
   {

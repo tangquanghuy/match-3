@@ -4,13 +4,14 @@
  * 依赖方向：meta → session/engine 单向；session 契约零改动（计划 §3.1）。
  * 三个职责：
  *  1. 快照组装：玩家部队只带**已解锁**的特质（养成进度真实影响战斗）；
- *     敌人带全部特质与 tier 标（AI 满配，对齐 GoW 敌方行为）。
+ *     敌人按遭遇计划的训练进度带特质与 tier 标。
  *  2. 注册表兜底：技能库只覆盖已核对的 647+ 条法术，未收录法术注册
  *     `fallbackPrototype()`（仅扣法力，需求 11.4）——1798 张全量内容都可出战。
  *  3. 会话校验：产出的 request 用 `session/validateRequest` 全量过一遍，
  *     校验口径与真实嵌入模式一致（knownSkillIds = 注册表键集）。
  */
 import { getTroopById, knownTroopTypes, type TroopData } from '../../data/troops';
+import { enemyEncounterStats, enemyTraitCount, enemyLevel } from '../data/enemyDifficulty';
 import { troopStatsAtLevel } from '../../data/leveling';
 import { BaseColor } from '../../engine/types';
 import type { TeamPreset, TroopRecord } from '../state/schema';
@@ -101,9 +102,10 @@ export function troopToSnapshot(
     templateId: String(troop.id),
     name: troop.name,
     levelLabel: `Lv.${rec.level}`,
-    portraitUrl: `/meta/assets/portraits/${troop.portrait}.webp`,
+    portraitUrl: troop.artUrl ?? `/meta/assets/portraits/${troop.portrait}.webp`,
     stats: { hp: stats.health, attack: stats.attack, armor: stats.armor, magic: stats.magic },
     troopTypes: [...troop.troopTypes],
+    kingdom: troop.kingdom ?? undefined,
     manaColors: [...troop.manaColors],
     manaCost: troop.manaCost,
     traitIds: knownTraits(troop, (i) => rec.traits[i]),
@@ -115,27 +117,29 @@ export function troopToSnapshot(
   };
 }
 
-/** 敌方快照：满配特质（过滤已实现）、带 tier 标（AI 满配，对齐 GoW 敌方行为）；竞技场对手复用 */
+/** Enemy snapshots share exactly the same enabled slots for runtime and card display. */
 export function enemyToSnapshot(troop: TroopData, enemy: EncounterEnemy, index: number): CombatantSnapshot {
-  const stats = troopStatsAtLevel(troop, enemy.level);
+  const stats = enemyEncounterStats(troop, enemy.level, enemy.statMultiplier);
+  const count = Number.isFinite(enemy.traitCount) ? Math.min(3, Math.max(0, Math.floor(enemy.traitCount!))) : enemyTraitCount(enemy.level);
   return {
     externalId: `e${index}-${troop.id}`,
     templateId: String(troop.id),
     name: troop.name,
-    levelLabel: `Lv.${enemy.level}`,
-    portraitUrl: `/meta/assets/portraits/${troop.portrait}.webp`,
+    levelLabel: `Lv.${enemyLevel(enemy.level)}`,
+    portraitUrl: troop.artUrl ?? `/meta/assets/portraits/${troop.portrait}.webp`,
     tier: enemy.tier,
     stats: { hp: stats.health, attack: stats.attack, armor: stats.armor, magic: stats.magic },
     troopTypes: [...troop.troopTypes],
+    kingdom: troop.kingdom ?? undefined,
     manaColors: [...troop.manaColors],
     manaCost: troop.manaCost,
-    // 引擎只带已实现 code；卡面三槽按图鉴全开，未实现的也出图标
-    traitIds: knownTraits(troop, () => true),
+    // Engine and display follow the same explicit NPC training policy.
+    traitIds: knownTraits(troop, i => i < count),
     skillId: String(troop.spell.id),
     spellName: troop.spell.name,
     spellDescription: troop.spell.description,
     traitNames: Object.fromEntries(troop.traits.map((t) => [t.code, t.name])),
-    displayTraitIds: displayTraits(troop, () => true),
+    displayTraitIds: displayTraits(troop, i => i < count),
   };
 }
 
@@ -179,7 +183,7 @@ export function buildPlayerSnapshots(
   save: MetaSave,
 ): { ok: true; playerTeam: CombatantSnapshot[]; team: TeamPreset } | MetaFailure {
   const team = activeTeam(save);
-  if (!team) return fail('NO_TEAM', '没有可用队伍：先在编队页保存一支 3~4 人队');
+  if (!team) return fail('NO_TEAM', '没有可用队伍：先在编队页保存一支 4 人队');
 
   const playerTeam: CombatantSnapshot[] = [];
   const statBonus = kingdomBonusOf(save);

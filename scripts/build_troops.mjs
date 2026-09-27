@@ -7,6 +7,7 @@ import path from 'node:path';
 
 const IN = 'data/raw/troops.gow.zh.json';
 const OUT = 'src/data/troops.json';
+const SNAPSHOT_OVERRIDES = JSON.parse(fs.readFileSync('src/data/gowSnapshotOverrides.json', 'utf8')).troops;
 
 /** gowhead 颜色键 → 引擎 BaseColor 值 */
 const COLOR_MAP = {
@@ -82,6 +83,9 @@ const raw = JSON.parse(fs.readFileSync(IN, 'utf8'));
 
 const troops = raw.troops.map((t) => {
   const s = t.stats ?? {};
+  const spellDescription = SNAPSHOT_OVERRIDES[t.id]?.spellDescription ?? s.spell?.desc ?? '';
+  const spellMeta = buildSkillMetadata(spellDescription);
+  if (SNAPSHOT_OVERRIDES[t.id]?.spellModifier) spellMeta.modifier = SNAPSHOT_OVERRIDES[t.id].spellModifier;
   const colors = (t.mana_colors ?? [])
     .map((c) => COLOR_MAP[c])
     .filter(Boolean);
@@ -109,23 +113,29 @@ const troops = raw.troops.map((t) => {
     },
     // 法力
     manaColors: colors,
-    manaCost: t.ManaCost ?? 0,
+    manaCost: SNAPSHOT_OVERRIDES[t.id]?.manaCost ?? t.ManaCost ?? 0,
     // 技能：描述符 + 预解析元数据（缩放/修饰/原文/是否识别），运行时不再解析文本
     spell: {
       id: t.SpellId,
       name: s.spell?.name ?? '',
-      description: s.spell?.desc ?? '',
-      meta: buildSkillMetadata(s.spell?.desc ?? ''),
+      description: SNAPSHOT_OVERRIDES[t.id]?.spellDescription ?? s.spell?.desc ?? '',
+      meta: buildSkillMetadata(SNAPSHOT_OVERRIDES[t.id]?.spellDescription ?? s.spell?.desc ?? ''),
     },
     // 特质（仅保留代码 + 名称 + 描述，丢弃 traitstone 图标等元数据）
     traits: (s.traits ?? []).map((x) => ({
       code: x.code,
-      name: x.name,
-      description: x.description,
+      name: SNAPSHOT_OVERRIDES[t.id]?.traitNames?.[x.code] ?? x.name,
+      description: SNAPSHOT_OVERRIDES[t.id]?.traitDescriptions?.[x.code] ?? x.description,
     })),
     portrait: t.FileBase ?? null,
   };
 });
+
+// Preserve separately sourced installed entries absent from the Chinese snapshot.
+const supplements = JSON.parse(fs.readFileSync('src/data/gowTroopSnapshotSupplements.json', 'utf8')).troops;
+for (const entry of supplements) {
+  if (!troops.some((troop) => troop.id === entry.id)) troops.push(entry);
+}
 
 fs.mkdirSync(path.dirname(OUT), { recursive: true });
 fs.writeFileSync(OUT, JSON.stringify(troops, null, 2), 'utf8');

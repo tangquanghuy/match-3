@@ -1,13 +1,7 @@
-/**
- * 增益与资源效果原语（战斗技能系统 · 需求 8）。
- *
- * 作用于目标选择产出的**己方**角色：加攻击/护甲、恢复生命、加法力、加魔力。
- * 数额按缩放规格 + 施法者魔力求值。变更夹在各自上限内：
- *   - hp 不超过 maxHp（需求 8.3）
- *   - mana 不超过该角色 manaCost（需求 8.4）
- * 每次实际变更发一个 buff 事件（携带目标与实际变化量，需求 8.5）。
- *
- * 纯逻辑：无 pixi/gsap/dom 依赖。
+/** Buff/resource primitives. Explicit native Life gain increases current and maximum
+ * Life together; healing stays capped at maximum Life. Mana remains capped at cost.
+ * Legacy/custom hp buffs and applyBuffGain keep the existing restoration contract.
+ * Pure logic, without renderer dependencies.
  */
 import type { GameEvent, BuffEvent } from '../../events';
 import type { Character } from '../../types';
@@ -15,7 +9,7 @@ import type { ScalingSpec } from '../scaling';
 import { evaluateScaling } from '../scaling';
 import type { EffectContext, EffectPrimitive } from './context';
 import { casterMagic } from './context';
-import { isWebbed } from './status';
+import { isEntangled, isWebbed, canGainMana } from './status';
 import { hasTroopType, evaluateWithModifier, DEFAULT_RACE_DOUBLE, condMultiplier, condBonusValue } from './secondary';
 import type { ModifierSpec, CondMult, CondBonus } from './secondary';
 import { effectiveHealing } from '../../healing';
@@ -23,11 +17,16 @@ import { effectiveHealing } from '../../healing';
 /** 可增益的属性 */
 export type BuffStat = 'attack' | 'armor' | 'hp' | 'mana' | 'magic';
 
+/** Native IncreaseHealth grows current AND maximum Life; Heal restores only current Life. */
+export type LifeMode = 'gain' | 'heal';
+
 export interface BuffParams {
   /** 己方目标列表（由 targeting 产出） */
   targets: Character[];
   /** 要增益的属性 */
   stat: BuffStat;
+  /** Explicit native Life semantics; omitted preserves legacy/custom healing behavior. */
+  lifeMode?: LifeMode;
   /** 数额缩放规格；按施法者魔力求值 */
   scaling: ScalingSpec;
   /** 全额治疗（stat='hp'）：恢复到 maxHp 上限（「恢复所有生命值」） */
@@ -71,8 +70,8 @@ export interface BuffParams {
  * 导出供窃取（debuff.ts）的「自身等量获得」路径复用，保证口径一致
  * （hp 上限、mana 上限、织网拦截魔法增益、治疗修正）。
  */
-export function applyBuffGain(target: Character, stat: BuffStat, amount: number): number {
-  return buffOne(target, stat, amount);
+export function applyBuffGain(target: Character, stat: BuffStat, amount: number, lifeMode?: LifeMode): number {
+  return buffOne(target, stat, amount, lifeMode);
 }
 
 /**
@@ -88,9 +87,11 @@ function currentStat(target: Character, stat: BuffStat): number {
   }
 }
 
-function buffOne(target: Character, stat: BuffStat, amount: number): number {
+function buffOne(target: Character, stat: BuffStat, amount: number, lifeMode?: LifeMode): number {
   switch (stat) {
     case 'attack': {
+      // Entangle blocks Attack gains while active; reductions still apply.
+      if (amount > 0 && isEntangled(target)) return 0;
       target.attack += amount;
       return amount;
     }
@@ -99,13 +100,20 @@ function buffOne(target: Character, stat: BuffStat, amount: number): number {
       return amount;
     }
     case 'magic': {
-      // 织网（GoW Web）期间无法获得魔法值增益；返回 0 则不发 buff 事件
+      // 织网（GoW Web）期间无法获得魔力值增益；返回 0 则不发 buff 事件
       if (isWebbed(target)) return 0;
       target.magic += amount;
       return amount;
     }
     case 'hp': {
-      // 治疗互动（GoW）：出血期间完全无法回血，疾病期间治疗减半。
+      if (lifeMode === 'gain') {
+        // Growth is not restoration: preserve the missing-Life gap, including at full Life.
+        if (!Number.isFinite(amount) || amount <= 0) return 0;
+        target.maxHp += amount;
+        target.hp += amount;
+        return amount;
+      }
+      // 出血和疾病不影响治疗量；只折算具有独立依据的治疗修正。
       // 只折算正向治疗——负数走的是「以 buff 形式扣血」，不该被治疗修正放大。
       const healed = effectiveHealing(target, amount);
       // 不超过 maxHp（需求 8.3）
@@ -114,6 +122,10 @@ function buffOne(target: Character, stat: BuffStat, amount: number): number {
       return target.hp - before;
     }
     case 'mana': {
+      // L3-004: official Silence "prevents a troop from gaining any mana" — spell grants
+      // (GenerateMana / Half / Quarter / Full, steal refills) honour the same canGainMana gate
+      // as gem mana (ManaDistributor) and Enchanted. Reductions still apply.
+      if (amount > 0 && !canGainMana(target)) return 0;
       // 不超过 manaCost（需求 8.4）
       const before = target.mana;
       target.mana = Math.min(target.manaCost, target.mana + amount);
@@ -130,6 +142,8 @@ function buffOne(target: Character, stat: BuffStat, amount: number): number {
 const RANDOM_STATS: readonly BuffStat[] = ['attack', 'armor', 'hp', 'magic'];
 
 export interface RandomStatParams {
+  /** Pick one Skill for each target and increase that Skill by the entire value. */
+  oneSkill?: boolean;
   /** 目标列表（由 targeting 产出） */
   targets: Character[];
   /** 点数缩放规格（「获得 [魔法] 点随机技能值」按施法者魔力求值） */
@@ -167,6 +181,12 @@ export function randomStatEffect(params: RandomStatParams): EffectPrimitive {
         const raceFactor = params.raceDouble && hasTroopType(target, params.raceDouble) ? (params.raceTimes ?? DEFAULT_RACE_DOUBLE) : 1;
         const effPoints = (base + condBonusValue(params.condBonus, ctx, target)) * raceFactor * condMultiplier(params.condMult, ctx, target);
         if (effPoints <= 0) continue;
+        if (params.oneSkill) {
+          const stat = RANDOM_STATS[ctx.rng.nextInt(RANDOM_STATS.length)];
+          const applied = buffOne(target, stat, effPoints, stat === 'hp' ? 'gain' : undefined);
+          if (applied !== 0) events.push({ type: 'buff', targetId: target.id, stat, amount: applied, ...(stat === 'hp' ? { maxHpGain: applied } : {}) });
+          continue;
+        }
         const gains: Partial<Record<BuffStat, number>> = {};
         for (let i = 0; i < effPoints; i++) {
           const stat = RANDOM_STATS[ctx.rng.nextInt(RANDOM_STATS.length)];
@@ -188,6 +208,11 @@ export function randomStatEffect(params: RandomStatParams): EffectPrimitive {
  * 构建增益原语（需求 8.1–8.5；二次缩放/种族翻倍为窗口 B 增量）。
  */
 export function buffEffect(params: BuffParams): EffectPrimitive {
+  const eventFor = (target: Character, stat: BuffStat, amount: number): BuffEvent => {
+    const event: BuffEvent = { type: 'buff', targetId: target.id, stat, amount };
+    if (stat === 'hp' && params.lifeMode === 'gain') event.maxHpGain = amount;
+    return event;
+  };
   return {
     apply(ctx: EffectContext): GameEvent[] {
       const { targets, stat, scaling } = params;
@@ -216,14 +241,14 @@ export function buffEffect(params: BuffParams): EffectPrimitive {
           const ratio = params.halve ? 0.5 : (params.fraction as number);
           const applied = buffOne(target, 'mana', Math.floor(target.manaCost * ratio));
           if (applied !== 0) {
-            events.push({ type: 'buff', targetId: target.id, stat, amount: applied });
+            events.push(eventFor(target, stat, applied));
           }
           continue;
         }
         if (params.double) {
-          const applied = buffOne(target, stat, currentStat(target, stat));
+          const applied = buffOne(target, stat, currentStat(target, stat), params.lifeMode);
           if (applied !== 0) {
-            events.push({ type: 'buff', targetId: target.id, stat, amount: applied });
+            events.push(eventFor(target, stat, applied));
           }
           continue;
         }
@@ -233,16 +258,11 @@ export function buffEffect(params: BuffParams): EffectPrimitive {
         let amount = rolled !== null
           ? base * raceFactor
           : (base + condBonusValue(params.condBonus, ctx, target)) * raceFactor * condMultiplier(params.condMult, ctx, target);
-        if (params.full && stat === 'hp') amount = Number.POSITIVE_INFINITY;
-        const applied = buffOne(target, stat, amount);
+        if (params.full && stat === 'hp') amount = Math.max(0, target.maxHp - target.hp);
+        const applied = buffOne(target, stat, amount, params.lifeMode);
         // 仅在实际发生变更时发事件（如满血治疗不产生 0 事件噪声）
         if (applied !== 0) {
-          const ev: BuffEvent = {
-            type: 'buff',
-            targetId: target.id,
-            stat,
-            amount: applied,
-          };
+          const ev = eventFor(target, stat, applied);
           events.push(ev);
         }
       }

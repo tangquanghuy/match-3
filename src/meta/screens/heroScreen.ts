@@ -275,7 +275,7 @@ export class HeroScreen implements Screen {
             <div class="vault-mark"><span data-icon="swords"></span></div>
             <div class="vault-heading">
               <h2 id="vaultTitle">武 器 库</h2>
-              <p>武器是主角唯一的施法手段 · 决定法力色、耗蓝与法术</p>
+              <p>武器是主角唯一的施法手段 · 决定法力颜色、法力值消耗与法术</p>
             </div>
             <div class="vault-count">已获得 <b id="vaultOwned">0</b> / <i id="vaultTotal">0</i></div>
             <button class="secondary" id="vaultForge" type="button">熔炉锻造</button>
@@ -1167,7 +1167,7 @@ export class HeroScreen implements Screen {
         }
         this.renderAll();
         this.openVault();
-        toast(`已装备「${w.name}」· 主角法力色与法术随之改变。`);
+        toast(`已装备「${w.name}」· 主角法力颜色与法术随之改变。`);
       })();
   }
 

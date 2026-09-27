@@ -1,24 +1,33 @@
+import type { NarrationPlan } from './BattleNarrator';
 import { Container } from 'pixi.js';
 import { gsap } from 'gsap';
 import type { GameEvent } from '@engine/events';
 import { computeClearEventBatches, mergeClearBatch } from './clearEventBatches';
+import { computeImpactWindows, computeSynchronizedSingles, isBoardPlaybackEvent, isCardPlaybackEvent } from './impactPlayback';
+import { computeEliminationWaves, computeBuffPlaybackBatches, computeDefeatPlaybackBatches, computeSplashPlaybackSlots } from './presentationBatches';
+import type { BuffPlaybackBatch, DefeatPlaybackBatch } from './presentationBatches';
+import { computeStatusPlaybackBatches } from './statusPlayback';
+import type { StatusPlaybackBatch } from './statusPlayback';
+import type { ImpactPresentation } from './impactPlayback';
 import type { ClearEvent } from './clearEventBatches';
+import { computeManaPlaybackBatches, computeManaSources, manaFlowDuration } from './manaPlayback';
+import type { ManaOriginRef, ManaPlaybackBatch } from './manaPlayback';
 import type { CellPos } from '@engine/types';
 import { BoardView } from './BoardView';
 import { FXLayer, screenShake } from './FXLayer';
 import { AnimConfig, fallDuration } from './AnimationConfig';
+import { FramePlaybackClock } from './FramePlaybackClock';
 import { colorOf } from './GemSprite';
 import type { GemSprite } from './GemSprite';
 import type { AudioManager } from './AudioManager';
-import { extraActionComboLevel } from './turnHudLogic';
 import { buildReshufflePlan, gatherPointAt, gatherRotationAt, gatherScaleAt, scatterPoseAt } from './reshufflePlan';
 import type { ReshufflePlanItem } from './reshufflePlan';
 import {
   RESHUFFLE_SCATTER_WINDOW,
   RESHUFFLE_TIMING,
 } from './reshufflePlan';
+import { castCutInReserveSeconds } from './CastCutIn';
 
-type ManaOriginRef = { gemId: number; pos: CellPos };
 type BoardPoint = { x: number; y: number };
 
 /**
@@ -40,6 +49,48 @@ const SUMMON_HOLD_SECONDS: Record<Extract<GameEvent, { type: 'summon' }>['destin
 
 export class EventStreamPlayer {
   private timeline: gsap.core.Timeline | null = null;
+  private finishPending: (() => void) | null = null;
+  private paused = false;
+  onTurnEnd?: () => void;
+  onDetachedTween?: (tween: gsap.core.Animation) => void;
+  private detachedTweens = new Set<gsap.core.Animation>();
+  private frameClocks = new Set<FramePlaybackClock>();
+  private trackDetached<T extends gsap.core.Animation>(tween: T): T {
+    this.detachedTweens.add(tween);
+    const complete = tween.eventCallback('onComplete');
+    const interrupt = tween.eventCallback('onInterrupt');
+    tween.eventCallback('onComplete', () => { this.detachedTweens.delete(tween); complete?.(); });
+    tween.eventCallback('onInterrupt', () => { this.detachedTweens.delete(tween); interrupt?.(); });
+    this.onDetachedTween?.(tween);
+    return tween;
+  }
+  private detachedTo(...args: Parameters<typeof gsap.to>): gsap.core.Tween {
+    return this.trackDetached(gsap.to(...args));
+  }
+  private detachedFromTo(targets: gsap.TweenTarget, fromVars: gsap.TweenVars, toVars: gsap.TweenVars): gsap.core.Tween {
+    return this.trackDetached(gsap.fromTo(targets, fromVars, toVars));
+  }
+
+  isPlaying(): boolean { return this.timeline !== null; }
+
+  setPaused(paused: boolean): void {
+    this.paused = paused;
+    this.timeline?.paused(paused);
+  }
+
+  /** Kill callbacks as well as animation; release any awaiting App continuation. */
+  cancel(): void {
+    this.timeline?.kill();
+    for (const clock of this.frameClocks) clock.finish();
+    this.frameClocks.clear();
+    for (const tween of [...this.detachedTweens]) tween.kill();
+    this.detachedTweens.clear();
+    this.timeline = null;
+    const finish = this.finishPending;
+    this.finishPending = null;
+    this.manaOriginCache.clear();
+    finish?.();
+  }
 
   /**
    * 同一波重力里幸存宝石的最大下落格数（appendGravity 记录，appendRefill 消费）：
@@ -49,7 +100,8 @@ export class EventStreamPlayer {
   private pendingFallMaxCells = 0;
 
   /** 战斗事件回调：在时间线推进到该事件时触发，供 App 更新卡面（需求 19.6, 19.7） */
-  onBattleEvent: ((ev: GameEvent) => void) | null = null;
+  onBattleEvent: ((ev: GameEvent, presentation?: ImpactPresentation) => void) | null = null;
+  onNarrationBatch: ((events: GameEvent[]) => NarrationPlan | null) | null = null;
   /**
    * 群体攻击批次回调（ANIMATION_HANDOFF §19 P0-1）：把连续 range='all' 的 skill-damage
    * 聚合成「一次 0241 释放 + 全体同时受击」。App 播放释放/群体受击/伤害飘字。
@@ -63,7 +115,6 @@ export class EventStreamPlayer {
    * 对应色一次性爆发 FX；召唤音效由本类按 stormChangePlan 在同一时间点播放。
    */
   onStormChange: ((ev: Extract<GameEvent, { type: 'storm-change' }>) => void) | null = null;
-  private extraTurnComboLevel = 2;
   private manaOriginCache = new Map<number, BoardPoint>();
 
   constructor(
@@ -75,35 +126,152 @@ export class EventStreamPlayer {
 
   /** 播放一整条事件流，返回在全部动画结束后 resolve 的 Promise */
   play(events: GameEvent[]): Promise<void> {
-    const tl = gsap.timeline();
+    this.cancel();
+    const tl = gsap.timeline({ paused: this.paused });
     this.timeline = tl;
     this.manaOriginCache.clear();
     this.groupAttackConsumed.clear();
-    tl.timeScale(AnimConfig.globalScale);
+    // 战斗倍速由 gsap 全局时间线统一换算（battleSpeedRuntime），这里只叠本播放器的局部倍率（默认 1）
+    tl.timeScale(this.timelineScale);
 
     // 预计算：每个连锁等级首次出现的消除事件下标，
     // 使屏幕震动/连击飘字每级只触发一次（而非每个消除组都触发）
     this.leadEliminationIndex = this.computeChainLeads(events);
-    this.extraTurnComboLevel = extraActionComboLevel(events);
     // 群体攻击批次：连续 range='all' 的 skill-damage 归为一批（首下标 → 整批事件）
     this.groupAttackBatches = this.computeGroupAttackBatches(events);
+    for (const [leader, batch] of this.groupAttackBatches) {
+      for (let k = 1; k < batch.length; k++) this.groupAttackConsumed.add(leader + k);
+    }
     // 特殊宝石清除批次：连续的 gem-explode / gem-destroy 归为一批同时引爆
     // （末日骷髅环、至尊环、炸弹连环会产出多个清除事件，逐个播会"一颗颗慢慢爆"）
     const clearBatches = computeClearEventBatches(events);
     this.clearBatches = clearBatches.leaders;
     this.clearBatchMembers = clearBatches.members;
-    const manaSources = this.computeManaSources(events);
+    const manaSources = computeManaSources(events, clearBatches);
+    const manaBatches = computeManaPlaybackBatches(events, clearBatches);
+    this.manaBatches = manaBatches.leaders;
+    this.manaBatchMembers = manaBatches.members;
+    this.manaSources = manaSources;
+    this.clearStartTimes.clear();
+    this.manaCommitEnd = 0;
+    const statuses = computeStatusPlaybackBatches(events);
+    this.statusBatches = statuses.leaders;
+    this.statusBatchMembers = statuses.members;
+    const buffs = computeBuffPlaybackBatches(events);
+    this.buffBatches = buffs.leaders;
+    this.buffBatchMembers = buffs.members;
+    const defeats = computeDefeatPlaybackBatches(events);
+    this.defeatBatches = defeats.leaders;
+    this.defeatBatchMembers = defeats.members;
+    const eliminationWaves = computeEliminationWaves(events);
+    const eliminationStarts = new Map<number, number>();
+    this.splashSlots = computeSplashPlaybackSlots(events);
+    const splashStarts = new Map<number, number>();
+    this.pendingFallLabel = null;
+    this.pendingFallMaxCells = 0;
 
-    events.forEach((ev, i) => this.appendSegment(tl, ev, i, manaSources.get(i) ?? []));
+    const narration = this.onNarrationBatch?.(events);
+    let narrationIndex = narration?.eventIndex;
+    // A grouped hit presents all victims at its leader; never narrate a skipped member.
+    for (const [leader, batch] of this.groupAttackBatches) {
+      if (narrationIndex !== undefined && narrationIndex >= leader && narrationIndex < leader + batch.length)
+        narrationIndex = leader;
+    }
+    const impactWindows = computeImpactWindows(events, clearBatches);
+    this.synchronizedSingles = computeSynchronizedSingles(events);
+    let currentWindow: number | undefined;
+    let windowStart = 0;
+    let boardEnd = 0;
+    let fallStart: number | undefined;
+    let clearStart: number | undefined;
+    let feedbackStart: number | undefined;
+    const targetEnds = new Map<string, number>();
+    events.forEach((ev, i) => {
+      const window = impactWindows.get(i);
+      if (window !== currentWindow) {
+        currentWindow = window;
+        windowStart = tl.duration();
+        targetEnds.clear();
+        boardEnd = windowStart;
+        fallStart = undefined;
+        clearStart = undefined;
+        feedbackStart = undefined;
+      }
+      // Target dependencies stay ordered; independent cards and board do not wait
+      // for one another. A whole status batch occupies one envelope, not N holds.
+      const batch = ev.type === 'skill-damage' ? this.groupAttackBatches.get(i) : undefined;
+      const statusBatch = this.statusBatches.get(i);
+      const buffBatch = this.buffBatches.get(i);
+      const splashSlot = this.splashSlots.get(i);
+      const skipped = this.clearBatchMembers.has(i) || this.manaBatchMembers.has(i)
+        || this.statusBatchMembers.has(i) || this.buffBatchMembers.has(i)
+        || this.defeatBatchMembers.has(i) || this.groupAttackConsumed.has(i);
+      const targets = buffBatch?.targetIds ?? statusBatch?.targetIds ?? (ev.type === 'skill-damage'
+        ? (batch ?? [ev]).map(hit => hit.targetId)
+        : isCardPlaybackEvent(ev) && 'targetId' in ev ? [ev.targetId] : []);
+      const lanes = skipped ? [] : targets.map(target => `target:${target}`);
+      if (ev.type === 'skull-damage' && !ev.reflected) lanes.push(`attack:${ev.attackerId}`);
+      if (ev.type === 'skill-damage' && ev.range === 'splash') {
+        lanes.push(`splash:${ev.casterId}`);
+        if (splashSlot?.leader === i) for (const target of splashSlot.targetIds) lanes.push(`target:${target}`);
+      }
+      this.segmentPosition = window === undefined ? undefined
+        : Math.max(windowStart, ...lanes.map(lane => targetEnds.get(lane) ?? windowStart));
+      if (window !== undefined && isBoardPlaybackEvent(ev)) {
+        this.segmentPosition = ev.type === 'refill' && fallStart !== undefined ? fallStart : boardEnd;
+      }
+      if (ev.type === 'elimination') {
+        const leader = eliminationWaves.get(i)!;
+        if (leader === i) {
+          const gap = ev.chainCount > 1 && this.leadEliminationIndex.has(i) ? AnimConfig.chainGap : 0;
+          eliminationStarts.set(leader, this.segmentPosition! + gap);
+        } else this.segmentPosition = eliminationStarts.get(leader);
+      }
+      if (ev.type === 'special-gem-trigger') this.segmentPosition = feedbackStart ?? boardEnd;
+      if (splashSlot) {
+        if (splashSlot.leader === i) splashStarts.set(i, this.segmentPosition!);
+        else this.segmentPosition = splashStarts.get(splashSlot.leader)! + splashSlot.offset;
+      }
+      // Exploded-skull projectiles may only originate after their associated clear starts.
+      if (window !== undefined && ev.type === 'skill-damage' && (ev.skullBurst || ev.originCell)) {
+        this.segmentPosition = Math.max(this.segmentPosition!, clearStart ?? windowStart);
+      }
+      if (!skipped && ev.type === 'gravity') fallStart = this.segmentPosition;
+      else if (!skipped && isBoardPlaybackEvent(ev) && ev.type !== 'refill') fallStart = undefined;
+      if (!this.clearBatchMembers.has(i) &&
+          (ev.type === 'elimination' || ev.type === 'gem-explode' || ev.type === 'gem-destroy') && ev.cells.length) {
+        // Cascade anticipation belongs before the clear, not before the concurrent mana flow.
+        const gap = ev.type === 'elimination' && ev.chainCount > 1 && this.leadEliminationIndex.has(i)
+          ? AnimConfig.chainGap : 0;
+        this.clearStartTimes.set(i, (this.segmentPosition ?? tl.duration()) + gap);
+        clearStart = this.clearStartTimes.get(i);
+        feedbackStart = clearStart;
+      }
+      this.appendSegment(tl, ev, i, manaSources.get(i) ?? []);
+      if (!skipped && isBoardPlaybackEvent(ev)) {
+        boardEnd = Math.max(boardEnd, this.lastSegmentEnd);
+        if (!['elimination', 'gem-explode', 'gem-destroy'].includes(ev.type)) feedbackStart = boardEnd;
+      }
+      if (ev.type === 'refill') fallStart = undefined;
+      for (const lane of lanes) {
+        targetEnds.set(lane, Math.max(targetEnds.get(lane) ?? 0, this.lastSegmentEnd));
+      }
+      // After the impact segment, without extending the timeline for the voice's duration.
+      if (narration && i === narrationIndex) tl.call(narration.play);
+    });
 
+    this.segmentPosition = undefined;
     return new Promise((resolve) => {
+      this.finishPending = resolve;
       tl.eventCallback('onComplete', () => {
+        this.finishPending = null;
         this.timeline = null;
         this.manaOriginCache.clear();
         resolve();
       });
       // 空时间线立即完成
       if (tl.getChildren().length === 0) {
+        this.finishPending = null;
         this.timeline = null;
         resolve();
       }
@@ -122,6 +290,12 @@ export class EventStreamPlayer {
   private clearBatches = new Map<number, ClearEvent[]>();
   /** 批内非首事件下标：播放时跳过（已随批首合并；批首不在其中，由它播放整批） */
   private clearBatchMembers = new Set<number>();
+  private statusBatches = new Map<number, StatusPlaybackBatch>();
+  private statusBatchMembers = new Set<number>();
+  private manaBatches = new Map<number, ManaPlaybackBatch>();
+  private manaBatchMembers = new Set<number>();
+  private manaSources = new Map<number, ManaOriginRef[]>();
+  private clearStartTimes = new Map<number, number>();
 
   /**
    * 把连续的 range='all' skill-damage 事件聚合成批（同一次群攻的所有目标同时命中）。
@@ -134,12 +308,13 @@ export class EventStreamPlayer {
     let i = 0;
     while (i < events.length) {
       const ev = events[i];
-      if (ev.type === 'skill-damage' && ev.range === 'all') {
+      if (ev.type === 'skill-damage' && (ev.range === 'all' || ev.range === 'scatter')) {
         const group: Extract<GameEvent, { type: 'skill-damage' }>[] = [];
         let j = i;
         while (j < events.length) {
           const e = events[j];
-          if (e.type === 'skill-damage' && e.range === 'all') {
+          if (e.type === 'skill-damage' && e.range === ev.range
+              && e.casterId === ev.casterId && !group.some(hit => hit.targetId === e.targetId)) {
             group.push(e);
             j += 1;
           } else break;
@@ -166,31 +341,6 @@ export class EventStreamPlayer {
     return leads;
   }
 
-  private computeManaSources(events: GameEvent[]): Map<number, ManaOriginRef[]> {
-    const result = new Map<number, ManaOriginRef[]>();
-    let available: ManaOriginRef[] = [];
-
-    events.forEach((ev, index) => {
-      // 消除、技能摧毁/爆破的颜色宝石都可作为法力流的来源点
-      if (ev.type === 'elimination' || ev.type === 'gem-destroy' || ev.type === 'gem-explode') {
-        available = ev.cells
-          .filter((cell) => cell.gemType.kind === 'color')
-          .map((cell) => ({ gemId: cell.gemId, pos: { ...cell.pos } }));
-        return;
-      }
-      if (ev.type === 'mana-gain') {
-        const take = Math.max(0, Math.min(ev.amount, available.length));
-        result.set(index, available.splice(0, take));
-        return;
-      }
-      if (ev.type === 'gravity' || ev.type === 'refill' || ev.type === 'swap') {
-        available = [];
-      }
-    });
-
-    return result;
-  }
-
   /** 立即跳到终态（需求 25.2）：加速结算剩余动画 */
   skip(): void {
     if (this.timeline) {
@@ -198,26 +348,68 @@ export class EventStreamPlayer {
     }
   }
 
-  /** 设置全局速度倍率（需求 25.1） */
+  /** 本播放器时间线的局部倍率（默认 1；与全局战斗倍速相乘） */
+  private timelineScale = 1;
+
+  /**
+   * 设置本播放器时间线的局部倍率（需求 25.1 的兼容入口，测试/调试用）。
+   * 战斗演出倍速（倍速按钮 / 按住空格）走 battleSpeed + battleSpeedRuntime 全局换算，
+   * 不经这里，也不再改 AnimConfig.globalScale——避免同一段动画被换算两次。
+   */
   setSpeed(scale: number): void {
-    AnimConfig_setGlobalScale(scale);
-    if (this.timeline) this.timeline.timeScale(scale);
+    this.timelineScale = scale > 0 ? scale : 1;
+    if (this.timeline) this.timeline.timeScale(this.timelineScale);
   }
 
   private center(pos: CellPos): { x: number; y: number } {
     return this.board.cellCenter(pos);
   }
 
+  private manaCommitEnd = 0;
+  private buffBatches = new Map<number, BuffPlaybackBatch>();
+  private buffBatchMembers = new Set<number>();
+  private defeatBatches = new Map<number, DefeatPlaybackBatch>();
+  private defeatBatchMembers = new Set<number>();
+  private splashSlots = new Map<number, import('./presentationBatches').SplashPlaybackSlot>();
+  private synchronizedSingles = new Set<number>();
+  private segmentPosition: number | undefined;
+  private lastSegmentEnd = 0;
+
+  /** Move only newly authored children; existing flights and callbacks stay put.
+   * This keeps the parent's duration and audit attribution equal to the actual
+   * concurrent envelope rather than the sum of independent segment durations. */
   private appendSegment(
+    tl: gsap.core.Timeline, ev: GameEvent, index: number, origins: ManaOriginRef[],
+  ): void {
+    const oldEnd = tl.duration();
+    const existing = new Set(tl.getChildren(false, true, true));
+    const oldLabels = new Set(Object.keys(tl.labels));
+    const sharedFall = ev.type === 'refill' && this.pendingFallLabel !== null;
+    this.appendSerialSegment(tl, ev, index, origins);
+    const added = tl.getChildren(false, true, true).filter(child => !existing.has(child));
+    // Mana already uses the saved clear timestamp and must not be shifted twice.
+    if (this.segmentPosition !== undefined && ev.type !== 'mana-gain' && !sharedFall) {
+      const shift = this.segmentPosition - oldEnd;
+      for (const child of added) child.startTime(child.startTime() + shift);
+      for (const label of Object.keys(tl.labels)) if (!oldLabels.has(label)) tl.labels[label] += shift;
+    }
+    this.lastSegmentEnd = Math.max(this.segmentPosition ?? oldEnd,
+      ...added.map(child => child.endTime()));
+  }
+
+  private appendSerialSegment(
     tl: gsap.core.Timeline,
     ev: GameEvent,
     index: number,
     manaOrigins: ManaOriginRef[],
   ): void {
     // 只有紧跟在 gravity 后面的 refill 才与其并行；被其他事件隔开则各自独立
-    if (ev.type !== 'refill') { this.pendingFallLabel = null; this.pendingFallMaxCells = 0; }
+    if (ev.type !== 'refill' && !isCardPlaybackEvent(ev) && ev.type !== 'mana-gain' && ev.type !== 'special-gem-trigger') {
+      this.pendingFallLabel = null; this.pendingFallMaxCells = 0;
+    }
     // 特殊宝石清除批次：批内非首事件已随批首合并播放，直接跳过
-    if (this.clearBatchMembers.has(index)) return;
+    if (this.clearBatchMembers.has(index) || this.manaBatchMembers.has(index) || this.statusBatchMembers.has(index)
+      || this.buffBatchMembers.has(index) || this.defeatBatchMembers.has(index)) return;
     switch (ev.type) {
       case 'swap':
         this.appendSwap(tl, ev.gemIdA, ev.gemIdB, ev.a, ev.b, false);
@@ -238,26 +430,42 @@ export class EventStreamPlayer {
         this.appendReshuffle(tl, ev);
         break;
       case 'mana-gain': {
+        const batch = this.manaBatches.get(index) ?? { events: [{ index, event: ev }] };
+        const clearStart = batch.clearIndex === undefined ? undefined : this.clearStartTimes.get(batch.clearIndex);
+        const start = clearStart === undefined ? (this.segmentPosition ?? tl.duration()) : clearStart + AnimConfig.manaFlow.overlapDelay;
+        const flows = batch.events.map(item => ({
+          event: item.event,
+          origins: this.manaSources.get(item.index) ?? (item.index === index ? manaOrigins : []),
+        }));
+        const duration = Math.max(...flows.map(flow => manaFlowDuration(flow.origins.length, flow.event.surge)));
         tl.add(() => {
-          const points = manaOrigins.map((origin) =>
-            this.manaOriginCache.get(origin.gemId) ?? this.center(origin.pos),
-          );
-          this.onManaFlow?.(ev, points);
-        });
-        const flowTime = AnimConfig.manaFlow.duration +
-          Math.max(0, manaOrigins.length - 1) * AnimConfig.manaFlow.stagger +
-          (ev.surge ? 0.12 : 0);
-        tl.to({}, { duration: flowTime });
-        tl.add(() => this.onBattleEvent?.(ev));
+          for (const flow of flows) {
+            const points = flow.origins.map(origin =>
+              this.manaOriginCache.get(origin.gemId) ?? this.center(origin.pos));
+            this.onManaFlow?.(flow.event, points);
+          }
+        }, start);
+        tl.to({}, { duration }, start);
+        // Flights from later clears may arrive first; preserve engine-order commits
+        // without making the board or the flights wait for one another.
+        const commitTime = Math.max(start + duration, this.manaCommitEnd);
+        this.manaCommitEnd = commitTime;
+        tl.add(() => {
+          for (const flow of flows) this.onBattleEvent?.(flow.event);
+        }, commitTime);
         break;
       }
-      case 'defeat':
-        // App starts effect 0353 before removing the card; queued replacements wait for the drift.
-        tl.add(() => this.onBattleEvent?.(ev));
+      case 'defeat': {
+        const batch = this.defeatBatches.get(index)!;
+        // One drift envelope; App removes the entire batch before replacements appear.
+        tl.add(() => {
+          for (const event of batch.events) this.onBattleEvent?.(event, { defeatBatch: batch });
+        });
         tl.to({}, {
           duration: (AnimConfig.frameFX.death_drift.duration + 40 + AnimConfig.defeat.cardExitDuration) / 1000,
         });
         break;
+      }
       case 'flee':
         // 逃跑：轻量退场（removeCharacterCard 的收缩淡出），只预留退场时长
         tl.add(() => this.onBattleEvent?.(ev));
@@ -268,28 +476,30 @@ export class EventStreamPlayer {
         tl.add(() => {
           this.onBattleEvent?.(ev);
         });
+        tl.to({}, { duration: ev.reflected ? AnimConfig.recoil.duration / 1000
+          : (AnimConfig.attack.dashDuration + AnimConfig.attack.hitStop + AnimConfig.attack.returnDuration) / 1000 });
         break;
       case 'attack-struggle':
         // 队首被控攻击落空：App 播放挣扎动画（小幅前冲被拉回），预留其时长
         tl.add(() => this.onBattleEvent?.(ev));
         tl.to({}, { duration: 0.42 });
         break;
-      case 'skill-cast':
+      case 'skill-cast': {
         // Attribute-specific cast audio is selected by App at this event timestamp.
         tl.add(() => this.onBattleEvent?.(ev));
+        // 我方施法：先留出左下角立绘切入的入场+停留；退场淡出与随后的技能演出重叠。
+        // 敌方施法返回 0（只有音效，不占时间线）。
+        const cutIn = castCutInReserveSeconds(ev.characterId);
+        if (cutIn > 0) tl.to({}, { duration: cutIn });
         break;
+      }
       case 'extra-turn':
-        tl.add(() => {
-          // Extra actions continue the same selected elimination/chain sound ladder.
-          this.audio.playChain(this.extraTurnComboLevel);
-          this.onComboPulse?.(this.extraTurnComboLevel);
-          // App plays the 0082 board-centered blessing only for skill-granted extra turns.
-          this.onBattleEvent?.(ev);
-        });
-        // 仅技能主动给的额外回合预留 0082 动画时长；常规三消给的额外回合只走轻反馈，不占长时间线。
-        if (ev.source === 'skill') {
-          tl.to({}, { duration: AnimConfig.frameFX.extra_turn.duration / 1000 });
-        }
+        // Lightweight HUD notice only. Narration stays on the existing batch path.
+        // No chain pulse, duplicate sound or serial hold; App accounts for its finite tail.
+        tl.add(() => this.onBattleEvent?.(ev));
+        break;
+      case 'turn-end':
+        tl.add(() => this.onTurnEnd?.());
         break;
       case 'game-over':
         tl.add(() => this.onBattleEvent?.(ev));
@@ -297,7 +507,7 @@ export class EventStreamPlayer {
       // —— 技能效果事件（需求 3-7）——
       case 'skill-damage':
         // 群体攻击批次：首事件承接整批的一次释放 + 同时命中；批内其余事件跳过（避免逐个弹道）
-        if (ev.range === 'all') {
+        if ((ev.range === 'all' || ev.range === 'scatter')) {
           const batch = this.groupAttackBatches.get(index);
           if (batch) {
             this.appendGroupAttack(tl, batch);
@@ -305,44 +515,35 @@ export class EventStreamPlayer {
           // 非首下标的 all 事件已被首事件聚合，跳过
           break;
         }
-        this.appendSkillDamage(tl, ev);
+        this.appendSkillDamage(tl, ev, index);
         break;
-      case 'buff':
-        this.appendBuff(tl, ev);
+      case 'buff': {
+        const batch = this.buffBatches.get(index)!;
+        tl.add(() => {
+          for (const row of batch.events) this.onBattleEvent?.(row.event, { buffFeedback: row.feedback });
+        });
+        tl.to({}, { duration: batch.duration });
         break;
+      }
       case 'status-apply':
-        // 施加瞬间只播短闪(~0.32s)；DoT 大动画留给 tick，硬控/软控挂持续层（App 侧处理）。
-        tl.add(() => this.onBattleEvent?.(ev));
-        tl.to({}, {
-          duration: (ev.statusId === 'poison' || ev.statusId === 'burning' || ev.statusId === 'frozen')
-            ? AnimConfig.frameFX.poison_flash.duration / 1000
-            : 0.12,
-        });
-        break;
       case 'status-tick':
-        // DoT 掉血此刻爆发大动画：为毒/火完整序列帧预留时长。
-        tl.add(() => this.onBattleEvent?.(ev));
-        tl.to({}, {
-          duration: ev.statusId === 'poison'
-            ? AnimConfig.frameFX.poison_apply.duration / 1000
-            : ev.statusId === 'burning'
-              ? AnimConfig.frameFX.burning_apply.duration / 1000
-              : 0.12,
+      case 'status-expire': {
+        const batch = this.statusBatches.get(index)!;
+        tl.add(() => {
+          for (const row of batch.events) this.onBattleEvent?.(row.event,
+            row.feedback ? { statusFeedback: row.feedback } : undefined);
         });
+        tl.to({}, { duration: batch.duration });
         break;
-      case 'status-expire':
-        tl.add(() => this.onBattleEvent?.(ev));
-        tl.to({}, { duration: 0.12 });
-        break;
+      }
       case 'status-cleanse':
         tl.add(() => this.onBattleEvent?.(ev));
         tl.to({}, { duration: AnimConfig.frameFX.heal_cleanse.duration / 1000 });
         break;
       case 'special-gem-trigger':
-        // 触发本身没有独立序列帧：交给 App 播放 CSS 高亮/行列扫光，
-        // 这里保留一个短时间段，确保后续 gem-destroy/gem-explode 不抢在反馈前发生。
+        // Feedback overlaps the clear; every marker and its finite label tail remain visible.
         tl.add(() => this.onBattleEvent?.(ev));
-        tl.to({}, { duration: 0.24 });
+        tl.to({}, { duration: 0.52 });
         break;
       case 'gem-create':
         this.appendGemCreate(tl, ev);
@@ -375,6 +576,20 @@ export class EventStreamPlayer {
         // 占位时长按召唤事件的 destination 查表（SUMMON_HOLD_SECONDS）：
         // field 才有棋盘上的 0011 法阵演出，queue 仅入队不白等。
         tl.to({}, { duration: SUMMON_HOLD_SECONDS[ev.destination] });
+        break;
+      case 'troop-reposition':
+      case 'team-shuffle':
+        // 侧边卡列滑到新站位。留出滑动时间，下一拍伤害不要盖在半路上。
+        tl.add(() => this.onBattleEvent?.(ev));
+        tl.to({}, { duration: 0.34 });
+        break;
+      case 'troop-transform':
+        tl.add(() => this.onBattleEvent?.(ev));
+        tl.to({}, { duration: 0.28 });
+        break;
+      case 'economy-gain':
+        tl.add(() => this.onBattleEvent?.(ev));
+        tl.to({}, { duration: 0.2 });
         break;
       case 'storm-change': {
         // 风暴演出（阶段 2）：set/replaced 新风暴 → 召唤音效（仅 set）+ 指示器弹入
@@ -421,12 +636,18 @@ export class EventStreamPlayer {
   private appendSkillDamage(
     tl: gsap.core.Timeline,
     ev: Extract<GameEvent, { type: 'skill-damage' }>,
+    index: number,
   ): void {
+    const splashSlot = this.splashSlots.get(index);
+    const presentation: ImpactPresentation | undefined = splashSlot
+      ? { splashSwordDurationMs: AnimConfig.splashChain.shortSwordDuration }
+      : this.synchronizedSingles.has(index)
+        ? { projectileDurationMs: AnimConfig.projectile.maxDuration } : undefined;
     tl.add(() => {
       // Splash is an immediate area impact; do not play the generic projectile whoosh.
       // 骷髅爆炸（炸毁骷髅）命中时播 skullHit 专用音效，也不走技能弹道音。
       if (ev.range !== 'splash' && !ev.skullBurst) this.audio.play('skill');
-      this.onBattleEvent?.(ev);
+      this.onBattleEvent?.(ev, presentation);
     });
     // 留出弹道飞行→命中的时间（App 侧 playProjectile 约 340ms + 命中演出），
     // 避免时间线在弹体到达前就推进到下一事件。
@@ -435,34 +656,16 @@ export class EventStreamPlayer {
       ? 0.34 // 骨白能量弹：飞行 ≤240ms + 飘字/卡面反馈一拍，不叠任何爆炸层
       : ev.range === 'splash'
       ? (ev.chainIndex ?? 0) === 0
-        ? AnimConfig.frameFX.splash_chain_cast.duration / 1000
-        : AnimConfig.frameFX.splash_chain_sword.duration / 1000
+        ? Math.max(AnimConfig.frameFX.splash_chain_cast.duration,
+            AnimConfig.splashChain.firstImpactDelay + AnimConfig.splashChain.impactFeedbackDuration) / 1000
+        : ((splashSlot ? AnimConfig.splashChain.shortSwordDuration : AnimConfig.frameFX.splash_chain_sword.duration)
+            + AnimConfig.splashChain.impactFeedbackDuration) / 1000
       : (AnimConfig.projectile.maxDuration + Math.max(
           AnimConfig.frameFX.water_single_hit.duration,
           AnimConfig.frameFX.yellow_single_hit.duration,
           AnimConfig.frameFX.green_single_hit.duration,
           AnimConfig.frameFX.hit_spark.duration,
         )) / 1000;
-    tl.to({}, { duration: hold });
-  }
-
-  /** 增益：派发事件（App 上浮增益数字 + 刷新属性）。
-   *  特质/被动触发（source:'trait'）走轻量通道：不按序列帧时长挂起时间线——高频触发
-   *  每次占 0.8s 会显著拖慢节奏；技能段增益保留原时长给帧动画留屏。 */
-  private appendBuff(
-    tl: gsap.core.Timeline,
-    ev: Extract<GameEvent, { type: 'buff' }>,
-  ): void {
-    tl.add(() => this.onBattleEvent?.(ev));
-    if (ev.source === 'trait') {
-      tl.to({}, { duration: 0.12 });
-      return;
-    }
-    const hold = ev.stat === 'hp'
-      ? AnimConfig.frameFX.heal_cleanse.duration / 1000
-      : ev.stat === 'armor'
-        ? AnimConfig.frameFX.armor_up.duration / 1000
-        : 0.1;
     tl.to({}, { duration: hold });
   }
 
@@ -480,8 +683,8 @@ export class EventStreamPlayer {
         s.alpha = 0;
         const { x, y } = this.center(sp.pos);
         this.fx.burst(x, y, colorOf(sp.gemType), 0.8);
-        gsap.to(s.scale, { x: 1, y: 1, duration: 0.28, ease: 'back.out(2)' });
-        gsap.to(s, { alpha: 1, duration: 0.2, ease: 'power1.out' });
+        this.detachedTo(s.scale, { x: 1, y: 1, duration: 0.28, ease: 'back.out(2)' });
+        this.detachedTo(s, { alpha: 1, duration: 0.2, ease: 'power1.out' });
       }
     });
     tl.to({}, { duration: 0.3 });
@@ -501,7 +704,7 @@ export class EventStreamPlayer {
         const sprite = this.board.getSprite(ch.gemId);
         if (sprite) {
           const s = sprite as unknown as { scale: { x: number; y: number } };
-          gsap.fromTo(s.scale, { x: 1.3, y: 1.3 }, { x: 1, y: 1, duration: 0.26, ease: 'back.out(2)' });
+          this.detachedFromTo(s.scale, { x: 1.3, y: 1.3 }, { x: 1, y: 1, duration: 0.26, ease: 'back.out(2)' });
         }
       }
     });
@@ -527,9 +730,9 @@ export class EventStreamPlayer {
         this.fx.burst(x, y, colorOf(cell.gemType), 0.7);
         if (sprite) {
           const s = sprite as unknown as { scale: { x: number; y: number }; alpha: number; rotation: number };
-          gsap.to(s, { rotation: (Math.random() - 0.5) * 1.4, duration: 0.24, ease: 'power2.in' });
-          gsap.to(s.scale, { x: 0, y: 0, duration: 0.24, ease: 'power2.in' });
-          gsap.to(s, { alpha: 0, duration: 0.2, ease: 'power1.in' });
+          this.detachedTo(s, { rotation: (Math.random() - 0.5) * 1.4, duration: 0.24, ease: 'power2.in' });
+          this.detachedTo(s.scale, { x: 0, y: 0, duration: 0.24, ease: 'power2.in' });
+          this.detachedTo(s, { alpha: 0, duration: 0.2, ease: 'power1.in' });
         }
       }
     });
@@ -548,24 +751,41 @@ export class EventStreamPlayer {
     ev: Extract<GameEvent, { type: 'gem-explode' }>,
   ): void {
     if (ev.cells.length === 0) return;
+    const clock = new FramePlaybackClock();
+    this.frameClocks.add(clock);
+    const progress = { value: 0 };
+    const duration = AnimConfig.frameFX.energy_burst.duration / 1000;
+    const shrinking: { sprite: GemSprite; x: number; y: number; alpha: number }[] = [];
+    const shrinkEase = gsap.parseEase('power3.in');
+    const fadeEase = gsap.parseEase('power1.in');
     tl.add(() => {
       this.audio.play('gemExplosion');
-      // 派发给 App：在爆破范围中心叠加序列帧特效（唱主角，App 掌握覆盖层坐标）
-      this.onBattleEvent?.(ev);
+      // The strip and disappearing gems share the board timeline, including pause,
+      // speed and skip. Finish the strip before ANY following board operation.
+      this.onBattleEvent?.(ev, { explosionClock: clock });
       for (const cell of ev.cells) {
         const { x, y } = this.center(cell.pos);
         const sprite = this.board.getSprite(cell.gemId);
         this.manaOriginCache.set(cell.gemId, sprite ? { x: sprite.x, y: sprite.y } : { x, y });
-        // 不再每颗画程序化冲击环（那会与中心序列帧抢戏、显廉价）；
-        // 只保留宝石本体被"炸没"的缩放淡出，外溅交给中心序列帧统一表达。
-        if (sprite) {
-          const s = sprite as unknown as { scale: { x: number; y: number }; alpha: number };
-          gsap.to(s.scale, { x: 0, y: 0, duration: 0.24, ease: 'power3.in' });
-          gsap.fromTo(s, { alpha: 1 }, { alpha: 0, duration: 0.22, ease: 'power1.in' });
-        }
+        if (sprite) shrinking.push({ sprite, x: sprite.scale.x, y: sprite.scale.y, alpha: sprite.alpha });
       }
     });
-    tl.to({}, { duration: AnimConfig.frameFX.energy_burst.duration / 1000 + 0.12 });
+    tl.to(progress, {
+      value: 1, duration, ease: 'none',
+      onUpdate: () => {
+        const elapsed = progress.value * duration;
+        const scale = 1 - shrinkEase(Math.min(1, elapsed / .24));
+        const alpha = 1 - fadeEase(Math.min(1, elapsed / .22));
+        for (const item of shrinking) {
+          item.sprite.scale.x = item.x * scale;
+          item.sprite.scale.y = item.y * scale;
+          item.sprite.alpha = item.alpha * alpha;
+        }
+        clock.advance(progress.value);
+      },
+      onComplete: () => { clock.finish(); this.frameClocks.delete(clock); },
+    });
+    tl.to({}, { duration: AnimConfig.postExplodePause });
     tl.add(() => {
       for (const cell of ev.cells) this.board.removeGem(cell.gemId);
     });
@@ -635,7 +855,7 @@ export class EventStreamPlayer {
       // 每个连锁等级仅触发一次震动 + 飘字（需求 19.5），避免叠加糊成一团
       if (chain > 1 && isLead) {
         this.onComboPulse?.(chain);
-        screenShake(this.shakeTarget, chain);
+        this.trackDetached(screenShake(this.shakeTarget, chain));
         const first = this.center(ev.cells[0].pos);
         this.fx.comboText(first.x, first.y, chain);
       }
@@ -648,13 +868,13 @@ export class EventStreamPlayer {
         this.fx.burst(x, y, col, intensity);
         if (sprite) {
           // 干净利落地缩小消失，不做夸张过冲
-          gsap.to(sprite.scale, {
+          this.detachedTo(sprite.scale, {
             x: 0,
             y: 0,
             duration: cfg.duration,
             ease: 'power2.in',
           });
-          gsap.to(sprite, {
+          this.detachedTo(sprite, {
             alpha: 0,
             duration: cfg.duration * 0.9,
             ease: 'power1.in',
@@ -770,7 +990,7 @@ export class EventStreamPlayer {
   private landSquash(sprite: { scale: { x: number; y: number } }, cells: number): void {
     const cfg = AnimConfig.gravity.land;
     const t = Math.min(1, cells / 4); // 掉 4 格以上取满幅
-    gsap.fromTo(
+    this.detachedFromTo(
       sprite.scale,
       { x: 1 + (cfg.squashX - 1) * t, y: 1 + (cfg.squashY - 1) * t },
       { x: 1, y: 1, duration: cfg.duration, ease: cfg.ease, overwrite: 'auto' },
@@ -900,8 +1120,4 @@ export class EventStreamPlayer {
     tl.to({}, { duration: maxEnd + 0.05 }, label);
   }
 
-}
-
-function AnimConfig_setGlobalScale(scale: number): void {
-  (AnimConfig as unknown as { globalScale: number }).globalScale = scale;
 }

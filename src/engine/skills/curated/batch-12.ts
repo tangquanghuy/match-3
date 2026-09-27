@@ -6,7 +6,7 @@
  * - 「以增强/以强化」句式（移除/转换宝石以增强）：宝石操作段排在被增强段之前——
  *   transformedGems/destroyedGems 来源才数得到（batch-04 7002 / batch-07 7248 头注同款）；
  *   本批 7160/7215/7235/7300/7383 的 desc 语序为效果在前、宝石操作在后，按先例重排，请复核。
- * - 「魔法值」= magic 属性、「法力值」= mana 资源（SOP 措辞裁定；7177/7225/7273/7335 同口径）。
+ * - 「魔力值」= magic 属性、「法力值」= mana 资源（SOP 措辞裁定；7177/7225/7273/7335 同口径）。
  * - 「爆破一颗宝石」（无「随机」字样）→ explodeAt(CELL)
  *   （batch-03 头注 + batch-11 7041 同口径）。
  * - 「散射伤害」目标为全体时是类型词而非溅射链 → dmg('enemyAll',…,{range:'all'})
@@ -14,12 +14,12 @@
  * - 7258「将板面上的骷髅头数翻倍，再创造 2 颗骷髅头。[1:1]」：翻倍 = 按现有骷髅数逐颗补造
  *   → createSkulls(2) + [1:1] boardSkulls（创造 2+骷髅数 = 翻倍后再造 2，行为精确等价，
  *   且 [1:1] 标记在句中无其它可绑定来源），本仓库首次如此映射，请复核。
- * - 7177「盟友可获得 1 点魔法值」：bare「盟友」按复数读作所有盟友 → allyAll
+ * - 7177「盟友可获得 1 点魔力值」：bare「盟友」按复数读作所有盟友 → allyAll
  *   （batch-05 7167「所有盟友可获得」同款；官方汉化单个盟友必作「一名/随机盟友」），请复核。
  * - 7225/7273/7335「如果(有)敌人身亡」= spell-rules.md §4 死亡条件家族
  *   （「如敌人身亡，则…」同款），按 §4 挂最近产目标段（enemyAll）判定。
  */
-import { skill, dmg, dmgAll, dmgSplash, trueDmg, heal, armor, attack, magic, steal, cleanse, createGems, createSkulls, transform, destroyChosenCol, destroyChosenRow, destroyColor, destroyRandomGems, explodeRandomGems, inflict, summonRef, summonRandom, extraTurn, CHOSEN, CELL, explodeAt } from '../builders';
+import { skill, dmg, dmgAll, dmgSplash, trueDmg, heal, armor, attack, magic, steal, cleanse, createGems, createSkulls, transform, destroyChosenCol, destroyChosenRow, destroyColor, destroyRandomGems, inflict, summonRef, summonRandom, extraTurn, CHOSEN, CELL, explodeAt } from '../builders';
 import { BaseColor } from '../../types';
 import type { CuratedBatch } from './index';
 
@@ -61,13 +61,13 @@ const SKIPPED: { id: number; reason: string }[] = [
   { id: 7182, reason: '语义拿不准（「指定盟友的法力颜色」为动态颜色，无对应原语，同 batch-05 7358）' },
     { id: 7236, reason: '语义拿不准（「减除 4 点随机技能值」无对应削减原语，batch-01 7319 同款；「敌人是兽人或恶魔」析取条件现已可用 ifCond anyOf 表达，仅剩随机技能值削减卡点）' },
   { id: 7253, reason: '语义拿不准（「选择一颗紫色宝石，摧毁其行和列」限色选定宝石的行列绑定摧毁无对应原语，同 batch-03 8205 形状摧毁家族）' },
-  { id: 7254, reason: '语义拿不准（「有 50% 的几率打错敌人」改判目标无对应机制；「如果对方使用棕色法力，则造成三倍伤害」条件倍率现已可表达但整条仍卡）' },
+  { id: 7254, reason: '语义拿不准（「有 50% 的几率打错敌人」改判目标无对应机制；「如果对方使用棕色法力值，则造成三倍伤害」条件倍率现已可表达但整条仍卡）' },
   { id: 7275, reason: '语义拿不准（「只能施放一次」施法限制无对应原语，同 batch-03 7673）' },
   { id: 7310, reason: '语义拿不准（「窃取随机技能值」无对应原语，batch-01 7319 同款）' },
   { id: 7331, reason: '语义拿不准（「只能施放一次」施法限制无对应原语，同 batch-03 7673）' },
   { id: 7353, reason: '句子式不明（「造成散射伤害」未指明目标，batch-11 9471 同款）' },
   { id: 7355, reason: '语义拿不准（「只能施放一次」施法限制无对应原语，同 batch-03 7673）' },
-  { id: 7386, reason: '语义拿不准（同 7254：「有 50% 的几率打错敌人」+「如果对方使用绿色法力，则造成三倍伤害」条件倍率）' },
+  { id: 7386, reason: '语义拿不准（同 7254：「有 50% 的几率打错敌人」+「如果对方使用绿色法力值，则造成三倍伤害」条件倍率）' },
   { id: 7388, reason: '二次缩放来源不支持（「该行被摧毁的骷髅头数」= 被摧毁宝石的骷髅细分计数：无色来源会把同行色宝石也计入而超计，带色来源只匹配色宝石不含骷髅，两者都不对）' },
   { id: 7391, reason: '二次缩放来源不支持（「白盔国盟友」按王国计盟友无对应 kind；「天使宝石」为特殊宝石）' },
 ];
@@ -98,11 +98,11 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 7177,
-    desc: '对 1 名敌人造成 [魔法 + 4] 点伤害。冻结敌人。如果该敌人身亡，盟友可获得 1 点魔法值。',
+    desc: '对 1 名敌人造成 [魔法 + 4] 点伤害。冻结敌人。如果该敌人身亡，盟友可获得 1 点魔力值。',
     build: skill(
       dmg('enemyChosen', 4),
       inflict('frozen', 'enemyChosen'),
-      // 「魔法值」= magic 属性（SOP 措辞裁定）；bare「盟友」按复数 = allyAll（见文件头备注，请复核）
+      // 「魔力值」= magic 属性（SOP 措辞裁定）；bare「盟友」按复数 = allyAll（见文件头备注，请复核）
       magic('allyAll', 1, 0, { ifTargetDied: true }),
     ),
   },
@@ -139,11 +139,11 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 7225,
-    desc: '对所有敌人造成 [魔法 + 3] 点散射伤害。创造 7 颗红色宝石。如果有敌人身亡，则获得 8 点魔法值。',
+    desc: '对所有敌人造成 [魔法 + 3] 点散射伤害。创造 7 颗红色宝石。如果有敌人身亡，则获得 8 点魔力值。',
     build: skill(
       dmgAll(3),
       createGems(BaseColor.Red, 7, 0),
-      // 「魔法值」= magic 属性；死亡条件判最近产目标段（dmgAll）主目标（spell-rules.md §4）
+      // 「魔力值」= magic 属性；死亡条件判最近产目标段（dmgAll）主目标（spell-rules.md §4）
       magic('allySelf', 8, 0, { ifTargetDied: true }),
     ),
   },
@@ -160,10 +160,11 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 7243,
+    // Keep desc as the imported-source anchor; combatText corrects displayed random-target wording.
     desc: '爆破一颗宝石。对 1 名敌人造成 [魔法 + 3] 点轻微溅射伤害。获得一个额外回合。',
     build: skill(
       explodeAt(CELL),
-      dmgSplash('enemyChosen', 3),
+      dmgSplash('enemyRandom', 3),
       extraTurn(),
     ),
   },
@@ -215,7 +216,7 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 7273,
-    desc: '对所有敌人造成 [魔法 + 3] 点散射伤害。摧毁 10 颗随机宝石。如果敌人身亡，则获得 8 点魔法值。',
+    desc: '对所有敌人造成 [魔法 + 3] 点散射伤害。摧毁 10 颗随机宝石。如果敌人身亡，则获得 8 点魔力值。',
     build: skill(
       dmgAll(3),
       // 「宝石」不含骷髅（batch-01 头注口径）→ include:'color'
@@ -248,7 +249,7 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 7335,
-    desc: '对所有敌人造成 [魔法 + 3] 点散射伤害。缠绕所有敌人。如果敌人身亡，则获得 8 点魔法值。',
+    desc: '对所有敌人造成 [魔法 + 3] 点散射伤害。缠绕所有敌人。如果敌人身亡，则获得 8 点魔力值。',
     build: skill(
       dmgAll(3),
       inflict('entangle', 'enemyAll'),
@@ -298,12 +299,12 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 7368,
-    desc: '对 1 名敌人造成 [魔法 + 2] 点真实伤害并窃取其 2 点魔法值。如果敌人使用蓝色法力，则造成双倍伤害。',
+    desc: '对 1 名敌人造成 [魔法 + 2] 点真实伤害并窃取其 2 点魔力值。如果敌人使用蓝色法力值，则造成双倍伤害。',
     build: skill(
       // 回收：condMult 现支持 targetColor 条件倍率（按目标 manaColors 含该色判定）；
-      // 「魔法值」= magic 属性（SOP 措辞裁定）
+      // 「魔力值」= magic 属性（SOP 措辞裁定）
       trueDmg('enemyChosen', 2, 1, { condMult: { times: 2, cond: { kind: 'targetColor', color: BaseColor.Blue } } }),
-      // 「窃取其 2 点魔法值」= steal 同属性回填（batch-01 8278 同款）
+      // 「窃取其 2 点魔力值」= steal 同属性回填（batch-01 8278 同款）
       steal('enemyChosen', 'magic', 'magic', 2, 0),
     ),
   },

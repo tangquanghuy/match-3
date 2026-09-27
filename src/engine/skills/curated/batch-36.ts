@@ -21,7 +21,7 @@ import type { CuratedBatch } from './index';
 
 const SKIPPED: { id: number; reason: string }[] = [
   { id: 8133, reason: '「召唤尘风暴」已由 createStorm 落地（batch-37 口径）；「爆破…盟友其中一个法力颜色」动态颜色仍不做（batch-11 9540 同款），整条维持' },
-  { id: 8941, reason: '「消除 4 点魔法值或耗掉 4 点法力值，或窃取…」多重二选一虽已有一选一原语（oneOf），但前两支未点名目标（目标归属不明），语义拿不准维持 SKIP' },
+  { id: 8941, reason: '「消除 4 点魔力值或耗掉 4 点法力值，或窃取…」多重二选一虽已有一选一原语（oneOf），但前两支未点名目标（目标归属不明），语义拿不准维持 SKIP' },
   { id: 9198, reason: '「打乱板面」已由 shuffleBoard 落地（batch-37 口径）；剩余卡点=「创造 5 颗闪电宝石」文本未区分行列（batch-34 9908 同款）' },
   { id: 9312, reason: '诅咒/冻结宝石本体均已实现（状态宝石波A）；剩余卡点=「创造 16 颗混合诅咒和冻结宝石」混合特殊宝石创造无原语（createMix 仅颜色，batch-21 8219 口径）' },
 ];
@@ -46,7 +46,7 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 8129,
-    desc: '诅咒所有敌人。将所有绿色宝石转换成骷髅头。',
+    desc: '诅咒所有敌人。将所有绿色宝石转换成末日骷髅头。',
     // 修正（2026-09-18 官方复核）：官方 ConvertGems(Green→Doomskull) = 末日骷髅头（中文漏译「末日」，
     // 普通骷髅为降级误装）
     build: skill(
@@ -151,8 +151,9 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 8782,
     desc: '使首位敌人陷入猎人标记状态。再将所有绿色宝石转换成骷髅头。',
     build: skill(
-      inflict('marked', 'enemyFront'),
+      // Native order (R001, L4b-7195-order): ConvertGems Green->Skull, then CauseHuntersMark FrontEnemy.
       transform(BaseColor.Green, 'SKULL'),
+      inflict('marked', 'enemyFront'),
     ),
   },
   {

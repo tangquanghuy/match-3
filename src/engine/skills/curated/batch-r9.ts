@@ -17,7 +17,7 @@
  *   CauseBlessed/CauseMirror/CauseEnchanted/CauseEnraged（缺失状态）、FromManaColorEnemy/
  *   AllyColor/EnemyColor（颜色限定目标）、MostUsedMana（动态使用最多色）、面积清除
  *   （5x5/3x3/X 形）、Summ­onKingdom 以外的召唤变体（复制兵种 SummoningTarget/随机风暴
- *   StormRandom）、王国条件/晋升度（Boss/防御塔 3-5 倍）、数值区间（3-8 点法力/2-4 层）、
+ *   StormRandom）、王国条件/晋升度（Boss/防御塔 3-5 倍）、数值区间（3-8 点法力值/2-4 层）、
  *   状态段上的 UseCounterForAmount（引擎状态段无缩放位）→ SKIP。
  * - 机翻事故新实锤（按官方步骤组装，详见批内注释）：9776「对受屏障保护的 2 名盟友造成伤害」
  *   实为「给 2 名随机盟友屏障」；9844「潜入」= 下潜 submerged；8160「溅射上海」= 溅射伤害。
@@ -293,10 +293,11 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 8752,
     desc: '窃取最弱的 2 名敌人 [魔法 + 1] 点生命值。并使他们陷入诅咒和叠加 3 倍的出血状态。',
     // TwoWeakestEnemies → enemyWeakestN n:2；CauseBleed ×3 步 = 叠加 3 层（机翻「3 倍」实为 3 次叠加）
+    // 原生顺序 CauseCursed → CauseBleed×3 → StealLife（rulings/R001，L5-008）：诅咒先打掉屏障再吸血
     build: skill(
-      dmg('enemyWeakestN', 1, 1, { n: 2, drain: true }),
       inflict('curse', 'enemyWeakestN', { n: 2 }),
       inflict('bleed', 'enemyWeakestN', { n: 2, stacks: 3 }),
+      dmg('enemyWeakestN', 1, 1, { n: 2, drain: true }),
     ),
   },
   {
@@ -412,8 +413,8 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 8941,
-    desc: '消除 4 点魔法值或耗掉 4 点法力值，或窃取一名敌人 [魔法 + 1] 点生命值，数值因织网宝石数而增强。 [x2]',
-    // 三选一（官方三组 CountGems Web + UseCounter 变体）；「魔法值」= magic 属性、「法力值」= mana
+    desc: '消除 4 点魔力值或耗掉 4 点法力值，或窃取一名敌人 [魔法 + 1] 点生命值，数值因织网宝石数而增强。 [x2]',
+    // 三选一（官方三组 CountGems Web + UseCounter 变体）；「魔力值」= magic 属性、「法力值」= mana
     build: skill(
       oneOf(
         [reduce('enemyChosen', 'magic', 4, 0, {
@@ -453,7 +454,7 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 8962,
-    desc: '对敌人造成 [魔法 + 7] 点伤害。将自己移至前方。然后创建 3 x2 万能牌。',
+    desc: '对敌人造成 [魔法 + 7] 点伤害。将自己移至前方。然后创建 3 颗 x2 通配宝石。',
     // TroopOrderFront Self → reposition allySelf front；WildCard2 = tier 2 通配宝石
     build: skill(
       dmg('enemyChosen', 7, 1),
@@ -474,7 +475,7 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 8976,
-    desc: '移除所有骷髅头。每移除一颗骷髅头，则给所有其他盟友 1 点魔法值。再创造等同于移除骷髅头数的骷髅头。 [1:1]',
+    desc: '移除所有骷髅头。每移除一颗骷髅头，则给所有其他盟友 1 点魔力值。再创造等同于移除骷髅头数的骷髅头。 [1:1]',
     // RemoveColor Skull → destroySkulls；「每移除一颗…」来源 = destroyedGems 无色（前段仅摧毁骷髅）
     build: skill(
       destroySkulls(),
@@ -488,7 +489,7 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 9006,
-    desc: '爆破一颗宝石。再创造 1 个 x3 通配符卡牌。每摧毁一颗棕色宝石，则再创造多 2 个卡牌。 [x2]',
+    desc: '爆破一颗宝石。再创造 1 颗 x3 通配宝石。每摧毁一颗棕色宝石，则再创造 2 颗通配宝石。 [x2]',
     // WildCard3 = tier 3；「每摧毁一颗棕色宝石 +2」→ destroyedGems Brown 来源计数
     build: skill(
       explodeAt(CELL),
@@ -583,7 +584,7 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 9528,
-    desc: '给予 3 名盟友 2 点魔法值。板面上每有一颗红色宝石则有 7% 的几率获得一个额外回合。 [x7]',
+    desc: '给予 3 名盟友 2 点魔力值。板面上每有一颗红色宝石则有 7% 的几率获得一个额外回合。 [x7]',
     // IncreaseSpellPower RandomAlly ×3（RandomPrefNotPrev）→ allyRandomN n:3
     build: skill(
       magic('allyRandomN', 2, 0, { n: 3 }),
@@ -624,11 +625,12 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 9534,
-    desc: '对 3 名随机敌人造成 [魔法 + 3] 真实伤害，并吸取 8 点法力。如果敌人中毒，则吸取双倍法力。',
+    desc: '对 3 名随机敌人造成 [魔法 + 3] 真实伤害，并吸取 8 点法力值。如果敌人中毒，则吸取双倍法力值。',
     // 「吸取双倍」= condMult targetStatus poison ×2（削减族段支持，§5）
     build: skill(
       trueDmg('enemyRandomN', 3, 1, { n: 3 }),
-      steal('enemyRandomN', 'mana', 'mana', 8, 0, {
+      // L3-007: native DecreaseMana (drain) — no refill to the caster
+      reduce('enemyRandomN', 'mana', 8, 0, {
         n: 3,
         condMult: { times: 2, cond: { kind: 'targetStatus', statusId: 'poison' } },
       }),
@@ -818,11 +820,11 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '对一名敌人和另一名随机敌人造成[(魔法 x 1.5) + 5]点大量溅射伤害。如果一名敌人死亡，则恢复我的法力值。',
     // 单方括号管两段；GenerateFullManaConditional = 重获全部法力（§12.7 manaCost 来源）+ ifTargetDied
     build: skill(
-      dmgSplash('enemyChosen', 5, 1.5),
-      dmgSplash('enemyRandom', 5, 1.5),
+      dmgSplash('enemyChosen', 5, 1.5, { splashRatio: 0.75 }),
+      dmgSplash('enemyRandomPrefNotPrev', 5, 1.5, { splashRatio: 0.75 }),
       mana('allySelf', 0, 0, {
         modifier: { mod: { kind: 'multiplier', a: 1 }, source: { kind: 'selfStat', stat: 'manaCost' } },
-        ifTargetDied: true,
+        ifCond: { kind: 'castEnemyDied' },
       }),
     ),
   },

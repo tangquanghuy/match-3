@@ -3,7 +3,7 @@
  *
  * 架构铁律：不重写引擎装配/释放流程/选择器/演出。本页只做配置：
  *   - 一排"技能标签"，可**拖到我方角色卡**上，把该角色技能换成该原型（复用 App.setDebugSkill）；
- *   - 「法力上限=3」「充满法力」按钮，便于快速攒满/立即释放（复用 App 辅助方法）；
+ *   - 「法力上限=3」「充满法力值」按钮，便于快速攒满/立即释放（复用 App 辅助方法）；
  *   - 换好技能、法力满后，**短按角色卡**走主游戏真实释放流程（含选色/目标/宝石 UI）；
  *   - 「推进回合」观察状态结算；事件日志订阅主游戏事件。
  */
@@ -178,7 +178,7 @@ const TEST_STORMS: ReadonlyArray<{
 ];
 
 /** 特殊宝石测试投放清单（kind → 按钮文案；幽灵无行为仅看贴图） */
-const SPECIAL_TEST_GEMS: ReadonlyArray<{ kind: SpecialGemKind; tier?: number; label: string }> = [
+const SPECIAL_TEST_GEMS: ReadonlyArray<{ kind: SpecialGemKind; tier?: number; color?: BaseColor; label: string }> = [
   { kind: 'doomSkull', label: '末日骷髅' },
   { kind: 'uberDoomSkull', label: '至尊末日' },
   { kind: 'bomb', label: '炸弹' },
@@ -214,6 +214,25 @@ const SPECIAL_TEST_GEMS: ReadonlyArray<{ kind: SpecialGemKind; tier?: number; la
   { kind: 'faerieFireGem', label: '精灵火' },
   { kind: 'stunGem', label: '打昏' },
   { kind: 'barrierGem', label: '屏障' },
+  // 波B：六色族投放时必须携带归属色，否则只会显示默认图，不会参与该色三消。
+  { kind: 'dragonGem', color: BaseColor.Blue, label: '龙·蓝' },
+  { kind: 'giantGem', color: BaseColor.Red, label: '巨人·红' },
+  { kind: 'spiritGem', color: BaseColor.Purple, label: '灵力·紫' },
+  { kind: 'manaPotionGem', color: BaseColor.Green, label: '法力药水·绿' },
+  { kind: 'candyGem', color: BaseColor.Yellow, label: '糖果·黄' },
+  { kind: 'elementalStar', label: '元素星' },
+  { kind: 'umbralStar', label: '暗影星' },
+  { kind: 'angelGem', label: '天使' },
+  { kind: 'daemonicPortalGem', label: '恶魔传送门' },
+  { kind: 'gargoyleGem', tier: 1, label: '石像鬼·善' },
+  { kind: 'gargoyleGem', tier: 2, label: '石像鬼·恶' },
+  { kind: 'stoneBlock', label: '石块' },
+  { kind: 'lycanthropyGem', label: '狼化' },
+  { kind: 'decayGem', label: '腐朽' },
+  { kind: 'volcanoGem', label: '火山' },
+  { kind: 'trapGem', label: '陷阱' },
+  { kind: 'enchantedGem', label: '附魔' },
+  { kind: 'mimicGem', label: '宝箱怪（行为待核）' },
 ];
 
 
@@ -319,7 +338,7 @@ export class SkillTestPage {
       return b;
     };
     actions.appendChild(mkBtn('法力上限=3', 'mana-cost-3', '#2a2013', () => { this.app.setAllManaCost(3); this.log('法力上限=3'); }));
-    actions.appendChild(mkBtn('充满法力', 'fill-mana', '#132a1f', () => { this.app.fillAllMana(); this.log('已充满全体法力'); }));
+    actions.appendChild(mkBtn('充满法力值', 'fill-mana', '#132a1f', () => { this.app.fillAllMana(); this.log('已充满全体法力值'); }));
     actions.appendChild(mkBtn('推进回合', 'step-turn', '#1f2233', () => void this.stepTurn()));
     panel.appendChild(actions);
 
@@ -759,7 +778,7 @@ export class SkillTestPage {
   }
 
   /** 把若干特殊宝石投到随机互不重复的格子上（经 App 调试钩子走演出管线） */
-  private async placeSpecialGems(specs: ReadonlyArray<{ kind: SpecialGemKind; tier?: number }>): Promise<void> {
+  private async placeSpecialGems(specs: ReadonlyArray<{ kind: SpecialGemKind; tier?: number; color?: BaseColor }>): Promise<void> {
     const cells: CellPos[] = [];
     for (let r = 0; r < 8; r++) {
       for (let c = 0; c < 8; c++) cells.push({ row: r, col: c });
@@ -770,14 +789,14 @@ export class SkillTestPage {
     }
     const changes = specs.slice(0, cells.length).map((sp, i) => ({
       pos: cells[i],
-      type: specialGem(sp.kind, sp.tier),
+      type: specialGem(sp.kind, sp.tier, sp.color),
     }));
     const ok = await this.app.debugSetGems(changes);
     if (!ok) {
       this.log('⚠ 解析中，稍后再投放特殊宝石');
       return;
     }
-    const names = specs.map((sp) => SPECIAL_TEST_GEMS.find((x) => x.kind === sp.kind && x.tier === sp.tier)?.label ?? sp.kind);
+    const names = specs.map((sp) => SPECIAL_TEST_GEMS.find((x) => x.kind === sp.kind && x.tier === sp.tier && x.color === sp.color)?.label ?? sp.kind);
     this.log(`◆ 投放特殊宝石 ×${changes.length}：${names.join('、')}`);
   }
 

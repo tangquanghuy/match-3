@@ -320,13 +320,9 @@
   "skippedClauses": []
  },
  "7129": {
-  "fidelity": "partial",
-  "missingFeatures": [
-   "mt-garbage"
-  ],
-  "skippedClauses": [
-   "随机创造 {1} 颗的骷髅头"
-  ]
+  "fidelity": "full",
+  "missingFeatures": [],
+  "skippedClauses": []
  },
  "7170": {
   "fidelity": "full",
@@ -399,13 +395,9 @@
   "skippedClauses": []
  },
  "7192": {
-  "fidelity": "partial",
-  "missingFeatures": [
-   "targetStatBeatsCaster"
-  ],
-  "skippedClauses": [
-   "如果对方攻击力大于自身，则造成多 12 点伤害"
-  ]
+  "fidelity": "full",
+  "missingFeatures": [],
+  "skippedClauses": []
  },
  "7193": {
   "fidelity": "full",
@@ -628,13 +620,9 @@
   "skippedClauses": []
  },
  "7285": {
-  "fidelity": "partial",
-  "missingFeatures": [
-   "unparsed-clause"
-  ],
-  "skippedClauses": [
-   "使另一名敌人陷入疾病状态"
-  ]
+  "fidelity": "full",
+  "missingFeatures": [],
+  "skippedClauses": []
  },
  "7286": {
   "fidelity": "full",
@@ -737,13 +725,9 @@
   "skippedClauses": []
  },
  "7412": {
-  "fidelity": "partial",
-  "missingFeatures": [
-   "modifier-source"
-  ],
-  "skippedClauses": [
-   "伤害值因自身魔法值而增强"
-  ]
+  "fidelity": "full",
+  "missingFeatures": [],
+  "skippedClauses": []
  },
  "7414": {
   "fidelity": "full",
@@ -776,14 +760,9 @@
   "skippedClauses": []
  },
  "7492": {
-  "fidelity": "partial",
-  "missingFeatures": [
-   "unresolved-ref",
-   "random-storm"
-  ],
-  "skippedClauses": [
-   "召唤一个随机风暴"
-  ]
+  "fidelity": "full",
+  "missingFeatures": [],
+  "skippedClauses": []
  },
  "7527": {
   "fidelity": "full",
@@ -806,13 +785,9 @@
   "skippedClauses": []
  },
  "7567": {
-  "fidelity": "partial",
-  "missingFeatures": [
-   "unparsed-clause"
-  ],
-  "skippedClauses": [
-   "对最后一名敌人转化成一只为法力值满额的幼龙"
-  ]
+  "fidelity": "full",
+  "missingFeatures": [],
+  "skippedClauses": []
  },
  "7568": {
   "fidelity": "full",
@@ -1000,35 +975,19 @@
   "skippedClauses": []
  },
  "7753": {
-  "fidelity": "partial",
-  "missingFeatures": [
-   "dispel-all",
-   "modifier-tag"
-  ],
-  "skippedClauses": [
-   "消除所有敌人全部正面增益效果",
-   "尾部增幅标签 [2:1]（归属子句已略去或无法可靠挂载）"
-  ]
+  "fidelity": "full",
+  "missingFeatures": [],
+  "skippedClauses": []
  },
  "7754": {
-  "fidelity": "partial",
-  "missingFeatures": [
-   "boss-condition",
-   "unparsed-clause"
-  ],
-  "skippedClauses": [
-   "如果敌人是个魔头",
-   "则使其他所有敌人陷入死亡标记状态"
-  ]
+  "fidelity": "full",
+  "missingFeatures": [],
+  "skippedClauses": []
  },
  "7755": {
-  "fidelity": "partial",
-  "missingFeatures": [
-   "targetStatBeatsCaster"
-  ],
-  "skippedClauses": [
-   "若敌人生命值高于自身，则造成 3 倍伤害"
-  ]
+  "fidelity": "full",
+  "missingFeatures": [],
+  "skippedClauses": []
  },
  "7756": {
   "fidelity": "full",
@@ -1066,15 +1025,9 @@
   "skippedClauses": []
  },
  "7800": {
-  "fidelity": "partial",
-  "missingFeatures": [
-   "modifier-source",
-   "modifier-tag"
-  ],
-  "skippedClauses": [
-   "伤害值因敌方高塔数量而增强",
-   "尾部增幅标签 [x8]（归属子句已略去或无法可靠挂载）"
-  ]
+  "fidelity": "full",
+  "missingFeatures": [],
+  "skippedClauses": []
  },
  "7801": {
   "fidelity": "full",
@@ -1107,13 +1060,9 @@
   "skippedClauses": []
  },
  "7815": {
-  "fidelity": "partial",
-  "missingFeatures": [
-   "unparsed-clause"
-  ],
-  "skippedClauses": [
-   "如果敌人使用黄色法力，则再添 10 点伤害"
-  ]
+  "fidelity": "full",
+  "missingFeatures": [],
+  "skippedClauses": []
  },
  "7816": {
   "fidelity": "full",
@@ -1236,13 +1185,9 @@
   "skippedClauses": []
  },
  "7986": {
-  "fidelity": "partial",
-  "missingFeatures": [
-   "random-status-nrange"
-  ],
-  "skippedClauses": [
-   "使一名敌人陷入 1 到 4 个状态效果"
-  ]
+  "fidelity": "full",
+  "missingFeatures": [],
+  "skippedClauses": []
  },
  "7991": {
   "fidelity": "full",
@@ -1250,13 +1195,9 @@
   "skippedClauses": []
  },
  "7996": {
-  "fidelity": "partial",
-  "missingFeatures": [
-   "random-status-nrange"
-  ],
-  "skippedClauses": [
-   "赋予所有盟友 1 到 2 个状态效果"
-  ]
+  "fidelity": "full",
+  "missingFeatures": [],
+  "skippedClauses": []
  },
  "8045": {
   "fidelity": "full",
@@ -1329,13 +1270,9 @@
   "skippedClauses": []
  },
  "8074": {
-  "fidelity": "partial",
-  "missingFeatures": [
-   "reposition-nrange"
-  ],
-  "skippedClauses": [
-   "将 1-2 位敌人由首位打到末位"
-  ]
+  "fidelity": "full",
+  "missingFeatures": [],
+  "skippedClauses": []
  },
  "8075": {
   "fidelity": "full",
@@ -1378,13 +1315,9 @@
   "skippedClauses": []
  },
  "8084": {
-  "fidelity": "partial",
-  "missingFeatures": [
-   "all-status-grant"
-  ],
-  "skippedClauses": [
-   "赋予一名盟友所有状态效果"
-  ]
+  "fidelity": "full",
+  "missingFeatures": [],
+  "skippedClauses": []
  },
  "8118": {
   "fidelity": "full",
@@ -1452,13 +1385,9 @@
   "skippedClauses": []
  },
  "8153": {
-  "fidelity": "partial",
-  "missingFeatures": [
-   "storm-end"
-  ],
-  "skippedClauses": [
-   "终止风暴"
-  ]
+  "fidelity": "full",
+  "missingFeatures": [],
+  "skippedClauses": []
  },
  "8154": {
   "fidelity": "full",
@@ -1896,15 +1825,9 @@
   "skippedClauses": []
  },
  "8400": {
-  "fidelity": "partial",
-  "missingFeatures": [
-   "stone-block-count",
-   "modifier-tag"
-  ],
-  "skippedClauses": [
-   "石墩激活",
-   "尾部增幅标签 [1:1]（归属子句已略去或无法可靠挂载）"
-  ]
+  "fidelity": "full",
+  "missingFeatures": [],
+  "skippedClauses": []
  },
  "8401": {
   "fidelity": "full",
@@ -2012,13 +1935,9 @@
   "skippedClauses": []
  },
  "8450": {
-  "fidelity": "partial",
-  "missingFeatures": [
-   "targetStatBeatsCaster"
-  ],
-  "skippedClauses": [
-   "若敌人攻击力高于自身，则有 20% 的几率杀死对方"
-  ]
+  "fidelity": "full",
+  "missingFeatures": [],
+  "skippedClauses": []
  },
  "8451": {
   "fidelity": "full",
@@ -2131,13 +2050,9 @@
   "skippedClauses": []
  },
  "8518": {
-  "fidelity": "partial",
-  "missingFeatures": [
-   "modifier-tag"
-  ],
-  "skippedClauses": [
-   "尾部增幅标签 [1:1]（无可靠挂载段）"
-  ]
+  "fidelity": "full",
+  "missingFeatures": [],
+  "skippedClauses": []
  },
  "8519": {
   "fidelity": "full",
@@ -2390,13 +2305,9 @@
   "skippedClauses": []
  },
  "8762": {
-  "fidelity": "partial",
-  "missingFeatures": [
-   "unparsed-clause"
-  ],
-  "skippedClauses": [
-   "将所有向上或向下斜方宝石转换成燃烧宝石"
-  ]
+  "fidelity": "full",
+  "missingFeatures": [],
+  "skippedClauses": []
  },
  "8763": {
   "fidelity": "full",
@@ -2474,28 +2385,14 @@
   "skippedClauses": []
  },
  "8805": {
-  "fidelity": "partial",
-  "missingFeatures": [
-   "kingdom-count",
-   "column-gem-count",
-   "modifier-tag"
-  ],
-  "skippedClauses": [
-   "所选的列每有一颗红色或棕色宝石，则创造一颗石像鬼宝石",
-   "尾部增幅标签 [1:1]（归属子句已略去或无法可靠挂载）"
-  ]
+  "fidelity": "full",
+  "missingFeatures": [],
+  "skippedClauses": []
  },
  "8806": {
-  "fidelity": "partial",
-  "missingFeatures": [
-   "unparsed-clause",
-   "modifier-tag"
-  ],
-  "skippedClauses": [
-   "每摧毁一颗石像鬼宝石",
-   "则再创造一颗 2",
-   "尾部增幅标签 [x2]（归属子句已略去或无法可靠挂载）"
-  ]
+  "fidelity": "full",
+  "missingFeatures": [],
+  "skippedClauses": []
  },
  "8807": {
   "fidelity": "full",
@@ -2668,13 +2565,9 @@
   "skippedClauses": []
  },
  "8965": {
-  "fidelity": "partial",
-  "missingFeatures": [
-   "modifier-tag"
-  ],
-  "skippedClauses": [
-   "尾部增幅标签 [1:1]（无可靠挂载段）"
-  ]
+  "fidelity": "full",
+  "missingFeatures": [],
+  "skippedClauses": []
  },
  "8966": {
   "fidelity": "full",
@@ -2692,16 +2585,9 @@
   "skippedClauses": []
  },
  "8988": {
-  "fidelity": "partial",
-  "missingFeatures": [
-   "kingdom-count",
-   "column-gem-count",
-   "modifier-tag"
-  ],
-  "skippedClauses": [
-   "所选列每有一颗骷髅头或紫色宝石，则创造一个死亡标记宝石",
-   "尾部增幅标签 [1:1]（归属子句已略去或无法可靠挂载）"
-  ]
+  "fidelity": "full",
+  "missingFeatures": [],
+  "skippedClauses": []
  },
  "8989": {
   "fidelity": "full",
@@ -3104,15 +2990,9 @@
   "skippedClauses": []
  },
  "9378": {
-  "fidelity": "partial",
-  "missingFeatures": [
-   "unparsed-clause",
-   "modifier-tag"
-  ],
-  "skippedClauses": [
-   "消除所有敌人正面增益效果",
-   "尾部增幅标签 [x10]（归属子句已略去或无法可靠挂载）"
-  ]
+  "fidelity": "full",
+  "missingFeatures": [],
+  "skippedClauses": []
  },
  "9379": {
   "fidelity": "full",
@@ -3555,13 +3435,9 @@
   "skippedClauses": []
  },
  "9910": {
-  "fidelity": "partial",
-  "missingFeatures": [
-   "random-status-nrange"
-  ],
-  "skippedClauses": [
-   "对所有敌人施加1-2种随机状态效果"
-  ]
+  "fidelity": "full",
+  "missingFeatures": [],
+  "skippedClauses": []
  },
  "9911": {
   "fidelity": "full",
@@ -3644,15 +3520,9 @@
   "skippedClauses": []
  },
  "9985": {
-  "fidelity": "partial",
-  "missingFeatures": [
-   "modifier-source",
-   "modifier-tag"
-  ],
-  "skippedClauses": [
-   "受诅咒敌人影响时效果更佳",
-   "尾部增幅标签 [x3]（归属子句已略去或无法可靠挂载）"
-  ]
+  "fidelity": "full",
+  "missingFeatures": [],
+  "skippedClauses": []
  },
  "10003": {
   "fidelity": "full",

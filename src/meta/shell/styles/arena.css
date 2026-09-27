@@ -1097,3 +1097,38 @@
   .arena-responsive .forfeit-reward { flex-direction: column; }
   .arena-responsive .forfeit-reward strong { text-align: left; }
 }
+
+/* Four-slot roster and compact six-win track; only the actual next opponent is expanded. */
+.arena-win-track { display:grid; grid-template-columns:repeat(6,minmax(0,1fr)); gap:6px; }
+.arena-win-track span { text-align:center; border:1px solid #655437; padding:9px; color:#a39780; }
+.arena-win-track .done { background:#354530; color:#e5e7ba; border-color:#9aa866; }
+.arena-screen .run-slot { height:90px; flex-shrink:0; }
+.arena-screen .prize { padding-block:7px; }
+.arena-screen .prize.featured { padding-block:9px; }
+.arena-screen .gauntlet > p { color:#aa9cae; font-size:12px; line-height:1.7; }
+@media (min-width:601px) and (max-width:1100px) {
+  .arena-responsive .run-slots { grid-template-columns:repeat(2,minmax(0,1fr)); }
+}
+@media (max-width:600px) {
+  .arena-responsive .draft-foot { flex-wrap:wrap; }
+  .arena-responsive .draft-foot .primary { margin-left:auto; }
+  .arena-responsive .run-slot { height:112px; }
+}
+
+/* Arena official rarity colors, without changing legacy collection aliases. */
+.arena-screen .r-rare { --rarity-line: #559fe7; --rarity-glow: #559fe755; --rarity-text: #a6d2ff; }
+.arena-screen .r-legend { --rarity-line: #a46ae5; --rarity-glow: #bd83ff66; --rarity-text: #d5aeff; }
+
+/* Four opponents remain identifiable rather than tiny compressed portraits. */
+.arena-screen .match.pending { grid-template-columns: 28px minmax(0, 1fr); }
+.arena-screen .match-preview { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); max-width: 640px; }
+.arena-screen .match-enemy { display: flex; flex-direction: column; width: auto; min-width: 0; height: 114px; padding: 0; gap: 0; }
+.arena-screen .match-enemy img { flex: 1; min-height: 0; width: 100%; height: 86px; object-fit: cover; object-position: 50% 20%; }
+.arena-screen .match-enemy b { display: block; flex-shrink: 0; width: 100%; max-width: none; padding: 5px 3px; box-sizing: border-box; text-align: center; }
+@media (max-width: 600px) {
+  .arena-screen .match.pending { padding: 10px; gap: 5px; grid-template-columns: 16px minmax(0,1fr); }
+  .arena-screen .match-preview { gap: 4px; }
+  .arena-screen .match-enemy { height: 87px; }
+  .arena-screen .match-enemy img { height: 60px; }
+  .arena-screen .match-enemy b { font-size: 9px; }
+}

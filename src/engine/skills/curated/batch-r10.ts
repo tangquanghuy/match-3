@@ -28,10 +28,8 @@
  * - 本批只收录回收成功条目；仍不可表达条目的 SKIP 记录保留在原批次文件（避免覆盖报告重复计数）。
  */
 import type { CuratedBatch } from './index';
-import {
-  skill, dmg, dmgSplash, trueDmg, heal, armor, mana, createGems, transform, inflict,
-  cleanse, destroyColor, destroyChosenCol, createSpecialGems, summonRandom,
-} from '../builders';
+import { chooseSkill, targetedSkill, skill, dmg, dmgSplash, trueDmg, heal, armor, mana, createGems, transform, inflict,
+  cleanse, destroyColor, destroyChosenCol, createSpecialGems, summonRandom, } from '../builders';
 import { BaseColor } from '../../types';
 
 // 玉银墓城（王国 3066，troops.gow.en.json KingdomId × troops.json referenceName 取交集，R9 王国池同法）
@@ -205,12 +203,7 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 9674,
     desc: '&& 为一名盟友赋予 [魔法 + 2] 生命，然后为其设置屏障。&& 创建 10 颗与所选盟友法力颜色相同的宝石，然后为其附魔。',
     // CreateGems FromTarget 动态色 = LAST_TARGET（8069 同批口径）
-    build: skill(
-      heal('allyChosen', 2, 1),
-      inflict('barrier', 'lastTarget'),
-      createGems('LAST_TARGET', 10, 0),
-      inflict('enchanted', 'lastTarget'),
-    ),
+    build: targetedSkill('allyChosen', chooseSkill(["给予一名盟友［魔法＋2］生命和屏障","创造10颗所选盟友一种法力颜色的宝石并使其附魔"], [heal('allyChosen', 2, 1), inflict('barrier', 'lastTarget')], [createGems('CHOSEN_TARGET', 10, 0), inflict('enchanted', 'allyChosen')])),
   },
   // —— 激怒 enraged（rage 同族，2 条） ——
   {
@@ -239,7 +232,7 @@ const SPELLS: CuratedBatch['spells'] = [
     // 双计数（盟友+敌人各 1000=×10）→ sources 相加 ×10；「一名敌人和一名随机敌人」= 9220 先例；
     // SplashHeavyDamage = dmgSplash（9881 先例）；激怒宝石 = createSpecialGems enrageGem（9742 先例）
     build: skill(
-      dmgSplash('enemyChosen', 4, 1, {
+      dmgSplash('enemyChosen', 4, 1, { splashRatio: 0.75,
         modifier: {
           mod: { kind: 'multiplier', a: 10 },
           sources: [
@@ -248,7 +241,7 @@ const SPELLS: CuratedBatch['spells'] = [
           ],
         },
       }),
-      dmgSplash('enemyRandom', 4, 1, {
+      dmgSplash('enemyRandomPrefNotPrev', 4, 1, { splashRatio: 0.75,
         modifier: {
           mod: { kind: 'multiplier', a: 10 },
           sources: [
@@ -265,11 +258,7 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 9813,
     desc: '&& 对敌人造成 [(魔法 x 1.5) + 4] 真实伤害。&& 为我自己附魔，然后将敌人法力颜色之一的所有宝石转换为黄色。',
     // ConvertGems FromTarget→Yellow = LAST_TARGET 定色全量转换（9540 先例）
-    build: skill(
-      trueDmg('enemyChosen', 4, 1.5),
-      inflict('enchanted', 'allySelf'),
-      transform('LAST_TARGET', BaseColor.Yellow),
-    ),
+    build: targetedSkill('enemyChosen', chooseSkill(["对所选敌人造成［魔法×1.5＋4］真实伤害","自身附魔，将所选敌人一种法力颜色的宝石转为黄色"], [trueDmg('enemyChosen', 4, 1.5)], [inflict('enchanted', 'allySelf'), transform('CHOSEN_TARGET', BaseColor.Yellow)])),
   },
 ];
 

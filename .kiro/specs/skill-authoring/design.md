@@ -73,7 +73,7 @@ summon({ template: { name:'骸骨', maxHp:20, attack:8, ... } })
 - 召唤物属性来源：`ref`/`randomOf` 经一个 `troopToSummonTemplate(refName)` 适配器（复用 `troops.ts` 的 `getTroopByRef` + `troopToCharacter` 精简版）得到属性模板；`template` 直接用。
 - `randomOf` 用 `ctx.rng` 确定性选取（同候选 + 同种子 → 同选择）。
 - 逻辑层不 import 数据文件的表现字段；召唤物模板只含引擎所需数值属性。
-- `summonEffect` 维护「场上最多 4 人 + FIFO 召唤等待队列」：未满时追加队尾，满员时入队，阵亡后按入队顺序补到最下方。
+- `summonEffect` 维护场上最多 4 人：未满时追加队尾，满员时召唤失效；阵亡后存活单位自动补位。
 
 ### 1.4 引擎数据流
 
@@ -193,7 +193,7 @@ flowchart LR
 - 技能库：已配置 skillId 取到预期原型（1.1）；未配置回退（1.5）；代表技能端到端释放产出正确事件（1.4）。
 - builders：各构造器产出结构正确（1.2）。
 - ColorChooser：AI 选最多色、平局固定序、空棋盘 null（2.1/2.5/2.6）。
-- 召唤物：ref/template/randomOf 三路径属性正确、满 4 人后 FIFO 入队、阵亡后从队首补到场上队尾（7.1/7.2/7.3/7.6）。
+- 召唤物：ref/template/randomOf 三路径属性正确、满 4 人时召唤失效、有空位时追加到场上队尾（7.1/7.2/7.3/7.6）。
 - statusIcon 映射（6.5）。
 
 ### 属性测试（fast-check）

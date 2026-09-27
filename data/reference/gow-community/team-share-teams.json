@@ -1,0 +1,1892 @@
+[
+  {
+    "row": 1,
+    "cells": {
+      "A": "GW",
+      "B": "ToD",
+      "C": "Bl+Br",
+      "D": "Bl+G",
+      "E": "Bl+P",
+      "F": "Bl+R",
+      "G": "Bl+Y",
+      "H": "Br+G",
+      "I": "Br+P",
+      "J": "Br+R",
+      "K": "Br+Y",
+      "L": "G+P",
+      "M": "G+R",
+      "N": "G+Y",
+      "O": "P+R",
+      "P": "P+Y",
+      "Q": "R+Y",
+      "R": "Notes",
+      "S": "tags (lower case only)",
+      "Z": "Position 1",
+      "AG": "Position 2",
+      "AN": "Position 3",
+      "AU": "Position 4",
+      "AV": "Hero Class",
+      "AW": "Banner",
+      "AX": "Code"
+    }
+  },
+  {
+    "row": 2,
+    "cells": {
+      "R": "HOW TO FILTER TEAMS:",
+      "T": "1) Go to the \"Data\" Menu  2) Select the option \"Filter views\"  3) Select a filter from the sub menu  4) Enjoy!"
+    }
+  },
+  {
+    "row": 3,
+    "cells": {
+      "A": "Bl",
+      "B": "Bl",
+      "C": "X",
+      "D": "X",
+      "E": "X",
+      "F": "X",
+      "G": "X",
+      "M": "X",
+      "S": "summon",
+      "Z": "Jar of Eyes",
+      "AG": "The Maraji Queen",
+      "AN": "Aquaticus",
+      "AU": "The Possessed King",
+      "AV": "Tidecaller/Corsair/Frostmage",
+      "AW": "Trident",
+      "AX": "[1222,6751,6770,6594,3036,1,2,3,3,0,0,0,14025]"
+    }
+  },
+  {
+    "row": 4,
+    "cells": {
+      "F": "X",
+      "G": "X",
+      "N": "X",
+      "Z": "Earth's Fury",
+      "AG": "Apothecary",
+      "AN": "High King Irongut",
+      "AU": "Gimlet Stormbrew",
+      "AV": "Titan",
+      "AW": "Bear",
+      "AX": "[1199,6256,6650,6590,3010,2,2,2,3,2,3,2,14012]"
+    }
+  },
+  {
+    "row": 5,
+    "cells": {
+      "B": "Y",
+      "D": "X",
+      "G": "X",
+      "H": "X",
+      "K": "X",
+      "N": "X",
+      "P": "X",
+      "Q": "X",
+      "Z": "Mountain Crusher",
+      "AG": "The Worldbreaker",
+      "AN": "High King Irongut",
+      "AU": "Queen Aurora",
+      "AV": "Titan",
+      "AW": "Kraken",
+      "AX": "[1056,6471,6650,6365,3026,2,2,2,3,2,3,2,14012]"
+    }
+  },
+  {
+    "row": 6,
+    "cells": {
+      "B": "Y",
+      "G": "X",
+      "I": "X",
+      "K": "X",
+      "N": "X",
+      "O": "X",
+      "P": "X",
+      "Q": "X",
+      "Z": "Divine Protector",
+      "AG": "Infernus",
+      "AN": "Ubastet",
+      "AU": "Divine Ishbaala",
+      "AV": "Priest/Titan",
+      "AW": "Wolf",
+      "AX": "[1192,6366,6553,6479,3008,3,2,1,1,2,0,0,14003]"
+    }
+  },
+  {
+    "row": 7,
+    "cells": {
+      "K": "X",
+      "N": "X",
+      "O": "X",
+      "Q": "X",
+      "S": "cleanse",
+      "Z": "Mountain Crusher",
+      "AG": "Divinia",
+      "AN": "Ketras the Bull",
+      "AU": "Divine Ishbaala",
+      "AV": "Titan",
+      "AW": "Eagle",
+      "AX": "[1056,6540,6339,6479,3067,3,2,1,1,2,0,0,14003]"
+    }
+  },
+  {
+    "row": 8,
+    "cells": {
+      "A": "P",
+      "B": "P",
+      "E": "X",
+      "F": "X",
+      "I": "X",
+      "J": "X",
+      "L": "X",
+      "O": "X",
+      "P": "X",
+      "S": "farm",
+      "Z": "The Dragon Soul",
+      "AG": "Pharos-Ra",
+      "AN": "Phylactery",
+      "AU": "Umberwolf",
+      "AV": "Necromancer",
+      "AW": "Abyssal",
+      "AX": "[6236,6297,1090,6453,3021,2,1,2,3,0,0,0,14006]"
+    }
+  },
+  {
+    "row": 9,
+    "cells": {
+      "F": "X",
+      "M": "X",
+      "N": "X",
+      "Z": "Mountain Crusher",
+      "AG": "TINA-9000",
+      "AN": "Apothecary",
+      "AU": "Gimlet Stormbrew",
+      "AV": "Mechanist",
+      "AW": "Rat",
+      "AX": "[1056,6699,6256,6590,3049,3,1,1,1,1,0,0,14007]"
+    }
+  },
+  {
+    "row": 10,
+    "cells": {
+      "B": "P",
+      "E": "X",
+      "I": "X",
+      "L": "X",
+      "O": "X",
+      "P": "X",
+      "S": "summon",
+      "Z": "Glaycion",
+      "AG": "Jar of Eyes",
+      "AN": "Zuul'Goth",
+      "AU": "Queen Aurora",
+      "AV": "Tidecaller",
+      "AW": "Frozen",
+      "AX": "[6565,1222,6529,6365,3011,1,2,3,3,0,0,0,14025]"
+    }
+  },
+  {
+    "row": 11,
+    "cells": {
+      "E": "X",
+      "O": "X",
+      "Z": "Mountain Crusher",
+      "AG": "Clockwork Sphinx",
+      "AN": "Tesla",
+      "AU": "Arachnaean Weaver",
+      "AV": "Titan",
+      "AW": "Slayer"
+    }
+  },
+  {
+    "row": 12,
+    "cells": {
+      "A": "Br",
+      "B": "Br",
+      "C": "X",
+      "H": "X",
+      "I": "X",
+      "J": "X",
+      "K": "X",
+      "Z": "Mountain Crusher",
+      "AG": "Emperor Khorvash",
+      "AN": "Famine",
+      "AU": "King Highforge",
+      "AV": "Titan",
+      "AW": "Bear"
+    }
+  },
+  {
+    "row": 13,
+    "cells": {
+      "A": "G",
+      "B": "G",
+      "D": "X",
+      "H": "X",
+      "L": "X",
+      "M": "X",
+      "N": "X",
+      "Z": "Webspinner",
+      "AG": "Stringfiddler",
+      "AN": "King Bloodwood",
+      "AU": "Yasmine's Chosen",
+      "AV": "None",
+      "AW": "Dark Elven"
+    }
+  },
+  {
+    "row": 14,
+    "cells": {
+      "C": "X",
+      "D": "X",
+      "G": "X",
+      "M": "X",
+      "S": "summon",
+      "Z": "Jar of Eyes",
+      "AG": "Glitterclaw",
+      "AN": "King Bloodwood",
+      "AU": "The Maraji Queen",
+      "AV": "Frostmage",
+      "AW": "Ocularen"
+    }
+  },
+  {
+    "row": 15,
+    "cells": {
+      "I": "X",
+      "J": "X",
+      "Q": "X",
+      "Z": "Alchemist",
+      "AG": "Moneylender",
+      "AN": "Queen Titania",
+      "AU": "Megavore",
+      "AV": "None",
+      "AW": "Meteor"
+    }
+  },
+  {
+    "row": 16,
+    "cells": {
+      "C": "X",
+      "E": "X",
+      "F": "X",
+      "H": "X",
+      "L": "X",
+      "M": "X",
+      "Z": "Mountain Crusher",
+      "AG": "Obsidius",
+      "AN": "Apothecary",
+      "AU": "The Possessed King",
+      "AV": "Titan",
+      "AW": "Slayer"
+    }
+  },
+  {
+    "row": 17,
+    "cells": {
+      "G": "X",
+      "K": "X",
+      "M": "X",
+      "O": "X",
+      "Q": "X",
+      "S": "cleanse",
+      "Z": "Mountain Crusher",
+      "AG": "Divinia",
+      "AN": "Megavore",
+      "AU": "Queen Aurora",
+      "AV": "Titan",
+      "AW": "Guardian"
+    }
+  },
+  {
+    "row": 18,
+    "cells": {
+      "E": "X",
+      "L": "X",
+      "P": "X",
+      "Q": "X",
+      "Z": "Rock Troll",
+      "AG": "Dragon's Eye",
+      "AN": "Euryali",
+      "AU": "Scorpius",
+      "AV": "Titan",
+      "AW": "Dark Elven"
+    }
+  },
+  {
+    "row": 19,
+    "cells": {
+      "B": "P",
+      "E": "X",
+      "H": "X",
+      "I": "X",
+      "K": "X",
+      "L": "X",
+      "O": "X",
+      "P": "X",
+      "Z": "Mountain Crusher",
+      "AG": "Glaycion",
+      "AN": "The Gray King",
+      "AU": "Queen Aurora",
+      "AV": "Titan",
+      "AW": "Slayer",
+      "AX": "[1056,6565,6789,6365,3035,2,2,2,3,2,3,2,14012]"
+    }
+  },
+  {
+    "row": 20,
+    "cells": {
+      "C": "X",
+      "H": "X",
+      "I": "X",
+      "O": "X",
+      "Z": "Doomed Blade",
+      "AG": "Keeper of Souls",
+      "AN": "King Bloodhammer",
+      "AU": "The Possessed King",
+      "AV": "Titan",
+      "AW": "Sorrowful"
+    }
+  },
+  {
+    "row": 21,
+    "cells": {
+      "C": "X",
+      "H": "X",
+      "I": "X",
+      "N": "X",
+      "P": "X",
+      "Z": "Wrath",
+      "AG": "Doomed Club",
+      "AN": "The Wild Queen",
+      "AU": "The Possessed King",
+      "AV": "Archer",
+      "AW": "Mushroom"
+    }
+  },
+  {
+    "row": 22,
+    "cells": {
+      "A": "G",
+      "B": "G",
+      "D": "X",
+      "F": "X",
+      "H": "X",
+      "L": "X",
+      "M": "X",
+      "N": "X",
+      "S": "cleanse",
+      "Z": "Dark Maiden",
+      "AG": "Glitterclaw",
+      "AN": "Mercy",
+      "AU": "The Worldbreaker",
+      "AV": "None",
+      "AW": "Ocularen"
+    }
+  },
+  {
+    "row": 23,
+    "cells": {
+      "A": "Br",
+      "B": "Br",
+      "C": "X",
+      "H": "X",
+      "I": "X",
+      "J": "X",
+      "K": "X",
+      "Z": "Ragnagord",
+      "AG": "Emperor Khorvash",
+      "AN": "Diviner",
+      "AU": "Ubastet",
+      "AV": "None",
+      "AW": "Bear"
+    }
+  },
+  {
+    "row": 24,
+    "cells": {
+      "A": "Bl",
+      "B": "Bl",
+      "C": "X",
+      "D": "X",
+      "E": "X",
+      "F": "X",
+      "G": "X",
+      "S": "summon",
+      "Z": "Jar of Eyes",
+      "AG": "Emperor Khorvash",
+      "AN": "Champion of Anu",
+      "AU": "Queen Mab",
+      "AV": "Frostmage",
+      "AW": "Sorrowful"
+    }
+  },
+  {
+    "row": 25,
+    "cells": {
+      "B": "R",
+      "F": "X",
+      "J": "X",
+      "M": "X",
+      "O": "X",
+      "Q": "X",
+      "Z": "Champion of Gaard",
+      "AG": "Shield of Urskaya",
+      "AN": "Sekhma",
+      "AU": "Tesla",
+      "AV": "Sunspear",
+      "AW": "Saurus",
+      "AX": "[6745,1221,6354,6320,3050,2,2,1,2,0,0,0,14016]"
+    }
+  },
+  {
+    "row": 26,
+    "cells": {
+      "B": "Br",
+      "C": "X",
+      "H": "X",
+      "I": "X",
+      "J": "X",
+      "K": "X",
+      "Z": "Wrath",
+      "AG": "Doomed Blade",
+      "AN": "Keeper of Souls",
+      "AU": "Doomclaw",
+      "AV": "Titan/Frostmage",
+      "AW": "Kraken"
+    }
+  },
+  {
+    "row": 27,
+    "cells": {
+      "A": "P",
+      "B": "P",
+      "E": "X",
+      "I": "X",
+      "L": "X",
+      "M": "X",
+      "O": "X",
+      "P": "X",
+      "Z": "Asha",
+      "AG": "Infernus",
+      "AN": "Elemaugrim",
+      "AU": "Umberwolf",
+      "AV": "None",
+      "AW": "Old God's"
+    }
+  },
+  {
+    "row": 28,
+    "cells": {
+      "I": "X",
+      "K": "X",
+      "O": "X",
+      "P": "X",
+      "Z": "Mountain Crusher",
+      "AG": "Clockwork Sphinx",
+      "AN": "Gaard's Avatar",
+      "AU": "Divine Ishbaala",
+      "AV": "Titan",
+      "AW": "Guardian"
+    }
+  },
+  {
+    "row": 29,
+    "cells": {
+      "C": "X",
+      "F": "X",
+      "M": "X",
+      "S": "giant",
+      "Z": "Flammifer",
+      "AG": "Jarl Firemantle",
+      "AN": "Jotnar Stormshield",
+      "AU": "Hyndla Frostcrown",
+      "AV": "Titan",
+      "AW": "Meteor"
+    }
+  },
+  {
+    "row": 30,
+    "cells": {
+      "F": "X",
+      "L": "X",
+      "M": "X",
+      "Z": "Flammifer",
+      "AG": "Queen Titania",
+      "AN": "Phoenicia",
+      "AU": "Tai-Pan",
+      "AV": "Titan/Sunspear",
+      "AW": "Crypt"
+    }
+  },
+  {
+    "row": 31,
+    "cells": {
+      "A": "Bl",
+      "B": "Bl",
+      "C": "X",
+      "D": "X",
+      "E": "X",
+      "F": "X",
+      "G": "X",
+      "O": "X",
+      "Z": "Azura",
+      "AG": "Champion of Anu",
+      "AN": "Undine",
+      "AU": "Skadi",
+      "AV": "None",
+      "AW": "Frozen"
+    }
+  },
+  {
+    "row": 32,
+    "cells": {
+      "A": "Br",
+      "B": "Br",
+      "C": "X",
+      "F": "X",
+      "H": "X",
+      "I": "X",
+      "J": "X",
+      "K": "X",
+      "Z": "Stonehammer",
+      "AG": "Doomed Club",
+      "AN": "King Bloodhammer",
+      "AU": "Doomclaw",
+      "AV": "?",
+      "AW": "Bear"
+    }
+  },
+  {
+    "row": 33,
+    "cells": {
+      "B": "G",
+      "D": "X",
+      "F": "X",
+      "H": "X",
+      "L": "X",
+      "M": "X",
+      "N": "X",
+      "Z": "Flammifer",
+      "AG": "Yao Guai",
+      "AN": "Suna",
+      "AU": "Tai-Pan",
+      "AV": "Titan",
+      "AW": "Meteor"
+    }
+  },
+  {
+    "row": 34,
+    "cells": {
+      "A": "Bl",
+      "B": "Bl",
+      "C": "X",
+      "D": "X",
+      "E": "X",
+      "F": "X",
+      "G": "X",
+      "Z": "Azura",
+      "AG": "Emperor Khorvash",
+      "AN": "Undine",
+      "AU": "Queen Mab",
+      "AV": "None",
+      "AW": "Frozen"
+    }
+  },
+  {
+    "row": 35,
+    "cells": {
+      "A": "P",
+      "B": "P",
+      "E": "X",
+      "I": "X",
+      "L": "X",
+      "N": "X",
+      "O": "X",
+      "P": "X",
+      "Q": "X",
+      "S": "cleanse",
+      "Z": "Divine Ishbaala",
+      "AG": "Infernus",
+      "AN": "Suna",
+      "AU": "Voice of Orpheus",
+      "AV": "None",
+      "AW": "Crypt"
+    }
+  },
+  {
+    "row": 36,
+    "cells": {
+      "A": "G",
+      "B": "G",
+      "D": "X",
+      "H": "X",
+      "L": "X",
+      "M": "X",
+      "N": "X",
+      "Z": "Webspinner",
+      "AG": "Yasmine's Chosen",
+      "AN": "Dark Maiden",
+      "AU": "Queen Aurora",
+      "AV": "None",
+      "AW": "Ocularen"
+    }
+  },
+  {
+    "row": 37,
+    "cells": {
+      "A": "P",
+      "B": "P",
+      "E": "X",
+      "I": "X",
+      "K": "X",
+      "L": "X",
+      "O": "X",
+      "P": "X",
+      "Z": "Glaycion",
+      "AG": "Divine Ishbaala",
+      "AN": "Infernus",
+      "AU": "Abynissia",
+      "AV": "None",
+      "AW": "Lantern"
+    }
+  },
+  {
+    "row": 38,
+    "cells": {
+      "O": "X",
+      "Q": "X",
+      "Z": "Wall of Bones",
+      "AG": "Grave Seer",
+      "AN": "Death",
+      "AU": "The Widow Queen",
+      "AV": "None",
+      "AW": "Abyssal"
+    }
+  },
+  {
+    "row": 39,
+    "cells": {
+      "N": "X",
+      "Z": "Humility",
+      "AG": "Humility",
+      "AN": "Draakulis",
+      "AU": "Moon Rabbit",
+      "AV": "None",
+      "AW": "Talon"
+    }
+  },
+  {
+    "row": 40,
+    "cells": {
+      "F": "X",
+      "M": "X",
+      "N": "X",
+      "Z": "Chief Dargon",
+      "AG": "Marilith",
+      "AN": "Euryali",
+      "AU": "Tai-Pan",
+      "AV": "None",
+      "AW": "Saurus"
+    }
+  },
+  {
+    "row": 41,
+    "cells": {
+      "A": "P",
+      "B": "P",
+      "E": "X",
+      "I": "X",
+      "K": "X",
+      "L": "X",
+      "O": "X",
+      "P": "X",
+      "Z": "Hellcat",
+      "AG": "Infernus",
+      "AN": "Elemaugrim",
+      "AU": "Fallen Valdis",
+      "AV": "None",
+      "AW": "Abyssal"
+    }
+  },
+  {
+    "row": 42,
+    "cells": {
+      "G": "X",
+      "Z": "Humility",
+      "AG": "Lady Anariel",
+      "AN": "Behemoth",
+      "AU": "Plague",
+      "AV": "None",
+      "AW": "Trident"
+    }
+  },
+  {
+    "row": 43,
+    "cells": {
+      "C": "X",
+      "H": "X",
+      "P": "X",
+      "Z": "Wrath",
+      "AG": "Glaycion",
+      "AN": "Queen of Sin",
+      "AU": "The Possessed King",
+      "AV": "None",
+      "AW": "Slayer"
+    }
+  },
+  {
+    "row": 44,
+    "cells": {
+      "B": "R",
+      "F": "X",
+      "J": "X",
+      "M": "X",
+      "O": "X",
+      "P": "X",
+      "Q": "X",
+      "S": "summon",
+      "Z": "Jar of Eyes",
+      "AG": "Chief Dargon",
+      "AN": "Medea",
+      "AU": "Tian Yi",
+      "AV": "?",
+      "AW": "Saurus"
+    }
+  },
+  {
+    "row": 45,
+    "cells": {
+      "A": "Br",
+      "B": "Br",
+      "C": "X",
+      "E": "X",
+      "F": "X",
+      "H": "X",
+      "I": "X",
+      "J": "X",
+      "K": "X",
+      "Z": "Mountain Crusher",
+      "AG": "High King Irongut",
+      "AN": "Obsidius",
+      "AU": "Vash'Dagon",
+      "AV": "Titan",
+      "AW": "Guardian",
+      "AX": "[1056,6650,6746,6700,3042,2,2,2,3,2,3,2,14012]"
+    }
+  },
+  {
+    "row": 46,
+    "cells": {
+      "O": "X",
+      "Z": "War",
+      "AG": "Infernal King",
+      "AN": "Qilin",
+      "AU": "Moon Rabbit",
+      "AV": "None",
+      "AW": "Lantern"
+    }
+  },
+  {
+    "row": 47,
+    "cells": {
+      "E": "X",
+      "L": "X",
+      "N": "X",
+      "S": "summon",
+      "Z": "Giant Spider",
+      "AG": "Green Seer",
+      "AN": "Wulfgarok",
+      "AU": "The Possessed King",
+      "AV": "None",
+      "AW": "Riven"
+    }
+  },
+  {
+    "row": 48,
+    "cells": {
+      "C": "X",
+      "H": "X",
+      "L": "X",
+      "N": "X",
+      "Z": "Mountain Crusher",
+      "AG": "Diviner",
+      "AN": "Glitterclaw",
+      "AU": "Xathenos",
+      "AV": "Titan",
+      "AW": "Guardian"
+    }
+  },
+  {
+    "row": 49,
+    "cells": {
+      "J": "X",
+      "O": "X",
+      "S": "summon",
+      "Z": "Orc",
+      "AG": "Gargantaur",
+      "AN": "Drake Rider",
+      "AU": "Gar'Nok",
+      "AV": "None",
+      "AW": "Crypt"
+    }
+  },
+  {
+    "row": 50,
+    "cells": {
+      "J": "X",
+      "O": "X",
+      "P": "X",
+      "S": "summon",
+      "Z": "Shade of Zorn",
+      "AG": "Sekhma",
+      "AN": "Glaycion",
+      "AU": "Gar'Nok",
+      "AV": "None",
+      "AW": "Dragon",
+      "AX": "[6747,6354,6565,6135,3019,2,2,2,3,2,3,2,14012]"
+    }
+  },
+  {
+    "row": 51,
+    "cells": {
+      "B": "G",
+      "D": "X",
+      "H": "X",
+      "L": "X",
+      "M": "X",
+      "N": "X",
+      "R": "All around classic",
+      "Z": "Shield of Urskaya",
+      "AG": "Rowanne",
+      "AN": "Leprechaun",
+      "AU": "Leprechaun",
+      "AV": "Leveler",
+      "AW": "Wolf's",
+      "AX": "[1221,6087,6638,6638,3008,1,1,2,2,0,0,0,14018]"
+    }
+  },
+  {
+    "row": 52,
+    "cells": {
+      "G": "X",
+      "L": "X",
+      "N": "X",
+      "P": "X",
+      "Z": "Essence of Evil",
+      "AG": "Hellcat",
+      "AN": "The Worldbreaker",
+      "AU": "The Possessed King",
+      "AV": "Sunspear",
+      "AW": "Beastly",
+      "AX": "[1220,6216,6471,6594,3068,2,2,1,2,3,0,0,14016]"
+    }
+  },
+  {
+    "row": 53,
+    "cells": {
+      "B": "P",
+      "E": "X",
+      "I": "X",
+      "J": "X",
+      "L": "X",
+      "O": "X",
+      "P": "X",
+      "R": "Souls Farm",
+      "S": "farm",
+      "Z": "Mountain Crusher",
+      "AG": "Pharos-Ra",
+      "AN": "Flesh Golem",
+      "AU": "Keeper of Souls",
+      "AV": "Leveler",
+      "AW": "Slayer",
+      "AX": "[1056,6297,6055,6074,3035,2,1,1,1,2,0,0,14031]"
+    }
+  },
+  {
+    "row": 54,
+    "cells": {
+      "B": "Bl",
+      "C": "X",
+      "D": "X",
+      "E": "X",
+      "F": "X",
+      "G": "X",
+      "H": "X",
+      "R": "Gobtruffle variant",
+      "Z": "Forest Troll",
+      "AG": "King Gobtruffle",
+      "AN": "Skeleton Key",
+      "AU": "The Possessed King",
+      "AV": "Warden",
+      "AW": "Mushroom",
+      "AX": "[6419,6759,1214,6594,3053,3,3,2,2,2,3,1,14002]"
+    }
+  },
+  {
+    "row": 55,
+    "cells": {
+      "D": "X",
+      "N": "X",
+      "R": "Classic Gold Farm",
+      "S": "farm, summon",
+      "Z": "Cedric Sparklesack",
+      "AG": "Egg Thief",
+      "AN": "Skeleton Key",
+      "AU": "Greed",
+      "AV": "Thief",
+      "AW": "Rat",
+      "AX": "[6498,6629,1214,6600,3049,1,1,2,1,0,0,0,14017]"
+    }
+  },
+  {
+    "row": 56,
+    "cells": {
+      "C": "X",
+      "H": "X",
+      "J": "X",
+      "R": "Sometimes fast, often risky, always fun",
+      "Z": "The Lord of Slaughter",
+      "AG": "Mountain Crusher",
+      "AN": "Wrath",
+      "AU": "Glaycion",
+      "AV": "Sentinel",
+      "AW": "Hive",
+      "AX": "[6890,1056,6604,6565,3060,2,2,2,3,2,0,0,14022]"
+    }
+  },
+  {
+    "row": 57,
+    "cells": {
+      "I": "X",
+      "K": "X",
+      "R": "Early Game",
+      "Z": "Mountain Crusher",
+      "AG": "Gargoyle",
+      "AN": "Faunessa",
+      "AU": "Luther",
+      "AV": "Sentinel/Titan",
+      "AW": "Bear",
+      "AX": "[1056,6622,6154,6081,3010,2,2,2,3,2,0,0,14022]"
+    }
+  },
+  {
+    "row": 58,
+    "cells": {
+      "A": "Y",
+      "B": "Y",
+      "G": "X",
+      "K": "X",
+      "N": "X",
+      "P": "X",
+      "Q": "X",
+      "R": "Bard/Wildfolk",
+      "S": "wildfolk, pan's vale",
+      "Z": "Spiked Manriki",
+      "AG": "Luna",
+      "AN": "King Silenus",
+      "AU": "Starflower",
+      "AV": "Bard",
+      "AW": "Talon",
+      "AX": "[1278,6659,6384,6732,3023,3,2,2,3,3,3,0,14013]"
+    }
+  },
+  {
+    "row": 59,
+    "cells": {
+      "A": "Y",
+      "B": "Y",
+      "G": "X",
+      "K": "X",
+      "N": "X",
+      "P": "X",
+      "Q": "X",
+      "R": "Bard/Wildfolk",
+      "S": "wildfolk, pan's vale",
+      "Z": "Spiked Manriki",
+      "AG": "Luna",
+      "AN": "King Silenus",
+      "AU": "Faunessa",
+      "AV": "Bard",
+      "AW": "Talon"
+    }
+  },
+  {
+    "row": 60,
+    "cells": {
+      "R": "Priest",
+      "Z": "Treant",
+      "AG": "Alchemist",
+      "AN": "Valkyrie",
+      "AU": "Banshee",
+      "AV": "None",
+      "AW": "Scales"
+    }
+  },
+  {
+    "row": 61,
+    "cells": {
+      "F": "X",
+      "G": "X",
+      "J": "X",
+      "K": "X",
+      "R": "Soul Farming",
+      "S": "farm",
+      "Z": "Warlock",
+      "AG": "Valkyrie",
+      "AN": "Warlock",
+      "AU": "Warlock",
+      "AV": "None",
+      "AW": "Lantern"
+    }
+  },
+  {
+    "row": 62,
+    "cells": {
+      "F": "X",
+      "M": "X",
+      "R": "Traitstone Farming",
+      "S": "farm",
+      "Z": "Sunbird",
+      "AG": "Rowanne",
+      "AN": "Fire Bomb",
+      "AU": "Fire Bomb",
+      "AV": "None",
+      "AW": "Abyssal"
+    }
+  },
+  {
+    "row": 63,
+    "cells": {
+      "R": "Goblins",
+      "S": "goblin, summon",
+      "Z": "Nobend Brothers",
+      "AG": "Queen Grapplepot",
+      "AN": "Princess Fizzbang",
+      "AU": "Goblin King",
+      "AV": "None",
+      "AW": "Dark Elven"
+    }
+  },
+  {
+    "row": 64,
+    "cells": {
+      "D": "X",
+      "E": "X",
+      "I": "X",
+      "R": "Freeze Team",
+      "Z": "Forest Troll",
+      "AG": "Nyx",
+      "AN": "Kraken",
+      "AU": "Queen Mab",
+      "AV": "None",
+      "AW": "Frozen"
+    }
+  },
+  {
+    "row": 65,
+    "cells": {
+      "B": "Y",
+      "G": "X",
+      "I": "X",
+      "K": "X",
+      "N": "X",
+      "O": "X",
+      "P": "X",
+      "Q": "X",
+      "R": "Divines",
+      "S": "divine",
+      "Z": "Divine Protector",
+      "AG": "Infernus",
+      "AN": "Ubastet",
+      "AU": "Divine Ishbaala",
+      "AV": "Priest",
+      "AW": "Dragon"
+    }
+  },
+  {
+    "row": 66,
+    "cells": {
+      "L": "X",
+      "M": "X",
+      "R": "Early Game",
+      "S": "summon",
+      "Z": "Dark Maiden",
+      "AG": "Amira",
+      "AN": "Giant Spider",
+      "AU": "Spirit Fox",
+      "AV": "None",
+      "AW": "Woodland"
+    }
+  },
+  {
+    "row": 67,
+    "cells": {
+      "N": "X",
+      "R": "Early Game PVP",
+      "Z": "Herdmaster",
+      "AG": "Soothsayer",
+      "AN": "Valkyrie",
+      "AU": "Druid",
+      "AV": "None"
+    }
+  },
+  {
+    "row": 68,
+    "cells": {
+      "E": "X",
+      "R": "Early Game",
+      "S": "summon",
+      "Z": "Behemoth",
+      "AG": "Green Seer",
+      "AN": "Giant Spider",
+      "AU": "Black Manacles",
+      "AV": "Sorcerer"
+    }
+  },
+  {
+    "row": 69,
+    "cells": {
+      "F": "X",
+      "G": "X",
+      "M": "X",
+      "N": "X",
+      "R": "Early Game",
+      "S": "cleanse",
+      "Z": "Golden Cog",
+      "AG": "Valkyrie",
+      "AN": "Rowanne",
+      "AU": "Mercy",
+      "AV": "Archer"
+    }
+  },
+  {
+    "row": 70,
+    "cells": {
+      "R": "Early Game",
+      "Z": "Honor",
+      "AG": "Deep Borer",
+      "AN": "Settite Warrior",
+      "AU": "Paladin",
+      "AV": "None"
+    }
+  },
+  {
+    "row": 71,
+    "cells": {
+      "E": "X",
+      "L": "X",
+      "N": "X",
+      "R": "Early Game",
+      "Z": "Green Seer",
+      "AG": "Rowanne",
+      "AN": "Siren",
+      "AU": "Siren",
+      "AV": "None"
+    }
+  },
+  {
+    "row": 72,
+    "cells": {
+      "R": "Beginner",
+      "Z": "Creeper",
+      "AG": "Wraith",
+      "AN": "Ghoul",
+      "AU": "Sunsail",
+      "AV": "None",
+      "AW": "Any Matching"
+    }
+  },
+  {
+    "row": 73,
+    "cells": {
+      "R": "Beginner",
+      "Z": "Templar",
+      "AG": "Centaur Scout",
+      "AN": "Armored Boar",
+      "AU": "Bandit",
+      "AV": "None",
+      "AW": "green/yellow"
+    }
+  },
+  {
+    "row": 74,
+    "cells": {
+      "R": "Beginner",
+      "Z": "Clockwork Sphinx",
+      "AG": "Spider Swarm",
+      "AN": "Serpent",
+      "AU": "Goblin",
+      "AV": "None",
+      "AW": "brown/purple"
+    }
+  },
+  {
+    "row": 75,
+    "cells": {
+      "R": "Beginner",
+      "Z": "Golden Cog",
+      "AG": "Clockwork Sphinx",
+      "AN": "Rowanne",
+      "AU": "Cockatrice",
+      "AV": "Bard/Priest"
+    }
+  },
+  {
+    "row": 76,
+    "cells": {
+      "E": "X",
+      "R": "Early Game",
+      "S": "cleanse",
+      "Z": "Anointed One",
+      "AG": "Hellcat",
+      "AN": "Sekhma",
+      "AU": "Mercy",
+      "AV": "None"
+    }
+  },
+  {
+    "row": 77,
+    "cells": {
+      "R": "Beginner",
+      "Z": "Luther",
+      "AG": "Goblin",
+      "AN": "Skeleton",
+      "AU": "Dimetraxia",
+      "AV": "None"
+    }
+  },
+  {
+    "row": 78,
+    "cells": {
+      "H": "X",
+      "K": "X",
+      "N": "X",
+      "Q": "X",
+      "R": "Beginner",
+      "Z": "Ranger",
+      "AG": "Ranger",
+      "AN": "Alchemist",
+      "AU": "Ranger",
+      "AV": "None"
+    }
+  },
+  {
+    "row": 79,
+    "cells": {
+      "R": "Beginner",
+      "S": "summon",
+      "Z": "Dragotaur",
+      "AG": "Baby Dragon",
+      "AN": "Dragon Eggs",
+      "AU": "Dragonian Rogue",
+      "AV": "None"
+    }
+  },
+  {
+    "row": 80,
+    "cells": {
+      "G": "X",
+      "M": "X",
+      "N": "X",
+      "R": "PvP Defense",
+      "S": "summon",
+      "Z": "Grave Seer",
+      "AG": "Life and Death",
+      "AN": "Arachnaean Weaver",
+      "AU": "King Avelorn",
+      "AV": "Orbweaver"
+    }
+  },
+  {
+    "row": 81,
+    "cells": {
+      "N": "X",
+      "O": "X",
+      "P": "X",
+      "R": "PvP Defense",
+      "Z": "Divine Ishbaala",
+      "AG": "Rope Dart",
+      "AN": "Qilin",
+      "AU": "Moon Rabbit",
+      "AV": "Thief"
+    }
+  },
+  {
+    "row": 82,
+    "cells": {
+      "C": "X",
+      "D": "X",
+      "E": "X",
+      "P": "X",
+      "R": "PvP Defense",
+      "Z": "Essence of Evil",
+      "AG": "Moonsinger",
+      "AN": "The Wild Queen",
+      "AU": "Malcandessa",
+      "AV": "Monk"
+    }
+  },
+  {
+    "row": 83,
+    "cells": {
+      "R": "Beginner",
+      "S": "summon",
+      "Z": "Deep Borer",
+      "AG": "Loyalty",
+      "AN": "Dragotaur",
+      "AU": "Dragon Eggs",
+      "AV": "None"
+    }
+  },
+  {
+    "row": 84,
+    "cells": {
+      "N": "X",
+      "O": "X",
+      "P": "X",
+      "R": "PvP Defense",
+      "Z": "Rope Dart",
+      "AG": "Divine Ishbaala",
+      "AN": "Qilin",
+      "AU": "Moon Rabbit",
+      "AV": "Monk"
+    }
+  },
+  {
+    "row": 85,
+    "cells": {
+      "D": "X",
+      "E": "X",
+      "M": "X",
+      "R": "PvP Defense",
+      "S": "goblin",
+      "Z": "Toadsqueezer",
+      "AG": "Norbert’s Turnip",
+      "AN": "Stringfiddler",
+      "AU": "King Gobtruffle",
+      "AV": "Thief"
+    }
+  },
+  {
+    "row": 86,
+    "cells": {
+      "L": "X",
+      "N": "X",
+      "R": "Green Guild War Defense",
+      "S": "cleanse",
+      "Z": "Savage Hunter",
+      "AG": "Divine Ishbaala",
+      "AN": "Rope Dart",
+      "AU": "Mercy",
+      "AV": "Frostmage"
+    }
+  },
+  {
+    "row": 87,
+    "cells": {
+      "C": "X",
+      "J": "X",
+      "R": "Beginner",
+      "Z": "Rock Worm",
+      "AG": "Rock Worm",
+      "AN": "Deep Borer",
+      "AU": "Rock Worm",
+      "AV": "None"
+    }
+  },
+  {
+    "row": 88,
+    "cells": {
+      "A": "P",
+      "B": "P",
+      "C": "X",
+      "D": "X",
+      "E": "X",
+      "F": "X",
+      "G": "X",
+      "I": "X",
+      "L": "X",
+      "O": "X",
+      "P": "X",
+      "R": "Intermediate Guild Wars Purple",
+      "Z": "Psion",
+      "AG": "Burning Scythe",
+      "AN": "Lyrasza",
+      "AU": "The Possessed King",
+      "AV": "Archmagus",
+      "AW": "Night",
+      "AX": "[6151,1124,6847,6594,3063,1,3,3,1,0,0,0,14028]"
+    }
+  },
+  {
+    "row": 89,
+    "cells": {
+      "B": "BL",
+      "R": "Intermediate Guild Wars Purple",
+      "Z": "Psion",
+      "AG": "Burning Scythe",
+      "AN": "Lyrasza",
+      "AU": "The Possessed King",
+      "AV": "Archmagus",
+      "AW": "Night",
+      "AX": "[6151,1124,6847,6594,3063,1,3,3,1,0,0,0,14028]"
+    }
+  },
+  {
+    "row": 90,
+    "cells": {
+      "B": "Y",
+      "G": "X",
+      "K": "X",
+      "N": "X",
+      "P": "X",
+      "Q": "X",
+      "R": "<300 Yellow Delve",
+      "Z": "Finesse",
+      "AG": "Finesse",
+      "AN": "Essence of Evil",
+      "AU": "Finesse",
+      "AV": "Stormcaller",
+      "AW": "Talon",
+      "AX": "[6834,6834,1220,6834,3023,2,2,3,2,2,0,0,14030]"
+    }
+  },
+  {
+    "row": 91,
+    "cells": {
+      "H": "X",
+      "I": "X",
+      "N": "X",
+      "P": "X",
+      "R": "Wrath of Storms",
+      "Z": "Wrath",
+      "AG": "Doomed Axe",
+      "AN": "Moon Rabbit",
+      "AU": "The Possessed King",
+      "AV": "Stormcaller",
+      "AW": "Guardian"
+    }
+  },
+  {
+    "row": 92,
+    "cells": {
+      "R": "Beginner",
+      "Z": "Deep Borer",
+      "AG": "Valkyrie",
+      "AN": "Elven Bard",
+      "AU": "Rock Spirit",
+      "AV": "None"
+    }
+  },
+  {
+    "row": 93,
+    "cells": {
+      "M": "X",
+      "N": "X",
+      "R": "Green Guild War Defense",
+      "S": "cleanse",
+      "Z": "Savage Hunter",
+      "AG": "Queen Beetrix",
+      "AN": "Doomed Scythe",
+      "AU": "Gimlet Stormbrew",
+      "AV": "Frostmage"
+    }
+  },
+  {
+    "row": 94,
+    "cells": {
+      "B": "Bl",
+      "C": "X",
+      "D": "X",
+      "E": "X",
+      "F": "X",
+      "G": "X",
+      "H": "X",
+      "N": "X",
+      "R": "PvP Defense",
+      "S": "cleanse",
+      "Z": "Emerald Tear",
+      "AG": "Queen Beetrix",
+      "AN": "Mistralus",
+      "AU": "Mercy",
+      "AV": "Tidecaller"
+    }
+  },
+  {
+    "row": 95,
+    "cells": {
+      "B": "P",
+      "E": "X",
+      "I": "X",
+      "J": "X",
+      "L": "X",
+      "O": "X",
+      "P": "X",
+      "R": "PvP Defense",
+      "S": "summon",
+      "Z": "Daughter of Ice",
+      "AG": "Drowned Sailor",
+      "AN": "Zuul'Goth",
+      "AU": "Jar of Eyes",
+      "AV": "Frostmage/Assassin"
+    }
+  },
+  {
+    "row": 96,
+    "cells": {
+      "I": "X",
+      "L": "X",
+      "M": "X",
+      "O": "X",
+      "R": "PvP Defense",
+      "Z": "Carnex",
+      "AG": "TINA-9000",
+      "AN": "Rope Dart",
+      "AU": "Leprechaun",
+      "AV": "Mechanist"
+    }
+  },
+  {
+    "row": 97,
+    "cells": {
+      "H": "X",
+      "K": "X",
+      "R": "Early Game",
+      "Z": "Mountain Crusher",
+      "AG": "Gargoyle",
+      "AN": "Elwyn",
+      "AU": "Luther",
+      "AV": "Titan",
+      "AW": "Bear"
+    }
+  },
+  {
+    "row": 98,
+    "cells": {
+      "E": "X",
+      "R": "Fastest level 1 explore",
+      "Z": "Black Manacles",
+      "AG": "Rowanne",
+      "AN": "Leprechaun",
+      "AU": "The Maraji Queen",
+      "AV": "None",
+      "AW": "Trident"
+    }
+  },
+  {
+    "row": 99,
+    "cells": {
+      "C": "X",
+      "F": "X",
+      "I": "X",
+      "O": "X",
+      "R": "Soul Skulls",
+      "S": "farm",
+      "Z": "Mountain Crusher",
+      "AG": "Dark Troll",
+      "AN": "The Infernal Machine",
+      "AU": "Pharos-Ra",
+      "AV": "Titan",
+      "AW": "Slayer"
+    }
+  },
+  {
+    "row": 100,
+    "cells": {
+      "B": "X",
+      "F": "X",
+      "J": "X",
+      "M": "X",
+      "O": "X",
+      "Q": "X",
+      "R": "Lord Doomskull",
+      "S": "cleanse",
+      "Z": "The Lord of Slaughter",
+      "AG": "Mountain Crusher",
+      "AN": "Divinia",
+      "AU": "Obsidius",
+      "AV": "Titan",
+      "AW": "Eagle"
+    }
+  },
+  {
+    "row": 101,
+    "cells": {
+      "E": "X",
+      "H": "X",
+      "L": "X",
+      "R": "PvP Defense",
+      "S": "cleanse",
+      "Z": "Essence of Evil",
+      "AG": "Goblin Shaman",
+      "AN": "Queen Beetrix",
+      "AU": "Leprechaun",
+      "AV": "Monk"
+    }
+  },
+  {
+    "row": 102,
+    "cells": {
+      "B": "Bl",
+      "C": "X",
+      "D": "X",
+      "E": "X",
+      "F": "X",
+      "G": "X",
+      "R": "Gobtruffle variant",
+      "Z": "Forest Troll",
+      "AG": "King Gobtruffle",
+      "AN": "Doomed Glaive",
+      "AU": "The Maraji Queen",
+      "AV": "Warden"
+    }
+  },
+  {
+    "row": 103,
+    "cells": {
+      "M": "X",
+      "N": "X",
+      "O": "X",
+      "P": "X",
+      "R": "PvP Defense",
+      "Z": "Rope Dart",
+      "AG": "Qilin",
+      "AN": "Moon Rabbit",
+      "AU": "The Possessed King",
+      "AV": "Frostmage"
+    }
+  },
+  {
+    "row": 104,
+    "cells": {
+      "M": "X",
+      "N": "X",
+      "O": "X",
+      "P": "X",
+      "R": "Brown Guild War Defense",
+      "Z": "Wulfgarok",
+      "AG": "Gimlet Stormbrew",
+      "AN": "Spirit Fox",
+      "AU": "Doomed Codex",
+      "AV": "Monk"
+    }
+  },
+  {
+    "row": 105,
+    "cells": {
+      "B": "X",
+      "F": "X",
+      "J": "X",
+      "M": "X",
+      "O": "X",
+      "Q": "X",
+      "R": "PvP Defense",
+      "S": "cleanse",
+      "Z": "Ferocity",
+      "AG": "Mountain Crusher",
+      "AN": "Ketras the Bull",
+      "AU": "Voice of Orpheus",
+      "AV": "Shaman"
+    }
+  },
+  {
+    "row": 106,
+    "cells": {
+      "E": "X",
+      "H": "X",
+      "L": "X",
+      "M": "X",
+      "R": "PvP Defense",
+      "Z": "Norbert’s Turnip",
+      "AG": "Stringfiddler",
+      "AN": "King Gobtruffle",
+      "AU": "Obsidius",
+      "AV": "Shaman/Thief"
+    }
+  },
+  {
+    "row": 107,
+    "cells": {
+      "A": "Y",
+      "B": "Y",
+      "G": "X",
+      "K": "X",
+      "N": "X",
+      "P": "X",
+      "Q": "X",
+      "R": "PvP Defense",
+      "S": "cleanse",
+      "Z": "Divine Ishbaala",
+      "AG": "Doomed Axe",
+      "AN": "Qilin",
+      "AU": "Sister Superior",
+      "AV": "Priest"
+    }
+  },
+  {
+    "row": 108,
+    "cells": {
+      "G": "X",
+      "M": "X",
+      "N": "X",
+      "R": "PvP Defense",
+      "S": "summon",
+      "Z": "Lamashtu",
+      "AG": "Life and Death",
+      "AN": "Arachnaean Weaver",
+      "AU": "King Avelorn",
+      "AV": "Orbweaver"
+    }
+  },
+  {
+    "row": 109,
+    "cells": {
+      "L": "X",
+      "M": "X",
+      "R": "PvP Defense",
+      "S": "cleanse",
+      "Z": "Webspinner",
+      "AG": "Sister Superior",
+      "AN": "Dragon's Eye",
+      "AU": "Fist of Zorn",
+      "AV": "Thief"
+    }
+  },
+  {
+    "row": 110,
+    "cells": {
+      "A": "G",
+      "B": "G",
+      "D": "X",
+      "H": "X",
+      "L": "X",
+      "M": "X",
+      "N": "X",
+      "S": "beast, maugrim woods",
+      "Z": "Doomed Libram",
+      "AG": "Wulfgarok",
+      "AN": "Forest Guardian",
+      "AU": "Fenrir",
+      "AV": "Warden",
+      "AW": "Ocularen",
+      "AX": "[1181,6300,6298,6162,3039,3,3,2,2,2,3,1,14002]"
+    }
+  },
+  {
+    "row": 111,
+    "cells": {
+      "B": "R",
+      "F": "X",
+      "J": "X",
+      "M": "X",
+      "O": "X",
+      "Q": "X",
+      "R": "Red ToD",
+      "Z": "Shield of Urskaya",
+      "AG": "Harpy Mage",
+      "AN": "Tesla",
+      "AU": "Tesla",
+      "AV": "Sentinel",
+      "AW": "Bear",
+      "AX": "[1221,6754,6320,6320,3010,2,2,2,3,2,0,0,14022]"
+    }
+  },
+  {
+    "row": 112,
+    "cells": {
+      "F": "X",
+      "O": "X",
+      "P": "X",
+      "R": "Blue Guild War Defense",
+      "Z": "Drowned Sailor",
+      "AG": "Scurvy Seadog",
+      "AN": "Doomed Tome",
+      "AU": "Queen Mab",
+      "AV": "Tidecaller"
+    }
+  },
+  {
+    "row": 113,
+    "cells": {
+      "D": "X",
+      "E": "X",
+      "M": "X",
+      "O": "X",
+      "R": "PvP Defense",
+      "Z": "Essence of Evil",
+      "AG": "The Wild Queen",
+      "AN": "Leprechaun",
+      "AU": "The Maraji Queen",
+      "AV": "Frostmage"
+    }
+  },
+  {
+    "row": 114,
+    "cells": {
+      "B": "P",
+      "E": "X",
+      "I": "X",
+      "J": "X",
+      "L": "X",
+      "O": "X",
+      "P": "X",
+      "R": "Blue Guild War Defense",
+      "Z": "Wulfgarok",
+      "AG": "Daughter of Ice",
+      "AN": "Doomed Tome",
+      "AU": "Drowned Sailor",
+      "AV": "Monk"
+    }
+  },
+  {
+    "row": 115,
+    "cells": {
+      "B": "B",
+      "C": "X",
+      "D": "X",
+      "E": "X",
+      "F": "X",
+      "G": "X",
+      "R": "PvP Defense",
+      "S": "cleanse",
+      "Z": "Moonsinger",
+      "AG": "Dragon's Eye",
+      "AN": "Queen Beetrix",
+      "AU": "Malcandessa",
+      "AV": "Archer"
+    }
+  },
+  {
+    "row": 116,
+    "cells": {
+      "F": "X",
+      "L": "X",
+      "M": "X",
+      "R": "Classic",
+      "Z": "Flammifer",
+      "AG": "Yao Guai",
+      "AN": "Queen Titania",
+      "AU": "Tai-Pan",
+      "AV": "Titan"
+    }
+  },
+  {
+    "row": 117,
+    "cells": {
+      "B": "G",
+      "D": "X",
+      "H": "X",
+      "L": "X",
+      "M": "X",
+      "N": "X",
+      "R": "PvP Defense",
+      "Z": "Doomed Club",
+      "AG": "Child of Summer",
+      "AN": "Yao Guai",
+      "AU": "First Mate Axelubber",
+      "AV": "Plaguelord"
+    }
+  }
+]

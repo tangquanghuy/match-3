@@ -5,7 +5,7 @@ import { createGameState } from '@engine/GameState';
 import { ExtensionRegistry } from '@engine/registry';
 import { SeededRNG } from '@engine/rng';
 import type { SkillPrototype } from '@engine/skills/prototypes';
-import { BaseColor, PlayerSide, colorGem } from '@engine/types';
+import { BaseColor, PlayerSide, colorGem, specialGem } from '@engine/types';
 import type { Character, Team, Gem, GemType } from '@engine/types';
 
 let gid = 0;
@@ -53,6 +53,19 @@ function setup(registry: ExtensionRegistry) {
 }
 
 describe('castSkill 执行技能原型（需求 3.1, 3.3, 11.2）', () => {
+  it('摧毁沙漏也获得额外回合，来源记作 destroy 而非匹配', () => {
+    const registry = new ExtensionRegistry();
+    registry.prototypes.set('combo', {
+      segments: [{ kind: 'gem', params: { op: 'clear', mode: 'destroy', target: { kind: 'lines', rows: [3] } } }],
+    });
+    const { engine, board, state } = setup(registry);
+    board.set({ row: 3, col: 3 }, g(specialGem('hourglass')));
+    const events = engine.castSkill(0);
+    expect(events.filter(e => e.type === 'special-gem-trigger' && e.kind === 'hourglass')).toHaveLength(1);
+    expect(events.filter(e => e.type === 'extra-turn' && e.source === 'destroy')).toHaveLength(1);
+    expect(state.activePlayer).toBe(PlayerSide.Left);
+  });
+
   it('伤害 + 宝石 + 额外回合组合技端到端产出正确事件流', () => {
     const registry = new ExtensionRegistry();
     const combo: SkillPrototype = {
@@ -91,17 +104,17 @@ describe('castSkill 执行技能原型（需求 3.1, 3.3, 11.2）', () => {
     expect(state.teams[PlayerSide.Right].characters[0].hp).toBe(40);
   });
 
-  it('无原型注册 → 仅扣法力，不消耗回合（需求 11.4）', () => {
+  it('无原型注册 → 仅扣法力，消耗回合（需求 11.4）', () => {
     const registry = new ExtensionRegistry();
     const { engine, state } = setup(registry);
     const events = engine.castSkill(0);
     expect(events[0].type).toBe('skill-cast');
-    expect(events.some((event) => event.type === 'turn-end')).toBe(false);
-    expect(state.activePlayer).toBe(PlayerSide.Left);
+    expect(events.some((event) => event.type === 'turn-end')).toBe(true);
+    expect(state.activePlayer).toBe(PlayerSide.Right);
     expect(state.teams[PlayerSide.Left].characters[0].mana).toBe(0);
   });
 
-  it('已注册的普通技能通过统一入口执行，且不消耗回合', () => {
+  it('已注册的普通技能通过统一入口执行，且消耗回合', () => {
     const registry = new ExtensionRegistry();
     registry.prototypes.set('combo', {
       segments: [{ kind: 'damage', target: 'enemyFront', scaling: { base: 1, mult: 0 } }],
@@ -110,10 +123,10 @@ describe('castSkill 执行技能原型（需求 3.1, 3.3, 11.2）', () => {
 
     const events = engine.resolveAction({ type: 'cast', characterId: 0 });
 
-    expect(events.filter((event) => event.type === 'turn-end')).toHaveLength(0);
+    expect(events.filter((event) => event.type === 'turn-end')).toHaveLength(1);
     expect(events.some((event) => event.type === 'extra-turn')).toBe(false);
     expect(events.some((event) => event.type === 'game-over')).toBe(false);
-    expect(state.activePlayer).toBe(PlayerSide.Left);
+    expect(state.activePlayer).toBe(PlayerSide.Right);
   });
 
   it('击杀敌方全队时 game-over 排在末尾（需求 3.3）', () => {
@@ -129,7 +142,7 @@ describe('castSkill 执行技能原型（需求 3.1, 3.3, 11.2）', () => {
     expect(last).toMatchObject({ type: 'game-over', winner: PlayerSide.Left });
   });
 
-  it('promotes the oldest queued summon after a lethal skill hit', () => {
+  it('does not promote legacy queued data after a lethal skill hit', () => {
     const registry = new ExtensionRegistry();
     registry.prototypes.set('combo', {
       segments: [{ kind: 'damage', target: 'enemyFront', scaling: { base: 100, mult: 0 } }],
@@ -140,23 +153,9 @@ describe('castSkill 执行技能原型（需求 3.1, 3.3, 11.2）', () => {
 
     const events = engine.castSkill(0);
 
-    expect(right.characters.map((character) => character.id)).toEqual([9]);
-    expect(right.summonQueue).toEqual([]);
-    expect(events.slice(0, 4).map((event) => event.type)).toEqual([
-      'skill-cast',
-      'skill-damage',
-      'defeat',
-      'summon',
-    ]);
-    expect(events.some((event) => event.type === 'turn-end')).toBe(false);
-    expect(events[3]).toMatchObject({
-      type: 'summon',
-      destination: 'field',
-      fromQueue: true,
-      characterId: 9,
-      slot: 0,
-    });
-    expect(events.some((event) => event.type === 'game-over')).toBe(false);
+    expect(right.characters).toEqual([]);
+    expect(events.some((event) => event.type === 'summon')).toBe(false);
+    expect(events.some((event) => event.type === 'game-over')).toBe(true);
   });
 
   it('确定性：相同状态 + 种子 → 相同事件流（需求 11.5）', () => {

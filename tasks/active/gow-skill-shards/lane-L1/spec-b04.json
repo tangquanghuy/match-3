@@ -1,0 +1,315 @@
+{
+ "weapon:1351": {
+  "en": "weapon 1351 ChaliceOfEyes SpellId 8357 cost 14 Red/Purple (artifacts/gowhead-weapons + src/data/weapons.json)",
+  "native": "8357: Cleanse AllAllies, IncreaseHealth AllAllies M+1, SummoningKingdomNoError 3039",
+  "rule": {
+   "path": "artifacts/gow-skill-audit/gold-primary-sources/official-status-effects.html",
+   "note": "Official status guide: Curse/Death Mark/Hunter's Mark/Web/Disease/Frozen/Poison semantics; Blessed immune to status effects, Devour and Mana Burn. Durations per rulings/R004 (convention:R006-C2 for Cause* Amount)."
+  },
+  "extra": [
+   {
+    "id": "transform",
+    "role": "community-rule",
+    "path": "artifacts/gow-skill-audit/gold-primary-sources/community-2026-09-28-transform-summon.json",
+    "note": "Transform restores Life/Armor and takes level + traits of the troop; summons arrive at level 20 (project roster is level 20)."
+   }
+  ],
+  "dims": {
+   "identity-cost-colors": [
+    "v",
+    "entity id, SpellId, cost and colours match raw EN + native + src/data (binding test)"
+   ],
+   "target-count-range": [
+    "v",
+    "all living allies"
+   ],
+   "base-formula-rounding": [
+    "v",
+    "Magic + 1 Life (magic 10 -> 11, 4 -> 5)"
+   ],
+   "boost-source-ratio-cap": [
+    "na",
+    "no boost source"
+   ],
+   "conditions-probabilities-branches": [
+    "na",
+    "single unconditional branch"
+   ],
+   "status-duration-immunity": [
+    "v",
+    "Cleanse removes negatives, keeps Barrier (R002)"
+   ],
+   "gems-types-selection-resolution": [
+    "na",
+    "no gem effect"
+   ],
+   "summon-transform-pools": [
+    "v",
+    "fixed L1-1351-pool: all 6 raw KingdomId 3039 troops reachable; summon after heal keeps template Life; NoError on full team"
+   ],
+   "order-death-retargeting": [
+    "v",
+    "cleanse -> heal -> summon"
+   ],
+   "mana-economy-extra-turn": [
+    "v",
+    "cast spends mana, one action logged, turn passes (no extra turn); low-mana / Silence refused"
+   ],
+   "display-description": [
+    "v",
+    "zh weapon description matches"
+   ],
+   "battle-pipeline": [
+    "v",
+    "real TurnEngine.castSkill, both sides"
+   ]
+  },
+  "clauses": {
+   "c1": [
+    "v",
+    "cleanse + Life to all allies"
+   ],
+   "c2": [
+    "v",
+    "one All-Seeing Eye troop"
+   ]
+  },
+  "steps": {
+   "0": [
+    "v",
+    "Cleanse"
+   ],
+   "1": [
+    "v",
+    "IncreaseHealth"
+   ],
+   "2": [
+    "v",
+    "SummoningKingdomNoError 3039"
+   ]
+  },
+  "branches": {
+   "main": [
+    "v",
+    "single branch"
+   ]
+  },
+  "decision": "accept",
+  "test": "tests/unit/gowLaneL1B04.test.ts",
+  "testNote": "weapon:1351: real TurnEngine.castSkill both sides, fixed RNG, boundaries"
+ },
+ "troop:6469": {
+  "en": "troop 6469 SpellId 7647 cost 11 Green/Purple; English 1 clause",
+  "native": "7647 Target Enemy: Consume 20% FromTarget, CauseWeb FromTarget, Damage FromTarget M+3",
+  "rule": {
+   "path": "artifacts/gow-skill-audit/gold-primary-sources/official-status-effects.html",
+   "note": "Official status guide: Curse/Death Mark/Hunter's Mark/Web/Disease/Frozen/Poison semantics; Blessed immune to status effects, Devour and Mana Burn. Durations per rulings/R004 (convention:R006-C2 for Cause* Amount)."
+  },
+  "extra": [
+   {
+    "id": "r001",
+    "role": "user-ruling",
+    "path": "tasks/active/gow-skill-shards/rulings/R001-native-step-order.md",
+    "note": "Native SpellSteps order is authoritative."
+   }
+  ],
+  "dims": {
+   "identity-cost-colors": [
+    "v",
+    "entity id, SpellId, cost and colours match raw EN + native + src/data (binding test)"
+   ],
+   "target-count-range": [
+    "v",
+    "chosen enemy only"
+   ],
+   "base-formula-rounding": [
+    "v",
+    "Magic + 3 (armor first)"
+   ],
+   "boost-source-ratio-cap": [
+    "na",
+    "no boost source"
+   ],
+   "conditions-probabilities-branches": [
+    "v",
+    "20% devour: 60 seeds give 4..24 devours (fixed L1-devour-double-roll)"
+   ],
+   "status-duration-immunity": [
+    "v",
+    "Web unless devoured; Blessed immune to Devour and Web"
+   ],
+   "gems-types-selection-resolution": [
+    "na",
+    "no gem effect"
+   ],
+   "summon-transform-pools": [
+    "v",
+    "devour kills the target, caster gains its Attack/Armor/Life"
+   ],
+   "order-death-retargeting": [
+    "v",
+    "fixed L1-6469-order: devour -> Web -> damage; devoured enemy never Webbed/hit"
+   ],
+   "mana-economy-extra-turn": [
+    "v",
+    "cast spends mana, one action logged, turn passes (no extra turn); low-mana / Silence refused"
+   ],
+   "display-description": [
+    "v",
+    "zh description matches English meaning (binding test)"
+   ],
+   "battle-pipeline": [
+    "v",
+    "real TurnEngine.castSkill, both sides"
+   ]
+  },
+  "clauses": {
+   "c1": [
+    "v",
+    "damage + Web, 20% devour"
+   ]
+  },
+  "steps": {
+   "0": [
+    "v",
+    "Consume 20%"
+   ],
+   "1": [
+    "v",
+    "CauseWeb"
+   ],
+   "2": [
+    "v",
+    "Damage M+3"
+   ]
+  },
+  "branches": {
+   "main": [
+    "v",
+    "devour vs not both covered"
+   ]
+  },
+  "decision": "accept",
+  "test": "tests/unit/gowLaneL1B04.test.ts",
+  "testNote": "troop:6469: real TurnEngine.castSkill both sides, fixed RNG, boundaries"
+ },
+ "troop:6700": {
+  "en": "troop 6700 SpellId 8056 cost 24 Blue/Green/Brown; English 3 clauses",
+  "native": "8056 Target Ally: Consume FromTarget, CountLife Self 34, TrueScatterDamage AllEnemies M+16 counter, SummoningTypeConditional daemon AddForAllyDeath",
+  "rule": {
+   "path": "artifacts/gow-skill-audit/gold-primary-sources/official-status-effects.html",
+   "note": "Official status guide: Curse/Death Mark/Hunter's Mark/Web/Disease/Frozen/Poison semantics; Blessed immune to status effects, Devour and Mana Burn. Durations per rulings/R004 (convention:R006-C2 for Cause* Amount)."
+  },
+  "extra": [
+   {
+    "id": "r003",
+    "role": "user-ruling",
+    "path": "tasks/active/gow-skill-shards/rulings/R003-count-threshold-labels.md",
+    "note": "Count* Amount is a percentage: [3:1] = 34%."
+   },
+   {
+    "id": "r001",
+    "role": "user-ruling",
+    "path": "tasks/active/gow-skill-shards/rulings/R001-native-step-order.md",
+    "note": "Native SpellSteps order is authoritative."
+   },
+   {
+    "id": "transform",
+    "role": "community-rule",
+    "path": "artifacts/gow-skill-audit/gold-primary-sources/community-2026-09-28-transform-summon.json",
+    "note": "Transform restores Life/Armor and takes level + traits of the troop; summons arrive at level 20 (project roster is level 20)."
+   }
+  ],
+  "dims": {
+   "identity-cost-colors": [
+    "v",
+    "entity id, SpellId, cost and colours match raw EN + native + src/data (binding test)"
+   ],
+   "target-count-range": [
+    "v",
+    "chosen ally devoured; scatter over all enemies"
+   ],
+   "base-formula-rounding": [
+    "v",
+    "total = Magic + 16 + floor(Life x 34/100), true damage ignores armor"
+   ],
+   "boost-source-ratio-cap": [
+    "v",
+    "Life after devour (1200 -> +408); no devour 1000 -> +340 (R003, not 333)"
+   ],
+   "conditions-probabilities-branches": [
+    "v",
+    "Daemon only if the ally was devoured (Blessed / Barrier ally -> none)"
+   ],
+   "status-duration-immunity": [
+    "na",
+    "no status"
+   ],
+   "gems-types-selection-resolution": [
+    "na",
+    "no gem effect"
+   ],
+   "summon-transform-pools": [
+    "v",
+    "Daemon pool = all roster Daemons (raw minus 3 raw-only troops); devour gains Attack/Armor/Life"
+   ],
+   "order-death-retargeting": [
+    "v",
+    "runtime summons before the scatter; R001 equivalence test: summon does not change enemies or caster Life, totals equal native"
+   ],
+   "mana-economy-extra-turn": [
+    "v",
+    "cast spends mana, one action logged, turn passes (no extra turn); low-mana / Silence refused"
+   ],
+   "display-description": [
+    "v",
+    "zh description matches English meaning (binding test)"
+   ],
+   "battle-pipeline": [
+    "v",
+    "real TurnEngine.castSkill, both sides"
+   ]
+  },
+  "clauses": {
+   "c1": [
+    "v",
+    "devour ally, Daemon if devoured"
+   ],
+   "c2": [
+    "v",
+    "true scatter boosted by Life"
+   ],
+   "c3": [
+    "v",
+    "[3:1] = 34% (R003)"
+   ]
+  },
+  "steps": {
+   "0": [
+    "v",
+    "Consume ally"
+   ],
+   "1": [
+    "v",
+    "CountLife 34%"
+   ],
+   "2": [
+    "v",
+    "TrueScatterDamage"
+   ],
+   "3": [
+    "v",
+    "SummoningTypeConditional daemon"
+   ]
+  },
+  "branches": {
+   "main": [
+    "v",
+    "devoured / not devoured both covered"
+   ]
+  },
+  "decision": "accept",
+  "test": "tests/unit/gowLaneL1B04.test.ts",
+  "testNote": "troop:6700: real TurnEngine.castSkill both sides, fixed RNG, boundaries"
+ }
+}

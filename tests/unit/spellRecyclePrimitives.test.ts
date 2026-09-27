@@ -79,7 +79,7 @@ describe('回收原语五件套（2026-09-17）', () => {
       ? { name: '巨魔', maxHp: 66, hp: 66, attack: 9, armor: 3, magic: 1, colors: [BaseColor.Brown], manaCost: 6, mana: 0, skillId: 'none' }
       : null } as typeof ctx;
     const events = executePrototype(skill(transformTroop('enemyFront', 'TestOgre')), ctx2);
-    expect(events).toEqual([{ type: 'troop-transform', targetId: 4, name: '巨魔' }]);
+    expect(events).toEqual([{ type: 'troop-transform', sourceSide: PlayerSide.Left, targetId: 4, name: '巨魔' }]);
     const target = state.teams[PlayerSide.Right].characters[0];
     expect(target.defeated).toBe(false); // 转化不是死亡
     expect(target.id).toBe(4); // 保留 id/编队位

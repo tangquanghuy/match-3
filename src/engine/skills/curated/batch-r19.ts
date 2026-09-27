@@ -29,7 +29,7 @@
  * 9364/9369/9492/9812/9959）移出本批 SKIPPED，避免覆盖率报告对同一 id 重复记弃。
  */
 import type { CuratedBatch } from './index';
-import { skill, dmg, dmgSplash, trueDmg, heal, armor, attack, magic, mana, reduce, steal, cleanse, randomStat, inflict, inflictRandom, createGems, createGemsMixAny, createMix, createSkulls, createSpecialGems, createSpecialGems2, transform, transformToSpecial, convertSpecial, destroyColor, destroyAllColors, destroyRandomCols, destroyChosenCol, destroyRandomGems, explodeRandomGems, explodeRandomSpecialGems, explodeSpecialGems, explodeSkulls, createStorm, shuffleBoard, extraTurn, oneOf, reposition, sacrifice, summonRandom, summonRef, gainGold, gainSouls, gainMaps, scale, CHOSEN, CELL, explodeAt } from '../builders';
+import { chooseSkill, skill, devour, dmg, dmgSplash, trueDmg, heal, armor, attack, magic, mana, reduce, steal, cleanse, randomStat, inflict, inflictRandom, createGems, createGemsMixAny, createMix, createSkulls, createSpecialGems, createSpecialGems2, transform, transformToSpecial, convertSpecial, destroyColor, destroyAllColors, destroyRandomCols, destroyChosenCol, destroyRandomGems, explodeRandomGems, explodeRandomSpecialGems, explodeSpecialGems, explodeSkulls, createStorm, shuffleBoard, extraTurn, oneOf, reposition, sacrifice, summonRandom, summonRef, gainGold, gainSouls, gainMaps, scale, CHOSEN, CELL, explodeAt } from '../builders';
 import { BaseColor } from '../../types';
 import type { Condition, CondMult } from '../effects/secondary';
 
@@ -54,8 +54,8 @@ const CHOSEN_COLOR: Condition = { kind: 'targetColor', color: 'CHOSEN' };
 const DAEMON_REFS = ["AncientHorror","SpiderQueen","Abhorath","Webspinner","Moloch","TheSilentOne","Gorgotha","Kerberos","Cthyryzyx","Terraxis","Psion","Abynissia","Quasit","Hellhound","Succubus","HeraldOfChaos","InfernalKing","Venbarak","War","Plague","Famine","Death","Marilith","Hellcat","Creeper","KruargTheDread","Desdaemona","Warg","Incubus","DarkMonolith","Myzmer","Elemaugrim","CorruptedUrska","BoneDaemon","Hellspawn","Spinnerette","Doomclaw","YaoGuai","Erinyes","Tzathoth","Gargantaur","TomeOfEvil","Hellcackle","Glaycion","Nightmare","SirMordayne","Umbraxis","ThePossessedKing","Sloth","Envy","Greed","Gluttony","Barghast","Pride","Wrath","Lust","SibylOfLust","SoldierOfWrath","WallOfTentacles","Bael","VashDagon","QueenOfSin","Glutmaw","Obsidius","Lamashtu","PossessedUrska","BrokerOfGreed","EnvoyOfPride","MotherOfDarkness","GateOfSouls","Lucifria","Blightwing","Deminaga","TheInfernalMachine","Ironjaw","Tartarus","Netherhound","EldritchGuardian","FellDragonEgg","FellDragon","Nocturnia","HeraldOfWoe","IndolatorOfSloth","ShadeOfKurandara","Kurandara","EnragedKurandara","DaemonGnome","Mambasira","Arcturion","HeraldOfDamnation","Baphomet","TheScourgeOfHonor","DeepGolem","NyarMel","HoundOfYaoGuai","MaidOfEnvy","TheArchduke","Lemure","Fury","Charonas","JudgeOfTheDead","HellclawHunter","HellclawMage","HellclawWarrior","Indrajit","HelgorTheGuardian","FlamingOni","Oneiros","RedAhriman","AbjectOfDespond","Despond","BileBlackheart","AnimusOfEnvy","HornedHag","ConsortOfDarkness","EldritchMinion","Uvhash-Ka","WarMachine","HellclawRager","HeraldOfBlight","HellstoneGate","HeraldOfTorpor","Czernobog","Nabassu","Xenith","Tourmaline","Chalcedony","Petrahulk","StoneMefyt","TheElderDragon","VrawkDaemon","EldritchDisciple","Voidcaller","TheBaneOfMercy","EyeOfArges","InfernalVoyager","TheIronMaiden","TriTerror","DaemonChild","TheVoidDragon","Tempurath","DaemonicSentinel","Hellborer","DarkHerald","Groevanga","FellHydra","Isban","Goethite","SuccubusQueen","Bieska","HoundmasterGor","BlightHound","Astaroth","DaeDrak","MelekTauss","DoomedGuardian","StingBat","TheBaneOfValor","Redreaver","LionOfYaoGuai","Discordia","ImmortalAbaddon","BlightedHusk","BaneOfAmbition","HellclawShadowpriest","Polymetis","DagoNath","FelineOfEnvy","Skarn","MaidenOfPain","HeraldOfWar","Azbeel","OkraNosTheSleeper","Voidjaw","ChampionOfRot","BloodSpore","InfernalTrickster","Seditius","ImmortalZephaar"];
 
 const SKIPPED: { id: number; reason: string }[] = [
-  { id: 7328, reason: '「法力灼烧，伤害值因自身魔法值而增强」= Mana Burn 伤害公式原文无数值（7xxx 无步骤数据；drain 全额可表、灼烧伤害量不可），meta.modifier 为空不许挂 modifier（r17-r22 口径维持）；Yellow→Blue 转换本身可表' },
-  { id: 7402, reason: '「伤害值等同于一名盟友的攻击力」= 泛指单体盟友（哪一名？）无来源 kind（allyStatSum 为总和、chosenStat 为手动选定目标）——「3 到 8 点法力」数值区间已可由 R22 rangeSpec 表达，但首句卡死整条（r17-r22 口径维持）' },
+  { id: 7328, reason: '「法力灼烧，伤害值因自身魔力值而增强」= Mana Burn 伤害公式原文无数值（7xxx 无步骤数据；drain 全额可表、灼烧伤害量不可），meta.modifier 为空不许挂 modifier（r17-r22 口径维持）；Yellow→Blue 转换本身可表' },
+  { id: 7402, reason: '「伤害值等同于一名盟友的攻击力」= 泛指单体盟友（哪一名？）无来源 kind（allyStatSum 为总和、chosenStat 为手动选定目标）——「3 到 8 点法力值」数值区间已可由 R22 rangeSpec 表达，但首句卡死整条（r17-r22 口径维持）' },
   { id: 7483, reason: '「伤害值等同于自身的攻击力，并因棕色敌军数量而增强 [x10]」= 伤害基数=攻击力（×1）与来源计数（×10）双结构，modifier 单 mod 无法同表（r21/r22 编码歧义不猜口径维持）' },
   { id: 7542, reason: '「凤凰涅槃浴火重生」= 自复活无引擎机制（r18-r22 口径维持）；散射 + selfStat hp [1:1] 本身可表' },
   { id: 7690, reason: '「如果该敌人已被冻结，则再造成 5 点伤害」= 条件须读施加冻结**之前**的状态快照，段序执行后 targetStatus 恒真（时序绑定无原语，r17-r22 口径维持）；「冻结其上下左右的敌人」= enemyAboveTarget/BelowTarget 可表但被条件句卡死' },
@@ -98,10 +98,10 @@ const SPELLS: CuratedBatch['spells'] = [
     // r22 卡点回收：狼化宝石 lycanthropyGem 波B 落地 → boardSpecial 计数端补齐；
     // 「每有一颗狼化宝石则使一名随机敌人死亡标记」= perCount（官方 InflictEffectOnRandomTroops
     // UseCounterForAmount @AllEnemies，9252/9287 口径；[1:1] = CountGems Lycanthropy x100 编码）；
-    // 「窃取生命」= steal hp→hp（9282 口径）。death-mark 在 STATUS_WHITELIST；
+    // Native StealLife uses the damage/drain path, not a direct hp stat reduction.
     // 狼化「状态」施加仍不在白名单（8553/8567 留弃），本条只涉宝石计数、无碍。
     build: skill(
-      steal('enemyChosen', 'hp', 'hp', 2, 1),
+      dmg('enemyChosen', 2, 1, { drain: true }),
       inflict('death-mark', 'enemyAll', {
         perCount: { mod: { kind: 'multiplier', a: 1 }, source: { kind: 'boardSpecial', gem: 'lycanthropyGem' } },
       }),
@@ -226,18 +226,21 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 8890,
     desc: '对一名敌人造成 [魔法 + 3] 点伤害。有 20% 的几率吞噬对方。若敌人身亡，则创建 12 颗红色龙宝石。',
     // 红色龙宝石 = dragonGem spec.color（六色族）；「敌人身亡」= ifTargetDied（AddForKill）
+    // L1-consume-first (R001): native Consume(20%) -> Damage -> CreateGems AddForKill; Consume is a
+    // real Devour (caster gains Attack/Armor/Life), not a plain execute.
     build: skill(
-      dmg('enemyChosen', 3, 1),
-      dmg('enemyChosen', 0, 0, { execute: true, chance: 0.2 }),
+      devour('enemyChosen', { chance: 0.2 }),
+      dmg('lastTarget', 3, 1),
       createSpecialGems({ kind: 'dragonGem', color: BaseColor.Red }, 12, 0, { ifTargetDied: true }),
     ),
   },
   {
     id: 8891,
     desc: '对末位敌人造成 [魔法 + 3] 点伤害，有 20% 的几率吞噬对方。再使自身下潜。',
+    // L1-consume-first (R001): native Consume(20%) LastEnemy -> Damage LastEnemy -> CauseSubmerged Self.
     build: skill(
-      dmg('enemyLast', 3, 1),
-      dmg('enemyLast', 0, 0, { execute: true, chance: 0.2 }),
+      devour('enemyLast', { chance: 0.2 }),
+      dmg('lastTarget', 3, 1),
       inflict('submerged', 'allySelf'),
     ),
   },
@@ -276,16 +279,16 @@ const SPELLS: CuratedBatch['spells'] = [
   {
     id: 8920,
     desc: '创造 8 颗黄色宝石和 8 颗灵力宝石。获得法印效果。',
-    // 灵力宝石 = spiritGem（官方 CreateGems Spirit 无色，r14 8917 同款缺省）
+    // 灵力宝石 = spiritGem（CreateGems Spirit 未标色；项目在该造石入口暂定紫色，非原版证据）
     build: skill(
       createGems(BaseColor.Yellow, 8),
-      createSpecialGems({ kind: 'spiritGem' }, 8),
+      createSpecialGems({ kind: 'spiritGem', color: BaseColor.Purple }, 8),
       inflict('enchanted', 'allySelf'),
     ),
   },
   {
     id: 8922,
-    desc: '给予所有红色盟友 2 点魔法值，数值因灵力宝石数而增强。再赋予他们法印效果。 [1:1]',
+    desc: '给予所有红色盟友 2 点魔力值，数值因灵力宝石数而增强。再赋予他们法印效果。 [1:1]',
     // 「所有红色盟友」= allyAll + ifCond targetColor（r16 7672 动态色口径）；[1:1] = CountGems Spirit x100
     build: skill(
       magic('allyAll', 2, 0, {
@@ -315,7 +318,7 @@ const SPELLS: CuratedBatch['spells'] = [
     build: skill(
       inflict('barrier', 'allyChosen'),
       mana('allyChosen', 0, 0, { halve: true }),
-      createSpecialGems({ kind: 'spiritGem' }, 3, 0, { ifCond: { kind: 'lastTargetRace', race: 'Knight' } }),
+      createSpecialGems({ kind: 'spiritGem', color: BaseColor.Purple }, 3, 0, { ifCond: { kind: 'lastTargetRace', race: 'Knight' } }),
     ),
   },
   {
@@ -671,7 +674,7 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 9251,
-    desc: '对一名敌人造成 [魔法 + 2] 点伤害。如果敌人是个高塔，则基于我已晋升的稀有度造成 3 到 5 倍伤害。创造 1-3x3 通配宝石。',
+    desc: '对一名敌人造成 [魔法 + 2] 点伤害。如果敌人是个高塔，则基于我已晋升的稀有度造成 3 到 5 倍伤害。创造 1-3 颗 x3 通配宝石。',
     // 「1-3 颗 x3 通配」= 官方 CreateGemsRange WildCard3 → countRange + tier 3
     build: skill(
       dmg('enemyChosen', 2, 1, { condMult: CASTLE_ASC3 }),
@@ -701,13 +704,14 @@ const SPELLS: CuratedBatch['spells'] = [
   {
     id: 9281,
     desc: '将一名敌人拉到首位，并对其造成 [(魔法 x 0.625) + 2] – [(魔法 x 1.25) + 4]- {2} 点伤害，伤害值因自身的护甲值而增强。有 15% 的几率自毁。  [2:1]',
-    // 区间伤害 + 分摊 {2}（§12.2 rangeSpec+split，damage.ts 双界走 evaluateWithModifier）；
+    // 区间伤害（§12.2 rangeSpec，damage.ts 双界走 evaluateWithModifier）；
+    // L7-7517（sa-L76）：官方中文「- {2}」是本地化占位残留，EN/原生 RandomHighDamage FromTarget
+    // 只打被拉到首位的那名敌人——不分摊（原 split: 2 删除）。
     // [2:1] = CountArmor x50 → selfStat armor；「自毁」= sacrifice allySelf chance（§11 追加）
     build: skill(
       reposition('enemyChosen', 'front'),
       dmg('enemyChosen', 0, 0, {
         rangeSpec: { min: scale(2, 0.625), max: scale(4, 1.25) },
-        split: 2,
         modifier: { mod: { kind: 'ratio', a: 2, b: 1 }, source: { kind: 'selfStat', stat: 'armor' } },
       }),
       sacrifice('allySelf', { chance: 0.15 }),
@@ -718,8 +722,8 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '窃取首 2 位敌人 [(魔法 x 1.25) + 2] 点生命值，数量因鬼魂宝石数量而增强。再使他们陷入诅咒和冻结状态。 [x8]',
     // 「窃取生命」= steal hp→hp（7302 口径）；[x8] = CountGems Ghost x800 → boardSpecial ghost
     build: skill(
-      steal('enemyFirstN', 'hp', 'hp', 2, 1.25, {
-        n: 2,
+      dmg('enemyFirstN', 2, 1.25, {
+        n: 2, drain: true,
         modifier: { mod: { kind: 'multiplier', a: 8 }, source: { kind: 'boardSpecial', gem: 'ghost' } },
       }),
       inflict('curse', 'enemyFirstN', { n: 2 }),
@@ -849,7 +853,7 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 9476,
-    desc: '对敌人造成 [魔法 + 4] 点伤害。如果敌人是 Boss，则根据我的升天造成 3 倍 - 5 倍伤害。如果敌人死亡，则将其 1 颗法力色宝石转换为恶魔传送门宝石。',
+    desc: '对敌人造成 [魔法 + 4] 点伤害。如果敌人是 Boss，则基于我已晋升的稀有度造成 3 到 5 倍伤害。如果敌人死亡，则将其 1 颗法力色宝石转换为恶魔传送门宝石。',
     // r16 卡点回收：「该敌 1 颗法力色宝石」= transformToSpecial('LAST_TARGET', …, {count:1})
     //（§11 补充跨段取敌色，9745/8933 先例）；「敌人死亡」= ifTargetDied（AddForKill 实锤）
     build: skill(
@@ -870,7 +874,7 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 9551,
-    desc: '对敌人造成 [魔法 + 2] 点伤害，伤害值由我的灵魂数增强。如果敌人是塔，则根据我的升天数造成 3 倍 - 5 倍伤害。获得 5 个灵魂。 [1:1]',
+    desc: '对敌人造成 [魔法 + 2] 点伤害，伤害值由我的灵魂数增强。如果敌人是塔，则基于我已晋升的稀有度造成 3 到 5 倍伤害。获得 5 个灵魂。 [1:1]',
     // [1:1] = CountMySouls x100 编码 → ratio 1:1 battleSouls；「塔」= CASTLE_ASC3
     build: skill(
       dmg('enemyChosen', 2, 1, {
@@ -893,7 +897,7 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 9586,
-    desc: '获得 [魔法 + 1] 点攻击力和护甲，由我的灵魂增强。为我下方的所有盟友提供 2-5 点魔法值。 [3:1]',
+    desc: '获得 [魔法 + 1] 点攻击力和护甲，由我的灵魂增强。为我下方的所有盟友提供 2-5 点魔力值。 [3:1]',
     // [3:1] = CountMySouls x34 → battleSouls；「2-5 点魔法」= 官方三步（100%/50%/25%）非数值区间
     //（PercentageChance 实锤）；「我下方所有盟友」= allyBelowSelf（R13）
     build: skill(
@@ -906,7 +910,7 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 9588,
-    desc: '对敌人造成 [魔法 + 4] 点伤害，伤害值因 Dhrak-Zum 盟友数量而增强。如果敌人是 Boss，则根据我的升级造成 3 倍 - 5 倍伤害。 [x4]',
+    desc: '对敌人造成 [魔法 + 4] 点伤害，伤害值因 Dhrak-Zum 盟友数量而增强。如果敌人是 Boss，则基于我已晋升的稀有度造成 3 到 5 倍伤害。 [x4]',
     // r16 卡点回收：alliesOfKingdom（Dhrak-Zum 3035 = 本地「卓克祖」）；[x4] = CountArmyKingdom x400
     build: skill(
       dmg('enemyChosen', 4, 1, {
@@ -949,12 +953,7 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '&& 选择一种法力颜色。将 10 颗该颜色的宝石转换为附魔宝石，并祝福该颜色的所有盟友。&& 选择一种法力颜色。将 10 颗该颜色的宝石转换为纠缠宝石，并诅咒该颜色的所有敌人。',
     // 附魔宝石 = enchantedGem / 纠缠宝石 = entangleGem（波A/波B）；两次选色引擎为单选色，
     // 两段共用同一选定色（r16 9219 FromTarget+FromManaColor* 超集口径并注明）
-    build: skill(
-      transformToSpecial(CHOSEN, 'enchantedGem', { count: 10 }),
-      inflict('blessed', 'allyAll', { ifCond: CHOSEN_COLOR }),
-      transformToSpecial(CHOSEN, 'entangleGem', { count: 10 }),
-      inflict('curse', 'enemyAll', { ifCond: CHOSEN_COLOR }),
-    ),
+    build: skill(chooseSkill(["选定颜色转10颗附魔宝石，祝福该色盟友","选定颜色转10颗纠缠宝石，诅咒该色敌人"], [transformToSpecial(CHOSEN, 'enchantedGem', { count: 10 }), inflict('blessed', 'allyAll', { ifCond: CHOSEN_COLOR })], [transformToSpecial(CHOSEN, 'entangleGem', { count: 10 }), inflict('curse', 'enemyAll', { ifCond: CHOSEN_COLOR })])),
   },
   {
     id: 9659,
@@ -1031,7 +1030,7 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 9746,
-    desc: '对一名敌人造成[魔法 + 2]点伤害。如果敌人是塔，则根据我的升华值造成3倍到5倍的伤害。引爆3颗与敌人法力颜色相同的宝石。',
+    desc: '对一名敌人造成[魔法 + 2]点伤害。如果敌人是塔，则基于我已晋升的稀有度造成 3 到 5 倍伤害。引爆3颗与敌人法力颜色相同的宝石。',
     // 「与敌人法力颜色相同的宝石」= explodeRandomGems color 'LAST_TARGET'（r15 8933 口径）
     build: skill(
       dmg('enemyChosen', 2, 1, { condMult: CASTLE_ASC3 }),
@@ -1073,7 +1072,7 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 9773,
-    desc: '对一名敌人造成[魔法 + 6]点伤害，伤害值因紫色宝石数量而增强。如果敌人使用红色法力，则有60%的几率将其吞噬。 [x4]',
+    desc: '对一名敌人造成[魔法 + 6]点伤害，伤害值因紫色宝石数量而增强。如果敌人使用红色法力值，则有60%的几率将其吞噬。 [x4]',
     build: skill(
       dmg('enemyChosen', 6, 1, { modifier: { mod: { kind: 'multiplier', a: 4 }, source: { kind: 'boardGems', color: BaseColor.Purple } } }),
       dmg('enemyChosen', 0, 0, { execute: true, chance: 0.6, ifCond: { kind: 'targetColor', color: BaseColor.Red } }),
@@ -1081,7 +1080,7 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 9781,
-    desc: '对敌人造成[魔法 + 4]点伤害，受流血宝石加成。若为首领，则根据我的升华等级造成3倍至5倍伤害。获得额外回合。 [x3]',
+    desc: '对敌人造成[魔法 + 4]点伤害，受流血宝石加成。若为首领，则基于我已晋升的稀有度造成 3 到 5 倍伤害。获得额外回合。 [x3]',
     build: skill(
       dmg('enemyChosen', 4, 1, {
         modifier: { mod: { kind: 'multiplier', a: 3 }, source: { kind: 'boardSpecial', gem: 'bleedGem' } },
@@ -1092,7 +1091,7 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 9788,
-    desc: '对敌人造成[魔法 + 4]点伤害，骷髅头可提升伤害。若为首领，则根据我的升华等级造成3倍至5倍伤害。创造末日风暴。 [x3]',
+    desc: '对敌人造成[魔法 + 4]点伤害，骷髅头可提升伤害。若为首领，则基于我已晋升的稀有度造成 3 到 5 倍伤害。创造末日风暴。 [x3]',
     build: skill(
       dmg('enemyChosen', 4, 1, {
         modifier: { mod: { kind: 'multiplier', a: 3 }, source: { kind: 'boardSkulls' } },
@@ -1129,7 +1128,7 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 9862,
-    desc: '对一名敌人造成[魔法 + 4]点伤害，毒素宝石可提升伤害。如果是首领，则根据我的升华等级造成3倍至5倍伤害。然后诅咒并流血所有其他敌人。 [x3]',
+    desc: '对一名敌人造成[魔法 + 4]点伤害，毒素宝石可提升伤害。如果是首领，则基于我已晋升的稀有度造成 3 到 5 倍伤害。然后诅咒并流血所有其他敌人。 [x3]',
     // 「所有其他敌人」= 官方 AboveTarget + BelowTarget 两段（目标编队上下其余全体，R13 目标）
     build: skill(
       dmg('enemyChosen', 4, 1, {
@@ -1154,7 +1153,7 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 9870,
-    desc: '对一名敌人造成[魔法 + 4]点伤害。如果是首领，则根据我的升华等级造成3倍至5倍伤害。净化所有友军。',
+    desc: '对一名敌人造成[魔法 + 4]点伤害。如果是首领，则基于我已晋升的稀有度造成 3 到 5 倍伤害。净化所有友军。',
     build: skill(
       dmg('enemyChosen', 4, 1, { condMult: BOSS_ASC3 }),
       cleanse('allyAll'),
@@ -1175,7 +1174,7 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 9918,
-    desc: '对敌人造成[魔法 + 4]点伤害，红色宝石可提升伤害。如果是首领，则根据我的升华等级造成3倍至5倍伤害。然后引爆3颗邪恶石像鬼宝石。 [x2]',
+    desc: '对敌人造成[魔法 + 4]点伤害，红色宝石可提升伤害。如果是首领，则基于我已晋升的稀有度造成 3 到 5 倍伤害。然后引爆3颗邪恶石像鬼宝石。 [x2]',
     // 邪恶石像鬼 = 引擎善恶合并一口（gargoyleGem，r16 9022 超集口径）
     build: skill(
       dmg('enemyChosen', 4, 1, {
@@ -1187,7 +1186,7 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 9951,
-    desc: '对敌人造成[魔法 + 4]点伤害，伤害值受我的攻击力加成。如果是首领，则根据我的升阶等级，造成3倍至5倍的伤害。 [3:1]',
+    desc: '对敌人造成[魔法 + 4]点伤害，伤害值受我的攻击力加成。如果是首领，则基于我已晋升的稀有度造成 3 到 5 倍伤害。 [3:1]',
     // [3:1] = CountAttack x34 编码 → ratio 3:1 selfStat attack（r11 CountAttack 34 口径）
     build: skill(
       dmg('enemyChosen', 4, 1, {

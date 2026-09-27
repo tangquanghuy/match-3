@@ -1,8 +1,13 @@
+import { EVENT_ROTATION } from '../data/events';
+import { troopCardFace } from './troopCard';
+import { validateWishlist } from '../systems/wishlist';
 /**
  * 部队图鉴 + 养成详情屏（计划 §5.4 + §5.5，一屏两视图）。
  * 数据全部来自 troops.json + 收藏存档；升级/升阶/特质/分解/保护走网关。
  */
 import { getTroopById, TROOPS, type TroopData } from '../../data/troops';
+import { matchesTroopCatalog } from '../data/troopCatalog';
+import { KINGDOM_ORDER } from '../data/kingdoms';
 import { RARITY_NAMES as RARITY_CN } from '../data/rarity';
 import type { TeamPreset, TroopRecord } from '../state/schema';
 import { MAX_TEAM_SIZE, MIN_TEAM_SIZE } from '../systems/teamRules';
@@ -21,8 +26,9 @@ import { BaseColor } from '../../engine/types';
 import { traitGlyphsFor } from '../shell/traitIcon';
 import { bottomNavHtml, icon, mountIcons, toast, toastHtml, topbarHtml, gemSvg, $, $$ } from '../shell/chrome';
 import type { Screen, ShellCtx } from '../shell/screen';
-import { troopArt, troopArtChain, troopArtFallback, troopImg, typeCn } from './teamScreen';
+import { troopArt, troopArtChain, troopArtFallback, typeCn } from './teamScreen';
 import {
+  formulaKind,
   formulaParts,
   formulaRule,
   renderSpell,
@@ -36,32 +42,11 @@ const COLOR_CN: Record<string, string> = { red: '红', green: '绿', blue: '蓝'
 /** 筛选维度（摘要 chip 撤销 / 空态逐条回退用） */
 type FilterDim = 'rarity' | 'color' | 'type' | 'kingdom' | 'search' | 'tab';
 
-/** 搜索用的文本袋：名字 + 英文名 + 王国 + 种族 + 法术名/描述 + 特质名/描述（阶段 A 只搜名字） */
-const hayCache = new Map<number, string>();
-function haystack(t: TroopData): string {
-  let hay = hayCache.get(t.id);
-  if (hay === undefined) {
-    hay = [
-      t.name,
-      t.referenceName,
-      t.kingdom ?? '',
-      typeCn(t.troopTypes),
-      t.troopTypes.join(' '),
-      t.spell?.name ?? '',
-      t.spell?.description ?? '',
-      ...t.traits.flatMap((tr) => (tr ? [tr.name, tr.description] : [])),
-    ]
-      .join(' ')
-      .toLowerCase();
-    hayCache.set(t.id, hay);
-  }
-  return hay;
-}
 const COLOR_ORDER = ['red', 'green', 'blue', 'yellow', 'purple', 'brown'] as const;
 const chargeText = (colors: readonly string[]): string =>
   colors.length >= 6
-    ? '任意颜色宝石为此法术充能'
-    : colors.map((c) => (COLOR_CN[c.toLowerCase()] ?? c) + '色').join('、') + '宝石为此法术充能';
+    ? '任意颜色宝石补充法力值'
+    : colors.map((c) => (COLOR_CN[c.toLowerCase()] ?? c) + '色').join('、') + '宝石补充法力值';
 
 /** 图鉴查看未获得部队用的空白记录（1 级 / 0 阶 / 特质全锁） */
 const UNOWNED_REC: TroopRecord = { copies: 0, level: 1, ascension: 0, traits: [false, false, false], locked: false };
@@ -92,6 +77,8 @@ export class TroopScreen implements Screen {
   private ctx!: ShellCtx;
   /** 当前浏览的部队（owned 列表内索引对应的 troopId） */
   private currentId = 0;
+  /** Preserve the entry point across detail navigation and reloads. */
+  private detailSource = '';
   private collectionMode: 'owned' | 'all' = 'owned';
   /** 图鉴筛选：品质 / 魔法色 / 种族 / 王国（null 或空串 = 全部） */
   private rarityFilter: number | null = null;
@@ -106,6 +93,9 @@ export class TroopScreen implements Screen {
   private collectionPage = 1;
   private collectionPages = 1;
   private collectionPageSize = PAGE_SIZE_DESKTOP;
+  /** 改页容量时，用当前页第一张卡找回它落在哪一页。普通翻页不走这条。 */
+  private locateAnchor = false;
+  private pageAnchorId = 0;
   /** 详情↔图鉴往返时保留的滚动位置（T-9） */
   private collectionScroll = 0;
   private listeners: Array<[EventTarget, string, EventListenerOrEventListenerObject]> = [];
@@ -113,13 +103,20 @@ export class TroopScreen implements Screen {
   private magic = 0;
 
   html(ctx: ShellCtx, param?: string): string {
-    this.currentId = param ? Number(param) || 0 : this.firstOwnedId(ctx);
+    this.currentId = param ? Number(param.split('/')[0]) || 0 : this.firstOwnedId(ctx);
     void ctx;
     return `
       <div class="ambient" aria-hidden="true"></div>
       ${topbarHtml()}
       <main id="detail">
-        <div class="page-heading"><button class="back" id="back"><span data-icon="arrow"></span>返回图鉴</button><div class="heading-center"><h1>部队详情</h1></div><span class="page-index">图鉴 <b id="pageIndex">001</b> / <span id="pageTotal">000</span></span></div>
+        <div class="page-heading">
+          <button class="back" id="back" type="button"><span data-icon="arrow" aria-hidden="true"></span><span id="detailBackLabel">返回图鉴</span></button>
+          <div class="heading-center"><h1>部队详情</h1></div>
+          <div class="detail-header-actions">
+            <span class="page-index">图鉴 <b id="pageIndex">001</b> / <span id="pageTotal">000</span></span>
+            <button class="detail-wishlist-button" id="detailWishlist" type="button"><span data-icon="sparkles" aria-hidden="true"></span><span id="detailWishlistLabel">愿望单</span></button>
+          </div>
+        </div>
         <div class="detail-layout">
           <section class="left-column">
             <article class="spell">
@@ -160,9 +157,10 @@ export class TroopScreen implements Screen {
               <article class="character-card" id="characterCard">
                 <img class="portrait" id="portraitArt" alt=""><div class="portrait-shade"></div><div class="card-frame" aria-hidden="true"></div>
                 <span class="unowned-mark" id="unownedMark" hidden><span data-icon="lock"></span>未获得</span>
-                <div class="mana-gem" id="manaGem" role="img" aria-label="法力颜色"></div><div class="magic-badge"><span data-icon="orb"></span><b id="magicStat">0</b></div>
+                <div class="mana-gem" id="manaGem" role="img" aria-label="法力颜色"></div><div class="magic-badge" title="魔力值"><span data-icon="orb"></span><b id="magicStat">0</b></div>
                 <div class="card-name"><h2 id="cardName">—</h2><span id="cardType">—</span></div><div class="card-stats"><div class="stat-atk"><span data-icon="swords"></span><b id="attackStat">0</b></div><div class="stat-armor"><span data-icon="shield"></span><b id="armorStat">0</b></div><div class="stat-hp"><span data-icon="heart"></span><b id="healthStat">0</b></div></div>
                 <div class="card-level"><span>等级 <b id="cardLevel">1</b><i>/<span id="cardLevelCap">15</span></i></span><div class="rank" id="rankPips"></div><span id="owned">×1</span></div>
+                <button class="portrait-expand" id="portraitExpand" type="button" aria-label="放大查看立绘" aria-haspopup="dialog"><span aria-hidden="true">⤢</span></button>
               </article>
               <div class="card-ornament" data-ornament></div>
             </div>
@@ -176,7 +174,7 @@ export class TroopScreen implements Screen {
             <div class="trait-heading"><h2>天赋特质</h2><span id="traitCount">0 / 3 已解锁</span></div>
             <div class="trait-list" id="traitList"></div>
             <div class="unlock-block">
-              <div class="unlock-cost" id="unlockCost">—</div>
+              <div class="unlock-cost" id="unlockCost" hidden></div>
               <button class="secondary" id="unlock"><span data-icon="lock"></span><span id="unlockLabel">解锁特质</span></button>
             </div>
             <section class="ascension">
@@ -208,8 +206,8 @@ export class TroopScreen implements Screen {
               <button class="filter-chip" type="button" data-rarity="5">神话 <i data-chip-count></i></button>
             </div>
             <span class="divider"></span>
-            <small class="filter-label">魔法</small>
-            <div class="color-chips" id="colorChips" role="group" aria-label="魔法颜色筛选"></div>
+            <small class="filter-label">法力</small>
+            <div class="color-chips" id="colorChips" role="group" aria-label="法力颜色筛选"></div>
             <span class="divider"></span>
             <select id="typeSelect" aria-label="按种族筛选"><option value="">全部种族</option></select>
             <select id="kingdomSelect" aria-label="按王国筛选"><option value="">全部王国</option></select>
@@ -242,23 +240,37 @@ export class TroopScreen implements Screen {
       ${toastHtml()}
       <div class="modal-veil" id="modal" hidden><section class="modal etched" role="dialog" aria-modal="true" aria-labelledby="modalTitle"><h2 id="modalTitle">提升部队等级</h2><p id="modalCopy">—</p><ul class="modal-lines" id="modalPreview"></ul><button class="primary" id="confirmUpgrade">确认提升</button><button class="cancel" id="cancelUpgrade">暂不提升</button></section></div>
       <!-- T-16：分解是永久销毁，自绘危险确认弹层替掉浏览器原生 confirm() -->
-      <div class="modal-veil" id="dangerModal" hidden><section class="modal etched danger" role="dialog" aria-modal="true" aria-labelledby="dangerTitle"><h2 id="dangerTitle">分解副本</h2><p id="dangerCopy">—</p><ul class="modal-lines" id="dangerPreview"></ul><button class="primary" id="confirmDanger">确认分解</button><button class="cancel" id="cancelDanger">取消</button></section></div>`;
+      <div class="modal-veil" id="dangerModal" hidden><section class="modal etched danger" role="dialog" aria-modal="true" aria-labelledby="dangerTitle"><h2 id="dangerTitle">分解副本</h2><p id="dangerCopy">—</p><ul class="modal-lines" id="dangerPreview"></ul><button class="primary" id="confirmDanger">确认分解</button><button class="cancel" id="cancelDanger">取消</button></section></div>
+      <dialog id="portraitZoom" aria-label="部队立绘预览"><img id="portraitZoomArt" alt=""><button id="portraitZoomClose" type="button" aria-label="关闭立绘预览"><span data-icon="close"></span></button></dialog>`;
   }
 
   mount(ctx: ShellCtx, _root: HTMLElement, param?: string): void {
     this.ctx = ctx;
+    if (param?.startsWith('filter/')) {
+      const [, dimension, encoded] = param.split('/');
+      let value = ''; try { value = decodeURIComponent(encoded ?? ''); } catch { /* malformed deep link */ }
+      this.collectionMode = 'owned'; this.rarityFilter = null; this.colorFilter = null;
+      this.kingdomFilter = dimension === 'kingdom' ? value || null : null;
+      this.typeFilter = dimension === 'race' ? value || null : null;
+      this.collectionPage = 1;
+    }
+
     _root.classList.add('collection-responsive');
     // 深链（#troop/123，如编队页「图鉴」按钮）直达详情；纯 #troop 落在图鉴列表
-    const deepLink = !!(param && Number(param));
-    if (deepLink) this.currentId = Number(param);
+    const deepLink = !!(param && Number(param.split('/')[0]));
+    if (deepLink) this.currentId = Number(param.split('/')[0]);
     if (!this.currentId) this.currentId = this.firstOwnedId(ctx);
     const portrait = $('#portraitArt') as HTMLImageElement;
+    const zoom = $('#portraitZoom') as HTMLDialogElement;
+    const zoomArt = $('#portraitZoomArt') as HTMLImageElement;
     // 持久兜底链：每次 paintDetail 会同时写 src 与 data-fb（剩余兜底地址），失败沿链走一步
-    portrait.onerror = () => {
-      const fb: string[] = JSON.parse(portrait.dataset.fb || '[]');
-      const i = fb.indexOf(portrait.getAttribute('src') ?? '');
-      if (i + 1 < fb.length) portrait.src = fb[i + 1]!;
+    const nextPortraitArt = (image: HTMLImageElement): void => {
+      const fb: string[] = JSON.parse(image.dataset.fb || '[]');
+      const i = fb.indexOf(image.getAttribute('src') ?? '');
+      if (i + 1 < fb.length) image.src = fb[i + 1]!;
     };
+    portrait.onerror = () => nextPortraitArt(portrait);
+    zoomArt.onerror = () => nextPortraitArt(zoomArt);
     const ornament = $('[data-ornament]');
     if (ornament) {
       import('../shell/battleIcons').then((m) => {
@@ -266,9 +278,34 @@ export class TroopScreen implements Screen {
       });
     }
 
-    this.bind('#back', 'click', () => this.showView('collection', true));
+    const [, source, shopType] = param?.split('/') ?? [];
+    const fromShop = source === 'shop' && EVENT_ROTATION.some(type => type.id === shopType);
+    this.detailSource = fromShop ? `/shop/${shopType}` : param?.endsWith('/wishlist') ? '/wishlist' : '';
+    if (fromShop) $('#detailBackLabel').textContent = '返回活动商店';
+    else if (param?.endsWith('/wishlist')) $('#detailBackLabel').textContent = '返回愿望单';
+    this.bind('#back', 'click', () => fromShop ? ctx.navigate(`#shop/${shopType}`) : param?.endsWith('/wishlist') ? ctx.navigate('#wishlist') : this.showView('collection', true));
+    this.bind('#detailWishlist', 'click', async () => {
+      const ids = ctx.save().gachaWishlist.troopIds;
+      if (ids.includes(this.currentId) || (this.troop()?.rarityIdx ?? 0) < 3) { ctx.navigate('#wishlist'); return; }
+      const next = [...ids,this.currentId]; const error = validateWishlist(next);
+      if (error) { toast(error.message); return; }
+      const button = $('#detailWishlist') as HTMLButtonElement; button.disabled = true;
+      try { const {result} = await ctx.gateway.setWishlist(next); toast(result.ok ? '已加入愿望单，可在宝石宝箱管理' : result.message); if (result.ok) $('#detailWishlistLabel').textContent = '管理愿望单'; }
+      catch { toast('保存失败，请重试'); }
+      finally { button.disabled = false; }
+    });
     this.bind('#previous', 'click', () => this.stepOwned(-1));
     this.bind('#next', 'click', () => this.stepOwned(1));
+    this.bind('#portraitExpand', 'click', () => {
+      zoomArt.dataset.fb = portrait.dataset.fb ?? '[]';
+      zoomArt.src = portrait.getAttribute('src') ?? '';
+      zoomArt.alt = portrait.alt;
+      zoom.setAttribute('aria-label', `${portrait.alt}立绘预览`);
+      zoom.showModal();
+    });
+    this.bind('#portraitZoomClose', 'click', () => zoom.close());
+    this.on(zoom, 'click', (event) => { if (event.target === zoom) zoom.close(); });
+    this.on(zoom, 'close', () => $('#portraitExpand')?.focus({ preventScroll: true }));
     this.bind('#collectionPrev', 'click', () => this.changeCollectionPage(-1));
     this.bind('#collectionNext', 'click', () => this.changeCollectionPage(1));
     this.bind('#upgrade', 'click', () => this.openUpgradeModal());
@@ -386,8 +423,11 @@ export class TroopScreen implements Screen {
       resizeTimer = window.setTimeout(() => {
         const nextSize = this.pageSize();
         if (nextSize === this.collectionPageSize) return;
-        const firstVisibleIndex = (this.collectionPage - 1) * this.collectionPageSize;
-        this.collectionPage = Math.floor(firstVisibleIndex / nextSize) + 1;
+        if (this.groupMode === 'kingdom' && !this.kingdomFilter) this.locateAnchor = true;
+        else {
+          const firstVisibleIndex = (this.collectionPage - 1) * this.collectionPageSize;
+          this.collectionPage = Math.floor(firstVisibleIndex / nextSize) + 1;
+        }
         this.renderCollection(false);
       }, 120);
     });
@@ -433,6 +473,7 @@ export class TroopScreen implements Screen {
   private paintDetail(): void {
     const troop = this.troop();
     if (!troop) return;
+    $('#detailWishlistLabel').textContent = troop.rarityIdx < 3 || this.ctx.save().gachaWishlist.troopIds.includes(troop.id) ? '管理愿望单' : '加入愿望单';
     const ownedRec = getRecord(this.ctx.save(), this.currentId);
     const rec = ownedRec ?? UNOWNED_REC;
     const owned = !!ownedRec;
@@ -449,6 +490,7 @@ export class TroopScreen implements Screen {
     ($('#characterCard') as HTMLElement).dataset.rarity = String(tier);
     $('#unownedMark').hidden = owned;
     $('#cardName').textContent = troop.name;
+    $('#portraitExpand').setAttribute('aria-label', `放大查看${troop.name}立绘`);
     $('#cardType').textContent = typeCn(troop.troopTypes) + (troop.kingdom ? ' · ' + troop.kingdom : '') + ` · ${RARITY_CN[tier]}`;
     $('#rarityLabel').textContent = RARITY_CN[tier] ?? '';
     const rarityBadge = $('#rarityBadge');
@@ -521,7 +563,7 @@ export class TroopScreen implements Screen {
     if (!formula) return;
     const tip = $('#spellTip');
     const parts = formulaParts(formula.expr, this.magic);
-    const kind = /伤害/.test(formula.unit) ? '伤害' : /生命/.test(formula.unit) ? '生命' : /护甲/.test(formula.unit) ? '护甲' : /攻击/.test(formula.unit) ? '攻击' : /法力|魔法/.test(formula.unit) ? '法力' : '效果';
+    const kind = formulaKind(formula.unit);
     $('#spellTipTitle').textContent = kind + '计算';
     $('#spellTipRule').textContent = formulaRule(formula.expr);
     $('#spellTipRows').innerHTML =
@@ -624,17 +666,19 @@ export class TroopScreen implements Screen {
     // 下一个待解锁槽位与代价
     const nextSlot = rec.traits.findIndex((v) => !v) + 1;
     const unlockBtn = $('#unlock') as HTMLButtonElement;
+    const unlockCost = $('#unlockCost');
+    unlockCost.hidden = true;
+    unlockCost.replaceChildren();
+    unlockBtn.title = '';
     if (!owned) {
       unlockBtn.disabled = true;
       $('#unlockLabel').textContent = '获得后可解锁';
-      $('#unlockCost').innerHTML = '—';
     } else if (nextSlot <= 0 || !troop.traits[nextSlot - 1]) {
       unlockBtn.disabled = true;
       $('#unlockLabel').textContent = nextSlot <= 0 ? '特质全解锁' : '无更多特质';
-      $('#unlockCost').innerHTML = '—';
     } else {
       const primary = stoneColorKeyOf(troop.manaColors[0] ?? BaseColor.Brown);
-      const cost = traitUnlockCost(nextSlot, primary);
+      const cost = traitUnlockCost(nextSlot, primary, troop.id);
       const save = this.ctx.save();
       // T-10：每一项代价旁边列持有量，不够的标红；凑不齐时按钮直接禁用并写清缺口
       const shortfalls: string[] = [];
@@ -650,9 +694,8 @@ export class TroopScreen implements Screen {
         : `解锁特质 ${['Ⅰ', 'Ⅱ', 'Ⅲ'][nextSlot - 1]}`;
       unlockBtn.disabled = shortfalls.length > 0;
       unlockBtn.title = shortfalls.join(' · ');
-      $('#unlockCost').innerHTML =
-        `<span><span data-icon="coin"></span>${fmt(cost.gold)}<em class="${goldHave < cost.gold ? 'short' : ''}">持有 ${fmt(goldHave)}</em></span>`
-        + stoneRows.join('');
+      unlockCost.hidden = false;
+      unlockCost.innerHTML = stoneRows.join('');
       mountIcons($('#unlockCost'));
     }
   }
@@ -724,7 +767,7 @@ export class TroopScreen implements Screen {
     const next = idx < 0 ? 0 : (idx + dir + list.length) % list.length;
     this.currentId = list[next]!;
     this.paintDetail();
-    history.replaceState(null, '', `#troop/${this.currentId}`);
+    history.replaceState(null, '', `#troop/${this.currentId}${this.detailSource}`);
   }
 
   // —— 编入队伍（T-5） ——
@@ -870,7 +913,7 @@ export class TroopScreen implements Screen {
     const { result } = await this.ctx.gateway.unlockTroopTrait(this.currentId, slot);
     if (result.ok) {
       const stones = Object.entries(result.cost.stones).map(([key, n]) => `${stoneName(key)}×${n}`).join(' · ');
-      toast(`特质已解锁 · 黄金 −${fmt(result.cost.gold)}${stones ? ' · ' + stones : ''}`);
+      toast(`特质已解锁${stones ? ' · ' + stones : ''}`);
       this.afterMutation();
     } else {
       toast(result.message);
@@ -942,7 +985,7 @@ export class TroopScreen implements Screen {
     $('#detail').hidden = view !== 'detail';
     $('#collection').hidden = view !== 'collection';
     // 站内视图切换用 replaceState 同步 hash：既不触发整屏重挂，刷新后也能停在当前位置
-    if (syncHash) history.replaceState(null, '', view === 'detail' ? `#troop/${this.currentId}` : '#troop');
+    if (syncHash) history.replaceState(null, '', view === 'detail' ? `#troop/${this.currentId}${this.detailSource}` : '#troop');
     if (view === 'collection') this.restoreCollectionScroll();
   }
 
@@ -970,12 +1013,13 @@ export class TroopScreen implements Screen {
 
   /** skip = 忽略某一维（用于 chip 计数与"是哪个条件筛没了"的逐条回退） */
   private matches(troop: TroopData, query: string, skip?: FilterDim): boolean {
-    if (skip !== 'rarity' && this.rarityFilter !== null && troop.rarityIdx !== this.rarityFilter) return false;
-    if (skip !== 'color' && this.colorFilter && !troop.manaColors.some((c) => c.toLowerCase() === this.colorFilter)) return false;
-    if (skip !== 'type' && this.typeFilter && !troop.troopTypes.includes(this.typeFilter)) return false;
-    if (skip !== 'kingdom' && this.kingdomFilter && (troop.kingdom ?? '无王国') !== this.kingdomFilter) return false;
-    if (skip !== 'search' && query && !haystack(troop).includes(query.toLowerCase())) return false;
-    return true;
+    return matchesTroopCatalog(troop, {
+      rarity: skip === 'rarity' ? null : this.rarityFilter,
+      color: skip === 'color' ? null : this.colorFilter,
+      type: skip === 'type' ? null : this.typeFilter,
+      kingdom: skip === 'kingdom' ? null : this.kingdomFilter,
+      query: skip === 'search' ? '' : query,
+    });
   }
 
   private recOf(troop: TroopData): TroopRecord {
@@ -1112,11 +1156,41 @@ export class TroopScreen implements Screen {
     }
 
     this.collectionPageSize = this.pageSize();
-    this.collectionPages = Math.max(1, Math.ceil(sorted.length / this.collectionPageSize));
+    const grouped = this.groupMode === 'kingdom' && !this.kingdomFilter;
+    const kingdomPages = grouped ? this.kingdomPages(sorted) : [];
+    if (grouped) {
+      this.listIds = kingdomPages.flatMap((page) => page.flatMap((band) => band.troops.map((t) => t.id)));
+      this.collectionPages = kingdomPages.length;
+      if (this.locateAnchor && this.pageAnchorId) {
+        const anchorPage = kingdomPages.findIndex((page) => page.some((band) => band.troops.some((t) => t.id === this.pageAnchorId)));
+        if (anchorPage >= 0) this.collectionPage = anchorPage + 1;
+      }
+      this.locateAnchor = false;
+    } else {
+      this.collectionPages = Math.max(1, Math.ceil(sorted.length / this.collectionPageSize));
+    }
     this.collectionPage = resetPage ? 1 : Math.min(this.collectionPages, Math.max(1, this.collectionPage));
-    const start = (this.collectionPage - 1) * this.collectionPageSize;
-    const end = Math.min(sorted.length, start + this.collectionPageSize);
-    const pageItems = sorted.slice(start, end);
+
+    let start = 0;
+    let end = 0;
+    let pageItems: TroopData[] = [];
+    if (grouped) {
+      const pageBands = kingdomPages[this.collectionPage - 1] ?? [];
+      for (let i = 0; i < this.collectionPage - 1; i += 1) {
+        start += kingdomPages[i]!.reduce((n, band) => n + band.troops.length, 0);
+      }
+      pageItems = pageBands.flatMap((band) => band.troops);
+      end = start + pageItems.length;
+      container.innerHTML = pageBands
+        .map((band) => this.sectionHtml(band.kingdom, band.troops))
+        .join('');
+    } else {
+      start = (this.collectionPage - 1) * this.collectionPageSize;
+      end = Math.min(sorted.length, start + this.collectionPageSize);
+      pageItems = sorted.slice(start, end);
+      container.innerHTML = `<div class="collection-cards" id="denseGrid">${pageItems.map((t) => this.cardHtml(t)).join('')}</div>`;
+    }
+    this.pageAnchorId = pageItems[0]?.id ?? 0;
 
     pagination.hidden = false;
     $('#collectionRange').textContent = `${fmt(start + 1)}–${fmt(end)} / 共 ${fmt(sorted.length)} 支`;
@@ -1124,38 +1198,53 @@ export class TroopScreen implements Screen {
     $('#collectionPages').textContent = fmt(this.collectionPages);
     ($('#collectionPrev') as HTMLButtonElement).disabled = this.collectionPage <= 1;
     ($('#collectionNext') as HTMLButtonElement).disabled = this.collectionPage >= this.collectionPages;
-
-    // 王国分组只组织当前页；分组进度仍以完整筛选结果为分母。
-    const grouped = this.groupMode === 'kingdom' && !this.kingdomFilter;
-    if (grouped) {
-      const allBands = new Map<string, TroopData[]>();
-      for (const t of sorted) {
-        const key = t.kingdom ?? '无王国';
-        if (!allBands.has(key)) allBands.set(key, []);
-        allBands.get(key)!.push(t);
-      }
-      const pageBands = new Map<string, TroopData[]>();
-      for (const t of pageItems) {
-        const key = t.kingdom ?? '无王国';
-        if (!pageBands.has(key)) pageBands.set(key, []);
-        pageBands.get(key)!.push(t);
-      }
-      container.innerHTML = [...pageBands.entries()]
-        .map(([kingdom, troops]) => this.sectionHtml(kingdom, troops, allBands.get(kingdom) ?? troops))
-        .join('');
-    } else {
-      container.innerHTML = `<div class="collection-cards" id="denseGrid">${pageItems.map((t) => this.cardHtml(t)).join('')}</div>`;
-    }
     container.scrollTop = 0;
     this.collectionScroll = 0;
   }
 
-  private sectionHtml(kingdom: string, troops: TroopData[], allTroops = troops): string {
+  /**
+   * 按王国整组翻页。一组不论多少张都留在同一页；一页能放下几组就放几组，放不下的整组挪到下一页。
+   * 组内仍用当前排序。
+   */
+  private kingdomPages(sorted: TroopData[]): Array<Array<{ kingdom: string; troops: TroopData[] }>> {
+    const bands = new Map<string, TroopData[]>();
+    for (const troop of sorted) {
+      const key = troop.kingdom ?? '无王国';
+      const band = bands.get(key);
+      if (band) band.push(troop);
+      else bands.set(key, [troop]);
+    }
+    const order = [...bands.keys()].sort((a, b) => {
+      const ia = KINGDOM_ORDER.indexOf(a);
+      const ib = KINGDOM_ORDER.indexOf(b);
+      return (ia < 0 ? KINGDOM_ORDER.length : ia) - (ib < 0 ? KINGDOM_ORDER.length : ib);
+    });
+    const pages: Array<Array<{ kingdom: string; troops: TroopData[] }>> = [];
+    let page: Array<{ kingdom: string; troops: TroopData[] }> = [];
+    let count = 0;
+    for (const kingdom of order) {
+      const troops = bands.get(kingdom)!;
+      if (page.length > 0 && count + troops.length > this.collectionPageSize) {
+        pages.push(page);
+        page = [];
+        count = 0;
+      }
+      page.push({ kingdom, troops });
+      count += troops.length;
+    }
+    if (page.length > 0) pages.push(page);
+    return pages;
+  }
+
+  private sectionHtml(kingdom: string, troops: TroopData[]): string {
     const save = this.ctx.save();
-    const ownedInKingdom = allTroops.filter((t) => save.collection[String(t.id)]).length;
-    const pct = allTroops.length ? (ownedInKingdom / allTroops.length) * 100 : 0;
+    const ownedInKingdom = troops.filter((t) => save.collection[String(t.id)]).length;
+    const pct = troops.length ? (ownedInKingdom / troops.length) * 100 : 0;
+    const countLabel = ownedInKingdom === troops.length
+      ? `${troops.length} 支`
+      : `${troops.length} 支 · 已拥有 ${ownedInKingdom}`;
     // kingdom-section 让分组头只在自身区间内 sticky，不会盖住其他王国
-    return `<div class="kingdom-section"><div class="kingdom-band"><span class="band-mark"></span><b>${kingdom}</b><small>本页 ${troops.length} 支 · 收藏 ${ownedInKingdom} / ${allTroops.length}</small><div><i style="width:${pct}%"></i></div></div><div class="collection-cards">${troops.map((t) => this.cardHtml(t)).join('')}</div></div>`;
+    return `<div class="kingdom-section"><div class="kingdom-band"><span class="band-mark"></span><b>${kingdom}</b><small>${countLabel}</small><div><i style="width:${pct}%"></i></div></div><div class="collection-cards">${troops.map((t) => this.cardHtml(t)).join('')}</div></div>`;
   }
 
   /** 浏览卡只负责辨认立绘；战斗数值和副本资料在详情页查看。 */
@@ -1163,15 +1252,7 @@ export class TroopScreen implements Screen {
     const rec = this.ctx.save().collection[String(t.id)];
     const locked = !rec;
     const level = locked ? '未获得' : `Lv.${rec.level}`;
-    // 分页后每次最多只有 18 张，主动加载可避免翻页后的可见卡短暂空白。
-    const art = troopImg(t, false, 'alt=""').replace('loading="lazy"', 'loading="eager"');
-    return `<button class="collection-card r-${t.rarityIdx}${locked ? ' locked' : ''}" data-troop="${t.id}" aria-label="查看${t.name}详情（${RARITY_CN[t.rarityIdx]}，${level}）">
-      <i class="rarity-edge" aria-hidden="true"></i>
-      ${art}
-      <span class="collection-mana">${gemSvg(t.manaColors.map((c) => c.toLowerCase()))}</span>
-      ${locked ? `<span class="locked-mark" aria-hidden="true">${icon('lock')}</span>` : ''}
-      <div class="collection-info"><h2>${t.name}</h2><span class="collection-level">${level}</span></div>
-    </button>`;
+    return `<button class="collection-card r-${t.rarityIdx}${locked ? ' locked' : ''}" data-troop="${t.id}" aria-label="查看${t.name}详情（${RARITY_CN[t.rarityIdx]}，${level}）">${troopCardFace(t, rec)}</button>`;
   }
 
   /** 当前生效的筛选维度（摘要 chip + 空态回退都用它） */
@@ -1229,6 +1310,8 @@ export class TroopScreen implements Screen {
   }
 
   dispose(): void {
+    const zoom = document.getElementById('portraitZoom') as HTMLDialogElement | null;
+    if (zoom?.open) zoom.close();
     document.getElementById('stage')?.classList.remove('collection-responsive');
     for (const [target, type, fn] of this.listeners.splice(0)) {
       target.removeEventListener(type, fn);

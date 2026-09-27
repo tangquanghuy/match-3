@@ -1,30 +1,65 @@
 /**
- * 战斗结算屏（计划 §5.8）。逐行明细来自 settlement 的 SettlementDetail
- * （击杀/胜利/首胜/任务推进/战败保底），数字即入账结果，无二次计算。
+ * 战斗结算屏（GoW 式全屏仪式感版）。
+ *
+ * 两个视图，同一路由 `#result`：
+ * 1. 结算（summary）：「战斗胜利 / 战斗失败」标题 + 星座纹饰 → 来源副题（任务·王国·关卡·进度）
+ *    → 横贯全屏的收益条（灵魂 / 经验值+等级条 / 黄金 / 本场宝石）→ 金色「继续」。
+ *    只展示本场经验和实际战斗收益；首胜、首通、周常及整轮奖励不合并展示。
+ * 2. 升级（levelup）：主角本场升级时，「继续」先进入逐级升级页——双翼盾徽 + 等级数字、
+ *    本级法力精通二选一（hero.masteryOffers 队首，经网关 pickManaMastery 入账）、
+ *    底栏四维（本级提升项绿色高亮）。选定精通后才能继续；多级连升逐页呈现。
+ *
+ * 音乐：挂载即压住氛围 BGM（backgroundMusic 'result' 静音槽），由 resultMusic 实时合成
+ * 胜利 / 战败曲；升级页叠加升级号角；离开时淡出并交还氛围 BGM。
  */
+import { backgroundMusic } from '../../audio/BackgroundMusic';
+import { resultMusic } from '../../audio/ResultMusic';
+import { prefersReducedMotion } from '../../preferences/playerPreferences';
 import type { SettlementDetail } from '../systems/settlement';
-import { heroXpToNext } from '../data/classes';
+import { heroStatsAt, heroXpToNext } from '../data/classes';
+import { QUESTS_PER_KINGDOM } from '../data/kingdoms';
 import { getTroopById, type TroopData } from '../../data/troops';
-import { INGOT_NAMES, stoneName, type IngotKey } from '../data/materials';
 import { RARITY_NAMES } from '../data/rarity';
-import { ART, KINGDOM_VIEWS } from './mapData';
-import { troopArt } from './teamScreen';
-import { bottomNavHtml, gemSvg, toast, toastHtml, topbarHtml, $ } from '../shell/chrome';
-import { ingotArt, materialImg, scrollArt, stoneMarkupForKey, treasureMapMarkup } from '../shell/materialArt';
-import type { PvpSettlementView, Screen, ShellCtx } from '../shell/screen';
-import { isFailure } from '../gateway';
+import { temperingBonusOf } from '../systems/hero';
 import {
-  MASTERY_GEM,
+  isManaColor,
+  kingdomMasteryBonus,
   MASTERY_HEX,
   MASTERY_NAME,
-  personalManaMastery,
+  surgeChancePct,
+  type ManaColor,
 } from '../systems/manaMastery';
+import { isFailure } from '../gateway';
+import type { MetaSave } from '../state/schema';
+import { ART, KINGDOM_VIEWS } from './mapData';
+import { troopArt } from './teamScreen';
+import { bottomNavHtml, mountIcons, toast, toastHtml, topbarHtml, $ } from '../shell/chrome';
+import type { PvpSettlementView, Screen, ShellCtx } from '../shell/screen';
 
 const fmt = (n: number): string => n.toLocaleString('en-US');
 
 /** 部队稀有度的唯一玩家口径（普通→神话），与图鉴/编队/宝箱共用六档。 */
 export const RESULT_RARITY_NAMES = RARITY_NAMES;
 const GENERIC_BATTLE_ART = '/meta/assets/world-map-mosaic-v2.webp';
+
+/** 收益条的彩绘货币图标（与顶栏同源的 chrome 素材） */
+const CURRENCY_ART = {
+  souls: new URL('../../assets/chrome/soul.png', import.meta.url).href,
+  gold: new URL('../../assets/chrome/gold.png', import.meta.url).href,
+  gems: new URL('../../assets/chrome/gem.png', import.meta.url).href,
+} as const;
+
+/** 结算/升级页彩绘素材（public/meta/assets/result/，透明底 WebP） */
+const RESULT_ART = '/meta/assets/result';
+const art = (name: string): string => `${RESULT_ART}/${name}.webp`;
+const MASTERY_ART: Record<ManaColor, string> = {
+  Red: art('mastery-red'),
+  Green: art('mastery-green'),
+  Blue: art('mastery-blue'),
+  Yellow: art('mastery-yellow'),
+  Purple: art('mastery-purple'),
+  Brown: art('mastery-brown'),
+};
 
 export interface TroopRewardView {
   troop: TroopData | null;
@@ -56,7 +91,7 @@ export function resultSummaryArt(kingdom: string): string {
   return ART[view.biome] ?? ART.spire ?? GENERIC_BATTLE_ART;
 }
 
-interface ResultMeta {
+export interface ResultMeta {
   kingdom: string;
   sourceLabel: string;
   /** 战斗来源页（活动战= '#events'）；有值时结算屏提供直达返回 */
@@ -65,156 +100,191 @@ interface ResultMeta {
   shopHash?: string;
 }
 
+/** Only this battle's income. Account/quest/weekly rewards stay in their own views. */
+export interface BattleIncomeView {
+  victory: boolean;
+  xp: number;
+  levelsGained: number;
+  gold: number;
+  souls: number;
+  gems: number;
+}
+
+export function battleIncomeView(detail: SettlementDetail | PvpSettlementView): BattleIncomeView {
+  if ('kind' in detail) {
+    const base = detail.settled.battleRewards;
+    const collected = detail.settled.collected;
+    return {
+      victory: detail.settled.victory,
+      xp: base?.xpGained ?? 0,
+      levelsGained: base?.heroLevelsGained ?? 0,
+      // Invasion's opponent bounty is earned in this match, unlike Arena run prizes.
+      gold: (base?.gold ?? 0) + (collected?.gold ?? 0) + (detail.kind === 'invasion' ? detail.settled.gold : 0),
+      souls: (base?.souls ?? 0) + (collected?.souls ?? 0),
+      gems: collected?.gems ?? 0,
+    };
+  }
+  const battleLines = detail.lines.filter(line =>
+    ['kills', 'victory', 'defeat', 'battle-collect'].includes(line.key));
+  const sum = (key: 'gold' | 'souls' | 'gems') =>
+    battleLines.reduce((total, line) => total + (line.deltas[key] ?? 0), 0);
+  return { victory: detail.victory, xp: detail.xpGained, levelsGained: detail.heroLevelsGained,
+    gold: sum('gold'), souls: sum('souls'), gems: sum('gems') };
+}
+
+/**
+ * 标题下的来源副题（GoW：任务 - 王国 - 关卡 - 进度）。
+ * questsDone：未推进时（战败/重打）仍显示当前王国主线进度。
+ */
+export function resultSubtitle(
+  detail: SettlementDetail | PvpSettlementView,
+  meta: Pick<ResultMeta, 'kingdom' | 'sourceLabel'>,
+  questsDone?: number,
+): string {
+  if ('kind' in detail) {
+    if (detail.kind === 'arena') {
+      const s = detail.settled;
+      return `竞技场 · 战绩 ${s.wins ?? 0} 胜 ${s.losses ?? 0} 负${s.runOver ? ' · 本届已结束' : ''}`;
+    }
+    return meta.sourceLabel || '入侵';
+  }
+  const label = meta.sourceLabel.trim();
+  const normal = /^NORMAL (\d+)$/.exec(label);
+  if (normal) {
+    const progress = detail.questProgress?.to ?? questsDone;
+    return ['任务', meta.kingdom, `第 ${normal[1]} 关`,
+      progress !== undefined ? `进度：${progress}/${QUESTS_PER_KINGDOM}` : '']
+      .filter(Boolean).join(' · ');
+  }
+  if (/^(VERY )?HARD \d+$/.test(label)) {
+    return ['探索', meta.kingdom, label.replace('VERY HARD', '非常困难').replace('HARD', '困难')].join(' · ');
+  }
+  return [label, meta.kingdom].filter(Boolean).join(' · ') || '战斗结束';
+}
+
+/** 战前经验（用于经验条从战前涨到战后；数据异常时夹到合法区间）。 */
+export function preBattleXp(level: number, xp: number, gained: number, levelsGained: number): { level: number; xp: number } {
+  const fromLevel = Math.max(1, level - Math.max(0, levelsGained));
+  let spent = 0;
+  for (let lv = fromLevel; lv < level; lv++) spent += heroXpToNext(lv);
+  const fromXp = Math.min(Math.max(0, xp + spent - gained), heroXpToNext(fromLevel) - 1);
+  return { level: fromLevel, xp: fromXp };
+}
+
+export type HeroStatKey = 'attack' | 'health' | 'armor' | 'magic';
+export interface LevelUpStat { key: HeroStatKey; label: string; value: number; gain: number }
+
+const STAT_ORDER: ReadonlyArray<[HeroStatKey, string]> = [
+  ['attack', '攻击'], ['health', '生命'], ['armor', '护甲'], ['magic', '魔法'],
+];
+
+/** 升到 level 时的四维与本级增量（含武器淬炼加成，增量只来自等级曲线）。 */
+export function levelUpStats(level: number, bonus: Partial<Record<HeroStatKey, number>> = {}): LevelUpStat[] {
+  const now = heroStatsAt(level);
+  const before = heroStatsAt(Math.max(1, level - 1));
+  return STAT_ORDER.map(([key, label]) => ({
+    key, label, value: now[key] + (bonus[key] ?? 0), gain: Math.max(0, now[key] - before[key]),
+  }));
+}
+
+/** 升级页要逐页呈现的等级（本场升级的每一级） */
+export function levelUpSequence(level: number, levelsGained: number): number[] {
+  const gained = Math.max(0, Math.min(levelsGained, level - 1));
+  return Array.from({ length: gained }, (_, i) => level - gained + 1 + i);
+}
+
+/** 本级待分配的法力精通二选一（存档队首）；没有待分配点数时为 null */
+export function pendingMasteryOffer(save: Pick<MetaSave, 'hero'>): [ManaColor, ManaColor] | null {
+  const offer = save.hero.masteryOffers?.[0];
+  return offer && isManaColor(offer[0]) && isManaColor(offer[1]) ? offer : null;
+}
+
+/** 稳定伪随机（粒子布局用；同一场景每次一致，截图可复现） */
+const hash01 = (i: number, k: number): number => {
+  const v = Math.sin(i * 12.9898 + k * 78.233) * 43758.5453;
+  return v - Math.floor(v);
+};
+
 export class ResultScreen implements Screen {
   private ctx!: ShellCtx;
   private detail: SettlementDetail | PvpSettlementView | null = null;
   private meta: ResultMeta = { kingdom: '', sourceLabel: '' };
   private listeners: Array<[EventTarget, string, EventListenerOrEventListenerObject]> = [];
+  private frames = new Set<number>();
+  private levels: number[] = [];
+  private levelIndex = 0;
+  private levelUpDone = false;
+  private selected: ManaColor | null = null;
+  private busy = false;
 
   setDetail(detail: SettlementDetail | PvpSettlementView, meta: ResultMeta): void {
     this.detail = detail;
     this.meta = meta;
+    this.levelUpDone = false;
   }
 
   html(): string {
-    return `
-      ${topbarHtml()}
-      <main class="screen result-screen">
-        <div class="result-layout">
-          <section class="panel result-main">
-            <div class="result-main-art" id="summaryArt" hidden>
-              <img id="sumArt" alt="">
-            </div>
-            <div class="panel-inner">
-              <div class="result-body">
-              <div class="result-seal">
-                <div class="victory-mark">
-                  <i></i>
-                  <h1 id="resultTitle">暂无战报</h1>
-                  <i></i>
-                </div>
-                <p id="resultSub">完成一场战斗后，这里会显示奖励明细。</p>
-              </div>
+    return `${topbarHtml()}
+      <main class="screen result-screen" data-view="summary">
+        <div class="rs-art" id="summaryArt" hidden><img id="sumArt" alt="" decoding="async"></div>
+        <div class="rs-shade" aria-hidden="true"></div>
+        <div class="rs-particles" id="rsParticles" aria-hidden="true"></div>
 
-              <div class="xp-result" id="standardXp">
-                <span>冒险者经验</span>
-                <b id="xpGain">—</b>
-                <div class="xp-track"><i id="xpFill" style="width:0%"></i></div>
-                <small id="xpNote">暂无经验记录</small>
-              </div>
+        <section class="rs-summary" id="resultSummary" aria-labelledby="resultTitle">
+          <header class="rs-banner">
+            <div class="rs-banner-art" aria-hidden="true"><img src="${art('title-astrolabe')}" alt="" draggable="false"></div>
+            <h1 id="resultTitle">暂无战报</h1>
+          </header>
+          <div class="rs-rule" aria-hidden="true"></div>
+          <p class="rs-sub" id="resultSub">完成一场战斗后，这里会显示本场收益。</p>
+          <div class="rs-strip" id="standardRewards" hidden>
+            <div class="rs-rewards" id="rewardRows"></div>
+          </div>
+          <footer class="rs-footer result-actions">
+            <button class="rs-ghost" id="team" type="button" hidden>调整队伍</button>
+            <button class="rs-continue" id="again" type="button"><span>去世界地图</span></button>
+          </footer>
+        </section>
 
-              <div class="mastery-pick" id="masteryPick" hidden></div>
-
-              <div class="result-income">
-                <div class="reward-list" id="standardRewards">
-                  <div class="reward-head">
-                    <span>奖励明细</span>
-                  </div>
-                  <div id="rewardRows"></div>
-                </div>
-
-                <div class="drop-row" id="dropRow" hidden>
-                  <article class="drop-card r-0" id="dropCard">
-                    <img id="dropArt" alt="">
-                  </article>
-                  <div class="drop-copy">
-                    <small>任务部队奖励</small>
-                    <b id="dropName">—</b>
-                    <span class="drop-rarity" id="dropRarity">—</span>
-                    <span id="dropNote">—</span>
-                  </div>
-                </div>
-              </div>
-
-              <div class="quest-row" id="questRow">
-                <span class="quest-icon" data-icon="flag"></span>
-                <div class="quest-copy">
-                  <b>王国任务进度</b>
-                  <small id="questKingdom">—</small>
-                  <div class="quest-track"><i id="questFill" style="width:0%"></i></div>
-                </div>
-                <strong id="questProgressText">—</strong>
-              </div>
-
-              <section class="pvp-settlement" id="pvpSettlement" hidden>
-                <div class="pvp-heading">
-                  <h2 id="pvpTitle">—</h2>
-                  <p id="pvpSubtitle">—</p>
-                </div>
-                <div class="pvp-stat-grid">
-                  <div><small id="pvpStatLabel1">—</small><b id="pvpStatValue1">—</b></div>
-                  <div><small id="pvpStatLabel2">—</small><b id="pvpStatValue2">—</b></div>
-                  <div><small id="pvpStatLabel3">—</small><b id="pvpStatValue3">—</b></div>
-                </div>
-                <div class="pvp-breakdown" id="pvpBreakdown"></div>
-                <div class="pvp-reward" id="pvpReward">—</div>
-              </section>
-              </div>
-
-              <div class="result-actions">
-                <button class="primary" id="again" type="button">返回地图</button>
-                <button class="secondary" id="team" type="button">调整队伍</button>
-                <button class="ghost" id="backToShop" type="button" hidden>去活动商店</button>
-              </div>
-            </div>
-          </section>
-        </div>
+        <section class="rs-levelup" id="levelUp" hidden aria-labelledby="levelUpTitle">
+          <div class="lu-rays" aria-hidden="true"></div>
+          <div class="lu-emblem">
+            <img class="lu-emblem-art" src="${art('levelup-emblem')}" alt="" draggable="false">
+            <b class="lu-level" id="luLevel" aria-label="新等级">2</b>
+            <div class="lu-ribbon"><h2 id="levelUpTitle">等级提升</h2></div>
+          </div>
+          <div class="lu-band" id="luBand">
+            <p class="lu-prompt" id="luPrompt"><b>选择一项法力精通</b><small id="luPromptNote"></small></p>
+            <div class="lu-choices" id="luChoices"></div>
+          </div>
+          <footer class="lu-footer">
+            <div class="lu-stats" id="luStats" aria-label="主角属性"></div>
+            <button class="rs-continue" id="luContinue" type="button"><span>继续</span></button>
+          </footer>
+          <small class="lu-step" id="luStep" hidden></small>
+        </section>
       </main>
-      ${bottomNavHtml('', '战斗记录已保存')}
-      ${toastHtml()}`;
+      ${bottomNavHtml('', '')}${toastHtml()}`;
   }
 
   mount(ctx: ShellCtx): void {
     this.ctx = ctx;
-    const shop = $('#backToShop');
-    if (shop && this.meta.shopHash) {
-      shop.hidden = false;
-      shop.addEventListener('click', () => ctx.navigate(this.meta.shopHash!));
-    }
-    this.bind('#again', 'click', () => ctx.navigate(this.meta.returnHash ?? '#map'));
-    this.bind('#team', 'click', () => ctx.navigate('#team'));
-    this.bind('#masteryPick', 'click', (e) => {
-      const btn = (e.target as HTMLElement).closest('[data-mastery-color]') as HTMLElement | null;
-      if (btn?.dataset.masteryColor) void this.pickMastery(btn.dataset.masteryColor);
+    this.busy = false;
+    backgroundMusic.setDucking('result', true);
+    this.bind('#again', () => this.continueFromSummary());
+    this.bind('#team', () => ctx.navigate('#team'));
+    this.bind('#luContinue', () => void this.continueFromLevelUp());
+    this.bind('#luChoices', (e) => {
+      const card = (e.target as HTMLElement).closest<HTMLElement>('[data-mastery-color]');
+      if (card?.dataset.masteryColor) this.select(card.dataset.masteryColor);
     });
     this.paint();
+    if (this.detail) resultMusic.play(battleIncomeView(this.detail).victory ? 'victory' : 'defeat');
   }
 
-  /** 直链/刷新 #result 时的中性空态，不能沿用模板里的胜利默认值。 */
-  private paintEmpty(): void {
-    const screen = document.querySelector('.result-screen');
-    screen?.classList.add('is-empty');
-    for (const selector of ['#standardXp', '#standardRewards', '#dropRow', '#questRow', '#pvpSettlement', '#masteryPick']) {
-      const element = document.querySelector<HTMLElement>(selector);
-      if (element) element.hidden = true;
-    }
-    const summaryArt = $('#summaryArt');
-    if (summaryArt) summaryArt.hidden = true;
-    const image = $('#sumArt') as HTMLImageElement | null;
-    if (image) {
-      image.removeAttribute('src');
-      image.alt = '';
-    }
-    $('#resultTitle').textContent = '暂无战报';
-    $('#resultSub').textContent = '完成一场战斗后，这里会显示奖励明细。';
-    $('#again').textContent = '去世界地图';
-    $('#team').hidden = true;
-    $('#backToShop').hidden = true;
-  }
-
-  private paintSummaryArt(): void {
-    const frame = $('#summaryArt');
-    if (frame) frame.hidden = false;
-    const image = $('#sumArt') as HTMLImageElement | null;
-    if (!image) return;
-    image.src = resultSummaryArt(this.meta.kingdom);
-    image.alt = '';
-    image.hidden = false;
-  }
-
-  /** 普通战斗目前只返回来源页；在真正接入重放前不宣称「再战」。 */
-  private standardReturnLabel(): string {
+  private returnLabel(): string {
     const hash = this.meta.returnHash;
+    if (this.detail && 'kind' in this.detail && this.detail.kind === 'arena' && !this.detail.settled.runOver) return '继续竞技场';
     if (!hash || hash === '#map') return '返回地图';
     if (hash.startsWith('#events')) return '返回活动页';
     if (hash === '#arena') return '返回竞技场';
@@ -222,311 +292,336 @@ export class ResultScreen implements Screen {
     return '返回来源页';
   }
 
+  // -------------------------------------------------------------------------
+  // 结算视图
+  // -------------------------------------------------------------------------
+
   private paint(): void {
-    const d = this.detail;
-    const screen = document.querySelector('.result-screen');
-    screen?.classList.remove('is-pvp', 'is-empty', 'is-defeat', 'has-troop-reward');
-    // ResultScreen 在路由间复用：每次先恢复默认可见性，再按当前战报收口。
-    for (const selector of ['#standardXp', '#standardRewards', '#questRow']) {
-      const element = document.querySelector<HTMLElement>(selector);
-      if (element) element.hidden = false;
-    }
-    const dropRow = document.querySelector<HTMLElement>('#dropRow');
-    if (dropRow) dropRow.hidden = true;
-    const pvpPanel = $('#pvpSettlement');
-    if (pvpPanel) pvpPanel.hidden = true;
-    const summaryArt = $('#summaryArt');
-    if (summaryArt) summaryArt.hidden = false;
-    const shopButton = $('#backToShop');
-    if (shopButton) shopButton.hidden = !this.meta.shopHash;
-    $('#again').hidden = false;
-    $('#team').hidden = false;
-    if (!d) {
-      this.paintEmpty();
+    const detail = this.detail;
+    const screen = $('.result-screen');
+    screen.classList.toggle('is-empty', !detail);
+    screen.classList.remove('is-victory', 'is-defeat', 'is-pvp');
+    screen.dataset.view = 'summary';
+    $('#standardRewards').hidden = !detail;
+    $('#summaryArt').hidden = !detail;
+    $('#team').hidden = !detail;
+    $('#rewardRows').replaceChildren();
+    const image = $('#sumArt') as HTMLImageElement;
+    const again = $('#again');
+    if (!detail) {
+      image.removeAttribute('src');
+      $('#resultTitle').textContent = '暂无战报';
+      $('#resultSub').textContent = '完成一场战斗后，这里会显示本场收益。';
+      again.innerHTML = '<span>去世界地图</span>';
+      again.removeAttribute('aria-label');
       return;
     }
-    this.paintSummaryArt();
-    $('#again').textContent = this.standardReturnLabel();
-    if (this.isPvp(d)) {
-      if (shopButton) shopButton.hidden = true;
-      this.paintPvp(d);
-      return;
-    }
+    image.src = resultSummaryArt(this.meta.kingdom);
+    const income = battleIncomeView(detail);
+    const surrendered = 'kind' in detail && detail.battle.endReason === 'surrender';
+    screen.classList.add(income.victory ? 'is-victory' : 'is-defeat');
+    screen.classList.toggle('is-pvp', 'kind' in detail);
+    const title = surrendered ? '已放弃' : income.victory ? '战斗胜利' : '战斗失败';
+    $('#resultTitle').innerHTML = [...title].map((ch, i) => `<span style="--c:${i}">${ch}</span>`).join('');
     const save = this.ctx.save();
-    const victory = d.victory;
-    screen?.classList.toggle('is-defeat', !victory);
-    $('#resultTitle').textContent = victory ? '胜 利' : '战 败';
-    const questText =
-      d.questProgress != null
-        ? `${this.meta.kingdom} · 第 ${d.questProgress.to} 章已完成`
-        : this.meta.kingdom
-          ? `${this.meta.kingdom} · 战斗结束`
-          : '战斗结束';
-    $('#resultSub').textContent =
-      questText + (d.classUnlocked ? ` · 解锁职业「${d.classUnlocked}」` : '');
+    $('#resultSub').textContent = resultSubtitle(detail, this.meta, save.kingdoms?.[this.meta.kingdom]?.questsDone ?? 0);
+    again.innerHTML = '<span>继续</span>';
+    again.setAttribute('aria-label', income.levelsGained > 0 ? '继续：查看等级提升' : `继续：${this.returnLabel()}`);
+    again.title = income.levelsGained > 0 ? '查看等级提升' : this.returnLabel();
 
-    // 经验
-    $('#xpGain').textContent = `+${fmt(d.xpGained)} XP`;
-    const need = heroXpToNext(save.hero.level);
-    $('#xpFill').style.width = `${Math.min(100, (save.hero.xp / need) * 100)}%`;
-    $('#xpNote').textContent =
-      `Lv.${save.hero.level} · ${fmt(save.hero.xp)} / ${fmt(need)}` +
-      (d.heroLevelsGained > 0 ? ` · 升了 ${d.heroLevelsGained} 级` : '') +
-      (d.classLevelUp ? ` · 职业 ${d.classLevelUp.classId} → Lv.${d.classLevelUp.newLevel}` : '');
-
-    this.paintMasteryPick();
-
-    // 明细行按币种聚合（同一币种多行合并 note）
-    const rows = document.createElement('div');
-    const icons: Record<string, string> = { gold: 'coin', souls: 'soul', gems: 'crystal', goldKeys: 'key', glory: 'swords' };
-    const names: Record<string, string> = { gold: '黄金', souls: '灵魂', gems: '宝石', goldKeys: '金钥匙', glory: '荣耀' };
-    for (const key of ['gold', 'souls', 'gems', 'goldKeys', 'glory'] as const) {
-      const lines = d.lines.filter((l) => (l.deltas[key] ?? 0) > 0);
-      const total = lines.reduce((s, l) => s + (l.deltas[key] ?? 0), 0);
-      if (total <= 0) continue;
-      const notes = lines.map((l) => l.label).join(' + ');
-      rows.insertAdjacentHTML(
-        'beforeend',
-        `<div class="reward-row">
-          <span class="reward-icon ${key === 'gold' ? 'coin' : key === 'souls' ? 'soul' : key === 'gems' ? 'gem' : 'skull'}" data-icon="${icons[key]}"></span>
-          <div><b>${names[key]}</b><small>${notes}</small></div>
-          <strong>+${fmt(total)}</strong>
-        </div>`,
-      );
-    }
-    // 素材行（素材批：钢锭/符卷/特质石——活动里程碑与探索掉落的入账展示）
-    const matTotals: Record<string, number> = {};
-    const matNotes: Record<string, string[]> = {};
-    for (const line of d.lines) {
-      const entries: Array<[string, number]> = [
-        ...Object.entries(line.mats?.ingots ?? {}).map(([k, n]) => [`ingot:${k}`, n] as [string, number]),
-        line.mats?.forgeScrolls ? (['forgeScrolls', line.mats.forgeScrolls] as [string, number]) : null,
-        line.mats?.treasureMaps ? (['treasureMaps', line.mats.treasureMaps] as [string, number]) : null,
-        ...Object.entries(line.mats?.traitstones ?? {}),
-      ].filter((v): v is [string, number] => v !== null && (v[1] ?? 0) > 0);
-      for (const [key, n] of entries) {
-        matTotals[key] = (matTotals[key] ?? 0) + n;
-        (matNotes[key] ??= []).push(line.label);
-      }
-    }
-    for (const [key, total] of Object.entries(matTotals)) {
-      const label = key.startsWith('ingot:')
-        ? INGOT_NAMES[key.slice(6) as IngotKey] ?? key
-        : key === 'forgeScrolls'
-          ? '熔铸符卷'
-          : key === 'treasureMaps'
-            ? '藏宝图'
-            : stoneName(key);
-      const art = key.startsWith('ingot:')
-        ? materialImg(ingotArt(key.slice(6)))
-        : key === 'forgeScrolls'
-          ? materialImg(scrollArt())
-          : key === 'treasureMaps'
-            ? treasureMapMarkup()
-            : stoneMarkupForKey(key);
-      rows.insertAdjacentHTML(
-        'beforeend',
-        `<div class="reward-row">
-          <span class="reward-icon gem">${art}</span>
-          <div><b>${label}</b><small>${(matNotes[key] ?? []).join(' + ')}</small></div>
-          <strong>+${fmt(total)}</strong>
-        </div>`,
-      );
-    }
-    // 活动玩法推进行（无货币入账也必须可见：防线/血池/塔层/物资/连胜的反馈链路）
-    const progressLines = d.lines.filter((l) => l.key === 'event-points' || l.key === 'event-progress');
-    for (const l of progressLines) {
-      rows.insertAdjacentHTML(
-        'beforeend',
-        `<div class="reward-row">
-          <span class="reward-icon gem" data-icon="sparkles"></span>
-          <div><b>${l.label}</b><small>${l.note ?? ''}</small></div>
-        </div>`,
-      );
-    }
-    if (!rows.childElementCount) {
-      const emptyLabel = victory ? '本场暂无额外奖励' : '战败保底';
-      const emptyNote = victory ? '本场没有额外资源掉落，已完成的进度仍会保留。' : '仍可获得的少量补给已入账。';
-      rows.insertAdjacentHTML(
-        'beforeend',
-        `<div class="reward-row reward-row--empty"><div><b>${emptyLabel}</b><small>${emptyNote}</small></div></div>`,
-      );
-    }
-    $('#rewardRows').replaceWith(rows);
-    rows.id = 'rewardRows';
-
-    // 部队掉落
-    if (d.troopRewards.length) {
-      $('#dropRow').hidden = false;
-      screen?.classList.add('has-troop-reward');
-      const first = d.troopRewards[0]!;
-      const reward = troopRewardView(first);
-      const card = $('#dropCard');
-      card.className = `drop-card r-${reward.rarityIdx}`;
-      $('#dropRow').className = `drop-row r-${reward.rarityIdx}`;
-      $('#dropName').textContent = reward.name;
-      $('#dropNote').textContent = d.troopRewards.length > 1
-        ? `${reward.note} · 另有 ${d.troopRewards.length - 1} 张奖励卡`
-        : reward.note;
-      $('#dropRarity').textContent = reward.rarityName;
-      const art = $('#dropArt') as HTMLImageElement | null;
-      if (art) {
-        art.src = reward.art;
-        art.alt = reward.name;
-        art.hidden = false;
-      }
-    } else {
-      const art = $('#dropArt') as HTMLImageElement | null;
-      if (art) {
-        art.removeAttribute('src');
-        art.alt = '';
-        art.hidden = true;
-      }
-    }
-
-    // 任务进度
-    if (d.questProgress) {
-      $('#questKingdom').textContent = this.meta.kingdom;
-      $('#questProgressText').textContent = `${d.questProgress.to} / 8`;
-      $('#questFill').style.width = `${(d.questProgress.to / 8) * 100}%`;
-    } else if (this.meta.kingdom) {
-      $('#questKingdom').textContent = this.meta.kingdom;
-      const done = this.ctx.save().kingdoms[this.meta.kingdom]?.questsDone ?? 0;
-      $('#questProgressText').textContent = `${done} / 8`;
-      $('#questFill').style.width = `${(done / 8) * 100}%`;
-    }
-  }
-
-  private paintMasteryPick(): void {
-    const panel = $('#masteryPick');
-    if (!panel) return;
-    const save = this.ctx.save();
-    const offers = save.hero?.masteryOffers;
-    const pending = offers?.length ?? 0;
-    const offer = offers?.[0];
-    if (pending <= 0 || !offer) {
-      panel.hidden = true;
-      panel.innerHTML = '';
-      return;
-    }
-    const personal = personalManaMastery(save);
-    panel.hidden = false;
-    panel.innerHTML = `<div class="mastery-rite-head">
-        <small>升阶仪式</small>
-        <b>法力精通</b>
-        <em>还剩 ${pending} 点</em>
-      </div>
-      <div class="mastery-rite-row">
-        ${offer.map((color) => `<button type="button" class="mastery-choice" data-mastery-color="${color}" style="--mc:${MASTERY_HEX[color]}">
-          <span class="mastery-choice-gem">${gemSvg([MASTERY_GEM[color]])}</span>
-          <b>${MASTERY_NAME[color]}</b>
-          <span class="mastery-choice-delta"><i>${personal[color]}</i><em>→</em><strong>${personal[color] + 1}</strong></span>
-          <span class="mastery-choice-cta">点亮此色</span>
-        </button>`).join('<span class="mastery-or" aria-hidden="true"><span>或</span></span>')}
+    const hero = save.hero;
+    const need = heroXpToNext(hero.level);
+    const rewards: Array<{ key: 'souls' | 'gold' | 'gems'; name: string; amount: number }> = [
+      { key: 'souls', name: '灵魂', amount: income.souls },
+      { key: 'gold', name: '黄金', amount: income.gold },
+      // No empty gem card, fake gem roll, or aggregate of the whole account's gains.
+      { key: 'gems', name: '宝石', amount: income.gems },
+    ];
+    const currency = (r: (typeof rewards)[number], i: number) =>
+      `<div class="rs-reward reward-row" data-battle-currency="${r.key}" style="--i:${i}">
+        <span class="rs-reward-icon"><img src="${CURRENCY_ART[r.key]}" alt="" draggable="false"></span>
+        <p><strong data-count="${r.amount}">+${fmt(r.amount)}</strong><span>${r.name}</span></p>
       </div>`;
+    const xp = `<div class="rs-reward rs-xp" id="standardXp" style="--i:1">
+        <span class="rs-reward-icon"><img src="${art('xp-icon')}" alt="" draggable="false"></span>
+        <p><strong id="xpGain" data-count="${income.xp}">+${fmt(income.xp)}</strong><span>经验值</span></p>
+        <div class="rs-level" role="progressbar" aria-label="主角经验" aria-valuemin="0"
+          aria-valuemax="${need}" aria-valuenow="${hero.xp}">
+          <i id="xpFill" style="width:${Math.min(100, hero.xp / need * 100)}%"></i>
+          <b id="xpLevel">等级 ${hero.level}</b>
+        </div>
+        <small id="xpNote">${income.levelsGained > 0 ? `提升 ${income.levelsGained} 级 · ` : ''}${fmt(hero.xp)} / ${fmt(need)}</small>
+        ${income.levelsGained > 0 ? '<em class="rs-levelup-tag">升级</em>' : ''}
+      </div>`;
+    const [souls, gold, gems] = rewards;
+    $('#rewardRows').innerHTML = [
+      currency(souls!, 0), xp, currency(gold!, 2), gems!.amount > 0 ? currency(gems!, 3) : '',
+    ].join('');
+    this.particles(income.victory);
+    this.animateSummary(income);
   }
 
-  private async pickMastery(color: string): Promise<void> {
-    const { result } = await this.ctx.gateway.pickManaMastery(color);
-    if (isFailure(result)) {
-      toast(result.message);
+  /** 胜利：上升的余烬；战败：缓落的灰烬。 */
+  private particles(victory: boolean): void {
+    const host = $('#rsParticles');
+    if (!host) return;
+    const count = victory ? 26 : 18;
+    host.innerHTML = Array.from({ length: count }, (_, i) => {
+      const x = (hash01(i, 1) * 100).toFixed(1);
+      const size = (2 + hash01(i, 2) * (victory ? 4 : 3)).toFixed(1);
+      const dur = (victory ? 7 : 11) + hash01(i, 3) * 6;
+      const delay = -hash01(i, 4) * dur;
+      const drift = ((hash01(i, 5) - 0.5) * 120).toFixed(0);
+      return `<i style="--x:${x}%;--s:${size}px;--d:${dur.toFixed(1)}s;--delay:${delay.toFixed(1)}s;--drift:${drift}px"></i>`;
+    }).join('');
+  }
+
+  private animateSummary(income: BattleIncomeView): void {
+    const reduced = prefersReducedMotion();
+    const screen = $('.result-screen');
+    screen.classList.remove('is-entering');
+    if (reduced) return;
+    void screen.offsetWidth;
+    screen.classList.add('is-entering');
+    document.querySelectorAll<HTMLElement>('#rewardRows [data-count]').forEach((el, i) => {
+      this.countUp(el, Number(el.dataset.count) || 0, 900 + i * 180);
+    });
+    this.animateXp(income);
+  }
+
+  private countUp(el: HTMLElement, to: number, delay: number): void {
+    if (to <= 0) return;
+    const duration = 900;
+    // 不预先写 '+0'：首帧（p=0）自然归零；若 rAF 被节流/挂起，仍保留最终数值而非卡在 0。
+    // 入场动画期间奖励块透明，首帧之前不会闪出终值。
+    const begin = performance.now() + delay;
+    const step = (now: number) => {
+      const p = Math.min(1, Math.max(0, (now - begin) / duration));
+      const eased = 1 - (1 - p) ** 3;
+      el.textContent = `+${fmt(Math.round(to * eased))}`;
+      if (p < 1) this.frame(step);
+    };
+    this.frame(step);
+  }
+
+  /** 经验条从战前涨到战后，跨级时满格翻页并闪光。 */
+  private animateXp(income: BattleIncomeView): void {
+    const hero = this.ctx.save().hero;
+    const fill = $('#xpFill');
+    const label = $('#xpLevel');
+    const bar = fill?.parentElement;
+    if (!fill || !label || !bar || income.xp <= 0) return;
+    const start = preBattleXp(hero.level, hero.xp, income.xp, income.levelsGained);
+    const segs: Array<{ level: number; from: number; to: number }> = [];
+    let lv = start.level;
+    let from = start.xp / heroXpToNext(lv);
+    for (let k = 0; k < hero.level - start.level; k++) {
+      segs.push({ level: lv, from, to: 1 });
+      lv += 1;
+      from = 0;
+    }
+    segs.push({ level: hero.level, from, to: hero.xp / heroXpToNext(hero.level) });
+    const spans = segs.map((s) => Math.max(0.05, s.to - s.from));
+    const total = spans.reduce((a, b) => a + b, 0);
+    const duration = 700 + 450 * segs.length;
+    const begin = performance.now() + 1100;
+    let shownLevel = segs[0]!.level;
+    fill.style.width = `${(segs[0]!.from * 100).toFixed(2)}%`;
+    label.textContent = `等级 ${shownLevel}`;
+    const step = (now: number) => {
+      const p = Math.min(1, Math.max(0, (now - begin) / duration));
+      let acc = p * total;
+      let idx = 0;
+      while (idx < segs.length - 1 && acc > spans[idx]!) { acc -= spans[idx]!; idx++; }
+      const seg = segs[idx]!;
+      const local = Math.min(1, acc / spans[idx]!);
+      fill.style.width = `${Math.min(100, (seg.from + (seg.to - seg.from) * local) * 100).toFixed(2)}%`;
+      if (seg.level !== shownLevel) {
+        shownLevel = seg.level;
+        label.textContent = `等级 ${shownLevel}`;
+        bar.classList.remove('is-flash');
+        void bar.offsetWidth;
+        bar.classList.add('is-flash');
+      }
+      if (p < 1) this.frame(step);
+    };
+    this.frame(step);
+  }
+
+  private continueFromSummary(): void {
+    const detail = this.detail;
+    if (!detail) { this.ctx.navigate('#map'); return; }
+    const income = battleIncomeView(detail);
+    const levels = levelUpSequence(this.ctx.save().hero.level, income.levelsGained);
+    if (!this.levelUpDone && levels.length > 0) {
+      this.levels = levels;
+      this.levelIndex = 0;
+      this.showLevelUp();
       return;
     }
-    this.ctx.refreshChrome();
-    this.paintMasteryPick();
+    this.exit();
   }
 
-  private isPvp(detail: SettlementDetail | PvpSettlementView): detail is PvpSettlementView {
-    return 'kind' in detail && (detail.kind === 'arena' || detail.kind === 'invasion');
+  private exit(): void {
+    this.ctx.navigate(this.meta.returnHash ?? '#map');
   }
 
-  private paintPvp(view: PvpSettlementView): void {
-    const screen = document.querySelector('.result-screen');
-    screen?.classList.add('is-pvp');
-    for (const selector of ['#standardXp', '#standardRewards', '#dropRow', '#questRow']) {
-      const element = document.querySelector<HTMLElement>(selector);
-      if (element) element.hidden = true;
+  // -------------------------------------------------------------------------
+  // 升级视图
+  // -------------------------------------------------------------------------
+
+  private showLevelUp(): void {
+    const level = this.levels[this.levelIndex]!;
+    const screen = $('.result-screen');
+    screen.dataset.view = 'levelup';
+    $('#resultSummary').hidden = true;
+    $('#levelUp').hidden = false;
+    $('#luLevel').textContent = String(level);
+    $('#luLevel').classList.toggle('is-wide', level >= 100);
+    const step = $('#luStep');
+    step.hidden = this.levels.length < 2;
+    step.textContent = `${this.levelIndex + 1} / ${this.levels.length}`;
+    this.selected = null;
+    this.renderChoices();
+    this.renderStats(level);
+    const section = $('#levelUp');
+    section.classList.remove('is-entering');
+    if (!prefersReducedMotion()) {
+      void section.offsetWidth;
+      section.classList.add('is-entering');
     }
-    this.paintMasteryPick();
-    const pvp = $('#pvpSettlement');
-    pvp.hidden = false;
-    const victory = view.settled.victory;
-    $('#again').textContent = view.kind === 'arena'
-      ? (view.settled.runOver ? '返回竞技场' : '继续竞技场')
-      : '返回入侵页';
-    $('#resultTitle').textContent = victory ? '胜 利' : '战 败';
-    $('#resultSub').textContent = victory
-      ? view.kind === 'arena' ? '竞技场连战战果已入账' : '入侵战果已入账'
-      : view.kind === 'arena' ? '本届连战已结束，按已得胜场结算' : '入侵失败，保底奖励已入账';
+    resultMusic.levelUp();
+    $('#luContinue').focus({ preventScroll: true });
+  }
 
-    $('#pvpTitle').textContent = view.kind === 'arena' ? '竞技场连战' : '入侵战结算';
-    $('#pvpSubtitle').textContent = view.kind === 'arena'
-      ? (view.settled.runOver ? '本届连战已收官' : '胜利后可继续挑战下一场')
-      : `${view.settled.leagueName} · 第 ${view.settled.placement} 名`;
+  private offer(): [ManaColor, ManaColor] | null {
+    return pendingMasteryOffer(this.ctx.save());
+  }
 
-    const setStat = (index: 1 | 2 | 3, label: string, value: string): void => {
-      $(`#pvpStatLabel${index}`).textContent = label;
-      $(`#pvpStatValue${index}`).textContent = value;
+  private renderChoices(): void {
+    const save = this.ctx.save();
+    const offer = this.offer();
+    const band = $('#luBand');
+    band.classList.toggle('is-done', !offer);
+    const pending = save.hero.masteryOffers?.length ?? 0;
+    $('#luPrompt').querySelector('b')!.textContent = offer ? '选择一项法力精通' : '法力精通已全部分配';
+    $('#luPromptNote').textContent = offer
+      ? `二选一 · 永久提升该色三消涌动几率，并计入武器解锁${pending > 1 ? ` · 待分配 ${pending} 点` : ''}`
+      : '可随时在英雄页查看精通与涌动几率';
+    if (!offer) {
+      $('#luChoices').innerHTML = '';
+      this.syncContinue();
+      return;
+    }
+    const bonus = kingdomMasteryBonus(save);
+    const card = (color: ManaColor, i: number) => {
+      const mine = Math.max(0, Math.floor(save.hero.manaMastery?.[color] ?? 0));
+      const extra = bonus[color] ?? 0;
+      return `<button type="button" class="lu-card" data-mastery-color="${color}" aria-pressed="false"
+          style="--mc:${MASTERY_HEX[color]};--i:${i}">
+          <span class="lu-card-frame"><span class="lu-card-face">
+            <img class="lu-card-orb" src="${MASTERY_ART[color]}" alt="" draggable="false">
+            <span class="lu-card-check" aria-hidden="true"></span>
+          </span></span>
+          <b>+1 ${MASTERY_NAME[color]}</b>
+          <small><span>精通 ${mine} → ${mine + 1}</span><span>三消涌动 ${surgeChancePct(mine + extra)} → ${surgeChancePct(mine + 1 + extra)}</span></small>
+        </button>`;
     };
-    const survivors = view.battle.combatants.filter((combatant) =>
-      combatant.side === 'player' && !combatant.defeated,
-    ).length;
-    if (view.kind === 'arena') {
-      setStat(1, '当前胜场', `${view.settled.wins} / 3`);
-      setStat(2, '本场回合', `${view.battle.turns}`);
-      setStat(3, '我方存活', `${survivors} / ${view.battle.combatants.filter((c) => c.side === 'player').length}`);
-      $('#pvpBreakdown').innerHTML = view.settled.runOver
-        ? '<div class="pvp-line"><span>连战状态</span><b>已收官</b></div>'
-        : '<div class="pvp-line"><span>连战状态</span><b>继续挑战</b></div>';
-      const rewards = view.settled.rewards;
-      const rewardParts = [
-        rewards.gold > 0 ? `黄金 +${fmt(rewards.gold)}` : '',
-        rewards.gems > 0 ? `宝石 +${fmt(rewards.gems)}` : '',
-        rewards.goldKeys > 0 ? `金钥匙 ×${fmt(rewards.goldKeys)}` : '',
-      ].filter(Boolean);
-      $('#pvpReward').textContent = view.settled.runOver
-        ? (rewardParts.length ? rewardParts.join(' · ') : '暂无额外奖励')
-        : '收官奖励将在本届连战结束时入账';
-    } else {
-      const delta = view.settled.vpDelta;
-      setStat(1, 'VP 变化', `${delta >= 0 ? '+' : ''}${fmt(delta)}`);
-      setStat(2, '当前 VP', fmt(view.settled.vp));
-      setStat(3, '当前排名', `第 ${view.settled.placement} 名`);
-      const bonus = view.settled.bonuses;
-      const multiplier = view.frenzy ? 2 : 1;
-      const lines = [
-        ['基础 VP', victory ? `+${fmt(view.settled.vpBase)}` : '—'],
-        ['速胜', victory ? `+${fmt(bonus.speed)}` : '—'],
-        ['存活', victory ? `+${fmt(bonus.survivors)}` : '—'],
-        ['额外回合', victory ? `+${fmt(bonus.extraTurns)}` : '—'],
-        ['血怒倍率', view.frenzy && victory ? '×2' : '未触发'],
-        ['加分合计', victory ? `+${fmt(bonus.total)}${multiplier > 1 ? ` · ×${multiplier} 后计入` : ''}` : '—'],
-      ];
-      $('#pvpBreakdown').innerHTML = lines
-        .map(([label, value]) => `<div class="pvp-line"><span>${label}</span><b>${value}</b></div>`)
-        .join('');
-      const rewardParts = [
-        view.settled.glory > 0 ? `荣耀 +${fmt(view.settled.glory)}` : '',
-        view.settled.gold > 0 ? `黄金 +${fmt(view.settled.gold)}` : '',
-        view.settled.firstWinToday ? '每日首胜' : '',
-      ].filter(Boolean);
-      $('#pvpReward').textContent = rewardParts.length ? rewardParts.join(' · ') : '本场无额外奖励';
+    $('#luChoices').innerHTML = `${card(offer[0], 0)}<span class="lu-or" aria-hidden="true"><span>或</span></span>${card(offer[1], 1)}`;
+    this.syncContinue();
+  }
+
+  private renderStats(level: number): void {
+    const bonus = temperingBonusOf(this.ctx.save());
+    $('#luStats').innerHTML = levelUpStats(level, bonus).map((s) =>
+      `<div class="lu-stat${s.gain > 0 ? ' is-up' : ''}" data-stat="${s.key}" title="${s.label}">
+        <img class="lu-stat-icon" src="${art(`stat-${s.key}`)}" alt="" draggable="false">
+        <b>${s.value}</b>
+        ${s.gain > 0 ? `<em><span class="lu-chevrons" data-icon="chevrons"></span>+${s.gain}</em>` : ''}
+        <span class="sr-only">${s.label}${s.gain > 0 ? `，本级提升 ${s.gain}` : ''}</span>
+      </div>`).join('');
+    mountIcons($('#luStats'));
+  }
+
+  private select(color: string): void {
+    if (this.busy || !isManaColor(color)) return;
+    const offer = this.offer();
+    if (!offer || (offer[0] !== color && offer[1] !== color)) return;
+    this.selected = color;
+    document.querySelectorAll<HTMLElement>('#luChoices [data-mastery-color]').forEach((el) => {
+      const on = el.dataset.masteryColor === color;
+      el.setAttribute('aria-pressed', String(on));
+      el.classList.toggle('is-selected', on);
+      el.classList.toggle('is-dimmed', !on);
+    });
+    $('#luBand').classList.remove('needs-pick');
+    this.syncContinue();
+  }
+
+  private syncContinue(): void {
+    const button = $('#luContinue');
+    const blocked = !!this.offer() && !this.selected;
+    button.classList.toggle('is-blocked', blocked);
+    button.setAttribute('aria-disabled', String(blocked));
+    const last = this.levelIndex >= this.levels.length - 1;
+    button.setAttribute('aria-label', blocked ? '请先选择一项法力精通' : last ? `继续：${this.returnLabel()}` : '继续：下一次等级提升');
+  }
+
+  private async continueFromLevelUp(): Promise<void> {
+    if (this.busy) return;
+    const offer = this.offer();
+    if (offer && !this.selected) {
+      const band = $('#luBand');
+      band.classList.remove('needs-pick');
+      void band.offsetWidth;
+      band.classList.add('needs-pick');
+      toast('请先选择一项法力精通');
+      return;
     }
+    if (offer && this.selected) {
+      this.busy = true;
+      $('#luContinue').classList.add('is-busy');
+      try {
+        const { result } = await this.ctx.gateway.pickManaMastery(this.selected);
+        if (isFailure(result)) {
+          toast(result.message);
+          this.renderChoices();
+          return;
+        }
+        this.ctx.refreshChrome();
+      } finally {
+        this.busy = false;
+        $('#luContinue')?.classList.remove('is-busy');
+      }
+    }
+    if (this.levelIndex < this.levels.length - 1) {
+      this.levelIndex += 1;
+      this.showLevelUp();
+      return;
+    }
+    this.levelUpDone = true;
+    this.exit();
   }
 
-  private on(target: EventTarget, type: string, fn: EventListenerOrEventListenerObject): void {
-    target.addEventListener(type, fn);
-    this.listeners.push([target, type, fn]);
+  // -------------------------------------------------------------------------
+
+  private frame(fn: FrameRequestCallback): void {
+    const id = requestAnimationFrame((t) => { this.frames.delete(id); fn(t); });
+    this.frames.add(id);
   }
 
-  private bind(selector: string, type: string, fn: EventListenerOrEventListenerObject): void {
+  private bind(selector: string, fn: EventListener): void {
     const el = $(selector);
-    if (el) this.on(el, type, fn);
+    if (!el) return;
+    el.addEventListener('click', fn);
+    this.listeners.push([el, 'click', fn]);
   }
 
   dispose(): void {
-    for (const [target, type, fn] of this.listeners.splice(0)) {
-      target.removeEventListener(type, fn);
-    }
+    for (const id of this.frames) cancelAnimationFrame(id);
+    this.frames.clear();
+    resultMusic.stop(0.9);
+    backgroundMusic.finishResult();
+    for (const [target, type, fn] of this.listeners.splice(0)) target.removeEventListener(type, fn);
   }
 }

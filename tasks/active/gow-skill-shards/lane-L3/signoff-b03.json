@@ -1,0 +1,2103 @@
+{
+  "schemaVersion": 1,
+  "scope": "stored-gow-snapshot",
+  "reviews": [
+    {
+      "key": "troop:6252",
+      "scope": "stored-gow-snapshot",
+      "sourceDigest": "011192e9338fb8c595959726d53a9bd6149126c099372b26df807a91a3dd1309",
+      "reviewer": "sa-L3",
+      "reviewedAt": "2026-09-27",
+      "decision": "accept",
+      "ledgerFingerprintAtReview": "ad06742a1d37e34d4e3c0f9076d73ac1e0ab334f00a61502e1e4261defdfb67a",
+      "_reference": {
+        "spellId": 7395,
+        "english": "Silence, Stun, and drain [Magic + 1] Mana from an enemy, with a 30% chance to destroy them.",
+        "nativeTarget": "Enemy",
+        "randomize": null,
+        "steps": [
+          {
+            "Target": "FromTarget",
+            "Type": "CauseStun"
+          },
+          {
+            "Target": "FromTarget",
+            "Type": "CauseSilence"
+          },
+          {
+            "SpellPowerMultiplier": 1,
+            "Target": "FromTarget",
+            "Amount": 1,
+            "Primarypower": true,
+            "Type": "DecreaseMana"
+          },
+          {
+            "Target": "FromTarget",
+            "PercentageChance": 30,
+            "Type": "LethalDamage"
+          }
+        ],
+        "prototype": {
+          "segments": [
+            {
+              "kind": "status",
+              "target": "enemyChosen",
+              "statusId": "stun",
+              "turns": 3
+            },
+            {
+              "kind": "status",
+              "target": "enemyChosen",
+              "statusId": "silence",
+              "turns": 3
+            },
+            {
+              "kind": "reduce",
+              "target": "enemyChosen",
+              "stat": "mana",
+              "scaling": {
+                "base": 1,
+                "mult": 1
+              }
+            },
+            {
+              "kind": "damage",
+              "target": "enemyChosen",
+              "scaling": {
+                "base": 0,
+                "mult": 0
+              },
+              "execute": true,
+              "chance": 0.3
+            }
+          ]
+        }
+      },
+      "sourceEvidence": [
+        {
+          "id": "en",
+          "role": "english-snapshot",
+          "path": "data/raw/troops.gow.en.json",
+          "note": "troop:6252 DRACOS-1337 SpellId 7395, cost 15, Yellow/Purple; \"Silence, Stun, and drain [Magic + 1] Mana from an enemy, with a 30% chance to destroy them.\""
+        },
+        {
+          "id": "native",
+          "role": "native-snapshot",
+          "path": "data/raw/spells.gow.en.json",
+          "note": "Spell 7395 Cost 15 Target Enemy; CauseStun -> CauseSilence -> DecreaseMana Amount 1 SPM 1 -> LethalDamage PercentageChance 30 (all FromTarget)."
+        },
+        {
+          "id": "rule",
+          "role": "official-shared-rule",
+          "path": "artifacts/gow-skill-audit/gold-primary-sources/official-status-effects.html",
+          "note": "Stun disables traits; Blessed immune to statuses and blocks Mana Drain."
+        },
+        {
+          "id": "laneTest",
+          "role": "lane-battle-test",
+          "path": "tests/unit/gowLaneL3B03.test.ts",
+          "note": "troop:6252: real TurnEngine.castSkill both sides + boundaries"
+        },
+        {
+          "id": "r001",
+          "role": "user-ruling",
+          "path": "tasks/active/gow-skill-shards/rulings/R001-native-step-order.md",
+          "note": "Native SpellSteps order governs observable ordering."
+        },
+        {
+          "id": "r004",
+          "role": "user-ruling",
+          "path": "tasks/active/gow-skill-shards/rulings/R004-status-durations.md",
+          "note": "Status durations: no hard cap, cumulative recovery; Cause* Amount ignored."
+        },
+        {
+          "id": "r006",
+          "role": "user-ruling",
+          "path": "tasks/active/gow-skill-shards/rulings/R006-hidden-mechanics-conventions.md",
+          "note": "Project conventions C1 (round) / C2 (Cause* Amount ignored)."
+        }
+      ],
+      "dimensions": {
+        "identity-cost-colors": {
+          "status": "verified",
+          "note": "troop:6252 -> 7395, cost 15, Yellow/Purple.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r001",
+            "r004",
+            "r006"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL3B03.test.ts"
+          ]
+        },
+        "target-count-range": {
+          "status": "verified",
+          "note": "Chosen enemy only; others never touched or destroyed.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r001",
+            "r004",
+            "r006"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL3B03.test.ts"
+          ]
+        },
+        "base-formula-rounding": {
+          "status": "verified",
+          "note": "Drain Magic+1 (20 -> 19 / 9), clamped at 0.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r001",
+            "r004",
+            "r006"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL3B03.test.ts"
+          ]
+        },
+        "boost-source-ratio-cap": {
+          "status": "not-applicable",
+          "note": "No boost / ratio / cap clause.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r001",
+            "r004",
+            "r006"
+          ],
+          "tests": []
+        },
+        "conditions-probabilities-branches": {
+          "status": "verified",
+          "note": "30% destroy: 60 seeds give 8..30 destructions of a full-Life target (hp 0, defeated).",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r001",
+            "r004",
+            "r006"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL3B03.test.ts"
+          ]
+        },
+        "status-duration-immunity": {
+          "status": "verified",
+          "note": "Stun and Silence on the chosen enemy; Blessed blocks; R004 durations (convention:R006-C2).",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r001",
+            "r004",
+            "r006"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL3B03.test.ts"
+          ]
+        },
+        "gems-types-selection-resolution": {
+          "status": "not-applicable",
+          "note": "No gem creation / destruction.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r001",
+            "r004",
+            "r006"
+          ],
+          "tests": []
+        },
+        "summon-transform-pools": {
+          "status": "not-applicable",
+          "note": "No summon / transform.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r001",
+            "r004",
+            "r006"
+          ],
+          "tests": []
+        },
+        "order-death-retargeting": {
+          "status": "verified",
+          "note": "FIXED L3-011: Stun before Silence (R001), then drain, then the chance to destroy.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r001",
+            "r004",
+            "r006"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL3B03.test.ts"
+          ]
+        },
+        "mana-economy-extra-turn": {
+          "status": "verified",
+          "note": "Drain only (caster not refilled); turn passes.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r001",
+            "r004",
+            "r006"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL3B03.test.ts"
+          ]
+        },
+        "display-description": {
+          "status": "verified",
+          "note": "zh matches.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r001",
+            "r004",
+            "r006"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL3B03.test.ts"
+          ]
+        },
+        "battle-pipeline": {
+          "status": "verified",
+          "note": "Real TurnEngine.castSkill both sides: skill-cast first, mana spent, one action-log entry, turn switch / extra-turn asserted; low-mana and Silence refusals leave board/log/turn untouched.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r001",
+            "r004",
+            "r006"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL3B03.test.ts"
+          ],
+          "realBattleEntry": true
+        }
+      },
+      "clauseReviews": [
+        {
+          "id": "c1",
+          "text": "Silence, Stun, and drain [Magic + 1] Mana from an enemy, with a 30% chance to destroy them.",
+          "status": "verified",
+          "note": "Silence, Stun, drain [Magic+1], 30% destroy.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r001",
+            "r004",
+            "r006"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL3B03.test.ts"
+          ]
+        }
+      ],
+      "nativeStepReviews": [
+        {
+          "id": "0",
+          "type": "CauseStun",
+          "status": "verified",
+          "note": "CauseStun FromTarget.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r001",
+            "r004",
+            "r006"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL3B03.test.ts"
+          ]
+        },
+        {
+          "id": "1",
+          "type": "CauseSilence",
+          "status": "verified",
+          "note": "CauseSilence FromTarget.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r001",
+            "r004",
+            "r006"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL3B03.test.ts"
+          ]
+        },
+        {
+          "id": "2",
+          "type": "DecreaseMana",
+          "status": "verified",
+          "note": "DecreaseMana Magic+1.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r001",
+            "r004",
+            "r006"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL3B03.test.ts"
+          ]
+        },
+        {
+          "id": "3",
+          "type": "LethalDamage",
+          "status": "verified",
+          "note": "LethalDamage 30%.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r001",
+            "r004",
+            "r006"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL3B03.test.ts"
+          ]
+        }
+      ],
+      "branchReviews": [
+        {
+          "id": "main",
+          "status": "verified",
+          "note": "Destroy / survive both observed over seeds.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r001",
+            "r004",
+            "r006"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL3B03.test.ts"
+          ]
+        }
+      ]
+    },
+    {
+      "key": "troop:7100",
+      "scope": "stored-gow-snapshot",
+      "sourceDigest": "b7a5c3ce553115caaf2ca30b9d46556c953955ac986c2a72a158840c820b7e73",
+      "reviewer": "sa-L3",
+      "reviewedAt": "2026-09-27",
+      "decision": "accept",
+      "ledgerFingerprintAtReview": "ad06742a1d37e34d4e3c0f9076d73ac1e0ab334f00a61502e1e4261defdfb67a",
+      "_reference": {
+        "spellId": 8635,
+        "english": "Deal [Magic + 3] damage to an Enemy, and Stun them. If the Enemy dies, create 2 Elemental Stars and gain an extra turn.",
+        "nativeTarget": "Enemy",
+        "randomize": null,
+        "steps": [
+          {
+            "Target": "FromTarget",
+            "Amount": 1,
+            "Type": "CauseStun"
+          },
+          {
+            "SpellPowerMultiplier": 1,
+            "Target": "FromTarget",
+            "Amount": 3,
+            "Primarypower": true,
+            "Type": "Damage",
+            "Delay": 1
+          },
+          {
+            "StatusAmount": 2,
+            "Color1": "ElementalStar",
+            "StatusModifier": "AddForKill",
+            "Type": "CreateGems",
+            "Delay": 1
+          },
+          {
+            "Target": "Self",
+            "StatusAmount": 100,
+            "StatusModifier": "AddForKill",
+            "Type": "ExtraTurnConditional"
+          }
+        ],
+        "prototype": {
+          "segments": [
+            {
+              "kind": "status",
+              "target": "enemyChosen",
+              "statusId": "stun",
+              "turns": 3
+            },
+            {
+              "kind": "damage",
+              "target": "enemyChosen",
+              "scaling": {
+                "base": 3,
+                "mult": 1
+              }
+            },
+            {
+              "kind": "gem",
+              "params": {
+                "op": "create",
+                "gem": {
+                  "kind": "special",
+                  "spec": {
+                    "kind": "elementalStar"
+                  }
+                },
+                "count": {
+                  "base": 2,
+                  "mult": 0
+                }
+              },
+              "ifTargetDied": true
+            },
+            {
+              "kind": "extraTurn",
+              "ifTargetDied": true
+            }
+          ]
+        }
+      },
+      "sourceEvidence": [
+        {
+          "id": "en",
+          "role": "english-snapshot",
+          "path": "data/raw/troops.gow.en.json",
+          "note": "troop:7100 Stoneborn Lion SpellId 8635, cost 11, Blue/Brown; \"Deal [Magic + 3] damage to an Enemy, and Stun them. If the Enemy dies, create 2 Elemental Stars and gain an extra turn.\""
+        },
+        {
+          "id": "native",
+          "role": "native-snapshot",
+          "path": "data/raw/spells.gow.en.json",
+          "note": "Spell 8635 Cost 11 Target Enemy; CauseStun FromTarget -> Damage 3 SPM 1 -> CreateGems ElementalStar 2 AddForKill -> ExtraTurnConditional AddForKill."
+        },
+        {
+          "id": "rule",
+          "role": "official-shared-rule",
+          "path": "artifacts/gow-skill-audit/gold-primary-sources/official-status-effects.html",
+          "note": "Stun definition; Barrier blocks one damage instance."
+        },
+        {
+          "id": "laneTest",
+          "role": "lane-battle-test",
+          "path": "tests/unit/gowLaneL3B03.test.ts",
+          "note": "troop:7100: real TurnEngine.castSkill both sides + boundaries"
+        },
+        {
+          "id": "r001",
+          "role": "user-ruling",
+          "path": "tasks/active/gow-skill-shards/rulings/R001-native-step-order.md",
+          "note": "Native SpellSteps order governs observable ordering."
+        },
+        {
+          "id": "r004",
+          "role": "user-ruling",
+          "path": "tasks/active/gow-skill-shards/rulings/R004-status-durations.md",
+          "note": "Status durations: no hard cap, cumulative recovery; Cause* Amount ignored."
+        },
+        {
+          "id": "r006",
+          "role": "user-ruling",
+          "path": "tasks/active/gow-skill-shards/rulings/R006-hidden-mechanics-conventions.md",
+          "note": "Project conventions C1 (round) / C2 (Cause* Amount ignored)."
+        },
+        {
+          "id": "frozen",
+          "role": "official-shared-rule",
+          "path": "artifacts/gow-skill-audit/gold-primary-sources/official-frozen-1-0-9.json",
+          "note": "Frozen caster: no spell extra turn."
+        }
+      ],
+      "dimensions": {
+        "identity-cost-colors": {
+          "status": "verified",
+          "note": "troop:7100 -> 8635, cost 11, Blue/Brown.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r001",
+            "r004",
+            "r006",
+            "frozen"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL3B03.test.ts"
+          ]
+        },
+        "target-count-range": {
+          "status": "verified",
+          "note": "Chosen enemy only.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r001",
+            "r004",
+            "r006",
+            "frozen"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL3B03.test.ts"
+          ]
+        },
+        "base-formula-rounding": {
+          "status": "verified",
+          "note": "Magic+3.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r001",
+            "r004",
+            "r006",
+            "frozen"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL3B03.test.ts"
+          ]
+        },
+        "boost-source-ratio-cap": {
+          "status": "not-applicable",
+          "note": "No boost / ratio / cap clause.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r001",
+            "r004",
+            "r006",
+            "frozen"
+          ],
+          "tests": []
+        },
+        "conditions-probabilities-branches": {
+          "status": "verified",
+          "note": "AddForKill: kill -> 2 stars + extra turn; survivor/Barrier -> neither.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r001",
+            "r004",
+            "r006",
+            "frozen"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL3B03.test.ts"
+          ]
+        },
+        "status-duration-immunity": {
+          "status": "verified",
+          "note": "Stun on chosen enemy first; R004 (convention:R006-C2).",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r001",
+            "r004",
+            "r006",
+            "frozen"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL3B03.test.ts"
+          ]
+        },
+        "gems-types-selection-resolution": {
+          "status": "verified",
+          "note": "Exactly 2 Elemental Stars on kill.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r001",
+            "r004",
+            "r006",
+            "frozen"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL3B03.test.ts"
+          ]
+        },
+        "summon-transform-pools": {
+          "status": "not-applicable",
+          "note": "No summon / transform.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r001",
+            "r004",
+            "r006",
+            "frozen"
+          ],
+          "tests": []
+        },
+        "order-death-retargeting": {
+          "status": "verified",
+          "note": "FIXED L3-001: CauseStun before Damage (R001).",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r001",
+            "r004",
+            "r006",
+            "frozen"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL3B03.test.ts"
+          ]
+        },
+        "mana-economy-extra-turn": {
+          "status": "verified",
+          "note": "Kill -> skill extra turn; frozen caster -> none; survivor -> switched.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r001",
+            "r004",
+            "r006",
+            "frozen"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL3B03.test.ts"
+          ]
+        },
+        "display-description": {
+          "status": "verified",
+          "note": "zh matches.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r001",
+            "r004",
+            "r006",
+            "frozen"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL3B03.test.ts"
+          ]
+        },
+        "battle-pipeline": {
+          "status": "verified",
+          "note": "Real TurnEngine.castSkill both sides: skill-cast first, mana spent, one action-log entry, turn switch / extra-turn asserted; low-mana and Silence refusals leave board/log/turn untouched.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r001",
+            "r004",
+            "r006",
+            "frozen"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL3B03.test.ts"
+          ],
+          "realBattleEntry": true
+        }
+      },
+      "clauseReviews": [
+        {
+          "id": "c1",
+          "text": "Deal [Magic + 3] damage to an Enemy, and Stun them.",
+          "status": "verified",
+          "note": "Stun + [Magic+3].",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r001",
+            "r004",
+            "r006",
+            "frozen"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL3B03.test.ts"
+          ]
+        },
+        {
+          "id": "c2",
+          "text": "If the Enemy dies, create 2 Elemental Stars and gain an extra turn.",
+          "status": "verified",
+          "note": "Kill -> 2 stars + extra turn.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r001",
+            "r004",
+            "r006",
+            "frozen"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL3B03.test.ts"
+          ]
+        }
+      ],
+      "nativeStepReviews": [
+        {
+          "id": "0",
+          "type": "CauseStun",
+          "status": "verified",
+          "note": "CauseStun first.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r001",
+            "r004",
+            "r006",
+            "frozen"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL3B03.test.ts"
+          ]
+        },
+        {
+          "id": "1",
+          "type": "Damage",
+          "status": "verified",
+          "note": "Damage Magic+3.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r001",
+            "r004",
+            "r006",
+            "frozen"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL3B03.test.ts"
+          ]
+        },
+        {
+          "id": "2",
+          "type": "CreateGems",
+          "status": "verified",
+          "note": "CreateGems ElementalStar AddForKill.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r001",
+            "r004",
+            "r006",
+            "frozen"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL3B03.test.ts"
+          ]
+        },
+        {
+          "id": "3",
+          "type": "ExtraTurnConditional",
+          "status": "verified",
+          "note": "ExtraTurnConditional AddForKill.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r001",
+            "r004",
+            "r006",
+            "frozen"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL3B03.test.ts"
+          ]
+        }
+      ],
+      "branchReviews": [
+        {
+          "id": "main",
+          "status": "verified",
+          "note": "Kill / no-kill tested.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r001",
+            "r004",
+            "r006",
+            "frozen"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL3B03.test.ts"
+          ]
+        }
+      ]
+    },
+    {
+      "key": "troop:6225",
+      "scope": "stored-gow-snapshot",
+      "sourceDigest": "35e6f2ad7b628e98a8d31db3509af347e8443b7969e1f31da559e109dee2012f",
+      "reviewer": "sa-L3",
+      "reviewedAt": "2026-09-27",
+      "decision": "accept",
+      "ledgerFingerprintAtReview": "ad06742a1d37e34d4e3c0f9076d73ac1e0ab334f00a61502e1e4261defdfb67a",
+      "_reference": {
+        "spellId": 7367,
+        "english": "Stun an enemy and drain their Mana by 7. Gain [Magic + 1] Attack.",
+        "nativeTarget": "Enemy",
+        "randomize": null,
+        "steps": [
+          {
+            "Target": "FromTarget",
+            "Type": "CauseStun"
+          },
+          {
+            "Target": "FromTarget",
+            "Amount": 7,
+            "Type": "DecreaseMana"
+          },
+          {
+            "SpellPowerMultiplier": 1,
+            "Target": "Self",
+            "Amount": 1,
+            "Primarypower": true,
+            "Type": "IncreaseAttack"
+          }
+        ],
+        "prototype": {
+          "segments": [
+            {
+              "kind": "status",
+              "target": "enemyChosen",
+              "statusId": "stun",
+              "turns": 3
+            },
+            {
+              "kind": "reduce",
+              "target": "enemyChosen",
+              "stat": "mana",
+              "scaling": {
+                "base": 7,
+                "mult": 0
+              }
+            },
+            {
+              "kind": "buff",
+              "target": "allySelf",
+              "stat": "attack",
+              "scaling": {
+                "base": 1,
+                "mult": 1
+              }
+            }
+          ]
+        }
+      },
+      "sourceEvidence": [
+        {
+          "id": "en",
+          "role": "english-snapshot",
+          "path": "data/raw/troops.gow.en.json",
+          "note": "troop:6225 Manticore SpellId 7367, cost 9, Green/Yellow; \"Stun an enemy and drain their Mana by 7. Gain [Magic + 1] Attack.\""
+        },
+        {
+          "id": "native",
+          "role": "native-snapshot",
+          "path": "data/raw/spells.gow.en.json",
+          "note": "Spell 7367 Cost 9 Target Enemy; CauseStun FromTarget -> DecreaseMana FromTarget 7 (no SPM) -> IncreaseAttack Self 1 SPM 1."
+        },
+        {
+          "id": "rule",
+          "role": "official-shared-rule",
+          "path": "artifacts/gow-skill-audit/gold-primary-sources/official-status-effects.html",
+          "note": "Stun disables traits; Blessed blocks statuses and Mana Drain; Entangle blocks Attack boosts."
+        },
+        {
+          "id": "laneTest",
+          "role": "lane-battle-test",
+          "path": "tests/unit/gowLaneL3B03.test.ts",
+          "note": "troop:6225: real TurnEngine.castSkill both sides + boundaries"
+        },
+        {
+          "id": "r004",
+          "role": "user-ruling",
+          "path": "tasks/active/gow-skill-shards/rulings/R004-status-durations.md",
+          "note": "Status durations: no hard cap, cumulative recovery; Cause* Amount ignored."
+        },
+        {
+          "id": "r006",
+          "role": "user-ruling",
+          "path": "tasks/active/gow-skill-shards/rulings/R006-hidden-mechanics-conventions.md",
+          "note": "Project conventions C1 (round) / C2 (Cause* Amount ignored)."
+        }
+      ],
+      "dimensions": {
+        "identity-cost-colors": {
+          "status": "verified",
+          "note": "troop:6225 -> 7367, cost 9, Green/Yellow.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r006"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL3B03.test.ts"
+          ]
+        },
+        "target-count-range": {
+          "status": "verified",
+          "note": "Chosen enemy; caster for Attack.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r006"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL3B03.test.ts"
+          ]
+        },
+        "base-formula-rounding": {
+          "status": "verified",
+          "note": "Fixed 7 drain (clamped at 0); Attack +Magic+1.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r006"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL3B03.test.ts"
+          ]
+        },
+        "boost-source-ratio-cap": {
+          "status": "not-applicable",
+          "note": "No boost / ratio / cap clause.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r006"
+          ],
+          "tests": []
+        },
+        "conditions-probabilities-branches": {
+          "status": "not-applicable",
+          "note": "Unconditional single branch.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r006"
+          ],
+          "tests": []
+        },
+        "status-duration-immunity": {
+          "status": "verified",
+          "note": "Stun on chosen; Blessed blocks; R004.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r006"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL3B03.test.ts"
+          ]
+        },
+        "gems-types-selection-resolution": {
+          "status": "not-applicable",
+          "note": "No gem creation / destruction.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r006"
+          ],
+          "tests": []
+        },
+        "summon-transform-pools": {
+          "status": "not-applicable",
+          "note": "No summon / transform.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r006"
+          ],
+          "tests": []
+        },
+        "order-death-retargeting": {
+          "status": "verified",
+          "note": "Stun -> drain -> Attack matches native; Stun first bypasses Mana Shield (drained 20 -> 13).",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r006"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL3B03.test.ts"
+          ]
+        },
+        "mana-economy-extra-turn": {
+          "status": "verified",
+          "note": "Drain only, caster mana 0; turn passes.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r006"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL3B03.test.ts"
+          ]
+        },
+        "display-description": {
+          "status": "verified",
+          "note": "zh matches.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r006"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL3B03.test.ts"
+          ]
+        },
+        "battle-pipeline": {
+          "status": "verified",
+          "note": "Real TurnEngine.castSkill both sides: skill-cast first, mana spent, one action-log entry, turn switch / extra-turn asserted; low-mana and Silence refusals leave board/log/turn untouched.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r006"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL3B03.test.ts"
+          ],
+          "realBattleEntry": true
+        }
+      },
+      "clauseReviews": [
+        {
+          "id": "c1",
+          "text": "Stun an enemy and drain their Mana by 7.",
+          "status": "verified",
+          "note": "Stun + drain 7.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r006"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL3B03.test.ts"
+          ]
+        },
+        {
+          "id": "c2",
+          "text": "Gain [Magic + 1] Attack.",
+          "status": "verified",
+          "note": "Gain [Magic+1] Attack (0 while Entangled).",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r006"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL3B03.test.ts"
+          ]
+        }
+      ],
+      "nativeStepReviews": [
+        {
+          "id": "0",
+          "type": "CauseStun",
+          "status": "verified",
+          "note": "CauseStun FromTarget.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r006"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL3B03.test.ts"
+          ]
+        },
+        {
+          "id": "1",
+          "type": "DecreaseMana",
+          "status": "verified",
+          "note": "DecreaseMana 7 fixed.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r006"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL3B03.test.ts"
+          ]
+        },
+        {
+          "id": "2",
+          "type": "IncreaseAttack",
+          "status": "verified",
+          "note": "IncreaseAttack Self Magic+1.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r006"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL3B03.test.ts"
+          ]
+        }
+      ],
+      "branchReviews": [
+        {
+          "id": "main",
+          "status": "verified",
+          "note": "Single branch.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r006"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL3B03.test.ts"
+          ]
+        }
+      ]
+    },
+    {
+      "key": "troop:7418",
+      "scope": "stored-gow-snapshot",
+      "sourceDigest": "7a5d6e20819a174481924694afad85c9f8f19cd407eae877dda20ab67cd3f8b4",
+      "reviewer": "sa-L3",
+      "reviewedAt": "2026-09-27",
+      "decision": "accept",
+      "ledgerFingerprintAtReview": "ad06742a1d37e34d4e3c0f9076d73ac1e0ab334f00a61502e1e4261defdfb67a",
+      "_reference": {
+        "spellId": 9067,
+        "english": "Inflict Terror on an Enemy. Then steal [Magic + 1] Attack, and drain their Mana by 7.",
+        "nativeTarget": "Enemy",
+        "randomize": null,
+        "steps": [
+          {
+            "Target": "FromTarget",
+            "Amount": 1,
+            "Type": "CauseTerror"
+          },
+          {
+            "SpellPowerMultiplier": 1,
+            "Target": "FromTarget",
+            "Amount": 1,
+            "Primarypower": true,
+            "Type": "StealAttack"
+          },
+          {
+            "Target": "FromTarget",
+            "Amount": 7,
+            "Type": "DecreaseMana"
+          }
+        ],
+        "prototype": {
+          "segments": [
+            {
+              "kind": "status",
+              "target": "enemyChosen",
+              "statusId": "terror",
+              "turns": 3
+            },
+            {
+              "kind": "reduce",
+              "target": "enemyChosen",
+              "stat": "attack",
+              "scaling": {
+                "base": 1,
+                "mult": 1
+              },
+              "gainStat": "attack"
+            },
+            {
+              "kind": "reduce",
+              "target": "enemyChosen",
+              "stat": "mana",
+              "scaling": {
+                "base": 7,
+                "mult": 0
+              }
+            }
+          ]
+        }
+      },
+      "sourceEvidence": [
+        {
+          "id": "en",
+          "role": "english-snapshot",
+          "path": "data/raw/troops.gow.en.json",
+          "note": "troop:7418 Void Manticore SpellId 9067, cost 12, Blue/Yellow; \"Inflict Terror on an Enemy. Then steal [Magic + 1] Attack, and drain their Mana by 7.\""
+        },
+        {
+          "id": "native",
+          "role": "native-snapshot",
+          "path": "data/raw/spells.gow.en.json",
+          "note": "Spell 9067 Cost 12 Target Enemy; CauseTerror FromTarget -> StealAttack FromTarget 1 SPM 1 -> DecreaseMana FromTarget 7 (no SPM)."
+        },
+        {
+          "id": "rule",
+          "role": "official-shared-rule",
+          "path": "artifacts/gow-skill-audit/gold-primary-sources/official-status-effects.html",
+          "note": "Terror definition."
+        },
+        {
+          "id": "laneTest",
+          "role": "lane-battle-test",
+          "path": "tests/unit/gowLaneL3B03.test.ts",
+          "note": "troop:7418: real TurnEngine.castSkill both sides + boundaries"
+        },
+        {
+          "id": "r004",
+          "role": "user-ruling",
+          "path": "tasks/active/gow-skill-shards/rulings/R004-status-durations.md",
+          "note": "Status durations: no hard cap, cumulative recovery; Cause* Amount ignored."
+        },
+        {
+          "id": "r006",
+          "role": "user-ruling",
+          "path": "tasks/active/gow-skill-shards/rulings/R006-hidden-mechanics-conventions.md",
+          "note": "Project conventions C1 (round) / C2 (Cause* Amount ignored)."
+        }
+      ],
+      "dimensions": {
+        "identity-cost-colors": {
+          "status": "verified",
+          "note": "troop:7418 -> 9067, cost 12, Blue/Yellow.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r006"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL3B03.test.ts"
+          ]
+        },
+        "target-count-range": {
+          "status": "verified",
+          "note": "Chosen enemy only; others untouched.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r006"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL3B03.test.ts"
+          ]
+        },
+        "base-formula-rounding": {
+          "status": "verified",
+          "note": "Steal Magic+1 Attack (clamped to target Attack: 3 -> caster +3); FIXED L3-008 drain fixed 7 (not 7+Magic).",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r006"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL3B03.test.ts"
+          ]
+        },
+        "boost-source-ratio-cap": {
+          "status": "not-applicable",
+          "note": "No boost / ratio / cap clause.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r006"
+          ],
+          "tests": []
+        },
+        "conditions-probabilities-branches": {
+          "status": "not-applicable",
+          "note": "Unconditional single branch.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r006"
+          ],
+          "tests": []
+        },
+        "status-duration-immunity": {
+          "status": "verified",
+          "note": "Terror on chosen; R004 (convention:R006-C2).",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r006"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL3B03.test.ts"
+          ]
+        },
+        "gems-types-selection-resolution": {
+          "status": "not-applicable",
+          "note": "No gem creation / destruction.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r006"
+          ],
+          "tests": []
+        },
+        "summon-transform-pools": {
+          "status": "not-applicable",
+          "note": "No summon / transform.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r006"
+          ],
+          "tests": []
+        },
+        "order-death-retargeting": {
+          "status": "verified",
+          "note": "Terror -> steal -> drain matches native.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r006"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL3B03.test.ts"
+          ]
+        },
+        "mana-economy-extra-turn": {
+          "status": "verified",
+          "note": "Drain only; caster mana 0; turn passes.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r006"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL3B03.test.ts"
+          ]
+        },
+        "display-description": {
+          "status": "verified",
+          "note": "zh matches.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r006"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL3B03.test.ts"
+          ]
+        },
+        "battle-pipeline": {
+          "status": "verified",
+          "note": "Real TurnEngine.castSkill both sides: skill-cast first, mana spent, one action-log entry, turn switch / extra-turn asserted; low-mana and Silence refusals leave board/log/turn untouched.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r006"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL3B03.test.ts"
+          ],
+          "realBattleEntry": true
+        }
+      },
+      "clauseReviews": [
+        {
+          "id": "c1",
+          "text": "Inflict Terror on an Enemy.",
+          "status": "verified",
+          "note": "Terror on the chosen enemy.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r006"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL3B03.test.ts"
+          ]
+        },
+        {
+          "id": "c2",
+          "text": "Then steal [Magic + 1] Attack, and drain their Mana by 7.",
+          "status": "verified",
+          "note": "Steal [Magic+1] Attack, drain 7.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r006"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL3B03.test.ts"
+          ]
+        }
+      ],
+      "nativeStepReviews": [
+        {
+          "id": "0",
+          "type": "CauseTerror",
+          "status": "verified",
+          "note": "CauseTerror.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r006"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL3B03.test.ts"
+          ]
+        },
+        {
+          "id": "1",
+          "type": "StealAttack",
+          "status": "verified",
+          "note": "StealAttack Magic+1.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r006"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL3B03.test.ts"
+          ]
+        },
+        {
+          "id": "2",
+          "type": "DecreaseMana",
+          "status": "verified",
+          "note": "DecreaseMana 7 fixed.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r006"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL3B03.test.ts"
+          ]
+        }
+      ],
+      "branchReviews": [
+        {
+          "id": "main",
+          "status": "verified",
+          "note": "Single branch.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r006"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL3B03.test.ts"
+          ]
+        }
+      ]
+    },
+    {
+      "key": "troop:7796",
+      "scope": "stored-gow-snapshot",
+      "sourceDigest": "bbd733297cce11cce9190b0fd36c3f2b7278e140c5c658ee8790561be54e0a3a",
+      "reviewer": "sa-L3",
+      "reviewedAt": "2026-09-27",
+      "decision": "draft",
+      "ledgerFingerprintAtReview": "ad06742a1d37e34d4e3c0f9076d73ac1e0ab334f00a61502e1e4261defdfb67a",
+      "_reference": {
+        "spellId": 9816,
+        "english": "Cleanse and Submerge 2 random Allies, and give them half their Mana.",
+        "nativeTarget": "None",
+        "randomize": null,
+        "steps": [
+          {
+            "Target": "RandomAlly",
+            "Type": "Cleanse"
+          },
+          {
+            "Target": "FromPrevious",
+            "Type": "CauseSubmerged",
+            "Delay": 0
+          },
+          {
+            "Target": "FromPrevious",
+            "Type": "GenerateHalfMana",
+            "Delay": 400,
+            "ResetTargets": true
+          },
+          {
+            "Target": "RandomPrefNotPrevAlly",
+            "Type": "Cleanse"
+          },
+          {
+            "Target": "FromPrevious",
+            "Type": "CauseSubmerged"
+          },
+          {
+            "Target": "FromPrevious",
+            "Type": "GenerateHalfMana"
+          }
+        ],
+        "prototype": {
+          "segments": [
+            {
+              "kind": "cleanse",
+              "target": "allyRandom"
+            },
+            {
+              "kind": "status",
+              "target": "lastTarget",
+              "statusId": "submerged",
+              "turns": 3
+            },
+            {
+              "kind": "buff",
+              "target": "lastTarget",
+              "stat": "mana",
+              "scaling": {
+                "base": 0,
+                "mult": 0
+              },
+              "halve": true
+            },
+            {
+              "kind": "cleanse",
+              "target": "allyRandomPrefNotPrev"
+            },
+            {
+              "kind": "status",
+              "target": "lastTarget",
+              "statusId": "submerged",
+              "turns": 3
+            },
+            {
+              "kind": "buff",
+              "target": "lastTarget",
+              "stat": "mana",
+              "scaling": {
+                "base": 0,
+                "mult": 0
+              },
+              "halve": true
+            }
+          ]
+        }
+      },
+      "sourceEvidence": [
+        {
+          "id": "en",
+          "role": "english-snapshot",
+          "path": "data/raw/troops.gow.en.json",
+          "note": "troop:7796 Jellymaid SpellId 9816, cost 12, Purple/Brown; \"Cleanse and Submerge 2 random Allies, and give them half their Mana.\""
+        },
+        {
+          "id": "native",
+          "role": "native-snapshot",
+          "path": "data/raw/spells.gow.en.json",
+          "note": "Spell 9816 Cost 12 Target None; Cleanse RandomAlly -> CauseSubmerged FromPrevious -> GenerateHalfMana FromPrevious -> Cleanse RandomPrefNotPrevAlly -> CauseSubmerged FromPrevious -> GenerateHalfMana FromPrevious."
+        },
+        {
+          "id": "rule",
+          "role": "official-shared-rule",
+          "path": "artifacts/gow-skill-audit/gold-primary-sources/official-status-effects.html",
+          "note": "Submerged definition; Silence prevents mana gain."
+        },
+        {
+          "id": "laneTest",
+          "role": "lane-battle-test",
+          "path": "tests/unit/gowLaneL3B03.test.ts",
+          "note": "troop:7796: real TurnEngine.castSkill both sides + boundaries"
+        },
+        {
+          "id": "r002",
+          "role": "user-ruling",
+          "path": "tasks/active/gow-skill-shards/rulings/R002-barrier-enchant-cleanse.md",
+          "note": "Barrier until damaged; Cleanse removes negatives only."
+        },
+        {
+          "id": "r004",
+          "role": "user-ruling",
+          "path": "tasks/active/gow-skill-shards/rulings/R004-status-durations.md",
+          "note": "Status durations: no hard cap, cumulative recovery; Cause* Amount ignored."
+        }
+      ],
+      "dimensions": {
+        "identity-cost-colors": {
+          "status": "verified",
+          "note": "troop:7796 -> 9816, cost 12, Purple/Brown.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r002",
+            "r004"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL3B03.test.ts"
+          ]
+        },
+        "target-count-range": {
+          "status": "verified",
+          "note": "FIXED L3-012: second triple prefers a different ally (allyRandomPrefNotPrev); lone caster -> reused.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r002",
+            "r004"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL3B03.test.ts"
+          ]
+        },
+        "base-formula-rounding": {
+          "status": "disputed",
+          "note": "L3-005 source-dispute: half of an odd mana cost (floor) unsourced; even costs verified.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r002",
+            "r004"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL3B03.test.ts"
+          ]
+        },
+        "boost-source-ratio-cap": {
+          "status": "not-applicable",
+          "note": "No boost / ratio / cap clause.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r002",
+            "r004"
+          ],
+          "tests": []
+        },
+        "conditions-probabilities-branches": {
+          "status": "not-applicable",
+          "note": "Unconditional single branch.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r002",
+            "r004"
+          ],
+          "tests": []
+        },
+        "status-duration-immunity": {
+          "status": "verified",
+          "note": "Cleanse removes negatives only (R002), then Submerged (R004: removed when the holder acts).",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r002",
+            "r004"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL3B03.test.ts"
+          ]
+        },
+        "gems-types-selection-resolution": {
+          "status": "not-applicable",
+          "note": "No gem creation / destruction.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r002",
+            "r004"
+          ],
+          "tests": []
+        },
+        "summon-transform-pools": {
+          "status": "not-applicable",
+          "note": "No summon / transform.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r002",
+            "r004"
+          ],
+          "tests": []
+        },
+        "order-death-retargeting": {
+          "status": "verified",
+          "note": "Cleanse -> Submerge -> half mana per ally, twice, as native.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r002",
+            "r004"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL3B03.test.ts"
+          ]
+        },
+        "mana-economy-extra-turn": {
+          "status": "verified",
+          "note": "Each chosen ally +half its bar (lone caster 6+6 = 12); silenced ally cleansed before the grant; turn passes.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r002",
+            "r004"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL3B03.test.ts"
+          ]
+        },
+        "display-description": {
+          "status": "verified",
+          "note": "zh matches.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r002",
+            "r004"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL3B03.test.ts"
+          ]
+        },
+        "battle-pipeline": {
+          "status": "verified",
+          "note": "Real TurnEngine.castSkill both sides: skill-cast first, mana spent, one action-log entry, turn switch / extra-turn asserted; low-mana and Silence refusals leave board/log/turn untouched.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r002",
+            "r004"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL3B03.test.ts"
+          ],
+          "realBattleEntry": true
+        }
+      },
+      "clauseReviews": [
+        {
+          "id": "c1",
+          "text": "Cleanse and Submerge 2 random Allies, and give them half their Mana.",
+          "status": "disputed",
+          "note": "Targets / cleanse / submerge verified; odd-cost half-mana rounding disputed (L3-005).",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r002",
+            "r004"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL3B03.test.ts"
+          ]
+        }
+      ],
+      "nativeStepReviews": [
+        {
+          "id": "0",
+          "type": "Cleanse",
+          "status": "verified",
+          "note": "Cleanse RandomAlly.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r002",
+            "r004"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL3B03.test.ts"
+          ]
+        },
+        {
+          "id": "1",
+          "type": "CauseSubmerged",
+          "status": "verified",
+          "note": "CauseSubmerged FromPrevious.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r002",
+            "r004"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL3B03.test.ts"
+          ]
+        },
+        {
+          "id": "2",
+          "type": "GenerateHalfMana",
+          "status": "disputed",
+          "note": "GenerateHalfMana (odd cost rounding L3-005).",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r002",
+            "r004"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL3B03.test.ts"
+          ]
+        },
+        {
+          "id": "3",
+          "type": "Cleanse",
+          "status": "verified",
+          "note": "Cleanse RandomPrefNotPrevAlly.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r002",
+            "r004"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL3B03.test.ts"
+          ]
+        },
+        {
+          "id": "4",
+          "type": "CauseSubmerged",
+          "status": "verified",
+          "note": "CauseSubmerged FromPrevious.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r002",
+            "r004"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL3B03.test.ts"
+          ]
+        },
+        {
+          "id": "5",
+          "type": "GenerateHalfMana",
+          "status": "disputed",
+          "note": "GenerateHalfMana (L3-005).",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r002",
+            "r004"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL3B03.test.ts"
+          ]
+        }
+      ],
+      "branchReviews": [
+        {
+          "id": "main",
+          "status": "verified",
+          "note": "Single branch.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r002",
+            "r004"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL3B03.test.ts"
+          ]
+        }
+      ]
+    }
+  ]
+}

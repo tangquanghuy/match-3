@@ -71,6 +71,7 @@ export function prototypeNeedsCell(proto: { segments: readonly unknown[] }): boo
       if (target.kind === 'cell' && target.cell === 'CELL') return true;
       if (target.kind === 'area' && target.center === 'CELL') return true;
       if (target.kind === 'chosenLine') return true;
+      if (target.kind === 'chosenCross') return true;
     }
     if (params?.op === 'transform' && params.from === 'CELL') return true;
   }

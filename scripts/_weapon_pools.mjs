@@ -1,4 +1,4 @@
-#!/usr/bin/env node
+﻿#!/usr/bin/env node
 /**
  * 窗口 K-B · 武器法术池提取 + 规则化编译 + W 系批次生成（三合一）。
  *
@@ -21,6 +21,10 @@
 import { readFileSync, writeFileSync, mkdirSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { correctedWeaponDescription } from './lib/gow-weapon-desc-corrections.mjs';
+// Preserve previously reviewed runtime rows when regenerating compiler batches.
+// The saved rows are historical repairs, not final GoW acceptance.
+const reviewedWeaponRows = JSON.parse(readFileSync(new URL('../src/data/gowWeaponReviewedOverrides.json', import.meta.url), 'utf8')).entries;
 
 const ROOT = fileURLToPath(new URL('..', import.meta.url));
 const WEAPONS = path.join(ROOT, 'artifacts', 'gowhead-weapons', 'weapons.json');
@@ -165,12 +169,12 @@ const KINGDOM_ALIAS = {
   马拉杰之罪: '迈纳杰之罪', 古尔瓦尼亚: '加尔凡尼亚', '德拉克-祖姆': '卓克祖', 'Dhrak-Zum': '卓克祖',
   日冠: '日冕', 扎金: '齐埃金', 狐狸族: '沃尔帕克', 狐狸座: '沃尔帕克', 暗石: '黑石', 流沙: '聚沙之地',
   荒野平原: '狂野平原', 毒菇林: '齐埃金', 滴答洞穴: '葛洛什奈克', 黑曜石深渊: '地狱悬崖', 圣力场: '卜筮之原',
-  潘之谷: '潘神之谷', 银林地: '玉银林地',
+  潘之谷: '潘神之谷', 银林地: '玉银林地', 盛唐: '圣唐',
 };
 /** 群体名归一（机翻变体 → 王国官方名）；非变体原样返回 */
 function normalizeGroupName(grp) {
   let g = (grp ?? '').trim();
-  for (const [mt, canon] of Object.entries(KINGDOM_ALIAS)) if (g.includes(mt)) g = g.split(mt).join(canon);
+  for (const [mt, canon] of Object.entries(KINGDOM_ALIAS)) if (!g.includes(canon) && g.includes(mt)) g = g.split(mt).join(canon);
   return g;
 }
 /** 群体名（归一后）是否为王国名（含王国名前缀） */
@@ -206,13 +210,14 @@ const NAMED_GROUP_REFS = {
 function loadWeapons() {
   const raw = JSON.parse(readFileSync(WEAPONS, 'utf8')).weapons;
   return raw.map((x) => {
-    const { scalings, modifier } = parseScalings(x._zh.spellDesc);
+    const desc = correctedWeaponDescription(x.SpellId, x._zh.spellDesc, x.stats?.spell?.desc);
+    const { scalings, modifier } = parseScalings(desc);
     return {
       spellId: x.SpellId,
       weaponRef: x.ReferenceName,
       weaponName: x._zh.name,
       spellName: x._zh.spellName,
-      desc: x._zh.spellDesc,
+      desc,
       descEn: (x.stats?.spell?.desc ?? '').trim(),
       scalings,
       modifier,
@@ -260,6 +265,59 @@ class Compiler {
    */
   compile(sp) {
     this.imports = new Set();
+    // Snapshot repairs: Chinese extraction lost clauses/formulas. Keep the provenance
+    // text untouched; explicit exceptions follow the English/native spell steps.
+    const repaired = {
+      // 7079: native BoardTarget SingleGem is a selected board cell, not a random color gem.
+      // The second native IncreaseSpellPower step also applies +1 Magic to every ally.
+      7079: { imports: ['skill', 'destroyAt', 'CELL', 'magic'],
+        build: "skill(destroyAt(CELL), magic('allyAll', 1, 0))" },
+      // 7249 was previously hand-repaired in the generated batch. Keep the conditional
+      // Life/Magic clauses in the generator; the 13-vs-native-10 gem threshold remains under review.
+      7249: { imports: ['skill', 'armor', 'attack', 'heal', 'magic'],
+        build: "skill(armor('allyAll', 3, 1), attack('allyAll', 5, 0), heal('allyAll', 4, 0, { ifCond: { kind: 'boardAtLeast', color: BaseColor.Yellow, n: 13 } }), magic('allyAll', 4, 0, { ifCond: { kind: 'boardAtLeast', color: BaseColor.Yellow, n: 13 } }))" },
+      9837: { imports: ['skill','attack','heal','inflict'], build: "skill(attack('allyAll', 1, 1, { targetRace: 'Undead' }), heal('allyAll', 1, 1, { targetRace: 'Undead' }), inflict('blessed', 'allyAll', { targetRace: 'Undead' }))" },
+      9911: { imports: ['skill','attack','heal','inflict'], build: "skill(attack('allyAll', 1, 1, { targetKingdom: '黑石' }), heal('allyAll', 1, 1, { targetKingdom: '黑石' }), inflict('blessed', 'allyAll', { targetKingdom: '黑石' }))" },
+      9914: { imports: ['skill','attack','heal','inflict'], build: "skill(attack('allyAll', 1, 1, { targetKingdom: '沃尔帕克' }), heal('allyAll', 1, 1, { targetKingdom: '沃尔帕克' }), inflict('blessed', 'allyAll', { targetKingdom: '沃尔帕克' }))" },
+      9976: { imports: ['skill','attack','heal','inflict'], build: "skill(attack('allyAll', 1, 1, { targetRace: 'Mystic' }), heal('allyAll', 1, 1, { targetRace: 'Mystic' }), inflict('blessed', 'allyAll', { targetRace: 'Mystic' }))" },
+      10046: { imports: ['skill','attack','heal','inflict'], build: "skill(attack('allyAll', 1, 1, { targetRace: 'Construct' }), heal('allyAll', 1, 1, { targetRace: 'Construct' }), inflict('blessed', 'allyAll', { targetRace: 'Construct' }))" },
+      10050: { imports: ['skill','attack','heal','inflict'], build: "skill(attack('allyAll', 1, 1, { targetKingdom: '聚沙之地' }), heal('allyAll', 1, 1, { targetKingdom: '聚沙之地' }), inflict('blessed', 'allyAll', { targetKingdom: '聚沙之地' }))" },
+      8900: { imports: ['targetedSkill','chooseSkill','transformToSpecial','dmg'], build: "targetedSkill('enemyChosen', chooseSkill([\"将所选敌人一种法力颜色的宝石转化为灵魂宝石\",\"对所选敌人造成［魔法＋2］伤害，每颗灵魂宝石增强4点\"], [transformToSpecial('CHOSEN_TARGET', 'spiritGem')], [dmg('enemyChosen', 2, 1, { modifier: { mod: { kind: 'multiplier', a: 4 }, source: { kind: 'boardSpecial', gem: 'spiritGem' } } })]))" },
+      8951: { imports: ["skill","chooseSkill","createSpecialGems","extraTurn","trueDmg"], build: "skill(chooseSkill([\"创造8颗灵魂宝石并获得额外回合\",\"对一名随机敌人造成［魔法×2＋3］真实伤害\"], [createSpecialGems({ kind: 'spiritGem', color: BaseColor.Purple }, 8, 0), extraTurn()], [trueDmg('enemyRandom', 3, 2, { trueDamage: true })]))" },
+      8876: { imports: ["skill","chooseSkill","transform","CHOSEN","explodeAt","CELL","createGems"], build: "skill(chooseSkill([\"将所有绿色宝石转化为所选颜色\",\"爆破所选宝石，创造10颗绿色宝石\"], [transform(BaseColor.Green, CHOSEN)], [explodeAt(CELL), createGems(BaseColor.Green, 10, 0)]))" },
+      8623: { imports: ["skill","chooseSkill","createSpecialGems","inflict"], build: "skill(chooseSkill([\"创造6颗元素之星，祝福所有盟友\",\"创造7颗幽影之星，诅咒所有敌人\"], [createSpecialGems({ kind: 'elementalStar' }, 6, 0), inflict('blessed', 'allyAll')], [createSpecialGems({ kind: 'umbralStar' }, 7, 0), inflict('curse', 'enemyAll')]))" },
+      9204: { imports: ['skill', 'chooseSkill', 'createSpecialGems', 'dmgSplash'], build: "skill(chooseSkill(['创造8颗蓝色闪电宝石，对一名敌人造成［魔法＋3］溅射伤害', '创造8颗黄色闪电宝石，对一名敌人造成［魔法＋3］溅射伤害'], [createSpecialGems({ kind: 'lightningRow' }, 8, 0), dmgSplash('enemyChosen', 3, 1)], [createSpecialGems({ kind: 'lightningCol' }, 8, 0), dmgSplash('enemyChosen', 3, 1)]))" },
+      8450: { imports: ['skill', 'dmg'], build: "skill(dmg('enemyChosen', 4, 1), dmg('lastTarget', 0, 0, { execute: true, chance: 0.2, ifCond: { kind: 'targetStatBeatsCaster', stat: 'attack' } }))" },
+      7585: { imports: ['skill', 'dmg'], build: "skill(dmg('enemyRandom', 5, 1))" },
+      8808: { imports: ['skill','oneOf','createSpecialGems2','explodeRandomGems'],
+        build: "skill(oneOf([createSpecialGems2([{ kind: 'gargoyleGem', tier: 1 }, { kind: 'gargoyleGem', tier: 2 }], 4, 0)], [explodeRandomGems(1, 1, 'all')]))" },
+      8805: { imports: ['skill', 'explodeChosenCol', 'createSpecialGems2'], build: "skill(explodeChosenCol(), createSpecialGems2([{ kind: 'gargoyleGem', tier: 1 }, { kind: 'gargoyleGem', tier: 2 }], 0, 0, { modifier: { mod: { kind: 'multiplier', a: 1 }, sources: [{ kind: 'chosenColumnAtCastStart', color: BaseColor.Red }, { kind: 'chosenColumnAtCastStart', color: BaseColor.Brown }] } }))" },
+      8988: { imports: ['skill', 'explodeChosenCol', 'createSpecialGems'], build: "skill(explodeChosenCol(), createSpecialGems({ kind: 'deathMarkGem' }, 0, 0, { modifier: { mod: { kind: 'multiplier', a: 1 }, sources: [{ kind: 'chosenColumnAtCastStart', skulls: true }, { kind: 'chosenColumnAtCastStart', color: BaseColor.Purple }] } }))" },
+      7285: { imports: ['skill', 'dmg', 'inflict'],
+        build: "skill(dmg('enemyAll', 2, 0.5, { range: 'all' }), inflict('burning', 'enemyRandom'), inflict('disease', 'enemyRandomOther'))" },
+      7567: { imports: ['skill', 'destroyRandomGems', 'transformTroop'],
+        build: "skill(destroyRandomGems(1, 0.5, 'color'), transformTroop('enemyLast', 'BabyDragon', { fullMana: true }))" },
+      7753: { imports: ['skill', 'dispelStatus', 'dmg', 'reduce'],
+        build: "skill(...['barrier', 'blessed', 'enchanted', 'enraged', 'rage', 'reflect', 'submerged'].map(id => dispelStatus(id, 'enemyAll')), dmg('enemyChosen', 5, 1), reduce('lastTarget', 'attack', 0, 0, { halve: true }))" },
+      7129: { imports: ['skill', 'createSkulls', 'summonRef'],
+        build: "skill(createSkulls(6), summonRef('Revenant', undefined))" },
+      7192: { imports: ['skill', 'dmg'],
+        build: "skill(dmg('enemyChosen', 4, 1, { condBonus: { n: 12, cond: { kind: 'targetStatBeatsCaster', stat: 'attack' } } }))" },
+      7187: { imports: ['skill', 'createGems', 'cleanse', 'heal'], build: "skill(createGems(BaseColor.Red, 7, 0), cleanse('allyAll'), heal('allyRandom', 1, 1))" },
+      8517: { imports: ['skill', 'oneOf', 'heal', 'createGems', 'extraTurn', 'explodeRandomGems'], build: "skill(oneOf([heal('allySelf', 1, 1), createGems(BaseColor.Red, 7, 0)], [heal('allySelf', 1, 1), extraTurn()], [heal('allySelf', 1, 1), explodeRandomGems(1, 0, 'color')]))" },
+      8843: { imports: ['skill', 'createSpecialGems', 'extraTurn'], build: "skill(createSpecialGems({ kind: 'dragonGem', color: BaseColor.Blue }, 2, 0), createSpecialGems({ kind: 'dragonGem', color: BaseColor.Green }, 2, 0), createSpecialGems({ kind: 'dragonGem', color: BaseColor.Red }, 2, 0), createSpecialGems({ kind: 'dragonGem', color: BaseColor.Brown }, 2, 0), extraTurn())" },
+      8947: { imports: ['skill', 'createSpecialGems', 'extraTurn'], build: "skill(createSpecialGems({ kind: 'web' }, 6, 0), extraTurn())" },
+      8254: { imports: ['skill', 'dmgSplash', 'inflict', 'cleanse', 'explodeRandomGems'], build: "skill(dmgSplash('enemyChosen', 5, 1, { range: 'splash', modifier: { mod: { kind: 'multiplier', a: 4 }, source: { kind: 'tempering' } } }), inflict('stun', 'enemyAll', { ifCond: { kind: 'targetColor', color: BaseColor.Blue } }), cleanse('allyAll', undefined, { ifCond: { kind: 'targetColor', color: BaseColor.Blue } }), explodeRandomGems(4, 0, 'color', undefined), explodeRandomGems(3, 0, 'color', undefined, { ifCond: { kind: 'targetHasDoom' } }))" },
+      8255: { imports: ['skill', 'dmgSplash', 'inflict', 'cleanse', 'explodeRandomGems'], build: "skill(dmgSplash('enemyChosen', 5, 1, { range: 'splash', modifier: { mod: { kind: 'multiplier', a: 4 }, source: { kind: 'tempering' } } }), inflict('stun', 'enemyAll', { ifCond: { kind: 'targetColor', color: BaseColor.Green } }), cleanse('allyAll', undefined, { ifCond: { kind: 'targetColor', color: BaseColor.Green } }), explodeRandomGems(4, 0, 'color', undefined), explodeRandomGems(3, 0, 'color', undefined, { ifCond: { kind: 'targetHasDoom' } }))" },
+      8256: { imports: ['skill', 'dmgSplash', 'inflict', 'cleanse', 'explodeRandomGems'], build: "skill(dmgSplash('enemyChosen', 5, 1, { range: 'splash', modifier: { mod: { kind: 'multiplier', a: 4 }, source: { kind: 'tempering' } } }), inflict('stun', 'enemyAll', { ifCond: { kind: 'targetColor', color: BaseColor.Red } }), cleanse('allyAll', undefined, { ifCond: { kind: 'targetColor', color: BaseColor.Red } }), explodeRandomGems(4, 0, 'color', undefined), explodeRandomGems(3, 0, 'color', undefined, { ifCond: { kind: 'targetHasDoom' } }))" },
+      8257: { imports: ['skill', 'dmgSplash', 'inflict', 'cleanse', 'explodeRandomGems'], build: "skill(dmgSplash('enemyChosen', 5, 1, { range: 'splash', modifier: { mod: { kind: 'multiplier', a: 4 }, source: { kind: 'tempering' } } }), inflict('stun', 'enemyAll', { ifCond: { kind: 'targetColor', color: BaseColor.Yellow } }), cleanse('allyAll', undefined, { ifCond: { kind: 'targetColor', color: BaseColor.Yellow } }), explodeRandomGems(4, 0, 'color', undefined), explodeRandomGems(3, 0, 'color', undefined, { ifCond: { kind: 'targetHasDoom' } }))" },
+      8258: { imports: ['skill', 'dmgSplash', 'inflict', 'cleanse', 'explodeRandomGems'], build: "skill(dmgSplash('enemyChosen', 5, 1, { range: 'splash', modifier: { mod: { kind: 'multiplier', a: 4 }, source: { kind: 'tempering' } } }), inflict('stun', 'enemyAll', { ifCond: { kind: 'targetColor', color: BaseColor.Purple } }), cleanse('allyAll', undefined, { ifCond: { kind: 'targetColor', color: BaseColor.Purple } }), explodeRandomGems(4, 0, 'color', undefined), explodeRandomGems(3, 0, 'color', undefined, { ifCond: { kind: 'targetHasDoom' } }))" },
+      8259: { imports: ['skill', 'dmgSplash', 'inflict', 'cleanse', 'explodeRandomGems'], build: "skill(dmgSplash('enemyChosen', 5, 1, { range: 'splash', modifier: { mod: { kind: 'multiplier', a: 4 }, source: { kind: 'tempering' } } }), inflict('stun', 'enemyAll', { ifCond: { kind: 'targetColor', color: BaseColor.Brown } }), cleanse('allyAll', undefined, { ifCond: { kind: 'targetColor', color: BaseColor.Brown } }), explodeRandomGems(4, 0, 'color', undefined), explodeRandomGems(3, 0, 'color', undefined, { ifCond: { kind: 'targetHasDoom' } }))" },
+      9985: { imports: ['skill', 'inflict', 'reduce'],
+        build: "skill(inflict('silence', 'enemyChosen', { ifCond: { kind: 'troopPresent', side: 'ally', name: '不朽的拜布利奥斯' } }), reduce('enemyChosen', 'attack', 1, 1, { modifier: { mod: { kind: 'multiplier', a: 3 }, source: { kind: 'enemyStatusCount', statusId: 'curse' } } }), reduce('lastTarget', 'magic', 4, 0, { modifier: { mod: { kind: 'multiplier', a: 3 }, source: { kind: 'enemyStatusCount', statusId: 'curse' } } }))" },
+    }[sp.spellId];
+    if (repaired) return { build: repaired.build, imports: new Set(repaired.imports),
+      fidelity: 'full', features: [], skippedClauses: [] };
     let desc = sp.desc;
     // 0) EN-only 快照条目（2 把新武器半翻译）：zh 锚文本缺失 → 诚实 mana-only，待中文补全后回收
     if (/\b(Damage|Enemy|Enemies|Allies|Gems?|Mana|Life|Armor)\b/.test(desc)) {
@@ -277,6 +335,13 @@ class Compiler {
     }
     // 2) 切子句（spell-rules §0.1：。/；/&&/换行）
     let clauses = desc.split(/。|；|&&|\n/).map((c) => c.trim()).filter(Boolean);
+    // 宝石转换和生命增益是两个原始步骤；不能让前半句的转换处理器吞掉「并获得」。
+    clauses = clauses.flatMap((c) => {
+      const m = /^(将所有.+?宝石转换成.+?宝石)并(获得\s*\[魔法\s*\+\s*\d+\]\s*点生命值)$/.exec(c)
+        || /^(将所有骷髅头转换成.+?骷髅头)[，,]?并(获得.+?点攻击力)$/.exec(c)
+        || /^(再创造\s*\d+\s*颗.+?宝石)[，,]?并(爆破\s*\d+\s*颗宝石)$/.exec(c);
+      return m ? [m[1], m[2]] : [c];
+    });
     if (clauses.length === 0) return { manaOnly: true, features: [], skippedClauses: [] };
     const state = {
       segments: [], tag, tagUsed: false, skippedClauses: [], features: new Set(),
@@ -603,8 +668,8 @@ class Compiler {
     }
     // 「如果对方攻击力大于自身，则造成多 N 点伤害 / N 倍伤害」= 反向属性比较（§13.2 仅支持正向）
     // K-B3：「…高于自身，则有 N% 的几率杀死对方」（8450）＝反向比较 + 处决几率，同族定性
-    m = /^(?:如果|若)(?:敌人|对方)(?:的)?(生命值|攻击力|护甲值|魔法值)(?:值)?(?:高于|大于)自身[，,]?(?:则)?造成\s*(?:多\s*\d+\s*点|\d+\s*倍)伤害$/.exec(c)
-      || /^(?:如果|若)(?:敌人|对方)(?:的)?(生命值|攻击力|护甲值|魔法值)(?:值)?(?:高于|大于)自身[，,]?(?:则)?有\s*\d+\s*%\s*的(?:几|机)率(?:直接)?(?:将其|把他)?(?:杀死|杀戮|击杀)(?:对方|敌人)?$/.exec(c);
+    m = /^(?:如果|若)(?:敌人|对方)(?:的)?(生命值|攻击力|护甲值|魔力值)(?:值)?(?:高于|大于)自身[，,]?(?:则)?造成\s*(?:多\s*\d+\s*点|\d+\s*倍)伤害$/.exec(c)
+      || /^(?:如果|若)(?:敌人|对方)(?:的)?(生命值|攻击力|护甲值|魔力值)(?:值)?(?:高于|大于)自身[，,]?(?:则)?有\s*\d+\s*%\s*的(?:几|机)率(?:直接)?(?:将其|把他)?(?:杀死|杀戮|击杀)(?:对方|敌人)?$/.exec(c);
     if (m) {
       return '反向属性比较（目标属性 > 施法者）无对应条件原语（spell-rules §13.2 仅正向）→ 原语请求：targetStatBeatsCaster';
     }
@@ -640,8 +705,8 @@ class Compiler {
       state.segments = withCondBonusAt(state.segments, idx, Number(m[2]), { kind: 'targetColor', color: COLORS[m[1]] });
       return '';
     }
-    // 「若盟友使用红色法力，则效果翻倍」→ 回挂最近 buff 段（7955 先例口径：目标相对条件）
-    m = /^(?:如果|若)盟友使用(红|蓝|绿|黄|紫|棕)色?法力[，,]?(?:则)?效果?翻倍$/.exec(c);
+    // 「若盟友使用红色法力值，则效果翻倍」→ 回挂最近 buff 段（7955 先例口径：目标相对条件）
+    m = /^(?:如果|若)盟友使用(红|蓝|绿|黄|紫|棕)色?法力(?:值)?[，,]?(?:则)?效果?翻倍$/.exec(c);
     if (m) {
       const idx = lastKind(state.segments, /\b(heal|armor|attack|magic|mana|randomStat)\(/);
       if (idx < 0) return '效果翻倍条件找不到前置增益段';
@@ -774,7 +839,7 @@ class Compiler {
     // enemyHasDoom()=targetHasDoom，敌方存活者 troopTypes 含 Doom）。结论子句三形态：
     //  a)「再增加/再给予 N 点…」＝condBonus 挂前段（7655/7982 官方形态「…give 5 more」）；
     //  b)「可造成双倍/三倍/N 倍伤害」＝condMult 挂前伤害段（8726/8727/8728）；
-    //  c) 其余 → parseSub + ifCond（「则再创造 5 颗」7952 走 lastCreate 复用、「恢复我四分之一的法力」9580）。
+    //  c) 其余 → parseSub + ifCond（「则再创造 5 颗」7952 走 lastCreate 复用、「恢复我四分之一的法力值」9580）。
     m = /^(?:如果|若)(?:敌方|敌人|对方|目标|他们)(?:拥有|带有|有|身上有)(?:一个)?(?:末日|厄运|劫数|毁灭之力)(?:效果|标记)?[，,]?(?:则|那么)?(.*)$/.exec(c);
     if (m) {
       const cond = { kind: 'targetHasDoom' };
@@ -871,9 +936,9 @@ class Compiler {
       state.segments.push(...stash.map((s) => withIfCond(s, { kind: 'boardAtLeast', color: COLORS[m[2]], n: Number(m[1]) })));
       return '';
     }
-    m = /^(?:如果|若)(?:自身)?(生命值|攻击力|护甲值|魔法值)(?:值)?高于敌人[，,]?则(.+)$/.exec(c);
+    m = /^(?:如果|若)(?:自身)?(生命值|攻击力|护甲值|魔力值)(?:值)?高于敌人[，,]?则(.+)$/.exec(c);
     if (m) {
-      const statMap = { 生命值: 'hp', 攻击力: 'attack', 护甲值: 'armor', 魔法值: 'magic' };
+      const statMap = { 生命值: 'hp', 攻击力: 'attack', 护甲值: 'armor', 魔力值: 'magic' };
       const stash = this.parseSub(m[2], state);
       if (typeof stash === 'string') return `属性比较条件 payload：${stash}`;
       state.segments.push(...stash.map((s) => withIfCond(s, { kind: 'casterStatBeatsTarget', stat: statMap[m[1]] })));
@@ -949,24 +1014,16 @@ class Compiler {
 
   // —— 伤害主句（含同子句 rider）——
   hDamage(c, state) {
-    // 「对(1 名/一名)敌人施放法力灼烧[，rider]」（7412）＝官方 Mana Burn：耗尽目标法力、
-    // 每 1 点被耗法力造成 1 点伤害（drainMana + dmg×drainedMana 跨段引用）。
-    // zh rider「伤害值因自身魔法值而增强」＝第二增幅来源，与灼烧主源（drainedMana）争用
-    // 单 modifier 通道 → 诚实略去（主效果=官方法力灼烧口径照编）。
-    // （必须先于通用目标头表：否则「对 1 名敌人」被裸目标头截走、尾段进不了灼烧规则）
+    // Official 2.0 rule: Mana Burn uses current Mana but never drains it.
+    // Native 7412 SpellPowerMultiplier=1 adds caster Magic (no second boost channel).
     {
       const mb = /^对\s*(?:1 名|一名|一个)敌人施放法力灼烧(?:[，,]\s*(.+))?$/.exec(c);
       if (mb) {
-        this.use('drainMana', 'dmg');
-        state.segments.push(`drainMana('enemyChosen')`);
-        state.segments.push(`dmg('lastTarget', 0, 0, { modifier: ${jsonMod({ mod: { kind: 'multiplier', a: 1 }, source: { kind: 'drainedMana' } })} })`);
+        const rest = (mb[1] ?? '').trim();
+        if (rest !== '' && !/^伤害值因自身魔[力法]值而增强$/.test(rest)) return 'Unsupported ManaBurn rider';
+        this.use('dmg');
+        state.segments.push("dmg('enemyChosen', 0, 1, { manaBurn: true })");
         state.lastTargetMode = 'enemyChosen';
-        const restMb = (mb[1] ?? '').trim();
-        if (restMb !== '' && !/^伤害值因.+?而增强$/.test(restMb)) return `法力灼烧 rider 无法解析「${restMb}」`;
-        if (restMb !== '') {
-          state.skippedClauses.push(restMb);
-          classifyClause(restMb, '修饰来源通道已占用（法力灼烧主源=drainedMana）', state.features);
-        }
         return '';
       }
     }
@@ -1096,8 +1153,8 @@ class Compiler {
     // K-B 收官轮：「并使其攻击力减半」= reduce halve（EN "halve their Attack"——无自得不叫窃取，7753）
     let halveStealStat = null;
     let halveIsSteal = false;
-    const halveSteal = /(?:，|,)?并?(?:窃取其?半数|使其?半数)(攻击力|护甲值|魔法值|法力值)$/.exec(rest2)
-      || /(?:，|,)?并?使其?(攻击力|护甲值|魔法值|法力值)减半$/.exec(rest2);
+    const halveSteal = /(?:，|,)?并?(?:窃取其?半数|使其?半数)(攻击力|护甲值|魔力值|法力值)$/.exec(rest2)
+      || /(?:，|,)?并?使其?(攻击力|护甲值|魔力值|法力值)减半$/.exec(rest2);
     if (halveSteal) {
       halveStealStat = statOf(halveSteal[1]);
       halveIsSteal = /窃取/.test(halveSteal[0]);
@@ -1350,7 +1407,7 @@ class Compiler {
     //（第三轮新原语用法：DamageSegment/BuffSegment/StatusSegment 均带 ifCond）
     if (/^(?:给予|为|使|让)所有(红|蓝|绿|黄|紫|棕)色?(盟友|敌人)/.test(c)) {
       // 无属性词的色限定状态/增益句由此处的通用路径处理；带属性词放行 hBuffHeal
-      if (!/(生命值|护甲值|护甲|攻击力|魔法值|法力值|随机技能值|技能点数)/.test(c)) {
+      if (!/(生命值|护甲值|护甲|攻击力|魔力值|法力值|随机技能值|技能点数)/.test(c)) {
         const mm = /^(?:赋予|给予|使|为|让)所有(红|蓝|绿|黄|紫|棕)色?(盟友|敌人)(?:全体)?(?:获得)?(.+?)(?:状态|效果)?$/.exec(c);
         if (mm) {
           const id = matchStatus(mm[3]);
@@ -1396,7 +1453,7 @@ class Compiler {
     }
     // 「(随机)对TARGET造成/施加 N 次X状态」——「2 次精灵之火和 2 次缠绕」按 stacks 落段（9524 族）
     m = /^(?:随机)?对(.+?)(?:随机)?(?:施加|造成)(?:一个)?(.+?)(?:状态|效果)?$/.exec(c);
-    if (m && !/点/.test(m[2]) && !/伤害|生命值|护甲值|攻击力|魔法值|法力值/.test(c)) {
+    if (m && !/点/.test(m[2]) && !/伤害|生命值|护甲值|攻击力|魔力值|法力值/.test(c)) {
       const pieces = m[2].split(/和|、|，/).map((s) => s.trim()).filter(Boolean);
       const parsed = pieces.map(parseStatusPiece);
       if (parsed.length > 0 && parsed.every(Boolean)) {
@@ -1602,7 +1659,7 @@ class Compiler {
     }
     // 通用「(赋予|给予|使) TARGET (状态列表) 效果」——状态词可多个（和/、连接），
     // 含新正面状态（法印/赐福/反射/狼化）。带属性词的放行 hBuffHeal。
-    if (!/(生命值|护甲值|护甲|攻击力|魔法值|法力值|随机技能值|技能点数)/.test(c)) {
+    if (!/(生命值|护甲值|护甲|攻击力|魔力值|法力值|随机技能值|技能点数)/.test(c)) {
       m = /^(?:赋予|给予|使)(所有其他的?盟友|所有其他|其他盟友|所有盟友|全体盟友|自身|自己|一名盟友|一名随机盟友|两名随机盟友|其|他|他们|一名敌人|一名随机敌人|所有敌人|目标|一名随机的?敌人|一名选定盟友)?\s*(?:获得|施加)?(.+?)(?:状态|效果)?$/.exec(c);
       if (m) {
         const idText = m[2].trim();
@@ -1626,6 +1683,13 @@ class Compiler {
 
   // —— 宝石操作（创造/转化/清除）——
   hGemOps(c, state) {
+    // Plain 「爆破 N 颗宝石」无颜色筛选；包含特殊宝石与骷髅头，不等于仅六色宝石。
+    const plainExplode = /^爆破\s*(\d+)\s*颗宝石$/.exec(c);
+    if (plainExplode) {
+      this.use('explodeRandomGems');
+      state.segments.push(`explodeRandomGems(${plainExplode[1]}, 0, 'all')`);
+      return '';
+    }
     // 创造动词族（机翻译名不统一：创造/制作/制造/创建/生成）
     const CREATE_V = '(?:创造|制作|制造|创建|生成)';
     // 混合宝石（「混合A和B的宝石」/「创造 N 颗 红色和绿色的宝石」7654 无「混合」同口径）。
@@ -1748,7 +1812,7 @@ class Compiler {
       return '';
     }
     // 「创造与所耗尽法力值数等数的宝石，创建的宝石色与敌人法力颜色相同」（7866）：
-    // 数量 = drainedMana 二次缩放（尾部 [N:M] 即每点法力 +N 颗）、颜色 = ColorSpec LAST_TARGET（§11 追加）
+    // 数量 = drainedMana 二次缩放（尾部 [N:M] 即每点法力值 +N 颗）、颜色 = ColorSpec LAST_TARGET（§11 追加）
     m = /^创造与所耗尽法力值数?等数的?宝石(?:[，,]创建的宝石色?与(?:该)?敌人法力颜色相同)?$/.exec(c);
     if (m) {
       this.use('createGems');
@@ -1868,7 +1932,7 @@ class Compiler {
       const mods = { mod: state.tag ?? { kind: 'multiplier', a: n }, ...src2 };
       if (state.tag) state.tagUsed = true;
       this.use('createMix');
-      state.segments.push(`createMix([BaseColor.${COLORS[cA]}, BaseColor.${COLORS[cB]}], ${n}, 0, { modifier: ${jsonMod(mods)} })`);
+      state.segments.push(`createMix([BaseColor.${COLORS[cA]}, BaseColor.${COLORS[cB]}], 0, 0, { modifier: ${jsonMod(mods)} })`);
       return '';
     }
     // 「创造 N 颗X宝石，宝石数量因Y而增强/受Y影响」rider（create + modifier）。
@@ -2264,12 +2328,12 @@ class Compiler {
   // —— 增益/治疗 ——
   hBuffHeal(c, state) {
     // 「使 N 名盟友的X翻倍」= 无翻倍原语（诚实 SKIP，不近似）
-    const doubleM = /^使\s*\d+\s*[名个]盟友的?(护甲值|攻击力|生命值|魔法值)翻倍/.exec(c);
+    const doubleM = /^使\s*\d+\s*[名个]盟友的?(护甲值|攻击力|生命值|魔力值)翻倍/.exec(c);
     if (doubleM) return `「使${doubleM[1]}翻倍」无对应原语（减半有 halve、翻倍无）→ 原语请求：stat 翻倍 buff`;
     // 「(给予/获得) 3 - 15 点法力值」＝段级 rangeSpec（R22 BuffOpts 已备；K-B 收官轮 7414）。
     // 目标词省略（「并给予 3 - 15 点法力值」payload）→ 沿用上文盟友目标 / 自身。
     {
-      const rangeM = c.match(/^(?:给予|给|获得|恢复|回复)\s*(\d+)\s*-\s*(\d+)\s*点(法力值|生命值|护甲值|护甲|攻击力|魔法值)$/);
+      const rangeM = c.match(/^(?:给予|给|获得|恢复|回复)\s*(\d+)\s*-\s*(\d+)\s*点(法力值|生命值|护甲值|护甲|攻击力|魔力值)$/);
       if (rangeM) {
         const fn = fnOfStat(rangeM[3]);
         const tgt = state.lastAllyTarget ?? 'allySelf';
@@ -2284,11 +2348,12 @@ class Compiler {
     // 「获得(生命值/攻击力/…)〔，数量〕等同于(被)?减除的X」＝lastReduce 跨段数值绑定
     // （K-B 收官轮，7247/7756——Wave4 lastReduce 来源：前序 reduce 段实际削减额）
     {
-      const lrM = c.match(/^(?:获得|恢复|回复)(生命值|护甲值|护甲|攻击力|魔法值)[，,]?(?:数量)?等同于被?(?:减除|降低)的(护甲值|攻击力|魔法值|生命值)(?:值)?$/)
+      const gainedFirst = c.match(/^(?:获得|恢复|回复)(生命值|护甲值|护甲|攻击力|魔力值)[，,]?(?:数量)?等同于被?(?:减除|降低)的(护甲值|攻击力|魔力值|生命值)(?:值)?$/)
         // 语序变体（7247）：「获得 等同于减除的护甲值 的 攻击力」＝被减属性在前、获得属性在后
-        || c.match(/^(?:获得|恢复|回复)等同于被?(?:减除|降低)的(护甲值|攻击力|魔法值|生命值)(?:值)?的(生命值|护甲值|护甲|攻击力|魔法值)$/);
-      if (lrM) {
-        const fn = fnOfStat((lrM[2] ?? lrM[1]) === '护甲' ? '护甲值' : (lrM[2] ?? lrM[1]));
+        const reducedFirst = c.match(/^(?:获得|恢复|回复)等同于被?(?:减除|降低)的(护甲值|攻击力|魔力值|生命值)(?:值)?的(生命值|护甲值|护甲|攻击力|魔力值)$/);
+      if (gainedFirst || reducedFirst) {
+        const gained = gainedFirst ? gainedFirst[1] : reducedFirst[2];
+        const fn = fnOfStat(gained === '护甲' ? '护甲值' : gained);
         // 尾部 [1:1] 标签即官方「1 per 1」编码 → 直接作本段 modifier 倍率（不再孤儿挂载，
         // 否则与 lastReduce modifier 重复键）；无标签 → 每点削减 +1
         const mod = { mod: state.tag ?? { kind: 'multiplier', a: 1 }, source: { kind: 'lastReduce' } };
@@ -2298,7 +2363,7 @@ class Compiler {
         return '';
       }
       // 「给予所有同色盟友 N 点属性」（7862）＝选定色（CHOSEN）盟友增益
-      const sameM = c.match(/^给予所有同色盟友\s*(\d+)\s*点(生命值|护甲值|护甲|攻击力|魔法值)$/);
+      const sameM = c.match(/^给予所有同色盟友\s*(\d+)\s*点(生命值|护甲值|护甲|攻击力|魔力值)$/);
       if (sameM) {
         const fn = fnOfStat(sameM[2]);
         this.use(fn);
@@ -2356,7 +2421,7 @@ class Compiler {
         return '';
       }
     }
-    // 「恢复我四分之一的法力」（9580 劫数条件 payload；GenerateQuarterMana 口径）
+    // 「恢复我四分之一的法力值」（9580 劫数条件 payload；GenerateQuarterMana 口径）
     if (/^(?:恢复|回复|获得)我?四分之一的?法力值?$/.test(c)) {
       this.use('mana');
       state.lastAllyTarget = 'allySelf';
@@ -2380,7 +2445,7 @@ class Compiler {
     }
     // 「每有一名X敌人(盟友)，则给予所有盟友 N 点<属性>」（7982/8047）＝计数增幅全体增益
     {
-      const perGrant = /^每有一名(.+?)(盟友|敌人)[，,]?则给予所有盟友\s*(\d+)\s*点(魔法值|生命值|护甲值|攻击力)$/.exec(c);
+      const perGrant = /^每有一名(.+?)(盟友|敌人)[，,]?则给予所有盟友\s*(\d+)\s*点(魔力值|生命值|护甲值|攻击力)$/.exec(c);
       if (perGrant) {
         const src = allySourceOf(perGrant[1], perGrant[2] === '敌人');
         if (typeof src === 'string') return src;
@@ -2447,10 +2512,10 @@ class Compiler {
       }
     }
     // 属性词预检：rest 不含属性词 → 非增益句，放行给后续处理器（如「获得一个额外回合」）
-    if (!/(生命值|护甲值|护甲|攻击力|魔法值|法力值|随机技能值|技能点数)/.test(rest)) return null;
-    // 数值区间（3 - 15 点法力）＝段级 rangeSpec（R22 BuffOpts 已备；K-B 收官轮接线，7414）；
+    if (!/(生命值|护甲值|护甲|攻击力|魔力值|法力值|随机技能值|技能点数)/.test(rest)) return null;
+    // 数值区间（3 - 15 点法力值）＝段级 rangeSpec（R22 BuffOpts 已备；K-B 收官轮接线，7414）；
     // 仅纯「N - M 点属性」形态走 rangeSpec，其余数值型区间维持 blocked（§9.8 数值不明）
-    const rangeOnly = rest.trim().match(/^(\d+)\s*-\s*(\d+)\s*点(生命值|护甲值|护甲|攻击力|魔法值|法力值)$/);
+    const rangeOnly = rest.trim().match(/^(\d+)\s*-\s*(\d+)\s*点(生命值|护甲值|护甲|攻击力|魔力值|法力值)$/);
     if (/\d+\s*-\s*\d+\s*点/.test(rest) && !rangeOnly) return '数值型区间（§9.8：数值不明）不做';
     // 按「和」拆分属性段：每段独立取值；无方括号的后续段沿用前段公式（R4「一个方括号管两段」同值口径）
     this.use('heal', 'armor', 'attack', 'magic', 'mana', 'randomStat', 'scale', 'flat');
@@ -2487,7 +2552,7 @@ class Compiler {
 
   /** 增益/状态混合段解析：属性段 → buff 族段；状态段（「反射效果」）→ inflict；出错返回字符串 */
   buffPieces(restBase, target, state, buffMod = null, race = null, color = null, kingdom = null) {
-    const statRe = /(生命值|护甲值|护甲|攻击力|魔法值|法力值|随机技能值|技能点数)/;
+    const statRe = /(生命值|护甲值|护甲|攻击力|魔力值|法力值|随机技能值|技能点数)/;
     const parts = [];
     const segs = [];
     let lastFormula = null;
@@ -2496,7 +2561,7 @@ class Compiler {
     for (const piece of pieces) {
       const p = piece.trim();
       // 「3 - 15 点法力值」＝段级 rangeSpec（R22 BuffOpts；K-B 收官轮 7414）
-      const rngM = p.match(/^(\d+)\s*-\s*(\d+)\s*点(生命值|护甲值|护甲|攻击力|魔法值|法力值)$/);
+      const rngM = p.match(/^(\d+)\s*-\s*(\d+)\s*点(生命值|护甲值|护甲|攻击力|魔力值|法力值)$/);
       if (rngM) {
         parts.push({ rangeStat: rngM[3], rMin: Number(rngM[1]), rMax: Number(rngM[2]) });
         continue;
@@ -2510,7 +2575,7 @@ class Compiler {
       // 纯状态段（「反射效果」「屏障和法印」族）：hBuffHeal 的增益/状态混合分支（8842/7624）
       const bareStatus = p.replace(/点/g, '').replace(/^(一个|所有)/, '').trim();
       const statusId = matchStatus(bareStatus);
-      if (!/(生命值|护甲值|护甲|攻击力|魔法值|法力值|随机技能值|技能点数)/.test(p) && statusId && bareStatus.length <= 6 && !parseFormulaPrefix(p)) {
+      if (!/(生命值|护甲值|护甲|攻击力|魔力值|法力值|随机技能值|技能点数)/.test(p) && statusId && bareStatus.length <= 6 && !parseFormulaPrefix(p)) {
         this.use('inflict');
         const sOpts = [];
         if (race) sOpts.push(`targetRace: '${race}'`);
@@ -2581,11 +2646,11 @@ class Compiler {
     if (/消除所有敌人全部正面增益|驱散所有敌人(的)?全部(正面)?增益/.test(c)) {
       return '泛指「消除敌方全部正面增益」不做（spell-rules §6，逐状态驱散才可表达）';
     }
-    let m = /^(?:减除|消除)(一名|所有)?敌人全部(护甲值|攻击力|魔法值|生命值)$/.exec(c)
+    let m = /^(?:减除|消除)(一名|所有)?敌人全部(护甲值|攻击力|魔力值|生命值)$/.exec(c)
       // K-B3：「消除其全部护甲值」（8395 条件 payload）目标词回指变体
-      || /^(?:减除|消除)(其|该|对方)(?:的)?全部(护甲值|攻击力|魔法值|生命值)$/.exec(c)
+      || /^(?:减除|消除)(其|该|对方)(?:的)?全部(护甲值|攻击力|魔力值|生命值)$/.exec(c)
       // K-E：「消除一位随机敌人所有护甲值」（8442-8444 劫数条件 payload；所有=全部同义）
-      || /^(?:减除|消除)一位随机敌人(所有|全部)(护甲值|攻击力|魔法值|生命值)$/.exec(c);
+      || /^(?:减除|消除)一位随机敌人(所有|全部)(护甲值|攻击力|魔力值|生命值)$/.exec(c);
     if (m) {
       const mode = m[1] === '所有' || m[1] === '全部' ? 'enemyAll'
         : m[1] === '一名' ? 'enemyChosen'
@@ -2607,14 +2672,14 @@ class Compiler {
       return '';
     }
     // 「窃取一名敌人全部护甲值」（7754；EN Steal all of an enemy's Armor）
-    m = /^(?:并)?窃取(?:一名|该|其|此)?(?:敌人)?全部(护甲值|攻击力|魔法值|法力值)$/.exec(c);
+    m = /^(?:并)?窃取(?:一名|该|其|此)?(?:敌人)?全部(护甲值|攻击力|魔力值|法力值)$/.exec(c);
     if (m) {
       const mode = /一名/.test(c) ? 'enemyChosen' : refTargetOf(state);
       this.use('steal');
       state.segments.push(`steal('${mode}', '${statOf(m[1])}', '${statOf(m[1])}', 0, 0, { drainAll: true })`);
       return '';
     }
-    m = /^减除(?:所有|一名|其|该)?\s*敌人\s*([[\]魔法+ x×/()\d.]+?)\s*点(护甲值|攻击力|魔法值)$/.exec(c);
+    m = /^减除(?:所有|一名|其|该)?\s*敌人\s*([[\]魔法+ x×/()\d.]+?)\s*点(护甲值|攻击力|魔力值)$/.exec(c);
     if (m) {
       const f = parseFormulaPrefix(m[1].trim());
       if (!f || f.rangeSpec) return `削减数值无法解析「${m[1]}」`;
@@ -2682,8 +2747,8 @@ class Compiler {
     }
     // 窃取属性（无「转为X」子句 → 同属性自得，§3 窃取口径；有 → steal 换属性）
     // K-B3：法力值入表（8879「并窃取 6 点法力值」）
-    m = /^(?:并)?窃取(?:一名敌人|一名随机敌人|敌人身上的?|从敌人身上)?\s*(\d+)\s*点(护甲值|护甲|攻击力|魔法值|法力值)$/.exec(c)
-      || /^从敌人身上窃取\s*(\d+)\s*点(护甲值|护甲|攻击力|魔法值|法力值)$/.exec(c);
+    m = /^(?:并)?窃取(?:一名敌人|一名随机敌人|敌人身上的?|从敌人身上)?\s*(\d+)\s*点(护甲值|护甲|攻击力|魔力值|法力值)$/.exec(c)
+      || /^从敌人身上窃取\s*(\d+)\s*点(护甲值|护甲|攻击力|魔力值|法力值)$/.exec(c);
     if (m) {
       this.use('steal');
       const st = statOf(m[2]);
@@ -2692,7 +2757,7 @@ class Compiler {
       return '';
     }
     // 窃取公式+双属性（7803「窃取一名敌人 [魔法 + 1] 点攻击力和护甲值」）＝同公式两段
-    m = /^(?:并)?窃取(?:一名|该|其)?(?:敌人)?\s*(\[[^\]]*\])\s*点?(护甲值|护甲|攻击力|魔法值|法力值)和(护甲值|护甲|攻击力|魔法值|法力值)$/.exec(c);
+    m = /^(?:并)?窃取(?:一名|该|其)?(?:敌人)?\s*(\[[^\]]*\])\s*点?(护甲值|护甲|攻击力|魔力值|法力值)和(护甲值|护甲|攻击力|魔力值|法力值)$/.exec(c);
     if (m) {
       const f = parseFormulaPrefix(m[1]);
       if (!f || f.rangeSpec) return `窃取数值无法解析「${m[1]}」`;
@@ -2704,8 +2769,8 @@ class Compiler {
       state.segments.push(`steal('${mode}', '${stB}', '${stB}', ${f.base}, ${fmtN(f.mult)})`);
       return '';
     }
-    // 窃取属性转属性（公式变体：「窃取一名敌人 [魔法 + 1] 点魔法值，并将之转换成攻击力」8378）
-    m = /^(?:并)?窃取(?:一名敌人|一名随机敌人|敌人身上的?|从敌人身上)?\s*([[\]（）()魔法x×/ +\d.]+?)\s*点(护甲值|护甲|攻击力|魔法值)(?:，?并将之转为|，?并将之转换成|，?并将之转换为)(护甲值|攻击力|魔法值|法力值)$/.exec(c);
+    // 窃取属性转属性（公式变体：「窃取一名敌人 [魔法 + 1] 点魔力值，并将之转换成攻击力」8378）
+    m = /^(?:并)?窃取(?:一名敌人|一名随机敌人|敌人身上的?|从敌人身上)?\s*([[\]（）()魔法x×/ +\d.]+?)\s*点(护甲值|护甲|攻击力|魔力值)(?:，?并将之转为|，?并将之转换成|，?并将之转换为)(护甲值|攻击力|魔力值|法力值)$/.exec(c);
     if (m) {
       const f = parseFormulaPrefix(m[1].trim());
       if (!f || f.rangeSpec) return `窃取数值无法解析「${m[1]}」`;
@@ -2714,7 +2779,7 @@ class Compiler {
       state.segments.push(`steal('${mode}', '${statOf(m[2])}', '${statOf(m[3])}', ${f.base}, ${f.mult})`);
       return '';
     }
-    // 「降低一名敌人1点攻击力和4点魔法值」→ reduce 双段（9985 族）
+    // 「降低一名敌人1点攻击力和4点魔力值」→ reduce 双段（9985 族）
     m = /^(?:降低|减低)(一名|所有|其|该)?(?:敌人|对方的?)(.+)$/.exec(c);
     if (m) {
       let payload = m[2];
@@ -2727,7 +2792,7 @@ class Compiler {
       }
       const mode = m[1] === '所有' ? 'enemyAll' : (m[1] === '其' || m[1] === '该') ? refTargetOf(state) : 'enemyChosen';
       const stash = this.buffPieces(payload, mode, state);
-      // buffPieces 产出 buff 族段；reduce 复用同一解析（攻击力/魔法值/护甲值段）
+      // buffPieces 产出 buff 族段；reduce 复用同一解析（攻击力/魔力值/护甲值段）
       if (typeof stash === 'string') return stash;
       const conv = [];
       for (const seg of stash) {
@@ -2740,8 +2805,8 @@ class Compiler {
       state.segments.push(...conv);
       return '';
     }
-    // 「每有一个亡灵盟友，则消耗 3 点法力」（9579）＝按盟友族计数的耗蓝 → reduce + alliesOfRace 来源
-    m = /^每有一[名个](.+?)盟友[，,]?则(?:消耗|耗掉)\s*(\d+)\s*点法力(?:值)?$/.exec(c);
+    // 「每有一个亡灵盟友，则消耗 3 点法力值」（9579）＝按盟友族计数的耗蓝 → reduce + alliesOfRace 来源
+    m = /^每有一[名个](.+?)盟友[，,]?则(?:消耗|耗掉)\s*(\d+)\s*点法力值(?:值)?$/.exec(c);
     if (m) {
       const src = allySourceOf(m[1], false);
       if (typeof src === 'string') return src;
@@ -2782,7 +2847,7 @@ class Compiler {
       }
     }
     // 窃取属性转属性
-    m = /^窃取一名敌人\s*(\d+)\s*点(护甲值|攻击力|魔法值)(?:并将之转为|并将之转换成|，并将之转换为)(护甲值|攻击力|魔法值|法力值)$/.exec(c);
+    m = /^窃取一名敌人\s*(\d+)\s*点(护甲值|攻击力|魔力值)(?:并将之转为|并将之转换成|，并将之转换为)(护甲值|攻击力|魔力值|法力值)$/.exec(c);
     if (m) {
       this.use('steal');
       state.segments.push(`steal('enemyChosen', '${statOf(m[2])}', '${statOf(m[3])}', ${m[1]}, 0)`);
@@ -3380,15 +3445,15 @@ function statusSegOpts(base, tgt) {
 function allyRandomStatusSeg(grp, _compiler) {
   let g = (grp ?? '').replace(/^所有/, '').replace(/^其他/, '').trim();
   g = normalizeGroupName(g);
-  if (g === '') return { seg: "inflictRandom('allyAll')" };
-  if (RACE_ALIAS[g]) return { seg: `inflictRandom('allyAll', { targetRace: '${RACE_ALIAS[g]}' })` };
+  if (g === '') return { seg: "inflictRandom('allyAll', { pool: 'positive' })" };
+  if (RACE_ALIAS[g]) return { seg: `inflictRandom('allyAll', { targetRace: '${RACE_ALIAS[g]}', pool: 'positive' })` };
   // 机翻族名带「族」尾（「蛮族盟友」8907 Wildfolk）——去尾重试一次
   const g2 = g.replace(/族$/, '');
-  if (RACE_ALIAS[g2]) return { seg: `inflictRandom('allyAll', { targetRace: '${RACE_ALIAS[g2]}' })` };
+  if (RACE_ALIAS[g2]) return { seg: `inflictRandom('allyAll', { targetRace: '${RACE_ALIAS[g2]}', pool: 'positive' })` };
   if (isKingdomGroup(g) || isKingdomGroup(g2)) {
     // K-E 第五轮接线：王国限定盟友 → 段级 targetKingdom 过滤（「赋予所有圣唐盟友一个随机状态效果」8399）
     const kg = isKingdomGroup(g) ? normalizeGroupName(g) : normalizeGroupName(g2);
-    return { seg: `inflictRandom('allyAll', { targetKingdom: '${kg}' })` };
+    return { seg: `inflictRandom('allyAll', { targetKingdom: '${kg}', pool: 'positive' })` };
   }
   return { err: `群体名称无法可靠映射到种族/王国「${g}」（语义拿不准）` };
 }
@@ -3399,10 +3464,10 @@ function refTargetOf(state) {
   return 'lastTarget';
 }
 function fnOfStat(st) {
-  return { 生命值: 'heal', 护甲值: 'armor', 护甲: 'armor', 攻击力: 'attack', 魔法值: 'magic', 法力值: 'mana' }[st] ?? 'armor';
+  return { 生命值: 'heal', 护甲值: 'armor', 护甲: 'armor', 攻击力: 'attack', 魔力值: 'magic', 法力值: 'mana' }[st] ?? 'armor';
 }
 function statOf(zh) {
-  return { 护甲值: 'armor', 护甲: 'armor', 攻击力: 'attack', 魔法值: 'magic', 法力值: 'mana', 生命值: 'hp' }[zh];
+  return { 护甲值: 'armor', 护甲: 'armor', 攻击力: 'attack', 魔力值: 'magic', 法力值: 'mana', 生命值: 'hp' }[zh];
 }
 function matchColor(s) {
   if (!s) return null;
@@ -3572,7 +3637,7 @@ function parseDamageTail(text) {
   const f = parseFormulaPrefix(t);
   if (!f) return null;
   t = f.rest;
-  const dt = /^(点)?\s*(真实的?(?:散射|溅射)?|(?:严重|轻微|轻量|重度)?的?(?:溅射|散射))?\s*伤害?(值)?/.exec(t);
+  const dt = /^(点)?\s*(真实的?(?:散射|溅射)?|(?:严重|轻微|轻量|轻度|重度|普通)?的?(?:溅射|散射))?\s*伤害?(值)?/.exec(t);
   if (!dt) return null;
   const dtype = dt[2] ?? '';
   t = t.slice(dt[0].length).trim();
@@ -3747,33 +3812,33 @@ function parseModifierSource(body) {
   if (/所耗尽的法力|耗尽的法力|耗掉的法力/.test(body)) return { source: { kind: 'drainedMana' } };
   // K-B 收官轮：「被减除/降低的X值」＝前序 reduce 段实际削减额（引擎 Wave4 lastReduce 来源；
   // 7752/7757/7758/7759/7799「数量因被减除的护甲值(数)而增强」族——此前按 exotic 拒绝）
-  if (/被?(?:减除|降低)的(护甲值|攻击力|魔法值|生命值)/.test(b)) return { source: { kind: 'lastReduce' } };
+  if (/被?(?:减除|降低)的(护甲值|攻击力|魔力值|生命值)/.test(b)) return { source: { kind: 'lastReduce' } };
   // 「被摧毁的骷髅头和棕色宝石数」= 骷髅 + 色宝石双来源（7769）
   const skullAndColor = b.match(/被摧毁的骷髅头和(红|蓝|绿|黄|紫|棕)色?宝石/);
   if (skullAndColor) return { sources: [{ kind: 'destroyedGems' }, { kind: 'destroyedGems', color: COLORS[skullAndColor[1]] }] };
   if (/被移除的宝石|移除的宝石|被摧毁的宝石|摧毁的宝石/.test(b)) return { source: { kind: 'destroyedGems' } };
   if (/转换的宝石|转化的宝石/.test(b)) return { source: { kind: 'transformedGems' } };
   if (/被减除的/.test(b)) return null; // exotic（§1 明确 blocked）
-  if (/所有敌人的(护甲值|攻击力|魔法值|生命值)/.test(b)) {
-    const stat = b.match(/所有敌人的(护甲值|攻击力|魔法值|生命值)/)[1];
+  if (/所有敌人的(护甲值|攻击力|魔力值|生命值)/.test(b)) {
+    const stat = b.match(/所有敌人的(护甲值|攻击力|魔力值|生命值)/)[1];
     return { source: { kind: 'enemyStatSum', stat: statOf(stat) } };
   }
-  if (/敌我双方的(护甲值|攻击力|魔法值|生命值)/.test(b)) {
-    const stat = b.match(/敌我双方的(护甲值|攻击力|魔法值|生命值)/)[1];
+  if (/敌我双方的(护甲值|攻击力|魔力值|生命值)/.test(b)) {
+    const stat = b.match(/敌我双方的(护甲值|攻击力|魔力值|生命值)/)[1];
     const st = statOf(stat);
     return { sources: [{ kind: 'allyStatSum', stat: st }, { kind: 'enemyStatSum', stat: st }] };
   }
-  if (/自身的(护甲值|攻击力|生命值|魔法值)/.test(b)) {
-    const stat = b.match(/自身的(护甲值|攻击力|生命值|魔法值)/)[1];
-    const map = { 护甲值: 'armor', 攻击力: 'attack', 生命值: 'hp', 魔法值: 'magic' };
+  if (/自身的(护甲值|攻击力|生命值|魔力值)/.test(b)) {
+    const stat = b.match(/自身的(护甲值|攻击力|生命值|魔力值)/)[1];
+    const map = { 护甲值: 'armor', 攻击力: 'attack', 生命值: 'hp', 魔力值: 'magic' };
     return { source: { kind: 'selfStat', stat: map[stat] } };
   }
   if (/自身损失的生命值/.test(b)) return { source: { kind: 'selfStat', stat: 'missingHp' } };
   if (/敌人现有生命值/.test(b)) return { source: { kind: 'targetStat', stat: 'hp' } };
   // K-B 收官轮：「敌人所需的法力值」＝目标 manaCost（R22 targetStat stat 扩展，7815）
   if (/敌人所需的法力值/.test(b)) return { source: { kind: 'targetStat', stat: 'manaCost' } };
-  const tgtStat = b.match(/敌人(的)?(攻击力|护甲值|魔法值)/);
-  if (tgtStat) return { source: { kind: 'targetStat', stat: { 攻击力: 'attack', 护甲值: 'armor', 魔法值: 'magic' }[tgtStat[2]] } };
+  const tgtStat = b.match(/敌人(的)?(攻击力|护甲值|魔力值)/);
+  if (tgtStat) return { source: { kind: 'targetStat', stat: { 攻击力: 'attack', 护甲值: 'armor', 魔力值: 'magic' }[tgtStat[2]] } };
   // K-B 收官轮：「自身灵魂数/我的灵魂」＝战场经济灵魂池（battleSouls，8401「因自身灵魂数」）
   if (/灵魂数|我的灵魂|自身灵魂/.test(body)) return { source: { kind: 'battleSouls' } };
   if (/所收集的灵魂数|收集的灵魂数/.test(body)) return { source: { kind: 'battleSouls' } };
@@ -3792,8 +3857,8 @@ function parseModifierSource(body) {
       const race = RACE_ALIAS[bothR[1]] ?? RACE_ALIAS[normalizeGroupName(bothR[1] + '族')];
       if (race) return { sources: [{ kind: 'alliesOfRace', race }, { kind: 'enemiesOfRace', race }] };
     }
-    // 「伤害值因敌我双方的黄金数而增强」（8073）：黄金共用池（§10.2）→ battleGold 即双侧总额
-    if (/敌我双方的黄金/.test(b)) return { source: { kind: 'battleGold' } };
+    // 「伤害值因敌我双方的黄金数而增强」（8073）：双方独立计数求和 → bothGold（仅一次取整）
+    if (/敌我双方的黄金/.test(b)) return { source: { kind: 'bothGold' } };
   }
   if (/(红|蓝|绿|黄|紫|棕)色?盟友数?/.test(b)) return { source: { kind: 'alliesOfColor', color: colorsIn(b)[0] } };
   // K-E：王国盟友/敌人计数（第五轮接线，alliesOfKingdom/enemiesOfKingdom）——先于种族表判定：
@@ -3861,15 +3926,18 @@ function compileAll() {
     } catch (e) {
       out = { manaOnly: true, features: ['compiler-error'], skippedClauses: [`编译器异常：${String(e).slice(0, 120)}`] };
     }
-    const fidelity = out.manaOnly ? 'mana-only' : (out.fidelity ?? 'full');
+    const reviewed = reviewedWeaponRows[String(w.spellId)];
+    const fidelity = reviewed?.metadata?.fidelity ?? (out.manaOnly ? 'mana-only' : (out.fidelity ?? 'full'));
     return {
       ...w,
       fidelity,
       compiled: fidelity !== 'mana-only',
-      build: out.build ?? null,
+      build: reviewed?.prototype && w.spellId !== 7189
+        ? `(${JSON.stringify(reviewed.prototype)} as SkillPrototype)`
+        : (out.build ?? null),
       imports: out.imports ?? null,
-      features: out.features ?? [],
-      skippedClauses: out.skippedClauses ?? [],
+      features: reviewed?.metadata?.missingFeatures ?? out.features ?? [],
+      skippedClauses: reviewed?.metadata?.skippedClauses ?? out.skippedClauses ?? [],
     };
   });
   return results;
@@ -3882,7 +3950,7 @@ function familyOf(desc) {
   if (/伤害/.test(desc)) return '直接伤害';
   if (/召唤/.test(desc) || /风暴/.test(desc)) return '召唤/风暴';
   if (/宝石/.test(desc)) return '宝石操作';
-  if (/护甲值|攻击力|生命值|魔法值|法力值/.test(desc)) return '增益/削弱';
+  if (/护甲值|攻击力|生命值|魔力值|法力值/.test(desc)) return '增益/削弱';
   if (/状态/.test(desc)) return '状态';
   return '其它';
 }
@@ -3953,7 +4021,9 @@ const BATCH_CHUNK = 180;
 function cmdGen() {
   const all = compileAll().sort((a, b) => a.spellId - b.spellId);
   // 分保真度：full + partial 进批次；mana-only 仅入 meta（占位绑定，运行时回退仅扣法力）
-  const results = all.filter((r) => r.fidelity !== 'mana-only');
+  // 7189 belongs to the preserved handwritten W05 batch; never emit a second binding.
+  const w05Ids = new Set([7071, 7188, 7189, 7190, 7199, 7217, 10045, 10063, 10065]);
+  const results = all.filter((r) => r.fidelity !== 'mana-only' && !w05Ids.has(r.spellId));
   const batches = [];
   for (let i = 0; i < results.length; i += BATCH_CHUNK) batches.push(results.slice(i, i + BATCH_CHUNK));
   const names = batches.map((_, i) => `W${String(i + 1).padStart(2, '0')}`);
@@ -3963,6 +4033,7 @@ function cmdGen() {
     const imports = new Set(['skill']);
     let useBaseColor = false;
     let useChosen = false;
+    const useReviewedPrototype = spells.some((s) => reviewedWeaponRows[String(s.spellId)]?.prototype);
     for (const s of spells) {
       for (const f of s.imports ?? []) imports.add(f);
       if (/\bBaseColor\./.test(s.build)) useBaseColor = true;
@@ -3971,15 +4042,16 @@ function cmdGen() {
     // 按批次 build 实际引用剪裁（避免 eslint no-unused-vars）
     const allBuilds = spells.map((s) => s.build).join('\n');
     const importNames = [...imports]
-      .filter((f) => f !== 'CHOSEN' && f !== 'CASTER')
+      .filter((f) => f !== 'CHOSEN' && f !== 'CASTER' && f !== 'CELL')
       .filter((f) => new RegExp(`\\b${f}\\s*\\(`).test(allBuilds))
       .sort();
     useChosen = useChosen && /(?<!')\bCHOSEN\b(?!')/.test(allBuilds);
     // CASTER 占位符（「该军队法力颜色」）为常量非函数，单独按词检测
     const useCaster = /(?<!')\bCASTER\b(?!')/.test(allBuilds);
-    const placeholderImports = [useChosen ? 'CHOSEN' : '', useCaster ? 'CASTER' : ''].filter(Boolean);
+    const useCell = /(?<!['"])\bCELL\b(?!['"])/.test(allBuilds);
+    const placeholderImports = [useChosen ? 'CHOSEN' : '', useCaster ? 'CASTER' : '', useCell ? 'CELL' : ''].filter(Boolean);
     const allImports = [...importNames, ...placeholderImports];
-    const importLines = `import { ${allImports.join(', ')} } from '../builders';${useBaseColor ? "\nimport { BaseColor } from '../../types';" : ''}`;
+    const importLines = `import { ${allImports.join(', ')} } from '../builders';${useBaseColor ? "\nimport { BaseColor } from '../../types';" : ''}${useReviewedPrototype ? "\nimport type { SkillPrototype } from '../prototypes';" : ''}`;
     const spellRows = spells.map((s) => `  {\n    id: ${s.spellId},\n    desc: ${esc(s.desc)},\n    build: ${s.build},\n  },`).join('\n');
     const out = `/**
  * 窗口 K-B · 武器法术批次 ${name}（池：scripts/curated-pools/pool-w01.json；分保真度绑定）。
@@ -4140,7 +4212,7 @@ function cmdReport() {
   lines.push('**本轮（K-E 原语接线）新消化**（四族，裁定见 spell-rules §14 第五轮记录）：');
   lines.push('');
   lines.push('- tempering 完整编译：76 把 Doomed 淬炼增项从「参数化省略」升级为 `tempering` 来源修饰（level 0 增项=0、随段位缩放；「每级回火 +N 点」「每提升一级强化等级额外增加 N 点」「+N 颗宝石」全形态）；「回火等级有 N% 几率杀死」→ execute 段 chanceBoost（8726-8728 chance 0+boost=level 0 恒不触发的诚实语义）；');
-  lines.push('- 劫数条件接线：enemyHasDoom()（targetHasDoom，敌方存活者 troopTypes 含 Doom）——「则再增加/给予 N 点」→ condBonus 挂前段（7655-7660/7952-8083 官方形态）、「可造成双倍伤害」→ condMult（8726-8728）、「再创造 N 颗」→ lastCreate 复用 + ifCond（7952）、「恢复我四分之一的法力」→ mana fraction 0.25（9580-9582，R12 fraction 原语）、「先破坏其护甲」→ reduce drainAll（9825-9830）；');
+  lines.push('- 劫数条件接线：enemyHasDoom()（targetHasDoom，敌方存活者 troopTypes 含 Doom）——「则再增加/给予 N 点」→ condBonus 挂前段（7655-7660/7952-8083 官方形态）、「可造成双倍伤害」→ condMult（8726-8728）、「再创造 N 颗」→ lastCreate 复用 + ifCond（7952）、「恢复我四分之一的法力值」→ mana fraction 0.25（9580-9582，R12 fraction 原语）、「先破坏其护甲」→ reduce drainAll（9825-9830）；');
   lines.push('- 王国族接线：条件「若敌人来自X，或战斗发生在/位于X，则 N 倍」→ anyOf(kingdomOf enemy, kingdomPresent) condMult（8322-8360 族 37 把，样例 8322 阿达纳手枪）；「盟友来自X则…」→ 段级 targetKingdom（8971）；「因X王国盟友数而增强」→ alliesOfKingdom（9302/9354/8877 等，修正第四轮 teamSize 误读）；「每有一名X王国盟友则创造 N 颗宝石」→ alliesOfKingdom 修饰；「召唤一名/1 到 3 名X王国军队」→ summonRandomOfKingdom（7816 countRange、8399/8451/8505/8510/8513/9210 等）；「赋予所有X王国盟友随机正面」→ inflictRandom targetKingdom；王国判定先于种族表（「龙爪盟友」≠ 龙族）；');
   lines.push('- 敌侧计数接线：enemiesOfColor/enemiesOfRace/enemiesOfKingdom——「几率因恶魔敌人数而增强」（8391/8392）、「每有一名X色敌人则创造/给予…」（7982/8047/8872/8873）、「因敌我双方的X色军队/巨人军队数」（7250/7445 双来源）、「敌我双方的黄金数」→ battleGold 共用池（8073）；');
   lines.push('- 修饰 rider 词序补全：「伤害只因X而增强」（8877）、「伤害力由X而增强」（8726-8728 机翻 伤害值→伤害力）；');
@@ -4152,7 +4224,7 @@ function cmdReport() {
   lines.push('- 不朽/永生神兵种引用机翻归一：拉奇亚→拉基亚、阿巴顿→亚巴顿、Scoprio→天蝎座、卡奥玛尼→考马尼、不朽双子→双子座、不朽的怪物→龟背竹（EN Monstera）、不朽巨龟→穴居人（EN Trogolin）、不朽牛头怪→陶拉乌斯——troopPresent 条件族（9378/9381/9387/9484/9486/9488/9564/9566/9649/9720/9809/9811/9840/9842/9934/9936/9983）条件半边全通；');
   lines.push('- 条件伤害半边：风暴「翻倍」（8135）、目标色三倍（8145）、目标状态双倍/三倍（8186/8508/9687）、动词省略（「已中毒」9687）、数值空格（「造成 3 倍」）、任意族 Boss 条件（7754/7803/7955）、boardAtLeast「N 或更多颗」（8436）、anyOf 状态计加（8640「每陷入以下一个状态…：缠绕、燃烧、冻结、击晕」）；');
   lines.push('- 修饰/创造/清除 rider：「随机摧毁 N 颗宝石，摧毁数因X而增强」（7447 battleGold、9720 allyStatusCount）、「创造 N 颗X色宝石，宝石数因拥有法印效果的盟友数而增强」（7491）、逐摧毁创造修正（7178/8518 族——修复正则失配套\\d 的预存 bug）、创造+modifier 宾语提取修正（7491 曾丢颜色）；');
-  lines.push('- 窃取/耗蓝扩形：「窃取一名敌人全部护甲值」（7754 drainAll）、「窃取其 N 点生命值」（8952 条件化）、「窃取 [魔法+1] 点攻击力和护甲值」双段（7803）、「耗尽最高 N 点法力值」（7866 up-to=夹零等价）、「吸取目标的所有法力值」（9811）、「每有一名亡灵盟友则消耗 3 点法力」（9579 alliesOfRace 修饰）；');
+  lines.push('- 窃取/耗蓝扩形：「窃取一名敌人全部护甲值」（7754 drainAll）、「窃取其 N 点生命值」（8952 条件化）、「窃取 [魔法+1] 点攻击力和护甲值」双段（7803）、「耗尽最高 N 点法力值」（7866 up-to=夹零等价）、「吸取目标的所有法力值」（9811）、「每有一名亡灵盟友则消耗 3 点法力值」（9579 alliesOfRace 修饰）；');
   lines.push('- 其他：三支 oneOf（8253 耗蓝或增益或创造）、独立掷签（8283 个别几率）、全部技能值四段展开（7294/7864）、编队上方敌人（9162 enemyAboveTarget）、随机摧毁列（8619/9387/9484 destroyRandomCols）、爆破一行或一列 oneOf（8448）、具名特殊宝石定量爆破（9747/9840）、选定颜色清除（8511）、八种「每有一名X盟友则创造 N 颗混合宝石」语序（8161/8260-8266/8313-8315/8386/8394/8402/8434/8435/8452/8487/8506/8645/8669/8809/8877 族——种族半边回收、王国半边诚实略去）。');
   lines.push('');
   lines.push(`**mana-only 余量 ${manaOnly.length} 条构成**（全部为引擎/数据真实缺口，不为凑数硬收）：机翻占位符 {1}（7071）、stat 翻倍 2（7188/7199）、基数取目标属性（7190）、行绑定清除（7217）、随机倍率通配创造（8577）、EN-only 快照 3（10045/10063/10065）。`);
@@ -4208,7 +4280,7 @@ function cmdReport() {
   lines.push('');
   lines.push('- partial/mana-only 的被略去子句逐字保存在 meta 的 skippedClauses，可随时复核与回收；');
   lines.push('- 机翻噪声（「造成l」「{1}」占位符、错字语序）不硬凑，EN 原文仅作对照、zh 为锚；');
-  lines.push('- 中英快照不同步的个别条目（如 7074 两版法术不同）以 zh 为准编译。');
+  lines.push('- 中英快照不同步的个别条目由独立英文及 native 步骤确认后显式纠正文案（7074/7089 恢复前两名敌人伤害），不默认以 zh 覆盖。');
   lines.push('');
   mkdirSync(path.dirname(REPORT_OUT), { recursive: true });
   writeFileSync(REPORT_OUT, lines.join('\n') + '\n', 'utf8');

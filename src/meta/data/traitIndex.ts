@@ -5,7 +5,8 @@
  * 会拒绝，且过滤掉未实现 code 才不会放行「假特质」。
  */
 import { TRAIT_LIBRARY } from '../../engine/traits';
+import { COMMUNITY_TRAITS } from '../../data/communityTraits';
 
 export const KNOWN_TRAIT_CODES: ReadonlySet<string> = new Set(
-  TRAIT_LIBRARY.map((t) => t.code),
+  [...TRAIT_LIBRARY, ...COMMUNITY_TRAITS].map((t) => t.code),
 );

@@ -1,0 +1,1595 @@
+{
+  "schemaVersion": 1,
+  "scope": "stored-gow-snapshot",
+  "reviews": [
+    {
+      "key": "troop:6192",
+      "scope": "stored-gow-snapshot",
+      "sourceDigest": "5c0197ea1f7c290600068fceba71d0bd4c931f9cc733c8b39feb14a038359cd7",
+      "reviewer": "sa-L5",
+      "reviewedAt": "2026-09-27",
+      "decision": "draft",
+      "ledgerFingerprintAtReview": "142f456ff232aeddaa80e84d53b0616119c1a4e46acbd5bed70468225b58d488",
+      "_reference": {
+        "spellId": 7333,
+        "english": "Freeze all Enemies. Deal [Magic + 18] damage to the weakest Enemy.",
+        "nativeTarget": "None",
+        "randomize": null,
+        "steps": [
+          {
+            "Target": "AllEnemies",
+            "Amount": 1,
+            "Type": "CauseFrozen"
+          },
+          {
+            "SpellPowerMultiplier": 1,
+            "Target": "WeakestEnemy",
+            "Amount": 18,
+            "Primarypower": true,
+            "Type": "Damage"
+          }
+        ],
+        "prototype": {
+          "segments": [
+            {
+              "kind": "status",
+              "target": "enemyAll",
+              "statusId": "frozen",
+              "turns": 3
+            },
+            {
+              "kind": "damage",
+              "target": "enemyWeakest",
+              "scaling": {
+                "base": 18,
+                "mult": 1
+              }
+            }
+          ]
+        }
+      },
+      "sourceEvidence": [
+        {
+          "id": "en",
+          "role": "english-snapshot",
+          "path": "data/raw/troops.gow.en.json",
+          "note": "TODO: entity id / SpellId / English clause / cost / colours checked"
+        },
+        {
+          "id": "native",
+          "role": "native-snapshot",
+          "path": "data/raw/spells.gow.en.json",
+          "note": "TODO: SpellId-indexed Cost/Target/every non-None SpellSteps field checked"
+        },
+        {
+          "id": "rule",
+          "role": "official-shared-rule",
+          "path": "artifacts/gow-skill-audit/gold-primary-sources/official-status-effects.html",
+          "note": "TODO: replace with the official rule file actually relevant to this skill, and say what it supports"
+        },
+        {
+          "id": "laneTest",
+          "role": "lane-battle-test",
+          "path": "tests/unit/gowLaneL5B04.test.ts",
+          "note": "Draft: identity/cost/colours/native steps/prototype/zh and real castSkill both sides verified; held draft by lane-L5/issues.json L5-005 (Frozen 3-turn hard cap); otherwise consistent"
+        }
+      ],
+      "dimensions": {
+        "identity-cost-colors": {
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        },
+        "target-count-range": {
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        },
+        "base-formula-rounding": {
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        },
+        "boost-source-ratio-cap": {
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        },
+        "conditions-probabilities-branches": {
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        },
+        "status-duration-immunity": {
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        },
+        "gems-types-selection-resolution": {
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        },
+        "summon-transform-pools": {
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        },
+        "order-death-retargeting": {
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        },
+        "mana-economy-extra-turn": {
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        },
+        "display-description": {
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        },
+        "battle-pipeline": {
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": [],
+          "realBattleEntry": true
+        }
+      },
+      "clauseReviews": [
+        {
+          "id": "c1",
+          "text": "Freeze all Enemies.",
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        },
+        {
+          "id": "c2",
+          "text": "Deal [Magic + 18] damage to the weakest Enemy.",
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        }
+      ],
+      "nativeStepReviews": [
+        {
+          "id": "0",
+          "type": "CauseFrozen",
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        },
+        {
+          "id": "1",
+          "type": "Damage",
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        }
+      ],
+      "branchReviews": [
+        {
+          "id": "main",
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        }
+      ]
+    },
+    {
+      "key": "troop:6136",
+      "scope": "stored-gow-snapshot",
+      "sourceDigest": "09c876b86ff0a9476fd37f7194bee112a3f124876fb37f78e8c9067f90398b56",
+      "reviewer": "sa-L5",
+      "reviewedAt": "2026-09-27",
+      "decision": "accept",
+      "ledgerFingerprintAtReview": "142f456ff232aeddaa80e84d53b0616119c1a4e46acbd5bed70468225b58d488",
+      "_reference": {
+        "spellId": 7238,
+        "english": "Deal [Magic + 2] damage to an Enemy and Poison them.",
+        "nativeTarget": "Enemy",
+        "randomize": null,
+        "steps": [
+          {
+            "Target": "FromTarget",
+            "Amount": 1,
+            "Type": "CausePoison"
+          },
+          {
+            "SpellPowerMultiplier": 1,
+            "Target": "FromTarget",
+            "Amount": 2,
+            "Primarypower": true,
+            "Type": "Damage"
+          }
+        ],
+        "prototype": {
+          "segments": [
+            {
+              "kind": "status",
+              "target": "enemyChosen",
+              "statusId": "poison",
+              "turns": 3,
+              "magnitude": 3
+            },
+            {
+              "kind": "damage",
+              "target": "enemyChosen",
+              "scaling": {
+                "base": 2,
+                "mult": 1
+              }
+            }
+          ]
+        }
+      },
+      "sourceEvidence": [
+        {
+          "id": "en",
+          "role": "english-snapshot",
+          "path": "data/raw/troops.gow.en.json",
+          "note": "troop 6136: stats.spell.id 7238, ManaCost 6, Red, English 'Deal [Magic + 2] damage to an Enemy and Poison them.' asserted verbatim."
+        },
+        {
+          "id": "native",
+          "role": "native-snapshot",
+          "path": "data/raw/spells.gow.en.json",
+          "note": "spell 7238 Target Enemy Cost 6; SpellSteps toEqual: CausePoison FromTarget Amount 1; Damage FromTarget Amount 2 SPM 1 Primarypower."
+        },
+        {
+          "id": "rule",
+          "role": "official-shared-rule",
+          "path": "artifacts/gow-skill-audit/gold-primary-sources/official-status-effects.html",
+          "note": "Official status guide: Poison = 50% chance to lose 1 life every turn, ignores armor, can be lethal; no natural-cleanse text for Poison (other negatives list a cumulative cleanse chance); negatives removed by Cleanse. Community corroboration (not evidence): community.gemsofwar.com/t/immune-to-poison-didnt-work/70893 - Poison is the only status that does not auto-cleanse."
+        },
+        {
+          "id": "laneTest",
+          "role": "lane-battle-test",
+          "path": "tests/unit/gowLaneL5B04.test.ts",
+          "note": "L5B04 troop:6136 describe: binding/native/prototype/zh; real castSkill both sides magic 0/5 (armor first, poison tick 0/1 after cast); 40-tick Poison persistence and 50% x1 armor-ignoring loss; Barrier, Sturdy immunity, lethal; low-mana/silence."
+        }
+      ],
+      "dimensions": {
+        "identity-cost-colors": {
+          "status": "verified",
+          "note": "Entity 6136 -> spell 7238, cost 6, Red in raw and src troops.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL5B04.test.ts"
+          ]
+        },
+        "target-count-range": {
+          "status": "verified",
+          "note": "FromTarget -> enemyChosen: only chosen enemy 12 is poisoned and damaged; others untouched.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL5B04.test.ts"
+          ]
+        },
+        "base-formula-rounding": {
+          "status": "verified",
+          "note": "Damage = Magic+2 (0 -> 2, 5 -> 7), armor absorbed first (armor 1 -> 0).",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL5B04.test.ts"
+          ]
+        },
+        "boost-source-ratio-cap": {
+          "status": "not-applicable",
+          "note": "No boost/count source.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": []
+        },
+        "conditions-probabilities-branches": {
+          "status": "verified",
+          "note": "No spell condition; Poison's own 50% x1 tick checked over 40 seeded ticks (loss within 6..34).",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL5B04.test.ts"
+          ]
+        },
+        "status-duration-immunity": {
+          "status": "verified",
+          "note": "Poison never expires and never self-cleanses (40 ticks, still present); Sturdy (Poison immunity) blocks it while damage still lands.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL5B04.test.ts"
+          ]
+        },
+        "gems-types-selection-resolution": {
+          "status": "not-applicable",
+          "note": "No gem steps.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": []
+        },
+        "summon-transform-pools": {
+          "status": "not-applicable",
+          "note": "No summon/transform.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": []
+        },
+        "order-death-retargeting": {
+          "status": "verified",
+          "note": "Event order poison -> damage = native; lethal hit defeats the target; enemy Barrier consumed by the hit after Poison landed.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL5B04.test.ts"
+          ]
+        },
+        "mana-economy-extra-turn": {
+          "status": "verified",
+          "note": "Cast spends 6 mana and ends the turn; low mana and silence block.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL5B04.test.ts"
+          ]
+        },
+        "display-description": {
+          "status": "verified",
+          "note": "zh '使 1 名敌人陷入中毒状态并造成 [魔法 + 2] 点伤害。' matches English (order follows native).",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL5B04.test.ts"
+          ]
+        },
+        "battle-pipeline": {
+          "status": "verified",
+          "note": "Real TurnEngine.castSkill both sides; enemy turn start Poison tick observed in the same event stream.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL5B04.test.ts"
+          ],
+          "realBattleEntry": true
+        }
+      },
+      "clauseReviews": [
+        {
+          "id": "c1",
+          "text": "Deal [Magic + 2] damage to an Enemy and Poison them.",
+          "status": "verified",
+          "note": "Chosen enemy takes Magic+2 and is Poisoned (Poison applied first per native order).",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL5B04.test.ts"
+          ]
+        }
+      ],
+      "nativeStepReviews": [
+        {
+          "id": "0",
+          "type": "CausePoison",
+          "status": "verified",
+          "note": "CausePoison FromTarget -> status poison enemyChosen (legacy magnitude ignored by the Poison tick rule).",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL5B04.test.ts"
+          ]
+        },
+        {
+          "id": "1",
+          "type": "Damage",
+          "status": "verified",
+          "note": "Damage FromTarget Amount 2 SPM 1 -> damage enemyChosen base 2 mult 1.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL5B04.test.ts"
+          ]
+        }
+      ],
+      "branchReviews": [
+        {
+          "id": "main",
+          "status": "verified",
+          "note": "Single unconditional branch.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL5B04.test.ts"
+          ]
+        }
+      ]
+    },
+    {
+      "key": "troop:6646",
+      "scope": "stored-gow-snapshot",
+      "sourceDigest": "b2e35aab13dcce4b3137b760bb1559128adae8845924aa1847c3d2e6dfb0cef3",
+      "reviewer": "sa-L5",
+      "reviewedAt": "2026-09-27",
+      "decision": "accept",
+      "ledgerFingerprintAtReview": "142f456ff232aeddaa80e84d53b0616119c1a4e46acbd5bed70468225b58d488",
+      "_reference": {
+        "spellId": 7978,
+        "english": "Deal [Magic + 2] damage to the weakest enemy, and Poison them.",
+        "nativeTarget": "None",
+        "randomize": null,
+        "steps": [
+          {
+            "Target": "WeakestEnemy",
+            "Amount": 1,
+            "Type": "CausePoison"
+          },
+          {
+            "SpellPowerMultiplier": 1,
+            "Target": "FromPrevious",
+            "Amount": 2,
+            "Primarypower": true,
+            "Type": "Damage"
+          }
+        ],
+        "prototype": {
+          "segments": [
+            {
+              "kind": "status",
+              "target": "enemyWeakest",
+              "statusId": "poison",
+              "turns": 3,
+              "magnitude": 3
+            },
+            {
+              "kind": "damage",
+              "target": "lastTarget",
+              "scaling": {
+                "base": 2,
+                "mult": 1
+              }
+            }
+          ]
+        }
+      },
+      "sourceEvidence": [
+        {
+          "id": "en",
+          "role": "english-snapshot",
+          "path": "data/raw/troops.gow.en.json",
+          "note": "troop 6646: stats.spell.id 7978, ManaCost 8, Purple, English 'Deal [Magic + 2] damage to the weakest enemy, and Poison them.' asserted verbatim."
+        },
+        {
+          "id": "native",
+          "role": "native-snapshot",
+          "path": "data/raw/spells.gow.en.json",
+          "note": "spell 7978 Target None Cost 8; SpellSteps toEqual: CausePoison WeakestEnemy Amount 1; Damage FromPrevious Amount 2 SPM 1 Primarypower."
+        },
+        {
+          "id": "rule",
+          "role": "official-shared-rule",
+          "path": "artifacts/gow-skill-audit/gold-primary-sources/official-status-effects.html",
+          "note": "Official status guide: Poison = 50% chance to lose 1 life every turn, ignores armor; no natural-cleanse text for Poison; negatives removed by Cleanse."
+        },
+        {
+          "id": "laneTest",
+          "role": "lane-battle-test",
+          "path": "tests/unit/gowLaneL5B04.test.ts",
+          "note": "L5B04 troop:6646 describe: binding/native/prototype (FIXED L5-013 native order); real castSkill both sides magic 0/5; Sturdy weakest still hit via FromPrevious; lethal; Life tie picks earlier slot; low-mana/silence."
+        },
+        {
+          "id": "r001",
+          "role": "coordinator-ruling",
+          "path": "tasks/active/gow-skill-shards/rulings/R001-native-step-order.md",
+          "note": "R001: native SpellSteps order governs; prototype reordered to Poison WeakestEnemy -> Damage FromPrevious (L5-013)."
+        }
+      ],
+      "dimensions": {
+        "identity-cost-colors": {
+          "status": "verified",
+          "note": "Entity 6646 -> spell 7978, cost 8, Purple in raw and src troops.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r001"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL5B04.test.ts"
+          ]
+        },
+        "target-count-range": {
+          "status": "verified",
+          "note": "WeakestEnemy = lowest current Life living enemy (13 at 300 of 1000/600/800); tie -> earlier slot; FromPrevious -> lastTarget for the damage.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r001"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL5B04.test.ts"
+          ]
+        },
+        "base-formula-rounding": {
+          "status": "verified",
+          "note": "Damage = Magic+2 (0 -> 2, 5 -> 7).",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r001"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL5B04.test.ts"
+          ]
+        },
+        "boost-source-ratio-cap": {
+          "status": "not-applicable",
+          "note": "No boost/count source.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r001"
+          ],
+          "tests": []
+        },
+        "conditions-probabilities-branches": {
+          "status": "not-applicable",
+          "note": "No spell condition or chance (Poison tick rule covered in troop:6136).",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r001"
+          ],
+          "tests": []
+        },
+        "status-duration-immunity": {
+          "status": "verified",
+          "note": "Poison applied to the weakest; Sturdy weakest blocks Poison but is still the FromPrevious damage target.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r001"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL5B04.test.ts"
+          ]
+        },
+        "gems-types-selection-resolution": {
+          "status": "not-applicable",
+          "note": "No gem steps.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r001"
+          ],
+          "tests": []
+        },
+        "summon-transform-pools": {
+          "status": "not-applicable",
+          "note": "No summon/transform.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r001"
+          ],
+          "tests": []
+        },
+        "order-death-retargeting": {
+          "status": "verified",
+          "note": "Poison before damage (native); damage follows the Poisoned target, not a re-evaluated weakest; lethal hit defeats it.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r001"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL5B04.test.ts"
+          ]
+        },
+        "mana-economy-extra-turn": {
+          "status": "verified",
+          "note": "Cast spends 8 mana and ends the turn; low mana and silence block.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r001"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL5B04.test.ts"
+          ]
+        },
+        "display-description": {
+          "status": "verified",
+          "note": "zh '对最虚弱的敌人造成 [魔法 + 2] 点伤害，并使之陷入中毒状态。' matches English.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r001"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL5B04.test.ts"
+          ]
+        },
+        "battle-pipeline": {
+          "status": "verified",
+          "note": "Real TurnEngine.castSkill both sides; event stream poison@13 -> dmg@13.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r001"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL5B04.test.ts"
+          ],
+          "realBattleEntry": true
+        }
+      },
+      "clauseReviews": [
+        {
+          "id": "c1",
+          "text": "Deal [Magic + 2] damage to the weakest enemy, and Poison them.",
+          "status": "verified",
+          "note": "Weakest enemy is Poisoned and takes Magic+2; nobody else affected.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r001"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL5B04.test.ts"
+          ]
+        }
+      ],
+      "nativeStepReviews": [
+        {
+          "id": "0",
+          "type": "CausePoison",
+          "status": "verified",
+          "note": "CausePoison WeakestEnemy -> status poison enemyWeakest.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r001"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL5B04.test.ts"
+          ]
+        },
+        {
+          "id": "1",
+          "type": "Damage",
+          "status": "verified",
+          "note": "Damage FromPrevious Amount 2 SPM 1 -> damage lastTarget base 2 mult 1.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r001"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL5B04.test.ts"
+          ]
+        }
+      ],
+      "branchReviews": [
+        {
+          "id": "main",
+          "status": "verified",
+          "note": "Single unconditional branch.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r001"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL5B04.test.ts"
+          ]
+        }
+      ]
+    },
+    {
+      "key": "troop:6219",
+      "scope": "stored-gow-snapshot",
+      "sourceDigest": "bac9eb70b04c58fa26b0c7fc101faa17d604efe08917df5371a037d7750db5b5",
+      "reviewer": "sa-L5",
+      "reviewedAt": "2026-09-27",
+      "decision": "accept",
+      "ledgerFingerprintAtReview": "142f456ff232aeddaa80e84d53b0616119c1a4e46acbd5bed70468225b58d488",
+      "_reference": {
+        "spellId": 7361,
+        "english": "Deal [Magic + 3] damage to an enemy and Stun them.",
+        "nativeTarget": "Enemy",
+        "randomize": null,
+        "steps": [
+          {
+            "Target": "FromTarget",
+            "Amount": 1,
+            "Type": "CauseStun"
+          },
+          {
+            "Amount": 1000,
+            "Type": "Delay"
+          },
+          {
+            "SpellPowerMultiplier": 1,
+            "Target": "FromTarget",
+            "Amount": 3,
+            "Primarypower": true,
+            "Type": "Damage"
+          }
+        ],
+        "prototype": {
+          "segments": [
+            {
+              "kind": "status",
+              "target": "enemyChosen",
+              "statusId": "stun",
+              "turns": 3
+            },
+            {
+              "kind": "damage",
+              "target": "enemyChosen",
+              "scaling": {
+                "base": 3,
+                "mult": 1
+              }
+            }
+          ]
+        }
+      },
+      "sourceEvidence": [
+        {
+          "id": "en",
+          "role": "english-snapshot",
+          "path": "data/raw/troops.gow.en.json",
+          "note": "troop 6219 Moa: spell 7361 \"Deal [Magic + 3] damage to an enemy and Stun them.\", cost 7 Yellow."
+        },
+        {
+          "id": "native",
+          "role": "native-snapshot",
+          "path": "data/raw/spells.gow.en.json",
+          "note": "spell 7361 Target Enemy: CauseStun FromTarget Amount 1; Delay 1000; Damage FromTarget Amount 3 SPM 1."
+        },
+        {
+          "id": "rule",
+          "role": "official-shared-rule",
+          "path": "artifacts/gow-skill-audit/gold-primary-sources/official-status-effects.html",
+          "note": "Official status guide: status semantics (Barrier, Silence, Stun, Disease, Death Mark, Enrage, Submerged, cumulative cleanse chance via Cursed/Lycanthropy entries)."
+        },
+        {
+          "id": "laneTest",
+          "role": "lane-battle-test",
+          "path": "tests/unit/gowLaneL5B04.test.ts",
+          "note": "troop:6219: real TurnEngine.castSkill both sides + boundaries"
+        },
+        {
+          "id": "r004",
+          "role": "coordinator-ruling",
+          "path": "tasks/active/gow-skill-shards/rulings/R004-status-durations.md",
+          "note": "R004: negatives no turn cap, shared cumulative self-cleanse 10%/+10% (+5% Cursed), Poison never; positives end on trigger (Barrier/Reflect damage, Enchanted cast, Enraged skull damage, Submerged/Blessed holder action)."
+        },
+        {
+          "id": "r3",
+          "role": "lane-battle-test",
+          "path": "tests/unit/gowLaneL5R3.test.ts",
+          "note": "Round-3 real castSkill both sides: statuses from this cast unchanged after 6 failed turn-start rolls; one successful roll removes all recoverable negatives together (Poison/positives stay)."
+        },
+        {
+          "id": "srcR004",
+          "role": "community-source",
+          "path": "artifacts/gow-skill-audit/gold-primary-sources/community-2026-09-28-status-durations.json",
+          "note": "Saved community corroboration for R004 (staff reply: new negative resets, all negatives cleanse together)."
+        },
+        {
+          "id": "r001",
+          "role": "coordinator-ruling",
+          "path": "tasks/active/gow-skill-shards/rulings/R001-native-step-order.md",
+          "note": "R001: native SpellSteps order governs observable order."
+        }
+      ],
+      "dimensions": {
+        "identity-cost-colors": {
+          "status": "verified",
+          "note": "Troop 6219 -> spell 7361, cost 7, Yellow.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r3",
+            "srcR004",
+            "r001"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL5B04.test.ts"
+          ]
+        },
+        "target-count-range": {
+          "status": "verified",
+          "note": "Chosen enemy only.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r3",
+            "srcR004",
+            "r001"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL5B04.test.ts"
+          ]
+        },
+        "base-formula-rounding": {
+          "status": "verified",
+          "note": "Magic+3: magic 0 -> 3, magic 8 -> 11.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r3",
+            "srcR004",
+            "r001"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL5B04.test.ts"
+          ]
+        },
+        "boost-source-ratio-cap": {
+          "status": "not-applicable",
+          "note": "No boost/count source.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r3",
+            "srcR004",
+            "r001"
+          ],
+          "tests": []
+        },
+        "conditions-probabilities-branches": {
+          "status": "not-applicable",
+          "note": "No condition, chance or Randomize.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r3",
+            "srcR004",
+            "r001"
+          ],
+          "tests": []
+        },
+        "status-duration-immunity": {
+          "status": "verified",
+          "note": "Stun R004: no turn cap; persists through 6 failed turn-start rolls, removed by one successful shared self-cleanse roll (gowLaneL5R3). Stun-immune (Thick Head) still takes damage.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r3",
+            "srcR004",
+            "r001"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL5B04.test.ts"
+          ]
+        },
+        "gems-types-selection-resolution": {
+          "status": "not-applicable",
+          "note": "No gem steps.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r3",
+            "srcR004",
+            "r001"
+          ],
+          "tests": []
+        },
+        "summon-transform-pools": {
+          "status": "not-applicable",
+          "note": "No summon/transform.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r3",
+            "srcR004",
+            "r001"
+          ],
+          "tests": []
+        },
+        "order-death-retargeting": {
+          "status": "verified",
+          "note": "Stun -> Damage native order; Barrier absorbs damage but Stun lands; lethal.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r3",
+            "srcR004",
+            "r001"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL5B04.test.ts"
+          ]
+        },
+        "mana-economy-extra-turn": {
+          "status": "verified",
+          "note": "Cast spends full mana and passes the turn; low mana and Silence block the real cast (no mana/action spent).",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r3",
+            "srcR004",
+            "r001"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL5B04.test.ts"
+          ]
+        },
+        "display-description": {
+          "status": "verified",
+          "note": "Chinese description asserted verbatim; wording matches the English effect.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r3",
+            "srcR004",
+            "r001"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL5B04.test.ts"
+          ]
+        },
+        "battle-pipeline": {
+          "status": "verified",
+          "note": "Real TurnEngine.castSkill both sides (lane file + round-3 R004 file).",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r3",
+            "srcR004",
+            "r001"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL5B04.test.ts"
+          ],
+          "realBattleEntry": true
+        }
+      },
+      "clauseReviews": [
+        {
+          "id": "c1",
+          "text": "Deal [Magic + 3] damage to an enemy and Stun them.",
+          "status": "verified",
+          "note": "Chosen enemy Stunned then takes Magic+3.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r3",
+            "srcR004",
+            "r001"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL5B04.test.ts"
+          ]
+        }
+      ],
+      "nativeStepReviews": [
+        {
+          "id": "0",
+          "type": "CauseStun",
+          "status": "verified",
+          "note": "CauseStun FromTarget.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r3",
+            "srcR004",
+            "r001"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL5B04.test.ts"
+          ]
+        },
+        {
+          "id": "1",
+          "type": "Delay",
+          "status": "verified",
+          "note": "Delay 1000: presentation pause only; real cast shows Stun then damage with no event in between.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r3",
+            "srcR004",
+            "r001"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL5B04.test.ts"
+          ]
+        },
+        {
+          "id": "2",
+          "type": "Damage",
+          "status": "verified",
+          "note": "Damage FromTarget 3/1.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r3",
+            "srcR004",
+            "r001"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL5B04.test.ts"
+          ]
+        }
+      ],
+      "branchReviews": [
+        {
+          "id": "main",
+          "status": "verified",
+          "note": "Single unconditional branch.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r3",
+            "srcR004",
+            "r001"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL5B04.test.ts"
+          ]
+        }
+      ]
+    },
+    {
+      "key": "troop:6222",
+      "scope": "stored-gow-snapshot",
+      "sourceDigest": "37f531f10a400e64bfa493b3a27343cef0d22b97da71868095153fdcc82dc953",
+      "reviewer": "sa-L5",
+      "reviewedAt": "2026-09-27",
+      "decision": "accept",
+      "ledgerFingerprintAtReview": "142f456ff232aeddaa80e84d53b0616119c1a4e46acbd5bed70468225b58d488",
+      "_reference": {
+        "spellId": 7364,
+        "english": "Pull an Enemy to first position and Stun them.",
+        "nativeTarget": "Enemy",
+        "randomize": null,
+        "steps": [
+          {
+            "Target": "FromTarget",
+            "Amount": 1,
+            "Type": "CauseStun"
+          },
+          {
+            "Amount": 1000,
+            "Type": "Delay"
+          },
+          {
+            "Target": "FromTarget",
+            "Type": "TroopOrderFront"
+          }
+        ],
+        "prototype": {
+          "segments": [
+            {
+              "kind": "status",
+              "target": "enemyChosen",
+              "statusId": "stun",
+              "turns": 3
+            },
+            {
+              "kind": "reposition",
+              "target": "lastTarget",
+              "to": "front"
+            }
+          ]
+        }
+      },
+      "sourceEvidence": [
+        {
+          "id": "en",
+          "role": "english-snapshot",
+          "path": "data/raw/troops.gow.en.json",
+          "note": "troop 6222 Khopeshi: spell 7364 \"Pull an Enemy to first position and Stun them.\", cost 7 Blue."
+        },
+        {
+          "id": "native",
+          "role": "native-snapshot",
+          "path": "data/raw/spells.gow.en.json",
+          "note": "spell 7364 Target Enemy: CauseStun FromTarget Amount 1; Delay 1000; TroopOrderFront FromTarget."
+        },
+        {
+          "id": "rule",
+          "role": "official-shared-rule",
+          "path": "artifacts/gow-skill-audit/gold-primary-sources/official-status-effects.html",
+          "note": "Official status guide: status semantics (Barrier, Silence, Stun, Disease, Death Mark, Enrage, Submerged, cumulative cleanse chance via Cursed/Lycanthropy entries)."
+        },
+        {
+          "id": "laneTest",
+          "role": "lane-battle-test",
+          "path": "tests/unit/gowLaneL5B04.test.ts",
+          "note": "troop:6222: real TurnEngine.castSkill both sides + boundaries"
+        },
+        {
+          "id": "r004",
+          "role": "coordinator-ruling",
+          "path": "tasks/active/gow-skill-shards/rulings/R004-status-durations.md",
+          "note": "R004: negatives no turn cap, shared cumulative self-cleanse 10%/+10% (+5% Cursed), Poison never; positives end on trigger (Barrier/Reflect damage, Enchanted cast, Enraged skull damage, Submerged/Blessed holder action)."
+        },
+        {
+          "id": "r3",
+          "role": "lane-battle-test",
+          "path": "tests/unit/gowLaneL5R3.test.ts",
+          "note": "Round-3 real castSkill both sides: statuses from this cast unchanged after 6 failed turn-start rolls; one successful roll removes all recoverable negatives together (Poison/positives stay)."
+        },
+        {
+          "id": "srcR004",
+          "role": "community-source",
+          "path": "artifacts/gow-skill-audit/gold-primary-sources/community-2026-09-28-status-durations.json",
+          "note": "Saved community corroboration for R004 (staff reply: new negative resets, all negatives cleanse together)."
+        },
+        {
+          "id": "r001",
+          "role": "coordinator-ruling",
+          "path": "tasks/active/gow-skill-shards/rulings/R001-native-step-order.md",
+          "note": "R001: native SpellSteps order governs observable order."
+        }
+      ],
+      "dimensions": {
+        "identity-cost-colors": {
+          "status": "verified",
+          "note": "Troop 6222 -> spell 7364, cost 7, Blue.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r3",
+            "srcR004",
+            "r001"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL5B04.test.ts"
+          ]
+        },
+        "target-count-range": {
+          "status": "verified",
+          "note": "Chosen enemy; others keep relative order.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r3",
+            "srcR004",
+            "r001"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL5B04.test.ts"
+          ]
+        },
+        "base-formula-rounding": {
+          "status": "not-applicable",
+          "note": "No numeric formula.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r3",
+            "srcR004",
+            "r001"
+          ],
+          "tests": []
+        },
+        "boost-source-ratio-cap": {
+          "status": "not-applicable",
+          "note": "No boost/count source.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r3",
+            "srcR004",
+            "r001"
+          ],
+          "tests": []
+        },
+        "conditions-probabilities-branches": {
+          "status": "not-applicable",
+          "note": "No condition, chance or Randomize.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r3",
+            "srcR004",
+            "r001"
+          ],
+          "tests": []
+        },
+        "status-duration-immunity": {
+          "status": "verified",
+          "note": "Stun R004: no turn cap; persists through 6 failed turn-start rolls, removed by one successful shared self-cleanse roll (gowLaneL5R3). Stun-immune enemy still pulled to front.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r3",
+            "srcR004",
+            "r001"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL5B04.test.ts"
+          ]
+        },
+        "gems-types-selection-resolution": {
+          "status": "not-applicable",
+          "note": "No gem steps.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r3",
+            "srcR004",
+            "r001"
+          ],
+          "tests": []
+        },
+        "summon-transform-pools": {
+          "status": "not-applicable",
+          "note": "No summon/transform.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r3",
+            "srcR004",
+            "r001"
+          ],
+          "tests": []
+        },
+        "order-death-retargeting": {
+          "status": "verified",
+          "note": "Stun -> TroopOrderFront native order; front enemy chosen stays first.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r3",
+            "srcR004",
+            "r001"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL5B04.test.ts"
+          ]
+        },
+        "mana-economy-extra-turn": {
+          "status": "verified",
+          "note": "Cast spends full mana and passes the turn; low mana and Silence block the real cast (no mana/action spent).",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r3",
+            "srcR004",
+            "r001"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL5B04.test.ts"
+          ]
+        },
+        "display-description": {
+          "status": "verified",
+          "note": "Chinese description asserted verbatim; wording matches the English effect.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r3",
+            "srcR004",
+            "r001"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL5B04.test.ts"
+          ]
+        },
+        "battle-pipeline": {
+          "status": "verified",
+          "note": "Real TurnEngine.castSkill both sides (lane file + round-3 R004 file).",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r3",
+            "srcR004",
+            "r001"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL5B04.test.ts"
+          ],
+          "realBattleEntry": true
+        }
+      },
+      "clauseReviews": [
+        {
+          "id": "c1",
+          "text": "Pull an Enemy to first position and Stun them.",
+          "status": "verified",
+          "note": "Chosen enemy Stunned and moved to first position.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r3",
+            "srcR004",
+            "r001"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL5B04.test.ts"
+          ]
+        }
+      ],
+      "nativeStepReviews": [
+        {
+          "id": "0",
+          "type": "CauseStun",
+          "status": "verified",
+          "note": "CauseStun FromTarget.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r3",
+            "srcR004",
+            "r001"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL5B04.test.ts"
+          ]
+        },
+        {
+          "id": "1",
+          "type": "Delay",
+          "status": "verified",
+          "note": "Delay 1000: presentation pause only; real cast shows Stun then reposition with no event in between.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r3",
+            "srcR004",
+            "r001"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL5B04.test.ts"
+          ]
+        },
+        {
+          "id": "2",
+          "type": "TroopOrderFront",
+          "status": "verified",
+          "note": "TroopOrderFront FromTarget -> reposition lastTarget front.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r3",
+            "srcR004",
+            "r001"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL5B04.test.ts"
+          ]
+        }
+      ],
+      "branchReviews": [
+        {
+          "id": "main",
+          "status": "verified",
+          "note": "Single unconditional branch.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r3",
+            "srcR004",
+            "r001"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL5B04.test.ts"
+          ]
+        }
+      ]
+    }
+  ]
+}

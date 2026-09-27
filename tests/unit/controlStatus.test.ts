@@ -53,7 +53,7 @@ function setup(casterOver: Partial<Character> = {}) {
   return { engine, state, left };
 }
 
-describe('控制类状态谓词（本作规则：缠绕<击晕<冰冻/沉默）', () => {
+describe('控制类状态行动限制（原版冰冻仅限制额外回合）', () => {
   it('沉默：不可技能、不可充能、可攻击', () => {
     const c = makeChar(0);
     expect(canCastSkill(c)).toBe(true);
@@ -64,12 +64,12 @@ describe('控制类状态谓词（本作规则：缠绕<击晕<冰冻/沉默）'
     expect(canAttack(c)).toBe(true);
   });
 
-  it('冰冻：不可技能、不可攻击、仍可充能', () => {
+  it('冰冻：仍可技能、攻击和充能', () => {
     const c = makeChar(1);
     applyStatus(c, { id: 'frozen', turns: 3 });
     expect(isFrozen(c)).toBe(true);
-    expect(canCastSkill(c)).toBe(false);
-    expect(canAttack(c)).toBe(false);
+    expect(canCastSkill(c)).toBe(true);
+    expect(canAttack(c)).toBe(true);
     expect(canGainMana(c)).toBe(true);
   });
 
@@ -108,12 +108,12 @@ describe('castSkill 受控制状态限制', () => {
     expect(left.characters[0].mana).toBe(10);
   });
 
-  it('冰冻拒绝释放技能', () => {
+  it('冰冻仍可释放技能', () => {
     const { engine, left } = setup();
     applyStatus(left.characters[0], { id: 'frozen', turns: 3 });
     const events = engine.castSkill(0);
-    expect(events).toEqual([]);
-    expect(left.characters[0].mana).toBe(10);
+    expect(events[0]).toMatchObject({ type: 'skill-cast', characterId: 0 });
+    expect(left.characters[0].mana).toBe(0);
   });
 
   it('击晕不影响技能释放（引擎侧无效果）', () => {
@@ -135,7 +135,7 @@ describe('castSkill 受控制状态限制', () => {
   });
 });
 
-describe('骷髅攻击落空：队首被控（冰冻/缠绕）', () => {
+describe('骷髅攻击：冰冻仍攻击，缠绕攻击归零', () => {
   const combat = new CombatResolver();
 
   function teams(attackerStatus?: string) {
@@ -155,13 +155,12 @@ describe('骷髅攻击落空：队首被控（冰冻/缠绕）', () => {
     expect(right.characters[0].hp).toBe(45); // 50 - 5
   });
 
-  it('队首冰冻：攻击落空，发 attack-struggle，不造成伤害', () => {
+  it('队首冰冻：仍正常造成骷髅伤害', () => {
     const { left, right } = teams('frozen');
     const out = combat.resolveSkullDamage(left, right, 3);
-    expect(out.events.some((e) => e.type === 'skull-damage')).toBe(false);
-    const struggle = out.events.find((e) => e.type === 'attack-struggle');
-    expect(struggle).toMatchObject({ type: 'attack-struggle', attackerId: 0, reason: 'frozen' });
-    expect(right.characters[0].hp).toBe(50); // 未受伤
+    expect(out.events.some((e) => e.type === 'skull-damage')).toBe(true);
+    expect(out.events.some((e) => e.type === 'attack-struggle')).toBe(false);
+    expect(right.characters[0].hp).toBe(45);
   });
 
   it('队首缠绕：攻击落空，reason=entangle', () => {

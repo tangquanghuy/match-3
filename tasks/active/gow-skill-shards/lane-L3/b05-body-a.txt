@@ -1,0 +1,51 @@
+const reds=(n:number)=>{const over:Record<string,BaseColor>={};let k=0;for(let r=0;r<8;r++)for(let c=0;c<8;c++)if((r+c)%4===0&&k++>=n)over[`${r},${c}`]=BaseColor.Green;
+ return pattern([BaseColor.Red,BaseColor.Yellow,BaseColor.Purple,BaseColor.Brown],over);};
+
+// ——— troop:6427 Queen Titania / spell 7600 ———
+describe('L3 troop:6427/spell:7600 [Magic+2] to all enemies boosted x4 by Red enemies and allies; extra turn if 13+ Red',()=>{
+ const base={skill:'7600',cost:16,colors:[BaseColor.Red,BaseColor.Purple]};
+ it('source/native/prototype/display binding',()=>{
+  troopBinding(6427,7600,16,base.colors,'Deal [Magic + 2] damage to all enemies, boosted by Red enemies and allies. If there are 13 or more Red Gems, gain an extra turn. [x4]',
+   [{Target:'AllAllies',Amount:400,Type:'CountArmyColor',Data:'2'},{Target:'AllEnemies',UseCounterForAmount:true,Amount:400,Type:'CountArmyColor',Data:'2'},
+    {SpellPowerMultiplier:1,Target:'AllEnemies',UseCounterForAmount:true,Amount:2,Primarypower:true,Type:'Damage'},
+    {StatusAmount:100,StatusModifier:'AddFor10RedGems',Type:'ExtraTurnConditional'}],
+   '对所有敌人造成 [魔法 + 2] 点伤害，伤害值因敌我双方的红色军队数量而增强。如果板面上有 13 颗或更多红色宝石，则获得一个额外回合。 [x4]','None');
+  expect(registry.prototypes.get('7600')).toEqual({segments:[
+   {kind:'damage',target:'enemyAll',scaling:{base:2,mult:1},range:'all',modifier:{mod:{kind:'multiplier',a:4},sources:[{kind:'alliesOfColor',color:'Red'},{kind:'enemiesOfColor',color:'Red'}]}},
+   {kind:'extraTurn',ifCond:{kind:'boardAtLeast',color:'Red',n:13}}]});
+ });
+ for(const side of SIDES)for(const magic of [0,10])it(`real cast side=${side} magic=${magic}: caster + 1 Red ally + 2 Red enemies -> each enemy takes ${magic+2}+16; 16 Red -> extra turn`,()=>{
+  const f=setup({...base,side,magic,board:reds(16),allies:[{colors:[BaseColor.Red]},{colors:[BaseColor.Blue]}],enemies:[{colors:[BaseColor.Red]},{colors:[BaseColor.Green]},{colors:[BaseColor.Blue,BaseColor.Red]},{colors:[BaseColor.Blue]}]});
+  const ev=f.cast();const d=magic+2+16;expect(f.loss()).toEqual([d,d,d,d]);turnAfter(f,ev,true);
+ });
+ it('R003 threshold 13 Red -> extra turn, 12 -> none; dead Red troops not counted; armor absorbs',()=>{
+  const a=setup({...base,board:reds(13),colors:[BaseColor.Purple]});const ea=a.cast();turnAfter(a,ea,true);
+  const b=setup({...base,board:reds(12),magic:0,colors:[BaseColor.Purple],allies:[{colors:[BaseColor.Red],hp:0,defeated:true}],enemies:[{colors:[BaseColor.Red],hp:0,defeated:true},{armor:1,colors:[BaseColor.Blue]},{colors:[BaseColor.Blue]},{colors:[BaseColor.Blue]}]});
+  const eb=b.cast();turnAfter(b,eb,false);expect(b.loss()).toEqual([0,1,2,2]);
+ });
+ it('frozen caster: damage lands, no spell extra turn',()=>{
+  const f=setup({...base,board:reds(16),caster:{statuses:[{id:'frozen',turns:3}]},enemies:[{colors:[BaseColor.Blue]},{colors:[BaseColor.Blue]},{colors:[BaseColor.Blue]},{colors:[BaseColor.Blue]}]});const ev=f.cast();expect(skillExtra(ev)).toBe(0);expect(f.loss()[0]).toBe(12+4);
+ });
+ refusal({...base,board:reds(16)});
+});
+
+// ——— troop:7198 Natureborn Hunter / spell 8785 (draft: L3-014) ———
+describe('L3 troop:7198/spell:8785 1 Elemental Star + boosts [3:1]; extra turn if an enemy Beast',()=>{
+ const base={skill:'8785',cost:12,colors:[BaseColor.Blue,BaseColor.Green]};
+ const G=pattern([BaseColor.Green,BaseColor.Yellow,BaseColor.Purple,BaseColor.Brown]);
+ it('source/native/prototype/display binding',()=>{
+  troopBinding(7198,8785,12,base.colors,'Create 1 Elemental Star, +1 more for every 3 Green Allies and +1 more for every 3 Green Gems. If the Enemy has a Beast, gain an extra turn. [3:1]',
+   [{Target:'AllAllies',Amount:34,Type:'CountArmyColor',Data:'1'},{Color1:'Green',Amount:34,Type:'CountGems'},
+    {UseCounterForAmount:true,Color1:'ElementalStar',Amount:1,Type:'CreateGems'},{StatusAmount:100,StatusModifier:'AddIfEnemyHasBeast',Type:'ExtraTurnConditional'}],
+   '创建 1 颗元素星，数量因绿色盟友数和绿色宝石数而增强。若敌人队伍中有野兽，则获得一个额外回合。 [3:1]','None');
+ });
+ for(const side of SIDES)it(`real cast side=${side}: 16 Green gems (floor(16x.34)=5) + caster Green (0) -> 6 Elemental Stars; enemy Beast -> extra turn`,()=>{
+  const f=setup({...base,side,board:G,enemies:[{},{troopTypes:['Beast']},{},{}]});const ev=f.cast();
+  expect(specials(ev,'elementalStar')).toHaveLength(6);turnAfter(f,ev,true);
+ });
+ it('no enemy Beast -> no extra turn; no Green anywhere -> exactly 1 star',()=>{
+  const f=setup({...base,colors:[BaseColor.Blue],board:pattern([BaseColor.Blue,BaseColor.Yellow,BaseColor.Purple,BaseColor.Brown])});f.caster.colors=[BaseColor.Blue];
+  const ev=f.cast();expect(specials(ev,'elementalStar')).toHaveLength(1);turnAfter(f,ev,false);
+ });
+ refusal({...base,board:G});
+});

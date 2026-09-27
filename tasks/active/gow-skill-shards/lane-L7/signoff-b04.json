@@ -1,0 +1,1849 @@
+{
+  "schemaVersion": 1,
+  "scope": "stored-gow-snapshot",
+  "reviews": [
+    {
+      "key": "troop:6694",
+      "scope": "stored-gow-snapshot",
+      "sourceDigest": "bcb20c71f2681f14df8463691688e6ad19a9830f96ee50a8eaa94c43f1069f9c",
+      "reviewer": "sa-L76",
+      "reviewedAt": "2026-09-27",
+      "decision": "accept",
+      "ledgerFingerprintAtReview": "62c72776a20e847e5ac469d1b844c785e3f80ecb33aebee08c31cede29ba7ccd",
+      "_reference": {
+        "spellId": 8040,
+        "english": "Steal a quarter of an Enemy's Armor, and deal [Magic + 4] damage to them. If they are a Tower, deal 3x - 5x damage, based on my Ascensions. [4:1]",
+        "nativeTarget": "Enemy",
+        "randomize": null,
+        "steps": [
+          {
+            "Target": "FromTarget",
+            "Amount": 25,
+            "Type": "CountArmor"
+          },
+          {
+            "Target": "FromTarget",
+            "UseCounterForAmount": true,
+            "Type": "StealArmor"
+          },
+          {
+            "SpellPowerMultiplier": 1,
+            "Target": "FromTarget",
+            "StatusAmount": 3,
+            "Amount": 4,
+            "Primarypower": true,
+            "StatusModifier": "MultiplyForAscensionCastle",
+            "Type": "Damage"
+          }
+        ],
+        "prototype": {
+          "segments": [
+            {
+              "kind": "reduce",
+              "target": "enemyChosen",
+              "stat": "armor",
+              "scaling": {
+                "base": 0,
+                "mult": 0
+              },
+              "gainStat": "armor",
+              "fraction": 0.25
+            },
+            {
+              "kind": "damage",
+              "target": "enemyChosen",
+              "scaling": {
+                "base": 4,
+                "mult": 1
+              },
+              "condMult": {
+                "times": 3,
+                "cond": {
+                  "kind": "targetRace",
+                  "race": "Castle"
+                }
+              }
+            }
+          ]
+        }
+      },
+      "sourceEvidence": [
+        {
+          "id": "en",
+          "role": "english-snapshot",
+          "path": "data/raw/troops.gow.en.json",
+          "note": "troop 6694: stats.spell.id 8040, ManaCost 12, Red/Purple, English \"Steal a quarter of an Enemy's Armor, and deal [Magic + 4] damage to them. If they are a Tower, deal 3x - 5x damage, based on my Ascensions. [4:1]\" asserted verbatim."
+        },
+        {
+          "id": "native",
+          "role": "native-snapshot",
+          "path": "data/raw/spells.gow.en.json",
+          "note": "spell 8040 Target Enemy Cost 12; SpellSteps asserted: CountArmor FromTarget 25; StealArmor FromTarget UseCounterForAmount; Damage FromTarget 4 SPM 1 StatusModifier MultiplyForAscensionCastle StatusAmount 3."
+        },
+        {
+          "id": "rule",
+          "role": "official-shared-rule",
+          "path": "artifacts/gow-skill-audit/gold-primary-sources/official-brian-guide.html",
+          "note": "Official Brian guide uses the same steal wording (Corruption 'Steal [0+Magic] Armor and 2 Attack from all enemies') and '(Boost Ratio 4:1)' notation (Resolve)."
+        },
+        {
+          "id": "laneTest",
+          "role": "lane-battle-test",
+          "path": "tests/unit/gowLaneL7B04.test.ts",
+          "note": "L7B04 troop:6694 describe: binding/prototype/zh; 4 real casts (armor 40 -> steal 10, caster +10, then [Magic+4] into armor); rounding 7/3/0; only chosen enemy; low-mana/silence."
+        },
+        {
+          "id": "r000",
+          "role": "user-ruling",
+          "path": "tasks/active/gow-skill-shards/rulings/R000-waived-modes.md",
+          "note": "R000: Tower / ascension-dependent clauses are waived (user-waived-mode); base steal and damage still verified."
+        }
+      ],
+      "dimensions": {
+        "identity-cost-colors": {
+          "status": "verified",
+          "note": "Entity 6694 -> spell 8040, cost 12, Red/Purple; ledger binding checks true.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r000"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL7B04.test.ts"
+          ]
+        },
+        "target-count-range": {
+          "status": "verified",
+          "note": "FromTarget -> enemyChosen for both steal and damage; other enemies keep armor 8/40.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r000"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL7B04.test.ts"
+          ]
+        },
+        "base-formula-rounding": {
+          "status": "verified",
+          "note": "Stolen = floor(armor x 25%) (40 -> 10, 7 -> 1, 3 -> 0); damage [Magic+4] normal, absorbed by remaining armor first.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r000"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL7B04.test.ts"
+          ]
+        },
+        "boost-source-ratio-cap": {
+          "status": "verified",
+          "note": "CountArmor FromTarget 25 = [4:1] quarter of target armor, credited to caster armor (gainStat armor); no cap.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r000"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL7B04.test.ts"
+          ]
+        },
+        "conditions-probabilities-branches": {
+          "status": "verified",
+          "note": "Only condition is the Tower x ascension multiplier, waived per R000 (c2).",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r000"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL7B04.test.ts"
+          ]
+        },
+        "status-duration-immunity": {
+          "status": "not-applicable",
+          "note": "No status applied.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": []
+        },
+        "gems-types-selection-resolution": {
+          "status": "not-applicable",
+          "note": "No gem steps.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": []
+        },
+        "summon-transform-pools": {
+          "status": "not-applicable",
+          "note": "No summon/transform.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": []
+        },
+        "order-death-retargeting": {
+          "status": "verified",
+          "note": "Native order count -> steal -> damage kept: damage hits the post-steal armor (40 -> 30 -> 30-(M+4)).",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r000"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL7B04.test.ts"
+          ]
+        },
+        "mana-economy-extra-turn": {
+          "status": "verified",
+          "note": "Real cast spends 12 mana and ends the turn; low mana / silence block.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r000"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL7B04.test.ts"
+          ]
+        },
+        "display-description": {
+          "status": "verified",
+          "note": "zh '窃取敌人四分之一到护甲值，并对一名敌人造成 [魔法 + 4] 点伤害。如果敌人是个高塔，则基于我已晋升的稀有度造成 3 到 5 倍伤害。 [4:1]' matches English (the '到' is an official zh typo for '的').",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r000"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL7B04.test.ts"
+          ]
+        },
+        "battle-pipeline": {
+          "status": "verified",
+          "note": "TurnEngine.castSkill both sides; caster armor 3 -> 13; target armor/Life exact.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r000"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL7B04.test.ts"
+          ],
+          "realBattleEntry": true
+        }
+      },
+      "clauseReviews": [
+        {
+          "id": "c1",
+          "text": "Steal a quarter of an Enemy's Armor, and deal [Magic + 4] damage to them.",
+          "status": "verified",
+          "note": "Quarter of the chosen enemy armor moves to the caster, then [Magic + 4] damage to the same enemy (through remaining armor).",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL7B04.test.ts"
+          ]
+        },
+        {
+          "id": "c2",
+          "text": "If they are a Tower, deal 3x - 5x damage, based on my Ascensions.",
+          "status": "excluded",
+          "exclusion": {
+            "kind": "user-waived-mode",
+            "mode": "tower"
+          },
+          "note": "Waived per R000: 'If they are a Tower, deal 3x - 5x damage, based on my Ascensions' (Tower target + ascension scaling not implemented; existing Castle condMult placeholder untouched).",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r000"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL7B04.test.ts"
+          ]
+        },
+        {
+          "id": "c3",
+          "text": "[4:1]",
+          "status": "verified",
+          "note": "[4:1]: 25% of target armor, floor (7 -> 1, 3 -> 0).",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL7B04.test.ts"
+          ]
+        }
+      ],
+      "nativeStepReviews": [
+        {
+          "id": "0",
+          "type": "CountArmor",
+          "status": "verified",
+          "note": "CountArmor FromTarget 25 -> reduce fraction 0.25 of target armor.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL7B04.test.ts"
+          ]
+        },
+        {
+          "id": "1",
+          "type": "StealArmor",
+          "status": "verified",
+          "note": "StealArmor FromTarget UseCounterForAmount -> reduce enemyChosen armor + gainStat armor to caster.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL7B04.test.ts"
+          ]
+        },
+        {
+          "id": "2",
+          "type": "Damage",
+          "status": "verified",
+          "note": "Damage FromTarget 4 SPM 1 -> damage enemyChosen base 4 mult 1 (base asserted); its StatusModifier MultiplyForAscensionCastle part is the waived Tower clause c2 (R000).",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL7B04.test.ts"
+          ]
+        }
+      ],
+      "branchReviews": [
+        {
+          "id": "main",
+          "status": "verified",
+          "note": "Single unconditional branch; covered by real casts.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL7B04.test.ts"
+          ]
+        }
+      ]
+    },
+    {
+      "key": "weapon:1476",
+      "scope": "stored-gow-snapshot",
+      "sourceDigest": "8110d315b4c455a73ca9e0a85507ff9694e8107867da43b5375c65dbe5c9e65c",
+      "reviewer": "sa-L76",
+      "reviewedAt": "2026-09-27",
+      "decision": "accept",
+      "ledgerFingerprintAtReview": "62c72776a20e847e5ac469d1b844c785e3f80ecb33aebee08c31cede29ba7ccd",
+      "_reference": {
+        "spellId": 8778,
+        "english": "Deal [Magic + 1] damage to the first 2 Enemies. If Shadow-Hunter is on my team, gain 5 Attack.",
+        "nativeTarget": "None",
+        "randomize": null,
+        "steps": [
+          {
+            "Target": "AllAllies",
+            "Amount": 10000,
+            "Type": "CountArmyTroop",
+            "Data": "6106"
+          },
+          {
+            "Amount": 5,
+            "Type": "CountMax"
+          },
+          {
+            "SpellPowerMultiplier": 1,
+            "Target": "FirstTwoEnemies",
+            "Amount": 1,
+            "Primarypower": true,
+            "Type": "Damage"
+          },
+          {
+            "Target": "Self",
+            "UseCounterForAmount": true,
+            "Type": "IncreaseAttack"
+          }
+        ],
+        "prototype": {
+          "segments": [
+            {
+              "kind": "damage",
+              "target": "enemyFirstN",
+              "scaling": {
+                "base": 1,
+                "mult": 1
+              },
+              "n": 2
+            },
+            {
+              "kind": "buff",
+              "target": "allySelf",
+              "stat": "attack",
+              "scaling": {
+                "base": 5,
+                "mult": 0
+              },
+              "ifCond": {
+                "kind": "troopPresent",
+                "side": "ally",
+                "name": "暗影猎手"
+              }
+            }
+          ]
+        }
+      },
+      "sourceEvidence": [
+        {
+          "id": "en",
+          "role": "english-snapshot",
+          "path": "artifacts/gowhead-weapons/weapons.json",
+          "note": "weapon 1476 Shadow-HuntersClaw: SpellId 8778, ManaCost 12, Green, English 'Deal [Magic + 1] damage to the first 2 Enemies. If Shadow-Hunter is on my team, gain 5 Attack.' asserted."
+        },
+        {
+          "id": "native",
+          "role": "native-snapshot",
+          "path": "data/raw/spells.gow.en.json",
+          "note": "spell 8778 Target None Cost 12; SpellSteps asserted: CountArmyTroop AllAllies 10000 Data '6106'; CountMax 5; Damage FirstTwoEnemies 1 SPM 1; IncreaseAttack Self UseCounterForAmount."
+        },
+        {
+          "id": "rule",
+          "role": "official-shared-rule",
+          "path": "artifacts/gow-skill-audit/gold-primary-sources/official-brian-guide.html",
+          "note": "Official Brian guide Cleave 'Deal [1+Magic] damage to the first 2 enemies' (same first-2 targeting wording); named-troop bonus clauses follow the stored English snapshot."
+        },
+        {
+          "id": "laneTest",
+          "role": "lane-battle-test",
+          "path": "tests/unit/gowLaneL7B04.test.ts",
+          "note": "L7B04 weapon:1476 describe: binding (numeric + gw_), prototype, zh, troop 6106 name; 8 real casts; absent/dead/enemy-side/two Shadow-Hunters; dead front skipped; armor; low-mana/silence."
+        }
+      ],
+      "dimensions": {
+        "identity-cost-colors": {
+          "status": "verified",
+          "note": "Weapon 1476 -> spell 8778, cost 12, Green, ReferenceName Shadow-HuntersClaw; numeric and gw_ prototypes identical.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL7B04.test.ts"
+          ]
+        },
+        "target-count-range": {
+          "status": "verified",
+          "note": "FirstTwoEnemies -> enemyFirstN n 2: first two living enemies each take full damage; Self for Attack.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL7B04.test.ts"
+          ]
+        },
+        "base-formula-rounding": {
+          "status": "verified",
+          "note": "[Magic + 1] each (magic 0/10); +5 Attack flat.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL7B04.test.ts"
+          ]
+        },
+        "boost-source-ratio-cap": {
+          "status": "verified",
+          "note": "CountArmyTroop Data '6106' x10000 capped by CountMax 5 -> 5 Attack when >=1 living Shadow-Hunter ally (troopPresent name 暗影猎手 = troop 6106); two present still 5.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL7B04.test.ts"
+          ]
+        },
+        "conditions-probabilities-branches": {
+          "status": "verified",
+          "note": "Condition Shadow-Hunter on my team: present -> +5; absent, defeated or on the enemy side -> +0.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL7B04.test.ts"
+          ]
+        },
+        "status-duration-immunity": {
+          "status": "not-applicable",
+          "note": "No status applied.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": []
+        },
+        "gems-types-selection-resolution": {
+          "status": "not-applicable",
+          "note": "No gem steps.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": []
+        },
+        "summon-transform-pools": {
+          "status": "not-applicable",
+          "note": "No summon/transform.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": []
+        },
+        "order-death-retargeting": {
+          "status": "verified",
+          "note": "Count precedes damage; Attack gain after damage; dead front enemy skipped (first two living).",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL7B04.test.ts"
+          ]
+        },
+        "mana-economy-extra-turn": {
+          "status": "verified",
+          "note": "Real cast spends 12 mana and ends turn; low mana / silence block (no Attack gain).",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL7B04.test.ts"
+          ]
+        },
+        "display-description": {
+          "status": "verified",
+          "note": "zh '对首 2 名敌人造成 [魔法 + 1] 点伤害。若自身队伍中有暗影猎手，则获得 5 点攻击力。' matches English.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL7B04.test.ts"
+          ]
+        },
+        "battle-pipeline": {
+          "status": "verified",
+          "note": "TurnEngine.castSkill both sides with numeric and gw_ skill ids.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL7B04.test.ts"
+          ],
+          "realBattleEntry": true
+        }
+      },
+      "clauseReviews": [
+        {
+          "id": "c1",
+          "text": "Deal [Magic + 1] damage to the first 2 Enemies.",
+          "status": "verified",
+          "note": "First 2 living enemies take [Magic + 1] each; armor absorbs.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL7B04.test.ts"
+          ]
+        },
+        {
+          "id": "c2",
+          "text": "If Shadow-Hunter is on my team, gain 5 Attack.",
+          "status": "verified",
+          "note": "Shadow-Hunter ally -> caster +5 Attack (ally itself unchanged); no bonus otherwise.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL7B04.test.ts"
+          ]
+        }
+      ],
+      "nativeStepReviews": [
+        {
+          "id": "0",
+          "type": "CountArmyTroop",
+          "status": "verified",
+          "note": "CountArmyTroop AllAllies Data '6106' Amount 10000 -> troopPresent ally 暗影猎手 (living).",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL7B04.test.ts"
+          ]
+        },
+        {
+          "id": "1",
+          "type": "CountMax",
+          "status": "verified",
+          "note": "CountMax 5 -> gain fixed at 5 (two Shadow-Hunters still +5).",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL7B04.test.ts"
+          ]
+        },
+        {
+          "id": "2",
+          "type": "Damage",
+          "status": "verified",
+          "note": "Damage FirstTwoEnemies Amount 1 SPM 1 -> damage enemyFirstN n 2 base 1 mult 1.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL7B04.test.ts"
+          ]
+        },
+        {
+          "id": "3",
+          "type": "IncreaseAttack",
+          "status": "verified",
+          "note": "IncreaseAttack Self UseCounterForAmount -> buff allySelf attack 5 gated by troopPresent.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL7B04.test.ts"
+          ]
+        }
+      ],
+      "branchReviews": [
+        {
+          "id": "main",
+          "status": "verified",
+          "note": "Single branch; the troop-present condition is covered on both outcomes.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL7B04.test.ts"
+          ]
+        }
+      ]
+    },
+    {
+      "key": "weapon:1473",
+      "scope": "stored-gow-snapshot",
+      "sourceDigest": "23f8146ddc3e58170ccd27eb540a6aaea8807816bfb58bf8e08430184d5c9ae5",
+      "reviewer": "sa-L76",
+      "reviewedAt": "2026-09-27",
+      "decision": "accept",
+      "ledgerFingerprintAtReview": "62c72776a20e847e5ac469d1b844c785e3f80ecb33aebee08c31cede29ba7ccd",
+      "_reference": {
+        "spellId": 8775,
+        "english": "Deal [Magic + 1] true damage to an Enemy. If Bonnie Rose is on my team, gain 40 Gold.",
+        "nativeTarget": "Enemy",
+        "randomize": null,
+        "steps": [
+          {
+            "Target": "AllAllies",
+            "Amount": 10000,
+            "Type": "CountArmyTroop",
+            "Data": "6276"
+          },
+          {
+            "Amount": 40,
+            "Type": "CountMax"
+          },
+          {
+            "SpellPowerMultiplier": 1,
+            "Target": "FromTarget",
+            "Amount": 1,
+            "Primarypower": true,
+            "Type": "TrueDamage"
+          },
+          {
+            "Target": "Self",
+            "UseCounterForAmount": true,
+            "Type": "GiveGold"
+          }
+        ],
+        "prototype": {
+          "segments": [
+            {
+              "kind": "damage",
+              "target": "enemyChosen",
+              "scaling": {
+                "base": 1,
+                "mult": 1
+              },
+              "trueDamage": true
+            },
+            {
+              "kind": "gainEconomy",
+              "currency": "gold",
+              "scaling": {
+                "base": 40,
+                "mult": 0
+              },
+              "ifCond": {
+                "kind": "troopPresent",
+                "side": "ally",
+                "name": "红玫瑰"
+              }
+            }
+          ]
+        }
+      },
+      "sourceEvidence": [
+        {
+          "id": "en",
+          "role": "english-snapshot",
+          "path": "artifacts/gowhead-weapons/weapons.json",
+          "note": "weapon 1473 RosesPistol: SpellId 8775, ManaCost 10, Yellow, English 'Deal [Magic + 1] true damage to an Enemy. If Bonnie Rose is on my team, gain 40 Gold.' asserted."
+        },
+        {
+          "id": "native",
+          "role": "native-snapshot",
+          "path": "data/raw/spells.gow.en.json",
+          "note": "spell 8775 Target Enemy Cost 10; SpellSteps asserted: CountArmyTroop AllAllies 10000 Data '6276'; CountMax 40; TrueDamage FromTarget 1 SPM 1; GiveGold Self UseCounterForAmount."
+        },
+        {
+          "id": "rule",
+          "role": "official-shared-rule",
+          "path": "artifacts/gow-skill-audit/gold-primary-sources/official-brian-guide.html",
+          "note": "Official Brian guide uses the same true damage wording (Curse of Weakness 'Deal [3+Magic] true damage', Blood Feast); the named-troop gold clause follows the English snapshot."
+        },
+        {
+          "id": "laneTest",
+          "role": "lane-battle-test",
+          "path": "tests/unit/gowLaneL7B04.test.ts",
+          "note": "L7B04 weapon:1473 describe: binding (numeric + gw_), prototype, zh, troop 6276 name; 8 real casts (true damage through armor 50, +40 gold my side only); absent/dead/enemy Bonnie Rose; low-mana/silence."
+        }
+      ],
+      "dimensions": {
+        "identity-cost-colors": {
+          "status": "verified",
+          "note": "Weapon 1473 -> spell 8775, cost 10, Yellow, ReferenceName RosesPistol; numeric and gw_ prototypes identical.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL7B04.test.ts"
+          ]
+        },
+        "target-count-range": {
+          "status": "verified",
+          "note": "FromTarget -> enemyChosen only; gold to caster side.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL7B04.test.ts"
+          ]
+        },
+        "base-formula-rounding": {
+          "status": "verified",
+          "note": "[Magic + 1] true damage (armor 50 untouched); +40 gold flat.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL7B04.test.ts"
+          ]
+        },
+        "boost-source-ratio-cap": {
+          "status": "verified",
+          "note": "CountArmyTroop Data '6276' x10000 capped by CountMax 40 -> 40 gold when Bonnie Rose (红玫瑰) is a living ally.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL7B04.test.ts"
+          ]
+        },
+        "conditions-probabilities-branches": {
+          "status": "verified",
+          "note": "Bonnie Rose present -> +40 gold; absent, defeated or enemy-side -> +0.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL7B04.test.ts"
+          ]
+        },
+        "status-duration-immunity": {
+          "status": "not-applicable",
+          "note": "No status applied.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": []
+        },
+        "gems-types-selection-resolution": {
+          "status": "not-applicable",
+          "note": "No gem steps.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": []
+        },
+        "summon-transform-pools": {
+          "status": "not-applicable",
+          "note": "No summon/transform.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": []
+        },
+        "order-death-retargeting": {
+          "status": "verified",
+          "note": "Count precedes damage; gold after damage.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL7B04.test.ts"
+          ]
+        },
+        "mana-economy-extra-turn": {
+          "status": "verified",
+          "note": "Real cast spends 10 mana and ends turn; low mana / silence block (no gold).",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL7B04.test.ts"
+          ]
+        },
+        "display-description": {
+          "status": "verified",
+          "note": "zh '对一名敌人造成 [魔法 + 1] 点真实伤害。若自身队伍中有红玫瑰，则获得 40 黄金。' matches English.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL7B04.test.ts"
+          ]
+        },
+        "battle-pipeline": {
+          "status": "verified",
+          "note": "TurnEngine.castSkill both sides; goldForSide(caster side) +40, opponent gold unchanged.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL7B04.test.ts"
+          ],
+          "realBattleEntry": true
+        }
+      },
+      "clauseReviews": [
+        {
+          "id": "c1",
+          "text": "Deal [Magic + 1] true damage to an Enemy.",
+          "status": "verified",
+          "note": "[Magic + 1] true damage to the chosen enemy, bypassing armor 50.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL7B04.test.ts"
+          ]
+        },
+        {
+          "id": "c2",
+          "text": "If Bonnie Rose is on my team, gain 40 Gold.",
+          "status": "verified",
+          "note": "Bonnie Rose ally -> +40 gold for my side only.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL7B04.test.ts"
+          ]
+        }
+      ],
+      "nativeStepReviews": [
+        {
+          "id": "0",
+          "type": "CountArmyTroop",
+          "status": "verified",
+          "note": "CountArmyTroop AllAllies Data '6276' Amount 10000 -> troopPresent ally 红玫瑰.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL7B04.test.ts"
+          ]
+        },
+        {
+          "id": "1",
+          "type": "CountMax",
+          "status": "verified",
+          "note": "CountMax 40 -> gold fixed at 40.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL7B04.test.ts"
+          ]
+        },
+        {
+          "id": "2",
+          "type": "TrueDamage",
+          "status": "verified",
+          "note": "TrueDamage FromTarget 1 SPM 1 -> damage enemyChosen trueDamage base 1 mult 1.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL7B04.test.ts"
+          ]
+        },
+        {
+          "id": "3",
+          "type": "GiveGold",
+          "status": "verified",
+          "note": "GiveGold Self UseCounterForAmount -> gainEconomy gold 40 gated by troopPresent.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL7B04.test.ts"
+          ]
+        }
+      ],
+      "branchReviews": [
+        {
+          "id": "main",
+          "status": "verified",
+          "note": "Single branch; troop-present condition covered on both outcomes.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL7B04.test.ts"
+          ]
+        }
+      ]
+    },
+    {
+      "key": "weapon:1721",
+      "scope": "stored-gow-snapshot",
+      "sourceDigest": "e11e87907d658b2e2ea9a917b5b99869eb100280cb9efff3691a6e879eb4542a",
+      "reviewer": "sa-L76",
+      "reviewedAt": "2026-09-27",
+      "decision": "accept",
+      "ledgerFingerprintAtReview": "62c72776a20e847e5ac469d1b844c785e3f80ecb33aebee08c31cede29ba7ccd",
+      "_reference": {
+        "spellId": 10065,
+        "english": "Deal [Magic + 4] damage to the first 2 Enemies. If Immortal Girthrok is in my team, give 12 Life to all Allies.",
+        "nativeTarget": "None",
+        "randomize": null,
+        "steps": [
+          {
+            "Target": "AllAllies",
+            "Amount": 10000,
+            "Type": "CountArmyTroop",
+            "Data": "7933"
+          },
+          {
+            "SpellPowerMultiplier": 1,
+            "Target": "FirstTwoEnemies",
+            "Amount": 4,
+            "Primarypower": true,
+            "Type": "Damage"
+          },
+          {
+            "Amount": 12,
+            "Type": "CountMax"
+          },
+          {
+            "Target": "AllAllies",
+            "UseCounterForAmount": true,
+            "Type": "IncreaseHealth"
+          }
+        ],
+        "prototype": {
+          "segments": [
+            {
+              "kind": "damage",
+              "target": "enemyFirstN",
+              "scaling": {
+                "base": 4,
+                "mult": 1
+              },
+              "n": 2
+            },
+            {
+              "kind": "buff",
+              "target": "allyAll",
+              "stat": "hp",
+              "scaling": {
+                "base": 12,
+                "mult": 0
+              },
+              "ifCond": {
+                "kind": "troopPresent",
+                "side": "ally",
+                "name": "不朽的格思洛克"
+              },
+              "lifeMode": "gain"
+            }
+          ]
+        }
+      },
+      "sourceEvidence": [
+        {
+          "id": "en",
+          "role": "english-snapshot",
+          "path": "artifacts/gowhead-weapons/weapons.json",
+          "note": "weapon 1721 GirthroksStonecleaver: SpellId 10065, ManaCost 20, Blue, English 'Deal [Magic + 4] damage to the first 2 Enemies. If Immortal Girthrok is in my team, give 12 Life to all Allies.' asserted."
+        },
+        {
+          "id": "native",
+          "role": "native-snapshot",
+          "path": "data/raw/spells.gow.en.json",
+          "note": "spell 10065 Target None Cost 20; SpellSteps asserted: CountArmyTroop AllAllies 10000 Data '7933'; Damage FirstTwoEnemies 4 SPM 1; CountMax 12; IncreaseHealth AllAllies UseCounterForAmount."
+        },
+        {
+          "id": "rule",
+          "role": "official-shared-rule",
+          "path": "artifacts/gow-skill-audit/gold-primary-sources/official-brian-guide.html",
+          "note": "Official Brian guide Cleave 'Deal [1+Magic] damage to the first 2 enemies' (same first-2 targeting wording); named-troop bonus clauses follow the stored English snapshot. IncreaseHealth ('give N Life') raises Life and max Life (engine LifeMode gain convention)."
+        },
+        {
+          "id": "laneTest",
+          "role": "lane-battle-test",
+          "path": "tests/unit/gowLaneL7B04.test.ts",
+          "note": "L7B04 weapon:1721 describe: binding (numeric + gw_), prototype, zh, troop 7933 name; 8 real casts (first 2 damaged, every living ally +12 Life/+12 max Life); absent/dead/enemy Girthrok; dead ally not healed; low-mana/silence."
+        }
+      ],
+      "dimensions": {
+        "identity-cost-colors": {
+          "status": "verified",
+          "note": "Weapon 1721 -> spell 10065, cost 20, Blue, ReferenceName GirthroksStonecleaver; numeric and gw_ prototypes identical.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL7B04.test.ts"
+          ]
+        },
+        "target-count-range": {
+          "status": "verified",
+          "note": "FirstTwoEnemies -> enemyFirstN n 2; AllAllies -> allyAll living allies incl. caster.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL7B04.test.ts"
+          ]
+        },
+        "base-formula-rounding": {
+          "status": "verified",
+          "note": "[Magic + 4] to each of the first two; +12 Life and +12 max Life to each living ally.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL7B04.test.ts"
+          ]
+        },
+        "boost-source-ratio-cap": {
+          "status": "verified",
+          "note": "CountArmyTroop Data '7933' x10000 capped by CountMax 12 -> 12 Life when Immortal Girthrok (不朽的格思洛克) is a living ally.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL7B04.test.ts"
+          ]
+        },
+        "conditions-probabilities-branches": {
+          "status": "verified",
+          "note": "Girthrok present -> Life for all allies; absent, defeated or enemy-side -> none.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL7B04.test.ts"
+          ]
+        },
+        "status-duration-immunity": {
+          "status": "not-applicable",
+          "note": "No status applied.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": []
+        },
+        "gems-types-selection-resolution": {
+          "status": "not-applicable",
+          "note": "No gem steps.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": []
+        },
+        "summon-transform-pools": {
+          "status": "not-applicable",
+          "note": "No summon/transform.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": []
+        },
+        "order-death-retargeting": {
+          "status": "verified",
+          "note": "Count first, damage, then CountMax/IncreaseHealth; dead ally not healed.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL7B04.test.ts"
+          ]
+        },
+        "mana-economy-extra-turn": {
+          "status": "verified",
+          "note": "Real cast spends 20 mana and ends turn; low mana / silence block.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL7B04.test.ts"
+          ]
+        },
+        "display-description": {
+          "status": "verified",
+          "note": "zh '对首 2 位敌人造成 [魔法 + 4] 点伤害。若队伍中有不朽的格思洛克，为所有盟友提供 12 点生命值。' matches English.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL7B04.test.ts"
+          ]
+        },
+        "battle-pipeline": {
+          "status": "verified",
+          "note": "TurnEngine.castSkill both sides; hp/maxHp pairs asserted ([912,1012],[512,1012],[1012,1012]); enemies max Life unchanged.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL7B04.test.ts"
+          ],
+          "realBattleEntry": true
+        }
+      },
+      "clauseReviews": [
+        {
+          "id": "c1",
+          "text": "Deal [Magic + 4] damage to the first 2 Enemies.",
+          "status": "verified",
+          "note": "First two living enemies take [Magic + 4] each.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL7B04.test.ts"
+          ]
+        },
+        {
+          "id": "c2",
+          "text": "If Immortal Girthrok is in my team, give 12 Life to all Allies.",
+          "status": "verified",
+          "note": "Girthrok ally -> every living ally +12 Life (and +12 max Life); none otherwise.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL7B04.test.ts"
+          ]
+        }
+      ],
+      "nativeStepReviews": [
+        {
+          "id": "0",
+          "type": "CountArmyTroop",
+          "status": "verified",
+          "note": "CountArmyTroop AllAllies Data '7933' Amount 10000 -> troopPresent ally 不朽的格思洛克.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL7B04.test.ts"
+          ]
+        },
+        {
+          "id": "1",
+          "type": "Damage",
+          "status": "verified",
+          "note": "Damage FirstTwoEnemies 4 SPM 1 -> damage enemyFirstN n 2 base 4 mult 1.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL7B04.test.ts"
+          ]
+        },
+        {
+          "id": "2",
+          "type": "CountMax",
+          "status": "verified",
+          "note": "CountMax 12 -> fixed 12.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL7B04.test.ts"
+          ]
+        },
+        {
+          "id": "3",
+          "type": "IncreaseHealth",
+          "status": "verified",
+          "note": "IncreaseHealth AllAllies UseCounterForAmount -> buff allyAll hp 12 lifeMode gain gated by troopPresent.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL7B04.test.ts"
+          ]
+        }
+      ],
+      "branchReviews": [
+        {
+          "id": "main",
+          "status": "verified",
+          "note": "Single branch; troop-present condition covered on both outcomes.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL7B04.test.ts"
+          ]
+        }
+      ]
+    },
+    {
+      "key": "troop:7517",
+      "scope": "stored-gow-snapshot",
+      "sourceDigest": "6b00ce55f44bc3089c3ab2c60e72eaf49048f2379be3df69701aba1cff417885",
+      "reviewer": "sa-L76",
+      "reviewedAt": "2026-09-27",
+      "decision": "accept",
+      "ledgerFingerprintAtReview": "b11eaf00bc4e64b650d2a253ec6c7aff706de690793f0c1fb61302a07c0f6a97",
+      "_reference": {
+        "spellId": 9281,
+        "english": "Pull an Enemy to the front, and deal [(Magic x 0.625) + 2] – [(Magic x 1.25) + 4] damage to them, boosted by my Armor. There is a 15% chance to self destruct. [2:1]",
+        "nativeTarget": "Enemy",
+        "randomize": null,
+        "steps": [
+          {
+            "Target": "Self",
+            "Amount": 50,
+            "Type": "CountArmor"
+          },
+          {
+            "SpellPowerMultiplier": 1.25,
+            "Target": "FromTarget",
+            "UseCounterForAmount": true,
+            "Amount": 4,
+            "Primarypower": true,
+            "Type": "RandomHighDamage",
+            "Delay": 400
+          },
+          {
+            "Target": "FromTarget",
+            "Type": "TroopOrderFront",
+            "Delay": 400
+          },
+          {
+            "Target": "Self",
+            "PercentageChance": 15,
+            "Type": "LethalDamage"
+          }
+        ],
+        "prototype": {
+          "segments": [
+            {
+              "kind": "reposition",
+              "target": "enemyChosen",
+              "to": "front"
+            },
+            {
+              "kind": "damage",
+              "target": "enemyChosen",
+              "scaling": {
+                "base": 0,
+                "mult": 0
+              },
+              "rangeSpec": {
+                "min": {
+                  "base": 2,
+                  "mult": 0.625
+                },
+                "max": {
+                  "base": 4,
+                  "mult": 1.25
+                }
+              },
+              "modifier": {
+                "mod": {
+                  "kind": "ratio",
+                  "a": 2,
+                  "b": 1
+                },
+                "source": {
+                  "kind": "selfStat",
+                  "stat": "armor"
+                }
+              }
+            },
+            {
+              "kind": "sacrifice",
+              "target": "allySelf",
+              "chance": 0.15
+            }
+          ]
+        }
+      },
+      "sourceEvidence": [
+        {
+          "id": "en",
+          "role": "english-snapshot",
+          "path": "data/raw/troops.gow.en.json",
+          "note": "troop 7517: stats.spell.id 9281, ManaCost 12, Blue/Yellow, English 'Pull an Enemy to the front, and deal [(Magic x 0.625) + 2] – [(Magic x 1.25) + 4] damage to them, boosted by my Armor. There is a 15% chance to self destruct. [2:1]' asserted verbatim."
+        },
+        {
+          "id": "native",
+          "role": "native-snapshot",
+          "path": "data/raw/spells.gow.en.json",
+          "note": "spell 9281 Target Enemy Cost 12; SpellSteps asserted: CountArmor Self 50; RandomHighDamage FromTarget Amount 4 SPM 1.25 UseCounterForAmount Delay 400; TroopOrderFront FromTarget; LethalDamage Self PercentageChance 15."
+        },
+        {
+          "id": "rule",
+          "role": "official-shared-rule",
+          "path": "artifacts/gow-skill-audit/gold-primary-sources/official-brian-guide.html",
+          "note": "Official Brian guide writes stat boosts as '(Boost Ratio N:1)' (e.g. Frenzy 3:1, Resolve 4:1); supports the [2:1] self-armor boost label."
+        },
+        {
+          "id": "laneTest",
+          "role": "lane-battle-test",
+          "path": "tests/unit/gowLaneL7B04.test.ts",
+          "note": "L7B04 troop:7517 describe: prototype (split removed) + zh; 4 real casts (2 sides x magic 0/8) with scripted low/high rolls; self destruct 0.1499 vs 0.15; R001 order equivalence + armor absorption; low-mana/silence; binding."
+        },
+        {
+          "id": "r001",
+          "role": "coordinator-ruling",
+          "path": "tasks/active/gow-skill-shards/rulings/R001-native-step-order.md",
+          "note": "R001: native order governs; damage-then-TroopOrderFront vs pull-then-damage proven equivalent by test."
+        }
+      ],
+      "dimensions": {
+        "identity-cost-colors": {
+          "status": "verified",
+          "note": "Entity 7517 -> spell 9281, cost 12, Blue/Yellow; ledger binding checks true.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r001"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL7B04.test.ts"
+          ]
+        },
+        "target-count-range": {
+          "status": "verified",
+          "note": "FromTarget -> enemyChosen only (after fix L7-7517 no split to the next enemy); pulled to front.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r001"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL7B04.test.ts"
+          ]
+        },
+        "base-formula-rounding": {
+          "status": "verified",
+          "note": "Roll in [0.625M+2 .. 1.25M+4] (magic 0: 2..4, magic 8: 7..14) plus floor(armor 21 / 2) = +10 on both ends; low roll 0 and high roll 0.9999 asserted.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r001"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL7B04.test.ts"
+          ]
+        },
+        "boost-source-ratio-cap": {
+          "status": "verified",
+          "note": "CountArmor Self Amount 50 = [2:1] -> selfStat armor ratio 2:1 (21 -> +10); no cap. Open note in issues L7-7517: whether native adds the counter to both range ends.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r001"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL7B04.test.ts"
+          ]
+        },
+        "conditions-probabilities-branches": {
+          "status": "verified",
+          "note": "LethalDamage Self PercentageChance 15 -> sacrifice allySelf chance 0.15: roll 0.1499 kills caster, 0.15 does not.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r001"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL7B04.test.ts"
+          ]
+        },
+        "status-duration-immunity": {
+          "status": "not-applicable",
+          "note": "No status applied.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": []
+        },
+        "gems-types-selection-resolution": {
+          "status": "not-applicable",
+          "note": "No gem steps.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": []
+        },
+        "summon-transform-pools": {
+          "status": "not-applicable",
+          "note": "No summon/transform.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": []
+        },
+        "order-death-retargeting": {
+          "status": "verified",
+          "note": "Native damage -> TroopOrderFront; runtime pull -> damage on the same chosen target: equivalent (same victim, final order [12,10,11,13]) per R001; self destruct after damage.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r001"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL7B04.test.ts"
+          ]
+        },
+        "mana-economy-extra-turn": {
+          "status": "verified",
+          "note": "Real cast spends 12 mana and ends the turn; low mana / silence block.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r001"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL7B04.test.ts"
+          ]
+        },
+        "display-description": {
+          "status": "verified",
+          "note": "zh matches English clause by clause; official zh snapshot keeps a '- {2}' placeholder artefact after the range (kept verbatim, no behaviour).",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r001"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL7B04.test.ts"
+          ]
+        },
+        "battle-pipeline": {
+          "status": "verified",
+          "note": "TurnEngine.castSkill both sides with scripted RNG; normal damage consumes target armor first.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r001"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL7B04.test.ts"
+          ],
+          "realBattleEntry": true
+        }
+      },
+      "clauseReviews": [
+        {
+          "id": "c1",
+          "text": "Pull an Enemy to the front, and deal [(Magic x 0.625) + 2] – [(Magic x 1.25) + 4] damage to them, boosted by my Armor.",
+          "status": "verified",
+          "note": "Chosen enemy pulled to front and alone takes the ranged roll + floor(my armor / 2); other enemies untouched.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL7B04.test.ts"
+          ]
+        },
+        {
+          "id": "c2",
+          "text": "There is a 15% chance to self destruct.",
+          "status": "verified",
+          "note": "15% self destruct: roll 0.1499 defeats the caster, 0.15 does not.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL7B04.test.ts"
+          ]
+        },
+        {
+          "id": "c3",
+          "text": "[2:1]",
+          "status": "verified",
+          "note": "[2:1]: +1 per 2 own armor (21 -> +10).",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL7B04.test.ts"
+          ]
+        }
+      ],
+      "nativeStepReviews": [
+        {
+          "id": "0",
+          "type": "CountArmor",
+          "status": "verified",
+          "note": "CountArmor Self 50 -> selfStat armor ratio 2:1.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL7B04.test.ts"
+          ]
+        },
+        {
+          "id": "1",
+          "type": "RandomHighDamage",
+          "status": "verified",
+          "note": "RandomHighDamage FromTarget Amount 4 SPM 1.25 UseCounterForAmount -> damage enemyChosen rangeSpec {2+0.625M .. 4+1.25M} + modifier; exact low/high values asserted.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL7B04.test.ts"
+          ]
+        },
+        {
+          "id": "2",
+          "type": "TroopOrderFront",
+          "status": "verified",
+          "note": "TroopOrderFront FromTarget -> reposition enemyChosen front (runtime before damage; order-equivalent, R001 test).",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL7B04.test.ts"
+          ]
+        },
+        {
+          "id": "3",
+          "type": "LethalDamage",
+          "status": "verified",
+          "note": "LethalDamage Self PercentageChance 15 -> sacrifice allySelf chance 0.15.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL7B04.test.ts"
+          ]
+        }
+      ],
+      "branchReviews": [
+        {
+          "id": "main",
+          "status": "verified",
+          "note": "Single branch with a 15% self destruct roll; both roll outcomes asserted.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL7B04.test.ts"
+          ]
+        }
+      ]
+    }
+  ]
+}

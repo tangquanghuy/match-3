@@ -31,18 +31,8 @@ export function loadStandaloneRequest(opts: ValidateOptions): BattleRequest {
   return result.request;
 }
 
-/**
- * 按调试用队伍人数裁剪双方（3v3 / 4v4 开关）。
- *
- * 只裁不补：配置里人数不足时按实际人数走，不凭空造角色。宿主注入的 request 不应经过这里，
- * 人数由宿主决定。
- */
-export function resizeRequestTeams(request: BattleRequest, size: number): BattleRequest {
-  const take = Math.max(1, Math.floor(size));
-  if (request.playerTeam.length <= take && request.enemyTeam.length <= take) return request;
-  return {
-    ...request,
-    playerTeam: request.playerTeam.slice(0, take),
-    enemyTeam: request.enemyTeam.slice(0, take),
-  };
+/** 兼容旧调用，不再根据调试人数裁剪战斗队伍。 */
+export function resizeRequestTeams(request: BattleRequest, _legacySize?: number): BattleRequest {
+  // Legacy callers remain compatible; a stored debug size must never drop the fourth unit.
+  return request;
 }

@@ -1,6 +1,8 @@
 import { BaseColor, PlayerSide } from '@engine/types';
 import type { Character, Team } from '@engine/types';
 import { AnimConfig } from './AnimationConfig';
+import { scaledMs } from './battleSpeed';
+import { battleCardDimensions, battleCardOverlayMetrics } from './battleCardLayout';
 import { statusBadge, statusBadgeIcon } from './statusBadges';
 import { traitCardGlyphs } from './traitBadges';
 import frostBorderUrl from '../assets/fx/frost_border_overlay.png';
@@ -19,7 +21,7 @@ import entangleVinesUrl from '../assets/fx/entangle_vines_overlay.png';
 export let CARD_W = 142;
 export let CARD_H = 164;
 const CARD_GAP = 10;
-let TEAM_SIZE = 3;
+let TEAM_SIZE = 4;
 /** 棋盘可用高度（行数×格子尺寸），队伍卡竖向填满；由 App 按实际 cellSize 设置 */
 let BOARD_PX = 512;
 
@@ -170,15 +172,45 @@ function gemSvg(colors: BaseColor[]): string {
   </svg>`;
 }
 
+/**
+ * 与卡面同款的 emerald 法力宝石（静态充能比例）：详情窗的卡面宝石与技能标记复用，
+ * 保证战斗里同一个角色只有一种宝石长相。ratio ∈ [0,1]。
+ */
+export function manaGemSvg(colors: BaseColor[], ratio: number): string {
+  const h = Math.round(Math.max(0, Math.min(1, ratio)) * 512);
+  return gemSvg(colors).replace(
+    '<rect class="rise" x="0" y="512" width="512" height="0"/>',
+    `<rect class="rise" x="0" y="${512 - h}" width="512" height="${h}"/>`,
+  );
+}
+
+/** 一次卡片点按的来源：键盘打开详情窗时才把焦点移进窗内 */
+export type PressSource = 'pointer' | 'keyboard';
+
+/** 卡面此刻显示的数值（详情窗与卡面同步用；法力为卡面显示值，不是引擎值） */
+export interface CardShownStats {
+  attack: number;
+  armor: number;
+  hp: number;
+  maxHp: number;
+  magic: number;
+  mana: number;
+  manaCost: number;
+  defeated: boolean;
+  statuses: { id: string; turns: number; magnitude?: number }[];
+}
+
 // 线性图标（暖金描边，与衬线数字气质统一，数字作主体）
-const ICO_GOLD = '#e6d6ad';
-// crossed-swords（game-icons.net / lorc，CC BY 3.0）：填充型双剑图标
-const SWORD_SVG = `<svg class="ic" viewBox="0 0 512 512" width="14" height="14"><path fill="${ICO_GOLD}" d="M19.75 14.438c59.538 112.29 142.51 202.35 232.28 292.718l3.626 3.75.063-.062c21.827 21.93 44.04 43.923 66.405 66.25-18.856 14.813-38.974 28.2-59.938 40.312l28.532 28.53 68.717-68.717c42.337 27.636 76.286 63.646 104.094 105.81l28.064-28.06c-42.47-27.493-79.74-60.206-106.03-103.876l68.936-68.938-28.53-28.53c-11.115 21.853-24.413 42.015-39.47 60.593-43.852-43.8-86.462-85.842-130.125-125.47-.224-.203-.432-.422-.656-.625C183.624 122.75 108.515 63.91 19.75 14.437zm471.875 0c-83.038 46.28-154.122 100.78-221.97 161.156l22.814 21.562 56.81-56.812 13.22 13.187-56.438 56.44 24.594 23.186c61.802-66.92 117.6-136.92 160.97-218.72zm-329.53 125.906 200.56 200.53a402.965 402.965 0 0 1-13.405 13.032L148.875 153.53l13.22-13.186zm-76.69 113.28-28.5 28.532 68.907 68.906c-26.29 43.673-63.53 76.414-106 103.907l28.063 28.06c27.807-42.164 61.758-78.174 104.094-105.81l68.718 68.717 28.53-28.53c-20.962-12.113-41.08-25.5-59.937-40.313 17.865-17.83 35.61-35.433 53.157-52.97l-24.843-25.655-55.47 55.467c-4.565-4.238-9.014-8.62-13.374-13.062l55.844-55.844-24.53-25.374c-18.28 17.856-36.602 36.06-55.158 54.594-15.068-18.587-28.38-38.758-39.5-60.625z"/></svg>`;
-const HEART_SVG = `<svg class="ic" viewBox="3 4 18 17" width="13" height="13"><path fill="none" stroke="${ICO_GOLD}" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" d="M12 20C6.5 16 3.5 12.8 3.5 9.2 3.5 6.6 5.5 4.7 8 4.7c1.6 0 3.1.8 4 2.2.9-1.4 2.4-2.2 4-2.2 2.5 0 4.5 1.9 4.5 4.5 0 3.6-3 6.8-8.5 10.8z"/></svg>`;
-const SHIELD_SVG = `<svg class="ic-armor" viewBox="0 0 24 24" width="11" height="11"><path fill="none" stroke="${ICO_GOLD}" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" d="M12 3 19 5.5v5.5c0 4.3-3 7.6-7 9-4-1.4-7-4.7-7-9V5.5z"/></svg>`;
+// Stat icons inherit the matching troop-detail semantic color.
+const SWORD_SVG = `<svg class="ic" viewBox="0 0 512 512" width="14" height="14"><path fill="currentColor" d="M19.75 14.438c59.538 112.29 142.51 202.35 232.28 292.718l3.626 3.75.063-.062c21.827 21.93 44.04 43.923 66.405 66.25-18.856 14.813-38.974 28.2-59.938 40.312l28.532 28.53 68.717-68.717c42.337 27.636 76.286 63.646 104.094 105.81l28.064-28.06c-42.47-27.493-79.74-60.206-106.03-103.876l68.936-68.938-28.53-28.53c-11.115 21.853-24.413 42.015-39.47 60.593-43.852-43.8-86.462-85.842-130.125-125.47-.224-.203-.432-.422-.656-.625C183.624 122.75 108.515 63.91 19.75 14.437zm471.875 0c-83.038 46.28-154.122 100.78-221.97 161.156l22.814 21.562 56.81-56.812 13.22 13.187-56.438 56.44 24.594 23.186c61.802-66.92 117.6-136.92 160.97-218.72zm-329.53 125.906 200.56 200.53a402.965 402.965 0 0 1-13.405 13.032L148.875 153.53l13.22-13.186zm-76.69 113.28-28.5 28.532 68.907 68.906c-26.29 43.673-63.53 76.414-106 103.907l28.063 28.06c27.807-42.164 61.758-78.174 104.094-105.81l68.718 68.717 28.53-28.53c-20.962-12.113-41.08-25.5-59.937-40.313 17.865-17.83 35.61-35.433 53.157-52.97l-24.843-25.655-55.47 55.467c-4.565-4.238-9.014-8.62-13.374-13.062l55.844-55.844-24.53-25.374c-18.28 17.856-36.602 36.06-55.158 54.594-15.068-18.587-28.38-38.758-39.5-60.625z"/></svg>`;
+const HEART_SVG = `<svg class="ic" viewBox="3 4 18 17" width="13" height="13"><path fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" d="M12 20C6.5 16 3.5 12.8 3.5 9.2 3.5 6.6 5.5 4.7 8 4.7c1.6 0 3.1.8 4 2.2.9-1.4 2.4-2.2 4-2.2 2.5 0 4.5 1.9 4.5 4.5 0 3.6-3 6.8-8.5 10.8z"/></svg>`;
+const SHIELD_SVG = `<svg class="ic ic-armor" viewBox="0 0 24 24" width="11" height="11"><path fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" d="M12 3 19 5.5v5.5c0 4.3-3 7.6-7 9-4-1.4-7-4.7-7-9V5.5z"/></svg>`;
 // 魔力（法术强度）图标：水晶球（game-icons.net / lorc «crystal-ball», CC BY 3.0）。
 // 用径向渐变填充做出"发光宝珠"的立体质感（中心亮、边缘深紫），而非扁平色块。
 const MAGIC_SVG = `<svg class="ic-magic" viewBox="0 0 512 512" width="17" height="17"><defs><radialGradient id="mgOrb" cx="38%" cy="30%" r="78%"><stop offset="0%" stop-color="#f7f0ff"/><stop offset="42%" stop-color="#cdaef3"/><stop offset="100%" stop-color="#7c4dbe"/></radialGradient></defs><path fill="url(#mgOrb)" d="M254.563 20.75c-42.96 0-85.918 16.387-118.688 49.156-65.54 65.54-65.852 172.15-.313 237.688 65.54 65.54 172.15 65.226 237.688-.313 65.54-65.538 65.54-171.835 0-237.374-32.77-32.77-75.728-49.156-118.688-49.156zm-.157 18.47a149.284 149.284 0 0 1 74.313 19.968c-13.573-3.984-26.266-2.455-34.22 5.5-14.437 14.437-7.796 44.485 14.813 67.093 22.608 22.61 52.625 29.22 67.062 14.782 8.523-8.522 9.706-22.468 4.594-37.125 36.352 57.684 29.586 134.6-20.69 184.875-29.158 29.16-67.353 43.773-105.56 43.813 9.436-2.3 17.762-6.732 24.436-13.406 28.885-28.886 15.64-88.954-29.594-134.19-45.234-45.233-105.302-58.51-134.187-29.624-4.052 4.052-7.266 8.723-9.688 13.875 3.092-33.537 17.473-66.222 43.157-91.905 29.198-29.2 67.384-43.737 105.562-43.656zM386.97 319.28c-.205.206-.39.422-.595.626-72.78 72.78-191.252 73.155-264.03.375-.278-.275-.54-.565-.814-.842-11.987 9.483-18.81 20.384-18.81 32 0 36.523 67.315 66.125 151.343 66.125 84.027 0 152.093-29.6 152.093-66.125 0-11.68-6.97-22.637-19.187-32.157zm39.717 54.564c-22.225 32.29-91.192 55.906-172.625 55.906-81.172 0-149.954-23.46-172.406-55.594-12.638 11.3-19.72 24.052-19.72 37.563.002 46.928 85.546 85.03 192.064 85.03 106.518 0 192.97-38.1 192.97-85.03 0-13.637-7.313-26.498-20.283-37.876z"/></svg>`;
+
+/** 卡面同款属性图标（详情窗复用，战斗里同一属性只有一种图标） */
+export const CARD_STAT_ICONS = { sword: SWORD_SVG, heart: HEART_SVG, shield: SHIELD_SVG, magic: MAGIC_SVG } as const;
 
 const GRAIN_URI =
   "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E\")";
@@ -276,9 +308,9 @@ function ensureStyles(): void {
     animation:castSheen 2.6s linear infinite}
   @keyframes castSheen{0%{transform:translateX(-60%)}100%{transform:translateX(60%)}}
 
-  /* B-5（UX 阶段 B）：长按前给按压进度反馈。短按=施法 / 长按=详情只差 475ms，
-     且误触代价不对称（想看详情结果放了技能 = 法力全没），按压期画一圈铺开的进度环，
-     让玩家看得见"再按下去就变成长按了"。 */
+  /* 长按进度环：只在「快速释放」开启且该我方角色此刻可施放时画——
+     那时短按=施法、长按=打开详情窗，两种结果不同才需要看得见"再按下去就变成长按了"。
+     其余情况短按/长按都是打开详情窗，不画环。 */
   .gcard .press-ring{position:absolute;z-index:10;inset:-2px;border-radius:10px;pointer-events:none;
     opacity:0;border:2px solid rgba(240,222,170,.9);
     box-shadow:0 0 10px rgba(240,222,170,.45),inset 0 0 8px rgba(240,222,170,.2)}
@@ -294,7 +326,7 @@ function ensureStyles(): void {
     .gcard .status-badge.status-discovery,.gcard .status-more.status-discovery{animation:none}
   }
 
-  /* B-3（UX 阶段 B）：短按无效时的即时反馈浮窗（还差 N 点法力 / 等待对手行动 / 沉默中）。
+  /* B-3（UX 阶段 B）：短按无效时的即时反馈浮窗（还差 N 点法力值 / 等待对手行动 / 沉默中）。
      阶段 A 这里是彻底的零反馈——玩家分不清"法力不够 / 不是我的回合 / 游戏卡住了"，
      于是反复点、越点越确信是 bug。这是整个战斗层最高频的一次交互失败。 */
   .gcard .cast-hint{position:absolute;z-index:14;left:50%;bottom:calc(100% + ${os(4)}px);
@@ -541,11 +573,13 @@ function ensureStyles(): void {
   .v4 .shard{clip-path:polygon(58% 26%,100% 44%,100% 100%,42% 100%)}
   .v4 .focal{left:34%;top:20%}
 
-  /* 原始卡面信息布局：名字隐藏，攻/护/生在底边，法术强度在右上角。 */
+  /* Defense faces the board; attack stays outside. Enemy overlays mirror allies. */
   .gcard .ov{position:absolute;z-index:6}
   .gcard .c-tl{top:${os(8)}px;left:${os(9)}px;right:${os(14)}px}
-  .gcard .c-bl{left:${os(13)}px;bottom:${os(9)}px}
-  .gcard .c-br{right:${os(13)}px;bottom:${os(9)}px;text-align:right}
+  .gcard .c-bl{left:var(--card-inset);bottom:var(--card-inset)}
+  .gcard .c-br{right:var(--card-inset);bottom:var(--card-inset);text-align:right;display:flex;flex-direction:column;align-items:flex-end;gap:var(--stat-gap)}
+  .gcard.enemy .c-bl{left:auto;right:var(--card-inset)}
+  .gcard.enemy .c-br{left:var(--card-inset);right:auto;text-align:left;align-items:flex-start}
   .gcard.frozen .c-bl,.gcard.frozen .c-br{isolation:isolate}
   .gcard.frozen .c-bl::before,.gcard.frozen .c-br::before{content:"";position:absolute;z-index:-1;
     inset:-${os(7)}px -${os(9)}px -${os(6)}px;border-radius:${os(12)}px;pointer-events:none;
@@ -557,8 +591,8 @@ function ensureStyles(): void {
 
   /* 法力宝石：贴着卡片左上角、嵌进边框的"书签式"角标（与立绘卡同源的边框语言）。
      外侧两角与卡片圆角对齐(左上=卡圆角)，仅内侧(右下)收大圆角，像长在边框上而非浮在画面里。 */
-  /* 触控区随视觉一起同比缩小：这是二级信息入口（点开法力进度浮窗），
-     不再计入 44×44 关键控件；全屏、队伍人数与角色卡本身仍保持 ≥44 CSS px。 */
+  /* 宝石只是卡面的一部分：点它与点卡面其它位置一样执行卡片动作（打开详情窗/快速释放），
+     法力进度浮窗只在鼠标悬停时出现（statusTooltip）。 */
   .gcard .gem{position:absolute;top:0;left:0;z-index:6;
     width:${gemSize()}px;height:${gemSize()}px;padding:${Math.round(gemSize() * 0.12)}px;
     /* 底衬贴住宝石：留白过大会在空法力（暗态）时读成一大块黑板 */
@@ -596,21 +630,40 @@ function ensureStyles(): void {
     0%,100%{transform:scale(1)}
     50%{transform:scale(1.12)}
   }
+  /* 宝石内的当前法力数字：不占新位置，居中压在宝石上；与攻击/生命/魔力同一套衬线数字，
+     四向暗描边保证落在任何宝石颜色上都读得清。跟随卡面「显示法力」（法力流抵达才涨），
+     不跟引擎值。空=压暗，充能中=暖白，满=暖金（随满充辉光），沉默且满=灰紫。 */
+  .gcard .gem .gem-mana{position:absolute;inset:0;z-index:1;display:flex;align-items:center;justify-content:center;
+    pointer-events:none;font-family:"Playfair Display",Georgia,serif;font-weight:800;line-height:1;
+    font-size:${Math.max(9, Math.round(gemSize() * 0.44))}px;font-variant-numeric:tabular-nums;letter-spacing:-.02em;
+    color:#f3ead6;
+    text-shadow:1px 0 0 rgba(10,8,6,.92),-1px 0 0 rgba(10,8,6,.92),0 1px 0 rgba(10,8,6,.92),0 -1px 0 rgba(10,8,6,.92),
+      0 1px 3px rgba(0,0,0,.9);transition:color .2s ease}
+  .gcard .gem .gem-mana.is-zero{color:rgba(243,234,214,.38)}
+  .gcard.mana-full .gem .gem-mana{color:#ffe6a8;
+    text-shadow:1px 0 0 rgba(10,8,6,.92),-1px 0 0 rgba(10,8,6,.92),0 1px 0 rgba(10,8,6,.92),0 -1px 0 rgba(10,8,6,.92),
+      0 0 6px rgba(232,200,121,.7)}
+  .gcard.silenced.mana-full .gem .gem-mana{color:#b9aecb;
+    text-shadow:1px 0 0 rgba(10,8,6,.92),-1px 0 0 rgba(10,8,6,.92),0 1px 0 rgba(10,8,6,.92),0 -1px 0 rgba(10,8,6,.92)}
+  /* 整张卡是一个按钮：键盘聚焦时才画描边（鼠标/触控点击不出框） */
+  .gcard:focus{outline:none}
+  .gcard:focus-visible{outline:2px solid rgba(240,222,170,.9);outline-offset:2px}
 
-  /* 攻防：恢复首次改动前的同一底行布局与暖金图标。 */
-  .gcard .stat{display:flex;align-items:flex-end;gap:${os(5)}px;flex-direction:row-reverse}
-  /* SVG 自带的 width/height 属性会被这里的 CSS 覆盖，图标才能跟数字一起缩。 */
-  .gcard .stat .ic{flex:none;width:${os(14)}px;height:${os(14)}px;
-    filter:drop-shadow(0 1px 2px rgba(0,0,0,.8));transform:translateY(1px)}
-  .gcard .stat .v{font-family:"Playfair Display",Georgia,serif;font-weight:800;line-height:1;font-size:${ofs(18)}px;
-    letter-spacing:-.01em;color:#f6efe0;text-shadow:0 1px 2px rgba(0,0,0,.95),0 0 4px rgba(0,0,0,.55)}
+  /* Match the troop detail card palette; icon and numeral keep distinct tones. */
+  .gcard .stat{display:flex;align-items:center;gap:var(--stat-gap);white-space:nowrap}
+  .gcard.ally .c-br .stat,.gcard.enemy .stat-atk{flex-direction:row-reverse}
+  .gcard .stat .ic{flex:none;width:var(--stat-icon);height:var(--stat-icon);
+    filter:drop-shadow(0 1px 2px rgba(0,0,0,.8))}
+  .gcard .stat .v{font-family:"Playfair Display",Georgia,serif;font-weight:800;line-height:1.1;font-size:var(--stat-font);
+    font-variant-numeric:tabular-nums;letter-spacing:-.01em;text-shadow:0 1px 2px rgba(0,0,0,.95),0 0 4px rgba(0,0,0,.55)}
+  .gcard .stat-atk{color:#d6c397}
+  .gcard .stat-atk .v{color:#fff1d4}
+  .gcard .stat-armor{color:#c5c8ce}
+  .gcard .stat-armor .v{color:#e4e6ea}
+  .gcard .stat-hp{color:#c45454}
+  .gcard .stat-hp .v{color:#e07070}
+  .gcard .stat .ic{fill:currentColor}
 
-  /* 护甲与生命同排；0 护甲保持原逻辑，不额外占位。 */
-  .gcard .armor{display:inline-flex;align-items:center;gap:2px;margin-right:${os(5)}px}
-  .gcard .armor .ic-armor{flex:none;width:${os(11)}px;height:${os(11)}px}
-  .gcard .armor .v{font-family:"Oswald",sans-serif;font-weight:600;font-size:${ofs(11)}px;color:#d8c290;text-shadow:0 1px 3px rgba(0,0,0,.9)}
-
-  /* 魔力是技能强度，不是施法所需法力；恢复原右上角水晶球读数。 */
   .gcard .magic{position:absolute;top:0;right:0;z-index:6;
     height:${os(21)}px;padding:0 ${os(6)}px 0 ${os(5)}px;box-sizing:border-box;
     display:flex;align-items:center;gap:${os(3)}px;pointer-events:none;
@@ -624,8 +677,9 @@ function ensureStyles(): void {
     letter-spacing:-.01em;color:#f1e9ff;text-shadow:0 1px 2px rgba(0,0,0,.95),0 0 5px rgba(150,100,210,.5)}
 
   /* 状态图标恢复到底部数值上方，避免与右上角魔力值冲突。 */
-  .gcard .status-strip{position:absolute;z-index:6;left:${os(6)}px;bottom:${os(34)}px;
+  .gcard .status-strip{position:absolute;z-index:6;left:var(--card-inset);bottom:var(--status-bottom);
     display:flex;flex-wrap:wrap-reverse;gap:${os(3)}px;max-width:${CARD_W - os(12)}px;pointer-events:none}
+  .gcard.enemy .status-strip{left:auto;right:var(--card-inset);justify-content:flex-end}
   /* B-7（UX 阶段 B）：徽记尺寸设 24px 绝对下限。阶段 A 实测移动横屏（740×400）徽记
      缩到 17×17、相邻间距约 2px，而它是本页唯一"可点内容"——点偏就落到卡面上，
      卡面短按是**释放技能**，代价不对称且不可撤销。实际尺寸由 resize() 按实时卡宽
@@ -667,11 +721,12 @@ function ensureStyles(): void {
     font-family:"Oswald",sans-serif;font-size:8px;line-height:9px;text-align:center;color:#f0e2bf}
 
   /* 特质恢复为贴左边框的三枚竖排图标。 */
-  .gcard .trait-row{position:absolute;z-index:6;left:0;top:50%;transform:translateY(-50%);
-    display:flex;flex-direction:column;align-items:center;gap:${os(5)}px;pointer-events:none;
-    padding:${os(3)}px 0}
+  .gcard .trait-row{position:absolute;z-index:6;left:var(--trait-inset);top:43%;transform:translateY(-50%);
+    display:flex;flex-direction:column;align-items:center;gap:var(--trait-gap);pointer-events:none;
+    padding:0}
+  .gcard.portrait-compact.has-statuses .trait-row{top:var(--compact-trait-top);transform:none;flex-direction:row}
   .gcard .trait-row:empty{display:none}
-  .gcard .trait-badge{display:inline-flex;pointer-events:auto;cursor:pointer;
+  .gcard .trait-badge{display:inline-flex;flex:none;width:var(--trait-size);height:var(--trait-size);pointer-events:auto;cursor:pointer;
     filter:drop-shadow(0 1px 2px rgba(0,0,0,.95)) drop-shadow(0 0 4px rgba(0,0,0,.65))}
   .gcard .trait-badge:hover{filter:drop-shadow(0 1px 2px rgba(0,0,0,.95)) drop-shadow(0 0 6px rgba(240,222,170,.85))}
   .gcard .trait-badge svg{display:block;width:100%;height:100%}
@@ -701,7 +756,13 @@ export class CharacterCard {
   private pressCleanup: (() => void) | null = null;
   private cancelPress: (() => void) | null = null;
   private inputEnabled = true;
-  private readonly eventController = new AbortController();
+  private gemManaEl!: HTMLElement; // 宝石内的当前法力数字
+  /**
+   * 卡面「正在显示」的数值快照：详情窗跟着卡面走，而不是抢先显示引擎里已结算的终值。
+   * version 每次重绘自增，详情窗轮询据此判断要不要重绘。
+   */
+  private shown: CardShownStats | null = null;
+  private shownVersion = 0;
   private castFlagEl!: HTMLElement; // 可释放 / 沉默 的显式标记（B-6）
   private hintEl!: HTMLElement;    // 短按无效提示浮窗（B-3）
   private hintTimer: number | null = null;
@@ -710,8 +771,6 @@ export class CharacterCard {
   private stageScale = 1;
   private statusBadgeSize = 24;
   private statusCollapsed = false;
-  /** 折叠态点 +N 的回调（打开详情面板的"当前状态"区） */
-  private onStatusList: (() => void) | null = null;
   private magicEl!: HTMLElement;   // 魔力（法术强度）数值
   private statusStripEl!: HTMLElement; // 状态图标栏（中毒/燃烧…）
   private traitRowEl!: HTMLElement; // 特质图标列
@@ -761,10 +820,10 @@ export class CharacterCard {
       <div class="cast-sheen" aria-hidden="true"></div>
       <div class="press-ring" aria-hidden="true"></div>
       <div class="ov c-bl">
-        <div class="stat" aria-label="攻击 0">${SWORD_SVG}<span class="v atk">0</span></div>
+        <div class="stat stat-atk" aria-label="攻击 0">${SWORD_SVG}<span class="v atk">0</span></div>
       </div>
       <div class="ov c-br"></div>
-      <div class="gem" tabindex="0" role="button" aria-label="查看法力详情">${gemSvg(gemColors)}</div>
+      <div class="gem">${gemSvg(gemColors)}<span class="gem-mana is-zero" aria-hidden="true">0</span></div>
       <div class="cast-flag" aria-hidden="true">!</div>
       <div class="magic" title="魔力（法术强度）">${MAGIC_SVG}<span class="v magic-v">0</span></div>
       <div class="status-strip" aria-label="状态"></div>
@@ -781,16 +840,12 @@ export class CharacterCard {
     this.magicEl = el.querySelector('.magic-v')!;
     this.statusStripEl = el.querySelector('.status-strip')!;
     this.traitRowEl = el.querySelector('.trait-row')!;
+    this.gemManaEl = el.querySelector('.gem-mana')!;
     this.renderTraitRow();
     this.gemColors = gemColors;
 
-    // 法力宝石在完整 pointer 生命周期中隔离冒泡，避免卡片先进入短按/长按状态。
-    const stopGemPointer = (e: PointerEvent) => e.stopPropagation();
-    this.gemEl.addEventListener('pointerdown', stopGemPointer, { signal: this.eventController.signal });
-    this.gemEl.addEventListener('pointermove', stopGemPointer, { signal: this.eventController.signal });
-    this.gemEl.addEventListener('pointerup', stopGemPointer, { signal: this.eventController.signal });
-    this.gemEl.addEventListener('pointercancel', stopGemPointer, { signal: this.eventController.signal });
-    this.applyCompactMetrics(CARD_W);
+    // 卡面任意位置（含法力宝石、状态/特质徽记）都执行同一个卡片动作，不再有吞点击的子区域。
+    this.resize(CARD_W, CARD_H);
 
     this.refresh();
   }
@@ -801,9 +856,8 @@ export class CharacterCard {
     const glyphs = traitCardGlyphs(codes, this.char.traitNames, this.char.name, 1);
     this.traitRowEl.innerHTML = glyphs
       .map((glyph) => {
-        const size = `width:${os(22)}px;height:${os(22)}px`;
         const data = `data-trait-name="${escAttr(glyph.name)}" data-trait-desc="${escAttr(glyph.description)}"`;
-        return `<span class="trait-badge" ${data} aria-label="特质 ${escAttr(glyph.name)}" style="${size}">${glyph.svg}</span>`;
+        return `<span class="trait-badge" ${data} aria-label="特质 ${escAttr(glyph.name)}">${glyph.svg}</span>`;
       })
       .join('');
   }
@@ -811,7 +865,12 @@ export class CharacterCard {
   resize(width: number, height: number): void {
     this.el.style.width = `${width}px`;
     this.el.style.height = `${height}px`;
-    this.statusStripEl.style.maxWidth = `${Math.max(0, width - 12)}px`;
+    const metrics = battleCardOverlayMetrics(width, height);
+    this.el.classList.toggle('portrait-compact', height <= 110);
+    this.el.style.setProperty('--compact-trait-top', `${Math.max(gemSize(), os(21)) + os(4)}px`);
+    for (const [key, value] of Object.entries(metrics)) this.el.style.setProperty(`--${key}`, `${value}px`);
+    // Reserve the right-hand stat stack, including three-digit values.
+    this.statusStripEl.style.maxWidth = `${Math.max(0, width - metrics['card-inset'] * 2 - metrics['stat-font'] * 3.2)}px`;
     this.applyCompactMetrics(width);
   }
 
@@ -854,6 +913,33 @@ export class CharacterCard {
     this.applyCompactMetrics(this.cardWidth);
   }
 
+  /** 兵种转化后换脸：立绘、法力色、特质和数值都换成当前角色。 */
+  reface(portrait: string): void {
+    for (const skin of Object.values(SKIN_CLASS)) this.el.classList.remove(skin);
+    const skin = this.char.colors[0] !== undefined ? SKIN_CLASS[this.char.colors[0]] : 'skin-steel';
+    this.el.classList.add(skin);
+    const art = this.el.querySelector('.art');
+    if (art) {
+      let photo = art.querySelector('.photo') as HTMLElement | null;
+      if (!photo) {
+        photo = document.createElement('div');
+        photo.className = 'photo';
+        const mass = art.querySelector('.mass');
+        if (mass) art.insertBefore(photo, mass);
+        else art.appendChild(photo);
+      }
+      photo.style.backgroundImage = `url('${portrait}')`;
+      this.el.classList.add('has-photo');
+    }
+    this.gemColors = [...this.char.colors];
+    this.gemEl.innerHTML = gemSvg(this.gemColors);
+    this.gemEl.appendChild(this.gemManaEl);
+    const rise = this.gemEl.querySelector('.rise');
+    if (rise) this.riseEl = rise as SVGRectElement;
+    this.renderTraitRow();
+    this.refresh();
+  }
+
   refresh(): void {
     const c = this.char;
 
@@ -862,9 +948,9 @@ export class CharacterCard {
     this.magicEl.textContent = String(c.magic);
 
     const armorBlock = c.armor > 0
-      ? `<span class="armor">${SHIELD_SVG}<span class="v">${c.armor}</span></span>`
+      ? `<div class="stat stat-armor armor" aria-label="护甲 ${c.armor}">${SHIELD_SVG}<span class="v">${c.armor}</span></div>`
       : '';
-    this.brEl.innerHTML = `<div class="stat" aria-label="护甲 ${c.armor}，生命 ${Math.max(0, c.hp)}">${HEART_SVG}<span class="v hp">${Math.max(0, c.hp)}</span>${armorBlock}</div>`;
+    this.brEl.innerHTML = `${armorBlock}<div class="stat stat-hp" aria-label="生命 ${Math.max(0, c.hp)}">${HEART_SVG}<span class="v hp">${Math.max(0, c.hp)}</span></div>`;
 
     // Normal refresh synchronizes to engine state; absorbMana() advances intermediate visual states.
     this.displayedMana = Math.min(c.mana, c.manaCost);
@@ -873,27 +959,61 @@ export class CharacterCard {
     this.renderStatuses();
 
     this.el.classList.toggle('defeated', c.defeated);
+    this.recordShown();
   }
 
-  /** 折叠态「+N」的点击回调（由 TeamView 注入，指向详情面板） */
-  setStatusListHandler(fn: (() => void) | null): void {
-    this.onStatusList = fn;
+  /** 记下卡面此刻显示的数值（详情窗据此渲染，保证与卡面同步而不剧透结算终值） */
+  private recordShown(): void {
+    const c = this.char;
+    this.shown = {
+      attack: c.attack,
+      armor: Math.max(0, c.armor),
+      hp: Math.max(0, c.hp),
+      maxHp: c.maxHp,
+      magic: c.magic,
+      mana: Math.min(this.displayedMana, c.manaCost),
+      manaCost: c.manaCost,
+      defeated: c.defeated,
+      statuses: (c.statuses ?? []).map((s) => ({
+        id: s.id,
+        turns: s.turns,
+        ...(s.magnitude !== undefined ? { magnitude: s.magnitude } : {}),
+      })),
+    };
+    this.shownVersion++;
+    this.el.setAttribute('aria-label', `${c.name}，生命 ${this.shown.hp}，法力 ${this.shown.mana}/${c.manaCost}`);
+  }
+
+  /** 卡面当前显示的数值（详情窗用）；version 在每次重绘后自增 */
+  shownStats(): { version: number; stats: CardShownStats } {
+    if (!this.shown) this.recordShown();
+    return { version: this.shownVersion, stats: this.shown! };
+  }
+
+  /** 施放瞬间清空法力：显示 0、撤掉可释放态；之后的法力获得照常播放，回合尾 refresh 再与引擎对齐 */
+  drainMana(): void {
+    this.displayedMana = 0;
+    this.renderMana(0);
+    this.setCastable(false);
+    this.recordShown();
   }
 
   /** 渲染状态图标栏：按角色当前 statuses 显示可区分图标（需求 6.1） */
   private renderStatuses(): void {
     const all = this.char.statuses ?? [];
+    this.el.classList.toggle('has-statuses', all.length > 0);
     const stage = Math.max(0.2, this.stageScale);
-    const availableScreenWidth = Math.max(0, (this.cardWidth - 12) * stage);
+    const availableScreenWidth = Math.max(0, Math.min(this.cardWidth - 12, parseFloat(this.statusStripEl.style.maxWidth) || this.cardWidth) * stage);
     const gapScreen = os(3) * stage;
     const badgesScreenWidth = all.length * this.statusBadgeSize * stage
       + Math.max(0, all.length - 1) * gapScreen;
-    const visuallyDense = all.length >= 3 && badgesScreenWidth > availableScreenWidth * 0.72;
+    const visuallyDense = badgesScreenWidth > availableScreenWidth || (all.length >= 3 && badgesScreenWidth > availableScreenWidth * 0.72);
     // B-7 折叠态必须是一个真正的汇总控件。此前只有 >3 个状态才出现 +N，1~3 个状态
     // 仍保留被压小的徽记，恰好绕开了触控下限。小卡上即使单枚已到 24px，若整行会
     // 遮住大半立绘也同样汇总，保持角色识别优先。
+    // 折叠态「+N」与徽记一样只是卡面的一部分：点它就是点卡片（打开详情窗，全部状态在窗内）。
     if ((this.statusCollapsed || visuallyDense) && all.length > 0) {
-      this.statusStripEl.innerHTML = `<button type="button" class="status-more" aria-label="查看全部 ${all.length} 个状态">+${all.length}</button>`;
+      this.statusStripEl.innerHTML = `<span class="status-more" role="img" aria-label="${all.length} 个状态">+${all.length}</span>`;
     } else {
       this.statusStripEl.innerHTML = all
       .map((s) => {
@@ -904,7 +1024,8 @@ export class CharacterCard {
         // B-8：去掉原生 title。此前 title（名字+回合）与自绘浮层（机制+当前数值）
         // 双轨并存且内容不一致，桌面 hover 拿到的恰是差的那一份。名字改走
         // data-status-label，statusTooltip 从它取标题——单一事实源。
-        return `<span class="status-badge" data-status-id="${s.id}" data-status-label="${escAttr(b.label)}" data-turns="${s.turns}"${mag} role="button" tabindex="0" aria-label="${escAttr(b.label)}${s.turns ? ' · 剩余 ' + s.turns + ' 回合' : ''}" style="--sb:${b.color}">${statusBadgeIcon(s.id)}${turns}</span>`;
+        // 徽记不再是独立按钮（点它=点卡片）；说明浮层只在鼠标悬停时出现。
+        return `<span class="status-badge" data-status-id="${s.id}" data-status-label="${escAttr(b.label)}" data-turns="${s.turns}"${mag} role="img" aria-label="${escAttr(b.label)}${s.turns ? ' · 剩余 ' + s.turns + ' 回合' : ''}" style="--sb:${b.color}">${statusBadgeIcon(s.id)}${turns}</span>`;
       })
       .join('');
     }
@@ -916,18 +1037,7 @@ export class CharacterCard {
         first.addEventListener('animationend', () => first.classList.remove('status-discovery'), { once: true });
       }
     }
-    const more = this.statusStripEl.querySelector('.status-more');
-    if (more) {
-      more.addEventListener('click', (e) => {
-        e.stopPropagation();
-        e.preventDefault();
-        this.onStatusList?.();
-      });
-      // 与徽记同样不得穿透到卡面短按（否则点它就是放技能）
-      for (const type of ['pointerdown', 'pointerup'] as const) {
-        more.addEventListener(type, (e) => { e.stopPropagation(); e.preventDefault(); });
-      }
-    }
+    this.recordShown();
   }
 
   /** 状态图标出现动效（供 status-apply 事件驱动，需求 6.2） */
@@ -999,19 +1109,26 @@ export class CharacterCard {
     const full = reqSum > 0 && curSum >= reqSum;
     this.el.classList.toggle('mana-full', full);
 
-    // 精确进度留在可点击法力角标的统一浮层，卡面不再额外铺一行 N/M。
+    // 宝石内只放当前法力；N/M 全量进度留在悬停浮层与详情窗。
+    this.gemManaEl.textContent = String(Math.max(0, curSum));
+    this.gemManaEl.classList.toggle('is-zero', curSum <= 0);
     const silenced = this.el.classList.contains('silenced');
     this.castFlagEl.textContent = '×';
     const stateLine = full
       ? silenced
         ? '沉默中，无法施放技能'
-        : '法力已满，短按卡片释放'
-      : `还差 ${Math.max(0, reqSum - curSum)} 点法力`;
+        : '法力值已满，可以释放技能'
+      : `还差 ${Math.max(0, reqSum - curSum)} 点法力值`;
     this.gemEl.dataset.tooltipKind = 'mana';
-    this.gemEl.dataset.manaTitle = `法力 ${curSum}/${reqSum}`;
+    this.gemEl.dataset.manaTitle = `法力值 ${curSum}/${reqSum}`;
     this.gemEl.dataset.manaDesc = stateLine;
     this.gemEl.dataset.manaColors = this.gemColors.map((color) => COLOR_LABEL[color]).join(' / ');
-    this.gemEl.setAttribute('aria-label', `查看法力详情，当前 ${curSum}/${reqSum}`);
+    this.recordShown();
+  }
+
+  /** 当前显示的法力值（跟随法力流，非引擎值） */
+  displayedManaValue(): number {
+    return Math.min(this.displayedMana, this.char.manaCost);
   }
 
   /** 当前显示值下还差多少法力（供 App 组装「还差 N 点」提示） */
@@ -1131,8 +1248,12 @@ export class CharacterCard {
   /**
    * 绑定短按/长按：单次只跟踪一个 pointer。移动超过 10px、离开卡面、
    * pointercancel 或丢失 capture 都只取消，不得在抬起时误触短按。
+   *
+   * 长按只在 `longArmed()` 为真时存在（按下那一刻判定）：此时才计时、画进度环，
+   * 满 475ms 触发 onLong；否则按多久抬起都算一次短按（短按/长按结果相同，不必让玩家等环）。
+   * 键盘：卡片可聚焦，Enter 等价于一次短按（via='keyboard'，调用方据此决定是否移交焦点）。
    */
-  bindPress(onShort?: () => void, onLong?: () => void): void {
+  bindPress(onShort?: (via: PressSource) => void, onLong?: () => void, longArmed?: () => boolean): void {
     this.pressCleanup?.();
 
     const LONG_MS = 475;
@@ -1177,8 +1298,8 @@ export class CharacterCard {
       } catch {
         // Pointer capture is an enhancement; document-level pointer routing remains the fallback.
       }
-      if (onLong) {
-        // B-5：按压期画一圈 475ms 铺开的进度环——短按/长按只差 475ms，
+      if (onLong && (longArmed?.() ?? true)) {
+        // 按压期画一圈 475ms 铺开的进度环：只在短按与长按结果不同时出现，
         // 让玩家看得见"再按下去就变成长按（看详情）了"。
         this.el.classList.remove('pressing');
         void this.el.offsetWidth;
@@ -1207,10 +1328,16 @@ export class CharacterCard {
         && e.clientY >= rect.top && e.clientY <= rect.bottom;
       const shouldShort = !longFired && !movedOrCancelled && inside;
       reset(!inside);
-      if (shouldShort) onShort?.();
+      if (shouldShort) onShort?.('pointer');
     };
     const onPointerCancel = (e: PointerEvent) => {
       if (e.pointerId === activePointerId) reset(true);
+    };
+    // 只认 Enter：空格是战斗全局的「按住快进」键，卡片点过后仍保有焦点，不能让快进顺带触发卡片动作
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (!this.inputEnabled || e.target !== this.el || e.key !== 'Enter') return;
+      e.preventDefault();
+      if (!e.repeat) onShort?.('keyboard');
     };
 
     this.el.addEventListener('pointerdown', onPointerDown);
@@ -1218,6 +1345,9 @@ export class CharacterCard {
     this.el.addEventListener('pointerup', onPointerUp);
     this.el.addEventListener('pointercancel', onPointerCancel);
     this.el.addEventListener('lostpointercapture', onPointerCancel);
+    this.el.addEventListener('keydown', onKeyDown);
+    this.el.tabIndex = this.inputEnabled ? 0 : -1;
+    this.el.setAttribute('role', 'button');
     this.cancelPress = () => reset(true);
 
     this.pressCleanup = () => {
@@ -1227,6 +1357,9 @@ export class CharacterCard {
       this.el.removeEventListener('pointerup', onPointerUp);
       this.el.removeEventListener('pointercancel', onPointerCancel);
       this.el.removeEventListener('lostpointercapture', onPointerCancel);
+      this.el.removeEventListener('keydown', onKeyDown);
+      this.el.removeAttribute('tabindex');
+      this.el.removeAttribute('role');
       this.cancelPress = null;
       this.pressCleanup = null;
     };
@@ -1235,12 +1368,12 @@ export class CharacterCard {
   setInputEnabled(enabled: boolean): void {
     this.inputEnabled = enabled;
     this.el.style.pointerEvents = enabled ? 'auto' : 'none';
+    if (this.pressCleanup) this.el.tabIndex = enabled ? 0 : -1;
     if (!enabled) this.cancelPress?.();
   }
 
   destroy(): void {
     this.pressCleanup?.();
-    this.eventController.abort();
     if (this.hintTimer !== null) {
       window.clearTimeout(this.hintTimer);
       this.hintTimer = null;
@@ -1263,12 +1396,13 @@ export class CharacterCard {
    * @param text 文本（如 "-12"、"+6"）
    * @param color 文字颜色
    */
-  floatText(text: string, color: string): void {
+  floatText(text: string, color: string, durationMs = 780): void {
     const el = document.createElement('div');
     el.textContent = text;
+    const fontSize = text.includes('\n') ? Math.max(...text.split('\n').map(line => line.length)) > 10 ? 12 : 15 : 22;
     el.style.cssText =
       `position:absolute;left:50%;top:34%;z-index:12;pointer-events:none;transform:translateX(-50%);` +
-      `font-family:"Playfair Display",Georgia,serif;font-weight:800;font-size:${ofs(22)}px;` +
+      `font-family:"Playfair Display",Georgia,serif;font-weight:800;font-size:${ofs(fontSize)}px;white-space:pre-line;line-height:1.15;text-align:center;` +
       `color:${color};text-shadow:0 1px 3px rgba(0,0,0,.95),0 0 6px ${color}`;
     this.el.appendChild(el);
     el.animate(
@@ -1277,7 +1411,7 @@ export class CharacterCard {
         { opacity: 1, transform: 'translateX(-50%) translateY(-14px) scale(1.1)', offset: 0.4 },
         { opacity: 0, transform: 'translateX(-50%) translateY(-40px) scale(1)' },
       ],
-      { duration: 780, easing: 'cubic-bezier(.2,.8,.25,1)' },
+      { duration: durationMs, easing: 'cubic-bezier(.2,.8,.25,1)' },
     ).onfinish = () => el.remove();
   }
 
@@ -1340,7 +1474,7 @@ export class CharacterCard {
           el.style.transform = '';
           el.style.zIndex = prevZ;
         };
-      }, cfg.hitStop); // hit-stop 卡肉停顿
+      }, scaledMs(cfg.hitStop)); // hit-stop 卡肉停顿（与冲撞动画同随演出倍速）
     };
   }
 
@@ -1382,13 +1516,14 @@ export class TeamView {
   readonly el: HTMLDivElement;
   private cards = new Map<number, CharacterCard>();
   private side: PlayerSide;
-  private shortPress?: (charId: number) => void;
+  private shortPress?: (charId: number, via: PressSource) => void;
   private longPress?: (charId: number) => void;
-  private statusList?: (charId: number) => void;
+  private longPressArmed?: (charId: number) => boolean;
   private leftAnchor = 0;
   private rightAnchor = 0;
   private mounted = false;
   private inputEnabled = true;
+  private turnActive = false;
 
   constructor(
     team: Team,
@@ -1397,17 +1532,21 @@ export class TeamView {
       portraits?: Record<number, string>;
       /** @deprecated Use onShortPress. */
       onCardClick?: (charId: number) => void;
-      onShortPress?: (charId: number) => void;
+      /** 点按卡面任意位置（含宝石/徽记），或卡片聚焦时按 Enter */
+      onShortPress?: (charId: number, via: PressSource) => void;
       onLongPress?: (charId: number) => void;
-      /** B-7 折叠态点 +N：一次看全部状态（缺省沿用 onLongPress，即详情面板） */
-      onStatusList?: (charId: number) => void;
+      /**
+       * 按下时判定这次是否存在「长按」（计时 + 进度环）。缺省＝有 onLongPress 就总是存在；
+       * 返回 false 时按多久都算短按。
+       */
+      longPressArmed?: (charId: number) => boolean;
     },
   ) {
     ensureStyles();
     this.side = side;
     this.shortPress = opts?.onShortPress ?? opts?.onCardClick;
     this.longPress = opts?.onLongPress;
-    this.statusList = opts?.onStatusList ?? opts?.onLongPress;
+    this.longPressArmed = opts?.longPressArmed;
     this.el = document.createElement('div');
     this.el.className = 'gcol';
     const frame = document.createElement('div');
@@ -1427,26 +1566,21 @@ export class TeamView {
   }
 
   private bindCard(card: CharacterCard, charId: number): void {
-    // B-7 折叠态入口与按压手势独立：即使没有按压回调也要能点开状态列表
-    card.setStatusListHandler(this.statusList ? () => this.statusList!(charId) : null);
     if (!this.shortPress && !this.longPress) return;
     card.el.style.pointerEvents = 'auto';
     card.el.style.cursor = 'pointer';
+    const armed = this.longPressArmed;
     card.bindPress(
-      this.shortPress ? () => this.shortPress!(charId) : undefined,
+      this.shortPress ? (via) => this.shortPress!(charId, via) : undefined,
       this.longPress ? () => this.longPress!(charId) : undefined,
+      armed ? () => armed(charId) : undefined,
     );
     card.setInputEnabled(this.inputEnabled);
   }
 
   private layoutMetrics(): { slots: 3 | 4; width: number; height: number } {
     const slots: 3 | 4 = this.cards.size >= 4 ? 4 : 3;
-    const scale = BOARD_PX / 512;
-    return {
-      slots,
-      width: Math.round((slots === 4 ? 132 : 142) * scale),
-      height: Math.floor((BOARD_PX - (slots - 1) * CARD_GAP) / slots),
-    };
+    return { slots, ...battleCardDimensions(slots, BOARD_PX, CARD_GAP) };
   }
 
   /** Switch between the three-card and four-card layouts without rebuilding the column. */
@@ -1467,18 +1601,24 @@ export class TeamView {
   }
 
   setTurnActive(active: boolean): void {
+    this.turnActive = active;
     this.el.classList.toggle('active-ally', active && this.side === PlayerSide.Left);
     this.el.classList.toggle('active-enemy', active && this.side === PlayerSide.Right);
   }
 
+  /** 画面上是否正显示为这一方的回合（演出层口径，可能滞后于引擎的 activePlayer） */
+  isTurnActive(): boolean {
+    return this.turnActive;
+  }
+
   mount(parent: HTMLElement, left: number, top: number): void {
-    const width = this.layoutMetrics().width;
     this.leftAnchor = left;
-    this.rightAnchor = left + width;
+    // App allocates CARD_W for the side column; anchor the narrower portrait at the board edge.
+    this.rightAnchor = left + CARD_W;
     this.mounted = true;
-    this.el.style.left = `${left}px`;
     this.el.style.top = `${top}px`;
     parent.appendChild(this.el);
+    this.applyLayout();
   }
 
   getCard(charId: number): CharacterCard | undefined {
@@ -1509,33 +1649,106 @@ export class TeamView {
 
   /** Remove a defeated card from flow so survivors reflow and queued replacements append last. */
   removeCharacterCard(charId: number): boolean {
+    return this.removeCharacterCards([charId]) > 0;
+  }
+
+  /** Snapshot all departure positions before changing flow, then reflow just once. */
+  removeCharacterCards(charIds: readonly number[]): number {
+    const departing = [...new Set(charIds)].flatMap(id => {
+      const card = this.cards.get(id);
+      return card ? [{ id, card, top: card.el.offsetTop, left: card.el.offsetLeft,
+        width: card.el.offsetWidth, height: card.el.offsetHeight }] : [];
+    });
+    for (const { id, card, top, left, width, height } of departing) {
+      this.cards.delete(id);
+      card.destroy();
+      card.el.style.position = 'absolute';
+      card.el.style.left = `${left}px`;
+      card.el.style.top = `${top}px`;
+      card.el.style.width = `${width}px`;
+      card.el.style.height = `${height}px`;
+      card.el.style.zIndex = '24';
+      card.el.style.pointerEvents = 'none';
+    }
+    if (departing.length) this.applyLayout();
+    for (const { card } of departing) {
+      const departure = card.el.animate(
+        [
+          { opacity: 1, transform: 'scale(1)', filter: 'brightness(1)' },
+          { opacity: 0, transform: 'scale(.72)', filter: 'brightness(.45) grayscale(.7)' },
+        ],
+        { duration: AnimConfig.defeat.cardExitDuration, easing: 'cubic-bezier(.4,0,.8,.3)', fill: 'forwards' },
+      );
+      departure.onfinish = () => card.el.remove();
+    }
+    return departing.length;
+  }
+
+  /** 把一张卡滑到编队下标。已经在那个位置就不动。 */
+  placeCard(charId: number, index: number): void {
     const card = this.cards.get(charId);
-    if (!card) return false;
-    const top = card.el.offsetTop;
-    const left = card.el.offsetLeft;
-    const width = card.el.offsetWidth;
-    const height = card.el.offsetHeight;
-    this.cards.delete(charId);
-    card.destroy();
+    if (!card) return;
+    const cards = this.cardEls();
+    const from = cards.indexOf(card.el);
+    if (from < 0) return;
+    const to = Math.max(0, Math.min(cards.length - 1, index));
+    if (from === to) return;
+    this.slideReorder(() => {
+      const next = this.cardEls();
+      if (from < to) {
+        const after = next[to + 1];
+        if (after) this.el.insertBefore(card.el, after);
+        else this.el.appendChild(card.el);
+      } else {
+        const ref = next[to];
+        if (ref) this.el.insertBefore(card.el, ref);
+        else this.el.appendChild(card.el);
+      }
+    });
+  }
 
-    card.el.style.position = 'absolute';
-    card.el.style.left = `${left}px`;
-    card.el.style.top = `${top}px`;
-    card.el.style.width = `${width}px`;
-    card.el.style.height = `${height}px`;
-    card.el.style.zIndex = '24';
-    card.el.style.pointerEvents = 'none';
-    this.applyLayout();
+  /** 整列滑到给定顺序（打乱队伍）。id 按从上到下。 */
+  orderCards(ids: number[]): void {
+    const current = this.cardEls().map((el) => Number(el.dataset.testid?.replace('card-', '')));
+    if (ids.length === current.length && ids.every((id, i) => id === current[i])) return;
+    this.slideReorder(() => {
+      for (const id of ids) {
+        const card = this.cards.get(id);
+        if (card) this.el.appendChild(card.el);
+      }
+    });
+  }
 
-    const departure = card.el.animate(
-      [
-        { opacity: 1, transform: 'scale(1)', filter: 'brightness(1)' },
-        { opacity: 0, transform: 'scale(.72)', filter: 'brightness(.45) grayscale(.7)' },
-      ],
-      { duration: AnimConfig.defeat.cardExitDuration, easing: 'cubic-bezier(.4,0,.8,.3)', fill: 'forwards' },
-    );
-    departure.onfinish = () => card.el.remove();
-    return true;
+  private cardEls(): HTMLElement[] {
+    return [...this.el.children].filter((el): el is HTMLElement =>
+      el instanceof HTMLElement && el.classList.contains('gcard'));
+  }
+
+  private slideAnims = new Map<HTMLElement, Animation>();
+
+  /** 先改 DOM 顺序，再用位移把卡从旧位置滑到新位置。 */
+  private slideReorder(mutate: () => void): void {
+    const before = new Map(this.cardEls().map((el) => [el, el.getBoundingClientRect().top]));
+    mutate();
+    for (const el of this.cardEls()) {
+      const prev = before.get(el);
+      if (prev === undefined) continue;
+      const dy = prev - el.getBoundingClientRect().top;
+      if (Math.abs(dy) < 0.5) continue;
+      this.slideAnims.get(el)?.cancel();
+      el.style.zIndex = '8';
+      const anim = el.animate(
+        [{ transform: `translateY(${dy}px)` }, { transform: 'translateY(0px)' }],
+        { duration: 320, easing: 'cubic-bezier(.22,.8,.28,1)' },
+      );
+      this.slideAnims.set(el, anim);
+      const clear = (): void => {
+        if (this.slideAnims.get(el) === anim) this.slideAnims.delete(el);
+        el.style.zIndex = '';
+      };
+      anim.onfinish = clear;
+      anim.oncancel = clear;
+    }
   }
 
   refreshAll(): void {

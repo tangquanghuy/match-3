@@ -3,8 +3,8 @@
  * 核对者：agent 批次 09
  *
  * 语义裁定备注：
- * - 「窃取 X 点生命值」= 伤害 + drain（batch-01 7302 同口径）；「窃取法力值/魔法值」= steal
- *   同属性回填（「魔法值」= magic 属性，SOP 措辞裁定）。
+ * - 「窃取 X 点生命值」= 伤害 + drain（batch-01 7302 同口径）；「窃取法力值/魔力值」= steal
+ *   同属性回填（「魔力值」= magic 属性，SOP 措辞裁定）。
  * - 「窃取攻击力并转化为生命值」（8597）= steal stat:'attack' + gainStat:'hp'（BuffStat 含 hp）。
  * - 「绿色盟友」= 施法方关联绿色法力色的盟友 → modifier source alliesOfColor（spell-rules §1 来源表）；
  *   「建造盟友」= Construct 种族（§6 种族表查询）。
@@ -26,7 +26,7 @@ const SKIPPED: { id: number; reason: string }[] = [
   { id: 8634, reason: '特殊宝石（创建 2 颗元素星）' },
   { id: 8635, reason: '特殊宝石（创建 2 颗元素星）' },
   { id: 8639, reason: '句子式不明（「造成…散射伤害」未指明目标，batch-02 7265 同款；二次缩放来源元素星亦不支持）' },
-  { id: 8657, reason: '语义拿不准（「爆破一颗法力宝石…拥有此颜色法力的敌人」跨段动态颜色绑定，动态颜色不做）' },
+  { id: 8657, reason: '语义拿不准（「爆破一颗法力宝石…拥有此颜色法力值的敌人」跨段动态颜色绑定，动态颜色不做）' },
   { id: 8686, reason: '语义拿不准（「消除…随机技能值」无对应削减原语，随机属性只支持获得）' },
   { id: 8690, reason: '语义拿不准（「所有受伤害的敌人」跨段指回前段溅射伤害目标）' },
   { id: 8691, reason: '语义拿不准（「个别有 50% 几率击晕他们」逐目标独立概率，chance 原语为段级一掷）' },
@@ -80,12 +80,12 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 8676,
-    desc: '窃取一名敌人 [(魔法 x 0.75) + 1] 点生命值，4 点法力值和 2 点魔法值。',
+    desc: '窃取一名敌人 [(魔法 x 0.75) + 1] 点生命值，4 点法力值和 2 点魔力值。',
     build: skill(
       // 「窃取 X 点生命值」= 伤害 + drain（batch-01 7302 同口径）
       dmg('enemyChosen', 1, 0.75, { drain: true }),
       steal('enemyChosen', 'mana', 'mana', 4, 0),
-      // 「魔法值」= magic 属性（SOP 措辞裁定）
+      // 「魔力值」= magic 属性（SOP 措辞裁定）
       steal('enemyChosen', 'magic', 'magic', 2, 0),
     ),
   },

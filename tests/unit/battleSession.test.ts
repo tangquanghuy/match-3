@@ -145,3 +145,42 @@ describe('BattleSession 生命周期（设计 §2）', () => {
     expect(swapEvents).toHaveLength(1);
   });
 });
+
+describe('surrender', () => {
+  it('finishes exactly once without inventing deaths, turns or loot', () => {
+    const { session, state } = setup();
+    state.economy = { gold: 90, souls: 10, gems: 2, maps: 1 };
+    const hp = state.teams[PlayerSide.Left].characters[0].hp;
+    expect(session.surrender()).toEqual([{ type: 'game-over', winner: PlayerSide.Right, reason: 'surrender' }]);
+    expect(session.isFinished()).toBe(true);
+    const result = session.buildResult();
+    expect(result).toMatchObject({ winner: 'enemy', endReason: 'surrender', turns: 0,
+      economy: { gold: 0, souls: 0, gems: 0 }, defeatedExternalIds: [], fledExternalIds: [] });
+    expect(state.teams[PlayerSide.Left].characters[0].hp).toBe(hp);
+    expect(result.combatants.every(c => !c.defeated)).toBe(true);
+    expect(session.surrender()).toEqual([]);
+    expect(session.passTurn()).toEqual([]);
+    expect(session.resolve({ type: 'cast', characterId: 0 })).toEqual([]);
+    expect(session.buildResult()).toBe(result);
+    expect(session.recordedEvents().filter(e => e.type === 'game-over')).toHaveLength(1);
+  });
+
+  it('does not replace an already resolved victory', () => {
+    const { session, state } = setup(999);
+    state.teams[PlayerSide.Left].characters[0].mana = 10;
+    session.resolve({ type: 'cast', characterId: 0 });
+    const won = session.buildResult();
+    expect(session.surrender()).toEqual([]);
+    expect(session.buildResult()).toBe(won);
+    expect(won.winner).toBe('player');
+    expect(won.endReason).toBeUndefined();
+  });
+
+  it('can surrender on the enemy turn without letting the enemy act afterwards', () => {
+    const { session, state } = setup();
+    state.activePlayer = PlayerSide.Right;
+    session.surrender();
+    expect(session.resolve({ type: 'swap', from: { row: 0, col: 0 }, to: { row: 0, col: 1 } })).toEqual([]);
+    expect(state.actionLog).toHaveLength(0);
+  });
+});

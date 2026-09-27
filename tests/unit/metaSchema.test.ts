@@ -15,14 +15,14 @@ describe('MetaSave schema v1', () => {
   it('新档默认：初始货币 + 空收藏', () => {
     const save = newSave({ now: 0 });
     expect(save.version).toBe(META_SAVE_VERSION);
-    expect(save.currencies).toEqual({ ...STARTING_CURRENCIES, glory: 0 });
+    expect(save.currencies).toEqual({ ...STARTING_CURRENCIES, glory: 0, gloryKeys: 0, trophies: 0 });
     expect(save.collection).toEqual({});
     expect(save.teams).toEqual([]);
     expect(save.hero.level).toBe(1);
     expect(save.settings.language).toBe('zh');
   });
 
-  it('给 starter 后：三条收藏记录 + 默认初始队（3 人、校验通过）', () => {
+  it('给 starter 后：三条收藏记录 + 默认初始队（4 人、校验通过）', () => {
     const save = newSave({ now: 0, starterTroopIds: STARTERS });
     expect(Object.keys(save.collection).sort()).toEqual(STARTERS.map(String).sort());
     for (const id of STARTERS) {
@@ -31,7 +31,7 @@ describe('MetaSave schema v1', () => {
       expect(rec.traits).toEqual([false, false, false]);
     }
     expect(save.teams).toHaveLength(1);
-    expect(save.teams[0].members).toEqual(STARTERS.map((troopId) => ({ kind: 'troop', troopId })));
+    expect(save.teams[0].members).toEqual([...STARTERS.map((troopId) => ({ kind: 'troop', troopId })), { kind: 'hero' }]);
     expect(validateTeam(save, save.teams[0]).ok).toBe(true);
   });
 
@@ -42,7 +42,7 @@ describe('MetaSave schema v1', () => {
 
   it('hydrateSave：缺节补默认（节级降级重建）', () => {
     const save = hydrateSave({ version: 1 });
-    expect(save.currencies).toEqual({ ...STARTING_CURRENCIES, glory: 0 });
+    expect(save.currencies).toEqual({ ...STARTING_CURRENCIES, glory: 0, gloryKeys: 0, trophies: 0 });
     expect(save.hero.level).toBe(1);
     expect(save.arena.activeDraft).toBeNull();
     expect(save.stats).toEqual({ battlesWon: 0, battlesLost: 0, soulsEarned: 0, goldEarned: 0 });

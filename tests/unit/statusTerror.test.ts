@@ -9,7 +9,10 @@ import {
   TERROR_DROP_CHANCE,
 } from '@engine/skills/effects/status';
 import { neutralPassives } from '@engine/traits';
-import { BaseColor } from '@engine/types';
+import { BaseColor, PlayerSide } from '@engine/types';
+import { BoardModel } from '@engine/BoardModel';
+import { createGameState } from '@engine/GameState';
+import { resolveDefeatEvents } from '@engine/teamRoster';
 import type { Character } from '@engine/types';
 import type { GameEvent } from '@engine/events';
 
@@ -41,6 +44,27 @@ function withTerror(id: number, over: Partial<Character> = {}): Character {
 function terrorTickEvents(events: GameEvent[]): GameEvent[] {
   return events.filter((e) => e.type === 'status-tick' && e.statusId === TERROR_STATUS_ID);
 }
+
+describe('GoW official Terror: roster boundary', () => {
+  it('final position triggers Flee without promoting legacy queued data', () => {
+    let seed = 1;
+    for (; seed < 500; seed++) if (new SeededRNG(seed).next() < 0.1) break;
+    const last = withTerror(1);
+    last.statuses[0].recoveryChance = 0;
+    const substitute = makeChar(7);
+    const state = createGameState(new BoardModel(),
+      { player: PlayerSide.Left, characters: [last], summonQueue: [{ character: substitute, troopId: 77 }] },
+      { player: PlayerSide.Right, characters: [makeChar(9)] });
+    const produced = tickTeamStatuses(state.teams[PlayerSide.Left].characters, new SeededRNG(seed), PlayerSide.Left);
+    expect(produced.some(e => e.type === 'defeat')).toBe(false);
+    expect(produced).toContainEqual(expect.objectContaining({ type: 'flee', characterId: 1, player: PlayerSide.Left }));
+    expect(last.fled).toBe(true);
+    expect(state.teams[PlayerSide.Left].characters.map(c => c.id)).toEqual([1]);
+    const events = resolveDefeatEvents(state, produced);
+    expect(events.some(e => e.type === 'summon')).toBe(false);
+    expect(state.teams[PlayerSide.Left].characters).toEqual([]);
+  });
+});
 
 describe('恐怖状态（terror）：每回合 10% 队伍位次下移（官方状态表语义）', () => {
   it('掷中时与后一位交换并发 status-tick（无 damage 字段）', () => {

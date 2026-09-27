@@ -70,7 +70,7 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 7790,
-    desc: "对一名敌人造成[魔法 + 4]点伤害。如果是Boss，则根据我的升华效果造成3-5倍伤害。同时沉默上方和下方的敌人。",
+    desc: "对一名敌人造成[魔法 + 4]点伤害。如果是Boss，则基于我已晋升的稀有度造成 3 到 5 倍伤害。同时沉默上方和下方的敌人。",
     // 「沉默上方和下方的敌人」= enemyChosenAndAdjacent；Boss 晋升 3-5 倍 = condMult ASC3（建模，标准战斗恒 false）
     build: skill(
       dmg('enemyChosen', 4, 1, { condMult: ASC3 }),
@@ -103,7 +103,7 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 8477,
-    desc: "给予所有棕色盟友 [魔法 + 1] 点护甲值和 3 点魔法值。创造 4 颗棕色宝石，数量因棕色盟友数而增强。 [x3]",
+    desc: "给予所有棕色盟友 [魔法 + 1] 点护甲值和 3 点魔力值。创造 4 颗棕色宝石，数量因棕色盟友数而增强。 [x3]",
     // 「所有棕色盟友」= allyAll + ifCond targetColor Brown；CountArmyColor 300 = ×3 alliesOfColor Brown
     build: skill(
       armor('allyAll', 1, 1, { ifCond: { kind: 'targetColor', color: BaseColor.Brown } }),
@@ -156,8 +156,8 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 8657,
-    desc: "爆破一颗法力宝石。对所有拥有此颜色法力的敌人造成 [魔法 + 2] 点伤害。",
-    // FromManaColorEnemy 首条：「爆破一颗法力宝石」= 选定色池随机一颗（裸单颗=随机，§11）；「拥有此颜色法力的敌人」= enemyAll + ifCond targetColor CHOSEN
+    desc: "爆破一颗法力宝石。对所有拥有此颜色法力值的敌人造成 [魔法 + 2] 点伤害。",
+    // FromManaColorEnemy 首条：「爆破一颗法力宝石」= 选定色池随机一颗（裸单颗=随机，§11）；「拥有此颜色法力值的敌人」= enemyAll + ifCond targetColor CHOSEN
     build: skill(
       explodeRandomGems(1, 0, 'color', CHOSEN),
       dmg('enemyAll', 2, 1, { range: 'all', ifCond: CHOSEN_COLOR }),
@@ -185,10 +185,11 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 9244,
-    desc: "将所有棕色宝石转换成黄龙宝石。给予所有黄色盟友 1 点魔法值。",
+    desc: "将所有棕色宝石转换成黄龙宝石。给予所有黄色盟友 1 点魔力值。",
     // 「黄龙宝石」带色 → 按 ZH 色名恢复基础色全量转换（R8 8557 先例）；「所有黄色盟友」= targetColor Yellow
     build: skill(
-      transform(BaseColor.Brown, BaseColor.Yellow),
+      // DragonYellow = Yellow dragonGem special (L4b-7499-dragon).
+      transformToSpecial(BaseColor.Brown, { kind: 'dragonGem', color: BaseColor.Yellow }),
       magic('allyAll', 1, 0, { ifCond: { kind: 'targetColor', color: BaseColor.Yellow } }),
     ),
   },
@@ -289,7 +290,7 @@ const SPELLS: CuratedBatch['spells'] = [
     // 冻结敌人 ×3；MultiplyForRegion4005（寒冬堡垒）
     build: skill(
       trueDmg('enemyRandomN', 2, 0.6, {
-        n: 5,
+        n: 5, randomWaves: 5,
         modifier: { mod: { kind: 'multiplier', a: 3 }, source: { kind: 'enemyStatusCount', statusId: 'frozen' } },
         condMult: REGION2('WintersReach'),
       }),
@@ -297,7 +298,7 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 9468,
-    desc: "对敌人造成 [魔法 + 4] 点伤害。如果敌人是 Boss，则根据我的升级造成 3 倍 - 5 倍伤害。获得 2 点魔法值并变得愤怒。",
+    desc: "对敌人造成 [魔法 + 4] 点伤害。如果敌人是 Boss，则基于我已晋升的稀有度造成 3 到 5 倍伤害。获得 2 点魔力值并变得愤怒。",
     // Boss 晋升 3-5 倍 = condMult ASC3（目标 Boss 型 ∧ ascended≥3，倍率取区间下限）；「变得愤怒」= enraged（R10 落地）
     build: skill(
       dmg('enemyChosen', 4, 1, { condMult: ASC3 }),
@@ -355,7 +356,7 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 9539,
-    desc: "对敌人造成 [魔法 + 4] 点伤害，伤害值因腐烂宝石数量而增强。如果敌人是 Boss，则根据我的升级造成 3 倍 - 5 倍伤害。然后将 3 颗蓝宝石转换为腐烂宝石。 [x2]",
+    desc: "对敌人造成 [魔法 + 4] 点伤害，伤害值因腐烂宝石数量而增强。如果敌人是 Boss，则基于我已晋升的稀有度造成 3 到 5 倍伤害。然后将 3 颗蓝宝石转换为腐烂宝石。 [x2]",
     // 腐烂宝石 = boardSpecial decayGem（波B 落地）×2；「3 颗蓝宝石→腐烂宝石」= transformToSpecial count 3
     build: skill(
       dmg('enemyChosen', 4, 1, {
@@ -367,7 +368,7 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 9547,
-    desc: "对敌人造成 [魔法 + 4] 点伤害，伤害值会因腐烂宝石和石像鬼宝石而增强。如果敌人是 Boss，则根据我的升级，造成 3 倍 - 5 倍伤害。 [3:1]",
+    desc: "对敌人造成 [魔法 + 4] 点伤害，伤害值会因腐烂宝石和石像鬼宝石而增强。如果敌人是 Boss，则基于我已晋升的稀有度造成 3 到 5 倍伤害。 [3:1]",
     // 「腐烂宝石和石像鬼宝石」= boardSpecial decayGem + gargoyleGem（善恶合计，官方分善恶两口各 [3:1] 为超集口径并注明）
     build: skill(
       dmg('enemyChosen', 4, 1, {
@@ -414,7 +415,7 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 9598,
-    desc: "对敌人造成 [魔法 + 4] 点伤害。如果敌人是 Boss，则根据我的升级造成 3 倍 - 5 倍伤害。然后将 6 颗绿宝石转换为诅咒宝石。",
+    desc: "对敌人造成 [魔法 + 4] 点伤害。如果敌人是 Boss，则基于我已晋升的稀有度造成 3 到 5 倍伤害。然后将 6 颗绿宝石转换为诅咒宝石。",
     // 诅咒宝石 = transformToSpecial curseGem（波A 落地）count 6
     build: skill(
       dmg('enemyChosen', 4, 1, { condMult: ASC3 }),
@@ -423,7 +424,7 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 9606,
-    desc: "对一名敌人造成 [魔法 + 4] 点伤害，伤害值因沉没宝石数量而增强。如果敌人是 Boss，则造成 3 倍 - 5 倍伤害，伤害值基于我的升华值。然后创造 4 颗沉没宝石。 [x2]",
+    desc: "对一名敌人造成 [魔法 + 4] 点伤害，伤害值因沉没宝石数量而增强。如果敌人是 Boss，则基于我已晋升的稀有度造成 3 到 5 倍伤害。然后创造 4 颗沉没宝石。 [x2]",
     // 沉没宝石 = boardSpecial submergeGem（波A 落地）×2；创造 4 颗 = createSpecialGems
     build: skill(
       dmg('enemyChosen', 4, 1, {
@@ -462,7 +463,7 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 9668,
-    desc: "对一名敌人造成[魔法 + 4]点伤害，伤害值因敌人攻击力而增强。如果敌人是Boss，则根据我的升华值造成3-5倍伤害。 [3:1]",
+    desc: "对一名敌人造成[魔法 + 4]点伤害，伤害值因敌人攻击力而增强。如果敌人是Boss，则基于我已晋升的稀有度造成 3 到 5 倍伤害。 [3:1]",
     // 「因敌人攻击力而增强」= targetStat attack [3:1]（CountAttack 34 = 每 3 点 +1）
     build: skill(
       dmg('enemyChosen', 4, 1, {
@@ -486,7 +487,7 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 9676,
-    desc: "对一名敌人造成[魔法 + 4]点伤害。如果是Boss，则根据我的升华值造成3-5倍伤害。然后引爆3个末日骷髅。",
+    desc: "对一名敌人造成[魔法 + 4]点伤害。如果是Boss，则基于我已晋升的稀有度造成 3 到 5 倍伤害。然后引爆3个末日骷髅。",
     // 「引爆 3 个末日骷髅」= explodeRandomSpecialGems doomSkull（R9 起可表达）
     build: skill(
       dmg('enemyChosen', 4, 1, { condMult: ASC3 }),
@@ -511,13 +512,13 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: "对5名随机敌人造成[(魔法 x 0.6) + 2]真实伤害。在星湾使用时，造成双倍伤害。摧毁X形宝石。",
     // 「摧毁X形宝石」= destroyArea x（并行 R12 面积原语）；MultiplyForRegion4007（星湾）
     build: skill(
-      trueDmg('enemyRandomN', 2, 0.6, { n: 5, condMult: REGION2('BayOfStars') }),
+      trueDmg('enemyRandomN', 2, 0.6, { n: 5, randomWaves: 5, condMult: REGION2('BayOfStars') }),
       destroyArea('x', 'destroy'),
     ),
   },
   {
     id: 9733,
-    desc: "对一名敌人造成[魔法 + 4]点伤害，伤害值因黄色和紫色宝石数量而增强。如果敌人是Boss，则根据我的升华值造成3倍到5倍的伤害。 [3:1]",
+    desc: "对一名敌人造成[魔法 + 4]点伤害，伤害值因黄色和紫色宝石数量而增强。如果敌人是Boss，则基于我已晋升的稀有度造成 3 到 5 倍伤害。 [3:1]",
     // 「黄色和紫色宝石数量」双计数各 [3:1]（CountGems 34 ×2）→ ratio 多来源相加
     build: skill(
       dmg('enemyChosen', 4, 1, {
@@ -534,7 +535,7 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 9741,
-    desc: "对一名敌人造成[魔法 + 4]点伤害。如果对方是Boss，则根据我的升华效果造成3-5倍伤害。沉默第一名敌人。",
+    desc: "对一名敌人造成[魔法 + 4]点伤害。如果对方是Boss，则基于我已晋升的稀有度造成 3 到 5 倍伤害。沉默第一名敌人。",
     // MultiplyForRegion 见 9468 口径；「沉默第一名敌人」= enemyFront
     build: skill(
       dmg('enemyChosen', 4, 1, { condMult: ASC3 }),

@@ -1,0 +1,232 @@
+{
+ "troop:6385": {
+  "en": "troop 6385 SpellId 7540 cost 11 Green/Yellow; English 2 clauses",
+  "native": "7540 Target Enemy: CauseHuntersMark FromTarget, SummoningNoError 6386, Delay, CreateGems Red 7",
+  "rule": {
+   "path": "artifacts/gow-skill-audit/gold-primary-sources/official-status-effects.html",
+   "note": "Official status guide: Curse/Death Mark/Hunter's Mark/Web/Disease/Frozen/Poison semantics; Blessed immune to status effects, Devour and Mana Burn. Durations per rulings/R004 (convention:R006-C2 for Cause* Amount)."
+  },
+  "extra": [
+   {
+    "id": "transform",
+    "role": "community-rule",
+    "path": "artifacts/gow-skill-audit/gold-primary-sources/community-2026-09-28-transform-summon.json",
+    "note": "Transform restores Life/Armor and takes level + traits of the troop; summons arrive at level 20 (project roster is level 20)."
+   }
+  ],
+  "dims": {
+   "identity-cost-colors": [
+    "v",
+    "entity id, SpellId, cost and colours match raw EN + native + src/data (binding test)"
+   ],
+   "target-count-range": [
+    "v",
+    "chosen enemy (11 and 13 tested)"
+   ],
+   "base-formula-rounding": [
+    "na",
+    "no numeric formula"
+   ],
+   "boost-source-ratio-cap": [
+    "na",
+    "no boost source"
+   ],
+   "conditions-probabilities-branches": [
+    "na",
+    "single unconditional branch"
+   ],
+   "status-duration-immunity": [
+    "v",
+    "Hunter's Mark on chosen; Blessed chosen immune"
+   ],
+   "gems-types-selection-resolution": [
+    "v",
+    "exactly 7 Red created (full board -> converted cells)"
+   ],
+   "summon-transform-pools": [
+    "v",
+    "Summoning 6386 Warhawk template; NoError on full team"
+   ],
+   "order-death-retargeting": [
+    "v",
+    "mark -> summon -> gems"
+   ],
+   "mana-economy-extra-turn": [
+    "v",
+    "cast spends mana, one action logged, turn passes (no extra turn); low-mana / Silence refused"
+   ],
+   "display-description": [
+    "v",
+    "zh description matches English meaning (binding test)"
+   ],
+   "battle-pipeline": [
+    "v",
+    "real TurnEngine.castSkill, both sides"
+   ]
+  },
+  "clauses": {
+   "c1": [
+    "v",
+    "chosen enemy marked"
+   ],
+   "c2": [
+    "v",
+    "Warhawk + 7 Red"
+   ]
+  },
+  "steps": {
+   "0": [
+    "v",
+    "HuntersMark"
+   ],
+   "1": [
+    "v",
+    "Summoning 6386"
+   ],
+   "2": [
+    "v",
+    "Delay 800: presentation pause only; summon precedes gems (order test)"
+   ],
+   "3": [
+    "v",
+    "CreateGems Red 7"
+   ]
+  },
+  "branches": {
+   "main": [
+    "v",
+    "single branch"
+   ]
+  },
+  "decision": "accept",
+  "test": "tests/unit/gowLaneL1B02.test.ts",
+  "testNote": "troop:6385: real TurnEngine.castSkill both sides, fixed RNG, boundaries"
+ },
+ "troop:6378": {
+  "en": "troop 6378 SpellId 7533 cost 8 Blue/Purple; English 2 clauses",
+  "native": "7533 Randomize A+(B-C-D-E-F): CauseWeb RandomEnemy + one of Summoning 6136/6110/6395/6512/6068",
+  "rule": {
+   "path": "artifacts/gow-skill-audit/gold-primary-sources/official-status-effects.html",
+   "note": "Official status guide: Curse/Death Mark/Hunter's Mark/Web/Disease/Frozen/Poison semantics; Blessed immune to status effects, Devour and Mana Burn. Durations per rulings/R004 (convention:R006-C2 for Cause* Amount)."
+  },
+  "extra": [
+   {
+    "id": "transform",
+    "role": "community-rule",
+    "path": "artifacts/gow-skill-audit/gold-primary-sources/community-2026-09-28-transform-summon.json",
+    "note": "Transform restores Life/Armor and takes level + traits of the troop; summons arrive at level 20 (project roster is level 20)."
+   }
+  ],
+  "dims": {
+   "identity-cost-colors": [
+    "v",
+    "entity id, SpellId, cost and colours match raw EN + native + src/data (binding test)"
+   ],
+   "target-count-range": [
+    "v",
+    "one random living enemy"
+   ],
+   "base-formula-rounding": [
+    "na",
+    "no numeric formula"
+   ],
+   "boost-source-ratio-cap": [
+    "na",
+    "no boost source"
+   ],
+   "conditions-probabilities-branches": [
+    "v",
+    "Randomize A+(B-C-D-E-F): Web always, exactly one of 5 summons"
+   ],
+   "status-duration-immunity": [
+    "v",
+    "Web on one enemy"
+   ],
+   "gems-types-selection-resolution": [
+    "na",
+    "no gem effect"
+   ],
+   "summon-transform-pools": [
+    "v",
+    "fixed L1-6378-pool: pool = the 5 native ids, all reachable with fixed seeds, never other spiders"
+   ],
+   "order-death-retargeting": [
+    "v",
+    "Web then summon"
+   ],
+   "mana-economy-extra-turn": [
+    "v",
+    "cast spends mana, one action logged, turn passes (no extra turn); low-mana / Silence refused"
+   ],
+   "display-description": [
+    "v",
+    "zh description matches English meaning (binding test)"
+   ],
+   "battle-pipeline": [
+    "v",
+    "real TurnEngine.castSkill, both sides"
+   ]
+  },
+  "clauses": {
+   "c1": [
+    "v",
+    "random enemy Webbed"
+   ],
+   "c2": [
+    "v",
+    "one of the 5 native spiders"
+   ]
+  },
+  "steps": {
+   "0": [
+    "v",
+    "CauseWeb"
+   ],
+   "1": [
+    "v",
+    "SpiderSwarm option"
+   ],
+   "2": [
+    "v",
+    "GiantSpider option"
+   ],
+   "3": [
+    "v",
+    "Spinnerette option"
+   ],
+   "4": [
+    "v",
+    "TombSpider option"
+   ],
+   "5": [
+    "v",
+    "Webspinner option"
+   ]
+  },
+  "branches": {
+   "A+(B": [
+    "v",
+    "Web (A) + SpiderSwarm (B) branch reached"
+   ],
+   "C": [
+    "v",
+    "GiantSpider branch reached"
+   ],
+   "D": [
+    "v",
+    "Spinnerette branch reached"
+   ],
+   "E": [
+    "v",
+    "TombSpider branch reached"
+   ],
+   "F)": [
+    "v",
+    "Webspinner branch reached (fixed seeds: all 5)"
+   ]
+  },
+  "decision": "accept",
+  "test": "tests/unit/gowLaneL1B02.test.ts",
+  "testNote": "troop:6378: real TurnEngine.castSkill both sides, fixed RNG, boundaries"
+ }
+}

@@ -158,7 +158,7 @@ const SKIPPED: { id: number; reason: string }[] = [
   { id: 8406, reason: '「每有一名法力值满值的敌人则创造 8 颗红色宝石」= CountEnemiesFullMana 计数无来源 kind（r20 口径）；quarter 法力/15% 自毁本身可表' },
   { id: 8367, reason: '「因所有红色敌人的法力值而增强」= 按色筛选的敌方法力总和无来源（enemyStatSum 不筛色），r17 口径；红敌耗蓝段可表' },
   { id: 8581, reason: '「每有一名敌人陷入状态效果则再创造 2 颗」= 任意状态计数无来源（enemyStatusCount 按 id），r17 口径' },
-  { id: 9364, reason: '「敌人魔法值颜色最常用的宝石数量」= ENEMY_MOST_USED 动态色的计数来源缺（占位仅宝石段消费、无 modifier 来源），r17 口径' },
+  { id: 9364, reason: '「敌人法力颜色最常用的宝石数量」= ENEMY_MOST_USED 动态色的计数来源缺（占位仅宝石段消费、无 modifier 来源），r17 口径' },
   { id: 9492, reason: '「几率随被摧毁的头骨数量而增强 [x6]」= destroyedGems 无骷髅筛（细分缺口）；5x5 圈 + 30% 吞噬本身可表' },
   { id: 8464, reason: '「因选定的颜色（黄色除外）而增强」= 选定色/除外色计数无来源（boardGems 不收 CHOSEN），r17 口径' },
   { id: 7402, reason: '「伤害值等同于一名盟友的攻击力」= 泛指单体盟友攻击来源无 kind（allyStatSum 为总和）+「3 到 8 点法力值」数值区间，r17/r18 口径' },
@@ -168,7 +168,7 @@ const SKIPPED: { id: number; reason: string }[] = [
   { id: 9189, reason: '「窃取一名敌人所有黄金数」= 敌方黄金池无来源（TakeEnemyGold 无池），r19/r20 口径' },
   { id: 8859, reason: '「窃取黄金」&& 子句 = 敌方黄金池无来源（首句即卡，按序编译整条不可拆），r19/r20 口径' },
   // 【「其他盟友」排除句式（总和类来源不排自身）】（2 条）
-  { id: 7506, reason: '「因其他盟友的魔法值而增强 [2:1]」= allyStatSum 无法排除自身（r18 口径）；双色转换段可表' },
+  { id: 7506, reason: '「因其他盟友的魔力值而增强 [2:1]」= allyStatSum 无法排除自身（r18 口径）；双色转换段可表' },
   { id: 7651, reason: '「因其他所有盟友的法力值而增强」= 同 7506 排除句式 + [1:1]（r18 口径）' },
   // 【数值区间（法力/护甲值区间，非数量区间）】（6 条）
   { id: 7469, reason: '「给予他们 3-8 点法力值」= GenerateRandomMana 数值区间无原语（nRange 是目标数区间），r17/r19 口径' },
@@ -207,7 +207,7 @@ const SKIPPED: { id: number; reason: string }[] = [
   { id: 8694, reason: '「有 [魔法 + 1] 的几率杀掉敌人」= 几率带魔法缩放无原语（chance 为静态数），r17 口径' },
   { id: 10061, reason: '「击杀几率受其护甲值提升（最高可达 30%）」= 几率上限无法表达（chanceBoost 线性叠加后夹取）+ ZH 30%/官方 CountMax 20 互相矛盾，r19 口径' },
   // 【 Mana Burn / 其他语义缺口】（14 条）
-  { id: 7328, reason: '「法力灼烧，伤害值因自身魔法值而增强」= Mana Burn 伤害公式原文无数值（drain 全额可表、灼烧伤害量不可），r17/r18 口径' },
+  { id: 7328, reason: '「法力灼烧，伤害值因自身魔力值而增强」= Mana Burn 伤害公式原文无数值（drain 全额可表、灼烧伤害量不可），r17/r18 口径' },
   { id: 7713, reason: '「窃取攻击力并将之给予你第一位盟友」= steal 增益恒入施法者（重定向无原语）+ 骷髅×绿色混合创造（createMix 不收 SKULL 端点），r17/r18 口径' },
   { id: 7747, reason: '「若其中一名敌人身亡则击杀另一名敌人」= 两目标间「其中一名/另一名」绑定无原语，r18 口径' },
   { id: 8320, reason: '「使所有被伤害的敌人陷入燃烧和疾病」= 受溅射目标集合无目标模式（FromPrevious 仅主目标），r17 口径；恶龙蛋 FellDragonEgg 6892 可引' },
@@ -351,7 +351,7 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 7981,
-    desc: '获得 [魔法 + 1] 点护甲值，数值因敌我两方的恶魔数而增强。所有其他盟友获得 2 点魔法值和 5 点法力值。 [x2]',
+    desc: '获得 [魔法 + 1] 点护甲值，数值因敌我两方的恶魔数而增强。所有其他盟友获得 2 点魔力值和 5 点法力值。 [x2]',
     // 同 7698 结构：Daemon 双来源 ×2 护甲 + allyOthers 魔法/法力双段。
     build: skill(
     armor('allySelf', 1, 1, {
@@ -417,7 +417,7 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 8556,
-    desc: '赋予一名盟友[魔法 + 1]生命值和2点魔法值。如果该盟友来自神堂，则为其附魔。',
+    desc: '赋予一名盟友[魔法 + 1]生命值和2点魔力值。如果该盟友来自神堂，则为其附魔。',
     // 【挽救】r17 曾因王国条件组留弃；「来自神堂(Shentang)」= targetKingdom 段级过滤
     // （K-E 批已落；本地 Character.kingdom 值 =「圣唐」，EN Shentang 同王国）；「为其附魔」=
     // enchanted（R10 口径）。
@@ -461,7 +461,8 @@ const SPELLS: CuratedBatch['spells'] = [
     // 按 kind 落）；「棕色宝石都变为骷髅头」= transform；「净化所有精灵(Fey)同盟」= cleanse +
     // targetRace Fey（EN Cleanse all Fey Allies；本句「精灵」= Fey 的别译，8469 妖仙同族）。
     build: skill(
-    transformToSpecial(BaseColor.Green, 'manaPotionGem', { count: 5 }),
+    // PurpleManaPotion carries its colour (L4b-7068-potion-colour).
+    transformToSpecial(BaseColor.Green, { kind: 'manaPotionGem', color: BaseColor.Purple }, { count: 5 }),
     transform(BaseColor.Brown, 'SKULL'),
     cleanse('allyAll', undefined, { targetRace: 'Fey' }),
     ),

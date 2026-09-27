@@ -11,9 +11,9 @@
  * - 「被摧毁的织网宝石数」来源不支持：destroyedGems 仅按色筛，特殊宝石无色不可计（7014）。
  * - ~~「创造/发起一场X风暴」无技能原语~~ → **2026-09-16 原语批已落 createStorm**（spell-rules §9.1），
  *   7494-7499/7530/7934/8718 共 8 条移入 batch-37；7482 因「随机一项技能值降低」维持 SKIP。
- * - 「承受 3 点伤害」= 对自身 reduce hp（直接扣血夹零，7392）。
+ * - 「承受 3 点伤害」= 对自身普通伤害 dmg allySelf（屏障/护甲先吸收，7392；L5-009）。
  */
-import { skill, dmg, dmgAll, heal, armor, mana, inflict, reduce, summonRandom, createSpecialGems, transformToSpecial, transform } from '../builders';
+import { skill, dmg, dmgAll, heal, armor, mana, inflict, summonRandom, createSpecialGems, transformToSpecial, transform } from '../builders';
 import { BaseColor } from '../../types';
 import type { CuratedBatch } from './index';
 
@@ -54,8 +54,9 @@ const SPELLS: CuratedBatch['spells'] = [
     build: skill(
       inflict('death-mark', 'enemyFront'),
       inflict('death-mark', 'enemyLast'),
-      // 「承受 3 点伤害」= 对自身直接扣血（reduce hp 夹零，阵亡走 defeat）
-      reduce('allySelf', 'hp', 3, 0),
+      // 「承受 3 点伤害」= native {Target:Self, Type:Damage, Amount:3}：普通伤害，
+      // 先吃屏障、再扣护甲后扣血（batch-19 同口径 dmg allySelf mult 0；L5-009）
+      dmg('allySelf', 3, 0),
     ),
   },
   {
@@ -121,9 +122,9 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 8926,
-    desc: '对一名敌人造成 [魔法 + 2] 点真实伤害，再使他陷入诅咒状态。若敌人使用紫色法力，则造成双倍伤害。',
+    desc: '对一名敌人造成 [魔法 + 2] 点真实伤害，再使他陷入诅咒状态。若敌人使用紫色法力值，则造成双倍伤害。',
     build: skill(
-      // 「若敌人使用紫色法力」= condMult targetColor（条件子句辖伤害段）
+      // 「若敌人使用紫色法力值」= condMult targetColor（条件子句辖伤害段）
       dmg('enemyChosen', 2, 1, { trueDamage: true, condMult: { times: 2, cond: { kind: 'targetColor', color: BaseColor.Purple } } }),
       inflict('curse', 'enemyChosen'),
     ),

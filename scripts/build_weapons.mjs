@@ -7,6 +7,7 @@
 // 输出: src/data/weapons.json （主角武器数据，schema 对齐 troops.json，产物勿手改）
 // 报告: artifacts/weapons-build-report.txt （统计 + 王国映射差异清单 + 绑定保真度分布）
 import fs from 'node:fs';
+import { correctedWeaponDescription } from './lib/gow-weapon-desc-corrections.mjs';
 import path from 'node:path';
 
 const IN_ZH = 'artifacts/gowhead-weapons/raw/weapons.gow.zh.json';
@@ -97,6 +98,7 @@ function buildSkillMetadata(desc) {
 const zh = JSON.parse(fs.readFileSync(IN_ZH, 'utf8'));
 const en = JSON.parse(fs.readFileSync(IN_EN, 'utf8'));
 const enById = new Map(en.weapons.map((w) => [w.Id, w]));
+const preservedWeaponNames = { 1720: '\u5854\u62c9\u8428\u7684\u9020\u6d6a\u8005', 1721: '\u683c\u601d\u6d1b\u514b\u7684\u88c2\u77f3\u5668' };
 
 // --- 王国中文名映射（复用 build_troops 的取名方式：zh dump 的 kingdom_name 即中文名） ---
 // 校验基准 = troops.json 已有的 42 个王国中文名。武器王国若不在集合内（映射缺口），
@@ -176,7 +178,7 @@ const weapons = zh.weapons.map((w) => {
   let name = w.name_localized || '';
   if (!hasCJK(name)) {
     stats.nameEnFallback.push({ id: w.Id, referenceName: w.ReferenceName, name });
-    name = nameEn;
+    name = preservedWeaponNames[w.Id] ?? nameEn;
   }
 
   // 法术：zh 描述为主（含公式里的「魔法」标记，英文兜底会丢解析），zh 缺失才回退 en
@@ -192,6 +194,7 @@ const weapons = zh.weapons.map((w) => {
   } else {
     stats.spellFullyZh++;
   }
+  description = correctedWeaponDescription(w.SpellId ?? zhSpell.id, description, enSpell.desc);
   const meta = buildSkillMetadata(description);
   for (const m of description.matchAll(BRACKET_RE)) {
     if (!classifyToken(m[1])) {

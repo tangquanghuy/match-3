@@ -1,0 +1,52 @@
+
+// ——— troop:6032 Satyr / spell 7032 (FIXED L3-017) ———
+describe('L3 troop:6032/spell:7032 steal up to 2 Armor from the last enemy into Magic, then [Magic+4] to it; extra turn',()=>{
+ const base={skill:'7032',cost:8,colors:[BaseColor.Green]};
+ it('source/native/prototype/display binding',()=>{
+  troopBinding(6032,7032,8,base.colors,'Steal 2 Armor from the last Enemy, and shift it to Magic, then deal [Magic + 4] damage. Gain an extra turn. [1:1]',
+   [{Target:'LastEnemy',Amount:100,Type:'CountArmor'},{Amount:2,Type:'CountMax'},{Target:'LastEnemy',UseCounterForAmount:true,Type:'DecreaseArmor'},
+    {Target:'Self',UseCounterForAmount:true,Type:'IncreaseSpellPower',Delay:1},{SpellPowerMultiplier:1,Target:'LastEnemy',Amount:4,Primarypower:true,Type:'Damage'},
+    {Target:'Self',Type:'ExtraTurn'}],
+   '对最后一名敌人造成 [魔法 + 4] 点伤害。窃取 2 点护甲值并将之转为魔力值。获得一个额外回合。 [1:1]','None');
+  expect(registry.prototypes.get('7032')).toEqual({segments:[
+   {kind:'reduce',target:'enemyLast',stat:'armor',scaling:{base:2,mult:0},gainStat:'magic'},
+   {kind:'damage',target:'enemyLast',scaling:{base:4,mult:1}},{kind:'extraTurn'}]});
+ });
+ for(const side of SIDES)for(const magic of [0,10])it(`real cast side=${side} magic=${magic}: last enemy armor 5 -> 3, caster Magic +2, then ${magic+6} hits armor 3 first; extra turn`,()=>{
+  const f=setup({...base,side,magic,enemies:[{},{},{},{armor:5}]});const ev=f.cast();
+  expect(f.caster.magic).toBe(magic+2);const dmg=magic+6;
+  expect(f.enemies[3].armor).toBe(Math.max(0,3-dmg));expect(f.loss()).toEqual([0,0,0,Math.max(0,dmg-3)]);turnAfter(f,ev,true);
+ });
+ it('CountMax 2: armor 1 -> +1 Magic; armor 0 -> +0; dead last enemy -> next living last; Webbed caster gains no Magic',()=>{
+  const a=setup({...base,magic:0,enemies:[{},{},{},{armor:1}]});a.cast();expect(a.caster.magic).toBe(1);expect(a.loss()[3]).toBe(5);
+  const b=setup({...base,magic:0});b.cast();expect(b.caster.magic).toBe(0);expect(b.loss()[3]).toBe(4);
+  const c=setup({...base,magic:0,enemies:[{},{},{armor:2},{hp:0,defeated:true}]});c.cast();expect(c.enemies[2].armor).toBe(0);expect(c.loss()[2]).toBe(6);
+  const d=setup({...base,magic:0,enemies:[{},{},{},{armor:2}],caster:{statuses:[{id:'web',turns:3}]}});d.cast();expect(d.enemies[3].armor).toBe(0);
+ });
+ refusal(base);
+});
+
+// ——— troop:6035 Blade Dancer / spell 7035 (FIXED L3-018) ———
+describe('L3 troop:6035/spell:7035 [Magic+4] scatter boosted by all enemy Armor [2:1]; steal 4 Magic from a random enemy',()=>{
+ const base={skill:'7035',cost:11,colors:[BaseColor.Green,BaseColor.Yellow]};
+ it('source/native/prototype/display binding',()=>{
+  troopBinding(6035,7035,11,base.colors,'Deal [Magic + 4] scatter damage, boosted by all enemy Armor. Steal 4 Magic from a random Enemy. [2:1]',
+   [{Target:'AllEnemies',Amount:50,Type:'CountArmor'},{SpellPowerMultiplier:1,Target:'AllEnemies',UseCounterForAmount:true,Amount:4,Primarypower:true,Type:'ScatterDamage'},
+    {Type:'DelayUntilEffectsComplete'},{Type:'ResetTargets'},{Target:'RandomEnemy',Amount:4,Type:'StealMagic'}],
+   '造成 [魔法 + 4] 点散射伤害，伤害值因所有敌人的护甲值而增强。窃取一名随机敌人 4 点魔力值。 [2:1]','None');
+  const p=registry.prototypes.get('7035')!;
+  expect(p.segments[1]).toEqual({kind:'reduce',target:'enemyRandom',stat:'magic',scaling:{base:4,mult:0},gainStat:'magic'});
+ });
+ for(const side of SIDES)for(const magic of [0,10])it(`real cast side=${side} magic=${magic}: total removed = ${magic+4} + floor(armor 9 / 2) = ${magic+8}; one enemy Magic 11 -> 7, caster +4 Magic, no mana moved`,()=>{
+  const f=setup({...base,side,magic,enemies:[{armor:3,mana:5},{armor:6,mana:5},{mana:5},{mana:5}]});
+  const start=f.enemies.map(e=>e.hp+e.armor);const ev=f.cast();
+  expect(f.enemies.reduce((a,e,i)=>a+start[i]-e.hp-e.armor,0)).toBe(magic+8);
+  expect(f.enemies.map(e=>e.magic).sort((a,b)=>a-b)).toEqual([7,11,11,11]);expect(f.caster.magic).toBe(magic+4);
+  expect(f.enemies.every(e=>e.mana===5)).toBe(true);expect(f.caster.mana).toBe(0);turnAfter(f,ev,false);
+ });
+ it('steal clamps to the target Magic (2 -> +2); armor boost counts pre-damage armor only of living enemies',()=>{
+  const f=setup({...base,magic:0,enemies:[{magic:2},{hp:0,defeated:true,magic:2,armor:40},{hp:0,defeated:true,magic:2},{hp:0,defeated:true,magic:2}]});
+  const ev=f.cast();expect(f.enemies[0].magic).toBe(0);expect(f.caster.magic).toBe(2);expect(f.loss()[0]).toBe(4);turnAfter(f,ev,false);
+ });
+ refusal(base);
+});

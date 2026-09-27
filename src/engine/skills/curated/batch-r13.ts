@@ -29,7 +29,7 @@
  *   CountAttack(FromTarget)（= 选定者的攻击力）；引擎 targetStat 读跨段追踪主目标，
  *   第二段解析 AboveTarget 后追踪已被覆写为上方敌人，口径不符；
  * - 8365（荆棘森林盟友数）/8723/9245/9249/8985/9588 等 CountArmyKingdom 王国计数来源缺；
- * - 8467「若敌人使用蓝色法力，则摧毁一列…」——目标相对色条件须挂在跨段目标上，gem/增益段
+ * - 8467「若敌人使用蓝色法力值，则摧毁一列…」——目标相对色条件须挂在跨段目标上，gem/增益段
  *   无从判定（条件域无 lastTargetColor）；
  * - 9875「蓝色宝石和友军可提升伤害」——友军计数官方 Data=0 而 desc 未指明颜色，颜色无法定；
  * - 9640 目标数 [魔法 + 2] 带魔法缩放无原语（R12 已记）；8356/8273/9219 按法力色选目标
@@ -38,12 +38,10 @@
  * 本批只收录回收成功条目（22 条）。
  */
 import type { CuratedBatch } from './index';
-import {
-  skill, dmg, dmgSplash, trueDmg, heal, armor, attack, magic,
+import { targetedSkill, chooseSkill, skill, dmg, dmgSplash, trueDmg, heal, armor, attack, magic,
   reduce, drainMana, createSkulls, createMix, createSpecialGems, transformToSpecial,
   destroyArea, destroyRandomGems, explodeChosenRow, inflict, summonRef, summonRandom,
-  extraTurn, CHOSEN,
-} from '../builders';
+  extraTurn, CHOSEN, } from '../builders';
 import { BaseColor } from '../../types';
 
 const SKIPPED: { id: number; reason: string }[] = [];
@@ -71,8 +69,8 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 8310,
-    desc: '给予所有在我下方的盟友 [魔法 + 1] 点生命值和 2 点魔法值。创建 8 颗骷髅头。',
-    // 官方 BelowSelf ×2（不含自身；R13 新模式）；「2 点魔法值」= 常数（无 SpellPower）
+    desc: '给予所有在我下方的盟友 [魔法 + 1] 点生命值和 2 点魔力值。创建 8 颗骷髅头。',
+    // 官方 BelowSelf ×2（不含自身；R13 新模式）；「2 点魔力值」= 常数（无 SpellPower）
     build: skill(
       heal('allyBelowSelf', 1, 1),
       magic('allyBelowSelf', 2, 0),
@@ -90,7 +88,7 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 8541,
-    desc: '摧毁一整块大小为 3x3 的宝石。给予所位于自身之上的盟友 [魔法 + 1] 点攻击力，和所有位于自身之下的盟友 3 点魔法值。',
+    desc: '摧毁一整块大小为 3x3 的宝石。给予所位于自身之上的盟友 [魔法 + 1] 点攻击力，和所有位于自身之下的盟友 3 点魔力值。',
     // 官方 AboveSelf + BelowSelf（R13 新模式）；Block3x3 DestroyGems = square3 destroy（R12 口径）
     build: skill(
       destroyArea('square3', 'destroy'),
@@ -133,22 +131,17 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '&& 对一名选定敌人造成 [(魔法 x 2) + 4] 点真实伤害，使他们陷入死亡标记状态并耗掉他们的法力值  && 对其他所有敌人造成 [(魔法 x 2) + 4] 点伤害',
     // 官方步骤序：死亡标记 → 耗蓝 → TrueDamage → AboveTarget/BelowTarget（三队伍下
     // 上+下即「其他所有敌人」；标记/耗蓝先行，避免主目标阵亡后段空转）
-    build: skill(
-      inflict('death-mark', 'enemyChosen'),
-      drainMana('enemyChosen'),
-      trueDmg('enemyChosen', 4, 2),
-      dmg('enemyAboveTarget', 4, 2, { range: 'all' }),
-      dmg('enemyBelowTarget', 4, 2, { range: 'all' }),
-    ),
+    build: targetedSkill('enemyChosen', chooseSkill(["对所选敌人施加死亡标记、耗尽法力并造成［魔法×2＋4］真实伤害","对所选目标之外的其他敌人造成［魔法×2＋4］伤害"], [inflict('death-mark', 'enemyChosen'), drainMana('enemyChosen'), trueDmg('enemyChosen', 4, 2)], [dmg('enemyAboveTarget', 4, 2, { range: 'all' }), dmg('enemyBelowTarget', 4, 2, { range: 'all' })])),
   },
   {
     id: 8894,
-    desc: '使一名盟友陷入诅咒和死亡标记状态。再对其下位所有敌人造成 [(魔法 x 1.5) + 3] 点伤害。再召唤阿伯拉瑟。',
-    // 「对其下位所有敌人」= enemyBelowTarget（锚 = 选定**盟友**在己方队伍的索引，映射到
-    // 敌方同位切片——R13 enemyBelowTarget 的跨侧口径）；阿伯拉瑟 = Abhorath（troops.json）
+    desc: '使一名敌人陷入诅咒和死亡标记状态。再对其下位所有敌人造成 [(魔法 x 1.5) + 3] 点伤害。再召唤阿伯拉瑟。',
+    // L1-7260-target: English "Curse and Deathmark an Enemy", native Target Enemy + FromTarget
+    // (stored zh 一名盟友 is a localisation error, corrected via gowSnapshotOverrides.json).
+    // 「对其下位所有敌人」= enemyBelowTarget anchored on the chosen enemy; 阿伯拉瑟 = Abhorath (6067).
     build: skill(
-      inflict('curse', 'allyChosen'),
-      inflict('death-mark', 'allyChosen'),
+      inflict('curse', 'enemyChosen'),
+      inflict('death-mark', 'enemyChosen'),
       dmg('enemyBelowTarget', 3, 1.5, { range: 'all' }),
       summonRef('Abhorath'),
     ),
@@ -177,7 +170,8 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '制造2个头骨，由棕色盟友和敌人激发。 [x2]',
     // 「每 1 名棕色盟友/敌人 +2 骷髅」= base 0 + 2×(alliesOfColor+enemiesOfColor Brown)
     build: skill(
-      createSkulls(0, 0, {
+      // Native CreateGems Skull Amount 2 UseCounterForAmount = 2 + counter (L4b-7071-base).
+      createSkulls(2, 0, {
         modifier: {
           mod: { kind: 'multiplier', a: 2 },
           sources: [
@@ -338,16 +332,13 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '&& 消除敌人的 [魔法 + 1] 项技能，因天使宝石而增强。对恶魔的效果加倍。&& 消除敌人的 [魔法 + 1] 项技能，因天使宝石而增强。对亡灵的效果加倍。 [3:1]',
     // 官方两条 DecreaseRandom（StatusModifier MultiplyForDaemon/MultiplyForUndead）=
     // raceDouble Daemon / Undead 两段；「因天使宝石 [3:1]」= boardSpecial angelGem（波B）
-    build: skill(
-      reduce('enemyChosen', 'random', 1, 1, {
+    build: skill(chooseSkill(["削减一名敌人的随机属性，天使宝石增强，对恶魔加倍","削减一名敌人的随机属性，天使宝石增强，对亡灵加倍"], [reduce('enemyChosen', 'random', 1, 1, {
         raceDouble: 'Daemon',
         modifier: { mod: { kind: 'ratio', a: 3, b: 1 }, source: { kind: 'boardSpecial', gem: 'angelGem' } },
-      }),
-      reduce('enemyChosen', 'random', 1, 1, {
+      })], [reduce('enemyChosen', 'random', 1, 1, {
         raceDouble: 'Undead',
         modifier: { mod: { kind: 'ratio', a: 3, b: 1 }, source: { kind: 'boardSpecial', gem: 'angelGem' } },
-      }),
-    ),
+      })])),
   },
 ];
 

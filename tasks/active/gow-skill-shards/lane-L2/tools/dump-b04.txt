@@ -1,0 +1,50 @@
+=== weapon:1504 CourtScepter spell 8900 cost 14/14 colors Green,Red status pending-review target Enemy rand Choose:ABC-DEF
+EN : && Convert all Gems of a chosen Enemy Mana Color to Spirit Gems. && Deal [Magic + 2] damage to an Enemy, boosted by Spirit Gems. [x4]
+ZH : 选择一项：将选定敌人一种法力颜色的所有宝石转化为灵魂宝石；或对一名敌人造成 [魔法 + 2] 点伤害，每颗灵魂宝石增加 4 点伤害。
+CL : c1=Convert all Gems of a chosen Enemy Mana Color to Spirit Gems. | c2=Deal [Magic + 2] damage to an Enemy, boosted by Spirit Gems. | c3=[x4]
+  0 {"Color1":"FromTarget","Amount":100,"Color2":"Spirit","Type":"ConvertGems"}
+  1 {"PercentageChance":0,"Type":"None"}
+  2 {"PercentageChance":0,"Type":"None"}
+  3 {"Color1":"Spirit","Amount":400,"Type":"CountGems"}
+  4 {"SpellPowerMultiplier":1,"Target":"FromTarget","UseCounterForAmount":true,"Amount":2,"Primarypower":true,"Type":"Damage"}
+PROTO {"inputTarget":"enemyChosen","segments":[{"kind":"choose","labels":["将所选敌人一种法力颜色的宝石转化为灵魂宝石","对所选敌人造成［魔法＋2］伤害，每颗灵魂宝石增强4点"],"options":[[{"kind":"gem","params":{"op":"transform","from":"CHOSEN_TARGET","to":"SKULL","spiritColorFromSource":true,"toSpecial":"spiritGem"}}],[{"kind":"damage","target":"enemyChosen","scaling":{"base":2,"mult":1},"modifier":{"mod":{"kind":"multiplier","a":4},"source":{"kind":"boardSpecial","gem":"spiritGem"}}}]]}]}
+SRC artifacts/gowhead-weapons/weapons.json null
+=== troop:7169 Limpet-bot spell 8722 cost 10/10 colors Blue,Brown status pending-review target Board rand AB-CD
+EN : Convert a Gem into a Bomb Gem, and either create 3 more Bomb Gems, or explode all Bomb Gems.
+ZH : 将一颗宝石转换成炸弹宝石。再创造 3 颗炸弹宝石或爆破所有炸弹宝石。
+CL : c1=Convert a Gem into a Bomb Gem, and either create 3 more Bomb Gems, or explode all Bomb Gems.
+  0 {"Color1":"FromTarget","Amount":1,"Color2":"Bomb","BoardTarget":"SingleGem","Type":"ConvertGems","Delay":800}
+  1 {"Color1":"Bomb","Amount":3,"Type":"CreateGems"}
+  2 {"Color1":"FromTarget","Amount":1,"Color2":"Bomb","BoardTarget":"SingleGem","Type":"ConvertGems","Delay":800}
+  3 {"Color1":"Bomb","Amount":100,"Type":"ExplodeColor"}
+PROTO {"segments":[{"kind":"gem","params":{"op":"transform","from":"ANY","to":"SKULL","toSpecial":"bomb","count":{"base":1,"mult":0}}},{"kind":"oneOf","options":[[{"kind":"gem","params":{"op":"create","gem":{"kind":"special","spec":{"kind":"bomb"}},"count":{"base":3,"mult":0}}}],[{"kind":"gem","params":{"op":"clear","mode":"explode","target":{"kind":"special","gem":"bomb"}}}]]}]}
+META null
+=== troop:7817 GreenHag spell 9861 cost 12/12 colors Blue,Green status pending-review target ManaGemsOnly rand -
+EN : Convert all Gems of a chosen Color to Poison Gems. Then eliminate [Magic + 1] points of a random skill from a random Enemy.
+ZH : 将指定颜色的所有宝石转化为毒宝石。然后随机减少一名敌人的[魔法 + 1]点随机技能点数。
+CL : c1=Convert all Gems of a chosen Color to Poison Gems. | c2=Then eliminate [Magic + 1] points of a random skill from a random Enemy.
+  0 {"Color1":"FromTarget","Amount":100,"Color2":"Poison","Type":"ConvertGems"}
+  1 {"SpellPowerMultiplier":1,"Target":"RandomEnemy","Amount":1,"Primarypower":true,"Type":"DecreaseRandom"}
+PROTO {"segments":[{"kind":"gem","params":{"op":"transform","from":"CHOSEN","to":"SKULL","toSpecial":"poisonGem"}},{"kind":"reduce","target":"enemyRandom","stat":"random","scaling":{"base":1,"mult":1}}]}
+META null
+=== troop:7214 StoneZombie spell 8801 cost 10/10 colors Blue,Brown status pending-review target Board rand AB-CD
+EN : Convert 4 Stone Blocks to either Good or Evil Gargoyle Gems. Then explode a Gem.
+ZH : 将 4 颗石块转换成善或恶石像鬼宝石。再爆破一颗宝石。
+CL : c1=Convert 4 Stone Blocks to either Good or Evil Gargoyle Gems. | c2=Then explode a Gem.
+  0 {"Color1":"Block","Amount":4,"Color2":"GoodGargoyle","Type":"ConvertGems","Delay":400}
+  1 {"Amount":1,"BoardTarget":"SingleGem","Type":"ExplodeGems"}
+  2 {"Color1":"Block","Amount":4,"Color2":"BadGargoyle","Type":"ConvertGems","Delay":400}
+  3 {"Amount":1,"BoardTarget":"SingleGem","Type":"ExplodeGems"}
+PROTO {"segments":[{"kind":"gem","params":{"op":"transform","from":"ANY","to":"SKULL","fromSpecial":"stoneBlock","toSpecial":"gargoyleGem","count":{"base":4,"mult":0},"tiers":[1,2]}},{"kind":"gem","params":{"op":"clear","mode":"explode","target":{"kind":"cell","cell":"CELL"}}}]}
+META null
+=== weapon:1500 Foxglove spell 8876 cost 14/14 colors Blue,Purple status pending-review target NotGreenOrSkullGems rand Choose:ABC-DEF
+EN : && Convert all Green Gems to a chosen Color. && Explode a Gem, and create 10 Green Gems.
+ZH : 选择一项：将所有绿色宝石转化为选定颜色；或爆破一颗选定宝石，再创造 10 颗绿色宝石。
+CL : c1=Convert all Green Gems to a chosen Color. | c2=Explode a Gem, and create 10 Green Gems.
+  0 {"Color1":"Green","Amount":100,"Color2":"FromTarget","Type":"ConvertGems"}
+  1 {"PercentageChance":0,"Type":"None"}
+  2 {"PercentageChance":0,"Type":"None"}
+  3 {"Amount":1,"BoardTarget":"SingleGem","Type":"ExplodeGems"}
+  4 {"Color1":"Green","Amount":10,"Type":"CreateGems"}
+PROTO {"segments":[{"kind":"choose","labels":["将所有绿色宝石转化为所选颜色","爆破所选宝石，创造10颗绿色宝石"],"options":[[{"kind":"gem","params":{"op":"transform","from":"Green","to":"CHOSEN"}}],[{"kind":"gem","params":{"op":"clear","mode":"explode","target":{"kind":"cell","cell":"CELL"}}},{"kind":"gem","params":{"op":"create","gem":{"kind":"color","color":"Green"},"count":{"base":10,"mult":0}}}]]}]}
+SRC artifacts/gowhead-weapons/weapons.json null

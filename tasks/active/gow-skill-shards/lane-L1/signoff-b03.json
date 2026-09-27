@@ -1,0 +1,1066 @@
+{
+  "schemaVersion": 1,
+  "scope": "stored-gow-snapshot",
+  "reviews": [
+    {
+      "key": "troop:6885",
+      "scope": "stored-gow-snapshot",
+      "sourceDigest": "e4276bed24d4a200ab66b746f60be085663eb9704fcd76e556a1667e6be6087f",
+      "reviewer": "sa-L1",
+      "reviewedAt": "2026-09-27",
+      "decision": "draft",
+      "ledgerFingerprintAtReview": "abe9ed6e02e05b3214438374da2db21fd67f9f6d9f26343d9c51c15d002672bf",
+      "_reference": {
+        "spellId": 8308,
+        "english": "Charm the first Enemy and drain their Mana by 3.",
+        "nativeTarget": "None",
+        "randomize": null,
+        "steps": [
+          {
+            "Target": "FrontEnemy",
+            "Amount": 1,
+            "Type": "Charm"
+          },
+          {
+            "Target": "FrontEnemy",
+            "Amount": 3,
+            "Type": "DecreaseMana"
+          }
+        ],
+        "prototype": {
+          "segments": [
+            {
+              "kind": "status",
+              "target": "enemyFront",
+              "statusId": "charm",
+              "turns": 3
+            },
+            {
+              "kind": "reduce",
+              "target": "enemyFront",
+              "stat": "mana",
+              "scaling": {
+                "base": 3,
+                "mult": 0
+              }
+            }
+          ]
+        }
+      },
+      "sourceEvidence": [
+        {
+          "id": "en",
+          "role": "english-snapshot",
+          "path": "data/raw/troops.gow.en.json",
+          "note": "TODO: entity id / SpellId / English clause / cost / colours checked"
+        },
+        {
+          "id": "native",
+          "role": "native-snapshot",
+          "path": "data/raw/spells.gow.en.json",
+          "note": "TODO: SpellId-indexed Cost/Target/every non-None SpellSteps field checked"
+        },
+        {
+          "id": "rule",
+          "role": "official-shared-rule",
+          "path": "artifacts/gow-skill-audit/gold-primary-sources/official-status-effects.html",
+          "note": "TODO: replace with the official rule file actually relevant to this skill, and say what it supports"
+        }
+      ],
+      "dimensions": {
+        "identity-cost-colors": {
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        },
+        "target-count-range": {
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        },
+        "base-formula-rounding": {
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        },
+        "boost-source-ratio-cap": {
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        },
+        "conditions-probabilities-branches": {
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        },
+        "status-duration-immunity": {
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        },
+        "gems-types-selection-resolution": {
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        },
+        "summon-transform-pools": {
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        },
+        "order-death-retargeting": {
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        },
+        "mana-economy-extra-turn": {
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        },
+        "display-description": {
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        },
+        "battle-pipeline": {
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": [],
+          "realBattleEntry": true
+        }
+      },
+      "clauseReviews": [
+        {
+          "id": "c1",
+          "text": "Charm the first Enemy and drain their Mana by 3.",
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        }
+      ],
+      "nativeStepReviews": [
+        {
+          "id": "0",
+          "type": "Charm",
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        },
+        {
+          "id": "1",
+          "type": "DecreaseMana",
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        }
+      ],
+      "branchReviews": [
+        {
+          "id": "main",
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        }
+      ]
+    },
+    {
+      "key": "troop:7793",
+      "scope": "stored-gow-snapshot",
+      "sourceDigest": "3510c814fff3d70dc490f0ca353e3609a79ad1bdb33365f592ee7c04b2993d62",
+      "reviewer": "sa-L1",
+      "reviewedAt": "2026-09-27",
+      "decision": "draft",
+      "ledgerFingerprintAtReview": "abe9ed6e02e05b3214438374da2db21fd67f9f6d9f26343d9c51c15d002672bf",
+      "_reference": {
+        "spellId": 9812,
+        "english": "Charm 2 random Enemies and drain 8 Mana from them. If an Enemy dies, gain 30 Life and Bless myself.",
+        "nativeTarget": "None",
+        "randomize": null,
+        "steps": [
+          {
+            "Target": "RandomEnemy",
+            "Type": "Charm"
+          },
+          {
+            "Target": "FromPrevious",
+            "Amount": 8,
+            "Type": "DecreaseMana",
+            "Delay": 600,
+            "ResetTargets": true
+          },
+          {
+            "Target": "RandomPrefNotPrevEnemy",
+            "Type": "Charm"
+          },
+          {
+            "Target": "FromPrevious",
+            "Amount": 8,
+            "Type": "DecreaseMana",
+            "Delay": 600,
+            "ResetTargets": true
+          },
+          {
+            "Target": "Self",
+            "StatusAmount": 30,
+            "StatusModifier": "AddForKill",
+            "Type": "IncreaseHealth",
+            "Delay": 1
+          },
+          {
+            "Target": "Self",
+            "StatusAmount": 100,
+            "StatusModifier": "AddForKill",
+            "Type": "CauseSpecificStatusEffectConditional",
+            "Data": "blessed"
+          }
+        ],
+        "prototype": {
+          "segments": [
+            {
+              "kind": "status",
+              "target": "enemyRandomN",
+              "statusId": "charm",
+              "turns": 3,
+              "n": 2
+            },
+            {
+              "kind": "reduce",
+              "target": "lastTargets",
+              "stat": "mana",
+              "scaling": {
+                "base": 8,
+                "mult": 0
+              }
+            },
+            {
+              "kind": "buff",
+              "target": "allySelf",
+              "stat": "hp",
+              "scaling": {
+                "base": 30,
+                "mult": 0
+              },
+              "ifCond": {
+                "kind": "anyTrackedDied"
+              },
+              "lifeMode": "gain"
+            },
+            {
+              "kind": "status",
+              "target": "allySelf",
+              "statusId": "blessed",
+              "turns": 3,
+              "ifCond": {
+                "kind": "anyTrackedDied"
+              }
+            }
+          ]
+        }
+      },
+      "sourceEvidence": [
+        {
+          "id": "en",
+          "role": "english-snapshot",
+          "path": "data/raw/troops.gow.en.json",
+          "note": "TODO: entity id / SpellId / English clause / cost / colours checked"
+        },
+        {
+          "id": "native",
+          "role": "native-snapshot",
+          "path": "data/raw/spells.gow.en.json",
+          "note": "TODO: SpellId-indexed Cost/Target/every non-None SpellSteps field checked"
+        },
+        {
+          "id": "rule",
+          "role": "official-shared-rule",
+          "path": "artifacts/gow-skill-audit/gold-primary-sources/official-status-effects.html",
+          "note": "TODO: replace with the official rule file actually relevant to this skill, and say what it supports"
+        }
+      ],
+      "dimensions": {
+        "identity-cost-colors": {
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        },
+        "target-count-range": {
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        },
+        "base-formula-rounding": {
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        },
+        "boost-source-ratio-cap": {
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        },
+        "conditions-probabilities-branches": {
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        },
+        "status-duration-immunity": {
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        },
+        "gems-types-selection-resolution": {
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        },
+        "summon-transform-pools": {
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        },
+        "order-death-retargeting": {
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        },
+        "mana-economy-extra-turn": {
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        },
+        "display-description": {
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        },
+        "battle-pipeline": {
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": [],
+          "realBattleEntry": true
+        }
+      },
+      "clauseReviews": [
+        {
+          "id": "c1",
+          "text": "Charm 2 random Enemies and drain 8 Mana from them.",
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        },
+        {
+          "id": "c2",
+          "text": "If an Enemy dies, gain 30 Life and Bless myself.",
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        }
+      ],
+      "nativeStepReviews": [
+        {
+          "id": "0",
+          "type": "Charm",
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        },
+        {
+          "id": "1",
+          "type": "DecreaseMana",
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        },
+        {
+          "id": "2",
+          "type": "Charm",
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        },
+        {
+          "id": "3",
+          "type": "DecreaseMana",
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        },
+        {
+          "id": "4",
+          "type": "IncreaseHealth",
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        },
+        {
+          "id": "5",
+          "type": "CauseSpecificStatusEffectConditional",
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        }
+      ],
+      "branchReviews": [
+        {
+          "id": "main",
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        }
+      ]
+    },
+    {
+      "key": "troop:6305",
+      "scope": "stored-gow-snapshot",
+      "sourceDigest": "78031a57e294ff723a124a66cd816ddda6325b6fae36b3c5456e39e7a0e6798e",
+      "reviewer": "sa-L1",
+      "reviewedAt": "2026-09-27",
+      "decision": "draft",
+      "ledgerFingerprintAtReview": "abe9ed6e02e05b3214438374da2db21fd67f9f6d9f26343d9c51c15d002672bf",
+      "_reference": {
+        "spellId": 7455,
+        "english": "Charm 2 random enemies.",
+        "nativeTarget": "None",
+        "randomize": null,
+        "steps": [
+          {
+            "Target": "RandomEnemy",
+            "Type": "Charm"
+          },
+          {
+            "Amount": 950,
+            "Type": "Delay"
+          },
+          {
+            "Target": "RandomEnemy",
+            "Type": "Charm"
+          }
+        ],
+        "prototype": {
+          "segments": [
+            {
+              "kind": "status",
+              "target": "enemyRandomN",
+              "statusId": "charm",
+              "turns": 3,
+              "n": 2
+            }
+          ]
+        }
+      },
+      "sourceEvidence": [
+        {
+          "id": "en",
+          "role": "english-snapshot",
+          "path": "data/raw/troops.gow.en.json",
+          "note": "TODO: entity id / SpellId / English clause / cost / colours checked"
+        },
+        {
+          "id": "native",
+          "role": "native-snapshot",
+          "path": "data/raw/spells.gow.en.json",
+          "note": "TODO: SpellId-indexed Cost/Target/every non-None SpellSteps field checked"
+        },
+        {
+          "id": "rule",
+          "role": "official-shared-rule",
+          "path": "artifacts/gow-skill-audit/gold-primary-sources/official-status-effects.html",
+          "note": "TODO: replace with the official rule file actually relevant to this skill, and say what it supports"
+        }
+      ],
+      "dimensions": {
+        "identity-cost-colors": {
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        },
+        "target-count-range": {
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        },
+        "base-formula-rounding": {
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        },
+        "boost-source-ratio-cap": {
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        },
+        "conditions-probabilities-branches": {
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        },
+        "status-duration-immunity": {
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        },
+        "gems-types-selection-resolution": {
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        },
+        "summon-transform-pools": {
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        },
+        "order-death-retargeting": {
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        },
+        "mana-economy-extra-turn": {
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        },
+        "display-description": {
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        },
+        "battle-pipeline": {
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": [],
+          "realBattleEntry": true
+        }
+      },
+      "clauseReviews": [
+        {
+          "id": "c1",
+          "text": "Charm 2 random enemies.",
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        }
+      ],
+      "nativeStepReviews": [
+        {
+          "id": "0",
+          "type": "Charm",
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        },
+        {
+          "id": "1",
+          "type": "Delay",
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        },
+        {
+          "id": "2",
+          "type": "Charm",
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        }
+      ],
+      "branchReviews": [
+        {
+          "id": "main",
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        }
+      ]
+    },
+    {
+      "key": "troop:6023",
+      "scope": "stored-gow-snapshot",
+      "sourceDigest": "a199936ccff80c36aa2f75888a02485db3f82a6f094857c858f9535e0353575a",
+      "reviewer": "sa-L1",
+      "reviewedAt": "2026-09-27",
+      "decision": "draft",
+      "ledgerFingerprintAtReview": "abe9ed6e02e05b3214438374da2db21fd67f9f6d9f26343d9c51c15d002672bf",
+      "_reference": {
+        "spellId": 7023,
+        "english": "Charm a random Enemy. If an Enemy dies, gain 8 Mana.",
+        "nativeTarget": "None",
+        "randomize": null,
+        "steps": [
+          {
+            "Target": "RandomEnemy",
+            "Type": "Charm"
+          },
+          {
+            "Amount": 800,
+            "Type": "Delay"
+          },
+          {
+            "Target": "Self",
+            "StatusAmount": 8,
+            "StatusModifier": "AddForKill",
+            "Type": "GenerateMana"
+          }
+        ],
+        "prototype": {
+          "segments": [
+            {
+              "kind": "status",
+              "target": "enemyRandom",
+              "statusId": "charm",
+              "turns": 3
+            },
+            {
+              "kind": "buff",
+              "target": "allySelf",
+              "stat": "mana",
+              "scaling": {
+                "base": 8,
+                "mult": 0
+              },
+              "ifTargetDied": true
+            }
+          ]
+        }
+      },
+      "sourceEvidence": [
+        {
+          "id": "en",
+          "role": "english-snapshot",
+          "path": "data/raw/troops.gow.en.json",
+          "note": "TODO: entity id / SpellId / English clause / cost / colours checked"
+        },
+        {
+          "id": "native",
+          "role": "native-snapshot",
+          "path": "data/raw/spells.gow.en.json",
+          "note": "TODO: SpellId-indexed Cost/Target/every non-None SpellSteps field checked"
+        },
+        {
+          "id": "rule",
+          "role": "official-shared-rule",
+          "path": "artifacts/gow-skill-audit/gold-primary-sources/official-status-effects.html",
+          "note": "TODO: replace with the official rule file actually relevant to this skill, and say what it supports"
+        }
+      ],
+      "dimensions": {
+        "identity-cost-colors": {
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        },
+        "target-count-range": {
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        },
+        "base-formula-rounding": {
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        },
+        "boost-source-ratio-cap": {
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        },
+        "conditions-probabilities-branches": {
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        },
+        "status-duration-immunity": {
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        },
+        "gems-types-selection-resolution": {
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        },
+        "summon-transform-pools": {
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        },
+        "order-death-retargeting": {
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        },
+        "mana-economy-extra-turn": {
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        },
+        "display-description": {
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        },
+        "battle-pipeline": {
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": [],
+          "realBattleEntry": true
+        }
+      },
+      "clauseReviews": [
+        {
+          "id": "c1",
+          "text": "Charm a random Enemy.",
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        },
+        {
+          "id": "c2",
+          "text": "If an Enemy dies, gain 8 Mana.",
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        }
+      ],
+      "nativeStepReviews": [
+        {
+          "id": "0",
+          "type": "Charm",
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        },
+        {
+          "id": "1",
+          "type": "Delay",
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        },
+        {
+          "id": "2",
+          "type": "GenerateMana",
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        }
+      ],
+      "branchReviews": [
+        {
+          "id": "main",
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        }
+      ]
+    },
+    {
+      "key": "troop:7803",
+      "scope": "stored-gow-snapshot",
+      "sourceDigest": "eccf67ff22f4364f4ac82475af46de7fd2fe96a2dbc14eb16141d5bdd3b0897f",
+      "reviewer": "sa-L1",
+      "reviewedAt": "2026-09-27",
+      "decision": "draft",
+      "ledgerFingerprintAtReview": "abe9ed6e02e05b3214438374da2db21fd67f9f6d9f26343d9c51c15d002672bf",
+      "_reference": {
+        "spellId": 9844,
+        "english": "Charm, Submerge, and steal [Magic + 1] Life from an Enemy. If they were already Submerged, there is a 50% chance to kill them.",
+        "nativeTarget": "Enemy",
+        "randomize": null,
+        "steps": [
+          {
+            "Target": "FromTarget",
+            "Type": "Charm",
+            "Delay": 800
+          },
+          {
+            "SpellPowerMultiplier": 1,
+            "Target": "FromTarget",
+            "Amount": 1,
+            "Primarypower": true,
+            "Type": "StealLife",
+            "Delay": 600
+          },
+          {
+            "Target": "FromTarget",
+            "StatusAmount": 50,
+            "StatusModifier": "AddForSubmerged",
+            "Type": "LethalDamageConditional",
+            "Delay": 600
+          },
+          {
+            "Target": "FromTarget",
+            "Type": "CauseSubmerged"
+          }
+        ],
+        "prototype": {
+          "segments": [
+            {
+              "kind": "status",
+              "target": "enemyChosen",
+              "statusId": "charm",
+              "turns": 3
+            },
+            {
+              "kind": "status",
+              "target": "enemyChosen",
+              "statusId": "submerged",
+              "turns": 3
+            },
+            {
+              "kind": "damage",
+              "target": "enemyChosen",
+              "scaling": {
+                "base": 1,
+                "mult": 1
+              },
+              "drain": true
+            },
+            {
+              "kind": "damage",
+              "target": "enemyChosen",
+              "scaling": {
+                "base": 0,
+                "mult": 0
+              },
+              "execute": true,
+              "chance": 0.5,
+              "ifCond": {
+                "kind": "targetStatus",
+                "statusId": "submerged"
+              }
+            }
+          ]
+        }
+      },
+      "sourceEvidence": [
+        {
+          "id": "en",
+          "role": "english-snapshot",
+          "path": "data/raw/troops.gow.en.json",
+          "note": "TODO: entity id / SpellId / English clause / cost / colours checked"
+        },
+        {
+          "id": "native",
+          "role": "native-snapshot",
+          "path": "data/raw/spells.gow.en.json",
+          "note": "TODO: SpellId-indexed Cost/Target/every non-None SpellSteps field checked"
+        },
+        {
+          "id": "rule",
+          "role": "official-shared-rule",
+          "path": "artifacts/gow-skill-audit/gold-primary-sources/official-status-effects.html",
+          "note": "TODO: replace with the official rule file actually relevant to this skill, and say what it supports"
+        }
+      ],
+      "dimensions": {
+        "identity-cost-colors": {
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        },
+        "target-count-range": {
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        },
+        "base-formula-rounding": {
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        },
+        "boost-source-ratio-cap": {
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        },
+        "conditions-probabilities-branches": {
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        },
+        "status-duration-immunity": {
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        },
+        "gems-types-selection-resolution": {
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        },
+        "summon-transform-pools": {
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        },
+        "order-death-retargeting": {
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        },
+        "mana-economy-extra-turn": {
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        },
+        "display-description": {
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        },
+        "battle-pipeline": {
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": [],
+          "realBattleEntry": true
+        }
+      },
+      "clauseReviews": [
+        {
+          "id": "c1",
+          "text": "Charm, Submerge, and steal [Magic + 1] Life from an Enemy.",
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        },
+        {
+          "id": "c2",
+          "text": "If they were already Submerged, there is a 50% chance to kill them.",
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        }
+      ],
+      "nativeStepReviews": [
+        {
+          "id": "0",
+          "type": "Charm",
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        },
+        {
+          "id": "1",
+          "type": "StealLife",
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        },
+        {
+          "id": "2",
+          "type": "LethalDamageConditional",
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        },
+        {
+          "id": "3",
+          "type": "CauseSubmerged",
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        }
+      ],
+      "branchReviews": [
+        {
+          "id": "main",
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        }
+      ]
+    }
+  ]
+}

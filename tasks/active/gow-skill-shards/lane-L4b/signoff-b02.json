@@ -1,0 +1,981 @@
+{
+  "schemaVersion": 1,
+  "scope": "stored-gow-snapshot",
+  "reviews": [
+    {
+      "key": "troop:6589",
+      "scope": "stored-gow-snapshot",
+      "sourceDigest": "dedeed43d4e5beb02dee9c10f6682d839b9a7bdf6b2240ad0e6ba947bce2aaeb",
+      "reviewer": "sa-L4b",
+      "reviewedAt": "2026-09-27",
+      "decision": "accept",
+      "ledgerFingerprintAtReview": "74aed74e24f50d0f8bc19b89a5413c14101081734608d1c764c45ebade5a241a",
+      "_reference": {
+        "spellId": 7793,
+        "english": "Entangle an enemy. Create 6 Green Gems, boosted by Entangled enemies. [x3]",
+        "nativeTarget": "Enemy",
+        "randomize": null,
+        "steps": [
+          {
+            "Target": "FromTarget",
+            "Amount": 1,
+            "Type": "CauseEntangle"
+          },
+          {
+            "Amount": 300,
+            "Type": "DelayUntilEffectsComplete"
+          },
+          {
+            "Target": "AllEnemies",
+            "Color1": "Green",
+            "Amount": 300,
+            "Type": "CountSpecificStatusEffect",
+            "Data": "entangle"
+          },
+          {
+            "UseCounterForAmount": true,
+            "Color1": "Green",
+            "Amount": 6,
+            "Type": "CreateGems"
+          }
+        ],
+        "prototype": {
+          "segments": [
+            {
+              "kind": "status",
+              "target": "enemyChosen",
+              "statusId": "entangle",
+              "turns": 3
+            },
+            {
+              "kind": "gem",
+              "params": {
+                "op": "create",
+                "gem": {
+                  "kind": "color",
+                  "color": "Green"
+                },
+                "count": {
+                  "base": 6,
+                  "mult": 0
+                },
+                "modifier": {
+                  "mod": {
+                    "kind": "multiplier",
+                    "a": 3
+                  },
+                  "source": {
+                    "kind": "enemyStatusCount",
+                    "statusId": "entangle"
+                  }
+                }
+              },
+              "modifier": {
+                "mod": {
+                  "kind": "multiplier",
+                  "a": 3
+                },
+                "source": {
+                  "kind": "enemyStatusCount",
+                  "statusId": "entangle"
+                }
+              }
+            }
+          ]
+        }
+      },
+      "sourceEvidence": [
+        {
+          "id": "en",
+          "role": "english-snapshot",
+          "path": "data/raw/troops.gow.en.json",
+          "note": "Entity troop:6589 SpellId/English text/ManaCost/ManaColors asserted verbatim in tests/unit/gowLaneL4bB02.test.ts."
+        },
+        {
+          "id": "native",
+          "role": "native-snapshot",
+          "path": "data/raw/spells.gow.en.json",
+          "note": "SpellId 7793 Cost and every SpellSteps field (ordered, toEqual) asserted in tests/unit/gowLaneL4bB02.test.ts."
+        },
+        {
+          "id": "rule",
+          "role": "official-shared-rule",
+          "path": "artifacts/gow-skill-audit/gold-primary-sources/official-status-effects.html",
+          "note": "official-status-effects.html: Entangle temporarily reduces a troop's Attack to 0 while applied; Blessed troops are immune to status effects (Blessed target case keeps the counter at 0)."
+        },
+        {
+          "id": "laneTest",
+          "role": "lane-battle-test",
+          "path": "tests/unit/gowLaneL4bB02.test.ts",
+          "note": "Lane L4b frozen test file: binding + real castSkill cases for troop:6589."
+        }
+      ],
+      "dimensions": {
+        "identity-cost-colors": {
+          "status": "verified",
+          "note": "troop 6589 -> spell 7793; raw ManaCost 10 = native Cost 10; colours Yellow+Brown in raw and src; spell.id binding asserted.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB02.test.ts"
+          ]
+        },
+        "target-count-range": {
+          "status": "verified",
+          "note": "FromTarget (spell Target Enemy) -> enemyChosen: only the chosen enemy (id 12) is entangled; others untouched; count from AllEnemies counter.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB02.test.ts"
+          ]
+        },
+        "base-formula-rounding": {
+          "status": "verified",
+          "note": "CreateGems Amount 6 fixed plus counter Amount 300 = +3 per Entangled living enemy; integer 6 + 3n, no rounding.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB02.test.ts"
+          ]
+        },
+        "boost-source-ratio-cap": {
+          "status": "verified",
+          "note": "CountSpecificStatusEffect AllEnemies entangle Amount 300 -> multiplier a=3 enemyStatusCount entangle evaluated after the Entangle step: 1 -> 9, 2 -> 12, 4 -> 18; already-entangled target counted once (9); defeated entangled enemy excluded (9); poisoned enemies not counted (9); modifier at params and segment level applied once. No cap.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB02.test.ts"
+          ]
+        },
+        "conditions-probabilities-branches": {
+          "status": "not-applicable",
+          "note": "No Randomize/Chance/condition; CauseEntangle Amount 1 single application.",
+          "evidenceIds": [
+            "en",
+            "native"
+          ],
+          "tests": []
+        },
+        "status-duration-immunity": {
+          "status": "verified",
+          "note": "entangle status-apply turns 3 on the chosen enemy; Blessed target refuses it and the counter stays 0 -> 6 Green.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB02.test.ts"
+          ]
+        },
+        "gems-types-selection-resolution": {
+          "status": "verified",
+          "note": "Color1 Green (specific): every created gem Green from distinct non-Green cells on a Green-free full board; 6/9/12/18 per case.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB02.test.ts"
+          ]
+        },
+        "summon-transform-pools": {
+          "status": "not-applicable",
+          "note": "No summon or troop transform step.",
+          "evidenceIds": [
+            "en",
+            "native"
+          ],
+          "tests": []
+        },
+        "order-death-retargeting": {
+          "status": "verified",
+          "note": "Entangle -> DelayUntilEffectsComplete -> count -> create: newly entangled target counted (0 pre -> 9); Delay is presentation timing only; defeated enemies excluded.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB02.test.ts"
+          ]
+        },
+        "mana-economy-extra-turn": {
+          "status": "verified",
+          "note": "Caster mana 0 after cast except cascade match mana-gain events; no skill extra turn; one action log entry.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB02.test.ts"
+          ]
+        },
+        "display-description": {
+          "status": "verified",
+          "note": "Chinese '缠绕一名敌人。创造 6 颗绿宝石，宝石数量因被缠绕的敌人数量而增强。 [x3]' matches English and x3 boost.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB02.test.ts"
+          ]
+        },
+        "battle-pipeline": {
+          "status": "verified",
+          "note": "Real TurnEngine.castSkill both sides with FixedTargetChooser(12); low mana (9) and Silence refuse without spending mana or touching board/statuses.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB02.test.ts"
+          ],
+          "realBattleEntry": true
+        }
+      },
+      "clauseReviews": [
+        {
+          "id": "c1",
+          "text": "Entangle an enemy.",
+          "status": "verified",
+          "note": "Chosen enemy gets entangle (turns 3); Blessed target immune.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB02.test.ts"
+          ]
+        },
+        {
+          "id": "c2",
+          "text": "Create 6 Green Gems, boosted by Entangled enemies.",
+          "status": "verified",
+          "note": "Specific Green gems created, count 6 + boost from living Entangled enemies counted after c1.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB02.test.ts"
+          ]
+        },
+        {
+          "id": "c3",
+          "text": "[x3]",
+          "status": "verified",
+          "note": "[x3] = +3 gems per Entangled enemy: 9/12/18 asserted, no double application.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB02.test.ts"
+          ]
+        }
+      ],
+      "nativeStepReviews": [
+        {
+          "id": "0",
+          "type": "CauseEntangle",
+          "status": "verified",
+          "note": "CauseEntangle FromTarget Amount 1 -> status entangle enemyChosen turns 3.",
+          "evidenceIds": [
+            "native",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB02.test.ts"
+          ]
+        },
+        {
+          "id": "1",
+          "type": "DelayUntilEffectsComplete",
+          "status": "verified",
+          "note": "DelayUntilEffectsComplete Amount 300: timing only, no state effect; count below observes the new Entangle.",
+          "evidenceIds": [
+            "native",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB02.test.ts"
+          ]
+        },
+        {
+          "id": "2",
+          "type": "CountSpecificStatusEffect",
+          "status": "verified",
+          "note": "CountSpecificStatusEffect AllEnemies Data entangle Amount 300 -> enemyStatusCount entangle multiplier 3 (living only).",
+          "evidenceIds": [
+            "native",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB02.test.ts"
+          ]
+        },
+        {
+          "id": "3",
+          "type": "CreateGems",
+          "status": "verified",
+          "note": "CreateGems Green Amount 6 UseCounterForAmount -> create Green base 6 + modifier; counts verified.",
+          "evidenceIds": [
+            "native",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB02.test.ts"
+          ]
+        }
+      ],
+      "branchReviews": [
+        {
+          "id": "main",
+          "status": "verified",
+          "note": "Single main branch; counter dependency covered with 0/1/3 pre-entangled, already-entangled target, dead entangled enemy, other status and immune target.",
+          "evidenceIds": [
+            "native",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB02.test.ts"
+          ]
+        }
+      ]
+    },
+    {
+      "key": "troop:6063",
+      "scope": "stored-gow-snapshot",
+      "sourceDigest": "1df7dc3b8e621215c27ede3d6cd5608f696be6a948dbb045774508bc07089d8c",
+      "reviewer": "sa-L4b",
+      "reviewedAt": "2026-09-27",
+      "decision": "accept",
+      "ledgerFingerprintAtReview": "74aed74e24f50d0f8bc19b89a5413c14101081734608d1c764c45ebade5a241a",
+      "_reference": {
+        "spellId": 7063,
+        "english": "Poison the first 2 Enemies and create 9 Red Gems. Gain [Magic + 1] Life.",
+        "nativeTarget": "None",
+        "randomize": null,
+        "steps": [
+          {
+            "Target": "FrontEnemy",
+            "Amount": 100,
+            "Type": "CausePoison"
+          },
+          {
+            "Target": "SecondEnemy",
+            "Amount": 100,
+            "Type": "CausePoison"
+          },
+          {
+            "Color1": "Red",
+            "Amount": 9,
+            "Type": "CreateGems"
+          },
+          {
+            "SpellPowerMultiplier": 1,
+            "Target": "Self",
+            "Amount": 1,
+            "Primarypower": true,
+            "Type": "IncreaseHealth"
+          }
+        ],
+        "prototype": {
+          "segments": [
+            {
+              "kind": "status",
+              "target": "enemyFirstN",
+              "statusId": "poison",
+              "turns": 3,
+              "magnitude": 3,
+              "n": 2
+            },
+            {
+              "kind": "gem",
+              "params": {
+                "op": "create",
+                "gem": {
+                  "kind": "color",
+                  "color": "Red"
+                },
+                "count": {
+                  "base": 9,
+                  "mult": 0
+                }
+              }
+            },
+            {
+              "kind": "buff",
+              "target": "allySelf",
+              "stat": "hp",
+              "scaling": {
+                "base": 1,
+                "mult": 1
+              },
+              "lifeMode": "gain"
+            }
+          ]
+        }
+      },
+      "sourceEvidence": [
+        {
+          "id": "en",
+          "role": "english-snapshot",
+          "path": "data/raw/troops.gow.en.json",
+          "note": "Entity troop:6063 SpellId/English text/ManaCost/ManaColors asserted verbatim in tests/unit/gowLaneL4bB02.test.ts."
+        },
+        {
+          "id": "native",
+          "role": "native-snapshot",
+          "path": "data/raw/spells.gow.en.json",
+          "note": "SpellId 7063 Cost and every SpellSteps field (ordered, toEqual) asserted in tests/unit/gowLaneL4bB02.test.ts."
+        },
+        {
+          "id": "rule",
+          "role": "official-shared-rule",
+          "path": "artifacts/gow-skill-audit/gold-primary-sources/official-status-effects.html",
+          "note": "official-status-effects.html: Poison gives a 50% chance to lose 1 life every turn, ignoring armor; Blessed troops are immune to status effects (Blessed front enemy case)."
+        },
+        {
+          "id": "laneTest",
+          "role": "lane-battle-test",
+          "path": "tests/unit/gowLaneL4bB02.test.ts",
+          "note": "Lane L4b frozen test file: binding + real castSkill cases for troop:6063."
+        }
+      ],
+      "dimensions": {
+        "identity-cost-colors": {
+          "status": "verified",
+          "note": "troop 6063 -> spell 7063; raw ManaCost 7 = native Cost 7; single colour Blue in raw and src; spell.id binding asserted.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB02.test.ts"
+          ]
+        },
+        "target-count-range": {
+          "status": "verified",
+          "note": "FrontEnemy + SecondEnemy -> enemyFirstN n=2: first two living enemies (10,11) poisoned; dead front -> 11,12; single living enemy -> only it; enemies 3-4 untouched. Life on Self only (ally unchanged).",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB02.test.ts"
+          ]
+        },
+        "base-formula-rounding": {
+          "status": "verified",
+          "note": "IncreaseHealth Amount 1 x SpellPower -> +magic+1 maxHp and hp (magic 0 -> 1001, 10 -> 1011). CreateGems 9 fixed.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB02.test.ts"
+          ]
+        },
+        "boost-source-ratio-cap": {
+          "status": "not-applicable",
+          "note": "No Count*/UseCounterForAmount/StatusModifier; no boost clause.",
+          "evidenceIds": [
+            "en",
+            "native"
+          ],
+          "tests": []
+        },
+        "conditions-probabilities-branches": {
+          "status": "verified",
+          "note": "CausePoison Amount 100 = certain application; both poison steps always apply to living non-immune targets in every tested case; no other branch.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB02.test.ts"
+          ]
+        },
+        "status-duration-immunity": {
+          "status": "verified",
+          "note": "poison status-apply on the first two living enemies; project Poison has no natural recovery and ignores magnitude (tick 50% for 1); Blessed front enemy resists, second still poisoned.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB02.test.ts"
+          ]
+        },
+        "gems-types-selection-resolution": {
+          "status": "verified",
+          "note": "Color1 Red (specific): 9 Red from non-Red cells on Red-free full board; with 3 empty cells: 3 gem-create then 6 gem-transform, all Red.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB02.test.ts"
+          ]
+        },
+        "summon-transform-pools": {
+          "status": "not-applicable",
+          "note": "No summon or troop transform step.",
+          "evidenceIds": [
+            "en",
+            "native"
+          ],
+          "tests": []
+        },
+        "order-death-retargeting": {
+          "status": "verified",
+          "note": "Skill-phase event order status-apply, status-apply, gem-transform, buff = native Poison, Poison, CreateGems, IncreaseHealth; dead front enemy retargets to living order.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB02.test.ts"
+          ]
+        },
+        "mana-economy-extra-turn": {
+          "status": "verified",
+          "note": "Caster mana 0 after cast except cascade match mana-gain events; no skill extra turn; one action log entry.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB02.test.ts"
+          ]
+        },
+        "display-description": {
+          "status": "verified",
+          "note": "Chinese '使前 2 名敌人陷入中毒状态，并创造 9 颗红色宝石。获得 [魔法 + 1] 点生命值。' (whitespace-normalised) matches English clauses and scaling.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB02.test.ts"
+          ]
+        },
+        "battle-pipeline": {
+          "status": "verified",
+          "note": "Real TurnEngine.castSkill both sides with Magic 0/10; low mana (6) and Silence refuse without spending mana, board, statuses or Life.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB02.test.ts"
+          ],
+          "realBattleEntry": true
+        }
+      },
+      "clauseReviews": [
+        {
+          "id": "c1",
+          "text": "Poison the first 2 Enemies and create 9 Red Gems.",
+          "status": "verified",
+          "note": "First two living enemies poisoned and exactly 9 specific Red gems created (empty-first then conversion).",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB02.test.ts"
+          ]
+        },
+        {
+          "id": "c2",
+          "text": "Gain [Magic + 1] Life.",
+          "status": "verified",
+          "note": "Caster gains [Magic+1] maxHp and hp; allies unchanged.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB02.test.ts"
+          ]
+        }
+      ],
+      "nativeStepReviews": [
+        {
+          "id": "0",
+          "type": "CausePoison",
+          "status": "verified",
+          "note": "CausePoison FrontEnemy Amount 100 -> enemyFirstN n=2 first target poison.",
+          "evidenceIds": [
+            "native",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB02.test.ts"
+          ]
+        },
+        {
+          "id": "1",
+          "type": "CausePoison",
+          "status": "verified",
+          "note": "CausePoison SecondEnemy Amount 100 -> enemyFirstN n=2 second target poison; dead front and single-enemy cases verified.",
+          "evidenceIds": [
+            "native",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB02.test.ts"
+          ]
+        },
+        {
+          "id": "2",
+          "type": "CreateGems",
+          "status": "verified",
+          "note": "CreateGems Red Amount 9 -> create Red count 9.",
+          "evidenceIds": [
+            "native",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB02.test.ts"
+          ]
+        },
+        {
+          "id": "3",
+          "type": "IncreaseHealth",
+          "status": "verified",
+          "note": "IncreaseHealth Self Amount 1 x SpellPower -> buff hp allySelf base1 mult1 lifeMode gain.",
+          "evidenceIds": [
+            "native",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB02.test.ts"
+          ]
+        }
+      ],
+      "branchReviews": [
+        {
+          "id": "main",
+          "status": "verified",
+          "note": "Single main branch; all four steps in native order on every successful cast; refusal paths execute none.",
+          "evidenceIds": [
+            "native",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB02.test.ts"
+          ]
+        }
+      ]
+    },
+    {
+      "key": "troop:6340",
+      "scope": "stored-gow-snapshot",
+      "sourceDigest": "4bcb00cd982b8cc73a122b65b888d8eec82970ddadd4bcb8c5f98493de721ed5",
+      "reviewer": "sa-L4b",
+      "reviewedAt": "2026-09-27",
+      "decision": "draft",
+      "ledgerFingerprintAtReview": "74aed74e24f50d0f8bc19b89a5413c14101081734608d1c764c45ebade5a241a",
+      "_reference": {
+        "spellId": 7490,
+        "english": "Stun and Burn all Enemies. Create a mix of 22 Red and Brown Gems. Gain [Magic + 5] Life.",
+        "nativeTarget": "None",
+        "randomize": null,
+        "steps": [
+          {
+            "Target": "AllEnemies",
+            "Amount": 4,
+            "Type": "CauseStun"
+          },
+          {
+            "Target": "AllEnemies",
+            "Amount": 3,
+            "Type": "CauseBurning"
+          },
+          {
+            "Color1": "Red",
+            "Amount": 22,
+            "Color2": "Brown",
+            "Type": "CreateGems2Colors"
+          },
+          {
+            "SpellPowerMultiplier": 1,
+            "Target": "Self",
+            "Amount": 5,
+            "Primarypower": true,
+            "Type": "IncreaseHealth"
+          }
+        ],
+        "prototype": {
+          "segments": [
+            {
+              "kind": "status",
+              "target": "enemyAll",
+              "statusId": "stun",
+              "turns": 3
+            },
+            {
+              "kind": "status",
+              "target": "enemyAll",
+              "statusId": "burning",
+              "turns": 3,
+              "magnitude": 3
+            },
+            {
+              "kind": "gem",
+              "params": {
+                "op": "create",
+                "gem": {
+                  "kind": "mix",
+                  "colors": [
+                    "Red",
+                    "Brown"
+                  ]
+                },
+                "count": {
+                  "base": 22,
+                  "mult": 0
+                }
+              }
+            },
+            {
+              "kind": "buff",
+              "target": "allySelf",
+              "stat": "hp",
+              "scaling": {
+                "base": 5,
+                "mult": 1
+              },
+              "lifeMode": "gain"
+            }
+          ]
+        }
+      },
+      "sourceEvidence": [
+        {
+          "id": "en",
+          "role": "english-snapshot",
+          "path": "data/raw/troops.gow.en.json",
+          "note": "TODO: entity id / SpellId / English clause / cost / colours checked"
+        },
+        {
+          "id": "native",
+          "role": "native-snapshot",
+          "path": "data/raw/spells.gow.en.json",
+          "note": "TODO: SpellId-indexed Cost/Target/every non-None SpellSteps field checked"
+        },
+        {
+          "id": "rule",
+          "role": "official-shared-rule",
+          "path": "artifacts/gow-skill-audit/gold-primary-sources/official-status-effects.html",
+          "note": "TODO: replace with the official rule file actually relevant to this skill, and say what it supports"
+        }
+      ],
+      "dimensions": {
+        "identity-cost-colors": {
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        },
+        "target-count-range": {
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        },
+        "base-formula-rounding": {
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        },
+        "boost-source-ratio-cap": {
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        },
+        "conditions-probabilities-branches": {
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        },
+        "status-duration-immunity": {
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        },
+        "gems-types-selection-resolution": {
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        },
+        "summon-transform-pools": {
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        },
+        "order-death-retargeting": {
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        },
+        "mana-economy-extra-turn": {
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        },
+        "display-description": {
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        },
+        "battle-pipeline": {
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": [],
+          "realBattleEntry": true
+        }
+      },
+      "clauseReviews": [
+        {
+          "id": "c1",
+          "text": "Stun and Burn all Enemies.",
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        },
+        {
+          "id": "c2",
+          "text": "Create a mix of 22 Red and Brown Gems.",
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        },
+        {
+          "id": "c3",
+          "text": "Gain [Magic + 5] Life.",
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        }
+      ],
+      "nativeStepReviews": [
+        {
+          "id": "0",
+          "type": "CauseStun",
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        },
+        {
+          "id": "1",
+          "type": "CauseBurning",
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        },
+        {
+          "id": "2",
+          "type": "CreateGems2Colors",
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        },
+        {
+          "id": "3",
+          "type": "IncreaseHealth",
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        }
+      ],
+      "branchReviews": [
+        {
+          "id": "main",
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        }
+      ]
+    }
+  ]
+}

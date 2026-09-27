@@ -1,0 +1,1065 @@
+{
+    "schemaVersion":  1,
+    "scope":  "stored-gow-snapshot",
+    "reviewer":  "worker-fast-03",
+    "reviewedAt":  "2026-09-27",
+    "ledgerFingerprint":  "40b01f972eaecffaf9afcf60a47fbe4fd4fa6da384e54e82d4fd5834deb93ac4",
+    "receiptFingerprint":  "40b01f972eaecffaf9afcf60a47fbe4fd4fa6da384e54e82d4fd5834deb93ac4",
+    "receiptIncludesTargetedSuite":  false,
+    "note":  "逐项重核：定向测试由协调窗口报告通过；本窗口仅阅读测试源码，未运行。当前全量凭证未收录新增测试；accept 为逐实体决定，正式签收由协调窗口合并并生成新凭证。",
+    "reviews":  [
+                    {
+                        "key":  "weapon:1001",
+                        "scope":  "stored-gow-snapshot",
+                        "sourceDigest":  "56968add700120e2acf9be83d6a755261f86efc62feb6ad85db999542efbf185",
+                        "ledgerFingerprint":  "40b01f972eaecffaf9afcf60a47fbe4fd4fa6da384e54e82d4fd5834deb93ac4",
+                        "reviewer":  "worker-fast-03",
+                        "reviewedAt":  "2026-09-27",
+                        "decision":  "accept",
+                        "sourceEvidence":  [
+                                               {
+                                                   "id":  "en",
+                                                   "role":  "english-snapshot",
+                                                   "path":  "artifacts/gowhead-weapons/weapons.json",
+                                                   "sha256":  "ccd2da80b9c92b38fd61cdd50e7d9d3a2c5572d626ff8e0d64718963a2456fb3",
+                                                   "note":  "保存的英文独立快照：武器 1001 的英文技能文本及 SpellId=7067。"
+                                               },
+                                               {
+                                                   "id":  "native",
+                                                   "role":  "native-snapshot",
+                                                   "path":  "data/raw/spells.gow.en.json",
+                                                   "sha256":  "ddc7e03e23a6ea880e34fc8f1b7f0572b15f42041e979c443642d735f89dd63b",
+                                                   "note":  "原生法术 7067：费用 5，唯一 SpellSteps[0] 为 Damage/FromTarget/基础 4/魔法倍率 0.5。"
+                                               },
+                                               {
+                                                   "id":  "official-status",
+                                                   "role":  "official-shared-rule",
+                                                   "path":  "artifacts/gow-skill-audit/gold-primary-sources/official-status-effects.html",
+                                                   "sha256":  "4dca585515e9c7ca9287f75b9555079a2b50c747e6c35293ae6b57981360755c",
+                                                   "note":  "官方材料仅支持 Web 和沉默等通用状态语义，不用于证明该武器公式或散射分配。"
+                                               },
+                                               {
+                                                   "id":  "weapon-data",
+                                                   "role":  "runtime-content",
+                                                   "path":  "src/data/weapons.json",
+                                                   "sha256":  "a14d19478d3a31f94ae2c4b0ca08a5e0ada03dfc3b7fc05e8ac61df907fbddb0",
+                                                   "note":  "实体 1001/ScoutsBow 的法术 ID、5 点 Green 费用及中文描述。"
+                                               },
+                                               {
+                                                   "id":  "damage-runtime",
+                                                   "role":  "project-implementation",
+                                                   "path":  "src/engine/skills/effects/damage.ts",
+                                                   "sha256":  "88cd6b109fb8dbb8830ad3a2137e5ce4d2e137e7b5c82a07d9f4c2e147274a8c",
+                                                   "note":  "项目伤害实现：整数取整、单次伤害事件以及散射总池的分配。"
+                                               },
+                                               {
+                                                   "id":  "target-runtime",
+                                                   "role":  "project-implementation",
+                                                   "path":  "src/engine/skills/targeting.ts",
+                                                   "sha256":  "c82a170b1c2e3fc617599bcedee6c41b38a02251ee2b6a50c844fba709e74d41",
+                                                   "note":  "目标选择实现：enemyChosen 与存活敌人筛选，随机类使用注入的种子随机数。"
+                                               },
+                                               {
+                                                   "id":  "per-entity-test",
+                                                   "role":  "existing-test-source",
+                                                   "path":  "tests/unit/gowParallelSignoffWeapons.test.ts",
+                                                   "sha256":  "0f44ea23e55fd1b9f54d367a247a68556de80eee2247b0208d7a0aa8f542f19d",
+                                                   "note":  "本测试包含快照、原生、双别名与中文文案断言；真实施法涵盖双阵营、魔法奇偶值、Web、死敌过滤、击杀、低蓝及沉默。协调窗口报告定向通过，本窗口未执行。"
+                                               }
+                                           ],
+                        "dimensions":  {
+                                           "identity-cost-colors":  {
+                                                                        "status":  "verified",
+                                                                        "note":  "英文、原生、实体 1001/ScoutsBow 和两种注册别名相符；法术 7067，消耗 5 点 Green。",
+                                                                        "evidenceIds":  [
+                                                                                            "en",
+                                                                                            "native",
+                                                                                            "weapon-data",
+                                                                                            "per-entity-test"
+                                                                                        ],
+                                                                        "tests":  [
+                                                                                      "tests/unit/gowParallelSignoffWeapons.test.ts"
+                                                                                  ]
+                                                                    },
+                                           "target-count-range":  {
+                                                                      "status":  "verified",
+                                                                      "note":  "原生 FromTarget 对应 enemyChosen；两阵营双入口真实施法均仅伤指定的 id=12，死敌过滤后只打中 id=12。",
+                                                                      "evidenceIds":  [
+                                                                                          "en",
+                                                                                          "native",
+                                                                                          "weapon-data",
+                                                                                          "per-entity-test"
+                                                                                      ],
+                                                                      "tests":  [
+                                                                                    "tests/unit/gowParallelSignoffWeapons.test.ts"
+                                                                                ]
+                                                                  },
+                                           "base-formula-rounding":  {
+                                                                         "status":  "verified",
+                                                                         "note":  "原生基础 4，魔法倍率 0.5；真实施法断言 M=0/1/10/11（奇偶和取整），Web 在 M=11 时只留下基础 4。",
+                                                                         "evidenceIds":  [
+                                                                                             "en",
+                                                                                             "native",
+                                                                                             "weapon-data",
+                                                                                             "per-entity-test"
+                                                                                         ],
+                                                                         "tests":  [
+                                                                                       "tests/unit/gowParallelSignoffWeapons.test.ts"
+                                                                                   ]
+                                                                     },
+                                           "boost-source-ratio-cap":  {
+                                                                          "status":  "not-applicable",
+                                                                          "note":  "英文、原生与原型仅含固定基础伤害和半数施法者魔法；无额外强化来源或上限。",
+                                                                          "evidenceIds":  [
+                                                                                              "en",
+                                                                                              "native",
+                                                                                              "weapon-data"
+                                                                                          ]
+                                                                      },
+                                           "conditions-probabilities-branches":  {
+                                                                                     "status":  "not-applicable",
+                                                                                     "note":  "唯一伤害步骤，无技能内条件、概率分叉；随机目标或散射分配另在目标维度核查。",
+                                                                                     "evidenceIds":  [
+                                                                                                         "en",
+                                                                                                         "native",
+                                                                                                         "weapon-data"
+                                                                                                     ]
+                                                                                 },
+                                           "status-duration-immunity":  {
+                                                                            "status":  "not-applicable",
+                                                                            "note":  "技能不施加状态或免疫；测试中 Web 和沉默为施法环境负例，不是本武器的附加效果。",
+                                                                            "evidenceIds":  [
+                                                                                                "en",
+                                                                                                "native",
+                                                                                                "weapon-data"
+                                                                                            ]
+                                                                        },
+                                           "gems-types-selection-resolution":  {
+                                                                                   "status":  "not-applicable",
+                                                                                   "note":  "独立英文条款、原生单步与原型均未创建、销毁或转换宝石。",
+                                                                                   "evidenceIds":  [
+                                                                                                       "en",
+                                                                                                       "native",
+                                                                                                       "weapon-data"
+                                                                                                   ]
+                                                                               },
+                                           "summon-transform-pools":  {
+                                                                          "status":  "not-applicable",
+                                                                          "note":  "英文条款和原生步骤无召唤或变形；原型只有伤害段。",
+                                                                          "evidenceIds":  [
+                                                                                              "en",
+                                                                                              "native",
+                                                                                              "weapon-data"
+                                                                                          ]
+                                                                      },
+                                           "order-death-retargeting":  {
+                                                                           "status":  "verified",
+                                                                           "note":  "技能只有一步；真实施法设置其他三敌已阵亡、存活目标仅 1 生命，验证仅该目标的伤害和阵亡事件；仅留 id=12 时只击杀该目标。",
+                                                                           "evidenceIds":  [
+                                                                                               "en",
+                                                                                               "native",
+                                                                                               "weapon-data",
+                                                                                               "per-entity-test"
+                                                                                           ],
+                                                                           "tests":  [
+                                                                                         "tests/unit/gowParallelSignoffWeapons.test.ts"
+                                                                                     ]
+                                                                       },
+                                           "mana-economy-extra-turn":  {
+                                                                           "status":  "verified",
+                                                                           "note":  "双阵营双入口施法成功扣 5 法力且仅记录一次行动并换手；低蓝 4 与沉默均不扣蓝、不耗行动；无额外回合。",
+                                                                           "evidenceIds":  [
+                                                                                               "en",
+                                                                                               "native",
+                                                                                               "weapon-data",
+                                                                                               "per-entity-test"
+                                                                                           ],
+                                                                           "tests":  [
+                                                                                         "tests/unit/gowParallelSignoffWeapons.test.ts"
+                                                                                     ]
+                                                                       },
+                                           "display-description":  {
+                                                                       "status":  "verified",
+                                                                       "note":  "保存的英文技能与实体中文原句「对 1 名敌人造成 [(魔法 / 2) + 4] 点伤害。」对齐；逐实体测试断言中文公式及散射标记。",
+                                                                       "evidenceIds":  [
+                                                                                           "en",
+                                                                                           "native",
+                                                                                           "weapon-data",
+                                                                                           "per-entity-test"
+                                                                                       ],
+                                                                       "tests":  [
+                                                                                     "tests/unit/gowParallelSignoffWeapons.test.ts"
+                                                                                 ]
+                                                                   },
+                                           "battle-pipeline":  {
+                                                                   "status":  "verified",
+                                                                   "note":  "真实 TurnEngine.castSkill 逐实体测试覆盖左右阵营、数字法术 ID 与 gw_ 引用名双入口、魔法 0/1/10/11，另含 Web、死敌过滤和击杀、低蓝与沉默。扣蓝、事件、损血、行动与换手均有具体断言。",
+                                                                   "evidenceIds":  [
+                                                                                       "en",
+                                                                                       "native",
+                                                                                       "weapon-data",
+                                                                                       "per-entity-test"
+                                                                                   ],
+                                                                   "tests":  [
+                                                                                 "tests/unit/gowParallelSignoffWeapons.test.ts"
+                                                                             ],
+                                                                   "realBattleEntry":  true
+                                                               }
+                                       },
+                        "clauseReviews":  [
+                                              {
+                                                  "id":  "c1",
+                                                  "status":  "verified",
+                                                  "note":  "英文唯一条款与原生 Damage/FromTarget/基础 4+0.5×魔法、原型 enemyChosen 及中文「对 1 名敌人造成 [(魔法 / 2) + 4] 点伤害。」相符；实战正例：指定 id=12 受伤，其他敌人不受伤；魔法 0/1/10/11 对应单目标伤害 4/5/9/10；双阵营双入口扣蓝并换手。；反例：仅留 id=12 时只击杀该目标；不复制伤害到无关目标；低蓝和沉默不耗行动，Web 只留下基础 4 点伤害。 ",
+                                                  "evidenceIds":  [
+                                                                      "en",
+                                                                      "native",
+                                                                      "weapon-data",
+                                                                      "per-entity-test"
+                                                                  ],
+                                                  "tests":  [
+                                                                "tests/unit/gowParallelSignoffWeapons.test.ts"
+                                                            ]
+                                              }
+                                          ],
+                        "nativeStepReviews":  [
+                                                  {
+                                                      "id":  "0",
+                                                      "status":  "verified",
+                                                      "note":  "SpellSteps[0] 为 Damage/FromTarget/基础 4+0.5×魔法；双入口真实施法覆盖目标、奇偶取整、费用及击杀。",
+                                                      "evidenceIds":  [
+                                                                          "en",
+                                                                          "native",
+                                                                          "weapon-data",
+                                                                          "per-entity-test"
+                                                                      ],
+                                                      "tests":  [
+                                                                    "tests/unit/gowParallelSignoffWeapons.test.ts"
+                                                                ]
+                                                  }
+                                              ],
+                        "branchReviews":  [
+                                              {
+                                                  "id":  "main",
+                                                  "status":  "verified",
+                                                  "note":  "原生无额外 Randomize 分支，主分支唯一；实战正例：指定 id=12 受伤，其他敌人不受伤；魔法 0/1/10/11 对应单目标伤害 4/5/9/10；双阵营双入口扣蓝并换手。；反例：仅留 id=12 时只击杀该目标；不复制伤害到无关目标；低蓝和沉默不耗行动，Web 只留下基础 4 点伤害。 ",
+                                                  "evidenceIds":  [
+                                                                      "en",
+                                                                      "native",
+                                                                      "weapon-data",
+                                                                      "per-entity-test"
+                                                                  ],
+                                                  "tests":  [
+                                                                "tests/unit/gowParallelSignoffWeapons.test.ts"
+                                                            ]
+                                              }
+                                          ],
+                        "pendingReasons":  [
+
+                                           ],
+                        "scopedEvidence":  [
+                                               {
+                                                   "testPath":  "tests/unit/gowParallelSignoffWeapons.test.ts",
+                                                   "scope":  "weapon:1001：独立英文快照、原生步骤、实体身份及中文描述；两阵营、双施法入口、魔法 0/1/10/11 的真实 TurnEngine.castSkill，外加 Web、阵亡过滤、击杀、低蓝与沉默。协调窗口报告定向测试通过；本窗口未运行。"
+                                               }
+                                           ],
+                        "expectedPositive":  "指定 id=12 受伤，其他敌人不受伤；魔法 0/1/10/11 对应单目标伤害 4/5/9/10；双阵营双入口扣蓝并换手。",
+                        "expectedNegative":  "仅留 id=12 时只击杀该目标；不复制伤害到无关目标；低蓝和沉默不耗行动，Web 只留下基础 4 点伤害。",
+                        "signoffNote":  "accept：逐实体证据决定；共享记录合并后仍需生成包含新套件的全量测试凭证，方可正式签收。"
+                    },
+                    {
+                        "key":  "weapon:1002",
+                        "scope":  "stored-gow-snapshot",
+                        "sourceDigest":  "e55c65456cad528eb780cd1d03789ad0a53ee6866992cc03fc898ec02061c728",
+                        "ledgerFingerprint":  "40b01f972eaecffaf9afcf60a47fbe4fd4fa6da384e54e82d4fd5834deb93ac4",
+                        "reviewer":  "worker-fast-03",
+                        "reviewedAt":  "2026-09-27",
+                        "decision":  "accept",
+                        "sourceEvidence":  [
+                                               {
+                                                   "id":  "en",
+                                                   "role":  "english-snapshot",
+                                                   "path":  "artifacts/gowhead-weapons/weapons.json",
+                                                   "sha256":  "ccd2da80b9c92b38fd61cdd50e7d9d3a2c5572d626ff8e0d64718963a2456fb3",
+                                                   "note":  "保存的英文独立快照：武器 1002 的英文技能文本及 SpellId=7064。"
+                                               },
+                                               {
+                                                   "id":  "native",
+                                                   "role":  "native-snapshot",
+                                                   "path":  "data/raw/spells.gow.en.json",
+                                                   "sha256":  "ddc7e03e23a6ea880e34fc8f1b7f0572b15f42041e979c443642d735f89dd63b",
+                                                   "note":  "原生法术 7064：费用 5，唯一 SpellSteps[0] 为 Damage/FrontEnemy/基础 5/魔法倍率 0.5。"
+                                               },
+                                               {
+                                                   "id":  "official-status",
+                                                   "role":  "official-shared-rule",
+                                                   "path":  "artifacts/gow-skill-audit/gold-primary-sources/official-status-effects.html",
+                                                   "sha256":  "4dca585515e9c7ca9287f75b9555079a2b50c747e6c35293ae6b57981360755c",
+                                                   "note":  "官方材料仅支持 Web 和沉默等通用状态语义，不用于证明该武器公式或散射分配。"
+                                               },
+                                               {
+                                                   "id":  "weapon-data",
+                                                   "role":  "runtime-content",
+                                                   "path":  "src/data/weapons.json",
+                                                   "sha256":  "a14d19478d3a31f94ae2c4b0ca08a5e0ada03dfc3b7fc05e8ac61df907fbddb0",
+                                                   "note":  "实体 1002/WarriorsAxe 的法术 ID、5 点 Red 费用及中文描述。"
+                                               },
+                                               {
+                                                   "id":  "damage-runtime",
+                                                   "role":  "project-implementation",
+                                                   "path":  "src/engine/skills/effects/damage.ts",
+                                                   "sha256":  "88cd6b109fb8dbb8830ad3a2137e5ce4d2e137e7b5c82a07d9f4c2e147274a8c",
+                                                   "note":  "项目伤害实现：整数取整、单次伤害事件以及散射总池的分配。"
+                                               },
+                                               {
+                                                   "id":  "target-runtime",
+                                                   "role":  "project-implementation",
+                                                   "path":  "src/engine/skills/targeting.ts",
+                                                   "sha256":  "c82a170b1c2e3fc617599bcedee6c41b38a02251ee2b6a50c844fba709e74d41",
+                                                   "note":  "目标选择实现：enemyFront 与存活敌人筛选，随机类使用注入的种子随机数。"
+                                               },
+                                               {
+                                                   "id":  "per-entity-test",
+                                                   "role":  "existing-test-source",
+                                                   "path":  "tests/unit/gowParallelSignoffWeapons.test.ts",
+                                                   "sha256":  "0f44ea23e55fd1b9f54d367a247a68556de80eee2247b0208d7a0aa8f542f19d",
+                                                   "note":  "本测试包含快照、原生、双别名与中文文案断言；真实施法涵盖双阵营、魔法奇偶值、Web、死敌过滤、击杀、低蓝及沉默。协调窗口报告定向通过，本窗口未执行。"
+                                               }
+                                           ],
+                        "dimensions":  {
+                                           "identity-cost-colors":  {
+                                                                        "status":  "verified",
+                                                                        "note":  "英文、原生、实体 1002/WarriorsAxe 和两种注册别名相符；法术 7064，消耗 5 点 Red。",
+                                                                        "evidenceIds":  [
+                                                                                            "en",
+                                                                                            "native",
+                                                                                            "weapon-data",
+                                                                                            "per-entity-test"
+                                                                                        ],
+                                                                        "tests":  [
+                                                                                      "tests/unit/gowParallelSignoffWeapons.test.ts"
+                                                                                  ]
+                                                                    },
+                                           "target-count-range":  {
+                                                                      "status":  "verified",
+                                                                      "note":  "原生 FrontEnemy 对应 enemyFront；两阵营双入口真实施法只伤队首 id=10；队首已阵亡时只打中下一名 id=11。",
+                                                                      "evidenceIds":  [
+                                                                                          "en",
+                                                                                          "native",
+                                                                                          "weapon-data",
+                                                                                          "per-entity-test"
+                                                                                      ],
+                                                                      "tests":  [
+                                                                                    "tests/unit/gowParallelSignoffWeapons.test.ts"
+                                                                                ]
+                                                                  },
+                                           "base-formula-rounding":  {
+                                                                         "status":  "verified",
+                                                                         "note":  "原生基础 5，魔法倍率 0.5；真实施法断言 M=0/1/10/11（奇偶和取整），Web 在 M=11 时只留下基础 5。",
+                                                                         "evidenceIds":  [
+                                                                                             "en",
+                                                                                             "native",
+                                                                                             "weapon-data",
+                                                                                             "per-entity-test"
+                                                                                         ],
+                                                                         "tests":  [
+                                                                                       "tests/unit/gowParallelSignoffWeapons.test.ts"
+                                                                                   ]
+                                                                     },
+                                           "boost-source-ratio-cap":  {
+                                                                          "status":  "not-applicable",
+                                                                          "note":  "英文、原生与原型仅含固定基础伤害和半数施法者魔法；无额外强化来源或上限。",
+                                                                          "evidenceIds":  [
+                                                                                              "en",
+                                                                                              "native",
+                                                                                              "weapon-data"
+                                                                                          ]
+                                                                      },
+                                           "conditions-probabilities-branches":  {
+                                                                                     "status":  "not-applicable",
+                                                                                     "note":  "唯一伤害步骤，无技能内条件、概率分叉；随机目标或散射分配另在目标维度核查。",
+                                                                                     "evidenceIds":  [
+                                                                                                         "en",
+                                                                                                         "native",
+                                                                                                         "weapon-data"
+                                                                                                     ]
+                                                                                 },
+                                           "status-duration-immunity":  {
+                                                                            "status":  "not-applicable",
+                                                                            "note":  "技能不施加状态或免疫；测试中 Web 和沉默为施法环境负例，不是本武器的附加效果。",
+                                                                            "evidenceIds":  [
+                                                                                                "en",
+                                                                                                "native",
+                                                                                                "weapon-data"
+                                                                                            ]
+                                                                        },
+                                           "gems-types-selection-resolution":  {
+                                                                                   "status":  "not-applicable",
+                                                                                   "note":  "独立英文条款、原生单步与原型均未创建、销毁或转换宝石。",
+                                                                                   "evidenceIds":  [
+                                                                                                       "en",
+                                                                                                       "native",
+                                                                                                       "weapon-data"
+                                                                                                   ]
+                                                                               },
+                                           "summon-transform-pools":  {
+                                                                          "status":  "not-applicable",
+                                                                          "note":  "英文条款和原生步骤无召唤或变形；原型只有伤害段。",
+                                                                          "evidenceIds":  [
+                                                                                              "en",
+                                                                                              "native",
+                                                                                              "weapon-data"
+                                                                                          ]
+                                                                      },
+                                           "order-death-retargeting":  {
+                                                                           "status":  "verified",
+                                                                           "note":  "技能只有一步；真实施法设置其他三敌已阵亡、存活目标仅 1 生命，验证仅该目标的伤害和阵亡事件；队首阵亡后仅留 id=11，只击杀 id=11。",
+                                                                           "evidenceIds":  [
+                                                                                               "en",
+                                                                                               "native",
+                                                                                               "weapon-data",
+                                                                                               "per-entity-test"
+                                                                                           ],
+                                                                           "tests":  [
+                                                                                         "tests/unit/gowParallelSignoffWeapons.test.ts"
+                                                                                     ]
+                                                                       },
+                                           "mana-economy-extra-turn":  {
+                                                                           "status":  "verified",
+                                                                           "note":  "双阵营双入口施法成功扣 5 法力且仅记录一次行动并换手；低蓝 4 与沉默均不扣蓝、不耗行动；无额外回合。",
+                                                                           "evidenceIds":  [
+                                                                                               "en",
+                                                                                               "native",
+                                                                                               "weapon-data",
+                                                                                               "per-entity-test"
+                                                                                           ],
+                                                                           "tests":  [
+                                                                                         "tests/unit/gowParallelSignoffWeapons.test.ts"
+                                                                                     ]
+                                                                       },
+                                           "display-description":  {
+                                                                       "status":  "verified",
+                                                                       "note":  "保存的英文技能与实体中文原句「对第一名敌人造成 [(魔法 / 2) + 5] 点伤害。」对齐；逐实体测试断言中文公式及散射标记。",
+                                                                       "evidenceIds":  [
+                                                                                           "en",
+                                                                                           "native",
+                                                                                           "weapon-data",
+                                                                                           "per-entity-test"
+                                                                                       ],
+                                                                       "tests":  [
+                                                                                     "tests/unit/gowParallelSignoffWeapons.test.ts"
+                                                                                 ]
+                                                                   },
+                                           "battle-pipeline":  {
+                                                                   "status":  "verified",
+                                                                   "note":  "真实 TurnEngine.castSkill 逐实体测试覆盖左右阵营、数字法术 ID 与 gw_ 引用名双入口、魔法 0/1/10/11，另含 Web、死敌过滤和击杀、低蓝与沉默。扣蓝、事件、损血、行动与换手均有具体断言。",
+                                                                   "evidenceIds":  [
+                                                                                       "en",
+                                                                                       "native",
+                                                                                       "weapon-data",
+                                                                                       "per-entity-test"
+                                                                                   ],
+                                                                   "tests":  [
+                                                                                 "tests/unit/gowParallelSignoffWeapons.test.ts"
+                                                                             ],
+                                                                   "realBattleEntry":  true
+                                                               }
+                                       },
+                        "clauseReviews":  [
+                                              {
+                                                  "id":  "c1",
+                                                  "status":  "verified",
+                                                  "note":  "英文唯一条款与原生 Damage/FrontEnemy/基础 5+0.5×魔法、原型 enemyFront 及中文「对第一名敌人造成 [(魔法 / 2) + 5] 点伤害。」相符；实战正例：队首 id=10 受伤，其他敌人不受伤；魔法 0/1/10/11 对应单目标伤害 5/6/10/11；双阵营双入口扣蓝并换手。；反例：队首阵亡后仅留 id=11，只击杀 id=11；不复制伤害到无关目标；低蓝和沉默不耗行动，Web 只留下基础 5 点伤害。 ",
+                                                  "evidenceIds":  [
+                                                                      "en",
+                                                                      "native",
+                                                                      "weapon-data",
+                                                                      "per-entity-test"
+                                                                  ],
+                                                  "tests":  [
+                                                                "tests/unit/gowParallelSignoffWeapons.test.ts"
+                                                            ]
+                                              }
+                                          ],
+                        "nativeStepReviews":  [
+                                                  {
+                                                      "id":  "0",
+                                                      "status":  "verified",
+                                                      "note":  "SpellSteps[0] 为 Damage/FrontEnemy/基础 5+0.5×魔法；双入口真实施法覆盖目标、奇偶取整、费用及击杀。",
+                                                      "evidenceIds":  [
+                                                                          "en",
+                                                                          "native",
+                                                                          "weapon-data",
+                                                                          "per-entity-test"
+                                                                      ],
+                                                      "tests":  [
+                                                                    "tests/unit/gowParallelSignoffWeapons.test.ts"
+                                                                ]
+                                                  }
+                                              ],
+                        "branchReviews":  [
+                                              {
+                                                  "id":  "main",
+                                                  "status":  "verified",
+                                                  "note":  "原生无额外 Randomize 分支，主分支唯一；实战正例：队首 id=10 受伤，其他敌人不受伤；魔法 0/1/10/11 对应单目标伤害 5/6/10/11；双阵营双入口扣蓝并换手。；反例：队首阵亡后仅留 id=11，只击杀 id=11；不复制伤害到无关目标；低蓝和沉默不耗行动，Web 只留下基础 5 点伤害。 ",
+                                                  "evidenceIds":  [
+                                                                      "en",
+                                                                      "native",
+                                                                      "weapon-data",
+                                                                      "per-entity-test"
+                                                                  ],
+                                                  "tests":  [
+                                                                "tests/unit/gowParallelSignoffWeapons.test.ts"
+                                                            ]
+                                              }
+                                          ],
+                        "pendingReasons":  [
+
+                                           ],
+                        "scopedEvidence":  [
+                                               {
+                                                   "testPath":  "tests/unit/gowParallelSignoffWeapons.test.ts",
+                                                   "scope":  "weapon:1002：独立英文快照、原生步骤、实体身份及中文描述；两阵营、双施法入口、魔法 0/1/10/11 的真实 TurnEngine.castSkill，外加 Web、阵亡过滤、击杀、低蓝与沉默。协调窗口报告定向测试通过；本窗口未运行。"
+                                               }
+                                           ],
+                        "expectedPositive":  "队首 id=10 受伤，其他敌人不受伤；魔法 0/1/10/11 对应单目标伤害 5/6/10/11；双阵营双入口扣蓝并换手。",
+                        "expectedNegative":  "队首阵亡后仅留 id=11，只击杀 id=11；不复制伤害到无关目标；低蓝和沉默不耗行动，Web 只留下基础 5 点伤害。",
+                        "signoffNote":  "accept：逐实体证据决定；共享记录合并后仍需生成包含新套件的全量测试凭证，方可正式签收。"
+                    },
+                    {
+                        "key":  "weapon:1003",
+                        "scope":  "stored-gow-snapshot",
+                        "sourceDigest":  "d24407f3f8de13b9d228cbdb0c3c9172022cbe4ab80a161744f212c7a0bacf5b",
+                        "ledgerFingerprint":  "40b01f972eaecffaf9afcf60a47fbe4fd4fa6da384e54e82d4fd5834deb93ac4",
+                        "reviewer":  "worker-fast-03",
+                        "reviewedAt":  "2026-09-27",
+                        "decision":  "draft",
+                        "sourceEvidence":  [
+                                               {
+                                                   "id":  "en",
+                                                   "role":  "english-snapshot",
+                                                   "path":  "artifacts/gowhead-weapons/weapons.json",
+                                                   "sha256":  "ccd2da80b9c92b38fd61cdd50e7d9d3a2c5572d626ff8e0d64718963a2456fb3",
+                                                   "note":  "保存的英文独立快照：武器 1003 的英文技能文本及 SpellId=7068。"
+                                               },
+                                               {
+                                                   "id":  "native",
+                                                   "role":  "native-snapshot",
+                                                   "path":  "data/raw/spells.gow.en.json",
+                                                   "sha256":  "ddc7e03e23a6ea880e34fc8f1b7f0572b15f42041e979c443642d735f89dd63b",
+                                                   "note":  "原生法术 7068：费用 5，唯一 SpellSteps[0] 为 Damage/RandomEnemy/基础 6/魔法倍率 0.5。"
+                                               },
+                                               {
+                                                   "id":  "official-status",
+                                                   "role":  "official-shared-rule",
+                                                   "path":  "artifacts/gow-skill-audit/gold-primary-sources/official-status-effects.html",
+                                                   "sha256":  "4dca585515e9c7ca9287f75b9555079a2b50c747e6c35293ae6b57981360755c",
+                                                   "note":  "官方材料仅支持 Web 和沉默等通用状态语义，不用于证明该武器公式或散射分配。"
+                                               },
+                                               {
+                                                   "id":  "weapon-data",
+                                                   "role":  "runtime-content",
+                                                   "path":  "src/data/weapons.json",
+                                                   "sha256":  "a14d19478d3a31f94ae2c4b0ca08a5e0ada03dfc3b7fc05e8ac61df907fbddb0",
+                                                   "note":  "实体 1003/HuntersSpear 的法术 ID、5 点 Yellow 费用及中文描述。"
+                                               },
+                                               {
+                                                   "id":  "damage-runtime",
+                                                   "role":  "project-implementation",
+                                                   "path":  "src/engine/skills/effects/damage.ts",
+                                                   "sha256":  "88cd6b109fb8dbb8830ad3a2137e5ce4d2e137e7b5c82a07d9f4c2e147274a8c",
+                                                   "note":  "项目伤害实现：整数取整、单次伤害事件以及散射总池的分配。"
+                                               },
+                                               {
+                                                   "id":  "target-runtime",
+                                                   "role":  "project-implementation",
+                                                   "path":  "src/engine/skills/targeting.ts",
+                                                   "sha256":  "c82a170b1c2e3fc617599bcedee6c41b38a02251ee2b6a50c844fba709e74d41",
+                                                   "note":  "目标选择实现：enemyRandom 与存活敌人筛选，随机类使用注入的种子随机数。"
+                                               },
+                                               {
+                                                   "id":  "per-entity-test",
+                                                   "role":  "existing-test-source",
+                                                   "path":  "tests/unit/gowParallelSignoffWeapons.test.ts",
+                                                   "sha256":  "0f44ea23e55fd1b9f54d367a247a68556de80eee2247b0208d7a0aa8f542f19d",
+                                                   "note":  "本测试包含快照、原生、双别名与中文文案断言；真实施法涵盖双阵营、魔法奇偶值、Web、死敌过滤、击杀、低蓝及沉默。协调窗口报告定向通过，本窗口未执行。"
+                                               }
+                                           ],
+                        "dimensions":  {
+                                           "identity-cost-colors":  {
+                                                                        "status":  "verified",
+                                                                        "note":  "英文、原生、实体 1003/HuntersSpear 和两种注册别名相符；法术 7068，消耗 5 点 Yellow。",
+                                                                        "evidenceIds":  [
+                                                                                            "en",
+                                                                                            "native",
+                                                                                            "weapon-data",
+                                                                                            "per-entity-test"
+                                                                                        ],
+                                                                        "tests":  [
+                                                                                      "tests/unit/gowParallelSignoffWeapons.test.ts"
+                                                                                  ]
+                                                                    },
+                                           "target-count-range":  {
+                                                                      "status":  "pending",
+                                                                      "note":  "原生 RandomEnemy 对应 enemyRandom；真实施法证明单次命中恰一名存活敌人，但固定种子没有证明不同种子可以命中不同位置；此维保留 pending。",
+                                                                      "evidenceIds":  [
+                                                                                          "en",
+                                                                                          "native",
+                                                                                          "weapon-data",
+                                                                                          "per-entity-test"
+                                                                                      ],
+                                                                      "tests":  [
+                                                                                    "tests/unit/gowParallelSignoffWeapons.test.ts"
+                                                                                ]
+                                                                  },
+                                           "base-formula-rounding":  {
+                                                                         "status":  "verified",
+                                                                         "note":  "原生基础 6，魔法倍率 0.5；真实施法断言 M=0/1/10/11（奇偶和取整），Web 在 M=11 时只留下基础 6。",
+                                                                         "evidenceIds":  [
+                                                                                             "en",
+                                                                                             "native",
+                                                                                             "weapon-data",
+                                                                                             "per-entity-test"
+                                                                                         ],
+                                                                         "tests":  [
+                                                                                       "tests/unit/gowParallelSignoffWeapons.test.ts"
+                                                                                   ]
+                                                                     },
+                                           "boost-source-ratio-cap":  {
+                                                                          "status":  "not-applicable",
+                                                                          "note":  "英文、原生与原型仅含固定基础伤害和半数施法者魔法；无额外强化来源或上限。",
+                                                                          "evidenceIds":  [
+                                                                                              "en",
+                                                                                              "native",
+                                                                                              "weapon-data"
+                                                                                          ]
+                                                                      },
+                                           "conditions-probabilities-branches":  {
+                                                                                     "status":  "not-applicable",
+                                                                                     "note":  "唯一伤害步骤，无技能内条件、概率分叉；随机目标或散射分配另在目标维度核查。",
+                                                                                     "evidenceIds":  [
+                                                                                                         "en",
+                                                                                                         "native",
+                                                                                                         "weapon-data"
+                                                                                                     ]
+                                                                                 },
+                                           "status-duration-immunity":  {
+                                                                            "status":  "not-applicable",
+                                                                            "note":  "技能不施加状态或免疫；测试中 Web 和沉默为施法环境负例，不是本武器的附加效果。",
+                                                                            "evidenceIds":  [
+                                                                                                "en",
+                                                                                                "native",
+                                                                                                "weapon-data"
+                                                                                            ]
+                                                                        },
+                                           "gems-types-selection-resolution":  {
+                                                                                   "status":  "not-applicable",
+                                                                                   "note":  "独立英文条款、原生单步与原型均未创建、销毁或转换宝石。",
+                                                                                   "evidenceIds":  [
+                                                                                                       "en",
+                                                                                                       "native",
+                                                                                                       "weapon-data"
+                                                                                                   ]
+                                                                               },
+                                           "summon-transform-pools":  {
+                                                                          "status":  "not-applicable",
+                                                                          "note":  "英文条款和原生步骤无召唤或变形；原型只有伤害段。",
+                                                                          "evidenceIds":  [
+                                                                                              "en",
+                                                                                              "native",
+                                                                                              "weapon-data"
+                                                                                          ]
+                                                                      },
+                                           "order-death-retargeting":  {
+                                                                           "status":  "verified",
+                                                                           "note":  "技能只有一步；真实施法设置其他三敌已阵亡、存活目标仅 1 生命，验证仅该目标的伤害和阵亡事件；仅留 id=12 时只击杀 id=12。",
+                                                                           "evidenceIds":  [
+                                                                                               "en",
+                                                                                               "native",
+                                                                                               "weapon-data",
+                                                                                               "per-entity-test"
+                                                                                           ],
+                                                                           "tests":  [
+                                                                                         "tests/unit/gowParallelSignoffWeapons.test.ts"
+                                                                                     ]
+                                                                       },
+                                           "mana-economy-extra-turn":  {
+                                                                           "status":  "verified",
+                                                                           "note":  "双阵营双入口施法成功扣 5 法力且仅记录一次行动并换手；低蓝 4 与沉默均不扣蓝、不耗行动；无额外回合。",
+                                                                           "evidenceIds":  [
+                                                                                               "en",
+                                                                                               "native",
+                                                                                               "weapon-data",
+                                                                                               "per-entity-test"
+                                                                                           ],
+                                                                           "tests":  [
+                                                                                         "tests/unit/gowParallelSignoffWeapons.test.ts"
+                                                                                     ]
+                                                                       },
+                                           "display-description":  {
+                                                                       "status":  "verified",
+                                                                       "note":  "保存的英文技能与实体中文原句「对 1 名随机的敌人造成 [(魔法 / 2) + 6] 点伤害。」对齐；逐实体测试断言中文公式及散射标记。",
+                                                                       "evidenceIds":  [
+                                                                                           "en",
+                                                                                           "native",
+                                                                                           "weapon-data",
+                                                                                           "per-entity-test"
+                                                                                       ],
+                                                                       "tests":  [
+                                                                                     "tests/unit/gowParallelSignoffWeapons.test.ts"
+                                                                                 ]
+                                                                   },
+                                           "battle-pipeline":  {
+                                                                   "status":  "verified",
+                                                                   "note":  "真实 TurnEngine.castSkill 逐实体测试覆盖左右阵营、数字法术 ID 与 gw_ 引用名双入口、魔法 0/1/10/11，另含 Web、死敌过滤和击杀、低蓝与沉默。扣蓝、事件、损血、行动与换手均有具体断言。 此维的真实施法入口已覆盖，但随机目标跨种子的行为缺口保留在目标维、条款及步骤。",
+                                                                   "evidenceIds":  [
+                                                                                       "en",
+                                                                                       "native",
+                                                                                       "weapon-data",
+                                                                                       "per-entity-test"
+                                                                                   ],
+                                                                   "tests":  [
+                                                                                 "tests/unit/gowParallelSignoffWeapons.test.ts"
+                                                                             ],
+                                                                   "realBattleEntry":  true
+                                                               }
+                                       },
+                        "clauseReviews":  [
+                                              {
+                                                  "id":  "c1",
+                                                  "status":  "pending",
+                                                  "note":  "英文唯一条款与原生 Damage/RandomEnemy/基础 6+0.5×魔法、原型 enemyRandom 及中文「对 1 名随机的敌人造成 [(魔法 / 2) + 6] 点伤害。」相符；实战正例：每次一名存活敌人承受完整伤害；魔法 0/1/10/11 对应单目标伤害 6/7/11/12；双阵营双入口扣蓝并换手。；反例：仅留 id=12 时只击杀 id=12；不复制伤害到无关目标；低蓝和沉默不耗行动，Web 只留下基础 6 点伤害。 但缺两种种子在真实施法中分别命中不同敌人的反例，因此随机分支暂缓签收。",
+                                                  "evidenceIds":  [
+                                                                      "en",
+                                                                      "native",
+                                                                      "weapon-data",
+                                                                      "per-entity-test"
+                                                                  ],
+                                                  "tests":  [
+                                                                "tests/unit/gowParallelSignoffWeapons.test.ts"
+                                                            ]
+                                              }
+                                          ],
+                        "nativeStepReviews":  [
+                                                  {
+                                                      "id":  "0",
+                                                      "status":  "pending",
+                                                      "note":  "SpellSteps[0] 为 Damage/RandomEnemy/基础 6+0.5×魔法；双入口真实施法覆盖目标、奇偶取整、费用及击杀。但缺两种种子在真实施法中分别命中不同敌人的反例，因此随机分支暂缓签收。",
+                                                      "evidenceIds":  [
+                                                                          "en",
+                                                                          "native",
+                                                                          "weapon-data",
+                                                                          "per-entity-test"
+                                                                      ],
+                                                      "tests":  [
+                                                                    "tests/unit/gowParallelSignoffWeapons.test.ts"
+                                                                ]
+                                                  }
+                                              ],
+                        "branchReviews":  [
+                                              {
+                                                  "id":  "main",
+                                                  "status":  "pending",
+                                                  "note":  "原生无额外 Randomize 分支，主分支唯一；实战正例：每次一名存活敌人承受完整伤害；魔法 0/1/10/11 对应单目标伤害 6/7/11/12；双阵营双入口扣蓝并换手。；反例：仅留 id=12 时只击杀 id=12；不复制伤害到无关目标；低蓝和沉默不耗行动，Web 只留下基础 6 点伤害。 但缺两种种子在真实施法中分别命中不同敌人的反例，因此随机分支暂缓签收。",
+                                                  "evidenceIds":  [
+                                                                      "en",
+                                                                      "native",
+                                                                      "weapon-data",
+                                                                      "per-entity-test"
+                                                                  ],
+                                                  "tests":  [
+                                                                "tests/unit/gowParallelSignoffWeapons.test.ts"
+                                                            ]
+                                              }
+                                          ],
+                        "pendingReasons":  [
+                                               "weapon:1003 / 7068：现有真实施法固定 SeededRNG(42)，仅证明一次抽样会打中一名存活敌人；仍需两个不同种子在 TurnEngine.castSkill 分别命中不同位置，并断言死敌始终不被抽中。"
+                                           ],
+                        "scopedEvidence":  [
+                                               {
+                                                   "testPath":  "tests/unit/gowParallelSignoffWeapons.test.ts",
+                                                   "scope":  "weapon:1003：独立英文快照、原生步骤、实体身份及中文描述；两阵营、双施法入口、魔法 0/1/10/11 的真实 TurnEngine.castSkill，外加 Web、阵亡过滤、击杀、低蓝与沉默。协调窗口报告定向测试通过；本窗口未运行。"
+                                               }
+                                           ],
+                        "expectedPositive":  "每次一名存活敌人承受完整伤害；魔法 0/1/10/11 对应单目标伤害 6/7/11/12；双阵营双入口扣蓝并换手。",
+                        "expectedNegative":  "仅留 id=12 时只击杀 id=12；不复制伤害到无关目标；低蓝和沉默不耗行动，Web 只留下基础 6 点伤害。",
+                        "signoffNote":  "draft：还缺多种子真实施法分别命中不同敌人的证据。"
+                    },
+                    {
+                        "key":  "weapon:1004",
+                        "scope":  "stored-gow-snapshot",
+                        "sourceDigest":  "c44d5e9e4be59e955af5abc9f7c1725f556854197890c479753ee06c481f0433",
+                        "ledgerFingerprint":  "40b01f972eaecffaf9afcf60a47fbe4fd4fa6da384e54e82d4fd5834deb93ac4",
+                        "reviewer":  "worker-fast-03",
+                        "reviewedAt":  "2026-09-27",
+                        "decision":  "accept",
+                        "sourceEvidence":  [
+                                               {
+                                                   "id":  "en",
+                                                   "role":  "english-snapshot",
+                                                   "path":  "artifacts/gowhead-weapons/weapons.json",
+                                                   "sha256":  "ccd2da80b9c92b38fd61cdd50e7d9d3a2c5572d626ff8e0d64718963a2456fb3",
+                                                   "note":  "保存的英文独立快照：武器 1004 的英文技能文本及 SpellId=7069。"
+                                               },
+                                               {
+                                                   "id":  "native",
+                                                   "role":  "native-snapshot",
+                                                   "path":  "data/raw/spells.gow.en.json",
+                                                   "sha256":  "ddc7e03e23a6ea880e34fc8f1b7f0572b15f42041e979c443642d735f89dd63b",
+                                                   "note":  "原生法术 7069：费用 5，唯一 SpellSteps[0] 为 ScatterDamage/AllEnemies/基础 6/魔法倍率 0.5。"
+                                               },
+                                               {
+                                                   "id":  "official-status",
+                                                   "role":  "official-shared-rule",
+                                                   "path":  "artifacts/gow-skill-audit/gold-primary-sources/official-status-effects.html",
+                                                   "sha256":  "4dca585515e9c7ca9287f75b9555079a2b50c747e6c35293ae6b57981360755c",
+                                                   "note":  "官方材料仅支持 Web 和沉默等通用状态语义，不用于证明该武器公式或散射分配。"
+                                               },
+                                               {
+                                                   "id":  "weapon-data",
+                                                   "role":  "runtime-content",
+                                                   "path":  "src/data/weapons.json",
+                                                   "sha256":  "a14d19478d3a31f94ae2c4b0ca08a5e0ada03dfc3b7fc05e8ac61df907fbddb0",
+                                                   "note":  "实体 1004/WizardsWand 的法术 ID、5 点 Purple 费用及中文描述。"
+                                               },
+                                               {
+                                                   "id":  "damage-runtime",
+                                                   "role":  "project-implementation",
+                                                   "path":  "src/engine/skills/effects/damage.ts",
+                                                   "sha256":  "88cd6b109fb8dbb8830ad3a2137e5ce4d2e137e7b5c82a07d9f4c2e147274a8c",
+                                                   "note":  "项目伤害实现：整数取整、单次伤害事件以及散射总池的分配。"
+                                               },
+                                               {
+                                                   "id":  "target-runtime",
+                                                   "role":  "project-implementation",
+                                                   "path":  "src/engine/skills/targeting.ts",
+                                                   "sha256":  "c82a170b1c2e3fc617599bcedee6c41b38a02251ee2b6a50c844fba709e74d41",
+                                                   "note":  "目标选择实现：enemyAll 与存活敌人筛选，随机类使用注入的种子随机数。"
+                                               },
+                                               {
+                                                   "id":  "per-entity-test",
+                                                   "role":  "existing-test-source",
+                                                   "path":  "tests/unit/gowParallelSignoffWeapons.test.ts",
+                                                   "sha256":  "0f44ea23e55fd1b9f54d367a247a68556de80eee2247b0208d7a0aa8f542f19d",
+                                                   "note":  "本测试包含快照、原生、双别名与中文文案断言；真实施法涵盖双阵营、魔法奇偶值、Web、死敌过滤、击杀、低蓝及沉默。协调窗口报告定向通过，本窗口未执行。"
+                                               },
+                                               {
+                                                   "id":  "scatter-rules-test",
+                                                   "role":  "existing-test-source",
+                                                   "path":  "tests/unit/gowDamageRules.test.ts",
+                                                   "sha256":  "39abd5c2ff9ea089b8e3cd536c506c7b39836b48e3a37bd18d037f7d2340f337",
+                                                   "note":  "共享散射原语测试验证种子变化、总池守恒、过量与屏障分配；另断言 7069 为 scatter；旧凭证登记本套已通过，不代表新实体套件的全量凭证。"
+                                               }
+                                           ],
+                        "dimensions":  {
+                                           "identity-cost-colors":  {
+                                                                        "status":  "verified",
+                                                                        "note":  "英文、原生、实体 1004/WizardsWand 和两种注册别名相符；法术 7069，消耗 5 点 Purple。",
+                                                                        "evidenceIds":  [
+                                                                                            "en",
+                                                                                            "native",
+                                                                                            "weapon-data",
+                                                                                            "per-entity-test"
+                                                                                        ],
+                                                                        "tests":  [
+                                                                                      "tests/unit/gowParallelSignoffWeapons.test.ts"
+                                                                                  ]
+                                                                    },
+                                           "target-count-range":  {
+                                                                      "status":  "verified",
+                                                                      "note":  "原生 ScatterDamage(AllEnemies) 对应 enemyAll/range=scatter；真实施法检验四敌共享一个伤害总池、排除死敌；共享散射测试证明不同种子可改变分配且总池守恒。",
+                                                                      "evidenceIds":  [
+                                                                                          "en",
+                                                                                          "native",
+                                                                                          "weapon-data",
+                                                                                          "per-entity-test",
+                                                                                          "scatter-rules-test"
+                                                                                      ],
+                                                                      "tests":  [
+                                                                                    "tests/unit/gowParallelSignoffWeapons.test.ts",
+                                                                                    "tests/unit/gowDamageRules.test.ts"
+                                                                                ]
+                                                                  },
+                                           "base-formula-rounding":  {
+                                                                         "status":  "verified",
+                                                                         "note":  "原生基础 6，魔法倍率 0.5；真实施法断言 M=0/1/10/11（奇偶和取整），Web 在 M=11 时只留下基础 6。",
+                                                                         "evidenceIds":  [
+                                                                                             "en",
+                                                                                             "native",
+                                                                                             "weapon-data",
+                                                                                             "per-entity-test"
+                                                                                         ],
+                                                                         "tests":  [
+                                                                                       "tests/unit/gowParallelSignoffWeapons.test.ts"
+                                                                                   ]
+                                                                     },
+                                           "boost-source-ratio-cap":  {
+                                                                          "status":  "not-applicable",
+                                                                          "note":  "英文、原生与原型仅含固定基础伤害和半数施法者魔法；无额外强化来源或上限。",
+                                                                          "evidenceIds":  [
+                                                                                              "en",
+                                                                                              "native",
+                                                                                              "weapon-data"
+                                                                                          ]
+                                                                      },
+                                           "conditions-probabilities-branches":  {
+                                                                                     "status":  "not-applicable",
+                                                                                     "note":  "唯一伤害步骤，无技能内条件、概率分叉；随机目标或散射分配另在目标维度核查。",
+                                                                                     "evidenceIds":  [
+                                                                                                         "en",
+                                                                                                         "native",
+                                                                                                         "weapon-data"
+                                                                                                     ]
+                                                                                 },
+                                           "status-duration-immunity":  {
+                                                                            "status":  "not-applicable",
+                                                                            "note":  "技能不施加状态或免疫；测试中 Web 和沉默为施法环境负例，不是本武器的附加效果。",
+                                                                            "evidenceIds":  [
+                                                                                                "en",
+                                                                                                "native",
+                                                                                                "weapon-data"
+                                                                                            ]
+                                                                        },
+                                           "gems-types-selection-resolution":  {
+                                                                                   "status":  "not-applicable",
+                                                                                   "note":  "独立英文条款、原生单步与原型均未创建、销毁或转换宝石。",
+                                                                                   "evidenceIds":  [
+                                                                                                       "en",
+                                                                                                       "native",
+                                                                                                       "weapon-data"
+                                                                                                   ]
+                                                                               },
+                                           "summon-transform-pools":  {
+                                                                          "status":  "not-applicable",
+                                                                          "note":  "英文条款和原生步骤无召唤或变形；原型只有伤害段。",
+                                                                          "evidenceIds":  [
+                                                                                              "en",
+                                                                                              "native",
+                                                                                              "weapon-data"
+                                                                                          ]
+                                                                      },
+                                           "order-death-retargeting":  {
+                                                                           "status":  "verified",
+                                                                           "note":  "技能只有一步；真实施法设置其他三敌已阵亡、存活目标仅 1 生命，验证仅该目标的伤害和阵亡事件；仅留一名存活敌人时，全部份额击杀该目标。 共享散射原语测试补充种子变化、守恒、容量和屏障，并核对 7069 的散射原型。",
+                                                                           "evidenceIds":  [
+                                                                                               "en",
+                                                                                               "native",
+                                                                                               "weapon-data",
+                                                                                               "per-entity-test",
+                                                                                               "scatter-rules-test"
+                                                                                           ],
+                                                                           "tests":  [
+                                                                                         "tests/unit/gowParallelSignoffWeapons.test.ts",
+                                                                                         "tests/unit/gowDamageRules.test.ts"
+                                                                                     ]
+                                                                       },
+                                           "mana-economy-extra-turn":  {
+                                                                           "status":  "verified",
+                                                                           "note":  "双阵营双入口施法成功扣 5 法力且仅记录一次行动并换手；低蓝 4 与沉默均不扣蓝、不耗行动；无额外回合。",
+                                                                           "evidenceIds":  [
+                                                                                               "en",
+                                                                                               "native",
+                                                                                               "weapon-data",
+                                                                                               "per-entity-test"
+                                                                                           ],
+                                                                           "tests":  [
+                                                                                         "tests/unit/gowParallelSignoffWeapons.test.ts"
+                                                                                     ]
+                                                                       },
+                                           "display-description":  {
+                                                                       "status":  "verified",
+                                                                       "note":  "保存的英文技能与实体中文原句「对所有敌人造成 [(魔法 / 2) + 6] 点散射伤害。」对齐；逐实体测试断言中文公式及散射标记。",
+                                                                       "evidenceIds":  [
+                                                                                           "en",
+                                                                                           "native",
+                                                                                           "weapon-data",
+                                                                                           "per-entity-test"
+                                                                                       ],
+                                                                       "tests":  [
+                                                                                     "tests/unit/gowParallelSignoffWeapons.test.ts"
+                                                                                 ]
+                                                                   },
+                                           "battle-pipeline":  {
+                                                                   "status":  "verified",
+                                                                   "note":  "真实 TurnEngine.castSkill 逐实体测试覆盖左右阵营、数字法术 ID 与 gw_ 引用名双入口、魔法 0/1/10/11，另含 Web、死敌过滤和击杀、低蓝与沉默。扣蓝、事件、损血、行动与换手均有具体断言。",
+                                                                   "evidenceIds":  [
+                                                                                       "en",
+                                                                                       "native",
+                                                                                       "weapon-data",
+                                                                                       "per-entity-test"
+                                                                                   ],
+                                                                   "tests":  [
+                                                                                 "tests/unit/gowParallelSignoffWeapons.test.ts"
+                                                                             ],
+                                                                   "realBattleEntry":  true
+                                                               }
+                                       },
+                        "clauseReviews":  [
+                                              {
+                                                  "id":  "c1",
+                                                  "status":  "verified",
+                                                  "note":  "英文唯一条款与原生 ScatterDamage/AllEnemies/基础 6+0.5×魔法、原型 enemyAll 及中文「对所有敌人造成 [(魔法 / 2) + 6] 点散射伤害。」相符；实战正例：魔法 0/1/10/11 对应全队散射总池 6/7/11/12，份额非负；双阵营双入口成功扣蓝并换手。；反例：仅留一名存活敌人时，全部份额击杀该目标；不复制伤害到无关目标；低蓝和沉默不耗行动，Web 只留下基础 6 点伤害。 ",
+                                                  "evidenceIds":  [
+                                                                      "en",
+                                                                      "native",
+                                                                      "weapon-data",
+                                                                      "per-entity-test",
+                                                                      "scatter-rules-test"
+                                                                  ],
+                                                  "tests":  [
+                                                                "tests/unit/gowParallelSignoffWeapons.test.ts",
+                                                                "tests/unit/gowDamageRules.test.ts"
+                                                            ]
+                                              }
+                                          ],
+                        "nativeStepReviews":  [
+                                                  {
+                                                      "id":  "0",
+                                                      "status":  "verified",
+                                                      "note":  "SpellSteps[0] 为 ScatterDamage/AllEnemies/基础 6+0.5×魔法；双入口真实施法覆盖目标、奇偶取整、费用及击杀。",
+                                                      "evidenceIds":  [
+                                                                          "en",
+                                                                          "native",
+                                                                          "weapon-data",
+                                                                          "per-entity-test",
+                                                                          "scatter-rules-test"
+                                                                      ],
+                                                      "tests":  [
+                                                                    "tests/unit/gowParallelSignoffWeapons.test.ts",
+                                                                    "tests/unit/gowDamageRules.test.ts"
+                                                                ]
+                                                  }
+                                              ],
+                        "branchReviews":  [
+                                              {
+                                                  "id":  "main",
+                                                  "status":  "verified",
+                                                  "note":  "原生无额外 Randomize 分支，主分支唯一；实战正例：魔法 0/1/10/11 对应全队散射总池 6/7/11/12，份额非负；双阵营双入口成功扣蓝并换手。；反例：仅留一名存活敌人时，全部份额击杀该目标；不复制伤害到无关目标；低蓝和沉默不耗行动，Web 只留下基础 6 点伤害。 ",
+                                                  "evidenceIds":  [
+                                                                      "en",
+                                                                      "native",
+                                                                      "weapon-data",
+                                                                      "per-entity-test",
+                                                                      "scatter-rules-test"
+                                                                  ],
+                                                  "tests":  [
+                                                                "tests/unit/gowParallelSignoffWeapons.test.ts",
+                                                                "tests/unit/gowDamageRules.test.ts"
+                                                            ]
+                                              }
+                                          ],
+                        "pendingReasons":  [
+
+                                           ],
+                        "scopedEvidence":  [
+                                               {
+                                                   "testPath":  "tests/unit/gowParallelSignoffWeapons.test.ts",
+                                                   "scope":  "weapon:1004：独立英文快照、原生步骤、实体身份及中文描述；两阵营、双施法入口、魔法 0/1/10/11 的真实 TurnEngine.castSkill，外加 Web、阵亡过滤、击杀、低蓝与沉默。协调窗口报告定向测试通过；本窗口未运行。 共享散射原语测试补充跨种子与分配性质；旧凭证登记其通过。"
+                                               }
+                                           ],
+                        "expectedPositive":  "魔法 0/1/10/11 对应全队散射总池 6/7/11/12，份额非负；双阵营双入口成功扣蓝并换手。",
+                        "expectedNegative":  "仅留一名存活敌人时，全部份额击杀该目标；不复制伤害到无关目标；低蓝和沉默不耗行动，Web 只留下基础 6 点伤害。",
+                        "signoffNote":  "accept：逐实体证据决定；共享记录合并后仍需生成包含新套件的全量测试凭证，方可正式签收。"
+                    }
+                ]
+}

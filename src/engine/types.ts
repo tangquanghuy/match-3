@@ -57,7 +57,7 @@ export type SpecialGemKind =
   | 'wildcard'
   /** 许愿：不可匹配；被摧毁时 5 选 1 随机回蓝（20% 是"双方全员回满"的坑） */
   | 'wish'
-  /** 沙漏：可匹配（黄色）；被匹配时获得一次额外回合 */
+  /** 沙漏：可匹配（黄色）；匹配或摧毁时获得一次额外回合 */
   | 'hourglass'
   /**
    * 赃物（Booty，官方 Heroic Gems 原文）：不可匹配、无法力色；被摧毁时给摧毁方 +10 金币
@@ -104,9 +104,9 @@ export type SpecialGemKind =
   | 'dragonGem'
   /** 巨人宝石：可匹配（spec.color 六色）；被匹配或被摧毁时 +5 该色法力并爆炸相邻一圈（官方"法力版末日骷髅"） */
   | 'giantGem'
-  /** 灵力宝石：可匹配（spec.color 六色，官方颜色集合存疑缺省紫）；被匹配或被摧毁时敌方每个存活角色 -2 法力（汲取不转移） */
+  /** 灵力宝石：可匹配（spec.color 六色，官方颜色集合存疑，创造端必须指定归属色）；被匹配或被摧毁时敌方每个存活角色 -2 法力（汲取不转移） */
   | 'spiritGem'
-  /** 法力药水宝石：可匹配（spec.color 六色）；被匹配或被摧毁时全盘随机空格撒 7-11 颗该色普通宝石 */
+  /** 法力药水宝石：可匹配（spec.color 六色）；被匹配或被摧毁后，在补盘完成时按全盘造石规则创造 7-11 颗该色普通宝石 */
   | 'manaPotionGem'
   /** 糖果宝石：可匹配（spec.color 六色）；被匹配时己方全体该色存活盟友各 +1 法力（官方 in-game guide 原文） */
   | 'candyGem'
@@ -126,15 +126,11 @@ export type SpecialGemKind =
   | 'lycanthropyGem'
   /** 腐朽宝石：可匹配（棕）；无匹配/摧毁触发——盘上光环：每回合开始兵多一方全员 -1 甲/颗（同数双方都扣） */
   | 'decayGem'
-  /** 火山宝石：可匹配（红）；被匹配时向上垂直列 + 对角方向爆炸（dragonGem「向下」的反向） */
+  /** 火山宝石：可匹配（红）；被摧毁（含匹配）时向上垂直列 + 对角方向清除 */
   | 'volcanoGem'
   /** 陷阱宝石：无色不可匹配；被摧毁时五选一负面（stun/frozen/entangle/faerie-fire 全员打玩家队 or 创造 3 末日骷髅，官方 Underspire 原文） */
   | 'trapGem'
-  /**
-   * 附魔宝石：⚠️ 行为句官方未证实（公开渠道无定义，GEMS-SEMANTICS-2 E5）——先落 kind
-   * （可创造/可摧毁），按官方"紫色 Heroic Gem"给紫匹配（匹配产紫法力），摧毁无特殊效果。
-   * 待官方语义核实后再补触发行为。
-   */
+  /** 附魔宝石：可匹配（紫）；仅匹配时使随机存活己方附魔；普通摧毁只结算基础法力。 */
   | 'enchantedGem'
   /**
    * 宝箱怪宝石：⚠️ 公开渠道无定义（官方数据仅 1 处 CreateGems(Mimic)，GEMS-SEMANTICS-2 E6）——
@@ -279,7 +275,7 @@ export const STATUS_GEM_EFFECTS: Record<StatusGemKind, StatusGemTriggerSpec> = {
   barrierGem: { statusId: 'barrier', turns: 3, side: 'ally', scope: 'random' },
 };
 
-/** 「被匹配」路径施加的状态宝石（collectMatchTriggers 即时施加，织网先例） */
+/** 在匹配入口即时施加的状态宝石；同一颗不会再进入摧毁队列。 */
 export const MATCH_STATUS_GEMS: ReadonlySet<StatusGemKind> = new Set([
   'burningGem',
   'freezeGem',
@@ -288,8 +284,13 @@ export const MATCH_STATUS_GEMS: ReadonlySet<StatusGemKind> = new Set([
   'terrorGem',
 ]);
 
-/** 「被摧毁」路径施加的状态宝石（expandSpecialDestruction；被匹配同样视为被摧毁——A 组共性） */
+/** 所有 13 种状态宝石都可在摧毁入口触发；死亡标记不可匹配，仅此入口可触发。 */
 export const DESTROY_STATUS_GEMS: ReadonlySet<StatusGemKind> = new Set([
+  'burningGem',
+  'freezeGem',
+  'curseGem',
+  'poisonGem',
+  'terrorGem',
   'bleedGem',
   'entangleGem',
   'stunGem',
@@ -327,6 +328,7 @@ export function specialGem(kind: SpecialGemKind, tier?: number, color?: BaseColo
   const spec: SpecialGemSpec = { kind };
   if (tier !== undefined) spec.tier = tier;
   if (color !== undefined) spec.color = color;
+  else if (kind === 'spiritGem') throw new Error('Spirit Gem needs an explicit color');
   return { kind: 'special', spec };
 }
 
@@ -355,6 +357,11 @@ export function skullGem(): GemType {
  * 'star4'（棕蓝绿红）/ 'star2'（黄紫），不可匹配（炸弹/许愿等）返回 null。
  * MatchResolver 的 run 级扫描与 isSameMatchType 共用。
  */
+const NON_MATCHABLE_SPECIALS: ReadonlySet<SpecialGemKind> = new Set([
+  'bomb', 'wish', 'ghost', 'bootyGem', 'deathMarkGem', 'angelGem', 'daemonicPortalGem',
+  'gargoyleGem', 'stoneBlock', 'trapGem', 'mimicGem',
+]);
+
 export function matchJoinKey(type: GemType): string | null {
   switch (type.kind) {
     case 'color':
@@ -366,6 +373,8 @@ export function matchJoinKey(type: GemType): string | null {
       if (type.spec.kind === 'doomSkull' || type.spec.kind === 'uberDoomSkull') return 'skull';
       if (type.spec.kind === 'elementalStar') return ELEMENTAL_STAR_JOIN_KEY;
       if (type.spec.kind === 'umbralStar') return UMBRAL_STAR_JOIN_KEY;
+      // 固定不可匹配族不因传入额外颜色参数而变成可匹配。
+      if (NON_MATCHABLE_SPECIALS.has(type.spec.kind)) return null;
       if (type.spec.color !== undefined) return type.spec.color;
       return SPECIAL_MATCH_COLOR[type.spec.kind] ?? null;
     }
@@ -451,7 +460,7 @@ export type BattleAction =
 /**
  * 一次行动在回合尾结算后的回合归属结果。
  * 用于校验「普通技能交出回合、额外回合只保留一次」而不必重新解析事件流。
- * held：释放技能不消耗回合（用户裁定，对齐 GoW）——行动方未变，也非额外回合。
+ * held：仅兼容旧版免费施法日志；2026-09-27 起新施法使用 switched / extra-turn / game-over。
  */
 export type ActionOutcome = 'switched' | 'extra-turn' | 'held' | 'game-over';
 
@@ -521,6 +530,8 @@ export interface StatusInstance {
   magnitude?: number;
   /** 自动解除的累计概率（百分比）；与 DoT/web 的 magnitude 分开存储。 */
   recoveryChance?: number;
+  /** Death Mark: skip its first owner-turn death roll (official GoW 3.0.5). */
+  graceTicks?: number;
 }
 
 /** @deprecated 旧空壳别名，保留以兼容早期引用；等价于 StatusInstance。 */
@@ -528,6 +539,8 @@ export type StatusEffect = StatusInstance;
 
 /** 角色（需求 13） */
 export interface Character {
+  eventTarget?: 'boss' | 'tower';
+  eventRarity?: number;
   id: number;
   name: string;
   maxHp: number;
@@ -623,7 +636,7 @@ export interface PassiveModifiers {
    * （HP 回复），攻击/魔法回合增益被静默结算成回血，属接线 bug，已按 stat 字段修正。
    */
   regenAttackPerTurn: number;
-  /** 每回合开始获得的魔法值（织网下的魔法增益拦截走 grantStat 既有口径） */
+  /** 每回合开始获得的魔力值（织网下的魔法增益拦截走 grantStat 既有口径） */
   regenMagicPerTurn: number;
   /** 自身受到伤害后获得的数值 */
   gainOnDamaged: StatGains;
@@ -802,7 +815,7 @@ export interface PassiveModifiers {
   }[];
   /**
    * 配对 N 连时把生命转换为魔法（T5 杂项批 trascend「在配对 4 或 5 颗宝石时，将 2 点
-   * 生命值替换成 2 点魔法值」）：持有者自身 1:1 交换，生命侧保底 1 点（特质不自杀），
+   * 生命值替换成 2 点魔力值」）：持有者自身 1:1 交换，生命侧保底 1 点（特质不自杀），
    * 实际减少多少生命就等量加魔法（织网下的魔法增益拦截走 grantStat 既有口径）；
    * 不掷随机数。同类取先声明的一条，minSize 缺省 4。
    */
@@ -810,7 +823,7 @@ export interface PassiveModifiers {
   /**
    * 配对 N 连时按概率召唤兵种（T5 杂项批 genieslamp「配对 4+ 30% 召唤神灯之灵」/
    * stormflock「35% 召唤鸟妖法师」）。复用死亡召唤基建：概率经 TurnEngine 注入的
-   * rng 判定，召唤物经注入的 summon 口按兵种数据装配并入队（容量/FIFO 同口径），
+   * rng 判定，召唤物经注入的 summon 口按兵种数据装配并入场（满四人时召唤失效），
    * 归持有者一方；同类取概率更高的一条，minSize 缺省 4。
    */
   bigMatchSummon?: { chance: number; troopId: number; referenceName: string; displayName: string; minSize: number };
@@ -843,13 +856,13 @@ export interface PassiveModifiers {
   onEnemyDeathStatus?: { id: string; turns: number };
   /**
    * 敌方角色阵亡时同队指定种族盟友获得的数值（lordofdeath「所有不死族在一名敌人身亡时
-   * 获得 5 点生命值和魔法值」）。受益者为持有者一方该种族的存活盟友，含持有者本人；
+   * 获得 5 点生命值和魔力值」）。受益者为持有者一方该种族的存活盟友，含持有者本人；
    * troopType 'all' = 全队（virtueofjustice「当敌人身亡时，所有盟友获得 3 点攻击力和护甲值」）。
    */
   onEnemyDeathTypeAura?: { troopType: string; gains: Partial<StatGains> };
   /**
    * 同队角色阵亡时同队指定范围盟友获得的数值（virtueofsacrifice「当一名盟友身亡时，
-   * 所有盟友获得 2 点攻击力和魔法值」）。受益者为持有者一方存活盟友（'all'=全队/种族名），
+   * 所有盟友获得 2 点攻击力和魔力值」）。受益者为持有者一方存活盟友（'all'=全队/种族名），
    * 与 onEnemyDeathTypeAura 同构、方向相反。
    */
   onAllyDeathTypeAura?: { troopType: string; gains: Partial<StatGains> };
@@ -860,7 +873,7 @@ export interface PassiveModifiers {
   onAllyCastTypeAura?: { troopType: string; gains: Partial<StatGains> };
   /**
    * 自身承受伤害时同队指定范围盟友获得的数值（virtueofhumility「当自身生命值承受伤害时，
-   * 所有盟友获得 2 点护甲值和魔法值」）。与 gainOnDamaged 同一触发点（骷髅受击结算处），
+   * 所有盟友获得 2 点护甲值和魔力值」）。与 gainOnDamaged 同一触发点（骷髅受击结算处），
    * 受益者为受击者一方存活盟友（'all'=全队/种族名）。
    */
   onDamagedTypeAura?: { troopType: string; gains: Partial<StatGains> };
@@ -925,7 +938,7 @@ export interface PassiveModifiers {
   skullMatchEconomyGain: TraitEconomyGain;
   /**
    * 模式专属·淘宝层属性（deepvitality/deepmagic/deepshield/deepstrength 族：「在淘宝模式中
-   * 获得 N 点生命值/魔法值/护甲值/攻击力」，官方 RawData GameMode=delve_attacker）。
+   * 获得 N 点生命值/魔力值/护甲值/攻击力」，官方 RawData GameMode=delve_attacker）。
    * **标准战斗惰性**：按 stat 聚合累加（同一角色可持多条 deep* 特质），Delve 进层时才生效；
    * 本作未建模 Delve 层，战斗结算路径不读此字段——编译进 passive 是为了数据建模完整
    * （审计对账通过）与将来 Delve 模式直接消费，不需要回头查特质表。
@@ -997,7 +1010,7 @@ export interface PassiveModifiers {
     };
   };
   /**
-   * 施法响应·敌方属性削减（psychicaffliction「消除所有敌人 1 点魔法值」/ succumb「敌人
+   * 施法响应·敌方属性削减（psychicaffliction「消除所有敌人 1 点魔力值」/ succumb「敌人
    * 失去 4 点随机技能值」）。reduce 语义（持有者不进账）：stat 'random' 每次触发经注入的
    * rng 在四项属性中掷一条（无 rng 按随机技能值口径落 magic）；scope 'allEnemies' 逐个
    * 削减、零随机消耗。触发点与 castStatus 同点（applyCastRandomStatusTriggers）。
@@ -1145,7 +1158,7 @@ export interface QueuedSummon {
 export interface Team {
   player: PlayerSide;
   characters: Character[];
-  /** FIFO summon bench. Entries promote to the bottom when an active character is defeated. */
+  /** @deprecated 旧战斗快照兼容字段；当前召唤满四人时直接失效，不再写入或补位。 */
   summonQueue?: QueuedSummon[];
   /**
    * 风暴全局掉落修正（Storm / Mana Storm）。不是 Character：不占编队位、无血量、

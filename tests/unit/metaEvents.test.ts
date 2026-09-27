@@ -81,6 +81,24 @@ describe('常驻活动与主题（data/events）', () => {
 });
 
 describe('活动实例与出敌（systems/events）', () => {
+  it('高阶残血首领的强化攻击遵守战斗请求上限', () => {
+    const save = saveWithTeam();
+    const week = ensureEventWeek(save, WEEK, 'raidBoss');
+    week.eventData.bossTier = 200;
+    const plan = planEventEncounter(save, WEEK, 777, 'raidBoss');
+    week.eventData.bossHp = 1;
+    const outcome = buildBattleRequest(save, plan);
+    expect(outcome.ok).toBe(true);
+    if (!outcome.ok) throw new Error(outcome.message);
+    const bossIndex = plan.enemies.findIndex(e => e.tier === 'boss');
+    expect(bossIndex).toBeGreaterThanOrEqual(0);
+    const boss = outcome.request.enemyTeam[bossIndex]!;
+    boss.stats.attack = 999;
+    applyEventBattleModifiers(save, outcome);
+    expect(boss.stats.attack).toBe(999);
+    expect(boss.initialHp).toBe(1);
+  });
+
   it('ensureEventWeek：建档 + 周切重置（幂等）', () => {
     const s = saveWithTeam();
     const w1 = ensureEventWeek(s, WEEK, TYPE);
@@ -107,7 +125,7 @@ describe('活动实例与出敌（systems/events）', () => {
       expect(other.claimed).toEqual([]);
       expect(other.tokens).toBe(0);
       expect(other.bought).toEqual({});
-      expect(other.eventData).toEqual({});
+      expect(other.eventData).toEqual({ revision: 2, ...(id === 'worldEvent' ? { worldWins: 0 } : id === 'classTrials' ? { trialWins: 0 } : {}) });
     }
     expect(eventPageState(s, WEEK, 'raidBoss').metric.value).toBe(0);
     expect(eventShopOf(s, WEEK, 'raidBoss').week.tokens).toBe(0);
@@ -167,24 +185,21 @@ describe('活动实例与出敌（systems/events）', () => {
     }
     ensureEventWeek(s, WEEK, TYPE).eventData[EVENT_STATE_KEYS.invLine] = 3;
     const line3 = planEventEncounter(s, WEEK, 999, TYPE);
-    expect(line3.enemies[0]!.level).toBe(line1.enemies[0]!.level + 6);
+    expect(line3.enemies[0]!.level).toBe(line1.enemies[0]!.level + 10);
   });
 
-  it('eventPointsOf：按稀有度与等级计分并封顶 120', () => {
+  it('eventPointsOf：基础固定100，强攻120，降低随机敌人带来的收益波动', () => {
     const s = saveWithTeam();
     const plan = planEventEncounter(s, WEEK, 42, TYPE);
-    const manual = plan.enemies.reduce((sum, e) => {
-      const troop = getTroopById(e.troopId)!;
-      return sum + (troop.rarityIdx + 1) * 10 + e.level;
-    }, 0);
-    expect(eventPointsOf(plan)).toBe(Math.min(manual, 120));
+    expect(eventPointsOf(plan)).toBe(100);
+    expect(eventPointsOf(planEventEncounter(s, WEEK, 42, TYPE, 'charge'))).toBe(120);
   });
 
   it('eventMilestonesReached：只返回未领且达标者（按总分）', () => {
     const gains = eventMilestonesReached(TYPE, 650, [0, 1]);
-    expect(gains.map((g) => g.index)).toEqual([2]);
+    expect(gains.map((g) => g.index)).toEqual([2, 3]);
     expect(gains[0]!.milestone.points).toBe(EVENT_MILESTONES[TYPE][2]!.points);
-    expect(eventMilestonesReached('worldEvent', 95, []).map((g) => g.index)).toEqual([0, 1, 2]);
+    expect(eventMilestonesReached('worldEvent', 95, []).map((g) => g.index)).toEqual([0, 1, 2, 3, 4, 5]);
     expect(eventMilestonesReached(TYPE, 95, []).map((g) => g.index)).toEqual([]);
   });
 });
@@ -203,9 +218,11 @@ describe('六活动页面', () => {
       expect(page).toContain('id="evFight"');
       expect(page).not.toContain('ev-preview');
       expect(page).not.toContain('CLOSED');
-      if (id !== TYPE) expect(page).not.toContain('class="ev-mile done"');
+      expect(page).toContain(`href="#events/${id}/rewards"`);
+      const rewards = screen.html(ctx, `${id}/rewards`);
+      if (id !== TYPE) expect(rewards).not.toContain('class="ev-mile done"');
+      else expect(rewards).toContain('class="ev-mile done"');
     }
-    expect(screen.html(ctx, TYPE)).toContain('class="ev-mile done"');
   });
 });
 
@@ -254,10 +271,13 @@ describe('活动结算（applySettlement 事件分支）', () => {
 });
 
 describe('活动商店与代币（2026-09-19 追补）', () => {
-  it('货架数据合法：id 全局唯一、cost>0、限量≥1、奖励非空；每类 ≥4 件', () => {
+  it('货架数据合法：id 全局唯一、cost>0、限量≥1、奖励非空；每类 8 件限量商品与独立余印补给', () => {
     const seen = new Set<string>();
     for (const [typeId, goods] of Object.entries(EVENT_SHOP)) {
-      expect(goods.length, typeId).toBeGreaterThanOrEqual(4);
+      expect(goods.filter(g => g.stock !== null), typeId).toHaveLength(8);
+      expect(goods.filter(g => g.stock === null), typeId).toHaveLength(1);
+      expect(goods.reduce((sum,g)=>sum+g.cost*(g.stock??0),0),typeId).toBeGreaterThan(360);
+      expect(goods.every(g => !g.gems),typeId).toBe(true);
       for (const g of goods) {
         expect(seen.has(g.id), g.id).toBe(false);
         seen.add(g.id);
@@ -266,8 +286,42 @@ describe('活动商店与代币（2026-09-19 追补）', () => {
         const hasReward =
           (g.gold ?? 0) + (g.souls ?? 0) + (g.gems ?? 0) + (g.goldKeys ?? 0) + (g.glory ?? 0) > 0 ||
           Object.keys(g.mats?.ingots ?? {}).length + Object.keys(g.mats?.traitstones ?? {}).length > 0 ||
-          (g.mats?.forgeScrolls ?? 0) > 0;
+          (g.mats?.forgeScrolls ?? 0) > 0 || !!g.troopRole || (g.classXp ?? 0) > 0;
         expect(hasReward, g.id).toBe(true);
+      }
+    }
+  });
+
+  it('扩充货架：限量补给实际入账、预算不变、售罄与下周补货同步', () => {
+    for (const { id: type } of EVENT_TYPES) {
+      for (const goods of EVENT_SHOP[type].filter(g => g.stock !== null && !g.troopRole && !g.classXp)) {
+        const save = saveWithTeam();
+        const before = structuredClone(save);
+        const week = ensureEventWeek(save, WEEK, type);
+        week.tokens = 360;
+        week.tokensEarned = 360;
+        const count = goods.stock!;
+        for (let i = 0; i < count; i++) {
+          expect(buyEventGoods(save, goods.id, WEEK, type), goods.id).toMatchObject({ok:true,stockLeft:count-i-1});
+        }
+        expect(week.tokens).toBe(360-goods.cost*count);
+        expect(week.tokensEarned).toBe(360);
+        for (const key of ['gold','souls','goldKeys','glory','gems'] as const) {
+          expect(save.currencies[key]-before.currencies[key], goods.id+':'+key).toBe((goods[key]??0)*count);
+        }
+        for (const group of ['ingots','traitstones'] as const) {
+          for (const [key,amount] of Object.entries(goods.mats?.[group]??{})) {
+            const afterMap = save.materials[group] as Record<string,number>;
+            const beforeMap = before.materials[group] as Record<string,number>;
+            expect((afterMap[key]??0)-(beforeMap[key]??0),goods.id+':'+key).toBe(amount!*count);
+          }
+        }
+        expect(save.materials.forgeScrolls-before.materials.forgeScrolls).toBe((goods.mats?.forgeScrolls??0)*count);
+        expect(buyEventGoods(save,goods.id,WEEK,type)).toMatchObject({ok:false,code:'SOLD_OUT'});
+        const next = eventShopOf(save,WEEK+WEEK_MS,type);
+        expect(next.rows.find(row=>row.goods.id===goods.id)?.stockLeft).toBe(count);
+        expect(next.week.tokens).toBe(0);
+        expect(next.week.bought).toEqual({});
       }
     }
   });
@@ -297,6 +351,52 @@ describe('活动商店与代币（2026-09-19 追补）', () => {
       expect(r.ok).toBe(true);
     }
     expect(buyEventGoods(s, limited.id, WEEK, TYPE)).toMatchObject({ ok: false, code: 'SOLD_OUT' });
+  });
+
+  it('招牌兵种按周确定，保留对应玩法和主题', () => {
+    for (const weekStart of [WEEK, WEEK + WEEK_MS, WEEK + WEEK_MS * 8]) {
+      for (const typeId of ['invasion', 'raidBoss', 'factionAssault', 'worldEvent'] as const) {
+        const shop = eventShopOf(saveWithTeam(), weekStart, typeId);
+        const featured = shop.rows.find((row) => row.goods.troopRole)!.goods;
+        const troop = getTroopById(featured.troopId!)!;
+        expect(troop, `${typeId}:${weekStart}`).toBeTruthy();
+        expect(eventShopOf(saveWithTeam(), weekStart, typeId).rows.find((row) => row.goods.id === featured.id)?.goods.troopId).toBe(troop.id);
+        if (featured.troopRole === 'siegebreaker' || featured.troopRole === 'godslayer') {
+          expect(troop.traits.some((trait) => trait?.code === featured.troopRole)).toBe(true);
+        } else if (featured.troopRole === 'faction') {
+          expect(troop.kingdom).toBe(shop.theme.kingdom);
+        } else {
+          expect(troop.troopTypes).toContain(shop.theme.bonusRace);
+        }
+      }
+    }
+  });
+
+  it('购买活动兵种从该活动印记扣账，限购后正确入册', () => {
+    const save = saveWithTeam();
+    const row = eventShopOf(save, WEEK, TYPE).rows.find((entry) => entry.goods.troopRole)!;
+    const troopId = row.goods.troopId!;
+    const owned = save.collection[String(troopId)]?.copies ?? -1;
+    ensureEventWeek(save, WEEK, TYPE).tokens = row.goods.cost;
+    expect(buyEventGoods(save, row.goods.id, WEEK, TYPE)).toMatchObject({ ok: true, tokensLeft: 0, stockLeft: 0 });
+    expect(save.collection[String(troopId)]?.copies).toBe(owned + 1);
+    expect(buyEventGoods(save, row.goods.id, WEEK, TYPE)).toMatchObject({ ok: false, code: 'SOLD_OUT' });
+    expect(ensureEventWeek(save, WEEK, 'raidBoss').tokens).toBe(0);
+  });
+
+  it('职业经验商品须装备已解锁职业，失败不扣印记', () => {
+    const save = saveWithTeam();
+    const week = ensureEventWeek(save, WEEK, 'classTrials');
+    const goods = EVENT_SHOP.classTrials.find((entry) => entry.classXp)!;
+    week.tokens = goods.cost;
+    expect(buyEventGoods(save, goods.id, WEEK, 'classTrials')).toMatchObject({ ok: false, code: 'PREREQ_LOCKED' });
+    expect(week.tokens).toBe(goods.cost);
+    save.hero.classId = 'nightweaver';
+    save.hero.classLevels.nightweaver = 1;
+    expect(buyEventGoods(save, goods.id, WEEK, 'classTrials')).toMatchObject({ ok: false, code: 'PREREQ_LOCKED' });
+    save.hero.unlockedClasses.push('nightweaver');
+    expect(buyEventGoods(save, goods.id, WEEK, 'classTrials')).toMatchObject({ ok: true, tokensLeft: 0 });
+    expect(save.hero.classXp.nightweaver).toBeGreaterThan(0);
   });
 
   it('六活动代币不通兑、限量不串号，跨店商品 id 无法购买', () => {
@@ -359,6 +459,7 @@ describe('六种玩法机制（玩法差异化批）', () => {
       return { externalId: `e${i}-${e.troopId}`, side: 'enemy' as const, hp, maxHp, armor: 0, defeated: hp <= 0, statuses: [] };
     });
     return {
+      battleId: `meta-${plan.seed}`,
       winner: victory ? 'player' : 'enemy',
       turns: 8,
       combatants: [...player, ...enemies],
@@ -376,8 +477,9 @@ describe('六种玩法机制（玩法差异化批）', () => {
     world.eventData[EVENT_STATE_KEYS.supplies] = 14;
     const plan = planEventEncounter(s, WEEK, 902, 'worldEvent');
     const result = applySettlement(s, fakeResult(s, plan, true), { plan, enemyByExternalId: new Map(), todayStart: 0 });
-    expect(result.lines.filter((line) => line.key === 'event-milestone')).toHaveLength(1);
-    expect(world.claimed).toEqual([0]);
+    expect(result.lines.filter((line) => line.key === 'event-milestone' && line.label.startsWith('里程碑'))).toHaveLength(2);
+    expect(result.lines.filter((line) => line.key === 'event-milestone').reduce((sum, line) => sum + (line.deltas.gems ?? 0), 0)).toBe(300);
+    expect(world.claimed).toEqual([0, 1]);
     expect(world.tokensEarned).toBe(world.tokens);
     expect(world.eventData[EVENT_STATE_KEYS.supplies]).toBeGreaterThanOrEqual(16);
     expect(inv).toMatchObject({ points: 95, claimed: [], tokens: 0 });
@@ -393,7 +495,7 @@ describe('六种玩法机制（玩法差异化批）', () => {
     const week = ensureEventWeek(s, WEEK, 'invasion');
     expect(week.eventData[EVENT_STATE_KEYS.invRepelled]).toBe(limit + 1);
     expect(week.playRewards).toBe(limit);
-    expect(s.currencies.glory).toBe(limit * 40);
+    expect(s.currencies.glory).toBe(limit * 40 + EVENT_MILESTONES.invasion.reduce((sum, m) => sum + (m.glory ?? 0), 0));
     expect(week.wins).toBe(3 * (limit + 1));
     expect(week.points).toBeGreaterThan(0);
     expect(week.tokens).toBeGreaterThan(0);
@@ -458,15 +560,16 @@ describe('六种玩法机制（玩法差异化批）', () => {
     expect(ensureEventWeek(s, week, 'towerOfDoom').eventData[EVENT_STATE_KEYS.floor]).toBe(1);
     eventBattleProgress(s, plan1, fakeResult(s, plan1, true, { playerHps: [150, 0, 200] }), true);
     expect(ensureEventWeek(s, week, 'towerOfDoom').eventData[EVENT_STATE_KEYS.floor]).toBe(2);
-    expect(ensureEventWeek(s, week, 'towerOfDoom').runTeam!.filter((m) => !m.defeated)).toHaveLength(2);
+    expect(ensureEventWeek(s, week, 'towerOfDoom').runTeam!.filter((m) => !m.defeated)).toHaveLength(3);
     expect(ensureEventWeek(s, week, 'towerOfDoom').runTeam![0]!.maxHp).toBe(200);
     const plan2 = planEventEncounter(s, week, 802, 'towerOfDoom');
     const outcome = buildBattleRequest(s, plan2) as unknown as BridgeOutcome;
     expect(outcome.ok).toBe(true);
     applyEventBattleModifiers(s, outcome);
-    expect(outcome.request.playerTeam).toHaveLength(2);
+    expect(outcome.request.playerTeam).toHaveLength(3);
     const hero = outcome.request.playerTeam.find((snap) => snap.externalId === 'p0-6000');
-    expect(hero?.stats.hp).toBeLessThanOrEqual(150);
+    expect(hero?.stats.hp).toBe(200);
+    expect(hero?.initialHp).toBe(150);
     eventBattleProgress(s, plan2, fakeResult(s, plan2, false), false);
     const weekState = ensureEventWeek(s, week, 'towerOfDoom');
     expect(weekState.eventData[EVENT_STATE_KEYS.runActive]).toBe(0);
@@ -497,7 +600,9 @@ describe('六种玩法机制（玩法差异化批）', () => {
     const weekState = ensureEventWeek(s, week, 'classTrials');
     const plan = planEventEncounter(s, week, 951, 'classTrials');
     const base = eventPointsOf(plan);
+    let trialSeed = 1000;
     const settleWin = (): void => {
+      const plan = planEventEncounter(s, week, trialSeed++, 'classTrials');
       applySettlement(s, fakeResult(s, plan, true), { plan, enemyByExternalId: new Map(), todayStart: 0 });
     };
     settleWin();

@@ -1,0 +1,1634 @@
+{
+  "schemaVersion": 1,
+  "scope": "stored-gow-snapshot",
+  "reviews": [
+    {
+      "key": "troop:6160",
+      "scope": "stored-gow-snapshot",
+      "sourceDigest": "be594079939469cfc7a63bf5aac588ee14cc2189b53993127a5e83cdf33300da",
+      "reviewer": "sa-L1",
+      "reviewedAt": "2026-09-27",
+      "decision": "draft",
+      "ledgerFingerprintAtReview": "6e4fd65d5476c4a9b2d6adc8056a61e9a8beea98f4f8b2b2dccd845bd8f8e6b0",
+      "_reference": {
+        "spellId": 7280,
+        "english": "Devour an Enemy. Create 8 Yellow and 8 Brown Gems. One cast only.",
+        "nativeTarget": "Enemy",
+        "randomize": null,
+        "steps": [
+          {
+            "Target": "FromTarget",
+            "Color1": "Yellow",
+            "Amount": 100,
+            "Type": "Consume"
+          },
+          {
+            "Color1": "Yellow",
+            "Amount": 8,
+            "Type": "CreateGems"
+          },
+          {
+            "Color1": "Brown",
+            "Amount": 8,
+            "Type": "CreateGems"
+          },
+          {
+            "Target": "Self",
+            "Type": "DisableMySpell"
+          }
+        ],
+        "prototype": {
+          "segments": [
+            {
+              "kind": "devour",
+              "target": "enemyChosen",
+              "chance": 1
+            },
+            {
+              "kind": "gem",
+              "params": {
+                "op": "create",
+                "gem": {
+                  "kind": "color",
+                  "color": "Yellow"
+                },
+                "count": {
+                  "base": 8,
+                  "mult": 0
+                }
+              }
+            },
+            {
+              "kind": "gem",
+              "params": {
+                "op": "create",
+                "gem": {
+                  "kind": "color",
+                  "color": "Brown"
+                },
+                "count": {
+                  "base": 8,
+                  "mult": 0
+                }
+              }
+            }
+          ],
+          "oncePerBattle": true
+        }
+      },
+      "sourceEvidence": [
+        {
+          "id": "en",
+          "role": "english-snapshot",
+          "path": "data/raw/troops.gow.en.json",
+          "note": "TODO: entity id / SpellId / English clause / cost / colours checked"
+        },
+        {
+          "id": "native",
+          "role": "native-snapshot",
+          "path": "data/raw/spells.gow.en.json",
+          "note": "TODO: SpellId-indexed Cost/Target/every non-None SpellSteps field checked"
+        },
+        {
+          "id": "rule",
+          "role": "official-shared-rule",
+          "path": "artifacts/gow-skill-audit/gold-primary-sources/official-status-effects.html",
+          "note": "TODO: replace with the official rule file actually relevant to this skill, and say what it supports"
+        }
+      ],
+      "dimensions": {
+        "identity-cost-colors": {
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        },
+        "target-count-range": {
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        },
+        "base-formula-rounding": {
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        },
+        "boost-source-ratio-cap": {
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        },
+        "conditions-probabilities-branches": {
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        },
+        "status-duration-immunity": {
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        },
+        "gems-types-selection-resolution": {
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        },
+        "summon-transform-pools": {
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        },
+        "order-death-retargeting": {
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        },
+        "mana-economy-extra-turn": {
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        },
+        "display-description": {
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        },
+        "battle-pipeline": {
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": [],
+          "realBattleEntry": true
+        }
+      },
+      "clauseReviews": [
+        {
+          "id": "c1",
+          "text": "Devour an Enemy.",
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        },
+        {
+          "id": "c2",
+          "text": "Create 8 Yellow and 8 Brown Gems.",
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        },
+        {
+          "id": "c3",
+          "text": "One cast only.",
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        }
+      ],
+      "nativeStepReviews": [
+        {
+          "id": "0",
+          "type": "Consume",
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        },
+        {
+          "id": "1",
+          "type": "CreateGems",
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        },
+        {
+          "id": "2",
+          "type": "CreateGems",
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        },
+        {
+          "id": "3",
+          "type": "DisableMySpell",
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        }
+      ],
+      "branchReviews": [
+        {
+          "id": "main",
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        }
+      ]
+    },
+    {
+      "key": "troop:6118",
+      "scope": "stored-gow-snapshot",
+      "sourceDigest": "1f3c1c2750912e37468bb6e3d9ff7bcdf522a7220b7dcfcc2c95dc620429ee13",
+      "reviewer": "sa-L1",
+      "reviewedAt": "2026-09-27",
+      "decision": "accept",
+      "ledgerFingerprintAtReview": "6e4fd65d5476c4a9b2d6adc8056a61e9a8beea98f4f8b2b2dccd845bd8f8e6b0",
+      "_reference": {
+        "spellId": 7210,
+        "english": "Deal [Magic + 6] damage to an Enemy, with a 40% chance to devour them.",
+        "nativeTarget": "Enemy",
+        "randomize": null,
+        "steps": [
+          {
+            "Target": "FromTarget",
+            "Amount": 1,
+            "PercentageChance": 40,
+            "Type": "Consume"
+          },
+          {
+            "SpellPowerMultiplier": 1,
+            "Target": "FromTarget",
+            "Amount": 6,
+            "Primarypower": true,
+            "Type": "Damage"
+          }
+        ],
+        "prototype": {
+          "segments": [
+            {
+              "kind": "devour",
+              "target": "enemyChosen",
+              "chance": 0.4
+            },
+            {
+              "kind": "damage",
+              "target": "lastTarget",
+              "scaling": {
+                "base": 6,
+                "mult": 1
+              }
+            }
+          ]
+        }
+      },
+      "sourceEvidence": [
+        {
+          "id": "en",
+          "role": "english-snapshot",
+          "path": "data/raw/troops.gow.en.json",
+          "note": "troop 6118 SpellId 7210 cost 16 Purple/Brown; English 1 clause"
+        },
+        {
+          "id": "native",
+          "role": "native-snapshot",
+          "path": "data/raw/spells.gow.en.json",
+          "note": "7210 Target Enemy: Consume 40% FromTarget, Damage FromTarget M+6"
+        },
+        {
+          "id": "rule",
+          "role": "official-shared-rule",
+          "path": "artifacts/gow-skill-audit/gold-primary-sources/official-status-effects.html",
+          "note": "Official status guide: Curse/Death Mark/Hunter's Mark/Web/Disease/Frozen/Poison semantics; Blessed immune to status effects, Devour and Mana Burn. Durations per rulings/R004 (convention:R006-C2 for Cause* Amount)."
+        },
+        {
+          "id": "laneTest",
+          "role": "lane-battle-test",
+          "path": "tests/unit/gowLaneL1B05.test.ts",
+          "note": "troop:6118: real TurnEngine.castSkill both sides, fixed RNG, boundaries"
+        },
+        {
+          "id": "r001",
+          "role": "user-ruling",
+          "path": "tasks/active/gow-skill-shards/rulings/R001-native-step-order.md",
+          "note": "Native SpellSteps order is authoritative."
+        }
+      ],
+      "dimensions": {
+        "identity-cost-colors": {
+          "status": "verified",
+          "note": "entity id, SpellId, cost and colours match raw EN + native + src/data (binding test)",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r001"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL1B05.test.ts"
+          ]
+        },
+        "target-count-range": {
+          "status": "verified",
+          "note": "chosen enemy only",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r001"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL1B05.test.ts"
+          ]
+        },
+        "base-formula-rounding": {
+          "status": "verified",
+          "note": "Magic + 6",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r001"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL1B05.test.ts"
+          ]
+        },
+        "boost-source-ratio-cap": {
+          "status": "not-applicable",
+          "note": "no boost source",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r001"
+          ],
+          "tests": []
+        },
+        "conditions-probabilities-branches": {
+          "status": "verified",
+          "note": "40%: 80 seeds give 20..46 devours",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r001"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL1B05.test.ts"
+          ]
+        },
+        "status-duration-immunity": {
+          "status": "verified",
+          "note": "Blessed chosen enemy never devoured, still hit",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r001"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL1B05.test.ts"
+          ]
+        },
+        "gems-types-selection-resolution": {
+          "status": "not-applicable",
+          "note": "no gem effect",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r001"
+          ],
+          "tests": []
+        },
+        "summon-transform-pools": {
+          "status": "verified",
+          "note": "devour kills the target and the caster gains its Attack/Armor/Life; Blessed immune (official); one roll per target (fixed L1-devour-double-roll)",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r001"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL1B05.test.ts"
+          ]
+        },
+        "order-death-retargeting": {
+          "status": "verified",
+          "note": "fixed L1-consume-first: devour roll before the hit; devoured enemy is not hit again",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r001"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL1B05.test.ts"
+          ]
+        },
+        "mana-economy-extra-turn": {
+          "status": "verified",
+          "note": "cast spends mana, one action logged, turn passes (no extra turn); low-mana / Silence refused",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r001"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL1B05.test.ts"
+          ]
+        },
+        "display-description": {
+          "status": "verified",
+          "note": "zh description matches English meaning (binding test)",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r001"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL1B05.test.ts"
+          ]
+        },
+        "battle-pipeline": {
+          "status": "verified",
+          "note": "real TurnEngine.castSkill, both sides",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r001"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL1B05.test.ts"
+          ],
+          "realBattleEntry": true
+        }
+      },
+      "clauseReviews": [
+        {
+          "id": "c1",
+          "text": "Deal [Magic + 6] damage to an Enemy, with a 40% chance to devour them.",
+          "status": "verified",
+          "note": "hit M+6 or devour 40%",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r001"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL1B05.test.ts"
+          ]
+        }
+      ],
+      "nativeStepReviews": [
+        {
+          "id": "0",
+          "type": "Consume",
+          "status": "verified",
+          "note": "Consume 40%",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r001"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL1B05.test.ts"
+          ]
+        },
+        {
+          "id": "1",
+          "type": "Damage",
+          "status": "verified",
+          "note": "Damage M+6",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r001"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL1B05.test.ts"
+          ]
+        }
+      ],
+      "branchReviews": [
+        {
+          "id": "main",
+          "status": "verified",
+          "note": "devour / no devour both covered",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r001"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL1B05.test.ts"
+          ]
+        }
+      ]
+    },
+    {
+      "key": "weapon:1129",
+      "scope": "stored-gow-snapshot",
+      "sourceDigest": "ac2068f6fbae8f0c06045f29bccaae370b7941139616b486e863afe4f0352b76",
+      "reviewer": "sa-L1",
+      "reviewedAt": "2026-09-27",
+      "decision": "accept",
+      "ledgerFingerprintAtReview": "6e4fd65d5476c4a9b2d6adc8056a61e9a8beea98f4f8b2b2dccd845bd8f8e6b0",
+      "_reference": {
+        "spellId": 7293,
+        "english": "Deal [Magic] damage to all Enemies. There's a 20% chance to devour a random Enemy.",
+        "nativeTarget": "None",
+        "randomize": null,
+        "steps": [
+          {
+            "Target": "RandomEnemy",
+            "Amount": 1,
+            "PercentageChance": 20,
+            "Type": "Consume"
+          },
+          {
+            "SpellPowerMultiplier": 1,
+            "Target": "AllEnemies",
+            "Primarypower": true,
+            "Type": "Damage"
+          }
+        ],
+        "prototype": {
+          "segments": [
+            {
+              "kind": "devour",
+              "target": "enemyRandom",
+              "chance": 0.2
+            },
+            {
+              "kind": "damage",
+              "target": "enemyAll",
+              "scaling": {
+                "base": 0,
+                "mult": 1
+              },
+              "range": "all"
+            }
+          ]
+        }
+      },
+      "sourceEvidence": [
+        {
+          "id": "en",
+          "role": "english-snapshot",
+          "path": "artifacts/gowhead-weapons/weapons.json",
+          "note": "weapon 1129 BlackManacles SpellId 7293 cost 15 Purple/Brown (artifacts/gowhead-weapons + src/data/weapons.json)"
+        },
+        {
+          "id": "native",
+          "role": "native-snapshot",
+          "path": "data/raw/spells.gow.en.json",
+          "note": "7293: Consume 20% RandomEnemy, Damage AllEnemies x1"
+        },
+        {
+          "id": "rule",
+          "role": "official-shared-rule",
+          "path": "artifacts/gow-skill-audit/gold-primary-sources/official-status-effects.html",
+          "note": "Official status guide: Curse/Death Mark/Hunter's Mark/Web/Disease/Frozen/Poison semantics; Blessed immune to status effects, Devour and Mana Burn. Durations per rulings/R004 (convention:R006-C2 for Cause* Amount)."
+        },
+        {
+          "id": "laneTest",
+          "role": "lane-battle-test",
+          "path": "tests/unit/gowLaneL1B05.test.ts",
+          "note": "weapon:1129: real TurnEngine.castSkill both sides, fixed RNG, boundaries"
+        },
+        {
+          "id": "r001",
+          "role": "user-ruling",
+          "path": "tasks/active/gow-skill-shards/rulings/R001-native-step-order.md",
+          "note": "Native SpellSteps order is authoritative."
+        }
+      ],
+      "dimensions": {
+        "identity-cost-colors": {
+          "status": "verified",
+          "note": "entity id, SpellId, cost and colours match raw EN + native + src/data (binding test)",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r001"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL1B05.test.ts"
+          ]
+        },
+        "target-count-range": {
+          "status": "verified",
+          "note": "devour: one random living enemy; damage: every living enemy",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r001"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL1B05.test.ts"
+          ]
+        },
+        "base-formula-rounding": {
+          "status": "verified",
+          "note": "Magic (10 and 3)",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r001"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL1B05.test.ts"
+          ]
+        },
+        "boost-source-ratio-cap": {
+          "status": "not-applicable",
+          "note": "no boost source",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r001"
+          ],
+          "tests": []
+        },
+        "conditions-probabilities-branches": {
+          "status": "verified",
+          "note": "20%: 80 seeds give 6..30 devours",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r001"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL1B05.test.ts"
+          ]
+        },
+        "status-duration-immunity": {
+          "status": "not-applicable",
+          "note": "no status",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r001"
+          ],
+          "tests": []
+        },
+        "gems-types-selection-resolution": {
+          "status": "not-applicable",
+          "note": "no gem effect",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r001"
+          ],
+          "tests": []
+        },
+        "summon-transform-pools": {
+          "status": "verified",
+          "note": "devour kills the target and the caster gains its Attack/Armor/Life; Blessed immune (official); one roll per target (fixed L1-devour-double-roll)",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r001"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL1B05.test.ts"
+          ]
+        },
+        "order-death-retargeting": {
+          "status": "verified",
+          "note": "fixed L1-consume-first: devour first, the devoured enemy is not damaged",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r001"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL1B05.test.ts"
+          ]
+        },
+        "mana-economy-extra-turn": {
+          "status": "verified",
+          "note": "cast spends mana, one action logged, turn passes (no extra turn); low-mana / Silence refused",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r001"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL1B05.test.ts"
+          ]
+        },
+        "display-description": {
+          "status": "verified",
+          "note": "zh weapon description matches",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r001"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL1B05.test.ts"
+          ]
+        },
+        "battle-pipeline": {
+          "status": "verified",
+          "note": "real TurnEngine.castSkill, both sides",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r001"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL1B05.test.ts"
+          ],
+          "realBattleEntry": true
+        }
+      },
+      "clauseReviews": [
+        {
+          "id": "c1",
+          "text": "Deal [Magic] damage to all Enemies.",
+          "status": "verified",
+          "note": "Magic to all enemies",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r001"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL1B05.test.ts"
+          ]
+        },
+        {
+          "id": "c2",
+          "text": "There's a 20% chance to devour a random Enemy.",
+          "status": "verified",
+          "note": "20% devour a random enemy",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r001"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL1B05.test.ts"
+          ]
+        }
+      ],
+      "nativeStepReviews": [
+        {
+          "id": "0",
+          "type": "Consume",
+          "status": "verified",
+          "note": "Consume 20% RandomEnemy",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r001"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL1B05.test.ts"
+          ]
+        },
+        {
+          "id": "1",
+          "type": "Damage",
+          "status": "verified",
+          "note": "Damage AllEnemies",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r001"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL1B05.test.ts"
+          ]
+        }
+      ],
+      "branchReviews": [
+        {
+          "id": "main",
+          "status": "verified",
+          "note": "devour / no devour both covered",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r001"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL1B05.test.ts"
+          ]
+        }
+      ]
+    },
+    {
+      "key": "troop:7272",
+      "scope": "stored-gow-snapshot",
+      "sourceDigest": "5083af1e68792bdf50f953941ee34a0425cdd897b3d30d6a3b2612d459ca140c",
+      "reviewer": "sa-L1",
+      "reviewedAt": "2026-09-27",
+      "decision": "accept",
+      "ledgerFingerprintAtReview": "6e4fd65d5476c4a9b2d6adc8056a61e9a8beea98f4f8b2b2dccd845bd8f8e6b0",
+      "_reference": {
+        "spellId": 8891,
+        "english": "Deal [Magic + 3] damage to the last Enemy, with a 20% chance to devour them. Then Submerge myself.",
+        "nativeTarget": "None",
+        "randomize": null,
+        "steps": [
+          {
+            "Target": "LastEnemy",
+            "Amount": 1,
+            "PercentageChance": 20,
+            "Type": "Consume"
+          },
+          {
+            "SpellPowerMultiplier": 1,
+            "Target": "LastEnemy",
+            "Amount": 3,
+            "Primarypower": true,
+            "Type": "Damage"
+          },
+          {
+            "Target": "Self",
+            "Amount": 1,
+            "Type": "CauseSubmerged"
+          }
+        ],
+        "prototype": {
+          "segments": [
+            {
+              "kind": "devour",
+              "target": "enemyLast",
+              "chance": 0.2
+            },
+            {
+              "kind": "damage",
+              "target": "lastTarget",
+              "scaling": {
+                "base": 3,
+                "mult": 1
+              }
+            },
+            {
+              "kind": "status",
+              "target": "allySelf",
+              "statusId": "submerged",
+              "turns": 3
+            }
+          ]
+        }
+      },
+      "sourceEvidence": [
+        {
+          "id": "en",
+          "role": "english-snapshot",
+          "path": "data/raw/troops.gow.en.json",
+          "note": "troop 7272 SpellId 8891 cost 12 Blue/Red; English 2 clauses"
+        },
+        {
+          "id": "native",
+          "role": "native-snapshot",
+          "path": "data/raw/spells.gow.en.json",
+          "note": "8891: Consume 20% LastEnemy, Damage LastEnemy M+3, CauseSubmerged Self"
+        },
+        {
+          "id": "rule",
+          "role": "official-shared-rule",
+          "path": "artifacts/gow-skill-audit/gold-primary-sources/official-status-effects.html",
+          "note": "Official status guide: Curse/Death Mark/Hunter's Mark/Web/Disease/Frozen/Poison semantics; Blessed immune to status effects, Devour and Mana Burn. Durations per rulings/R004 (convention:R006-C2 for Cause* Amount)."
+        },
+        {
+          "id": "laneTest",
+          "role": "lane-battle-test",
+          "path": "tests/unit/gowLaneL1B05.test.ts",
+          "note": "troop:7272: real TurnEngine.castSkill both sides, fixed RNG, boundaries"
+        },
+        {
+          "id": "r001",
+          "role": "user-ruling",
+          "path": "tasks/active/gow-skill-shards/rulings/R001-native-step-order.md",
+          "note": "Native SpellSteps order is authoritative."
+        }
+      ],
+      "dimensions": {
+        "identity-cost-colors": {
+          "status": "verified",
+          "note": "entity id, SpellId, cost and colours match raw EN + native + src/data (binding test)",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r001"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL1B05.test.ts"
+          ]
+        },
+        "target-count-range": {
+          "status": "verified",
+          "note": "last living enemy (dead last slot skipped); damage stays on the same (English \"them\"; slot kept during the spell as in gowManaBurnTowerAudit)",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r001"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL1B05.test.ts"
+          ]
+        },
+        "base-formula-rounding": {
+          "status": "verified",
+          "note": "Magic + 3",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r001"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL1B05.test.ts"
+          ]
+        },
+        "boost-source-ratio-cap": {
+          "status": "not-applicable",
+          "note": "no boost source",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r001"
+          ],
+          "tests": []
+        },
+        "conditions-probabilities-branches": {
+          "status": "verified",
+          "note": "20%: 80 seeds give 6..30 devours",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r001"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL1B05.test.ts"
+          ]
+        },
+        "status-duration-immunity": {
+          "status": "verified",
+          "note": "caster Submerged either way",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r001"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL1B05.test.ts"
+          ]
+        },
+        "gems-types-selection-resolution": {
+          "status": "not-applicable",
+          "note": "no gem effect",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r001"
+          ],
+          "tests": []
+        },
+        "summon-transform-pools": {
+          "status": "verified",
+          "note": "devour kills the target and the caster gains its Attack/Armor/Life; Blessed immune (official); one roll per target (fixed L1-devour-double-roll); was a plain execute before L1-consume-first",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r001"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL1B05.test.ts"
+          ]
+        },
+        "order-death-retargeting": {
+          "status": "verified",
+          "note": "devour -> hit -> Submerge (native)",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r001"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL1B05.test.ts"
+          ]
+        },
+        "mana-economy-extra-turn": {
+          "status": "verified",
+          "note": "cast spends mana, one action logged, turn passes (no extra turn); low-mana / Silence refused",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r001"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL1B05.test.ts"
+          ]
+        },
+        "display-description": {
+          "status": "verified",
+          "note": "zh description matches English meaning (binding test)",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r001"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL1B05.test.ts"
+          ]
+        },
+        "battle-pipeline": {
+          "status": "verified",
+          "note": "real TurnEngine.castSkill, both sides",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r001"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL1B05.test.ts"
+          ],
+          "realBattleEntry": true
+        }
+      },
+      "clauseReviews": [
+        {
+          "id": "c1",
+          "text": "Deal [Magic + 3] damage to the last Enemy, with a 20% chance to devour them.",
+          "status": "verified",
+          "note": "hit last enemy M+3, 20% devour",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r001"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL1B05.test.ts"
+          ]
+        },
+        {
+          "id": "c2",
+          "text": "Then Submerge myself.",
+          "status": "verified",
+          "note": "Submerge self",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r001"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL1B05.test.ts"
+          ]
+        }
+      ],
+      "nativeStepReviews": [
+        {
+          "id": "0",
+          "type": "Consume",
+          "status": "verified",
+          "note": "Consume 20% LastEnemy",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r001"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL1B05.test.ts"
+          ]
+        },
+        {
+          "id": "1",
+          "type": "Damage",
+          "status": "verified",
+          "note": "Damage LastEnemy",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r001"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL1B05.test.ts"
+          ]
+        },
+        {
+          "id": "2",
+          "type": "CauseSubmerged",
+          "status": "verified",
+          "note": "CauseSubmerged Self",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r001"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL1B05.test.ts"
+          ]
+        }
+      ],
+      "branchReviews": [
+        {
+          "id": "main",
+          "status": "verified",
+          "note": "devour / no devour both covered",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r001"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL1B05.test.ts"
+          ]
+        }
+      ]
+    },
+    {
+      "key": "troop:7271",
+      "scope": "stored-gow-snapshot",
+      "sourceDigest": "38721b864ef6b2301ce578eef3f550289337efa454c9083daa8a935b4504d394",
+      "reviewer": "sa-L1",
+      "reviewedAt": "2026-09-27",
+      "decision": "accept",
+      "ledgerFingerprintAtReview": "6e4fd65d5476c4a9b2d6adc8056a61e9a8beea98f4f8b2b2dccd845bd8f8e6b0",
+      "_reference": {
+        "spellId": 8890,
+        "english": "Deal [Magic + 3] damage to an Enemy. There is a 20% chance to devour them. If the Enemy dies, create 12 Red Dragon Gems.",
+        "nativeTarget": "Enemy",
+        "randomize": null,
+        "steps": [
+          {
+            "Target": "FromTarget",
+            "PercentageChance": 20,
+            "Type": "Consume"
+          },
+          {
+            "SpellPowerMultiplier": 1,
+            "Target": "FromTarget",
+            "Amount": 3,
+            "Primarypower": true,
+            "Type": "Damage",
+            "Delay": 0
+          },
+          {
+            "StatusAmount": 12,
+            "Color1": "DragonRed",
+            "StatusModifier": "AddForKill",
+            "Type": "CreateGems"
+          }
+        ],
+        "prototype": {
+          "segments": [
+            {
+              "kind": "devour",
+              "target": "enemyChosen",
+              "chance": 0.2
+            },
+            {
+              "kind": "damage",
+              "target": "lastTarget",
+              "scaling": {
+                "base": 3,
+                "mult": 1
+              }
+            },
+            {
+              "kind": "gem",
+              "params": {
+                "op": "create",
+                "gem": {
+                  "kind": "special",
+                  "spec": {
+                    "kind": "dragonGem",
+                    "color": "Red"
+                  }
+                },
+                "count": {
+                  "base": 12,
+                  "mult": 0
+                }
+              },
+              "ifTargetDied": true
+            }
+          ]
+        }
+      },
+      "sourceEvidence": [
+        {
+          "id": "en",
+          "role": "english-snapshot",
+          "path": "data/raw/troops.gow.en.json",
+          "note": "troop 7271 SpellId 8890 cost 12 Red/Yellow; English 3 clauses"
+        },
+        {
+          "id": "native",
+          "role": "native-snapshot",
+          "path": "data/raw/spells.gow.en.json",
+          "note": "8890 Target Enemy: Consume 20% FromTarget, Damage FromTarget M+3, CreateGems DragonRed 12 AddForKill"
+        },
+        {
+          "id": "rule",
+          "role": "official-shared-rule",
+          "path": "artifacts/gow-skill-audit/gold-primary-sources/official-status-effects.html",
+          "note": "Official status guide: Curse/Death Mark/Hunter's Mark/Web/Disease/Frozen/Poison semantics; Blessed immune to status effects, Devour and Mana Burn. Durations per rulings/R004 (convention:R006-C2 for Cause* Amount)."
+        },
+        {
+          "id": "laneTest",
+          "role": "lane-battle-test",
+          "path": "tests/unit/gowLaneL1B05.test.ts",
+          "note": "troop:7271: real TurnEngine.castSkill both sides, fixed RNG, boundaries"
+        },
+        {
+          "id": "r001",
+          "role": "user-ruling",
+          "path": "tasks/active/gow-skill-shards/rulings/R001-native-step-order.md",
+          "note": "Native SpellSteps order is authoritative."
+        }
+      ],
+      "dimensions": {
+        "identity-cost-colors": {
+          "status": "verified",
+          "note": "entity id, SpellId, cost and colours match raw EN + native + src/data (binding test)",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r001"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL1B05.test.ts"
+          ]
+        },
+        "target-count-range": {
+          "status": "verified",
+          "note": "chosen enemy",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r001"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL1B05.test.ts"
+          ]
+        },
+        "base-formula-rounding": {
+          "status": "verified",
+          "note": "Magic + 3",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r001"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL1B05.test.ts"
+          ]
+        },
+        "boost-source-ratio-cap": {
+          "status": "not-applicable",
+          "note": "no boost source",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r001"
+          ],
+          "tests": []
+        },
+        "conditions-probabilities-branches": {
+          "status": "verified",
+          "note": "20% devour; dragon gems only if the enemy died (devour or lethal hit), none when it survives",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r001"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL1B05.test.ts"
+          ]
+        },
+        "status-duration-immunity": {
+          "status": "not-applicable",
+          "note": "no status",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r001"
+          ],
+          "tests": []
+        },
+        "gems-types-selection-resolution": {
+          "status": "verified",
+          "note": "12 Red Dragon Gems on death",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r001"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL1B05.test.ts"
+          ]
+        },
+        "summon-transform-pools": {
+          "status": "verified",
+          "note": "devour kills the target and the caster gains its Attack/Armor/Life; Blessed immune (official); one roll per target (fixed L1-devour-double-roll); was a plain execute before L1-consume-first",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r001"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL1B05.test.ts"
+          ]
+        },
+        "order-death-retargeting": {
+          "status": "verified",
+          "note": "devour -> hit -> gems (native)",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r001"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL1B05.test.ts"
+          ]
+        },
+        "mana-economy-extra-turn": {
+          "status": "verified",
+          "note": "cast spends mana, one action logged, turn passes (no extra turn); low-mana / Silence refused",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r001"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL1B05.test.ts"
+          ]
+        },
+        "display-description": {
+          "status": "verified",
+          "note": "zh description matches English meaning (binding test)",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r001"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL1B05.test.ts"
+          ]
+        },
+        "battle-pipeline": {
+          "status": "verified",
+          "note": "real TurnEngine.castSkill, both sides",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r001"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL1B05.test.ts"
+          ],
+          "realBattleEntry": true
+        }
+      },
+      "clauseReviews": [
+        {
+          "id": "c1",
+          "text": "Deal [Magic + 3] damage to an Enemy.",
+          "status": "verified",
+          "note": "hit M+3",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r001"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL1B05.test.ts"
+          ]
+        },
+        {
+          "id": "c2",
+          "text": "There is a 20% chance to devour them.",
+          "status": "verified",
+          "note": "20% devour",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r001"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL1B05.test.ts"
+          ]
+        },
+        {
+          "id": "c3",
+          "text": "If the Enemy dies, create 12 Red Dragon Gems.",
+          "status": "verified",
+          "note": "12 Red Dragon Gems if the enemy dies",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r001"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL1B05.test.ts"
+          ]
+        }
+      ],
+      "nativeStepReviews": [
+        {
+          "id": "0",
+          "type": "Consume",
+          "status": "verified",
+          "note": "Consume 20%",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r001"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL1B05.test.ts"
+          ]
+        },
+        {
+          "id": "1",
+          "type": "Damage",
+          "status": "verified",
+          "note": "Damage M+3",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r001"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL1B05.test.ts"
+          ]
+        },
+        {
+          "id": "2",
+          "type": "CreateGems",
+          "status": "verified",
+          "note": "CreateGems DragonRed AddForKill",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r001"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL1B05.test.ts"
+          ]
+        }
+      ],
+      "branchReviews": [
+        {
+          "id": "main",
+          "status": "verified",
+          "note": "devoured / lethal / survived covered",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r001"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL1B05.test.ts"
+          ]
+        }
+      ]
+    }
+  ]
+}

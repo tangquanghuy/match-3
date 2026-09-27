@@ -12,13 +12,25 @@
  *
  * 纯逻辑：无 pixi/gsap/dom 依赖。
  */
-import { isSameMatchType, colorGem, skullGem, PlayerSide, ALL_BASE_COLORS } from '../../types';
+import { isSameMatchType, colorGem, skullGem, PlayerSide, opponentOf } from '../../types';
 import type { SpecialGemKind, SkullStormDropKind } from '../../types';
 import type { BaseColor, Character } from '../../types';
 import { BoardModel } from '../../BoardModel';
+import { goldForSide } from '../../battleGold';
 import type { SecondaryModifier } from '../scaling';
 import type { EffectContext } from './context';
-import { findCharacter, findSide } from './context';
+import { findCharacter, findSide, effectCasterSide } from './context';
+import { mostUsedManaColorForCast } from './manaColor';
+
+/** Status-id aliases that name one GoW status (L4b-7200-rage-alias): Enrage is applied as 'rage' by most
+ *  prototypes while counters/conditions often say 'enraged'. Same alias set as status.ts RAGE_STATUS_IDS
+ *  (not imported: status.ts imports this module). */
+const STATUS_ALIAS_GROUPS: readonly ReadonlySet<string>[] = [new Set(['rage', 'enraged'])];
+function sameStatus(actual: string, wanted: string | undefined): boolean {
+  if (wanted === undefined) return false;
+  if (actual === wanted) return true;
+  return STATUS_ALIAS_GROUPS.some((g) => g.has(actual) && g.has(wanted));
+}
 
 /**
  * 二次缩放来源。color 字段为 undefined 表示不筛颜色（任意色/全体）。
@@ -27,7 +39,11 @@ export type ModifierSource =
   /** 本技能前序段直接摧毁（destroy/explode）的宝石数，可筛颜色；
    *  R22 批：skulls=true 筛普通骷髅族（「因该行被摧毁的骷髅头数而增强」，7388/7977/8812/9492）、
    *  special 筛指定特殊宝石 kind（「因被摧毁的石像鬼宝石数而增强」，8927） */
+  | { kind: 'chosenColumnAtCastStart'; color?: BaseColor; skulls?: boolean }
   | { kind: 'destroyedGems'; color?: BaseColor; skulls?: boolean; special?: SpecialGemKind }
+  | { kind: 'countedAdjacentSpecial' }
+  /** Count color gems on both diagonals through the same center as area:x. */
+  | { kind: 'diagonalGems'; color: BaseColor }
   /** 本技能前序段直接转化（transform）的宝石数，可筛颜色（按转化后的颜色计） */
   | { kind: 'transformedGems'; color?: BaseColor }
   /** 当前棋盘上某色宝石数（在段执行时刻读取）。R22 批：color 亦可为 'CHOSEN'（运行时取
@@ -37,6 +53,8 @@ export type ModifierSource =
   | { kind: 'boardGems'; color?: BaseColor | 'CHOSEN' | 'ENEMY_MOST_USED'; except?: BaseColor }
   /** 当前棋盘上的骷髅头数（含末日族，经 isSameMatchType 同族判定） */
   | { kind: 'boardSkulls' }
+  /** Skull-family gems captured before the spell's first segment (native CountGems ordering). */
+  | { kind: 'castStartBoardSkulls' }
   /** 当前棋盘上指定种类的特殊宝石数（「因炸弹宝石数而增强」） */
   | { kind: 'boardSpecial'; gem: SpecialGemKind }
   /** 施法者自身属性（hp=当前生命；missingHp=已损失生命） */
@@ -66,7 +84,7 @@ export type ModifierSource =
    *  8367「因所有红色敌人的法力值而增强」） */
   | { kind: 'enemyStatSum'; stat: 'attack' | 'armor' | 'hp' | 'magic' | 'mana'; color?: BaseColor }
   /** 施法方全体的某属性总和（hp=当前生命；R22 批 stat 增 mana、excludeSelf=true 排除施法者
-   *  ——7506「因其他盟友的魔法值」/ 7651「因其他所有盟友的法力值」口径） */
+   *  ——7506「因其他盟友的魔力值」/ 7651「因其他所有盟友的法力值」口径） */
   | { kind: 'allyStatSum'; stat: 'attack' | 'armor' | 'hp' | 'magic' | 'mana'; excludeSelf?: boolean }
   /** 最近目标段的当前主目标属性（R22 批 stat 增 missingHp / manaCost：7464/7472 目标侧补齐，
    *  与 selfStat 侧对齐；batch-r28 增 mana——8037「伤害值因其（目标的）法力值而增强」，
@@ -93,12 +111,12 @@ export type ModifierSource =
   /** 本技能前序段耗掉的敌方法力总和 */
   | { kind: 'drainedMana' }
   /**
-   * 本技能效果段造成的敌方阵亡数（原语 Wave3 批，官方 CountEnemyDeaths——
+   * 全战斗敌方阵亡数（原语 Wave3 批，官方 CountEnemyDeaths——
    * Glutmaw 8086「Devour…boosted by Enemy deaths [x5]」步骤
    * {Target: AllEnemies, Amount: 500, Type: CountEnemyDeaths}）。跨段追踪计数。
    */
   | { kind: 'countEnemyDeaths' }
-  /** 本技能效果段造成的己方阵亡数（官方 CountAllyDeaths——Dullahan 8172 双来源，「boosted
+  /** 全战斗己方阵亡数（官方 CountAllyDeaths——Dullahan 8172 双来源，「boosted
    *  by Ally and Enemy deaths [x5]」；献祭盟友同计入此来源） */
   | { kind: 'countAllyDeaths' }
   /** 本场收集的藏宝图数（四项拍板①延伸，2026-09-17） */
@@ -113,8 +131,12 @@ export type ModifierSource =
    * 引用同额（「并转化为攻击力」= 攻击增益 = 实际削减额，非声明额）。
    */
   | { kind: 'lastReduce' }
-  /** 战场经济池当前金币总数（「伤害因我的金币而增强」「数量等于我的金币」） */
+  /** 施法者阵营当前金币总数（「伤害因我的金币而增强」「数量等于我的金币」） */
   | { kind: 'battleGold' }
+  /** Enemy-owned Gold. */
+  | { kind: 'enemyGold' }
+  /** Sum first, then apply the ratio once (do not round each side separately). */
+  | { kind: 'bothGold' }
   /** 战场经济池当前灵魂总数（「因本战斗收集的灵魂数而增强」） */
   | { kind: 'battleSouls' }
   /** 战场经济池当前宝石（钻石）总数 */
@@ -186,7 +208,7 @@ export const DEFAULT_RACE_DOUBLE = 2;
 
 /**
  * 条件倍率/条件触发的条件规格（窗口 B · 第二批词汇）。
- * 「如果敌人是恶魔/使用红色法力/已陷入沉默，则造成 N 倍伤害」「若自身生命值受损…」
+ * 「如果敌人是恶魔/使用红色法力值/已陷入沉默，则造成 N 倍伤害」「若自身生命值受损…」
  * 「如果板面上有 ≥N 颗X色宝石…」「如果敌方有X族军队…」。
  * target* 类条件按受击/受益目标逐个判定；其余为施法全局条件。
  */
@@ -232,7 +254,7 @@ export type Condition =
    * stat 可选 attack/armor/magic/hp；无追踪目标 → false。
    */
   | { kind: 'casterStatBeatsTarget'; stat: 'attack' | 'armor' | 'magic' | 'hp' }
-  /** 任一存活敌人带该法力色（「若其中一个使用蓝色法力」的聚合判定，全局条件） */
+  /** 任一存活敌人带该法力色（「若其中一个使用蓝色法力值」的聚合判定，全局条件） */
   | { kind: 'anyEnemyColor'; color: BaseColor }
   /** 否定（「板面上没有一颗紫色宝石」，2026-09-17 回收批）：子条件不成立即成立 */
   | { kind: 'not'; cond: Condition }
@@ -249,7 +271,7 @@ export type Condition =
   | { kind: 'regionPresent'; region: string }
   /**
    * 晋升度条件（R11 批 · 模式专属建模，官方 MultiplyForAscensionBoss「如果敌人是 Boss，
-   * 则根据我的升华值造成 3-5 倍伤害」）：min 为晋升数下限。与 targetRace:'Boss' 组合
+   * 则基于我已晋升的稀有度造成 3 到 5 倍伤害」）：min 为晋升数下限。与 targetRace:'Boss' 组合
    * （allOf）表达官方完整语义。标准战斗 state 无 ascension 字段（按 0 计）→ 恒 false。
    */
   | { kind: 'ascended'; min: number }
@@ -294,8 +316,10 @@ export type Condition =
   | { kind: 'lastTargetStatus'; statusId: string }
   /** 最近产目标段的主目标具有该种族（R22 批全局条件，8533「若敌人是元素」、8534「若敌人
    *  是建造」、8573 配合 devour 等）。无追踪目标 → false。 */
+  /** Race of the original selected enemy, unaffected by later random target steps. */
+  | { kind: 'chosenTargetRace'; race: string }
   | { kind: 'lastTargetRace'; race: string }
-  /** 最近产目标段的主目标带该法力色（R22 批全局条件，8467「若敌人使用蓝色法力」） */
+  /** 最近产目标段的主目标带该法力色（R22 批全局条件，8467「若敌人使用蓝色法力值」） */
   | { kind: 'lastTargetColor'; color: BaseColor }
   /** 最近产目标段的主目标仍存活（R22 批，「否则」反向分支：8550「否则就使他陷入死亡标记」
    *  8248「否则就召唤 2 名暗影姐妹」8694「否则则消除其所有技能值」——ifTargetDied 的取反
@@ -305,6 +329,8 @@ export type Condition =
    *  7747「若其中一名敌人身亡」——ifTargetDied 仅判主目标，多目标任意死亡判定读
    *  castTracking.lastTargets 各项 aliveBefore）。 */
   | { kind: 'anyTrackedDied' }
+  | { kind: 'castEnemyDied' }
+  | { kind: 'castSacrificed' }
   /** 最近目标段的主目标属性高于施法者（R22 批反向属性比较，7960「若其攻击力比较大」——
    *  §13.2 casterStatBeatsTarget 只支持施法者>目标正向，本条件为其对偶）。 */
   | { kind: 'targetStatBeatsCaster'; stat: 'attack' | 'armor' | 'magic' | 'hp' }
@@ -334,6 +360,10 @@ export function conditionMet(
   switch (cond.kind) {
     case 'targetRace':
       return !!target && hasTroopType(target, cond.race);
+    case 'chosenTargetRace': {
+      const selected = ctx.chosenTargetId === undefined ? undefined : findCharacter(ctx.state, ctx.chosenTargetId);
+      return !!selected && !selected.defeated && hasTroopType(selected, cond.race);
+    }
     case 'targetColor': {
       if (!target) return false;
       // 'CHOSEN'（R11 批）：运行时选色（「所有使用该颜色的敌人/盟友」）；未选色 → 不成立
@@ -344,7 +374,7 @@ export function conditionMet(
       return target.colors.includes(cond.color);
     }
     case 'targetStatus':
-      return !!target && target.statuses.some((s) => s.id === cond.statusId && s.turns > 0);
+      return !!target && target.statuses.some((s) => sameStatus(s.id, cond.statusId) && s.turns > 0);
     case 'targetHasAnyStatus':
       return !!target && target.statuses.some((s) => s.turns > 0);
     case 'targetHpDamaged':
@@ -382,14 +412,14 @@ export function conditionMet(
       if (side === null) return false;
       const enemySide = side === 'Left' ? 'Right' : 'Left';
       return ctx.state.teams[enemySide].characters.some(
-        (c) => !c.defeated && c.statuses.some((s) => s.id === cond.statusId && s.turns > 0),
+        (c) => !c.defeated && c.statuses.some((s) => sameStatus(s.id, cond.statusId) && s.turns > 0),
       );
     }
     case 'anyAllyStatus': {
       const side = findSide(ctx.state, ctx.casterId);
       if (side === null) return false;
       return ctx.state.teams[side].characters.some(
-        (c) => !c.defeated && c.statuses.some((s) => s.id === cond.statusId && s.turns > 0),
+        (c) => !c.defeated && c.statuses.some((s) => sameStatus(s.id, cond.statusId) && s.turns > 0),
       );
     }
     case 'stormPresent': {
@@ -424,7 +454,7 @@ export function conditionMet(
     }
     case 'selfStatus': {
       const caster = findCharacter(ctx.state, ctx.casterId);
-      return !!caster && caster.statuses.some((st) => st.id === cond.statusId && st.turns > 0);
+      return !!caster && caster.statuses.some((st) => sameStatus(st.id, cond.statusId) && st.turns > 0);
     }
     case 'troopPresent': {
       const mySide = findSide(ctx.state, ctx.casterId);
@@ -489,7 +519,7 @@ export function conditionMet(
       if (!ch) return false;
       switch (cond.kind) {
         case 'lastTargetStatus':
-          return ch.statuses.some((s) => s.id === cond.statusId && s.turns > 0);
+          return ch.statuses.some((s) => sameStatus(s.id, cond.statusId) && s.turns > 0);
         case 'lastTargetRace':
           return hasTroopType(ch, cond.race);
         case 'lastTargetColor':
@@ -506,6 +536,8 @@ export function conditionMet(
         }
       }
     }
+    case 'castSacrificed': return ctx.castTracking?.sacrificeSucceeded === true;
+    case 'castEnemyDied': return (ctx.castTracking?.enemyDeaths ?? 0) > 0;
     case 'anyTrackedDied': {
       // R22 批：本次施放任一产目标段的目标阵亡（跨段累积，ifTargetDied 的多目标/跨段形态）
       const list = ctx.castTracking?.allTargets;
@@ -518,7 +550,9 @@ export function conditionMet(
     }
     case 'economyAtLeast':
       // 战场经济阈值（batch-r28，7435「如果自身有 12 个或更多灵魂」）：共用池现值直读
-      return ctx.state.economy[cond.currency] >= cond.n;
+      return (cond.currency === 'gold'
+        ? goldForSide(ctx.state, effectCasterSide(ctx))
+        : ctx.state.economy[cond.currency]) >= cond.n;
     case 'lastTargetStatusAtCastStart': {
       // 施法前状态快照判定（batch-r28，7690「如果该敌人已被冻结」）：读 executePrototype
       // 进入段循环前采集的 statusesAtCastStart——首段施加的状态不影响本判定（时序解耦）
@@ -610,6 +644,17 @@ function isSkull(gemType: import('../../types').GemType): boolean {
 export function resolveModifierCount(source: ModifierSource, ctx: EffectContext): number {
   const tracking = ctx.castTracking;
   switch (source.kind) {
+    case 'chosenColumnAtCastStart':
+      return (tracking?.chosenColumnAtCastStart ?? []).filter(g => source.skulls ? isSkull(g) : matchGem(g, source.color)).length;
+    case 'countedAdjacentSpecial': return tracking?.countedAdjacentSpecial ?? 0;
+    case 'diagonalGems': {
+      const center = Math.floor((BoardModel.ROWS - 1) / 2);
+      let n = 0;
+      ctx.state.board.forEach((gem, pos) => {
+        if (gem && (pos.row - pos.col === 0 || pos.row + pos.col === 2 * center) && matchGem(gem.type, source.color)) n++;
+      });
+      return n;
+    }
     case 'destroyedGems': {
       // R22 批：skulls/special 细分筛（7388/7977/8812/9492 骷髅、8927 石像鬼宝石）
       return (tracking?.destroyed ?? []).filter((d) => {
@@ -631,7 +676,7 @@ export function resolveModifierCount(source: ModifierSource, ctx: EffectContext)
       if (source.color === 'CHOSEN') color = ctx.chosenColor ?? null;
       else if (source.color === 'ENEMY_MOST_USED') {
         const side = findSide(ctx.state, ctx.casterId);
-        color = side === null ? null : gemsMostUsed(ctx, side === PlayerSide.Left ? PlayerSide.Right : PlayerSide.Left);
+        color = side === null ? null : mostUsedManaColorForCast(ctx, side === PlayerSide.Left ? PlayerSide.Right : PlayerSide.Left);
       } else color = source.color ?? null;
       if (source.color !== undefined && color === null) return 0;
       let n = 0;
@@ -643,6 +688,7 @@ export function resolveModifierCount(source: ModifierSource, ctx: EffectContext)
       });
       return n;
     }
+    case 'castStartBoardSkulls': return ctx.castTracking?.skullsAtCastStart ?? 0;
     case 'boardSkulls': {
       let n = 0;
       ctx.state.board.forEach((gem) => {
@@ -699,7 +745,7 @@ export function resolveModifierCount(source: ModifierSource, ctx: EffectContext)
       return ctx.state.teams[enemySide].characters.filter(
         (c) => !c.defeated && (source.statusId === undefined
           ? c.statuses.some((s) => s.turns > 0)
-          : c.statuses.some((s) => s.id === source.statusId && s.turns > 0)),
+          : c.statuses.some((s) => sameStatus(s.id, source.statusId) && s.turns > 0)),
       ).length;
     }
     case 'alliesOfColor': {
@@ -723,7 +769,7 @@ export function resolveModifierCount(source: ModifierSource, ctx: EffectContext)
       const side = findSide(ctx.state, ctx.casterId);
       if (side === null) return 0;
       return ctx.state.teams[side].characters.filter(
-        (c) => !c.defeated && c.statuses.some((s) => s.id === source.statusId && s.turns > 0),
+        (c) => !c.defeated && c.statuses.some((s) => sameStatus(s.id, source.statusId) && s.turns > 0),
       ).length;
     }
     case 'enemyStatSum':
@@ -775,12 +821,16 @@ export function resolveModifierCount(source: ModifierSource, ctx: EffectContext)
     case 'drainedMana':
       return tracking?.drainedMana ?? 0;
     case 'countEnemyDeaths':
-      // 本技能造成的敌方阵亡数（Wave3 批）：跨段追踪在 runSegment 数 defeat 事件入账
-      return tracking?.enemyDeaths ?? 0;
+      // 之前各行动的阵亡计数加上本次施法前序段的阵亡数
+      return (ctx.state.battleDeaths?.[opponentOf(effectCasterSide(ctx))] ?? 0) + (tracking?.enemyDeaths ?? 0);
     case 'countAllyDeaths':
-      return tracking?.allyDeaths ?? 0;
+      return (ctx.state.battleDeaths?.[effectCasterSide(ctx)] ?? 0) + (tracking?.allyDeaths ?? 0);
     case 'battleGold':
-      return ctx.state.economy.gold;
+      return goldForSide(ctx.state, effectCasterSide(ctx));
+    case 'enemyGold':
+      return goldForSide(ctx.state, opponentOf(effectCasterSide(ctx)));
+    case 'bothGold':
+      return goldForSide(ctx.state, PlayerSide.Left) + goldForSide(ctx.state, PlayerSide.Right);
     case 'battleSouls':
       return ctx.state.economy.souls;
     case 'battleMaps':
@@ -875,31 +925,9 @@ function teamStatSum(
   return sum;
 }
 
-/** boardGems 'ENEMY_MOST_USED' 动态色解析：行动日志聚合，与 effects/gems.ts
- *  mostUsedManaColor 同款算法（就地内联，避免 effects 间相互引用） */
-function gemsMostUsed(ctx: EffectContext, side: PlayerSide): BaseColor | null {
-  const tally = new Map<BaseColor, number>();
-  for (const entry of ctx.state.actionLog) {
-    if (entry.side !== side) continue;
-    const action = entry.action;
-    if (action.type !== 'cast') continue;
-    const caster = ctx.state.teams[side].characters.find((c) => c.id === action.characterId);
-    if (!caster || caster.colors.length === 0) continue;
-    const share = caster.manaCost / caster.colors.length;
-    for (const color of caster.colors) tally.set(color, (tally.get(color) ?? 0) + share);
-  }
-  let best: BaseColor | null = null;
-  let bestN = 0;
-  for (const color of ALL_BASE_COLORS) {
-    const n = tally.get(color) ?? 0;
-    if (n > bestN) { bestN = n; best = color; }
-  }
-  return best;
-}
-
 /**
  * 计算二次缩放加成（叠加项）：
- *   multiplier：a × count；ratio：b × floor(count / a)。
+ *   multiplier：a × count；ratio：floor(count × 百分比 / 100)（R003，[3:1]=34%）。
  * count 为 0 或 spec 缺省 → 0（DoD 边界：无资源退化）。
  * 多来源（sources）计数相加后按同一公式折算。
  * max（batch-r28，官方 CountMax 封顶族）：给出时把加成项夹到 ≤max（封的是加成、
@@ -920,7 +948,15 @@ export function modifierBonus(spec: ModifierSpec | undefined, ctx: EffectContext
   } else {
     const per = Math.max(1, Math.floor(spec.mod.a));
     const m = Math.max(0, Math.floor(spec.mod.b ?? 0));
-    bonus = m * Math.floor(count / per);
+    // R003 (rulings/R003-count-threshold-labels.md): the native Count* Amount is a percentage and
+    // [N:M] is only its display label, so the counter is floor(count × Amount / 100). Exact labels
+    // ([1:1]=100, [2:1]=50, [4:1]=25, [20:3]=15, [1:2]=200) map to that percentage directly; the
+    // non-terminating [N:1] labels are stored natively as the rounded-up percentage
+    // ([3:1]=34, [6:1]=17, [8:1]=13), e.g. armor 50 at [3:1] -> 17, not floor(50 / 3) = 16.
+    const pct = (100 * m) / per;
+    if (Number.isInteger(pct)) bonus = Math.floor((count * pct) / 100);
+    else if (m === 1) bonus = Math.floor((count * Math.ceil(pct)) / 100);
+    else bonus = m * Math.floor(count / per);
   }
   return spec.max !== undefined ? Math.min(bonus, Math.max(0, spec.max)) : bonus;
 }

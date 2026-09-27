@@ -3,8 +3,8 @@
  *
  * 官方口径（考据见 design/EVENTS-INVASION-DESIGN.md §1.1）：
  *  - 钢锭按武器稀有度分档（淬炼专用，见 systems/forge.ts）；
- *  - 特质石 = Minor/Major/Runic × 六元素色 + Celestial（彩虹万能）；官方 Arcane
- *    双色档（21 种）不引入，高档消耗由 Celestial 承接（设计差异已记录）。
+ *  - 特质石 = Minor/Major/Runic × 六元素色 + Celestial（圣辉）；官方 Arcane
+ *    双色档（21 种）使用 arcane:color1:color2 库存键。
  * 元素色名对齐 GoW 词表：Blue=水 / Green=自然 / Red=火 / Yellow=风 / Purple=魔法 / Brown=土。
  */
 import { BaseColor } from '../../engine/types';
@@ -55,10 +55,10 @@ export function ingotKeyForRarity(rarity: string): IngotKey | null {
 // 特质石
 // ---------------------------------------------------------------------------
 
-/** 特质石档位（官方 Minor/Major/Runic 三档 + Celestial 万能） */
-export type TraitstoneTier = 'minor' | 'major' | 'runic' | 'celestial';
+/** 特质石档位（Minor/Major/Runic/Arcane/Celestial） */
+export type TraitstoneTier = 'minor' | 'major' | 'runic' | 'arcane' | 'celestial';
 
-export const TRAITSTONE_TIERS: readonly TraitstoneTier[] = ['minor', 'major', 'runic', 'celestial'] as const;
+export const TRAITSTONE_TIERS: readonly TraitstoneTier[] = ['minor', 'major', 'runic', 'arcane', 'celestial'] as const;
 
 /** 六元素色：键（存档/掉落词表）+ 显示名（GoW 元素口径） */
 export const STONE_COLORS: ReadonlyArray<{ key: string; base: BaseColor; name: string }> = [
@@ -75,19 +75,26 @@ const TIER_NAMES: Record<TraitstoneTier, string> = {
   major: '高级',
   runic: '符文',
   celestial: '圣辉',
+  arcane: '奥术',
 };
 
 /** 特质石库存键：'{tier}:{color}'；celestial 无色。非法组合返回 null（对账用） */
 export function stoneKey(tier: TraitstoneTier, colorKey?: string): string | null {
   if (tier === 'celestial') return 'celestial';
   if (!colorKey) return null;
-  return `${tier}:${colorKey}`;
+  const key = `${tier}:${colorKey}`;
+  return parseStoneKey(key) ? key : null;
 }
 
 /** 解析库存键（'minor:fire' → {tier:'minor', colorKey:'fire'}；celestial → colorKey undefined） */
 export function parseStoneKey(key: string): { tier: TraitstoneTier; colorKey?: string } | null {
   if (key === 'celestial') return { tier: 'celestial' };
-  const [tier, color] = key.split(':');
+  const parts = key.split(':');
+  const [tier, color, second] = parts;
+  if (tier === 'arcane' && parts.length === 3 && STONE_COLORS.some(c => c.key === color) && STONE_COLORS.some(c => c.key === second)) {
+    return { tier, colorKey: `${color}:${second}` };
+  }
+  if (parts.length !== 2) return null;
   if (
     (tier === 'minor' || tier === 'major' || tier === 'runic') &&
     color &&
@@ -103,6 +110,7 @@ export function stoneName(key: string): string {
   const parsed = parseStoneKey(key);
   if (!parsed) return key;
   if (parsed.tier === 'celestial') return '圣辉石';
+  if (parsed.tier === 'arcane') return `奥术${parsed.colorKey!.split(':').map(color => STONE_COLORS.find(c => c.key === color)!.name).join('·')}之石`;
   const colorName = STONE_COLORS.find((c) => c.key === parsed.colorKey)?.name ?? parsed.colorKey ?? '';
   return `${TIER_NAMES[parsed.tier]}${colorName}之石`;
 }
@@ -133,3 +141,6 @@ export function addMaterialDelta(a: MaterialDelta, b: MaterialDelta): MaterialDe
   }
   return out;
 }
+
+/** Canonical 21 arcane pairs, in source-data color order. */
+export const ARCANE_STONE_KEYS = STONE_COLORS.flatMap((a, i) => STONE_COLORS.slice(i).map(b => `arcane:${a.key}:${b.key}`));

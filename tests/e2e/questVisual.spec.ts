@@ -171,3 +171,37 @@ for (const viewport of [
     }
   });
 }
+
+
+test('逐关首通宝石：可见金额、存档通关状态、刷新与重复挑战入口', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await openQuest(page, 1);
+  await page.locator('.qpin[data-node="2"]').click();
+  await expect(page.locator('#qdRewards .qfirst-clear')).toHaveText('首通 +100 宝石');
+  await page.locator('.qpin[data-node="1"]').click();
+  await expect(page.locator('#qdRewards .qfirst-clear')).toHaveText('首通已完成');
+  await expect(page.locator('#questFight')).toBeDisabled();
+  await page.evaluate((kingdom) => {
+    const key = 'gems.meta.save';
+    const save = JSON.parse(localStorage.getItem(key)!);
+    save.kingdoms[kingdom].questsDone = 8;
+    save.kingdoms[kingdom].clearedExploreTiers = [2, 4];
+    localStorage.setItem(key, JSON.stringify(save));
+  }, KINGDOM);
+  await page.reload();
+  await selectMode(page, 'hard');
+  await page.locator('.qpin[data-node="1"]').click();
+  await expect(page.locator('#qdRewards .qfirst-clear')).toHaveText('首通 +200 宝石');
+  await page.locator('.qpin[data-node="2"]').click();
+  await expect(page.locator('.qpin[data-node="2"]')).toHaveClass(/done/);
+  await expect(page.locator('#qdRewards .qfirst-clear')).toHaveText('首通已完成');
+  await expect(page.locator('#questFight')).toBeEnabled();
+  await selectMode(page, 'veryHard');
+  await page.locator('.qpin[data-node="2"]').click();
+  await expect(page.locator('#qdRewards .qfirst-clear')).toHaveText('首通 +300 宝石');
+  await screenshot(page, 'mobile-first-clear-gems');
+  await page.locator('.qpin[data-node="1"]').click();
+  await expect(page.locator('#qdRewards .qfirst-clear')).toHaveText('首通已完成');
+  await page.reload();
+  await expect(page.locator('#qdRewards .qfirst-clear')).toHaveText('首通已完成');
+});

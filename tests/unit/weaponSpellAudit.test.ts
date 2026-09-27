@@ -36,7 +36,7 @@ const META: Record<string, { fidelity: string; missingFeatures: string[]; skippe
 
 const STATUS_WHITELIST = new Set([
   'poison', 'burning', 'bleed', 'silence', 'frozen', 'stun', 'entangle', 'web', 'barrier', 'submerged',
-  'rage', 'disease', 'curse', 'death-mark', 'charm', 'marked', 'terror', 'faerie-fire',
+  'rage', 'enraged', 'disease', 'curse', 'death-mark', 'charm', 'marked', 'terror', 'faerie-fire',
   // 第三轮：正面状态族落地（status.ts BLESS/ENCHANTED/REFLECT_STATUS_ID + WOLF_STATUS_IDS）
   'blessed', 'enchanted', 'reflect', 'lycanthropy',
 ]);
@@ -157,11 +157,11 @@ describe('武器法术池与元数据（pool-w01 + weapon-skill-meta）', () => 
     }
   });
 
-  it('W05 分布快照：full 691 / partial 27 / mana-only 0（占位 8 把回收）', () => {
+  it('W05 分布快照：full 710 / partial 8 / mana-only 0（占位 8 把回收）', () => {
     const tier = { full: 0, partial: 0, 'mana-only': 0 };
     for (const v of Object.values(META)) tier[v.fidelity as keyof typeof tier] += 1;
-    expect(tier.full).toBe(691);
-    expect(tier.partial).toBe(27);
+    expect(tier.full).toBe(718);
+    expect(tier.partial).toBe(0);
     expect(tier['mana-only']).toBe(0);
   });
 });

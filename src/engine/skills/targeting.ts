@@ -6,7 +6,8 @@
  *
  * 纯逻辑：无 pixi/gsap/dom 依赖；所有随机性经注入的 SeededRNG，保证确定性（需求 5.4, 12.1, 12.2）。
  *
- * 生命口径：weakest/healthiest 以 hp（不含护甲）为准；平局取队伍索引更小者（需求 5.2）。
+ * 强弱口径（rulings/R005，取代需求 5.2 的 hp-only + 索引平局）：weakest/healthiest 按当前生命 + 护甲
+ * 比较；同分决定入选者时用注入 RNG 在同分者中抽取；取 N 个时依次取极值，存活不足 N 全部命中。
  * 排除阵亡：任何模式都不会选中 defeated 角色（需求 5.3）。
  * 无目标：返回空数组，调用方据此安全跳过该段效果（需求 5.5）。
  */
@@ -24,6 +25,9 @@ export type TargetMode =
   // —— 敌方 ——
   | 'enemyFront' // 敌方队首存活（默认普攻/多数指定技能）
   | 'enemyRandom' // 随机单体
+  | 'enemyRandomOther' // 随机另一名敌人，排除前一段选中的主目标
+  | 'enemyRandomPrefNotPrev' // Native RandomPrefNotPrevEnemy: prefer any living enemy other than the preceding centre; if alone, reuse it.
+  | 'allyRandomPrefNotPrev' // Native RandomPrefNotPrevAlly (L3-012): prefer any living ally other than the preceding target; if alone, reuse it.
   | 'enemyRandomN' // 随机 N 名（不重复，「对 3 名随机敌人」）
   | 'enemyWeakest' // 最低生命
   | 'enemyWeakestN' // 最低生命 N 名（「两名最虚弱的敌人」，升序取）
@@ -32,16 +36,19 @@ export type TargetMode =
   | 'enemyFirstN' // 前 N 名
   | 'enemyNth' // 第 N 位（1-based，n=3 → 队伍第 3 个）
   | 'enemyLast' // 最后一名
+  | 'enemySecondLast' // second from the back; empty if fewer than two survivors
   | 'enemyLastN' // 最后 N 名（「最后两名敌人」）
+  | 'enemyAllOther' // All surviving enemies except the previous selected target.
   | 'enemyAll' // 全体
   | 'enemyChosen' // 施法方（玩家/AI）手动选定的敌方单体
+  | 'enemyChosenAndNextDown' // Chosen enemy and precisely the next surviving enemy below it.
   | 'enemyChosenAndBelow' // 指定敌人与其纵队「下方」（编队中更靠后）的全部存活敌人
   | 'enemyChosenAndAdjacent' // 选定敌人的编队前后各一位（「上方和下方的敌人」，不含选定者；R11 批）
   | 'enemyAboveTarget' // 选定目标编队位**上方**的全部存活敌人（官方 AboveTarget；R13 批）
   | 'enemyBelowTarget' // 选定目标编队位**下方**的全部存活敌人（官方 BelowTarget；R13 批）
   | 'enemyNextDown' // 选定目标编队位**正下方一名**（官方 NextDownFromTarget，单格；R22 批 8248）
   | 'lastTarget' // 跨段追踪目标（「对随机敌人造成伤害，再使他陷入X」的「他」；2026-09-17 回收批）
-  | 'lastTargets' // 跨段追踪目标**全列表**（最近产目标段解析出的全部目标，R22 批 9812「吸取其 8 点法力」）
+  | 'lastTargets' // 跨段追踪目标**全列表**（最近产目标段解析出的全部目标，R22 批 9812「吸取其 8 点法力值」）
   | 'lastTargetFirst' // 跨段追踪目标列表**第一个**（R22 批 8220「燃烧第一组敌人」）
   | 'lastTargetLast' // 跨段追踪目标列表**最后一个**（R22 批 8220「冻结第二组敌人」）
   | 'lastDamaged' // 最近一个伤害段**实际命中**的目标集（skill-damage 事件口径，R22 批 8220/8320「使所有被伤害的敌人…」）
@@ -52,6 +59,7 @@ export type TargetMode =
   | 'allyRandom'
   | 'allyRandomN' // 随机 N 名盟友（不重复）
   | 'allyWeakest'
+  | 'allyLowestManaOther' // Lowest current mana among living allies excluding the caster; ties follow team order.
   | 'allyWeakestN'
   | 'allyHealthiest'
   | 'allyHealthiestN'
@@ -62,13 +70,14 @@ export type TargetMode =
   | 'allyAboveSelf' // 施法者编队位上方的全部存活盟友（官方 AboveSelf；R13 批）
   | 'allyBelowSelf' // 施法者编队位下方的全部存活盟友（官方 BelowSelf；R13 批）
   | 'allyBelowTarget' // 选定盟友编队位下方的全部存活盟友（官方 BelowTarget；R13 批）
+  | 'allyLastOther' // Last living ally, excluding the caster.
   | 'allyLast'
   | 'allyLastN'
   | 'allyAll'
   | 'allyChosen'; // 施法方手动选定的己方单体
 
 /** 手动选定类模式（需运行时由 TargetChooser 解析出具体 id） */
-export type ChosenTargetMode = 'enemyChosen' | 'allyChosen' | 'enemyChosenAndBelow' | 'enemyChosenAndAdjacent';
+export type ChosenTargetMode = 'enemyChosen' | 'allyChosen' | 'enemyChosenAndNextDown' | 'enemyChosenAndBelow' | 'enemyChosenAndAdjacent';
 
 export function isChosenMode(mode: TargetMode): mode is 'enemyChosen' | 'allyChosen' {
   return mode === 'enemyChosen' || mode === 'allyChosen';
@@ -86,8 +95,8 @@ export function candidatesFor(
   if (casterSide === null) return [];
   const side = mode === 'allyChosen' ? casterSide : opponentOf(casterSide);
   const alive = aliveInOrder(state.teams[side]);
-  // 手动选敌：下潮/隐匿的敌人不出现在可点列表里（与 selectTargets 同一口径）
-  return mode === 'enemyChosen' || mode === 'enemyChosenAndAdjacent' ? targetableFrom(alive) : alive;
+  // 手动选敌：隐匿的敌人不出现在可点列表里（与 selectTargets 同一口径）
+  return mode === 'allyChosen' ? alive : targetableFrom(alive);
 }
 
 /** 该模式是否作用于己方 */
@@ -109,7 +118,7 @@ function aliveInOrder(team: Team): Character[] {
 }
 
 /**
- * 滤掉不可被技能「指定」的角色（下潮状态 / 隐匿特质）。
+ * 滤掉不可被技能「指定」的角色（隐匿特质）。
  *
  * 官方描述：「无法成为法术指定攻击目标（除非场上已无任何其他目标）」——括号里的
  * 例外必须实现，否则一队全隐匿时所有指定技能都会空放。故全员不可指定时原样返回。
@@ -134,10 +143,37 @@ function pickExtreme(
   return [best];
 }
 
+/** 强弱口径（rulings/R005）：当前生命 + 当前护甲（「有效生命」），不看攻击/魔法。 */
+export function effectiveLife(c: Character): number {
+  return c.hp + c.armor;
+}
+
+/**
+ * 按有效生命取最弱（asc）/最强（desc）的 N 名存活角色（rulings/R005）。
+ * 分数分组依次取；某组只需取其中一部分时（同分决定入选者），用注入的 RNG 在该组内抽取；
+ * 整组都入选时按队伍顺序、不消耗随机数。存活数不足 N 时全部命中。
+ */
+function pickByEffectiveLife(alive: Character[], dir: 'asc' | 'desc', n: number, rng: SeededRNG): Character[] {
+  const k = Math.max(1, n);
+  const scores = [...new Set(alive.map(effectiveLife))].sort((a, b) => (dir === 'asc' ? a - b : b - a));
+  const picked: Character[] = [];
+  for (const score of scores) {
+    if (picked.length >= k) break;
+    const group = alive.filter((c) => effectiveLife(c) === score);
+    const need = k - picked.length;
+    if (group.length <= need) {
+      picked.push(...group);
+      continue;
+    }
+    for (let i = 0; i < need; i++) picked.push(group.splice(rng.nextInt(group.length), 1)[0]);
+  }
+  return picked;
+}
+
 /**
  * 编队纵向切片（R13 批 · 编队全列方位族）：以队伍索引 refIdx 为锚，取其上方
  * （更小索引）/下方（更大索引）的存活角色，保持队伍索引序；inclusive 时含锚位自身
- * （SelfAndBelow）。敌方切片跳过下潮/隐匿（与 R11 enemyChosenAndAdjacent 的邻居过滤
+ * （SelfAndBelow）。敌方切片跳过隐匿（与 R11 enemyChosenAndAdjacent 的邻居过滤
  * 同一口径——位置群体效果打不中不可指定者，且不做「全不可指定则回退」）；己方切片不受影响。
  */
 function columnSlice(
@@ -178,6 +214,7 @@ export function selectTargets(
   rng: SeededRNG,
   n = 1,
   chosenId?: number,
+  excludedId?: number,
 ): Character[] {
   const casterSide = sideOf(state, casterId);
   if (casterSide === null) return [];
@@ -201,8 +238,8 @@ export function selectTargets(
   const aliveAll = aliveInOrder(state.teams[targetSide]);
   if (aliveAll.length === 0) return [];
 
-  // 下潮/隐匿只挡「指定」：群体技能（enemyAll）照常命中全员，己方模式不受影响。
-  const alive = isAllyMode(mode) || mode === 'enemyAll' ? aliveAll : targetableFrom(aliveAll);
+  // 隐匿只挡「指定」：群体技能（enemyAll）照常命中全员，己方模式不受影响。
+  const alive = isAllyMode(mode) || (mode === 'enemyAll' || mode === 'enemyAllOther') ? aliveAll : targetableFrom(aliveAll);
 
   switch (mode) {
     case 'enemyChosen':
@@ -211,6 +248,12 @@ export function selectTargets(
       if (chosenId === undefined) return [];
       const picked = alive.find((c) => c.id === chosenId);
       return picked ? [picked] : [];
+    }
+
+    case 'enemyChosenAndNextDown': {
+      if (chosenId === undefined) return [];
+      const start = alive.findIndex(c => c.id === chosenId);
+      return start < 0 ? [] : alive.slice(start, start + 2);
     }
 
     case 'enemyChosenAndBelow': {
@@ -224,7 +267,7 @@ export function selectTargets(
     case 'enemyChosenAndAdjacent': {
       // 「上方和下方的敌人」「上下相邻」（R11 批）：选定者在编队中的前后各一位
       //（不含选定者；贴边只取存在的一侧）。相邻按**编队伍索引**判定（aliveAll 全体存活，
-      // 不受下潮/隐匿过滤影响），再对邻居套用不可指定过滤（下潮/隐匿不选中）。
+      // 不受隐匿过滤影响），再对邻居套用不可指定过滤（隐匿不选中）。
       // 未提供选定 id / 选定者不在敌方存活列表 → 安全返回空。
       if (chosenId === undefined) return [];
       const idx = aliveAll.findIndex((c) => c.id === chosenId);
@@ -291,11 +334,19 @@ export function selectTargets(
     case 'allyLast':
       return [alive[alive.length - 1]];
 
+    case 'allyLastOther':
+      return alive.filter(c => c.id !== casterId).slice(-1);
+
+    case 'enemyAllOther':
+      return alive.filter(c => c.id !== excludedId);
     case 'enemyAll':
     case 'allyAll':
       return alive;
 
     case 'enemyFirstN':
+      // Fixed front ranks are positional, not manually chosen spell targets.
+      // Stealthy cannot move a different enemy into the first two slots.
+      return aliveAll.slice(0, Math.max(0, n));
     case 'allyFirstN':
       return alive.slice(0, Math.max(0, n));
 
@@ -306,6 +357,16 @@ export function selectTargets(
       return idx < alive.length ? [alive[idx]] : [];
     }
 
+    case 'enemyRandomPrefNotPrev':
+    case 'allyRandomPrefNotPrev': {
+      const preferred = alive.filter(c => c.id !== excludedId);
+      const pool = preferred.length ? preferred : alive;
+      return [pool[rng.nextInt(pool.length)]];
+    }
+    case 'enemyRandomOther': {
+      const others = alive.filter(c => c.id !== excludedId);
+      return others.length > 0 ? [others[rng.nextInt(others.length)]] : [];
+    }
     case 'enemyRandom':
     case 'allyRandom':
       return [alive[rng.nextInt(alive.length)]];
@@ -326,26 +387,28 @@ export function selectTargets(
       // 其他盟友：己方全体存活、除施法者本人
       return aliveAll.filter((c) => c.id !== casterId);
 
+    case 'allyLowestManaOther':
+      return pickExtreme(aliveAll.filter((c) => c.id !== casterId), (c, best) => c.mana < best.mana);
+
+    // R005：最弱/最强 = 当前生命 + 护甲；同分决定入选者时用 RNG 抽取。
     case 'enemyWeakest':
     case 'allyWeakest':
-      return pickExtreme(alive, (c, best) => c.hp < best.hp);
+      return pickByEffectiveLife(alive, 'asc', 1, rng);
 
     case 'enemyWeakestN':
-    case 'allyWeakestN': {
-      // 生命升序取前 N（并列按队伍索引，确定性）
-      const sorted = alive.slice().sort((a, b) => a.hp - b.hp);
-      return sorted.slice(0, Math.max(1, n));
-    }
+    case 'allyWeakestN':
+      return pickByEffectiveLife(alive, 'asc', n, rng);
 
     case 'enemyHealthiest':
     case 'allyHealthiest':
-      return pickExtreme(alive, (c, best) => c.hp > best.hp);
+      return pickByEffectiveLife(alive, 'desc', 1, rng);
 
     case 'enemyHealthiestN':
-    case 'allyHealthiestN': {
-      const sorted = alive.slice().sort((a, b) => b.hp - a.hp);
-      return sorted.slice(0, Math.max(1, n));
-    }
+    case 'allyHealthiestN':
+      return pickByEffectiveLife(alive, 'desc', n, rng);
+
+    case 'enemySecondLast':
+      return alive.length >= 2 ? [alive[alive.length - 2]] : [];
 
     case 'enemyLastN':
     case 'allyLastN':

@@ -260,13 +260,13 @@ describe('R13 · 编队全列方位 TargetMode（AboveTarget/BelowTarget/SelfAnd
     expect(allies.map((a) => a.armor)).toEqual([3, 6, 6]); // 护甲 = 自身以外的下方盟友
   });
 
-  it('敌方切片跳过下潮/隐匿（submerged）目标；锚位阵亡被移出编队 → 安全返回空', () => {
+  it('编队切片可命中下潜目标；下潜只躲整队法术伤害', () => {
     const submerged = { statuses: [{ id: 'submerged', turns: 3 }] };
     const { ctx, state } = setup({ right: [{}, {}, submerged], chosenTargetId: 4 });
     executePrototype(skill(trueDmg('enemyBelowTarget', 9, 0, { range: 'all' })), ctx);
     const [, b, c] = state.teams[PlayerSide.Right].characters;
     expect(b.hp).toBe(41);
-    expect(c.hp).toBe(50); // 下潮者不被位置群体效果命中
+    expect(c.hp).toBe(41); // 编队子集不是整队，仍可伤害下潜目标
   });
 });
 

@@ -1,0 +1,12 @@
+.market-switch { display: flex; flex: none; gap: 4px; min-height: 47px; padding: 4px 16px 0; border-bottom: 1px solid #d8cdb9; background: #fffdf7; }
+.market-switch a { display: inline-flex; align-items: center; justify-content: center; gap: 7px; min-width: 125px; padding: 0 16px 4px; border-bottom: 3px solid transparent; color: #6e7774; text-decoration: none; font-size: 13px; }
+.market-switch a:hover { color: #67552f; background: #f1ece1; }
+.market-switch a.active { border-color: #b78443; color: #303c3e; font-weight: 700; }
+.market-switch a [data-icon] { width: 17px; height: 17px; color: #b78443; }
+.market-switch a:focus-visible { outline: 2px solid #6695aa; outline-offset: -2px; }
+
+@media (max-width: 640px) {
+  .market-switch { min-height: 41px; padding: 2px 7px 0; }
+  .market-switch a { flex: 1; min-width: 0; padding: 0 5px 3px; font-size: 12px; }
+  .market-switch a [data-icon] { width: 15px; height: 15px; }
+}

@@ -46,4 +46,13 @@ export const RACE_SUMMON_REFS: Readonly<Record<string, readonly string[]>> = {
     'FelineOfEnvy', 'Skarn', 'MaidenOfPain', 'HeraldOfWar', 'Azbeel', 'OkraNosTheSleeper',
     'Voidjaw', 'ChampionOfRot', 'BloodSpore', 'InfernalTrickster', 'Seditius', 'ImmortalZephaar',
   ],
+  Goblin: [
+    'Goblin', 'GoblinShaman', 'BoarRider', 'GoblinKing', 'Hobgoblin', 'GoblinRocket', 'NobendBrothers',
+    'SirSnothelm', 'Bugbear', 'PrincessFizzbang', 'QueenGrapplepot', 'Hellcackle', 'IceGoblin', 'HighKingIrongut',
+    'KingGobtruffle', 'Stringfiddler', 'Toadsqueezer', 'Goblette', 'Rogueling', 'Smashedmouth', 'Kobold',
+    'KoboldKnight', 'KoboldMagi', 'Emperinazara', 'Fundingus', 'WilliTheAnchor', 'FlamingOni', 'FaerieGobmother',
+    'GoblinBomber', 'KoboldEmissary', 'PriestOfNilbog', 'FrostfireGoblin', 'Slughoarder', 'BombRider', 'CinderhandGoblin',
+    'Murk,Lurk,AndDurk', 'Gloomhob', 'KoboldThief', 'GoblinPickpocket', 'MokTheCannon-Rider', 'Skulker', 'ZargsBoomPile',
+    'CountGobula', 'LordGobthe', 'ImmortalTrogolin',
+  ],
 };

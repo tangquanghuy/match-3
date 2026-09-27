@@ -116,7 +116,7 @@ describe('aquatic：受击下潜（骷髅受击结算点）', () => {
     const events = skullHit(target);
     expect(target.statuses).toContainEqual({ id: 'submerged', turns: 3 });
     expect(events).toContainEqual({ type: 'status-apply', targetId: 1, statusId: 'submerged', turns: 3 });
-    expect(isUntargetable(target)).toBe(true);
+    expect(isUntargetable(target)).toBe(false);
   });
 
   it('已有下潜时刷新为更长回合（不叠加第二条）', () => {
@@ -163,7 +163,7 @@ function buildWithSkullMatch(playerChars: Character[], enemyChars: Character[], 
 }
 
 describe('valuable：身亡时获得 25 黄金（战场经济池）', () => {
-  it('敌方 valuable 队首被骷髅击杀 → economy.gold +25 + economy-gain 事件', () => {
+  it('敌方 valuable 队首被骷髅击杀 → enemyGold +25 + economy-gain 事件', () => {
     const hero = makeChar(0, { attack: 10 });
     const dying = makeChar(4, { traitIds: ['valuable'], hp: 5 });
     const { engine, state } = buildWithSkullMatch([hero, makeChar(1)], [dying, makeChar(5)]);
@@ -171,8 +171,9 @@ describe('valuable：身亡时获得 25 黄金（战场经济池）', () => {
     const events = engine.resolveSwap({ row: 7, col: 1 }, { row: 6, col: 1 });
     const gains = events.filter((e) => e.type === 'economy-gain' && e.currency === 'gold');
     expect(gains).toHaveLength(1);
-    expect(gains[0]).toMatchObject({ currency: 'gold', amount: 25 });
-    expect(engine.getState().economy.gold).toBe(25);
+    expect(gains[0]).toMatchObject({ currency: 'gold', amount: 25, side: PlayerSide.Right });
+    expect(engine.getState().economy.gold).toBe(0);
+    expect(engine.getState().enemyGold).toBe(25);
   });
 
   it('无特质的阵亡不入账', () => {
@@ -198,7 +199,8 @@ describe('valuable：身亡时获得 25 黄金（战场经济池）', () => {
       );
       const eventsA = withTrait.engine.resolveSwap({ row: 7, col: 1 }, { row: 6, col: 1 });
       const eventsB = plain.engine.resolveSwap({ row: 7, col: 1 }, { row: 6, col: 1 });
-      expect(withTrait.engine.getState().economy.gold).toBe(25);
+      expect(withTrait.engine.getState().economy.gold).toBe(0);
+      expect(withTrait.engine.getState().enemyGold).toBe(25);
       const rest = eventsA.filter((e) => e.type !== 'economy-gain');
       expect(JSON.stringify(rest)).toBe(JSON.stringify(eventsB));
     }
@@ -232,16 +234,16 @@ function buildEngine(board: BoardModel, left: Character[], right: Character[], s
 }
 
 describe('omenof*：战斗开始爆破一颗宝石（构造期清除管线）', () => {
-  it('omenofdark：唯一紫宝石被爆破 → 紫法力归持有者（Left）+ 重力补充', () => {
+  it('omenofdark: one Purple explosion returns zero direct Mana and still settles gravity', () => {
     const holder = makeChar(0, { traitIds: ['omenofdark'], colors: [BaseColor.Red, BaseColor.Purple] });
     const { initial, rng } = buildEngine(
       buildBoard8({ pos: { row: 3, col: 3 }, gem: colorGem(BaseColor.Purple) }),
       [holder, makeChar(1)],
       [makeChar(4), makeChar(5)],
     );
-    const purpleMana = initial.filter((e) => e.type === 'mana-gain' && (e as { color: BaseColor }).color === BaseColor.Purple);
-    expect(purpleMana.length).toBeGreaterThanOrEqual(1);
-    expect(purpleMana[0]).toMatchObject({ characterId: 0, player: PlayerSide.Left });
+    const firstGravity = initial.findIndex(e => e.type === 'gravity');
+    const purpleMana = initial.slice(0, firstGravity).filter(e => e.type === 'mana-gain' && e.color === BaseColor.Purple);
+    expect(purpleMana).toHaveLength(0); // GoW 4.0: floor(1 * 50%) = 0.
     expect(initial.some((e) => e.type === 'gravity')).toBe(true);
     expect(initial.some((e) => e.type === 'refill')).toBe(true);
     // 消耗了随机数（爆破候选选取/补充生成），与无特质构造不同
@@ -253,16 +255,17 @@ describe('omenof*：战斗开始爆破一颗宝石（构造期清除管线）', 
     expect(rng.getState()).not.toBe(plain.rng.getState());
   });
 
-  it('持有者在右队：爆破法力归右队持有者（side 归属，不进左队）', () => {
+  it('omenofstone on the right: one Brown explosion returns zero direct Mana to both sides', () => {
     const holder = makeChar(4, { traitIds: ['omenofstone'], colors: [BaseColor.Brown] });
     const { initial } = buildEngine(
       buildBoard8({ pos: { row: 4, col: 4 }, gem: colorGem(BaseColor.Brown) }),
       [makeChar(0), makeChar(1)],
       [holder, makeChar(5)],
     );
-    const brownMana = initial.filter((e) => e.type === 'mana-gain' && (e as { color: BaseColor }).color === BaseColor.Brown);
-    expect(brownMana.length).toBeGreaterThanOrEqual(1);
-    expect(brownMana[0]).toMatchObject({ characterId: 4, player: PlayerSide.Right });
+    const firstGravity = initial.findIndex(e => e.type === 'gravity');
+    const brownMana = initial.slice(0, firstGravity).filter(e => e.type === 'mana-gain' && e.color === BaseColor.Brown);
+    expect(brownMana).toHaveLength(0);
+    expect(initial.some(e => e.type === 'gem-explode')).toBe(true);
   });
 
   it('omenofdeath：爆破骷髅 → 敌方队首吃 1 点法术伤害（炸毁骷髅口径）', () => {

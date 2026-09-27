@@ -279,26 +279,25 @@ describe('「被匹配」型状态宝石（GEMS-SEMANTICS-2 A 组）', () => {
 
       const applies = eventsOf('status-apply', events).filter((e) => e.statusId === 'curse');
       expect(applies).toHaveLength(1); // 已上靶
+      // R004 取代旧口径：诅咒走共用累积自愈（首掷 10%，诅咒下每回合 +5%），不再是「无自愈通道」。
+      // 回合尾恰好一次自愈判定：要么掷中（发 curse status-expire），要么留存且概率 10→15。
       const expires = eventsOf('status-expire', events).filter((e) => e.statusId === 'curse');
-      expect(expires).toHaveLength(0); // 回合尾不得被自愈通道清掉
       const victim = state.teams[PlayerSide.Right].characters.find((c) => c.id === applies[0].targetId)!;
-      expect(victim.statuses.some((s) => s.id === 'curse')).toBe(true);
+      const curse = victim.statuses.find((s) => s.id === 'curse');
+      if (expires.length > 0) expect(curse).toBeUndefined();
+      else expect(curse?.recoveryChance).toBe(15);
     }
   });
 
-  it('诅咒无自愈通道：tickStatuses 掷中自愈区间的种子也不得清掉诅咒（确定性回归）', () => {
-    // GOW-STATUS-RESEARCH 诅咒行只赋予「他状态减半 / 剥正面 / 穿透普通免疫」，
-    // 诅咒本身不在自动解除集合（对齐燃烧同类语义修订前的织网例外思路）。
-    // 种子 1/3/6 的第二次 next() 落在 <5% 区间——修正前这里会 status-expire。
+  it('Official 4.2: Curse itself automatically cleanses with 5% initial chance', () => {
     for (const seed of [1, 3, 6]) {
       const victim = makeChar(10);
       victim.statuses = [{ id: 'curse', turns: 4 }];
       const rng = new SeededRNG(seed);
-      rng.next(); // 对齐既有事件的消耗节奏，取第二次抽取作为自愈骰
+      rng.next();
       const events = tickStatuses(victim, rng);
-      const expired = events.filter((e) => e.type === 'status-expire' && e.statusId === 'curse');
-      expect(expired).toHaveLength(0);
-      expect(victim.statuses.some((s) => s.id === 'curse')).toBe(true);
+      expect(events.some(e => e.type === 'status-expire' && e.statusId === 'curse')).toBe(true);
+      expect(victim.statuses.some(st => st.id === 'curse')).toBe(false);
     }
   });
 
@@ -351,7 +350,12 @@ describe('「被摧毁」型状态宝石（GEMS-SEMANTICS-2 A/B 组）', () => {
     return { events, state };
   }
 
-  const CASES: [keyof typeof STATUS_GEM_EFFECTS, string, number, 'enemy' | 'ally'][] = [
+  const CASES: [keyof typeof STATUS_GEM_EFFECTS, string, number, 'enemy' | 'ally', number?][] = [
+    ['burningGem', 'burning', 3, 'enemy', 2],
+    ['freezeGem', 'frozen', 3, 'enemy'],
+    ['curseGem', 'curse', 4, 'enemy'],
+    ['poisonGem', 'poison', 3, 'enemy', 2],
+    ['terrorGem', 'terror', 4, 'enemy'],
     ['bleedGem', 'bleed', 3, 'enemy'],
     ['entangleGem', 'entangle', 3, 'enemy'],
     ['stunGem', 'stun', 1, 'enemy'],
@@ -362,12 +366,12 @@ describe('「被摧毁」型状态宝石（GEMS-SEMANTICS-2 A/B 组）', () => {
     ['deathMarkGem', 'death-mark', 3, 'enemy'],
   ];
 
-  for (const [kind, statusId, turns, side] of CASES) {
+  for (const [kind, statusId, turns, side, count = 1] of CASES) {
     it(`${kind}：被摧毁 → 随机一名${side === 'enemy' ? '敌人' : '己方'}获得 ${statusId} ${turns} 回合`, () => {
       const { events, state } = destroyGem(kind);
       expect(eventsOf('special-gem-trigger', events)[0]).toMatchObject({ kind });
       const applies = eventsOf('status-apply', events).filter((e) => e.statusId === statusId);
-      expect(applies).toHaveLength(1);
+      expect(applies).toHaveLength(count);
       const targetTeam = side === 'enemy' ? PlayerSide.Right : PlayerSide.Left;
       const ids = state.teams[targetTeam].characters.map((c) => c.id);
       expect(ids).toContain(applies[0].targetId);
@@ -386,7 +390,7 @@ describe('「被摧毁」型状态宝石（GEMS-SEMANTICS-2 A/B 组）', () => {
     expect(enemy.statuses.find((s) => s.id === 'bleed')).toMatchObject({ turns: 3, magnitude: 1 });
   });
 
-  it('「被匹配」型宝石被普通摧毁不触发（官方文本只写 When matched：炸弹波及燃烧宝石不燃烧）', () => {
+  it('炸弹摧毁燃烧宝石：连锁触发燃烧，且每颗只触发一次', () => {
     const layout = [
       '........',
       '...f....',
@@ -403,8 +407,8 @@ describe('「被摧毁」型状态宝石（GEMS-SEMANTICS-2 A/B 组）', () => {
     // 炸弹被摧毁 → 引爆相邻一圈（含 (1,3) 的燃烧宝石）
     engine.resolveBoardChange([{ gemType: specialGem('bomb'), pos: { row: 2, col: 3 } }], events);
     expect(eventsOf('special-gem-trigger', events).some((e) => e.kind === 'bomb')).toBe(true);
-    expect(eventsOf('special-gem-trigger', events).some((e) => e.kind === 'burningGem')).toBe(false);
-    expect(eventsOf('status-apply', events).some((e) => e.statusId === 'burning')).toBe(false);
+    expect(eventsOf('special-gem-trigger', events).filter((e) => e.kind === 'burningGem')).toHaveLength(1);
+    expect(eventsOf('status-apply', events).filter((e) => e.statusId === 'burning')).toHaveLength(2);
   });
 });
 
@@ -443,16 +447,17 @@ describe('敌方匹配的方向对称性（activePlayer = Right）', () => {
 // ───────────────────────── 白名单与护栏 ─────────────────────────
 
 describe('自然掉落白名单与随机序列护栏', () => {
-  it('MATCH/DESTROY 两集合恰好覆盖 13 颗且不相交', () => {
+  it('13 种均有摧毁入口；5 种即时匹配入口不会再走摧毁队列', () => {
     const kinds = Object.keys(STATUS_GEM_EFFECTS) as (keyof typeof STATUS_GEM_EFFECTS)[];
     expect(kinds).toHaveLength(13);
     for (const kind of kinds) {
-      const matched = MATCH_STATUS_GEMS.has(kind);
-      const destroyed = DESTROY_STATUS_GEMS.has(kind);
-      expect(matched !== destroyed).toBe(true); // 每颗恰好归一条路径
+      expect(DESTROY_STATUS_GEMS.has(kind)).toBe(true);
+      if (MATCH_STATUS_GEMS.has(kind)) expect(kind).not.toBe('deathMarkGem');
     }
     expect(MATCH_STATUS_GEMS.size).toBe(5);
-    expect(DESTROY_STATUS_GEMS.size).toBe(8);
+    expect(DESTROY_STATUS_GEMS.size).toBe(13);
+    expect(isSameMatchType(specialGem('deathMarkGem'), colorGem(BaseColor.Red))).toBe(false);
+    expect(isSameMatchType(specialGem('deathMarkGem', undefined, BaseColor.Red), colorGem(BaseColor.Red))).toBe(false);
   });
 
   it('不携带状态宝石的对局：同种子事件流逐字节可复现（黄金序列锁）', () => {

@@ -82,6 +82,7 @@ describe('player preferences', () => {
     });
 
     expect(getPlayerPreferences()).toEqual({
+      ...DEFAULT_PLAYER_PREFERENCES,
       soundEffectsEnabled: false,
       soundEffectsVolume: 1,
       reducedMotion: true,
@@ -131,11 +132,44 @@ describe('player preferences', () => {
     setPlayerPreferences({ soundEffectsEnabled: false, soundEffectsVolume: 0.35 });
     manager.play('swap');
     expect(created()).toBe(0);
-    expect(bus.gain.value).toBe(0.35);
+    expect(bus.gain.value).toBe(0);
 
     setPlayerPreferences({ soundEffectsEnabled: true });
     manager.play('swap');
     expect(created()).toBe(2);
     expect(bus.gain.value).toBe(0.35);
   });
+  it('migrates legacy settings without coupling narration to the SFX mute', () => {
+    window.localStorage.setItem(PLAYER_PREFERENCES_KEY, JSON.stringify({ soundEffectsEnabled: false, soundEffectsVolume: 0.3 }));
+    expect(getPlayerPreferences()).toEqual({ ...DEFAULT_PLAYER_PREFERENCES, soundEffectsEnabled: false, soundEffectsVolume: 0.3 });
+  });
+
+  it('updates all live audio buses independently and cancels disabled narration', () => {
+    const manager = new AudioManager();
+    const { bus } = wireAudio(manager);
+    const master = { gain: new FakeParam() };
+    const narration = { gain: new FakeParam() };
+    const stop = vi.fn();
+    const slots = manager as unknown as Record<string, unknown>;
+    slots.master = master;
+    slots.narrationBus = narration;
+    slots.narration = { stop };
+    setPlayerPreferences({ masterVolume: 0.5, soundEffectsEnabled: false, narrationVolume: 0.9 });
+    expect(master.gain.value).toBe(0.5);
+    expect(bus.gain.value).toBe(0);
+    expect(narration.gain.value).toBe(0.9);
+    expect(stop).not.toHaveBeenCalled();
+    setPlayerPreferences({ narrationEnabled: false, soundEffectsEnabled: true });
+    expect(stop).toHaveBeenCalledOnce();
+    expect(narration.gain.value).toBe(0);
+    expect(bus.gain.value).toBe(0.7);
+    setPlayerPreferences({ masterEnabled: false });
+    expect(master.gain.value).toBe(0);
+    slots.ctx = null;
+    slots.narration = null;
+    manager.dispose();
+    setPlayerPreferences({ masterEnabled: true });
+    expect(master.gain.value).toBe(0);
+  });
+
 });

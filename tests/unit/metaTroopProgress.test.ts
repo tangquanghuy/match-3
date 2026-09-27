@@ -16,7 +16,7 @@ import {
   troopStatsOf,
   unlockTrait,
 } from '../../src/meta';
-import { ascensionCopiesNeeded, decomposeYield } from '../../src/meta/data/economy';
+import { ascensionCopiesNeeded, decomposeYield, traitUnlockCost } from '../../src/meta/data/economy';
 import { stoneColorKeyOf } from '../../src/meta/data/materials';
 import { BaseColor } from '../../src/engine/types';
 
@@ -48,8 +48,8 @@ describe('等级上限（官方口径 15/16/17/18/19/20）', () => {
 
 describe('灵魂成本曲线（设计值单源）', () => {
   it('逐级成本单调递增；1→2 级恰好是基础值', () => {
-    expect(soulCostForLevel(0, 2)).toBe(30);
-    expect(soulCostForLevel(0, 3)).toBe(70);
+    expect(soulCostForLevel(0, 2)).toBe(10);
+    expect(soulCostForLevel(0, 3)).toBe(25);
     for (let lv = 2; lv < 20; lv++) {
       expect(soulCostForLevel(0, lv + 1)).toBeGreaterThan(soulCostForLevel(0, lv));
     }
@@ -57,7 +57,7 @@ describe('灵魂成本曲线（设计值单源）', () => {
 
   it('总消耗 = 逐级求和；高稀有度更贵（升阶不改成本表）', () => {
     const total = totalSoulCost(0, 1, 5);
-    expect(total).toBe(30 + 70 + 120 + 170); // 就近取 5 的设计锚点
+    expect(total).toBe(10 + 25 + 40 + 55); // 就近取 5 的设计锚点
     expect(totalSoulCost(0, 1, 5)).toBe(
       [2, 3, 4, 5].reduce((sum, lv) => sum + soulCostForLevel(0, lv), 0),
     );
@@ -124,7 +124,7 @@ describe('升阶（同名卡 5/10/25，不耗本体）', () => {
   });
 });
 
-describe('特质解锁（特质石+黄金，裁定②修订 2026-09-19）', () => {
+describe('特质解锁（逐卡配方、只消耗特质石）', () => {
   const primary = stoneColorKeyOf(getTroopById(OGRE)!.manaColors[0] ?? BaseColor.Brown);
   const key = (tier: string): string => `${tier}:${primary}`;
 
@@ -138,34 +138,24 @@ describe('特质解锁（特质石+黄金，裁定②修订 2026-09-19）', () =
     expect(unlockTrait(s, OGRE, 1)).toMatchObject({ ok: false, code: 'ALREADY_UNLOCKED' });
   });
 
-  it('特质 1 = minor×8 + 黄金 2000；特质 2 加 major/runic；特质 3 加 celestial；同名卡零消耗', () => {
+  it('逐槽配方扣石；零黄金也可解锁；同名卡和灵魂不消耗', () => {
     const s = save();
-    s.materials.traitstones = {
-      [key('minor')]: 30,
-      [key('major')]: 16,
-      [key('runic')]: 6,
-      celestial: 2,
-    };
-    const r1 = unlockTrait(s, OGRE, 1);
-    expect(r1).toMatchObject({ ok: true, cost: { gold: 2000, stones: { [key('minor')]: 8 } } });
-    expect(s.currencies.gold).toBe(48000);
-    expect(s.materials.traitstones[key('minor')]).toBe(22);
-    expect(getRecord(s, OGRE)!.copies).toBe(0); // 同名卡不再消耗
-
-    const r2 = unlockTrait(s, OGRE, 2);
-    expect(r2).toMatchObject({
-      ok: true,
-      cost: { gold: 5000, stones: { [key('minor')]: 12, [key('major')]: 6, [key('runic')]: 2 } },
-    });
-    expect(s.materials.traitstones[key('major')]).toBe(10);
-
-    const r3 = unlockTrait(s, OGRE, 3);
-    expect(r3).toMatchObject({ ok: true, cost: { gold: 12000, stones: { [key('major')]: 10, [key('runic')]: 4, celestial: 2 } } });
+    s.currencies.gold = 0;
+    const souls = s.currencies.souls;
+    for (let slot = 1; slot <= 3; slot++) {
+      const cost = traitUnlockCost(slot, primary, OGRE);
+      s.materials.traitstones = { ...cost.stones };
+      expect(unlockTrait(s, OGRE, slot)).toEqual({ ok: true, slot, cost });
+      expect(Object.values(s.materials.traitstones).every(n => n === 0)).toBe(true);
+    }
+    expect(s.currencies.gold).toBe(0);
+    expect(s.currencies.souls).toBe(souls);
+    expect(getRecord(s, OGRE)!.copies).toBe(0);
+    expect(getRecord(s, OGRE)!.level).toBe(1); // Player traits have no level gate.
     expect(getRecord(s, OGRE)!.traits).toEqual([true, true, true]);
-    expect(s.materials.traitstones.celestial).toBe(0);
   });
 
-  it('特质石不足 / 黄金不足（素材回滚）→ 整笔不动', () => {
+  it('特质石中任意一项不足 → 整笔不动', () => {
     const s = save();
     s.materials.traitstones[key('minor')] = 3; // 少于 8
     expect(unlockTrait(s, OGRE, 1)).toMatchObject({ ok: false, code: 'INSUFFICIENT' });

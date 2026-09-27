@@ -1,3 +1,4 @@
+import { invasionVictoryVp } from '../../src/meta/systems/invasion';
 /**
  * 入侵 PvP（素材批 2026-09-19）：镜像榜单确定性、首次定级、VP 官方计分表、
  * 荣耀/每日首胜、周结升降级（含「不打不降」）、出战斗请求过校验、headless 真实对局。
@@ -47,7 +48,7 @@ const save = (heroLevel = 12): MetaSave => {
 };
 
 describe('镜像榜单（buildBracket / standings）', () => {
-  it('29 个镜像、互不重名、血怒恰 2 人、终值随联赛抬升', () => {
+  it('29 个镜像、互不重名、不产生血怒加倍、终值随联赛抬升', () => {
     const a = buildBracket(WEEK, 0);
     const b = buildBracket(WEEK, 0);
     expect(a).toHaveLength(INVASION.bracketSize);
@@ -76,26 +77,27 @@ describe('镜像榜单（buildBracket / standings）', () => {
 });
 
 describe('赛季（ensureInvasionSeason）', () => {
-  it('首次进入：按主角等级定级（官方 Path 段映射），不发奖', () => {
+  it('首次进入：从青铜起步，不按主角等级跳阶，不自动发奖', () => {
     const s = save(45);
     const summary = ensureInvasionSeason(s, 0, WEEK);
     expect(summary).toBeNull();
-    expect(s.invasion.league).toBe(2); // 41-60 → 黄金
-    expect(s.invasion.bestLeague).toBe(2);
+    expect(s.invasion.league).toBe(0);
+    expect(s.invasion.bestLeague).toBe(0);
     expect(s.currencies.glory).toBe(0);
   });
 
-  it('打满一周：VP 第一名 → 晋级 + 奖励入账（材料包）', () => {
+  it('周榜第一名也不触发官阶晋升或旧版周结宝石', () => {
     const s = save();
     ensureInvasionSeason(s, 0, WEEK);
     const league = s.invasion.league;
     s.invasion.vp = 9_999_999; // 稳第一名
     s.invasion.battles = 5;
     const summary = ensureInvasionSeason(s, 0, WEEK + WEEK_MS)!;
-    expect(summary.movement).toBe('promote');
-    expect(summary.toLeague).toBe(Math.min(league + 1, 9));
-    expect(s.currencies.glory).toBe(INVASION_SEASON_GLORY_PROMOTE);
-    expect(Object.values(s.materials.traitstones).reduce((a, b) => a + b, 0)).toBeGreaterThan(0);
+    expect(summary.movement).toBe('stay');
+    expect(summary.toLeague).toBe(league);
+    expect(s.currencies.glory).toBe(0);
+    expect(summary.gems).toBe(0);
+    expect(Object.values(s.materials.traitstones).reduce((a, b) => a + b, 0)).toBe(0);
     expect(s.invasion.vp).toBe(0); // 新赛季清零
     expect(s.invasion.weekStart).toBe(WEEK + WEEK_MS);
   });
@@ -111,9 +113,9 @@ describe('赛季（ensureInvasionSeason）', () => {
     expect(s.currencies.glory).toBe(gloryBefore);
   });
 
-  it('打了但垫底：落入降级区 → 降级', () => {
-    // 用青铜榜（前 20 晋级、无降级）→ 换白银榜：末 5 降级
-    const s = save(30); // 21-40 → 白银
+  it('新周统一重置官阶，不依赖周榜名次', () => {
+    const s = save(30);
+    s.invasion.progressionVp = 200;
     ensureInvasionSeason(s, 0, WEEK);
     expect(s.invasion.league).toBe(1);
     s.invasion.vp = 0;
@@ -121,8 +123,9 @@ describe('赛季（ensureInvasionSeason）', () => {
     const summary = ensureInvasionSeason(s, 0, WEEK + WEEK_MS)!;
     // VP 0 必然第 30 名；白银 26-30 降级
     expect(summary.placement).toBe(30);
-    expect(summary.movement).toBe('relegate');
+    expect(summary.movement).toBe('stay');
     expect(s.invasion.league).toBe(0);
+    expect(s.invasion.progressionVp).toBe(0);
   });
 });
 
@@ -150,7 +153,7 @@ describe('VP 计分（官方表）', () => {
     expect(b.total).toBe(13);
   });
 
-  it('结算：胜场 VP 夹紧进 [min,max]，荣耀/黄金入账，每日首胜只发一次', () => {
+  it('结算：胜场按难度固定 VP，荣耀/黄金入账，每日首胜只发一次', () => {
     const s = save();
     ensureInvasionSeason(s, 0, WEEK);
     const mirror = invasionCandidates(s, WEEK + 3_600_000, WEEK)[0]!;
@@ -164,8 +167,7 @@ describe('VP 计分（官方表）', () => {
     const r1 = settleInvasionBattle(s, result, mirror.id, WEEK + 3_600_000, WEEK, TODAY);
     expect(r1).toMatchObject({ ok: true, victory: true });
     if (!r1.ok) return;
-    expect(r1.vpDelta).toBeGreaterThanOrEqual(5);
-    expect(r1.vpDelta).toBeLessThanOrEqual(90 * 2); // 血怒封顶
+    expect(r1.vpDelta).toBe(invasionVictoryVp(mirror));
     expect(r1.firstWinToday).toBe(true);
     const gloryAfterFirst = s.currencies.glory;
     expect(gloryAfterFirst).toBeGreaterThan(0);
@@ -305,6 +307,13 @@ describe('headless 真实对局（TurnEngine 驱动）', () => {
     while (!session.isFinished() && guard++ < 1500) {
       const snapshot = session.getState();
       if (snapshot.state !== MatchState.AwaitingInput) continue;
+      // Cast ready spells too: a zero-attack support front can stall a skull-only bot.
+      const ready = snapshot.teams[snapshot.activePlayer].characters.filter(c => !c.defeated && c.mana >= c.manaCost);
+      let cast = false;
+      for (const c of ready) {
+        if (session.resolve({ type: 'cast', characterId: c.id }).length > 0) { cast = true; break; }
+      }
+      if (cast) continue;
       const swap = skullFirstSwap(snapshot.board, aiRng);
       if (!swap) {
         session.passTurn();
@@ -326,8 +335,46 @@ describe('headless 真实对局（TurnEngine 驱动）', () => {
 });
 
 const TODAY = WEEK + 3_600_000;
-const INVASION_SEASON_GLORY_PROMOTE = 150;
 
 // INVASION_LEAGUES 仅用于官阶表完整性断言
 expect(INVASION_LEAGUES).toHaveLength(10);
 expect(INVASION_ZONES).toHaveLength(10);
+
+ describe('invasion common battle progression', () => {
+  it.each(['player', 'enemy'] as const)('pays XP, gold and souls on %s result in addition to collected loot', winner => {
+    const s = save(1);
+    ensureInvasionSeason(s, 0, WEEK);
+    const mirror = invasionCandidates(s, WEEK + 3600000, WEEK)[0]!;
+    const before = { ...s.currencies };
+    const maps = s.materials.treasureMaps;
+    const result = { winner, turns: 7, combatants: [], eventSummary: [], defeatedExternalIds: [],
+      economy: { gold: 17, souls: 9, gems: 2, maps: 1 } } as unknown as Parameters<typeof settleInvasionBattle>[1];
+    const out = settleInvasionBattle(s, result, mirror.id, WEEK + 3600000, WEEK, TODAY);
+    if (!out.ok) throw new Error('Settlement failed');
+    expect(out.battleRewards).toMatchObject(winner === 'player'
+      ? { gold: 60, souls: 30, xpGained: 100, heroLevelsGained: 1 }
+      : { gold: 20, souls: 10, xpGained: 20, heroLevelsGained: 0 });
+    expect(s.currencies.gold - before.gold).toBe(out.battleRewards.gold + out.gold + 17);
+    expect(s.currencies.souls - before.souls).toBe(out.battleRewards.souls + 9);
+    expect(s.currencies.gems - before.gems).toBe(2);
+    expect(s.materials.treasureMaps - maps).toBe(1);
+    expect(s.hero.xp).toBe(20);
+    expect(s.hero.level).toBe(winner === 'player' ? 2 : 1);
+    expect(s.stats.battlesWon).toBe(winner === 'player' ? 1 : 0);
+    expect(s.stats.battlesLost).toBe(winner === 'enemy' ? 1 : 0);
+  });
+  it('surrender still grants participation rewards but discards collected loot', () => {
+    const s = save(1);
+    ensureInvasionSeason(s, 0, WEEK);
+    const mirror = invasionCandidates(s, WEEK + 3600000, WEEK)[0]!;
+    const before = { ...s.currencies };
+    const result = { winner: 'enemy', endReason: 'surrender', turns: 2, combatants: [], eventSummary: [],
+      defeatedExternalIds: [], economy: { gold: 999, souls: 999, gems: 999, maps: 999 } } as unknown as Parameters<typeof settleInvasionBattle>[1];
+    const out = settleInvasionBattle(s, result, mirror.id, WEEK + 3600000, WEEK, TODAY);
+    expect(out).toMatchObject({ ok: true, collected: { gold: 0, souls: 0, gems: 0, maps: 0 },
+      battleRewards: { xpGained: 20, gold: 20, souls: 10 } });
+    expect(s.currencies.gold - before.gold).toBe(20);
+    expect(s.currencies.souls - before.souls).toBe(10);
+    expect(s.hero.xp).toBe(20);
+  });
+});

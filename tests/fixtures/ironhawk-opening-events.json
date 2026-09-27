@@ -1,0 +1,43 @@
+[
+  {
+    "type": "skill-cast",
+    "characterId": 0,
+    "skillId": "8497"
+  },
+  {
+    "type": "skill-damage",
+    "casterId": 0,
+    "targetId": 4,
+    "range": "single",
+    "damage": 5,
+    "resultingHp": 200,
+    "resultingArmor": 25
+  },
+  {
+    "type": "skill-damage",
+    "casterId": 0,
+    "targetId": 5,
+    "range": "single",
+    "damage": 5,
+    "resultingHp": 200,
+    "resultingArmor": 25
+  },
+  {
+    "type": "skill-damage",
+    "casterId": 0,
+    "targetId": 6,
+    "range": "single",
+    "damage": 5,
+    "resultingHp": 200,
+    "resultingArmor": 25
+  },
+  {
+    "type": "skill-damage",
+    "casterId": 0,
+    "targetId": 7,
+    "range": "single",
+    "damage": 5,
+    "resultingHp": 200,
+    "resultingArmor": 25
+  }
+]

@@ -22,6 +22,7 @@ export const RACE_NAMES: Record<string, string> = {
   Giant: '巨人', Gnome: '侏儒', Goblin: '地精', Human: '人类', Immortal: '不朽',
   Knight: '骑士', Mech: '机械', Merfolk: '人鱼', Monster: '怪物', Mystic: '法师',
   Naga: '娜迦', Orc: '兽人', Raksha: '罗刹', Rogue: '盗贼', Stryx: '鸦人',
+  OtherworldVisitor: '异界来客',
   Tauros: '牛族', Undead: '亡灵', Urska: '熊族', Wargare: '狼族', Wildfolk: '野民',
   // —— 机制标记（非种族，但会出现在 troopTypes 里，需要可显示） ——
   Boss: '首领', Castle: '城塞', Doom: '末日',

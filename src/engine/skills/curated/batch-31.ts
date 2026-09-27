@@ -8,7 +8,7 @@
  *   均非 BaseColor 色宝石、组装器无创造/转化/来源词汇 → SKIP（特殊宝石；
  *   batch-32 9014 龙宝石、batch-27 石像鬼宝石同款口径）。
  * - 「几率因X宝石数而增强/数量越多几率越大」概率加成现可用 chanceBoost 表达，但本池各条
- *   的转换/创造目标为特殊宝石（无法表达），整条仍卡 → SKIP；8547「有等同于自身魔法值的几率」
+ *   的转换/创造目标为特殊宝石（无法表达），整条仍卡 → SKIP；8547「有等同于自身魔力值的几率」
  *   几率值本身动态 → 语义拿不准。
  * - 献祭来源（7704/7343）按 SOP「来源属于…献祭…」→ 二次缩放来源不支持。
  * - 「敌我双方的妖仙数」（8102）无敌方种族计数来源（batch-27「敌我双方兽人数」同款）。
@@ -17,7 +17,7 @@
  * - 「&&」为 spell-rules.md §0.1 认可的子句分隔符，desc 逐字保留原文，子句按序编译
  *   （batch-23 8855/8867、batch-27 8300、batch-32 10058 同款）。
  */
-import { skill, dmg, mana, summonRef, transform } from '../builders';
+import { chooseSkill, magic, skill, dmg, summonRef, transform } from '../builders';
 import { BaseColor } from '../../types';
 import type { CuratedBatch } from './index';
 
@@ -27,7 +27,7 @@ const SKIPPED: { id: number; reason: string }[] = [
   { id: 8804, reason: '特殊宝石（石像鬼宝石，batch-27 同款）；「宝石附近或下方每有一颗绿色宝石」条件子句亦无原语' },
   { id: 8898, reason: '特殊宝石（「灵力宝石」非 BaseColor 色宝石，无转化词汇）' },
   { id: 8899, reason: '二次缩放来源不支持（「因红色宝石和灵力宝石数而增强」——灵力宝石非支持来源）' },
-  { id: 8976, reason: '语义拿不准（「每移除一颗骷髅头…1 点魔法值」与「再创造等同于移除骷髅头数」两处缩放子句共用唯一 [1:1]，修饰段归属未覆盖、双挂无先例）' },
+  { id: 8976, reason: '语义拿不准（「每移除一颗骷髅头…1 点魔力值」与「再创造等同于移除骷髅头数」两处缩放子句共用唯一 [1:1]，修饰段归属未覆盖、双挂无先例）' },
   { id: 9132, reason: '特殊宝石（蓝色龙宝石，batch-32 9014 同款）；「几率因蓝色宝石数而增强」现可用 chanceBoost 表达但整条仍卡' },
   { id: 9133, reason: '特殊宝石（绿色龙宝石）；「几率因绿色宝石数而增强」现可用 chanceBoost 表达但整条仍卡' },
   { id: 9134, reason: '特殊宝石（红色龙宝石）；「几率因红色宝石数而增强」现可用 chanceBoost 表达但整条仍卡' },
@@ -60,25 +60,12 @@ const SPELLS: CuratedBatch['spells'] = [
   {
     id: 8896,
     desc: '&& 对一名敌人造成 [魔法 + 3] 点伤害，再召唤一名暗影狐狸。&& 对一名敌人造成 [魔法 + 3] 点伤害，在获得 5 点法力值。',
-    build: skill(
-      // 「&&」为子句分隔符（spell-rules.md §0.1，batch-23 8855/8867 同款），两个 [魔法+3] 伤害段按序
-      dmg('enemyChosen', 3),
-      summonRef('ShadowFox', 7297),
-      // 「在获得 5 点法力值」按「再获得」读（在/再形近）：「获得」= 施法者自身（spell-rules.md §6）
-      dmg('enemyChosen', 3),
-      mana('allySelf', 5, 0),
-    ),
+    build: skill(chooseSkill(["对一名敌人造成［魔法＋3］伤害并召唤暗影狐狸","对一名敌人造成［魔法＋3］伤害，自身获得5点魔法"], [dmg('enemyChosen', 3), summonRef('ShadowFox', 7297)], [dmg('enemyChosen', 3), magic('allySelf', 5, 0)])),
   },
   {
     id: 9366,
     desc: '&& 将蓝色宝石转换成绿色宝石，红色宝石转换成骷髅头 && 将棕色宝石转换成绿色宝石，紫色宝石转换成骷髅头。',
-    build: skill(
-      // 「&&」为子句分隔符，两个转换子句各含两段转换，按序执行（颜色互不重叠，无连锁干扰）
-      transform(BaseColor.Blue, BaseColor.Green),
-      transform(BaseColor.Red, 'SKULL'),
-      transform(BaseColor.Brown, BaseColor.Green),
-      transform(BaseColor.Purple, 'SKULL'),
-    ),
+    build: skill(chooseSkill(["蓝色转绿色，红色转骷髅","棕色转绿色，紫色转骷髅"], [transform(BaseColor.Blue, BaseColor.Green), transform(BaseColor.Red, 'SKULL')], [transform(BaseColor.Brown, BaseColor.Green), transform(BaseColor.Purple, 'SKULL')])),
   },
 ];
 

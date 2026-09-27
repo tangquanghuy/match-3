@@ -12,7 +12,7 @@
  */
 import type { CuratedBatch } from './index';
 import { skill, dmg, dmgAll, trueDmg, armor, magic, inflict,
-  steal, drainMana, createGems, createSpecialGems, createMix, transform, transformToSpecial,
+  reduce, drainMana, createGems, createSpecialGems, createMix, transform, transformToSpecial,
   destroyChosenCol, destroySpecialGems, explodeSpecialGems, explodeRandomGems,
   createStorm, summonRef, extraTurn, sacrifice, reposition, CHOSEN } from '../builders';
 import { BaseColor } from '../../types';
@@ -21,9 +21,9 @@ const SKIPPED: { id: number; reason: string }[] = [
   { id: 9017, reason: '语义拿不准（「对其他所有敌人」无 enemyOthers 目标模式，enemyAll 会重复命中选定敌人）' },
   { id: 9193, reason: '特殊宝石（「蓝色闪电宝石」行列与颜色均无法表达）' },
   { id: 9367, reason: '语义拿不准（「若在中央尖塔内使用」地点/王国条件族）' },
-  { id: 9473, reason: '晋升度条件（「根据我的升天数造成 3 倍 - 5 倍伤害」）' },
+  { id: 9473, reason: '晋升度条件（「基于我已晋升的稀有度造成 3 到 5 倍伤害」）' },
   { id: 9483, reason: '语义拿不准（「如果在玛拉吉扩张区使用」地点/王国条件族）' },
-  { id: 9595, reason: '晋升度条件（「根据我的升华值造成3-5倍伤害」）' },
+  { id: 9595, reason: '晋升度条件（「基于我已晋升的稀有度造成 3 到 5 倍伤害」）' },
   { id: 9640, reason: '语义拿不准（目标数 [魔法+2] 带魔法缩放无原语；「消除随机技能点」无随机属性削减原语）' },
   { id: 9745, reason: '特殊宝石（「精神宝石」未实现）' },
   { id: 9839, reason: '语义拿不准（「若在破碎之地使用」地点/王国条件族）' },
@@ -38,7 +38,7 @@ const SKIPPED: { id: number; reason: string }[] = [
 const SPELLS: CuratedBatch['spells'] = [
   {
     id: 7408,
-    desc: '创造 15 颗宝石，所创造的宝石混合紫色和一种选定类型。杀死最后一名盟友。所有其他盟友获得 [(魔法 / 2) + 1] 点魔法值，点数因陷入死亡标记状态的敌军数量而增强。 [x4]',
+    desc: '创造 15 颗宝石，所创造的宝石混合紫色和一种选定类型。杀死最后一名盟友。所有其他盟友获得 [(魔法 / 2) + 1] 点魔力值，点数因陷入死亡标记状态的敌军数量而增强。 [x4]',
     build: skill(
       createMix([BaseColor.Purple, CHOSEN], 15),
       sacrifice('allyLast'),
@@ -47,7 +47,7 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 7487,
-    desc: '召唤火风暴。对所有敌人造成 [魔法 + 4] 点伤害。获得 1 点魔法值，点数因红色宝石数而增强。 [3:1]',
+    desc: '召唤火风暴。对所有敌人造成 [魔法 + 4] 点伤害。获得 1 点魔力值，点数因红色宝石数而增强。 [3:1]',
     build: skill(
       createStorm(BaseColor.Red),
       dmgAll(4),
@@ -240,7 +240,8 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 9513,
     desc: '吸取一名敌人的 4 点法力值，因患病敌人而增强。对他们造成疾病。 [x2]',
     build: skill(
-      steal('enemyChosen', 'mana', 'mana', 4, 0, { modifier: { mod: { kind: 'multiplier', a: 2 }, source: { kind: 'enemyStatusCount', statusId: 'disease' } } }),
+      // L3-007: native DecreaseMana (drain) — no refill to the caster
+      reduce('enemyChosen', 'mana', 4, 0, { modifier: { mod: { kind: 'multiplier', a: 2 }, source: { kind: 'enemyStatusCount', statusId: 'disease' } } }),
       inflict('disease', 'lastTarget'),
     ),
   },

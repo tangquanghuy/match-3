@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { BoardModel } from '@engine/BoardModel';
+import { createSpecialGems, createSpecialGems2, createMix, createGemsMixAny, transformToSpecial } from '@engine/skills/builders';
 import { TurnEngine } from '@engine/TurnEngine';
 import { MatchResolver } from '@engine/MatchResolver';
 import { createGameState } from '@engine/GameState';
@@ -211,6 +212,14 @@ describe('波B 匹配归属（六色族 spec.color / 星族特殊键 / 不可匹
     expect(isSameMatchType(specialGem('dragonGem', undefined, BaseColor.Red), specialGem('dragonGem', undefined, BaseColor.Blue))).toBe(false);
     expect(matchJoinKey(specialGem('giantGem', undefined, BaseColor.Green))).toBe('Green');
     expect(isSameMatchType(specialGem('spiritGem', undefined, BaseColor.Purple), colorGem(BaseColor.Purple))).toBe(true);
+    expect(() => specialGem('spiritGem')).toThrow('explicit color');
+    expect(() => createSpecialGems({ kind: 'spiritGem' }, 1)).toThrow('explicit color');
+    expect(() => createSpecialGems2([{ kind: 'spiritGem' }, { kind: 'bomb' }], 1)).toThrow('explicit color');
+    expect(() => createMix([{ kind: 'spiritGem' }, BaseColor.Blue], 1)).toThrow('explicit color');
+    expect(() => createGemsMixAny([{ kind: 'spiritGem' }, BaseColor.Blue], 1)).toThrow('explicit color');
+    expect(createSpecialGems({ kind: 'spiritGem', color: BaseColor.Green }, 1).params).toMatchObject({ gem: { spec: { color: BaseColor.Green } } });
+    expect(transformToSpecial(BaseColor.Blue, 'spiritGem').params).toMatchObject({ spiritColorFromSource: true });
+    expect(() => transformToSpecial('ANY', 'spiritGem')).toThrow('mana color source');
     expect(isSameMatchType(specialGem('manaPotionGem', undefined, BaseColor.Green), colorGem(BaseColor.Green))).toBe(true);
     expect(isSameMatchType(specialGem('candyGem', undefined, BaseColor.Yellow), colorGem(BaseColor.Yellow))).toBe(true);
   });
@@ -331,7 +340,7 @@ describe('巨人宝石（giantGem：匹配/摧毁 → +5 该色法力 + 爆炸�
     const { events, state } = destroyAt('giantGem', { color: BaseColor.Red });
     expect(eventsOf('special-gem-trigger', events)[0]).toMatchObject({ kind: 'giantGem', color: BaseColor.Red });
     const red = eventsOf('mana-gain', events).filter((e) => e.color === BaseColor.Red);
-    expect(red.reduce((s, e) => s + e.amount, 0)).toBe(MANA_BONUS_GIANT);
+    expect(red.reduce((s, e) => s + e.amount, 0)).toBe(MANA_BONUS_GIANT + 1);
     // 接收者为 Left 队首（沉默/满魔跳过的 ManaDistributor 口径）
     expect(red[0].characterId).toBe(state.teams[PlayerSide.Left].characters[0].id);
     const explode = eventsOf('gem-explode', events)[0];
@@ -371,7 +380,7 @@ describe('巨人宝石（giantGem：匹配/摧毁 → +5 该色法力 + 爆炸�
     const events: GameEvent[] = [];
     engine.resolveBoardChange([{ gemType: specialGem('giantGem', undefined, BaseColor.Red), pos: { row: 3, col: 3 } }], events);
     const red = eventsOf('mana-gain', events).filter((e) => e.color === BaseColor.Red);
-    expect(red.reduce((s, e) => s + e.amount, 0)).toBe(MANA_BONUS_GIANT);
+    expect(red.reduce((s, e) => s + e.amount, 0)).toBe(MANA_BONUS_GIANT + 1);
     expect(red.every((e) => e.characterId !== state.teams[PlayerSide.Left].characters[0].id)).toBe(true);
   });
 });
@@ -402,7 +411,7 @@ describe('灵力宝石（spiritGem：匹配/摧毁 → 敌方每个存活角色 
     expect(foe0.mana).toBe(0);
     expect(foe1.mana).toBe(5 - SPIRIT_GEM_DRAIN);
     // 不转移：己方法力不变
-    expect(state.teams[PlayerSide.Left].characters.every((c) => c.mana === 0)).toBe(true);
+    expect(state.teams[PlayerSide.Left].characters.reduce((n, c) => n + c.mana, 0)).toBe(1);
   });
 
   it('法力操作免疫（manashield）拦截汲取（与引擎削减口同口径）', () => {
@@ -423,83 +432,147 @@ describe('灵力宝石（spiritGem：匹配/摧毁 → 敌方每个存活角色 
     attachPassives(foe); // TurnEngine 构造期已编译过一次，改特质后需重编译
     board.set({ row: 3, col: 3 }, null);
     const events: GameEvent[] = [];
-    engine.resolveBoardChange([{ gemType: specialGem('spiritGem'), pos: { row: 3, col: 3 } }], events);
+    engine.resolveBoardChange([{ gemType: specialGem('spiritGem', undefined, BaseColor.Purple), pos: { row: 3, col: 3 } }], events);
     expect(foe.mana).toBe(6);
     expect(eventsOf('buff', events).filter((e) => e.stat === 'mana' && e.amount < 0)).toHaveLength(0);
   });
 });
 
-describe('法力药水宝石（manaPotionGem：摧毁 → 全盘随机空格撒 7-11 颗该色宝石）', () => {
-  it('被摧毁：7-11 颗绿色普通宝石落在原本为空的格子（gem-create 事件）', () => {
-    const layout = [
-      '........',
-      '........',
-      '........',
-      '........',
-      '........',
-      '........',
-      '........',
-      '........',
-    ];
-    const { board, engine } = makeEngine(layout, { seed: 7 });
-    // 挖出确定性的空格集合（rows 5-7 × cols 0-5 = 18 格）
-    const emptied = new Set<string>();
-    for (let r = 5; r <= 7; r++) {
-      for (let c = 0; c <= 5; c++) {
-        board.set({ row: r, col: c }, null);
-        emptied.add(`${r},${c}`);
+describe('法力药水宝石（manaPotionGem：补盘后全盘创造 7-11 颗同色宝石）', () => {
+  function expectPotionScatter(events: GameEvent[], color: BaseColor, expectedPotions = 1) {
+    const triggers = eventsOf('special-gem-trigger', events).filter(e => e.kind === 'manaPotionGem');
+    expect(triggers).toHaveLength(expectedPotions);
+    expect(triggers.every(e => e.color === color)).toBe(true);
+    const transforms = eventsOf('gem-transform', events);
+    expect(transforms).toHaveLength(expectedPotions);
+    for (const transform of transforms) {
+      expect(transform.changes.length).toBeGreaterThanOrEqual(7);
+      expect(transform.changes.length).toBeLessThanOrEqual(11);
+      expect(new Set(transform.changes.map(c => `${c.pos.row},${c.pos.col}`)).size).toBe(transform.changes.length);
+      for (const change of transform.changes) {
+        expect(change.to).toEqual(colorGem(color));
+        expect(isSameMatchType(change.from, change.to)).toBe(false);
       }
     }
-    board.set({ row: 3, col: 3 }, null);
-    const events: GameEvent[] = [];
-    engine.resolveBoardChange([{ gemType: specialGem('manaPotionGem', undefined, BaseColor.Green), pos: { row: 3, col: 3 } }], events);
-    const trig = eventsOf('special-gem-trigger', events).find((e) => e.kind === 'manaPotionGem');
-    expect(trig).toMatchObject({ color: BaseColor.Green });
-    const create = eventsOf('gem-create', events)[0];
-    expect(create).toBeDefined();
-    expect(create.spawns.length).toBeGreaterThanOrEqual(7);
-    expect(create.spawns.length).toBeLessThanOrEqual(11);
-    for (const s of create.spawns) {
-      expect(emptied.has(`${s.pos.row},${s.pos.col}`)).toBe(true); // 只落空格
-      expect(s.gemType).toEqual(colorGem(BaseColor.Green));
-    }
+    const firstTransform = events.findIndex(e => e.type === 'gem-transform');
+    const firstRefill = events.findIndex(e => e.type === 'refill');
+    expect(firstRefill).toBeGreaterThanOrEqual(0);
+    expect(firstTransform).toBeGreaterThan(firstRefill);
+    return transforms;
+  }
+
+  function potionMatch(potions = 1, seed = 7) {
+    // 不含绿色的稳定棋盘：交换后只有底行的三连，不靠额外空格满足生成数量。
+    const palette = 'RBYPW';
+    const layout = Array.from({ length: 8 }, (_, row) =>
+      Array.from({ length: 8 }, (_, col) => palette[(row + col) % palette.length]).join(''));
+    const f = makeEngine(layout, { seed });
+    f.board.set({ row: 7, col: 0 }, g(specialGem('manaPotionGem', undefined, BaseColor.Green)));
+    f.board.set({ row: 7, col: 1 }, g(potions === 2
+      ? specialGem('manaPotionGem', undefined, BaseColor.Green) : colorGem(BaseColor.Green)));
+    f.board.set({ row: 7, col: 2 }, g(colorGem(BaseColor.Red)));
+    f.board.set({ row: 6, col: 2 }, g(colorGem(BaseColor.Green)));
+    expect(new MatchResolver().findMatches(f.board)).toHaveLength(0);
+    const events = f.engine.resolveSwap({ row: 6, col: 2 }, { row: 7, col: 2 });
+    expect(eventsOf('elimination', events)[0].cells).toHaveLength(3);
+    return { ...f, events };
+  }
+
+  it.each(Object.values(BaseColor))('单格摧毁 %s 药水：补盘后仍生成 7-11 颗，覆盖六种颜色', color => {
+    const { events, board } = destroyAt('manaPotionGem', { color });
+    expectPotionScatter(events, color);
+    expect(new MatchResolver().findMatches(board)).toHaveLength(0);
   });
 
-  it('确定性：同种子双跑 gem-create 数量与落点逐字节一致', () => {
-    const run = (): { n: number; cells: string[]; rngState: number } => {
-      const layout = [
-        '........',
-        '........',
-        '........',
-        '........',
-        '........',
-        '........',
-        '........',
-        '........',
-      ];
-      const { board, engine, rng } = makeEngine(layout, { seed: 11 });
-      const emptied = new Set<string>();
-      for (let r = 0; r < BoardModel.ROWS; r++) {
-        for (let c = 0; c < 3; c++) {
-          board.set({ row: r, col: c }, null);
-          emptied.add(`${r},${c}`);
-        }
-      }
-      board.set({ row: 3, col: 3 }, null);
-      const events: GameEvent[] = [];
-      engine.resolveBoardChange([{ gemType: specialGem('manaPotionGem', undefined, BaseColor.Green), pos: { row: 3, col: 3 } }], events);
-      const create = eventsOf('gem-create', events)[0];
-      return {
-        n: create.spawns.length,
-        cells: create.spawns.map((s) => `${s.pos.row},${s.pos.col}`).sort(),
-        rngState: rng.getState(),
-      };
+  it('普通三连只有三个空格，也能在全盘生成 7-11 颗，并继续结算新匹配', () => {
+    const counts = new Set<number>();
+    let sawCascade = false;
+    for (let seed = 1; seed <= 32; seed++) {
+      const { events, board } = potionMatch(1, seed);
+      const [transform] = expectPotionScatter(events, BaseColor.Green);
+      counts.add(transform.changes.length);
+      expect(transform.changes.some(c => c.pos.row !== 7 || c.pos.col > 2)).toBe(true);
+      sawCascade ||= events.slice(events.indexOf(transform) + 1).some(e => e.type === 'elimination');
+      expect(new MatchResolver().findMatches(board)).toHaveLength(0);
+    }
+    // 全盘随机铺色并非必出匹配；跨种子验证有连锁时已被引擎正常结算。
+    expect(sawCascade).toBe(true);
+    expect(counts.has(7)).toBe(true);
+    expect(counts.has(11)).toBe(true);
+  });
+
+  it('同一组三连触发两个药水，各自生成 7-11 颗，不争抢三个空格', () => {
+    const { events, board } = potionMatch(2);
+    const transforms = expectPotionScatter(events, BaseColor.Green, 2);
+    const changes = transforms.flatMap(e => e.changes);
+    expect(changes.length).toBeGreaterThanOrEqual(14);
+    expect(new Set(changes.map(c => `${c.pos.row},${c.pos.col}`)).size).toBe(changes.length);
+    expect(new MatchResolver().findMatches(board)).toHaveLength(0);
+  });
+
+  it.each([false, true])('爆破与药水混合触发（药水先入队=%s）：破坏链和补盘完成后再铺色', potionFirst => {
+    const { board, engine } = makeEngine(Array(8).fill('........'));
+    const potionPos = { row: 3, col: 3 };
+    const bombPos = { row: 3, col: 4 };
+    board.set(potionPos, null);
+    board.set(bombPos, null);
+    const potion = { gemType: specialGem('manaPotionGem', undefined, BaseColor.Green), pos: potionPos };
+    const bomb = { gemType: specialGem('bomb'), pos: bombPos };
+    // 让炸弹再引爆另一颗炸弹，确保药水铺色不被尚未结束的破坏链扫掉。
+    board.set({ row: 3, col: 5 }, g(specialGem('bomb')));
+    const events: GameEvent[] = [];
+    engine.resolveBoardChange(potionFirst ? [potion, bomb] : [bomb, potion], events, PlayerSide.Left, 'explode');
+    const [transform] = expectPotionScatter(events, BaseColor.Green);
+    const lastExplosion = events.reduce((index, event, i) => event.type === 'gem-explode' ? i : index, -1);
+    expect(lastExplosion).toBeGreaterThanOrEqual(0);
+    expect(events.indexOf(transform)).toBeGreaterThan(lastExplosion);
+    expect(new MatchResolver().findMatches(board)).toHaveLength(0);
+  });
+
+  it('被炸弹连带摧毁的药水也触发完整的铺色效果', () => {
+    const { board, engine } = makeEngine(Array(8).fill('........'));
+    const pos = { row: 3, col: 3 };
+    board.set(pos, null);
+    board.set({ row: 3, col: 4 }, g(specialGem('manaPotionGem', undefined, BaseColor.Purple)));
+    const events: GameEvent[] = [];
+    engine.resolveBoardChange([{ gemType: specialGem('bomb'), pos }], events);
+    expectPotionScatter(events, BaseColor.Purple);
+    expect(new MatchResolver().findMatches(board)).toHaveLength(0);
+  });
+
+  it('同批摧毁不同颜色的药水，各自按自己的颜色铺色，后续结算不重复触发', () => {
+    const { board, engine } = makeEngine(Array(8).fill('........'));
+    const colors = [BaseColor.Green, BaseColor.Purple];
+    const destroyed = colors.map((color, i) => {
+      const pos = { row: 3, col: 3 + i };
+      board.set(pos, null);
+      return { gemType: specialGem('manaPotionGem', undefined, color), pos };
+    });
+    const events: GameEvent[] = [];
+    engine.resolveBoardChange(destroyed, events);
+    const transforms = eventsOf('gem-transform', events);
+    expect(transforms).toHaveLength(2);
+    for (const [i, transform] of transforms.entries()) {
+      expect(transform.changes.length).toBeGreaterThanOrEqual(7);
+      expect(transform.changes.length).toBeLessThanOrEqual(11);
+      expect(transform.changes.every(c => c.to.kind === 'color' && c.to.color === colors[i])).toBe(true);
+    }
+    const laterEvents: GameEvent[] = [];
+    engine.resolveBoardChange([], laterEvents);
+    expect(eventsOf('gem-transform', laterEvents)).toHaveLength(0);
+    expect(eventsOf('special-gem-trigger', laterEvents)).toHaveLength(0);
+    expect(new MatchResolver().findMatches(board)).toHaveLength(0);
+  });
+
+  it('同种子重放：事件、最终棋盘和随机状态完全一致', () => {
+    const run = () => {
+      resetGid();
+      const { events, board, rng } = potionMatch(2, 11);
+      const gems: (Gem | null)[] = [];
+      board.forEach(gem => gems.push(gem));
+      return { events, gems, rngState: rng.getState() };
     };
-    const a = run();
-    const b = run();
-    expect(b.n).toBe(a.n);
-    expect(b.cells).toEqual(a.cells);
-    expect(b.rngState).toBe(a.rngState);
+    expect(run()).toEqual(run());
   });
 });
 
@@ -517,7 +590,7 @@ describe('糖果宝石（candyGem：匹配 → 己方全体该色存活盟友各
     expect(ally1.mana).toBe(1);
   });
 
-  it('沉默盟友不获得（canGainMana 口径）；被普通摧毁不触发（官方只写 when matched）', () => {
+  it('直接摧毁糖果同样触发；沉默盟友不获得奖励法力', () => {
     const layout = [
       '........',
       '........',
@@ -533,9 +606,10 @@ describe('糖果宝石（candyGem：匹配 → 己方全体该色存活盟友各
     board.set({ row: 3, col: 3 }, null);
     const events: GameEvent[] = [];
     engine.resolveBoardChange([{ gemType: specialGem('candyGem', undefined, BaseColor.Yellow), pos: { row: 3, col: 3 } }], events);
-    expect(eventsOf('special-gem-trigger', events).some((e) => e.kind === 'candyGem')).toBe(false);
-    expect(eventsOf('buff', events).some((e) => e.stat === 'mana')).toBe(false);
-    expect(state.teams[PlayerSide.Left].characters.every((c) => c.mana === 0)).toBe(true);
+    expect(eventsOf('special-gem-trigger', events).filter((e) => e.kind === 'candyGem')).toHaveLength(1);
+    expect(eventsOf('buff', events).filter((e) => e.stat === 'mana')).toHaveLength(1);
+    expect(state.teams[PlayerSide.Left].characters[0].mana).toBe(0);
+    expect(state.teams[PlayerSide.Left].characters[1].mana).toBe(2); // 本色基础法力 + 糖果奖励
   });
 });
 
@@ -650,7 +724,7 @@ describe('天使宝石（angelGem：摧毁 → 随机己方 blessed，施加即�
 });
 
 describe('恶魔传送门宝石（daemonicPortalGem：摧毁 → 炸一圈 + 为摧毁者召唤随机恶魔）', () => {
-  it('被摧毁：8 邻格 gem-explode + 召唤入场（summonQueue FIFO 先例口径）', () => {
+  it('被摧毁：8 邻格 gem-explode + 有空位时召唤入场', () => {
     setSummonTemplateResolver(() => makeChar(0));
     const layout = [
       '........',
@@ -830,7 +904,7 @@ describe('腐朽宝石（decayGem：盘上光环，回合开始兵多一方全�
   });
 });
 
-describe('火山宝石（volcanoGem：匹配 → 向上垂直列 + 对角爆炸；普通摧毁不触发）', () => {
+describe('volcanoGem: matching and direct destruction both blast upward', () => {
   it('被匹配：向上垂直 + 对角延伸清除', () => {
     const { engine } = matchViaSwap('V', 'R');
     const events = engine.resolveSwap({ row: 3, col: 5 }, { row: 3, col: 6 });
@@ -843,10 +917,10 @@ describe('火山宝石（volcanoGem：匹配 → 向上垂直列 + 对角爆炸�
       .toEqual(['0,2', '0,5', '1,0', '1,2', '1,4', '2,1', '2,2', '2,3']);
   });
 
-  it('被普通摧毁不触发（官方 guide 句式只写 match；doomSkull 同款 viaMatch 门）', () => {
+  it('direct destruction also blasts upward', () => {
     const { events } = destroyAt('volcanoGem', { color: BaseColor.Red });
-    expect(eventsOf('special-gem-trigger', events).some((e) => e.kind === 'volcanoGem')).toBe(false);
-    expect(eventsOf('gem-explode', events)).toHaveLength(0);
+    expect(eventsOf('special-gem-trigger', events).filter((e) => e.kind === 'volcanoGem')).toHaveLength(1);
+    expect(eventsOf('gem-explode', events).some((e) => e.cells.some((c) => c.pos.row === 2 && c.pos.col === 3))).toBe(true);
   });
 });
 
@@ -896,11 +970,22 @@ describe('陷阱宝石（trapGem：摧毁 → 五选一负面，永远打玩家�
   });
 });
 
-describe('行为句未证实宝石（enchantedGem / mimicGem：kind 先行，摧毁无特殊效果）', () => {
-  it('附魔宝石：紫匹配成立；被摧毁无触发事件（待官方语义核实）', () => {
+describe('enchantedGem matches for Enchant, mimicGem behavior still pending', () => {
+  it('direct destruction of enchant gem enchants exactly one ally', () => {
     const { events } = destroyAt('enchantedGem');
-    expect(eventsOf('special-gem-trigger', events)).toHaveLength(0);
-    expect(eventsOf('status-apply', events)).toHaveLength(0);
+    expect(eventsOf('special-gem-trigger', events).filter((e) => e.kind === 'enchantedGem')).toHaveLength(1);
+    expect(eventsOf('status-apply', events).filter((e) => e.statusId === 'enchanted')).toHaveLength(1);
+    expect(eventsOf('mana-gain', events).filter((e) => e.color === BaseColor.Purple).reduce((n, e) => n + e.amount, 0)).toBe(1);
+  });
+
+  it('matching enchant gem with purple enchants exactly one random living ally', () => {
+    const { engine, state } = matchViaSwap('E', 'P');
+    const events = engine.resolveSwap({ row: 3, col: 5 }, { row: 3, col: 6 });
+    expect(eventsOf('special-gem-trigger', events).filter((e) => e.kind === 'enchantedGem')).toHaveLength(1);
+    const enchants = eventsOf('status-apply', events).filter((e) => e.statusId === 'enchanted');
+    expect(enchants).toHaveLength(1);
+    expect(state.teams[PlayerSide.Left].characters.map((c) => c.id)).toContain(enchants[0].targetId);
+    expect(state.teams[PlayerSide.Left].characters.find((c) => c.id === enchants[0].targetId)?.statuses.some((s) => s.id === 'enchanted')).toBe(true);
   });
 
   it('宝箱怪宝石：无匹配归属；被摧毁无触发事件（待官方语义核实）', () => {
@@ -1021,4 +1106,42 @@ describe('确定性与随机数序列护栏（GravitySystem 骷髅风暴同款�
     };
     expect(withDecay()).toBe(withoutDecay());
   });
+});
+
+
+describe('colored heroic gem base mana', () => {
+  it('one directly destroyed Enchant Gem grants purple mana and Enchant', () => {
+    const { events } = destroyAt('enchantedGem');
+    expect(eventsOf('mana-gain', events).filter((e) => e.color === BaseColor.Purple)
+      .reduce((sum, e) => sum + e.amount, 0)).toBe(1);
+    expect(eventsOf('status-apply', events).filter((e) => e.statusId === 'enchanted')).toHaveLength(1);
+  });
+
+  it('two explosion-cleared Enchant Gems share color and award half-mana once', () => {
+    const { board, engine } = makeEngine(Array(8).fill('........'), { seed: 7 });
+    const positions = [{ row: 3, col: 3 }, { row: 3, col: 4 }];
+    for (const pos of positions) board.set(pos, null);
+    const events: GameEvent[] = [];
+    engine.resolveBoardChange(positions.map((pos) => ({ gemType: specialGem('enchantedGem'), pos })), events, PlayerSide.Left, 'explode');
+    expect(eventsOf('mana-gain', events).filter((e) => e.color === BaseColor.Purple)
+      .reduce((sum, e) => sum + e.amount, 0)).toBe(1);
+    expect(eventsOf('status-apply', events).filter((e) => e.statusId === 'enchanted')).toHaveLength(2);
+  });
+});
+
+
+describe('multi-color stars trigger on matching and destruction', () => {
+  for (const kind of ['elementalStar', 'umbralStar'] as const) {
+    it(`${kind} directly destroyed triggers its line / diagonal clear once`, () => {
+      const { board, engine } = makeEngine(Array(8).fill('........'), { seed: 7 });
+      const pos = { row: 3, col: 3 };
+      board.set(pos, null);
+      const events: GameEvent[] = [];
+      engine.resolveBoardChange([{ gemType: specialGem(kind), pos }], events);
+      expect(eventsOf('special-gem-trigger', events).filter((e) => e.kind === kind)).toHaveLength(1);
+      const clears = eventsOf('gem-destroy', events).flatMap((e) => e.cells);
+      expect(clears).toHaveLength(kind === 'elementalStar' ? 4 : 14);
+      expect(new Set(clears.map((cell) => `${cell.pos.row},${cell.pos.col}`)).size).toBe(clears.length);
+    });
+  }
 });

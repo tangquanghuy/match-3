@@ -3,13 +3,13 @@
  *
  * 工作面 = batch-r27 的 22 条 SKIP 存量逐条重审（官方 EN 原句 troops.gow.en.json +
  * 官方 SpellSteps spells.gow.en.json RawData.SpellSteps，8xxx 起可用）。本轮在**技能
- * 子系统内**补齐缺口原语后回收 19 条，3 条维持 SKIP（见 SKIPPED，7493 永久排除）。
+ * 子系统内**补齐缺口原语后回收 19 条，3 条维持 SKIP（见 SKIPPED，7493 已在 batch-acceptance 恢复）。
  *
  * 本批新原语（全部落在 src/engine/skills/**，未动 TurnEngine/types/GameState）：
  * - 经济支出/窃取：spendGold / stealGold 段（effects/economy.ts）+ goldSpent / goldStolen
  *   跨段追踪（effects/context.ts）+ 同名 modifier 来源（effects/secondary.ts）——
- *   「花费/失去/窃取黄金」与「因花费/窃取的黄金数而增强」打通；共用池口径裁定见
- *   economy.ts 注释（敌方黄金池不存在，全额窃取 = 池内黄金零和易主代理）。
+ *   「花费/失去/窃取黄金」与「因花费/窃取的黄金数而增强」打通；双方独立黄金余额口径见
+ *   economy.ts：黄金现按双方独立持有，窃取按敌方可用余额转移。
  * - CountMax 封顶：ModifierSpec.max（加成项封顶）——7667/8141/8142 上限、10061 几率封顶。
  * - 双系数伤害：DamageSegment.modifiers 数组（加成相加）——7483「=自身攻击力 ×1 +
  *   棕色敌军数 ×10」单通道数学上不可同表的解。
@@ -37,7 +37,7 @@ import type { CuratedBatch } from './index';
 
 const SKIPPED: { id: number; reason: string }[] = [
   // —— 官方数据矛盾 / 语义歧义（原语补齐后仍不可表达） ——
-  { id: 7493, reason: '「随机发生任何情况」= 蒙戈玩笑咒语（EN "Something random happens."，官方无 SpellSteps、无任何可枚举分支）——oneOf 无支可组，混沌句 spell-rules §7 永久排除（本批不救）' },
+  { id: 7493, reason: '历史跳过；现已依据原始 A-B-C-D-E-F 六步骤在 batch-acceptance 恢复，非永久排除。共享吞噬、转化池及状态规则另待认证。' },
   { id: 7810, reason: '「爆破 4 颗敌军法力颜色的宝石、20% 几率吞噬敌军」= ColorSpec ENEMY 在宝石段内部掷签出色与来源敌人但不入跨段追踪，「them」= 出色敌人绑定断裂（需 ENEMY 色源敌人追踪 + 专用目标模式，本批未做）；7xxx 段无官方步骤数据可考，吞噬语义（是否同一名敌人）无从复核' },
   { id: 8211, reason: '「并或使其下潜、或将其吞噬、或将其转化成一名恶魔并打回末位」官方步骤为顺序执行（Damage→CauseSubmerged→TransformType daemon→TroopOrderBack→Consume，无分支标记）与 EN/ZH「或」句式矛盾——oneOf 读法被官方步骤否决、顺序链读法（下潜后变身再吞噬）官方手感不可能；恶魔名册本批已备（raceRoster）但分支结构无从裁定，官方数据矛盾维持 SKIP' },
 ];
@@ -67,7 +67,7 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 7435,
-    desc: '所有恶魔盟友获得 2 点魔法值。如果自身有 12 个或更多灵魂，则召唤一位随机恶魔。',
+    desc: '所有恶魔盟友获得 2 点魔力值。如果自身有 12 个或更多灵魂，则召唤一位随机恶魔。',
     // EN "All Daemon Allies gain 2 Magic. If my Souls are 12 or more, summon a
     // random Daemon." 判读：
     // - 「所有恶魔盟友」= allyAll + targetRace Daemon（种族限定目标既有口径）。
@@ -197,18 +197,13 @@ const SPELLS: CuratedBatch['spells'] = [
   {
     id: 8087,
     desc: '窃取一名敌人最多 50 黄金。对一名敌人造成 [魔法 + 2] 点伤害，伤害值因被窃取的黄金数而增强。 [1:1]',
-    // EN "Steal Up to 50 Gold from the Enemy. Deal [Magic + 2] damage to an Enemy,
-    // boosted by Gold stolen. [1:1]" 判读：
-    // - 「最多 50 黄金」= 官方 CountEnemyGold→CountMax 50→TakeEnemyGold：定量窃取按
-    //   §10.2 既有口径 gainGold(50)（无敌方池可扣，up-to 上限按上限值入账，注释见
-    //   economy.ts）；实际入账额 50 记入 goldStolen。
-    // - 「因被窃取的黄金数而增强」= goldStolen 来源（battleGold 是池总额、≠本次窃取额
-    //   ——r27 卡点由跨段追踪解锁）；[1:1] = 每 1 黄金 +1 伤害，已被消费。
+    // Native: count/cap enemy Gold -> debit -> damage boosted by actual theft -> credit.
     build: skill(
-      stealGold(50, 0),
+      stealGold(50, 0, { deferCredit: true }),
       dmg('enemyChosen', 2, 1, {
         modifier: { mod: { kind: 'multiplier', a: 1 }, source: { kind: 'goldStolen' } },
       }),
+      gainGold(0, 0, { modifier: { mod: { kind: 'multiplier', a: 1 }, source: { kind: 'goldStolen' } } }),
     ),
   },
   {
@@ -217,8 +212,7 @@ const SPELLS: CuratedBatch['spells'] = [
     // EN "Steal all Enemy Gold. Create 6 Purple Gems, boosted by Gold stolen to a
     // maximum of 16 Gems. [1:1]" 判读：
     // - 「窃取所有敌人的黄金」= stealGold all（官方 CountEnemyGold 100 + TakeEnemyGold
-    //   全额）：共用池零和易主裁定（池总额不变、goldStolen 记池内黄金总额），注释见
-    //   economy.ts——共用池无敌方分账，池内黄金即「敌方手中黄金」的唯一在场代理。
+    //   全额）：转移独立敌方黄金计数，goldStolen 记实际转移额。
     // - 「数量因窃取的黄金数而增强」= goldStolen；「上限 16」= 官方 CountMax 10 →
     //   max = 10 封加成项（6 + min(stolen, 10) ≤ 16）；[1:1] 已被消费。
     build: skill(
@@ -318,7 +312,7 @@ const SPELLS: CuratedBatch['spells'] = [
     // EN "Steal [Magic + 2] Gold. Then deal [Magic + 2] damage to an Enemy,
     // boosted by Gold stolen. [50:1]" 官方步骤 CountEnemyGold + CountMaxWithMagic +
     // TakeEnemyGold + GiveGold + Damage(UseCounterForAmount)。判读：
-    // - 定量窃取 = stealGold(2, 1)（§10.2 gainGold 口径 + goldStoken 记实际入账额）。
+    // - 定量窃取 = stealGold(2, 1)（独立敌方余额转移 + goldStolen 记实际转移额）。
     // - 「数值因窃取黄金数而增强」= goldStolen；[50:1] = 每 50 黄金 +1 伤害，已被消费。
     build: skill(
       stealGold(2, 1),
@@ -333,14 +327,14 @@ const SPELLS: CuratedBatch['spells'] = [
     // EN "Steal all Gold from the Enemy. Deal [Magic + 3] damage to an Enemy and
     // inflict Bleed. [x10]" 官方步骤 CountEnemyGold 1000 + Damage + CauseBleed +
     // TakeEnemyGold + GiveGold（伤害段**无** UseCounterForAmount）。判读：
-    // - 「窃取所有黄金」= stealGold all（零和易主裁定，8141 同口径）。
+    // - 「窃取所有黄金」= stealGold all（独立敌方余额全额转移，8141 同口径）。
     // - 「使其陷入出血」= lastTarget（「其」= 首段伤害目标跨段绑定，不重抽 rng）。
     // - 尾缀 [x10]：官方步骤伤害/出血均无来源计数实锤，唯一量源（全额窃取额）×10
     //   与步骤矛盾——孤儿 tag 不挂载不硬凑（§14.12 / K-B 收官轮 12 口径，记录保留）。
     build: skill(
-      stealGold(0, 0, { all: true }),
       dmg('enemyChosen', 3, 1),
       inflict('bleed', 'lastTarget'),
+      stealGold(0, 0, { all: true }),
     ),
   },
   {
@@ -378,14 +372,17 @@ const SPELLS: CuratedBatch['spells'] = [
     //   「几率封顶无原语」解锁）。[10:1] 已被 chanceBoost 消费。
     // - 记录：官方步骤护甲计数在伤害前（CountArmor 先行），本组装按描述段序击杀判读
     //   在伤害后 → targetStat armor 读的是受击后的现行护甲（差异记录，不硬凑时序）。
+    // - R001 / L6-7833（sa-L76 修复）：按原生步骤序执行——先按伤害前护甲判定击杀，再造成
+    //   伤害、拉到末位（目标已死则两段空转）。段级几率在目标解析前求值（此时尚无 lastTarget），
+    //   故几率来源用 chosenStat（本次选定的敌人 = FromTarget）。
     build: skill(
-      dmg('enemyChosen', 4, 1),
-      reposition('lastTarget', 'back'),
-      dmg('lastTarget', 0, 0, {
+      dmg('enemyChosen', 0, 0, {
         execute: true,
         chance: 0.1,
-        chanceBoost: { mod: { kind: 'ratio', a: 10, b: 1 }, source: { kind: 'targetStat', stat: 'armor' }, max: 20 },
+        chanceBoost: { mod: { kind: 'ratio', a: 10, b: 1 }, source: { kind: 'chosenStat', stat: 'armor' }, max: 20 },
       }),
+      dmg('enemyChosen', 4, 1),
+      reposition('lastTarget', 'back'),
     ),
   },
 ];

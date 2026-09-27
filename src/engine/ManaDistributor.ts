@@ -41,9 +41,9 @@ export class ManaDistributor {
 
       const give = Math.min(remaining, need);
       // Disease halves mana gained. The matched gems are still consumed; only
-      // the recipient's actual gain is reduced (floor, matching GoW's integer stats).
+      // the recipient's actual gain is reduced (ceil, per official 1.0.9 patch notes).
       const actualGive = hasStatus(ch, 'disease')
-        ? Math.floor(give / 2)
+        ? Math.ceil(give / 2)
         : give;
       ch.mana += actualGive; // 不超过上限 manaCost（需求 10.4）
       remaining -= give;

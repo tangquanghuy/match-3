@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>部队立绘分拣</title>
+  <style>
+    :root {
+      --bg: #16130f;
+      --panel: #241f19;
+      --line: #3a3228;
+      --text: #f4efe6;
+      --muted: #b3a794;
+      --gold: #e2b15a;
+      --danger: #d85a4a;
+      --danger-dim: #6e2d28;
+    }
+    * { box-sizing: border-box; }
+    html, body { margin: 0; height: 100%; overflow: hidden; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: "Microsoft YaHei", "PingFang SC", sans-serif;
+      display: grid;
+      grid-template-rows: auto minmax(0, 1fr);
+    }
+    header {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 8px 14px;
+      border-bottom: 1px solid var(--line);
+    }
+    .caption {
+      margin: 0;
+      padding: 8px 20px 4px;
+      text-align: center;
+      font-size: 20px;
+      font-weight: 650;
+      letter-spacing: 0.03em;
+      line-height: 1.35;
+    }
+    .caption.changed { animation: pop 280ms ease; }
+    @keyframes pop {
+      from { color: var(--gold); }
+      to { color: var(--text); }
+    }
+    .folder {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      flex: 1;
+      min-width: 280px;
+    }
+    .folder input {
+      flex: 1;
+      min-width: 0;
+      background: var(--panel);
+      color: var(--text);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 7px 10px;
+      font: inherit;
+    }
+    .folder button {
+      flex: none;
+      min-height: 34px;
+      padding: 6px 12px;
+      border-radius: 8px;
+      border: 1px solid var(--line);
+      background: var(--panel);
+      color: var(--text);
+      font: inherit;
+      cursor: pointer;
+    }
+    .folder button:hover:not(:disabled) { border-color: var(--gold); }
+    .folder button:disabled { opacity: 0.35; cursor: default; }
+    .folder input:focus, .folder button:focus-visible { outline: 2px solid var(--gold); border-color: transparent; }
+    .meta, .hint, .error { color: var(--muted); font-size: 13px; }
+    .error { color: var(--danger); }
+    .spacer { flex: 1; }
+    input[type="search"] {
+      width: 200px;
+      background: var(--panel);
+      color: var(--text);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 7px 10px;
+      font: inherit;
+    }
+    input[type="search"]:focus { outline: 2px solid var(--gold); border-color: transparent; }
+    .workspace {
+      position: relative;
+      min-height: 0;
+    }
+    .dock {
+      position: absolute;
+      z-index: 2;
+      top: 0;
+      right: 0;
+      bottom: 0;
+      width: 140px;
+    }
+    .actions {
+      position: absolute;
+      left: 12px;
+      right: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .actions button {
+      width: 100%;
+      min-height: 48px;
+      padding: 8px 6px;
+      border-radius: 10px;
+      border: 1px solid var(--line);
+      background: var(--panel);
+      color: var(--text);
+      font: inherit;
+      font-size: 16px;
+      line-height: 1.2;
+      cursor: pointer;
+    }
+    .actions button:hover:not(:disabled) { border-color: var(--gold); }
+    .actions button:disabled { opacity: 0.35; cursor: default; }
+    .actions button:focus-visible { outline: 2px solid var(--gold); }
+    #next { background: var(--gold); color: #24180a; border-color: transparent; font-weight: 700; }
+    #mark { background: var(--danger); border-color: transparent; color: white; font-weight: 700; }
+    .stage {
+      position: absolute;
+      inset: 0 140px 0 0;
+      display: grid;
+      grid-template-rows: auto minmax(0, 1fr);
+      background: #100e0c;
+    }
+    .stage.marked { box-shadow: inset 0 0 0 3px var(--danger); }
+    .stage img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+    }
+    .stamp {
+      display: none;
+      position: absolute;
+      top: 16px;
+      right: 16px;
+      padding: 6px 10px;
+      border: 2px solid var(--danger);
+      color: var(--danger);
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      transform: rotate(8deg);
+      background: rgba(22, 19, 15, 0.72);
+    }
+    .stage.marked .stamp { display: block; }
+    .empty {
+      position: absolute;
+      inset: 48px 0 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--muted);
+    }
+    .empty[hidden] { display: none; }
+    .thumbs {
+      position: absolute;
+      left: 12px;
+      right: 12px;
+      bottom: 12px;
+      max-height: calc(50% - 150px);
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      overflow: auto;
+    }
+    .thumbs button {
+      min-height: 0;
+      padding: 4px;
+      font-size: 11px;
+      line-height: 1.2;
+    }
+    .thumbs button img {
+      width: 100%;
+      height: 64px;
+      object-fit: contain;
+      display: block;
+      background: #100e0c;
+    }
+    .thumbs button.on { border-color: var(--gold); color: var(--text); }
+    .thumbs button.marked { border-color: var(--danger); }
+  </style>
+</head>
+<body>
+  <header>
+    <label class="folder">
+      <input id="folder" type="text" spellcheck="false" placeholder="输入路径后回车" aria-label="图片文件夹" />
+      <button id="browse" type="button">选择文件夹</button>
+    </label>
+    <div class="meta" id="meta">正在读取</div>
+    <div class="error" id="error"></div>
+    <div class="spacer"></div>
+    <span class="hint">方向键切换 · Delete 标记 · Ctrl+Z 撤销</span>
+    <input id="q" type="search" placeholder="搜索角色名" />
+  </header>
+  <div class="workspace">
+    <div class="stage" id="stage">
+      <div class="caption" id="caption">正在读取</div>
+      <img id="pic" alt="" hidden />
+      <div class="stamp">待删除</div>
+      <div class="empty" id="empty" hidden>没有匹配的图片</div>
+    </div>
+    <aside class="dock">
+      <div class="actions">
+        <button id="prev" type="button">上一张</button>
+        <button id="next" type="button">下一张</button>
+        <button id="mark" type="button">标记删除</button>
+        <button id="undo" type="button">撤销标记</button>
+      </div>
+      <div class="thumbs" id="thumbs"></div>
+    </aside>
+  </div>
+  <script>
+    const captionEl = document.querySelector('#caption')
+    const metaEl = document.querySelector('#meta')
+    const stageEl = document.querySelector('#stage')
+    const picEl = document.querySelector('#pic')
+    const emptyEl = document.querySelector('#empty')
+    const thumbsEl = document.querySelector('#thumbs')
+    const errorEl = document.querySelector('#error')
+    const prevBtn = document.querySelector('#prev')
+    const nextBtn = document.querySelector('#next')
+    const markBtn = document.querySelector('#mark')
+    const undoBtn = document.querySelector('#undo')
+    const searchEl = document.querySelector('#q')
+    const folderEl = document.querySelector('#folder')
+    const browseBtn = document.querySelector('#browse')
+
+    let all = []
+    let rev = 0
+    let groups = []
+    let gi = 0
+    let ii = 0
+    let lastGroup = ''
+    let marking = false
+
+    function srcOf(name) {
+      return '/img?name=' + encodeURIComponent(name) + '&rev=' + rev
+    }
+
+    function current() {
+      return groups[gi] && groups[gi].files[ii]
+    }
+
+    function locate(fileName) {
+      for (let g = 0; g < groups.length; g++) {
+        const i = groups[g].files.findIndex((file) => file.name === fileName)
+        if (i >= 0) return { gi: g, ii: i }
+      }
+      return null
+    }
+
+    function applyFilter(preferName) {
+      const q = searchEl.value.trim()
+      groups = q ? all.filter((group) => group.name.includes(q)) : all.slice()
+      const found = preferName ? locate(preferName) : null
+      if (found) {
+        gi = found.gi
+        ii = found.ii
+      } else {
+        gi = 0
+        ii = 0
+      }
+      render()
+    }
+
+    function step(dir) {
+      if (!groups.length) return
+      const count = groups[gi].files.length
+      const next = ii + dir
+      if (next >= 0 && next < count) ii = next
+      else if (dir > 0 && gi < groups.length - 1) {
+        gi += 1
+        ii = 0
+      } else if (dir < 0 && gi > 0) {
+        gi -= 1
+        ii = groups[gi].files.length - 1
+      }
+      render()
+    }
+
+    function prefetchAhead() {
+      let g = gi
+      let i = ii + 1
+      if (!groups[g]) return
+      if (i >= groups[g].files.length) {
+        g += 1
+        i = 0
+      }
+      const file = groups[g] && groups[g].files[i]
+      if (!file) return
+      const img = new Image()
+      img.src = srcOf(file.name)
+    }
+
+    function render() {
+      errorEl.textContent = ''
+      const group = groups[gi]
+      const file = current()
+      const markedCount = all.reduce((sum, item) => sum + item.files.filter((f) => f.marked).length, 0)
+      if (!group || !file) {
+        captionEl.textContent = folderEl.value ? '没有图片' : '请选择文件夹'
+        metaEl.textContent = ''
+        emptyEl.textContent = folderEl.value ? '没有匹配的图片' : '先选择一个文件夹'
+        stageEl.classList.remove('marked')
+        picEl.hidden = true
+        emptyEl.hidden = false
+        thumbsEl.replaceChildren()
+        prevBtn.disabled = true
+        nextBtn.disabled = true
+        markBtn.disabled = true
+        undoBtn.disabled = true
+        return
+      }
+      emptyEl.hidden = true
+      picEl.hidden = false
+      const pictureName = file.name.replace(/\.png$/i, '')
+      captionEl.textContent = pictureName
+      if (lastGroup && lastGroup !== group.name) {
+        captionEl.classList.remove('changed')
+        void captionEl.offsetWidth
+        captionEl.classList.add('changed')
+      }
+      lastGroup = group.name
+      document.title = pictureName
+      const atStart = gi === 0 && ii === 0
+      const atEnd = gi === groups.length - 1 && ii === group.files.length - 1
+      metaEl.textContent = `第 ${gi + 1} / ${groups.length} 组 · 第 ${ii + 1} / ${group.files.length} 张 · 已标记 ${markedCount}`
+      stageEl.classList.toggle('marked', file.marked)
+      picEl.src = srcOf(file.name)
+      prevBtn.disabled = atStart
+      nextBtn.disabled = atEnd
+      markBtn.disabled = file.marked
+      undoBtn.disabled = !file.marked
+      thumbsEl.replaceChildren(...group.files.map((item, index) => {
+        const button = document.createElement('button')
+        button.type = 'button'
+        button.className = (index === ii ? 'on ' : '') + (item.marked ? 'marked' : '')
+        const img = document.createElement('img')
+        img.src = srcOf(item.name)
+        img.alt = ''
+        const caption = document.createElement('div')
+        caption.textContent = item.label
+        button.append(img, caption)
+        button.addEventListener('click', () => {
+          ii = index
+          render()
+        })
+        return button
+      }))
+      localStorage.setItem('portrait-sorter-file', file.name)
+      prefetchAhead()
+    }
+
+    async function setMarked(want) {
+      const file = current()
+      if (!file || marking || file.marked === want) return
+      marking = true
+      markBtn.disabled = true
+      undoBtn.disabled = true
+      try {
+        const res = await fetch('/api/mark', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ name: file.name }),
+        })
+        const data = await res.json()
+        if (!res.ok) throw new Error(data.error || '标记失败')
+        file.name = data.name
+        file.marked = data.marked
+        file.label = data.label
+        render()
+      } catch (err) {
+        errorEl.textContent = err.message
+        markBtn.disabled = file.marked
+        undoBtn.disabled = !file.marked
+      } finally {
+        marking = false
+      }
+    }
+
+    prevBtn.addEventListener('click', () => step(-1))
+    nextBtn.addEventListener('click', () => step(1))
+    markBtn.addEventListener('click', () => { setMarked(true) })
+    undoBtn.addEventListener('click', () => { setMarked(false) })
+    searchEl.addEventListener('input', () => applyFilter(current() && current().name))
+    window.addEventListener('keydown', (event) => {
+      if (event.target === searchEl || event.target === folderEl) return
+      if (event.key === 'ArrowRight') { event.preventDefault(); step(1) }
+      else if (event.key === 'ArrowLeft') { event.preventDefault(); step(-1) }
+      else if (event.key === 'Delete') { event.preventDefault(); setMarked(true) }
+      else if (event.key === 'z' && (event.ctrlKey || event.metaKey)) { event.preventDefault(); setMarked(false) }
+    })
+
+    async function loadGroups(preferName) {
+      const res = await fetch('/api/groups')
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.error || '没能读到图片列表')
+      rev = data.rev || 0
+      folderEl.value = data.path || ''
+      if (data.path) localStorage.setItem('portrait-sorter-dir', data.path)
+      all = data.groups || []
+      searchEl.value = ''
+      applyFilter(preferName)
+    }
+
+    async function openTypedFolder() {
+      const folder = folderEl.value.trim()
+      if (!folder) return
+      browseBtn.disabled = true
+      errorEl.textContent = ''
+      try {
+        const res = await fetch('/api/folder', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ path: folder }),
+        })
+        const data = await res.json()
+        if (!res.ok) throw new Error(data.error || '打不开这个文件夹')
+        await loadGroups()
+      } catch (err) {
+        errorEl.textContent = err.message
+      } finally {
+        browseBtn.disabled = false
+      }
+    }
+
+    browseBtn.addEventListener('click', async () => {
+      browseBtn.disabled = true
+      errorEl.textContent = ''
+      browseBtn.textContent = '选择中…'
+      try {
+        const res = await fetch('/api/pick-folder', { method: 'POST' })
+        const data = await res.json()
+        if (!res.ok) throw new Error(data.error || '没能打开选择窗口')
+        if (!data.cancelled) await loadGroups()
+      } catch (err) {
+        errorEl.textContent = err.message
+      } finally {
+        browseBtn.disabled = false
+        browseBtn.textContent = '选择文件夹'
+      }
+    })
+    folderEl.addEventListener('keydown', (event) => {
+      if (event.key !== 'Enter') return
+      event.preventDefault()
+      openTypedFolder()
+    })
+
+    const savedDir = localStorage.getItem('portrait-sorter-dir')
+    const savedFile = localStorage.getItem('portrait-sorter-file')
+    ;(async () => {
+      try {
+        let folderError = ''
+        if (savedDir) {
+          const res = await fetch('/api/folder', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ path: savedDir }),
+          })
+          if (!res.ok) {
+            const data = await res.json()
+            folderError = data.error || '上次的文件夹打不开'
+          }
+        }
+        await loadGroups(savedFile)
+        if (folderError) errorEl.textContent = folderError
+      } catch {
+        captionEl.textContent = '读取失败'
+        errorEl.textContent = errorEl.textContent || '没能读到图片列表'
+      }
+    })()
+  </script>
+</body>
+</html>

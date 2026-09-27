@@ -1,0 +1,58 @@
+﻿source_row,Source,Date,Faction,Purpose,Max Level,Banner,Colours,Class,Troop 1,Troop 2,Troop 3,Troop 4,Restrictions,Notes
+2,Starlite,43418.0,All-Seeing Eye,Event,80+,Mist of Scales,RB,,Emperor Khorvash,Summer’s Fury,Azura,Krystenax,Blue/Green,
+3,Tacet,43348.0,All-Seeing Eye,Push,500?,Urskaya,NRp,Titan,Champion of Anu,Dragon’s Eye,Arachnaean Weaver,Megavore,Blue/Green,
+4,Tacet,43403.0,All-Seeing Eye,Push,500?,Dhrak-Zum,NPy,Titan,Forest Troll,Dragon’s Eye,Apothecary,Yasmine’s Chosen,Blue/Green,Can use Sylvanimora for Yasmine’s Chosen.
+5,Tacet,43403.0,All-Seeing Eye,Pure Faction,,All-Seeing Eye,GBn,,Ocularen Leech,Ocularen,Watch Mother,Xerodar,Blue/Green,
+6,Starlite,43428.0,Crypt Keepers,Fast,100.0,Dhrak-Zum,NPy,(Thief),Skeleton Key,Egg Thief,Alchemist,Greed,Red/Purple,Thief or Titan.
+7,Tacet,43467.0,Crypt Keepers,Event,,,,,Mountain Crusher,Yao Guai,Queen Titania,(anything),Red/Purple,
+8,Tacet,43467.0,Crypt Keepers,Event,,,,,Dragon’s Eye,Infernus,Ubastet,Gimlet Stormbrew,Red/Purple,Initially use Mountain Crusher.
+9,Tacet,43467.0,Crypt Keepers,Event,,,,,Dragon’s Eye,Divinia,Ubastet,Gimlet Stormbrew,Red/Purple,Initially use Mountain Crusher.
+10,Tacet,43403.0,Crypt Keepers,Push,500?,Khaziel,NN,Titan,Rock Troll,Dragon’s Eye,Gimlet Stormbrew,Megavore,Red/Purple,
+11,Tacet,43386.0,Crypt Keepers,Pure Faction,400.0,,,,Lady Morana,Lady Morana,Lady Morana,Lady Morana,Red/Purple,
+12,Tacet,43403.0,Crypt Keepers,Pure Faction,500.0,Stormheim,BB,,Lady Morana,Lady Morana,Lady Morana,Grave Seer,Red/Purple,Requires many tries to get lucky.
+13,jzg,43499.0,Fang Moor,Event,130.0,Merlantis,BGy,Titan,Forest Troll,Apothecary,Yasmine’s Pride,Ketras,Blue/Red,Can use Gargoyle for Ketras.
+14,Tacet,43500.0,Fang Moor,Event,150.0,Blackhawk,NBp,Titan,Yasmine’s Pride,Apothecary,Ketras the Bull,Ubastet,Blue/Red,Can use Gargoyle for Ketras.
+15,Tacet,43500.0,Fang Moor,Push,300+,Blackhawk,NBp,Titan,Mountain Crusher,Apothecary,High King Irongut,Possessed King,Blue/Red,Beware rooms with Devour immunity.
+16,Tacet,43500.0,Fang Moor,Pure Faction,150.0,Dragon’s Claw,RYn,,Chief Dargon,Chief Dargon,Shaman of Set,Horned Asp,Blue/Red,
+17,Tacet,43383.0,Hall of Guardians,Fast,50?,Khaziel,NN,,Mountain Crusher,Arachnaean Weaver,Queen Aurora,Queen Aurora,Yellow/Brown,
+18,Starlite,43424.0,Hall of Guardians,Event,80+,Hall of Guardians,YNg,,Gorgotha,Trickster’s Shot,Divinia,Megavore,Yellow/Brown,Banner is questionable.
+19,Starlite,43460.0,Hall of Guardians,Event,120.0,Hall of Guardians,YNg,,Gorgotha,Ubastet,Doomed Blade,Gimlet Stormbrew,Yellow/Brown,
+20,Tacet,43502.0,Hall of Guardians,Event,,Urskaya,NRp,Titan,Mountain Crusher,Gargoyle,Gargoyle,Gimlet Stormbrew,Yellow/Brown,
+21,Tacet,43379.0,Hall of Guardians,Push,300?,,,,Gorgotha,Dragon’s Eye,Divinia,(cleanup troop),Yellow/Brown,
+22,Tacet,43385.0,Hall of Guardians,Push,400.0,Khaziel,NN,Titan,Dragon’s Eye,Cockatrice,Arachnaean Weaver,Megavore,Yellow/Brown,
+23,Tacet,43388.0,Hall of Guardians,Push,500.0,Khaziel,NN,Titan,Dragon’s Eye,Cockatrice,Weaver/(Megavore),Sylvanimora,Yellow/Brown,
+24,Tacet,43403.0,Hall of Guardians,Push,,Suncrest,YGb,Titan,Gorgotha,Dragon’s Eye,Divinia,Yasmine’s Chosen,Yellow/Brown,
+25,Tacet,43386.0,Hall of Guardians,Pure Faction,,Urskaya,NRp,,Silent Sentinel,Gargoyle,Gargoyle,Gargoyle,Yellow/Brown,Ethereal Sentry might help in last slot.
+26,Tacet,43403.0,Hall of Guardians,Pure Faction,,Sin of Maraj,RNp,,Silent Sentinel,Silent Sentinel,Gargoyle,Gargoyle,Yellow/Brown,Need a Silent Sentinel to survive into the last battle.
+27,Tacet,43428.0,Primal Rift,Fast,190.0,Dhrak-Zum,Npy,Titan,Mountain Crusher,Yao Guai,Tai-Pan,Queen Titania,Green/Purple,Can use Merlantis (BGy) banner.
+28,Starlite,43446.0,Primal Rift,Event,100.0,Sin of Maraj,RNp,(Thief),Greed,Egg Thief,Skeleton Key,Greed,Green/Purple,
+29,Antitan,43428.0,Primal Rift,Fast,120.0,,,(Thief),Apothecary,Egg Thief,Greed,Skeleton Key,Green/Purple,
+30,Starlite,43430.0,Primal Rift,Event,150.0,Wild Plains,RG,Titan,Yasmine’s Pride,Yao Guai,Tai-Pan,Queen Titania,Green/Purple,
+31,Michal Wojcik,43431.0,Primal Rift,Event,200?,,,Titan,Mang,Apothecary,Skadi,Possessed King,Green/Purple,Claimed to make Event Leaderboard.
+32,Tacet,43433.0,Primal Rift,Push,300.0,Sin of Maraj,RNp,Titan,Mang,Apothecary,Egg Thief,Queen Aurora,Green/Purple,
+33,Tacet,43437.0,Primal Rift,Push,500.0,Khaziel,NN,Titan,Mang,Apothecary,Keeper of Souls,Queen Aurora,Green/Purple,
+34,Tacet,43428.0,Primal Rift,Pure Faction,150.0,Bright Forest,GPb,,Dark Dryad,Dark Dryad,Alderfather,Green Golem,Green/Purple,
+35,Starlite,43438.0,Sea of Sorrow,Fast,100.0,,,,Thorodin,Gorgotha,Ubastet,Mercy,Blue/Brown,
+36,Marcello,43393.0,Sea of Sorrow,Fast,30.0,Dhrak-Zum,NPy,,Mountain Crusher,Gargoyle,Skullbeard,Rock Spirit,Blue/Brown,
+37,Tacet,43393.0,Sea of Sorrow,Push,,Khaziel,NN,Titan,Gargoyle,Dragon’s Eye,Scorpius,Euryali,Blue/Brown,
+38,Tacet,43403.0,Sea of Sorrow,Push,500.0,Blackhawk,NBp,Titan,Dragon’s Eye,Cockatrice,Apothecary,Ubastet,Blue/Brown,Can use Gargoyle for Ubastet.
+39,Tacet,43403.0,Sea of Sorrow,Pure Faction,,Sea of Sorrow,BNy,,Hammerclaw,Sea Witch,The Deep King,The Deep King,Blue/Brown,
+40,Tacet,43462.0,The Warrens,Fast,90.0,,,,Cedric Sparklesack,Egg Thief,Skeleton Key,Greed,Green/Yellow,"Hero Class with Storm is best, esp. Brown, Red or Green."
+41,Tony Aguilera,43404.0,Any,Fast,,,,Titan,Jar of Eyes,Yao Guai,Divinia,Pharaoh Hound,,
+42,Tacet,43403.0,Any,Push,,,,,Rock Troll,Dark Troll,Elemaugrim,Infernus,,
+43,Tacet,43403.0,Any,Push,500.0,Khaziel,NN,Titan,Mountain Crusher,Megavore,Arachnaean Weaver,Megavore,,
+44,Tacet,43379.0,Any,Push,,Khaziel,NN,Titan,Dragon’s Eye,Megavore,Arachnaean Weaver,Megavore,,Can use Queen Aurora for Weaver.
+45,Simple!!!,43481.0,Any,Push,,,,Titan,Mountain Crusher,Arachnaean Weaver,Infernus,Leprechaun,,
+46,Costa Ps4,43481.0,Any,Push,500.0,,,Titan,Mountain Crusher,Apothecary,High King Irongut,Champion of Anu,,
+47,Max,43394.0,Any,Push,500.0,,,Archer,Silent Sentinel,Dwarven Gate,Dragon’s Eye/Archer,Ubastet,,Use any class with summons.
+48,Tacet,43532.0,Dark Pits,Pure Faction,,Blighted Lands,,,Plague Rat,Plague Rat,Hex Rat,Hex Rat,Green/Brown,
+49,Tacet,43532.0,Dark Pits,Push,,Blackhawk,,Titan,Mountain Crusher,Apothecary,High King Irongut,The Posessed King,Green/Brown,Use any brown weapon. troops in last 2 slots can be anything
+50,Tacet,43558.0,All-Seeing Eye,Push,500.0,Kraken,"2Br, +1Bl, -1p",Sentinel,Mountain Crusher,Apothecary,High King Irongut,The Posessed King,,
+51,Tacet,43558.0,Hall of Guardians,Push,500.0,Kraken,"2Br, +1Bl, -1p",Plaguelord,Mountain Crusher,Cockatrice,High King Irongut,Sylvanimora,,
+52,Tacet,43558.0,Crypt Keepers,Push,500.0,Woodland,2Gr,Plaguelord,Essence of Evil,Megavore,Arachnaean Weaver,Megavore,,
+53,Tacet,43558.0,Sea of Sorrow,Push,500.0,Kraken,"2Br, +1Bl, -1p",Plaguelord,Mountain Crusher,Apothecary,High King Irongut,The Posessed King,Blue/Brown,
+54,Tacet,43558.0,Primal Rift,Push,500.0,Dwarven,2Br,Plaguelord,Mang,Apothecary,Keeper of Souls,Queen Aurora,,
+55,Tacet,43558.0,The Warrens,Push,110.0,Proud,2Rd,Necromancer,Greed,Egg Thief,Skeleton Key,Cedric Sparklesack,,
+56,Tacet,43558.0,Fang Moor,Push,500.0,Kraken,"2Br, +1Bl, -1p",Titan,Mountain Crusher,Apothecary,High King Irongut,The Posessed King,,
+57,Tacet,43558.0,Dark Pits,Push,500.0,Kraken,"2Br, +1Bl, -1p",Titan,Mountain Crusher,Apothecary,High King Irongut,The Posessed King,Green/Brown,
+58,Tacet,43558.0,Primal Rift,Push,500.0,Dwarven,2Br,Titan,Mang,Apothecary,Keeper of Souls,Queen Aurora,Green/Purple,

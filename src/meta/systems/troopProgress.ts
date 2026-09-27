@@ -1,10 +1,10 @@
 /**
  * 部队养成系统（M1/M4 的逻辑部分）——升级 / 升阶 / 特质解锁 / 分解 / 入册。
  *
- * 官方口径（META-GAME-PLAN.md §4.2，数值单源在 data/economy.ts）：
+ * 规则与项目差异见 docs/GOW-NUMERIC-AUDIT.md；数值单源在 data/economy.ts：
  *  - 等级上限按基础稀有度 15..20，升阶提档 +1 上限；
  *  - 升阶同名卡 5/10/25（不耗本体）；升阶后四维按新上限重算，全副本生效（存档每卡一份）；
- *  - 特质解锁按裁定②：黄金+灵魂+同名卡，槽位有前置顺序；
+ *  - 特质按逐卡配方只耗特质石，槽位有前置顺序，与玩家卡等级独立；
  *  - 分解只拆多余副本（本体不可拆），locked 保护，不回收已投入养成。
  *
  * 所有函数直接改传入的 save（调用方自行 persist），失败返回 MetaFailure 且存档不被改动。
@@ -24,7 +24,7 @@ import {
   traitUnlockCost,
   TRAIT_SLOT_COUNT,
 } from '../data/economy';
-import { earn, spend, earnMaterials, spendMaterials } from './wallet';
+import { earn, spend, spendMaterials } from './wallet';
 
 // ---------------------------------------------------------------------------
 // 收藏条目
@@ -39,19 +39,25 @@ export function getRecord(save: MetaSave, troopId: number): TroopRecord | undefi
  * 本体之外记 copies；重复获得 n 张 → copies += n。
  * troopId 悬空（不在 troops.json）返回 null——对账脚本盯的正是这种引用。
  */
+function grantInto(book: Record<string, TroopRecord>, troopId: number, count: number): TroopRecord {
+  const key = String(troopId);
+  let rec = book[key];
+  if (!rec) {
+    rec = { copies: count - 1, level: 1, ascension: 0, traits: [false, false, false], locked: false };
+    book[key] = rec;
+  } else {
+    rec.copies += count;
+  }
+  return rec;
+}
+
 export function grantTroop(save: MetaSave, troopId: number, count = 1): TroopRecord | null {
   if (!Number.isInteger(troopId) || count < 1) return null;
   if (!getTroopById(troopId)) return null;
-  const key = String(troopId);
-  let rec = save.collection[key];
-  if (!rec) {
-    // 首次入册：第一张是本体，其余记副本
-    rec = { copies: count - 1, level: 1, ascension: 0, traits: [false, false, false], locked: false };
-    save.collection[key] = rec;
-  } else {
-    rec.copies += count; // 已拥有：本次获得全部记副本
-  }
-  return rec;
+  const live = grantInto(save.collection, troopId, count);
+  // 修改器开着时，真实获得仍写入备份，还原后不会丢掉这张卡。
+  if (save.collectionTruth) grantInto(save.collectionTruth, troopId, count);
+  return live;
 }
 
 // ---------------------------------------------------------------------------
@@ -130,7 +136,7 @@ export function ascend(save: MetaSave, troopId: number): AscendResult {
 }
 
 // ---------------------------------------------------------------------------
-// 特质解锁（特质石 + 黄金；裁定②修订 2026-09-19，对齐官方素材口径）
+// 特质解锁（逐卡配方，只消耗特质石）
 // ---------------------------------------------------------------------------
 
 export type UnlockTraitResult =
@@ -151,15 +157,9 @@ export function unlockTrait(save: MetaSave, troopId: number, slot: number): Unlo
     return fail('PREREQ_LOCKED', `需先解锁特质 ${slot - 1}`);
   }
   const primaryColor = stoneColorKeyOf(troop.manaColors[0] ?? BaseColor.Brown);
-  const cost = traitUnlockCost(slot, primaryColor);
+  const cost = traitUnlockCost(slot, primaryColor, troop.id);
   const paidMaterials = spendMaterials(save, { traitstones: cost.stones });
   if (!paidMaterials.ok) return paidMaterials;
-  const paid = spend(save, { gold: cost.gold });
-  if (!paid.ok) {
-    // 素材先扣、黄金不足：回滚素材（单线程下两步扣费的一致性由这里保证）
-    earnMaterials(save, { traitstones: cost.stones });
-    return paid;
-  }
   rec.traits[slot - 1] = true;
   return { ok: true, slot, cost };
 }

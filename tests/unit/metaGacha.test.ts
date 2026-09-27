@@ -1,4 +1,5 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi, afterEach } from 'vitest';
+import { SeededRNG } from '../../src/engine/rng';
 import { TROOPS, getTroopById } from '../../src/data/troops';
 import { MockGateway, memoryStorage } from '../../src/meta/gateway/mockGateway';
 import { isFailure } from '../../src/meta/gateway';
@@ -18,10 +19,12 @@ import {
 const save = (gems = 0, goldKeys = 0) =>
   newSave({ now: 0, starterTroopIds: [6000, 6097, 6457], currencies: { gems, goldKeys } });
 
-describe('宝石宝箱（150 单抽 / 1500 十连保底 Epic+）', () => {
+describe('宝石宝箱（150 单抽 / 1500 十连保底稀有或以上）', () => {
+  afterEach(() => vi.restoreAllMocks());
   it('权重表合法：万分比合计 10000，顶两档 2.0%', () => {
     expect(GEM_CHEST_WEIGHTS.reduce((a, b) => a + b, 0)).toBe(10000);
     expect(GEM_CHEST_WEIGHTS[4]! + GEM_CHEST_WEIGHTS[5]!).toBe(200); // 计划 §4.2
+    expect(GACHA_PITY_MIN_IDX).toBe(2);
     expect(GEM_CHEST_WEIGHTS[5]!).toBe(20); // 顶档 0.2%（社区实测 ~1/1000 量级）
   });
 
@@ -44,7 +47,7 @@ describe('宝石宝箱（150 单抽 / 1500 十连保底 Epic+）', () => {
     expect(s.gachaLog[0]!.troops).toEqual([r.cards[0]!.troopId]);
   });
 
-  it('十连保底：各种子下必出 Epic+；保底触发时第 10 张为 Epic 档', () => {
+  it('十连保底：各种子下必出稀有或以上；保底触发时第 10 张为稀有档', () => {
     for (let seed = 1; seed <= 40; seed++) {
       const s = save(1500);
       const r = openGemChest(s, seed, 10);
@@ -57,6 +60,55 @@ describe('宝石宝箱（150 单抽 / 1500 十连保底 Epic+）', () => {
         expect(r.cards[9]!.rarityIdx).toBe(GACHA_PITY_MIN_IDX);
       }
     }
+  });
+
+  /** 每抽固定消耗两次 RNG：先稀有度，再档内角色。 */
+  function mockGemBands(bands: readonly number[]): void {
+    const total = GEM_CHEST_WEIGHTS.reduce((a, b) => a + b, 0);
+    const rolls = bands.flatMap((band) => {
+      const lower = GEM_CHEST_WEIGHTS.slice(0, band).reduce((a, b) => a + b, 0);
+      return [(lower + GEM_CHEST_WEIGHTS[band]! / 2) / total, 0];
+    });
+    let index = 0;
+    vi.spyOn(SeededRNG.prototype, 'next').mockImplementation(() => rolls[index++]!);
+  }
+
+  it('十张自然结果全为普通/精良时，仅将末张提升为稀有，不额外发卡', () => {
+    mockGemBands([0, 1, 0, 1, 0, 1, 0, 1, 0, 1]);
+    const s = newSave({ now: 0, currencies: { gems: GEM_CHEST.multiCost } });
+    const r = openGemChest(s, 1, GEM_CHEST.multiCount);
+    if (!r.ok) throw new Error(r.message);
+    expect(r.pityUsed).toBe(true);
+    expect(r.cards.map((card) => card.rarityIdx)).toEqual([0, 1, 0, 1, 0, 1, 0, 1, 0, 2]);
+    expect(s.currencies.gems).toBe(0);
+    expect(Object.values(s.collection).reduce((sum, rec) => sum + rec.copies + 1, 0)).toBe(10);
+    expect(s.gachaLog[0]!.troops).toEqual(r.cards.map((card) => card.troopId));
+  });
+
+  it.each([2, 3, 4, 5])('前九张未达标，第十张自然出档位 %i 时保留原档位', (band) => {
+    mockGemBands([...Array<number>(9).fill(0), band]);
+    const r = openGemChest(save(GEM_CHEST.multiCost), 1, GEM_CHEST.multiCount);
+    if (!r.ok) throw new Error(r.message);
+    expect(r.pityUsed).toBe(false);
+    expect(r.cards[9]!.rarityIdx).toBe(band);
+  });
+
+  it.each([0, 4, 8])('第 %i 位已有稀有卡时，末张低档卡保持原样', (index) => {
+    const bands = Array<number>(10).fill(0);
+    bands[index] = 2;
+    mockGemBands(bands);
+    const r = openGemChest(save(GEM_CHEST.multiCost), 1, GEM_CHEST.multiCount);
+    if (!r.ok) throw new Error(r.message);
+    expect(r.pityUsed).toBe(false);
+    expect(r.cards.map((card) => card.rarityIdx)).toEqual(bands);
+  });
+
+  it('单抽维持原概率，不触发十连保底', () => {
+    mockGemBands([0]);
+    const r = openGemChest(save(GEM_CHEST.singleCost), 1);
+    if (!r.ok) throw new Error(r.message);
+    expect(r.pityUsed).toBe(false);
+    expect(r.cards[0]!.rarityIdx).toBe(0);
   });
 
   it('对账审计：3000 次单抽的档位频率与权重表一致（固定种子，确定可复现）', () => {
@@ -234,7 +286,7 @@ describe('荣耀宝箱单抽 / 十连原子性', () => {
     if (!result.ok) throw new Error(result.message);
 
     expect(result.count).toBe(GLORY_CHEST.multiCount);
-    expect(result.spent).toEqual({ glory: GLORY_CHEST.cost * GLORY_CHEST.multiCount });
+    expect(result.spent).toEqual({ glory: GLORY_CHEST.cost * GLORY_CHEST.multiCount, gloryKeys: 0 });
     expect(s.currencies.glory).toBe(0);
     expect(s.gachaLog).toHaveLength(1);
     expect(s.gachaLog[0]!.kind).toBe('glory');

@@ -29,7 +29,7 @@ describe('troopToSnapshot（养成进度进战斗）', () => {
     const rec = getRecord(s, OGRE)!;
     expect(troopToSnapshot(troop, rec, 'x').traitIds).toEqual([]);
     const colorKey = stoneColorKeyOf(troop.manaColors[0] ?? BaseColor.Brown);
-    s.materials.traitstones = { [`minor:${colorKey}`]: 8 };
+    s.materials.traitstones = { [`minor:${colorKey}`]: 10, [`major:${colorKey}`]: 4 };
     unlockTrait(s, OGRE, 1);
     expect(troopToSnapshot(troop, rec, 'x').traitIds).toEqual(['frenzy']);
   });
@@ -64,7 +64,7 @@ describe('buildBattleRequest（存档 → BattleRequest）', () => {
     expect(outcome.request.seed).toBe(7);
     expect(outcome.request.battleId).toBe('meta-7');
     expect(outcome.request.requestId).toBe('meta-7-q1');
-    expect(outcome.request.playerTeam).toHaveLength(3);
+    expect(outcome.request.playerTeam).toHaveLength(4);
     expect(outcome.request.enemyTeam).toHaveLength(plan.enemies.length);
 
     // externalId 唯一；敌人都带 tier；结算对账表键值一致
@@ -77,9 +77,9 @@ describe('buildBattleRequest（存档 → BattleRequest）', () => {
       expect(snapshot.tier).toBe(plan.enemies[i]!.tier);
       expect(outcome.enemyByExternalId.get(snapshot.externalId)).toEqual(plan.enemies[i]);
     }
-    // 敌人满配特质（对比玩家未解锁的空列表）
+    // 初级敌人没有自动全开特质
     const enemyWithTraits = outcome.request.enemyTeam.find((c) => (c.traitIds?.length ?? 0) > 0);
-    expect(enemyWithTraits).toBeTruthy();
+    expect(enemyWithTraits).toBeUndefined();
 
     // 与真实嵌入模式同口径的会话校验（三个白名单与桥接内部一致）
     const check = validateBattleRequest(outcome.request, {
@@ -104,13 +104,13 @@ describe('buildBattleRequest（存档 → BattleRequest）', () => {
     const s = save();
     const r = setTeamPreset(s, 0, {
       name: '混编',
-      members: [{ kind: 'hero' }, { kind: 'troop', troopId: 6000 }, { kind: 'troop', troopId: 6097 }],
+      members: [{ kind: 'hero' }, { kind: 'troop', troopId: 6000 }, { kind: 'troop', troopId: 6097 }, { kind: 'troop', troopId: 6457 }],
       bannerKingdomId: null,
     });
     expect(r.ok).toBe(true);
     const outcome = buildBattleRequest(s, planQuestEncounter(KINGDOM, 1, 7));
     if (!outcome.ok) throw new Error(outcome.message);
-    expect(outcome.request.playerTeam).toHaveLength(3);
+    expect(outcome.request.playerTeam).toHaveLength(4);
     const hero = outcome.request.playerTeam.find((c) => c.externalId.endsWith('-hero'))!;
     expect(hero.name).toBe('主角');
     // 新档默认装备官方开局武器「骑士之剑」（自造 w_* 假数据已整表退役）

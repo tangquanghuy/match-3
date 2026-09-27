@@ -1,0 +1,1443 @@
+{
+  "schemaVersion": 1,
+  "scope": "stored-gow-snapshot",
+  "reviews": [
+    {
+      "key": "troop:6550",
+      "scope": "stored-gow-snapshot",
+      "sourceDigest": "7212660203f604f9c71ab94a5fcb8a314c7530285ab6e40b563304b5b98bebf4",
+      "reviewer": "sa-L76",
+      "reviewedAt": "2026-09-27",
+      "decision": "draft",
+      "ledgerFingerprintAtReview": "142f456ff232aeddaa80e84d53b0616119c1a4e46acbd5bed70468225b58d488",
+      "_reference": {
+        "spellId": 7744,
+        "english": "Deal [Magic + 4] damage to an enemy. If they are a Boss, deal 3x - 5x damage, based on my Ascensions. Steal 4 Attack and shift it into Magic. [1:1]",
+        "nativeTarget": "Enemy",
+        "randomize": null,
+        "steps": [
+          {
+            "Target": "FromTarget",
+            "Amount": 100,
+            "Type": "CountAttack"
+          },
+          {
+            "Amount": 4,
+            "Type": "CountMax"
+          },
+          {
+            "Target": "FromTarget",
+            "UseCounterForAmount": true,
+            "Type": "DecreaseAttack"
+          },
+          {
+            "Target": "Self",
+            "UseCounterForAmount": true,
+            "Type": "IncreaseSpellPower"
+          },
+          {
+            "SpellPowerMultiplier": 1,
+            "Target": "FromTarget",
+            "StatusAmount": 3,
+            "Amount": 4,
+            "Primarypower": true,
+            "StatusModifier": "MultiplyForAscensionBoss",
+            "Type": "Damage"
+          }
+        ],
+        "prototype": {
+          "segments": [
+            {
+              "kind": "damage",
+              "target": "enemyChosen",
+              "scaling": {
+                "base": 4,
+                "mult": 1
+              },
+              "condMult": {
+                "times": 3,
+                "cond": {
+                  "kind": "allOf",
+                  "of": [
+                    {
+                      "kind": "targetRace",
+                      "race": "Boss"
+                    },
+                    {
+                      "kind": "ascended",
+                      "min": 3
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "kind": "reduce",
+              "target": "enemyChosen",
+              "stat": "attack",
+              "scaling": {
+                "base": 4,
+                "mult": 0
+              },
+              "gainStat": "magic"
+            }
+          ]
+        }
+      },
+      "sourceEvidence": [
+        {
+          "id": "en",
+          "role": "english-snapshot",
+          "path": "data/raw/troops.gow.en.json",
+          "note": "TODO: entity id / SpellId / English clause / cost / colours checked"
+        },
+        {
+          "id": "native",
+          "role": "native-snapshot",
+          "path": "data/raw/spells.gow.en.json",
+          "note": "TODO: SpellId-indexed Cost/Target/every non-None SpellSteps field checked"
+        },
+        {
+          "id": "rule",
+          "role": "official-shared-rule",
+          "path": "artifacts/gow-skill-audit/gold-primary-sources/official-status-effects.html",
+          "note": "TODO: replace with the official rule file actually relevant to this skill, and say what it supports"
+        }
+      ],
+      "dimensions": {
+        "identity-cost-colors": {
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        },
+        "target-count-range": {
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        },
+        "base-formula-rounding": {
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        },
+        "boost-source-ratio-cap": {
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        },
+        "conditions-probabilities-branches": {
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        },
+        "status-duration-immunity": {
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        },
+        "gems-types-selection-resolution": {
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        },
+        "summon-transform-pools": {
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        },
+        "order-death-retargeting": {
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        },
+        "mana-economy-extra-turn": {
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        },
+        "display-description": {
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        },
+        "battle-pipeline": {
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": [],
+          "realBattleEntry": true
+        }
+      },
+      "clauseReviews": [
+        {
+          "id": "c1",
+          "text": "Deal [Magic + 4] damage to an enemy.",
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        },
+        {
+          "id": "c2",
+          "text": "If they are a Boss, deal 3x - 5x damage, based on my Ascensions.",
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        },
+        {
+          "id": "c3",
+          "text": "Steal 4 Attack and shift it into Magic.",
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        },
+        {
+          "id": "c4",
+          "text": "[1:1]",
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        }
+      ],
+      "nativeStepReviews": [
+        {
+          "id": "0",
+          "type": "CountAttack",
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        },
+        {
+          "id": "1",
+          "type": "CountMax",
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        },
+        {
+          "id": "2",
+          "type": "DecreaseAttack",
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        },
+        {
+          "id": "3",
+          "type": "IncreaseSpellPower",
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        },
+        {
+          "id": "4",
+          "type": "Damage",
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        }
+      ],
+      "branchReviews": [
+        {
+          "id": "main",
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        }
+      ]
+    },
+    {
+      "key": "troop:7069",
+      "scope": "stored-gow-snapshot",
+      "sourceDigest": "8f545d90cc8ef1ad11ac16d34e49a100be2e3ca4da1a12f34dad8d0626a1ad86",
+      "reviewer": "sa-L76",
+      "reviewedAt": "2026-09-27",
+      "decision": "draft",
+      "ledgerFingerprintAtReview": "142f456ff232aeddaa80e84d53b0616119c1a4e46acbd5bed70468225b58d488",
+      "_reference": {
+        "spellId": 8597,
+        "english": "Steal [Magic + 1] Attack from the first Enemy, boosted by Green Allies and shift it to Life. [x2]",
+        "nativeTarget": "None",
+        "randomize": null,
+        "steps": [
+          {
+            "Target": "FrontEnemy",
+            "Amount": 100,
+            "Type": "CountAttack"
+          },
+          {
+            "SpellPowerMultiplier": 1,
+            "Amount": 1,
+            "Primarypower": true,
+            "Type": "CountMaxWithMagic"
+          },
+          {
+            "Target": "AllAllies",
+            "UseCounterForAmount": true,
+            "Amount": 200,
+            "Type": "CountArmyColor",
+            "Data": "1"
+          },
+          {
+            "Target": "FrontEnemy",
+            "UseCounterForAmount": true,
+            "Type": "DecreaseAttack"
+          },
+          {
+            "Target": "Self",
+            "UseCounterForAmount": true,
+            "Type": "IncreaseHealth"
+          }
+        ],
+        "prototype": {
+          "segments": [
+            {
+              "kind": "reduce",
+              "target": "enemyFront",
+              "stat": "attack",
+              "scaling": {
+                "base": 1,
+                "mult": 1
+              },
+              "gainStat": "hp",
+              "modifier": {
+                "mod": {
+                  "kind": "multiplier",
+                  "a": 2
+                },
+                "source": {
+                  "kind": "alliesOfColor",
+                  "color": "Green"
+                }
+              }
+            }
+          ]
+        }
+      },
+      "sourceEvidence": [
+        {
+          "id": "en",
+          "role": "english-snapshot",
+          "path": "data/raw/troops.gow.en.json",
+          "note": "TODO: entity id / SpellId / English clause / cost / colours checked"
+        },
+        {
+          "id": "native",
+          "role": "native-snapshot",
+          "path": "data/raw/spells.gow.en.json",
+          "note": "TODO: SpellId-indexed Cost/Target/every non-None SpellSteps field checked"
+        },
+        {
+          "id": "rule",
+          "role": "official-shared-rule",
+          "path": "artifacts/gow-skill-audit/gold-primary-sources/official-status-effects.html",
+          "note": "TODO: replace with the official rule file actually relevant to this skill, and say what it supports"
+        }
+      ],
+      "dimensions": {
+        "identity-cost-colors": {
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        },
+        "target-count-range": {
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        },
+        "base-formula-rounding": {
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        },
+        "boost-source-ratio-cap": {
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        },
+        "conditions-probabilities-branches": {
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        },
+        "status-duration-immunity": {
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        },
+        "gems-types-selection-resolution": {
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        },
+        "summon-transform-pools": {
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        },
+        "order-death-retargeting": {
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        },
+        "mana-economy-extra-turn": {
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        },
+        "display-description": {
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        },
+        "battle-pipeline": {
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": [],
+          "realBattleEntry": true
+        }
+      },
+      "clauseReviews": [
+        {
+          "id": "c1",
+          "text": "Steal [Magic + 1] Attack from the first Enemy, boosted by Green Allies and shift it to Life.",
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        },
+        {
+          "id": "c2",
+          "text": "[x2]",
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        }
+      ],
+      "nativeStepReviews": [
+        {
+          "id": "0",
+          "type": "CountAttack",
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        },
+        {
+          "id": "1",
+          "type": "CountMaxWithMagic",
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        },
+        {
+          "id": "2",
+          "type": "CountArmyColor",
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        },
+        {
+          "id": "3",
+          "type": "DecreaseAttack",
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        },
+        {
+          "id": "4",
+          "type": "IncreaseHealth",
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        }
+      ],
+      "branchReviews": [
+        {
+          "id": "main",
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        }
+      ]
+    },
+    {
+      "key": "troop:7755",
+      "scope": "stored-gow-snapshot",
+      "sourceDigest": "77845bca6f26b86504281c3a2080f49f503935539ebf53c171b53c1f7a4dd9cf",
+      "reviewer": "sa-L76",
+      "reviewedAt": "2026-09-27",
+      "decision": "draft",
+      "ledgerFingerprintAtReview": "142f456ff232aeddaa80e84d53b0616119c1a4e46acbd5bed70468225b58d488",
+      "_reference": {
+        "spellId": 9740,
+        "english": "Steal [(Magic / 2) + 1] Attack from an Enemy, and shift it to my Magic. [100:1]",
+        "nativeTarget": "Enemy",
+        "randomize": null,
+        "steps": [
+          {
+            "Target": "FromTarget",
+            "Amount": 100,
+            "Type": "CountAttack"
+          },
+          {
+            "SpellPowerMultiplier": 0.5,
+            "Amount": 1,
+            "Primarypower": true,
+            "Type": "CountMaxWithMagic"
+          },
+          {
+            "Target": "FromTarget",
+            "UseCounterForAmount": true,
+            "Type": "DecreaseAttack"
+          },
+          {
+            "Target": "Self",
+            "UseCounterForAmount": true,
+            "Type": "IncreaseSpellPower"
+          }
+        ],
+        "prototype": {
+          "segments": [
+            {
+              "kind": "reduce",
+              "target": "enemyChosen",
+              "stat": "attack",
+              "scaling": {
+                "base": 1,
+                "mult": 0.5
+              },
+              "gainStat": "magic",
+              "modifier": {
+                "mod": {
+                  "kind": "ratio",
+                  "a": 100,
+                  "b": 1
+                },
+                "source": {
+                  "kind": "targetStat",
+                  "stat": "attack"
+                }
+              }
+            }
+          ]
+        }
+      },
+      "sourceEvidence": [
+        {
+          "id": "en",
+          "role": "english-snapshot",
+          "path": "data/raw/troops.gow.en.json",
+          "note": "TODO: entity id / SpellId / English clause / cost / colours checked"
+        },
+        {
+          "id": "native",
+          "role": "native-snapshot",
+          "path": "data/raw/spells.gow.en.json",
+          "note": "TODO: SpellId-indexed Cost/Target/every non-None SpellSteps field checked"
+        },
+        {
+          "id": "rule",
+          "role": "official-shared-rule",
+          "path": "artifacts/gow-skill-audit/gold-primary-sources/official-status-effects.html",
+          "note": "TODO: replace with the official rule file actually relevant to this skill, and say what it supports"
+        }
+      ],
+      "dimensions": {
+        "identity-cost-colors": {
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        },
+        "target-count-range": {
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        },
+        "base-formula-rounding": {
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        },
+        "boost-source-ratio-cap": {
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        },
+        "conditions-probabilities-branches": {
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        },
+        "status-duration-immunity": {
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        },
+        "gems-types-selection-resolution": {
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        },
+        "summon-transform-pools": {
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        },
+        "order-death-retargeting": {
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        },
+        "mana-economy-extra-turn": {
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        },
+        "display-description": {
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        },
+        "battle-pipeline": {
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": [],
+          "realBattleEntry": true
+        }
+      },
+      "clauseReviews": [
+        {
+          "id": "c1",
+          "text": "Steal [(Magic / 2) + 1] Attack from an Enemy, and shift it to my Magic.",
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        },
+        {
+          "id": "c2",
+          "text": "[100:1]",
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        }
+      ],
+      "nativeStepReviews": [
+        {
+          "id": "0",
+          "type": "CountAttack",
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        },
+        {
+          "id": "1",
+          "type": "CountMaxWithMagic",
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        },
+        {
+          "id": "2",
+          "type": "DecreaseAttack",
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        },
+        {
+          "id": "3",
+          "type": "IncreaseSpellPower",
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        }
+      ],
+      "branchReviews": [
+        {
+          "id": "main",
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        }
+      ]
+    },
+    {
+      "key": "troop:6283",
+      "scope": "stored-gow-snapshot",
+      "sourceDigest": "66c41ed504d13263d4ded5675ccbb36c736ed7ade0b0b87ef05f7a3a581e6b37",
+      "reviewer": "sa-L76",
+      "reviewedAt": "2026-09-27",
+      "decision": "accept",
+      "ledgerFingerprintAtReview": "142f456ff232aeddaa80e84d53b0616119c1a4e46acbd5bed70468225b58d488",
+      "_reference": {
+        "spellId": 7429,
+        "english": "Deal [Magic + 4] damage to an enemy. Deal double damage if they use Green Mana. Halve their Attack. [2:1]",
+        "nativeTarget": "Enemy",
+        "randomize": null,
+        "steps": [
+          {
+            "Target": "FromTarget",
+            "Amount": 50,
+            "Type": "CountAttack"
+          },
+          {
+            "SpellPowerMultiplier": 1,
+            "Target": "FromTarget",
+            "StatusAmount": 2,
+            "Amount": 4,
+            "Primarypower": true,
+            "StatusModifier": "MultiplyForGreenTarget",
+            "Type": "Damage"
+          },
+          {
+            "Target": "FromTarget",
+            "UseCounterForAmount": true,
+            "Type": "DecreaseAttack"
+          }
+        ],
+        "prototype": {
+          "segments": [
+            {
+              "kind": "damage",
+              "target": "enemyChosen",
+              "scaling": {
+                "base": 4,
+                "mult": 1
+              },
+              "condMult": {
+                "times": 2,
+                "cond": {
+                  "kind": "targetColor",
+                  "color": "Green"
+                }
+              }
+            },
+            {
+              "kind": "reduce",
+              "target": "enemyChosen",
+              "stat": "attack",
+              "scaling": {
+                "base": 0,
+                "mult": 0
+              },
+              "halve": true
+            }
+          ]
+        }
+      },
+      "sourceEvidence": [
+        {
+          "id": "en",
+          "role": "english-snapshot",
+          "path": "data/raw/troops.gow.en.json",
+          "note": "troop 6283: stats.spell.id 7429, ManaCost 12, Green/Red, English 'Deal [Magic + 4] damage to an enemy. Deal double damage if they use Green Mana. Halve their Attack. [2:1]' asserted verbatim."
+        },
+        {
+          "id": "native",
+          "role": "native-snapshot",
+          "path": "data/raw/spells.gow.en.json",
+          "note": "spell 7429 Target Enemy Cost 12; SpellSteps asserted: CountAttack FromTarget 50; Damage FromTarget 4 SPM 1 StatusModifier MultiplyForGreenTarget StatusAmount 2; DecreaseAttack FromTarget counter."
+        },
+        {
+          "id": "rule",
+          "role": "official-shared-rule",
+          "path": "artifacts/gow-skill-audit/gold-primary-sources/official-weapon-list.html",
+          "note": "Official weapon list uses the same colour-conditional wording (Ice Arrow 'Deal double damage if they use Red Mana'); halving = CountAttack 50% floor then DecreaseAttack."
+        },
+        {
+          "id": "laneTest",
+          "role": "lane-battle-test",
+          "path": "tests/unit/gowLaneL7B08.test.ts",
+          "note": "L7B08 troop:6283 describe: binding/prototype/zh; 4 real casts (non-Green target [Magic+4], Attack 17 -> 9); Green target double; Attack 1 / 40 halving; armor; low-mana/silence."
+        }
+      ],
+      "dimensions": {
+        "identity-cost-colors": {
+          "status": "verified",
+          "note": "Entity 6283 -> spell 7429, cost 12, Green/Red; ledger binding checks true.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL7B08.test.ts"
+          ]
+        },
+        "target-count-range": {
+          "status": "verified",
+          "note": "FromTarget -> enemyChosen for damage and Attack reduction.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL7B08.test.ts"
+          ]
+        },
+        "base-formula-rounding": {
+          "status": "verified",
+          "note": "[Magic+4] (x2 vs Green-mana target); Attack removed = floor(Attack x 50%) (17 -> 8 removed, 1 -> 0).",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL7B08.test.ts"
+          ]
+        },
+        "boost-source-ratio-cap": {
+          "status": "verified",
+          "note": "CountAttack FromTarget 50 -> reduce halve (floor); [2:1] labels that 50%; no cap.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL7B08.test.ts"
+          ]
+        },
+        "conditions-probabilities-branches": {
+          "status": "verified",
+          "note": "MultiplyForGreenTarget StatusAmount 2 -> condMult x2 targetColor Green: Green target 14 at magic 3, non-Green 4 + magic.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL7B08.test.ts"
+          ]
+        },
+        "status-duration-immunity": {
+          "status": "not-applicable",
+          "note": "No status applied.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": []
+        },
+        "gems-types-selection-resolution": {
+          "status": "not-applicable",
+          "note": "No gem steps.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": []
+        },
+        "summon-transform-pools": {
+          "status": "not-applicable",
+          "note": "No summon/transform.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": []
+        },
+        "order-death-retargeting": {
+          "status": "verified",
+          "note": "Native count (pre-damage Attack) -> damage -> halve; damage does not change Attack, so order is unobservable here.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL7B08.test.ts"
+          ]
+        },
+        "mana-economy-extra-turn": {
+          "status": "verified",
+          "note": "Real cast spends 12 mana and ends the turn; low mana / silence block.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL7B08.test.ts"
+          ]
+        },
+        "display-description": {
+          "status": "verified",
+          "note": "zh contains [魔法 + 4], 绿色 (Green mana) double, 攻击力 halving and [2:1]; matches English.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL7B08.test.ts"
+          ]
+        },
+        "battle-pipeline": {
+          "status": "verified",
+          "note": "TurnEngine.castSkill both sides; armor absorbs normal damage.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL7B08.test.ts"
+          ],
+          "realBattleEntry": true
+        }
+      },
+      "clauseReviews": [
+        {
+          "id": "c1",
+          "text": "Deal [Magic + 4] damage to an enemy.",
+          "status": "verified",
+          "note": "[Magic + 4] damage to the chosen enemy.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL7B08.test.ts"
+          ]
+        },
+        {
+          "id": "c2",
+          "text": "Deal double damage if they use Green Mana.",
+          "status": "verified",
+          "note": "Double damage if the target uses Green mana.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL7B08.test.ts"
+          ]
+        },
+        {
+          "id": "c3",
+          "text": "Halve their Attack.",
+          "status": "verified",
+          "note": "Target Attack halved (floor of the removed half).",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL7B08.test.ts"
+          ]
+        },
+        {
+          "id": "c4",
+          "text": "[2:1]",
+          "status": "verified",
+          "note": "[2:1] = 50% of target Attack removed.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL7B08.test.ts"
+          ]
+        }
+      ],
+      "nativeStepReviews": [
+        {
+          "id": "0",
+          "type": "CountAttack",
+          "status": "verified",
+          "note": "CountAttack FromTarget 50 -> halve counter.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL7B08.test.ts"
+          ]
+        },
+        {
+          "id": "1",
+          "type": "Damage",
+          "status": "verified",
+          "note": "Damage FromTarget 4 SPM 1 MultiplyForGreenTarget x2 -> damage enemyChosen condMult targetColor Green.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL7B08.test.ts"
+          ]
+        },
+        {
+          "id": "2",
+          "type": "DecreaseAttack",
+          "status": "verified",
+          "note": "DecreaseAttack FromTarget counter -> reduce attack halve.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL7B08.test.ts"
+          ]
+        }
+      ],
+      "branchReviews": [
+        {
+          "id": "main",
+          "status": "verified",
+          "note": "Single branch; the Green-target multiplier covered on both outcomes.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL7B08.test.ts"
+          ]
+        }
+      ]
+    },
+    {
+      "key": "troop:6874",
+      "scope": "stored-gow-snapshot",
+      "sourceDigest": "b764555d141943063961c7e1235b225f40c596d7db94838b24bac02c1c0cace6",
+      "reviewer": "sa-L76",
+      "reviewedAt": "2026-09-27",
+      "decision": "accept",
+      "ledgerFingerprintAtReview": "142f456ff232aeddaa80e84d53b0616119c1a4e46acbd5bed70468225b58d488",
+      "_reference": {
+        "spellId": 8298,
+        "english": "Deal [Magic + 6] damage to an Enemy, boosted by their Attack. Gain 10 Souls. [1:1]",
+        "nativeTarget": "Enemy",
+        "randomize": null,
+        "steps": [
+          {
+            "Target": "FromTarget",
+            "Amount": 100,
+            "Type": "CountAttack"
+          },
+          {
+            "SpellPowerMultiplier": 1,
+            "Target": "FromTarget",
+            "UseCounterForAmount": true,
+            "Amount": 6,
+            "Primarypower": true,
+            "Type": "Damage"
+          },
+          {
+            "Target": "Self",
+            "Amount": 10,
+            "Type": "GiveSouls"
+          }
+        ],
+        "prototype": {
+          "segments": [
+            {
+              "kind": "damage",
+              "target": "enemyChosen",
+              "scaling": {
+                "base": 6,
+                "mult": 1
+              },
+              "modifier": {
+                "mod": {
+                  "kind": "ratio",
+                  "a": 1,
+                  "b": 1
+                },
+                "source": {
+                  "kind": "targetStat",
+                  "stat": "attack"
+                }
+              }
+            },
+            {
+              "kind": "gainEconomy",
+              "currency": "souls",
+              "scaling": {
+                "base": 10,
+                "mult": 0
+              }
+            }
+          ]
+        }
+      },
+      "sourceEvidence": [
+        {
+          "id": "en",
+          "role": "english-snapshot",
+          "path": "data/raw/troops.gow.en.json",
+          "note": "troop 6874: stats.spell.id 8298, ManaCost 15, Yellow/Purple, English 'Deal [Magic + 6] damage to an Enemy, boosted by their Attack. Gain 10 Souls. [1:1]' asserted verbatim."
+        },
+        {
+          "id": "native",
+          "role": "native-snapshot",
+          "path": "data/raw/spells.gow.en.json",
+          "note": "spell 8298 Target Enemy Cost 15; SpellSteps asserted: CountAttack FromTarget 100; Damage FromTarget 6 SPM 1 counter; GiveSouls Self 10."
+        },
+        {
+          "id": "rule",
+          "role": "official-shared-rule",
+          "path": "artifacts/gow-skill-audit/gold-primary-sources/official-brian-guide.html",
+          "note": "Official Brian guide '(Boost Ratio N:1)' labels; [1:1] = +1 per point of the target's Attack (native CountAttack 100)."
+        },
+        {
+          "id": "laneTest",
+          "role": "lane-battle-test",
+          "path": "tests/unit/gowLaneL7B08.test.ts",
+          "note": "L7B08 troop:6874 describe: binding/prototype/zh; 4 real casts ([Magic+6] + target Attack 23, other Attack ignored, +10 souls asserted on the Left side); Attack 0 + armor; low-mana/silence."
+        }
+      ],
+      "dimensions": {
+        "identity-cost-colors": {
+          "status": "verified",
+          "note": "Entity 6874 -> spell 8298, cost 15, Yellow/Purple; ledger binding checks true.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL7B08.test.ts"
+          ]
+        },
+        "target-count-range": {
+          "status": "verified",
+          "note": "FromTarget -> enemyChosen; souls to own side.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL7B08.test.ts"
+          ]
+        },
+        "base-formula-rounding": {
+          "status": "verified",
+          "note": "[Magic+6] + target Attack (100%).",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL7B08.test.ts"
+          ]
+        },
+        "boost-source-ratio-cap": {
+          "status": "verified",
+          "note": "CountAttack FromTarget 100 -> targetStat attack of the same target (1:1); caster Attack 40 and other enemy 90 ignored; no cap.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL7B08.test.ts"
+          ]
+        },
+        "conditions-probabilities-branches": {
+          "status": "not-applicable",
+          "note": "No condition/chance.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": []
+        },
+        "status-duration-immunity": {
+          "status": "not-applicable",
+          "note": "No status applied.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": []
+        },
+        "gems-types-selection-resolution": {
+          "status": "not-applicable",
+          "note": "No gem steps.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": []
+        },
+        "summon-transform-pools": {
+          "status": "not-applicable",
+          "note": "No summon/transform.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": []
+        },
+        "order-death-retargeting": {
+          "status": "verified",
+          "note": "Count before damage; souls after.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL7B08.test.ts"
+          ]
+        },
+        "mana-economy-extra-turn": {
+          "status": "verified",
+          "note": "Real cast spends 15 mana and ends the turn; GiveSouls Self 10 -> economy souls +10 (asserted for the Left/player side).",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL7B08.test.ts"
+          ]
+        },
+        "display-description": {
+          "status": "verified",
+          "note": "zh contains [魔法 + 6], 攻击力 boost, 10 souls and [1:1]; matches English.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL7B08.test.ts"
+          ]
+        },
+        "battle-pipeline": {
+          "status": "verified",
+          "note": "TurnEngine.castSkill both sides; armor absorbs normal damage.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL7B08.test.ts"
+          ],
+          "realBattleEntry": true
+        }
+      },
+      "clauseReviews": [
+        {
+          "id": "c1",
+          "text": "Deal [Magic + 6] damage to an Enemy, boosted by their Attack.",
+          "status": "verified",
+          "note": "[Magic + 6] damage to the chosen enemy boosted by its Attack.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL7B08.test.ts"
+          ]
+        },
+        {
+          "id": "c2",
+          "text": "Gain 10 Souls.",
+          "status": "verified",
+          "note": "Gain 10 Souls.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL7B08.test.ts"
+          ]
+        },
+        {
+          "id": "c3",
+          "text": "[1:1]",
+          "status": "verified",
+          "note": "[1:1] = +1 per Attack point.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL7B08.test.ts"
+          ]
+        }
+      ],
+      "nativeStepReviews": [
+        {
+          "id": "0",
+          "type": "CountAttack",
+          "status": "verified",
+          "note": "CountAttack FromTarget 100 -> targetStat attack ratio 1:1.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL7B08.test.ts"
+          ]
+        },
+        {
+          "id": "1",
+          "type": "Damage",
+          "status": "verified",
+          "note": "Damage FromTarget 6 SPM 1 counter -> damage enemyChosen + modifier.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL7B08.test.ts"
+          ]
+        },
+        {
+          "id": "2",
+          "type": "GiveSouls",
+          "status": "verified",
+          "note": "GiveSouls Self 10 -> gainEconomy souls 10.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL7B08.test.ts"
+          ]
+        }
+      ],
+      "branchReviews": [
+        {
+          "id": "main",
+          "status": "verified",
+          "note": "Single unconditional branch.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL7B08.test.ts"
+          ]
+        }
+      ]
+    }
+  ]
+}

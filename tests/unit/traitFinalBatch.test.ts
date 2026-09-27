@@ -94,17 +94,28 @@ describe('特质收尾批 · 回合开始钩子（定义直读）', () => {
     expect(foe.magic).toBe(2);
   });
 
-  it('aspectofdeath 口径：回合开始从首位敌人窃取 2 点生命（按实际伤害等量治疗；护甲先挡）', () => {
+  it('aspectofdeath steals 2 Life through Armor at turn start and grows max Life', () => {
     const holder = makeChar(1, { traitIds: ['aspectofdeath'], hp: 20 });
-    const foe = makeChar(2, { hp: 28, armor: 0 });
+    const foe = makeChar(2, { hp: 28, armor: 10 });
     const { engine } = makeEngine([holder], [foe]);
     engine.passTurn();
-    engine.passTurn();
-    expect(foe.hp).toBe(26); // 首2点伤害
-    expect(holder.hp).toBe(22); // 按实际伤害额治疗（护甲不为 0 时仍是 2 点直伤管线）
+    const events = engine.passTurn();
+    expect([foe.hp, foe.armor, holder.hp, holder.maxHp]).toEqual([26, 10, 22, 30]);
+    expect(events).toContainEqual({ type: 'buff', source: 'trait', targetId: 1,
+      stat: 'hp', amount: 2, maxHpGain: 2 });
   });
 
-  it('monkeymagic 口径：回合开始从首位敌人窃取 2 点法力（目标夹零、自己按 manaCost 夹取）', () => {
+  it('aspectofdeath works for an enemy-side holder at its turn start', () => {
+    const foe = makeChar(1, { hp: 3, armor: 10 });
+    const enemyHolder = makeChar(2, { traitIds: ['aspectofdeath'], hp: 28 });
+    const { engine } = makeEngine([foe], [enemyHolder]);
+    const events = engine.passTurn();
+    expect([foe.hp, foe.armor, enemyHolder.hp, enemyHolder.maxHp]).toEqual([1, 10, 30, 30]);
+    expect(events).toContainEqual({ type: 'buff', source: 'trait', targetId: 2,
+      stat: 'hp', amount: 2, maxHpGain: 2 });
+  });
+
+  it('monkeymagic 口径：回合开始从首位敌人窃取 2 点法力值（目标夹零、自己按 manaCost 夹取）', () => {
     const holder = makeChar(1, { traitIds: ['monkeymagic'], mana: 0, manaCost: 12 });
     const foe = makeChar(2, { mana: 5 });
     const { engine } = makeEngine([holder], [foe]);

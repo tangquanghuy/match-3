@@ -40,8 +40,8 @@ describe('ManaDistributor 单一法力条 · 从上到下顺序吸收', () => {
       makeChar(1, [BaseColor.Red], 10),
     ]);
     const events = dist.distribute(team, PlayerSide.Left, BaseColor.Red, 5);
-    expect(team.characters[0].mana).toBe(2);
-    expect(events[0].amount).toBe(2);
+    expect(team.characters[0].mana).toBe(3);
+    expect(events[0].amount).toBe(3);
     expect(team.characters[1].mana).toBe(0);
   });
 

@@ -1,5 +1,9 @@
 # 特殊宝石 · 语义考证与设计 第二批（2026-09-16）
 
+## 现行项目裁定（2026-09-27；优先于下文历史方案）
+
+有移除特效、可匹配的特殊宝石：**匹配或被摧毁／爆破，均触发该特效，一颗仅触发一次**。固有不可匹配宝石只在摧毁入口触发；无已实现独立移除特效的宝石不额外添加效果。状态搬运族 13 种均支持摧毁触发，其中 12 种可匹配；死亡标记不可匹配。旧资料中“仅匹配时触发”的描述保留为 GOW 原版资料／先前方案，不作为项目当前实现或原版统一规则的证据。
+
 ## ⭐ 官方数据核验（2026-09-16 窗口E 追加 · 决定性证据，凌驾于下文推断）
 
 **背景**：用户质疑「这些宝石是不是把技能效果误看成宝石」。为此从中文库的同源上游
@@ -17,7 +21,7 @@ SpellSteps——游戏本体数据，非文本翻译），提取全部宝石操�
    Decay×16、Submerge×9、Entangle×12、Enrage×12、Lycanthropy×20、Block×21、LightDarkStar×9。
    它们「看着像技能效果」是因为**本来就只由技能创造**（无其它来源）。
 2. **修正**：闪电宝石官方为 **LightningYellow×13 / LightningBlue×10 两色变体**，非本引擎的
-   lightningRow/lightningCol 行列建模——行为是否等价（黄=列/蓝=行？）待核对，列入窗口C对齐修正；
+   lightningRow/lightningCol 行列建模现已比照官方指南复核：黄=列、蓝=行，且仅匹配时清线；
    通配官方有 WildCard2/3/4 三档倍率（C 只实现 2/4）。
 3. **考证漏收，需补设计**：Volcano 火山宝石×15、Trap 陷阱宝石×16、ManaPotion 法力药水六色×19、
    Candy 糖果六色×6、Enchant 附魔×3、Mimic×1。
@@ -78,7 +82,7 @@ SpellSteps——游戏本体数据，非文本翻译），提取全部宝石操�
 | `SpecialGemKind` 联合类型 | `src/engine/types.ts` | 每颗新增一个 kind 字面量 |
 | 匹配归属 `SPECIAL_MATCH_COLOR` | `src/engine/types.ts` | 可匹配宝石登记归属色 → `matchJoinKey`/`isSameMatchType` 自动生效（`MatchResolver.scanLines` 的 run 连接键也随之工作） |
 | "被匹配"触发 | `TurnEngine.collectMatchTriggers` | 状态类宝石在此即时施加状态（仿 `applyWebGem`） |
-| "被摧毁"触发 | `TurnEngine.expandSpecialDestruction` | 引爆/清行/召唤类在此入 FIFO 队列（仿 bomb/lightning/wish 分支）；被清宝石照常进 `settleDestroyed` 结算法力 |
+| "被摧毁"触发 | `TurnEngine.expandSpecialDestruction` | 引爆/清行/召唤类在此结算；召唤仅在队伍有空位时入场（仿 bomb/lightning/wish 分支）；被清宝石照常进 `settleDestroyed` 结算法力 |
 | 事件载荷 | `events.ts` `SpecialGemTriggerEvent` | 按 kind 扩展可选字段（statusId/targetIds/summon/mana 等），表现层据此演出 |
 | 技能原语 | `src/engine/skills/builders.ts` | `createSpecialGems / transformToSpecial / destroySpecialGems / explode(Random)SpecialGems / boardSpecialCount` 均以 `SpecialGemKind` 为域——**新增 kind 即自动扩大技能词表**，这就是"解锁放弃桶技能"的机制 |
 | 渲染 | `src/render/GemSprite.ts` | `SPECIAL_HEX` 加条目；`drawSpecial` 加分支（程序化叠层）；无贴图时 `textureFor` 返回归属色宝石贴图，叠层画在其上 |
@@ -99,7 +103,7 @@ SpellSteps——游戏本体数据，非文本翻译），提取全部宝石操�
 ### A1. 冻结宝石（Freeze Gem）✅ 官方原文 ｜ 解锁 10 技能 ｜ ✅ 已实现（波A `freezeGem`）
 
 - **官方语义**："Freeze Gems are Blue Gems… These are matched with Blue Gems for Blue Mana. When matched, Freeze Gems will Freeze a random Enemy."（蓝色；与蓝色同类匹配得蓝法力；**被匹配时**冻结一名随机敌人。）来源：[官方 Heroic Gems](https://gemsofwar.zendesk.com/hc/en-us/articles/360004543635-Heroic-Gems)。
-- 冻结状态官方定义："prevents any Troop with the Mana colors frozen from having extra turns … and from any Spells cast"（禁施法/禁额外回合）。引擎已有 `frozen` 状态（`CONTROL_STATUS_IDS`、`isFrozen` 拦行动）。
+- 冻结状态限制额外回合，不禁止施法或攻击；匹配关联法力色、首位骷髅与施法者法术的额外回合分别判断。
 - **引擎行为设计**：kind `freezeGem`；`SPECIAL_MATCH_COLOR: Blue`；`collectMatchTriggers` 分支：随机存活敌人 `applyStatus({id:'frozen', turns:3})`（回合数对齐官方"临时"，取 web 同款 3，可调）。事件 `special-gem-trigger` 带 `statusId:'frozen'`。
 - 生成来源（官方数据）：Daughter of Time「创造 5 沙漏 + 5 冻结」、Vulpine Watcher、Kolfrysti（耗蓝转化）、Fionnuala、Helilya、Glaycia's Lattice、Frostbound、Midwinter Lycan（混合诅咒+冻结）等。
 - **程序化视觉**：基图 `blue.png`。叠层：六片冰晶（Graphics 等边三角，白 `#e8f6ff` α0.75，绕中心呈放射状，尖长 0.45r）+ 外圈霜环（描边 1.5px `#a6d4ff` α0.6）。待机：呼吸幅度 ×1.5（scaleAmp 0.20），叠层 alpha 在 0.55~0.85 间 1.6s 正弦摆动。触发反馈：label「冻结」color `#8fd0ff`，触发环之后播既有 `frozen_apply_strip`。
@@ -233,7 +237,7 @@ SpellSteps——游戏本体数据，非文本翻译），提取全部宝石操�
 ### B3. 恶魔传送门宝石（Daemonic Portal Gem）✅ 官方原文 ｜ 解锁 7 技能
 
 - **官方语义**："Daemonic Portal Gems… can not be matched. They have no mana color. When destroyed, Daemonic Portal Gems explode all Gems around them **and summon a random Daemon to the team of the gem destroyer** (if a free Team slot is available)."（不可匹配无色；被摧毁时**爆炸相邻一圈 + 为摧毁者一方召唤一名随机恶魔**。）来源：[Heroic Gems] + [官方战役公告 The Unholy Flame（镜像 topic 86384）](https://community.gemsofwar.com/t/campaign-begins-the-unholy-flame/86384)。
-- **引擎行为设计**：kind `daemonPortalGem`；无归属色；`expandSpecialDestruction` 分支：`clearCellsForSpecial(ringCells(pos))`（仿炸弹）+ 召唤——`summonQueue` 机制已备（Team.summonQueue FIFO），"随机恶魔"从 troops.json 按 `TroopType 含 Daemon` 随机取一个模板（战力缩放：对齐召唤物现有口径，open question 见尾）。
+- **引擎行为设计**：kind `daemonPortalGem`；无归属色；`expandSpecialDestruction` 分支：`clearCellsForSpecial(ringCells(pos))`（仿炸弹）+ 召唤——召唤使用四人上限机制，满员时召唤失效，"随机恶魔"从 troops.json 按 `TroopType 含 Daemon` 随机取一个模板（战力缩放：对齐召唤物现有口径，open question 见尾）。
 - 生成来源：DaeDrak、Sting Bat、Doomed Guardian、Discordia、The Bane of Valor、Blackflame Spear、Infernal Trickster、Abaddon's Shard（引爆）。
 - **程序化视觉**：基图 `purple.png` 打暗（tint ×0.6）。叠层：椭圆传送门漩涡（Graphics 三层同心椭圆描边 `#ff6a3a`/`#c77dff`/`#4a2d5e`，各 α0.8/0.7/0.9，长轴 0.8r）+ 4 道内向旋臂。待机：旋臂整体绕长轴翻转（scaleY 1→-1→1 循环 3s，模拟漩涡转动）。触发反馈：label「恶魔传送门」color `#ff8a5c`；召唤走既有 `summon_rune` 帧特效。
 - **开放问题**： summoned 恶魔的等级/属性模板口径（Explore 里官方出 1 级小兵——本作建议按施法者等级缩放或固定模板，**需拍板**）。
@@ -284,7 +288,7 @@ SpellSteps——游戏本体数据，非文本翻译），提取全部宝石操�
 ### C3. 灵力宝石（Spirit Gem）✅ 官方原文（颜色细节存疑）｜ 解锁 7 技能
 
 - **官方语义**："Spirit Gems… When matched with their color or destroyed, Spirit Gems will **drain 2 Mana from Enemies**."（按其颜色参与匹配；被匹配或被摧毁时从敌人处汲取 2 点法力。）来源：[Heroic Gems]。中文"灵力宝石"= Spirit Gem（狐/幽灵系：Inari、ShadowFox、Spirittooth、King of Ravens、The High Priestess、Chiron、Zhuque）；**注意与"法力药水宝石"（Mana Potion）是两种宝石**（见 C4）。
-- **引擎行为设计**：kind `spiritGem`；归属色：官方原文未明示颜色集合——生成证据显示多色转换都能产出（黄→Spirit、绿→Spirit），**建议同 C1 六色方案**，缺省 Purple。被匹配/被摧毁 → 敌方每个存活角色 `mana = max(0, mana-2)`（汲取的法力消散，官方"drain"无转移语义；见开放问题）。
+- **引擎行为设计**：kind `spiritGem`；归属色：官方原文未明示颜色集合——生成证据显示多色转换都能产出（黄→Spirit、绿→Spirit），**项目采用六色方案**；造石端显式选色（原语无色时暂定紫色），转化继承来源色，运行期无隐式颜色。被匹配/被摧毁 → 敌方每个存活角色 `mana = max(0, mana-2)`（汲取的法力消散，官方"drain"无转移语义；见开放问题）。
 - 生成来源：Relic Knight、Spirittooth、Doomed Guardian「全黄转灵力」、Inari「全绿转灵力」、KingOfRavens「爆破所有灵力宝石」等 15 处。
 - **程序化视觉**：基图 = 归属色贴图。叠层：半透明"魂火"外焰（Graphics 火焰轮廓但用冷色 `#b7e5ff` α0.6，倒置火舌朝上）+ 两只椭圆鬼眼（白 α0.9）。待机：外焰 alpha 0.4~0.75 / 1.1s 摇曳 + 整体 y 漂浮 ±0.03 格。触发反馈：label「摄魂」color `#b7e5ff`。
 - **开放问题**：被汲取的 2 点法力是否转移给触发方（官方文本只说 drain；社区实测感受是"清空对面"，建议不转移）。
@@ -292,9 +296,9 @@ SpellSteps——游戏本体数据，非文本翻译），提取全部宝石操�
 ### C4. 法力药水宝石（Mana Potion Gem）✅ 官方原文 ｜ 解锁 1 技能
 
 - **官方语义**："Mana Potion Gems… come in all 6 mana colors, there is no skull version. When matched with their color or destroyed, Mana Potion Gems will **create 7-11 Mana Gems of that color randomly across the board**."（六色；被匹配或被摧毁时在全盘随机撒 7-11 颗该色法力宝石。）来源：[Heroic Gems]。生成来源：六守卫者（Aransi/Helgor/Jakal/Moshu/Rok'Gar/Urielle，各色 1-3 瓶）、Maelstrom Dago'Nath「12 随机药水」。
-- **引擎行为设计**：kind `manaPotionGem`（颜色存储同 C1）；被摧毁（含匹配）→ 在当前空格随机落 7-11 颗该色普通宝石（`rng.nextInt` 定数量，空格随机采样；落进重力前棋盘，随后自然下落）。注意与已有 `gem-create` 事件复用。
+- **引擎行为设计**：kind `manaPotionGem`（颜色存储同 C1）；被摧毁（含匹配）时逐颗登记本轮待结算效果，等破坏链与重力补盘完成，再按普通造石原语在全盘创造 7-11 颗该色普通宝石。数量和落点均使用种子随机；满盘时对非同色匹配宝石不放回抽样，发 `gem-transform` 事件，随后正常结算连锁。每颗药水独立掷数量，不受本次消除留下的空格数限制。
 - **程序化视觉**：基图 = 归属色贴图缩小至 0.86。叠层：小圆药瓶轮廓（Graphics 瓶身圆 + 瓶颈矩形描边 2px `#ffffff` α0.85）+ 瓶内液面横线（同色加深）。待机：液面线 y ±0.03 格晃动（1.5s）。触发反馈：label「法力药水」color 按归属色。
-- **开放问题**：7-11 颗落在"空格"还是"随机格覆盖"（覆盖会顶掉特殊宝石，建议只落空格）。
+- **项目结算约定（2026-09-27 修正）**：取消旧版“只落空格”限制，复用普通造石的覆盖规则；不会选中已属于目标色匹配类型的宝石，选中的其他特殊宝石按转换处理而非摧毁触发。若非目标色可转换格位少于掷出的数量，则与普通造石一样按可转换数量处理。补盘后统一铺色是项目的结算时序约定。
 
 ---
 
@@ -324,7 +328,7 @@ SpellSteps——游戏本体数据，非文本翻译），提取全部宝石操�
 
 ### E1. 火山宝石（Volcano Gem）✅ 官方 guide 引用 ｜ 官方数据 ×15（武器 12 处）
 
-- **官方语义**：红色宝石，**与红色匹配；被匹配时向上垂直 + 对角方向爆炸**。官方 in-game Heroic Gem
+- **官方语义**：红色宝石，**与红色匹配；被摧毁时（含匹配）向上垂直 + 对角方向清除**。官方 in-game Heroic Gem
   guide 原文（论坛引述）："volcano gems match with reds and explode up vertically and diagonally"；
   战役「The Ruby Heptagon」官方 Heroic Gem（[topic 89991](https://community.gemsofwar.com/t/campaign-begins-the-ruby-heptagon/89991)）。
 - **引擎行为设计**：`volcanoGem`，归属 Red；触发=向上垂直列 + 对角清除（dragonGem「向下」的反向，清向
@@ -365,13 +369,12 @@ SpellSteps——游戏本体数据，非文本翻译），提取全部宝石操�
   状态本体引擎已有半成品接线，见 ASSET-GAPS）。
 - **视觉一句话**：紫宝石 + 爪痕/月光意象。
 
-### E5. 附魔宝石（Enchanted Gem）⚠️ 行为句未获取（公开渠道无定义）｜ ×3
+### E5. 附魔宝石（Enchant Gem）✅ 官方帮助中心已核实｜ ×3
 
 - **已知**：Update 8.4「Shadows Over Karakoth」引入的紫色 Heroic Gem（[topic 87379](https://community.gemsofwar.com/t/shadows-over-karakoth/87379)：
   "the new purple 'Enchanted Gems'"；Cosmic Dragons 每色生成 5 颗、Awakened Eventide 生成 3 颗）；
   成就「Enchantée：Destroy 100 Enchanted Gems」。
-- **未解**：被匹配/摧毁时的效果官方文本未在公开渠道找到。⚠️ 注意与附魔**状态**（Enchant：每回合 +2 法力
-  直到施法）同名不同物。暂按「紫匹配 → 施加附魔状态」假设，**实现前必须游戏内核实或裁定**。
+- **已核实**：官方 Heroic Gems 帮助中心明确 Enchant Gem 匹配紫色宝石时使一名随机己方附魔；普通摧毁/爆破仅提供本色法力，不额外施加附魔。状态使用既有附魔机制（每回合 +2 法力，施法后解除）。参见 CLAN-GEM-SOURCE-CHECK.md。
 - **视觉一句话**：紫宝石 + 符文/星辉附魔环。
 
 ### E6. 宝箱怪宝石（Mimic Gem）⚠️ 公开渠道无定义 ｜ ×1
@@ -415,7 +418,7 @@ SpellSteps——游戏本体数据，非文本翻译），提取全部宝石操�
 | 6 | 燃烧宝石 Burning Gem | `burningGem` | 官方原文 | 红 | 匹配→燃烧敌方全体 | **9** | 红贴图+火舌摇曳 |
 | 7 | 流血宝石 Bleed Gem | `bleedGem` | 官方原文 | 紫 | 摧毁→流血随机敌人 | **9** | 紫贴图+抓痕血滴 |
 | 8 | 巨人宝石 Giant Gem | `giantGem` | 官方原文 | 六色 | 匹配/摧毁→+5 法力+炸一圈 | **8** | 放大 1.08+金环脉动 |
-| 9 | 灵力宝石 Spirit Gem | `spiritGem` | 官方原文（颜色存疑） | 多色（建议六色，缺省紫） | 匹配/摧毁→敌方全体 -2 法力 | **7** | 冷色魂火+鬼眼 |
+| 9 | 灵力宝石 Spirit Gem | `spiritGem` | 官方原文（颜色存疑） | 多色（创造须指定颜色；未标色原语暂按项目紫色显式标记，转化承接来源色） | 匹配/摧毁→敌方全体 -2 法力 | **7** | 冷色魂火+鬼眼 |
 | 10 | 恶魔传送门 Daemonic Portal | `daemonPortalGem` | 官方原文 | 不可匹配 | 摧毁→炸一圈+召唤随机恶魔 | **7** | 暗紫漩涡椭圆 |
 | 11 | 石块 Stone Block | `stoneBlock` | 官方 Dev 发言 | 不可匹配 | 无（惰性障碍） | **7** | 去饱和岩块，无动画 |
 | 12 | 诅咒宝石 Cursed Gem | `curseGem` | 官方原文 | 棕 | 匹配→诅咒随机敌人 | **6** | 棕贴图+紫符环自转 |

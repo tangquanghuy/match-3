@@ -1,0 +1,32 @@
+{
+  "downloadedAt": "2026-09-27T16:37:26.023391+00:00",
+  "sources": [
+    {
+      "id": "team-share",
+      "file": "team-share.xlsx",
+      "bytes": 2484279,
+      "sha256": "72b3dd9129a2c790c34f839159415ab7161b724cc42317fe98f1a72ed5f31135",
+      "exportUrl": "https://docs.google.com/spreadsheets/d/18sdL8LGFqWBzjYUtQOkz4QTaBXVj5r7BTJNlFPO6-GQ/export?format=xlsx",
+      "forumUrl": "https://community.gemsofwar.com/t/64722",
+      "forumAuthor": "Terriblerperson",
+      "forumPublishedAt": "2020-07-13T14:30:30.627Z",
+      "sheetTeamCounts": {
+        "Teams": 115,
+        "Team Submissions": 45
+      }
+    },
+    {
+      "id": "delve-teams",
+      "file": "delve-teams.xlsx",
+      "bytes": 17429,
+      "sha256": "9e3e253c798fc8a28c90e56ba0c357dda7f37cffcb0592d319111a93ce8c7ac2",
+      "exportUrl": "https://docs.google.com/spreadsheets/d/1qtzm4c7CXyVE4WBDqZO6Np5Yq0hfsU_hhxAztva1HP4/export?format=xlsx",
+      "forumUrl": "https://community.gemsofwar.com/t/51929",
+      "forumAuthor": "Starlite",
+      "forumPublishedAt": "2019-02-10T10:10:49.001Z",
+      "sheetTeamCounts": {
+        "Delve Teams": 57
+      }
+    }
+  ]
+}

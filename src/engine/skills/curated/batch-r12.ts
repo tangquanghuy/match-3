@@ -163,9 +163,9 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '对一名随机敌人造成 [魔法 + 8] 点严重的溅射伤害。摧毁一整块大小为 5x5 的宝石。有 50% 的几率对一名随机敌人造成 [魔法 + 8] 点轻微的溅射伤害。',
     // 严重/轻微溅射同为 dmgSplash（batch-07 8113 先例）；「有 50% 几率」= 段级 chance
     build: skill(
-      dmgSplash('enemyRandom', 8, 1),
       destroyArea('square5', 'destroy'),
-      dmgSplash('enemyRandom', 8, 1, { chance: 0.5 }),
+      dmgSplash('enemyRandom', 8, 1, { splashRatio: 0.75 }),
+      dmgSplash('enemyRandomPrefNotPrev', 8, 1, { chance: 0.5, splashRatio: 0.25 }),
     ),
   },
   {

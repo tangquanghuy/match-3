@@ -1,0 +1,70 @@
+- 2026-09-28T01:47:17+08:00 B01 start; scaffold signoff-b01.json (troop:7375, weapon:1368, troop:6840, troop:6406, weapon:1369)
+- 2026-09-28T01:55:00+08:00 B01 triage: three-way source/native/prototype read for all 5; suspected shared diffs: Barrier/Enchanted hard turns=3 expiry (official: until damage / until cast), Cleanse strips positive statuses (official: negatives only); Submerged/negative-status duration unclear (source-dispute)
+- 2026-09-28T01:56:00+08:00 B01 writing tests/unit/gowLaneL5B01.test.ts
+- 2026-09-28T01:57:00+08:00 B01 tests/unit/gowLaneL5B01.test.ts 61/61 pass; tsc: 0 errors in L5 files; frozen sha256 c35e52363d8bbb96127a5547b296e772b157f02b1e4d12fde8ff5831fba0e526
+- 2026-09-28T01:58:00+08:00 troop:7375 draft (L5-001 Barrier 3-turn expiry, L5-002 Enchanted 3-turn expiry); identity/native/prototype/cast otherwise consistent
+- 2026-09-28T01:58:00+08:00 weapon:1368 draft (L5-001; L5-005 source-dispute Silence hard 3-turn cap); identity/aliases/native/prototype/cast otherwise consistent
+- 2026-09-28T01:58:00+08:00 troop:6840 draft (L5-001); Knight doubles Armor only, matches native StatusModifier
+- 2026-09-28T01:58:00+08:00 troop:6406 draft (L5-001; L5-004 source-dispute Submerged duration); registered order Armor->Barrier vs native Barrier->Armor, behaviour-equivalent in tests
+- 2026-09-28T01:58:00+08:00 weapon:1369 draft (L5-001, L5-002, L5-003 Cleanse strips positive statuses incl. self Barrier)
+- 2026-09-28T01:58:00+08:00 B01 check: 5 draft records FAIL only on TODO dimensions (expected), no stale-sourceDigest; issues.json 5 entries
+- 2026-09-28T01:59:00+08:00 B02 start; scaffold signoff-b02.json
+- 2026-09-28T02:00:00+08:00 B02 triage: weapon:1142 prototype lacks native Damage step; weapon:1436 negative/positive sets vs official list + rage/enraged double; troop:7182 English order (steal then curse) vs native (curse/bleed then steal); troop:6249 self Damage mapped to reduce hp; weapon:1147 BelowTarget vs enemyChosenAndBelow — probing with tests
+- 2026-09-28T02:10:00+08:00 B02 tests/unit/gowLaneL5B02.test.ts 47/47 pass; tsc: 0 errors in L5 files; frozen sha256 a848c51f1783d2d12866aa6283f4d59ad19e61c14f6487aa330c9c2f142237b3
+- 2026-09-28T02:10:00+08:00 weapon:1142 draft (L5-006 Damage step missing + no prefer-not-previous targeting; L5-005)
+- 2026-09-28T02:10:00+08:00 weapon:1436 draft (L5-007 negative set missing faerie-fire/terror/marked/wolf, adds charm; enraged+rage both granted; L5-005/L5-001/L5-002/L5-004 durations)
+- 2026-09-28T02:10:00+08:00 troop:7182 draft (L5-008 source-dispute English steal-first vs native curse/bleed-first; L5-005)
+- 2026-09-28T02:10:00+08:00 troop:6249 draft (L5-009 self Damage mapped to reduce hp, bypasses armor/barrier; L5-005)
+- 2026-09-28T02:10:00+08:00 weapon:1147 draft (L5-010 BelowTarget: runtime damages only the chosen enemy, none below; L5-005)
+- 2026-09-28T02:10:00+08:00 B02 check: 5 draft FAIL only on TODO dimensions (expected), no stale-sourceDigest; b01 re-check same; issues.json 10 entries. Lane batch B01+B02 done: 0 accept / 10 draft
+- 2026-09-28T02:41:00+08:00 RESUME sa-L5: re-acquired src lock (held since 02:25); reviewing in-flight fixes for L5-001/002/003/006/007/009/010 (status.ts NON_EXPIRING barrier/enchanted, cleanse negatives-only, allPositive rage dedupe; batch-w01 7338/7444, batch-w03 8668, batch-35 6249 spell)
+- 2026-09-28T02:46:00+08:00 fix-follow-up: 8668 Lycanthropy id 'wolf'->'lycanthropy' (weaponSpellAudit whitelist); gowWeaponReviewedOverrides.json 8668 updated + 7338/7444 added so _weapon_pools gen preserves repairs; weaponNativeStepRepair 8668/8084 expectations drop duplicate 'rage' alias (L5-007); 3 weapon suites 25/25 pass
+- 2026-09-28T02:52:00+08:00 fix L5-008 per rulings/R001: batch-r9 8752 order Curse -> Bleed x3 -> StealLife
+- 2026-09-28T02:55:00+08:00 B01/B02 REPRO tests rewritten as FIXED assertions (B01 61/61, B02 47/47); new sha256 b01 be56cc50aa357f28b5c14b861b9109ba0166de3d0da6e54c610a06f170124a16, b02 831688c3978dd6658108adbc4d77d0b85f96f0e735243457394355f359851cf4 written to signoff-b01/b02; b02 drafts sourceDigest/_reference refreshed (prototypes changed)
+- 2026-09-28T02:57:00+08:00 verify: full vitest 280/280 files pass (the 3 weapon suites were caused by L5-007 and fixed); tsc 0 errors; audit-gow-skills rebuilt; stale = none (no accept affected)
+- 2026-09-28T02:58:00+08:00 FIX L5-001 src/engine/skills/effects/status.ts (barrier non-expiring; all barrier sources) 5 lane keys
+- 2026-09-28T02:58:00+08:00 FIX L5-002 src/engine/skills/effects/status.ts (enchanted non-expiring) 2 lane keys
+- 2026-09-28T02:58:00+08:00 FIX L5-003 src/engine/skills/effects/status.ts cleanseEffect negatives only (+builders.ts, spell-rules.md) 1 lane key (47 cleanse prototypes share primitive)
+- 2026-09-28T02:58:00+08:00 FIX L5-006 src/engine/skills/curated/batch-w01.ts 7338 + gowWeaponReviewedOverrides.json 1 key
+- 2026-09-28T02:58:00+08:00 FIX L5-007 src/engine/skills/curated/batch-w03.ts 8668 + status.ts allPositive + overrides JSON + weaponNativeStepRepair.test.ts 2 keys (8668, 8084)
+- 2026-09-28T02:58:00+08:00 FIX L5-008 src/engine/skills/curated/batch-r9.ts 8752 1 key
+- 2026-09-28T02:58:00+08:00 FIX L5-009 src/engine/skills/curated/batch-35.ts 7392 1 key
+- 2026-09-28T02:58:00+08:00 FIX L5-010 src/engine/skills/curated/batch-w01.ts 7444 (+prototypes.ts column-slice damage range) + overrides JSON 1 key
+- 2026-09-28T02:58:00+08:00 open: L5-004 (Submerged duration) / L5-005 (negative-status 3-turn hard cap) source-dispute, need coordinator ruling; B01/B02 remain draft pending those + dimension fill
+- 2026-09-28T02:59:00+08:00 released src lock
+- 2026-09-28T03:05:00+08:00 B01 re-judge after fixes: troop:7375 accept, troop:6840 accept (check ok); weapon:1369 draft (new L5-011 source-dispute x1.5 rounding); weapon:1368 draft (L5-005); troop:6406 draft (L5-004/L5-005). B02 all 5 stay draft (L5-005 negative-status hard cap unresolved). Added lane helper lane-L5/fill.mjs (fills records from compact spec)
+- 2026-09-28T03:08:00+08:00 requeue.jsonl: 10 done lines for B01/B02 keys (re-reviewed in place)
+- 2026-09-28T03:08:00+08:00 B03 start troop:6229,troop:6217,troop:6924,troop:6546,weapon:1072; scaffold signoff-b03.json
+- 2026-09-28T03:12:00+08:00 B03 triage: 7185 missing TrueDamage step (L5-012); 7371/7359/8393/7740 segment order != native (L5-013, R001); every key also depends on L5-005 (negative cap) or new L5-014 (Enraged duration)
+- 2026-09-28T03:14:00+08:00 acquired src lock; L5-005 trial fix (tickStatuses no decrement for natural-cleanse negatives): 7 non-lane unit tests + 10 own B01 cases fail (spec req 9.5 countdown); REVERTED, analysis recorded in issues.json L5-005 (needs coordinator ruling)
+- 2026-09-28T03:30:00+08:00 B03 tests/unit/gowLaneL5B03.test.ts 44/44 pass; frozen sha256 243d27acb6bb5269da89dbc6d8d64f6c7be6d068112cb1eb0de407c46409945a
+- 2026-09-28T03:35:00+08:00 verify: full vitest 9878 passed / 46 failed, all 46 in tests/unit/gowLaneL4bB05Repro.test.ts (L4b in-progress repro, fails with or without my change: env-note, not L5); tsc 0; audit rebuilt; stale none
+- 2026-09-28T03:36:00+08:00 FIX L5-012 src/engine/skills/curated/batch-w01.ts 7185 + gowWeaponReviewedOverrides.json 1 key
+- 2026-09-28T03:36:00+08:00 FIX L5-013 batch-r5.ts 7371, batch-34.ts 7359, batch-33.ts 8393/7740 (native order, R001) 4 keys
+- 2026-09-28T03:37:00+08:00 released src lock
+- 2026-09-28T03:40:00+08:00 B03 done accept=0 draft=5 waived=0 fixed=5 (drafts held by L5-005 / L5-014; sourceDigest refreshed, check: only TODO dimensions)
+- 2026-09-28T03:42:00+08:00 B04 start troop:6192,troop:6136,troop:6646,troop:6219,troop:6222; scaffold signoff-b04.json
+- 2026-09-28T03:44:00+08:00 B04 triage: 7978/7361/7364 order != native (L5-013); 7333 consistent but Frozen cap (L5-005); Poison-only skills 7238/7978 not blocked (Poison non-expiring, matches official + community)
+- 2026-09-28T03:45:00+08:00 acquired src lock; reordered batch-01 7978 (Poison WeakestEnemy -> Damage lastTarget), 7361 (Stun -> Damage), batch-r18 7364 (Stun -> reposition lastTarget)
+- 2026-09-28T03:50:00+08:00 B04 tests/unit/gowLaneL5B04.test.ts 41/41 pass; frozen sha256 ab8bd482981b404dc32fb79272fc04433e7380b88cffa4c06d0b0dc8a4257e6c
+- 2026-09-28T03:55:00+08:00 verify: full vitest 10228 passed / 46 failed (all gowLaneL4bB05Repro, pre-existing, not L5); tsc 0; audit rebuilt; stale none
+- 2026-09-28T03:55:00+08:00 FIX L5-013 src/engine/skills/curated/batch-01.ts 7978/7361, batch-r18.ts 7364 3 keys
+- 2026-09-28T03:56:00+08:00 released src lock
+- 2026-09-28T03:58:00+08:00 B04 done accept=2 (troop:6136, troop:6646) draft=3 (6192/6219/6222 L5-005) waived=0 fixed=3- 2026-09-28T04:29:15+08:00 ROUND3 start sa-L5; acquired src lock for R004 (status durations); baseline full vitest running
+- 2026-09-28T04:52:52.7053848+08:00 R004 implemented (status.ts, TurnEngine.ts cast endActionStatuses, CombatResolver.ts skull-hit endActionStatuses); core tests updated (castTurnLifecycle, gowCommonStatusRules, passTurn, positiveStatus, statusEffect, statusFaerieFire, statusGems, webStatus) + new statusDurationsR004.test.ts 9/9; frozen gowWorker02Completion 6073/6393 updated (sha d2890983... in signoff-round2-worker-02 x7, requeue 2 lines); own B01 FIXED L5-004/005 sha 1f015ba2...
+- 2026-09-28T04:52:52.7053848+08:00 verify: full vitest baseline 10931/0 -> after 11024 pass / 43 fail, all 43 in gowLaneL1B01/L1B01Repro/L1B02/L1B02Repro/L3B01Repro/L3B02Repro (files written 04:41-04:49 after my baseline by L1/L3; prototype/order repros unrelated to status durations) env-note; tsc only 5 TS6133 in gowLaneL1B02*.test.ts (not L5); audit rebuilt; stale none
+- 2026-09-28T04:52:52.7053848+08:00 saved artifacts/gow-skill-audit/gold-primary-sources/community-2026-09-28-status-durations.json; spec notes: battle-skill-system requirements 9.5 + combat-mechanics GOW-STATUS-RESEARCH.md marked superseded by R004; spell-rules.md status section
+- 2026-09-28T04:52:52.7053848+08:00 FIX R004 (L5-004/L5-005/L5-014) src/engine/skills/effects/status.ts,TurnEngine.ts,CombatResolver.ts 15 lane keys; changelog 2 entries
+- 2026-09-28T04:53:05.1525836+08:00 released src lock (R004)
+- 2026-09-28T04:53:50.4270728+08:00 R005 lock busy (sa-L2 holds src since 04:53); re-judging round 1-2 drafts meanwhile, will retry
+- 2026-09-28T04:59:25.7373051+08:00 REJUDGE (R004) new evidence tests/unit/gowLaneL5R3.test.ts 30/30 + tests/unit/gowFixR004StatusDurations.test.ts 9/9 (renamed from statusDurationsR004); helper lane-L5/spec-r3.mjs + fill.mjs
+- 2026-09-28T04:59:25.7373051+08:00 REJUDGE accept: weapon:1368, troop:6406, weapon:1369 (L5-011 convention:R006-C1), weapon:1142 (convention:R006-C2), weapon:1436, troop:6249, weapon:1147, troop:6229, troop:6217, troop:6924, troop:6546, weapon:1072, troop:6219, troop:6222 = 14; check ok b01 5/5, b02 4/5, b03 5/5, b04 4/5
+- 2026-09-28T04:59:25.7373051+08:00 HOLD draft troop:7182 (TwoWeakestEnemies) and troop:6192 (WeakestEnemy) pending R005 fix
+- 2026-09-28T04:59:45.1032606+08:00 B05 start troop:7459,troop:7862,troop:7439,troop:7541,troop:7484
+- 2026-09-28T05:03:53.4567822+08:00 weapon:1142 back to draft: new L5-015 (RandomPrefNotPrev immediate-previous vs R006-C3 prefer not-yet-hit; cross-lane primitive, needs coordinator)
+- 2026-09-28T05:07:45.8754066+08:00 B05 triage: 7459/7862/7541/7484 consistent (7862 enemyRandomN splash = randomSplashCount prefer-not-yet-hit, convention:R006-C3; 7541 enemyRandomN n=2 equivalent to RandomEnemy+RandomPrefNotPrev); 7439 L5-016 prototype enemyRandom vs native Target Enemy/FromTarget (repro gowLaneL5B05Repro fails as expected); waiting src lock (sa-L3)
+- 2026-09-28T05:08:29.6181161+08:00 acquired src lock for R005 (grep: targeting.ts still hp-only, nobody changed)
+- 2026-09-28T05:23:59.2809465+08:00 B06 start troop:6512,troop:6209,troop:6506,troop:6325,troop:6028
+- 2026-09-28T05:30:00.4128647+08:00 B06 triage: 6512/6506/6325/6028 consistent; 6209 spell 7351 prototype damage->web vs native Web->damage: observable (lethal hit leaves Web on native order) -> L5-013 family reorder pending src lock; tests/unit/gowLaneL5B06.test.ts written
+- 2026-09-28T05:38:02+08:00 acquired src lock (L5-016 9131, L5-013 7351, R005)
+- 2026-09-28T05:48:25.3805202+08:00 env-note: src/engine/skills/effects/secondary.ts modified at 05:44 by another window while sa-L5 holds src (lock since 05:38); ReferenceError 'spec is not defined' at ratioBonus breaks ~400 unrelated tests; not touched by L5

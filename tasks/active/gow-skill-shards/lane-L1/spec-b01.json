@@ -1,0 +1,537 @@
+{
+ "troop:7494": {
+  "en": "troop 7494 SpellId 9239 cost 11 Red/Purple; English 2 clauses",
+  "native": "9239: CauseCursed RandomEnemy, CauseCursed RandomPrefNotPrevEnemy, SummoningType mystic",
+  "rule": {
+   "path": "artifacts/gow-skill-audit/gold-primary-sources/official-status-effects.html",
+   "note": "Official status guide: Curse/Death Mark/Hunter's Mark/Web/Disease/Frozen/Poison semantics; Blessed immune to status effects, Devour and Mana Burn. Durations per rulings/R004 (convention:R006-C2 for Cause* Amount)."
+  },
+  "extra": [
+   {
+    "id": "transform",
+    "role": "community-rule",
+    "path": "artifacts/gow-skill-audit/gold-primary-sources/community-2026-09-28-transform-summon.json",
+    "note": "Transform restores Life/Armor and takes level + traits of the troop; summons arrive at level 20 (project roster is level 20)."
+   }
+  ],
+  "dims": {
+   "identity-cost-colors": [
+    "v",
+    "entity id, SpellId, cost and colours match raw EN + native + src/data (binding test)"
+   ],
+   "target-count-range": [
+    "v",
+    "enemyRandomN n=2 distinct = RandomEnemy + RandomPrefNotPrevEnemy; one living enemy -> one Curse (equivalent to cursing twice, test)"
+   ],
+   "base-formula-rounding": [
+    "na",
+    "no numeric formula"
+   ],
+   "boost-source-ratio-cap": [
+    "na",
+    "no boost source"
+   ],
+   "conditions-probabilities-branches": [
+    "na",
+    "single unconditional branch"
+   ],
+   "status-duration-immunity": [
+    "v",
+    "Curse applied to 2 enemies"
+   ],
+   "gems-types-selection-resolution": [
+    "na",
+    "no gem effect"
+   ],
+   "summon-transform-pools": [
+    "v",
+    "pool = all 228 raw Mystic (TroopType/TroopType2) troops in the project roster; raw-only Cultist 7888 not in roster (issue L1-roster-gap); level-20 template stats/traits, 0 mana; full team -> no summon; 3 active -> 4th slot"
+   ],
+   "order-death-retargeting": [
+    "v",
+    "Curses before summon (event order test)"
+   ],
+   "mana-economy-extra-turn": [
+    "v",
+    "cast spends mana, one action logged, turn passes (no extra turn); low-mana / Silence refused"
+   ],
+   "display-description": [
+    "v",
+    "zh description matches English meaning (binding test)"
+   ],
+   "battle-pipeline": [
+    "v",
+    "real TurnEngine.castSkill, both sides"
+   ]
+  },
+  "clauses": {
+   "c1": [
+    "v",
+    "2 distinct random enemies Cursed, both sides"
+   ],
+   "c2": [
+    "v",
+    "one Mystic from the roster-scoped raw Mystic pool, fixed seeds"
+   ]
+  },
+  "steps": {
+   "0": [
+    "v",
+    "RandomEnemy Curse"
+   ],
+   "1": [
+    "v",
+    "RandomPrefNotPrevEnemy Curse (distinct; lone enemy reuse is equivalent)"
+   ],
+   "2": [
+    "v",
+    "SummoningType mystic pool check vs data/raw"
+   ]
+  },
+  "branches": {
+   "main": [
+    "v",
+    "single branch"
+   ]
+  },
+  "decision": "accept",
+  "test": "tests/unit/gowLaneL1B01.test.ts",
+  "testNote": "troop:7494: real TurnEngine.castSkill both sides, fixed RNG, boundaries"
+ },
+ "troop:7260": {
+  "en": "troop 7260 SpellId 8894 cost 22 Green/Red/Purple; English 3 clauses",
+  "native": "8894 Target Enemy: CauseCursed FromTarget, CauseDeathMark FromTarget, Damage BelowTarget x1.5+3, Summoning 6067 Abhorath",
+  "rule": {
+   "path": "artifacts/gow-skill-audit/gold-primary-sources/official-status-effects.html",
+   "note": "Official status guide: Curse/Death Mark/Hunter's Mark/Web/Disease/Frozen/Poison semantics; Blessed immune to status effects, Devour and Mana Burn. Durations per rulings/R004 (convention:R006-C2 for Cause* Amount)."
+  },
+  "extra": [
+   {
+    "id": "transform",
+    "role": "community-rule",
+    "path": "artifacts/gow-skill-audit/gold-primary-sources/community-2026-09-28-transform-summon.json",
+    "note": "Transform restores Life/Armor and takes level + traits of the troop; summons arrive at level 20 (project roster is level 20)."
+   }
+  ],
+  "dims": {
+   "identity-cost-colors": [
+    "v",
+    "entity id, SpellId, cost and colours match raw EN + native + src/data (binding test)"
+   ],
+   "target-count-range": [
+    "v",
+    "chosen enemy (fixed L1-7260-target, was allyChosen); damage to every living enemy below it; last enemy chosen -> none, first -> 3"
+   ],
+   "base-formula-rounding": [
+    "v",
+    "round(Magic x 1.5) + 3 (magic 10 -> 18, 7 -> 14; convention:R006-C1)"
+   ],
+   "boost-source-ratio-cap": [
+    "na",
+    "no boost source"
+   ],
+   "conditions-probabilities-branches": [
+    "na",
+    "single unconditional branch"
+   ],
+   "status-duration-immunity": [
+    "v",
+    "Curse + Death Mark on the chosen enemy only"
+   ],
+   "gems-types-selection-resolution": [
+    "na",
+    "no gem effect"
+   ],
+   "summon-transform-pools": [
+    "v",
+    "Summoning 6067 = Abhorath template; full team -> no summon"
+   ],
+   "order-death-retargeting": [
+    "v",
+    "statuses -> damage -> summon (native order)"
+   ],
+   "mana-economy-extra-turn": [
+    "v",
+    "cast spends mana, one action logged, turn passes (no extra turn); low-mana / Silence refused"
+   ],
+   "display-description": [
+    "v",
+    "zh corrected to 一名敌人 via gowSnapshotOverrides.json (L1-7260-target)"
+   ],
+   "battle-pipeline": [
+    "v",
+    "real TurnEngine.castSkill, both sides"
+   ]
+  },
+  "clauses": {
+   "c1": [
+    "v",
+    "chosen enemy Cursed + Deathmarked"
+   ],
+   "c2": [
+    "v",
+    "enemies below take round(1.5M)+3"
+   ],
+   "c3": [
+    "v",
+    "Abhorath summoned"
+   ]
+  },
+  "steps": {
+   "0": [
+    "v",
+    "Curse FromTarget"
+   ],
+   "1": [
+    "v",
+    "DeathMark FromTarget"
+   ],
+   "2": [
+    "v",
+    "Damage BelowTarget"
+   ],
+   "3": [
+    "v",
+    "Summoning 6067"
+   ]
+  },
+  "branches": {
+   "main": [
+    "v",
+    "single branch"
+   ]
+  },
+  "decision": "accept",
+  "test": "tests/unit/gowLaneL1B01.test.ts",
+  "testNote": "troop:7260: real TurnEngine.castSkill both sides, fixed RNG, boundaries"
+ },
+ "troop:6453": {
+  "en": "troop 6453 SpellId 7631 cost 16 Red/Purple; English 3 clauses",
+  "native": "7631: CauseDeathMark, CauseHuntersMark FirstTwoEnemies, Damage FirstTwoEnemies M+4, Transform Self 6451 Nosferatu",
+  "rule": {
+   "path": "artifacts/gow-skill-audit/gold-primary-sources/official-status-effects.html",
+   "note": "Official status guide: Curse/Death Mark/Hunter's Mark/Web/Disease/Frozen/Poison semantics; Blessed immune to status effects, Devour and Mana Burn. Durations per rulings/R004 (convention:R006-C2 for Cause* Amount)."
+  },
+  "extra": [
+   {
+    "id": "transform",
+    "role": "community-rule",
+    "path": "artifacts/gow-skill-audit/gold-primary-sources/community-2026-09-28-transform-summon.json",
+    "note": "Transform restores Life/Armor and takes level + traits of the troop; summons arrive at level 20 (project roster is level 20)."
+   },
+   {
+    "id": "r001",
+    "role": "user-ruling",
+    "path": "tasks/active/gow-skill-shards/rulings/R001-native-step-order.md",
+    "note": "Native SpellSteps order is authoritative."
+   }
+  ],
+  "dims": {
+   "identity-cost-colors": [
+    "v",
+    "entity id, SpellId, cost and colours match raw EN + native + src/data (binding test)"
+   ],
+   "target-count-range": [
+    "v",
+    "first 2 living enemies; one living enemy -> only it"
+   ],
+   "base-formula-rounding": [
+    "v",
+    "Magic + 4"
+   ],
+   "boost-source-ratio-cap": [
+    "na",
+    "no boost source"
+   ],
+   "conditions-probabilities-branches": [
+    "na",
+    "single unconditional branch"
+   ],
+   "status-duration-immunity": [
+    "v",
+    "Death Mark + Hunter's Mark on the first two"
+   ],
+   "gems-types-selection-resolution": [
+    "na",
+    "no gem effect"
+   ],
+   "summon-transform-pools": [
+    "v",
+    "caster transforms in place into Nosferatu (6451): id/slot kept, template stats/spell/traits, full Life; mana already spent by the cast"
+   ],
+   "order-death-retargeting": [
+    "v",
+    "fixed L1-6453-order: marks before damage; lethal hit no longer re-selects the third enemy"
+   ],
+   "mana-economy-extra-turn": [
+    "v",
+    "cast spends mana, one action logged, turn passes (no extra turn); low-mana / Silence refused"
+   ],
+   "display-description": [
+    "v",
+    "zh description matches English meaning (binding test)"
+   ],
+   "battle-pipeline": [
+    "v",
+    "real TurnEngine.castSkill, both sides"
+   ]
+  },
+  "clauses": {
+   "c1": [
+    "v",
+    "first two take Magic+4"
+   ],
+   "c2": [
+    "v",
+    "both marks on them"
+   ],
+   "c3": [
+    "v",
+    "transform into Nosferatu"
+   ]
+  },
+  "steps": {
+   "0": [
+    "v",
+    "DeathMark"
+   ],
+   "1": [
+    "v",
+    "HuntersMark"
+   ],
+   "2": [
+    "v",
+    "Damage"
+   ],
+   "3": [
+    "v",
+    "Transform Self 6451"
+   ]
+  },
+  "branches": {
+   "main": [
+    "v",
+    "single branch"
+   ]
+  },
+  "decision": "accept",
+  "test": "tests/unit/gowLaneL1B01.test.ts",
+  "testNote": "troop:6453: real TurnEngine.castSkill both sides, fixed RNG, boundaries"
+ },
+ "troop:6892": {
+  "en": "troop 6892 SpellId 8318 cost 11 Red/Yellow; English 2 clauses",
+  "native": "8318: CauseDisease RandomEnemy, SummoningKingdomNoError 3061",
+  "rule": {
+   "path": "artifacts/gow-skill-audit/gold-primary-sources/official-status-effects.html",
+   "note": "Official status guide: Curse/Death Mark/Hunter's Mark/Web/Disease/Frozen/Poison semantics; Blessed immune to status effects, Devour and Mana Burn. Durations per rulings/R004 (convention:R006-C2 for Cause* Amount)."
+  },
+  "extra": [
+   {
+    "id": "transform",
+    "role": "community-rule",
+    "path": "artifacts/gow-skill-audit/gold-primary-sources/community-2026-09-28-transform-summon.json",
+    "note": "Transform restores Life/Armor and takes level + traits of the troop; summons arrive at level 20 (project roster is level 20)."
+   }
+  ],
+  "dims": {
+   "identity-cost-colors": [
+    "v",
+    "entity id, SpellId, cost and colours match raw EN + native + src/data (binding test)"
+   ],
+   "target-count-range": [
+    "v",
+    "one random living enemy"
+   ],
+   "base-formula-rounding": [
+    "na",
+    "no numeric formula"
+   ],
+   "boost-source-ratio-cap": [
+    "na",
+    "no boost source"
+   ],
+   "conditions-probabilities-branches": [
+    "na",
+    "single unconditional branch"
+   ],
+   "status-duration-immunity": [
+    "v",
+    "Disease on one enemy"
+   ],
+   "gems-types-selection-resolution": [
+    "na",
+    "no gem effect"
+   ],
+   "summon-transform-pools": [
+    "v",
+    "pool = the 5 raw KingdomId 3061 troops, all reachable with fixed seeds; NoError on full team"
+   ],
+   "order-death-retargeting": [
+    "v",
+    "Disease then summon"
+   ],
+   "mana-economy-extra-turn": [
+    "v",
+    "cast spends mana, one action logged, turn passes (no extra turn); low-mana / Silence refused"
+   ],
+   "display-description": [
+    "v",
+    "zh description matches English meaning (binding test)"
+   ],
+   "battle-pipeline": [
+    "v",
+    "real TurnEngine.castSkill, both sides"
+   ]
+  },
+  "clauses": {
+   "c1": [
+    "v",
+    "one enemy Diseased"
+   ],
+   "c2": [
+    "v",
+    "one Fell Roost troop"
+   ]
+  },
+  "steps": {
+   "0": [
+    "v",
+    "CauseDisease RandomEnemy"
+   ],
+   "1": [
+    "v",
+    "SummoningKingdomNoError 3061"
+   ]
+  },
+  "branches": {
+   "main": [
+    "v",
+    "single branch"
+   ]
+  },
+  "decision": "accept",
+  "test": "tests/unit/gowLaneL1B01.test.ts",
+  "testNote": "troop:6892: real TurnEngine.castSkill both sides, fixed RNG, boundaries"
+ },
+ "troop:6474": {
+  "en": "troop 6474 SpellId 7652 cost 20 Blue/Yellow/Purple; English 3 clauses",
+  "native": "7652: CauseFrozen FirstTwo, ManaBurn FirstTwo x1, TroopOrderBack SecondEnemy, Delay, TroopOrderBack FrontEnemy, SummoningNoError 6191",
+  "rule": {
+   "path": "artifacts/gow-skill-audit/gold-primary-sources/official-status-effects.html",
+   "note": "Official status guide: Curse/Death Mark/Hunter's Mark/Web/Disease/Frozen/Poison semantics; Blessed immune to status effects, Devour and Mana Burn. Durations per rulings/R004 (convention:R006-C2 for Cause* Amount)."
+  },
+  "extra": [
+   {
+    "id": "manaburn",
+    "role": "official-shared-rule",
+    "path": "artifacts/gow-skill-audit/gold-primary-sources/official-mana-burn-2-0.html",
+    "note": "Mana Burn deals damage based on the enemy's current mana and does not drain it."
+   },
+   {
+    "id": "transform",
+    "role": "community-rule",
+    "path": "artifacts/gow-skill-audit/gold-primary-sources/community-2026-09-28-transform-summon.json",
+    "note": "Transform restores Life/Armor and takes level + traits of the troop; summons arrive at level 20 (project roster is level 20)."
+   }
+  ],
+  "dims": {
+   "identity-cost-colors": [
+    "v",
+    "entity id, SpellId, cost and colours match raw EN + native + src/data (binding test)"
+   ],
+   "target-count-range": [
+    "v",
+    "first two enemies; second then first moved to the back -> [12,13,11,10]; two enemies -> [11,10]; one -> unchanged"
+   ],
+   "base-formula-rounding": [
+    "v",
+    "Mana Burn = Magic + victim current mana, no drain (official 2.0)"
+   ],
+   "boost-source-ratio-cap": [
+    "na",
+    "no boost source"
+   ],
+   "conditions-probabilities-branches": [
+    "na",
+    "single unconditional branch"
+   ],
+   "status-duration-immunity": [
+    "v",
+    "Frozen on both; Blessed front enemy immune to Frozen and Mana Burn"
+   ],
+   "gems-types-selection-resolution": [
+    "na",
+    "no gem effect"
+   ],
+   "summon-transform-pools": [
+    "v",
+    "Summoning 6191 Queen Mab; NoError on full team"
+   ],
+   "order-death-retargeting": [
+    "v",
+    "killed original troop keeps no slot to move; only surviving original targets move (consistent with tests/unit/gowManaBurnTowerAudit.test.ts)"
+   ],
+   "mana-economy-extra-turn": [
+    "v",
+    "cast spends mana, one action logged, turn passes (no extra turn); low-mana / Silence refused"
+   ],
+   "display-description": [
+    "v",
+    "zh description matches English meaning (binding test)"
+   ],
+   "battle-pipeline": [
+    "v",
+    "real TurnEngine.castSkill, both sides"
+   ]
+  },
+  "clauses": {
+   "c1": [
+    "v",
+    "Frozen + Mana Burn first two"
+   ],
+   "c2": [
+    "v",
+    "both knocked to last"
+   ],
+   "c3": [
+    "v",
+    "Queen Mab summoned"
+   ]
+  },
+  "steps": {
+   "0": [
+    "v",
+    "CauseFrozen"
+   ],
+   "1": [
+    "v",
+    "ManaBurn"
+   ],
+   "2": [
+    "v",
+    "TroopOrderBack SecondEnemy"
+   ],
+   "3": [
+    "v",
+    "Delay 800: presentation pause only, no state change between the two knock-backs (order test)"
+   ],
+   "4": [
+    "v",
+    "TroopOrderBack FrontEnemy"
+   ],
+   "5": [
+    "v",
+    "SummoningNoError 6191"
+   ]
+  },
+  "branches": {
+   "main": [
+    "v",
+    "single branch"
+   ]
+  },
+  "decision": "accept",
+  "test": "tests/unit/gowLaneL1B01.test.ts",
+  "testNote": "troop:6474: real TurnEngine.castSkill both sides, fixed RNG, boundaries"
+ }
+}

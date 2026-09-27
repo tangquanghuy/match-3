@@ -4,8 +4,15 @@
  * 改手感只改这里，不动各处动画代码。
  */
 export const AnimConfig = {
-  /** 全局速度倍率：>1 加快，用于快进（需求 25.1） */
+  /**
+   * 历史快进倍率，恒为 1（保留字段兼容旧读取点）。
+   * 战斗演出倍速（1×/2×/3×、按住空格）改由 battleSpeed + battleSpeedRuntime 全局换算：
+   * gsap 全局时间线与战斗根节点下的有限 WAAPI 动画一起加速。读取方若再除以它不会重复换算。
+   */
   globalScale: 1,
+
+  /** Lightweight extra-action HUD notice, tracked as finite visual work. */
+  extraTurnNotice: { durationMs: 720, fadeInMs: 90, fadeOutMs: 150 },
 
   /** 交换（需求 19.1）：跟手缓出 + 轻微过冲 */
   swap: { duration: 0.18, ease: 'power2.inOut' },
@@ -19,10 +26,16 @@ export const AnimConfig = {
   /** 消除后、开始下落前的留白 */
   postEliminatePause: 0.02,
 
+  /** Explosion strip fully finishes before falling; only a short clear-board handoff. */
+  postExplodePause: 0.02,
+
   /** Colored energy traveling from eliminated cells into the actual recipient mana gem. */
   manaFlow: {
     duration: 0.56,
     stagger: 0.05,
+    maxStagger: 0.18, // Launch spread stays bounded even for full-board explosions.
+    overlapDelay: 0.06, // Begin absorption while the source gems are still exploding.
+    surgeHold: 0.12,
   },
 
   /** 重力下落（需求 19.4, 23.4）：重力加速下坠 + 落地挤压回弹 + 按列错峰 */
@@ -127,7 +140,7 @@ export const AnimConfig = {
     // 0121 火球爆炸（30 帧，单帧 335×240）—— 保留备用（大招级火焰）
     fire_burst: { frames: 30, frameW: 335, frameH: 240, displayH: 420, duration: 760 },
     // 0046 能量星爆/震波（12 帧，单帧 249×224）—— 宝石爆破用，中性冷色，不带火焰感
-    energy_burst: { frames: 12, frameW: 249, frameH: 224, displayH: 240, duration: 420 },
+    energy_burst: { frames: 12, frameW: 249, frameH: 224, displayH: 240, duration: 320 },
     // —— 按颜色分的命中爆点帧动画（每种弹道颜色配一套成熟序列帧）——
     // 红：0128 命中爆闪（14 帧，206×200）
     hit_red: { frames: 14, frameW: 206, frameH: 200, displayH: 220, duration: 360 },
@@ -185,8 +198,6 @@ export const AnimConfig = {
     group_hit_brown: { frames: 17, frameW: 518, frameH: 240, displayH: 300, duration: 560 },
     // Effect 0349 green.
     group_hit_green: { frames: 18, frameW: 481, frameH: 240, displayH: 300, duration: 580 },
-    // 额外回合（ANIMATION_HANDOFF §19 P0-2）：Effect 0082 board-centered blessing, played once.
-    extra_turn: { frames: 32, frameW: 347, frameH: 240, displayH: 420, duration: 1100 },
     // —— 状态施加短闪（施加瞬间的命中确认，~0.3s；大动画留给 tick / 持续层）——
     // 中毒 0340 前段。
     poison_flash: { frames: 8, frameW: 379, frameH: 200, displayH: 150, duration: 320 },
@@ -216,6 +227,9 @@ export const AnimConfig = {
 
   /** Selected-target splash-chain pacing. */
   splashChain: {
+    victimStagger: 60,
+    shortSwordDuration: 100,
+    impactFeedbackDuration: 780,
     firstImpactDelay: 430,
     castScale: 1.50,
     castYOffsetCells: -0.65,

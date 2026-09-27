@@ -168,7 +168,8 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '对一名敌人造成[魔法 + 2]点真实伤害。每有一名流血的敌人，回复2点法力值。 [x2]',
     build: skill(
       trueDmg('enemyChosen', 2),
-      mana('allySelf', 2, 0, {
+      // L3-015: native GenerateMana UseCounterForAmount (no Amount) = 2 x count only
+      mana('allySelf', 0, 0, {
         modifier: { mod: { kind: 'multiplier', a: 2 }, source: { kind: 'enemyStatusCount', statusId: 'bleed' } },
       }),
     ),

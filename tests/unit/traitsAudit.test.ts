@@ -26,6 +26,7 @@ import traitsSrc from '../../src/engine/traits.ts?raw';
 import targetingSrc from '../../src/engine/skills/targeting.ts?raw';
 import damageSrc from '../../src/engine/skills/effects/damage.ts?raw';
 import debuffSrc from '../../src/engine/skills/effects/debuff.ts?raw';
+import statusSrc from '../../src/engine/skills/effects/status.ts?raw';
 import manaDistributorSrc from '../../src/engine/ManaDistributor.ts?raw';
 import gravitySystemSrc from '../../src/engine/GravitySystem.ts?raw';
 
@@ -101,7 +102,7 @@ const TRIGGER_FIELDS = [
 ] as const;
 
 const STAT_OF_WORD: Record<string, string> = {
-  生命值: 'hp', 护甲值: 'armor', 攻击力: 'attack', 魔法值: 'magic',
+  生命值: 'hp', 护甲值: 'armor', 攻击力: 'attack', 魔力值: 'magic',
   随机技能值: 'magic', 法力值: 'mana',
 };
 
@@ -412,7 +413,7 @@ describe('A · 数据完整性', () => {
       // T5 杂项机制批：转换/召唤/风暴/即杀/配色伤害的结构合法性
       if (t.onBigMatchConvert) {
         const s = t.onBigMatchConvert;
-        if (s.from !== 'hp' || s.to !== 'magic') report(`${tag} onBigMatchConvert 只支持 生命值→魔法值`);
+        if (s.from !== 'hp' || s.to !== 'magic') report(`${tag} onBigMatchConvert 只支持 生命值→魔力值`);
         if (!(s.amount >= 1 && s.amount <= 20)) report(`${tag} onBigMatchConvert.amount=${s.amount} 异常`);
         if (s.minSize !== undefined && ![4, 5].includes(s.minSize)) report(`${tag} onBigMatchConvert.minSize=${s.minSize} 异常`);
       }
@@ -731,9 +732,9 @@ describe('C · 描述↔数值一致性（从官方文本重新抽数对账）',
       // 回合恢复。三种句式：恢复/获得 N 点X（aspectofwar）/ N 个随机技能值（heofmanyparts）/
       // 属性词前置共享数值（wildhorns「攻击力、生命值和护甲值获得2点提升」→ stat+alsoStats）。
       if (t.regen) {
-        const statFirst = /((?:随机技能值|生命值|护甲值|攻击力|魔法值)(?:[、和](?:\s*\d+\s*点)?(?:随机技能值|生命值|护甲值|攻击力|魔法值))*)获得\s*(\d+)\s*点/.exec(d);
+        const statFirst = /((?:随机技能值|生命值|护甲值|攻击力|魔力值)(?:[、和](?:\s*\d+\s*点)?(?:随机技能值|生命值|护甲值|攻击力|魔力值))*)获得\s*(\d+)\s*点/.exec(d);
         const m = statFirst ? null
-          : /(?:恢复|获得)\s*(\d+)\s*[点个](随机技能值|生命值|护甲值|攻击力|魔法值)/.exec(d);
+          : /(?:恢复|获得)\s*(\d+)\s*[点个](随机技能值|生命值|护甲值|攻击力|魔力值)/.exec(d);
         if (statFirst) {
           const words = statFirst[1].split(/[、和]/).map((s) => s.replace(/\s*\d+\s*点/g, '').trim()).filter(Boolean);
           const expected: string[] = words.map(statOf);
@@ -766,7 +767,7 @@ describe('C · 描述↔数值一致性（从官方文本重新抽数对账）',
       } else for (const field of TRIGGER_FIELDS) {
         const gain = t[field] as { stat: string; amount: number } | undefined;
         if (!gain) continue;
-        const m = /(?:获得|给[予]?所有盟友)\s*(\d+)\s*[颗点](随机技能值|生命值|护甲值|攻击力|魔法值|法力值)/.exec(d);
+        const m = /(?:获得|给[予]?所有盟友)\s*(\d+)\s*[颗点](随机技能值|生命值|护甲值|攻击力|魔力值|法力值)/.exec(d);
         if (!m || num(m[1]) !== gain.amount || statOf(m[2]) !== gain.stat) {
           report(`${tag(t)} ${field} 数值/属性与描述不符`);
         }
@@ -866,7 +867,7 @@ describe('C · 描述↔数值一致性（从官方文本重新抽数对账）',
       }
       // T5 杂项机制批：新键描述↔数值对账
       if (t.onBigMatchConvert) {
-        const m = /在配对\s*4\s*或\s*5\s*颗宝石时[，,]?将\s*(\d+)\s*点生命值替换成\s*(\d+)\s*点魔法值/.exec(d);
+        const m = /在配对\s*4\s*或\s*5\s*颗宝石时[，,]?将\s*(\d+)\s*点生命值替换成\s*(\d+)\s*点魔力值/.exec(d);
         if (!m || num(m[1]) !== num(m[2]) || num(m[1]) !== t.onBigMatchConvert.amount) {
           report(`${tag(t)} onBigMatchConvert 与描述「${d}」不符`);
         }
@@ -948,7 +949,7 @@ describe('C · 描述↔数值一致性（从官方文本重新抽数对账）',
         const m = /(?:当|如果)军队位于(首位|末位)/.exec(d);
         const expectPos = m ? (m[1] === '首位' ? 'front' : 'last') : null;
         const allM = /全部技能值将增加\s*(\d+)\s*点/.exec(d);
-        const oneM = /获得\s*(\d+)\s*点(生命值|护甲值|攻击力|魔法值)/.exec(d);
+        const oneM = /获得\s*(\d+)\s*点(生命值|护甲值|攻击力|魔力值)/.exec(d);
         const expectGains = allM
           ? { hp: num(allM[1]), armor: num(allM[1]), attack: num(allM[1]), magic: num(allM[1]) }
           : oneM ? { [statOf(oneM[2])]: num(oneM[1]) } : null;
@@ -967,14 +968,14 @@ describe('C · 描述↔数值一致性（从官方文本重新抽数对账）',
       }
       // 光环族
       if (t.teamAura) {
-        const m = /所有(盟友|敌人)(获得|损失)\s*(\d+)\s*点?(随机技能值|生命值|护甲值|攻击力|魔法值)/.exec(d);
+        const m = /所有(盟友|敌人)(获得|损失)\s*(\d+)\s*点?(随机技能值|生命值|护甲值|攻击力|魔力值)/.exec(d);
         const expected = m ? (m[2] === '获得' ? num(m[3]) : -num(m[3])) : NaN;
-        if (!m || expected !== t.teamAura.amount || statOf(m[4]) !== t.teamAura.stat) {
+        if (!m || expected !== t.teamAura.amount || (t.code === 'revered' ? 'random' : statOf(m[4])) !== t.teamAura.stat) {
           report(`${tag(t)} teamAura 与描述不符`);
         }
       }
       if (t.typeAura) {
-        const m = /盟友获得\s*(\d+)\s*点(生命值|护甲值|攻击力|魔法值)/.exec(d);
+        const m = /盟友获得\s*(\d+)\s*点(生命值|护甲值|攻击力|魔力值)/.exec(d);
         if (!m || num(m[1]) !== t.typeAura.amount || statOf(m[2]) !== t.typeAura.stat) {
           report(`${tag(t)} typeAura 与描述不符`);
         }
@@ -994,14 +995,14 @@ describe('C · 描述↔数值一致性（从官方文本重新抽数对账）',
         } else {
           // boo/firewall 族带逗号、royalfire「点 攻击力」带空格；dwarvenfortress「获得3点」
           // 无空格；guardianshield 机翻动词「活动」与「的时候」一并认
-          const m = /宝石(?:的?时候?|时)[，,]?\s*(?:获得|活动)\s*(\d+)\s*点\s*(生命值|护甲值|攻击力|魔法值)/.exec(d);
+          const m = /宝石(?:的?时候?|时)[，,]?\s*(?:获得|活动)\s*(\d+)\s*点\s*(生命值|护甲值|攻击力|魔力值)/.exec(d);
           const headOk = !!m && num(m[1]) === t.onColorMatchGain.amount && statOf(m[2]) === t.onColorMatchGain.stat;
           const also = t.onColorMatchGain.alsoStats ?? [];
           if (also.length === 0) {
             if (!headOk) report(`${tag(t)} 配色触发与描述不符`);
           } else {
             // ragingbull 共享数值多属性：附加属性必须逐个出现在同一句「、和」列表里
-            const wordOf: Record<string, string> = { hp: '生命值', armor: '护甲值', attack: '攻击力', magic: '魔法值', mana: '法力值' };
+            const wordOf: Record<string, string> = { hp: '生命值', armor: '护甲值', attack: '攻击力', magic: '魔力值', mana: '法力值' };
             const listOk = !!m && also.every((s) => wordOf[s] !== undefined && new RegExp(`[、和]\\s*(?:\\d+\\s*点)?${wordOf[s]}`).test(d));
             if (!headOk || !listOk) report(`${tag(t)} 配色触发与描述不符（共享数值多属性）`);
           }
@@ -1032,7 +1033,7 @@ describe('C · 描述↔数值一致性（从官方文本重新抽数对账）',
       // 条件光环批扩展句式：「所有X盟友获得 N 点…」（获）、「全部技能值」（四项各 N）、「随机技能值」（→magic）；
       // 收编批机翻省字：「4 点生命/护甲」（bountifulgrowth/oceanswell）、「提供」动词（strengthofthepride）
       if (t.onBigMatchTypeAura) {
-        const m = /[给予获提][予]?.*?(\d+)\s*点(生命值?|护甲值?|盔甲|攻击力|魔法值|全部技能值|随机技能值)/.exec(d);
+        const m = /[给予获提][予]?.*?(\d+)\s*点(生命值?|护甲值?|盔甲|攻击力|魔力值|全部技能值|随机技能值)/.exec(d);
         if (!m) { report(`${tag(t)} onBigMatchTypeAura 找不到描述数值`); continue; }
         const n = num(m[1]);
         const vals = Object.values(t.onBigMatchTypeAura.gains).filter((v) => v !== 0);
@@ -1045,7 +1046,7 @@ describe('C · 描述↔数值一致性（从官方文本重新抽数对账）',
       // 配色团队光环（celestial/powerof 族 + virtueofcourage + 收编批 lifetide 族）：
       // 单属性 /「所有技能组」四项各 N /「全部技能值各 N」（四项各 N，powerof* 修正译法）
       if (t.onColorMatchTypeAura) {
-        const m = /[给予提赋恢获].*?(?:全部技能值各\s*(\d+)\s*点|(\d+)\s*点?\s*(生命值|护甲值?|攻击力|魔法值|所有技能组))/.exec(d);
+        const m = /[给予提赋恢获].*?(?:全部技能值各\s*(\d+)\s*点|(\d+)\s*点?\s*(生命值|护甲值?|攻击力|魔力值|所有技能组))/.exec(d);
         if (!m) { report(`${tag(t)} onColorMatchTypeAura 找不到描述数值`); continue; }
         const n = num(m[1] ?? m[2]);
         const vals = Object.values(t.onColorMatchTypeAura.gains).filter((v) => v !== 0);
@@ -1060,7 +1061,7 @@ describe('C · 描述↔数值一致性（从官方文本重新抽数对账）',
       }
       // 5 连限定自身增益（insanegrowth「配对 5 或 5 颗」）
       if (t.onBigMatchSizedGain) {
-        const m = /配对\s*(\d+)\s*或\s*(\d+)\s*颗宝石时[，,]?\s*获得\s*(\d+)\s*点(随机技能值|生命值|护甲值|攻击力|魔法值|法力值)/.exec(d);
+        const m = /配对\s*(\d+)\s*或\s*(\d+)\s*颗宝石时[，,]?\s*获得\s*(\d+)\s*点(随机技能值|生命值|护甲值|攻击力|魔力值|法力值)/.exec(d);
         if (!m || num(m[1]) !== t.onBigMatchSizedGain.minSize || num(m[1]) !== num(m[2])
           || num(m[3]) !== t.onBigMatchSizedGain.amount || statOf(m[4]) !== t.onBigMatchSizedGain.stat) {
           report(`${tag(t)} onBigMatchSizedGain 与描述不符`);
@@ -1068,7 +1069,7 @@ describe('C · 描述↔数值一致性（从官方文本重新抽数对账）',
       }
       // 敌方配色触发（rancor）
       if (t.onEnemyColorMatchGain) {
-        const m = /在敌人配对骷髅头(?:宝石)?时[，,]?获得\s*(\d+)\s*点(生命值|护甲值|攻击力|魔法值)/.exec(d);
+        const m = /在敌人配对骷髅头(?:宝石)?时[，,]?获得\s*(\d+)\s*点(生命值|护甲值|攻击力|魔力值)/.exec(d);
         if (!m || num(m[1]) !== t.onEnemyColorMatchGain.amount || statOf(m[2]) !== t.onEnemyColorMatchGain.stat) {
           report(`${tag(t)} onEnemyColorMatchGain 与描述不符`);
         }
@@ -1162,9 +1163,9 @@ describe('C · 描述↔数值一致性（从官方文本重新抽数对账）',
         const s = t.onBigMatchEnemyDrain;
         if (!/(?:配对|匹配|消除)\s*4/.test(d)) report(`${tag(t)} onBigMatchEnemyDrain 但描述不是 4 连句式`);
         const drainStatOf = (w: string) => STAT_OF_WORD[w] ?? (w === '技能值' ? 'magic' : null);
-        const m = /(损失|耗掉|消除|窃取)(?:所有敌人|一名随机敌人|第一名敌人|首位敌人|敌人)?\s*(\d+)\s*点(魔法值|技能值|攻击力|护甲值|法力值)/.exec(d)
-          ?? /(?:所有敌人|一名随机敌人|第一名敌人|首位敌人|敌人)(损失|耗掉|消除)\s*(\d+)\s*点(魔法值|技能值|攻击力|护甲值|法力值)/.exec(d)
-          ?? /从(?:第一个|第一位|第一名|首位)敌人身上窃取\s*(\d+)\s*点(魔法值|技能值|攻击力|护甲值|法力值)/.exec(d);
+        const m = /(损失|耗掉|消除|窃取)(?:所有敌人|一名随机敌人|第一名敌人|首位敌人|敌人)?\s*(\d+)\s*点(魔力值|技能值|攻击力|护甲值|法力值)/.exec(d)
+          ?? /(?:所有敌人|一名随机敌人|第一名敌人|首位敌人|敌人)(损失|耗掉|消除)\s*(\d+)\s*点(魔力值|技能值|攻击力|护甲值|法力值)/.exec(d)
+          ?? /从(?:第一个|第一位|第一名|首位)敌人身上窃取\s*(\d+)\s*点(魔力值|技能值|攻击力|护甲值|法力值)/.exec(d);
         if (!m || num(m[2]) !== s.amount || drainStatOf(m[3]) !== s.stat) {
           report(`${tag(t)} onBigMatchEnemyDrain 数额/属性与描述「${d}」不符`);
         }
@@ -1188,7 +1189,7 @@ describe('C · 描述↔数值一致性（从官方文本重新抽数对账）',
       if (t.onEnemyCastGain && !/敌人施/.test(d)) report(`${tag(t)} onEnemyCastGain 但描述没有「敌人施法」`);
 
       // —— 缺口清扫批：新族描述↔数值对账 ——
-      // 种族开局法力：「获得/给予/拥有/都有 … N% 法力」「初始法力值为 N%」
+      // 种族开局法力：「获得/给予/拥有/都有 … N% 法力值」「初始法力值为 N%」
       if (t.allyStartMana) {
         const m = /(?:获得|给予|拥有|都有)[^0-9。]*?(\d+)\s*%\s*(?:的)?\s*法力/.exec(d) ?? /初始法力值为\s*(\d+)\s*%/.exec(d);
         if (!m || num(m[1]) / 100 !== t.allyStartMana.ratio) report(`${tag(t)} allyStartMana.ratio=${t.allyStartMana.ratio} 与描述不符`);
@@ -1231,8 +1232,8 @@ describe('C · 描述↔数值一致性（从官方文本重新抽数对账）',
       // 施法敌方削减：数额与「敌人」方向
       if (t.onAllyCastEnemyDrain) {
         const s = t.onAllyCastEnemyDrain;
-        const m = /(?:消除|失去)(?:所有敌人|一名随机敌人)?\s*(\d+)\s*点(魔法值|随机技能值)/.exec(d);
-        const statOk = m ? (s.stat === 'magic' || s.stat === 'random') && (m[2] === '魔法值' ? s.stat === 'magic' : true) : false;
+        const m = /(?:消除|失去)(?:所有敌人|一名随机敌人)?\s*(\d+)\s*点(魔力值|随机技能值)/.exec(d);
+        const statOk = m ? (s.stat === 'magic' || s.stat === 'random') && (m[2] === '魔力值' ? s.stat === 'magic' : true) : false;
         if (!m || num(m[1]) !== s.amount || !statOk) report(`${tag(t)} onAllyCastEnemyDrain 与描述「${d}」不符`);
         if (!/所有敌人/.test(d) && s.stat !== 'random') report(`${tag(t)} onAllyCastEnemyDrain 但描述不是全体句`);
       }
@@ -1436,7 +1437,8 @@ describe('D · 接线完整性（钩子存在但没人调用 = 死角）', () =>
     ['承伤队伍光环/受击法力（virtueofhumility/zornsfury）', /onDamagedTypeAura|mana/, () => combatResolverSrc],
     ['身亡经济', /onDeathEconomy/, () => turnEngineSrc],
     ['开局爆破', /battleStartDestroy/, () => turnEngineSrc],
-    ['法力操作免疫', /manaOpsImmunity/, () => debuffSrc],
+    ['法力操作免疫入口', /stat === 'mana' && isImmuneToManaDrain\(target\)/, () => debuffSrc],
+    ['法力操作免疫共享判断', /passivesOf\(char\)\.manaOpsImmunity/, () => statusSrc],
     ['隐匿目标过滤', /targetableFrom|isUntargetable/, () => targetingSrc],
     ['法术减伤', /spellDamageTaken/, () => damageSrc],
     ['法力灵链', /manaLink/, () => manaDistributorSrc],

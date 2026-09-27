@@ -1,0 +1,37 @@
+﻿- 2026-09-28T04:30:44+08:00 B01 start troop:7313,troop:7098,troop:7097,troop:6285,troop:7208; scaffold signoff-b01.json
+- 2026-09-28T04:41:46+08:00 B01 triage: L3-001 order (8632/8633 + siblings 8634/8635), L3-002 Frostling target/mana, L3-003 gargoyle tiers, L3-004 silence mana primitive, L3-005/006 source-dispute (half-mana rounding, spirit colour); repro tests/unit/gowLaneL3B01Repro.test.ts 8/8 fail as expected; src lock busy (sa-L5)
+- 2026-09-28T04:42:10+08:00 B02 start troop:7099,troop:6113,troop:7070,troop:6783,troop:6481; scaffold signoff-b02.json
+- 2026-09-28T04:46:16+08:00 B02 triage: L3-007 drain-as-steal (5 spells), L3-008 fixed drain +Magic (5 spells, mana-audit.mjs), L3-009 oncePerBattle cross-side, L3-010 7668 order; 6113/6783 consistent pending test; repro tests/unit/gowLaneL3B02Repro.test.ts 9/9 fail as expected; src lock still sa-L5
+- 2026-09-28T04:50:27+08:00 B02 tests/unit/gowLaneL3B02.test.ts 6113/6783 sections 25/25 pass (7070/7099/6481 await fixes); B03 start troop:6252,troop:7100,troop:6225,troop:7418,troop:7796; scaffold signoff-b03.json
+- 2026-09-28T04:56:54+08:00 B03 triage: L3-011 7395 stun/silence order, L3-012 9816 prefer-not-previous ally (needs targeting.ts); 7100 in L3-001, 7418 in L3-008; 6225 consistent; repro gowLaneL3B03Repro 2/2 fail as expected; src lock now sa-L2
+- 2026-09-28T05:03:33+08:00 acquired src lock (sa-L3); full vitest baseline
+- 2026-09-28T05:19:30+08:00 verify: full vitest before 11106 pass/52 fail, after 11197/41; only new failures are tests/unit/gowLaneL5B05*.test.ts (created after baseline, L5-016 pending fix for 9131, untouched by L3); tsc: 0 errors in src/L3 files (L1/L2 test files only); audit rebuilt; stale none; mana-audit SUSPECT 0
+- 2026-09-28T05:19:30+08:00 FIX L3-001 batch-r14.ts 8632-8635 4 keys
+- 2026-09-28T05:19:30+08:00 FIX L3-002 batch-r5.ts 7431 1 key
+- 2026-09-28T05:19:30+08:00 FIX L3-003 batch-r14.ts 8795 1 key
+- 2026-09-28T05:19:30+08:00 FIX L3-004 effects/buff.ts (silence blocks spell mana gain; primitive) 1 lane key
+- 2026-09-28T05:19:30+08:00 FIX L3-007 batch-r5/p39/r9/37/r3 5 keys
+- 2026-09-28T05:19:30+08:00 FIX L3-008 batch-r1/r5/r4 5 keys
+- 2026-09-28T05:19:30+08:00 FIX L3-009 TurnEngine.ts oncePerBattle per troop 1 key
+- 2026-09-28T05:19:30+08:00 FIX L3-010 batch-r4.ts 7668 1 key
+- 2026-09-28T05:19:30+08:00 FIX L3-011 batch-06.ts 7395 1 key
+- 2026-09-28T05:19:30+08:00 FIX L3-012 targeting.ts allyRandomPrefNotPrev + batch-r15.ts 9816 1 key
+- 2026-09-28T05:19:30+08:00 changelog: 10 entries (CHANGES.jsonl); released src lock
+- 2026-09-28T05:33:41+08:00 tests: gowLaneL3B01 (98 w/ B02 run), B02, B03 + 3 Repro files 163/163 pass; tsc 0 errors in L3 files; helpers lane-L3/{fill,refresh,spec-lib,spec-b0x,mana-audit,dump,spells}.mjs
+- 2026-09-28T05:33:41+08:00 B01 done accept=4 draft=1 (troop:7313 L3-005/L3-006) waived=0 fixed=4 (L3-001/002/003/004); check ok for accepts
+- 2026-09-28T05:33:41+08:00 B02 done accept=5 draft=0 waived=0 fixed=5 (L3-001/007/008/009/010); check ok
+- 2026-09-28T05:33:41+08:00 B03 done accept=4 draft=1 (troop:7796 L3-005) waived=0 fixed=5 (L3-001/008/011/012); check ok for accepts
+- 2026-09-28T05:34:03+08:00 B04 start troop:6518,troop:6319,troop:7361,troop:7486,troop:7400; scaffold signoff-b04.json
+- 2026-09-28T05:37:10+08:00 B04 tests/unit/gowLaneL3B04.test.ts 39/39; B04 done accept=4 draft=1 (troop:6319 L3-013 source-dispute) waived=0 fixed=0
+- 2026-09-28T05:37:41+08:00 B05 start troop:6032,troop:6035,troop:6427,troop:7198,weapon:1226; scaffold signoff-b05.json
+- 2026-09-28T05:45:01+08:00 B05 triage: L3-014 multi-source ratio floor (primitive), L3-015 counter-only mana base, L3-016 Doomed weapons plain skulls, L3-017 Satyr order, L3-018 Blade Dancer steals mana not magic; 6427 consistent; repro gowLaneL3B05Repro 18/18 fail as expected. NOTE: accidentally edited secondary.ts ~1 min without the lock (held by sa-L5); reverted byte-for-byte before any run
+- 2026-09-28T06:23:14+08:00 acquired src lock (sa-L3) for L3-014..018; full vitest baseline
+- 2026-09-28T06:33:26+08:00 verify: full vitest before 11485/23, after 11497/11, no new failures; tsc 0 src errors; audit rebuilt; stale none
+- 2026-09-28T06:33:26+08:00 L3-014 trial fix (per-source floor in secondary.ts modifierBonus) broke accepted L7 troop:6320 (7470, same two-Count-34 native shape) and custom Lianka/YeLuo combined-flooring tests -> REVERTED; L3-014 reclassified source-dispute
+- 2026-09-28T06:33:26+08:00 FIX L3-015 batch-r20/18/w02 + weapon overrides 9 keys
+- 2026-09-28T06:33:26+08:00 FIX L3-016 batch-w02 + weapon overrides 6 keys
+- 2026-09-28T06:33:26+08:00 FIX L3-017 batch-r15 7032 1 key
+- 2026-09-28T06:33:26+08:00 FIX L3-018 batch-r1 7035 1 key
+- 2026-09-28T06:33:26+08:00 changelog +4 (L3-015..018); released src lock
+- 2026-09-28T06:37:04+08:00 B05 tests/unit/gowLaneL3B05.test.ts 44/44; B05 done accept=4 draft=1 (troop:7198 L3-014) waived=0 fixed=4 (L3-015/016/017/018)
+- 2026-09-28T06:37:04+08:00 ROUND 1 STOP at batch boundary (context budget): 25 reviewed, accept 20, draft 5, waived 0; all L3 tests 9 files 264/264; tsc 0 L3 errors; no WAIVED items this round

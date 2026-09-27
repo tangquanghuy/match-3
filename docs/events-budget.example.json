@@ -1,0 +1,35 @@
+{
+  "firstWinDays": 7,
+  "arenaRuns": 3,
+  "arenaDistribution": [
+    0.1,
+    0.2,
+    0.4,
+    0.3
+  ],
+  "otherWeeklyIncome": 0,
+  "otherWeeklySpending": 0,
+  "gachaFraction": 1,
+  "startingGems": 0,
+  "eventParticipation": {
+    "invasion": {
+      "wins": 9,
+      "losses": 2
+    },
+    "factionAssault": {
+      "wins": 9,
+      "losses": 2
+    },
+    "worldEvent": {
+      "wins": 9,
+      "matchingTroops": 2,
+      "losses": 1
+    },
+    "classTrials": {
+      "wins": 3,
+      "streakLength": 3,
+      "losses": 1
+    }
+  },
+  "successfulDefenses": 3
+}

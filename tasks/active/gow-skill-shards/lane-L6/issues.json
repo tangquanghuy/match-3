@@ -1,0 +1,140 @@
+[
+  {
+    "key": "troop:6549",
+    "kind": "difference",
+    "clause": "c1 'Deal [Magic + 2] true damage to an enemy.' / c2 'Steal 3 Armor and shift it to Magic.'",
+    "step": "native steps 3 (IncreaseSpellPower Self, counter) -> 4 (TrueDamage Amount 2, SpellPowerMultiplier 1)",
+    "expected": "Native order: CountArmor(100%)->CountMax 3->DecreaseArmor->IncreaseSpellPower->TrueDamage, so the true damage uses the already-raised Magic: hp loss = (Magic + stolen) + 2 (target armor 5, stolen 3 -> Magic+5).",
+    "actual": "Registered prototype runs damage first, then reduce(armor, gainStat magic): hp loss = Magic + 2 (old Magic). Armor steal amount (min(armor,3)) and Magic gain are correct.",
+    "repro": "tests/unit/gowLaneL6B01.test.ts > L6B01 troop:6549 ... > DIFF 6549-order <side> magic=<m> (it.fails)",
+    "layer": "assembler",
+    "note": "English lists the damage sentence first but gives no explicit 'then'; the ordered native steps are the executing source. If fix prefers the English order, mark as source-dispute instead.",
+    "fixedBy": "sa-L76",
+    "fixedAt": "2026-09-27T19:16:47.0710056Z",
+    "fix": "src/engine/skills/curated/batch-r15.ts 7743: steal before trueDmg (R001)"
+  },
+  {
+    "key": "troop:7833",
+    "kind": "difference",
+    "clause": "c2 'There is a 10% chance to slay them, boosted by their Armor (up to 30%).'",
+    "step": "native steps 0-2 (CountArmor 10%, CountMax 20, LethalDamageConditional Amount 10) execute BEFORE step 3 Damage and step 4 TroopOrderBack",
+    "expected": "Slay chance = 10% + min(floor(preDamageArmor*10/100),20)%. Target armor 100, caster Magic 10 -> 20%; roll 0.19 slays.",
+    "actual": "Prototype order is damage -> reposition -> execute; chanceBoost source targetStat(armor) is read after the [Magic+4] damage stripped armor (100->86) -> 18%; roll 0.19 does not slay. Base 10%, cap 30%, [Magic+4] damage and pull-to-back are correct.",
+    "repro": "tests/unit/gowLaneL6B01.test.ts > L6B01 troop:7833 ... > DIFF 7833-order (it.fails)",
+    "layer": "assembler",
+    "note": "Also: p = 0.1 + 0.2 evaluates to 0.30000000000000004 in the segment chance pipeline (roll exactly 0.3 slays); negligible, noted only.",
+    "fixedBy": "sa-L76",
+    "fixedAt": "2026-09-27T19:16:47.0710056Z",
+    "fix": "src/engine/skills/curated/batch-r28.ts 10061: execute(chosenStat armor) before damage and pull-back (R001)"
+  },
+  {
+    "key": "troop:6803",
+    "kind": "difference",
+    "clause": "c3 'If they are a Tower, deal 3x - 5x damage, based on my Ascensions.'",
+    "step": "native step 4 Damage StatusModifier MultiplyForAscensionCastle StatusAmount 3",
+    "expected": "Tower (Castle-type) target takes at least 3x [Magic+4]; multiplier rises to 5x with the caster's ascension level.",
+    "actual": "Prototype condMult times 3 gated by allOf(targetRace Castle, ascended min 3); standard battle state has no ascension field -> condition always false -> Castle target takes 1x (Magic 10: 14 instead of >=42). The 4x/5x tiers are not modelled at all.",
+    "repro": "tests/unit/gowLaneL6B01.test.ts > L6B01 troop:6803 ... > DIFF 6803-tower (it.fails)",
+    "layer": "assembler",
+    "note": "Exact ascension->multiplier mapping (3x at which ascension, +1 per level?) is not in the stored snapshot; needs source ruling (source-dispute).",
+    "resolution": "R000 user-waived-mode (tower): clause c3 excluded; re-reviewed by sa-L76 in lane-L7/signoff-b03.json; item stays draft only for the c1 StealArmor source-dispute below"
+  },
+  {
+    "key": "troop:6803",
+    "kind": "source-dispute",
+    "clause": "c1 'Steal 4 Armor, then shift it to Attack.'",
+    "step": "native step 2 StealArmor (FromTarget, counter) + step 3 IncreaseAttack (Self, counter)",
+    "expected": "Unclear whether native StealArmor also credits the stolen armor to the caster (then caster would gain +4 Armor AND +4 Attack) or only removes it; English says the stolen armor is shifted to Attack. Troop 6549 uses DecreaseArmor+IncreaseSpellPower for the same English pattern.",
+    "actual": "Runtime: target -min(armor,4) armor, caster +same Attack, caster Armor unchanged.",
+    "repro": "tests/unit/gowLaneL6B01.test.ts > L6B01 troop:6803 ... > real cast <side> magic=<m>",
+    "layer": "assembler",
+    "urls": [],
+    "note": "Checked scripts/spell-rules.md (only '窃取 X 点护甲值并将之转为魔法值' -> gainStat mapping), DECISIONS.md, gold-primary-sources (no StealArmor rule). No online source found; kept current implementation.",
+    "round2": "sa-L76 2026-09-28: re-searched community/official (no page on Rubitressa StealArmor + IncreaseAttack crediting); still open; current runtime (target -min(armor,4), caster +Attack, caster Armor unchanged) matches English 'shift it to Attack' and is asserted in tests/unit/gowLaneL7B03.test.ts"
+  },
+  {
+    "key": "weapon:1194",
+    "kind": "source-dispute",
+    "clause": "c2 'Deal [Magic + 4] damage, boosted by Armor eliminated. [3:1]'",
+    "step": "native step 0 CountArmor Amount 34 (percent of target armor) -> step 2 Damage UseCounterForAmount",
+    "expected": "If CountX Amount is a percentage (as 25 -> [4:1], 100 -> [1:1], 400 -> [x4] elsewhere), counter = floor(armor*34/100): armor 50 -> 17 -> hp loss 10+4+17=31 at Magic 10.",
+    "actual": "Runtime modifier ratio a=3 b=1 on lastReduce: floor(50/3)=16 -> 30. Values agree for armor < 50 and diverge from 50 upward (e.g. 50,53,56,...).",
+    "repro": "tests/unit/gowLaneL6B01.test.ts > L6B01 weapon:1194 ... > DIFF 1194-rounding (it.fails)",
+    "layer": "primitive",
+    "urls": [
+      "https://community.gemsofwar.com/t/i-dont-have-anything-against-math-but/47259"
+    ],
+    "note": "Community thread (Oct 2018) reports Ubastet showing '17:100' as a display bug meaning ~1:6, i.e. the client derives the [a:b] label from a percentage Amount; supports percentage storage but does not prove the in-game rounding (floor vs round, 34% vs 1/3). Community-level source only; kept current implementation. Affects every [3:1] spell whose native Count step has Amount 34.",
+    "fixedBy": "sa-L76",
+    "fixedAt": "2026-09-27T19:16:47.0710056Z",
+    "fix": "R003: src/engine/skills/effects/secondary.ts modifierBonus percentage (34%)"
+  },
+  {
+    "key": "weapon:1199",
+    "kind": "source-dispute",
+    "clause": "c2 'Give all Allies 2 Attack, boosted by Armor eliminated. [3:1]'",
+    "step": "native step 0 CountArmor Amount 34 -> step 3 IncreaseAttack AllAllies Amount 2 UseCounterForAmount",
+    "expected": "armor 50 -> counter floor(50*34/100)=17 -> each living ally +19 Attack",
+    "actual": "runtime floor(50/3)=16 -> +18 Attack",
+    "repro": "tests/unit/gowLaneL6B02.test.ts > L6B02 weapon:1199 Earth's Fury / spell 7757 > DIFF 1199-rounding (it.fails)",
+    "layer": "primitive",
+    "urls": [
+      "https://community.gemsofwar.com/t/i-dont-have-anything-against-math-but/47259"
+    ],
+    "note": "Same systemic question as weapon:1194 (CountArmor Amount 34 as percent vs English [3:1] -> runtime floor(armor/3)); agree for armor < 50, diverge from 50 up. All other clauses/steps of spell 7757 verified by B02 tests; kept current implementation.",
+    "fixedBy": "sa-L76",
+    "fixedAt": "2026-09-27T19:16:47.0710056Z",
+    "fix": "R003 (same as weapon:1194)"
+  },
+  {
+    "key": "weapon:1201",
+    "kind": "source-dispute",
+    "clause": "c2 'Gain 2 Magic, boosted by Armor eliminated. [3:1]'",
+    "step": "native step 0 CountArmor Amount 34 -> step 3 IncreaseSpellPower Self Amount 2 UseCounterForAmount",
+    "expected": "armor 50 -> +19 Magic",
+    "actual": "runtime +18 Magic",
+    "repro": "tests/unit/gowLaneL6B02.test.ts > L6B02 weapon:1201 Trickster's Shot / spell 7759 > DIFF 1201-rounding (it.fails)",
+    "layer": "primitive",
+    "urls": [
+      "https://community.gemsofwar.com/t/i-dont-have-anything-against-math-but/47259"
+    ],
+    "note": "Same systemic question as weapon:1194 (CountArmor Amount 34 as percent vs English [3:1] -> runtime floor(armor/3)); agree for armor < 50, diverge from 50 up. All other clauses/steps of spell 7759 verified by B02 tests; kept current implementation.",
+    "fixedBy": "sa-L76",
+    "fixedAt": "2026-09-27T19:16:47.0710056Z",
+    "fix": "R003 (same as weapon:1194)"
+  },
+  {
+    "key": "weapon:1204",
+    "kind": "source-dispute",
+    "clause": "c2 'Gain [Magic + 1] Gold, boosted by Armor eliminated. [3:1]'",
+    "step": "native step 0 CountArmor Amount 34 -> step 2 GiveGold Self Amount 1 SPM 1 UseCounterForAmount",
+    "expected": "armor 50, Magic 0 -> 18 gold",
+    "actual": "runtime 17 gold",
+    "repro": "tests/unit/gowLaneL6B02.test.ts > L6B02 weapon:1204 Golden Sun / spell 7799 > DIFF 1204-rounding (it.fails)",
+    "layer": "primitive",
+    "urls": [
+      "https://community.gemsofwar.com/t/i-dont-have-anything-against-math-but/47259"
+    ],
+    "note": "Same systemic question as weapon:1194 (CountArmor Amount 34 as percent vs English [3:1] -> runtime floor(armor/3)); agree for armor < 50, diverge from 50 up. All other clauses/steps of spell 7799 verified by B02 tests; kept current implementation.",
+    "fixedBy": "sa-L76",
+    "fixedAt": "2026-09-27T19:16:47.0710056Z",
+    "fix": "R003 (same as weapon:1194)"
+  },
+  {
+    "key": "weapon:1200",
+    "kind": "source-dispute",
+    "clause": "c2 'Give all Allies [Magic + 1] Life, boosted by Armor eliminated. [3:1]'",
+    "step": "native step 0 CountArmor Amount 34 -> step 2 IncreaseHealth AllAllies Amount 1 SPM 1 UseCounterForAmount",
+    "expected": "armor 50, Magic 0 -> +18 Life/max Life",
+    "actual": "runtime +17",
+    "repro": "tests/unit/gowLaneL6B02.test.ts > L6B02 weapon:1200 Yasmine's Pride / spell 7758 > DIFF 1200-rounding (it.fails)",
+    "layer": "primitive",
+    "urls": [
+      "https://community.gemsofwar.com/t/i-dont-have-anything-against-math-but/47259"
+    ],
+    "note": "Same systemic question as weapon:1194 (CountArmor Amount 34 as percent vs English [3:1] -> runtime floor(armor/3)); agree for armor < 50, diverge from 50 up. All other clauses/steps of spell 7758 verified by B02 tests; kept current implementation.",
+    "fixedBy": "sa-L76",
+    "fixedAt": "2026-09-27T19:16:47.0710056Z",
+    "fix": "R003 (same as weapon:1194)"
+  }
+]

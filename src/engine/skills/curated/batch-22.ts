@@ -17,7 +17,7 @@
  *   8784「每有一名绿色盟友或敌人」同构（双名词同类、颜色可分配到敌方侧），
  *   敌方侧颜色计数无对应 kind → 从先例 SKIP，不套用 SOP「蓝色宝石和盟友数」异类名词口径。
  * - 8820 = batch-20 7765 精确同款（createMix base 0 + boardGems sources 计数相加）。
- * - 「魔法值」= magic 属性、「法力值/魔力」= mana（SOP 措辞裁定；8818）。
+ * - 「魔力值」= magic 属性、「法力值/魔力」= mana（SOP 措辞裁定；8818）。
  */
 import { skill, dmg, trueDmg, dmgSplash, heal, armor, attack, magic, inflict,
   createGems, createMix, createSkulls, destroyChosenCol, explodeRandomGems,
@@ -29,7 +29,7 @@ const SKIPPED: { id: number; reason: string }[] = [
   { id: 8414, reason: '隐匿/位置操作（「将之击回末位」，batch-01 7534 / batch-16 8933 同款）' },
   { id: 8457, reason: '语义拿不准（「获得一个额外回合或创造 7 颗骷髅头」二选一，batch-01 7348 / batch-16 8961 同款）' },
   { id: 8464, reason: '二次缩放来源不支持（「因选定的颜色（黄色除外）而增强」：来源 color 仅支持具体基色，选定色/除外色无法表达）' },
-  { id: 8467, reason: '语义拿不准（[x5] 无来源子句可绑定（meta.modifier 非空但文本无「因…而增强」子句）；「若敌人使用蓝色法力，则摧毁一列/获得攻击力」为目标相对条件——挂无目标段（摧毁一列）无从判定，挂自身获得段（attack allySelf）则判定对象错位）' },
+  { id: 8467, reason: '语义拿不准（[x5] 无来源子句可绑定（meta.modifier 非空但文本无「因…而增强」子句）；「若敌人使用蓝色法力值，则摧毁一列/获得攻击力」为目标相对条件——挂无目标段（摧毁一列）无从判定，挂自身获得段（attack allySelf）则判定对象错位）' },
   { id: 8475, reason: '语义拿不准（「每爆破一颗红色宝石则燃烧一名随机敌人」逐来源重复施加状态无对应原语，batch-20 7636 同款；[1:1] 绑定亦不明确）' },
   { id: 8477, reason: '语义拿不准（「所有棕色盟友」按法力色限定目标无对应原语：targetRace 仅支持种族，颜色限定仅 modifier 来源 alliesOfColor 可表达）' },
   { id: 8485, reason: '语义拿不准（「每一名受到伤害的敌人」跨段指回溅射目标集，无对应目标模式，SOP「对其…指回前段」同款）' },
@@ -173,9 +173,9 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 8818,
-    desc: '对一名敌人造成 [魔法 + 3] 点严重溅射伤害，伤害值因蓝色宝石数而增强。再给予所有海族 4 点魔法值。 [1:1]',
+    desc: '对一名敌人造成 [魔法 + 3] 点严重溅射伤害，伤害值因蓝色宝石数而增强。再给予所有海族 4 点魔力值。 [1:1]',
     build: skill(
-      // 「对 1 名敌人…溅射」= 溅射链（SOP 措辞裁定）；「魔法值」= magic 属性
+      // 「对 1 名敌人…溅射」= 溅射链（SOP 措辞裁定）；「魔力值」= magic 属性
       dmgSplash('enemyChosen', 3, 1, {
         modifier: { mod: { kind: 'ratio', a: 1, b: 1 }, source: { kind: 'boardGems', color: BaseColor.Blue } },
       }),

@@ -12,14 +12,13 @@
  *   convertSpecial（特殊↔特殊转换 + tiers 善恶掷签）、transformToSpecial('CELL'/'LAST_TARGET')、
  *   来源 lastReduce（「减除额转移为另一属性」跨段数值绑定，spell-rules §12.7 同族口径）、
  *   reduce stat 'hp'/'random'、来源 countEnemyDeaths/countAllyDeaths。
- * - 机翻噪声按 EN 原句纠正：7652「伤害值因自身魔法值而增强」EN 原句无此子句（Mana Burn
- *   即清蓝）、7507/8375 转移端点按 EN/ST（8375 ZH「攻击力」实为 Armor）、9614「2 个万能牌」
- *   实为 x2 万能牌（WildCard2，引擎 wildcard tier 缺省 ?? 2 恰好等价）、9638 按 ST 拆
+ * - 机翻噪声按 EN 原句纠正：7652 Mana Burn 按 native 魔法倍率加目标当前法力造成伤害（不耗蓝）、7507/8375 转移端点按 EN/ST（8375 ZH「攻击力」实为 Armor）、9614 机翻「2 个」实为倍率 x2
+ *   （WildCard2，引擎 wildcard tier 缺省 ?? 2 恰好等价）、9638 按 ST 拆
  *   「选定转换 + 创造 2 颗」。
  * - 王国/晋升度条件族条目本轮不碰（等并行批落地），见批尾复核注记。
  */
 import type { CuratedBatch } from './index';
-import { skill, dmg, trueDmg, heal, armor, attack, mana, reduce, drainMana, cleanse, inflict, inflictRandom, createGems, createSkulls, createSpecialGems, createSpecialGems2, transformToSpecial, destroyRandomRows, destroyArea, explodeRandomGems, reposition, summonRef, extraTurn, oneOf, sacrifice, CELL, explodeAt } from '../builders';
+import { targetedSkill, chooseSkill, skill, dmg, trueDmg, heal, armor, attack, mana, reduce, drainMana, cleanse, inflict, inflictRandom, createGems, createSkulls, createSpecialGems, createSpecialGems2, transformToSpecial, destroyRandomRows, destroyArea, explodeRandomGems, reposition, summonRef, extraTurn, oneOf, sacrifice, CELL, explodeAt } from '../builders';
 import { BaseColor } from '../../types';
 
 const SKIPPED: { id: number; reason: string }[] = [];
@@ -101,14 +100,12 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 7652,
-    desc: '冻结前两名敌人，并对其施放法力灼烧，伤害值因自身魔法值而增强。再把这两名敌人推到后方。召唤梅冰女王。',
-    // EN 原句「Freeze and Mana Burn the first 2 Enemies. Knock them to last position. Summon Queen Mab.」
-    // 无「因自身魔法值增强」子句——ZH 机翻噪声（Mana Burn 即清蓝，drainMana 口径）；
-    // 「推到后方」= reposition（§12 落地）；前两名 = enemyFirstN n:2（各段确定性同解）
+    desc: '冻结前两名敌人，并对其施放法力灼烧，伤害值因自身魔力值而增强。再把这两名敌人推到后方。召唤梅冰女王。',
+    // Native ManaBurn is Magic + current target Mana (no drain); then move original second/first targets.
     build: skill(
       inflict('frozen', 'enemyFirstN', { n: 2 }),
-      drainMana('enemyFirstN', { n: 2 }),
-      reposition('enemyFirstN', 'back', { n: 2 }),
+      dmg('enemyFirstN', 0, 1, { n: 2, manaBurn: true }),
+      reposition('lastTargets', 'back'),
       summonRef('QueenMab', 6191),
     ),
   },
@@ -181,8 +178,8 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 8368,
-    desc: '将最强的敌人的魔法值减半，再爆破等值于敌人失去的魔法值的紫色宝石。 [2:1]',
-    // 减半 = reduce halve（原语批 §9.6，此前误记「暂无原语」）；「等值于失去的魔法值」= lastReduce
+    desc: '将最强的敌人的魔力值减半，再爆破等值于敌人失去的魔力值的紫色宝石。 [2:1]',
+    // 减半 = reduce halve（原语批 §9.6，此前误记「暂无原语」）；「等值于失去的魔力值」= lastReduce
     // 驱动爆破数量；尾缀 [2:1] = 减半机制的序列化标记（r15 特例口径，不另挂 modifier）
     build: skill(
       reduce('enemyHealthiest', 'magic', 0, 0, { halve: true }),
@@ -193,7 +190,7 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 8375,
-    desc: '窃取敌人 [魔法 + 1] 点魔法值，并将之转换成生命值和攻击力。 [100:1]',
+    desc: '窃取敌人 [魔法 + 1] 点魔力值，并将之转换成生命值和攻击力。 [100:1]',
     // [100:1] = CountMagic → ratio 100:1 targetStat magic（r16 9223 同族）；
     // 转移端点按 EN/ST = Life+Armor（ZH「攻击力」机翻噪声）；两段同挂 lastReduce 驱动
     build: skill(
@@ -308,8 +305,8 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 9614,
-    desc: '对所有敌人造成 [魔法 + 6] 点伤害，伤害值因精灵射击敌人而增强。然后将 3 个骷髅转换为 2 个万能牌。 [x6]',
-    // 精灵射击 = 妖火 faerie-fire（状态宝石波A 落地）；「2 个万能牌」机翻噪声，EN/ST = x2 Wildcard
+    desc: '对所有敌人造成 [魔法 + 6] 点伤害，伤害值因精灵射击敌人而增强。然后将 3 个骷髅转换为 x2 通配宝石。 [x6]',
+    // 精灵射击 = 妖火 faerie-fire（状态宝石波A 落地）；「x2 通配宝石」机翻噪声，EN/ST = x2 Wildcard
     // （transformToSpecial 无 tier 通道，引擎 wildcard tier 缺省 ?? 2 恰好等价官方 WildCard2）
     build: skill(
       dmg('enemyAll', 6, 1, {
@@ -334,12 +331,7 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '&& 消除 [魔法 + 2] 个敌人的攻击，并诅咒他们。 && 消除 [魔法 + 2] 个敌人身上的随机技能点，并给他们施加死亡标记。',
     // '&&' 为合法子句切分符（§13.1）；EN 原句 = Eliminate [M+2] Attack / from a random Skill Point
     // （ZH「个敌人」机翻噪声）；随机技能点 = reduce stat 'random'（DecreaseRandom，R12 原语）
-    build: skill(
-      reduce('enemyChosen', 'attack', 2, 1),
-      inflict('curse', 'lastTarget'),
-      reduce('enemyChosen', 'random', 2, 1),
-      inflict('death-mark', 'lastTarget'),
-    ),
+    build: skill(chooseSkill(["削减一名敌人［魔法＋2］攻击并诅咒","削减一名敌人［魔法＋2］随机属性并施加死亡标记"], [reduce('enemyChosen', 'attack', 2, 1), inflict('curse', 'lastTarget')], [reduce('enemyChosen', 'random', 2, 1), inflict('death-mark', 'lastTarget')])),
   },
   {
     id: 9658,
@@ -395,13 +387,8 @@ const SPELLS: CuratedBatch['spells'] = [
   {
     id: 9745,
     desc: '&& 将 9 颗选定敌人法力颜色的宝石转换为精神宝石。&& 对敌人施加诅咒和法力燃烧。',
-    // 精神宝石 = spiritGem（波B 落地）；「选定敌人法力颜色」= 'LAST_TARGET'（首段回退
-    // chosenTargetId，官方 ConvertGems FromTarget）；「法力燃烧」= drainMana 清蓝口径
-    build: skill(
-      transformToSpecial('LAST_TARGET', 'spiritGem', { count: 9 }),
-      inflict('curse', 'enemyChosen'),
-      drainMana('enemyChosen'),
-    ),
+    // Choice: convert target-color Gems OR Curse then ManaBurn the same enemy; no drain.
+    build: targetedSkill('enemyChosen', chooseSkill(['转化九颗精神宝石', '诅咒并燃烧敌人法力'], [transformToSpecial('LAST_TARGET', 'spiritGem', { count: 9 })], [inflict('curse', 'enemyChosen'), dmg('lastTarget', 0, 1, { manaBurn: true })])),
   },
   {
     id: 9908,

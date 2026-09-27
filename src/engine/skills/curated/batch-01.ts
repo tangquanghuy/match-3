@@ -4,7 +4,7 @@
  *
  * 语义裁定备注：
  * - 「(1/一名)敌人」按官方语义 = 施法方指定目标 → enemyChosen（spell-rules.md §0）；
- *   早期手写库 7004/7132/7155 用的 enemyFront 行为保留在 SKILL_OVERRIDES，本批不重复配。
+ *   早期手写库 7004/7132/7155 在 SKILL_OVERRIDES，本批不重复配；7132 已恢复 enemyChosen。
  * - 「宝石」不含骷髅（GoW 术语：Gem=色宝石，Skull=骷髅），随机宝石段 include:'color'。
  * - 「窃取 X 生命」= 伤害（drain 收尾治疗施法者）；「窃取护甲/攻击」= reduce + 同属性自身获得。
  * - 「减除全部护甲值」= reduce stat:'armor' + drainAll（取目标当前值）。
@@ -93,9 +93,9 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 7162,
-    desc: '所有盟友获得 [魔法 + 1] 点随机技能值。',
+    desc: '使所有其他盟友的一项随机属性获得 [魔法 + 1] 点。',
     build: skill(
-      randomStat('allyAll', 1),
+      randomStat('allyOthers', 1, 1, { oneSkill: true }),
     ),
   },
   {
@@ -154,17 +154,19 @@ const SPELLS: CuratedBatch['spells'] = [
   {
     id: 7351,
     desc: '对 1 名敌人造成 [魔法 + 2] 点伤害并使其陷入织网状态。',
+    // Native order CauseWeb -> Delay -> Damage (rulings/R001, L5-013): a lethal hit still lands the Web first.
     build: skill(
-      dmg('enemyChosen', 2),
       inflict('web', 'enemyChosen'),
+      dmg('enemyChosen', 2),
     ),
   },
   {
     id: 7361,
     desc: '对 1 名敌人造成 [魔法 + 3] 点伤害并将之击晕。',
+    // Native order CauseStun -> Delay -> Damage (rulings/R001, L5-013): Stun disables traits before the hit.
     build: skill(
-      dmg('enemyChosen', 3),
       inflict('stun', 'enemyChosen'),
+      dmg('enemyChosen', 3),
     ),
   },
   {
@@ -177,18 +179,18 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 7390,
-    desc: '随机爆破两颗宝石并获得 [魔法 + 1] 点随机技能值。',
+    desc: "随机爆破两颗宝石，自身一项随机属性获得 [魔法 + 1] 点。",
     build: skill(
       explodeRandomGems(2, 0, 'color'),
-      randomStat('allySelf', 1),
+      randomStat('allySelf', 1, 1, { oneSkill: true }),
     ),
   },
   {
     id: 7401,
-    desc: '给予其他盟友 [魔法 + 1] 点攻击力，但减除他们 1 点魔法值。',
+    desc: '给予其他盟友 [魔法 + 1] 点攻击力，但减除他们 1 点魔力值。',
     build: skill(
       attack('allyOthers', 1),
-      // 「魔法值」= magic 属性（SOP 措辞裁定；与 7465 同口径）
+      // 「魔力值」= magic 属性（SOP 措辞裁定；与 7465 同口径）
       reduce('allyOthers', 'magic', 1, 0),
     ),
   },
@@ -236,9 +238,11 @@ const SPELLS: CuratedBatch['spells'] = [
   {
     id: 7978,
     desc: '对最虚弱的敌人造成 [魔法 + 2] 点伤害，并使之陷入中毒状态。',
+    // Native order CausePoison WeakestEnemy -> Damage FromPrevious (rulings/R001, L5-013):
+    // the damage hits the Poisoned enemy, not a re-evaluated weakest.
     build: skill(
-      dmg('enemyWeakest', 2),
       inflict('poison', 'enemyWeakest'),
+      dmg('lastTarget', 2),
     ),
   },
   {
@@ -251,9 +255,9 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 8278,
-    desc: '窃取所有敌人 3 点魔法值，再对他们造成 [魔法 + 1] 伤害。',
+    desc: '窃取所有敌人 3 点魔力值，再对他们造成 [魔法 + 1] 伤害。',
     build: skill(
-      // 「魔法值」= magic 属性（SOP 措辞裁定）
+      // 「魔力值」= magic 属性（SOP 措辞裁定）
       steal('enemyAll', 'magic', 'magic', 3, 0),
       dmgAll(1),
     ),

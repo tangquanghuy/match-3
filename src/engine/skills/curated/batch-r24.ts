@@ -44,7 +44,7 @@ const SKIPPED: { id: number; reason: string }[] = [
   { id: 7435, reason: '「如果自身有 12 个或更多灵魂」= 经济阈值条件不在条件域（无 economy 阈值叶子，r18 口径维持）；「召唤一位随机恶魔」= 无按种族召唤通道（Daemon 179 个兵种、summonRandom 需显式名册、summonRandomOfKingdom 仅王国维度）；恶魔盟友魔法增益本身可表' },
   { id: 7460, reason: '「花费我所有的黄金以增强伤害」= 经济支出无对应原语（仅 gainGold 入账、无 spend/lose 通道），battleGold 读共用池总额≠花费额且金不减少语义不成立；oneOf 分支结构本身可表（r18-r24 口径维持）' },
   { id: 7483, reason: '「伤害值等同于自身的攻击力，并因棕色敌军数量而增强 [x10]」= 伤害基数=攻击力（×1）与来源计数（×10）双系数结构：modifier 单通道，sources 只做计数相加后乘同一系数（secondary.ts 无逐源独立系数），数学上不可同表（r21-r24 口径维持）' },
-  { id: 7493, reason: '「随机发生任何情况」= 混沌技能，spell-rules §7 永久排除' },
+  { id: 7493, reason: '历史跳过；现已依据原始 A-B-C-D-E-F 六步骤在 batch-acceptance 恢复，非永久排除。共享吞噬、转化池及状态规则另待认证。' },
   { id: 7542, reason: '「凤凰涅槃浴火重生」= 自复活无引擎机制（spell 侧无 revive/死亡自召原语；traits 的 summonOnDeath 复活族不适用于兵种技能位，r18-r24 代码复核维持）；散射+selfStat hp 增强本身可表' },
   { id: 7667, reason: '「创造 6 颗红色宝石、数量因自身的黄金数量而增强、上限为 14 颗」= battleGold 来源已可表，但 CountMax 上限（官方步骤 CountMax 8 → 6+8=14）无原语（ModifierSpec 无 max 封顶字段，代码复核维持）；上限缺失时高黄金无限突破官方值，不硬凑' },
   { id: 7690, reason: '「并将其冻结。如果该敌人已被冻结，则再造成 5 点伤害并冻结其上下左右的敌人」= 条件须读施加冻结**之前**的状态快照，段序执行后 targetStatus 恒真（时序绑定无原语，r17-r24 口径维持；enemyChosenAndAdjacent 相邻冻结目标模式已落，仅卡时序）' },
@@ -81,11 +81,11 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 8377,
-    desc: '窃取敌人 [魔法 + 1] 点魔法值，并将之转换成一个随机技能值并给予所有盟友。 [100:1]',
+    desc: '窃取敌人 [魔法 + 1] 点魔力值，并将之转换成一个随机技能值并给予所有盟友。 [100:1]',
     // 【回收】「转换转移额」句式 = lastReduce 跨段来源（Wave4/K-B 收官落地，晚于 r22 判读）：
     // reduce（削减族）实际削去的魔法额记入 castTracking.lastReduce（debuff.ts 段末整体覆写），
     // randomStat 挂 modifier {multiplier 1 × lastReduce} 每名盟友获得同额随机技能值
-    // （「魔法值」= magic 属性口径）。官方步骤 CountMagic 100（全额魔法）与文本 [魔法 + 1]
+    // （「魔力值」= magic 属性口径）。官方步骤 CountMagic 100（全额魔法）与文本 [魔法 + 1]
     // 的版本出入维持 r21 记录，按文本组装；尾缀 [100:1] 即 r11「Amount ≈ 100/N」推导的
     // Count 步骤编码产物，文本无「因…增强」来源句 → §14.12 孤儿治理维持不挂载、不硬凑。
     build: skill(

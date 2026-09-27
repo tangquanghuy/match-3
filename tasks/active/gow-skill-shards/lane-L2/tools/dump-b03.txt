@@ -1,0 +1,55 @@
+=== troop:7760 SpiritcallerLila spell 9745 cost 12/12 colors Blue,Purple status pending-review target Enemy rand Choose:ABC-DEF
+EN : && Convert 9 Gems of a chosen Enemy's Mana Color to Spirit Gems. && Curse and Mana Burn an Enemy.
+ZH : && 将 9 颗选定敌人法力颜色的宝石转换为精神宝石。&& 对敌人施加诅咒和法力燃烧。
+CL : c1=Convert 9 Gems of a chosen Enemy's Mana Color to Spirit Gems. | c2=Curse and Mana Burn an Enemy.
+  0 {"Color1":"FromTarget","Amount":9,"Color2":"Spirit","Type":"ConvertGems"}
+  1 {"PercentageChance":0,"Type":"None"}
+  2 {"PercentageChance":0,"Type":"None"}
+  3 {"Target":"FromTarget","Type":"CauseCursed"}
+  4 {"SpellPowerMultiplier":1,"Target":"FromTarget","Primarypower":true,"Type":"ManaBurn"}
+PROTO {"inputTarget":"enemyChosen","segments":[{"kind":"choose","labels":["转化九颗精神宝石","诅咒并燃烧敌人法力"],"options":[[{"kind":"gem","params":{"op":"transform","from":"LAST_TARGET","to":"SKULL","spiritColorFromSource":true,"toSpecial":"spiritGem","count":{"base":9,"mult":0}}}],[{"kind":"status","target":"enemyChosen","statusId":"curse","turns":3},{"kind":"damage","target":"lastTarget","scaling":{"base":0,"mult":1},"manaBurn":true}]]}]}
+META null
+=== troop:6416 Diviner spell 7574 cost 13/13 colors Green,Brown status pending-review target NotYellowOrSkullGems rand A+(B-C-D-E-F)
+EN : Transform a Chosen Color to Yellow, and one of the following: Enchant all allies, OR increase all allies' Magic by [(Magic / 2) + 1], OR Cleanse all allies.
+ZH : 将一个指定颜色转换为黄色，并获得下列其一：赋予所有盟友法印效果，或给予所有盟友 [(魔法 / 2) + 1] 点魔力值，或净化所有盟友。
+CL : c1=Transform a Chosen Color to Yellow, and one of the following: Enchant all allies, OR increase all allies' Magic by [(Magic / 2) + 1], OR Cleanse all allies.
+  0 {"Color1":"FromTarget","Amount":100,"Color2":"Yellow","Type":"ConvertGems"}
+  1 {"Target":"AllAllies","Amount":1,"Type":"Cleanse"}
+  2 {"Target":"AllAllies","Amount":1,"Type":"CauseEnchanted"}
+  3 {"SpellPowerMultiplier":0.5,"Target":"AllAllies","Amount":1,"Primarypower":true,"Type":"IncreaseSpellPower"}
+  4 {"Target":"AllAllies","Amount":1,"Type":"Cleanse"}
+  5 {"Target":"AllAllies","Amount":1,"Type":"CauseEnchanted"}
+PROTO {"segments":[{"kind":"gem","params":{"op":"transform","from":"CHOSEN","to":"Yellow"}},{"kind":"oneOf","options":[[{"kind":"status","target":"allyAll","statusId":"enchanted","turns":3}],[{"kind":"buff","target":"allyAll","stat":"magic","scaling":{"base":1,"mult":0.5}}],[{"kind":"cleanse","target":"allyAll"}]]}]}
+META null
+=== troop:7297 ShadowFox spell 8898 cost 13/13 colors Red,Purple status pending-review target None rand Choose:ABC-DEF
+EN : && Convert all Yellow Gems to Spirit Gems. && Convert all Yellow Gems to Skulls.
+ZH : 选择一项：将所有黄色宝石转化为灵魂宝石；或将所有黄色宝石转化为骷髅。
+CL : c1=Convert all Yellow Gems to Spirit Gems. | c2=Convert all Yellow Gems to Skulls.
+  0 {"Color1":"Yellow","Amount":100,"Color2":"Spirit","Type":"ConvertGems"}
+  1 {"PercentageChance":0,"Type":"None"}
+  2 {"PercentageChance":0,"Type":"None"}
+  3 {"Color1":"Yellow","Amount":100,"Color2":"Skull","Type":"ConvertGems"}
+PROTO {"segments":[{"kind":"choose","labels":["将所有黄色宝石转化为灵魂宝石","将所有黄色宝石转化为骷髅"],"options":[[{"kind":"gem","params":{"op":"transform","from":"Yellow","to":"SKULL","spiritColorFromSource":true,"toSpecial":"spiritGem"}}],[{"kind":"gem","params":{"op":"transform","from":"Yellow","to":"SKULL"}}]]}]}
+META null
+=== troop:7570 Foxglove spell 9366 cost 18/18 colors Green,Yellow status pending-review target None rand Choose:ABC-DEF
+EN : && Convert Blue Gems to Green, and Red Gems to Skulls. && Convert Brown Gems to Green, and Purple Gems to Skulls.
+ZH : 选择一项：将蓝色宝石转化为绿色宝石，红色宝石转化为骷髅；或将棕色宝石转化为绿色宝石，紫色宝石转化为骷髅。
+CL : c1=Convert Blue Gems to Green, and Red Gems to Skulls. | c2=Convert Brown Gems to Green, and Purple Gems to Skulls.
+  0 {"Color1":"Blue","Amount":100,"Color2":"Green","Type":"ConvertGems"}
+  1 {"Color1":"Red","Amount":100,"Color2":"Skull","Type":"ConvertGems"}
+  2 {"PercentageChance":0,"Type":"None"}
+  3 {"Color1":"Brown","Amount":100,"Color2":"Green","Type":"ConvertGems"}
+  4 {"Color1":"Purple","Amount":100,"Color2":"Skull","Type":"ConvertGems"}
+PROTO {"segments":[{"kind":"choose","labels":["蓝色转绿色，红色转骷髅","棕色转绿色，紫色转骷髅"],"options":[[{"kind":"gem","params":{"op":"transform","from":"Blue","to":"Green"}},{"kind":"gem","params":{"op":"transform","from":"Red","to":"SKULL"}}],[{"kind":"gem","params":{"op":"transform","from":"Brown","to":"Green"}},{"kind":"gem","params":{"op":"transform","from":"Purple","to":"SKULL"}}]]}]}
+META null
+=== troop:7326 Beltane spell 8938 cost 16/16 colors Green,Brown status pending-review target None rand -
+EN : Convert Blue Gems to Green and Purple Gems to Yellow. Give 1-3 random Status Effects to all Allies.
+ZH : 将蓝色宝石转换成绿色，紫色宝石转换成黄色。给予所有盟友 1-3 个随机正面增益状态效果。
+CL : c1=Convert Blue Gems to Green and Purple Gems to Yellow. | c2=Give 1-3 random Status Effects to all Allies.
+  0 {"Color1":"Blue","Amount":100,"Color2":"Green","Type":"ConvertGems"}
+  1 {"Color1":"Purple","Amount":100,"Color2":"Yellow","Type":"ConvertGems"}
+  2 {"Target":"AllAllies","Type":"RandomPositiveStatusEffect"}
+  3 {"Target":"AllAllies","PercentageChance":50,"Type":"RandomPositiveStatusEffect"}
+  4 {"Target":"AllAllies","PercentageChance":25,"Type":"RandomPositiveStatusEffect"}
+PROTO {"segments":[{"kind":"gem","params":{"op":"transform","from":"Blue","to":"Green"}},{"kind":"gem","params":{"op":"transform","from":"Purple","to":"Yellow"}},{"kind":"randomStatus","target":"allyAll","pool":"positive"},{"kind":"randomStatus","target":"allyAll","chance":0.5,"pool":"positive"},{"kind":"randomStatus","target":"allyAll","chance":0.25,"pool":"positive"}]}
+META null

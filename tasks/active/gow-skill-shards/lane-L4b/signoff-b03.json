@@ -1,0 +1,1539 @@
+{
+  "schemaVersion": 1,
+  "scope": "stored-gow-snapshot",
+  "reviews": [
+    {
+      "key": "troop:6677",
+      "scope": "stored-gow-snapshot",
+      "sourceDigest": "0a1068ab2379eb7d3e973a499204443b6e0afb77eff32764e9b2872e0c932591",
+      "reviewer": "sa-L4b",
+      "reviewedAt": "2026-09-27",
+      "decision": "accept",
+      "ledgerFingerprintAtReview": "62c72776a20e847e5ac469d1b844c785e3f80ecb33aebee08c31cede29ba7ccd",
+      "_reference": {
+        "spellId": 8023,
+        "english": "Convert all Blue Gems to Yellow. Give [Magic + 1] Life to all other Allies. Then Bless the first Ally.",
+        "nativeTarget": "None",
+        "randomize": null,
+        "steps": [
+          {
+            "Color1": "Blue",
+            "Amount": 100,
+            "Color2": "Yellow",
+            "Type": "ConvertGems"
+          },
+          {
+            "Target": "FrontAlly",
+            "Type": "CauseBlessed"
+          },
+          {
+            "SpellPowerMultiplier": 1,
+            "Target": "AllAlliesButNotSelf",
+            "Amount": 1,
+            "Primarypower": true,
+            "Type": "IncreaseHealth"
+          }
+        ],
+        "prototype": {
+          "segments": [
+            {
+              "kind": "gem",
+              "params": {
+                "op": "transform",
+                "from": "Blue",
+                "to": "Yellow"
+              }
+            },
+            {
+              "kind": "status",
+              "target": "allyFront",
+              "statusId": "blessed",
+              "turns": 3
+            },
+            {
+              "kind": "buff",
+              "target": "allyOthers",
+              "stat": "hp",
+              "scaling": {
+                "base": 1,
+                "mult": 1
+              },
+              "lifeMode": "gain"
+            }
+          ]
+        }
+      },
+      "sourceEvidence": [
+        {
+          "id": "en",
+          "role": "english-snapshot",
+          "path": "data/raw/troops.gow.en.json",
+          "note": "Entity troop:6677 SpellId/English text/ManaCost/ManaColors asserted verbatim in tests/unit/gowLaneL4bB03.test.ts."
+        },
+        {
+          "id": "native",
+          "role": "native-snapshot",
+          "path": "data/raw/spells.gow.en.json",
+          "note": "SpellId 8023 Cost and every SpellSteps field (ordered, toEqual) asserted in tests/unit/gowLaneL4bB03.test.ts."
+        },
+        {
+          "id": "rule",
+          "role": "official-shared-rule",
+          "path": "artifacts/gow-skill-audit/gold-primary-sources/official-status-effects.html",
+          "note": "official-status-effects.html: Blessed makes the troop temporarily immune to status effects; Blessed and Cursed cancel each other. Used for the Bless clause (front-ally target, no Life interaction)."
+        },
+        {
+          "id": "r001",
+          "role": "user-ruling",
+          "path": "tasks/active/gow-skill-shards/rulings/R001-native-step-order.md",
+          "note": "R001: native SpellSteps order governs; native Bless (step 1) precedes Life (step 2) and the prototype follows native order."
+        },
+        {
+          "id": "laneTest",
+          "role": "lane-battle-test",
+          "path": "tests/unit/gowLaneL4bB03.test.ts",
+          "note": "Lane L4b frozen test file: binding + real castSkill cases for troop:6677."
+        }
+      ],
+      "dimensions": {
+        "identity-cost-colors": {
+          "status": "verified",
+          "note": "troop 6677 -> spell 8023; raw ManaCost 12 = native Cost 12; colours Green+Purple in raw and src; spell.id binding asserted.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "r001",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB03.test.ts"
+          ]
+        },
+        "target-count-range": {
+          "status": "verified",
+          "note": "Bless FrontAlly -> allyFront (first living ally incl. caster; ally in front of caster when present; dead front skipped); Life AllAlliesButNotSelf -> allyOthers (caster excluded, front ally included when not caster).",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "r001",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB03.test.ts"
+          ]
+        },
+        "base-formula-rounding": {
+          "status": "verified",
+          "note": "IncreaseHealth Amount 1 SpellPowerMultiplier 1 -> [Magic+1] Life gain (maxHp and hp +magic+1) for magic 0 and 10; integer, no rounding.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "r001",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB03.test.ts"
+          ]
+        },
+        "boost-source-ratio-cap": {
+          "status": "not-applicable",
+          "note": "No boost/ratio/cap in English or native steps.",
+          "evidenceIds": [
+            "en",
+            "native"
+          ],
+          "tests": []
+        },
+        "conditions-probabilities-branches": {
+          "status": "not-applicable",
+          "note": "No condition, chance or Randomize.",
+          "evidenceIds": [
+            "en",
+            "native"
+          ],
+          "tests": []
+        },
+        "status-duration-immunity": {
+          "status": "verified",
+          "note": "Blessed status-apply turns 3 on the front ally only (project convention for status duration, shared); no enemy touched.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "r001",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB03.test.ts"
+          ]
+        },
+        "gems-types-selection-resolution": {
+          "status": "verified",
+          "note": "ConvertGems Blue -> Yellow Amount 100 = all Blue: exactly the 16 Blue cells become Yellow, other colours untouched; no-Blue board -> no conversion.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "r001",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB03.test.ts"
+          ]
+        },
+        "summon-transform-pools": {
+          "status": "not-applicable",
+          "note": "No summon or troop transform step.",
+          "evidenceIds": [
+            "en",
+            "native"
+          ],
+          "tests": []
+        },
+        "order-death-retargeting": {
+          "status": "verified",
+          "note": "Native order convert -> Bless -> Life asserted from events (R001; English lists Life before Bless); dead front ally skipped for Bless.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "r001",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB03.test.ts"
+          ]
+        },
+        "mana-economy-extra-turn": {
+          "status": "verified",
+          "note": "Caster mana 0 after cast except cascade mana-gain events; no skill extra turn; one action-log entry; turn passes (or cascade 4+/5 extra turn only).",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "r001",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB03.test.ts"
+          ]
+        },
+        "display-description": {
+          "status": "verified",
+          "note": "Chinese '将所有蓝色宝石转换成黄色。给予所有其他盟友 [魔法 + 1] 点生命值，再赐福第一位盟友。' matches English colours, target sets and [Magic + 1].",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "r001",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB03.test.ts"
+          ]
+        },
+        "battle-pipeline": {
+          "status": "verified",
+          "note": "Real TurnEngine.castSkill on both sides (Left/Right); low mana (cost-1) and Silence refuse without spending mana or touching board/statuses/turn.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "r001",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB03.test.ts"
+          ],
+          "realBattleEntry": true
+        }
+      },
+      "clauseReviews": [
+        {
+          "id": "c1",
+          "text": "Convert all Blue Gems to Yellow.",
+          "status": "verified",
+          "note": "All Blue gems (16) converted to Yellow in one gem-transform; no Blue -> nothing converted.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "r001",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB03.test.ts"
+          ]
+        },
+        {
+          "id": "c2",
+          "text": "Give [Magic + 1] Life to all other Allies.",
+          "status": "verified",
+          "note": "Every other living ally gains [Magic+1] Life (maxHp/hp), caster excluded, magic 0/10.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "r001",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB03.test.ts"
+          ]
+        },
+        {
+          "id": "c3",
+          "text": "Then Bless the first Ally.",
+          "status": "verified",
+          "note": "First (front) living ally Blessed turns 3: caster when front, ally in front otherwise; dead front skipped.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "r001",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB03.test.ts"
+          ]
+        }
+      ],
+      "nativeStepReviews": [
+        {
+          "id": "0",
+          "type": "ConvertGems",
+          "status": "verified",
+          "note": "ConvertGems Blue->Yellow Amount 100 -> transform from Blue to Yellow (all).",
+          "evidenceIds": [
+            "native",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB03.test.ts"
+          ]
+        },
+        {
+          "id": "1",
+          "type": "CauseBlessed",
+          "status": "verified",
+          "note": "CauseBlessed FrontAlly -> status blessed allyFront, executed before Life.",
+          "evidenceIds": [
+            "native",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB03.test.ts"
+          ]
+        },
+        {
+          "id": "2",
+          "type": "IncreaseHealth",
+          "status": "verified",
+          "note": "IncreaseHealth AllAlliesButNotSelf Amount 1 x Magic -> buff hp allyOthers scaling {1,1} lifeMode gain.",
+          "evidenceIds": [
+            "native",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB03.test.ts"
+          ]
+        }
+      ],
+      "branchReviews": [
+        {
+          "id": "main",
+          "status": "verified",
+          "note": "Single main branch; covered with front caster, front ally, dead front, lone caster and no-Blue board.",
+          "evidenceIds": [
+            "native",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB03.test.ts"
+          ]
+        }
+      ]
+    },
+    {
+      "key": "troop:7112",
+      "scope": "stored-gow-snapshot",
+      "sourceDigest": "f12ed71b55999e23e62b4cf74c3a00e84951ec8669fc3e8b40399bb836929332",
+      "reviewer": "sa-L4b",
+      "reviewedAt": "2026-09-27",
+      "decision": "accept",
+      "ledgerFingerprintAtReview": "62c72776a20e847e5ac469d1b844c785e3f80ecb33aebee08c31cede29ba7ccd",
+      "_reference": {
+        "spellId": 8655,
+        "english": "Convert all Brown Gems to Skulls. Then Curse and Death Mark all Dwarves.",
+        "nativeTarget": "None",
+        "randomize": null,
+        "steps": [
+          {
+            "Color1": "Brown",
+            "Amount": 100,
+            "Color2": "Skull",
+            "Type": "ConvertGems",
+            "Delay": 1
+          },
+          {
+            "Target": "EnemyType",
+            "Type": "CauseCursed",
+            "Data": "dwarf"
+          },
+          {
+            "Target": "EnemyType",
+            "Type": "CauseDeathMark",
+            "Data": "dwarf"
+          }
+        ],
+        "prototype": {
+          "segments": [
+            {
+              "kind": "gem",
+              "params": {
+                "op": "transform",
+                "from": "Brown",
+                "to": "SKULL"
+              }
+            },
+            {
+              "kind": "status",
+              "target": "enemyAll",
+              "statusId": "curse",
+              "turns": 3,
+              "targetRace": "Dwarf"
+            },
+            {
+              "kind": "status",
+              "target": "enemyAll",
+              "statusId": "death-mark",
+              "turns": 3,
+              "targetRace": "Dwarf"
+            }
+          ]
+        }
+      },
+      "sourceEvidence": [
+        {
+          "id": "en",
+          "role": "english-snapshot",
+          "path": "data/raw/troops.gow.en.json",
+          "note": "Entity troop:7112 SpellId/English text/ManaCost/ManaColors asserted verbatim in tests/unit/gowLaneL4bB03.test.ts."
+        },
+        {
+          "id": "native",
+          "role": "native-snapshot",
+          "path": "data/raw/spells.gow.en.json",
+          "note": "SpellId 8655 Cost and every SpellSteps field (ordered, toEqual) asserted in tests/unit/gowLaneL4bB03.test.ts."
+        },
+        {
+          "id": "rule",
+          "role": "official-shared-rule",
+          "path": "artifacts/gow-skill-audit/gold-primary-sources/official-status-effects.html",
+          "note": "official-status-effects.html: Cursed dispels positive statuses and cancels Blessed (both removed); Death Mark gives a 10% chance to die at turn start. Used for Barrier strip and Blessed-Dwarf cases."
+        },
+        {
+          "id": "laneTest",
+          "role": "lane-battle-test",
+          "path": "tests/unit/gowLaneL4bB03.test.ts",
+          "note": "Lane L4b frozen test file: binding + real castSkill cases for troop:7112."
+        }
+      ],
+      "dimensions": {
+        "identity-cost-colors": {
+          "status": "verified",
+          "note": "troop 7112 -> spell 8655; raw ManaCost 12 = native Cost 12; colours Blue+Purple; spell.id binding asserted.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB03.test.ts"
+          ]
+        },
+        "target-count-range": {
+          "status": "verified",
+          "note": "EnemyType Data dwarf -> enemyAll + targetRace Dwarf: only living enemies whose troopTypes include Dwarf (incl. Dwarf+Giant dual type); Human/untyped enemies and allied Dwarves untouched; dead Dwarf skipped.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB03.test.ts"
+          ]
+        },
+        "base-formula-rounding": {
+          "status": "not-applicable",
+          "note": "No numeric formula (conversion is all-of-colour, statuses have no magnitude).",
+          "evidenceIds": [
+            "en",
+            "native"
+          ],
+          "tests": []
+        },
+        "boost-source-ratio-cap": {
+          "status": "not-applicable",
+          "note": "No boost/ratio/cap.",
+          "evidenceIds": [
+            "en",
+            "native"
+          ],
+          "tests": []
+        },
+        "conditions-probabilities-branches": {
+          "status": "not-applicable",
+          "note": "No condition/chance; Death Mark death roll is a status tick outside the cast (shared status rule).",
+          "evidenceIds": [
+            "en",
+            "native"
+          ],
+          "tests": []
+        },
+        "status-duration-immunity": {
+          "status": "verified",
+          "note": "curse and death-mark turns 3 on Dwarves; Blessed Dwarf: Curse cancels Blessed (both removed, official rule) and Death Mark then lands; Curse strips Barrier.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB03.test.ts"
+          ]
+        },
+        "gems-types-selection-resolution": {
+          "status": "verified",
+          "note": "ConvertGems Brown -> Skull (Amount 100): all 16 Brown become plain Skulls; pre-existing Skull not reconverted.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB03.test.ts"
+          ]
+        },
+        "summon-transform-pools": {
+          "status": "not-applicable",
+          "note": "No summon or troop transform.",
+          "evidenceIds": [
+            "en",
+            "native"
+          ],
+          "tests": []
+        },
+        "order-death-retargeting": {
+          "status": "verified",
+          "note": "Native order convert (Delay 1 = presentation timing) -> Curse -> Death Mark: gem-transform precedes status events; status events Curse(all Dwarves) then Death Mark(all Dwarves).",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB03.test.ts"
+          ]
+        },
+        "mana-economy-extra-turn": {
+          "status": "verified",
+          "note": "Caster mana 0 after cast except cascade mana-gain events; no skill extra turn; one action-log entry; turn passes (or cascade 4+/5 extra turn only).",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB03.test.ts"
+          ]
+        },
+        "display-description": {
+          "status": "verified",
+          "note": "Chinese '将所有棕色宝石转换成骷髅头。使所有矮人陷入诅咒和死亡标记状态。' matches English (Brown->Skulls, Curse + Death Mark all Dwarves).",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB03.test.ts"
+          ]
+        },
+        "battle-pipeline": {
+          "status": "verified",
+          "note": "Real TurnEngine.castSkill on both sides (Left/Right); low mana (cost-1) and Silence refuse without spending mana or touching board/statuses/turn.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB03.test.ts"
+          ],
+          "realBattleEntry": true
+        }
+      },
+      "clauseReviews": [
+        {
+          "id": "c1",
+          "text": "Convert all Brown Gems to Skulls.",
+          "status": "verified",
+          "note": "All Brown gems (16) converted to Skulls; existing Skull unchanged.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB03.test.ts"
+          ]
+        },
+        {
+          "id": "c2",
+          "text": "Then Curse and Death Mark all Dwarves.",
+          "status": "verified",
+          "note": "Then Curse and Death Mark every living enemy Dwarf only; none when no Dwarf enemy.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB03.test.ts"
+          ]
+        }
+      ],
+      "nativeStepReviews": [
+        {
+          "id": "0",
+          "type": "ConvertGems",
+          "status": "verified",
+          "note": "ConvertGems Brown->Skull Amount 100 Delay 1 -> transform Brown to SKULL (Delay is timing only).",
+          "evidenceIds": [
+            "native",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB03.test.ts"
+          ]
+        },
+        {
+          "id": "1",
+          "type": "CauseCursed",
+          "status": "verified",
+          "note": "CauseCursed EnemyType dwarf -> status curse enemyAll targetRace Dwarf.",
+          "evidenceIds": [
+            "native",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB03.test.ts"
+          ]
+        },
+        {
+          "id": "2",
+          "type": "CauseDeathMark",
+          "status": "verified",
+          "note": "CauseDeathMark EnemyType dwarf -> status death-mark enemyAll targetRace Dwarf.",
+          "evidenceIds": [
+            "native",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB03.test.ts"
+          ]
+        }
+      ],
+      "branchReviews": [
+        {
+          "id": "main",
+          "status": "verified",
+          "note": "Single branch; covered with mixed races, no Dwarf, Blessed/dead Dwarf and Barrier Dwarf.",
+          "evidenceIds": [
+            "native",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB03.test.ts"
+          ]
+        }
+      ]
+    },
+    {
+      "key": "troop:6779",
+      "scope": "stored-gow-snapshot",
+      "sourceDigest": "d887b5deafad5b82743790306b4e9a5d41c1dbd54dd6dbcf75c3114b63600efd",
+      "reviewer": "sa-L4b",
+      "reviewedAt": "2026-09-27",
+      "decision": "accept",
+      "ledgerFingerprintAtReview": "62c72776a20e847e5ac469d1b844c785e3f80ecb33aebee08c31cede29ba7ccd",
+      "_reference": {
+        "spellId": 8169,
+        "english": "Convert Purple Gems to Green. Hunter's Mark the first Enemy.",
+        "nativeTarget": "None",
+        "randomize": null,
+        "steps": [
+          {
+            "Color1": "Purple",
+            "Amount": 100,
+            "Color2": "Green",
+            "Type": "ConvertGems",
+            "Delay": 0
+          },
+          {
+            "Target": "FrontEnemy",
+            "Amount": 1,
+            "Type": "CauseHuntersMark"
+          }
+        ],
+        "prototype": {
+          "segments": [
+            {
+              "kind": "gem",
+              "params": {
+                "op": "transform",
+                "from": "Purple",
+                "to": "Green"
+              }
+            },
+            {
+              "kind": "status",
+              "target": "enemyFront",
+              "statusId": "marked",
+              "turns": 3
+            }
+          ]
+        }
+      },
+      "sourceEvidence": [
+        {
+          "id": "en",
+          "role": "english-snapshot",
+          "path": "data/raw/troops.gow.en.json",
+          "note": "Entity troop:6779 SpellId/English text/ManaCost/ManaColors asserted verbatim in tests/unit/gowLaneL4bB03.test.ts."
+        },
+        {
+          "id": "native",
+          "role": "native-snapshot",
+          "path": "data/raw/spells.gow.en.json",
+          "note": "SpellId 8169 Cost and every SpellSteps field (ordered, toEqual) asserted in tests/unit/gowLaneL4bB03.test.ts."
+        },
+        {
+          "id": "rule",
+          "role": "official-shared-rule",
+          "path": "artifacts/gow-skill-audit/gold-primary-sources/official-status-effects.html",
+          "note": "official-status-effects.html: Hunter's Mark status and Blessed immunity to status effects (Blessed front enemy resists)."
+        },
+        {
+          "id": "laneTest",
+          "role": "lane-battle-test",
+          "path": "tests/unit/gowLaneL4bB03.test.ts",
+          "note": "Lane L4b frozen test file: binding + real castSkill cases for troop:6779."
+        }
+      ],
+      "dimensions": {
+        "identity-cost-colors": {
+          "status": "verified",
+          "note": "troop 6779 -> spell 8169; raw ManaCost 12 = native Cost 12; colours Blue+Yellow; spell.id binding asserted.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB03.test.ts"
+          ]
+        },
+        "target-count-range": {
+          "status": "verified",
+          "note": "FrontEnemy -> enemyFront: first living enemy (10; 11 when 10 dead); others untouched.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB03.test.ts"
+          ]
+        },
+        "base-formula-rounding": {
+          "status": "not-applicable",
+          "note": "No numeric formula.",
+          "evidenceIds": [
+            "en",
+            "native"
+          ],
+          "tests": []
+        },
+        "boost-source-ratio-cap": {
+          "status": "not-applicable",
+          "note": "No boost/ratio/cap.",
+          "evidenceIds": [
+            "en",
+            "native"
+          ],
+          "tests": []
+        },
+        "conditions-probabilities-branches": {
+          "status": "not-applicable",
+          "note": "No condition/chance.",
+          "evidenceIds": [
+            "en",
+            "native"
+          ],
+          "tests": []
+        },
+        "status-duration-immunity": {
+          "status": "verified",
+          "note": "marked (Hunter's Mark) turns 3 on the front enemy; Blessed front enemy resists (no status-apply).",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB03.test.ts"
+          ]
+        },
+        "gems-types-selection-resolution": {
+          "status": "verified",
+          "note": "ConvertGems Purple -> Green Amount 100: all 16 Purple become Green; no Purple -> no conversion.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB03.test.ts"
+          ]
+        },
+        "summon-transform-pools": {
+          "status": "not-applicable",
+          "note": "No summon or troop transform.",
+          "evidenceIds": [
+            "en",
+            "native"
+          ],
+          "tests": []
+        },
+        "order-death-retargeting": {
+          "status": "verified",
+          "note": "Native order convert (Delay 0) then Hunter's Mark: gem-transform precedes status-apply; dead front enemy retargets to next living.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB03.test.ts"
+          ]
+        },
+        "mana-economy-extra-turn": {
+          "status": "verified",
+          "note": "Caster mana 0 after cast except cascade mana-gain events; no skill extra turn; one action-log entry; turn passes (or cascade 4+/5 extra turn only).",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB03.test.ts"
+          ]
+        },
+        "display-description": {
+          "status": "verified",
+          "note": "Chinese '将紫色宝石转换成绿色。使第一名敌人陷入猎人标记状态。' matches English.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB03.test.ts"
+          ]
+        },
+        "battle-pipeline": {
+          "status": "verified",
+          "note": "Real TurnEngine.castSkill on both sides (Left/Right); low mana (cost-1) and Silence refuse without spending mana or touching board/statuses/turn.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB03.test.ts"
+          ],
+          "realBattleEntry": true
+        }
+      },
+      "clauseReviews": [
+        {
+          "id": "c1",
+          "text": "Convert Purple Gems to Green.",
+          "status": "verified",
+          "note": "All Purple converted to Green (16 cells).",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB03.test.ts"
+          ]
+        },
+        {
+          "id": "c2",
+          "text": "Hunter's Mark the first Enemy.",
+          "status": "verified",
+          "note": "First living enemy Hunter's Marked (turns 3).",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB03.test.ts"
+          ]
+        }
+      ],
+      "nativeStepReviews": [
+        {
+          "id": "0",
+          "type": "ConvertGems",
+          "status": "verified",
+          "note": "ConvertGems Purple->Green Amount 100 Delay 0 -> transform Purple to Green.",
+          "evidenceIds": [
+            "native",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB03.test.ts"
+          ]
+        },
+        {
+          "id": "1",
+          "type": "CauseHuntersMark",
+          "status": "verified",
+          "note": "CauseHuntersMark FrontEnemy Amount 1 -> status marked enemyFront.",
+          "evidenceIds": [
+            "native",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB03.test.ts"
+          ]
+        }
+      ],
+      "branchReviews": [
+        {
+          "id": "main",
+          "status": "verified",
+          "note": "Single branch; front/dead-front/Blessed/no-Purple covered.",
+          "evidenceIds": [
+            "native",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB03.test.ts"
+          ]
+        }
+      ]
+    },
+    {
+      "key": "troop:7170",
+      "scope": "stored-gow-snapshot",
+      "sourceDigest": "433ffad6f8b0f526088f2d00bdd3c3c7d85bd732de97ae2034dfae49f4d2fef8",
+      "reviewer": "sa-L4b",
+      "reviewedAt": "2026-09-27",
+      "decision": "accept",
+      "ledgerFingerprintAtReview": "62c72776a20e847e5ac469d1b844c785e3f80ecb33aebee08c31cede29ba7ccd",
+      "_reference": {
+        "spellId": 8742,
+        "english": "Convert all Red Gems to Green, and all Yellow Gems to Brown.",
+        "nativeTarget": "None",
+        "randomize": null,
+        "steps": [
+          {
+            "Color1": "Red",
+            "Amount": 100,
+            "Color2": "Green",
+            "Type": "ConvertGems",
+            "Delay": 0
+          },
+          {
+            "Color1": "Yellow",
+            "Amount": 100,
+            "Color2": "Brown",
+            "Type": "ConvertGems"
+          }
+        ],
+        "prototype": {
+          "segments": [
+            {
+              "kind": "gem",
+              "params": {
+                "op": "transform",
+                "from": "Red",
+                "to": "Green"
+              }
+            },
+            {
+              "kind": "gem",
+              "params": {
+                "op": "transform",
+                "from": "Yellow",
+                "to": "Brown"
+              }
+            }
+          ]
+        }
+      },
+      "sourceEvidence": [
+        {
+          "id": "en",
+          "role": "english-snapshot",
+          "path": "data/raw/troops.gow.en.json",
+          "note": "Entity troop:7170 SpellId/English text/ManaCost/ManaColors asserted verbatim in tests/unit/gowLaneL4bB03.test.ts."
+        },
+        {
+          "id": "native",
+          "role": "native-snapshot",
+          "path": "data/raw/spells.gow.en.json",
+          "note": "SpellId 8742 Cost and every SpellSteps field (ordered, toEqual) asserted in tests/unit/gowLaneL4bB03.test.ts."
+        },
+        {
+          "id": "rule",
+          "role": "official-shared-rule",
+          "path": "tasks/active/gow-skill-shards/rulings/R001-native-step-order.md",
+          "note": "R001 (coordination ruling): native SpellSteps order governs; the two ConvertGems steps run Red->Green first, then Yellow->Brown, each resolving the board."
+        },
+        {
+          "id": "laneTest",
+          "role": "lane-battle-test",
+          "path": "tests/unit/gowLaneL4bB03.test.ts",
+          "note": "Lane L4b frozen test file: binding + real castSkill cases for troop:7170."
+        }
+      ],
+      "dimensions": {
+        "identity-cost-colors": {
+          "status": "verified",
+          "note": "troop 7170 -> spell 8742; raw ManaCost 12 = native Cost 12; colours Blue+Green; spell.id binding asserted.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB03.test.ts"
+          ]
+        },
+        "target-count-range": {
+          "status": "not-applicable",
+          "note": "No troop target; board-wide conversions only.",
+          "evidenceIds": [
+            "en",
+            "native"
+          ],
+          "tests": []
+        },
+        "base-formula-rounding": {
+          "status": "not-applicable",
+          "note": "No numeric formula.",
+          "evidenceIds": [
+            "en",
+            "native"
+          ],
+          "tests": []
+        },
+        "boost-source-ratio-cap": {
+          "status": "not-applicable",
+          "note": "No boost/ratio/cap.",
+          "evidenceIds": [
+            "en",
+            "native"
+          ],
+          "tests": []
+        },
+        "conditions-probabilities-branches": {
+          "status": "not-applicable",
+          "note": "No condition/chance.",
+          "evidenceIds": [
+            "en",
+            "native"
+          ],
+          "tests": []
+        },
+        "status-duration-immunity": {
+          "status": "not-applicable",
+          "note": "No status.",
+          "evidenceIds": [
+            "en",
+            "native"
+          ],
+          "tests": []
+        },
+        "gems-types-selection-resolution": {
+          "status": "verified",
+          "note": "Two all-of-colour conversions: 16 Red -> Green, then 16 Yellow -> Brown; Green created by step 1 untouched by step 2; absent colours skipped.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB03.test.ts"
+          ]
+        },
+        "summon-transform-pools": {
+          "status": "not-applicable",
+          "note": "No summon or troop transform.",
+          "evidenceIds": [
+            "en",
+            "native"
+          ],
+          "tests": []
+        },
+        "order-death-retargeting": {
+          "status": "verified",
+          "note": "Two gem-transform events in native order (Red->Green first, Yellow->Brown second).",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB03.test.ts"
+          ]
+        },
+        "mana-economy-extra-turn": {
+          "status": "verified",
+          "note": "Caster mana 0 after cast except cascade mana-gain events; no skill extra turn; one action-log entry; turn passes (or cascade 4+/5 extra turn only).",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB03.test.ts"
+          ]
+        },
+        "display-description": {
+          "status": "verified",
+          "note": "Chinese '将所有红色宝石转换成绿色宝石，和所有黄色宝石转换成棕色宝石。' matches English.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB03.test.ts"
+          ]
+        },
+        "battle-pipeline": {
+          "status": "verified",
+          "note": "Real TurnEngine.castSkill on both sides (Left/Right); low mana (cost-1) and Silence refuse without spending mana or touching board/statuses/turn.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB03.test.ts"
+          ],
+          "realBattleEntry": true
+        }
+      },
+      "clauseReviews": [
+        {
+          "id": "c1",
+          "text": "Convert all Red Gems to Green, and all Yellow Gems to Brown.",
+          "status": "verified",
+          "note": "Red->Green and Yellow->Brown, all gems of each, in that order; missing colours skipped.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB03.test.ts"
+          ]
+        }
+      ],
+      "nativeStepReviews": [
+        {
+          "id": "0",
+          "type": "ConvertGems",
+          "status": "verified",
+          "note": "ConvertGems Red->Green Amount 100 Delay 0 -> transform Red to Green.",
+          "evidenceIds": [
+            "native",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB03.test.ts"
+          ]
+        },
+        {
+          "id": "1",
+          "type": "ConvertGems",
+          "status": "verified",
+          "note": "ConvertGems Yellow->Brown Amount 100 -> transform Yellow to Brown.",
+          "evidenceIds": [
+            "native",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB03.test.ts"
+          ]
+        }
+      ],
+      "branchReviews": [
+        {
+          "id": "main",
+          "status": "verified",
+          "note": "Single branch; both colours / only Yellow / neither covered.",
+          "evidenceIds": [
+            "native",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB03.test.ts"
+          ]
+        }
+      ]
+    },
+    {
+      "key": "weapon:1434",
+      "scope": "stored-gow-snapshot",
+      "sourceDigest": "0ed54dda121b151c6e5a00fe02b4aa1c232f13030b79aa258fcf6615b44878f4",
+      "reviewer": "sa-L4b",
+      "reviewedAt": "2026-09-27",
+      "decision": "accept",
+      "ledgerFingerprintAtReview": "62c72776a20e847e5ac469d1b844c785e3f80ecb33aebee08c31cede29ba7ccd",
+      "_reference": {
+        "spellId": 8647,
+        "english": "Stun all Enemies, and then create 3 Elemental Stars.",
+        "nativeTarget": "None",
+        "randomize": null,
+        "steps": [
+          {
+            "Target": "AllEnemies",
+            "Amount": 1,
+            "Type": "CauseStun",
+            "Delay": 1
+          },
+          {
+            "Color1": "ElementalStar",
+            "Amount": 3,
+            "Type": "CreateGems"
+          }
+        ],
+        "prototype": {
+          "segments": [
+            {
+              "kind": "status",
+              "target": "enemyAll",
+              "statusId": "stun",
+              "turns": 3
+            },
+            {
+              "kind": "gem",
+              "params": {
+                "op": "create",
+                "gem": {
+                  "kind": "special",
+                  "spec": {
+                    "kind": "elementalStar"
+                  }
+                },
+                "count": {
+                  "base": 3,
+                  "mult": 0
+                }
+              }
+            }
+          ]
+        }
+      },
+      "sourceEvidence": [
+        {
+          "id": "en",
+          "role": "english-snapshot",
+          "path": "artifacts/gowhead-weapons/weapons.json",
+          "note": "Weapon 1434 (KrystasScythe) spell id 8647, English text, ManaCost 14, ManaColors Yellow+Brown asserted from gowhead weapons.json in tests/unit/gowLaneL4bB03.test.ts."
+        },
+        {
+          "id": "native",
+          "role": "native-snapshot",
+          "path": "data/raw/spells.gow.en.json",
+          "note": "SpellId 8647 Cost and every SpellSteps field (ordered, toEqual) asserted in tests/unit/gowLaneL4bB03.test.ts."
+        },
+        {
+          "id": "rule",
+          "role": "official-shared-rule",
+          "path": "artifacts/gow-skill-audit/gold-primary-sources/official-heroic-gems-freshdesk.html",
+          "note": "Heroic Gems (Infinity Plus 2 help centre): Elemental Star matches with Brown, Blue, Green or Red gems, gives 1 mana to all four, then destroys diagonal gems. Created Stars carry the star4 join key (connects with those four colours only)."
+        },
+        {
+          "id": "rule2",
+          "role": "official-shared-rule",
+          "path": "artifacts/gow-skill-audit/gold-primary-sources/official-status-effects.html",
+          "note": "official-status-effects.html: Stun status; Blessed troops immune to status effects."
+        },
+        {
+          "id": "laneTest",
+          "role": "lane-battle-test",
+          "path": "tests/unit/gowLaneL4bB03.test.ts",
+          "note": "Lane L4b frozen test file: binding + real castSkill cases for weapon:1434."
+        }
+      ],
+      "dimensions": {
+        "identity-cost-colors": {
+          "status": "verified",
+          "note": "weapon 1434 -> spell 8647; gowhead ManaCost 14 = native Cost 14; colours Yellow+Brown; src weapons.json id/referenceName/manaCost/manaColors/spell.id; numeric 8647 and gw_KrystasScythe aliases resolve to the same prototype.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "rule2",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB03.test.ts"
+          ]
+        },
+        "target-count-range": {
+          "status": "verified",
+          "note": "AllEnemies -> enemyAll: all 4 living enemies Stunned; dead skipped; Blessed immune.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "rule2",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB03.test.ts"
+          ]
+        },
+        "base-formula-rounding": {
+          "status": "verified",
+          "note": "CreateGems Amount 3 fixed: exactly 3 Stars, no magic scaling.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "rule2",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB03.test.ts"
+          ]
+        },
+        "boost-source-ratio-cap": {
+          "status": "not-applicable",
+          "note": "No boost/ratio/cap.",
+          "evidenceIds": [
+            "en",
+            "native"
+          ],
+          "tests": []
+        },
+        "conditions-probabilities-branches": {
+          "status": "not-applicable",
+          "note": "No condition/chance.",
+          "evidenceIds": [
+            "en",
+            "native"
+          ],
+          "tests": []
+        },
+        "status-duration-immunity": {
+          "status": "verified",
+          "note": "stun status-apply turns 3 on each living enemy (project convention; CauseStun Amount 1); Blessed resists.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "rule2",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB03.test.ts"
+          ]
+        },
+        "gems-types-selection-resolution": {
+          "status": "verified",
+          "note": "Color1 ElementalStar -> special elementalStar: 3 distinct cells; empty cells filled first (gem-create), otherwise on-board conversion; created Star connects with Brown/Blue/Green/Red but not Yellow/Purple/Skull.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "rule2",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB03.test.ts"
+          ]
+        },
+        "summon-transform-pools": {
+          "status": "not-applicable",
+          "note": "No summon or troop transform.",
+          "evidenceIds": [
+            "en",
+            "native"
+          ],
+          "tests": []
+        },
+        "order-death-retargeting": {
+          "status": "verified",
+          "note": "Native order Stun (Delay 1 = timing) then create: status-apply precedes gem events.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "rule2",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB03.test.ts"
+          ]
+        },
+        "mana-economy-extra-turn": {
+          "status": "verified",
+          "note": "Caster mana 0 after cast except cascade mana-gain events; no skill extra turn; one action-log entry; turn passes (or cascade 4+/5 extra turn only).",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "rule2",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB03.test.ts"
+          ]
+        },
+        "display-description": {
+          "status": "verified",
+          "note": "Chinese '击晕所有敌人，再创造 3 颗元素星。' matches English.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "rule2",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB03.test.ts"
+          ]
+        },
+        "battle-pipeline": {
+          "status": "verified",
+          "note": "Real TurnEngine.castSkill via both aliases (8647, gw_KrystasScythe) on both sides; low mana and Silence refuse without spending mana or touching board/statuses/turn.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "rule2",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB03.test.ts"
+          ],
+          "realBattleEntry": true
+        }
+      },
+      "clauseReviews": [
+        {
+          "id": "c1",
+          "text": "Stun all Enemies, and then create 3 Elemental Stars.",
+          "status": "verified",
+          "note": "All enemies Stunned, then exactly 3 Elemental Stars created (empty cells first).",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "rule2",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB03.test.ts"
+          ]
+        }
+      ],
+      "nativeStepReviews": [
+        {
+          "id": "0",
+          "type": "CauseStun",
+          "status": "verified",
+          "note": "CauseStun AllEnemies Amount 1 Delay 1 -> status stun enemyAll turns 3.",
+          "evidenceIds": [
+            "native",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB03.test.ts"
+          ]
+        },
+        {
+          "id": "1",
+          "type": "CreateGems",
+          "status": "verified",
+          "note": "CreateGems ElementalStar Amount 3 -> create special elementalStar count 3.",
+          "evidenceIds": [
+            "native",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB03.test.ts"
+          ]
+        }
+      ],
+      "branchReviews": [
+        {
+          "id": "main",
+          "status": "verified",
+          "note": "Single branch; both aliases, both sides, empty-cell and Blessed/dead cases.",
+          "evidenceIds": [
+            "native",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB03.test.ts"
+          ]
+        }
+      ]
+    }
+  ]
+}

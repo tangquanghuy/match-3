@@ -91,7 +91,9 @@ test.describe('收藏域视觉回归', () => {
       await expect(page.locator('#collectionPages')).not.toHaveText('1');
       await expect(page.locator('#collectionPrev')).toBeDisabled();
       await expect(page.locator('#collectionNext')).toBeEnabled();
-      await expect(page.locator('#collectionRange')).toContainText('共 1,798 支');
+      // 由 Vite 加载真实总池（含社区卡），避免扩池后旧的硬编码数量误报。
+      const troopCount = await page.evaluate(async () => { const path = '/src/data/troops.ts'; return (await import(path)).TROOPS.length as number; });
+      await expect(page.locator('#collectionRange')).toContainText(`共 ${troopCount.toLocaleString('en-US')} 支`);
 
       const listGeometry = await page.locator('#collectionBands').evaluate((element) => ({
         clientHeight: element.clientHeight,
@@ -212,4 +214,30 @@ test.describe('收藏域视觉回归', () => {
       expect(team.scrollWidth).toBeLessThanOrEqual(viewport.width + 1);
     });
   }
+
+  test('按王国分组时同一王国的卡留在同一页', async ({ page }) => {
+    test.setTimeout(60_000);
+    await page.setViewportSize({ width: 1600, height: 900 });
+    await openFresh(page, 'troop');
+    await page.locator('[data-tab="all"]').click();
+    await page.locator('#groupSelect').selectOption('kingdom');
+    await expect(page.locator('.kingdom-section').first()).toBeVisible();
+
+    const seen = new Map<string, number>();
+    const pageCount = Number((await page.locator('#collectionPages').innerText()).replace(/,/g, ''));
+    for (let i = 0; i < pageCount; i += 1) {
+      const bands = await page.locator('.kingdom-section').evaluateAll((sections) => sections.map((section) => ({
+        name: section.querySelector('b')?.textContent ?? '',
+        cards: section.querySelectorAll('.collection-card').length,
+      })));
+      expect(bands.length).toBeGreaterThan(0);
+      for (const band of bands) {
+        expect(seen.has(band.name), `${band.name} 被拆到了多页`).toBe(false);
+        expect(band.cards).toBeGreaterThan(0);
+        seen.set(band.name, band.cards);
+      }
+      if (i < pageCount - 1) await page.locator('#collectionNext').click();
+    }
+    expect(Math.max(...seen.values())).toBeGreaterThan(16);
+  });
 });

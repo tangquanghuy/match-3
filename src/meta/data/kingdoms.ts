@@ -7,6 +7,7 @@
  * troops.json 的 `kingdom` 字段（中文王国名），与部队数据零复制。
  */
 import { TROOPS, type TroopData } from '../../data/troops';
+import { COMMUNITY_KINGDOM } from '../../data/communityTroops';
 
 /** 每王国任务链长度（对齐 GoW 的 8 关） */
 export const QUESTS_PER_KINGDOM = 8;
@@ -33,9 +34,9 @@ for (const pool of POOL_BY_KINGDOM.values()) {
  * 王国推进序（首版口径：按各王国最小兵种 id 升序——破碎尖塔的 6000 是全数据
  * 最小 id，恰好第一个）。M3 接世界地图时如需官方顺序，只改这里的排序依据。
  */
-export const KINGDOM_ORDER: readonly string[] = [...POOL_BY_KINGDOM.keys()].sort(
-  (a, b) => (MIN_ID_BY_KINGDOM.get(a) as number) - (MIN_ID_BY_KINGDOM.get(b) as number),
-);
+export const KINGDOM_ORDER: readonly string[] = [...POOL_BY_KINGDOM.keys()]
+  .filter((kingdom) => kingdom !== COMMUNITY_KINGDOM)
+  .sort((a, b) => (MIN_ID_BY_KINGDOM.get(a) as number) - (MIN_ID_BY_KINGDOM.get(b) as number));
 
 /** 全部王国名（有兵种的 42 个，按推进序） */
 export function allKingdoms(): string[] {
@@ -74,6 +75,10 @@ export const EXPLORE_MAX_TIER = HARD_NODE_COUNT + VERY_HARD_NODE_COUNT;
 
 export type KingdomStageMode = 'normal' | 'hard' | 'veryHard';
 
+export const KINGDOM_STAGE_COUNTS: Readonly<Record<KingdomStageMode, number>> = {
+  normal: QUESTS_PER_KINGDOM, hard: HARD_NODE_COUNT, veryHard: VERY_HARD_NODE_COUNT,
+};
+
 /** Hard 1~3 → 档 1~3，Very Hard 1~3 → 档 4~6 */
 export function exploreTierForNode(mode: 'hard' | 'veryHard', node: number): number {
   const count = mode === 'hard' ? HARD_NODE_COUNT : VERY_HARD_NODE_COUNT;
@@ -86,10 +91,10 @@ export function exploreNodeLabel(tier: number): string {
   return `VERY HARD ${tier - HARD_NODE_COUNT}`;
 }
 
-/** 探索档 tier 的敌人等级：基数 + (tier-1)×5 */
+/** 探索档 tier 的敌人等级：主线末关 + [5,10,20,35,55,80]（项目六档曲线） */
 export function exploreEnemyLevel(kingdom: string, tier: number): number {
   const clamped = Math.min(Math.max(tier, 1), EXPLORE_MAX_TIER);
-  return kingdomBaseLevel(kingdom) + (clamped - 1) * 5;
+  return questEnemyLevel(kingdom, QUESTS_PER_KINGDOM) + [5, 10, 20, 35, 55, 80][clamped - 1]!;
 }
 
 /** 主线 8 关一律 4 人队 */

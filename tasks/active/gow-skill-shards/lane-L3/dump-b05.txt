@@ -1,0 +1,54 @@
+=== troop:6032 Satyr spell 7032 cost 8/8 colors Green status pending-review target None rand -
+EN : Steal 2 Armor from the last Enemy, and shift it to Magic, then deal [Magic + 4] damage. Gain an extra turn. [1:1]
+ZH : 对最后一名敌人造成 [魔法 + 4] 点伤害。窃取 2 点护甲值并将之转为魔力值。获得一个额外回合。 [1:1]
+CL : c1=Steal 2 Armor from the last Enemy, and shift it to Magic, then deal [Magic + 4] damage. | c2=Gain an extra turn. | c3=[1:1]
+  0 {"Target":"LastEnemy","Amount":100,"Type":"CountArmor"}
+  1 {"Amount":2,"Type":"CountMax"}
+  2 {"Target":"LastEnemy","UseCounterForAmount":true,"Type":"DecreaseArmor"}
+  3 {"Target":"Self","UseCounterForAmount":true,"Type":"IncreaseSpellPower","Delay":1}
+  4 {"SpellPowerMultiplier":1,"Target":"LastEnemy","Amount":4,"Primarypower":true,"Type":"Damage"}
+  5 {"Target":"Self","Type":"ExtraTurn"}
+PROTO {"segments":[{"kind":"damage","target":"enemyLast","scaling":{"base":4,"mult":1}},{"kind":"reduce","target":"enemyLast","stat":"armor","scaling":{"base":2,"mult":0},"gainStat":"magic"},{"kind":"extraTurn"}]}
+META null
+=== troop:6035 BladeDancer spell 7035 cost 11/11 colors Green,Yellow status pending-review target None rand -
+EN : Deal [Magic + 4] scatter damage, boosted by all enemy Armor. Steal 4 Magic from a random Enemy. [2:1]
+ZH : 造成 [魔法 + 4] 点散射伤害，伤害值因所有敌人的护甲值而增强。窃取一名随机敌人 4 点魔力值。 [2:1]
+CL : c1=Deal [Magic + 4] scatter damage, boosted by all enemy Armor. | c2=Steal 4 Magic from a random Enemy. | c3=[2:1]
+  0 {"Target":"AllEnemies","Amount":50,"Type":"CountArmor"}
+  1 {"SpellPowerMultiplier":1,"Target":"AllEnemies","UseCounterForAmount":true,"Amount":4,"Primarypower":true,"Type":"ScatterDamage"}
+  2 {"Type":"DelayUntilEffectsComplete"}
+  3 {"Type":"ResetTargets"}
+  4 {"Target":"RandomEnemy","Amount":4,"Type":"StealMagic"}
+PROTO {"segments":[{"kind":"damage","target":"enemyAll","scaling":{"base":4,"mult":1},"range":"scatter","modifier":{"mod":{"kind":"ratio","a":2,"b":1},"source":{"kind":"enemyStatSum","stat":"armor"}}},{"kind":"reduce","target":"enemyRandom","stat":"mana","scaling":{"base":4,"mult":0},"gainStat":"mana"}]}
+META null
+=== troop:6427 QueenTitania spell 7600 cost 16/16 colors Red,Purple status pending-review target None rand -
+EN : Deal [Magic + 2] damage to all enemies, boosted by Red enemies and allies. If there are 13 or more Red Gems, gain an extra turn. [x4]
+ZH : 对所有敌人造成 [魔法 + 2] 点伤害，伤害值因敌我双方的红色军队数量而增强。如果板面上有 13 颗或更多红色宝石，则获得一个额外回合。 [x4]
+CL : c1=Deal [Magic + 2] damage to all enemies, boosted by Red enemies and allies. | c2=If there are 13 or more Red Gems, gain an extra turn. | c3=[x4]
+  0 {"Target":"AllAllies","Amount":400,"Type":"CountArmyColor","Data":"2"}
+  1 {"Target":"AllEnemies","UseCounterForAmount":true,"Amount":400,"Type":"CountArmyColor","Data":"2"}
+  2 {"SpellPowerMultiplier":1,"Target":"AllEnemies","UseCounterForAmount":true,"Amount":2,"Primarypower":true,"Type":"Damage"}
+  3 {"StatusAmount":100,"StatusModifier":"AddFor10RedGems","Type":"ExtraTurnConditional"}
+PROTO {"segments":[{"kind":"damage","target":"enemyAll","scaling":{"base":2,"mult":1},"range":"all","modifier":{"mod":{"kind":"multiplier","a":4},"sources":[{"kind":"alliesOfColor","color":"Red"},{"kind":"enemiesOfColor","color":"Red"}]}},{"kind":"extraTurn","ifCond":{"kind":"boardAtLeast","color":"Red","n":13}}]}
+META null
+=== troop:7198 NaturebornHunter spell 8785 cost 12/12 colors Blue,Green status pending-review target None rand -
+EN : Create 1 Elemental Star, +1 more for every 3 Green Allies and +1 more for every 3 Green Gems. If the Enemy has a Beast, gain an extra turn. [3:1]
+ZH : 创建 1 颗元素星，数量因绿色盟友数和绿色宝石数而增强。若敌人队伍中有野兽，则获得一个额外回合。 [3:1]
+CL : c1=Create 1 Elemental Star, +1 more for every 3 Green Allies and +1 more for every 3 Green Gems. | c2=If the Enemy has a Beast, gain an extra turn. | c3=[3:1]
+  0 {"Target":"AllAllies","Amount":34,"Type":"CountArmyColor","Data":"1"}
+  1 {"Color1":"Green","Amount":34,"Type":"CountGems"}
+  2 {"UseCounterForAmount":true,"Color1":"ElementalStar","Amount":1,"Type":"CreateGems"}
+  3 {"StatusAmount":100,"StatusModifier":"AddIfEnemyHasBeast","Type":"ExtraTurnConditional"}
+PROTO {"segments":[{"kind":"gem","params":{"op":"create","gem":{"kind":"special","spec":{"kind":"elementalStar"}},"count":{"base":1,"mult":0},"modifier":{"mod":{"kind":"ratio","a":3,"b":1},"sources":[{"kind":"alliesOfColor","color":"Green"},{"kind":"boardGems","color":"Green"}]}},"modifier":{"mod":{"kind":"ratio","a":3,"b":1},"sources":[{"kind":"alliesOfColor","color":"Green"},{"kind":"boardGems","color":"Green"}]}},{"kind":"extraTurn","ifCond":{"kind":"enemyRacePresent","race":"Beast"}}]}
+META null
+=== weapon:1226 DoomedBlade spell 7952 cost 18/18 colors Blue status pending-review target None rand -
+EN : Deal [Magic + 3] damage to all Enemies, +1 per Tempering level. Transform Red Gems to Doomskulls, if the Enemy has a Doom, create 5 more. Gain 3 Mana for each Blue Enemy. [x3]
+ZH : 对所有敌人造成 [魔法 + 3] 点伤害，每锻炼 1 个武器段位则 +1 点伤害值。将红色宝石转换成末日骷髅头。如果敌方有劫数，则再创造 5 颗。每有一名蓝色敌人则获得 3 点法力值。 [x3]
+CL : c1=Deal [Magic + 3] damage to all Enemies, +1 per Tempering level. | c2=Transform Red Gems to Doomskulls, if the Enemy has a Doom, create 5 more. | c3=Gain 3 Mana for each Blue Enemy. | c4=[x3]
+  0 {"Target":"AllEnemies","Amount":300,"Type":"CountArmyColor","Data":"0"}
+  1 {"SpellPowerMultiplier":1,"Target":"AllEnemies","StatusAmount":1,"Amount":3,"Primarypower":true,"StatusModifier":"AddForTempering","Type":"Damage"}
+  2 {"Color1":"Red","Amount":100,"Color2":"Doomskull","Type":"ConvertGems"}
+  3 {"Target":"AllEnemies","StatusAmount":5,"Color1":"Doomskull","StatusModifier":"AddIfEnemyHasDoom","Type":"CreateGems"}
+  4 {"Target":"Self","UseCounterForAmount":true,"Type":"GenerateMana"}
+PROTO {"segments":[{"kind":"damage","target":"enemyAll","scaling":{"base":3,"mult":1},"range":"all","modifier":{"mod":{"kind":"multiplier","a":1},"source":{"kind":"tempering"}}},{"kind":"gem","params":{"op":"transform","from":"Red","to":"SKULL","toSpecial":"doomSkull"}},{"kind":"gem","params":{"op":"create","gem":{"kind":"skull"},"count":{"base":5,"mult":0}},"ifCond":{"kind":"targetHasDoom"}},{"kind":"buff","target":"allySelf","stat":"mana","scaling":{"base":3,"mult":0},"modifier":{"mod":{"kind":"multiplier","a":3},"source":{"kind":"enemiesOfColor","color":"Blue"}}}]}
+SRC artifacts/gowhead-weapons/weapons.json null

@@ -10,35 +10,41 @@
  *      towerOfDoom   爬塔 run：一层一战、层数越高越强，队伍 HP/阵亡跨层冻结延续，
  *                    减员继续、全灭或败北即结束，按到达层数结算符卷/荣耀；
  *      factionAssault 阵营克制：编入目标王国的部队每 1 名全队攻击+2/生命+10（可叠加）；
- *      worldEvent    收集玩法：胜场掉「事件物资」（加成种族每 1 名 +2），里程碑按物资结算；
+ *      worldEvent    收集玩法：胜场掉「事件物资」（加成种族每 1 名 +1），里程碑按物资结算；
  *      classTrials   连胜试炼：连续胜利积分 ×1.3/×1.6/×2.0，败场清零；主角强制编入、职业经验 ×2。
  *
  * 与竞技场的对照（对齐官方 Arena vs Live Event 分工）：活动吃养成
  * （主角/旗帜/王国加成全生效——走 buildBattleRequest），draft 不吃。
  */
+import { eventShopPeriodOf } from './eventShopClock';
+import { weekStartOf } from '../gateway/clock';
 import { SeededRNG } from '../../engine/rng';
 import type { EventWeekState, MetaSave } from '../state/schema';
-import { getTroopById } from '../../data/troops';
-import { troopStatsAtLevel } from '../../data/leveling';
+import { getTroopById, TROOPS } from '../../data/troops';
+import { enemyLevel, enemyStatsAtLevel } from '../data/enemyDifficulty';
 import type { EventGoods, EventMilestone, EventTheme, EventTypeId } from '../data/events';
 import {
-  EVENT_MILESTONES,
+  EVENT_MILESTONES, EVENT_WEEKLY_RULES, EVENT_SHARED_GOALS, EVENT_CHOICES,
+  EVENT_DEFENSE_REWARD,
   EVENT_SHOP,
   EVENT_TOKEN_DIVISOR,
   EVENT_TOKEN_MIN_PER_WIN,
   EVENT_WEEKLY_PLAY_REWARD_CAP,
   eventThemeOf,
 } from '../data/events';
-import { kingdomBaseLevel, kingdomTroopPool, KINGDOM_ORDER } from '../data/kingdoms';
+import { kingdomTroopPool, KINGDOM_ORDER } from '../data/kingdoms';
 import { fail, type CurrencyDelta, type MetaFailure } from '../types';
 import type { MaterialDelta } from '../data/materials';
 import { earn, earnMaterials } from './wallet';
+import { addClassXp, classLevelOf } from './hero';
+import { grantTroop, rarityTierOf } from './troopProgress';
 import { activeTeam } from './teamRules';
 import type { BridgeOutcome } from './battleBridge';
 import type { EncounterPlan, EnemyTier } from './encounter';
 import { pickEnemies } from './encounter';
 import { fnv1a32 } from '../data/hash';
 import type { BattleResult } from '../../session/contract';
+import { STAT_LIMITS } from '../../session/validateRequest';
 
 /** 单场积分上限（设计值，防无脑刷；对齐官方活动「单场得分封顶」的手感） */
 export const EVENT_POINTS_CAP = 120;
@@ -66,7 +72,7 @@ export function ensureEventWeek(save: MetaSave, weekStart: number, typeId: Event
   if (!save.eventWeeks[typeId] || save.eventWeeks[typeId].weekStart !== weekStart) {
     save.eventWeeks[typeId] = {
       weekStart, points: 0, claimed: [], wins: 0, tokens: 0, tokensEarned: 0,
-      playRewards: 0, bought: {}, eventData: {}, runTeam: null,
+      playRewards: 0, bought: {}, eventData: { revision: EVENT_WEEKLY_RULES.revision }, runTeam: null,
     };
   }
   const week = save.eventWeeks[typeId]!;
@@ -75,7 +81,20 @@ export function ensureEventWeek(save: MetaSave, weekStart: number, typeId: Event
   if (typeof week.playRewards !== 'number') week.playRewards = 0;
   if (!week.bought) week.bought = {};
   if (!week.eventData) week.eventData = {};
+  // Old saves already track wins. Seed new difficulty counters without discarding weekly progress.
+  if (typeId === 'worldEvent' && week.eventData.worldWins === undefined) week.eventData.worldWins = week.wins;
+  if (typeId === 'classTrials' && week.eventData.trialWins === undefined) week.eventData.trialWins = week.wins;
   if (week.runTeam === undefined) week.runTeam = null;
+  // 升级当周保留素材领取和购买记录，只为宝石补差；旧档不会重复领取素材。
+  if (!week.eventData.revision) {
+    const legacy: Record<EventTypeId, readonly number[]> = {
+      invasion: [0,0,0,0,60,0], raidBoss: [0,0,0,40,0,0], towerOfDoom: [0,0,0,0,60,0],
+      factionAssault: [0,0,0,40,0,0], worldEvent: [0,0,0,30,80,0], classTrials: [0,0,0,40,0,0],
+    };
+    for (const i of week.claimed) week.eventData[`gemPaid${i}`] = legacy[typeId][i] ?? 0;
+    if (typeId === 'towerOfDoom') week.eventData.towerPaidFloors = Math.min(EVENT_WEEKLY_RULES.towerFloors, week.eventData.floorBest ?? 0);
+    week.eventData.revision = EVENT_WEEKLY_RULES.revision;
+  }
   return week;
 }
 
@@ -88,9 +107,9 @@ export function currentEventTheme(weekStart: number, typeId: EventTypeId): Event
 // 出敌（按活动类型各自的规则）
 // ---------------------------------------------------------------------------
 
-const RAID_POOL_BATTLES = 8; // 血池 ≈ 8 场满伤害（设计值）
-const RAID_POOL_GROWTH = 1.15; // 每阶层血池成长
-const TOWER_LEVEL_CAP = 19; // 楼层等级成长封顶（+19）
+const RAID_POOL_BATTLES = 6; // 首领基础生命的 6 倍，不代表固定战斗场数
+const RAID_POOL_GROWTH = 1.15; // 每阶层血池成长，最终受战斗生命上限9999约束
+const TOWER_LEVEL_CAP = EVENT_WEEKLY_RULES.towerFloors - 1; // 楼层成长封顶（25层）
 
 /** 活动各类型敌人的层级表（防线/楼层/首领各有专属编排） */
 function eventTierPlan(typeId: EventTypeId, arg: { line: number; floor: number }): EnemyTier[] {
@@ -115,10 +134,18 @@ function eventTierPlan(typeId: EventTypeId, arg: { line: number; floor: number }
 }
 
 /** 活动战斗出敌计划：难度与编排按各类型玩法状态推进。seed 由网关注入（熵源） */
-export function planEventEncounter(save: MetaSave, weekStart: number, seed: number, typeId: EventTypeId): EncounterPlan {
+export function planEventEncounter(save: MetaSave, weekStart: number, seed: number, typeId: EventTypeId, requestedChoice?: string): EncounterPlan {
   const theme = currentEventTheme(weekStart, typeId);
-  const rng = new SeededRNG(seed);
   const week = ensureEventWeek(save, weekStart, typeId);
+  const choice = EVENT_CHOICES[typeId].find(c => c.id === requestedChoice)?.id ?? EVENT_CHOICES[typeId][0]!.id;
+  const tier = Math.max(week.eventData[EVENT_STATE_KEYS.bossTier] ?? 1, 1);
+  const rng = new SeededRNG(typeId === 'raidBoss' ? fnv1a32(`raid-${weekStart}-${tier}`) : seed);
+  const baseLevel = 5; // 独立活动曲线，王国仅决定兵种风格
+  let matchingTroops = 0;
+  for (const m of activeTeam(save)?.members ?? []) {
+    const troop = m.kind === 'troop' ? getTroopById(m.troopId) : null;
+    if (troop && theme.bonusRace && troop.troopTypes.includes(theme.bonusRace)) matchingTroops++;
+  }
   const randomKingdom = (): string => KINGDOM_ORDER[rng.nextInt(KINGDOM_ORDER.length)]!;
 
   let kingdom: string;
@@ -126,32 +153,31 @@ export function planEventEncounter(save: MetaSave, weekStart: number, seed: numb
   let tiers: readonly EnemyTier[];
   switch (typeId) {
     case 'invasion': {
-      // 防线波次：第 N 条防线等级 +3(N-1)，越推越硬
+      // 防线波次：每条防线 +5；完整守土后 +15，不循环降级，越推越硬
       const line = Math.min(Math.max(week.eventData[EVENT_STATE_KEYS.invLine] ?? 1, 1), 3);
       kingdom = theme.kingdom!;
-      level = kingdomBaseLevel(kingdom) + (line - 1) * 3;
+      level = baseLevel + (line - 1) * 5 + (week.eventData.invRepelled ?? 0) * 15 + (choice === 'charge' ? 3 : 0);
       tiers = eventTierPlan(typeId, { line, floor: 0 });
       break;
     }
     case 'raidBoss': {
       // 首领血池：无首领（首次/已讨伐）则按阶层生成新血池
-      const tier = Math.max(week.eventData[EVENT_STATE_KEYS.bossTier] ?? 1, 1);
       kingdom = randomKingdom();
-      level = kingdomBaseLevel(kingdom) + 8 + (tier - 1) * 3;
+      level = enemyLevel(baseLevel + 3 + (tier - 1) * 5);
       tiers = eventTierPlan(typeId, { line: 0, floor: 0 });
       const enemies = pickEnemies(kingdom, level, tiers, rng);
       if ((week.eventData[EVENT_STATE_KEYS.bossHp] ?? 0) <= 0) {
-        const teamMax = enemies.reduce((sum, e) => {
+        const baseBossHp = enemies.filter(e => e.tier === 'boss').reduce((sum, e) => {
           const troop = getTroopById(e.troopId);
-          return sum + (troop ? troopStatsAtLevel(troop, e.level).health : 0);
+          return sum + (troop ? enemyStatsAtLevel(troop, e.level).health : 0);
         }, 0);
         week.eventData[EVENT_STATE_KEYS.bossTier] = tier;
-        week.eventData[EVENT_STATE_KEYS.bossMax] = Math.round(teamMax * RAID_POOL_BATTLES * Math.pow(RAID_POOL_GROWTH, tier - 1));
+        week.eventData[EVENT_STATE_KEYS.bossMax] = Math.min(STAT_LIMITS.hp.max, Math.round(baseBossHp * RAID_POOL_BATTLES * Math.pow(RAID_POOL_GROWTH, tier - 1)));
         week.eventData[EVENT_STATE_KEYS.bossHp] = week.eventData[EVENT_STATE_KEYS.bossMax]!;
       }
       return {
         kingdom,
-        source: { kind: 'event', weekStart, typeId },
+        source: { kind: 'event', weekStart, typeId, choice, matchingTroops, bossStartHp: week.eventData.bossHp },
         seed: seed >>> 0,
         enemies,
       };
@@ -164,31 +190,31 @@ export function planEventEncounter(save: MetaSave, weekStart: number, seed: numb
         week.runTeam = null;
       }
       const floor = Math.max(week.eventData[EVENT_STATE_KEYS.floor] ?? 1, 1);
-      kingdom = KINGDOM_ORDER[(fnv1a32(`tower-${weekStart >>> 0}`) + (floor - 1) * 7) % KINGDOM_ORDER.length]!;
-      level = kingdomBaseLevel(kingdom) + Math.min(floor - 1, TOWER_LEVEL_CAP);
+      kingdom = KINGDOM_ORDER[(fnv1a32(`tower-${weekStart >>> 0}`) + (floor - 1) * 5) % KINGDOM_ORDER.length]!;
+      level = baseLevel + Math.min(floor - 1, TOWER_LEVEL_CAP) * 5;
       tiers = eventTierPlan(typeId, { line: 0, floor });
       break;
     }
     case 'factionAssault':
       kingdom = theme.kingdom!;
-      level = kingdomBaseLevel(kingdom) + 3;
-      tiers = eventTierPlan(typeId, { line: 0, floor: 0 });
+      level = 20 + Math.floor((week.eventData.assaultWins ?? 0) / 3) * 10 + (choice === 'siege' ? 4 : 0);
+      tiers = (week.eventData.assaultWins ?? 0) % 3 === 2 ? ['boss', 'elite', 'minion'] : ['elite', 'minion', 'minion'];
       break;
     case 'worldEvent':
       kingdom = randomKingdom();
-      level = kingdomBaseLevel(kingdom);
+      level = baseLevel + (week.eventData.worldWins ?? 0) * 5 + (choice === 'escort' ? 5 : 0);
       tiers = eventTierPlan(typeId, { line: 0, floor: 0 });
       break;
     case 'classTrials':
       kingdom = randomKingdom();
-      level = kingdomBaseLevel(kingdom) + 2;
+      level = baseLevel + (week.eventData.trialWins ?? 0) * 5 + (choice === 'ordeal' ? 5 : 0);
       tiers = eventTierPlan(typeId, { line: 0, floor: 0 });
       break;
   }
   if (kingdomTroopPool(kingdom).length === 0) kingdom = KINGDOM_ORDER[0]!;
   return {
     kingdom,
-    source: { kind: 'event', weekStart, typeId },
+    source: { kind: 'event', weekStart, typeId, choice, matchingTroops },
     seed: seed >>> 0,
     enemies: pickEnemies(kingdom, level, tiers, rng),
   };
@@ -197,7 +223,13 @@ export function planEventEncounter(save: MetaSave, weekStart: number, seed: numb
 /** 职业试炼要求主角编入出战队（屏层提前提示；计划层硬校验） */
 export function eventBattleReady(save: MetaSave, typeId: EventTypeId, hasHeroInTeam: boolean): string | null {
   if (typeId === 'classTrials' && !hasHeroInTeam) return '职业试炼需要主角编入出战队伍';
-  void save;
+  if (typeId === 'classTrials' && (!save.hero.classId || !save.hero.unlockedClasses.includes(save.hero.classId) || classLevelOf(save, save.hero.classId) < 1)) return '请先为主角装备职业，再进入职业试炼';
+  const tower = save.eventWeeks.towerOfDoom;
+  if (typeId === 'towerOfDoom' && tower?.eventData.runActive === 1 && tower.runTeam) {
+    const ids = (activeTeam(save)?.members ?? []).map((m, i) => `p${i}-${m.kind === 'hero' ? 'hero' : m.troopId}`);
+    if (tower.runTeam.length !== ids.length || tower.runTeam.some(m => !ids.includes(m.externalId)))
+      return '本轮登塔阵容已锁定，请恢复原队伍与站位，或放弃本轮后重新编队';
+  }
   return null;
 }
 
@@ -222,7 +254,7 @@ export function factionMatchCount(save: MetaSave, kingdom: string): number {
 
 /**
  * 活动玩法对出战请求的修改（阵营突袭的全队 buff、末日之塔的跨层减员/残血）。
- * 在 buildBattleRequest 之后调用——只动 stats/成员，不影响会话校验的约束面。
+ * 在 buildBattleRequest 之后调用——修改战斗快照的面板、当前生命、活动专精标记与存活成员。
  */
 export function applyEventBattleModifiers(save: MetaSave, outcome: BridgeOutcome): void {
   const source = outcome.plan.source;
@@ -241,19 +273,45 @@ export function applyEventBattleModifiers(save: MetaSave, outcome: BridgeOutcome
     }
   }
 
-  if (theme.type.id === 'towerOfDoom' && week.runTeam) {
-    const states = new Map(week.runTeam.map((m) => [m.externalId, m]));
-    outcome.request.playerTeam = outcome.request.playerTeam.filter((snap) => {
+  const choice = source.choice;
+  for (const snap of outcome.request.playerTeam) {
+    const id = snap.externalId.match(/^p\d+-(\d+)$/)?.[1];
+    const troop = id ? getTroopById(Number(id)) : undefined;
+    const record = id ? save.collection[id] : undefined;
+    snap.eventRarity = troop && record ? rarityTierOf(troop, record) : 0;
+    if (typeId === 'invasion' && choice === 'hold') snap.stats.armor += 8;
+    if (typeId === 'raidBoss' && choice === 'ward') {
+      snap.stats.armor += 12;
+      snap.stats.attack = Math.max(1, Math.round(snap.stats.attack * .8));
+    }
+  }
+  for (const [index, snap] of outcome.request.enemyTeam.entries()) {
+    if (typeId === 'invasion') snap.eventTarget = 'tower';
+    if (typeId === 'factionAssault' && week.eventData.breach === 1) snap.stats.armor = Math.floor(snap.stats.armor / 2);
+    if (typeId === 'raidBoss' && outcome.plan.enemies[index]?.tier === 'boss') {
+      snap.eventTarget = 'boss';
+      snap.stats.hp = Math.min(STAT_LIMITS.hp.max, Math.max(1, week.eventData.bossMax ?? snap.stats.hp));
+      snap.initialHp = Math.min(snap.stats.hp, Math.max(1, week.eventData.bossHp ?? snap.stats.hp));
+      week.eventData.bossMax = snap.stats.hp; week.eventData.bossHp = snap.initialHp;
+      source.bossStartHp = snap.initialHp;
+      if (snap.initialHp <= snap.stats.hp / 2) snap.stats.attack = Math.min(STAT_LIMITS.attack.max, Math.round(snap.stats.attack * 1.3));
+    }
+  }
+  if (typeId === 'towerOfDoom') {
+    if (!week.runTeam) {
+      week.runTeam = outcome.request.playerTeam.map(snap => ({ externalId: snap.externalId,
+        hp: snap.stats.hp, maxHp: snap.stats.hp, defeated: false }));
+    }
+    const states = new Map(week.runTeam.map(m => [m.externalId, m]));
+    const floor = week.eventData.floor ?? 1;
+    const rest = choice === 'rest' && floor > 1 && floor % 5 === 1;
+    outcome.request.playerTeam = outcome.request.playerTeam.filter(snap => {
       const st = states.get(snap.externalId);
-      if (!st) return true; // 中途换上来的新成员满状态入场
-      if (st.defeated || st.hp <= 0) return false; // 阵亡减员，跳过该成员
-      snap.stats.hp = Math.min(snap.stats.hp, st.hp); // 残血延续
+      if (!st || st.defeated || st.hp <= 0) return false;
+      snap.stats.hp = st.maxHp;
+      snap.initialHp = Math.min(st.maxHp, st.hp + (rest ? Math.ceil(st.maxHp * .35) : 0));
       return true;
     });
-    if (outcome.request.playerTeam.length === 0) {
-      // 兜底：全员状态异常时视为新 run（正常流程在结算里已经收尾）
-      week.eventData[EVENT_STATE_KEYS.runActive] = 0;
-    }
   }
 }
 
@@ -303,12 +361,12 @@ export function eventBattleProgress(
           week.eventData[EVENT_STATE_KEYS.invLine] = 1;
           if (week.playRewards < EVENT_WEEKLY_PLAY_REWARD_CAP.invasion) {
             const mats: MaterialDelta = { traitstones: { 'runic:red': 2, 'runic:blue': 2 } };
-            earn(save, { glory: 40, gems: 20 });
+            earn(save, EVENT_DEFENSE_REWARD);
             earnMaterials(save, mats);
             week.playRewards += 1;
-            lines.push({ label: '守土成功！', deltas: { glory: 40, gems: 20 }, mats, note: '三条防线全部守住，防线重整' });
+            lines.push({ label: '守土成功！', deltas: { ...EVENT_DEFENSE_REWARD }, mats, note: '三条防线全部守住，防线重整' });
           } else {
-            lines.push({ label: '守土成功！', deltas: {}, note: '本周守土奖励已领满，积分与代币仍正常获得' });
+            lines.push({ label: '守土成功！', deltas: {}, note: '本周守土奖励已领满，积分与印记仍正常获得' });
           }
         } else {
           week.eventData[EVENT_STATE_KEYS.invLine] = line + 1;
@@ -323,19 +381,12 @@ export function eventBattleProgress(
 
     case 'raidBoss': {
       // 血池：胜/败都按打掉的 HP 累计
-      let damage = 0;
-      for (const c of result.combatants) {
-        if (c.side !== 'enemy') continue;
-        const index = plan.enemies.findIndex((e, i) => enemyExternalId(e, i) === c.externalId);
-        if (index < 0) continue;
-        const enemy = plan.enemies[index]!;
-        const troop = getTroopById(enemy.troopId);
-        if (!troop) continue;
-        damage += Math.max(0, troopStatsAtLevel(troop, enemy.level).health - c.hp);
-      }
-      if (damage > 0) {
-        week.eventData[EVENT_STATE_KEYS.bossHp] = Math.max(0, (week.eventData[EVENT_STATE_KEYS.bossHp] ?? 0) - damage);
-      }
+      const bossIndex = plan.enemies.findIndex(e => e.tier === 'boss');
+      const boss = plan.enemies[bossIndex];
+      const resultBoss = boss && result.combatants.find(c => c.side === 'enemy' && c.externalId === enemyExternalId(boss, bossIndex));
+      const startHp = source.bossStartHp ?? week.eventData.bossHp ?? 0;
+      const damage = resultBoss ? Math.max(0, startHp - resultBoss.hp) : 0;
+      week.eventData.bossHp = Math.max(0, (week.eventData.bossHp ?? 0) - damage);
       const hpLeft = week.eventData[EVENT_STATE_KEYS.bossHp] ?? 0;
       const hpMax = week.eventData[EVENT_STATE_KEYS.bossMax] ?? 0;
       lines.push({ label: `首领伤害 +${damage}`, deltas: {}, note: `血池 ${hpLeft} / ${hpMax}` });
@@ -350,7 +401,7 @@ export function eventBattleProgress(
           week.playRewards += 1;
           lines.push({ label: `讨伐成功 · Tier ${tier} 首领倒下！`, deltas: { glory }, mats, note: '下一只首领血更厚' });
         } else {
-          lines.push({ label: `讨伐成功 · Tier ${tier} 首领倒下！`, deltas: {}, note: '本周讨伐奖励已领满，积分与代币仍正常获得' });
+          lines.push({ label: `讨伐成功 · Tier ${tier} 首领倒下！`, deltas: {}, note: '本周讨伐奖励已领满，积分与印记仍正常获得' });
         }
         week.eventData[EVENT_STATE_KEYS.bossesSlain] = (week.eventData[EVENT_STATE_KEYS.bossesSlain] ?? 0) + 1;
         week.eventData[EVENT_STATE_KEYS.bossTier] = tier + 1;
@@ -365,11 +416,20 @@ export function eventBattleProgress(
       const floor = Math.max(week.eventData[EVENT_STATE_KEYS.floor] ?? 1, 1);
       if (victory) {
         // 队伍状态冻结：HP/阵亡跨层延续（减员继续）
-        week.runTeam = result.combatants
-          .filter((c) => c.side === 'player')
-          .map((c) => ({ externalId: c.externalId, hp: Math.max(0, c.hp), maxHp: Math.max(1, c.maxHp), defeated: c.defeated }));
+        const previous = new Map((week.runTeam ?? []).map(m => [m.externalId, m]));
+        for (const c of result.combatants.filter(c => c.side === 'player')) {
+          const before = previous.get(c.externalId);
+          if (week.runTeam && !before) continue; // 召唤物不成为跨层资产
+          const maxHp = before?.maxHp ?? Math.max(1, c.maxHp);
+          previous.set(c.externalId, { externalId: c.externalId, hp: Math.min(maxHp, Math.max(0, c.hp)),
+            maxHp, defeated: c.defeated || c.hp <= 0 });
+        }
+        week.runTeam = [...previous.values()];
+        week.eventData.floorBest = Math.max(week.eventData.floorBest ?? 0, floor);
         const alive = week.runTeam.filter((m) => !m.defeated && m.hp > 0).length;
-        if (alive === 0) {
+        if (floor >= EVENT_WEEKLY_RULES.towerFloors) {
+          finishTowerRun(save, week, floor, lines, '通关');
+        } else if (alive === 0) {
           // 惨胜全灭：同样收尾
           finishTowerRun(save, week, floor, lines, '全灭');
         } else {
@@ -384,16 +444,13 @@ export function eventBattleProgress(
 
     case 'worldEvent': {
       if (!victory) break;
+      week.eventData.worldWins = (week.eventData.worldWins ?? 0) + 1;
       const rng = new SeededRNG((result.seed ^ (source.weekStart >>> 0)) >>> 0);
-      let drop = 2 + rng.nextInt(3);
+      let drop = (source.choice === 'escort' ? 10 : 6) + rng.nextInt(3);
       const race = theme.bonusRace;
-      if (race) {
-        for (const member of activeTeam(save)?.members ?? []) {
-          if (member.kind !== 'troop') continue;
-          const troop = getTroopById(member.troopId);
-          if (troop?.troopTypes.includes(race)) drop += 2;
-        }
-      }
+      const matches = source.matchingTroops ?? (activeTeam(save)?.members ?? []).filter(m =>
+        m.kind === 'troop' && race && getTroopById(m.troopId)?.troopTypes.includes(race)).length;
+      drop += matches;
       week.eventData[EVENT_STATE_KEYS.supplies] = (week.eventData[EVENT_STATE_KEYS.supplies] ?? 0) + drop;
       lines.push({
         label: `事件物资 +${drop}`,
@@ -404,11 +461,16 @@ export function eventBattleProgress(
     }
 
     case 'factionAssault': {
-      if (victory) week.eventData[EVENT_STATE_KEYS.assaultWins] = (week.eventData[EVENT_STATE_KEYS.assaultWins] ?? 0) + 1;
+      if (victory) {
+        week.eventData[EVENT_STATE_KEYS.assaultWins] = (week.eventData[EVENT_STATE_KEYS.assaultWins] ?? 0) + 1;
+        week.eventData.breach = source.choice === 'flank' ? 1 : 0;
+        lines.push({ label: '据点占领', deltas: {}, note: source.choice === 'flank' ? '补给已破坏，下个据点护甲减半' : '强攻成功，继续推进下个据点' });
+      }
       break;
     }
 
     case 'classTrials':
+      if (victory) week.eventData.trialWins = (week.eventData.trialWins ?? 0) + 1;
       break; // 连胜计分在 settlement 的积分段处理
   }
   return { lines };
@@ -424,25 +486,22 @@ function finishTowerRun(
 ): void {
   const best = Math.max(week.eventData[EVENT_STATE_KEYS.floorBest] ?? 0, floorReached);
   week.eventData[EVENT_STATE_KEYS.floorBest] = best;
-  const scrolls = Math.floor(floorReached / 5);
-  const glory = floorReached * 2;
-  if (scrolls > 0 || glory > 0) {
-    if (week.playRewards < EVENT_WEEKLY_PLAY_REWARD_CAP.towerOfDoom) {
-      earn(save, { glory });
-      earnMaterials(save, { forgeScrolls: scrolls });
-      week.playRewards += 1;
-      lines.push({
-        label: `登塔结束（${reason}）· 到达第 ${floorReached} 层`,
-        deltas: { glory },
-        mats: { forgeScrolls: scrolls },
-        note: `历史最高 第 ${best} 层 · 点击「攀爬」再来一程`,
-      });
-    } else {
-      lines.push({ label: `登塔结束（${reason}）· 到达第 ${floorReached} 层`, deltas: {}, note: `历史最高 第 ${best} 层 · 本周登塔奖励已领满` });
-    }
-  } else {
-    lines.push({ label: `登塔结束（${reason}）· 到达第 ${floorReached} 层`, deltas: {}, note: `历史最高 第 ${best} 层` });
+  const paid = week.eventData.towerPaidFloors ?? 0;
+  const reached = Math.min(EVENT_WEEKLY_RULES.towerFloors, Math.max(paid, floorReached));
+  const scrolls = Math.floor(reached / 5) - Math.floor(paid / 5);
+  const glory = (reached - paid) * 2;
+  week.eventData.towerPaidFloors = reached;
+  if (reached > paid) {
+    earn(save, { glory });
+    earnMaterials(save, { forgeScrolls: scrolls });
+    week.playRewards = Math.min(EVENT_WEEKLY_PLAY_REWARD_CAP.towerOfDoom, week.playRewards + 1);
   }
+  lines.push({
+    label: `登塔结束（${reason}）· 到达第 ${floorReached} 层`,
+    deltas: glory > 0 ? { glory } : {},
+    ...(scrolls > 0 ? { mats: { forgeScrolls: scrolls } } : {}),
+    note: `本周最高 第 ${best} 层 · ${reached > paid ? '新高层数奖励已入账' : '本轮未超过已领奖励层数'}`,
+  });
   week.eventData[EVENT_STATE_KEYS.runActive] = 0;
   week.eventData[EVENT_STATE_KEYS.floor] = 1;
   week.runTeam = null;
@@ -471,15 +530,16 @@ export function abandonTowerRun(
 // 积分 / 里程碑（里程碑进度按类型：世界事件=物资，其余=积分）
 // ---------------------------------------------------------------------------
 
-/** 单场积分（设计值）：胜利 = Σ(稀有度档+1)×10 + Σ(等级)，封顶 EVENT_POINTS_CAP */
+/** 单场积分（设计值）：基础100；强攻120；营地50。试炼连胜在结算阶段计算 */
 export function eventPointsOf(plan: EncounterPlan): number {
-  let points = 0;
-  for (const enemy of plan.enemies) {
-    const troop = getTroopById(enemy.troopId);
-    if (!troop) continue;
-    points += (troop.rarityIdx + 1) * 10 + enemy.level;
+  let points = 100;
+  if (plan.source.kind === 'event') {
+    const choice = plan.source.choice;
+    if (choice === 'charge') points *= 1.2;
+    if (choice === 'siege') points *= 1.2;
+    if (choice === 'rest') points *= .5;
   }
-  return Math.min(points, EVENT_POINTS_CAP);
+  return Math.min(EVENT_POINTS_CAP, Math.round(points));
 }
 
 /** 里程碑进度值：世界事件按累计物资，其余按积分 */
@@ -561,7 +621,7 @@ export function eventPageState(save: MetaSave, weekStart: number, typeId: EventT
       break;
     case 'classTrials': {
       const streak = d[EVENT_STATE_KEYS.trialStreak] ?? 0;
-      extra = { kind: 'classTrials', streak, mult: trialMultiplier(Math.max(streak, 1)) };
+      extra = { kind: 'classTrials', streak, mult: trialMultiplier(streak + 1) };
       break;
     }
   }
@@ -584,14 +644,49 @@ export interface EventShopRow {
   stockLeft: number | null;
 }
 
-export function eventShopOf(save: MetaSave, weekStart: number, typeId: EventTypeId): { theme: EventTheme; week: EventWeekState; rows: EventShopRow[] } {
-  const theme = currentEventTheme(weekStart, typeId);
+function eventTroop(theme: EventTheme, periodIndex: number, role: NonNullable<EventGoods['troopRole']>) {
+  const candidates = TROOPS.filter((troop) => {
+    if (role === 'siegebreaker' || role === 'godslayer') return troop.traits.some((trait) => trait?.code === role);
+    if (role === 'faction') return troop.kingdom === theme.kingdom && troop.rarityIdx >= 2 && troop.rarityIdx <= 4;
+    return troop.troopTypes.includes(theme.bonusRace ?? '') && troop.rarityIdx === 3;
+  });
+  const themed = theme.kingdom && (role === 'siegebreaker' || role === 'godslayer')
+    ? candidates.filter((troop) => troop.kingdom === theme.kingdom)
+    : [];
+  const pool = themed.length ? themed : candidates.length ? candidates : TROOPS.filter((troop) =>
+    role === 'faction' ? troop.kingdom === theme.kingdom : troop.troopTypes.includes(theme.bonusRace ?? ''));
+  if (!pool.length) throw new Error(`活动商店缺少可用兵种：${theme.type.id}/${role}`);
+  const offset = fnv1a32(`${theme.type.id}-${role}`);
+  return pool[((offset + periodIndex) % pool.length + pool.length) % pool.length]!;
+}
+
+export function eventShopOf(save: MetaSave, weekStart: number, typeId: EventTypeId, now = weekStart) {
+  const period = eventShopPeriodOf(now);
+  // Freeze this shelf's theme through its two-day window, including Monday midnight.
+  const theme = currentEventTheme(weekStartOf(period.start), typeId);
   const week = ensureEventWeek(save, weekStart, typeId);
-  const rows = EVENT_SHOP[theme.type.id]!.map((goods) => ({
-    goods,
-    stockLeft: goods.stock === null ? null : Math.max(0, goods.stock - (week.bought[goods.id] ?? 0)),
-  }));
-  return { theme, week, rows };
+  save.eventShops ??= {};
+  const previous = save.eventShops[typeId];
+  if (!previous || previous.periodStart !== period.start) {
+    save.eventShops[typeId] = {
+      periodStart: period.start,
+      // Legacy weekly-only saves retain existing purchases until the next restock.
+      bought: previous ? {} : { ...week.bought },
+    };
+  }
+  const stock = save.eventShops[typeId]!;
+  const rows = EVENT_SHOP[theme.type.id]!.map((baseGoods) => {
+    const troop = baseGoods.troopRole ? eventTroop(theme, period.index, baseGoods.troopRole) : undefined;
+    const goods = troop ? { ...baseGoods, troopId: troop.id, name: troop.name, blurb: ({
+      siegebreaker: '攻城手 · 入侵专精', godslayer: '神祇杀手 · 首领专精',
+      faction: `阵营精选 · ${theme.kingdom}`, race: `种族精选 · ${theme.bonusRace}`,
+    } as Record<NonNullable<EventGoods['troopRole']>, string>)[baseGoods.troopRole!] } : baseGoods;
+    return {
+      goods,
+      stockLeft: goods.stock === null ? null : Math.max(0, goods.stock - (stock.bought[goods.id] ?? 0)),
+    };
+  });
+  return { theme, week, stock, period, rows };
 }
 
 export type EventBuyResult =
@@ -599,20 +694,61 @@ export type EventBuyResult =
   | MetaFailure;
 
 /** 购买一件货架商品：代币原子扣账 → 素材/货币入账 → 已购计数 +1 */
-export function buyEventGoods(save: MetaSave, goodsId: string, weekStart: number, typeId: EventTypeId): EventBuyResult {
-  const shop = eventShopOf(save, weekStart, typeId);
+export function buyEventGoods(save: MetaSave, goodsId: string, weekStart: number, typeId: EventTypeId, now = weekStart, expectedPeriodStart?: number): EventBuyResult {
+  if (expectedPeriodStart !== undefined && expectedPeriodStart !== eventShopPeriodOf(now).start) {
+    return fail('INVALID', '货品已刷新，请确认新货架后兑换');
+  }
+  const shop = eventShopOf(save, weekStart, typeId, now);
   const row = shop.rows.find((r) => r.goods.id === goodsId);
   if (!row) return fail('INVALID', '该商品不在此活动货架');
-  if (row.stockLeft !== null && row.stockLeft <= 0) return fail('SOLD_OUT', '该商品本周已售罄');
+  if (row.stockLeft !== null && row.stockLeft <= 0) return fail('SOLD_OUT', '该商品本期已售罄');
+  if (row.goods.classXp && (!save.hero.classId || !save.hero.unlockedClasses.includes(save.hero.classId) || classLevelOf(save, save.hero.classId) <= 0)) {
+    return fail('PREREQ_LOCKED', '请先解锁并装备一个职业');
+  }
   const week = shop.week;
   if (week.tokens < row.goods.cost) {
-    return fail('INSUFFICIENT', `活动代币不足：需要 ${row.goods.cost}，现有 ${week.tokens}`);
+    return fail('INSUFFICIENT', `活动印记不足：需要 ${row.goods.cost}，现有 ${week.tokens}`);
   }
   week.tokens -= row.goods.cost;
   week.bought[goodsId] = (week.bought[goodsId] ?? 0) + 1;
+  shop.stock.bought[goodsId] = (shop.stock.bought[goodsId] ?? 0) + 1;
   const g = row.goods;
-  earn(save, { gold: g.gold, souls: g.souls, gems: g.gems, goldKeys: g.goldKeys, glory: g.glory });
+  earn(save, { gold: g.gold ?? 0, souls: g.souls ?? 0, gems: g.gems ?? 0, goldKeys: g.goldKeys ?? 0, glory: g.glory ?? 0 });
   earnMaterials(save, g.mats ?? {});
-  const stockLeft = g.stock === null ? null : g.stock - week.bought[goodsId]!;
+  if (g.troopId) grantTroop(save, g.troopId, 1);
+  if (g.classXp && save.hero.classId) addClassXp(save, save.hero.classId, g.classXp);
+  const stockLeft = g.stock === null ? null : g.stock - shop.stock.bought[goodsId]!;
   return { ok: true, goodsId, tokensSpent: g.cost, tokensLeft: week.tokens, stockLeft };
+}
+
+/** 跨活动周目标集中在入侵周实例的命名键中，随同一周锚点重置。 */
+export function eventWeeklySummary(save: MetaSave, weekStart: number) {
+  const ledger = ensureEventWeek(save, weekStart, 'invasion');
+  const wins = Object.values(save.eventWeeks).reduce((sum, w) => sum + (w?.weekStart === weekStart ? w.wins : 0), 0);
+  const goals = EVENT_SHARED_GOALS.map((goal, i) => ({ ...goal, claimed: ledger.eventData[`sharedClaim${i}`] === 1 }));
+  return { wins, goals, earned: goals.reduce((sum, g) => sum + (g.claimed ? g.gems : 0), 0) };
+}
+
+/** 宝石与素材分账，旧版已领里程碑只补宝石差额，不重复发材料。 */
+export function claimEventWeeklyGems(save: MetaSave, weekStart: number, typeId: EventTypeId): EventProgressLine[] {
+  const week = ensureEventWeek(save, weekStart, typeId);
+  const metric = eventMetricOf(save, weekStart, typeId).value;
+  const lines: EventProgressLine[] = [];
+  EVENT_MILESTONES[typeId].forEach((m, i) => {
+    if (metric < m.points && !week.claimed.includes(i)) return;
+    const paid = week.eventData[`gemPaid${i}`] ?? 0;
+    const gems = Math.max(0, (m.gems ?? 0) - paid);
+    if (gems > 0) {
+      earn(save, { gems }); week.eventData[`gemPaid${i}`] = paid + gems;
+      lines.push({ label: `周常宝石 · ${m.label}`, deltas: { gems } });
+    }
+  });
+  const summary = eventWeeklySummary(save, weekStart);
+  const ledger = ensureEventWeek(save, weekStart, 'invasion');
+  summary.goals.forEach((g, i) => {
+    if (g.claimed || summary.wins < g.wins) return;
+    earn(save, { gems: g.gems }); ledger.eventData[`sharedClaim${i}`] = 1;
+    lines.push({ label: `每周远征 · 累计${g.wins}胜`, deltas: { gems: g.gems }, note: '六种活动共同推进，周一刷新' });
+  });
+  return lines;
 }

@@ -1,0 +1,16 @@
+{
+  "officialArticle": "https://infinityplus2.freshdesk.com/support/solutions/articles/150000208328-pvp-overview",
+  "attachment": "https://infinityplus2.freshdesk.com/helpdesk/attachments/150118302134",
+  "file": "official-pvp-goals.png",
+  "sha256": "cd8f8a45ace82c30af2fdd8ee8207b33ee650bbcabd7f8f0b30cbeb436a483ef",
+  "visibleGoalThresholds": [
+    50,
+    100,
+    200,
+    300,
+    450,
+    600,
+    800
+  ],
+  "purpose": "Official reference only; not bundled into runtime or used as badge art."
+}

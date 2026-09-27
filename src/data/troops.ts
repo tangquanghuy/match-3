@@ -9,10 +9,12 @@
  * 详见 .kiro/specs/match3-battle-core/troops-gap-analysis.md。
  */
 import raw from './troops.json';
+import { normalizeCombatText, spellDescription } from './combatText';
 import { OFFICIAL_MAX_LEVEL, troopStatsAtLevel } from './leveling';
 import { BaseColor } from '../engine/types';
 import type { Character } from '../engine/types';
-import type { SkillMetadata } from '../engine/skills/scaling';
+import { buildSkillMetadata, type SkillMetadata } from '../engine/skills/scaling';
+import { COMMUNITY_TROOPS } from './communityTroops';
 
 export type Rarity =
   | 'Common'
@@ -48,7 +50,7 @@ export interface TroopSpell {
   meta: SkillMetadata;
 }
 
-/** 精简后单个兵种的忠实结构（与 src/data/troops.json 一一对应） */
+/** 官方与自定义部队共用的数据结构。 */
 export interface TroopData {
   id: number;
   name: string;
@@ -84,10 +86,18 @@ export interface TroopData {
   spell: TroopSpell;
   traits: TroopTrait[];
   portrait: string | null;
+  artUrl?: string;
 }
 
-/** 全部兵种（只读）。约 1798 条。 */
-export const TROOPS: readonly TroopData[] = raw as unknown as TroopData[];
+/** 全部兵种（只读）：官方数据与独立维护的异界部队。 */
+export const SOURCE_TROOPS: readonly TroopData[] = [...(raw as unknown as TroopData[]), ...COMMUNITY_TROOPS];
+export const TROOPS: readonly TroopData[] = SOURCE_TROOPS.map(t => {
+  const description = spellDescription(t.spell.id, t.spell.description);
+  return { ...t,
+    spell: { ...t.spell, description, meta: description === t.spell.description ? t.spell.meta : buildSkillMetadata(description) },
+    traits: t.traits.map(trait => ({ ...trait, description: normalizeCombatText(trait.description) })),
+  };
+});
 
 /** 按数值 id 索引 */
 const BY_ID = new Map<number, TroopData>(TROOPS.map((t) => [t.id, t]));
@@ -162,6 +172,7 @@ export function troopToCharacter(troop: TroopData, id: number, level = OFFICIAL_
     traitIds: troop.traits.map((t) => t.code),
     // 种族光环（族亲/之盾）按 troopTypes 筛选受益对象
     troopTypes: [...troop.troopTypes],
+    kingdom: troop.kingdom ?? undefined,
   };
 }
 
@@ -177,20 +188,25 @@ export function draftCharacters(troops: TroopData[], baseId: number): Character[
  */
 export function troopToSummonTemplate(
   referenceName: string,
+  arenaRules = false,
 ): Omit<Character, 'id' | 'defeated' | 'statuses'> | null {
   const troop = getTroopByRef(referenceName);
   if (!troop) return null;
   const colors = troop.manaColors.length > 0 ? troop.manaColors : [BaseColor.Brown];
+  const stats = troopStatsAtLevel(troop, arenaRules ? 15 : OFFICIAL_MAX_LEVEL);
   return {
     name: troop.name,
-    maxHp: troop.health,
-    hp: troop.health,
-    attack: troop.attack,
-    armor: troop.armor,
-    magic: troop.magic,
+    maxHp: stats.health,
+    hp: stats.health,
+    attack: stats.attack,
+    armor: stats.armor,
+    magic: stats.magic,
     colors: [...colors],
     manaCost: troop.manaCost,
     mana: 0,
     skillId: String(troop.spell.id),
+    traitIds: arenaRules ? [] : troop.traits.map(t => t.code),
+    troopTypes: [...troop.troopTypes],
+    kingdom: troop.kingdom ?? undefined,
   };
 }

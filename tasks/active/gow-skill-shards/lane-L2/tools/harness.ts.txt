@@ -1,0 +1,75 @@
+﻿// @ts-expect-error Node-only audit fixture
+import fs from 'node:fs';
+import {describe,it,expect} from 'vitest';
+// @ts-expect-error Independent saved native-step reader
+import {indexNativeSpells} from '../../scripts/lib/gow-native-source.mjs';
+import {ExtensionRegistry} from '@engine/registry';
+import {registerSkillLibrary} from '@engine/skills/library';
+import {TurnEngine} from '@engine/TurnEngine';
+import {FixedTargetChooser} from '@engine/skills/targetChooser';
+import {FixedBranchChooser} from '@engine/skills/branchChooser';
+import {FixedColorChooser} from '@engine/skills/colorChooser';
+import {SeededRNG} from '@engine/rng';
+import type {GameEvent} from '@engine/events';
+import {BaseColor,PlayerSide,colorGem,type Character} from '@engine/types';
+import {damageFixture,damageCharacter} from '../helpers/damageFixture';
+import {TROOPS} from '../../src/data/troops';
+import weapons from '../../src/data/weapons.json';
+
+const original=JSON.parse(fs.readFileSync('data/raw/troops.gow.en.json','utf8')).troops;
+const rawWeapons=JSON.parse(fs.readFileSync('artifacts/gowhead-weapons/weapons.json','utf8')).weapons;
+const native=indexNativeSpells(JSON.parse(fs.readFileSync('data/raw/spells.gow.en.json','utf8')).spells);
+const registry=new ExtensionRegistry();registerSkillLibrary(registry.prototypes);
+const SIDES=[PlayerSide.Left,PlayerSide.Right] as const;
+
+interface Opts{spell:number|string;cost:number;colors:BaseColor[];side?:PlayerSide;magic?:number;casterArmor?:number;
+ allies?:Partial<Character>[];enemies?:Partial<Character>[];target?:number;branch?:number|null;seed?:number;
+ paint?:(row:number,col:number)=>BaseColor;color?:BaseColor;cell?:{row:number;col:number}}
+function setup(o:Opts){
+ const side=o.side??PlayerSide.Left;
+ const f=damageFixture(0,0,o.enemies??[{},{},{},{}]);
+ if(o.paint)for(let row=0;row<8;row++)for(let col=0;col<8;col++)f.board.set({row,col},{id:500+row*8+col,type:colorGem(o.paint(row,col))});
+ Object.assign(f.caster,{skillId:String(o.spell),mana:o.cost,manaCost:o.cost,colors:[...o.colors],magic:o.magic??10,armor:o.casterArmor??0});
+ const allies=(o.allies??[]).map((a,i)=>damageCharacter(20+i,{mana:0,...a}));
+ const mine=[f.caster,...allies];
+ if(side===PlayerSide.Right){f.state.teams.Left.characters=f.enemies;f.state.teams.Right.characters=mine;f.state.activePlayer=side;}
+ else f.state.teams.Left.characters=mine;
+ const engine=new TurnEngine(f.state,new SeededRNG(o.seed??42),f.ctx.nextGemId,registry);engine.skullChance=0;
+ engine.setTargetChooser(new FixedTargetChooser(o.target??12));
+ engine.setBranchChooser(new FixedBranchChooser(o.branch===undefined?0:o.branch));if(o.color!==undefined)engine.setColorChooser(new FixedColorChooser(o.color));if(o.cell)engine.setCellChooser({choose:()=>o.cell!});
+ const opponent=side===PlayerSide.Left?PlayerSide.Right:PlayerSide.Left;
+ const startHp=f.enemies.map(e=>e.hp);
+ return {...f,engine,side,opponent,allies,cast:()=>engine.castSkill(f.caster.id) as GameEvent[],
+  loss:()=>f.enemies.map((e,i)=>startHp[i]-e.hp)};
+}
+type F=ReturnType<typeof setup>;
+function troopSource(id:number,spell:number,cost:number,colors:BaseColor[]){
+ const o=original.find((t:{id:number})=>t.id===id)!;const t=TROOPS.find(t=>t.id===id)!;
+ expect(o.stats.spell.id).toBe(spell);expect(o.ManaCost).toBe(cost);
+ expect(Object.keys(o._ManaColors_parsed).sort()).toEqual(colors.map(c=>`Color${c}`).sort());
+ expect(t).toMatchObject({id,manaCost:cost,manaColors:[...colors],spell:{id:spell}});
+ return {o,t,n:native.get(spell).raw,proto:registry.prototypes.get(String(spell))};
+}
+const turnPassed=(f:F)=>{expect(f.caster.mana).toBe(0);expect(f.state.actionLog).toHaveLength(1);expect(f.state.activePlayer).toBe(f.opponent);};
+function blocked(o:Opts){
+ for(const mode of ['low-mana','silence','cancel'] as const){
+  const f=setup({...o,branch:mode==='cancel'?null:o.branch});
+  if(mode==='low-mana')f.caster.mana=o.cost-1;else if(mode==='silence')f.caster.statuses=[{id:'silence',turns:3}];
+  const before=JSON.stringify(f.state.board);
+  expect(f.cast()).toEqual([]);expect(f.state.actionLog).toHaveLength(0);expect(JSON.stringify(f.state.board)).toBe(before);
+  expect(f.loss()).toEqual([0,0,0,0]);expect(f.caster.mana).toBe(mode==='low-mana'?o.cost-1:o.cost);
+ }
+}
+/** Special gems created by the cast (spawned or transformed in place). */
+function created(ev:GameEvent[],kind:string){
+ let n=0;
+ for(const e of ev as unknown as Array<Record<string,unknown>>){
+  if(e.type==='gem-create')for(const s of e.spawns as Array<{gemType:{kind:string;spec?:{kind:string}}}>)if(s.gemType.kind==='special'&&s.gemType.spec?.kind===kind)n++;
+  if(e.type==='gem-transform')for(const c of e.changes as Array<{to:{kind:string;spec?:{kind:string}}}>)if(c.to.kind==='special'&&c.to.spec?.kind===kind)n++;
+ }
+ return n;
+}
+const DIAG=[BaseColor.Blue,BaseColor.Yellow,BaseColor.Purple,BaseColor.Brown];
+const diag=(cols:BaseColor[])=>(r:number,c:number)=>cols[(r+c)%4];
+const has=(c:Character,id:string)=>c.statuses.some(s=>s.id===id);
+void [DIAG,diag,has,created,blocked,turnPassed,troopSource,weapons,rawWeapons,SIDES];

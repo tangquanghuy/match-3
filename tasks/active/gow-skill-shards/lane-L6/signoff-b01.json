@@ -1,0 +1,296 @@
+{
+  "schemaVersion": 1,
+  "scope": "stored-gow-snapshot",
+  "reviews": [
+    {
+      "key": "troop:7809",
+      "scope": "stored-gow-snapshot",
+      "sourceDigest": "0964e40ba29736209674c6d03e8441b4139f12325b7fe8e57114d4b9c3f7b360",
+      "reviewer": "sa-L6",
+      "reviewedAt": "2026-09-28",
+      "decision": "accept",
+      "ledgerFingerprintAtReview": "74aed74e24f50d0f8bc19b89a5413c14101081734608d1c764c45ebade5a241a",
+      "sourceEvidence": [
+        {
+          "id": "en",
+          "role": "english-snapshot",
+          "path": "data/raw/troops.gow.en.json",
+          "note": "troop 7809 stats.spell.id 9850 \"Plated Shell\"; ManaCost 11; colours Green+Brown; English \"Deal [Magic + 3] damage to a random Enemy, boosted by my Armor. If the Enemy dies, gain 10 Armor. [4:1]\" checked verbatim in test."
+        },
+        {
+          "id": "native",
+          "role": "native-snapshot",
+          "path": "data/raw/spells.gow.en.json",
+          "note": "Spell 9850 Cost 11 Target None; steps: CountArmor Self Amount 25 -> Damage RandomEnemy Amount 3 SPM 1 UseCounterForAmount Delay 1 -> IncreaseArmor Self StatusAmount 10 StatusModifier AddForKill; asserted with toEqual."
+        },
+        {
+          "id": "rule",
+          "role": "official-shared-rule",
+          "path": "artifacts/gow-skill-audit/gold-primary-sources/official-brian-guide.html",
+          "note": "Official Brian guide spell list: \"boosted by ... Armor\" spells carry a Boost Ratio a:1 (e.g. \"boosted by all enemy Armor (Boost Ratio 2:1)\"), i.e. +1 per a points of the source stat; supports [4:1] = +floor(armor/4) (native CountArmor 25%)."
+        },
+        {
+          "id": "laneTest",
+          "role": "lane-battle-test",
+          "path": "tests/unit/gowLaneL6B01.test.ts",
+          "note": "L6B01 troop:7809 describe block: binding + real castSkill Left/Right x Magic 0/10, kill/no-kill, armor 3/4 ratio boundary, dead-enemy exclusion, armor absorption, low-mana, silence."
+        }
+      ],
+      "dimensions": {
+        "identity-cost-colors": {
+          "status": "verified",
+          "note": "Raw troop 7809 -> spell 9850, ManaCost 11 = native Cost 11, colours Green/Brown; src troops.json manaCost 11, manaColors [Green,Brown], spell.id 9850; ledger binding checks all true.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL6B01.test.ts"
+          ]
+        },
+        "target-count-range": {
+          "status": "verified",
+          "note": "Native Target RandomEnemy -> prototype enemyRandom; test asserts exactly one enemy loses hp and one skill-damage event on both sides; only living enemies are picked (3 defeated -> hits the survivor).",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL6B01.test.ts"
+          ]
+        },
+        "base-formula-rounding": {
+          "status": "verified",
+          "note": "Damage = Magic*1 + 3 + counter; Magic 0/10 -> 5/15 with caster armor 10 (counter 2); enemy armor absorbs first (5 dmg vs armor 3 -> armor 0, hp -2).",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL6B01.test.ts"
+          ]
+        },
+        "boost-source-ratio-cap": {
+          "status": "verified",
+          "note": "CountArmor Self 25% -> [4:1] modifier on selfStat armor: floor(armor/4) equals floor(armor*25/100) for all integers; armor 3 -> +0, 4 -> +1, 10 -> +2; no CountMax so uncapped.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL6B01.test.ts"
+          ]
+        },
+        "conditions-probabilities-branches": {
+          "status": "verified",
+          "note": "AddForKill: +10 armor only when the damaged enemy dies (ifTargetDied); kill tests both sides give exactly +10 (7->17); survivor tests leave armor unchanged. No probability step.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL6B01.test.ts"
+          ]
+        },
+        "status-duration-immunity": {
+          "status": "not-applicable",
+          "note": "No status step in native 9850 and no status clause in English.",
+          "evidenceIds": [
+            "en",
+            "native"
+          ],
+          "tests": []
+        },
+        "gems-types-selection-resolution": {
+          "status": "not-applicable",
+          "note": "No gem step in native 9850; English has no gem clause.",
+          "evidenceIds": [
+            "en",
+            "native"
+          ],
+          "tests": []
+        },
+        "summon-transform-pools": {
+          "status": "not-applicable",
+          "note": "No summon/transform step or clause.",
+          "evidenceIds": [
+            "en",
+            "native"
+          ],
+          "tests": []
+        },
+        "order-death-retargeting": {
+          "status": "verified",
+          "note": "Counter read from caster armor before damage (step 0) matches runtime (caster armor unchanged before damage); armor gain happens after the kill; defeated enemies excluded from random pick.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL6B01.test.ts"
+          ]
+        },
+        "mana-economy-extra-turn": {
+          "status": "verified",
+          "note": "Cast spends full 11 mana, logs one action and passes the turn (no extra turn) on both sides; low mana (10) and silence block without consuming mana/action.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL6B01.test.ts"
+          ]
+        },
+        "display-description": {
+          "status": "verified",
+          "note": "zh description \"?????????[?? + 3]???????????????????????????10????? [4:1]\" matches English clauses and ratio.",
+          "evidenceIds": [
+            "en",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL6B01.test.ts"
+          ]
+        },
+        "battle-pipeline": {
+          "status": "verified",
+          "note": "Real TurnEngine.castSkill with registerSkillLibrary prototype 9850 on Left and Right sides; damage, defeat, armor buff events observed on state.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL6B01.test.ts"
+          ],
+          "realBattleEntry": true
+        }
+      },
+      "clauseReviews": [
+        {
+          "id": "c1",
+          "text": "Deal [Magic + 3] damage to a random Enemy, boosted by my Armor.",
+          "status": "verified",
+          "note": "Random enemy takes [Magic+3]+floor(myArmor/4): Magic 0/10 with armor 10 -> 5/15 both sides; armor 3/4 boundary -> +0/+1. Negative: other three enemies untouched.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL6B01.test.ts"
+          ]
+        },
+        {
+          "id": "c2",
+          "text": "If the Enemy dies, gain 10 Armor.",
+          "status": "verified",
+          "note": "Kill -> caster armor +10 exactly (7->17) both sides and Magic 0/10; survivor (incl. armored survivor) -> no gain.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL6B01.test.ts"
+          ]
+        },
+        {
+          "id": "c3",
+          "text": "[4:1]",
+          "status": "verified",
+          "note": "[4:1] ratio = native CountArmor Amount 25 (percent); boundary armor 3 gives 0, 4 gives 1.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL6B01.test.ts"
+          ]
+        }
+      ],
+      "nativeStepReviews": [
+        {
+          "id": "0",
+          "type": "CountArmor",
+          "status": "verified",
+          "note": "CountArmor Self 25% evaluated from caster armor before damage -> modifier selfStat armor ratio 4:1.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL6B01.test.ts"
+          ]
+        },
+        {
+          "id": "1",
+          "type": "Damage",
+          "status": "verified",
+          "note": "Damage RandomEnemy Amount 3 SPM 1 + counter -> damage enemyRandom scaling {base 3, mult 1} + modifier; Delay 1 is presentation only.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL6B01.test.ts"
+          ]
+        },
+        {
+          "id": "2",
+          "type": "IncreaseArmor",
+          "status": "verified",
+          "note": "IncreaseArmor Self StatusAmount 10 AddForKill (no Amount) -> buff allySelf armor 10 ifTargetDied; 0 when target survives.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL6B01.test.ts"
+          ]
+        }
+      ],
+      "branchReviews": [
+        {
+          "id": "main",
+          "status": "verified",
+          "note": "Single main branch (no Randomize); kill and survive outcomes of the AddForKill modifier both tested.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL6B01.test.ts"
+          ]
+        }
+      ]
+    }
+  ]
+}

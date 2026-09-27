@@ -1,13 +1,21 @@
+import type { ImpactPresentation } from './impactPlayback';
+import { BattleSettings } from './BattleSettings';
+import { BattleControls } from './BattleControls';
+import { attachBattleSpeed } from './battleSpeedRuntime';
+import { backgroundMusic } from '../audio/BackgroundMusic';
+import { musicForBattle } from '../audio/MusicCatalog';
+import { BattleNarrator } from './BattleNarrator';
 import { Application, Container, Point as PixiPoint } from 'pixi.js';
 import { gsap } from 'gsap';
 import { BoardModel } from '@engine/BoardModel';
 import { TurnEngine } from '@engine/TurnEngine';
 import { BoardGenerator } from '@engine/boardGen';
 import { pickHintSwap } from '@engine/boardUtils';
-import { chooseEnemySwap } from '@engine/ai';
+import { chooseAiAction } from '@engine/aiPolicy';
+import { BATTLE_COMBO_BIAS, BATTLE_SETUP_BIAS } from '@engine/comboBias';
 import { createGameState } from '@engine/GameState';
 import { SeededRNG } from '@engine/rng';
-import { TRAIT_LIBRARY } from '@engine/traits';
+import { TRAIT_LIBRARY, dynamicTraitCodes } from '@engine/traits';
 import { MatchState, PlayerSide, BaseColor } from '@engine/types';
 import type { Character, GemType, SpecialGemKind, SkullStormDropKind } from '@engine/types';
 import {
@@ -29,18 +37,33 @@ import { StormIndicator, stormChangePlan } from './StormIndicator';
 import { InputController } from './InputController';
 import { AudioManager, type SfxName } from './AudioManager';
 import { AnimConfig } from './AnimationConfig';
-import { TeamView, CARD_W, setTeamSize, getTeamSize } from './TeamView';
+import { restoreBattleSpeed, scaledMs, setBattleSpeedBoost } from './battleSpeed';
+import { FiniteVisuals } from './FiniteVisuals';
+import { ExtraTurnNotice } from './ExtraTurnNotice';
+import type { FramePlaybackClock } from './FramePlaybackClock';
+import { planExplosionBursts } from './explosionPlayback';
+import { statusFeedbackFX, statusFeedbackLabel } from './statusPlayback';
+import { statusBadge } from './statusBadges';
+import { manaMoteDelay } from './manaPlayback';
+import { TeamView, CARD_W, setTeamSize } from './TeamView';
 import { installStatusTooltips } from './statusTooltip';
-import type { CharacterCard } from './TeamView';
-import { CharacterDetailPanel } from './CharacterDetailPanel';
+import type { CharacterCard, CardShownStats, PressSource } from './TeamView';
+import { buildDetailViewModel } from './CharacterDetailPanel';
 import { GameOverPanel, type GameOverStats } from './GameOverPanel';
-import { CastConfirmPanel } from './CastConfirmPanel';
-import { gestureHintShown, markGestureHintShown } from './battlePrefs';
+import { UnitSheet, resolveCastAvailability } from './UnitSheet';
+import type { CastAvailability, UnitSheetData } from './UnitSheet';
+import { CastCutIn, registerCastCutInSide } from './CastCutIn';
+import { RARITY_TIERS } from '../meta/data/rarity';
+import { raceNames } from '../meta/data/races';
+import { SkillBranchPicker } from './SkillBranchPicker';
+import { AiBranchChooser, FixedBranchChooser, skillChoices, selectSkillBranch } from '../engine/skills/branchChooser';
+import { gestureHintShown, markGestureHintShown, setSkipCastConfirm, skipCastConfirm } from './battlePrefs';
 import { TargetPicker } from './TargetPicker';
 import { CellPicker } from './CellPicker';
 import type { CellAimCoords } from './CellPicker';
 
 import { TROOPS, troopToSummonTemplate } from '../data/troops';
+import { resolveTroopPortrait } from '../data/troopPortrait';
 import { setSummonTemplateResolver } from '@engine/traits';
 import { ManaDistributor } from '@engine/ManaDistributor';
 import { ExtensionRegistry } from '@engine/registry';
@@ -86,8 +109,6 @@ import groupHitBlueStripUrl from '../assets/fx/group_hit_blue_strip.png';
 import groupHitYellowStripUrl from '../assets/fx/group_hit_yellow_strip.png';
 import groupHitBrownStripUrl from '../assets/fx/group_hit_brown_strip.png';
 import groupHitGreenStripUrl from '../assets/fx/group_hit_green_strip.png';
-// 额外回合（ANIMATION_HANDOFF §19 P0-2）：0082 棋盘中央祝福动画
-import extraTurnStripUrl from '../assets/fx/extra_turn_strip.png';
 // 状态施加短闪（施加瞬间命中确认）
 import poisonFlashStripUrl from '../assets/fx/poison_flash_strip.png';
 import burningFlashStripUrl from '../assets/fx/burning_flash_strip.png';
@@ -96,23 +117,8 @@ import frozenFlashStripUrl from '../assets/fx/frozen_flash_strip.png';
 import stunPersistStripUrl from '../assets/fx/stun_persist_strip.png';
 import turnHudUrl from '../assets/ui/turn-hud-starfall.png';
 
-/**
- * 立绘 URL 兜底生成：封面目录下按角色名取 webp（中文路径需编码）。
- * 战斗快照里给了 `portraitUrl` 的角色优先用快照值；召唤物等不在快照里的才走这里。
- */
-function portraitUrl(name: string): string {
-  return `https://rpg.bolt.qzz.io/${encodeURIComponent('封面')}/${encodeURIComponent(name)}.webp`;
-}
-
-/** 队伍人数调试开关：从 localStorage 读取，默认 3；沙箱/隐私模式失败时安全回退。 */
-export function readTeamSize(): number {
-  try {
-    const v = Number(localStorage.getItem('debug.teamSize'));
-    return v === 4 ? 4 : 3;
-  } catch {
-    return 3;
-  }
-}
+/** 所有独立战斗固定四人；旧 debug.teamSize 值不再生效。 */
+export function readTeamSize(): number { return 4; }
 
 /** 摘要条里的角色名来自数据文件，进 innerHTML 前转义 */
 const MANA_FLOW_COLOR: Record<BaseColor, string> = {
@@ -148,7 +154,7 @@ const SPECIAL_GEM_FEEDBACK: Record<SpecialGemKind, { label: string; color: strin
   web: { label: '织网', color: '#c58cff' },
   lightningRow: { label: '闪电·行', color: '#68c7ff' },
   lightningCol: { label: '闪电·列', color: '#ffe06b' },
-  wildcard: { label: '通配变形', color: '#ffffff' },
+  wildcard: { label: '通配宝石', color: '#ffffff' },
   wish: { label: '许愿', color: '#ffe06b' },
   hourglass: { label: '额外回合', color: '#ffd36b' },
   ghost: { label: '幽魂', color: '#b7e5ff' },
@@ -173,7 +179,7 @@ const SPECIAL_GEM_FEEDBACK: Record<SpecialGemKind, { label: string; color: strin
   giantGem: { label: '巨人', color: '#ffd36b' },
   spiritGem: { label: '摄魂', color: '#b7e5ff' },
   manaPotionGem: { label: '法力药水', color: '#ffe9a6' },
-  candyGem: { label: '糖果 +1 法力', color: '#ffb6d9' },
+  candyGem: { label: '糖果 +1 法力值', color: '#ffb6d9' },
   elementalStar: { label: '元素星', color: '#f2f2ff' },
   umbralStar: { label: '暗影星', color: '#c77dff' },
   angelGem: { label: '祝福', color: '#ffe9a6' },
@@ -267,8 +273,6 @@ export class App {
     group_hit_yellow: groupHitYellowStripUrl,
     group_hit_brown: groupHitBrownStripUrl,
     group_hit_green: groupHitGreenStripUrl,
-    // 额外回合 0082（ANIMATION_HANDOFF §19 P0-2）
-    extra_turn: extraTurnStripUrl,
     // 状态施加短闪
     poison_flash: poisonFlashStripUrl,
     burning_flash: burningFlashStripUrl,
@@ -395,6 +399,54 @@ export class App {
   private player!: EventStreamPlayer;
   private input!: InputController;
   private audio = new AudioManager();
+  private narrator = new BattleNarrator(this.audio);
+  private audioLifecycle = new AbortController();
+  private battleSettings: BattleSettings | null = null;
+  private settingsOpen = false;
+  private surrendered = false;
+  private musicEntered = false;
+  private resultTimer: ReturnType<typeof setTimeout> | null = null;
+  private aiTimer: ReturnType<typeof setTimeout> | null = null;
+
+  private setSettingsOpen(open: boolean): void {
+    this.settingsOpen = open;
+    if (this.destroyed) return;
+    this.player.setPaused(open);
+    backgroundMusic.setDucking('settings', open);
+    if (open) {
+      this.stopIdle();
+      this.clearHint();
+      this.closeUnitSheet();
+      this.branchPicker.cancel();
+      this.targetPicker.cancel();
+      this.cellPicker.cancel();
+      this.audio.stopNarration();
+    }
+    this.syncPlayerInput();
+    if (!open && this.input.enabled) this.startIdle();
+  }
+
+  private abandonBattle(): void {
+    if (this.destroyed || this.session.isFinished()) return;
+    const events = this.session.surrender();
+    if (!events.length) return;
+    this.surrendered = true;
+    if (this.aiTimer !== null) clearTimeout(this.aiTimer);
+    this.player.cancel();
+    this.finiteVisuals.cancel();
+    this.narrator.retreat();
+    this.battleSettings?.finish();
+    this.onEventsProduced?.(events);
+    for (const event of events) this.onBattleEvent(event);
+  }
+
+  private async waitForBattleReady(): Promise<boolean> {
+    while (!this.destroyed && !this.surrendered && (this.settingsOpen || this.pageHidden || this.orientationBlocked)) {
+      await this.delay(100);
+    }
+    return !this.destroyed && !this.surrendered;
+  }
+
   private engine!: TurnEngine;
   /**
    * 本场随机源。`init()` 会用战斗快照里的 `seed` 重新播种：
@@ -424,8 +476,19 @@ export class App {
   private statusPersistLayers = new Map<string, HTMLDivElement>();
   /** 持续层异步挂载期间的意图集合（解码未完成时若已解除则取消挂载） */
   private persistPending = new Set<string>();
-  /** 角色/技能详情面板（点击角色卡打开，需求 4） */
-  private detailPanel!: CharacterDetailPanel;
+  /** 部队详情窗（点任意战斗卡打开；盖棋盘、非模态，含「释放技能」与「快速释放」） */
+  private unitSheet!: UnitSheet;
+  /** 详情窗实时刷新：打开期间轮询卡面显示值与 App 状态，签名变化才重绘 */
+  private unitSheetTimer: number | null = null;
+  private unitSheetSig = '';
+  /**
+   * 施法流程正处在「收集玩家选择」阶段（选分支/选色/选目标/选宝石）：此时点卡由选择层处理。
+   * 与 casting 区分——casting 还覆盖其后的整段演出，演出期间点卡照常打开详情窗。
+   */
+  private castPicking = false;
+  /** 我方施法立绘切入（skill-cast 驱动） */
+  private castCutIn!: CastCutIn;
+  private unregisterCutInSide: (() => void) | null = null;
   /**
    * 顶部风暴指示器（阶段 2）：与回合 HUD 共用棋盘顶部 44px 通道的另一侧，
    * 按施放风暴的一方贴其队伍列上沿；storm-change 事件驱动弹入/淡出。
@@ -433,15 +496,9 @@ export class App {
   private stormIndicator = new StormIndicator();
   /** 胜负结算面板（game-over 事件弹出，需求 15.4） */
   private gameOverPanel!: GameOverPanel;
-  /**
-   * 施法确认层（UX 阶段 B · B-4 三段式第②段）：满法力短按先出技能卡确认，
-   * 默认开、可在层内勾选关掉（`battlePrefs`）。
-   */
-  private castConfirm!: CastConfirmPanel;
-  /** 手势引导（B-5）：法力首次攒满时提示一次「点击释放 · 长按查看详情」 */
+  private branchPicker = new SkillBranchPicker();
+  /** 手势引导（B-5）：法力首次攒满时提示一次怎样打开详情窗/释放 */
   private gestureHintDone = false;
-  /** 确认层开启中（B-4）：期间不受理新的短按释放 */
-  private castConfirmPending = false;
   /**
    * 战斗结束回调：胜负判定的当下触发一次（不等玩家点“继续”），交出可回传宿主的
    * `BattleResult`，胜负见 `result.winner`。HostBridge 由此发出 `battle:result`。
@@ -453,6 +510,9 @@ export class App {
   private battleResultEmitted = false;
   /** destroy() 已执行标记（幂等） */
   private destroyed = false;
+  private visualPlaying = false;
+  private finiteVisuals = new FiniteVisuals();
+  private extraTurnNotice = new ExtraTurnNotice(this.finiteVisuals);
   /** 技能注册表（主游戏拥有全部技能原型） */
   private registry!: ExtensionRegistry;
   /**
@@ -465,6 +525,12 @@ export class App {
   private cellPicker!: CellPicker;
   /** 释放流程互斥，避免重复触发 */
   private casting = false;
+  /**
+   * 自动战斗开关（两条工作线的共享约定）。
+   * 自动战斗线负责开关按钮与回合接管；详情窗/手动施法入口在它为 true 时禁止手动施放。
+   */
+  autoBattleEnabled = false;
+  private startupPlaying = false;
   /** 游戏整体容器（canvas + 卡片覆盖层），全屏时整体缩放 */
   private wrapper!: HTMLDivElement;
   private mountEl!: HTMLElement;
@@ -498,7 +564,7 @@ export class App {
    * 启动一场战斗。
    *
    * @param request 宿主注入的战斗快照（需求 2.1）。省略时读独立模式配置
-   *   `src/session/fixtures/standalone-battle.json`，并应用 3v3/4v4 调试开关；
+   *   `src/session/fixtures/standalone-battle.json`，保留完整四人队伍；
    *   由宿主注入时以 request 的人数为准，调试开关不参与。
    * @param registry 可选。meta 出战把 `buildMetaRegistry` 的结果传进来，
    *   未收录法术的兜底原型才进战斗；部队+武器法术本身由 registerSkillLibrary 覆盖。
@@ -521,7 +587,7 @@ export class App {
     ]);
     // 特质/种族白名单：校验器按客户端注册表放行（种族集合与 scripts/build_traits.mjs
     // 的 TROOP_TYPE_MAP 值集合同源——那是客户端认识的 GoW 种族规范表）
-    const knownTraitIds = new Set(TRAIT_LIBRARY.map((t) => t.code));
+    const knownTraitIds = new Set([...TRAIT_LIBRARY.map((t) => t.code), ...dynamicTraitCodes()]);
     const knownTroopTypes = new Set([
       'Beast', 'Fey', 'Elemental', 'Dragon', 'Human', 'Daemon', 'Divine', 'Monster',
       'Knight', 'Construct', 'Wildfolk', 'Rogue', 'Elf', 'Wargare', 'Giant', 'Undead',
@@ -529,7 +595,7 @@ export class App {
       'Dwarf', 'Tauros', 'Orc', 'Mech', 'Gnome', 'Immortal',
     ]);
 
-    // 队伍来源：宿主注入优先，否则读独立模式配置并应用 3v3/4v4 调试开关。
+    // 队伍来源：宿主注入优先，否则读独立模式配置保留完整四人队伍。
     const battleRequest = request
       ?? resizeRequestTeams(loadStandaloneRequest({ knownSkillIds, knownTraitIds, knownTroopTypes }), readTeamSize());
     // AIRP 分拣：tier 提供而 skillId/traitIds 省略的快照，在此按阶级+种族自动编配。
@@ -607,7 +673,7 @@ export class App {
 
     installStatusTooltips();
     this.createFullscreenButton(wrapper);
-    this.createTeamSizeToggle(wrapper, teamSize);
+
     const banner = this.createTurnBanner(
       wrapper,
       gemSpace + sideColW,
@@ -639,13 +705,20 @@ export class App {
     // 构建引擎
     const rng = this.rng;
     const idGen = () => this.nextId++;
-    const genBoard = new BoardGenerator(rng, idGen, 0.16).generate();
+    const genBoard = new BoardGenerator(rng, idGen, 0.16, BATTLE_SETUP_BIAS).generate();
+    // Retain the pre-trigger board: constructor traits can explode/convert/refill it.
+    const initialPresentationBoard = genBoard.clone();
     const state = createGameState(genBoard, playerTeam, enemyTeam);
+    this.narrator.start(state);
     this.engine = new TurnEngine(state, rng, idGen, this.registry);
-    this.engine.setSummonResolver((ref) => troopToSummonTemplate(ref));
+    this.engine.setSummonResolver((ref) => troopToSummonTemplate(ref, battleRequest.arenaRules));
+    this.engine.setSummonKingdomResolver(kingdom => TROOPS.filter(t => t.kingdom === kingdom).map(t => t.referenceName));
+    this.engine.setDaemonPool(TROOPS.filter(t => t.troopTypes.includes('Daemon')).map(t => t.referenceName));
+    this.engine.setBeastPool(TROOPS.filter(t => t.troopTypes.includes('Beast')).map(t => t.referenceName));
     // 死亡召唤特质（summonOnDeath 族）的召唤物装配：按生成器预解析的 referenceName 查兵种数据
-    setSummonTemplateResolver((spec) => troopToSummonTemplate(spec.referenceName));
+    setSummonTemplateResolver((spec) => troopToSummonTemplate(spec.referenceName, battleRequest.arenaRules));
     this.engine.skullChance = 0.16; // 骷髅为棋盘常驻成分（Gems of War 风格）
+    this.engine.comboBias = BATTLE_COMBO_BIAS; // 补充的连消倾向：4/5 连机会与连锁更常见（见 engine/comboBias.ts）
     // 玩家旗帜加成（meta M6）：请求带 playerBanner 时注入引擎，玩家方匹配加成色 ±N 法力
     const bannerBoosts = battleRequest.playerBanner?.boosts;
     if (bannerBoosts && Object.keys(bannerBoosts).length > 0) {
@@ -671,6 +744,7 @@ export class App {
     this.board = new BoardView(cellSize);
     this.root.addChild(this.board);
     this.fx = new FXLayer(cellSize);
+    this.fx.onFiniteAnimation = animation => this.trackVisualTween(animation);
     this.root.addChild(this.fx);
 
     // 战斗队伍视图（需求 19.6, 19.10）：左队居左、右队居右，竖向居中，紧贴棋盘
@@ -679,8 +753,16 @@ export class App {
     const boardLeft = gemSpace + sideColW;
     const boardRight = boardLeft + gridPx;
 
-    // 详情面板（挂在整体容器上，点击角色卡打开；需求 4）
-    this.detailPanel = new CharacterDetailPanel(this.wrapper);
+    // 部队详情窗：挂 wrapper 随舞台缩放，只盖棋盘（含上方 HUD 通道），两侧队伍列保持可点
+    this.unitSheet = new UnitSheet(this.wrapper, {
+      onCast: (id) => void this.castPlayerSkill(id),
+      onQuickCast: (on) => { setSkipCastConfirm(on); this.refreshUnitSheet(); },
+      onClose: () => this.closeUnitSheet(),
+    });
+    this.applyUnitSheetBounds(true);
+    // 我方施法立绘切入：舞台左下角，skill-cast 事件驱动；时间线预留按施法者阵营判定
+    this.castCutIn = new CastCutIn(this.wrapper, { width: dimW, height: dimH });
+    this.unregisterCutInSide = registerCastCutInSide((id) => this.isAllyCaster(id));
     // 胜负结算面板：点"继续"后交给宿主接管后续流程（战利品统计/页面跳转）
     this.gameOverPanel = new GameOverPanel(this.wrapper, () => {
       this.gameOverPanel.close();
@@ -688,8 +770,6 @@ export class App {
       this.emitBattleResult();
       this.onBattleDismissed?.();
     });
-    // 施法确认层（B-4）：挂同一个 wrapper，z 轴在选择层之下、结算面板之上
-    this.castConfirm = new CastConfirmPanel(this.wrapper);
     this.gestureHintDone = gestureHintShown();
     // 选宝石/选色/选目标均为棋盘式瞄准（无弹窗）；选宝石器需初始化
     this.cellPicker = new CellPicker();
@@ -698,10 +778,11 @@ export class App {
       portraits: Object.fromEntries(
         state.teams[PlayerSide.Left].characters.map((ch) => [ch.id, this.portraitFor(ch)]),
       ),
-      // 短按=释放技能、长按=详情（需求 2C.1/2C.2）
-      onShortPress: (id) => void this.castPlayerSkill(id),
-      onLongPress: (id) => this.openCharacterDetail(id),
-      onStatusList: (id) => this.openCharacterDetail(id),
+      // 点卡任意位置：打开/切换详情窗；「快速释放」开且此刻可施放 → 直接进施法流程。
+      // 长按只在快速释放可施放时存在（=打开详情窗），其余情况与点按相同、不画进度环。
+      onShortPress: (id, via) => this.onCardTap(id, via),
+      onLongPress: (id) => this.openUnitSheet(id),
+      longPressArmed: (id) => skipCastConfirm() && this.canCastNow(id),
     });
     this.leftTeamView.mount(this.overlay, boardLeft - colGap - CARD_W, teamY);
 
@@ -709,24 +790,20 @@ export class App {
       portraits: Object.fromEntries(
         state.teams[PlayerSide.Right].characters.map((ch) => [ch.id, this.portraitFor(ch)]),
       ),
-      // 敌方卡：仅长按查看详情（短按不释放，敌方由 AI 驱动）
-      onLongPress: (id) => this.openCharacterDetail(id),
-      onStatusList: (id) => this.openCharacterDetail(id),
+      // 敌方卡：点按（按多久都一样）打开/切换详情窗，任何时候都可以，包括对手回合与演出中
+      onShortPress: (id, via) => this.onCardTap(id, via),
     });
     this.rightTeamView.mount(this.overlay, boardRight + colGap, teamY);
 
-    this.board.syncFromBoard(genBoard);
+    this.board.syncFromBoard(initialPresentationBoard);
     this.player = new EventStreamPlayer(this.board, this.fx, this.root, this.audio);
-    this.player.onBattleEvent = (ev) => this.onBattleEvent(ev);
+    this.player.onDetachedTween = tween => this.trackVisualTween(tween);
+    this.player.onBattleEvent = (ev, presentation) => this.onBattleEvent(ev, presentation);
+    this.player.onNarrationBatch = (events) => this.narrator.prepare(events, this.engine.getState());
     this.player.onGroupAttack = (events) => this.playGroupAttack(events);
     this.player.onManaFlow = (ev, origins) => this.playManaFlow(ev, origins);
     this.player.onComboPulse = (level) => this.playTurnHudCombo(level);
     this.player.onStormChange = (ev) => this.onStormChangePresentation(ev);
-    // 开局风暴在引擎构造时已写入状态并由 BattleSession 记录；首屏直接补放一次指示器。
-    for (const ev of this.session.recordedEvents()) {
-      if (ev.type === 'storm-change') this.onStormChangePresentation(ev);
-    }
-
     // 输入
     this.input = new InputController(this.board, this.app.canvas);
     this.input.onSwapRequest = (a, b) => this.handleSwap(a, b);
@@ -736,27 +813,49 @@ export class App {
     // 首次交互初始化音频（需求 26.5）
     const initAudio = () => {
       this.audio.init();
+      void this.audio.resume().then(() => this.narrator.announceEncounter());
       window.removeEventListener('pointerdown', initAudio);
     };
-    window.addEventListener('pointerdown', initAudio);
+    window.addEventListener('pointerdown', initAudio, { signal: this.audioLifecycle.signal });
 
-    // 快进：按住空格加速（需求 25.1）
+    // 快进：按住空格临时加速到 max(选定倍速, 3×)（需求 25.1）。焦点在按钮/输入框上时空格留给控件本身。
     window.addEventListener('keydown', (e) => {
-      if (e.code === 'Space') this.player.setSpeed(3);
-    });
+      if (e.code === 'Space' && !this.settingsOpen && !App.isKeyboardControl(e.target)) setBattleSpeedBoost(true);
+    }, { signal: this.audioLifecycle.signal });
     window.addEventListener('keyup', (e) => {
-      if (e.code === 'Space') this.player.setSpeed(1);
-    });
+      if (e.code === 'Space') setBattleSpeedBoost(false);
+    }, { signal: this.audioLifecycle.signal });
+    window.addEventListener('blur', () => setBattleSpeedBoost(false), { signal: this.audioLifecycle.signal });
 
+    backgroundMusic.start();
+    backgroundMusic.beginBattle(musicForBattle(this.battleRequest));
+    this.musicEntered = true;
+    this.battleSettings = new BattleSettings(this.mountEl,
+      open => this.setSettingsOpen(open), () => this.abandonBattle(),
+      () => !this.destroyed && !this.session.isFinished());
+    this.mountBattleControls();
+
+    // Lock board and cards until the complete startup event chain has played.
+    this.startupPlaying = true;
     // 开局：我方行动；页面生命周期和方向门禁共同决定是否启用输入/待机。
     this.setTurn(PlayerSide.Left);
     this.bindPageLifecycle();
     this.pageHidden = document.hidden;
     this.syncInteractionGate();
-    if (this.input.enabled) this.startIdle();
-
     // 初始适配由统一布局入口处理；后续由 ResizeObserver/visualViewport 驱动。
     this.refreshLayout();
+    try {
+      const initialEvents = [...this.session.recordedEvents()];
+      if (initialEvents.length) {
+        await this.playEventsWithTail(initialEvents);
+        if (this.destroyed || this.surrendered) return;
+        this.refreshTeams();
+      }
+    } finally {
+      this.startupPlaying = false;
+      if (!this.destroyed) this.syncInteractionGate();
+    }
+    if (this.input.enabled) this.startIdle();
     // B-1 降级路径必须在布局完成后判断：refreshLayout() 才会按真实舞台缩放写入
     // name-compact。此前先 flash 再布局，移动横屏会因尚未进入紧凑态而直接跳过动画。
     for (const side of [PlayerSide.Left, PlayerSide.Right]) {
@@ -801,14 +900,14 @@ export class App {
       const fs = !!document.fullscreenElement;
       btn.innerHTML = icon(!fs);
       this.refreshLayout();
-    });
-    window.addEventListener('resize', () => this.refreshLayout());
+    }, { signal: this.audioLifecycle.signal });
+    window.addEventListener('resize', () => this.refreshLayout(), { signal: this.audioLifecycle.signal });
     wrapper.appendChild(btn);
   }
 
-  /** 取角色立绘：优先用战斗快照里显式配置的 URL，召唤物等回落到按名字取图。 */
+  /** 取角色立绘：优先用战斗快照里显式配置的 URL，召唤物按部队目录和技能标识取本地资源。 */
   private portraitFor(ch: Character): string {
-    return this.portraitById.get(ch.id) ?? portraitUrl(ch.name);
+    return this.portraitById.get(ch.id) ?? resolveTroopPortrait(ch.name, { skillId: ch.skillId });
   }
 
   /** 本场战斗的输入快照（宿主注入或独立模式配置）。 */
@@ -847,9 +946,21 @@ export class App {
   destroy(): void {
     if (this.destroyed) return;
     this.destroyed = true;
+    this.audioLifecycle.abort();
+    this.battleSettings?.dispose();
+    this.player?.cancel();
+    this.finiteVisuals.cancel();
+    if (this.resultTimer !== null) clearTimeout(this.resultTimer);
+    if (this.aiTimer !== null) clearTimeout(this.aiTimer);
+    const preserveResultVoice = this.session?.isFinished() ?? false;
+    if (this.musicEntered) backgroundMusic.endBattle(preserveResultVoice);
+    this.narrator.dispose(preserveResultVoice);
+    if (preserveResultVoice) this.audio.disposeAfterNarration();
+    else this.audio.dispose();
     if (this.hintTimer !== null) clearTimeout(this.hintTimer);
     if (this.turnHudComboTimer !== null) clearTimeout(this.turnHudComboTimer);
-    this.castConfirm?.cancel();
+    this.disposeUnitSheetAndCutIn();
+    this.branchPicker.cancel();
     for (const tween of this.hintTweens) tween.kill();
     for (const animation of this.turnHudAnimations) animation.cancel();
     this.hintTweens = [];
@@ -918,14 +1029,15 @@ export class App {
     const blocked = this.orientationBlocked || this.pageHidden;
     this.wrapper.inert = blocked;
     this.wrapper.setAttribute('aria-hidden', String(blocked));
-    this.leftTeamView.setInputEnabled(!blocked);
-    this.rightTeamView.setInputEnabled(!blocked);
+    this.leftTeamView.setInputEnabled(!blocked && !this.startupPlaying);
+    this.rightTeamView.setInputEnabled(!blocked && !this.startupPlaying);
     if (blocked) {
       this.input.enabled = false;
       this.stopIdle();
+      this.branchPicker.cancel();
       this.targetPicker.cancel();
       this.cellPicker.cancel();
-      this.detailPanel.close();
+      this.closeUnitSheet();
     } else {
       this.syncPlayerInput();
     }
@@ -943,21 +1055,24 @@ export class App {
         void this.audio.resume();
         if (this.input.enabled) this.startIdle();
       }
-    });
+    }, { signal: this.audioLifecycle.signal });
     window.addEventListener('pageshow', () => {
       this.pageHidden = document.hidden;
       this.syncInteractionGate();
       this.refreshLayout();
       if (!this.pageHidden) void this.audio.resume();
       if (this.input.enabled) this.startIdle();
-    });
+    }, { signal: this.audioLifecycle.signal });
   }
 
   private syncPlayerInput(): void {
     const state = this.engine.getState();
-    this.input.enabled = !this.orientationBlocked
+    this.input.enabled = !this.destroyed && !this.surrendered && !this.settingsOpen && !this.orientationBlocked
       && !this.pageHidden
       && !this.casting
+      && !this.startupPlaying
+      && !this.autoBattleEnabled // 自动战斗接管期间棋盘不接受手动交换
+      && !(this.player.isPlaying() || this.visualPlaying)
       && state.state === MatchState.AwaitingInput
       && state.activePlayer === PlayerSide.Left;
   }
@@ -973,37 +1088,12 @@ export class App {
     if (state.state === MatchState.GameOver) return;
     if (state.activePlayer === PlayerSide.Right) return;
     this.syncPlayerInput();
-    if (this.input.enabled) this.startIdle();
+    // 手动施法期间打开了自动战斗：施法收尾后由自动战斗接手这个决策点
+    if (this.autoBattleEnabled) this.scheduleAutoTurn();
+    else if (this.input.enabled) this.startIdle();
   }
 
-  /** 调试开关：切换 3 / 4 人队伍（左上角），切换后重载页面应用 */
-  private createTeamSizeToggle(wrapper: HTMLDivElement, current: number): void {
-    const btn = document.createElement('button');
-    btn.textContent = `${current}v${current}`;
-    btn.dataset.testid = 'team-size-toggle';
-    btn.title = '切换敌我队伍人数（3 / 4）';
-    btn.style.cssText = [
-      'position:absolute', 'left:-44px', 'bottom:0', 'z-index:10',
-      'min-width:44px', 'height:44px', 'padding:0 10px',
-      'display:flex', 'align-items:center', 'justify-content:center',
-      'font-family:Oswald,sans-serif', 'font-size:11px', 'font-weight:600', 'letter-spacing:.08em',
-      'background:rgba(11,10,9,.62)', 'border:1px solid rgba(216,194,144,.34)',
-      'border-radius:6px', 'cursor:pointer', 'color:#d8c290',
-      'backdrop-filter:blur(2px)', 'transition:border-color .2s,background .2s',
-    ].join(';');
-    btn.onmouseenter = () => { btn.style.borderColor = '#c9a35c'; btn.style.background = 'rgba(11,10,9,.85)'; };
-    btn.onmouseleave = () => { btn.style.borderColor = 'rgba(216,194,144,.34)'; btn.style.background = 'rgba(11,10,9,.62)'; };
-    btn.onclick = () => {
-      const next = getTeamSize() >= 4 ? 3 : 4;
-      try {
-        localStorage.setItem('debug.teamSize', String(next));
-        location.reload();
-      } catch (error) {
-        console.warn('无法保存队伍人数设置:', error);
-      }
-    };
-    wrapper.appendChild(btn);
-  }
+
 
   /** 回合横幅：星落素材按自然纵横比渲染，波浪底缘沉入棋盘首行上方，宽度与棋盘精确对齐。
    *  返回横幅几何（top/height，wrapper 坐标），供风暴指示器对位冠饰星位。 */
@@ -1349,7 +1439,7 @@ export class App {
       delete hud.dataset.comboActive;
       this.turnHudAnimations = [];
       this.turnHudComboTimer = null;
-    }, trailDur + 80 / speed);
+    }, scaledMs(trailDur + 80 / speed)); // 清理计时与 HUD 动画同随演出倍速
   }
 
   private turnLabel(): string {
@@ -1388,55 +1478,230 @@ export class App {
     this.rightTeamView.setTurnActive(!ally);
   }
 
-  /** 敌方 AI 自动行动：选一个合法交换并解析 */
+  /**
+   * 敌方 AI 回合：与自动战斗同一套 aiPolicy（大消 → 施法 → 骷髅 → 缺口色 → 任意）。
+   * 交接（afterResolve 定时）+ 思考 + 落子停顿合计约 500ms（1×，按倍速换算）；额外回合经
+   * afterResolve 自然循环回来。
+   */
   private async runEnemyTurn(): Promise<void> {
-    // 切到敌方高亮，停顿后出手，节奏从容
+    if (!await this.waitForBattleReady() || this.session.isFinished()) return;
+    // 切到敌方高亮，短暂思考后出手
     this.setTurn(PlayerSide.Right);
-    await this.delay(800);
+    await this.delay(App.AI_THINK_MS);
+    if (!await this.waitForBattleReady() || this.session.isFinished()) return;
 
     const state = this.engine.getState();
     // 安全：必须轮到右方且等待输入
     if (state.activePlayer !== PlayerSide.Right || state.state !== MatchState.AwaitingInput) return;
 
-    const swap = chooseEnemySwap(state.board, this.rng);
-    if (!swap) return;
-
-    await this.delay(250); // 出手前的短暂停顿
-    const events = this.session.resolve({ type: 'swap', from: swap.a, to: swap.b });
-    this.onEventsProduced?.(events);
-    if (events.length === 0) return;
-    await this.player.play(events);
-    this.advanceTurnHud(events);
-    this.refreshTeams();
-    await this.delay(400); // 解析后稍作停顿再进入下一轮
-    this.afterResolve();
+    await this.delay(App.AI_COMMIT_MS); // 出手前的短暂停顿
+    if (!await this.waitForBattleReady() || this.session.isFinished()) return;
+    await this.runAiAction(PlayerSide.Right);
   }
 
   /** 一次解析结束后：根据 activePlayer 决定是否继续 AI 回合或交还玩家 */
   private afterResolve(): void {
+    if (this.destroyed || this.surrendered) return;
     const state = this.engine.getState();
     if (state.state === MatchState.GameOver) {
       this.input.enabled = false;
+      this.battleControls?.finish(); // 自动战斗在结算时停下
       return;
     }
     if (state.activePlayer === PlayerSide.Right) {
-      // 轮到敌方：禁用输入，启动 AI（停顿更长，切换更清晰）
+      // 轮到敌方：禁用输入，短暂交接后启动 AI
       this.input.enabled = false;
       this.stopIdle();
-      window.setTimeout(() => void this.runEnemyTurn(), 600);
+      if (this.aiTimer !== null) clearTimeout(this.aiTimer);
+      this.aiTimer = setTimeout(() => { this.aiTimer = null; void this.runEnemyTurn(); }, scaledMs(App.AI_HANDOFF_MS));
     } else {
-      // 轮到我方；方向门禁仍由 syncPlayerInput 统一裁决。
+      // 轮到我方；方向门禁仍由 syncPlayerInput 统一裁决。自动战斗开着时由它接管。
       this.setTurn(PlayerSide.Left);
       this.syncPlayerInput();
-      if (this.input.enabled) this.startIdle();
+      if (this.autoBattleEnabled) this.scheduleAutoTurn();
+      else if (this.input.enabled) this.startIdle();
     }
   }
 
+  /** 演出节奏停顿：按 1× 毫秒传入，实际等待按当前演出倍速换算 */
   private delay(ms: number): Promise<void> {
-    return new Promise((r) => window.setTimeout(r, ms));
+    return new Promise((r) => window.setTimeout(r, scaledMs(ms)));
+  }
+
+  // —— 倍速 / AI / 自动战斗（lane B）——
+
+  /** AI 出手节奏（1× 毫秒，经 delay/scaledMs 按倍速换算）：交接 + 思考 + 落子 ≈ 500ms */
+  private static readonly AI_HANDOFF_MS = 120;
+  private static readonly AI_THINK_MS = 280;
+  private static readonly AI_COMMIT_MS = 100;
+  /** 倍速 / 自动战斗按钮（竖排在「战斗设置」按钮下方） */
+  private battleControls: BattleControls | null = null;
+  private autoTimer: ReturnType<typeof setTimeout> | null = null;
+  /** 自动战斗的一次决策正在进行（停顿 → 解析 → 演出），防止重入 */
+  private autoRunning = false;
+
+  /** 焦点在可操作控件上时，空格属于控件本身（按钮切换 / 输入），不触发临时加速 */
+  private static isKeyboardControl(target: EventTarget | null): boolean {
+    if (!(target instanceof HTMLElement)) return false;
+    return target.isContentEditable || ['BUTTON', 'INPUT', 'SELECT', 'TEXTAREA'].includes(target.tagName);
+  }
+
+  /** 恢复上次的演出倍速、把战斗根节点接入全局倍速、挂载倍速/自动按钮；随 audioLifecycle 一起拆除 */
+  private mountBattleControls(): void {
+    restoreBattleSpeed();
+    const detachSpeed = attachBattleSpeed(this.wrapper);
+    const controls = new BattleControls(this.mountEl, {
+      onAutoChange: (on) => this.setAutoBattle(on),
+      settingsButton: this.battleSettings?.toggleButton,
+    });
+    this.battleControls = controls;
+    // 胜负已分 / 投降：自动战斗弹起并置灰
+    if (this.battleSettings) {
+      this.battleSettings.onFinished = () => {
+        this.autoBattleEnabled = false;
+        controls.finish();
+      };
+    }
+    // 视口/全屏变化后按战场实际占位重排按钮组（等本帧 refreshLayout 的缩放落定再量）
+    let placeFrame: number | null = null;
+    const schedulePlace = () => {
+      if (placeFrame !== null) return;
+      placeFrame = requestAnimationFrame(() => { placeFrame = null; this.placeBattleControls(); });
+    };
+    const resize = new ResizeObserver(schedulePlace);
+    resize.observe(this.mountEl);
+    const signal = this.audioLifecycle.signal;
+    window.addEventListener('resize', schedulePlace, { signal });
+    document.addEventListener('fullscreenchange', schedulePlace, { signal });
+    schedulePlace();
+    signal.addEventListener('abort', () => {
+      if (this.autoTimer !== null) clearTimeout(this.autoTimer);
+      this.autoTimer = null;
+      this.autoBattleEnabled = false;
+      if (placeFrame !== null) cancelAnimationFrame(placeFrame);
+      resize.disconnect();
+      controls.dispose();
+      detachSpeed();
+      if (this.battleControls === controls) this.battleControls = null;
+    }, { once: true });
+  }
+
+  /** 按钮组避让：角色卡 + 棋盘格区（视口坐标） */
+  private placeBattleControls(): void {
+    if (!this.battleControls || this.destroyed) return;
+    // 用逻辑格区几何换算（不读精灵包围盒：下落中的宝石会暂时越出格区）
+    const wrapperRect = this.wrapper.getBoundingClientRect();
+    const scale = this.baseW > 0 ? wrapperRect.width / this.baseW : 1;
+    const gridPx = this.board.cellSize * BoardModel.COLS * scale;
+    const grid = new DOMRect(wrapperRect.left + this.root.x * scale, wrapperRect.top + this.root.y * scale, gridPx, gridPx);
+    const cards = [...this.overlay.querySelectorAll<HTMLElement>('.gcard')].map((card) => card.getBoundingClientRect());
+    this.battleControls.place({ avoid: [grid, ...cards], boardTop: grid.top, boardRight: grid.right });
+    // 按钮组落进棋盘上方 HUD 通道（窄屏时排成一行）→ 详情窗让出这条通道，只盖棋盘，
+    // 否则设置/倍速/自动按钮会压住详情窗的标题栏和关闭钮。
+    const laneTop = wrapperRect.top + (this.root.y - BOARD_TOP_INSET) * scale;
+    const lane = new DOMRect(grid.left, laneTop, grid.width, grid.top - laneTop);
+    const controlsInLane = [...this.mountEl.querySelectorAll<HTMLElement>(
+      '.battle-settings-button,[data-testid="battle-speed-button"],[data-testid="battle-auto-button"]',
+    )].some((el) => {
+      const r = el.getBoundingClientRect();
+      return r.width > 0 && r.left < lane.right && lane.left < r.right && r.top < lane.bottom && lane.top < r.bottom;
+    });
+    this.applyUnitSheetBounds(!controlsInLane);
+  }
+
+  /**
+   * 自动战斗开关（按钮回调），返回最终状态；战斗已结束时拒绝打开。
+   * 打开：关掉手动交换，当前若是我方决策点则接管；关闭：下一个决策点起交还玩家
+   * （正在进行的一次行动照常播完，afterResolve 时交还）。不跨战斗保存。
+   */
+  private setAutoBattle(on: boolean): boolean {
+    if (on && (this.destroyed || this.surrendered || this.session.isFinished())) return false;
+    this.autoBattleEnabled = on;
+    this.battleControls?.setAutoPressed(on);
+    this.syncPlayerInput();
+    if (on) {
+      this.stopIdle();
+      this.clearHint();
+      this.scheduleAutoTurn();
+    } else {
+      if (this.autoTimer !== null) clearTimeout(this.autoTimer);
+      this.autoTimer = null;
+      if (this.input.enabled) this.startIdle();
+    }
+    return on;
+  }
+
+  /** 短暂交接停顿后尝试接管我方的这个决策点（重复调用只保留最后一次） */
+  private scheduleAutoTurn(delayMs = App.AI_HANDOFF_MS): void {
+    if (!this.autoBattleEnabled || this.destroyed || this.surrendered) return;
+    if (this.autoTimer !== null) clearTimeout(this.autoTimer);
+    this.autoTimer = setTimeout(() => { this.autoTimer = null; void this.runAutoTurn(); }, scaledMs(delayMs));
+  }
+
+  /** 我方决策点：战斗进行中、轮到我方且等待输入、无演出、不在开场/手动施法流程里 */
+  private isPlayerDecisionPoint(): boolean {
+    const state = this.engine.getState();
+    return !this.destroyed && !this.surrendered && !this.session.isFinished()
+      && !this.startupPlaying && !this.casting
+      && !(this.player.isPlaying() || this.visualPlaying)
+      && state.state === MatchState.AwaitingInput && state.activePlayer === PlayerSide.Left;
+  }
+
+  /**
+   * 自动战斗：在我方决策点跑一次与敌方完全相同的 AI（思考停顿 → 决策 → 解析 → 演出）。
+   * 设置面板打开 / 页面隐藏 / 方向门禁期间停住，恢复后继续；afterResolve 续排下一次（额外回合同理）。
+   */
+  private async runAutoTurn(): Promise<void> {
+    if (this.autoRunning) return;
+    this.autoRunning = true;
+    try {
+      if (!await this.waitForBattleReady()) return;
+      // 开场演出 / 手动施法（含选分支/选目标/选宝石）进行中：等它收尾再接管
+      while (this.autoBattleEnabled && (this.casting || this.startupPlaying) && !this.destroyed && !this.surrendered) {
+        await this.delay(100);
+      }
+      if (!this.autoBattleEnabled || !this.isPlayerDecisionPoint()) return;
+      await this.delay(App.AI_THINK_MS);
+      if (!this.autoBattleEnabled || !await this.waitForBattleReady() || !this.isPlayerDecisionPoint()) return;
+      await this.delay(App.AI_COMMIT_MS);
+      if (!this.autoBattleEnabled || !await this.waitForBattleReady() || !this.isPlayerDecisionPoint()) return;
+      this.input.enabled = false;
+      this.stopIdle();
+      this.clearHint();
+      await this.runAiAction(PlayerSide.Left);
+    } finally {
+      this.autoRunning = false;
+    }
+  }
+
+  /**
+   * 为某一方执行一次 aiPolicy 行动（敌方回合与自动战斗共用）。施法与手动同路：
+   * session.resolve({ type: 'cast' }) → playEventsWithTail（skill-cast 事件驱动施法演出）→
+   * refreshTeams → afterResolve。施法被引擎拒绝（零事件）时回退到最佳交换；
+   * 连交换都没有（理论上引擎会先洗牌）时空过本回合，避免回合卡死。
+   */
+  private async runAiAction(side: PlayerSide): Promise<void> {
+    const state = this.engine.getState();
+    if (state.activePlayer !== side || state.state !== MatchState.AwaitingInput) return;
+    let decision = chooseAiAction({ state, side, rng: this.rng, registry: this.registry });
+    let events = decision ? this.session.resolve(decision.action) : [];
+    if (decision?.action.type === 'cast' && events.length === 0) {
+      decision = chooseAiAction({ state, side, rng: this.rng, registry: this.registry, allowCast: false });
+      events = decision ? this.session.resolve(decision.action) : [];
+    }
+    if (events.length === 0) events = this.session.passTurn();
+    this.onEventsProduced?.(events);
+    if (events.length === 0) return;
+    await this.playEventsWithTail(events);
+    if (this.destroyed || this.surrendered) return;
+    this.refreshTeams();
+    this.afterResolve();
   }
 
   private async handleSwap(a: CellPos, b: CellPos): Promise<void> {
+    if (this.destroyed || this.surrendered || this.settingsOpen || this.casting || this.startupPlaying || (this.player.isPlaying() || this.visualPlaying)) return;
+    // 自动战斗接管期间不受理手动交换（输入本已关闭，这里兜底拖拽途中切换的情况）
+    if (this.autoBattleEnabled) return;
     const state = this.engine.getState();
     if (state.state !== MatchState.AwaitingInput) return;
     // 仅我方回合可操作（敌方回合由 AI 接管）
@@ -1448,8 +1713,8 @@ export class App {
 
     this.input.enabled = false;
     this.stopIdle();
-    await this.player.play(events);
-    this.advanceTurnHud(events);
+    await this.playEventsWithTail(events);
+    if (this.destroyed || this.surrendered) return;
     // 回合结束：刷新全部卡面数值与技能可释放高亮（需求 19.6, 19.10）
     this.refreshTeams();
     // 依据回合归属：可能轮到敌方 AI，或交还我方
@@ -1457,7 +1722,68 @@ export class App {
   }
 
   /** 实时响应战斗事件：法力流入、受击、阵亡时即时更新对应卡片（需求 19.6, 19.7） */
-  private onBattleEvent(ev: GameEvent): void {
+  private visualDelay(ms: number, callback: () => void): void {
+    let timer: number;
+    const token = this.finiteVisuals.begin(() => clearTimeout(timer));
+    timer = window.setTimeout(() => {
+      if (!token.active) return;
+      try { callback(); } finally { token.finish(); }
+    }, scaledMs(ms)); // 调用方按 1× 传入，随演出倍速缩短
+  }
+
+  private trackVisualTween(tween: gsap.core.Animation): void {
+    const token = this.finiteVisuals.begin(() => tween.kill());
+    const complete = tween.eventCallback('onComplete');
+    const interrupt = tween.eventCallback('onInterrupt');
+    tween.eventCallback('onComplete', () => { try { if (token.active) complete?.(); } finally { token.finish(); } });
+    tween.eventCallback('onInterrupt', () => { try { interrupt?.(); } finally { token.finish(); } });
+  }
+
+  private async playEventsWithTail(events: GameEvent[]): Promise<void> {
+    this.extraTurnNotice.beginAction();
+    this.visualPlaying = true;
+    this.syncPlayerInput();
+    const generation = this.finiteVisuals.generation;
+    let hudAdvanced = false;
+    this.player.onTurnEnd = () => {
+      if (!hudAdvanced) { hudAdvanced = true; this.advanceTurnHud(events); }
+    };
+    try {
+      // Decode before the action starts playing, so the first explosion frame is
+      // present on time. The board never waits on a late independent CSS strip.
+      if (events.some(event => event.type === 'gem-explode')) await App.preloadFrameFX('energy_burst');
+      if (this.destroyed || this.surrendered || generation !== this.finiteVisuals.generation) return;
+      await this.player.play(events);
+      // Finished CSS/WAAPI callbacks can start more finite work. Drain to a fixed
+      // point, excluding infinite idle/status loops, rather than sleeping N ms.
+      while (!this.destroyed && !this.surrendered && generation === this.finiteVisuals.generation) {
+        await this.finiteVisuals.waitForIdle(generation);
+        if (generation !== this.finiteVisuals.generation) break;
+        const animations = this.wrapper.getAnimations({ subtree: true }).filter(animation => {
+          const timing = animation.effect?.getComputedTiming();
+          return timing && Number.isFinite(timing.endTime) &&
+            (animation.playState === 'running' || animation.playState === 'paused' || animation.pending);
+        });
+        if (animations.length) {
+          if (!await this.finiteVisuals.raceCancellation(Promise.allSettled(animations.map(a => a.finished)), generation)) break;
+          continue;
+        }
+        // Fence queued animationend/onfinish handlers and DOM removals before input.
+        if (!await this.finiteVisuals.raceCancellation(new Promise<void>(resolve => requestAnimationFrame(() => resolve())), generation)) break;
+        const remaining = this.wrapper.getAnimations({ subtree: true }).some(a => {
+          const timing = a.effect?.getComputedTiming();
+          return timing && Number.isFinite(timing.endTime) && (a.playState === 'running' || a.pending);
+        });
+        if (!this.finiteVisuals.size && !remaining) break;
+      }
+    } finally {
+      this.player.onTurnEnd = undefined;
+      this.visualPlaying = false;
+      this.syncPlayerInput();
+    }
+  }
+
+  private onBattleEvent(ev: GameEvent, presentation?: ImpactPresentation): void {
     const state = this.engine.getState();
     switch (ev.type) {
       case 'mana-gain': {
@@ -1498,7 +1824,18 @@ export class App {
         const leftCard = this.leftTeamView.getCard(ev.characterId);
         const rightCard = this.rightTeamView.getCard(ev.characterId);
         const card = leftCard ?? rightCard;
-        if (!card) break;
+        const batch = presentation?.defeatBatch;
+        const removeDefeatedCard = () => {
+          if (batch) {
+            batch.completed.add(ev.characterId);
+            if (batch.completed.size === batch.characterIds.length) {
+              this.leftTeamView.removeCharacterCards(batch.characterIds);
+              this.rightTeamView.removeCharacterCards(batch.characterIds);
+            }
+          } else if (leftCard) this.leftTeamView.removeCharacterCard(ev.characterId);
+          else if (rightCard) this.rightTeamView.removeCharacterCard(ev.characterId);
+        };
+        if (!card) { removeDefeatedCard(); break; }
         // 阵亡：清掉该角色残留的状态持续层 + 冰封卡面态
         this.removeAllStatusPersist(ev.characterId);
         card.setFrozen(false);
@@ -1507,10 +1844,6 @@ export class App {
         card.clearStatusAccents();
         // Keep the defeated card in the team column and gray it before the particles start.
         card.refresh();
-        const removeDefeatedCard = () => {
-          if (leftCard) this.leftTeamView.removeCharacterCard(ev.characterId);
-          else if (rightCard) this.rightTeamView.removeCharacterCard(ev.characterId);
-        };
         // Effect 0353 is faint, so place it slightly above center over the portrait area.
         const deathPoint = this.cardPointInOverlay(card, 0.43);
         if (deathPoint) {
@@ -1540,6 +1873,10 @@ export class App {
         break;
       }
       case 'game-over': {
+        if (this.destroyed) return;
+        backgroundMusic.setDucking('result', true);
+        this.battleSettings?.finish();
+        if (this.aiTimer !== null) clearTimeout(this.aiTimer);
         // 结算：锁输入、停演出，稍候片刻让阵亡动画收尾后弹出结算面板（需求 15.4）
         this.input.enabled = false;
         this.stopIdle();
@@ -1548,16 +1885,25 @@ export class App {
         // 结果在判定结束的当下就交出，不等玩家点“继续”：宿主拿结果不能依赖用户操作，
         // 否则页面被关掉战果就丢了。
         this.emitBattleResult();
+        if (this.destroyed) return;
         // B-9（UX 阶段 B）：900ms 不再是静默黑屏——棋盘定格暗场作过渡；
         // 面板内带本场战果（回合/存活/战斗内收集），数据全在 exportResult()。
         this.playGameOverTransition();
-        window.setTimeout(() => this.gameOverPanel.open(playerWon, this.buildGameOverStats()), 900);
+        if (this.resultTimer !== null) clearTimeout(this.resultTimer);
+        this.resultTimer = setTimeout(() => {
+          if (!this.destroyed) this.gameOverPanel.open(playerWon, this.buildGameOverStats(), ev.reason === 'surrender');
+        }, scaledMs(900));
         break;
       }
       // Skill presentation events.
       case 'skill-cast': {
         const casterColor = this.casterColor(ev.characterId);
         this.audio.play(casterColor === BaseColor.Brown ? 'skillCastEarth' : 'skill');
+        // 施放瞬间引擎已把法力清零：卡面宝石当场排空、撤掉可释放态（双方），
+        // 之后的法力获得照常播放，回合尾 refreshTeams 再与引擎对齐。
+        this.cardOfChar(ev.characterId)?.drainMana();
+        // 我方施法先出左下角立绘切入（时间线已为它预留），敌方只有音效
+        if (this.isAllyCaster(ev.characterId)) this.playCastCutIn(ev.characterId);
         break;
       }
       case 'skill-damage': {
@@ -1569,7 +1915,7 @@ export class App {
           break;
         }
         if (ev.range === 'splash') {
-          this.playSplashChainDamage(ev, card);
+          this.playSplashChainDamage(ev, card, presentation?.splashSwordDurationMs);
           break;
         }
 
@@ -1608,98 +1954,77 @@ export class App {
           card.refresh();
         };
         if (from && to && ev.casterId !== ev.targetId) {
-          this.playProjectile(from, to, color, impact, audioLeadMs > 0 ? {
-            onApproach: playHitAudio,
+          this.playProjectile(from, to, color, impact, {
+            onApproach: audioLeadMs > 0 ? playHitAudio : undefined,
             approachLeadMs: audioLeadMs,
-          } : undefined);
+            durationMs: presentation?.projectileDurationMs,
+          });
         } else {
           impact();
         }
         break;
       }
       case 'gem-explode': {
-        // 爆破：每颗被炸宝石都放一团能量星爆，从中心向外错峰点燃，读成一整片连爆。
-        // 每团缩到约一个格子大小，带随机旋转，避免"克隆感"。
-        const positions = ev.cells.map((cell) => cell.pos);
-        const center = this.cellsCenterInOverlay(positions);
-        // energy_burst 原始显示高 240 → 缩到约 1.5 个格子，贴合宝石尺度
+        // Every cell still clears in the board player. Only expensive overlapping
+        // full strips are clustered, with a fixed per-wave render budget.
+        const bursts = planExplosionBursts(ev.cells.map(cell => cell.pos));
         const perCellScale = (this.board.cellSize * 1.8) / AnimConfig.frameFX.energy_burst.displayH;
-        for (const pos of positions) {
-          const p = this.cellsCenterInOverlay([pos]);
+        for (const burst of bursts) {
+          const p = this.cellsCenterInOverlay([burst.pos]);
           if (!p) continue;
-          // 离爆心越远，起爆越晚（放射式连锁），最多错峰 ~120ms
-          const dist = center ? Math.hypot(p.x - center.x, p.y - center.y) : 0;
-          const delay = Math.min(120, dist * 0.8);
           this.playFrameFX('energy_burst', p.x, p.y, {
-            scale: perCellScale,
-            rotateDeg: Math.floor(Math.random() * 360),
-            delay,
-            filter: 'filter:brightness(2.15) saturate(1.65) contrast(1.12) drop-shadow(0 0 10px rgba(150,190,255,.95))',
+            frameClock: presentation?.explosionClock,
+            scale: perCellScale * burst.scale,
+            rotateDeg: (burst.pos.row * 71 + burst.pos.col * 47) % 360,
+            // Dense waves start together; no hidden radial tail after the clear.
+            filter: 'filter:brightness(1.75) saturate(1.35)',
           });
         }
         break;
       }
       case 'buff': {
         const card = this.cardOfChar(ev.targetId);
+        const feedback = presentation?.buffFeedback;
         if (card) {
-          // 轻量通道（2026-09-19 裁定）：特质/被动触发的 buff（每回合回复、受击增益、
-          // 施法响应光环等高频触发）只飘字 + 刷新卡面——不播音效、不播序列帧；
-          // 完整反馈（音效 + heal_cleanse/armor_up 帧动画）保留给技能段增益。
           const color = BUFF_COLOR[ev.stat] ?? '#e8c879';
-          const text = `${ev.amount >= 0 ? '+' : ''}${ev.amount}`;
-          card.floatText(text, color);
-          card.refresh();
-          if (ev.source === 'trait') break;
-          const center = this.cardCenterInOverlay(card);
-          if (ev.stat === 'hp') {
-            this.audio.play('healing');
-            if (center) this.playFrameFX('heal_cleanse', center.x, center.y);
-          } else if (ev.stat === 'armor') {
-            this.audio.play('armor');
-            if (center) this.playFrameFX('armor_up', center.x, center.y);
+          const amount = feedback?.amount ?? ev.amount;
+          if (feedback?.show ?? true) card.floatText(feedback?.text ?? `${amount >= 0 ? '+' : ''}${amount}`, color, feedback?.durationMs);
+          card.refresh(); // Every original attribute event still updates its projection.
+          const fx = feedback ? feedback.heavyFx
+            : ev.source !== 'trait' && ev.amount > 0
+              ? ev.stat === 'hp' ? 'heal_cleanse' : ev.stat === 'armor' ? 'armor_up' : undefined
+              : undefined;
+          if (fx) {
+            if (feedback?.playAudio ?? true) this.audio.play(fx === 'heal_cleanse' ? 'healing' : 'armor');
+            const center = this.cardCenterInOverlay(card);
+            if (center) this.playFrameFX(fx, center.x, center.y, { durationMs: feedback?.durationMs });
           }
         }
         break;
       }
       case 'status-apply': {
-        // 施加瞬间：统一短闪(~0.3s)+图标弹入（命中确认）。
-        // DoT(中毒/燃烧) 的完整大动画留到每回合 tick 掉血时爆发；
-        // 硬控/软控(冰冻/眩晕/缠绕/沉默) 施加后挂"持续层"循环动画，直到状态解除。
         const card = this.cardOfChar(ev.targetId);
+        const feedback = presentation?.statusFeedback;
+        const show = feedback?.show ?? true;
         if (card) {
-          card.applyStatusBadge();
+          if (show) card.applyStatusBadge();
+          // Never suppress individual accents or persistent/mechanism state.
           card.setStatusAccent(ev.statusId, true);
         }
+        const ids = feedback?.statusIds ?? [ev.statusId];
         const center = card ? this.cardCenterInOverlay(card) : null;
-        // 施加音统一走状态音映射（poison/burning/frozen 采样 + 其余状态程序合成，未知状态静默）；
-        // status-tick 不发音效（2026-09-17 裁定），掉血反馈只有帧动画 + 飘字。
-        this.audio.playStatusApply(ev.statusId);
+        if (feedback?.playAudio ?? true) this.audio.playStatusApply(ids[0] ?? ev.statusId);
+        if (show) {
+          const fx = statusFeedbackFX(ids);
+          if (center && fx) this.playFrameFX(fx, center.x, center.y);
+          if (ids.length > 1) card?.floatText(statusFeedbackLabel(ids, id => statusBadge(id).label), '#c7a5ef');
+        }
         switch (ev.statusId) {
-          case 'poison':
-            if (center) this.playFrameFX('poison_flash', center.x, center.y);
-            break;
-          case 'burning':
-            if (center) this.playFrameFX('burning_flash', center.x, center.y);
-            break;
-          case 'frozen':
-            if (center) this.playFrameFX('frozen_flash', center.x, center.y);
-            // 冰冻持续态用程序化冰封蒙层（贴卡、静态、不挡脸），不用序列帧
-            card?.setFrozen(true);
-            break;
-          case 'stun':
-            if (center) this.playFrameFX('frozen_flash', center.x, center.y);
-            this.mountStatusPersist(ev.targetId, 'stun', 'stun_persist');
-            break;
-          case 'entangle':
-            // ????????????????????????????????????
-            card?.setEntangled(true);
-            break;
-          case 'silence':
-            // 沉默：满法力时法力宝石呼吸暗下去（能量满却放不出），用卡面态而非序列帧
-            card?.setSilenced(true);
-            break;
-          default:
-            break;
+          case 'frozen': card?.setFrozen(true); break;
+          case 'stun': this.mountStatusPersist(ev.targetId, 'stun', 'stun_persist'); break;
+          case 'entangle': card?.setEntangled(true); break;
+          case 'silence': card?.setSilenced(true); break;
+          default: break;
         }
         break;
       }
@@ -1721,20 +2046,18 @@ export class App {
         break;
       }
       case 'status-tick': {
-        // DoT 每回合掉血：此刻才播放完整大动画（毒 0340 / 火 0450）+ 飘扣血字。
-        // 跳血不发音效（2026-09-17 裁定）：施加音已在 status-apply 响过，同一采样
-        // 回合尾再响一次听感即"攻击后重复"；掉血反馈由帧动画 + 飘字承担。
+        // Original ticks all dispatch; only transient feedback is folded per card.
+        // DOT remains silent and uses short flashes, not repeated heavy strips.
         const card = this.cardOfChar(ev.targetId);
+        const feedback = presentation?.statusFeedback;
         if (card) {
-          const center = this.cardCenterInOverlay(card);
-          if (ev.statusId === 'poison') {
-            if (center) this.playFrameFX('poison_apply', center.x, center.y);
-            if (ev.damage && ev.damage > 0) card.floatText(`-${ev.damage}`, '#7bd88f');
-          } else if (ev.statusId === 'burning') {
-            if (center) this.playFrameFX('burning_apply', center.x, center.y);
-            if (ev.damage && ev.damage > 0) card.floatText(`-${ev.damage}`, '#ff9a5a');
-          } else if (ev.damage && ev.damage > 0) {
-            card.floatText(`-${ev.damage}`, '#7bd88f');
+          const damage = feedback?.damage ?? ((ev.damage ?? 0) + (ev.armorDamage ?? 0));
+          const ids = feedback?.statusIds ?? [ev.statusId];
+          if ((feedback?.show ?? true) && damage > 0) {
+            const center = this.cardCenterInOverlay(card);
+            const fx = statusFeedbackFX(ids);
+            if (center && fx) this.playFrameFX(fx, center.x, center.y);
+            card.floatText(`-${damage}`, ids.includes('burning') ? '#ff9a5a' : '#7bd88f');
           }
           card.refresh();
         }
@@ -1767,16 +2090,42 @@ export class App {
         }
         break;
       }
+      case 'troop-reposition': {
+        const view = this.leftTeamView.getCard(ev.targetId)
+          ? this.leftTeamView
+          : this.rightTeamView.getCard(ev.targetId)
+            ? this.rightTeamView
+            : null;
+        view?.placeCard(ev.targetId, ev.index ?? (ev.to === 'front' ? 0 : 99));
+        break;
+      }
+      case 'team-shuffle':
+        this.viewOf(ev.player).orderCards(ev.order);
+        break;
+      case 'troop-transform': {
+        const card = this.cardOfChar(ev.targetId);
+        if (!card) break;
+        const portrait = resolveTroopPortrait(ev.name, { troopId: ev.troopId });
+        this.portraitById.set(ev.targetId, portrait);
+        card.reface(portrait);
+        card.floatText(ev.name, '#f0d9a4');
+        break;
+      }
+      case 'economy-gain': {
+        const ally = state.teams[ev.side].characters.find((c) => !c.defeated);
+        const card = ally ? this.cardOfChar(ally.id) : undefined;
+        const label = ev.currency === 'gold' ? '金币'
+          : ev.currency === 'souls' ? '灵魂'
+            : ev.currency === 'gems' ? '宝石'
+              : '藏宝图';
+        card?.floatText(`+${ev.amount} ${label}`, '#ffd24a');
+        break;
+      }
       case 'special-gem-trigger':
         this.showSpecialGemTrigger(ev);
         break;
       case 'extra-turn': {
-        // 额外回合（ANIMATION_HANDOFF §19 P0-2）：仅"技能主动给的"额外回合(source=skill)
-        // 在棋盘中央播放 0082 祝福动画；常规三消(4/5连·L/T形)给的额外回合(source=match)
-        // 只保留连击音+HUD 轻反馈，不放大动画。
-        if (ev.source !== 'skill') break;
-        const center = this.boardCenterInOverlay();
-        if (center) this.playFrameFX('extra_turn', center.x, center.y);
+        if (this.turnHudEl) this.extraTurnNotice.show(this.turnHudEl, ev.player);
         break;
       }
       default:
@@ -1999,7 +2348,7 @@ export class App {
 
       const playbackScale = Math.max(0.1, AnimConfig.globalScale);
       const duration = (AnimConfig.manaFlow.duration * 1000) / playbackScale;
-      const delay = (index * AnimConfig.manaFlow.stagger * 1000) / playbackScale;
+      const delay = (manaMoteDelay(index, sources.length) * 1000) / playbackScale;
       const offsets = [0, 0.17, 0.52, 0.84, 1];
       const scales = surged ? [0.72, 1.28, 1.16, 0.94, 0.2] : [0.58, 1.08, 1, 0.86, 0.16];
       const opacities = [0, 1, 1, 0.96, 0];
@@ -2110,10 +2459,13 @@ export class App {
    * @param py 接触点 Y（覆盖层布局坐标）
    */
   private playSlashFX(px: number, py: number): void {
+    if (this.destroyed || this.surrendered) return;
     if (!App.slashStripReady) {
-      void App.preloadSlashStrip().then((ready) => {
-        if (ready) this.playSlashFX(px, py);
-      });
+      const pending = this.finiteVisuals.begin();
+      void App.preloadSlashStrip().then(ready => {
+        if (!pending.active) return;
+        try { if (ready) this.playSlashFX(px, py); } finally { pending.finish(); }
+      }, () => pending.finish());
       return;
     }
     const cfg = AnimConfig.slash;
@@ -2144,7 +2496,11 @@ export class App {
       `animation:fxSlashPlay ${cfg.duration}ms steps(${cfg.frames}) forwards`,
     ].join(';');
     this.overlay.appendChild(el);
-    window.setTimeout(() => el.remove(), cfg.duration + 30);
+    let timer: number;
+    const token = this.finiteVisuals.begin(() => { clearTimeout(timer); el.remove(); });
+    const finish = () => { if (!token.active) return; clearTimeout(timer); el.remove(); token.finish(); };
+    el.addEventListener('animationend', finish, { once: true });
+    timer = window.setTimeout(finish, scaledMs(cfg.duration) + 30);
   }
 
   /**
@@ -2171,6 +2527,7 @@ export class App {
   private playSplashChainDamage(
     ev: Extract<GameEvent, { type: 'skill-damage' }>,
     card: CharacterCard,
+    swordDurationMs?: number,
   ): void {
     const target = this.cardCenterInOverlay(card);
     const impact = () => {
@@ -2205,13 +2562,13 @@ export class App {
           rotateDeg,
         });
       }
-      window.setTimeout(impact, AnimConfig.splashChain.firstImpactDelay);
+      this.visualDelay(AnimConfig.splashChain.firstImpactDelay, impact);
       return;
     }
 
     const fromCard = ev.chainFromId !== undefined ? this.cardOfChar(ev.chainFromId) : null;
     const from = fromCard ? this.cardCenterInOverlay(fromCard) : null;
-    if (from && target) this.playSplashChainSword(from, target, impact);
+    if (from && target) this.playSplashChainSword(from, target, impact, swordDurationMs);
     else impact();
   }
 
@@ -2266,7 +2623,7 @@ export class App {
     }
 
     // 2) 命中延迟后，全体同时受击
-    window.setTimeout(() => {
+    this.visualDelay(AnimConfig.groupAttack.hitDelay, () => {
       let audioPlayed = false;
       for (const ev of events) {
         const card = this.cardOfChar(ev.targetId);
@@ -2283,7 +2640,7 @@ export class App {
         card.hitFlash();
         card.refresh();
       }
-    }, AnimConfig.groupAttack.hitDelay);
+    });
   }
 
   /**
@@ -2295,7 +2652,9 @@ export class App {
     from: { x: number; y: number },
     to: { x: number; y: number },
     onArrive: () => void,
+    durationMs = AnimConfig.frameFX.splash_chain_sword.duration,
   ): void {
+    if (this.destroyed || this.surrendered) return;
     const name = 'splash_chain_sword';
     const cfg = AnimConfig.frameFX[name];
     const url = App.FRAME_FX_URL[name];
@@ -2304,10 +2663,12 @@ export class App {
       return;
     }
     if (!App.frameFXReadyUrls.has(url)) {
-      void App.preloadFrameFX(name).then((ready) => {
-        if (ready) this.playSplashChainSword(from, to, onArrive);
-        else onArrive();
-      });
+      const pending = this.finiteVisuals.begin();
+      void App.preloadFrameFX(name).then(ready => {
+        if (!pending.active) return;
+        try { if (ready) this.playSplashChainSword(from, to, onArrive, durationMs); else onArrive(); }
+        finally { pending.finish(); }
+      }, () => { if (pending.active) onArrive(); pending.finish(); });
       return;
     }
 
@@ -2356,19 +2717,22 @@ export class App {
       `transform:rotate(${rotation}deg) scale(${scale})`,
       'mix-blend-mode:screen',
       'filter:brightness(1.12) saturate(1.16) drop-shadow(0 0 7px rgba(70,185,255,.9)) drop-shadow(0 0 15px rgba(35,95,255,.55))',
-      `animation:fxFramePlay_${name} ${cfg.duration}ms steps(${cfg.frames}) forwards`,
+      `animation:fxFramePlay_${name} ${durationMs}ms steps(${cfg.frames}) forwards`,
     ].join(';');
     anchor.appendChild(sword);
     this.overlay.appendChild(anchor);
 
     sword.animate(
       [{ opacity: 0.68 }, { opacity: 1, offset: 0.42 }, { opacity: 1 }],
-      { duration: cfg.duration, easing: 'ease-out', fill: 'forwards' },
+      { duration: durationMs, easing: 'ease-out', fill: 'forwards' },
     );
-    window.setTimeout(() => {
+    let timer: number;
+    const token = this.finiteVisuals.begin(() => { clearTimeout(timer); anchor.remove(); });
+    timer = window.setTimeout(() => {
+      if (!token.active) return;
       anchor.remove();
-      onArrive();
-    }, cfg.duration);
+      try { onArrive(); } finally { token.finish(); }
+    }, scaledMs(durationMs)); // 剑光到达即命中：与随倍速加快的剑光动画同步
   }
 
   /**
@@ -2381,14 +2745,15 @@ export class App {
     to: { x: number; y: number },
     color: string,
     onArrive: () => void,
-    opts?: { onApproach?: () => void; approachLeadMs?: number },
+    opts?: { onApproach?: () => void; approachLeadMs?: number; durationMs?: number },
   ): void {
+    if (this.destroyed || this.surrendered) return;
     const cfg = AnimConfig.projectile;
     const dx = to.x - from.x;
     const dy = to.y - from.y;
     const dist = Math.max(1, Math.hypot(dx, dy));
     const angle = Math.atan2(dy, dx) * (180 / Math.PI);
-    const dur = Math.min(cfg.maxDuration, Math.max(cfg.minDuration, dist / cfg.speed));
+    const dur = opts?.durationMs ?? Math.min(cfg.maxDuration, Math.max(cfg.minDuration, dist / cfg.speed));
 
     // 剑气本体：一条朝 +x 方向的锋利梭形（左钝头、右尖尾在运动方向前端），随 el 旋转到飞行角度
     const el = document.createElement('div');
@@ -2426,7 +2791,9 @@ export class App {
       approachFired = true;
       opts.onApproach();
     };
-    gsap.to(proxy, {
+    let tween: gsap.core.Tween | undefined;
+    const token = this.finiteVisuals.begin(() => { tween?.kill(); el.remove(); });
+    tween = gsap.to(proxy, {
       t: 1,
       duration: dur / 1000,
       ease: 'none', // 匀速直线，干脆
@@ -2436,10 +2803,11 @@ export class App {
         el.style.transform = `translate(${x}px,${y}px) rotate(${angle}deg)`;
         if (proxy.t >= approachAt) fireApproach();
       },
+      onInterrupt: () => { el.remove(); token.finish(); },
       onComplete: () => {
         el.remove();
         fireApproach();
-        onArrive();
+        try { if (token.active) onArrive(); } finally { token.finish(); }
       },
     });
   }
@@ -2505,7 +2873,9 @@ export class App {
       { duration: cfg.duration, easing: 'ease-out', fill: 'forwards' },
     );
     this.overlay.appendChild(wrap);
-    window.setTimeout(() => wrap.remove(), cfg.duration + 40);
+    let timer: number;
+    const token = this.finiteVisuals.begin(() => { clearTimeout(timer); wrap.remove(); });
+    timer = window.setTimeout(() => { wrap.remove(); token.finish(); }, scaledMs(cfg.duration) + 40);
   }
 
   /**
@@ -2520,20 +2890,22 @@ export class App {
     name: keyof typeof AnimConfig.frameFX | string,
     px: number,
     py: number,
-    opts: { scale?: number; filter?: string; rotateDeg?: number; delay?: number; onComplete?: () => void } = {},
+    opts: { scale?: number; filter?: string; rotateDeg?: number; delay?: number; durationMs?: number; frameClock?: FramePlaybackClock; onComplete?: () => void } = {},
   ): void {
+    if (this.destroyed || this.surrendered) return;
+    if (opts.frameClock?.done) { opts.onComplete?.(); return; }
     const cfg = AnimConfig.frameFX[name];
     const url = App.FRAME_FX_URL[name];
-    if (!cfg || !url) {
-      opts.onComplete?.();
-      return;
-    }
+    if (!cfg || !url) { opts.onComplete?.(); return; }
     if (!App.frameFXReadyUrls.has(url)) {
-      // Never let a CSS animation run against an undecoded background image.
-      void App.preloadFrameFX(name).then((ready) => {
-        if (ready) this.playFrameFX(name, px, py, opts);
-        else opts.onComplete?.();
-      });
+      const pending = this.finiteVisuals.begin();
+      void App.preloadFrameFX(name).then(ready => {
+        if (!pending.active) return;
+        try {
+          if (ready) this.playFrameFX(name, px, py, opts);
+          else opts.onComplete?.();
+        } finally { pending.finish(); }
+      }, () => { if (pending.active) opts.onComplete?.(); pending.finish(); });
       return;
     }
     const stripW = cfg.frameW * cfg.frames;
@@ -2550,8 +2922,11 @@ export class App {
     const scale = baseScale * (opts.scale ?? 1);
     const rot = opts.rotateDeg ? ` rotate(${opts.rotateDeg}deg)` : '';
     const delay = opts.delay ?? 0;
+    const durationMs = opts.durationMs ?? cfg.duration;
     const el = document.createElement('div');
     el.dataset.fx = name;
+    el.dataset.fxDurationMs = String(durationMs);
+    if (opts.frameClock) el.dataset.fxPlayback = 'timeline';
     el.style.cssText = [
       'position:absolute', `left:${px}px`, `top:${py}px`,
       `width:${cfg.frameW}px`, `height:${cfg.frameH}px`,
@@ -2563,15 +2938,40 @@ export class App {
       `transform:translate(-50%,-50%) scale(${scale})${rot}`,
       'transform-origin:center center',
       delay > 0 ? 'opacity:0' : '',
-      `animation:fxFramePlay_${name} ${cfg.duration}ms steps(${cfg.frames}) ${delay}ms forwards`,
+      opts.frameClock ? 'background-position-x:0px'
+        : `animation:fxFramePlay_${name} ${durationMs}ms steps(${cfg.frames}) ${delay}ms forwards`,
     ].join(';');
-    // 错峰播放：延迟期间保持透明，起播时点亮
-    if (delay > 0) window.setTimeout(() => { el.style.opacity = '1'; }, delay);
-    this.overlay.appendChild(el);
-    window.setTimeout(() => {
+    let delayTimer: number | undefined;
+    let endTimer: number | undefined;
+    let unsubscribe: (() => void) | undefined;
+    const token = this.finiteVisuals.begin(() => {
+      unsubscribe?.();
+      if (delayTimer !== undefined) clearTimeout(delayTimer);
+      if (endTimer !== undefined) clearTimeout(endTimer);
       el.remove();
-      opts.onComplete?.();
-    }, delay + cfg.duration + 40);
+    });
+    const finish = () => {
+      if (!token.active) return;
+      unsubscribe?.();
+      if (delayTimer !== undefined) clearTimeout(delayTimer);
+      if (endTimer !== undefined) clearTimeout(endTimer);
+      el.remove();
+      try { opts.onComplete?.(); } finally { token.finish(); }
+    };
+    if (opts.frameClock) {
+      this.overlay.appendChild(el);
+      unsubscribe = opts.frameClock.subscribe(progress => {
+        if (progress >= 1) { finish(); return; }
+        const frame = Math.min(cfg.frames - 1, Math.floor(progress * cfg.frames));
+        el.style.backgroundPositionX = `${-frame * cfg.frameW}px`;
+      });
+      return;
+    }
+    // CSS 帧动画（含 delay 段）随演出倍速加快，显隐与兜底计时也按同一倍速换算
+    if (delay > 0) delayTimer = window.setTimeout(() => { if (token.active) el.style.opacity = '1'; }, scaledMs(delay));
+    el.addEventListener('animationend', finish, { once: true });
+    this.overlay.appendChild(el);
+    endTimer = window.setTimeout(finish, scaledMs(delay + durationMs) + 40);
   }
 
   /**
@@ -2748,73 +3148,50 @@ export class App {
   }
 
   /**
-   * 玩家技能释放流程（唯一实现，需求 2C）：短按己方满法力角色卡触发。
-   * 校验 → 按需收集选色/选目标/选宝石（玩家 UI，取消则不释放）→ castSkill → 演出。
-   * 释放不消耗回合（用户裁定，对齐 GoW）：行动方不变，可继续交换/再次施放。
+   * 玩家技能释放流程（唯一实现，需求 2C）：详情窗「释放技能」、快速释放点卡、triggerCast 共用。
+   * 校验 → 按需收集选分支/选色/选目标/选宝石（玩家 UI，取消则不释放）→ castSkill → 演出。
+   * 不再有二次确认：详情窗本身就是确认（技能全文 + 目标说明已在窗内）。
    */
   private async castPlayerSkill(charId: number): Promise<void> {
-    // casting 期间（含选目标/选宝石的点选）屏蔽任何新的短按释放，
+    // casting 期间（含选目标/选宝石的点选）屏蔽任何新的释放，
     // 避免"点候选卡选目标"这次点击又触发该卡自身的技能。
-    if (this.casting || this.orientationBlocked) return;
+    if (this.destroyed || this.surrendered || this.casting) return;
     const state = this.engine.getState();
     const ch = state.teams[PlayerSide.Left].characters.find((c) => c.id === charId);
     if (!ch || ch.defeated) return;
-    const card = this.cardOfChar(charId);
 
-    // —— B-3（UX 阶段 B）：短按无效必须给出原因 ——
-    // 阶段 A 这里是三个静默 return（代码注释自己写着「可留作提示」），玩家分不清
-    // "法力不够 / 不是我的回合 / 游戏卡住了"，于是反复点、越点越确信是 bug。
-    if (state.state !== MatchState.AwaitingInput || state.activePlayer !== PlayerSide.Left) {
-      card?.showHint('等待对手行动', { warn: true });
-      return;
-    }
-    if (!ManaDistributor.isSkillCastable(ch.mana, ch.manaCost)) {
-      const short = Math.max(0, ch.manaCost - Math.max(0, ch.mana));
-      card?.showHint(`还差 ${short} 点法力`, { shake: true });
-      return;
-    }
-    // 沉默：法力满也放不出。此前会走到 session.resolve 拿到 0 条事件然后静默 return。
-    if ((ch.statuses ?? []).some((s) => s.id === 'silence' || s.id === 'silenced')) {
-      card?.showHint('沉默中 · 无法施放技能', { warn: true });
+    // 此刻放不出（演出中 / 对手回合 / 法力不足 / 沉默 / 自动战斗…）：不排队、不静默，
+    // 打开（或刷新）该角色的详情窗，按钮上写明原因；轮到我方可放时按钮会自己亮起来。
+    if (this.castAvailability(ch, ch.mana).kind !== 'ready') {
+      if (!this.settingsOpen && !this.pageHidden && !this.orientationBlocked && !this.startupPlaying) {
+        this.openUnitSheet(charId);
+      }
       return;
     }
 
     const proto = this.registry.prototypes.get(ch.skillId);
-
-    // —— B-4 第②段：确认层（默认开，勾选后可关）——
-    // 确认层开着时不受理新的短按：否则第二次短按会把第一层判成取消，
-    // 玩家看到的是"面板换了张卡"，而第一次的点击结果被悄悄丢掉。
-    if (this.castConfirmPending) return;
-    this.castConfirmPending = true;
-    let confirmed = false;
-    try {
-      confirmed = await this.confirmCast(ch, proto);
-    } finally {
-      this.castConfirmPending = false;
-    }
-    if (!confirmed) return;
-    // 等确认期间局势可能已变（对手抢到回合 / 该角色阵亡 / 法力被烧）：复查一次
-    const now = this.engine.getState();
-    const fresh = now.teams[PlayerSide.Left].characters.find((c) => c.id === charId);
-    if (
-      this.casting ||
-      now.state !== MatchState.AwaitingInput ||
-      now.activePlayer !== PlayerSide.Left ||
-      !fresh ||
-      fresh.defeated ||
-      !ManaDistributor.isSkillCastable(fresh.mana, fresh.manaCost)
-    ) {
-      return;
-    }
+    // 进入施法流程即收起详情窗：选目标要看棋盘，立绘切入与技能演出也不能被窗盖住
+    this.closeUnitSheet();
 
     this.casting = true;
     // 进入释放流程即禁用棋盘交换：选色/选目标/选宝石期间不允许拖动交换宝石（否则与选格点击冲突）
     this.stopIdle();
     this.input.enabled = false;
+    this.castPicking = true;
     try {
       // 按需收集玩家选择；任一取消 → 放弃释放（不消耗法力、不改状态，需求 2C.6）
       if (proto) {
-        if (prototypeNeedsColor(proto)) {
+        let inputProto = proto;
+        const choice = skillChoices(proto);
+        if (choice) {
+          const branch = await this.branchPicker.pick(this.wrapper, choice.labels);
+          if (branch === null || this.destroyed || this.surrendered || this.settingsOpen) return;
+          const selected = selectSkillBranch(proto, branch);
+          if (!selected) return;
+          inputProto = selected;
+          this.engine.setBranchChooser(new FixedBranchChooser(branch));
+        }
+        if (prototypeNeedsColor(inputProto)) {
           const originCard = this.cardOfChar(charId);
           if (!originCard) return;
           // 统一为"点选一枚宝石"：点哪颗就取哪颗的颜色（与选宝石引爆同一套选择器）
@@ -2833,7 +3210,7 @@ export class App {
           if (!gem || gem.type.kind !== 'color') return;
           this.engine.setColorChooser(new FixedColorChooser(gem.type.color));
         }
-        const tMode = prototypeChosenTargetMode(proto);
+        const tMode = prototypeChosenTargetMode(inputProto);
         if (tMode) {
           const view = tMode === 'allyChosen' ? this.leftTeamView : this.rightTeamView;
           const cards = candidatesFor(tMode, state, charId)
@@ -2842,18 +3219,21 @@ export class App {
           const originCard = this.cardOfChar(charId);
           if (!originCard) return;
           const friendly = tMode === 'allyChosen';
-          const pickedId = await this.targetPicker.pick(
-            originCard,
-            cards,
-            this.wrapper,
-            friendly,
-            friendly ? '选择一名盟友作为技能目标' : '选择一名敌人作为技能目标',
-          );
+          // 只有一个合法目标：不必让玩家再点一次，直接对它施放
+          const pickedId = cards.length === 1
+            ? cards[0].charId
+            : await this.targetPicker.pick(
+              originCard,
+              cards,
+              this.wrapper,
+              friendly,
+              friendly ? '选择一名盟友作为技能目标' : '选择一名敌人作为技能目标',
+            );
           if (pickedId === null) return;
           this.engine.setTargetChooser(new FixedTargetChooser(pickedId));
         }
         // 点选一枚宝石：引爆某格 / 摧毁其所在行列共用同一选择器（需求 2B）
-        if (prototypeNeedsCell(proto)) {
+        if (prototypeNeedsCell(inputProto)) {
           const originCard = this.cardOfChar(charId);
           if (!originCard) return;
           const cell = await this.cellPicker.pick(
@@ -2867,28 +3247,33 @@ export class App {
         }
       }
 
+      if (this.destroyed || this.surrendered || this.settingsOpen) return;
+      // 选择收集完毕：之后的演出期间点卡照常打开详情窗（按钮显示「结算中」）
+      this.castPicking = false;
       const events = this.session.resolve({ type: 'cast', characterId: charId });
       this.onEventsProduced?.(events);
       if (events.length === 0) return;
       try {
-        await this.player.play(events);
+        await this.playEventsWithTail(events);
+        if (this.destroyed || this.surrendered) return;
       } catch (err) {
         console.warn('[battle] skill playback failed', err);
       }
-      this.advanceTurnHud(events);
-      this.refreshTeams();
+        this.refreshTeams();
       this.afterResolve();
     } catch (err) {
       console.warn('[battle] skill cast failed', err);
     } finally {
+      this.castPicking = false;
       // 释放后恢复 AI 选择器，避免玩家的 Fixed 选择泄漏到 AI 回合
+      this.engine.setBranchChooser(new AiBranchChooser());
       this.engine.setColorChooser(new AiColorChooser());
       this.engine.setTargetChooser(new AiTargetChooser());
       this.engine.setCellChooser(new AiCellChooser());
       // 延一帧再解除互斥：让"确认选目标/宝石的那次点击"引发的候选卡短按抬起
       // 落在 casting=true 窗口内被忽略，不会误触该卡自身技能。
       // 必须在 casting=false 之后再 syncPlayerInput，否则棋盘会一直锁死。
-      window.setTimeout(() => this.restoreAfterCast(), 0);
+      window.setTimeout(() => { if (!this.destroyed) this.restoreAfterCast(); }, 0);
     }
   }
 
@@ -2929,9 +3314,8 @@ export class App {
   }
 
   /**
-   * B-5：手势引导（一次性）。法力第一次攒满时在该卡边上说明
-   * 「点击释放 · 长按查看详情」——阶段 A 这套手势页面上零说明，
-   * 而短按/长按只差 475ms 且误触代价不对称。
+   * B-5：手势引导（一次性）。法力第一次攒满时在该卡边上说明怎样释放：
+   * 默认点卡打开详情窗、在窗里释放；开了「快速释放」则点卡直接释放、长按看详情。
    */
   private maybeShowGestureHint(charId: number): void {
     if (this.gestureHintDone) return;
@@ -2939,12 +3323,15 @@ export class App {
     if (!card) return;
     this.gestureHintDone = true;
     markGestureHintShown();
-    card.showHint('法力已满：点击释放 · 长按查看详情', { ms: 3200 });
+    card.showHint(
+      skipCastConfirm() ? '法力值已满：点击直接释放 · 长按查看详情' : '法力值已满：点击卡片查看并释放技能',
+      { ms: 3200 },
+    );
   }
 
   /**
-   * 技能显示文本。取数链与 `CharacterDetailPanel.buildDetailViewModel` 严格一致，
-   * 免得同一个技能在确认层叫「技能」、在详情面板叫「英灵再世」：
+   * 技能显示文本（详情窗技能块与我方施法切入的名牌共用），与 `buildDetailViewModel` 同一取数来源，
+   * 免得同一个技能在切入里叫「技能」、在详情窗叫「英灵再世」：
    * 快照/角色携带的文本 → 按名字匹配的兵种数据 → 分拣技能池（AIRP/独立模式角色）。
    */
   private skillDisplayTextOf(ch: Character): { name: string; description: string } {
@@ -2968,36 +3355,30 @@ export class App {
   }
 
   /**
-   * B-4 第②段：施法确认。返回 false 表示玩家取消（不消耗法力、不改状态）。
-   *
-   * 目标预览：能在释放前确定唯一目标就写名字；需要玩家点选的写"确认后点选"，
-   * 让玩家知道后面还有一步——阶段 A 的问题之一就是短按后突然被丢进选择层。
+   * 详情窗技能块的目标说明（原施法确认层的目标预览逻辑）。
+   * 能在释放前确定目标就写出来（「目标：全体敌人」「目标：夜斗」）；需要玩家点选的写
+   * 「释放后点选 1 名敌人」，让玩家知道按下按钮后还有一步。唯一合法目标时直接点名（不会弹选择层）。
    */
-  private async confirmCast(ch: Character, proto: SkillPrototype | undefined): Promise<boolean> {
-    const needsColor = !!proto && prototypeNeedsColor(proto);
-    const needsCell = !!proto && prototypeNeedsCell(proto);
-    const tMode = proto ? prototypeChosenTargetMode(proto) : null;
+  private castTargetNote(ch: Character, proto: SkillPrototype | undefined, ally: boolean): string {
+    if (!proto) return '';
+    const needsColor = prototypeNeedsColor(proto);
+    const needsCell = prototypeNeedsCell(proto);
+    const tMode = prototypeChosenTargetMode(proto);
+    const state = this.engine.getState();
     const notes: string[] = [];
-    const previewCards: CharacterCard[] = [];
+    // 敌人/盟友按施法者口径（与技能原文一致）；敌方的选择由对手 AI 做，不写「释放后点选」
+    const pickVerb = ally ? '释放后点选' : '由对手指定';
     if (tMode) {
-      const state = this.engine.getState();
       const candidates = candidatesFor(tMode, state, ch.id);
-      const friendly = tMode === 'allyChosen';
-      const view = friendly ? this.leftTeamView : this.rightTeamView;
-      for (const candidate of candidates) {
-        const card = view.getCard(candidate.id);
-        if (card) previewCards.push(card);
-      }
-      const names = candidates.map((candidate) => candidate.name).join('、');
-      if (tMode === 'enemyChosenAndBelow') {
-        notes.push(`可选起点：${names || '暂无'}（命中所选目标及其下方）`);
-      } else if (tMode === 'enemyChosenAndAdjacent') {
-        notes.push(`可选锚点：${names || '暂无'}（命中其相邻敌人）`);
-      } else {
-        notes.push(`${friendly ? '可选盟友' : '可选敌人'}：${names || '暂无'}`);
-      }
-    }
-    if (!tMode && proto) {
+      const who = tMode === 'allyChosen' ? '盟友' : '敌人';
+      const reach = tMode === 'enemyChosenAndBelow' ? '（连同其下方的敌人）'
+        : tMode === 'enemyChosenAndAdjacent' ? '（命中其上下相邻的敌人）'
+          : tMode === 'enemyChosenAndNextDown' ? '（连同其正下方一名敌人）'
+            : '';
+      if (candidates.length === 0) notes.push(`目标：暂无可选${who}`);
+      else if (candidates.length === 1) notes.push(`目标：${candidates[0].name}${reach}`);
+      else notes.push(`${pickVerb} 1 名${who}${reach}`);
+    } else {
       let automaticMode: TargetMode | null = null;
       let automaticCount = 1;
       for (const segment of proto.segments) {
@@ -3008,44 +3389,25 @@ export class App {
         break;
       }
       if (automaticMode) {
-        const state = this.engine.getState();
-        const isRandom = automaticMode.includes('Random');
+        const who = automaticMode.startsWith('ally') ? '盟友' : '敌人';
         const isDeferred = automaticMode.startsWith('last')
           || automaticMode.endsWith('Target')
           || automaticMode === 'enemyNextDown';
-        const targets = isRandom
-          ? state.teams[automaticMode.startsWith('ally') ? PlayerSide.Left : PlayerSide.Right]
-              .characters.filter((candidate) => !candidate.defeated)
-          : isDeferred
-            ? []
-            : selectTargets(automaticMode, state, ch.id, new SeededRNG(0), automaticCount);
-        for (const target of targets) {
-          const card = this.cardOfChar(target.id);
-          if (card && !previewCards.includes(card)) previewCards.push(card);
-        }
-        const names = targets.map((target) => target.name).join('、');
-        if (names) {
-          if (isRandom) notes.push(`可能目标：${names}（随机选取）`);
-          else if (automaticMode === 'enemyAll') notes.push(`作用范围：全体敌人（${names}）`);
-          else if (automaticMode === 'allyAll') notes.push(`作用范围：全体盟友（${names}）`);
-          else if (targets.length === 1) notes.push(`目标：${names}`);
-          else notes.push(`作用范围：${names}`);
+        if (automaticMode === 'enemyAll' || automaticMode === 'allyAll') notes.push(`目标：全体${who}`);
+        else if (automaticMode === 'allyOthers') notes.push('目标：其他全体盟友');
+        else if (automaticMode === 'allySelf') notes.push('目标：自身');
+        else if (automaticMode.includes('Random')) {
+          const n = automaticMode.endsWith('RandomN') ? automaticCount : 1;
+          notes.push(`目标：随机 ${n} 名${who}`);
+        } else if (!isDeferred) {
+          const targets = selectTargets(automaticMode, state, ch.id, new SeededRNG(0), automaticCount);
+          if (targets.length) notes.push(`目标：${targets.map((target) => target.name).join('、')}`);
         }
       }
     }
-    if (needsColor) notes.push('确认后点选一枚宝石决定法术颜色');
-    else if (needsCell) notes.push('确认后点选一枚宝石作为目标');
-
-    return this.castConfirm.confirm({
-      casterName: ch.name,
-      skillName: this.skillNameOf(ch),
-      skillDescription: this.skillDescriptionOf(ch),
-      magic: ch.magic,
-      mana: Math.min(ch.mana, ch.manaCost),
-      manaCost: ch.manaCost,
-      targetNote: notes.join(' · '),
-      targetElements: previewCards.map((card) => card.el),
-    });
+    if (needsColor) notes.push(`${pickVerb}一枚宝石决定法术颜色`);
+    else if (needsCell) notes.push(`${pickVerb}一枚宝石作为目标`);
+    return notes.join(' · ');
   }
 
   // —— 测试页调试钩子（供 SkillTestPage 薄壳复用主游戏，不另起逻辑）——
@@ -3091,7 +3453,8 @@ export class App {
     if (transformed.length === 0) return false;
     const events: GameEvent[] = [{ type: 'gem-transform', changes: transformed }];
     this.onEventsProduced?.(events);
-    await this.player.play(events);
+    await this.playEventsWithTail(events);
+    if (this.destroyed || this.surrendered) return false;
     return true;
   }
 
@@ -3102,7 +3465,8 @@ export class App {
   async debugStormChange(ev: Extract<GameEvent, { type: 'storm-change' }>): Promise<void> {
     const events: GameEvent[] = [ev];
     this.onEventsProduced?.(events);
-    await this.player.play(events);
+    await this.playEventsWithTail(events);
+    if (this.destroyed || this.surrendered) return;
   }
 
   /** Test-console helper: mutate storm state through TurnEngine and play its events. */
@@ -3110,7 +3474,8 @@ export class App {
     const events = this.engine.debugSetStorm(color, side, turns, dropKind);
     if (events.length === 0) return;
     this.onEventsProduced?.(events);
-    await this.player.play(events);
+    await this.playEventsWithTail(events);
+    if (this.destroyed || this.surrendered) return;
     this.refreshTeams();
   }
 
@@ -3189,14 +3554,14 @@ export class App {
     const events = this.session.resolve({ type: 'swap', from: hint.a, to: hint.b });
     this.onEventsProduced?.(events);
     if (events.length === 0) return false;
-    await this.player.play(events);
-    this.advanceTurnHud(events);
+    await this.playEventsWithTail(events);
+    if (this.destroyed || this.surrendered) return false;
     this.refreshTeams();
     this.afterResolve();
     return true;
   }
 
-  /** 通过主游戏释放流程释放某角色技能（测试页触发用，等价于短按） */
+  /** 通过主游戏释放流程释放某角色技能（测试页触发用）：直接进施法流程，等价于详情窗「释放技能」 */
   triggerCast(charId: number): Promise<void> {
     return this.castPlayerSkill(charId);
   }
@@ -3229,7 +3594,8 @@ export class App {
     if (this.casting) return;
     const events = this.session.passTurn();
     this.onEventsProduced?.(events);
-    if (events.length > 0) await this.player.play(events);
+    if (events.length > 0) await this.playEventsWithTail(events);
+    if (this.destroyed || this.surrendered) return;
     this.refreshTeams();
     this.afterResolve();
   }
@@ -3264,22 +3630,6 @@ export class App {
     };
   }
 
-  /** 打开角色详情面板（需求 4）：查角色 + 关联兵种数据（按名称尽力匹配），纯读不改引擎。 */
-  private openCharacterDetail(charId: number): void {
-    const state = this.engine.getState();
-    let found: Character | undefined;
-    for (const side of [PlayerSide.Left, PlayerSide.Right]) {
-      found = state.teams[side].characters.find((c) => c.id === charId);
-      if (found) break;
-    }
-    if (!found) return;
-    // 演示队伍用中文名，尝试按名称匹配兵种数据以展示技能/特质；匹配不到则仅展示属性
-    const troop = TROOPS.find((t) => t.name === found!.name);
-    // 宿主快照携带的显示文本（meta 主角武器技能/职业特质中文名）
-    const snapshot = this.idMap.snapshotOf(charId);
-    this.detailPanel.open(found, troop, snapshot ? { spellName: snapshot.spellName, spellDescription: snapshot.spellDescription, traitNames: snapshot.traitNames } : undefined);
-  }
-
   /** 回合结束刷新两队卡面 + 技能可释放高亮 */
   private refreshTeams(): void {
     const state = this.engine.getState();
@@ -3298,6 +3648,195 @@ export class App {
         if (castable && side === PlayerSide.Left) this.maybeShowGestureHint(ch.id);
       }
     }
+    // 详情窗与卡面同步（轮询之外的即时刷新：演出结束、轮到我方时按钮立刻亮起）
+    this.refreshUnitSheet();
+  }
+
+  // —— 详情窗 / 施法演出（lane A）——
+
+  /**
+   * 详情窗覆盖区（wrapper 布局坐标）：默认盖住棋盘 + 上方 HUD 通道；
+   * 窄屏下设置/倍速/自动按钮排进 HUD 通道时只盖棋盘，避免按钮压住标题栏与关闭钮。
+   */
+  private applyUnitSheetBounds(includeHudLane: boolean): void {
+    if (!this.unitSheet) return;
+    const gridPx = this.board.cellSize * BoardModel.COLS;
+    const inset = includeHudLane ? BOARD_TOP_INSET : 0;
+    this.unitSheet.setBounds({ left: this.root.x, top: this.root.y - inset, width: gridPx, height: gridPx + inset });
+  }
+
+  /**
+   * 战斗卡点按（卡面任意位置，含宝石与徽记；或聚焦时按 Enter）。
+   * 「快速释放」开且该我方角色此刻就能施放 → 直接进施法流程；
+   * 其余一律打开详情窗（已开着同一张则收起、另一张则切换）。快速释放从不排队隐藏动作。
+   */
+  private onCardTap(charId: number, via: PressSource): void {
+    // 正在选目标/选宝石：点卡由选择层处理（点候选=选定，点别处=取消），这里不响应。
+    // 施法演出期间（casting 但已不在选择阶段）照常打开详情窗。
+    if (this.destroyed || this.surrendered || this.castPicking) return;
+    if (skipCastConfirm() && this.canCastNow(charId)) {
+      void this.castPlayerSkill(charId);
+      return;
+    }
+    if (this.unitSheet.charId === charId) this.closeUnitSheet();
+    else this.openUnitSheet(charId, via === 'keyboard');
+  }
+
+  /** 我方角色此刻能否直接施放（我方回合、可输入、满法力、未沉默、非自动战斗） */
+  private canCastNow(charId: number): boolean {
+    const ch = this.engine.getState().teams[PlayerSide.Left].characters.find((c) => c.id === charId);
+    return !!ch && this.castAvailability(ch, ch.mana).kind === 'ready';
+  }
+
+  /**
+   * 施放可用性：详情窗按钮（传卡面显示法力）、快速释放判定与 castPlayerSkill 闸门（传引擎法力）共用。
+   * 只读 App 自身状态，不依赖 input.enabled（自动战斗线可能另行接管输入）。
+   *
+   * 「对手回合」按画面口径判：引擎在一次行动结算完就已换边，而演出还在播——
+   * 我方行动的演出期间是「结算中」，敌方回合（含其演出与收尾停顿）才是「对手回合」。
+   */
+  private castAvailability(ch: Character, mana: number): CastAvailability {
+    const state = this.engine.getState();
+    const proto = this.registry.prototypes.get(ch.skillId);
+    const busy = this.settingsOpen || this.pageHidden || this.orientationBlocked || this.startupPlaying
+      || this.casting || this.player.isPlaying() || this.visualPlaying
+      || state.state !== MatchState.AwaitingInput;
+    const presentedEnemyTurn = this.rightTeamView?.isTurnActive() ?? false;
+    return resolveCastAvailability({
+      autoBattle: this.autoBattleEnabled,
+      defeated: ch.defeated,
+      over: state.state === MatchState.GameOver || this.session.isFinished(),
+      enemyTurn: presentedEnemyTurn || (!busy && state.activePlayer !== PlayerSide.Left),
+      busy,
+      mana,
+      manaCost: ch.manaCost,
+      silenced: (ch.statuses ?? []).some((s) => s.id === 'silence' || s.id === 'silenced'),
+      usedOnce: !!proto?.oncePerBattle && state.actionLog.some((entry) => entry.skillId === ch.skillId),
+    });
+  }
+
+  private findCharacter(charId: number): { ch: Character; side: PlayerSide } | null {
+    const state = this.engine.getState();
+    for (const side of [PlayerSide.Left, PlayerSide.Right]) {
+      const ch = state.teams[side].characters.find((c) => c.id === charId);
+      if (ch) return { ch, side };
+    }
+    return null;
+  }
+
+  /** 施法者是否我方（立绘切入与时间线预留共用）：卡在左列，或在左队名单里 */
+  private isAllyCaster(charId: number): boolean {
+    return !!this.leftTeamView?.getCard(charId)
+      || this.engine.getState().teams[PlayerSide.Left].characters.some((c) => c.id === charId);
+  }
+
+  /** 组装详情窗数据：数值取卡面显示值（与卡面同步，不抢先显示结算终值） */
+  private unitSheetData(charId: number): UnitSheetData | null {
+    const found = this.findCharacter(charId);
+    if (!found) return null;
+    const { ch, side } = found;
+    const ally = side === PlayerSide.Left;
+    const card = this.cardOfChar(charId);
+    const shown: CardShownStats = card?.shownStats().stats ?? {
+      attack: ch.attack, armor: Math.max(0, ch.armor), hp: Math.max(0, ch.hp), maxHp: ch.maxHp,
+      magic: ch.magic, mana: Math.min(ch.mana, ch.manaCost), manaCost: ch.manaCost, defeated: ch.defeated,
+      statuses: (ch.statuses ?? []).map((s) => ({ id: s.id, turns: s.turns, ...(s.magnitude !== undefined ? { magnitude: s.magnitude } : {}) })),
+    };
+    // 演示/宿主角色多为原创名字，按名字匹配兵种数据取稀有度/种族/王国；匹配不到则按角色自带字段降级
+    const troop = TROOPS.find((t) => t.name === ch.name);
+    const snapshot = this.idMap.snapshotOf(charId);
+    const display = snapshot
+      ? { spellName: snapshot.spellName, spellDescription: snapshot.spellDescription, traitNames: snapshot.traitNames }
+      : undefined;
+    const vm = buildDetailViewModel(ch, troop, display);
+    const rarityIdx = troop ? troop.rarityIdx : typeof ch.eventRarity === 'number' ? ch.eventRarity : null;
+    const tier = rarityIdx !== null ? RARITY_TIERS[Math.max(0, Math.min(RARITY_TIERS.length - 1, Math.floor(rarityIdx)))] : null;
+    const types = troop?.troopTypes ?? ch.troopTypes ?? [];
+    const kingdom = troop?.kingdom ?? ch.kingdom ?? '';
+    const typeLine = [types.length ? raceNames(types) : '', kingdom, tier?.label ?? ''].filter(Boolean).join(' · ');
+    const proto = this.registry.prototypes.get(ch.skillId);
+    return {
+      charId,
+      ally,
+      name: ch.name,
+      portrait: this.portraitFor(ch),
+      colors: [...ch.colors],
+      shown,
+      typeLine,
+      rarity: tier ? RARITY_TIERS.indexOf(tier) : null,
+      rarityColor: tier?.color ?? null,
+      skillName: this.skillNameOf(ch),
+      skillDescription: this.skillDescriptionOf(ch),
+      skillTag: kingdom ? `${kingdom} · 部队法术` : '部队法术',
+      targetNote: this.castTargetNote(ch, proto, ally),
+      traits: vm.traits,
+      traitNames: { ...(snapshot?.traitNames ?? {}), ...(ch.traitNames ?? {}) },
+      cast: ally ? this.castAvailability(ch, shown.mana) : undefined,
+      quickCast: skipCastConfirm(),
+    };
+  }
+
+  /** 详情窗刷新签名：卡面重绘版本 + 影响按钮状态的 App 标志；不变则跳过重建数据 */
+  private unitSheetSignature(charId: number): string {
+    const state = this.engine.getState();
+    const card = this.cardOfChar(charId);
+    return [
+      charId, card ? card.shownStats().version : -1, this.autoBattleEnabled, this.casting,
+      this.player.isPlaying(), this.visualPlaying, this.startupPlaying, this.settingsOpen,
+      this.rightTeamView.isTurnActive(), state.activePlayer, state.state, skipCastConfirm(),
+    ].join('|');
+  }
+
+  /** 打开或切换详情窗；键盘打开时把焦点移进窗内（指针点按不抢焦点） */
+  private openUnitSheet(charId: number, focus = false): void {
+    if (this.destroyed || !this.unitSheet) return;
+    const data = this.unitSheetData(charId);
+    if (!data) return;
+    this.unitSheet.open(data, { focus });
+    this.unitSheetSig = this.unitSheetSignature(charId);
+    // 开着就轮询（160ms，只比签名）：演出结束、轮到我方时按钮自己亮起来，数值实时跟卡面
+    if (this.unitSheetTimer === null) {
+      this.unitSheetTimer = window.setInterval(() => this.refreshUnitSheet(), 160);
+    }
+  }
+
+  private closeUnitSheet(): void {
+    if (this.unitSheetTimer !== null) {
+      window.clearInterval(this.unitSheetTimer);
+      this.unitSheetTimer = null;
+    }
+    this.unitSheet?.close();
+  }
+
+  private refreshUnitSheet(): void {
+    const id = this.unitSheet?.charId;
+    if (id === null || id === undefined || this.destroyed) return;
+    const sig = this.unitSheetSignature(id);
+    if (sig === this.unitSheetSig) return;
+    this.unitSheetSig = sig;
+    const data = this.unitSheetData(id);
+    if (data) this.unitSheet.update(data);
+    else this.closeUnitSheet();
+  }
+
+  /** 我方施法立绘切入（skill-cast 时由 onBattleEvent 调用；时间线预留见 EventStreamPlayer） */
+  private playCastCutIn(charId: number): void {
+    if (!this.castCutIn) return;
+    const ch = this.findCharacter(charId)?.ch;
+    this.castCutIn.play({
+      portrait: ch ? this.portraitFor(ch) : (this.portraitById.get(charId) ?? ''),
+      casterName: ch?.name ?? '',
+      skillName: ch ? this.skillNameOf(ch) : '',
+      tint: this.skillFxColor(charId),
+    });
+  }
+
+  private disposeUnitSheetAndCutIn(): void {
+    this.closeUnitSheet();
+    this.unitSheet?.destroy();
+    this.castCutIn?.cancel();
+    this.unregisterCutInSide?.();
+    this.unregisterCutInSide = null;
   }
 
   /** 待机微动（需求 19.9）：相位错开的呼吸 */

@@ -1,13 +1,12 @@
 /**
- * 状态徽记点击说明（用户需求：点击徽记，向下浮现该状态的具体效果文本）。
+ * 卡面徽记悬停说明（状态 / 特质 / 法力书签）。
  *
- * 零侵入设计：不触碰 statusBadges/TeamView（设计窗口在途重构中），以 document 级
- * 点击委托工作——任何 `.status-badge` 命中即在其下方弹出说明面板，再点同一枚或
- * 点击面板外关闭。状态、特质与法力书签共用这一层；面板挂 body、fixed 定位
- * （避免被卡片圆角裁剪），按视口夹取。
+ * 交互规则：战斗卡上任意位置的点按都执行卡片动作（打开详情窗 / 快速释放），
+ * 徽记不再拦截点击——完整说明在详情窗里。这一层只给精细指针（鼠标）提供悬停浮层：
+ * 以 document 级 pointerover/pointerout 委托工作，触控/手写笔不弹；任何按下即收起，
+ * 免得浮层盖住随后打开的详情窗。面板挂 body、fixed 定位（避免被卡片圆角裁剪），按视口夹取。
  *
- * 效果文案按 BADGES 中文名对齐（标签唯一），语义与引擎实现一致：
- * 官方查证见 `.kiro/specs/combat-mechanics/GOW-STATUS-RESEARCH.md` 与 GEMS-SEMANTICS-2.md。
+ * 效果文案按 BADGES 中文名对齐（标签唯一），语义与引擎实现一致。
  */
 import { STATUS_DESCRIPTIONS } from '../data/statusDescriptions';
 
@@ -21,16 +20,16 @@ function ensureStyle(): void {
   const style = document.createElement('style');
   style.id = STYLE_ID;
   style.textContent = `
-.status-badge{cursor:pointer}
+/* 徽记只作悬停命中区（事件照常冒泡到卡片） */
 .gcard .status-strip{pointer-events:auto}
 .gcard .status-badge{pointer-events:auto}
-.gcard .trait-badge{pointer-events:auto;cursor:pointer}
-.gcard .gem{pointer-events:auto;cursor:pointer}
+.gcard .trait-badge{pointer-events:auto}
+.gcard .gem{pointer-events:auto}
 .gcard .photo,.gcard .art .vig{pointer-events:none}
 .status-tooltip{position:fixed;z-index:1260;max-width:min(210px,calc(100vw - 20px));padding:7px 9px;border-radius:7px;
   background:rgba(14,11,6,.96);border:1px solid var(--stc,#d8c290);
   box-shadow:0 4px 14px rgba(0,0,0,.55);font-family:"Oswald","Microsoft YaHei",sans-serif;
-  font-size:11px;line-height:1.55;color:#efe2c0;pointer-events:auto;user-select:text}
+  font-size:11px;line-height:1.55;color:#efe2c0;pointer-events:none}
 .status-tooltip .st-title{font-weight:700;letter-spacing:.06em;color:var(--stc,#d8c290);margin-bottom:2px}
 .status-tooltip::before{content:"";position:absolute;top:-5px;left:var(--caret,50%);width:8px;height:8px;
   background:inherit;border-left:1px solid var(--stc,#d8c290);border-top:1px solid var(--stc,#d8c290);
@@ -48,10 +47,7 @@ function closeTip(): void {
 }
 
 function openTipFor(badge: HTMLElement): void {
-  if (openTip && openTipBadge === badge) {
-    closeTip();
-    return;
-  }
+  if (openTip && openTipBadge === badge) return;
   closeTip();
 
   const isTrait = badge.classList.contains('trait-badge');
@@ -60,12 +56,12 @@ function openTipFor(badge: HTMLElement): void {
   // 而 title 与自绘浮层双轨并存、内容不一致；TeamView 已撤掉 title，这里从
   // data-status-label / data-trait-name 取，单一事实源（旧 title 留作兜底）。
   const title = isMana
-    ? (badge.dataset.manaTitle ?? '法力')
+    ? (badge.dataset.manaTitle ?? '法力值')
     : isTrait
       ? (badge.dataset.traitName ?? '特质')
       : (badge.dataset.statusLabel ?? (badge.getAttribute('title') ?? '').split(' · ')[0].trim());
   const desc = isMana
-    ? (badge.dataset.manaDesc ?? '积攒法力后可以释放技能。')
+    ? (badge.dataset.manaDesc ?? '积攒法力值后可以释放技能。')
     : isTrait
       ? (badge.dataset.traitDesc || '这条特质暂无描述。')
       : (STATUS_DESCRIPTIONS[title] ?? '效果未知。');
@@ -119,56 +115,42 @@ function openTipFor(badge: HTMLElement): void {
   openTipBadge = badge;
 }
 
+/** 悬停浮层只服务精细指针：触控点按走卡片动作，说明在详情窗里。 */
+export function tooltipPointerAllowed(pointerType: string, finePointer: boolean): boolean {
+  return pointerType === 'mouse' && finePointer;
+}
+
 /**
- * 安装状态徽记点击说明（App.init 调用一次；重复调用幂等）。
- * document 级捕获委托：之后动态创建/销毁的徽记无需重新绑定。
- * 捕获阶段拦截徽记上的 pointerdown/click：①装饰渐晕层 .vig 盖在徽记上方会吞点击
- * （注入样式置为穿透兜底）；②阻止事件冒泡进卡面短按逻辑（否则点徽记会误放技能）。
+ * 安装卡面徽记悬停说明（App.init 调用一次；重复调用幂等）。
+ * document 级委托：之后动态创建/销毁的徽记无需重新绑定。只监听、不拦截——
+ * 徽记上的按下/点击照常冒泡到卡片（卡面任意位置都执行卡片动作）。
  */
 export function installStatusTooltips(): void {
   if (installed || typeof document === 'undefined') return;
   installed = true;
   ensureStyle();
 
-  // B-8 覆盖面：状态、特质和法力书签共用同一套浮层。
-  const badgeHit = (e: Event): HTMLElement | null => {
-    const target = e.target as HTMLElement | null;
-    return target?.closest?.('.status-badge,.trait-badge,.gcard .gem') as HTMLElement | null;
-  };
+  const fine = typeof window.matchMedia === 'function'
+    ? window.matchMedia('(hover: hover) and (pointer: fine)')
+    : null;
+  // 状态、特质和法力书签共用同一套浮层。
+  const badgeOf = (target: EventTarget | null): HTMLElement | null =>
+    (target as HTMLElement | null)?.closest?.('.status-badge,.trait-badge,.gcard .gem') as HTMLElement | null;
 
-  // 捕获阶段阻断：徽记点击不进卡面短按/长按逻辑
-  document.addEventListener('pointerdown', (e) => {
-    if (badgeHit(e)) {
-      e.stopPropagation();
-      e.preventDefault();
-    }
-  }, true);
-  document.addEventListener('pointerup', (e) => {
-    if (badgeHit(e)) {
-      e.stopPropagation();
-      e.preventDefault();
-    }
-  }, true);
-
-  document.addEventListener('click', (e) => {
-    const badge = badgeHit(e);
-    if (!badge) {
-      closeTip();
-      return;
-    }
-    e.stopPropagation();
-    e.preventDefault();
-    openTipFor(badge);
-  }, true);
-
-  document.addEventListener('keydown', (e) => {
-    if (!(e instanceof KeyboardEvent) || (e.key !== 'Enter' && e.key !== ' ')) return;
-    const badge = badgeHit(e);
-    if (!badge) return;
-    e.stopPropagation();
-    e.preventDefault();
-    openTipFor(badge);
-  }, true);
-
+  document.addEventListener('pointerover', (e) => {
+    if (!tooltipPointerAllowed(e.pointerType, fine?.matches ?? true)) return;
+    const badge = badgeOf(e.target);
+    if (badge) openTipFor(badge);
+  });
+  document.addEventListener('pointerout', (e) => {
+    if (!openTipBadge) return;
+    const next = e.relatedTarget as Node | null;
+    // 在同一枚徽记内部移动（子节点之间）不收起
+    if (next && openTipBadge.contains(next)) return;
+    if (badgeOf(e.target) === openTipBadge) closeTip();
+  });
+  // 任何按下都收起：点徽记=点卡片，随后打开的详情窗不能被残留浮层盖住
+  document.addEventListener('pointerdown', closeTip, true);
   window.addEventListener('blur', closeTip);
+  window.addEventListener('scroll', closeTip, true);
 }

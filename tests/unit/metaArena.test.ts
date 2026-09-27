@@ -20,8 +20,11 @@ const WEEK1 = 1726500000000; // 本周起点（调用方按本地周历算好传
 const HOUR = 3_600_000;
 const DAY = 24 * HOUR;
 
-const save = (gems = 0) =>
-  newSave({ now: 0, starterTroopIds: [6000, 6097, 6457], currencies: { gems } });
+const save = (gems = 0) => {
+  const s = newSave({ now: 0, starterTroopIds: [6000, 6097, 6457], currencies: { gems } });
+  s.kingdoms['破碎尖塔'] = { level: 1, questsDone: 8, exploreTier: 0, lastTributeAt: 0 };
+  return s;
+};
 
 function mkResult(winner: 'player' | 'enemy'): BattleResult {
   return {
@@ -49,45 +52,26 @@ function autoDraft(s: ReturnType<typeof save>) {
   }
 }
 
-describe('报名：本周首场免费 + 宝石报名费', () => {
-  it('新档首场免费；同周再次报名按 150 宝石收费', () => {
-    const s = save(300);
-    const first = entryArena(s, 1000, WEEK1 + HOUR, WEEK1);
-    expect(first).toEqual({ ok: true, free: true });
-    expect(s.arena.lastFreeEntryAt).toBe(WEEK1 + HOUR);
-    expect(s.arena.activeDraft?.stage).toBe('picking');
-
-    // 已有进行中 → 拒绝
-    expect(entryArena(s, 1001, WEEK1 + 2 * HOUR, WEEK1)).toMatchObject({ ok: false, code: 'INVALID' });
-    forfeitArena(s);
-
-    // 同周第二场：收费
-    const paid = entryArena(s, 1002, WEEK1 + 3 * HOUR, WEEK1);
-    expect(paid).toEqual({ ok: true, free: false });
-    expect(s.currencies.gems).toBe(300 - ARENA.entryFeeGems);
-  });
-
-  it('免费票已用且宝石不足 → INSUFFICIENT，且不建 draft', () => {
-    const s = save(0);
-    s.arena.lastFreeEntryAt = WEEK1;
-    const r = entryArena(s, 1002, WEEK1 + HOUR, WEEK1);
-    expect(r).toMatchObject({ ok: false, code: 'INSUFFICIENT' });
+describe('报名：每届1000黄金，不使用宝石或每周票', () => {
+  it('黄金不足时不扣费、不创建草稿', () => {
+    const s = save(9999); s.currencies.gold = 999;
+    expect(entryArena(s, 1, WEEK1, WEEK1)).toMatchObject({ ok: false, code: 'INSUFFICIENT' });
+    expect(s.currencies.gold).toBe(999); expect(s.currencies.gems).toBe(9999);
     expect(s.arena.activeDraft).toBeNull();
   });
-
-  it('下周免费票恢复；正常付费报名扣 150', () => {
-    const s = save(300);
-    s.arena.lastFreeEntryAt = WEEK1;
-    const nextWeek = WEEK1 + 7 * DAY;
-    expect(entryArena(s, 2000, nextWeek + HOUR, nextWeek)).toEqual({ ok: true, free: true });
-    expect(s.currencies.gems).toBe(300);
+  it('跨周和同周都按黄金收费，进行中重复报名不扣费', () => {
+    const s = save(300); s.currencies.gold = 5000;
+    expect(entryArena(s, 1, WEEK1, WEEK1)).toEqual({ ok: true, free: false });
+    expect(s.currencies.gold).toBe(4000);
+    expect(entryArena(s, 2, WEEK1, WEEK1)).toMatchObject({ ok: false });
+    expect(s.currencies.gold).toBe(4000);
     forfeitArena(s);
-    expect(entryArena(s, 2001, nextWeek + 2 * HOUR, nextWeek)).toEqual({ ok: true, free: false });
-    expect(s.currencies.gems).toBe(300 - ARENA.entryFeeGems);
+    expect(entryArena(s, 3, WEEK1 + 7 * DAY, WEEK1 + 7 * DAY)).toEqual({ ok: true, free: false });
+    expect(s.currencies.gold).toBe(3050); expect(s.currencies.gems).toBe(300);
   });
 });
 
-describe('draft：三轮 3 选 1，固定稀有度阶梯（低→中→高档，官方 3C/3R/3UR 结构的六档适配）', () => {
+describe('draft：四轮 3 选 1，普通、稀有、超稀有、史诗', () => {
   it('选项确定可复现；每轮档位落在对应阶梯内；各轮不重复', () => {
     for (let seed = 1; seed <= 20; seed++) {
       const s = save();
@@ -122,7 +106,7 @@ describe('draft：三轮 3 选 1，固定稀有度阶梯（低→中→高档，
         pickDraftCard(s, currentDraftChoices(s)!.options[0]!.troopId);
       }
       const last = currentDraftChoices(s)!;
-      expect(last.options.some((o) => o.rarityIdx >= 4)).toBe(true);
+      expect(last.options.some((o) => o.rarityIdx === 3)).toBe(true);
     }
   });
 
@@ -148,7 +132,7 @@ describe('限定编队与连战', () => {
     expect(s.arena.activeDraft!.stage).toBe('fighting');
   });
 
-  it('对手递增（等级 10/14/18）；draft 卡按稀有度上限出战；3 胜收官发大奖', () => {
+  it('双方固定15级、四人、无特质；6 胜收官发大奖', () => {
     const s = save();
     const collectionBefore = JSON.stringify(s.collection);
     const teamsBefore = JSON.stringify(s.teams);
@@ -156,37 +140,40 @@ describe('限定编队与连战', () => {
     autoDraft(s);
     startArenaBattles(s);
 
-    for (let wins = 0; wins < 3; wins++) {
+    for (let wins = 0; wins < 6; wins++) {
       const plan = planArenaBattle(s, 500 + wins);
       if (!plan.ok) throw new Error(plan.message);
       const level = ARENA.opponentLevels[wins]!;
       expect(plan.opponents.every((e) => e.level === level)).toBe(true);
-      expect(plan.request.playerTeam).toHaveLength(3);
+      expect(plan.request.playerTeam).toHaveLength(4);
+      for (const member of [...plan.request.playerTeam, ...plan.request.enemyTeam]) {
+        expect(plan.registry.prototypes.has(String(member.skillId))).toBe(true);
+      }
       // 官方口径：现开赛不吃王国加成/旗帜——请求不带 playerBanner
       expect(plan.request.playerBanner).toBeUndefined();
       for (const snap of plan.request.playerTeam) {
         const troopId = Number(snap.externalId.split('-')[1]);
         const rarity = getTroopById(troopId)!.rarityIdx;
         expect(snap.levelLabel).toBe(`Lv.${arenaDraftLevel(rarity)}`);
-        expect((snap.traitIds ?? []).length).toBeGreaterThan(0);
+        expect(snap.traitIds).toEqual([]);
       }
       const settled = settleArenaBattle(s, mkResult('player'));
       if (!settled.ok) throw new Error(settled.message);
       expect(settled.victory).toBe(true);
-      expect(settled.runOver).toBe(wins === 2);
+      expect(settled.runOver).toBe(wins === 5);
     }
 
     expect(s.arena.activeDraft).toBeNull();
-    expect(s.arena.bestRun).toBe(3);
-    expect(s.arena.seasonWins).toBe(3);
-    expect(s.currencies.gems).toBe(ARENA_REWARDS[3]!.gems);
-    expect(s.currencies.goldKeys).toBe(1 + ARENA_REWARDS[3]!.goldKeys); // 初始档自带 1 把
+    expect(s.arena.bestRun).toBe(6);
+    expect(s.arena.seasonWins).toBe(6);
+    expect(s.currencies.gloryKeys).toBe(ARENA_REWARDS[6]!.gloryKeys);
+    expect(s.currencies.trophies).toBe(ARENA_REWARDS[6]!.trophies); // 初始档自带 1 把
     // 卡即用即弃：收藏与预设队零污染
     expect(JSON.stringify(s.collection)).toBe(collectionBefore);
     expect(JSON.stringify(s.teams)).toBe(teamsBefore);
   });
 
-  it('败北即收官：按当前胜场发奖并清 draft', () => {
+  it('两败收官：按当前胜场发奖并清 draft', () => {
     const s = save();
     entryArena(s, 77, WEEK1, WEEK1);
     autoDraft(s);
@@ -194,11 +181,13 @@ describe('限定编队与连战', () => {
     const first = settleArenaBattle(s, mkResult('player'));
     if (!first.ok) throw new Error(first.message);
     expect(first.runOver).toBe(false);
+    const loss = settleArenaBattle(s, mkResult('enemy'));
+    expect(loss).toMatchObject({ ok: true, runOver: false, losses: 1 });
     const settled = settleArenaBattle(s, mkResult('enemy'));
     if (!settled.ok) throw new Error(settled.message);
     expect(settled).toMatchObject({ victory: false, wins: 1, runOver: true });
     expect(s.arena.activeDraft).toBeNull();
-    expect(s.currencies.gold).toBe(2000 + ARENA_REWARDS[1]!.gold);
+    expect(s.currencies.gold).toBe(1000 + ARENA_REWARDS[1]!.gold + 60 + 20 + 20);
   });
 
   it('弃赛：按已得胜场结算', () => {
@@ -211,6 +200,26 @@ describe('限定编队与连战', () => {
     if (!f.ok) throw new Error(f.message);
     expect(f.wins).toBe(1);
     expect(s.arena.activeDraft).toBeNull();
-    expect(s.currencies.gold).toBe(2000 + ARENA_REWARDS[1]!.gold);
+    expect(s.currencies.gold).toBe(1000 + ARENA_REWARDS[1]!.gold + 60);
+  });
+});
+
+ describe('arena per-battle progression', () => {
+  it('pays XP and base resources before the run is over, including defeats', () => {
+    const s = save(); s.currencies.gold = 5000;
+    entryArena(s, 1, WEEK1, WEEK1); autoDraft(s); startArenaBattles(s);
+    const before = { ...s.currencies };
+    const win = settleArenaBattle(s, mkResult('player'));
+    expect(win).toMatchObject({ ok: true, runOver: false,
+      battleRewards: { gold: 60, souls: 30, xpGained: 100, heroLevelsGained: 1 } });
+    expect(s.currencies.gold - before.gold).toBe(60);
+    expect(s.currencies.souls - before.souls).toBe(30);
+    expect(s.hero.level).toBe(2); expect(s.hero.xp).toBe(20);
+    const loss = settleArenaBattle(s, mkResult('enemy'));
+    expect(loss).toMatchObject({ ok: true, runOver: false,
+      battleRewards: { gold: 20, souls: 10, xpGained: 20 } });
+    expect(s.currencies.gold - before.gold).toBe(80);
+    expect(s.currencies.souls - before.souls).toBe(40);
+    expect(s.hero.xp).toBe(40);
   });
 });

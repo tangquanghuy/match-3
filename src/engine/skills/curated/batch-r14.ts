@@ -13,12 +13,10 @@
  * - ZH 机翻与官方 EN 原句冲突时（8930）以 EN + SpellSteps 为准组装，desc 仍逐字锚定 troops.json。
  */
 import type { CuratedBatch } from './index';
-import {
-  skill, dmg, dmgSplash, trueDmg, heal, armor, attack, magic, inflict,
-  transform, transformToSpecial, createSpecialGems, createSkulls,
+import { chooseSkill, skill, dmg, dmgSplash, trueDmg, heal, armor, attack, magic, inflict,
+  transform, transformToSpecial, createSpecialGems, createSpecialGems2, createSkulls,
   explodeColor, explodeSpecialGems, explodeRandomGems, destroyChosenRow,
-  shuffleBoard, extraTurn, summonRandom, summonRef,
-} from '../builders';
+  shuffleBoard, extraTurn, summonRandom, summonRef, } from '../builders';
 import { BaseColor } from '../../types';
 
 // 诺斯王国（官方 KingdomId 3080/3081，来源 data/raw/gow-2026-09-18/troops.en.json）：
@@ -73,8 +71,9 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 8632,
     desc: '对一名敌人造成 [魔法 + 3] 点伤害，并缠绕他。若敌人身亡，则创建 2 颗元素星，并获得一个额外回合。',
     build: skill(
-      dmg('enemyChosen', 3),
+      // L3-001: native Cause* FromTarget precedes Damage (R001)
       inflict('entangle', 'enemyChosen'),
+      dmg('enemyChosen', 3),
       createSpecialGems({ kind: 'elementalStar' }, 2, 0, { ifTargetDied: true }),
       extraTurn({ ifTargetDied: true }),
     ),
@@ -83,8 +82,9 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 8633,
     desc: '对一名敌人造成 [魔法 + 3] 点伤害，并燃烧他。若敌人身亡，则创建 2 颗元素星，并获得一个额外回合。',
     build: skill(
-      dmg('enemyChosen', 3),
+      // L3-001: native Cause* FromTarget precedes Damage (R001)
       inflict('burning', 'enemyChosen'),
+      dmg('enemyChosen', 3),
       createSpecialGems({ kind: 'elementalStar' }, 2, 0, { ifTargetDied: true }),
       extraTurn({ ifTargetDied: true }),
     ),
@@ -93,8 +93,9 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 8634,
     desc: '对一名敌人造成 [魔法 + 3] 点伤害，并冻结他。若敌人身亡，则创建 2 颗元素星，并获得一个额外回合。',
     build: skill(
-      dmg('enemyChosen', 3),
+      // L3-001: native Cause* FromTarget precedes Damage (R001)
       inflict('frozen', 'enemyChosen'),
+      dmg('enemyChosen', 3),
       createSpecialGems({ kind: 'elementalStar' }, 2, 0, { ifTargetDied: true }),
       extraTurn({ ifTargetDied: true }),
     ),
@@ -103,8 +104,9 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 8635,
     desc: '对一名敌人造成 [魔法 + 3] 点伤害，并击晕他。若敌人身亡，则创建 2 颗元素星，并获得一个额外回合。',
     build: skill(
-      dmg('enemyChosen', 3),
+      // L3-001: native Cause* FromTarget precedes Damage (R001)
       inflict('stun', 'enemyChosen'),
+      dmg('enemyChosen', 3),
       createSpecialGems({ kind: 'elementalStar' }, 2, 0, { ifTargetDied: true }),
       extraTurn({ ifTargetDied: true }),
     ),
@@ -143,10 +145,10 @@ const SPELLS: CuratedBatch['spells'] = [
   {
     id: 8795,
     desc: '冻结一名随机敌人。创造 3 颗石像鬼宝石并获得一个额外回合。',
-    // CreateGems2Colors（善恶随机）→ 通用石像鬼（tier 缺省，引擎按善处理，w03 同款）
+    // L3-003: native CreateGems2Colors GoodGargoyle/BadGargoyle → per-gem mix of tier 1 (good) / 2 (evil)
     build: skill(
       inflict('frozen', 'enemyRandom'),
-      createSpecialGems({ kind: 'gargoyleGem' }, 3),
+      createSpecialGems2([{ kind: 'gargoyleGem', tier: 1 }, { kind: 'gargoyleGem', tier: 2 }], 3),
       extraTurn(),
     ),
   },
@@ -188,7 +190,7 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 8886,
-    desc: '将所有蓝色宝石转换成绿色龙宝石。若我的队伍有克里斯坦纳斯，则给予所有龙族盟友 4 点魔法值。 [x4]',
+    desc: '将所有蓝色宝石转换成绿色龙宝石。若我的队伍有克里斯坦纳斯，则给予所有龙族盟友 4 点魔力值。 [x4]',
     // GreenDragonGem → transformToSpecial（转换端点无 color 通道，按任务口径落 dragonGem kind）；
     // [x4] = 官方 CountArmyTroop x400「每克里斯坦纳斯 +4」→ 引擎无按名计数来源，
     // 以 troopPresent 存在性 + 常数 4 表达（单队伍唯一 Krystenax，等价）
@@ -204,23 +206,17 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 8898,
     desc: '&& 将所有黄色宝石转换成灵力宝石。&& 将所有黄色宝石转换成骷髅头。',
     // 纯 '&&' 拼接按 §13.1 顺序组装（官方两变体顺序排列，9014 同款）
-    build: skill(
-      transformToSpecial(BaseColor.Yellow, 'spiritGem'),
-      transform(BaseColor.Yellow, 'SKULL'),
-    ),
+    build: skill(chooseSkill(["将所有黄色宝石转化为灵魂宝石","将所有黄色宝石转化为骷髅"], [transformToSpecial(BaseColor.Yellow, 'spiritGem')], [transform(BaseColor.Yellow, 'SKULL')])),
   },
   {
     id: 8899,
     desc: '&& 对所有敌人造成 [魔法 + 1] 点真实伤害。&&  对最弱的敌人造成 [魔法 + 1] 点真实伤害，数值因红色宝石和灵力宝石数而增强。 [x2]',
-    build: skill(
-      trueDmg('enemyAll', 1, 1, { range: 'all' }),
-      trueDmg('enemyWeakest', 1, 1, {
+    build: skill(chooseSkill(["对全体敌人造成［魔法＋1］真实伤害","对最弱敌人造成［魔法＋1］真实伤害，每颗红色或灵魂宝石增强2点"], [trueDmg('enemyAll', 1, 1, { range: 'all' })], [trueDmg('enemyWeakest', 1, 1, {
         modifier: {
           mod: { kind: 'multiplier', a: 2 },
           sources: [{ kind: 'boardGems', color: BaseColor.Red }, { kind: 'boardSpecial', gem: 'spiritGem' }],
         },
-      }),
-    ),
+      })])),
   },
   {
     id: 8916,
@@ -238,7 +234,7 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 8917,
     desc: '创造一颗灵力宝石。板面上每有一颗黄色宝石，则有 7% 的几率获得一个额外回合。 [x7]',
     build: skill(
-      createSpecialGems({ kind: 'spiritGem' }, 1),
+      createSpecialGems({ kind: 'spiritGem', color: BaseColor.Purple }, 1),
       extraTurn({ chanceBoost: { mod: { kind: 'multiplier', a: 7 }, source: { kind: 'boardGems', color: BaseColor.Yellow } } }),
     ),
   },
@@ -254,7 +250,7 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '对一名敌人造成 [魔法 + 3] 点伤害。再创造 3 颗灵力宝石。',
     build: skill(
       dmg('enemyChosen', 3),
-      createSpecialGems({ kind: 'spiritGem' }, 3),
+      createSpecialGems({ kind: 'spiritGem', color: BaseColor.Purple }, 3),
     ),
   },
   {
@@ -302,14 +298,14 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 9138,
-    desc: '对所有敌人造成 [(魔法 x 3) + 6] 点伤害。创造 3 颗元素星河 3 颗临界星。有 10% 的几率获得一个额外回合，几率因骷髅头数而增强。 [x4]',
+    desc: '对所有敌人造成 [(魔法 x 3) + 6] 点伤害。创造 3 颗元素之星和 3 颗暗影之星。有 10% 的几率获得额外回合，根据骷髅头宝石数量提升。[x4]',
     build: skill(
       dmg('enemyAll', 6, 3, { range: 'all' }),
       createSpecialGems({ kind: 'elementalStar' }, 3),
       createSpecialGems({ kind: 'umbralStar' }, 3),
       extraTurn({
         chance: 0.1,
-        chanceBoost: { mod: { kind: 'multiplier', a: 4 }, source: { kind: 'boardSkulls' } },
+        chanceBoost: { mod: { kind: 'multiplier', a: 4 }, source: { kind: 'castStartBoardSkulls' } },
       }),
     ),
   },
@@ -356,11 +352,7 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 9467,
     desc: '&& 创建 2 颗恶魔门户宝石。&& 引爆一颗随机宝石并召唤一只灵狐。',
     // §13.1 顺序组装；灵狐 = SpiritFox（troops.json referenceName，官方 Summoning 6207）
-    build: skill(
-      createSpecialGems({ kind: 'daemonicPortalGem' }, 2),
-      explodeRandomGems(1, 0),
-      summonRef('SpiritFox', 6207),
-    ),
+    build: skill(chooseSkill(["创造2颗恶魔门户宝石","爆破一颗随机宝石并召唤灵狐"], [createSpecialGems({ kind: 'daemonicPortalGem' }, 2)], [explodeRandomGems(1, 0), summonRef('SpiritFox', 6207)])),
   },
   {
     id: 9469,

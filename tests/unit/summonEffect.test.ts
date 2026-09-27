@@ -103,14 +103,9 @@ describe('summonEffect（需求 10.3, 10.4）', () => {
     const full = Array.from({ length: MAX_TEAM_SIZE }, (_, i) => makeChar(i));
     const state = makeState(full);
     const events = summonEffect({ source: { template }, troopId: 6003 }).apply(ctxFor(state, 0));
-    expect(events[0]).toMatchObject({
-      type: 'summon',
-      destination: 'queue',
-      slot: 0,
-      troopId: 6003,
-    });
+    expect(events).toEqual([]);
     expect(state.teams[PlayerSide.Left].characters.length).toBe(MAX_TEAM_SIZE);
-    expect(state.teams[PlayerSide.Left].summonQueue?.map((entry) => entry.character.name)).toEqual([template.name]);
+    expect(state.teams[PlayerSide.Left].summonQueue).toBeUndefined();
   });
 
   it('nextCharId 注入时用其分配 id', () => {

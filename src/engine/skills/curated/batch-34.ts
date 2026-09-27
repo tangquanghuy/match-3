@@ -61,9 +61,10 @@ const SPELLS: CuratedBatch['spells'] = [
   {
     id: 7359,
     desc: '对 1 名敌人造成 [魔法 + 3] 点伤害并使其陷入疾病状态。',
+    // Native order CauseDisease -> Delay -> Damage (rulings/R001, L5-013).
     build: skill(
-      dmg('enemyChosen', 3, 1),
       inflict('disease', 'enemyChosen'),
+      dmg('enemyChosen', 3, 1),
     ),
   },
   {
@@ -112,8 +113,9 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 7728,
     desc: '对一名敌人造成 [魔法 + 7] 点伤害。魅惑敌人并使其陷入中毒状态。',
     build: skill(
-      dmg('enemyChosen', 7, 1),
+      // L1-6534-order (R001): native Charm -> Damage -> CausePoison.
       inflict('charm', 'enemyChosen'),
+      dmg('enemyChosen', 7, 1),
       inflict('poison', 'enemyChosen'),
     ),
   },

@@ -45,7 +45,7 @@
     "troops": 103,
     "teamAura": {
       "scope": "allies",
-      "stat": "magic",
+      "stat": "random",
       "amount": 2
     }
   },
@@ -99,7 +99,7 @@
   {
     "code": "arcane",
     "name": "秘法",
-    "description": "当一名盟友施放法术时获得 1 点魔法值。",
+    "description": "当一名盟友施放法术时获得 1 点魔力值。",
     "troops": 79,
     "onAllyCastGain": {
       "stat": "magic",
@@ -140,7 +140,7 @@
   {
     "code": "fast",
     "name": "快速",
-    "description": "战斗开始时获得 50% 法力。",
+    "description": "战斗开始时获得 50% 法力值。",
     "troops": 68,
     "battleStartManaRatio": 0.5
   },
@@ -194,7 +194,7 @@
   {
     "code": "deepmagic",
     "name": "淘宝之魔",
-    "description": "在淘宝模式中获得 5 点魔法值。",
+    "description": "在淘宝模式中获得 5 点魔力值。",
     "troops": 57,
     "onDelveGain": {
       "stat": "magic",
@@ -301,7 +301,7 @@
     "code": "invulnerable",
     "name": "无懈可击",
     "description": "对所有状态效果、吞噬、法力耗尽、转化、狼化和致命伤害免疫",
-    "troops": 40,
+    "troops": 38,
     "statusImmunities": [
       "*"
     ]
@@ -323,7 +323,7 @@
   {
     "code": "waterlink",
     "name": "水系灵链",
-    "description": "在配对蓝色宝石时获得额外的蓝色法力。",
+    "description": "在配对蓝色宝石时获得额外的蓝色法力值。",
     "troops": 35,
     "manaLink": {
       "color": "Blue",
@@ -366,7 +366,7 @@
   {
     "code": "magiclink",
     "name": "魔法灵链",
-    "description": "在配对紫色宝石时获得额外的紫色法力。",
+    "description": "在配对紫色宝石时获得额外的紫色法力值。",
     "troops": 32,
     "manaLink": {
       "color": "Purple",
@@ -386,7 +386,7 @@
     "code": "huge",
     "name": "巨型",
     "description": "在配对 4 或 5 颗宝石时，获得 2 点生命值。",
-    "troops": 33,
+    "troops": 32,
     "onBigMatchGain": {
       "stat": "hp",
       "amount": 2
@@ -395,7 +395,7 @@
   {
     "code": "naturelink",
     "name": "自然灵链",
-    "description": "在配对绿色宝石时获得额外的绿色法力。",
+    "description": "在配对绿色宝石时获得额外的绿色法力值。",
     "troops": 31,
     "manaLink": {
       "color": "Green",
@@ -405,7 +405,7 @@
   {
     "code": "firelink",
     "name": "火焰灵链",
-    "description": "在配对红色宝石时获得额外的红色法力。",
+    "description": "在配对红色宝石时获得额外的红色法力值。",
     "troops": 30,
     "manaLink": {
       "color": "Red",
@@ -462,14 +462,14 @@
   {
     "code": "swift",
     "name": "迅疾",
-    "description": "战斗开始时获得 75% 法力。",
+    "description": "战斗开始时获得 75% 法力值。",
     "troops": 27,
     "battleStartManaRatio": 0.75
   },
   {
     "code": "foxcunning",
     "name": "狡猾狐狸",
-    "description": "战斗开始时获得 25% 法力。",
+    "description": "战斗开始时获得 25% 法力值。",
     "troops": 27,
     "battleStartManaRatio": 0.25
   },
@@ -497,7 +497,7 @@
   {
     "code": "airlink",
     "name": "空气灵链",
-    "description": "从黄色宝石配对中获得额外的黄色法力。",
+    "description": "从黄色宝石配对中获得额外的黄色法力值。",
     "troops": 24,
     "manaLink": {
       "color": "Yellow",
@@ -546,7 +546,7 @@
   {
     "code": "stonelink",
     "name": "岩石灵链",
-    "description": "在配对棕色宝石时获得额外的棕色法力。",
+    "description": "在配对棕色宝石时获得额外的棕色法力值。",
     "troops": 23,
     "manaLink": {
       "color": "Brown",
@@ -693,7 +693,7 @@
   {
     "code": "waterspirit",
     "name": "水系之灵",
-    "description": "每有一名蓝色盟友则获得 1 点魔法值。",
+    "description": "每有一名蓝色盟友则获得 1 点魔力值。",
     "troops": 19,
     "perAllyColor": {
       "color": "Blue",
@@ -771,7 +771,7 @@
   {
     "code": "firespirit",
     "name": "火焰之灵",
-    "description": "每有一名红色盟友则获得 1 点魔法值。",
+    "description": "每有一名红色盟友则获得 1 点魔力值。",
     "troops": 16,
     "perAllyColor": {
       "color": "Red",
@@ -793,7 +793,7 @@
   {
     "code": "airspirit",
     "name": "空气之灵",
-    "description": "每有一名黄色盟友则获得 1 点魔法值。",
+    "description": "每有一名黄色盟友则获得 1 点魔力值。",
     "troops": 16,
     "perAllyColor": {
       "color": "Yellow",
@@ -911,7 +911,7 @@
   {
     "code": "naturespirit",
     "name": "自然之灵",
-    "description": "每有一名绿色盟友则获得 1 点魔法值。",
+    "description": "每有一名绿色盟友则获得 1 点魔力值。",
     "troops": 14,
     "perAllyColor": {
       "color": "Green",
@@ -988,7 +988,7 @@
   {
     "code": "magicspirit",
     "name": "魔法之灵",
-    "description": "每有一名紫色盟友则获得 1 点魔法值。",
+    "description": "每有一名紫色盟友则获得 1 点魔力值。",
     "troops": 13,
     "perAllyColor": {
       "color": "Purple",
@@ -1020,7 +1020,7 @@
   {
     "code": "stonespirit",
     "name": "岩石之灵",
-    "description": "每有一名棕色盟友则获得 1 点魔法值。",
+    "description": "每有一名棕色盟友则获得 1 点魔力值。",
     "troops": 12,
     "perAllyColor": {
       "color": "Brown",
@@ -1225,7 +1225,7 @@
     "code": "merfolkbond",
     "name": "海族族亲",
     "description": "海族盟友获得 2 点生命值。",
-    "troops": 11,
+    "troops": 10,
     "typeAura": {
       "troopType": "Merfolk",
       "stat": "hp",
@@ -1581,7 +1581,7 @@
   {
     "code": "orccunning",
     "name": "兽人之狡",
-    "description": "在自身受到伤害时获得 2 点魔法值。",
+    "description": "在自身受到伤害时获得 2 点魔力值。",
     "troops": 6,
     "onDamagedGain": {
       "stat": "magic",
@@ -1965,7 +1965,7 @@
   {
     "code": "trascend",
     "name": "超越自我",
-    "description": "在配对 4 或 5 颗宝石时，将 2 点生命值替换成 2 点魔法值。",
+    "description": "在配对 4 或 5 颗宝石时，将 2 点生命值替换成 2 点魔力值。",
     "troops": 4,
     "onBigMatchConvert": {
       "from": "hp",
@@ -2065,7 +2065,7 @@
   {
     "code": "suitofwands",
     "name": "魔法套装",
-    "description": "在配对 4 颗或更多宝石时，给予所有盟友 1 点魔法值。",
+    "description": "在配对 4 颗或更多宝石时，给予所有盟友 1 点魔力值。",
     "troops": 4,
     "onBigMatchTypeAura": {
       "troopType": "all",
@@ -2685,7 +2685,7 @@
   {
     "code": "bandingmagic",
     "name": "束带魔力",
-    "description": "己方每有一名拥有束带特质的盟友，获得 1 点魔法值。",
+    "description": "己方每有一名拥有束带特质的盟友，获得 1 点魔力值。",
     "troops": 2,
     "perAllyTrait": {
       "trait": "banding",
@@ -3008,7 +3008,7 @@
   {
     "code": "sunshine",
     "name": "阳光",
-    "description": "配对黄色宝石时获得 8 点魔法值。",
+    "description": "配对黄色宝石时获得 8 点魔力值。",
     "troops": 1,
     "onColorMatchGain": {
       "color": "Yellow",
@@ -3041,7 +3041,7 @@
   {
     "code": "orclord",
     "name": "兽人领主",
-    "description": "所有兽人军队在战斗开始时获得 50% 法力。",
+    "description": "所有兽人军队在战斗开始时获得 50% 法力值。",
     "troops": 1,
     "allyStartMana": {
       "troopType": "Orc",
@@ -3067,7 +3067,7 @@
   {
     "code": "fall",
     "name": "秋日",
-    "description": "在配对棕色宝石时获得 8 点魔法值。",
+    "description": "在配对棕色宝石时获得 8 点魔力值。",
     "troops": 1,
     "onColorMatchGain": {
       "color": "Brown",
@@ -3094,7 +3094,7 @@
   {
     "code": "chill",
     "name": "寒霜",
-    "description": "在配对蓝色宝石时获得 8 点魔法值。",
+    "description": "在配对蓝色宝石时获得 8 点魔力值。",
     "troops": 1,
     "onColorMatchGain": {
       "color": "Blue",
@@ -3128,7 +3128,7 @@
   {
     "code": "compassion",
     "name": "恻隐之心",
-    "description": "在配对红色宝石时获得 8 点魔法值。",
+    "description": "在配对红色宝石时获得 8 点魔力值。",
     "troops": 1,
     "onColorMatchGain": {
       "color": "Red",
@@ -3186,7 +3186,7 @@
   {
     "code": "seedling",
     "name": "苗木",
-    "description": "在配对绿色宝石时获得 8 点魔法值。",
+    "description": "在配对绿色宝石时获得 8 点魔力值。",
     "troops": 1,
     "onColorMatchGain": {
       "color": "Green",
@@ -3282,7 +3282,7 @@
   {
     "code": "technomancy",
     "name": "量子魔法",
-    "description": "在配对 4 或 5 颗宝石时，一名随机敌人损失 2 点魔法值。",
+    "description": "在配对 4 或 5 颗宝石时，一名随机敌人损失 2 点魔力值。",
     "troops": 1,
     "onBigMatchEnemyDrain": {
       "stat": "magic",
@@ -3355,7 +3355,7 @@
   {
     "code": "virtueofhumility",
     "name": "谦恭之美德",
-    "description": "当自身生命值承受伤害时，所有盟友获得 2 点护甲值和魔法值。",
+    "description": "当自身生命值承受伤害时，所有盟友获得 2 点护甲值和魔力值。",
     "troops": 1,
     "onDamagedTypeAura": {
       "troopType": "all",
@@ -3368,7 +3368,7 @@
   {
     "code": "virtueofsacrifice",
     "name": "牺牲之美德",
-    "description": "当一名盟友身亡时，所有盟友获得 2 点攻击力和魔法值。",
+    "description": "当一名盟友身亡时，所有盟友获得 2 点攻击力和魔力值。",
     "troops": 1,
     "onAllyDeathTypeAura": {
       "troopType": "all",
@@ -3397,7 +3397,7 @@
   {
     "code": "boo",
     "name": "吓死你！",
-    "description": "在配对紫色宝石时，获得 8 点魔法值。",
+    "description": "在配对紫色宝石时，获得 8 点魔力值。",
     "troops": 1,
     "onColorMatchGain": {
       "color": "Purple",
@@ -3438,7 +3438,7 @@
   {
     "code": "lordofbeasts",
     "name": "野兽领主",
-    "description": "所有野兽军队在战斗开始时获得 50% 法力。",
+    "description": "所有野兽军队在战斗开始时获得 50% 法力值。",
     "troops": 1,
     "allyStartMana": {
       "troopType": "Beast",
@@ -3448,7 +3448,7 @@
   {
     "code": "firstwargare",
     "name": "狼族老大",
-    "description": "在配对 4 或更多颗宝石时给予狼族盟友 2 点攻击力和魔法值。",
+    "description": "在配对 4 或更多颗宝石时给予狼族盟友 2 点攻击力和魔力值。",
     "troops": 1,
     "onBigMatchTypeAura": {
       "troopType": "Wargare",
@@ -3461,7 +3461,7 @@
   {
     "code": "absorbpower",
     "name": "吸收能量",
-    "description": "当一名敌人施放法术时获得 3 点魔法值。",
+    "description": "当一名敌人施放法术时获得 3 点魔力值。",
     "troops": 1,
     "onEnemyCastGain": {
       "stat": "magic",
@@ -3660,7 +3660,7 @@
   {
     "code": "sunsglory",
     "name": "太阳之荣耀",
-    "description": "配对红色宝石时获得 2 点魔法值。",
+    "description": "配对红色宝石时获得 2 点魔力值。",
     "troops": 1,
     "onColorMatchGain": {
       "color": "Red",
@@ -3689,7 +3689,7 @@
   {
     "code": "rainbowlink",
     "name": "彩虹灵链",
-    "description": "在配对所有宝石时获得额外的法力。",
+    "description": "在配对所有宝石时获得额外的法力值。",
     "troops": 1,
     "manaLink": {
       "color": "*",
@@ -3731,7 +3731,7 @@
   {
     "code": "wildmana",
     "name": "狂野法力",
-    "description": "所有蛮族军队在战斗开始时获得 50% 法力。",
+    "description": "所有蛮族军队在战斗开始时获得 50% 法力值。",
     "troops": 1,
     "allyStartMana": {
       "troopType": "Wildfolk",
@@ -3780,7 +3780,7 @@
   {
     "code": "stoneloyalty",
     "name": "石之忠诚",
-    "description": "所有矮人军队在战斗开始时获得 50% 法力。",
+    "description": "所有矮人军队在战斗开始时获得 50% 法力值。",
     "troops": 1,
     "allyStartMana": {
       "troopType": "Dwarf",
@@ -3913,7 +3913,7 @@
   {
     "code": "lordofdeath",
     "name": "死亡领主",
-    "description": "所有不死族在一名敌人身亡时获得 5 点生命值和魔法值。",
+    "description": "所有不死族在一名敌人身亡时获得 5 点生命值和魔力值。",
     "troops": 1,
     "onEnemyDeathTypeAura": {
       "troopType": "Undead",
@@ -3992,7 +3992,7 @@
   {
     "code": "darkfury",
     "name": "暗黑怒火",
-    "description": "在自身受到伤害时获得 8 点攻击力和魔法值。",
+    "description": "在自身受到伤害时获得 8 点攻击力和魔力值。",
     "troops": 1,
     "onDamagedGain": {
       "stat": "attack",
@@ -4069,7 +4069,16 @@
           "id": "death-mark"
         },
         {
-          "id": "charm"
+          "id": "faerie-fire"
+        },
+        {
+          "id": "marked"
+        },
+        {
+          "id": "lycanthropy"
+        },
+        {
+          "id": "terror"
         }
       ],
       "turns": 3,
@@ -4079,7 +4088,7 @@
   {
     "code": "radiantaura",
     "name": "灿烂灵气",
-    "description": "所有神祇军队在战斗开始时获得 40% 法力。",
+    "description": "所有神祇军队在战斗开始时获得 40% 法力值。",
     "troops": 1,
     "allyStartMana": {
       "troopType": "Divine",
@@ -4104,7 +4113,7 @@
   {
     "code": "soulritual",
     "name": "灵魂祭礼",
-    "description": "在一名敌人身亡时获得 5 点魔法值。",
+    "description": "在一名敌人身亡时获得 5 点魔力值。",
     "troops": 1,
     "onEnemyDeathGain": {
       "stat": "magic",
@@ -4139,7 +4148,7 @@
   {
     "code": "giantqueen",
     "name": "巨人女王",
-    "description": "在配对 4 或 5 颗宝石时，所有巨人获得 2 点生命值和魔法值。",
+    "description": "在配对 4 或 5 颗宝石时，所有巨人获得 2 点生命值和魔力值。",
     "troops": 1,
     "onBigMatchTypeAura": {
       "troopType": "Giant",
@@ -4263,7 +4272,7 @@
   {
     "code": "prideprowess",
     "name": "狮群战技",
-    "description": "所有猫族盟友在每一回合开始的时候获得 1 点攻击力和魔法值。",
+    "description": "所有猫族盟友在每一回合开始的时候获得 1 点攻击力和魔力值。",
     "troops": 1,
     "turnStartTypeAura": {
       "scope": "Raksha",
@@ -4353,7 +4362,7 @@
   {
     "code": "auraofpower",
     "name": "能量灵气",
-    "description": "在配对 4 或 5 颗宝石时，所有秘士获得 1 点魔法值。",
+    "description": "在配对 4 或 5 颗宝石时，所有秘士获得 1 点魔力值。",
     "troops": 1,
     "onBigMatchTypeAura": {
       "troopType": "Mystic",
@@ -4375,7 +4384,7 @@
   {
     "code": "northernclans",
     "name": "北部宗族",
-    "description": "所有厄什卡军队在战斗开始时获得 50% 法力。",
+    "description": "所有厄什卡军队在战斗开始时获得 50% 法力值。",
     "troops": 1,
     "allyStartMana": {
       "troopType": "Urska",
@@ -4501,7 +4510,7 @@
   {
     "code": "inspirehope",
     "name": "激发希望",
-    "description": "所有人类军队在战斗开始时获得 50% 法力。",
+    "description": "所有人类军队在战斗开始时获得 50% 法力值。",
     "troops": 1,
     "allyStartMana": {
       "troopType": "Human",
@@ -4688,7 +4697,7 @@
   {
     "code": "celestialsage",
     "name": "天界大圣",
-    "description": "在配对 4 或 5 颗宝石时，给予所有盟友 1 点魔法值。",
+    "description": "在配对 4 或 5 颗宝石时，给予所有盟友 1 点魔力值。",
     "troops": 1,
     "onBigMatchTypeAura": {
       "troopType": "all",
@@ -4700,7 +4709,7 @@
   {
     "code": "elvenkin",
     "name": "精灵亲族",
-    "description": "所有精灵军队在战斗开始时获得 50% 法力。",
+    "description": "所有精灵军队在战斗开始时获得 50% 法力值。",
     "troops": 1,
     "allyStartMana": {
       "troopType": "Elf",
@@ -4876,7 +4885,7 @@
   {
     "code": "drownedcrew",
     "name": "溺水船员",
-    "description": "所有元素军队在战斗开始时获得 50% 法力。",
+    "description": "所有元素军队在战斗开始时获得 50% 法力值。",
     "troops": 1,
     "allyStartMana": {
       "troopType": "Elemental",
@@ -4983,7 +4992,7 @@
   {
     "code": "kingslegion",
     "name": "大王军团",
-    "description": "在配对 4 颗或更多宝石时，所有不死族盟友获得 2 点护甲值和魔法值。",
+    "description": "在配对 4 颗或更多宝石时，所有不死族盟友获得 2 点护甲值和魔力值。",
     "troops": 1,
     "onBigMatchTypeAura": {
       "troopType": "Undead",
@@ -5223,7 +5232,7 @@
   {
     "code": "griffoncommander",
     "name": "狮鹫指挥官",
-    "description": "所有骑士盟友在战斗开始时获得 50% 法力。",
+    "description": "所有骑士盟友在战斗开始时获得 50% 法力值。",
     "troops": 1,
     "allyStartMana": {
       "troopType": "Knight",
@@ -5622,7 +5631,7 @@
   {
     "code": "emperinasblessing",
     "name": "埃佩里娜赐福",
-    "description": "在配对 4 或更多宝石时，给予所有盟友 2 点生命值和魔法值。",
+    "description": "在配对 4 或更多宝石时，给予所有盟友 2 点生命值和魔力值。",
     "troops": 1,
     "onBigMatchTypeAura": {
       "troopType": "all",
@@ -5683,7 +5692,7 @@
   {
     "code": "totemofthevale",
     "name": "神谷图腾",
-    "description": "在配对 4 或更多宝石时，所有蛮族获得 1 点生命值和魔法值。",
+    "description": "在配对 4 或更多宝石时，所有蛮族获得 1 点生命值和魔力值。",
     "troops": 1,
     "onBigMatchTypeAura": {
       "troopType": "Wildfolk",
@@ -5930,7 +5939,7 @@
   {
     "code": "darklordrising",
     "name": "黑魔王复起",
-    "description": "在我的回合开始时获得 3 点魔法值。",
+    "description": "在我的回合开始时获得 3 点魔力值。",
     "troops": 1,
     "regen": {
       "stat": "magic",
@@ -5947,7 +5956,7 @@
   {
     "code": "dragonking",
     "name": "龙王",
-    "description": "在配对 4 颗或更多宝石时，给予所有龙族盟友 3 点魔法值。",
+    "description": "在配对 4 颗或更多宝石时，给予所有龙族盟友 3 点魔力值。",
     "troops": 1,
     "onBigMatchTypeAura": {
       "troopType": "Dragon",
@@ -5996,7 +6005,7 @@
   {
     "code": "feralinspiration",
     "name": "野性灵感",
-    "description": "在我的回合开始时，给予所有野兽盟友 1 点 攻击力和魔法值。",
+    "description": "在我的回合开始时，给予所有野兽盟友 1 点 攻击力和魔力值。",
     "troops": 1,
     "turnStartTypeAura": {
       "scope": "Beast",
@@ -6009,7 +6018,7 @@
   {
     "code": "lunarinspiration",
     "name": "月之灵",
-    "description": "在我的回合开始时，给予所有野兽盟友 2 点魔法值。",
+    "description": "在我的回合开始时，给予所有野兽盟友 2 点魔力值。",
     "troops": 1,
     "turnStartTypeAura": {
       "scope": "Beast",
@@ -6120,7 +6129,7 @@
   {
     "code": "darkinfusion",
     "name": "暗黑输入",
-    "description": "在配对 4 或更多颗宝石时，窃取首位敌人 2 点魔法值。",
+    "description": "在配对 4 或更多颗宝石时，窃取首位敌人 2 点魔力值。",
     "troops": 1,
     "onBigMatchEnemyDrain": {
       "stat": "magic",
@@ -6265,7 +6274,7 @@
   {
     "code": "psychicaffliction",
     "name": "精神折磨",
-    "description": "当一名盟友施放法术时，消除所有敌人 1 点魔法值。",
+    "description": "当一名盟友施放法术时，消除所有敌人 1 点魔力值。",
     "troops": 1,
     "onAllyCastEnemyDrain": {
       "stat": "magic",
@@ -6508,7 +6517,7 @@
   {
     "code": "wildcunning",
     "name": "狂野狡猾",
-    "description": "所有蛮族将在我的回合开始的时候获得 1 点魔法值。",
+    "description": "所有蛮族将在我的回合开始的时候获得 1 点魔力值。",
     "troops": 1,
     "turnStartTypeAura": {
       "scope": "Wildfolk",
@@ -6689,7 +6698,7 @@
   {
     "code": "sapphireaura",
     "name": "蓝宝石光环",
-    "description": "在配对蓝色宝石时，给予所有蓝色盟友 2 点魔法值",
+    "description": "在配对蓝色宝石时，给予所有蓝色盟友 2 点魔力值",
     "troops": 1,
     "onColorMatchTypeAura": {
       "color": "Blue",
@@ -6702,7 +6711,7 @@
   {
     "code": "emeraldaura",
     "name": "翡翠光环",
-    "description": "在配对绿色宝石时，给予所有绿色盟友 2 点魔法值",
+    "description": "在配对绿色宝石时，给予所有绿色盟友 2 点魔力值",
     "troops": 1,
     "onColorMatchTypeAura": {
       "color": "Green",
@@ -6715,7 +6724,7 @@
   {
     "code": "rubyaura",
     "name": "红宝石光环",
-    "description": "在配对红色宝石时，给予所有红色盟友 2 点魔法值",
+    "description": "在配对红色宝石时，给予所有红色盟友 2 点魔力值",
     "troops": 1,
     "onColorMatchTypeAura": {
       "color": "Red",
@@ -6728,7 +6737,7 @@
   {
     "code": "topazaura",
     "name": "石榴石光环",
-    "description": "在配对黄色宝石时，给予所有黄色盟友 2 点魔法值",
+    "description": "在配对黄色宝石时，给予所有黄色盟友 2 点魔力值",
     "troops": 1,
     "onColorMatchTypeAura": {
       "color": "Yellow",
@@ -6741,7 +6750,7 @@
   {
     "code": "amethystaura",
     "name": "紫水晶光环",
-    "description": "在配对紫色宝石时，给予所有紫色盟友 2 点魔法值。",
+    "description": "在配对紫色宝石时，给予所有紫色盟友 2 点魔力值。",
     "troops": 1,
     "onColorMatchTypeAura": {
       "color": "Purple",
@@ -6754,7 +6763,7 @@
   {
     "code": "garnetaura",
     "name": "石榴石光环",
-    "description": "在配对棕色宝石时，给予所有棕色盟友 2 点魔法值",
+    "description": "在配对棕色宝石时，给予所有棕色盟友 2 点魔力值",
     "troops": 1,
     "onColorMatchTypeAura": {
       "color": "Brown",
@@ -6767,7 +6776,7 @@
   {
     "code": "diamondaura",
     "name": "钻石光环",
-    "description": "在配对骷髅头时，给予所有盟友 2 点魔法值。",
+    "description": "在配对骷髅头时，给予所有盟友 2 点魔力值。",
     "troops": 1,
     "onColorMatchTypeAura": {
       "color": "skull",
@@ -6793,7 +6802,7 @@
   {
     "code": "celestialarrow",
     "name": "神箭",
-    "description": "在配对黄色宝石时赋予所有黄色盟友 2 点魔法值。",
+    "description": "在配对黄色宝石时赋予所有黄色盟友 2 点魔力值。",
     "troops": 1,
     "onColorMatchTypeAura": {
       "color": "Yellow",
@@ -6816,7 +6825,7 @@
   {
     "code": "captainsorders",
     "name": "队长的命令",
-    "description": "当配对4个或更多宝石时，所有罗格盟友获得2点魔法值。",
+    "description": "当配对4个或更多宝石时，所有罗格盟友获得2点魔力值。",
     "troops": 1,
     "onBigMatchTypeAura": {
       "troopType": "Rogue",
@@ -6851,7 +6860,7 @@
   {
     "code": "lossofsanity",
     "name": "失智",
-    "description": "在配对 4 颗或更多宝石时，消除所有敌人 3 点魔法值。",
+    "description": "在配对 4 颗或更多宝石时，消除所有敌人 3 点魔力值。",
     "troops": 1,
     "onBigMatchEnemyDrain": {
       "stat": "magic",
@@ -6862,7 +6871,7 @@
   {
     "code": "blessingofrock",
     "name": "岩石赐福",
-    "description": "在配对棕色宝石时，给予所有元素盟友 2 点魔法值。",
+    "description": "在配对棕色宝石时，给予所有元素盟友 2 点魔力值。",
     "troops": 1,
     "onColorMatchTypeAura": {
       "color": "Brown",
@@ -6947,7 +6956,7 @@
     "turnStartColorToSpecial": {
       "color": "Blue",
       "gem": "spiritGem",
-      "gemColor": "Purple",
+      "gemColor": "Blue",
       "count": 2
     }
   },
@@ -7241,7 +7250,7 @@
   {
     "code": "voidspirit",
     "name": "虚空幽灵",
-    "description": "在配对紫色宝石时获得 2 点魔法值。",
+    "description": "在配对紫色宝石时获得 2 点魔力值。",
     "troops": 1,
     "onColorMatchGain": {
       "color": "Purple",
@@ -7371,8 +7380,8 @@
   },
   {
     "code": "powerofstars",
-    "name": "星星的力量",
-    "description": "在配对骷髅头宝石时给予所有盟友全部技能值各 1 点。",
+    "name": "星辰之力",
+    "description": "在配对骷髅头宝石时，给予所有盟友全部技能值各 1 点（生命、护甲、攻击和魔法）。",
     "troops": 1,
     "onColorMatchTypeAura": {
       "color": "skull",
@@ -7878,7 +7887,7 @@
   {
     "code": "breathofpower",
     "name": "能量之气",
-    "description": "在配对 4 或更多宝石时，给予所有龙族盟友 2 点魔法值。",
+    "description": "在配对 4 或更多宝石时，给予所有龙族盟友 2 点魔力值。",
     "troops": 1,
     "onBigMatchTypeAura": {
       "troopType": "Dragon",
@@ -8191,7 +8200,7 @@
   {
     "code": "oceanswell",
     "name": "海洋涌浪",
-    "description": "所有人鱼盟友在匹配 4 颗或更多宝石时获得 2 点魔法值。",
+    "description": "所有人鱼盟友在匹配 4 颗或更多宝石时获得 2 点魔力值。",
     "troops": 1,
     "onBigMatchTypeAura": {
       "troopType": "Merfolk",
@@ -8295,7 +8304,7 @@
   {
     "code": "strengthofthepride",
     "name": "骄傲的力量",
-    "description": "匹配 4 颗或更多宝石时，为所有 猫族 盟友提供 2 点魔法值和生命值。",
+    "description": "匹配 4 颗或更多宝石时，为所有 猫族 盟友提供 2 点魔力值和生命值。",
     "troops": 1,
     "onBigMatchTypeAura": {
       "troopType": "Raksha",
@@ -8531,7 +8540,7 @@
   {
     "code": "nightsong",
     "name": "夜曲",
-    "description": "所有紫色盟友在每个回合开始时获得 2 点生命值和魔法值。",
+    "description": "所有紫色盟友在每个回合开始时获得 2 点生命值和魔力值。",
     "troops": 1,
     "turnStartTypeAura": {
       "scope": "Purple",
@@ -8581,7 +8590,7 @@
   {
     "code": "elvenking",
     "name": "精灵王",
-    "description": "匹配 4 颗或更多宝石时，为所有精灵盟友提供 2 点魔法值和生命值。",
+    "description": "匹配 4 颗或更多宝石时，为所有精灵盟友提供 2 点魔力值和生命值。",
     "troops": 1,
     "onBigMatchTypeAura": {
       "troopType": "Elf",
@@ -8666,7 +8675,7 @@
   {
     "code": "kingoftheherd",
     "name": "群中之王",
-    "description": "消除 4 个或更多宝石时，所有半人马盟友获得 1 点生命值和魔法值。",
+    "description": "消除 4 个或更多宝石时，所有半人马盟友获得 1 点生命值和魔力值。",
     "troops": 1,
     "onBigMatchTypeAura": {
       "troopType": "Centaur",
@@ -9066,7 +9075,7 @@
   {
     "code": "darksight",
     "name": "黑暗视野",
-    "description": "消除 4 个或更多宝石时，从第一个敌人身上窃取 2 点魔法值。",
+    "description": "消除 4 个或更多宝石时，从第一个敌人身上窃取 2 点魔力值。",
     "troops": 1,
     "onBigMatchEnemyDrain": {
       "stat": "magic",
@@ -9111,6 +9120,27 @@
         "hp": 2,
         "armor": 2
       }
+    }
+  },
+  {
+    "code": "oceansheart",
+    "name": "海洋之心",
+    "description": "当我的回合开始时，创造 2 颗沉没宝石。",
+    "troops": 1,
+    "turnStartCreateSpecialGem": {
+      "gem": "submergeGem",
+      "count": 2
+    }
+  },
+  {
+    "code": "giantgrowth",
+    "name": "巨人成长",
+    "description": "当我的回合开始时，创造 1 颗绿色巨人宝石。",
+    "troops": 1,
+    "turnStartCreateSpecialGem": {
+      "gem": "giantGem",
+      "color": "Green",
+      "count": 1
     }
   },
   {
@@ -9211,7 +9241,7 @@
   {
     "code": "monkeymagic",
     "name": "猴王魔法",
-    "description": "在我的回合开始时，从第一名敌人身上窃取 2 点魔法值。",
+    "description": "在我的回合开始时，从第一名敌人身上窃取 2 点法力值。",
     "troops": 1,
     "turnStartStealMana": {
       "amount": 2
@@ -9266,7 +9296,7 @@
   {
     "code": "summoningritual",
     "name": "召唤仪式",
-    "description": "当一名盟友被召唤后，获得 8 点魔法值。",
+    "description": "当一名盟友被召唤后，获得 8 点魔力值。",
     "troops": 1,
     "onAllySummonGain": {
       "stat": "magic",
@@ -9358,27 +9388,6 @@
       "gem": "gargoyleGem",
       "tier": 1,
       "count": 1
-    }
-  },
-  {
-    "code": "oceansheart",
-    "name": "海洋之心",
-    "description": "当我的回合开始时，创造 2 颗沉没宝石。",
-    "troops": 1,
-    "turnStartCreateSpecialGem": {
-      "gem": "submergeGem",
-      "count": 2
-    }
-  },
-  {
-    "code": "giantgrowth",
-    "name": "巨人成长",
-    "description": "当我的回合开始时，创造 1 颗绿色巨人宝石。",
-    "troops": 1,
-    "turnStartCreateSpecialGem": {
-      "gem": "giantGem",
-      "count": 1,
-      "color": "Green"
     }
   }
 ]

@@ -131,6 +131,11 @@ function validateCombatant(
     checkStat(issues, `${path}.stats.magic`, c.stats.magic, STAT_LIMITS.magic);
   }
 
+  if (c.initialHp !== undefined) checkStat(issues, `${path}.initialHp`, c.initialHp, { min: 1, max: c.stats?.hp ?? 1 });
+  if (c.eventRarity !== undefined) checkStat(issues, `${path}.eventRarity`, c.eventRarity, { min: 0, max: 5 });
+  if (c.eventTarget !== undefined && c.eventTarget !== 'boss' && c.eventTarget !== 'tower') {
+    issues.push({ path: `${path}.eventTarget`, code: 'bad-type', message: '活动目标应为boss或tower' });
+  }
   checkStat(issues, `${path}.manaCost`, c.manaCost, STAT_LIMITS.manaCost);
 
   if (!Array.isArray(c.manaColors) || c.manaColors.length === 0) {
@@ -283,6 +288,24 @@ export function validateBattleRequest(raw: unknown, opts: ValidateOptions): Vali
   }
   if (!isFiniteInteger(raw.seed)) {
     issues.push({ path: 'seed', code: 'bad-type', message: 'seed 必须是整数，否则无法复现' });
+  }
+
+  if (raw.arenaRules !== undefined && typeof raw.arenaRules !== 'boolean') {
+    issues.push({ path: 'arenaRules', code: 'bad-type', message: 'arenaRules must be boolean' });
+  }
+
+  for (const key of ['playerBanner', 'enemyBanner'] as const) {
+    const banner = raw[key];
+    if (banner === undefined) continue;
+    if (!isPlainObject(banner) || !isPlainObject(banner.boosts)) {
+      issues.push({ path: key, code: 'bad-type', message: 'Banner requires a boosts object' });
+      continue;
+    }
+    for (const [color, amount] of Object.entries(banner.boosts)) {
+      if (!VALID_COLORS.has(color) || !isFiniteInteger(amount) || amount < -1 || amount > 2) {
+        issues.push({ path: `${key}.boosts.${color}`, code: 'stat-range', message: 'Banner boost requires a base color and an integer from -1 to 2' });
+      }
+    }
   }
 
   // externalId 必须在双方之间也唯一，否则结果回传会撞号

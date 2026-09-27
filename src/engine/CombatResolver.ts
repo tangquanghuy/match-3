@@ -4,9 +4,10 @@ import type { SeededRNG } from './rng';
 import {
   canAttack, isFrozen, isEntangled, isEnraged, isCharmed,
   applyStatus, consumeBarrier, RAGE_STATUS_IDS,
-  hasStatus, REFLECT_STATUS_ID, reflectDamageAmount, consumeReflect,
+  hasStatus, REFLECT_STATUS_ID, endActionStatuses,
 } from './skills/effects/status';
-import { passivesOf, skullDamageMultiplier } from './traits';
+import { grantStat, passivesOf, skullDamageMultiplier } from './traits';
+import { reflectHit } from './skills/effects/reflect';
 
 /** 战斗结算产出的事件 */
 /** 就地施加一组被动增益并产出 buff 事件；生命同时抬上限；法力按上限夹取。 */
@@ -24,6 +25,11 @@ function applyStatGains(char: Character, gains: StatGains, events: GameEvent[]):
       char.mana = Math.max(0, Math.min(char.manaCost, char.mana + amount));
       const delta = char.mana - before;
       if (delta !== 0) events.push({ type: 'buff', source: 'trait', targetId: char.id, stat, amount: delta });
+      continue;
+    } else if (stat === 'attack' || stat === 'magic') {
+      // Shared gain rule: Entangle blocks Attack gains; Web blocks Magic gains.
+      const applied = grantStat(char, stat, amount);
+      if (applied !== 0) events.push({ type: 'buff', source: 'trait', targetId: char.id, stat, amount: applied });
       continue;
     } else {
       char[stat] = Math.max(0, char[stat] + amount);
@@ -89,7 +95,7 @@ export class CombatResolver {
       : CombatResolver.frontAlive(defenderTeam);
     if (!attacker || !target) return { events };
 
-    // 队首攻击者被控（冰冻/缠绕/击晕）→ 攻击落空、不造成伤害，只发"挣扎"事件（需求：只有队首能攻击）
+    // 队首攻击者缠绕（攻击力归零）→ 攻击落空、不造成伤害，只发"挣扎"事件（需求：只有队首能攻击）
     if (!canAttack(attacker)) {
       const reason = isFrozen(attacker) ? 'frozen' : isEntangled(attacker) ? 'entangle' : 'stun';
       events.push({ type: 'attack-struggle', attackerId: attacker.id, reason });
@@ -121,6 +127,15 @@ export class CombatResolver {
       if (barrier.consumed) {
         events.push({ type: 'attack-struggle', attackerId: attacker.id, reason: 'barrier' });
         events.push(...barrier.events);
+        // Official status guide: Barrier absorbs ordinary skull damage, but
+        // does not protect against the skull attack's independent lethal roll.
+        const lethalChance = passivesOf(attacker).skullLethalChance ?? 0;
+        if (lethalChance > 0 && rng !== undefined && rng.next() < lethalChance
+          && !target.traitIds?.some(id => id === 'invulnerable' || id === 'indestructible')) {
+          target.hp = 0;
+          target.defeated = true;
+          events.push({ type: 'defeat', characterId: target.id });
+        }
         return { events };
       }
     }
@@ -147,7 +162,7 @@ export class CombatResolver {
     if (!enraged && !target.defeated) {
       applyStatGains(target, targetPassive.gainOnDamaged, events);
       // 承伤队伍光环（virtueofhumility「当自身生命值承受伤害时，所有盟友获得 2 点护甲值和
-      // 魔法值」）：与 gainOnDamaged 同一触发点，受益者为受击者一方存活盟友
+      // 魔力值」）：与 gainOnDamaged 同一触发点，受益者为受击者一方存活盟友
       //（'all'=全队/种族名）。目标可能在攻击方（被魅惑打自己人），按归属取队伍。
       const aura = targetPassive.onDamagedTypeAura;
       if (aura) {
@@ -160,8 +175,7 @@ export class CombatResolver {
       }
     }
     // 受击附状态（aquatic「在自身受到伤害时使自身下潜」）：与受击增益同一触发口径
-    //（同为落空不触发），施加走 applyStatus（免疫在施加口拦截）；下潜=不可被指定
-    //（UNTARGETABLE_STATUS_IDS），回合尾随持有者方状态结算递减。
+    //（同为落空不触发），施加走 applyStatus（免疫在施加口拦截）；下潜=免受覆盖整队的技能伤害（见 damageEffect），回合尾随持有者方状态结算递减。
     if (!enraged && !target.defeated && targetPassive.onDamagedStatus) {
       const s = targetPassive.onDamagedStatus;
       events.push(...applyStatus(target, { id: s.statusId, turns: s.turns }));
@@ -269,25 +283,10 @@ export class CombatResolver {
     // 反弹状态（GoW Reflect，gowhead 步骤名 Mirror）：所受伤害 50% 反弹（至少 1 点），
     // 受一次伤害后消失。与特质反弹（按比例）可叠加；激怒只无视特质，不免疫状态反弹。
     // 屏障整发吸收的「攻击落空」路径在上面已提前返回，不会走到这里。
-    if (damage > 0 && !attacker.defeated && hasStatus(target, REFLECT_STATUS_ID)) {
-      const reflected = reflectDamageAmount(damage);
-      const takenByArmor = Math.min(attacker.armor, reflected);
-      attacker.armor -= takenByArmor;
-      attacker.hp = Math.max(0, attacker.hp - (reflected - takenByArmor));
-      events.push({
-        type: 'skull-damage',
-        attackerId: target.id,
-        targetId: attacker.id,
-        damage: reflected,
-        resultingHp: attacker.hp,
-        resultingArmor: attacker.armor,
-        reflected: true,
-      });
-      events.push(...consumeReflect(target));
-      if (attacker.hp <= 0 && !attacker.defeated) {
-        attacker.defeated = true;
-        events.push({ type: 'defeat', characterId: attacker.id });
-      }
+    // A charmed front troop can damage an ally; official Reflect triggers only
+    // for enemy damage, so neither activation nor consumption occurs there.
+    if (damage > 0 && defenderTeam.characters.includes(target) && hasStatus(target, REFLECT_STATUS_ID)) {
+      events.push(...reflectHit(target, attacker, damage, 'skull'));
     }
 
     if (target.hp <= 0 && !target.defeated) {
@@ -301,7 +300,8 @@ export class CombatResolver {
     // 概率经同一条种子化 rng（无 rng 不生效，与闪避判定同口径）；目标已阵亡则跳过。
     if (!target.defeated && rng !== undefined) {
       const lethal = passivesOf(attacker).skullLethalChance ?? 0;
-      if (lethal > 0 && rng.next() < lethal) {
+      if (lethal > 0 && rng.next() < lethal
+        && !target.traitIds?.some(id => id === 'invulnerable' || id === 'indestructible')) {
         target.hp = 0;
         target.defeated = true;
         events.push({ type: 'defeat', characterId: target.id });
@@ -310,7 +310,7 @@ export class CombatResolver {
         if (killSpec && rng.next() < killSpec.chance) {
           const foes = defenderTeam.characters.filter((c) => !c.defeated && c.id !== target.id);
           const last = foes[foes.length - 1];
-          if (last) {
+          if (last && !last.traitIds?.some(id => id === 'invulnerable' || id === 'indestructible')) {
             last.hp = 0;
             last.defeated = true;
             events.push({ type: 'defeat', characterId: last.id });
@@ -318,6 +318,10 @@ export class CombatResolver {
         }
       }
     }
+
+    // R004: Submerged / Blessed end when the holder acts; as the front troop that
+    // means dealing skull damage (the absorbed/struggle paths returned above).
+    if (!attacker.defeated) events.push(...endActionStatuses(attacker));
 
     if (enraged) {
       // Capture the active rage aliases before removing them so the presentation
@@ -334,8 +338,6 @@ export class CombatResolver {
 
   /** 队伍是否全灭（需求 15.3） */
   static isWipedOut(team: Team): boolean {
-    const hasActive = team.characters.some((ch) => !ch.defeated);
-    const hasQueued = (team.summonQueue?.length ?? 0) > 0;
-    return !hasActive && !hasQueued;
+    return !team.characters.some((ch) => !ch.defeated);
   }
 }

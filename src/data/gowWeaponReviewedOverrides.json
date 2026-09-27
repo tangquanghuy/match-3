@@ -1,0 +1,5325 @@
+{
+  "sourceFingerprint": "0edc34ebe8fcfdab0ace4baafe552cb772574701d86c53b7cea97208844a5740",
+  "notes": "Preserve pre-regeneration localized corrections and reviewed weapon prototypes recorded in the September 26 verification ledger; this is not original-game certification.",
+  "entries": {
+    "7070": {
+      "description": "对第一名敌人造成 [(魔法 / 2) + 4] 点轻度溅射伤害。",
+      "metadata": {
+        "fidelity": "full",
+        "missingFeatures": [],
+        "skippedClauses": []
+      },
+      "prototype": {
+        "segments": [
+          {
+            "kind": "damage",
+            "target": "enemyFront",
+            "scaling": {
+              "base": 4,
+              "mult": 0.5
+            },
+            "range": "splash",
+            "splashRatio": 0.25
+          }
+        ]
+      }
+    },
+    "7071": {
+      "description": "?????????",
+      "metadata": {
+        "fidelity": "full",
+        "missingFeatures": [],
+        "skippedClauses": []
+      }
+    },
+    "7082": {
+      "description": "对一名敌人造成 [魔法 + 4] 点轻度溅射伤害。",
+      "metadata": {
+        "fidelity": "full",
+        "missingFeatures": [],
+        "skippedClauses": []
+      },
+      "prototype": {
+        "segments": [
+          {
+            "kind": "damage",
+            "target": "enemyChosen",
+            "scaling": {
+              "base": 4,
+              "mult": 1
+            },
+            "range": "splash",
+            "splashRatio": 0.25
+          }
+        ]
+      }
+    },
+    "7094": {
+      "prototype": {
+        "segments": [
+          {
+            "kind": "gem",
+            "params": {
+              "op": "clear",
+              "mode": "explode",
+              "target": {
+                "kind": "cell",
+                "cell": "CELL"
+              }
+            }
+          }
+        ]
+      }
+    },
+    "7097": {
+      "description": "对一名敌人造成 [魔法 + 6] 点轻度溅射伤害。",
+      "metadata": {
+        "fidelity": "full",
+        "missingFeatures": [],
+        "skippedClauses": []
+      },
+      "prototype": {
+        "segments": [
+          {
+            "kind": "damage",
+            "target": "enemyChosen",
+            "scaling": {
+              "base": 6,
+              "mult": 1
+            },
+            "range": "splash",
+            "splashRatio": 0.25
+          }
+        ]
+      }
+    },
+    "7108": {
+      "prototype": {
+        "segments": [
+          {
+            "kind": "gem",
+            "params": {
+              "op": "clear",
+              "mode": "destroy",
+              "target": {
+                "kind": "chosenCross"
+              }
+            }
+          }
+        ]
+      }
+    },
+    "7111": {
+      "description": "对一名敌人造成 [魔法 + 4] 点轻度溅射伤害。",
+      "metadata": {
+        "fidelity": "full",
+        "missingFeatures": [],
+        "skippedClauses": []
+      },
+      "prototype": {
+        "segments": [
+          {
+            "kind": "damage",
+            "target": "enemyChosen",
+            "scaling": {
+              "base": 4,
+              "mult": 1
+            },
+            "range": "splash",
+            "splashRatio": 0.25
+          }
+        ]
+      }
+    },
+    "7123": {
+      "description": "对一名敌人造成 [魔法 + 6] 点轻度溅射伤害。打乱板面。",
+      "metadata": {
+        "fidelity": "full",
+        "missingFeatures": [],
+        "skippedClauses": []
+      },
+      "prototype": {
+        "segments": [
+          {
+            "kind": "damage",
+            "target": "enemyChosen",
+            "scaling": {
+              "base": 6,
+              "mult": 1
+            },
+            "range": "splash",
+            "splashRatio": 0.25
+          },
+          {
+            "kind": "shuffleBoard"
+          }
+        ]
+      }
+    },
+    "7129": {
+      "description": "创造 6 颗骷髅。召唤一名亡魂。"
+    },
+    "7185": {
+      "prototype": {
+        "segments": [
+          {
+            "kind": "status",
+            "target": "enemyFront",
+            "statusId": "entangle",
+            "turns": 3
+          },
+          {
+            "kind": "damage",
+            "target": "enemyFront",
+            "scaling": {
+              "base": 2,
+              "mult": 1
+            },
+            "trueDamage": true
+          }
+        ]
+      }
+    },
+    "7188": {
+      "metadata": {
+        "fidelity": "full",
+        "missingFeatures": [],
+        "skippedClauses": []
+      }
+    },
+    "7189": {
+      "description": "减除一名敌人全部魔力值。",
+      "prototype": {
+        "segments": [
+          {
+            "kind": "reduce",
+            "target": "enemyChosen",
+            "stat": "magic",
+            "scaling": {
+              "base": 0,
+              "mult": 0
+            },
+            "drainAll": true
+          }
+        ]
+      },
+      "metadata": {
+        "fidelity": "full",
+        "missingFeatures": [],
+        "skippedClauses": []
+      }
+    },
+    "7190": {
+      "metadata": {
+        "fidelity": "full",
+        "missingFeatures": [],
+        "skippedClauses": []
+      }
+    },
+    "7198": {
+      "description": "耗尽第一名和最后一名敌人的法力值。为所有盟友提供 1 点魔力值。",
+      "prototype": {
+        "segments": [
+          {
+            "kind": "reduce",
+            "target": "enemyFront",
+            "stat": "mana",
+            "scaling": {
+              "base": 0,
+              "mult": 0
+            },
+            "drainAll": true
+          },
+          {
+            "kind": "reduce",
+            "target": "enemyLast",
+            "stat": "mana",
+            "scaling": {
+              "base": 0,
+              "mult": 0
+            },
+            "drainAll": true
+          },
+          {
+            "kind": "buff",
+            "target": "allyAll",
+            "stat": "magic",
+            "scaling": {
+              "base": 1,
+              "mult": 0
+            }
+          }
+        ]
+      },
+      "metadata": {
+        "fidelity": "full",
+        "missingFeatures": [],
+        "skippedClauses": []
+      }
+    },
+    "7199": {
+      "metadata": {
+        "fidelity": "full",
+        "missingFeatures": [],
+        "skippedClauses": []
+      }
+    },
+    "7217": {
+      "metadata": {
+        "fidelity": "full",
+        "missingFeatures": [],
+        "skippedClauses": []
+      }
+    },
+    "7219": {
+      "description": "创造 7 颗随机的蓝色宝石。自身一项随机属性获得 [魔法 + 1] 点。",
+      "prototype": {
+        "segments": [
+          {
+            "kind": "gem",
+            "params": {
+              "op": "create",
+              "gem": {
+                "kind": "color",
+                "color": "Blue"
+              },
+              "count": {
+                "base": 7,
+                "mult": 0
+              }
+            }
+          },
+          {
+            "kind": "randomStat",
+            "target": "allySelf",
+            "scaling": {
+              "base": 1,
+              "mult": 1
+            },
+            "oneSkill": true
+          }
+        ]
+      },
+      "metadata": {
+        "fidelity": "full",
+        "missingFeatures": [],
+        "skippedClauses": []
+      }
+    },
+    "7221": {
+      "description": "对最后 1 名敌人造成 [魔法 + 4] 点伤害，并窃取 1 点魔力值。",
+      "prototype": {
+        "segments": [
+          {
+            "kind": "damage",
+            "target": "enemyLast",
+            "scaling": {
+              "base": 4,
+              "mult": 1
+            }
+          },
+          {
+            "kind": "reduce",
+            "target": "lastTarget",
+            "stat": "magic",
+            "scaling": {
+              "base": 1,
+              "mult": 0
+            },
+            "gainStat": "magic"
+          }
+        ]
+      },
+      "metadata": {
+        "fidelity": "full",
+        "missingFeatures": [],
+        "skippedClauses": []
+      }
+    },
+    "7222": {
+      "description": "对 1 名敌人造成 [魔法 + 4] 点轻度溅射伤害。如果敌人已被缠绕，则增加 5 点伤害。",
+      "metadata": {
+        "fidelity": "full",
+        "missingFeatures": [],
+        "skippedClauses": []
+      },
+      "prototype": {
+        "segments": [
+          {
+            "kind": "damage",
+            "target": "enemyChosen",
+            "scaling": {
+              "base": 4,
+              "mult": 1
+            },
+            "range": "splash",
+            "condBonus": {
+              "n": 5,
+              "cond": {
+                "kind": "targetStatus",
+                "statusId": "entangle"
+              }
+            },
+            "splashRatio": 0.25
+          }
+        ]
+      }
+    },
+    "7227": {
+      "description": "对所有敌人造成 [魔法] 点伤害并让全体盟友获得 1 点魔力值。",
+      "prototype": {
+        "segments": [
+          {
+            "kind": "damage",
+            "target": "enemyAll",
+            "scaling": {
+              "base": 0,
+              "mult": 1
+            },
+            "range": "all"
+          },
+          {
+            "kind": "buff",
+            "target": "allyAll",
+            "stat": "magic",
+            "scaling": {
+              "base": 1,
+              "mult": 0
+            }
+          }
+        ]
+      },
+      "metadata": {
+        "fidelity": "full",
+        "missingFeatures": [],
+        "skippedClauses": []
+      }
+    },
+    "7230": {
+      "description": "对 1 名敌人造成 [魔法] 点伤害。获得 1 点魔力值并移除所有绿色宝石以强化此效果。 [3:1]",
+      "prototype": {
+        "segments": [
+          {
+            "kind": "damage",
+            "target": "enemyChosen",
+            "scaling": {
+              "base": 0,
+              "mult": 1
+            }
+          },
+          {
+            "kind": "buff",
+            "target": "allySelf",
+            "stat": "magic",
+            "scaling": {
+              "base": 1,
+              "mult": 0
+            },
+            "modifier": {
+              "mod": {
+                "kind": "ratio",
+                "a": 3,
+                "b": 1
+              }
+            }
+          },
+          {
+            "kind": "gem",
+            "params": {
+              "op": "clear",
+              "mode": "destroy",
+              "target": {
+                "kind": "color",
+                "color": "Green"
+              }
+            }
+          }
+        ]
+      },
+      "metadata": {
+        "fidelity": "full",
+        "missingFeatures": [],
+        "skippedClauses": []
+      }
+    },
+    "7240": {
+      "description": "对 1 名敌人造成 [魔法 + 6] 点伤害，并随机窃取 5 点能力值。如果目标是妖仙，则造成三倍伤害。"
+    },
+    "7245": {
+      "description": "对所有敌人造成 [(魔法 / 2) + 2] 点真实伤害。获得 2 点魔力值。如果敌人身亡，则获得一个额外回合。",
+      "prototype": {
+        "segments": [
+          {
+            "kind": "damage",
+            "target": "enemyAll",
+            "scaling": {
+              "base": 2,
+              "mult": 0.5
+            },
+            "range": "all",
+            "trueDamage": true
+          },
+          {
+            "kind": "buff",
+            "target": "allySelf",
+            "stat": "magic",
+            "scaling": {
+              "base": 2,
+              "mult": 0
+            }
+          },
+          {
+            "kind": "extraTurn",
+            "ifTargetDied": true
+          }
+        ]
+      },
+      "metadata": {
+        "fidelity": "full",
+        "missingFeatures": [],
+        "skippedClauses": []
+      }
+    },
+    "7249": {
+      "description": "给予所有盟友 [魔法 + 3] 点护甲值和 5 点攻击力。如果有 13 颗或更多黄色宝石，则给予所有盟友 4 点生命值和魔力值。"
+    },
+    "7250": {
+      "description": "对所有敌人造成 [魔法 + 2] 点伤害，伤害值因敌我双方的黄色军队数量而增强。赋予所有盟友屏障效果。如果有 13 颗或更多红色宝石，则获得 2 点魔力值。 [x2]",
+      "prototype": {
+        "segments": [
+          {
+            "kind": "damage",
+            "target": "enemyAll",
+            "scaling": {
+              "base": 2,
+              "mult": 1
+            },
+            "range": "all",
+            "modifier": {
+              "mod": {
+                "kind": "multiplier",
+                "a": 2
+              },
+              "sources": [
+                {
+                  "kind": "alliesOfColor",
+                  "color": "Yellow"
+                },
+                {
+                  "kind": "enemiesOfColor",
+                  "color": "Yellow"
+                }
+              ]
+            }
+          },
+          {
+            "kind": "status",
+            "target": "allyAll",
+            "statusId": "barrier",
+            "turns": 3
+          },
+          {
+            "kind": "buff",
+            "target": "allySelf",
+            "stat": "magic",
+            "scaling": {
+              "base": 2,
+              "mult": 0
+            },
+            "ifCond": {
+              "kind": "boardAtLeast",
+              "color": "Red",
+              "n": 13
+            }
+          }
+        ]
+      },
+      "metadata": {
+        "fidelity": "full",
+        "missingFeatures": [],
+        "skippedClauses": []
+      }
+    },
+    "7282": {
+      "description": "对 1 名敌人造成 [魔法 + 1] 点伤害。如果敌人已下潜则造成三倍伤害。"
+    },
+    "7292": {
+      "description": "对所有敌人造成 [魔法 + 7] 点散射伤害。获得 2 点魔力值。",
+      "prototype": {
+        "segments": [
+          {
+            "kind": "damage",
+            "target": "enemyAll",
+            "scaling": {
+              "base": 7,
+              "mult": 1
+            },
+            "range": "scatter"
+          },
+          {
+            "kind": "buff",
+            "target": "allySelf",
+            "stat": "magic",
+            "scaling": {
+              "base": 2,
+              "mult": 0
+            }
+          }
+        ]
+      },
+      "metadata": {
+        "fidelity": "full",
+        "missingFeatures": [],
+        "skippedClauses": []
+      }
+    },
+    "7299": {
+      "description": "对 1 名敌人和另 1 名随机敌人造成 [魔法 + 2] 点伤害。从敌人身上窃取 1 点魔力值。",
+      "prototype": {
+        "segments": [
+          {
+            "kind": "damage",
+            "target": "enemyChosen",
+            "scaling": {
+              "base": 2,
+              "mult": 1
+            }
+          },
+          {
+            "kind": "damage",
+            "target": "enemyRandom",
+            "scaling": {
+              "base": 2,
+              "mult": 1
+            }
+          },
+          {
+            "kind": "reduce",
+            "target": "enemyChosen",
+            "stat": "magic",
+            "scaling": {
+              "base": 1,
+              "mult": 0
+            },
+            "gainStat": "magic"
+          }
+        ]
+      },
+      "metadata": {
+        "fidelity": "full",
+        "missingFeatures": [],
+        "skippedClauses": []
+      }
+    },
+    "7306": {
+      "prototype": {
+        "segments": [
+          {
+            "kind": "gem",
+            "params": {
+              "op": "clear",
+              "mode": "explode",
+              "target": {
+                "kind": "cell",
+                "cell": "CELL"
+              }
+            }
+          },
+          {
+            "kind": "damage",
+            "target": "enemyRandom",
+            "scaling": {
+              "base": 5,
+              "mult": 1
+            }
+          },
+          {
+            "kind": "status",
+            "target": "lastTarget",
+            "statusId": "burning",
+            "turns": 3,
+            "magnitude": 3
+          }
+        ]
+      }
+    },
+    "7338": {
+      "prototype": {
+        "segments": [
+          {
+            "kind": "status",
+            "target": "enemyRandom",
+            "statusId": "burning",
+            "turns": 3,
+            "magnitude": 3
+          },
+          {
+            "kind": "status",
+            "target": "enemyRandomPrefNotPrev",
+            "statusId": "frozen",
+            "turns": 3
+          },
+          {
+            "kind": "status",
+            "target": "enemyRandomPrefNotPrev",
+            "statusId": "silence",
+            "turns": 3
+          },
+          {
+            "kind": "damage",
+            "target": "enemyRandomPrefNotPrev",
+            "scaling": {
+              "base": 3,
+              "mult": 1
+            }
+          }
+        ]
+      }
+    },
+    "7412": {
+      "prototype": {
+        "segments": [
+          {
+            "kind": "damage",
+            "target": "enemyChosen",
+            "scaling": {
+              "base": 0,
+              "mult": 1
+            },
+            "manaBurn": true
+          },
+          {
+            "kind": "status",
+            "target": "lastTarget",
+            "statusId": "burning",
+            "turns": 3,
+            "magnitude": 3
+          },
+          {
+            "kind": "transformTroop",
+            "target": "allySelf",
+            "randomOf": [
+              "Sheggra",
+              "Venoxia",
+              "ShadowDragon",
+              "Emperina",
+              "Celestasia",
+              "BoneDragon",
+              "DrakeRider",
+              "Dimetraxia",
+              "Wyvern",
+              "Venbarak",
+              "Borealis",
+              "DragonEggs",
+              "BabyDragon",
+              "Dragonette",
+              "Dragotaur",
+              "Dragonmoth",
+              "Visk",
+              "TheDragonSoul",
+              "Couatl",
+              "Sylvanimora",
+              "DRACOS-1337",
+              "DragonianRogue",
+              "DragonianMonk",
+              "SilverDrakon",
+              "Krystenax",
+              "Drake",
+              "Elemaugrim",
+              "DragonTurtle",
+              "Asha",
+              "Leviathan",
+              "Penglong",
+              "Glitterclaw",
+              "TheWorldbreaker",
+              "Divinia",
+              "LordEmber",
+              "LadyGarnetia",
+              "Tinseltail",
+              "Shimmerscale",
+              "Volthrenax",
+              "Thaumaris",
+              "Droggo",
+              "Sylfrostenath",
+              "MatronDragotani",
+              "UndeadDrake",
+              "FellDragonEgg",
+              "FellDragon",
+              "Nocturnia",
+              "Ishtara",
+              "DragonianSage",
+              "Obregonia",
+              "DragonSpirit",
+              "Essencia",
+              "Huanglong",
+              "Veneratus",
+              "HornedWyrm",
+              "NetherWyrm",
+              "TerraWyrm",
+              "TheGreatWyrm",
+              "Tihamata",
+              "RedAhriman",
+              "TwinkleBerry",
+              "MagmaDragon",
+              "Sabellius",
+              "Adakite",
+              "Obsidiaxas",
+              "Sapphirax",
+              "Emeraldrin",
+              "Rubirath",
+              "Topasarth",
+              "Amethialas",
+              "Garnetaerlin",
+              "Diamantina",
+              "Aquaria",
+              "TheElderDragon",
+              "HeraldOfKrystenax",
+              "TheGuardianDragon",
+              "CobaltDrake",
+              "HuntmasterArborius",
+              "CrystalEggs",
+              "DragonstoneGuardian",
+              "TheVoidDragon",
+              "Comethalas",
+              "Nebuladryx",
+              "Meteoridan",
+              "Solarithus",
+              "Lunarelleon",
+              "Eklipsos",
+              "Stellarix",
+              "DraconicSentinel",
+              "Tianlong",
+              "BrassDrake",
+              "Venerabilax",
+              "Chromaticea",
+              "Kukulkan",
+              "ImmortalAquaria",
+              "Leucithrax",
+              "TheSlimeDragon",
+              "Bahamata",
+              "Gingeraxia",
+              "Belcerulea",
+              "Gladius",
+              "Thornaressa",
+              "Narcithus",
+              "Orrissea",
+              "Orchidius",
+              "Chrysantherax",
+              "Chargrimax",
+              "Crackleleaf",
+              "Mistmother",
+              "DrakeEggs",
+              "ImmortalDrakkon",
+              "CrimsonWyrmling",
+              "Dragonhawk",
+              "Amethony",
+              "Creteus",
+              "Krakynos",
+              "Runethius",
+              "Hematrax",
+              "Vizinium",
+              "Demizerius",
+              "Amenhotrex",
+              "Pandemonia"
+            ],
+            "ifTargetDied": true
+          }
+        ]
+      },
+      "metadata": {
+        "fidelity": "full",
+        "missingFeatures": [],
+        "skippedClauses": []
+      },
+      "description": "对 1 名敌人施放法力灼烧，伤害值因自身魔力值而增强。燃烧敌人，如果敌人身亡，则转化成一只随机龙族。"
+    },
+    "7414": {
+      "description": "一名盟友的一项随机属性获得 [魔法 + 1] 点，然后赋予其屏障效果并给予 3 - 15 点法力值。",
+      "prototype": {
+        "segments": [
+          {
+            "kind": "randomStat",
+            "target": "allyChosen",
+            "scaling": {
+              "base": 1,
+              "mult": 1
+            },
+            "oneSkill": true
+          },
+          {
+            "kind": "status",
+            "target": "allyChosen",
+            "statusId": "barrier",
+            "turns": 3
+          },
+          {
+            "kind": "buff",
+            "target": "allyChosen",
+            "stat": "mana",
+            "scaling": {
+              "base": 0,
+              "mult": 0
+            },
+            "rangeSpec": {
+              "min": {
+                "base": 3,
+                "mult": 0
+              },
+              "max": {
+                "base": 15,
+                "mult": 0
+              }
+            }
+          }
+        ]
+      },
+      "metadata": {
+        "fidelity": "full",
+        "missingFeatures": [],
+        "skippedClauses": []
+      }
+    },
+    "7444": {
+      "prototype": {
+        "segments": [
+          {
+            "kind": "status",
+            "target": "enemyChosen",
+            "statusId": "death-mark",
+            "turns": 3
+          },
+          {
+            "kind": "damage",
+            "target": "enemyBelowTarget",
+            "scaling": {
+              "base": 1,
+              "mult": 1
+            },
+            "trueDamage": true,
+            "modifier": {
+              "mod": {
+                "kind": "multiplier",
+                "a": 3
+              },
+              "source": {
+                "kind": "enemyStatusCount",
+                "statusId": "death-mark"
+              }
+            }
+          }
+        ]
+      }
+    },
+    "7492": {
+      "metadata": {
+        "fidelity": "full",
+        "missingFeatures": [],
+        "skippedClauses": []
+      },
+      "prototype": {
+        "segments": [
+          {
+            "kind": "buff",
+            "target": "allyAll",
+            "stat": "attack",
+            "scaling": {
+              "base": 5,
+              "mult": 0
+            },
+            "ifCond": {
+              "kind": "targetColor",
+              "color": "Yellow"
+            }
+          },
+          {
+            "kind": "damage",
+            "target": "enemyAll",
+            "scaling": {
+              "base": 4,
+              "mult": 1
+            },
+            "range": "all",
+            "ifCond": {
+              "kind": "targetColor",
+              "color": "Purple"
+            }
+          },
+          {
+            "kind": "oneOf",
+            "options": [
+              [
+                {
+                  "kind": "storm",
+                  "color": "Red",
+                  "turns": 8
+                }
+              ],
+              [
+                {
+                  "kind": "storm",
+                  "color": "Green",
+                  "turns": 8
+                }
+              ],
+              [
+                {
+                  "kind": "storm",
+                  "color": "Blue",
+                  "turns": 8
+                }
+              ],
+              [
+                {
+                  "kind": "storm",
+                  "color": "Yellow",
+                  "turns": 8
+                }
+              ],
+              [
+                {
+                  "kind": "storm",
+                  "color": "Purple",
+                  "turns": 8
+                }
+              ],
+              [
+                {
+                  "kind": "storm",
+                  "color": "Brown",
+                  "turns": 8
+                }
+              ]
+            ]
+          }
+        ]
+      }
+    },
+    "7578": {
+      "description": "对 1 名敌人造成 [魔法 + 4] 点伤害。如果现有冰风暴则伤害双倍。创造冰风暴。"
+    },
+    "7579": {
+      "description": "对 1 名敌人造成 [魔法 + 4] 点伤害。如果现有叶风暴则伤害双倍。创造叶风暴。"
+    },
+    "7580": {
+      "description": "对 1 名敌人造成 [魔法 + 4] 点伤害。如果现有火风暴则伤害双倍。创造火风暴。"
+    },
+    "7581": {
+      "description": "对 1 名敌人造成 [魔法 + 4] 点伤害。如果现有光风暴则伤害双倍。创造光风暴。"
+    },
+    "7582": {
+      "description": "对 1 名敌人造成 [魔法 + 4] 点伤害。如果现有暗风暴则伤害双倍。创造暗风暴。"
+    },
+    "7583": {
+      "description": "对 1 名敌人造成 [魔法 + 4] 点伤害。如果现有尘风暴则伤害双倍。创造尘风暴。"
+    },
+    "7585": {
+      "description": "对一名随机敌人造成 [魔法 + 5] 点伤害。"
+    },
+    "7586": {
+      "description": "创造选定的 7 颗宝石。随机使一名盟友下潜，并给予他 1 点魔力值。",
+      "prototype": {
+        "segments": [
+          {
+            "kind": "gem",
+            "params": {
+              "op": "create",
+              "gem": {
+                "kind": "color",
+                "color": "CHOSEN"
+              },
+              "count": {
+                "base": 7,
+                "mult": 0
+              }
+            }
+          },
+          {
+            "kind": "status",
+            "target": "allyRandom",
+            "statusId": "submerged",
+            "turns": 3
+          },
+          {
+            "kind": "buff",
+            "target": "allySelf",
+            "stat": "magic",
+            "scaling": {
+              "base": 1,
+              "mult": 0
+            }
+          }
+        ]
+      },
+      "metadata": {
+        "fidelity": "full",
+        "missingFeatures": [],
+        "skippedClauses": []
+      }
+    },
+    "7587": {
+      "description": "对第一名敌人造成 [魔法 + 4] 点伤害。如果敌人使用红色法力值，则造成三倍伤害。"
+    },
+    "7588": {
+      "description": "对第一名敌人造成 [魔法 + 4] 点伤害。如果敌人使用棕色法力值，则造成三倍伤害。"
+    },
+    "7589": {
+      "description": "对第一名敌人造成 [魔法 + 4] 点伤害。如果敌人使用绿色法力值，则造成三倍伤害。"
+    },
+    "7590": {
+      "description": "对第一名敌人造成 [魔法 + 4] 点伤害。如果敌人使用紫色法力值，则造成三倍伤害。"
+    },
+    "7591": {
+      "description": "对第一名敌人造成 [魔法 + 4] 点伤害。如果敌人使用黄色法力值，则造成三倍伤害。"
+    },
+    "7592": {
+      "description": "对第一名敌人造成 [魔法 + 4] 点伤害。如果敌人使用蓝色法力值，则造成三倍伤害。"
+    },
+    "7654": {
+      "description": "创造 15 颗红色和绿色的宝石。赋予两名随机盟友法印效果。"
+    },
+    "7655": {
+      "description": "造成 [魔法 + 10] 点散射伤害，每锻炼 1 个武器段位则 +4 点伤害值。每有一名蓝色敌人则创造 6 颗混合蓝色和骷髅头的宝石。给予所有盟友 3 点魔力值。如果敌方有劫数，则再增加 5 点。 [x6]",
+      "prototype": {
+        "segments": [
+          {
+            "kind": "damage",
+            "target": "enemyAll",
+            "scaling": {
+              "base": 10,
+              "mult": 1
+            },
+            "range": "scatter",
+            "modifier": {
+              "mod": {
+                "kind": "multiplier",
+                "a": 4
+              },
+              "source": {
+                "kind": "tempering"
+              }
+            }
+          },
+          {
+            "kind": "gem",
+            "params": {
+              "op": "create",
+              "gem": {
+                "kind": "mixAny",
+                "entries": [
+                  "Blue",
+                  "SKULL"
+                ]
+              },
+              "count": {
+                "base": 0,
+                "mult": 0
+              },
+              "modifier": {
+                "mod": {
+                  "kind": "multiplier",
+                  "a": 6
+                },
+                "source": {
+                  "kind": "enemiesOfColor",
+                  "color": "Blue"
+                }
+              }
+            },
+            "modifier": {
+              "mod": {
+                "kind": "multiplier",
+                "a": 6
+              },
+              "source": {
+                "kind": "enemiesOfColor",
+                "color": "Blue"
+              }
+            }
+          },
+          {
+            "kind": "buff",
+            "target": "allyAll",
+            "stat": "magic",
+            "scaling": {
+              "base": 3,
+              "mult": 0
+            },
+            "condBonus": {
+              "n": 5,
+              "cond": {
+                "kind": "targetHasDoom"
+              }
+            }
+          }
+        ]
+      },
+      "metadata": {
+        "fidelity": "full",
+        "missingFeatures": [],
+        "skippedClauses": []
+      }
+    },
+    "7656": {
+      "description": "造成 [魔法 + 10] 点散射伤害，每锻炼 1 个武器段位则 +4 点伤害值。每有一名绿色敌人则创造 6 颗混合绿色和骷髅头的宝石。给予所有盟友 3 点魔力值。如果敌方有劫数，则再增加 5 点。 [x6]",
+      "prototype": {
+        "segments": [
+          {
+            "kind": "damage",
+            "target": "enemyAll",
+            "scaling": {
+              "base": 10,
+              "mult": 1
+            },
+            "range": "scatter",
+            "modifier": {
+              "mod": {
+                "kind": "multiplier",
+                "a": 4
+              },
+              "source": {
+                "kind": "tempering"
+              }
+            }
+          },
+          {
+            "kind": "gem",
+            "params": {
+              "op": "create",
+              "gem": {
+                "kind": "mixAny",
+                "entries": [
+                  "Green",
+                  "SKULL"
+                ]
+              },
+              "count": {
+                "base": 0,
+                "mult": 0
+              },
+              "modifier": {
+                "mod": {
+                  "kind": "multiplier",
+                  "a": 6
+                },
+                "source": {
+                  "kind": "enemiesOfColor",
+                  "color": "Green"
+                }
+              }
+            },
+            "modifier": {
+              "mod": {
+                "kind": "multiplier",
+                "a": 6
+              },
+              "source": {
+                "kind": "enemiesOfColor",
+                "color": "Green"
+              }
+            }
+          },
+          {
+            "kind": "buff",
+            "target": "allyAll",
+            "stat": "magic",
+            "scaling": {
+              "base": 3,
+              "mult": 0
+            },
+            "condBonus": {
+              "n": 5,
+              "cond": {
+                "kind": "targetHasDoom"
+              }
+            }
+          }
+        ]
+      },
+      "metadata": {
+        "fidelity": "full",
+        "missingFeatures": [],
+        "skippedClauses": []
+      }
+    },
+    "7657": {
+      "description": "造成 [魔法 + 10] 点散射伤害，每锻炼 1 个武器段位则 +4 点伤害值。每有一名红色敌人则创造 6 颗混合红色和骷髅头的宝石。给予所有盟友 3 点魔力值。如果敌方有劫数，则再增加 5 点。 [x6]",
+      "prototype": {
+        "segments": [
+          {
+            "kind": "damage",
+            "target": "enemyAll",
+            "scaling": {
+              "base": 10,
+              "mult": 1
+            },
+            "range": "scatter",
+            "modifier": {
+              "mod": {
+                "kind": "multiplier",
+                "a": 4
+              },
+              "source": {
+                "kind": "tempering"
+              }
+            }
+          },
+          {
+            "kind": "gem",
+            "params": {
+              "op": "create",
+              "gem": {
+                "kind": "mixAny",
+                "entries": [
+                  "Red",
+                  "SKULL"
+                ]
+              },
+              "count": {
+                "base": 0,
+                "mult": 0
+              },
+              "modifier": {
+                "mod": {
+                  "kind": "multiplier",
+                  "a": 6
+                },
+                "source": {
+                  "kind": "enemiesOfColor",
+                  "color": "Red"
+                }
+              }
+            },
+            "modifier": {
+              "mod": {
+                "kind": "multiplier",
+                "a": 6
+              },
+              "source": {
+                "kind": "enemiesOfColor",
+                "color": "Red"
+              }
+            }
+          },
+          {
+            "kind": "buff",
+            "target": "allyAll",
+            "stat": "magic",
+            "scaling": {
+              "base": 3,
+              "mult": 0
+            },
+            "condBonus": {
+              "n": 5,
+              "cond": {
+                "kind": "targetHasDoom"
+              }
+            }
+          }
+        ]
+      },
+      "metadata": {
+        "fidelity": "full",
+        "missingFeatures": [],
+        "skippedClauses": []
+      }
+    },
+    "7658": {
+      "description": "造成 [魔法 + 10] 点散射伤害，每锻炼 1 个武器段位则 +4 点伤害值。每有一名黄色敌人则创造 6 颗混合黄色和骷髅头的宝石。给予所有盟友 3 点魔力值。如果敌方有劫数，则再增加 5 点。 [x6]",
+      "prototype": {
+        "segments": [
+          {
+            "kind": "damage",
+            "target": "enemyAll",
+            "scaling": {
+              "base": 10,
+              "mult": 1
+            },
+            "range": "scatter",
+            "modifier": {
+              "mod": {
+                "kind": "multiplier",
+                "a": 4
+              },
+              "source": {
+                "kind": "tempering"
+              }
+            }
+          },
+          {
+            "kind": "gem",
+            "params": {
+              "op": "create",
+              "gem": {
+                "kind": "mixAny",
+                "entries": [
+                  "Yellow",
+                  "SKULL"
+                ]
+              },
+              "count": {
+                "base": 0,
+                "mult": 0
+              },
+              "modifier": {
+                "mod": {
+                  "kind": "multiplier",
+                  "a": 6
+                },
+                "source": {
+                  "kind": "enemiesOfColor",
+                  "color": "Yellow"
+                }
+              }
+            },
+            "modifier": {
+              "mod": {
+                "kind": "multiplier",
+                "a": 6
+              },
+              "source": {
+                "kind": "enemiesOfColor",
+                "color": "Yellow"
+              }
+            }
+          },
+          {
+            "kind": "buff",
+            "target": "allyAll",
+            "stat": "magic",
+            "scaling": {
+              "base": 3,
+              "mult": 0
+            },
+            "condBonus": {
+              "n": 5,
+              "cond": {
+                "kind": "targetHasDoom"
+              }
+            }
+          }
+        ]
+      },
+      "metadata": {
+        "fidelity": "full",
+        "missingFeatures": [],
+        "skippedClauses": []
+      }
+    },
+    "7659": {
+      "description": "造成 [魔法 + 10] 点散射伤害，每锻炼 1 个武器段位则 +4 点伤害值。每有一名紫色敌人则创造 6 颗混合紫色和骷髅头的宝石。给予所有盟友 3 点魔力值。如果敌方有劫数，则再增加 5 点。 [x6]",
+      "prototype": {
+        "segments": [
+          {
+            "kind": "damage",
+            "target": "enemyAll",
+            "scaling": {
+              "base": 10,
+              "mult": 1
+            },
+            "range": "scatter",
+            "modifier": {
+              "mod": {
+                "kind": "multiplier",
+                "a": 4
+              },
+              "source": {
+                "kind": "tempering"
+              }
+            }
+          },
+          {
+            "kind": "gem",
+            "params": {
+              "op": "create",
+              "gem": {
+                "kind": "mixAny",
+                "entries": [
+                  "Purple",
+                  "SKULL"
+                ]
+              },
+              "count": {
+                "base": 0,
+                "mult": 0
+              },
+              "modifier": {
+                "mod": {
+                  "kind": "multiplier",
+                  "a": 6
+                },
+                "source": {
+                  "kind": "enemiesOfColor",
+                  "color": "Purple"
+                }
+              }
+            },
+            "modifier": {
+              "mod": {
+                "kind": "multiplier",
+                "a": 6
+              },
+              "source": {
+                "kind": "enemiesOfColor",
+                "color": "Purple"
+              }
+            }
+          },
+          {
+            "kind": "buff",
+            "target": "allyAll",
+            "stat": "magic",
+            "scaling": {
+              "base": 3,
+              "mult": 0
+            },
+            "condBonus": {
+              "n": 5,
+              "cond": {
+                "kind": "targetHasDoom"
+              }
+            }
+          }
+        ]
+      },
+      "metadata": {
+        "fidelity": "full",
+        "missingFeatures": [],
+        "skippedClauses": []
+      }
+    },
+    "7660": {
+      "description": "造成 [魔法 + 10] 点散射伤害，每锻炼 1 个武器段位则 +4 点伤害值。每有一名棕色敌人则创造 6 颗混合棕色和骷髅头的宝石。给予所有盟友 3 点魔力值。如果敌方有劫数，则再增加 5 点。 [x6]",
+      "prototype": {
+        "segments": [
+          {
+            "kind": "damage",
+            "target": "enemyAll",
+            "scaling": {
+              "base": 10,
+              "mult": 1
+            },
+            "range": "scatter",
+            "modifier": {
+              "mod": {
+                "kind": "multiplier",
+                "a": 4
+              },
+              "source": {
+                "kind": "tempering"
+              }
+            }
+          },
+          {
+            "kind": "gem",
+            "params": {
+              "op": "create",
+              "gem": {
+                "kind": "mixAny",
+                "entries": [
+                  "Brown",
+                  "SKULL"
+                ]
+              },
+              "count": {
+                "base": 0,
+                "mult": 0
+              },
+              "modifier": {
+                "mod": {
+                  "kind": "multiplier",
+                  "a": 6
+                },
+                "source": {
+                  "kind": "enemiesOfColor",
+                  "color": "Brown"
+                }
+              }
+            },
+            "modifier": {
+              "mod": {
+                "kind": "multiplier",
+                "a": 6
+              },
+              "source": {
+                "kind": "enemiesOfColor",
+                "color": "Brown"
+              }
+            }
+          },
+          {
+            "kind": "buff",
+            "target": "allyAll",
+            "stat": "magic",
+            "scaling": {
+              "base": 3,
+              "mult": 0
+            },
+            "condBonus": {
+              "n": 5,
+              "cond": {
+                "kind": "targetHasDoom"
+              }
+            }
+          }
+        ]
+      },
+      "metadata": {
+        "fidelity": "full",
+        "missingFeatures": [],
+        "skippedClauses": []
+      }
+    },
+    "7754": {
+      "metadata": {
+        "fidelity": "full",
+        "missingFeatures": [],
+        "skippedClauses": []
+      },
+      "prototype": {
+        "segments": [
+          {
+            "kind": "reduce",
+            "target": "enemyChosen",
+            "stat": "armor",
+            "scaling": {
+              "base": 0,
+              "mult": 0
+            },
+            "gainStat": "armor",
+            "drainAll": true
+          },
+          {
+            "kind": "status",
+            "target": "enemyAllOther",
+            "statusId": "death-mark",
+            "turns": 3,
+            "ifCond": {
+              "kind": "lastTargetRace",
+              "race": "Boss"
+            }
+          }
+        ]
+      }
+    },
+    "7755": {
+      "metadata": {
+        "fidelity": "full",
+        "missingFeatures": [],
+        "skippedClauses": []
+      },
+      "prototype": {
+        "segments": [
+          {
+            "kind": "reduce",
+            "target": "enemyChosen",
+            "stat": "armor",
+            "scaling": {
+              "base": 0,
+              "mult": 0
+            },
+            "drainAll": true
+          },
+          {
+            "kind": "damage",
+            "target": "lastTarget",
+            "scaling": {
+              "base": 5,
+              "mult": 1
+            },
+            "condMult": {
+              "times": 3,
+              "cond": {
+                "kind": "targetStatBeatsCaster",
+                "stat": "hp"
+              }
+            }
+          }
+        ]
+      }
+    },
+    "7759": {
+      "description": "减除一名敌人全部护甲值，并造成 [魔法 + 3] 点伤害。获得 2 点魔力值，数量因被减除的护甲值数而增强。 [3:1]",
+      "prototype": {
+        "segments": [
+          {
+            "kind": "reduce",
+            "target": "enemyChosen",
+            "stat": "armor",
+            "scaling": {
+              "base": 0,
+              "mult": 0
+            },
+            "drainAll": true
+          },
+          {
+            "kind": "damage",
+            "target": "enemyChosen",
+            "scaling": {
+              "base": 3,
+              "mult": 1
+            }
+          },
+          {
+            "kind": "buff",
+            "target": "allySelf",
+            "stat": "magic",
+            "scaling": {
+              "base": 2,
+              "mult": 0
+            },
+            "modifier": {
+              "mod": {
+                "kind": "ratio",
+                "a": 3,
+                "b": 1
+              },
+              "source": {
+                "kind": "lastReduce"
+              }
+            }
+          }
+        ]
+      },
+      "metadata": {
+        "fidelity": "full",
+        "missingFeatures": [],
+        "skippedClauses": []
+      }
+    },
+    "7800": {
+      "prototype": {
+        "segments": [
+          {
+            "kind": "damage",
+            "target": "enemyAll",
+            "scaling": {
+              "base": 2,
+              "mult": 0.5
+            },
+            "range": "all",
+            "modifier": {
+              "mod": {
+                "kind": "multiplier",
+                "a": 8
+              },
+              "source": {
+                "kind": "enemiesOfRace",
+                "race": "Castle"
+              }
+            }
+          }
+        ]
+      },
+      "metadata": {
+        "fidelity": "full",
+        "missingFeatures": [],
+        "skippedClauses": []
+      }
+    },
+    "7815": {
+      "description": "对一名敌人造成 [魔法 + 4] 点伤害，伤害值因敌人所需的法力值而增强。若敌人是神祗，则再造成 10 点伤害。如果敌人使用黄色法力值，则再添 10 点伤害。 [1:1]",
+      "metadata": {
+        "fidelity": "full",
+        "missingFeatures": [],
+        "skippedClauses": []
+      },
+      "prototype": {
+        "segments": [
+          {
+            "kind": "damage",
+            "target": "enemyChosen",
+            "scaling": {
+              "base": 4,
+              "mult": 1
+            },
+            "modifier": {
+              "mod": {
+                "kind": "ratio",
+                "a": 1,
+                "b": 1
+              },
+              "source": {
+                "kind": "targetStat",
+                "stat": "manaCost"
+              }
+            }
+          },
+          {
+            "kind": "damage",
+            "target": "lastTarget",
+            "scaling": {
+              "base": 10,
+              "mult": 0
+            },
+            "ifCond": {
+              "kind": "targetColor",
+              "color": "Yellow"
+            }
+          },
+          {
+            "kind": "damage",
+            "target": "lastTarget",
+            "scaling": {
+              "base": 10,
+              "mult": 0
+            },
+            "ifCond": {
+              "kind": "targetRace",
+              "race": "Divine"
+            }
+          }
+        ]
+      }
+    },
+    "7865": {
+      "description": "对所有敌人造成 [魔法 + 1] 点伤害。每有一名冻结敌人则再添 5 点伤害。 [x5]"
+    },
+    "7947": {
+      "prototype": {
+        "segments": [
+          {
+            "kind": "gem",
+            "params": {
+              "op": "clear",
+              "mode": "explode",
+              "target": {
+                "kind": "randomGems",
+                "count": {
+                  "base": 1,
+                  "mult": 0.5
+                },
+                "include": "color",
+                "color": "Brown"
+              }
+            }
+          },
+          {
+            "kind": "summon",
+            "params": {
+              "source": {
+                "randomOf": [
+                  "OcularenLeech",
+                  "Ocularen",
+                  "BurningOcularen",
+                  "GloomOcularen",
+                  "Xerodar",
+                  "WatchMother"
+                ]
+              }
+            }
+          }
+        ]
+      }
+    },
+    "7952": {
+      "prototype": {
+        "segments": [
+          {
+            "kind": "damage",
+            "target": "enemyAll",
+            "scaling": {
+              "base": 3,
+              "mult": 1
+            },
+            "range": "all",
+            "modifier": {
+              "mod": {
+                "kind": "multiplier",
+                "a": 1
+              },
+              "source": {
+                "kind": "tempering"
+              }
+            }
+          },
+          {
+            "kind": "gem",
+            "params": {
+              "op": "transform",
+              "from": "Red",
+              "to": "SKULL",
+              "toSpecial": "doomSkull"
+            }
+          },
+          {
+            "kind": "gem",
+            "params": {
+              "op": "create",
+              "gem": {
+                "kind": "special",
+                "spec": {
+                  "kind": "doomSkull"
+                }
+              },
+              "count": {
+                "base": 5,
+                "mult": 0
+              }
+            },
+            "ifCond": {
+              "kind": "targetHasDoom"
+            }
+          },
+          {
+            "kind": "buff",
+            "target": "allySelf",
+            "stat": "mana",
+            "scaling": {
+              "base": 0,
+              "mult": 0
+            },
+            "modifier": {
+              "mod": {
+                "kind": "multiplier",
+                "a": 3
+              },
+              "source": {
+                "kind": "enemiesOfColor",
+                "color": "Blue"
+              }
+            }
+          }
+        ]
+      }
+    },
+    "7955": {
+      "description": "给予一名盟友 [魔法 + 1] 点护甲值。若盟友使用红色法力值，则效果翻倍。若敌方有魔头，则爆破所有红色宝石。"
+    },
+    "7963": {
+      "prototype": {
+        "segments": [
+          {
+            "kind": "damage",
+            "target": "enemyAll",
+            "scaling": {
+              "base": 3,
+              "mult": 1
+            },
+            "range": "all",
+            "modifier": {
+              "mod": {
+                "kind": "multiplier",
+                "a": 1
+              },
+              "source": {
+                "kind": "tempering"
+              }
+            }
+          },
+          {
+            "kind": "gem",
+            "params": {
+              "op": "transform",
+              "from": "Green",
+              "to": "SKULL",
+              "toSpecial": "doomSkull"
+            }
+          },
+          {
+            "kind": "gem",
+            "params": {
+              "op": "create",
+              "gem": {
+                "kind": "special",
+                "spec": {
+                  "kind": "doomSkull"
+                }
+              },
+              "count": {
+                "base": 5,
+                "mult": 0
+              }
+            },
+            "ifCond": {
+              "kind": "targetHasDoom"
+            }
+          },
+          {
+            "kind": "buff",
+            "target": "allySelf",
+            "stat": "mana",
+            "scaling": {
+              "base": 0,
+              "mult": 0
+            },
+            "modifier": {
+              "mod": {
+                "kind": "multiplier",
+                "a": 3
+              },
+              "source": {
+                "kind": "enemiesOfColor",
+                "color": "Brown"
+              }
+            }
+          }
+        ]
+      }
+    },
+    "7973": {
+      "prototype": {
+        "segments": [
+          {
+            "kind": "damage",
+            "target": "enemyAll",
+            "scaling": {
+              "base": 3,
+              "mult": 1
+            },
+            "range": "all",
+            "modifier": {
+              "mod": {
+                "kind": "multiplier",
+                "a": 1
+              },
+              "source": {
+                "kind": "tempering"
+              }
+            }
+          },
+          {
+            "kind": "gem",
+            "params": {
+              "op": "transform",
+              "from": "Blue",
+              "to": "SKULL",
+              "toSpecial": "doomSkull"
+            }
+          },
+          {
+            "kind": "gem",
+            "params": {
+              "op": "create",
+              "gem": {
+                "kind": "special",
+                "spec": {
+                  "kind": "doomSkull"
+                }
+              },
+              "count": {
+                "base": 5,
+                "mult": 0
+              }
+            },
+            "ifCond": {
+              "kind": "targetHasDoom"
+            }
+          },
+          {
+            "kind": "buff",
+            "target": "allySelf",
+            "stat": "mana",
+            "scaling": {
+              "base": 0,
+              "mult": 0
+            },
+            "modifier": {
+              "mod": {
+                "kind": "multiplier",
+                "a": 3
+              },
+              "source": {
+                "kind": "enemiesOfColor",
+                "color": "Red"
+              }
+            }
+          }
+        ]
+      }
+    },
+    "7982": {
+      "description": "给予所有盟友 [魔法 + 1] 点生命值，每锻炼 1 个武器段位则 +2 点生命值。给予所有其他盟友 5 点法力值。如果敌方有劫数，则再给予 4 点法力值。每有一名紫色敌人则给予所有盟友 2 点魔力值。 [x4]",
+      "prototype": {
+        "segments": [
+          {
+            "kind": "buff",
+            "target": "allyAll",
+            "stat": "hp",
+            "scaling": {
+              "base": 1,
+              "mult": 1
+            },
+            "modifier": {
+              "mod": {
+                "kind": "multiplier",
+                "a": 2
+              },
+              "source": {
+                "kind": "tempering"
+              }
+            },
+            "lifeMode": "gain"
+          },
+          {
+            "kind": "buff",
+            "target": "allyOthers",
+            "stat": "mana",
+            "scaling": {
+              "base": 5,
+              "mult": 0
+            },
+            "condBonus": {
+              "n": 4,
+              "cond": {
+                "kind": "targetHasDoom"
+              }
+            }
+          },
+          {
+            "kind": "buff",
+            "target": "allyAll",
+            "stat": "magic",
+            "scaling": {
+              "base": 2,
+              "mult": 0
+            },
+            "modifier": {
+              "mod": {
+                "kind": "multiplier",
+                "a": 4
+              },
+              "source": {
+                "kind": "enemiesOfColor",
+                "color": "Purple"
+              }
+            }
+          }
+        ]
+      },
+      "metadata": {
+        "fidelity": "full",
+        "missingFeatures": [],
+        "skippedClauses": []
+      }
+    },
+    "7986": {
+      "prototype": {
+        "segments": [
+          {
+            "kind": "randomStatus",
+            "target": "enemyChosen"
+          },
+          {
+            "kind": "randomStatus",
+            "target": "enemyChosen",
+            "chance": 0.6
+          },
+          {
+            "kind": "randomStatus",
+            "target": "enemyChosen",
+            "chance": 0.5
+          },
+          {
+            "kind": "randomStatus",
+            "target": "enemyChosen",
+            "chance": 0.5
+          },
+          {
+            "kind": "gem",
+            "params": {
+              "op": "clear",
+              "mode": "explode",
+              "target": {
+                "kind": "randomGems",
+                "count": {
+                  "base": 4,
+                  "mult": 0
+                },
+                "include": "color",
+                "color": "LAST_TARGET"
+              }
+            }
+          }
+        ]
+      },
+      "metadata": {
+        "fidelity": "full",
+        "missingFeatures": [],
+        "skippedClauses": []
+      }
+    },
+    "7996": {
+      "prototype": {
+        "segments": [
+          {
+            "kind": "damage",
+            "target": "enemyAll",
+            "scaling": {
+              "base": 8,
+              "mult": 1
+            },
+            "range": "scatter"
+          },
+          {
+            "kind": "randomStatus",
+            "target": "allyAll",
+            "pool": "positive"
+          },
+          {
+            "kind": "randomStatus",
+            "target": "allyAll",
+            "pool": "positive",
+            "chance": 0.5
+          }
+        ]
+      },
+      "metadata": {
+        "fidelity": "full",
+        "missingFeatures": [],
+        "skippedClauses": []
+      }
+    },
+    "8047": {
+      "description": "给予所有盟友 [魔法 + 1] 点生命值，每锻炼 1 个武器段位则 +2 点生命值。给予所有其他盟友 5 点法力值。如果敌方有劫数，则再给予 4 点法力值。每有一名棕色敌人则给予所有盟友 2 点魔力值。 [x4]",
+      "prototype": {
+        "segments": [
+          {
+            "kind": "buff",
+            "target": "allyAll",
+            "stat": "hp",
+            "scaling": {
+              "base": 1,
+              "mult": 1
+            },
+            "modifier": {
+              "mod": {
+                "kind": "multiplier",
+                "a": 2
+              },
+              "source": {
+                "kind": "tempering"
+              }
+            },
+            "lifeMode": "gain"
+          },
+          {
+            "kind": "buff",
+            "target": "allyOthers",
+            "stat": "mana",
+            "scaling": {
+              "base": 5,
+              "mult": 0
+            },
+            "condBonus": {
+              "n": 4,
+              "cond": {
+                "kind": "targetHasDoom"
+              }
+            }
+          },
+          {
+            "kind": "buff",
+            "target": "allyAll",
+            "stat": "magic",
+            "scaling": {
+              "base": 2,
+              "mult": 0
+            },
+            "modifier": {
+              "mod": {
+                "kind": "multiplier",
+                "a": 4
+              },
+              "source": {
+                "kind": "enemiesOfColor",
+                "color": "Brown"
+              }
+            }
+          }
+        ]
+      },
+      "metadata": {
+        "fidelity": "full",
+        "missingFeatures": [],
+        "skippedClauses": []
+      }
+    },
+    "8050": {
+      "description": "给予所有盟友 [魔法 + 1] 点生命值，每锻炼 1 个武器段位则 +2 点生命值。给予所有其他盟友 5 点法力值。如果敌方有劫数，则再给予 4 点法力值。每有一名黄色敌人则给予所有盟友 2 点魔力值。 [x4]",
+      "prototype": {
+        "segments": [
+          {
+            "kind": "buff",
+            "target": "allyAll",
+            "stat": "hp",
+            "scaling": {
+              "base": 1,
+              "mult": 1
+            },
+            "modifier": {
+              "mod": {
+                "kind": "multiplier",
+                "a": 2
+              },
+              "source": {
+                "kind": "tempering"
+              }
+            },
+            "lifeMode": "gain"
+          },
+          {
+            "kind": "buff",
+            "target": "allyOthers",
+            "stat": "mana",
+            "scaling": {
+              "base": 5,
+              "mult": 0
+            },
+            "condBonus": {
+              "n": 4,
+              "cond": {
+                "kind": "targetHasDoom"
+              }
+            }
+          },
+          {
+            "kind": "buff",
+            "target": "allyAll",
+            "stat": "magic",
+            "scaling": {
+              "base": 2,
+              "mult": 0
+            },
+            "modifier": {
+              "mod": {
+                "kind": "multiplier",
+                "a": 4
+              },
+              "source": {
+                "kind": "enemiesOfColor",
+                "color": "Yellow"
+              }
+            }
+          }
+        ]
+      },
+      "metadata": {
+        "fidelity": "full",
+        "missingFeatures": [],
+        "skippedClauses": []
+      }
+    },
+    "8052": {
+      "description": "对所有敌人造成 [魔法 + 1] 点伤害，伤害值因恶魔盟友数而加强。然后诅咒和燃烧所有敌人。 [x3]"
+    },
+    "8053": {
+      "prototype": {
+        "segments": [
+          {
+            "kind": "damage",
+            "target": "enemyAll",
+            "scaling": {
+              "base": 3,
+              "mult": 1
+            },
+            "range": "all",
+            "modifier": {
+              "mod": {
+                "kind": "multiplier",
+                "a": 1
+              },
+              "source": {
+                "kind": "tempering"
+              }
+            }
+          },
+          {
+            "kind": "gem",
+            "params": {
+              "op": "transform",
+              "from": "Brown",
+              "to": "SKULL",
+              "toSpecial": "doomSkull"
+            }
+          },
+          {
+            "kind": "gem",
+            "params": {
+              "op": "create",
+              "gem": {
+                "kind": "special",
+                "spec": {
+                  "kind": "doomSkull"
+                }
+              },
+              "count": {
+                "base": 5,
+                "mult": 0
+              }
+            },
+            "ifCond": {
+              "kind": "targetHasDoom"
+            }
+          },
+          {
+            "kind": "buff",
+            "target": "allySelf",
+            "stat": "mana",
+            "scaling": {
+              "base": 0,
+              "mult": 0
+            },
+            "modifier": {
+              "mod": {
+                "kind": "multiplier",
+                "a": 3
+              },
+              "source": {
+                "kind": "enemiesOfColor",
+                "color": "Green"
+              }
+            }
+          }
+        ]
+      }
+    },
+    "8072": {
+      "description": "窃取最后两名敌人 [魔法 + 1] 点生命值并使其陷入死亡标记状态。再赐福自身。"
+    },
+    "8074": {
+      "description": "对所有敌人造成 [魔法 + 5] 点伤害。将第一名敌人击退至末位，并有 50% 的几率再将当前第一名敌人击退至末位。",
+      "metadata": {
+        "fidelity": "full",
+        "missingFeatures": [],
+        "skippedClauses": []
+      },
+      "prototype": {
+        "segments": [
+          {
+            "kind": "damage",
+            "target": "enemyAll",
+            "scaling": {
+              "base": 5,
+              "mult": 1
+            },
+            "range": "all"
+          },
+          {
+            "kind": "reposition",
+            "target": "enemyFront",
+            "to": "back"
+          },
+          {
+            "kind": "reposition",
+            "target": "enemyFront",
+            "to": "back",
+            "chance": 0.5
+          }
+        ]
+      }
+    },
+    "8076": {
+      "description": "对一名敌人造成 [魔法 + 5] 点重度溅射伤害，伤害值因所有蓝色盟友和敌人数而增强。若有敌人身亡，则给予所有盟友 3 点魔力值并使他们下潜。 [x4]",
+      "prototype": {
+        "segments": [
+          {
+            "kind": "damage",
+            "target": "enemyChosen",
+            "scaling": {
+              "base": 5,
+              "mult": 1
+            },
+            "range": "splash",
+            "modifier": {
+              "mod": {
+                "kind": "multiplier",
+                "a": 4
+              },
+              "source": {
+                "kind": "alliesOfColor",
+                "color": "Blue"
+              }
+            },
+            "splashRatio": 0.75
+          },
+          {
+            "kind": "buff",
+            "target": "allyAll",
+            "stat": "magic",
+            "scaling": {
+              "base": 3,
+              "mult": 0
+            },
+            "ifCond": {
+              "kind": "anyTrackedDied"
+            }
+          },
+          {
+            "kind": "status",
+            "target": "allyAll",
+            "statusId": "submerged",
+            "turns": 3,
+            "ifCond": {
+              "kind": "anyTrackedDied"
+            }
+          }
+        ]
+      },
+      "metadata": {
+        "fidelity": "full",
+        "missingFeatures": [],
+        "skippedClauses": []
+      }
+    },
+    "8077": {
+      "prototype": {
+        "segments": [
+          {
+            "kind": "damage",
+            "target": "enemyAll",
+            "scaling": {
+              "base": 3,
+              "mult": 1
+            },
+            "range": "all",
+            "modifier": {
+              "mod": {
+                "kind": "multiplier",
+                "a": 1
+              },
+              "source": {
+                "kind": "tempering"
+              }
+            }
+          },
+          {
+            "kind": "gem",
+            "params": {
+              "op": "transform",
+              "from": "Purple",
+              "to": "SKULL",
+              "toSpecial": "doomSkull"
+            }
+          },
+          {
+            "kind": "gem",
+            "params": {
+              "op": "create",
+              "gem": {
+                "kind": "special",
+                "spec": {
+                  "kind": "doomSkull"
+                }
+              },
+              "count": {
+                "base": 5,
+                "mult": 0
+              }
+            },
+            "ifCond": {
+              "kind": "targetHasDoom"
+            }
+          },
+          {
+            "kind": "buff",
+            "target": "allySelf",
+            "stat": "mana",
+            "scaling": {
+              "base": 0,
+              "mult": 0
+            },
+            "modifier": {
+              "mod": {
+                "kind": "multiplier",
+                "a": 3
+              },
+              "source": {
+                "kind": "enemiesOfColor",
+                "color": "Yellow"
+              }
+            }
+          }
+        ]
+      }
+    },
+    "8078": {
+      "prototype": {
+        "segments": [
+          {
+            "kind": "damage",
+            "target": "enemyAll",
+            "scaling": {
+              "base": 3,
+              "mult": 1
+            },
+            "range": "all",
+            "modifier": {
+              "mod": {
+                "kind": "multiplier",
+                "a": 1
+              },
+              "source": {
+                "kind": "tempering"
+              }
+            }
+          },
+          {
+            "kind": "gem",
+            "params": {
+              "op": "transform",
+              "from": "Yellow",
+              "to": "SKULL",
+              "toSpecial": "doomSkull"
+            }
+          },
+          {
+            "kind": "gem",
+            "params": {
+              "op": "create",
+              "gem": {
+                "kind": "special",
+                "spec": {
+                  "kind": "doomSkull"
+                }
+              },
+              "count": {
+                "base": 5,
+                "mult": 0
+              }
+            },
+            "ifCond": {
+              "kind": "targetHasDoom"
+            }
+          },
+          {
+            "kind": "buff",
+            "target": "allySelf",
+            "stat": "mana",
+            "scaling": {
+              "base": 0,
+              "mult": 0
+            },
+            "modifier": {
+              "mod": {
+                "kind": "multiplier",
+                "a": 3
+              },
+              "source": {
+                "kind": "enemiesOfColor",
+                "color": "Purple"
+              }
+            }
+          }
+        ]
+      }
+    },
+    "8079": {
+      "description": "给予所有盟友 [魔法 + 1] 点生命值，每锻炼 1 个武器段位则 +2 点生命值。给予所有其他盟友 5 点法力值。如果敌方有劫数，则再给予 4 点法力值。每有一名蓝色敌人则给予所有盟友 2 点魔力值。 [x4]",
+      "prototype": {
+        "segments": [
+          {
+            "kind": "buff",
+            "target": "allyAll",
+            "stat": "hp",
+            "scaling": {
+              "base": 1,
+              "mult": 1
+            },
+            "modifier": {
+              "mod": {
+                "kind": "multiplier",
+                "a": 2
+              },
+              "source": {
+                "kind": "tempering"
+              }
+            },
+            "lifeMode": "gain"
+          },
+          {
+            "kind": "buff",
+            "target": "allyOthers",
+            "stat": "mana",
+            "scaling": {
+              "base": 5,
+              "mult": 0
+            },
+            "condBonus": {
+              "n": 4,
+              "cond": {
+                "kind": "targetHasDoom"
+              }
+            }
+          },
+          {
+            "kind": "buff",
+            "target": "allyAll",
+            "stat": "magic",
+            "scaling": {
+              "base": 2,
+              "mult": 0
+            },
+            "modifier": {
+              "mod": {
+                "kind": "multiplier",
+                "a": 4
+              },
+              "source": {
+                "kind": "enemiesOfColor",
+                "color": "Blue"
+              }
+            }
+          }
+        ]
+      },
+      "metadata": {
+        "fidelity": "full",
+        "missingFeatures": [],
+        "skippedClauses": []
+      }
+    },
+    "8080": {
+      "description": "给予所有盟友 [魔法 + 1] 点生命值，每锻炼 1 个武器段位则 +2 点生命值。给予所有其他盟友 5 点法力值。如果敌方有劫数，则再给予 4 点法力值。每有一名绿色敌人则给予所有盟友 2 点魔力值。 [x4]",
+      "prototype": {
+        "segments": [
+          {
+            "kind": "buff",
+            "target": "allyAll",
+            "stat": "hp",
+            "scaling": {
+              "base": 1,
+              "mult": 1
+            },
+            "modifier": {
+              "mod": {
+                "kind": "multiplier",
+                "a": 2
+              },
+              "source": {
+                "kind": "tempering"
+              }
+            },
+            "lifeMode": "gain"
+          },
+          {
+            "kind": "buff",
+            "target": "allyOthers",
+            "stat": "mana",
+            "scaling": {
+              "base": 5,
+              "mult": 0
+            },
+            "condBonus": {
+              "n": 4,
+              "cond": {
+                "kind": "targetHasDoom"
+              }
+            }
+          },
+          {
+            "kind": "buff",
+            "target": "allyAll",
+            "stat": "magic",
+            "scaling": {
+              "base": 2,
+              "mult": 0
+            },
+            "modifier": {
+              "mod": {
+                "kind": "multiplier",
+                "a": 4
+              },
+              "source": {
+                "kind": "enemiesOfColor",
+                "color": "Green"
+              }
+            }
+          }
+        ]
+      },
+      "metadata": {
+        "fidelity": "full",
+        "missingFeatures": [],
+        "skippedClauses": []
+      }
+    },
+    "8081": {
+      "description": "给予所有盟友 [魔法 + 1] 点生命值，每锻炼 1 个武器段位则 +2 点生命值。给予所有其他盟友 5 点法力值。如果敌方有劫数，则再给予 4 点法力值。每有一名红色敌人则给予所有盟友 2 点魔力值。 [x4]",
+      "prototype": {
+        "segments": [
+          {
+            "kind": "buff",
+            "target": "allyAll",
+            "stat": "hp",
+            "scaling": {
+              "base": 1,
+              "mult": 1
+            },
+            "modifier": {
+              "mod": {
+                "kind": "multiplier",
+                "a": 2
+              },
+              "source": {
+                "kind": "tempering"
+              }
+            },
+            "lifeMode": "gain"
+          },
+          {
+            "kind": "buff",
+            "target": "allyOthers",
+            "stat": "mana",
+            "scaling": {
+              "base": 5,
+              "mult": 0
+            },
+            "condBonus": {
+              "n": 4,
+              "cond": {
+                "kind": "targetHasDoom"
+              }
+            }
+          },
+          {
+            "kind": "buff",
+            "target": "allyAll",
+            "stat": "magic",
+            "scaling": {
+              "base": 2,
+              "mult": 0
+            },
+            "modifier": {
+              "mod": {
+                "kind": "multiplier",
+                "a": 4
+              },
+              "source": {
+                "kind": "enemiesOfColor",
+                "color": "Red"
+              }
+            }
+          }
+        ]
+      },
+      "metadata": {
+        "fidelity": "full",
+        "missingFeatures": [],
+        "skippedClauses": []
+      }
+    },
+    "8083": {
+      "description": "对一名敌人造成 [魔法 + 6] 点伤害。若敌人陷入出血状态，则伤害翻倍。有 10% 的几率直接杀死敌人，几率因末日骷髅头的数量而增强。 [x2]"
+    },
+    "8084": {
+      "prototype": {
+        "segments": [
+          {
+            "kind": "randomStatus",
+            "target": "allyChosen",
+            "allPositive": true
+          },
+          {
+            "kind": "gem",
+            "params": {
+              "op": "clear",
+              "mode": "explode",
+              "target": {
+                "kind": "randomGems",
+                "count": {
+                  "base": 1,
+                  "mult": 0.5
+                },
+                "include": "color",
+                "color": "LAST_TARGET"
+              }
+            }
+          }
+        ]
+      },
+      "metadata": {
+        "fidelity": "full",
+        "missingFeatures": [],
+        "skippedClauses": []
+      }
+    },
+    "8130": {
+      "description": "对第一位敌人造成 [魔法 + 7] 点伤害，伤害值因末日骷髅头数而增强。如果敌人是元素军队，则造成双倍伤害。将其打回末位。 [x3]"
+    },
+    "8145": {
+      "description": "对最后一名敌人造成 [魔法 + 4] 点伤害。若敌人使用黄色法力值，则造成 3 倍伤害。召唤暗风暴。"
+    },
+    "8153": {
+      "metadata": {
+        "fidelity": "full",
+        "missingFeatures": [],
+        "skippedClauses": []
+      },
+      "prototype": {
+        "segments": [
+          {
+            "kind": "damage",
+            "target": "enemyChosen",
+            "scaling": {
+              "base": 4,
+              "mult": 1
+            },
+            "trueDamage": true
+          },
+          {
+            "kind": "damage",
+            "target": "enemyAll",
+            "scaling": {
+              "base": 15,
+              "mult": 0
+            },
+            "range": "all",
+            "trueDamage": true,
+            "ifCond": {
+              "kind": "stormPresent"
+            }
+          },
+          {
+            "kind": "removeStorm"
+          }
+        ]
+      },
+      "description": "对一名敌人造成 [魔法 + 4] 点真实伤害。若存在一个风暴，对所有敌人造成 15 点真实伤害，再终止风暴。"
+    },
+    "8155": {
+      "description": "对一名敌人造成 [魔法 + 4] 点重度溅射伤害，伤害值因骷髅头数而增强。击晕所有受到伤害的敌人。 [1:1]"
+    },
+    "8253": {
+      "description": "耗掉所有敌人 5 点法力值，或给予所有其他盟友 [(魔法 / 3) + 1] 点魔力值，或创造 12 颗紫色宝石。",
+      "prototype": {
+        "segments": [
+          {
+            "kind": "oneOf",
+            "options": [
+              [
+                {
+                  "kind": "reduce",
+                  "target": "enemyAll",
+                  "stat": "mana",
+                  "scaling": {
+                    "base": 5,
+                    "mult": 0
+                  }
+                }
+              ],
+              [
+                {
+                  "kind": "buff",
+                  "target": "allyOthers",
+                  "stat": "magic",
+                  "scaling": {
+                    "base": 1,
+                    "mult": 0.3333
+                  }
+                }
+              ],
+              [
+                {
+                  "kind": "gem",
+                  "params": {
+                    "op": "create",
+                    "gem": {
+                      "kind": "color",
+                      "color": "Purple"
+                    },
+                    "count": {
+                      "base": 12,
+                      "mult": 0
+                    }
+                  }
+                }
+              ]
+            ]
+          }
+        ]
+      },
+      "metadata": {
+        "fidelity": "full",
+        "missingFeatures": [],
+        "skippedClauses": []
+      }
+    },
+    "8254": {
+      "description": "对一名敌人造成 [魔法 + 5] 点重度溅射伤害，每锻炼 1 个武器段位则 +4 点伤害值。击晕所有蓝色敌人并净化所有蓝色盟友。爆破 4 颗宝石，如果敌方有劫数，则再爆破 3 颗宝石。"
+    },
+    "8255": {
+      "description": "对一名敌人造成 [魔法 + 5] 点重度溅射伤害，每锻炼 1 个武器段位则 +4 点伤害值。击晕所有绿色敌人并净化所有绿色盟友。爆破 4 颗宝石，如果敌方有劫数，则再爆破 3 颗宝石。"
+    },
+    "8256": {
+      "description": "对一名敌人造成 [魔法 + 5] 点重度溅射伤害，每锻炼 1 个武器段位则 +4 点伤害值。击晕所有红色敌人并净化所有红色盟友。爆破 4 颗宝石，如果敌方有劫数，则再爆破 3 颗宝石。"
+    },
+    "8257": {
+      "description": "对一名敌人造成 [魔法 + 5] 点重度溅射伤害，每锻炼 1 个武器段位则 +4 点伤害值。击晕所有黄色敌人并净化所有黄色盟友。爆破 4 颗宝石，如果敌方有劫数，则再爆破 3 颗宝石。"
+    },
+    "8258": {
+      "description": "对一名敌人造成 [魔法 + 5] 点重度溅射伤害，每锻炼 1 个武器段位则 +4 点伤害值。击晕所有紫色敌人并净化所有紫色盟友。爆破 4 颗宝石，如果敌方有劫数，则再爆破 3 颗宝石。"
+    },
+    "8259": {
+      "description": "对一名敌人造成 [魔法 + 5] 点重度溅射伤害，每锻炼 1 个武器段位则 +4 点伤害值。击晕所有棕色敌人并净化所有棕色盟友。爆破 4 颗宝石，如果敌方有劫数，则再爆破 3 颗宝石。"
+    },
+    "8347": {
+      "prototype": {
+        "segments": [
+          {
+            "kind": "gem",
+            "params": {
+              "op": "clear",
+              "mode": "destroy",
+              "target": {
+                "kind": "color",
+                "color": "Purple"
+              }
+            }
+          },
+          {
+            "kind": "damage",
+            "target": "enemyChosen",
+            "scaling": {
+              "base": 5,
+              "mult": 1
+            },
+            "modifier": {
+              "mod": {
+                "kind": "ratio",
+                "a": 3,
+                "b": 1
+              },
+              "source": {
+                "kind": "destroyedGems"
+              }
+            },
+            "condMult": {
+              "times": 2,
+              "cond": {
+                "kind": "anyOf",
+                "of": [
+                  {
+                    "kind": "kingdomOf",
+                    "side": "enemy",
+                    "kingdom": "玉银林地"
+                  },
+                  {
+                    "kind": "kingdomPresent",
+                    "kingdom": "玉银林地"
+                  }
+                ]
+              }
+            }
+          }
+        ]
+      }
+    },
+    "8357": {
+      "prototype": {
+        "segments": [
+          {
+            "kind": "cleanse",
+            "target": "allyAll"
+          },
+          {
+            "kind": "buff",
+            "target": "allyAll",
+            "stat": "hp",
+            "scaling": {
+              "base": 1,
+              "mult": 1
+            },
+            "lifeMode": "gain"
+          },
+          {
+            "kind": "summon",
+            "params": {
+              "source": {
+                "randomOf": [
+                  "OcularenLeech",
+                  "Ocularen",
+                  "BurningOcularen",
+                  "GloomOcularen",
+                  "Xerodar",
+                  "WatchMother"
+                ]
+              }
+            }
+          }
+        ]
+      }
+    },
+    "8378": {
+      "description": "窃取一名敌人 [魔法 + 1] 点魔力值，并将之转换成攻击力。使自身获得狂怒效果。 [100:1]",
+      "prototype": {
+        "segments": [
+          {
+            "kind": "reduce",
+            "target": "enemyChosen",
+            "stat": "magic",
+            "scaling": {
+              "base": 1,
+              "mult": 1
+            },
+            "gainStat": "attack",
+            "modifier": {
+              "mod": {
+                "kind": "ratio",
+                "a": 100,
+                "b": 1
+              }
+            }
+          },
+          {
+            "kind": "status",
+            "target": "allySelf",
+            "statusId": "rage",
+            "turns": 3
+          }
+        ]
+      },
+      "metadata": {
+        "fidelity": "full",
+        "missingFeatures": [],
+        "skippedClauses": []
+      }
+    },
+    "8400": {
+      "description": "消除所有敌人 2 点法力值，每颗石块额外消除 1 点。摧毁 [魔法 + 1] 颗所选颜色的宝石。 [1:1]",
+      "metadata": {
+        "fidelity": "full",
+        "missingFeatures": [],
+        "skippedClauses": []
+      },
+      "prototype": {
+        "segments": [
+          {
+            "kind": "reduce",
+            "target": "enemyAll",
+            "stat": "mana",
+            "scaling": {
+              "base": 2,
+              "mult": 0
+            },
+            "modifier": {
+              "mod": {
+                "kind": "multiplier",
+                "a": 1
+              },
+              "source": {
+                "kind": "boardSpecial",
+                "gem": "stoneBlock"
+              }
+            }
+          },
+          {
+            "kind": "gem",
+            "params": {
+              "op": "clear",
+              "mode": "destroy",
+              "target": {
+                "kind": "randomGems",
+                "count": {
+                  "base": 1,
+                  "mult": 1
+                },
+                "include": "color",
+                "color": "CHOSEN"
+              }
+            }
+          }
+        ]
+      }
+    },
+    "8436": {
+      "description": "对所有敌人造成 [魔法 + 2] 点伤害，伤害值因紫色盟友和敌人数而增强。使所有敌人陷入死亡标记状态。若有 13 或更多颗棕色宝石，则获得 2 点魔力值。 [x2]",
+      "prototype": {
+        "segments": [
+          {
+            "kind": "damage",
+            "target": "enemyAll",
+            "scaling": {
+              "base": 2,
+              "mult": 1
+            },
+            "range": "all",
+            "modifier": {
+              "mod": {
+                "kind": "multiplier",
+                "a": 2
+              },
+              "source": {
+                "kind": "alliesOfColor",
+                "color": "Purple"
+              }
+            }
+          },
+          {
+            "kind": "status",
+            "target": "enemyAll",
+            "statusId": "death-mark",
+            "turns": 3
+          },
+          {
+            "kind": "buff",
+            "target": "allySelf",
+            "stat": "magic",
+            "scaling": {
+              "base": 2,
+              "mult": 0
+            },
+            "ifCond": {
+              "kind": "boardAtLeast",
+              "color": "Brown",
+              "n": 13
+            }
+          }
+        ]
+      },
+      "metadata": {
+        "fidelity": "full",
+        "missingFeatures": [],
+        "skippedClauses": []
+      }
+    },
+    "8441": {
+      "description": "对一名敌人造成 [魔法 + 6] 点伤害。若敌人使用紫色法力值，则使其陷入死亡标记状态。"
+    },
+    "8518": {
+      "prototype": {
+        "segments": [
+          {
+            "kind": "gem",
+            "params": {
+              "op": "clear",
+              "mode": "destroy",
+              "target": {
+                "kind": "chosenLine",
+                "orientation": "row"
+              }
+            }
+          },
+          {
+            "kind": "status",
+            "target": "enemyAll",
+            "statusId": "burning",
+            "turns": 3,
+            "magnitude": 3,
+            "perDestroyed": {
+              "color": "Purple"
+            }
+          }
+        ]
+      },
+      "metadata": {
+        "fidelity": "full",
+        "missingFeatures": [],
+        "skippedClauses": []
+      }
+    },
+    "8521": {
+      "prototype": {
+        "segments": [
+          {
+            "kind": "damage",
+            "target": "enemyChosen",
+            "scaling": {
+              "base": 3,
+              "mult": 1
+            },
+            "range": "splash",
+            "splashRatio": 0.75
+          },
+          {
+            "kind": "gem",
+            "params": {
+              "op": "clear",
+              "mode": "explode",
+              "target": {
+                "kind": "randomGems",
+                "count": {
+                  "base": 4,
+                  "mult": 0
+                },
+                "include": "color"
+              }
+            },
+            "ifCond": {
+              "kind": "anyEnemyStatus",
+              "statusId": "stun"
+            }
+          }
+        ]
+      }
+    },
+    "8617": {
+      "description": "获得 [魔法 + 1] 点生命值，并赋予一名选定盟友 2 点魔力值。",
+      "prototype": {
+        "segments": [
+          {
+            "kind": "buff",
+            "target": "allySelf",
+            "stat": "hp",
+            "scaling": {
+              "base": 1,
+              "mult": 1
+            },
+            "lifeMode": "gain"
+          },
+          {
+            "kind": "buff",
+            "target": "allyChosen",
+            "stat": "magic",
+            "scaling": {
+              "base": 2,
+              "mult": 0
+            }
+          }
+        ]
+      },
+      "metadata": {
+        "fidelity": "full",
+        "missingFeatures": [],
+        "skippedClauses": []
+      }
+    },
+    "8623": {
+      "description": "选择一项：创造 6 颗元素之星，祝福所有盟友；或创造 7 颗暗影之星，诅咒所有敌人。"
+    },
+    "8668": {
+      "prototype": {
+        "segments": [
+          {
+            "kind": "status",
+            "target": "enemyChosen",
+            "statusId": "curse",
+            "turns": 3
+          },
+          {
+            "kind": "status",
+            "target": "enemyChosen",
+            "statusId": "poison",
+            "turns": 3,
+            "magnitude": 3
+          },
+          {
+            "kind": "status",
+            "target": "enemyChosen",
+            "statusId": "burning",
+            "turns": 3,
+            "magnitude": 3
+          },
+          {
+            "kind": "status",
+            "target": "enemyChosen",
+            "statusId": "bleed",
+            "turns": 3,
+            "magnitude": 1
+          },
+          {
+            "kind": "status",
+            "target": "enemyChosen",
+            "statusId": "silence",
+            "turns": 3
+          },
+          {
+            "kind": "status",
+            "target": "enemyChosen",
+            "statusId": "frozen",
+            "turns": 3
+          },
+          {
+            "kind": "status",
+            "target": "enemyChosen",
+            "statusId": "stun",
+            "turns": 3
+          },
+          {
+            "kind": "status",
+            "target": "enemyChosen",
+            "statusId": "entangle",
+            "turns": 3
+          },
+          {
+            "kind": "status",
+            "target": "enemyChosen",
+            "statusId": "web",
+            "turns": 3
+          },
+          {
+            "kind": "status",
+            "target": "enemyChosen",
+            "statusId": "disease",
+            "turns": 3
+          },
+          {
+            "kind": "status",
+            "target": "enemyChosen",
+            "statusId": "death-mark",
+            "turns": 3
+          },
+          {
+            "kind": "status",
+            "target": "enemyChosen",
+            "statusId": "faerie-fire",
+            "turns": 3
+          },
+          {
+            "kind": "status",
+            "target": "enemyChosen",
+            "statusId": "marked",
+            "turns": 3
+          },
+          {
+            "kind": "status",
+            "target": "enemyChosen",
+            "statusId": "terror",
+            "turns": 3
+          },
+          {
+            "kind": "status",
+            "target": "enemyChosen",
+            "statusId": "lycanthropy",
+            "turns": 3
+          },
+          {
+            "kind": "randomStatus",
+            "target": "allySelf",
+            "allPositive": true
+          }
+        ]
+      },
+      "metadata": {
+        "fidelity": "full",
+        "missingFeatures": [],
+        "skippedClauses": []
+      }
+    },
+    "8670": {
+      "prototype": {
+        "segments": [
+          {
+            "kind": "gem",
+            "params": {
+              "op": "clear",
+              "mode": "explode",
+              "target": {
+                "kind": "randomGems",
+                "count": {
+                  "base": 1,
+                  "mult": 1
+                },
+                "include": "color",
+                "color": "Purple"
+              }
+            }
+          },
+          {
+            "kind": "randomStatus",
+            "pool": "positive",
+            "target": "allyAll",
+            "targetKingdom": "玉银林地"
+          },
+          {
+            "kind": "summon",
+            "params": {
+              "source": {
+                "randomOfKingdom": "玉银林地"
+              }
+            }
+          }
+        ]
+      }
+    },
+    "8696": {
+      "prototype": {
+        "segments": [
+          {
+            "kind": "gem",
+            "params": {
+              "op": "clear",
+              "mode": "explode",
+              "target": {
+                "kind": "randomGems",
+                "count": {
+                  "base": 3,
+                  "mult": 0
+                },
+                "include": "color"
+              }
+            }
+          },
+          {
+            "kind": "gem",
+            "params": {
+              "op": "create",
+              "gem": {
+                "kind": "special",
+                "spec": {
+                  "kind": "wish"
+                }
+              },
+              "count": {
+                "base": 1,
+                "mult": 0
+              }
+            }
+          }
+        ]
+      }
+    },
+    "8697": {
+      "description": "对一名敌人造成 [魔法 + 6] 点重度溅射伤害，伤害值因诅咒宝石数量而增强。若自身队伍里有暗黑铁匠迪恩扎，则创造 4 颗诅咒宝石。 [x4]"
+    },
+    "8702": {
+      "description": "对所有敌人造成 [(魔法 x 2) + 16] 点散射伤害，每锻炼 1 个武器段位则 +4 点伤害值。赐福所有紫色盟友并诅咒所有紫色敌人。",
+      "prototype": {
+        "segments": [
+          {
+            "kind": "damage",
+            "target": "enemyAll",
+            "scaling": {
+              "base": 16,
+              "mult": 2
+            },
+            "range": "scatter",
+            "modifier": {
+              "mod": {
+                "kind": "multiplier",
+                "a": 4
+              },
+              "source": {
+                "kind": "tempering"
+              }
+            }
+          },
+          {
+            "kind": "status",
+            "target": "allyAll",
+            "statusId": "blessed",
+            "turns": 3,
+            "ifCond": {
+              "kind": "targetColor",
+              "color": "Purple"
+            }
+          },
+          {
+            "kind": "status",
+            "target": "enemyAll",
+            "statusId": "curse",
+            "turns": 3,
+            "ifCond": {
+              "kind": "targetColor",
+              "color": "Purple"
+            }
+          }
+        ]
+      }
+    },
+    "8703": {
+      "description": "对一名敌人造成 [魔法 + 8] 点普通溅射伤害，每锻炼 1 个武器段位则 +4 点伤害值。赐福所有棕色盟友并诅咒所有棕色敌人。",
+      "prototype": {
+        "segments": [
+          {
+            "kind": "damage",
+            "target": "enemyChosen",
+            "scaling": {
+              "base": 8,
+              "mult": 1
+            },
+            "range": "splash",
+            "splashRatio": 0.5,
+            "modifier": {
+              "mod": {
+                "kind": "multiplier",
+                "a": 4
+              },
+              "source": {
+                "kind": "tempering"
+              }
+            }
+          },
+          {
+            "kind": "status",
+            "target": "allyAll",
+            "statusId": "blessed",
+            "turns": 3,
+            "ifCond": {
+              "kind": "targetColor",
+              "color": "Brown"
+            }
+          },
+          {
+            "kind": "status",
+            "target": "enemyAll",
+            "statusId": "curse",
+            "turns": 3,
+            "ifCond": {
+              "kind": "targetColor",
+              "color": "Brown"
+            }
+          }
+        ]
+      },
+      "metadata": {
+        "fidelity": "full",
+        "missingFeatures": [],
+        "skippedClauses": []
+      }
+    },
+    "8721": {
+      "prototype": {
+        "segments": [
+          {
+            "kind": "gem",
+            "params": {
+              "op": "clear",
+              "mode": "destroy",
+              "target": {
+                "kind": "chosenCross"
+              }
+            }
+          },
+          {
+            "kind": "gem",
+            "params": {
+              "op": "create",
+              "gem": {
+                "kind": "special",
+                "spec": {
+                  "kind": "bomb"
+                }
+              },
+              "count": {
+                "base": 6,
+                "mult": 0
+              }
+            }
+          },
+          {
+            "kind": "damage",
+            "target": "enemyAll",
+            "scaling": {
+              "base": 6,
+              "mult": 1
+            },
+            "range": "scatter"
+          }
+        ]
+      }
+    },
+    "8762": {
+      "prototype": {
+        "segments": [
+          {
+            "kind": "oneOf",
+            "options": [
+              [
+                {
+                  "kind": "gem",
+                  "params": {
+                    "op": "transform",
+                    "from": "ANY",
+                    "to": "Red",
+                    "toSpecial": "burningGem",
+                    "diagonal": "left"
+                  }
+                },
+                {
+                  "kind": "damage",
+                  "target": "enemyAll",
+                  "scaling": {
+                    "base": 8,
+                    "mult": 1
+                  },
+                  "range": "scatter"
+                }
+              ],
+              [
+                {
+                  "kind": "gem",
+                  "params": {
+                    "op": "transform",
+                    "from": "ANY",
+                    "to": "Red",
+                    "toSpecial": "burningGem",
+                    "diagonal": "right"
+                  }
+                },
+                {
+                  "kind": "damage",
+                  "target": "enemyAll",
+                  "scaling": {
+                    "base": 8,
+                    "mult": 1
+                  },
+                  "range": "scatter"
+                }
+              ]
+            ]
+          }
+        ]
+      },
+      "metadata": {
+        "fidelity": "full",
+        "missingFeatures": [],
+        "skippedClauses": []
+      }
+    },
+    "8770": {
+      "prototype": {
+        "segments": [
+          {
+            "kind": "gem",
+            "params": {
+              "op": "clear",
+              "mode": "explode",
+              "target": {
+                "kind": "randomGems",
+                "count": {
+                  "base": 1,
+                  "mult": 1
+                },
+                "include": "color",
+                "color": "Blue"
+              }
+            }
+          },
+          {
+            "kind": "randomStatus",
+            "pool": "positive",
+            "target": "allyAll",
+            "targetRace": "Giant"
+          },
+          {
+            "kind": "summon",
+            "params": {
+              "source": {
+                "randomOf": [
+                  "Ogre",
+                  "Ettin",
+                  "StoneGiant",
+                  "FrostGiant",
+                  "Berserker",
+                  "JarlFiremantle",
+                  "Elf-Eater",
+                  "Cyclops",
+                  "Zephyros",
+                  "Gob-Chomper",
+                  "SeaTroll",
+                  "DragonCruncher",
+                  "RockTroll",
+                  "DarkTroll",
+                  "GogAndGud",
+                  "JotnarStormshield",
+                  "Ogryn",
+                  "DesertTroll",
+                  "ForestTroll",
+                  "FireGiant",
+                  "MonsterMuncher",
+                  "FlameTroll",
+                  "SkrymirTheLofty",
+                  "HyndlaFrostcrown",
+                  "IceTroll",
+                  "Igneus",
+                  "HalfgrimHalf-Giant",
+                  "Sledgepaw",
+                  "LavaTroll",
+                  "Stone-Biter",
+                  "CorruptTroll",
+                  "Fomorian",
+                  "FrostfireTroll",
+                  "CrazedTroll",
+                  "OgrakShaman",
+                  "Bone-Biter",
+                  "IllithianColossus",
+                  "Smashedmouth",
+                  "StormKnight",
+                  "FlameMaiden",
+                  "Kharybdis",
+                  "Ogress",
+                  "Baldr",
+                  "VidarrTheVast",
+                  "IcespireShaman",
+                  "DarkForestTroll",
+                  "TheOnyxGiant",
+                  "TheSapphireGiant",
+                  "TheEmeraldGiant",
+                  "TheRubyGiant",
+                  "TheAmethystGiant",
+                  "TheTopazGiant",
+                  "TheUmbralGiant",
+                  "TheGraveGiant",
+                  "Ogretaur",
+                  "GiantSentinel",
+                  "EarthGiant",
+                  "Jordrin",
+                  "Kolfrysti",
+                  "Jarnvisa",
+                  "GhostOgre",
+                  "MazeCyclops",
+                  "GrimbornBloodeye",
+                  "HeldrTheGrave",
+                  "Polymetis",
+                  "SteamTroll",
+                  "ScoriaGiant-born",
+                  "VenomousTroll",
+                  "LavaEttin",
+                  "AbominableTroll",
+                  "StormOracle",
+                  "ToxAndSion",
+                  "StormGuard",
+                  "AsbjornTheMountain"
+                ]
+              }
+            }
+          }
+        ]
+      }
+    },
+    "8774": {
+      "prototype": {
+        "segments": [
+          {
+            "kind": "damage",
+            "target": "enemyAll",
+            "scaling": {
+              "base": 7,
+              "mult": 1
+            },
+            "range": "scatter",
+            "modifier": {
+              "mod": {
+                "kind": "multiplier",
+                "a": 5
+              }
+            }
+          },
+          {
+            "kind": "gem",
+            "params": {
+              "op": "clear",
+              "mode": "explode",
+              "target": {
+                "kind": "randomGems",
+                "count": {
+                  "base": 5,
+                  "mult": 0
+                },
+                "include": "color"
+              }
+            },
+            "ifCond": {
+              "kind": "troopPresent",
+              "side": "ally",
+              "name": "泽菲罗斯"
+            }
+          }
+        ]
+      }
+    },
+    "8806": {
+      "prototype": {
+        "segments": [
+          {
+            "kind": "gem",
+            "params": {
+              "op": "clear",
+              "mode": "explode",
+              "target": {
+                "kind": "cell",
+                "cell": "CELL"
+              },
+              "countAdjacentSpecial": "gargoyleGem"
+            }
+          },
+          {
+            "kind": "gem",
+            "params": {
+              "op": "create",
+              "gem": {
+                "kind": "mixSpecial",
+                "specs": [
+                  {
+                    "kind": "gargoyleGem",
+                    "tier": 1
+                  },
+                  {
+                    "kind": "gargoyleGem",
+                    "tier": 2
+                  }
+                ]
+              },
+              "count": {
+                "base": 1,
+                "mult": 0
+              },
+              "modifier": {
+                "mod": {
+                  "kind": "multiplier",
+                  "a": 2
+                },
+                "source": {
+                  "kind": "countedAdjacentSpecial"
+                }
+              }
+            }
+          }
+        ]
+      },
+      "metadata": {
+        "fidelity": "full",
+        "missingFeatures": [],
+        "skippedClauses": []
+      }
+    },
+    "8807": {
+      "prototype": {
+        "segments": [
+          {
+            "kind": "gem",
+            "params": {
+              "op": "clear",
+              "mode": "destroy",
+              "target": {
+                "kind": "color",
+                "color": "Brown"
+              }
+            }
+          },
+          {
+            "kind": "damage",
+            "target": "enemyChosen",
+            "scaling": {
+              "base": 5,
+              "mult": 1
+            },
+            "modifier": {
+              "mod": {
+                "kind": "ratio",
+                "a": 3,
+                "b": 1
+              },
+              "source": {
+                "kind": "destroyedGems"
+              }
+            },
+            "condMult": {
+              "times": 2,
+              "cond": {
+                "kind": "anyOf",
+                "of": [
+                  {
+                    "kind": "kingdomOf",
+                    "side": "enemy",
+                    "kingdom": "地狱悬崖"
+                  },
+                  {
+                    "kind": "kingdomPresent",
+                    "kingdom": "地狱悬崖"
+                  }
+                ]
+              }
+            }
+          }
+        ]
+      }
+    },
+    "8869": {
+      "prototype": {
+        "segments": [
+          {
+            "kind": "choose",
+            "labels": [
+              "全体盟友增加护甲",
+              "其他盟友获得屏障"
+            ],
+            "options": [
+              [
+                {
+                  "kind": "buff",
+                  "target": "allyAll",
+                  "stat": "armor",
+                  "scaling": {
+                    "base": 1,
+                    "mult": 1
+                  }
+                }
+              ],
+              [
+                {
+                  "kind": "status",
+                  "target": "allyOthers",
+                  "statusId": "barrier",
+                  "turns": 3
+                }
+              ]
+            ]
+          }
+        ]
+      }
+    },
+    "8874": {
+      "description": "对所有敌人造成 [魔法 + 1] 点伤害。对所有敌人造成陷入冻结和燃烧状态。再创造 3 颗蓝色巨人宝石和 3 颗红色巨人宝石。"
+    },
+    "8876": {
+      "description": "选择一项：将所有绿色宝石转化为选定颜色；或爆破一颗选定宝石，再创造 10 颗绿色宝石。"
+    },
+    "8879": {
+      "description": "&& 对末位敌人造成 [魔法 + 3] 点伤害，并窃取 3 点魔力值 && 对末位敌人造成 [魔法 + 3] 点伤害，并窃取 6 点法力值",
+      "prototype": {
+        "segments": [
+          {
+            "kind": "choose",
+            "labels": [
+              "窃取末位敌人魔法并造成伤害",
+              "窃取末位敌人法力并造成伤害"
+            ],
+            "options": [
+              [
+                {
+                  "kind": "reduce",
+                  "target": "enemyLast",
+                  "stat": "magic",
+                  "scaling": {
+                    "base": 3,
+                    "mult": 0
+                  },
+                  "gainStat": "magic"
+                },
+                {
+                  "kind": "damage",
+                  "target": "enemyLast",
+                  "scaling": {
+                    "base": 3,
+                    "mult": 1
+                  }
+                }
+              ],
+              [
+                {
+                  "kind": "reduce",
+                  "target": "enemyLast",
+                  "stat": "mana",
+                  "scaling": {
+                    "base": 6,
+                    "mult": 0
+                  },
+                  "gainStat": "mana"
+                },
+                {
+                  "kind": "damage",
+                  "target": "enemyLast",
+                  "scaling": {
+                    "base": 3,
+                    "mult": 1
+                  }
+                }
+              ]
+            ]
+          }
+        ]
+      },
+      "metadata": {
+        "fidelity": "full",
+        "missingFeatures": [],
+        "skippedClauses": []
+      }
+    },
+    "8900": {
+      "description": "选择一项：将选定敌人一种法力颜色的所有宝石转化为灵魂宝石；或对一名敌人造成 [魔法 + 2] 点伤害，每颗灵魂宝石增加 4 点伤害。"
+    },
+    "8951": {
+      "description": "选择一项：创造 8 颗灵魂宝石并获得一个额外回合；或对一名随机敌人造成 [魔法 × 2 + 3] 点真实伤害。"
+    },
+    "8965": {
+      "prototype": {
+        "segments": [
+          {
+            "kind": "status",
+            "target": "allyAll",
+            "statusId": "blessed",
+            "turns": 3,
+            "perCount": {
+              "mod": {
+                "kind": "multiplier",
+                "a": 1
+              },
+              "source": {
+                "kind": "diagonalGems",
+                "color": "Yellow"
+              }
+            }
+          },
+          {
+            "kind": "gem",
+            "params": {
+              "op": "clear",
+              "mode": "destroy",
+              "target": {
+                "kind": "area",
+                "shape": "x"
+              }
+            }
+          }
+        ]
+      },
+      "metadata": {
+        "fidelity": "full",
+        "missingFeatures": [],
+        "skippedClauses": []
+      }
+    },
+    "8966": {
+      "description": "将选定的法力宝石转换为 x3 通配宝石。"
+    },
+    "8989": {
+      "description": "给予所有盟友 2 点魔力值，每锻炼 1 个武器段位则 +1 魔力值。给予蓝色盟友 [魔法 + 2] 点护甲值。若敌人拥有一个劫数，则获得 10 点攻击力。",
+      "prototype": {
+        "segments": [
+          {
+            "kind": "buff",
+            "target": "allyAll",
+            "stat": "magic",
+            "scaling": {
+              "base": 2,
+              "mult": 0
+            },
+            "modifier": {
+              "mod": {
+                "kind": "multiplier",
+                "a": 1
+              },
+              "source": {
+                "kind": "tempering"
+              }
+            }
+          },
+          {
+            "kind": "buff",
+            "target": "allyAll",
+            "stat": "armor",
+            "scaling": {
+              "base": 2,
+              "mult": 1
+            },
+            "ifCond": {
+              "kind": "targetColor",
+              "color": "Blue"
+            }
+          },
+          {
+            "kind": "buff",
+            "target": "allySelf",
+            "stat": "attack",
+            "scaling": {
+              "base": 10,
+              "mult": 0
+            },
+            "ifCond": {
+              "kind": "targetHasDoom"
+            }
+          }
+        ]
+      },
+      "metadata": {
+        "fidelity": "full",
+        "missingFeatures": [],
+        "skippedClauses": []
+      }
+    },
+    "8990": {
+      "description": "给予所有盟友 2 点魔力值，每锻炼 1 个武器段位则 +1 魔力值。给予绿色盟友 [魔法 + 2] 点护甲值。若敌人拥有一个劫数，则获得 10 点攻击力。",
+      "prototype": {
+        "segments": [
+          {
+            "kind": "buff",
+            "target": "allyAll",
+            "stat": "magic",
+            "scaling": {
+              "base": 2,
+              "mult": 0
+            },
+            "modifier": {
+              "mod": {
+                "kind": "multiplier",
+                "a": 1
+              },
+              "source": {
+                "kind": "tempering"
+              }
+            }
+          },
+          {
+            "kind": "buff",
+            "target": "allyAll",
+            "stat": "armor",
+            "scaling": {
+              "base": 2,
+              "mult": 1
+            },
+            "ifCond": {
+              "kind": "targetColor",
+              "color": "Green"
+            }
+          },
+          {
+            "kind": "buff",
+            "target": "allySelf",
+            "stat": "attack",
+            "scaling": {
+              "base": 10,
+              "mult": 0
+            },
+            "ifCond": {
+              "kind": "targetHasDoom"
+            }
+          }
+        ]
+      },
+      "metadata": {
+        "fidelity": "full",
+        "missingFeatures": [],
+        "skippedClauses": []
+      }
+    },
+    "8991": {
+      "description": "给予所有盟友 2 点魔力值，每锻炼 1 个武器段位则 +1 魔力值。给予红色盟友 [魔法 + 2] 点护甲值。若敌人拥有一个劫数，则获得 10 点攻击力。",
+      "prototype": {
+        "segments": [
+          {
+            "kind": "buff",
+            "target": "allyAll",
+            "stat": "magic",
+            "scaling": {
+              "base": 2,
+              "mult": 0
+            },
+            "modifier": {
+              "mod": {
+                "kind": "multiplier",
+                "a": 1
+              },
+              "source": {
+                "kind": "tempering"
+              }
+            }
+          },
+          {
+            "kind": "buff",
+            "target": "allyAll",
+            "stat": "armor",
+            "scaling": {
+              "base": 2,
+              "mult": 1
+            },
+            "ifCond": {
+              "kind": "targetColor",
+              "color": "Red"
+            }
+          },
+          {
+            "kind": "buff",
+            "target": "allySelf",
+            "stat": "attack",
+            "scaling": {
+              "base": 10,
+              "mult": 0
+            },
+            "ifCond": {
+              "kind": "targetHasDoom"
+            }
+          }
+        ]
+      },
+      "metadata": {
+        "fidelity": "full",
+        "missingFeatures": [],
+        "skippedClauses": []
+      }
+    },
+    "8992": {
+      "description": "给予所有盟友 2 点魔力值，每锻炼 1 个武器段位则 +1 魔力值。给予黄色盟友 [魔法 + 2] 点护甲值。若敌人拥有一个劫数，则获得 10 点攻击力。",
+      "prototype": {
+        "segments": [
+          {
+            "kind": "buff",
+            "target": "allyAll",
+            "stat": "magic",
+            "scaling": {
+              "base": 2,
+              "mult": 0
+            },
+            "modifier": {
+              "mod": {
+                "kind": "multiplier",
+                "a": 1
+              },
+              "source": {
+                "kind": "tempering"
+              }
+            }
+          },
+          {
+            "kind": "buff",
+            "target": "allyAll",
+            "stat": "armor",
+            "scaling": {
+              "base": 2,
+              "mult": 1
+            },
+            "ifCond": {
+              "kind": "targetColor",
+              "color": "Yellow"
+            }
+          },
+          {
+            "kind": "buff",
+            "target": "allySelf",
+            "stat": "attack",
+            "scaling": {
+              "base": 10,
+              "mult": 0
+            },
+            "ifCond": {
+              "kind": "targetHasDoom"
+            }
+          }
+        ]
+      },
+      "metadata": {
+        "fidelity": "full",
+        "missingFeatures": [],
+        "skippedClauses": []
+      }
+    },
+    "8993": {
+      "description": "给予所有盟友 2 点魔力值，每锻炼 1 个武器段位则 +1 魔力值。给予紫色盟友 [魔法 + 2] 点护甲值。若敌人拥有一个劫数，则获得 10 点攻击力。",
+      "prototype": {
+        "segments": [
+          {
+            "kind": "buff",
+            "target": "allyAll",
+            "stat": "magic",
+            "scaling": {
+              "base": 2,
+              "mult": 0
+            },
+            "modifier": {
+              "mod": {
+                "kind": "multiplier",
+                "a": 1
+              },
+              "source": {
+                "kind": "tempering"
+              }
+            }
+          },
+          {
+            "kind": "buff",
+            "target": "allyAll",
+            "stat": "armor",
+            "scaling": {
+              "base": 2,
+              "mult": 1
+            },
+            "ifCond": {
+              "kind": "targetColor",
+              "color": "Purple"
+            }
+          },
+          {
+            "kind": "buff",
+            "target": "allySelf",
+            "stat": "attack",
+            "scaling": {
+              "base": 10,
+              "mult": 0
+            },
+            "ifCond": {
+              "kind": "targetHasDoom"
+            }
+          }
+        ]
+      },
+      "metadata": {
+        "fidelity": "full",
+        "missingFeatures": [],
+        "skippedClauses": []
+      }
+    },
+    "8994": {
+      "description": "给予所有盟友 2 点魔力值，每锻炼 1 个武器段位则 +1 魔力值。给予棕色盟友 [魔法 + 2] 点护甲值。若敌人拥有一个劫数，则获得 10 点攻击力。",
+      "prototype": {
+        "segments": [
+          {
+            "kind": "buff",
+            "target": "allyAll",
+            "stat": "magic",
+            "scaling": {
+              "base": 2,
+              "mult": 0
+            },
+            "modifier": {
+              "mod": {
+                "kind": "multiplier",
+                "a": 1
+              },
+              "source": {
+                "kind": "tempering"
+              }
+            }
+          },
+          {
+            "kind": "buff",
+            "target": "allyAll",
+            "stat": "armor",
+            "scaling": {
+              "base": 2,
+              "mult": 1
+            },
+            "ifCond": {
+              "kind": "targetColor",
+              "color": "Brown"
+            }
+          },
+          {
+            "kind": "buff",
+            "target": "allySelf",
+            "stat": "attack",
+            "scaling": {
+              "base": 10,
+              "mult": 0
+            },
+            "ifCond": {
+              "kind": "targetHasDoom"
+            }
+          }
+        ]
+      },
+      "metadata": {
+        "fidelity": "full",
+        "missingFeatures": [],
+        "skippedClauses": []
+      }
+    },
+    "8995": {
+      "prototype": {
+        "segments": [
+          {
+            "kind": "gem",
+            "params": {
+              "op": "clear",
+              "mode": "explode",
+              "target": {
+                "kind": "cell",
+                "cell": "CELL"
+              }
+            }
+          },
+          {
+            "kind": "buff",
+            "target": "allyAll",
+            "stat": "armor",
+            "scaling": {
+              "base": 1,
+              "mult": 1
+            },
+            "modifier": {
+              "mod": {
+                "kind": "multiplier",
+                "a": 2
+              },
+              "source": {
+                "kind": "boardSpecial",
+                "gem": "bomb"
+              }
+            }
+          }
+        ]
+      }
+    },
+    "8999": {
+      "description": "对一名敌人造成 [魔法 + 3] 点轻度溅射伤害。再创造 7 颗绿色宝石。"
+    },
+    "9018": {
+      "prototype": {
+        "segments": [
+          {
+            "kind": "damage",
+            "target": "enemyChosen",
+            "scaling": {
+              "base": 3,
+              "mult": 1
+            },
+            "modifier": {
+              "mod": {
+                "kind": "multiplier",
+                "a": 5
+              },
+              "source": {
+                "kind": "boardSpecial",
+                "gem": "bootyGem"
+              }
+            }
+          },
+          {
+            "kind": "gem",
+            "params": {
+              "op": "clear",
+              "mode": "explode",
+              "target": {
+                "kind": "randomGems",
+                "count": {
+                  "base": 4,
+                  "mult": 0
+                },
+                "include": "color"
+              }
+            }
+          }
+        ]
+      }
+    },
+    "9111": {
+      "prototype": {
+        "segments": [
+          {
+            "kind": "gem",
+            "params": {
+              "op": "clear",
+              "mode": "destroy",
+              "target": {
+                "kind": "color",
+                "color": "Brown"
+              }
+            }
+          },
+          {
+            "kind": "damage",
+            "target": "enemyChosen",
+            "scaling": {
+              "base": 5,
+              "mult": 1
+            },
+            "modifier": {
+              "mod": {
+                "kind": "ratio",
+                "a": 3,
+                "b": 1
+              },
+              "source": {
+                "kind": "destroyedGems"
+              }
+            },
+            "condMult": {
+              "times": 2,
+              "cond": {
+                "kind": "anyOf",
+                "of": [
+                  {
+                    "kind": "kingdomOf",
+                    "side": "enemy",
+                    "kingdom": "午夜城市"
+                  },
+                  {
+                    "kind": "kingdomPresent",
+                    "kingdom": "午夜城市"
+                  }
+                ]
+              }
+            }
+          }
+        ]
+      }
+    },
+    "9112": {
+      "description": "对一名敌人造成 [魔法 + 3] 点重度溅射伤害。对一名随机敌人造成 [魔法 + 3] 点轻度溅射伤害。",
+      "metadata": {
+        "fidelity": "full",
+        "missingFeatures": [],
+        "skippedClauses": []
+      },
+      "prototype": {
+        "segments": [
+          {
+            "kind": "damage",
+            "target": "enemyChosen",
+            "scaling": {
+              "base": 3,
+              "mult": 1
+            },
+            "range": "splash",
+            "splashRatio": 0.75
+          },
+          {
+            "kind": "damage",
+            "target": "enemyRandom",
+            "scaling": {
+              "base": 3,
+              "mult": 1
+            },
+            "range": "splash",
+            "splashRatio": 0.25
+          }
+        ]
+      }
+    },
+    "9146": {
+      "description": "对一名敌人造成 [魔法 + 4] 点伤害，伤害值因黄色盟友和鸟族盟友数而增强。 [x3]"
+    },
+    "9203": {
+      "prototype": {
+        "segments": [
+          {
+            "kind": "gem",
+            "params": {
+              "op": "clear",
+              "mode": "explode",
+              "target": {
+                "kind": "randomGems",
+                "count": {
+                  "base": 1,
+                  "mult": 1
+                },
+                "include": "color",
+                "color": "Brown"
+              }
+            }
+          },
+          {
+            "kind": "randomStatus",
+            "pool": "positive",
+            "target": "allyAll",
+            "targetRace": "Giant"
+          },
+          {
+            "kind": "summon",
+            "params": {
+              "source": {
+                "randomOf": [
+                  "Ogre",
+                  "Ettin",
+                  "StoneGiant",
+                  "FrostGiant",
+                  "Berserker",
+                  "JarlFiremantle",
+                  "Elf-Eater",
+                  "Cyclops",
+                  "Zephyros",
+                  "Gob-Chomper",
+                  "SeaTroll",
+                  "DragonCruncher",
+                  "RockTroll",
+                  "DarkTroll",
+                  "GogAndGud",
+                  "JotnarStormshield",
+                  "Ogryn",
+                  "DesertTroll",
+                  "ForestTroll",
+                  "FireGiant",
+                  "MonsterMuncher",
+                  "FlameTroll",
+                  "SkrymirTheLofty",
+                  "HyndlaFrostcrown",
+                  "IceTroll",
+                  "Igneus",
+                  "HalfgrimHalf-Giant",
+                  "Sledgepaw",
+                  "LavaTroll",
+                  "Stone-Biter",
+                  "CorruptTroll",
+                  "Fomorian",
+                  "FrostfireTroll",
+                  "CrazedTroll",
+                  "OgrakShaman",
+                  "Bone-Biter",
+                  "IllithianColossus",
+                  "Smashedmouth",
+                  "StormKnight",
+                  "FlameMaiden",
+                  "Kharybdis",
+                  "Ogress",
+                  "Baldr",
+                  "VidarrTheVast",
+                  "IcespireShaman",
+                  "DarkForestTroll",
+                  "TheOnyxGiant",
+                  "TheSapphireGiant",
+                  "TheEmeraldGiant",
+                  "TheRubyGiant",
+                  "TheAmethystGiant",
+                  "TheTopazGiant",
+                  "TheUmbralGiant",
+                  "TheGraveGiant",
+                  "Ogretaur",
+                  "GiantSentinel",
+                  "EarthGiant",
+                  "Jordrin",
+                  "Kolfrysti",
+                  "Jarnvisa",
+                  "GhostOgre",
+                  "MazeCyclops",
+                  "GrimbornBloodeye",
+                  "HeldrTheGrave",
+                  "Polymetis",
+                  "SteamTroll",
+                  "ScoriaGiant-born",
+                  "VenomousTroll",
+                  "LavaEttin",
+                  "AbominableTroll",
+                  "StormOracle",
+                  "ToxAndSion",
+                  "StormGuard",
+                  "AsbjornTheMountain"
+                ]
+              }
+            }
+          }
+        ]
+      }
+    },
+    "9204": {
+      "description": "选择一项：创造 8 颗蓝色闪电宝石，对一名敌人造成 [魔法 + 3] 点溅射伤害；或创造 8 颗黄色闪电宝石，对一名敌人造成 [魔法 + 3] 点溅射伤害。"
+    },
+    "9300": {
+      "prototype": {
+        "segments": [
+          {
+            "kind": "gem",
+            "params": {
+              "op": "create",
+              "gem": {
+                "kind": "mixAny",
+                "entries": [
+                  {
+                    "kind": "ghost"
+                  },
+                  {
+                    "kind": "freezeGem"
+                  }
+                ]
+              },
+              "count": {
+                "base": 16,
+                "mult": 0
+              }
+            }
+          },
+          {
+            "kind": "gem",
+            "params": {
+              "op": "clear",
+              "mode": "explode",
+              "target": {
+                "kind": "cell",
+                "cell": "CELL"
+              }
+            }
+          }
+        ]
+      }
+    },
+    "9301": {
+      "description": "爆破 [魔法 + 1] 颗红色宝石。给予所有猫族盟友一个随机正面增益状态效果。再召唤一名猫族军队。"
+    },
+    "9302": {
+      "prototype": {
+        "segments": [
+          {
+            "kind": "damage",
+            "target": "enemyFirstN",
+            "scaling": {
+              "base": 3,
+              "mult": 1
+            },
+            "n": 2,
+            "modifier": {
+              "mod": {
+                "kind": "multiplier",
+                "a": 3
+              },
+              "source": {
+                "kind": "alliesOfKingdom",
+                "kingdom": "玉银林地"
+              }
+            }
+          }
+        ]
+      }
+    },
+    "9378": {
+      "metadata": {
+        "fidelity": "full",
+        "missingFeatures": [],
+        "skippedClauses": []
+      },
+      "prototype": {
+        "segments": [
+          {
+            "kind": "dispel",
+            "target": "enemyAll",
+            "statusId": "barrier"
+          },
+          {
+            "kind": "dispel",
+            "target": "enemyAll",
+            "statusId": "blessed"
+          },
+          {
+            "kind": "dispel",
+            "target": "enemyAll",
+            "statusId": "enchanted"
+          },
+          {
+            "kind": "dispel",
+            "target": "enemyAll",
+            "statusId": "enraged"
+          },
+          {
+            "kind": "dispel",
+            "target": "enemyAll",
+            "statusId": "rage"
+          },
+          {
+            "kind": "dispel",
+            "target": "enemyAll",
+            "statusId": "reflect"
+          },
+          {
+            "kind": "dispel",
+            "target": "enemyAll",
+            "statusId": "submerged"
+          },
+          {
+            "kind": "gem",
+            "params": {
+              "op": "create",
+              "gem": {
+                "kind": "special",
+                "spec": {
+                  "kind": "burningGem"
+                }
+              },
+              "count": {
+                "base": 9,
+                "mult": 0
+              }
+            }
+          },
+          {
+            "kind": "gem",
+            "params": {
+              "op": "create",
+              "gem": {
+                "kind": "special",
+                "spec": {
+                  "kind": "burningGem"
+                }
+              },
+              "count": {
+                "base": 5,
+                "mult": 0
+              }
+            },
+            "ifCond": {
+              "kind": "troopPresent",
+              "side": "ally",
+              "name": "永生神天界"
+            }
+          }
+        ]
+      }
+    },
+    "9380": {
+      "prototype": {
+        "segments": [
+          {
+            "kind": "damage",
+            "target": "enemyChosen",
+            "scaling": {
+              "base": 3,
+              "mult": 2
+            },
+            "modifier": {
+              "mod": {
+                "kind": "multiplier",
+                "a": 6
+              },
+              "source": {
+                "kind": "allyStatusCount",
+                "statusId": "barrier"
+              }
+            }
+          },
+          {
+            "kind": "gem",
+            "params": {
+              "op": "clear",
+              "mode": "explode",
+              "target": {
+                "kind": "randomGems",
+                "count": {
+                  "base": 3,
+                  "mult": 0
+                },
+                "include": "color"
+              }
+            },
+            "ifCond": {
+              "kind": "troopPresent",
+              "side": "ally",
+              "name": "永生神路西法"
+            }
+          }
+        ]
+      }
+    },
+    "9383": {
+      "description": "对一名敌人造成 [(魔法 x 2) + 3] 点轻度溅射伤害。若队伍里有永生神卡普里乔尔，则将敌人打回末位。"
+    },
+    "9523": {
+      "prototype": {
+        "segments": [
+          {
+            "kind": "cleanse",
+            "target": "allySelf"
+          },
+          {
+            "kind": "status",
+            "target": "enemyRandomN",
+            "statusId": "bleed",
+            "turns": 3,
+            "magnitude": 1,
+            "n": 2
+          },
+          {
+            "kind": "status",
+            "target": "enemyRandomN",
+            "statusId": "bleed",
+            "turns": 3,
+            "magnitude": 1,
+            "n": 2
+          },
+          {
+            "kind": "status",
+            "target": "enemyRandomN",
+            "statusId": "bleed",
+            "turns": 3,
+            "magnitude": 1,
+            "n": 2
+          },
+          {
+            "kind": "status",
+            "target": "enemyRandomN",
+            "statusId": "bleed",
+            "turns": 3,
+            "magnitude": 1,
+            "n": 2
+          },
+          {
+            "kind": "status",
+            "target": "enemyRandomN",
+            "statusId": "bleed",
+            "turns": 3,
+            "magnitude": 1,
+            "n": 1
+          }
+        ]
+      }
+    },
+    "9524": {
+      "prototype": {
+        "segments": [
+          {
+            "kind": "damage",
+            "target": "enemyChosen",
+            "scaling": {
+              "base": 0,
+              "mult": 0
+            },
+            "rangeSpec": {
+              "min": {
+                "base": 4,
+                "mult": 0.5
+              },
+              "max": {
+                "base": 9,
+                "mult": 1
+              }
+            }
+          },
+          {
+            "kind": "status",
+            "target": "enemyRandomN",
+            "statusId": "faerie-fire",
+            "turns": 3,
+            "n": 2
+          },
+          {
+            "kind": "status",
+            "target": "enemyRandomN",
+            "statusId": "entangle",
+            "turns": 3,
+            "n": 2
+          }
+        ]
+      }
+    },
+    "9525": {
+      "prototype": {
+        "segments": [
+          {
+            "kind": "status",
+            "target": "enemyRandomN",
+            "statusId": "faerie-fire",
+            "turns": 3,
+            "n": 2
+          },
+          {
+            "kind": "status",
+            "target": "enemyRandomN",
+            "statusId": "entangle",
+            "turns": 3,
+            "n": 2
+          },
+          {
+            "kind": "status",
+            "target": "enemyRandomN",
+            "statusId": "bleed",
+            "turns": 3,
+            "magnitude": 1,
+            "n": 3
+          },
+          {
+            "kind": "status",
+            "target": "enemyRandomN",
+            "statusId": "bleed",
+            "turns": 3,
+            "magnitude": 1,
+            "n": 3
+          },
+          {
+            "kind": "status",
+            "target": "enemyRandomN",
+            "statusId": "bleed",
+            "turns": 3,
+            "magnitude": 1,
+            "n": 2
+          },
+          {
+            "kind": "damage",
+            "target": "enemyChosen",
+            "scaling": {
+              "base": 0,
+              "mult": 0
+            },
+            "rangeSpec": {
+              "min": {
+                "base": 2,
+                "mult": 1
+              },
+              "max": {
+                "base": 4,
+                "mult": 2
+              }
+            }
+          }
+        ]
+      }
+    },
+    "9574": {
+      "prototype": {
+        "segments": [
+          {
+            "kind": "damage",
+            "target": "enemyFirstN",
+            "scaling": {
+              "base": 3,
+              "mult": 1
+            },
+            "n": 2,
+            "modifier": {
+              "mod": {
+                "kind": "multiplier",
+                "a": 3
+              },
+              "source": {
+                "kind": "alliesOfKingdom",
+                "kingdom": "玉银林地"
+              }
+            }
+          }
+        ]
+      }
+    },
+    "9579": {
+      "description": "对一名敌人造成 [魔法 + 3] 点伤害。每有一个亡灵盟友，则消耗 3 点法力值。 [x3]",
+      "prototype": {
+        "segments": [
+          {
+            "kind": "damage",
+            "target": "enemyChosen",
+            "scaling": {
+              "base": 3,
+              "mult": 1
+            }
+          },
+          {
+            "kind": "reduce",
+            "target": "lastTarget",
+            "stat": "mana",
+            "scaling": {
+              "base": 3,
+              "mult": 0
+            },
+            "modifier": {
+              "mod": {
+                "kind": "multiplier",
+                "a": 3
+              },
+              "sources": [
+                {
+                  "kind": "alliesOfRace",
+                  "race": "Undead"
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "metadata": {
+        "fidelity": "full",
+        "missingFeatures": [],
+        "skippedClauses": []
+      }
+    },
+    "9580": {
+      "description": "对敌人造成 [魔法 + 3] 点伤害，每级回火 +4 点。如果他们使用蓝色法力值，则引爆 3 颗蓝色宝石。如果敌人有毁灭之力，则恢复我四分之一的法力值。"
+    },
+    "9581": {
+      "description": "对敌人造成 [魔法 + 3] 点伤害，每级回火 +4 点。如果敌人使用绿色法力值，则引爆 3 颗绿色宝石。如果敌人有毁灭之力，则恢复我四分之一的法力值。"
+    },
+    "9582": {
+      "description": "对敌人造成 [魔法 + 3] 点伤害，每级回火 +4 点。如果敌人使用红色法力值，则引爆 3 颗红色宝石。如果敌人有毁灭之力，则恢复我四分之一的法力值。"
+    },
+    "9583": {
+      "description": "对敌人造成 [魔法 + 3] 点伤害，每级回火 +4 点。如果敌人使用黄色法力值，则引爆 3 颗黄色宝石。如果敌人有毁灭之力，则恢复我四分之一的法力值。"
+    },
+    "9584": {
+      "description": "对敌人造成 [魔法 + 3] 点伤害，每级回火 +4 点。如果他们使用紫色法力值，则引爆 3 颗紫色宝石。如果敌人有毁灭之力，则恢复我四分之一的法力值。"
+    },
+    "9585": {
+      "description": "对敌人造成 [魔法 + 3] 点伤害，每级回火 +4 点。如果他们使用棕色法力值，则引爆 3 颗棕色宝石。如果敌人有毁灭之力，则恢复我四分之一的法力值。"
+    },
+    "9825": {
+      "description": "对一名敌人和一名随机敌人造成[魔法 + 3]点伤害，每级回火+2点。如果敌人使用蓝色法力值，则使其流血。如果敌人拥有末日效果，则先破坏其护甲。"
+    },
+    "9826": {
+      "description": "对一名敌人和一名随机敌人造成[魔法 + 3]点伤害，每级回火+2点。如果敌人使用绿色法力值，则使其流血。如果敌人拥有末日效果，则优先破坏其护甲。"
+    },
+    "9827": {
+      "description": "对一名敌人和一名随机敌人造成[魔法 + 3]点伤害，每级回火+2点。如果敌人使用了红色法力值，则使其流血。如果敌人拥有末日效果，则先破坏其护甲。"
+    },
+    "9828": {
+      "description": "对一名敌人和一名随机敌人造成[魔法 + 3]点伤害，每级回火+2点。如果敌人使用黄色法力值，则使其流血。如果敌人拥有末日效果，则先破坏其护甲。"
+    },
+    "9829": {
+      "description": "对一名敌人和一名随机敌人造成[魔法 + 3]点伤害，每级回火+2点。如果敌人使用紫色法力值，则使其流血。如果敌人拥有末日效果，则先破坏其护甲。"
+    },
+    "9830": {
+      "description": "对一名敌人和一名随机敌人造成[魔法 + 3]点伤害，每级回火+2点。如果敌人使用棕色法力值，则使其流血。如果敌人拥有末日效果，则先破坏其护甲。"
+    },
+    "9835": {
+      "description": "爆破 [魔法 + 1] 颗黄色宝石。赋予所有日冕盟友一个随机正面增益效果。再召唤一名日冕军队。",
+      "prototype": {
+        "segments": [
+          {
+            "kind": "gem",
+            "params": {
+              "op": "clear",
+              "mode": "explode",
+              "target": {
+                "kind": "randomGems",
+                "count": {
+                  "base": 1,
+                  "mult": 1
+                },
+                "include": "color",
+                "color": "Yellow"
+              }
+            }
+          },
+          {
+            "kind": "randomStatus",
+            "target": "allyAll",
+            "targetKingdom": "日冕",
+            "pool": "positive"
+          },
+          {
+            "kind": "summon",
+            "params": {
+              "source": {
+                "randomOfKingdom": "日冕"
+              }
+            }
+          }
+        ]
+      }
+    },
+    "9837": {
+      "description": "给予所有亡灵盟友 [魔法 + 1] 点攻击力和生命值，然后祝福这些盟友。"
+    },
+    "9910": {
+      "prototype": {
+        "segments": [
+          {
+            "kind": "gem",
+            "params": {
+              "op": "create",
+              "gem": {
+                "kind": "special",
+                "spec": {
+                  "kind": "poisonGem"
+                }
+              },
+              "count": {
+                "base": 10,
+                "mult": 0
+              }
+            }
+          },
+          {
+            "kind": "randomStatus",
+            "target": "enemyAll"
+          },
+          {
+            "kind": "randomStatus",
+            "target": "enemyAll",
+            "chance": 0.5
+          }
+        ]
+      },
+      "metadata": {
+        "fidelity": "full",
+        "missingFeatures": [],
+        "skippedClauses": []
+      }
+    },
+    "9911": {
+      "description": "给予所有黑石盟友 [魔法 + 1] 点攻击力和生命值，然后祝福这些盟友。"
+    },
+    "9914": {
+      "description": "给予所有沃尔帕克盟友 [魔法 + 1] 点攻击力和生命值，然后祝福这些盟友。"
+    },
+    "9916": {
+      "description": "爆破 [魔法 + 1] 颗蓝色宝石。赋予所有美人鱼盟友一个随机正面增益效果。再召唤一名美人鱼军队。",
+      "prototype": {
+        "segments": [
+          {
+            "kind": "gem",
+            "params": {
+              "op": "clear",
+              "mode": "explode",
+              "target": {
+                "kind": "randomGems",
+                "count": {
+                  "base": 1,
+                  "mult": 1
+                },
+                "include": "color",
+                "color": "Blue"
+              }
+            }
+          },
+          {
+            "kind": "randomStatus",
+            "pool": "positive",
+            "target": "allyAll",
+            "targetRace": "Merfolk"
+          },
+          {
+            "kind": "summon",
+            "params": {
+              "source": {
+                "randomOf": [
+                  "Sharkey",
+                  "Troglodyte",
+                  "Hammerhead",
+                  "Hippocampus",
+                  "Kuotani",
+                  "Merlion",
+                  "Azura",
+                  "Waverider",
+                  "Leviathan",
+                  "Scylla",
+                  "Shocktopus",
+                  "Undine",
+                  "MantisShrimp",
+                  "Megavore",
+                  "Nimue",
+                  "Mermaid",
+                  "Mershark",
+                  "Hammerclaw",
+                  "SeaWitch",
+                  "TheDeepKing",
+                  "Mervorax",
+                  "Merknight",
+                  "Nereida",
+                  "Axolotl",
+                  "Tuskor",
+                  "Cyrene",
+                  "Piscea",
+                  "Anglerfin",
+                  "Triton",
+                  "ClamLasher",
+                  "SeaScavenger",
+                  "SeaHag",
+                  "MantaRaider",
+                  "TritonGuardMera",
+                  "Treviamus",
+                  "DagoNath",
+                  "BloomManatee",
+                  "Caspian",
+                  "MaelstromDagoNath",
+                  "Jellymaid",
+                  "Sironia",
+                  "ToxicPuffer",
+                  "TidalDancer",
+                  "Balearic",
+                  "Ipanema"
+                ]
+              }
+            }
+          }
+        ]
+      }
+    },
+    "9976": {
+      "description": "给予所有神秘盟友 [魔法 + 1] 点攻击力和生命值，然后祝福这些盟友。"
+    },
+    "9985": {
+      "description": "若我方队伍中有不朽的拜布利奥斯，使选定敌人陷入沉默。削减该敌人 [魔法 + 1] 点攻击力和 4 点魔法，两项削减均因被诅咒的敌人数而增强。 [x3]"
+    },
+    "10045": {
+      "description": "对 3 名随机敌人造成 [魔法 + 3] 点伤害，伤害值因火山宝石数而增强。若有敌人死亡，创造 12 颗火山宝石。[x4]",
+      "metadata": {
+        "fidelity": "full",
+        "missingFeatures": [],
+        "skippedClauses": []
+      }
+    },
+    "10046": {
+      "description": "给予所有构装体盟友 [魔法 + 1] 点攻击力和生命值，然后祝福这些盟友。"
+    },
+    "10050": {
+      "description": "给予所有聚沙之地盟友 [魔法 + 1] 点攻击力和生命值，然后祝福这些盟友。"
+    },
+    "10063": {
+      "description": "对 2 名随机敌人造成 [魔法 + 3] 点伤害，并将他们击至末位。若队伍中有不朽的塔拉萨，使所有盟友陷入下潜并获得法印。",
+      "metadata": {
+        "fidelity": "full",
+        "missingFeatures": [],
+        "skippedClauses": []
+      }
+    },
+    "10065": {
+      "description": "对首 2 位敌人造成 [魔法 + 4] 点伤害。若队伍中有不朽的格思洛克，为所有盟友提供 12 点生命值。",
+      "metadata": {
+        "fidelity": "full",
+        "missingFeatures": [],
+        "skippedClauses": []
+      }
+    }
+  }
+}

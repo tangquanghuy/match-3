@@ -12,14 +12,14 @@
  * - 「绿色/黄色盟友」= 施法方关联该法力色的盟友：来源计数 alliesOfColor（batch-09 头注
  *   口径）；作目标时无对应 TargetMode → 8273/8465 SKIP。
  * - 「赐福/祝福」「狂怒」不在状态白名单 → 缺失状态（batch-01 7740 / batch-03 8387 同款）。
- * - 「魔法值」= magic 属性、「法力值」= mana 资源（SOP 措辞裁定）。
+ * - 「魔力值」= magic 属性、「法力值」= mana 资源（SOP 措辞裁定）。
  * - 「最强的敌人」= enemyHealthiest（spell-rules.md §0）；bleed 在状态白名单（tests
  *   STATUS_WHITELIST）。
  * - 「摧毁一行和一列」= destroyChosenRow + destroyChosenCol：两条 chosenLine 均读同一
  *   ctx.chosenCell，即选定宝石的行+列十字（无随机字样照 batch-01 7016「摧毁 1 行」选定口径）。
  * - 8160「上海」为「伤害」原文笔误、8160/8180 双空格均逐字保留（对号入座锚）。
  */
-import { skill, dmg, dmgSplash, heal, armor, attack, createGems, createMix, transform, destroyChosenCol, destroyChosenRow, destroySkulls, destroyColor, explodeRandomGems, inflict, extraTurn, CHOSEN, CELL, explodeAt } from '../builders';
+import { skill, dmg, dmgSplash, heal, armor, attack, createGems, createMix, transform, destroyChosenCol, destroyChosenRow, destroySkulls, destroyColor, inflict, extraTurn, CHOSEN, CELL, explodeAt } from '../builders';
 import { BaseColor } from '../../types';
 import type { CuratedBatch } from './index';
 
@@ -122,12 +122,13 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 8234,
-    desc: '将选定颜色的宝石转换成棕色。使一名盟友下潜并赋予其屏障效果。',
+    desc: '将选定颜色的宝石转换成棕色。赋予一名随机盟友屏障效果并使其下潜。',
     build: skill(
       // transform 任一端可为 CHOSEN（builders.ts transform 注释；batch-02 同款）
       transform(CHOSEN, BaseColor.Brown),
-      inflict('submerged', 'allyChosen'),
-      inflict('barrier', 'allyChosen'),
+      // Native CauseBarrier RandomAlly, then CauseSubmerged FromPrevious (L4b-6824): no ally choice.
+      inflict('barrier', 'allyRandom'),
+      inflict('submerged', 'lastTarget'),
     ),
   },
   {

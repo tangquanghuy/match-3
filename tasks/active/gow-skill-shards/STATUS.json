@@ -1,0 +1,8616 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-09-27T17:27:53.871Z",
+  "manifestRosterHash": "afc38fa62d765ab5b29c1acf4bf7f214925e8a8ed356542f5af5ce26b9e29b4a",
+  "ledgerFingerprint": "74aed74e24f50d0f8bc19b89a5413c14101081734608d1c764c45ebade5a241a",
+  "receiptFingerprint": "74aed74e24f50d0f8bc19b89a5413c14101081734608d1c764c45ebade5a241a",
+  "receiptValid": true,
+  "summary": {
+    "entities": 2518,
+    "accepted": 87,
+    "remaining": 2431,
+    "totalShards": 504,
+    "fullyAcceptedShards": 5,
+    "claimedShards": 0,
+    "workerReviewedShards": 8,
+    "needsRepairShards": 7
+  },
+  "workers": [
+    {
+      "worker": "worker-fast-01",
+      "claimedShards": 0,
+      "assignedEntities": 20,
+      "reviewedShards": 3,
+      "accepted": 7
+    },
+    {
+      "worker": "worker-fast-02",
+      "claimedShards": 0,
+      "assignedEntities": 20,
+      "reviewedShards": 3,
+      "accepted": 8
+    },
+    {
+      "worker": "worker-fast-03",
+      "claimedShards": 0,
+      "assignedEntities": 20,
+      "reviewedShards": 0,
+      "accepted": 6
+    },
+    {
+      "worker": "worker-fast-04",
+      "claimedShards": 0,
+      "assignedEntities": 20,
+      "reviewedShards": 2,
+      "accepted": 11
+    }
+  ],
+  "shards": [
+    {
+      "id": "S0001",
+      "size": 5,
+      "accepted": 4,
+      "remaining": 1,
+      "state": "reviewed",
+      "worker": null,
+      "updatedAt": "2026-09-27T15:26:57.658Z",
+      "note": "静态核验报告已写，待测试/签收复核",
+      "keys": [
+        "troop:6169",
+        "troop:6178",
+        "troop:6614",
+        "troop:6615",
+        "troop:6616"
+      ]
+    },
+    {
+      "id": "S0002",
+      "size": 5,
+      "accepted": 3,
+      "remaining": 2,
+      "state": "needs-repair",
+      "worker": null,
+      "updatedAt": "2026-09-27T15:29:45.7452335Z",
+      "note": "恢复误认领前的 needs-repair：本片既有静态报告记录差异，待修复/测试/签收复核",
+      "keys": [
+        "troop:6617",
+        "troop:6618",
+        "troop:6619",
+        "troop:7030",
+        "troop:7092"
+      ]
+    },
+    {
+      "id": "S0003",
+      "size": 5,
+      "accepted": 4,
+      "remaining": 1,
+      "state": "reviewed",
+      "worker": null,
+      "updatedAt": "2026-09-27T15:27:12.575Z",
+      "note": "静态核验报告已写，待测试/签收复核",
+      "keys": [
+        "troop:7135",
+        "troop:7151",
+        "troop:7159",
+        "troop:7160",
+        "troop:7161"
+      ]
+    },
+    {
+      "id": "S0004",
+      "size": 5,
+      "accepted": 4,
+      "remaining": 1,
+      "state": "needs-repair",
+      "worker": null,
+      "updatedAt": "2026-09-27T15:29:45.7750793Z",
+      "note": "静态核验报告已写，8738中文展示、8901单格转化存在明确差异，待修复/测试/签收复核",
+      "keys": [
+        "troop:7163",
+        "troop:7164",
+        "troop:7276",
+        "troop:7306",
+        "troop:7328"
+      ]
+    },
+    {
+      "id": "S0005",
+      "size": 5,
+      "accepted": 2,
+      "remaining": 3,
+      "state": "needs-repair",
+      "worker": null,
+      "updatedAt": "2026-09-27T15:27:27.791Z",
+      "note": "静态核验报告已写，待测试/签收复核；8960 选敌/分配差异，8389 召唤池待核",
+      "keys": [
+        "troop:7335",
+        "troop:7337",
+        "troop:7386",
+        "troop:7505",
+        "troop:7606"
+      ]
+    },
+    {
+      "id": "S0006",
+      "size": 5,
+      "accepted": 4,
+      "remaining": 1,
+      "state": "needs-repair",
+      "worker": null,
+      "updatedAt": "2026-09-27T15:27:27.905Z",
+      "note": "静态核验报告已写，待测试/签收复核；7066 最强敌人与队首目标差异",
+      "keys": [
+        "weapon:1000",
+        "weapon:1001",
+        "weapon:1002",
+        "weapon:1003",
+        "weapon:1004"
+      ]
+    },
+    {
+      "id": "S0007",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "reviewed",
+      "worker": null,
+      "updatedAt": "2026-09-27T15:27:47.803Z",
+      "note": "静态核验报告已写，待测试/签收复核",
+      "keys": [
+        "weapon:1005",
+        "weapon:1006",
+        "weapon:1007",
+        "weapon:1009",
+        "weapon:1015"
+      ]
+    },
+    {
+      "id": "S0008",
+      "size": 5,
+      "accepted": 4,
+      "remaining": 1,
+      "state": "reviewed",
+      "worker": null,
+      "updatedAt": "2026-09-27T15:27:47.922Z",
+      "note": "静态核验报告已写，待测试/签收复核",
+      "keys": [
+        "weapon:1016",
+        "weapon:1017",
+        "weapon:1018",
+        "weapon:1019",
+        "weapon:1020"
+      ]
+    },
+    {
+      "id": "S0009",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "reviewed",
+      "worker": null,
+      "updatedAt": "2026-09-27T15:30:42.642Z",
+      "note": "10项武器静态核验之本片5项已写，待测试/签收复核",
+      "keys": [
+        "weapon:1021",
+        "weapon:1022",
+        "weapon:1024",
+        "weapon:1025",
+        "weapon:1026"
+      ]
+    },
+    {
+      "id": "S0010",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "reviewed",
+      "worker": null,
+      "updatedAt": "2026-09-27T15:30:42.770Z",
+      "note": "10项武器静态核验之本片5项已写，待测试/签收复核",
+      "keys": [
+        "weapon:1027",
+        "weapon:1029",
+        "weapon:1030",
+        "weapon:1031",
+        "weapon:1032"
+      ]
+    },
+    {
+      "id": "S0011",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "reviewed",
+      "worker": null,
+      "updatedAt": "2026-09-27T15:33:46.323Z",
+      "note": "静态核验报告已写，待测试/签收复核",
+      "keys": [
+        "weapon:1033",
+        "weapon:1034",
+        "weapon:1041",
+        "weapon:1042",
+        "weapon:1045"
+      ]
+    },
+    {
+      "id": "S0012",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "reviewed",
+      "worker": null,
+      "updatedAt": "2026-09-27T15:33:46.447Z",
+      "note": "静态核验报告已写，待测试/签收复核",
+      "keys": [
+        "weapon:1046",
+        "weapon:1047",
+        "weapon:1048",
+        "weapon:1050",
+        "weapon:1052"
+      ]
+    },
+    {
+      "id": "S0013",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "needs-repair",
+      "worker": null,
+      "updatedAt": "2026-09-27T15:32:45.605Z",
+      "note": "静态核验报告已写，待测试/签收复核；7071 技能中文文案为问号",
+      "keys": [
+        "weapon:1056",
+        "weapon:1064",
+        "weapon:1070",
+        "weapon:1076",
+        "weapon:1082"
+      ]
+    },
+    {
+      "id": "S0014",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "needs-repair",
+      "worker": null,
+      "updatedAt": "2026-09-27T15:32:45.719Z",
+      "note": "静态核验报告已写，待测试/签收复核；8966 宝石类型过滤、9573 所选颜色差异，7309 召唤池未决",
+      "keys": [
+        "weapon:1093",
+        "weapon:1139",
+        "weapon:1166",
+        "weapon:1526",
+        "weapon:1625"
+      ]
+    },
+    {
+      "id": "S0015",
+      "size": 5,
+      "accepted": 2,
+      "remaining": 3,
+      "state": "needs-repair",
+      "worker": null,
+      "updatedAt": "2026-09-27T15:32:18.255Z",
+      "note": "静态核验报告已写：troop:6117/7209 野兽倍率×2≠原生×3；troop:6189/7330 中文双倍倍；待测试/签收复核",
+      "keys": [
+        "troop:6030",
+        "troop:6057",
+        "troop:6101",
+        "troop:6117",
+        "troop:6189"
+      ]
+    },
+    {
+      "id": "S0016",
+      "size": 5,
+      "accepted": 5,
+      "remaining": 0,
+      "state": "accepted",
+      "worker": null,
+      "updatedAt": "2026-09-27T15:32:18.369Z",
+      "note": "静态核验报告已写：troop:6548/7742 enraged 目标漏判；待测试/签收复核",
+      "keys": [
+        "troop:6255",
+        "troop:6306",
+        "troop:6370",
+        "troop:6373",
+        "troop:6548"
+      ]
+    },
+    {
+      "id": "S0017",
+      "size": 5,
+      "accepted": 3,
+      "remaining": 2,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:6575",
+        "troop:6584",
+        "troop:6611",
+        "troop:6635",
+        "troop:6860"
+      ]
+    },
+    {
+      "id": "S0018",
+      "size": 5,
+      "accepted": 3,
+      "remaining": 2,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:7162",
+        "troop:7227",
+        "troop:7322",
+        "weapon:1049",
+        "weapon:1078"
+      ]
+    },
+    {
+      "id": "S0019",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "weapon:1079",
+        "weapon:1080",
+        "weapon:1083",
+        "weapon:1088",
+        "weapon:1097"
+      ]
+    },
+    {
+      "id": "S0020",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "weapon:1106",
+        "weapon:1109",
+        "weapon:1115",
+        "weapon:1118",
+        "weapon:1121"
+      ]
+    },
+    {
+      "id": "S0021",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "weapon:1127",
+        "weapon:1168",
+        "weapon:1169",
+        "weapon:1170",
+        "weapon:1171"
+      ]
+    },
+    {
+      "id": "S0022",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "weapon:1172",
+        "weapon:1173",
+        "weapon:1273",
+        "troop:6006",
+        "troop:6007"
+      ]
+    },
+    {
+      "id": "S0023",
+      "size": 5,
+      "accepted": 4,
+      "remaining": 1,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:6033",
+        "troop:6034",
+        "troop:6043",
+        "troop:6048",
+        "troop:6058"
+      ]
+    },
+    {
+      "id": "S0024",
+      "size": 5,
+      "accepted": 4,
+      "remaining": 1,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:6071",
+        "troop:6073",
+        "troop:6083",
+        "troop:6107",
+        "troop:6118"
+      ]
+    },
+    {
+      "id": "S0025",
+      "size": 5,
+      "accepted": 2,
+      "remaining": 3,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:6136",
+        "troop:6164",
+        "troop:6180",
+        "troop:6186",
+        "troop:6206"
+      ]
+    },
+    {
+      "id": "S0026",
+      "size": 5,
+      "accepted": 1,
+      "remaining": 4,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:6220",
+        "troop:6247",
+        "troop:6291",
+        "troop:6302",
+        "troop:6312"
+      ]
+    },
+    {
+      "id": "S0027",
+      "size": 5,
+      "accepted": 1,
+      "remaining": 4,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:6393",
+        "troop:6404",
+        "troop:6554",
+        "troop:6585",
+        "troop:6646"
+      ]
+    },
+    {
+      "id": "S0028",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:6748",
+        "troop:6750",
+        "troop:6752",
+        "troop:6754",
+        "troop:6795"
+      ]
+    },
+    {
+      "id": "S0029",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:6859",
+        "troop:6871",
+        "troop:6885",
+        "troop:6891",
+        "troop:6924"
+      ]
+    },
+    {
+      "id": "S0030",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:7003",
+        "troop:7020",
+        "troop:7093",
+        "troop:7124",
+        "troop:7158"
+      ]
+    },
+    {
+      "id": "S0031",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:7170",
+        "troop:7175",
+        "troop:7184",
+        "troop:7203",
+        "troop:7224"
+      ]
+    },
+    {
+      "id": "S0032",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:7226",
+        "troop:7231",
+        "troop:7254",
+        "troop:7268",
+        "troop:7311"
+      ]
+    },
+    {
+      "id": "S0033",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:7332",
+        "troop:7360",
+        "troop:7403",
+        "troop:7407",
+        "troop:7422"
+      ]
+    },
+    {
+      "id": "S0034",
+      "size": 5,
+      "accepted": 1,
+      "remaining": 4,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:7425",
+        "troop:7433",
+        "troop:7459",
+        "troop:7512",
+        "troop:7593"
+      ]
+    },
+    {
+      "id": "S0035",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:7882",
+        "weapon:1028",
+        "weapon:1035",
+        "weapon:1053",
+        "weapon:1060"
+      ]
+    },
+    {
+      "id": "S0036",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "weapon:1062",
+        "weapon:1066",
+        "weapon:1068",
+        "weapon:1072",
+        "weapon:1084"
+      ]
+    },
+    {
+      "id": "S0037",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "weapon:1092",
+        "weapon:1096",
+        "weapon:1099",
+        "weapon:1100",
+        "weapon:1101"
+      ]
+    },
+    {
+      "id": "S0038",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "weapon:1141",
+        "weapon:1155",
+        "weapon:1250",
+        "weapon:1263",
+        "weapon:1395"
+      ]
+    },
+    {
+      "id": "S0039",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "weapon:1398",
+        "weapon:1399",
+        "weapon:1419",
+        "weapon:1422",
+        "weapon:1434"
+      ]
+    },
+    {
+      "id": "S0040",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "weapon:1440",
+        "weapon:1480",
+        "weapon:1506",
+        "troop:6005",
+        "troop:6012"
+      ]
+    },
+    {
+      "id": "S0041",
+      "size": 5,
+      "accepted": 2,
+      "remaining": 3,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:6018",
+        "troop:6019",
+        "troop:6039",
+        "troop:6040",
+        "troop:6044"
+      ]
+    },
+    {
+      "id": "S0042",
+      "size": 5,
+      "accepted": 3,
+      "remaining": 2,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:6062",
+        "troop:6075",
+        "troop:6078",
+        "troop:6081",
+        "troop:6082"
+      ]
+    },
+    {
+      "id": "S0043",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:6087",
+        "troop:6088",
+        "troop:6093",
+        "troop:6096",
+        "troop:6097"
+      ]
+    },
+    {
+      "id": "S0044",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:6099",
+        "troop:6103",
+        "troop:6106",
+        "troop:6109",
+        "troop:6110"
+      ]
+    },
+    {
+      "id": "S0045",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:6111",
+        "troop:6124",
+        "troop:6131",
+        "troop:6132",
+        "troop:6138"
+      ]
+    },
+    {
+      "id": "S0046",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:6139",
+        "troop:6140",
+        "troop:6143",
+        "troop:6149",
+        "troop:6150"
+      ]
+    },
+    {
+      "id": "S0047",
+      "size": 5,
+      "accepted": 1,
+      "remaining": 4,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:6151",
+        "troop:6158",
+        "troop:6162",
+        "troop:6170",
+        "troop:6171"
+      ]
+    },
+    {
+      "id": "S0048",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:6184",
+        "troop:6185",
+        "troop:6187",
+        "troop:6191",
+        "troop:6192"
+      ]
+    },
+    {
+      "id": "S0049",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:6195",
+        "troop:6215",
+        "troop:6216",
+        "troop:6226",
+        "troop:6228"
+      ]
+    },
+    {
+      "id": "S0050",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:6230",
+        "troop:6234",
+        "troop:6241",
+        "troop:6243",
+        "troop:6256"
+      ]
+    },
+    {
+      "id": "S0051",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:6273",
+        "troop:6279",
+        "troop:6289",
+        "troop:6311",
+        "troop:6315"
+      ]
+    },
+    {
+      "id": "S0052",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:6322",
+        "troop:6324",
+        "troop:6330",
+        "troop:6332",
+        "troop:6351"
+      ]
+    },
+    {
+      "id": "S0053",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:6352",
+        "troop:6357",
+        "troop:6359",
+        "troop:6360",
+        "troop:6362"
+      ]
+    },
+    {
+      "id": "S0054",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:6379",
+        "troop:6380",
+        "troop:6382",
+        "troop:6389",
+        "troop:6392"
+      ]
+    },
+    {
+      "id": "S0055",
+      "size": 5,
+      "accepted": 1,
+      "remaining": 4,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:6395",
+        "troop:6402",
+        "troop:6417",
+        "troop:6420",
+        "troop:6452"
+      ]
+    },
+    {
+      "id": "S0056",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:6459",
+        "troop:6475",
+        "troop:6482",
+        "troop:6487",
+        "troop:6499"
+      ]
+    },
+    {
+      "id": "S0057",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:6538",
+        "troop:6541",
+        "troop:6542",
+        "troop:6544",
+        "troop:6546"
+      ]
+    },
+    {
+      "id": "S0058",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:6552",
+        "troop:6556",
+        "troop:6557",
+        "troop:6558",
+        "troop:6560"
+      ]
+    },
+    {
+      "id": "S0059",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:6563",
+        "troop:6568",
+        "troop:6579",
+        "troop:6595",
+        "troop:6596"
+      ]
+    },
+    {
+      "id": "S0060",
+      "size": 5,
+      "accepted": 1,
+      "remaining": 4,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:6597",
+        "troop:6601",
+        "troop:6607",
+        "troop:6612",
+        "troop:6624"
+      ]
+    },
+    {
+      "id": "S0061",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:6640",
+        "troop:6642",
+        "troop:6643",
+        "troop:6654",
+        "troop:6656"
+      ]
+    },
+    {
+      "id": "S0062",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:6657",
+        "troop:6658",
+        "troop:6673",
+        "troop:6676",
+        "troop:6682"
+      ]
+    },
+    {
+      "id": "S0063",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:6687",
+        "troop:6697",
+        "troop:6705",
+        "troop:6723",
+        "troop:6724"
+      ]
+    },
+    {
+      "id": "S0064",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:6726",
+        "troop:6728",
+        "troop:6739",
+        "troop:6740",
+        "troop:6745"
+      ]
+    },
+    {
+      "id": "S0065",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:6751",
+        "troop:6753",
+        "troop:6755",
+        "troop:6769",
+        "troop:6771"
+      ]
+    },
+    {
+      "id": "S0066",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:6779",
+        "troop:6781",
+        "troop:6785",
+        "troop:6796",
+        "troop:6799"
+      ]
+    },
+    {
+      "id": "S0067",
+      "size": 5,
+      "accepted": 1,
+      "remaining": 4,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:6802",
+        "troop:6820",
+        "troop:6840",
+        "troop:6858",
+        "troop:6877"
+      ]
+    },
+    {
+      "id": "S0068",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:6888",
+        "troop:6892",
+        "troop:6898",
+        "troop:6910",
+        "troop:6913"
+      ]
+    },
+    {
+      "id": "S0069",
+      "size": 5,
+      "accepted": 1,
+      "remaining": 4,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:6915",
+        "troop:6935",
+        "troop:6944",
+        "troop:6987",
+        "troop:6991"
+      ]
+    },
+    {
+      "id": "S0070",
+      "size": 5,
+      "accepted": 1,
+      "remaining": 4,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:7001",
+        "troop:7004",
+        "troop:7013",
+        "troop:7019",
+        "troop:7025"
+      ]
+    },
+    {
+      "id": "S0071",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:7048",
+        "troop:7051",
+        "troop:7080",
+        "troop:7084",
+        "troop:7087"
+      ]
+    },
+    {
+      "id": "S0072",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:7104",
+        "troop:7106",
+        "troop:7114",
+        "troop:7127",
+        "troop:7133"
+      ]
+    },
+    {
+      "id": "S0073",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:7147",
+        "troop:7153",
+        "troop:7156",
+        "troop:7165",
+        "troop:7166"
+      ]
+    },
+    {
+      "id": "S0074",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:7187",
+        "troop:7194",
+        "troop:7195",
+        "troop:7199",
+        "troop:7206"
+      ]
+    },
+    {
+      "id": "S0075",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:7207",
+        "troop:7210",
+        "troop:7219",
+        "troop:7228",
+        "troop:7230"
+      ]
+    },
+    {
+      "id": "S0076",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:7232",
+        "troop:7234",
+        "troop:7236",
+        "troop:7237",
+        "troop:7238"
+      ]
+    },
+    {
+      "id": "S0077",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:7240",
+        "troop:7241",
+        "troop:7243",
+        "troop:7270",
+        "troop:7273"
+      ]
+    },
+    {
+      "id": "S0078",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:7281",
+        "troop:7283",
+        "troop:7286",
+        "troop:7293",
+        "troop:7296"
+      ]
+    },
+    {
+      "id": "S0079",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:7297",
+        "troop:7302",
+        "troop:7307",
+        "troop:7309",
+        "troop:7314"
+      ]
+    },
+    {
+      "id": "S0080",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:7317",
+        "troop:7323",
+        "troop:7330",
+        "troop:7334",
+        "troop:7336"
+      ]
+    },
+    {
+      "id": "S0081",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:7343",
+        "troop:7347",
+        "troop:7353",
+        "troop:7354",
+        "troop:7368"
+      ]
+    },
+    {
+      "id": "S0082",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:7372",
+        "troop:7378",
+        "troop:7379",
+        "troop:7381",
+        "troop:7388"
+      ]
+    },
+    {
+      "id": "S0083",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:7400",
+        "troop:7408",
+        "troop:7412",
+        "troop:7416",
+        "troop:7420"
+      ]
+    },
+    {
+      "id": "S0084",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:7432",
+        "troop:7435",
+        "troop:7453",
+        "troop:7466",
+        "troop:7480"
+      ]
+    },
+    {
+      "id": "S0085",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:7491",
+        "troop:7499",
+        "troop:7500",
+        "troop:7514",
+        "troop:7522"
+      ]
+    },
+    {
+      "id": "S0086",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:7536",
+        "troop:7544",
+        "troop:7558",
+        "troop:7559",
+        "troop:7563"
+      ]
+    },
+    {
+      "id": "S0087",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:7584",
+        "troop:7636",
+        "troop:7642",
+        "troop:7659",
+        "troop:7677"
+      ]
+    },
+    {
+      "id": "S0088",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:7680",
+        "troop:7683",
+        "troop:7705",
+        "troop:7714",
+        "troop:7741"
+      ]
+    },
+    {
+      "id": "S0089",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:7747",
+        "troop:7773",
+        "troop:7774",
+        "troop:7783",
+        "troop:7817"
+      ]
+    },
+    {
+      "id": "S0090",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:7827",
+        "troop:7836",
+        "troop:7849",
+        "weapon:1054",
+        "weapon:1057"
+      ]
+    },
+    {
+      "id": "S0091",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "weapon:1061",
+        "weapon:1063",
+        "weapon:1065",
+        "weapon:1073",
+        "weapon:1075"
+      ]
+    },
+    {
+      "id": "S0092",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "weapon:1077",
+        "weapon:1087",
+        "weapon:1089",
+        "weapon:1091",
+        "weapon:1094"
+      ]
+    },
+    {
+      "id": "S0093",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "weapon:1098",
+        "weapon:1104",
+        "weapon:1114",
+        "weapon:1116",
+        "weapon:1123"
+      ]
+    },
+    {
+      "id": "S0094",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "weapon:1128",
+        "weapon:1129",
+        "weapon:1135",
+        "weapon:1153",
+        "weapon:1178"
+      ]
+    },
+    {
+      "id": "S0095",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "weapon:1197",
+        "weapon:1205",
+        "weapon:1218",
+        "weapon:1222",
+        "weapon:1224"
+      ]
+    },
+    {
+      "id": "S0096",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "weapon:1238",
+        "weapon:1276",
+        "weapon:1280",
+        "weapon:1360",
+        "weapon:1366"
+      ]
+    },
+    {
+      "id": "S0097",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "weapon:1378",
+        "weapon:1387",
+        "weapon:1409",
+        "weapon:1413",
+        "weapon:1414"
+      ]
+    },
+    {
+      "id": "S0098",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "weapon:1415",
+        "weapon:1421",
+        "weapon:1430",
+        "weapon:1439",
+        "weapon:1451"
+      ]
+    },
+    {
+      "id": "S0099",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "weapon:1484",
+        "weapon:1485",
+        "weapon:1507",
+        "weapon:1509",
+        "weapon:1513"
+      ]
+    },
+    {
+      "id": "S0100",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "weapon:1514",
+        "weapon:1515",
+        "weapon:1527",
+        "weapon:1531",
+        "weapon:1532"
+      ]
+    },
+    {
+      "id": "S0101",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "weapon:1539",
+        "weapon:1540",
+        "weapon:1543",
+        "weapon:1546",
+        "weapon:1547"
+      ]
+    },
+    {
+      "id": "S0102",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "weapon:1561",
+        "weapon:1562",
+        "weapon:1572",
+        "weapon:1578",
+        "weapon:1580"
+      ]
+    },
+    {
+      "id": "S0103",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "weapon:1582",
+        "weapon:1586",
+        "weapon:1589",
+        "weapon:1590",
+        "weapon:1614"
+      ]
+    },
+    {
+      "id": "S0104",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "weapon:1626",
+        "weapon:1628",
+        "weapon:1641",
+        "weapon:1642",
+        "weapon:1644"
+      ]
+    },
+    {
+      "id": "S0105",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "weapon:1645",
+        "weapon:1650",
+        "weapon:1651",
+        "weapon:1654",
+        "weapon:1660"
+      ]
+    },
+    {
+      "id": "S0106",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "weapon:1662",
+        "weapon:1663",
+        "weapon:1677",
+        "weapon:1683",
+        "weapon:1689"
+      ]
+    },
+    {
+      "id": "S0107",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "weapon:1694",
+        "weapon:1697",
+        "weapon:1700",
+        "weapon:1703",
+        "weapon:1715"
+      ]
+    },
+    {
+      "id": "S0108",
+      "size": 5,
+      "accepted": 2,
+      "remaining": 3,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "weapon:1717",
+        "troop:6020",
+        "troop:6094",
+        "troop:6304",
+        "troop:6308"
+      ]
+    },
+    {
+      "id": "S0109",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:6309",
+        "troop:6388",
+        "troop:6394",
+        "troop:6414",
+        "troop:6500"
+      ]
+    },
+    {
+      "id": "S0110",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:6501",
+        "troop:6505",
+        "troop:6509",
+        "troop:6511",
+        "troop:6515"
+      ]
+    },
+    {
+      "id": "S0111",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:6531",
+        "troop:6533",
+        "troop:6537",
+        "troop:6539",
+        "troop:6545"
+      ]
+    },
+    {
+      "id": "S0112",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:6569",
+        "troop:6573",
+        "troop:6580",
+        "troop:6586",
+        "troop:6591"
+      ]
+    },
+    {
+      "id": "S0113",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:6634",
+        "troop:6637",
+        "troop:6641",
+        "troop:6644",
+        "troop:6683"
+      ]
+    },
+    {
+      "id": "S0114",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:6688",
+        "troop:6691",
+        "troop:6722",
+        "troop:6727",
+        "troop:6730"
+      ]
+    },
+    {
+      "id": "S0115",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:6734",
+        "troop:6737",
+        "troop:6741",
+        "troop:6764",
+        "troop:6768"
+      ]
+    },
+    {
+      "id": "S0116",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:6773",
+        "troop:6806",
+        "troop:6811",
+        "troop:6823",
+        "troop:6839"
+      ]
+    },
+    {
+      "id": "S0117",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:6856",
+        "troop:6868",
+        "troop:6886",
+        "troop:6922",
+        "troop:6977"
+      ]
+    },
+    {
+      "id": "S0118",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:7002",
+        "troop:7174",
+        "troop:7178",
+        "troop:7180",
+        "troop:7213"
+      ]
+    },
+    {
+      "id": "S0119",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:7291",
+        "troop:7321",
+        "troop:7350",
+        "troop:7355",
+        "troop:7384"
+      ]
+    },
+    {
+      "id": "S0120",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:7389",
+        "troop:7390",
+        "troop:7391",
+        "troop:7409",
+        "troop:7423"
+      ]
+    },
+    {
+      "id": "S0121",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:7426",
+        "troop:7431",
+        "troop:7434",
+        "troop:7460",
+        "troop:7469"
+      ]
+    },
+    {
+      "id": "S0122",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:7477",
+        "troop:7498",
+        "troop:7501",
+        "troop:7506",
+        "troop:7529"
+      ]
+    },
+    {
+      "id": "S0123",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:7532",
+        "troop:7537",
+        "troop:7540",
+        "troop:7553",
+        "troop:7572"
+      ]
+    },
+    {
+      "id": "S0124",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:7579",
+        "troop:7580",
+        "troop:7585",
+        "troop:7597",
+        "troop:7607"
+      ]
+    },
+    {
+      "id": "S0125",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:7640",
+        "troop:7648",
+        "troop:7651",
+        "troop:7660",
+        "troop:7665"
+      ]
+    },
+    {
+      "id": "S0126",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:7667",
+        "troop:7670",
+        "troop:7689",
+        "troop:7693",
+        "troop:7704"
+      ]
+    },
+    {
+      "id": "S0127",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:7707",
+        "troop:7711",
+        "troop:7715",
+        "troop:7745",
+        "troop:7753"
+      ]
+    },
+    {
+      "id": "S0128",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:7756",
+        "troop:7761",
+        "troop:7764",
+        "troop:7779",
+        "troop:7788"
+      ]
+    },
+    {
+      "id": "S0129",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:7801",
+        "troop:7826",
+        "troop:7876",
+        "troop:7880",
+        "troop:7901"
+      ]
+    },
+    {
+      "id": "S0130",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:7933",
+        "weapon:1132",
+        "weapon:1227",
+        "weapon:1275",
+        "weapon:1286"
+      ]
+    },
+    {
+      "id": "S0131",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "weapon:1639",
+        "troop:6883",
+        "troop:6015",
+        "troop:6021",
+        "troop:6028"
+      ]
+    },
+    {
+      "id": "S0132",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:6051",
+        "troop:6065",
+        "troop:6080",
+        "troop:6116",
+        "troop:6156"
+      ]
+    },
+    {
+      "id": "S0133",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:6209",
+        "troop:6217",
+        "troop:6219",
+        "troop:6222",
+        "troop:6229"
+      ]
+    },
+    {
+      "id": "S0134",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:6253",
+        "troop:6254",
+        "troop:6258",
+        "troop:6270",
+        "troop:6293"
+      ]
+    },
+    {
+      "id": "S0135",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:6305",
+        "troop:6325",
+        "troop:6406",
+        "troop:6450",
+        "troop:6469"
+      ]
+    },
+    {
+      "id": "S0136",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:6690",
+        "troop:6695",
+        "troop:6775",
+        "troop:6809",
+        "troop:6844"
+      ]
+    },
+    {
+      "id": "S0137",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:6845",
+        "troop:6896",
+        "troop:6969",
+        "troop:7015",
+        "troop:7040"
+      ]
+    },
+    {
+      "id": "S0138",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:7121",
+        "troop:7373",
+        "troop:7385",
+        "troop:7401",
+        "troop:7402"
+      ]
+    },
+    {
+      "id": "S0139",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:7454",
+        "troop:7541",
+        "troop:7807",
+        "weapon:1146",
+        "weapon:1251"
+      ]
+    },
+    {
+      "id": "S0140",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "weapon:1296",
+        "weapon:1436",
+        "troop:6023",
+        "troop:6031",
+        "troop:6041"
+      ]
+    },
+    {
+      "id": "S0141",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:6042",
+        "troop:6046",
+        "troop:6049",
+        "troop:6055",
+        "troop:6060"
+      ]
+    },
+    {
+      "id": "S0142",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:6067",
+        "troop:6068",
+        "troop:6069",
+        "troop:6077",
+        "troop:6084"
+      ]
+    },
+    {
+      "id": "S0143",
+      "size": 5,
+      "accepted": 1,
+      "remaining": 4,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:6095",
+        "troop:6100",
+        "troop:6102",
+        "troop:6104",
+        "troop:6112"
+      ]
+    },
+    {
+      "id": "S0144",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:6120",
+        "troop:6123",
+        "troop:6141",
+        "troop:6147",
+        "troop:6159"
+      ]
+    },
+    {
+      "id": "S0145",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:6181",
+        "troop:6193",
+        "troop:6198",
+        "troop:6213",
+        "troop:6221"
+      ]
+    },
+    {
+      "id": "S0146",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:6223",
+        "troop:6225",
+        "troop:6231",
+        "troop:6239",
+        "troop:6244"
+      ]
+    },
+    {
+      "id": "S0147",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:6249",
+        "troop:6250",
+        "troop:6257",
+        "troop:6285",
+        "troop:6286"
+      ]
+    },
+    {
+      "id": "S0148",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:6295",
+        "troop:6298",
+        "troop:6319",
+        "troop:6320",
+        "troop:6321"
+      ]
+    },
+    {
+      "id": "S0149",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:6326",
+        "troop:6329",
+        "troop:6333",
+        "troop:6348",
+        "troop:6350"
+      ]
+    },
+    {
+      "id": "S0150",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:6365",
+        "troop:6375",
+        "troop:6381",
+        "troop:6386",
+        "troop:6399"
+      ]
+    },
+    {
+      "id": "S0151",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:6411",
+        "troop:6413",
+        "troop:6421",
+        "troop:6462",
+        "troop:6468"
+      ]
+    },
+    {
+      "id": "S0152",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:6471",
+        "troop:6472",
+        "troop:6476",
+        "troop:6477",
+        "troop:6480"
+      ]
+    },
+    {
+      "id": "S0153",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:6485",
+        "troop:6486",
+        "troop:6510",
+        "troop:6526",
+        "troop:6534"
+      ]
+    },
+    {
+      "id": "S0154",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:6535",
+        "troop:6540",
+        "troop:6547",
+        "troop:6564",
+        "troop:6565"
+      ]
+    },
+    {
+      "id": "S0155",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:6567",
+        "troop:6570",
+        "troop:6577",
+        "troop:6578",
+        "troop:6590"
+      ]
+    },
+    {
+      "id": "S0156",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:6592",
+        "troop:6599",
+        "troop:6608",
+        "troop:6609",
+        "troop:6636"
+      ]
+    },
+    {
+      "id": "S0157",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:6708",
+        "troop:6711",
+        "troop:6719",
+        "troop:6733",
+        "troop:6743"
+      ]
+    },
+    {
+      "id": "S0158",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:6756",
+        "troop:6761",
+        "troop:6762",
+        "troop:6774",
+        "troop:6791"
+      ]
+    },
+    {
+      "id": "S0159",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:6805",
+        "troop:6812",
+        "troop:6813",
+        "troop:6815",
+        "troop:6824"
+      ]
+    },
+    {
+      "id": "S0160",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:6842",
+        "troop:6846",
+        "troop:6854",
+        "troop:6864",
+        "troop:6880"
+      ]
+    },
+    {
+      "id": "S0161",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:6882",
+        "troop:6887",
+        "troop:6893",
+        "troop:6904",
+        "troop:6905"
+      ]
+    },
+    {
+      "id": "S0162",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:6911",
+        "troop:6921",
+        "troop:6923",
+        "troop:6952",
+        "troop:6955"
+      ]
+    },
+    {
+      "id": "S0163",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:6956",
+        "troop:6980",
+        "troop:6997",
+        "troop:7005",
+        "troop:7006"
+      ]
+    },
+    {
+      "id": "S0164",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:7009",
+        "troop:7021",
+        "troop:7027",
+        "troop:7028",
+        "troop:7029"
+      ]
+    },
+    {
+      "id": "S0165",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:7047",
+        "troop:7050",
+        "troop:7056",
+        "troop:7068",
+        "troop:7071"
+      ]
+    },
+    {
+      "id": "S0166",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:7083",
+        "troop:7089",
+        "troop:7091",
+        "troop:7112",
+        "troop:7117"
+      ]
+    },
+    {
+      "id": "S0167",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:7118",
+        "troop:7119",
+        "troop:7123",
+        "troop:7130",
+        "troop:7131"
+      ]
+    },
+    {
+      "id": "S0168",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:7138",
+        "troop:7141",
+        "troop:7143",
+        "troop:7146",
+        "troop:7154"
+      ]
+    },
+    {
+      "id": "S0169",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:7172",
+        "troop:7191",
+        "troop:7197",
+        "troop:7200",
+        "troop:7201"
+      ]
+    },
+    {
+      "id": "S0170",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:7202",
+        "troop:7208",
+        "troop:7216",
+        "troop:7220",
+        "troop:7225"
+      ]
+    },
+    {
+      "id": "S0171",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:7235",
+        "troop:7259",
+        "troop:7261",
+        "troop:7269",
+        "troop:7272"
+      ]
+    },
+    {
+      "id": "S0172",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:7275",
+        "troop:7294",
+        "troop:7308",
+        "troop:7313",
+        "troop:7331"
+      ]
+    },
+    {
+      "id": "S0173",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:7333",
+        "troop:7349",
+        "troop:7352",
+        "troop:7361",
+        "troop:7364"
+      ]
+    },
+    {
+      "id": "S0174",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:7375",
+        "troop:7380",
+        "troop:7404",
+        "troop:7410",
+        "troop:7418"
+      ]
+    },
+    {
+      "id": "S0175",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:7430",
+        "troop:7461",
+        "troop:7473",
+        "troop:7481",
+        "troop:7484"
+      ]
+    },
+    {
+      "id": "S0176",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:7487",
+        "troop:7494",
+        "troop:7496",
+        "troop:7524",
+        "troop:7561"
+      ]
+    },
+    {
+      "id": "S0177",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:7582",
+        "troop:7588",
+        "troop:7610",
+        "troop:7644",
+        "troop:7646"
+      ]
+    },
+    {
+      "id": "S0178",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:7656",
+        "troop:7663",
+        "troop:7669",
+        "troop:7692",
+        "troop:7697"
+      ]
+    },
+    {
+      "id": "S0179",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:7706",
+        "troop:7718",
+        "troop:7749",
+        "troop:7754",
+        "troop:7760"
+      ]
+    },
+    {
+      "id": "S0180",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:7781",
+        "troop:7787",
+        "troop:7794",
+        "troop:7802",
+        "troop:7811"
+      ]
+    },
+    {
+      "id": "S0181",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:7830",
+        "troop:7863",
+        "troop:7867",
+        "troop:7869",
+        "troop:7872"
+      ]
+    },
+    {
+      "id": "S0182",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:7879",
+        "weapon:1051",
+        "weapon:1055",
+        "weapon:1059",
+        "weapon:1074"
+      ]
+    },
+    {
+      "id": "S0183",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "weapon:1085",
+        "weapon:1086",
+        "weapon:1107",
+        "weapon:1111",
+        "weapon:1119"
+      ]
+    },
+    {
+      "id": "S0184",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "weapon:1122",
+        "weapon:1124",
+        "weapon:1126",
+        "weapon:1130",
+        "weapon:1136"
+      ]
+    },
+    {
+      "id": "S0185",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "weapon:1148",
+        "weapon:1149",
+        "weapon:1156",
+        "weapon:1157",
+        "weapon:1167"
+      ]
+    },
+    {
+      "id": "S0186",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "weapon:1176",
+        "weapon:1179",
+        "weapon:1191",
+        "weapon:1196",
+        "weapon:1203"
+      ]
+    },
+    {
+      "id": "S0187",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "weapon:1210",
+        "weapon:1232",
+        "weapon:1234",
+        "weapon:1235",
+        "weapon:1239"
+      ]
+    },
+    {
+      "id": "S0188",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "weapon:1252",
+        "weapon:1287",
+        "weapon:1313",
+        "weapon:1351",
+        "weapon:1361"
+      ]
+    },
+    {
+      "id": "S0189",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "weapon:1363",
+        "weapon:1368",
+        "weapon:1431",
+        "weapon:1433",
+        "weapon:1435"
+      ]
+    },
+    {
+      "id": "S0190",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "weapon:1442",
+        "weapon:1443",
+        "weapon:1444",
+        "weapon:1446",
+        "weapon:1447"
+      ]
+    },
+    {
+      "id": "S0191",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "weapon:1452",
+        "weapon:1466",
+        "weapon:1471",
+        "weapon:1475",
+        "weapon:1482"
+      ]
+    },
+    {
+      "id": "S0192",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "weapon:1483",
+        "weapon:1494",
+        "weapon:1500",
+        "weapon:1502",
+        "weapon:1508"
+      ]
+    },
+    {
+      "id": "S0193",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "weapon:1524",
+        "weapon:1528",
+        "weapon:1530",
+        "weapon:1537",
+        "weapon:1538"
+      ]
+    },
+    {
+      "id": "S0194",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "weapon:1542",
+        "weapon:1545",
+        "weapon:1548",
+        "weapon:1550",
+        "weapon:1554"
+      ]
+    },
+    {
+      "id": "S0195",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "weapon:1557",
+        "weapon:1571",
+        "weapon:1574",
+        "weapon:1577",
+        "weapon:1581"
+      ]
+    },
+    {
+      "id": "S0196",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "weapon:1584",
+        "weapon:1588",
+        "weapon:1591",
+        "weapon:1602",
+        "weapon:1603"
+      ]
+    },
+    {
+      "id": "S0197",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "weapon:1615",
+        "weapon:1618",
+        "weapon:1621",
+        "weapon:1627",
+        "weapon:1630"
+      ]
+    },
+    {
+      "id": "S0198",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "weapon:1640",
+        "weapon:1643",
+        "weapon:1648",
+        "weapon:1652",
+        "weapon:1653"
+      ]
+    },
+    {
+      "id": "S0199",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "weapon:1655",
+        "weapon:1659",
+        "weapon:1661",
+        "weapon:1664",
+        "weapon:1674"
+      ]
+    },
+    {
+      "id": "S0200",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "weapon:1676",
+        "weapon:1679",
+        "weapon:1680",
+        "weapon:1686",
+        "weapon:1687"
+      ]
+    },
+    {
+      "id": "S0201",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "weapon:1688",
+        "weapon:1690",
+        "weapon:1691",
+        "weapon:1698",
+        "weapon:1699"
+      ]
+    },
+    {
+      "id": "S0202",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "weapon:1701",
+        "weapon:1702",
+        "weapon:1712",
+        "weapon:1714",
+        "weapon:1716"
+      ]
+    },
+    {
+      "id": "S0203",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "weapon:1718",
+        "troop:6002",
+        "troop:6003",
+        "troop:6008",
+        "troop:6010"
+      ]
+    },
+    {
+      "id": "S0204",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:6013",
+        "troop:6014",
+        "troop:6017",
+        "troop:6024",
+        "troop:6036"
+      ]
+    },
+    {
+      "id": "S0205",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:6037",
+        "troop:6038",
+        "troop:6045",
+        "troop:6052",
+        "troop:6056"
+      ]
+    },
+    {
+      "id": "S0206",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:6066",
+        "troop:6072",
+        "troop:6089",
+        "troop:6119",
+        "troop:6121"
+      ]
+    },
+    {
+      "id": "S0207",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:6133",
+        "troop:6137",
+        "troop:6145",
+        "troop:6146",
+        "troop:6161"
+      ]
+    },
+    {
+      "id": "S0208",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:6166",
+        "troop:6168",
+        "troop:6173",
+        "troop:6190",
+        "troop:6199"
+      ]
+    },
+    {
+      "id": "S0209",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:6200",
+        "troop:6202",
+        "troop:6203",
+        "troop:6208",
+        "troop:6211"
+      ]
+    },
+    {
+      "id": "S0210",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:6212",
+        "troop:6218",
+        "troop:6242",
+        "troop:6245",
+        "troop:6260"
+      ]
+    },
+    {
+      "id": "S0211",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:6262",
+        "troop:6263",
+        "troop:6264",
+        "troop:6266",
+        "troop:6267"
+      ]
+    },
+    {
+      "id": "S0212",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:6269",
+        "troop:6271",
+        "troop:6274",
+        "troop:6276",
+        "troop:6280"
+      ]
+    },
+    {
+      "id": "S0213",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:6282",
+        "troop:6287",
+        "troop:6301",
+        "troop:6303",
+        "troop:6307"
+      ]
+    },
+    {
+      "id": "S0214",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:6313",
+        "troop:6314",
+        "troop:6318",
+        "troop:6331",
+        "troop:6342"
+      ]
+    },
+    {
+      "id": "S0215",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:6343",
+        "troop:6344",
+        "troop:6345",
+        "troop:6346",
+        "troop:6347"
+      ]
+    },
+    {
+      "id": "S0216",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:6358",
+        "troop:6361",
+        "troop:6364",
+        "troop:6369",
+        "troop:6376"
+      ]
+    },
+    {
+      "id": "S0217",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:6408",
+        "troop:6412",
+        "troop:6415",
+        "troop:6449",
+        "troop:6455"
+      ]
+    },
+    {
+      "id": "S0218",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:6460",
+        "troop:6461",
+        "troop:6483",
+        "troop:6484",
+        "troop:6503"
+      ]
+    },
+    {
+      "id": "S0219",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:6504",
+        "troop:6517",
+        "troop:6528",
+        "troop:6530",
+        "troop:6536"
+      ]
+    },
+    {
+      "id": "S0220",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:6543",
+        "troop:6561",
+        "troop:6582",
+        "troop:6620",
+        "troop:6628"
+      ]
+    },
+    {
+      "id": "S0221",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:6638",
+        "troop:6647",
+        "troop:6649",
+        "troop:6675",
+        "troop:6677"
+      ]
+    },
+    {
+      "id": "S0222",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:6680",
+        "troop:6684",
+        "troop:6686",
+        "troop:6689",
+        "troop:6692"
+      ]
+    },
+    {
+      "id": "S0223",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:6693",
+        "troop:6694",
+        "troop:6703",
+        "troop:6720",
+        "troop:6729"
+      ]
+    },
+    {
+      "id": "S0224",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:6735",
+        "troop:6746",
+        "troop:6749",
+        "troop:6757",
+        "troop:6763"
+      ]
+    },
+    {
+      "id": "S0225",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:6765",
+        "troop:6767",
+        "troop:6776",
+        "troop:6777",
+        "troop:6778"
+      ]
+    },
+    {
+      "id": "S0226",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:6780",
+        "troop:6783",
+        "troop:6794",
+        "troop:6798",
+        "troop:6800"
+      ]
+    },
+    {
+      "id": "S0227",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:6819",
+        "troop:6821",
+        "troop:6825",
+        "troop:6827",
+        "troop:6828"
+      ]
+    },
+    {
+      "id": "S0228",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:6829",
+        "troop:6831",
+        "troop:6832",
+        "troop:6833",
+        "troop:6834"
+      ]
+    },
+    {
+      "id": "S0229",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:6836",
+        "troop:6848",
+        "troop:6857",
+        "troop:6874",
+        "troop:6875"
+      ]
+    },
+    {
+      "id": "S0230",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:6879",
+        "troop:6889",
+        "troop:6897",
+        "troop:6902",
+        "troop:6903"
+      ]
+    },
+    {
+      "id": "S0231",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:6906",
+        "troop:6907",
+        "troop:6912",
+        "troop:6917",
+        "troop:6933"
+      ]
+    },
+    {
+      "id": "S0232",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:6941",
+        "troop:6962",
+        "troop:6965",
+        "troop:6975",
+        "troop:6978"
+      ]
+    },
+    {
+      "id": "S0233",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:6979",
+        "troop:6995",
+        "troop:6996",
+        "troop:7010",
+        "troop:7011"
+      ]
+    },
+    {
+      "id": "S0234",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:7022",
+        "troop:7023",
+        "troop:7024",
+        "troop:7035",
+        "troop:7041"
+      ]
+    },
+    {
+      "id": "S0235",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:7044",
+        "troop:7046",
+        "troop:7049",
+        "troop:7052",
+        "troop:7053"
+      ]
+    },
+    {
+      "id": "S0236",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:7055",
+        "troop:7058",
+        "troop:7063",
+        "troop:7064",
+        "troop:7066"
+      ]
+    },
+    {
+      "id": "S0237",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:7067",
+        "troop:7096",
+        "troop:7110",
+        "troop:7136",
+        "troop:7137"
+      ]
+    },
+    {
+      "id": "S0238",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:7149",
+        "troop:7152",
+        "troop:7167",
+        "troop:7168",
+        "troop:7171"
+      ]
+    },
+    {
+      "id": "S0239",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:7176",
+        "troop:7179",
+        "troop:7181",
+        "troop:7183",
+        "troop:7189"
+      ]
+    },
+    {
+      "id": "S0240",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:7192",
+        "troop:7193",
+        "troop:7204",
+        "troop:7205",
+        "troop:7212"
+      ]
+    },
+    {
+      "id": "S0241",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:7222",
+        "troop:7223",
+        "troop:7229",
+        "troop:7233",
+        "troop:7239"
+      ]
+    },
+    {
+      "id": "S0242",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:7244",
+        "troop:7263",
+        "troop:7264",
+        "troop:7266",
+        "troop:7267"
+      ]
+    },
+    {
+      "id": "S0243",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:7271",
+        "troop:7274",
+        "troop:7279",
+        "troop:7290",
+        "troop:7305"
+      ]
+    },
+    {
+      "id": "S0244",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:7310",
+        "troop:7318",
+        "troop:7320",
+        "troop:7324",
+        "troop:7325"
+      ]
+    },
+    {
+      "id": "S0245",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:7338",
+        "troop:7339",
+        "troop:7341",
+        "troop:7345",
+        "troop:7346"
+      ]
+    },
+    {
+      "id": "S0246",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:7351",
+        "troop:7357",
+        "troop:7363",
+        "troop:7366",
+        "troop:7367"
+      ]
+    },
+    {
+      "id": "S0247",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:7369",
+        "troop:7370",
+        "troop:7371",
+        "troop:7382",
+        "troop:7383"
+      ]
+    },
+    {
+      "id": "S0248",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:7387",
+        "troop:7405",
+        "troop:7413",
+        "troop:7419",
+        "troop:7421"
+      ]
+    },
+    {
+      "id": "S0249",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:7424",
+        "troop:7428",
+        "troop:7436",
+        "troop:7447",
+        "troop:7448"
+      ]
+    },
+    {
+      "id": "S0250",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:7449",
+        "troop:7450",
+        "troop:7451",
+        "troop:7452",
+        "troop:7456"
+      ]
+    },
+    {
+      "id": "S0251",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:7457",
+        "troop:7458",
+        "troop:7463",
+        "troop:7471",
+        "troop:7476"
+      ]
+    },
+    {
+      "id": "S0252",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:7478",
+        "troop:7479",
+        "troop:7482",
+        "troop:7485",
+        "troop:7486"
+      ]
+    },
+    {
+      "id": "S0253",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:7493",
+        "troop:7495",
+        "troop:7503",
+        "troop:7507",
+        "troop:7508"
+      ]
+    },
+    {
+      "id": "S0254",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:7511",
+        "troop:7513",
+        "troop:7526",
+        "troop:7528",
+        "troop:7530"
+      ]
+    },
+    {
+      "id": "S0255",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:7534",
+        "troop:7538",
+        "troop:7539",
+        "troop:7542",
+        "troop:7543"
+      ]
+    },
+    {
+      "id": "S0256",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:7549",
+        "troop:7550",
+        "troop:7551",
+        "troop:7555",
+        "troop:7562"
+      ]
+    },
+    {
+      "id": "S0257",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:7567",
+        "troop:7568",
+        "troop:7569",
+        "troop:7573",
+        "troop:7575"
+      ]
+    },
+    {
+      "id": "S0258",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:7589",
+        "troop:7590",
+        "troop:7591",
+        "troop:7598",
+        "troop:7605"
+      ]
+    },
+    {
+      "id": "S0259",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:7608",
+        "troop:7613",
+        "troop:7614",
+        "troop:7626",
+        "troop:7627"
+      ]
+    },
+    {
+      "id": "S0260",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:7632",
+        "troop:7633",
+        "troop:7637",
+        "troop:7645",
+        "troop:7652"
+      ]
+    },
+    {
+      "id": "S0261",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:7653",
+        "troop:7654",
+        "troop:7657",
+        "troop:7662",
+        "troop:7664"
+      ]
+    },
+    {
+      "id": "S0262",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:7672",
+        "troop:7673",
+        "troop:7676",
+        "troop:7679",
+        "troop:7682"
+      ]
+    },
+    {
+      "id": "S0263",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:7686",
+        "troop:7701",
+        "troop:7708",
+        "troop:7709",
+        "troop:7710"
+      ]
+    },
+    {
+      "id": "S0264",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:7717",
+        "troop:7743",
+        "troop:7748",
+        "troop:7750",
+        "troop:7751"
+      ]
+    },
+    {
+      "id": "S0265",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:7752",
+        "troop:7757",
+        "troop:7758",
+        "troop:7767",
+        "troop:7769"
+      ]
+    },
+    {
+      "id": "S0266",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:7772",
+        "troop:7776",
+        "troop:7780",
+        "troop:7784",
+        "troop:7785"
+      ]
+    },
+    {
+      "id": "S0267",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:7789",
+        "troop:7791",
+        "troop:7804",
+        "troop:7806",
+        "troop:7808"
+      ]
+    },
+    {
+      "id": "S0268",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:7809",
+        "troop:7813",
+        "troop:7816",
+        "troop:7819",
+        "troop:7820"
+      ]
+    },
+    {
+      "id": "S0269",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:7821",
+        "troop:7822",
+        "troop:7823",
+        "troop:7825",
+        "troop:7828"
+      ]
+    },
+    {
+      "id": "S0270",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:7829",
+        "troop:7831",
+        "troop:7832",
+        "troop:7846",
+        "troop:7848"
+      ]
+    },
+    {
+      "id": "S0271",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:7868",
+        "troop:7870",
+        "troop:7877",
+        "troop:7878",
+        "troop:7903"
+      ]
+    },
+    {
+      "id": "S0272",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "weapon:1036",
+        "weapon:1037",
+        "weapon:1038",
+        "weapon:1039",
+        "weapon:1040"
+      ]
+    },
+    {
+      "id": "S0273",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "weapon:1044",
+        "weapon:1069",
+        "weapon:1090",
+        "weapon:1103",
+        "weapon:1105"
+      ]
+    },
+    {
+      "id": "S0274",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "weapon:1117",
+        "weapon:1125",
+        "weapon:1138",
+        "weapon:1147",
+        "weapon:1150"
+      ]
+    },
+    {
+      "id": "S0275",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "weapon:1151",
+        "weapon:1152",
+        "weapon:1160",
+        "weapon:1161",
+        "weapon:1162"
+      ]
+    },
+    {
+      "id": "S0276",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "weapon:1163",
+        "weapon:1164",
+        "weapon:1165",
+        "weapon:1177",
+        "weapon:1186"
+      ]
+    },
+    {
+      "id": "S0277",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "weapon:1187",
+        "weapon:1188",
+        "weapon:1189",
+        "weapon:1190",
+        "weapon:1192"
+      ]
+    },
+    {
+      "id": "S0278",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "weapon:1193",
+        "weapon:1194",
+        "weapon:1200",
+        "weapon:1204",
+        "weapon:1207"
+      ]
+    },
+    {
+      "id": "S0279",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "weapon:1209",
+        "weapon:1216",
+        "weapon:1217",
+        "weapon:1231",
+        "weapon:1240"
+      ]
+    },
+    {
+      "id": "S0280",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "weapon:1241",
+        "weapon:1243",
+        "weapon:1244",
+        "weapon:1246",
+        "weapon:1249"
+      ]
+    },
+    {
+      "id": "S0281",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "weapon:1264",
+        "weapon:1265",
+        "weapon:1266",
+        "weapon:1267",
+        "weapon:1268"
+      ]
+    },
+    {
+      "id": "S0282",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "weapon:1269",
+        "weapon:1270",
+        "weapon:1271",
+        "weapon:1277",
+        "weapon:1281"
+      ]
+    },
+    {
+      "id": "S0283",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "weapon:1282",
+        "weapon:1283",
+        "weapon:1284",
+        "weapon:1285",
+        "weapon:1288"
+      ]
+    },
+    {
+      "id": "S0284",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "weapon:1289",
+        "weapon:1290",
+        "weapon:1291",
+        "weapon:1292",
+        "weapon:1293"
+      ]
+    },
+    {
+      "id": "S0285",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "weapon:1294",
+        "weapon:1295",
+        "weapon:1303",
+        "weapon:1304",
+        "weapon:1305"
+      ]
+    },
+    {
+      "id": "S0286",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "weapon:1306",
+        "weapon:1307",
+        "weapon:1308",
+        "weapon:1309",
+        "weapon:1312"
+      ]
+    },
+    {
+      "id": "S0287",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "weapon:1314",
+        "weapon:1315",
+        "weapon:1316",
+        "weapon:1353",
+        "weapon:1354"
+      ]
+    },
+    {
+      "id": "S0288",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "weapon:1355",
+        "weapon:1356",
+        "weapon:1357",
+        "weapon:1358",
+        "weapon:1359"
+      ]
+    },
+    {
+      "id": "S0289",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "weapon:1364",
+        "weapon:1367",
+        "weapon:1370",
+        "weapon:1371",
+        "weapon:1372"
+      ]
+    },
+    {
+      "id": "S0290",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "weapon:1373",
+        "weapon:1375",
+        "weapon:1376",
+        "weapon:1379",
+        "weapon:1380"
+      ]
+    },
+    {
+      "id": "S0291",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "weapon:1381",
+        "weapon:1382",
+        "weapon:1383",
+        "weapon:1384",
+        "weapon:1386"
+      ]
+    },
+    {
+      "id": "S0292",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "weapon:1388",
+        "weapon:1389",
+        "weapon:1390",
+        "weapon:1392",
+        "weapon:1393"
+      ]
+    },
+    {
+      "id": "S0293",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "weapon:1397",
+        "weapon:1400",
+        "weapon:1401",
+        "weapon:1402",
+        "weapon:1403"
+      ]
+    },
+    {
+      "id": "S0294",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "weapon:1406",
+        "weapon:1407",
+        "weapon:1410",
+        "weapon:1411",
+        "weapon:1412"
+      ]
+    },
+    {
+      "id": "S0295",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "weapon:1416",
+        "weapon:1423",
+        "weapon:1424",
+        "weapon:1425",
+        "weapon:1432"
+      ]
+    },
+    {
+      "id": "S0296",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "weapon:1437",
+        "weapon:1438",
+        "weapon:1448",
+        "weapon:1449",
+        "weapon:1450"
+      ]
+    },
+    {
+      "id": "S0297",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "weapon:1453",
+        "weapon:1462",
+        "weapon:1463",
+        "weapon:1464",
+        "weapon:1465"
+      ]
+    },
+    {
+      "id": "S0298",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "weapon:1467",
+        "weapon:1468",
+        "weapon:1469",
+        "weapon:1470",
+        "weapon:1481"
+      ]
+    },
+    {
+      "id": "S0299",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "weapon:1491",
+        "weapon:1492",
+        "weapon:1493",
+        "weapon:1495",
+        "weapon:1496"
+      ]
+    },
+    {
+      "id": "S0300",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "weapon:1497",
+        "weapon:1501",
+        "weapon:1504",
+        "weapon:1510",
+        "weapon:1511"
+      ]
+    },
+    {
+      "id": "S0301",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "weapon:1512",
+        "weapon:1517",
+        "weapon:1518",
+        "weapon:1519",
+        "weapon:1520"
+      ]
+    },
+    {
+      "id": "S0302",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "weapon:1521",
+        "weapon:1522",
+        "weapon:1523",
+        "weapon:1525",
+        "weapon:1529"
+      ]
+    },
+    {
+      "id": "S0303",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "weapon:1533",
+        "weapon:1534",
+        "weapon:1535",
+        "weapon:1536",
+        "weapon:1541"
+      ]
+    },
+    {
+      "id": "S0304",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "weapon:1544",
+        "weapon:1551",
+        "weapon:1553",
+        "weapon:1555",
+        "weapon:1556"
+      ]
+    },
+    {
+      "id": "S0305",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "weapon:1558",
+        "weapon:1559",
+        "weapon:1569",
+        "weapon:1570",
+        "weapon:1573"
+      ]
+    },
+    {
+      "id": "S0306",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "weapon:1575",
+        "weapon:1576",
+        "weapon:1579",
+        "weapon:1583",
+        "weapon:1585"
+      ]
+    },
+    {
+      "id": "S0307",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "weapon:1587",
+        "weapon:1601",
+        "weapon:1609",
+        "weapon:1612",
+        "weapon:1613"
+      ]
+    },
+    {
+      "id": "S0308",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "weapon:1616",
+        "weapon:1617",
+        "weapon:1619",
+        "weapon:1629",
+        "weapon:1631"
+      ]
+    },
+    {
+      "id": "S0309",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "weapon:1632",
+        "weapon:1633",
+        "weapon:1634",
+        "weapon:1635",
+        "weapon:1636"
+      ]
+    },
+    {
+      "id": "S0310",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "weapon:1637",
+        "weapon:1638",
+        "weapon:1658",
+        "weapon:1665",
+        "weapon:1675"
+      ]
+    },
+    {
+      "id": "S0311",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "weapon:1678",
+        "weapon:1692",
+        "troop:6283",
+        "troop:6372",
+        "troop:6401"
+      ]
+    },
+    {
+      "id": "S0312",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:6630",
+        "troop:6698",
+        "troop:6704",
+        "troop:6718",
+        "troop:6787"
+      ]
+    },
+    {
+      "id": "S0313",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:6869",
+        "troop:6881",
+        "troop:7081",
+        "troop:7101",
+        "troop:7103"
+      ]
+    },
+    {
+      "id": "S0314",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:7509",
+        "troop:7557",
+        "troop:7560",
+        "troop:7566",
+        "troop:7577"
+      ]
+    },
+    {
+      "id": "S0315",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:7594",
+        "troop:7600",
+        "troop:7635",
+        "troop:7647",
+        "troop:7678"
+      ]
+    },
+    {
+      "id": "S0316",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:7775",
+        "troop:7782",
+        "troop:7851",
+        "troop:7873",
+        "troop:7875"
+      ]
+    },
+    {
+      "id": "S0317",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "weapon:1159",
+        "weapon:1230",
+        "weapon:1262",
+        "weapon:1272",
+        "weapon:1318"
+      ]
+    },
+    {
+      "id": "S0318",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "weapon:1319",
+        "weapon:1320",
+        "weapon:1321",
+        "weapon:1322",
+        "weapon:1323"
+      ]
+    },
+    {
+      "id": "S0319",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "weapon:1324",
+        "weapon:1325",
+        "weapon:1326",
+        "weapon:1327",
+        "weapon:1328"
+      ]
+    },
+    {
+      "id": "S0320",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "weapon:1329",
+        "weapon:1330",
+        "weapon:1331",
+        "weapon:1332",
+        "weapon:1333"
+      ]
+    },
+    {
+      "id": "S0321",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "weapon:1334",
+        "weapon:1335",
+        "weapon:1336",
+        "weapon:1337",
+        "weapon:1338"
+      ]
+    },
+    {
+      "id": "S0322",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "weapon:1339",
+        "weapon:1340",
+        "weapon:1341",
+        "weapon:1342",
+        "weapon:1343"
+      ]
+    },
+    {
+      "id": "S0323",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "weapon:1344",
+        "weapon:1345",
+        "weapon:1346",
+        "weapon:1347",
+        "weapon:1348"
+      ]
+    },
+    {
+      "id": "S0324",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "weapon:1349",
+        "weapon:1350",
+        "weapon:1408",
+        "weapon:1429",
+        "weapon:1454"
+      ]
+    },
+    {
+      "id": "S0325",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "weapon:1455",
+        "weapon:1456",
+        "weapon:1457",
+        "weapon:1458",
+        "weapon:1459"
+      ]
+    },
+    {
+      "id": "S0326",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "weapon:1479",
+        "weapon:1499",
+        "weapon:1560",
+        "weapon:1649",
+        "troop:6070"
+      ]
+    },
+    {
+      "id": "S0327",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:6091",
+        "troop:6157",
+        "troop:6179",
+        "troop:6252",
+        "troop:6268"
+      ]
+    },
+    {
+      "id": "S0328",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:6574",
+        "troop:6639",
+        "troop:6706",
+        "troop:6847",
+        "troop:6908"
+      ]
+    },
+    {
+      "id": "S0329",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:6947",
+        "troop:6988",
+        "troop:7169",
+        "weapon:1067",
+        "weapon:1081"
+      ]
+    },
+    {
+      "id": "S0330",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "weapon:1142",
+        "weapon:1220",
+        "weapon:1228",
+        "weapon:1377",
+        "weapon:1428"
+      ]
+    },
+    {
+      "id": "S0331",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:6022",
+        "troop:6025",
+        "troop:6063",
+        "troop:6064",
+        "troop:6086"
+      ]
+    },
+    {
+      "id": "S0332",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:6108",
+        "troop:6115",
+        "troop:6126",
+        "troop:6128",
+        "troop:6134"
+      ]
+    },
+    {
+      "id": "S0333",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:6142",
+        "troop:6152",
+        "troop:6153",
+        "troop:6163",
+        "troop:6183"
+      ]
+    },
+    {
+      "id": "S0334",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:6235",
+        "troop:6246",
+        "troop:6334",
+        "troop:6339",
+        "troop:6367"
+      ]
+    },
+    {
+      "id": "S0335",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:6383",
+        "troop:6385",
+        "troop:6400",
+        "troop:6410",
+        "troop:6463"
+      ]
+    },
+    {
+      "id": "S0336",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:6470",
+        "troop:6479",
+        "troop:6502",
+        "troop:6507",
+        "troop:6512"
+      ]
+    },
+    {
+      "id": "S0337",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:6527",
+        "troop:6532",
+        "troop:6562",
+        "troop:6566",
+        "troop:6587"
+      ]
+    },
+    {
+      "id": "S0338",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:6604",
+        "troop:6605",
+        "troop:6613",
+        "troop:6627",
+        "troop:6632"
+      ]
+    },
+    {
+      "id": "S0339",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:6674",
+        "troop:6678",
+        "troop:6679",
+        "troop:6696",
+        "troop:6709"
+      ]
+    },
+    {
+      "id": "S0340",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:6788",
+        "troop:6841",
+        "troop:6876",
+        "troop:6916",
+        "troop:6929"
+      ]
+    },
+    {
+      "id": "S0341",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:6940",
+        "troop:6943",
+        "troop:6945",
+        "troop:6949",
+        "troop:6966"
+      ]
+    },
+    {
+      "id": "S0342",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:6967",
+        "troop:6973",
+        "troop:6981",
+        "troop:6998",
+        "troop:7007"
+      ]
+    },
+    {
+      "id": "S0343",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:7037",
+        "troop:7042",
+        "troop:7079",
+        "troop:7097",
+        "troop:7098"
+      ]
+    },
+    {
+      "id": "S0344",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:7099",
+        "troop:7100",
+        "troop:7113",
+        "troop:7129",
+        "troop:7150"
+      ]
+    },
+    {
+      "id": "S0345",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:7190",
+        "troop:7214",
+        "troop:7221",
+        "troop:7255",
+        "troop:7262"
+      ]
+    },
+    {
+      "id": "S0346",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:7265",
+        "troop:7284",
+        "troop:7289",
+        "troop:7295",
+        "troop:7340"
+      ]
+    },
+    {
+      "id": "S0347",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:7393",
+        "troop:7438",
+        "troop:7554",
+        "troop:7570",
+        "troop:7587"
+      ]
+    },
+    {
+      "id": "S0348",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:7615",
+        "troop:7638",
+        "troop:7666",
+        "troop:7681",
+        "troop:7702"
+      ]
+    },
+    {
+      "id": "S0349",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:7713",
+        "troop:7725",
+        "troop:7737",
+        "troop:7746",
+        "troop:7755"
+      ]
+    },
+    {
+      "id": "S0350",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:7771",
+        "troop:7778",
+        "troop:7798",
+        "troop:7803",
+        "troop:7862"
+      ]
+    },
+    {
+      "id": "S0351",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "weapon:1095",
+        "weapon:1112",
+        "weapon:1131",
+        "weapon:1133",
+        "weapon:1137"
+      ]
+    },
+    {
+      "id": "S0352",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "weapon:1140",
+        "weapon:1145",
+        "weapon:1213",
+        "weapon:1310",
+        "weapon:1394"
+      ]
+    },
+    {
+      "id": "S0353",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "weapon:1420",
+        "weapon:1445",
+        "weapon:1461",
+        "weapon:1473",
+        "weapon:1474"
+      ]
+    },
+    {
+      "id": "S0354",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "weapon:1476",
+        "weapon:1486",
+        "weapon:1503",
+        "weapon:1549",
+        "weapon:1552"
+      ]
+    },
+    {
+      "id": "S0355",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "weapon:1599",
+        "weapon:1605",
+        "weapon:1606",
+        "weapon:1721",
+        "troop:6050"
+      ]
+    },
+    {
+      "id": "S0356",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:6053",
+        "troop:6061",
+        "troop:6079",
+        "troop:6113",
+        "troop:6114"
+      ]
+    },
+    {
+      "id": "S0357",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:6125",
+        "troop:6130",
+        "troop:6144",
+        "troop:6148",
+        "troop:6155"
+      ]
+    },
+    {
+      "id": "S0358",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:6160",
+        "troop:6165",
+        "troop:6167",
+        "troop:6172",
+        "troop:6175"
+      ]
+    },
+    {
+      "id": "S0359",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:6176",
+        "troop:6182",
+        "troop:6194",
+        "troop:6196",
+        "troop:6233"
+      ]
+    },
+    {
+      "id": "S0360",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:6238",
+        "troop:6248",
+        "troop:6261",
+        "troop:6278",
+        "troop:6281"
+      ]
+    },
+    {
+      "id": "S0361",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:6290",
+        "troop:6294",
+        "troop:6296",
+        "troop:6300",
+        "troop:6316"
+      ]
+    },
+    {
+      "id": "S0362",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:6317",
+        "troop:6323",
+        "troop:6335",
+        "troop:6337",
+        "troop:6340"
+      ]
+    },
+    {
+      "id": "S0363",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:6356",
+        "troop:6363",
+        "troop:6368",
+        "troop:6391",
+        "troop:6396"
+      ]
+    },
+    {
+      "id": "S0364",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:6409",
+        "troop:6419",
+        "troop:6424",
+        "troop:6427",
+        "troop:6451"
+      ]
+    },
+    {
+      "id": "S0365",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:6453",
+        "troop:6456",
+        "troop:6467",
+        "troop:6514",
+        "troop:6516"
+      ]
+    },
+    {
+      "id": "S0366",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:6551",
+        "troop:6555",
+        "troop:6559",
+        "troop:6571",
+        "troop:6572"
+      ]
+    },
+    {
+      "id": "S0367",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:6588",
+        "troop:6589",
+        "troop:6622",
+        "troop:6623",
+        "troop:6645"
+      ]
+    },
+    {
+      "id": "S0368",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:6650",
+        "troop:6652",
+        "troop:6700",
+        "troop:6710",
+        "troop:6713"
+      ]
+    },
+    {
+      "id": "S0369",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:6716",
+        "troop:6721",
+        "troop:6738",
+        "troop:6786",
+        "troop:6790"
+      ]
+    },
+    {
+      "id": "S0370",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:6792",
+        "troop:6810",
+        "troop:6830",
+        "troop:6851",
+        "troop:6852"
+      ]
+    },
+    {
+      "id": "S0371",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:6853",
+        "troop:6861",
+        "troop:6867",
+        "troop:6873",
+        "troop:6878"
+      ]
+    },
+    {
+      "id": "S0372",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:6884",
+        "troop:6895",
+        "troop:6901",
+        "troop:6909",
+        "troop:6925"
+      ]
+    },
+    {
+      "id": "S0373",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:6926",
+        "troop:6931",
+        "troop:6934",
+        "troop:6937",
+        "troop:6939"
+      ]
+    },
+    {
+      "id": "S0374",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:6950",
+        "troop:6953",
+        "troop:6961",
+        "troop:6964",
+        "troop:6974"
+      ]
+    },
+    {
+      "id": "S0375",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:6983",
+        "troop:6984",
+        "troop:7008",
+        "troop:7036",
+        "troop:7060"
+      ]
+    },
+    {
+      "id": "S0376",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:7062",
+        "troop:7065",
+        "troop:7070",
+        "troop:7072",
+        "troop:7073"
+      ]
+    },
+    {
+      "id": "S0377",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:7076",
+        "troop:7077",
+        "troop:7085",
+        "troop:7086",
+        "troop:7088"
+      ]
+    },
+    {
+      "id": "S0378",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:7102",
+        "troop:7107",
+        "troop:7115",
+        "troop:7122",
+        "troop:7126"
+      ]
+    },
+    {
+      "id": "S0379",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:7144",
+        "troop:7185",
+        "troop:7188",
+        "troop:7198",
+        "troop:7211"
+      ]
+    },
+    {
+      "id": "S0380",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:7215",
+        "troop:7218",
+        "troop:7256",
+        "troop:7260",
+        "troop:7288"
+      ]
+    },
+    {
+      "id": "S0381",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:7292",
+        "troop:7298",
+        "troop:7304",
+        "troop:7312",
+        "troop:7319"
+      ]
+    },
+    {
+      "id": "S0382",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:7327",
+        "troop:7356",
+        "troop:7359",
+        "troop:7414",
+        "troop:7415"
+      ]
+    },
+    {
+      "id": "S0383",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:7429",
+        "troop:7462",
+        "troop:7467",
+        "troop:7474",
+        "troop:7475"
+      ]
+    },
+    {
+      "id": "S0384",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:7492",
+        "troop:7502",
+        "troop:7517",
+        "troop:7525",
+        "troop:7527"
+      ]
+    },
+    {
+      "id": "S0385",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:7531",
+        "troop:7545",
+        "troop:7547",
+        "troop:7552",
+        "troop:7571"
+      ]
+    },
+    {
+      "id": "S0386",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:7574",
+        "troop:7583",
+        "troop:7595",
+        "troop:7596",
+        "troop:7599"
+      ]
+    },
+    {
+      "id": "S0387",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:7601",
+        "troop:7604",
+        "troop:7611",
+        "troop:7612",
+        "troop:7623"
+      ]
+    },
+    {
+      "id": "S0388",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:7624",
+        "troop:7634",
+        "troop:7639",
+        "troop:7641",
+        "troop:7643"
+      ]
+    },
+    {
+      "id": "S0389",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:7668",
+        "troop:7671",
+        "troop:7675",
+        "troop:7685",
+        "troop:7699"
+      ]
+    },
+    {
+      "id": "S0390",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:7712",
+        "troop:7716",
+        "troop:7726",
+        "troop:7729",
+        "troop:7759"
+      ]
+    },
+    {
+      "id": "S0391",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:7762",
+        "troop:7765",
+        "troop:7768",
+        "troop:7770",
+        "troop:7790"
+      ]
+    },
+    {
+      "id": "S0392",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:7795",
+        "troop:7797",
+        "troop:7799",
+        "troop:7805",
+        "troop:7814"
+      ]
+    },
+    {
+      "id": "S0393",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:7824",
+        "troop:7837",
+        "troop:7838",
+        "troop:7861",
+        "troop:7871"
+      ]
+    },
+    {
+      "id": "S0394",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:7881",
+        "troop:7887",
+        "troop:7932",
+        "weapon:1071",
+        "weapon:1108"
+      ]
+    },
+    {
+      "id": "S0395",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "weapon:1110",
+        "weapon:1120",
+        "weapon:1158",
+        "weapon:1174",
+        "weapon:1195"
+      ]
+    },
+    {
+      "id": "S0396",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "weapon:1199",
+        "weapon:1201",
+        "weapon:1214",
+        "weapon:1215",
+        "weapon:1221"
+      ]
+    },
+    {
+      "id": "S0397",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "weapon:1225",
+        "weapon:1247",
+        "weapon:1279",
+        "weapon:1297",
+        "weapon:1298"
+      ]
+    },
+    {
+      "id": "S0398",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "weapon:1299",
+        "weapon:1300",
+        "weapon:1301",
+        "weapon:1302",
+        "weapon:1311"
+      ]
+    },
+    {
+      "id": "S0399",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "weapon:1362",
+        "weapon:1369",
+        "weapon:1391",
+        "weapon:1472",
+        "weapon:1477"
+      ]
+    },
+    {
+      "id": "S0400",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "weapon:1478",
+        "weapon:1487",
+        "weapon:1488",
+        "weapon:1516",
+        "weapon:1592"
+      ]
+    },
+    {
+      "id": "S0401",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "weapon:1593",
+        "weapon:1594",
+        "weapon:1595",
+        "weapon:1596",
+        "weapon:1597"
+      ]
+    },
+    {
+      "id": "S0402",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "weapon:1598",
+        "weapon:1608",
+        "weapon:1681",
+        "weapon:1684",
+        "weapon:1685"
+      ]
+    },
+    {
+      "id": "S0403",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "weapon:1706",
+        "weapon:1708",
+        "weapon:1709",
+        "weapon:1711",
+        "troop:6054"
+      ]
+    },
+    {
+      "id": "S0404",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:6059",
+        "troop:6090",
+        "troop:6188",
+        "troop:6207",
+        "troop:6210"
+      ]
+    },
+    {
+      "id": "S0405",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:6240",
+        "troop:6284",
+        "troop:6297",
+        "troop:6328",
+        "troop:6336"
+      ]
+    },
+    {
+      "id": "S0406",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:6371",
+        "troop:6418",
+        "troop:6423",
+        "troop:6473",
+        "troop:6600"
+      ]
+    },
+    {
+      "id": "S0407",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:6621",
+        "troop:6629",
+        "troop:6633",
+        "troop:6653",
+        "troop:6736"
+      ]
+    },
+    {
+      "id": "S0408",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:6797",
+        "troop:6807",
+        "troop:6838",
+        "troop:6918",
+        "troop:6919"
+      ]
+    },
+    {
+      "id": "S0409",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:6927",
+        "troop:6928",
+        "troop:6942",
+        "troop:6970",
+        "troop:6989"
+      ]
+    },
+    {
+      "id": "S0410",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:6990",
+        "troop:7016",
+        "troop:7057",
+        "troop:7061",
+        "troop:7116"
+      ]
+    },
+    {
+      "id": "S0411",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:7128",
+        "troop:7134",
+        "troop:7139",
+        "troop:7173",
+        "troop:7217"
+      ]
+    },
+    {
+      "id": "S0412",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:7245",
+        "troop:7246",
+        "troop:7247",
+        "troop:7248",
+        "troop:7249"
+      ]
+    },
+    {
+      "id": "S0413",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:7250",
+        "troop:7251",
+        "troop:7287",
+        "troop:7348",
+        "troop:7365"
+      ]
+    },
+    {
+      "id": "S0414",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:7374",
+        "troop:7392",
+        "troop:7411",
+        "troop:7440",
+        "troop:7441"
+      ]
+    },
+    {
+      "id": "S0415",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:7442",
+        "troop:7443",
+        "troop:7444",
+        "troop:7445",
+        "troop:7546"
+      ]
+    },
+    {
+      "id": "S0416",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:7556",
+        "troop:7609",
+        "troop:7616",
+        "troop:7617",
+        "troop:7618"
+      ]
+    },
+    {
+      "id": "S0417",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:7619",
+        "troop:7620",
+        "troop:7621",
+        "troop:7622",
+        "troop:7674"
+      ]
+    },
+    {
+      "id": "S0418",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:7698",
+        "troop:7720",
+        "troop:7724",
+        "troop:7728",
+        "troop:7874"
+      ]
+    },
+    {
+      "id": "S0419",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "weapon:1058",
+        "weapon:1102",
+        "weapon:1180",
+        "weapon:1181",
+        "weapon:1182"
+      ]
+    },
+    {
+      "id": "S0420",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "weapon:1183",
+        "weapon:1184",
+        "weapon:1185",
+        "weapon:1198",
+        "weapon:1212"
+      ]
+    },
+    {
+      "id": "S0421",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "weapon:1274",
+        "weapon:1426",
+        "troop:7342",
+        "troop:6047",
+        "troop:6174"
+      ]
+    },
+    {
+      "id": "S0422",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:6272",
+        "troop:6707",
+        "troop:6808",
+        "troop:7182",
+        "troop:7376"
+      ]
+    },
+    {
+      "id": "S0423",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:7483",
+        "weapon:1237",
+        "weapon:1490",
+        "troop:6122",
+        "troop:6214"
+      ]
+    },
+    {
+      "id": "S0424",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:6292",
+        "troop:6299",
+        "troop:6310",
+        "troop:6349",
+        "troop:6366"
+      ]
+    },
+    {
+      "id": "S0425",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:6374",
+        "troop:6377",
+        "troop:6403",
+        "troop:6454",
+        "troop:6457"
+      ]
+    },
+    {
+      "id": "S0426",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:6464",
+        "troop:6465",
+        "troop:6481",
+        "troop:6506",
+        "troop:6603"
+      ]
+    },
+    {
+      "id": "S0427",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:6626",
+        "troop:6702",
+        "troop:6789",
+        "troop:6804",
+        "troop:6863"
+      ]
+    },
+    {
+      "id": "S0428",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:6914",
+        "troop:6938",
+        "troop:6986",
+        "troop:7045",
+        "troop:7069"
+      ]
+    },
+    {
+      "id": "S0429",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:7082",
+        "troop:7095",
+        "troop:7105",
+        "troop:7177",
+        "troop:7242"
+      ]
+    },
+    {
+      "id": "S0430",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:7278",
+        "troop:7326",
+        "troop:7344",
+        "troop:7377",
+        "troop:7427"
+      ]
+    },
+    {
+      "id": "S0431",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:7455",
+        "troop:7510",
+        "troop:7515",
+        "troop:7535",
+        "troop:7592"
+      ]
+    },
+    {
+      "id": "S0432",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:7655",
+        "troop:7738",
+        "weapon:1144",
+        "weapon:1208",
+        "weapon:1405"
+      ]
+    },
+    {
+      "id": "S0433",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "weapon:1427",
+        "weapon:1624",
+        "troop:6035",
+        "troop:6205",
+        "troop:6224"
+      ]
+    },
+    {
+      "id": "S0434",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:6251",
+        "troop:6259",
+        "troop:6275",
+        "troop:6354",
+        "troop:6398"
+      ]
+    },
+    {
+      "id": "S0435",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:6405",
+        "troop:6407",
+        "troop:6466",
+        "troop:6508",
+        "troop:6520"
+      ]
+    },
+    {
+      "id": "S0436",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:6529",
+        "troop:6549",
+        "troop:6553",
+        "troop:6581",
+        "troop:6598"
+      ]
+    },
+    {
+      "id": "S0437",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:6648",
+        "troop:6685",
+        "troop:6747",
+        "troop:6770",
+        "troop:6826"
+      ]
+    },
+    {
+      "id": "S0438",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:6835",
+        "troop:6862",
+        "troop:6865",
+        "troop:6899",
+        "troop:6900"
+      ]
+    },
+    {
+      "id": "S0439",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:6936",
+        "troop:6946",
+        "troop:6963",
+        "troop:6968",
+        "troop:6982"
+      ]
+    },
+    {
+      "id": "S0440",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:6985",
+        "troop:6992",
+        "troop:6999",
+        "troop:7032",
+        "troop:7033"
+      ]
+    },
+    {
+      "id": "S0441",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:7034",
+        "troop:7038",
+        "troop:7074",
+        "troop:7075",
+        "troop:7120"
+      ]
+    },
+    {
+      "id": "S0442",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:7132",
+        "troop:7257",
+        "troop:7315",
+        "troop:7316",
+        "troop:7362"
+      ]
+    },
+    {
+      "id": "S0443",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:7470",
+        "troop:7488",
+        "troop:7489",
+        "troop:7490",
+        "troop:7504"
+      ]
+    },
+    {
+      "id": "S0444",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:7516",
+        "troop:7533",
+        "troop:7576",
+        "troop:7578",
+        "troop:7586"
+      ]
+    },
+    {
+      "id": "S0445",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:7628",
+        "troop:7629",
+        "troop:7630",
+        "troop:7631",
+        "troop:7650"
+      ]
+    },
+    {
+      "id": "S0446",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:7691",
+        "troop:7700",
+        "troop:7736",
+        "troop:7739",
+        "troop:7742"
+      ]
+    },
+    {
+      "id": "S0447",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:7786",
+        "troop:7792",
+        "troop:7812",
+        "troop:7815",
+        "troop:7833"
+      ]
+    },
+    {
+      "id": "S0448",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:7839",
+        "troop:7840",
+        "troop:7842",
+        "troop:7843",
+        "troop:7844"
+      ]
+    },
+    {
+      "id": "S0449",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:7845",
+        "troop:7850",
+        "troop:7860",
+        "troop:7884",
+        "weapon:1202"
+      ]
+    },
+    {
+      "id": "S0450",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "weapon:1206",
+        "weapon:1219",
+        "weapon:1223",
+        "weapon:1255",
+        "weapon:1256"
+      ]
+    },
+    {
+      "id": "S0451",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "weapon:1352",
+        "weapon:1441",
+        "weapon:1489",
+        "weapon:1505",
+        "weapon:1604"
+      ]
+    },
+    {
+      "id": "S0452",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "weapon:1607",
+        "weapon:1610",
+        "weapon:1611",
+        "weapon:1623",
+        "weapon:1647"
+      ]
+    },
+    {
+      "id": "S0453",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "weapon:1656",
+        "weapon:1666",
+        "weapon:1667",
+        "weapon:1682",
+        "weapon:1704"
+      ]
+    },
+    {
+      "id": "S0454",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "weapon:1713",
+        "troop:6129",
+        "troop:6197",
+        "troop:6236",
+        "troop:6265"
+      ]
+    },
+    {
+      "id": "S0455",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:6288",
+        "troop:6338",
+        "troop:6422",
+        "troop:6426",
+        "troop:6458"
+      ]
+    },
+    {
+      "id": "S0456",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:6497",
+        "troop:6550",
+        "troop:6593",
+        "troop:6661",
+        "troop:6662"
+      ]
+    },
+    {
+      "id": "S0457",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:6663",
+        "troop:6664",
+        "troop:6665",
+        "troop:6666",
+        "troop:6712"
+      ]
+    },
+    {
+      "id": "S0458",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:6725",
+        "troop:6732",
+        "troop:6759",
+        "troop:6793",
+        "troop:6803"
+      ]
+    },
+    {
+      "id": "S0459",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:6822",
+        "troop:6920",
+        "troop:6954",
+        "troop:6972",
+        "troop:7000"
+      ]
+    },
+    {
+      "id": "S0460",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:7054",
+        "troop:7059",
+        "troop:7094",
+        "troop:7155",
+        "troop:7196"
+      ]
+    },
+    {
+      "id": "S0461",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:7277",
+        "troop:7358",
+        "troop:7744",
+        "troop:7800",
+        "troop:7900"
+      ]
+    },
+    {
+      "id": "S0462",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:7926",
+        "weapon:1113",
+        "weapon:1143",
+        "weapon:1226",
+        "weapon:1229"
+      ]
+    },
+    {
+      "id": "S0463",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "weapon:1233",
+        "weapon:1248",
+        "weapon:1257",
+        "weapon:1258",
+        "weapon:1374"
+      ]
+    },
+    {
+      "id": "S0464",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "weapon:1404",
+        "weapon:1563",
+        "weapon:1564",
+        "weapon:1565",
+        "weapon:1566"
+      ]
+    },
+    {
+      "id": "S0465",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "weapon:1567",
+        "weapon:1568",
+        "troop:6076",
+        "troop:6204",
+        "troop:6237"
+      ]
+    },
+    {
+      "id": "S0466",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:6277",
+        "troop:6341",
+        "troop:6416",
+        "troop:6610",
+        "troop:6681"
+      ]
+    },
+    {
+      "id": "S0467",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:6818",
+        "troop:6866",
+        "troop:6932",
+        "troop:6976",
+        "troop:7012"
+      ]
+    },
+    {
+      "id": "S0468",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:7142",
+        "troop:7186",
+        "troop:7417",
+        "troop:7796",
+        "troop:7810"
+      ]
+    },
+    {
+      "id": "S0469",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:7847",
+        "weapon:1417",
+        "weapon:1620",
+        "troop:6177",
+        "troop:6227"
+      ]
+    },
+    {
+      "id": "S0470",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:6232",
+        "troop:6355",
+        "troop:6378",
+        "troop:6390",
+        "troop:6576"
+      ]
+    },
+    {
+      "id": "S0471",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:6583",
+        "troop:6602",
+        "troop:6631",
+        "troop:6655",
+        "troop:6699"
+      ]
+    },
+    {
+      "id": "S0472",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:6701",
+        "troop:6742",
+        "troop:6744",
+        "troop:6758",
+        "troop:6850"
+      ]
+    },
+    {
+      "id": "S0473",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:6870",
+        "troop:6948",
+        "troop:6958",
+        "troop:7014",
+        "troop:7017"
+      ]
+    },
+    {
+      "id": "S0474",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:7031",
+        "troop:7039",
+        "troop:7111",
+        "troop:7125",
+        "troop:7140"
+      ]
+    },
+    {
+      "id": "S0475",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:7157",
+        "troop:7253",
+        "troop:7282",
+        "troop:7329",
+        "troop:7406"
+      ]
+    },
+    {
+      "id": "S0476",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:7439",
+        "troop:7464",
+        "troop:7465",
+        "troop:7497",
+        "troop:7523"
+      ]
+    },
+    {
+      "id": "S0477",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:7625",
+        "troop:7703",
+        "troop:7793",
+        "troop:7925",
+        "weapon:1134"
+      ]
+    },
+    {
+      "id": "S0478",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "weapon:1154",
+        "weapon:1278",
+        "weapon:1396",
+        "weapon:1418",
+        "weapon:1622"
+      ]
+    },
+    {
+      "id": "S0479",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "weapon:1695",
+        "troop:6032",
+        "troop:6154",
+        "troop:6327",
+        "troop:6384"
+      ]
+    },
+    {
+      "id": "S0480",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:6387",
+        "troop:6397",
+        "troop:6425",
+        "troop:6428",
+        "troop:6474"
+      ]
+    },
+    {
+      "id": "S0481",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:6478",
+        "troop:6498",
+        "troop:6518",
+        "troop:6594",
+        "troop:6606"
+      ]
+    },
+    {
+      "id": "S0482",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:6625",
+        "troop:6651",
+        "troop:6659",
+        "troop:6772",
+        "troop:6782"
+      ]
+    },
+    {
+      "id": "S0483",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:6784",
+        "troop:6801",
+        "troop:6814",
+        "troop:6816",
+        "troop:6817"
+      ]
+    },
+    {
+      "id": "S0484",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:6849",
+        "troop:6855",
+        "troop:6872",
+        "troop:6890",
+        "troop:6894"
+      ]
+    },
+    {
+      "id": "S0485",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:6930",
+        "troop:6957",
+        "troop:6959",
+        "troop:6960",
+        "troop:6971"
+      ]
+    },
+    {
+      "id": "S0486",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:6993",
+        "troop:6994",
+        "troop:7018",
+        "troop:7078",
+        "troop:7090"
+      ]
+    },
+    {
+      "id": "S0487",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:7108",
+        "troop:7109",
+        "troop:7145",
+        "troop:7209",
+        "troop:7252"
+      ]
+    },
+    {
+      "id": "S0488",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:7258",
+        "troop:7548",
+        "troop:7581",
+        "troop:7658",
+        "troop:7661"
+      ]
+    },
+    {
+      "id": "S0489",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:7684",
+        "troop:7688",
+        "troop:7690",
+        "troop:7719",
+        "troop:7727"
+      ]
+    },
+    {
+      "id": "S0490",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:7740",
+        "troop:7763",
+        "troop:7835",
+        "troop:7841",
+        "troop:7902"
+      ]
+    },
+    {
+      "id": "S0491",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "weapon:1175",
+        "weapon:1211",
+        "weapon:1317",
+        "weapon:1385",
+        "weapon:1600"
+      ]
+    },
+    {
+      "id": "S0492",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "weapon:1657",
+        "weapon:1668",
+        "weapon:1669",
+        "weapon:1670",
+        "weapon:1671"
+      ]
+    },
+    {
+      "id": "S0493",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "weapon:1672",
+        "weapon:1673",
+        "weapon:1696",
+        "weapon:1705",
+        "troop:6135"
+      ]
+    },
+    {
+      "id": "S0494",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:6201",
+        "troop:6513",
+        "troop:6519",
+        "troop:6731",
+        "troop:6843"
+      ]
+    },
+    {
+      "id": "S0495",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:7437",
+        "troop:7818",
+        "troop:7883",
+        "weapon:1236",
+        "weapon:1242"
+      ]
+    },
+    {
+      "id": "S0496",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "weapon:1245",
+        "weapon:1259",
+        "weapon:1260",
+        "weapon:1261",
+        "weapon:1460"
+      ]
+    },
+    {
+      "id": "S0497",
+      "size": 5,
+      "accepted": 2,
+      "remaining": 3,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "weapon:1646",
+        "weapon:1720",
+        "troop:6004",
+        "troop:6092",
+        "weapon:1013"
+      ]
+    },
+    {
+      "id": "S0498",
+      "size": 5,
+      "accepted": 1,
+      "remaining": 4,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "weapon:1498",
+        "troop:6011",
+        "weapon:1365",
+        "weapon:1253",
+        "troop:7285"
+      ]
+    },
+    {
+      "id": "S0499",
+      "size": 5,
+      "accepted": 0,
+      "remaining": 5,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:7777",
+        "troop:6353",
+        "troop:6717",
+        "troop:6760",
+        "troop:7280"
+      ]
+    },
+    {
+      "id": "S0500",
+      "size": 5,
+      "accepted": 1,
+      "remaining": 4,
+      "state": "queued",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:7472",
+        "weapon:1254",
+        "troop:7043",
+        "troop:7468",
+        "troop:6000"
+      ]
+    },
+    {
+      "id": "S0501",
+      "size": 5,
+      "accepted": 5,
+      "remaining": 0,
+      "state": "accepted",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:6001",
+        "troop:6009",
+        "troop:6016",
+        "troop:6026",
+        "troop:6027"
+      ]
+    },
+    {
+      "id": "S0502",
+      "size": 5,
+      "accepted": 5,
+      "remaining": 0,
+      "state": "accepted",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:6029",
+        "troop:6074",
+        "troop:6085",
+        "troop:6098",
+        "troop:6105"
+      ]
+    },
+    {
+      "id": "S0503",
+      "size": 5,
+      "accepted": 5,
+      "remaining": 0,
+      "state": "accepted",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "troop:7446",
+        "weapon:1008",
+        "weapon:1010",
+        "weapon:1011",
+        "weapon:1012"
+      ]
+    },
+    {
+      "id": "S0504",
+      "size": 3,
+      "accepted": 3,
+      "remaining": 0,
+      "state": "accepted",
+      "worker": null,
+      "updatedAt": null,
+      "note": "",
+      "keys": [
+        "weapon:1014",
+        "weapon:1023",
+        "weapon:1043"
+      ]
+    }
+  ]
+}

@@ -248,6 +248,9 @@ describe('merchant/necromancy 战后经济钩子', () => {
     engine.resolveAction({ type: 'cast', characterId: 0 });
     expect(state.economy.gold).toBe(10);
     // 击杀敌方唯一角色 → 战斗结束 → gold ×1.25
+    // First cast hands off; opponent passes before the second allied cast.
+    expect(state.activePlayer).toBe(PlayerSide.Right);
+    engine.passTurn();
     engine.resolveAction({ type: 'cast', characterId: 1 });
     expect(state.winner).toBe(PlayerSide.Left);
     expect(state.economy.gold).toBe(Math.floor(10 * 1.25));
@@ -272,6 +275,9 @@ describe('merchant/necromancy 战后经济钩子', () => {
     const engine = new TurnEngine(state, new SeededRNG(3), () => 820000 + gid++, registry);
     engine.skullChance = 0;
     engine.resolveAction({ type: 'cast', characterId: 0 });
+    // First cast hands off; opponent passes before the second allied cast.
+    expect(state.activePlayer).toBe(PlayerSide.Right);
+    engine.passTurn();
     engine.resolveAction({ type: 'cast', characterId: 1 });
     expect(state.winner).toBe(PlayerSide.Left);
     expect(state.economy.gold).toBe(10);

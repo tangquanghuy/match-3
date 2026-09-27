@@ -1,3 +1,7 @@
+import { INVASION_RANKS, invasionRankAt } from '../data/invasionRanks';
+import { getTroopById } from '../../data/troops';
+import { ARENA } from '../data/economy';
+import { hydrateWishlist, hydrateGachaAudit } from '../systems/wishlist';
 /**
  * Meta 存档读写（M0 · 壳与存档的逻辑部分）。
  *
@@ -6,8 +10,9 @@
  *  - 版本迁移链：schema 不兼容变化时在 MIGRATIONS 追加 `v→v+1` 步骤；
  *  - 节级降级重建：单节损坏只丢该节、其余保留（hydrateSave），彻底损坏才回退新档。
  */
-import { META_SAVE_VERSION, newSave, type EventWeekState, type GachaLogEntry, type InvasionState, type KingdomState, type MetaSave, type TeamMember, type TeamPreset, type TroopRecord } from './schema';
+import { META_SAVE_VERSION, newSave, type EventShopState, type EventWeekState, type GachaLogEntry, type InvasionState, type KingdomState, type MetaSave, type TeamMember, type TeamPreset, type TroopRecord } from './schema';
 import { EVENT_MILESTONES, EVENT_SHOP, EVENT_TYPES, EVENT_WEEKLY_PLAY_REWARD_CAP, WEEK_MS, type EventTypeId } from '../data/events';
+import { EXPLORE_MAX_TIER } from '../data/kingdoms';
 import { GACHA_LOG_CAP } from './schema';
 import { starterTroopIds } from '../data/economy';
 import { hydrateManaMastery } from '../systems/manaMastery';
@@ -265,6 +270,10 @@ function sanitizeKingdom(v: unknown): KingdomState | null {
     level: num(v.level, 1, 1, 10),
     questsDone: num(v.questsDone, 0, 0, 8),
     exploreTier: num(v.exploreTier, 0, 0, 6),
+    clearedExploreTiers: Array.isArray(v.clearedExploreTiers)
+      ? [...new Set(v.clearedExploreTiers.filter((tier): tier is number =>
+        typeof tier === 'number' && Number.isInteger(tier) && tier >= 1 && tier <= EXPLORE_MAX_TIER))].sort((a, b) => a - b)
+      : [],
     lastTributeAt: num(v.lastTributeAt, 0, 0),
   };
 }
@@ -284,6 +293,8 @@ export function hydrateSave(raw: Record<string, unknown>): MetaSave {
     currencies.gems = num(raw.currencies.gems, currencies.gems, 0);
     currencies.goldKeys = num(raw.currencies.goldKeys, currencies.goldKeys, 0);
     currencies.glory = num(raw.currencies.glory, currencies.glory, 0);
+    currencies.gloryKeys = num(raw.currencies.gloryKeys, 0, 0);
+    currencies.trophies = num(raw.currencies.trophies, 0, 0);
   }
 
   // —— 素材库存（2026-09-19 素材批）：逐键清洗，非负整数兜底 ——
@@ -327,6 +338,14 @@ export function hydrateSave(raw: Record<string, unknown>): MetaSave {
     invasion.battles = num(raw.invasion.battles, 0, 0);
     invasion.bestLeague = num(raw.invasion.bestLeague, 0, 0, 9);
     invasion.seasonsPlayed = num(raw.invasion.seasonsPlayed, 0, 0);
+    // Legacy league progress is preserved once, but no fictional historic VP is added.
+    const legacyFloor = INVASION_RANKS[Math.max(invasion.league, invasion.bestLeague) * 3]!.vp;
+    invasion.progressionVp = num(raw.invasion.progressionVp, Math.max(invasion.vp, legacyFloor), 0);
+    invasion.refreshCount = num(raw.invasion.refreshCount, 0, 0, Number.MAX_SAFE_INTEGER - 1);
+    invasion.claimedRanks = Array.isArray(raw.invasion.claimedRanks)
+      ? [...new Set(raw.invasion.claimedRanks.filter((id): id is string => typeof id === 'string' && INVASION_RANKS.some(rank => rank.id === id)))] : [];
+    invasion.league = invasionRankAt(invasion.progressionVp).league;
+    invasion.bestLeague = Math.max(invasion.bestLeague, invasion.league);
   }
 
   // —— 每周活动周实例 · per-event（缺键 = 该活动本周还没打过）——
@@ -338,11 +357,38 @@ export function hydrateSave(raw: Record<string, unknown>): MetaSave {
     }
   }
 
+  // Independent stock ledger: retain even when its window spans two activity weeks.
+  const eventShops: Partial<Record<EventTypeId, EventShopState>> = {};
+  if (isObject(raw.eventShops)) {
+    for (const { id } of EVENT_TYPES) {
+      const entry = raw.eventShops[id];
+      if (!isObject(entry) || typeof entry.periodStart !== 'number' || !Number.isFinite(entry.periodStart)) continue;
+      const bought: Record<string, number> = {};
+      if (isObject(entry.bought)) {
+        for (const goods of EVENT_SHOP[id]) {
+          const count = num(entry.bought[goods.id], 0, 0);
+          if (count > 0) bought[goods.id] = count;
+        }
+      }
+      eventShops[id] = { periodStart: entry.periodStart, bought };
+    }
+  }
+
   const collection: Record<string, TroopRecord> = {};
   if (isObject(raw.collection)) {
     for (const [key, value] of Object.entries(raw.collection)) {
       const rec = sanitizeTroopRecord(value);
       if (rec) collection[key] = rec;
+    }
+  }
+
+  // 缺字段 = 还没用过修改器，当前收藏就是真实收集。已有备份时原样保留，不用当前收藏覆盖。
+  let collectionTruth: Record<string, TroopRecord> | null = null;
+  if (isObject(raw.collectionTruth)) {
+    collectionTruth = {};
+    for (const [key, value] of Object.entries(raw.collectionTruth)) {
+      const rec = sanitizeTroopRecord(value);
+      if (rec) collectionTruth[key] = rec;
     }
   }
 
@@ -352,6 +398,18 @@ export function hydrateSave(raw: Record<string, unknown>): MetaSave {
         return team ? [team] : [];
       })
     : [];
+
+  // Upgrade legacy three-member presets in place; preserve all existing members/order.
+  // Never replace the fourth unit or silently grant unowned troops.
+  for (const team of teams) {
+    if (team.members.length !== 3) continue;
+    if (!team.members.some(member => member.kind === 'hero')) team.members.push({ kind: 'hero' });
+    else {
+      const owned = Object.keys(collection).map(Number).find(id => getTroopById(id)
+        && !team.members.some(member => member.kind === 'troop' && member.troopId === id));
+      if (owned !== undefined) team.members.push({ kind: 'troop', troopId: owned });
+    }
+  }
 
   const kingdoms: Record<string, KingdomState> = {};
   if (isObject(raw.kingdoms)) {
@@ -423,7 +481,24 @@ export function hydrateSave(raw: Record<string, unknown>): MetaSave {
     arena.seasonWins = num(raw.arena.seasonWins, 0, 0);
     arena.bestRun = num(raw.arena.bestRun, 0, 0);
     arena.lastFreeEntryAt = num(raw.arena.lastFreeEntryAt, 0, 0);
-    arena.activeDraft = null; // 中途崩溃不恢复 draft 半成品（计划 §4.8 的保守口径）
+    // Paid runs survive reloads. Legacy three-card runs restart the draft for free,
+    // preserving earned wins (temporary picks are not collection cards).
+    const draft = raw.arena.activeDraft;
+    if (isObject(draft) && typeof draft.seed === 'number' && Number.isFinite(draft.seed)) {
+      const picked = Array.isArray(draft.picked) ? draft.picked.filter((id): id is number => typeof id === 'number' && !!getTroopById(id)) : [];
+      const rarities = picked.map(id => getTroopById(id)!.rarityIdx);
+      const full = picked.length === ARENA.rounds && [...rarities].sort().join(',') === '0,1,2,3';
+      const partial = picked.length < ARENA.rounds && rarities.every((r, i) => r === i);
+      const valid = new Set(picked).size === picked.length && (full || partial);
+      const current = draft.rulesVersion === 2 && valid;
+      arena.activeDraft = {
+        seed: draft.seed >>> 0, rulesVersion: 2,
+        picked: current ? picked : [],
+        stage: current && full ? (draft.stage === 'fighting' ? 'fighting' : 'building') : 'picking',
+        wins: num(draft.wins, 0, 0, ARENA.winsToFinish - 1),
+        losses: current ? num(draft.losses, 0, 0, ARENA.lossesToFinish - 1) : 0,
+      };
+    }
   }
 
   const stats = { ...base.stats };
@@ -445,6 +520,7 @@ export function hydrateSave(raw: Record<string, unknown>): MetaSave {
         kind: entry.kind,
         seed: entry.seed,
         troops: entry.troops.filter((t): t is number => typeof t === 'number'),
+        ...(entry.kind === 'gem' && hydrateGachaAudit(entry.audit, entry.troops.length) ? { audit: hydrateGachaAudit(entry.audit, entry.troops.length) } : {}),
       });
       if (gachaLog.length >= GACHA_LOG_CAP) break;
     }
@@ -457,6 +533,7 @@ export function hydrateSave(raw: Record<string, unknown>): MetaSave {
     currencies,
     hero,
     collection,
+    collectionTruth,
     teams,
     activeTeamIndex: num(raw.activeTeamIndex, 0, 0, Math.max(teams.length - 1, 0)),
     arena,
@@ -464,11 +541,13 @@ export function hydrateSave(raw: Record<string, unknown>): MetaSave {
     stats,
     dailyFirstWinAt: num(raw.dailyFirstWinAt, 0, 0),
     gachaLog,
+    gachaWishlist: hydrateWishlist(raw.gachaWishlist),
     materials,
     materialsUnread: typeof raw.materialsUnread === 'boolean' ? raw.materialsUnread : false,
     weaponTempering,
     invasion,
     eventWeeks,
+    eventShops,
     settings: { ...base.settings },
     treasureHunt,
   };

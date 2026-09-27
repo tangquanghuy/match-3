@@ -1,12 +1,16 @@
 import { describe, expect, it } from 'vitest';
 import { newSave } from '../../src/meta/state/schema';
 import { ALL_CATALOG_WEAPONS, anyWeaponById } from '../../src/meta/data/weaponCatalog';
-import { acquireFilterKind, acquireOf, acquireProgress, CLASS_WEAPON_WINS, listedInGemShop } from '../../src/meta/data/weaponAcquire';
+import { acquireFilterKind, acquireOf, acquireProgress, CLASS_WEAPON_WINS, gemBuyCost, listedInGemShop } from '../../src/meta/data/weaponAcquire';
 import { claimWeapon, canUseWeapon } from '../../src/meta/systems/hero';
 import { classByKingdom } from '../../src/meta/data/classes';
 import { findRecipe } from '../../src/meta/data/soulforge';
 
 const save = () => newSave({ now: 0, starterTroopIds: [6000, 6097, 6457] });
+
+it('直购定价与稀有度一致，并明显高于宝石箱单抽', () => {
+  expect(['Rare', 'UltraRare', 'Epic', 'Legendary', 'Mythic', 'Doomed'].map(gemBuyCost)).toEqual([900, 1600, 2400, 4000, 4000, 6000]);
+});
 
 describe('武器获取途径（官方 MasteryRequirement 接线）', () => {
   it('718 把都有一行条件，不再落「暂无」或「官方：」', () => {
@@ -51,7 +55,7 @@ describe('武器获取途径（官方 MasteryRequirement 接线）', () => {
     expect(acquireOf(anyWeaponById('gw_Dawnbringer')!).kind).toBe('forge');
     expect(findRecipe('gw_Dawnbringer')).toBeTruthy();
     expect(acquireOf(anyWeaponById('gw_ShatteredBlade')!).kind).toBe('buy');
-    expect(acquireOf(anyWeaponById('gw_ShatteredBlade')!).gems).toBe(400);
+    expect(acquireOf(anyWeaponById('gw_ShatteredBlade')!).gems).toBe(2_400);
     expect(acquireOf(anyWeaponById('gw_ShatteredBlade')!).kingdom).toBeUndefined();
     const aegis = acquireOf(anyWeaponById('gw_WhiteAegis')!);
     expect(aegis.kind).toBe('buy');

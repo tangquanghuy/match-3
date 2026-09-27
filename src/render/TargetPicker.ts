@@ -9,6 +9,31 @@ import type { CharacterCard } from './TeamView';
 
 const NS = 'http://www.w3.org/2000/svg';
 
+/** 选择层提示条尾注：触屏没有 Esc，改说「点空白处取消」（选目标/选宝石共用） */
+export function pickerCancelHint(coarse = isCoarsePointer()): string {
+  return coarse ? '点空白处取消' : 'Esc 取消';
+}
+
+function isCoarsePointer(): boolean {
+  return typeof window !== 'undefined' && typeof window.matchMedia === 'function'
+    && window.matchMedia('(pointer: coarse)').matches;
+}
+
+/**
+ * 屏幕(client)坐标 → 容器布局坐标。瞄准 SVG 挂在被 CSS transform 缩放的 wrapper 里，
+ * 它的用户单位是缩放前的布局像素；屏幕差值必须除以缩放，否则落点被放大两次
+ * （1440×900 下 scale≈1.098，准星会偏到目标右侧上百像素）。
+ */
+export function clientToLayout(
+  clientX: number,
+  clientY: number,
+  rect: { left: number; top: number; width: number },
+  layoutWidth: number,
+): { x: number; y: number } {
+  const scale = layoutWidth > 0 && rect.width > 0 ? rect.width / layoutWidth : 1;
+  return { x: (clientX - rect.left) / scale, y: (clientY - rect.top) / scale };
+}
+
 let stylesInjected = false;
 function ensureStyles(): void {
   if (stylesInjected) return;
@@ -67,7 +92,7 @@ export class TargetPicker {
    * @param overlayParent 承载瞄准 SVG 的容器（建议 wrapper，覆盖全画面）
    * @param friendly 是否为友善目标（治疗/增益盟友）：true→锁定翠绿，false→锁定赤红
    * @param hint 顶部提示文案（B-11）。缺省按 friendly 给「选择一名盟友/敌人」；
-   *             `Esc 取消` 由本方法统一追加。
+   *             取消方式尾注（`Esc 取消` / 触屏 `点空白处取消`）由本方法统一追加。
    */
   pick(
     origin: CharacterCard,
@@ -89,9 +114,9 @@ export class TargetPicker {
 
       const svg = document.createElementNS(NS, 'svg');
       svg.setAttribute('class', 'aim-overlay');
-      const pr0 = parentRect();
-      svg.setAttribute('width', String(pr0.width));
-      svg.setAttribute('height', String(pr0.height));
+      // SVG 用缩放前的布局尺寸：它和 wrapper 一起被 transform 放大
+      svg.setAttribute('width', String(overlayParent.offsetWidth || parentRect().width));
+      svg.setAttribute('height', String(overlayParent.offsetHeight || parentRect().height));
       // 准星：外环用 SMIL animateTransform 绕本地原点(0,0)旋转 —— 位置绝对居中，不受层叠影响
       svg.innerHTML = `
         <defs>
@@ -139,7 +164,7 @@ export class TargetPicker {
       hintEl.setAttribute('role', 'status');
       hintEl.textContent = hint ?? (friendly ? '选择一名盟友作为目标' : '选择一名敌人作为目标');
       const escNote = document.createElement('em');
-      escNote.textContent = 'Esc 取消';
+      escNote.textContent = pickerCancelHint();
       hintEl.appendChild(escNote);
       overlayParent.appendChild(hintEl);
 
@@ -150,10 +175,11 @@ export class TargetPicker {
       const grads = Array.from(svg.querySelectorAll('linearGradient')) as SVGLinearGradientElement[];
       const brackets = Array.from(svg.querySelectorAll('.bracket')) as SVGPathElement[];
 
+      const toLayout = (clientX: number, clientY: number) =>
+        clientToLayout(clientX, clientY, parentRect(), overlayParent.offsetWidth);
       const centerOf = (el: HTMLElement) => {
         const r = el.getBoundingClientRect();
-        const p = parentRect();
-        return { x: r.left + r.width / 2 - p.left, y: r.top + r.height / 2 - p.top };
+        return toLayout(r.left + r.width / 2, r.top + r.height / 2);
       };
       let start = centerOf(origin.el);
       let cursor = { ...start };
@@ -186,8 +212,7 @@ export class TargetPicker {
       };
 
       const onMove = (e: PointerEvent) => {
-        const p = parentRect();
-        cursor = { x: e.clientX - p.left, y: e.clientY - p.top };
+        cursor = toLayout(e.clientX, e.clientY);
         render();
       };
       const done = (id: number | null) => {
@@ -205,8 +230,11 @@ export class TargetPicker {
         const hoverClass = friendly ? 'aim-hover-friendly' : 'aim-hover-hostile';
         const onEnter = () => { hovered = card; card.el.classList.add('aim-hover', hoverClass); render(); };
         const onLeave = () => { if (hovered === card) hovered = null; card.el.classList.remove('aim-hover', hoverClass); render(); };
+        // 悬停抬起（transform 过渡）结束后再对一次准星，落在抬起后的卡心
+        const onLifted = () => { if (hovered === card) render(); };
         card.el.addEventListener('pointerenter', onEnter);
         card.el.addEventListener('pointerleave', onLeave);
+        card.el.addEventListener('transitionend', onLifted);
         handlers.push(() => {
           card.setPickable(false);
           card.el.classList.remove('aim-hover', 'aim-hover-friendly', 'aim-hover-hostile');
@@ -214,6 +242,7 @@ export class TargetPicker {
           card.el.style.cursor = '';
           card.el.removeEventListener('pointerenter', onEnter);
           card.el.removeEventListener('pointerleave', onLeave);
+          card.el.removeEventListener('transitionend', onLifted);
         });
       }
 

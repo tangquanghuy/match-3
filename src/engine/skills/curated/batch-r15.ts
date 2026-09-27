@@ -54,13 +54,14 @@ const SPELLS: CuratedBatch['spells'] = [
     ),
   },
   {
-    // —— 尾缀 [1:1] = 「窃取 2 点护甲值并将之转为魔法值」的 1:1 转换比率序列化
+    // —— 尾缀 [1:1] = 「窃取 2 点护甲值并将之转为魔力值」的 1:1 转换比率序列化
     //（steal gainRatio 缺省 1 即此；无独立来源子句） ——
     id: 7032,
-    desc: '对最后一名敌人造成 [魔法 + 4] 点伤害。窃取 2 点护甲值并将之转为魔法值。获得一个额外回合。 [1:1]',
+    desc: '对最后一名敌人造成 [魔法 + 4] 点伤害。窃取 2 点护甲值并将之转为魔力值。获得一个额外回合。 [1:1]',
     build: skill(
-      dmg('enemyLast', 4, 1),
+      // L3-017: native steal Armor->Magic (CountArmor/CountMax 2/DecreaseArmor/IncreaseSpellPower) precedes Damage (R001)
       steal('enemyLast', 'armor', 'magic', 2, 0),
+      dmg('enemyLast', 4, 1),
       extraTurn(),
     ),
   },
@@ -121,7 +122,7 @@ const SPELLS: CuratedBatch['spells'] = [
   {
     // —— 「只能施放一次」= skillOnce（§12.5） ——
     id: 7331,
-    desc: '创造 [魔法 + 3] 颗指定法力颜色的宝石。所有其他盟友获得 3 点魔法值。只能施放一次。',
+    desc: '创造 [魔法 + 3] 颗指定法力颜色的宝石。所有其他盟友获得 3 点魔力值。只能施放一次。',
     build: skillOnce(
       createGems(CHOSEN, 3, 1),
       magic('allyOthers', 3, 0),
@@ -143,11 +144,14 @@ const SPELLS: CuratedBatch['spells'] = [
     // 追踪前段 allyChosen 主目标，secondary.ts targetStat 读 tracking.lastTarget） ——
     id: 7353,
     desc: '给予一名盟友 [魔法 + 1] 点护甲值。造成散射伤害，伤害值等同于盟友护甲值。 [1:1]',
+    // L7-6211 (sa-L76): targetStat reads the scatter segment's own first enemy (target resolution
+    // overwrites lastTarget), so the pool must read the chosen ally via chosenStat. Native counts the
+    // ally armor before IncreaseArmor and adds Amount 1 + Magic, which equals the post-buff armor.
     build: skill(
       armor('allyChosen', 1, 1),
       dmg('enemyAll', 0, 0, {
         range: 'all',
-        modifier: { mod: { kind: 'ratio', a: 1, b: 1 }, source: { kind: 'targetStat', stat: 'armor' } },
+        modifier: { mod: { kind: 'ratio', a: 1, b: 1 }, source: { kind: 'chosenStat', stat: 'armor' } },
       }),
     ),
   },
@@ -173,7 +177,7 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 7396,
-    desc: '对两名随机敌人造成 [魔法 + 2] 点伤害，窃取 2 点魔法值并使其陷入沉默状态。。',
+    desc: '对两名随机敌人造成 [魔法 + 2] 点伤害，窃取 2 点魔力值并使其陷入沉默状态。。',
     // EN 原句 "Deal [Magic + 2] damage to the first 2 Enemies, then steal 2 Magic and Silence
     // them."（zh「两名随机」为误译，判读以英文原句为准）——enemyFirstN 目标确定，
     // 后段同目标集（n:2）无跨段绑定问题
@@ -185,7 +189,7 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 7429,
-    desc: '对 1 名敌人造成 [魔法 + 4] 点伤害。如果对方使用绿色法力，则造成两倍伤害。将敌方攻击力减半。 [2:1]',
+    desc: '对 1 名敌人造成 [魔法 + 4] 点伤害。如果对方使用绿色法力值，则造成两倍伤害。将敌方攻击力减半。 [2:1]',
     // 「两倍伤害」= condMult targetColor（文字内含，无独立 [xN]）；尾缀 [2:1] = 「减半」的
     // 比率序列化 → reduce halve（§9.6，按当前值 50% 下取整）
     build: skill(
@@ -195,7 +199,7 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 7438,
-    desc: '下列其一：将一名敌人的攻击力减半，或将一名敌人的魔法值减半，或将一名敌人转化为一只巨蟾蜍。 [2:1]',
+    desc: '下列其一：将一名敌人的攻击力减半，或将一名敌人的魔力值减半，或将一名敌人转化为一只巨蟾蜍。 [2:1]',
     // 「下列其一」= oneOf 三支（§9.3）；「减半」= reduce halve（§9.6）；巨蟾蜍 = GiantToad
     //（troops.json referenceName）；尾缀 [2:1] = 「减半」比率序列化
     build: skill(
@@ -229,12 +233,12 @@ const SPELLS: CuratedBatch['spells'] = [
     // —— 「X 或 Y」= oneOf（§9.3）；「随机技能值」获得 = randomStat；哥布林翻倍 = raceDouble
     //（randomStatEffect 逐受益者判族，buff.ts randomStat 分支实装） ——
     id: 7545,
-    desc: '获得额外的一回合。爆破所有绿色宝石或为一名随机盟友的一项技能增加 [魔法 + 1] 点（若盟友为哥布林则增加两倍）。',
+    desc: "获得额外的一回合。爆破所有绿色宝石或使一名随机盟友的一项随机属性获得 [魔法 + 1] 点（若盟友为哥布林则增加两倍）。",
     build: skill(
       extraTurn(),
       oneOf(
         explodeColor(BaseColor.Green),
-        randomStat('allyRandom', 1, 1, { raceDouble: 'Goblin' }),
+        randomStat('allyRandom', 1, 1, { oneSkill: true, raceDouble: 'Goblin' }),
       ),
     ),
   },
@@ -270,8 +274,8 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 7602,
-    desc: '窃取 1 名敌人的  [魔法 + 12]  点生命值和一半魔法值。如果敌人身亡，则召唤 1 到 3 名随机的不死族。 [2:1]',
-    // 「窃取生命」= dmg + drain（7302 口径）；「一半魔法值」= steal halve；「1-3 名随机不死族」=
+    desc: '窃取 1 名敌人的  [魔法 + 12]  点生命值和一半魔力值。如果敌人身亡，则召唤 1 到 3 名随机的不死族。 [2:1]',
+    // 「窃取生命」= dmg + drain（7302 口径）；「一半魔力值」= steal halve；「1-3 名随机不死族」=
     // summonRandom + countRange（§12.4）+ ifTargetDied；不死族池 = troops.json troopTypes
     // 全 163 名（batch-w02 大池先例）；尾缀 [2:1] = 「一半」比率序列化
     build: skill(
@@ -344,12 +348,14 @@ const SPELLS: CuratedBatch['spells'] = [
     ),
   },
   {
-    // —— 尾缀 [1:1] = 「转换成魔法值」1:1 转换比率序列化（gainRatio 缺省 1） ——
+    // —— 尾缀 [1:1] = 「转换成魔力值」1:1 转换比率序列化（gainRatio 缺省 1） ——
     id: 7743,
-    desc: '对一名敌人造成 [魔法 + 2] 点真实伤害。窃取 3 点护甲值并将之转换成魔法值。 [1:1]',
+    desc: '对一名敌人造成 [魔法 + 2] 点真实伤害。窃取 3 点护甲值并将之转换成魔力值。 [1:1]',
+    // R001 / L6-6549: native order CountArmor -> CountMax 3 -> DecreaseArmor -> IncreaseSpellPower
+    // -> TrueDamage, so the true damage uses the already-raised Magic.
     build: skill(
-      trueDmg('enemyChosen', 2, 1),
       steal('enemyChosen', 'armor', 'magic', 3, 0),
+      trueDmg('enemyChosen', 2, 1),
     ),
   },
   {
@@ -437,7 +443,7 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 8238,
-    desc: '对一名敌人和一名随机敌人造成 [魔法 + 3] 点伤害，伤害值因自身的生命值、攻击力和护甲值而增强。若敌人使用红色法力，则造成双倍伤害。 [8:1]',
+    desc: '对一名敌人和一名随机敌人造成 [魔法 + 3] 点伤害，伤害值因自身的生命值、攻击力和护甲值而增强。若敌人使用红色法力值，则造成双倍伤害。 [8:1]',
     // 两段独立目标（8239 先例）；「因自身生命/攻击/护甲 [8:1]」= selfStat 三来源计数相加
     // 同一 ratio 修饰（§1 多来源）；条件倍率 condMult targetColor 双段同挂（点名伤害值辖同类段）
     build: skill(
@@ -467,7 +473,7 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 8240,
-    desc: '对一名敌人和一名随机敌人造成 [魔法 + 3] 点伤害，伤害值因敌人生命值而增强。若敌人使用紫色法力，则造成双倍伤害。 [4:1]',
+    desc: '对一名敌人和一名随机敌人造成 [魔法 + 3] 点伤害，伤害值因敌人生命值而增强。若敌人使用紫色法力值，则造成双倍伤害。 [4:1]',
     // 「因敌人生命值」= targetStat hp（各段读各自目标：targets 先解析入跨段追踪，后评估修饰）；
     // 官方步骤 CountLife@目标 + Damage@同目标 逐步对应
     build: skill(
@@ -560,13 +566,12 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 8498,
-    desc: '选择一个同盟。赠予他们一次攻击，一次生命值，和一件盔甲，并充满他们的法力。此咒语只能使用一次。',
-    // zh 文本无数值方括号（meta.scalings 空）→ 常数 1×3 段；「充满法力」= fraction 1
-    //（floor(manaCost×1)）；「只能使用一次」= skillOnce（§12.5）
+    desc: '选择一个同盟。赠予他们一次攻击，一次生命值，和一件盔甲，并充满他们的法力值。此咒语只能使用一次。',
+    // English/native: (3 * Magic) + 3 Attack, Life and Armor; preserve one-shot and full Mana.
     build: skillOnce(
-      attack('allyChosen', 1, 0),
-      heal('allyChosen', 1, 0),
-      armor('allyChosen', 1, 0),
+      attack('allyChosen', 3, 3),
+      armor('allyChosen', 3, 3),
+      heal('allyChosen', 3, 3),
       mana('allyChosen', 0, 0, { fraction: 1 }),
     ),
   },
@@ -681,7 +686,8 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 9197,
     desc: '将一名宝石转换成黄色闪电宝石。再造成 [魔法 + 6] 点散射伤害。',
     build: skill(
-      transformToSpecial('ANY', 'lightningCol', { count: 1 }),
+      // BoardTarget SingleGem = the chosen gem (L2-singlegem-cell; was a random gem via 'ANY')
+      transformToSpecial('CELL', 'lightningCol', { count: 1 }),
       dmg('enemyAll', 6, 1, { range: 'all' }),
     ),
   },
@@ -804,15 +810,16 @@ const SPELLS: CuratedBatch['spells'] = [
     ),
   },
   {
-    // —— 「净化并淹没 2 名随机盟友，并给予他们一半的魔法值」= 官方 Cleanse+Submerged+
-    // GenerateHalfMana@FromPrevious ×2 → lastTarget 绑定；「一半魔法值」= mana halve（§9.6） ——
+    // —— 「净化并淹没 2 名随机盟友，并给予他们一半的法力值」= 官方 Cleanse+Submerged+
+    // GenerateHalfMana@FromPrevious ×2 → lastTarget 绑定；「一半魔力值」= mana halve（§9.6） ——
     id: 9816,
-    desc: '净化并淹没 2 名随机盟友，并给予他们一半的魔法值。',
+    desc: '净化并淹没 2 名随机盟友，并给予他们一半的法力值。',
     build: skill(
       cleanse('allyRandom'),
       inflict('submerged', 'lastTarget'),
       mana('lastTarget', 0, 0, { halve: true }),
-      cleanse('allyRandom'),
+      // L3-012: native second Cleanse targets RandomPrefNotPrevAlly
+      cleanse('allyRandomPrefNotPrev'),
       inflict('submerged', 'lastTarget'),
       mana('lastTarget', 0, 0, { halve: true }),
     ),

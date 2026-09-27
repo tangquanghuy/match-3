@@ -1,0 +1,1443 @@
+{
+  "schemaVersion": 1,
+  "scope": "stored-gow-snapshot",
+  "reviews": [
+    {
+      "key": "troop:6385",
+      "scope": "stored-gow-snapshot",
+      "sourceDigest": "2417b654fae90f9ceb089d945db4fac72149d082ded10c6dc1959a0479a2ae41",
+      "reviewer": "sa-L1",
+      "reviewedAt": "2026-09-27",
+      "decision": "accept",
+      "ledgerFingerprintAtReview": "6e4fd65d5476c4a9b2d6adc8056a61e9a8beea98f4f8b2b2dccd845bd8f8e6b0",
+      "_reference": {
+        "spellId": 7540,
+        "english": "Hunter's Mark an Enemy. Summon a Warhawk and create 7 Red Gems.",
+        "nativeTarget": "Enemy",
+        "randomize": null,
+        "steps": [
+          {
+            "Target": "FromTarget",
+            "Type": "CauseHuntersMark"
+          },
+          {
+            "Amount": 6386,
+            "Type": "SummoningNoError"
+          },
+          {
+            "Amount": 800,
+            "Type": "Delay"
+          },
+          {
+            "Color1": "Red",
+            "Amount": 7,
+            "Type": "CreateGems"
+          }
+        ],
+        "prototype": {
+          "segments": [
+            {
+              "kind": "status",
+              "target": "enemyChosen",
+              "statusId": "marked",
+              "turns": 3
+            },
+            {
+              "kind": "summon",
+              "params": {
+                "source": {
+                  "ref": "Warhawk"
+                }
+              }
+            },
+            {
+              "kind": "gem",
+              "params": {
+                "op": "create",
+                "gem": {
+                  "kind": "color",
+                  "color": "Red"
+                },
+                "count": {
+                  "base": 7,
+                  "mult": 0
+                }
+              }
+            }
+          ]
+        }
+      },
+      "sourceEvidence": [
+        {
+          "id": "en",
+          "role": "english-snapshot",
+          "path": "data/raw/troops.gow.en.json",
+          "note": "troop 6385 SpellId 7540 cost 11 Green/Yellow; English 2 clauses"
+        },
+        {
+          "id": "native",
+          "role": "native-snapshot",
+          "path": "data/raw/spells.gow.en.json",
+          "note": "7540 Target Enemy: CauseHuntersMark FromTarget, SummoningNoError 6386, Delay, CreateGems Red 7"
+        },
+        {
+          "id": "rule",
+          "role": "official-shared-rule",
+          "path": "artifacts/gow-skill-audit/gold-primary-sources/official-status-effects.html",
+          "note": "Official status guide: Curse/Death Mark/Hunter's Mark/Web/Disease/Frozen/Poison semantics; Blessed immune to status effects, Devour and Mana Burn. Durations per rulings/R004 (convention:R006-C2 for Cause* Amount)."
+        },
+        {
+          "id": "laneTest",
+          "role": "lane-battle-test",
+          "path": "tests/unit/gowLaneL1B02.test.ts",
+          "note": "troop:6385: real TurnEngine.castSkill both sides, fixed RNG, boundaries"
+        },
+        {
+          "id": "transform",
+          "role": "community-rule",
+          "path": "artifacts/gow-skill-audit/gold-primary-sources/community-2026-09-28-transform-summon.json",
+          "note": "Transform restores Life/Armor and takes level + traits of the troop; summons arrive at level 20 (project roster is level 20)."
+        }
+      ],
+      "dimensions": {
+        "identity-cost-colors": {
+          "status": "verified",
+          "note": "entity id, SpellId, cost and colours match raw EN + native + src/data (binding test)",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "transform"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL1B02.test.ts"
+          ]
+        },
+        "target-count-range": {
+          "status": "verified",
+          "note": "chosen enemy (11 and 13 tested)",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "transform"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL1B02.test.ts"
+          ]
+        },
+        "base-formula-rounding": {
+          "status": "not-applicable",
+          "note": "no numeric formula",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "transform"
+          ],
+          "tests": []
+        },
+        "boost-source-ratio-cap": {
+          "status": "not-applicable",
+          "note": "no boost source",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "transform"
+          ],
+          "tests": []
+        },
+        "conditions-probabilities-branches": {
+          "status": "not-applicable",
+          "note": "single unconditional branch",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "transform"
+          ],
+          "tests": []
+        },
+        "status-duration-immunity": {
+          "status": "verified",
+          "note": "Hunter's Mark on chosen; Blessed chosen immune",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "transform"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL1B02.test.ts"
+          ]
+        },
+        "gems-types-selection-resolution": {
+          "status": "verified",
+          "note": "exactly 7 Red created (full board -> converted cells)",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "transform"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL1B02.test.ts"
+          ]
+        },
+        "summon-transform-pools": {
+          "status": "verified",
+          "note": "Summoning 6386 Warhawk template; NoError on full team",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "transform"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL1B02.test.ts"
+          ]
+        },
+        "order-death-retargeting": {
+          "status": "verified",
+          "note": "mark -> summon -> gems",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "transform"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL1B02.test.ts"
+          ]
+        },
+        "mana-economy-extra-turn": {
+          "status": "verified",
+          "note": "cast spends mana, one action logged, turn passes (no extra turn); low-mana / Silence refused",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "transform"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL1B02.test.ts"
+          ]
+        },
+        "display-description": {
+          "status": "verified",
+          "note": "zh description matches English meaning (binding test)",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "transform"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL1B02.test.ts"
+          ]
+        },
+        "battle-pipeline": {
+          "status": "verified",
+          "note": "real TurnEngine.castSkill, both sides",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "transform"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL1B02.test.ts"
+          ],
+          "realBattleEntry": true
+        }
+      },
+      "clauseReviews": [
+        {
+          "id": "c1",
+          "text": "Hunter's Mark an Enemy.",
+          "status": "verified",
+          "note": "chosen enemy marked",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "transform"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL1B02.test.ts"
+          ]
+        },
+        {
+          "id": "c2",
+          "text": "Summon a Warhawk and create 7 Red Gems.",
+          "status": "verified",
+          "note": "Warhawk + 7 Red",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "transform"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL1B02.test.ts"
+          ]
+        }
+      ],
+      "nativeStepReviews": [
+        {
+          "id": "0",
+          "type": "CauseHuntersMark",
+          "status": "verified",
+          "note": "HuntersMark",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "transform"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL1B02.test.ts"
+          ]
+        },
+        {
+          "id": "1",
+          "type": "SummoningNoError",
+          "status": "verified",
+          "note": "Summoning 6386",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "transform"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL1B02.test.ts"
+          ]
+        },
+        {
+          "id": "2",
+          "type": "Delay",
+          "status": "verified",
+          "note": "Delay 800: presentation pause only; summon precedes gems (order test)",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "transform"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL1B02.test.ts"
+          ]
+        },
+        {
+          "id": "3",
+          "type": "CreateGems",
+          "status": "verified",
+          "note": "CreateGems Red 7",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "transform"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL1B02.test.ts"
+          ]
+        }
+      ],
+      "branchReviews": [
+        {
+          "id": "main",
+          "status": "verified",
+          "note": "single branch",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "transform"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL1B02.test.ts"
+          ]
+        }
+      ]
+    },
+    {
+      "key": "troop:6378",
+      "scope": "stored-gow-snapshot",
+      "sourceDigest": "45b7fec1d46409d4d696fb5b4d286f014f316ef45330d36a1f9b982f793a33bd",
+      "reviewer": "sa-L1",
+      "reviewedAt": "2026-09-27",
+      "decision": "accept",
+      "ledgerFingerprintAtReview": "6e4fd65d5476c4a9b2d6adc8056a61e9a8beea98f4f8b2b2dccd845bd8f8e6b0",
+      "_reference": {
+        "spellId": 7533,
+        "english": "Web a random enemy. Summon a random Spider.",
+        "nativeTarget": "None",
+        "randomize": "A+(B-C-D-E-F)",
+        "steps": [
+          {
+            "Target": "RandomEnemy",
+            "Amount": 1,
+            "Type": "CauseWeb"
+          },
+          {
+            "Amount": 6136,
+            "Type": "SummoningNoError"
+          },
+          {
+            "Amount": 6110,
+            "Type": "SummoningNoError"
+          },
+          {
+            "Amount": 6395,
+            "Type": "SummoningNoError"
+          },
+          {
+            "Amount": 6512,
+            "Type": "SummoningNoError"
+          },
+          {
+            "Amount": 6068,
+            "Type": "SummoningNoError"
+          }
+        ],
+        "prototype": {
+          "segments": [
+            {
+              "kind": "status",
+              "target": "enemyRandom",
+              "statusId": "web",
+              "turns": 3
+            },
+            {
+              "kind": "summon",
+              "params": {
+                "source": {
+                  "randomOf": [
+                    "SpiderSwarm",
+                    "GiantSpider",
+                    "Spinnerette",
+                    "TombSpider",
+                    "Webspinner"
+                  ]
+                }
+              }
+            }
+          ]
+        }
+      },
+      "sourceEvidence": [
+        {
+          "id": "en",
+          "role": "english-snapshot",
+          "path": "data/raw/troops.gow.en.json",
+          "note": "troop 6378 SpellId 7533 cost 8 Blue/Purple; English 2 clauses"
+        },
+        {
+          "id": "native",
+          "role": "native-snapshot",
+          "path": "data/raw/spells.gow.en.json",
+          "note": "7533 Randomize A+(B-C-D-E-F): CauseWeb RandomEnemy + one of Summoning 6136/6110/6395/6512/6068"
+        },
+        {
+          "id": "rule",
+          "role": "official-shared-rule",
+          "path": "artifacts/gow-skill-audit/gold-primary-sources/official-status-effects.html",
+          "note": "Official status guide: Curse/Death Mark/Hunter's Mark/Web/Disease/Frozen/Poison semantics; Blessed immune to status effects, Devour and Mana Burn. Durations per rulings/R004 (convention:R006-C2 for Cause* Amount)."
+        },
+        {
+          "id": "laneTest",
+          "role": "lane-battle-test",
+          "path": "tests/unit/gowLaneL1B02.test.ts",
+          "note": "troop:6378: real TurnEngine.castSkill both sides, fixed RNG, boundaries"
+        },
+        {
+          "id": "transform",
+          "role": "community-rule",
+          "path": "artifacts/gow-skill-audit/gold-primary-sources/community-2026-09-28-transform-summon.json",
+          "note": "Transform restores Life/Armor and takes level + traits of the troop; summons arrive at level 20 (project roster is level 20)."
+        }
+      ],
+      "dimensions": {
+        "identity-cost-colors": {
+          "status": "verified",
+          "note": "entity id, SpellId, cost and colours match raw EN + native + src/data (binding test)",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "transform"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL1B02.test.ts"
+          ]
+        },
+        "target-count-range": {
+          "status": "verified",
+          "note": "one random living enemy",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "transform"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL1B02.test.ts"
+          ]
+        },
+        "base-formula-rounding": {
+          "status": "not-applicable",
+          "note": "no numeric formula",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "transform"
+          ],
+          "tests": []
+        },
+        "boost-source-ratio-cap": {
+          "status": "not-applicable",
+          "note": "no boost source",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "transform"
+          ],
+          "tests": []
+        },
+        "conditions-probabilities-branches": {
+          "status": "verified",
+          "note": "Randomize A+(B-C-D-E-F): Web always, exactly one of 5 summons",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "transform"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL1B02.test.ts"
+          ]
+        },
+        "status-duration-immunity": {
+          "status": "verified",
+          "note": "Web on one enemy",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "transform"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL1B02.test.ts"
+          ]
+        },
+        "gems-types-selection-resolution": {
+          "status": "not-applicable",
+          "note": "no gem effect",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "transform"
+          ],
+          "tests": []
+        },
+        "summon-transform-pools": {
+          "status": "verified",
+          "note": "fixed L1-6378-pool: pool = the 5 native ids, all reachable with fixed seeds, never other spiders",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "transform"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL1B02.test.ts"
+          ]
+        },
+        "order-death-retargeting": {
+          "status": "verified",
+          "note": "Web then summon",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "transform"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL1B02.test.ts"
+          ]
+        },
+        "mana-economy-extra-turn": {
+          "status": "verified",
+          "note": "cast spends mana, one action logged, turn passes (no extra turn); low-mana / Silence refused",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "transform"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL1B02.test.ts"
+          ]
+        },
+        "display-description": {
+          "status": "verified",
+          "note": "zh description matches English meaning (binding test)",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "transform"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL1B02.test.ts"
+          ]
+        },
+        "battle-pipeline": {
+          "status": "verified",
+          "note": "real TurnEngine.castSkill, both sides",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "transform"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL1B02.test.ts"
+          ],
+          "realBattleEntry": true
+        }
+      },
+      "clauseReviews": [
+        {
+          "id": "c1",
+          "text": "Web a random enemy.",
+          "status": "verified",
+          "note": "random enemy Webbed",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "transform"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL1B02.test.ts"
+          ]
+        },
+        {
+          "id": "c2",
+          "text": "Summon a random Spider.",
+          "status": "verified",
+          "note": "one of the 5 native spiders",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "transform"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL1B02.test.ts"
+          ]
+        }
+      ],
+      "nativeStepReviews": [
+        {
+          "id": "0",
+          "type": "CauseWeb",
+          "status": "verified",
+          "note": "CauseWeb",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "transform"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL1B02.test.ts"
+          ]
+        },
+        {
+          "id": "1",
+          "type": "SummoningNoError",
+          "status": "verified",
+          "note": "SpiderSwarm option",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "transform"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL1B02.test.ts"
+          ]
+        },
+        {
+          "id": "2",
+          "type": "SummoningNoError",
+          "status": "verified",
+          "note": "GiantSpider option",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "transform"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL1B02.test.ts"
+          ]
+        },
+        {
+          "id": "3",
+          "type": "SummoningNoError",
+          "status": "verified",
+          "note": "Spinnerette option",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "transform"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL1B02.test.ts"
+          ]
+        },
+        {
+          "id": "4",
+          "type": "SummoningNoError",
+          "status": "verified",
+          "note": "TombSpider option",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "transform"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL1B02.test.ts"
+          ]
+        },
+        {
+          "id": "5",
+          "type": "SummoningNoError",
+          "status": "verified",
+          "note": "Webspinner option",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "transform"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL1B02.test.ts"
+          ]
+        }
+      ],
+      "branchReviews": [
+        {
+          "id": "A+(B",
+          "status": "verified",
+          "note": "Web (A) + SpiderSwarm (B) branch reached",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "transform"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL1B02.test.ts"
+          ]
+        },
+        {
+          "id": "C",
+          "status": "verified",
+          "note": "GiantSpider branch reached",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "transform"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL1B02.test.ts"
+          ]
+        },
+        {
+          "id": "D",
+          "status": "verified",
+          "note": "Spinnerette branch reached",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "transform"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL1B02.test.ts"
+          ]
+        },
+        {
+          "id": "E",
+          "status": "verified",
+          "note": "TombSpider branch reached",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "transform"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL1B02.test.ts"
+          ]
+        },
+        {
+          "id": "F)",
+          "status": "verified",
+          "note": "Webspinner branch reached (fixed seeds: all 5)",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "transform"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL1B02.test.ts"
+          ]
+        }
+      ]
+    },
+    {
+      "key": "troop:7677",
+      "scope": "stored-gow-snapshot",
+      "sourceDigest": "7c32c93659a884e2becba36c459dddedec86430b1205a978f235f8937546e3c8",
+      "reviewer": "sa-L1",
+      "reviewedAt": "2026-09-27",
+      "decision": "draft",
+      "ledgerFingerprintAtReview": "6e4fd65d5476c4a9b2d6adc8056a61e9a8beea98f4f8b2b2dccd845bd8f8e6b0",
+      "_reference": {
+        "spellId": 9605,
+        "english": "Charm an Enemy. Then convert all Red Gems to Submerge Gems.",
+        "nativeTarget": "Enemy",
+        "randomize": null,
+        "steps": [
+          {
+            "Target": "FromTarget",
+            "Type": "Charm"
+          },
+          {
+            "Color1": "Red",
+            "Amount": 100,
+            "Color2": "Submerge",
+            "Type": "ConvertGems"
+          }
+        ],
+        "prototype": {
+          "segments": [
+            {
+              "kind": "status",
+              "target": "enemyChosen",
+              "statusId": "charm",
+              "turns": 3
+            },
+            {
+              "kind": "gem",
+              "params": {
+                "op": "transform",
+                "from": "Red",
+                "to": "SKULL",
+                "toSpecial": "submergeGem"
+              }
+            }
+          ]
+        }
+      },
+      "sourceEvidence": [
+        {
+          "id": "en",
+          "role": "english-snapshot",
+          "path": "data/raw/troops.gow.en.json",
+          "note": "TODO: entity id / SpellId / English clause / cost / colours checked"
+        },
+        {
+          "id": "native",
+          "role": "native-snapshot",
+          "path": "data/raw/spells.gow.en.json",
+          "note": "TODO: SpellId-indexed Cost/Target/every non-None SpellSteps field checked"
+        },
+        {
+          "id": "rule",
+          "role": "official-shared-rule",
+          "path": "artifacts/gow-skill-audit/gold-primary-sources/official-status-effects.html",
+          "note": "TODO: replace with the official rule file actually relevant to this skill, and say what it supports"
+        }
+      ],
+      "dimensions": {
+        "identity-cost-colors": {
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        },
+        "target-count-range": {
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        },
+        "base-formula-rounding": {
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        },
+        "boost-source-ratio-cap": {
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        },
+        "conditions-probabilities-branches": {
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        },
+        "status-duration-immunity": {
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        },
+        "gems-types-selection-resolution": {
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        },
+        "summon-transform-pools": {
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        },
+        "order-death-retargeting": {
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        },
+        "mana-economy-extra-turn": {
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        },
+        "display-description": {
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        },
+        "battle-pipeline": {
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": [],
+          "realBattleEntry": true
+        }
+      },
+      "clauseReviews": [
+        {
+          "id": "c1",
+          "text": "Charm an Enemy.",
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        },
+        {
+          "id": "c2",
+          "text": "Then convert all Red Gems to Submerge Gems.",
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        }
+      ],
+      "nativeStepReviews": [
+        {
+          "id": "0",
+          "type": "Charm",
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        },
+        {
+          "id": "1",
+          "type": "ConvertGems",
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        }
+      ],
+      "branchReviews": [
+        {
+          "id": "main",
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        }
+      ]
+    },
+    {
+      "key": "troop:6769",
+      "scope": "stored-gow-snapshot",
+      "sourceDigest": "e802331935c1b088ad4d01712fc8908f73fef3169434e8184b0fcdbaef2c31e9",
+      "reviewer": "sa-L1",
+      "reviewedAt": "2026-09-27",
+      "decision": "draft",
+      "ledgerFingerprintAtReview": "6e4fd65d5476c4a9b2d6adc8056a61e9a8beea98f4f8b2b2dccd845bd8f8e6b0",
+      "_reference": {
+        "spellId": 8159,
+        "english": "Charm a random Enemy. Create 9 Blue Gems.",
+        "nativeTarget": "None",
+        "randomize": null,
+        "steps": [
+          {
+            "Target": "RandomEnemy",
+            "Amount": 1,
+            "Type": "Charm",
+            "Delay": 1
+          },
+          {
+            "Color1": "Blue",
+            "Amount": 9,
+            "Type": "CreateGems"
+          }
+        ],
+        "prototype": {
+          "segments": [
+            {
+              "kind": "status",
+              "target": "enemyRandom",
+              "statusId": "charm",
+              "turns": 3
+            },
+            {
+              "kind": "gem",
+              "params": {
+                "op": "create",
+                "gem": {
+                  "kind": "color",
+                  "color": "Blue"
+                },
+                "count": {
+                  "base": 9,
+                  "mult": 0
+                }
+              }
+            }
+          ]
+        }
+      },
+      "sourceEvidence": [
+        {
+          "id": "en",
+          "role": "english-snapshot",
+          "path": "data/raw/troops.gow.en.json",
+          "note": "TODO: entity id / SpellId / English clause / cost / colours checked"
+        },
+        {
+          "id": "native",
+          "role": "native-snapshot",
+          "path": "data/raw/spells.gow.en.json",
+          "note": "TODO: SpellId-indexed Cost/Target/every non-None SpellSteps field checked"
+        },
+        {
+          "id": "rule",
+          "role": "official-shared-rule",
+          "path": "artifacts/gow-skill-audit/gold-primary-sources/official-status-effects.html",
+          "note": "TODO: replace with the official rule file actually relevant to this skill, and say what it supports"
+        }
+      ],
+      "dimensions": {
+        "identity-cost-colors": {
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        },
+        "target-count-range": {
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        },
+        "base-formula-rounding": {
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        },
+        "boost-source-ratio-cap": {
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        },
+        "conditions-probabilities-branches": {
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        },
+        "status-duration-immunity": {
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        },
+        "gems-types-selection-resolution": {
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        },
+        "summon-transform-pools": {
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        },
+        "order-death-retargeting": {
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        },
+        "mana-economy-extra-turn": {
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        },
+        "display-description": {
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        },
+        "battle-pipeline": {
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": [],
+          "realBattleEntry": true
+        }
+      },
+      "clauseReviews": [
+        {
+          "id": "c1",
+          "text": "Charm a random Enemy.",
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        },
+        {
+          "id": "c2",
+          "text": "Create 9 Blue Gems.",
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        }
+      ],
+      "nativeStepReviews": [
+        {
+          "id": "0",
+          "type": "Charm",
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        },
+        {
+          "id": "1",
+          "type": "CreateGems",
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        }
+      ],
+      "branchReviews": [
+        {
+          "id": "main",
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        }
+      ]
+    },
+    {
+      "key": "troop:6534",
+      "scope": "stored-gow-snapshot",
+      "sourceDigest": "75dcdf21aa7476e44a53592c4bf4c62da8e46268d94820ff0d47196409f9dbb4",
+      "reviewer": "sa-L1",
+      "reviewedAt": "2026-09-27",
+      "decision": "draft",
+      "ledgerFingerprintAtReview": "6e4fd65d5476c4a9b2d6adc8056a61e9a8beea98f4f8b2b2dccd845bd8f8e6b0",
+      "_reference": {
+        "spellId": 7728,
+        "english": "Deal [Magic + 7] damage to an enemy. Poison and Charm them.",
+        "nativeTarget": "Enemy",
+        "randomize": null,
+        "steps": [
+          {
+            "Target": "FromTarget",
+            "Amount": 1,
+            "Type": "Charm"
+          },
+          {
+            "SpellPowerMultiplier": 1,
+            "Target": "FromTarget",
+            "Amount": 7,
+            "Primarypower": true,
+            "Type": "Damage"
+          },
+          {
+            "Target": "FromTarget",
+            "Amount": 1,
+            "Type": "CausePoison"
+          }
+        ],
+        "prototype": {
+          "segments": [
+            {
+              "kind": "status",
+              "target": "enemyChosen",
+              "statusId": "charm",
+              "turns": 3
+            },
+            {
+              "kind": "damage",
+              "target": "enemyChosen",
+              "scaling": {
+                "base": 7,
+                "mult": 1
+              }
+            },
+            {
+              "kind": "status",
+              "target": "enemyChosen",
+              "statusId": "poison",
+              "turns": 3,
+              "magnitude": 3
+            }
+          ]
+        }
+      },
+      "sourceEvidence": [
+        {
+          "id": "en",
+          "role": "english-snapshot",
+          "path": "data/raw/troops.gow.en.json",
+          "note": "TODO: entity id / SpellId / English clause / cost / colours checked"
+        },
+        {
+          "id": "native",
+          "role": "native-snapshot",
+          "path": "data/raw/spells.gow.en.json",
+          "note": "TODO: SpellId-indexed Cost/Target/every non-None SpellSteps field checked"
+        },
+        {
+          "id": "rule",
+          "role": "official-shared-rule",
+          "path": "artifacts/gow-skill-audit/gold-primary-sources/official-status-effects.html",
+          "note": "TODO: replace with the official rule file actually relevant to this skill, and say what it supports"
+        }
+      ],
+      "dimensions": {
+        "identity-cost-colors": {
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        },
+        "target-count-range": {
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        },
+        "base-formula-rounding": {
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        },
+        "boost-source-ratio-cap": {
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        },
+        "conditions-probabilities-branches": {
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        },
+        "status-duration-immunity": {
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        },
+        "gems-types-selection-resolution": {
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        },
+        "summon-transform-pools": {
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        },
+        "order-death-retargeting": {
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        },
+        "mana-economy-extra-turn": {
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        },
+        "display-description": {
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        },
+        "battle-pipeline": {
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": [],
+          "realBattleEntry": true
+        }
+      },
+      "clauseReviews": [
+        {
+          "id": "c1",
+          "text": "Deal [Magic + 7] damage to an enemy.",
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        },
+        {
+          "id": "c2",
+          "text": "Poison and Charm them.",
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        }
+      ],
+      "nativeStepReviews": [
+        {
+          "id": "0",
+          "type": "Charm",
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        },
+        {
+          "id": "1",
+          "type": "Damage",
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        },
+        {
+          "id": "2",
+          "type": "CausePoison",
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        }
+      ],
+      "branchReviews": [
+        {
+          "id": "main",
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        }
+      ]
+    }
+  ]
+}

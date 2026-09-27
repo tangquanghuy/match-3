@@ -68,8 +68,8 @@ describe('独立模式战斗配置（需求 2.5）', () => {
     const full = loadStandaloneRequest({ knownSkillIds: known, knownTraitIds: knownTraitIds(), knownTroopTypes: knownTroopTypes() });
     const three = resizeRequestTeams(full, 3);
 
-    expect(three.playerTeam).toHaveLength(3);
-    expect(three.enemyTeam).toHaveLength(3);
+    expect(three.playerTeam).toHaveLength(4);
+    expect(three.enemyTeam).toHaveLength(4);
     expect(validateBattleRequest(three, { knownSkillIds: known, knownTraitIds: knownTraitIds(), knownTroopTypes: knownTroopTypes() }).ok).toBe(true);
     // 原对象不被修改
     expect(full.playerTeam).toHaveLength(MAX_ACTIVE_TEAM_SIZE);
@@ -86,8 +86,8 @@ describe('独立模式战斗配置（需求 2.5）', () => {
     const three = resizeRequestTeams(loadStandaloneRequest(validateOpts()), 3);
     const { playerTeam, enemyTeam, idMap } = mapRequestToTeams(three);
 
-    expect(playerTeam.characters.map((c) => c.id)).toEqual([0, 1, 2]);
-    expect(enemyTeam.characters.map((c) => c.id)).toEqual([4, 5, 6]);
+    expect(playerTeam.characters.map((c) => c.id)).toEqual([0, 1, 2, 3]);
+    expect(enemyTeam.characters.map((c) => c.id)).toEqual([4, 5, 6, 7]);
     // 角色数值来自配置而不是写死的占位值
     expect(playerTeam.characters[0].name).toBe(three.playerTeam[0].name);
     expect(playerTeam.characters[0].skillId).toBe(three.playerTeam[0].skillId);

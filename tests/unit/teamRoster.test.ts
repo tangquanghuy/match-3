@@ -28,40 +28,20 @@ function makeTeam(side: PlayerSide, ids: number[]): Team {
   return { player: side, characters: ids.map((id) => makeChar(id)) };
 }
 
-describe('summon queue roster promotion', () => {
-  it('removes the defeated card and promotes the oldest queued summon to the bottom', () => {
+describe('official four-slot summon roster', () => {
+  it('removes a defeated card and leaves the surviving troops to close ranks', () => {
     const left = makeTeam(PlayerSide.Left, [0, 1, 2, 3]);
-    left.summonQueue = [
-      { character: makeChar(10), troopId: 6010 },
-      { character: makeChar(11), troopId: 6011 },
-    ];
     const state = createGameState(new BoardModel(), left, makeTeam(PlayerSide.Right, [20]));
     left.characters[1].defeated = true;
 
     const events = resolveDefeatEvents(state, [{ type: 'defeat', characterId: 1 }]);
 
-    expect(left.characters.map((character) => character.id)).toEqual([0, 2, 3, 10]);
-    expect(left.summonQueue.map((entry) => entry.character.id)).toEqual([11]);
-    expect(events).toEqual([
-      { type: 'defeat', characterId: 1 },
-      {
-        type: 'summon',
-        player: PlayerSide.Left,
-        slot: 3,
-        troopId: 6010,
-        characterId: 10,
-        destination: 'field',
-        fromQueue: true,
-      },
-    ]);
+    expect(left.characters.map((character) => character.id)).toEqual([0, 2, 3]);
+    expect(events).toEqual([{ type: 'defeat', characterId: 1 }]);
   });
 
-  it('keeps FIFO order across consecutive defeats', () => {
+  it('closes ranks in order across consecutive defeats', () => {
     const left = makeTeam(PlayerSide.Left, [0, 1, 2, 3]);
-    left.summonQueue = [
-      { character: makeChar(10), troopId: 6010 },
-      { character: makeChar(11), troopId: 6011 },
-    ];
     const state = createGameState(new BoardModel(), left, makeTeam(PlayerSide.Right, [20]));
     left.characters[0].defeated = true;
     left.characters[2].defeated = true;
@@ -71,18 +51,15 @@ describe('summon queue roster promotion', () => {
       { type: 'defeat', characterId: 2 },
     ]);
 
-    expect(left.characters.map((character) => character.id)).toEqual([1, 3, 10, 11]);
-    expect(left.summonQueue).toEqual([]);
+    expect(left.characters.map((character) => character.id)).toEqual([1, 3]);
   });
 
-  it('does not count a team as wiped out while a queued summon remains', () => {
+  it('counts a team with no active troops as wiped out even if legacy queue data exists', () => {
     const team: Team = {
       player: PlayerSide.Left,
       characters: [],
       summonQueue: [{ character: makeChar(10), troopId: 6010 }],
     };
-    expect(CombatResolver.isWipedOut(team)).toBe(false);
-    team.summonQueue = [];
     expect(CombatResolver.isWipedOut(team)).toBe(true);
   });
 });

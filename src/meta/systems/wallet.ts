@@ -48,7 +48,7 @@ export function spend(save: MetaSave, cost: CurrencyDelta): { ok: true } | MetaF
         souls: '灵魂',
         gems: '宝石',
         goldKeys: '金钥匙',
-        glory: '荣耀',
+        glory: '荣耀', gloryKeys: '荣耀钥匙', trophies: '公会奖杯',
       };
       return fail(
         'INSUFFICIENT',

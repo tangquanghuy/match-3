@@ -6,7 +6,7 @@
  * - 本批大量「巨人宝石/龙宝石/末日骷髅头/万能牌/缠绕宝石/恐怖宝石/石像鬼宝石」
  *   = 特殊宝石家族（SOP §4「特殊宝石」），是本批 SKIP 主因（14 条）。
  * - 「爆破一行」照 batch-01 7016「摧毁 1 行」→ destroyChosenRow 同口径 → explodeChosenRow()。
- * - 「魔法值」= magic 属性（SOP 措辞裁定）：8982 的「3 点魔法值」、9242 的「[魔法+1] 点魔法值」均加 magic。
+ * - 「魔力值」= magic 属性（SOP 措辞裁定）：8982 的「3 点魔力值」、9242 的「[魔法+1] 点魔力值」均加 magic。
  * - 种族英文名（troops.json 查询）：狼族 = Wargare、妖仙 = Fey、厄什卡 = Urska、哥布林 = Goblin、机械 = Mech。
  * - 「随机书卷」= 书卷家族三兵种：罪恶宝典 TomeOfEvil / 秘密古卷 BookOfSecrets / 女王之书 BookOfWitches
  *   （排除「滚动编织者」Scrollweaver——野兽，「水生抄书吏」WaterbornScribe——抄书吏非书卷）。
@@ -17,6 +17,9 @@ import { skill, dmg, dmgAll, dmgSplash, trueDmg, heal, armor, magic, cleanse,
   createGems, createMix, inflict, summonRandom, extraTurn, explodeChosenRow } from '../builders';
 import { BaseColor } from '../../types';
 import type { CuratedBatch } from './index';
+
+/** 8969「因我的护甲值而增强 [3:1]」（native CountArmor Self 34） */
+const SELF_ARMOR_3_1 = { mod: { kind: 'ratio' as const, a: 3, b: 1 }, source: { kind: 'selfStat' as const, stat: 'armor' as const } };
 
 const SKIPPED: { id: number; reason: string }[] = [
   { id: 8830, reason: '特殊宝石（蓝色巨人宝石）' },
@@ -83,19 +86,21 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '对 4 名随机敌人造成 [魔法 + 2] 点伤害，伤害值因我的护甲值而增强。 [3:1]',
     build: skill(
       // 「因我的护甲值而增强」= selfStat(armor)（SOP 措辞裁定）
-      dmg('enemyRandomN', 2, 1, {
-        n: 4,
-        modifier: { mod: { kind: 'ratio', a: 3, b: 1 }, source: { kind: 'selfStat', stat: 'armor' } },
-      }),
+      // L7-7344 (sa-L76): native = RandomEnemy + 3 x RandomPrefNotPrevEnemy separate hits, so
+      // 2 living enemies still take 4 hits (alternating); one segment per native step.
+      dmg('enemyRandom', 2, 1, { modifier: SELF_ARMOR_3_1 }),
+      dmg('enemyRandomPrefNotPrev', 2, 1, { modifier: SELF_ARMOR_3_1 }),
+      dmg('enemyRandomPrefNotPrev', 2, 1, { modifier: SELF_ARMOR_3_1 }),
+      dmg('enemyRandomPrefNotPrev', 2, 1, { modifier: SELF_ARMOR_3_1 }),
     ),
   },
   {
     id: 8982,
-    desc: '给予盟友 [魔法 + 1] 点生命值和 3 点魔法值。若对方是妖仙，则效果翻倍。',
+    desc: '给予盟友 [魔法 + 1] 点生命值和 3 点魔力值。若对方是妖仙，则效果翻倍。',
     build: skill(
       // 「给予盟友」单数未限定 → allyChosen（「若对方是妖仙」指向单一受益者）
       heal('allyChosen', 1, 1, { raceDouble: 'Fey' }),
-      // 「魔法值」= magic 属性（SOP 措辞裁定）；「效果翻倍」两段各自挂 raceDouble（妖仙 = Fey）
+      // 「魔力值」= magic 属性（SOP 措辞裁定）；「效果翻倍」两段各自挂 raceDouble（妖仙 = Fey）
       magic('allyChosen', 3, 0, { raceDouble: 'Fey' }),
     ),
   },
@@ -157,9 +162,9 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 9242,
-    desc: '给予一名随机盟友 [魔法 + 1] 点魔法值。再召唤一个随机书卷。',
+    desc: '给予一名随机盟友 [魔法 + 1] 点魔力值。再召唤一个随机书卷。',
     build: skill(
-      // 「魔法值」= magic 属性（SOP 措辞裁定）
+      // 「魔力值」= magic 属性（SOP 措辞裁定）
       magic('allyRandom', 1),
       // 「随机书卷」= 书卷家族三兵种（troops.json 查询，排除滚动编织者/水生抄书吏）
       summonRandom(['TomeOfEvil', 'BookOfSecrets', 'BookOfWitches']),

@@ -1,0 +1,2012 @@
+{
+  "schemaVersion": 1,
+  "scope": "stored-gow-snapshot",
+  "reviews": [
+    {
+      "key": "weapon:1142",
+      "scope": "stored-gow-snapshot",
+      "sourceDigest": "a8988974447b62e2bc6cd7b3ce9dccf429c9b784e2427f8eb18f4edc6b732e8b",
+      "reviewer": "sa-L5",
+      "reviewedAt": "2026-09-27",
+      "decision": "draft",
+      "ledgerFingerprintAtReview": "62c72776a20e847e5ac469d1b844c785e3f80ecb33aebee08c31cede29ba7ccd",
+      "_reference": {
+        "spellId": 7338,
+        "english": "Scientifically Burn, Freeze, Silence, and deal [Magic + 3] damage to random Enemies.",
+        "nativeTarget": "None",
+        "randomize": null,
+        "steps": [
+          {
+            "Target": "RandomEnemy",
+            "Amount": 2,
+            "Type": "CauseBurning"
+          },
+          {
+            "Target": "RandomPrefNotPrevEnemy",
+            "Amount": 2,
+            "Type": "CauseFrozen"
+          },
+          {
+            "Target": "RandomPrefNotPrevEnemy",
+            "Amount": 2,
+            "Type": "CauseSilence"
+          },
+          {
+            "SpellPowerMultiplier": 1,
+            "Target": "RandomPrefNotPrevEnemy",
+            "Amount": 3,
+            "Primarypower": true,
+            "Type": "Damage"
+          }
+        ],
+        "prototype": {
+          "segments": [
+            {
+              "kind": "status",
+              "target": "enemyRandom",
+              "statusId": "burning",
+              "turns": 3,
+              "magnitude": 3
+            },
+            {
+              "kind": "status",
+              "target": "enemyRandomPrefNotPrev",
+              "statusId": "frozen",
+              "turns": 3
+            },
+            {
+              "kind": "status",
+              "target": "enemyRandomPrefNotPrev",
+              "statusId": "silence",
+              "turns": 3
+            },
+            {
+              "kind": "damage",
+              "target": "enemyRandomPrefNotPrev",
+              "scaling": {
+                "base": 3,
+                "mult": 1
+              }
+            }
+          ]
+        }
+      },
+      "sourceEvidence": [
+        {
+          "id": "en",
+          "role": "english-snapshot",
+          "path": "artifacts/gowhead-weapons/weapons.json",
+          "note": "weapon 1142 Dragonator 8000: gowhead English \"Scientifically Burn, Freeze, Silence, and deal [Magic + 3] damage to random Enemies.\", cost 11 Brown, 7338 + gw_Dragonator8000."
+        },
+        {
+          "id": "native",
+          "role": "native-snapshot",
+          "path": "data/raw/spells.gow.en.json",
+          "note": "spell 7338 Target None: CauseBurning RandomEnemy Amount 2; CauseFrozen RandomPrefNotPrevEnemy Amount 2; CauseSilence RandomPrefNotPrevEnemy Amount 2; Damage RandomPrefNotPrevEnemy Amount 3 SPM 1."
+        },
+        {
+          "id": "rule",
+          "role": "official-shared-rule",
+          "path": "artifacts/gow-skill-audit/gold-primary-sources/official-status-effects.html",
+          "note": "Official status guide: status semantics (Barrier, Silence, Stun, Disease, Death Mark, Enrage, Submerged, cumulative cleanse chance via Cursed/Lycanthropy entries)."
+        },
+        {
+          "id": "laneTest",
+          "role": "lane-battle-test",
+          "path": "tests/unit/gowLaneL5B02.test.ts",
+          "note": "weapon:1142: real TurnEngine.castSkill both sides + boundaries"
+        },
+        {
+          "id": "r004",
+          "role": "coordinator-ruling",
+          "path": "tasks/active/gow-skill-shards/rulings/R004-status-durations.md",
+          "note": "R004: negatives no turn cap, shared cumulative self-cleanse 10%/+10% (+5% Cursed), Poison never; positives end on trigger (Barrier/Reflect damage, Enchanted cast, Enraged skull damage, Submerged/Blessed holder action)."
+        },
+        {
+          "id": "r3",
+          "role": "lane-battle-test",
+          "path": "tests/unit/gowLaneL5R3.test.ts",
+          "note": "Round-3 real castSkill both sides: statuses from this cast unchanged after 6 failed turn-start rolls; one successful roll removes all recoverable negatives together (Poison/positives stay)."
+        },
+        {
+          "id": "srcR004",
+          "role": "community-source",
+          "path": "artifacts/gow-skill-audit/gold-primary-sources/community-2026-09-28-status-durations.json",
+          "note": "Saved community corroboration for R004 (staff reply: new negative resets, all negatives cleanse together)."
+        },
+        {
+          "id": "r006",
+          "role": "coordinator-ruling",
+          "path": "tasks/active/gow-skill-shards/rulings/R006-hidden-mechanics-conventions.md",
+          "note": "R006 conventions C1 (half-up rounding) / C2 (Cause* Amount ignored)."
+        }
+      ],
+      "dimensions": {
+        "identity-cost-colors": {
+          "status": "verified",
+          "note": "Weapon 1142 -> spell 7338, cost 11, Brown; both aliases.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r3",
+            "srcR004",
+            "r006"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL5B02.test.ts"
+          ]
+        },
+        "target-count-range": {
+          "status": "verified",
+          "note": "Step 1 random enemy; steps 2-4 each avoid the previous target while another enemy lives (40 seeds); lone survivor gets all. HOLD L5-015: R006-C3 says RandomPrefNotPrev* prefers any not-yet-hit enemy; runtime enemyRandomPrefNotPrev only excludes the immediately previous target (step 4 can re-hit the step-2 target with 4 alive).",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r3",
+            "srcR004",
+            "r006"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL5B02.test.ts"
+          ]
+        },
+        "base-formula-rounding": {
+          "status": "verified",
+          "note": "Magic+3 damage to one random enemy.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r3",
+            "srcR004",
+            "r006"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL5B02.test.ts"
+          ]
+        },
+        "boost-source-ratio-cap": {
+          "status": "not-applicable",
+          "note": "No boost/count source.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r3",
+            "srcR004",
+            "r006"
+          ],
+          "tests": []
+        },
+        "conditions-probabilities-branches": {
+          "status": "verified",
+          "note": "Random picks via seeded RNG; prefer-not-previous verified over 40 seeds.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r3",
+            "srcR004",
+            "r006"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL5B02.test.ts"
+          ]
+        },
+        "status-duration-immunity": {
+          "status": "verified",
+          "note": "Burning/Frozen/Silence R004: no turn cap; persists through 6 failed turn-start rolls, removed by one successful shared self-cleanse roll (gowLaneL5R3). Cause* Amount 2 ignored convention:R006-C2; Invulnerable immune.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r3",
+            "srcR004",
+            "r006"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL5B02.test.ts"
+          ]
+        },
+        "gems-types-selection-resolution": {
+          "status": "not-applicable",
+          "note": "No gem steps.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r3",
+            "srcR004",
+            "r006"
+          ],
+          "tests": []
+        },
+        "summon-transform-pools": {
+          "status": "not-applicable",
+          "note": "No summon/transform.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r3",
+            "srcR004",
+            "r006"
+          ],
+          "tests": []
+        },
+        "order-death-retargeting": {
+          "status": "verified",
+          "note": "Burn -> Freeze -> Silence -> Damage native order.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r3",
+            "srcR004",
+            "r006"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL5B02.test.ts"
+          ]
+        },
+        "mana-economy-extra-turn": {
+          "status": "verified",
+          "note": "Cast spends full mana and passes the turn; low mana and Silence block the real cast (no mana/action spent).",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r3",
+            "srcR004",
+            "r006"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL5B02.test.ts"
+          ]
+        },
+        "display-description": {
+          "status": "verified",
+          "note": "Chinese description asserted verbatim; wording matches the English effect.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r3",
+            "srcR004",
+            "r006"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL5B02.test.ts"
+          ]
+        },
+        "battle-pipeline": {
+          "status": "verified",
+          "note": "Real TurnEngine.castSkill both sides (lane file + round-3 R004 file).",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r3",
+            "srcR004",
+            "r006"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL5B02.test.ts"
+          ],
+          "realBattleEntry": true
+        }
+      },
+      "clauseReviews": [
+        {
+          "id": "c1",
+          "text": "Scientifically Burn, Freeze, Silence, and deal [Magic + 3] damage to random Enemies.",
+          "status": "verified",
+          "note": "Burn, Freeze, Silence and Magic+3 damage on random enemies with prefer-not-previous; durations R004, Amount 2 ignored convention:R006-C2.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r3",
+            "srcR004",
+            "r006"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL5B02.test.ts"
+          ]
+        }
+      ],
+      "nativeStepReviews": [
+        {
+          "id": "0",
+          "type": "CauseBurning",
+          "status": "verified",
+          "note": "CauseBurning RandomEnemy -> enemyRandom burning; Amount ignored convention:R006-C2.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r3",
+            "srcR004",
+            "r006"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL5B02.test.ts"
+          ]
+        },
+        {
+          "id": "1",
+          "type": "CauseFrozen",
+          "status": "verified",
+          "note": "CauseFrozen RandomPrefNotPrevEnemy -> enemyRandomPrefNotPrev; convention:R006-C2.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r3",
+            "srcR004",
+            "r006"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL5B02.test.ts"
+          ]
+        },
+        {
+          "id": "2",
+          "type": "CauseSilence",
+          "status": "verified",
+          "note": "CauseSilence RandomPrefNotPrevEnemy; convention:R006-C2.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r3",
+            "srcR004",
+            "r006"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL5B02.test.ts"
+          ]
+        },
+        {
+          "id": "3",
+          "type": "Damage",
+          "status": "verified",
+          "note": "Damage RandomPrefNotPrevEnemy 3/1.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r3",
+            "srcR004",
+            "r006"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL5B02.test.ts"
+          ]
+        }
+      ],
+      "branchReviews": [
+        {
+          "id": "main",
+          "status": "verified",
+          "note": "Single unconditional branch.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r3",
+            "srcR004",
+            "r006"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL5B02.test.ts"
+          ]
+        }
+      ]
+    },
+    {
+      "key": "weapon:1436",
+      "scope": "stored-gow-snapshot",
+      "sourceDigest": "8fcb712452f0f54e30009decc0c75d47e1cdc86b6d147be89ece5551481bd278",
+      "reviewer": "sa-L5",
+      "reviewedAt": "2026-09-27",
+      "decision": "accept",
+      "ledgerFingerprintAtReview": "62c72776a20e847e5ac469d1b844c785e3f80ecb33aebee08c31cede29ba7ccd",
+      "_reference": {
+        "spellId": 8668,
+        "english": "Inflict all negative status effects on an Enemy, and grant myself all positive status effects.",
+        "nativeTarget": "Enemy",
+        "randomize": null,
+        "steps": [
+          {
+            "Target": "FromTarget",
+            "Amount": 1,
+            "Type": "CauseCursed"
+          },
+          {
+            "Target": "FromTarget",
+            "Type": "CauseAllNegativeStatusEffects",
+            "Delay": 1
+          },
+          {
+            "Target": "Self",
+            "Type": "CauseAllPositiveStatusEffects"
+          }
+        ],
+        "prototype": {
+          "segments": [
+            {
+              "kind": "status",
+              "target": "enemyChosen",
+              "statusId": "curse",
+              "turns": 3
+            },
+            {
+              "kind": "status",
+              "target": "enemyChosen",
+              "statusId": "poison",
+              "turns": 3,
+              "magnitude": 3
+            },
+            {
+              "kind": "status",
+              "target": "enemyChosen",
+              "statusId": "burning",
+              "turns": 3,
+              "magnitude": 3
+            },
+            {
+              "kind": "status",
+              "target": "enemyChosen",
+              "statusId": "bleed",
+              "turns": 3,
+              "magnitude": 1
+            },
+            {
+              "kind": "status",
+              "target": "enemyChosen",
+              "statusId": "silence",
+              "turns": 3
+            },
+            {
+              "kind": "status",
+              "target": "enemyChosen",
+              "statusId": "frozen",
+              "turns": 3
+            },
+            {
+              "kind": "status",
+              "target": "enemyChosen",
+              "statusId": "stun",
+              "turns": 3
+            },
+            {
+              "kind": "status",
+              "target": "enemyChosen",
+              "statusId": "entangle",
+              "turns": 3
+            },
+            {
+              "kind": "status",
+              "target": "enemyChosen",
+              "statusId": "web",
+              "turns": 3
+            },
+            {
+              "kind": "status",
+              "target": "enemyChosen",
+              "statusId": "disease",
+              "turns": 3
+            },
+            {
+              "kind": "status",
+              "target": "enemyChosen",
+              "statusId": "death-mark",
+              "turns": 3
+            },
+            {
+              "kind": "status",
+              "target": "enemyChosen",
+              "statusId": "faerie-fire",
+              "turns": 3
+            },
+            {
+              "kind": "status",
+              "target": "enemyChosen",
+              "statusId": "marked",
+              "turns": 3
+            },
+            {
+              "kind": "status",
+              "target": "enemyChosen",
+              "statusId": "terror",
+              "turns": 3
+            },
+            {
+              "kind": "status",
+              "target": "enemyChosen",
+              "statusId": "lycanthropy",
+              "turns": 3
+            },
+            {
+              "kind": "randomStatus",
+              "target": "allySelf",
+              "allPositive": true
+            }
+          ]
+        }
+      },
+      "sourceEvidence": [
+        {
+          "id": "en",
+          "role": "english-snapshot",
+          "path": "artifacts/gowhead-weapons/weapons.json",
+          "note": "weapon 1436 Trick and Treat: gowhead English \"Inflict all negative status effects on an Enemy, and grant myself all positive status effects.\", cost 22 Red/Yellow/Purple, 8668 + gw_TrickAndTreat."
+        },
+        {
+          "id": "native",
+          "role": "native-snapshot",
+          "path": "data/raw/spells.gow.en.json",
+          "note": "spell 8668 Target Enemy: CauseCursed FromTarget Amount 1; CauseAllNegativeStatusEffects FromTarget Delay 1; CauseAllPositiveStatusEffects Self."
+        },
+        {
+          "id": "rule",
+          "role": "official-shared-rule",
+          "path": "artifacts/gow-skill-audit/gold-primary-sources/official-status-effects.html",
+          "note": "Official status guide: status semantics (Barrier, Silence, Stun, Disease, Death Mark, Enrage, Submerged, cumulative cleanse chance via Cursed/Lycanthropy entries)."
+        },
+        {
+          "id": "laneTest",
+          "role": "lane-battle-test",
+          "path": "tests/unit/gowLaneL5B02.test.ts",
+          "note": "weapon:1436: real TurnEngine.castSkill both sides + boundaries"
+        },
+        {
+          "id": "r004",
+          "role": "coordinator-ruling",
+          "path": "tasks/active/gow-skill-shards/rulings/R004-status-durations.md",
+          "note": "R004: negatives no turn cap, shared cumulative self-cleanse 10%/+10% (+5% Cursed), Poison never; positives end on trigger (Barrier/Reflect damage, Enchanted cast, Enraged skull damage, Submerged/Blessed holder action)."
+        },
+        {
+          "id": "r3",
+          "role": "lane-battle-test",
+          "path": "tests/unit/gowLaneL5R3.test.ts",
+          "note": "Round-3 real castSkill both sides: statuses from this cast unchanged after 6 failed turn-start rolls; one successful roll removes all recoverable negatives together (Poison/positives stay)."
+        },
+        {
+          "id": "srcR004",
+          "role": "community-source",
+          "path": "artifacts/gow-skill-audit/gold-primary-sources/community-2026-09-28-status-durations.json",
+          "note": "Saved community corroboration for R004 (staff reply: new negative resets, all negatives cleanse together)."
+        },
+        {
+          "id": "r001",
+          "role": "coordinator-ruling",
+          "path": "tasks/active/gow-skill-shards/rulings/R001-native-step-order.md",
+          "note": "R001: native SpellSteps order governs observable order."
+        },
+        {
+          "id": "r002",
+          "role": "coordinator-ruling",
+          "path": "tasks/active/gow-skill-shards/rulings/R002-barrier-enchant-cleanse.md",
+          "note": "R002: Barrier/Enchanted no time limit; Cleanse removes negatives only."
+        }
+      ],
+      "dimensions": {
+        "identity-cost-colors": {
+          "status": "verified",
+          "note": "Weapon 1436 -> spell 8668, cost 22, Red/Yellow/Purple; both aliases.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r3",
+            "srcR004",
+            "r001",
+            "r002"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL5B02.test.ts"
+          ]
+        },
+        "target-count-range": {
+          "status": "verified",
+          "note": "Negatives on the chosen enemy only; positives on the caster only.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r3",
+            "srcR004",
+            "r001",
+            "r002"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL5B02.test.ts"
+          ]
+        },
+        "base-formula-rounding": {
+          "status": "not-applicable",
+          "note": "No numeric formula.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r3",
+            "srcR004",
+            "r001",
+            "r002"
+          ],
+          "tests": []
+        },
+        "boost-source-ratio-cap": {
+          "status": "not-applicable",
+          "note": "No boost/count source.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r3",
+            "srcR004",
+            "r001",
+            "r002"
+          ],
+          "tests": []
+        },
+        "conditions-probabilities-branches": {
+          "status": "not-applicable",
+          "note": "No condition, chance or Randomize.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r3",
+            "srcR004",
+            "r001",
+            "r002"
+          ],
+          "tests": []
+        },
+        "status-duration-immunity": {
+          "status": "verified",
+          "note": "Official negative list (15 incl. Faerie Fire/Hunter's Mark/Terror/Lycanthropy, no Charm); six positives, Enrage once; R004: no turn cap; persists through 6 failed turn-start rolls, removed by one successful shared self-cleanse roll (gowLaneL5R3). Poison stays; positives persist. Curse strips Barrier and penetrates immunity; Invulnerable blocks; Blessed enemy cancels with Curse.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r3",
+            "srcR004",
+            "r001",
+            "r002"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL5B02.test.ts"
+          ]
+        },
+        "gems-types-selection-resolution": {
+          "status": "not-applicable",
+          "note": "No gem steps.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r3",
+            "srcR004",
+            "r001",
+            "r002"
+          ],
+          "tests": []
+        },
+        "summon-transform-pools": {
+          "status": "not-applicable",
+          "note": "No summon/transform.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r3",
+            "srcR004",
+            "r001",
+            "r002"
+          ],
+          "tests": []
+        },
+        "order-death-retargeting": {
+          "status": "verified",
+          "note": "Curse first (native), then remaining negatives, then self positives with Blessed last.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r3",
+            "srcR004",
+            "r001",
+            "r002"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL5B02.test.ts"
+          ]
+        },
+        "mana-economy-extra-turn": {
+          "status": "verified",
+          "note": "Cast spends full mana and passes the turn; low mana and Silence block the real cast (no mana/action spent).",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r3",
+            "srcR004",
+            "r001",
+            "r002"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL5B02.test.ts"
+          ]
+        },
+        "display-description": {
+          "status": "verified",
+          "note": "Chinese description asserted verbatim; wording matches the English effect.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r3",
+            "srcR004",
+            "r001",
+            "r002"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL5B02.test.ts"
+          ]
+        },
+        "battle-pipeline": {
+          "status": "verified",
+          "note": "Real TurnEngine.castSkill both sides (lane file + round-3 R004 file).",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r3",
+            "srcR004",
+            "r001",
+            "r002"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL5B02.test.ts"
+          ],
+          "realBattleEntry": true
+        }
+      },
+      "clauseReviews": [
+        {
+          "id": "c1",
+          "text": "Inflict all negative status effects on an Enemy, and grant myself all positive status effects.",
+          "status": "verified",
+          "note": "All official negatives on the enemy, all positives on self; durations R004.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r3",
+            "srcR004",
+            "r001",
+            "r002"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL5B02.test.ts"
+          ]
+        }
+      ],
+      "nativeStepReviews": [
+        {
+          "id": "0",
+          "type": "CauseCursed",
+          "status": "verified",
+          "note": "CauseCursed FromTarget -> curse enemyChosen first.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r3",
+            "srcR004",
+            "r001",
+            "r002"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL5B02.test.ts"
+          ]
+        },
+        {
+          "id": "1",
+          "type": "CauseAllNegativeStatusEffects",
+          "status": "verified",
+          "note": "CauseAllNegativeStatusEffects -> 14 further negative segments on enemyChosen.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r3",
+            "srcR004",
+            "r001",
+            "r002"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL5B02.test.ts"
+          ]
+        },
+        {
+          "id": "2",
+          "type": "CauseAllPositiveStatusEffects",
+          "status": "verified",
+          "note": "CauseAllPositiveStatusEffects Self -> randomStatus allPositive (Enrage once, Blessed last).",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r3",
+            "srcR004",
+            "r001",
+            "r002"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL5B02.test.ts"
+          ]
+        }
+      ],
+      "branchReviews": [
+        {
+          "id": "main",
+          "status": "verified",
+          "note": "Single unconditional branch.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r3",
+            "srcR004",
+            "r001",
+            "r002"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL5B02.test.ts"
+          ]
+        }
+      ]
+    },
+    {
+      "key": "troop:7182",
+      "scope": "stored-gow-snapshot",
+      "sourceDigest": "3859fca66245ddb3ebdab3f7b9a868cc453ce6c2881c57906c4d6fe28d741e88",
+      "reviewer": "sa-L5",
+      "reviewedAt": "2026-09-27",
+      "decision": "draft",
+      "ledgerFingerprintAtReview": "62c72776a20e847e5ac469d1b844c785e3f80ecb33aebee08c31cede29ba7ccd",
+      "_reference": {
+        "spellId": 8752,
+        "english": "Steal [Magic + 1] Life from the 2 weakest Enemies, then inflict Curse and 3 stacks of Bleed on them.",
+        "nativeTarget": "None",
+        "randomize": null,
+        "steps": [
+          {
+            "Target": "TwoWeakestEnemies",
+            "Amount": 1,
+            "Type": "CauseCursed"
+          },
+          {
+            "Target": "TwoWeakestEnemies",
+            "Amount": 1,
+            "Type": "CauseBleed"
+          },
+          {
+            "Target": "TwoWeakestEnemies",
+            "Amount": 1,
+            "Type": "CauseBleed"
+          },
+          {
+            "Target": "TwoWeakestEnemies",
+            "Amount": 1,
+            "Type": "CauseBleed"
+          },
+          {
+            "SpellPowerMultiplier": 1,
+            "Target": "TwoWeakestEnemies",
+            "Amount": 1,
+            "Primarypower": true,
+            "Type": "StealLife"
+          }
+        ],
+        "prototype": {
+          "segments": [
+            {
+              "kind": "status",
+              "target": "enemyWeakestN",
+              "statusId": "curse",
+              "turns": 3,
+              "n": 2
+            },
+            {
+              "kind": "status",
+              "target": "enemyWeakestN",
+              "statusId": "bleed",
+              "turns": 3,
+              "magnitude": 1,
+              "n": 2,
+              "stacks": 3
+            },
+            {
+              "kind": "damage",
+              "target": "enemyWeakestN",
+              "scaling": {
+                "base": 1,
+                "mult": 1
+              },
+              "n": 2,
+              "drain": true
+            }
+          ]
+        }
+      },
+      "sourceEvidence": [
+        {
+          "id": "en",
+          "role": "english-snapshot",
+          "path": "data/raw/troops.gow.en.json",
+          "note": "TODO: entity id / SpellId / English clause / cost / colours checked"
+        },
+        {
+          "id": "native",
+          "role": "native-snapshot",
+          "path": "data/raw/spells.gow.en.json",
+          "note": "TODO: SpellId-indexed Cost/Target/every non-None SpellSteps field checked"
+        },
+        {
+          "id": "rule",
+          "role": "official-shared-rule",
+          "path": "artifacts/gow-skill-audit/gold-primary-sources/official-status-effects.html",
+          "note": "TODO: replace with the official rule file actually relevant to this skill, and say what it supports"
+        },
+        {
+          "id": "laneTest",
+          "role": "lane-battle-test",
+          "path": "tests/unit/gowLaneL5B02.test.ts",
+          "note": "Draft: identity/cost/colours/native steps/prototype and real castSkill both sides checked; held draft by lane-L5/issues.json L5-008, L5-005"
+        }
+      ],
+      "dimensions": {
+        "identity-cost-colors": {
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        },
+        "target-count-range": {
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        },
+        "base-formula-rounding": {
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        },
+        "boost-source-ratio-cap": {
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        },
+        "conditions-probabilities-branches": {
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        },
+        "status-duration-immunity": {
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        },
+        "gems-types-selection-resolution": {
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        },
+        "summon-transform-pools": {
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        },
+        "order-death-retargeting": {
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        },
+        "mana-economy-extra-turn": {
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        },
+        "display-description": {
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        },
+        "battle-pipeline": {
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": [],
+          "realBattleEntry": true
+        }
+      },
+      "clauseReviews": [
+        {
+          "id": "c1",
+          "text": "Steal [Magic + 1] Life from the 2 weakest Enemies, then inflict Curse and 3 stacks of Bleed on them.",
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        }
+      ],
+      "nativeStepReviews": [
+        {
+          "id": "0",
+          "type": "CauseCursed",
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        },
+        {
+          "id": "1",
+          "type": "CauseBleed",
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        },
+        {
+          "id": "2",
+          "type": "CauseBleed",
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        },
+        {
+          "id": "3",
+          "type": "CauseBleed",
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        },
+        {
+          "id": "4",
+          "type": "StealLife",
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        }
+      ],
+      "branchReviews": [
+        {
+          "id": "main",
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        }
+      ]
+    },
+    {
+      "key": "troop:6249",
+      "scope": "stored-gow-snapshot",
+      "sourceDigest": "3ac5d892e4084aaea9392f7d7b3ca6736385a9d9e1da926ed4bebd13d251bfd8",
+      "reviewer": "sa-L5",
+      "reviewedAt": "2026-09-27",
+      "decision": "accept",
+      "ledgerFingerprintAtReview": "62c72776a20e847e5ac469d1b844c785e3f80ecb33aebee08c31cede29ba7ccd",
+      "_reference": {
+        "spellId": 7392,
+        "english": "Death Mark the first and last Enemies. Take 3 damage.",
+        "nativeTarget": "None",
+        "randomize": null,
+        "steps": [
+          {
+            "Target": "FrontEnemy",
+            "Amount": 1,
+            "Type": "CauseDeathMark"
+          },
+          {
+            "Target": "LastEnemy",
+            "Type": "CauseDeathMark"
+          },
+          {
+            "Target": "Self",
+            "Amount": 3,
+            "Type": "Damage"
+          }
+        ],
+        "prototype": {
+          "segments": [
+            {
+              "kind": "status",
+              "target": "enemyFront",
+              "statusId": "death-mark",
+              "turns": 3
+            },
+            {
+              "kind": "status",
+              "target": "enemyLast",
+              "statusId": "death-mark",
+              "turns": 3
+            },
+            {
+              "kind": "damage",
+              "target": "allySelf",
+              "scaling": {
+                "base": 3,
+                "mult": 0
+              }
+            }
+          ]
+        }
+      },
+      "sourceEvidence": [
+        {
+          "id": "en",
+          "role": "english-snapshot",
+          "path": "data/raw/troops.gow.en.json",
+          "note": "troop 6249 Penitent: spell 7392 \"Death Mark the first and last Enemies. Take 3 damage.\", cost 7 Blue."
+        },
+        {
+          "id": "native",
+          "role": "native-snapshot",
+          "path": "data/raw/spells.gow.en.json",
+          "note": "spell 7392 Target None: CauseDeathMark FrontEnemy Amount 1; CauseDeathMark LastEnemy; Damage Self Amount 3."
+        },
+        {
+          "id": "rule",
+          "role": "official-shared-rule",
+          "path": "artifacts/gow-skill-audit/gold-primary-sources/official-status-effects.html",
+          "note": "Official status guide: status semantics (Barrier, Silence, Stun, Disease, Death Mark, Enrage, Submerged, cumulative cleanse chance via Cursed/Lycanthropy entries)."
+        },
+        {
+          "id": "laneTest",
+          "role": "lane-battle-test",
+          "path": "tests/unit/gowLaneL5B02.test.ts",
+          "note": "troop:6249: real TurnEngine.castSkill both sides + boundaries"
+        },
+        {
+          "id": "r004",
+          "role": "coordinator-ruling",
+          "path": "tasks/active/gow-skill-shards/rulings/R004-status-durations.md",
+          "note": "R004: negatives no turn cap, shared cumulative self-cleanse 10%/+10% (+5% Cursed), Poison never; positives end on trigger (Barrier/Reflect damage, Enchanted cast, Enraged skull damage, Submerged/Blessed holder action)."
+        },
+        {
+          "id": "r3",
+          "role": "lane-battle-test",
+          "path": "tests/unit/gowLaneL5R3.test.ts",
+          "note": "Round-3 real castSkill both sides: statuses from this cast unchanged after 6 failed turn-start rolls; one successful roll removes all recoverable negatives together (Poison/positives stay)."
+        },
+        {
+          "id": "srcR004",
+          "role": "community-source",
+          "path": "artifacts/gow-skill-audit/gold-primary-sources/community-2026-09-28-status-durations.json",
+          "note": "Saved community corroboration for R004 (staff reply: new negative resets, all negatives cleanse together)."
+        }
+      ],
+      "dimensions": {
+        "identity-cost-colors": {
+          "status": "verified",
+          "note": "Troop 6249 -> spell 7392, cost 7, Blue.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r3",
+            "srcR004"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL5B02.test.ts"
+          ]
+        },
+        "target-count-range": {
+          "status": "verified",
+          "note": "First and last living enemies; single survivor marked once; dead edges skip to living edge.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r3",
+            "srcR004"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL5B02.test.ts"
+          ]
+        },
+        "base-formula-rounding": {
+          "status": "verified",
+          "note": "Self damage fixed 3, magic-independent (magic 0/10).",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r3",
+            "srcR004"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL5B02.test.ts"
+          ]
+        },
+        "boost-source-ratio-cap": {
+          "status": "not-applicable",
+          "note": "No boost/count source.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r3",
+            "srcR004"
+          ],
+          "tests": []
+        },
+        "conditions-probabilities-branches": {
+          "status": "not-applicable",
+          "note": "No condition, chance or Randomize.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r3",
+            "srcR004"
+          ],
+          "tests": []
+        },
+        "status-duration-immunity": {
+          "status": "verified",
+          "note": "Death Mark R004: no turn cap; persists through 6 failed turn-start rolls, removed by one successful shared self-cleanse roll (gowLaneL5R3). death roll unchanged (graceTicks); Warded immune.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r3",
+            "srcR004"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL5B02.test.ts"
+          ]
+        },
+        "gems-types-selection-resolution": {
+          "status": "not-applicable",
+          "note": "No gem steps.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r3",
+            "srcR004"
+          ],
+          "tests": []
+        },
+        "summon-transform-pools": {
+          "status": "not-applicable",
+          "note": "No summon/transform.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r3",
+            "srcR004"
+          ],
+          "tests": []
+        },
+        "order-death-retargeting": {
+          "status": "verified",
+          "note": "Mark front -> mark last -> self damage; self damage absorbed by caster Barrier, else Armor then Life; 3 Life defeats caster.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r3",
+            "srcR004"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL5B02.test.ts"
+          ]
+        },
+        "mana-economy-extra-turn": {
+          "status": "verified",
+          "note": "Cast spends full mana and passes the turn; low mana and Silence block the real cast (no mana/action spent).",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r3",
+            "srcR004"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL5B02.test.ts"
+          ]
+        },
+        "display-description": {
+          "status": "verified",
+          "note": "Chinese description asserted verbatim; wording matches the English effect.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r3",
+            "srcR004"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL5B02.test.ts"
+          ]
+        },
+        "battle-pipeline": {
+          "status": "verified",
+          "note": "Real TurnEngine.castSkill both sides (lane file + round-3 R004 file).",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r3",
+            "srcR004"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL5B02.test.ts"
+          ],
+          "realBattleEntry": true
+        }
+      },
+      "clauseReviews": [
+        {
+          "id": "c1",
+          "text": "Death Mark the first and last Enemies.",
+          "status": "verified",
+          "note": "Front and last enemies Death Marked; R004 duration.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r3",
+            "srcR004"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL5B02.test.ts"
+          ]
+        },
+        {
+          "id": "c2",
+          "text": "Take 3 damage.",
+          "status": "verified",
+          "note": "Caster takes 3 ordinary damage (Barrier/Armor first).",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r3",
+            "srcR004"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL5B02.test.ts"
+          ]
+        }
+      ],
+      "nativeStepReviews": [
+        {
+          "id": "0",
+          "type": "CauseDeathMark",
+          "status": "verified",
+          "note": "CauseDeathMark FrontEnemy -> enemyFront.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r3",
+            "srcR004"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL5B02.test.ts"
+          ]
+        },
+        {
+          "id": "1",
+          "type": "CauseDeathMark",
+          "status": "verified",
+          "note": "CauseDeathMark LastEnemy -> enemyLast.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r3",
+            "srcR004"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL5B02.test.ts"
+          ]
+        },
+        {
+          "id": "2",
+          "type": "Damage",
+          "status": "verified",
+          "note": "Damage Self 3 -> damage allySelf base 3.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r3",
+            "srcR004"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL5B02.test.ts"
+          ]
+        }
+      ],
+      "branchReviews": [
+        {
+          "id": "main",
+          "status": "verified",
+          "note": "Single unconditional branch.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r3",
+            "srcR004"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL5B02.test.ts"
+          ]
+        }
+      ]
+    },
+    {
+      "key": "weapon:1147",
+      "scope": "stored-gow-snapshot",
+      "sourceDigest": "871580ec2f0de4456ef6ecdf76e2005fa6737cff4745cbe0625396c1f218ec4e",
+      "reviewer": "sa-L5",
+      "reviewedAt": "2026-09-27",
+      "decision": "accept",
+      "ledgerFingerprintAtReview": "62c72776a20e847e5ac469d1b844c785e3f80ecb33aebee08c31cede29ba7ccd",
+      "_reference": {
+        "spellId": 7444,
+        "english": "Death Mark an enemy. Deal [Magic + 1] true damage to all enemies below them, boosted by enemy Death Marks. [x3]",
+        "nativeTarget": "Enemy",
+        "randomize": null,
+        "steps": [
+          {
+            "Target": "FromTarget",
+            "Type": "CauseDeathMark"
+          },
+          {
+            "Target": "AllEnemies",
+            "Amount": 300,
+            "Type": "CountSpecificStatusEffect",
+            "Data": "deathmark"
+          },
+          {
+            "SpellPowerMultiplier": 1,
+            "Target": "BelowTarget",
+            "UseCounterForAmount": true,
+            "Amount": 1,
+            "Primarypower": true,
+            "Type": "TrueDamage"
+          }
+        ],
+        "prototype": {
+          "segments": [
+            {
+              "kind": "status",
+              "target": "enemyChosen",
+              "statusId": "death-mark",
+              "turns": 3
+            },
+            {
+              "kind": "damage",
+              "target": "enemyBelowTarget",
+              "scaling": {
+                "base": 1,
+                "mult": 1
+              },
+              "trueDamage": true,
+              "modifier": {
+                "mod": {
+                  "kind": "multiplier",
+                  "a": 3
+                },
+                "source": {
+                  "kind": "enemyStatusCount",
+                  "statusId": "death-mark"
+                }
+              }
+            }
+          ]
+        }
+      },
+      "sourceEvidence": [
+        {
+          "id": "en",
+          "role": "english-snapshot",
+          "path": "artifacts/gowhead-weapons/weapons.json",
+          "note": "weapon 1147 Crypt Keeper: gowhead English \"Death Mark an enemy. Deal [Magic + 1] true damage to all enemies below them, boosted by enemy Death Marks. [x3]\", cost 13 Purple, 7444 + gw_CryptKeeper."
+        },
+        {
+          "id": "native",
+          "role": "native-snapshot",
+          "path": "data/raw/spells.gow.en.json",
+          "note": "spell 7444 Target Enemy: CauseDeathMark FromTarget; CountSpecificStatusEffect AllEnemies deathmark Amount 300; TrueDamage BelowTarget UseCounterForAmount Amount 1 SPM 1."
+        },
+        {
+          "id": "rule",
+          "role": "official-shared-rule",
+          "path": "artifacts/gow-skill-audit/gold-primary-sources/official-status-effects.html",
+          "note": "Official status guide: status semantics (Barrier, Silence, Stun, Disease, Death Mark, Enrage, Submerged, cumulative cleanse chance via Cursed/Lycanthropy entries)."
+        },
+        {
+          "id": "laneTest",
+          "role": "lane-battle-test",
+          "path": "tests/unit/gowLaneL5B02.test.ts",
+          "note": "weapon:1147: real TurnEngine.castSkill both sides + boundaries"
+        },
+        {
+          "id": "r004",
+          "role": "coordinator-ruling",
+          "path": "tasks/active/gow-skill-shards/rulings/R004-status-durations.md",
+          "note": "R004: negatives no turn cap, shared cumulative self-cleanse 10%/+10% (+5% Cursed), Poison never; positives end on trigger (Barrier/Reflect damage, Enchanted cast, Enraged skull damage, Submerged/Blessed holder action)."
+        },
+        {
+          "id": "r3",
+          "role": "lane-battle-test",
+          "path": "tests/unit/gowLaneL5R3.test.ts",
+          "note": "Round-3 real castSkill both sides: statuses from this cast unchanged after 6 failed turn-start rolls; one successful roll removes all recoverable negatives together (Poison/positives stay)."
+        },
+        {
+          "id": "srcR004",
+          "role": "community-source",
+          "path": "artifacts/gow-skill-audit/gold-primary-sources/community-2026-09-28-status-durations.json",
+          "note": "Saved community corroboration for R004 (staff reply: new negative resets, all negatives cleanse together)."
+        }
+      ],
+      "dimensions": {
+        "identity-cost-colors": {
+          "status": "verified",
+          "note": "Weapon 1147 -> spell 7444, cost 13, Purple; both aliases.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r3",
+            "srcR004"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL5B02.test.ts"
+          ]
+        },
+        "target-count-range": {
+          "status": "verified",
+          "note": "Chosen enemy marked and untouched; every living enemy below it takes damage; last enemy chosen -> nobody below.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r3",
+            "srcR004"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL5B02.test.ts"
+          ]
+        },
+        "base-formula-rounding": {
+          "status": "verified",
+          "note": "True damage Magic+1+3*marks.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r3",
+            "srcR004"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL5B02.test.ts"
+          ]
+        },
+        "boost-source-ratio-cap": {
+          "status": "verified",
+          "note": "x3 per Death Marked enemy counted after step 0 (1 mark +3, 3 marks +9; pre-existing marks count).",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r3",
+            "srcR004"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL5B02.test.ts"
+          ]
+        },
+        "conditions-probabilities-branches": {
+          "status": "not-applicable",
+          "note": "No condition, chance or Randomize.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r3",
+            "srcR004"
+          ],
+          "tests": []
+        },
+        "status-duration-immunity": {
+          "status": "verified",
+          "note": "Death Mark R004: no turn cap; persists through 6 failed turn-start rolls, removed by one successful shared self-cleanse roll (gowLaneL5R3). Warded chosen enemy gets no mark.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r3",
+            "srcR004"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL5B02.test.ts"
+          ]
+        },
+        "gems-types-selection-resolution": {
+          "status": "not-applicable",
+          "note": "No gem steps.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r3",
+            "srcR004"
+          ],
+          "tests": []
+        },
+        "summon-transform-pools": {
+          "status": "not-applicable",
+          "note": "No summon/transform.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r3",
+            "srcR004"
+          ],
+          "tests": []
+        },
+        "order-death-retargeting": {
+          "status": "verified",
+          "note": "Mark -> count -> damage native order.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r3",
+            "srcR004"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL5B02.test.ts"
+          ]
+        },
+        "mana-economy-extra-turn": {
+          "status": "verified",
+          "note": "Cast spends full mana and passes the turn; low mana and Silence block the real cast (no mana/action spent).",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r3",
+            "srcR004"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL5B02.test.ts"
+          ]
+        },
+        "display-description": {
+          "status": "verified",
+          "note": "Chinese description asserted verbatim; wording matches the English effect.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r3",
+            "srcR004"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL5B02.test.ts"
+          ]
+        },
+        "battle-pipeline": {
+          "status": "verified",
+          "note": "Real TurnEngine.castSkill both sides (lane file + round-3 R004 file).",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r3",
+            "srcR004"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL5B02.test.ts"
+          ],
+          "realBattleEntry": true
+        }
+      },
+      "clauseReviews": [
+        {
+          "id": "c1",
+          "text": "Death Mark an enemy.",
+          "status": "verified",
+          "note": "Chosen enemy Death Marked (R004).",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r3",
+            "srcR004"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL5B02.test.ts"
+          ]
+        },
+        {
+          "id": "c2",
+          "text": "Deal [Magic + 1] true damage to all enemies below them, boosted by enemy Death Marks.",
+          "status": "verified",
+          "note": "True damage Magic+1 to all enemies below.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r3",
+            "srcR004"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL5B02.test.ts"
+          ]
+        },
+        {
+          "id": "c3",
+          "text": "[x3]",
+          "status": "verified",
+          "note": "[x3] per Death Marked enemy.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r3",
+            "srcR004"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL5B02.test.ts"
+          ]
+        }
+      ],
+      "nativeStepReviews": [
+        {
+          "id": "0",
+          "type": "CauseDeathMark",
+          "status": "verified",
+          "note": "CauseDeathMark FromTarget.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r3",
+            "srcR004"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL5B02.test.ts"
+          ]
+        },
+        {
+          "id": "1",
+          "type": "CountSpecificStatusEffect",
+          "status": "verified",
+          "note": "CountSpecificStatusEffect deathmark 300 -> modifier multiplier 3 enemyStatusCount.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r3",
+            "srcR004"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL5B02.test.ts"
+          ]
+        },
+        {
+          "id": "2",
+          "type": "TrueDamage",
+          "status": "verified",
+          "note": "TrueDamage BelowTarget -> enemyBelowTarget trueDamage.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r3",
+            "srcR004"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL5B02.test.ts"
+          ]
+        }
+      ],
+      "branchReviews": [
+        {
+          "id": "main",
+          "status": "verified",
+          "note": "Single unconditional branch.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r3",
+            "srcR004"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL5B02.test.ts"
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,985 @@
+[
+  {
+    "row": 1,
+    "cells": {
+      "A": "Source",
+      "B": "Date",
+      "C": "Faction",
+      "D": "Purpose",
+      "E": "Max Level",
+      "F": "Banner",
+      "G": "Colours",
+      "H": "Class",
+      "I": "Troop 1",
+      "J": "Troop 2",
+      "K": "Troop 3",
+      "L": "Troop 4",
+      "M": "Restrictions",
+      "N": "Notes"
+    }
+  },
+  {
+    "row": 2,
+    "cells": {
+      "A": "Starlite",
+      "B": "43418.0",
+      "C": "All-Seeing Eye",
+      "D": "Event",
+      "E": "80+",
+      "F": "Mist of Scales",
+      "G": "RB",
+      "I": "Emperor Khorvash",
+      "J": "Summer’s Fury",
+      "K": "Azura",
+      "L": "Krystenax",
+      "M": "Blue/Green"
+    }
+  },
+  {
+    "row": 3,
+    "cells": {
+      "A": "Tacet",
+      "B": "43348.0",
+      "C": "All-Seeing Eye",
+      "D": "Push",
+      "E": "500?",
+      "F": "Urskaya",
+      "G": "NRp",
+      "H": "Titan",
+      "I": "Champion of Anu",
+      "J": "Dragon’s Eye",
+      "K": "Arachnaean Weaver",
+      "L": "Megavore",
+      "M": "Blue/Green"
+    }
+  },
+  {
+    "row": 4,
+    "cells": {
+      "A": "Tacet",
+      "B": "43403.0",
+      "C": "All-Seeing Eye",
+      "D": "Push",
+      "E": "500?",
+      "F": "Dhrak-Zum",
+      "G": "NPy",
+      "H": "Titan",
+      "I": "Forest Troll",
+      "J": "Dragon’s Eye",
+      "K": "Apothecary",
+      "L": "Yasmine’s Chosen",
+      "M": "Blue/Green",
+      "N": "Can use Sylvanimora for Yasmine’s Chosen."
+    }
+  },
+  {
+    "row": 5,
+    "cells": {
+      "A": "Tacet",
+      "B": "43403.0",
+      "C": "All-Seeing Eye",
+      "D": "Pure Faction",
+      "F": "All-Seeing Eye",
+      "G": "GBn",
+      "I": "Ocularen Leech",
+      "J": "Ocularen",
+      "K": "Watch Mother",
+      "L": "Xerodar",
+      "M": "Blue/Green"
+    }
+  },
+  {
+    "row": 6,
+    "cells": {
+      "A": "Starlite",
+      "B": "43428.0",
+      "C": "Crypt Keepers",
+      "D": "Fast",
+      "E": "100.0",
+      "F": "Dhrak-Zum",
+      "G": "NPy",
+      "H": "(Thief)",
+      "I": "Skeleton Key",
+      "J": "Egg Thief",
+      "K": "Alchemist",
+      "L": "Greed",
+      "M": "Red/Purple",
+      "N": "Thief or Titan."
+    }
+  },
+  {
+    "row": 7,
+    "cells": {
+      "A": "Tacet",
+      "B": "43467.0",
+      "C": "Crypt Keepers",
+      "D": "Event",
+      "I": "Mountain Crusher",
+      "J": "Yao Guai",
+      "K": "Queen Titania",
+      "L": "(anything)",
+      "M": "Red/Purple"
+    }
+  },
+  {
+    "row": 8,
+    "cells": {
+      "A": "Tacet",
+      "B": "43467.0",
+      "C": "Crypt Keepers",
+      "D": "Event",
+      "I": "Dragon’s Eye",
+      "J": "Infernus",
+      "K": "Ubastet",
+      "L": "Gimlet Stormbrew",
+      "M": "Red/Purple",
+      "N": "Initially use Mountain Crusher."
+    }
+  },
+  {
+    "row": 9,
+    "cells": {
+      "A": "Tacet",
+      "B": "43467.0",
+      "C": "Crypt Keepers",
+      "D": "Event",
+      "I": "Dragon’s Eye",
+      "J": "Divinia",
+      "K": "Ubastet",
+      "L": "Gimlet Stormbrew",
+      "M": "Red/Purple",
+      "N": "Initially use Mountain Crusher."
+    }
+  },
+  {
+    "row": 10,
+    "cells": {
+      "A": "Tacet",
+      "B": "43403.0",
+      "C": "Crypt Keepers",
+      "D": "Push",
+      "E": "500?",
+      "F": "Khaziel",
+      "G": "NN",
+      "H": "Titan",
+      "I": "Rock Troll",
+      "J": "Dragon’s Eye",
+      "K": "Gimlet Stormbrew",
+      "L": "Megavore",
+      "M": "Red/Purple"
+    }
+  },
+  {
+    "row": 11,
+    "cells": {
+      "A": "Tacet",
+      "B": "43386.0",
+      "C": "Crypt Keepers",
+      "D": "Pure Faction",
+      "E": "400.0",
+      "I": "Lady Morana",
+      "J": "Lady Morana",
+      "K": "Lady Morana",
+      "L": "Lady Morana",
+      "M": "Red/Purple"
+    }
+  },
+  {
+    "row": 12,
+    "cells": {
+      "A": "Tacet",
+      "B": "43403.0",
+      "C": "Crypt Keepers",
+      "D": "Pure Faction",
+      "E": "500.0",
+      "F": "Stormheim",
+      "G": "BB",
+      "I": "Lady Morana",
+      "J": "Lady Morana",
+      "K": "Lady Morana",
+      "L": "Grave Seer",
+      "M": "Red/Purple",
+      "N": "Requires many tries to get lucky."
+    }
+  },
+  {
+    "row": 13,
+    "cells": {
+      "A": "jzg",
+      "B": "43499.0",
+      "C": "Fang Moor",
+      "D": "Event",
+      "E": "130.0",
+      "F": "Merlantis",
+      "G": "BGy",
+      "H": "Titan",
+      "I": "Forest Troll",
+      "J": "Apothecary",
+      "K": "Yasmine’s Pride",
+      "L": "Ketras",
+      "M": "Blue/Red",
+      "N": "Can use Gargoyle for Ketras."
+    }
+  },
+  {
+    "row": 14,
+    "cells": {
+      "A": "Tacet",
+      "B": "43500.0",
+      "C": "Fang Moor",
+      "D": "Event",
+      "E": "150.0",
+      "F": "Blackhawk",
+      "G": "NBp",
+      "H": "Titan",
+      "I": "Yasmine’s Pride",
+      "J": "Apothecary",
+      "K": "Ketras the Bull",
+      "L": "Ubastet",
+      "M": "Blue/Red",
+      "N": "Can use Gargoyle for Ketras."
+    }
+  },
+  {
+    "row": 15,
+    "cells": {
+      "A": "Tacet",
+      "B": "43500.0",
+      "C": "Fang Moor",
+      "D": "Push",
+      "E": "300+",
+      "F": "Blackhawk",
+      "G": "NBp",
+      "H": "Titan",
+      "I": "Mountain Crusher",
+      "J": "Apothecary",
+      "K": "High King Irongut",
+      "L": "Possessed King",
+      "M": "Blue/Red",
+      "N": "Beware rooms with Devour immunity."
+    }
+  },
+  {
+    "row": 16,
+    "cells": {
+      "A": "Tacet",
+      "B": "43500.0",
+      "C": "Fang Moor",
+      "D": "Pure Faction",
+      "E": "150.0",
+      "F": "Dragon’s Claw",
+      "G": "RYn",
+      "I": "Chief Dargon",
+      "J": "Chief Dargon",
+      "K": "Shaman of Set",
+      "L": "Horned Asp",
+      "M": "Blue/Red"
+    }
+  },
+  {
+    "row": 17,
+    "cells": {
+      "A": "Tacet",
+      "B": "43383.0",
+      "C": "Hall of Guardians",
+      "D": "Fast",
+      "E": "50?",
+      "F": "Khaziel",
+      "G": "NN",
+      "I": "Mountain Crusher",
+      "J": "Arachnaean Weaver",
+      "K": "Queen Aurora",
+      "L": "Queen Aurora",
+      "M": "Yellow/Brown"
+    }
+  },
+  {
+    "row": 18,
+    "cells": {
+      "A": "Starlite",
+      "B": "43424.0",
+      "C": "Hall of Guardians",
+      "D": "Event",
+      "E": "80+",
+      "F": "Hall of Guardians",
+      "G": "YNg",
+      "I": "Gorgotha",
+      "J": "Trickster’s Shot",
+      "K": "Divinia",
+      "L": "Megavore",
+      "M": "Yellow/Brown",
+      "N": "Banner is questionable."
+    }
+  },
+  {
+    "row": 19,
+    "cells": {
+      "A": "Starlite",
+      "B": "43460.0",
+      "C": "Hall of Guardians",
+      "D": "Event",
+      "E": "120.0",
+      "F": "Hall of Guardians",
+      "G": "YNg",
+      "I": "Gorgotha",
+      "J": "Ubastet",
+      "K": "Doomed Blade",
+      "L": "Gimlet Stormbrew",
+      "M": "Yellow/Brown"
+    }
+  },
+  {
+    "row": 20,
+    "cells": {
+      "A": "Tacet",
+      "B": "43502.0",
+      "C": "Hall of Guardians",
+      "D": "Event",
+      "F": "Urskaya",
+      "G": "NRp",
+      "H": "Titan",
+      "I": "Mountain Crusher",
+      "J": "Gargoyle",
+      "K": "Gargoyle",
+      "L": "Gimlet Stormbrew",
+      "M": "Yellow/Brown"
+    }
+  },
+  {
+    "row": 21,
+    "cells": {
+      "A": "Tacet",
+      "B": "43379.0",
+      "C": "Hall of Guardians",
+      "D": "Push",
+      "E": "300?",
+      "I": "Gorgotha",
+      "J": "Dragon’s Eye",
+      "K": "Divinia",
+      "L": "(cleanup troop)",
+      "M": "Yellow/Brown"
+    }
+  },
+  {
+    "row": 22,
+    "cells": {
+      "A": "Tacet",
+      "B": "43385.0",
+      "C": "Hall of Guardians",
+      "D": "Push",
+      "E": "400.0",
+      "F": "Khaziel",
+      "G": "NN",
+      "H": "Titan",
+      "I": "Dragon’s Eye",
+      "J": "Cockatrice",
+      "K": "Arachnaean Weaver",
+      "L": "Megavore",
+      "M": "Yellow/Brown"
+    }
+  },
+  {
+    "row": 23,
+    "cells": {
+      "A": "Tacet",
+      "B": "43388.0",
+      "C": "Hall of Guardians",
+      "D": "Push",
+      "E": "500.0",
+      "F": "Khaziel",
+      "G": "NN",
+      "H": "Titan",
+      "I": "Dragon’s Eye",
+      "J": "Cockatrice",
+      "K": "Weaver/(Megavore)",
+      "L": "Sylvanimora",
+      "M": "Yellow/Brown"
+    }
+  },
+  {
+    "row": 24,
+    "cells": {
+      "A": "Tacet",
+      "B": "43403.0",
+      "C": "Hall of Guardians",
+      "D": "Push",
+      "F": "Suncrest",
+      "G": "YGb",
+      "H": "Titan",
+      "I": "Gorgotha",
+      "J": "Dragon’s Eye",
+      "K": "Divinia",
+      "L": "Yasmine’s Chosen",
+      "M": "Yellow/Brown"
+    }
+  },
+  {
+    "row": 25,
+    "cells": {
+      "A": "Tacet",
+      "B": "43386.0",
+      "C": "Hall of Guardians",
+      "D": "Pure Faction",
+      "F": "Urskaya",
+      "G": "NRp",
+      "I": "Silent Sentinel",
+      "J": "Gargoyle",
+      "K": "Gargoyle",
+      "L": "Gargoyle",
+      "M": "Yellow/Brown",
+      "N": "Ethereal Sentry might help in last slot."
+    }
+  },
+  {
+    "row": 26,
+    "cells": {
+      "A": "Tacet",
+      "B": "43403.0",
+      "C": "Hall of Guardians",
+      "D": "Pure Faction",
+      "F": "Sin of Maraj",
+      "G": "RNp",
+      "I": "Silent Sentinel",
+      "J": "Silent Sentinel",
+      "K": "Gargoyle",
+      "L": "Gargoyle",
+      "M": "Yellow/Brown",
+      "N": "Need a Silent Sentinel to survive into the last battle."
+    }
+  },
+  {
+    "row": 27,
+    "cells": {
+      "A": "Tacet",
+      "B": "43428.0",
+      "C": "Primal Rift",
+      "D": "Fast",
+      "E": "190.0",
+      "F": "Dhrak-Zum",
+      "G": "Npy",
+      "H": "Titan",
+      "I": "Mountain Crusher",
+      "J": "Yao Guai",
+      "K": "Tai-Pan",
+      "L": "Queen Titania",
+      "M": "Green/Purple",
+      "N": "Can use Merlantis (BGy) banner."
+    }
+  },
+  {
+    "row": 28,
+    "cells": {
+      "A": "Starlite",
+      "B": "43446.0",
+      "C": "Primal Rift",
+      "D": "Event",
+      "E": "100.0",
+      "F": "Sin of Maraj",
+      "G": "RNp",
+      "H": "(Thief)",
+      "I": "Greed",
+      "J": "Egg Thief",
+      "K": "Skeleton Key",
+      "L": "Greed",
+      "M": "Green/Purple"
+    }
+  },
+  {
+    "row": 29,
+    "cells": {
+      "A": "Antitan",
+      "B": "43428.0",
+      "C": "Primal Rift",
+      "D": "Fast",
+      "E": "120.0",
+      "H": "(Thief)",
+      "I": "Apothecary",
+      "J": "Egg Thief",
+      "K": "Greed",
+      "L": "Skeleton Key",
+      "M": "Green/Purple"
+    }
+  },
+  {
+    "row": 30,
+    "cells": {
+      "A": "Starlite",
+      "B": "43430.0",
+      "C": "Primal Rift",
+      "D": "Event",
+      "E": "150.0",
+      "F": "Wild Plains",
+      "G": "RG",
+      "H": "Titan",
+      "I": "Yasmine’s Pride",
+      "J": "Yao Guai",
+      "K": "Tai-Pan",
+      "L": "Queen Titania",
+      "M": "Green/Purple"
+    }
+  },
+  {
+    "row": 31,
+    "cells": {
+      "A": "Michal Wojcik",
+      "B": "43431.0",
+      "C": "Primal Rift",
+      "D": "Event",
+      "E": "200?",
+      "H": "Titan",
+      "I": "Mang",
+      "J": "Apothecary",
+      "K": "Skadi",
+      "L": "Possessed King",
+      "M": "Green/Purple",
+      "N": "Claimed to make Event Leaderboard."
+    }
+  },
+  {
+    "row": 32,
+    "cells": {
+      "A": "Tacet",
+      "B": "43433.0",
+      "C": "Primal Rift",
+      "D": "Push",
+      "E": "300.0",
+      "F": "Sin of Maraj",
+      "G": "RNp",
+      "H": "Titan",
+      "I": "Mang",
+      "J": "Apothecary",
+      "K": "Egg Thief",
+      "L": "Queen Aurora",
+      "M": "Green/Purple"
+    }
+  },
+  {
+    "row": 33,
+    "cells": {
+      "A": "Tacet",
+      "B": "43437.0",
+      "C": "Primal Rift",
+      "D": "Push",
+      "E": "500.0",
+      "F": "Khaziel",
+      "G": "NN",
+      "H": "Titan",
+      "I": "Mang",
+      "J": "Apothecary",
+      "K": "Keeper of Souls",
+      "L": "Queen Aurora",
+      "M": "Green/Purple"
+    }
+  },
+  {
+    "row": 34,
+    "cells": {
+      "A": "Tacet",
+      "B": "43428.0",
+      "C": "Primal Rift",
+      "D": "Pure Faction",
+      "E": "150.0",
+      "F": "Bright Forest",
+      "G": "GPb",
+      "I": "Dark Dryad",
+      "J": "Dark Dryad",
+      "K": "Alderfather",
+      "L": "Green Golem",
+      "M": "Green/Purple"
+    }
+  },
+  {
+    "row": 35,
+    "cells": {
+      "A": "Starlite",
+      "B": "43438.0",
+      "C": "Sea of Sorrow",
+      "D": "Fast",
+      "E": "100.0",
+      "I": "Thorodin",
+      "J": "Gorgotha",
+      "K": "Ubastet",
+      "L": "Mercy",
+      "M": "Blue/Brown"
+    }
+  },
+  {
+    "row": 36,
+    "cells": {
+      "A": "Marcello",
+      "B": "43393.0",
+      "C": "Sea of Sorrow",
+      "D": "Fast",
+      "E": "30.0",
+      "F": "Dhrak-Zum",
+      "G": "NPy",
+      "I": "Mountain Crusher",
+      "J": "Gargoyle",
+      "K": "Skullbeard",
+      "L": "Rock Spirit",
+      "M": "Blue/Brown"
+    }
+  },
+  {
+    "row": 37,
+    "cells": {
+      "A": "Tacet",
+      "B": "43393.0",
+      "C": "Sea of Sorrow",
+      "D": "Push",
+      "F": "Khaziel",
+      "G": "NN",
+      "H": "Titan",
+      "I": "Gargoyle",
+      "J": "Dragon’s Eye",
+      "K": "Scorpius",
+      "L": "Euryali",
+      "M": "Blue/Brown"
+    }
+  },
+  {
+    "row": 38,
+    "cells": {
+      "A": "Tacet",
+      "B": "43403.0",
+      "C": "Sea of Sorrow",
+      "D": "Push",
+      "E": "500.0",
+      "F": "Blackhawk",
+      "G": "NBp",
+      "H": "Titan",
+      "I": "Dragon’s Eye",
+      "J": "Cockatrice",
+      "K": "Apothecary",
+      "L": "Ubastet",
+      "M": "Blue/Brown",
+      "N": "Can use Gargoyle for Ubastet."
+    }
+  },
+  {
+    "row": 39,
+    "cells": {
+      "A": "Tacet",
+      "B": "43403.0",
+      "C": "Sea of Sorrow",
+      "D": "Pure Faction",
+      "F": "Sea of Sorrow",
+      "G": "BNy",
+      "I": "Hammerclaw",
+      "J": "Sea Witch",
+      "K": "The Deep King",
+      "L": "The Deep King",
+      "M": "Blue/Brown"
+    }
+  },
+  {
+    "row": 40,
+    "cells": {
+      "A": "Tacet",
+      "B": "43462.0",
+      "C": "The Warrens",
+      "D": "Fast",
+      "E": "90.0",
+      "I": "Cedric Sparklesack",
+      "J": "Egg Thief",
+      "K": "Skeleton Key",
+      "L": "Greed",
+      "M": "Green/Yellow",
+      "N": "Hero Class with Storm is best, esp. Brown, Red or Green."
+    }
+  },
+  {
+    "row": 41,
+    "cells": {
+      "A": "Tony Aguilera",
+      "B": "43404.0",
+      "C": "Any",
+      "D": "Fast",
+      "H": "Titan",
+      "I": "Jar of Eyes",
+      "J": "Yao Guai",
+      "K": "Divinia",
+      "L": "Pharaoh Hound"
+    }
+  },
+  {
+    "row": 42,
+    "cells": {
+      "A": "Tacet",
+      "B": "43403.0",
+      "C": "Any",
+      "D": "Push",
+      "I": "Rock Troll",
+      "J": "Dark Troll",
+      "K": "Elemaugrim",
+      "L": "Infernus"
+    }
+  },
+  {
+    "row": 43,
+    "cells": {
+      "A": "Tacet",
+      "B": "43403.0",
+      "C": "Any",
+      "D": "Push",
+      "E": "500.0",
+      "F": "Khaziel",
+      "G": "NN",
+      "H": "Titan",
+      "I": "Mountain Crusher",
+      "J": "Megavore",
+      "K": "Arachnaean Weaver",
+      "L": "Megavore"
+    }
+  },
+  {
+    "row": 44,
+    "cells": {
+      "A": "Tacet",
+      "B": "43379.0",
+      "C": "Any",
+      "D": "Push",
+      "F": "Khaziel",
+      "G": "NN",
+      "H": "Titan",
+      "I": "Dragon’s Eye",
+      "J": "Megavore",
+      "K": "Arachnaean Weaver",
+      "L": "Megavore",
+      "N": "Can use Queen Aurora for Weaver."
+    }
+  },
+  {
+    "row": 45,
+    "cells": {
+      "A": "Simple!!!",
+      "B": "43481.0",
+      "C": "Any",
+      "D": "Push",
+      "H": "Titan",
+      "I": "Mountain Crusher",
+      "J": "Arachnaean Weaver",
+      "K": "Infernus",
+      "L": "Leprechaun"
+    }
+  },
+  {
+    "row": 46,
+    "cells": {
+      "A": "Costa Ps4",
+      "B": "43481.0",
+      "C": "Any",
+      "D": "Push",
+      "E": "500.0",
+      "H": "Titan",
+      "I": "Mountain Crusher",
+      "J": "Apothecary",
+      "K": "High King Irongut",
+      "L": "Champion of Anu"
+    }
+  },
+  {
+    "row": 47,
+    "cells": {
+      "A": "Max",
+      "B": "43394.0",
+      "C": "Any",
+      "D": "Push",
+      "E": "500.0",
+      "H": "Archer",
+      "I": "Silent Sentinel",
+      "J": "Dwarven Gate",
+      "K": "Dragon’s Eye/Archer",
+      "L": "Ubastet",
+      "N": "Use any class with summons."
+    }
+  },
+  {
+    "row": 48,
+    "cells": {
+      "A": "Tacet",
+      "B": "43532.0",
+      "C": "Dark Pits",
+      "D": "Pure Faction",
+      "F": "Blighted Lands",
+      "I": "Plague Rat",
+      "J": "Plague Rat",
+      "K": "Hex Rat",
+      "L": "Hex Rat",
+      "M": "Green/Brown"
+    }
+  },
+  {
+    "row": 49,
+    "cells": {
+      "A": "Tacet",
+      "B": "43532.0",
+      "C": "Dark Pits",
+      "D": "Push",
+      "F": "Blackhawk",
+      "H": "Titan",
+      "I": "Mountain Crusher",
+      "J": "Apothecary",
+      "K": "High King Irongut",
+      "L": "The Posessed King",
+      "M": "Green/Brown",
+      "N": "Use any brown weapon. troops in last 2 slots can be anything"
+    }
+  },
+  {
+    "row": 50,
+    "cells": {
+      "A": "Tacet",
+      "B": "43558.0",
+      "C": "All-Seeing Eye",
+      "D": "Push",
+      "E": "500.0",
+      "F": "Kraken",
+      "G": "2Br, +1Bl, -1p",
+      "H": "Sentinel",
+      "I": "Mountain Crusher",
+      "J": "Apothecary",
+      "K": "High King Irongut",
+      "L": "The Posessed King"
+    }
+  },
+  {
+    "row": 51,
+    "cells": {
+      "A": "Tacet",
+      "B": "43558.0",
+      "C": "Hall of Guardians",
+      "D": "Push",
+      "E": "500.0",
+      "F": "Kraken",
+      "G": "2Br, +1Bl, -1p",
+      "H": "Plaguelord",
+      "I": "Mountain Crusher",
+      "J": "Cockatrice",
+      "K": "High King Irongut",
+      "L": "Sylvanimora"
+    }
+  },
+  {
+    "row": 52,
+    "cells": {
+      "A": "Tacet",
+      "B": "43558.0",
+      "C": "Crypt Keepers",
+      "D": "Push",
+      "E": "500.0",
+      "F": "Woodland",
+      "G": "2Gr",
+      "H": "Plaguelord",
+      "I": "Essence of Evil",
+      "J": "Megavore",
+      "K": "Arachnaean Weaver",
+      "L": "Megavore"
+    }
+  },
+  {
+    "row": 53,
+    "cells": {
+      "A": "Tacet",
+      "B": "43558.0",
+      "C": "Sea of Sorrow",
+      "D": "Push",
+      "E": "500.0",
+      "F": "Kraken",
+      "G": "2Br, +1Bl, -1p",
+      "H": "Plaguelord",
+      "I": "Mountain Crusher",
+      "J": "Apothecary",
+      "K": "High King Irongut",
+      "L": "The Posessed King",
+      "M": "Blue/Brown"
+    }
+  },
+  {
+    "row": 54,
+    "cells": {
+      "A": "Tacet",
+      "B": "43558.0",
+      "C": "Primal Rift",
+      "D": "Push",
+      "E": "500.0",
+      "F": "Dwarven",
+      "G": "2Br",
+      "H": "Plaguelord",
+      "I": "Mang",
+      "J": "Apothecary",
+      "K": "Keeper of Souls",
+      "L": "Queen Aurora"
+    }
+  },
+  {
+    "row": 55,
+    "cells": {
+      "A": "Tacet",
+      "B": "43558.0",
+      "C": "The Warrens",
+      "D": "Push",
+      "E": "110.0",
+      "F": "Proud",
+      "G": "2Rd",
+      "H": "Necromancer",
+      "I": "Greed",
+      "J": "Egg Thief",
+      "K": "Skeleton Key",
+      "L": "Cedric Sparklesack"
+    }
+  },
+  {
+    "row": 56,
+    "cells": {
+      "A": "Tacet",
+      "B": "43558.0",
+      "C": "Fang Moor",
+      "D": "Push",
+      "E": "500.0",
+      "F": "Kraken",
+      "G": "2Br, +1Bl, -1p",
+      "H": "Titan",
+      "I": "Mountain Crusher",
+      "J": "Apothecary",
+      "K": "High King Irongut",
+      "L": "The Posessed King"
+    }
+  },
+  {
+    "row": 57,
+    "cells": {
+      "A": "Tacet",
+      "B": "43558.0",
+      "C": "Dark Pits",
+      "D": "Push",
+      "E": "500.0",
+      "F": "Kraken",
+      "G": "2Br, +1Bl, -1p",
+      "H": "Titan",
+      "I": "Mountain Crusher",
+      "J": "Apothecary",
+      "K": "High King Irongut",
+      "L": "The Posessed King",
+      "M": "Green/Brown"
+    }
+  },
+  {
+    "row": 58,
+    "cells": {
+      "A": "Tacet",
+      "B": "43558.0",
+      "C": "Primal Rift",
+      "D": "Push",
+      "E": "500.0",
+      "F": "Dwarven",
+      "G": "2Br",
+      "H": "Titan",
+      "I": "Mang",
+      "J": "Apothecary",
+      "K": "Keeper of Souls",
+      "L": "Queen Aurora",
+      "M": "Green/Purple"
+    }
+  }
+]

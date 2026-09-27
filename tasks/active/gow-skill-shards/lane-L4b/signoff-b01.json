@@ -1,0 +1,690 @@
+{
+  "schemaVersion": 1,
+  "scope": "stored-gow-snapshot",
+  "reviews": [
+    {
+      "key": "troop:6365",
+      "scope": "stored-gow-snapshot",
+      "sourceDigest": "1ab5452a82fe2cae45dd792cd8f83d276caad2df00af2ca09978fe7b3f93e6a3",
+      "reviewer": "sa-L4b",
+      "reviewedAt": "2026-09-27",
+      "decision": "accept",
+      "ledgerFingerprintAtReview": "74aed74e24f50d0f8bc19b89a5413c14101081734608d1c764c45ebade5a241a",
+      "_reference": {
+        "spellId": 7517,
+        "english": "Give all other allies Barrier and [Magic + 1] Life. Create 10 Gems of a chosen Color.",
+        "nativeTarget": "ManaGemsOnly",
+        "randomize": null,
+        "steps": [
+          {
+            "Target": "AllAlliesButNotSelf",
+            "Type": "CauseBarrier"
+          },
+          {
+            "SpellPowerMultiplier": 1,
+            "Target": "AllAlliesButNotSelf",
+            "Amount": 1,
+            "Primarypower": true,
+            "Type": "IncreaseHealth"
+          },
+          {
+            "Color1": "FromTarget",
+            "Amount": 10,
+            "Type": "CreateGems"
+          }
+        ],
+        "prototype": {
+          "segments": [
+            {
+              "kind": "status",
+              "target": "allyOthers",
+              "statusId": "barrier",
+              "turns": 3
+            },
+            {
+              "kind": "buff",
+              "target": "allyOthers",
+              "stat": "hp",
+              "scaling": {
+                "base": 1,
+                "mult": 1
+              },
+              "lifeMode": "gain"
+            },
+            {
+              "kind": "gem",
+              "params": {
+                "op": "create",
+                "gem": {
+                  "kind": "color",
+                  "color": "CHOSEN"
+                },
+                "count": {
+                  "base": 10,
+                  "mult": 0
+                }
+              }
+            }
+          ]
+        }
+      },
+      "sourceEvidence": [
+        {
+          "id": "en",
+          "role": "english-snapshot",
+          "path": "data/raw/troops.gow.en.json",
+          "note": "Entity troop:6365 SpellId/English text/ManaCost/ManaColors asserted verbatim in tests/unit/gowLaneL4bB01.test.ts."
+        },
+        {
+          "id": "native",
+          "role": "native-snapshot",
+          "path": "data/raw/spells.gow.en.json",
+          "note": "SpellId 7517 Cost and every SpellSteps field (ordered, toEqual) asserted in tests/unit/gowLaneL4bB01.test.ts."
+        },
+        {
+          "id": "rule",
+          "role": "official-shared-rule",
+          "path": "artifacts/gow-skill-audit/gold-primary-sources/official-status-effects.html",
+          "note": "official-status-effects.html: Barrier protects from one instance of damage then is removed; Blessed troops are immune to status effects (Blessed-ally case: Barrier refused, Life still applied)."
+        },
+        {
+          "id": "laneTest",
+          "role": "lane-battle-test",
+          "path": "tests/unit/gowLaneL4bB01.test.ts",
+          "note": "Lane L4b frozen test file: binding + real castSkill cases for troop:6365."
+        }
+      ],
+      "dimensions": {
+        "identity-cost-colors": {
+          "status": "verified",
+          "note": "troop 6365 -> spell 7517; raw ManaCost 24 = native Cost 24; colours Green+Yellow+Purple in raw _ManaColors_parsed and src troops manaColors; spell.id binding asserted.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB01.test.ts"
+          ]
+        },
+        "target-count-range": {
+          "status": "verified",
+          "note": "AllAlliesButNotSelf -> allyOthers: both other living allies (ids 1,2) get Barrier+Life, caster excluded, defeated ally skipped, lone caster gets no status/buff; enemies untouched. Create count 10 fixed.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB01.test.ts"
+          ]
+        },
+        "base-formula-rounding": {
+          "status": "verified",
+          "note": "IncreaseHealth Amount 1 SpellPowerMultiplier 1 = [Magic+1]: magic 0 -> +1, magic 10 -> +11 (maxHp and hp both 1000+magic+1). Create count base 10 mult 0 -> exactly 10 cells.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB01.test.ts"
+          ]
+        },
+        "boost-source-ratio-cap": {
+          "status": "not-applicable",
+          "note": "No Count*/UseCounterForAmount/StatusModifier step in native; prototype has no modifier; English has no boost clause.",
+          "evidenceIds": [
+            "en",
+            "native"
+          ],
+          "tests": []
+        },
+        "conditions-probabilities-branches": {
+          "status": "not-applicable",
+          "note": "Single unconditional main branch; no Randomize/Chance/condition in native steps or prototype.",
+          "evidenceIds": [
+            "en",
+            "native"
+          ],
+          "tests": []
+        },
+        "status-duration-immunity": {
+          "status": "verified",
+          "note": "Barrier status-apply turns 3 on each other ally (project Barrier convention, same as accepted troop:6081); Blessed ally refuses Barrier but still gains Life; caster not shielded.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB01.test.ts"
+          ]
+        },
+        "gems-types-selection-resolution": {
+          "status": "verified",
+          "note": "Color1 FromTarget with spell Target ManaGemsOnly -> CHOSEN colour via ColorChooser; chosen Red and Green each produce 10 gems of that specific colour from non-chosen distinct cells; 3 empty cells filled by gem-create first then 7 gem-transform; only 4 convertible cells -> only those 4 convert. Created-gem matches resolve through the normal board pipeline.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB01.test.ts"
+          ]
+        },
+        "summon-transform-pools": {
+          "status": "not-applicable",
+          "note": "No summon or troop transform step.",
+          "evidenceIds": [
+            "en",
+            "native"
+          ],
+          "tests": []
+        },
+        "order-death-retargeting": {
+          "status": "verified",
+          "note": "Order Barrier -> Life -> create matches native order (status-apply events precede gem events); defeated ally skipped, no retargeting required.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB01.test.ts"
+          ]
+        },
+        "mana-economy-extra-turn": {
+          "status": "verified",
+          "note": "Cast sets caster mana to 0; any later caster mana equals cascade match mana-gain events (board source); no extra-turn in skill phase; turn passes unless a cascade 4+ match awards one; one action log entry.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB01.test.ts"
+          ]
+        },
+        "display-description": {
+          "status": "verified",
+          "note": "Chinese '赋予所有其他盟友屏障效果并给予 [魔法 + 1] 点生命值。创造 10 颗指定颜色宝石。' matches English clauses and scaling; English asserted verbatim.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB01.test.ts"
+          ]
+        },
+        "battle-pipeline": {
+          "status": "verified",
+          "note": "Real TurnEngine.castSkill on Left and Right sides with Magic 0/10; low mana (23) and Silence refuse without spending mana or changing board, statuses or action log.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB01.test.ts"
+          ],
+          "realBattleEntry": true
+        }
+      },
+      "clauseReviews": [
+        {
+          "id": "c1",
+          "text": "Give all other allies Barrier and [Magic + 1] Life.",
+          "status": "verified",
+          "note": "Barrier (turns 3) and [Magic+1] maxHp/hp on each other living ally; caster excluded; Blessed ally immune to Barrier only; dead ally skipped.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB01.test.ts"
+          ]
+        },
+        {
+          "id": "c2",
+          "text": "Create 10 Gems of a chosen Color.",
+          "status": "verified",
+          "note": "Exactly 10 gems of the chosen specific colour (Red/Green tested) created; empty-first then full-board conversion; insufficient-convertible board converts only the available 4 cells.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB01.test.ts"
+          ]
+        }
+      ],
+      "nativeStepReviews": [
+        {
+          "id": "0",
+          "type": "CauseBarrier",
+          "status": "verified",
+          "note": "CauseBarrier AllAlliesButNotSelf -> status barrier allyOthers turns 3; asserted via status-apply events and statuses.",
+          "evidenceIds": [
+            "native",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB01.test.ts"
+          ]
+        },
+        {
+          "id": "1",
+          "type": "IncreaseHealth",
+          "status": "verified",
+          "note": "IncreaseHealth Amount 1 x SpellPower -> buff hp base1 mult1 lifeMode gain; maxHp and hp both +magic+1.",
+          "evidenceIds": [
+            "native",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB01.test.ts"
+          ]
+        },
+        {
+          "id": "2",
+          "type": "CreateGems",
+          "status": "verified",
+          "note": "CreateGems Color1 FromTarget Amount 10 -> create CHOSEN count 10; gem-create/gem-transform counted per colour.",
+          "evidenceIds": [
+            "native",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB01.test.ts"
+          ]
+        }
+      ],
+      "branchReviews": [
+        {
+          "id": "main",
+          "status": "verified",
+          "note": "Single main branch: all three steps executed in order on every successful cast; refusal paths (low mana / silence) execute none.",
+          "evidenceIds": [
+            "native",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB01.test.ts"
+          ]
+        }
+      ]
+    },
+    {
+      "key": "troop:6902",
+      "scope": "stored-gow-snapshot",
+      "sourceDigest": "2fe34423b8329d2299b6e98db1ad93521301c3ac015c8dc44baad48bef95ecf7",
+      "reviewer": "sa-L4b",
+      "reviewedAt": "2026-09-27",
+      "decision": "accept",
+      "ledgerFingerprintAtReview": "74aed74e24f50d0f8bc19b89a5413c14101081734608d1c764c45ebade5a241a",
+      "_reference": {
+        "spellId": 8363,
+        "english": "Death Mark an Enemy. Create 6 Purple Gems, boosted by Death Marked Enemies. [x3]",
+        "nativeTarget": "Enemy",
+        "randomize": null,
+        "steps": [
+          {
+            "Target": "FromTarget",
+            "Amount": 1,
+            "Type": "CauseDeathMark"
+          },
+          {
+            "Target": "AllEnemies",
+            "Amount": 300,
+            "Type": "CountSpecificStatusEffect",
+            "Data": "deathmark"
+          },
+          {
+            "UseCounterForAmount": true,
+            "Color1": "Purple",
+            "Amount": 6,
+            "Type": "CreateGems"
+          }
+        ],
+        "prototype": {
+          "segments": [
+            {
+              "kind": "status",
+              "target": "enemyChosen",
+              "statusId": "death-mark",
+              "turns": 3
+            },
+            {
+              "kind": "gem",
+              "params": {
+                "op": "create",
+                "gem": {
+                  "kind": "color",
+                  "color": "Purple"
+                },
+                "count": {
+                  "base": 6,
+                  "mult": 0
+                },
+                "modifier": {
+                  "mod": {
+                    "kind": "multiplier",
+                    "a": 3
+                  },
+                  "source": {
+                    "kind": "enemyStatusCount",
+                    "statusId": "death-mark"
+                  }
+                }
+              },
+              "modifier": {
+                "mod": {
+                  "kind": "multiplier",
+                  "a": 3
+                },
+                "source": {
+                  "kind": "enemyStatusCount",
+                  "statusId": "death-mark"
+                }
+              }
+            }
+          ]
+        }
+      },
+      "sourceEvidence": [
+        {
+          "id": "en",
+          "role": "english-snapshot",
+          "path": "data/raw/troops.gow.en.json",
+          "note": "Entity troop:6902 SpellId/English text/ManaCost/ManaColors asserted verbatim in tests/unit/gowLaneL4bB01.test.ts."
+        },
+        {
+          "id": "native",
+          "role": "native-snapshot",
+          "path": "data/raw/spells.gow.en.json",
+          "note": "SpellId 8363 Cost and every SpellSteps field (ordered, toEqual) asserted in tests/unit/gowLaneL4bB01.test.ts."
+        },
+        {
+          "id": "rule",
+          "role": "official-shared-rule",
+          "path": "artifacts/gow-skill-audit/gold-primary-sources/official-status-effects.html",
+          "note": "official-status-effects.html: Death Mark gives the afflicted troop a 10% chance to die at the start of each turn; Blessed troops are immune to status effects (Blessed target case keeps the counter at 0)."
+        },
+        {
+          "id": "laneTest",
+          "role": "lane-battle-test",
+          "path": "tests/unit/gowLaneL4bB01.test.ts",
+          "note": "Lane L4b frozen test file: binding + real castSkill cases for troop:6902."
+        }
+      ],
+      "dimensions": {
+        "identity-cost-colors": {
+          "status": "verified",
+          "note": "troop 6902 -> spell 8363; raw ManaCost 11 = native Cost 11; colours Red+Yellow in raw and src; spell.id binding asserted.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB01.test.ts"
+          ]
+        },
+        "target-count-range": {
+          "status": "verified",
+          "note": "FromTarget -> enemyChosen: only the chosen enemy (id 12) receives death-mark; other enemies untouched; creation count derived from the AllEnemies counter.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB01.test.ts"
+          ]
+        },
+        "base-formula-rounding": {
+          "status": "verified",
+          "note": "CreateGems Amount 6 fixed; counter Amount 300 = x3 per Death-Marked enemy; total 6 + 3n, integer, no rounding.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB01.test.ts"
+          ]
+        },
+        "boost-source-ratio-cap": {
+          "status": "verified",
+          "note": "CountSpecificStatusEffect AllEnemies deathmark Amount 300 -> modifier multiplier a=3 enemyStatusCount death-mark evaluated after the Death Mark step: 1 marked -> 9, 3 -> 15, 4 -> 18; already-marked target counted once (9); defeated marked enemy excluded (9); the modifier present at params and segment level is applied once (asserted counts). No cap in native.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB01.test.ts"
+          ]
+        },
+        "conditions-probabilities-branches": {
+          "status": "not-applicable",
+          "note": "No Randomize/Chance/condition; CauseDeathMark Amount 1 is a single application.",
+          "evidenceIds": [
+            "en",
+            "native"
+          ],
+          "tests": []
+        },
+        "status-duration-immunity": {
+          "status": "verified",
+          "note": "death-mark status-apply turns 3 on the chosen enemy; Blessed target refuses it and the counter stays 0 -> 6 Purple.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB01.test.ts"
+          ]
+        },
+        "gems-types-selection-resolution": {
+          "status": "verified",
+          "note": "Color1 Purple (specific): every created gem is Purple, taken from non-Purple cells on a Purple-free full board (gem-transform path); counts 6/9/15/18 per case.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB01.test.ts"
+          ]
+        },
+        "summon-transform-pools": {
+          "status": "not-applicable",
+          "note": "No summon or troop transform step.",
+          "evidenceIds": [
+            "en",
+            "native"
+          ],
+          "tests": []
+        },
+        "order-death-retargeting": {
+          "status": "verified",
+          "note": "Order Death Mark -> count -> create: the newly marked target is included (0 pre-marked -> 9); defeated enemies excluded from the count.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB01.test.ts"
+          ]
+        },
+        "mana-economy-extra-turn": {
+          "status": "verified",
+          "note": "Caster mana 0 after cast except cascade match mana-gain events; no skill extra turn; one action log entry.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB01.test.ts"
+          ]
+        },
+        "display-description": {
+          "status": "verified",
+          "note": "Chinese '使一名敌人陷入死亡标记状态。创造 6 颗紫色宝石，数量因陷入死亡标记状态的敌人数而增强。 [x3]' matches English and the x3 boost.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB01.test.ts"
+          ]
+        },
+        "battle-pipeline": {
+          "status": "verified",
+          "note": "Real TurnEngine.castSkill on both sides with FixedTargetChooser(12); low mana (10) and Silence refuse without spending mana or touching board/statuses.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB01.test.ts"
+          ],
+          "realBattleEntry": true
+        }
+      },
+      "clauseReviews": [
+        {
+          "id": "c1",
+          "text": "Death Mark an Enemy.",
+          "status": "verified",
+          "note": "Chosen enemy gets death-mark (turns 3); Blessed target immune.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB01.test.ts"
+          ]
+        },
+        {
+          "id": "c2",
+          "text": "Create 6 Purple Gems, boosted by Death Marked Enemies.",
+          "status": "verified",
+          "note": "Specific Purple gems created, count 6 + boost from living Death-Marked enemies counted after c1.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB01.test.ts"
+          ]
+        },
+        {
+          "id": "c3",
+          "text": "[x3]",
+          "status": "verified",
+          "note": "[x3] = +3 gems per Death-Marked enemy: 9/15/18 asserted, no double application.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB01.test.ts"
+          ]
+        }
+      ],
+      "nativeStepReviews": [
+        {
+          "id": "0",
+          "type": "CauseDeathMark",
+          "status": "verified",
+          "note": "CauseDeathMark FromTarget Amount 1 -> status death-mark enemyChosen turns 3.",
+          "evidenceIds": [
+            "native",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB01.test.ts"
+          ]
+        },
+        {
+          "id": "1",
+          "type": "CountSpecificStatusEffect",
+          "status": "verified",
+          "note": "CountSpecificStatusEffect AllEnemies Data deathmark Amount 300 -> enemyStatusCount death-mark multiplier 3 (living only).",
+          "evidenceIds": [
+            "native",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB01.test.ts"
+          ]
+        },
+        {
+          "id": "2",
+          "type": "CreateGems",
+          "status": "verified",
+          "note": "CreateGems Purple Amount 6 UseCounterForAmount -> create Purple base 6 + modifier; counts verified.",
+          "evidenceIds": [
+            "native",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB01.test.ts"
+          ]
+        }
+      ],
+      "branchReviews": [
+        {
+          "id": "main",
+          "status": "verified",
+          "note": "Single main branch; counter dependency covered with 0/2/3 pre-marked, already-marked target, dead marked enemy and immune target.",
+          "evidenceIds": [
+            "native",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL4bB01.test.ts"
+          ]
+        }
+      ]
+    }
+  ]
+}

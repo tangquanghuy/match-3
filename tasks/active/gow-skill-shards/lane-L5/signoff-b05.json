@@ -1,0 +1,1723 @@
+{
+  "schemaVersion": 1,
+  "scope": "stored-gow-snapshot",
+  "reviews": [
+    {
+      "key": "troop:7459",
+      "scope": "stored-gow-snapshot",
+      "sourceDigest": "247a1072a9dbf4917daa99b3da01c73b22e07c48cf3c6aef0f014c87d7071505",
+      "reviewer": "sa-L5",
+      "reviewedAt": "2026-09-27",
+      "decision": "accept",
+      "ledgerFingerprintAtReview": "c88ef96bfecc0334dc5dd27df9e43e30d8cfeba22c88b93741df71541281ab10",
+      "_reference": {
+        "spellId": 9176,
+        "english": "Stun an Enemy, and deal [Magic + 2] heavy splash damage to them.",
+        "nativeTarget": "Enemy",
+        "randomize": null,
+        "steps": [
+          {
+            "Target": "FromTarget",
+            "Type": "CauseStun"
+          },
+          {
+            "SpellPowerMultiplier": 1,
+            "Target": "FromTarget",
+            "Amount": 2,
+            "Primarypower": true,
+            "Type": "SplashHeavyDamage"
+          }
+        ],
+        "prototype": {
+          "segments": [
+            {
+              "kind": "status",
+              "target": "enemyChosen",
+              "statusId": "stun",
+              "turns": 3
+            },
+            {
+              "kind": "damage",
+              "target": "enemyChosen",
+              "scaling": {
+                "base": 2,
+                "mult": 1
+              },
+              "range": "splash",
+              "splashRatio": 0.75
+            }
+          ]
+        }
+      },
+      "sourceEvidence": [
+        {
+          "id": "en",
+          "role": "english-snapshot",
+          "path": "data/raw/troops.gow.en.json",
+          "note": "troop 7459: spell 9176 Hurl Boulder 'Stun an Enemy, and deal [Magic + 2] heavy splash damage to them.', ManaCost 12, Brown/Green asserted verbatim."
+        },
+        {
+          "id": "native",
+          "role": "native-snapshot",
+          "path": "data/raw/spells.gow.en.json",
+          "note": "spell 9176 Target Enemy Cost 12; SpellSteps toEqual: CauseStun FromTarget; SplashHeavyDamage FromTarget Amount 2 SPM 1 Primarypower."
+        },
+        {
+          "id": "rule",
+          "role": "official-shared-rule",
+          "path": "artifacts/gow-skill-audit/gold-primary-sources/official-status-effects.html",
+          "note": "Official status guide: Stun disables traits; negatives removed by cumulative cleanse chance (with R004)."
+        },
+        {
+          "id": "laneTest",
+          "role": "lane-battle-test",
+          "path": "tests/unit/gowLaneL5B05.test.ts",
+          "note": "troop:7459: real TurnEngine.castSkill both sides + boundaries"
+        },
+        {
+          "id": "r004",
+          "role": "coordinator-ruling",
+          "path": "tasks/active/gow-skill-shards/rulings/R004-status-durations.md",
+          "note": "R004 status durations."
+        }
+      ],
+      "dimensions": {
+        "identity-cost-colors": {
+          "status": "verified",
+          "note": "Entity 7459 -> spell 9176, cost 12, Green/Brown in raw and src troops.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL5B05.test.ts"
+          ]
+        },
+        "target-count-range": {
+          "status": "verified",
+          "note": "Chosen enemy is the splash centre; living formation neighbours take the heavy splash; front chosen -> one neighbour, no wraparound.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL5B05.test.ts"
+          ]
+        },
+        "base-formula-rounding": {
+          "status": "verified",
+          "note": "Centre Magic+2 (magic 0 -> 2, 6 -> 8); neighbours floor(75%) (8 -> 6, 2 -> 1). Heavy = 75% per spell-rules splash table (SplashHeavyDamage).",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL5B05.test.ts"
+          ]
+        },
+        "boost-source-ratio-cap": {
+          "status": "not-applicable",
+          "note": "No boost/count source.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004"
+          ],
+          "tests": []
+        },
+        "conditions-probabilities-branches": {
+          "status": "not-applicable",
+          "note": "No condition, chance or Randomize.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004"
+          ],
+          "tests": []
+        },
+        "status-duration-immunity": {
+          "status": "verified",
+          "note": "Stun only on the chosen enemy; Stun-immune (Thick Head) still takes splash; R004: no cap, removed by one successful self-cleanse roll.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL5B05.test.ts"
+          ]
+        },
+        "gems-types-selection-resolution": {
+          "status": "not-applicable",
+          "note": "No gem steps.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004"
+          ],
+          "tests": []
+        },
+        "summon-transform-pools": {
+          "status": "not-applicable",
+          "note": "No summon/transform.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004"
+          ],
+          "tests": []
+        },
+        "order-death-retargeting": {
+          "status": "verified",
+          "note": "Stun precedes damage (native order); centre Barrier absorbs its hit while neighbours still take splash.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL5B05.test.ts"
+          ]
+        },
+        "mana-economy-extra-turn": {
+          "status": "verified",
+          "note": "Cast spends 12 and passes the turn; low mana and Silence block.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL5B05.test.ts"
+          ]
+        },
+        "display-description": {
+          "status": "verified",
+          "note": "Chinese '击晕一名敌人，并对其造成 [魔法 + 2] 点重度溅射伤害。' asserted; matches English.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL5B05.test.ts"
+          ]
+        },
+        "battle-pipeline": {
+          "status": "verified",
+          "note": "Real TurnEngine.castSkill both sides.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL5B05.test.ts"
+          ],
+          "realBattleEntry": true
+        }
+      },
+      "clauseReviews": [
+        {
+          "id": "c1",
+          "text": "Stun an Enemy, and deal [Magic + 2] heavy splash damage to them.",
+          "status": "verified",
+          "note": "Chosen enemy Stunned, then Magic+2 heavy splash (75% to neighbours).",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL5B05.test.ts"
+          ]
+        }
+      ],
+      "nativeStepReviews": [
+        {
+          "id": "0",
+          "type": "CauseStun",
+          "status": "verified",
+          "note": "CauseStun FromTarget -> status stun enemyChosen.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL5B05.test.ts"
+          ]
+        },
+        {
+          "id": "1",
+          "type": "SplashHeavyDamage",
+          "status": "verified",
+          "note": "SplashHeavyDamage 2/1 -> damage enemyChosen range splash splashRatio 0.75.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL5B05.test.ts"
+          ]
+        }
+      ],
+      "branchReviews": [
+        {
+          "id": "main",
+          "status": "verified",
+          "note": "Single unconditional branch.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL5B05.test.ts"
+          ]
+        }
+      ]
+    },
+    {
+      "key": "troop:7862",
+      "scope": "stored-gow-snapshot",
+      "sourceDigest": "ef0d890b3ef4958a07c1a8b013548b75bc81dc2efe9100ba4d2e3e767c1360ce",
+      "reviewer": "sa-L5",
+      "reviewedAt": "2026-09-27",
+      "decision": "accept",
+      "ledgerFingerprintAtReview": "c88ef96bfecc0334dc5dd27df9e43e30d8cfeba22c88b93741df71541281ab10",
+      "_reference": {
+        "spellId": 9937,
+        "english": "Stun all Enemies. Then deal [Magic + 5] splash damage to 3 random Enemies.",
+        "nativeTarget": "None",
+        "randomize": null,
+        "steps": [
+          {
+            "Target": "AllEnemies",
+            "Type": "CauseStun",
+            "Delay": 900,
+            "ResetTargets": true
+          },
+          {
+            "SpellPowerMultiplier": 1,
+            "Target": "RandomEnemy",
+            "Amount": 5,
+            "Primarypower": true,
+            "Type": "SplashHighDamage",
+            "Delay": 800,
+            "ResetTargets": true
+          },
+          {
+            "SpellPowerMultiplier": 1,
+            "Target": "RandomPrefNotPrevEnemy",
+            "Amount": 5,
+            "Type": "SplashHighDamage",
+            "Delay": 800,
+            "ResetTargets": true
+          },
+          {
+            "SpellPowerMultiplier": 1,
+            "Target": "RandomPrefNotPrevEnemy",
+            "Amount": 5,
+            "Type": "SplashHighDamage",
+            "Delay": 0
+          }
+        ],
+        "prototype": {
+          "segments": [
+            {
+              "kind": "status",
+              "target": "enemyAll",
+              "statusId": "stun",
+              "turns": 3
+            },
+            {
+              "kind": "damage",
+              "target": "enemyRandomN",
+              "scaling": {
+                "base": 5,
+                "mult": 1
+              },
+              "range": "splash",
+              "n": 3,
+              "splashRatio": 0.5
+            }
+          ]
+        }
+      },
+      "sourceEvidence": [
+        {
+          "id": "en",
+          "role": "english-snapshot",
+          "path": "data/raw/troops.gow.en.json",
+          "note": "troop 7862: spell 9937 Mountain Crash 'Stun all Enemies. Then deal [Magic + 5] splash damage to 3 random Enemies.', ManaCost 24, Blue/Brown/Yellow asserted verbatim."
+        },
+        {
+          "id": "native",
+          "role": "native-snapshot",
+          "path": "data/raw/spells.gow.en.json",
+          "note": "spell 9937 Target None Cost 24; SpellSteps toEqual: CauseStun AllEnemies (Delay 900 ResetTargets); SplashHighDamage RandomEnemy 5/1; SplashHighDamage RandomPrefNotPrevEnemy 5/1 x2."
+        },
+        {
+          "id": "rule",
+          "role": "official-shared-rule",
+          "path": "artifacts/gow-skill-audit/gold-primary-sources/official-status-effects.html",
+          "note": "Official status guide: Stun semantics; durations per R004."
+        },
+        {
+          "id": "laneTest",
+          "role": "lane-battle-test",
+          "path": "tests/unit/gowLaneL5B05.test.ts",
+          "note": "troop:7862: real TurnEngine.castSkill both sides + boundaries"
+        },
+        {
+          "id": "r004",
+          "role": "coordinator-ruling",
+          "path": "tasks/active/gow-skill-shards/rulings/R004-status-durations.md",
+          "note": "R004 status durations."
+        },
+        {
+          "id": "r006",
+          "role": "coordinator-ruling",
+          "path": "tasks/active/gow-skill-shards/rulings/R006-hidden-mechanics-conventions.md",
+          "note": "R006-C3: RandomPrefNotPrev* prefers not-yet-hit, repeats only when insufficient."
+        }
+      ],
+      "dimensions": {
+        "identity-cost-colors": {
+          "status": "verified",
+          "note": "Entity 7862 -> spell 9937, cost 24, Blue/Yellow/Brown.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r006"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL5B05.test.ts"
+          ]
+        },
+        "target-count-range": {
+          "status": "verified",
+          "note": "All living enemies Stunned; three splash waves with 3 distinct centres while 3+ live; 2 alive -> third wave re-hits one; lone enemy takes all three. convention:R006-C3",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r006"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL5B05.test.ts"
+          ]
+        },
+        "base-formula-rounding": {
+          "status": "verified",
+          "note": "Centre Magic+5, neighbours floor(50%) (SplashHighDamage = normal splash); per-wave totals replayed exactly.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r006"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL5B05.test.ts"
+          ]
+        },
+        "boost-source-ratio-cap": {
+          "status": "not-applicable",
+          "note": "No boost/count source.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r006"
+          ],
+          "tests": []
+        },
+        "conditions-probabilities-branches": {
+          "status": "verified",
+          "note": "Centres drawn with the seeded RNG, vary over 30 seeds. convention:R006-C3",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r006"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL5B05.test.ts"
+          ]
+        },
+        "status-duration-immunity": {
+          "status": "verified",
+          "note": "Stun-immune enemy not Stunned but still a valid centre; R004 Stun persists without cap.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r006"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL5B05.test.ts"
+          ]
+        },
+        "gems-types-selection-resolution": {
+          "status": "not-applicable",
+          "note": "No gem steps.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r006"
+          ],
+          "tests": []
+        },
+        "summon-transform-pools": {
+          "status": "not-applicable",
+          "note": "No summon/transform.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r006"
+          ],
+          "tests": []
+        },
+        "order-death-retargeting": {
+          "status": "verified",
+          "note": "All Stun applies precede the first damage (native order); waves pick living centres.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r006"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL5B05.test.ts"
+          ]
+        },
+        "mana-economy-extra-turn": {
+          "status": "verified",
+          "note": "Cast spends 24 and passes the turn; low mana and Silence block.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r006"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL5B05.test.ts"
+          ]
+        },
+        "display-description": {
+          "status": "verified",
+          "note": "Chinese '击晕所有敌人。然后对3个随机敌人造成[魔法 + 5]点溅射伤害。' asserted.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r006"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL5B05.test.ts"
+          ]
+        },
+        "battle-pipeline": {
+          "status": "verified",
+          "note": "Real TurnEngine.castSkill both sides.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r006"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL5B05.test.ts"
+          ],
+          "realBattleEntry": true
+        }
+      },
+      "clauseReviews": [
+        {
+          "id": "c1",
+          "text": "Stun all Enemies.",
+          "status": "verified",
+          "note": "Every living enemy Stunned.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r006"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL5B05.test.ts"
+          ]
+        },
+        {
+          "id": "c2",
+          "text": "Then deal [Magic + 5] splash damage to 3 random Enemies.",
+          "status": "verified",
+          "note": "Three Magic+5 splash waves on random centres, prefer not-yet-hit. convention:R006-C3",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r006"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL5B05.test.ts"
+          ]
+        }
+      ],
+      "nativeStepReviews": [
+        {
+          "id": "0",
+          "type": "CauseStun",
+          "status": "verified",
+          "note": "CauseStun AllEnemies -> status stun enemyAll; Delay/ResetTargets presentation only.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r006"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL5B05.test.ts"
+          ]
+        },
+        {
+          "id": "1",
+          "type": "SplashHighDamage",
+          "status": "verified",
+          "note": "SplashHighDamage RandomEnemy -> wave 1 of enemyRandomN splash n 3 (randomSplashCount).",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r006"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL5B05.test.ts"
+          ]
+        },
+        {
+          "id": "2",
+          "type": "SplashHighDamage",
+          "status": "verified",
+          "note": "SplashHighDamage RandomPrefNotPrevEnemy -> wave 2, prefers a not-yet-hit centre. convention:R006-C3",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r006"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL5B05.test.ts"
+          ]
+        },
+        {
+          "id": "3",
+          "type": "SplashHighDamage",
+          "status": "verified",
+          "note": "SplashHighDamage RandomPrefNotPrevEnemy -> wave 3, prefers a not-yet-hit centre, repeats when exhausted. convention:R006-C3",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r006"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL5B05.test.ts"
+          ]
+        }
+      ],
+      "branchReviews": [
+        {
+          "id": "main",
+          "status": "verified",
+          "note": "Single unconditional branch.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r006"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL5B05.test.ts"
+          ]
+        }
+      ]
+    },
+    {
+      "key": "troop:7439",
+      "scope": "stored-gow-snapshot",
+      "sourceDigest": "f1e7a245aaa0f135912d3e73870246982b36073f3ed500de838271641e24aeb0",
+      "reviewer": "sa-L5",
+      "reviewedAt": "2026-09-27",
+      "decision": "draft",
+      "ledgerFingerprintAtReview": "c88ef96bfecc0334dc5dd27df9e43e30d8cfeba22c88b93741df71541281ab10",
+      "_reference": {
+        "spellId": 9131,
+        "english": "Knock an Enemy to the back and Stun them. Then move myself to the front and gain [(Magic x 2) + 1] Attack, Life, and Armor.",
+        "nativeTarget": "Enemy",
+        "randomize": null,
+        "steps": [
+          {
+            "Target": "FromTarget",
+            "Amount": 1,
+            "Type": "CauseStun"
+          },
+          {
+            "Target": "FromTarget",
+            "Type": "TroopOrderBack"
+          },
+          {
+            "SpellPowerMultiplier": 2,
+            "Target": "Self",
+            "Amount": 1,
+            "Primarypower": true,
+            "Type": "IncreaseAttack"
+          },
+          {
+            "SpellPowerMultiplier": 2,
+            "Target": "Self",
+            "Amount": 1,
+            "Type": "IncreaseHealth"
+          },
+          {
+            "SpellPowerMultiplier": 2,
+            "Target": "Self",
+            "Amount": 1,
+            "Type": "IncreaseArmor"
+          },
+          {
+            "Target": "Self",
+            "Type": "TroopOrderFront"
+          }
+        ],
+        "prototype": {
+          "segments": [
+            {
+              "kind": "reposition",
+              "target": "enemyRandom",
+              "to": "back"
+            },
+            {
+              "kind": "status",
+              "target": "lastTarget",
+              "statusId": "stun",
+              "turns": 3
+            },
+            {
+              "kind": "reposition",
+              "target": "allySelf",
+              "to": "front"
+            },
+            {
+              "kind": "buff",
+              "target": "allySelf",
+              "stat": "attack",
+              "scaling": {
+                "base": 1,
+                "mult": 2
+              }
+            },
+            {
+              "kind": "buff",
+              "target": "allySelf",
+              "stat": "hp",
+              "scaling": {
+                "base": 1,
+                "mult": 2
+              },
+              "lifeMode": "gain"
+            },
+            {
+              "kind": "buff",
+              "target": "allySelf",
+              "stat": "armor",
+              "scaling": {
+                "base": 1,
+                "mult": 2
+              }
+            }
+          ]
+        }
+      },
+      "sourceEvidence": [
+        {
+          "id": "en",
+          "role": "english-snapshot",
+          "path": "data/raw/troops.gow.en.json",
+          "note": "TODO: entity id / SpellId / English clause / cost / colours checked"
+        },
+        {
+          "id": "native",
+          "role": "native-snapshot",
+          "path": "data/raw/spells.gow.en.json",
+          "note": "TODO: SpellId-indexed Cost/Target/every non-None SpellSteps field checked"
+        },
+        {
+          "id": "rule",
+          "role": "official-shared-rule",
+          "path": "artifacts/gow-skill-audit/gold-primary-sources/official-status-effects.html",
+          "note": "TODO: replace with the official rule file actually relevant to this skill, and say what it supports"
+        }
+      ],
+      "dimensions": {
+        "identity-cost-colors": {
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        },
+        "target-count-range": {
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        },
+        "base-formula-rounding": {
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        },
+        "boost-source-ratio-cap": {
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        },
+        "conditions-probabilities-branches": {
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        },
+        "status-duration-immunity": {
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        },
+        "gems-types-selection-resolution": {
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        },
+        "summon-transform-pools": {
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        },
+        "order-death-retargeting": {
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        },
+        "mana-economy-extra-turn": {
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        },
+        "display-description": {
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        },
+        "battle-pipeline": {
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": [],
+          "realBattleEntry": true
+        }
+      },
+      "clauseReviews": [
+        {
+          "id": "c1",
+          "text": "Knock an Enemy to the back and Stun them.",
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        },
+        {
+          "id": "c2",
+          "text": "Then move myself to the front and gain [(Magic x 2) + 1] Attack, Life, and Armor.",
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        }
+      ],
+      "nativeStepReviews": [
+        {
+          "id": "0",
+          "type": "CauseStun",
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        },
+        {
+          "id": "1",
+          "type": "TroopOrderBack",
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        },
+        {
+          "id": "2",
+          "type": "IncreaseAttack",
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        },
+        {
+          "id": "3",
+          "type": "IncreaseHealth",
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        },
+        {
+          "id": "4",
+          "type": "IncreaseArmor",
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        },
+        {
+          "id": "5",
+          "type": "TroopOrderFront",
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        }
+      ],
+      "branchReviews": [
+        {
+          "id": "main",
+          "status": "TODO",
+          "note": "TODO",
+          "evidenceIds": [],
+          "tests": []
+        }
+      ]
+    },
+    {
+      "key": "troop:7541",
+      "scope": "stored-gow-snapshot",
+      "sourceDigest": "2f84d59a10322ef3f632635a086a8c9de8deaf58205195ce5959c40b0730bc3a",
+      "reviewer": "sa-L5",
+      "reviewedAt": "2026-09-27",
+      "decision": "accept",
+      "ledgerFingerprintAtReview": "c88ef96bfecc0334dc5dd27df9e43e30d8cfeba22c88b93741df71541281ab10",
+      "_reference": {
+        "spellId": 9298,
+        "english": "Submerge myself, and Death Mark 2 random Enemies.",
+        "nativeTarget": "None",
+        "randomize": null,
+        "steps": [
+          {
+            "Target": "Self",
+            "Type": "CauseSubmerged",
+            "ResetTargets": true
+          },
+          {
+            "Target": "RandomEnemy",
+            "Type": "CauseDeathMark",
+            "ResetTargets": true
+          },
+          {
+            "Target": "RandomPrefNotPrevEnemy",
+            "Type": "CauseDeathMark"
+          }
+        ],
+        "prototype": {
+          "segments": [
+            {
+              "kind": "status",
+              "target": "allySelf",
+              "statusId": "submerged",
+              "turns": 3
+            },
+            {
+              "kind": "status",
+              "target": "enemyRandomN",
+              "statusId": "death-mark",
+              "turns": 3,
+              "n": 2
+            }
+          ]
+        }
+      },
+      "sourceEvidence": [
+        {
+          "id": "en",
+          "role": "english-snapshot",
+          "path": "data/raw/troops.gow.en.json",
+          "note": "troop 7541: spell 9298 Sunken Grave 'Submerge myself, and Death Mark 2 random Enemies.', ManaCost 11, Blue/Red asserted verbatim."
+        },
+        {
+          "id": "native",
+          "role": "native-snapshot",
+          "path": "data/raw/spells.gow.en.json",
+          "note": "spell 9298 Target None Cost 11; SpellSteps toEqual: CauseSubmerged Self (ResetTargets); CauseDeathMark RandomEnemy (ResetTargets); CauseDeathMark RandomPrefNotPrevEnemy."
+        },
+        {
+          "id": "rule",
+          "role": "official-shared-rule",
+          "path": "artifacts/gow-skill-audit/gold-primary-sources/official-status-effects.html",
+          "note": "Official status guide: Submerged, Death Mark (10% per turn death roll after first turn)."
+        },
+        {
+          "id": "laneTest",
+          "role": "lane-battle-test",
+          "path": "tests/unit/gowLaneL5B05.test.ts",
+          "note": "troop:7541: real TurnEngine.castSkill both sides + boundaries"
+        },
+        {
+          "id": "r004",
+          "role": "coordinator-ruling",
+          "path": "tasks/active/gow-skill-shards/rulings/R004-status-durations.md",
+          "note": "R004: Submerged ends on holder action; Death Mark roll unchanged, no cap."
+        },
+        {
+          "id": "r006",
+          "role": "coordinator-ruling",
+          "path": "tasks/active/gow-skill-shards/rulings/R006-hidden-mechanics-conventions.md",
+          "note": "R006-C3 prefer not-yet-hit."
+        }
+      ],
+      "dimensions": {
+        "identity-cost-colors": {
+          "status": "verified",
+          "note": "Entity 7541 -> spell 9298, cost 11, Blue/Red.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r006"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL5B05.test.ts"
+          ]
+        },
+        "target-count-range": {
+          "status": "verified",
+          "note": "Caster only Submerged; exactly 2 different enemies Death Marked (pairs vary); lone enemy marked once (second step re-uses it = refresh). convention:R006-C3",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r006"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL5B05.test.ts"
+          ]
+        },
+        "base-formula-rounding": {
+          "status": "not-applicable",
+          "note": "No numeric formula.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r006"
+          ],
+          "tests": []
+        },
+        "boost-source-ratio-cap": {
+          "status": "not-applicable",
+          "note": "No boost/count source.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r006"
+          ],
+          "tests": []
+        },
+        "conditions-probabilities-branches": {
+          "status": "verified",
+          "note": "Random picks via seeded RNG; enemyRandomN n=2 is equivalent to RandomEnemy + RandomPrefNotPrevEnemy (second never repeats while 2+ live). convention:R006-C3",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r006"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL5B05.test.ts"
+          ]
+        },
+        "status-duration-immunity": {
+          "status": "verified",
+          "note": "R004: Submerged no timer, ends when the caster next casts (real castSkill); Death Mark grace tick kept, no cap, no death on failed rolls >= 10%.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r006"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL5B05.test.ts"
+          ]
+        },
+        "gems-types-selection-resolution": {
+          "status": "not-applicable",
+          "note": "No gem steps.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r006"
+          ],
+          "tests": []
+        },
+        "summon-transform-pools": {
+          "status": "not-applicable",
+          "note": "No summon/transform.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r006"
+          ],
+          "tests": []
+        },
+        "order-death-retargeting": {
+          "status": "verified",
+          "note": "Submerged applied before the marks (native order); no damage.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r006"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL5B05.test.ts"
+          ]
+        },
+        "mana-economy-extra-turn": {
+          "status": "verified",
+          "note": "Cast spends 11 and passes the turn; low mana and Silence block.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r006"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL5B05.test.ts"
+          ]
+        },
+        "display-description": {
+          "status": "verified",
+          "note": "Chinese '下潜自身，并使 2 名随机敌人陷入死亡标记状态。' asserted.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r006"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL5B05.test.ts"
+          ]
+        },
+        "battle-pipeline": {
+          "status": "verified",
+          "note": "Real TurnEngine.castSkill both sides.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r006"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL5B05.test.ts"
+          ],
+          "realBattleEntry": true
+        }
+      },
+      "clauseReviews": [
+        {
+          "id": "c1",
+          "text": "Submerge myself, and Death Mark 2 random Enemies.",
+          "status": "verified",
+          "note": "Self Submerged, 2 random enemies Death Marked. convention:R006-C3",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r006"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL5B05.test.ts"
+          ]
+        }
+      ],
+      "nativeStepReviews": [
+        {
+          "id": "0",
+          "type": "CauseSubmerged",
+          "status": "verified",
+          "note": "CauseSubmerged Self -> submerged allySelf.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r006"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL5B05.test.ts"
+          ]
+        },
+        {
+          "id": "1",
+          "type": "CauseDeathMark",
+          "status": "verified",
+          "note": "CauseDeathMark RandomEnemy -> first of enemyRandomN n 2.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r006"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL5B05.test.ts"
+          ]
+        },
+        {
+          "id": "2",
+          "type": "CauseDeathMark",
+          "status": "verified",
+          "note": "CauseDeathMark RandomPrefNotPrevEnemy -> second, distinct while 2+ live. convention:R006-C3",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r006"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL5B05.test.ts"
+          ]
+        }
+      ],
+      "branchReviews": [
+        {
+          "id": "main",
+          "status": "verified",
+          "note": "Single unconditional branch.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r006"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL5B05.test.ts"
+          ]
+        }
+      ]
+    },
+    {
+      "key": "troop:7484",
+      "scope": "stored-gow-snapshot",
+      "sourceDigest": "596995775c9cf3e2d62a39312d0471e0312b2a5a6e472c4f8e562c419e260723",
+      "reviewer": "sa-L5",
+      "reviewedAt": "2026-09-27",
+      "decision": "accept",
+      "ledgerFingerprintAtReview": "c88ef96bfecc0334dc5dd27df9e43e30d8cfeba22c88b93741df71541281ab10",
+      "_reference": {
+        "spellId": 9217,
+        "english": "Inflict Terror and Disease on an Enemy. Then deal [Magic + 2] damage to them.",
+        "nativeTarget": "Enemy",
+        "randomize": null,
+        "steps": [
+          {
+            "Target": "FromTarget",
+            "Amount": 1,
+            "Type": "CauseTerror"
+          },
+          {
+            "Target": "FromTarget",
+            "Amount": 1,
+            "Type": "CauseDisease"
+          },
+          {
+            "SpellPowerMultiplier": 1,
+            "Target": "FromTarget",
+            "Amount": 2,
+            "Primarypower": true,
+            "Type": "Damage"
+          }
+        ],
+        "prototype": {
+          "segments": [
+            {
+              "kind": "status",
+              "target": "enemyChosen",
+              "statusId": "terror",
+              "turns": 3
+            },
+            {
+              "kind": "status",
+              "target": "enemyChosen",
+              "statusId": "disease",
+              "turns": 3
+            },
+            {
+              "kind": "damage",
+              "target": "lastTarget",
+              "scaling": {
+                "base": 2,
+                "mult": 1
+              }
+            }
+          ]
+        }
+      },
+      "sourceEvidence": [
+        {
+          "id": "en",
+          "role": "english-snapshot",
+          "path": "data/raw/troops.gow.en.json",
+          "note": "troop 7484: spell 9217 Decaying Roar 'Inflict Terror and Disease on an Enemy. Then deal [Magic + 2] damage to them.', ManaCost 12, Green/Purple asserted verbatim."
+        },
+        {
+          "id": "native",
+          "role": "native-snapshot",
+          "path": "data/raw/spells.gow.en.json",
+          "note": "spell 9217 Target Enemy Cost 12; SpellSteps toEqual: CauseTerror FromTarget Amount 1; CauseDisease FromTarget Amount 1; Damage FromTarget Amount 2 SPM 1 Primarypower."
+        },
+        {
+          "id": "rule",
+          "role": "official-shared-rule",
+          "path": "artifacts/gow-skill-audit/gold-primary-sources/official-status-effects.html",
+          "note": "Official status guide: Terror, Disease; cumulative cleanse chance."
+        },
+        {
+          "id": "laneTest",
+          "role": "lane-battle-test",
+          "path": "tests/unit/gowLaneL5B05.test.ts",
+          "note": "troop:7484: real TurnEngine.castSkill both sides + boundaries"
+        },
+        {
+          "id": "r004",
+          "role": "coordinator-ruling",
+          "path": "tasks/active/gow-skill-shards/rulings/R004-status-durations.md",
+          "note": "R004 status durations; one roll removes all recoverable negatives."
+        },
+        {
+          "id": "r006",
+          "role": "coordinator-ruling",
+          "path": "tasks/active/gow-skill-shards/rulings/R006-hidden-mechanics-conventions.md",
+          "note": "R006-C2: Cause* Amount ignored."
+        }
+      ],
+      "dimensions": {
+        "identity-cost-colors": {
+          "status": "verified",
+          "note": "Entity 7484 -> spell 9217, cost 12, Green/Purple.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r006"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL5B05.test.ts"
+          ]
+        },
+        "target-count-range": {
+          "status": "verified",
+          "note": "Chosen enemy only; others untouched.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r006"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL5B05.test.ts"
+          ]
+        },
+        "base-formula-rounding": {
+          "status": "verified",
+          "note": "Magic+2 (armor first): magic 0 -> 2, magic 7 -> 9 vs 3 armor.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r006"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL5B05.test.ts"
+          ]
+        },
+        "boost-source-ratio-cap": {
+          "status": "not-applicable",
+          "note": "No boost/count source.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r006"
+          ],
+          "tests": []
+        },
+        "conditions-probabilities-branches": {
+          "status": "not-applicable",
+          "note": "No condition, chance or Randomize.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r006"
+          ],
+          "tests": []
+        },
+        "status-duration-immunity": {
+          "status": "verified",
+          "note": "Disease-immune target still gets Terror and damage; R004: Terror+Disease no cap and leave together on one successful roll. Cause* Amount 1 ignored convention:R006-C2.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r006"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL5B05.test.ts"
+          ]
+        },
+        "gems-types-selection-resolution": {
+          "status": "not-applicable",
+          "note": "No gem steps.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r006"
+          ],
+          "tests": []
+        },
+        "summon-transform-pools": {
+          "status": "not-applicable",
+          "note": "No summon/transform.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r006"
+          ],
+          "tests": []
+        },
+        "order-death-retargeting": {
+          "status": "verified",
+          "note": "terror -> disease -> damage native order; Barrier absorbs the damage but both statuses land; lethal hit after statuses.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r006"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL5B05.test.ts"
+          ]
+        },
+        "mana-economy-extra-turn": {
+          "status": "verified",
+          "note": "Cast spends 12 and passes the turn; low mana and Silence block.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r006"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL5B05.test.ts"
+          ]
+        },
+        "display-description": {
+          "status": "verified",
+          "note": "Chinese '使一名敌人陷入恐怖和疾病状态，再对他造成 [魔法 + 2] 点伤害。' asserted.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r006"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL5B05.test.ts"
+          ]
+        },
+        "battle-pipeline": {
+          "status": "verified",
+          "note": "Real TurnEngine.castSkill both sides.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r006"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL5B05.test.ts"
+          ],
+          "realBattleEntry": true
+        }
+      },
+      "clauseReviews": [
+        {
+          "id": "c1",
+          "text": "Inflict Terror and Disease on an Enemy.",
+          "status": "verified",
+          "note": "Chosen enemy gets Terror and Disease (R004).",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r006"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL5B05.test.ts"
+          ]
+        },
+        {
+          "id": "c2",
+          "text": "Then deal [Magic + 2] damage to them.",
+          "status": "verified",
+          "note": "Then Magic+2 damage to the same enemy.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r006"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL5B05.test.ts"
+          ]
+        }
+      ],
+      "nativeStepReviews": [
+        {
+          "id": "0",
+          "type": "CauseTerror",
+          "status": "verified",
+          "note": "CauseTerror FromTarget -> terror enemyChosen; Amount ignored convention:R006-C2.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r006"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL5B05.test.ts"
+          ]
+        },
+        {
+          "id": "1",
+          "type": "CauseDisease",
+          "status": "verified",
+          "note": "CauseDisease FromTarget -> disease enemyChosen.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r006"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL5B05.test.ts"
+          ]
+        },
+        {
+          "id": "2",
+          "type": "Damage",
+          "status": "verified",
+          "note": "Damage FromTarget 2/1 -> damage lastTarget.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r006"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL5B05.test.ts"
+          ]
+        }
+      ],
+      "branchReviews": [
+        {
+          "id": "main",
+          "status": "verified",
+          "note": "Single unconditional branch.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r006"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL5B05.test.ts"
+          ]
+        }
+      ]
+    }
+  ]
+}

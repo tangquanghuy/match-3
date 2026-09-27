@@ -130,15 +130,13 @@ describe('escapeChance 效果段（有 N% 的几率跑掉）', () => {
     expect(left[0].id).toBe(43);
   });
 
-  it('队列补位：逃跑者的空位由召唤队列 FIFO 顶替（与阵亡同一管线）', () => {
+  it('逃跑后不启用旧召唤队列补位', () => {
     const { ctx, state } = setup({ seed: 7, left: [{ id: 42 }] });
     ctx.casterId = 42;
-    const substitute = makeChar(77);
-    state.teams[PlayerSide.Left].summonQueue = [{ character: substitute, troopId: 555 }];
+    state.teams[PlayerSide.Left].summonQueue = [{ character: makeChar(77), troopId: 555 }];
     const events = executePrototype(skill(escape(1)) as SkillPrototype, ctx);
-    expect(events.some((e) => e.type === 'summon')).toBe(true);
-    expect(state.teams[PlayerSide.Left].characters.map((c) => c.id)).toEqual([77]);
-    expect(substitute.defeated).toBe(false); // 补位者不是"复活"，fled 不置 defeated
+    expect(events.some((e) => e.type === 'summon')).toBe(false);
+    expect(state.teams[PlayerSide.Left].characters).toEqual([]);
   });
 
   it('全队逃光 → isWipedOut 判定败北，game-over 发给对方', () => {

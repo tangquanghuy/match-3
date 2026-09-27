@@ -1,0 +1,43 @@
+
+// ——— weapon:1226 Doomed Blade / spell 7952 (FIXED L3-015, L3-016) ———
+describe('L3 weapon:1226/spell:7952 [Magic+3] to all (+1 per Tempering), Red -> Doomskulls, +5 Doomskulls if an enemy Doom, 3 Mana per Blue enemy',()=>{
+ const base={skill:'7952',cost:18,colors:[BaseColor.Blue]};
+ // No Red on the board unless stated: conversions / creation cannot trigger cascades that feed mana.
+ const B=pattern([BaseColor.Blue,BaseColor.Yellow,BaseColor.Purple,BaseColor.Brown]);
+ const manaBuff=(ev:GameEvent[])=>ev.filter(e=>e.type==='buff'&&e.stat==='mana'&&e.targetId===0).reduce((a,e)=>a+(e.type==='buff'?e.amount:0),0);
+ it('source/native/numeric + gw_ binding/prototype/display',()=>{
+  const o=rawWeapons.find((v:{id:number})=>v.id===1226)!,w=weapons.find(v=>v.id===1226)!,n=native.get(7952).raw;
+  expect(o).toMatchObject({SpellId:7952,ManaCost:18,ReferenceName:'DoomedBlade'});expect(Object.keys(o._ManaColors_parsed)).toEqual(['ColorBlue']);
+  expect(o.stats.spell.desc).toBe('Deal [Magic + 3] damage to all Enemies, +1 per Tempering level. Transform Red Gems to Doomskulls, if the Enemy has a Doom, create 5 more. Gain 3 Mana for each Blue Enemy. [x3]');
+  expect(n).toMatchObject({Cost:18,Target:'None'});
+  expect(n.SpellSteps).toEqual([{Target:'AllEnemies',Amount:300,Type:'CountArmyColor',Data:'0'},
+   {SpellPowerMultiplier:1,Target:'AllEnemies',StatusAmount:1,Amount:3,Primarypower:true,StatusModifier:'AddForTempering',Type:'Damage'},
+   {Color1:'Red',Amount:100,Color2:'Doomskull',Type:'ConvertGems'},{Target:'AllEnemies',StatusAmount:5,Color1:'Doomskull',StatusModifier:'AddIfEnemyHasDoom',Type:'CreateGems'},
+   {Target:'Self',UseCounterForAmount:true,Type:'GenerateMana'}]);
+  expect(w).toMatchObject({id:1226,referenceName:'DoomedBlade',manaCost:18,manaColors:['Blue'],spell:{id:7952}});
+  expect(w.spell.description).toBe('对所有敌人造成 [魔法 + 3] 点伤害，每锻炼 1 个武器段位则 +1 点伤害值。将红色宝石转换成末日骷髅头。如果敌方有劫数，则再创造 5 颗。每有一名蓝色敌人则获得 3 点法力值。 [x3]');
+  const proto={segments:[
+   {kind:'damage',target:'enemyAll',scaling:{base:3,mult:1},range:'all',modifier:{mod:{kind:'multiplier',a:1},source:{kind:'tempering'}}},
+   {kind:'gem',params:{op:'transform',from:'Red',to:'SKULL',toSpecial:'doomSkull'}},
+   {kind:'gem',params:{op:'create',gem:{kind:'special',spec:{kind:'doomSkull'}},count:{base:5,mult:0}},ifCond:{kind:'targetHasDoom'}},
+   {kind:'buff',target:'allySelf',stat:'mana',scaling:{base:0,mult:0},modifier:{mod:{kind:'multiplier',a:3},source:{kind:'enemiesOfColor',color:'Blue'}}}]};
+  expect(registry.prototypes.get('7952')).toEqual(proto);expect(registry.prototypes.get('gw_DoomedBlade')).toEqual(proto);
+ });
+ for(const side of SIDES)for(const alias of ['7952','gw_DoomedBlade'])for(const magic of [0,10])
+ it(`real cast ${side}/${alias}/magic=${magic}: all enemies -${magic+3} (tempering 0); 2 Blue enemies -> +6 Mana; no Doom -> no extra gems`,()=>{
+  const f=setup({...base,skill:alias,side,magic,board:B,caster:{mana:30,manaCost:30},enemies:[{colors:[BaseColor.Blue]},{colors:[BaseColor.Red]},{colors:[BaseColor.Blue,BaseColor.Green]},{}]});
+  const ev=f.cast();const d=magic+3;expect(f.loss()).toEqual([d,d,d,d]);
+  expect(manaBuff(ev)).toBe(6);expect(created(ev)).toEqual([]);turnAfter(f,ev,false);
+ });
+ it('Red gems -> Doomskulls; an enemy Doom adds exactly 5 Doomskulls (no plain Skulls); no Blue enemy -> no mana buff',()=>{
+  const f=setup({...base,magic:0,board:pattern([BaseColor.Red,BaseColor.Yellow,BaseColor.Purple,BaseColor.Brown]),caster:{mana:30,manaCost:30},enemies:[{troopTypes:['Doom']},{},{},{}]});
+  const ev=f.cast();const made=created(ev);
+  expect(made.filter(t=>t.kind==='special'&&t.spec.kind==='doomSkull').length).toBe(16+5);expect(made.filter(t=>t.kind==='skull')).toHaveLength(0);
+  expect(manaBuff(ev)).toBe(0);
+ });
+ it('tempering level 2 adds +2 damage; dead Blue enemy not counted',()=>{
+  const f=setup({...base,magic:0,board:B,caster:{mana:30,manaCost:30,temperingLevel:2} as Partial<Character>,enemies:[{colors:[BaseColor.Blue],hp:0,defeated:true},{},{},{}]});
+  const ev=f.cast();expect(f.loss()).toEqual([0,5,5,5]);expect(manaBuff(ev)).toBe(0);
+ });
+ refusal({...base,board:B});
+});

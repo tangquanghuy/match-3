@@ -1,0 +1,1907 @@
+{
+  "schemaVersion": 1,
+  "scope": "stored-gow-snapshot",
+  "reviews": [
+    {
+      "key": "troop:6229",
+      "scope": "stored-gow-snapshot",
+      "sourceDigest": "a0b922421f795fd6f1086badafc3bede80a84b831fac628f5e54d5da1ca2e029",
+      "reviewer": "sa-L5",
+      "reviewedAt": "2026-09-27",
+      "decision": "accept",
+      "ledgerFingerprintAtReview": "bff2422ae41e11fa11f3724131b9d103e51288d99769766b5bc8b926247ba775",
+      "_reference": {
+        "spellId": 7371,
+        "english": "Poison, Disease, and Stun a random enemy.",
+        "nativeTarget": "None",
+        "randomize": null,
+        "steps": [
+          {
+            "Target": "RandomEnemy",
+            "Type": "CauseDisease"
+          },
+          {
+            "Target": "FromPrevious",
+            "Type": "CausePoison"
+          },
+          {
+            "Target": "FromPrevious",
+            "Type": "CauseStun"
+          }
+        ],
+        "prototype": {
+          "segments": [
+            {
+              "kind": "status",
+              "target": "enemyRandom",
+              "statusId": "disease",
+              "turns": 3
+            },
+            {
+              "kind": "status",
+              "target": "lastTarget",
+              "statusId": "poison",
+              "turns": 3,
+              "magnitude": 3
+            },
+            {
+              "kind": "status",
+              "target": "lastTarget",
+              "statusId": "stun",
+              "turns": 3
+            }
+          ]
+        }
+      },
+      "sourceEvidence": [
+        {
+          "id": "en",
+          "role": "english-snapshot",
+          "path": "data/raw/troops.gow.en.json",
+          "note": "troop 6229 Sand Cobra: spell 7371 \"Poison, Disease, and Stun a random enemy.\", cost 6 Brown."
+        },
+        {
+          "id": "native",
+          "role": "native-snapshot",
+          "path": "data/raw/spells.gow.en.json",
+          "note": "spell 7371 Target None: CauseDisease RandomEnemy; CausePoison FromPrevious; CauseStun FromPrevious."
+        },
+        {
+          "id": "rule",
+          "role": "official-shared-rule",
+          "path": "artifacts/gow-skill-audit/gold-primary-sources/official-status-effects.html",
+          "note": "Official status guide: status semantics (Barrier, Silence, Stun, Disease, Death Mark, Enrage, Submerged, cumulative cleanse chance via Cursed/Lycanthropy entries)."
+        },
+        {
+          "id": "laneTest",
+          "role": "lane-battle-test",
+          "path": "tests/unit/gowLaneL5B03.test.ts",
+          "note": "troop:6229: real TurnEngine.castSkill both sides + boundaries"
+        },
+        {
+          "id": "r004",
+          "role": "coordinator-ruling",
+          "path": "tasks/active/gow-skill-shards/rulings/R004-status-durations.md",
+          "note": "R004: negatives no turn cap, shared cumulative self-cleanse 10%/+10% (+5% Cursed), Poison never; positives end on trigger (Barrier/Reflect damage, Enchanted cast, Enraged skull damage, Submerged/Blessed holder action)."
+        },
+        {
+          "id": "r3",
+          "role": "lane-battle-test",
+          "path": "tests/unit/gowLaneL5R3.test.ts",
+          "note": "Round-3 real castSkill both sides: statuses from this cast unchanged after 6 failed turn-start rolls; one successful roll removes all recoverable negatives together (Poison/positives stay)."
+        },
+        {
+          "id": "srcR004",
+          "role": "community-source",
+          "path": "artifacts/gow-skill-audit/gold-primary-sources/community-2026-09-28-status-durations.json",
+          "note": "Saved community corroboration for R004 (staff reply: new negative resets, all negatives cleanse together)."
+        },
+        {
+          "id": "r001",
+          "role": "coordinator-ruling",
+          "path": "tasks/active/gow-skill-shards/rulings/R001-native-step-order.md",
+          "note": "R001: native SpellSteps order governs observable order."
+        }
+      ],
+      "dimensions": {
+        "identity-cost-colors": {
+          "status": "verified",
+          "note": "Troop 6229 -> spell 7371, cost 6, Brown.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r3",
+            "srcR004",
+            "r001"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL5B03.test.ts"
+          ]
+        },
+        "target-count-range": {
+          "status": "verified",
+          "note": "One random living enemy (varies over 30 seeds; dead never picked).",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r3",
+            "srcR004",
+            "r001"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL5B03.test.ts"
+          ]
+        },
+        "base-formula-rounding": {
+          "status": "not-applicable",
+          "note": "No numeric formula.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r3",
+            "srcR004",
+            "r001"
+          ],
+          "tests": []
+        },
+        "boost-source-ratio-cap": {
+          "status": "not-applicable",
+          "note": "No boost/count source.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r3",
+            "srcR004",
+            "r001"
+          ],
+          "tests": []
+        },
+        "conditions-probabilities-branches": {
+          "status": "verified",
+          "note": "Random pick via seeded RNG.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r3",
+            "srcR004",
+            "r001"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL5B03.test.ts"
+          ]
+        },
+        "status-duration-immunity": {
+          "status": "verified",
+          "note": "Disease/Stun R004: no turn cap; persists through 6 failed turn-start rolls, removed by one successful shared self-cleanse roll (gowLaneL5R3). Poison never self-cleanses; Disease-immune blocks Disease; Invulnerable blocks all.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r3",
+            "srcR004",
+            "r001"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL5B03.test.ts"
+          ]
+        },
+        "gems-types-selection-resolution": {
+          "status": "not-applicable",
+          "note": "No gem steps.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r3",
+            "srcR004",
+            "r001"
+          ],
+          "tests": []
+        },
+        "summon-transform-pools": {
+          "status": "not-applicable",
+          "note": "No summon/transform.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r3",
+            "srcR004",
+            "r001"
+          ],
+          "tests": []
+        },
+        "order-death-retargeting": {
+          "status": "verified",
+          "note": "Disease -> Poison -> Stun native order (R001); Stun last cannot strip immunity first.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r3",
+            "srcR004",
+            "r001"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL5B03.test.ts"
+          ]
+        },
+        "mana-economy-extra-turn": {
+          "status": "verified",
+          "note": "Cast spends full mana and passes the turn; low mana and Silence block the real cast (no mana/action spent).",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r3",
+            "srcR004",
+            "r001"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL5B03.test.ts"
+          ]
+        },
+        "display-description": {
+          "status": "verified",
+          "note": "Chinese description asserted verbatim; wording matches the English effect.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r3",
+            "srcR004",
+            "r001"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL5B03.test.ts"
+          ]
+        },
+        "battle-pipeline": {
+          "status": "verified",
+          "note": "Real TurnEngine.castSkill both sides (lane file + round-3 R004 file).",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r3",
+            "srcR004",
+            "r001"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL5B03.test.ts"
+          ],
+          "realBattleEntry": true
+        }
+      },
+      "clauseReviews": [
+        {
+          "id": "c1",
+          "text": "Poison, Disease, and Stun a random enemy.",
+          "status": "verified",
+          "note": "One random enemy Diseased, Poisoned, Stunned; R004 durations.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r3",
+            "srcR004",
+            "r001"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL5B03.test.ts"
+          ]
+        }
+      ],
+      "nativeStepReviews": [
+        {
+          "id": "0",
+          "type": "CauseDisease",
+          "status": "verified",
+          "note": "CauseDisease RandomEnemy -> enemyRandom disease.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r3",
+            "srcR004",
+            "r001"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL5B03.test.ts"
+          ]
+        },
+        {
+          "id": "1",
+          "type": "CausePoison",
+          "status": "verified",
+          "note": "CausePoison FromPrevious -> lastTarget poison.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r3",
+            "srcR004",
+            "r001"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL5B03.test.ts"
+          ]
+        },
+        {
+          "id": "2",
+          "type": "CauseStun",
+          "status": "verified",
+          "note": "CauseStun FromPrevious -> lastTarget stun.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r3",
+            "srcR004",
+            "r001"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL5B03.test.ts"
+          ]
+        }
+      ],
+      "branchReviews": [
+        {
+          "id": "main",
+          "status": "verified",
+          "note": "Single unconditional branch.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r3",
+            "srcR004",
+            "r001"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL5B03.test.ts"
+          ]
+        }
+      ]
+    },
+    {
+      "key": "troop:6217",
+      "scope": "stored-gow-snapshot",
+      "sourceDigest": "a6bbc571388a45144ff3db8a0141ac418da11dacc68730c3f74c9e52771f5c86",
+      "reviewer": "sa-L5",
+      "reviewedAt": "2026-09-27",
+      "decision": "accept",
+      "ledgerFingerprintAtReview": "bff2422ae41e11fa11f3724131b9d103e51288d99769766b5bc8b926247ba775",
+      "_reference": {
+        "spellId": 7359,
+        "english": "Deal [Magic + 3] damage to an enemy and Disease them.",
+        "nativeTarget": "Enemy",
+        "randomize": null,
+        "steps": [
+          {
+            "Target": "FromTarget",
+            "Amount": 1,
+            "Type": "CauseDisease"
+          },
+          {
+            "Amount": 925,
+            "Type": "Delay"
+          },
+          {
+            "SpellPowerMultiplier": 1,
+            "Target": "FromTarget",
+            "Amount": 3,
+            "Primarypower": true,
+            "Type": "Damage"
+          }
+        ],
+        "prototype": {
+          "segments": [
+            {
+              "kind": "status",
+              "target": "enemyChosen",
+              "statusId": "disease",
+              "turns": 3
+            },
+            {
+              "kind": "damage",
+              "target": "enemyChosen",
+              "scaling": {
+                "base": 3,
+                "mult": 1
+              }
+            }
+          ]
+        }
+      },
+      "sourceEvidence": [
+        {
+          "id": "en",
+          "role": "english-snapshot",
+          "path": "data/raw/troops.gow.en.json",
+          "note": "troop 6217 Creeper: spell 7359 \"Deal [Magic + 3] damage to an enemy and Disease them.\", cost 7 Red."
+        },
+        {
+          "id": "native",
+          "role": "native-snapshot",
+          "path": "data/raw/spells.gow.en.json",
+          "note": "spell 7359 Target Enemy: CauseDisease FromTarget Amount 1; Delay 925; Damage FromTarget Amount 3 SPM 1."
+        },
+        {
+          "id": "rule",
+          "role": "official-shared-rule",
+          "path": "artifacts/gow-skill-audit/gold-primary-sources/official-status-effects.html",
+          "note": "Official status guide: status semantics (Barrier, Silence, Stun, Disease, Death Mark, Enrage, Submerged, cumulative cleanse chance via Cursed/Lycanthropy entries)."
+        },
+        {
+          "id": "laneTest",
+          "role": "lane-battle-test",
+          "path": "tests/unit/gowLaneL5B03.test.ts",
+          "note": "troop:6217: real TurnEngine.castSkill both sides + boundaries"
+        },
+        {
+          "id": "r004",
+          "role": "coordinator-ruling",
+          "path": "tasks/active/gow-skill-shards/rulings/R004-status-durations.md",
+          "note": "R004: negatives no turn cap, shared cumulative self-cleanse 10%/+10% (+5% Cursed), Poison never; positives end on trigger (Barrier/Reflect damage, Enchanted cast, Enraged skull damage, Submerged/Blessed holder action)."
+        },
+        {
+          "id": "r3",
+          "role": "lane-battle-test",
+          "path": "tests/unit/gowLaneL5R3.test.ts",
+          "note": "Round-3 real castSkill both sides: statuses from this cast unchanged after 6 failed turn-start rolls; one successful roll removes all recoverable negatives together (Poison/positives stay)."
+        },
+        {
+          "id": "srcR004",
+          "role": "community-source",
+          "path": "artifacts/gow-skill-audit/gold-primary-sources/community-2026-09-28-status-durations.json",
+          "note": "Saved community corroboration for R004 (staff reply: new negative resets, all negatives cleanse together)."
+        },
+        {
+          "id": "r001",
+          "role": "coordinator-ruling",
+          "path": "tasks/active/gow-skill-shards/rulings/R001-native-step-order.md",
+          "note": "R001: native SpellSteps order governs observable order."
+        }
+      ],
+      "dimensions": {
+        "identity-cost-colors": {
+          "status": "verified",
+          "note": "Troop 6217 -> spell 7359, cost 7, Red.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r3",
+            "srcR004",
+            "r001"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL5B03.test.ts"
+          ]
+        },
+        "target-count-range": {
+          "status": "verified",
+          "note": "Chosen enemy only.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r3",
+            "srcR004",
+            "r001"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL5B03.test.ts"
+          ]
+        },
+        "base-formula-rounding": {
+          "status": "verified",
+          "note": "Magic+3 (armor first): magic 0 -> 3, magic 8 -> 11.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r3",
+            "srcR004",
+            "r001"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL5B03.test.ts"
+          ]
+        },
+        "boost-source-ratio-cap": {
+          "status": "not-applicable",
+          "note": "No boost/count source.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r3",
+            "srcR004",
+            "r001"
+          ],
+          "tests": []
+        },
+        "conditions-probabilities-branches": {
+          "status": "not-applicable",
+          "note": "No condition, chance or Randomize.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r3",
+            "srcR004",
+            "r001"
+          ],
+          "tests": []
+        },
+        "status-duration-immunity": {
+          "status": "verified",
+          "note": "Disease R004: no turn cap; persists through 6 failed turn-start rolls, removed by one successful shared self-cleanse roll (gowLaneL5R3). Disease-immune target still takes damage.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r3",
+            "srcR004",
+            "r001"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL5B03.test.ts"
+          ]
+        },
+        "gems-types-selection-resolution": {
+          "status": "not-applicable",
+          "note": "No gem steps.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r3",
+            "srcR004",
+            "r001"
+          ],
+          "tests": []
+        },
+        "summon-transform-pools": {
+          "status": "not-applicable",
+          "note": "No summon/transform.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r3",
+            "srcR004",
+            "r001"
+          ],
+          "tests": []
+        },
+        "order-death-retargeting": {
+          "status": "verified",
+          "note": "Disease -> Damage native order; Barrier absorbs damage but Disease lands; lethal hit after Disease.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r3",
+            "srcR004",
+            "r001"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL5B03.test.ts"
+          ]
+        },
+        "mana-economy-extra-turn": {
+          "status": "verified",
+          "note": "Cast spends full mana and passes the turn; low mana and Silence block the real cast (no mana/action spent).",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r3",
+            "srcR004",
+            "r001"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL5B03.test.ts"
+          ]
+        },
+        "display-description": {
+          "status": "verified",
+          "note": "Chinese description asserted verbatim; wording matches the English effect.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r3",
+            "srcR004",
+            "r001"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL5B03.test.ts"
+          ]
+        },
+        "battle-pipeline": {
+          "status": "verified",
+          "note": "Real TurnEngine.castSkill both sides (lane file + round-3 R004 file).",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r3",
+            "srcR004",
+            "r001"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL5B03.test.ts"
+          ],
+          "realBattleEntry": true
+        }
+      },
+      "clauseReviews": [
+        {
+          "id": "c1",
+          "text": "Deal [Magic + 3] damage to an enemy and Disease them.",
+          "status": "verified",
+          "note": "Chosen enemy Diseased then takes Magic+3.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r3",
+            "srcR004",
+            "r001"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL5B03.test.ts"
+          ]
+        }
+      ],
+      "nativeStepReviews": [
+        {
+          "id": "0",
+          "type": "CauseDisease",
+          "status": "verified",
+          "note": "CauseDisease FromTarget.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r3",
+            "srcR004",
+            "r001"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL5B03.test.ts"
+          ]
+        },
+        {
+          "id": "1",
+          "type": "Delay",
+          "status": "verified",
+          "note": "Delay 925: presentation pause only; real cast shows Disease then damage with no event in between.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r3",
+            "srcR004",
+            "r001"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL5B03.test.ts"
+          ]
+        },
+        {
+          "id": "2",
+          "type": "Damage",
+          "status": "verified",
+          "note": "Damage FromTarget 3/1.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r3",
+            "srcR004",
+            "r001"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL5B03.test.ts"
+          ]
+        }
+      ],
+      "branchReviews": [
+        {
+          "id": "main",
+          "status": "verified",
+          "note": "Single unconditional branch.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r3",
+            "srcR004",
+            "r001"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL5B03.test.ts"
+          ]
+        }
+      ]
+    },
+    {
+      "key": "troop:6924",
+      "scope": "stored-gow-snapshot",
+      "sourceDigest": "a44dbc1c0ffed7f892eab46b640c2b0055978e828ce1a500de9288f895d2c19b",
+      "reviewer": "sa-L5",
+      "reviewedAt": "2026-09-27",
+      "decision": "accept",
+      "ledgerFingerprintAtReview": "bff2422ae41e11fa11f3724131b9d103e51288d99769766b5bc8b926247ba775",
+      "_reference": {
+        "spellId": 8393,
+        "english": "Enrage all Allies and Enemies.",
+        "nativeTarget": "None",
+        "randomize": null,
+        "steps": [
+          {
+            "Target": "AllAllies",
+            "Amount": 1,
+            "Type": "CauseEnraged"
+          },
+          {
+            "Target": "AllEnemies",
+            "Type": "CauseEnraged"
+          }
+        ],
+        "prototype": {
+          "segments": [
+            {
+              "kind": "status",
+              "target": "allyAll",
+              "statusId": "rage",
+              "turns": 3
+            },
+            {
+              "kind": "status",
+              "target": "enemyAll",
+              "statusId": "rage",
+              "turns": 3
+            }
+          ]
+        }
+      },
+      "sourceEvidence": [
+        {
+          "id": "en",
+          "role": "english-snapshot",
+          "path": "data/raw/troops.gow.en.json",
+          "note": "troop 6924 Heart of Rage: spell 8393 \"Enrage all Allies and Enemies.\", cost 6 Red."
+        },
+        {
+          "id": "native",
+          "role": "native-snapshot",
+          "path": "data/raw/spells.gow.en.json",
+          "note": "spell 8393 Target None: CauseEnraged AllAllies Amount 1; CauseEnraged AllEnemies."
+        },
+        {
+          "id": "rule",
+          "role": "official-shared-rule",
+          "path": "artifacts/gow-skill-audit/gold-primary-sources/official-status-effects.html",
+          "note": "Official status guide: status semantics (Barrier, Silence, Stun, Disease, Death Mark, Enrage, Submerged, cumulative cleanse chance via Cursed/Lycanthropy entries)."
+        },
+        {
+          "id": "laneTest",
+          "role": "lane-battle-test",
+          "path": "tests/unit/gowLaneL5B03.test.ts",
+          "note": "troop:6924: real TurnEngine.castSkill both sides + boundaries"
+        },
+        {
+          "id": "r004",
+          "role": "coordinator-ruling",
+          "path": "tasks/active/gow-skill-shards/rulings/R004-status-durations.md",
+          "note": "R004: negatives no turn cap, shared cumulative self-cleanse 10%/+10% (+5% Cursed), Poison never; positives end on trigger (Barrier/Reflect damage, Enchanted cast, Enraged skull damage, Submerged/Blessed holder action)."
+        },
+        {
+          "id": "r3",
+          "role": "lane-battle-test",
+          "path": "tests/unit/gowLaneL5R3.test.ts",
+          "note": "Round-3 real castSkill both sides: statuses from this cast unchanged after 6 failed turn-start rolls; one successful roll removes all recoverable negatives together (Poison/positives stay)."
+        },
+        {
+          "id": "srcR004",
+          "role": "community-source",
+          "path": "artifacts/gow-skill-audit/gold-primary-sources/community-2026-09-28-status-durations.json",
+          "note": "Saved community corroboration for R004 (staff reply: new negative resets, all negatives cleanse together)."
+        }
+      ],
+      "dimensions": {
+        "identity-cost-colors": {
+          "status": "verified",
+          "note": "Troop 6924 -> spell 8393, cost 6, Red.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r3",
+            "srcR004"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL5B03.test.ts"
+          ]
+        },
+        "target-count-range": {
+          "status": "verified",
+          "note": "Every living ally incl. caster, then every living enemy.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r3",
+            "srcR004"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL5B03.test.ts"
+          ]
+        },
+        "base-formula-rounding": {
+          "status": "not-applicable",
+          "note": "No numeric formula.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r3",
+            "srcR004"
+          ],
+          "tests": []
+        },
+        "boost-source-ratio-cap": {
+          "status": "not-applicable",
+          "note": "No boost/count source.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r3",
+            "srcR004"
+          ],
+          "tests": []
+        },
+        "conditions-probabilities-branches": {
+          "status": "not-applicable",
+          "note": "No condition, chance or Randomize.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r3",
+            "srcR004"
+          ],
+          "tests": []
+        },
+        "status-duration-immunity": {
+          "status": "verified",
+          "note": "Enraged no timer (6 turn starts), ends when the holder deals skull damage (R004, gowLaneL5R3); Blessed enemy immune; re-apply refreshes (alias counted).",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r3",
+            "srcR004"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL5B03.test.ts"
+          ]
+        },
+        "gems-types-selection-resolution": {
+          "status": "not-applicable",
+          "note": "No gem steps.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r3",
+            "srcR004"
+          ],
+          "tests": []
+        },
+        "summon-transform-pools": {
+          "status": "not-applicable",
+          "note": "No summon/transform.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r3",
+            "srcR004"
+          ],
+          "tests": []
+        },
+        "order-death-retargeting": {
+          "status": "verified",
+          "note": "Allies then enemies (native order).",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r3",
+            "srcR004"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL5B03.test.ts"
+          ]
+        },
+        "mana-economy-extra-turn": {
+          "status": "verified",
+          "note": "Cast spends full mana and passes the turn; low mana and Silence block the real cast (no mana/action spent).",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r3",
+            "srcR004"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL5B03.test.ts"
+          ]
+        },
+        "display-description": {
+          "status": "verified",
+          "note": "Chinese description asserted verbatim; wording matches the English effect.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r3",
+            "srcR004"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL5B03.test.ts"
+          ]
+        },
+        "battle-pipeline": {
+          "status": "verified",
+          "note": "Real TurnEngine.castSkill both sides (lane file + round-3 R004 file).",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r3",
+            "srcR004"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL5B03.test.ts"
+          ],
+          "realBattleEntry": true
+        }
+      },
+      "clauseReviews": [
+        {
+          "id": "c1",
+          "text": "Enrage all Allies and Enemies.",
+          "status": "verified",
+          "note": "All allies and enemies Enraged; R004 duration.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r3",
+            "srcR004"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL5B03.test.ts"
+          ]
+        }
+      ],
+      "nativeStepReviews": [
+        {
+          "id": "0",
+          "type": "CauseEnraged",
+          "status": "verified",
+          "note": "CauseEnraged AllAllies -> rage allyAll.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r3",
+            "srcR004"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL5B03.test.ts"
+          ]
+        },
+        {
+          "id": "1",
+          "type": "CauseEnraged",
+          "status": "verified",
+          "note": "CauseEnraged AllEnemies -> rage enemyAll.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r3",
+            "srcR004"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL5B03.test.ts"
+          ]
+        }
+      ],
+      "branchReviews": [
+        {
+          "id": "main",
+          "status": "verified",
+          "note": "Single unconditional branch.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r3",
+            "srcR004"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL5B03.test.ts"
+          ]
+        }
+      ]
+    },
+    {
+      "key": "troop:6546",
+      "scope": "stored-gow-snapshot",
+      "sourceDigest": "98a3ee30bbd6297b830df02c982456fbda1ff13dd1342f2b44f7a4cbe253acf7",
+      "reviewer": "sa-L5",
+      "reviewedAt": "2026-09-27",
+      "decision": "accept",
+      "ledgerFingerprintAtReview": "bff2422ae41e11fa11f3724131b9d103e51288d99769766b5bc8b926247ba775",
+      "_reference": {
+        "spellId": 7740,
+        "english": "Deal [Magic + 6] true damage to the last enemy. Enrage them.",
+        "nativeTarget": "None",
+        "randomize": null,
+        "steps": [
+          {
+            "Target": "LastEnemy",
+            "Amount": 1,
+            "Type": "CauseEnraged"
+          },
+          {
+            "SpellPowerMultiplier": 1,
+            "Target": "LastEnemy",
+            "Amount": 6,
+            "Primarypower": true,
+            "Type": "TrueDamage"
+          }
+        ],
+        "prototype": {
+          "segments": [
+            {
+              "kind": "status",
+              "target": "enemyLast",
+              "statusId": "rage",
+              "turns": 3
+            },
+            {
+              "kind": "damage",
+              "target": "enemyLast",
+              "scaling": {
+                "base": 6,
+                "mult": 1
+              },
+              "trueDamage": true
+            }
+          ]
+        }
+      },
+      "sourceEvidence": [
+        {
+          "id": "en",
+          "role": "english-snapshot",
+          "path": "data/raw/troops.gow.en.json",
+          "note": "troop 6546 Senita: spell 7740 \"Deal [Magic + 6] true damage to the last enemy. Enrage them.\", cost 12 Green/Red."
+        },
+        {
+          "id": "native",
+          "role": "native-snapshot",
+          "path": "data/raw/spells.gow.en.json",
+          "note": "spell 7740 Target None: CauseEnraged LastEnemy Amount 1; TrueDamage LastEnemy Amount 6 SPM 1."
+        },
+        {
+          "id": "rule",
+          "role": "official-shared-rule",
+          "path": "artifacts/gow-skill-audit/gold-primary-sources/official-status-effects.html",
+          "note": "Official status guide: status semantics (Barrier, Silence, Stun, Disease, Death Mark, Enrage, Submerged, cumulative cleanse chance via Cursed/Lycanthropy entries)."
+        },
+        {
+          "id": "laneTest",
+          "role": "lane-battle-test",
+          "path": "tests/unit/gowLaneL5B03.test.ts",
+          "note": "troop:6546: real TurnEngine.castSkill both sides + boundaries"
+        },
+        {
+          "id": "r004",
+          "role": "coordinator-ruling",
+          "path": "tasks/active/gow-skill-shards/rulings/R004-status-durations.md",
+          "note": "R004: negatives no turn cap, shared cumulative self-cleanse 10%/+10% (+5% Cursed), Poison never; positives end on trigger (Barrier/Reflect damage, Enchanted cast, Enraged skull damage, Submerged/Blessed holder action)."
+        },
+        {
+          "id": "r3",
+          "role": "lane-battle-test",
+          "path": "tests/unit/gowLaneL5R3.test.ts",
+          "note": "Round-3 real castSkill both sides: statuses from this cast unchanged after 6 failed turn-start rolls; one successful roll removes all recoverable negatives together (Poison/positives stay)."
+        },
+        {
+          "id": "srcR004",
+          "role": "community-source",
+          "path": "artifacts/gow-skill-audit/gold-primary-sources/community-2026-09-28-status-durations.json",
+          "note": "Saved community corroboration for R004 (staff reply: new negative resets, all negatives cleanse together)."
+        },
+        {
+          "id": "r001",
+          "role": "coordinator-ruling",
+          "path": "tasks/active/gow-skill-shards/rulings/R001-native-step-order.md",
+          "note": "R001: native SpellSteps order governs observable order."
+        }
+      ],
+      "dimensions": {
+        "identity-cost-colors": {
+          "status": "verified",
+          "note": "Troop 6546 -> spell 7740, cost 12, Green/Red.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r3",
+            "srcR004",
+            "r001"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL5B03.test.ts"
+          ]
+        },
+        "target-count-range": {
+          "status": "verified",
+          "note": "Last living enemy (dead last -> 12).",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r3",
+            "srcR004",
+            "r001"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL5B03.test.ts"
+          ]
+        },
+        "base-formula-rounding": {
+          "status": "verified",
+          "note": "True damage Magic+6 ignoring armor.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r3",
+            "srcR004",
+            "r001"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL5B03.test.ts"
+          ]
+        },
+        "boost-source-ratio-cap": {
+          "status": "not-applicable",
+          "note": "No boost/count source.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r3",
+            "srcR004",
+            "r001"
+          ],
+          "tests": []
+        },
+        "conditions-probabilities-branches": {
+          "status": "not-applicable",
+          "note": "No condition, chance or Randomize.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r3",
+            "srcR004",
+            "r001"
+          ],
+          "tests": []
+        },
+        "status-duration-immunity": {
+          "status": "verified",
+          "note": "Enraged no timer, ends on the holder's skull damage (R004, gowLaneL5R3).",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r3",
+            "srcR004",
+            "r001"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL5B03.test.ts"
+          ]
+        },
+        "gems-types-selection-resolution": {
+          "status": "not-applicable",
+          "note": "No gem steps.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r3",
+            "srcR004",
+            "r001"
+          ],
+          "tests": []
+        },
+        "summon-transform-pools": {
+          "status": "not-applicable",
+          "note": "No summon/transform.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r3",
+            "srcR004",
+            "r001"
+          ],
+          "tests": []
+        },
+        "order-death-retargeting": {
+          "status": "verified",
+          "note": "Enrage -> TrueDamage native order (R001); lethal true damage defeats it.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r3",
+            "srcR004",
+            "r001"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL5B03.test.ts"
+          ]
+        },
+        "mana-economy-extra-turn": {
+          "status": "verified",
+          "note": "Cast spends full mana and passes the turn; low mana and Silence block the real cast (no mana/action spent).",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r3",
+            "srcR004",
+            "r001"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL5B03.test.ts"
+          ]
+        },
+        "display-description": {
+          "status": "verified",
+          "note": "Chinese description asserted verbatim; wording matches the English effect.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r3",
+            "srcR004",
+            "r001"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL5B03.test.ts"
+          ]
+        },
+        "battle-pipeline": {
+          "status": "verified",
+          "note": "Real TurnEngine.castSkill both sides (lane file + round-3 R004 file).",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r3",
+            "srcR004",
+            "r001"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL5B03.test.ts"
+          ],
+          "realBattleEntry": true
+        }
+      },
+      "clauseReviews": [
+        {
+          "id": "c1",
+          "text": "Deal [Magic + 6] true damage to the last enemy.",
+          "status": "verified",
+          "note": "Last enemy takes Magic+6 true damage.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r3",
+            "srcR004",
+            "r001"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL5B03.test.ts"
+          ]
+        },
+        {
+          "id": "c2",
+          "text": "Enrage them.",
+          "status": "verified",
+          "note": "Last enemy Enraged (native: before damage).",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r3",
+            "srcR004",
+            "r001"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL5B03.test.ts"
+          ]
+        }
+      ],
+      "nativeStepReviews": [
+        {
+          "id": "0",
+          "type": "CauseEnraged",
+          "status": "verified",
+          "note": "CauseEnraged LastEnemy -> rage enemyLast.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r3",
+            "srcR004",
+            "r001"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL5B03.test.ts"
+          ]
+        },
+        {
+          "id": "1",
+          "type": "TrueDamage",
+          "status": "verified",
+          "note": "TrueDamage LastEnemy 6/1.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r3",
+            "srcR004",
+            "r001"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL5B03.test.ts"
+          ]
+        }
+      ],
+      "branchReviews": [
+        {
+          "id": "main",
+          "status": "verified",
+          "note": "Single unconditional branch.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r3",
+            "srcR004",
+            "r001"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL5B03.test.ts"
+          ]
+        }
+      ]
+    },
+    {
+      "key": "weapon:1072",
+      "scope": "stored-gow-snapshot",
+      "sourceDigest": "02e3e7d08524d04f0c2ac4ed035020b43dc39f881d6b897857fe1cc97d06cbf9",
+      "reviewer": "sa-L5",
+      "reviewedAt": "2026-09-27",
+      "decision": "accept",
+      "ledgerFingerprintAtReview": "bff2422ae41e11fa11f3724131b9d103e51288d99769766b5bc8b926247ba775",
+      "_reference": {
+        "spellId": 7185,
+        "english": "Entangle the first Enemy, and deal [Magic + 2] true damage.",
+        "nativeTarget": "None",
+        "randomize": null,
+        "steps": [
+          {
+            "Target": "FrontEnemy",
+            "Type": "CauseEntangle"
+          },
+          {
+            "SpellPowerMultiplier": 1,
+            "Target": "FrontEnemy",
+            "Amount": 2,
+            "Primarypower": true,
+            "Type": "TrueDamage"
+          }
+        ],
+        "prototype": {
+          "segments": [
+            {
+              "kind": "status",
+              "target": "enemyFront",
+              "statusId": "entangle",
+              "turns": 3
+            },
+            {
+              "kind": "damage",
+              "target": "enemyFront",
+              "scaling": {
+                "base": 2,
+                "mult": 1
+              },
+              "trueDamage": true
+            }
+          ]
+        }
+      },
+      "sourceEvidence": [
+        {
+          "id": "en",
+          "role": "english-snapshot",
+          "path": "artifacts/gowhead-weapons/weapons.json",
+          "note": "weapon 1072 Spider's Kiss: gowhead English \"Entangle the first Enemy, and deal [Magic + 2] true damage.\", cost 14 Purple, 7185 + gw_SpidersKiss."
+        },
+        {
+          "id": "native",
+          "role": "native-snapshot",
+          "path": "data/raw/spells.gow.en.json",
+          "note": "spell 7185 Target None: CauseEntangle FrontEnemy; TrueDamage FrontEnemy Amount 2 SPM 1."
+        },
+        {
+          "id": "rule",
+          "role": "official-shared-rule",
+          "path": "artifacts/gow-skill-audit/gold-primary-sources/official-status-effects.html",
+          "note": "Official status guide: status semantics (Barrier, Silence, Stun, Disease, Death Mark, Enrage, Submerged, cumulative cleanse chance via Cursed/Lycanthropy entries)."
+        },
+        {
+          "id": "laneTest",
+          "role": "lane-battle-test",
+          "path": "tests/unit/gowLaneL5B03.test.ts",
+          "note": "weapon:1072: real TurnEngine.castSkill both sides + boundaries"
+        },
+        {
+          "id": "r004",
+          "role": "coordinator-ruling",
+          "path": "tasks/active/gow-skill-shards/rulings/R004-status-durations.md",
+          "note": "R004: negatives no turn cap, shared cumulative self-cleanse 10%/+10% (+5% Cursed), Poison never; positives end on trigger (Barrier/Reflect damage, Enchanted cast, Enraged skull damage, Submerged/Blessed holder action)."
+        },
+        {
+          "id": "r3",
+          "role": "lane-battle-test",
+          "path": "tests/unit/gowLaneL5R3.test.ts",
+          "note": "Round-3 real castSkill both sides: statuses from this cast unchanged after 6 failed turn-start rolls; one successful roll removes all recoverable negatives together (Poison/positives stay)."
+        },
+        {
+          "id": "srcR004",
+          "role": "community-source",
+          "path": "artifacts/gow-skill-audit/gold-primary-sources/community-2026-09-28-status-durations.json",
+          "note": "Saved community corroboration for R004 (staff reply: new negative resets, all negatives cleanse together)."
+        }
+      ],
+      "dimensions": {
+        "identity-cost-colors": {
+          "status": "verified",
+          "note": "Weapon 1072 -> spell 7185, cost 14, Purple; both aliases.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r3",
+            "srcR004"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL5B03.test.ts"
+          ]
+        },
+        "target-count-range": {
+          "status": "verified",
+          "note": "First living enemy (dead front -> 11).",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r3",
+            "srcR004"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL5B03.test.ts"
+          ]
+        },
+        "base-formula-rounding": {
+          "status": "verified",
+          "note": "True damage Magic+2 ignoring armor.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r3",
+            "srcR004"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL5B03.test.ts"
+          ]
+        },
+        "boost-source-ratio-cap": {
+          "status": "not-applicable",
+          "note": "No boost/count source.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r3",
+            "srcR004"
+          ],
+          "tests": []
+        },
+        "conditions-probabilities-branches": {
+          "status": "not-applicable",
+          "note": "No condition, chance or Randomize.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r3",
+            "srcR004"
+          ],
+          "tests": []
+        },
+        "status-duration-immunity": {
+          "status": "verified",
+          "note": "Entangle R004: no turn cap; persists through 6 failed turn-start rolls, removed by one successful shared self-cleanse roll (gowLaneL5R3). Invulnerable front takes no Entangle.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r3",
+            "srcR004"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL5B03.test.ts"
+          ]
+        },
+        "gems-types-selection-resolution": {
+          "status": "not-applicable",
+          "note": "No gem steps.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r3",
+            "srcR004"
+          ],
+          "tests": []
+        },
+        "summon-transform-pools": {
+          "status": "not-applicable",
+          "note": "No summon/transform.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r3",
+            "srcR004"
+          ],
+          "tests": []
+        },
+        "order-death-retargeting": {
+          "status": "verified",
+          "note": "Entangle -> TrueDamage native order.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r3",
+            "srcR004"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL5B03.test.ts"
+          ]
+        },
+        "mana-economy-extra-turn": {
+          "status": "verified",
+          "note": "Cast spends full mana and passes the turn; low mana and Silence block the real cast (no mana/action spent).",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r3",
+            "srcR004"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL5B03.test.ts"
+          ]
+        },
+        "display-description": {
+          "status": "verified",
+          "note": "Chinese description asserted verbatim; wording matches the English effect.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r3",
+            "srcR004"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL5B03.test.ts"
+          ]
+        },
+        "battle-pipeline": {
+          "status": "verified",
+          "note": "Real TurnEngine.castSkill both sides (lane file + round-3 R004 file).",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r3",
+            "srcR004"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL5B03.test.ts"
+          ],
+          "realBattleEntry": true
+        }
+      },
+      "clauseReviews": [
+        {
+          "id": "c1",
+          "text": "Entangle the first Enemy, and deal [Magic + 2] true damage.",
+          "status": "verified",
+          "note": "Front enemy Entangled then Magic+2 true damage.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r3",
+            "srcR004"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL5B03.test.ts"
+          ]
+        }
+      ],
+      "nativeStepReviews": [
+        {
+          "id": "0",
+          "type": "CauseEntangle",
+          "status": "verified",
+          "note": "CauseEntangle FrontEnemy -> enemyFront.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r3",
+            "srcR004"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL5B03.test.ts"
+          ]
+        },
+        {
+          "id": "1",
+          "type": "TrueDamage",
+          "status": "verified",
+          "note": "TrueDamage FrontEnemy 2/1.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r3",
+            "srcR004"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL5B03.test.ts"
+          ]
+        }
+      ],
+      "branchReviews": [
+        {
+          "id": "main",
+          "status": "verified",
+          "note": "Single unconditional branch.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r3",
+            "srcR004"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL5B03.test.ts"
+          ]
+        }
+      ]
+    }
+  ]
+}

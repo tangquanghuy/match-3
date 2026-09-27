@@ -141,40 +141,55 @@ test.beforeEach(async ({ page }) => {
   await expect(page.getByTestId('skill-dmg-single')).toBeVisible({ timeout: 15_000 });
 });
 
-test('cast confirmation previews candidates and preserves native button semantics', async ({ page }) => {
+test('unit window replaces the cast confirmation: tap opens it, its native cast button starts targeting', async ({ page }) => {
+  // 默认（快速释放关）：点满法力的我方卡只打开部队详情窗，不施放
   await page.evaluate(() => window.localStorage.setItem('battle.skipCastConfirm', '0'));
   await assignSkill(page, 'dmg-chosen');
+  await page.getByTestId('fill-mana').click();
+  const log = page.getByTestId('event-log');
+  await log.evaluate((element) => { element.textContent = ''; });
   await shortPressCard(page, 0);
 
-  const panel = page.locator('.ccp-backdrop.open');
-  await expect(panel).toBeVisible();
-  await expect(panel.locator('.ccp-target')).toContainText('可选敌人');
-  await expect(panel.locator('.ccp-preview-target.hostile')).toHaveCount(3);
+  const sheet = page.locator('.usw.open');
+  await expect(sheet).toBeVisible();
+  await expect(sheet).toHaveAttribute('role', 'dialog');
+  await expect(sheet).toHaveAttribute('aria-modal', 'false');
+  await expect(sheet.locator('.usw-target')).toContainText('释放后点选 1 名敌人');
+  await expect(page.locator('.ccp-backdrop')).toHaveCount(0);
+  await expect(log).not.toContainText('skill-cast');
+  const cast = sheet.getByRole('button', { name: '释放技能' });
+  await expect(cast).toBeEnabled();
+  await expect(sheet.getByRole('checkbox', { name: /快速释放/ })).not.toBeChecked();
 
-  // Enter follows the focused native button. It must not globally force a cast while Cancel has focus.
-  await panel.locator('.ccp-cancel').focus();
-  await page.keyboard.press('Enter');
-  await expect(page.locator('.ccp-backdrop.open')).toHaveCount(0);
-  await expect(page.locator('.ccp-preview-target')).toHaveCount(0);
-  await expect(page.locator('.aim-overlay')).toHaveCount(0);
-
-  await assignSkill(page, 'dmg-single');
+  // 再点同一张卡收起；点敌方卡切到敌方内容（没有施放按钮，只列法力）；Esc 收起
   await shortPressCard(page, 0);
-  await expect(page.locator('.ccp-target')).toContainText('目标：夜斗');
-  await expect(page.locator('.ccp-preview-target.hostile')).toHaveCount(1);
-  await page.locator('.ccp-cancel').click();
+  await expect(page.locator('.usw.open')).toHaveCount(0);
+  await shortPressCard(page, 5);
+  await expect(sheet).toHaveAttribute('data-side', 'enemy');
+  await expect(sheet.locator('.usw-cast')).toHaveCount(0);
+  await expect(sheet.locator('.usw-foe-mana')).toContainText('法力');
+  await page.keyboard.press('Escape');
+  await expect(page.locator('.usw.open')).toHaveCount(0);
 
-  await assignSkill(page, 'dmg-chosen');
+  // 窗内按钮是原生 button：聚焦后 Enter 直接进入选目标（不再有第二次确认），窗随之收起
   await shortPressCard(page, 0);
-  await expect(page.locator('.ccp-backdrop.open')).toBeVisible();
-  await page.locator('.ccp-skip-box').check();
-  await page.locator('.ccp-cast').focus();
+  await expect(cast).toBeVisible();
+  await cast.focus();
   await page.keyboard.press('Enter');
   await expect(page.locator('.aim-overlay')).toBeVisible();
-  await expect.poll(() => page.evaluate(() => window.localStorage.getItem('battle.skipCastConfirm'))).toBe('1');
-
+  await expect(page.locator('.usw.open')).toHaveCount(0);
   await page.getByTestId('card-6').click();
-  await expect(page.getByTestId('event-log')).toContainText('skill-damage → 角色6');
+  await expect(log).toContainText('skill-damage → 角色6');
+});
+
+test('unit window quick-cast checkbox writes the shared preference', async ({ page }) => {
+  await page.evaluate(() => window.localStorage.setItem('battle.skipCastConfirm', '0'));
+  await shortPressCard(page, 1);
+  const box = page.locator('.usw.open').getByRole('checkbox', { name: /快速释放/ });
+  await box.check();
+  await expect.poll(() => page.evaluate(() => window.localStorage.getItem('battle.skipCastConfirm'))).toBe('1');
+  await box.uncheck();
+  await expect.poll(() => page.evaluate(() => window.localStorage.getItem('battle.skipCastConfirm'))).toBe('0');
 });
 
 
@@ -206,7 +221,7 @@ test('frame FX preload is deferred and eventually completes', async ({ page }) =
   });
 });
 
-test('mana gem and cancelled card pointers never cast, then a clean short press recovers', async ({ page }) => {
+test('mana gem hover explains without casting, cancelled pointers never cast, and a gem tap is a card tap', async ({ page }) => {
   await assignSkill(page, 'dmg-single');
   await page.getByTestId('fill-mana').click();
   const log = page.getByTestId('event-log');
@@ -214,7 +229,8 @@ test('mana gem and cancelled card pointers never cast, then a clean short press 
 
   const card = page.getByTestId('card-0');
   const manaGem = card.locator('.gem');
-  await manaGem.click();
+  // 说明浮层只在鼠标悬停时出现，悬停本身不触发任何卡片动作
+  await manaGem.hover();
   await expect(page.locator('.status-tooltip .st-title')).toContainText('法力');
   await expect(page.locator('.gem-tip')).toHaveCount(0);
   await expect(log).not.toContainText('skill-cast');
@@ -246,7 +262,8 @@ test('mana gem and cancelled card pointers never cast, then a clean short press 
   });
   await expect(log).not.toContainText('skill-cast');
 
-  await shortPressCard(page, 0);
+  // 宝石是卡面的一部分：点它与点卡面其它位置相同（本组用例开着快速释放 → 直接施放）
+  await manaGem.click();
   await expect(log).toContainText('skill-cast');
 });
 
@@ -753,7 +770,7 @@ test('多段组合器：载入"蓝单体+冰冻"预设→设为技能→释放�
   await page.getByTestId('combo-preset-blue-freeze').click();
   await expect(page.getByTestId('composer-item-0')).toContainText('伤害');
   await expect(page.getByTestId('composer-item-1')).toContainText('冰冻');
-  // 组装并设为首个施法者技能，充满法力后短按释放
+  // 组装并设为首个施法者技能，充满法力值后短按释放
   await page.getByTestId('composer-apply').click();
   await page.getByTestId('fill-mana').click();
   await page.waitForTimeout(150);

@@ -78,11 +78,13 @@ export interface SkillCastEvent {
  * 与骷髅伤害区分：由技能效果原语产出，携带足够动画数据。
  */
 export interface SkillDamageEvent {
+  /** Confirmed lethal devour, not an ordinary lethal spell or a blocked attempt. */
+  devoured?: boolean;
   type: 'skill-damage';
   casterId: number;
   targetId: number;
   /** Presentation semantics: splash uses a dedicated no-projectile impact. */
-  range: 'single' | 'all' | 'splash';
+  range: 'single' | 'all' | 'splash' | 'scatter';
   /** Splash-chain presentation metadata; absent for ordinary damage. */
   chainIndex?: number;
   chainCount?: number;
@@ -138,6 +140,8 @@ export interface BuffEvent {
   targetId: number;
   stat: 'attack' | 'armor' | 'hp' | 'mana' | 'magic';
   amount: number;
+  /** IncreaseHealth growth, for event-only projections; omitted for pure healing. */
+  maxHpGain?: number;
   source?: 'trait';
 }
 
@@ -154,7 +158,10 @@ export interface StatusTickEvent {
   type: 'status-tick';
   targetId: number;
   statusId: string;
+  /** Life lost on this tick (never includes armor). */
   damage?: number;
+  /** Armor lost on this tick (Burning only). */
+  armorDamage?: number;
 }
 
 /** 状态到期移除（需求 9.5）。 */
@@ -175,12 +182,12 @@ export interface StatusCleanseEvent {
 export interface SummonEvent {
   type: 'summon';
   player: PlayerSide;
-  /** Active field slot or FIFO queue index. */
+  /** Active field slot；queue 仅为旧事件回放兼容。 */
   slot: number;
   troopId: number;
   characterId: number;
-  destination: 'field' | 'queue';
-  /** True when this event promotes an earlier queued summon after a defeat. */
+  destination: 'field' | 'queue'; // queue 为旧事件兼容值
+  /** 旧事件回放兼容字段。 */
   fromQueue?: boolean;
 }
 
@@ -237,13 +244,6 @@ export interface ReshuffleEvent {
   moves: { gemId: number; from: CellPos; to: CellPos }[];
 }
 
-/** 特殊宝石生成钩子（需求 7.4, 7.5）—— 本阶段仅标记，不生成 */
-export interface SpecialGemHookEvent {
-  type: 'special-gem-hook';
-  pos: CellPos;
-  reason: 'match5' | 'L' | 'T';
-}
-
 /**
  * 特殊宝石触发（需求 20.1）：末日骷髅匹配引爆、炸弹爆炸、闪电清行列、织网施网、
  * 沙漏额外回合、许愿回蓝。表现层据此放触发特效/飘字；实际被清除的格子随后经
@@ -274,7 +274,7 @@ export interface StormChangeEvent {
   type: 'storm-change';
   player: PlayerSide;
   color: BaseColor | null;
-  reason: 'set' | 'replaced' | 'expired';
+  reason: 'set' | 'replaced' | 'expired' | 'removed';
   prevColor?: BaseColor;
   /** 骷髅系风暴（骸骨/末日/超级末日）的掉落目标；颜色风暴缺省 */
   dropKind?: SkullStormDropKind;
@@ -283,8 +283,8 @@ export interface StormChangeEvent {
 export interface ExtraTurnEvent {
   type: 'extra-turn';
   player: PlayerSide;
-  /** 来源：技能主动给（skill，配 0082 大动画）或三消 4/5连·L/T形给（match，仅轻反馈）。 */
-  source: 'skill' | 'match';
+  /** Source of the grant; both sources use the same lightweight HUD notice. */
+  source: 'skill' | 'match' | 'destroy';
 }
 
 export interface TurnEndEvent {
@@ -293,6 +293,7 @@ export interface TurnEndEvent {
 }
 
 export interface GameOverEvent {
+  reason?: 'surrender';
   type: 'game-over';
   winner: PlayerSide;
 }
@@ -301,6 +302,8 @@ export interface GameOverEvent {
 /** 兵种转化（「将一名敌人转化为怨灵」）：目标角色就地替换为模板兵种（保留 id/编队位）。
  *  表现层据此刷新卡面（立绘/名称/数值）；引擎侧同刻生效。 */
 export interface TroopTransformEvent {
+  /** Side responsible for this transformation. */
+  sourceSide?: PlayerSide;
   type: 'troop-transform';
   targetId: number;
   /** 转化后的兵种名（中文名，来自模板） */
@@ -310,19 +313,21 @@ export interface TroopTransformEvent {
 }
 
 
-/** 兵种调位（「将一名敌人击回末位」「移至队伍首位」，2026-09-17 回收批）：
- *  引擎即改编队顺序（前/后决定 enemyFront/enemyFirstN 等目标序）；
- *  表现层据此调整卡面列顺序（未接前由 refreshTeams 兜底数值刷新）。 */
+/** 兵种调位（「将一名敌人击回末位」「移至队伍首位」）：
+ *  引擎即改编队顺序。index 是这一步做完后该角色的编队下标，侧边卡列按这个下标滑过去。
+ *  多步调位要按事件顺序重放，不能读最终编队。 */
 export interface TroopRepositionEvent {
   type: 'troop-reposition';
   targetId: number;
   to: 'front' | 'back';
+  index: number;
 }
 
-/** 队伍乱序（「打乱敌方队伍」）：整队随机重排（种子化）。 */
+/** 队伍乱序（「打乱敌方队伍」）：整队随机重排（种子化）。order 是打乱后从上到下的角色 id。 */
 export interface TeamShuffleEvent {
   type: 'team-shuffle';
   player: PlayerSide;
+  order: number[];
 }
 
 /** 全部事件的可辨识联合 */
@@ -354,7 +359,6 @@ export type GameEvent =
   | GravityEvent
   | RefillEvent
   | ReshuffleEvent
-  | SpecialGemHookEvent
   | SpecialGemTriggerEvent
   | StormChangeEvent
   | ExtraTurnEvent

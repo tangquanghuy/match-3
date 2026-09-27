@@ -105,7 +105,7 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 7277,
-    desc: '给予一名盟友 [魔法 + 1] 点生命值，并获得下列其一：创造 6 颗具有该军队法力颜色的宝石，或给予其 2 点魔法值。',
+    desc: '给予一名盟友 [魔法 + 1] 点生命值，并获得下列其一：创造 6 颗具有该军队法力颜色的宝石，或给予其 2 点魔力值。',
     build: skill(
       heal('allyChosen', 1, 1),
       oneOf([createGems(CASTER, 6)], [magic('lastTarget', 2, 0)]),
@@ -145,7 +145,7 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 7355,
-    desc: '所有其他盟友获得 [(魔法 / 2) + 3] 点法力值和 5 点魔法值。只能施放一次。',
+    desc: '所有其他盟友获得 [(魔法 / 2) + 3] 点法力值和 5 点魔力值。只能施放一次。',
     build: skillOnce(
       mana('allyOthers', 3, 0.5),
       magic('allyOthers', 5, 0),
@@ -191,7 +191,7 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 7415,
-    desc: '对 1 名敌人造成 [魔法 + 2] 点真实伤害。如果敌人使用黄色法力，则造成双倍伤害。如果敌人是恶魔，则获得一个额外回合。',
+    desc: '对 1 名敌人造成 [魔法 + 2] 点真实伤害。如果敌人使用黄色法力值，则造成双倍伤害。如果敌人是恶魔，则获得一个额外回合。',
     build: skill(
       trueDmg('enemyChosen', 2, 1, { condMult: { times: 2, cond: { kind: 'targetColor', color: BaseColor.Yellow } } }),
       extraTurn({ ifCond: { kind: 'enemyRacePresent', race: 'Daemon' } }),
@@ -286,10 +286,10 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 7631,
     desc: '对前两名敌人造成  [魔法 + 4]  点伤害。使他们陷入猎人标记和死亡标记状态。再转化成诺斯费拉图。',
     build: skill(
-      dmg('enemyFirstN', 4, 1, { n: 2 }),
-      // 「他们」= 前两名（确定性目标集，重指同模式不重掷 rng）
-      inflict('marked', 'enemyFirstN', { n: 2 }),
+      // L1-6453-order (R001): native CauseDeathMark -> CauseHuntersMark -> Damage -> Transform Self 6451.
       inflict('death-mark', 'enemyFirstN', { n: 2 }),
+      inflict('marked', 'enemyFirstN', { n: 2 }),
+      dmg('enemyFirstN', 4, 1, { n: 2 }),
       transformTroop('allySelf', 'Nosferatu'),
     ),
   },
@@ -401,7 +401,9 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 8294,
     desc: '对 1 到 4 名随机敌人造成 [魔法 + 4] 点溅射伤害。打乱板面并获得一个额外回合。',
     build: skill(
-      dmgSplash('enemyRandomN', 4, 1, { nRange: { min: 1, max: 4 } }),
+      // Native steps: one guaranteed wave, then independent 90% / 35% / 25% rolls.
+      // Keep the shared wave selector so later hits prefer other living centres.
+      dmgSplash('enemyRandomN', 4, 1, { splashChances: [1, 0.9, 0.35, 0.25] }),
       shuffleBoard(),
       extraTurn(),
     ),
@@ -409,12 +411,11 @@ const SPELLS: CuratedBatch['spells'] = [
   {
     id: 8305,
     desc: '对末位敌人造成 [魔法 + 1] 点真实伤害，有 50% 的几率也对第 3 位敌人造成 [魔法 + 1] 点真实伤害。再使自身下潜。',
-    // 修正（2026-09-18 官方复核）：官方 SecondLastEnemy = 倒数第 2（中文「第 3 位」为位次误译，
-    // enemyNth 从队首数、编队>3 时目标完全不同）。目标词表无「倒数第 2」精确词汇——
-    // 按裁定取 enemyLastN(2)（首个别 = 倒数第 2；近似：末位会一并受击）
+    // Native SecondLastEnemy: the penultimate survivor only; the 50% chance
+    // applies solely to this second hit, not to the guaranteed last-enemy hit.
     build: skill(
       trueDmg('enemyLast', 1, 1),
-      trueDmg('enemyLastN', 1, 1, { n: 2, chance: 0.5 }),
+      trueDmg('enemySecondLast', 1, 1, { chance: 0.5 }),
       inflict('submerged', 'allySelf'),
     ),
   },
@@ -475,7 +476,7 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 8537,
-    desc: '给予前 2 位盟友 [魔法 + 3] 点攻击力，最弱的 2 位盟友 [魔法 + 3] 点生命值，和最强的 2 位盟友 10 点魔法值。',
+    desc: '给予前 2 位盟友 [魔法 + 3] 点攻击力，最弱的 2 位盟友 [魔法 + 3] 点生命值，和最强的 2 位盟友 10 点魔力值。',
     build: skill(
       attack('allyFirstN', 3, 1, { n: 2 }),
       heal('allyWeakestN', 3, 1, { n: 2 }),
@@ -484,7 +485,7 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 8544,
-    desc: '获得 4 点魔法值。并获得 [魔法 + 1] 点生命值，或对所有敌人造成 [魔法 + 1] 点伤害，或再获得 10 点魔法值。',
+    desc: '获得 4 点魔力值。并获得 [魔法 + 1] 点生命值，或对所有敌人造成 [魔法 + 1] 点伤害，或再获得 10 点魔力值。',
     build: skill(
       magic('allySelf', 4, 0),
       oneOf(
@@ -721,16 +722,16 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 9550,
-    desc: '对随机敌人造成 [魔法 + 3] 点伤害。如果他们使用紫色法力，则恢复我一半的法力。',
+    desc: '对随机敌人造成 [魔法 + 3] 点伤害。如果他们使用紫色法力值，则恢复我一半的法力值。',
     build: skill(
       dmg('enemyRandom', 3, 1),
-      // 「他们使用紫色法力」按 anyEnemyColor 超集口径（任一存活敌人带该色即真，spell-rules §13.3）
+      // 「他们使用紫色法力值」按 anyEnemyColor 超集口径（任一存活敌人带该色即真，spell-rules §13.3）
       mana('allySelf', 0, 0, { halve: true, ifCond: { kind: 'anyEnemyColor', color: BaseColor.Purple } }),
     ),
   },
   {
     id: 9651,
-    desc: '对一名敌人造成[魔法 + 1]点伤害，伤害值因紫色宝石数量而增强。如果我的魔法值更高，则造成双倍伤害。 [3:1]',
+    desc: '对一名敌人造成[魔法 + 1]点伤害，伤害值因紫色宝石数量而增强。如果我的魔力值更高，则造成双倍伤害。 [3:1]',
     build: skill(
       dmg('enemyChosen', 1, 1, {
         condMult: { times: 2, cond: { kind: 'casterStatBeatsTarget', stat: 'magic' } },
@@ -741,7 +742,7 @@ const SPELLS: CuratedBatch['spells'] = [
   {
     id: 9725,
     desc: '爆破 2-4 颗宝石。',
-    build: skill(explodeRandomGemsRange(2, 4)),
+    build: skill(explodeRandomGems(2), { ...explodeRandomGems(1), chance: 0.5 }, { ...explodeRandomGems(1), chance: 0.25 }, dmg('enemyFront', 4, 0.5)),
   },
   {
     id: 9734,

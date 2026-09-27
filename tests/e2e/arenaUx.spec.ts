@@ -8,7 +8,7 @@ async function openFreshArena(page: import('@playwright/test').Page): Promise<vo
 }
 
 test.describe('竞技场 A-6~A-9 UX 回归', () => {
-  test('奖表、周票提示和三步进度具有明确语义', async ({ page }) => {
+  test('奖表、黄金报名提示和三步进度具有明确语义', async ({ page }) => {
     await openFreshArena(page);
 
     await expect(page.locator('button.step')).toHaveCount(0);
@@ -21,12 +21,12 @@ test.describe('竞技场 A-6~A-9 UX 回归', () => {
       tier: row.querySelector('.prize-tier')?.textContent?.trim(),
       tierCount: row.querySelectorAll('.prize-tier').length,
     })));
-    expect(wins.map((row) => row.wins)).toEqual(['3', '2', '1', '0']);
+    expect(wins.map((row) => row.wins)).toEqual(['6', '5', '4', '3', '2', '1', '0']);
     expect(wins.every((row) => row.tier && row.tierCount === 1)).toBe(true);
-    await expect(page.locator('#ticketReset')).toHaveText(/周一 0:00 重置 · 剩 \d+ (天 \d+ 小时|小时)/);
+    await expect(page.locator('#ticketReset')).toHaveText(/固定15级 · 无特质/);
   });
 
-  test('锁定牌组显示 x/3 进度、空槽序号和六档边框类', async ({ page }) => {
+  test('锁定牌组显示 x/4 进度、空槽序号和四档边框类', async ({ page }) => {
     await openFreshArena(page);
     await page.locator('#enter').click();
     await expect(page.locator('#draft')).toBeVisible({ timeout: 10_000 });
@@ -35,18 +35,18 @@ test.describe('竞技场 A-6~A-9 UX 回归', () => {
     await page.locator('#draftCards .draft-card').first().click();
     await page.locator('#nextDraft').click();
     await expect(page.locator('#draft')).toBeVisible({ timeout: 10_000 });
-    await expect(page.locator('#pickedLabel')).toHaveText('已锁定 1/3');
+    await expect(page.locator('#pickedLabel')).toHaveText('已锁定 1/4');
     await expect(page.locator('#pickedSlots .filled')).toHaveCount(1);
-    await expect(page.locator('#pickedSlots .empty')).toHaveCount(2);
+    await expect(page.locator('#pickedSlots .empty')).toHaveCount(3);
     await expect(page.locator('#pickedSlots .empty').first()).toHaveAttribute('aria-label', /第 2 张待选择/);
 
-    for (let round = 1; round < 3; round += 1) {
+    for (let round = 1; round < 4; round += 1) {
       await page.locator('#draftCards .draft-card').first().click();
       await page.locator('#nextDraft').click();
-      if (round < 2) await expect(page.locator('#draft')).toBeVisible({ timeout: 10_000 });
+      if (round < 3) await expect(page.locator('#draft')).toBeVisible({ timeout: 10_000 });
     }
     await expect(page.locator('#battle')).toBeVisible({ timeout: 10_000 });
-    await expect(page.locator('#draftTeam .run-slot')).toHaveCount(3);
+    await expect(page.locator('#draftTeam .run-slot')).toHaveCount(4);
     const rarityClasses = await page.locator('#draftTeam .run-slot').evaluateAll((rows) => rows.map((row) => [...row.classList].find((name) => name.startsWith('r-'))));
     expect(rarityClasses.every(Boolean)).toBe(true);
   });
@@ -95,9 +95,9 @@ test.describe('竞技场 A-6~A-9 UX 回归', () => {
     await expect(page.locator('#nextDraft')).toBeVisible();
     await page.screenshot({ path: 'artifacts/ux-phase-b/shots/pvp-arena-draft-responsive.png' });
 
-    for (let round = 0; round < 3; round += 1) {
+    for (let round = 0; round < 4; round += 1) {
       await page.locator('#nextDraft').click();
-      if (round < 2) {
+      if (round < 3) {
         await expect(page.locator('#draft')).toBeVisible();
         await page.locator('.draft-card').first().click();
         await page.locator('#nextDraft').scrollIntoViewIfNeeded();
@@ -107,7 +107,8 @@ test.describe('竞技场 A-6~A-9 UX 回归', () => {
     await page.locator('#fight').scrollIntoViewIfNeeded();
     await expect(page.locator('#fight')).toBeVisible();
     await expect(page.locator('.match[aria-current="step"]')).toHaveCount(1);
-    await expect.poll(() => page.locator('.match.pending img').first().evaluate((img) => (img as HTMLImageElement).naturalWidth)).toBeGreaterThan(0);
+    await expect(page.locator('.match.pending img')).toHaveCount(4);
+    await expect.poll(() => page.locator('#battle img').evaluateAll(images => images.every(image => (image as HTMLImageElement).complete && (image as HTMLImageElement).naturalWidth > 0)), { timeout: 15000 }).toBe(true);
     await page.screenshot({ path: 'artifacts/ux-phase-b/shots/pvp-arena-lineup-responsive.png' });
   });
 
@@ -129,15 +130,16 @@ test.describe('竞技场 A-6~A-9 UX 回归', () => {
     expect(separation.cardBottom).toBeLessThan(790);
     await page.screenshot({ path: 'artifacts/ux-phase-b/shots/pvp-arena-draft-desktop.png' });
 
-    for (let round = 0; round < 3; round += 1) {
+    for (let round = 0; round < 4; round += 1) {
       await page.locator('#nextDraft').click();
-      if (round < 2) await page.locator('.draft-card').first().click();
+      if (round < 3) await page.locator('.draft-card').first().click();
     }
     await expect(page.locator('#battle')).toBeVisible();
     const action = await page.locator('#fight').boundingBox();
     expect(action).not.toBeNull();
     expect(action!.y + action!.height).toBeLessThan(818);
-    await expect.poll(() => page.locator('.match.pending img').first().evaluate((img) => (img as HTMLImageElement).naturalWidth)).toBeGreaterThan(0);
+    await expect(page.locator('.match.pending img')).toHaveCount(4);
+    await expect.poll(() => page.locator('#battle img').evaluateAll(images => images.every(image => (image as HTMLImageElement).complete && (image as HTMLImageElement).naturalWidth > 0)), { timeout: 15000 }).toBe(true);
     await page.screenshot({ path: 'artifacts/ux-phase-b/shots/pvp-arena-lineup-desktop.png' });
   });
 
@@ -162,4 +164,47 @@ test.describe('竞技场 A-6~A-9 UX 回归', () => {
     expect(geometry.scrollWidth).toBeLessThanOrEqual(769);
     await page.screenshot({ path: 'artifacts/ux-phase-b/shots/pvp-arena-signup-tablet.png' });
   });
+});
+
+
+test('荣耀钥匙在零荣耀时仍可开启，余额与按钮同步', async ({ page }) => {
+  await page.goto('/game.html#chests/keys');
+  await expect(page.locator('[data-open="glory-1"]')).toBeVisible();
+  await page.evaluate(() => {
+    const save = JSON.parse(localStorage.getItem('gems.meta.save')!);
+    save.currencies.glory = 0; save.currencies.gloryKeys = 1;
+    localStorage.setItem('gems.meta.save', JSON.stringify(save));
+  });
+  await page.reload();
+  await expect(page.locator('[data-open="glory-1"]')).toBeEnabled();
+  await expect(page.locator('[data-open="glory-1"] .btn-cost')).toContainText('1 钥匙');
+  await expect(page.locator('[data-open="glory-10"]')).toBeDisabled();
+  await page.locator('[data-open="glory-1"]').click();
+  await expect.poll(() => page.evaluate(() => JSON.parse(localStorage.getItem('gems.meta.save')!).currencies.gloryKeys)).toBe(0);
+  expect(await page.evaluate(() => JSON.parse(localStorage.getItem('gems.meta.save')!).currencies.glory)).toBe(0);
+});
+
+
+test('胜场只递进对手选秀水平，刷新与首败保留同一档，手机文案不溢出', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await openFreshArena(page);
+  await page.locator('#enter').click();
+  for (let round = 0; round < 4; round++) {
+    await page.locator('.draft-card').first().click();
+    await page.locator('#nextDraft').click();
+  }
+  const tiers = ['初试选秀', '基础选牌', '输出意识', '兼顾供魔', '进阶编队', '熟练选秀'];
+  for (let wins = 0; wins < tiers.length; wins++) {
+    await page.evaluate((wins) => {
+      const save = JSON.parse(localStorage.getItem('gems.meta.save')!);
+      save.arena.activeDraft.wins = wins;
+      save.arena.activeDraft.losses = wins % 2;
+      localStorage.setItem('gems.meta.save', JSON.stringify(save));
+    }, wins);
+    await page.reload();
+    await expect(page.locator('.match-copy > b')).toContainText(tiers[wins]!);
+    await expect(page.locator('.match-copy > small')).toHaveText('固定 Lv.15 · 4 人 · 无特质');
+    await expect(page.locator('.match-preview img')).toHaveCount(4);
+    expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(391);
+  }
 });

@@ -9,6 +9,7 @@
 import { BoardModel } from '@engine/BoardModel';
 import type { CellPos } from '@engine/types';
 import type { CharacterCard } from './TeamView';
+import { pickerCancelHint } from './TargetPicker';
 
 const NS = 'http://www.w3.org/2000/svg';
 
@@ -151,7 +152,7 @@ export class CellPicker {
       hintText.textContent = hint;
       hintEl.appendChild(hintText);
       const escNote = document.createElement('em');
-      escNote.textContent = 'Esc 取消';
+      escNote.textContent = pickerCancelHint();
       hintEl.appendChild(escNote);
       overlayParent.appendChild(hintEl);
 

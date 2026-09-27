@@ -3,7 +3,7 @@
  * 核对者：agent 批次07
  *
  * 语义裁定备注：
- * - 「魔法值」= magic 属性、「法力值」= mana 资源（SOP 措辞裁定；同 batch-06 7465）。
+ * - 「魔力值」= magic 属性、「法力值」= mana 资源（SOP 措辞裁定；同 batch-06 7465）。
  * - 「真实溅射伤害」= dmgSplash + trueDamage:true（dmgSplash 透传 opts 到 dmg）。
  * - 「以增强」句式（转换宝石以增强伤害）：宝石操作段排在被增强段之前——transformedGems
  *   来源只数「本技能前序段」（batch-04 7002/7010 同款；来源不带色筛选）。
@@ -27,7 +27,7 @@ const SKIPPED: { id: number; reason: string }[] = [
   { id: 7672, reason: '语义拿不准（「所有拥有此颜色法力值的盟友」为法力色过滤目标，不在目标措辞表）' },
   { id: 7791, reason: '缺失状态（狂怒）：「若敌人生命值受损，则获得狂怒效果并再造成 10 点伤害」——「再 +10」条件加成现可用 condBonus targetHpDamaged 表达，但「狂怒」仍不在状态白名单（batch-01 7740 同款）' },
     { id: 7808, reason: '二次缩放来源不支持（「生命值和法力值满值的敌军数」无对应来源 kind）' },
-  { id: 7812, reason: '语义拿不准（「自身每高于敌方一个技能即窃取 3 点法力」属性比较条件量无对应机制）' },
+  { id: 7812, reason: '语义拿不准（「自身每高于敌方一个技能即窃取 3 点法力值」属性比较条件量无对应机制）' },
   { id: 7935, reason: '语义拿不准（「身负状态效果」为任意状态，不在 condMult 条件域——targetStatus 需具体状态，无「任意状态」条件）' },
     { id: 7960, reason: '语义拿不准（条件倍率：「若其攻击力比较大，则造成双倍伤害」，比较基准不明）' },
   { id: 7987, reason: '语义拿不准（「转换成随机技能值并给予第一位盟友」：窃取转换的目标属性须固定，随机属性给予无对应原语）' },
@@ -52,9 +52,9 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 7686,
-    desc: '给予一名盟友 [魔法 + 1] 点攻击力和 2 点魔法值。若盟友是一名猫族军队，则效果翻倍。',
+    desc: '给予一名盟友 [魔法 + 1] 点攻击力和 2 点魔力值。若盟友是一名猫族军队，则效果翻倍。',
     build: skill(
-      // 「魔法值」= magic 属性（SOP 措辞裁定）；猫族 = Raksha（troopTypes 核对）
+      // 「魔力值」= magic 属性（SOP 措辞裁定）；猫族 = Raksha（troopTypes 核对）
       attack('allyChosen', 1, 1, { raceDouble: 'Raksha' }),
       magic('allyChosen', 2, 0, { raceDouble: 'Raksha' }),
     ),

@@ -63,14 +63,14 @@ export class BattleLauncher {
   }
 
   /** 当前活动页出战（结算行含该活动积分/里程碑素材）。 */
-  async launchEventBattle(): Promise<void> {
+  async launchEventBattle(choice?: string): Promise<void> {
     const now = Date.now();
     const typeId = EVENT_TYPES.find((type) => this.ctx.currentHash() === `#events/${type.id}`)?.id;
     if (!typeId) {
       toast('请先选择活动');
       return;
     }
-    const plan = await this.ctx.gateway.planEventBattle(now, weekStartOf(now), typeId);
+    const plan = await this.ctx.gateway.planEventBattle(now, weekStartOf(now), typeId, choice);
     if (isFailure(plan)) {
       toast(plan.message);
       return;

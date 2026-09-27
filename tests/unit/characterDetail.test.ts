@@ -68,7 +68,7 @@ describe('buildDetailViewModel（需求 4.1-4.3）', () => {
     expect(vm.colors).toEqual([BaseColor.Red, BaseColor.Blue]);
   });
 
-  it('技能名 + 全文 + 法力消耗（需求 4.2）', () => {
+  it('技能名 + 全文 + 法力值消耗（需求 4.2）', () => {
     const vm = buildDetailViewModel(makeChar(), makeTroop());
     expect(vm.skill).not.toBeNull();
     expect(vm.skill!.name).toBe('测试技能');
@@ -79,8 +79,8 @@ describe('buildDetailViewModel（需求 4.1-4.3）', () => {
   it('全部特质（名称 + 描述 + 实现状态）（需求 4.3）', () => {
     const vm = buildDetailViewModel(makeChar(), makeTroop());
     expect(vm.traits).toEqual([
-      { name: '狂暴', description: '受击时获得攻击力。', implemented: true },
-      { name: '庞然', description: '匹配 4/5 获得生命。', implemented: true },
+      { code: 'frenzy', name: '狂暴', description: '受击时获得攻击力。', implemented: true },
+      { code: 'big', name: '庞然', description: '匹配 4/5 获得生命。', implemented: true },
     ]);
   });
 
@@ -112,12 +112,14 @@ describe('buildDetailViewModel（需求 4.1-4.3）', () => {
       ],
     }));
     expect(vm.traits[0]).toEqual({
+      code: 'not-implemented-yet',
       name: '疾病免疫',
       description: '对疾病免疫。',
       implemented: false,
     });
     // traitIds 里已实现的：官方文本（TroopData）优先展示
     expect(vm.traits[1]).toEqual({
+      code: 'armored',
       name: '全副武装',
       description: '官方描述。',
       implemented: true,
@@ -144,6 +146,18 @@ describe('buildDetailViewModel（需求 4.1-4.3）', () => {
     expect(vm.hp).toBe(40);
     expect(vm.mana).toBe(12);
     expect(vm.armor).toBe(0);
+  });
+
+  it('重复的 traitId 只列一次（详情窗特质列表不出重复行）', () => {
+    const vm = buildDetailViewModel(makeChar({ traitIds: ['armored', 'armored'] }));
+    expect(vm.traits.map((t) => t.code)).toEqual(['armored']);
+  });
+
+  it('当前状态带图标元数据与实时数值', () => {
+    const vm = buildDetailViewModel(makeChar({ statuses: [{ id: 'poison', turns: 3, magnitude: 2 }] as Character['statuses'] }));
+    expect(vm.statuses).toHaveLength(1);
+    expect(vm.statuses[0]).toMatchObject({ id: 'poison', turns: 3, magnitude: 2 });
+    expect(vm.statuses[0].label.length).toBeGreaterThan(0);
   });
 
   it('纯函数：不修改传入的 Character', () => {

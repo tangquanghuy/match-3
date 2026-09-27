@@ -1,3 +1,5 @@
-# 任务书已迁移
+# 历史任务书入口
 
-当前立绘任务书已集中到 [tasks/active/TASK-PORTRAITS.md](tasks/active/TASK-PORTRAITS.md)。
+原任务已于 2026-09-27 退出 active，历史内容保存在 [tasks/reference/TASK-PORTRAITS.md](tasks/reference/TASK-PORTRAITS.md)；其中未完成事项保留为历史待办。
+
+当前唯一执行任务：[技能一致性逐项核对](tasks/active/TASK-GOW-SKILL-REVIEW.md)；[实时状态](tasks/active/STATUS.md)。

@@ -1,18 +1,13 @@
-/**
- * 入侵 PvP（素材批 2026-09-19）——官方排位 PvP 的单机适配（世界观包装沿用「入侵」）。
- *
- * 官方口径（考据见 design/EVENTS-INVASION-DESIGN.md §1.3）：
- *  - 打的是**其他玩家防守队的 AI 镜像**；本作 29 个镜像由代码构筑，数据形状
- *    （InvasionMirror）= 未来 D1 里一行真人玩家数据（id 换玩家 id、vp 由服务端同步），
- *    屏层与结算逻辑零返工——这正是网关「mock 后端 ↔ D1」预留缝的入侵侧落点。
- *  - 联赛 10 级官阶、30 人小组、每周 VP 排名、晋级/降级区名次表照抄官方；
- *  - VP 计分：官方基础分表 + min/max 夹紧 + 速胜/存活/额外回合加分（每类取最高）；
- *    4/5 消计数与一击必杀不可得（eventSummary 只有类型计数），差异已记录（DESIGN §4 G5）；
- *  - 荣耀主产（官方「排位主产荣耀」）：20 荣耀=1 荣耀箱；每日入侵首胜加成。
- *
- * 确定性：榜单、对手、VP 曲线全部由 (weekStart, league) 种子派生——同周同联赛
- * 同时刻必复现同一份榜单（单测锁定）。
+import { INVASION_FRENZY, rollInvasionFrenzy, type FrenzyMultiplier } from '../data/invasionFrenzy';
+import { INVASION_RANKS, invasionRankAt, INVASION_VP_BY_DIFFICULTY } from '../data/invasionRanks';
+import { grantBattleRewards, type BattleRewards } from './battleRewards';
+/** Local PvP: weekly VP ranks, weekly gem claims, unlimited free rerolls.
+ * Weekly leaderboard VP is separate. See docs/GOW-INVASION-RANKS.md.
  */
+import { buildTieredDefense, buildFrenzyDefense, INVASION_DIFFICULTIES, type InvasionDifficulty } from '../data/invasionDifficulty';
+import { BANNERS } from '../data/banners';
+import { equippedBannerOf } from './banners';
+import { enemyEncounterStats } from '../data/enemyDifficulty';
 import { SeededRNG } from '../../engine/rng';
 import { getTroopById, knownTroopTypes } from '../../data/troops';
 import { BATTLE_SCHEMA_VERSION, RULESET_VERSION } from '../../session/contract';
@@ -22,18 +17,12 @@ import { fail, type MetaFailure } from '../types';
 import type { MetaSave } from '../state/schema';
 import {
   INVASION,
-  INVASION_LEAGUES,
-  INVASION_SEASON_REWARDS,
-  INVASION_VP_TABLE,
-  INVASION_ZONES,
-  invasionInitialLeague,
 } from '../data/economy';
 import { fnv1a32 } from '../data/hash';
 import { WEEK_MS } from '../data/events';
-import { allKingdoms, kingdomTroopPool } from '../data/kingdoms';
 import { buildMetaRegistry, buildPlayerSnapshots, enemyToSnapshot, metaKnownTraitIds } from './battleBridge';
-import { earn } from './wallet';
-import type { EncounterEnemy, EnemyTier } from './encounter';
+import { earn, earnMaterials } from './wallet';
+import type { EncounterEnemy } from './encounter';
 
 // ---------------------------------------------------------------------------
 // 镜像对手池（D1 预留的核心形状）
@@ -52,29 +41,24 @@ export interface InvasionMirror {
   name: string;
   /** 防守评分（展示 + 宿敌判定的强度近似） */
   rating: number;
-  /** 血怒对手：打它 VP×2（官方 Blood Frenzy 语义；每周标 2 人） */
+  /** Random strengthened encounter flag; the weekly leaderboard itself is not rerolled. */
   frenzy: boolean;
+  frenzyMultiplier: 1 | FrenzyMultiplier;
   /** 当前推演 VP（随时刻，见 mirrorVpAt） */
   vp: number;
   /** 周末终值 VP（榜单预测 / 周结排名） */
   finalVp: number;
-  /** 防守队（3~4 人） */
+  /** 防守队（固定 4 人） */
   defense: MirrorDefender[];
+  archetypeId: string;
+  archetypeName: string;
+  strategy: string;
+  roles: readonly string[];
+  difficulty: InvasionDifficulty;
+  provenance: string;
+  sourceRow: number | null;
+  bannerKingdom: string | null;
 }
-
-/** 联赛 → 防守队强度带（设计值） */
-const LEAGUE_DEFENSE: ReadonlyArray<{ rarityBand: [number, number]; levelBase: number; boss: boolean }> = [
-  { rarityBand: [0, 2], levelBase: 8, boss: false },
-  { rarityBand: [0, 2], levelBase: 12, boss: false },
-  { rarityBand: [1, 3], levelBase: 16, boss: true },
-  { rarityBand: [1, 3], levelBase: 20, boss: true },
-  { rarityBand: [2, 4], levelBase: 24, boss: true },
-  { rarityBand: [2, 4], levelBase: 28, boss: true },
-  { rarityBand: [3, 5], levelBase: 32, boss: true },
-  { rarityBand: [3, 5], levelBase: 36, boss: true },
-  { rarityBand: [3, 5], levelBase: 40, boss: true },
-  { rarityBand: [4, 5], levelBase: 44, boss: true },
-];
 
 /** 联赛 → 镜像周末终值 VP 区间（设计值：联赛越高卷得越凶） */
 const LEAGUE_VP_RANGE: ReadonlyArray<[number, number]> = [
@@ -92,85 +76,46 @@ const NAME_CORE = [
 ] as const;
 const NAME_TITLE = ['爵士', '男爵', '子爵', '伯爵', '统帅', '领主', '大师', '团长', '斗士', '猎人'] as const;
 
-function defenseTierPlan(league: number, rng: SeededRNG): EnemyTier[] {
-  const spec = LEAGUE_DEFENSE[Math.min(Math.max(league, 0), LEAGUE_DEFENSE.length - 1)]!;
-  if (spec.boss) return ['elite', 'minion', rng.next() < 0.5 ? ('boss' as const) : ('elite' as const), 'minion' as const];
-  return ['elite', 'minion', 'minion', 'minion'];
-}
-
 /** (weekStart, league) → 29 个镜像（同参数必复现；互不重名） */
 export function buildBracket(weekStart: number, league: number): InvasionMirror[] {
   const rng = new SeededRNG(fnv1a32(`invasion-${weekStart >>> 0}:${league}`));
-  const spec = LEAGUE_DEFENSE[Math.min(Math.max(league, 0), LEAGUE_DEFENSE.length - 1)]!;
+  league = Math.min(9, Math.max(0, Math.floor(league)));
+  const templateOffset = fnv1a32(`invasion-templates:${weekStart}:${league}`);
   const [vpMin, vpMax] = LEAGUE_VP_RANGE[Math.min(Math.max(league, 0), LEAGUE_VP_RANGE.length - 1)]!;
   const usedNames = new Set<string>();
-  const kingdoms = allKingdoms();
   const mirrors: InvasionMirror[] = [];
   for (let i = 0; i < INVASION.bracketSize; i++) {
     const strength = rng.next();
-    const tierPlan = defenseTierPlan(league, rng);
-    const defense = pickMirrorDefense(kingdoms, spec.rarityBand, spec.levelBase + rng.nextInt(5), tierPlan, rng);
+    const difficulty = INVASION_DIFFICULTIES[i % 3]!;
+    const template = buildTieredDefense(
+      difficulty === 'easy' ? fnv1a32(`adaptive-${weekStart}:${league}:${i}`) : templateOffset,
+      league, difficulty, Math.floor(i / 3),
+    );
+    const level = template.level;
+    const defense: MirrorDefender[] = template.troops.map((troopId, slot) => ({ troopId, level, tier: slot === 0 ? 'elite' : 'minion' }));
     let name = `${NAME_PREFIX[rng.nextInt(NAME_PREFIX.length)]}${NAME_CORE[rng.nextInt(NAME_CORE.length)]}${NAME_TITLE[rng.nextInt(NAME_TITLE.length)]}`;
     let suffix = 2;
     while (usedNames.has(name)) name = `${name}${suffix++}`;
     usedNames.add(name);
     const rating = defense.reduce((sum, d) => {
       const troop = getTroopById(d.troopId);
-      return sum + (troop ? (troop.rarityIdx + 1) * 30 + d.level * 3 : 0);
+      if (!troop) return sum;
+      const stats = enemyEncounterStats(troop, d.level);
+      return sum + stats.health + stats.armor + stats.attack * 2 + stats.magic * 3;
     }, 0);
     const finalVp = Math.round((vpMin + (vpMax - vpMin) * strength) * (0.85 + rng.next() * 0.3));
     mirrors.push({
       id: `bot-${i + 1}`,
       name,
       rating,
-      frenzy: false,
+      frenzy: false, frenzyMultiplier: 1,
       vp: 0,
       finalVp,
-      defense,
+      difficulty, provenance: template.provenance, sourceRow: template.sourceRow, bannerKingdom: template.bannerKingdom,
+      defense, archetypeId: template.id, archetypeName: template.name, strategy: template.strategy, roles: template.roles,
     });
   }
-  // 血怒：终值 VP 最高的 2 人（官方「打他们更疼更赚」的直观呈现）
-  mirrors
-    .slice()
-    .sort((a, b) => b.finalVp - a.finalVp)
-    .slice(0, INVASION.frenzyCount)
-    .forEach((m) => {
-      m.frenzy = true;
-    });
   return mirrors;
-}
-
-/** 防守队取人：多王国混编（随机王国 × 稀有度带），避免「全服一个王国」的观感 */
-function pickMirrorDefense(
-  kingdoms: readonly string[],
-  band: [number, number],
-  level: number,
-  tiers: readonly EnemyTier[],
-  rng: SeededRNG,
-): MirrorDefender[] {
-  const chosen = new Set<number>();
-  const out: MirrorDefender[] = [];
-  for (const tier of tiers) {
-    let min = band[0];
-    let max = band[1];
-    let pool: ReturnType<typeof kingdomTroopPool> = [];
-    let guard = 0;
-    do {
-      const kingdom = kingdoms[rng.nextInt(kingdoms.length)]!;
-      pool = kingdomTroopPool(kingdom, { min, max }).filter((t) => !chosen.has(t.id));
-      if (pool.length === 0 && (min > 0 || max < 5)) {
-        min = Math.max(0, min - 1);
-        max = Math.min(5, max + 1);
-      } else if (pool.length === 0) {
-        break;
-      }
-    } while (pool.length === 0 && guard++ < 8);
-    if (pool.length === 0) continue;
-    const troop = pool[rng.nextInt(pool.length)]!;
-    chosen.add(troop.id);
-    out.push({ troopId: troop.id, level, tier });
-  }
-  return out;
 }
 
 /** 镜像在时刻 t 的推演 VP（错峰爬坡：各自在不同时点起步，周末全部到终值） */
@@ -221,83 +166,80 @@ export interface SeasonRollSummary {
   gems: number;
 }
 
-/**
- * 进入入侵玩法前确保赛季是本周的：首次进入按主角等级定级（官方 Path 段映射）；
- * 跨周触发上周结算（名次 → 晋级/守级/降级 + 奖励）。幂等；同周内重复调用返回 null。
- */
+/** Lazy weekly reset of rank VP and claims; older week requests never rewind the ledger. */
 export function ensureInvasionSeason(save: MetaSave, _now: number, weekStart: number): SeasonRollSummary | null {
-  if (save.invasion.weekStart === weekStart) return null;
+  if (save.invasion.weekStart >= weekStart) return null;
 
-  // 首次进入：定级不发奖
-  if (save.invasion.weekStart === 0) {
-    save.invasion.league = invasionInitialLeague(save.hero.level);
-    save.invasion.bestLeague = save.invasion.league;
-    save.invasion.weekStart = weekStart;
-    save.invasion.seed = fnv1a32(`invasion-${weekStart >>> 0}:${save.invasion.league}`);
-    save.invasion.vp = 0;
-    save.invasion.battles = 0;
-    return null;
-  }
-
-  // 跨周：用上周种子与终值 VP 结算名次
   const fromLeague = save.invasion.league;
-  const mirrors = buildBracket(save.invasion.weekStart, fromLeague);
-  const placement = 1 + mirrors.filter((m) => m.finalVp > save.invasion.vp).length;
-  const zone = INVASION_ZONES[fromLeague]!;
-  const played = save.invasion.battles > 0;
-  let movement: SeasonMovement = 'stay';
-  if (played) {
-    if (zone.promote > 0 && placement <= zone.promote && fromLeague < INVASION_LEAGUES.length - 1) movement = 'promote';
-    else if (zone.relegate > 0 && placement >= zone.relegate && fromLeague > 0) movement = 'relegate';
-  }
-  const toLeague = movement === 'promote' ? fromLeague + 1 : movement === 'relegate' ? fromLeague - 1 : fromLeague;
-  const rewards = played ? INVASION_SEASON_REWARDS[movement] : { glory: 0, gems: 0 };
-  if (rewards.glory > 0 || rewards.gems > 0) {
-    earn(save, { glory: rewards.glory, gems: rewards.gems });
-  }
-  if (played && movement === 'promote') {
-    // 晋级材料包（DESIGN §2.5）
-    for (const [key, n] of Object.entries(INVASION_SEASON_REWARDS.promoteMats.ingots)) {
-      save.materials.ingots[key] = (save.materials.ingots[key] ?? 0) + n!;
-    }
-    save.materials.forgeScrolls += INVASION_SEASON_REWARDS.promoteMats.forgeScrolls;
-    for (const [key, n] of Object.entries(INVASION_SEASON_REWARDS.promoteMats.traitstones)) {
-      save.materials.traitstones[key] = (save.materials.traitstones[key] ?? 0) + n!;
-    }
-  }
-  save.invasion.league = toLeague;
-  save.invasion.bestLeague = Math.max(save.invasion.bestLeague, toLeague);
-  save.invasion.seasonsPlayed += 1;
+  const first = save.invasion.weekStart === 0;
+  const played = !first && save.invasion.battles > 0;
+  const placement = first ? 0 : 1 + buildBracket(save.invasion.weekStart, fromLeague)
+    .filter(m => m.finalVp > save.invasion.vp).length;
+  // Each new week starts a fresh VP track and claim ledger, without automatic payouts.
+  if (!first) { save.invasion.progressionVp = 0; save.invasion.claimedRanks = []; }
+  save.invasion.league = invasionRankAt(save.invasion.progressionVp).league;
+  save.invasion.bestLeague = Math.max(save.invasion.bestLeague, save.invasion.league);
+  if (!first) save.invasion.seasonsPlayed += 1;
   save.invasion.weekStart = weekStart;
-  save.invasion.seed = fnv1a32(`invasion-${weekStart >>> 0}:${toLeague}`);
+  save.invasion.seed = fnv1a32(`invasion-${weekStart}:${save.invasion.league}`);
   save.invasion.vp = 0;
   save.invasion.battles = 0;
-  return {
-    played,
-    fromLeague,
-    toLeague,
-    placement,
-    movement,
-    glory: rewards.glory,
-    gems: rewards.gems,
-  };
+  return first ? null : { played, fromLeague, toLeague: save.invasion.league,
+    placement, movement: 'stay', glory: 0, gems: 0 };
+
 }
 
 // ---------------------------------------------------------------------------
 // 匹配与出战斗
 // ---------------------------------------------------------------------------
 
-/** 当日候选（VP 最接近的 8 人按日轮换取 5；官方「打你联赛里的人」语义） */
+/** Refresh changes the roster, not the weekly leaderboard. Read-only calls stay stable. */
 export function invasionCandidates(save: MetaSave, now: number, weekStart: number): InvasionMirror[] {
-  const mirrors = hydrateMirrorVp(buildBracket(weekStart, save.invasion.league), now, weekStart);
-  const dayIndex = Math.floor((now - weekStart) / (24 * 3_600_000));
-  const nearest = mirrors
-    .map((m) => ({ m, gap: Math.abs(m.vp - save.invasion.vp) }))
-    .sort((a, b) => a.gap - b.gap)
-    .slice(0, 8)
-    .map((e) => e.m);
-  const offset = dayIndex % Math.max(nearest.length - INVASION.candidates + 1, 1);
-  return nearest.slice(offset, offset + INVASION.candidates);
+  const refresh = save.invasion.refreshCount;
+  const draftSeed = refresh === 0 ? weekStart : fnv1a32(`reroll:${weekStart}:${refresh}`);
+  const mirrors = hydrateMirrorVp(buildBracket(draftSeed, save.invasion.league), now, weekStart);
+  const frenzy = rollInvasionFrenzy(weekStart, save.invasion.league, refresh);
+  return INVASION_DIFFICULTIES.map((difficulty, slot) => {
+    const band = mirrors.filter(m => m.difficulty === difficulty);
+    let mirror = band[refresh % band.length]!;
+    if (frenzy?.slot === slot) {
+      const template = buildFrenzyDefense(draftSeed, save.invasion.league, difficulty, frenzy.multiplier);
+      const defense: MirrorDefender[] = template.troops.map((troopId, index) => ({
+        troopId, level: template.level, tier: index === 0 ? 'elite' : 'minion', statMultiplier: INVASION_FRENZY.stats[frenzy.multiplier],
+      }));
+      const rating = defense.reduce((sum, d) => {
+        const stats = enemyEncounterStats(getTroopById(d.troopId)!, d.level, d.statMultiplier);
+        return sum + stats.health + stats.armor + stats.attack * 2 + stats.magic * 3;
+      }, 0);
+      mirror = { ...mirror, defense, rating, frenzy: true, frenzyMultiplier: frenzy.multiplier,
+        archetypeId: template.id, archetypeName: template.name, strategy: template.strategy, roles: template.roles,
+        sourceRow: null, provenance: template.provenance, bannerKingdom: template.bannerKingdom };
+    }
+    // Bind identity to the week, league and refresh batch so stale encounters stay invalid.
+    return { ...mirror, id: `${mirror.id}-w${weekStart}-l${save.invasion.league}-r${refresh}` };
+  });
+}
+
+/** Shared by preview and settlement; no performance bonus or difficulty double-counting. */
+export function invasionVictoryVp(mirror: Pick<InvasionMirror, 'difficulty' | 'frenzyMultiplier'>): number {
+  return INVASION_VP_BY_DIFFICULTY[mirror.difficulty] * mirror.frenzyMultiplier;
+}
+
+export function refreshInvasionOpponents(save: MetaSave, now: number, weekStart: number): { ok: true } | MetaFailure {
+  if (save.hero.level < INVASION.unlockHeroLevel) return fail('PREREQ_LOCKED', '主角达到 10 级后开放入侵');
+  ensureInvasionSeason(save, now, weekStart);
+  save.invasion.refreshCount = (save.invasion.refreshCount + 1) % Number.MAX_SAFE_INTEGER;
+  return { ok: true };
+}
+
+export function claimInvasionRank(save: MetaSave, id: string): { ok: true; gems: number } | MetaFailure {
+  if (save.hero.level < INVASION.unlockHeroLevel) return fail('PREREQ_LOCKED', '主角达到 10 级后开放入侵');
+  const rank = INVASION_RANKS.find(r => r.id === id);
+  if (!rank || save.invasion.progressionVp < rank.vp) return fail('PREREQ_LOCKED', '尚未达到该官阶');
+  if (save.invasion.claimedRanks.includes(id)) return fail('INVALID', '该官阶奖励已领取');
+  save.invasion.claimedRanks.push(id);
+  earn(save, { gems: rank.gems });
+  return { ok: true, gems: rank.gems };
 }
 
 export interface InvasionBridgeOutcome {
@@ -322,7 +264,7 @@ export function planInvasionBattle(
     return fail('PREREQ_LOCKED', `入侵需要主角 ${INVASION.unlockHeroLevel} 级（当前 ${save.hero.level}）`);
   }
   const mirror = invasionCandidates(save, now, weekStart).find((m) => m.id === mirrorId);
-  if (!mirror) return fail('INVALID', '该对手不在今日候选中');
+  if (!mirror) return fail('INVALID', '对手已刷新，请重新选择');
 
   const built = buildPlayerSnapshots(save);
   if (!built.ok) return built;
@@ -334,13 +276,17 @@ export function planInvasionBattle(
   const request: BattleRequest = {
     schemaVersion: BATTLE_SCHEMA_VERSION,
     battleId: `invasion-${weekStart >>> 0}`,
-    requestId: `invasion-${mirror.id}-${save.invasion.battles}`,
+    requestId: `invasion-${weekStart}-${save.invasion.league}-${mirror.id}-${save.invasion.battles}`,
     rulesetVersion: RULESET_VERSION,
     seed: battleSeed >>> 0,
     playerTeam: built.playerTeam,
     enemyTeam,
     mode: 'pvp',
   };
+  const playerBanner = equippedBannerOf(save, built.team);
+  if (playerBanner) request.playerBanner = { boosts: { ...playerBanner.boosts } };
+  const enemyBanner = mirror.bannerKingdom ? BANNERS[mirror.bannerKingdom] : null;
+  if (enemyBanner) request.enemyBanner = { boosts: { ...enemyBanner.boosts } };
   const registry = buildMetaRegistry(
     [...built.playerTeam, ...enemyTeam].map((s) => s.skillId as string),
   );
@@ -357,15 +303,10 @@ export function planInvasionBattle(
 }
 
 // ---------------------------------------------------------------------------
-// 结算（VP 表为官方数值）
+// 结算（项目周进度：固定三档 VP）
 // ---------------------------------------------------------------------------
 
-function vpBand(avgLevel: number): { base: number; min: number; max: number } {
-  const row = INVASION_VP_TABLE.find((r) => avgLevel <= r.maxLevel) ?? INVASION_VP_TABLE[INVASION_VP_TABLE.length - 1]!;
-  return { base: row.base, min: row.min, max: row.max };
-}
-
-/** 官方加分项（每类取最高）：速胜 / 存活 / 额外回合 */
+/** Legacy performance breakdown, retained for compatibility; weekly VP no longer uses it. */
 export function invasionVpBonuses(result: BattleResult): { speed: number; survivors: number; extraTurns: number; total: number } {
   const best = <T extends { bonus: number }>(rows: readonly T[], hit: (r: T) => boolean): number =>
     rows.filter(hit).reduce((acc, r) => Math.max(acc, r.bonus), 0);
@@ -378,9 +319,11 @@ export function invasionVpBonuses(result: BattleResult): { speed: number; surviv
 }
 
 export interface InvasionSettleResult {
+  battleRewards: BattleRewards;
+  collected: { gold: number; souls: number; gems: number; maps: number };
   ok: true;
   victory: boolean;
-  /** 未计入加成与血怒倍率的官方基础 VP */
+  /** 当前难度的固定胜利 VP */
   vpBase: number;
   /** 本场 VP 变化（败北为负） */
   vpDelta: number;
@@ -394,7 +337,7 @@ export interface InvasionSettleResult {
   bonuses: { speed: number; survivors: number; extraTurns: number; total: number };
   /** 每日入侵首胜 */
   firstWinToday: boolean;
-  /** 对手是否宿敌（当前榜单前 5） */
+  /** 对手是否宿敌（刷新批次中的高 VP 对手） */
   rival: boolean;
 }
 
@@ -406,14 +349,23 @@ export function settleInvasionBattle(
   now: number,
   weekStart: number,
   todayStart: number,
+  launchedMirror?: InvasionMirror,
 ): InvasionSettleResult | MetaFailure {
   ensureInvasionSeason(save, now, weekStart);
   const candidates = invasionCandidates(save, now, weekStart);
-  const mirror = candidates.find((m) => m.id === mirrorId);
-  if (!mirror) return fail('INVALID', '该对手不在今日候选中');
+  const mirror = launchedMirror?.id === mirrorId ? launchedMirror : candidates.find((m) => m.id === mirrorId);
+  if (!mirror) return fail('INVALID', '对手已刷新，请重新选择');
   const standings = invasionStandings(save, now, weekStart);
-  const rival = standings.rows.slice(0, 5).some((r) => r.id === mirrorId);
+  const rival = mirror.vp >= (standings.rows.filter(r => !r.isPlayer)[4]?.vp ?? Infinity);
 
+  const battleRewards = grantBattleRewards(save, result);
+  const amount = (n: number | undefined) => n !== undefined && Number.isFinite(n) ? Math.max(0, Math.floor(n)) : 0;
+  const collected = result.endReason === 'surrender' ? { gold: 0, souls: 0, gems: 0, maps: 0 }
+    : { gold: amount(result.economy?.gold), souls: amount(result.economy?.souls), gems: amount(result.economy?.gems), maps: amount(result.economy?.maps) };
+  earn(save, { gold: collected.gold, souls: collected.souls, gems: collected.gems });
+  earnMaterials(save, { treasureMaps: collected.maps });
+  save.stats.goldEarned += collected.gold;
+  save.stats.soulsEarned += collected.souls;
   const victory = result.winner === 'player';
   save.invasion.battles += 1;
   let vpDelta = 0;
@@ -424,13 +376,8 @@ export function settleInvasionBattle(
   let firstWinToday = false;
 
   if (victory) {
-    const avgLevel =
-      mirror.defense.reduce((sum, d) => sum + d.level, 0) / Math.max(mirror.defense.length, 1);
-    const band = vpBand(avgLevel);
-    vpBase = band.base;
-    bonuses = invasionVpBonuses(result);
-    vpDelta = Math.min(Math.max(band.base + bonuses.total, band.min), band.max);
-    if (mirror.frenzy) vpDelta *= 2;
+    vpBase = INVASION_VP_BY_DIFFICULTY[mirror.difficulty];
+    vpDelta = invasionVictoryVp(mirror);
     glory += INVASION.gloryPerWin;
     if (rival) glory += INVASION.gloryRivalBonus;
     if (save.invasion.lastWinDay < todayStart) {
@@ -444,20 +391,26 @@ export function settleInvasionBattle(
     const loss = Math.min(INVASION.vpLoss, save.invasion.vp);
     vpDelta = loss === 0 ? 0 : -loss; // 避免 -0 进结算展示
     save.invasion.vp += vpDelta;
-    gold = 20; // 战败保底（与 DEFEAT_CONSOLATION 同手感）
+    gold = 0; // Common battleRewards already paid defeat consolation.
   }
   if (glory > 0 || gold > 0) earn(save, { glory, gold });
   save.stats.goldEarned += gold;
 
+  save.invasion.progressionVp = Math.min(Number.MAX_SAFE_INTEGER, save.invasion.progressionVp + Math.max(0, vpDelta));
+  const rank = invasionRankAt(save.invasion.progressionVp);
+  save.invasion.league = rank.league;
+  save.invasion.bestLeague = Math.max(save.invasion.bestLeague, rank.league);
   const after = invasionStandings(save, now, weekStart);
   return {
     ok: true,
     victory,
+    battleRewards,
+    collected,
     vpBase,
     vpDelta,
     vp: save.invasion.vp,
     league: save.invasion.league,
-    leagueName: INVASION_LEAGUES[save.invasion.league]!,
+    leagueName: rank.name,
     placement: after.placement,
     glory,
     gold,

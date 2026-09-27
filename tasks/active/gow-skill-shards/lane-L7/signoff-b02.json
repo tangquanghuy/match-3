@@ -1,0 +1,674 @@
+{
+  "schemaVersion": 1,
+  "scope": "stored-gow-snapshot",
+  "reviews": [
+    {
+      "key": "troop:6087",
+      "scope": "stored-gow-snapshot",
+      "sourceDigest": "791021a259680d20ef45d0679a566572abada5efbdd0bbf5d64b9bf73b77ef41",
+      "reviewer": "sa-L7",
+      "reviewedAt": "2026-09-28",
+      "decision": "accept",
+      "ledgerFingerprintAtReview": "74aed74e24f50d0f8bc19b89a5413c14101081734608d1c764c45ebade5a241a",
+      "_reference": {
+        "spellId": 7157,
+        "english": "Deal [Magic + 3] scatter damage, boosted by my Armor. [x2]",
+        "nativeTarget": "None",
+        "randomize": null,
+        "steps": [
+          {
+            "Target": "Self",
+            "Amount": 200,
+            "Type": "CountArmor"
+          },
+          {
+            "SpellPowerMultiplier": 1,
+            "Target": "AllEnemies",
+            "UseCounterForAmount": true,
+            "Amount": 3,
+            "Primarypower": true,
+            "Type": "ScatterDamage"
+          }
+        ],
+        "prototype": {
+          "segments": [
+            {
+              "kind": "damage",
+              "target": "enemyAll",
+              "scaling": {
+                "base": 3,
+                "mult": 1
+              },
+              "range": "scatter",
+              "modifier": {
+                "mod": {
+                  "kind": "multiplier",
+                  "a": 2
+                },
+                "source": {
+                  "kind": "selfStat",
+                  "stat": "armor"
+                }
+              }
+            }
+          ]
+        }
+      },
+      "sourceEvidence": [
+        {
+          "id": "en",
+          "role": "english-snapshot",
+          "path": "data/raw/troops.gow.en.json",
+          "note": "troop 6087: stats.spell.id 7157, ManaCost 12, ManaColors Blue/Green, English 'Deal [Magic + 3] scatter damage, boosted by my Armor. [x2]' asserted verbatim."
+        },
+        {
+          "id": "native",
+          "role": "native-snapshot",
+          "path": "data/raw/spells.gow.en.json",
+          "note": "spell 7157 SpellSteps asserted with toEqual: CountArmor Self 200; ScatterDamage AllEnemies Amount 3 SpellPowerMultiplier 1 UseCounterForAmount Primarypower."
+        },
+        {
+          "id": "rule",
+          "role": "official-shared-rule",
+          "path": "artifacts/gow-skill-audit/gold-primary-sources/official-brian-guide.html",
+          "note": "Official Brian guide defines scatter as damage 'randomly split among enemies' (e.g. Blade Dance) and shows armor-boosted damage; supports one pool [Magic + 3] + 2 x my Armor split across living enemies."
+        },
+        {
+          "id": "laneTest",
+          "role": "lane-battle-test",
+          "path": "tests/unit/gowLaneL7B02.test.ts",
+          "note": "L7B02 troop:6087 describe: binding/prototype/zh assertions; 4 real castSkill cases; my-armor variation incl. ally armor excluded; per-share enemy armor absorption and dead-enemy exclusion; low-mana/silence."
+        }
+      ],
+      "dimensions": {
+        "identity-cost-colors": {
+          "status": "verified",
+          "note": "Entity 6087 -> spell 7157, cost 12, Blue/Green in raw and src troops data; ledger binding checks true.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL7B02.test.ts"
+          ]
+        },
+        "target-count-range": {
+          "status": "verified",
+          "note": "AllEnemies ScatterDamage -> enemyAll range scatter: total Life loss equals the single pool, not pool per enemy; all hit events range scatter.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL7B02.test.ts"
+          ]
+        },
+        "base-formula-rounding": {
+          "status": "verified",
+          "note": "Pool magic+3+10 for armor 5 at magic 0/10; integer arithmetic.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL7B02.test.ts"
+          ]
+        },
+        "boost-source-ratio-cap": {
+          "status": "verified",
+          "note": "Amount 200 = [x2] on caster armor only: armor 0/1/9 -> +0/+2/+18; ally armor 30/40 ignored; no cap.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL7B02.test.ts"
+          ]
+        },
+        "conditions-probabilities-branches": {
+          "status": "not-applicable",
+          "note": "No condition/chance/Randomize; scatter allocation uses seeded RNG and is asserted by totals.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": []
+        },
+        "status-duration-immunity": {
+          "status": "not-applicable",
+          "note": "No status applied.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": []
+        },
+        "gems-types-selection-resolution": {
+          "status": "not-applicable",
+          "note": "No gem steps.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": []
+        },
+        "summon-transform-pools": {
+          "status": "not-applicable",
+          "note": "No summon/transform.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": []
+        },
+        "order-death-retargeting": {
+          "status": "verified",
+          "note": "Pre-dead enemy receives no share; living enemies absorb the full pool.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL7B02.test.ts"
+          ]
+        },
+        "mana-economy-extra-turn": {
+          "status": "verified",
+          "note": "Real cast spends 12 mana and the turn; low mana blocks.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL7B02.test.ts"
+          ]
+        },
+        "display-description": {
+          "status": "verified",
+          "note": "zh '对所有敌人造成 [魔法 + 3] 点散射伤害。伤害值因自身的护甲值而增强。 [x2]' matches English scatter + self armor [x2].",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL7B02.test.ts"
+          ]
+        },
+        "battle-pipeline": {
+          "status": "verified",
+          "note": "TurnEngine.castSkill both sides; non-true scatter: Life+Armor loss sums to pool 15 with 2-armor enemies (armor absorbs each share).",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL7B02.test.ts"
+          ],
+          "realBattleEntry": true
+        }
+      },
+      "clauseReviews": [
+        {
+          "id": "c1",
+          "text": "Deal [Magic + 3] scatter damage, boosted by my Armor.",
+          "status": "verified",
+          "note": "[Magic + 3] scatter damage boosted by my armor: one shared pool over living enemies; ally armor not counted.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL7B02.test.ts"
+          ]
+        },
+        {
+          "id": "c2",
+          "text": "[x2]",
+          "status": "verified",
+          "note": "[x2]: +2 per point of caster armor (multiplier a=2): 5 -> +10, 1 -> +2, 9 -> +18.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL7B02.test.ts"
+          ]
+        }
+      ],
+      "nativeStepReviews": [
+        {
+          "id": "0",
+          "type": "CountArmor",
+          "status": "verified",
+          "note": "CountArmor Self 200 -> selfStat armor, x2; my-armor variation test.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL7B02.test.ts"
+          ]
+        },
+        {
+          "id": "1",
+          "type": "ScatterDamage",
+          "status": "verified",
+          "note": "ScatterDamage AllEnemies 3 SPM 1 UseCounterForAmount -> damage enemyAll scatter base 3 mult 1 with modifier; totals asserted both sides, magic 0/10.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL7B02.test.ts"
+          ]
+        }
+      ],
+      "branchReviews": [
+        {
+          "id": "main",
+          "status": "verified",
+          "note": "Single unconditional branch; verified by all real cast cases.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL7B02.test.ts"
+          ]
+        }
+      ]
+    },
+    {
+      "key": "troop:6848",
+      "scope": "stored-gow-snapshot",
+      "sourceDigest": "9c48f05f85adc4477b40e551b828664660d7dfac8899789e1a6dd4cdeb41c39c",
+      "reviewer": "sa-L7",
+      "reviewedAt": "2026-09-28",
+      "decision": "accept",
+      "ledgerFingerprintAtReview": "74aed74e24f50d0f8bc19b89a5413c14101081734608d1c764c45ebade5a241a",
+      "_reference": {
+        "spellId": 8267,
+        "english": "Deal [Magic + 3] true damage to an Enemy. There's a 10% chance to kill them, boosted by their Armor. [5:1]",
+        "nativeTarget": "Enemy",
+        "randomize": null,
+        "steps": [
+          {
+            "Target": "FromTarget",
+            "Amount": 20,
+            "Type": "CountArmor"
+          },
+          {
+            "SpellPowerMultiplier": 1,
+            "Target": "FromTarget",
+            "Amount": 3,
+            "Primarypower": true,
+            "Type": "TrueDamage"
+          },
+          {
+            "Target": "FromTarget",
+            "UseCounterForAmount": true,
+            "Amount": 10,
+            "Type": "LethalDamageConditional"
+          }
+        ],
+        "prototype": {
+          "segments": [
+            {
+              "kind": "damage",
+              "target": "enemyChosen",
+              "scaling": {
+                "base": 3,
+                "mult": 1
+              },
+              "trueDamage": true
+            },
+            {
+              "kind": "damage",
+              "target": "enemyChosen",
+              "scaling": {
+                "base": 0,
+                "mult": 0
+              },
+              "execute": true,
+              "chance": 0.1,
+              "chanceBoost": {
+                "mod": {
+                  "kind": "ratio",
+                  "a": 5,
+                  "b": 1
+                },
+                "source": {
+                  "kind": "targetStat",
+                  "stat": "armor"
+                }
+              }
+            }
+          ]
+        }
+      },
+      "sourceEvidence": [
+        {
+          "id": "en",
+          "role": "english-snapshot",
+          "path": "data/raw/troops.gow.en.json",
+          "note": "troop 6848: stats.spell.id 8267, ManaCost 13, ManaColors Green/Red, English \"Deal [Magic + 3] true damage to an Enemy. There's a 10% chance to kill them, boosted by their Armor. [5:1]\" asserted verbatim."
+        },
+        {
+          "id": "native",
+          "role": "native-snapshot",
+          "path": "data/raw/spells.gow.en.json",
+          "note": "spell 8267 SpellSteps asserted with toEqual: CountArmor FromTarget 20; TrueDamage FromTarget Amount 3 SPM 1 Primarypower (no counter); LethalDamageConditional FromTarget Amount 10 UseCounterForAmount."
+        },
+        {
+          "id": "rule",
+          "role": "official-shared-rule",
+          "path": "artifacts/gow-skill-audit/gold-primary-sources/official-brian-guide.html",
+          "note": "Official Brian guide: True Damage ignores armor and '(Boost Ratio N:1)' boosts by +1 per N units; supports 10% kill chance +1 percentage point per 5 target armor, with the [Magic + 3] true hit unboosted."
+        },
+        {
+          "id": "laneTest",
+          "role": "lane-battle-test",
+          "path": "tests/unit/gowLaneL7B02.test.ts",
+          "note": "L7B02 troop:6848 describe: binding/prototype/zh assertions; 4 real castSkill cases with failed roll; 2 sides with successful roll through armor; chance thresholds 10%/11%/12%/100%; already-dead target; barrier; low-mana/silence."
+        }
+      ],
+      "dimensions": {
+        "identity-cost-colors": {
+          "status": "verified",
+          "note": "Entity 6848 -> spell 8267, cost 13, Green/Red in raw and src troops data; ledger binding checks true.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL7B02.test.ts"
+          ]
+        },
+        "target-count-range": {
+          "status": "verified",
+          "note": "Both steps FromTarget -> enemyChosen; only target 12 is damaged/killed.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL7B02.test.ts"
+          ]
+        },
+        "base-formula-rounding": {
+          "status": "verified",
+          "note": "True hit magic+3 (3 / 13) at magic 0/10, not boosted by armor (armor 12 target still takes exactly magic+3).",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL7B02.test.ts"
+          ]
+        },
+        "boost-source-ratio-cap": {
+          "status": "verified",
+          "note": "CountArmor 20 = [5:1] boosts only the kill chance: armor 0/4 -> 10%, 5 -> 11%, 12 -> 12%, 450 -> 100% (clamped); non-target 400 armor ignored.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL7B02.test.ts"
+          ]
+        },
+        "conditions-probabilities-branches": {
+          "status": "verified",
+          "note": "Kill chance boundary rolls: 0.0999 kills / 0.1 not at 10%; 0.1099 kills / 0.11 not at 11%; 0.1199 kills / 0.1201 not at 12%; 0.9999 kills at 100%.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL7B02.test.ts"
+          ]
+        },
+        "status-duration-immunity": {
+          "status": "not-applicable",
+          "note": "No status applied; barrier only tested as damage block.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": []
+        },
+        "gems-types-selection-resolution": {
+          "status": "not-applicable",
+          "note": "No gem steps.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": []
+        },
+        "summon-transform-pools": {
+          "status": "not-applicable",
+          "note": "No summon/transform.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": []
+        },
+        "order-death-retargeting": {
+          "status": "verified",
+          "note": "True hit precedes kill roll (native order); a target killed by the hit yields exactly one defeat event; a successful roll kills through 12 armor (Life to 0, one defeat).",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL7B02.test.ts"
+          ]
+        },
+        "mana-economy-extra-turn": {
+          "status": "verified",
+          "note": "Real cast spends 13 mana and the turn; low mana blocks.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL7B02.test.ts"
+          ]
+        },
+        "display-description": {
+          "status": "verified",
+          "note": "zh '对一名敌人造成 [魔法 + 3] 点真实伤害。有 10% 的几率将其击杀，几率因其护甲值而增强。 [5:1]' matches English.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL7B02.test.ts"
+          ]
+        },
+        "battle-pipeline": {
+          "status": "verified",
+          "note": "TurnEngine.castSkill both sides with controlled first RNG roll; true damage, execute segment and defeat events flow through the real engine.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL7B02.test.ts"
+          ],
+          "realBattleEntry": true
+        }
+      },
+      "clauseReviews": [
+        {
+          "id": "c1",
+          "text": "Deal [Magic + 3] true damage to an Enemy.",
+          "status": "verified",
+          "note": "[Magic + 3] true damage to the chosen enemy: exact Life loss, armor unchanged, both sides magic 0/10.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL7B02.test.ts"
+          ]
+        },
+        {
+          "id": "c2",
+          "text": "There's a 10% chance to kill them, boosted by their Armor.",
+          "status": "verified",
+          "note": "10% chance to kill, boosted by their armor: execute segment chance 0.1 + boost; success kills, failure leaves the target alive.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL7B02.test.ts"
+          ]
+        },
+        {
+          "id": "c3",
+          "text": "[5:1]",
+          "status": "verified",
+          "note": "[5:1]: +1 percentage point per 5 target armor (floor): 4 -> +0, 5 -> +1, 12 -> +2, 450 -> +90 (100%).",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL7B02.test.ts"
+          ]
+        }
+      ],
+      "nativeStepReviews": [
+        {
+          "id": "0",
+          "type": "CountArmor",
+          "status": "verified",
+          "note": "CountArmor FromTarget 20 -> chanceBoost targetStat armor ratio 5:1 (percentage points).",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL7B02.test.ts"
+          ]
+        },
+        {
+          "id": "1",
+          "type": "TrueDamage",
+          "status": "verified",
+          "note": "TrueDamage FromTarget 3 SPM 1 (no UseCounterForAmount) -> damage enemyChosen trueDamage base 3 mult 1 without modifier; asserted.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL7B02.test.ts"
+          ]
+        },
+        {
+          "id": "2",
+          "type": "LethalDamageConditional",
+          "status": "verified",
+          "note": "LethalDamageConditional FromTarget 10 UseCounterForAmount -> execute segment chance 0.1 + counter%; boundary rolls asserted.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL7B02.test.ts"
+          ]
+        }
+      ],
+      "branchReviews": [
+        {
+          "id": "main",
+          "status": "verified",
+          "note": "Single branch with an inner probability on step 2; success and failure outcomes both verified.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL7B02.test.ts"
+          ]
+        }
+      ]
+    }
+  ]
+}

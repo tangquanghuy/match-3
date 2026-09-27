@@ -380,7 +380,8 @@ describe('TurnEngine 集成：goodtarot / badtarot 施法随机状态', () => {
     return { engine: new TurnEngine(state, rng, idGen, new ExtensionRegistry()), state };
   }
 
-  const POSITIVE_POOL = ['barrier', 'rage', 'submerged'];
+  // Official status-list positives (L2-random-status-pools; Enrage via its canonical id only)
+  const POSITIVE_POOL = ['barrier', 'blessed', 'enchanted', 'enraged', 'reflect', 'submerged'];
 
   it('goodtarot：施法时一名随机盟友获得正面池状态（回合 3）', () => {
     const tarot = makeChar(0, { traitIds: ['goodtarot'] });

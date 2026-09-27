@@ -1,0 +1,2046 @@
+{
+  "schemaVersion": 1,
+  "scope": "stored-gow-snapshot",
+  "reviews": [
+    {
+      "key": "troop:7375",
+      "scope": "stored-gow-snapshot",
+      "sourceDigest": "37658d97a7785a1e513b1383beaa60bebdf548c4c453437e1169b5fb4d792af0",
+      "reviewer": "sa-L5",
+      "reviewedAt": "2026-09-27",
+      "decision": "accept",
+      "ledgerFingerprintAtReview": "74aed74e24f50d0f8bc19b89a5413c14101081734608d1c764c45ebade5a241a",
+      "_reference": {
+        "spellId": 9015,
+        "english": "Barrier and Enchant all Allies. Gain [(Magic x 2) + 1] Life.",
+        "nativeTarget": "None",
+        "randomize": null,
+        "steps": [
+          {
+            "Target": "AllAllies",
+            "Amount": 1,
+            "Type": "CauseBarrier"
+          },
+          {
+            "Target": "AllAllies",
+            "Type": "CauseEnchanted"
+          },
+          {
+            "SpellPowerMultiplier": 2,
+            "Target": "Self",
+            "Amount": 1,
+            "Primarypower": true,
+            "Type": "IncreaseHealth"
+          }
+        ],
+        "prototype": {
+          "segments": [
+            {
+              "kind": "status",
+              "target": "allyAll",
+              "statusId": "barrier",
+              "turns": 3
+            },
+            {
+              "kind": "status",
+              "target": "allyAll",
+              "statusId": "enchanted",
+              "turns": 3
+            },
+            {
+              "kind": "buff",
+              "target": "allySelf",
+              "stat": "hp",
+              "scaling": {
+                "base": 1,
+                "mult": 2
+              },
+              "lifeMode": "gain"
+            }
+          ]
+        }
+      },
+      "sourceEvidence": [
+        {
+          "id": "en",
+          "role": "english-snapshot",
+          "path": "data/raw/troops.gow.en.json",
+          "note": "troop 7375: stats.spell.id 9015, ManaCost 22, Green/Red/Purple, English 'Barrier and Enchant all Allies. Gain [(Magic x 2) + 1] Life.' asserted verbatim."
+        },
+        {
+          "id": "native",
+          "role": "native-snapshot",
+          "path": "data/raw/spells.gow.en.json",
+          "note": "spell 9015 Target None Cost 22; SpellSteps toEqual: CauseBarrier AllAllies Amount 1; CauseEnchanted AllAllies; IncreaseHealth Self Amount 1 SPM 2 Primarypower."
+        },
+        {
+          "id": "rule",
+          "role": "official-shared-rule",
+          "path": "artifacts/gow-skill-audit/gold-primary-sources/official-status-effects.html",
+          "note": "Official status guide: Barrier protects from one instance of damage then is removed; Enchanted gives extra mana each turn until the troop casts its spell (no time limit)."
+        },
+        {
+          "id": "laneTest",
+          "role": "lane-battle-test",
+          "path": "tests/unit/gowLaneL5B01.test.ts",
+          "note": "L5B01 troop:7375 describe: binding/native/prototype/zh; real castSkill both sides magic 0/7; dead/Blessed ally; Enchanted +2 mana via passTurn; FIXED L5-001/002 no expiry, Enchanted ends on cast; low-mana/silence."
+        },
+        {
+          "id": "r002",
+          "role": "coordinator-ruling",
+          "path": "tasks/active/gow-skill-shards/rulings/R002-barrier-enchant-cleanse.md",
+          "note": "R002: Barrier and Enchanted have no time limit; Barrier removed by damage, Enchanted by casting."
+        }
+      ],
+      "dimensions": {
+        "identity-cost-colors": {
+          "status": "verified",
+          "note": "Entity 7375 -> spell 9015, cost 22, Green/Red/Purple in raw and src troops.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r002"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL5B01.test.ts"
+          ]
+        },
+        "target-count-range": {
+          "status": "verified",
+          "note": "AllAllies -> allyAll: every living ally incl. caster (ids 0,1,2); dead ally skipped; enemies untouched. Self -> allySelf for Life.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r002"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL5B01.test.ts"
+          ]
+        },
+        "base-formula-rounding": {
+          "status": "verified",
+          "note": "Gain Life = 2*Magic+1 (integer): magic 0 -> +1, magic 7 -> +15 to both current and max Life (lifeMode gain).",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r002"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL5B01.test.ts"
+          ]
+        },
+        "boost-source-ratio-cap": {
+          "status": "not-applicable",
+          "note": "No boost/count source.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r002"
+          ],
+          "tests": []
+        },
+        "conditions-probabilities-branches": {
+          "status": "not-applicable",
+          "note": "No condition, chance or Randomize.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r002"
+          ],
+          "tests": []
+        },
+        "status-duration-immunity": {
+          "status": "verified",
+          "note": "Barrier/Enchanted do not decrement over 10 passTurn (R002); Enchanted removed on the caster's next cast; Blessed ally immune to both; existing Barrier refreshed not duplicated.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r002"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL5B01.test.ts"
+          ]
+        },
+        "gems-types-selection-resolution": {
+          "status": "not-applicable",
+          "note": "No gem steps.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r002"
+          ],
+          "tests": []
+        },
+        "summon-transform-pools": {
+          "status": "not-applicable",
+          "note": "No summon/transform.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r002"
+          ],
+          "tests": []
+        },
+        "order-death-retargeting": {
+          "status": "verified",
+          "note": "Event order barrier x3 -> enchanted x3 -> life matches native step order; dead ally not targeted.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r002"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL5B01.test.ts"
+          ]
+        },
+        "mana-economy-extra-turn": {
+          "status": "verified",
+          "note": "Cast spends 22 mana and ends the turn; Enchanted +2 mana per owner turn start; low mana and silence block.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r002"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL5B01.test.ts"
+          ]
+        },
+        "display-description": {
+          "status": "verified",
+          "note": "zh '赋予所有盟友屏障和法印状态效果。获得 [(魔法 x 2) + 1] 点生命值。' matches English.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r002"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL5B01.test.ts"
+          ]
+        },
+        "battle-pipeline": {
+          "status": "verified",
+          "note": "Real TurnEngine.castSkill both sides; statuses persist through passTurn; action log and turn handover asserted.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r002"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL5B01.test.ts"
+          ],
+          "realBattleEntry": true
+        }
+      },
+      "clauseReviews": [
+        {
+          "id": "c1",
+          "text": "Barrier and Enchant all Allies.",
+          "status": "verified",
+          "note": "All living allies (incl. caster) gain Barrier and Enchanted; no expiry without damage/cast; Blessed ally blocked.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r002"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL5B01.test.ts"
+          ]
+        },
+        {
+          "id": "c2",
+          "text": "Gain [(Magic x 2) + 1] Life.",
+          "status": "verified",
+          "note": "Caster alone gains 2M+1 current and max Life; allies unchanged.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r002"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL5B01.test.ts"
+          ]
+        }
+      ],
+      "nativeStepReviews": [
+        {
+          "id": "0",
+          "type": "CauseBarrier",
+          "status": "verified",
+          "note": "CauseBarrier AllAllies -> status barrier allyAll (non-expiring per R002).",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r002"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL5B01.test.ts"
+          ]
+        },
+        {
+          "id": "1",
+          "type": "CauseEnchanted",
+          "status": "verified",
+          "note": "CauseEnchanted AllAllies -> status enchanted allyAll; +2 mana per turn until cast.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r002"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL5B01.test.ts"
+          ]
+        },
+        {
+          "id": "2",
+          "type": "IncreaseHealth",
+          "status": "verified",
+          "note": "IncreaseHealth Self Amount 1 SPM 2 -> buff hp allySelf base 1 mult 2 lifeMode gain.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r002"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL5B01.test.ts"
+          ]
+        }
+      ],
+      "branchReviews": [
+        {
+          "id": "main",
+          "status": "verified",
+          "note": "Single unconditional branch; covered by all real cast cases.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r002"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL5B01.test.ts"
+          ]
+        }
+      ]
+    },
+    {
+      "key": "weapon:1368",
+      "scope": "stored-gow-snapshot",
+      "sourceDigest": "73b4ec1a862cf981546a9b220d874fc7fc15c0dd32ad77c42b8edb30eeda64b8",
+      "reviewer": "sa-L5",
+      "reviewedAt": "2026-09-27",
+      "decision": "accept",
+      "ledgerFingerprintAtReview": "74aed74e24f50d0f8bc19b89a5413c14101081734608d1c764c45ebade5a241a",
+      "_reference": {
+        "spellId": 8403,
+        "english": "Gain a Barrier. Deal [Magic + 3] damage to an Enemy, and Silence them.",
+        "nativeTarget": "Enemy",
+        "randomize": null,
+        "steps": [
+          {
+            "Target": "Self",
+            "Amount": 1,
+            "Type": "CauseBarrier"
+          },
+          {
+            "SpellPowerMultiplier": 1,
+            "Target": "FromTarget",
+            "Amount": 3,
+            "Primarypower": true,
+            "Type": "Damage"
+          },
+          {
+            "Target": "FromTarget",
+            "Type": "CauseSilence"
+          }
+        ],
+        "prototype": {
+          "segments": [
+            {
+              "kind": "status",
+              "target": "allySelf",
+              "statusId": "barrier",
+              "turns": 3
+            },
+            {
+              "kind": "damage",
+              "target": "enemyChosen",
+              "scaling": {
+                "base": 3,
+                "mult": 1
+              }
+            },
+            {
+              "kind": "status",
+              "target": "lastTarget",
+              "statusId": "silence",
+              "turns": 3
+            }
+          ]
+        }
+      },
+      "sourceEvidence": [
+        {
+          "id": "en",
+          "role": "english-snapshot",
+          "path": "artifacts/gowhead-weapons/weapons.json",
+          "note": "weapon 1368 Lockstone: gowhead English \"Gain a Barrier. Deal [Magic + 3] damage to an Enemy, and Silence them.\", cost 13 Green, numeric 8403 + gw_Lockstone aliases."
+        },
+        {
+          "id": "native",
+          "role": "native-snapshot",
+          "path": "data/raw/spells.gow.en.json",
+          "note": "spell 8403 Target Enemy: CauseBarrier Self Amount 1; Damage FromTarget Amount 3 SPM 1; CauseSilence FromTarget."
+        },
+        {
+          "id": "rule",
+          "role": "official-shared-rule",
+          "path": "artifacts/gow-skill-audit/gold-primary-sources/official-status-effects.html",
+          "note": "Official status guide: status semantics (Barrier, Silence, Stun, Disease, Death Mark, Enrage, Submerged, cumulative cleanse chance via Cursed/Lycanthropy entries)."
+        },
+        {
+          "id": "laneTest",
+          "role": "lane-battle-test",
+          "path": "tests/unit/gowLaneL5B01.test.ts",
+          "note": "weapon:1368: real TurnEngine.castSkill both sides + boundaries"
+        },
+        {
+          "id": "r004",
+          "role": "coordinator-ruling",
+          "path": "tasks/active/gow-skill-shards/rulings/R004-status-durations.md",
+          "note": "R004: negatives no turn cap, shared cumulative self-cleanse 10%/+10% (+5% Cursed), Poison never; positives end on trigger (Barrier/Reflect damage, Enchanted cast, Enraged skull damage, Submerged/Blessed holder action)."
+        },
+        {
+          "id": "r3",
+          "role": "lane-battle-test",
+          "path": "tests/unit/gowLaneL5R3.test.ts",
+          "note": "Round-3 real castSkill both sides: statuses from this cast unchanged after 6 failed turn-start rolls; one successful roll removes all recoverable negatives together (Poison/positives stay)."
+        },
+        {
+          "id": "srcR004",
+          "role": "community-source",
+          "path": "artifacts/gow-skill-audit/gold-primary-sources/community-2026-09-28-status-durations.json",
+          "note": "Saved community corroboration for R004 (staff reply: new negative resets, all negatives cleanse together)."
+        },
+        {
+          "id": "r002",
+          "role": "coordinator-ruling",
+          "path": "tasks/active/gow-skill-shards/rulings/R002-barrier-enchant-cleanse.md",
+          "note": "R002: Barrier/Enchanted no time limit; Cleanse removes negatives only."
+        }
+      ],
+      "dimensions": {
+        "identity-cost-colors": {
+          "status": "verified",
+          "note": "Weapon 1368 -> spell 8403, cost 13, Green; both aliases resolve to the same prototype.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r3",
+            "srcR004",
+            "r002"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL5B01.test.ts"
+          ]
+        },
+        "target-count-range": {
+          "status": "verified",
+          "note": "Self Barrier (caster only, allies untouched); chosen enemy 12 takes damage and Silence; other enemies untouched.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r3",
+            "srcR004",
+            "r002"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL5B01.test.ts"
+          ]
+        },
+        "base-formula-rounding": {
+          "status": "verified",
+          "note": "Magic+3: magic 0 -> 3, magic 9 -> 12 (armor first).",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r3",
+            "srcR004",
+            "r002"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL5B01.test.ts"
+          ]
+        },
+        "boost-source-ratio-cap": {
+          "status": "not-applicable",
+          "note": "No boost/count source.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r3",
+            "srcR004",
+            "r002"
+          ],
+          "tests": []
+        },
+        "conditions-probabilities-branches": {
+          "status": "not-applicable",
+          "note": "No condition, chance or Randomize.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r3",
+            "srcR004",
+            "r002"
+          ],
+          "tests": []
+        },
+        "status-duration-immunity": {
+          "status": "verified",
+          "note": "Barrier no time limit (R002); Silence R004: no turn cap; persists through 6 failed turn-start rolls, removed by one successful shared self-cleanse roll (gowLaneL5R3). Invulnerable immune; re-apply refreshes (single instance, resets chance).",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r3",
+            "srcR004",
+            "r002"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL5B01.test.ts"
+          ]
+        },
+        "gems-types-selection-resolution": {
+          "status": "not-applicable",
+          "note": "No gem steps.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r3",
+            "srcR004",
+            "r002"
+          ],
+          "tests": []
+        },
+        "summon-transform-pools": {
+          "status": "not-applicable",
+          "note": "No summon/transform.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r3",
+            "srcR004",
+            "r002"
+          ],
+          "tests": []
+        },
+        "order-death-retargeting": {
+          "status": "verified",
+          "note": "Events barrier -> dmg -> silence = native order; enemy Barrier absorbs damage but Silence lands; lethal hit leaves no Silence.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r3",
+            "srcR004",
+            "r002"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL5B01.test.ts"
+          ]
+        },
+        "mana-economy-extra-turn": {
+          "status": "verified",
+          "note": "Cast spends full mana and passes the turn; low mana and Silence block the real cast (no mana/action spent).",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r3",
+            "srcR004",
+            "r002"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL5B01.test.ts"
+          ]
+        },
+        "display-description": {
+          "status": "verified",
+          "note": "Chinese description asserted verbatim; wording matches the English effect.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r3",
+            "srcR004",
+            "r002"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL5B01.test.ts"
+          ]
+        },
+        "battle-pipeline": {
+          "status": "verified",
+          "note": "Real TurnEngine.castSkill both sides (lane file + round-3 R004 file).",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r3",
+            "srcR004",
+            "r002"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL5B01.test.ts"
+          ],
+          "realBattleEntry": true
+        }
+      },
+      "clauseReviews": [
+        {
+          "id": "c1",
+          "text": "Gain a Barrier.",
+          "status": "verified",
+          "note": "Caster gains Barrier (no time limit, R002).",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r3",
+            "srcR004",
+            "r002"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL5B01.test.ts"
+          ]
+        },
+        {
+          "id": "c2",
+          "text": "Deal [Magic + 3] damage to an Enemy, and Silence them.",
+          "status": "verified",
+          "note": "Chosen enemy takes Magic+3 then is Silenced; Silence per R004.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r3",
+            "srcR004",
+            "r002"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL5B01.test.ts"
+          ]
+        }
+      ],
+      "nativeStepReviews": [
+        {
+          "id": "0",
+          "type": "CauseBarrier",
+          "status": "verified",
+          "note": "CauseBarrier Self -> status barrier allySelf; Amount ignored (R006-C2).",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r3",
+            "srcR004",
+            "r002"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL5B01.test.ts"
+          ]
+        },
+        {
+          "id": "1",
+          "type": "Damage",
+          "status": "verified",
+          "note": "Damage FromTarget 3/1 -> enemyChosen base 3 mult 1.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r3",
+            "srcR004",
+            "r002"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL5B01.test.ts"
+          ]
+        },
+        {
+          "id": "2",
+          "type": "CauseSilence",
+          "status": "verified",
+          "note": "CauseSilence FromTarget -> lastTarget silence; duration R004.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r3",
+            "srcR004",
+            "r002"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL5B01.test.ts"
+          ]
+        }
+      ],
+      "branchReviews": [
+        {
+          "id": "main",
+          "status": "verified",
+          "note": "Single unconditional branch.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r3",
+            "srcR004",
+            "r002"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL5B01.test.ts"
+          ]
+        }
+      ]
+    },
+    {
+      "key": "troop:6840",
+      "scope": "stored-gow-snapshot",
+      "sourceDigest": "dc9cdebe3d3ebe11253ed1dae4314e1887b8f1998ed3a18ec03abe05dc18b1a2",
+      "reviewer": "sa-L5",
+      "reviewedAt": "2026-09-27",
+      "decision": "accept",
+      "ledgerFingerprintAtReview": "74aed74e24f50d0f8bc19b89a5413c14101081734608d1c764c45ebade5a241a",
+      "_reference": {
+        "spellId": 8245,
+        "english": "Barrier an Ally, and give [Magic + 1] Armor to them. If the Ally is a Knight, give double the effect.",
+        "nativeTarget": "Ally",
+        "randomize": null,
+        "steps": [
+          {
+            "Target": "FromTarget",
+            "Type": "CauseBarrier"
+          },
+          {
+            "SpellPowerMultiplier": 1,
+            "Target": "FromTarget",
+            "StatusAmount": 2,
+            "Amount": 1,
+            "Primarypower": true,
+            "StatusModifier": "MultiplyForKnight",
+            "Type": "IncreaseArmor"
+          }
+        ],
+        "prototype": {
+          "segments": [
+            {
+              "kind": "status",
+              "target": "allyChosen",
+              "statusId": "barrier",
+              "turns": 3
+            },
+            {
+              "kind": "buff",
+              "target": "allyChosen",
+              "stat": "armor",
+              "scaling": {
+                "base": 1,
+                "mult": 1
+              },
+              "raceDouble": "Knight"
+            }
+          ]
+        }
+      },
+      "sourceEvidence": [
+        {
+          "id": "en",
+          "role": "english-snapshot",
+          "path": "data/raw/troops.gow.en.json",
+          "note": "troop 6840: stats.spell.id 8245, ManaCost 12, Green/Brown, English 'Barrier an Ally, and give [Magic + 1] Armor to them. If the Ally is a Knight, give double the effect.' asserted verbatim."
+        },
+        {
+          "id": "native",
+          "role": "native-snapshot",
+          "path": "data/raw/spells.gow.en.json",
+          "note": "spell 8245 Target Ally Cost 12; SpellSteps toEqual: CauseBarrier FromTarget; IncreaseArmor FromTarget Amount 1 SPM 1 StatusModifier MultiplyForKnight StatusAmount 2 Primarypower."
+        },
+        {
+          "id": "rule",
+          "role": "official-shared-rule",
+          "path": "artifacts/gow-skill-audit/gold-primary-sources/official-status-effects.html",
+          "note": "Official status guide: Barrier protects from one instance of damage then is removed (no time limit)."
+        },
+        {
+          "id": "laneTest",
+          "role": "lane-battle-test",
+          "path": "tests/unit/gowLaneL5B01.test.ts",
+          "note": "L5B01 troop:6840 describe: binding/native/prototype/zh; real castSkill both sides magic 0/7 x Knight/non-Knight; Blessed Knight; FIXED L5-001 Barrier persists 10 passTurn then absorbs one hit; low-mana/silence."
+        },
+        {
+          "id": "r002",
+          "role": "coordinator-ruling",
+          "path": "tasks/active/gow-skill-shards/rulings/R002-barrier-enchant-cleanse.md",
+          "note": "R002: Barrier has no time limit; removed after absorbing damage."
+        }
+      ],
+      "dimensions": {
+        "identity-cost-colors": {
+          "status": "verified",
+          "note": "Entity 6840 -> spell 8245, cost 12, Green/Brown in raw and src troops.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r002"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL5B01.test.ts"
+          ]
+        },
+        "target-count-range": {
+          "status": "verified",
+          "note": "FromTarget (Ally) -> allyChosen: only chosen ally gets Barrier and Armor; caster/other ally/enemies untouched.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r002"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL5B01.test.ts"
+          ]
+        },
+        "base-formula-rounding": {
+          "status": "verified",
+          "note": "Armor = Magic+1: magic 0 -> 1, magic 7 -> 8 (integer).",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r002"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL5B01.test.ts"
+          ]
+        },
+        "boost-source-ratio-cap": {
+          "status": "not-applicable",
+          "note": "No boost/count source; Knight multiplier covered under conditions.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r002"
+          ],
+          "tests": []
+        },
+        "conditions-probabilities-branches": {
+          "status": "verified",
+          "note": "MultiplyForKnight StatusAmount 2 doubles Armor only for a Knight target (16 at magic 7); non-Knight 1x; Barrier single either way.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r002"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL5B01.test.ts"
+          ]
+        },
+        "status-duration-immunity": {
+          "status": "verified",
+          "note": "Barrier persists 10 passTurn without damage (R002), then absorbs one hit (Life/Armor unchanged) and is removed; Blessed Knight blocks Barrier but still gets Armor.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r002"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL5B01.test.ts"
+          ]
+        },
+        "gems-types-selection-resolution": {
+          "status": "not-applicable",
+          "note": "No gem steps.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r002"
+          ],
+          "tests": []
+        },
+        "summon-transform-pools": {
+          "status": "not-applicable",
+          "note": "No summon/transform.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r002"
+          ],
+          "tests": []
+        },
+        "order-death-retargeting": {
+          "status": "verified",
+          "note": "Event order status-apply (Barrier) then buff (Armor) = native order.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r002"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL5B01.test.ts"
+          ]
+        },
+        "mana-economy-extra-turn": {
+          "status": "verified",
+          "note": "Cast spends 12 mana and ends the turn; low mana and silence block.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r002"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL5B01.test.ts"
+          ]
+        },
+        "display-description": {
+          "status": "verified",
+          "note": "zh '赋予一名盟友屏障效果，再给予其 [魔法 + 1] 点护甲值。若盟友是一名骑士，则数值双倍。' matches English.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r002"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL5B01.test.ts"
+          ]
+        },
+        "battle-pipeline": {
+          "status": "verified",
+          "note": "Real TurnEngine.castSkill both sides with FixedTargetChooser; turn handover asserted.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r002"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL5B01.test.ts"
+          ],
+          "realBattleEntry": true
+        }
+      },
+      "clauseReviews": [
+        {
+          "id": "c1",
+          "text": "Barrier an Ally, and give [Magic + 1] Armor to them.",
+          "status": "verified",
+          "note": "Chosen ally gains Barrier and Magic+1 Armor; nobody else affected.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r002"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL5B01.test.ts"
+          ]
+        },
+        {
+          "id": "c2",
+          "text": "If the Ally is a Knight, give double the effect.",
+          "status": "verified",
+          "note": "Knight target: Armor doubled to 2(M+1); non-Knight 1x; the Barrier is not duplicated.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r002"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL5B01.test.ts"
+          ]
+        }
+      ],
+      "nativeStepReviews": [
+        {
+          "id": "0",
+          "type": "CauseBarrier",
+          "status": "verified",
+          "note": "CauseBarrier FromTarget -> status barrier allyChosen (non-expiring per R002).",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r002"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL5B01.test.ts"
+          ]
+        },
+        {
+          "id": "1",
+          "type": "IncreaseArmor",
+          "status": "verified",
+          "note": "IncreaseArmor FromTarget Amount 1 SPM 1 MultiplyForKnight 2 -> buff armor allyChosen base 1 mult 1 raceDouble Knight.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r002"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL5B01.test.ts"
+          ]
+        }
+      ],
+      "branchReviews": [
+        {
+          "id": "main",
+          "status": "verified",
+          "note": "Single unconditional branch; Knight modifier exercised both ways.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r002"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL5B01.test.ts"
+          ]
+        }
+      ]
+    },
+    {
+      "key": "troop:6406",
+      "scope": "stored-gow-snapshot",
+      "sourceDigest": "0fa04b6c199492fe66759c2a50aea1090e56df14b74c9840b65b551aa0422384",
+      "reviewer": "sa-L5",
+      "reviewedAt": "2026-09-27",
+      "decision": "accept",
+      "ledgerFingerprintAtReview": "74aed74e24f50d0f8bc19b89a5413c14101081734608d1c764c45ebade5a241a",
+      "_reference": {
+        "spellId": 7561,
+        "english": "Give an ally [Magic + 3] Armor and Barrier, then Submerge them.",
+        "nativeTarget": "Ally",
+        "randomize": null,
+        "steps": [
+          {
+            "Target": "FromTarget",
+            "Type": "CauseBarrier"
+          },
+          {
+            "SpellPowerMultiplier": 1,
+            "Target": "FromTarget",
+            "Amount": 3,
+            "Primarypower": true,
+            "Type": "IncreaseArmor"
+          },
+          {
+            "Target": "FromTarget",
+            "Type": "CauseSubmerged"
+          }
+        ],
+        "prototype": {
+          "segments": [
+            {
+              "kind": "buff",
+              "target": "allyChosen",
+              "stat": "armor",
+              "scaling": {
+                "base": 3,
+                "mult": 1
+              }
+            },
+            {
+              "kind": "status",
+              "target": "allyChosen",
+              "statusId": "barrier",
+              "turns": 3
+            },
+            {
+              "kind": "status",
+              "target": "allyChosen",
+              "statusId": "submerged",
+              "turns": 3
+            }
+          ]
+        }
+      },
+      "sourceEvidence": [
+        {
+          "id": "en",
+          "role": "english-snapshot",
+          "path": "data/raw/troops.gow.en.json",
+          "note": "troop 6406 Waverider: spell 7561 \"Give an ally [Magic + 3] Armor and Barrier, then Submerge them.\", cost 10 Blue/Yellow."
+        },
+        {
+          "id": "native",
+          "role": "native-snapshot",
+          "path": "data/raw/spells.gow.en.json",
+          "note": "spell 7561 Target Ally: CauseBarrier FromTarget; IncreaseArmor FromTarget Amount 3 SPM 1; CauseSubmerged FromTarget."
+        },
+        {
+          "id": "rule",
+          "role": "official-shared-rule",
+          "path": "artifacts/gow-skill-audit/gold-primary-sources/official-status-effects.html",
+          "note": "Official status guide: status semantics (Barrier, Silence, Stun, Disease, Death Mark, Enrage, Submerged, cumulative cleanse chance via Cursed/Lycanthropy entries)."
+        },
+        {
+          "id": "laneTest",
+          "role": "lane-battle-test",
+          "path": "tests/unit/gowLaneL5B01.test.ts",
+          "note": "troop:6406: real TurnEngine.castSkill both sides + boundaries"
+        },
+        {
+          "id": "r004",
+          "role": "coordinator-ruling",
+          "path": "tasks/active/gow-skill-shards/rulings/R004-status-durations.md",
+          "note": "R004: negatives no turn cap, shared cumulative self-cleanse 10%/+10% (+5% Cursed), Poison never; positives end on trigger (Barrier/Reflect damage, Enchanted cast, Enraged skull damage, Submerged/Blessed holder action)."
+        },
+        {
+          "id": "r3",
+          "role": "lane-battle-test",
+          "path": "tests/unit/gowLaneL5R3.test.ts",
+          "note": "Round-3 real castSkill both sides: statuses from this cast unchanged after 6 failed turn-start rolls; one successful roll removes all recoverable negatives together (Poison/positives stay)."
+        },
+        {
+          "id": "srcR004",
+          "role": "community-source",
+          "path": "artifacts/gow-skill-audit/gold-primary-sources/community-2026-09-28-status-durations.json",
+          "note": "Saved community corroboration for R004 (staff reply: new negative resets, all negatives cleanse together)."
+        },
+        {
+          "id": "r001",
+          "role": "coordinator-ruling",
+          "path": "tasks/active/gow-skill-shards/rulings/R001-native-step-order.md",
+          "note": "R001: native SpellSteps order governs observable order."
+        },
+        {
+          "id": "r002",
+          "role": "coordinator-ruling",
+          "path": "tasks/active/gow-skill-shards/rulings/R002-barrier-enchant-cleanse.md",
+          "note": "R002: Barrier/Enchanted no time limit; Cleanse removes negatives only."
+        }
+      ],
+      "dimensions": {
+        "identity-cost-colors": {
+          "status": "verified",
+          "note": "Troop 6406 -> spell 7561, cost 10, Blue/Yellow.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r3",
+            "srcR004",
+            "r001",
+            "r002"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL5B01.test.ts"
+          ]
+        },
+        "target-count-range": {
+          "status": "verified",
+          "note": "Only the chosen ally (caster may choose itself); dead ally not a legal target (cast refused).",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r3",
+            "srcR004",
+            "r001",
+            "r002"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL5B01.test.ts"
+          ]
+        },
+        "base-formula-rounding": {
+          "status": "verified",
+          "note": "Armor +Magic+3: magic 0 -> 3, magic 11 -> 14.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r3",
+            "srcR004",
+            "r001",
+            "r002"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL5B01.test.ts"
+          ]
+        },
+        "boost-source-ratio-cap": {
+          "status": "not-applicable",
+          "note": "No boost/count source.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r3",
+            "srcR004",
+            "r001",
+            "r002"
+          ],
+          "tests": []
+        },
+        "conditions-probabilities-branches": {
+          "status": "not-applicable",
+          "note": "No condition, chance or Randomize.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r3",
+            "srcR004",
+            "r001",
+            "r002"
+          ],
+          "tests": []
+        },
+        "status-duration-immunity": {
+          "status": "verified",
+          "note": "Barrier no time limit (R002); Submerged no timer and no natural cleanse, ends when the holder casts (real castSkill in gowLaneL5R3) (R004); Blessed ally blocks Barrier/Submerge but keeps Armor.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r3",
+            "srcR004",
+            "r001",
+            "r002"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL5B01.test.ts"
+          ]
+        },
+        "gems-types-selection-resolution": {
+          "status": "not-applicable",
+          "note": "No gem steps.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r3",
+            "srcR004",
+            "r001",
+            "r002"
+          ],
+          "tests": []
+        },
+        "summon-transform-pools": {
+          "status": "not-applicable",
+          "note": "No summon/transform.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r3",
+            "srcR004",
+            "r001",
+            "r002"
+          ],
+          "tests": []
+        },
+        "order-death-retargeting": {
+          "status": "verified",
+          "note": "Prototype Armor->Barrier->Submerge vs native Barrier->Armor->Submerge: unobservable (Armor gain unaffected by Barrier; Blessed case shows the same result), per R001 equivalence case in B01.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r3",
+            "srcR004",
+            "r001",
+            "r002"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL5B01.test.ts"
+          ]
+        },
+        "mana-economy-extra-turn": {
+          "status": "verified",
+          "note": "Cast spends full mana and passes the turn; low mana and Silence block the real cast (no mana/action spent).",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r3",
+            "srcR004",
+            "r001",
+            "r002"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL5B01.test.ts"
+          ]
+        },
+        "display-description": {
+          "status": "verified",
+          "note": "Chinese description asserted verbatim; wording matches the English effect.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r3",
+            "srcR004",
+            "r001",
+            "r002"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL5B01.test.ts"
+          ]
+        },
+        "battle-pipeline": {
+          "status": "verified",
+          "note": "Real TurnEngine.castSkill both sides (lane file + round-3 R004 file).",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r3",
+            "srcR004",
+            "r001",
+            "r002"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL5B01.test.ts"
+          ],
+          "realBattleEntry": true
+        }
+      },
+      "clauseReviews": [
+        {
+          "id": "c1",
+          "text": "Give an ally [Magic + 3] Armor and Barrier, then Submerge them.",
+          "status": "verified",
+          "note": "Chosen ally gains Magic+3 Armor, Barrier, then Submerged (R004: ends on holder action).",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r3",
+            "srcR004",
+            "r001",
+            "r002"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL5B01.test.ts"
+          ]
+        }
+      ],
+      "nativeStepReviews": [
+        {
+          "id": "0",
+          "type": "CauseBarrier",
+          "status": "verified",
+          "note": "CauseBarrier FromTarget -> barrier allyChosen.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r3",
+            "srcR004",
+            "r001",
+            "r002"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL5B01.test.ts"
+          ]
+        },
+        {
+          "id": "1",
+          "type": "IncreaseArmor",
+          "status": "verified",
+          "note": "IncreaseArmor 3/1 -> buff armor allyChosen.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r3",
+            "srcR004",
+            "r001",
+            "r002"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL5B01.test.ts"
+          ]
+        },
+        {
+          "id": "2",
+          "type": "CauseSubmerged",
+          "status": "verified",
+          "note": "CauseSubmerged -> submerged allyChosen; R004 duration.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r3",
+            "srcR004",
+            "r001",
+            "r002"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL5B01.test.ts"
+          ]
+        }
+      ],
+      "branchReviews": [
+        {
+          "id": "main",
+          "status": "verified",
+          "note": "Single unconditional branch.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r3",
+            "srcR004",
+            "r001",
+            "r002"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL5B01.test.ts"
+          ]
+        }
+      ]
+    },
+    {
+      "key": "weapon:1369",
+      "scope": "stored-gow-snapshot",
+      "sourceDigest": "0ead38f037cdea8d839fd1cffd9275df572205f4f76b2cb055e87f2b7ac405c4",
+      "reviewer": "sa-L5",
+      "reviewedAt": "2026-09-27",
+      "decision": "accept",
+      "ledgerFingerprintAtReview": "74aed74e24f50d0f8bc19b89a5413c14101081734608d1c764c45ebade5a241a",
+      "_reference": {
+        "spellId": 8404,
+        "english": "Gain a Barrier. Give [(Magic x 1.5) + 1] Life to an Ally. Then Cleanse and Enchant them.",
+        "nativeTarget": "Ally",
+        "randomize": null,
+        "steps": [
+          {
+            "Target": "Self",
+            "Amount": 1,
+            "Type": "CauseBarrier"
+          },
+          {
+            "SpellPowerMultiplier": 1.5,
+            "Target": "FromTarget",
+            "Amount": 1,
+            "Primarypower": true,
+            "Type": "IncreaseHealth"
+          },
+          {
+            "Target": "FromTarget",
+            "Type": "Cleanse"
+          },
+          {
+            "Target": "FromTarget",
+            "Type": "CauseEnchanted"
+          }
+        ],
+        "prototype": {
+          "segments": [
+            {
+              "kind": "status",
+              "target": "allySelf",
+              "statusId": "barrier",
+              "turns": 3
+            },
+            {
+              "kind": "buff",
+              "target": "allyChosen",
+              "stat": "hp",
+              "scaling": {
+                "base": 1,
+                "mult": 1.5
+              },
+              "lifeMode": "gain"
+            },
+            {
+              "kind": "cleanse",
+              "target": "lastTarget"
+            },
+            {
+              "kind": "status",
+              "target": "lastTarget",
+              "statusId": "enchanted",
+              "turns": 3
+            }
+          ]
+        }
+      },
+      "sourceEvidence": [
+        {
+          "id": "en",
+          "role": "english-snapshot",
+          "path": "artifacts/gowhead-weapons/weapons.json",
+          "note": "weapon 1369 Keystone: gowhead English \"Gain a Barrier. Give [(Magic x 1.5) + 1] Life to an Ally. Then Cleanse and Enchant them.\", cost 13 Red, 8404 + gw_Keystone aliases."
+        },
+        {
+          "id": "native",
+          "role": "native-snapshot",
+          "path": "data/raw/spells.gow.en.json",
+          "note": "spell 8404 Target Ally: CauseBarrier Self Amount 1; IncreaseHealth FromTarget Amount 1 SPM 1.5; Cleanse FromTarget; CauseEnchanted FromTarget."
+        },
+        {
+          "id": "rule",
+          "role": "official-shared-rule",
+          "path": "artifacts/gow-skill-audit/gold-primary-sources/official-status-effects.html",
+          "note": "Official status guide: status semantics (Barrier, Silence, Stun, Disease, Death Mark, Enrage, Submerged, cumulative cleanse chance via Cursed/Lycanthropy entries)."
+        },
+        {
+          "id": "laneTest",
+          "role": "lane-battle-test",
+          "path": "tests/unit/gowLaneL5B01.test.ts",
+          "note": "weapon:1369: real TurnEngine.castSkill both sides + boundaries"
+        },
+        {
+          "id": "r004",
+          "role": "coordinator-ruling",
+          "path": "tasks/active/gow-skill-shards/rulings/R004-status-durations.md",
+          "note": "R004: negatives no turn cap, shared cumulative self-cleanse 10%/+10% (+5% Cursed), Poison never; positives end on trigger (Barrier/Reflect damage, Enchanted cast, Enraged skull damage, Submerged/Blessed holder action)."
+        },
+        {
+          "id": "r3",
+          "role": "lane-battle-test",
+          "path": "tests/unit/gowLaneL5R3.test.ts",
+          "note": "Round-3 real castSkill both sides: statuses from this cast unchanged after 6 failed turn-start rolls; one successful roll removes all recoverable negatives together (Poison/positives stay)."
+        },
+        {
+          "id": "srcR004",
+          "role": "community-source",
+          "path": "artifacts/gow-skill-audit/gold-primary-sources/community-2026-09-28-status-durations.json",
+          "note": "Saved community corroboration for R004 (staff reply: new negative resets, all negatives cleanse together)."
+        },
+        {
+          "id": "r002",
+          "role": "coordinator-ruling",
+          "path": "tasks/active/gow-skill-shards/rulings/R002-barrier-enchant-cleanse.md",
+          "note": "R002: Barrier/Enchanted no time limit; Cleanse removes negatives only."
+        },
+        {
+          "id": "r006",
+          "role": "coordinator-ruling",
+          "path": "tasks/active/gow-skill-shards/rulings/R006-hidden-mechanics-conventions.md",
+          "note": "R006 conventions C1 (half-up rounding) / C2 (Cause* Amount ignored)."
+        }
+      ],
+      "dimensions": {
+        "identity-cost-colors": {
+          "status": "verified",
+          "note": "Weapon 1369 -> spell 8404, cost 13, Red; both aliases.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r3",
+            "srcR004",
+            "r002",
+            "r006"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL5B01.test.ts"
+          ]
+        },
+        "target-count-range": {
+          "status": "verified",
+          "note": "Self Barrier; chosen ally (self allowed) gains Life, Cleanse, Enchant; dead ally refused.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r3",
+            "srcR004",
+            "r002",
+            "r006"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL5B01.test.ts"
+          ]
+        },
+        "base-formula-rounding": {
+          "status": "verified",
+          "note": "Life 1.5*Magic+1 rounded half-up: magic 7 -> 12, magic 9 -> 15, magic 0 -> 1. convention:R006-C1",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r3",
+            "srcR004",
+            "r002",
+            "r006"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL5B01.test.ts"
+          ]
+        },
+        "boost-source-ratio-cap": {
+          "status": "not-applicable",
+          "note": "No boost/count source.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r3",
+            "srcR004",
+            "r002",
+            "r006"
+          ],
+          "tests": []
+        },
+        "conditions-probabilities-branches": {
+          "status": "not-applicable",
+          "note": "No condition, chance or Randomize.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r3",
+            "srcR004",
+            "r002",
+            "r006"
+          ],
+          "tests": []
+        },
+        "status-duration-immunity": {
+          "status": "verified",
+          "note": "Cleanse removes negatives only, keeps Barrier (R002); Enchanted until cast (R002/R004).",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r3",
+            "srcR004",
+            "r002",
+            "r006"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL5B01.test.ts"
+          ]
+        },
+        "gems-types-selection-resolution": {
+          "status": "not-applicable",
+          "note": "No gem steps.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r3",
+            "srcR004",
+            "r002",
+            "r006"
+          ],
+          "tests": []
+        },
+        "summon-transform-pools": {
+          "status": "not-applicable",
+          "note": "No summon/transform.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r3",
+            "srcR004",
+            "r002",
+            "r006"
+          ],
+          "tests": []
+        },
+        "order-death-retargeting": {
+          "status": "verified",
+          "note": "Native order Barrier -> Life -> Cleanse -> Enchant; self-target keeps the Barrier gained in step 0.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r3",
+            "srcR004",
+            "r002",
+            "r006"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL5B01.test.ts"
+          ]
+        },
+        "mana-economy-extra-turn": {
+          "status": "verified",
+          "note": "Cast spends full mana and passes the turn; low mana and Silence block the real cast (no mana/action spent).",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r3",
+            "srcR004",
+            "r002",
+            "r006"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL5B01.test.ts"
+          ]
+        },
+        "display-description": {
+          "status": "verified",
+          "note": "Chinese description asserted verbatim; wording matches the English effect.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r3",
+            "srcR004",
+            "r002",
+            "r006"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL5B01.test.ts"
+          ]
+        },
+        "battle-pipeline": {
+          "status": "verified",
+          "note": "Real TurnEngine.castSkill both sides (lane file + round-3 R004 file).",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r3",
+            "srcR004",
+            "r002",
+            "r006"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL5B01.test.ts"
+          ],
+          "realBattleEntry": true
+        }
+      },
+      "clauseReviews": [
+        {
+          "id": "c1",
+          "text": "Gain a Barrier.",
+          "status": "verified",
+          "note": "Caster Barrier.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r3",
+            "srcR004",
+            "r002",
+            "r006"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL5B01.test.ts"
+          ]
+        },
+        {
+          "id": "c2",
+          "text": "Give [(Magic x 1.5) + 1] Life to an Ally.",
+          "status": "verified",
+          "note": "Ally gains round(1.5M)+1 Life. convention:R006-C1",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r3",
+            "srcR004",
+            "r002",
+            "r006"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL5B01.test.ts"
+          ]
+        },
+        {
+          "id": "c3",
+          "text": "Then Cleanse and Enchant them.",
+          "status": "verified",
+          "note": "Cleanse (negatives only) then Enchanted.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r3",
+            "srcR004",
+            "r002",
+            "r006"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL5B01.test.ts"
+          ]
+        }
+      ],
+      "nativeStepReviews": [
+        {
+          "id": "0",
+          "type": "CauseBarrier",
+          "status": "verified",
+          "note": "CauseBarrier Self.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r3",
+            "srcR004",
+            "r002",
+            "r006"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL5B01.test.ts"
+          ]
+        },
+        {
+          "id": "1",
+          "type": "IncreaseHealth",
+          "status": "verified",
+          "note": "IncreaseHealth SPM 1.5 base 1 -> buff hp lifeMode gain; half-up rounding convention:R006-C1.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r3",
+            "srcR004",
+            "r002",
+            "r006"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL5B01.test.ts"
+          ]
+        },
+        {
+          "id": "2",
+          "type": "Cleanse",
+          "status": "verified",
+          "note": "Cleanse FromTarget -> cleanse lastTarget (R002).",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r3",
+            "srcR004",
+            "r002",
+            "r006"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL5B01.test.ts"
+          ]
+        },
+        {
+          "id": "3",
+          "type": "CauseEnchanted",
+          "status": "verified",
+          "note": "CauseEnchanted -> enchanted lastTarget.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r3",
+            "srcR004",
+            "r002",
+            "r006"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL5B01.test.ts"
+          ]
+        }
+      ],
+      "branchReviews": [
+        {
+          "id": "main",
+          "status": "verified",
+          "note": "Single unconditional branch.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r3",
+            "srcR004",
+            "r002",
+            "r006"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL5B01.test.ts"
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -8,7 +8,7 @@
  *    否则事件流会漏记，结果里的摘要和 digest 就不完整。
  */
 import type { TurnEngine } from '@engine/TurnEngine';
-import type { BattleAction } from '@engine/types';
+import { PlayerSide, type BattleAction } from '@engine/types';
 import type { GameEvent } from '@engine/events';
 import type { GameState } from '@engine/GameState';
 import { buildBattleResult } from './battleResult';
@@ -32,6 +32,9 @@ export class BattleSession {
     this.request = init.request;
     this.idMap = init.idMap;
     this.engine = init.engine;
+    // Apply both banners here so rendered and headless sessions share the request.
+    this.engine.bannerBoosts = init.request.playerBanner ? { ...init.request.playerBanner.boosts } : null;
+    this.engine.enemyBannerBoosts = init.request.enemyBanner ? { ...init.request.enemyBanner.boosts } : null;
     this.record(this.engine.takeInitialEvents());
   }
 
@@ -43,6 +46,10 @@ export class BattleSession {
    * 提交一次行动（交换或施法）。返回事件流供表现层播放，同时记入本场累计。
    * 被引擎拒绝的行动返回空数组，不记入。
    */
+  surrender(): GameEvent[] {
+    return this.record(this.engine.surrender(PlayerSide.Left));
+  }
+
   resolve(action: BattleAction): GameEvent[] {
     return this.record(this.engine.resolveAction(action));
   }

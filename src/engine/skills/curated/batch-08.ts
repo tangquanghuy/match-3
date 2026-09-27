@@ -3,8 +3,8 @@
  * 核对者：agent 批次08
  *
  * 语义裁定备注：
- * - 「魔法值」= magic 属性、「法力值」= mana 资源（SOP 措辞裁定；同 batch-07 头注）。
- * - 「窃取 X 点生命值」= dmg + drain（batch-01 7302 同款）；「窃取 X 点法力值/魔法值」
+ * - 「魔力值」= magic 属性、「法力值」= mana 资源（SOP 措辞裁定；同 batch-07 头注）。
+ * - 「窃取 X 点生命值」= dmg + drain（batch-01 7302 同款）；「窃取 X 点法力值/魔力值」
  *   = steal(stat, gainStat 同属性)（batch-01 8278 同款）。
  * - 「以增强」句式（转换宝石以增强）：宝石操作段排在被增强段之前——transformedGems
  *   来源只数「本技能前序段」（batch-04 7002 / batch-07 7932 同款）。
@@ -90,7 +90,9 @@ const SPELLS: CuratedBatch['spells'] = [
       transform(BaseColor.Purple, BaseColor.Yellow),
       // 骷髅端点 'SKULL'（SOP 措辞裁定）
       transform(BaseColor.Green, 'SKULL'),
-      dmg('enemyRandomN', 2, 1, { n: 2 }),
+      // Native Damage RandomEnemy + Damage RandomPrefNotPrevEnemy (L4b-6841): second hit prefers another enemy, reuses a lone one.
+      dmg('enemyRandom', 2, 1),
+      dmg('enemyRandomPrefNotPrev', 2, 1),
     ),
   },
   {
@@ -114,10 +116,10 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 8376,
-    desc: '对所有敌人造成 [魔法 + 1] 点伤害。再窃取所有敌人 2 点魔法值。',
+    desc: '对所有敌人造成 [魔法 + 1] 点伤害。再窃取所有敌人 2 点魔力值。',
     build: skill(
       dmgAll(1),
-      // 「魔法值」= magic 属性（SOP 措辞裁定，同 batch-01 8278）
+      // 「魔力值」= magic 属性（SOP 措辞裁定，同 batch-01 8278）
       steal('enemyAll', 'magic', 'magic', 2, 0),
     ),
   },
@@ -127,7 +129,8 @@ const SPELLS: CuratedBatch['spells'] = [
     build: skill(
       // 「奥眼能」非种族，按 referenceName 的 Ocularen 名称族列表（batch-03 8689「随机女巫」同款）；
       // 排除施法者自身 OcularenEgg（卵孵化为奥眼能，不再召唤卵）
-      summonRandom(['OcularenLeech', 'Ocularen', 'BurningOcularen', 'GloomOcularen']),
+      // L1-1351-pool: native SummoningKingdom 3039 = all 6 raw troops (adds Xerodar / WatchMother).
+      summonRandom(['OcularenLeech', 'Ocularen', 'BurningOcularen', 'GloomOcularen', 'Xerodar', 'WatchMother']),
     ),
   },
   {

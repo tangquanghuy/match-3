@@ -1,4 +1,4 @@
-# 决策记录 · 内容覆盖范围（2026-09-14）
+﻿# 决策记录 · 内容覆盖范围（2026-09-14）
 
 依据：`artifacts/gap-analysis.txt`（生成脚本 `scripts/_gap_analysis.mjs`，可重跑）。
 本文件记录内容覆盖范围的范围裁定，后续批次按此执行；变更需在此补记。
@@ -137,7 +137,7 @@
 
 ### 2026-09-15 · 死亡召唤批（233 → 250 code，覆盖 3657 → 3703 次）
 
-**机制**：`TraitDefinition` 与 `PassiveModifiers` 新增 summonOnDeath / summonOnAllyDeath / summonOnEnemyDeath 三字段（chance + 预解析的 troopId/referenceName/displayName），经 `resolvePassives` 编译（同字段取概率最高）。`TurnEngine.processDeathTriggers` 在行动末尾统一扫 defeat 时结算（与阵亡响应同点，**未动 resolveDefeatEvents 的 4 处调用**）；阵亡者从行动开始的角色引用快照取回。召唤物**跟随持有者所在方**入队（summonOnEnemyDeath 的召唤物进持有者队，非死者队），容量满进 FIFO 队列，与召唤技能同语义。模板装配 `setSummonTemplateResolver` 由 App 注入（复用 troopToSummonTemplate），解析失败安全跳过。
+**机制**：`TraitDefinition` 与 `PassiveModifiers` 新增 summonOnDeath / summonOnAllyDeath / summonOnEnemyDeath 三字段（chance + 预解析的 troopId/referenceName/displayName），经 `resolvePassives` 编译（同字段取概率最高）。`TurnEngine.processDeathTriggers` 在行动末尾统一扫 defeat 时结算（与阵亡响应同点，**未动 resolveDefeatEvents 的 4 处调用**）；阵亡者从行动开始的角色引用快照取回。召唤物**跟随持有者所在方**入队（summonOnEnemyDeath 的召唤物进持有者队，非死者队），容量满时召唤失效，与召唤技能同语义。模板装配 `setSummonTemplateResolver` 由 App 注入（复用 troopToSummonTemplate），解析失败安全跳过。
 
 **数据**：生成器三条规则 + 兵种名→troopId 索引；17 个 code 的召唤名全部解析到真实兵种（远古恐惧/暗夜惊魂/恐狼/幽魂/瓦格…）。
 
@@ -180,12 +180,12 @@
    （'skull' / 'doomSkull' / 'uberDoomSkull'），这三个风暴改回官方语义，原色系近似降级为
    指示器主色。详见下方「骷髅系风暴回填 + 骷髅爆炸规则」。
 3. **掉落加成 ×1.9**。引擎常量 `STORM_DROP_WEIGHT = 1.9`（GravitySystem.ts，可调）。
-   加权实现下风暴色新宝石概率 = 1.9/(5+1.9) ≈ 27.5%，与 Steam 社区实测的 ~27.1%（基线 14.3% = 1/7）吻合。
+   项目六色条件分布下风暴色概率 = 1.9/(5+1.9) ≈ 27.5%；加上骷髅与特殊宝石时还须乘以进入六色判定的概率。Steam 讨论的 27.1% 是七类基础掉落 + 15% 覆盖率的玩家推算，并非官方实测；1.9 是待验设计参数。
 
 **来源链接**：
 - 官方 3.0 补丁说明（风暴→颜色表 + 持续 8 回合）：https://gemsofwar.com/3-0-patch-notes/
 - 官方术语表（Mana Storm 定义）：https://infinityplus2.freshdesk.com/support/solutions/articles/150000208267-gems-of-war-glossary-of-terms
-- Steam 社区实测（×1.9 / 27.1%）：https://steamcommunity.com/app/329110/discussions/0/3201496371571406154/
+- Steam 社区推算（七类基础掉落 + 15% 覆盖率）：https://steamcommunity.com/app/329110/discussions/0/3201496371571406154/
 - TrueTrophies（持续到计数器归零）：https://www.truetrophies.com/game/Gems-of-War/walkthrough/4
 - 官方 4.0 补丁说明（Doomstorm 掉末日骷髅 + 平衡性下调）：https://gemsofwar.com/4-0-patch-notes/
 - 官方社区帖（颜色表复核）：https://community.gemsofwar.com/t/timer-countdown/22802
@@ -272,7 +272,7 @@ Steam 社区专家帖（炸毁骷髅=法术伤害打队首）：https://steamcom
 1. **燃烧**：官方每回合 3 点伤害**先扣护甲**；引擎 DoT 直接扣血跳过护甲（中毒同理，官方中毒是 50% 几率扣 1 血，引擎是固定值 DoT——数值来自技能文本，行为差异需逐技能核对）
 2. **下潮 submerged**：官方=免疫**全体目标类法术**的伤害（单体指定仍可命中）；引擎实现成反的（不可被指定、群体照常命中）
 3. **击晕 stun**：官方=禁用全部特质；引擎暂无效果（等被动系统加"禁用"分支）
-4. **冰冻 frozen**：官方=不可施法+法力色被冻结时 4/5 连不给额外回合；引擎从紧（另加不可攻击），充能语义不同
+4. **冰冻 frozen**：允许施法与攻击；冻结部队的法力色匹配不获额外回合，首位存活部队被冻结时骷髅匹配不获额外回合，被冻结施法者的法术不获额外回合。
 5. **屏障 barrier**：官方**不挡致死伤害**；引擎整发全挡
 
 以上不阻塞当前内容批次，逐个修时需同步更新受影响的用例与 `RULESET_VERSION`。
@@ -294,7 +294,7 @@ Steam 社区专家帖（炸毁骷髅=法术伤害打队首）：https://steamcom
 
 ### 裁定更新
 
-- **释放技能不消耗回合**（用户裁定，对齐 GoW）：cast 不换边、不做回合尾结算；`ActionOutcome` 新增 `held`；「额外回合」技能的标记保留到下一次交换行动尾生效。
+- **2026-09-27 用户新裁定：释放技能消耗回合**，覆盖此前免费施法约定。普通施法换边并执行完整回合结算；额外回合在本次施法立即生效，冻结施法者抑制其法术额外回合，标记不留到下一次行动。
 - **722 条放弃维持**（抽样 5/5 复核成立）；约 8%（56 条）明文「现可表达」+ 双来源复合族可回收，估 100~200 条可在现有原语下重新 triage，无需动引擎。
 - **不做清单修订（2026-09-16）**：~~特殊状态家族（狂怒/疾病/猎人标记等）~~ **已从不做清单移除**——特殊状态批把疾病/诅咒/死亡标记/狂怒/魅惑状态本体全部落地（见上「骷髅系风暴回填」节与 `GOW-STATUS-RESEARCH.md`），特质/技能侧接线归内容批。不做清单余项维持：位置操作、元经济、晋升度。
 
@@ -317,3 +317,4 @@ Steam 社区专家帖（炸毁骷髅=法术伤害打队首）：https://steamcom
 3. **被摧毁特殊宝石计数**：destroyedGems 仅按色筛、特殊宝石无色不可计（7014 等）——
    可加 `destroyedSpecial { gem }` 来源 kind。
 另：目标相对条件挂无目标段（条件化额外回合 7541）与状态性目标跨段绑定（8752）维持 SKIP，暂不建议开。
+

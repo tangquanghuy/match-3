@@ -3,6 +3,7 @@ import { expect, test, type Page } from '@playwright/test';
 const ARTIFACT_DIR = 'artifacts/ux-phase-b/chests-corrections';
 
 async function openFresh(page: Page, hash: string): Promise<void> {
+  await page.route('https://fonts.googleapis.com/**', (route) => route.abort());
   await page.goto(`/game.html#${hash}`);
   await page.evaluate(() => localStorage.clear());
   await page.reload();
@@ -57,7 +58,7 @@ test.describe('宝箱视觉与批量入口', () => {
     await openFresh(page, 'bag/stones');
     const source = await page.locator('#stage').textContent();
     expect(source).not.toMatch(/MATERIALS VAULT|FORGE INGOTS|TRAITSTONES|FORGE SCROLLS|CURRENCIES/);
-    await expect(page.locator('.bag-tab')).toHaveCount(4);
+    await expect(page.locator('.bag-tab')).toHaveCount(3);
   });
 
   for (const viewport of [

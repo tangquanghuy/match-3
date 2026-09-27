@@ -54,9 +54,10 @@ describe('技能库配置能真实生效', () => {
     const events = engine.castSkill(0);
     expect(events[0]).toMatchObject({ type: 'skill-cast' });
     expect(events.some((e) => e.type === 'skill-damage')).toBe(true);
-    // 溅射是"共享伤害池"按权重 [0.5,0.3,0.2] 分配（非每人满伤）：
-    // magic=5,[魔法+2]=7 总池；主目标(4)拿 floor(7*0.5)=3。
-    expect(state.teams[PlayerSide.Right].characters[0].hp).toBe(before[0] - 3);
+    // Main target takes the full seven points; only the adjacent slot takes half.
+    expect(state.teams[PlayerSide.Right].characters[0].hp).toBe(before[0] - 7);
+    expect(state.teams[PlayerSide.Right].characters[1].hp).toBe(before[1] - 3);
+    expect(state.teams[PlayerSide.Right].characters[2].hp).toBe(before[2]);
   });
 
   it('毒蛇 剧毒蛇液(7063)：前2名中毒 + 造红宝石 + 自愈', () => {
@@ -91,12 +92,12 @@ describe('技能库配置能真实生效', () => {
     expect(hits.length).toBe(3); // 三名敌人
   });
 
-  it('未配置技能 → 仅扣法力，不消耗回合', () => {
+  it('未配置技能 → 仅扣法力，消耗回合', () => {
     const { engine, state } = setupWithSkill(999999); // 库里没有
     const events = engine.castSkill(0);
     expect(events[0].type).toBe('skill-cast');
-    expect(events.some((event) => event.type === 'turn-end')).toBe(false);
-    expect(state.activePlayer).toBe(PlayerSide.Left);
+    expect(events.some((event) => event.type === 'turn-end')).toBe(true);
+    expect(state.activePlayer).toBe(PlayerSide.Right);
     expect(state.teams[PlayerSide.Left].characters[0].mana).toBe(0);
   });
 });

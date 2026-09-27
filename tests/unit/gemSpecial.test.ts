@@ -459,7 +459,7 @@ describe('末日骷髅（被匹配：+5 伤害 + 引爆一圈）', () => {
     expect(run()).toBe(run());
   });
 
-  it('末日骷髅被摧毁（非匹配）不触发引爆，只按普通移除处理', () => {
+  it('末日骷髅直接摧毁也只引爆一次相邻一圈', () => {
     const { board, engine } = makeEngine([
       '........',
       '........',
@@ -474,8 +474,8 @@ describe('末日骷髅（被匹配：+5 伤害 + 引爆一圈）', () => {
     board.set({ row: 3, col: 3 }, null);
     const events: GameEvent[] = [];
     engine.resolveBoardChange([{ gemType: specialGem('doomSkull'), pos: { row: 3, col: 3 } }], events);
-    expect(eventsOf('special-gem-trigger', events)).toHaveLength(0);
-    expect(eventsOf('gem-explode', events)).toHaveLength(0);
+    expect(eventsOf('special-gem-trigger', events).filter((e) => e.kind === 'doomSkull')).toHaveLength(1);
+    expect(eventsOf('gem-explode', events).flatMap((e) => e.cells)).toHaveLength(8);
   });
 });
 
@@ -601,14 +601,10 @@ describe('闪电宝石（被匹配或被摧毁时清整行/列）', () => {
     const events: GameEvent[] = [];
     engine.resolveBoardChange([{ gemType: specialGem('lightningCol'), pos: { row: 3, col: 3 } }], events);
 
-    const trigger = eventsOf('special-gem-trigger', events)[0];
-    expect(trigger).toMatchObject({ kind: 'lightningCol', line: 3 });
-    // 列内其余 7 格走 gem-destroy
-    const destroys = eventsOf('gem-destroy', events);
-    expect(destroys).toHaveLength(1);
-    const cells = (destroys[0] as { cells: { pos: { col: number } }[] }).cells;
-    expect(cells).toHaveLength(7);
-    expect(cells.every((c) => c.pos.col === 3)).toBe(true);
+    expect(eventsOf('special-gem-trigger', events).filter((e) => e.kind === 'lightningCol')).toHaveLength(1);
+    expect(eventsOf('gem-destroy', events).flatMap((e) => e.cells)).toHaveLength(7);
+    expect(eventsOf('mana-gain', events).filter((e) => e.color === BaseColor.Yellow)
+      .reduce((sum, e) => sum + e.amount, 0)).toBeGreaterThanOrEqual(1);
     expect(boardGemKinds(state.board).has('special:lightningCol')).toBe(false);
   });
 });
@@ -848,13 +844,10 @@ describe('闪电镜像方向覆盖', () => {
     const events: GameEvent[] = [];
     engine.resolveBoardChange([{ gemType: specialGem('lightningRow'), pos: { row: 3, col: 3 } }], events);
 
-    const trigger = eventsOf('special-gem-trigger', events)[0];
-    expect(trigger).toMatchObject({ kind: 'lightningRow', line: 3 });
-    const destroys = eventsOf('gem-destroy', events);
-    expect(destroys).toHaveLength(1);
-    const cells = (destroys[0] as { cells: { pos: { row: number } }[] }).cells;
-    expect(cells).toHaveLength(7);
-    expect(cells.every((c) => c.pos.row === 3)).toBe(true);
+    expect(eventsOf('special-gem-trigger', events).filter((e) => e.kind === 'lightningRow')).toHaveLength(1);
+    expect(eventsOf('gem-destroy', events).flatMap((e) => e.cells)).toHaveLength(7);
+    expect(eventsOf('mana-gain', events).filter((e) => e.color === BaseColor.Blue)
+      .reduce((sum, e) => sum + e.amount, 0)).toBeGreaterThanOrEqual(1);
     expect(boardGemKinds(state.board).has('special:lightningRow')).toBe(false);
   });
 });

@@ -112,7 +112,7 @@ describe('数据落地（缺口清扫批）', () => {
 // ============================================================
 
 describe('开局族（allyStartMana / battleStartTypeAura / perAllyTrait）', () => {
-  it('hauntedcrown：不死族盟友开局补到 50% 法力（只补不扣、重复触发不叠加）', () => {
+  it('hauntedcrown：不死族盟友开局补到 50% 法力值（只补不扣、重复触发不叠加）', () => {
     const holder = makeChar(0, { traitIds: ['hauntedcrown'], troopTypes: ['Undead'] });
     const undead = makeChar(1, { manaCost: 20, mana: 4, troopTypes: ['Undead'] });
     const other = makeChar(2, { manaCost: 20, mana: 0, troopTypes: ['Beast'] });

@@ -16,7 +16,7 @@ import { SeededRNG } from '@engine/rng';
 import {
   applyStatus, hasStatus, tickStatuses,
   ENCHANTED_STATUS_ID, ENCHANTED_MANA_PER_TURN, REFLECT_STATUS_ID,
-  reflectDamageAmount, consumeReflect,
+  reflectDamageAmount, consumeReflect, endActionStatuses,
 } from '@engine/skills/effects/status';
 import { damageOne } from '@engine/skills/effects/damage';
 import { BaseColor, PlayerSide } from '@engine/types';
@@ -46,7 +46,7 @@ function team(side: PlayerSide, characters: Character[]): Team {
 }
 
 describe('Blessed 赐福（净化 + 免疫一切状态）', () => {
-  it('施加时净化全部负面状态（含诅咒）并发 status-expire', () => {
+  it('施加时净化负面状态并与现有诅咒互消，发 status-expire', () => {
     const ch = makeChar(1);
     applyStatus(ch, { id: 'poison', turns: 3, magnitude: 2 });
     applyStatus(ch, { id: 'curse', turns: 3 });
@@ -58,7 +58,7 @@ describe('Blessed 赐福（净化 + 免疫一切状态）', () => {
     expect(hasStatus(ch, 'curse')).toBe(false);
     // 正面状态不在净化范围
     expect(hasStatus(ch, 'barrier')).toBe(true);
-    expect(hasStatus(ch, 'blessed')).toBe(true);
+    expect(hasStatus(ch, 'blessed')).toBe(false);
     const expired = events.filter((e) => e.type === 'status-expire').map((e) => (e as { statusId: string }).statusId);
     expect(expired.sort()).toEqual(['curse', 'poison']);
   });
@@ -84,15 +84,18 @@ describe('Blessed 赐福（净化 + 免疫一切状态）', () => {
     const events = applyStatus(ch, { id: 'curse', turns: 3 });
 
     expect(hasStatus(ch, 'blessed')).toBe(false);
-    expect(hasStatus(ch, 'curse')).toBe(true);
+    expect(hasStatus(ch, 'curse')).toBe(false);
     const expired = events.filter((e) => e.type === 'status-expire').map((e) => (e as { statusId: string }).statusId);
     expect(expired).toContain('blessed');
   });
 
-  it('赐福到期后恢复可施加（走既有 turns 递减）', () => {
+  it('赐福无回合上限，持有者行动后移除，之后恢复可施加（R004）', () => {
     const ch = makeChar(1);
     applyStatus(ch, { id: 'blessed', turns: 1 });
-    tickStatuses(ch); // 回合尾：turns 归零移除
+    tickStatuses(ch); // R004：回合开始不递减
+    tickStatuses(ch);
+    expect(hasStatus(ch, 'blessed')).toBe(true);
+    endActionStatuses(ch); // 施法／首位骷髅伤害 = 行动
 
     expect(hasStatus(ch, 'blessed')).toBe(false);
     expect(applyStatus(ch, { id: 'poison', turns: 2 }).length).toBe(1);
@@ -144,7 +147,7 @@ describe('Enchanted 附魔（回合开始 +2 法力，施法移除）', () => {
 describe('Reflect 反射（所受伤害 50% 反弹，至少 1 点，受击后消失）', () => {
   it('reflectDamageAmount 折算口径（50% + 下限 1）', () => {
     expect(reflectDamageAmount(1)).toBe(1);
-    expect(reflectDamageAmount(3)).toBe(2); // round(1.5)=2
+    expect(reflectDamageAmount(3)).toBe(1); // official 4.5: floor(1.5)=1
     expect(reflectDamageAmount(10)).toBe(5);
   });
 

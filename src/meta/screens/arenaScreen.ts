@@ -1,15 +1,12 @@
 /**
- * 竞技场 · 现开赛（计划 §5.9 三屏合一）：报名 → 三轮 3 选 1 → 编队连战。
+ * 竞技场 · 现开赛（计划 §5.9 三屏合一）：报名 → 四轮 3 选 1 → 编队连战。
  * 全流程走 arena 系统（draft 卡即用即弃，不进收藏）；奖表/费用从 economy 派生。
  */
 import { ARENA, ARENA_REWARDS, arenaDraftLevel } from '../data/economy';
-import { RARITY_CLASS_NAMES as RARITY_CLS, RARITY_NAMES as RARITY_CN } from '../data/rarity';
+import { RARITY_CLASS_NAMES as RARITY_CLS } from '../data/rarity';
 import { getTroopById } from '../../data/troops';
 import { troopStatsAtLevel } from '../../data/leveling';
-import { currentDraftChoices } from '../systems/arena';
-import { pickEnemies, type EnemyTier } from '../systems/encounter';
-import { KINGDOM_ORDER } from '../data/kingdoms';
-import { SeededRNG } from '../../engine/rng';
+import { currentDraftChoices, arenaOpponentPreview, arenaUnlocked } from '../systems/arena';
 import { isFailure, weekStartOf } from '../gateway';
 import { bottomNavHtml, gemSvg, mountIcons, toast, toastHtml, topbarHtml, $, $$ } from '../shell/chrome';
 import { renderSpell } from '../shell/spellText';
@@ -17,41 +14,13 @@ import type { Screen, ShellCtx } from '../shell/screen';
 import { troopImg } from './teamScreen';
 
 const fmt = (n: number): string => n.toLocaleString('en-US');
-const ROMAN = ['Ⅰ', 'Ⅱ', 'Ⅲ'];
-const WEEK_MS = 7 * 24 * 60 * 60 * 1000;
-const HOUR_MS = 60 * 60 * 1000;
+const ROMAN = ['Ⅰ', 'Ⅱ', 'Ⅲ', 'Ⅳ', 'Ⅴ', 'Ⅵ'];
+const RARITY_CN = ARENA.rarityLabels;
 
 const MANA_CN: Record<string, string> = { red: '红', green: '绿', blue: '蓝', yellow: '黄', purple: '紫', brown: '棕' };
 
 function arenaTroopImg(troop: Parameters<typeof troopImg>[0], attrs: string): string {
   return troopImg(troop, false, attrs).replace('loading="lazy"', 'loading="eager"');
-}
-
-/** 竞技场免费票的周一重置提示，和网关的本地周历保持同一口径。 */
-export function arenaFreeTicketResetLabel(now: number): string {
-  const totalHours = Math.max(0, Math.ceil((weekStartOf(now) + WEEK_MS - now) / HOUR_MS));
-  const days = Math.floor(totalHours / 24);
-  const hours = totalHours % 24;
-  const remaining = days > 0 ? `${days} 天 ${hours} 小时` : `${hours} 小时`;
-  return `周一 0:00 重置 · 剩 ${remaining}`;
-}
-
-function opponentTiers(wins: number, size: number): EnemyTier[] {
-  if (wins <= 0) return Array.from({ length: size }, () => 'minion' as const);
-  if (wins === 1) return ['elite' as const, ...Array.from({ length: size - 1 }, () => 'minion' as const)];
-  return ['elite' as const, ...Array.from({ length: Math.max(size - 2, 0) }, () => 'minion' as const), 'boss' as const];
-}
-
-/**
- * 竞技场对手是 draft seed 的纯函数。这里复用与 gateway 计划相同的 RNG 顺序，
- * 让编队页看到的阵容和实际出战保持一致，而不提前改变存档阶段。
- */
-function opponentPreview(seed: number, wins: number) {
-  const rng = new SeededRNG((seed ^ ((wins + 1) * 0x9e3779b9)) >>> 0);
-  const kingdom = KINGDOM_ORDER[rng.nextInt(KINGDOM_ORDER.length)]!;
-  const level = ARENA.opponentLevels[wins]!;
-  const size = ARENA.opponentSizes[wins]!;
-  return { kingdom, level, enemies: pickEnemies(kingdom, level, opponentTiers(wins, size), rng) };
 }
 
 function manaConflict(ids: readonly number[], candidateId: number): string[] {
@@ -85,10 +54,11 @@ export class ArenaScreen implements Screen {
       .join('');
     const rewardsCopy = ARENA_REWARDS.map((r, i) => {
       const parts = [`黄金 ${fmt(r.gold)}`];
-      if (r.gems) parts.push(`宝石 ${fmt(r.gems)}`);
-      if (r.goldKeys) parts.push(`金钥匙 ×${r.goldKeys}`);
-      const tag = i === 3 ? '完胜' : i === 2 ? '进阶' : i === 1 ? '回本' : '保底';
-      return `<div class="prize${i === 3 ? ' featured' : ''}" data-wins="${i}"><em>${i}</em><div class="prize-copy"><b>${i} 胜</b><small class="prize-tier">${tag}</small><span class="prize-rewards">${parts.join(' · ')}</span></div></div>`;
+      if (r.souls) parts.push(`灵魂 ${fmt(r.souls)}`);
+      if (r.gloryKeys) parts.push(`荣耀钥匙 ×${r.gloryKeys}`);
+      if (r.trophies) parts.push(`公会奖杯 ${r.trophies}`);
+      const tag = i === ARENA.winsToFinish ? '完胜' : i >= 3 ? '进阶' : '基础';
+      return `<div class="prize${i === ARENA.winsToFinish ? ' featured' : ''}" data-wins="${i}"><em>${i}</em><div class="prize-copy"><b>${i} 胜</b><small class="prize-tier">${tag}</small><span class="prize-rewards">${parts.join(' · ')}</span></div></div>`;
     }).reverse().join('');
     const matches = ARENA.opponentLevels
       .map(
@@ -108,9 +78,9 @@ export class ArenaScreen implements Screen {
           </div>
           <div class="ticket">
             <span data-icon="ticket"></span>
-            <b id="ticketCopy">免费票 ×1</b>
-            <small id="ticketRule">本周首场免费 · 其后宝石 ${ARENA.entryFeeGems}</small>
-            <small id="ticketReset">周一 0:00 重置</small>
+            <b id="ticketCopy">黄金 1,000</b>
+            <small id="ticketRule">每届报名 · 黄金 ${ARENA.entryFeeGold}</small>
+            <small id="ticketReset">固定15级 · 无特质</small>
           </div>
         </div>
 
@@ -122,12 +92,12 @@ export class ArenaScreen implements Screen {
           <i class="step-rail" aria-hidden="true"></i>
           <div class="step" data-step="draft" role="listitem">
             <span class="step-index">2</span>
-            <span class="step-copy"><b>现场抽卡</b><small>三轮 3 选 1</small></span>
+            <span class="step-copy"><b>现场抽卡</b><small>四轮 3 选 1</small></span>
           </div>
           <i class="step-rail" aria-hidden="true"></i>
           <div class="step" data-step="battle" role="listitem">
             <span class="step-index">3</span>
-            <span class="step-copy"><b>编队连战</b><small>最多 ${ARENA.rounds} 场 AI</small></span>
+            <span class="step-copy"><b>编队连战</b><small>六胜或两败结束</small></span>
           </div>
         </div>
 
@@ -140,15 +110,15 @@ export class ArenaScreen implements Screen {
                 <div class="arena-marquee-mark" aria-hidden="true"><span data-icon="swords"></span></div>
               </div>
               <div class="signup-copy">
-                <h2>现场组牌，三战决胜</h2>
-                <p>${ARENA.rounds} 轮各选一张临时卡，再连续挑战 ${ARENA.rounds} 支难度递增的队伍。本届牌组赛后清除，不影响收藏。</p>
+                <h2>现场组牌，四人现开</h2>
+                <p>${ARENA.rounds} 轮各选一张临时卡，挑战同规则的四人队，六胜或两败结束。本届牌组赛后清除，不影响收藏。</p>
                 <div class="signup-kv" aria-label="竞技场规则摘要">
-                  <div><small>报名</small><b id="feeCopy">免费票 ×1</b></div>
+                  <div><small>报名</small><b id="feeCopy">黄金 1,000</b></div>
                   <div><small>阵容</small><b>${ARENA.rounds} 人 · 无主角</b></div>
-                  <div><small>选牌</small><b>${ARENA.choicesPerRound} 选 1 · 三轮</b></div>
+                  <div><small>选牌</small><b>${ARENA.choicesPerRound} 选 1 · 四轮</b></div>
                 </div>
                 <div class="signup-actions">
-                  <button class="primary" id="enter" type="button"><span id="enterLabel">使用免费票报名</span><span data-icon="arrow"></span></button>
+                  <button class="primary" id="enter" type="button"><span id="enterLabel">支付黄金报名</span><span data-icon="arrow"></span></button>
                   <button class="secondary" id="forfeit" type="button" hidden>弃赛（按已得胜场结算）</button>
                 </div>
               </div>
@@ -190,14 +160,14 @@ export class ArenaScreen implements Screen {
                 </div>
               </div>
               <div class="run-slots" id="draftTeam"></div>
-              <p class="lineup-hint">队首吃骷髅 · ▲▼ 调整站位（draft 卡按稀有度档上限满配出战）</p>
+              <p class="lineup-hint">队首吃骷髅 · ▲▼ 调整站位（双方固定 15 级 · 无特质 · 无外部加成）</p>
             </div>
             <div class="gauntlet-col">
               <div class="battle-head">
                 <div>
-                  <h2>三战之路</h2>
+                  <h2>六胜挑战</h2>
                 </div>
-                <span class="run-score">胜场 <b id="wins">0</b> / ${ARENA.rounds}</span>
+                <span class="run-score">胜场 <b id="wins">0</b> / ${ARENA.winsToFinish} · 败场 <b id="losses">0</b> / ${ARENA.lossesToFinish}</span>
               </div>
               <div class="gauntlet" id="gauntlet">${matches}</div>
               <div class="battle-note"><span data-icon="lock"></span>主角不出战 · 本场卡组将在赛毕清除</div>
@@ -237,7 +207,7 @@ export class ArenaScreen implements Screen {
     });
     this.on($('#draftTeam'), 'click', (e) => this.shiftClicked(e));
     if (this.ticketTimer !== null) window.clearInterval(this.ticketTimer);
-    this.ticketTimer = window.setInterval(() => this.renderTicket(), 60_000);
+    this.ticketTimer = window.setInterval(() => this.updateTicketCopy(), 60_000);
     this.render();
   }
 
@@ -275,31 +245,20 @@ export class ArenaScreen implements Screen {
 
   private renderSignup(): void {
     const save = this.ctx.save();
-    const free = save.arena.lastFreeEntryAt < weekStartOf(Date.now());
-    this.renderTicket();
-    $('#feeCopy').textContent = free ? '免费票 ×1' : `宝石 ${ARENA.entryFeeGems}`;
+    $('#feeCopy').textContent = `黄金 ${fmt(ARENA.entryFeeGold)}`;
     const enter = $('#enter') as HTMLButtonElement;
-    const canPay = free || save.currencies.gems >= ARENA.entryFeeGems;
+    const unlocked = arenaUnlocked(save);
+    const canPay = unlocked && save.currencies.gold >= ARENA.entryFeeGold;
     enter.disabled = !canPay;
-    enter.title = canPay ? '' : `宝石不足，还差 ${ARENA.entryFeeGems - save.currencies.gems}`;
-    $('#enterLabel').textContent = free ? '使用免费票报名' : canPay ? `使用 ${ARENA.entryFeeGems} 宝石报名` : '宝石不足';
-    $('#forfeit').hidden = !save.arena.activeDraft;
+    enter.title = !unlocked ? '完成破碎尖塔任务链后解锁竞技场' : canPay ? '' : `黄金不足，还差 ${ARENA.entryFeeGold - save.currencies.gold}`;
+    $('#enterLabel').textContent = !unlocked ? '完成破碎尖塔后解锁' : canPay ? '支付黄金报名' : '黄金不足';
+    this.updateTicketCopy();
   }
 
-  private renderTicket(): void {
-    const save = this.ctx.save();
-    const now = Date.now();
-    const free = save.arena.lastFreeEntryAt < weekStartOf(now);
-    const copy = $('#ticketCopy');
-    const rule = $('#ticketRule');
-    const reset = $('#ticketReset');
-    if (copy) copy.textContent = free ? '免费票 ×1' : '本周免费已用';
-    if (rule) {
-      rule.textContent = free
-        ? `本周首场免费 · 其后宝石 ${ARENA.entryFeeGems}`
-        : `免费票已用 · 其后宝石 ${ARENA.entryFeeGems}`;
-    }
-    if (reset) reset.textContent = arenaFreeTicketResetLabel(now);
+  private updateTicketCopy(): void {
+    if ($('#ticketCopy')) $('#ticketCopy').textContent = `黄金 ${fmt(ARENA.entryFeeGold)}`;
+    if ($('#ticketRule')) $('#ticketRule').textContent = '每届报名 · 六胜或两败结束';
+    if ($('#ticketReset')) $('#ticketReset').textContent = `固定15级 · 无特质 · 奖杯 ${fmt(this.ctx.save().currencies.trophies)}`;
   }
 
   private renderDraft(): void {
@@ -311,7 +270,7 @@ export class ArenaScreen implements Screen {
     $('#round').textContent = String(draft.picked.length + 1);
     const band = ARENA.roundBands[Math.min(draft.picked.length, ARENA.roundBands.length - 1)]!;
     const bandNote = $('#bandNote');
-    if (bandNote) bandNote.textContent = `本轮档位：${RARITY_CN[band.min] ?? band.min} ~ ${RARITY_CN[band.max] ?? band.max}`;
+    if (bandNote) bandNote.textContent = `本轮档位：${ARENA.rarityLabels[band.min]}`;
     const cardsEl = $('#draftCards');
     cardsEl.innerHTML = state.options
       .map((o, i) => {
@@ -332,7 +291,7 @@ export class ArenaScreen implements Screen {
           </div>
           <div class="draft-card-info">
             <h3>${troop.name}</h3>
-            <small>${troop.kingdom ?? '无王国'} · Lv.${level} 满配</small>
+            <small>${troop.kingdom ?? '无王国'} · Lv.${level} · 无特质</small>
             <div class="draft-stats" aria-label="攻击、护甲、生命、魔力">
               <span title="攻击"><b>攻</b>${stats.attack}</span>
               <span title="护甲"><b>护</b>${stats.armor}</span>
@@ -416,7 +375,7 @@ export class ArenaScreen implements Screen {
           ${arenaTroopImg(troop, `alt="${troop.name}"`)}
           <div class="slot-body">
             <b>${troop.name}</b>
-            <span>${RARITY_CN[troop.rarityIdx] ?? ''} · 耗蓝 ${troop.manaCost} · Lv.${level} 满配</span>
+            <span>${RARITY_CN[troop.rarityIdx] ?? ''} · 耗蓝 ${troop.manaCost} · Lv.${level} · 无特质</span>
           </div>
           <span class="pos${i === 0 ? ' skull' : ''}">${i + 1}${i === 0 ? '<span data-icon="skull"></span>' : ''}</span>
           <div class="shift" role="group" aria-label="${troop.name} 站位调整">
@@ -432,28 +391,19 @@ export class ArenaScreen implements Screen {
     const wins = draft.wins;
     $('#wins').textContent = String(wins);
     const gauntlet = $('#gauntlet');
-    gauntlet.innerHTML = ARENA.opponentLevels
-      .map((lv, i) => {
-        const done = i < wins;
-        const current = draft.stage === 'fighting' ? i === wins : i === 0;
-        const cls = done ? 'done' : current ? 'pending' : 'locked';
-        const state = done ? '胜利' : current && draft.stage === 'fighting' ? '待出战' : '尚未开始';
-        const preview = opponentPreview(draft.seed, i);
-        const enemyCards = preview.enemies
-          .map((enemy) => {
-            const troop = getTroopById(enemy.troopId);
-            if (!troop) return '';
-            return `<span class="match-enemy" title="${troop.name} · Lv.${enemy.level}">${arenaTroopImg(troop, `alt="${troop.name}"`)}<b>${troop.name}</b></span>`;
-          })
-          .join('');
-        return `<div class="match ${cls}" data-match="${i}"${current ? ' aria-current="step"' : ''}>
-          <span class="match-no">${ROMAN[i]}</span>
-          <div class="match-copy"><b>第 ${i + 1} 战</b><small>${preview.kingdom} · 对手 Lv.${lv} · ${ARENA.opponentSizes[i]} 人</small><div class="match-preview">${enemyCards}</div></div>
-          <i class="match-state">${state}</i>
-        </div>`;
-      })
-      .join('');
-    $('#fightLabel').textContent = draft.stage === 'building' ? `开始第 1 场` : `开始第 ${wins + 1} 场`;
+    $('#losses').textContent = String(draft.losses ?? 0);
+    const preview = arenaOpponentPreview(draft.seed, wins, draft.losses ?? 0);
+    gauntlet.innerHTML = `<div class="arena-win-track" aria-label="六胜进度">${ARENA.opponentLevels.map((_, i) => `<span class="${i < wins ? 'done' : ''}">${i + 1}</span>`).join('')}</div>
+      <div class="match pending" aria-current="step">
+        <span class="match-no">${wins + (draft.losses ?? 0) + 1}</span>
+        <div class="match-copy"><b>本场对手 · ${preview.policy.label}</b><small>固定 Lv.15 · 4 人 · 无特质</small>
+          <div class="match-preview">${preview.enemies.map(enemy => {
+            const troop = getTroopById(enemy.troopId)!;
+            return `<span class="match-enemy" title="${troop.name} · Lv.15">${arenaTroopImg(troop, `alt="${troop.name}"`)}<b>${troop.name}</b></span>`;
+          }).join('')}</div>
+        </div>
+      </div><p>双方普通、稀有、超稀有、史诗各一张。等级不变，对手选牌与站位随胜场逐步改善，仍保留随机性。</p>`;
+    $('#fightLabel').textContent = `开始第 ${wins + (draft.losses ?? 0) + 1} 场`;
     ($('#clearDraft') as HTMLButtonElement).textContent = '弃赛';
   }
 
@@ -489,7 +439,7 @@ export class ArenaScreen implements Screen {
       toast(result.message);
       return;
     }
-    toast(result ? '报名成功（本周免费票），开始第 1 轮现开。' : `报名成功：宝石 −${ARENA.entryFeeGems}。开始第 1 轮现开。`);
+    toast(`报名成功：黄金 −${ARENA.entryFeeGold}。开始第 1 轮现开。`);
     this.render();
   }
 
@@ -517,7 +467,7 @@ export class ArenaScreen implements Screen {
     if (!draft) return;
     const reward = ARENA_REWARDS[Math.min(Math.max(draft.wins, 0), ARENA_REWARDS.length - 1)]!;
     $('#forfeitCopy').textContent = `当前 ${draft.wins} 胜；确认后会清除临时牌组，并自动发放这一档奖励。`;
-    $('#forfeitReward').innerHTML = `<span><b>${draft.wins} 胜</b> 本届结算</span><strong>黄金 +${fmt(reward.gold)}${reward.gems ? ` · 宝石 +${fmt(reward.gems)}` : ''}${reward.goldKeys ? ` · 金钥匙 ×${reward.goldKeys}` : ''}</strong>`;
+    $('#forfeitReward').innerHTML = `<span><b>${draft.wins} 胜</b> 本届结算</span><strong>黄金 +${fmt(reward.gold)} · 灵魂 +${reward.souls} · 荣耀钥匙 ×${reward.gloryKeys} · 公会奖杯 +${reward.trophies}</strong>`;
     const modal = $('#forfeitModal');
     modal.hidden = false;
     mountIcons(modal);
@@ -538,7 +488,7 @@ export class ArenaScreen implements Screen {
       toast(result.message);
       return;
     }
-    toast(`弃赛收官：${result.wins} 胜 · 黄金 +${fmt(result.rewards.gold)}${result.rewards.gems ? ` · 宝石 +${fmt(result.rewards.gems)}` : ''}${result.rewards.goldKeys ? ` · 金钥匙 ×${result.rewards.goldKeys}` : ''}`);
+    toast(`弃赛收官：${result.wins} 胜 · 黄金 +${fmt(result.rewards.gold)} · 灵魂 +${result.rewards.souls} · 荣耀钥匙 ×${result.rewards.gloryKeys} · 公会奖杯 +${result.rewards.trophies}`);
     this.order = [];
     this.render();
   }

@@ -1,0 +1,398 @@
+[
+  {
+    "id": "L4b-6751-zh",
+    "key": "troop:6751",
+    "clause": "c2 / native step 1 ConvertGems Color2=Doomskull",
+    "expected": "Chinese display describes conversion to Doomskulls (末日骷髅头), matching English 'Convert all Green Gems to Doomskulls.' and native Color2 Doomskull",
+    "actual": "src/data/troops.json spell 8129 description: '诅咒所有敌人。将所有绿色宝石转换成骷髅头。' (plain Skulls). Runtime prototype itself is correct (toSpecial doomSkull).",
+    "repro": "tests/unit/gowLaneL4bB01.test.ts > L4b troop:6751/spell:8129 ... > display should say 末日骷髅 (Doomskulls) like the English/native source (it.fails)",
+    "layer": "data",
+    "status": "fixed",
+    "fixedBy": "sa-L4b",
+    "fixedAt": "2026-09-27T20:04:00Z",
+    "fixNote": "gowSnapshotOverrides.json troop 6751 + batch-36 desc + pool-36; build_troops.mjs"
+  },
+  {
+    "id": "L4b-7138-onecolour",
+    "key": "troop:7138",
+    "clause": "c2 'Then create 12 Gems of one of their Mana Colors.' / native step 2 CreateGems Color1=FromTarget Amount 12",
+    "expected": "One mana colour of the chosen ally is picked once per cast; all 12 created gems are that single colour",
+    "actual": "gems.ts pickCreateGemType calls resolveColor('LAST_TARGET') per gem, and resolveColor rolls char.colors[rng] each call, so a Red+Purple ally yields a Red/Purple mix (seed 42: 2 colours). The conversion pool is also filtered only by the first probe colour. Same pattern likely affects CHOSEN_TARGET / ENEMY / TRACKED_ENEMY colour specs on create (e.g. troop:7162 only verified with a single-colour ally).",
+    "repro": "tests/unit/gowLaneL4bB01.test.ts > L4b troop:7138/spell:8687 ... > two-colour ally seed=42: all 12 gems share ONE colour (it.fails)",
+    "layer": "primitive",
+    "status": "fixed",
+    "fixedBy": "sa-L4b",
+    "fixedAt": "2026-09-27T20:04:00Z",
+    "fixNote": "gems.ts resolveCreateSpec: CHOSEN_TARGET/ENEMY/TRACKED_ENEMY/LAST_TARGET/MOST_USED placeholders resolved once per cast; repro tests/unit/gowLaneL4bB05Repro.test.ts (36 cases); accepted troop:7162 requeued"
+  },
+  {
+    "id": "L4b-7138-zh",
+    "key": "troop:7138",
+    "clause": "display-description",
+    "expected": "'...再创建 12 颗其法力颜色之一的宝石。'",
+    "actual": "src/data/troops.json spell 8687 description contains typo '发力颜色' instead of '法力颜色'",
+    "repro": "tests/unit/gowLaneL4bB01.test.ts > L4b troop:7138/spell:8687 ... > display should read 法力颜色 (mana colour) (it.fails)",
+    "layer": "data",
+    "status": "fixed",
+    "fixedBy": "sa-L4b",
+    "fixedAt": "2026-09-27T20:04:00Z",
+    "fixNote": "gowSnapshotOverrides.json troop 7138 + batch-r20 desc; build_troops.mjs"
+  },
+  {
+    "id": "L4b-7200-noop",
+    "key": "troop:7200",
+    "clause": "c2 'Then create a mix of 22 Skulls and Yellow Gems.' / native step 2 CreateGems2Colors Skull+Yellow Amount 22",
+    "expected": "22 board cells become Skull or Yellow; no selected cell is already of the type it is 'created' as",
+    "actual": "gems.ts doCreate builds the full-board convertible pool excluding only the first probe type (probe drawn from mixAny). When probe=SKULL, Yellow cells stay eligible and a later per-gem pick of Yellow leaves them unchanged (seed 7: e.g. (4,1) Yellow->Yellow), so fewer than 22 gems are effectively created. Affects every mix/mixAny create on a board containing an endpoint colour.",
+    "repro": "tests/unit/gowLaneL4bB01.test.ts > L4b troop:7200/spell:8787 ... > seed=7 Yellow-bearing board: none of the 22 changes is a same-type no-op (it.fails; documents current behaviour, the test-file comment predates the reclassification)",
+    "layer": "primitive",
+    "status": "closed-no-difference",
+    "sourceDispute": {
+      "urls": [
+        "https://community.gemsofwar.com/t/question-about-creating-gems-of-2-colors-on-the-board/57024"
+      ],
+      "level": "community discussion (no developer answer in thread)",
+      "finding": "Players report that 2-colour creators (e.g. Lava Troll Red/Brown) can overwrite existing gems of those colours, and that of N created cells a new gem may land where the same colour already was. This supports the current runtime (same-colour overwrite allowed) rather than my expectation. Not ingested into gold-primary-sources, so it cannot be cited for signoff yet.",
+      "recommendation": "fix window: ingest the page or find an official statement; if accepted, close as no-difference and re-review troop:7200 (still blocked by L4b-7200-rage-alias) and troop:6340."
+    },
+    "closedBy": "sa-L4b",
+    "closedAt": "2026-09-27T20:04:00Z",
+    "fixNote": "rulings/RL4b-01-two-colour-overwrite.md (ingested gold-primary-sources/community-2019-08-12-two-colour-create-overwrite.json): same-colour overwrite allowed; B01 test flipped to assert 22 distinct cells / endpoint types"
+  },
+  {
+    "id": "L4b-7200-rage-alias",
+    "key": "troop:7200",
+    "clause": "c1 'Enrage all Allies' / native step 0 CauseEnraged",
+    "expected": "Enraged allies produced by this spell are visible to every Enraged reader, including 'boosted by Enraged allies' counters",
+    "actual": "Prototype applies statusId 'rage'. isEnraged/CombatResolver accept the alias (RAGE_STATUS_IDS), but secondary.ts allyStatusCount/enemyStatusCount compare s.id === statusId exactly, and many curated skills count statusId 'enraged' (batch-r10/r11/r12/r15/r18/r22). After 8787 the count is 0 instead of 3.",
+    "repro": "tests/unit/gowLaneL4bB01.test.ts > L4b troop:7200/spell:8787 ... > Enraged allies from 8787 are counted by allyStatusCount enraged counters (expected 3) (it.fails)",
+    "layer": "primitive",
+    "status": "fixed",
+    "fixedBy": "sa-L4b",
+    "fixedAt": "2026-09-27T20:04:00Z",
+    "fixNote": "secondary.ts sameStatus(): allyStatusCount/enemyStatusCount/targetStatus/anyEnemyStatus/anyAllyStatus/selfStatus/lastTargetStatus accept rage<->enraged; accepted troop:6548 requeued"
+  },
+  {
+    "id": "L4b-6196-threshold",
+    "key": "troop:6196",
+    "clause": "c3 'If there are 13 or more Blue Gems, create 5 more.' / native step 3 CreateGems StatusModifier AddFor10BlueGems StatusAmount 5",
+    "expected": "Threshold confirmed by a stored source",
+    "actual": "English (and every other AddFor10<Color>Gems spell in the snapshot: 7129, 6829, 6625, 6285, 6191, 6113, 6111, 6097 ...) says 13 or more; native modifier name says 10. Runtime uses boardAtLeast Blue 13: 12 Blue -> no gems, 13/16 Blue -> exactly 5 Blue (tests pass). Only the source naming conflicts.",
+    "repro": "tests/unit/gowLaneL4bB02.test.ts > L4b troop:6196/spell:7337 ... > real cast side=Left blue=12 / blue=13",
+    "layer": "data",
+    "status": "closed-ruled",
+    "sourceDispute": {
+      "urls": [
+        "https://community.gemsofwar.com/t/if-there-are-13-or-more-gems-on-the/29347"
+      ],
+      "level": "community forum (player data-mining note)",
+      "finding": "Forum post states the game-data condition that checks for 13 gems of a colour is still named AddFor10BlueGems, i.e. the 10 in the name is legacy and the live check is 13. Consistent with current runtime.",
+      "recommendation": "fix window: ingest this page into gold-primary-sources; then troop:6196 can be accepted without code change (the same ruling covers all AddFor10/MultiplyFor10<Color>Gems spells)."
+    },
+    "closedBy": "sa-L4b",
+    "closedAt": "2026-09-27T20:04:00Z",
+    "fixNote": "rulings/R003 item 1: AddFor10<Color>Gems threshold is 13 (English snapshot frozen evidence); runtime boardAtLeast 13 matches"
+  },
+  {
+    "id": "L4b-6068-order",
+    "key": "troop:6068",
+    "clause": "c1 'Deal [Magic] damage to all Enemies and Poison them.' / native steps 0 CausePoison AllEnemies, 1 Damage AllEnemies",
+    "expected": "Native order: Poison all enemies first, then deal [Magic] damage",
+    "actual": "Prototype runs damage(enemyAll) before status poison(enemyAll): skill-damage events precede status-apply. Observable differences are limited (an enemy killed by the hit never receives Poison / its status-apply event), final HP/status outcome otherwise identical. English clause order matches the runtime, native order does not.",
+    "repro": "tests/unit/gowLaneL4bB02.test.ts > L4b troop:6068/spell:7138 ... > native order: Poison status-apply precedes the damage events (it.fails)",
+    "layer": "assembler",
+    "status": "fixed",
+    "fixedBy": "sa-L4b",
+    "fixedAt": "2026-09-27T20:04:00Z",
+    "fixNote": "batch-05 7138: poison then damage (R001); B02 binding/lethal tests updated, it.fails flipped"
+  },
+  {
+    "id": "L4b-6340-mix-stun",
+    "key": "troop:6340",
+    "clause": "c1 'Stun and Burn all Enemies.' / native steps 0 CauseStun Amount 4, 1 CauseBurning Amount 3; c2 / step 2 CreateGems2Colors Red+Brown 22",
+    "expected": "Documented meaning for CauseStun Amount 4 and CauseBurning Amount 3; confirmed placement rule for 2-colour creation",
+    "actual": "Runtime applies stun turns 3 and burning turns 3 (project convention; Burning ticks fixed 3 per official status page) and ignores the Amount values; only 7490 and 7620 carry these Amounts in the snapshot, no stored rule explains them. 2-colour mix: on a Red/Brown-free board 22 distinct cells become Red or Brown (both present); on a Brown-bearing board same-colour overwrites are possible (see L4b-7200-noop).",
+    "repro": "tests/unit/gowLaneL4bB02.test.ts > L4b troop:6340/spell:7490 ... > real cast side=Left magic=10 (Red/Brown-free board); Brown-bearing board: 22 cells selected",
+    "layer": "primitive",
+    "status": "source-dispute",
+    "sourceDispute": {
+      "urls": [
+        "https://community.gemsofwar.com/t/question-about-creating-gems-of-2-colors-on-the-board/57024"
+      ],
+      "level": "community discussion",
+      "finding": "Supports same-colour overwrite for 2-colour creators (matches runtime). No source found for CauseStun Amount 4 / CauseBurning Amount 3 semantics; current implementation kept.",
+      "recommendation": "fix window: rule on Cause* Amount values (likely unused) and ingest the 2-colour creation evidence; then re-review."
+    },
+    "note2": "Round 2: 2-colour part settled by RL4b-01; CauseStun Amount 4 / CauseBurning Amount 3 still undocumented (web search found nothing) -> stays source-dispute"
+  },
+  {
+    "id": "L4b-7030-dragon",
+    "key": "troop:7030",
+    "clause": "c1 'Convert all Red Gems into Yellow Dragon Gems.' / native ConvertGems Color2 DragonYellow",
+    "expected": "Every Red gem becomes a Yellow dragonGem (special, spec.color Yellow)",
+    "actual": "batch-r8 8557 = transform(Red, Yellow): plain Yellow gems",
+    "repro": "tests/unit/gowLaneL4bB05Repro.test.ts > L4b-7030-dragon",
+    "layer": "assembler",
+    "status": "fixed",
+    "fixedBy": "sa-L4b",
+    "fixedAt": "2026-09-27T20:04:00Z",
+    "fixNote": "batch-r8 8557 transformToSpecial Red -> dragonGem Yellow"
+  },
+  {
+    "id": "L4b-7276-singlegem",
+    "key": "troop:7276",
+    "clause": "c1 'Convert a chosen Mana Gem to an Uber Doomskull.' / native ConvertGems FromTarget BoardTarget SingleGem Amount 1",
+    "expected": "Only the chosen cell becomes an Uber Doomskull",
+    "actual": "batch-r4 8901 = transformToSpecial(CHOSEN,...): converts ALL gems of a chosen colour",
+    "repro": "tests/unit/gowLaneL4bB05Repro.test.ts > L4b-7276-singlegem",
+    "layer": "assembler",
+    "status": "fixed",
+    "related": "Same SingleGem-as-colour shape in troop:6111 (7181 CHOSEN), troop:7092 (8627 ANY), troop:7169 (8722 ANY), troop:7480 (9197 ANY), weapon:1067 (7174 ANY): re-check when they come up.",
+    "fixedBy": "sa-L4b",
+    "fixedAt": "2026-09-27T20:04:00Z",
+    "fixNote": "batch-r4 8901 transformToSpecial('CELL', uberDoomSkull); related family (6111/7092/7169/7480/weapon:1067) still to review"
+  },
+  {
+    "id": "L4b-7195-order",
+    "key": "troop:7195",
+    "clause": "native steps 0 ConvertGems Green->Skull, 1 CauseHuntersMark FrontEnemy",
+    "expected": "R001: conversion (and its skull cascade) resolves before Hunter's Mark",
+    "actual": "batch-36 8782 = inflict(marked, enemyFront) then transform",
+    "repro": "tests/unit/gowLaneL4bB05Repro.test.ts > L4b-7195-order",
+    "layer": "assembler",
+    "status": "fixed",
+    "fixedBy": "sa-L4b",
+    "fixedAt": "2026-09-27T20:04:00Z",
+    "fixNote": "batch-36 8782 transform before inflict marked"
+  },
+  {
+    "id": "L4b-6824-random-ally",
+    "key": "troop:6824",
+    "clause": "c2 'Barrier and Submerge a random Ally.' / native 1 CauseBarrier RandomAlly, 2 CauseSubmerged FromPrevious",
+    "expected": "A random living ally (no ally choice) gets Barrier, then the same ally Submerged",
+    "actual": "batch-14 8234 uses allyChosen (submerged then barrier): needs a chosen ally, cast is refused without one; order reversed; zh says 一名盟友",
+    "repro": "tests/unit/gowLaneL4bB05Repro.test.ts > L4b-6824-random-ally / L4b-6824-zh",
+    "layer": "assembler+data",
+    "status": "fixed",
+    "fixedBy": "sa-L4b",
+    "fixedAt": "2026-09-27T20:04:00Z",
+    "fixNote": "batch-14 8234 barrier allyRandom + submerged lastTarget; zh via gowSnapshotOverrides.json troop 6824 + pool-14"
+  },
+  {
+    "id": "L4b-6841-prefnotprev",
+    "key": "troop:6841",
+    "clause": "c2 'Deal [Magic + 2] damage to 2 random Enemies.' / native Damage RandomEnemy + Damage RandomPrefNotPrevEnemy",
+    "expected": "Two separate hits; the second prefers another enemy but falls back to the same one when only one is alive (2 hits)",
+    "actual": "enemyRandomN n 2: distinct targets only, a lone enemy is hit once (same class as lane-L7 L7-7344; engine has enemyRandomPrefNotPrev)",
+    "repro": "not yet (draft pending)",
+    "layer": "assembler",
+    "status": "fixed",
+    "fixedBy": "sa-L4b",
+    "fixedAt": "2026-09-27T20:04:00Z",
+    "fixNote": "batch-08 8246 dmg enemyRandom + dmg enemyRandomPrefNotPrev"
+  },
+  {
+    "id": "L4b-7068-potion-colour",
+    "key": "troop:7068",
+    "clause": "c1 'Convert 5 Green Gems to Purple Potions' / native Color2 PurpleManaPotion",
+    "expected": "manaPotionGem with spec.color Purple",
+    "actual": "prototype toSpecial 'manaPotionGem' without colour",
+    "repro": "not yet",
+    "layer": "assembler",
+    "status": "fixed",
+    "fixedBy": "sa-L4b",
+    "fixedAt": "2026-09-27T20:04:00Z",
+    "fixNote": "batch-r21 8596 manaPotionGem color Purple"
+  },
+  {
+    "id": "L4b-1548-missing-steps",
+    "key": "weapon:1548",
+    "clause": "c1 'Convert all Red Gems to Cursed Gems and convert all Purple Gems to Doomskulls.'",
+    "expected": "Red -> curseGem, then Purple -> doomSkull, then enemy team jumble",
+    "actual": "prototype: Red -> doomSkull only (Purple conversion missing, Cursed Gem missing)",
+    "repro": "not yet",
+    "layer": "assembler",
+    "status": "open"
+  },
+  {
+    "id": "L4b-7270-dragon",
+    "key": "troop:7270",
+    "clause": "c2 'Then create 3 Brown Dragon Gems.' / native CreateGems DragonBrown 3",
+    "expected": "3 Brown dragonGem specials",
+    "actual": "prototype creates 3 plain Brown gems",
+    "repro": "not yet",
+    "layer": "assembler",
+    "status": "fixed",
+    "fixedBy": "sa-L4b",
+    "fixedAt": "2026-09-27T20:04:00Z",
+    "fixNote": "batch-r8 8889 createSpecialGems dragonGem Brown x3"
+  },
+  {
+    "id": "L4b-7524-zh",
+    "key": "troop:7524",
+    "clause": "c2 '... then convert all other skulls to Uber Doomskulls.'",
+    "expected": "Chinese says 超级末日骷髅头",
+    "actual": "Chinese '再将其他的骷髅头转换成末日骷髅头' (drops Uber)",
+    "repro": "not yet",
+    "layer": "data",
+    "status": "open"
+  },
+  {
+    "id": "L4b-chosen-any",
+    "key": "weapon:1625",
+    "clause": "c1 'Convert all Gems of a chosen Color into Decaying Gems.' / native ConvertGems Color1 FromTarget",
+    "expected": "Only gems of the chosen colour convert",
+    "actual": "prototype transform from 'ANY': every non-target gem on the board converts",
+    "repro": "not yet",
+    "layer": "assembler",
+    "status": "open",
+    "related": "weapon:1674 (9831 Bleed Gems, same ANY shape; also FromManaColorEnemy status targets)"
+  },
+  {
+    "id": "L4b-chosen-colour-exclusion",
+    "key": "troop:6124",
+    "clause": "native spell Target Not<X>OrSkullGems (e.g. 7216 NotGreenOrSkullGems) for 'Transform a selected Mana color to X'",
+    "expected": "The chosen colour can never be X (or Skull); AI never picks the target colour",
+    "actual": "AiColorChooser picks the most common colour regardless of the native Target restriction (can pick X: a Green->Green no-op); the player palette (App.ts) has no restriction either",
+    "repro": "not yet",
+    "layer": "primitive+ui",
+    "status": "open",
+    "affects": [
+      "troop:6124",
+      "troop:6256",
+      "troop:6399",
+      "troop:6824",
+      "troop:6216",
+      "troop:6987",
+      "troop:7705",
+      "troop:6541",
+      "troop:7276"
+    ],
+    "note2": "Round 2: same gap for chosen cells: AiCellChooser picks the centre-most gem of any type and ignores native Target ManaGemsOnly (troop:7276 after the L4b-7276-singlegem fix). Needs chooser/UI support for native target restrictions (engine + src/render/App.ts palette)."
+  },
+  {
+    "id": "L4b-strongest-metric",
+    "key": "troop:6805",
+    "clause": "native StrongestAlly / StrongestEnemy / WeakestEnemy / TwoStrongestEnemies targets",
+    "expected": "Metric confirmed by a stored source",
+    "actual": "Runtime: strongest = highest current hp, weakest = lowest hp (armor ignored; spell-rules.md). Only source found (ingested gold-primary-sources/community-2018-08-02-weakest-life-plus-armor.json) is a single community answer saying Life + Armor summed.",
+    "layer": "primitive",
+    "status": "source-dispute",
+    "affects": [
+      "troop:6805",
+      "troop:6842",
+      "troop:6955",
+      "troop:6565",
+      "troop:6592",
+      "troop:7410",
+      "troop:6771"
+    ],
+    "sourceDispute": {
+      "urls": [
+        "https://community.gemsofwar.com/t/what-does-weakest-mean/43465"
+      ],
+      "level": "community forum, one answer, no developer",
+      "recommendation": "coordinator ruling (hp vs hp+armor, tie-break); ~70 native steps use these targets"
+    }
+  },
+  {
+    "id": "L4b-1186-zh",
+    "key": "weapon:1186",
+    "clause": "display-description",
+    "expected": "'伤害值因潘神之谷盟友数而增强'",
+    "actual": "src/data/weapons.json 7662 description reads '潘神之谷友数' (drops 盟)",
+    "repro": "tests/unit/gowLaneL4bB08.test.ts binding asserts the current text",
+    "layer": "data",
+    "status": "open"
+  },
+  {
+    "id": "L4b-1193-zh",
+    "key": "weapon:1193",
+    "clause": "display-description",
+    "expected": "Kingdom name 圣唐 (as in src troops / prototype alliesOfKingdom) and no stray character",
+    "actual": "7722 description says '盛唐盟友' and ends with a stray '色' before [x6]",
+    "repro": "not yet (not scaffolded)",
+    "layer": "data",
+    "status": "open"
+  },
+  {
+    "id": "L4b-1488-lastTarget",
+    "key": "weapon:1488",
+    "clause": "c2 'Then deal [Magic + 1] damage to all Red Enemies, and Burn them.' / native CauseBurning EnemyColor 2",
+    "expected": "Every Red enemy is Burned (weapon:1487 same shape: Freeze every Blue enemy)",
+    "actual": "status segment targets 'lastTarget' (single tracked target) after an enemyAll damage: only one enemy gets the status",
+    "repro": "not yet",
+    "layer": "assembler",
+    "status": "open",
+    "affects": [
+      "weapon:1487",
+      "weapon:1488"
+    ]
+  },
+  {
+    "id": "L4b-7071-base",
+    "key": "troop:7071",
+    "clause": "c1 'Create 2 Skulls, boosted by Brown Allies and Enemies.' / native CreateGems Skull Amount 2 UseCounterForAmount",
+    "expected": "2 + 2 x (Brown allies + Brown enemies)",
+    "actual": "prototype count base 0 (only 2 per Brown troop)",
+    "repro": "not yet",
+    "layer": "assembler",
+    "status": "fixed",
+    "fixedBy": "sa-L4b",
+    "fixedAt": "2026-09-27T20:04:00Z",
+    "fixNote": "batch-r13 8599 createSkulls base 2"
+  },
+  {
+    "id": "L4b-7499-dragon",
+    "key": "troop:7499",
+    "clause": "c1 'Convert all Brown Gems to Yellow Dragon Gems.'",
+    "expected": "Yellow dragonGem specials",
+    "actual": "prototype transform Brown -> plain Yellow (same family as L4b-7030-dragon, L4b-7270-dragon)",
+    "repro": "not yet",
+    "layer": "assembler",
+    "status": "fixed",
+    "fixedBy": "sa-L4b",
+    "fixedAt": "2026-09-27T20:04:00Z",
+    "fixNote": "batch-r11 9244 transformToSpecial Brown -> dragonGem Yellow"
+  },
+  {
+    "id": "L4b-6129-order",
+    "key": "troop:6129",
+    "clause": "native CountArmor -> CountMax -> CreateGems Skull -> DecreaseArmor -> IncreaseArmor",
+    "expected": "R001: Skulls (and their cascade) before the armor elimination",
+    "actual": "prototype eliminates armor first, then creates Skulls (observable when cascade skull damage hits the same enemy)",
+    "repro": "not yet",
+    "layer": "assembler",
+    "status": "open"
+  },
+  {
+    "id": "L4b-1481-zh",
+    "key": "weapon:1481",
+    "clause": "display-description",
+    "expected": "'数值因地狱悬崖盟友数而增强' (kingdom 地狱悬崖 as in the next sentence)",
+    "actual": "src/data/weapons.json 8809 description writes '地域悬崖' in the first sentence",
+    "repro": "tests/unit/gowLaneL4bB14.test.ts binding asserts the current text",
+    "layer": "data",
+    "status": "open"
+  },
+  {
+    "id": "L4b-1501-zh",
+    "key": "weapon:1501",
+    "clause": "display-description",
+    "expected": "'伤害值因沃尔帕克盟友数而增强'",
+    "actual": "8877 description reads '伤害只因…' (只 for 值)",
+    "repro": "not yet (not scaffolded)",
+    "layer": "data",
+    "status": "open"
+  },
+  {
+    "id": "L4b-7068-zh",
+    "key": "troop:7068",
+    "clause": "display-description",
+    "expected": "'将 5 颗绿色宝石转换成紫色法力药水，并将所有棕色宝石转换成骷髅头。净化所有妖仙盟友。' (or equivalent)",
+    "actual": "stored Chinese '将5有绿宝石都转化为紫色药水，并且所有棕色宝石都变为骷髅头。净化所有精灵同盟。' is garbled machine translation",
+    "repro": "tests/unit/gowLaneL4bB22.test.ts binding asserts the current text",
+    "layer": "data",
+    "status": "open"
+  }
+]

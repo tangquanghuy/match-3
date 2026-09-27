@@ -16,16 +16,12 @@ test('入侵主屏三选一，榜单/官阶/规则走次级视图', async ({ pag
   await expect(page.locator('.inv-hub-foot')).toBeVisible();
   await expect.poll(() => page.locator('.inv-def img').evaluateAll((images) => images.every((image) => (image as HTMLImageElement).naturalWidth > 0))).toBe(true);
 
-  await page.locator('.inv-hub-links a[href="#invasion/standings"]').click();
-  await expect(page).toHaveURL(/#invasion\/standings$/);
-  await expect(page.locator('.inv-row')).toHaveCount(30);
-  await expect(page.locator('.inv-row.me')).toHaveCount(1);
-  await expect(page.locator('.inv-cutline')).toContainText(['前 20 名晋级']);
-
-  await page.locator('.inv-subnav a[href="#invasion/ranks"]').click();
-  await expect(page.locator('.inv-rank-row')).toHaveCount(10);
+  await expect(page.locator('.inv-hub-links a[href="#invasion/standings"]')).toHaveCount(0);
+  await page.locator('.inv-hub-links a[href="#invasion/ranks"]').click();
+  await expect(page.locator('.inv-rank-row')).toHaveCount(6);
   await expect(page.locator('.inv-rank-row.current')).toHaveCount(1);
-  await expect(page.locator('.inv-rank-row .inv-rank-emblem')).toHaveCount(10);
+  await expect(page.locator('.inv-rank-row .inv-rank-emblem')).toHaveCount(6);
+  await expect(page.locator('.inv-rank-pager a')).toHaveCount(5);
 
   await page.locator('.inv-subnav a[href="#invasion/rules"]').click();
   await expect(page.locator('.inv-rules-body')).toContainText('战败扣');
@@ -147,3 +143,49 @@ test('锁态仅展示起始官阶；窄屏没有卡片互相覆盖', async ({ pa
   await page.locator('#invMapCta').click();
   await expect(page).toHaveURL(/#map$/);
 });
+
+
+for (const viewport of [{ width: 1600, height: 900 }, { width: 390, height: 844 }]) {
+  test(`${viewport.width}px 隐藏内部配队说明，出击按钮可达且无横向溢出`, async ({ page }) => {
+    await page.setViewportSize(viewport); await page.goto('/game.html#invasion');
+    await expect(page.locator('.inv-strategy, .inv-provenance')).toHaveCount(0);
+    await expect(page.getByText('队伍配合与应对')).toHaveCount(0);
+    await expect(page.getByText(/GoW Team Share|原四槽|旗帜适配/)).toHaveCount(0);
+    const attack = page.locator('.inv-rival').first().locator('.inv-attack');
+    await attack.scrollIntoViewIfNeeded(); await expect(attack).toBeInViewport();
+    expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(viewport.width);
+    await page.screenshot({ path: `artifacts/ux-phase-b/shots/gow-invasion-clean-${viewport.width}.png` });
+  });
+}
+
+
+for (const width of [1600, 390]) {
+  test(`${width}px 入侵低中高顺序、阵容和特质显示`, async ({ page }) => {
+    await page.setViewportSize({ width, height: 900 });
+    await page.goto('/game.html#invasion');
+    await expect(page.locator('.inv-rival')).toHaveCount(3);
+    expect(await page.locator('.inv-rival').evaluateAll(cards => cards.map(c => c.getAttribute('data-difficulty')))).toEqual(['easy', 'normal', 'hard']);
+    await expect(page.locator('.inv-difficulty')).toHaveCount(0);
+    await expect(page.locator('.inv-rival-head')).not.toContainText(['基础混编', '协同编队', '完整配队']);
+    for (const line of await page.locator('.inv-rival-nums > span:first-child').allTextContents()) expect(line).toMatch(/^属性分 \d+( · 血怒)?$/);
+    await expect(page.locator('.inv-rival').first()).toHaveClass(/recommended/);
+    await page.evaluate(() => {
+      const save = JSON.parse(localStorage.getItem('gems.meta.save')!);
+      save.invasion.league = 9; save.invasion.progressionVp = 8000;
+      localStorage.setItem('gems.meta.save', JSON.stringify(save));
+    });
+    await page.reload();
+    if (width < 600) {
+      await page.locator('[data-inv-next]').click();
+      await page.locator('[data-inv-next]').click();
+    }
+    const hard = page.locator('.inv-rival[data-difficulty="hard"]');
+    await expect(hard.locator('.inv-def')).toHaveCount(4);
+    for (const caption of await hard.locator('.inv-def-caption small').allTextContents()) expect(caption).toContain('3/3 特质');
+    await expect(hard.locator('details, .inv-provenance')).toHaveCount(0);
+    await hard.locator('.inv-attack').scrollIntoViewIfNeeded();
+    await expect(hard.locator('.inv-attack')).toBeInViewport();
+    expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(width);
+    await page.screenshot({ path: `artifacts/ux-phase-b/shots/gow-invasion-three-tiers-${width}.png` });
+  });
+}

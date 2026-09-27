@@ -1,0 +1,142 @@
+{
+  "baseline": "Stored GoW English entity + native spell snapshots; not a live official version claim",
+  "troops": {
+    "6009": {
+      "spellId": 7009,
+      "reason": "English source text specifies one random Skill; extracted native IncreaseRandom awards its complete amount to one Skill per recipient. Scoped display clarification, not whole-skill signoff.",
+      "spellDescription": "创造 9 颗棕色宝石。自身一项随机属性获得 [魔法] 点。"
+    },
+    "6011": {
+      "spellId": 7011,
+      "reason": "English source text specifies one random Skill; extracted native IncreaseRandom awards its complete amount to one Skill per recipient. Scoped display clarification, not whole-skill signoff.",
+      "spellDescription": "对 1 名敌人造成 [魔法 + 3] 点伤害。如果该敌人身亡，自身一项随机属性获得 6 点。"
+    },
+    "6092": {
+      "spellId": 7162,
+      "reason": "English entity Brian the Lucky says all other Allies and a random Skill (singular); native IncreaseRandom targets AllAlliesButNotSelf with amount Magic+1. Correct older Chinese snapshot without rewriting provenance.",
+      "spellDescription": "使所有其他盟友的一项随机属性获得 [魔法 + 1] 点。"
+    },
+    "6121": {
+      "spellId": 7213,
+      "reason": "English source text specifies one random Skill; extracted native IncreaseRandom awards its complete amount to one Skill per recipient. Scoped display clarification, not whole-skill signoff.",
+      "spellDescription": "对随机敌人造成 [(魔法 / 2) + 5] – [魔法 + 10] 点伤害。自身一项随机属性获得 12 点。然后有 50% 的几率获得额外回合。"
+    },
+    "6147": {
+      "spellId": 7261,
+      "reason": "English source text specifies one random Skill; extracted native IncreaseRandom awards its complete amount to one Skill per recipient. Scoped display clarification, not whole-skill signoff.",
+      "spellDescription": "对 1 名敌人造成一项随机状态效果。一名随机盟友的一项随机属性获得 [魔法 + 1] 点。"
+    },
+    "6163": {
+      "spellId": 7289,
+      "reason": "English source text specifies one random Skill; extracted native IncreaseRandom awards its complete amount to one Skill per recipient. Scoped display clarification, not whole-skill signoff.",
+      "spellDescription": "创造 5 颗绿色宝石，然后将所有绿色宝石转换为紫色。自身一项随机属性获得 [魔法 + 2] 点。"
+    },
+    "6181": {
+      "spellId": 7322,
+      "reason": "English source text specifies one random Skill; extracted native IncreaseRandom awards its complete amount to one Skill per recipient. Scoped display clarification, not whole-skill signoff.",
+      "spellDescription": "创造 5 颗红色和紫色宝石。一名随机盟友的一项随机属性获得 [魔法 + 1] 点。"
+    },
+    "6247": {
+      "spellId": 7390,
+      "reason": "English source text specifies one random Skill; extracted native IncreaseRandom awards its complete amount to one Skill per recipient. Scoped display clarification, not whole-skill signoff.",
+      "spellDescription": "随机爆破两颗宝石，自身一项随机属性获得 [魔法 + 1] 点。"
+    },
+    "6264": {
+      "spellId": 7407,
+      "reason": "English source text specifies one random Skill; extracted native IncreaseRandom awards its complete amount to one Skill per recipient. Scoped display clarification, not whole-skill signoff.",
+      "spellDescription": "创造 15 颗宝石，所创造的宝石混合黄色和一种选定类型。所有其他盟友各有一项随机属性获得 [魔法 + 2] 点，点数因陷入沉默状态的敌军数量而增强。 [x4]"
+    },
+    "6383": {
+      "spellId": 7538,
+      "reason": "English source text specifies one random Skill; extracted native IncreaseRandom awards its complete amount to one Skill per recipient. Scoped display clarification, not whole-skill signoff.",
+      "spellDescription": "净化一名盟友。使其一项随机属性获得 [魔法 + 1] 点，并获得 2 点魔力值。如果盟友是蛮族，则效果两倍。"
+    },
+    "6390": {
+      "spellId": 7545,
+      "reason": "English source text specifies one random Skill; extracted native IncreaseRandom awards its complete amount to one Skill per recipient. Scoped display clarification, not whole-skill signoff.",
+      "spellDescription": "获得额外的一回合。爆破所有绿色宝石或使一名随机盟友的一项随机属性获得 [魔法 + 1] 点（若盟友为哥布林则增加两倍）。"
+    },
+    "6630": {
+      "spellId": 7954,
+      "reason": "English source text specifies one random Skill; extracted native IncreaseRandom awards its complete amount to one Skill per recipient. Scoped display clarification, not whole-skill signoff.",
+      "spellDescription": "对一名敌人造成 [魔法 + 4] 点伤害，伤害值因自身的护甲值而增强。如果敌人是个魔头，则基于我已晋升的稀有度造成 3 到 5 倍伤害。自身一项随机属性获得 3 点。 [3:1]"
+    },
+    "6652": {
+      "spellId": 7987,
+      "reason": "English source text specifies one random Skill; extracted native IncreaseRandom awards its complete amount to one Skill per recipient. Scoped display clarification, not whole-skill signoff.",
+      "spellDescription": "窃取一名敌人 [魔法 + 1] 点护甲值，再将窃取的护甲值转换为第一位盟友的一项随机属性。 [100:1]"
+    },
+    "6751": {
+      "spellId": 8129,
+      "reason": "L4b-6751-zh: English \"Convert all Green Gems to Doomskulls\" and native ConvertGems Color2 Doomskull; the stored Chinese snapshot drops 末日 (Doomskull). Display correction only.",
+      "spellDescription": "诅咒所有敌人。将所有绿色宝石转换成末日骷髅头。"
+    },
+    "6824": {
+      "spellId": 8234,
+      "reason": "L4b-6824-zh: English \"Barrier and Submerge a random Ally\" / native CauseBarrier RandomAlly then CauseSubmerged FromPrevious; stored Chinese says 一名盟友 (reads as a chosen ally) and reverses the order.",
+      "spellDescription": "将选定颜色的宝石转换成棕色。赋予一名随机盟友屏障效果并使其下潜。"
+    },
+    "7138": {
+      "spellId": 8687,
+      "reason": "L4b-7138-zh: stored Chinese snapshot typo 发力颜色 for 法力颜色 (\"one of their Mana Colors\"). Display correction only.",
+      "spellDescription": "赐予一名盟友法印效果，并给予其 3 点魔力值。再创建 12 颗其法力颜色之一的宝石。"
+    },
+    "7260": {
+      "spellId": 8894,
+      "reason": "L1-7260-target: English \"Curse and Deathmark an Enemy\" and native Target Enemy + FromTarget; the stored Chinese snapshot says 一名盟友 (an Ally). Display correction only.",
+      "spellDescription": "使一名敌人陷入诅咒和死亡标记状态。再对其下位所有敌人造成 [(魔法 x 1.5) + 3] 点伤害。再召唤阿伯拉瑟。"
+    },
+    "7334": {
+      "spellId": 8957,
+      "manaCost": 8,
+      "reason": "English ManaCost and native Cost agree (Chinese entity has 9); independent English description and native CauseBarrier(FrontAlly) include omitted barrier.",
+      "spellDescription": "随机摧毁 8 颗宝石。使首位盟友获得屏障。"
+    },
+    "7335": {
+      "spellId": 8958,
+      "manaCost": 6,
+      "reason": "English ManaCost and native Cost agree; Chinese entity snapshot has 9"
+    },
+    "7339": {
+      "spellId": 8962,
+      "spellDescription": "对敌人造成 [魔法 + 7] 点伤害。将自己移至前方。然后创建 3 颗 x2 通配宝石。",
+      "reason": "Preserved curated display text against older Chinese snapshot; original-language clauses require independent review."
+    },
+    "7340": {
+      "spellId": 8963,
+      "spellDescription": "对 3 名随机敌人造成 [魔法 + 6] 点伤害。然后创建 3-6 颗 x3 通配宝石。",
+      "reason": "Preserved curated display text against older Chinese snapshot; original-language clauses require independent review."
+    },
+    "7366": {
+      "spellId": 9006,
+      "spellDescription": "爆破一颗宝石。再创造 1 颗 x3 通配宝石。每摧毁一颗棕色宝石，则再创造 2 颗通配宝石。 [x2]",
+      "reason": "Preserved curated display text against older Chinese snapshot; original-language clauses require independent review."
+    },
+    "7446": {
+      "spellId": 9138,
+      "spellDescription": "对所有敌人造成 [(魔法 x 3) + 6] 点伤害。创造 3 颗元素之星和 3 颗暗影之星。有 10% 的几率获得额外回合，根据骷髅头宝石数量提升。[x4]",
+      "traitDescriptions": {
+        "powerofstars": "在配对骷髅头宝石时，给予所有盟友全部技能值各 1 点（生命、护甲、攻击和魔法）。"
+      },
+      "reason": "Stored English Stellarix Starlight Breath, native CountGems(Skull) before CreateGems and Power of Stars trait; scoped translation and timing repair.",
+      "traitNames": {
+        "powerofstars": "星辰之力"
+      }
+    },
+    "7506": {
+      "spellId": 9251,
+      "spellDescription": "对一名敌人造成 [魔法 + 2] 点伤害。如果敌人是个高塔，则基于我已晋升的稀有度造成 3 到 5 倍伤害。创造 1-3 颗 x3 通配宝石。",
+      "reason": "Preserved curated display text against older Chinese snapshot; original-language clauses require independent review."
+    },
+    "7679": {
+      "spellId": 9614,
+      "spellDescription": "对所有敌人造成 [魔法 + 6] 点伤害，伤害值因精灵射击敌人而增强。然后将 3 个骷髅转换为 x2 通配宝石。 [x6]",
+      "reason": "Preserved curated display text against older Chinese snapshot; original-language clauses require independent review."
+    },
+    "7725": {
+      "spellId": 9725,
+      "manaCost": 9,
+      "reason": "English ManaCost and native Cost agree; Chinese entity snapshot has 11"
+    }
+  }
+}
