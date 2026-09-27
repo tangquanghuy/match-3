@@ -19,8 +19,13 @@ const opt = n => { const i = args.indexOf(`--${n}`); return i < 0 ? null : args[
 const list = s => (s ?? '').split(',').map(x => x.trim()).filter(Boolean);
 const ledger = JSON.parse(fs.readFileSync(path.join(root, 'artifacts/gow-skill-audit/ledger.json'), 'utf8'));
 const rows = new Map(ledger.rows.map(r => [r.key, r]));
-const load = () => fs.existsSync(logPath) ? fs.readFileSync(logPath, 'utf8').split('\n').filter(Boolean).map(l => JSON.parse(l)) : [];
-const append = e => fs.appendFileSync(logPath, JSON.stringify(e) + '\n');
+// Per-agent files (changes/<by>.jsonl) so parallel branches never conflict on merge; CHANGES.jsonl is the legacy log.
+const changesDir = path.join(base, 'changes');
+const readLines = p => fs.existsSync(p) ? fs.readFileSync(p, 'utf8').split('\n').filter(Boolean).map(l => JSON.parse(l)) : [];
+export const loadAllChanges = () => [logPath, ...(fs.existsSync(changesDir) ? fs.readdirSync(changesDir).filter(f => f.endsWith('.jsonl')).map(f => path.join(changesDir, f)) : [])]
+  .flatMap(readLines).sort((a, b) => a.at.localeCompare(b.at));
+const load = loadAllChanges;
+const append = e => { fs.mkdirSync(changesDir, { recursive: true }); fs.appendFileSync(path.join(changesDir, `${String(e.by).replace(/[^\w.-]/g, '_')}.jsonl`), JSON.stringify(e) + '\n'); };
 function entry(o) {
   const keys = o.keys ?? [];
   const spells = o.spells?.length ? o.spells : [...new Set(keys.map(k => rows.get(k)?.spellId).filter(Boolean).map(String))];

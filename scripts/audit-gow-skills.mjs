@@ -84,8 +84,10 @@ if(fs.existsSync(receiptPath)) {
   if(candidate.fingerprint===fingerprint && candidate.resultSha256===hash) receipt=candidate;
 }
 Object.assign(summary, attachScopedEvidence(rows, receipt));
-const changesPath = path.join(root, 'tasks/active/gow-skill-shards/CHANGES.jsonl');
-const changes = fs.existsSync(changesPath) ? fs.readFileSync(changesPath, 'utf8').split('\n').filter(Boolean).map(l => JSON.parse(l)) : [];
+const changesBase = path.join(root, 'tasks/active/gow-skill-shards');
+const changeFiles = [path.join(changesBase, 'CHANGES.jsonl'), ...(fs.existsSync(path.join(changesBase, 'changes'))
+  ? fs.readdirSync(path.join(changesBase, 'changes')).filter(f => f.endsWith('.jsonl')).map(f => path.join(changesBase, 'changes', f)) : [])];
+const changes = changeFiles.filter(p => fs.existsSync(p)).flatMap(p => fs.readFileSync(p, 'utf8').split('\n').filter(Boolean).map(l => JSON.parse(l)));
 Object.assign(summary, applyWholeSkillReviews(rows,{reviews:read(REVIEW_PATH).reviews,receipt,fingerprint,changes,readEvidence:p=>{
  const resolved=path.resolve(root,p);if(!resolved.startsWith(root+path.sep))throw new Error('Evidence must remain inside project');return fs.readFileSync(resolved);
 }}));
