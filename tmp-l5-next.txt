@@ -1,1 +1,0 @@
-troop:6512,troop:6209,troop:6506,troop:6325,troop:6028
