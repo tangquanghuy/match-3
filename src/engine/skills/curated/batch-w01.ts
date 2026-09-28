@@ -496,7 +496,8 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '窃取第一名敌人 [魔法 + 3] 点生命值，并耗尽该敌人的法力值。',
     build: skill(
       dmg('enemyFront', 3, 1, { drain: true }),
-      drainMana('enemyChosen'),
+      // sa-I: native DecreaseMana@FrontEnemy 100 (was the chosen enemy; this weapon has no chosen target)
+      drainMana('enemyFront'),
     ),
   },
   {
@@ -547,9 +548,10 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 7191,
-    desc: '对所有敌人造成 [魔法 + 4] 点散射伤害。若敌方有精灵军队，则增加额外 10 点伤害。',
+    desc: '对所有敌人造成 [魔法 + 4] 点散射伤害。若敌方有妖仙军队，则增加额外 10 点伤害。',
     build: skill(
-      dmg('enemyAll', 4, 1, { range: 'all', condBonus: { n: 10, cond: { kind: 'enemyRacePresent', race: 'Elf' } } }),
+      // sa-I: native AddIfEnemyHasFey / EN "has a Fey" = Fey (妖仙), was Elf
+      dmg('enemyAll', 4, 1, { range: 'all', condBonus: { n: 10, cond: { kind: 'enemyRacePresent', race: 'Fey' } } }),
     ),
   },
   {
@@ -824,7 +826,8 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 7270,
     desc: '对 1 名敌人造成 [魔法 + 2] 点真实伤害。如果敌人是神祇军队，则额外造成 5 点真实伤害。',
     build: skill(
-      trueDmg('enemyChosen', 2, 1, { trueDamage: true, condBonus: { n: 5, cond: { kind: 'enemyRacePresent', race: 'Divine' } } }),
+      // sa-I: native AddForDivine / EN "If the Enemy is Divine" = the target itself, was any enemy Divine
+      trueDmg('enemyChosen', 2, 1, { trueDamage: true, condBonus: { n: 5, cond: { kind: 'targetRace', race: 'Divine' } } }),
     ),
   },
   {

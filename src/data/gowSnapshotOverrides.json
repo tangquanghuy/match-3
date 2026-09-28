@@ -21,6 +21,11 @@
       "reason": "sa-B r5: English Siren 'create 9 Gems of one of their Mana Colors' (native CreateGems Color1 FromTarget = the damaged enemy); old Chinese said 'this troop's mana colour'.",
       "spellDescription": "对 1 名敌人造成 [魔法 + 1] 点伤害，并创造 9 颗该敌人某一种法力颜色的宝石。"
     },
+    "6057": {
+      "spellId": 7057,
+      "reason": "sa-I: English Wolf Knight deals true damage to an Enemy (FromTarget); old Chinese omitted the target.",
+      "spellDescription": "对一名敌人造成 [魔法 + 1] 点真实伤害。如果敌人受伤，则增加 6 点伤害。"
+    },
     "6080": {
       "spellId": 7150,
       "reason": "English Jarl Firemantle + native: CreateGems 9 Red ; CreateGems 9 Yellow. Chinese snapshot said 10.",

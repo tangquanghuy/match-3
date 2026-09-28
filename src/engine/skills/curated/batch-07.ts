@@ -64,11 +64,11 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 7719,
     desc: '对一名敌人造成 [魔法 + 4] 点伤害并将之冻结。若敌人已被冻结，则窃取 5 点法力值。',
     build: skill(
+      // sa-I (R001): native StealMana [AddForFrozen 5] is step 0, BEFORE Damage and CauseFrozen, so only an
+      // already-Frozen enemy loses Mana (was checked after this cast froze it: always stole).
+      steal('enemyChosen', 'mana', 'mana', 5, 0, { ifCond: { kind: 'targetStatus', statusId: 'frozen' } }),
       dmg('enemyChosen', 4),
       inflict('frozen', 'enemyChosen'),
-      // 回收：ifCond 现支持条件触发（SOP「通用条件触发 / 条件加成」节）；
-      // 「窃取法力值」= steal mana→mana（batch-08 先例，SOP ifCond 示例的 reduce 为简化写法）
-      steal('enemyChosen', 'mana', 'mana', 5, 0, { ifCond: { kind: 'targetStatus', statusId: 'frozen' } }),
     ),
   },
   {

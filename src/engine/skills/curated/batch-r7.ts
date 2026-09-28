@@ -31,7 +31,7 @@ const SKIPPED: { id: number; reason: string }[] = [];
 const SPELLS: CuratedBatch['spells'] = [
   {
     id: 7057,
-    desc: '造成 [魔法 + 1] 点真实伤害。如果敌人受伤，则增加 6 点伤害。',
+    desc: '对一名敌人造成 [魔法 + 1] 点真实伤害。如果敌人受伤，则增加 6 点伤害。',
     build: skill(trueDmg('enemyChosen', 1, 1, { condBonus: { n: 6, cond: { kind: 'targetHpDamaged' } } })),
   },
   {

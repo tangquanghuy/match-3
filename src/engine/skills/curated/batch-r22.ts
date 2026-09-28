@@ -492,9 +492,11 @@ const SPELLS: CuratedBatch['spells'] = [
     // 「打回末位」= reposition（§12.1）；「新的第一名」= 重定位后 enemyFront 执行时刻重解析；
     // 13+ 棕宝石 = boardAtLeast 全局条件辖吞噬段（Devour 家族回收）。
     build: skill(
+    // sa-I (R001): native ConsumeConditional@FrontEnemy [AddFor10BrownGems 50] runs BEFORE Damage@FrontEnemy
+    // (R003: threshold 13). A successful devour removes the new front enemy, so the hit lands on the next one.
     reposition('enemyFront', 'back'),
+    devour('enemyFront', { chance: 0.5, ifCond: { kind: 'boardAtLeast', color: BaseColor.Brown, n: 13 } }),
     dmg('enemyFront', 3, 1),
-    devour('lastTarget', { chance: 0.5, ifCond: { kind: 'boardAtLeast', color: BaseColor.Brown, n: 13 } }),
     ),
   },
   {
@@ -593,10 +595,12 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 7812,
     desc: '对一名敌人造成 [魔法 + 3] 点伤害。自身每高于敌方一个技能即可窃取敌方 3 点魔力值。',
     // 「每高于敌方一个技能」= casterStatBeatsCount 四围比较计数（R22 新来源，randomStat 四维口径）
-    // ×3 驱动窃取法力。
+    // sa-I: native 4 x StealMagic@FromTarget 3 [AddForLess<Magic|Attack|Life|Armor>OnTarget] BEFORE Damage (R001);
+    // steals Magic (was drain Mana after the hit). The four comparisons are independent of the Magic moved, so one
+    // count taken before the steal equals the native per-step checks; the hit then uses the raised Magic.
     build: skill(
-    dmg('enemyChosen', 3, 1),
-    reduce('lastTarget', 'mana', 0, 0, { modifier: boostPer({ kind: 'casterStatBeatsCount' }, 3) }),
+    steal('enemyChosen', 'magic', 'magic', 0, 0, { modifier: boostPer({ kind: 'casterStatBeatsCount' }, 3) }),
+    dmg('lastTarget', 3, 1),
     ),
   },
   {

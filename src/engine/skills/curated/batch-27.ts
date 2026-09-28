@@ -109,7 +109,10 @@ const SPELLS: CuratedBatch['spells'] = [
     build: skill(
       // 回收：condBonus 现支持「+N 点」条件加成（SOP「通用条件触发 / 条件加成」节），
       // targetHpDamaged 为目标相对条件、逐目标判定（batch-02 7012 同款）
-      trueDmg('enemyRandomN', 3, 1, { n: 3, condBonus: { n: 10, cond: { kind: 'targetHpDamaged' } } }),
+      // sa-I: native TrueDamage@RandomEnemy + 2x @RandomPrefNotPrevEnemy, each [AddForDamaged 10] checked at its own hit
+      // (was 3 distinct random enemies in one segment; PrefNotPrev may return to the first enemy, now wounded).
+      ...(['enemyRandom', 'enemyRandomPrefNotPrev', 'enemyRandomPrefNotPrev'] as const).map(t =>
+        trueDmg(t, 3, 1, { condBonus: { n: 10, cond: { kind: 'targetHpDamaged' } } })),
       // 尔福小宠 = UlfsMascot（troops.json 7007，§6 命令核实）
       summonRef('UlfsMascot', 7007),
     ),
