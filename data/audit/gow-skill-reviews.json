@@ -78652,369 +78652,13 @@
       ]
     },
     {
+      "format": "compact",
       "key": "troop:7070",
-      "scope": "stored-gow-snapshot",
-      "sourceDigest": "2d3b6ec575e1ae28e1b7d4d4e30626514625ef482f8786a991e8c793c9dfce34",
-      "reviewer": "sa-L3",
-      "reviewedAt": "2026-09-27",
       "decision": "accept",
-      "sourceEvidence": [
-        {
-          "id": "en",
-          "role": "english-snapshot",
-          "path": "data/raw/troops.gow.en.json",
-          "note": "troop:7070 Sky Scorpion SpellId 8598, cost 10, Green/Yellow; \"Poison and drain 7 Mana from all Enemies. Then remove all Skulls. Can only be cast once.\""
-        },
-        {
-          "id": "native",
-          "role": "native-snapshot",
-          "path": "data/raw/spells.gow.en.json",
-          "note": "Spell 8598 Cost 10 Target None; CausePoison AllEnemies -> DecreaseMana AllEnemies Amount 7 (no SPM) -> RemoveColor Skull 100 -> DisableMySpell Self."
-        },
-        {
-          "id": "rule",
-          "role": "official-shared-rule",
-          "path": "artifacts/gow-skill-audit/gold-primary-sources/official-status-effects.html",
-          "note": "Poison never self-cures; Blessed blocks Mana Drain."
-        },
-        {
-          "id": "laneTest",
-          "role": "lane-battle-test",
-          "path": "tests/unit/gowLaneL3B02.test.ts",
-          "note": "troop:7070: real TurnEngine.castSkill both sides + boundaries"
-        },
-        {
-          "id": "r004",
-          "role": "user-ruling",
-          "path": "tasks/active/gow-skill-shards/rulings/R004-status-durations.md",
-          "note": "Status durations: no hard cap, cumulative recovery; Cause* Amount ignored."
-        },
-        {
-          "id": "r006",
-          "role": "user-ruling",
-          "path": "tasks/active/gow-skill-shards/rulings/R006-hidden-mechanics-conventions.md",
-          "note": "Project conventions C1 (round) / C2 (Cause* Amount ignored)."
-        }
-      ],
-      "dimensions": {
-        "identity-cost-colors": {
-          "status": "verified",
-          "note": "troop:7070 -> 8598, cost 10, Green/Yellow.",
-          "evidenceIds": [
-            "en",
-            "native",
-            "rule",
-            "laneTest",
-            "r004",
-            "r006"
-          ],
-          "tests": [
-            "tests/unit/gowLaneL3B02.test.ts"
-          ]
-        },
-        "target-count-range": {
-          "status": "verified",
-          "note": "All living enemies poisoned and drained.",
-          "evidenceIds": [
-            "en",
-            "native",
-            "rule",
-            "laneTest",
-            "r004",
-            "r006"
-          ],
-          "tests": [
-            "tests/unit/gowLaneL3B02.test.ts"
-          ]
-        },
-        "base-formula-rounding": {
-          "status": "verified",
-          "note": "FIXED L3-008: fixed 7 drain (magic 0 and 10 identical), clamped at 0 (20/5/7/0 -> 13/0/0/0).",
-          "evidenceIds": [
-            "en",
-            "native",
-            "rule",
-            "laneTest",
-            "r004",
-            "r006"
-          ],
-          "tests": [
-            "tests/unit/gowLaneL3B02.test.ts"
-          ]
-        },
-        "boost-source-ratio-cap": {
-          "status": "not-applicable",
-          "note": "No boost / ratio / cap clause.",
-          "evidenceIds": [
-            "en",
-            "native",
-            "rule",
-            "laneTest",
-            "r004",
-            "r006"
-          ],
-          "tests": []
-        },
-        "conditions-probabilities-branches": {
-          "status": "verified",
-          "note": "Once per battle: same troop refused on a second cast (mana kept, no log); FIXED L3-009 enemy casting the same spell does not disable mine.",
-          "evidenceIds": [
-            "en",
-            "native",
-            "rule",
-            "laneTest",
-            "r004",
-            "r006"
-          ],
-          "tests": [
-            "tests/unit/gowLaneL3B02.test.ts"
-          ]
-        },
-        "status-duration-immunity": {
-          "status": "verified",
-          "note": "Poison (magnitude 3) on all enemies; no expiry (R004).",
-          "evidenceIds": [
-            "en",
-            "native",
-            "rule",
-            "laneTest",
-            "r004",
-            "r006"
-          ],
-          "tests": [
-            "tests/unit/gowLaneL3B02.test.ts"
-          ]
-        },
-        "gems-types-selection-resolution": {
-          "status": "verified",
-          "note": "All 5 skulls removed (RemoveColor -> destroy skulls, project assembler convention shared by the RemoveColor family); none left.",
-          "evidenceIds": [
-            "en",
-            "native",
-            "rule",
-            "laneTest",
-            "r004",
-            "r006"
-          ],
-          "tests": [
-            "tests/unit/gowLaneL3B02.test.ts"
-          ]
-        },
-        "summon-transform-pools": {
-          "status": "not-applicable",
-          "note": "No summon / transform.",
-          "evidenceIds": [
-            "en",
-            "native",
-            "rule",
-            "laneTest",
-            "r004",
-            "r006"
-          ],
-          "tests": []
-        },
-        "order-death-retargeting": {
-          "status": "verified",
-          "note": "Poison -> drain -> remove skulls matches native.",
-          "evidenceIds": [
-            "en",
-            "native",
-            "rule",
-            "laneTest",
-            "r004",
-            "r006"
-          ],
-          "tests": [
-            "tests/unit/gowLaneL3B02.test.ts"
-          ]
-        },
-        "mana-economy-extra-turn": {
-          "status": "verified",
-          "note": "FIXED L3-007: drain only, caster not refilled (mana 0); Blessed and Mana Shield enemies not drained; turn passes.",
-          "evidenceIds": [
-            "en",
-            "native",
-            "rule",
-            "laneTest",
-            "r004",
-            "r006"
-          ],
-          "tests": [
-            "tests/unit/gowLaneL3B02.test.ts"
-          ]
-        },
-        "display-description": {
-          "status": "verified",
-          "note": "zh matches.",
-          "evidenceIds": [
-            "en",
-            "native",
-            "rule",
-            "laneTest",
-            "r004",
-            "r006"
-          ],
-          "tests": [
-            "tests/unit/gowLaneL3B02.test.ts"
-          ]
-        },
-        "battle-pipeline": {
-          "status": "verified",
-          "note": "Real TurnEngine.castSkill both sides: skill-cast first, mana spent, one action-log entry, turn switch / extra-turn asserted; low-mana and Silence refusals leave board/log/turn untouched.",
-          "evidenceIds": [
-            "en",
-            "native",
-            "rule",
-            "laneTest",
-            "r004",
-            "r006"
-          ],
-          "tests": [
-            "tests/unit/gowLaneL3B02.test.ts"
-          ],
-          "realBattleEntry": true
-        }
-      },
-      "clauseReviews": [
-        {
-          "id": "c1",
-          "text": "Poison and drain 7 Mana from all Enemies.",
-          "status": "verified",
-          "note": "All enemies Poisoned and drained 7.",
-          "evidenceIds": [
-            "en",
-            "native",
-            "rule",
-            "laneTest",
-            "r004",
-            "r006"
-          ],
-          "tests": [
-            "tests/unit/gowLaneL3B02.test.ts"
-          ]
-        },
-        {
-          "id": "c2",
-          "text": "Then remove all Skulls.",
-          "status": "verified",
-          "note": "All skulls removed.",
-          "evidenceIds": [
-            "en",
-            "native",
-            "rule",
-            "laneTest",
-            "r004",
-            "r006"
-          ],
-          "tests": [
-            "tests/unit/gowLaneL3B02.test.ts"
-          ]
-        },
-        {
-          "id": "c3",
-          "text": "Can only be cast once.",
-          "status": "verified",
-          "note": "Second cast by the same troop refused.",
-          "evidenceIds": [
-            "en",
-            "native",
-            "rule",
-            "laneTest",
-            "r004",
-            "r006"
-          ],
-          "tests": [
-            "tests/unit/gowLaneL3B02.test.ts"
-          ]
-        }
-      ],
-      "nativeStepReviews": [
-        {
-          "id": "0",
-          "type": "CausePoison",
-          "status": "verified",
-          "note": "CausePoison AllEnemies.",
-          "evidenceIds": [
-            "en",
-            "native",
-            "rule",
-            "laneTest",
-            "r004",
-            "r006"
-          ],
-          "tests": [
-            "tests/unit/gowLaneL3B02.test.ts"
-          ]
-        },
-        {
-          "id": "1",
-          "type": "DecreaseMana",
-          "status": "verified",
-          "note": "DecreaseMana AllEnemies 7 fixed.",
-          "evidenceIds": [
-            "en",
-            "native",
-            "rule",
-            "laneTest",
-            "r004",
-            "r006"
-          ],
-          "tests": [
-            "tests/unit/gowLaneL3B02.test.ts"
-          ]
-        },
-        {
-          "id": "2",
-          "type": "RemoveColor",
-          "status": "verified",
-          "note": "RemoveColor Skull.",
-          "evidenceIds": [
-            "en",
-            "native",
-            "rule",
-            "laneTest",
-            "r004",
-            "r006"
-          ],
-          "tests": [
-            "tests/unit/gowLaneL3B02.test.ts"
-          ]
-        },
-        {
-          "id": "3",
-          "type": "DisableMySpell",
-          "status": "verified",
-          "note": "DisableMySpell Self (per troop).",
-          "evidenceIds": [
-            "en",
-            "native",
-            "rule",
-            "laneTest",
-            "r004",
-            "r006"
-          ],
-          "tests": [
-            "tests/unit/gowLaneL3B02.test.ts"
-          ]
-        }
-      ],
-      "branchReviews": [
-        {
-          "id": "main",
-          "status": "verified",
-          "note": "Single branch; once-per-battle refusal tested.",
-          "evidenceIds": [
-            "en",
-            "native",
-            "rule",
-            "laneTest",
-            "r004",
-            "r006"
-          ],
-          "tests": [
-            "tests/unit/gowLaneL3B02.test.ts"
-          ]
-        }
+      "reviewer": "sa-P",
+      "reviewedAt": "2026-09-28T13:55:00.957Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
       ]
     },
     {
@@ -89847,12 +89491,11 @@
       "format": "compact",
       "key": "troop:6052",
       "decision": "accept",
-      "reviewer": "coord",
-      "reviewedAt": "2026-09-28T05:09:31.386Z",
+      "reviewer": "sa-P",
+      "reviewedAt": "2026-09-28T13:54:58.370Z",
       "tests": [
         "tests/unit/gowCastGolden.test.ts"
-      ],
-      "note": "re-approved after remove mode (no mana/skull damage from removed gems)"
+      ]
     },
     {
       "format": "compact",
@@ -92432,8 +92075,8 @@
       "format": "compact",
       "key": "troop:6873",
       "decision": "accept",
-      "reviewer": "sa-R1",
-      "reviewedAt": "2026-09-28T03:01:49.428Z",
+      "reviewer": "sa-P",
+      "reviewedAt": "2026-09-28T13:54:58.370Z",
       "tests": [
         "tests/unit/gowCastGolden.test.ts"
       ]
@@ -92984,8 +92627,8 @@
       "format": "compact",
       "key": "weapon:1193",
       "decision": "accept",
-      "reviewer": "sa-R2",
-      "reviewedAt": "2026-09-28T02:43:22.778Z",
+      "reviewer": "sa-P",
+      "reviewedAt": "2026-09-28T13:43:18.207Z",
       "tests": [
         "tests/unit/gowCastGolden.test.ts"
       ]
@@ -94040,8 +93683,8 @@
       "format": "compact",
       "key": "troop:6248",
       "decision": "accept",
-      "reviewer": "sa-R3",
-      "reviewedAt": "2026-09-28T02:36:49.092Z",
+      "reviewer": "sa-P",
+      "reviewedAt": "2026-09-28T13:43:20.469Z",
       "tests": [
         "tests/unit/gowCastGolden.test.ts"
       ]
@@ -99175,11 +98818,13 @@
     {
       "format": "compact",
       "key": "weapon:1623",
-      "decision": "issue",
-      "reviewer": "sa-R7",
-      "reviewedAt": "2026-09-28T05:49:20.204Z",
-      "issue": "L3-005",
-      "note": "GenerateHalfManaConditional@AllAlliesButNotSelf (Immortal Selene): odd manaCost ally gets floor(cost/2) (13 -> 6); rounding unsourced, not in R006. Damage 2+M+4 x Purple gems and troopPresent gate verified."
+      "decision": "accept",
+      "reviewer": "sa-B",
+      "reviewedAt": "2026-09-28T12:52:12.547Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ],
+      "note": "R013-1 resolves L3-005: quarter/half mana floor(manaCost x ratio) (current behaviour; test gowLaneL4bR5)"
     },
     {
       "format": "compact",
@@ -99254,29 +98899,35 @@
     {
       "format": "compact",
       "key": "troop:7804",
-      "decision": "issue",
-      "reviewer": "sa-R7",
-      "reviewedAt": "2026-09-28T05:57:15.516Z",
-      "issue": "L3-005",
-      "note": "GenerateHalfManaConditional@AllAllies [AddForKill]: odd-cost ally gets floor(cost/2) (11 -> 5); rounding unsourced, not in R006. Centaur x2 damage and kill gate verified."
+      "decision": "accept",
+      "reviewer": "sa-B",
+      "reviewedAt": "2026-09-28T12:52:12.548Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ],
+      "note": "R013-1 resolves L3-005: quarter/half mana floor(manaCost x ratio) (current behaviour; test gowLaneL4bR5)"
     },
     {
       "format": "compact",
       "key": "troop:7319",
-      "decision": "issue",
-      "reviewer": "sa-R7",
-      "reviewedAt": "2026-09-28T05:57:15.614Z",
-      "issue": "L3-013",
-      "note": "GenerateRandomMana 8 (3-8) to other allies: one roll shared by all recipients vs per-ally roll unsourced. Other steps verified (7319 CountAttack 34 floor; 6259 fixed to chosen ally pre-buff Attack)."
+      "decision": "accept",
+      "reviewer": "sa-B",
+      "reviewedAt": "2026-09-28T12:52:10.202Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ],
+      "note": "R013-2 resolves L3-013: one shared random-mana roll (current behaviour; test gowLaneL4bR5)"
     },
     {
       "format": "compact",
       "key": "troop:6259",
-      "decision": "issue",
-      "reviewer": "sa-R7",
-      "reviewedAt": "2026-09-28T05:57:15.616Z",
-      "issue": "L3-013",
-      "note": "GenerateRandomMana 8 (3-8) to other allies: one roll shared by all recipients vs per-ally roll unsourced. Other steps verified (7319 CountAttack 34 floor; 6259 fixed to chosen ally pre-buff Attack)."
+      "decision": "accept",
+      "reviewer": "sa-B",
+      "reviewedAt": "2026-09-28T12:52:10.203Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ],
+      "note": "R013-2 resolves L3-013: one shared random-mana roll (current behaviour; test gowLaneL4bR5)"
     },
     {
       "format": "compact",
@@ -99470,11 +99121,13 @@
     {
       "format": "compact",
       "key": "troop:6928",
-      "decision": "issue",
-      "reviewer": "sa-R7",
-      "reviewedAt": "2026-09-28T08:22:50.244Z",
-      "issue": "L3-005",
-      "note": "8406 GenerateQuarterMana to other allies: floor(manaCost/4) rounding unsourced (L3-005). Rest verified: x7 Red gems per full-Mana enemy (test), 15% self destruct; ZH desc fixed 8->7."
+      "decision": "accept",
+      "reviewer": "sa-B",
+      "reviewedAt": "2026-09-28T12:52:12.548Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ],
+      "note": "R013-1 resolves L3-005: quarter/half mana floor(manaCost x ratio) (current behaviour; test gowLaneL4bR5)"
     },
     {
       "format": "compact",
@@ -100102,20 +99755,23 @@
     {
       "format": "compact",
       "key": "weapon:1376",
-      "decision": "issue",
-      "reviewer": "sa-R7",
-      "reviewedAt": "2026-09-28T08:53:51.024Z",
-      "issue": "L3-005",
-      "note": "8439 GenerateQuarterMana@FromTarget: floor(manaCost/4) rounding unsourced (L3-005). Rest verified after fix: chosen ally only, Life 1 + Magic + 2/Brown gem (test)."
+      "decision": "accept",
+      "reviewer": "sa-B",
+      "reviewedAt": "2026-09-28T12:52:12.549Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ],
+      "note": "R013-1 resolves L3-005: quarter/half mana floor(manaCost x ratio) (current behaviour; test gowLaneL4bR5)"
     },
     {
       "format": "compact",
       "key": "troop:7287",
-      "decision": "issue",
-      "reviewer": "sa-R7",
-      "reviewedAt": "2026-09-28T08:53:51.115Z",
-      "issue": "L3-remove-all-skulls",
-      "note": "8861 native RemoveGems 100 (EN 'Remove all Gems') assembled as destroyAllColors, which leaves Skulls on the board (L10: 5 skulls kept); same for 7137. Does 'all Gems' include Skulls? Extra-turn count moved before the removal (fixed, test)."
+      "decision": "accept",
+      "reviewer": "sa-P",
+      "reviewedAt": "2026-09-28T13:54:55.956Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
     },
     {
       "format": "compact",
@@ -100449,11 +100105,13 @@
     {
       "format": "compact",
       "key": "troop:7405",
-      "decision": "issue",
-      "reviewer": "sa-R7",
-      "reviewedAt": "2026-09-28T09:07:29.604Z",
-      "issue": "L3-013",
-      "note": "9055 GenerateRandomMana 10 to other allies: one roll shared vs per-ally (L3-013). Blessed allies x4 damage boost verified by trace."
+      "decision": "accept",
+      "reviewer": "sa-B",
+      "reviewedAt": "2026-09-28T12:52:10.203Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ],
+      "note": "R013-2 resolves L3-013: one shared random-mana roll (current behaviour; test gowLaneL4bR5)"
     },
     {
       "format": "compact",
@@ -101050,11 +100708,13 @@
     {
       "format": "compact",
       "key": "weapon:1404",
-      "decision": "issue",
-      "reviewer": "sa-A",
-      "reviewedAt": "2026-09-28T10:46:34.740Z",
-      "issue": "L4a-r3-1404-counter-accumulate",
-      "note": "source dispute: native CountGems Purple -> RemoveColor -> CreateGems (counter) -> CountGems Yellow (UseCounterForAmount, no CountSet) -> IncreaseHealth. Elsewhere natives reset with CountSet before a second count (troop:7586), and R007-1 sums Count steps, so native heal boost may be Purple removed + Yellow on board; English says Yellow on board only (current). Also unclear whether the removed holes refill before the Yellow count. Needs coordinator ruling on counter accumulation without CountSet."
+      "decision": "accept",
+      "reviewer": "sa-B",
+      "reviewedAt": "2026-09-28T12:52:05.493Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ],
+      "note": "R013-4 resolves L4a-r3-1404-counter-accumulate: heal boost = Yellow on board only (current behaviour; test gowLaneL4bR5)"
     },
     {
       "format": "compact",
@@ -103780,12 +103440,12 @@
       "format": "compact",
       "key": "weapon:1203",
       "decision": "accept",
-      "reviewer": "sa-D",
-      "reviewedAt": "2026-09-28T10:44:29.294Z",
+      "reviewer": "sa-B",
+      "reviewedAt": "2026-09-28T12:52:03.084Z",
       "tests": [
         "tests/unit/gowCastGolden.test.ts"
       ],
-      "note": "1203: native plain RandomEnemy (may repeat the chosen target) kept over English 'another'"
+      "note": "R013-3: second hit RandomPrefNotPrev (fixed; test gowLaneL4bR5)"
     },
     {
       "format": "compact",
@@ -104168,8 +103828,8 @@
       "format": "compact",
       "key": "weapon:1071",
       "decision": "accept",
-      "reviewer": "sa-A",
-      "reviewedAt": "2026-09-28T11:10:17.316Z",
+      "reviewer": "sa-P",
+      "reviewedAt": "2026-09-28T13:54:58.371Z",
       "tests": [
         "tests/unit/gowCastGolden.test.ts"
       ]
@@ -104188,8 +103848,8 @@
       "format": "compact",
       "key": "troop:7348",
       "decision": "accept",
-      "reviewer": "sa-A",
-      "reviewedAt": "2026-09-28T11:10:17.317Z",
+      "reviewer": "sa-P",
+      "reviewedAt": "2026-09-28T13:54:58.371Z",
       "tests": [
         "tests/unit/gowCastGolden.test.ts"
       ]
@@ -104946,11 +104606,12 @@
     {
       "format": "compact",
       "key": "troop:6937",
-      "decision": "issue",
-      "reviewer": "sa-C",
-      "reviewedAt": "2026-09-28T11:20:39.380Z",
-      "issue": "P-C-firstlast-army-color",
-      "note": "Barrier must read the first/last enemies' Purple mana (CountArmyColor@FirstLastEnemies), curated reads any enemy; damage part fixed per target"
+      "decision": "accept",
+      "reviewer": "sa-P",
+      "reviewedAt": "2026-09-28T14:02:07.566Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
     },
     {
       "format": "compact",
@@ -105132,218 +104793,266 @@
     {
       "format": "compact",
       "key": "weapon:1364",
-      "decision": "issue",
-      "reviewer": "sa-E",
-      "reviewedAt": "2026-09-28T11:55:27.156Z",
-      "issue": "P-E-faction-kingdom",
-      "note": "Summon pool fixed to raw kingdom id; RandomPositiveStatusEffect@AllyKingdom <id> still filters by zh kingdom name, which includes that kingdom's faction troops (primitive-queue/sa-E.jsonl)"
+      "decision": "accept",
+      "reviewer": "sa-P",
+      "reviewedAt": "2026-09-28T13:09:15.523Z",
+      "tests": [
+        "tests/unit/gowFixP-E-faction-kingdom.test.ts"
+      ],
+      "note": "P-E-faction-kingdom: RandomPositiveStatusEffect@AllyKingdom <id> now filters by raw KingdomId (targetKingdom number, Character.kingdomId), faction troops excluded; explode + raw summon pool unchanged"
     },
     {
       "format": "compact",
       "key": "weapon:1410",
-      "decision": "issue",
-      "reviewer": "sa-E",
-      "reviewedAt": "2026-09-28T11:55:27.157Z",
-      "issue": "P-E-faction-kingdom",
-      "note": "Summon pool fixed to raw kingdom id; RandomPositiveStatusEffect@AllyKingdom <id> still filters by zh kingdom name, which includes that kingdom's faction troops (primitive-queue/sa-E.jsonl)"
+      "decision": "accept",
+      "reviewer": "sa-P",
+      "reviewedAt": "2026-09-28T13:09:15.524Z",
+      "tests": [
+        "tests/unit/gowFixP-E-faction-kingdom.test.ts"
+      ],
+      "note": "P-E-faction-kingdom: RandomPositiveStatusEffect@AllyKingdom <id> now filters by raw KingdomId (targetKingdom number, Character.kingdomId), faction troops excluded; explode + raw summon pool unchanged"
     },
     {
       "format": "compact",
       "key": "weapon:1412",
-      "decision": "issue",
-      "reviewer": "sa-E",
-      "reviewedAt": "2026-09-28T11:55:27.157Z",
-      "issue": "P-E-faction-kingdom",
-      "note": "Summon pool fixed to raw kingdom id; RandomPositiveStatusEffect@AllyKingdom <id> still filters by zh kingdom name, which includes that kingdom's faction troops (primitive-queue/sa-E.jsonl)"
+      "decision": "accept",
+      "reviewer": "sa-P",
+      "reviewedAt": "2026-09-28T13:09:15.524Z",
+      "tests": [
+        "tests/unit/gowFixP-E-faction-kingdom.test.ts"
+      ],
+      "note": "P-E-faction-kingdom: RandomPositiveStatusEffect@AllyKingdom <id> now filters by raw KingdomId (targetKingdom number, Character.kingdomId), faction troops excluded; explode + raw summon pool unchanged"
     },
     {
       "format": "compact",
       "key": "weapon:1438",
-      "decision": "issue",
-      "reviewer": "sa-E",
-      "reviewedAt": "2026-09-28T11:55:27.157Z",
-      "issue": "P-E-faction-kingdom",
-      "note": "Summon pool fixed to raw kingdom id; RandomPositiveStatusEffect@AllyKingdom <id> still filters by zh kingdom name, which includes that kingdom's faction troops (primitive-queue/sa-E.jsonl)"
+      "decision": "accept",
+      "reviewer": "sa-P",
+      "reviewedAt": "2026-09-28T13:09:15.524Z",
+      "tests": [
+        "tests/unit/gowFixP-E-faction-kingdom.test.ts"
+      ],
+      "note": "P-E-faction-kingdom: RandomPositiveStatusEffect@AllyKingdom <id> now filters by raw KingdomId (targetKingdom number, Character.kingdomId), faction troops excluded; explode + raw summon pool unchanged"
     },
     {
       "format": "compact",
       "key": "weapon:1464",
-      "decision": "issue",
-      "reviewer": "sa-E",
-      "reviewedAt": "2026-09-28T12:03:32.674Z",
-      "issue": "P-E-faction-kingdom",
-      "note": "Explode [M+1] colour, summon pool fixed to raw native kingdom id (gowKingdomPools); RandomPositiveStatusEffect@AllyKingdom still filters by zh kingdom name incl. faction troops"
+      "decision": "accept",
+      "reviewer": "sa-P",
+      "reviewedAt": "2026-09-28T13:09:15.525Z",
+      "tests": [
+        "tests/unit/gowFixP-E-faction-kingdom.test.ts"
+      ],
+      "note": "P-E-faction-kingdom: RandomPositiveStatusEffect@AllyKingdom <id> now filters by raw KingdomId (targetKingdom number, Character.kingdomId), faction troops excluded; explode + raw summon pool unchanged"
     },
     {
       "format": "compact",
       "key": "weapon:1465",
-      "decision": "issue",
-      "reviewer": "sa-E",
-      "reviewedAt": "2026-09-28T12:03:32.675Z",
-      "issue": "P-E-faction-kingdom",
-      "note": "Explode [M+1] colour, summon pool fixed to raw native kingdom id (gowKingdomPools); RandomPositiveStatusEffect@AllyKingdom still filters by zh kingdom name incl. faction troops"
+      "decision": "accept",
+      "reviewer": "sa-P",
+      "reviewedAt": "2026-09-28T13:09:15.525Z",
+      "tests": [
+        "tests/unit/gowFixP-E-faction-kingdom.test.ts"
+      ],
+      "note": "P-E-faction-kingdom: RandomPositiveStatusEffect@AllyKingdom <id> now filters by raw KingdomId (targetKingdom number, Character.kingdomId), faction troops excluded; explode + raw summon pool unchanged"
     },
     {
       "format": "compact",
       "key": "weapon:1497",
-      "decision": "issue",
-      "reviewer": "sa-E",
-      "reviewedAt": "2026-09-28T12:03:32.676Z",
-      "issue": "P-E-faction-kingdom",
-      "note": "Explode [M+1] colour, summon pool fixed to raw native kingdom id (gowKingdomPools); RandomPositiveStatusEffect@AllyKingdom still filters by zh kingdom name incl. faction troops"
+      "decision": "accept",
+      "reviewer": "sa-P",
+      "reviewedAt": "2026-09-28T13:09:15.525Z",
+      "tests": [
+        "tests/unit/gowFixP-E-faction-kingdom.test.ts"
+      ],
+      "note": "P-E-faction-kingdom: RandomPositiveStatusEffect@AllyKingdom <id> now filters by raw KingdomId (targetKingdom number, Character.kingdomId), faction troops excluded; explode + raw summon pool unchanged"
     },
     {
       "format": "compact",
       "key": "weapon:1511",
-      "decision": "issue",
-      "reviewer": "sa-E",
-      "reviewedAt": "2026-09-28T12:03:32.676Z",
-      "issue": "P-E-faction-kingdom",
-      "note": "Explode [M+1] colour, summon pool fixed to raw native kingdom id (gowKingdomPools); RandomPositiveStatusEffect@AllyKingdom still filters by zh kingdom name incl. faction troops"
+      "decision": "accept",
+      "reviewer": "sa-P",
+      "reviewedAt": "2026-09-28T13:09:15.525Z",
+      "tests": [
+        "tests/unit/gowFixP-E-faction-kingdom.test.ts"
+      ],
+      "note": "P-E-faction-kingdom: RandomPositiveStatusEffect@AllyKingdom <id> now filters by raw KingdomId (targetKingdom number, Character.kingdomId), faction troops excluded; explode + raw summon pool unchanged"
     },
     {
       "format": "compact",
       "key": "weapon:1534",
-      "decision": "issue",
-      "reviewer": "sa-E",
-      "reviewedAt": "2026-09-28T12:03:32.676Z",
-      "issue": "P-E-faction-kingdom",
-      "note": "Explode [M+1] colour, summon pool fixed to raw native kingdom id (gowKingdomPools); RandomPositiveStatusEffect@AllyKingdom still filters by zh kingdom name incl. faction troops"
+      "decision": "accept",
+      "reviewer": "sa-P",
+      "reviewedAt": "2026-09-28T13:09:15.525Z",
+      "tests": [
+        "tests/unit/gowFixP-E-faction-kingdom.test.ts"
+      ],
+      "note": "P-E-faction-kingdom: RandomPositiveStatusEffect@AllyKingdom <id> now filters by raw KingdomId (targetKingdom number, Character.kingdomId), faction troops excluded; explode + raw summon pool unchanged"
     },
     {
       "format": "compact",
       "key": "weapon:1536",
-      "decision": "issue",
-      "reviewer": "sa-E",
-      "reviewedAt": "2026-09-28T12:03:32.676Z",
-      "issue": "P-E-faction-kingdom",
-      "note": "Explode [M+1] colour, summon pool fixed to raw native kingdom id (gowKingdomPools); RandomPositiveStatusEffect@AllyKingdom still filters by zh kingdom name incl. faction troops"
+      "decision": "accept",
+      "reviewer": "sa-P",
+      "reviewedAt": "2026-09-28T13:09:15.526Z",
+      "tests": [
+        "tests/unit/gowFixP-E-faction-kingdom.test.ts"
+      ],
+      "note": "P-E-faction-kingdom: RandomPositiveStatusEffect@AllyKingdom <id> now filters by raw KingdomId (targetKingdom number, Character.kingdomId), faction troops excluded; explode + raw summon pool unchanged"
     },
     {
       "format": "compact",
       "key": "weapon:1541",
-      "decision": "issue",
-      "reviewer": "sa-E",
-      "reviewedAt": "2026-09-28T12:03:32.676Z",
-      "issue": "P-E-faction-kingdom",
-      "note": "Explode [M+1] colour, summon pool fixed to raw native kingdom id (gowKingdomPools); RandomPositiveStatusEffect@AllyKingdom still filters by zh kingdom name incl. faction troops"
+      "decision": "accept",
+      "reviewer": "sa-P",
+      "reviewedAt": "2026-09-28T13:09:15.526Z",
+      "tests": [
+        "tests/unit/gowFixP-E-faction-kingdom.test.ts"
+      ],
+      "note": "P-E-faction-kingdom: RandomPositiveStatusEffect@AllyKingdom <id> now filters by raw KingdomId (targetKingdom number, Character.kingdomId), faction troops excluded; explode + raw summon pool unchanged"
     },
     {
       "format": "compact",
       "key": "weapon:1544",
-      "decision": "issue",
-      "reviewer": "sa-E",
-      "reviewedAt": "2026-09-28T12:03:32.676Z",
-      "issue": "P-E-faction-kingdom",
-      "note": "Explode [M+1] colour, summon pool fixed to raw native kingdom id (gowKingdomPools); RandomPositiveStatusEffect@AllyKingdom still filters by zh kingdom name incl. faction troops"
+      "decision": "accept",
+      "reviewer": "sa-P",
+      "reviewedAt": "2026-09-28T13:09:15.526Z",
+      "tests": [
+        "tests/unit/gowFixP-E-faction-kingdom.test.ts"
+      ],
+      "note": "P-E-faction-kingdom: RandomPositiveStatusEffect@AllyKingdom <id> now filters by raw KingdomId (targetKingdom number, Character.kingdomId), faction troops excluded; explode + raw summon pool unchanged"
     },
     {
       "format": "compact",
       "key": "weapon:1553",
-      "decision": "issue",
-      "reviewer": "sa-E",
-      "reviewedAt": "2026-09-28T12:03:32.676Z",
-      "issue": "P-E-faction-kingdom",
-      "note": "Explode [M+1] colour, summon pool fixed to raw native kingdom id (gowKingdomPools); RandomPositiveStatusEffect@AllyKingdom still filters by zh kingdom name incl. faction troops"
+      "decision": "accept",
+      "reviewer": "sa-P",
+      "reviewedAt": "2026-09-28T13:09:15.526Z",
+      "tests": [
+        "tests/unit/gowFixP-E-faction-kingdom.test.ts"
+      ],
+      "note": "P-E-faction-kingdom: RandomPositiveStatusEffect@AllyKingdom <id> now filters by raw KingdomId (targetKingdom number, Character.kingdomId), faction troops excluded; explode + raw summon pool unchanged"
     },
     {
       "format": "compact",
       "key": "weapon:1556",
-      "decision": "issue",
-      "reviewer": "sa-E",
-      "reviewedAt": "2026-09-28T12:03:32.677Z",
-      "issue": "P-E-faction-kingdom",
-      "note": "Explode [M+1] colour, summon pool fixed to raw native kingdom id (gowKingdomPools); RandomPositiveStatusEffect@AllyKingdom still filters by zh kingdom name incl. faction troops"
+      "decision": "accept",
+      "reviewer": "sa-P",
+      "reviewedAt": "2026-09-28T13:09:15.526Z",
+      "tests": [
+        "tests/unit/gowFixP-E-faction-kingdom.test.ts"
+      ],
+      "note": "P-E-faction-kingdom: RandomPositiveStatusEffect@AllyKingdom <id> now filters by raw KingdomId (targetKingdom number, Character.kingdomId), faction troops excluded; explode + raw summon pool unchanged"
     },
     {
       "format": "compact",
       "key": "weapon:1569",
-      "decision": "issue",
-      "reviewer": "sa-E",
-      "reviewedAt": "2026-09-28T12:06:15.803Z",
-      "issue": "P-E-faction-kingdom",
-      "note": "Explode [M+1] colour, summon pool fixed to raw native kingdom id (gowKingdomPools); RandomPositiveStatusEffect@AllyKingdom still filters by zh kingdom name incl. faction troops"
+      "decision": "accept",
+      "reviewer": "sa-P",
+      "reviewedAt": "2026-09-28T13:09:15.526Z",
+      "tests": [
+        "tests/unit/gowFixP-E-faction-kingdom.test.ts"
+      ],
+      "note": "P-E-faction-kingdom: RandomPositiveStatusEffect@AllyKingdom <id> now filters by raw KingdomId (targetKingdom number, Character.kingdomId), faction troops excluded; explode + raw summon pool unchanged"
     },
     {
       "format": "compact",
       "key": "weapon:1573",
-      "decision": "issue",
-      "reviewer": "sa-E",
-      "reviewedAt": "2026-09-28T12:06:15.804Z",
-      "issue": "P-E-faction-kingdom",
-      "note": "Explode [M+1] colour, summon pool fixed to raw native kingdom id (gowKingdomPools); RandomPositiveStatusEffect@AllyKingdom still filters by zh kingdom name incl. faction troops"
+      "decision": "accept",
+      "reviewer": "sa-P",
+      "reviewedAt": "2026-09-28T13:09:15.527Z",
+      "tests": [
+        "tests/unit/gowFixP-E-faction-kingdom.test.ts"
+      ],
+      "note": "P-E-faction-kingdom: RandomPositiveStatusEffect@AllyKingdom <id> now filters by raw KingdomId (targetKingdom number, Character.kingdomId), faction troops excluded; explode + raw summon pool unchanged"
     },
     {
       "format": "compact",
       "key": "weapon:1576",
-      "decision": "issue",
-      "reviewer": "sa-E",
-      "reviewedAt": "2026-09-28T12:06:15.804Z",
-      "issue": "P-E-faction-kingdom",
-      "note": "Explode [M+1] colour, summon pool fixed to raw native kingdom id (gowKingdomPools); RandomPositiveStatusEffect@AllyKingdom still filters by zh kingdom name incl. faction troops"
+      "decision": "accept",
+      "reviewer": "sa-P",
+      "reviewedAt": "2026-09-28T13:09:15.527Z",
+      "tests": [
+        "tests/unit/gowFixP-E-faction-kingdom.test.ts"
+      ],
+      "note": "P-E-faction-kingdom: RandomPositiveStatusEffect@AllyKingdom <id> now filters by raw KingdomId (targetKingdom number, Character.kingdomId), faction troops excluded; explode + raw summon pool unchanged"
     },
     {
       "format": "compact",
       "key": "weapon:1583",
-      "decision": "issue",
-      "reviewer": "sa-E",
-      "reviewedAt": "2026-09-28T12:06:15.804Z",
-      "issue": "P-E-faction-kingdom",
-      "note": "Explode [M+1] colour, summon pool fixed to raw native kingdom id (gowKingdomPools); RandomPositiveStatusEffect@AllyKingdom still filters by zh kingdom name incl. faction troops"
+      "decision": "accept",
+      "reviewer": "sa-P",
+      "reviewedAt": "2026-09-28T13:09:15.527Z",
+      "tests": [
+        "tests/unit/gowFixP-E-faction-kingdom.test.ts"
+      ],
+      "note": "P-E-faction-kingdom: RandomPositiveStatusEffect@AllyKingdom <id> now filters by raw KingdomId (targetKingdom number, Character.kingdomId), faction troops excluded; explode + raw summon pool unchanged"
     },
     {
       "format": "compact",
       "key": "weapon:1587",
-      "decision": "issue",
-      "reviewer": "sa-E",
-      "reviewedAt": "2026-09-28T12:06:15.804Z",
-      "issue": "P-E-faction-kingdom",
-      "note": "Explode [M+1] colour, summon pool fixed to raw native kingdom id (gowKingdomPools); RandomPositiveStatusEffect@AllyKingdom still filters by zh kingdom name incl. faction troops"
+      "decision": "accept",
+      "reviewer": "sa-P",
+      "reviewedAt": "2026-09-28T13:09:15.527Z",
+      "tests": [
+        "tests/unit/gowFixP-E-faction-kingdom.test.ts"
+      ],
+      "note": "P-E-faction-kingdom: RandomPositiveStatusEffect@AllyKingdom <id> now filters by raw KingdomId (targetKingdom number, Character.kingdomId), faction troops excluded; explode + raw summon pool unchanged"
     },
     {
       "format": "compact",
       "key": "weapon:1617",
-      "decision": "issue",
-      "reviewer": "sa-E",
-      "reviewedAt": "2026-09-28T12:06:15.805Z",
-      "issue": "P-E-faction-kingdom",
-      "note": "Explode [M+1] colour, summon pool fixed to raw native kingdom id (gowKingdomPools); RandomPositiveStatusEffect@AllyKingdom still filters by zh kingdom name incl. faction troops"
+      "decision": "accept",
+      "reviewer": "sa-P",
+      "reviewedAt": "2026-09-28T13:09:15.527Z",
+      "tests": [
+        "tests/unit/gowFixP-E-faction-kingdom.test.ts"
+      ],
+      "note": "P-E-faction-kingdom: RandomPositiveStatusEffect@AllyKingdom <id> now filters by raw KingdomId (targetKingdom number, Character.kingdomId), faction troops excluded; explode + raw summon pool unchanged"
     },
     {
       "format": "compact",
       "key": "weapon:1629",
-      "decision": "issue",
-      "reviewer": "sa-E",
-      "reviewedAt": "2026-09-28T12:06:15.805Z",
-      "issue": "P-E-faction-kingdom",
-      "note": "Explode [M+1] colour, summon pool fixed to raw native kingdom id (gowKingdomPools); RandomPositiveStatusEffect@AllyKingdom still filters by zh kingdom name incl. faction troops"
+      "decision": "accept",
+      "reviewer": "sa-P",
+      "reviewedAt": "2026-09-28T13:09:15.527Z",
+      "tests": [
+        "tests/unit/gowFixP-E-faction-kingdom.test.ts"
+      ],
+      "note": "P-E-faction-kingdom: RandomPositiveStatusEffect@AllyKingdom <id> now filters by raw KingdomId (targetKingdom number, Character.kingdomId), faction troops excluded; explode + raw summon pool unchanged"
     },
     {
       "format": "compact",
       "key": "weapon:1638",
-      "decision": "issue",
-      "reviewer": "sa-E",
-      "reviewedAt": "2026-09-28T12:06:15.805Z",
-      "issue": "P-E-faction-kingdom",
-      "note": "Explode [M+1] colour, summon pool fixed to raw native kingdom id (gowKingdomPools); RandomPositiveStatusEffect@AllyKingdom still filters by zh kingdom name incl. faction troops"
+      "decision": "accept",
+      "reviewer": "sa-P",
+      "reviewedAt": "2026-09-28T13:09:15.527Z",
+      "tests": [
+        "tests/unit/gowFixP-E-faction-kingdom.test.ts"
+      ],
+      "note": "P-E-faction-kingdom: RandomPositiveStatusEffect@AllyKingdom <id> now filters by raw KingdomId (targetKingdom number, Character.kingdomId), faction troops excluded; explode + raw summon pool unchanged"
     },
     {
       "format": "compact",
       "key": "weapon:1388",
-      "decision": "issue",
-      "reviewer": "sa-E",
-      "reviewedAt": "2026-09-28T12:06:15.805Z",
-      "issue": "P-E-faction-kingdom",
-      "note": "Explode [M+1] colour, summon pool fixed to raw native kingdom id (gowKingdomPools); RandomPositiveStatusEffect@AllyKingdom still filters by zh kingdom name incl. faction troops"
+      "decision": "accept",
+      "reviewer": "sa-P",
+      "reviewedAt": "2026-09-28T13:09:15.528Z",
+      "tests": [
+        "tests/unit/gowFixP-E-faction-kingdom.test.ts"
+      ],
+      "note": "P-E-faction-kingdom: RandomPositiveStatusEffect@AllyKingdom <id> now filters by raw KingdomId (targetKingdom number, Character.kingdomId), faction troops excluded; explode + raw summon pool unchanged"
     },
     {
       "format": "compact",
       "key": "weapon:1402",
-      "decision": "issue",
-      "reviewer": "sa-E",
-      "reviewedAt": "2026-09-28T12:06:15.805Z",
-      "issue": "P-E-faction-kingdom",
-      "note": "Explode [M+1] colour, summon pool fixed to raw native kingdom id (gowKingdomPools); RandomPositiveStatusEffect@AllyKingdom still filters by zh kingdom name incl. faction troops"
+      "decision": "accept",
+      "reviewer": "sa-P",
+      "reviewedAt": "2026-09-28T13:09:15.528Z",
+      "tests": [
+        "tests/unit/gowFixP-E-faction-kingdom.test.ts"
+      ],
+      "note": "P-E-faction-kingdom: RandomPositiveStatusEffect@AllyKingdom <id> now filters by raw KingdomId (targetKingdom number, Character.kingdomId), faction troops excluded; explode + raw summon pool unchanged"
     },
     {
       "format": "compact",
@@ -105381,65 +105090,79 @@
     {
       "format": "compact",
       "key": "weapon:1407",
-      "decision": "issue",
-      "reviewer": "sa-E",
-      "reviewedAt": "2026-09-28T12:07:52.558Z",
-      "issue": "P-E-faction-kingdom",
-      "note": "Explode [M+1] colour, summon pool fixed to raw native kingdom id (gowKingdomPools); RandomPositiveStatusEffect@AllyKingdom still filters by zh kingdom name incl. faction troops"
+      "decision": "accept",
+      "reviewer": "sa-P",
+      "reviewedAt": "2026-09-28T13:09:15.528Z",
+      "tests": [
+        "tests/unit/gowFixP-E-faction-kingdom.test.ts"
+      ],
+      "note": "P-E-faction-kingdom: RandomPositiveStatusEffect@AllyKingdom <id> now filters by raw KingdomId (targetKingdom number, Character.kingdomId), faction troops excluded; explode + raw summon pool unchanged"
     },
     {
       "format": "compact",
       "key": "weapon:1411",
-      "decision": "issue",
-      "reviewer": "sa-E",
-      "reviewedAt": "2026-09-28T12:07:52.559Z",
-      "issue": "P-E-faction-kingdom",
-      "note": "Explode [M+1] colour, summon pool fixed to raw native kingdom id (gowKingdomPools); RandomPositiveStatusEffect@AllyKingdom still filters by zh kingdom name incl. faction troops"
+      "decision": "accept",
+      "reviewer": "sa-P",
+      "reviewedAt": "2026-09-28T13:09:15.528Z",
+      "tests": [
+        "tests/unit/gowFixP-E-faction-kingdom.test.ts"
+      ],
+      "note": "P-E-faction-kingdom: RandomPositiveStatusEffect@AllyKingdom <id> now filters by raw KingdomId (targetKingdom number, Character.kingdomId), faction troops excluded; explode + raw summon pool unchanged"
     },
     {
       "format": "compact",
       "key": "weapon:1449",
-      "decision": "issue",
-      "reviewer": "sa-E",
-      "reviewedAt": "2026-09-28T12:07:52.560Z",
-      "issue": "P-E-faction-kingdom",
-      "note": "Explode [M+1] colour, summon pool fixed to raw native kingdom id (gowKingdomPools); RandomPositiveStatusEffect@AllyKingdom still filters by zh kingdom name incl. faction troops"
+      "decision": "accept",
+      "reviewer": "sa-P",
+      "reviewedAt": "2026-09-28T13:09:15.528Z",
+      "tests": [
+        "tests/unit/gowFixP-E-faction-kingdom.test.ts"
+      ],
+      "note": "P-E-faction-kingdom: RandomPositiveStatusEffect@AllyKingdom <id> now filters by raw KingdomId (targetKingdom number, Character.kingdomId), faction troops excluded; explode + raw summon pool unchanged"
     },
     {
       "format": "compact",
       "key": "weapon:1453",
-      "decision": "issue",
-      "reviewer": "sa-E",
-      "reviewedAt": "2026-09-28T12:07:52.560Z",
-      "issue": "P-E-faction-kingdom",
-      "note": "Explode [M+1] colour, summon pool fixed to raw native kingdom id (gowKingdomPools); RandomPositiveStatusEffect@AllyKingdom still filters by zh kingdom name incl. faction troops"
+      "decision": "accept",
+      "reviewer": "sa-P",
+      "reviewedAt": "2026-09-28T13:09:15.528Z",
+      "tests": [
+        "tests/unit/gowFixP-E-faction-kingdom.test.ts"
+      ],
+      "note": "P-E-faction-kingdom: RandomPositiveStatusEffect@AllyKingdom <id> now filters by raw KingdomId (targetKingdom number, Character.kingdomId), faction troops excluded; explode + raw summon pool unchanged"
     },
     {
       "format": "compact",
       "key": "weapon:1491",
-      "decision": "issue",
-      "reviewer": "sa-E",
-      "reviewedAt": "2026-09-28T12:07:52.560Z",
-      "issue": "P-E-faction-kingdom",
-      "note": "Explode [M+1] colour, summon pool fixed to raw native kingdom id (gowKingdomPools); RandomPositiveStatusEffect@AllyKingdom still filters by zh kingdom name incl. faction troops"
+      "decision": "accept",
+      "reviewer": "sa-P",
+      "reviewedAt": "2026-09-28T13:09:15.529Z",
+      "tests": [
+        "tests/unit/gowFixP-E-faction-kingdom.test.ts"
+      ],
+      "note": "P-E-faction-kingdom: RandomPositiveStatusEffect@AllyKingdom <id> now filters by raw KingdomId (targetKingdom number, Character.kingdomId), faction troops excluded; explode + raw summon pool unchanged"
     },
     {
       "format": "compact",
       "key": "weapon:1675",
-      "decision": "issue",
-      "reviewer": "sa-E",
-      "reviewedAt": "2026-09-28T12:07:52.560Z",
-      "issue": "P-E-faction-kingdom",
-      "note": "Explode [M+1] colour, summon pool fixed to raw native kingdom id (gowKingdomPools); RandomPositiveStatusEffect@AllyKingdom still filters by zh kingdom name incl. faction troops"
+      "decision": "accept",
+      "reviewer": "sa-P",
+      "reviewedAt": "2026-09-28T13:09:15.529Z",
+      "tests": [
+        "tests/unit/gowFixP-E-faction-kingdom.test.ts"
+      ],
+      "note": "P-E-faction-kingdom: RandomPositiveStatusEffect@AllyKingdom <id> now filters by raw KingdomId (targetKingdom number, Character.kingdomId), faction troops excluded; explode + raw summon pool unchanged"
     },
     {
       "format": "compact",
       "key": "weapon:1678",
-      "decision": "issue",
-      "reviewer": "sa-E",
-      "reviewedAt": "2026-09-28T12:07:52.560Z",
-      "issue": "P-E-faction-kingdom",
-      "note": "Explode [M+1] colour, summon pool fixed to raw native kingdom id (gowKingdomPools); RandomPositiveStatusEffect@AllyKingdom still filters by zh kingdom name incl. faction troops"
+      "decision": "accept",
+      "reviewer": "sa-P",
+      "reviewedAt": "2026-09-28T13:09:15.529Z",
+      "tests": [
+        "tests/unit/gowFixP-E-faction-kingdom.test.ts"
+      ],
+      "note": "P-E-faction-kingdom: RandomPositiveStatusEffect@AllyKingdom <id> now filters by raw KingdomId (targetKingdom number, Character.kingdomId), faction troops excluded; explode + raw summon pool unchanged"
     },
     {
       "format": "compact",
@@ -105873,11 +105596,745 @@
     {
       "format": "compact",
       "key": "troop:7465",
-      "decision": "issue",
-      "reviewer": "sa-E",
-      "reviewedAt": "2026-09-28T12:23:44.407Z",
-      "issue": "L1-E-7465-random-mana-dispute",
-      "note": "source-dispute: native GenerateRandomMana@AllAlliesButNotSelf Amount 10 (English 3-10): engine rolls ONE value for all allies; no source says whether each ally rolls separately. Summon distribution fixed to 40/20/20/20 (B and F = Ragnagord)"
+      "decision": "accept",
+      "reviewer": "sa-B",
+      "reviewedAt": "2026-09-28T12:52:07.833Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ],
+      "note": "R013-2 resolves L1-E-7465-random-mana-dispute: one shared roll (current behaviour; test gowLaneL4bR5)"
+    },
+    {
+      "format": "compact",
+      "key": "troop:6067",
+      "decision": "accept",
+      "reviewer": "sa-P",
+      "reviewedAt": "2026-09-28T13:54:58.369Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:6945",
+      "decision": "accept",
+      "reviewer": "sa-B",
+      "reviewedAt": "2026-09-28T13:00:06.033Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:6239",
+      "decision": "accept",
+      "reviewer": "sa-B",
+      "reviewedAt": "2026-09-28T13:00:06.034Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:6413",
+      "decision": "accept",
+      "reviewer": "sa-B",
+      "reviewedAt": "2026-09-28T13:00:06.034Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:6070",
+      "decision": "accept",
+      "reviewer": "sa-B",
+      "reviewedAt": "2026-09-28T13:00:06.034Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:7403",
+      "decision": "accept",
+      "reviewer": "sa-B",
+      "reviewedAt": "2026-09-28T13:00:06.035Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:6065",
+      "decision": "accept",
+      "reviewer": "sa-B",
+      "reviewedAt": "2026-09-28T13:00:06.035Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:6270",
+      "decision": "accept",
+      "reviewer": "sa-B",
+      "reviewedAt": "2026-09-28T13:00:06.035Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "weapon:1067",
+      "decision": "accept",
+      "reviewer": "sa-B",
+      "reviewedAt": "2026-09-28T13:00:06.035Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "weapon:1206",
+      "decision": "accept",
+      "reviewer": "sa-B",
+      "reviewedAt": "2026-09-28T13:00:06.036Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "weapon:1091",
+      "decision": "accept",
+      "reviewer": "sa-B",
+      "reviewedAt": "2026-09-28T13:00:06.036Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "weapon:1379",
+      "decision": "accept",
+      "reviewer": "sa-B",
+      "reviewedAt": "2026-09-28T13:06:33.376Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ],
+      "note": "Doomed staves: Tempering create bonus via tempering source (not exercised at 0)"
+    },
+    {
+      "format": "compact",
+      "key": "weapon:1380",
+      "decision": "accept",
+      "reviewer": "sa-B",
+      "reviewedAt": "2026-09-28T13:06:33.377Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ],
+      "note": "Doomed staves: Tempering create bonus via tempering source (not exercised at 0)"
+    },
+    {
+      "format": "compact",
+      "key": "weapon:1381",
+      "decision": "accept",
+      "reviewer": "sa-B",
+      "reviewedAt": "2026-09-28T13:06:33.377Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ],
+      "note": "Doomed staves: Tempering create bonus via tempering source (not exercised at 0)"
+    },
+    {
+      "format": "compact",
+      "key": "weapon:1382",
+      "decision": "accept",
+      "reviewer": "sa-B",
+      "reviewedAt": "2026-09-28T13:06:33.378Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ],
+      "note": "Doomed staves: Tempering create bonus via tempering source (not exercised at 0)"
+    },
+    {
+      "format": "compact",
+      "key": "weapon:1383",
+      "decision": "accept",
+      "reviewer": "sa-B",
+      "reviewedAt": "2026-09-28T13:06:33.378Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ],
+      "note": "Doomed staves: Tempering create bonus via tempering source (not exercised at 0)"
+    },
+    {
+      "format": "compact",
+      "key": "weapon:1384",
+      "decision": "accept",
+      "reviewer": "sa-B",
+      "reviewedAt": "2026-09-28T13:06:33.378Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ],
+      "note": "Doomed staves: Tempering create bonus via tempering source (not exercised at 0)"
+    },
+    {
+      "format": "compact",
+      "key": "troop:6359",
+      "decision": "accept",
+      "reviewer": "sa-B",
+      "reviewedAt": "2026-09-28T13:06:33.378Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ],
+      "note": "Doomed staves: Tempering create bonus via tempering source (not exercised at 0)"
+    },
+    {
+      "format": "compact",
+      "key": "weapon:1549",
+      "decision": "accept",
+      "reviewer": "sa-B",
+      "reviewedAt": "2026-09-28T13:06:33.378Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ],
+      "note": "Doomed staves: Tempering create bonus via tempering source (not exercised at 0)"
+    },
+    {
+      "format": "compact",
+      "key": "troop:7461",
+      "decision": "accept",
+      "reviewer": "sa-B",
+      "reviewedAt": "2026-09-28T13:06:33.379Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ],
+      "note": "Doomed staves: Tempering create bonus via tempering source (not exercised at 0)"
+    },
+    {
+      "format": "compact",
+      "key": "weapon:1179",
+      "decision": "accept",
+      "reviewer": "sa-B",
+      "reviewedAt": "2026-09-28T13:06:33.379Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ],
+      "note": "Doomed staves: Tempering create bonus via tempering source (not exercised at 0)"
+    },
+    {
+      "format": "compact",
+      "key": "troop:6888",
+      "decision": "accept",
+      "reviewer": "sa-B",
+      "reviewedAt": "2026-09-28T13:10:31.479Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:6357",
+      "decision": "accept",
+      "reviewer": "sa-B",
+      "reviewedAt": "2026-09-28T13:10:31.480Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:7261",
+      "decision": "accept",
+      "reviewer": "sa-B",
+      "reviewedAt": "2026-09-28T13:10:31.480Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:7642",
+      "decision": "accept",
+      "reviewer": "sa-B",
+      "reviewedAt": "2026-09-28T13:10:31.480Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:7360",
+      "decision": "accept",
+      "reviewer": "sa-B",
+      "reviewedAt": "2026-09-28T13:10:31.481Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:7558",
+      "decision": "accept",
+      "reviewer": "sa-B",
+      "reviewedAt": "2026-09-28T13:10:31.481Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:6221",
+      "decision": "accept",
+      "reviewer": "sa-B",
+      "reviewedAt": "2026-09-28T13:10:31.481Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "weapon:1489",
+      "decision": "accept",
+      "reviewer": "sa-B",
+      "reviewedAt": "2026-09-28T13:10:31.481Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:6321",
+      "decision": "accept",
+      "reviewer": "sa-B",
+      "reviewedAt": "2026-09-28T13:10:31.481Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:6348",
+      "decision": "accept",
+      "reviewer": "sa-B",
+      "reviewedAt": "2026-09-28T13:10:31.481Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:6880",
+      "decision": "accept",
+      "reviewer": "sa-B",
+      "reviewedAt": "2026-09-28T13:12:54.427Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ],
+      "note": "6573/6773: Boss x Ascension 3x-5x waived (R000 boss)"
+    },
+    {
+      "format": "compact",
+      "key": "troop:6411",
+      "decision": "accept",
+      "reviewer": "sa-B",
+      "reviewedAt": "2026-09-28T13:12:54.428Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ],
+      "note": "6573/6773: Boss x Ascension 3x-5x waived (R000 boss)"
+    },
+    {
+      "format": "compact",
+      "key": "troop:6560",
+      "decision": "accept",
+      "reviewer": "sa-B",
+      "reviewedAt": "2026-09-28T13:12:54.429Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ],
+      "note": "6573/6773: Boss x Ascension 3x-5x waived (R000 boss)"
+    },
+    {
+      "format": "compact",
+      "key": "troop:6573",
+      "decision": "accept",
+      "reviewer": "sa-B",
+      "reviewedAt": "2026-09-28T13:12:54.429Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ],
+      "note": "6573/6773: Boss x Ascension 3x-5x waived (R000 boss)",
+      "waived": [
+        {
+          "part": "clause",
+          "id": "c2",
+          "mode": "boss"
+        },
+        {
+          "part": "step",
+          "id": "0",
+          "mode": "boss"
+        }
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:6773",
+      "decision": "accept",
+      "reviewer": "sa-B",
+      "reviewedAt": "2026-09-28T13:12:54.429Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ],
+      "note": "6573/6773: Boss x Ascension 3x-5x waived (R000 boss)",
+      "waived": [
+        {
+          "part": "clause",
+          "id": "c2",
+          "mode": "boss"
+        },
+        {
+          "part": "step",
+          "id": "0",
+          "mode": "boss"
+        }
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:7175",
+      "decision": "accept",
+      "reviewer": "sa-B",
+      "reviewedAt": "2026-09-28T13:12:54.429Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ],
+      "note": "6573/6773: Boss x Ascension 3x-5x waived (R000 boss)"
+    },
+    {
+      "format": "compact",
+      "key": "troop:7238",
+      "decision": "accept",
+      "reviewer": "sa-B",
+      "reviewedAt": "2026-09-28T13:12:54.429Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ],
+      "note": "6573/6773: Boss x Ascension 3x-5x waived (R000 boss)"
+    },
+    {
+      "format": "compact",
+      "key": "troop:7240",
+      "decision": "accept",
+      "reviewer": "sa-B",
+      "reviewedAt": "2026-09-28T13:12:54.430Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ],
+      "note": "6573/6773: Boss x Ascension 3x-5x waived (R000 boss)"
+    },
+    {
+      "format": "compact",
+      "key": "troop:7241",
+      "decision": "accept",
+      "reviewer": "sa-B",
+      "reviewedAt": "2026-09-28T13:12:54.430Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ],
+      "note": "6573/6773: Boss x Ascension 3x-5x waived (R000 boss)"
+    },
+    {
+      "format": "compact",
+      "key": "troop:7243",
+      "decision": "accept",
+      "reviewer": "sa-B",
+      "reviewedAt": "2026-09-28T13:12:54.430Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ],
+      "note": "6573/6773: Boss x Ascension 3x-5x waived (R000 boss)"
+    },
+    {
+      "format": "compact",
+      "key": "troop:7420",
+      "decision": "accept",
+      "reviewer": "sa-B",
+      "reviewedAt": "2026-09-28T13:14:14.649Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:7544",
+      "decision": "accept",
+      "reviewer": "sa-B",
+      "reviewedAt": "2026-09-28T13:14:14.650Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:7636",
+      "decision": "accept",
+      "reviewer": "sa-B",
+      "reviewedAt": "2026-09-28T13:14:14.650Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "weapon:1280",
+      "decision": "accept",
+      "reviewer": "sa-B",
+      "reviewedAt": "2026-09-28T13:14:14.650Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "weapon:1415",
+      "decision": "accept",
+      "reviewer": "sa-B",
+      "reviewedAt": "2026-09-28T13:14:14.650Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "weapon:1451",
+      "decision": "accept",
+      "reviewer": "sa-B",
+      "reviewedAt": "2026-09-28T13:14:14.651Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:7540",
+      "decision": "accept",
+      "reviewer": "sa-B",
+      "reviewedAt": "2026-09-28T13:14:16.979Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ],
+      "note": "Boss x Ascension 3x-5x waived (R000 boss)",
+      "waived": [
+        {
+          "part": "clause",
+          "id": "c2",
+          "mode": "boss"
+        },
+        {
+          "part": "step",
+          "id": "0",
+          "mode": "boss"
+        }
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:7670",
+      "decision": "accept",
+      "reviewer": "sa-B",
+      "reviewedAt": "2026-09-28T13:14:16.980Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ],
+      "note": "Boss x Ascension 3x-5x waived (R000 boss)",
+      "waived": [
+        {
+          "part": "clause",
+          "id": "c2",
+          "mode": "boss"
+        },
+        {
+          "part": "step",
+          "id": "0",
+          "mode": "boss"
+        }
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:7537",
+      "decision": "accept",
+      "reviewer": "sa-B",
+      "reviewedAt": "2026-09-28T13:14:19.535Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ],
+      "note": "Tower x Ascension 3x-5x waived (R000 tower)",
+      "waived": [
+        {
+          "part": "clause",
+          "id": "c2",
+          "mode": "tower"
+        },
+        {
+          "part": "step",
+          "id": "0",
+          "mode": "tower"
+        }
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:7779",
+      "decision": "accept",
+      "reviewer": "sa-B",
+      "reviewedAt": "2026-09-28T13:14:19.536Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ],
+      "note": "Tower x Ascension 3x-5x waived (R000 tower)",
+      "waived": [
+        {
+          "part": "clause",
+          "id": "c2",
+          "mode": "tower"
+        },
+        {
+          "part": "step",
+          "id": "0",
+          "mode": "tower"
+        }
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "weapon:1485",
+      "decision": "accept",
+      "reviewer": "sa-B",
+      "reviewedAt": "2026-09-28T13:30:58.870Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "weapon:1562",
+      "decision": "accept",
+      "reviewer": "sa-B",
+      "reviewedAt": "2026-09-28T13:30:58.871Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "weapon:1683",
+      "decision": "accept",
+      "reviewer": "sa-B",
+      "reviewedAt": "2026-09-28T13:30:58.871Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:6034",
+      "decision": "accept",
+      "reviewer": "sa-B",
+      "reviewedAt": "2026-09-28T13:30:58.871Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:6103",
+      "decision": "accept",
+      "reviewer": "sa-B",
+      "reviewedAt": "2026-09-28T13:30:58.872Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:6382",
+      "decision": "accept",
+      "reviewer": "sa-B",
+      "reviewedAt": "2026-09-28T13:30:58.872Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:6558",
+      "decision": "accept",
+      "reviewer": "sa-B",
+      "reviewedAt": "2026-09-28T13:30:58.872Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:6977",
+      "decision": "accept",
+      "reviewer": "sa-B",
+      "reviewedAt": "2026-09-28T13:30:58.872Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:6688",
+      "decision": "accept",
+      "reviewer": "sa-B",
+      "reviewedAt": "2026-09-28T13:31:01.187Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ],
+      "note": "Tower x Ascension 3x-5x waived (R000 tower)",
+      "waived": [
+        {
+          "part": "clause",
+          "id": "c2",
+          "mode": "tower"
+        },
+        {
+          "part": "step",
+          "id": "0",
+          "mode": "tower"
+        }
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:6922",
+      "decision": "accept",
+      "reviewer": "sa-B",
+      "reviewedAt": "2026-09-28T13:31:01.188Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ],
+      "note": "Tower x Ascension 3x-5x waived (R000 tower)",
+      "waived": [
+        {
+          "part": "clause",
+          "id": "c2",
+          "mode": "tower"
+        },
+        {
+          "part": "step",
+          "id": "0",
+          "mode": "tower"
+        }
+      ]
     }
   ]
 }

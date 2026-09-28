@@ -811,6 +811,150 @@
    "mode": "boss",
    "text": "If they are a Boss, deal 3x - 5x damage, based on my Ascensions.",
    "note": ""
+  },
+  {
+   "key": "troop:6573",
+   "name": "Igneus",
+   "part": "clause",
+   "id": "c2",
+   "mode": "boss",
+   "text": "If they are a Boss, deal 3x - 5x damage, based on my Ascensions.",
+   "note": "6573/6773: Boss x Ascension 3x-5x waived (R000 boss)"
+  },
+  {
+   "key": "troop:6573",
+   "name": "Igneus",
+   "part": "step",
+   "id": "0",
+   "mode": "boss",
+   "text": "{\"SpellPowerMultiplier\":1,\"Target\":\"FromTarget\",\"StatusAmount\":3,\"Amount\":4,\"Primarypower\":true,\"StatusModifier\":\"MultiplyForAscensionBoss\",\"Type\":\"Damage\"}",
+   "note": "6573/6773: Boss x Ascension 3x-5x waived (R000 boss)"
+  },
+  {
+   "key": "troop:6773",
+   "name": "MoiraCragheart",
+   "part": "clause",
+   "id": "c2",
+   "mode": "boss",
+   "text": "If they are a Boss, deal 3x - 5x damage, based on my Ascensions.",
+   "note": "6573/6773: Boss x Ascension 3x-5x waived (R000 boss)"
+  },
+  {
+   "key": "troop:6773",
+   "name": "MoiraCragheart",
+   "part": "step",
+   "id": "0",
+   "mode": "boss",
+   "text": "{\"SpellPowerMultiplier\":1,\"Target\":\"FromTarget\",\"StatusAmount\":3,\"Amount\":4,\"Primarypower\":true,\"StatusModifier\":\"MultiplyForAscensionBoss\",\"Type\":\"Damage\",\"Delay\":1}",
+   "note": "6573/6773: Boss x Ascension 3x-5x waived (R000 boss)"
+  },
+  {
+   "key": "troop:7540",
+   "name": "Moonfeather",
+   "part": "clause",
+   "id": "c2",
+   "mode": "boss",
+   "text": "If they are a Boss, deal 3x - 5x damage, based on my Ascensions.",
+   "note": "Boss x Ascension 3x-5x waived (R000 boss)"
+  },
+  {
+   "key": "troop:7540",
+   "name": "Moonfeather",
+   "part": "step",
+   "id": "0",
+   "mode": "boss",
+   "text": "{\"SpellPowerMultiplier\":1,\"Target\":\"FromTarget\",\"StatusAmount\":3,\"Amount\":3,\"Primarypower\":true,\"StatusModifier\":\"MultiplyForAscensionBoss\",\"Type\":\"Damage\"}",
+   "note": "Boss x Ascension 3x-5x waived (R000 boss)"
+  },
+  {
+   "key": "troop:7670",
+   "name": "ToxicHag",
+   "part": "clause",
+   "id": "c2",
+   "mode": "boss",
+   "text": "If they are a Boss, deal 3x - 5x damage, based on my Ascensions.",
+   "note": "Boss x Ascension 3x-5x waived (R000 boss)"
+  },
+  {
+   "key": "troop:7670",
+   "name": "ToxicHag",
+   "part": "step",
+   "id": "0",
+   "mode": "boss",
+   "text": "{\"SpellPowerMultiplier\":1,\"Target\":\"FromTarget\",\"StatusAmount\":3,\"Amount\":4,\"Primarypower\":true,\"StatusModifier\":\"MultiplyForAscensionBoss\",\"Type\":\"Damage\"}",
+   "note": "Boss x Ascension 3x-5x waived (R000 boss)"
+  },
+  {
+   "key": "troop:7537",
+   "name": "CryptWorm",
+   "part": "clause",
+   "id": "c2",
+   "mode": "tower",
+   "text": "If they are a Tower, deal 3x - 5x damage, based on my Ascensions.",
+   "note": "Tower x Ascension 3x-5x waived (R000 tower)"
+  },
+  {
+   "key": "troop:7537",
+   "name": "CryptWorm",
+   "part": "step",
+   "id": "0",
+   "mode": "tower",
+   "text": "{\"SpellPowerMultiplier\":1,\"Target\":\"FromTarget\",\"StatusAmount\":3,\"Amount\":2,\"Primarypower\":true,\"StatusModifier\":\"MultiplyForAscensionCastle\",\"Type\":\"Damage\"}",
+   "note": "Tower x Ascension 3x-5x waived (R000 tower)"
+  },
+  {
+   "key": "troop:7779",
+   "name": "Sanguinette",
+   "part": "clause",
+   "id": "c2",
+   "mode": "tower",
+   "text": "If they are a Tower, deal 3x - 5x damage, based on my Ascensions.",
+   "note": "Tower x Ascension 3x-5x waived (R000 tower)"
+  },
+  {
+   "key": "troop:7779",
+   "name": "Sanguinette",
+   "part": "step",
+   "id": "0",
+   "mode": "tower",
+   "text": "{\"SpellPowerMultiplier\":1,\"Target\":\"FromTarget\",\"StatusAmount\":3,\"Amount\":2,\"Primarypower\":true,\"StatusModifier\":\"MultiplyForAscensionCastle\",\"Type\":\"Damage\",\"Delay\":400}",
+   "note": "Tower x Ascension 3x-5x waived (R000 tower)"
+  },
+  {
+   "key": "troop:6688",
+   "name": "Ankhekt",
+   "part": "clause",
+   "id": "c2",
+   "mode": "tower",
+   "text": "If they are a Tower, deal 3x - 5x damage, based on my Ascensions.",
+   "note": "Tower x Ascension 3x-5x waived (R000 tower)"
+  },
+  {
+   "key": "troop:6688",
+   "name": "Ankhekt",
+   "part": "step",
+   "id": "0",
+   "mode": "tower",
+   "text": "{\"SpellPowerMultiplier\":1,\"Target\":\"FromTarget\",\"StatusAmount\":3,\"Amount\":4,\"Primarypower\":true,\"StatusModifier\":\"MultiplyForAscensionCastle\",\"Type\":\"Damage\"}",
+   "note": "Tower x Ascension 3x-5x waived (R000 tower)"
+  },
+  {
+   "key": "troop:6922",
+   "name": "EirStoneshatter",
+   "part": "clause",
+   "id": "c2",
+   "mode": "tower",
+   "text": "If they are a Tower, deal 3x - 5x damage, based on my Ascensions.",
+   "note": "Tower x Ascension 3x-5x waived (R000 tower)"
+  },
+  {
+   "key": "troop:6922",
+   "name": "EirStoneshatter",
+   "part": "step",
+   "id": "0",
+   "mode": "tower",
+   "text": "{\"SpellPowerMultiplier\":1,\"Target\":\"FromTarget\",\"StatusAmount\":3,\"Amount\":4,\"Primarypower\":true,\"StatusModifier\":\"MultiplyForAscensionCastle\",\"Type\":\"Damage\",\"Delay\":1}",
+   "note": "Tower x Ascension 3x-5x waived (R000 tower)"
   }
  ]
 }
