@@ -1,6 +1,6 @@
 # GoW 技能改动留档
 
-自动生成（`node scripts/gow-changelog.mjs render`），源数据 [CHANGES.jsonl](CHANGES.jsonl)，共 189 条改动，涉及 382 个技能 ID。
+自动生成（`node scripts/gow-changelog.mjs render`），源数据 [CHANGES.jsonl](CHANGES.jsonl)，共 190 条改动，涉及 385 个技能 ID。
 
 ## 按时间
 
@@ -195,6 +195,7 @@
 | 2026-09-28T02:44 | sa-R4 | L7-R1-6904-nextdown | assembler | 8365 | troop:6904 LordBelanor | `src/engine/skills/curated/batch-r21.ts` | hit chosen enemy and every enemy below it (enemyChosenAndBelow) → hit chosen enemy and only the one directly below (native Damage@NextDownFromTarget; enemyChosenAndNextDown, range all) |  |
 | 2026-09-28T02:52 | sa-R4 | L7-R1-attack-armor-life-pooled | assembler | 7252, 9882, 8238, 7975, 7454, 7864 | troop:6138 Tauros；troop:7838 Creteus；troop:6833 Ferocity；troop:6644 Earthcaller；troop:6304 Minogor；weapon:1217 FireRubyStaff | `src/engine/skills/curated/batch-12.ts`<br>`src/engine/skills/curated/batch-25.ts`<br>`src/engine/skills/curated/batch-r15.ts`<br>`src/engine/skills/curated/batch-r18.ts`<br>`src/engine/skills/curated/batch-r7.ts`<br>`src/engine/skills/curated/batch-w02.ts` | CountAttackArmorLife split into 3 sources floored separately (R007 per-step path); 8238 second hit unboosted-pooling + plain random (could repeat target); 7864 counted Attack only → single native step: Attack+Life+Armor summed then floored once (pooled); 8238 second hit RandomPrefNotPrevEnemy; 7864 counts all three |  |
 | 2026-09-28T02:52 | sa-R4 | L7-R1-1571-native-gems | assembler | 9262 | weapon:1571 EmeraldCenser | `src/engine/skills/curated/batch-w04.ts` | boost x3 per Purple ally (English text) → boost x3 per Purple gem (native step 0 CountGems Purple, R001) plus per Mystic ally |  |
+| 2026-09-28T02:57 | sa-R4 | L7-R1-board-special-counts | assembler | 8815, 8674, 8563, 8630, 8639 | troop:7221 Obsidiaxas；troop:7130 ThornScout；troop:7039 Indrajit；troop:7095 Kalika；troop:7104 NatureWeird | `src/engine/skills/curated/batch-r8.ts`<br>`src/engine/skills/curated/batch-33.ts`<br>`src/engine/skills/curated/batch-r1.ts` | 8815/8630/8639 counted every colour gem (boardGems without colour); 8674 counted Web instead of Entangle gems; 8563/8630 rolled or targeted 4 random hits as one distinct-N pick → 8815 Stone Blocks + Gargoyle gems; 8630/8639 Elemental Stars; 8674 Entangle gems; 8563/8630 randomWaves 4 (RandomEnemy + 3 x RandomPrefNotPrev, per-hit roll) |  |
 
 ## 按技能 ID
 
@@ -426,7 +427,7 @@
 | 8557 | 1 | L4b-7030-dragon |
 | 8560 | 1 | P-counter-per-step |
 | 8562 | 1 | P-counter-per-step |
-| 8563 | 1 | P-counter-per-step |
+| 8563 | 2 | P-counter-per-step、L7-R1-board-special-counts |
 | 8570 | 1 | L7-7045 |
 | 8580 | 1 | L3-015 |
 | 8586 | 1 | F2-R001-order |
@@ -437,18 +438,20 @@
 | 8624 | 2 | P-counter-per-step、L7-R1-teamsize-source |
 | 8625 | 1 | F1-items-54-60 |
 | 8626 | 2 | P-counter-per-step、L7-R1-teamsize-source |
+| 8630 | 1 | L7-R1-board-special-counts |
 | 8632 | 2 | L3-001、P-create-interleave |
 | 8633 | 2 | L3-001、P-create-interleave |
 | 8634 | 2 | L3-001、P-create-interleave |
 | 8635 | 2 | L3-001、P-create-interleave |
 | 8636 | 1 | F3-t7101 |
 | 8638 | 1 | L3-015 |
+| 8639 | 1 | L7-R1-board-special-counts |
 | 8644 | 1 | L7-R1-weapon-colour-race |
 | 8650 | 1 | P-prefnotprev-semantics |
 | 8654 | 1 | L3-008 |
 | 8656 | 2 | P-prefnotprev-semantics、L7-R1-7113-enemy-colour |
 | 8668 | 2 | L5-007、R004 (L5-004,L5-005,L5-014,L4b-6340) |
-| 8674 | 1 | P-counter-per-step |
+| 8674 | 2 | P-counter-per-step、L7-R1-board-special-counts |
 | 8684 | 1 | P-random-stat-pool |
 | 8686 | 1 | P-random-stat-pool |
 | 8694 | 1 | F2-7145-miss-branch |
@@ -465,6 +468,7 @@
 | 8795 | 1 | L3-003 |
 | 8802 | 1 | F3-t7215 |
 | 8807 | 1 | F2-R001-order |
+| 8815 | 1 | L7-R1-board-special-counts |
 | 8820 | 1 | P-counter-per-step |
 | 8854 | 1 | P-prefnotprev-semantics |
 | 8859 | 1 | P-random-stat-pool |

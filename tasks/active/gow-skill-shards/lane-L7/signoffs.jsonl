@@ -99,3 +99,13 @@
 {"format":"compact","key":"troop:7123","decision":"accept","reviewer":"sa-R4","reviewedAt":"2026-09-28T02:53:19.161Z","tests":["tests/unit/gowCastGolden.test.ts"]}
 {"format":"compact","key":"troop:7056","decision":"accept","reviewer":"sa-R4","reviewedAt":"2026-09-28T02:53:19.161Z","tests":["tests/unit/gowCastGolden.test.ts"]}
 {"format":"compact","key":"weapon:1571","decision":"accept","reviewer":"sa-R4","reviewedAt":"2026-09-28T02:53:19.161Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:7643","decision":"issue","reviewer":"sa-R4","reviewedAt":"2026-09-28T02:57:13.677Z","issue":"P-R4-gargoyle-tier-count","note":"Good/Bad Gargoyle are separate native Count steps at 34% (R007-1 per-step floor); boardSpecial has no tier filter so they are pooled; primitive queued"}
+{"format":"compact","key":"troop:7221","decision":"accept","reviewer":"sa-R4","reviewedAt":"2026-09-28T02:57:42.648Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:7130","decision":"accept","reviewer":"sa-R4","reviewedAt":"2026-09-28T02:57:42.649Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:7154","decision":"accept","reviewer":"sa-R4","reviewedAt":"2026-09-28T02:57:42.650Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:7748","decision":"accept","reviewer":"sa-R4","reviewedAt":"2026-09-28T02:57:42.650Z","tests":["tests/unit/gowCastGolden.test.ts"],"waived":[{"part":"clause","id":"c2","mode":"boss"}]}
+{"format":"compact","key":"troop:7811","decision":"accept","reviewer":"sa-R4","reviewedAt":"2026-09-28T02:57:42.650Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:7039","decision":"accept","reviewer":"sa-R4","reviewedAt":"2026-09-28T02:57:42.650Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"weapon:1482","decision":"accept","reviewer":"sa-R4","reviewedAt":"2026-09-28T02:57:42.651Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:6683","decision":"accept","reviewer":"sa-R4","reviewedAt":"2026-09-28T02:57:42.651Z","tests":["tests/unit/gowCastGolden.test.ts"],"waived":[{"part":"clause","id":"c2","mode":"boss"}]}
+{"format":"compact","key":"troop:6722","decision":"accept","reviewer":"sa-R4","reviewedAt":"2026-09-28T02:57:42.651Z","tests":["tests/unit/gowCastGolden.test.ts"],"waived":[{"part":"clause","id":"c2","mode":"boss"}]}

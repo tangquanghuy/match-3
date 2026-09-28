@@ -165,8 +165,10 @@ const SPELLS: CuratedBatch['spells'] = [
   {
     id: 8563,
     desc: '对 4 名随机敌人造成 [(魔法 / 2) + 1] – [魔法 + 3] 点伤害，由红色和紫色宝石增强。 [1:1]',
+    // 原生 RandomEnemy + 3 x RandomPrefNotPrevEnemy：4 次独立掷骰、只避开上一目标（randomWaves）
     build: skill(dmg('enemyRandomN', 0, 0, {
       n: 4,
+      randomWaves: 4,
       rangeSpec: { min: scale(1, 0.5), max: scale(3, 1) },
       modifier: { mod: { kind: 'ratio', a: 1, b: 1 }, sources: [{ kind: 'boardGems', color: BaseColor.Red }, { kind: 'boardGems', color: BaseColor.Purple }] },
     })),

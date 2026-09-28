@@ -10,3 +10,4 @@
 - B08 weapon:1641,1644,1650,1662,1677,1689,1717,troop:7869,weapon:1357,1358 approve=10 fixed=0 (1650 fixed in B05) issue=0
 - B09 troop:6392,7473,6339,6333,6553,6132,7707,7876,weapon:1077,1135 approve=10 fixed=0 issue=0 waived boss c2 x2
 - B10 troop:6304,6644,6833,7838,6138,6115,7831,7123,7056,weapon:1571 approve=10 fixed=6 (CountAttackArmorLife pooled x5 + L6 weapon:1217; 6833 PrefNotPrev; 1571 native CountGems) issue=0 waived boss/tower c2 x2
+- B11 troop:7221,7643,7130,7154,7748,7811,7039,weapon:1482,troop:6683,6722 approve=9 fixed=3 (7221 blocks+gargoyles, 7130 entangle, 7039 per-hit rolls; pre-fixed 7095/7104 elemental stars) issue=1 (7643 P-R4-gargoyle-tier-count) waived boss c2 x3

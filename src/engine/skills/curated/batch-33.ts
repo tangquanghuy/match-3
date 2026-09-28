@@ -183,11 +183,11 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 8674,
     desc: '对一名敌人造成 [魔法 + 3] 点伤害，伤害值因缠绕宝石和棕色宝石数而增强。 [2:1]',
     build: skill(
-      // 缠绕宝石 = web（窗口 C 十种特殊宝石内）→ boardSpecial；sources[] 双来源（2026-09-16 回收）
+      // 缠绕宝石 = entangleGem（原生 CountGems Entangle；不是蛛网 web）；sources[] 双来源
       dmg('enemyChosen', 3, 1, {
         modifier: {
           mod: { kind: 'ratio', a: 2, b: 1 },
-          sources: [{ kind: 'boardSpecial', gem: 'web' }, { kind: 'boardGems', color: BaseColor.Brown }],
+          sources: [{ kind: 'boardSpecial', gem: 'entangleGem' }, { kind: 'boardGems', color: BaseColor.Brown }],
         },
       }),
     ),

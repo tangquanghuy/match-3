@@ -1,7 +1,7 @@
 // sa-R4 lane review round 1, lane L7: count boosts the standard golden scenarios cannot show. Real TurnEngine casts.
 import { describe, it, expect } from 'vitest';
-import { castSpell, DEFAULT_ENEMIES, sixColourBoard, reviewBoard, withCells } from '../helpers/gowCast';
-import { BaseColor, specialGem, type Character } from '@engine/types';
+import { castSpell, DEFAULT_ENEMIES, sixColourBoard, reviewBoard, withCells, type BoardFn } from '../helpers/gowCast';
+import { BaseColor, colorGem as colorGemOf, specialGem, type Character, type GemType } from '@engine/types';
 
 const { Red, Blue, Green, Yellow, Purple, Brown } = BaseColor;
 const unit = (colors: BaseColor[], troopTypes?: string[]): Partial<Character> => ({ hp: 500, maxHp: 500, armor: 0, colors, troopTypes });
@@ -221,11 +221,58 @@ describe('L7 sa-R4: "boosted by <Kingdom> Allies" (CountArmyKingdom AllAllies, c
   });
 });
 
-const boardCount = (color: BaseColor) => {
+const boardCount = (color: BaseColor, board: BoardFn = sixColourBoard) => {
   let n = 0;
-  for (let r = 0; r < 8; r++) for (let c = 0; c < 8; c++) { const g = sixColourBoard(r, c); if (g && g.kind === 'color' && g.color === color) n++; }
+  for (let r = 0; r < 8; r++) for (let c = 0; c < 8; c++) { const g = board(r, c); if (g && g.kind === 'color' && g.color === color) n++; }
   return n;
 };
+/** sixColourBoard with special gems dropped on row 0 / row 7 cells. */
+const withSpecials = (gems: GemType[]): BoardFn => withCells(sixColourBoard, Object.fromEntries(gems.map((g, i) => [`${i < 8 ? 0 : 7},${i % 8}`, g])));
+
+describe('L7 sa-R4: board gem counts (CountGems, one floor per step)', () => {
+  it('troop:7221 [M+1] to all x3 per Stone Block and per Gargoyle gem (good or bad), not per board gem', () => {
+    const board = withSpecials([specialGem('stoneBlock'), specialGem('gargoyleGem', 1), specialGem('gargoyleGem', 2)]);
+    expect(dmgs(castSpell({ key: 'troop:7221', board }))).toEqual([20, 20, 20, 20]);
+    expect(dmgs(castSpell({ key: 'troop:7221', board: sixColourBoard }))).toEqual([11, 11, 11, 11]);
+  });
+  it('weapon:1482 true damage [M+3] x6 per Gargoyle gem', () => {
+    const board = withSpecials([specialGem('gargoyleGem', 1), specialGem('gargoyleGem', 2)]);
+    expect(dmgs(castSpell({ key: 'weapon:1482', board }))).toEqual([13 + 12]);
+  });
+  it('troop:7130 [M+3] + floor(Entangle gems / 2) + floor(Brown / 2)', () => {
+    const gems = [0, 1, 2].map(() => specialGem('entangleGem'));
+    const board = withSpecials(gems);
+    expect(dmgs(castSpell({ key: 'troop:7130', board }))).toEqual([13 + 1 + Math.floor(boardCount(Brown, board) / 2)]);
+    const web = withSpecials([0, 1, 2].map(() => specialGem('web')));
+    expect(dmgs(castSpell({ key: 'troop:7130', board: web }))).toEqual([13 + Math.floor(boardCount(Brown, web) / 2)]);
+  });
+  const pair: [string, BaseColor, BaseColor, number, (n: number) => number][] = [
+    ['troop:7154', Red, Brown, 11, n => Math.floor(n / 2)],
+    ['troop:7748', Yellow, Purple, 14, n => Math.floor((n * 34) / 100)],
+    ['troop:7811', Red, Yellow, 12, n => Math.floor(n / 4)],
+  ];
+  it.each(pair)('%s: two colour counts floored separately', (key, a, b, base, f) => {
+    const board: BoardFn = (r, c) => (r * 8 + c < 5 ? colorGemOf(a) : r * 8 + c < 10 ? colorGemOf(b) : r * 8 + c < 11 ? colorGemOf(b) : sixColourBoard(r, c));
+    const want = base + f(boardCount(a, board)) + f(boardCount(b, board));
+    expect(dmgs(castSpell({ key, board, enemies: DEFAULT_ENEMIES }))[0]).toBe(want);
+  });
+  it('troop:6722 [M+4] + floor(Yellow / 2); troop:6683 [M+4] x2 per Skull', () => {
+    expect(dmgs(castSpell({ key: 'troop:6722', board: sixColourBoard }))).toEqual([14 + Math.floor(boardCount(Yellow) / 2)]);
+    expect(dmgs(castSpell({ key: 'troop:6683' }))).toEqual([14 + 2 * 5]); // review board has 5 Skulls
+  });
+  it('troop:7039 four independent [(M/2)+1]-[M+3] rolls + Red + Purple gems, avoiding only the previous victim', () => {
+    const boost = boardCount(Red) + boardCount(Purple);
+    const seen = new Set<number>();
+    for (let seed = 1; seed <= 30; seed++) {
+      const o = castSpell({ key: 'troop:7039', board: sixColourBoard, seed }).summary.order.filter(s => s.startsWith('dmg '));
+      expect(o).toHaveLength(4);
+      const ids = o.map(s => s.split(' ')[1]);
+      for (let i = 1; i < 4; i++) expect(ids[i]).not.toBe(ids[i - 1]);
+      for (const s of o) { const d = Number(s.split(' ')[2]); expect(d).toBeGreaterThanOrEqual(6 + boost); expect(d).toBeLessThanOrEqual(13 + boost); seen.add(d); }
+    }
+    expect(seen.size).toBeGreaterThan(3);
+  });
+});
 
 describe('L7 sa-R4: "<Colour> Gems and Allies" = CountGems + CountArmyColor (Data = colour), not team size', () => {
   it('troop:7831 [M+2] x2 per Blue gem and per Blue ally', () => {
