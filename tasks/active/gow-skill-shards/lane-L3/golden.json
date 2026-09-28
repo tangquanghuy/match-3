@@ -2109,6 +2109,16 @@
   "by": "sa-F",
   "at": "2026-09-28T21:23:09.976Z"
  },
+ "weapon:1068": {
+  "lines": {
+   "L10": "dmg E10 13 ; buff C hp+13 max+13 ; buff E10 mana-6  => E10:hp-13 mana-6 | C:hp+13 max+13",
+   "R10": "dmg E10 13 ; buff C hp+13 max+13 ; buff E10 mana-6  => E10:hp-13 mana-6 | C:hp+13 max+13",
+   "L0": "dmg E10 3 ; buff C hp+3 max+3 ; buff E10 mana-6  => E10:hp-3 mana-6 | C:hp+3 max+3",
+   "K": "dmg E10 13 ; defeat E10 ; buff C hp+1 max+1 ; buff E11 mana-5  => E10:hp-1 DEAD | C:hp+1 max+1 | E11:mana-5"
+  },
+  "by": "sa-I",
+  "at": "2026-09-28T23:36:16.336Z"
+ },
  "weapon:1085": {
   "lines": {
    "L10": "buff E10 mana-6 ; buff E13 mana-10 ; buff C magic+1 ; buff A1 magic+1 ; buff A2 magic+1  => E10:mana-6 | E13:mana-10 | C:mag+1 | A1:mag+1 | A2:mag+1",

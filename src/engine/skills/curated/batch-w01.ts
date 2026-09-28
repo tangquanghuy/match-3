@@ -496,7 +496,8 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '窃取第一名敌人 [魔法 + 3] 点生命值，并耗尽该敌人的法力值。',
     build: skill(
       dmg('enemyFront', 3, 1, { drain: true }),
-      drainMana('enemyChosen'),
+      // sa-I: native DecreaseMana@FrontEnemy 100 (was the chosen enemy; this weapon has no chosen target)
+      drainMana('enemyFront'),
     ),
   },
   {

@@ -48,3 +48,10 @@ Lanes in order: L7, L6, L1, L3, L4b, L2. Tests: tests/unit/gowLaneMixI.test.ts
 - troop:7140 fixed+accept (L1; AB-CD-EF summon Hag 6147 | NightHag 6292 | HornedHag 7140; was 7-name witch pool)
 - troop:7289 accept (L1; Choose: true 15 all | summon VulpphireHunter 7288 x1 + 50% + 50%)
 - L1 B02 done: accept=5 fixed=2 issue=0
+- troop:6452 accept (L1; true [M/2+1] = 6 all convention:R006-C1, then transform into Nosferatu 6451)
+- troop:6451 accept (L1; true 11, x2 under Darkstorm; AB-CD into BatSwarm 6452 | Umberwolf 6453)
+- troop:7008 fixed+accept (L1; RandomEnemy + 2x PrefNotPrev with +10 vs wounded per hit, convention:R006-C3; was 3 distinct randoms)
+- troop:6894 accept (L1; true heavy splash 13/9, Burn + Disease target then adjacent, 20% Fell Dragon Egg 6892)
+- L1 exhausted (10 pending: 10 accept, 0 issue); next L3
+- weapon:1068 fixed+accept (L3; DecreaseMana@FrontEnemy 100 = drain the first enemy; was chosen enemy)
+- L1 B03 + L3 B01 done: accept=5 fixed=2 issue=0

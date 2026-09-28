@@ -439,6 +439,26 @@
   "by": "sa-R5",
   "at": "2026-09-28T06:01:52.428Z"
  },
+ "troop:6451": {
+  "lines": {
+   "L10": "dmg E11 11 ; transform C -> 蝙蝠群  => E11:hp-11 | C:now 蝙蝠群",
+   "R10": "dmg E11 11 ; transform C -> 蝙蝠群  => E11:hp-11 | C:now 蝙蝠群",
+   "L0": "dmg E11 1 ; transform C -> 蝙蝠群  => E11:hp-1 | C:now 蝙蝠群",
+   "K": "dmg E11 11 ; defeat E11 ; transform C -> 蝙蝠群  => E11:hp-1 DEAD | C:now 蝙蝠群"
+  },
+  "by": "sa-I",
+  "at": "2026-09-28T23:36:07.716Z"
+ },
+ "troop:6452": {
+  "lines": {
+   "L10": "dmg E10 6 (all) ; dmg E11 6 (all) ; dmg E12 6 (all) ; dmg E13 6 (all) ; transform C -> 诺斯费拉图  => E10:hp-6 | E11:hp-6 | E12:hp-6 | E13:hp-6 | C:now 诺斯费拉图",
+   "R10": "dmg E10 6 (all) ; dmg E11 6 (all) ; dmg E12 6 (all) ; dmg E13 6 (all) ; transform C -> 诺斯费拉图  => E10:hp-6 | E11:hp-6 | E12:hp-6 | E13:hp-6 | C:now 诺斯费拉图",
+   "L0": "dmg E10 1 (all) ; dmg E11 1 (all) ; dmg E12 1 (all) ; dmg E13 1 (all) ; transform C -> 诺斯费拉图  => E10:hp-1 | E11:hp-1 | E12:hp-1 | E13:hp-1 | C:now 诺斯费拉图",
+   "K": "dmg E10 6 (all) ; dmg E11 6 (all) ; dmg E12 6 (all) ; dmg E13 6 (all) ; defeat E10 ; defeat E11 ; defeat E12 ; defeat E13 ; transform C -> 诺斯费拉图 ; buff C hp+4 ; buff C hp+4 ; buff C hp+4 ; buff C hp+4  => E10:hp-1 DEAD | E11:hp-1 DEAD | E12:hp-1 DEAD | E13:hp-1 DEAD | C:hp+16 now 诺斯费拉图"
+  },
+  "by": "sa-I",
+  "at": "2026-09-28T23:36:07.716Z"
+ },
  "troop:6455": {
   "lines": {
    "L10": "buff C hp+5 max+5 ; dmg E11 14  => C:hp+5 max+5 | E11:hp-4 arm-10",
@@ -1059,6 +1079,16 @@
   "by": "sa-R5",
   "at": "2026-09-28T05:41:21.302Z"
  },
+ "troop:6894": {
+  "lines": {
+   "L10": "dmg E11 13 (splash) ; dmg E10 9 (splash) ; dmg E12 9 (splash) ; status E11 +burning ; status E10 +burning ; status E12 +burning ; status E11 +disease ; status E10 +disease ; status E12 +disease  => E11:hp-13 +burning+disease | E10:hp-9 +burning+disease | E12:hp-9 +burning+disease",
+   "R10": "dmg E11 13 (splash) ; dmg E10 9 (splash) ; dmg E12 9 (splash) ; status E11 +burning ; status E10 +burning ; status E12 +burning ; status E11 +disease ; status E10 +disease ; status E12 +disease  => E11:hp-13 +burning+disease | E10:hp-9 +burning+disease | E12:hp-9 +burning+disease",
+   "L0": "dmg E11 3 (splash) ; dmg E10 2 (splash) ; dmg E12 2 (splash) ; status E11 +burning ; status E10 +burning ; status E12 +burning ; status E11 +disease ; status E10 +disease ; status E12 +disease  => E11:hp-3 +burning+disease | E10:hp-2 +burning+disease | E12:hp-2 +burning+disease",
+   "K": "dmg E11 13 (splash) ; dmg E10 9 (splash) ; dmg E12 9 (splash) ; defeat E11 ; defeat E10 ; defeat E12  => E11:hp-1 DEAD | E10:hp-1 DEAD | E12:hp-1 DEAD"
+  },
+  "by": "sa-I",
+  "at": "2026-09-28T23:36:07.716Z"
+ },
  "troop:6908": {
   "lines": {
    "L10": "status E10 +entangle ; status E11 +marked ; status E12 +death-mark ; status E13 +bleed  => E10:+entangle | E11:+marked | E12:+death-mark | E13:+bleed",
@@ -1148,6 +1178,16 @@
   },
   "by": "sa-R5",
   "at": "2026-09-28T08:42:25.119Z"
+ },
+ "troop:7008": {
+  "lines": {
+   "L10": "dmg E12 13 ; dmg E11 13 ; dmg E13 13 ; summon mine troop:7007  => A14:new 尔福小宠 hp24 atk16 arm5 mag12 | E12:hp-13 | E11:hp-13 | E13:hp-13",
+   "R10": "dmg E12 13 ; dmg E11 13 ; dmg E13 13 ; summon mine troop:7007  => A14:new 尔福小宠 hp24 atk16 arm5 mag12 | E12:hp-13 | E11:hp-13 | E13:hp-13",
+   "L0": "dmg E12 3 ; dmg E11 3 ; dmg E13 3 ; summon mine troop:7007  => A14:new 尔福小宠 hp24 atk16 arm5 mag12 | E12:hp-3 | E11:hp-3 | E13:hp-3",
+   "K": "dmg E12 13 ; defeat E12 ; dmg E11 13 ; defeat E11 ; dmg E13 13 ; defeat E13 ; summon mine troop:7007  => A14:new 尔福小宠 hp24 atk16 arm5 mag12 | E12:hp-1 DEAD | E11:hp-1 DEAD | E13:hp-1 DEAD"
+  },
+  "by": "sa-I",
+  "at": "2026-09-28T23:36:04.252Z"
  },
  "troop:7014": {
   "lines": {

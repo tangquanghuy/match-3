@@ -259,3 +259,41 @@ describe('sa-I L1 B02', () => {
     expect([...seen].sort()).toEqual(['愤怒', '色欲'].sort());
   });
 });
+describe('sa-I L1 B03', () => {
+  it('troop:6451 true [M+1] = 11, x2 under a Darkstorm (Purple), then transforms into Umberwolf or Bat Swarm', () => {
+    const run = (storm: boolean, seed = 42) => {
+      const f = setupCast({ key: 'troop:6451', seed });
+      if (storm) f.state.teams.Left.storm = { color: BaseColor.Purple, turns: 3, troopId: 0 };
+      return summarize(f, f.cast()).order;
+    };
+    expect(run(false)[0]).toBe('dmg E11 11');
+    expect(run(true)[0]).toBe('dmg E11 22');
+    const into = new Set<string>();
+    for (let seed = 1; seed <= 40; seed++) into.add(run(false, seed)[1]);
+    expect([...into].sort()).toEqual(['transform C -> 暗魄狼', 'transform C -> 蝙蝠群'].sort());
+  });
+  it('troop:7008 RandomEnemy + 2 PrefNotPrev true hits, +10 per hit on a wounded target (checked at each hit)', () => {
+    expect(dmgLines({ key: 'troop:7008', enemies: ONE })).toEqual(['dmg E10 13', 'dmg E10 23', 'dmg E10 23']);
+    const hurt = [0, 1, 2, 3].map(() => ({ hp: 500, maxHp: 900, armor: 0 }));
+    for (let seed = 1; seed <= 30; seed++) {
+      expect(dmgs({ key: 'troop:7008', enemies: hurt, seed })).toEqual([23, 23, 23]);
+      const t = targets({ key: 'troop:7008', seed });
+      expect(t[1]).not.toBe(t[0]); expect(t[2]).not.toBe(t[1]);
+    }
+    let repeat = 0;
+    for (let seed = 1; seed <= 80; seed++) { const t = targets({ key: 'troop:7008', seed }); if (t[2] === t[0]) repeat++; }
+    expect(repeat).toBeGreaterThan(0);
+  });
+});
+describe('sa-I L3', () => {
+  it('weapon:1068 steals [M+3] Life from the first enemy, then drains all Mana of the (current) first enemy', () => {
+    expect(castSpell({ key: 'weapon:1068' }).summary.order).toEqual(['dmg E10 13', 'buff C hp+13 max+13', 'buff E10 mana-6']);
+    const k = [{ hp: 1, maxHp: 1, armor: 0, mana: 5 }, { hp: 900, maxHp: 900, mana: 7 }];
+    expect(castSpell({ key: 'weapon:1068', enemies: k }).summary.order.at(-1)).toBe('buff E11 mana-7');
+  });
+  it('troop:6526 steals 5 Mana only if the enemy was Frozen BEFORE this cast, then hits and Freezes', () => {
+    expect(castSpell({ key: 'troop:6526' }).summary.order).toEqual(['dmg E11 14', 'status E11 +frozen']);
+    const frozen = [{ hp: 900, maxHp: 900 }, { hp: 900, maxHp: 900, armor: 0, mana: 8, statuses: st('frozen') }];
+    expect(castSpell({ key: 'troop:6526', enemies: frozen }).summary.order.slice(0, 3)).toEqual(['buff E11 mana-5', 'buff C mana+5', 'dmg E11 14']);
+  });
+});

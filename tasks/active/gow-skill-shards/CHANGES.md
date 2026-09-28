@@ -1,6 +1,6 @@
 # GoW 技能改动留档
 
-自动生成（`node scripts/gow-changelog.mjs render`），源数据 [CHANGES.jsonl](CHANGES.jsonl)，共 640 条改动，涉及 1092 个技能 ID。
+自动生成（`node scripts/gow-changelog.mjs render`），源数据 [CHANGES.jsonl](CHANGES.jsonl)，共 642 条改动，涉及 1094 个技能 ID。
 
 ## 按时间
 
@@ -646,6 +646,8 @@
 | 2026-09-28T23:29 | sa-I | L1-I-6268-wraith-order | assembler | 7413 | troop:6268 SpookyImp | `src/engine/skills/curated/batch-r2.ts` | scatter first, then oneOf(random of 3 Wraith variants \| +3 Magic) → native AB-CD: [transform random enemy into Wraith 6206, then scatter] OR [scatter, then +3 Magic all allies] |  |
 | 2026-09-28T23:32 | sa-I | L1-I-6464-devour-first | assembler | 7642 | troop:6464 Bulette | `src/engine/skills/curated/batch-r22.ts` | hit new front, then 50% devour lastTarget → native ConsumeConditional@FrontEnemy (13+ Brown, 50%) BEFORE Damage@FrontEnemy |  |
 | 2026-09-28T23:32 | sa-I | L1-I-7140-hag-pool | assembler | 8689 | troop:7140 HornedHag | `src/engine/skills/curated/batch-03.ts` | summon 1 of 7 witch-named troops → native AB-CD-EF: summon Hag 6147 \| NightHag 6292 \| HornedHag 7140 |  |
+| 2026-09-28T23:36 | sa-I | L1-I-7008-prefnotprev | assembler | 8536 | troop:7008 UlfHarrigan | `src/engine/skills/curated/batch-27.ts` | 3 distinct random enemies (enemyRandomN) → native RandomEnemy + 2x RandomPrefNotPrevEnemy, +10 vs wounded checked per hit |  |
+| 2026-09-28T23:36 | sa-I | L3-I-1068-front-drain | assembler | 7176 | weapon:1068 WitheringTouch | `src/engine/skills/curated/batch-w01.ts` | drain all Mana of the chosen enemy → native DecreaseMana@FrontEnemy 100: drain the first enemy |  |
 
 ## 按技能 ID
 
@@ -709,6 +711,7 @@
 | 7165 | 1 | G-kill-all-skills |
 | 7169 | 2 | L4b-7276-singlegem、B-L4b-6104-blue |
 | 7174 | 1 | B5-L4b-1067-singlegem |
+| 7176 | 1 | L3-I-1068-front-drain |
 | 7177 | 1 | L5-C-r4-6108 |
 | 7181 | 1 | L3-F-6111 |
 | 7184 | 2 | L4a-r4-1071、R013-5 |
@@ -1231,6 +1234,7 @@
 | 8528 | 1 | F2-R001-order |
 | 8529 | 2 | L1-E-kingdom-summon-raw、L1-E-1414-desc |
 | 8535 | 1 | R3-B02-7007 |
+| 8536 | 1 | L1-I-7008-prefnotprev |
 | 8540 | 1 | L7-R1-random-chain-waves |
 | 8546 | 1 | L1-7014-order |
 | 8549 | 1 | P-random-stat-pool |
