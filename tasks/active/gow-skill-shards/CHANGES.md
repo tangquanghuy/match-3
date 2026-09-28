@@ -1,6 +1,6 @@
 # GoW 技能改动留档
 
-自动生成（`node scripts/gow-changelog.mjs render`），源数据 [CHANGES.jsonl](CHANGES.jsonl)，共 520 条改动，涉及 900 个技能 ID。
+自动生成（`node scripts/gow-changelog.mjs render`），源数据 [CHANGES.jsonl](CHANGES.jsonl)，共 521 条改动，涉及 901 个技能 ID。
 
 ## 按时间
 
@@ -526,6 +526,7 @@
 | 2026-09-28T13:10 | sa-B | B5-L4b-6321-more-magic | data | 7471 | troop:6321 SilverDrakon | `src/engine/skills/curated/batch-r6.ts` | 8 Blue when my Magic is above the target's (inverted) → 8 Blue when the front enemy's Magic is above mine (AddForMoreMagicOnTarget) |  |
 | 2026-09-28T13:10 | sa-B | B5-L4b-1489-blue-giants | data | 8874 | weapon:1489 DiamondRingOfFire&Ice | `src/engine/skills/curated/batch-w03.ts`<br>`src/data/gowWeaponReviewedOverrides.json` | only 3 Red Giant Gems → 3 Blue Giant Gems then 3 Red Giant Gems (native); reviewed override prototype synced |  |
 | 2026-09-28T13:12 | sa-B | B5-L4b-R009-giants | data | 8834, 8836, 8837, 8839 | troop:7238 TheRubyGiant；troop:7240 TheAmethystGiant；troop:7241 TheTopazGiant；troop:7243 TheUmbralGiant | `src/engine/skills/curated/batch-r9.ts` | ConvertGems 5 X > Giant<C> produced plain <C> gems → produces <C> Giant Gems (giantGem, R009) |  |
+| 2026-09-28T13:31 | sa-B | B5-L4b-6034-fromtarget | data | 7034 | troop:6034 Siren | `src/engine/skills/curated/batch-02.ts`<br>`src/data/gowSnapshotOverrides.json` | created 9 gems of the caster's colour (CASTER); zh said this troop's colour → creates 9 gems of one of the damaged enemy's colours (native Color1 FromTarget); zh fixed via snapshot override |  |
 
 ## 按技能 ID
 
@@ -547,6 +548,7 @@
 | 7024 | 1 | F2-R001-order |
 | 7025 | 1 | F2-R001-order |
 | 7032 | 1 | L3-017 |
+| 7034 | 1 | B5-L4b-6034-fromtarget |
 | 7035 | 1 | L3-018 |
 | 7037 | 1 | F2-R001-order |
 | 7047 | 1 | F1-6047-dispel |

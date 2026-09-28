@@ -75,7 +75,7 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 7034,
-    desc: '对 1 名敌人造成 [魔法 + 1] 点伤害，并创造 9 颗具有该军队法力颜色的宝石。',
+    desc: '对 1 名敌人造成 [魔法 + 1] 点伤害，并创造 9 颗该敌人某一种法力颜色的宝石。',
     build: skill(
       dmg('enemyChosen', 1),
       // Native CreateGems Color1 FromTarget / English "one of their Mana Colors" = the damaged enemy's colour
