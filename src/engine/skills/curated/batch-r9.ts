@@ -85,10 +85,10 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '摧毁 1 行和 1 列。创造 5 颗红色宝石，数量因被摧毁的骷髅头数而增强。 [x2]',
     // CountGems Skull + DestroyGems → 「被摧毁的骷髅头数」= destroyedGems 无色（R8 9639 先例）
     build: skill(
-      destroyChosenRow(),
-      destroyChosenCol(),
+      // native RowAndColumn is one step (15 cells); CountGems Skull only (sa-R1)
+      destroyChosenCross(),
       createGems(BaseColor.Red, 5, 0, {
-        modifier: { mod: { kind: 'multiplier', a: 2 }, source: { kind: 'destroyedGems' } },
+        modifier: { mod: { kind: 'multiplier', a: 2 }, source: { kind: 'destroyedGems', skulls: true } },
       }),
     ),
   },
@@ -276,7 +276,8 @@ const SPELLS: CuratedBatch['spells'] = [
         modifier: {
           mod: { kind: 'multiplier', a: 3 },
           sources: [
-            { kind: 'boardGems', color: BaseColor.Green },
+            // native CountGems Green BoardTarget Row = Green gems in the destroyed row, not the whole board (sa-R1)
+            { kind: 'destroyedGems', color: BaseColor.Green },
             { kind: 'alliesOfColor', color: BaseColor.Green },
           ],
         },
@@ -673,8 +674,8 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '使敌人患病并晕眩，然后将其击退。引爆 2 颗与其法力颜色相同的宝石。',
     // 「击退」= 击回末位（§12.1）；ExplodeColor FromTarget Amount 2 = 定量爆破其法力色
     build: skill(
+      inflict('stun', 'enemyChosen'), // native order: CauseStun, CauseDisease
       inflict('disease', 'enemyChosen'),
-      inflict('stun', 'enemyChosen'),
       reposition('enemyChosen', 'back'),
       explodeRandomGems(2, 0, 'color', 'LAST_TARGET'),
     ),

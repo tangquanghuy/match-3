@@ -451,7 +451,7 @@ const SPELLS: CuratedBatch['spells'] = [
   {
     id: 9380,
     desc: '对一名敌人造成 [(魔法 x 2) + 3] 点伤害，伤害值因拥有屏障效果的盟友数而增强。若队伍里有永生神路西法，则爆破 3 颗宝石。 [x6]',
-    build: ({"segments":[{"kind":"damage","target":"enemyChosen","scaling":{"base":3,"mult":2},"modifier":{"mod":{"kind":"multiplier","a":6},"source":{"kind":"allyStatusCount","statusId":"barrier"}}},{"kind":"gem","params":{"op":"clear","mode":"explode","target":{"kind":"randomGems","count":{"base":3,"mult":0},"include":"color"}},"ifCond":{"kind":"troopPresent","side":"ally","name":"永生神路西法"}}]} as SkillPrototype),
+    build: ({"segments":[{"kind":"gem","params":{"op":"clear","mode":"explode","target":{"kind":"randomGems","count":{"base":3,"mult":0},"include":"color"}},"ifCond":{"kind":"troopPresent","side":"ally","name":"永生神路西法"}},{"kind":"damage","target":"enemyChosen","scaling":{"base":3,"mult":2},"modifier":{"mod":{"kind":"multiplier","a":6},"source":{"kind":"allyStatusCount","statusId":"barrier"}}}]} as SkillPrototype),
   },
   {
     id: 9381,
@@ -508,8 +508,9 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 9387,
     desc: '对一名敌人造成 [(魔法 x 1.5) + 2] 点真实伤害，伤害值因炸弹宝石数而增强。若队伍里有永生神提泰纽斯，则随机摧毁 2 列。 [x2]',
     build: skill(
-      trueDmg('enemyChosen', 2, 1.5, { trueDamage: true, modifier: { mod: { kind: 'multiplier', a: 2 }, source: { kind: 'boardSpecial', gem: 'bomb' } } }),
+      // native order (R001): DestroyColumn, then CountGems Bomb, then TrueDamage (sa-R1)
       destroyRandomCols(2, 0, { ifCond: { kind: 'troopPresent', side: 'ally', name: '永生神提泰纽斯' } }),
+      trueDmg('enemyChosen', 2, 1.5, { trueDamage: true, modifier: { mod: { kind: 'multiplier', a: 2 }, source: { kind: 'boardSpecial', gem: 'bomb' } } }),
     ),
   },
   {
@@ -533,8 +534,9 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 9486,
     desc: '对一名敌人造成 [魔法 + 3] 点伤害，伤害值因恶魔盟友数量而增强。如果我的队伍中有不朽的阿巴顿，则引爆所有恶魔传送门宝石。 [x4]',
     build: skill(
-      dmg('enemyChosen', 3, 1, { modifier: { mod: { kind: 'multiplier', a: 4 }, source: { kind: 'alliesOfRace', race: 'Daemon' } } }),
+      // native order (R001): explode Portal gems (may summon Daemons), then CountArmyType Daemon, then Damage (sa-R1)
       explodeSpecialGems('daemonicPortalGem', { ifCond: { kind: 'troopPresent', side: 'ally', name: '不朽的亚巴顿' } }),
+      dmg('enemyChosen', 3, 1, { modifier: { mod: { kind: 'multiplier', a: 4 }, source: { kind: 'alliesOfRace', race: 'Daemon' } } }),
     ),
   },
   {
@@ -986,8 +988,9 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 9809,
     desc: '造成[魔法 + 8]点散射伤害，伤害值因黄色宝石数量而增强。如果我方队伍中有不朽的卡奥玛尼，则引爆所有天使宝石。 [x8]',
     build: skill(
-      dmg('enemyAll', 8, 1, { range: 'all', modifier: { mod: { kind: 'multiplier', a: 8 }, source: { kind: 'boardGems', color: BaseColor.Yellow } } }),
+      // native order (R001): explode Angel gems, then CountGems Yellow, then ScatterDamage (sa-R1)
       explodeSpecialGems('angelGem', { ifCond: { kind: 'troopPresent', side: 'ally', name: '不朽的考马尼' } }),
+      dmg('enemyAll', 8, 1, { range: 'all', modifier: { mod: { kind: 'multiplier', a: 8 }, source: { kind: 'boardGems', color: BaseColor.Yellow } } }),
     ),
   },
   {
@@ -1267,8 +1270,9 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 9983,
     desc: '对一名敌人造成[魔法 + 3]点伤害，骷髅头可提升伤害。如果我方队伍中有不朽泽法尔，则引爆所有死亡印记宝石。 [x2]',
     build: skill(
-      dmg('enemyChosen', 3, 1, { modifier: { mod: { kind: 'multiplier', a: 2 }, source: { kind: 'boardSkulls' } } }),
+      // native order (R001): explode Death Mark gems, then CountGems Skull, then Damage (sa-R1)
       explodeSpecialGems('deathMarkGem', { ifCond: { kind: 'troopPresent', side: 'ally', name: '不朽的泽法尔' } }),
+      dmg('enemyChosen', 3, 1, { modifier: { mod: { kind: 'multiplier', a: 2 }, source: { kind: 'boardSkulls' } } }),
     ),
   },
   {

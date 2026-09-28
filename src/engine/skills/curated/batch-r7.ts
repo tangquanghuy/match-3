@@ -14,7 +14,7 @@
  * 自我转化（「转化为X」主语缺省）= transformTroop('allySelf', …)，与诺斯费拉图/暗魄狼/
  * 蝙蝠群/狼人/村民的变身链一致（batch-r4 147 行同款）。
  */
-import { skill, dmg, dmgSplash, trueDmg, heal, armor, attack, magic, mana, cleanse, inflict, inflictRandom, reduce, steal, createGems, createSkulls, createSpecialGems, transform, transformToSpecial, destroyAllColors, destroyChosenRow, destroyChosenCol, destroyRandomRows, destroyRandomCols, destroyRandomGems, explodeChosenRow, explodeChosenCol, explodeRandomGems, explodeSpecialGems, oneOf, summonRef, summonRandom, extraTurn, reposition, shuffleTeam, shuffleBoard, skillOnce, escape, sacrifice, transformTroop, transformTroopRandom, scale, flat, CASTER, CELL, explodeAt, dispelStatus, targetedSkill } from '../builders';
+import { skill, dmg, dmgSplash, trueDmg, heal, armor, attack, magic, mana, cleanse, inflict, inflictRandom, reduce, steal, createGems, createSkulls, createSpecialGems, transform, transformToSpecial, destroyAllColors, destroyChosenRow, destroyChosenCross, destroyChosenCol, destroyRandomRows, destroyRandomCols, destroyRandomGems, explodeChosenRow, explodeChosenCol, explodeRandomGems, explodeSpecialGems, oneOf, summonRef, summonRandom, extraTurn, reposition, shuffleTeam, shuffleBoard, skillOnce, escape, sacrifice, transformTroop, transformTroopRandom, scale, flat, CASTER, CELL, explodeAt, dispelStatus, targetedSkill } from '../builders';
 import { POSITIVE_STATUS_IDS } from '../effects/status';
 import { BaseColor } from '../../types';
 import type { SpecialGemKind } from '../../types';
@@ -855,8 +855,8 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 9952,
     desc: '摧毁一行和一列。生成 1 个蛛网宝石，其数量会根据被摧毁的黄色宝石的数量进行加成。 [1:1]',
     build: skill(
-      destroyChosenRow(),
-      destroyChosenCol(),
+      // native RowAndColumn is one step (15 cells, no refill between) (sa-R1)
+      destroyChosenCross(),
       createSpecialGems({ kind: 'web' }, 1, 0, { modifier: { mod: { kind: 'ratio', a: 1, b: 1 }, source: { kind: 'destroyedGems', color: BaseColor.Yellow } } }),
     ),
   },

@@ -702,7 +702,7 @@ const SPELLS: CuratedBatch['spells'] = [
   {
     id: 7230,
     desc: '对 1 名敌人造成 [魔法] 点伤害。获得 1 点魔力值并移除所有绿色宝石以强化此效果。 [3:1]',
-    build: ({"segments":[{"kind":"damage","target":"enemyChosen","scaling":{"base":0,"mult":1}},{"kind":"buff","target":"allySelf","stat":"magic","scaling":{"base":1,"mult":0},"modifier":{"mod":{"kind":"ratio","a":3,"b":1}}},{"kind":"gem","params":{"op":"clear","mode":"destroy","target":{"kind":"color","color":"Green"}}}]} as SkillPrototype),
+    build: ({"segments":[{"kind":"damage","target":"enemyChosen","scaling":{"base":0,"mult":1}},{"kind":"buff","target":"allySelf","stat":"magic","scaling":{"base":1,"mult":0},"modifier":{"mod":{"kind":"ratio","a":3,"b":1},"source":{"kind":"boardGems","color":"Green"}}},{"kind":"gem","params":{"op":"clear","mode":"destroy","target":{"kind":"color","color":"Green"}}}]} as SkillPrototype),
   },
   {
     id: 7239,
@@ -1135,10 +1135,11 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 7568,
-    desc: '对一名敌人造成 [魔法 + 4] 点溅射伤害。敌我双方每有一名棕色军队则爆破一颗随机棕色宝石。 [1:1]',
+    desc: '对一名敌人造成 [魔法 + 4] 点溅射伤害。敌我双方每有一名棕色军队则爆破一颗随机宝石。 [1:1]',
     build: skill(
       dmgSplash('enemyChosen', 4, 1, { range: 'splash' }),
-      explodeRandomGems(1, 0, 'color', BaseColor.Brown, { modifier: { mod: { kind: 'ratio', a: 1, b: 1 }, sources: [{ kind: 'alliesOfColor', color: BaseColor.Brown }, { kind: 'enemiesOfColor', color: BaseColor.Brown }] } }),
+      // native ExplodeGems (any random gem, no base) x (Brown allies + Brown enemies)
+      explodeRandomGems(0, 0, 'all', undefined, { modifier: { mod: { kind: 'ratio', a: 1, b: 1 }, sources: [{ kind: 'alliesOfColor', color: BaseColor.Brown }, { kind: 'enemiesOfColor', color: BaseColor.Brown }] } }),
     ),
   },
   {
@@ -1253,10 +1254,11 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 7601,
-    desc: '净化所有盟友。给予他们 [魔法 + 1] 点生命值， 并移除所有蓝色宝石以增强效果 [3:1]',
+    desc: '移除所有蓝色宝石。净化所有其他盟友，再给予他们 [魔法 + 1] 点生命值，数值因移除的宝石数而增强。 [3:1]',
+    // native: CountGems Blue 34 (board, step 0), Cleanse + IncreaseHealth @AllAlliesButNotSelf, RemoveColor Blue last (sa-R1)
     build: skill(
-      cleanse('allyAll'),
-      heal('allySelf', 1, 1, { modifier: { mod: { kind: 'ratio', a: 3, b: 1 } } }),
+      cleanse('allyOthers'),
+      heal('allyOthers', 1, 1, { modifier: { mod: { kind: 'ratio', a: 3, b: 1 }, source: { kind: 'boardGems', color: BaseColor.Blue } } }),
       destroyColor(BaseColor.Blue),
     ),
   },

@@ -22,7 +22,7 @@
  *   「因摧毁的黄色宝石数」（7159/7379）→ destroyedGems 带色（batch-12 7298 同款）。
  */
 import { skill, dmg, trueDmg, heal, armor, attack, mana,
-  createGems, createMix, createSkulls, destroyColor, destroyChosenRow, destroyChosenCol,
+  createGems, createMix, createSkulls, destroyColor, destroyChosenCross, destroyChosenCol,
   destroyRandomGems, explodeColor, drainMana, inflict, summonRef, summonRandom, transform,
   extraTurn, CHOSEN } from '../builders';
 import { BaseColor } from '../../types';
@@ -67,7 +67,8 @@ const SPELLS: CuratedBatch['spells'] = [
     build: skill(
       destroyChosenCol(),
       // spell-rules.md §1 核对样例原文：4×被摧毁紫色数；来源带色（batch-12 7298 同款）
-      createSkulls(4, 0, {
+      // native CreateGems Skull has no Amount: 4 per Purple destroyed, no base (sa-R1)
+      createSkulls(0, 0, {
         modifier: { mod: { kind: 'multiplier', a: 4 }, source: { kind: 'destroyedGems', color: BaseColor.Purple } },
       }),
     ),
@@ -77,8 +78,8 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '摧毁一组行跟列。对 1 名随机敌人造成 [魔法 + 6] 点伤害，伤害值因被摧毁的黄色宝石数而增强。 [x7]',
     build: skill(
       // 「一组行跟列」= 选定行 + 选定列（头注口径）
-      destroyChosenRow(),
-      destroyChosenCol(),
+      // native RowAndColumn is one step (15 cells, no refill between) (sa-R1)
+      destroyChosenCross(),
       dmg('enemyRandom', 6, 1, {
         modifier: { mod: { kind: 'multiplier', a: 7 }, source: { kind: 'destroyedGems', color: BaseColor.Yellow } },
       }),

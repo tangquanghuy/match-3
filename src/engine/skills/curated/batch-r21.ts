@@ -327,8 +327,9 @@ const SPELLS: CuratedBatch['spells'] = [
     // = targetRace Divine 限定目标（r19 王国批同款段级过滤）。
     build: skill(
     dmg('enemyAll', 7, 1),
-    explodeRandomSpecialGems('doomSkull', 3, 0, { modifier: enemiesOfRaceBoost('Divine', 1) }),
+    // native order (R001): Damage, CauseSilence@EnemyType, then ExplodeColor Doomskull (sa-R1)
     inflict('silence', 'enemyAll', { targetRace: 'Divine' }),
+    explodeRandomSpecialGems('doomSkull', 3, 0, { modifier: enemiesOfRaceBoost('Divine', 1) }),
     ),
   },
   {

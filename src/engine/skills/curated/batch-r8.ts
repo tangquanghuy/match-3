@@ -522,9 +522,12 @@ const SPELLS: CuratedBatch['spells'] = [
     // 「因摧毁的…宝石数」= destroyedGems 无色（任意）；共用 modifier 子句挂最近数值段=护甲段（batch-04/15 先例）
     build: skill(
       destroyChosenRow(),
-      attack('allySelf', 10, 1),
+      // native: CountGems 600 Block / GoodGargoyle / BadGargoyle in the row; Attack and Armor both use the counter (sa-R1)
+      attack('allySelf', 10, 1, {
+        modifier: { mod: { kind: 'multiplier', a: 6 }, sources: [{ kind: 'destroyedGems', special: 'stoneBlock' }, { kind: 'destroyedGems', special: 'gargoyleGem' }] },
+      }),
       armor('allySelf', 10, 1, {
-        modifier: { mod: { kind: 'multiplier', a: 6 }, source: { kind: 'destroyedGems' } },
+        modifier: { mod: { kind: 'multiplier', a: 6 }, sources: [{ kind: 'destroyedGems', special: 'stoneBlock' }, { kind: 'destroyedGems', special: 'gargoyleGem' }] },
       }),
     ),
   },

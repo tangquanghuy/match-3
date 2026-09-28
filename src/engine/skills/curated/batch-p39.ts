@@ -161,7 +161,8 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '摧毁一列。每摧毁一颗绿色宝石则创造 2 可末日骷髅头。召唤骷髅头风暴。 [x2]',
     build: skill(
       destroyChosenCol(),
-      createSpecialGems({ kind: 'doomSkull' }, 2, 0, { modifier: { mod: { kind: 'multiplier', a: 2 }, source: { kind: 'destroyedGems', color: BaseColor.Green } } }),
+      // native CreateGems Doomskull has no Amount: 2 per Green destroyed, no base (sa-R1)
+      createSpecialGems({ kind: 'doomSkull' }, 0, 0, { modifier: { mod: { kind: 'multiplier', a: 2 }, source: { kind: 'destroyedGems', color: BaseColor.Green } } }),
       createStorm(BaseColor.Brown, { dropKind: 'skull' }),
     ),
   },

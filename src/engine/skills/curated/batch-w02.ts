@@ -139,7 +139,8 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '摧毁 1 列。对最强大的敌人造成 [魔法 + 2] 点伤害，伤害值因被摧毁的骷髅头和棕色宝石数而增强。 [x2]',
     build: skill(
       destroyChosenCol(),
-      dmg('enemyHealthiest', 2, 1, { modifier: { mod: { kind: 'multiplier', a: 2 }, source: { kind: 'boardSkulls' } } }),
+      // native CountGems Skull + Brown BoardTarget Column x2 = gems in the destroyed column (sa-R1)
+      dmg('enemyHealthiest', 2, 1, { modifier: { mod: { kind: 'multiplier', a: 2 }, sources: [{ kind: 'destroyedGems', skulls: true }, { kind: 'destroyedGems', color: BaseColor.Brown }] } }),
     ),
   },
   {
@@ -194,7 +195,8 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '摧毁一列。每摧毁一颗黄宝石则创造 4 颗红色宝石。 [x4]',
     build: skill(
       destroyChosenCol(),
-      createGems(BaseColor.Red, 4, 0, { modifier: { mod: { kind: 'multiplier', a: 4 }, source: { kind: 'destroyedGems', color: BaseColor.Yellow } } }),
+      // native CreateGems Red has no Amount: 4 per Yellow destroyed, no base (sa-R1)
+      createGems(BaseColor.Red, 0, 0, { modifier: { mod: { kind: 'multiplier', a: 4 }, source: { kind: 'destroyedGems', color: BaseColor.Yellow } } }),
     ),
   },
   {
@@ -285,18 +287,23 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 7928,
     desc: '使一名敌人陷入所有负面状态效果。爆破 [魔法 + 1] 颗其法力颜色的宝石。',
     build: skill(
+      // native: CauseCursed, CauseStun, then CauseAllNegativeStatusEffects (R001: Curse first so the rest ignore immunities)
+      // all negative = official status table (RANDOM_NEGATIVE_STATUS_POOL, 15; no Charm per R008); Curse/Stun not re-applied
+      inflict('curse', 'enemyChosen'),
+      inflict('stun', 'enemyChosen'),
       inflict('poison', 'enemyChosen'),
       inflict('burning', 'enemyChosen'),
       inflict('bleed', 'enemyChosen'),
       inflict('silence', 'enemyChosen'),
       inflict('frozen', 'enemyChosen'),
-      inflict('stun', 'enemyChosen'),
       inflict('entangle', 'enemyChosen'),
       inflict('web', 'enemyChosen'),
       inflict('disease', 'enemyChosen'),
-      inflict('curse', 'enemyChosen'),
       inflict('death-mark', 'enemyChosen'),
-      inflict('charm', 'enemyChosen'),
+      inflict('faerie-fire', 'enemyChosen'),
+      inflict('marked', 'enemyChosen'),
+      inflict('lycanthropy', 'enemyChosen'),
+      inflict('terror', 'enemyChosen'),
       explodeRandomGems(1, 1, 'color', 'LAST_TARGET'),
     ),
   },
@@ -390,7 +397,8 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 7964,
     desc: '对一名敌人造成 [魔法 + 5] 点伤害。若对方是一名元素军队则造成双倍伤害。移除所有棕色宝石以增强效果。 [3:1]',
     build: skill(
-      dmg('enemyChosen', 5, 1, { condMult: { times: 2, cond: { kind: 'targetRace', race: 'Elemental' } }, modifier: { mod: { kind: 'ratio', a: 3, b: 1 } } }),
+      // native CountGems Brown 34 (board, before the removal) (sa-R1)
+      dmg('enemyChosen', 5, 1, { condMult: { times: 2, cond: { kind: 'targetRace', race: 'Elemental' } }, modifier: { mod: { kind: 'ratio', a: 3, b: 1 }, source: { kind: 'boardGems', color: BaseColor.Brown } } }),
       destroyColor(BaseColor.Brown),
     ),
   },

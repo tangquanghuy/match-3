@@ -239,7 +239,6 @@ const SPELLS: CuratedBatch['spells'] = [
     // 「引爆一排」= explodeChosenRow（batch-r11 9935 先例）；「红色敌人可提升 [x3]」=
     // enemiesOfColor Red（R13 新来源）分别挂攻/血/甲三段
     build: skill(
-      explodeChosenRow(),
       attack('allySelf', 1, 1, {
         modifier: { mod: { kind: 'multiplier', a: 3 }, source: { kind: 'enemiesOfColor', color: BaseColor.Red } },
       }),
@@ -249,6 +248,8 @@ const SPELLS: CuratedBatch['spells'] = [
       armor('allySelf', 1, 1, {
         modifier: { mod: { kind: 'multiplier', a: 3 }, source: { kind: 'enemiesOfColor', color: BaseColor.Red } },
       }),
+      // native: CountArmyColor (step 0) before ExplodeGems; buffs first so skull kills from the row do not shrink the Red-enemy count (sa-R1)
+      explodeChosenRow(),
       inflict('burning', 'enemyAll'),
     ),
   },

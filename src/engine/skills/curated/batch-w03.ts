@@ -559,7 +559,8 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 8646,
     desc: '每有一名蓝色盟友或元素盟友，则爆破 4 颗宝石。 [x4]',
     build: skill(
-      explodeRandomGems(4, 0, 'color', undefined, { modifier: { mod: { kind: 'multiplier', a: 4 }, sources: [{ kind: 'alliesOfColor', color: BaseColor.Blue }, { kind: 'teamSize', side: 'ally' }] } }),
+      // native CountArmyColor@AllAllies 400 + CountArmyType@AllAllies 400 (Elemental) + ExplodeGems: 4 per Blue ally + 4 per Elemental ally, no base
+      explodeRandomGems(0, 0, 'all', undefined, { modifier: { mod: { kind: 'multiplier', a: 4 }, sources: [{ kind: 'alliesOfColor', color: BaseColor.Blue }, { kind: 'alliesOfRace', race: 'Elemental' }] } }),
     ),
   },
   {

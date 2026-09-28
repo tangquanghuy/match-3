@@ -280,8 +280,8 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 8562,
     desc: '获得 [魔法 + 1] 点攻击力和生命值，因红色和紫色宝石而增强。然后召唤地狱风暴。 [1:1]',
     build: skill(
-      attack('allySelf', 1, 1),
-      // 修饰句未点名类别 → 挂最近数值段（= heal，batch-14 8297 口径）
+      // native: IncreaseAttack and IncreaseHealth both UseCounterForAmount (Red + Purple gems) (sa-R1)
+      attack('allySelf', 1, 1, { modifier: { mod: { kind: 'ratio', a: 1, b: 1 }, sources: [{ kind: 'boardGems', color: BaseColor.Red }, { kind: 'boardGems', color: BaseColor.Purple }] } }),
       heal('allySelf', 1, 1, { modifier: { mod: { kind: 'ratio', a: 1, b: 1 }, sources: [{ kind: 'boardGems', color: BaseColor.Red }, { kind: 'boardGems', color: BaseColor.Purple }] } }),
       createStorm(BaseColor.Red),
     ),

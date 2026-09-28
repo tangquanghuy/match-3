@@ -19,7 +19,7 @@
  *   ctx.chosenCell，即选定宝石的行+列十字（无随机字样照 batch-01 7016「摧毁 1 行」选定口径）。
  * - 8160「上海」为「伤害」原文笔误、8160/8180 双空格均逐字保留（对号入座锚）。
  */
-import { skill, dmg, dmgSplash, heal, armor, attack, createGems, createMix, transform, destroyChosenCol, destroyChosenRow, destroySkulls, destroyColor, inflict, extraTurn, CHOSEN, CELL, explodeAt } from '../builders';
+import { skill, dmg, dmgSplash, heal, armor, attack, createGems, createMix, transform, destroyChosenCol, destroyChosenCross, destroySkulls, destroyColor, inflict, extraTurn, CHOSEN, CELL, explodeAt } from '../builders';
 import { BaseColor } from '../../types';
 import type { CuratedBatch } from './index';
 
@@ -160,7 +160,10 @@ const SPELLS: CuratedBatch['spells'] = [
       // batch-05 7052 同款：清除段只清骷髅 → destroyedGems 不带色筛选恰等于被摧毁的骷髅数
       destroySkulls(),
       // 一个方括号喂双段（batch-03 8372 同款）；modifier 挂最近数值段（batch-05 7059/7266 口径）
-      heal('allySelf', 1),
+      // native: IncreaseHealth and IncreaseArmor both UseCounterForAmount (Skulls destroyed) (sa-R1)
+      heal('allySelf', 1, 1, {
+        modifier: { mod: { kind: 'ratio', a: 1, b: 1 }, source: { kind: 'destroyedGems' } },
+      }),
       armor('allySelf', 1, 1, {
         modifier: { mod: { kind: 'ratio', a: 1, b: 1 }, source: { kind: 'destroyedGems' } },
       }),
@@ -191,8 +194,8 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '摧毁一行和一列。对所有敌人造成 [魔法 + 1] 点伤害，伤害值因被摧毁的紫色和黄色宝石而增强。 [x2]',
     build: skill(
       // 「摧毁一行和一列」：两条 chosenLine 读同一 ctx.chosenCell = 选定宝石行+列十字
-      destroyChosenRow(),
-      destroyChosenCol(),
+      // native DestroyGems BoardTarget RowAndColumn is one step (15 cells, no refill between row and column) (sa-R1)
+      destroyChosenCross(),
       // 「紫色和黄色宝石」双来源 → sources 计数相加（SOP §3；batch-11 9938/9852 同款）
       dmg('enemyAll', 1, 1, {
         range: 'all',

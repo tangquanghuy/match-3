@@ -60,7 +60,7 @@ import type { CuratedBatch } from './index';
 import {
   skill, dmg, dmgSplash, trueDmg, heal, armor, attack, magic, mana, cleanse, reduce, steal,
   drainMana, inflict, createGems, createSkulls, createSpecialGems, createGemsMixAny, transform,
-  destroyRandomRows, destroyRandomCols, destroyArea, destroyChosenCross, explodeRandomGems,
+  destroyChosenRow, destroyRandomCols, destroyArea, destroyChosenCross, explodeRandomGems,
   explodeRandomGemsAny, explodeRandomSkulls, summonRef, summonRandom, extraTurn, sacrifice,
   devour, summonCopy, swapPositions, transformSelfFrom, boostPer, gainSouls, stealGold, gainGold, scale, flat,
   oneOf, chooseSkill, randomStat, reposition, skillOnce, stealRandomStat, CELL, explodeAt, dispelStatus,
@@ -300,7 +300,8 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '摧毁 1 行。对第一名敌人造成 [魔法 + 2] 点伤害，伤害值因该行被摧毁的骷髅头数而增强。 [x5]',
     // 「该行被摧毁的骷髅头数」= destroyedGems skulls 细分筛（R22 新来源，此前「无骷髅筛」口径收口）。
     build: skill(
-    destroyRandomRows(1),
+    // native DestroyGems BoardTarget Row on a Board-target spell = the chosen gem's row, not a random row (sa-R1)
+    destroyChosenRow(),
     dmg('enemyFront', 2, 1, { modifier: boostPer({ kind: 'destroyedGems', skulls: true }, 5) }),
     ),
   },
@@ -908,8 +909,9 @@ const SPELLS: CuratedBatch['spells'] = [
     // 「若敌人使用蓝色法力值」= lastTargetColor 全局条件（R22 新条件）。
     build: skill(
     trueDmg('enemyChosen', 2, 1),
-    destroyRandomCols(1, 0, { modifier: boostPer({ kind: 'enemiesOfColor', color: BaseColor.Blue }, 1), ifCond: { kind: 'lastTargetColor', color: BaseColor.Blue } }),
-    attack('allySelf', 0, 0, { modifier: boostPer({ kind: 'enemiesOfColor', color: BaseColor.Blue }, 5), ifCond: { kind: 'lastTargetColor', color: BaseColor.Blue } }),
+    // CountArmyColor@FromTarget 500 Blue counts the target only (0/1): fixed 1 column / +5 Attack gated on the target's colour (sa-R1)
+    destroyRandomCols(1, 0, { ifCond: { kind: 'lastTargetColor', color: BaseColor.Blue } }),
+    attack('allySelf', 5, 0, { ifCond: { kind: 'lastTargetColor', color: BaseColor.Blue } }),
     ),
   },
   {
@@ -1020,7 +1022,8 @@ const SPELLS: CuratedBatch['spells'] = [
     // 首颗点选；「每有一颗骷髅头被摧毁则再爆破一颗」= destroyedGems skulls 驱动爆破数量 [1:1]。
     build: skill(
     explodeAt(CELL),
-    explodeRandomGems(1, 0, 'all', undefined, { modifier: boostPer({ kind: 'destroyedGems', skulls: true }, 1) }),
+    // native second ExplodeGems has no Amount: one per Skull destroyed, no base (sa-R1)
+    explodeRandomGems(0, 0, 'all', undefined, { modifier: boostPer({ kind: 'destroyedGems', skulls: true }, 1) }),
     ),
   },
   {
