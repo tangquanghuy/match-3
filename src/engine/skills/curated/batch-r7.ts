@@ -471,8 +471,9 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '对一名敌人造成 [魔法 + 4] 点严重的溅射伤害。击晕所有受到伤害的敌人。再打乱敌方队伍队形。',
     build: skill(
       dmgSplash('enemyChosen', 4, 1),
-      // 「击晕所有受到伤害的敌人」= enemyAll + targetHpDamaged（batch-r6 7985 同款）
-      inflict('stun', 'enemyAll', { ifCond: { kind: 'targetHpDamaged' } }),
+      // sa-C r9: native CauseStun FromTarget + AdjacentFromTarget = the whole splash group
+      // (armor-only hits included); was enemyAll + targetHpDamaged, which skipped armor-only hits.
+      inflict('stun', 'lastDamaged'),
       shuffleTeam('enemy'),
     ),
   },

@@ -19,7 +19,7 @@
  * - 7225/7273/7335「如果(有)敌人身亡」= spell-rules.md §4 死亡条件家族
  *   （「如敌人身亡，则…」同款），按 §4 挂最近产目标段（enemyAll）判定。
  */
-import { skill, dmg, dmgAll, dmgSplash, trueDmg, heal, armor, attack, magic, steal, cleanse, createGems, createSkulls, transform, destroyChosenCol, destroyChosenRow, destroyColor, destroyRandomGems, inflict, summonRef, summonRandom, extraTurn, CHOSEN, CELL, explodeAt } from '../builders';
+import { skill, dmg, dmgAll, dmgSplash, trueDmg, heal, armor, attack, magic, steal, cleanse, createGems, createSkulls, transform, destroyChosenCol, destroyChosenRow, destroyColor, destroyRandomGems, inflict, summonRef, summonRandom, extraTurn, CHOSEN, CELL, explodeAt, anyEnemyDied } from '../builders';
 import { BaseColor } from '../../types';
 import type { CuratedBatch } from './index';
 
@@ -253,7 +253,8 @@ const SPELLS: CuratedBatch['spells'] = [
     build: skill(
       dmgAll(3),
       inflict('entangle', 'enemyAll'),
-      magic('allySelf', 8, 0, { ifTargetDied: true }),
+      // sa-C r9: native AddForKill = any enemy killed by this cast; ifTargetDied only saw the last target.
+      magic('allySelf', 8, 0, { ifCond: anyEnemyDied() }),
     ),
   },
   {

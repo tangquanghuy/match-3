@@ -1,6 +1,6 @@
 # GoW 技能改动留档
 
-自动生成（`node scripts/gow-changelog.mjs render`），源数据 [CHANGES.jsonl](CHANGES.jsonl)，共 638 条改动，涉及 1090 个技能 ID。
+自动生成（`node scripts/gow-changelog.mjs render`），源数据 [CHANGES.jsonl](CHANGES.jsonl)，共 640 条改动，涉及 1092 个技能 ID。
 
 ## 按时间
 
@@ -644,6 +644,8 @@
 | 2026-09-28T22:42 | sa-C | L5-C-7797-chance | assembler | 9817 | troop:7797 AssassinVine | `src/engine/skills/curated/batch-18.ts` | execute checked after this cast's own Entangle (every cast had the kill roll) → native LethalDamageConditional first: only an already Entangled target; chance kept at English 30% (native 25, dispute) |  |
 | 2026-09-28T22:44 | sa-C | L5-C-r9-7718 | assembler | 9710 | troop:7718 CrimsonWyrmling | `src/engine/skills/curated/batch-r1.ts` | Burn enemyRandomN nRange 1-2 → native Burn RandomEnemy ; Burn RandomPrefNotPrevEnemy 50% |  |
 | 2026-09-28T22:44 | sa-C | L5-C-r9-6150-zh | data | 7264 | troop:6150 Dimetraxia | `src/engine/skills/curated/batch-05.ts`<br>`src/data/gowSnapshotOverrides.json` | zh 75% 的几率燃烧所有人 (everyone) → zh 燃烧所有敌人 (English all Enemies), snapshot override |  |
+| 2026-09-28T23:12 | sa-C | L5-C-r9-6983-stun | assembler | 8486 | troop:6983 KingMinos | `src/engine/skills/curated/batch-r7.ts` | Stun enemyAll only if Life was damaged (armor-only splash hits skipped) → Stun lastDamaged = target + adjacent (native CauseStun FromTarget + AdjacentFromTarget) |  |
+| 2026-09-28T23:12 | sa-C | L5-C-r9-6194-kill | assembler | 7335 | troop:6194 SpringImp | `src/engine/skills/curated/batch-12.ts` | +8 Magic ifTargetDied (only when the last target set, all enemies, died) → +8 Magic ifCond anyEnemyDied (native AddForKill: any enemy killed) |  |
 
 ## 按技能 ID
 
@@ -769,6 +771,7 @@
 | 7329 | 1 | L4a-r3-6188 |
 | 7333 | 1 | R004 (L5-004,L5-005,L5-014,L4b-6340) |
 | 7334 | 1 | L7-6193 |
+| 7335 | 1 | L5-C-r9-6194-kill |
 | 7338 | 2 | L5-006、R004 (L5-004,L5-005,L5-014,L4b-6340) |
 | 7339 | 1 | F1-items-62-75 |
 | 7340 | 2 | P-random-stat-pool、L2-H-6198-order |
@@ -1198,6 +1201,7 @@
 | 8481 | 1 | L4a-r3-6954 |
 | 8484 | 1 | L2-H-6981-chosen-line |
 | 8485 | 1 | P-R3-next-up-target |
+| 8486 | 1 | L5-C-r9-6983-stun |
 | 8487 | 1 | P-E-faction-kingdom |
 | 8488 | 1 | R7-b14-status-counts |
 | 8491 | 1 | P-chooser-native-restrictions |

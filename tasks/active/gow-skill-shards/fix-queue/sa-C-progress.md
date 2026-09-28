@@ -44,3 +44,9 @@
 - troop:7718 fixed (9710 RandomEnemy burn + RandomPrefNotPrev burn 50%)
 - troop:7013 accept (8545 one 75% roll)
 - B14 weapon:1446,troop:6150,6158,7718,7013 approve=5 fixed=2 issue=0
+- troop:6194 fixed (7335 +8 Magic on ANY enemy kill: anyEnemyDied, was ifTargetDied on enemyAll)
+- troop:6983 fixed (8486 Stun target + adjacent via lastDamaged, was Life-damaged only)
+- weapon:1447 accept (8703 Bless Brown allies, Curse Brown enemies)
+- troop:6816 accept (8220 lastDamaged burn/freeze groups)
+- weapon:1153 accept (7527 Enrage front ally)
+- B15 troop:6194,6983,weapon:1447,troop:6816,weapon:1153 approve=5 fixed=2 issue=0

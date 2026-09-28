@@ -449,3 +449,41 @@ describe('L5 sa-C round 9 B14', () => {
     expect(all).toBeGreaterThan(22); expect(all).toBeLessThan(38);
   });
 });
+describe('L5 sa-C round 9 B15', () => {
+  const order = (o: Parameters<typeof castSpell>[0]) => castSpell(o).summary.order;
+  const sum = (o: string[]) => dmgs(o).reduce((a, x) => a + x.n, 0);
+  it('troop:6194 scatter M+3, Entangle all; +8 Magic once when any enemy dies (not only when all die)', () => {
+    let kills = 0;
+    for (const seed of seeds) {
+      const one = order({ key: 'troop:6194', seed, enemies: enemies({ 0: { hp: 1, armor: 0 } }) });
+      expect(sum(one)).toBe(13);
+      const killed = one.includes('defeat E10'); if (killed) kills++;
+      expect(one.filter(x => x.startsWith('buff C magic'))).toEqual(killed ? ['buff C magic+8'] : []);
+    }
+    expect(kills).toBeGreaterThan(0);
+    const none = order({ key: 'troop:6194' });
+    expect(none.some(x => x.startsWith('buff C'))).toBe(false);
+  });
+  it('troop:6983 Stun the target and both adjacent enemies even on armor-only hits (native FromTarget + AdjacentFromTarget)', () => {
+    const o = order({ key: 'troop:6983' });
+    expect(o.filter(x => x.startsWith('status'))).toEqual(['status E11 +stun', 'status E10 +stun', 'status E12 +stun']);
+    expect(order({ key: 'troop:6983', magic: 0 }).filter(x => x.startsWith('status'))).toEqual(['status E11 +stun', 'status E10 +stun', 'status E12 +stun']);
+    expect(o[o.length - 1]).toBe('shuffle theirs');
+  });
+  it('weapon:1447 Bless only Brown allies, Curse only Brown enemies', () => {
+    const o = order({ key: 'weapon:1447', allies: allies({ 1: { colors: [BaseColor.Brown] } }) });
+    expect(o.filter(x => x.startsWith('status'))).toEqual(['status C +blessed', 'status A2 +blessed', 'status E13 +curse']);
+  });
+  it('troop:6816 burn the first splash group, freeze the second (two independent RandomEnemy picks)', () => {
+    for (const seed of seeds.slice(0, 10)) {
+      const o = order({ key: 'troop:6816', seed });
+      expect(dmgs(o).filter(x => x.n === 15)).toHaveLength(2);
+      expect(dmgs(o).every(x => x.n === 15 || x.n === 7)).toBe(true);
+      const burnIdx = o.findIndex(x => x.includes('+burning')), freezeIdx = o.findIndex(x => x.includes('+frozen'));
+      expect(burnIdx).toBeLessThan(freezeIdx);
+    }
+  });
+  it('weapon:1153 Enrage only the front ally', () => {
+    expect(order({ key: 'weapon:1153' }).filter(x => x.startsWith('status'))).toEqual(['status C +rage']);
+  });
+});
