@@ -852,8 +852,9 @@ const SPELLS: CuratedBatch['spells'] = [
       armor('allySelf', 2, 1, {
         modifier: { mod: { kind: 'multiplier', a: 6 }, source: { kind: 'boardSpecial', gem: 'daemonicPortalGem' } },
       }),
-      createSpecialGems({ kind: 'daemonicPortalGem' }, 2),
+      // Native order (R001): ConvertGems 100 Yellow>Spirit before CreateGems 2 DaemonicPortal.
       transformToSpecial(BaseColor.Yellow, 'spiritGem'),
+      createSpecialGems({ kind: 'daemonicPortalGem' }, 2),
     ),
   },
   {

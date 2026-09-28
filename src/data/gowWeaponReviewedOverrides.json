@@ -8019,6 +8019,9 @@
         ]
       }
     },
+    "9505": {
+      "description": "对首位 2 名敌人造成 [魔法 + 3] 点伤害，伤害值因恶魔传送门宝石数而增强。创造 2 颗恶魔传送门宝石。 [x3]"
+    },
     "9523": {
       "prototype": {
         "segments": [
@@ -9551,12 +9554,47 @@
         "segments": [
           {
             "kind": "damage",
-            "target": "enemyRandomN",
+            "target": "enemyRandom",
             "scaling": {
               "base": 3,
               "mult": 1
             },
-            "n": 3,
+            "modifier": {
+              "mod": {
+                "kind": "multiplier",
+                "a": 4
+              },
+              "source": {
+                "kind": "boardSpecial",
+                "gem": "volcanoGem"
+              }
+            }
+          },
+          {
+            "kind": "damage",
+            "target": "enemyRandomPrefNotPrev",
+            "scaling": {
+              "base": 3,
+              "mult": 1
+            },
+            "modifier": {
+              "mod": {
+                "kind": "multiplier",
+                "a": 4
+              },
+              "source": {
+                "kind": "boardSpecial",
+                "gem": "volcanoGem"
+              }
+            }
+          },
+          {
+            "kind": "damage",
+            "target": "enemyRandomPrefNotPrev",
+            "scaling": {
+              "base": 3,
+              "mult": 1
+            },
             "modifier": {
               "mod": {
                 "kind": "multiplier",

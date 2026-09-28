@@ -162,10 +162,10 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 7169,
-    desc: '窃取 1 名敌人 [魔法] 点攻击力，并将所有黄色宝石转换成紫色以增强效果。 [3:1]',
+    desc: '窃取 1 名敌人 [魔法] 点攻击力，并将所有蓝色宝石转换成紫色以增强效果。 [3:1]',
     build: skill(
-      // 转化段先行，transformedGems 来源才数得到（batch-04 7002 同款）
-      transform(BaseColor.Yellow, BaseColor.Purple),
+      // 转化段先行，transformedGems 来源才数得到（batch-04 7002 同款）；EN + native ConvertGems 100 Blue>Purple（旧版误为黄色）
+      transform(BaseColor.Blue, BaseColor.Purple),
       steal('enemyChosen', 'attack', 'attack', 0, 1, { modifier: { mod: { kind: 'ratio', a: 3, b: 1 }, source: { kind: 'transformedGems' } } }),
     ),
   },

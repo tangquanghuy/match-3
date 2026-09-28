@@ -56,7 +56,9 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 10045,
     desc: '对 3 名随机敌人造成 [魔法 + 3] 点伤害，伤害值因火山宝石数而增强。若有敌人死亡，创造 12 颗火山宝石。[x4]',
     build: skill(
-      dmg('enemyRandomN', 3, 1, { n: 3, modifier: boostPer({ kind: 'boardSpecial', gem: 'volcanoGem' }, 4) }),
+      // Native Damage@RandomEnemy + 2 x Damage@RandomPrefNotPrevEnemy (R007-3): each hit only avoids the previous one.
+      ...(['enemyRandom', 'enemyRandomPrefNotPrev', 'enemyRandomPrefNotPrev'] as const)
+        .map(t => dmg(t, 3, 1, { modifier: boostPer({ kind: 'boardSpecial', gem: 'volcanoGem' }, 4) })),
       createSpecialGems({ kind: 'volcanoGem' }, 12, 0, { ifCond: anyEnemyDied() }),
     ),
   },

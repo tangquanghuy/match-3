@@ -16,6 +16,11 @@
       "reason": "English entity Brian the Lucky says all other Allies and a random Skill (singular); native IncreaseRandom targets AllAlliesButNotSelf with amount Magic+1. Correct older Chinese snapshot without rewriting provenance.",
       "spellDescription": "使所有其他盟友的一项随机属性获得 [魔法 + 1] 点。"
     },
+    "6104": {
+      "spellId": 7169,
+      "reason": "English Sylvasi transforms all Blue Gems to Purple; native ConvertGems 100 Blue>Purple. Chinese snapshot said Yellow.",
+      "spellDescription": "窃取 1 名敌人 [魔法] 点攻击力，并将所有蓝色宝石转换成紫色以增强效果。 [3:1]"
+    },
     "6121": {
       "spellId": 7213,
       "reason": "English source text specifies one random Skill; extracted native IncreaseRandom awards its complete amount to one Skill per recipient. Scoped display clarification, not whole-skill signoff.",
