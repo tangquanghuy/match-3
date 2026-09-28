@@ -1,4 +1,5 @@
 import { applyGowLifeRule } from '../gowLifeRules';
+import { applyGowChoiceRule } from '../gowChoiceRules';
 import { applyGowDamageRule } from '../gowDamageRules';
 /**
  * 人工核对组装结果（窗口 B）。
@@ -199,7 +200,7 @@ export function collectCurated(): {
   const batches: string[] = [];
   for (const b of BATCHES) {
     batches.push(b.batch);
-    for (const s of b.spells) byId.set(s.id, applyGowLifeRule(s.id, applyGowDamageRule(s.id, s.build)));
+    for (const s of b.spells) byId.set(s.id, applyGowChoiceRule(s.id, applyGowLifeRule(s.id, applyGowDamageRule(s.id, s.build))));
     for (const k of b.skipped) skipped.push({ id: k.id, batch: b.batch, reason: k.reason });
   }
   return { byId, skipped, batches };
@@ -238,7 +239,7 @@ export function collectWeaponCurated(): {
   const batches: string[] = [];
   for (const b of WEAPON_BATCHES) {
     batches.push(b.batch);
-    for (const s of b.spells) byId.set(s.id, applyGowLifeRule(s.id, applyGowDamageRule(s.id, s.build)));
+    for (const s of b.spells) byId.set(s.id, applyGowChoiceRule(s.id, applyGowLifeRule(s.id, applyGowDamageRule(s.id, s.build))));
     for (const k of b.skipped) skipped.push({ id: k.id, batch: b.batch, reason: k.reason });
   }
   return { byId, skipped, batches };

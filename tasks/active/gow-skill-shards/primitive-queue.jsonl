@@ -9,3 +9,4 @@
 {"id":"P-random-stat-pool","done":true,"by":"sa-P","at":"2026-09-28T08:40:00Z","note":"debuff.ts RANDOM_REDUCE_STATS attack/armor/hp/magic; StealRandom Life = IncreaseHealth"}
 {"id":"P-prefnotprev-semantics","done":true,"by":"sa-P","at":"2026-09-28T09:15:00Z","note":"damage.ts waves/splash avoid previous only (randomPrefer notHit for 8160); targeting allyRandomPrefNotPrevN; 16 ally spells reassembled"}
 {"id":"P-steal-to-life","done":true,"by":"sa-P","at":"2026-09-28T09:40:00Z","note":"debuff.ts modifierAfterCap + gainLifeMode; 8597/9139/9223 reassembled"}
+{"id":"P-chooser-native-restrictions","done":true,"by":"sa-P","at":"2026-09-28T10:05:00Z","note":"gowChoiceRules.ts + AI colour/cell choosers; App.ts palette still unrestricted (UI note)"}

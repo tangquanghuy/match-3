@@ -29,6 +29,7 @@ import { candidatesFor, sideOf } from './skills/targeting';
 import { AiBranchChooser, skillChoices, selectSkillBranch } from './skills/branchChooser';
 import type { BranchChooser } from './skills/branchChooser';
 import { AiCellChooser, prototypeNeedsCell } from './skills/cellChooser';
+import { choiceRuleOf } from './skills/gowChoiceRules';
 import type { CellChooser } from './skills/cellChooser';
 import { MatchState, PlayerSide, BaseColor, opponentOf, colorGem, specialGem, posKey, SPECIAL_MATCH_COLOR, WEB_GEM_TURNS,
   MATCH_STATUS_GEMS, DESTROY_STATUS_GEMS, STATUS_GEM_EFFECTS, isStatusGemKind, BOOTY_GEM_GOLD,
@@ -2743,13 +2744,15 @@ export class TurnEngine {
       const proto = selectedProto;
       if (proto) {
         // 含选色段时先选色（需求 2）；无可选色 → chosenColor 为 undefined，相关段安全跳过
+        // 原生 spell Target 限制（Not<X>OrSkullGems / ManaGemsOnly…）交给选择器（AI 遵守）
+        const choiceRule = choiceRuleOf(proto);
         const chosenColor = prototypeNeedsColor(proto)
-          ? this.colorChooser.choose(this.state, ch.id) ?? undefined
+          ? this.colorChooser.choose(this.state, ch.id, choiceRule) ?? undefined
           : undefined;
         // chosenTargetId was validated before committing this action.
         // 含"点选一枚宝石"的段时先选格（引爆某格 / 摧毁其所在行列共用此选择）
         const chosenCell = prototypeNeedsCell(proto)
-          ? this.cellChooser.choose(this.state, ch.id, this.rng) ?? undefined
+          ? this.cellChooser.choose(this.state, ch.id, this.rng, choiceRule) ?? undefined
           : undefined;
         events.push(
           ...this.resolveDefeatWithRevive(

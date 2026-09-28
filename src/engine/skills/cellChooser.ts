@@ -15,18 +15,20 @@ import { BoardModel } from '../BoardModel';
 import type { CellPos } from '../types';
 import type { GameState } from '../GameState';
 import type { SeededRNG } from '../rng';
+import { colorAllowed, type ChoiceRule } from './gowChoiceRules';
 
-/** 格子选择器：为一次技能释放返回一个棋盘坐标；无可选格返回 null */
+/** 格子选择器：为一次技能释放返回一个棋盘坐标；无可选格返回 null。
+ *  rule = 原生 spell Target 限制（ManaGemsOnly / <X>Gems / Not<X>Gems，见 gowChoiceRules.ts）；AI 选格器遵守。 */
 export interface CellChooser {
-  choose(state: GameState, casterId: number, rng: SeededRNG): CellPos | null;
+  choose(state: GameState, casterId: number, rng: SeededRNG, rule?: ChoiceRule): CellPos | null;
 }
 
 /**
- * AI 选格策略（确定性）：选离棋盘中心最近的非空格；
- * 平局按 (row,col) 字典序取更前者。全空棋盘 → null。
+ * AI 选格策略（确定性）：选离棋盘中心最近的非空格（有原生目标限制时只在合规格中选）；
+ * 平局按 (row,col) 字典序取更前者。全空棋盘 / 无合规格 → null。
  */
 export class AiCellChooser {
-  choose(state: GameState, _casterId: number, _rng: SeededRNG): CellPos | null {
+  choose(state: GameState, _casterId: number, _rng: SeededRNG, rule?: ChoiceRule): CellPos | null {
     const board = state.board;
     const cx = (BoardModel.ROWS - 1) / 2;
     const cy = (BoardModel.COLS - 1) / 2;
@@ -34,6 +36,9 @@ export class AiCellChooser {
     let bestScore = Infinity;
     board.forEach((gem, pos) => {
       if (!gem) return;
+      // P-chooser-native-restrictions：ManaGemsOnly 只选普通法力（颜色）宝石；颜色限制同选色器
+      if (rule?.manaGemsOnly && gem.type.kind !== 'color') return;
+      if (rule && gem.type.kind === 'color' && !colorAllowed(rule, gem.type.color)) return;
       const d = Math.abs(pos.row - cx) + Math.abs(pos.col - cy);
       // 严格小于才替换；forEach 按行列升序 → 平局取字典序更前者
       if (d < bestScore) {
