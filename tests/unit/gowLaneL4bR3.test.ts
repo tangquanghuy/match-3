@@ -386,3 +386,52 @@ describe('L4b R3 B09', () => {
     expect(r.gems.created.skull).toBe(8);
   });
 });
+
+describe('L4b R3 B10', () => {
+  it('troop:6510: 8 Purple and 8 Red (two creates), then Barrier a random ally', () => {
+    const o = castSpell({ key: 'troop:6510' }).summary.order;
+    expect(o[0]).toMatch(/-> Purple x8$/); expect(o[1]).toMatch(/-> Red x8$/);
+    expect(o[2]).toMatch(/^status (C|A1|A2) \+barrier$/);
+  });
+  it('troop:7202 / 6302 / 7037: two 8/8/9-gem creates of fixed colours', () => {
+    expect(castSpell({ key: 'troop:7202' }).summary.order.slice(0, 3).map(x => x.replace(/^convert .* -> /, ''))).toEqual(['Yellow x8', 'Brown x8', 'status C +barrier']);
+    expect(castSpell({ key: 'troop:7037' }).summary.order.filter(x => x.startsWith('status'))).toEqual(['status E10 +curse', 'status E10 +burning']);
+  });
+  it('troop:7079: Bless and +3 Magic only Bright Forest allies', () => {
+    const r = castSpell({ key: 'troop:7079', allies: [{ kingdom: '皓彩森林' }, { kingdom: '其他' }] as never }).summary.order;
+    expect(r.filter(x => x.startsWith('buff'))).toEqual(['buff C magic+3', 'buff A1 magic+3']);
+  });
+  it('troop:6626: native order Enrage, Submerge, then [Magic + 1] Life on the chosen ally', () => {
+    expect(castSpell({ key: 'troop:6626' }).summary.order.slice(2)).toEqual(['status A1 +rage', 'status A1 +submerged', 'buff A1 hp+11 max+11']);
+  });
+  it('weapon:1428: 8 Green, 8 Red, 8 Blue, 8 Brown in that order', () => {
+    const o = castSpell({ key: 'weapon:1428' }).summary.order.filter(x => x.startsWith('convert'));
+    expect(o.map(x => x.replace(/^convert .* -> /, ''))).toEqual(['Green x8', 'Red x8', 'Blue x8', 'Brown x8']);
+  });
+  it('weapon:1417: 3 x2 Wildcards always, 3-8 total, extra tiers at 50/50/25/25/25%', () => {
+    let min = 99, max = 0, sum = 0; const N = 300;
+    for (let seed = 1; seed <= N; seed++) {
+      const f = setupCast({ key: 'weapon:1417', seed }); f.cast();
+      const tiers: number[] = [];
+      f.board.forEach(g => { const s = g?.type as { kind: string; spec?: { kind: string; tier?: number } } | undefined; if (s?.kind === 'special' && s.spec?.kind === 'wildcard') tiers.push(s.spec.tier ?? 2); });
+      expect(tiers.filter(t => t === 2).length).toBeGreaterThanOrEqual(3);
+      min = Math.min(min, tiers.length); max = Math.max(max, tiers.length); sum += tiers.length;
+    }
+    expect(min).toBeGreaterThanOrEqual(3); expect(max).toBeLessThanOrEqual(8);
+    // expected 3 + 0.5 + 0.5 + 0.25 x 3 = 4.75 (cascades may consume a few)
+    expect(sum / N).toBeGreaterThan(4.2); expect(sum / N).toBeLessThan(5.1);
+  });
+  it('troop:6080: 9 Red and 9 Yellow, then [Magic + 4] damage', () => {
+    const r = castSpell({ key: 'troop:6080' }).summary.order;
+    expect(r.slice(0, 3).map(x => x.replace(/^convert .* -> /, ''))).toEqual(['Red x9', 'Yellow x9', 'dmg E11 14']);
+  });
+  it('weapon:1371: the chosen enemy (not any enemy) being Cursed / Webbed decides the creates', () => {
+    const cursedOther = [{ statuses: [{ id: 'curse', turns: 99 }] }, {}, {}, {}] as never;
+    expect(castSpell({ key: 'weapon:1371', enemies: cursedOther }).summary.order.filter(x => x.startsWith('convert'))).toEqual([]);
+    const both = [{}, { statuses: [{ id: 'curse', turns: 99 }, { id: 'web', turns: 99 }] }, {}, {}] as never;
+    const o = castSpell({ key: 'weapon:1371', enemies: both }).summary.order.filter(x => x.startsWith('convert'));
+    expect(o.map(x => x.replace(/^convert .* -> /, ''))).toEqual(['Green x8', 'Purple x8']);
+    const killed = [{}, { hp: 1, maxHp: 1, armor: 0, statuses: [{ id: 'web', turns: 99 }] }, {}, {}] as never;
+    expect(castSpell({ key: 'weapon:1371', enemies: killed }).summary.order.filter(x => x.startsWith('convert')).map(x => x.replace(/^convert .* -> /, ''))).toEqual(['Purple x8']);
+  });
+});

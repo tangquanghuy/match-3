@@ -275,3 +275,13 @@
 {"format":"compact","key":"troop:7082","decision":"accept","reviewer":"sa-B","reviewedAt":"2026-09-28T10:45:56.388Z","tests":["tests/unit/gowCastGolden.test.ts"]}
 {"format":"compact","key":"troop:6302","decision":"accept","reviewer":"sa-B","reviewedAt":"2026-09-28T10:45:56.388Z","tests":["tests/unit/gowCastGolden.test.ts"]}
 {"format":"compact","key":"troop:7020","decision":"accept","reviewer":"sa-B","reviewedAt":"2026-09-28T10:45:56.388Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:7308","decision":"issue","reviewer":"sa-B","reviewedAt":"2026-09-28T10:52:21.008Z","issue":"L4b-7308-spirit-colour","note":"source-dispute: native CreateGems 8 Spirit has no colour; runtime creates spiritGem/Purple (project placeholder noted in batch-r19 8920, not original evidence). Yellow create + Enchant self match EN/native. Need a source for the colour of created Spirit Gems (random / caster colour / fixed)."}
+{"format":"compact","key":"troop:6510","decision":"accept","reviewer":"sa-B","reviewedAt":"2026-09-28T10:52:23.246Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:7202","decision":"accept","reviewer":"sa-B","reviewedAt":"2026-09-28T10:52:23.247Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:7079","decision":"accept","reviewer":"sa-B","reviewedAt":"2026-09-28T10:52:23.247Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:7037","decision":"accept","reviewer":"sa-B","reviewedAt":"2026-09-28T10:52:23.247Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:6626","decision":"accept","reviewer":"sa-B","reviewedAt":"2026-09-28T10:52:23.248Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"weapon:1428","decision":"accept","reviewer":"sa-B","reviewedAt":"2026-09-28T10:52:23.248Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"weapon:1417","decision":"accept","reviewer":"sa-B","reviewedAt":"2026-09-28T10:52:23.248Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:6080","decision":"accept","reviewer":"sa-B","reviewedAt":"2026-09-28T10:52:23.248Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"weapon:1371","decision":"accept","reviewer":"sa-B","reviewedAt":"2026-09-28T10:52:23.248Z","tests":["tests/unit/gowCastGolden.test.ts"]}

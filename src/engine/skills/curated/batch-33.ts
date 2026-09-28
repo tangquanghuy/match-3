@@ -107,8 +107,9 @@ const SPELLS: CuratedBatch['spells'] = [
       createGems(BaseColor.Blue, 8, 0),
       createGems(BaseColor.Brown, 8, 0),
       // 「一名盟友」= allyChosen（措辞表己方同构）；三段同目标
-      inflict('submerged', 'allyChosen'),
+      // Native order (R001): CauseEnraged ; CauseSubmerged ; IncreaseHealth (all FromTarget).
       inflict('rage', 'allyChosen'),
+      inflict('submerged', 'allyChosen'),
       heal('allyChosen', 1, 1),
     ),
   },

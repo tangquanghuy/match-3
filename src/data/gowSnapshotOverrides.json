@@ -11,6 +11,11 @@
       "reason": "English source text specifies one random Skill; extracted native IncreaseRandom awards its complete amount to one Skill per recipient. Scoped display clarification, not whole-skill signoff.",
       "spellDescription": "对 1 名敌人造成 [魔法 + 3] 点伤害。如果该敌人身亡，自身一项随机属性获得 6 点。"
     },
+    "6080": {
+      "spellId": 7150,
+      "reason": "English Jarl Firemantle + native: CreateGems 9 Red ; CreateGems 9 Yellow. Chinese snapshot said 10.",
+      "spellDescription": "创造 9 颗红色宝石和 9 颗黄色宝石，然后对 1 名敌人造成 [魔法 + 4] 点伤害。"
+    },
     "6092": {
       "spellId": 7162,
       "reason": "English entity Brian the Lucky says all other Allies and a random Skill (singular); native IncreaseRandom targets AllAlliesButNotSelf with amount Magic+1. Correct older Chinese snapshot without rewriting provenance.",
@@ -65,6 +70,11 @@
       "spellId": 7545,
       "reason": "English source text specifies one random Skill; extracted native IncreaseRandom awards its complete amount to one Skill per recipient. Scoped display clarification, not whole-skill signoff.",
       "spellDescription": "获得额外的一回合。爆破所有绿色宝石或使一名随机盟友的一项随机属性获得 [魔法 + 1] 点（若盟友为哥布林则增加两倍）。"
+    },
+    "6510": {
+      "spellId": 7700,
+      "reason": "English Pharaoh Hound + native: CreateGems 8 Purple ; CreateGems 8 Red (16 gems), not a mix of 8.",
+      "spellDescription": "创造 8 颗紫色宝石和 8 颗红色宝石。赋予一名随机盟友屏障效果。"
     },
     "6599": {
       "spellId": 7808,
