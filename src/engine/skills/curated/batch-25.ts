@@ -61,12 +61,13 @@ const SPELLS: CuratedBatch['spells'] = [
   {
     id: 7339,
     desc: '燃烧所有敌人。对 1 名敌人造成 [魔法 + 1] 点伤害，伤害值因自身攻击力而增强。如果敌人身亡，则获得一个额外回合。 [1:1]',
+    // sa-F1 (R001): native CountAttack → Damage → CauseBurning@AllEnemies → ExtraTurnConditional AddForKill.
     build: skill(
-      inflict('burning', 'enemyAll'),
       dmg('enemyChosen', 1, 1, {
         modifier: { mod: { kind: 'ratio', a: 1, b: 1 }, source: { kind: 'selfStat', stat: 'attack' } },
       }),
-      extraTurn({ ifTargetDied: true }),
+      inflict('burning', 'enemyAll'),
+      extraTurn({ ifCond: { kind: 'castEnemyDied' } }),
     ),
   },
   {

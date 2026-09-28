@@ -229,9 +229,10 @@ const SPELLS: CuratedBatch['spells'] = [
   {
     id: 7441,
     desc: '将黄色宝石转换为棕色。转化为一名狼人。',
+    // sa-F1 (R001): native s0 Transform@Self (Werewolf 6294) runs before s2 ConvertGems Yellow>Brown.
     build: skill(
-      transform(BaseColor.Yellow, BaseColor.Brown),
       transformTroop('allySelf', 'Werewolf'),
+      transform(BaseColor.Yellow, BaseColor.Brown),
     ),
   },
   {

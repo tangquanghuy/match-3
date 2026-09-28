@@ -58,3 +58,23 @@
 - 2026-09-28T00:42:52Z troop:6879 fixed native order + real Devour (was execute); approved + test
 - 2026-09-28T00:42:52Z weapon:1107 issue order fixed to native (StealRandom all before damage); remaining P-random-stat-pool
 - 2026-09-28T00:42:52Z weapon:1177 fixed StealMana before damage (native); souls [3:1]=34% tested; approved
+- 2026-09-28T00:46:39Z troop:6838 fixed IncreaseRandom was all other allies + split points; now chosen ally, one random Skill, +gold [1:1]; approved
+- 2026-09-28T00:46:39Z troop:7057 issue F1-7057-block5x5-count source-dispute: native counts skulls in 5x5, explodes 3x3
+- 2026-09-28T00:46:39Z troop:7090 fixed armor boosted by Red allies (not team size) first; burns 2 + 50% + 25% (not uniform 2-4); approved + test
+- 2026-09-28T00:46:39Z weapon:1175 fixed native order cleanse -> mana -> life -> barrier -> enchant; approved
+- 2026-09-28T00:46:39Z troop:6134 issue split Orc/Daemon steals (native two steps, tested); remaining P-random-stat-pool
+- 2026-09-28T00:46:39Z troop:6776 issue matches native except DecreaseRandom pool (P-random-stat-pool)
+- 2026-09-28T00:51:57Z troop:7625 fixed drain hit a re-rolled enemy set; native dmg->drain pairs (PrefNotPrev); approved + test
+- 2026-09-28T00:51:57Z troop:6182 issue damage boost by Blue-in-row added; remaining P-random-stat-pool (destroy-first kept, no row-count source)
+- 2026-09-28T00:51:57Z troop:6926 fixed drain BelowTarget before knock-back (was only the target); approved; K dead-anchor question in P-F1-dead-anchor-targets
+- 2026-09-28T00:51:57Z troop:6146 fixed 13-Red extra-turn check moved before destroy (native); approved + test
+- 2026-09-28T00:51:57Z troop:6197 fixed native order damage -> burn all -> extra turn on kill; approved
+- 2026-09-28T00:51:57Z troop:6227 fixed native per-enemy dmg/stun/drain on front then second; approved
+- 2026-09-28T00:51:57Z troop:6374 fixed native per-enemy dmg/silence second-last then last, then summon; approved
+- 2026-09-28T00:51:57Z troop:6323 fixed native order enchant -> mana -> magic; approved
+- 2026-09-28T00:51:57Z troop:7278 fixed status before one-skill IncreaseRandom (was split points); zh adds 2 Treasure Maps (snapshot override); approved
+- 2026-09-28T00:51:57Z troop:7793 issue P-charm-instant: kill branch depends on Charm semantics
+- 2026-09-28T00:51:57Z troop:7803 issue order fixed (submerge after the already-submerged 50% check); Charm semantics P-charm-instant
+- 2026-09-28T00:51:57Z troop:6131 fixed summon Bone Daemon before the heal (native), so it is healed; approved
+- 2026-09-28T00:51:57Z troop:6295 fixed transform into Werewolf before converting gems (native); approved
+- 2026-09-28T00:55:16Z troop:7625 issue golden dropped: replay-order status leak (Poison) doubles the drain (P-F1-harness-status-leak); fix + own test stay

@@ -237,10 +237,12 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 8414,
     desc: '对一名敌人造成 [魔法 + 7] 点伤害，并将之击回末位。耗掉位于其下的所有敌人 7 点法力值。获得一个额外回合。',
     // 「将之」= 跨段 lastTarget；「其下的所有敌人」= enemyChosenAndBelow（§9.10）
+    // sa-F1 (R001): native Damage → DecreaseMana@BelowTarget (enemies below, not the target) → TroopOrderBack → ExtraTurn.
+    // The old order moved the target to the back first, then drained "chosen and below" = only the target itself.
     build: skill(
       dmg('enemyChosen', 7, 1),
-      reposition('lastTarget', 'back'),
-      reduce('enemyChosenAndBelow', 'mana', 7, 0),
+      reduce('enemyBelowTarget', 'mana', 7, 0),
+      reposition('enemyChosen', 'back'),
       extraTurn(),
     ),
   },
@@ -629,13 +631,16 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 9534,
     desc: '对 3 名随机敌人造成 [魔法 + 3] 真实伤害，并吸取 8 点法力值。如果敌人中毒，则吸取双倍法力值。',
     // 「吸取双倍」= condMult targetStatus poison ×2（削减族段支持，§5）
+    // sa-F1 (R001): native = three (TrueDamage random → DecreaseMana FromPrevious) pairs, the 2nd/3rd on
+    // RandomPrefNotPrevEnemy. The old second enemyRandomN re-rolled a different set of 3 enemies for the drain.
     build: skill(
-      trueDmg('enemyRandomN', 3, 1, { n: 3 }),
+      trueDmg('enemyRandom', 3, 1),
       // L3-007: native DecreaseMana (drain) — no refill to the caster
-      reduce('enemyRandomN', 'mana', 8, 0, {
-        n: 3,
-        condMult: { times: 2, cond: { kind: 'targetStatus', statusId: 'poison' } },
-      }),
+      reduce('lastTarget', 'mana', 8, 0, { condMult: { times: 2, cond: { kind: 'targetStatus', statusId: 'poison' } } }),
+      trueDmg('enemyRandomPrefNotPrev', 3, 1),
+      reduce('lastTarget', 'mana', 8, 0, { condMult: { times: 2, cond: { kind: 'targetStatus', statusId: 'poison' } } }),
+      trueDmg('enemyRandomPrefNotPrev', 3, 1),
+      reduce('lastTarget', 'mana', 8, 0, { condMult: { times: 2, cond: { kind: 'targetStatus', statusId: 'poison' } } }),
     ),
   },
   {
@@ -834,15 +839,17 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 9844,
     desc: '魅惑、潜入并窃取敌人的[魔法 + 1]点生命值。如果敌人已经处于潜入状态，则有50%的几率将其杀死。',
     // 机翻事故：「潜入」= 下潜 submerged；LethalDamageConditional = execute + 潜入条件 + 50%
+    // sa-F1 (R001): native Charm → StealLife → LethalDamageConditional (50% if ALREADY Submerged) → CauseSubmerged.
+    // Submerging before the check made the 50% kill apply to every target.
     build: skill(
       inflict('charm', 'enemyChosen'),
-      inflict('submerged', 'enemyChosen'),
       dmg('enemyChosen', 1, 1, { drain: true }),
       dmg('enemyChosen', 0, 0, {
         execute: true,
         chance: 0.5,
         ifCond: { kind: 'targetStatus', statusId: 'submerged' },
       }),
+      inflict('submerged', 'enemyChosen'),
     ),
   },
   {

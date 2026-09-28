@@ -1173,6 +1173,56 @@
     "7592": {
       "description": "对第一名敌人造成 [魔法 + 4] 点伤害。如果敌人使用蓝色法力值，则造成三倍伤害。"
     },
+    "7624": {
+      "description": "给一名盟友 [魔法 + 2] 点生命值和一半的法力值。将其净化，并赋予其屏障和法印效果。 [2:1]",
+      "prototype": {
+        "segments": [
+          {
+            "kind": "cleanse",
+            "target": "allyChosen"
+          },
+          {
+            "kind": "buff",
+            "target": "allyChosen",
+            "stat": "mana",
+            "scaling": {
+              "base": 0,
+              "mult": 0
+            },
+            "halve": true,
+            "modifier": {
+              "mod": {
+                "kind": "ratio",
+                "a": 2,
+                "b": 1
+              }
+            }
+          },
+          {
+            "kind": "buff",
+            "target": "allyChosen",
+            "stat": "hp",
+            "scaling": {
+              "base": 2,
+              "mult": 1
+            },
+            "lifeMode": "gain"
+          },
+          {
+            "kind": "status",
+            "target": "allyChosen",
+            "statusId": "barrier",
+            "turns": 3
+          },
+          {
+            "kind": "status",
+            "target": "allyChosen",
+            "statusId": "enchanted",
+            "turns": 3
+          }
+        ]
+      }
+    },
     "7626": {
       "description": "对 1 名敌人造成 [魔法 + 1] 点伤害。伤害值因所收集的灵魂数而增强。窃取其法力值。 [3:1]",
       "prototype": {

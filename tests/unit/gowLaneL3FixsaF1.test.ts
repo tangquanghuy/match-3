@@ -38,6 +38,31 @@ describe('L3 fix sa-F1: colour / race gated mana', () => {
     expect(o).toEqual(['buff E11 mana-8', 'buff C mana+8', `dmg E11 ${dmg}`]);
   });
 
+  // troop:6146 native: 13+ Red check (R003) happens first, before the self damage and the gem destruction.
+  it.each([{ red: 14, extra: true }, { red: 12, extra: false }])('troop:6146 $red Red gems -> extra turn $extra', ({ red, extra }) => {
+    let n = 0;
+    const board = (r: number, c: number) => {
+      if ((r + c) % 2 === 0 && n < red) { n++; return { kind: 'color', color: BaseColor.Red } as never; }
+      return { kind: 'color', color: [BaseColor.Blue, BaseColor.Green, BaseColor.Yellow][(r + 2 * c) % 3] } as never;
+    };
+    const o = castSpell({ key: 'troop:6146', board }).summary.order;
+    if (extra) expect(o.slice(0, 2)).toEqual(['extra-turn skill', 'dmg C 2']);
+    else { expect(o[0]).toBe('dmg C 2'); expect(o).not.toContain('extra-turn skill'); }
+  });
+
+  // troop:7625 each hit drains the enemy it hit; Poisoned enemies lose double (16).
+  it('troop:7625 drain follows the damaged enemy, x2 when Poisoned', () => {
+    const poison = [{ id: 'poison', turns: 9 }];
+    const enemies = [0, 1, 2, 3].map(i => ({ hp: 900, maxHp: 900, mana: 30, statuses: i % 2 ? poison : [] }));
+    const o = castSpell({ key: 'troop:7625', enemies }).summary.order;
+    expect(o).toHaveLength(6);
+    for (let i = 0; i < 6; i += 2) {
+      const id = /^dmg (E1\d) 13$/.exec(o[i])![1];
+      const poisoned = Number(id.slice(1)) % 2 === 1;
+      expect(o[i + 1]).toBe(`buff ${id} mana-${poisoned ? 16 : 8}`);
+    }
+  });
+
   // troop:7749 GenerateHalfManaConditional AddForTauros: half the chosen ally's mana cost only if it is a Tauros.
   it.each([
     { types: ['Tauros'], gain: 8 },

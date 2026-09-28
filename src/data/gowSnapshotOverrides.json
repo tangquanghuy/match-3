@@ -1,6 +1,11 @@
 {
   "baseline": "Stored GoW English entity + native spell snapshots; not a live official version claim",
   "troops": {
+    "7278": {
+      "spellId": 8895,
+      "reason": "sa-F1: English lists 2 Treasure Maps (native GiveTreasureMaps 2) that the Chinese snapshot dropped; native order is RandomPositiveStatusEffect then IncreaseRandom (one random Skill per ally).",
+      "spellDescription": "赋予所有盟友一个随机正面状态效果，并使其一项随机属性获得 [魔法 + 1] 点。获得 50 黄金、20 个灵魂和 2 张藏宝图。"
+    },
     "6009": {
       "spellId": 7009,
       "reason": "English source text specifies one random Skill; extracted native IncreaseRandom awards its complete amount to one Skill per recipient. Scoped display clarification, not whole-skill signoff.",

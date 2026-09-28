@@ -244,8 +244,11 @@ const SPELLS: CuratedBatch['spells'] = [
     // - 「失去所有黄金」= spendGold()（官方 TakeMyGold 1000 全额扣减；r27 卡点
     //   「无 spend/lose 通道」由 spendEconomy 段解锁）。
     // - 「爆破 3 颗黄色宝石」= explodeRandomGems 定量限色爆破（非 explodeColor 全量）。
+    // sa-F1: native IncreaseRandom@FromTarget (Target AllyButNotSelf) = ONE chosen ally, the whole value on one random
+    // Skill (was every other ally, points spread over skills).
     build: skill(
-      randomStat('allyOthers', 5, 0, {
+      randomStat('allyChosen', 5, 0, {
+        oneSkill: true,
         modifier: { mod: { kind: 'ratio', a: 1, b: 1 }, source: { kind: 'battleGold' } },
       }),
       spendGold(),

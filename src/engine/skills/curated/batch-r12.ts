@@ -63,10 +63,10 @@ const SPELLS: CuratedBatch['spells'] = [
     // 「兽人或恶魔」= anyOf(targetRace Orc, targetRace Daemon)（目标相对条件，SOP 种族英文拼写）
     build: skill(
       dmg('enemyChosen', 6, 1),
-      reduce('lastTarget', 'random', 4, 0),
-      steal('lastTarget', 'mana', 'mana', 6, 0, {
-        ifCond: { kind: 'anyOf', of: [{ kind: 'targetRace', race: 'Orc' }, { kind: 'targetRace', race: 'Daemon' }] },
-      }),
+      reduce('enemyChosen', 'random', 4, 0),
+      // sa-F1: native has two StealMana steps (AddForDaemon 6, AddForOrc 6) — an Orc Daemon loses 12.
+      steal('enemyChosen', 'mana', 'mana', 6, 0, { ifCond: { kind: 'targetRace', race: 'Daemon' } }),
+      steal('enemyChosen', 'mana', 'mana', 6, 0, { ifCond: { kind: 'targetRace', race: 'Orc' } }),
     ),
   },
   {
@@ -88,9 +88,12 @@ const SPELLS: CuratedBatch['spells'] = [
   {
     id: 7323,
     desc: '摧毁一行。对第一名敌人造成 [魔法 + 1] 点伤害，并减除 [魔法 + 1] 点随机技能值，减除数量因被摧毁的蓝色宝石而增强。 [x2]',
+    // sa-F1: native s1 Damage also has UseCounterForAmount (Blue gems in the row x2), so both steps are boosted.
+    // Native counts before the row is destroyed and destroys last; no "chosen row at cast start" source exists,
+    // so the destroy stays first and destroyedGems Blue carries the count.
     build: skill(
       destroyChosenRow(),
-      dmg('enemyFront', 1, 1),
+      dmg('enemyFront', 1, 1, { modifier: { mod: { kind: 'multiplier', a: 2 }, source: { kind: 'destroyedGems', color: BaseColor.Blue } } }),
       reduce('enemyFront', 'random', 1, 1, {
         modifier: { mod: { kind: 'multiplier', a: 2 }, source: { kind: 'destroyedGems', color: BaseColor.Blue } },
       }),

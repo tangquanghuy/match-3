@@ -50,10 +50,14 @@ const SPELLS: CuratedBatch['spells'] = [
   {
     id: 7369,
     desc: '对前两名敌人造成 [魔法 + 3] 点真实伤害。将其击晕并耗尽其法力值。',
+    // sa-F1 (R001): native per enemy — TrueDamage/Stun/Drain on FrontEnemy, then the same on SecondEnemy.
     build: skill(
-      trueDmg('enemyFirstN', 3, 1, { n: 2 }),
-      inflict('stun', 'enemyFirstN', { n: 2 }),
-      drainMana('enemyFirstN', { n: 2 }),
+      trueDmg('enemyFront', 3, 1),
+      inflict('stun', 'enemyFront'),
+      drainMana('enemyFront'),
+      trueDmg('enemyNth', 3, 1, { n: 2 }),
+      inflict('stun', 'enemyNth', { n: 2 }),
+      drainMana('enemyNth', { n: 2 }),
     ),
   },
   {

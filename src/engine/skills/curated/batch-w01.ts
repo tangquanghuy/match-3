@@ -1244,12 +1244,14 @@ const SPELLS: CuratedBatch['spells'] = [
   {
     id: 7624,
     desc: '给一名盟友 [魔法 + 2] 点生命值和一半的法力值。将其净化，并赋予其屏障和法印效果。 [2:1]',
+    // sa-F1 (R001): native Cleanse → GenerateMana (half mana cost) → IncreaseHealth [Magic + 2] → Barrier → Enchant
+    // (cleansing first matters: a Silenced / Frozen ally is cleared before the mana).
     build: skill(
-      heal('allyChosen', 2, 1),
+      cleanse('allyChosen'),
       mana('allyChosen', 0, 0, { halve: true, modifier: { mod: { kind: 'ratio', a: 2, b: 1 } } }),
-      cleanse('lastTarget'),
-      inflict('barrier', 'lastTarget'),
-      inflict('enchanted', 'lastTarget'),
+      heal('allyChosen', 2, 1),
+      inflict('barrier', 'allyChosen'),
+      inflict('enchanted', 'allyChosen'),
     ),
   },
   {

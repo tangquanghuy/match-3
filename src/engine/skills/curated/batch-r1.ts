@@ -181,9 +181,13 @@ const SPELLS: CuratedBatch['spells'] = [
   {
     id: 8625,
     desc: '燃烧 2-4 名随机敌人。获得 [魔法 + 1] 点护甲值，数值因红色宝石和盟友数而增强。 [x2]',
+    // sa-F1 (R001): native CountGems Red 200 + CountArmyColor@AllAllies 200 Data 2 (= Red allies, not all allies)
+    // → IncreaseArmor → burn 2 random enemies → 50% one more → 25% one more (RandomPrefNotPrevEnemy), not uniform 2-4.
     build: skill(
-      inflict('burning', 'enemyRandomN', { nRange: { min: 2, max: 4 } }),
-      armor('allySelf', 1, 1, { modifier: { mod: { kind: 'multiplier', a: 2 }, sources: [{ kind: 'boardGems', color: BaseColor.Red }, { kind: 'teamSize', side: 'ally' }] } }),
+      armor('allySelf', 1, 1, { modifier: { mod: { kind: 'multiplier', a: 2 }, sources: [{ kind: 'boardGems', color: BaseColor.Red }, { kind: 'alliesOfColor', color: BaseColor.Red }] } }),
+      inflict('burning', 'enemyRandomN', { n: 2 }),
+      inflict('burning', 'enemyRandomPrefNotPrev', { chance: 0.5 }),
+      inflict('burning', 'enemyRandomPrefNotPrev', { chance: 0.25 }),
     ),
   },
   {

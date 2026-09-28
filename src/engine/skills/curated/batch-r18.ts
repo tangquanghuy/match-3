@@ -334,10 +334,11 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 7473,
     desc: "给予一名盟友 2 点魔力值，给予其自身一半的法力值并赋予法印效果。 [2:1]",
     // 「一半的法力值」= mana halve（§9.6，按其自身 manaCost 现算）；[2:1] = 减半比率序列化（r15 口径）
+    // sa-F1 (R001): native CountManaCost → CauseEnchanted → GenerateMana (half cost) → IncreaseSpellPower 2.
     build: skill(
-      magic('allyChosen', 2, 0),
-      mana('allyChosen', 0, 0, { halve: true }),
       inflict('enchanted', 'allyChosen'),
+      mana('allyChosen', 0, 0, { halve: true }),
+      magic('allyChosen', 2, 0),
     ),
   },
   {

@@ -275,7 +275,8 @@ describe('C · 法术文本与缩放预解析', () => {
         problems.push(`${w.id} parsed=true 但无任何解析产物`);
       }
     }
-    expect(withFormula).toBe(674); // 与构建报告口径一致：667 含公式 / 51 纯文本
+    // 与构建报告口径一致；sa-F1 fix round A: +4 = Doomed Locket/Lavalliere/Pendant/Mhuineal zh now carry [魔法 + 1]
+    expect(withFormula).toBe(678);
     expect(problems, `前 ${Math.min(5, problems.length)} 条 → ${problems.slice(0, 5).join(' | ')}`).toEqual([]);
   });
 

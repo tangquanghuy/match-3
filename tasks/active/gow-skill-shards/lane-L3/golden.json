@@ -9,6 +9,36 @@
   "by": "sa-F1",
   "at": "2026-09-28T00:38:50.937Z"
  },
+ "troop:6146": {
+  "lines": {
+   "L10": "dmg C 2 ; destroy 14 (Green x4, Purple x4, Brown x2, Red x2, Yellow x2)  => C:hp-2 | A2:mana+4",
+   "R10": "dmg C 2 ; destroy 14 (Green x4, Purple x4, Brown x2, Red x2, Yellow x2)  => C:hp-2 | A2:mana+4",
+   "L0": "dmg C 2 ; destroy 4 (Green x1, Purple x1, Brown x1, Red x1) ; ~cascade~ ; extra-turn match  => C:hp-2 | A2:mana+1  extra:match  cascade",
+   "K": "dmg C 2 ; destroy 14 (Green x4, Purple x4, Brown x2, Red x2, Yellow x2)  => C:hp-2 | A2:mana+4"
+  },
+  "by": "sa-F1",
+  "at": "2026-09-28T00:51:27.445Z"
+ },
+ "troop:6197": {
+  "lines": {
+   "L10": "dmg E11 28 ; status E10 +burning ; status E11 +burning ; status E12 +burning ; status E13 +burning  => E11:hp-18 arm-10 +burning | E10:+burning | E12:+burning | E13:+burning",
+   "R10": "dmg E11 28 ; status E10 +burning ; status E11 +burning ; status E12 +burning ; status E13 +burning  => E11:hp-18 arm-10 +burning | E10:+burning | E12:+burning | E13:+burning",
+   "L0": "dmg E11 18 ; status E10 +burning ; status E11 +burning ; status E12 +burning ; status E13 +burning  => E11:hp-8 arm-10 +burning | E10:+burning | E12:+burning | E13:+burning",
+   "K": "dmg E11 28 ; defeat E11 ; status E10 +burning ; status E12 +burning ; status E13 +burning ; extra-turn skill  => E11:hp-1 DEAD | E10:+burning | E12:+burning | E13:+burning  extra:skill"
+  },
+  "by": "sa-F1",
+  "at": "2026-09-28T00:51:29.922Z"
+ },
+ "troop:6227": {
+  "lines": {
+   "L10": "dmg E10 13 ; status E10 +stun ; buff E10 mana-6 ; dmg E11 13 ; status E11 +stun ; buff E11 mana-8  => E10:hp-13 mana-6 +stun | E11:hp-13 mana-8 +stun",
+   "R10": "dmg E10 13 ; status E10 +stun ; buff E10 mana-6 ; dmg E11 13 ; status E11 +stun ; buff E11 mana-8  => E10:hp-13 mana-6 +stun | E11:hp-13 mana-8 +stun",
+   "L0": "dmg E10 3 ; status E10 +stun ; buff E10 mana-6 ; dmg E11 3 ; status E11 +stun ; buff E11 mana-8  => E10:hp-3 mana-6 +stun | E11:hp-3 mana-8 +stun",
+   "K": "dmg E10 13 ; defeat E10 ; status E11 +stun ; buff E11 mana-5 ; dmg E12 13 ; defeat E12 ; status E13 +stun ; buff E13 mana-5  => E10:hp-1 DEAD | E11:mana-5 +stun | E12:hp-1 DEAD | E13:mana-5 +stun"
+  },
+  "by": "sa-F1",
+  "at": "2026-09-28T00:51:32.339Z"
+ },
  "troop:6319": {
   "lines": {
    "L10": "cleanse A1 -poison ; buff A1 mana+6 ; buff A2 mana+6 ; convert Purple x1, skull x1, Red x1 -> bomb x3  => A1:mana+6 -poison | A2:mana+6",
@@ -18,6 +48,16 @@
   },
   "by": "sa-F1",
   "at": "2026-09-28T00:06:27.871Z"
+ },
+ "troop:6323": {
+  "lines": {
+   "L10": "status A1 +enchanted ; buff A1 mana+8 ; buff A1 magic+2  => A1:mag+2 mana+8 +enchanted",
+   "R10": "status A1 +enchanted ; buff A1 mana+8 ; buff A1 magic+2  => A1:mag+2 mana+8 +enchanted",
+   "L0": "status A1 +enchanted ; buff A1 mana+8 ; buff A1 magic+2  => A1:mag+2 mana+8 +enchanted",
+   "K": "status A1 +enchanted ; buff A1 mana+8 ; buff A1 magic+2  => A1:mag+2 mana+8 +enchanted"
+  },
+  "by": "sa-F1",
+  "at": "2026-09-28T00:51:34.787Z"
  },
  "troop:6569": {
   "lines": {
@@ -38,6 +78,16 @@
   },
   "by": "sa-F1",
   "at": "2026-09-28T00:19:23.772Z"
+ },
+ "troop:6926": {
+  "lines": {
+   "L10": "dmg E11 17 ; buff E12 mana-4 ; buff E13 mana-7 ; move E11 back ; extra-turn skill  => E11:hp-7 arm-10 | E12:mana-4 | E13:mana-7  extra:skill",
+   "R10": "dmg E11 17 ; buff E12 mana-4 ; buff E13 mana-7 ; move E11 back ; extra-turn skill  => E11:hp-7 arm-10 | E12:mana-4 | E13:mana-7  extra:skill",
+   "L0": "dmg E11 7 ; buff E12 mana-4 ; buff E13 mana-7 ; move E11 back ; extra-turn skill  => E11:arm-7 | E12:mana-4 | E13:mana-7  extra:skill",
+   "K": "dmg E11 17 ; defeat E11 ; extra-turn skill  => E11:hp-1 DEAD  extra:skill"
+  },
+  "by": "sa-F1",
+  "at": "2026-09-28T00:51:25.001Z"
  },
  "troop:7341": {
   "lines": {
@@ -78,6 +128,16 @@
   },
   "by": "sa-F1",
   "at": "2026-09-28T00:38:53.219Z"
+ },
+ "weapon:1175": {
+  "lines": {
+   "L10": "cleanse A1 -poison ; buff A1 mana+8 ; buff A1 hp+12 max+12 ; status A1 +barrier ; status A1 +enchanted  => A1:hp+12 max+12 mana+8 +barrier+enchanted -poison",
+   "R10": "cleanse A1 -poison ; buff A1 mana+8 ; buff A1 hp+12 max+12 ; status A1 +barrier ; status A1 +enchanted  => A1:hp+12 max+12 mana+8 +barrier+enchanted -poison",
+   "L0": "cleanse A1 -poison ; buff A1 mana+8 ; buff A1 hp+2 max+2 ; status A1 +barrier ; status A1 +enchanted  => A1:hp+2 max+2 mana+8 +barrier+enchanted -poison",
+   "K": "cleanse A1 -poison ; buff A1 mana+8 ; buff A1 hp+12 max+12 ; status A1 +barrier ; status A1 +enchanted  => A1:hp+12 max+12 mana+8 +barrier+enchanted -poison"
+  },
+  "by": "sa-F1",
+  "at": "2026-09-28T00:46:29.084Z"
  },
  "weapon:1177": {
   "lines": {

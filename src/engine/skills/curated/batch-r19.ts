@@ -246,11 +246,13 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 8895,
-    desc: '给予所有盟友 [魔法 + 1] 点随机技能值，并赋予他们一个随机正面增益状态效果。获得 50 黄金、20 个灵魂。',
+    desc: '赋予所有盟友一个随机正面状态效果，并使其一项随机属性获得 [魔法 + 1] 点。获得 50 黄金、20 个灵魂和 2 张藏宝图。',
     // ZH 漏译「并获得 2 张藏宝图」——EN/ST（GiveTreasureMaps x2）补齐（8930 EN 优先口径）
+    // sa-F1 (R001): native RandomPositiveStatusEffect@AllAllies first, then IncreaseRandom@AllAllies [Magic + 1]
+    // (the whole value on one random Skill per ally, oneSkill), then gold / souls / maps.
     build: skill(
-      randomStat('allyAll', 1, 1),
       inflictRandom('allyAll', { pool: 'positive' }),
+      randomStat('allyAll', 1, 1, { oneSkill: true }),
       gainGold(50),
       gainSouls(20),
       gainMaps(2),
