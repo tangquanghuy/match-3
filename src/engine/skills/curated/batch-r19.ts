@@ -894,9 +894,11 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '如果棋盘上有 13 个或更多骷髅，则吞噬一个敌人。否则对其造成 [(魔法 x 2) + 2] 点真实伤害。然后创造 9 个骷髅。',
     // 「≥13 骷髅」= boardAtLeast 无色（计骷髅）；否则分支 = not 否定（§12.6）；阈值取锚定 ZH 13
     //（官方步骤 AddFor10Skulls 内部编码为 10，按 desc 口径并注明）
+    // sa-R5: native ConsumeConditional (100% AddFor10Skulls, R003 -> 13) is a Devour (caster gains stats), not a
+    // plain execute; TrueDamage FromTarget follows and only lands when the target was not devoured.
     build: skill(
-      dmg('enemyChosen', 0, 0, { execute: true, ifCond: { kind: 'boardAtLeast', n: 13 } }),
-      trueDmg('enemyChosen', 2, 2, { ifCond: { kind: 'not', cond: { kind: 'boardAtLeast', n: 13 } } }),
+      devour('enemyChosen', { chance: 1, ifCond: { kind: 'boardAtLeast', n: 13 } }),
+      trueDmg('enemyChosen', 2, 2),
       createSkulls(9),
     ),
   },

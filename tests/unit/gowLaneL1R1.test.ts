@@ -1,7 +1,9 @@
 // sa-R5 lane L1 review round 2: native Charm skills (R008: Charm = temporary negative status) and summon
 // distributions the four standard scenarios cannot show.
 import { describe, it, expect } from 'vitest';
-import { castSpell } from '../helpers/gowCast';
+import { castSpell, sixColourBoard } from '../helpers/gowCast';
+import { skullGem } from '@engine/types';
+import { TROOPS } from '../../src/data/troops';
 type St = { id: string; turns: number }[];
 const sub: St = [{ id: 'submerged', turns: 99 }];
 const tally = (xs: string[]) => xs.reduce<Record<string, number>>((m, x) => ((m[x] = (m[x] ?? 0) + 1), m), {});
@@ -127,6 +129,32 @@ describe('L1 R2 charm family (sa-R5)', () => {
     }
     const lone = castSpell({ key: 'troop:6832', seed: 3, enemies: [{ hp: 900, maxHp: 900, armor: 0, colors: ['Red'] } as never], target: 10 }).summary.order;
     expect(lone.filter(x => x.startsWith('dmg')).length).toBeGreaterThanOrEqual(1);
+  });
+  // troop:7654 13+ Skulls -> Devour (stat gain, no hit); otherwise [(Magic x 2) + 2] true damage. Then 9 Skulls.
+  it.each([{ skulls: 13, dev: true }, { skulls: 12, dev: false }])('troop:7654 with $skulls skulls devour=$dev', ({ skulls, dev }) => {
+    const cells = new Set(Array.from({ length: skulls }, (_, i) => `${7 - Math.floor(i / 8)},${i % 8}`));
+    const board = (r: number, c: number) => cells.has(`${r},${c}`) ? skullGem() : sixColourBoard(r, c);
+    const o = castSpell({ key: 'troop:7654', board, enemies: [{}, { hp: 900, maxHp: 900, armor: 10, attack: 20 }] }).summary.order;
+    if (dev) { expect(o[0]).toMatch(/^dmg E11 \d+ devoured$/); expect(o).toContain('buff C attack+20'); expect(o.filter(x => x.startsWith('dmg'))).toHaveLength(1); }
+    else expect(o[0]).toBe('dmg E11 22');
+    expect(o.some(x => /-> skull x9$/.test(x) || /^create skull x9$/.test(x))).toBe(true);
+  });
+  // troop:7680 SummoningKingdom 3064 (Wyrmrun) = the 5 raw kingdom members.
+  it('troop:7680 summons a Wyrmrun troop', () => {
+    const seen = new Set<string>();
+    for (let seed = 1; seed <= 80; seed++) seen.add(castSpell({ key: 'troop:7680', seed }).f.state.teams.Left.characters.slice(-1)[0].name);
+    expect(seen.size).toBe(5);
+    expect([...seen].sort()).toEqual(['DrakeEggs', 'TheGreatWyrm', 'TerraWyrm', 'NetherWyrm', 'HornedWyrm'].map(n => TROOPS.find(t => t.referenceName === n)!.name).sort());
+  });
+  // troop:6801 Randomize ABC+(D-E-F): 9 Skulls +1 per Green ally/enemy (caster is Green), then one of 3 Gnolls.
+  it('troop:6801 skull count and gnoll pool', () => {
+    const seen = new Set<string>();
+    for (let seed = 1; seed <= 60; seed++) {
+      const s = castSpell({ key: 'troop:6801', seed, allies: [{ colors: ['Green'] as never }, { colors: ['Red'] as never }] }).summary;
+      expect(s.gems.created.skull).toBe(12);
+      seen.add(s.units.A14 ?? s.units.A13 ?? '');
+    }
+    expect([...seen].map(x => x.split(' ')[1]).sort()).toEqual(['SavageHunter', 'Gnoll', 'BaneJaw'].map(n => TROOPS.find(t => t.referenceName === n)!.name).sort());
   });
   // weapon:1310 independent 30% extra turn and 30% half mana (8 of 16); no Brown-gem boost (English + native).
   it('weapon:1310 independent 30% chances, half mana = 8', () => {

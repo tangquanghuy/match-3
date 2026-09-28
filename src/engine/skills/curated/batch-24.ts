@@ -129,8 +129,9 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '将所有紫色宝石转换为骷髅。然后召唤一支随机的龙龙部队。',
     build: skill(
       transform(BaseColor.Purple, 'SKULL'),
-      // 「龙龙」= Drake 名称族（SOP §6 程序核实，见文件头备注）；排除施法者自身 DrakeEggs
-      summonRandom(['DrakeRider', 'Drake', 'UndeadDrake', 'CobaltDrake', 'BrassDrake']),
+      // sa-R5 L1-7680-pool: native SummoningKingdom Data 3064 (English "random Wyrmrun Troop") = raw kingdom 3064:
+      // DrakeEggs 7680, TheGreatWyrm 7087, TerraWyrm 7086, NetherWyrm 7085, HornedWyrm 7084 (was 5 Drake-named troops).
+      summonRandom(['DrakeEggs', 'TheGreatWyrm', 'TerraWyrm', 'NetherWyrm', 'HornedWyrm']),
     ),
   },
   {

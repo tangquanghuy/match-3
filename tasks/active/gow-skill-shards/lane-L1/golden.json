@@ -9,6 +9,16 @@
   "by": "sa-R5",
   "at": "2026-09-28T05:41:21.302Z"
  },
+ "troop:6110": {
+  "lines": {
+   "L10": "convert Blue x11 -> Purple x11 ; summon mine troop:6136  => A14:new 蜘蛛群 hp20 atk8 arm12 mag7",
+   "R10": "convert Blue x11 -> Purple x11 ; summon mine troop:6136  => A14:new 蜘蛛群 hp20 atk8 arm12 mag7",
+   "L0": "convert Blue x11 -> Purple x11 ; summon mine troop:6136  => A14:new 蜘蛛群 hp20 atk8 arm12 mag7",
+   "K": "convert Blue x11 -> Purple x11 ; summon mine troop:6136  => A14:new 蜘蛛群 hp20 atk8 arm12 mag7"
+  },
+  "by": "sa-R5",
+  "at": "2026-09-28T05:52:06.635Z"
+ },
  "troop:6119": {
   "lines": {
    "L10": "buff C hp+5 max+5 ; dmg E11 14  => C:hp+5 max+5 | E11:hp-4 arm-10",
@@ -199,6 +209,16 @@
   "by": "sa-R5",
   "at": "2026-09-28T05:41:21.302Z"
  },
+ "troop:6538": {
+  "lines": {
+   "L10": "convert Blue x11 -> Green x11 ; summon mine troop:6207  => A14:new 灵之狐 hp27 atk15 arm5 mag4",
+   "R10": "convert Blue x11 -> Green x11 ; summon mine troop:6207  => A14:new 灵之狐 hp27 atk15 arm5 mag4",
+   "L0": "convert Blue x11 -> Green x11 ; summon mine troop:6207  => A14:new 灵之狐 hp27 atk15 arm5 mag4",
+   "K": "convert Blue x11 -> Green x11 ; summon mine troop:6207  => A14:new 灵之狐 hp27 atk15 arm5 mag4"
+  },
+  "by": "sa-R5",
+  "at": "2026-09-28T05:52:06.635Z"
+ },
  "troop:6577": {
   "lines": {
    "L10": "dmg E11 14  => E11:hp-4 arm-10",
@@ -229,6 +249,16 @@
   "by": "sa-R5",
   "at": "2026-09-28T05:41:21.302Z"
  },
+ "troop:6655": {
+  "lines": {
+   "L10": "convert Red x9 -> Purple x9 ; convert Yellow x9 -> skull x9 ; summon mine troop:-1  => A14:new 绿魔像 hp13 atk15 arm20 mag9",
+   "R10": "convert Red x9 -> Purple x9 ; convert Yellow x9 -> skull x9 ; summon mine troop:-1  => A14:new 绿魔像 hp13 atk15 arm20 mag9",
+   "L0": "convert Red x9 -> Purple x9 ; convert Yellow x9 -> skull x9 ; summon mine troop:-1  => A14:new 绿魔像 hp13 atk15 arm20 mag9",
+   "K": "convert Red x9 -> Purple x9 ; convert Yellow x9 -> skull x9 ; summon mine troop:-1  => A14:new 绿魔像 hp13 atk15 arm20 mag9"
+  },
+  "by": "sa-R5",
+  "at": "2026-09-28T05:52:06.635Z"
+ },
  "troop:6657": {
   "lines": {
    "L10": "convert Blue x2, Green x2, skull x1, Brown x1, Purple x1 -> Yellow x7 ; status E12 +charm  => E12:+charm",
@@ -248,6 +278,26 @@
   },
   "by": "sa-R5",
   "at": "2026-09-28T05:41:21.302Z"
+ },
+ "troop:6801": {
+  "lines": {
+   "L10": "convert Green x4, Purple x4, Brown x1, Red x1, Yellow x1 -> skull x11 ; summon mine troop:-1  => A14:new 灾齿 hp15 atk17 arm21 mag12",
+   "R10": "convert Green x4, Purple x4, Brown x1, Red x1, Yellow x1 -> skull x11 ; summon mine troop:-1  => A14:new 灾齿 hp15 atk17 arm21 mag12",
+   "L0": "convert Green x4, Purple x4, Brown x1, Red x1, Yellow x1 -> skull x11 ; summon mine troop:-1  => A14:new 灾齿 hp15 atk17 arm21 mag12",
+   "K": "convert Green x4, Purple x4, Brown x2, Red x2, Yellow x2 -> skull x14 ; summon mine troop:-1  => A14:new 野人猎人 hp16 atk16 arm7 mag10"
+  },
+  "by": "sa-R5",
+  "at": "2026-09-28T05:52:06.635Z"
+ },
+ "troop:6830": {
+  "lines": {
+   "L10": "convert Blue x11 -> Red x11 ; convert Brown x8 -> skull x8 ; status E10 +marked ; status E11 +marked  => E10:+marked | E11:+marked",
+   "R10": "convert Blue x11 -> Red x11 ; convert Brown x8 -> skull x8 ; status E10 +marked ; status E11 +marked  => E10:+marked | E11:+marked",
+   "L0": "convert Blue x11 -> Red x11 ; convert Brown x8 -> skull x8 ; status E10 +marked ; status E11 +marked  => E10:+marked | E11:+marked",
+   "K": "convert Blue x11 -> Red x11 ; convert Brown x8 -> skull x8 ; status E10 +marked ; status E11 +marked  => E10:+marked | E11:+marked"
+  },
+  "by": "sa-R5",
+  "at": "2026-09-28T05:52:06.635Z"
  },
  "troop:6832": {
   "lines": {
@@ -299,6 +349,16 @@
   "by": "sa-F1",
   "at": "2026-09-28T00:19:26.339Z"
  },
+ "troop:7031": {
+  "lines": {
+   "L10": "convert Green x13 -> lycanthropyGem x13 ; convert Yellow x9 -> doomSkull x9 ; summon mine troop:6282 ; ~cascade~ ; trigger lycanthropyGem ; status E11 +lycanthropy ; trigger lycanthropyGem ; status E13 +lycanthropy ; trigger lycanthropyGem ; status E12 +lycanthropy ; extra-turn match  => A14:new 瓦格 hp22 atk16 arm7 mag9 | E11:+lycanthropy | E13:+lycanthropy | E12:+lycanthropy  extra:match  cascade",
+   "R10": "convert Green x13 -> lycanthropyGem x13 ; convert Yellow x9 -> doomSkull x9 ; summon mine troop:6282 ; ~cascade~ ; trigger lycanthropyGem ; status E11 +lycanthropy ; trigger lycanthropyGem ; status E13 +lycanthropy ; trigger lycanthropyGem ; status E12 +lycanthropy ; extra-turn match  => A14:new 瓦格 hp22 atk16 arm7 mag9 | E11:+lycanthropy | E13:+lycanthropy | E12:+lycanthropy  extra:match  cascade",
+   "L0": "convert Green x13 -> lycanthropyGem x13 ; convert Yellow x9 -> doomSkull x9 ; summon mine troop:6282 ; ~cascade~ ; trigger lycanthropyGem ; status E11 +lycanthropy ; trigger lycanthropyGem ; status E13 +lycanthropy ; trigger lycanthropyGem ; status E12 +lycanthropy ; extra-turn match  => A14:new 瓦格 hp22 atk16 arm7 mag9 | E11:+lycanthropy | E13:+lycanthropy | E12:+lycanthropy  extra:match  cascade",
+   "K": "convert Green x13 -> lycanthropyGem x13 ; convert Yellow x9 -> doomSkull x9 ; summon mine troop:6282 ; ~cascade~ ; trigger lycanthropyGem ; status E11 +lycanthropy ; trigger lycanthropyGem ; status E13 +lycanthropy ; trigger lycanthropyGem ; status E12 +lycanthropy ; extra-turn match  => A14:new 瓦格 hp22 atk16 arm7 mag9 | E11:+lycanthropy | E13:+lycanthropy | E12:+lycanthropy  extra:match  cascade"
+  },
+  "by": "sa-R5",
+  "at": "2026-09-28T05:52:06.635Z"
+ },
  "troop:7048": {
   "lines": {
    "L10": "dmg E11 13  => E11:hp-3 arm-10",
@@ -319,6 +379,16 @@
   "by": "sa-R5",
   "at": "2026-09-28T05:48:46.892Z"
  },
+ "troop:7273": {
+  "lines": {
+   "L10": "convert Yellow x9 -> web x9 ; summon mine troop:6136  => A14:new 蜘蛛群 hp20 atk8 arm12 mag7",
+   "R10": "convert Yellow x9 -> web x9 ; summon mine troop:6136  => A14:new 蜘蛛群 hp20 atk8 arm12 mag7",
+   "L0": "convert Yellow x9 -> web x9 ; summon mine troop:6136  => A14:new 蜘蛛群 hp20 atk8 arm12 mag7",
+   "K": "convert Yellow x9 -> web x9 ; summon mine troop:6136  => A14:new 蜘蛛群 hp20 atk8 arm12 mag7"
+  },
+  "by": "sa-R5",
+  "at": "2026-09-28T05:52:06.635Z"
+ },
  "troop:7351": {
   "lines": {
    "L10": "dmg E11 17  => E11:hp-7 arm-10",
@@ -328,6 +398,16 @@
   },
   "by": "sa-F1",
   "at": "2026-09-28T00:38:48.572Z"
+ },
+ "troop:7433": {
+  "lines": {
+   "L10": "convert Red x9 -> web x9 ; summon mine troop:-1  => A14:new 暗夜蜘蛛 hp24 atk15 arm9 mag0",
+   "R10": "convert Red x9 -> web x9 ; summon mine troop:-1  => A14:new 暗夜蜘蛛 hp24 atk15 arm9 mag0",
+   "L0": "convert Red x9 -> web x9 ; summon mine troop:-1  => A14:new 暗夜蜘蛛 hp24 atk15 arm9 mag0",
+   "K": "convert Red x9 -> web x9 ; summon mine troop:-1  => A14:new 暗夜蜘蛛 hp24 atk15 arm9 mag0"
+  },
+  "by": "sa-R5",
+  "at": "2026-09-28T05:52:06.635Z"
  },
  "troop:7515": {
   "lines": {
@@ -339,6 +419,16 @@
   "by": "sa-R5",
   "at": "2026-09-28T05:41:21.302Z"
  },
+ "troop:7654": {
+  "lines": {
+   "L10": "dmg E11 22 ; convert Green x3, Purple x4, Brown x1, Red x1 -> skull x9  => E11:hp-22",
+   "R10": "dmg E11 22 ; convert Green x3, Purple x4, Brown x1, Red x1 -> skull x9  => E11:hp-22",
+   "L0": "dmg E11 2 ; convert Green x3, Purple x4, Brown x1, Red x1 -> skull x9  => E11:hp-2",
+   "K": "dmg E11 22 ; defeat E11 ; convert Green x3, Purple x4, Brown x1, Red x1 -> skull x9  => E11:hp-1 DEAD"
+  },
+  "by": "sa-R5",
+  "at": "2026-09-28T05:52:06.635Z"
+ },
  "troop:7677": {
   "lines": {
    "L10": "status E11 +charm ; convert Red x9 -> submergeGem x9  => E11:+charm",
@@ -348,6 +438,16 @@
   },
   "by": "sa-R5",
   "at": "2026-09-28T05:41:21.302Z"
+ },
+ "troop:7680": {
+  "lines": {
+   "L10": "convert Purple x9 -> skull x9 ; summon mine troop:-1  => A14:new 暗黑潜龙 hp24 atk16 arm5 mag17",
+   "R10": "convert Purple x9 -> skull x9 ; summon mine troop:-1  => A14:new 暗黑潜龙 hp24 atk16 arm5 mag17",
+   "L0": "convert Purple x9 -> skull x9 ; summon mine troop:-1  => A14:new 暗黑潜龙 hp24 atk16 arm5 mag17",
+   "K": "convert Purple x9 -> skull x9 ; summon mine troop:-1  => A14:new 暗黑潜龙 hp24 atk16 arm5 mag17"
+  },
+  "by": "sa-R5",
+  "at": "2026-09-28T05:52:06.635Z"
  },
  "troop:7793": {
   "lines": {
