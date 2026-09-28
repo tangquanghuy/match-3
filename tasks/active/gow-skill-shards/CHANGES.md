@@ -1,6 +1,6 @@
 # GoW 技能改动留档
 
-自动生成（`node scripts/gow-changelog.mjs render`），源数据 [CHANGES.jsonl](CHANGES.jsonl)，共 552 条改动，涉及 1004 个技能 ID。
+自动生成（`node scripts/gow-changelog.mjs render`），源数据 [CHANGES.jsonl](CHANGES.jsonl)，共 553 条改动，涉及 1005 个技能 ID。
 
 ## 按时间
 
@@ -558,6 +558,7 @@
 | 2026-09-28T21:43 | sa-G | G-7807-knock-order | assembler | 9848 | troop:7807 Giraffataur | `src/engine/skills/curated/batch-r9.ts` | front enemy knocked back twice (final ..., 1st, 2nd) → native SecondEnemy then FrontEnemy (final ..., 2nd, 1st) |  |
 | 2026-09-28T21:43 | sa-G | G-zh-typos | data | 8416, 8781 | troop:6935 ArmoredBoarlet；troop:7194 Sabellius | `src/engine/skills/curated/batch-r9.ts`<br>`src/engine/skills/curated/batch-15.ts`<br>`src/data/gowSnapshotOverrides.json` | 6935 ZH 并将之; 7194 ZH 在对 → 6935 则将之; 7194 再对 (overrides 6935, 7194) |  |
 | 2026-09-28T21:46 | sa-G | G-6258-order | assembler | 7401 | troop:6258 Innkeeper | `src/engine/skills/curated/batch-01.ts` | Attack to others, then -1 Magic → native order: -1 Magic, then Attack |  |
+| 2026-09-28T21:47 | sa-G | G-6728-order | assembler | 8098 | troop:6728 Thunderforge | `src/engine/skills/curated/batch-07.ts` | Armor then Attack → native order: Attack then Armor (Dwarf double on both) |  |
 
 ## 按技能 ID
 
@@ -895,6 +896,7 @@
 | 8084 | 1 | L5-007 |
 | 8090 | 1 | L4a-r3-6720 |
 | 8097 | 1 | F3-q06 |
+| 8098 | 1 | G-6728-order |
 | 8101 | 1 | L2-6731-branches |
 | 8103 | 1 | P-counter-per-step |
 | 8104 | 1 | G-kill-all-skills |

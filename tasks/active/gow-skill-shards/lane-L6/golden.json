@@ -39,6 +39,16 @@
   "by": "sa-G",
   "at": "2026-09-28T21:21:56.334Z"
  },
+ "troop:6097": {
+  "lines": {
+   "L10": "buff C armor+13  => C:arm+13",
+   "R10": "buff C armor+13  => C:arm+13",
+   "L0": "buff C armor+3  => C:arm+3",
+   "K": "buff C armor+13  => C:arm+13"
+  },
+  "by": "sa-G",
+  "at": "2026-09-28T21:47:45.205Z"
+ },
  "troop:6154": {
   "lines": {
    "L10": "buff C hp+16 max+16 ; buff A1 hp+16 max+16 ; buff A2 hp+16 max+16 ; dmg E11 17  => C:hp+16 max+16 | A1:hp+16 max+16 | A2:hp+16 max+16 | E11:hp-7 arm-10",
@@ -159,6 +169,16 @@
   "by": "sa-G",
   "at": "2026-09-28T21:25:05.911Z"
  },
+ "troop:6351": {
+  "lines": {
+   "L10": "buff A1 armor+9 ; buff A1 magic+1  => A1:arm+9 mag+1",
+   "R10": "buff A1 armor+9 ; buff A1 magic+1  => A1:arm+9 mag+1",
+   "L0": "buff A1 armor+4 ; buff A1 magic+1  => A1:arm+4 mag+1",
+   "K": "buff A1 armor+9 ; buff A1 magic+1  => A1:arm+9 mag+1"
+  },
+  "by": "sa-G",
+  "at": "2026-09-28T21:47:47.788Z"
+ },
  "troop:6353": {
   "lines": {
    "L10": "dmg E11 14 ; gold+14  => E11:hp-4 arm-10  eco:{\"gold\":14,\"goldMine\":14,\"goldTheirs\":-14}",
@@ -268,6 +288,16 @@
   },
   "by": "sa-F3",
   "at": "2026-09-28T00:26:09.800Z"
+ },
+ "troop:6728": {
+  "lines": {
+   "L10": "buff A1 attack+4 ; buff A1 armor+14  => A1:arm+14 atk+4",
+   "R10": "buff A1 attack+4 ; buff A1 armor+14  => A1:arm+14 atk+4",
+   "L0": "buff A1 attack+4 ; buff A1 armor+4  => A1:arm+4 atk+4",
+   "K": "buff A1 attack+4 ; buff A1 armor+14  => A1:arm+14 atk+4"
+  },
+  "by": "sa-G",
+  "at": "2026-09-28T21:47:47.788Z"
  },
  "troop:6730": {
   "lines": {
@@ -749,6 +779,16 @@
   "by": "sa-G",
   "at": "2026-09-28T21:30:36.348Z"
  },
+ "weapon:1093": {
+  "lines": {
+   "L10": "buff C armor+11 ; buff A1 armor+11 ; buff A2 armor+11  => C:arm+11 | A1:arm+11 | A2:arm+11",
+   "R10": "buff C armor+11 ; buff A1 armor+11 ; buff A2 armor+11  => C:arm+11 | A1:arm+11 | A2:arm+11",
+   "L0": "buff C armor+1 ; buff A1 armor+1 ; buff A2 armor+1  => C:arm+1 | A1:arm+1 | A2:arm+1",
+   "K": "buff C armor+11 ; buff A1 armor+11 ; buff A2 armor+11  => C:arm+11 | A1:arm+11 | A2:arm+11"
+  },
+  "by": "sa-G",
+  "at": "2026-09-28T21:47:47.788Z"
+ },
  "weapon:1096": {
   "lines": {
    "L10": "dmg E13 14 ; buff E13 magic-2 ; buff C magic+2  => E13:hp-11 arm-3 mag-2 | C:mag+2",
@@ -788,6 +828,16 @@
   },
   "by": "sa-G",
   "at": "2026-09-28T21:36:33.160Z"
+ },
+ "weapon:1112": {
+  "lines": {
+   "L10": "buff C armor+13 ; buff A1 armor+13 ; buff A2 armor+13 ; buff C attack+5 ; buff A1 attack+5 ; buff A2 attack+5  => C:arm+13 atk+5 | A1:arm+13 atk+5 | A2:arm+13 atk+5",
+   "R10": "buff C armor+13 ; buff A1 armor+13 ; buff A2 armor+13 ; buff C attack+5 ; buff A1 attack+5 ; buff A2 attack+5  => C:arm+13 atk+5 | A1:arm+13 atk+5 | A2:arm+13 atk+5",
+   "L0": "buff C armor+3 ; buff A1 armor+3 ; buff A2 armor+3 ; buff C attack+5 ; buff A1 attack+5 ; buff A2 attack+5  => C:arm+3 atk+5 | A1:arm+3 atk+5 | A2:arm+3 atk+5",
+   "K": "buff C armor+13 ; buff A1 armor+13 ; buff A2 armor+13 ; buff C attack+5 ; buff A1 attack+5 ; buff A2 attack+5  => C:arm+13 atk+5 | A1:arm+13 atk+5 | A2:arm+13 atk+5"
+  },
+  "by": "sa-G",
+  "at": "2026-09-28T21:47:45.205Z"
  },
  "weapon:1116": {
   "lines": {

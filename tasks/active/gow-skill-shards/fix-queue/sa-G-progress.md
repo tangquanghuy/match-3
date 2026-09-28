@@ -59,3 +59,8 @@
 - weapon:1228 accepted: Armor off, dmg, pull to front
 - weapon:1076 accepted: all Magic off
 - troop:6258 fixed (order only): native -1 Magic before +Attack to other allies
+- weapon:1093 accepted: all allies M+1 Armor
+- troop:6097 accepted: M+3 self Armor; 13+ Brown -> all allies +5 (test)
+- weapon:1112 accepted: Armor + Attack all; 13+ Yellow -> +4 Life and Magic (test)
+- troop:6351 accepted: M/2+4 Armor + 1 Magic, x2 Divine
+- troop:6728 fixed (order only): native Attack then Armor, x2 Dwarf
