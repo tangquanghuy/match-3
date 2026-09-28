@@ -219,3 +219,30 @@ describe('L4b B05', () => {
     expect(st[1].split(' ')[1]).toBe(st[0].split(' ')[1]);
   });
 });
+
+describe('L4b B06: Damage [Magic + 4] then 2 gems + 2 per <race> ally (caster counts)', () => {
+  const ROWS = [['troop:7212', 'Construct', 'Brown'], ['troop:7274', 'Elf', 'Purple'], ['troop:7290', 'Wargare', 'Green'],
+    ['troop:7369', 'Dragon', 'Red'], ['troop:7428', 'Centaur', 'Green'], ['troop:7436', 'Stryx', 'Yellow'], ['troop:7471', 'Beast', 'Brown'],
+    ['troop:7479', 'Wargare', 'Purple'], ['troop:7495', 'Mystic', 'Purple']] as const;
+  for (const [key, race, color] of ROWS) it(`${key}: caster + 1 ${race} ally -> 14 damage, 6 ${color}`, () => {
+    const r = castSpell({ key, allies: [{ troopTypes: [race] }, { troopTypes: ['Human'] }].map(a => race === 'Mystic' ? { troopTypes: a.troopTypes[0] === 'Human' ? ['Knight'] : a.troopTypes } : a) });
+    expect(r.summary.order[0]).toBe('dmg E11 14');
+    expect(r.summary.gems.created[color]).toBe(6);
+  });
+  it('troop:7599: caster + 1 Daemon ally -> 2 Portal Gems; Terror on the damaged target', () => {
+    const r = castSpell({ key: 'troop:7599', allies: [{ troopTypes: ['Daemon'] }, {}] });
+    expect(r.summary.order.slice(0, 2)).toEqual(['dmg E11 13', 'status E11 +terror']);
+    expect(r.summary.order[2]).toMatch(/-> daemonicPortalGem x2$/);
+  });
+});
+
+describe('L4b B07: same family as B06', () => {
+  const ROWS = [['troop:7503', 'Giant', 'Blue'], ['troop:7511', 'Naga', 'Brown'], ['troop:7534', 'Elemental', 'Red'], ['troop:7542', 'Undead', 'Blue'],
+    ['troop:7555', 'Daemon', 'Red'], ['troop:7562', 'Centaur', 'Yellow'], ['troop:7591', 'Divine', 'Yellow'], ['troop:7598', 'Tauros', 'Red'],
+    ['troop:7637', 'Urska', 'Brown'], ['troop:7645', 'Fey', 'Red']] as const;
+  for (const [key, race, color] of ROWS) it(`${key}: caster + 2 ${race} allies -> 14 damage, 8 ${color}`, () => {
+    const r = castSpell({ key, allies: [{ troopTypes: [race] }, { troopTypes: [race] }] });
+    expect(r.summary.order[0]).toBe('dmg E11 14');
+    expect(r.summary.gems.created[color]).toBe(8);
+  });
+});
