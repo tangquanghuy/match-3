@@ -782,7 +782,11 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '对敌人造成 [魔法 + 3] 点伤害。然后创建 1-3 个恶魔传送门宝石。',
     build: skill(
       dmg('enemyChosen', 3, 1),
-      createSpecialGems({ kind: 'daemonicPortalGem' }, 0, 0, { countRange: { min: 1, max: 3 } }),
+      // native = three independent CreateGems 1 DaemonicPortal steps; a later one may land on an earlier
+      // portal (unmatchable gems stay convertible), which is where English "1-3" comes from — not a uniform roll.
+      createSpecialGems({ kind: 'daemonicPortalGem' }, 1, 0),
+      createSpecialGems({ kind: 'daemonicPortalGem' }, 1, 0),
+      createSpecialGems({ kind: 'daemonicPortalGem' }, 1, 0),
     ),
   },
 

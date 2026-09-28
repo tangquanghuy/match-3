@@ -13455,6 +13455,121 @@
           }
         ]
       }
+    },
+    "9904": {
+      "description": "对所有敌人造成[(魔法 x 1.75) + 5]点伤害。生成3个流血宝石、3个恐惧宝石、3个中毒宝石。如果敌人死亡，则每种宝石额外生成3个。",
+      "prototype": {
+        "segments": [
+          {
+            "kind": "damage",
+            "target": "enemyAll",
+            "scaling": {
+              "base": 5,
+              "mult": 1.75
+            },
+            "range": "all"
+          },
+          {
+            "kind": "gem",
+            "params": {
+              "op": "create",
+              "gem": {
+                "kind": "special",
+                "spec": {
+                  "kind": "bleedGem"
+                }
+              },
+              "count": {
+                "base": 3,
+                "mult": 0
+              }
+            }
+          },
+          {
+            "kind": "gem",
+            "params": {
+              "op": "create",
+              "gem": {
+                "kind": "special",
+                "spec": {
+                  "kind": "bleedGem"
+                }
+              },
+              "count": {
+                "base": 3,
+                "mult": 0
+              }
+            },
+            "ifTargetDied": true
+          },
+          {
+            "kind": "gem",
+            "params": {
+              "op": "create",
+              "gem": {
+                "kind": "special",
+                "spec": {
+                  "kind": "terrorGem"
+                }
+              },
+              "count": {
+                "base": 3,
+                "mult": 0
+              }
+            }
+          },
+          {
+            "kind": "gem",
+            "params": {
+              "op": "create",
+              "gem": {
+                "kind": "special",
+                "spec": {
+                  "kind": "terrorGem"
+                }
+              },
+              "count": {
+                "base": 3,
+                "mult": 0
+              }
+            },
+            "ifTargetDied": true
+          },
+          {
+            "kind": "gem",
+            "params": {
+              "op": "create",
+              "gem": {
+                "kind": "special",
+                "spec": {
+                  "kind": "poisonGem"
+                }
+              },
+              "count": {
+                "base": 3,
+                "mult": 0
+              }
+            }
+          },
+          {
+            "kind": "gem",
+            "params": {
+              "op": "create",
+              "gem": {
+                "kind": "special",
+                "spec": {
+                  "kind": "poisonGem"
+                }
+              },
+              "count": {
+                "base": 3,
+                "mult": 0
+              }
+            },
+            "ifTargetDied": true
+          }
+        ]
+      }
     }
   }
 }

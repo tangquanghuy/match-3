@@ -1169,11 +1169,16 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 9904,
-    desc: '对所有敌人造成[(魔法 x 1.75) + 5]点伤害。生成3个流血宝石、3个恐惧宝石、3个中毒宝石。如果敌人死亡，则额外生成3个流血宝石和3个恐惧宝石。',
+    desc: '对所有敌人造成[(魔法 x 1.75) + 5]点伤害。生成3个流血宝石、3个恐惧宝石、3个中毒宝石。如果敌人死亡，则每种宝石额外生成3个。',
     build: skill(
       dmg('enemyAll', 5, 1.75, { range: 'all' }),
+      // native: CreateGems 3 Bleed / Terror / Poison, each [AddForKill 3] (R001 order)
       createSpecialGems({ kind: 'bleedGem' }, 3, 0),
       createSpecialGems({ kind: 'bleedGem' }, 3, 0, { ifTargetDied: true }),
+      createSpecialGems({ kind: 'terrorGem' }, 3, 0),
+      createSpecialGems({ kind: 'terrorGem' }, 3, 0, { ifTargetDied: true }),
+      createSpecialGems({ kind: 'poisonGem' }, 3, 0),
+      createSpecialGems({ kind: 'poisonGem' }, 3, 0, { ifTargetDied: true }),
     ),
   },
   {

@@ -299,10 +299,10 @@ const SPELLS: CuratedBatch['spells'] = [
   {
     id: 9023,
     desc: '对所有敌人造成[魔法 + 2] 点伤害。创造 5 颗混合善恶的石像鬼宝石。',
-    // CreateGems2Colors 善恶混合 → 通用石像鬼（tier 缺省由引擎处理，8795 同款注明）
+    // native CreateGems2Colors 5 GoodGargoyle>BadGargoyle（tier 1=善 / 2=恶，8795 同款；tier 缺省只会是善）
     build: skill(
       dmg('enemyAll', 2, 1, { range: 'all' }),
-      createSpecialGems({ kind: 'gargoyleGem' }, 5),
+      createSpecialGems2([{ kind: 'gargoyleGem', tier: 1 }, { kind: 'gargoyleGem', tier: 2 }], 5),
     ),
   },
   {
