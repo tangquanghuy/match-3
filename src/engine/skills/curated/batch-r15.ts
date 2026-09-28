@@ -30,7 +30,7 @@
  */
 import type { CuratedBatch } from './index';
 import {
-  skill, skillOnce, dmg, dmgSplash, trueDmg, heal, armor, attack, magic, mana, reduce, steal,
+  skill, skillOnce, targetedSkill, dmg, dmgSplash, trueDmg, heal, armor, attack, magic, mana, reduce, steal,
   cleanse, randomStat, createGems, createMix, createSpecialGems, destroySpecialGems, explodeSpecialGems, explodeRandomGems,
   explodeColor, explodeSkulls, destroyRandomGems, destroyChosenRow, destroyChosenCol, destroyArea, transform, transformToSpecial,
   transformTroop, inflict,
@@ -663,9 +663,10 @@ const SPELLS: CuratedBatch['spells'] = [
     // 「击回末位」= reposition lastTarget（§12.1） ——
     id: 8933,
     desc: '选定一位敌人，爆破其一个法力颜色的 5 颗宝石。再将他们击回末位。',
-    build: skill(
-      explodeRandomGems(5, 0, 'color', 'LAST_TARGET'),
-      reposition('lastTarget', 'back'),
+    // sa-F2 fix round A: explicit chosen-enemy input (LAST_TARGET had no prior target -> no spell events)
+    build: targetedSkill('enemyChosen',
+      explodeRandomGems(5, 0, 'color', 'CHOSEN_TARGET'),
+      reposition('enemyChosen', 'back'),
     ),
   },
   {

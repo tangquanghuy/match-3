@@ -74,13 +74,14 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 8497,
-    desc: '创造12个厄运头骨。并炸毁一个宝石。',
+    desc: '创造 12 个厄运头骨。然后爆破 [(魔法 / 2) + 1] 颗宝石。',
     build: skill(
       // 回收（第六遍）：「厄运头骨」= doomSkull 同物异名（SOP「特殊宝石」词表对照），
       // 创造特殊宝石 = createSpecialGems（窗口 C 落地）
       createSpecialGems({ kind: 'doomSkull' }, 12, 0),
       // 「宝石」不含骷髅 → include:'color'（batch-15 头注口径）
-      explodeRandomGems(1, 0, 'color'),
+      // native ExplodeGems Amount 1 SpellPowerMultiplier 0.5 = [(Magic / 2) + 1] (sa-F2 fix round A)
+      explodeRandomGems(1, 0.5, 'color'),
     ),
   },
   {

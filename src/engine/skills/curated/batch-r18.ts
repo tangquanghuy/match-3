@@ -19,7 +19,7 @@
  * - 挽救候选复核后仍维持 SKIP 的 50 条记录保留在原批次文件（不重复计数），复核结论见批尾注记。
  */
 import type { CuratedBatch } from './index';
-import { skill, dmg, dmgSplash, trueDmg, heal, armor, attack, magic, mana, reduce, steal, cleanse, dispelStatus, randomStat, inflict, inflictRandom, createGems, createSkulls, createMix, createStorm, destroyColor, destroyRandomGems, destroyRandomRows, destroyRandomCols, explodeColor, explodeRandomGems, explodeRandomCols, transform, transformToSpecial, reposition, shuffleBoard, shuffleTeam, extraTurn, oneOf, summonRef, summonRandom, sacrifice, gainGold, gainSouls, gainMaps, escape, CHOSEN, CELL, explodeAt } from '../builders';
+import { skill, targetedSkill, dmg, dmgSplash, trueDmg, heal, armor, attack, magic, mana, reduce, steal, cleanse, dispelStatus, randomStat, inflict, inflictRandom, createGems, createSkulls, createMix, createStorm, destroyColor, destroyRandomGems, destroyRandomRows, destroyRandomCols, explodeColor, explodeRandomGems, explodeRandomCols, transform, transformToSpecial, reposition, shuffleBoard, shuffleTeam, extraTurn, oneOf, summonRef, summonRandom, sacrifice, gainGold, gainSouls, gainMaps, escape, CHOSEN, CELL, explodeAt } from '../builders';
 import type { SegmentOpts } from '../builders';
 import { BaseColor } from '../../types';
 import type { Condition, CondMult } from '../effects/secondary';
@@ -453,7 +453,9 @@ const SPELLS: CuratedBatch['spells'] = [
     // 「消除一名随机敌人…并对其造成」= lastTarget 跨段绑定；[x4] = destroyedGems Blue ×4
     build: skill(
       explodeAt(CELL),
-      ...dispelPositives('enemyRandom'),
+      // sa-F2 fix round A: one random enemy for Dispel + TrueDamage@FromPrevious (the old per-status
+      // dispelPositives('enemyRandom') re-rolled the target for every status and skipped holders)
+      ...POSITIVE_STATUSES.map((statusId, i) => dispelStatus(statusId, i === 0 ? 'enemyRandom' : 'lastTarget')),
       trueDmg('lastTarget', 4, 1, {
     modifier: { mod: { kind: 'multiplier', a: 4 }, source: { kind: 'destroyedGems', color: BaseColor.Blue } },
   }),
@@ -1224,9 +1226,10 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 8133,
     desc: "召唤尘风暴。再选一名盟友，爆破 [魔法 + 1] 颗盟友其中一个法力颜色的宝石。",
     // 【挽救】「爆破盟友其中一个法力颜色的宝石」= explodeRandomGems 限色 LAST_TARGET（首段回退 chosenTargetId，9745 同口径）；尘风暴 = createStorm Brown
-    build: skill(
+    // sa-F2 fix round A: explicit chosen-ally input (LAST_TARGET had no prior target -> nothing exploded)
+    build: targetedSkill('allyChosen',
       createStorm(BaseColor.Brown),
-      explodeRandomGems(1, 1, 'color', 'LAST_TARGET'),
+      explodeRandomGems(1, 1, 'color', 'CHOSEN_TARGET'),
     ),
   },
   {

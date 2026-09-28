@@ -299,6 +299,8 @@ const SPELLS: CuratedBatch['spells'] = [
     build: skill(
       explodeRandomGems(4, 0, 'color', BaseColor.Red),
       dmg('enemyRandom', 5, 1),
+      // sa-F2 fix round A: native 3:Dispel@Self precedes 4:Damage@Self 10000 (own Barrier must not block it)
+      ...['barrier', 'blessed', 'enchanted', 'enraged', 'rage', 'reflect', 'submerged'].map(statusId => ({ kind: 'dispel' as const, target: 'allySelf' as const, statusId })),
       sacrifice('allySelf'),
     ),
   },

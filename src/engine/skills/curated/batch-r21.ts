@@ -621,8 +621,10 @@ const SPELLS: CuratedBatch['spells'] = [
     // 正面增益（§6 词表）——「驱散一名敌人」= enemyChosen 逐正面状态驱散；「其」= lastTarget；
     // 「因屏障宝石数量 [x4]」= boardSpecial barrierGem ×4；创造 5 颗屏障宝石可表。
     build: skill(
-    ...dispelPositives('enemyChosen'),
-    trueDmg('lastTarget', 2, 1, { modifier: boostPer({ kind: 'boardSpecial', gem: 'barrierGem' }, 4) }),
+    // sa-F2 fix round A: unconditional dispel of each positive status + damage on the chosen enemy (the old
+    // conditional dispelPositives left lastTarget unset when the enemy had no positive status -> no damage)
+    ...POSITIVE_STATUSES.map(statusId => dispelStatus(statusId, 'enemyChosen')),
+    trueDmg('enemyChosen', 2, 1, { modifier: boostPer({ kind: 'boardSpecial', gem: 'barrierGem' }, 4) }),
     createSpecialGems({ kind: 'barrierGem' }, 5),
     ),
   },

@@ -168,9 +168,10 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 9874,
-    desc: '随机给 2 名盟友赋予 1 点生命值。然后将 5 个绿色宝石转化为沉没宝石。',
+    desc: '随机给 2 名盟友赋予 [魔法 + 1] 点生命值。然后将 5 个绿色宝石转化为沉没宝石。',
     build: skill(
-      heal('allyRandomN', 1, 0, { n: 2 }),
+      // native IncreaseHealth Amount 1 SpellPowerMultiplier 1 = [Magic + 1] (sa-F2 fix round A)
+      heal('allyRandomN', 1, 1, { n: 2 }),
       transformToSpecial(BaseColor.Green, 'submergeGem', { count: 5 }),
     ),
   },

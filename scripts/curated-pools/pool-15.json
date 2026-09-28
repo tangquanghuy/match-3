@@ -55,7 +55,7 @@
   "troop": "铁鹰",
   "spellId": 8497,
   "spellName": "火箭弹幕",
-  "desc": "创造12个厄运头骨。并炸毁一个宝石。",
+  "desc": "创造 12 个厄运头骨。然后爆破 [(魔法 / 2) + 1] 颗宝石。",
   "scalings": [],
   "modifier": null
  },

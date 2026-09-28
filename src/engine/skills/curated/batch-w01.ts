@@ -208,8 +208,9 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 7094,
-    desc: '爆破一颗宝石。',
-    build: ({"segments":[{"kind":"gem","params":{"op":"clear","mode":"explode","target":{"kind":"cell","cell":"CELL"}}}]} as SkillPrototype),
+    desc: '爆破一颗宝石，并给予所有盟友 2 点魔力值。',
+    // sa-F2 fix round A: native 1:IncreaseSpellPower@AllAllies 2 was missing ("give 2 Magic to all Allies")
+    build: ({"segments":[{"kind":"gem","params":{"op":"clear","mode":"explode","target":{"kind":"cell","cell":"CELL"}}},{"kind":"buff","target":"allyAll","stat":"magic","scaling":{"base":2,"mult":0}}]} as SkillPrototype),
   },
   {
     id: 7095,
