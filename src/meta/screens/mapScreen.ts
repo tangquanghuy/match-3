@@ -932,7 +932,7 @@ export class MapScreen implements Screen {
           <div class="tr-body" id="tributeRows"></div>
           <div class="tb-acts">
             <button class="cancel" id="tributeCancel" type="button">稍后再来</button>
-            <button class="tr-collect" id="tributeConfirm" type="button"><span id="tributeConfirmLabel">全部收取</span></button>
+            <button class="tr-collect" id="tributeConfirm" type="button"><span id="tributeConfirmLabel">全部收取</span><em class="tr-collect-count" id="tributeConfirmCount" hidden></em></button>
           </div>
         </section>
       </div>
@@ -1178,7 +1178,11 @@ export class MapScreen implements Screen {
     const btn = $('#tributeConfirm') as HTMLButtonElement;
     btn.disabled = !collected && !treasury.ready;
     btn.classList.toggle('is-done', collected);
-    $('#tributeConfirmLabel').textContent = collected ? '✓ 已入库' : treasury.ready ? `全部收取 · ${treasury.readyCount} 国` : '暂无进贡';
+    $('#tributeConfirmLabel').textContent = collected ? '已入库' : treasury.ready ? '全部收取' : '暂无进贡';
+    const count = $('#tributeConfirmCount');
+    count.hidden = collected || !treasury.ready;
+    count.textContent = `${treasury.readyCount} 国`;
+    btn.setAttribute('aria-label', collected ? '已入库' : treasury.ready ? `全部收取，${treasury.readyCount} 国` : '暂无进贡');
     mountIcons($('#tributeVeil'));
   }
 

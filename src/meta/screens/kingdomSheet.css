@@ -215,21 +215,6 @@
 .kh-muted { color: #8f8595; font-size: 12px; }
 .kh-stock { margin: 0; color: #d9ccb2; font-size: 12px; display: flex; flex-wrap: wrap; align-items: center; gap: 6px 10px; }
 .kh-tribute .tribute-meter { gap: 5px; }
-/* 与宝库「全部收取」同一套象牙白胶囊，替代原来的大块金色渐变 */
-.kh-tribute .tribute-btn {
-  width: 100%;
-  margin-top: auto;
-  border: 1px solid rgba(255, 255, 255, .7);
-  border-radius: 999px;
-  background: linear-gradient(180deg, #fbf5e4 0%, #eadcb6 100%);
-  box-shadow: inset 0 -2px 0 rgba(150, 120, 60, .18), 0 4px 12px rgba(0, 0, 0, .4);
-  color: #231d2b;
-  text-shadow: none;
-  letter-spacing: 2px;
-}
-.kh-tribute .tribute-btn [data-icon] { color: #3a3346; }
-.kh-tribute .tribute-btn:hover:not(:disabled) { filter: none; background: linear-gradient(180deg, #ffffff 0%, #f0e4c4 100%); }
-.kh-tribute .tribute-btn:disabled { border-color: rgba(255, 255, 255, .15); background: rgba(255, 255, 255, .08); box-shadow: none; color: rgba(240, 232, 214, .45); filter: none; opacity: 1; }
 
 .kc-amount { display: inline-flex; align-items: center; gap: 4px; color: #fff0c4; }
 .kc-amount img { width: 20px; height: 20px; object-fit: contain; filter: drop-shadow(0 1px 2px #000); }
@@ -361,41 +346,90 @@
 .tr-row-gain { display: flex; gap: 12px; }
 .treasury .tb-acts { padding: 4px 24px 0; display: flex; justify-content: center; align-items: center; gap: 18px; }
 .treasury .tb-acts .cancel { margin: 0; }
-/* 主按钮：现代克制风格——象牙白胶囊 + 深色字，靠留白和细高光，不用彩绘金牌 */
-.tr-collect {
+/* 收取主按钮：切角（六边形）描金细边 + 深色填充，底部一道暖光表示「可以收」。
+   不用整块金色填充，靠细边、切角与光带做层次；数量单独放在右侧小签里。 */
+.tr-collect, .kh-tribute .tribute-btn {
+  --cut: 14px;
+  --edge: linear-gradient(90deg, rgba(180, 142, 80, .55), #f0d69a 50%, rgba(180, 142, 80, .55));
+  --fill: radial-gradient(ellipse 55% 90% at 50% 125%, rgba(255, 196, 104, .30), transparent 70%), linear-gradient(180deg, #2d2634, #16131c);
   position: relative;
+  isolation: isolate;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
   min-width: 300px;
   height: 52px;
-  padding: 0 40px;
-  border: 1px solid rgba(255, 255, 255, .7);
-  border-radius: 999px;
-  background: linear-gradient(180deg, #fbf5e4 0%, #eadcb6 100%);
-  box-shadow: inset 0 -2px 0 rgba(150, 120, 60, .18), 0 6px 18px rgba(0, 0, 0, .45);
-  color: #231d2b;
-  font: 600 18px var(--body);
-  letter-spacing: 3px;
-  transition: transform .15s, box-shadow .15s, background .15s;
+  padding: 0 34px;
+  border: 0;
+  border-radius: 0;
+  background: var(--edge);
+  clip-path: polygon(var(--cut) 0, calc(100% - var(--cut)) 0, 100% 50%, calc(100% - var(--cut)) 100%, var(--cut) 100%, 0 50%);
+  box-shadow: none;
+  color: #f8e8c2;
+  font: 600 17px var(--body);
+  letter-spacing: 4px;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, .6);
+  transition: transform .15s, filter .15s;
 }
-/* 两端的细菱形点缀，替代原来的雕花 */
-.tr-collect::before, .tr-collect::after {
+/* 内层填充：比外层缩 1.5px，露出的就是描金切角边 */
+.tr-collect::before, .kh-tribute .tribute-btn::before {
   content: "";
   position: absolute;
-  top: 50%;
-  width: 6px;
-  height: 6px;
-  translate: 0 -50%;
-  rotate: 45deg;
-  background: rgba(35, 29, 43, .45);
+  inset: 1.5px;
+  z-index: -1;
+  background: var(--fill);
+  clip-path: polygon(calc(var(--cut) - 1px) 0, calc(100% - var(--cut) + 1px) 0, 100% 50%, calc(100% - var(--cut) + 1px) 100%, calc(var(--cut) - 1px) 100%, 0 50%);
 }
-.tr-collect::before { left: 20px; }
-.tr-collect::after { right: 20px; }
-.tr-collect:hover:not(:disabled) { background: linear-gradient(180deg, #ffffff 0%, #f0e4c4 100%); box-shadow: inset 0 -2px 0 rgba(150, 120, 60, .18), 0 8px 22px rgba(0, 0, 0, .5), 0 0 0 3px rgba(255, 240, 200, .18); }
-.tr-collect:active:not(:disabled) { transform: translateY(1px); }
-.tr-collect:focus-visible { outline: 2px solid #a6dff9; outline-offset: 3px; }
-.tr-collect:disabled { border-color: rgba(255, 255, 255, .15); background: rgba(255, 255, 255, .08); box-shadow: none; color: rgba(240, 232, 214, .45); cursor: default; }
-.tr-collect:disabled::before, .tr-collect:disabled::after { background: rgba(240, 232, 214, .25); }
-.tr-collect span { position: relative; }
-.tr-collect.is-done { pointer-events: none; border-color: rgba(170, 230, 190, .6); background: linear-gradient(180deg, #e3f5e6 0%, #bfe3c8 100%); color: #1d3a26; }/* 收取后：合计格依次亮起 */
+/* 顶部一条细高光 + 悬停时的扫光 */
+.tr-collect::after, .kh-tribute .tribute-btn::after {
+  content: "";
+  position: absolute;
+  inset: 1.5px var(--cut) auto;
+  z-index: -1;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(255, 238, 200, .55), transparent);
+}
+.tr-collect span, .kh-tribute .tribute-btn span { position: relative; }
+.tr-collect-count {
+  display: inline-grid;
+  place-items: center;
+  min-width: 42px;
+  height: 22px;
+  padding: 0 8px;
+  border-radius: 4px;
+  background: linear-gradient(180deg, #f3d792, #c79a4c);
+  color: #2a1d0c;
+  font: 700 12px/1 var(--body);
+  font-style: normal;
+  letter-spacing: 1px;
+  text-shadow: none;
+}
+.tr-collect-count[hidden] { display: none; }
+.tr-collect:hover:not(:disabled), .kh-tribute .tribute-btn:hover:not(:disabled) {
+  --fill: radial-gradient(ellipse 60% 100% at 50% 120%, rgba(255, 204, 116, .45), transparent 72%), linear-gradient(180deg, #352c3c, #1a1620);
+  filter: brightness(1.06);
+}
+.tr-collect:active:not(:disabled), .kh-tribute .tribute-btn:active:not(:disabled) { transform: translateY(1px); }
+.tr-collect:focus-visible, .kh-tribute .tribute-btn:focus-visible { outline: none; --edge: linear-gradient(90deg, #a6dff9, #e6f6ff 50%, #a6dff9); }
+.tr-collect:disabled, .kh-tribute .tribute-btn:disabled {
+  --edge: linear-gradient(90deg, rgba(200, 190, 170, .18), rgba(200, 190, 170, .32), rgba(200, 190, 170, .18));
+  --fill: linear-gradient(180deg, #211e27, #17151c);
+  color: rgba(240, 232, 214, .4);
+  opacity: 1;
+  filter: none;
+  cursor: default;
+}
+.tr-collect.is-done {
+  pointer-events: none;
+  --edge: linear-gradient(90deg, rgba(110, 190, 150, .5), #bdeccf 50%, rgba(110, 190, 150, .5));
+  --fill: radial-gradient(ellipse 55% 90% at 50% 125%, rgba(120, 220, 160, .28), transparent 70%), linear-gradient(180deg, #1f2a26, #131a17);
+  color: #d4f5de;
+}
+/* 王国弹层里的「打开宝库」：同一形状，窄一些、不带数量签 */
+.kh-tribute .tribute-btn { --cut: 12px; width: 100%; min-width: 0; height: 44px; margin-top: auto; padding: 0 22px; gap: 8px; font-size: 15px; letter-spacing: 2px; }
+.kh-tribute .tribute-btn [data-icon] { width: 17px; height: 17px; color: #f0d69a; }
+/* 收取后：合计格依次亮起 */
 .treasury.is-collected .tr-total:not(.zero) { animation: tr-pop .7s cubic-bezier(.2, 1.5, .4, 1) calc(var(--i, 0) * .08s) both; border-color: #ffe08a; box-shadow: 0 0 16px rgba(255, 210, 110, .45); }
 .treasury.is-collected .tr-hero img { animation: tr-burst .9s ease-out both, tr-float 4s ease-in-out .9s infinite; }
 @keyframes tr-float { 0%, 100% { translate: -50% 0; } 50% { translate: -50% -5px; } }
@@ -430,7 +464,7 @@
   .stage.map-responsive .tr-row-gain .kc-amount img { width: 16px; height: 16px; }
   .stage.map-responsive .tr-row-gain .kc-amount b { font-size: 12px; }
   .stage.map-responsive .treasury .tb-acts { padding: 4px 12px 0; gap: 10px; }
-  .stage.map-responsive .tr-collect { min-width: 0; flex: 1; height: 46px; padding: 0 28px; font-size: 16px; letter-spacing: 2px; }
+  .stage.map-responsive .tr-collect { min-width: 0; flex: 1; height: 48px; padding: 0 22px; gap: 8px; font-size: 16px; letter-spacing: 2px; }
   .stage.map-responsive .tr-block > header { flex-wrap: wrap; row-gap: 2px; }
   .stage.map-responsive .tr-block > header b { white-space: nowrap; }
   .stage.map-responsive .tr-block > header small { text-align: left; }

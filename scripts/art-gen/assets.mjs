@@ -49,18 +49,20 @@ export const ASSETS = {
     out: 'src/assets/meta/kingdom/treasury-hoard.webp',
     longest: 900,
     pad: 0.02,
-    prompt: 'A tidy royal treasury display: a sleek ivory-white and slate-navy treasure chest with thin pale-gold edges, lid open, '
-      + 'a neat stack of gold coins, a few clear violet soul crystals and cut blue gemstones, one simple golden key leaning on the side. '
-      + 'Calm soft studio lighting, clean composition, front three-quarter view, wide framing. ' + MODERN,
+    prompt: 'A royal tribute treasure hoard: an open ornate dark wooden treasure chest bound with polished gold bands, overflowing '
+      + 'with shining gold coins, several glowing violet soul-essence crystal vials, sparkling cut red, blue and green gemstones, '
+      + 'two ornate golden keys and a small gold laurel medal, warm golden light rising from inside the chest, a few coins '
+      + 'spilling onto the ground in front. Front three-quarter view, wide composition. ' + STYLE,
   },
   'kingdom-shield': {
     size: '1024x1024',
     out: 'src/assets/meta/kingdom/kingdom-shield.webp',
     longest: 300,
     pad: 0.02,
-    prompt: 'Kingdom level badge: a simple heater-shaped shield with a thin silver-white rim and a smooth muted slate-navy face, '
-      + 'a tiny minimal crown shape above it, the shield face completely empty and flat (a number will be overlaid later). '
-      + 'Perfectly symmetrical straight-on front view, fills about 85% of the canvas. ' + MODERN,
+    prompt: 'Heraldic kingdom level badge: a heater-shaped shield with a thick polished gold rim and a deep royal-blue enamel face '
+      + 'with delicate gold filigree in the corners, a small gold crown on top of the shield, the middle of the shield face smooth '
+      + 'and completely empty (a number will be overlaid later). Perfectly symmetrical straight-on front view, fills about 85% '
+      + 'of the canvas. ' + STYLE,
   },
   'home-crown': {
     size: '1024x1024',
