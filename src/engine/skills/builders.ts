@@ -360,10 +360,13 @@ export function steal(
   gainStat: BuffStat,
   base: number,
   mult = 1,
-  opts: ReduceOpts & { gainRatio?: number } = {},
+  opts: ReduceOpts & { gainRatio?: number; gainLifeMode?: import('./effects/buff').LifeMode; modifierAfterCap?: boolean } = {},
 ): ReduceSegment {
   const seg: ReduceSegment = { kind: 'reduce', target, stat, scaling: scale(base, mult), gainStat };
   if (opts.gainRatio !== undefined && opts.gainRatio !== 1) seg.gainRatio = opts.gainRatio;
+  // P-steal-to-life: native IncreaseHealth gain step / CountMaxWithMagic cap on the base part only
+  if (opts.gainLifeMode) seg.gainLifeMode = opts.gainLifeMode;
+  if (opts.modifierAfterCap) seg.modifierAfterCap = true;
   if (opts.n !== undefined) seg.n = opts.n;
   if (opts.nRange !== undefined) seg.nRange = opts.nRange;
   if (opts.times !== undefined) seg.times = opts.times;

@@ -29,12 +29,10 @@ describe('repro L7-7755 troop:7755 spell 9740: counter = min(Attack, [(Magic/2)+
  });
 });
 describe('repro L7-7069 troop:7069 spell 8597: counter = min(front Attack, Magic+1) + 2 x Green allies; IncreaseHealth grows max Life',()=>{
- it.fails('native expectation: front Attack 5, Magic 10, 1 Green ally -> counter 7: Life +7 and max Life +7',()=>{
+ // Fixed by sa-P P-steal-to-life (modifierAfterCap + gainLifeMode 'gain').
+ it('native expectation: front Attack 5, Magic 10, 1 Green ally -> counter 7: Life +7 and max Life +7',()=>{
   const f=run('8597',13,10,{attack:5},1);
   expect(f.caster.hp).toBe(507);expect(f.caster.maxHp).toBe(1007);
- });
- it('runtime: reduce caps the whole counter by the front Attack (Life +5) and heals without raising max Life',()=>{
-  const f=run('8597',13,10,{attack:5},1);
-  expect(f.enemies[0].attack).toBe(0);expect(f.caster.hp).toBe(505);expect(f.caster.maxHp).toBe(1000);
+  expect(f.enemies[0].attack).toBe(0);
  });
 });

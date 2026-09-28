@@ -126,11 +126,13 @@ describe('L7B08 troop:7069 spell 8597 steal [Magic+1] Attack from the first enem
    {Target:'AllAllies',UseCounterForAmount:true,Amount:200,Type:'CountArmyColor',Data:'1'},
    {Target:'FrontEnemy',UseCounterForAmount:true,Type:'DecreaseAttack'},
    {Target:'Self',UseCounterForAmount:true,Type:'IncreaseHealth'}]);
+  // sa-P P-steal-to-life: Green bonus after the CountMaxWithMagic cap; IncreaseHealth grows max Life
   expect(proto).toEqual({segments:[{kind:'reduce',target:'enemyFront',stat:'attack',scaling:{base:1,mult:1},gainStat:'hp',
+   gainLifeMode:'gain',modifierAfterCap:true,
    modifier:{mod:{kind:'multiplier',a:2},source:{kind:'alliesOfColor',color:'Green'}}}]});
  });
- for(const side of SIDES)it(`real cast side=${side}: front Attack 50, Magic 10, caster + 1 Green ally -> front -15 Attack, caster Life +15 (common case)`,()=>{
-  const f=setup({...C,side,magic:10,allies:[{colors:[BaseColor.Green]}],enemies:[{attack:50},{},{},{}]});f.caster.hp=500;f.cast();
-  expect(f.enemies[0].attack).toBe(35);expect(f.caster.hp).toBe(515);expect(f.enemies[2].attack).toBe(17);turnSpent(f);
+ for(const side of SIDES)it(`real cast side=${side}: front Attack 50, Magic 10, caster + 1 Green ally -> front -15 Attack, caster Life and max Life +15 (common case)`,()=>{
+  const f=setup({...C,side,magic:10,allies:[{colors:[BaseColor.Green]}],enemies:[{attack:50},{},{},{}]});f.caster.hp=500;const max0=f.caster.maxHp;f.cast();
+  expect(f.enemies[0].attack).toBe(35);expect(f.caster.hp).toBe(515);expect(f.caster.maxHp).toBe(max0+15);expect(f.enemies[2].attack).toBe(17);turnSpent(f);
  });
 });

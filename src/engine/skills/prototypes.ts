@@ -190,6 +190,10 @@ export interface ReduceSegment extends SegmentOptions {
   gainStat?: BuffStat;
   /** 自身获得比例，默认 1（「获得其中半数」= 0.5） */
   gainRatio?: number;
+  /** 窃取转生命：原生获得步骤 IncreaseHealth = 'gain'（生命与上限同增） */
+  gainLifeMode?: import('./effects/buff').LifeMode;
+  /** 原生 CountMaxWithMagic 只封顶基础部分，modifier 加成在封顶后相加；施法者获得 = 计数器（8597） */
+  modifierAfterCap?: boolean;
   /** 连掷次数（仅 stat='random'，「从其 2 个随机技能值各消除 N 点」= 2；缺省 1） */
   times?: number;
   n?: number;
@@ -753,6 +757,8 @@ function compileSegment(segment: EffectSegment, ctx: EffectContext): EffectPrimi
         fraction: segment.fraction,
         gainStat: segment.gainStat,
         gainRatio: segment.gainRatio,
+        gainLifeMode: segment.gainLifeMode,
+        modifierAfterCap: segment.modifierAfterCap,
         times: segment.times,
         modifier: segment.modifier,
         raceDouble: segment.raceDouble,

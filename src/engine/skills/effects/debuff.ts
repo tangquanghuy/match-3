@@ -21,7 +21,7 @@ import type { ScalingSpec } from '../scaling';
 import { evaluateScaling } from '../scaling';
 import type { EffectContext, EffectPrimitive } from './context';
 import { casterMagic, findCharacter } from './context';
-import { hasTroopType, evaluateWithModifier, DEFAULT_RACE_DOUBLE, condMultiplier, condBonusValue } from './secondary';
+import { hasTroopType, evaluateWithModifier, modifierBonus, DEFAULT_RACE_DOUBLE, condMultiplier, condBonusValue } from './secondary';
 import type { ModifierSpec, CondMult, CondBonus } from './secondary';
 import { isImmuneToManaDrain } from './status';
 import { applyBuffGain } from './buff';
@@ -62,6 +62,18 @@ export interface ReduceParams {
   gainStat?: BuffStat;
   /** 自身获得比例，默认 1（「获得其中半数」= 0.5，向下取整） */
   gainRatio?: number;
+  /**
+   * 窃取转生命的语义（P-steal-to-life）：原生获得步骤为 IncreaseHealth 时 = 'gain'
+   * （生命与上限同增）；缺省沿用治疗口径（夹 maxHp）。
+   */
+  gainLifeMode?: LifeMode;
+  /**
+   * 原生计数链「CountX 100 → CountMaxWithMagic → Count*（UseCounterForAmount）→ DecreaseX →
+   * IncreaseY」（P-steal-to-life，8597）：计数 = min(目标该属性, 基础值) + 二次缩放加成（加成在
+   * 封顶之后相加、不受目标属性封顶）；目标削减 = min(当前值, 计数)，施法者获得 = 计数（原生
+   * 获得步骤读计数器，不读实际削减额）。
+   */
+  modifierAfterCap?: boolean;
   /** 连掷次数（仅 stat='random'：「从其 2 个随机技能值各消除 N 点」= 2，官方即两条
    *  DecreaseRandom 步骤——每步独立掷签，可能掷中同一属性）；缺省 1 */
   times?: number;
@@ -110,6 +122,8 @@ export function reduceEffect(params: ReduceParams): EffectPrimitive {
             return hi <= lo ? lo : lo + ctx.rng.nextInt(hi - lo + 1);
           })()
           : evaluateWithModifier(evaluateScaling(scaling, casterMagic(ctx)), params.modifier, ctx));
+      // modifierAfterCap：封顶只作用于基础部分（加成在逐目标结算时另加）
+      const unmodifiedBase = params.modifierAfterCap ? Math.max(0, evaluateScaling(scaling, casterMagic(ctx))) : 0;
       const events: GameEvent[] = [];
       let drainedTotal = 0;
       // 实际削减总额（Wave4 批 lastReduce 跨段绑定）：所有属性/目标/步的 removed 累加，
@@ -126,6 +140,8 @@ export function reduceEffect(params: ReduceParams): EffectPrimitive {
         // 免疫目标整体跳过——不削减、不回事件、窃取者也不进账。
         if (stat === 'mana' && isImmuneToManaDrain(target)) continue;
         for (let step = 0; step < steps; step++) {
+          // modifierAfterCap：原生计数器（施法者获得读它，而非实际削减额）
+          let counter: number | undefined;
           // 官方 DecreaseRandom：每步独立掷签四项技能其一（R007-2；可能重复掷中同一属性）
           const statNow: 'attack' | 'armor' | 'magic' | 'mana' | 'hp' =
             stat === 'random' ? RANDOM_REDUCE_STATS[ctx.rng.nextInt(RANDOM_REDUCE_STATS.length)] : stat;
@@ -139,6 +155,13 @@ export function reduceEffect(params: ReduceParams): EffectPrimitive {
             // 削减额 = 当前值 × fraction 下取整（与 halve 同一比例族口径）
             const cur = statNow === 'mana' ? target.mana : statNow === 'hp' ? target.hp : Math.max(0, target[statNow]);
             cAmount = Math.floor(cur * params.fraction);
+          } else if (params.modifierAfterCap) {
+            // 原生 CountMaxWithMagic 只封顶基础部分，后续 Count* 加成不封顶（8597）
+            const cur = statNow === 'mana' ? target.mana : statNow === 'hp' ? target.hp : Math.max(0, target[statNow]);
+            const raceFactor = params.raceDouble && hasTroopType(target, params.raceDouble) ? (params.raceTimes ?? DEFAULT_RACE_DOUBLE) : 1;
+            const capped = Math.min(cur, (unmodifiedBase + condBonusValue(params.condBonus, ctx, target)) * raceFactor * condMultiplier(params.condMult, ctx, target));
+            cAmount = Math.max(0, capped + modifierBonus(params.modifier, ctx));
+            counter = cAmount;
           } else {
             const raceFactor = params.raceDouble && hasTroopType(target, params.raceDouble) ? (params.raceTimes ?? DEFAULT_RACE_DOUBLE) : 1;
             cAmount = (base + condBonusValue(params.condBonus, ctx, target)) * raceFactor * condMultiplier(params.condMult, ctx, target);
@@ -166,13 +189,17 @@ export function reduceEffect(params: ReduceParams): EffectPrimitive {
             reducedTotal += removed;
             const ev: BuffEvent = { type: 'buff', targetId: target.id, stat: statNow, amount: -removed };
             events.push(ev);
-            if (gainStat) {
-              // stat='random' 时 gainStat 仅是窃取标记：施法者获得掷中的那项属性
-              const gainAs: BuffStat = stat === 'random' ? statNow : gainStat;
-              const gain = Math.floor(removed * gainRatio);
-              // StealRandom 掷中 Life：施法者按 IncreaseHealth 增长（生命与上限同增，R007-2）
-              events.push(...gainToCaster(ctx, gainAs, gain, stat === 'random' && gainAs === 'hp' ? 'gain' : undefined));
-            }
+          }
+          // 施法者获得：缺省 = 实际削减额；modifierAfterCap = 原生计数器（即使目标该属性已为 0）
+          const gainFrom = counter ?? removed;
+          if (gainStat && gainFrom > 0) {
+            // stat='random' 时 gainStat 仅是窃取标记：施法者获得掷中的那项属性
+            const gainAs: BuffStat = stat === 'random' ? statNow : gainStat;
+            const gain = Math.floor(gainFrom * gainRatio);
+            // StealRandom 掷中 Life：施法者按 IncreaseHealth 增长（生命与上限同增，R007-2）；
+            // 显式 gainLifeMode（原生 IncreaseHealth 获得步骤）同口径
+            const lifeMode = gainAs === 'hp' ? (params.gainLifeMode ?? (stat === 'random' ? 'gain' : undefined)) : undefined;
+            events.push(...gainToCaster(ctx, gainAs, gain, lifeMode));
           }
         }
       }
