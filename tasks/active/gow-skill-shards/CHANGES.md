@@ -1,6 +1,6 @@
 # GoW 技能改动留档
 
-自动生成（`node scripts/gow-changelog.mjs render`），源数据 [CHANGES.jsonl](CHANGES.jsonl)，共 490 条改动，涉及 824 个技能 ID。
+自动生成（`node scripts/gow-changelog.mjs render`），源数据 [CHANGES.jsonl](CHANGES.jsonl)，共 491 条改动，涉及 825 个技能 ID。
 
 ## 按时间
 
@@ -496,6 +496,7 @@
 | 2026-09-28T11:21 | sa-A | L4a-r4-6758 | data | 8138 | troop:6758 Exploadstool | `src/engine/skills/curated/batch-37.ts` | if an enemy is Diseased: Poison 1-4 distinct random enemies (uniform count) → native four conditional Poison@RandomEnemy steps at 100/50/25/25%, fresh random pick each (may repeat) |  |
 | 2026-09-28T11:21 | sa-A | L4a-r4-7174 | data | 8745 | troop:7174 Mechweaver | `src/engine/skills/curated/batch-p37.ts` | destroy chosen row, then chosen column (two clears; a created Bomb could trigger between) → native DestroyGems RowAndColumn: one 15-cell cross clear |  |
 | 2026-09-28T11:21 | sa-P | P-D-lethal-first-lasttarget | primitive | 8664 | weapon:1435 BlackheartsHorn | `src/engine/skills/prototypes.ts`<br>`src/engine/skills/curated/batch-w03.ts`<br>`tests/unit/gowFixP-D-lethal-first-lasttarget.test.ts` | failed chance roll of an execute segment returned before target resolution (no lastTarget); 8664 wrote true damage before the slay roll → runSegment: failed roll of a damage execute segment still resolves/tracks its targets; 8664 native order execute enemyLast -> trueDmg lastTarget | execute+chance segments followed by lastTarget/ifTargetDied steps now see the (surviving) victim: troop:6252 6460 6585 6753 7016 7145 7252 7797 |
+| 2026-09-28T11:47 | sa-P | P-R5-summon-id-reuse | primitive | 7602, 7643 | troop:6428 Xathenos；troop:6465 Hyena | `src/engine/teamRoster.ts`<br>`src/engine/GameState.ts`<br>`src/engine/TurnEngine.ts`<br>`src/engine/skills/effects/summon.ts` | summon id = max living id + 1: killing the highest-id unit made the next summon reuse its id, lastTarget resolved to the summon and later ifTargetDied summons skipped → monotonic allocateCharId (GameState.charIdHighWater records removed ids); dead ids never reused | every summon (ids after a kill now > highest removed id) |
 
 ## 按技能 ID
 
@@ -695,7 +696,7 @@
 | 7598 | 1 | L1-6425-dist |
 | 7599 | 1 | F2-R001-order |
 | 7601 | 1 | L4a-R1-7601-targets |
-| 7602 | 1 | L1-6428-steal-summon |
+| 7602 | 2 | L1-6428-steal-summon、P-R5-summon-id-reuse |
 | 7624 | 1 | F1-items-54-60 |
 | 7625 | 1 | L5-C-1176-knight |
 | 7626 | 1 | F1-steal-before-damage |
@@ -703,6 +704,7 @@
 | 7633 | 1 | F1-steal-before-damage |
 | 7635 | 1 | F2-6457-dispel-self |
 | 7637 | 1 | L1-R2-consume-first |
+| 7643 | 1 | P-R5-summon-id-reuse |
 | 7644 | 2 | P-counter-per-step、P-counter-per-step |
 | 7645 | 1 | F2-6467-life-armor |
 | 7646 | 1 | F3-q07 |

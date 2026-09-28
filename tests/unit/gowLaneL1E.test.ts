@@ -71,8 +71,8 @@ describe('L1-E B01 troop:6465 Hyena (7643): kill -> 3 independent Hyena summons'
     expect(summons(r.events).map(e => e.troopId)).toEqual([6465, 6465, 6465]);
     expect(summons(castSpell({ key: 'troop:6465', allies: [] }).events)).toHaveLength(0);
   });
-  // Fails today: summon reuses the dead enemy's id, lastTarget resolves to the summon -> 2nd/3rd ifTargetDied skip.
-  it.fails('killing the highest-id enemy still summons 3 (P-R5-summon-id-reuse)', () => {
+  // Fixed by P-R5-summon-id-reuse (monotonic id allocator): the dead enemy's id is not reused, all 3 ifTargetDied fire.
+  it('killing the highest-id enemy still summons 3 (P-R5-summon-id-reuse)', () => {
     const r = castSpell({ key: 'troop:6465', allies: [], enemies: oneHp(), target: 13 });
     expect(summons(r.events)).toHaveLength(3);
   });
