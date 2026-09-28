@@ -51,3 +51,13 @@
 - 2026-09-28T00:26:32Z weapon:1210 fixed steal half Attack (was 0) before damage
 - 2026-09-28T00:26:32Z troop:7724 fixed all Skills incl. Life; kill triple via castEnemyDied
 - 2026-09-28T00:26:32Z troop:7215 fixed Gargoyle-gem count (was every board gem)
+- 2026-09-28T00:29:26Z troop:7738 approved (trace-L6) 2 random hits + 2 random ally heals
+- 2026-09-28T00:29:26Z troop:7560 approved (trace-L6) boss clause waived
+- 2026-09-28T00:29:26Z troop:7656 approved (trace-L6) 
+- 2026-09-28T00:29:26Z troop:6193 approved (trace-L6) 
+- 2026-09-28T00:29:26Z troop:7223 approved (trace-L6) 
+- 2026-09-28T00:29:26Z troop:6280 approved (trace-L6) 
+- 2026-09-28T00:29:26Z troop:6276 approved (trace-L6) 
+- 2026-09-28T00:29:26Z troop:6061 fixed (trace-L6) single chosen target (was split over 2 front) and flat +4 Attack
+- 2026-09-28T00:29:26Z troop:7101 fixed (trace-L6) 2 Magic per Elemental Star only; boss waived
+- 2026-09-28T00:29:26Z weapon:1272 fixed (trace-L6) Doomskull count (was every Skull)

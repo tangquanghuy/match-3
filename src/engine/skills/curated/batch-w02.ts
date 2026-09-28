@@ -709,7 +709,8 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 8130,
     desc: '对第一位敌人造成 [魔法 + 7] 点伤害，伤害值因末日骷髅头数而增强。如果敌人是元素军队，则造成双倍伤害。将其打回末位。 [x3]',
     build: skill(
-      dmg('enemyFront', 7, 1, { modifier: { mod: { kind: 'multiplier', a: 3 }, source: { kind: 'boardSkulls' } }, condMult: { times: 2, cond: { kind: 'targetRace', race: 'Elemental' } } }),
+      // sa-F3：原生 CountGems Doomskull → 只数末日骷髅（boardSkulls 会把普通骷髅也算进去）
+      dmg('enemyFront', 7, 1, { modifier: { mod: { kind: 'multiplier', a: 3 }, source: { kind: 'boardSpecial', gem: 'doomSkull' } }, condMult: { times: 2, cond: { kind: 'targetRace', race: 'Elemental' } } }),
       reposition('lastTarget', 'back'),
     ),
   },

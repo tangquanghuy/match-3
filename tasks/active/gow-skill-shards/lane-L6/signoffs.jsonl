@@ -18,3 +18,13 @@
 {"format":"compact","key":"troop:7215","decision":"accept","reviewer":"sa-F3","reviewedAt":"2026-09-28T00:26:12.201Z","tests":["tests/unit/gowCastGolden.test.ts"]}
 {"format":"compact","key":"troop:6803","decision":"accept","reviewer":"sa-F3","reviewedAt":"2026-09-28T00:26:14.371Z","tests":["tests/unit/gowCastGolden.test.ts"],"waived":[{"part":"clause","id":"c3","mode":"tower"}]}
 {"format":"compact","key":"troop:6550","decision":"accept","reviewer":"sa-F3","reviewedAt":"2026-09-28T00:26:16.639Z","tests":["tests/unit/gowCastGolden.test.ts"],"waived":[{"part":"clause","id":"c2","mode":"boss"}]}
+{"format":"compact","key":"troop:7738","decision":"accept","reviewer":"sa-F3","reviewedAt":"2026-09-28T00:29:01.142Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:7656","decision":"accept","reviewer":"sa-F3","reviewedAt":"2026-09-28T00:29:01.143Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:6193","decision":"accept","reviewer":"sa-F3","reviewedAt":"2026-09-28T00:29:01.143Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:7223","decision":"accept","reviewer":"sa-F3","reviewedAt":"2026-09-28T00:29:01.143Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:6280","decision":"accept","reviewer":"sa-F3","reviewedAt":"2026-09-28T00:29:01.143Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:6276","decision":"accept","reviewer":"sa-F3","reviewedAt":"2026-09-28T00:29:01.143Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:6061","decision":"accept","reviewer":"sa-F3","reviewedAt":"2026-09-28T00:29:01.143Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:7560","decision":"accept","reviewer":"sa-F3","reviewedAt":"2026-09-28T00:29:03.499Z","tests":["tests/unit/gowCastGolden.test.ts"],"waived":[{"part":"clause","id":"c2","mode":"boss"}]}
+{"format":"compact","key":"weapon:1272","decision":"accept","reviewer":"sa-F3","reviewedAt":"2026-09-28T00:29:05.713Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:7101","decision":"accept","reviewer":"sa-F3","reviewedAt":"2026-09-28T00:29:26.760Z","tests":["tests/unit/gowCastGolden.test.ts"],"waived":[{"part":"clause","id":"c2","mode":"boss"}]}
