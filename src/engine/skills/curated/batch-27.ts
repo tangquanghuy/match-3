@@ -16,7 +16,7 @@
  *   「敌我双方兽人数/任意状态敌人数/其所有技能值」（二次缩放来源不支持）→ 各按既有批次口径
  *   SKIP（见下，均注先例）。
  */
-import { chooseSkill, skill, dmg, heal, armor, magic, reduce, trueDmg, createGems, createSkulls, destroyChosenRow, destroyRandomGems, explodeRandomGems, inflict, extraTurn, summonRef, CELL, explodeAt } from '../builders';
+import { chooseSkill, skill, dmg, heal, armor, magic, reduce, trueDmg, createGems, createSkulls, destroyChosenCol, destroyRandomGems, explodeRandomGems, inflict, extraTurn, summonRef, CELL, explodeAt } from '../builders';
 import { BaseColor } from '../../types';
 import type { CuratedBatch } from './index';
 
@@ -146,17 +146,15 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 8688,
-    desc: '摧毁一行。给予所有盟友 [魔法 + 1] 点护甲值，数值因被摧毁的黄色宝石而增强。若有一名秘士盟友，则给予其 3 点魔力值。 [x3]',
+    desc: '摧毁一列。给予所有盟友 [魔法 + 1] 点护甲值，数值因被摧毁的黄色宝石而增强。若有秘士盟友，则给予他们 3 点魔力值。 [x3]',
     build: skill(
-      // 「摧毁一行」照 batch-01 7016 / batch-03 先例 → 选定行；护甲段同 batch-11 7056 结构
-      destroyChosenRow(),
+      // sa-A r3: EN "Destroy a column" / native DestroyGems BoardTarget Column (was row; zh fixed)
+      destroyChosenCol(),
       armor('allyAll', 1, 1, {
         modifier: { mod: { kind: 'multiplier', a: 3 }, source: { kind: 'destroyedGems', color: BaseColor.Yellow } },
       }),
-      // 回收（第五遍）：「若有一名X族盟友，则给予其N点」裁定——「其」= 该族盟友本人（自动指定）
-      // → N 段挂 allyWeakest（最危族员）+ targetRace（秘士 = Mystic，batch-16 9240 先例）；
-      // 无秘士存活盟友时段自动跳过 = 「若有一名」语义；禁用 allyChosen + targetRace（选定后过滤、不感知种族）
-      magic('allyWeakest', 3, 0, { targetRace: 'Mystic' }),
+      // sa-A r3: native IncreaseSpellPower@AllyType Data mystic = every Mystic ally (was one weakest)
+      magic('allyAll', 3, 0, { targetRace: 'Mystic' }),
     ),
   },
   {

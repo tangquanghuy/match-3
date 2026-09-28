@@ -1,6 +1,6 @@
 # GoW 技能改动留档
 
-自动生成（`node scripts/gow-changelog.mjs render`），源数据 [CHANGES.jsonl](CHANGES.jsonl)，共 389 条改动，涉及 682 个技能 ID。
+自动生成（`node scripts/gow-changelog.mjs render`），源数据 [CHANGES.jsonl](CHANGES.jsonl)，共 400 条改动，涉及 693 个技能 ID。
 
 ## 按时间
 
@@ -395,6 +395,17 @@
 | 2026-09-28T09:20 | sa-P | P-R1-chosen-target-color-cond | primitive | 8467 | troop:6964 StormKnight | `src/engine/skills/effects/secondary.ts`<br>`src/engine/skills/curated/batch-r22.ts`<br>`tests/unit/gowFixP-R1-chosen-target-color-cond.test.ts` | only lastTargetColor existed (needs a prior targeting segment), so 8467 dealt the true damage first and column skulls could miss a killed front target → global condition chosenTargetColor (cast-start colours of the chosen target); 8467 native order DestroyColumn -> IncreaseAttack -> TrueDamage | troop:6964 only |
 | 2026-09-28T09:20 | sa-P | P-R1-row-count-at-cast-start | primitive | 8928 | troop:7316 EyeOfArges | `src/engine/skills/prototypes.ts`<br>`src/engine/skills/effects/context.ts`<br>`src/engine/skills/effects/secondary.ts`<br>`src/engine/skills/curated/batch-28.ts`<br>`tests/unit/gowFixP-R1-row-count-at-cast-start.test.ts` | 8928 counted Red / Brown / Skull gems on the whole board (L10 dmg 178) → castTracking.chosenRowAtCastStart + source chosenRowAtCastStart: only the chosen row, captured before the explode (26 + 8 x row count) | troop:7316 only |
 | 2026-09-28T09:25 | sa-P | P-R1-dual-storm | primitive | 8560, 8562, 8454 | troop:7036 HellclawHunter；troop:7038 HellclawWarrior；weapon:1391 IndrajitsClaw | `src/engine/types.ts`<br>`src/engine/TurnEngine.ts`<br>`src/engine/skills/effects/storm.ts`<br>`src/engine/skills/prototypes.ts`<br>`src/engine/skills/builders.ts`<br>`src/engine/skills/effects/secondary.ts`<br>`src/engine/skills/curated/batch-p37.ts`<br>`src/engine/skills/curated/batch-w03.ts`<br>`tests/unit/gowFixP-R1-dual-storm.test.ts` | storms had one colour; Hellstorm (native StormRedPurple) approximated as a Red storm → Team.storm.color2 / storm segment color2 / createStorm opts.color2: both colours get STORM_DROP_WEIGHT in refills, stormPresent matches either; 8560 8562 8454 Red + Purple | storm-change event still reports the primary colour only (UI shows a Red storm) |
+| 2026-09-28T10:15 | sa-A | L4a-r3-7874 | data | 9949 | troop:7874 MineCart | `src/engine/skills/curated/batch-r9.ts` | Brown count boosted x3 by every destroyed gem in the row (27 on review board) → boosted x3 by destroyed Skulls only (native CountGems Skull 300 Row) |  |
+| 2026-09-28T10:15 | sa-A | L4a-r3-6224 | data | 7366 | troop:6224 LionPrince | `src/engine/skills/curated/batch-12.ts` | enemyFirstN 2 resolved once → native Damage@FrontEnemy then Damage@SecondEnemy resolved per step (front dies -> new second) |  |
+| 2026-09-28T10:15 | sa-A | L4a-r3-6736 | data | 8106 | troop:6736 HarpyEagle | `src/engine/skills/curated/batch-r18.ts` | random column; pull lastTarget (dead -> no move) → chosen column (Target Board); TroopOrderFront@LastEnemy resolved at its step |  |
+| 2026-09-28T10:15 | sa-A | L4a-r3-7685 | data | 9642 | troop:7685 LapinaLancer | `src/engine/skills/curated/batch-18.ts` | enemyRandomN 2 (lone enemy hit once) → Damage@RandomEnemy + Damage@RandomPrefNotPrevEnemy (R007.3 lone enemy hit twice) |  |
+| 2026-09-28T10:19 | sa-A | L4a-r3-6777 | data | 8167 | troop:6777 GorThrum | `src/engine/skills/curated/batch-21.ts` | explode 2 + 2 x Yellow random colour gems → native ExplodeGems UseCounter no Amount: 2 x Yellow destroyed, no base, any gem |  |
+| 2026-09-28T10:19 | sa-A | L4a-r3-6361 | data | 7513 | troop:6361 MerchantPrince | `src/engine/skills/curated/batch-r18.ts` | random row + random column → chosen row and column (Target Board, BoardTarget RowAndColumn) |  |
+| 2026-09-28T10:19 | sa-A | L4a-r3-6422 | data | 7595 | troop:6422 SummerKnight | `src/engine/skills/curated/batch-30.ts` | Armor [(M/2)+1] unboosted, only Attack boosted by Red → Armor and Attack both boosted x2 per Red destroyed (both UseCounterForAmount) |  |
+| 2026-09-28T10:19 | sa-A | L4a-r3-7139 | data | 8688 | troop:7139 Ostryx | `src/engine/skills/curated/batch-27.ts`<br>`src/data/gowSnapshotOverrides.json` | destroy chosen row; 3 Magic to one weakest Mystic; zh row → destroy chosen column; 3 Magic to every Mystic ally (AllyType mystic); zh column |  |
+| 2026-09-28T10:19 | sa-A | L4a-r3-6233 | data | 7379 | troop:6233 Dragotaur | `src/engine/skills/curated/batch-19.ts` | Dragon Attack [Magic] unboosted, only Armor boosted → Attack and Armor both boosted x2 per Yellow (both UseCounterForAmount) |  |
+| 2026-09-28T10:19 | sa-A | L4a-r3-6909 | data | 8370 | troop:6909 HeraldOfWoe | `src/engine/skills/curated/batch-21.ts` | Attack unboosted, only Armor boosted x5 Brown → Attack and Armor both boosted x5 per Brown |  |
+| 2026-09-28T10:19 | sa-A | L4a-r3-6954 | data | 8481 | troop:6954 TombKnight | `src/engine/skills/curated/batch-22.ts` | Armor unboosted, only Attack boosted → native IncreaseAttack then IncreaseArmor, both boosted x2 per Yellow |  |
 
 ## 按技能 ID
 
@@ -498,10 +509,12 @@
 | 7360 | 1 | F2-R001-order |
 | 7361 | 2 | L5-013、R004 (L5-004,L5-005,L5-014,L4b-6340) |
 | 7364 | 2 | L5-013、R004 (L5-004,L5-005,L5-014,L4b-6340) |
+| 7366 | 1 | L4a-r3-6224 |
 | 7368 | 1 | F3-q23 |
 | 7369 | 1 | F1-items-62-75 |
 | 7371 | 2 | L5-013、R004 (L5-004,L5-005,L5-014,L4b-6340) |
 | 7378 | 1 | L2-6237-one-colour |
+| 7379 | 1 | L4a-r3-6233 |
 | 7380 | 1 | R3-B11-1143 |
 | 7383 | 1 | F2-R001-order |
 | 7386 | 1 | L2-wrong-enemy-branches |
@@ -542,6 +555,7 @@
 | 7501 | 1 | L1-summon-dist |
 | 7504 | 2 | L7-6352-a、R005-test-sync |
 | 7507 | 1 | F2-6355-native-order |
+| 7513 | 1 | L4a-r3-6361 |
 | 7518 | 1 | P-prefnotprev-semantics |
 | 7520 | 1 | R3-B07-6368 |
 | 7521 | 1 | L2-6369-ratio |
@@ -561,6 +575,7 @@
 | 7574 | 1 | L2-6416-branch-weights |
 | 7576 | 1 | F2-R001-order |
 | 7577 | 1 | F2-1159-boost-source |
+| 7595 | 1 | L4a-r3-6422 |
 | 7596 | 3 | P-random-stat-pool、F1-remove-order、P-F1-remove-gems |
 | 7598 | 1 | L1-6425-dist |
 | 7599 | 1 | F2-R001-order |
@@ -659,6 +674,7 @@
 | 8097 | 1 | F3-q06 |
 | 8101 | 1 | L2-6731-branches |
 | 8103 | 1 | P-counter-per-step |
+| 8106 | 1 | L4a-r3-6736 |
 | 8108 | 1 | L2-wrong-enemy-branches |
 | 8112 | 1 | F3-q33 |
 | 8113 | 1 | P-counter-per-step |
@@ -671,6 +687,7 @@
 | 8160 | 1 | P-prefnotprev-semantics |
 | 8165 | 1 | P-random-stat-pool |
 | 8166 | 1 | P-random-stat-pool |
+| 8167 | 1 | L4a-r3-6777 |
 | 8169 | 1 | P-create-interleave |
 | 8193 | 1 | L1-6786-summons |
 | 8203 | 2 | P-counter-per-step、P-counter-per-step |
@@ -705,6 +722,7 @@
 | 8321 | 1 | L2-1317-branches |
 | 8357 | 1 | L1-1351-pool |
 | 8365 | 2 | L7-R1-6904-nextdown、P-R4-nextdown-default-range |
+| 8370 | 1 | L4a-r3-6909 |
 | 8373 | 1 | R3-B03-6912 |
 | 8377 | 1 | L2-6916-one-skill |
 | 8382 | 1 | L1-devour-first |
@@ -742,6 +760,7 @@
 | 8472 | 2 | P-F1-oneof-chosen-target、P-F1-oneof-chosen-target |
 | 8473 | 1 | P-F1-remove-gems |
 | 8475 | 1 | L2-6972-order |
+| 8481 | 1 | L4a-r3-6954 |
 | 8485 | 1 | P-R3-next-up-target |
 | 8488 | 1 | R7-b14-status-counts |
 | 8491 | 1 | P-chooser-native-restrictions |
@@ -817,6 +836,7 @@
 | 8674 | 2 | P-counter-per-step、L7-R1-board-special-counts |
 | 8684 | 1 | P-random-stat-pool |
 | 8686 | 1 | P-random-stat-pool |
+| 8688 | 1 | L4a-r3-7139 |
 | 8692 | 1 | R3-B08-7143 |
 | 8694 | 1 | F2-7145-miss-branch |
 | 8697 | 1 | L4b-1441-cursed-gems |
@@ -1013,6 +1033,7 @@
 | 9639 | 1 | L4a-R1-9639-block-gargoyle |
 | 9640 | 1 | P-random-stat-pool |
 | 9641 | 1 | P-prefnotprev-semantics |
+| 9642 | 1 | L4a-r3-7685 |
 | 9646 | 1 | R3-B10-7688 |
 | 9647 | 1 | L4b-1646-prefnotprev |
 | 9649 | 1 | P-R1-gargoyle-tier-filter,P-R2-gargoyle-tier,P-R4-gargoyle-tier-count,P-R3-dragon-gem-count |
@@ -1070,6 +1091,7 @@
 | 9937 | 1 | P-prefnotprev-semantics |
 | 9942 | 1 | F3-q08 |
 | 9944 | 1 | L7-R1-random-chain-waves |
+| 9949 | 1 | L4a-r3-7874 |
 | 9952 | 1 | L4a-R1-cross-8039-9952 |
 | 9957 | 1 | L3-007 |
 | 9958 | 1 | L4a-R1-9958-count-order |

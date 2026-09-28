@@ -290,9 +290,13 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '摧毁 1 行。对前两名敌人造成 [魔法 + 2] 点伤害，伤害值因摧毁的黄色色宝石数而增强。 [x2]',
     build: skill(
       destroyChosenRow(),
-      dmg('enemyFirstN', 2, 1, {
+      // sa-A r3: native Damage@FrontEnemy then Damage@SecondEnemy, each resolved at its own step (troop:6227 precedent)
+      // 「黄色色宝石」为原文笔误，按黄色宝石筛（batch-07 8041 处理笔误同款）
+      dmg('enemyFront', 2, 1, {
+        modifier: { mod: { kind: 'multiplier', a: 2 }, source: { kind: 'destroyedGems', color: BaseColor.Yellow } },
+      }),
+      dmg('enemyNth', 2, 1, {
         n: 2,
-        // 「黄色色宝石」为原文笔误，按黄色宝石筛（batch-07 8041 处理笔误同款）
         modifier: { mod: { kind: 'multiplier', a: 2 }, source: { kind: 'destroyedGems', color: BaseColor.Yellow } },
       }),
     ),

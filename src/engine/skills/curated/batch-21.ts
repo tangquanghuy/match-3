@@ -145,7 +145,8 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '摧毁一列。每摧毁一颗黄色宝石则爆破 2 颗随机宝石。 [x2]',
     build: skill(
       destroyChosenCol(),
-      explodeRandomGems(2, 0, 'color', undefined, {
+      // sa-A r3: native ExplodeGems UseCounterForAmount, no Amount: 2 per Yellow destroyed, no base, any gem (8812 precedent)
+      explodeRandomGems(0, 0, 'all', undefined, {
         modifier: { mod: { kind: 'multiplier', a: 2 }, source: { kind: 'destroyedGems', color: BaseColor.Yellow } },
       }),
     ),
@@ -207,7 +208,10 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '摧毁一行。获得 [(魔法 / 2) + 1] 点攻击力和护甲值，数值因被摧毁的棕色宝石而增强。 [x5]',
     build: skill(
       destroyChosenRow(),
-      attack('allySelf', 1, 0.5),
+      // sa-A r3: native IncreaseAttack + IncreaseArmor both UseCounterForAmount (CountGems Brown 500 Row)
+      attack('allySelf', 1, 0.5, {
+        modifier: { mod: { kind: 'multiplier', a: 5 }, source: { kind: 'destroyedGems', color: BaseColor.Brown } },
+      }),
       armor('allySelf', 1, 0.5, {
         modifier: { mod: { kind: 'multiplier', a: 5 }, source: { kind: 'destroyedGems', color: BaseColor.Brown } },
       }),

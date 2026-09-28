@@ -958,12 +958,12 @@ const SPELLS: CuratedBatch['spells'] = [
   {
     id: 9949,
     desc: '摧毁一排。对随机一名敌人造成[魔法 + 2]点伤害。然后生成3颗棕色宝石，宝石数量受摧毁的骷髅数量加成。 [x3]',
-    // 「受摧毁的骷髅数量加成」= destroyedGems 无色（R8 9639 先例，前段整排摧毁含骷髅）
+    // sa-A r3: native CountGems Skull 300 BoardTarget Row → only Skulls in the destroyed row count (destroyedGems skulls)
     build: skill(
       destroyChosenRow(),
       dmg('enemyRandom', 2, 1),
       createGems(BaseColor.Brown, 3, 0, {
-        modifier: { mod: { kind: 'multiplier', a: 3 }, source: { kind: 'destroyedGems' } },
+        modifier: { mod: { kind: 'multiplier', a: 3 }, source: { kind: 'destroyedGems', skulls: true } },
       }),
     ),
   },

@@ -124,7 +124,8 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '摧毁 1 行。获得 [(魔法 / 2) + 1] 点护甲值和攻击力，点数因被摧毁的红色宝石数而增强。获得屏障效果。 [x2]',
     build: skill(
       destroyChosenRow(),
-      armor('allySelf', 1, 0.5),
+      // sa-A r3: native IncreaseArmor + IncreaseAttack both UseCounterForAmount (CountGems Red 200 Row)
+      armor('allySelf', 1, 0.5, { modifier: { mod: { kind: 'multiplier', a: 2 }, source: { kind: 'destroyedGems', color: BaseColor.Red } } }),
       // 行清除混色 → 来源筛红色（batch-16 8792 同款）；modifier 挂最近数值段（batch-15 8614 同款）
       attack('allySelf', 1, 0.5, { modifier: { mod: { kind: 'multiplier', a: 2 }, source: { kind: 'destroyedGems', color: BaseColor.Red } } }),
       inflict('barrier', 'allySelf'),
