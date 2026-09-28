@@ -33,3 +33,12 @@
 - 2026-09-28T09:30:00Z troop:6025 fixed R001 create before barrier
 - 2026-09-28T09:30:00Z troop:7312 fixed R001 attack (board Yellow count) before convert
 - 2026-09-28T09:30:00Z troop:6130 fixed R001 attack (board Green count) before convert
+- 2026-09-28T10:00:00Z troop:6024 fixed R001 damage (board Green count) before remove
+- 2026-09-28T10:00:00Z troop:6218 fixed R001 true damage (board chosen-colour count) before remove
+- 2026-09-28T10:00:00Z troop:6965 fixed R001 damage (board Blue count) before remove
+- 2026-09-28T10:00:00Z troop:7058 fixed R001 true scatter (board chosen-colour count) before remove
+- 2026-09-28T10:00:00Z weapon:1159 fixed boost had no source -> Purple on board 4:1; R001 order; override synced (Daemon x2 still any-enemy, unverified vs per-target)
+- 2026-09-28T10:00:00Z weapon:1479 fixed R001 damage (board Brown count) before remove; override synced
+- 2026-09-28T10:00:00Z troop:6064 fixed R001 destroy 6 before the stat loss
+- 2026-09-28T10:00:00Z troop:6054 fixed R001 true damage (board Red count) before remove, then Life
+- 2026-09-28T10:00:00Z weapon:1120 fixed column skull count (was whole board) + front-enemy anchor for RandomPrefNotPrev; override synced

@@ -827,8 +827,11 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 7272,
     desc: '摧毁 1 列。对 1 名随机敌人造成 [魔法 + 5] 点伤害，伤害值因被摧毁的骷髅头数而增强。 [1:1]',
     build: skill(
+      // sa-F2 fix round A: native 0:Damage@FrontEnemy (no Amount) only anchors the following
+      // RandomPrefNotPrevEnemy; 1:CountGems Skull BoardTarget Column counts the chosen column (was whole board).
+      { kind: 'dispel', target: 'enemyFront', statusId: 'none' },
       destroyChosenCol(),
-      dmg('enemyRandom', 5, 1, { modifier: { mod: { kind: 'ratio', a: 1, b: 1 }, source: { kind: 'boardSkulls' } } }),
+      dmg('enemyRandomPrefNotPrev', 5, 1, { modifier: { mod: { kind: 'ratio', a: 1, b: 1 }, source: { kind: 'chosenColumnAtCastStart', skulls: true } } }),
     ),
   },
   {
@@ -1124,8 +1127,10 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 7577,
     desc: '对两名最强大的敌人造成 [魔法 + 1] 点伤害，并移除所有紫色宝石以增强效果。若任何一名敌人是恶魔军队，则造成双倍伤害。 [4:1]',
     build: skill(
+      // sa-F2 fix round A (R001): native CountGems 25 Purple ; Damage@TwoStrongestEnemies ; RemoveColor Purple.
+      // The boost had no source (Purple gems never counted).
+      dmg('enemyHealthiestN', 1, 1, { n: 2, condMult: { times: 2, cond: { kind: 'enemyRacePresent', race: 'Daemon' } }, modifier: { mod: { kind: 'ratio', a: 4, b: 1 }, source: { kind: 'boardGems', color: BaseColor.Purple } } }),
       destroyColor(BaseColor.Purple),
-      dmg('enemyHealthiestN', 1, 1, { n: 2, condMult: { times: 2, cond: { kind: 'enemyRacePresent', race: 'Daemon' } }, modifier: { mod: { kind: 'ratio', a: 4, b: 1 } } }),
     ),
   },
   {

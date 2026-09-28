@@ -207,11 +207,11 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 8468,
     desc: '移除所有蓝色宝石。对一名敌人造成 [魔法 + 2] 点伤害，伤害值因蓝色宝石而增强。 [3:1]',
     build: skill(
-      destroyColor(BaseColor.Blue),
-      // 「因蓝色宝石而增强」承接前句「移除所有蓝色宝石」→ destroyedGems 筛蓝（「移除所有X宝石以增强」句式）
+      // sa-F2 fix round A (R001): native CountGems Blue ; Damage ; RemoveColor Blue
       dmg('enemyChosen', 2, 1, {
-        modifier: { mod: { kind: 'ratio', a: 3, b: 1 }, source: { kind: 'destroyedGems', color: BaseColor.Blue } },
+        modifier: { mod: { kind: 'ratio', a: 3, b: 1 }, source: { kind: 'boardGems', color: BaseColor.Blue } },
       }),
+      destroyColor(BaseColor.Blue),
     ),
   },
 ];

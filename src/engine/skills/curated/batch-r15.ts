@@ -80,11 +80,12 @@ const SPELLS: CuratedBatch['spells'] = [
     // 「减除其 1 点所有技能值」EN = eliminate 1 point from all of their Skills → 攻/甲/魔各 -1
     //（三段常数削减）；「摧毁 6 颗宝石」= 随机 6 颗（batch-04「随机摧毁 8 颗宝石」同款 include 'color'）
     build: skill(
+      // sa-F2 fix round A (R001): native Damage ; DestroyGems 6 ; DecreaseAllStats@FrontEnemy 1
       dmg('enemyFront', 3, 1),
+      destroyRandomGems(6, 0, 'color'),
       reduce('enemyFront', 'attack', 1, 0),
       reduce('enemyFront', 'armor', 1, 0),
       reduce('enemyFront', 'magic', 1, 0),
-      destroyRandomGems(6, 0, 'color'),
     ),
   },
   {

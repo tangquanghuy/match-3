@@ -550,6 +550,47 @@
         "skippedClauses": []
       }
     },
+    "7272": {
+      "prototype": {
+        "segments": [
+          {
+            "kind": "dispel",
+            "target": "enemyFront",
+            "statusId": "none"
+          },
+          {
+            "kind": "gem",
+            "params": {
+              "op": "clear",
+              "mode": "destroy",
+              "target": {
+                "kind": "chosenLine",
+                "orientation": "col"
+              }
+            }
+          },
+          {
+            "kind": "damage",
+            "target": "enemyRandomPrefNotPrev",
+            "scaling": {
+              "base": 5,
+              "mult": 1
+            },
+            "modifier": {
+              "mod": {
+                "kind": "ratio",
+                "a": 1,
+                "b": 1
+              },
+              "source": {
+                "kind": "chosenColumnAtCastStart",
+                "skulls": true
+              }
+            }
+          }
+        ]
+      }
+    },
     "7282": {
       "description": "对 1 名敌人造成 [魔法 + 1] 点伤害。如果敌人已下潜则造成三倍伤害。"
     },
@@ -1000,6 +1041,50 @@
                 }
               ]
             ]
+          }
+        ]
+      }
+    },
+    "7577": {
+      "prototype": {
+        "segments": [
+          {
+            "kind": "damage",
+            "target": "enemyHealthiestN",
+            "scaling": {
+              "base": 1,
+              "mult": 1
+            },
+            "n": 2,
+            "modifier": {
+              "mod": {
+                "kind": "ratio",
+                "a": 4,
+                "b": 1
+              },
+              "source": {
+                "kind": "boardGems",
+                "color": "Purple"
+              }
+            },
+            "condMult": {
+              "times": 2,
+              "cond": {
+                "kind": "enemyRacePresent",
+                "race": "Daemon"
+              }
+            }
+          },
+          {
+            "kind": "gem",
+            "params": {
+              "op": "clear",
+              "mode": "destroy",
+              "target": {
+                "kind": "color",
+                "color": "Purple"
+              }
+            }
           }
         ]
       }
@@ -3877,17 +3962,6 @@
       "prototype": {
         "segments": [
           {
-            "kind": "gem",
-            "params": {
-              "op": "clear",
-              "mode": "destroy",
-              "target": {
-                "kind": "color",
-                "color": "Brown"
-              }
-            }
-          },
-          {
             "kind": "damage",
             "target": "enemyChosen",
             "scaling": {
@@ -3901,7 +3975,8 @@
                 "b": 1
               },
               "source": {
-                "kind": "destroyedGems"
+                "kind": "boardGems",
+                "color": "Brown"
               }
             },
             "condMult": {
@@ -3919,6 +3994,17 @@
                     "kingdom": "地狱悬崖"
                   }
                 ]
+              }
+            }
+          },
+          {
+            "kind": "gem",
+            "params": {
+              "op": "clear",
+              "mode": "destroy",
+              "target": {
+                "kind": "color",
+                "color": "Brown"
               }
             }
           }
