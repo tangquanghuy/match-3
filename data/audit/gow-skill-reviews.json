@@ -89151,11 +89151,12 @@
       "format": "compact",
       "key": "troop:6374",
       "decision": "accept",
-      "reviewer": "sa-F1",
-      "reviewedAt": "2026-09-28T00:51:37.370Z",
+      "reviewer": "sa-P",
+      "reviewedAt": "2026-09-28T11:46:23.677Z",
       "tests": [
         "tests/unit/gowCastGolden.test.ts"
-      ]
+      ],
+      "note": "P-R5-summon-id-reuse: monotonic char id; summon id A3->A14 (dead ids not reused), summon now visible where it reused dead E13; behaviour otherwise unchanged"
     },
     {
       "format": "compact",
@@ -96961,31 +96962,34 @@
       "format": "compact",
       "key": "troop:6397",
       "decision": "accept",
-      "reviewer": "sa-R5",
-      "reviewedAt": "2026-09-28T05:57:25.701Z",
+      "reviewer": "sa-P",
+      "reviewedAt": "2026-09-28T11:46:23.678Z",
       "tests": [
         "tests/unit/gowCastGolden.test.ts"
-      ]
+      ],
+      "note": "P-R5-summon-id-reuse: monotonic char id; summon id A3->A14 (dead ids not reused), summon now visible where it reused dead E13; behaviour otherwise unchanged"
     },
     {
       "format": "compact",
       "key": "troop:7414",
       "decision": "accept",
-      "reviewer": "sa-R5",
-      "reviewedAt": "2026-09-28T05:57:25.702Z",
+      "reviewer": "sa-P",
+      "reviewedAt": "2026-09-28T11:46:23.680Z",
       "tests": [
         "tests/unit/gowCastGolden.test.ts"
-      ]
+      ],
+      "note": "P-R5-summon-id-reuse: monotonic char id; summon id A3->A14 (dead ids not reused), summon now visible where it reused dead E13; behaviour otherwise unchanged"
     },
     {
       "format": "compact",
       "key": "troop:6685",
       "decision": "accept",
-      "reviewer": "sa-R5",
-      "reviewedAt": "2026-09-28T05:57:25.702Z",
+      "reviewer": "sa-P",
+      "reviewedAt": "2026-09-28T11:46:23.678Z",
       "tests": [
         "tests/unit/gowCastGolden.test.ts"
-      ]
+      ],
+      "note": "P-R5-summon-id-reuse: monotonic char id; summon id A3->A14 (dead ids not reused), summon now visible where it reused dead E13; behaviour otherwise unchanged"
     },
     {
       "format": "compact",
@@ -97000,58 +97004,68 @@
     {
       "format": "compact",
       "key": "troop:7357",
-      "decision": "issue",
-      "reviewer": "sa-R5",
-      "reviewedAt": "2026-09-28T05:57:25.920Z",
-      "issue": "P-R5-faction-kingdom",
-      "note": "Wild Court 3048 / Amanithrax 3053 faction count uses zh parent kingdom (all Adana/Zaejin allies); primitive-queue/sa-R5.jsonl"
+      "decision": "accept",
+      "reviewer": "sa-P",
+      "reviewedAt": "2026-09-28T12:24:31.963Z",
+      "tests": [
+        "tests/unit/gowFixP-R5-faction-kingdom.test.ts"
+      ],
+      "note": "P-R5-faction-kingdom fixed: native CountArmyKingdom@AllAllies 3048 Wild Court / 3053 Amanithrax counts only the raw faction roster (alliesNamed zh names), not all Adana / Zaejin allies; 7357 +4 each, 40% Fey Hound; 1274 +3 scatter and 3 explosions each, summon from raw 3053 roster"
     },
     {
       "format": "compact",
       "key": "weapon:1274",
-      "decision": "issue",
-      "reviewer": "sa-R5",
-      "reviewedAt": "2026-09-28T05:57:25.921Z",
-      "issue": "P-R5-faction-kingdom",
-      "note": "Wild Court 3048 / Amanithrax 3053 faction count uses zh parent kingdom (all Adana/Zaejin allies); primitive-queue/sa-R5.jsonl"
+      "decision": "accept",
+      "reviewer": "sa-P",
+      "reviewedAt": "2026-09-28T12:24:31.968Z",
+      "tests": [
+        "tests/unit/gowFixP-R5-faction-kingdom.test.ts"
+      ],
+      "note": "P-R5-faction-kingdom fixed: native CountArmyKingdom@AllAllies 3048 Wild Court / 3053 Amanithrax counts only the raw faction roster (alliesNamed zh names), not all Adana / Zaejin allies; 7357 +4 each, 40% Fey Hound; 1274 +3 scatter and 3 explosions each, summon from raw 3053 roster"
     },
     {
       "format": "compact",
       "key": "troop:7173",
-      "decision": "issue",
-      "reviewer": "sa-R5",
-      "reviewedAt": "2026-09-28T05:57:26.034Z",
-      "issue": "P-R5-named-ally-count",
-      "note": "native 3 Doomskulls per Eldritch Minion ally; prototype 3 if any"
+      "decision": "accept",
+      "reviewer": "sa-P",
+      "reviewedAt": "2026-09-28T11:55:54.385Z",
+      "tests": [
+        "tests/unit/gowFixP-R5-named-ally-count.test.ts"
+      ],
+      "note": "P-R5-named-ally-count fixed: native CountArmyTroop 7172 @AllAllies 300 at step 0 -> convert Purple>Doomskull -> CreateGems Doomskull x counter (3 per Eldritch Minion ally, this cast's summon not counted) -> summon Eldritch Minion"
     },
     {
       "format": "compact",
       "key": "weapon:1647",
-      "decision": "issue",
-      "reviewer": "sa-R5",
-      "reviewedAt": "2026-09-28T05:57:26.136Z",
-      "issue": "P-R5-special-gem-color",
-      "note": "native counts Green Dragon Gems only; boardSpecial counts all colours. Also native summon precedes damage (unobservable)"
+      "decision": "accept",
+      "reviewer": "sa-P",
+      "reviewedAt": "2026-09-28T11:51:19.911Z",
+      "tests": [
+        "tests/unit/gowFixP-R5-special-gem-color.test.ts"
+      ],
+      "note": "P-R5-special-gem-color closed (P-R3-dragon-gem-count): native CountGems DragonGreen 400 -> scatter Magic+8 +4 per Green Dragon Gem only; Drakkon conditional summon"
     },
     {
       "format": "compact",
       "key": "troop:7583",
       "decision": "accept",
-      "reviewer": "sa-R5",
-      "reviewedAt": "2026-09-28T06:01:52.527Z",
+      "reviewer": "sa-P",
+      "reviewedAt": "2026-09-28T11:46:23.680Z",
       "tests": [
         "tests/unit/gowCastGolden.test.ts"
-      ]
+      ],
+      "note": "P-R5-summon-id-reuse: monotonic char id; summon id A3->A14 (dead ids not reused), summon now visible where it reused dead E13; behaviour otherwise unchanged"
     },
     {
       "format": "compact",
       "key": "troop:6732",
       "decision": "accept",
-      "reviewer": "sa-R5",
-      "reviewedAt": "2026-09-28T06:01:52.528Z",
+      "reviewer": "sa-P",
+      "reviewedAt": "2026-09-28T11:46:23.679Z",
       "tests": [
         "tests/unit/gowCastGolden.test.ts"
-      ]
+      ],
+      "note": "P-R5-summon-id-reuse: monotonic char id; summon id A3->A14 (dead ids not reused), summon now visible where it reused dead E13; behaviour otherwise unchanged"
     },
     {
       "format": "compact",
@@ -97067,11 +97081,12 @@
       "format": "compact",
       "key": "troop:6409",
       "decision": "accept",
-      "reviewer": "sa-R5",
-      "reviewedAt": "2026-09-28T06:01:52.528Z",
+      "reviewer": "sa-P",
+      "reviewedAt": "2026-09-28T11:46:23.678Z",
       "tests": [
         "tests/unit/gowCastGolden.test.ts"
-      ]
+      ],
+      "note": "P-R5-summon-id-reuse: monotonic char id; summon id A3->A14 (dead ids not reused), summon now visible where it reused dead E13; behaviour otherwise unchanged"
     },
     {
       "format": "compact",
@@ -97356,11 +97371,12 @@
       "format": "compact",
       "key": "troop:7382",
       "decision": "accept",
-      "reviewer": "sa-R5",
-      "reviewedAt": "2026-09-28T08:42:25.235Z",
+      "reviewer": "sa-P",
+      "reviewedAt": "2026-09-28T11:46:23.679Z",
       "tests": [
         "tests/unit/gowCastGolden.test.ts"
-      ]
+      ],
+      "note": "P-R5-summon-id-reuse: monotonic char id; summon id A3->A14 (dead ids not reused), summon now visible where it reused dead E13; behaviour otherwise unchanged"
     },
     {
       "format": "compact",
@@ -97466,11 +97482,12 @@
       "format": "compact",
       "key": "troop:6513",
       "decision": "accept",
-      "reviewer": "sa-R5",
-      "reviewedAt": "2026-09-28T08:53:48.549Z",
+      "reviewer": "sa-P",
+      "reviewedAt": "2026-09-28T11:46:23.678Z",
       "tests": [
         "tests/unit/gowCastGolden.test.ts"
-      ]
+      ],
+      "note": "P-R5-summon-id-reuse: monotonic char id; summon id A3->A14 (dead ids not reused), summon now visible where it reused dead E13; behaviour otherwise unchanged"
     },
     {
       "format": "compact",
@@ -97515,11 +97532,13 @@
     {
       "format": "compact",
       "key": "troop:6428",
-      "decision": "issue",
-      "reviewer": "sa-R5",
-      "reviewedAt": "2026-09-28T08:53:48.749Z",
-      "issue": "P-R5-summon-id-reuse",
-      "note": "7602 fixed to native (steal floor(Magic/2); Undead summons 100/50/25% on kill) but when the killed enemy holds the highest id the next summon reuses it and the 50%/25% ifTargetDied summons never fire"
+      "decision": "accept",
+      "reviewer": "sa-P",
+      "reviewedAt": "2026-09-28T11:47:01.714Z",
+      "tests": [
+        "tests/unit/gowFixP-R5-summon-id-reuse.test.ts"
+      ],
+      "note": "P-R5-summon-id-reuse fixed: monotonic char id; 6428 native steal floor(Magic/2) + 3 AddForKill Undead summons 100/50/25 all fire after killing the highest-id enemy; 6465 3 Hyenas"
     },
     {
       "format": "compact",
@@ -97564,21 +97583,23 @@
       "format": "compact",
       "key": "troop:7763",
       "decision": "accept",
-      "reviewer": "sa-R5",
-      "reviewedAt": "2026-09-28T08:58:11.369Z",
+      "reviewer": "sa-P",
+      "reviewedAt": "2026-09-28T11:46:23.680Z",
       "tests": [
         "tests/unit/gowCastGolden.test.ts"
-      ]
+      ],
+      "note": "P-R5-summon-id-reuse: monotonic char id; summon id A3->A14 (dead ids not reused), summon now visible where it reused dead E13; behaviour otherwise unchanged"
     },
     {
       "format": "compact",
       "key": "troop:6713",
       "decision": "accept",
-      "reviewer": "sa-R5",
-      "reviewedAt": "2026-09-28T08:58:11.369Z",
+      "reviewer": "sa-P",
+      "reviewedAt": "2026-09-28T11:46:23.679Z",
       "tests": [
         "tests/unit/gowCastGolden.test.ts"
-      ]
+      ],
+      "note": "P-R5-summon-id-reuse: monotonic char id; summon id A3->A14 (dead ids not reused), summon now visible where it reused dead E13; behaviour otherwise unchanged"
     },
     {
       "format": "compact",
@@ -97969,56 +97990,68 @@
     {
       "format": "compact",
       "key": "weapon:1563",
-      "decision": "issue",
-      "reviewer": "sa-R6",
-      "reviewedAt": "2026-09-28T05:41:55.178Z",
-      "issue": "P-R6-count-before-kill",
-      "note": "base-2 create count fixed (changelog L2-1563-create-base, tests gowLaneL2R2); remaining: CountArmyColor must be read before the FirstTwoEnemies damage (kills drop the count); c3 Doom = R000 event waiver"
+      "decision": "accept",
+      "reviewer": "sa-P",
+      "reviewedAt": "2026-09-28T11:51:20.009Z",
+      "tests": [
+        "tests/unit/gowFixP-R6-count-before-kill.test.ts"
+      ],
+      "note": "P-R6-count-before-kill closed (P-R1-count-at-native-step): native CountArmyColor AllAllies+AllEnemies 200 at step 0 -> Damage FirstTwoEnemies -> CreateGems counter; killed enemies still count"
     },
     {
       "format": "compact",
       "key": "weapon:1564",
-      "decision": "issue",
-      "reviewer": "sa-R6",
-      "reviewedAt": "2026-09-28T05:41:55.180Z",
-      "issue": "P-R6-count-before-kill",
-      "note": "base-2 create count fixed (changelog L2-1563-create-base, tests gowLaneL2R2); remaining: CountArmyColor must be read before the FirstTwoEnemies damage (kills drop the count); c3 Doom = R000 event waiver"
+      "decision": "accept",
+      "reviewer": "sa-P",
+      "reviewedAt": "2026-09-28T11:51:20.010Z",
+      "tests": [
+        "tests/unit/gowFixP-R6-count-before-kill.test.ts"
+      ],
+      "note": "P-R6-count-before-kill closed (P-R1-count-at-native-step): native CountArmyColor AllAllies+AllEnemies 200 at step 0 -> Damage FirstTwoEnemies -> CreateGems counter; killed enemies still count"
     },
     {
       "format": "compact",
       "key": "weapon:1565",
-      "decision": "issue",
-      "reviewer": "sa-R6",
-      "reviewedAt": "2026-09-28T05:41:55.180Z",
-      "issue": "P-R6-count-before-kill",
-      "note": "base-2 create count fixed (changelog L2-1563-create-base, tests gowLaneL2R2); remaining: CountArmyColor must be read before the FirstTwoEnemies damage (kills drop the count); c3 Doom = R000 event waiver"
+      "decision": "accept",
+      "reviewer": "sa-P",
+      "reviewedAt": "2026-09-28T11:51:20.011Z",
+      "tests": [
+        "tests/unit/gowFixP-R6-count-before-kill.test.ts"
+      ],
+      "note": "P-R6-count-before-kill closed (P-R1-count-at-native-step): native CountArmyColor AllAllies+AllEnemies 200 at step 0 -> Damage FirstTwoEnemies -> CreateGems counter; killed enemies still count"
     },
     {
       "format": "compact",
       "key": "weapon:1566",
-      "decision": "issue",
-      "reviewer": "sa-R6",
-      "reviewedAt": "2026-09-28T05:41:55.180Z",
-      "issue": "P-R6-count-before-kill",
-      "note": "base-2 create count fixed (changelog L2-1563-create-base, tests gowLaneL2R2); remaining: CountArmyColor must be read before the FirstTwoEnemies damage (kills drop the count); c3 Doom = R000 event waiver"
+      "decision": "accept",
+      "reviewer": "sa-P",
+      "reviewedAt": "2026-09-28T11:51:20.011Z",
+      "tests": [
+        "tests/unit/gowFixP-R6-count-before-kill.test.ts"
+      ],
+      "note": "P-R6-count-before-kill closed (P-R1-count-at-native-step): native CountArmyColor AllAllies+AllEnemies 200 at step 0 -> Damage FirstTwoEnemies -> CreateGems counter; killed enemies still count"
     },
     {
       "format": "compact",
       "key": "weapon:1567",
-      "decision": "issue",
-      "reviewer": "sa-R6",
-      "reviewedAt": "2026-09-28T05:41:55.181Z",
-      "issue": "P-R6-count-before-kill",
-      "note": "base-2 create count fixed (changelog L2-1563-create-base, tests gowLaneL2R2); remaining: CountArmyColor must be read before the FirstTwoEnemies damage (kills drop the count); c3 Doom = R000 event waiver"
+      "decision": "accept",
+      "reviewer": "sa-P",
+      "reviewedAt": "2026-09-28T11:51:20.011Z",
+      "tests": [
+        "tests/unit/gowFixP-R6-count-before-kill.test.ts"
+      ],
+      "note": "P-R6-count-before-kill closed (P-R1-count-at-native-step): native CountArmyColor AllAllies+AllEnemies 200 at step 0 -> Damage FirstTwoEnemies -> CreateGems counter; killed enemies still count"
     },
     {
       "format": "compact",
       "key": "weapon:1568",
-      "decision": "issue",
-      "reviewer": "sa-R6",
-      "reviewedAt": "2026-09-28T05:41:55.181Z",
-      "issue": "P-R6-count-before-kill",
-      "note": "base-2 create count fixed (changelog L2-1563-create-base, tests gowLaneL2R2); remaining: CountArmyColor must be read before the FirstTwoEnemies damage (kills drop the count); c3 Doom = R000 event waiver"
+      "decision": "accept",
+      "reviewer": "sa-P",
+      "reviewedAt": "2026-09-28T11:51:20.012Z",
+      "tests": [
+        "tests/unit/gowFixP-R6-count-before-kill.test.ts"
+      ],
+      "note": "P-R6-count-before-kill closed (P-R1-count-at-native-step): native CountArmyColor AllAllies+AllEnemies 200 at step 0 -> Damage FirstTwoEnemies -> CreateGems counter; killed enemies still count"
     },
     {
       "format": "compact",
@@ -98391,20 +98424,24 @@
     {
       "format": "compact",
       "key": "weapon:1525",
-      "decision": "issue",
-      "reviewer": "sa-R6",
-      "reviewedAt": "2026-09-28T08:35:30.694Z",
-      "issue": "P-R6-chosen-cell-counts",
-      "note": "native CountGems/DestroyGems BoardTarget Diagonals on a Target Board spell = X through the chosen cell; runtime counts and destroys the fixed centre X (diagonalGems has no chosen-cell anchor). Native bless-before-destroy order kept (weaponNativeStepRepair)."
+      "decision": "accept",
+      "reviewer": "sa-P",
+      "reviewedAt": "2026-09-28T12:19:00.633Z",
+      "tests": [
+        "tests/unit/gowFixP-R6-chosen-cell-counts.test.ts"
+      ],
+      "note": "P-R6-chosen-cell-counts fixed: 8965 Target Board CountGems Yellow Diagonals through the chosen cell -> bless x count -> DestroyGems Diagonals (same X); 8070 CountGems Skull Block3x3 -> deathmark x count -> ExplodeGems SingleGem -> Armor -> Attack"
     },
     {
       "format": "compact",
       "key": "troop:6712",
-      "decision": "issue",
-      "reviewer": "sa-R6",
-      "reviewedAt": "2026-09-28T08:35:30.792Z",
-      "issue": "P-R6-chosen-cell-counts",
-      "note": "native CountGems Skull Block3x3 -> Death Mark -> ExplodeGems: marks precede the explosion; chosenCellBlockGems has no skull filter so runtime explodes first (perDestroyed), killed/cascade-changed enemies drop from the pool. Also native IncreaseArmor before IncreaseAttack (runtime Attack first) - fix together."
+      "decision": "accept",
+      "reviewer": "sa-P",
+      "reviewedAt": "2026-09-28T12:19:00.634Z",
+      "tests": [
+        "tests/unit/gowFixP-R6-chosen-cell-counts.test.ts"
+      ],
+      "note": "P-R6-chosen-cell-counts fixed: 8965 Target Board CountGems Yellow Diagonals through the chosen cell -> bless x count -> DestroyGems Diagonals (same X); 8070 CountGems Skull Block3x3 -> deathmark x count -> ExplodeGems SingleGem -> Armor -> Attack"
     },
     {
       "format": "compact",
@@ -98707,11 +98744,13 @@
     {
       "format": "compact",
       "key": "weapon:1461",
-      "decision": "issue",
-      "reviewer": "sa-R6",
-      "reviewedAt": "2026-09-28T08:54:46.934Z",
-      "issue": "P-R6-chosen-diagonal-transform",
-      "note": "native CreateGems Burning BoardTarget LeftDiagonal|RightDiagonal (Target Board, AB-CD) = diagonal through the chosen cell; runtime transform diagonal is fixed to the centre diagonals (no chosen-cell anchor). Scatter [M+8] and the 1/2 branch split match."
+      "decision": "accept",
+      "reviewer": "sa-P",
+      "reviewedAt": "2026-09-28T12:10:33.940Z",
+      "tests": [
+        "tests/unit/gowFixP-R6-chosen-diagonal-transform.test.ts"
+      ],
+      "note": "P-R6-chosen-diagonal-transform fixed: native Target Board, Randomize AB-CD CreateGems Burning LeftDiagonal|RightDiagonal through the chosen cell -> scatter Magic+8; transform diagonalAnchor chosenCell"
     },
     {
       "format": "compact",
@@ -99035,11 +99074,13 @@
     {
       "format": "compact",
       "key": "troop:7646",
-      "decision": "issue",
-      "reviewer": "sa-R7",
-      "reviewedAt": "2026-09-28T05:45:18.042Z",
-      "issue": "P-R7-dead-last-target-cond",
-      "note": "fixed target colour gate (lastTargetColor, was anyEnemyColor); remaining: a Purple target killed by the hit must still refund half mana (native CountArmyColor@RandomEnemy before Damage), lastTarget conditions go false after the kill; repro it.fails in tests/unit/gowLaneL3R2.test.ts"
+      "decision": "accept",
+      "reviewer": "sa-P",
+      "reviewedAt": "2026-09-28T12:00:17.156Z",
+      "tests": [
+        "tests/unit/gowFixP-R7-dead-last-target-cond.test.ts"
+      ],
+      "note": "P-R7-dead-last-target-cond fixed: lastTarget.unit keeps the picked unit; 7646 CountArmyColor@RandomEnemy Purple step 0 -> dmg -> half mana even if the hit kills; 1144 web@FromTarget / 6386 huntersmark@FromTarget step 0 -> dmg -> ExtraTurnConditional even if killed"
     },
     {
       "format": "compact",
@@ -100386,20 +100427,24 @@
     {
       "format": "compact",
       "key": "weapon:1144",
-      "decision": "issue",
-      "reviewer": "sa-R7",
-      "reviewedAt": "2026-09-28T09:07:29.502Z",
-      "issue": "P-R7-dead-last-target-cond",
-      "note": "extra turn from the target's status counted at step 0; a Webbed/Marked target killed by the hit loses it (lastTargetStatus on a defeated unit). 1144 fixed: target itself, before this spell's Web. Rest verified (tests)."
+      "decision": "accept",
+      "reviewer": "sa-P",
+      "reviewedAt": "2026-09-28T12:00:17.157Z",
+      "tests": [
+        "tests/unit/gowFixP-R7-dead-last-target-cond.test.ts"
+      ],
+      "note": "P-R7-dead-last-target-cond fixed: lastTarget.unit keeps the picked unit; 7646 CountArmyColor@RandomEnemy Purple step 0 -> dmg -> half mana even if the hit kills; 1144 web@FromTarget / 6386 huntersmark@FromTarget step 0 -> dmg -> ExtraTurnConditional even if killed"
     },
     {
       "format": "compact",
       "key": "troop:6386",
-      "decision": "issue",
-      "reviewer": "sa-R7",
-      "reviewedAt": "2026-09-28T09:07:29.503Z",
-      "issue": "P-R7-dead-last-target-cond",
-      "note": "extra turn from the target's status counted at step 0; a Webbed/Marked target killed by the hit loses it (lastTargetStatus on a defeated unit). 1144 fixed: target itself, before this spell's Web. Rest verified (tests)."
+      "decision": "accept",
+      "reviewer": "sa-P",
+      "reviewedAt": "2026-09-28T12:00:17.157Z",
+      "tests": [
+        "tests/unit/gowFixP-R7-dead-last-target-cond.test.ts"
+      ],
+      "note": "P-R7-dead-last-target-cond fixed: lastTarget.unit keeps the picked unit; 7646 CountArmyColor@RandomEnemy Purple step 0 -> dmg -> half mana even if the hit kills; 1144 web@FromTarget / 6386 huntersmark@FromTarget step 0 -> dmg -> ExtraTurnConditional even if killed"
     },
     {
       "format": "compact",
@@ -103900,12 +103945,12 @@
       "format": "compact",
       "key": "weapon:1394",
       "decision": "accept",
-      "reviewer": "sa-E",
-      "reviewedAt": "2026-09-28T11:09:02.759Z",
+      "reviewer": "sa-P",
+      "reviewedAt": "2026-09-28T11:46:23.681Z",
       "tests": [
         "tests/unit/gowCastGolden.test.ts"
       ],
-      "note": "B01: thresholds/pools/branches in gowLaneL1E; 1394 pool fixed to kingdom 3051"
+      "note": "P-R5-summon-id-reuse: monotonic char id; summon id A3->A14 (dead ids not reused), summon now visible where it reused dead E13; behaviour otherwise unchanged"
     },
     {
       "format": "compact",
@@ -103967,11 +104012,13 @@
     {
       "format": "compact",
       "key": "troop:6465",
-      "decision": "issue",
-      "reviewer": "sa-E",
-      "reviewedAt": "2026-09-28T11:09:07.825Z",
-      "issue": "P-R5-summon-id-reuse",
-      "note": "3 SummoningConditional AddForKill: killing the highest-id enemy yields 1 summon (id reuse breaks ifTargetDied); gowLaneL1E it.fails"
+      "decision": "accept",
+      "reviewer": "sa-P",
+      "reviewedAt": "2026-09-28T11:47:01.715Z",
+      "tests": [
+        "tests/unit/gowFixP-R5-summon-id-reuse.test.ts"
+      ],
+      "note": "P-R5-summon-id-reuse fixed: monotonic char id; 6428 native steal floor(Magic/2) + 3 AddForKill Undead summons 100/50/25 all fire after killing the highest-id enemy; 6465 3 Hyenas"
     },
     {
       "format": "compact",
@@ -105015,6 +105062,822 @@
       "tests": [
         "tests/unit/gowCastGolden.test.ts"
       ]
+    },
+    {
+      "format": "compact",
+      "key": "weapon:1414",
+      "decision": "accept",
+      "reviewer": "sa-E",
+      "reviewedAt": "2026-09-28T11:55:26.988Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ],
+      "note": "B03: 1414 pool raw 3058 + zh typo; 7491/6596 flee 30% (6596 chosen row fixed); 6631 ABC-DEF 50/50; 1157 destroy excl. skulls (project convention) + full-mana Baby Dragon; 6601 chosen-enemy colour + 20% devour chosen (fixed) - gowLaneL1E"
+    },
+    {
+      "format": "compact",
+      "key": "troop:7491",
+      "decision": "accept",
+      "reviewer": "sa-E",
+      "reviewedAt": "2026-09-28T11:55:26.989Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ],
+      "note": "B03: 1414 pool raw 3058 + zh typo; 7491/6596 flee 30% (6596 chosen row fixed); 6631 ABC-DEF 50/50; 1157 destroy excl. skulls (project convention) + full-mana Baby Dragon; 6601 chosen-enemy colour + 20% devour chosen (fixed) - gowLaneL1E"
+    },
+    {
+      "format": "compact",
+      "key": "troop:6631",
+      "decision": "accept",
+      "reviewer": "sa-E",
+      "reviewedAt": "2026-09-28T11:55:26.990Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ],
+      "note": "B03: 1414 pool raw 3058 + zh typo; 7491/6596 flee 30% (6596 chosen row fixed); 6631 ABC-DEF 50/50; 1157 destroy excl. skulls (project convention) + full-mana Baby Dragon; 6601 chosen-enemy colour + 20% devour chosen (fixed) - gowLaneL1E"
+    },
+    {
+      "format": "compact",
+      "key": "troop:6596",
+      "decision": "accept",
+      "reviewer": "sa-E",
+      "reviewedAt": "2026-09-28T11:55:26.990Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ],
+      "note": "B03: 1414 pool raw 3058 + zh typo; 7491/6596 flee 30% (6596 chosen row fixed); 6631 ABC-DEF 50/50; 1157 destroy excl. skulls (project convention) + full-mana Baby Dragon; 6601 chosen-enemy colour + 20% devour chosen (fixed) - gowLaneL1E"
+    },
+    {
+      "format": "compact",
+      "key": "weapon:1157",
+      "decision": "accept",
+      "reviewer": "sa-E",
+      "reviewedAt": "2026-09-28T11:55:26.990Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ],
+      "note": "B03: 1414 pool raw 3058 + zh typo; 7491/6596 flee 30% (6596 chosen row fixed); 6631 ABC-DEF 50/50; 1157 destroy excl. skulls (project convention) + full-mana Baby Dragon; 6601 chosen-enemy colour + 20% devour chosen (fixed) - gowLaneL1E"
+    },
+    {
+      "format": "compact",
+      "key": "troop:6601",
+      "decision": "accept",
+      "reviewer": "sa-E",
+      "reviewedAt": "2026-09-28T11:55:26.990Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ],
+      "note": "B03: 1414 pool raw 3058 + zh typo; 7491/6596 flee 30% (6596 chosen row fixed); 6631 ABC-DEF 50/50; 1157 destroy excl. skulls (project convention) + full-mana Baby Dragon; 6601 chosen-enemy colour + 20% devour chosen (fixed) - gowLaneL1E"
+    },
+    {
+      "format": "compact",
+      "key": "weapon:1364",
+      "decision": "issue",
+      "reviewer": "sa-E",
+      "reviewedAt": "2026-09-28T11:55:27.156Z",
+      "issue": "P-E-faction-kingdom",
+      "note": "Summon pool fixed to raw kingdom id; RandomPositiveStatusEffect@AllyKingdom <id> still filters by zh kingdom name, which includes that kingdom's faction troops (primitive-queue/sa-E.jsonl)"
+    },
+    {
+      "format": "compact",
+      "key": "weapon:1410",
+      "decision": "issue",
+      "reviewer": "sa-E",
+      "reviewedAt": "2026-09-28T11:55:27.157Z",
+      "issue": "P-E-faction-kingdom",
+      "note": "Summon pool fixed to raw kingdom id; RandomPositiveStatusEffect@AllyKingdom <id> still filters by zh kingdom name, which includes that kingdom's faction troops (primitive-queue/sa-E.jsonl)"
+    },
+    {
+      "format": "compact",
+      "key": "weapon:1412",
+      "decision": "issue",
+      "reviewer": "sa-E",
+      "reviewedAt": "2026-09-28T11:55:27.157Z",
+      "issue": "P-E-faction-kingdom",
+      "note": "Summon pool fixed to raw kingdom id; RandomPositiveStatusEffect@AllyKingdom <id> still filters by zh kingdom name, which includes that kingdom's faction troops (primitive-queue/sa-E.jsonl)"
+    },
+    {
+      "format": "compact",
+      "key": "weapon:1438",
+      "decision": "issue",
+      "reviewer": "sa-E",
+      "reviewedAt": "2026-09-28T11:55:27.157Z",
+      "issue": "P-E-faction-kingdom",
+      "note": "Summon pool fixed to raw kingdom id; RandomPositiveStatusEffect@AllyKingdom <id> still filters by zh kingdom name, which includes that kingdom's faction troops (primitive-queue/sa-E.jsonl)"
+    },
+    {
+      "format": "compact",
+      "key": "weapon:1464",
+      "decision": "issue",
+      "reviewer": "sa-E",
+      "reviewedAt": "2026-09-28T12:03:32.674Z",
+      "issue": "P-E-faction-kingdom",
+      "note": "Explode [M+1] colour, summon pool fixed to raw native kingdom id (gowKingdomPools); RandomPositiveStatusEffect@AllyKingdom still filters by zh kingdom name incl. faction troops"
+    },
+    {
+      "format": "compact",
+      "key": "weapon:1465",
+      "decision": "issue",
+      "reviewer": "sa-E",
+      "reviewedAt": "2026-09-28T12:03:32.675Z",
+      "issue": "P-E-faction-kingdom",
+      "note": "Explode [M+1] colour, summon pool fixed to raw native kingdom id (gowKingdomPools); RandomPositiveStatusEffect@AllyKingdom still filters by zh kingdom name incl. faction troops"
+    },
+    {
+      "format": "compact",
+      "key": "weapon:1497",
+      "decision": "issue",
+      "reviewer": "sa-E",
+      "reviewedAt": "2026-09-28T12:03:32.676Z",
+      "issue": "P-E-faction-kingdom",
+      "note": "Explode [M+1] colour, summon pool fixed to raw native kingdom id (gowKingdomPools); RandomPositiveStatusEffect@AllyKingdom still filters by zh kingdom name incl. faction troops"
+    },
+    {
+      "format": "compact",
+      "key": "weapon:1511",
+      "decision": "issue",
+      "reviewer": "sa-E",
+      "reviewedAt": "2026-09-28T12:03:32.676Z",
+      "issue": "P-E-faction-kingdom",
+      "note": "Explode [M+1] colour, summon pool fixed to raw native kingdom id (gowKingdomPools); RandomPositiveStatusEffect@AllyKingdom still filters by zh kingdom name incl. faction troops"
+    },
+    {
+      "format": "compact",
+      "key": "weapon:1534",
+      "decision": "issue",
+      "reviewer": "sa-E",
+      "reviewedAt": "2026-09-28T12:03:32.676Z",
+      "issue": "P-E-faction-kingdom",
+      "note": "Explode [M+1] colour, summon pool fixed to raw native kingdom id (gowKingdomPools); RandomPositiveStatusEffect@AllyKingdom still filters by zh kingdom name incl. faction troops"
+    },
+    {
+      "format": "compact",
+      "key": "weapon:1536",
+      "decision": "issue",
+      "reviewer": "sa-E",
+      "reviewedAt": "2026-09-28T12:03:32.676Z",
+      "issue": "P-E-faction-kingdom",
+      "note": "Explode [M+1] colour, summon pool fixed to raw native kingdom id (gowKingdomPools); RandomPositiveStatusEffect@AllyKingdom still filters by zh kingdom name incl. faction troops"
+    },
+    {
+      "format": "compact",
+      "key": "weapon:1541",
+      "decision": "issue",
+      "reviewer": "sa-E",
+      "reviewedAt": "2026-09-28T12:03:32.676Z",
+      "issue": "P-E-faction-kingdom",
+      "note": "Explode [M+1] colour, summon pool fixed to raw native kingdom id (gowKingdomPools); RandomPositiveStatusEffect@AllyKingdom still filters by zh kingdom name incl. faction troops"
+    },
+    {
+      "format": "compact",
+      "key": "weapon:1544",
+      "decision": "issue",
+      "reviewer": "sa-E",
+      "reviewedAt": "2026-09-28T12:03:32.676Z",
+      "issue": "P-E-faction-kingdom",
+      "note": "Explode [M+1] colour, summon pool fixed to raw native kingdom id (gowKingdomPools); RandomPositiveStatusEffect@AllyKingdom still filters by zh kingdom name incl. faction troops"
+    },
+    {
+      "format": "compact",
+      "key": "weapon:1553",
+      "decision": "issue",
+      "reviewer": "sa-E",
+      "reviewedAt": "2026-09-28T12:03:32.676Z",
+      "issue": "P-E-faction-kingdom",
+      "note": "Explode [M+1] colour, summon pool fixed to raw native kingdom id (gowKingdomPools); RandomPositiveStatusEffect@AllyKingdom still filters by zh kingdom name incl. faction troops"
+    },
+    {
+      "format": "compact",
+      "key": "weapon:1556",
+      "decision": "issue",
+      "reviewer": "sa-E",
+      "reviewedAt": "2026-09-28T12:03:32.677Z",
+      "issue": "P-E-faction-kingdom",
+      "note": "Explode [M+1] colour, summon pool fixed to raw native kingdom id (gowKingdomPools); RandomPositiveStatusEffect@AllyKingdom still filters by zh kingdom name incl. faction troops"
+    },
+    {
+      "format": "compact",
+      "key": "weapon:1569",
+      "decision": "issue",
+      "reviewer": "sa-E",
+      "reviewedAt": "2026-09-28T12:06:15.803Z",
+      "issue": "P-E-faction-kingdom",
+      "note": "Explode [M+1] colour, summon pool fixed to raw native kingdom id (gowKingdomPools); RandomPositiveStatusEffect@AllyKingdom still filters by zh kingdom name incl. faction troops"
+    },
+    {
+      "format": "compact",
+      "key": "weapon:1573",
+      "decision": "issue",
+      "reviewer": "sa-E",
+      "reviewedAt": "2026-09-28T12:06:15.804Z",
+      "issue": "P-E-faction-kingdom",
+      "note": "Explode [M+1] colour, summon pool fixed to raw native kingdom id (gowKingdomPools); RandomPositiveStatusEffect@AllyKingdom still filters by zh kingdom name incl. faction troops"
+    },
+    {
+      "format": "compact",
+      "key": "weapon:1576",
+      "decision": "issue",
+      "reviewer": "sa-E",
+      "reviewedAt": "2026-09-28T12:06:15.804Z",
+      "issue": "P-E-faction-kingdom",
+      "note": "Explode [M+1] colour, summon pool fixed to raw native kingdom id (gowKingdomPools); RandomPositiveStatusEffect@AllyKingdom still filters by zh kingdom name incl. faction troops"
+    },
+    {
+      "format": "compact",
+      "key": "weapon:1583",
+      "decision": "issue",
+      "reviewer": "sa-E",
+      "reviewedAt": "2026-09-28T12:06:15.804Z",
+      "issue": "P-E-faction-kingdom",
+      "note": "Explode [M+1] colour, summon pool fixed to raw native kingdom id (gowKingdomPools); RandomPositiveStatusEffect@AllyKingdom still filters by zh kingdom name incl. faction troops"
+    },
+    {
+      "format": "compact",
+      "key": "weapon:1587",
+      "decision": "issue",
+      "reviewer": "sa-E",
+      "reviewedAt": "2026-09-28T12:06:15.804Z",
+      "issue": "P-E-faction-kingdom",
+      "note": "Explode [M+1] colour, summon pool fixed to raw native kingdom id (gowKingdomPools); RandomPositiveStatusEffect@AllyKingdom still filters by zh kingdom name incl. faction troops"
+    },
+    {
+      "format": "compact",
+      "key": "weapon:1617",
+      "decision": "issue",
+      "reviewer": "sa-E",
+      "reviewedAt": "2026-09-28T12:06:15.805Z",
+      "issue": "P-E-faction-kingdom",
+      "note": "Explode [M+1] colour, summon pool fixed to raw native kingdom id (gowKingdomPools); RandomPositiveStatusEffect@AllyKingdom still filters by zh kingdom name incl. faction troops"
+    },
+    {
+      "format": "compact",
+      "key": "weapon:1629",
+      "decision": "issue",
+      "reviewer": "sa-E",
+      "reviewedAt": "2026-09-28T12:06:15.805Z",
+      "issue": "P-E-faction-kingdom",
+      "note": "Explode [M+1] colour, summon pool fixed to raw native kingdom id (gowKingdomPools); RandomPositiveStatusEffect@AllyKingdom still filters by zh kingdom name incl. faction troops"
+    },
+    {
+      "format": "compact",
+      "key": "weapon:1638",
+      "decision": "issue",
+      "reviewer": "sa-E",
+      "reviewedAt": "2026-09-28T12:06:15.805Z",
+      "issue": "P-E-faction-kingdom",
+      "note": "Explode [M+1] colour, summon pool fixed to raw native kingdom id (gowKingdomPools); RandomPositiveStatusEffect@AllyKingdom still filters by zh kingdom name incl. faction troops"
+    },
+    {
+      "format": "compact",
+      "key": "weapon:1388",
+      "decision": "issue",
+      "reviewer": "sa-E",
+      "reviewedAt": "2026-09-28T12:06:15.805Z",
+      "issue": "P-E-faction-kingdom",
+      "note": "Explode [M+1] colour, summon pool fixed to raw native kingdom id (gowKingdomPools); RandomPositiveStatusEffect@AllyKingdom still filters by zh kingdom name incl. faction troops"
+    },
+    {
+      "format": "compact",
+      "key": "weapon:1402",
+      "decision": "issue",
+      "reviewer": "sa-E",
+      "reviewedAt": "2026-09-28T12:06:15.805Z",
+      "issue": "P-E-faction-kingdom",
+      "note": "Explode [M+1] colour, summon pool fixed to raw native kingdom id (gowKingdomPools); RandomPositiveStatusEffect@AllyKingdom still filters by zh kingdom name incl. faction troops"
+    },
+    {
+      "format": "compact",
+      "key": "weapon:1393",
+      "decision": "accept",
+      "reviewer": "sa-E",
+      "reviewedAt": "2026-09-28T12:07:52.392Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ],
+      "note": "B06: Explode [M+1] colour; RandomPositiveStatusEffect@AllyType = targetRace (only that race); SummoningType pool = raw TroopType roster (gowLaneL1E)"
+    },
+    {
+      "format": "compact",
+      "key": "weapon:1462",
+      "decision": "accept",
+      "reviewer": "sa-E",
+      "reviewedAt": "2026-09-28T12:07:52.393Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ],
+      "note": "B06: Explode [M+1] colour; RandomPositiveStatusEffect@AllyType = targetRace (only that race); SummoningType pool = raw TroopType roster (gowLaneL1E)"
+    },
+    {
+      "format": "compact",
+      "key": "weapon:1463",
+      "decision": "accept",
+      "reviewer": "sa-E",
+      "reviewedAt": "2026-09-28T12:07:52.393Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ],
+      "note": "B06: Explode [M+1] colour; RandomPositiveStatusEffect@AllyType = targetRace (only that race); SummoningType pool = raw TroopType roster (gowLaneL1E)"
+    },
+    {
+      "format": "compact",
+      "key": "weapon:1407",
+      "decision": "issue",
+      "reviewer": "sa-E",
+      "reviewedAt": "2026-09-28T12:07:52.558Z",
+      "issue": "P-E-faction-kingdom",
+      "note": "Explode [M+1] colour, summon pool fixed to raw native kingdom id (gowKingdomPools); RandomPositiveStatusEffect@AllyKingdom still filters by zh kingdom name incl. faction troops"
+    },
+    {
+      "format": "compact",
+      "key": "weapon:1411",
+      "decision": "issue",
+      "reviewer": "sa-E",
+      "reviewedAt": "2026-09-28T12:07:52.559Z",
+      "issue": "P-E-faction-kingdom",
+      "note": "Explode [M+1] colour, summon pool fixed to raw native kingdom id (gowKingdomPools); RandomPositiveStatusEffect@AllyKingdom still filters by zh kingdom name incl. faction troops"
+    },
+    {
+      "format": "compact",
+      "key": "weapon:1449",
+      "decision": "issue",
+      "reviewer": "sa-E",
+      "reviewedAt": "2026-09-28T12:07:52.560Z",
+      "issue": "P-E-faction-kingdom",
+      "note": "Explode [M+1] colour, summon pool fixed to raw native kingdom id (gowKingdomPools); RandomPositiveStatusEffect@AllyKingdom still filters by zh kingdom name incl. faction troops"
+    },
+    {
+      "format": "compact",
+      "key": "weapon:1453",
+      "decision": "issue",
+      "reviewer": "sa-E",
+      "reviewedAt": "2026-09-28T12:07:52.560Z",
+      "issue": "P-E-faction-kingdom",
+      "note": "Explode [M+1] colour, summon pool fixed to raw native kingdom id (gowKingdomPools); RandomPositiveStatusEffect@AllyKingdom still filters by zh kingdom name incl. faction troops"
+    },
+    {
+      "format": "compact",
+      "key": "weapon:1491",
+      "decision": "issue",
+      "reviewer": "sa-E",
+      "reviewedAt": "2026-09-28T12:07:52.560Z",
+      "issue": "P-E-faction-kingdom",
+      "note": "Explode [M+1] colour, summon pool fixed to raw native kingdom id (gowKingdomPools); RandomPositiveStatusEffect@AllyKingdom still filters by zh kingdom name incl. faction troops"
+    },
+    {
+      "format": "compact",
+      "key": "weapon:1675",
+      "decision": "issue",
+      "reviewer": "sa-E",
+      "reviewedAt": "2026-09-28T12:07:52.560Z",
+      "issue": "P-E-faction-kingdom",
+      "note": "Explode [M+1] colour, summon pool fixed to raw native kingdom id (gowKingdomPools); RandomPositiveStatusEffect@AllyKingdom still filters by zh kingdom name incl. faction troops"
+    },
+    {
+      "format": "compact",
+      "key": "weapon:1678",
+      "decision": "issue",
+      "reviewer": "sa-E",
+      "reviewedAt": "2026-09-28T12:07:52.560Z",
+      "issue": "P-E-faction-kingdom",
+      "note": "Explode [M+1] colour, summon pool fixed to raw native kingdom id (gowKingdomPools); RandomPositiveStatusEffect@AllyKingdom still filters by zh kingdom name incl. faction troops"
+    },
+    {
+      "format": "compact",
+      "key": "weapon:1470",
+      "decision": "accept",
+      "reviewer": "sa-E",
+      "reviewedAt": "2026-09-28T12:11:07.475Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ],
+      "note": "B07 race family: Explode [M+1] colour; RandomPositiveStatusEffect@AllyType = targetRace; SummoningType pool = raw TroopType roster (1551 +ImmortalGirthrok); zh fixes 1470/1555/1558 (gowLaneL1E)"
+    },
+    {
+      "format": "compact",
+      "key": "weapon:1495",
+      "decision": "accept",
+      "reviewer": "sa-E",
+      "reviewedAt": "2026-09-28T12:11:07.476Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ],
+      "note": "B07 race family: Explode [M+1] colour; RandomPositiveStatusEffect@AllyType = targetRace; SummoningType pool = raw TroopType roster (1551 +ImmortalGirthrok); zh fixes 1470/1555/1558 (gowLaneL1E)"
+    },
+    {
+      "format": "compact",
+      "key": "weapon:1496",
+      "decision": "accept",
+      "reviewer": "sa-E",
+      "reviewedAt": "2026-09-28T12:11:07.477Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ],
+      "note": "B07 race family: Explode [M+1] colour; RandomPositiveStatusEffect@AllyType = targetRace; SummoningType pool = raw TroopType roster (1551 +ImmortalGirthrok); zh fixes 1470/1555/1558 (gowLaneL1E)"
+    },
+    {
+      "format": "compact",
+      "key": "weapon:1510",
+      "decision": "accept",
+      "reviewer": "sa-E",
+      "reviewedAt": "2026-09-28T12:11:07.477Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ],
+      "note": "B07 race family: Explode [M+1] colour; RandomPositiveStatusEffect@AllyType = targetRace; SummoningType pool = raw TroopType roster (1551 +ImmortalGirthrok); zh fixes 1470/1555/1558 (gowLaneL1E)"
+    },
+    {
+      "format": "compact",
+      "key": "weapon:1512",
+      "decision": "accept",
+      "reviewer": "sa-E",
+      "reviewedAt": "2026-09-28T12:11:07.477Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ],
+      "note": "B07 race family: Explode [M+1] colour; RandomPositiveStatusEffect@AllyType = targetRace; SummoningType pool = raw TroopType roster (1551 +ImmortalGirthrok); zh fixes 1470/1555/1558 (gowLaneL1E)"
+    },
+    {
+      "format": "compact",
+      "key": "weapon:1533",
+      "decision": "accept",
+      "reviewer": "sa-E",
+      "reviewedAt": "2026-09-28T12:11:07.477Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ],
+      "note": "B07 race family: Explode [M+1] colour; RandomPositiveStatusEffect@AllyType = targetRace; SummoningType pool = raw TroopType roster (1551 +ImmortalGirthrok); zh fixes 1470/1555/1558 (gowLaneL1E)"
+    },
+    {
+      "format": "compact",
+      "key": "weapon:1535",
+      "decision": "accept",
+      "reviewer": "sa-E",
+      "reviewedAt": "2026-09-28T12:11:07.477Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ],
+      "note": "B07 race family: Explode [M+1] colour; RandomPositiveStatusEffect@AllyType = targetRace; SummoningType pool = raw TroopType roster (1551 +ImmortalGirthrok); zh fixes 1470/1555/1558 (gowLaneL1E)"
+    },
+    {
+      "format": "compact",
+      "key": "weapon:1551",
+      "decision": "accept",
+      "reviewer": "sa-E",
+      "reviewedAt": "2026-09-28T12:11:07.478Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ],
+      "note": "B07 race family: Explode [M+1] colour; RandomPositiveStatusEffect@AllyType = targetRace; SummoningType pool = raw TroopType roster (1551 +ImmortalGirthrok); zh fixes 1470/1555/1558 (gowLaneL1E)"
+    },
+    {
+      "format": "compact",
+      "key": "weapon:1555",
+      "decision": "accept",
+      "reviewer": "sa-E",
+      "reviewedAt": "2026-09-28T12:11:07.478Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ],
+      "note": "B07 race family: Explode [M+1] colour; RandomPositiveStatusEffect@AllyType = targetRace; SummoningType pool = raw TroopType roster (1551 +ImmortalGirthrok); zh fixes 1470/1555/1558 (gowLaneL1E)"
+    },
+    {
+      "format": "compact",
+      "key": "weapon:1558",
+      "decision": "accept",
+      "reviewer": "sa-E",
+      "reviewedAt": "2026-09-28T12:11:07.478Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ],
+      "note": "B07 race family: Explode [M+1] colour; RandomPositiveStatusEffect@AllyType = targetRace; SummoningType pool = raw TroopType roster (1551 +ImmortalGirthrok); zh fixes 1470/1555/1558 (gowLaneL1E)"
+    },
+    {
+      "format": "compact",
+      "key": "weapon:1575",
+      "decision": "accept",
+      "reviewer": "sa-E",
+      "reviewedAt": "2026-09-28T12:14:27.320Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ],
+      "note": "B08 race family: Explode [M+1] colour; RandomPositiveStatusEffect@AllyType = targetRace; SummoningType(NoError) pool = raw TroopType roster; zh 1616/1665 (gowLaneL1E)"
+    },
+    {
+      "format": "compact",
+      "key": "weapon:1579",
+      "decision": "accept",
+      "reviewer": "sa-E",
+      "reviewedAt": "2026-09-28T12:14:27.321Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ],
+      "note": "B08 race family: Explode [M+1] colour; RandomPositiveStatusEffect@AllyType = targetRace; SummoningType(NoError) pool = raw TroopType roster; zh 1616/1665 (gowLaneL1E)"
+    },
+    {
+      "format": "compact",
+      "key": "weapon:1616",
+      "decision": "accept",
+      "reviewer": "sa-E",
+      "reviewedAt": "2026-09-28T12:14:27.321Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ],
+      "note": "B08 race family: Explode [M+1] colour; RandomPositiveStatusEffect@AllyType = targetRace; SummoningType(NoError) pool = raw TroopType roster; zh 1616/1665 (gowLaneL1E)"
+    },
+    {
+      "format": "compact",
+      "key": "weapon:1619",
+      "decision": "accept",
+      "reviewer": "sa-E",
+      "reviewedAt": "2026-09-28T12:14:27.322Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ],
+      "note": "B08 race family: Explode [M+1] colour; RandomPositiveStatusEffect@AllyType = targetRace; SummoningType(NoError) pool = raw TroopType roster; zh 1616/1665 (gowLaneL1E)"
+    },
+    {
+      "format": "compact",
+      "key": "weapon:1665",
+      "decision": "accept",
+      "reviewer": "sa-E",
+      "reviewedAt": "2026-09-28T12:14:27.322Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ],
+      "note": "B08 race family: Explode [M+1] colour; RandomPositiveStatusEffect@AllyType = targetRace; SummoningType(NoError) pool = raw TroopType roster; zh 1616/1665 (gowLaneL1E)"
+    },
+    {
+      "format": "compact",
+      "key": "weapon:1354",
+      "decision": "accept",
+      "reviewer": "sa-E",
+      "reviewedAt": "2026-09-28T12:14:27.322Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ],
+      "note": "B08 race family: Explode [M+1] colour; RandomPositiveStatusEffect@AllyType = targetRace; SummoningType(NoError) pool = raw TroopType roster; zh 1616/1665 (gowLaneL1E)"
+    },
+    {
+      "format": "compact",
+      "key": "weapon:1375",
+      "decision": "accept",
+      "reviewer": "sa-E",
+      "reviewedAt": "2026-09-28T12:14:27.322Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ],
+      "note": "B08 race family: Explode [M+1] colour; RandomPositiveStatusEffect@AllyType = targetRace; SummoningType(NoError) pool = raw TroopType roster; zh 1616/1665 (gowLaneL1E)"
+    },
+    {
+      "format": "compact",
+      "key": "weapon:1386",
+      "decision": "accept",
+      "reviewer": "sa-E",
+      "reviewedAt": "2026-09-28T12:14:27.323Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ],
+      "note": "B08 race family: Explode [M+1] colour; RandomPositiveStatusEffect@AllyType = targetRace; SummoningType(NoError) pool = raw TroopType roster; zh 1616/1665 (gowLaneL1E)"
+    },
+    {
+      "format": "compact",
+      "key": "weapon:1392",
+      "decision": "accept",
+      "reviewer": "sa-E",
+      "reviewedAt": "2026-09-28T12:14:27.323Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ],
+      "note": "B08 race family: Explode [M+1] colour; RandomPositiveStatusEffect@AllyType = targetRace; SummoningType(NoError) pool = raw TroopType roster; zh 1616/1665 (gowLaneL1E)"
+    },
+    {
+      "format": "compact",
+      "key": "weapon:1401",
+      "decision": "accept",
+      "reviewer": "sa-E",
+      "reviewedAt": "2026-09-28T12:14:27.323Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ],
+      "note": "B08 race family: Explode [M+1] colour; RandomPositiveStatusEffect@AllyType = targetRace; SummoningType(NoError) pool = raw TroopType roster; zh 1616/1665 (gowLaneL1E)"
+    },
+    {
+      "format": "compact",
+      "key": "weapon:1406",
+      "decision": "accept",
+      "reviewer": "sa-E",
+      "reviewedAt": "2026-09-28T12:19:06.995Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ],
+      "note": "B09 race family: Explode [M+1] colour; RandomPositiveStatusEffect@AllyType = targetRace; SummoningTypeNoError pool = raw TroopType roster (1469 +ImmortalGirthrok, 1692 +ImmortalThalassa); zh 1425 (gowLaneL1E)"
+    },
+    {
+      "format": "compact",
+      "key": "weapon:1416",
+      "decision": "accept",
+      "reviewer": "sa-E",
+      "reviewedAt": "2026-09-28T12:19:06.996Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ],
+      "note": "B09 race family: Explode [M+1] colour; RandomPositiveStatusEffect@AllyType = targetRace; SummoningTypeNoError pool = raw TroopType roster (1469 +ImmortalGirthrok, 1692 +ImmortalThalassa); zh 1425 (gowLaneL1E)"
+    },
+    {
+      "format": "compact",
+      "key": "weapon:1424",
+      "decision": "accept",
+      "reviewer": "sa-E",
+      "reviewedAt": "2026-09-28T12:19:06.996Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ],
+      "note": "B09 race family: Explode [M+1] colour; RandomPositiveStatusEffect@AllyType = targetRace; SummoningTypeNoError pool = raw TroopType roster (1469 +ImmortalGirthrok, 1692 +ImmortalThalassa); zh 1425 (gowLaneL1E)"
+    },
+    {
+      "format": "compact",
+      "key": "weapon:1425",
+      "decision": "accept",
+      "reviewer": "sa-E",
+      "reviewedAt": "2026-09-28T12:19:06.996Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ],
+      "note": "B09 race family: Explode [M+1] colour; RandomPositiveStatusEffect@AllyType = targetRace; SummoningTypeNoError pool = raw TroopType roster (1469 +ImmortalGirthrok, 1692 +ImmortalThalassa); zh 1425 (gowLaneL1E)"
+    },
+    {
+      "format": "compact",
+      "key": "weapon:1448",
+      "decision": "accept",
+      "reviewer": "sa-E",
+      "reviewedAt": "2026-09-28T12:19:06.997Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ],
+      "note": "B09 race family: Explode [M+1] colour; RandomPositiveStatusEffect@AllyType = targetRace; SummoningTypeNoError pool = raw TroopType roster (1469 +ImmortalGirthrok, 1692 +ImmortalThalassa); zh 1425 (gowLaneL1E)"
+    },
+    {
+      "format": "compact",
+      "key": "weapon:1450",
+      "decision": "accept",
+      "reviewer": "sa-E",
+      "reviewedAt": "2026-09-28T12:19:06.997Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ],
+      "note": "B09 race family: Explode [M+1] colour; RandomPositiveStatusEffect@AllyType = targetRace; SummoningTypeNoError pool = raw TroopType roster (1469 +ImmortalGirthrok, 1692 +ImmortalThalassa); zh 1425 (gowLaneL1E)"
+    },
+    {
+      "format": "compact",
+      "key": "weapon:1469",
+      "decision": "accept",
+      "reviewer": "sa-E",
+      "reviewedAt": "2026-09-28T12:19:06.997Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ],
+      "note": "B09 race family: Explode [M+1] colour; RandomPositiveStatusEffect@AllyType = targetRace; SummoningTypeNoError pool = raw TroopType roster (1469 +ImmortalGirthrok, 1692 +ImmortalThalassa); zh 1425 (gowLaneL1E)"
+    },
+    {
+      "format": "compact",
+      "key": "weapon:1492",
+      "decision": "accept",
+      "reviewer": "sa-E",
+      "reviewedAt": "2026-09-28T12:19:06.997Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ],
+      "note": "B09 race family: Explode [M+1] colour; RandomPositiveStatusEffect@AllyType = targetRace; SummoningTypeNoError pool = raw TroopType roster (1469 +ImmortalGirthrok, 1692 +ImmortalThalassa); zh 1425 (gowLaneL1E)"
+    },
+    {
+      "format": "compact",
+      "key": "weapon:1493",
+      "decision": "accept",
+      "reviewer": "sa-E",
+      "reviewedAt": "2026-09-28T12:19:06.997Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ],
+      "note": "B09 race family: Explode [M+1] colour; RandomPositiveStatusEffect@AllyType = targetRace; SummoningTypeNoError pool = raw TroopType roster (1469 +ImmortalGirthrok, 1692 +ImmortalThalassa); zh 1425 (gowLaneL1E)"
+    },
+    {
+      "format": "compact",
+      "key": "weapon:1692",
+      "decision": "accept",
+      "reviewer": "sa-E",
+      "reviewedAt": "2026-09-28T12:19:06.998Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ],
+      "note": "B09 race family: Explode [M+1] colour; RandomPositiveStatusEffect@AllyType = targetRace; SummoningTypeNoError pool = raw TroopType roster (1469 +ImmortalGirthrok, 1692 +ImmortalThalassa); zh 1425 (gowLaneL1E)"
+    },
+    {
+      "format": "compact",
+      "key": "weapon:1222",
+      "decision": "accept",
+      "reviewer": "sa-E",
+      "reviewedAt": "2026-09-28T12:23:44.176Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ],
+      "note": "B10: 1222/1484 raw kingdom pools; 6170 chosen colour + Infernal King; 6971 ABC-DEF 50/50 + extra turn; 6656 swap current first/last; 6828 native Transform->Enrage vs proto Enrage->Transform proven equivalent (R001, Torbern keeps Enraged); 6381 flee 30%; 7554 100/50/50 (fixed); 6277 A-F 1/6 each (gowLaneL1E)"
+    },
+    {
+      "format": "compact",
+      "key": "troop:6170",
+      "decision": "accept",
+      "reviewer": "sa-E",
+      "reviewedAt": "2026-09-28T12:23:44.177Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ],
+      "note": "B10: 1222/1484 raw kingdom pools; 6170 chosen colour + Infernal King; 6971 ABC-DEF 50/50 + extra turn; 6656 swap current first/last; 6828 native Transform->Enrage vs proto Enrage->Transform proven equivalent (R001, Torbern keeps Enraged); 6381 flee 30%; 7554 100/50/50 (fixed); 6277 A-F 1/6 each (gowLaneL1E)"
+    },
+    {
+      "format": "compact",
+      "key": "troop:6971",
+      "decision": "accept",
+      "reviewer": "sa-E",
+      "reviewedAt": "2026-09-28T12:23:44.178Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ],
+      "note": "B10: 1222/1484 raw kingdom pools; 6170 chosen colour + Infernal King; 6971 ABC-DEF 50/50 + extra turn; 6656 swap current first/last; 6828 native Transform->Enrage vs proto Enrage->Transform proven equivalent (R001, Torbern keeps Enraged); 6381 flee 30%; 7554 100/50/50 (fixed); 6277 A-F 1/6 each (gowLaneL1E)"
+    },
+    {
+      "format": "compact",
+      "key": "troop:6656",
+      "decision": "accept",
+      "reviewer": "sa-E",
+      "reviewedAt": "2026-09-28T12:23:44.178Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ],
+      "note": "B10: 1222/1484 raw kingdom pools; 6170 chosen colour + Infernal King; 6971 ABC-DEF 50/50 + extra turn; 6656 swap current first/last; 6828 native Transform->Enrage vs proto Enrage->Transform proven equivalent (R001, Torbern keeps Enraged); 6381 flee 30%; 7554 100/50/50 (fixed); 6277 A-F 1/6 each (gowLaneL1E)"
+    },
+    {
+      "format": "compact",
+      "key": "troop:6828",
+      "decision": "accept",
+      "reviewer": "sa-E",
+      "reviewedAt": "2026-09-28T12:23:44.178Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ],
+      "note": "B10: 1222/1484 raw kingdom pools; 6170 chosen colour + Infernal King; 6971 ABC-DEF 50/50 + extra turn; 6656 swap current first/last; 6828 native Transform->Enrage vs proto Enrage->Transform proven equivalent (R001, Torbern keeps Enraged); 6381 flee 30%; 7554 100/50/50 (fixed); 6277 A-F 1/6 each (gowLaneL1E)"
+    },
+    {
+      "format": "compact",
+      "key": "troop:6381",
+      "decision": "accept",
+      "reviewer": "sa-E",
+      "reviewedAt": "2026-09-28T12:23:44.179Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ],
+      "note": "B10: 1222/1484 raw kingdom pools; 6170 chosen colour + Infernal King; 6971 ABC-DEF 50/50 + extra turn; 6656 swap current first/last; 6828 native Transform->Enrage vs proto Enrage->Transform proven equivalent (R001, Torbern keeps Enraged); 6381 flee 30%; 7554 100/50/50 (fixed); 6277 A-F 1/6 each (gowLaneL1E)"
+    },
+    {
+      "format": "compact",
+      "key": "troop:7554",
+      "decision": "accept",
+      "reviewer": "sa-E",
+      "reviewedAt": "2026-09-28T12:23:44.179Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ],
+      "note": "B10: 1222/1484 raw kingdom pools; 6170 chosen colour + Infernal King; 6971 ABC-DEF 50/50 + extra turn; 6656 swap current first/last; 6828 native Transform->Enrage vs proto Enrage->Transform proven equivalent (R001, Torbern keeps Enraged); 6381 flee 30%; 7554 100/50/50 (fixed); 6277 A-F 1/6 each (gowLaneL1E)"
+    },
+    {
+      "format": "compact",
+      "key": "weapon:1484",
+      "decision": "accept",
+      "reviewer": "sa-E",
+      "reviewedAt": "2026-09-28T12:23:44.179Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ],
+      "note": "B10: 1222/1484 raw kingdom pools; 6170 chosen colour + Infernal King; 6971 ABC-DEF 50/50 + extra turn; 6656 swap current first/last; 6828 native Transform->Enrage vs proto Enrage->Transform proven equivalent (R001, Torbern keeps Enraged); 6381 flee 30%; 7554 100/50/50 (fixed); 6277 A-F 1/6 each (gowLaneL1E)"
+    },
+    {
+      "format": "compact",
+      "key": "troop:6277",
+      "decision": "accept",
+      "reviewer": "sa-E",
+      "reviewedAt": "2026-09-28T12:23:44.179Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ],
+      "note": "B10: 1222/1484 raw kingdom pools; 6170 chosen colour + Infernal King; 6971 ABC-DEF 50/50 + extra turn; 6656 swap current first/last; 6828 native Transform->Enrage vs proto Enrage->Transform proven equivalent (R001, Torbern keeps Enraged); 6381 flee 30%; 7554 100/50/50 (fixed); 6277 A-F 1/6 each (gowLaneL1E)"
+    },
+    {
+      "format": "compact",
+      "key": "troop:7465",
+      "decision": "issue",
+      "reviewer": "sa-E",
+      "reviewedAt": "2026-09-28T12:23:44.407Z",
+      "issue": "L1-E-7465-random-mana-dispute",
+      "note": "source-dispute: native GenerateRandomMana@AllAlliesButNotSelf Amount 10 (English 3-10): engine rolls ONE value for all allies; no source says whether each ally rolls separately. Summon distribution fixed to 40/20/20/20 (B and F = Ragnagord)"
     }
   ]
 }
