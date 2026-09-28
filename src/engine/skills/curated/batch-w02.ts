@@ -929,8 +929,9 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '对一名敌人造成 [魔法 + 6] 点伤害，若敌人已被冻结，则诅咒敌人。若敌人陷入燃烧状态，则再使其陷入死亡标记状态。',
     build: skill(
       dmg('enemyChosen', 6, 1),
-      inflict('curse', 'enemyChosen', { ifCond: { kind: 'anyEnemyStatus', statusId: 'frozen' } }),
-      inflict('death-mark', 'lastTarget', { ifCond: { kind: 'anyEnemyStatus', statusId: 'burning' } }),
+      // native FromTarget AddForFrozen / AddForBurning: the damaged target's own status, not any enemy's
+      inflict('curse', 'lastTarget', { ifCond: { kind: 'targetStatus', statusId: 'frozen' } }),
+      inflict('death-mark', 'lastTarget', { ifCond: { kind: 'targetStatus', statusId: 'burning' } }),
     ),
   },
   {

@@ -1392,7 +1392,9 @@ const SPELLS: CuratedBatch['spells'] = [
     build: skill(
       dmg('enemyChosen', 4, 1, { condMult: BOSS_ASC3 }),
       cleanse('allyAll', undefined, { ifTargetDied: true }),
-      ...dispelPositives('enemyAll', undefined, { ifTargetDied: true }),
+      // native DispelConditional AddForKill: after the cleanse segment the "last target" is an ally, so
+      // ifTargetDied no longer sees the enemy; castEnemyDied = the (only) damaged enemy died this cast.
+      ...dispelPositives('enemyAll', { kind: 'castEnemyDied' }),
     ),
   },
   {

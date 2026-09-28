@@ -129,12 +129,11 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '对一名敌人和其下方的所有敌人造成 [魔法 + 2] 点伤害。若敌人已陷入诅咒状态，则对其造成双倍伤害并再使其陷入死亡标记状态。',
     build: skill(
       // enemyChosenAndBelow：指定者 + 编队更靠后的全部存活敌人；名单内全额 → range 'all'（原语批 §9.10）
-      dmg('enemyChosenAndBelow', 2, 1, {
-        range: 'all',
-        condMult: { times: 2, cond: { kind: 'targetStatus', statusId: 'curse' } },
-      }),
-      // 逐目标条件：该敌人已诅咒才追加死亡标记
-      inflict('death-mark', 'enemyChosenAndBelow', { ifCond: { kind: 'targetStatus', statusId: 'curse' } }),
+      // native: FromTarget [MultiplyForCursed 2] ; BelowTarget plain ; FromTarget Death Mark [AddForCursed].
+      // Only the chosen enemy is checked, doubled and Death Marked.
+      dmg('enemyChosen', 2, 1, { condMult: { times: 2, cond: { kind: 'targetStatus', statusId: 'curse' } } }),
+      dmg('enemyBelowTarget', 2, 1, { range: 'all' }),
+      inflict('death-mark', 'enemyChosen', { ifCond: { kind: 'targetStatus', statusId: 'curse' } }),
     ),
   },
   {

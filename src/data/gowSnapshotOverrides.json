@@ -272,6 +272,11 @@
       "spellId": 8675,
       "reason": "sa-C r4: English Vault Guard 'Then Freeze and Death Mark them'; native CauseFrozen + CauseDeathMark both; old Chinese said 'or'.",
       "spellDescription": "对一名敌人造成 [魔法 + 2] 点伤害。再使他们陷入冻结和死亡标记状态。"
+    },
+    "6108": {
+      "spellId": 7177,
+      "reason": "sa-C r4: English Ice Witch 'If the Enemy dies, give 3 Magic to all Allies'; native IncreaseSpellPower AddForKill StatusAmount 3; old Chinese said 1.",
+      "spellDescription": "对 1 名敌人造成 [魔法 + 4] 点伤害。冻结敌人。如果该敌人身亡，盟友可获得 3 点魔力值。"
     }
   }
 }

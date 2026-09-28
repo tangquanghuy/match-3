@@ -200,3 +200,35 @@
 {"format":"compact","key":"weapon:1053","decision":"accept","reviewer":"sa-C","reviewedAt":"2026-09-28T11:10:31.180Z","tests":["tests/unit/gowCastGolden.test.ts"]}
 {"format":"compact","key":"weapon:1066","decision":"accept","reviewer":"sa-C","reviewedAt":"2026-09-28T11:10:31.180Z","tests":["tests/unit/gowCastGolden.test.ts"]}
 {"format":"compact","key":"troop:6377","decision":"accept","reviewer":"sa-C","reviewedAt":"2026-09-28T11:10:31.180Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:6724","decision":"accept","reviewer":"sa-C","reviewedAt":"2026-09-28T11:14:02.946Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:6737","decision":"accept","reviewer":"sa-C","reviewedAt":"2026-09-28T11:14:02.947Z","tests":["tests/unit/gowCastGolden.test.ts"],"waived":[{"part":"clause","id":"c2","mode":"boss"}]}
+{"format":"compact","key":"troop:6764","decision":"accept","reviewer":"sa-C","reviewedAt":"2026-09-28T11:14:02.947Z","tests":["tests/unit/gowCastGolden.test.ts"],"waived":[{"part":"clause","id":"c2","mode":"boss"}]}
+{"format":"compact","key":"troop:7002","decision":"accept","reviewer":"sa-C","reviewedAt":"2026-09-28T11:14:02.948Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:7180","decision":"accept","reviewer":"sa-C","reviewedAt":"2026-09-28T11:14:02.948Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:7711","decision":"accept","reviewer":"sa-C","reviewedAt":"2026-09-28T11:14:02.948Z","tests":["tests/unit/gowCastGolden.test.ts"],"waived":[{"part":"clause","id":"c2","mode":"tower"}]}
+{"format":"compact","key":"weapon:1378","decision":"accept","reviewer":"sa-C","reviewedAt":"2026-09-28T11:14:02.948Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:7352","decision":"accept","reviewer":"sa-C","reviewedAt":"2026-09-28T11:14:02.948Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"weapon:1294","decision":"accept","reviewer":"sa-C","reviewedAt":"2026-09-28T11:14:02.949Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"weapon:1405","decision":"accept","reviewer":"sa-C","reviewedAt":"2026-09-28T11:14:02.949Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"weapon:1132","decision":"accept","reviewer":"sa-C","reviewedAt":"2026-09-28T11:15:58.872Z","tests":["tests/unit/gowCastGolden.test.ts"],"note":"re-approve 1132/1405 after LastEnemy per-step fix"}
+{"format":"compact","key":"weapon:1405","decision":"accept","reviewer":"sa-C","reviewedAt":"2026-09-28T11:15:58.873Z","tests":["tests/unit/gowCastGolden.test.ts"],"note":"re-approve 1132/1405 after LastEnemy per-step fix"}
+{"format":"compact","key":"troop:6750","decision":"accept","reviewer":"sa-C","reviewedAt":"2026-09-28T11:15:58.873Z","tests":["tests/unit/gowCastGolden.test.ts"],"note":"re-approve 1132/1405 after LastEnemy per-step fix"}
+{"format":"compact","key":"troop:6997","decision":"accept","reviewer":"sa-C","reviewedAt":"2026-09-28T11:15:58.873Z","tests":["tests/unit/gowCastGolden.test.ts"],"note":"re-approve 1132/1405 after LastEnemy per-step fix"}
+{"format":"compact","key":"troop:6780","decision":"accept","reviewer":"sa-C","reviewedAt":"2026-09-28T11:15:58.878Z","tests":["tests/unit/gowCastGolden.test.ts"],"note":"re-approve 1132/1405 after LastEnemy per-step fix","waived":[{"part":"clause","id":"c2","mode":"boss"}]}
+{"format":"compact","key":"troop:7142","decision":"accept","reviewer":"sa-C","reviewedAt":"2026-09-28T11:15:58.878Z","tests":["tests/unit/gowCastGolden.test.ts"],"note":"re-approve 1132/1405 after LastEnemy per-step fix"}
+{"format":"compact","key":"troop:6674","decision":"accept","reviewer":"sa-C","reviewedAt":"2026-09-28T11:15:58.878Z","tests":["tests/unit/gowCastGolden.test.ts"],"note":"re-approve 1132/1405 after LastEnemy per-step fix"}
+{"format":"compact","key":"troop:7482","decision":"accept","reviewer":"sa-C","reviewedAt":"2026-09-28T11:15:58.879Z","tests":["tests/unit/gowCastGolden.test.ts"],"note":"re-approve 1132/1405 after LastEnemy per-step fix","waived":[{"part":"clause","id":"c2","mode":"tower"}]}
+{"format":"compact","key":"troop:7407","decision":"accept","reviewer":"sa-C","reviewedAt":"2026-09-28T11:15:58.879Z","tests":["tests/unit/gowCastGolden.test.ts"],"note":"re-approve 1132/1405 after LastEnemy per-step fix"}
+{"format":"compact","key":"troop:7409","decision":"accept","reviewer":"sa-C","reviewedAt":"2026-09-28T11:15:58.880Z","tests":["tests/unit/gowCastGolden.test.ts"],"note":"re-approve 1132/1405 after LastEnemy per-step fix"}
+{"format":"compact","key":"troop:6395","decision":"accept","reviewer":"sa-C","reviewedAt":"2026-09-28T11:15:58.880Z","tests":["tests/unit/gowCastGolden.test.ts"],"note":"re-approve 1132/1405 after LastEnemy per-step fix"}
+{"format":"compact","key":"troop:7355","decision":"accept","reviewer":"sa-C","reviewedAt":"2026-09-28T11:15:58.881Z","tests":["tests/unit/gowCastGolden.test.ts"],"note":"re-approve 1132/1405 after LastEnemy per-step fix"}
+{"format":"compact","key":"troop:6937","decision":"issue","reviewer":"sa-C","reviewedAt":"2026-09-28T11:20:39.380Z","issue":"P-C-firstlast-army-color","note":"Barrier must read the first/last enemies' Purple mana (CountArmyColor@FirstLastEnemies), curated reads any enemy; damage part fixed per target"}
+{"format":"compact","key":"troop:7826","decision":"accept","reviewer":"sa-C","reviewedAt":"2026-09-28T11:20:45.188Z","tests":["tests/unit/gowCastGolden.test.ts"],"waived":[{"part":"clause","id":"c2","mode":"boss"}]}
+{"format":"compact","key":"troop:6819","decision":"accept","reviewer":"sa-C","reviewedAt":"2026-09-28T11:20:45.190Z","tests":["tests/unit/gowCastGolden.test.ts"],"waived":[{"part":"clause","id":"c2","mode":"boss"}]}
+{"format":"compact","key":"troop:6602","decision":"accept","reviewer":"sa-C","reviewedAt":"2026-09-28T11:20:45.190Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:6708","decision":"accept","reviewer":"sa-C","reviewedAt":"2026-09-28T11:20:45.191Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:6174","decision":"accept","reviewer":"sa-C","reviewedAt":"2026-09-28T11:20:45.192Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:6286","decision":"accept","reviewer":"sa-C","reviewedAt":"2026-09-28T11:20:45.192Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:6145","decision":"accept","reviewer":"sa-C","reviewedAt":"2026-09-28T11:20:45.193Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:6503","decision":"accept","reviewer":"sa-C","reviewedAt":"2026-09-28T11:20:45.193Z","tests":["tests/unit/gowCastGolden.test.ts"],"waived":[{"part":"clause","id":"c2","mode":"boss"}]}
+{"format":"compact","key":"troop:6108","decision":"accept","reviewer":"sa-C","reviewedAt":"2026-09-28T11:20:45.193Z","tests":["tests/unit/gowCastGolden.test.ts"]}

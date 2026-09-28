@@ -1,6 +1,7 @@
 // sa-C lane L5 review round 3: conditions the standard golden scenarios cannot show. Real TurnEngine casts.
 import { describe, it, expect } from 'vitest';
-import { castSpell, DEFAULT_ENEMIES, DEFAULT_ALLIES } from '../helpers/gowCast';
+import { castSpell, setupCast, summarize, DEFAULT_ENEMIES, DEFAULT_ALLIES } from '../helpers/gowCast';
+import { BaseColor } from '@engine/types';
 type St = { id: string; turns: number }[];
 const st = (...ids: string[]) => ids.map(id => ({ id, turns: 99 })) as unknown as St;
 const enemies = (over: Record<number, object>) => DEFAULT_ENEMIES.map((e, i) => ({ ...e, ...(over[i] ?? {}) }));
@@ -146,10 +147,10 @@ describe('L5 sa-C round 4 B04', () => {
 });
 describe('L5 sa-C round 4 B05', () => {
   const statuses = (r: ReturnType<typeof castSpell>) => r.summary.order.filter(x => x.startsWith('status'));
-  it('weapon:1132 +10 when the last enemy is Frozen; Freezes that last enemy (not the chosen one)', () => {
+  it('weapon:1132 +10 when the last enemy is Frozen; Freezes the LastEnemy (not the chosen one), re-resolved after a kill', () => {
     expect(castSpell({ key: 'weapon:1132' }).summary.order).toEqual(['dmg E13 14', 'status E13 +frozen']);
     expect(castSpell({ key: 'weapon:1132', enemies: enemies({ 3: { statuses: st('frozen') } }) }).summary.order[0]).toBe('dmg E13 24');
-    expect(statuses(castSpell({ key: 'weapon:1132', enemies: enemies({ 3: { hp: 1 } }) }))).toEqual([]);
+    expect(statuses(castSpell({ key: 'weapon:1132', enemies: enemies({ 3: { hp: 1 } }) }))).toEqual(['status E12 +frozen']);
   });
   it('troop:7131 Freezes AND Death Marks the target', () => {
     expect(statuses(castSpell({ key: 'troop:7131' }))).toEqual(['status E11 +frozen', 'status E11 +death-mark']);
@@ -174,5 +175,97 @@ describe('L5 sa-C round 4 B05', () => {
     let k = false;
     for (const seed of seeds) if (statuses(castSpell({ key: 'troop:6377', seed, enemies: enemies({ 1: { hp: 1 } }) })).length) k = true;
     expect(k).toBe(true);
+  });
+});
+describe('L5 sa-C round 4 B06', () => {
+  const statuses = (r: { summary: { order: string[] } }) => r.summary.order.filter(x => x.startsWith('status'));
+  const withStorm = (key: string, color: BaseColor) => { const f = setupCast({ key }); f.engine.debugSetStorm(color, f.side); return summarize(f, f.cast()); };
+  it('troop:6724 Curse all enemies only with an Icestorm (Blue), not with other Storms', () => {
+    expect(withStorm('troop:6724', BaseColor.Blue).order.filter(x => x.startsWith('status'))).toEqual(['status E10 +curse', 'status E11 +curse', 'status E12 +curse', 'status E13 +curse']);
+    expect(withStorm('troop:6724', BaseColor.Red).order.filter(x => x.startsWith('status'))).toEqual([]);
+    expect(statuses(castSpell({ key: 'troop:6724' }))).toEqual([]);
+  });
+  it('troop:6737 Bless myself with any Storm', () => {
+    expect(withStorm('troop:6737', BaseColor.Purple).order.filter(x => x.startsWith('status'))).toEqual(['status C +blessed']);
+  });
+  it('troop:7002 Monster target Entangled; Dragon target triple damage', () => {
+    expect(statuses(castSpell({ key: 'troop:7002', enemies: enemies({ 1: { troopTypes: ['Monster'] } }) }))).toEqual(['status E11 +entangle']);
+    const d = castSpell({ key: 'troop:7002', enemies: enemies({ 1: { troopTypes: ['Dragon'] } }) });
+    expect(d.summary.order).toEqual(['dmg E11 39']);
+  });
+  it('troop:7180 Elemental triple; Enrage only on the kill', () => {
+    expect(castSpell({ key: 'troop:7180', enemies: enemies({ 1: { troopTypes: ['Elemental'] } }) }).summary.order).toEqual(['dmg E11 39']);
+  });
+  it('weapon:1378 Death Mark only a Purple-mana target', () => {
+    expect(statuses(castSpell({ key: 'weapon:1378', target: 12 }))).toEqual(['status E12 +death-mark']);
+    expect(statuses(castSpell({ key: 'weapon:1378' }))).toEqual([]);
+  });
+  it('troop:7352 Enrage + Barrier only if the caster has taken damage', () => {
+    expect(statuses(castSpell({ key: 'troop:7352', caster: { hp: 1000 } }))).toEqual([]);
+  });
+  it('weapon:1294 checks the damaged target itself: Frozen -> Curse, Burning -> Death Mark', () => {
+    expect(statuses(castSpell({ key: 'weapon:1294', enemies: enemies({ 1: { statuses: st('frozen', 'burning') } }) }))).toEqual(['status E11 +curse', 'status E11 +death-mark']);
+    expect(statuses(castSpell({ key: 'weapon:1294', enemies: enemies({ 0: { statuses: st('frozen', 'burning') } }) }))).toEqual([]);
+  });
+  it('weapon:1405 4 Bleed stacks on the Poisoned last enemy only', () => {
+    const r = castSpell({ key: 'weapon:1405', enemies: enemies({ 3: { statuses: st('poison') } }) });
+    expect(bleeds(r, 13)).toBe(4); expect(bleeds(r, 11)).toBe(0);
+    expect(bleeds(castSpell({ key: 'weapon:1405', enemies: enemies({ 1: { statuses: st('poison') } }) }), 11)).toBe(0);
+  });
+});
+describe('L5 sa-C round 4 B07', () => {
+  const statuses = (r: { summary: { order: string[] } }) => r.summary.order.filter(x => x.startsWith('status'));
+  it('weapon:1405 LastEnemy is re-resolved per step: after killing the last enemy, a Poisoned new last enemy Bleeds', () => {
+    const r = castSpell({ key: 'weapon:1405', enemies: enemies({ 2: { statuses: st('poison') }, 3: { hp: 1 } }) });
+    expect(bleeds(r, 12)).toBe(4);
+  });
+  it('troop:7142 three waves avoiding the previous target (repeat of the first allowed), each Stun its own 50% on the damaged enemy', () => {
+    let repeat = false; const counts = new Set<number>();
+    for (const seed of seeds) {
+      const o = castSpell({ key: 'troop:7142', seed }).summary.order;
+      const d = dmgs(o); expect(d.map(x => x.n)).toEqual([10, 10, 10]);
+      for (let i = 1; i < 3; i++) expect(d[i].who).not.toBe(d[i - 1].who);
+      if (d[0].who === d[2].who) repeat = true;
+      const s = statuses({ summary: { order: o } }); counts.add(s.length);
+      for (const x of s) expect(d.map(y => y.who)).toContain(x.split(' ')[1]);
+    }
+    expect(repeat).toBe(true); expect(counts.size).toBeGreaterThan(2);
+  });
+  it('troop:7409 double damage on a Terrified target', () => {
+    expect(castSpell({ key: 'troop:7409', enemies: enemies({ 1: { statuses: st('terror') } }) }).summary.order[0]).toBe('dmg E11 28');
+  });
+  it('troop:7355 triple damage on a Daemon', () => {
+    expect(castSpell({ key: 'troop:7355', enemies: enemies({ 1: { troopTypes: ['Daemon'] } }) }).summary.order[0]).toBe('dmg E11 39');
+  });
+  it('troop:6997 / troop:6674 First/Last targets are re-resolved at the Stun step after a kill', () => {
+    expect(statuses(castSpell({ key: 'troop:6997', enemies: DEFAULT_ENEMIES.map(e => ({ ...e, hp: 1 })) }))).toEqual(['status E12 +stun', 'status E13 +stun', 'status C +barrier']);
+  });
+});
+describe('L5 sa-C round 4 B08', () => {
+  const statuses = (r: { summary: { order: string[] } }) => r.summary.order.filter(x => x.startsWith('status') || x.startsWith('remove') || x.startsWith('cleanse'));
+  it('troop:6819 on the kill: Cleanse all allies AND Dispel all enemies (Enraged removed); nothing without a kill', () => {
+    const k = castSpell({ key: 'troop:6819', enemies: enemies({ 1: { hp: 1 } }) });
+    expect(statuses(k)).toEqual(['cleanse C -poison', 'cleanse A1 -poison', 'remove E10 -rage', 'remove E13 -rage']);
+    expect(statuses(castSpell({ key: 'troop:6819' }))).toEqual([]);
+  });
+  it('troop:6937 each of first/last doubled only on its own Blue mana (native MultiplyForBlueTarget)', () => {
+    const r = castSpell({ key: 'troop:6937', enemies: enemies({ 3: { colors: [BaseColor.Blue] } }) });
+    expect(dmgs(r.summary.order)).toEqual([{ who: 'E10', n: 12 }, { who: 'E13', n: 24 }]);
+  });
+  it('troop:6602 damages, Burns and Faerie Fires the target and only the next enemy below', () => {
+    expect(castSpell({ key: 'troop:6602' }).summary.order).toEqual(['dmg E11 13 (all)', 'dmg E12 13 (all)', 'status E11 +burning', 'status E12 +burning', 'status E11 +faerie-fire', 'status E12 +faerie-fire']);
+  });
+  it('troop:6708 only the Cursed chosen enemy is doubled and Death Marked; enemies below take plain damage', () => {
+    const r = castSpell({ key: 'troop:6708', enemies: enemies({ 1: { statuses: st('curse') }, 2: { statuses: st('curse') } }) });
+    expect(r.summary.order).toEqual(['dmg E11 24', 'dmg E12 12 (all)', 'dmg E13 12 (all)', 'status E11 +death-mark']);
+    const k = castSpell({ key: 'troop:6708', enemies: enemies({ 1: { hp: 1 } }) });
+    expect(dmgs(k.summary.order).map(x => x.who)).toEqual(['E11', 'E12', 'E13']); // R012: below the dead target
+  });
+  it('troop:6145 triple damage on an Entangled target', () => {
+    expect(castSpell({ key: 'troop:6145', enemies: enemies({ 1: { statuses: st('entangle') } }) }).summary.order[0]).toBe('dmg E11 48');
+  });
+  it('troop:6108 gives 3 Magic to all allies on the kill', () => {
+    const k = castSpell({ key: 'troop:6108', enemies: enemies({ 1: { hp: 1 } }) });
+    expect(k.summary.order.filter(x => x.startsWith('buff'))).toEqual(['buff C magic+3', 'buff A1 magic+3', 'buff A2 magic+3']);
   });
 });

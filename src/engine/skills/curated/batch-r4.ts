@@ -86,9 +86,10 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 7811,
     desc: '对一名敌人及其下方军队造成 [魔法 + 3] 点伤害。使两名敌人都陷入燃烧和妖火状态。',
     build: skill(
-      dmg('enemyChosenAndBelow', 3, 1, { range: 'all' }),
-      inflict('burning', 'enemyChosenAndBelow'),
-      inflict('faerie-fire', 'enemyChosenAndBelow'),
+      // native FromTarget + NextDownFromTarget: the target and only the next enemy below it
+      dmg('enemyChosenAndNextDown', 3, 1, { range: 'all' }),
+      inflict('burning', 'enemyChosenAndNextDown'),
+      inflict('faerie-fire', 'enemyChosenAndNextDown'),
     ),
   },
   {

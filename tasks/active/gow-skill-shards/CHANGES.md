@@ -1,6 +1,6 @@
 # GoW 技能改动留档
 
-自动生成（`node scripts/gow-changelog.mjs render`），源数据 [CHANGES.jsonl](CHANGES.jsonl)，共 466 条改动，涉及 763 个技能 ID。
+自动生成（`node scripts/gow-changelog.mjs render`），源数据 [CHANGES.jsonl](CHANGES.jsonl)，共 475 条改动，涉及 771 个技能 ID。
 
 ## 按时间
 
@@ -472,6 +472,15 @@
 | 2026-09-28T11:10 | sa-C | L5-C-r4-7131 | data | 8675 | troop:7131 VaultGuard | `src/engine/skills/curated/batch-37.ts`<br>`src/data/gowSnapshotOverrides.json` | oneOf(Freeze \| Death Mark); zh 'or' → Freeze and Death Mark (native both steps); zh override 'and' |  |
 | 2026-09-28T11:10 | sa-C | L5-C-r4-6051 | data | 7051 | troop:6051 Chimera | `src/engine/skills/curated/batch-02.ts` | Poison/Burn re-pick enemyHealthiest each step → Poison/Burn lastTarget (native FromPrevious); none after a kill |  |
 | 2026-09-28T11:10 | sa-C | L5-C-r4-6377 | data | 7532 | troop:6377 Parrot | `src/engine/skills/curated/batch-r11.ts` | one 50% roll for both adjacent enemies → NextUp and NextDown each own 50% roll (native two PercentageChance steps) |  |
+| 2026-09-28T11:13 | sa-C | L5-C-r4-1294 | data | 8221 | weapon:1294 FrostfireJewel | `src/engine/skills/curated/batch-w02.ts` | Curse/Death Mark if ANY enemy is Frozen/Burning → only if the damaged target itself is Frozen/Burning (native FromTarget AddForFrozen/AddForBurning) |  |
+| 2026-09-28T11:13 | sa-C | L5-C-r4-1405 | data | 8508 | weapon:1405 TheNightfallBlade | `src/engine/skills/curated/batch-w03.ts` | 4 Bleed on the chosen enemy if ANY enemy is Poisoned → 4 Bleed on the last enemy if it is Poisoned (native LastEnemy AddForPoison x4) |  |
+| 2026-09-28T11:15 | sa-C | L5-C-r4-1132 | data | 7296, 8508 | weapon:1132 IceDagger；weapon:1405 TheNightfallBlade | `src/engine/skills/curated/batch-w01.ts`<br>`src/engine/skills/curated/batch-w03.ts` | LastEnemy status step bound to the damaged enemy (lastTarget) → LastEnemy re-resolved at the step (enemyLast), consistent with native per-step targets and troop:6674 |  |
+| 2026-09-28T11:15 | sa-C | L5-C-r4-7142 | data | 8691 | troop:7142 SkyGoat | `src/engine/skills/curated/batch-r15.ts` | three independent enemyRandom waves → RandomEnemy then 2x RandomPrefNotPrevEnemy (R007-3) |  |
+| 2026-09-28T11:20 | sa-C | L5-C-r4-6819 | data | 8223 | troop:6819 Faemark | `src/engine/skills/curated/batch-r18.ts` | Dispel ifTargetDied after the cleanse segment (checked an ally, never fired) → Dispel all enemies gated by castEnemyDied |  |
+| 2026-09-28T11:20 | sa-C | L5-C-r4-6108 | data | 7177 | troop:6108 IceWitch | `src/engine/skills/curated/batch-12.ts`<br>`src/data/gowSnapshotOverrides.json` | +1 Magic to all allies on kill; zh 1 → +3 Magic (English/native StatusAmount 3); zh override |  |
+| 2026-09-28T11:20 | sa-C | L5-C-r4-6602 | data | 7811 | troop:6602 Barghast | `src/engine/skills/curated/batch-r4.ts` | target and ALL enemies below → target and the next enemy below only (native NextDownFromTarget) |  |
+| 2026-09-28T11:20 | sa-C | L5-C-r4-6708 | data | 8065 | troop:6708 HexRat | `src/engine/skills/curated/batch-37.ts` | double/Death Mark applied to every Cursed enemy in the column → only the chosen enemy is checked, doubled and Death Marked; below plain |  |
+| 2026-09-28T11:20 | sa-C | L5-C-r4-6937 | data | 8418 | troop:6937 SisterEbony | `src/engine/skills/curated/batch-r6.ts` | double if ANY enemy uses Blue → each of first/last doubled on its own Blue (MultiplyForBlueTarget); barrier still open (P-C-firstlast-army-color) |  |
 
 ## 按技能 ID
 
@@ -526,6 +535,7 @@
 | 7159 | 1 | L4a-R1-7159-cross |
 | 7162 | 1 | L4b-7138-onecolour |
 | 7169 | 2 | L4b-7276-singlegem、B-L4b-6104-blue |
+| 7177 | 1 | L5-C-r4-6108 |
 | 7185 | 2 | L5-012、R004 (L5-004,L5-005,L5-014,L4b-6340) |
 | 7192 | 1 | P-R3-precast-compare |
 | 7194 | 2 | P-F1-oneof-chosen-target、P-F1-oneof-chosen-target |
@@ -560,7 +570,7 @@
 | 7287 | 1 | F3-q26 |
 | 7293 | 1 | L1-consume-first |
 | 7295 | 1 | F3-q35 |
-| 7296 | 1 | L5-C-r4-1132 |
+| 7296 | 2 | L5-C-r4-1132、L5-C-r4-1132 |
 | 7297 | 1 | F3-q20 |
 | 7307 | 1 | F3-q27 |
 | 7308 | 1 | L4a-r3-1138 |
@@ -721,6 +731,7 @@
 | 7804 | 1 | L4a-R1-no-base-7804-8423 |
 | 7805 | 1 | F3-t1210 |
 | 7808 | 1 | R7-6599-full-or |
+| 7811 | 1 | L5-C-r4-6602 |
 | 7864 | 1 | L7-R1-attack-armor-life-pooled |
 | 7866 | 1 | R7-1219-create-before-hit |
 | 7928 | 1 | L4a-R1-7928-allnegative |
@@ -755,6 +766,7 @@
 | 8055 | 1 | L7-R1-random-chain-waves |
 | 8060 | 1 | P-R2-chosen-color-modifier |
 | 8062 | 1 | L5-C-1250-bleed-n |
+| 8065 | 1 | L5-C-r4-6708 |
 | 8073 | 1 | L7-R1-random-chain-waves |
 | 8076 | 1 | R3-B01-1256 |
 | 8077 | 4 | L3-015、L3-016、R7-doomed-count-order、P-R1-count-at-native-step |
@@ -795,6 +807,8 @@
 | 8215 | 1 | L4a-R1-8215-fromprevious |
 | 8218 | 2 | P-counter-per-step、L2-6814-branch-weights |
 | 8219 | 1 | P-counter-per-step |
+| 8221 | 1 | L5-C-r4-1294 |
+| 8223 | 1 | L5-C-r4-6819 |
 | 8226 | 1 | L4a-r3-6822 |
 | 8228 | 3 | P-counter-per-step、F2-6826-kill-skulls、P-counter-per-step |
 | 8229 | 1 | L1-6827-base |
@@ -842,6 +856,7 @@
 | 8414 | 2 | F1-items-62-75、R012 |
 | 8415 | 1 | R3-B04-6934 |
 | 8417 | 1 | P-R3-target-status-count,P-R3-ally-status-excl-self |
+| 8418 | 1 | L5-C-r4-6937 |
 | 8420 | 1 | L4a-R1-8420-cross |
 | 8422 | 1 | P-create-interleave |
 | 8423 | 1 | L4a-R1-no-base-7804-8423 |
@@ -873,6 +888,7 @@
 | 8500 | 2 | P-random-stat-pool、L1-6994-summons |
 | 8502 | 1 | R3-B12-6999 |
 | 8503 | 1 | B-L4b-7000-zh |
+| 8508 | 2 | L5-C-r4-1405、L5-C-r4-1132 |
 | 8525 | 1 | L4a-r3-7018 |
 | 8528 | 1 | F2-R001-order |
 | 8535 | 1 | R3-B02-7007 |
@@ -949,6 +965,7 @@
 | 8684 | 1 | P-random-stat-pool |
 | 8686 | 1 | P-random-stat-pool |
 | 8688 | 1 | L4a-r3-7139 |
+| 8691 | 1 | L5-C-r4-7142 |
 | 8692 | 1 | R3-B08-7143 |
 | 8694 | 1 | F2-7145-miss-branch |
 | 8697 | 1 | L4b-1441-cursed-gems |
