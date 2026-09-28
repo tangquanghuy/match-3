@@ -1,6 +1,6 @@
 # GoW 技能改动留档
 
-自动生成（`node scripts/gow-changelog.mjs render`），源数据 [CHANGES.jsonl](CHANGES.jsonl)，共 280 条改动，涉及 528 个技能 ID。
+自动生成（`node scripts/gow-changelog.mjs render`），源数据 [CHANGES.jsonl](CHANGES.jsonl)，共 281 条改动，涉及 534 个技能 ID。
 
 ## 按时间
 
@@ -286,6 +286,7 @@
 | 2026-09-28T05:55 | sa-P | R012 | primitive | 8414, 7563, 9385, 9862, 7790, 8590, 9258, 9371, 9162, 8248 | troop:6926 Smashedmouth；weapon:1156 Thingamabob；weapon:1605 SagittariansBow；troop:7818 TwistedHag；troop:6586 Umbraxis；troop:7062 Leanansidhe；troop:7512 FirebornLynx；troop:7575 ImmortalAquaria；weapon:1550 NightShear；troop:6843 MotherOfDarkness | `src/engine/skills/targeting.ts`<br>`src/engine/skills/prototypes.ts`<br>`src/engine/skills/effects/context.ts`<br>`src/engine/skills/effects/summon.ts`<br>`tests/unit/gowFixR012.test.ts` | BelowTarget/AboveTarget/NextDown/ChosenAndBelow/ChosenAndNextDown/Adjacent anchored on the chosen unit's current formation index and returned [] once an earlier step of the same cast killed it → castTracking.formationAtCastStart (ids per team at cast start); when the anchor left the roster, above/below = units before/after its cast-start slot (NextDown = first surviving below); Adjacent = its cast-start neighbours that are still alive (no shifting further); anchor alive: unchanged. troop:6843 8248 single-segment ChosenAndNextDown kept (equivalent) | every prototype using enemyBelowTarget/enemyAboveTarget/allyBelowTarget/enemyNextDown/enemyChosenAndNextDown/enemyChosenAndBelow/enemyChosenAndAdjacent (33 entities; 9 change in K) |
 | 2026-09-28T06:00 | sa-P | R010 | test | 7052 | troop:6052 Zombie | `tests/unit/gowFixR010.test.ts` | no test for removed special gems → test: removed bomb/doomSkull/manaPotionGem do not trigger, destroyed ones do; runtime unchanged |  |
 | 2026-09-28T08:36 | sa-P | P-R1-count-at-native-step | primitive | 7207, 7237, 7797, 9237, 7568, 7655, 7656, 7657, 7658, 7659, 7660, 7952, 7963, 7973, 8053, 8077, 8078, 8391, 8392, 9211, 9212, 9213, 9214, 9215, 9216, 8758 | troop:6115 Ranger；troop:6135 GarNok；troop:6593 FallenValdis；troop:7492 Amatiel；weapon:1158 Runeforger；weapon:1180 DoomedTome；weapon:1181 DoomedLibram；weapon:1182 DoomedOpus；weapon:1183 DoomedScripture；weapon:1184 DoomedChronicle；weapon:1185 DoomedCodex；weapon:1226 DoomedBlade；weapon:1229 DoomedClub；weapon:1233 DoomedCrossbow；weapon:1248 DoomedGlaive；weapon:1257 DoomedAxe；weapon:1258 DoomedScythe；weapon:1357 DevilsBane；weapon:1358 HammerOfForce；weapon:1563 DoomedCorseque；weapon:1564 DoomedFauchard；weapon:1565 DoomedImpaler；weapon:1566 DoomedSpear；weapon:1567 DoomedVoulge；weapon:1568 DoomedSpade；troop:7188 FireBeetle | `src/engine/skills/effects/secondary.ts`<br>`src/engine/skills/effects/context.ts`<br>`src/engine/skills/prototypes.ts`<br>`src/engine/skills/curated/batch-r22.ts`<br>`src/engine/skills/curated/batch-30.ts`<br>`src/engine/skills/curated/batch-r21.ts`<br>`src/engine/skills/curated/batch-r13.ts`<br>`src/engine/skills/curated/batch-w01.ts`<br>`src/engine/skills/curated/batch-w02.ts`<br>`src/engine/skills/curated/batch-w04.ts`<br>`src/data/gowWeaponReviewedOverrides.json`<br>`tests/unit/gowFixP-R1-count-at-native-step.test.ts`<br>`tests/unit/gowLaneL3B05.test.ts` | army count sources (teamSize/alliesOf*/enemiesOf* Race/Kingdom/Color) read the live roster when the consuming segment runs: units killed by an earlier segment of the same spell were no longer counted → new atCastStart flag reads castTracking.unitsAtCastStart (alive units at cast start, native Count* at step 0); set on the 26 spells whose native step-0 Count precedes a segment that can kill the counted side | situational: only when a counted unit dies earlier in the same cast; ally-only counts after enemy damage left unflagged (no observable change) |
+| 2026-09-28T08:51 | sa-P | P-R1-gargoyle-tier-filter,P-R2-gargoyle-tier,P-R4-gargoyle-tier-count,P-R3-dragon-gem-count | primitive | 9918, 9022, 8797, 9547, 9527, 9494, 9532, 9371, 9649 | troop:7851 Seditius；troop:7380 PetrifiedTreant；troop:7210 Xenith；troop:7643 Mudwalker；troop:7626 DragonlordLuther；troop:7611 Bahamata；troop:7627 DragonknightAmira；troop:7575 ImmortalAquaria；weapon:1647 DrakkonsCrest | `src/engine/skills/effects/secondary.ts`<br>`src/engine/skills/effects/gems.ts`<br>`src/engine/skills/builders.ts`<br>`src/engine/skills/curated/batch-r19.ts`<br>`src/engine/skills/curated/batch-r16.ts`<br>`src/engine/skills/curated/batch-r11.ts`<br>`src/engine/skills/curated/batch-r8.ts`<br>`src/engine/skills/curated/batch-r10.ts`<br>`src/engine/skills/curated/batch-r14.ts`<br>`src/engine/skills/curated/batch-w04.ts`<br>`tests/unit/gowFixP-boardSpecial-filters.test.ts` | boardSpecial / destroyedGems special / special clear targets matched on kind only: Good and Bad Gargoyles merged; Dragon<Color> counts used every gem of the colour (9527 9494 9532) or every dragon gem (9371 9649) → boardSpecial {tier?, color?}, destroyedGems {specialTier?}, clear target special {tier?} / randomGems {specialTier?} (missing gem tier = 1); 9918 explodes Bad only, 9022 Good only, 8797 counts Bad only, 9547 counts Good and Bad as separate floored steps, dragon counters use dragonGem + colour | only boards with gargoyle / dragon gems; golden review board has none (diff 0 new lines) |
 
 ## 按技能 ID
 
@@ -630,7 +631,7 @@
 | 8785 | 1 | P-counter-per-step |
 | 8788 | 1 | L7-7201 |
 | 8795 | 1 | L3-003 |
-| 8797 | 1 | L4b-7210-doomskull |
+| 8797 | 2 | L4b-7210-doomskull、P-R1-gargoyle-tier-filter,P-R2-gargoyle-tier,P-R4-gargoyle-tier-count,P-R3-dragon-gem-count |
 | 8802 | 1 | F3-t7215 |
 | 8807 | 1 | F2-R001-order |
 | 8812 | 1 | L4a-R1-8812-no-base |
@@ -674,6 +675,7 @@
 | 9008 | 1 | R009-giant-dragon-L4b |
 | 9013 | 1 | L7-R1-random-chain-waves |
 | 9015 | 2 | L5-001、L5-002 |
+| 9022 | 1 | P-R1-gargoyle-tier-filter,P-R2-gargoyle-tier,P-R4-gargoyle-tier-count,P-R3-dragon-gem-count |
 | 9025 | 1 | F2-7383-kill-gems |
 | 9051 | 1 | L3-008 |
 | 9064 | 1 | P-counter-per-step |
@@ -719,7 +721,7 @@
 | 9363 | 1 | F2-R001-order |
 | 9367 | 1 | P-prefnotprev-semantics |
 | 9370 | 1 | P-prefnotprev-semantics |
-| 9371 | 1 | R012 |
+| 9371 | 2 | R012、P-R1-gargoyle-tier-filter,P-R2-gargoyle-tier,P-R4-gargoyle-tier-count,P-R3-dragon-gem-count |
 | 9372 | 2 | P-prefnotprev-semantics、F2-R001-order |
 | 9377 | 1 | P-prefnotprev-semantics |
 | 9380 | 1 | L4a-R1-immortal-order |
@@ -731,6 +733,7 @@
 | 9485 | 1 | P-random-stat-pool |
 | 9486 | 1 | L4a-R1-immortal-order |
 | 9488 | 1 | L4b-1608-1611-order |
+| 9494 | 1 | P-R1-gargoyle-tier-filter,P-R2-gargoyle-tier,P-R4-gargoyle-tier-count,P-R3-dragon-gem-count |
 | 9507 | 1 | L7-R1-weapon-colour-race |
 | 9512 | 1 | P-counter-per-step |
 | 9513 | 1 | L3-007 |
@@ -739,14 +742,16 @@
 | 9523 | 1 | L2-1620-random-bleed |
 | 9524 | 1 | L2-1620-random-bleed |
 | 9525 | 1 | L2-1620-random-bleed |
+| 9527 | 1 | P-R1-gargoyle-tier-filter,P-R2-gargoyle-tier,P-R4-gargoyle-tier-count,P-R3-dragon-gem-count |
 | 9528 | 1 | P-prefnotprev-semantics |
 | 9529 | 1 | P-prefnotprev-semantics |
 | 9530 | 1 | P-prefnotprev-semantics |
 | 9531 | 1 | P-prefnotprev-semantics |
+| 9532 | 1 | P-R1-gargoyle-tier-filter,P-R2-gargoyle-tier,P-R4-gargoyle-tier-count,P-R3-dragon-gem-count |
 | 9534 | 2 | L3-007、F1-items-62-75 |
 | 9538 | 1 | L4b-7634-attack |
 | 9542 | 1 | L4a-R1-9542-order |
-| 9547 | 1 | P-counter-per-step |
+| 9547 | 2 | P-counter-per-step、P-R1-gargoyle-tier-filter,P-R2-gargoyle-tier,P-R4-gargoyle-tier-count,P-R3-dragon-gem-count |
 | 9563 | 1 | R3-B10-7650 |
 | 9573 | 1 | L4b-1625-1674-any |
 | 9578 | 1 | L7-R1-weapon-colour-race |
@@ -765,6 +770,7 @@
 | 9641 | 1 | P-prefnotprev-semantics |
 | 9646 | 1 | R3-B10-7688 |
 | 9647 | 1 | L4b-1646-prefnotprev |
+| 9649 | 1 | P-R1-gargoyle-tier-filter,P-R2-gargoyle-tier,P-R4-gargoyle-tier-count,P-R3-dragon-gem-count |
 | 9659 | 2 | P-prefnotprev-semantics、L4a-R1-9659-prefnotprev |
 | 9661 | 2 | F3-q19、R011 |
 | 9666 | 1 | P-chooser-native-restrictions |
@@ -801,6 +807,7 @@
 | 9882 | 4 | P-counter-per-step、L7-R1-attack-armor-life-pooled、P-counter-per-step、L7-R1-random-chain-waves |
 | 9909 | 1 | P-random-stat-pool |
 | 9915 | 1 | L7-R1-weapon-colour-race |
+| 9918 | 1 | P-R1-gargoyle-tier-filter,P-R2-gargoyle-tier,P-R4-gargoyle-tier-count,P-R3-dragon-gem-count |
 | 9933 | 1 | P-prefnotprev-semantics |
 | 9935 | 1 | P-prefnotprev-semantics |
 | 9936 | 1 | F3-q02 |

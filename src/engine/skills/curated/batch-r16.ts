@@ -86,7 +86,8 @@ const SPELLS: CuratedBatch['spells'] = [
     build: skill(
       // sa-R2 L4b-7210: native CreateGems Doomskull (was plain Skulls). Evil-only count needs P-R2-gargoyle-tier.
       createSpecialGems({ kind: 'doomSkull' }, 5, 0, {
-        modifier: { mod: { kind: 'multiplier', a: 3 }, source: { kind: 'boardSpecial', gem: 'gargoyleGem' } },
+        // native CountGems 300 BadGargoyle: tier 2 only (P-R2-gargoyle-tier)
+        modifier: { mod: { kind: 'multiplier', a: 3 }, source: { kind: 'boardSpecial', gem: 'gargoyleGem', tier: 2 } },
       }),
     ),
   },
@@ -95,7 +96,8 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '爆破 3 颗善石像鬼宝石。获得 [魔法 + 1] 点攻击力和护甲值。',
     // 官方 ExplodeColor GoodGargoyle 3；引擎善恶合并一口 → gargoyleGem 超集口径（r11 9547 并注明）
     build: skill(
-      explodeRandomSpecialGems('gargoyleGem', 3),
+      // native ExplodeColor 3 GoodGargoyle: tier 1 only (P-R1-gargoyle-tier-filter)
+      explodeRandomSpecialGems('gargoyleGem', 3, 0, undefined, 1),
       attack('allySelf', 1, 1),
       armor('allySelf', 1, 1),
     ),

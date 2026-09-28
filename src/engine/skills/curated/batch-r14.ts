@@ -340,11 +340,11 @@ const SPELLS: CuratedBatch['spells'] = [
     // MultiplyForRegion4007（星星湾）= regionPresent（R11 建模）
     build: skill(
       trueDmg('enemyChosen', 2, 1.5, {
-        modifier: { mod: { kind: 'multiplier', a: 2 }, source: { kind: 'boardSpecial', gem: 'dragonGem' } },
+        modifier: { mod: { kind: 'multiplier', a: 2 }, source: { kind: 'boardSpecial', gem: 'dragonGem', color: BaseColor.Blue } },
         condMult: { times: 2, cond: { kind: 'regionPresent', region: 'BayOfStars' } },
       }),
       trueDmg('enemyBelowTarget', 1, 0.75, {
-        modifier: { mod: { kind: 'multiplier', a: 2 }, source: { kind: 'boardSpecial', gem: 'dragonGem' } },
+        modifier: { mod: { kind: 'multiplier', a: 2 }, source: { kind: 'boardSpecial', gem: 'dragonGem', color: BaseColor.Blue } },
         condMult: { times: 2, cond: { kind: 'regionPresent', region: 'BayOfStars' } },
       }),
     ),

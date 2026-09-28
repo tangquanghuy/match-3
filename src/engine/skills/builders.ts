@@ -468,12 +468,12 @@ export function explodeSpecialGems(gem: SpecialGemKind, opts?: SegmentOpts): Gem
   return clearSeg('explode', { kind: 'special', gem }, opts);
 }
 /** 随机摧毁 N 颗指定特殊宝石（「摧毁 3 颗末日骷髅头」） */
-export function destroyRandomSpecialGems(gem: SpecialGemKind, base: number, mult = 0, opts?: SegmentOpts): GemSegment {
-  return clearSeg('destroy', { kind: 'randomGems', count: scale(base, mult), include: 'all', special: gem }, opts);
+export function destroyRandomSpecialGems(gem: SpecialGemKind, base: number, mult = 0, opts?: SegmentOpts, specialTier?: number): GemSegment {
+  return clearSeg('destroy', { kind: 'randomGems', count: scale(base, mult), include: 'all', special: gem, ...(specialTier !== undefined ? { specialTier } : {}) }, opts);
 }
-/** 随机爆破 N 颗指定特殊宝石（「引爆 3 个末日骷髅」） */
-export function explodeRandomSpecialGems(gem: SpecialGemKind, base: number, mult = 0, opts?: SegmentOpts): GemSegment {
-  return clearSeg('explode', { kind: 'randomGems', count: scale(base, mult), include: 'all', special: gem }, opts);
+/** 随机爆破 N 颗指定特殊宝石（「引爆 3 个末日骷髅」）；specialTier 限定档位（gargoyleGem 1=善 / 2=恶，native Good/BadGargoyle） */
+export function explodeRandomSpecialGems(gem: SpecialGemKind, base: number, mult = 0, opts?: SegmentOpts, specialTier?: number): GemSegment {
+  return clearSeg('explode', { kind: 'randomGems', count: scale(base, mult), include: 'all', special: gem, ...(specialTier !== undefined ? { specialTier } : {}) }, opts);
 }
 
 /** 包一层段并透传创造段选项 */
