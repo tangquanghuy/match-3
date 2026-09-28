@@ -426,7 +426,7 @@ describe('L3 R2: B10 Tarot buff family (7% per gem, no base)', () => {
     '%s: RandomAlly then RandomPrefNotPrevAlly: distinct allies while available, repeats on a lone caster', (key, buff, n) => {
       const full = order(castSpell({ key, board: only(BaseColor.Purple, 0, BaseColor.Red) })).filter(o => o.startsWith('buff '));
       expect(full).toHaveLength(n);
-      expect(new Set(full).size).toBe(n);
+      full.slice(1).forEach((b, i) => expect(b).not.toBe(full[i])); // each pick avoids only the previous one
       const alone = order(castSpell({ key, allies: [], board: only(BaseColor.Purple, 0, BaseColor.Red) })).filter(o => o.startsWith('buff '));
       expect(alone).toEqual(Array(n).fill(`buff C ${buff}`));
     });
@@ -450,5 +450,45 @@ describe('L3 R2: B11 Tarot tail + Ankh of Nefertani', () => {
   it('weapon:1376 Ankh of Nefertani: chosen ally only, Life 1 + Magic + 2/Brown gem, then a quarter of its mana', () => {
     const r = castSpell({ key: 'weapon:1376', target: 1, board: only(BaseColor.Brown, 4, BaseColor.Red), allies: [{ hp: 50, maxHp: 50, manaCost: 16 }, { hp: 50, maxHp: 50, manaCost: 16 }] });
     expect(order(r)).toEqual(['buff A1 hp+19 max+19', 'buff A1 mana+4']);
+  });
+});
+
+describe('L3 R2: B12 mana-count / steal checks', () => {
+  const seeds = (n: number) => Array.from({ length: n }, (_, i) => i + 1);
+  it('troop:6205 Morthani\'s Will: steal Armor to my Armor, drain all + gain half, then 4 true damage (a kill still drains)', () => {
+    const r = castSpell({ key: 'troop:6205', target: 10, enemies: [en([], { armor: 20, mana: 8 }), en([])] });
+    expect(order(r)).toEqual(['buff E10 armor-12', 'buff C armor+12', 'buff E10 mana-8', 'buff C mana+4', 'dmg E10 4']);
+    const k = castSpell({ key: 'troop:6205', target: 10, enemies: [en([], { hp: 3, maxHp: 3, mana: 9 }), en([])] });
+    expect(order(k).filter(o => o.includes('mana') || o.startsWith('d'))).toEqual(['buff E10 mana-9', 'buff C mana+4', 'dmg E10 4', 'defeat E10']);
+  });
+  it('troop:7800 Immortal Trogolin: three hits, each avoiding only the previous target; a lone enemy takes all three', () => {
+    expect(order(castSpell({ key: 'troop:7800', enemies: [en([], { hp: 200, maxHp: 200 })] }))).toEqual(['dmg E10 12', 'dmg E10 12', 'dmg E10 12', 'extra-turn skill']);
+    const runs = seeds(30).map(seed => order(castSpell({ key: 'troop:7800', seed })).filter(o => o.startsWith('dmg ')).map(o => o.split(' ')[1]));
+    runs.forEach(h => { expect(h).toHaveLength(3); expect(h[1]).not.toBe(h[0]); expect(h[2]).not.toBe(h[1]); });
+    expect(runs.some(h => h[2] === h[0])).toBe(true);
+  });
+  it('troop:6473 Voice of Orpheus: + other allies\' Mana (caster excluded)', () => {
+    const r = castSpell({ key: 'troop:6473', target: 10, caster: { mana: 22 }, allies: [{ hp: 500, maxHp: 500, mana: 7, manaCost: 30 }, { hp: 500, maxHp: 500, mana: 3, manaCost: 30 }], enemies: [en([])] });
+    expect(order(r)[0]).toBe('dmg E10 28');
+  });
+  it('troop:6691 Lord Ehrondil: + target Mana', () => {
+    expect(order(castSpell({ key: 'troop:6691', target: 10, enemies: [en([], { mana: 12 })] }))[0]).toBe('dmg E10 26');
+  });
+  it('troop:6314 Bugbear: + floor(target missing Life x 50%)', () => {
+    expect(order(castSpell({ key: 'troop:6314', target: 10, enemies: [en([], { hp: 59, maxHp: 100 })] }))[0]).toBe('dmg E10 33');
+  });
+  it('troop:6322 Swordmaster: + front enemy Mana cost', () => {
+    expect(order(castSpell({ key: 'troop:6322', enemies: [en([], { manaCost: 7 }), en([], { manaCost: 20 })] }))).toEqual(['dmg E10 18']);
+  });
+  it('weapon:1212 Blade of Guilt: + Mana cost; +10 if Yellow, +10 if Divine', () => {
+    const both = castSpell({ key: 'weapon:1212', target: 10, enemies: [en([BaseColor.Yellow], { manaCost: 16, troopTypes: ['Divine'] })] });
+    expect(order(both)).toEqual(['dmg E10 30', 'dmg E10 10', 'dmg E10 10']);
+    const none = castSpell({ key: 'weapon:1212', target: 10, enemies: [en([BaseColor.Red], { manaCost: 16 })] });
+    expect(order(none)).toEqual(['dmg E10 30']);
+  });
+  it('troop:7462 Deephorn Beetle: 25% + 2%/Brown gem, extra turn and half mana (6)', () => {
+    const brown = castSpell({ key: 'troop:7462', board: () => colorGem(BaseColor.Brown) });
+    expect(brown.summary.extraTurn).toBe('skill');
+    expect(order(brown)).toContain('buff C mana+6');
   });
 });

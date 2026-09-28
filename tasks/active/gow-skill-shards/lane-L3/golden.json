@@ -59,6 +59,16 @@
   "by": "sa-R7",
   "at": "2026-09-28T08:22:49.913Z"
  },
+ "troop:6205": {
+  "lines": {
+   "L10": "buff E11 armor-10 ; buff C armor+10 ; buff E11 mana-8 ; buff C mana+4 ; dmg E11 4  => E11:hp-4 arm-10 mana-8 | C:arm+10",
+   "R10": "buff E11 armor-10 ; buff C armor+10 ; buff E11 mana-8 ; buff C mana+4 ; dmg E11 4  => E11:hp-4 arm-10 mana-8 | C:arm+10",
+   "L0": "buff E11 armor-2 ; buff C armor+2 ; buff E11 mana-8 ; buff C mana+4 ; dmg E11 4  => E11:hp-4 arm-2 mana-8 | C:arm+2",
+   "K": "buff E11 mana-5 ; buff C mana+2 ; dmg E11 4 ; defeat E11  => E11:hp-1 mana-5 DEAD"
+  },
+  "by": "sa-R7",
+  "at": "2026-09-28T08:59:04.419Z"
+ },
  "troop:6227": {
   "lines": {
    "L10": "dmg E10 13 ; status E10 +stun ; buff E10 mana-6 ; dmg E11 13 ; status E11 +stun ; buff E11 mana-8  => E10:hp-13 mana-6 +stun | E11:hp-13 mana-8 +stun",
@@ -89,6 +99,16 @@
   "by": "sa-R7",
   "at": "2026-09-28T08:44:13.787Z"
  },
+ "troop:6314": {
+  "lines": {
+   "L10": "dmg E11 13 ; extra-turn skill  => E11:hp-3 arm-10  extra:skill",
+   "R10": "dmg E11 13 ; extra-turn skill  => E11:hp-3 arm-10  extra:skill",
+   "L0": "dmg E11 3 ; extra-turn skill  => E11:arm-3  extra:skill",
+   "K": "dmg E11 13 ; defeat E11 ; extra-turn skill  => E11:hp-1 DEAD  extra:skill"
+  },
+  "by": "sa-R7",
+  "at": "2026-09-28T08:59:04.419Z"
+ },
  "troop:6317": {
   "lines": {
    "L10": "buff E11 mana-8 ; convert Green x1, Purple x4, skull x1, Red x1, Yellow x1 -> Blue x8  => E11:mana-8",
@@ -108,6 +128,16 @@
   },
   "by": "sa-F1",
   "at": "2026-09-28T00:06:27.871Z"
+ },
+ "troop:6322": {
+  "lines": {
+   "L10": "dmg E10 27  => E10:hp-22 arm-5",
+   "R10": "dmg E10 27  => E10:hp-22 arm-5",
+   "L0": "dmg E10 17  => E10:hp-12 arm-5",
+   "K": "dmg E10 27 ; defeat E10  => E10:hp-1 DEAD"
+  },
+  "by": "sa-R7",
+  "at": "2026-09-28T08:59:04.419Z"
  },
  "troop:6323": {
   "lines": {
@@ -159,6 +189,16 @@
   "by": "sa-R7",
   "at": "2026-09-28T05:57:15.234Z"
  },
+ "troop:6473": {
+  "lines": {
+   "L10": "dmg E11 18 ; cleanse C -poison ; cleanse A1 -poison ; buff A1 mana+5 ; buff A2 mana+5  => E11:hp-8 arm-10 | C:-poison | A1:mana+5 -poison | A2:mana+5",
+   "R10": "dmg E11 18 ; cleanse C -poison ; cleanse A1 -poison ; buff A1 mana+5 ; buff A2 mana+5  => E11:hp-8 arm-10 | C:-poison | A1:mana+5 -poison | A2:mana+5",
+   "L0": "dmg E11 8 ; cleanse C -poison ; cleanse A1 -poison ; buff A1 mana+5 ; buff A2 mana+5  => E11:arm-8 | C:-poison | A1:mana+5 -poison | A2:mana+5",
+   "K": "dmg E11 18 ; defeat E11 ; cleanse C -poison ; cleanse A1 -poison ; buff A1 mana+5 ; buff A2 mana+5  => E11:hp-1 DEAD | C:-poison | A1:mana+5 -poison | A2:mana+5"
+  },
+  "by": "sa-R7",
+  "at": "2026-09-28T08:59:04.419Z"
+ },
  "troop:6508": {
   "lines": {
    "L10": "buff C armor+13 ; buff A1 attack+5 ; buff A2 attack+5 ; buff A1 mana+5 ; buff A2 mana+5  => C:arm+13 | A1:atk+5 mana+5 | A2:atk+5 mana+5",
@@ -199,6 +239,16 @@
   "by": "sa-R7",
   "at": "2026-09-28T08:22:49.913Z"
  },
+ "troop:6600": {
+  "lines": {
+   "L10": "gold+900 ; buff C hp+11 max+11 ; extra-turn skill  => C:hp+11 max+11  extra:skill  eco:{\"gold\":900,\"goldMine\":900}",
+   "R10": "gold+900 ; buff C hp+11 max+11 ; extra-turn skill  => C:hp+11 max+11  extra:skill  eco:{\"gold\":900,\"goldMine\":900}",
+   "L0": "gold+900 ; buff C hp+1 max+1 ; extra-turn skill  => C:hp+1 max+1  extra:skill  eco:{\"gold\":900,\"goldMine\":900}",
+   "K": "gold+900 ; buff C hp+11 max+11 ; extra-turn skill  => C:hp+11 max+11  extra:skill  eco:{\"gold\":900,\"goldMine\":900}"
+  },
+  "by": "sa-R7",
+  "at": "2026-09-28T08:59:04.419Z"
+ },
  "troop:6648": {
   "lines": {
    "L10": "buff C armor+13 ; buff A1 magic+2 ; buff A2 magic+2 ; buff A1 mana+5 ; buff A2 mana+5  => C:arm+13 | A1:mag+2 mana+5 | A2:mag+2 mana+5",
@@ -208,6 +258,16 @@
   },
   "by": "sa-R7",
   "at": "2026-09-28T05:49:19.936Z"
+ },
+ "troop:6691": {
+  "lines": {
+   "L10": "dmg E11 22  => E11:hp-12 arm-10",
+   "R10": "dmg E11 22  => E11:hp-12 arm-10",
+   "L0": "dmg E11 12  => E11:hp-2 arm-10",
+   "K": "dmg E11 19 ; defeat E11  => E11:hp-1 DEAD"
+  },
+  "by": "sa-R7",
+  "at": "2026-09-28T08:59:06.922Z"
  },
  "troop:6710": {
   "lines": {
@@ -318,6 +378,16 @@
   },
   "by": "sa-F1",
   "at": "2026-09-28T00:51:25.001Z"
+ },
+ "troop:6978": {
+  "lines": {
+   "L10": "buff E11 mana-7 ; buff C mana+7 ; dmg E11 22 ; buff C hp+22 max+22  => E11:hp-22 mana-7 | C:hp+22 max+22",
+   "R10": "buff E11 mana-7 ; buff C mana+7 ; dmg E11 22 ; buff C hp+22 max+22  => E11:hp-22 mana-7 | C:hp+22 max+22",
+   "L0": "buff E11 mana-7 ; buff C mana+7 ; dmg E11 12 ; buff C hp+12 max+12  => E11:hp-12 mana-7 | C:hp+12 max+12",
+   "K": "buff E11 mana-5 ; buff C mana+5 ; dmg E11 22 ; defeat E11 ; buff C hp+1 max+1  => E11:hp-1 mana-5 DEAD | C:hp+1 max+1"
+  },
+  "by": "sa-R7",
+  "at": "2026-09-28T08:59:04.419Z"
  },
  "troop:7035": {
   "lines": {
@@ -729,6 +799,16 @@
   "by": "sa-R2",
   "at": "2026-09-28T02:31:29.756Z"
  },
+ "troop:7462": {
+  "lines": {
+   "L10": "dmg E10 13  => E10:hp-13",
+   "R10": "dmg E10 13  => E10:hp-13",
+   "L0": "dmg E10 3  => E10:hp-3",
+   "K": "dmg E10 13 ; defeat E10  => E10:hp-1 DEAD"
+  },
+  "by": "sa-R7",
+  "at": "2026-09-28T08:59:04.419Z"
+ },
  "troop:7502": {
   "lines": {
    "L10": "buff E11 mana-8 ; convert Green x1, Purple x1, skull x1, Red x1 -> freezeGem x4  => E11:mana-8",
@@ -1009,6 +1089,16 @@
   "by": "sa-R7",
   "at": "2026-09-28T08:35:11.787Z"
  },
+ "troop:7800": {
+  "lines": {
+   "L10": "dmg E12 12 ; dmg E11 12 ; dmg E13 12 ; extra-turn skill  => E12:hp-12 | E11:hp-12 | E13:hp-12  extra:skill",
+   "R10": "dmg E12 12 ; dmg E11 12 ; dmg E13 12 ; extra-turn skill  => E12:hp-12 | E11:hp-12 | E13:hp-12  extra:skill",
+   "L0": "dmg E12 2 ; dmg E11 2 ; dmg E13 2 ; extra-turn skill  => E12:hp-2 | E11:hp-2 | E13:hp-2  extra:skill",
+   "K": "dmg E12 12 ; defeat E12 ; dmg E11 12 ; defeat E11 ; dmg E13 12 ; defeat E13 ; extra-turn skill  => E12:hp-1 DEAD | E11:hp-1 DEAD | E13:hp-1 DEAD  extra:skill"
+  },
+  "by": "sa-R7",
+  "at": "2026-09-28T08:59:09.403Z"
+ },
  "troop:7816": {
   "lines": {
    "L10": "buff C armor+8 ; buff A1 armor+8 ; buff A2 armor+8 ; extra-turn skill  => C:arm+8 | A1:arm+8 | A2:arm+8  extra:skill",
@@ -1128,6 +1218,16 @@
   },
   "by": "sa-F1",
   "at": "2026-09-28T00:42:39.000Z"
+ },
+ "weapon:1212": {
+  "lines": {
+   "L10": "dmg E11 30 ; dmg E11 10  => E11:hp-30 arm-10",
+   "R10": "dmg E11 30 ; dmg E11 10  => E11:hp-30 arm-10",
+   "L0": "dmg E11 20 ; dmg E11 10  => E11:hp-20 arm-10",
+   "K": "dmg E11 30 ; defeat E11  => E11:hp-1 DEAD"
+  },
+  "by": "sa-R7",
+  "at": "2026-09-28T08:59:04.419Z"
  },
  "weapon:1219": {
   "lines": {

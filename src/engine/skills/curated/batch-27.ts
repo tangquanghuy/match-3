@@ -16,7 +16,7 @@
  *   「敌我双方兽人数/任意状态敌人数/其所有技能值」（二次缩放来源不支持）→ 各按既有批次口径
  *   SKIP（见下，均注先例）。
  */
-import { chooseSkill, skill, dmg, heal, armor, magic, mana, reduce, trueDmg, createGems, createSkulls, destroyChosenRow, destroyRandomGems, explodeRandomGems, inflict, extraTurn, summonRef, CELL, explodeAt } from '../builders';
+import { chooseSkill, skill, dmg, heal, armor, magic, reduce, trueDmg, createGems, createSkulls, destroyChosenRow, destroyRandomGems, explodeRandomGems, inflict, extraTurn, summonRef, CELL, explodeAt } from '../builders';
 import { BaseColor } from '../../types';
 import type { CuratedBatch } from './index';
 

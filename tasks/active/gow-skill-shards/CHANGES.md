@@ -1,6 +1,6 @@
 # GoW 技能改动留档
 
-自动生成（`node scripts/gow-changelog.mjs render`），源数据 [CHANGES.jsonl](CHANGES.jsonl)，共 297 条改动，涉及 541 个技能 ID。
+自动生成（`node scripts/gow-changelog.mjs render`），源数据 [CHANGES.jsonl](CHANGES.jsonl)，共 299 条改动，涉及 543 个技能 ID。
 
 ## 按时间
 
@@ -303,6 +303,8 @@
 | 2026-09-28T08:43 | sa-R7 | R7-7061-no-base | assembler | 8589 | troop:7061 DarkKnight | `src/engine/skills/curated/batch-30.ts` | drain 4 + 4 per Purple gem destroyed → drain 4 per Purple gem in the column only (native DecreaseMana UseCounterForAmount, no Amount) |  |
 | 2026-09-28T08:47 | sa-R7 | R7-tarot-extra-turn | assembler | 8970, 8666 | troop:7552 TwoOfSwords；troop:7126 TheFool | `src/engine/skills/curated/batch-r4.ts`<br>`src/engine/skills/curated/batch-r5.ts` | extra-turn chance 7% base + 7% per gem → 7% per gem only (native ExtraTurnConditional UseCounterForAmount, no Amount) |  |
 | 2026-09-28T08:53 | sa-R7 | R7-b11-defs | assembler | 8595, 8439, 8861 | troop:7067 TheStar；weapon:1376 AnkhOfNefertani；troop:7287 TheWheelOfFortune | `src/engine/skills/curated/batch-27.ts`<br>`src/engine/skills/curated/batch-w03.ts`<br>`src/engine/skills/curated/batch-r19.ts` | 8595 gave Mana; 8439 healed + quarter mana to all allies; 8861 extra-turn chance counted on the refilled board after Remove all Gems → 8595 gives Magic (IncreaseSpellPower); 8439 chosen ally only (FromTarget); 8861 chance counted before the removal (CountGems step 0) |  |
+| 2026-09-28T08:57 | sa-R7 | R7-6205-steal-order | assembler | 7347 | troop:6205 MorthanisWill | `src/engine/skills/curated/batch-r15.ts` | steal Armor -> my Magic; true damage before the mana drain (a killed target was never drained) → StealArmor -> my Armor; native order steal, drain all + gain half, then TrueDamage 4 (R001) |  |
+| 2026-09-28T08:57 | sa-R7 | R7-7800-prefnotprev | assembler | 9839 | troop:7800 ImmortalTrogolin | `src/engine/skills/curated/batch-r11.ts` | enemyRandomN n:3 (three distinct enemies; lone enemy hit once) → RandomEnemy + 2 x RandomPrefNotPrevEnemy (R007-3): each hit avoids only the previous; lone enemy hit three times |  |
 
 ## 按技能 ID
 
@@ -385,6 +387,7 @@
 | 7339 | 1 | F1-items-62-75 |
 | 7340 | 1 | P-random-stat-pool |
 | 7345 | 1 | F2-6203-no-cleanse |
+| 7347 | 1 | R7-6205-steal-order |
 | 7348 | 2 | P-F1-oneof-chosen-target、P-F1-oneof-chosen-target |
 | 7349 | 2 | F1-remove-order、P-F1-remove-gems |
 | 7353 | 1 | L7-6211 |
@@ -815,6 +818,7 @@
 | 9811 | 1 | R7-1667-drain-order |
 | 9816 | 1 | L3-012 |
 | 9831 | 1 | L4b-1625-1674-any |
+| 9839 | 1 | R7-7800-prefnotprev |
 | 9842 | 1 | L4b-1682-order |
 | 9844 | 1 | F1-items-62-75 |
 | 9847 | 1 | L3-015 |

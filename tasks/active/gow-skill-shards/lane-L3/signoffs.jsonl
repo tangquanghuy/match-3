@@ -157,3 +157,13 @@
 {"format":"compact","key":"troop:7628","decision":"accept","reviewer":"sa-R7","reviewedAt":"2026-09-28T08:53:50.845Z","tests":["tests/unit/gowCastGolden.test.ts"]}
 {"format":"compact","key":"weapon:1376","decision":"issue","reviewer":"sa-R7","reviewedAt":"2026-09-28T08:53:51.024Z","issue":"L3-005","note":"8439 GenerateQuarterMana@FromTarget: floor(manaCost/4) rounding unsourced (L3-005). Rest verified after fix: chosen ally only, Life 1 + Magic + 2/Brown gem (test)."}
 {"format":"compact","key":"troop:7287","decision":"issue","reviewer":"sa-R7","reviewedAt":"2026-09-28T08:53:51.115Z","issue":"L3-remove-all-skulls","note":"8861 native RemoveGems 100 (EN 'Remove all Gems') assembled as destroyAllColors, which leaves Skulls on the board (L10: 5 skulls kept); same for 7137. Does 'all Gems' include Skulls? Extra-turn count moved before the removal (fixed, test)."}
+{"format":"compact","key":"troop:6978","decision":"accept","reviewer":"sa-R7","reviewedAt":"2026-09-28T08:59:04.515Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:7462","decision":"accept","reviewer":"sa-R7","reviewedAt":"2026-09-28T08:59:04.516Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:6600","decision":"accept","reviewer":"sa-R7","reviewedAt":"2026-09-28T08:59:04.516Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:6473","decision":"accept","reviewer":"sa-R7","reviewedAt":"2026-09-28T08:59:04.516Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:6205","decision":"accept","reviewer":"sa-R7","reviewedAt":"2026-09-28T08:59:04.516Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:6322","decision":"accept","reviewer":"sa-R7","reviewedAt":"2026-09-28T08:59:04.516Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"weapon:1212","decision":"accept","reviewer":"sa-R7","reviewedAt":"2026-09-28T08:59:04.517Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:6314","decision":"accept","reviewer":"sa-R7","reviewedAt":"2026-09-28T08:59:04.517Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:6691","decision":"accept","reviewer":"sa-R7","reviewedAt":"2026-09-28T08:59:07.014Z","tests":["tests/unit/gowCastGolden.test.ts"],"waived":[{"part":"clause","id":"c2","mode":"boss"},{"part":"step","id":"1","mode":"boss"}]}
+{"format":"compact","key":"troop:7800","decision":"accept","reviewer":"sa-R7","reviewedAt":"2026-09-28T08:59:09.498Z","tests":["tests/unit/gowCastGolden.test.ts"],"note":"Broken Lands x2 = condMult regionPresent (not exercisable in castSpell); 3 PrefNotPrev hits + wish x2 tested"}

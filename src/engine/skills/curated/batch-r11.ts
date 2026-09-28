@@ -605,11 +605,12 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: "对 3 个随机敌人造成 [魔法 + 2] 点真实伤害，受许愿宝石加成。若在破碎之地使用，则造成双倍伤害。然后获得额外回合。 [x2]",
     // 许愿宝石 = boardSpecial wish（窗口 C 落地）×2；MultiplyForRegion4010（破碎之地）；「获得额外回合」
     build: skill(
-      trueDmg('enemyRandomN', 2, 1, {
-        n: 3,
+      // sa-R7 (R007-3): native RandomEnemy + 2 x RandomPrefNotPrevEnemy = three hits, each avoiding only the
+      // previous one (the third may repeat the first; a lone enemy takes all three). Was enemyRandomN n:3 (distinct).
+      ...(['enemyRandom', 'enemyRandomPrefNotPrev', 'enemyRandomPrefNotPrev'] as const).map((t) => trueDmg(t, 2, 1, {
         modifier: { mod: { kind: 'multiplier', a: 2 }, source: { kind: 'boardSpecial', gem: 'wish' } },
         condMult: REGION2('BrokenLands'),
-      }),
+      })),
       extraTurn(),
     ),
   },

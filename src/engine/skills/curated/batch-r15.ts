@@ -135,9 +135,12 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 7347,
     desc: '从一名敌人身上窃取 [魔法 + 2] 点护甲值并造成 4 点真实伤害。耗尽其法力值并获得其中半数。 [2:1]',
     build: skill(
-      steal('enemyChosen', 'armor', 'magic', 2, 1),
-      trueDmg('enemyChosen', 4, 0),
+      // sa-R7: native CountMana 50 -> StealArmor -> DecreaseMana 100 -> GenerateMana [counter] -> TrueDamage 4 (R001):
+      // the stolen Armor goes to my Armor (was Magic) and the drain / half-mana gain happen before the true
+      // damage, so a target killed by it is still drained.
+      steal('enemyChosen', 'armor', 'armor', 2, 1),
       steal('enemyChosen', 'mana', 'mana', 0, 0, { drainAll: true, gainRatio: 0.5 }),
+      trueDmg('enemyChosen', 4, 0),
     ),
   },
   {
