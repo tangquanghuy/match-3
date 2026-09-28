@@ -1,6 +1,6 @@
 # GoW 技能改动留档
 
-自动生成（`node scripts/gow-changelog.mjs render`），源数据 [CHANGES.jsonl](CHANGES.jsonl)，共 299 条改动，涉及 543 个技能 ID。
+自动生成（`node scripts/gow-changelog.mjs render`），源数据 [CHANGES.jsonl](CHANGES.jsonl)，共 301 条改动，涉及 548 个技能 ID。
 
 ## 按时间
 
@@ -305,6 +305,8 @@
 | 2026-09-28T08:53 | sa-R7 | R7-b11-defs | assembler | 8595, 8439, 8861 | troop:7067 TheStar；weapon:1376 AnkhOfNefertani；troop:7287 TheWheelOfFortune | `src/engine/skills/curated/batch-27.ts`<br>`src/engine/skills/curated/batch-w03.ts`<br>`src/engine/skills/curated/batch-r19.ts` | 8595 gave Mana; 8439 healed + quarter mana to all allies; 8861 extra-turn chance counted on the refilled board after Remove all Gems → 8595 gives Magic (IncreaseSpellPower); 8439 chosen ally only (FromTarget); 8861 chance counted before the removal (CountGems step 0) |  |
 | 2026-09-28T08:57 | sa-R7 | R7-6205-steal-order | assembler | 7347 | troop:6205 MorthanisWill | `src/engine/skills/curated/batch-r15.ts` | steal Armor -> my Magic; true damage before the mana drain (a killed target was never drained) → StealArmor -> my Armor; native order steal, drain all + gain half, then TrueDamage 4 (R001) |  |
 | 2026-09-28T08:57 | sa-R7 | R7-7800-prefnotprev | assembler | 9839 | troop:7800 ImmortalTrogolin | `src/engine/skills/curated/batch-r11.ts` | enemyRandomN n:3 (three distinct enemies; lone enemy hit once) → RandomEnemy + 2 x RandomPrefNotPrevEnemy (R007-3): each hit avoids only the previous; lone enemy hit three times |  |
+| 2026-09-28T09:02 | sa-R7 | R7-guardian-potions | assembler | 8601, 8606, 8603, 8605 | troop:7073 JakalTheGuardian；troop:7078 AransiTheGuardian；troop:7075 UrielleTheGuardian；troop:7077 RokGarTheGuardian | `src/engine/skills/curated/batch-r8.ts` | 'Create 1-3 <colour> Mana Potions' created plain colour gems; 8606 poison uniform 1-3 distinct targets → manaPotionGem of that colour (native CreateGemsRange <Colour>ManaPotion, same as 8604); 8606 RandomEnemy + 2 x 50% RandomPrefNotPrevEnemy |  |
+| 2026-09-28T09:02 | sa-R7 | R7-1460-burning-gems | assembler | 8761 | weapon:1460 TheMoltenWard | `src/engine/skills/curated/batch-w03.ts` | Armor boosted by the number of Burning enemies → boosted by Burning gems on the board (native CountSet + CountGems Burning 100); extra-turn step before the armor (native order) |  |
 
 ## 按技能 ID
 
@@ -611,6 +613,10 @@
 | 8597 | 1 | P-steal-to-life |
 | 8598 | 3 | L3-007、L3-008、L3-009 |
 | 8599 | 1 | L4b-7071-base |
+| 8601 | 1 | R7-guardian-potions |
+| 8603 | 1 | R7-guardian-potions |
+| 8605 | 1 | R7-guardian-potions |
+| 8606 | 1 | R7-guardian-potions |
 | 8624 | 2 | P-counter-per-step、L7-R1-teamsize-source |
 | 8625 | 1 | F1-items-54-60 |
 | 8626 | 2 | P-counter-per-step、L7-R1-teamsize-source |
@@ -648,6 +654,7 @@
 | 8751 | 2 | P-counter-per-step、P-counter-per-step |
 | 8752 | 2 | L5-008、R004 (L5-004,L5-005,L5-014,L4b-6340) |
 | 8755 | 1 | F2-R001-order |
+| 8761 | 1 | R7-1460-burning-gems |
 | 8767 | 1 | L7-R1-weapon-colour-race |
 | 8776 | 1 | R3-B03-1474 |
 | 8782 | 1 | L4b-7195-order |

@@ -2,7 +2,8 @@
  * Lane L3 review round 2 (sa-R7): table-driven checks for behaviour the default scenarios do not show.
  */
 import { describe, expect, it } from 'vitest';
-import { castSpell } from '../helpers/gowCast';
+import { castSpell, setupCast, summarize } from '../helpers/gowCast';
+import { setGoldForSide } from '@engine/battleGold';
 import { BaseColor, colorGem, skullGem, specialGem } from '@engine/types';
 import type { Character } from '@engine/types';
 type E = Partial<Character>;
@@ -490,5 +491,52 @@ describe('L3 R2: B12 mana-count / steal checks', () => {
     const brown = castSpell({ key: 'troop:7462', board: () => colorGem(BaseColor.Brown) });
     expect(brown.summary.extraTurn).toBe('skill');
     expect(order(brown)).toContain('buff C mana+6');
+  });
+});
+
+describe('L3 R2: B13 Guardians (mana potions, 50% extra turn if any enemy has <status>), gold boosts, Molten Ward', () => {
+  const seeds = (n: number) => Array.from({ length: n }, (_, i) => i + 1);
+  const st = (id: string) => [{ id, turns: 99 }] as Character['statuses'];
+  it.each([
+    ['troop:7073', 'Blue', 'frozen'], ['troop:7076', 'Purple', 'curse'], ['troop:7078', 'Green', 'web'],
+    ['troop:7075', 'Yellow', 'death-mark'], ['troop:7077', 'Brown', 'stun'],
+  ])('%s: creates 1-3 %s Mana Potions; %s enemy -> 50%% extra turn, none -> never', (key, colour, status) => {
+    const runs = seeds(40).map(seed => castSpell({ key, seed, enemies: [en([], { statuses: st(status) }), en([])] }));
+    runs.forEach(r => expect(order(r).find(o => o.includes('manaPotionGem'))).toMatch(new RegExp(`-> manaPotionGem/${colour} x[123]$`)));
+    const t = runs.map(r => r.summary.extraTurn === 'skill');
+    expect(t.some(Boolean) && !t.every(Boolean)).toBe(true);
+    expect(seeds(30).some(seed => castSpell({ key, seed, enemies: [en([]), en([])] }).summary.extraTurn === 'skill')).toBe(false);
+  });
+  it('troop:7078 Aransi: poison 1 target + two independent 50% extra targets, each avoiding only the previous', () => {
+    const sizes = seeds(40).map(seed => {
+      const hits = order(castSpell({ key: 'troop:7078', seed })).filter(o => o.endsWith('+poison')).map(o => o.split(' ')[1]);
+      hits.slice(1).forEach((h, i) => expect(h).not.toBe(hits[i]));
+      return hits.length;
+    });
+    expect(new Set(sizes)).toEqual(new Set([1, 2, 3]));
+  });
+  it('troop:7172 Eldritch Minion: half mana only if an enemy is Cursed', () => {
+    expect(order(castSpell({ key: 'troop:7172', enemies: [en([], { statuses: st('curse') })] }))).toContain('buff C mana+6');
+    expect(order(castSpell({ key: 'troop:7172', enemies: [en([])] })).some(o => o.startsWith('buff C mana'))).toBe(false);
+  });
+  it('weapon:1460 Molten Ward: Armor 4 + Magic + 1 per Burning gem; extra turn only if I am Burning', () => {
+    const board = (r: number, c: number) => (r === 0 && c < 3 ? specialGem('burningGem') : colorGem(BaseColor.Red));
+    const burning = castSpell({ key: 'weapon:1460', board, allies: [], caster: { statuses: st('burning') } });
+    expect(order(burning)).toEqual(['status C +barrier', 'extra-turn skill', 'buff C armor+17']);
+    const cool = castSpell({ key: 'weapon:1460', board, allies: [], enemies: [en([], { statuses: st('burning') })] });
+    expect(order(cool)).toEqual(['status C +barrier', 'buff C armor+17']);
+  });
+  const withGold = (key: string, gold: number, o: Partial<Parameters<typeof setupCast>[0]> = {}) => {
+    const f = setupCast({ key, ...o }); setGoldForSide(f.state, f.side, gold);
+    return summarize(f, f.cast()).order;
+  };
+  it('weapon:1214 Skeleton Key: + floor(Gold x 34%) to first and last; kill -> extra turn', () => {
+    expect(withGold('weapon:1214', 50, { enemies: [en([]), en([]), en([])] })).toEqual(['dmg E12 30', 'dmg E10 30']);
+  });
+  it.each([[50, 19], [100, 36]])('troop:6718 Red Charlotte: Gold %i -> Mana 2 + floor(Gold x 34%%) = %i (Tower waived)', (gold, mana) => {
+    expect(withGold('troop:6718', gold, { cost: 40, target: 10, enemies: [en([])] })).toEqual(['dmg E10 14', `buff C mana+${mana}`]);
+  });
+  it('troop:7365 Slughoarder: + Gold [1:1], +10 Gold, extra turn', () => {
+    expect(withGold('troop:7365', 40, { target: 10, enemies: [en([], { hp: 200, maxHp: 200 })] })).toEqual(['dmg E10 52', 'gold+10', 'extra-turn skill']);
   });
 });

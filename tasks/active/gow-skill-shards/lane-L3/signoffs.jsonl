@@ -167,3 +167,13 @@
 {"format":"compact","key":"troop:6314","decision":"accept","reviewer":"sa-R7","reviewedAt":"2026-09-28T08:59:04.517Z","tests":["tests/unit/gowCastGolden.test.ts"]}
 {"format":"compact","key":"troop:6691","decision":"accept","reviewer":"sa-R7","reviewedAt":"2026-09-28T08:59:07.014Z","tests":["tests/unit/gowCastGolden.test.ts"],"waived":[{"part":"clause","id":"c2","mode":"boss"},{"part":"step","id":"1","mode":"boss"}]}
 {"format":"compact","key":"troop:7800","decision":"accept","reviewer":"sa-R7","reviewedAt":"2026-09-28T08:59:09.498Z","tests":["tests/unit/gowCastGolden.test.ts"],"note":"Broken Lands x2 = condMult regionPresent (not exercisable in castSpell); 3 PrefNotPrev hits + wish x2 tested"}
+{"format":"compact","key":"weapon:1214","decision":"accept","reviewer":"sa-R7","reviewedAt":"2026-09-28T09:03:04.564Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"weapon:1460","decision":"accept","reviewer":"sa-R7","reviewedAt":"2026-09-28T09:03:04.566Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:7073","decision":"accept","reviewer":"sa-R7","reviewedAt":"2026-09-28T09:03:04.566Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:7076","decision":"accept","reviewer":"sa-R7","reviewedAt":"2026-09-28T09:03:04.566Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:7078","decision":"accept","reviewer":"sa-R7","reviewedAt":"2026-09-28T09:03:04.566Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:7075","decision":"accept","reviewer":"sa-R7","reviewedAt":"2026-09-28T09:03:04.566Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:7077","decision":"accept","reviewer":"sa-R7","reviewedAt":"2026-09-28T09:03:04.567Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:7172","decision":"accept","reviewer":"sa-R7","reviewedAt":"2026-09-28T09:03:04.567Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:6718","decision":"accept","reviewer":"sa-R7","reviewedAt":"2026-09-28T09:03:07.113Z","tests":["tests/unit/gowCastGolden.test.ts"],"waived":[{"part":"clause","id":"c2","mode":"tower"},{"part":"step","id":"1","mode":"tower"}]}
+{"format":"compact","key":"troop:7365","decision":"accept","reviewer":"sa-R7","reviewedAt":"2026-09-28T09:03:07.115Z","tests":["tests/unit/gowCastGolden.test.ts"],"waived":[{"part":"clause","id":"c2","mode":"tower"},{"part":"step","id":"1","mode":"tower"}]}

@@ -279,6 +279,16 @@
   "by": "sa-R7",
   "at": "2026-09-28T05:59:17.597Z"
  },
+ "troop:6718": {
+  "lines": {
+   "L10": "dmg E11 14 ; buff C mana+12  => E11:hp-4 arm-10",
+   "R10": "dmg E11 14 ; buff C mana+12  => E11:hp-4 arm-10",
+   "L0": "dmg E11 4 ; buff C mana+12  => E11:arm-4",
+   "K": "dmg E11 14 ; defeat E11 ; buff C mana+12  => E11:hp-1 DEAD"
+  },
+  "by": "sa-R7",
+  "at": "2026-09-28T09:03:07.017Z"
+ },
  "troop:6792": {
   "lines": {
    "L10": "buff E11 mana-8 ; convert Yellow x2, Purple x3, Blue x2, Green x1 -> Red x8  => E11:mana-8",
@@ -449,6 +459,56 @@
   "by": "sa-R7",
   "at": "2026-09-28T08:53:50.750Z"
  },
+ "troop:7073": {
+  "lines": {
+   "L10": "status E12 +death-mark ; convert skull x1, Brown x1 -> manaPotionGem/Blue x2  => E12:+death-mark",
+   "R10": "status E12 +death-mark ; convert skull x1, Brown x1 -> manaPotionGem/Blue x2  => E12:+death-mark",
+   "L0": "status E12 +death-mark ; convert skull x1, Brown x1 -> manaPotionGem/Blue x2  => E12:+death-mark",
+   "K": "status E12 +death-mark ; convert skull x1, Brown x1 -> manaPotionGem/Blue x2  => E12:+death-mark"
+  },
+  "by": "sa-R7",
+  "at": "2026-09-28T09:03:04.469Z"
+ },
+ "troop:7075": {
+  "lines": {
+   "L10": "cleanse A1 -poison ; buff A1 hp+11 max+11 ; convert Green x1, skull x1 -> manaPotionGem/Yellow x2  => A1:hp+11 max+11 -poison",
+   "R10": "cleanse A1 -poison ; buff A1 hp+11 max+11 ; convert Green x1, skull x1 -> manaPotionGem/Yellow x2  => A1:hp+11 max+11 -poison",
+   "L0": "cleanse A1 -poison ; buff A1 hp+1 max+1 ; convert Green x1, skull x1 -> manaPotionGem/Yellow x2  => A1:hp+1 max+1 -poison",
+   "K": "cleanse A1 -poison ; buff A1 hp+11 max+11 ; convert Green x1, skull x1 -> manaPotionGem/Yellow x2  => A1:hp+11 max+11 -poison"
+  },
+  "by": "sa-R7",
+  "at": "2026-09-28T09:03:04.469Z"
+ },
+ "troop:7076": {
+  "lines": {
+   "L10": "status A1 +enchanted ; convert skull x1, Red x1 -> manaPotionGem/Purple x2  => A1:+enchanted",
+   "R10": "status A1 +enchanted ; convert skull x1, Red x1 -> manaPotionGem/Purple x2  => A1:+enchanted",
+   "L0": "status A1 +enchanted ; convert skull x1, Red x1 -> manaPotionGem/Purple x2  => A1:+enchanted",
+   "K": "status A1 +enchanted ; convert skull x1, Red x1 -> manaPotionGem/Purple x2  => A1:+enchanted"
+  },
+  "by": "sa-R7",
+  "at": "2026-09-28T09:03:04.469Z"
+ },
+ "troop:7077": {
+  "lines": {
+   "L10": "convert Blue x11 -> skull x11 ; convert Purple x1, skull x1 -> manaPotionGem/Brown x2",
+   "R10": "convert Blue x11 -> skull x11 ; convert Purple x1, skull x1 -> manaPotionGem/Brown x2",
+   "L0": "convert Blue x11 -> skull x11 ; convert Purple x1, skull x1 -> manaPotionGem/Brown x2",
+   "K": "convert Blue x11 -> skull x11 ; convert Purple x1, skull x1 -> manaPotionGem/Brown x2"
+  },
+  "by": "sa-R7",
+  "at": "2026-09-28T09:03:04.469Z"
+ },
+ "troop:7078": {
+  "lines": {
+   "L10": "status E12 +poison ; status E13 +poison ; convert skull x1 -> manaPotionGem/Green x1  => E12:+poison | E13:+poison",
+   "R10": "status E12 +poison ; status E13 +poison ; convert skull x1 -> manaPotionGem/Green x1  => E12:+poison | E13:+poison",
+   "L0": "status E12 +poison ; status E13 +poison ; convert skull x1 -> manaPotionGem/Green x1  => E12:+poison | E13:+poison",
+   "K": "status E12 +poison ; status E13 +poison ; convert skull x1 -> manaPotionGem/Green x1  => E12:+poison | E13:+poison"
+  },
+  "by": "sa-R7",
+  "at": "2026-09-28T09:03:04.469Z"
+ },
  "troop:7085": {
   "lines": {
    "L10": "buff E11 mana-8 ; convert Green x2, Purple x4, Brown x1, Red x1 -> skull x8  => E11:mana-8",
@@ -518,6 +578,16 @@
   },
   "by": "sa-R7",
   "at": "2026-09-28T08:44:13.787Z"
+ },
+ "troop:7172": {
+  "lines": {
+   "L10": "convert Brown x8 -> Purple x8",
+   "R10": "convert Brown x8 -> Purple x8",
+   "L0": "convert Brown x8 -> Purple x8",
+   "K": "convert Brown x8 -> Purple x8"
+  },
+  "by": "sa-R7",
+  "at": "2026-09-28T09:03:04.469Z"
  },
  "troop:7189": {
   "lines": {
@@ -688,6 +758,16 @@
   },
   "by": "sa-R7",
   "at": "2026-09-28T08:28:35.477Z"
+ },
+ "troop:7365": {
+  "lines": {
+   "L10": "dmg E11 112 ; gold+10 ; extra-turn skill  => E11:hp-102 arm-10  extra:skill  eco:{\"gold\":10,\"goldMine\":10}",
+   "R10": "dmg E11 112 ; gold+10 ; extra-turn skill  => E11:hp-102 arm-10  extra:skill  eco:{\"gold\":10,\"goldMine\":10}",
+   "L0": "dmg E11 102 ; gold+10 ; extra-turn skill  => E11:hp-92 arm-10  extra:skill  eco:{\"gold\":10,\"goldMine\":10}",
+   "K": "dmg E11 112 ; defeat E11 ; gold+10 ; extra-turn skill  => E11:hp-1 DEAD  extra:skill  eco:{\"gold\":10,\"goldMine\":10}"
+  },
+  "by": "sa-R7",
+  "at": "2026-09-28T09:03:07.017Z"
  },
  "troop:7387": {
   "lines": {
@@ -1229,6 +1309,16 @@
   "by": "sa-R7",
   "at": "2026-09-28T08:59:04.419Z"
  },
+ "weapon:1214": {
+  "lines": {
+   "L10": "dmg E13 47 ; dmg E10 47  => E13:hp-44 arm-3 | E10:hp-42 arm-5",
+   "R10": "dmg E13 47 ; dmg E10 47  => E13:hp-44 arm-3 | E10:hp-42 arm-5",
+   "L0": "dmg E13 37 ; dmg E10 37  => E13:hp-34 arm-3 | E10:hp-32 arm-5",
+   "K": "dmg E13 47 ; defeat E13 ; dmg E10 47 ; defeat E10 ; extra-turn skill  => E13:hp-1 DEAD | E10:hp-1 DEAD  extra:skill"
+  },
+  "by": "sa-R7",
+  "at": "2026-09-28T09:03:04.469Z"
+ },
  "weapon:1219": {
   "lines": {
    "L10": "buff E11 mana-8 ; convert Purple x3, skull x1, Red x1, Yellow x1, Brown x1, Green x1 -> Blue x8 ; dmg E11 14 ; ~cascade~  => E11:hp-4 arm-10 mana-8  cascade",
@@ -1368,6 +1458,16 @@
   },
   "by": "sa-R7",
   "at": "2026-09-28T08:22:49.913Z"
+ },
+ "weapon:1460": {
+  "lines": {
+   "L10": "status C +barrier ; buff C armor+14 ; buff A1 armor+14 ; buff A2 armor+14  => C:arm+14 +barrier | A1:arm+14 | A2:arm+14",
+   "R10": "status C +barrier ; buff C armor+14 ; buff A1 armor+14 ; buff A2 armor+14  => C:arm+14 +barrier | A1:arm+14 | A2:arm+14",
+   "L0": "status C +barrier ; buff C armor+4 ; buff A1 armor+4 ; buff A2 armor+4  => C:arm+4 +barrier | A1:arm+4 | A2:arm+4",
+   "K": "status C +barrier ; buff C armor+14 ; buff A1 armor+14 ; buff A2 armor+14  => C:arm+14 +barrier | A1:arm+14 | A2:arm+14"
+  },
+  "by": "sa-R7",
+  "at": "2026-09-28T09:03:04.469Z"
  },
  "weapon:1475": {
   "lines": {
