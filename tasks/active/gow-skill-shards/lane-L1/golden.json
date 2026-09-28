@@ -179,6 +179,16 @@
   "by": "sa-R5",
   "at": "2026-09-28T09:06:03.338Z"
  },
+ "troop:6250": {
+  "lines": {
+   "L10": "buff C armor+15 ; buff A1 armor+15 ; buff A2 armor+15 ; summon mine troop:-1 ; convert Purple x1, skull x1, Red x1 -> bomb x3  => A14:new 机械牛怪 hp20 atk18 arm13 mag4 | C:arm+15 | A1:arm+15 | A2:arm+15",
+   "R10": "buff C armor+15 ; buff A1 armor+15 ; buff A2 armor+15 ; summon mine troop:-1 ; convert Purple x1, skull x1, Red x1 -> bomb x3  => A14:new 机械牛怪 hp20 atk18 arm13 mag4 | C:arm+15 | A1:arm+15 | A2:arm+15",
+   "L0": "buff C armor+5 ; buff A1 armor+5 ; buff A2 armor+5 ; summon mine troop:-1 ; convert Purple x1, skull x1, Red x1 -> bomb x3  => A14:new 机械牛怪 hp20 atk18 arm13 mag4 | C:arm+5 | A1:arm+5 | A2:arm+5",
+   "K": "buff C armor+15 ; buff A1 armor+15 ; buff A2 armor+15 ; summon mine troop:-1 ; convert Purple x1, skull x1, Red x1 -> bomb x3  => A14:new 机械牛怪 hp20 atk18 arm13 mag4 | C:arm+15 | A1:arm+15 | A2:arm+15"
+  },
+  "by": "sa-H",
+  "at": "2026-09-28T22:01:02.836Z"
+ },
  "troop:6260": {
   "lines": {
    "L10": "dmg E11 33  => E11:hp-23 arm-10",
@@ -859,6 +869,16 @@
   "by": "sa-R5",
   "at": "2026-09-28T08:53:48.435Z"
  },
+ "troop:6854": {
+  "lines": {
+   "L10": "buff C hp+11 max+11 ; buff A2 hp+11 max+11 ; buff C magic+2 ; buff A2 magic+2  => C:hp+11 max+11 mag+2 | A2:hp+11 max+11 mag+2",
+   "R10": "buff C hp+11 max+11 ; buff A2 hp+11 max+11 ; buff C magic+2 ; buff A2 magic+2  => C:hp+11 max+11 mag+2 | A2:hp+11 max+11 mag+2",
+   "L0": "buff C hp+1 max+1 ; buff A2 hp+1 max+1 ; buff C magic+2 ; buff A2 magic+2  => C:hp+1 max+1 mag+2 | A2:hp+1 max+1 mag+2",
+   "K": "buff C hp+11 max+11 ; buff A2 hp+11 max+11 ; buff C magic+2 ; buff A2 magic+2  => C:hp+11 max+11 mag+2 | A2:hp+11 max+11 mag+2"
+  },
+  "by": "sa-H",
+  "at": "2026-09-28T22:01:02.836Z"
+ },
  "troop:6872": {
   "lines": {
    "L10": "convert Purple x4, Brown x1, Red x1, Green x2 -> doomSkull x8 ; summon mine troop:6873  => A14:new 铁颚 hp13 atk17 arm22 mag8",
@@ -928,6 +948,16 @@
   },
   "by": "sa-F1",
   "at": "2026-09-28T00:19:26.339Z"
+ },
+ "troop:6960": {
+  "lines": {
+   "L10": "buff C hp+16 max+16 ; buff A1 hp+16 max+16 ; buff A2 hp+16 max+16 ; summon mine troop:-1 ; extra-turn skill  => A14:new 科博骑士 hp18 atk13 arm23 mag9 | C:hp+16 max+16 | A1:hp+16 max+16 | A2:hp+16 max+16  extra:skill",
+   "R10": "buff C hp+16 max+16 ; buff A1 hp+16 max+16 ; buff A2 hp+16 max+16 ; summon mine troop:-1 ; extra-turn skill  => A14:new 科博骑士 hp18 atk13 arm23 mag9 | C:hp+16 max+16 | A1:hp+16 max+16 | A2:hp+16 max+16  extra:skill",
+   "L0": "buff C hp+1 max+1 ; buff A1 hp+1 max+1 ; buff A2 hp+1 max+1 ; summon mine troop:-1 ; extra-turn skill  => A14:new 科博骑士 hp18 atk13 arm23 mag9 | C:hp+1 max+1 | A1:hp+1 max+1 | A2:hp+1 max+1  extra:skill",
+   "K": "buff C hp+16 max+16 ; buff A1 hp+16 max+16 ; buff A2 hp+16 max+16 ; summon mine troop:-1 ; extra-turn skill  => A14:new 科博骑士 hp18 atk13 arm23 mag9 | C:hp+16 max+16 | A1:hp+16 max+16 | A2:hp+16 max+16  extra:skill"
+  },
+  "by": "sa-H",
+  "at": "2026-09-28T22:01:02.836Z"
  },
  "troop:6968": {
   "lines": {
@@ -1209,6 +1239,16 @@
   "by": "sa-R5",
   "at": "2026-09-28T08:42:25.119Z"
  },
+ "troop:7235": {
+  "lines": {
+   "L10": "buff A1 hp+11 max+11 ; buff A1 armor+11 ; summon mine troop:-1  => A14:new 沙地鲨鱼 hp23 atk16 arm7 mag10 | A1:hp+11 max+11 arm+11",
+   "R10": "buff A1 hp+11 max+11 ; buff A1 armor+11 ; summon mine troop:-1  => A14:new 沙地鲨鱼 hp23 atk16 arm7 mag10 | A1:hp+11 max+11 arm+11",
+   "L0": "buff A1 hp+1 max+1 ; buff A1 armor+1 ; summon mine troop:-1  => A14:new 沙地鲨鱼 hp23 atk16 arm7 mag10 | A1:hp+1 max+1 arm+1",
+   "K": "buff A1 hp+11 max+11 ; buff A1 armor+11 ; summon mine troop:-1  => A14:new 沙地鲨鱼 hp23 atk16 arm7 mag10 | A1:hp+11 max+11 arm+11"
+  },
+  "by": "sa-H",
+  "at": "2026-09-28T22:01:02.836Z"
+ },
  "troop:7273": {
   "lines": {
    "L10": "convert Yellow x9 -> web x9 ; summon mine troop:6136  => A14:new 蜘蛛群 hp20 atk8 arm12 mag7",
@@ -1438,6 +1478,16 @@
   },
   "by": "sa-E",
   "at": "2026-09-28T12:23:44.032Z"
+ },
+ "troop:7563": {
+  "lines": {
+   "L10": "buff C armor+12 ; buff A1 armor+12  => C:arm+12 | A1:arm+12",
+   "R10": "buff C armor+12 ; buff A1 armor+12  => C:arm+12 | A1:arm+12",
+   "L0": "buff C armor+2 ; buff A1 armor+2  => C:arm+2 | A1:arm+2",
+   "K": "buff C armor+12 ; buff A1 armor+12  => C:arm+12 | A1:arm+12"
+  },
+  "by": "sa-H",
+  "at": "2026-09-28T22:01:02.836Z"
  },
  "troop:7569": {
   "lines": {

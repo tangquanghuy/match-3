@@ -340,10 +340,10 @@ const SPELLS: CuratedBatch['spells'] = [
   {
     id: 8831,
     desc: '给予一名盟友 [魔法 + 1] 点随机技能值，并重复一次。再召唤一名随机聚沙之地军队。',
-    // IncreaseRandom = randomStat（「随机技能值」口径）；王国 3024 召唤
+    // IncreaseRandom ×2 = 每步全额给一项随机技能（oneSkill，R007-2；sa-H：原为拆分到多项）；王国 3024 召唤
     build: skill(
-      randomStat('allyChosen', 1, 1),
-      randomStat('allyChosen', 1, 1),
+      randomStat('allyChosen', 1, 1, { oneSkill: true }),
+      randomStat('allyChosen', 1, 1, { oneSkill: true }),
       summonRandom(K3024),
     ),
   },

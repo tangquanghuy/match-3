@@ -452,3 +452,34 @@ describe('sa-H L2 B11', () => {
     expect(orderOf({ key: 'troop:7746' }).some(l => l.startsWith('status'))).toBe(false);
   });
 });
+
+describe('sa-H L1 B01', () => {
+  const summons = (o: string[]) => o.filter(l => l.startsWith('summon mine')).length;
+  it('troop:7563 [M+2] Armor to the first 2 allies, 40% summon FIXIT-5000', () => {
+    let n = 0;
+    for (let seed = 1; seed <= SEEDS; seed++) if (summons(orderOf({ key: 'troop:7563', seed }))) n++;
+    within(n / SEEDS, 0.4, 'summon');
+  });
+  it('troop:6854 Yellow allies only: [M+1] Life and +2 MAGIC; 35% copy of the first enemy', () => {
+    const o = orderOf({ key: 'troop:6854' });
+    expect(o.filter(l => l.includes('magic+2'))).toEqual(['buff C magic+2', 'buff A2 magic+2']);
+    expect(o.some(l => l.startsWith('buff A1'))).toBe(false);
+    let n = 0;
+    for (let seed = 1; seed <= SEEDS; seed++) if (summons(orderOf({ key: 'troop:6854', seed }))) n++;
+    within(n / SEEDS, 0.35, 'copy');
+  });
+  it('troop:6960 heal all, summon a Kobold, then 1/2 extra turn | 1/2 a second Kobold', () => {
+    let two = 0;
+    for (let seed = 1; seed <= SEEDS; seed++) {
+      const s = castSpell({ key: 'troop:6960', seed, allies: [{}] }).summary;
+      const n = summons(s.order); expect(n === 2 ? s.extraTurn : 'skill').toBe(n === 2 ? null : 'skill'); if (n === 2) two++;
+    }
+    within(two / SEEDS, 0.5, 'second kobold');
+  });
+  it('troop:7235 two IncreaseRandom steps: each gives the whole [M+1] to ONE Skill of the chosen ally', () => {
+    for (let seed = 1; seed <= 40; seed++) {
+      const b = orderOf({ key: 'troop:7235', seed }).filter(l => l.startsWith('buff A1'));
+      expect(b.length).toBe(2); for (const l of b) expect(l).toMatch(/\+11( max\+11)?$/);
+    }
+  });
+});

@@ -54,3 +54,9 @@
 - troop:7794 accept (Choose true dmg | enchant self + chosen enemy colour -> Yellow)
 - troop:7298 accept (Choose; weakest + Red x2 + Spirit x2 counters)
 - troop:7746 fixed+accept (chained ifTargetDied: 2nd/3rd 50% statuses never fired; now castEnemyDied gate. HINT: other skills with >1 consecutive ifTargetDied segments after a targeting segment may share this)
+- L2 exhausted after 55 (53 accepted, 2 issued); switching to L1
+- troop:7563 accept (L1; [M+2] armor first 2, 40% FIXIT-5000)
+- troop:6250 accept (L1; Mech pool 43 = all Mech-type troops, 3 bombs)
+- troop:6854 fixed+accept (L1; Yellow allies +2 Magic, was Mana)
+- troop:6960 accept (L1; raw kingdom 3051 pool, 1/2 extra turn | second Kobold)
+- troop:7235 fixed+accept (L1; IncreaseRandom x2 oneSkill, was split)

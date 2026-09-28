@@ -1,6 +1,6 @@
 # GoW 技能改动留档
 
-自动生成（`node scripts/gow-changelog.mjs render`），源数据 [CHANGES.jsonl](CHANGES.jsonl)，共 557 条改动，涉及 1006 个技能 ID。
+自动生成（`node scripts/gow-changelog.mjs render`），源数据 [CHANGES.jsonl](CHANGES.jsonl)，共 559 条改动，涉及 1008 个技能 ID。
 
 ## 按时间
 
@@ -563,6 +563,8 @@
 | 2026-09-28T21:49 | sa-H | L2-H-6817-one-skill | assembler | 8216 | troop:6817 ShahbanuVespera | `src/engine/skills/curated/batch-r18.ts`<br>`src/data/gowSnapshotOverrides.json` | each grant split [(M/2)+1] across several Skills; zh said 2 other allies → each native IncreaseRandom gives the whole amount to one random Skill (oneSkill); zh 'repeat 2 more times for random allies' + override |  |
 | 2026-09-28T21:54 | sa-H | L2-H-7253-steal-first | assembler | 8852 | troop:7253 Sagittarian | `src/engine/skills/curated/batch-r9.ts`<br>`src/data/gowSnapshotOverrides.json` | true damage first, then steal 10 MANA \| 20 Life \| 20 Armor; zh 盔甲魔力值 → native AB-CD-EF: steal 10 Magic \| 20 Armor \| 20 Life before the true damage (R001); zh fixed + override |  |
 | 2026-09-28T21:57 | sa-H | L2-H-7746-kill-gate | assembler | 9731 | troop:7746 Cascabel | `src/engine/skills/curated/batch-r17.ts` | 3 x ifTargetDied random-status segments: 2nd/3rd looked at the 1st status segment's living target and never fired (always exactly 1 status on kill) → gate all three on castEnemyDied: kill -> 1 + 50% + 50% random negative statuses on each other enemy |  |
+| 2026-09-28T22:00 | sa-H | L1-H-6854-magic | assembler | 8273 | troop:6854 Lyriath | `src/engine/skills/curated/batch-r22.ts` | Yellow allies gained 2 Mana → Yellow allies gain 2 Magic (native IncreaseSpellPower 2) |  |
+| 2026-09-28T22:00 | sa-H | L1-H-7235-one-skill | assembler | 8831 | troop:7235 FakyrTheWise | `src/engine/skills/curated/batch-r9.ts` | each IncreaseRandom split [M+1] across Skills → each of the two IncreaseRandom steps gives the whole [M+1] to one random Skill |  |
 
 ## 按技能 ID
 
@@ -962,6 +964,7 @@
 | 8261 | 1 | P-E-faction-kingdom |
 | 8262 | 1 | P-E-faction-kingdom |
 | 8263 | 1 | P-E-faction-kingdom |
+| 8273 | 1 | L1-H-6854-magic |
 | 8283 | 1 | L1-1310-brown |
 | 8285 | 1 | P-E-faction-kingdom |
 | 8288 | 1 | P-prefnotprev-semantics |
@@ -1231,6 +1234,7 @@
 | 8820 | 1 | P-counter-per-step |
 | 8824 | 1 | R7-not-board-misread |
 | 8830 | 1 | R009-giant-dragon-L4b |
+| 8831 | 1 | L1-H-7235-one-skill |
 | 8832 | 1 | R009-giant-dragon-L4b |
 | 8834 | 1 | B5-L4b-R009-giants |
 | 8836 | 1 | B5-L4b-R009-giants |

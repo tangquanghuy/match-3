@@ -823,7 +823,8 @@ const SPELLS: CuratedBatch['spells'] = [
     // summonCopy enemyFront（官方 SummoningTarget FrontEnemy 35%，R22 新原语）。
     build: skill(
     heal('allyAll', 1, 1, { ifCond: { kind: 'targetColor', color: BaseColor.Yellow } }),
-    mana('allyAll', 2, 0, { ifCond: { kind: 'targetColor', color: BaseColor.Yellow } }),
+    // sa-H：原生 IncreaseSpellPower 2 / 英文 2 Magic = 魔法属性（原为 mana）
+    magic('allyAll', 2, 0, { ifCond: { kind: 'targetColor', color: BaseColor.Yellow } }),
     summonCopy('enemyFront', { chance: 0.35 }),
     ),
   },
