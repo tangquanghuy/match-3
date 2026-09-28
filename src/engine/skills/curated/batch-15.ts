@@ -247,10 +247,13 @@ const SPELLS: CuratedBatch['spells'] = [
       // 「所有敌人的魔力值」= enemyStatSum magic（「魔力值」= magic 属性，SOP 措辞裁定）
       // L7-7201（sa-L76）：EN「both boosted by all Enemy Magic」+ 原生 Damage 与 IncreaseArmor 都
       // UseCounterForAmount → 伤害段与护甲段同挂 modifier（原先只挂护甲段）。
-      dmg('enemyChosen', 4, 1, {
+      // sa-G (R001): native counts all Enemy Magic once (step 0) before the hit; the self Armor goes first so it
+      // reads the same pre-hit count (was counted after the kill: K scenario 30 instead of 36). Armor-on-self vs
+      // damage-on-enemy order is otherwise unobservable (gowLaneL6G).
+      armor('allySelf', 4, 1, {
         modifier: { mod: { kind: 'ratio', a: 2, b: 1 }, source: { kind: 'enemyStatSum', stat: 'magic' } },
       }),
-      armor('allySelf', 4, 1, {
+      dmg('enemyChosen', 4, 1, {
         modifier: { mod: { kind: 'ratio', a: 2, b: 1 }, source: { kind: 'enemyStatSum', stat: 'magic' } },
       }),
     ),

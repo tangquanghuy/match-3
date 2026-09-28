@@ -1,6 +1,6 @@
 # GoW 技能改动留档
 
-自动生成（`node scripts/gow-changelog.mjs render`），源数据 [CHANGES.jsonl](CHANGES.jsonl)，共 540 条改动，涉及 991 个技能 ID。
+自动生成（`node scripts/gow-changelog.mjs render`），源数据 [CHANGES.jsonl](CHANGES.jsonl)，共 542 条改动，涉及 992 个技能 ID。
 
 ## 按时间
 
@@ -546,6 +546,8 @@
 | 2026-09-28T15:44 | coord | R014-7000-count-before-create | assembler | 8503 | troop:7000 Baihu | `src/engine/skills/curated/batch-r20.ts`<br>`src/engine/skills/prototypes.ts`<br>`src/engine/skills/effects/secondary.ts`<br>`src/engine/skills/effects/context.ts` | Yellow counted after CreateGems 3 Yellow (created gems boosted the damage) → castStartBoardGems Yellow: counted before the create, CountSet 1 not added (R014) | new source castStartBoardGems; only 8503 uses it |
 | 2026-09-28T21:14 | sa-G | G-6154-order | assembler | 7274 | troop:6154 Faunessa | `src/engine/skills/curated/batch-r22.ts` | damage first, then Life boosted by lastDamage 3:1 (0 through a Barrier) → native order: Life boosted by the chosen enemy Attack x34% first, then damage equal to its Attack |  |
 | 2026-09-28T21:14 | sa-G | G-7181-zh | data | 8751 | troop:7181 Tauraeus | `src/engine/skills/curated/batch-r7.ts`<br>`src/data/gowSnapshotOverrides.json` | ZH typo 二增强 → ZH 而增强 (troops override 7181) |  |
+| 2026-09-28T21:18 | sa-G | G-6914-zh-order | assembler | 8375 | troop:6914 IllithianColossus | `src/engine/skills/curated/batch-r17.ts`<br>`src/data/gowSnapshotOverrides.json` | ZH said Life and Attack; Life before Armor → ZH Life and Armor (override 6914); native order Armor then Life |  |
+| 2026-09-28T21:18 | sa-G | G-7201-count-before-hit | assembler | 8788 | troop:7201 Leio | `src/engine/skills/curated/batch-15.ts` | Armor counted all Enemy Magic after the hit (a kill shrank it: 30 instead of 36) → Armor segment first so both read the native step-0 count (pre-hit) |  |
 
 ## 按技能 ID
 
@@ -989,6 +991,7 @@
 | 8370 | 1 | L4a-r3-6909 |
 | 8371 | 1 | L1-E-6910-wraith |
 | 8373 | 1 | R3-B03-6912 |
+| 8375 | 1 | G-6914-zh-order |
 | 8377 | 1 | L2-6916-one-skill |
 | 8382 | 1 | L1-devour-first |
 | 8383 | 1 | P-E-faction-kingdom |
@@ -1184,7 +1187,7 @@
 | 8782 | 1 | L4b-7195-order |
 | 8783 | 1 | F2-R001-order |
 | 8785 | 1 | P-counter-per-step |
-| 8788 | 1 | L7-7201 |
+| 8788 | 2 | L7-7201、G-7201-count-before-hit |
 | 8795 | 1 | L3-003 |
 | 8796 | 1 | L2-7209-gargoyle-branches |
 | 8797 | 2 | L4b-7210-doomskull、P-R1-gargoyle-tier-filter,P-R2-gargoyle-tier,P-R4-gargoyle-tier-count,P-R3-dragon-gem-count |

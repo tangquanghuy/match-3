@@ -4,3 +4,8 @@
 - weapon:1217 accepted: pooled 34% (sum 917 -> 311) scatter + all Skills 2
 - troop:7091 accepted: Blue gems + Blue allies incl. caster (test)
 - troop:7661 accepted: 4 random waves PrefNotPrev, x3 Submerge, 50% jumble (not rolled at seed 42)
+- troop:7648 accepted: Yellow gems 50%, x3 on Yellow ally (test)
+- troop:7577 accepted: true dmg 0.75 C1, Geheron x2 region, others Life x2 Angel gems
+- troop:6914 fixed: ZH 攻击力 -> 护甲值 (override 6914); native order Armor then Life; steal = min(M+1, enemy Magic) (test)
+- troop:7201 fixed: Armor first so both segments read the pre-hit all-Enemy-Magic count (K 30 -> 36) (test)
+- troop:6763 accepted: CountMyGold 20% (100 -> +20) to all four Skills

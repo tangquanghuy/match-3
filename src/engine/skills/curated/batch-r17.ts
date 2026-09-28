@@ -206,15 +206,16 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 8375,
-    desc: '窃取敌人 [魔法 + 1] 点魔力值，并将之转换成生命值和攻击力。 [100:1]',
+    desc: '窃取敌人 [魔法 + 1] 点魔力值，并将之转换成生命值和护甲值。 [100:1]',
     // [100:1] = CountMagic → ratio 100:1 targetStat magic（r16 9223 同族）；
-    // 转移端点按 EN/ST = Life+Armor（ZH「攻击力」机翻噪声）；两段同挂 lastReduce 驱动
+    // 转移端点按 EN/ST = Life+Armor（sa-G：ZH「攻击力」改为「护甲值」）；两段同挂 lastReduce 驱动
     build: skill(
       reduce('enemyChosen', 'magic', 1, 1, {
         modifier: { mod: { kind: 'ratio', a: 100, b: 1 }, source: { kind: 'targetStat', stat: 'magic' } },
       }),
-      heal('allySelf', 0, 0, { modifier: { mod: { kind: 'multiplier', a: 1 }, source: { kind: 'lastReduce' } } }),
+      // sa-G (R001): native IncreaseArmor@Self before IncreaseHealth@Self
       armor('allySelf', 0, 0, { modifier: { mod: { kind: 'multiplier', a: 1 }, source: { kind: 'lastReduce' } } }),
+      heal('allySelf', 0, 0, { modifier: { mod: { kind: 'multiplier', a: 1 }, source: { kind: 'lastReduce' } } }),
     ),
   },
   {
