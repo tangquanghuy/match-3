@@ -92,8 +92,9 @@ const SPELLS: CuratedBatch['spells'] = [
     build: skill(
       heal('allyChosen', 5, 0),
       heal('allyChosen', 1), // Native Heal Target=FromTarget: same selected Ally as the Life gain.
-      inflict('barrier', 'allyChosen'), // 「其」= 前文盟友
+      // sa-F2 fix round A (R001): native CreateGems 8 Green before CauseBarrier@FromTarget
       createGems(BaseColor.Green, 8, 0),
+      inflict('barrier', 'allyChosen'), // 「其」= 前文盟友
     ),
   },
   {

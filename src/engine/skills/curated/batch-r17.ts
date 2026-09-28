@@ -176,7 +176,8 @@ const SPELLS: CuratedBatch['spells'] = [
         },
       }),
       attack('allySelf', 10, 0, { ifTargetDied: true }),
-      createSkulls(12, 0, { ifTargetDied: true }),
+      // sa-F2 fix round A: after the self-buff segment ifTargetDied looked at the caster -> skulls never created
+      createSkulls(12, 0, { ifCond: { kind: 'castEnemyDied' } }),
     ),
   },
   {

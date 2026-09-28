@@ -264,10 +264,11 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 7761,
     desc: '将所有绿色宝石转换成棕色。减除一名敌人 [魔法 + 3] 点护甲值，数量因被转换的宝石数而增强。 [2:1]',
     build: skill(
-      transform(BaseColor.Green, BaseColor.Brown),
+      // sa-F2 fix round A (R001): native CountGems Green ; DecreaseArmor ; ConvertGems Green>Brown
       reduce('enemyChosen', 'armor', 3, 1, {
-        modifier: { mod: { kind: 'ratio', a: 2, b: 1 }, source: { kind: 'transformedGems' } },
+        modifier: { mod: { kind: 'ratio', a: 2, b: 1 }, source: { kind: 'boardGems', color: BaseColor.Green } },
       }),
+      transform(BaseColor.Green, BaseColor.Brown),
     ),
   },
   {

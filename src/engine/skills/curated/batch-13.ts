@@ -234,11 +234,11 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 7693,
     desc: '摧毁所有指定颜色的宝石。给予所有盟友 [魔法 + 2] 点护甲值，点数因被摧毁的宝石数而增强。 [2:1]',
     build: skill(
-      destroyColor(CHOSEN),
-      // 「点数」点名护甲段；「被摧毁的宝石数」不筛色（batch-11 9410 同款）
+      // sa-F2 fix round A (R001): native CountGems FromTarget ; IncreaseArmor ; DestroyColor FromTarget
       armor('allyAll', 2, 1, {
-        modifier: { mod: { kind: 'ratio', a: 2, b: 1 }, source: { kind: 'destroyedGems' } },
+        modifier: { mod: { kind: 'ratio', a: 2, b: 1 }, source: { kind: 'boardGems', color: 'CHOSEN' } },
       }),
+      destroyColor(CHOSEN),
     ),
   },
   {

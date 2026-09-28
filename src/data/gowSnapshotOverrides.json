@@ -56,6 +56,11 @@
       "reason": "English source text specifies one random Skill; extracted native IncreaseRandom awards its complete amount to one Skill per recipient. Scoped display clarification, not whole-skill signoff.",
       "spellDescription": "获得额外的一回合。爆破所有绿色宝石或使一名随机盟友的一项随机属性获得 [魔法 + 1] 点（若盟友为哥布林则增加两倍）。"
     },
+    "6623": {
+      "spellId": 7941,
+      "reason": "sa-F2 fix round A: English 'Explode a column' / native BoardTarget Column; old Chinese said row.",
+      "spellDescription": "爆破一列。获得 [魔法 + 1] 点生命值。若敌方有军队陷入沉默状态，则给予所有其他盟友法印效果。"
+    },
     "6630": {
       "spellId": 7954,
       "reason": "English source text specifies one random Skill; extracted native IncreaseRandom awards its complete amount to one Skill per recipient. Scoped display clarification, not whole-skill signoff.",

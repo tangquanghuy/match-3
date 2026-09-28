@@ -993,11 +993,14 @@ const SPELLS: CuratedBatch['spells'] = [
     // 8694 EN「eliminate 10 from all their Skills」四维口径）。
     build: skill(
     dmg('enemyChosen', 0, 0, { execute: true, chance: 0.01, chanceBoost: boostPer({ kind: 'selfStat', stat: 'magic' }, 1) }),
-    createSkulls(12, 0, { ifTargetDied: true }),
-    reduce('lastTarget', 'attack', 10, 0, { ifCond: { kind: 'lastTargetSurvived' } }),
-    reduce('lastTarget', 'armor', 10, 0, { ifCond: { kind: 'lastTargetSurvived' } }),
-    reduce('lastTarget', 'magic', 10, 0, { ifCond: { kind: 'lastTargetSurvived' } }),
-    reduce('lastTarget', 'hp', 10, 0, { ifCond: { kind: 'lastTargetSurvived' } }),
+    // sa-F2 fix round A: native steps 2-5 are unconditional @FromTarget (a dead target is simply skipped):
+    // DecreaseArmor 10 ; DecreaseAttack 10 ; DecreaseSpellPower 10 ; TrueDamage 10. The old lastTarget +
+    // lastTargetSurvived form did nothing when the execute roll missed (no tracked target).
+    createSkulls(12, 0, { ifCond: { kind: 'castEnemyDied' } }),
+    reduce('enemyChosen', 'armor', 10, 0),
+    reduce('enemyChosen', 'attack', 10, 0),
+    reduce('enemyChosen', 'magic', 10, 0),
+    trueDmg('enemyChosen', 10, 0),
     ),
   },
   {

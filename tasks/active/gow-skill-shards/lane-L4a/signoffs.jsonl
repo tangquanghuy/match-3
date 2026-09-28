@@ -9,3 +9,9 @@
 {"format":"compact","key":"troop:6457","decision":"accept","reviewer":"sa-F2","reviewedAt":"2026-09-28T00:19:35.767Z","tests":["tests/unit/gowCastGolden.test.ts"]}
 {"format":"compact","key":"weapon:1277","decision":"accept","reviewer":"sa-F2","reviewedAt":"2026-09-28T00:19:35.767Z","tests":["tests/unit/gowCastGolden.test.ts"]}
 {"format":"compact","key":"troop:6398","decision":"issue","reviewer":"sa-F2","reviewedAt":"2026-09-28T00:19:58.120Z","issue":"P-F2-precount-explode","note":"dispel/damage now one random enemy (fixed); remaining: native damage precedes ExplodeGems but boost counts Blue gems that explosion destroys - needs precount primitive or ruling"}
+{"format":"compact","key":"troop:7345","decision":"accept","reviewer":"sa-F2","reviewedAt":"2026-09-28T00:25:12.193Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:6467","decision":"accept","reviewer":"sa-F2","reviewedAt":"2026-09-28T00:28:07.011Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:6052","decision":"accept","reviewer":"sa-F2","reviewedAt":"2026-09-28T00:28:07.012Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:6504","decision":"accept","reviewer":"sa-F2","reviewedAt":"2026-09-28T00:28:07.012Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:6055","decision":"accept","reviewer":"sa-F2","reviewedAt":"2026-09-28T00:28:07.012Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:6623","decision":"accept","reviewer":"sa-F2","reviewedAt":"2026-09-28T00:28:09.409Z","tests":["tests/unit/gowCastGolden.test.ts"]}

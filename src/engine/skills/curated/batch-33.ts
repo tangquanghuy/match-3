@@ -40,8 +40,9 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '获得 [魔法 + 1] 点攻击力，将绿色宝石转换为棕色宝石以强化此效果。赋予自身狂怒状态。 [4:1]',
     build: skill(
       // 转化段作为来源先行（7059 清除段先行同口径）；transformedGems 计数
+      // sa-F2 fix round A (R001): native CountGems Green ; IncreaseAttack@Self ; ConvertGems ; CauseEnraged
+      attack('allySelf', 1, 1, { modifier: { mod: { kind: 'ratio', a: 4, b: 1 }, source: { kind: 'boardGems', color: BaseColor.Green } } }),
       transform(BaseColor.Green, BaseColor.Brown),
-      attack('allySelf', 1, 1, { modifier: { mod: { kind: 'ratio', a: 4, b: 1 }, source: { kind: 'transformedGems' } } }),
       inflict('rage', 'allySelf'),
     ),
   },

@@ -17,3 +17,19 @@
 - 2026-09-28T08:20:00Z troop:7338 fixed row+column cross, boost per Skull destroyed; zh corrected
 - 2026-09-28T08:20:00Z weapon:1277 approved storm branch not in default scenario; covered by gowLaneL4aFixF2.test.ts
 - 2026-09-28T08:20:00Z troop:7321 fixed chosen-enemy input so explode + knock back fire (item #18, done early with #14)
+- 2026-09-28T09:10:00Z troop:7145 fixed miss branch (-10 Armor/Attack/Magic + 10 true dmg) and kill skulls; test in gowLaneL4bFixF2
+- 2026-09-28T09:10:00Z troop:7345 approved Death Mark explode on kill not visible on default board; test in gowLaneL4aFixF2
+- 2026-09-28T09:10:00Z troop:6826 issue P-counter-per-step (kill skulls fixed; Count steps flooring = primitive, note in primitive-queue/sa-F2.jsonl)
+- 2026-09-28T09:10:00Z troop:7383 fixed "If an Enemy dies" -> castEnemyDied (purple gems now created)
+- 2026-09-28T09:10:00Z troop:7597 issue P-F2-dead-target-colour (dead target removed -> its mana colour unresolved)
+- 2026-09-28T09:30:00Z troop:6467 fixed native armor-loss + true damage before removing Blue
+- 2026-09-28T09:30:00Z troop:6418 fixed R001 steal Magic before damage
+- 2026-09-28T09:30:00Z troop:6052 fixed R001 heal (cast-start skull count) before removing skulls
+- 2026-09-28T09:30:00Z troop:6504 fixed R001 armor (board count of chosen colour) before destroy
+- 2026-09-28T09:30:00Z troop:6623 fixed R001 heal before explode; chosen column (was random); zh 一列; silence test in gowLaneL4aFixF2
+- 2026-09-28T09:30:00Z troop:6055 fixed R001 heal before explode row
+- 2026-09-28T09:30:00Z troop:6215 fixed R001 attack before create
+- 2026-09-28T09:30:00Z troop:6559 fixed R001 armor loss (board Green count) before convert
+- 2026-09-28T09:30:00Z troop:6025 fixed R001 create before barrier
+- 2026-09-28T09:30:00Z troop:7312 fixed R001 attack (board Yellow count) before convert
+- 2026-09-28T09:30:00Z troop:6130 fixed R001 attack (board Green count) before convert

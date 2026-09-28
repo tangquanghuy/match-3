@@ -319,8 +319,9 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '给予第一位盟友 [魔法 + 1] 点攻击力，将所有黄色宝石转换成紫色宝石以增强效果。使所有敌人陷入诅咒状态。 [3:1]',
     build: skill(
       // 「以增强效果」句式：转化段前置，transformedGems 来源才数得到（batch-04 7002 同款）
+      // sa-F2 fix round A (R001): native CountGems Yellow ; IncreaseAttack@FrontAlly ; ConvertGems ; CauseCursed
+      attack('allyFront', 1, 1, { modifier: { mod: { kind: 'ratio', a: 3, b: 1 }, source: { kind: 'boardGems', color: BaseColor.Yellow } } }),
       transform(BaseColor.Yellow, BaseColor.Purple),
-      attack('allyFront', 1, 1, { modifier: { mod: { kind: 'ratio', a: 3, b: 1 }, source: { kind: 'transformedGems' } } }),
       inflict('curse', 'enemyAll'),
     ),
   },

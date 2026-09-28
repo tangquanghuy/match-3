@@ -30,6 +30,20 @@ describe('L4b fix F2: troop:6529 dispel before kill (spell 7723)', () => {
   });
 });
 
+describe('L4b fix F2: troop:7145 (spell 8694) [Magic + 1]% slay', () => {
+  it('Magic 99 -> 100% slay, 12 Skulls, no stat loss', () => {
+    const r = castSpell({ key: 'troop:7145', magic: 99 });
+    expect(r.summary.units.E11).toContain('DEAD');
+    expect(r.summary.gems.created.skull).toBe(12);
+    expect(r.summary.order.some(x => x.startsWith('buff'))).toBe(false);
+  });
+  it('miss -> -10 Armor/Attack/Magic and 10 true damage, no Skulls', () => {
+    const r = castSpell({ key: 'troop:7145', magic: 0 });
+    expect(r.summary.order).toEqual(['buff E11 armor-10', 'buff E11 attack-10', 'buff E11 magic-10', 'dmg E11 10']);
+    expect(r.summary.gems.created.skull).toBeUndefined();
+  });
+});
+
 describe('L4b fix F2: ally colour counts', () => {
   // troop:6974 spell 8477: CountArmyColor@AllAllies 300 ; IncreaseArmor@AllyColor 1 +Mx1 ; IncreaseSpellPower@AllyColor 3 ; CreateGems 4 Brown
   const rows = [

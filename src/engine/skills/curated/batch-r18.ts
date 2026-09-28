@@ -19,6 +19,7 @@
  * - 挽救候选复核后仍维持 SKIP 的 50 条记录保留在原批次文件（不重复计数），复核结论见批尾注记。
  */
 import type { CuratedBatch } from './index';
+import { explodeChosenCol } from '../builders';
 import { skill, targetedSkill, dmg, dmgSplash, trueDmg, heal, armor, attack, magic, mana, reduce, steal, cleanse, dispelStatus, randomStat, inflict, inflictRandom, createGems, createSkulls, createMix, createStorm, destroyColor, destroyRandomGems, destroyRandomRows, destroyRandomCols, explodeColor, explodeRandomGems, explodeRandomCols, transform, transformToSpecial, reposition, shuffleBoard, shuffleTeam, extraTurn, oneOf, summonRef, summonRandom, sacrifice, gainGold, gainSouls, gainMaps, escape, CHOSEN, CELL, explodeAt } from '../builders';
 import type { SegmentOpts } from '../builders';
 import { BaseColor } from '../../types';
@@ -566,10 +567,11 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: "对 1 名敌人的生命值和护甲值造成 [魔法 + 1] 点伤害。移出所有蓝色宝石以增强伤害效果值。 [3:1]",
     // 【挽救】EN 原句「Remove all Blue Gems」在前（清除段前移供计数）；「对生命值和护甲值造成伤害」= 标准伤害口径（先甲后血，ZH 逐字直译）
     build: skill(
+      // sa-F2 fix round A (R001): native CountGems 34 Blue ; DecreaseArmor ; TrueDamage (both counter-boosted) ;
+      // RemoveColor Blue — damage to Life and Armor = armor loss + true Life damage, before the gems go
+      reduce('enemyChosen', 'armor', 1, 1, { modifier: { mod: { kind: 'ratio', a: 3, b: 1 }, source: { kind: 'boardGems', color: BaseColor.Blue } } }),
+      trueDmg('enemyChosen', 1, 1, { modifier: { mod: { kind: 'ratio', a: 3, b: 1 }, source: { kind: 'boardGems', color: BaseColor.Blue } } }),
       destroyColor(BaseColor.Blue),
-      dmg('enemyChosen', 1, 1, {
-    modifier: { mod: { kind: 'ratio', a: 3, b: 1 }, source: { kind: 'destroyedGems' } },
-  }),
     ),
   },
   {
@@ -888,11 +890,13 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 7941,
-    desc: "爆破一行。获得 [魔法 + 1] 点生命值。若敌方有军队陷入沉默状态，则给予所有其他盟友法印效果。",
+    desc: "爆破一列。获得 [魔法 + 1] 点生命值。若敌方有军队陷入沉默状态，则给予所有其他盟友法印效果。",
     // 「爆破一行（列）」EN=Explode a column → explodeRandomCols；「若任一敌人沉默」= anyEnemyStatus
     build: skill(
-      explodeRandomCols(1),
+      // sa-F2 fix round A (R001): native IncreaseHealth before ExplodeGems BoardTarget Column (chosen column,
+      // English "Explode a column"; was a random column)
       heal('allySelf', 1, 1),
+      explodeChosenCol(),
       inflict('enchanted', 'allyOthers', { ifCond: { kind: 'anyEnemyStatus', statusId: 'silence' } }),
     ),
   },
