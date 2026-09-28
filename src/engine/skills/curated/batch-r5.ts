@@ -189,7 +189,8 @@ const SPELLS: CuratedBatch['spells'] = [
     build: skill(
       createGems(BaseColor.Yellow, 5),
       transformToSpecial(BaseColor.Yellow, 'doomSkull'),
-      summonRef('Warg', undefined, { countRange: { min: 1, max: 3 } }),
+      // sa-R5 L1-summon-dist: native Summoning 6282 + 2 x 50% (1/2/3 = 25/50/25%), not countRange 1-3 uniform.
+      summonRef('Warg'), { ...summonRef('Warg'), chance: 0.5 }, { ...summonRef('Warg'), chance: 0.5 },
     ),
   },
   {

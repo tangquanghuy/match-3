@@ -465,7 +465,8 @@ const SPELLS: CuratedBatch['spells'] = [
         createSpecialGems({ kind: 'doomSkull' }, 7),
         createSpecialGems({ kind: 'uberDoomSkull' }, 5),
         explodeSkulls(),
-        dmg('enemyRandom', 0, 0, { execute: true }),
+        // sa-R5 L1-7417: native Consume@RandomEnemy = a real Devour, not a plain execute.
+        devour('enemyRandom', { chance: 1 }),
         inflict('death-mark', 'enemyRandom'),
       ),
     ),

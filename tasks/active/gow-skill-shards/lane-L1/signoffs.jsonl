@@ -128,3 +128,13 @@
 {"format":"compact","key":"weapon:1486","decision":"accept","reviewer":"sa-R5","reviewedAt":"2026-09-28T08:58:11.370Z","tests":["tests/unit/gowCastGolden.test.ts"]}
 {"format":"compact","key":"troop:7033","decision":"accept","reviewer":"sa-R5","reviewedAt":"2026-09-28T08:58:11.370Z","tests":["tests/unit/gowCastGolden.test.ts"]}
 {"format":"compact","key":"troop:6410","decision":"issue","reviewer":"sa-R5","reviewedAt":"2026-09-28T08:58:11.533Z","issue":"R012-pending","note":"7566: Consume NextDownFromTarget / NextUpFromTarget 25% after the Damage may kill the target; also prototype uses enemyAboveTarget/enemyBelowTarget (all above/below) in up-then-down order vs native single NextDown then NextUp"}
+{"format":"compact","key":"troop:7034","decision":"accept","reviewer":"sa-R5","reviewedAt":"2026-09-28T09:02:30.991Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:7417","decision":"accept","reviewer":"sa-R5","reviewedAt":"2026-09-28T09:02:30.993Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:7671","decision":"accept","reviewer":"sa-R5","reviewedAt":"2026-09-28T09:02:30.993Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:6349","decision":"accept","reviewer":"sa-R5","reviewedAt":"2026-09-28T09:02:30.993Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:7177","decision":"accept","reviewer":"sa-R5","reviewedAt":"2026-09-28T09:02:30.993Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:6696","decision":"accept","reviewer":"sa-R5","reviewedAt":"2026-09-28T09:02:30.993Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:6122","decision":"accept","reviewer":"sa-R5","reviewedAt":"2026-09-28T09:02:30.994Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"weapon:1154","decision":"accept","reviewer":"sa-R5","reviewedAt":"2026-09-28T09:02:30.994Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:6572","decision":"accept","reviewer":"sa-R5","reviewedAt":"2026-09-28T09:02:30.994Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:7588","decision":"accept","reviewer":"sa-R5","reviewedAt":"2026-09-28T09:02:30.994Z","tests":["tests/unit/gowCastGolden.test.ts"]}

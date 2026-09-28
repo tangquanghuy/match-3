@@ -1108,7 +1108,12 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 7529,
     desc: '创造 8 颗红色宝石和 8 颗黄色宝石，再召唤一颗龙蛋或恶龙蛋。',
     build: skill(
-      createSpecialGems({ kind: 'dragonGem', color: BaseColor.Red }, 8, 0),
+      // sa-R5 L1-1154: native Randomize ABC-DEF: (CreateGems Red 8, Yellow 8, summon 6230 Dragon Eggs) or
+      // (Red 8, Yellow 8, summon 6892 Fell Dragon Egg); plain Red/Yellow gems (was 8 Red Dragon Gems, no summon).
+      oneOf(
+        [createGems(BaseColor.Red, 8, 0), createGems(BaseColor.Yellow, 8, 0), summonRef('DragonEggs')],
+        [createGems(BaseColor.Red, 8, 0), createGems(BaseColor.Yellow, 8, 0), summonRef('FellDragonEgg')],
+      ),
     ),
   },
   {

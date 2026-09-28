@@ -473,6 +473,27 @@ describe('L1 R2 B10 (sa-R5)', () => {
     }
     expect(two).toBeGreaterThan(115); expect(two).toBeLessThan(185); expect(differ).toBe(true);
   });
+  // ---- B11
+  it('B11 summon distributions and pools follow native steps', () => {
+    expect(pools('7501')).toEqual([1, 0.5, 0.5].map(chance => ({ chance, pool: kingdom(3006) })));
+    expect(pools('8747')).toEqual([1, 0.5, 0.5].map(chance => ({ chance, pool: kingdom(3008) })));
+    expect(pools('9599')).toEqual([{ chance: 1, pool: kingdom(3011) }]);
+    const n = (key: string) => { const t: Record<number, number> = {}; for (let seed = 1; seed <= 400; seed++) { const k = castSpell({ key, seed, allies: [] }).summary.summons.length; t[k] = (t[k] ?? 0) + 1; } return t; };
+    const warg = n('troop:7034'); expect(warg[1]).toBeGreaterThan(70); expect(warg[1]).toBeLessThan(130); expect(warg[2]).toBeGreaterThan(165);
+    const spider = n('troop:6122'); expect(spider[1]).toBeGreaterThan(120); expect(spider[3]).toBeGreaterThan(25); expect(spider[3]).toBeLessThan(80);
+  });
+  it('weapon:1154 8 Red + 8 Yellow plain gems, then Dragon Eggs or Fell Dragon Egg (50/50)', () => {
+    const names = new Set<string>();
+    for (let seed = 1; seed <= 40; seed++) {
+      const s = castSpell({ key: 'weapon:1154', seed }).summary;
+      expect(s.gems.created).toMatchObject({ Red: 8, Yellow: 8 });
+      names.add(Object.values(s.units).find(v => v.startsWith('new '))!.split(' ')[1]);
+    }
+    expect(names).toEqual(new Set([TROOPS.find(t => t.referenceName === 'DragonEggs')!.name, TROOPS.find(t => t.referenceName === 'FellDragonEgg')!.name]));
+  });
+  it('troop:7417 devour branch is a real Devour (1 of 6)', () => {
+    const k = devourRate('troop:7417', 600); expect(k).toBeGreaterThan(70); expect(k).toBeLessThan(135);
+  });
   it.each([{ had: true, others: true }, { had: false, others: false }])('weapon:1486 other allies get Reflect only if I already had it ($had)', ({ had, others }) => {
     const r = castSpell({ key: 'weapon:1486', caster: { statuses: had ? [{ id: 'reflect', turns: 99 }] as never : [] } });
     expect(r.summary.order[0]).toBe('buff C armor+11');

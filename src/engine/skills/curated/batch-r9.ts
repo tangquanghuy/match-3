@@ -297,7 +297,8 @@ const SPELLS: CuratedBatch['spells'] = [
     build: skill(
       createGems(BaseColor.Blue, 8),
       createGems(BaseColor.Green, 8),
-      summonRandom(K3008, undefined, { countRange: { min: 1, max: 3 } }),
+      // sa-R5 L1-summon-dist: native SummoningKingdom 3008 + 2 x 50%, each an independent random troop.
+      summonRandom(K3008), { ...summonRandom(K3008), chance: 0.5 }, { ...summonRandom(K3008), chance: 0.5 },
     ),
   },
   {
