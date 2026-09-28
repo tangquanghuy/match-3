@@ -260,7 +260,8 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 7864,
     desc: '对所有敌人造成 [魔法 + 6] 点散射伤害，伤害值因自身的攻击力、生命值和护甲值而增强。所有盟友全部技能值增加 2 点。 [3:1]',
     build: skill(
-      dmg('enemyAll', 6, 1, { range: 'all', modifier: { mod: { kind: 'ratio', a: 3, b: 1 }, source: { kind: 'selfStat', stat: 'attack' } } }),
+      // 原生 CountAttackArmorLife@Self 34：攻击+生命+护甲合计后一次取整（pooled）
+      dmg('enemyAll', 6, 1, { range: 'all', modifier: { mod: { kind: 'ratio', a: 3, b: 1 }, pooled: true, sources: [{ kind: 'selfStat', stat: 'attack' }, { kind: 'selfStat', stat: 'hp' }, { kind: 'selfStat', stat: 'armor' }] } }),
       attack('allyAll', 2, 0),
       armor('allyAll', 2, 0),
       heal('allyAll', 2, 0),
@@ -579,7 +580,7 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 8073,
     desc: '对 2 个随机敌人造成 [魔法 + 3] 点伤害，伤害值因敌我双方的黄金数而增强。 [2:1]',
     build: skill(
-      dmg('enemyRandomN', 3, 1, { n: 2, modifier: { mod: { kind: 'ratio', a: 2, b: 1 }, source: { kind: 'bothGold' } } }),
+      dmg('enemyRandomN', 3, 1, { n: 2, randomWaves: 2, modifier: { mod: { kind: 'ratio', a: 2, b: 1 }, source: { kind: 'bothGold' } } }),
     ),
   },
   {
@@ -644,7 +645,8 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '对一名敌人造成 [魔法 + 6] 点伤害。若敌人陷入出血状态，则伤害翻倍。有 10% 的几率直接杀死敌人，几率因末日骷髅头的数量而增强。 [x2]',
     build: skill(
       dmg('enemyChosen', 6, 1, { condMult: { times: 2, cond: { kind: 'targetStatus', statusId: 'bleed' } } }),
-      dmg('lastTarget', 0, 0, { execute: true, chance: 0.1, chanceBoost: { mod: { kind: 'multiplier', a: 2 }, source: { kind: 'boardSkulls' } } }),
+      // 原生 CountGems Doomskull（末日骷髅头，不含普通骷髅）
+      dmg('lastTarget', 0, 0, { execute: true, chance: 0.1, chanceBoost: { mod: { kind: 'multiplier', a: 2 }, source: { kind: 'boardSpecial', gem: 'doomSkull' } } }),
     ),
   },
   {

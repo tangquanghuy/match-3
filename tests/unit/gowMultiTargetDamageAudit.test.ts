@@ -82,6 +82,8 @@ describe('multi-victim damage compared with repository native/English snapshot',
       expect(hits).toHaveLength(targets.length);
       // 7748 "2 weakest" on four equal enemies: R005 breaks the tie with the RNG.
       if (id !== 7418 && id !== 7748) expect(hits.map(h => h.targetId)).toEqual(targets);
+      // 7418: native RandomEnemy + 2 x RandomPrefNotPrevEnemy (R007-3, sa-R4): 3 hits, never the previous victim twice.
+      else if (id === 7418) expect(hits.every((h, i) => i === 0 || h.targetId !== hits[i - 1].targetId)).toBe(true);
       else expect(new Set(hits.map(h => h.targetId)).size).toBe(targets.length);
       expect(hits.every(h => h.damage > 0)).toBe(true);
     });

@@ -198,7 +198,7 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 7418,
     desc: '对 3 名随机敌人造成 [魔法 + 1] 点伤害。',
     build: skill(
-      dmg('enemyRandomN', 1, 1, { n: 3 }),
+      dmg('enemyRandomN', 1, 1, { n: 3, randomWaves: 3 }),
     ),
   },
   {

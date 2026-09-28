@@ -411,9 +411,10 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 8365,
     desc: '对一名敌人和其下方的敌人造成 [魔法 + 3] 点伤害，伤害值因荆棘森林的盟友数而增强。 [x4]',
     // 「因荆棘森林的盟友数 [x4]」= alliesOfKingdom（Wave4/r19 已落，r17 王国组首批消费）；
-    // 「一名敌人和其下方的敌人」= enemyChosenAndBelow（编队下方，R11 已落）。
+    // 「一名敌人和其下方的敌人」= 原生 Damage@FromTarget + Damage@NextDownFromTarget：
+    // 仅正下方一名（enemyChosenAndNextDown），不是下方全部。
     build: skill(
-    dmg('enemyChosenAndBelow', 3, 1, { modifier: alliesOfKingdomBoost('荆棘森林', 4) }),
+    dmg('enemyChosenAndNextDown', 3, 1, { range: 'all', modifier: alliesOfKingdomBoost('荆棘森林', 4) }),
     ),
   },
   {

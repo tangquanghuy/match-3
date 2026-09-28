@@ -544,7 +544,7 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 8644,
     desc: '对一名敌人造成 [魔法 + 4] 点伤害，伤害值因绿色和元素盟友而增强。 [x3]',
     build: skill(
-      dmg('enemyChosen', 4, 1, { modifier: { mod: { kind: 'multiplier', a: 3 }, source: { kind: 'alliesOfRace', race: 'Elemental' } } }),
+      dmg('enemyChosen', 4, 1, { modifier: { mod: { kind: 'multiplier', a: 3 }, sources: [{ kind: 'alliesOfColor', color: BaseColor.Green }, { kind: 'alliesOfRace', race: 'Elemental' }] } }),
     ),
   },
   {
@@ -822,7 +822,7 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 8767,
     desc: '对一名敌人造成 [魔法 + 4] 点伤害，伤害值因紫色和不死族盟友数而增强。 [x3]',
     build: skill(
-      dmg('enemyChosen', 4, 1, { modifier: { mod: { kind: 'multiplier', a: 3 }, source: { kind: 'alliesOfRace', race: 'Undead' } } }),
+      dmg('enemyChosen', 4, 1, { modifier: { mod: { kind: 'multiplier', a: 3 }, sources: [{ kind: 'alliesOfColor', color: BaseColor.Purple }, { kind: 'alliesOfRace', race: 'Undead' }] } }),
     ),
   },
   {

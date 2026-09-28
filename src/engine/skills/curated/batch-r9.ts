@@ -695,7 +695,7 @@ const SPELLS: CuratedBatch['spells'] = [
     // Submerge → boardSpecial submergeGem；TroopOrderJumble = shuffleTeam（§12.1）
     build: skill(
       dmg('enemyRandomN', 4, 1, {
-        n: 4,
+        n: 4, randomWaves: 4,
         modifier: { mod: { kind: 'multiplier', a: 3 }, source: { kind: 'boardSpecial', gem: 'submergeGem' } },
       }),
       shuffleTeam('enemy', { chance: 0.5 }),
@@ -889,7 +889,7 @@ const SPELLS: CuratedBatch['spells'] = [
     // Poison 宝石计数 + 逐目标 condMult（§5 目标相对条件倍率）
     build: skill(
       dmg('enemyRandomN', 4, 1, {
-        n: 4,
+        n: 4, randomWaves: 4,
         modifier: { mod: { kind: 'multiplier', a: 1 }, source: { kind: 'boardSpecial', gem: 'poisonGem' } },
         condMult: { times: 2, cond: { kind: 'targetStatus', statusId: 'poison' } },
       }),

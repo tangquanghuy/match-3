@@ -256,7 +256,7 @@ const SPELLS: CuratedBatch['spells'] = [
     build: skill(
       // 神秘 = Mystic（troopTypes 核对）；modifier 挂本伤害段
       dmg('enemyRandomN', 3, 1, {
-        n: 2,
+        n: 2, randomWaves: 2,
         modifier: { mod: { kind: 'multiplier', a: 2 }, source: { kind: 'alliesOfRace', race: 'Mystic' } },
       }),
     ),

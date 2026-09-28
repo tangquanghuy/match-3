@@ -44,7 +44,7 @@ const SPELLS: CuratedBatch['spells'] = [
     build: skill(
       // 「伤害值因…增强」点名伤害段；「因骷髅头数」= boardSkulls（spell-rules §1 样例亡魂同款）
       dmg('enemyRandomN', 2, 1, {
-        n: 2,
+        n: 2, randomWaves: 2,
         modifier: { mod: { kind: 'ratio', a: 3, b: 1 }, source: { kind: 'boardSkulls' } },
       }),
     ),

@@ -462,7 +462,8 @@ const SPELLS: CuratedBatch['spells'] = [
           ],
         },
       }),
-      dmg('enemyRandom', 3, 1, {
+      // 原生 Damage@RandomPrefNotPrevEnemy：避开上一目标（R007-3）
+      dmg('enemyRandomPrefNotPrev', 3, 1, {
         condMult: { times: 2, cond: { kind: 'targetColor', color: BaseColor.Red } },
         modifier: {
           mod: { kind: 'ratio', a: 8, b: 1 },

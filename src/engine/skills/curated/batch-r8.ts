@@ -152,11 +152,13 @@ const SPELLS: CuratedBatch['spells'] = [
   {
     id: 8630,
     desc: '对 4 名随机敌人造成 [魔法 + 4] 点伤害，伤害值因元素星数量而增强。 [x6]',
-    // CountGems ElementalStar 无色分拆 → boardGems 无色（全色宝石数，本批裁定）
+    // 原生 CountGems ElementalStar → boardSpecial elementalStar（不是全部宝石）；
+    // RandomEnemy + 3 x RandomPrefNotPrevEnemy → randomWaves 4（R007-3）
     build: skill(
       dmg('enemyRandomN', 4, 1, {
         n: 4,
-        modifier: { mod: { kind: 'multiplier', a: 6 }, source: { kind: 'boardGems' } },
+        randomWaves: 4,
+        modifier: { mod: { kind: 'multiplier', a: 6 }, source: { kind: 'boardSpecial', gem: 'elementalStar' } },
       }),
     ),
   },
@@ -167,7 +169,7 @@ const SPELLS: CuratedBatch['spells'] = [
     build: skill(
       dmg('enemyAll', 4, 1, {
         range: 'all',
-        modifier: { mod: { kind: 'multiplier', a: 8 }, source: { kind: 'boardGems' } },
+        modifier: { mod: { kind: 'multiplier', a: 8 }, source: { kind: 'boardSpecial', gem: 'elementalStar' } },
       }),
     ),
   },
@@ -199,7 +201,8 @@ const SPELLS: CuratedBatch['spells'] = [
     build: skill(
       dmg('enemyAll', 1, 1, {
         range: 'all',
-        modifier: { mod: { kind: 'multiplier', a: 3 }, source: { kind: 'boardGems' } },
+        // 原生 CountGems Block / GoodGargoyle / BadGargoyle（不是全部宝石）
+        modifier: { mod: { kind: 'multiplier', a: 3 }, sources: [{ kind: 'boardSpecial', gem: 'stoneBlock' }, { kind: 'boardSpecial', gem: 'gargoyleGem' }] },
       }),
     ),
   },
