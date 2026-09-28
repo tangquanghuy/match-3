@@ -105,6 +105,13 @@ describe('L6 sa-G', () => {
     const allies = [{ ...DEFAULT_ALLIES[0], troopTypes: [race] }, DEFAULT_ALLIES[1]];
     expect(castSpell({ key, allies }).summary.order).toEqual(order);
   });
+  it('Doomed weapons 1517-1521: +10 Attack only when an enemy is a Doom troop', () => {
+    const doom = enemiesWith(2, { troopTypes: ['Doom'] });
+    for (const key of ['weapon:1517', 'weapon:1518', 'weapon:1519', 'weapon:1520', 'weapon:1521']) {
+      expect(castSpell({ key, enemies: doom }).summary.order.at(-1)).toBe('buff C attack+10');
+      expect(castSpell({ key }).summary.units.C).toBe('arm+14 mag+2');
+    }
+  });
   it('troop:7201 counts all Enemy Magic once before the hit (a kill does not shrink the Armor)', () => {
     const k = castSpell({ key: 'troop:7201', enemies: [0, 1, 2, 3].map(() => ({ hp: 1, maxHp: 1, armor: 0, mana: 5 })) });
     // 4 x 11 Magic / 2 = 22 -> 4 + 10 + 22 = 36 for both

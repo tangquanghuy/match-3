@@ -74,3 +74,8 @@
 - troop:7354 accepted: Life then 3 Magic, x2 Fey (test)
 - troop:7747 accepted: Life then 2 Magic, x2 Centaur (test)
 - weapon:1419 accepted: self M+1 Life, chosen ally +2 Magic
+- weapon:1517 accepted: 2 Magic all (+1/Tempering), M+2 Armor Blue allies, +10 Attack iff enemy Doom troop (test)
+- weapon:1518 accepted: same, Green (test)
+- weapon:1519 accepted: same, Red (test)
+- weapon:1520 accepted: same, Yellow (test)
+- weapon:1521 accepted: same, Purple (test)

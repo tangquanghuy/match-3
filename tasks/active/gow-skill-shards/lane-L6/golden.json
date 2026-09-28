@@ -1028,5 +1028,55 @@
   },
   "by": "sa-G",
   "at": "2026-09-28T21:51:47.599Z"
+ },
+ "weapon:1517": {
+  "lines": {
+   "L10": "buff C magic+2 ; buff A1 magic+2 ; buff A2 magic+2 ; buff C armor+14 ; buff A1 armor+14  => C:arm+14 mag+2 | A1:arm+14 mag+2 | A2:mag+2",
+   "R10": "buff C magic+2 ; buff A1 magic+2 ; buff A2 magic+2 ; buff C armor+14 ; buff A1 armor+14  => C:arm+14 mag+2 | A1:arm+14 mag+2 | A2:mag+2",
+   "L0": "buff C magic+2 ; buff A1 magic+2 ; buff A2 magic+2 ; buff C armor+4 ; buff A1 armor+4  => C:arm+4 mag+2 | A1:arm+4 mag+2 | A2:mag+2",
+   "K": "buff C magic+2 ; buff A1 magic+2 ; buff A2 magic+2 ; buff C armor+14 ; buff A1 armor+14  => C:arm+14 mag+2 | A1:arm+14 mag+2 | A2:mag+2"
+  },
+  "by": "sa-G",
+  "at": "2026-09-28T21:54:32.161Z"
+ },
+ "weapon:1518": {
+  "lines": {
+   "L10": "buff C magic+2 ; buff A1 magic+2 ; buff A2 magic+2 ; buff C armor+14  => C:arm+14 mag+2 | A1:mag+2 | A2:mag+2",
+   "R10": "buff C magic+2 ; buff A1 magic+2 ; buff A2 magic+2 ; buff C armor+14  => C:arm+14 mag+2 | A1:mag+2 | A2:mag+2",
+   "L0": "buff C magic+2 ; buff A1 magic+2 ; buff A2 magic+2 ; buff C armor+4  => C:arm+4 mag+2 | A1:mag+2 | A2:mag+2",
+   "K": "buff C magic+2 ; buff A1 magic+2 ; buff A2 magic+2 ; buff C armor+14  => C:arm+14 mag+2 | A1:mag+2 | A2:mag+2"
+  },
+  "by": "sa-G",
+  "at": "2026-09-28T21:54:32.161Z"
+ },
+ "weapon:1519": {
+  "lines": {
+   "L10": "buff C magic+2 ; buff A1 magic+2 ; buff A2 magic+2 ; buff C armor+14 ; buff A2 armor+14  => C:arm+14 mag+2 | A1:mag+2 | A2:arm+14 mag+2",
+   "R10": "buff C magic+2 ; buff A1 magic+2 ; buff A2 magic+2 ; buff C armor+14 ; buff A2 armor+14  => C:arm+14 mag+2 | A1:mag+2 | A2:arm+14 mag+2",
+   "L0": "buff C magic+2 ; buff A1 magic+2 ; buff A2 magic+2 ; buff C armor+4 ; buff A2 armor+4  => C:arm+4 mag+2 | A1:mag+2 | A2:arm+4 mag+2",
+   "K": "buff C magic+2 ; buff A1 magic+2 ; buff A2 magic+2 ; buff C armor+14 ; buff A2 armor+14  => C:arm+14 mag+2 | A1:mag+2 | A2:arm+14 mag+2"
+  },
+  "by": "sa-G",
+  "at": "2026-09-28T21:54:32.161Z"
+ },
+ "weapon:1520": {
+  "lines": {
+   "L10": "buff C magic+2 ; buff A1 magic+2 ; buff A2 magic+2 ; buff C armor+14 ; buff A2 armor+14  => C:arm+14 mag+2 | A1:mag+2 | A2:arm+14 mag+2",
+   "R10": "buff C magic+2 ; buff A1 magic+2 ; buff A2 magic+2 ; buff C armor+14 ; buff A2 armor+14  => C:arm+14 mag+2 | A1:mag+2 | A2:arm+14 mag+2",
+   "L0": "buff C magic+2 ; buff A1 magic+2 ; buff A2 magic+2 ; buff C armor+4 ; buff A2 armor+4  => C:arm+4 mag+2 | A1:mag+2 | A2:arm+4 mag+2",
+   "K": "buff C magic+2 ; buff A1 magic+2 ; buff A2 magic+2 ; buff C armor+14 ; buff A2 armor+14  => C:arm+14 mag+2 | A1:mag+2 | A2:arm+14 mag+2"
+  },
+  "by": "sa-G",
+  "at": "2026-09-28T21:54:32.161Z"
+ },
+ "weapon:1521": {
+  "lines": {
+   "L10": "buff C magic+2 ; buff A1 magic+2 ; buff A2 magic+2 ; buff C armor+14  => C:arm+14 mag+2 | A1:mag+2 | A2:mag+2",
+   "R10": "buff C magic+2 ; buff A1 magic+2 ; buff A2 magic+2 ; buff C armor+14  => C:arm+14 mag+2 | A1:mag+2 | A2:mag+2",
+   "L0": "buff C magic+2 ; buff A1 magic+2 ; buff A2 magic+2 ; buff C armor+4  => C:arm+4 mag+2 | A1:mag+2 | A2:mag+2",
+   "K": "buff C magic+2 ; buff A1 magic+2 ; buff A2 magic+2 ; buff C armor+14  => C:arm+14 mag+2 | A1:mag+2 | A2:mag+2"
+  },
+  "by": "sa-G",
+  "at": "2026-09-28T21:54:32.161Z"
  }
 }
