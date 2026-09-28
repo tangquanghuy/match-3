@@ -5,6 +5,7 @@ import type { WeaponDef } from '../data/weapons';
 import { rarityMetaByKey, rarityStyle } from '../data/rarity';
 import { heroStatsOf } from '../systems/hero';
 import { bottomNavHtml, mountIcons, shopNavHtml, toast, toastHtml, topbarHtml } from '../shell/chrome';
+import { cssUrlVar, shopArt } from '../shell/artAssets';
 import { renderSpell } from '../shell/spellText';
 import type { Screen, ShellCtx } from '../shell/screen';
 import type { MetaSave } from '../state/schema';
@@ -132,7 +133,7 @@ export class GemShopScreen implements Screen {
            <nav class="gem-shop-pagination" aria-label="商品分页"></nav>
          </section>`;
     return `${topbarHtml()}
-      <div class="screen gem-shop-screen"><section class="panel gem-shop-panel${detailId ? ' is-detail-page' : ''}">
+      <div class="screen gem-shop-screen"><section class="panel gem-shop-panel gem-v3${detailId ? ' is-detail-page' : ''}" style='${cssUrlVar('gem-hero', shopArt('gem-vault'))}'>
         <header class="gem-shop-head"><div class="gem-shop-heading"><span class="gem-shop-emblem" data-icon="bag"></span><div><h1>商店</h1><p>珍藏武器 · 宝石直购</p></div></div>${shopNavHtml('gems')}<span class="gem-shop-balance" aria-label="宝石余额 ${fmt(save.currencies.gems)}"><span data-icon="crystal"></span><b>${fmt(save.currencies.gems)}</b> 宝石</span></header>
         ${content}
       </section></div>
