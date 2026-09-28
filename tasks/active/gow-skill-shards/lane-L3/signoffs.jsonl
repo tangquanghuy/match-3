@@ -216,3 +216,13 @@
 {"format":"compact","key":"troop:7644","decision":"accept","reviewer":"sa-F","reviewedAt":"2026-09-28T16:28:21.097Z","tests":["tests/unit/gowCastGolden.test.ts"],"note":"sa-F B01"}
 {"format":"compact","key":"troop:7697","decision":"accept","reviewer":"sa-F","reviewedAt":"2026-09-28T16:28:21.097Z","tests":["tests/unit/gowCastGolden.test.ts"],"note":"sa-F B01"}
 {"format":"compact","key":"troop:7781","decision":"accept","reviewer":"sa-F","reviewedAt":"2026-09-28T16:28:21.098Z","tests":["tests/unit/gowCastGolden.test.ts"],"note":"sa-F B01"}
+{"format":"compact","key":"troop:7872","decision":"accept","reviewer":"sa-F","reviewedAt":"2026-09-28T21:13:41.128Z","tests":["tests/unit/gowCastGolden.test.ts"],"note":"sa-F B02"}
+{"format":"compact","key":"troop:6863","decision":"accept","reviewer":"sa-F","reviewedAt":"2026-09-28T21:13:41.129Z","tests":["tests/unit/gowCastGolden.test.ts"],"note":"sa-F B02"}
+{"format":"compact","key":"weapon:1506","decision":"accept","reviewer":"sa-F","reviewedAt":"2026-09-28T21:13:41.129Z","tests":["tests/unit/gowCastGolden.test.ts"],"note":"sa-F B02"}
+{"format":"compact","key":"troop:6111","decision":"accept","reviewer":"sa-F","reviewedAt":"2026-09-28T21:13:41.129Z","tests":["tests/unit/gowCastGolden.test.ts"],"note":"sa-F B02"}
+{"format":"compact","key":"troop:6036","decision":"accept","reviewer":"sa-F","reviewedAt":"2026-09-28T21:13:41.129Z","tests":["tests/unit/gowCastGolden.test.ts"],"note":"sa-F B02"}
+{"format":"compact","key":"troop:6045","decision":"accept","reviewer":"sa-F","reviewedAt":"2026-09-28T21:13:41.129Z","tests":["tests/unit/gowCastGolden.test.ts"],"note":"sa-F B02"}
+{"format":"compact","key":"troop:6190","decision":"accept","reviewer":"sa-F","reviewedAt":"2026-09-28T21:13:41.129Z","tests":["tests/unit/gowCastGolden.test.ts"],"note":"sa-F B02"}
+{"format":"compact","key":"troop:7714","decision":"accept","reviewer":"sa-F","reviewedAt":"2026-09-28T21:13:41.129Z","tests":["tests/unit/gowCastGolden.test.ts"],"note":"sa-F B02"}
+{"format":"compact","key":"troop:7774","decision":"accept","reviewer":"sa-F","reviewedAt":"2026-09-28T21:13:41.130Z","tests":["tests/unit/gowCastGolden.test.ts"],"note":"sa-F B02"}
+{"format":"compact","key":"weapon:1251","decision":"accept","reviewer":"sa-F","reviewedAt":"2026-09-28T21:13:41.130Z","tests":["tests/unit/gowCastGolden.test.ts"],"note":"sa-F B02"}

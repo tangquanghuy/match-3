@@ -1,6 +1,6 @@
 # GoW 技能改动留档
 
-自动生成（`node scripts/gow-changelog.mjs render`），源数据 [CHANGES.jsonl](CHANGES.jsonl)，共 543 条改动，涉及 994 个技能 ID。
+自动生成（`node scripts/gow-changelog.mjs render`），源数据 [CHANGES.jsonl](CHANGES.jsonl)，共 547 条改动，涉及 998 个技能 ID。
 
 ## 按时间
 
@@ -549,6 +549,10 @@
 | 2026-09-28T16:28 | sa-F | L3-F-7074 | assembler | 8602 | troop:7074 HelgorTheGuardian | `src/engine/skills/curated/batch-r8.ts` | creates 1-3 plain Red gems → creates 1-3 Red Mana Potions (native CreateGemsRange RedManaPotion) |  |
 | 2026-09-28T16:28 | sa-F | L3-F-6897 | assembler | 8358 | troop:6897 ArachnaeanWatcher | `src/engine/skills/curated/batch-r12.ts`<br>`src/data/gowSnapshotOverrides.json` | quarter Mana to all allies incl. caster → quarter Mana to all other allies (native AllAlliesButNotSelf); ZH fixed |  |
 | 2026-09-28T16:28 | sa-F | L3-F-7806 | assembler | 9847 | troop:7806 SetauriSkulk | `src/engine/skills/curated/batch-18.ts` | true damage, then 2 Mana per Bleeding enemy (killed target not counted) → Mana gain before the damage: count is native step 0 (R001) |  |
+| 2026-09-28T21:13 | sa-F | L3-F-6111 | assembler | 7181 | troop:6111 Aziris | `src/engine/skills/curated/batch-19.ts` | transforms every gem of the selected gem's colour into Skulls → transforms only the selected gem (native CreateGems 1 Skull BoardTarget SingleGem, ManaGemsOnly); 6 Mana at 13+ Purple counted after the transform |  |
+| 2026-09-28T21:13 | sa-F | L3-F-6863 | data | 8282 | troop:6863 QueenBeetrix | `src/engine/skills/curated/batch-r9.ts`<br>`src/data/gowSnapshotOverrides.json` | ZH: chance boosted by Brown Gems → ZH matches English/native (no Brown count step); behaviour unchanged |  |
+| 2026-09-28T21:13 | sa-F | L3-F-7714 | data | 9675 | troop:7714 DesertOx | `src/engine/skills/curated/batch-r17.ts`<br>`src/data/gowSnapshotOverrides.json` | ZH: use a mix of 10 Curse Gems and Doomskulls → ZH: create 10 (random mix); behaviour unchanged |  |
+| 2026-09-28T21:13 | sa-F | L3-F-7774 | data | 9780 | troop:7774 CountGobula | `src/engine/skills/curated/batch-r22.ts`<br>`src/data/gowSnapshotOverrides.json` | ZH: 14 Green and 14 Bleed → ZH: 14 Green/Bleed total (random mix); behaviour unchanged |  |
 
 ## 按技能 ID
 
@@ -607,6 +611,7 @@
 | 7169 | 2 | L4b-7276-singlegem、B-L4b-6104-blue |
 | 7174 | 1 | B5-L4b-1067-singlegem |
 | 7177 | 1 | L5-C-r4-6108 |
+| 7181 | 1 | L3-F-6111 |
 | 7184 | 2 | L4a-r4-1071、R013-5 |
 | 7185 | 2 | L5-012、R004 (L5-004,L5-005,L5-014,L4b-6340) |
 | 7192 | 1 | P-R3-precast-compare |
@@ -944,6 +949,7 @@
 | 8261 | 1 | P-E-faction-kingdom |
 | 8262 | 1 | P-E-faction-kingdom |
 | 8263 | 1 | P-E-faction-kingdom |
+| 8282 | 1 | L3-F-6863 |
 | 8283 | 1 | L1-1310-brown |
 | 8285 | 1 | P-E-faction-kingdom |
 | 8288 | 1 | P-prefnotprev-semantics |
@@ -1458,6 +1464,7 @@
 | 9661 | 2 | F3-q19、R011 |
 | 9666 | 1 | P-chooser-native-restrictions |
 | 9673 | 1 | P-counter-per-step |
+| 9675 | 1 | L3-F-7714 |
 | 9677 | 1 | B-L4b-prefnotprev |
 | 9687 | 1 | R3-B06-1649 |
 | 9688 | 1 | L7-R1-teamsize-source |
@@ -1477,6 +1484,7 @@
 | 9773 | 1 | L1-devour-first |
 | 9774 | 2 | P-counter-per-step、B-L4b-7768-mix-boost |
 | 9776 | 1 | P-prefnotprev-semantics |
+| 9780 | 1 | L3-F-7774 |
 | 9784 | 1 | L3-007 |
 | 9808 | 1 | P-R3-target-status-count,P-R3-ally-status-excl-self |
 | 9809 | 1 | L4a-R1-immortal-order |

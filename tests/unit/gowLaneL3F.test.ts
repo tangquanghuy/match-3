@@ -2,8 +2,8 @@
  * Lane L3 review (sa-F, round 7): table-driven checks for behaviour the default scenarios do not show.
  */
 import { describe, expect, it } from 'vitest';
-import { castSpell } from '../helpers/gowCast';
-import { BaseColor } from '@engine/types';
+import { castSpell, entitySkill, setupCast, sixColourBoard, withCells } from '../helpers/gowCast';
+import { BaseColor, colorGem } from '@engine/types';
 import type { Character } from '@engine/types';
 type E = Partial<Character>;
 const st = (...ids: string[]) => ids.map(id => ({ id, turns: 3 })) as Character['statuses'];
@@ -48,5 +48,44 @@ describe('sa-F B01: counted status mana / extra turn', () => {
     }
     const cold = seeds.map(seed => castSpell({ key: 'troop:7074', seed, enemies: [en(), en()] }));
     expect(cold.every(r => r.summary.extraTurn === null)).toBe(true);
+  });
+});
+
+describe('sa-F B02: create gems + extra turn / mana', () => {
+  // sixColourBoard has 10 Purple; three extra isolated Purple make exactly 13. (3,3) is Yellow, (0,4) is Purple.
+  const purple13 = withCells(sixColourBoard, { '0,0': colorGem(BaseColor.Purple), '7,7': colorGem(BaseColor.Purple), '4,0': colorGem(BaseColor.Purple) });
+  it('troop:6111 Aziris (7181): only the selected gem becomes a Skull; 6 Mana at 13+ Purple, counted after the transform (native step 1)', () => {
+    const r = castSpell({ key: 'troop:6111', board: purple13 });
+    expect(order(r)[0]).toBe('convert Yellow x1 -> skull x1');
+    expect(order(r)[1]).toBe('buff C mana+6');
+    const few = castSpell({ key: 'troop:6111', board: sixColourBoard });
+    expect(order(few).filter(o => o.includes('mana'))).toEqual([]);
+    const selPurple = castSpell({ key: 'troop:6111', board: purple13, cell: { row: 0, col: 4 } });
+    expect(order(selPurple)[0]).toBe('convert Purple x1 -> skull x1');
+    expect(order(selPurple).filter(o => o.includes('mana'))).toEqual([]);
+  });
+  it('troop:6863 QueenBeetrix (8282): extra turn and half Mana are independent 40% rolls', () => {
+    const half = Math.floor(entitySkill('troop:6863').cost / 2);
+    const runs = Array.from({ length: 40 }, (_, i) => castSpell({ key: 'troop:6863', seed: i + 1 }));
+    const mana = (x: ReturnType<typeof castSpell>) => order(x).includes(`buff C mana+${half}`);
+    const extra = (x: ReturnType<typeof castSpell>) => x.summary.extraTurn === 'skill';
+    expect(runs.some(x => extra(x) && !mana(x))).toBe(true);
+    expect(runs.some(x => !extra(x) && mana(x))).toBe(true);
+    expect(runs.some(x => !extra(x) && !mana(x))).toBe(true);
+    for (const x of runs) expect(order(x).filter(o => o.startsWith('dmg')).reduce((s, o) => s + Number(o.split(' ')[2]), 0)).toBe(26);
+  });
+  it('troop:6190 Tassarion (7331): one cast only (native DisableMySpell@Self)', () => {
+    const f = setupCast({ key: 'troop:6190' });
+    expect(f.cast().length).toBeGreaterThan(0);
+    f.state.activePlayer = f.side; f.caster.mana = f.caster.manaCost;
+    expect(f.cast()).toEqual([]);
+  });
+  it('troop:7714 DesertOx (9675) / troop:7774 CountGobula (9780): the mix totals 10 / 14 gems', () => {
+    for (const [key, n] of [['troop:7714', 10], ['troop:7774', 14]] as const) {
+      for (const seed of [1, 2, 3]) {
+        const c = castSpell({ key, seed }).summary.gems.created;
+        expect(Object.values(c).reduce((s, v) => s + v, 0)).toBe(n);
+      }
+    }
   });
 });
