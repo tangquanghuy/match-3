@@ -9,7 +9,6 @@
  */
 import { KINGDOM_MAX_LEVEL, kingdomLevelTrack, kingdomMasteryColors } from '../systems/kingdomOps';
 import type { TributeTreasury } from '../systems/tribute';
-import { tributeMultiBonus } from '../data/economy';
 import { tributeSpecialtyOf, tributeYield, type TributeSpecialty } from '../data/kingdomTribute';
 import { kingdomBonusStat } from '../data/kingdoms';
 import { gemSvg } from '../shell/chrome';
@@ -95,7 +94,7 @@ export function tributeYieldHtml(kingdom: string, level: number, home: boolean, 
   const per = tributeYield(kingdom, level, home);
   const amounts = currencyList({ gold: per.gold, souls: per.souls, glory: per.glory }, 'lg');
   return `<div class="kh-yield-row">${amounts || '<span class="kh-muted">本国不产进贡</span>'}</div>
-    <small class="kh-yield-note">每小时 <b>${pct(chance)}</b> 几率进贡一次${home ? ' · <em class="kh-home-x">主城 ×2</em>' : ''}</small>`;
+    <small class="kh-yield-note">每小时进贡几率 <b>${pct(chance)}</b></small>`;
 }
 
 export function specialtyTagHtml(kingdom: string): string {
@@ -153,8 +152,3 @@ function crestImg(kingdom: string): string {
   return crest ? `<img class="tr-crest" src="${crest}" alt="${kingdom}" title="${kingdom}" draggable="false">` : `<span class="tr-crest">${kingdom.slice(0, 1)}</span>`;
 }
 
-/** 多国同进贡加成的一句话说明（王国弹层用） */
-export function multiBonusHint(): string {
-  const three = tributeMultiBonus(3);
-  return `宝库一键收取时，同一小时有 2 国以上进贡另给宝石（3 国起加金钥匙，3 国 ${three.gems} 宝石 + ${three.goldKeys} 钥匙）。`;
-}

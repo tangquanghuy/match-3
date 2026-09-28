@@ -39,7 +39,6 @@ import {
   currencyList,
   levelPerksHtml,
   levelPipsHtml,
-  multiBonusHint,
   specialtyTagHtml,
   STAT_NAME,
   treasuryBodyHtml,
@@ -889,7 +888,6 @@ export class MapScreen implements Screen {
                 <section class="kh-panel kh-level upgrade-block" id="upgradeBlock" aria-labelledby="kingdomLevelTitle">
                   <header><b id="kingdomLevelTitle">王国等级</b><span id="upgradeHint"></span></header>
                   <div class="kh-pips" id="kingdomPips" aria-hidden="true"></div>
-                  <p class="kh-rule">每升一级：<b>进贡几率 +5%</b> · <b>进贡产出 +0.4 倍</b> · <b>旗帜主色法力精通 +1</b>（提高战斗中法力涌动几率）</p>
                   <ul class="kh-perks" id="kingdomPerks"></ul>
                   <button class="secondary kingdom-upgrade" id="kingdomUpgrade" type="button"><span data-icon="chevrons"></span><span id="upgradeLabel">投入升级</span><span class="price"><span data-icon="coin"></span><b id="upgradeCost">0</b></span></button>
                 </section>
@@ -901,7 +899,6 @@ export class MapScreen implements Screen {
                     <div class="tribute-track" aria-hidden="true"><i id="tributeFill"></i></div>
                   </div>
                   <p class="kh-stock" id="kingdomTribute">累积中</p>
-                  <p class="kh-rule" id="tributeRule"></p>
                   <button class="tribute-btn" id="kingdomCollect" type="button"><span data-icon="bag"></span><span id="collectLabel">打开宝库</span></button>
                 </section>
               </div>
@@ -1137,7 +1134,7 @@ export class MapScreen implements Screen {
       });
     const el = $('#kingdomListRows');
     const fogRow = !q && hidden.length
-      ? `<p class="kl-empty kl-fog">迷雾中还有 ${hidden.length} 个王国 · 冒险者每升一级探明一个（Lv.${ALL_KINGDOMS_UNLOCK_LEVEL} 全部开放）</p>`
+      ? `<p class="kl-empty kl-fog">迷雾中还有 ${hidden.length} 个王国</p>`
       : '';
     el.innerHTML = rows.length
       ? rows
@@ -1526,16 +1523,14 @@ export class MapScreen implements Screen {
     // 进贡：本国配比 + 库存 + 计时
     $('#tributeSpecialty').textContent = vm.home ? '主城 ×2' : '';
     $('#tributeYield').innerHTML = tributeYieldHtml(name, vm.level, vm.home, vm.tributeChance);
-    $('#kingdomTribute').innerHTML = locked
-      ? '开放后开始进贡'
-      : vm.tributeReady
-        ? `可收 ${currencyList({ gold: vm.tributeGold, souls: vm.tributeSouls, glory: vm.tributeGlory })}`
-        : vm.tributeHours > 0
-          ? `这 ${vm.tributeHours} 小时没有进贡`
-          : '累积中';
+    // 只在有东西可收时显示金额；计时已在上方进度条里
+    const tributeStock = $('#kingdomTribute');
+    tributeStock.hidden = locked || !vm.tributeReady;
+    tributeStock.innerHTML = vm.tributeReady
+      ? `可收 ${currencyList({ gold: vm.tributeGold, souls: vm.tributeSouls, glory: vm.tributeGlory })}`
+      : '';
     ($('#kingdomCollect') as HTMLButtonElement).disabled = locked;
     $('#collectLabel').textContent = vm.tributeReady ? '打开宝库收取' : '打开宝库';
-    $('#tributeRule').textContent = multiBonusHint();
     $('#tributeRow').classList.toggle('over', !locked && vm.tributeOverflowing);
     $('#tributeFill').style.width = locked ? '0%' : `${Math.min(100, (vm.tributeHours / TRIBUTE.capHours) * 100)}%`;
     $('#tributeCopy').textContent = locked
@@ -1546,7 +1541,7 @@ export class MapScreen implements Screen {
     $('#tributeRow').title = locked ? '' : vm.tributeOverflowing ? '已经攒满，再等也不会变多' : `最多攒 ${TRIBUTE.capHours} 小时`;
 
     $('#kingdomLockLevel').textContent = `冒险者 Lv.${vm.unlockLevel}`;
-    $('#kingdomLockGap').textContent = `你现在 Lv.${this.heroLevel}，还差 ${Math.max(0, vm.unlockLevel - this.heroLevel)} 级（每升一级开放一个王国）`;
+    $('#kingdomLockGap').textContent = `还差 ${Math.max(0, vm.unlockLevel - this.heroLevel)} 级`;
     $('#kingdomLockTroops').textContent = `${vm.poolSize} 名王国部队收藏`;
     $('#kingdomLockBonus').textContent = `满级加成：全体部队与主角${bonusStat} +1`;
     mountIcons($('#kingdomSheet'));
