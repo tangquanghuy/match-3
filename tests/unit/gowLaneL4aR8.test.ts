@@ -253,3 +253,26 @@ describe('L4a R8 B09', () => {
     expect(s.order[s.order.length - 1]).toBe('storm Blue replaced');
   });
 });
+
+describe('L4a R8 B10', () => {
+  // weapon:1370 (8409): DecreaseArmor@FromTarget [AddIfIHaveMech 30] ; Damage 6+M ; StormRedYellow (Electrostorm).
+  it('weapon:1370 strips 30 Armor before the hit only with a Mech ally, then conjures a Red/Yellow storm', () => {
+    const plain = castSpell({ key: 'weapon:1370' });
+    expect(plain.summary.order[0]).toBe('dmg E11 16');
+    const storm = plain.f.state.teams[plain.f.side].storm!;
+    expect([storm.color, storm.color2]).toEqual([BaseColor.Red, BaseColor.Yellow]);
+    const allies = [{ troopTypes: ['Mech'] }, {}];
+    const enemies = [{}, { hp: 900, maxHp: 900, armor: 40 }, {}, {}];
+    const r = castSpell({ key: 'weapon:1370', allies: allies as never, enemies });
+    const i = r.summary.order.findIndex(o => o.startsWith('dmg E11'));
+    expect(r.summary.order.slice(0, i).some(o => o.includes('armor-30') || o.startsWith('buff E11 armor'))).toBe(true);
+    expect(r.f.enemies[1].armor).toBe(0); // 40 - 30 = 10, then 16 damage takes the last 10 Armor
+    expect(r.f.enemies[1].hp).toBe(894);
+  });
+  // troop:6099 War Hound (7001): DecreaseAttack@FrontEnemy 1+M/2 ; ExplodeGems 2 (any gem incl. Skulls).
+  it('troop:6099 explodes 2 random gems, Skulls eligible', () => {
+    const r = castSpell({ key: 'troop:6099', board: skullBoard });
+    expect(r.summary.order[0]).toBe('buff E10 attack-6');
+    expect((r.f.proto!.segments[1] as unknown as { params: { target: { include: string } } }).params.target.include).toBe('all');
+  });
+});

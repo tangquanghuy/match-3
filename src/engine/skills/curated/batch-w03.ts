@@ -54,10 +54,11 @@ const SPELLS: CuratedBatch['spells'] = [
   {
     id: 8409,
     desc: '对一名敌人造成 [魔法 + 6] 点伤害。若有机械盟友，则先消除敌人 30 点护甲值。召唤一个电风暴。',
+    // native order: DecreaseArmor 30 [AddIfIHaveMech] first, then Damage ; StormRedYellow = two-colour Electrostorm
     build: skill(
-      dmg('enemyChosen', 6, 1),
       reduce('enemyChosen', 'armor', 30, 0, { ifCond: { kind: 'allyRacePresent', race: 'Mech' } }),
-      createStorm(BaseColor.Yellow),
+      dmg('enemyChosen', 6, 1),
+      createStorm(BaseColor.Red, { color2: BaseColor.Yellow }),
     ),
   },
   {

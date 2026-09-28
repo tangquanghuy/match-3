@@ -2,6 +2,39 @@
   "sourceFingerprint": "0edc34ebe8fcfdab0ace4baafe552cb772574701d86c53b7cea97208844a5740",
   "notes": "Preserve pre-regeneration localized corrections and reviewed weapon prototypes recorded in the September 26 verification ledger; this is not original-game certification.",
   "entries": {
+    "8409": {
+      "prototype": {
+        "segments": [
+          {
+            "kind": "reduce",
+            "target": "enemyChosen",
+            "stat": "armor",
+            "scaling": {
+              "base": 30,
+              "mult": 0
+            },
+            "ifCond": {
+              "kind": "allyRacePresent",
+              "race": "Mech"
+            }
+          },
+          {
+            "kind": "damage",
+            "target": "enemyChosen",
+            "scaling": {
+              "base": 6,
+              "mult": 1
+            }
+          },
+          {
+            "kind": "storm",
+            "color": "Red",
+            "turns": 8,
+            "color2": "Yellow"
+          }
+        ]
+      }
+    },
     "7121": {
       "prototype": {
         "segments": [

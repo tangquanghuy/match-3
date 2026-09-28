@@ -53,7 +53,7 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '减除第一位敌人 [(魔法 / 2) + 1] 点攻击力。则爆破 2 颗随机宝石。',
     build: skill(
       reduce('enemyFront', 'attack', 1, 0.5),
-      explodeRandomGems(2, 0, 'color'),
+      explodeRandomGems(2, 0, 'all'), // native ExplodeGems 2: any gem (R013-5)
     ),
   },
   {

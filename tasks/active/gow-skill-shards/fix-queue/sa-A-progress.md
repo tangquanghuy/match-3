@@ -59,3 +59,8 @@
 - troop:6641 accept (waived c2 tower+ascension)
 - troop:7561 fix(chosen column, spell Target Board; zh override)
 - troop:7652 fix(+10 storm bonus on the same all-enemy hit, not a separate chosen hit)
+- weapon:1370 fix(native order armor-before-damage R001; Electrostorm = Red+Yellow dual storm; override entry)
+- troop:7536 accept
+- troop:6979 accept
+- troop:6099 fix(explode 2 include all)
+- weapon:1052 accept

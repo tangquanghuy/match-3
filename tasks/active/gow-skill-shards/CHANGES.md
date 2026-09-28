@@ -1,6 +1,6 @@
 # GoW 技能改动留档
 
-自动生成（`node scripts/gow-changelog.mjs render`），源数据 [CHANGES.jsonl](CHANGES.jsonl)，共 547 条改动，涉及 1000 个技能 ID。
+自动生成（`node scripts/gow-changelog.mjs render`），源数据 [CHANGES.jsonl](CHANGES.jsonl)，共 549 条改动，涉及 1002 个技能 ID。
 
 ## 按时间
 
@@ -553,6 +553,8 @@
 | 2026-09-28T21:34 | sa-A | L4a-R8-random-any-gem | assembler | 8134 | troop:6755 QueenXochi | `src/engine/skills/curated/batch-37.ts` | 8134 storm explode 5 include color → include all (any gem, R013-5) |  |
 | 2026-09-28T21:39 | sa-A | L4a-R8-7561-chosen-column | data | 9346 | troop:7561 WingedDonkey | `src/engine/skills/curated/batch-r7.ts`<br>`src/data/gowSnapshotOverrides.json` | 9346 destroyRandomCols(1); zh '摧毁一个随机列' → destroyChosenCol (native spell Target Board, DestroyGems BoardTarget Column); zh '摧毁一列宝石' + snapshot override |  |
 | 2026-09-28T21:39 | sa-A | L4a-R8-7652-storm-bonus | assembler | 9567 | troop:7652 Treviamus | `src/engine/skills/curated/batch-p40.ts` | 9567 separate 10 damage to enemyChosen after the jumble when a Storm exists → one Damage@AllEnemies 1+M with condBonus +10 if any Storm (native AddForAnyStorm on the same step), then jumble, then Icestorm |  |
+| 2026-09-28T21:41 | sa-A | L4a-R8-1370-order-electrostorm | data | 8409 | weapon:1370 TinkersBuzzblade | `src/engine/skills/curated/batch-w03.ts`<br>`src/data/gowWeaponReviewedOverrides.json` | 8409 damage then Mech -30 Armor; storm Yellow only → native order: -30 Armor [AddIfIHaveMech] first, then damage (R001); StormRedYellow = storm Red + color2 Yellow; override entry added |  |
+| 2026-09-28T21:41 | sa-A | L4a-R8-random-any-gem | assembler | 7001 | troop:6099 Warhound | `src/engine/skills/curated/batch-11.ts` | 7001 explode 2 include color → include all (any gem, R013-5) |  |
 
 ## 按技能 ID
 
@@ -566,6 +568,7 @@
 | 6548 | 1 | L4b-7200-rage-alias |
 | 6751 | 1 | L4b-6751-zh |
 | 6824 | 1 | L4b-6824-random-ally |
+| 7001 | 1 | L4a-R8-random-any-gem |
 | 7006 | 1 | L5-C-6007-random-burn |
 | 7009 | 1 | P-create-interleave |
 | 7014 | 1 | L4a-R1-7014-order |
@@ -1014,6 +1017,7 @@
 | 8406 | 1 | R7-6928-zh-count |
 | 8407 | 2 | P-F1-oneof-chosen-target、P-F1-oneof-chosen-target |
 | 8408 | 1 | L1-6930-summons |
+| 8409 | 1 | L4a-R8-1370-order-electrostorm |
 | 8410 | 1 | P-prefnotprev-semantics |
 | 8411 | 1 | P-B-action-status-self-count |
 | 8413 | 1 | R7-6925-two-hits |
