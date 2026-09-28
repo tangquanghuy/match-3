@@ -28,6 +28,60 @@
    "mode": "tower",
    "text": "If they are a Tower, deal 3x - 5x damage, based on my Ascensions.",
    "note": "Waived per R000: 'If they are a Tower, deal 3x - 5x damage, based on my Ascensions' (Tower target + ascension scaling not implemented; existing Castle condMult placeholder untouched)."
+  },
+  {
+   "key": "troop:6569",
+   "name": "SirMordayne",
+   "part": "clause",
+   "id": "c2",
+   "mode": "tower",
+   "text": "If they are a Tower, deal 3x - 5x damage, based on my Ascensions.",
+   "note": ""
+  },
+  {
+   "key": "troop:6569",
+   "name": "SirMordayne",
+   "part": "step",
+   "id": "1",
+   "mode": "tower",
+   "text": "{\"SpellPowerMultiplier\":1,\"Target\":\"FromTarget\",\"StatusAmount\":3,\"Amount\":4,\"Primarypower\":true,\"StatusModifier\":\"MultiplyForAscensionCastle\",\"Type\":\"Damage\"}",
+   "note": ""
+  },
+  {
+   "key": "troop:6803",
+   "name": "Rubitressa",
+   "part": "clause",
+   "id": "c3",
+   "mode": "tower",
+   "text": "If they are a Tower, deal 3x - 5x damage, based on my Ascensions.",
+   "note": ""
+  },
+  {
+   "key": "troop:6550",
+   "name": "Caprinicus",
+   "part": "clause",
+   "id": "c2",
+   "mode": "boss",
+   "text": "If they are a Boss, deal 3x - 5x damage, based on my Ascensions.",
+   "note": ""
+  },
+  {
+   "key": "troop:7560",
+   "name": "DuskOwlbear",
+   "part": "clause",
+   "id": "c2",
+   "mode": "boss",
+   "text": "If they are a Boss, deal 3x - 5x damage, based on my Ascensions.",
+   "note": ""
+  },
+  {
+   "key": "troop:7101",
+   "name": "ValiantPyrea",
+   "part": "clause",
+   "id": "c2",
+   "mode": "boss",
+   "text": "If they are a Boss, deal 3x - 5x damage, based on my Ascensions.",
+   "note": ""
   }
  ]
 }

@@ -4,577 +4,23 @@
   "note": "逐实体独立来源、维度、子句、原生步骤、分支及真实施法证据；仅decision=accept且同指纹完整测试及类型检查通过的记录计入整项签收；draft待补齐。",
   "reviews": [
     {
+      "format": "compact",
       "key": "troop:6353",
-      "scope": "stored-gow-snapshot",
-      "sourceDigest": "902edb8bdcf47543121d3dd9aa6df57dfbe9bce206eccc876e283f5497a4b2bb",
-      "reviewer": "Codex限定范围复核（非独立客户端认证）",
-      "reviewedAt": "2026-09-26",
-      "decision": "draft",
-      "sourceEvidence": [
-        {
-          "id": "en",
-          "role": "english-snapshot",
-          "path": "data/raw/troops.gow.en.json",
-          "note": "该实体英文完整技能，保存的抽取快照，不标作官方实时资料。"
-        },
-        {
-          "id": "native",
-          "role": "native-snapshot",
-          "path": "data/raw/spells.gow.en.json",
-          "note": "按技能ID读取保存的原始执行步骤；与英文分别核查。"
-        },
-        {
-          "id": "official",
-          "role": "official-shared-rule",
-          "path": "artifacts/gow-skill-audit/gold-primary-sources/57352.json",
-          "note": "官方工作人员历史说明：动画不代表取得黄金，以余额为准；不认证全部窃取、封顶、取整或低余额GiveGold规则。"
-        }
-      ],
-      "dimensions": {
-        "identity-cost-colors": {
-          "status": "pending",
-          "note": "黄金限定测试不覆盖该维度的全部条款与共享规则；保持待验。",
-          "evidenceIds": [
-            "en",
-            "native"
-          ],
-          "tests": [
-            "tests/unit/gowGoldOwnershipAudit.test.ts"
-          ]
-        },
-        "target-count-range": {
-          "status": "pending",
-          "note": "黄金限定测试不覆盖该维度的全部条款与共享规则；保持待验。",
-          "evidenceIds": [
-            "en",
-            "native"
-          ],
-          "tests": [
-            "tests/unit/gowGoldOwnershipAudit.test.ts"
-          ]
-        },
-        "base-formula-rounding": {
-          "status": "pending",
-          "note": "黄金限定测试不覆盖该维度的全部条款与共享规则；保持待验。",
-          "evidenceIds": [
-            "en",
-            "native"
-          ],
-          "tests": [
-            "tests/unit/gowGoldOwnershipAudit.test.ts"
-          ]
-        },
-        "boost-source-ratio-cap": {
-          "status": "pending",
-          "note": "黄金限定测试不覆盖该维度的全部条款与共享规则；保持待验。",
-          "evidenceIds": [
-            "en",
-            "native"
-          ],
-          "tests": [
-            "tests/unit/gowGoldOwnershipAudit.test.ts"
-          ]
-        },
-        "conditions-probabilities-branches": {
-          "status": "pending",
-          "note": "黄金限定测试不覆盖该维度的全部条款与共享规则；保持待验。",
-          "evidenceIds": [
-            "en",
-            "native"
-          ],
-          "tests": [
-            "tests/unit/gowGoldOwnershipAudit.test.ts"
-          ]
-        },
-        "status-duration-immunity": {
-          "status": "pending",
-          "note": "黄金限定测试不覆盖该维度的全部条款与共享规则；保持待验。",
-          "evidenceIds": [
-            "en",
-            "native"
-          ],
-          "tests": [
-            "tests/unit/gowGoldOwnershipAudit.test.ts"
-          ]
-        },
-        "gems-types-selection-resolution": {
-          "status": "pending",
-          "note": "黄金限定测试不覆盖该维度的全部条款与共享规则；保持待验。",
-          "evidenceIds": [
-            "en",
-            "native"
-          ],
-          "tests": [
-            "tests/unit/gowGoldOwnershipAudit.test.ts"
-          ]
-        },
-        "summon-transform-pools": {
-          "status": "pending",
-          "note": "黄金限定测试不覆盖该维度的全部条款与共享规则；保持待验。",
-          "evidenceIds": [
-            "en",
-            "native"
-          ],
-          "tests": [
-            "tests/unit/gowGoldOwnershipAudit.test.ts"
-          ]
-        },
-        "order-death-retargeting": {
-          "status": "pending",
-          "note": "黄金限定测试不覆盖该维度的全部条款与共享规则；保持待验。",
-          "evidenceIds": [
-            "en",
-            "native"
-          ],
-          "tests": [
-            "tests/unit/gowGoldOwnershipAudit.test.ts"
-          ]
-        },
-        "mana-economy-extra-turn": {
-          "status": "pending",
-          "note": "黄金限定测试不覆盖该维度的全部条款与共享规则；保持待验。",
-          "evidenceIds": [
-            "en",
-            "native"
-          ],
-          "tests": [
-            "tests/unit/gowGoldOwnershipAudit.test.ts"
-          ]
-        },
-        "display-description": {
-          "status": "pending",
-          "note": "黄金限定测试不覆盖该维度的全部条款与共享规则；保持待验。",
-          "evidenceIds": [
-            "en",
-            "native"
-          ],
-          "tests": [
-            "tests/unit/gowGoldOwnershipAudit.test.ts"
-          ]
-        },
-        "battle-pipeline": {
-          "status": "pending",
-          "note": "黄金限定测试不覆盖该维度的全部条款与共享规则；保持待验。",
-          "evidenceIds": [
-            "en",
-            "native"
-          ],
-          "tests": [
-            "tests/unit/gowGoldOwnershipAudit.test.ts"
-          ],
-          "realBattleEntry": true
-        }
-      },
-      "clauseReviews": [
-        {
-          "id": "c1",
-          "status": "pending",
-          "note": "完整英文子句保留待验，当前专项不替代整项子句认证。",
-          "evidenceIds": [
-            "en",
-            "native"
-          ],
-          "tests": [
-            "tests/unit/gowGoldOwnershipAudit.test.ts"
-          ]
-        },
-        {
-          "id": "c2",
-          "status": "pending",
-          "note": "完整英文子句保留待验，当前专项不替代整项子句认证。",
-          "evidenceIds": [
-            "en",
-            "native"
-          ],
-          "tests": [
-            "tests/unit/gowGoldOwnershipAudit.test.ts"
-          ]
-        },
-        {
-          "id": "c3",
-          "status": "pending",
-          "note": "完整英文子句保留待验，当前专项不替代整项子句认证。",
-          "evidenceIds": [
-            "en",
-            "native"
-          ],
-          "tests": [
-            "tests/unit/gowGoldOwnershipAudit.test.ts"
-          ]
-        }
-      ],
-      "nativeStepReviews": [
-        {
-          "id": "0",
-          "status": "pending",
-          "note": "原始步骤Damage / FromTarget：待完整核对参数、状态、顺序与边界。",
-          "evidenceIds": [
-            "en",
-            "native"
-          ],
-          "tests": [
-            "tests/unit/gowGoldOwnershipAudit.test.ts"
-          ]
-        },
-        {
-          "id": "1",
-          "status": "pending",
-          "note": "原始步骤CountEnemyGold / None：待完整核对参数、状态、顺序与边界。",
-          "evidenceIds": [
-            "en",
-            "native"
-          ],
-          "tests": [
-            "tests/unit/gowGoldOwnershipAudit.test.ts"
-          ]
-        },
-        {
-          "id": "2",
-          "status": "pending",
-          "note": "原始步骤CountMaxWithMagic / None：待完整核对参数、状态、顺序与边界。",
-          "evidenceIds": [
-            "en",
-            "native"
-          ],
-          "tests": [
-            "tests/unit/gowGoldOwnershipAudit.test.ts"
-          ]
-        },
-        {
-          "id": "3",
-          "status": "pending",
-          "note": "原始步骤TakeEnemyGold / None：待完整核对参数、状态、顺序与边界。",
-          "evidenceIds": [
-            "en",
-            "native"
-          ],
-          "tests": [
-            "tests/unit/gowGoldOwnershipAudit.test.ts"
-          ]
-        },
-        {
-          "id": "4",
-          "status": "pending",
-          "note": "原始步骤GiveGold / None：待完整核对参数、状态、顺序与边界。",
-          "evidenceIds": [
-            "en",
-            "native"
-          ],
-          "tests": [
-            "tests/unit/gowGoldOwnershipAudit.test.ts"
-          ]
-        }
-      ],
-      "branchReviews": [
-        {
-          "id": "main",
-          "status": "pending",
-          "note": "该原始分支仅有专项覆盖，待逐步确认全部效果。",
-          "evidenceIds": [
-            "en",
-            "native"
-          ],
-          "tests": [
-            "tests/unit/gowGoldOwnershipAudit.test.ts"
-          ]
-        }
-      ],
-      "pendingReasons": [
-        "黄金上限、封顶与超限转移规则待原版依据",
-        "状态/免疫/宝石/额外回合等非黄金完整子句尚待逐项验收"
-      ],
-      "scopedEvidence": [
-        {
-          "testPath": "tests/unit/gowGoldOwnershipAudit.test.ts",
-          "scope": "双方黄金持有、可用余额转移、实际窃取计数、顺序与施法者中途死亡后归属"
-        }
+      "decision": "accept",
+      "reviewer": "sa-F3",
+      "reviewedAt": "2026-09-28T00:26:09.895Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
       ]
     },
     {
+      "format": "compact",
       "key": "troop:6717",
-      "scope": "stored-gow-snapshot",
-      "sourceDigest": "ca00fe60b64ff33c4661316a4cb4e51fe72f09d8858090d2c7888d1ced0d12ba",
-      "reviewer": "Codex限定范围复核（非独立客户端认证）",
-      "reviewedAt": "2026-09-26",
-      "decision": "draft",
-      "sourceEvidence": [
-        {
-          "id": "en",
-          "role": "english-snapshot",
-          "path": "data/raw/troops.gow.en.json",
-          "note": "该实体英文完整技能，保存的抽取快照，不标作官方实时资料。"
-        },
-        {
-          "id": "native",
-          "role": "native-snapshot",
-          "path": "data/raw/spells.gow.en.json",
-          "note": "按技能ID读取保存的原始执行步骤；与英文分别核查。"
-        },
-        {
-          "id": "official",
-          "role": "official-shared-rule",
-          "path": "artifacts/gow-skill-audit/gold-primary-sources/57352.json",
-          "note": "官方工作人员历史说明：动画不代表取得黄金，以余额为准；不认证全部窃取、封顶、取整或低余额GiveGold规则。"
-        }
-      ],
-      "dimensions": {
-        "identity-cost-colors": {
-          "status": "pending",
-          "note": "黄金限定测试不覆盖该维度的全部条款与共享规则；保持待验。",
-          "evidenceIds": [
-            "en",
-            "native"
-          ],
-          "tests": [
-            "tests/unit/gowGoldOwnershipAudit.test.ts"
-          ]
-        },
-        "target-count-range": {
-          "status": "pending",
-          "note": "黄金限定测试不覆盖该维度的全部条款与共享规则；保持待验。",
-          "evidenceIds": [
-            "en",
-            "native"
-          ],
-          "tests": [
-            "tests/unit/gowGoldOwnershipAudit.test.ts"
-          ]
-        },
-        "base-formula-rounding": {
-          "status": "pending",
-          "note": "黄金限定测试不覆盖该维度的全部条款与共享规则；保持待验。",
-          "evidenceIds": [
-            "en",
-            "native"
-          ],
-          "tests": [
-            "tests/unit/gowGoldOwnershipAudit.test.ts"
-          ]
-        },
-        "boost-source-ratio-cap": {
-          "status": "pending",
-          "note": "黄金限定测试不覆盖该维度的全部条款与共享规则；保持待验。",
-          "evidenceIds": [
-            "en",
-            "native"
-          ],
-          "tests": [
-            "tests/unit/gowGoldOwnershipAudit.test.ts"
-          ]
-        },
-        "conditions-probabilities-branches": {
-          "status": "pending",
-          "note": "黄金限定测试不覆盖该维度的全部条款与共享规则；保持待验。",
-          "evidenceIds": [
-            "en",
-            "native"
-          ],
-          "tests": [
-            "tests/unit/gowGoldOwnershipAudit.test.ts"
-          ]
-        },
-        "status-duration-immunity": {
-          "status": "pending",
-          "note": "黄金限定测试不覆盖该维度的全部条款与共享规则；保持待验。",
-          "evidenceIds": [
-            "en",
-            "native"
-          ],
-          "tests": [
-            "tests/unit/gowGoldOwnershipAudit.test.ts"
-          ]
-        },
-        "gems-types-selection-resolution": {
-          "status": "pending",
-          "note": "黄金限定测试不覆盖该维度的全部条款与共享规则；保持待验。",
-          "evidenceIds": [
-            "en",
-            "native"
-          ],
-          "tests": [
-            "tests/unit/gowGoldOwnershipAudit.test.ts"
-          ]
-        },
-        "summon-transform-pools": {
-          "status": "pending",
-          "note": "黄金限定测试不覆盖该维度的全部条款与共享规则；保持待验。",
-          "evidenceIds": [
-            "en",
-            "native"
-          ],
-          "tests": [
-            "tests/unit/gowGoldOwnershipAudit.test.ts"
-          ]
-        },
-        "order-death-retargeting": {
-          "status": "pending",
-          "note": "黄金限定测试不覆盖该维度的全部条款与共享规则；保持待验。",
-          "evidenceIds": [
-            "en",
-            "native"
-          ],
-          "tests": [
-            "tests/unit/gowGoldOwnershipAudit.test.ts"
-          ]
-        },
-        "mana-economy-extra-turn": {
-          "status": "pending",
-          "note": "黄金限定测试不覆盖该维度的全部条款与共享规则；保持待验。",
-          "evidenceIds": [
-            "en",
-            "native"
-          ],
-          "tests": [
-            "tests/unit/gowGoldOwnershipAudit.test.ts"
-          ]
-        },
-        "display-description": {
-          "status": "pending",
-          "note": "黄金限定测试不覆盖该维度的全部条款与共享规则；保持待验。",
-          "evidenceIds": [
-            "en",
-            "native"
-          ],
-          "tests": [
-            "tests/unit/gowGoldOwnershipAudit.test.ts"
-          ]
-        },
-        "battle-pipeline": {
-          "status": "pending",
-          "note": "黄金限定测试不覆盖该维度的全部条款与共享规则；保持待验。",
-          "evidenceIds": [
-            "en",
-            "native"
-          ],
-          "tests": [
-            "tests/unit/gowGoldOwnershipAudit.test.ts"
-          ],
-          "realBattleEntry": true
-        }
-      },
-      "clauseReviews": [
-        {
-          "id": "c1",
-          "status": "pending",
-          "note": "完整英文子句保留待验，当前专项不替代整项子句认证。",
-          "evidenceIds": [
-            "en",
-            "native"
-          ],
-          "tests": [
-            "tests/unit/gowGoldOwnershipAudit.test.ts"
-          ]
-        },
-        {
-          "id": "c2",
-          "status": "pending",
-          "note": "完整英文子句保留待验，当前专项不替代整项子句认证。",
-          "evidenceIds": [
-            "en",
-            "native"
-          ],
-          "tests": [
-            "tests/unit/gowGoldOwnershipAudit.test.ts"
-          ]
-        },
-        {
-          "id": "c3",
-          "status": "pending",
-          "note": "完整英文子句保留待验，当前专项不替代整项子句认证。",
-          "evidenceIds": [
-            "en",
-            "native"
-          ],
-          "tests": [
-            "tests/unit/gowGoldOwnershipAudit.test.ts"
-          ]
-        }
-      ],
-      "nativeStepReviews": [
-        {
-          "id": "0",
-          "status": "pending",
-          "note": "原始步骤CountEnemyGold / AllEnemies：待完整核对参数、状态、顺序与边界。",
-          "evidenceIds": [
-            "en",
-            "native"
-          ],
-          "tests": [
-            "tests/unit/gowGoldOwnershipAudit.test.ts"
-          ]
-        },
-        {
-          "id": "1",
-          "status": "pending",
-          "note": "原始步骤CountMax / None：待完整核对参数、状态、顺序与边界。",
-          "evidenceIds": [
-            "en",
-            "native"
-          ],
-          "tests": [
-            "tests/unit/gowGoldOwnershipAudit.test.ts"
-          ]
-        },
-        {
-          "id": "2",
-          "status": "pending",
-          "note": "原始步骤TakeEnemyGold / AllEnemies：待完整核对参数、状态、顺序与边界。",
-          "evidenceIds": [
-            "en",
-            "native"
-          ],
-          "tests": [
-            "tests/unit/gowGoldOwnershipAudit.test.ts"
-          ]
-        },
-        {
-          "id": "3",
-          "status": "pending",
-          "note": "原始步骤Damage / FromTarget：待完整核对参数、状态、顺序与边界。",
-          "evidenceIds": [
-            "en",
-            "native"
-          ],
-          "tests": [
-            "tests/unit/gowGoldOwnershipAudit.test.ts"
-          ]
-        },
-        {
-          "id": "4",
-          "status": "pending",
-          "note": "原始步骤GiveGold / Self：待完整核对参数、状态、顺序与边界。",
-          "evidenceIds": [
-            "en",
-            "native"
-          ],
-          "tests": [
-            "tests/unit/gowGoldOwnershipAudit.test.ts"
-          ]
-        }
-      ],
-      "branchReviews": [
-        {
-          "id": "main",
-          "status": "pending",
-          "note": "该原始分支仅有专项覆盖，待逐步确认全部效果。",
-          "evidenceIds": [
-            "en",
-            "native"
-          ],
-          "tests": [
-            "tests/unit/gowGoldOwnershipAudit.test.ts"
-          ]
-        }
-      ],
-      "pendingReasons": [
-        "黄金上限、封顶与超限转移规则待原版依据",
-        "状态/免疫/宝石/额外回合等非黄金完整子句尚待逐项验收"
-      ],
-      "scopedEvidence": [
-        {
-          "testPath": "tests/unit/gowGoldOwnershipAudit.test.ts",
-          "scope": "双方黄金持有、可用余额转移、实际窃取计数、顺序与施法者中途死亡后归属"
-        }
+      "decision": "accept",
+      "reviewer": "sa-F3",
+      "reviewedAt": "2026-09-28T00:26:09.894Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
       ]
     },
     {
@@ -1164,290 +610,13 @@
       ]
     },
     {
+      "format": "compact",
       "key": "troop:7280",
-      "scope": "stored-gow-snapshot",
-      "sourceDigest": "a1c88e701c21fc17bdb14fe578c66417f45e1c234fe4d867c39ef0988b106d69",
-      "reviewer": "Codex限定范围复核（非独立客户端认证）",
-      "reviewedAt": "2026-09-26",
-      "decision": "draft",
-      "sourceEvidence": [
-        {
-          "id": "en",
-          "role": "english-snapshot",
-          "path": "data/raw/troops.gow.en.json",
-          "note": "该实体英文完整技能，保存的抽取快照，不标作官方实时资料。"
-        },
-        {
-          "id": "native",
-          "role": "native-snapshot",
-          "path": "data/raw/spells.gow.en.json",
-          "note": "按技能ID读取保存的原始执行步骤；与英文分别核查。"
-        },
-        {
-          "id": "official",
-          "role": "official-shared-rule",
-          "path": "artifacts/gow-skill-audit/gold-primary-sources/57352.json",
-          "note": "官方工作人员历史说明：动画不代表取得黄金，以余额为准；不认证全部窃取、封顶、取整或低余额GiveGold规则。"
-        }
-      ],
-      "dimensions": {
-        "identity-cost-colors": {
-          "status": "pending",
-          "note": "黄金限定测试不覆盖该维度的全部条款与共享规则；保持待验。",
-          "evidenceIds": [
-            "en",
-            "native"
-          ],
-          "tests": [
-            "tests/unit/gowGoldOwnershipAudit.test.ts"
-          ]
-        },
-        "target-count-range": {
-          "status": "pending",
-          "note": "黄金限定测试不覆盖该维度的全部条款与共享规则；保持待验。",
-          "evidenceIds": [
-            "en",
-            "native"
-          ],
-          "tests": [
-            "tests/unit/gowGoldOwnershipAudit.test.ts"
-          ]
-        },
-        "base-formula-rounding": {
-          "status": "pending",
-          "note": "黄金限定测试不覆盖该维度的全部条款与共享规则；保持待验。",
-          "evidenceIds": [
-            "en",
-            "native"
-          ],
-          "tests": [
-            "tests/unit/gowGoldOwnershipAudit.test.ts"
-          ]
-        },
-        "boost-source-ratio-cap": {
-          "status": "pending",
-          "note": "黄金限定测试不覆盖该维度的全部条款与共享规则；保持待验。",
-          "evidenceIds": [
-            "en",
-            "native"
-          ],
-          "tests": [
-            "tests/unit/gowGoldOwnershipAudit.test.ts"
-          ]
-        },
-        "conditions-probabilities-branches": {
-          "status": "pending",
-          "note": "黄金限定测试不覆盖该维度的全部条款与共享规则；保持待验。",
-          "evidenceIds": [
-            "en",
-            "native"
-          ],
-          "tests": [
-            "tests/unit/gowGoldOwnershipAudit.test.ts"
-          ]
-        },
-        "status-duration-immunity": {
-          "status": "pending",
-          "note": "黄金限定测试不覆盖该维度的全部条款与共享规则；保持待验。",
-          "evidenceIds": [
-            "en",
-            "native"
-          ],
-          "tests": [
-            "tests/unit/gowGoldOwnershipAudit.test.ts"
-          ]
-        },
-        "gems-types-selection-resolution": {
-          "status": "pending",
-          "note": "黄金限定测试不覆盖该维度的全部条款与共享规则；保持待验。",
-          "evidenceIds": [
-            "en",
-            "native"
-          ],
-          "tests": [
-            "tests/unit/gowGoldOwnershipAudit.test.ts"
-          ]
-        },
-        "summon-transform-pools": {
-          "status": "pending",
-          "note": "黄金限定测试不覆盖该维度的全部条款与共享规则；保持待验。",
-          "evidenceIds": [
-            "en",
-            "native"
-          ],
-          "tests": [
-            "tests/unit/gowGoldOwnershipAudit.test.ts"
-          ]
-        },
-        "order-death-retargeting": {
-          "status": "pending",
-          "note": "黄金限定测试不覆盖该维度的全部条款与共享规则；保持待验。",
-          "evidenceIds": [
-            "en",
-            "native"
-          ],
-          "tests": [
-            "tests/unit/gowGoldOwnershipAudit.test.ts"
-          ]
-        },
-        "mana-economy-extra-turn": {
-          "status": "pending",
-          "note": "黄金限定测试不覆盖该维度的全部条款与共享规则；保持待验。",
-          "evidenceIds": [
-            "en",
-            "native"
-          ],
-          "tests": [
-            "tests/unit/gowGoldOwnershipAudit.test.ts"
-          ]
-        },
-        "display-description": {
-          "status": "pending",
-          "note": "黄金限定测试不覆盖该维度的全部条款与共享规则；保持待验。",
-          "evidenceIds": [
-            "en",
-            "native"
-          ],
-          "tests": [
-            "tests/unit/gowGoldOwnershipAudit.test.ts"
-          ]
-        },
-        "battle-pipeline": {
-          "status": "pending",
-          "note": "黄金限定测试不覆盖该维度的全部条款与共享规则；保持待验。",
-          "evidenceIds": [
-            "en",
-            "native"
-          ],
-          "tests": [
-            "tests/unit/gowGoldOwnershipAudit.test.ts"
-          ],
-          "realBattleEntry": true
-        }
-      },
-      "clauseReviews": [
-        {
-          "id": "c1",
-          "status": "pending",
-          "note": "完整英文子句保留待验，当前专项不替代整项子句认证。",
-          "evidenceIds": [
-            "en",
-            "native"
-          ],
-          "tests": [
-            "tests/unit/gowGoldOwnershipAudit.test.ts"
-          ]
-        },
-        {
-          "id": "c2",
-          "status": "pending",
-          "note": "完整英文子句保留待验，当前专项不替代整项子句认证。",
-          "evidenceIds": [
-            "en",
-            "native"
-          ],
-          "tests": [
-            "tests/unit/gowGoldOwnershipAudit.test.ts"
-          ]
-        },
-        {
-          "id": "c3",
-          "status": "pending",
-          "note": "完整英文子句保留待验，当前专项不替代整项子句认证。",
-          "evidenceIds": [
-            "en",
-            "native"
-          ],
-          "tests": [
-            "tests/unit/gowGoldOwnershipAudit.test.ts"
-          ]
-        }
-      ],
-      "nativeStepReviews": [
-        {
-          "id": "0",
-          "status": "pending",
-          "note": "原始步骤CountEnemyGold / FrontEnemy：待完整核对参数、状态、顺序与边界。",
-          "evidenceIds": [
-            "en",
-            "native"
-          ],
-          "tests": [
-            "tests/unit/gowGoldOwnershipAudit.test.ts"
-          ]
-        },
-        {
-          "id": "1",
-          "status": "pending",
-          "note": "原始步骤CountMaxWithMagic / None：待完整核对参数、状态、顺序与边界。",
-          "evidenceIds": [
-            "en",
-            "native"
-          ],
-          "tests": [
-            "tests/unit/gowGoldOwnershipAudit.test.ts"
-          ]
-        },
-        {
-          "id": "2",
-          "status": "pending",
-          "note": "原始步骤TakeEnemyGold / FromTarget：待完整核对参数、状态、顺序与边界。",
-          "evidenceIds": [
-            "en",
-            "native"
-          ],
-          "tests": [
-            "tests/unit/gowGoldOwnershipAudit.test.ts"
-          ]
-        },
-        {
-          "id": "3",
-          "status": "pending",
-          "note": "原始步骤GiveGold / Self：待完整核对参数、状态、顺序与边界。",
-          "evidenceIds": [
-            "en",
-            "native"
-          ],
-          "tests": [
-            "tests/unit/gowGoldOwnershipAudit.test.ts"
-          ]
-        },
-        {
-          "id": "4",
-          "status": "pending",
-          "note": "原始步骤Damage / FromTarget：待完整核对参数、状态、顺序与边界。",
-          "evidenceIds": [
-            "en",
-            "native"
-          ],
-          "tests": [
-            "tests/unit/gowGoldOwnershipAudit.test.ts"
-          ]
-        }
-      ],
-      "branchReviews": [
-        {
-          "id": "main",
-          "status": "pending",
-          "note": "该原始分支仅有专项覆盖，待逐步确认全部效果。",
-          "evidenceIds": [
-            "en",
-            "native"
-          ],
-          "tests": [
-            "tests/unit/gowGoldOwnershipAudit.test.ts"
-          ]
-        }
-      ],
-      "pendingReasons": [
-        "黄金上限、封顶与超限转移规则待原版依据",
-        "状态/免疫/宝石/额外回合等非黄金完整子句尚待逐项验收"
-      ],
-      "scopedEvidence": [
-        {
-          "testPath": "tests/unit/gowGoldOwnershipAudit.test.ts",
-          "scope": "双方黄金持有、可用余额转移、实际窃取计数、顺序与施法者中途死亡后归属"
-        }
+      "decision": "accept",
+      "reviewer": "sa-F3",
+      "reviewedAt": "2026-09-28T00:26:09.895Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
       ]
     },
     {
@@ -2026,279 +1195,13 @@
       ]
     },
     {
+      "format": "compact",
       "key": "troop:7777",
-      "scope": "stored-gow-snapshot",
-      "sourceDigest": "44b7adda81723af2e76677ccbcc3e418c537296807c868c9eb5cd67b5cf726b3",
-      "reviewer": "Codex限定范围复核（非独立客户端认证）",
-      "reviewedAt": "2026-09-26",
-      "decision": "draft",
-      "sourceEvidence": [
-        {
-          "id": "en",
-          "role": "english-snapshot",
-          "path": "data/raw/troops.gow.en.json",
-          "note": "该实体英文完整技能，保存的抽取快照，不标作官方实时资料。"
-        },
-        {
-          "id": "native",
-          "role": "native-snapshot",
-          "path": "data/raw/spells.gow.en.json",
-          "note": "按技能ID读取保存的原始执行步骤；与英文分别核查。"
-        },
-        {
-          "id": "official",
-          "role": "official-shared-rule",
-          "path": "artifacts/gow-skill-audit/gold-primary-sources/57352.json",
-          "note": "官方工作人员历史说明：动画不代表取得黄金，以余额为准；不认证全部窃取、封顶、取整或低余额GiveGold规则。"
-        }
-      ],
-      "dimensions": {
-        "identity-cost-colors": {
-          "status": "pending",
-          "note": "黄金限定测试不覆盖该维度的全部条款与共享规则；保持待验。",
-          "evidenceIds": [
-            "en",
-            "native"
-          ],
-          "tests": [
-            "tests/unit/gowGoldOwnershipAudit.test.ts"
-          ]
-        },
-        "target-count-range": {
-          "status": "pending",
-          "note": "黄金限定测试不覆盖该维度的全部条款与共享规则；保持待验。",
-          "evidenceIds": [
-            "en",
-            "native"
-          ],
-          "tests": [
-            "tests/unit/gowGoldOwnershipAudit.test.ts"
-          ]
-        },
-        "base-formula-rounding": {
-          "status": "pending",
-          "note": "黄金限定测试不覆盖该维度的全部条款与共享规则；保持待验。",
-          "evidenceIds": [
-            "en",
-            "native"
-          ],
-          "tests": [
-            "tests/unit/gowGoldOwnershipAudit.test.ts"
-          ]
-        },
-        "boost-source-ratio-cap": {
-          "status": "pending",
-          "note": "黄金限定测试不覆盖该维度的全部条款与共享规则；保持待验。",
-          "evidenceIds": [
-            "en",
-            "native"
-          ],
-          "tests": [
-            "tests/unit/gowGoldOwnershipAudit.test.ts"
-          ]
-        },
-        "conditions-probabilities-branches": {
-          "status": "pending",
-          "note": "黄金限定测试不覆盖该维度的全部条款与共享规则；保持待验。",
-          "evidenceIds": [
-            "en",
-            "native"
-          ],
-          "tests": [
-            "tests/unit/gowGoldOwnershipAudit.test.ts"
-          ]
-        },
-        "status-duration-immunity": {
-          "status": "pending",
-          "note": "黄金限定测试不覆盖该维度的全部条款与共享规则；保持待验。",
-          "evidenceIds": [
-            "en",
-            "native"
-          ],
-          "tests": [
-            "tests/unit/gowGoldOwnershipAudit.test.ts"
-          ]
-        },
-        "gems-types-selection-resolution": {
-          "status": "pending",
-          "note": "黄金限定测试不覆盖该维度的全部条款与共享规则；保持待验。",
-          "evidenceIds": [
-            "en",
-            "native"
-          ],
-          "tests": [
-            "tests/unit/gowGoldOwnershipAudit.test.ts"
-          ]
-        },
-        "summon-transform-pools": {
-          "status": "pending",
-          "note": "黄金限定测试不覆盖该维度的全部条款与共享规则；保持待验。",
-          "evidenceIds": [
-            "en",
-            "native"
-          ],
-          "tests": [
-            "tests/unit/gowGoldOwnershipAudit.test.ts"
-          ]
-        },
-        "order-death-retargeting": {
-          "status": "pending",
-          "note": "黄金限定测试不覆盖该维度的全部条款与共享规则；保持待验。",
-          "evidenceIds": [
-            "en",
-            "native"
-          ],
-          "tests": [
-            "tests/unit/gowGoldOwnershipAudit.test.ts"
-          ]
-        },
-        "mana-economy-extra-turn": {
-          "status": "pending",
-          "note": "黄金限定测试不覆盖该维度的全部条款与共享规则；保持待验。",
-          "evidenceIds": [
-            "en",
-            "native"
-          ],
-          "tests": [
-            "tests/unit/gowGoldOwnershipAudit.test.ts"
-          ]
-        },
-        "display-description": {
-          "status": "pending",
-          "note": "黄金限定测试不覆盖该维度的全部条款与共享规则；保持待验。",
-          "evidenceIds": [
-            "en",
-            "native"
-          ],
-          "tests": [
-            "tests/unit/gowGoldOwnershipAudit.test.ts"
-          ]
-        },
-        "battle-pipeline": {
-          "status": "pending",
-          "note": "黄金限定测试不覆盖该维度的全部条款与共享规则；保持待验。",
-          "evidenceIds": [
-            "en",
-            "native"
-          ],
-          "tests": [
-            "tests/unit/gowGoldOwnershipAudit.test.ts"
-          ],
-          "realBattleEntry": true
-        }
-      },
-      "clauseReviews": [
-        {
-          "id": "c1",
-          "status": "pending",
-          "note": "完整英文子句保留待验，当前专项不替代整项子句认证。",
-          "evidenceIds": [
-            "en",
-            "native"
-          ],
-          "tests": [
-            "tests/unit/gowGoldOwnershipAudit.test.ts"
-          ]
-        },
-        {
-          "id": "c2",
-          "status": "pending",
-          "note": "完整英文子句保留待验，当前专项不替代整项子句认证。",
-          "evidenceIds": [
-            "en",
-            "native"
-          ],
-          "tests": [
-            "tests/unit/gowGoldOwnershipAudit.test.ts"
-          ]
-        },
-        {
-          "id": "c3",
-          "status": "pending",
-          "note": "完整英文子句保留待验，当前专项不替代整项子句认证。",
-          "evidenceIds": [
-            "en",
-            "native"
-          ],
-          "tests": [
-            "tests/unit/gowGoldOwnershipAudit.test.ts"
-          ]
-        }
-      ],
-      "nativeStepReviews": [
-        {
-          "id": "0",
-          "status": "pending",
-          "note": "原始步骤CountMyGold / None：待完整核对参数、状态、顺序与边界。",
-          "evidenceIds": [
-            "en",
-            "native"
-          ],
-          "tests": [
-            "tests/unit/gowGoldOwnershipAudit.test.ts"
-          ]
-        },
-        {
-          "id": "1",
-          "status": "pending",
-          "note": "原始步骤Damage / RandomEnemy：待完整核对参数、状态、顺序与边界。",
-          "evidenceIds": [
-            "en",
-            "native"
-          ],
-          "tests": [
-            "tests/unit/gowGoldOwnershipAudit.test.ts"
-          ]
-        },
-        {
-          "id": "2",
-          "status": "pending",
-          "note": "原始步骤TakeEnemyGold / None：待完整核对参数、状态、顺序与边界。",
-          "evidenceIds": [
-            "en",
-            "native"
-          ],
-          "tests": [
-            "tests/unit/gowGoldOwnershipAudit.test.ts"
-          ]
-        },
-        {
-          "id": "3",
-          "status": "pending",
-          "note": "原始步骤GiveGold / Self：待完整核对参数、状态、顺序与边界。",
-          "evidenceIds": [
-            "en",
-            "native"
-          ],
-          "tests": [
-            "tests/unit/gowGoldOwnershipAudit.test.ts"
-          ]
-        }
-      ],
-      "branchReviews": [
-        {
-          "id": "main",
-          "status": "pending",
-          "note": "该原始分支仅有专项覆盖，待逐步确认全部效果。",
-          "evidenceIds": [
-            "en",
-            "native"
-          ],
-          "tests": [
-            "tests/unit/gowGoldOwnershipAudit.test.ts"
-          ]
-        }
-      ],
-      "pendingReasons": [
-        "黄金上限、封顶与超限转移规则待原版依据",
-        "状态/免疫/宝石/额外回合等非黄金完整子句尚待逐项验收",
-        "固定GiveGold5在敌方不足时是否按实际转移额夹取待独立证据"
-      ],
-      "scopedEvidence": [
-        {
-          "testPath": "tests/unit/gowGoldOwnershipAudit.test.ts",
-          "scope": "双方黄金持有、可用余额转移、实际窃取计数、顺序与施法者中途死亡后归属"
-        }
+      "decision": "accept",
+      "reviewer": "sa-F3",
+      "reviewedAt": "2026-09-28T00:26:09.895Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
       ]
     },
     {
@@ -90667,6 +89570,2719 @@
           ],
           "tests": [
             "tests/unit/gowLaneL5B05.test.ts"
+          ]
+        }
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:6076",
+      "decision": "issue",
+      "reviewer": "sa-F1",
+      "reviewedAt": "2026-09-28T00:17:28.501Z",
+      "issue": "P-F1-remove-gems",
+      "note": "RemoveColor treated as destroy: removed gems grant mana; step order fixed to native"
+    },
+    {
+      "format": "compact",
+      "key": "troop:6328",
+      "decision": "issue",
+      "reviewer": "sa-F1",
+      "reviewedAt": "2026-09-28T00:17:28.502Z",
+      "issue": "P-F1-remove-gems",
+      "note": "RemoveColor treated as destroy: removed gems grant mana; step order fixed to native"
+    },
+    {
+      "format": "compact",
+      "key": "weapon:1311",
+      "decision": "accept",
+      "reviewer": "sa-F1",
+      "reviewedAt": "2026-09-28T00:19:26.429Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:6931",
+      "decision": "accept",
+      "reviewer": "sa-F1",
+      "reviewedAt": "2026-09-28T00:19:26.431Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:6047",
+      "decision": "issue",
+      "reviewer": "sa-F1",
+      "reviewedAt": "2026-09-28T00:35:02.410Z",
+      "issue": "P-F1-harness-status-leak",
+      "note": "fixed (native Dispel before devour; gowLaneL1FixsaF1 green) but golden replay is order-dependent: leaked A1 Barrier from earlier casts blocks the devour; re-approve after harness fix"
+    },
+    {
+      "format": "compact",
+      "key": "troop:6326",
+      "decision": "issue",
+      "reviewer": "sa-F1",
+      "reviewedAt": "2026-09-28T00:35:02.521Z",
+      "issue": "P-F1-harness-status-leak",
+      "note": "behaviour matches native in a fresh process; golden replay sees a leaked A1 Barrier and the kill is absorbed; re-approve after harness fix"
+    },
+    {
+      "format": "compact",
+      "key": "troop:6387",
+      "decision": "issue",
+      "reviewer": "sa-F1",
+      "reviewedAt": "2026-09-28T00:27:46.778Z",
+      "issue": "P-F1-summon-after-caster-death",
+      "note": "self-kill added; rebirth approximated by in-place full revive (keeps statuses), native summons a fresh Sunbird"
+    },
+    {
+      "format": "compact",
+      "key": "troop:6289",
+      "decision": "accept",
+      "reviewer": "sa-F1",
+      "reviewedAt": "2026-09-28T00:33:48.024Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:6292",
+      "decision": "accept",
+      "reviewer": "sa-F1",
+      "reviewedAt": "2026-09-28T00:33:50.392Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:6023",
+      "decision": "issue",
+      "reviewer": "sa-F1",
+      "reviewedAt": "2026-09-28T00:38:46.387Z",
+      "issue": "P-charm-instant",
+      "note": "kill branch (gain 8 Mana) depends on what Charm does; Charm is a lasting status here and can never kill during the cast"
+    },
+    {
+      "format": "compact",
+      "key": "troop:7351",
+      "decision": "accept",
+      "reviewer": "sa-F1",
+      "reviewedAt": "2026-09-28T00:38:48.658Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:6843",
+      "decision": "accept",
+      "reviewer": "sa-F1",
+      "reviewedAt": "2026-09-28T00:38:55.841Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:6119",
+      "decision": "accept",
+      "reviewer": "sa-F1",
+      "reviewedAt": "2026-09-28T00:42:27.061Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:6173",
+      "decision": "accept",
+      "reviewer": "sa-F1",
+      "reviewedAt": "2026-09-28T00:42:29.562Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:6212",
+      "decision": "accept",
+      "reviewer": "sa-F1",
+      "reviewedAt": "2026-09-28T00:42:32.106Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:6455",
+      "decision": "accept",
+      "reviewer": "sa-F1",
+      "reviewedAt": "2026-09-28T00:42:34.452Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:6879",
+      "decision": "accept",
+      "reviewer": "sa-F1",
+      "reviewedAt": "2026-09-28T00:42:36.742Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:7793",
+      "decision": "issue",
+      "reviewer": "sa-F1",
+      "reviewedAt": "2026-09-28T00:51:20.255Z",
+      "issue": "P-charm-instant",
+      "note": "Charm modelled as a lasting status (disputed); 7793 kill branch cannot fire; 7803 order fixed so the 50% kill needs a prior Submerge"
+    },
+    {
+      "format": "compact",
+      "key": "troop:7803",
+      "decision": "issue",
+      "reviewer": "sa-F1",
+      "reviewedAt": "2026-09-28T00:51:20.257Z",
+      "issue": "P-charm-instant",
+      "note": "Charm modelled as a lasting status (disputed); 7793 kill branch cannot fire; 7803 order fixed so the 50% kill needs a prior Submerge"
+    },
+    {
+      "format": "compact",
+      "key": "troop:6374",
+      "decision": "accept",
+      "reviewer": "sa-F1",
+      "reviewedAt": "2026-09-28T00:51:37.370Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:6131",
+      "decision": "accept",
+      "reviewer": "sa-F1",
+      "reviewedAt": "2026-09-28T00:51:39.835Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:6295",
+      "decision": "accept",
+      "reviewer": "sa-F1",
+      "reviewedAt": "2026-09-28T00:51:42.402Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "weapon:1706",
+      "decision": "accept",
+      "reviewer": "sa-F1",
+      "reviewedAt": "2026-09-28T00:09:29.368Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ],
+      "note": "fixed: chosen ally, [Magic+1] to one random Skill, tempering +3"
+    },
+    {
+      "format": "compact",
+      "key": "weapon:1708",
+      "decision": "accept",
+      "reviewer": "sa-F1",
+      "reviewedAt": "2026-09-28T00:09:29.369Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ],
+      "note": "fixed: chosen ally, [Magic+1] to one random Skill, tempering +3"
+    },
+    {
+      "format": "compact",
+      "key": "weapon:1709",
+      "decision": "accept",
+      "reviewer": "sa-F1",
+      "reviewedAt": "2026-09-28T00:09:29.369Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ],
+      "note": "fixed: chosen ally, [Magic+1] to one random Skill, tempering +3"
+    },
+    {
+      "format": "compact",
+      "key": "weapon:1711",
+      "decision": "accept",
+      "reviewer": "sa-F1",
+      "reviewedAt": "2026-09-28T00:09:29.370Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ],
+      "note": "fixed: chosen ally, [Magic+1] to one random Skill, tempering +3"
+    },
+    {
+      "format": "compact",
+      "key": "troop:6423",
+      "decision": "issue",
+      "reviewer": "sa-F1",
+      "reviewedAt": "2026-09-28T00:17:28.411Z",
+      "issue": "P-F1-remove-gems",
+      "note": "RemoveColor treated as destroy: removed gems grant mana; step order fixed to native"
+    },
+    {
+      "format": "compact",
+      "key": "weapon:1377",
+      "decision": "issue",
+      "reviewer": "sa-F1",
+      "reviewedAt": "2026-09-28T00:19:26.599Z",
+      "issue": "P-random-stat-pool",
+      "note": "target fixed to chosen enemy (was lastTarget = no-op); DecreaseRandom pool still lacks Life (R007-2, queued)"
+    },
+    {
+      "format": "compact",
+      "key": "troop:6206",
+      "decision": "accept",
+      "reviewer": "sa-F1",
+      "reviewedAt": "2026-09-28T00:33:30.838Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:6845",
+      "decision": "accept",
+      "reviewer": "sa-F1",
+      "reviewedAt": "2026-09-28T00:33:33.087Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:6929",
+      "decision": "accept",
+      "reviewer": "sa-F1",
+      "reviewedAt": "2026-09-28T00:33:35.348Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:6969",
+      "decision": "accept",
+      "reviewer": "sa-F1",
+      "reviewedAt": "2026-09-28T00:33:37.889Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:7329",
+      "decision": "accept",
+      "reviewer": "sa-F1",
+      "reviewedAt": "2026-09-28T00:33:40.371Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:7825",
+      "decision": "accept",
+      "reviewer": "sa-F1",
+      "reviewedAt": "2026-09-28T00:33:42.842Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "weapon:1081",
+      "decision": "accept",
+      "reviewer": "sa-F1",
+      "reviewedAt": "2026-09-28T00:33:45.563Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:6171",
+      "decision": "issue",
+      "reviewer": "sa-F1",
+      "reviewedAt": "2026-09-28T00:42:24.607Z",
+      "issue": "P-random-stat-pool",
+      "note": "order fixed to native (StealRandom before damage); StealRandom pool still lacks Life (R007-2, queued)"
+    },
+    {
+      "format": "compact",
+      "key": "weapon:1104",
+      "decision": "issue",
+      "reviewer": "sa-F1",
+      "reviewedAt": "2026-09-28T00:42:24.608Z",
+      "issue": "P-random-stat-pool",
+      "note": "order fixed to native (StealRandom before damage); StealRandom pool still lacks Life (R007-2, queued)"
+    },
+    {
+      "format": "compact",
+      "key": "weapon:1107",
+      "decision": "issue",
+      "reviewer": "sa-F1",
+      "reviewedAt": "2026-09-28T00:42:24.608Z",
+      "issue": "P-random-stat-pool",
+      "note": "order fixed to native (StealRandom before damage); StealRandom pool still lacks Life (R007-2, queued)"
+    },
+    {
+      "format": "compact",
+      "key": "troop:6134",
+      "decision": "issue",
+      "reviewer": "sa-F1",
+      "reviewedAt": "2026-09-28T00:46:21.677Z",
+      "issue": "P-random-stat-pool",
+      "note": "Daemon/Orc steals split to native two steps (tested); DecreaseRandom pool still lacks Life"
+    },
+    {
+      "format": "compact",
+      "key": "troop:6776",
+      "decision": "issue",
+      "reviewer": "sa-F1",
+      "reviewedAt": "2026-09-28T00:46:21.768Z",
+      "issue": "P-random-stat-pool",
+      "note": "order/values match native (2x DecreaseRandom [Magic+4], Tower clause R000); DecreaseRandom pool still lacks Life"
+    },
+    {
+      "format": "compact",
+      "key": "troop:7057",
+      "decision": "issue",
+      "reviewer": "sa-F1",
+      "reviewedAt": "2026-09-28T00:46:21.857Z",
+      "issue": "F1-7057-block5x5-count",
+      "note": "source-dispute: native counts Skulls in Block5x5 (CountGems BoardTarget Block5x5) but explodes Block3x3; runtime barriers per skull destroyed in the 3x3; no 5x5-count source exists"
+    },
+    {
+      "format": "compact",
+      "key": "troop:6838",
+      "decision": "accept",
+      "reviewer": "sa-F1",
+      "reviewedAt": "2026-09-28T00:46:24.213Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:7090",
+      "decision": "accept",
+      "reviewer": "sa-F1",
+      "reviewedAt": "2026-09-28T00:46:26.696Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:6182",
+      "decision": "issue",
+      "reviewer": "sa-F1",
+      "reviewedAt": "2026-09-28T00:51:20.163Z",
+      "issue": "P-random-stat-pool",
+      "note": "damage boost added (native UseCounter); destroy stays first (no chosen-row count source); DecreaseRandom pool lacks Life"
+    },
+    {
+      "format": "compact",
+      "key": "troop:7278",
+      "decision": "accept",
+      "reviewer": "sa-F1",
+      "reviewedAt": "2026-09-28T00:51:44.851Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:6319",
+      "decision": "accept",
+      "reviewer": "sa-F1",
+      "reviewedAt": "2026-09-28T00:06:27.962Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:6970",
+      "decision": "issue",
+      "reviewer": "sa-F1",
+      "reviewedAt": "2026-09-28T00:17:28.318Z",
+      "issue": "P-F1-remove-gems",
+      "note": "RemoveColor treated as destroy: removed gems grant mana (primitive-queue/sa-F1.jsonl); 6207 step order fixed to native"
+    },
+    {
+      "format": "compact",
+      "key": "troop:6207",
+      "decision": "issue",
+      "reviewer": "sa-F1",
+      "reviewedAt": "2026-09-28T00:17:28.319Z",
+      "issue": "P-F1-remove-gems",
+      "note": "RemoveColor treated as destroy: removed gems grant mana (primitive-queue/sa-F1.jsonl); 6207 step order fixed to native"
+    },
+    {
+      "format": "compact",
+      "key": "troop:6871",
+      "decision": "accept",
+      "reviewer": "sa-F1",
+      "reviewedAt": "2026-09-28T00:19:23.888Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:7341",
+      "decision": "accept",
+      "reviewer": "sa-F1",
+      "reviewedAt": "2026-09-28T00:19:23.890Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:7749",
+      "decision": "accept",
+      "reviewer": "sa-F1",
+      "reviewedAt": "2026-09-28T00:19:23.890Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:7245",
+      "decision": "issue",
+      "reviewer": "sa-F1",
+      "reviewedAt": "2026-09-28T00:25:02.356Z",
+      "issue": "P-F1-giant-dragon-gems",
+      "note": "Convert 5 <Colour> Gems to Giant/Dragon Gems is a no-op (no gem kind); damage and extra-turn chance match native"
+    },
+    {
+      "format": "compact",
+      "key": "troop:7246",
+      "decision": "issue",
+      "reviewer": "sa-F1",
+      "reviewedAt": "2026-09-28T00:25:02.358Z",
+      "issue": "P-F1-giant-dragon-gems",
+      "note": "Convert 5 <Colour> Gems to Giant/Dragon Gems is a no-op (no gem kind); damage and extra-turn chance match native"
+    },
+    {
+      "format": "compact",
+      "key": "troop:7247",
+      "decision": "issue",
+      "reviewer": "sa-F1",
+      "reviewedAt": "2026-09-28T00:25:02.358Z",
+      "issue": "P-F1-giant-dragon-gems",
+      "note": "Convert 5 <Colour> Gems to Giant/Dragon Gems is a no-op (no gem kind); damage and extra-turn chance match native"
+    },
+    {
+      "format": "compact",
+      "key": "troop:7248",
+      "decision": "issue",
+      "reviewer": "sa-F1",
+      "reviewedAt": "2026-09-28T00:25:02.358Z",
+      "issue": "P-F1-giant-dragon-gems",
+      "note": "Convert 5 <Colour> Gems to Giant/Dragon Gems is a no-op (no gem kind); damage and extra-turn chance match native"
+    },
+    {
+      "format": "compact",
+      "key": "troop:7249",
+      "decision": "issue",
+      "reviewer": "sa-F1",
+      "reviewedAt": "2026-09-28T00:25:02.358Z",
+      "issue": "P-F1-giant-dragon-gems",
+      "note": "Convert 5 <Colour> Gems to Giant/Dragon Gems is a no-op (no gem kind); damage and extra-turn chance match native"
+    },
+    {
+      "format": "compact",
+      "key": "troop:7250",
+      "decision": "issue",
+      "reviewer": "sa-F1",
+      "reviewedAt": "2026-09-28T00:25:02.359Z",
+      "issue": "P-F1-giant-dragon-gems",
+      "note": "Convert 5 <Colour> Gems to Giant/Dragon Gems is a no-op (no gem kind); damage and extra-turn chance match native"
+    },
+    {
+      "format": "compact",
+      "key": "troop:7440",
+      "decision": "issue",
+      "reviewer": "sa-F1",
+      "reviewedAt": "2026-09-28T00:25:02.359Z",
+      "issue": "P-F1-giant-dragon-gems",
+      "note": "Convert 5 <Colour> Gems to Giant/Dragon Gems is a no-op (no gem kind); damage and extra-turn chance match native"
+    },
+    {
+      "format": "compact",
+      "key": "troop:7441",
+      "decision": "issue",
+      "reviewer": "sa-F1",
+      "reviewedAt": "2026-09-28T00:25:02.359Z",
+      "issue": "P-F1-giant-dragon-gems",
+      "note": "Convert 5 <Colour> Gems to Giant/Dragon Gems is a no-op (no gem kind); damage and extra-turn chance match native"
+    },
+    {
+      "format": "compact",
+      "key": "troop:7442",
+      "decision": "issue",
+      "reviewer": "sa-F1",
+      "reviewedAt": "2026-09-28T00:25:02.359Z",
+      "issue": "P-F1-giant-dragon-gems",
+      "note": "Convert 5 <Colour> Gems to Giant/Dragon Gems is a no-op (no gem kind); damage and extra-turn chance match native"
+    },
+    {
+      "format": "compact",
+      "key": "troop:7443",
+      "decision": "issue",
+      "reviewer": "sa-F1",
+      "reviewedAt": "2026-09-28T00:25:02.359Z",
+      "issue": "P-F1-giant-dragon-gems",
+      "note": "Convert 5 <Colour> Gems to Giant/Dragon Gems is a no-op (no gem kind); damage and extra-turn chance match native"
+    },
+    {
+      "format": "compact",
+      "key": "troop:7444",
+      "decision": "issue",
+      "reviewer": "sa-F1",
+      "reviewedAt": "2026-09-28T00:25:02.359Z",
+      "issue": "P-F1-giant-dragon-gems",
+      "note": "Convert 5 <Colour> Gems to Giant/Dragon Gems is a no-op (no gem kind); damage and extra-turn chance match native"
+    },
+    {
+      "format": "compact",
+      "key": "troop:7445",
+      "decision": "issue",
+      "reviewer": "sa-F1",
+      "reviewedAt": "2026-09-28T00:25:02.360Z",
+      "issue": "P-F1-giant-dragon-gems",
+      "note": "Convert 5 <Colour> Gems to Giant/Dragon Gems is a no-op (no gem kind); damage and extra-turn chance match native"
+    },
+    {
+      "format": "compact",
+      "key": "troop:7674",
+      "decision": "accept",
+      "reviewer": "sa-F1",
+      "reviewedAt": "2026-09-28T00:25:46.495Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:6086",
+      "decision": "accept",
+      "reviewer": "sa-F1",
+      "reviewedAt": "2026-09-28T00:38:51.023Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "weapon:1108",
+      "decision": "accept",
+      "reviewer": "sa-F1",
+      "reviewedAt": "2026-09-28T00:38:53.303Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "weapon:1177",
+      "decision": "accept",
+      "reviewer": "sa-F1",
+      "reviewedAt": "2026-09-28T00:42:39.086Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:6569",
+      "decision": "accept",
+      "reviewer": "sa-F1",
+      "reviewedAt": "2026-09-28T00:42:41.402Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ],
+      "waived": [
+        {
+          "part": "clause",
+          "id": "c2",
+          "mode": "tower"
+        },
+        {
+          "part": "step",
+          "id": "1",
+          "mode": "tower"
+        }
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "weapon:1175",
+      "decision": "accept",
+      "reviewer": "sa-F1",
+      "reviewedAt": "2026-09-28T00:46:29.175Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:7625",
+      "decision": "issue",
+      "reviewer": "sa-F1",
+      "reviewedAt": "2026-09-28T00:55:16.215Z",
+      "issue": "P-F1-harness-status-leak",
+      "note": "fixed (native dmg->drain pairs; gowLaneL3FixsaF1 green) but gowCastGolden replay leaks Poison onto default enemies from earlier casts, doubling the drain; re-approve after harness fix"
+    },
+    {
+      "format": "compact",
+      "key": "troop:6926",
+      "decision": "accept",
+      "reviewer": "sa-F1",
+      "reviewedAt": "2026-09-28T00:51:25.096Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:6146",
+      "decision": "accept",
+      "reviewer": "sa-F1",
+      "reviewedAt": "2026-09-28T00:51:27.542Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:6197",
+      "decision": "accept",
+      "reviewer": "sa-F1",
+      "reviewedAt": "2026-09-28T00:51:30.011Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:6227",
+      "decision": "accept",
+      "reviewer": "sa-F1",
+      "reviewedAt": "2026-09-28T00:51:32.431Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:6323",
+      "decision": "accept",
+      "reviewer": "sa-F1",
+      "reviewedAt": "2026-09-28T00:51:34.880Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:6607",
+      "decision": "accept",
+      "reviewer": "sa-F2",
+      "reviewedAt": "2026-09-28T00:29:56.993Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:6991",
+      "decision": "accept",
+      "reviewer": "sa-F2",
+      "reviewedAt": "2026-09-28T00:29:59.233Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "weapon:1092",
+      "decision": "accept",
+      "reviewer": "sa-F2",
+      "reviewedAt": "2026-09-28T00:30:01.501Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "weapon:1028",
+      "decision": "accept",
+      "reviewer": "sa-F2",
+      "reviewedAt": "2026-09-28T00:30:03.768Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:6754",
+      "decision": "accept",
+      "reviewer": "sa-F2",
+      "reviewedAt": "2026-09-28T00:30:06.042Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:7338",
+      "decision": "accept",
+      "reviewer": "sa-F2",
+      "reviewedAt": "2026-09-28T00:30:08.243Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:7321",
+      "decision": "accept",
+      "reviewer": "sa-F2",
+      "reviewedAt": "2026-09-28T00:30:10.535Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:7009",
+      "decision": "accept",
+      "reviewer": "sa-F2",
+      "reviewedAt": "2026-09-28T00:30:21.834Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:6457",
+      "decision": "accept",
+      "reviewer": "sa-F2",
+      "reviewedAt": "2026-09-28T00:30:24.063Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "weapon:1277",
+      "decision": "accept",
+      "reviewer": "sa-F2",
+      "reviewedAt": "2026-09-28T00:30:26.345Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:6398",
+      "decision": "issue",
+      "reviewer": "sa-F2",
+      "reviewedAt": "2026-09-28T00:19:58.120Z",
+      "issue": "P-F2-precount-explode",
+      "note": "dispel/damage now one random enemy (fixed); remaining: native damage precedes ExplodeGems but boost counts Blue gems that explosion destroys - needs precount primitive or ruling"
+    },
+    {
+      "format": "compact",
+      "key": "troop:7345",
+      "decision": "accept",
+      "reviewer": "sa-F2",
+      "reviewedAt": "2026-09-28T00:30:28.549Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:6467",
+      "decision": "accept",
+      "reviewer": "sa-F2",
+      "reviewedAt": "2026-09-28T00:30:12.732Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:6052",
+      "decision": "accept",
+      "reviewer": "sa-F2",
+      "reviewedAt": "2026-09-28T00:30:15.026Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:6504",
+      "decision": "accept",
+      "reviewer": "sa-F2",
+      "reviewedAt": "2026-09-28T00:30:17.284Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:6055",
+      "decision": "accept",
+      "reviewer": "sa-F2",
+      "reviewedAt": "2026-09-28T00:30:19.472Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:6623",
+      "decision": "accept",
+      "reviewer": "sa-F2",
+      "reviewedAt": "2026-09-28T00:30:30.807Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:6024",
+      "decision": "accept",
+      "reviewer": "sa-F2",
+      "reviewedAt": "2026-09-28T00:33:45.942Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:6218",
+      "decision": "accept",
+      "reviewer": "sa-F2",
+      "reviewedAt": "2026-09-28T00:33:56.365Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:6965",
+      "decision": "accept",
+      "reviewer": "sa-F2",
+      "reviewedAt": "2026-09-28T00:33:58.783Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:7058",
+      "decision": "accept",
+      "reviewer": "sa-F2",
+      "reviewedAt": "2026-09-28T00:34:01.151Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "weapon:1159",
+      "decision": "accept",
+      "reviewer": "sa-F2",
+      "reviewedAt": "2026-09-28T00:34:03.488Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "weapon:1479",
+      "decision": "accept",
+      "reviewer": "sa-F2",
+      "reviewedAt": "2026-09-28T00:34:05.889Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:6064",
+      "decision": "accept",
+      "reviewer": "sa-F2",
+      "reviewedAt": "2026-09-28T00:34:08.386Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:6054",
+      "decision": "accept",
+      "reviewer": "sa-F2",
+      "reviewedAt": "2026-09-28T00:34:10.888Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "weapon:1120",
+      "decision": "accept",
+      "reviewer": "sa-F2",
+      "reviewedAt": "2026-09-28T00:42:20.329Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:6240",
+      "decision": "accept",
+      "reviewer": "sa-F2",
+      "reviewedAt": "2026-09-28T00:37:00.628Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "weapon:1058",
+      "decision": "accept",
+      "reviewer": "sa-F2",
+      "reviewedAt": "2026-09-28T00:39:53.776Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:7576",
+      "decision": "accept",
+      "reviewer": "coord",
+      "reviewedAt": "2026-09-28T01:06:39.131Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ],
+      "note": "re-approved after R007-3 random-target change"
+    },
+    {
+      "format": "compact",
+      "key": "troop:7727",
+      "decision": "accept",
+      "reviewer": "coord",
+      "reviewedAt": "2026-09-28T01:06:39.132Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ],
+      "note": "re-approved after R007-3 random-target change"
+    },
+    {
+      "format": "compact",
+      "key": "troop:7021",
+      "decision": "accept",
+      "reviewer": "sa-F2",
+      "reviewedAt": "2026-09-28T00:40:17.311Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:7196",
+      "decision": "accept",
+      "reviewer": "sa-F2",
+      "reviewedAt": "2026-09-28T00:40:23.860Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:7830",
+      "decision": "accept",
+      "reviewer": "sa-F2",
+      "reviewedAt": "2026-09-28T00:30:33.182Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:7728",
+      "decision": "accept",
+      "reviewer": "sa-F2",
+      "reviewedAt": "2026-09-28T00:30:35.480Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:6355",
+      "decision": "accept",
+      "reviewer": "sa-F2",
+      "reviewedAt": "2026-09-28T00:30:37.754Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:6974",
+      "decision": "accept",
+      "reviewer": "sa-F2",
+      "reviewedAt": "2026-09-28T00:30:56.656Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:6265",
+      "decision": "accept",
+      "reviewer": "coord",
+      "reviewedAt": "2026-09-28T01:06:41.369Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ],
+      "note": "re-approved after P-create-interleave"
+    },
+    {
+      "format": "compact",
+      "key": "troop:6529",
+      "decision": "accept",
+      "reviewer": "sa-F2",
+      "reviewedAt": "2026-09-28T00:31:01.626Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:7145",
+      "decision": "accept",
+      "reviewer": "sa-F2",
+      "reviewedAt": "2026-09-28T00:31:04.080Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:7383",
+      "decision": "accept",
+      "reviewer": "sa-F2",
+      "reviewedAt": "2026-09-28T00:30:39.968Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:6826",
+      "decision": "issue",
+      "reviewer": "sa-F2",
+      "reviewedAt": "2026-09-28T00:25:12.372Z",
+      "issue": "P-counter-per-step",
+      "note": "kill branch fixed (skulls now created); remaining: native CountAttackArmorLife + CountMagic floored per step (481), prototype sums four sources (482)"
+    },
+    {
+      "format": "compact",
+      "key": "troop:7597",
+      "decision": "issue",
+      "reviewer": "sa-F2",
+      "reviewedAt": "2026-09-28T00:25:12.470Z",
+      "issue": "P-F2-dead-target-colour",
+      "note": "on kill, dead target removed from team so its mana colour is unresolved; portal gem never converted (boss clause R000 waived)"
+    },
+    {
+      "format": "compact",
+      "key": "troop:6418",
+      "decision": "accept",
+      "reviewer": "sa-F2",
+      "reviewedAt": "2026-09-28T00:30:42.305Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:6215",
+      "decision": "accept",
+      "reviewer": "sa-F2",
+      "reviewedAt": "2026-09-28T00:30:44.530Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:6559",
+      "decision": "accept",
+      "reviewer": "sa-F2",
+      "reviewedAt": "2026-09-28T00:30:46.735Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:6025",
+      "decision": "accept",
+      "reviewer": "coord",
+      "reviewedAt": "2026-09-28T01:06:41.368Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ],
+      "note": "re-approved after P-create-interleave"
+    },
+    {
+      "format": "compact",
+      "key": "troop:7312",
+      "decision": "accept",
+      "reviewer": "sa-F2",
+      "reviewedAt": "2026-09-28T00:30:51.320Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:6130",
+      "decision": "accept",
+      "reviewer": "sa-F2",
+      "reviewedAt": "2026-09-28T00:30:53.814Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:6566",
+      "decision": "accept",
+      "reviewer": "sa-F2",
+      "reviewedAt": "2026-09-28T00:36:34.858Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:6608",
+      "decision": "accept",
+      "reviewer": "sa-F2",
+      "reviewedAt": "2026-09-28T00:36:37.229Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:6609",
+      "decision": "accept",
+      "reviewer": "sa-F2",
+      "reviewedAt": "2026-09-28T00:36:39.541Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:6686",
+      "decision": "accept",
+      "reviewer": "sa-F2",
+      "reviewedAt": "2026-09-28T00:36:41.878Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:6765",
+      "decision": "accept",
+      "reviewer": "sa-F2",
+      "reviewedAt": "2026-09-28T00:36:44.215Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:7567",
+      "decision": "accept",
+      "reviewer": "sa-F2",
+      "reviewedAt": "2026-09-28T00:36:46.521Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:6053",
+      "decision": "accept",
+      "reviewer": "sa-F2",
+      "reviewedAt": "2026-09-28T00:36:48.825Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:6297",
+      "decision": "accept",
+      "reviewer": "sa-F2",
+      "reviewedAt": "2026-09-28T00:36:51.132Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:6426",
+      "decision": "accept",
+      "reviewer": "sa-F2",
+      "reviewedAt": "2026-09-28T00:36:53.477Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:6079",
+      "decision": "accept",
+      "reviewer": "sa-F2",
+      "reviewedAt": "2026-09-28T00:36:55.794Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:6288",
+      "decision": "accept",
+      "reviewer": "sa-F2",
+      "reviewedAt": "2026-09-28T00:36:58.146Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:6037",
+      "decision": "accept",
+      "reviewer": "sa-F2",
+      "reviewedAt": "2026-09-28T00:40:27.274Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:6805",
+      "decision": "accept",
+      "reviewer": "sa-F2",
+      "reviewedAt": "2026-09-28T00:40:30.423Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:7185",
+      "decision": "accept",
+      "reviewer": "sa-F2",
+      "reviewedAt": "2026-09-28T00:40:33.355Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:6203",
+      "decision": "accept",
+      "reviewer": "sa-F2",
+      "reviewedAt": "2026-09-28T00:40:36.073Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:6689",
+      "decision": "accept",
+      "reviewer": "sa-F2",
+      "reviewedAt": "2026-09-28T00:40:38.730Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "weapon:1313",
+      "decision": "accept",
+      "reviewer": "sa-F2",
+      "reviewedAt": "2026-09-28T00:42:22.806Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:6587",
+      "decision": "issue",
+      "reviewer": "sa-F3",
+      "reviewedAt": "2026-09-28T00:19:50.865Z",
+      "issue": "P-F3-lasttarget-damaged",
+      "note": "fixed +10 same-hit bonus and Enrage-on-kill; post-hit 'enemy damaged -> Enrage myself' needs a global last-target-damaged condition (primitive)"
+    },
+    {
+      "format": "compact",
+      "key": "troop:7700",
+      "decision": "issue",
+      "reviewer": "sa-F3",
+      "reviewedAt": "2026-09-28T00:19:50.966Z",
+      "issue": "P-F3-blessed-blocks-enchant",
+      "note": "kill branch fixed (castEnemyDied); Blessed applied first blocks the native Enchanted step, source ruling needed"
+    },
+    {
+      "format": "compact",
+      "key": "weapon:1696",
+      "decision": "accept",
+      "reviewer": "sa-F3",
+      "reviewedAt": "2026-09-28T00:20:05.693Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:6527",
+      "decision": "accept",
+      "reviewer": "sa-F3",
+      "reviewedAt": "2026-09-28T00:20:05.694Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:6576",
+      "decision": "accept",
+      "reviewer": "sa-F3",
+      "reviewedAt": "2026-09-28T00:20:05.695Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:6727",
+      "decision": "accept",
+      "reviewer": "sa-F3",
+      "reviewedAt": "2026-09-28T00:20:05.695Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:6468",
+      "decision": "accept",
+      "reviewer": "sa-F3",
+      "reviewedAt": "2026-09-28T00:20:05.695Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "weapon:1653",
+      "decision": "accept",
+      "reviewer": "sa-F3",
+      "reviewedAt": "2026-09-28T00:20:05.695Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "weapon:1659",
+      "decision": "accept",
+      "reviewer": "sa-F3",
+      "reviewedAt": "2026-09-28T00:20:05.695Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "weapon:1680",
+      "decision": "accept",
+      "reviewer": "sa-F3",
+      "reviewedAt": "2026-09-28T00:20:05.695Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "weapon:1687",
+      "decision": "accept",
+      "reviewer": "sa-F3",
+      "reviewedAt": "2026-09-28T00:20:05.696Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "weapon:1690",
+      "decision": "accept",
+      "reviewer": "sa-F3",
+      "reviewedAt": "2026-09-28T00:20:05.696Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "weapon:1699",
+      "decision": "accept",
+      "reviewer": "sa-F3",
+      "reviewedAt": "2026-09-28T00:20:05.696Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "weapon:1702",
+      "decision": "accept",
+      "reviewer": "sa-F3",
+      "reviewedAt": "2026-09-28T00:20:05.696Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "weapon:1714",
+      "decision": "accept",
+      "reviewer": "sa-F3",
+      "reviewedAt": "2026-09-28T00:20:05.696Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "weapon:1718",
+      "decision": "accept",
+      "reviewer": "sa-F3",
+      "reviewedAt": "2026-09-28T00:20:05.696Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:6165",
+      "decision": "accept",
+      "reviewer": "sa-F3",
+      "reviewedAt": "2026-09-28T00:20:05.697Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:7902",
+      "decision": "accept",
+      "reviewer": "sa-F3",
+      "reviewedAt": "2026-09-28T00:20:05.697Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "weapon:1720",
+      "decision": "accept",
+      "reviewer": "sa-F3",
+      "reviewedAt": "2026-09-28T00:20:05.697Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:6403",
+      "decision": "accept",
+      "reviewer": "sa-F3",
+      "reviewedAt": "2026-09-28T00:20:05.697Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:7525",
+      "decision": "accept",
+      "reviewer": "sa-F3",
+      "reviewedAt": "2026-09-28T00:20:05.697Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "weapon:1140",
+      "decision": "accept",
+      "reviewer": "sa-F3",
+      "reviewedAt": "2026-09-28T00:20:07.966Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:6022",
+      "decision": "accept",
+      "reviewer": "sa-F3",
+      "reviewedAt": "2026-09-28T00:20:07.967Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:6253",
+      "decision": "accept",
+      "reviewer": "sa-F3",
+      "reviewedAt": "2026-09-28T00:20:07.967Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "weapon:1137",
+      "decision": "accept",
+      "reviewer": "sa-F3",
+      "reviewedAt": "2026-09-28T00:20:07.968Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:6069",
+      "decision": "accept",
+      "reviewer": "sa-F3",
+      "reviewedAt": "2026-09-28T00:20:07.968Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:6050",
+      "decision": "accept",
+      "reviewer": "sa-F3",
+      "reviewedAt": "2026-09-28T00:20:07.968Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "weapon:1215",
+      "decision": "accept",
+      "reviewer": "sa-F3",
+      "reviewedAt": "2026-09-28T00:20:07.968Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:6742",
+      "decision": "accept",
+      "reviewer": "sa-F3",
+      "reviewedAt": "2026-09-28T00:20:07.968Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:7810",
+      "decision": "accept",
+      "reviewer": "sa-F3",
+      "reviewedAt": "2026-09-28T00:20:07.969Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "weapon:1131",
+      "decision": "accept",
+      "reviewer": "sa-F3",
+      "reviewedAt": "2026-09-28T00:20:07.969Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:7835",
+      "decision": "accept",
+      "reviewer": "sa-F3",
+      "reviewedAt": "2026-09-28T00:20:07.969Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:6483",
+      "decision": "issue",
+      "reviewer": "sa-F3",
+      "reviewedAt": "2026-09-28T00:19:51.065Z",
+      "issue": "P-F3-prehit-target-compare",
+      "note": "native compares target Life before souls and damage; engine condition needs a tracked target so souls follow damage and compare post-hit Life"
+    },
+    {
+      "format": "compact",
+      "key": "troop:6499",
+      "decision": "accept",
+      "reviewer": "sa-F3",
+      "reviewedAt": "2026-09-28T00:20:10.320Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:6226",
+      "decision": "accept",
+      "reviewer": "sa-F3",
+      "reviewedAt": "2026-09-28T00:20:10.321Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:7681",
+      "decision": "accept",
+      "reviewer": "sa-F3",
+      "reviewedAt": "2026-09-28T00:20:12.631Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "weapon:1126",
+      "decision": "accept",
+      "reviewer": "sa-F3",
+      "reviewedAt": "2026-09-28T00:20:12.632Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:7755",
+      "decision": "accept",
+      "reviewer": "sa-F3",
+      "reviewedAt": "2026-09-28T00:26:09.895Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:7011",
+      "decision": "accept",
+      "reviewer": "sa-F3",
+      "reviewedAt": "2026-09-28T00:26:09.895Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "weapon:1086",
+      "decision": "accept",
+      "reviewer": "sa-F3",
+      "reviewedAt": "2026-09-28T00:26:09.896Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:7549",
+      "decision": "accept",
+      "reviewer": "sa-F3",
+      "reviewedAt": "2026-09-28T00:26:09.896Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:7181",
+      "decision": "accept",
+      "reviewer": "sa-F3",
+      "reviewedAt": "2026-09-28T00:26:09.896Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:7615",
+      "decision": "accept",
+      "reviewer": "sa-F3",
+      "reviewedAt": "2026-09-28T00:26:09.896Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "weapon:1210",
+      "decision": "accept",
+      "reviewer": "sa-F3",
+      "reviewedAt": "2026-09-28T00:26:09.896Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:7724",
+      "decision": "accept",
+      "reviewer": "sa-F3",
+      "reviewedAt": "2026-09-28T00:26:09.896Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:7215",
+      "decision": "accept",
+      "reviewer": "sa-F3",
+      "reviewedAt": "2026-09-28T00:26:12.201Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:6803",
+      "decision": "accept",
+      "reviewer": "sa-F3",
+      "reviewedAt": "2026-09-28T00:26:14.371Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ],
+      "waived": [
+        {
+          "part": "clause",
+          "id": "c3",
+          "mode": "tower"
+        }
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:6550",
+      "decision": "accept",
+      "reviewer": "sa-F3",
+      "reviewedAt": "2026-09-28T00:26:16.639Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ],
+      "waived": [
+        {
+          "part": "clause",
+          "id": "c2",
+          "mode": "boss"
+        }
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:7738",
+      "decision": "accept",
+      "reviewer": "coord",
+      "reviewedAt": "2026-09-28T01:06:43.601Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ],
+      "note": "re-approved after R007-3"
+    },
+    {
+      "format": "compact",
+      "key": "troop:7656",
+      "decision": "accept",
+      "reviewer": "sa-F3",
+      "reviewedAt": "2026-09-28T00:29:01.143Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:6193",
+      "decision": "accept",
+      "reviewer": "sa-F3",
+      "reviewedAt": "2026-09-28T00:29:01.143Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:7223",
+      "decision": "accept",
+      "reviewer": "sa-F3",
+      "reviewedAt": "2026-09-28T00:29:01.143Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:6280",
+      "decision": "accept",
+      "reviewer": "sa-F3",
+      "reviewedAt": "2026-09-28T00:29:01.143Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:6276",
+      "decision": "accept",
+      "reviewer": "sa-F3",
+      "reviewedAt": "2026-09-28T00:29:01.143Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:6061",
+      "decision": "accept",
+      "reviewer": "sa-F3",
+      "reviewedAt": "2026-09-28T00:29:01.143Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:7560",
+      "decision": "accept",
+      "reviewer": "sa-F3",
+      "reviewedAt": "2026-09-28T00:29:03.499Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ],
+      "waived": [
+        {
+          "part": "clause",
+          "id": "c2",
+          "mode": "boss"
+        }
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "weapon:1272",
+      "decision": "accept",
+      "reviewer": "sa-F3",
+      "reviewedAt": "2026-09-28T00:29:05.713Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:7101",
+      "decision": "accept",
+      "reviewer": "sa-F3",
+      "reviewedAt": "2026-09-28T00:29:26.760Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ],
+      "waived": [
+        {
+          "part": "clause",
+          "id": "c2",
+          "mode": "boss"
+        }
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:7867",
+      "decision": "accept",
+      "reviewer": "sa-F3",
+      "reviewedAt": "2026-09-28T00:20:14.890Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "key": "troop:6219",
+      "scope": "stored-gow-snapshot",
+      "sourceDigest": "bac9eb70b04c58fa26b0c7fc101faa17d604efe08917df5371a037d7750db5b5",
+      "reviewer": "sa-L5",
+      "reviewedAt": "2026-09-27",
+      "decision": "accept",
+      "sourceEvidence": [
+        {
+          "id": "en",
+          "role": "english-snapshot",
+          "path": "data/raw/troops.gow.en.json",
+          "note": "troop 6219 Moa: spell 7361 \"Deal [Magic + 3] damage to an enemy and Stun them.\", cost 7 Yellow."
+        },
+        {
+          "id": "native",
+          "role": "native-snapshot",
+          "path": "data/raw/spells.gow.en.json",
+          "note": "spell 7361 Target Enemy: CauseStun FromTarget Amount 1; Delay 1000; Damage FromTarget Amount 3 SPM 1."
+        },
+        {
+          "id": "rule",
+          "role": "official-shared-rule",
+          "path": "artifacts/gow-skill-audit/gold-primary-sources/official-status-effects.html",
+          "note": "Official status guide: status semantics (Barrier, Silence, Stun, Disease, Death Mark, Enrage, Submerged, cumulative cleanse chance via Cursed/Lycanthropy entries)."
+        },
+        {
+          "id": "laneTest",
+          "role": "lane-battle-test",
+          "path": "tests/unit/gowLaneL5B04.test.ts",
+          "note": "troop:6219: real TurnEngine.castSkill both sides + boundaries"
+        },
+        {
+          "id": "r004",
+          "role": "coordinator-ruling",
+          "path": "tasks/active/gow-skill-shards/rulings/R004-status-durations.md",
+          "note": "R004: negatives no turn cap, shared cumulative self-cleanse 10%/+10% (+5% Cursed), Poison never; positives end on trigger (Barrier/Reflect damage, Enchanted cast, Enraged skull damage, Submerged/Blessed holder action)."
+        },
+        {
+          "id": "r3",
+          "role": "lane-battle-test",
+          "path": "tests/unit/gowLaneL5R3.test.ts",
+          "note": "Round-3 real castSkill both sides: statuses from this cast unchanged after 6 failed turn-start rolls; one successful roll removes all recoverable negatives together (Poison/positives stay)."
+        },
+        {
+          "id": "srcR004",
+          "role": "community-source",
+          "path": "artifacts/gow-skill-audit/gold-primary-sources/community-2026-09-28-status-durations.json",
+          "note": "Saved community corroboration for R004 (staff reply: new negative resets, all negatives cleanse together)."
+        },
+        {
+          "id": "r001",
+          "role": "coordinator-ruling",
+          "path": "tasks/active/gow-skill-shards/rulings/R001-native-step-order.md",
+          "note": "R001: native SpellSteps order governs observable order."
+        }
+      ],
+      "dimensions": {
+        "identity-cost-colors": {
+          "status": "verified",
+          "note": "Troop 6219 -> spell 7361, cost 7, Yellow.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r3",
+            "srcR004",
+            "r001"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL5B04.test.ts"
+          ]
+        },
+        "target-count-range": {
+          "status": "verified",
+          "note": "Chosen enemy only.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r3",
+            "srcR004",
+            "r001"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL5B04.test.ts"
+          ]
+        },
+        "base-formula-rounding": {
+          "status": "verified",
+          "note": "Magic+3: magic 0 -> 3, magic 8 -> 11.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r3",
+            "srcR004",
+            "r001"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL5B04.test.ts"
+          ]
+        },
+        "boost-source-ratio-cap": {
+          "status": "not-applicable",
+          "note": "No boost/count source.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r3",
+            "srcR004",
+            "r001"
+          ],
+          "tests": []
+        },
+        "conditions-probabilities-branches": {
+          "status": "not-applicable",
+          "note": "No condition, chance or Randomize.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r3",
+            "srcR004",
+            "r001"
+          ],
+          "tests": []
+        },
+        "status-duration-immunity": {
+          "status": "verified",
+          "note": "Stun R004: no turn cap; persists through 6 failed turn-start rolls, removed by one successful shared self-cleanse roll (gowLaneL5R3). Stun-immune (Thick Head) still takes damage.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r3",
+            "srcR004",
+            "r001"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL5B04.test.ts"
+          ]
+        },
+        "gems-types-selection-resolution": {
+          "status": "not-applicable",
+          "note": "No gem steps.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r3",
+            "srcR004",
+            "r001"
+          ],
+          "tests": []
+        },
+        "summon-transform-pools": {
+          "status": "not-applicable",
+          "note": "No summon/transform.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r3",
+            "srcR004",
+            "r001"
+          ],
+          "tests": []
+        },
+        "order-death-retargeting": {
+          "status": "verified",
+          "note": "Stun -> Damage native order; Barrier absorbs damage but Stun lands; lethal.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r3",
+            "srcR004",
+            "r001"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL5B04.test.ts"
+          ]
+        },
+        "mana-economy-extra-turn": {
+          "status": "verified",
+          "note": "Cast spends full mana and passes the turn; low mana and Silence block the real cast (no mana/action spent).",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r3",
+            "srcR004",
+            "r001"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL5B04.test.ts"
+          ]
+        },
+        "display-description": {
+          "status": "verified",
+          "note": "Chinese description asserted verbatim; wording matches the English effect.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r3",
+            "srcR004",
+            "r001"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL5B04.test.ts"
+          ]
+        },
+        "battle-pipeline": {
+          "status": "verified",
+          "note": "Real TurnEngine.castSkill both sides (lane file + round-3 R004 file).",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r3",
+            "srcR004",
+            "r001"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL5B04.test.ts"
+          ],
+          "realBattleEntry": true
+        }
+      },
+      "clauseReviews": [
+        {
+          "id": "c1",
+          "text": "Deal [Magic + 3] damage to an enemy and Stun them.",
+          "status": "verified",
+          "note": "Chosen enemy Stunned then takes Magic+3.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r3",
+            "srcR004",
+            "r001"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL5B04.test.ts"
+          ]
+        }
+      ],
+      "nativeStepReviews": [
+        {
+          "id": "0",
+          "type": "CauseStun",
+          "status": "verified",
+          "note": "CauseStun FromTarget.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r3",
+            "srcR004",
+            "r001"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL5B04.test.ts"
+          ]
+        },
+        {
+          "id": "1",
+          "type": "Delay",
+          "status": "verified",
+          "note": "Delay 1000: presentation pause only; real cast shows Stun then damage with no event in between.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r3",
+            "srcR004",
+            "r001"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL5B04.test.ts"
+          ]
+        },
+        {
+          "id": "2",
+          "type": "Damage",
+          "status": "verified",
+          "note": "Damage FromTarget 3/1.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r3",
+            "srcR004",
+            "r001"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL5B04.test.ts"
+          ]
+        }
+      ],
+      "branchReviews": [
+        {
+          "id": "main",
+          "status": "verified",
+          "note": "Single unconditional branch.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r3",
+            "srcR004",
+            "r001"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL5B04.test.ts"
+          ]
+        }
+      ]
+    },
+    {
+      "key": "troop:6222",
+      "scope": "stored-gow-snapshot",
+      "sourceDigest": "37f531f10a400e64bfa493b3a27343cef0d22b97da71868095153fdcc82dc953",
+      "reviewer": "sa-L5",
+      "reviewedAt": "2026-09-27",
+      "decision": "accept",
+      "sourceEvidence": [
+        {
+          "id": "en",
+          "role": "english-snapshot",
+          "path": "data/raw/troops.gow.en.json",
+          "note": "troop 6222 Khopeshi: spell 7364 \"Pull an Enemy to first position and Stun them.\", cost 7 Blue."
+        },
+        {
+          "id": "native",
+          "role": "native-snapshot",
+          "path": "data/raw/spells.gow.en.json",
+          "note": "spell 7364 Target Enemy: CauseStun FromTarget Amount 1; Delay 1000; TroopOrderFront FromTarget."
+        },
+        {
+          "id": "rule",
+          "role": "official-shared-rule",
+          "path": "artifacts/gow-skill-audit/gold-primary-sources/official-status-effects.html",
+          "note": "Official status guide: status semantics (Barrier, Silence, Stun, Disease, Death Mark, Enrage, Submerged, cumulative cleanse chance via Cursed/Lycanthropy entries)."
+        },
+        {
+          "id": "laneTest",
+          "role": "lane-battle-test",
+          "path": "tests/unit/gowLaneL5B04.test.ts",
+          "note": "troop:6222: real TurnEngine.castSkill both sides + boundaries"
+        },
+        {
+          "id": "r004",
+          "role": "coordinator-ruling",
+          "path": "tasks/active/gow-skill-shards/rulings/R004-status-durations.md",
+          "note": "R004: negatives no turn cap, shared cumulative self-cleanse 10%/+10% (+5% Cursed), Poison never; positives end on trigger (Barrier/Reflect damage, Enchanted cast, Enraged skull damage, Submerged/Blessed holder action)."
+        },
+        {
+          "id": "r3",
+          "role": "lane-battle-test",
+          "path": "tests/unit/gowLaneL5R3.test.ts",
+          "note": "Round-3 real castSkill both sides: statuses from this cast unchanged after 6 failed turn-start rolls; one successful roll removes all recoverable negatives together (Poison/positives stay)."
+        },
+        {
+          "id": "srcR004",
+          "role": "community-source",
+          "path": "artifacts/gow-skill-audit/gold-primary-sources/community-2026-09-28-status-durations.json",
+          "note": "Saved community corroboration for R004 (staff reply: new negative resets, all negatives cleanse together)."
+        },
+        {
+          "id": "r001",
+          "role": "coordinator-ruling",
+          "path": "tasks/active/gow-skill-shards/rulings/R001-native-step-order.md",
+          "note": "R001: native SpellSteps order governs observable order."
+        }
+      ],
+      "dimensions": {
+        "identity-cost-colors": {
+          "status": "verified",
+          "note": "Troop 6222 -> spell 7364, cost 7, Blue.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r3",
+            "srcR004",
+            "r001"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL5B04.test.ts"
+          ]
+        },
+        "target-count-range": {
+          "status": "verified",
+          "note": "Chosen enemy; others keep relative order.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r3",
+            "srcR004",
+            "r001"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL5B04.test.ts"
+          ]
+        },
+        "base-formula-rounding": {
+          "status": "not-applicable",
+          "note": "No numeric formula.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r3",
+            "srcR004",
+            "r001"
+          ],
+          "tests": []
+        },
+        "boost-source-ratio-cap": {
+          "status": "not-applicable",
+          "note": "No boost/count source.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r3",
+            "srcR004",
+            "r001"
+          ],
+          "tests": []
+        },
+        "conditions-probabilities-branches": {
+          "status": "not-applicable",
+          "note": "No condition, chance or Randomize.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r3",
+            "srcR004",
+            "r001"
+          ],
+          "tests": []
+        },
+        "status-duration-immunity": {
+          "status": "verified",
+          "note": "Stun R004: no turn cap; persists through 6 failed turn-start rolls, removed by one successful shared self-cleanse roll (gowLaneL5R3). Stun-immune enemy still pulled to front.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r3",
+            "srcR004",
+            "r001"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL5B04.test.ts"
+          ]
+        },
+        "gems-types-selection-resolution": {
+          "status": "not-applicable",
+          "note": "No gem steps.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r3",
+            "srcR004",
+            "r001"
+          ],
+          "tests": []
+        },
+        "summon-transform-pools": {
+          "status": "not-applicable",
+          "note": "No summon/transform.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r3",
+            "srcR004",
+            "r001"
+          ],
+          "tests": []
+        },
+        "order-death-retargeting": {
+          "status": "verified",
+          "note": "Stun -> TroopOrderFront native order; front enemy chosen stays first.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r3",
+            "srcR004",
+            "r001"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL5B04.test.ts"
+          ]
+        },
+        "mana-economy-extra-turn": {
+          "status": "verified",
+          "note": "Cast spends full mana and passes the turn; low mana and Silence block the real cast (no mana/action spent).",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r3",
+            "srcR004",
+            "r001"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL5B04.test.ts"
+          ]
+        },
+        "display-description": {
+          "status": "verified",
+          "note": "Chinese description asserted verbatim; wording matches the English effect.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r3",
+            "srcR004",
+            "r001"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL5B04.test.ts"
+          ]
+        },
+        "battle-pipeline": {
+          "status": "verified",
+          "note": "Real TurnEngine.castSkill both sides (lane file + round-3 R004 file).",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r3",
+            "srcR004",
+            "r001"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL5B04.test.ts"
+          ],
+          "realBattleEntry": true
+        }
+      },
+      "clauseReviews": [
+        {
+          "id": "c1",
+          "text": "Pull an Enemy to first position and Stun them.",
+          "status": "verified",
+          "note": "Chosen enemy Stunned and moved to first position.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r3",
+            "srcR004",
+            "r001"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL5B04.test.ts"
+          ]
+        }
+      ],
+      "nativeStepReviews": [
+        {
+          "id": "0",
+          "type": "CauseStun",
+          "status": "verified",
+          "note": "CauseStun FromTarget.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r3",
+            "srcR004",
+            "r001"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL5B04.test.ts"
+          ]
+        },
+        {
+          "id": "1",
+          "type": "Delay",
+          "status": "verified",
+          "note": "Delay 1000: presentation pause only; real cast shows Stun then reposition with no event in between.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r3",
+            "srcR004",
+            "r001"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL5B04.test.ts"
+          ]
+        },
+        {
+          "id": "2",
+          "type": "TroopOrderFront",
+          "status": "verified",
+          "note": "TroopOrderFront FromTarget -> reposition lastTarget front.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r3",
+            "srcR004",
+            "r001"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL5B04.test.ts"
+          ]
+        }
+      ],
+      "branchReviews": [
+        {
+          "id": "main",
+          "status": "verified",
+          "note": "Single unconditional branch.",
+          "evidenceIds": [
+            "en",
+            "native",
+            "rule",
+            "laneTest",
+            "r004",
+            "r3",
+            "srcR004",
+            "r001"
+          ],
+          "tests": [
+            "tests/unit/gowLaneL5B04.test.ts"
           ]
         }
       ]
