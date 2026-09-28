@@ -1,0 +1,992 @@
+[
+ {
+  "key": "troop:6034",
+  "lane": "L4b",
+  "changedBy": "B5-L4b-6034-fromtarget 2026-09-28T13:31:01.334Z",
+  "reviewer": ""
+ },
+ {
+  "key": "troop:6076",
+  "lane": "L1",
+  "changedBy": "P-F1-remove-gems 2026-09-28T02:47:48.088Z",
+  "reviewer": ""
+ },
+ {
+  "key": "troop:6135",
+  "lane": "L1",
+  "changedBy": "P-R1-count-at-native-step 2026-09-28T08:36:08.879Z",
+  "reviewer": ""
+ },
+ {
+  "key": "troop:6207",
+  "lane": "L3",
+  "changedBy": "P-F1-remove-gems 2026-09-28T02:47:48.088Z",
+  "reviewer": ""
+ },
+ {
+  "key": "troop:6210",
+  "lane": "L1",
+  "changedBy": "R013-5 2026-09-28T13:54:42.073Z",
+  "reviewer": ""
+ },
+ {
+  "key": "troop:6328",
+  "lane": "L1",
+  "changedBy": "P-F1-remove-gems 2026-09-28T02:47:48.088Z",
+  "reviewer": ""
+ },
+ {
+  "key": "troop:6386",
+  "lane": "L3",
+  "changedBy": "P-R7-dead-last-target-cond 2026-09-28T12:00:17.249Z",
+  "reviewer": ""
+ },
+ {
+  "key": "troop:6387",
+  "lane": "L1",
+  "changedBy": "P-F1-summon-after-caster-death 2026-09-28T02:32:26.734Z",
+  "reviewer": ""
+ },
+ {
+  "key": "troop:6398",
+  "lane": "L4a",
+  "changedBy": "P-F2-precount-explode 2026-09-28T03:02:24.156Z",
+  "reviewer": ""
+ },
+ {
+  "key": "troop:6423",
+  "lane": "L2",
+  "changedBy": "P-F1-remove-gems 2026-09-28T02:47:48.088Z",
+  "reviewer": ""
+ },
+ {
+  "key": "troop:6428",
+  "lane": "L1",
+  "changedBy": "P-R5-summon-id-reuse 2026-09-28T11:47:10.242Z",
+  "reviewer": ""
+ },
+ {
+  "key": "troop:6465",
+  "lane": "L1",
+  "changedBy": "P-R5-summon-id-reuse 2026-09-28T11:47:10.242Z",
+  "reviewer": ""
+ },
+ {
+  "key": "troop:6483",
+  "lane": "L6",
+  "changedBy": "P-F3-prehit-target-compare 2026-09-28T03:02:24.055Z",
+  "reviewer": ""
+ },
+ {
+  "key": "troop:6587",
+  "lane": "L5",
+  "changedBy": "P-F3-lasttarget-damaged 2026-09-28T03:02:23.956Z",
+  "reviewer": ""
+ },
+ {
+  "key": "troop:6593",
+  "lane": "L4a",
+  "changedBy": "P-R1-count-at-native-step 2026-09-28T08:36:08.879Z",
+  "reviewer": ""
+ },
+ {
+  "key": "troop:6624",
+  "lane": "L5",
+  "changedBy": "P-B-action-status-self-count 2026-09-28T11:16:00.967Z",
+  "reviewer": ""
+ },
+ {
+  "key": "troop:6692",
+  "lane": "L4b",
+  "changedBy": "P-B-action-status-self-count 2026-09-28T11:16:00.967Z",
+  "reviewer": ""
+ },
+ {
+  "key": "troop:6704",
+  "lane": "L4b",
+  "changedBy": "P-R2-chosen-color-modifier 2026-09-28T09:13:19.450Z",
+  "reviewer": ""
+ },
+ {
+  "key": "troop:6712",
+  "lane": "L2",
+  "changedBy": "P-R6-chosen-cell-counts 2026-09-28T12:19:00.719Z",
+  "reviewer": ""
+ },
+ {
+  "key": "troop:6741",
+  "lane": "L7",
+  "changedBy": "P-E-faction-kingdom 2026-09-28T13:09:29.668Z",
+  "reviewer": ""
+ },
+ {
+  "key": "troop:6826",
+  "lane": "L4b",
+  "changedBy": "P-counter-per-step 2026-09-28T02:54:35.865Z",
+  "reviewer": ""
+ },
+ {
+  "key": "troop:6843",
+  "lane": "L1",
+  "changedBy": "R012 2026-09-28T05:55:25.767Z",
+  "reviewer": ""
+ },
+ {
+  "key": "troop:6904",
+  "lane": "L7",
+  "changedBy": "P-R4-nextdown-default-range 2026-09-28T09:02:34.695Z",
+  "reviewer": ""
+ },
+ {
+  "key": "troop:6933",
+  "lane": "L4b",
+  "changedBy": "P-B-action-status-self-count 2026-09-28T11:16:00.967Z",
+  "reviewer": ""
+ },
+ {
+  "key": "troop:6936",
+  "lane": "L5",
+  "changedBy": "P-R3-target-status-count,P-R3-ally-status-excl-self 2026-09-28T09:02:34.835Z",
+  "reviewer": ""
+ },
+ {
+  "key": "troop:6964",
+  "lane": "L4a",
+  "changedBy": "P-R1-chosen-target-color-cond 2026-09-28T09:20:03.859Z",
+  "reviewer": ""
+ },
+ {
+  "key": "troop:6970",
+  "lane": "L3",
+  "changedBy": "P-F1-remove-gems 2026-09-28T02:47:48.088Z",
+  "reviewer": ""
+ },
+ {
+  "key": "troop:6982",
+  "lane": "L5",
+  "changedBy": "P-R3-next-up-target 2026-09-28T09:07:56.894Z",
+  "reviewer": ""
+ },
+ {
+  "key": "troop:7036",
+  "lane": "L4a",
+  "changedBy": "P-R1-dual-storm 2026-09-28T09:25:46.899Z",
+  "reviewer": ""
+ },
+ {
+  "key": "troop:7038",
+  "lane": "L4a",
+  "changedBy": "P-R1-dual-storm 2026-09-28T09:25:46.899Z",
+  "reviewer": ""
+ },
+ {
+  "key": "troop:7079",
+  "lane": "L4b",
+  "changedBy": "P-E-faction-kingdom 2026-09-28T13:09:29.668Z",
+  "reviewer": ""
+ },
+ {
+  "key": "troop:7115",
+  "lane": "L4a",
+  "changedBy": "P-R5-named-ally-count 2026-09-28T11:55:54.482Z",
+  "reviewer": ""
+ },
+ {
+  "key": "troop:7171",
+  "lane": "L5",
+  "changedBy": "P-E-faction-kingdom 2026-09-28T13:09:29.668Z",
+  "reviewer": ""
+ },
+ {
+  "key": "troop:7173",
+  "lane": "L1",
+  "changedBy": "P-R5-named-ally-count 2026-09-28T11:55:54.482Z",
+  "reviewer": ""
+ },
+ {
+  "key": "troop:7181",
+  "lane": "L6",
+  "changedBy": "P-counter-per-step 2026-09-28T02:54:35.865Z",
+  "reviewer": ""
+ },
+ {
+  "key": "troop:7210",
+  "lane": "L4b",
+  "changedBy": "P-R1-gargoyle-tier-filter,P-R2-gargoyle-tier,P-R4-gargoyle-tier-count,P-R3-dragon-gem-count 2026-09-28T08:51:31.489Z",
+  "reviewer": ""
+ },
+ {
+  "key": "troop:7316",
+  "lane": "L4a",
+  "changedBy": "P-R1-row-count-at-cast-start 2026-09-28T09:20:03.968Z",
+  "reviewer": ""
+ },
+ {
+  "key": "troop:7325",
+  "lane": "L4b",
+  "changedBy": "P-B-action-status-self-count 2026-09-28T11:16:00.967Z",
+  "reviewer": ""
+ },
+ {
+  "key": "troop:7357",
+  "lane": "L1",
+  "changedBy": "P-R5-faction-kingdom 2026-09-28T12:24:32.281Z",
+  "reviewer": ""
+ },
+ {
+  "key": "troop:7492",
+  "lane": "L4a",
+  "changedBy": "P-R1-count-at-native-step 2026-09-28T08:36:08.879Z",
+  "reviewer": ""
+ },
+ {
+  "key": "troop:7500",
+  "lane": "L4a",
+  "changedBy": "P-E-faction-kingdom 2026-09-28T13:09:29.668Z",
+  "reviewer": ""
+ },
+ {
+  "key": "troop:7504",
+  "lane": "L5",
+  "changedBy": "P-E-faction-kingdom 2026-09-28T13:09:29.668Z",
+  "reviewer": ""
+ },
+ {
+  "key": "troop:7533",
+  "lane": "L5",
+  "changedBy": "P-R3-precast-compare 2026-09-28T09:02:34.962Z",
+  "reviewer": ""
+ },
+ {
+  "key": "troop:7597",
+  "lane": "L4b",
+  "changedBy": "P-F2-dead-target-colour 2026-09-28T02:47:47.988Z",
+  "reviewer": ""
+ },
+ {
+  "key": "troop:7611",
+  "lane": "L5",
+  "changedBy": "P-R1-gargoyle-tier-filter,P-R2-gargoyle-tier,P-R4-gargoyle-tier-count,P-R3-dragon-gem-count 2026-09-28T08:51:31.489Z",
+  "reviewer": ""
+ },
+ {
+  "key": "troop:7626",
+  "lane": "L5",
+  "changedBy": "P-R1-gargoyle-tier-filter,P-R2-gargoyle-tier,P-R4-gargoyle-tier-count,P-R3-dragon-gem-count 2026-09-28T08:51:31.489Z",
+  "reviewer": ""
+ },
+ {
+  "key": "troop:7627",
+  "lane": "L5",
+  "changedBy": "P-R1-gargoyle-tier-filter,P-R2-gargoyle-tier,P-R4-gargoyle-tier-count,P-R3-dragon-gem-count 2026-09-28T08:51:31.489Z",
+  "reviewer": ""
+ },
+ {
+  "key": "troop:7643",
+  "lane": "L7",
+  "changedBy": "P-R1-gargoyle-tier-filter,P-R2-gargoyle-tier,P-R4-gargoyle-tier-count,P-R3-dragon-gem-count 2026-09-28T08:51:31.489Z",
+  "reviewer": ""
+ },
+ {
+  "key": "troop:7646",
+  "lane": "L3",
+  "changedBy": "P-R7-dead-last-target-cond 2026-09-28T12:00:17.249Z",
+  "reviewer": ""
+ },
+ {
+  "key": "troop:7660",
+  "lane": "L7",
+  "changedBy": "P-E-faction-kingdom 2026-09-28T13:09:29.668Z",
+  "reviewer": ""
+ },
+ {
+  "key": "troop:7665",
+  "lane": "L7",
+  "changedBy": "P-A-target-kingdom 2026-09-28T11:10:53.140Z",
+  "reviewer": ""
+ },
+ {
+  "key": "troop:7693",
+  "lane": "L7",
+  "changedBy": "P-R3-precast-compare 2026-09-28T09:02:34.962Z",
+  "reviewer": ""
+ },
+ {
+  "key": "troop:7700",
+  "lane": "L5",
+  "changedBy": "R011 2026-09-28T05:44:33.711Z",
+  "reviewer": ""
+ },
+ {
+  "key": "troop:7791",
+  "lane": "L5",
+  "changedBy": "P-R3-target-status-count,P-R3-ally-status-excl-self 2026-09-28T09:02:34.835Z",
+  "reviewer": ""
+ },
+ {
+  "key": "troop:7818",
+  "lane": "L5",
+  "changedBy": "R012 2026-09-28T05:55:25.767Z",
+  "reviewer": ""
+ },
+ {
+  "key": "troop:7851",
+  "lane": "L4a",
+  "changedBy": "P-R1-gargoyle-tier-filter,P-R2-gargoyle-tier,P-R4-gargoyle-tier-count,P-R3-dragon-gem-count 2026-09-28T08:51:31.489Z",
+  "reviewer": ""
+ },
+ {
+  "key": "weapon:1144",
+  "lane": "L3",
+  "changedBy": "P-R7-dead-last-target-cond 2026-09-28T12:00:17.249Z",
+  "reviewer": ""
+ },
+ {
+  "key": "weapon:1151",
+  "lane": "L4b",
+  "changedBy": "P-B-action-status-self-count 2026-09-28T11:16:00.967Z",
+  "reviewer": ""
+ },
+ {
+  "key": "weapon:1158",
+  "lane": "L4a",
+  "changedBy": "P-R1-count-at-native-step 2026-09-28T08:36:08.879Z",
+  "reviewer": ""
+ },
+ {
+  "key": "weapon:1180",
+  "lane": "L4b",
+  "changedBy": "P-R1-count-at-native-step 2026-09-28T08:36:08.879Z",
+  "reviewer": ""
+ },
+ {
+  "key": "weapon:1183",
+  "lane": "L4b",
+  "changedBy": "P-R1-count-at-native-step 2026-09-28T08:36:08.879Z",
+  "reviewer": ""
+ },
+ {
+  "key": "weapon:1184",
+  "lane": "L4b",
+  "changedBy": "P-R1-count-at-native-step 2026-09-28T08:36:08.879Z",
+  "reviewer": ""
+ },
+ {
+  "key": "weapon:1185",
+  "lane": "L4b",
+  "changedBy": "P-R1-count-at-native-step 2026-09-28T08:36:08.879Z",
+  "reviewer": ""
+ },
+ {
+  "key": "weapon:1226",
+  "lane": "accepted-base",
+  "changedBy": "P-R1-count-at-native-step 2026-09-28T08:36:08.879Z",
+  "reviewer": ""
+ },
+ {
+  "key": "weapon:1229",
+  "lane": "L3",
+  "changedBy": "P-R1-count-at-native-step 2026-09-28T08:36:08.879Z",
+  "reviewer": ""
+ },
+ {
+  "key": "weapon:1233",
+  "lane": "L3",
+  "changedBy": "P-R1-count-at-native-step 2026-09-28T08:36:08.879Z",
+  "reviewer": ""
+ },
+ {
+  "key": "weapon:1248",
+  "lane": "L3",
+  "changedBy": "P-R1-count-at-native-step 2026-09-28T08:36:08.879Z",
+  "reviewer": ""
+ },
+ {
+  "key": "weapon:1257",
+  "lane": "L3",
+  "changedBy": "P-R1-count-at-native-step 2026-09-28T08:36:08.879Z",
+  "reviewer": ""
+ },
+ {
+  "key": "weapon:1258",
+  "lane": "L3",
+  "changedBy": "P-R1-count-at-native-step 2026-09-28T08:36:08.879Z",
+  "reviewer": ""
+ },
+ {
+  "key": "weapon:1274",
+  "lane": "L1",
+  "changedBy": "P-R5-faction-kingdom 2026-09-28T12:24:32.281Z",
+  "reviewer": ""
+ },
+ {
+  "key": "weapon:1318",
+  "lane": "L4a",
+  "changedBy": "P-A-target-kingdom 2026-09-28T11:10:53.140Z",
+  "reviewer": ""
+ },
+ {
+  "key": "weapon:1319",
+  "lane": "L4a",
+  "changedBy": "P-A-target-kingdom 2026-09-28T11:10:53.140Z",
+  "reviewer": ""
+ },
+ {
+  "key": "weapon:1320",
+  "lane": "L4a",
+  "changedBy": "P-A-target-kingdom 2026-09-28T11:10:53.140Z",
+  "reviewer": ""
+ },
+ {
+  "key": "weapon:1321",
+  "lane": "L4a",
+  "changedBy": "P-A-target-kingdom 2026-09-28T11:10:53.140Z",
+  "reviewer": ""
+ },
+ {
+  "key": "weapon:1322",
+  "lane": "L4a",
+  "changedBy": "P-A-target-kingdom 2026-09-28T11:10:53.140Z",
+  "reviewer": ""
+ },
+ {
+  "key": "weapon:1323",
+  "lane": "L4a",
+  "changedBy": "P-A-target-kingdom 2026-09-28T11:10:53.140Z",
+  "reviewer": ""
+ },
+ {
+  "key": "weapon:1324",
+  "lane": "L4a",
+  "changedBy": "P-A-target-kingdom 2026-09-28T11:10:53.140Z",
+  "reviewer": ""
+ },
+ {
+  "key": "weapon:1325",
+  "lane": "L4a",
+  "changedBy": "P-A-target-kingdom 2026-09-28T11:10:53.140Z",
+  "reviewer": ""
+ },
+ {
+  "key": "weapon:1326",
+  "lane": "L4a",
+  "changedBy": "P-A-target-kingdom 2026-09-28T11:10:53.140Z",
+  "reviewer": ""
+ },
+ {
+  "key": "weapon:1327",
+  "lane": "L4a",
+  "changedBy": "P-A-target-kingdom 2026-09-28T11:10:53.140Z",
+  "reviewer": ""
+ },
+ {
+  "key": "weapon:1328",
+  "lane": "L4a",
+  "changedBy": "P-A-target-kingdom 2026-09-28T11:10:53.140Z",
+  "reviewer": ""
+ },
+ {
+  "key": "weapon:1329",
+  "lane": "L4a",
+  "changedBy": "P-A-target-kingdom 2026-09-28T11:10:53.140Z",
+  "reviewer": ""
+ },
+ {
+  "key": "weapon:1330",
+  "lane": "L4a",
+  "changedBy": "P-A-target-kingdom 2026-09-28T11:10:53.140Z",
+  "reviewer": ""
+ },
+ {
+  "key": "weapon:1331",
+  "lane": "L4a",
+  "changedBy": "P-A-target-kingdom 2026-09-28T11:10:53.140Z",
+  "reviewer": ""
+ },
+ {
+  "key": "weapon:1332",
+  "lane": "L4a",
+  "changedBy": "P-A-target-kingdom 2026-09-28T11:10:53.140Z",
+  "reviewer": ""
+ },
+ {
+  "key": "weapon:1333",
+  "lane": "L4a",
+  "changedBy": "P-A-target-kingdom 2026-09-28T11:10:53.140Z",
+  "reviewer": ""
+ },
+ {
+  "key": "weapon:1334",
+  "lane": "L4a",
+  "changedBy": "P-A-target-kingdom 2026-09-28T11:10:53.140Z",
+  "reviewer": ""
+ },
+ {
+  "key": "weapon:1335",
+  "lane": "L4a",
+  "changedBy": "P-A-target-kingdom 2026-09-28T11:10:53.140Z",
+  "reviewer": ""
+ },
+ {
+  "key": "weapon:1336",
+  "lane": "L4a",
+  "changedBy": "P-A-target-kingdom 2026-09-28T11:10:53.140Z",
+  "reviewer": ""
+ },
+ {
+  "key": "weapon:1337",
+  "lane": "L4a",
+  "changedBy": "P-A-target-kingdom 2026-09-28T11:10:53.140Z",
+  "reviewer": ""
+ },
+ {
+  "key": "weapon:1338",
+  "lane": "L4a",
+  "changedBy": "P-A-target-kingdom 2026-09-28T11:10:53.140Z",
+  "reviewer": ""
+ },
+ {
+  "key": "weapon:1339",
+  "lane": "L4a",
+  "changedBy": "P-A-target-kingdom 2026-09-28T11:10:53.140Z",
+  "reviewer": ""
+ },
+ {
+  "key": "weapon:1340",
+  "lane": "L4a",
+  "changedBy": "P-A-target-kingdom 2026-09-28T11:10:53.140Z",
+  "reviewer": ""
+ },
+ {
+  "key": "weapon:1341",
+  "lane": "L4a",
+  "changedBy": "P-A-target-kingdom 2026-09-28T11:10:53.140Z",
+  "reviewer": ""
+ },
+ {
+  "key": "weapon:1342",
+  "lane": "L4a",
+  "changedBy": "P-A-target-kingdom 2026-09-28T11:10:53.140Z",
+  "reviewer": ""
+ },
+ {
+  "key": "weapon:1343",
+  "lane": "L4a",
+  "changedBy": "P-A-target-kingdom 2026-09-28T11:10:53.140Z",
+  "reviewer": ""
+ },
+ {
+  "key": "weapon:1344",
+  "lane": "L4a",
+  "changedBy": "P-A-target-kingdom 2026-09-28T11:10:53.140Z",
+  "reviewer": ""
+ },
+ {
+  "key": "weapon:1345",
+  "lane": "L4a",
+  "changedBy": "P-A-target-kingdom 2026-09-28T11:10:53.140Z",
+  "reviewer": ""
+ },
+ {
+  "key": "weapon:1346",
+  "lane": "L4a",
+  "changedBy": "P-A-target-kingdom 2026-09-28T11:10:53.140Z",
+  "reviewer": ""
+ },
+ {
+  "key": "weapon:1347",
+  "lane": "L4a",
+  "changedBy": "P-A-target-kingdom 2026-09-28T11:10:53.140Z",
+  "reviewer": ""
+ },
+ {
+  "key": "weapon:1348",
+  "lane": "L4a",
+  "changedBy": "P-A-target-kingdom 2026-09-28T11:10:53.140Z",
+  "reviewer": ""
+ },
+ {
+  "key": "weapon:1349",
+  "lane": "L4a",
+  "changedBy": "P-A-target-kingdom 2026-09-28T11:10:53.140Z",
+  "reviewer": ""
+ },
+ {
+  "key": "weapon:1350",
+  "lane": "L4a",
+  "changedBy": "P-A-target-kingdom 2026-09-28T11:10:53.140Z",
+  "reviewer": ""
+ },
+ {
+  "key": "weapon:1357",
+  "lane": "L7",
+  "changedBy": "P-R1-count-at-native-step 2026-09-28T08:36:08.879Z",
+  "reviewer": ""
+ },
+ {
+  "key": "weapon:1358",
+  "lane": "L7",
+  "changedBy": "P-R1-count-at-native-step 2026-09-28T08:36:08.879Z",
+  "reviewer": ""
+ },
+ {
+  "key": "weapon:1364",
+  "lane": "L1",
+  "changedBy": "P-E-faction-kingdom 2026-09-28T13:09:29.668Z",
+  "reviewer": ""
+ },
+ {
+  "key": "weapon:1388",
+  "lane": "L1",
+  "changedBy": "P-E-faction-kingdom 2026-09-28T13:09:29.668Z",
+  "reviewer": ""
+ },
+ {
+  "key": "weapon:1391",
+  "lane": "L4a",
+  "changedBy": "P-R1-dual-storm 2026-09-28T09:25:46.899Z",
+  "reviewer": ""
+ },
+ {
+  "key": "weapon:1402",
+  "lane": "L1",
+  "changedBy": "P-E-faction-kingdom 2026-09-28T13:09:29.668Z",
+  "reviewer": ""
+ },
+ {
+  "key": "weapon:1407",
+  "lane": "L1",
+  "changedBy": "P-E-faction-kingdom 2026-09-28T13:09:29.668Z",
+  "reviewer": ""
+ },
+ {
+  "key": "weapon:1410",
+  "lane": "L1",
+  "changedBy": "P-E-faction-kingdom 2026-09-28T13:09:29.668Z",
+  "reviewer": ""
+ },
+ {
+  "key": "weapon:1411",
+  "lane": "L1",
+  "changedBy": "P-E-faction-kingdom 2026-09-28T13:09:29.668Z",
+  "reviewer": ""
+ },
+ {
+  "key": "weapon:1412",
+  "lane": "L1",
+  "changedBy": "P-E-faction-kingdom 2026-09-28T13:09:29.668Z",
+  "reviewer": ""
+ },
+ {
+  "key": "weapon:1427",
+  "lane": "L5",
+  "changedBy": "P-R3-target-status-count,P-R3-ally-status-excl-self 2026-09-28T09:02:34.835Z",
+  "reviewer": ""
+ },
+ {
+  "key": "weapon:1429",
+  "lane": "L4a",
+  "changedBy": "P-A-target-kingdom 2026-09-28T11:10:53.140Z",
+  "reviewer": ""
+ },
+ {
+  "key": "weapon:1435",
+  "lane": "L7",
+  "changedBy": "P-D-lethal-first-lasttarget 2026-09-28T11:21:25.779Z",
+  "reviewer": ""
+ },
+ {
+  "key": "weapon:1438",
+  "lane": "L1",
+  "changedBy": "P-E-faction-kingdom 2026-09-28T13:09:29.668Z",
+  "reviewer": ""
+ },
+ {
+  "key": "weapon:1449",
+  "lane": "L1",
+  "changedBy": "P-E-faction-kingdom 2026-09-28T13:09:29.668Z",
+  "reviewer": ""
+ },
+ {
+  "key": "weapon:1453",
+  "lane": "L1",
+  "changedBy": "P-E-faction-kingdom 2026-09-28T13:09:29.668Z",
+  "reviewer": ""
+ },
+ {
+  "key": "weapon:1461",
+  "lane": "L2",
+  "changedBy": "P-R6-chosen-diagonal-transform 2026-09-28T12:10:34.024Z",
+  "reviewer": ""
+ },
+ {
+  "key": "weapon:1464",
+  "lane": "L1",
+  "changedBy": "P-E-faction-kingdom 2026-09-28T13:09:29.668Z",
+  "reviewer": ""
+ },
+ {
+  "key": "weapon:1465",
+  "lane": "L1",
+  "changedBy": "P-E-faction-kingdom 2026-09-28T13:09:29.668Z",
+  "reviewer": ""
+ },
+ {
+  "key": "weapon:1479",
+  "lane": "L4a",
+  "changedBy": "P-A-target-kingdom 2026-09-28T11:10:53.140Z",
+  "reviewer": ""
+ },
+ {
+  "key": "weapon:1491",
+  "lane": "L1",
+  "changedBy": "P-E-faction-kingdom 2026-09-28T13:09:29.668Z",
+  "reviewer": ""
+ },
+ {
+  "key": "weapon:1497",
+  "lane": "L1",
+  "changedBy": "P-E-faction-kingdom 2026-09-28T13:09:29.668Z",
+  "reviewer": ""
+ },
+ {
+  "key": "weapon:1499",
+  "lane": "L4a",
+  "changedBy": "P-A-target-kingdom 2026-09-28T11:10:53.140Z",
+  "reviewer": ""
+ },
+ {
+  "key": "weapon:1501",
+  "lane": "L4b",
+  "changedBy": "P-E-faction-kingdom 2026-09-28T13:09:29.668Z",
+  "reviewer": ""
+ },
+ {
+  "key": "weapon:1511",
+  "lane": "L1",
+  "changedBy": "P-E-faction-kingdom 2026-09-28T13:09:29.668Z",
+  "reviewer": ""
+ },
+ {
+  "key": "weapon:1525",
+  "lane": "L2",
+  "changedBy": "P-R6-chosen-cell-counts 2026-09-28T12:19:00.719Z",
+  "reviewer": ""
+ },
+ {
+  "key": "weapon:1534",
+  "lane": "L1",
+  "changedBy": "P-E-faction-kingdom 2026-09-28T13:09:29.668Z",
+  "reviewer": ""
+ },
+ {
+  "key": "weapon:1536",
+  "lane": "L1",
+  "changedBy": "P-E-faction-kingdom 2026-09-28T13:09:29.668Z",
+  "reviewer": ""
+ },
+ {
+  "key": "weapon:1541",
+  "lane": "L1",
+  "changedBy": "P-E-faction-kingdom 2026-09-28T13:09:29.668Z",
+  "reviewer": ""
+ },
+ {
+  "key": "weapon:1544",
+  "lane": "L1",
+  "changedBy": "P-E-faction-kingdom 2026-09-28T13:09:29.668Z",
+  "reviewer": ""
+ },
+ {
+  "key": "weapon:1553",
+  "lane": "L1",
+  "changedBy": "P-E-faction-kingdom 2026-09-28T13:09:29.668Z",
+  "reviewer": ""
+ },
+ {
+  "key": "weapon:1556",
+  "lane": "L1",
+  "changedBy": "P-E-faction-kingdom 2026-09-28T13:09:29.668Z",
+  "reviewer": ""
+ },
+ {
+  "key": "weapon:1560",
+  "lane": "L4a",
+  "changedBy": "P-A-target-kingdom 2026-09-28T11:10:53.140Z",
+  "reviewer": ""
+ },
+ {
+  "key": "weapon:1569",
+  "lane": "L1",
+  "changedBy": "P-E-faction-kingdom 2026-09-28T13:09:29.668Z",
+  "reviewer": ""
+ },
+ {
+  "key": "weapon:1573",
+  "lane": "L1",
+  "changedBy": "P-E-faction-kingdom 2026-09-28T13:09:29.668Z",
+  "reviewer": ""
+ },
+ {
+  "key": "weapon:1576",
+  "lane": "L1",
+  "changedBy": "P-E-faction-kingdom 2026-09-28T13:09:29.668Z",
+  "reviewer": ""
+ },
+ {
+  "key": "weapon:1580",
+  "lane": "L7",
+  "changedBy": "P-E-faction-kingdom 2026-09-28T13:09:29.668Z",
+  "reviewer": ""
+ },
+ {
+  "key": "weapon:1583",
+  "lane": "L1",
+  "changedBy": "P-E-faction-kingdom 2026-09-28T13:09:29.668Z",
+  "reviewer": ""
+ },
+ {
+  "key": "weapon:1585",
+  "lane": "L4b",
+  "changedBy": "B-L4b-1585-entangle-gems 2026-09-28T10:52:09.458Z",
+  "reviewer": ""
+ },
+ {
+  "key": "weapon:1587",
+  "lane": "L1",
+  "changedBy": "P-E-faction-kingdom 2026-09-28T13:09:29.668Z",
+  "reviewer": ""
+ },
+ {
+  "key": "weapon:1590",
+  "lane": "L7",
+  "changedBy": "P-E-faction-kingdom 2026-09-28T13:09:29.668Z",
+  "reviewer": ""
+ },
+ {
+  "key": "weapon:1605",
+  "lane": "L5",
+  "changedBy": "R012 2026-09-28T05:55:25.767Z",
+  "reviewer": ""
+ },
+ {
+  "key": "weapon:1614",
+  "lane": "L7",
+  "changedBy": "P-E-faction-kingdom 2026-09-28T13:09:29.668Z",
+  "reviewer": ""
+ },
+ {
+  "key": "weapon:1617",
+  "lane": "L1",
+  "changedBy": "P-E-faction-kingdom 2026-09-28T13:09:29.668Z",
+  "reviewer": ""
+ },
+ {
+  "key": "weapon:1626",
+  "lane": "L7",
+  "changedBy": "P-E-faction-kingdom 2026-09-28T13:09:29.668Z",
+  "reviewer": ""
+ },
+ {
+  "key": "weapon:1629",
+  "lane": "L1",
+  "changedBy": "P-E-faction-kingdom 2026-09-28T13:09:29.668Z",
+  "reviewer": ""
+ },
+ {
+  "key": "weapon:1638",
+  "lane": "L1",
+  "changedBy": "P-E-faction-kingdom 2026-09-28T13:09:29.668Z",
+  "reviewer": ""
+ },
+ {
+  "key": "weapon:1642",
+  "lane": "L7",
+  "changedBy": "P-E-faction-kingdom 2026-09-28T13:09:29.668Z",
+  "reviewer": ""
+ },
+ {
+  "key": "weapon:1645",
+  "lane": "L7",
+  "changedBy": "P-E-faction-kingdom 2026-09-28T13:09:29.668Z",
+  "reviewer": ""
+ },
+ {
+  "key": "weapon:1651",
+  "lane": "L7",
+  "changedBy": "P-E-faction-kingdom 2026-09-28T13:09:29.668Z",
+  "reviewer": ""
+ },
+ {
+  "key": "weapon:1654",
+  "lane": "L7",
+  "changedBy": "P-E-faction-kingdom 2026-09-28T13:09:29.668Z",
+  "reviewer": ""
+ },
+ {
+  "key": "weapon:1660",
+  "lane": "L7",
+  "changedBy": "P-E-faction-kingdom 2026-09-28T13:09:29.668Z",
+  "reviewer": ""
+ },
+ {
+  "key": "weapon:1663",
+  "lane": "L7",
+  "changedBy": "P-E-faction-kingdom 2026-09-28T13:09:29.668Z",
+  "reviewer": ""
+ },
+ {
+  "key": "weapon:1675",
+  "lane": "L1",
+  "changedBy": "P-E-faction-kingdom 2026-09-28T13:09:29.668Z",
+  "reviewer": ""
+ },
+ {
+  "key": "weapon:1678",
+  "lane": "L1",
+  "changedBy": "P-E-faction-kingdom 2026-09-28T13:09:29.668Z",
+  "reviewer": ""
+ },
+ {
+  "key": "weapon:1687",
+  "lane": "L5",
+  "changedBy": "P-E-faction-kingdom 2026-09-28T13:09:29.668Z",
+  "reviewer": ""
+ },
+ {
+  "key": "weapon:1690",
+  "lane": "L5",
+  "changedBy": "P-E-faction-kingdom 2026-09-28T13:09:29.668Z",
+  "reviewer": ""
+ },
+ {
+  "key": "weapon:1694",
+  "lane": "L7",
+  "changedBy": "P-E-faction-kingdom 2026-09-28T13:09:29.668Z",
+  "reviewer": ""
+ },
+ {
+  "key": "weapon:1700",
+  "lane": "L7",
+  "changedBy": "P-E-faction-kingdom 2026-09-28T13:09:29.668Z",
+  "reviewer": ""
+ },
+ {
+  "key": "weapon:1703",
+  "lane": "L7",
+  "changedBy": "P-E-faction-kingdom 2026-09-28T13:09:29.668Z",
+  "reviewer": ""
+ },
+ {
+  "key": "weapon:1715",
+  "lane": "L7",
+  "changedBy": "P-E-faction-kingdom 2026-09-28T13:09:29.668Z",
+  "reviewer": ""
+ },
+ {
+  "key": "weapon:1718",
+  "lane": "L5",
+  "changedBy": "P-E-faction-kingdom 2026-09-28T13:09:29.668Z",
+  "reviewer": ""
+ }
+]
