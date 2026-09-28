@@ -252,3 +252,15 @@ describe('sa-F B11: ally mana / named-troop condition', () => {
     expect(order(castSpell({ key: 'troop:6213' })).map(o => o.split(' ')[1])).toEqual(['A1', 'A2', 'A1', 'A2']);
   });
 });
+
+describe('sa-F B12: all Skills / per-gem extra-turn chance', () => {
+  it('troop:6996 TheEmperor (8523): [(Magic / 2) + 1] to all four Skills of the first ally; 7% per Blue Gem', () => {
+    const r = castSpell({ key: 'troop:6996' });
+    expect(order(r).slice(0, 4).sort()).toEqual(['buff C armor+6', 'buff C attack+6', 'buff C hp+6 max+6', 'buff C magic+6']);
+    const noBlue = (rr: number, c: number) => { const g = sixColourBoard(rr, c); return g && g.kind === 'color' && g.color === BaseColor.Blue ? colorGem(BaseColor.Red) : g; };
+    const seeds = Array.from({ length: 20 }, (_, i) => i + 1);
+    expect(seeds.every(seed => castSpell({ key: 'troop:6996', seed, board: noBlue }).summary.extraTurn === null)).toBe(true);
+    const allBlue = () => colorGem(BaseColor.Blue);
+    expect(seeds.every(seed => castSpell({ key: 'troop:6996', seed, board: allBlue }).summary.extraTurn === 'skill')).toBe(true);
+  });
+});

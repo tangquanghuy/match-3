@@ -1,6 +1,6 @@
 # GoW 技能改动留档
 
-自动生成（`node scripts/gow-changelog.mjs render`），源数据 [CHANGES.jsonl](CHANGES.jsonl)，共 561 条改动，涉及 1015 个技能 ID。
+自动生成（`node scripts/gow-changelog.mjs render`），源数据 [CHANGES.jsonl](CHANGES.jsonl)，共 562 条改动，涉及 1016 个技能 ID。
 
 ## 按时间
 
@@ -567,6 +567,7 @@
 | 2026-09-28T21:36 | sa-F | L3-F-doomed-ranged | assembler | 9584, 9585 | weapon:1636 DoomedBalliste；weapon:1637 DoomedSauterelle | `src/engine/skills/curated/batch-w04.ts`<br>`src/data/gowWeaponReviewedOverrides.json` | damage first, then explode 3 of the colour if the (already hit) target uses it, then quarter Mana → native order ExplodeColor (chosen target uses colour) -> quarter Mana if enemy has a Doom -> damage |  |
 | 2026-09-28T21:38 | sa-F | L3-F-7311 | data | 8923 | troop:7311 OrpheusPriestess | `src/engine/skills/curated/batch-r19.ts`<br>`src/data/gowSnapshotOverrides.json` | ZH: all allies → ZH: all other allies; behaviour unchanged |  |
 | 2026-09-28T21:38 | sa-F | L3-F-6998 | data | 8501 | troop:6998 WilliTheAnchor | `src/engine/skills/curated/batch-r20.ts`<br>`src/data/gowSnapshotOverrides.json` | ZH machine translation (淹没自己 / 额外的转向) → ZH: submerge self, sink to the back, extra turn; behaviour unchanged |  |
+| 2026-09-28T21:40 | sa-F | L3-F-6996 | assembler | 8523 | troop:6996 TheEmperor | `src/engine/skills/curated/batch-r15.ts`<br>`src/data/gowSnapshotOverrides.json` | Attack/Armor/Magic only; ZH garbled → all four Skills incl. Life (native IncreaseAllStats); ZH rewritten |  |
 
 ## 按技能 ID
 
@@ -1099,6 +1100,7 @@
 | 8513 | 2 | L1-E-kingdom-summon-raw、P-E-faction-kingdom |
 | 8514 | 2 | L1-E-kingdom-summon-raw、P-E-faction-kingdom |
 | 8515 | 2 | L1-E-kingdom-summon-raw、P-E-faction-kingdom |
+| 8523 | 1 | L3-F-6996 |
 | 8525 | 1 | L4a-r3-7018 |
 | 8528 | 1 | F2-R001-order |
 | 8529 | 2 | L1-E-kingdom-summon-raw、L1-E-1414-desc |

@@ -749,6 +749,16 @@
   "by": "sa-R7",
   "at": "2026-09-28T09:07:29.218Z"
  },
+ "troop:6996": {
+  "lines": {
+   "L10": "buff C attack+6 ; buff C armor+6 ; buff C hp+6 max+6 ; buff C magic+6 ; extra-turn skill  => C:hp+6 max+6 arm+6 atk+6 mag+6  extra:skill",
+   "R10": "buff C attack+6 ; buff C armor+6 ; buff C hp+6 max+6 ; buff C magic+6 ; extra-turn skill  => C:hp+6 max+6 arm+6 atk+6 mag+6  extra:skill",
+   "L0": "buff C attack+1 ; buff C armor+1 ; buff C hp+1 max+1 ; buff C magic+1 ; extra-turn skill  => C:hp+1 max+1 arm+1 atk+1 mag+1  extra:skill",
+   "K": "buff C attack+6 ; buff C armor+6 ; buff C hp+6 max+6 ; buff C magic+6 ; extra-turn skill  => C:hp+6 max+6 arm+6 atk+6 mag+6  extra:skill"
+  },
+  "by": "sa-F",
+  "at": "2026-09-28T21:40:39.760Z"
+ },
  "troop:6998": {
   "lines": {
    "L10": "gold+11 ; status C +submerged ; move C back ; extra-turn skill  => C:+submerged  extra:skill  eco:{\"gold\":11,\"goldMine\":11}",
@@ -1449,6 +1459,16 @@
   "by": "sa-R7",
   "at": "2026-09-28T08:47:28.689Z"
  },
+ "troop:7584": {
+  "lines": {
+   "L10": "gold+11 ; buff A1 mana+4 ; buff A2 mana+4  => A1:mana+4 | A2:mana+4  eco:{\"gold\":11,\"goldMine\":11}",
+   "R10": "gold+11 ; buff A1 mana+4 ; buff A2 mana+4  => A1:mana+4 | A2:mana+4  eco:{\"gold\":11,\"goldMine\":11}",
+   "L0": "gold+1 ; buff A1 mana+4 ; buff A2 mana+4  => A1:mana+4 | A2:mana+4  eco:{\"gold\":1,\"goldMine\":1}",
+   "K": "gold+11 ; buff A1 mana+4 ; buff A2 mana+4  => A1:mana+4 | A2:mana+4  eco:{\"gold\":11,\"goldMine\":11}"
+  },
+  "by": "sa-F",
+  "at": "2026-09-28T21:40:39.760Z"
+ },
  "troop:7608": {
   "lines": {
    "L10": "buff E11 mana-8 ; dmg E10 20 (all) ; dmg E11 20 (all) ; dmg E12 20 (all) ; dmg E13 20 (all)  => E11:hp-10 arm-10 mana-8 | E10:hp-15 arm-5 | E12:hp-8 arm-12 | E13:hp-17 arm-3",
@@ -1929,6 +1949,16 @@
   "by": "sa-F",
   "at": "2026-09-28T21:20:33.480Z"
  },
+ "weapon:1090": {
+  "lines": {
+   "L10": "buff C hp+100 ; extra-turn skill ; souls+11  => C:hp+100  extra:skill  eco:{\"souls\":11}",
+   "R10": "buff C hp+100 ; extra-turn skill ; souls+11  => C:hp+100  extra:skill  eco:{\"souls\":11}",
+   "L0": "buff C hp+100 ; extra-turn skill ; souls+1  => C:hp+100  extra:skill  eco:{\"souls\":1}",
+   "K": "buff C hp+100 ; extra-turn skill ; souls+11  => C:hp+100  extra:skill  eco:{\"souls\":11}"
+  },
+  "by": "sa-F",
+  "at": "2026-09-28T21:40:39.760Z"
+ },
  "weapon:1095": {
   "lines": {
    "L10": "dmg E11 12 ; buff E11 mana-8  => E11:hp-2 arm-10 mana-8",
@@ -1948,6 +1978,16 @@
   },
   "by": "sa-F1",
   "at": "2026-09-28T00:38:53.219Z"
+ },
+ "weapon:1123": {
+  "lines": {
+   "L10": "buff C hp+15 ; buff A1 hp+15 ; extra-turn skill  => C:hp+15 | A1:hp+15  extra:skill",
+   "R10": "buff C hp+15 ; buff A1 hp+15 ; extra-turn skill  => C:hp+15 | A1:hp+15  extra:skill",
+   "L0": "buff C hp+5 ; buff A1 hp+5 ; extra-turn skill  => C:hp+5 | A1:hp+5  extra:skill",
+   "K": "buff C hp+15 ; buff A1 hp+15 ; extra-turn skill  => C:hp+15 | A1:hp+15  extra:skill"
+  },
+  "by": "sa-F",
+  "at": "2026-09-28T21:40:39.760Z"
  },
  "weapon:1175": {
   "lines": {
@@ -2158,6 +2198,16 @@
   },
   "by": "sa-B",
   "at": "2026-09-28T12:52:12.441Z"
+ },
+ "weapon:1395": {
+  "lines": {
+   "L10": "buff A1 armor+11 ; buff A1 mana+4  => A1:arm+11 mana+4",
+   "R10": "buff A1 armor+11 ; buff A1 mana+4  => A1:arm+11 mana+4",
+   "L0": "buff A1 armor+1 ; buff A1 mana+4  => A1:arm+1 mana+4",
+   "K": "buff A1 armor+11 ; buff A1 mana+4  => A1:arm+11 mana+4"
+  },
+  "by": "sa-F",
+  "at": "2026-09-28T21:40:39.760Z"
  },
  "weapon:1460": {
   "lines": {

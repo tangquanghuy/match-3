@@ -372,6 +372,11 @@
       "spellId": 8501,
       "reason": "sa-F: English Willi the Anchor 'Submerge myself, sink to the bottom and gain an extra turn' (native CauseSubmerged, TroopOrderBack, ExtraTurn); old Chinese was machine-translated (drown / extra steering).",
       "spellDescription": "获得 [魔法 + 1] 黄金。使自身下潜，沉到队尾并获得一个额外回合。"
+    },
+    "6996": {
+      "spellId": 8523,
+      "reason": "sa-F: English The Emperor 'Give [(Magic / 2) + 1] to all Skills on the first Ally. There is a 7% chance of an extra turn for each Blue Gem' ; old Chinese was garbled machine translation.",
+      "spellDescription": "给予第一名盟友 [(魔法 / 2) + 1] 点所有技能值。棋盘上每有一颗蓝色宝石，就有 7% 的几率获得一个额外回合。 [x7]"
     }
   }
 }

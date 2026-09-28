@@ -10,3 +10,4 @@
 - B09 troop:7778,weapon:1632,weapon:1633,weapon:1634,weapon:1635 approve=5 fixed=5 issue=0 (7778 Dispel=positives not Bleed, all before damage + ZH; Doomed ranged x4 explode/mana before damage, chosenTargetColor, overrides synced)
 - B10 weapon:1636,weapon:1637,troop:6561,troop:7165,troop:7388 approve=5 fixed=2 issue=0 (Doomed Balliste/Sauterelle native order like B09; 7388 chosen row = native Target Board + BoardTarget Row)
 - B11 troop:6137,troop:6213,troop:7311,troop:7531,troop:6998 approve=5 fixed=2 issue=0 (7311/6998 ZH; 7531 Liora condition tested)
+- B12 troop:7584,weapon:1123,weapon:1090,troop:6996,weapon:1395 approve=5 fixed=1 issue=0 (6996 all Skills incl. Life + ZH)

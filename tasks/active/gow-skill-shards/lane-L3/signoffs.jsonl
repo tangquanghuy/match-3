@@ -271,3 +271,8 @@
 {"format":"compact","key":"troop:7311","decision":"accept","reviewer":"sa-F","reviewedAt":"2026-09-28T21:38:31.156Z","tests":["tests/unit/gowCastGolden.test.ts"],"note":"sa-F B11; 6137 catalogue ZH lacks 'random' but combatText (displayed) has it"}
 {"format":"compact","key":"troop:7531","decision":"accept","reviewer":"sa-F","reviewedAt":"2026-09-28T21:38:31.156Z","tests":["tests/unit/gowCastGolden.test.ts"],"note":"sa-F B11; 6137 catalogue ZH lacks 'random' but combatText (displayed) has it"}
 {"format":"compact","key":"troop:6998","decision":"accept","reviewer":"sa-F","reviewedAt":"2026-09-28T21:38:31.156Z","tests":["tests/unit/gowCastGolden.test.ts"],"note":"sa-F B11; 6137 catalogue ZH lacks 'random' but combatText (displayed) has it"}
+{"format":"compact","key":"troop:7584","decision":"accept","reviewer":"sa-F","reviewedAt":"2026-09-28T21:40:39.861Z","tests":["tests/unit/gowCastGolden.test.ts"],"note":"sa-F B12"}
+{"format":"compact","key":"weapon:1123","decision":"accept","reviewer":"sa-F","reviewedAt":"2026-09-28T21:40:39.862Z","tests":["tests/unit/gowCastGolden.test.ts"],"note":"sa-F B12"}
+{"format":"compact","key":"weapon:1090","decision":"accept","reviewer":"sa-F","reviewedAt":"2026-09-28T21:40:39.862Z","tests":["tests/unit/gowCastGolden.test.ts"],"note":"sa-F B12"}
+{"format":"compact","key":"troop:6996","decision":"accept","reviewer":"sa-F","reviewedAt":"2026-09-28T21:40:39.863Z","tests":["tests/unit/gowCastGolden.test.ts"],"note":"sa-F B12"}
+{"format":"compact","key":"weapon:1395","decision":"accept","reviewer":"sa-F","reviewedAt":"2026-09-28T21:40:39.863Z","tests":["tests/unit/gowCastGolden.test.ts"],"note":"sa-F B12"}
