@@ -8,7 +8,7 @@ import { createHash } from 'node:crypto';
 import { COMMUNITY_DEFENSES } from '../../src/meta/data/communityDefenses';
 import { INVASION_DIFFICULTIES, invasionDefenseLevel, buildTieredDefense, invasionPoolLeague } from '../../src/meta/data/invasionDifficulty';
 import { buildBracket, invasionCandidates, planInvasionBattle } from '../../src/meta/systems/invasion';
-import { buildDemoSave } from '../../src/meta/gateway/demo';
+import { buildDemoSave } from '../../src/meta/server/demo';
 import { getTroopById, knownTroopTypes } from '../../src/data/troops';
 import { buildMetaRegistry, enemyToSnapshot, metaKnownTraitIds } from '../../src/meta/systems/battleBridge';
 import { BANNERS } from '../../src/meta/data/banners';

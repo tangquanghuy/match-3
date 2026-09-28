@@ -12,8 +12,7 @@ import {
   pickManaMastery,
   spentMasteryPoints,
 } from '../../src/meta/systems/manaMastery';
-import { SaveStore } from '../../src/meta/state/save';
-import { memoryStorage } from '../../src/meta/gateway/mockGateway';
+import { parseSaveJson, serializeSave } from '../../src/meta/state/save';
 
 const save = () => newSave({ now: 1_700_000_000_000, starterTroopIds: [6000, 6097, 6457] });
 
@@ -67,8 +66,7 @@ describe('法力精通存档与加点', () => {
     const s = save();
     addHeroXp(s, 9999);
     pickManaMastery(s, s.hero.masteryOffers[0]![0]);
-    const store = new SaveStore(memoryStorage(), 't');
-    const loaded = store.importJson(store.exportJson(s));
+    const loaded = parseSaveJson(serializeSave(s));
     expect(loaded.hero.manaMastery).toEqual(s.hero.manaMastery);
     expect(loaded.hero.masteryOffers).toEqual(s.hero.masteryOffers);
   });

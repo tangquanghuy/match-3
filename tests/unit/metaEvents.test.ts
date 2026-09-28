@@ -2,9 +2,10 @@
  * 六种常驻活动：独立主题与周实例、出敌校验、积分与里程碑入账、周切重置。
  */
 import { describe, it, expect } from 'vitest';
+import { weekStartOf as weekStartOfGame } from '../../src/meta/gateway/clock';
 import { newSave } from '../../src/meta/state/schema';
 import { migrateSave } from '../../src/meta/state/save';
-import { MockGateway, memoryStorage } from '../../src/meta/gateway/mockGateway';
+import { MockGateway, memoryStorage } from '../../src/meta/gateway';
 import { weekStartOf } from '../../src/meta/gateway/clock';
 import { EventsScreen } from '../../src/meta/screens/eventsScreen';
 import type { ShellCtx } from '../../src/meta/shell/screen';
@@ -142,16 +143,13 @@ describe('活动实例与出敌（systems/events）', () => {
     }
   });
 
-  it('v2 轮值周记录只迁入原活动，坏索引与异店已购在 hydrate 时丢弃', () => {
+  it('活动周实例：坏索引与异店已购在 hydrate 时丢弃', () => {
     const raw = JSON.parse(JSON.stringify(newSave({ now: 0 }))) as Record<string, unknown>;
-    raw.version = 2;
-    delete raw.eventWeeks;
-    // WEEK 在旧 6 周轮换中的索引为 2（末日之塔）。
-    raw.eventWeek = {
+    raw.eventWeeks = { towerOfDoom: {
       weekStart: WEEK, points: 345, claimed: [0, 1, 1, -1, 6, 1.5], wins: 3,
       tokens: 35, bought: { tod_scroll: 1, invasion_major: 3 },
       eventData: { floor: 6 }, runTeam: [{ externalId: 'p0-6000', hp: 8, defeated: false }],
-    };
+    } };
     const migrated = migrateSave(raw);
     expect(migrated.eventWeeks.towerOfDoom).toMatchObject({ weekStart: WEEK, points: 345, claimed: [0, 1], tokens: 35, tokensEarned: 35, bought: { tod_scroll: 1 } });
     expect(migrated.eventWeeks.towerOfDoom?.runTeam?.[0]).toMatchObject({ hp: 8, maxHp: 8 });
@@ -171,12 +169,13 @@ describe('活动实例与出敌（systems/events）', () => {
   });
 
   it('网关可在同一周为六页分别生成所属活动的战斗来源', async () => {
-    const gateway = new MockGateway(memoryStorage());
+    const gateway = new MockGateway(memoryStorage(), { now: () => WEEK });
     await gateway.load();
     for (const { id } of EVENT_TYPES) {
-      const planned = await gateway.planEventBattle(0, WEEK, id);
+      const planned = await gateway.planEventBattle(id);
       expect(planned.ok, id).toBe(true);
-      if (planned.ok) expect(planned.plan.source).toMatchObject({ kind: 'event', weekStart: WEEK, typeId: id });
+      // 周锚点由核心按服务器时钟推导（游戏时区周一零点）
+      if (planned.ok) expect(planned.source).toMatchObject({ kind: 'event', weekStart: weekStartOfGame(WEEK), typeId: id });
     }
   });
 

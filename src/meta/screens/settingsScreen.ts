@@ -626,6 +626,9 @@ export class SettingsScreen implements Screen {
       ? `当前显示的是修改后的收集，共 ${fmt(owned)} 张。真实收集 ${fmt(realOwned)} 张另外保存着，解锁和还原初始都不会覆盖它。`
       : `当前就是真实收集，共 ${fmt(owned)} 张。点解锁或还原初始之前，会先把这份进度另存。`;
     const kingdomOptions = kingdoms.map((name) => `<option value="${escapeAttr(name)}"${name === selected ? ' selected' : ''}>${escapeAttr(name)}</option>`).join('');
+    // 开发者工具（导入/演示档/修改器/调试）只有本地后端提供；远端后端整块不渲染
+    const dev = ctx.gateway.dev !== null;
+    const remote = ctx.gateway.backend === 'remote';
     return `
       <style id="settingsScreenCss">${SETTINGS_CSS}</style>
       ${topbarHtml()}
@@ -634,7 +637,7 @@ export class SettingsScreen implements Screen {
           <header class="settings-page-head">
             <div><h1>偏好与存档</h1></div>
             <div class="settings-head-actions">
-              <span class="settings-local-state"><span data-icon="check"></span><b>本机自动保存</b><small>当前进度已启用</small></span>
+              <span class="settings-local-state"><span data-icon="check"></span>${remote ? '<b>云端存档</b><small>已绑定 Discord 账号</small>' : '<b>本机自动保存</b><small>当前进度已启用</small>'}</span>
               <button class="secondary" id="settingsBack" type="button"><span data-icon="arrow"></span>返回地图</button>
             </div>
           </header>
@@ -656,17 +659,17 @@ export class SettingsScreen implements Screen {
                   <span class="setting-copy"><b>快速释放</b><small>点击法力值已满的角色直接释放技能；长按查看详情</small></span>
                   <input type="checkbox" id="skipCastConfirm" aria-label="快速释放"${skipCastConfirm() ? ' checked' : ''}>
                 </label>
-                <details class="settings-dev-options">
+                ${dev ? `<details class="settings-dev-options">
                   <summary>开发者选项</summary>
                   <label class="check-row">
                     <span class="setting-copy"><span class="setting-title-row"><b>战斗调试钩子</b><span class="dev-tag">开发者选项</span></span><small>只记录调试输出，不改变玩法数值</small></span>
                     <input type="checkbox" id="battleDebug" aria-label="战斗调试钩子">
                   </label>
-                </details>
+                </details>` : ''}
               </div>
             </section>
 
-            <section class="panel settings-modifier-panel">
+            ${dev ? `<section class="panel settings-modifier-panel">
               <div class="panel-head"><div><h2>收集修改器</h2></div></div>
               <div class="panel-inner settings-body">
                 <p class="settings-note modifier-status">${modifierStatus}</p>
@@ -678,14 +681,16 @@ export class SettingsScreen implements Screen {
                 </div>
                 <p class="settings-note">初始收集是新档的三张破碎尖塔普通卡。修改期间新开出来的卡会记进真实收集；在修改状态下升级的等级，还原后回到打开修改器之前。</p>
               </div>
-            </section>
+            </section>` : ''}
 
             <section class="panel settings-save-panel">
               <div class="panel-head"><div><h2>存档管理</h2></div></div>
               <div class="panel-inner settings-body">
                 <p class="settings-note">
-                  进度保存在这台设备的浏览器里（当前：<b>${digestLine(cur)}</b>）。<br>
-                  清理浏览器数据会一并清掉存档；换设备或重装前，请先导出一份。
+                  ${remote
+                    ? `进度保存在服务器，绑定你的 Discord 账号（当前：<b>${digestLine(cur)}</b>）。换设备登录同一账号即可继续。`
+                    : `进度保存在这台设备的浏览器里（当前：<b>${digestLine(cur)}</b>）。<br>
+                  清理浏览器数据会一并清掉存档；换设备或重装前，请先导出一份。`}
                 </p>
                 ${notice}
                 <div class="settings-row">
@@ -695,14 +700,14 @@ export class SettingsScreen implements Screen {
                 </div>
                 <textarea id="saveText" spellcheck="false" placeholder="导出的存档 JSON 会显示在这里；也可粘贴存档文本，再读取并校验。"></textarea>
 
-                <div class="settings-subhead"><div><h2>导入存档</h2></div></div>
+                ${dev ? `<div class="settings-subhead"><div><h2>导入存档</h2></div></div>
                 <div class="warn-line"><span data-icon="lock"></span><span>导入会<b>覆盖现在的进度</b>且不可撤销。先读取并校验，确认预览无误再覆盖。</span></div>
                 <div class="settings-row">
                   <button class="secondary" id="pickFileBtn" type="button"><span data-icon="chest"></span>选择存档文件…</button>
                   <button class="secondary" id="validateBtn" type="button">读取并校验文本框内容</button>
                   <input type="file" id="saveFile" accept="application/json,.json" hidden>
                 </div>
-                <div id="importPreview"></div>
+                <div id="importPreview"></div>` : ''}
               </div>
             </section>
 
@@ -715,7 +720,7 @@ export class SettingsScreen implements Screen {
                 </div>
                 <div class="settings-row">
                   <button class="danger-btn" id="resetNew" type="button"><span data-icon="skull"></span><span id="resetNewLabel">重置为全新档</span></button>
-                  <button class="danger-btn" id="resetDemo" type="button"><span data-icon="skull"></span><span id="resetDemoLabel">重置为演示档</span></button>
+                  ${dev ? '<button class="danger-btn" id="resetDemo" type="button"><span data-icon="skull"></span><span id="resetDemoLabel">重置为演示档</span></button>' : ''}
                 </div>
                 <p class="settings-note">首次点击只会进入待确认状态，5 秒后自动取消。</p>
               </div>
@@ -736,7 +741,8 @@ export class SettingsScreen implements Screen {
     mountIcons(document);
     this.syncPlayerPreferenceControls();
     ($('#skipCastConfirm') as HTMLInputElement).checked = skipCastConfirm();
-    ($('#battleDebug') as HTMLInputElement).checked = ctx.save().settings.battleDebug;
+    const debugToggle = $('#battleDebug') as HTMLInputElement | null;
+    if (debugToggle) debugToggle.checked = ctx.save().settings.battleDebug;
 
     this.bind('#exportBtn', 'click', () => {
       ($('#saveText') as HTMLTextAreaElement).value = this.prettyJson();
@@ -892,8 +898,10 @@ export class SettingsScreen implements Screen {
   private async doImport(): Promise<void> {
     if (!this.pending) return;
     const { text, digest } = this.pending;
+    const dev = this.ctx.gateway.dev;
+    if (!dev) return;
     try {
-      await this.ctx.gateway.importSaveJson(text);
+      await dev.importSaveJson(text);
       // S-3：反馈放在 refresh **之后**（改前 toast 被整屏重建冲掉，成功比失败更让人困惑）
       this.notice = { kind: 'ok', text: `<b>导入成功</b>：当前进度已是 ${digestLine(digest)}。` };
       this.pending = null;
@@ -906,7 +914,9 @@ export class SettingsScreen implements Screen {
   private async unlockKingdom(): Promise<void> {
     const kingdom = ($('#collectionKingdom') as HTMLSelectElement).value;
     this.modifierKingdom = kingdom;
-    const { result } = await this.ctx.gateway.applyCollectionModifier({ kind: 'unlock-kingdom', kingdom });
+    const dev = this.ctx.gateway.dev;
+    if (!dev) return;
+    const { result } = await dev.applyCollectionModifier({ kind: 'unlock-kingdom', kingdom });
     if (!result.ok) {
       this.showResult('bad', result.message);
       return;
@@ -920,7 +930,9 @@ export class SettingsScreen implements Screen {
   }
 
   private async restoreCollection(kind: 'restore-real' | 'restore-initial'): Promise<void> {
-    const { result } = await this.ctx.gateway.applyCollectionModifier({ kind });
+    const dev = this.ctx.gateway.dev;
+    if (!dev) return;
+    const { result } = await dev.applyCollectionModifier({ kind });
     if (!result.ok) return;
     this.notice = {
       kind: 'ok',
@@ -933,7 +945,9 @@ export class SettingsScreen implements Screen {
 
   private async toggleDebug(): Promise<void> {
     const on = ($('#battleDebug') as HTMLInputElement).checked;
-    await this.ctx.gateway.setBattleDebug(on);
+    const dev = this.ctx.gateway.dev;
+    if (!dev) return;
+    await dev.setBattleDebug(on);
     toast(on ? '战斗调试已开启（开发者选项）。' : '战斗调试已关闭。');
   }
 
@@ -1013,7 +1027,9 @@ export class SettingsScreen implements Screen {
       return;
     }
     this.armed = null;
-    const snapshot = demo ? await this.ctx.gateway.resetToDemo() : await this.ctx.gateway.resetToNewGame();
+    const dev = this.ctx.gateway.dev;
+    if (demo && !dev) return;
+    const snapshot = demo && dev ? await dev.resetToDemo() : await this.ctx.gateway.resetToNewGame();
     toast(snapshot.warning ? `已重置：${snapshot.warning}` : `已重置为${label}。`);
     this.ctx.navigate('#map');
   }

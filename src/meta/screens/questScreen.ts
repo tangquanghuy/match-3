@@ -4,7 +4,7 @@
  * 公主连结式：王国风景上铺编号节点，顶栏 NORMAL / HARD / VERY HARD。
  * 主线 8 关线性推进；Hard 3 关 + Very Hard 3 关在主线通关后可重复刷。
  */
-import { isFailure } from '../gateway';
+import { isFailure, gameNow } from '../gateway';
 import { getTroopById } from '../../data/troops';
 import {
   EXPLORE_MAX_TIER,
@@ -223,7 +223,7 @@ export class QuestScreen implements Screen {
     const save = ctx.save();
     this.kingdomEntry = save.kingdoms[this.kingdom];
     const view = kingdomViewOf(this.kingdom);
-    const state = kingdomNodeState(save, this.kingdom, Date.now());
+    const state = kingdomNodeState(save, this.kingdom, gameNow());
     const art = ART[view.biome] ?? ART.spire!;
 
     if (state.locked) {
@@ -393,7 +393,7 @@ export class QuestScreen implements Screen {
     const rewards = $('#qdRewards');
     if (rewards) rewards.innerHTML = questRewardsHtml(this.kingdom, this.mode, node, ctx.save().kingdoms[this.kingdom]);
     const fight = $('#questFight') as HTMLButtonElement | null;
-    const state = kingdomNodeState(ctx.save(), this.kingdom, Date.now());
+    const state = kingdomNodeState(ctx.save(), this.kingdom, gameNow());
     if (fight) {
       fight.disabled = !this.canFight(state.exploreUnlocked, state.nextNode, node);
       $('#qdFightLabel').textContent = this.fightLabel(state.nextNode, !fight.disabled);
@@ -408,7 +408,7 @@ export class QuestScreen implements Screen {
   }
 
   private async fight(ctx: ShellCtx): Promise<void> {
-    const state = kingdomNodeState(ctx.save(), this.kingdom, Date.now());
+    const state = kingdomNodeState(ctx.save(), this.kingdom, gameNow());
     if (!this.canFight(state.exploreUnlocked, state.nextNode, this.selectedNode)) return;
     if (this.mode === 'normal') {
       await ctx.launchQuest(this.kingdom, this.selectedNode);

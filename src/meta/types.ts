@@ -27,7 +27,9 @@ export type MetaErrorCode =
   | 'ALREADY_UNLOCKED' // 特质已解锁
   | 'LOCKED' // 分解保护中
   | 'NO_TEAM' // 没有可用出战队伍
-  | 'SOLD_OUT'; // 活动商店限量货架已售罄（素材批 2026-09-19）
+  | 'SOLD_OUT'
+  | 'FORBIDDEN' // 当前后端不允许的操作（如远端拒绝开发者命令）
+  | 'CONFLICT'; // 存档已被其他设备更新（乐观锁冲突），刷新后重试 // 活动商店限量货架已售罄（素材批 2026-09-19）
 
 /** 失败结果：code 供程序分支，message 供界面直接展示 */
 export interface MetaFailure {

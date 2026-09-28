@@ -6,7 +6,7 @@
  * 详情页 = 左栏（主视觉 + 本周进度 + 奖励/兑换入口）+ 右栏（专属状态区 + 本场战术与出战）。
  * 样式见 styles/events.css（本页不再加载 live.css）。
  */
-import { isFailure, weekStartOf } from '../gateway';
+import { isFailure, weekStartOf, gameNow } from '../gateway';
 import {
   EVENT_MILESTONES,
   EVENT_ROTATION,
@@ -101,7 +101,7 @@ export class EventsScreen implements Screen {
   private countdownTimer: number | null = null;
 
   html(ctx: ShellCtx, param?: string): string {
-    const now = Date.now();
+    const now = gameNow();
     const weekStart = weekStartOf(now);
     const save = ctx.save();
     if (!eventsUnlocked(save)) {
@@ -409,8 +409,7 @@ export class EventsScreen implements Screen {
     this.bind('#evConfirmAbandon', 'click', () => {
       const button = $('#evConfirmAbandon') as HTMLButtonElement;
       button.disabled = true;
-      const now = Date.now();
-      void ctx.gateway.abandonTowerRun(weekStartOf(now)).then(({ result }) => {
+      void ctx.gateway.abandonTowerRun().then(({ result }) => {
         if (isFailure(result)) {
           button.disabled = false;
           toast(result.message);
@@ -436,7 +435,7 @@ export class EventsScreen implements Screen {
     const labels = [...root.querySelectorAll<HTMLElement>('[data-event-countdown]')];
     if (labels.length === 0) return;
     const update = (): void => {
-      const now = Date.now();
+      const now = gameNow();
       if (labels.some((label) => now >= Number(label.dataset.resetAt))) {
         if (this.countdownTimer !== null) window.clearInterval(this.countdownTimer);
         this.countdownTimer = null;

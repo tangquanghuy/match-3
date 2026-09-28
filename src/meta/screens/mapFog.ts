@@ -127,24 +127,3 @@ export class MapFog {
     cancelAnimationFrame(this.raf);
   }
 }
-
-const SEEN_KEY = 'gems.meta.fogSeenLevel';
-
-/** 上次在地图上「看过」的冒险者等级（揭幕只播新开放的王国）；首次进入返回 null */
-export function fogSeenLevel(): number | null {
-  try {
-    const raw = localStorage.getItem(SEEN_KEY);
-    const n = raw == null ? NaN : Number(raw);
-    return Number.isFinite(n) ? n : null;
-  } catch {
-    return null;
-  }
-}
-
-export function markFogSeen(level: number): void {
-  try {
-    localStorage.setItem(SEEN_KEY, String(level));
-  } catch {
-    /* 隐私模式等：揭幕每次都不播，不影响功能 */
-  }
-}

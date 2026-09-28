@@ -6,6 +6,7 @@ import { enemyStatsAtLevel, enemyEncounterStats, enemyTraitCount } from '../../s
 import { invasionCandidates, invasionStandings, invasionVictoryVp, ensureInvasionSeason, planInvasionBattle, settleInvasionBattle } from '../../src/meta/systems/invasion';
 import { enemyToSnapshot } from '../../src/meta/systems/battleBridge';
 import { buildDemoSave, MockGateway, memoryStorage, weekStartOf } from '../../src/meta/gateway';
+import { SaveStore } from '../../src/meta/state/save';
 import { getTroopById } from '../../src/data/troops';
 import { manaLinkScore, troopStrategy } from '../../src/meta/data/troopStrategy';
 import type { BattleResult, BattleRequest } from '../../src/session/contract';
@@ -19,7 +20,7 @@ function batch(league: number, slot: number, multiplier: FrenzyMultiplier) {
   for (let i=0;i<10000;i++) { const r=rollInvasionFrenzy(WEEK,league,i); if(r?.slot===slot && r.multiplier===multiplier)return i; }
   throw new Error('fixture not found');
 }
-const result = (request: BattleRequest): BattleResult => ({schemaVersion:1, rulesetVersion:'test', requestId:request.requestId,
+const result = (request: BattleRequest): BattleResult => ({schemaVersion:1, rulesetVersion:request.rulesetVersion, requestId:request.requestId,
   battleId:request.battleId, seed:request.seed, winner:'player', turns:2, combatants:[], defeatedExternalIds:[],
   summonedCount:0, actionLogDigest:'', eventSummary:[]});
 
@@ -76,16 +77,18 @@ describe('random invasion frenzy', () => {
     }
   });
   it('frenzy survives save reload and a loss gives no bonus VP', async () => {
-    const storage=memoryStorage(); const g=new MockGateway(storage); await g.load(); await g.syncInvasionSeason(WEEK,WEEK);
-    const save=g.current(); save.invasion.refreshCount=batch(save.invasion.league,2,2);
-    await g.syncInvasionSeason(WEEK,WEEK); // Persist fixture through the real gateway.
+    const storage=memoryStorage(); const env={now:()=>WEEK};
+    const g=new MockGateway(storage,env); await g.load(); await g.syncInvasionSeason();
+    // 客户端副本改了不算数：夹具直接写进存储介质（相当于服务端数据）
+    const save=structuredClone(g.current()); save.invasion.refreshCount=batch(save.invasion.league,2,2);
+    new SaveStore(storage).persist(save);
     const m=invasionCandidates(save,WEEK,WEEK)[2]!;
-    const next=new MockGateway(storage); await next.load();
+    const next=new MockGateway(storage,env); await next.load();
     expect(invasionCandidates(next.current(),WEEK,WEEK)[2]).toEqual(m);
-    const plan=await next.planInvasionBattle(m.id,WEEK,WEEK); if(!plan.ok)throw new Error(plan.message);
+    const plan=await next.planInvasionBattle(m.id); if(!plan.ok)throw new Error(plan.message);
     const before=next.current().invasion.progressionVp;
-    const out=await next.settleInvasionBattle({...result(plan.request),winner:'enemy'},m.id,WEEK,WEEK,WEEK);
-    expect(out.result).toMatchObject({ok:true,vpDelta:0});
+    const out=await next.settleBattle({...result(plan.request),winner:'enemy'});
+    expect(out.result).toMatchObject({ok:true,settled:{vpDelta:0}});
     expect(next.current().invasion.progressionVp).toBe(before);
   });
 });

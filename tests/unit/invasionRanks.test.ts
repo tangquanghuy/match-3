@@ -12,7 +12,7 @@ import type { BattleResult, BattleRequest } from '../../src/session/contract';
 const WEEK = weekStartOf(1726444800000);
 const fresh = () => { const s = buildDemoSave(WEEK); s.hero.level = 100; ensureInvasionSeason(s, WEEK, WEEK); return s; };
 const result = (request?: BattleRequest): BattleResult => ({
-  schemaVersion: 1, rulesetVersion: 'test', requestId: request?.requestId ?? 'test', battleId: request?.battleId ?? 'test',
+  schemaVersion: 1, rulesetVersion: request?.rulesetVersion ?? 'test', requestId: request?.requestId ?? 'test', battleId: request?.battleId ?? 'test',
   seed: 123, winner: 'player', turns: 8, combatants: [], defeatedExternalIds: [], summonedCount: 0, actionLogDigest: '', eventSummary: [],
 });
 
@@ -98,24 +98,25 @@ describe('free unlimited rerolls and gateway persistence', () => {
     expect(s.invasion.battles).toBe(0); expect(s.invasion.progressionVp).toBe(0);
   });
   it('refreshes and claims survive reload; stale opponents and double battle settlement are rejected', async () => {
-    const storage = memoryStorage(); const g = new MockGateway(storage); await g.load();
-    await g.syncInvasionSeason(WEEK, WEEK);
+    const storage = memoryStorage(); const env = { now: () => WEEK };
+    const g = new MockGateway(storage, env); await g.load();
+    await g.syncInvasionSeason();
     const old = invasionCandidates(g.current(), WEEK, WEEK)[0]!;
-    await g.refreshInvasionOpponents(WEEK, WEEK);
-    expect((await g.planInvasionBattle(old.id, WEEK, WEEK)).ok).toBe(false);
-    expect((await g.claimInvasionRank('rank-0', WEEK, WEEK)).result.ok).toBe(true);
+    await g.refreshInvasionOpponents();
+    expect((await g.planInvasionBattle(old.id)).ok).toBe(false);
+    expect((await g.claimInvasionRank('rank-0', WEEK)).result.ok).toBe(true);
     const before = structuredClone(g.current());
-    const next = new MockGateway(storage); await next.load();
+    const next = new MockGateway(storage, env); await next.load();
     expect(next.current().invasion.refreshCount).toBe(1);
     expect(next.current().currencies.gems).toBe(before.currencies.gems);
-    expect((await next.claimInvasionRank('rank-0', WEEK, WEEK)).result.ok).toBe(false);
+    expect((await next.claimInvasionRank('rank-0', WEEK)).result.ok).toBe(false);
     const mirror = invasionCandidates(next.current(), WEEK, WEEK)[0]!;
-    const plan = await next.planInvasionBattle(mirror.id, WEEK, WEEK);
+    const plan = await next.planInvasionBattle(mirror.id);
     expect(plan.ok).toBe(true); if (!plan.ok) return;
     const r = result(plan.request);
-    expect((await next.settleInvasionBattle(r, mirror.id, WEEK, WEEK, WEEK)).result.ok).toBe(true);
+    expect((await next.settleBattle(r)).result.ok).toBe(true);
     const after = structuredClone(next.current());
-    expect((await next.settleInvasionBattle(r, mirror.id, WEEK, WEEK, WEEK)).result.ok).toBe(false);
+    expect((await next.settleBattle(r)).result.ok).toBe(false);
     expect(next.current()).toEqual(after);
   });
   it('rejects opponent identities from previous weeks and leagues', () => {
@@ -134,10 +135,12 @@ describe('free unlimited rerolls and gateway persistence', () => {
     expect(planInvasionBattle(s, nextWeek.id, 123, WEEK + WEEK_MS, WEEK + WEEK_MS).ok).toBe(true);
   });
   it('a battle spanning a weekly reset credits the launched encounter once to the new week', async () => {
-    const g = new MockGateway(memoryStorage()); await g.load(); await g.syncInvasionSeason(WEEK, WEEK);
+    let clock = WEEK;
+    const g = new MockGateway(memoryStorage(), { now: () => clock }); await g.load(); await g.syncInvasionSeason();
     const mirror = invasionCandidates(g.current(), WEEK, WEEK)[0]!;
-    const plan = await g.planInvasionBattle(mirror.id, WEEK, WEEK); if (!plan.ok) throw new Error(plan.message);
-    const out = await g.settleInvasionBattle(result(plan.request), mirror.id, WEEK + WEEK_MS, WEEK + WEEK_MS, WEEK + WEEK_MS);
+    const plan = await g.planInvasionBattle(mirror.id); if (!plan.ok) throw new Error(plan.message);
+    clock = WEEK + WEEK_MS;
+    const out = await g.settleBattle(result(plan.request));
     expect(out.result.ok).toBe(true); expect(g.current().invasion.weekStart).toBe(WEEK + WEEK_MS);
     expect(g.current().invasion.progressionVp).toBe(invasionVictoryVp(mirror)); expect(g.current().invasion.vp).toBe(invasionVictoryVp(mirror));
   });
@@ -163,34 +166,42 @@ describe('weekly 6000 gem pace', () => {
     expect(s.currencies.gems - before).toBe(6000);
   });
   it('resets a stale claims page once, persists it, and rejects backdated resets', async () => {
-    const storage = memoryStorage(); const g = new MockGateway(storage); await g.load();
-    await g.syncInvasionSeason(WEEK, WEEK);
-    expect((await g.claimInvasionRank('rank-0', WEEK, WEEK)).result.ok).toBe(true);
+    let clock = WEEK;
+    const storage = memoryStorage(); const g = new MockGateway(storage, { now: () => clock }); await g.load();
+    await g.syncInvasionSeason();
+    expect((await g.claimInvasionRank('rank-0', WEEK)).result.ok).toBe(true);
     const balance = g.current().currencies.gems;
-    expect((await g.claimInvasionRank('rank-0', WEEK + WEEK_MS, WEEK)).result.ok).toBe(false);
+    clock = WEEK + WEEK_MS;
+    // 屏上还是上周的官阶页：拒绝领取，且失败命令不改任何状态
+    expect((await g.claimInvasionRank('rank-0', WEEK)).result.ok).toBe(false);
     expect(g.current().currencies.gems).toBe(balance);
-    expect(g.current().invasion.claimedRanks).toEqual([]);
-    expect((await g.claimInvasionRank('rank-0', WEEK + WEEK_MS, WEEK + WEEK_MS)).result.ok).toBe(true);
-    expect((await g.claimInvasionRank('rank-0', WEEK + WEEK_MS, WEEK + WEEK_MS)).result.ok).toBe(false);
-    await g.syncInvasionSeason(WEEK, WEEK);
-    await g.syncInvasionSeason(WEEK + WEEK_MS, WEEK + WEEK_MS);
     expect(g.current().invasion.claimedRanks).toEqual(['rank-0']);
-    const reloaded = new MockGateway(storage); await reloaded.load();
+    await g.syncInvasionSeason();
+    expect(g.current().invasion.claimedRanks).toEqual([]);
+    expect((await g.claimInvasionRank('rank-0', WEEK + WEEK_MS)).result.ok).toBe(true);
+    expect((await g.claimInvasionRank('rank-0', WEEK + WEEK_MS)).result.ok).toBe(false);
+    // 时钟回拨也不会倒退赛季
+    clock = WEEK; await g.syncInvasionSeason();
+    clock = WEEK + WEEK_MS; await g.syncInvasionSeason();
+    expect(g.current().invasion.claimedRanks).toEqual(['rank-0']);
+    const reloaded = new MockGateway(storage, { now: () => clock }); await reloaded.load();
     expect(reloaded.current().invasion.weekStart).toBe(WEEK + WEEK_MS);
     expect(reloaded.current().currencies.gems).toBe(balance + 50);
   });
   it('a weekly sync during a launched battle retains new-week rewards and credits the original encounter once', async () => {
-    const g = new MockGateway(memoryStorage()); await g.load(); await g.syncInvasionSeason(WEEK, WEEK);
+    let clock = WEEK;
+    const g = new MockGateway(memoryStorage(), { now: () => clock }); await g.load(); await g.syncInvasionSeason();
     const m = invasionCandidates(g.current(), WEEK, WEEK)[2]!;
-    const plan = await g.planInvasionBattle(m.id, WEEK, WEEK); if (!plan.ok) throw new Error(plan.message);
-    await g.syncInvasionSeason(WEEK + WEEK_MS, WEEK + WEEK_MS);
-    await g.claimInvasionRank('rank-0', WEEK + WEEK_MS, WEEK + WEEK_MS);
+    const plan = await g.planInvasionBattle(m.id); if (!plan.ok) throw new Error(plan.message);
+    clock = WEEK + WEEK_MS;
+    await g.syncInvasionSeason();
+    await g.claimInvasionRank('rank-0', WEEK + WEEK_MS);
     const balance = g.current().currencies.gems;
-    const out = await g.settleInvasionBattle(result(plan.request), m.id, WEEK + WEEK_MS, WEEK + WEEK_MS, WEEK + WEEK_MS);
-    expect(out.result).toMatchObject({ok:true, vpDelta:invasionVictoryVp(m)});
+    const out = await g.settleBattle(result(plan.request));
+    expect(out.result).toMatchObject({ok:true, kind:'invasion', settled:{vpDelta:invasionVictoryVp(m)}});
     expect(g.current().invasion.progressionVp).toBe(invasionVictoryVp(m));
     expect(g.current().invasion.claimedRanks).toEqual(['rank-0']);
     expect(g.current().currencies.gems).toBe(balance);
-    expect((await g.settleInvasionBattle(result(plan.request), m.id, WEEK + WEEK_MS, WEEK + WEEK_MS, WEEK + WEEK_MS)).result.ok).toBe(false);
+    expect((await g.settleBattle(result(plan.request))).result.ok).toBe(false);
   });
 });

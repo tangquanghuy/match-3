@@ -9,7 +9,9 @@ import { restoreRealCollection, unlockKingdomTroops } from '../../src/meta/syste
 describe('设置页收集修改器：社区王国', () => {
   it('下拉选项包含时空裂隙，而地图王国列表保持不变', () => {
     const save = newSave({ now: 0, starterTroopIds: [6000] });
-    const html = new SettingsScreen().html({ save: () => save } as ShellCtx);
+    // 修改器属开发者工具：只有带 dev 的本地后端才渲染
+    const gateway = { backend: 'local', dev: {} } as unknown as ShellCtx['gateway'];
+    const html = new SettingsScreen().html({ save: () => save, gateway } as ShellCtx);
     const options = html.match(/<select id="collectionKingdom"[^>]*>(.*?)<\/select>/s)?.[1];
 
     expect(options).toContain(`<option value="${COMMUNITY_KINGDOM}">${COMMUNITY_KINGDOM}</option>`);

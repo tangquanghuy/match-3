@@ -3,10 +3,10 @@
  * 用内存 StorageLike，不碰浏览器 localStorage。
  */
 import { describe, expect, it } from 'vitest';
-import { MockGateway, memoryStorage } from '../../src/meta/gateway/mockGateway';
-import { buildDemoSave } from '../../src/meta/gateway/demo';
-import { HOUR_MS, todayStartOf } from '../../src/meta/gateway/clock';
-import { isFailure } from '../../src/meta/gateway';
+import { MockGateway, memoryStorage } from '../../src/meta/gateway';
+import { buildDemoSave } from '../../src/meta/server/demo';
+import { HOUR_MS, todayStartOf, weekStartOf } from '../../src/meta/gateway/clock';
+import { isFailure, type BattleTicket } from '../../src/meta/gateway';
 import { allKingdoms } from '../../src/meta/data/kingdoms';
 import { currentDraftChoices } from '../../src/meta/systems/arena';
 import type { BattleResult } from '../../src/session/contract';
@@ -109,23 +109,24 @@ describe('MockGateway', () => {
     if (!poor.result.ok) expect(poor.result.code).toBe('INSUFFICIENT');
   });
 
-  it('王国：进贡按离线小时结算且幂等（收取后归零）', async () => {
-    const gw = new MockGateway(memoryStorage());
+  it('王国：进贡按服务器时钟的离线小时结算且幂等（收取后归零）', async () => {
+    let clock = 1_700_000_000_000;
+    const gw = new MockGateway(memoryStorage(), { now: () => clock });
     const { save } = await gw.load();
-    const now = save.kingdoms['破碎尖塔']!.lastTributeAt + 5 * HOUR_MS;
-    const first = await gw.collectKingdomTribute('破碎尖塔', now);
+    clock = save.kingdoms['破碎尖塔']!.lastTributeAt + 5 * HOUR_MS;
+    const first = await gw.collectKingdomTribute('破碎尖塔');
     expect(first.result.hours).toBe(5);
     expect(first.result.hits).toBeGreaterThanOrEqual(0);
-    const second = await gw.collectKingdomTribute('破碎尖塔', now);
+    const second = await gw.collectKingdomTribute('破碎尖塔');
     expect(second.result.hours).toBe(0);
     expect(second.result.gold).toBe(0);
   });
 
   it('竞技场整环：黄金报名 → 四轮选卡 → 编队 → 出敌计划 → 两败收官发奖', async () => {
-    const gw = new MockGateway(memoryStorage());
-    await gw.load();
     const now = 1_700_000_000_000;
-    const entered = await gw.enterArena(now, now - 2 * DAY);
+    const gw = new MockGateway(memoryStorage(), { now: () => now });
+    await gw.load();
+    const entered = await gw.enterArena();
     expect(entered.result).toBe(false); // 正常黄金报名
 
     // 三轮三选一（选项从当前 draft 状态读，种子在网关内部）
@@ -150,21 +151,39 @@ describe('MockGateway', () => {
     if (!plan.ok) return;
     expect(plan.request.playerTeam.length).toBeGreaterThan(0);
 
-    const settled = await gw.settleArenaBattle(
-      fakeResult({ winner: 'enemy', defeatedExternalIds: [] }),
-    );
-    expect(settled.result.ok).toBe(true);
-    if (!settled.result.ok) return;
-    expect(settled.result.victory).toBe(false);
-    expect(settled.result.runOver).toBe(false); // 第一次失败仍可继续
-    const second = await gw.settleArenaBattle(fakeResult({ winner: 'enemy', defeatedExternalIds: [] }));
-    expect(second.result).toMatchObject({ ok: true, runOver: true, losses: 2 });
+    const settled = await gw.settleBattle(fakeResult({ ...ticketIds(plan), winner: 'enemy' }));
+    // 第一次失败仍可继续
+    expect(settled.result).toMatchObject({ ok: true, kind: 'arena', settled: { victory: false, runOver: false } });
+    // 同一张票不能结算两次
+    expect((await gw.settleBattle(fakeResult({ ...ticketIds(plan), winner: 'enemy' }))).result.ok).toBe(false);
+    const plan2 = await gw.planArenaBattle();
+    if (!plan2.ok) throw new Error(plan2.message);
+    const second = await gw.settleBattle(fakeResult({ ...ticketIds(plan2), winner: 'enemy' }));
+    expect(second.result).toMatchObject({ ok: true, kind: 'arena', settled: { runOver: true, losses: 2 } });
     expect(gwSave(gw).arena.activeDraft).toBeNull();
-    expect(todayStartOf(now)).toBeLessThanOrEqual(now);
   });
 
-  it('任务战斗闭环：出敌计划过校验，胜利结算推进任务并发奖励', async () => {
-    const gw = new MockGateway(memoryStorage());
+  it('游戏时区固定 UTC+8：日界/周界与运行环境时区无关', () => {
+    // 2026-09-28（周一）00:00 北京时间 = 2026-09-27T16:00Z
+    const mondayCst = Date.UTC(2026, 8, 27, 16);
+    expect(todayStartOf(mondayCst + 5 * HOUR_MS)).toBe(mondayCst);
+    expect(todayStartOf(mondayCst - 1)).toBe(mondayCst - DAY);
+    expect(weekStartOf(mondayCst + 6 * DAY + 23 * HOUR_MS)).toBe(mondayCst);
+    expect(weekStartOf(mondayCst - 1)).toBe(mondayCst - 7 * DAY);
+  });
+
+  it('开发者命令：本地后端可用；远端（allowDev=false）拒绝', async () => {
+    const local = new MockGateway(memoryStorage());
+    await local.load();
+    expect(local.dev).not.toBeNull();
+    const locked = new MockGateway(memoryStorage(), { allowDev: false });
+    await locked.load();
+    expect(locked.dev).toBeNull();
+  });
+
+  it('任务战斗闭环：出战票 → 结算，推进任务并发奖励', async () => {
+    const storage = memoryStorage();
+    const gw = new MockGateway(storage);
     await gw.load(); // 演示档：推进序第 3 个王国 questsDone=5 → 下一关 6
     const kingdom = allKingdoms()[2]!;
     expect(gwSave(gw).kingdoms[kingdom]?.questsDone).toBe(5);
@@ -174,14 +193,31 @@ describe('MockGateway', () => {
     if (!plan.ok) return;
     expect(plan.request.enemyTeam.length).toBeGreaterThan(0);
 
-    const detail = await gw.applyBattleSettlement(
-      fakeResult({ winner: 'player', defeatedExternalIds: [...plan.enemyByExternalId.keys()] }),
-      { plan: plan.plan, enemyByExternalId: plan.enemyByExternalId, todayStart: todayStartOf(Date.now()) },
-    );
-    expect(detail.result.victory).toBe(true);
-    expect(detail.result.questProgress).toEqual({ from: 5, to: 6 });
-    expect(detail.result.lines.length).toBeGreaterThan(0);
+    expect(plan).toMatchObject({ mode: 'quest', kingdom, source: { kind: 'quest', node: 6 } });
+
+    // 票不符（伪造 requestId）直接拒绝，不动存档
+    const forged = await gw.settleBattle(fakeResult({ ...ticketIds(plan), requestId: 'forged' }));
+    expect(forged.result.ok).toBe(false);
+    expect(gwSave(gw).kingdoms[kingdom]?.questsDone).toBe(5);
+
+    // 客户端只回传 BattleResult：击杀对账用的出敌表来自核心登记的票据
+    const enemyIds = plan.request.enemyTeam.map((e) => e.externalId);
+    const out = await gw.settleBattle(fakeResult({ ...ticketIds(plan), winner: 'player', defeatedExternalIds: enemyIds }));
+    if (!out.result.ok || out.result.kind !== 'encounter') throw new Error('expected encounter settlement');
+    const detail = out.result.detail;
+    expect(detail.victory).toBe(true);
+    expect(detail.questProgress).toEqual({ from: 5, to: 6 });
+    expect(detail.lines.length).toBeGreaterThan(0);
     expect(gwSave(gw).kingdoms[kingdom]?.questsDone).toBe(6);
+    expect(gwSave(gw).pendingBattle).toBeNull();
+
+    // 出战票随存档持久化：刷新页面后仍可结算
+    const again = await gw.planQuestBattle(kingdom, 7);
+    if (!again.ok) throw new Error(again.message);
+    const reloaded = new MockGateway(storage);
+    await reloaded.load();
+    const late = await reloaded.settleBattle(fakeResult({ ...ticketIds(again), winner: 'player' }));
+    expect(late.result.ok).toBe(true);
   });
 
   it('设置：导入导出往返一致；至少保留一支预设队', async () => {
@@ -189,7 +225,8 @@ describe('MockGateway', () => {
     await gw.load();
     const json = gw.exportSaveJson();
     const other = new MockGateway(memoryStorage());
-    const imported = await other.importSaveJson(json);
+    await other.load();
+    const imported = await other.dev!.importSaveJson(json);
     expect(imported.save.hero.level).toBe(20);
 
     const removed = await gw.deleteTeam(0);
@@ -212,7 +249,9 @@ describe('MockGateway', () => {
     const storage = memoryStorage();
     const gw = new MockGateway(storage);
     await gw.load();
+    // 客户端副本改了不影响权威状态
     gwSave(gw).materialsUnread = true;
+    expect((await new MockGateway(storage).load()).save.materialsUnread).toBe(false);
     const cleared = await gw.markMaterialsSeen();
     expect(cleared.result).toBe(false);
     expect(gwSave(gw).materialsUnread).toBe(false);
@@ -221,7 +260,12 @@ describe('MockGateway', () => {
   });
 });
 
-/** 网关当前权威存档（测试断言用） */
+/** 网关当前存档（客户端副本；每条命令回执后刷新） */
 function gwSave(gw: MockGateway): MetaSave {
-  return gw['save'];
+  return gw.current();
+}
+
+/** 结算回传必须带上票据里的 requestId / 规则版本 */
+function ticketIds(ticket: BattleTicket): Pick<BattleResult, 'requestId' | 'battleId' | 'rulesetVersion'> {
+  return { requestId: ticket.request.requestId, battleId: ticket.request.battleId, rulesetVersion: ticket.request.rulesetVersion };
 }

@@ -93,7 +93,7 @@ export class HuntScreen implements Screen {
   private async start(ctx: ShellCtx): Promise<void> {
     if (this.busy) return;
     this.busy = true;
-    const begun = await ctx.gateway.startTreasureHunt(ctx.gateway.nextSeed());
+    const begun = await ctx.gateway.startTreasureHunt();
     this.busy = false;
     ctx.refreshChrome();
     if (isFailure(begun.result)) {

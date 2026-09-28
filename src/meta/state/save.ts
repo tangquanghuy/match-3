@@ -1,4 +1,4 @@
-import { INVASION_RANKS, invasionRankAt } from '../data/invasionRanks';
+﻿import { INVASION_RANKS, invasionRankAt } from '../data/invasionRanks';
 import { getTroopById } from '../../data/troops';
 import { ARENA } from '../data/economy';
 import { hydrateWishlist, hydrateGachaAudit } from '../systems/wishlist';
@@ -8,14 +8,16 @@ import { hydrateWishlist, hydrateGachaAudit } from '../systems/wishlist';
  *  - 存储介质抽象为 StorageLike：浏览器 localStorage 与测试内存实现通用，逻辑零 DOM；
  *  - 双槽防损：每次写盘前把主槽旧内容滚入 `.bak`，主槽损坏自动回退备份（计划 §3.3）；
  *  - 版本迁移链：schema 不兼容变化时在 MIGRATIONS 追加 `v→v+1` 步骤；
- *  - 节级降级重建：单节损坏只丢该节、其余保留（hydrateSave），彻底损坏才回退新档。
+ *  - 节级降级重建：单节损坏只丢该节、其余保留（hydrateSave），彻底损坏才回退新档；
+ *  - 本文件与 localStorage 无关的部分（migrate/hydrate/parse/serialize）同样被
+ *    服务端复用：D1 里存的就是 serializeSave 的产物。
  */
-import { META_SAVE_VERSION, newSave, type EventShopState, type EventWeekState, type GachaLogEntry, type InvasionState, type KingdomState, type MetaSave, type TeamMember, type TeamPreset, type TroopRecord } from './schema';
-import { EVENT_MILESTONES, EVENT_SHOP, EVENT_TYPES, EVENT_WEEKLY_PLAY_REWARD_CAP, WEEK_MS, type EventTypeId } from '../data/events';
+import { META_SAVE_VERSION, newSave, type EventShopState, type EventWeekState, type GachaLogEntry, type InvasionState, type KingdomState, type MetaSave, type PendingBattle, type TeamMember, type TeamPreset, type TroopRecord } from './schema';
+import { EVENT_MILESTONES, EVENT_SHOP, EVENT_TYPES, EVENT_WEEKLY_PLAY_REWARD_CAP, type EventTypeId } from '../data/events';
 import { EXPLORE_MAX_TIER, KINGDOM_ORDER } from '../data/kingdoms';
 import { STARTER_CLASS_ID } from '../data/classes';
 import { GACHA_LOG_CAP } from './schema';
-import { STARTING_KINGDOM, starterTroopIds } from '../data/economy';
+import { STARTING_KINGDOM } from '../data/economy';
 import { hydrateManaMastery } from '../systems/manaMastery';
 
 export interface StorageLike {
@@ -31,113 +33,14 @@ export class MetaSaveError extends Error {
   }
 }
 
+/**
+ * 迁移链：MIGRATIONS[v] 把 version v 的存档升到 v+1。
+ * 上线前基线为 v4（历史 v1~v3 迁移已删除）；上线后的不兼容变化在这里追加步骤。
+ */
 type Migration = (raw: Record<string, unknown>) => Record<string, unknown>;
-
-/**
- * v1 的 8 职业是设计虚构（早期 M5 蓝本），v2 换官方 38 职业后把进度重映射过去：
- * 有官方同名的直接保留（knight/necromancer/sorcerer），其余按定位就近映射，
- * 对应武器 id 同步改名；映射表外的前向兼容字段一律丢 给 hydrate 重建。
- */
-const V2_CLASS_REMAP: Record<string, string> = {
-  knight: 'knight',
-  necromancer: 'necromancer',
-  sorcerer: 'sorcerer',
-  berserker: 'warrior',
-  cleric: 'priest',
-  rogue: 'thief',
-  druid: 'warden',
-  ranger: 'archer',
-};
-const V2_WEAPON_REMAP: Record<string, string> = {
-  w_berserker_10: 'w_warlord_10',
-  w_berserker_20: 'w_warlord_20',
-  w_cleric_10: 'w_priest_10',
-  w_cleric_20: 'w_priest_20',
-  w_rogue_10: 'w_thief_10',
-  w_rogue_20: 'w_thief_20',
-  w_druid_10: 'w_warden_10',
-  w_druid_20: 'w_warden_20',
-  w_ranger_10: 'w_archer_10',
-  w_ranger_20: 'w_archer_20',
-  w_necro_10: 'w_necromancer_10',
-  w_necro_20: 'w_necromancer_20',
-  w_sorc_10: 'w_sorcerer_10',
-  w_sorc_20: 'w_sorcerer_20',
-};
-
-/** MIGRATIONS[v] 把 version v 的存档升到 v+1（v1 是首个版本：下标 0 恒空） */
 const MIGRATIONS: Migration[] = [];
-MIGRATIONS[1] = (raw) => {
-  const hero = raw.hero;
-  if (isObject(hero)) {
-    const remapId = (id: unknown): unknown =>
-      typeof id === 'string' ? (V2_CLASS_REMAP[id] ?? null) : null;
-    if (isObject(hero.classLevels)) hero.classLevels = remapKeys(hero.classLevels, V2_CLASS_REMAP);
-    if (isObject(hero.classXp)) hero.classXp = remapKeys(hero.classXp, V2_CLASS_REMAP);
-    if (isObject(hero.classWins)) hero.classWins = remapKeys(hero.classWins, V2_CLASS_REMAP);
-    if (Array.isArray(hero.unlockedClasses)) {
-      hero.unlockedClasses = [
-        ...new Set(hero.unlockedClasses.map(remapId).filter((v): v is string => typeof v === 'string')),
-      ];
-    }
-    if (Array.isArray(hero.unlockedWeapons)) {
-      hero.unlockedWeapons = [
-        ...new Set(
-          hero.unlockedWeapons.map((w) =>
-            typeof w === 'string' ? (V2_WEAPON_REMAP[w] ?? w) : null,
-          ).filter((w): w is string => typeof w === 'string'),
-        ),
-      ];
-    }
-    if (typeof hero.equippedWeapon === 'string') {
-      hero.equippedWeapon = V2_WEAPON_REMAP[hero.equippedWeapon] ?? hero.equippedWeapon;
-    }
-    if (typeof hero.classId === 'string') hero.classId = remapId(hero.classId);
-    delete hero.talentSpent;
-  }
-  return raw;
-};
-
-/**
- * v2 时代的 6 周轮换顺序（**冻结快照，勿改**）。
- * 迁移步骤必须自带历史口径：v3 之后 `EVENT_TYPES` 是「常驻词表」，
- * 它的下标不再有「第 N 周轮值」的含义，拿它反推旧档会解释错。
- */
-const V3_LEGACY_ROTATION: readonly EventTypeId[] = [
-  'invasion', 'raidBoss', 'towerOfDoom', 'factionAssault', 'worldEvent', 'classTrials',
-];
-
-/**
- * v2 → v3：`eventWeek`（六活动共用的单实例）→ `eventWeeks`（每活动一份）。
- * 旧实例按它自己的 weekStart 还原出「当时的轮值活动」归档到该活动名下，
- * 其余五个活动无历史、从零开始（全开放是新功能，不伪造进度）。
- */
-MIGRATIONS[2] = (raw) => {
-  const legacy = raw.eventWeek;
-  const eventWeeks: Record<string, unknown> = {};
-  if (isObject(legacy)) {
-    const weekStart = typeof legacy.weekStart === 'number' && Number.isFinite(legacy.weekStart) ? legacy.weekStart : 0;
-    const idx = Math.floor(weekStart / WEEK_MS);
-    const typeId = V3_LEGACY_ROTATION[
-      ((idx % V3_LEGACY_ROTATION.length) + V3_LEGACY_ROTATION.length) % V3_LEGACY_ROTATION.length
-    ]!;
-    eventWeeks[typeId] = legacy;
-  }
-  raw.eventWeeks = eventWeeks;
-  delete raw.eventWeek;
-  return raw;
-};
-
-function remapKeys(
-  record: Record<string, unknown>,
-  map: Record<string, string>,
-): Record<string, unknown> {
-  const out: Record<string, unknown> = {};
-  for (const [key, value] of Object.entries(record)) {
-    out[map[key] ?? key] = value;
-  }
-  return out;
-}
+/** 最早仍可读取的版本；更旧的存档视为损坏（上线前不背历史包袱） */
+const OLDEST_READABLE_VERSION = META_SAVE_VERSION;
 
 function isObject(v: unknown): v is Record<string, unknown> {
   return v != null && typeof v === 'object' && !Array.isArray(v);
@@ -165,19 +68,23 @@ function bool(v: unknown, fallback: boolean): boolean {
 }
 
 /** 解析 + 迁移 + 节级补默认。任何一步失败抛 MetaSaveError，由调用方决定回退策略。 */
-export function migrateSave(raw: unknown): MetaSave {
+/** 解析 + 迁移 + 节级补默认。任何一步失败抛 MetaSaveError，由调用方决定回退策略。 */
+export function migrateSave(raw: unknown, now = 0): MetaSave {
   if (!isObject(raw)) throw new MetaSaveError('存档根不是对象');
   const version = typeof raw.version === 'number' ? Math.floor(raw.version) : -1;
   if (version > META_SAVE_VERSION) {
     throw new MetaSaveError(`存档版本 ${version} 高于当前支持的 ${META_SAVE_VERSION}`);
   }
+  if (version < OLDEST_READABLE_VERSION) {
+    throw new MetaSaveError(`存档版本 ${version} 过旧（最低支持 ${OLDEST_READABLE_VERSION}）`);
+  }
   let cur = raw;
   for (let v = version; v < META_SAVE_VERSION; v++) {
     const step = MIGRATIONS[v];
-    if (!step) break; // 缺失迁移步骤按 v1 口径尽力水合
+    if (!step) throw new MetaSaveError(`缺少 v${v} → v${v + 1} 迁移步骤`);
     cur = step(cur);
   }
-  return hydrateSave(cur);
+  return hydrateSave(cur, now);
 }
 
 function sanitizeTroopRecord(v: unknown): TroopRecord | null {
@@ -283,8 +190,7 @@ function sanitizeKingdom(v: unknown): KingdomState | null {
  * 节级水合：顶层每节用模板兜底，结构合法的数据原样保留，损坏的条目丢弃。
  * 存档总体可读但局部损坏时，玩家只丢损坏节，不至于整档报废。
  */
-export function hydrateSave(raw: Record<string, unknown>): MetaSave {
-  const now = Date.now();
+export function hydrateSave(raw: Record<string, unknown>, now = 0): MetaSave {
   const base = newSave({ now, currencies: {}, starterTeamName: null });
 
   const currencies = { ...base.currencies };
@@ -535,6 +441,9 @@ export function hydrateSave(raw: Record<string, unknown>): MetaSave {
     version: META_SAVE_VERSION,
     createdAt: num(raw.createdAt, now, 0),
     savedAt: num(raw.savedAt, now, 0),
+    revision: num(raw.revision, 0, 0),
+    pendingBattle: hydratePendingBattle(raw.pendingBattle),
+    mapSeenLevel: typeof raw.mapSeenLevel === 'number' && Number.isFinite(raw.mapSeenLevel) ? Math.max(0, Math.floor(raw.mapSeenLevel)) : null,
     currencies,
     hero,
     collection,
@@ -566,6 +475,20 @@ export function hydrateSave(raw: Record<string, unknown>): MetaSave {
   };
 }
 
+/**
+ * 待结算战斗票：只由权威核心写入，这里只保形状（形状不对 = 丢票，玩家重开一场即可）。
+ * 票内的出敌计划/镜像是核心自己算出来的，不做逐字段清洗。
+ */
+function hydratePendingBattle(raw: unknown): PendingBattle | null {
+  if (!isObject(raw) || typeof raw.requestId !== 'string' || typeof raw.issuedAt !== 'number') return null;
+  if (raw.mode === 'arena') return { mode: 'arena', requestId: raw.requestId, issuedAt: raw.issuedAt };
+  if (raw.mode === 'encounter' && isObject(raw.plan) && isObject(raw.enemies)) {
+    return raw as unknown as PendingBattle;
+  }
+  if (raw.mode === 'invasion' && isObject(raw.mirror)) return raw as unknown as PendingBattle;
+  return null;
+}
+
 const ONBOARDING_STEPS = ['battle', 'gift', 'summon', 'done'] as const;
 
 /** 旧档没有引导字段：视为已完成；没抽过宝石箱的旧档仍可用一次新手十连。 */
@@ -589,16 +512,16 @@ function hydrateGifts(raw: unknown, eventWeeks: MetaSave['eventWeeks']): MetaSav
 }
 
 export interface LoadResult {
-  save: MetaSave;
-  /** true = 存储为空或完全损坏，给的是新档 */
-  fresh: boolean;
-  /** 非 null = 发生了降级（主槽损坏回退备份 / 双槽皆损重建），UI 应告知玩家 */
+  /** null = 存储为空或双槽皆损（由调用方决定建什么样的新档） */
+  save: MetaSave | null;
+  /** 非 null = 发生了降级（主槽损坏回退备份 / 双槽皆损），UI 应告知玩家 */
   warning: string | null;
 }
 
 /**
- * 存档门面。key 默认 `gems.meta.save`；`.bak` 后缀是自动维护的备份槽。
- * 浏览器侧用法：`new SaveStore(window.localStorage)`。
+ * 本地存档介质（本地后端专用；远端后端的存储在 D1）。
+ * key 默认 `gems.meta.save`；`.bak` 后缀是自动维护的备份槽。
+ * 只管读写与防损，不改存档内容（savedAt/revision 由权威核心维护）。
  */
 export class SaveStore {
   constructor(
@@ -606,12 +529,7 @@ export class SaveStore {
     private readonly key = 'gems.meta.save',
   ) {}
 
-  /** 新档给起始内容（起始王国普通卡队 + 初始货币），保证「新档即可出战」。 */
-  private freshSave(): MetaSave {
-    return newSave({ now: Date.now(), starterTroopIds: starterTroopIds() });
-  }
-
-  load(): LoadResult {
+  load(now = 0): LoadResult {
     let warning: string | null = null;
     for (const [slot, label] of [
       [this.key, '主槽'],
@@ -620,40 +538,35 @@ export class SaveStore {
       const text = this.storage.getItem(slot);
       if (!text) continue;
       try {
-        const save = migrateSave(JSON.parse(text) as unknown);
+        const save = migrateSave(JSON.parse(text) as unknown, now);
         if (warning) warning = `${warning}；已回退${label}`;
-        return { save, fresh: false, warning };
+        return { save, warning };
       } catch {
         warning = warning ? `${warning}；${label}损坏` : `${label}损坏`;
       }
     }
-    return {
-      save: this.freshSave(),
-      fresh: true,
-      warning: warning === null ? null : `${warning}，已重建新档`,
-    };
+    return { save: null, warning };
   }
 
-  /** 落盘并刷新 savedAt；写前把主槽旧内容滚入备份槽 */
+  /** 落盘；写前把主槽旧内容滚入备份槽 */
   persist(save: MetaSave): void {
-    save.savedAt = Date.now();
     const prev = this.storage.getItem(this.key);
     if (prev != null) this.storage.setItem(`${this.key}.bak`, prev);
-    this.storage.setItem(this.key, this.exportJson(save));
+    this.storage.setItem(this.key, serializeSave(save));
   }
+}
 
-  exportJson(save: MetaSave): string {
-    return JSON.stringify(save);
-  }
+export function serializeSave(save: MetaSave): string {
+  return JSON.stringify(save);
+}
 
-  /** 导入导出口径一致；结构问题抛 MetaSaveError 由设置屏展示 */
-  importJson(text: string): MetaSave {
-    let parsed: unknown;
-    try {
-      parsed = JSON.parse(text) as unknown;
-    } catch {
-      throw new MetaSaveError('不是合法 JSON');
-    }
-    return migrateSave(parsed);
+/** 导入导出口径一致；结构问题抛 MetaSaveError */
+export function parseSaveJson(text: string, now = 0): MetaSave {
+  let parsed: unknown;
+  try {
+    parsed = JSON.parse(text) as unknown;
+  } catch {
+    throw new MetaSaveError('不是合法 JSON');
   }
+  return migrateSave(parsed, now);
 }

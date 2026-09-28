@@ -23,10 +23,11 @@ async function rewindTribute(page: Page, hours: number): Promise<void> {
   await page.evaluate(async (h) => {
     const load = (path: string) => import(/* @vite-ignore */ path);
     const { metaGateway } = await load('/src/meta/gateway/index.ts');
-    const gw = metaGateway() as { exportSaveJson(): string; importSaveJson(t: string): Promise<unknown> };
+    // 导入存档属开发者工具（本地后端的 gateway.dev）
+    const gw = metaGateway() as { exportSaveJson(): string; dev: { importSaveJson(t: string): Promise<unknown> } };
     const save = JSON.parse(gw.exportSaveJson()) as { kingdoms: Record<string, { lastTributeAt: number }> };
     for (const k of Object.values(save.kingdoms)) k.lastTributeAt = Date.now() - h * 3_600_000;
-    await gw.importSaveJson(JSON.stringify(save));
+    await gw.dev.importSaveJson(JSON.stringify(save));
   }, hours);
   await page.reload();
 }

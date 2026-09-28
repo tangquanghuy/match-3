@@ -7,7 +7,7 @@ import { RARITY_CLASS_NAMES as RARITY_CLS } from '../data/rarity';
 import { getTroopById } from '../../data/troops';
 import { troopStatsAtLevel } from '../../data/leveling';
 import { currentDraftChoices, arenaOpponentPreview, arenaUnlocked } from '../systems/arena';
-import { isFailure, weekStartOf } from '../gateway';
+import { isFailure } from '../gateway';
 import { bottomNavHtml, gemSvg, mountIcons, toast, toastHtml, topbarHtml, $, $$ } from '../shell/chrome';
 import { renderSpell } from '../shell/spellText';
 import type { Screen, ShellCtx } from '../shell/screen';
@@ -433,8 +433,7 @@ export class ArenaScreen implements Screen {
   }
 
   private async enter(): Promise<void> {
-    const now = Date.now();
-    const { result } = await this.ctx.gateway.enterArena(now, weekStartOf(now));
+    const { result } = await this.ctx.gateway.enterArena();
     if (isFailure(result)) {
       toast(result.message);
       return;

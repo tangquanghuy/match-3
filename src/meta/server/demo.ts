@@ -1,5 +1,5 @@
 /**
- * 演示档构建（mock 网关专用）。
+ * 演示档构建（本地开发后端专用；远端后端只允许 dev.resetToDemo 在 allowDev 下调用）。
  *
  * 目标：外壳首次进入就有一份「能玩起来」的进度——货币充裕、每王国前 2 名部队在册、
  * 首两个王国任务链全通（解锁骑士/狂战士）、若干进贡气泡可收。
@@ -20,7 +20,7 @@ import { setTeamPreset } from '../systems/teamRules';
 import { temperWeaponOnSave } from '../systems/forgeOps';
 import { STARTER_WEAPON_ID } from '../data/weapons';
 import { STARTING_KINGDOM } from '../data/economy';
-import { HOUR_MS } from './clock';
+import { HOUR_MS } from '../gateway/clock';
 
 /** 演示档 hero 等级锚点（约 35 场胜利的进度；恰好开放每周活动） */
 const DEMO_HERO_LEVEL = 20;

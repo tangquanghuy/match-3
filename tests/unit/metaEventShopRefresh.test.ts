@@ -1,8 +1,8 @@
 import { describe, expect, it } from 'vitest';
 import { newSave } from '../../src/meta/state/schema';
-import { migrateSave } from '../../src/meta/state/save';
+import { migrateSave, SaveStore } from '../../src/meta/state/save';
 import { weekStartOf } from '../../src/meta/gateway/clock';
-import { MockGateway, memoryStorage } from '../../src/meta/gateway/mockGateway';
+import { buildDemoSave, MockGateway, memoryStorage } from '../../src/meta/gateway';
 import { EVENT_SHOP, EVENT_TYPES } from '../../src/meta/data/events';
 import { eventShopPeriodOf } from '../../src/meta/systems/eventShopClock';
 import { buyEventGoods, ensureEventWeek, eventShopOf } from '../../src/meta/systems/events';
@@ -100,17 +100,22 @@ describe('两天商店独立周期', () => {
     expect(save).toEqual(before);
   });
 
-  it('网关使用传入实际时间，持久化两天库存而非按周一判断', async () => {
+  it('网关按服务器时钟结算，持久化两天库存而非按周一判断', async () => {
     const storage=memoryStorage();
-    const gw=new MockGateway(storage);
-    const save=(await gw.load()).save;
-    ensureEventWeek(save,WEEK,'invasion').tokens=200;
+    // 夹具直接写进存储介质（客户端副本改了不算数）
+    const seeded=buildDemoSave(NOW); ensureEventWeek(seeded,WEEK,'invasion').tokens=200;
+    new SaveStore(storage).persist(seeded);
+    let clock=NOW;
+    const gw=new MockGateway(storage,{now:()=>clock});
+    await gw.load();
     const goods=EVENT_SHOP.invasion.find(goods=>goods.stock===1)!;
     const period=eventShopPeriodOf(NOW);
-    expect((await gw.buyEventGoods(goods.id,NOW,WEEK,'invasion',period.start)).result.ok).toBe(true);
-    expect((await gw.buyEventGoods(goods.id,at(25),WEEK,'invasion',period.start)).result).toMatchObject({ok:false,code:'SOLD_OUT'});
-    expect((await gw.buyEventGoods(goods.id,at(26),WEEK,'invasion',eventShopPeriodOf(at(26)).start)).result.ok).toBe(true);
-    const loaded=(await new MockGateway(storage).load()).save;
+    expect((await gw.buyEventGoods(goods.id,'invasion',period.start)).result.ok).toBe(true);
+    clock=at(25);
+    expect((await gw.buyEventGoods(goods.id,'invasion',period.start)).result).toMatchObject({ok:false,code:'SOLD_OUT'});
+    clock=at(26);
+    expect((await gw.buyEventGoods(goods.id,'invasion',eventShopPeriodOf(at(26)).start)).result.ok).toBe(true);
+    const loaded=(await new MockGateway(storage,{now:()=>clock}).load()).save;
     expect(loaded.eventShops.invasion).toMatchObject({periodStart:at(26),bought:{[goods.id]:1}});
     expect(loaded.eventWeeks.invasion?.tokens).toBe(80);
   });

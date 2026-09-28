@@ -6,8 +6,8 @@ import { DEFENSE_TEMPLATES, PVP_LEVEL_BASES, adaptiveDefensePool } from '../../s
 import { enemyTraitCount } from '../../src/meta/data/enemyDifficulty';
 import { buildBracket, invasionCandidates, planInvasionBattle } from '../../src/meta/systems/invasion';
 import { buildMetaRegistry, enemyToSnapshot } from '../../src/meta/systems/battleBridge';
-import { buildDemoSave } from '../../src/meta/gateway/demo';
-import { MockGateway, memoryStorage } from '../../src/meta/gateway/mockGateway';
+import { buildDemoSave } from '../../src/meta/server/demo';
+import { MockGateway, memoryStorage } from '../../src/meta/gateway';
 import { newSave } from '../../src/meta/state/schema';
 import { hydrateSave } from '../../src/meta/state/save';
 import { openGloryChest } from '../../src/meta/systems/gacha';
@@ -132,8 +132,8 @@ describe('official Arena lifecycle and persistence', () => {
     expect(save.materials.treasureMaps).toBe(maps + 1);
   });
   it('partial draft is persisted after every gateway selection', async () => {
-    const storage = memoryStorage(); const gw = new MockGateway(storage); await gw.load();
-    const entered = await gw.enterArena(WEEK, WEEK);
+    const storage = memoryStorage(); const gw = new MockGateway(storage, { now: () => WEEK }); await gw.load();
+    const entered = await gw.enterArena();
     const id = currentDraftChoices(entered.save)!.options[0]!.troopId;
     await gw.pickDraftCard(id);
     const reload = await new MockGateway(storage).load();

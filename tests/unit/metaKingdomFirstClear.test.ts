@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { newSave } from '../../src/meta/state/schema';
 import { hydrateSave, SaveStore } from '../../src/meta/state/save';
-import { MockGateway } from '../../src/meta/gateway/mockGateway';
+import { MockGateway } from '../../src/meta/gateway';
 import { applySettlement } from '../../src/meta/systems/settlement';
 import { planQuestEncounter, planExploreEncounter, type EncounterPlan } from '../../src/meta/systems/encounter';
 import { KINGDOM_FIRST_CLEAR_GEMS, DAILY_FIRST_WIN_GEMS } from '../../src/meta/data/economy';
@@ -68,16 +68,26 @@ describe('王国逐关独立首通宝石', () => {
   it('gateway结算落盘后重新加载，同关不再发首通', async () => {
     const storageData = new Map<string, string>();
     const storage = { getItem: (k: string) => storageData.get(k) ?? null, setItem: (k: string, v: string) => { storageData.set(k, v); } };
-    new SaveStore(storage).persist(saveWithGems());
+    const seeded = newSave({ now: 0, currencies: { gems: 0 }, starterTroopIds: [6000, 6097, 6457] });
+    seeded.kingdoms[kingdom] = { level: 1, questsDone: 8, exploreTier: 4, lastTributeAt: 0 };
+    new SaveStore(storage).persist(seeded);
+    // 走真实出战票：出敌计划由核心签发，客户端只回传结果
+    const fight = async (gw: MockGateway) => {
+      const ticket = await gw.planExploreBattle(kingdom);
+      if (!ticket.ok) throw new Error(ticket.message);
+      const { request } = ticket;
+      const out = (await gw.settleBattle({ ...win, requestId: request.requestId, battleId: request.battleId, rulesetVersion: request.rulesetVersion })).result;
+      if (!out.ok || out.kind !== 'encounter') throw new Error('expected encounter settlement');
+      return out.detail;
+    };
     const gateway = new MockGateway(storage);
     await gateway.load();
-    const context = ctx(planExploreEncounter(kingdom, 4, 1));
-    expect(reward((await gateway.applyBattleSettlement(win, context)).result)?.deltas.gems).toBe(300);
+    expect(reward(await fight(gateway))?.deltas.gems).toBe(300);
     const reloaded = new MockGateway(storage);
     const { save } = await reloaded.load();
     expect(save.kingdoms[kingdom]!.clearedExploreTiers).toEqual([4]);
     const before = save.currencies.gems;
-    expect(reward((await reloaded.applyBattleSettlement(win, context)).result)).toBeUndefined();
+    expect(reward(await fight(reloaded))).toBeUndefined();
     expect(reloaded.current().currencies.gems).toBe(before);
   });
   it('模型剩余数量从实际普通和高难度进度推导，不受选中档位影响', () => {

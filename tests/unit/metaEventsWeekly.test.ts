@@ -4,7 +4,7 @@ import { MAX_ASCENSION } from '../../src/meta/data/economy';
 import { newSave, type MetaSave } from '../../src/meta/state/schema';
 import { migrateSave } from '../../src/meta/state/save';
 import { weekStartOf } from '../../src/meta/gateway/clock';
-import { MockGateway, memoryStorage } from '../../src/meta/gateway/mockGateway';
+import { MockGateway, memoryStorage } from '../../src/meta/gateway';
 import { EVENT_TYPES, EVENT_MILESTONES, EVENT_WEEKLY_GEM_CAP, EVENT_SHOP, WEEK_MS, type EventTypeId } from '../../src/meta/data/events';
 import { ensureEventWeek, claimEventWeeklyGems, eventWeeklySummary, eventBattleReady, planEventEncounter,
   applyEventBattleModifiers, eventBattleProgress, abandonTowerRun, buyEventGoods } from '../../src/meta/systems/events';
@@ -154,10 +154,13 @@ describe('跨层队伍、营地和固定首领', () => {
     settle(s, out); expect(w.points).toBe(50);
   });
   it('网关拒绝非营地休整，且失败请求不创建登塔进行中状态', async () => {
-    const gateway = new MockGateway(memoryStorage()); const { save } = await gateway.load();
-    const out = await gateway.planEventBattle(WEEK, WEEK, 'towerOfDoom', 'rest');
-    expect(out.ok).toBe(false); expect(save.eventWeeks.towerOfDoom!.runTeam).toBeNull();
-    expect(save.eventWeeks.towerOfDoom!.eventData.runActive ?? 0).toBe(0);
+    const gateway = new MockGateway(memoryStorage(), { now: () => WEEK }); await gateway.load();
+    const out = await gateway.planEventBattle('towerOfDoom', 'rest');
+    // 失败命令整体不落盘：连本周塔实例都不会被创建
+    const save = gateway.current();
+    expect(out.ok).toBe(false); expect(save.eventWeeks.towerOfDoom?.runTeam ?? null).toBeNull();
+    expect(save.eventWeeks.towerOfDoom?.eventData.runActive ?? 0).toBe(0);
+    expect(save.pendingBattle).toBeNull();
   });
   it('25层独立递增，5层一首领，周最高层补差，重复登塔不重复发符卷', () => {
     const s = fresh(); const w = ensureEventWeek(s, WEEK, 'towerOfDoom');
