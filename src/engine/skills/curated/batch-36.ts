@@ -119,11 +119,13 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '将所有黄宝石变成超级末日骷髅。诅咒、布网并毒害最强的敌人。',
     build: skill(
       // 超级末日骷髅 = uberDoomSkull（SOP 词表对照）
+      // Native 8610 step 0 CreateGems 2 Yellow (not in EN) runs before the conversion.
+      createGems(BaseColor.Yellow, 2),
       transformToSpecial(BaseColor.Yellow, 'uberDoomSkull'),
-      // 「布网」= web（batch-34 7703 口径）；「最强的敌人」= enemyHealthiest
+      // 「布网」= web（batch-34 7703 口径）；「最强的敌人」= enemyHealthiest；Web/Poison = FromPrevious（同一目标，同分不重抽）
       inflict('curse', 'enemyHealthiest'),
-      inflict('web', 'enemyHealthiest'),
-      inflict('poison', 'enemyHealthiest'),
+      inflict('web', 'lastTarget'),
+      inflict('poison', 'lastTarget'),
     ),
   },
   {

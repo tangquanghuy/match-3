@@ -6,3 +6,5 @@
 - 2026-09-28T18:33:07 B05 troop:7257,6299,7729,7768,7814,7742,6568,6579,7408,6703 approve=10 fixed=2 issue=0 (7257 CountMax counter + zh; 7768 boost moved damage->mix + zh; status counter table tests)
 - 2026-09-28T18:38:50 B06 troop:6865,6266,6263,6262,6261,6338,7679,7832,6364,6692 approve=9 fixed=2 issue=1 (6261 Life boost; 7832 global entangle count + zh; 6692 P-B-action-status-self-count)
 - 2026-09-28T18:40:08 B07 troop:6933,7263,weapon:1231,troop:6661-6666,7325 approve=8 fixed=0 issue=2 (6933/7325 P-B-action-status-self-count)
+- 2026-09-28T18:42:55 B08 weapon:1151,troop:6408,7458,7053,7092,weapon:1526,troop:6362,7184,6697,weapon:1167 approve=9 fixed=2 issue=1 (1167 FromPrevious magic; 7092 SingleGem->CELL; 1151 P-B-action-status-self-count)
+- 2026-09-28T18:45:56 B09 troop:6223,6112,weapon:1074,troop:7199,7827,weapon:1507,troop:6890,7082,6302,7020 approve=10 fixed=2 issue=0 (6890 native 25% extra rolls; 7082 native CreateGems 2 Yellow + FromPrevious)

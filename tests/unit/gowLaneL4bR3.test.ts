@@ -304,3 +304,85 @@ describe('L4b R3 B07', () => {
     });
   }
 });
+
+describe('L4b R3 B08', () => {
+  const st = (id: string, n: number) =>
+    [0, 1, 2, 3].map(i => ({ hp: 900, maxHp: 900, armor: 0, ...(i < n ? { statuses: [{ id, turns: 99 }] } : {}) })) as never;
+  const total = (o: string[]) => dmgs(o).reduce((a, x) => a + Number(x.split(' ')[2]), 0);
+  it('troop:6408 / 7458: 2 Entangled / Webbed enemies -> 30 + 20 = 50 scatter total', () => {
+    expect(total(castSpell({ key: 'troop:6408', enemies: st('entangle', 2) }).summary.order)).toBe(50);
+    expect(total(castSpell({ key: 'troop:7458', enemies: st('web', 2) }).summary.order)).toBe(50);
+  });
+  it('troop:7053: counts enemies with a status (one enemy with 2 statuses -> +2 Purple, not +4)', () => {
+    const enemies = [{ statuses: [{ id: 'poison', turns: 99 }, { id: 'burning', turns: 99 }] }, {}, {}, {}] as never;
+    expect(castSpell({ key: 'troop:7053', enemies }).summary.gems.created.Purple).toBe(9 + 2);
+    expect(castSpell({ key: 'troop:7053' }).summary.gems.created.Purple).toBe(9 + 4);
+  });
+  it('troop:7092 / weapon:1526: the selected cell (3,3) becomes the special gem', () => {
+    for (const [key, kind, tier] of [['troop:7092', 'elementalStar', undefined], ['weapon:1526', 'wildcard', 3]] as const) {
+      const f = setupCast({ key, cell: { row: 3, col: 3 } });
+      f.cast();
+      const g = f.board.get({ row: 3, col: 3 })?.type as { kind: string; spec?: { kind: string; tier?: number } };
+      expect(g.kind).toBe('special'); expect(g.spec?.kind).toBe(kind);
+      if (tier) expect(g.spec?.tier).toBe(tier);
+    }
+  });
+  it('troop:6362: 7 chosen-colour gems; Barrier only Wargare allies', () => {
+    const r = castSpell({ key: 'troop:6362', color: BaseColor.Red, allies: [{ troopTypes: ['Wargare'] }, { troopTypes: ['Human'] }] as never }).summary;
+    expect(r.gems.created.Red).toBe(7);
+    expect(r.order.filter(x => x.startsWith('status'))).toEqual(['status C +barrier', 'status A1 +barrier']);
+  });
+  it('troop:6697: 50% chance rolls once for the whole team (all or none), both outcomes occur', () => {
+    const seen = new Set<number>();
+    for (let seed = 1; seed <= 30; seed++) {
+      const n = castSpell({ key: 'troop:6697', seed }).summary.order.filter(x => x.endsWith('+rage')).length;
+      expect([0, 3]).toContain(n); seen.add(n);
+    }
+    expect([...seen].sort()).toEqual([0, 3]);
+  });
+  it('weapon:1167: the Submerged random ally is the one that gains 1 Magic', () => {
+    for (let seed = 1; seed <= 10; seed++) {
+      const o = castSpell({ key: 'weapon:1167', seed }).summary.order;
+      const who = o.find(x => x.endsWith('+submerged'))!.split(' ')[1];
+      expect(o).toContain(`buff ${who} magic+1`);
+    }
+  });
+});
+
+describe('L4b R3 B09', () => {
+  it('troop:6112: chosen ally A2 (Red/Yellow) -> 11 gems of one of its colours; Cleanse + 17 Life to A2', () => {
+    const r = castSpell({ key: 'troop:6112', target: 2, allies: [{}, { colors: [BaseColor.Red, BaseColor.Yellow], statuses: [{ id: 'poison', turns: 99 }] as never }] }).summary;
+    const conv = r.order.find(x => x.startsWith('convert'))!;
+    expect(conv).toMatch(/-> (Red|Yellow) x11$/);
+    expect(r.order.filter(x => !x.startsWith('convert') && !x.startsWith('~') && !x.startsWith('extra'))).toEqual(['cleanse A2 -poison', 'buff A2 hp+17 max+17']);
+  });
+  it('troop:6890: 1 Bleed + 1 Death Mark guaranteed, each second one at 25% (targets may repeat)', () => {
+    let second = 0; const N = 400;
+    for (let seed = 1; seed <= N; seed++) {
+      const o = castSpell({ key: 'troop:6890', seed, enemies: [0, 1, 2, 3].map(() => ({ hp: 900, maxHp: 900, armor: 0 })) }).summary.order;
+      const bleeds = o.filter(x => x.startsWith('status') && x.endsWith('+bleed')).length;
+      const marks = o.filter(x => x.startsWith('status') && x.endsWith('+death-mark')).length;
+      expect(bleeds).toBeGreaterThanOrEqual(1); expect(marks).toBeGreaterThanOrEqual(1);
+      second += (bleeds - 1) + (marks - 1);
+    }
+    // 2N rolls at 25%, minus repeats on an already Bled/Marked enemy (no new status line): well below 50%
+    expect(second / (2 * N)).toBeGreaterThan(0.12); expect(second / (2 * N)).toBeLessThan(0.3);
+  });
+  it('troop:7082: creates 2 Yellow first (native step 0), then all 11 Yellow -> Uber Doomskulls; strongest = Life + Armor', () => {
+    expect(castSpell({ key: 'troop:7082' }).summary.order.slice(0, 2)).toEqual(['convert Blue x1, Green x1 -> Yellow x2', 'convert Yellow x11 -> uberDoomSkull x11']);
+    const enemies = [{ hp: 100, armor: 0 }, { hp: 500, maxHp: 500, armor: 450 }, { hp: 100, armor: 0 }, { hp: 900, maxHp: 900, armor: 0 }];
+    expect(castSpell({ key: 'troop:7082', enemies }).summary.order.slice(2)).toEqual(['status E11 +curse', 'status E11 +web', 'status E11 +poison']);
+  });
+  it('troop:7082: tied strongest -> Web and Poison follow the Cursed enemy', () => {
+    for (let seed = 1; seed <= 12; seed++) {
+      const o = castSpell({ key: 'troop:7082', seed, enemies: [0, 1, 2, 3].map(() => ({ hp: 500, maxHp: 500, armor: 0 })) }).summary.order.slice(2, 5);
+      const who = o[0].split(' ')[1];
+      expect(o).toEqual([`status ${who} +curse`, `status ${who} +web`, `status ${who} +poison`]);
+    }
+  });
+  it('troop:7020: most used ally mana colour (3 Purple users) -> 10 Purple, then 8 Skulls', () => {
+    const r = castSpell({ key: 'troop:7020', caster: { colors: [BaseColor.Purple, BaseColor.Green] }, allies: [{ colors: [BaseColor.Purple] }, { colors: [BaseColor.Purple, BaseColor.Red] }] }).summary;
+    expect(r.gems.created.Purple).toBe(10);
+    expect(r.gems.created.skull).toBe(8);
+  });
+});

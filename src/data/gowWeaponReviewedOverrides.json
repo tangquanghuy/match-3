@@ -1764,7 +1764,7 @@
           },
           {
             "kind": "buff",
-            "target": "allySelf",
+            "target": "lastTarget",
             "stat": "magic",
             "scaling": {
               "base": 1,

@@ -1215,7 +1215,7 @@ const SPELLS: CuratedBatch['spells'] = [
   {
     id: 7586,
     desc: '创造选定的 7 颗宝石。随机使一名盟友下潜，并给予他 1 点魔力值。',
-    build: ({"segments":[{"kind":"gem","params":{"op":"create","gem":{"kind":"color","color":"CHOSEN"},"count":{"base":7,"mult":0}}},{"kind":"status","target":"allyRandom","statusId":"submerged","turns":3},{"kind":"buff","target":"allySelf","stat":"magic","scaling":{"base":1,"mult":0}}]} as SkillPrototype),
+    build: ({"segments":[{"kind":"gem","params":{"op":"create","gem":{"kind":"color","color":"CHOSEN"},"count":{"base":7,"mult":0}}},{"kind":"status","target":"allyRandom","statusId":"submerged","turns":3},{"kind":"buff","target":"lastTarget","stat":"magic","scaling":{"base":1,"mult":0}}]} as SkillPrototype), // native IncreaseSpellPower@FromPrevious: the Submerged ally
   },
   {
     id: 7587,
