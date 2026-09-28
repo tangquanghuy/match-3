@@ -859,6 +859,16 @@
   "by": "coord (accepted before golden)",
   "at": "2026-09-27T23:48:12.361Z"
  },
+ "troop:6589": {
+  "lines": {
+   "L10": "status E11 +entangle ; convert Yellow x2, Brown x2, skull x2, Blue x1, Red x2 -> Green x9 ; ~cascade~ ; extra-turn match  => E11:+entangle  extra:match  cascade",
+   "R10": "status E11 +entangle ; convert Yellow x2, Brown x2, skull x2, Blue x1, Red x2 -> Green x9 ; ~cascade~ ; extra-turn match  => E11:+entangle  extra:match  cascade",
+   "L0": "status E11 +entangle ; convert Yellow x2, Brown x2, skull x2, Blue x1, Red x2 -> Green x9 ; ~cascade~ ; extra-turn match  => E11:+entangle  extra:match  cascade",
+   "K": "status E11 +entangle ; convert Yellow x2, Brown x2, skull x2, Blue x1, Red x2 -> Green x9 ; ~cascade~ ; extra-turn match  => E11:+entangle  extra:match  cascade"
+  },
+  "by": "coord",
+  "at": "2026-09-28T00:59:28.203Z"
+ },
  "troop:6590": {
   "lines": {
    "L10": "convert Green x13 -> Brown x13 ; status C +rage ; buff C hp+11 max+11  => C:hp+11 max+11 +rage",
@@ -1029,6 +1039,16 @@
   "by": "coord (accepted before golden)",
   "at": "2026-09-27T23:48:12.361Z"
  },
+ "troop:6700": {
+  "lines": {
+   "L10": "dmg A1 504 devoured ; defeat A1 ; buff C attack+17 ; buff C armor+4 ; buff C hp+500 ; summon mine troop:-1 ; dmg E10 120 (scatter) ; dmg E11 127 (scatter) ; dmg E12 140 (scatter) ; dmg E13 115 (scatter)  => A14:new 夜龙 hp32 atk13 arm19 mag11 | A1:hp-500 arm-4 DEAD | C:hp+500 arm+4 atk+17 | E10:hp-120 | E11:hp-127 | E12:hp-140 | E13:hp-115",
+   "R10": "dmg A1 504 devoured ; defeat A1 ; buff C attack+17 ; buff C armor+4 ; buff C hp+500 ; summon mine troop:-1 ; dmg E10 120 (scatter) ; dmg E11 127 (scatter) ; dmg E12 140 (scatter) ; dmg E13 115 (scatter)  => A14:new 夜龙 hp32 atk13 arm19 mag11 | A1:hp-500 arm-4 DEAD | C:hp+500 arm+4 atk+17 | E10:hp-120 | E11:hp-127 | E12:hp-140 | E13:hp-115",
+   "L0": "dmg A1 504 devoured ; defeat A1 ; buff C attack+17 ; buff C armor+4 ; buff C hp+500 ; summon mine troop:-1 ; dmg E10 117 (scatter) ; dmg E11 126 (scatter) ; dmg E12 137 (scatter) ; dmg E13 112 (scatter)  => A14:new 夜龙 hp32 atk13 arm19 mag11 | A1:hp-500 arm-4 DEAD | C:hp+500 arm+4 atk+17 | E10:hp-117 | E11:hp-126 | E12:hp-137 | E13:hp-112",
+   "K": "dmg A1 504 devoured ; defeat A1 ; buff C attack+17 ; buff C armor+4 ; buff C hp+500 ; summon mine troop:-1 ; dmg E10 120 (scatter) ; dmg E11 128 (scatter) ; dmg E12 139 (scatter) ; dmg E13 115 (scatter) ; defeat E10 ; defeat E11 ; defeat E12 ; defeat E13  => A14:new 夜龙 hp32 atk13 arm19 mag11 | A1:hp-500 arm-4 DEAD | C:hp+500 arm+4 atk+17 | E10:hp-1 DEAD | E11:hp-1 DEAD | E12:hp-1 DEAD | E13:hp-1 DEAD"
+  },
+  "by": "coord",
+  "at": "2026-09-28T00:59:28.203Z"
+ },
  "troop:6711": {
   "lines": {
    "L10": "cleanse A1 -poison ; status A1 +blessed ; convert Purple x3, skull x1, Red x1, Yellow x1, Brown x2, Green x2 -> Blue x10 ; ~cascade~  => A1:mana+3 +blessed -poison  cascade",
@@ -1148,6 +1168,16 @@
   },
   "by": "coord (accepted before golden)",
   "at": "2026-09-27T23:48:12.361Z"
+ },
+ "troop:6902": {
+  "lines": {
+   "L10": "status E11 +death-mark ; convert Green x3, Brown x2, Blue x1, Red x1, Yellow x2 -> Purple x9  => E11:+death-mark",
+   "R10": "status E11 +death-mark ; convert Green x3, Brown x2, Blue x1, Red x1, Yellow x2 -> Purple x9  => E11:+death-mark",
+   "L0": "status E11 +death-mark ; convert Green x3, Brown x2, Blue x1, Red x1, Yellow x2 -> Purple x9  => E11:+death-mark",
+   "K": "status E11 +death-mark ; convert Green x3, Brown x2, Blue x1, Red x1, Yellow x2 -> Purple x9  => E11:+death-mark"
+  },
+  "by": "coord",
+  "at": "2026-09-28T00:59:28.203Z"
  },
  "troop:6924": {
   "lines": {
@@ -2058,6 +2088,16 @@
   },
   "by": "coord (accepted before golden)",
   "at": "2026-09-27T23:48:12.361Z"
+ },
+ "weapon:1147": {
+  "lines": {
+   "L10": "status E11 +death-mark ; dmg E12 14 (all) ; dmg E13 14 (all)  => E11:+death-mark | E12:hp-14 | E13:hp-14",
+   "R10": "status E11 +death-mark ; dmg E12 14 (all) ; dmg E13 14 (all)  => E11:+death-mark | E12:hp-14 | E13:hp-14",
+   "L0": "status E11 +death-mark ; dmg E12 4 (all) ; dmg E13 4 (all)  => E11:+death-mark | E12:hp-4 | E13:hp-4",
+   "K": "status E11 +death-mark ; dmg E12 14 (all) ; dmg E13 14 (all) ; defeat E12 ; defeat E13  => E11:+death-mark | E12:hp-1 DEAD | E13:hp-1 DEAD"
+  },
+  "by": "coord",
+  "at": "2026-09-28T00:59:28.203Z"
  },
  "weapon:1187": {
   "lines": {

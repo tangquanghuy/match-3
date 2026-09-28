@@ -41,6 +41,11 @@ if (cmd === 'show') {
   execFileSync(process.execPath, ['scripts/gow-signoff.mjs', 'accept', '--lane', lane, '--by', by, '--test', tests.split(',')[0], '--keys', keys.join(','), ...extra], { stdio: 'inherit', cwd: root });
   if (tests.split(',').length > 1) console.log(`note: extra tests ${tests.split(',').slice(1).join(',')} must also stay green; list them in issues/progress`);
   console.log(`golden approved ${keys.length} in lane-${lane}`);
+} else if (cmd === 'lock') {
+  // Record behaviour without writing signoff lines (coordinator use: re-lock already-accepted entities).
+  const lane = opt('lane')!; const g = load(lane); const at = new Date().toISOString();
+  for (const k of list(opt('keys'))) g[k] = { lines: scenarioLines(k), by: opt('by') ?? 'coord', at };
+  save(lane, g); console.log(`locked ${list(opt('keys')).length} in lane-${lane}`);
 } else if (cmd === 'lock-accepted') {
   // Lock the current behaviour of every ledger-accepted entity (no new signoff lines) into lane-accepted-base.
   const ledger = JSON.parse(fs.readFileSync(path.join(root, 'artifacts/gow-skill-audit/ledger.json'), 'utf8'));
