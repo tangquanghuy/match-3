@@ -524,9 +524,11 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '爆破一行。对首 2 位敌人造成 [魔法 + 2] 点真实伤害，伤害值因元素星数而增强。 [x5]',
     build: skill(
       explodeChosenRow(),
+      // sa-A r3: native CountGems ElementalStar x5 at step 0 (before the row explodes) = Stars the explosion cleared
+      // + Stars still on the board (was every colour gem on the board)
       trueDmg('enemyFirstN', 2, 1, {
         n: 2,
-        modifier: { mod: { kind: 'multiplier', a: 5 }, source: { kind: 'boardGems' } },
+        modifier: { mod: { kind: 'multiplier', a: 5 }, sources: [{ kind: 'destroyedGems', special: 'elementalStar' }, { kind: 'boardSpecial', gem: 'elementalStar' }] },
       }),
     ),
   },

@@ -6846,8 +6846,8 @@
                 "a": 2
               },
               "source": {
-                "kind": "boardSpecial",
-                "gem": "bomb"
+                "kind": "destroyedGems",
+                "special": "bomb"
               }
             }
           }

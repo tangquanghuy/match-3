@@ -121,13 +121,15 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 8614,
     desc: '获得 [魔法 + 1] 点攻击力和护甲值，数值因骷髅头数量而增强。爆破 3 颗宝石。 [2:1]',
     build: skill(
-      // 双属性共用一个 modifier 子句 → modifier 挂最近数值段（=护甲段，batch-04 7027 / batch-05 7334 同款）
-      attack('allySelf', 1, 1),
+      // sa-A r3: native IncreaseAttack + IncreaseArmor both UseCounterForAmount (CountGems Skull 50 = [2:1]);
+      // ExplodeGems Amount 3 without colour = any 3 random gems (sa-R1 8812 precedent)
+      attack('allySelf', 1, 1, {
+        modifier: { mod: { kind: 'ratio', a: 2, b: 1 }, source: { kind: 'boardSkulls' } },
+      }),
       armor('allySelf', 1, 1, {
         modifier: { mod: { kind: 'ratio', a: 2, b: 1 }, source: { kind: 'boardSkulls' } },
       }),
-      // 「宝石」不含骷髅 → include:'color'
-      explodeRandomGems(3, 0, 'color'),
+      explodeRandomGems(3, 0, 'all'),
     ),
   },
   {

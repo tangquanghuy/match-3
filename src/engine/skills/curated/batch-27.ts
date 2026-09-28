@@ -50,8 +50,9 @@ const SPELLS: CuratedBatch['spells'] = [
       heal('allySelf', 1, 1, {
         modifier: { mod: { kind: 'multiplier', a: 2 }, source: { kind: 'destroyedGems', color: BaseColor.Blue } },
       }),
-      inflict('submerged', 'allySelf'),
+      // sa-A r3: native order CauseBarrier then CauseSubmerged
       inflict('barrier', 'allySelf'),
+      inflict('submerged', 'allySelf'),
     ),
   },
   {

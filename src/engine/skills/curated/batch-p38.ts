@@ -104,9 +104,9 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '给予首 2 位盟友 [魔法 + 1] 点护甲值。爆破 2 颗宝石。每有 1 颗炸弹宝石则再爆破 1 颗宝石。 [1:1]',
     build: skill(
       armor('allyFirstN', 1, 1, { n: 2 }),
-      explodeRandomGems(2, 0),
-      // 「每有 1 颗炸弹宝石则再爆破 1 颗」：爆破数量 = 0 + 1×场上炸弹宝石数（base 0，无炸弹时空转）
-      explodeRandomGems(0, 0, 'all', undefined, { modifier: { mod: { kind: 'multiplier', a: 1 }, source: { kind: 'boardSpecial', gem: 'bomb' } } }),
+      // sa-A r3: native one ExplodeGems Amount 2 UseCounterForAmount (CountGems Bomb at step 0): 2 + Bombs, in one step
+      // (was 2, then a second explosion counting the Bombs left after the first)
+      explodeRandomGems(2, 0, 'all', undefined, { modifier: { mod: { kind: 'multiplier', a: 1 }, source: { kind: 'boardSpecial', gem: 'bomb' } } }),
     ),
   },
   {

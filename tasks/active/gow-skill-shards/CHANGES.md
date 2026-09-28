@@ -1,6 +1,6 @@
 # GoW 技能改动留档
 
-自动生成（`node scripts/gow-changelog.mjs render`），源数据 [CHANGES.jsonl](CHANGES.jsonl)，共 400 条改动，涉及 693 个技能 ID。
+自动生成（`node scripts/gow-changelog.mjs render`），源数据 [CHANGES.jsonl](CHANGES.jsonl)，共 415 条改动，涉及 708 个技能 ID。
 
 ## 按时间
 
@@ -406,6 +406,21 @@
 | 2026-09-28T10:19 | sa-A | L4a-r3-6233 | data | 7379 | troop:6233 Dragotaur | `src/engine/skills/curated/batch-19.ts` | Dragon Attack [Magic] unboosted, only Armor boosted → Attack and Armor both boosted x2 per Yellow (both UseCounterForAmount) |  |
 | 2026-09-28T10:19 | sa-A | L4a-r3-6909 | data | 8370 | troop:6909 HeraldOfWoe | `src/engine/skills/curated/batch-21.ts` | Attack unboosted, only Armor boosted x5 Brown → Attack and Armor both boosted x5 per Brown |  |
 | 2026-09-28T10:19 | sa-A | L4a-r3-6954 | data | 8481 | troop:6954 TombKnight | `src/engine/skills/curated/batch-22.ts` | Armor unboosted, only Attack boosted → native IncreaseAttack then IncreaseArmor, both boosted x2 per Yellow |  |
+| 2026-09-28T10:25 | sa-A | L4a-r3-6303 | data | 7453 | troop:6303 RockSpirit | `src/engine/skills/curated/batch-13.ts` | chosen row then chosen column as two destroys (second includes refills) → one 15-cell RowAndColumn cross (native single DestroyGems step) |  |
+| 2026-09-28T10:25 | sa-A | L4a-r3-1117 | data | 7269 | weapon:1117 WardensGauntlets | `src/engine/skills/curated/batch-w01.ts` | row then column; boosted by every Green gem on the board → one 15-cell cross; boosted x3 per Green destroyed in it (native CountGems Green RowAndColumn) |  |
+| 2026-09-28T10:25 | sa-A | L4a-r3-6720 | data | 8090 | troop:6720 CorpseMare | `src/engine/skills/curated/batch-r9.ts` | boosted x2 by every destroyed gem in the row → boosted x2 by destroyed Skulls only (CountGems Skull 200 Row) |  |
+| 2026-09-28T10:25 | sa-A | L4a-r3-7539 | data | 9297 | troop:7539 FeyDragoon | `src/engine/skills/curated/batch-r7.ts` | boosted 1:1 by every gem cleared by the Freeze-gem explosions → boosted 1:1 by the number of Freeze gems (CountGems Freeze 100) |  |
+| 2026-09-28T10:31 | sa-A | L4a-r3-7304 | data | 8916 | troop:7304 KingOfRavens | `src/engine/skills/curated/batch-r14.ts` | boosted by Spirit gems left on the board after exploding them (always 0) → boosted x6 per Spirit gem cleared by the spell (native CountGems Spirit at step 0) |  |
+| 2026-09-28T10:31 | sa-A | L4a-r3-7586 | data | 9465 | troop:7586 Astaroth | `src/engine/skills/curated/batch-r15.ts` | damage (portal count) then explode → R001: explode 1 per Portal first, then damage x2 per Portal left |  |
+| 2026-09-28T10:31 | sa-A | L4a-r3-6778 | data | 8168 | troop:6778 WarWolf | `src/engine/skills/curated/batch-r9.ts` | Red count boosted x3 by every exploded gem → boosted x3 by exploded Skulls only (CountGems Skull Block3x3) |  |
+| 2026-09-28T10:40 | sa-A | L4a-r3-1523 | data | 8995 | weapon:1523 Sparkhammer | `src/engine/skills/curated/batch-w03.ts`<br>`src/data/gowWeaponReviewedOverrides.json` | boosted by Bombs left on the board after the explosion → boosted x2 per Bomb cleared by the chosen-gem explosion (CountGems Bomb Block3x3) |  |
+| 2026-09-28T10:40 | sa-A | L4a-r3-6188 | data | 7329 | troop:6188 WinterKnight | `src/engine/skills/curated/batch-r15.ts` | explode a random colour gem → explode the chosen Mana Gem (Target ManaGemsOnly, SingleGem) |  |
+| 2026-09-28T10:40 | sa-A | L4a-r3-6793 | data | 8184 | troop:6793 WildKnight | `src/engine/skills/curated/batch-26.ts` | Life [Magic+1] unboosted, only Attack boosted → Attack then Life, both boosted x3 per Green |  |
+| 2026-09-28T10:40 | sa-A | L4a-r3-6822 | data | 8226 | troop:6822 Merknight | `src/engine/skills/curated/batch-27.ts` | Submerged then Barrier → native order Barrier then Submerged |  |
+| 2026-09-28T10:40 | sa-A | L4a-r3-7821 | data | 9865 | troop:7821 StormOracle | `src/engine/skills/curated/batch-r7.ts` | explode a random gem → explode the chosen gem (Target Board, SingleGem) |  |
+| 2026-09-28T10:40 | sa-A | L4a-r3-7543 | data | 9318 | troop:7543 Emberclaw | `src/engine/skills/curated/batch-r8.ts` | boosted x5 by every colour gem on the board → boosted x5 per Elemental Star on the board before the explosion |  |
+| 2026-09-28T10:40 | sa-A | L4a-r3-7044 | data | 8569 | troop:7044 Researcher | `src/engine/skills/curated/batch-p38.ts` | explode 2, then explode 1 per Bomb left → one explosion of 2 + 1 per Bomb (single native ExplodeGems) |  |
+| 2026-09-28T10:40 | sa-A | L4a-r3-7086 | data | 8614 | troop:7086 TerraWyrm | `src/engine/skills/curated/batch-15.ts` | Attack unboosted; explode 3 colour gems → Attack and Armor both +floor(Skulls/2); explode 3 random gems of any kind |  |
 
 ## 按技能 ID
 
@@ -473,6 +488,7 @@
 | 7260 | 1 | F1-items-62-75 |
 | 7265 | 1 | L3-008 |
 | 7266 | 1 | L4b-6152-attack |
+| 7269 | 1 | L4a-r3-1117 |
 | 7272 | 1 | F2-1120-column-skulls |
 | 7280 | 1 | P-create-interleave |
 | 7281 | 1 | L1-R2-consume-first |
@@ -491,6 +507,7 @@
 | 7322 | 1 | L2-6181-create |
 | 7323 | 2 | P-random-stat-pool、F1-items-62-75 |
 | 7326 | 1 | L1-R2-consume-first |
+| 7329 | 1 | L4a-r3-6188 |
 | 7333 | 1 | R004 (L5-004,L5-005,L5-014,L4b-6340) |
 | 7334 | 1 | L7-6193 |
 | 7338 | 2 | L5-006、R004 (L5-004,L5-005,L5-014,L4b-6340) |
@@ -539,6 +556,7 @@
 | 7442 | 1 | R3-B01-6296 |
 | 7443 | 1 | F2-R001-order |
 | 7444 | 2 | L5-010、R004 (L5-004,L5-005,L5-014,L4b-6340) |
+| 7453 | 1 | L4a-r3-6303 |
 | 7454 | 4 | P-counter-per-step、L7-R1-attack-armor-life-pooled、P-counter-per-step、P-R3-precast-compare |
 | 7455 | 1 | L1-6305-repeat |
 | 7457 | 1 | R7-not-board-misread |
@@ -671,6 +689,7 @@
 | 8081 | 1 | R7-doomed-support-counters |
 | 8083 | 1 | L7-R1-lethal-order-doomskull |
 | 8084 | 1 | L5-007 |
+| 8090 | 1 | L4a-r3-6720 |
 | 8097 | 1 | F3-q06 |
 | 8101 | 1 | L2-6731-branches |
 | 8103 | 1 | P-counter-per-step |
@@ -688,7 +707,9 @@
 | 8165 | 1 | P-random-stat-pool |
 | 8166 | 1 | P-random-stat-pool |
 | 8167 | 1 | L4a-r3-6777 |
+| 8168 | 1 | L4a-r3-6778 |
 | 8169 | 1 | P-create-interleave |
+| 8184 | 1 | L4a-r3-6793 |
 | 8193 | 1 | L1-6786-summons |
 | 8203 | 2 | P-counter-per-step、P-counter-per-step |
 | 8204 | 1 | P-counter-per-step |
@@ -697,6 +718,7 @@
 | 8215 | 1 | L4a-R1-8215-fromprevious |
 | 8218 | 2 | P-counter-per-step、L2-6814-branch-weights |
 | 8219 | 1 | P-counter-per-step |
+| 8226 | 1 | L4a-r3-6822 |
 | 8228 | 3 | P-counter-per-step、F2-6826-kill-skulls、P-counter-per-step |
 | 8229 | 1 | L1-6827-base |
 | 8234 | 2 | L4b-6824-random-ally、P-chooser-native-restrictions |
@@ -781,6 +803,7 @@
 | 8560 | 2 | P-counter-per-step、P-R1-dual-storm |
 | 8562 | 3 | P-counter-per-step、L4a-R1-8562-attack-boost、P-R1-dual-storm |
 | 8563 | 2 | P-counter-per-step、L7-R1-board-special-counts |
+| 8569 | 1 | L4a-r3-7044 |
 | 8570 | 1 | L7-7045 |
 | 8574 | 1 | L1-devour-first |
 | 8575 | 1 | L1-7050-order |
@@ -804,6 +827,7 @@
 | 8605 | 1 | R7-guardian-potions |
 | 8606 | 1 | R7-guardian-potions |
 | 8609 | 1 | L1-devour-first |
+| 8614 | 1 | L4a-r3-7086 |
 | 8618 | 1 | L2-1420-branches |
 | 8624 | 2 | P-counter-per-step、L7-R1-teamsize-source |
 | 8625 | 1 | F1-items-54-60 |
@@ -896,6 +920,7 @@
 | 8895 | 1 | F1-items-62-75 |
 | 8901 | 2 | L4b-7276-singlegem、P-chooser-native-restrictions |
 | 8902 | 1 | L4b-7277-7094 |
+| 8916 | 1 | L4a-r3-7304 |
 | 8917 | 1 | R7-tarot-extra-turn |
 | 8924 | 1 | F2-R001-order |
 | 8928 | 1 | P-R1-row-count-at-cast-start |
@@ -911,6 +936,7 @@
 | 8974 | 1 | R7-tarot-extra-turn |
 | 8979 | 1 | F1-onkill-order |
 | 8987 | 1 | P-counter-per-step |
+| 8995 | 1 | L4a-r3-1523 |
 | 9003 | 1 | R7-tarot-extra-turn |
 | 9008 | 1 | R009-giant-dragon-L4b |
 | 9013 | 1 | L7-R1-random-chain-waves |
@@ -964,9 +990,11 @@
 | 9282 | 1 | F3-q37 |
 | 9283 | 1 | R7-tarot-extra-turn |
 | 9291 | 1 | P-R3-precast-compare |
+| 9297 | 1 | L4a-r3-7539 |
 | 9303 | 1 | L7-R1-weapon-colour-race |
 | 9306 | 1 | L7-R1-weapon-colour-race |
 | 9313 | 1 | L2-7523-one-colour |
+| 9318 | 1 | L4a-r3-7543 |
 | 9337 | 1 | R7-tarot-extra-turn |
 | 9341 | 1 | L2-7556-gold-count |
 | 9352 | 1 | L7-R1-weapon-colour-race |
@@ -981,6 +1009,7 @@
 | 9385 | 1 | R012 |
 | 9387 | 1 | L4a-R1-immortal-order |
 | 9388 | 1 | L4b-1608-1611-order |
+| 9465 | 1 | L4a-r3-7586 |
 | 9476 | 1 | P-F2-dead-target-colour |
 | 9483 | 1 | P-prefnotprev-semantics |
 | 9485 | 1 | P-random-stat-pool |
@@ -1075,6 +1104,7 @@
 | 9859 | 1 | L7-R1-random-chain-waves |
 | 9861 | 1 | P-random-stat-pool |
 | 9862 | 1 | R012 |
+| 9865 | 1 | L4a-r3-7821 |
 | 9869 | 1 | F1-7825-count |
 | 9873 | 1 | L2-7829-heavy-splash |
 | 9874 | 2 | F2-7830-heal-mult、P-prefnotprev-semantics |

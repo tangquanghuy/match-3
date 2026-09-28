@@ -111,9 +111,9 @@ const SPELLS: CuratedBatch['spells'] = [
   {
     id: 7329,
     desc: '爆破一颗法力宝石。获得 [魔法] 点护甲，点数因被摧毁的蓝色宝石数而增强。赋予自身屏障效果。 [x2]',
-    // 「爆破一颗法力宝石」= 随机 1 颗颜色宝石（include 'color' = 仅六色法力宝石，R4 裸单颗口径）
+    // sa-A r3: native Target ManaGemsOnly + ExplodeGems SingleGem = the player-chosen Mana Gem (was a random gem)
     build: skill(
-      explodeRandomGems(1, 0, 'color'),
+      explodeAt(CELL),
       armor('allySelf', 0, 1, {
         modifier: { mod: { kind: 'multiplier', a: 2 }, source: { kind: 'destroyedGems', color: BaseColor.Blue } },
       }),
@@ -764,13 +764,15 @@ const SPELLS: CuratedBatch['spells'] = [
     // 爆破数量（randomGems count 走 evaluateWithModifier） ——
     id: 9465,
     desc: '对所有敌人造成 [魔法 + 2] 点伤害，伤害值因恶魔传送门宝石数而增强。每有 1 颗恶魔传送门宝石则爆破 1 颗宝石。 [x2]',
+    // sa-A r3 (R001): native CountGems Portal -> ExplodeGems -> CountSet -> CountGems Portal x2 -> Damage:
+    // explode first, then count the Portals left on the board for the damage.
     build: skill(
+      explodeRandomGems(0, 0, 'all', undefined, {
+        modifier: { mod: { kind: 'multiplier', a: 1 }, source: { kind: 'boardSpecial', gem: 'daemonicPortalGem' } },
+      }),
       dmg('enemyAll', 2, 1, {
         range: 'all',
         modifier: { mod: { kind: 'multiplier', a: 2 }, source: { kind: 'boardSpecial', gem: 'daemonicPortalGem' } },
-      }),
-      explodeRandomGems(0, 0, 'all', undefined, {
-        modifier: { mod: { kind: 'multiplier', a: 1 }, source: { kind: 'boardSpecial', gem: 'daemonicPortalGem' } },
       }),
     ),
   },

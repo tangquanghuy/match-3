@@ -95,3 +95,103 @@ describe('L4a R3 B02', () => {
     expect(r.summary.order.some(o => o.startsWith('buff A2'))).toBe(false);
   });
 });
+
+describe('L4a R3 B03', () => {
+  const scatterTotal = (order: string[]) => order.filter(o => o.startsWith('dmg ') && o.endsWith('(scatter)')).reduce((s, o) => s + Number(o.split(' ')[2]), 0);
+  // troop:6303 RockSpirit (7453) / weapon:1117 WardensGauntlets (7269): RowAndColumn = one 15-cell cross, count in the cross.
+  it.each([
+    ['troop:6303', 4, 4, 'Brown'],
+    ['weapon:1117', 3, 3, 'Green'],
+  ] as const)('%s destroys one cross and scales by %s-colour gems in it', (key, base, per, colour) => {
+    const r = castSpell({ key });
+    const destroy = r.summary.order.filter(o => o.startsWith('destroy '));
+    expect(destroy.length).toBe(1);
+    expect(destroy[0].startsWith('destroy 15')).toBe(true);
+    const n = Number(new RegExp(`${colour} x(\\d+)`).exec(destroy[0])?.[1] ?? 0);
+    expect(scatterTotal(r.summary.order)).toBe(base + 10 + per * n);
+  });
+  // troop:6720 CorpseMare (8090): CountGems Skull 200 Row → only Skulls in the destroyed row.
+  it('troop:6720 steals 1 + 10 + 2 per destroyed Skull', () => {
+    expect(castSpell({ key: 'troop:6720' }).summary.order).toContain('dmg E10 11');
+    const board = withCells(reviewBoard, { '3,0': skullGem(), '3,7': skullGem() });
+    expect(castSpell({ key: 'troop:6720', board }).summary.order.some(o => /^dmg E10 15/.test(o))).toBe(true);
+  });
+  // troop:7539 FeyDragoon (9297): CountGems Freeze counts Freeze gems (2 here), not every gem in their 3x3 explosions.
+  it('troop:7539 boosts by the number of Freeze gems', () => {
+    const board = withCells(reviewBoard, { '1,6': specialGem('freezeGem'), '6,1': specialGem('freezeGem') });
+    const r = castSpell({ key: 'troop:7539', board });
+    expect(r.summary.order.filter(o => o.startsWith('explode ')).length).toBeGreaterThan(0);
+    expect(r.summary.order).toContain('dmg E11 15');
+  });
+});
+
+describe('L4a R3 B04', () => {
+  // troop:7304 KingOfRavens (8916): CountGems Spirit x6 before the explosions.
+  it('troop:7304 boosts by the Spirit gems it explodes', () => {
+    const board = withCells(reviewBoard, { '1,6': specialGem('spiritGem', undefined, BaseColor.Red), '6,1': specialGem('spiritGem', undefined, BaseColor.Green) });
+    const r = castSpell({ key: 'troop:7304', board });
+    expect(r.summary.order).toContain('dmg E12 25 (all)');
+    expect(r.summary.order).toContain('dmg E13 25 (all)');
+  });
+  // troop:7586 Astaroth (9465): explode 1 random gem per Portal first, then damage by Portals left on the board.
+  it('troop:7586 explodes before the damage', () => {
+    const board = withCells(reviewBoard, { '0,7': specialGem('daemonicPortalGem'), '7,0': specialGem('daemonicPortalGem') });
+    const r = castSpell({ key: 'troop:7586', board, seed: 3 });
+    const iExplode = r.summary.order.findIndex(o => o.startsWith('explode '));
+    const iDmg = r.summary.order.findIndex(o => o.startsWith('dmg '));
+    expect(iExplode).toBeGreaterThanOrEqual(0);
+    expect(iExplode).toBeLessThan(iDmg);
+  });
+  // troop:6778 WarWolf (8168): CountGems Skull 300 Block3x3 → 4 + 3 per Skull in the 3x3.
+  it('troop:6778 creates 4 + 3 per exploded Skull', () => {
+    expect(castSpell({ key: 'troop:6778' }).summary.gems.created.Red).toBe(7); // (4,2) Skull next to 3,3
+    const board = withCells(reviewBoard, { '2,2': skullGem(), '2,3': skullGem() });
+    expect(castSpell({ key: 'troop:6778', board }).summary.gems.created.Red).toBe(13);
+  });
+});
+
+describe('L4a R3 B05', () => {
+  const scatterTotal = (order: string[]) => order.filter(o => o.startsWith('dmg ') && o.endsWith('(scatter)')).reduce((s, o) => s + Number(o.split(' ')[2]), 0);
+  // weapon:1523 Sparkhammer (8995): Bombs in the 3x3 around the chosen gem, x2.
+  it('weapon:1523 counts the Bomb in the exploded 3x3', () => {
+    const board = withCells(reviewBoard, { '2,3': specialGem('bomb') });
+    expect(castSpell({ key: 'weapon:1523', board }).summary.order).toContain('buff C armor+13');
+    // a Bomb elsewhere on the board does not count
+    const far = withCells(reviewBoard, { '7,7': specialGem('bomb') });
+    expect(castSpell({ key: 'weapon:1523', board: far }).summary.order).toContain('buff C armor+11');
+  });
+  // troop:6188 WinterKnight (7329): explode the chosen Mana Gem; [Magic] + 2 x Blue in the 3x3.
+  it('troop:6188 explodes the chosen gem', () => {
+    const board = withCells(reviewBoard, { '2,2': colorGem(BaseColor.Blue), '4,4': colorGem(BaseColor.Blue) });
+    const r = castSpell({ key: 'troop:6188', board });
+    expect(r.summary.order).toContain('buff C armor+16'); // 10 + 2 x 3 (2,2 / 4,4 set Blue, 2,3 Blue on the review board)
+  });
+  // troop:6793 WildKnight (8184): Attack and Life both [Magic + 1] + 3 x Green in the 3x3.
+  it('troop:6793 boosts Attack and Life', () => {
+    const r = castSpell({ key: 'troop:6793' });
+    expect(r.summary.order).toContain('buff C attack+17');
+    expect(r.summary.order.some(o => o.startsWith('buff C hp+17'))).toBe(true);
+  });
+  // troop:7821 StormOracle (9865): chosen gem; scatter total 8 + 10 + 8 x Yellow in the 3x3.
+  it('troop:7821 explodes the chosen gem', () => {
+    const board = withCells(reviewBoard, { '2,2': colorGem(BaseColor.Yellow) });
+    // 3,3 is Yellow on the review board, plus 2,2
+    expect(scatterTotal(castSpell({ key: 'troop:7821', board }).summary.order)).toBe(18 + 8 * 2);
+  });
+  // troop:7543 Emberclaw (9318): Elemental Stars on the whole board before the row explodes, x5.
+  it('troop:7543 counts Elemental Stars in and outside the exploded row', () => {
+    expect(castSpell({ key: 'troop:7543' }).summary.order).toContain('dmg E10 12 (all)');
+    const board = withCells(reviewBoard, { '3,5': specialGem('elementalStar'), '7,7': specialGem('elementalStar') });
+    expect(castSpell({ key: 'troop:7543', board }).summary.order).toContain('dmg E10 22 (all)');
+  });
+  // troop:7044 Researcher (8569): one explosion of 2 + Bombs counted before it.
+  it('troop:7044 explodes 2 + Bombs in one step', () => {
+    const r = castSpell({ key: 'troop:7044' });
+    expect(r.summary.order.filter(o => o.startsWith('explode ')).length).toBe(1);
+  });
+  // troop:7086 TerraWyrm (8614): Attack and Armor both 1 + 10 + floor(Skulls / 2).
+  it('troop:7086 boosts Attack and Armor', () => {
+    const r = castSpell({ key: 'troop:7086' });
+    expect(r.summary.order.slice(0, 2)).toEqual(['buff C attack+13', 'buff C armor+13']);
+  });
+});

@@ -1248,7 +1248,8 @@ const SPELLS: CuratedBatch['spells'] = [
   {
     id: 8995,
     desc: '爆破一颗宝石。给予所有盟友 [魔法 + 1] 点护甲值，数值因被摧毁的炸弹宝石数而增强。 [x2]',
-    build: ({"segments":[{"kind":"gem","params":{"op":"clear","mode":"explode","target":{"kind":"cell","cell":"CELL"}}},{"kind":"buff","target":"allyAll","stat":"armor","scaling":{"base":1,"mult":1},"modifier":{"mod":{"kind":"multiplier","a":2},"source":{"kind":"boardSpecial","gem":"bomb"}}}]} as SkillPrototype),
+    build: ({"segments":[{"kind":"gem","params":{"op":"clear","mode":"explode","target":{"kind":"cell","cell":"CELL"}}},{"kind":"buff","target":"allyAll","stat":"armor","scaling":{"base":1,"mult":1},"modifier":{"mod":{"kind":"multiplier","a":2},"source":{"kind":"destroyedGems","special":"bomb"}}}]} as SkillPrototype),
+    // sa-A r3: native CountGems Bomb Block3x3 before the explosion → Bombs cleared by it (was Bombs left on the board after)
   },
   {
     id: 8996,
