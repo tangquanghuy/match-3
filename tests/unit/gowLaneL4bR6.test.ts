@@ -153,3 +153,32 @@ describe('L4b R6 B04 order equivalence (R001)', () => {
     expect(s.order[2]).toBe('convert Brown x4 -> entangleGem x4');
   });
 });
+
+describe('L4b R6 B05', () => {
+  const colourBoard = (first: number, col: BaseColor) => (r: number, c: number) =>
+    (r * 8 + c < first ? { kind: 'color', color: col } : { kind: 'color', color: [BaseColor.Green, BaseColor.Yellow, BaseColor.Purple, BaseColor.Blue][(r + 2 * c) % 4] }) as never;
+  it('troop:7129: +11 Attack/Life/Armor; 9 Skulls only with 13+ Red Gems (R003)', () => {
+    expect(castSpell({ key: 'troop:7129', board: colourBoard(12, BaseColor.Red) }).summary.order.some(x => x.includes('skull x9'))).toBe(false);
+    expect(castSpell({ key: 'troop:7129', board: colourBoard(13, BaseColor.Red) }).summary.order.some(x => x.endsWith('-> skull x9'))).toBe(true);
+  });
+  it('troop:6126: 13 scatter total; +8 Magic only when an enemy dies', () => {
+    const s = castSpell({ key: 'troop:6126' }).summary;
+    expect(dmgs(s.order).reduce((a, x) => a + Number(x.split(' ')[2]), 0)).toBe(13);
+    expect(s.order.some(x => x.startsWith('buff C magic'))).toBe(false);
+    expect(castSpell({ key: 'troop:6126', enemies: KILL }).summary.order).toContain('buff C magic+8');
+  });
+  it('scatter totals: 7232 42 then 8 chosen-colour Uber Doomskulls; 7836 37 then 13 Lightning (row/col mix)', () => {
+    const a = castSpell({ key: 'troop:7232' }).summary;
+    expect(dmgs(a.order).reduce((t, x) => t + Number(x.split(' ')[2]), 0)).toBe(42);
+    expect(a.gems.created.uberDoomSkull).toBe(8);
+    const b = castSpell({ key: 'troop:7836' }).summary;
+    expect(dmgs(b.order).reduce((t, x) => t + Number(x.split(' ')[2]), 0)).toBe(37);
+    expect((b.gems.created.lightningRow ?? 0) + (b.gems.created.lightningCol ?? 0)).toBe(13);
+    expect(b.gems.created.lightningRow).toBeGreaterThan(0); expect(b.gems.created.lightningCol).toBeGreaterThan(0);
+  });
+  it('troop:7393: kills the chosen enemy outright; 6 Curse, 6 Giant Yellow, 6 Faerie Fire', () => {
+    const s = castSpell({ key: 'troop:7393' }).summary;
+    expect(s.order.slice(0, 2)).toEqual(['dmg E11 910', 'defeat E11']);
+    expect(s.order.filter(x => x.startsWith('convert')).map(x => x.split('-> ')[1])).toEqual(['curseGem x6', 'giantGem/Yellow x6', 'faerieFireGem x6']);
+  });
+});
