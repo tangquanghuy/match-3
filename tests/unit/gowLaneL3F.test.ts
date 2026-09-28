@@ -124,3 +124,28 @@ describe('sa-F B03: statuses / mana drain / storm mana', () => {
     expect(order(castSpell({ key: 'troop:6834' })).filter(o => o.includes('mana'))).toEqual([]);
   });
 });
+
+describe('sa-F B04: mana drain / random second hit / self-sacrifice', () => {
+  it('troop:7291 SableSpiritbane (8865): drains 5 Mana (not Magic)', () => {
+    const r = castSpell({ key: 'troop:7291', target: 10, enemies: [en({ mana: 9, magic: 4 }), en()] });
+    expect(order(r)).toEqual(['dmg E10 14', 'buff E10 mana-5']);
+  });
+  it('troop:6804 Gravitas (8207): drain all Mana then Curse only for Undead or Daemon', () => {
+    for (const race of ['Undead', 'Daemon']) {
+      const r = castSpell({ key: 'troop:6804', target: 10, enemies: [en({ mana: 7, troopTypes: [race] }), en()] });
+      expect(order(r)).toEqual(['dmg E10 13', 'buff E10 mana-7', 'status E10 +curse']);
+    }
+    const plain = castSpell({ key: 'troop:6804', target: 10, enemies: [en({ mana: 7, troopTypes: ['Human'] }), en()] });
+    expect(order(plain)).toEqual(['dmg E10 13']);
+  });
+  it('troop:6128 Hobgoblin (7229): second hit is another enemy while one is alive', () => {
+    for (const seed of [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]) {
+      const r = castSpell({ key: 'troop:6128', seed, target: 10, enemies: [en(), en()] });
+      expect(order(r).filter(o => o.startsWith('dmg'))).toEqual(['dmg E10 13', 'dmg E11 13']);
+    }
+  });
+  it('troop:6214 DwarvenSlayer (7356): dies even behind a Barrier (native two Damage@Self 10000)', () => {
+    const r = castSpell({ key: 'troop:6214', caster: { statuses: st('barrier') } });
+    expect(order(r)).toContain('defeat C');
+  });
+});

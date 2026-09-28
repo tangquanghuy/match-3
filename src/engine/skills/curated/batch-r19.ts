@@ -221,7 +221,8 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '对一名敌人造成 [魔法 + 4] 点伤害。如果敌人是个魔头，则基于我已晋升的稀有度造成 3 到 5 倍伤害。耗掉对方 5 点法力值。',
     build: skill(
       dmg('enemyChosen', 4, 1, { condMult: BOSS_ASC3 }),
-      reduce('lastTarget', 'magic', 5, 0),
+      // sa-F: native DecreaseMana 5 (was draining Magic)
+      reduce('lastTarget', 'mana', 5, 0),
     ),
   },
   {

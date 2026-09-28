@@ -104,7 +104,8 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '对 1 名敌人和另 1 名随机敌人造成 [魔法 + 3] 点伤害。获得一个额外回合。',
     build: skill(
       dmg('enemyChosen', 3, 1),
-      dmg('enemyRandom', 3, 1),
+      // sa-F: native Damage@RandomPrefNotPrevEnemy; EN/ZH "another random enemy"
+      dmg('enemyRandomPrefNotPrev', 3, 1),
       extraTurn(),
     ),
   },

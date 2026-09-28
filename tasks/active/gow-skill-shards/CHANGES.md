@@ -1,6 +1,6 @@
 # GoW 技能改动留档
 
-自动生成（`node scripts/gow-changelog.mjs render`），源数据 [CHANGES.jsonl](CHANGES.jsonl)，共 550 条改动，涉及 1001 个技能 ID。
+自动生成（`node scripts/gow-changelog.mjs render`），源数据 [CHANGES.jsonl](CHANGES.jsonl)，共 553 条改动，涉及 1004 个技能 ID。
 
 ## 按时间
 
@@ -556,6 +556,9 @@
 | 2026-09-28T21:16 | sa-F | L3-F-6278 | assembler | 7424 | troop:6278 SirSnothelm | `src/engine/skills/curated/batch-13.ts` | Web then Entangle → Entangle then Web (native CauseEntangle -> CauseWeb, R001) |  |
 | 2026-09-28T21:16 | sa-F | L3-F-6867 | data | 8289 | troop:6867 Solari | `src/engine/skills/curated/batch-r12.ts`<br>`src/data/gowSnapshotOverrides.json` | ZH: other allies enemies → ZH: all other allies; behaviour unchanged |  |
 | 2026-09-28T21:16 | sa-F | L3-F-6834 | assembler | 8239 | troop:6834 Finesse | `src/engine/skills/curated/batch-p37.ts`<br>`src/data/gowSnapshotOverrides.json` | second hit plain random enemy (could re-hit the chosen one); ZH stray comma → second hit RandomPrefNotPrevEnemy (native); ZH punctuation fixed |  |
+| 2026-09-28T21:19 | sa-F | L3-F-7291 | assembler | 8865 | troop:7291 SableSpiritbane | `src/engine/skills/curated/batch-r19.ts` | drains 5 Magic → drains 5 Mana (native DecreaseMana 5) |  |
+| 2026-09-28T21:19 | sa-F | L3-F-6128 | assembler | 7229 | troop:6128 Hobgoblin | `src/engine/skills/curated/batch-r15.ts` | second hit plain random enemy → second hit RandomPrefNotPrevEnemy (native) |  |
+| 2026-09-28T21:19 | sa-F | L3-F-6214 | assembler | 7356 | troop:6214 DwarvenSlayer | `src/engine/skills/curated/batch-r7.ts` | one self-sacrifice: a Barrier saved the caster → two self-sacrifice steps (native two Damage@Self 10000): Barrier popped, then dies |  |
 
 ## 按技能 ID
 
@@ -627,6 +630,7 @@
 | 7211 | 1 | F1-steal-before-damage |
 | 7214 | 1 | L1-summon-dist |
 | 7216 | 1 | P-chooser-native-restrictions |
+| 7229 | 1 | L3-F-6128 |
 | 7230 | 1 | L4a-R1-7230-7964-count |
 | 7232 | 1 | F2-R001-order |
 | 7233 | 1 | F1-items-62-75 |
@@ -680,6 +684,7 @@
 | 7352 | 1 | R013-5 |
 | 7353 | 1 | L7-6211 |
 | 7354 | 1 | F1-steal-before-damage |
+| 7356 | 1 | L3-F-6214 |
 | 7357 | 1 | F2-R001-order |
 | 7358 | 1 | P-chooser-native-restrictions |
 | 7359 | 2 | L5-013、R004 (L5-004,L5-005,L5-014,L4b-6340) |
@@ -1238,6 +1243,7 @@
 | 8856 | 1 | L2-7282-pref-not-prev |
 | 8859 | 1 | P-random-stat-pool |
 | 8861 | 2 | R7-b11-defs、R013-5 |
+| 8865 | 1 | L3-F-7291 |
 | 8871 | 1 | B-L4b-7257-countmax |
 | 8872 | 1 | L4b-1487-1488 |
 | 8873 | 1 | L4b-1487-1488 |
