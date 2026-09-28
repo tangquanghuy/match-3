@@ -1,6 +1,6 @@
 # GoW 技能改动留档
 
-自动生成（`node scripts/gow-changelog.mjs render`），源数据 [CHANGES.jsonl](CHANGES.jsonl)，共 484 条改动，涉及 819 个技能 ID。
+自动生成（`node scripts/gow-changelog.mjs render`），源数据 [CHANGES.jsonl](CHANGES.jsonl)，共 490 条改动，涉及 824 个技能 ID。
 
 ## 按时间
 
@@ -468,6 +468,7 @@
 | 2026-09-28T10:52 | sa-B | B-L4b-1585-entangle-gems | data | 9349 | weapon:1585 BlackwoodsStaff | `src/data/gowWeaponReviewedOverrides.json` | no reviewed override (regeneration would restore the Entangled-enemy source) → override prototype synced with curated batch-w04 (boardSpecial entangleGem) |  |
 | 2026-09-28T10:53 | sa-A | L4a-r3-1138 | data | 7308 | weapon:1138 DragonOak | `src/engine/skills/curated/batch-w01.ts` | removed the weapon's own colour (CASTER); [2:1] boost had no source → removes one of the chosen enemy's mana colours (RemoveColor FromTarget); boosted 50% of gems removed |  |
 | 2026-09-28T11:07 | sa-C | L5-C-r4-7432 | data | 9126 | troop:7432 LivingRime | `src/engine/skills/curated/batch-r4.ts` | 50% Freeze enemyChosenAndBelow (target included) → 50% Freeze enemyBelowTarget (native BelowTarget, target excluded, R012 pre-kill anchor) |  |
+| 2026-09-28T11:08 | sa-E | L1-E-1394-pool | assembler | 8461 | weapon:1394 EmperinasTooth | `src/engine/skills/curated/batch-w03.ts` | summon branch pool Kobold,KoboldKnight,KoboldMagi,KoboldEmissary,KoboldThief → native SummoningKingdomNoError 3051 = raw KingdomId 3051: Kobold,KoboldKnight,KoboldMagi,KoboldThief,Emperinazara |  |
 | 2026-09-28T11:09 | sa-A | L4a-r4-1071 | data | 7184 | weapon:1071 Skullblade | `src/engine/skills/curated/batch-w01.ts`<br>`scripts/curated-pools/pool-w01.json`<br>`src/data/gowWeaponReviewedOverrides.json` | damage first, then remove Skulls; boost had no source (always +0); zh duplicated 效果 → native order: remove Skulls, then damage first 2 boosted [2:1] by Skulls removed; zh reordered |  |
 | 2026-09-28T11:09 | sa-A | L4a-r4-7457 | data | 9174 | troop:7457 Salamandria | `src/engine/skills/curated/batch-p39.ts` | explode Burning gems first, damage boosted x5 by every gem the blasts destroyed → native order: CountGems Burning, true damage boosted x5 per Burning gem on the board, then explode them |  |
 | 2026-09-28T11:10 | sa-C | L5-C-r4-1132 | data | 7296 | weapon:1132 IceDagger | `src/engine/skills/curated/batch-w01.ts` | Freeze enemyChosen → Freeze lastTarget = the LastEnemy that was damaged (native LastEnemy) |  |
@@ -482,6 +483,11 @@
 | 2026-09-28T11:15 | sa-C | L5-C-r4-1132 | data | 7296, 8508 | weapon:1132 IceDagger；weapon:1405 TheNightfallBlade | `src/engine/skills/curated/batch-w01.ts`<br>`src/engine/skills/curated/batch-w03.ts` | LastEnemy status step bound to the damaged enemy (lastTarget) → LastEnemy re-resolved at the step (enemyLast), consistent with native per-step targets and troop:6674 |  |
 | 2026-09-28T11:15 | sa-C | L5-C-r4-7142 | data | 8691 | troop:7142 SkyGoat | `src/engine/skills/curated/batch-r15.ts` | three independent enemyRandom waves → RandomEnemy then 2x RandomPrefNotPrevEnemy (R007-3) |  |
 | 2026-09-28T11:16 | sa-P | P-B-action-status-self-count | primitive | 8038, 8411, 8937, 7491, 7942 | troop:6692 Mervorax；troop:6933 Ishtara；troop:7325 Tuzi；weapon:1151 EmeraldTear；troop:6624 Mershark | `src/engine/TurnEngine.ts`<br>`src/engine/skills/effects/context.ts`<br>`src/engine/skills/effects/secondary.ts`<br>`src/engine/skills/prototypes.ts`<br>`tests/unit/gowFixP-B-action-status-self-count.test.ts` | TurnEngine.castSkill removed the caster's Enchanted/Submerged/Blessed before the spell body; allyStatusCount/selfStatus/anyAllyStatus never saw the caster's own status → removed ids kept in ctx.actionEndedStatusIds (and castTracking.statusesAtCastStart of the caster); allyStatusCount / selfStatus / anyAllyStatus count the caster; the status is still removed | self-including allyStatusCount/anyAllyStatus/selfStatus users of submerged/blessed/enchanted: troop:6412 6417 6519 6576 6713 6823 6968 7109 7262 7405 7650 7729 7813 weapon:1156 |
+| 2026-09-28T11:16 | sa-E | L1-E-1213-dist | assembler | 7816 | weapon:1213 TomeOfSin | `src/engine/skills/curated/batch-w02.ts` | summonRandomOfKingdom zh 迈纳杰之罪 uniform 1-3 → 3 independent summons 100/50/50% (>=13 Purple) from raw KingdomId 3037 list (33; zh kingdom added 5 non-3037) |  |
+| 2026-09-28T11:16 | sa-E | L1-E-1238-pool | assembler | 7991 | weapon:1238 Riftblade | `src/engine/skills/curated/batch-w02.ts` | 5 seasonal imps → raw KingdomId 3032: + ImpOfLove |  |
+| 2026-09-28T11:16 | sa-E | L1-E-6910-wraith | assembler | 8371 | troop:6910 GaelSpiritwhisperer | `src/engine/skills/curated/batch-r4.ts` | transform into random of Wraith/IceWraith/FrostfireWraith → native Data 6206 = Wraith only |  |
+| 2026-09-28T11:16 | sa-E | L1-E-6757-target | assembler | 8137 | troop:6757 Fungomancer | `src/engine/skills/curated/batch-p37.ts`<br>`src/data/gowSnapshotOverrides.json` | transform if ANY enemy Diseased; zh desc said any enemy → target itself Diseased (TransformConditional@FromTarget AddForDisease); zh desc + snapshot override |  |
+| 2026-09-28T11:16 | sa-E | L1-E-7111-dist | assembler | 8654 | troop:7111 Oneiros | `src/engine/skills/curated/batch-r5.ts` | Nightmare uniform 1-3 → 3 independent summons 100/50/25% |  |
 | 2026-09-28T11:20 | sa-C | L5-C-r4-6819 | data | 8223 | troop:6819 Faemark | `src/engine/skills/curated/batch-r18.ts` | Dispel ifTargetDied after the cleanse segment (checked an ally, never fired) → Dispel all enemies gated by castEnemyDied |  |
 | 2026-09-28T11:20 | sa-C | L5-C-r4-6108 | data | 7177 | troop:6108 IceWitch | `src/engine/skills/curated/batch-12.ts`<br>`src/data/gowSnapshotOverrides.json` | +1 Magic to all allies on kill; zh 1 → +3 Magic (English/native StatusAmount 3); zh override |  |
 | 2026-09-28T11:20 | sa-C | L5-C-r4-6602 | data | 7811 | troop:6602 Barghast | `src/engine/skills/curated/batch-r4.ts` | target and ALL enemies below → target and the next enemy below only (native NextDownFromTarget) |  |
@@ -743,6 +749,7 @@
 | 7805 | 1 | F3-t1210 |
 | 7808 | 1 | R7-6599-full-or |
 | 7811 | 1 | L5-C-r4-6602 |
+| 7816 | 1 | L1-E-1213-dist |
 | 7864 | 1 | L7-R1-attack-armor-life-pooled |
 | 7866 | 1 | R7-1219-create-before-hit |
 | 7928 | 1 | L4a-R1-7928-allnegative |
@@ -767,6 +774,7 @@
 | 7982 | 1 | R7-doomed-support-counters |
 | 7983 | 1 | P-counter-per-step |
 | 7984 | 1 | L1-R2-consume-first |
+| 7991 | 1 | L1-E-1238-pool |
 | 8024 | 1 | P-prefnotprev-semantics |
 | 8032 | 1 | F2-R001-order |
 | 8035 | 1 | F2-R001-order |
@@ -799,6 +807,7 @@
 | 8113 | 1 | P-counter-per-step |
 | 8130 | 1 | F3-t1272 |
 | 8133 | 1 | F2-6754-no-explode |
+| 8137 | 1 | L1-E-6757-target |
 | 8138 | 1 | L4a-r4-6758 |
 | 8139 | 2 | P-counter-per-step、R7-b14-status-counts |
 | 8140 | 1 | L1-1274-amanithrax |
@@ -884,6 +893,7 @@
 | 8357 | 1 | L1-1351-pool |
 | 8365 | 2 | L7-R1-6904-nextdown、P-R4-nextdown-default-range |
 | 8370 | 1 | L4a-r3-6909 |
+| 8371 | 1 | L1-E-6910-wraith |
 | 8373 | 1 | R3-B03-6912 |
 | 8377 | 1 | L2-6916-one-skill |
 | 8382 | 1 | L1-devour-first |
@@ -917,6 +927,7 @@
 | 8440 | 2 | P-random-stat-pool、F1-1377-target |
 | 8454 | 1 | P-R1-dual-storm |
 | 8458 | 1 | L2-6958-order |
+| 8461 | 1 | L1-E-1394-pool |
 | 8463 | 1 | D-b09-targets |
 | 8467 | 2 | L4a-R1-8467-target-count、P-R1-chosen-target-color-cond |
 | 8468 | 1 | F2-R001-order |
@@ -999,7 +1010,7 @@
 | 8646 | 1 | L4a-R1-8646-counters |
 | 8650 | 1 | P-prefnotprev-semantics |
 | 8651 | 1 | L4b-7108-purple-enemies |
-| 8654 | 1 | L3-008 |
+| 8654 | 2 | L3-008、L1-E-7111-dist |
 | 8656 | 2 | P-prefnotprev-semantics、L7-R1-7113-enemy-colour |
 | 8660 | 1 | L7-R1-lethal-order-doomskull |
 | 8662 | 1 | L7-R1-lethal-order-doomskull |

@@ -1,0 +1,3 @@
+# sa-E progress (lane L1, round 4; extra test file tests/unit/gowLaneL1E.test.ts must stay green)
+- B01 troop:6829,6275,6400,6244,6465,6231,weapon:1394,troop:7028,7532,7640 approve=9 fixed=1 (1394 kobold pool = raw kingdom 3051: +Emperinazara, -KoboldEmissary) issue=1 (6465 P-R5-summon-id-reuse); waived 7532 boss, 7640 tower
+- B02 troop:7295,weapon:1213,weapon:1238,troop:6515,6148,6509,7384,6910,6757,7111 approve=10 fixed=5 (1213 3x100/50/50% from raw 3037 list; 1238 +ImpOfLove (raw 3032); 6910 Wraith only (6206); 6757 target-Diseased + zh desc/override; 7111 100/50/25%) issue=0; waived 6515/6509 boss

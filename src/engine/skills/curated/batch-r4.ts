@@ -11,7 +11,6 @@ import { skill, dmg, dmgSplash, dmgAll, trueDmg, heal, armor, attack, mana, infl
   transformTroopRandom, CHOSEN, targetedSkill } from '../builders';
 import { BaseColor } from '../../types';
 // 蜘蛛族引用池（生成器从 troops.json 内联）
-const WRAITH_REFS = ["Wraith","IceWraith","FrostfireWraith"];
 
 const SKIPPED: { id: number; reason: string }[] = [];
 
@@ -246,7 +245,8 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '对一名敌人造成 [魔法 + 3] 点伤害。若敌人是恶魔，则有 50% 的几率将其转化成一名怨灵。',
     build: skill(
       dmg('enemyChosen', 3),
-      transformTroopRandom('enemyChosen', WRAITH_REFS, { chance: 0.5, ifCond: { kind: 'targetRace', race: 'Daemon' } }),
+      // native TransformConditional Data 6206 = Wraith only (not Ice/Frostfire Wraith)
+      transformTroop('enemyChosen', 'Wraith', { chance: 0.5, ifCond: { kind: 'targetRace', race: 'Daemon' } }),
     ),
   },
   {

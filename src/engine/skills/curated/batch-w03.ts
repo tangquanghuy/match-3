@@ -261,7 +261,8 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '对最末位的敌人造成 [魔法 + 4] 点伤害。再获得一个额外回合或召唤一名随机科博。',
     build: skill(
       dmg('enemyLast', 4, 1),
-      oneOf([extraTurn()], [summonRandom(['Kobold', 'KoboldKnight', 'KoboldMagi', 'KoboldEmissary', 'KoboldThief'], undefined)]),
+      // native SummoningKingdomNoError 3051 = raw KingdomId 3051 (KoboldEmissary is kingdom 3012, not in the pool)
+      oneOf([extraTurn()], [summonRandom(['Kobold', 'KoboldKnight', 'KoboldMagi', 'KoboldThief', 'Emperinazara'], undefined)]),
     ),
   },
   {

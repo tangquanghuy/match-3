@@ -202,7 +202,8 @@ const SPELLS: CuratedBatch['spells'] = [
       reduce('enemyAll', 'mana', 7, 0),
       inflict('faerie-fire', 'enemyAll'),
       inflict('burning', 'enemyAll'),
-      summonRef('Nightmare', undefined, { countRange: { min: 1, max: 3 } }),
+      // native Summoning 6568 x3 at 100% / 50% / 25% (independent, not uniform 1-3)
+      summonRef('Nightmare'), summonRef('Nightmare', undefined, { chance: 0.5 }), summonRef('Nightmare', undefined, { chance: 0.25 }),
     ),
   },
   {
