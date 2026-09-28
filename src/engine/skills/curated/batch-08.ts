@@ -159,7 +159,8 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '对 3 名随机敌人造成 [魔法 + 4] 点伤害。若敌人已陷入燃烧状态，则伤害翻倍。',
     build: skill(
       // 回收：condMult 现支持 targetStatus 条件倍率（batch-05 7330 同款；逐受击目标判定）
-      dmg('enemyRandomN', 4, 1, { n: 3, condMult: { times: 2, cond: { kind: 'targetStatus', statusId: 'burning' } } }),
+      // 原生 3 步普通 RandomEnemy：逐段重选存活敌人，优先未命中者、不足时可重复（R006-C3；sa-D）
+      dmg('enemyRandomN', 4, 1, { n: 3, randomWaves: 3, randomPrefer: 'notHit', condMult: { times: 2, cond: { kind: 'targetStatus', statusId: 'burning' } } }),
     ),
   },
   {
