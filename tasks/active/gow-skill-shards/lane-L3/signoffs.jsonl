@@ -105,3 +105,13 @@
 {"format":"compact","key":"troop:7346","decision":"accept","reviewer":"sa-R7","reviewedAt":"2026-09-28T08:28:35.617Z","tests":["tests/unit/gowCastGolden.test.ts"]}
 {"format":"compact","key":"troop:7421","decision":"accept","reviewer":"sa-R7","reviewedAt":"2026-09-28T08:28:35.617Z","tests":["tests/unit/gowCastGolden.test.ts"]}
 {"format":"compact","key":"troop:7363","decision":"issue","reviewer":"sa-R7","reviewedAt":"2026-09-28T08:28:35.795Z","issue":"L3-7363-booty-count","note":"9003 native CreateGems Booty Amount 1 vs English 'Create 2 Booty Gems' (ZH 2); runtime creates 2. Which wins? Rest verified: extra-turn 7% x Blue gems counted before creation (fixed, test)."}
+{"format":"compact","key":"troop:7526","decision":"accept","reviewer":"sa-R7","reviewedAt":"2026-09-28T08:31:32.811Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:7551","decision":"accept","reviewer":"sa-R7","reviewedAt":"2026-09-28T08:31:32.812Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:7841","decision":"accept","reviewer":"sa-R7","reviewedAt":"2026-09-28T08:31:32.812Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:7843","decision":"accept","reviewer":"sa-R7","reviewedAt":"2026-09-28T08:31:32.812Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:7844","decision":"accept","reviewer":"sa-R7","reviewedAt":"2026-09-28T08:31:32.812Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:7839","decision":"accept","reviewer":"sa-R7","reviewedAt":"2026-09-28T08:31:32.813Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:7842","decision":"accept","reviewer":"sa-R7","reviewedAt":"2026-09-28T08:31:32.813Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:7840","decision":"accept","reviewer":"sa-R7","reviewedAt":"2026-09-28T08:31:32.813Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:7845","decision":"accept","reviewer":"sa-R7","reviewedAt":"2026-09-28T08:31:32.813Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:7042","decision":"accept","reviewer":"sa-R7","reviewedAt":"2026-09-28T08:31:32.813Z","tests":["tests/unit/gowCastGolden.test.ts"]}

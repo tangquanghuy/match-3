@@ -635,14 +635,13 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 9283,
-    desc: '创造 1 颗鬼魂宝石。板面上没有一颗蓝色宝石则有 7% 的几率获得一个额外回合。 [x7]',
+    desc: '创造 1 颗鬼魂宝石。板面上每有一颗蓝色宝石，则有 7% 的几率获得一个额外回合。 [x7]',
     build: skill(
+      // sa-R7: EN "7% chance for each Blue Gem" / native CountGems Blue 700 (step 0) + ExtraTurnConditional
+      // (no base Amount): chance = 7% x Blue gems, counted before the creation. Was "only if there are
+      // no Blue gems" + 7% base (misread ZH).
+      extraTurn({ chanceBoost: { mod: { kind: 'multiplier', a: 7 }, source: { kind: 'boardGems', color: BaseColor.Blue } } }),
       createSpecialGems({ kind: 'ghost' }, 1),
-      extraTurn({
-        chance: 0.07,
-        ifCond: { kind: 'not', cond: { kind: 'boardAtLeast', color: BaseColor.Blue, n: 1 } },
-        chanceBoost: { mod: { kind: 'multiplier', a: 7 }, source: { kind: 'boardGems', color: BaseColor.Blue } },
-      }),
     ),
   },
   {
@@ -707,8 +706,10 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 9337,
     desc: '创造 2 颗缠绕宝石。板面上每有一颗绿色宝石，则有 7% 的几率获得一个额外回合。 [x7]',
     build: skill(
+      // sa-R7: native CountGems Green 700 is step 0 and ExtraTurnConditional has no base Amount:
+      // chance = 7% x Green gems counted before the creation (was 7% base + boost, counted after).
+      extraTurn({ chanceBoost: { mod: { kind: 'multiplier', a: 7 }, source: { kind: 'boardGems', color: BaseColor.Green } } }),
       createSpecialGems({ kind: 'entangleGem' }, 2),
-      extraTurn({ chance: 0.07, chanceBoost: { mod: { kind: 'multiplier', a: 7 }, source: { kind: 'boardGems', color: BaseColor.Green } } }),
     ),
   },
   {

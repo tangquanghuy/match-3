@@ -3,7 +3,7 @@
  */
 import { describe, expect, it } from 'vitest';
 import { castSpell } from '../helpers/gowCast';
-import { BaseColor, colorGem, specialGem } from '@engine/types';
+import { BaseColor, colorGem, skullGem, specialGem } from '@engine/types';
 import type { Character } from '@engine/types';
 type E = Partial<Character>;
 const en = (colors: BaseColor[], extra: E = {}): E => ({ hp: 100, maxHp: 100, armor: 0, mana: 0, colors, ...extra });
@@ -295,5 +295,35 @@ describe('L3 R2: B06 other checks', () => {
     const board = (r: number, c: number) => colorGem(r * 8 + c < 20 ? BaseColor.Green : BaseColor.Red);
     const r = castSpell({ key: 'troop:6825', color: BaseColor.Green, board, allies: [{ hp: 500, maxHp: 500, colors: [BaseColor.Green], manaCost: 30 }, { hp: 500, maxHp: 500, colors: [BaseColor.Red], manaCost: 30 }] });
     expect(order(r).filter(o => o.startsWith('buff ') || o.startsWith('status '))).toEqual(['status C +enchanted', 'status A1 +enchanted', 'buff C mana+11', 'buff A1 mana+11']);
+  });
+});
+
+describe('L3 R2: B07 Tarot tail + Dragon "10% extra turn, boosted by <colour> gems" family', () => {
+  const seeds = (n: number) => Array.from({ length: n }, (_, i) => i + 1);
+  const gem = (c: BaseColor | 'skull') => (c === 'skull' ? skullGem() : colorGem(c));
+  const only = (c: BaseColor | 'skull', n: number, other: BaseColor) => (r: number, col: number) => gem(r * 8 + col < n ? c : other);
+  it.each([['troop:7526', BaseColor.Blue], ['troop:7551', BaseColor.Green]] as [string, BaseColor][])('%s: 0 %s gems never, 15 always', (key, c) => {
+    expect(seeds(30).some(seed => castSpell({ key, seed, board: only(c, 0, BaseColor.Brown) }).summary.extraTurn === 'skill')).toBe(false);
+    expect(seeds(30).every(seed => castSpell({ key, seed, board: only(c, 15, BaseColor.Brown) }).summary.extraTurn === 'skill')).toBe(true);
+  });
+  const dragons: [string, BaseColor | 'skull', number][] = [
+    ['troop:7841', BaseColor.Red, 2], ['troop:7843', BaseColor.Purple, 2], ['troop:7844', BaseColor.Brown, 2],
+    ['troop:7839', BaseColor.Blue, 2], ['troop:7842', BaseColor.Yellow, 2], ['troop:7840', BaseColor.Green, 2], ['troop:7845', 'skull', 2.4],
+  ];
+  it.each(dragons)('%s: damage 3 + Magic x mult + 2 per %s gem; 10%% base chance; 45 gems -> always', (key, c, mult) => {
+    const other = c === BaseColor.Brown ? BaseColor.Red : BaseColor.Brown;
+    const r = castSpell({ key, board: only(c, 10, other), enemies: [en([]), en([])] });
+    const d = 3 + Math.round(10 * mult) + 20;
+    expect(order(r).filter(o => o.startsWith('dmg '))).toEqual([`dmg E10 ${d} (all)`, `dmg E11 ${d} (all)`]);
+    const base = seeds(60).map(seed => castSpell({ key, seed, board: only(c, 0, other) }).summary.extraTurn === 'skill');
+    expect(base.some(Boolean) && !base.every(Boolean)).toBe(true);
+    expect(seeds(20).every(seed => castSpell({ key, seed, board: only(c, 45, other) }).summary.extraTurn === 'skill')).toBe(true);
+  });
+  it('troop:7042 Wereverine: any Lycanthropy gem -> Lycanthropy on the target + full mana back; none -> neither', () => {
+    const lyc = (r: number, c: number) => (r === 0 && c === 0 ? specialGem('lycanthropyGem') : colorGem(BaseColor.Red));
+    const r = castSpell({ key: 'troop:7042', target: 10, board: lyc, enemies: [en([]), en([])] });
+    expect(order(r)).toEqual(['dmg E10 7', 'status E10 +lycanthropy', 'buff C mana+12']);
+    const none = castSpell({ key: 'troop:7042', target: 10, board: () => colorGem(BaseColor.Red), enemies: [en([]), en([])] });
+    expect(order(none)).toEqual(['dmg E10 7']);
   });
 });

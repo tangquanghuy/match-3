@@ -1,6 +1,6 @@
 # GoW 技能改动留档
 
-自动生成（`node scripts/gow-changelog.mjs render`），源数据 [CHANGES.jsonl](CHANGES.jsonl)，共 291 条改动，涉及 524 个技能 ID。
+自动生成（`node scripts/gow-changelog.mjs render`），源数据 [CHANGES.jsonl](CHANGES.jsonl)，共 292 条改动，涉及 526 个技能 ID。
 
 ## 按时间
 
@@ -297,6 +297,7 @@
 | 2026-09-28T08:28 | sa-R7 | R7-tarot-extra-turn | assembler | 8667, 8974, 9003, 9115, 8917 | troop:7088 TheDevil；troop:7346 DeathTarot；troop:7363 TheHangedMan；troop:7421 TheHermit；troop:7305 TheHighPriestess | `src/engine/skills/curated/batch-p38.ts`<br>`src/engine/skills/curated/batch-r4.ts`<br>`src/engine/skills/curated/batch-p39.ts`<br>`src/engine/skills/curated/batch-r14.ts` | extra-turn chance 7% base + 7% per gem (8667/8974/9003/9115); counted after the gem creation (8974/9003/9115/8917) → native ExtraTurnConditional UseCounterForAmount, no Amount: 7% per gem only; CountGems step 0 so extra-turn roll placed before the creation (R001) |  |
 | 2026-09-28T08:28 | sa-R7 | R7-7211-gargoyle-count | assembler | 8798 | troop:7211 Tourmaline | `src/engine/skills/curated/batch-r8.ts` | drain 4 + 3 per gem on the board (boardGems any) → drain 4 + 3 per Gargoyle gem, Good + Evil (native CountGems GoodGargoyle/BadGargoyle 300) |  |
 | 2026-09-28T08:28 | sa-R7 | R7-6825-ratio | assembler | 8235 | troop:6825 Tuliao | `src/engine/skills/curated/batch-r22.ts` | 6 Mana + 4 per chosen-colour gem (x4) → 6 Mana + 1 per 4 chosen-colour gems (native CountGems Amount 25 = [4:1], R003) |  |
+| 2026-09-28T08:30 | sa-R7 | R7-tarot-extra-turn | assembler | 9283, 9337 | troop:7526 JusticeTarot；troop:7551 TheHierophant | `src/engine/skills/curated/batch-r7.ts` | 9283: extra turn only if NO Blue gems, 7% base (+boost); ZH desc said 'no Blue gem'. 9337: 7% base + 7%/Green gem, counted after creation → 7% per counted gem only, rolled before the creation (native CountGems step 0 + ExtraTurnConditional without Amount); 9283 ZH desc fixed to 'each Blue gem' |  |
 
 ## 按技能 ID
 
@@ -719,8 +720,10 @@
 | 9280 | 2 | P-prefnotprev-semantics、R3-B12-7262 |
 | 9281 | 1 | L7-7517 |
 | 9282 | 1 | F3-q37 |
+| 9283 | 1 | R7-tarot-extra-turn |
 | 9303 | 1 | L7-R1-weapon-colour-race |
 | 9306 | 1 | L7-R1-weapon-colour-race |
+| 9337 | 1 | R7-tarot-extra-turn |
 | 9352 | 1 | L7-R1-weapon-colour-race |
 | 9355 | 1 | L7-R1-weapon-colour-race |
 | 9363 | 1 | F2-R001-order |
