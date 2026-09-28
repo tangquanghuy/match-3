@@ -10,7 +10,7 @@ import { emptyGachaWishlist, type GachaWishlist, type GachaAudit } from '../data
  *  - kingdoms 缺条目 = 1 级 / 0 任务进度（首次交互时才写入条目）。
  */
 
-import { STARTING_CURRENCIES } from '../data/economy';
+import { STARTING_CURRENCIES, STARTING_KINGDOM } from '../data/economy';
 import { STARTER_WEAPON_ID } from '../data/weapons';
 import type { EventTypeId } from '../data/events';
 
@@ -269,6 +269,11 @@ export interface MetaSave {
   arena: ArenaState;
   /** key = 王国名（troops.json 的 kingdom 字段口径） */
   kingdoms: Record<string, KingdomState>;
+  /**
+   * 主城（GoW Home Kingdom）：进贡翻倍。null = 未设置。
+   * 加性字段（version 不变）；旧档缺省为起始王国。
+   */
+  homeKingdom: string | null;
   stats: MetaStats;
   /** 最近一次领取每日首胜的「当日零点」epoch ms；0 = 从未领取。加性字段，version 仍为 1 */
   dailyFirstWinAt: number;
@@ -359,6 +364,7 @@ export function newSave(options: NewSaveOptions = {}): MetaSave {
     activeTeamIndex: 0,
     arena: { activeDraft: null, seasonWins: 0, bestRun: 0, lastFreeEntryAt: 0 },
     kingdoms: {},
+    homeKingdom: STARTING_KINGDOM,
     stats: { battlesWon: 0, battlesLost: 0, soulsEarned: 0, goldEarned: 0 },
     dailyFirstWinAt: 0,
     gachaLog: [],

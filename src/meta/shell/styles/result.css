@@ -380,7 +380,7 @@
   position: absolute;
   inset: 0;
   z-index: -1;
-  background: url("/meta/assets/result/continue-button.webp") center / 100% 100% no-repeat;
+  background: var(--rs-art-continue) center / 100% 100% no-repeat;
 }
 .rs-continue span {
   position: relative;
@@ -467,7 +467,7 @@
   translate: -50% 0;
   display: grid;
   place-items: center;
-  background: url("/meta/assets/result/levelup-ribbon.webp") center / 100% 100% no-repeat;
+  background: var(--rs-art-ribbon) center / 100% 100% no-repeat;
   filter: drop-shadow(0 6px 10px rgba(0, 0, 0, .55));
 }
 .lu-ribbon h2 {
@@ -501,6 +501,52 @@
 .lu-prompt b { color: #fff6dc; font: 600 clamp(16px, 2.9cqmin, 26px)/1.25 var(--display); letter-spacing: .1em; }
 .lu-prompt small { color: rgba(240, 230, 208, .8); font-size: clamp(11px, 1.7cqmin, 14px); line-height: 1.5; }
 .lu-band.needs-pick .lu-prompt b { color: #ffe38a; }
+
+/* 本级新开放的王国：徽记 + 名字的横条 */
+.lu-unlock {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 6px 12px;
+  margin: 0;
+  padding: 6px 18px;
+  border: 1px solid rgba(240, 200, 120, .55);
+  border-radius: 999px;
+  background: linear-gradient(90deg, rgba(20, 14, 6, 0), rgba(40, 28, 10, .82) 18%, rgba(40, 28, 10, .82) 82%, rgba(20, 14, 6, 0));
+  color: #fff1cf;
+  text-shadow: 0 2px 3px #000;
+}
+.lu-unlock[hidden] { display: none; }
+.lu-unlock-tag {
+  color: #ffd98a;
+  font: 600 clamp(12px, 1.9cqmin, 16px)/1 var(--display);
+  letter-spacing: .14em;
+}
+.lu-unlock-kingdom { display: inline-flex; align-items: center; gap: 6px; }
+.lu-unlock-kingdom b { font: 600 clamp(14px, 2.3cqmin, 20px)/1 var(--display); letter-spacing: .06em; }
+.lu-unlock-crest {
+  width: clamp(22px, 3.6cqmin, 34px);
+  height: clamp(26px, 4.2cqmin, 40px);
+  object-fit: contain;
+  filter: drop-shadow(0 2px 3px rgba(0, 0, 0, .7));
+}
+.lu-unlock-crest.is-text {
+  display: inline-grid;
+  place-items: center;
+  border-radius: 6px;
+  background: #3a2a12;
+  font: 600 14px/1 var(--display);
+}
+.lu-unlock small { color: rgba(240, 230, 208, .75); font-size: clamp(11px, 1.6cqmin, 13px); }
+.rs-levelup.is-entering .lu-unlock { animation: rs-rise .5s ease-out .6s both; }
+/* 有新王国横条时，把精通卡压矮一点，给横条让出高度，避免压住底栏 */
+.lu-band:has(.lu-unlock:not([hidden])) { gap: clamp(6px, 1.1cqh, 14px); }
+.lu-band:has(.lu-unlock:not([hidden])) .lu-card-frame { height: clamp(104px, 17cqh, 180px); }
+@container rs (max-height: 720px) {
+  .lu-unlock { padding-block: 3px; }
+  .lu-band:has(.lu-unlock:not([hidden])) .lu-prompt small { display: none; }
+}
 .lu-band.needs-pick .lu-choices { animation: lu-shake .45s ease-in-out; }
 
 .lu-choices {
@@ -530,7 +576,7 @@
   display: block;
   height: clamp(120px, 22cqh, 210px);
   aspect-ratio: 362 / 560;
-  background: url("/meta/assets/result/mastery-card.webp") center / 100% 100% no-repeat;
+  background: var(--rs-art-card) center / 100% 100% no-repeat;
   filter: drop-shadow(0 12px 18px rgba(0, 0, 0, .55));
   transition: filter .2s ease;
 }
@@ -795,6 +841,15 @@
   .lu-card-frame { height: 24cqh; }
   .lu-band { gap: 6px; padding-block: 4px; }
   .lu-card small { display: none; }
+}
+/* 手机横屏（窄且矮）：竖排底栏放不下，改回横排，盾徽按高度缩 */
+@container rs (max-width: 760px) and (max-height: 520px) {
+  .lu-emblem { width: auto; height: 30cqh; margin-top: 1cqh; margin-bottom: 5cqh; }
+  .lu-prompt small, .lu-unlock small { display: none; }
+  .lu-footer { flex-direction: row; align-items: center; padding-block: 4px 8px; }
+  .lu-stats { padding: 6px 8px; }
+  .lu-stat { font-size: 15px; }
+  .lu-footer .rs-continue { flex: none; align-self: center; width: 190px; }
 }
 
 /* ------------------------------------------------------------ 减弱动效 --- */

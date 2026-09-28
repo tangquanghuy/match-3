@@ -348,7 +348,7 @@ describe('主角入队桥接与结算（天赋真实入战）', () => {
       enemyByExternalId: new Map(),
       todayStart: 1000,
     });
-    expect(detail.heroLevelsGained).toBe(1); // 击杀 0 + 胜利 40 + 主角胜场 60 = 100 ≥ 首级 80
+    expect(detail.heroLevelsGained).toBe(1); // 击杀 0 + 胜利 40 + 主角胜场 60 = 100 ≥ 首级门槛 100
     expect(s.hero.level).toBe(2);
     expect(s.hero.classXp[STARTER_CLASS]).toBe(25);
     expect(s.hero.classWins[STARTER_CLASS]).toBe(1);

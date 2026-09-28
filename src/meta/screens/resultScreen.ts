@@ -8,6 +8,7 @@
  * 2. 升级（levelup）：主角本场升级时，「继续」先进入逐级升级页——双翼盾徽 + 等级数字、
  *    本级法力精通二选一（hero.masteryOffers 队首，经网关 pickManaMastery 入账）、
  *    底栏四维（本级提升项绿色高亮）。选定精通后才能继续；多级连升逐页呈现。
+ *    该级若有新王国开放（kingdomsUnlockedBetween），在精通提示上方给出徽记 + 王国名。
  *
  * 音乐：挂载即压住氛围 BGM（backgroundMusic 'result' 静音槽），由 resultMusic 实时合成
  * 胜利 / 战败曲；升级页叠加升级号角；离开时淡出并交还氛围 BGM。
@@ -17,7 +18,7 @@ import { resultMusic } from '../../audio/ResultMusic';
 import { prefersReducedMotion } from '../../preferences/playerPreferences';
 import type { SettlementDetail } from '../systems/settlement';
 import { heroStatsAt, heroXpToNext } from '../data/classes';
-import { QUESTS_PER_KINGDOM } from '../data/kingdoms';
+import { ALL_KINGDOMS_UNLOCK_LEVEL, kingdomsUnlockedBetween, QUESTS_PER_KINGDOM } from '../data/kingdoms';
 import { getTroopById, type TroopData } from '../../data/troops';
 import { RARITY_NAMES } from '../data/rarity';
 import { temperingBonusOf } from '../systems/hero';
@@ -31,10 +32,12 @@ import {
 } from '../systems/manaMastery';
 import { isFailure } from '../gateway';
 import type { MetaSave } from '../state/schema';
-import { ART, KINGDOM_VIEWS } from './mapData';
+import { ART, KINGDOM_VIEWS, kingdomViewOf } from './mapData';
 import { troopArt } from './teamScreen';
+import { escapeHtml } from './troopCard';
 import { bottomNavHtml, mountIcons, toast, toastHtml, topbarHtml, $ } from '../shell/chrome';
 import type { PvpSettlementView, Screen, ShellCtx } from '../shell/screen';
+import { cssUrlVar, resultArt } from '../shell/artAssets';
 
 const fmt = (n: number): string => n.toLocaleString('en-US');
 
@@ -49,9 +52,14 @@ const CURRENCY_ART = {
   gems: new URL('../../assets/chrome/gem.png', import.meta.url).href,
 } as const;
 
-/** 结算/升级页彩绘素材（public/meta/assets/result/，透明底 WebP） */
-const RESULT_ART = '/meta/assets/result';
-const art = (name: string): string => `${RESULT_ART}/${name}.webp`;
+/** 结算/升级页彩绘素材（src/assets/meta/result/，透明底 WebP，随构建打包） */
+const art = (name: string): string => resultArt(name);
+/** 页面 CSS 里用到的底板图：以 CSS 变量挂到根节点（?raw 注入的 CSS 不改写 url） */
+const RESULT_CSS_ART = [
+  cssUrlVar('rs-art-continue', resultArt('continue-button')),
+  cssUrlVar('rs-art-ribbon', resultArt('levelup-ribbon')),
+  cssUrlVar('rs-art-card', resultArt('mastery-card')),
+].filter(Boolean).join(';');
 const MASTERY_ART: Record<ManaColor, string> = {
   Red: art('mastery-red'),
   Green: art('mastery-green'),
@@ -225,7 +233,7 @@ export class ResultScreen implements Screen {
 
   html(): string {
     return `${topbarHtml()}
-      <main class="screen result-screen" data-view="summary">
+      <main class="screen result-screen" data-view="summary" style='${RESULT_CSS_ART}'>
         <div class="rs-art" id="summaryArt" hidden><img id="sumArt" alt="" decoding="async"></div>
         <div class="rs-shade" aria-hidden="true"></div>
         <div class="rs-particles" id="rsParticles" aria-hidden="true"></div>
@@ -254,6 +262,7 @@ export class ResultScreen implements Screen {
             <div class="lu-ribbon"><h2 id="levelUpTitle">等级提升</h2></div>
           </div>
           <div class="lu-band" id="luBand">
+            <p class="lu-unlock" id="luUnlock" role="status" hidden></p>
             <p class="lu-prompt" id="luPrompt"><b>选择一项法力精通</b><small id="luPromptNote"></small></p>
             <div class="lu-choices" id="luChoices"></div>
           </div>
@@ -484,6 +493,7 @@ export class ResultScreen implements Screen {
     this.selected = null;
     this.renderChoices();
     this.renderStats(level);
+    this.renderUnlock(level);
     const section = $('#levelUp');
     section.classList.remove('is-entering');
     if (!prefersReducedMotion()) {
@@ -529,6 +539,26 @@ export class ResultScreen implements Screen {
     };
     $('#luChoices').innerHTML = `${card(offer[0], 0)}<span class="lu-or" aria-hidden="true"><span>或</span></span>${card(offer[1], 1)}`;
     this.syncContinue();
+  }
+
+  /** 这一级新开放的王国（每级约 1 个，Lv.42 全开）：徽记 + 名字，提示回地图看迷雾散开 */
+  private renderUnlock(level: number): void {
+    const el = $('#luUnlock');
+    const opened = kingdomsUnlockedBetween(level - 1, level);
+    el.hidden = opened.length === 0;
+    if (!opened.length) {
+      el.innerHTML = '';
+      return;
+    }
+    const crest = (k: string): string => {
+      const src = kingdomViewOf(k).crest;
+      return src
+        ? `<img class="lu-unlock-crest" src="${src}" alt="" draggable="false">`
+        : `<span class="lu-unlock-crest is-text" aria-hidden="true">${escapeHtml(k.slice(0, 1))}</span>`;
+    };
+    el.innerHTML = `<span class="lu-unlock-tag">新王国开放</span>${opened.map((k) =>
+      `<span class="lu-unlock-kingdom">${crest(k)}<b>${escapeHtml(k)}</b></span>`).join('')}
+      <small>${level >= ALL_KINGDOMS_UNLOCK_LEVEL ? '全部王国已开放' : '地图迷雾已散开'}</small>`;
   }
 
   private renderStats(level: number): void {

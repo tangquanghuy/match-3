@@ -12,9 +12,9 @@ import { hydrateWishlist, hydrateGachaAudit } from '../systems/wishlist';
  */
 import { META_SAVE_VERSION, newSave, type EventShopState, type EventWeekState, type GachaLogEntry, type InvasionState, type KingdomState, type MetaSave, type TeamMember, type TeamPreset, type TroopRecord } from './schema';
 import { EVENT_MILESTONES, EVENT_SHOP, EVENT_TYPES, EVENT_WEEKLY_PLAY_REWARD_CAP, WEEK_MS, type EventTypeId } from '../data/events';
-import { EXPLORE_MAX_TIER } from '../data/kingdoms';
+import { EXPLORE_MAX_TIER, KINGDOM_ORDER } from '../data/kingdoms';
 import { GACHA_LOG_CAP } from './schema';
-import { starterTroopIds } from '../data/economy';
+import { STARTING_KINGDOM, starterTroopIds } from '../data/economy';
 import { hydrateManaMastery } from '../systems/manaMastery';
 
 export interface StorageLike {
@@ -538,6 +538,12 @@ export function hydrateSave(raw: Record<string, unknown>): MetaSave {
     activeTeamIndex: num(raw.activeTeamIndex, 0, 0, Math.max(teams.length - 1, 0)),
     arena,
     kingdoms,
+    // 主城：只接受推进序里的王国名；null 表示玩家主动取消；缺省（旧档）回落起始王国
+    homeKingdom: raw.homeKingdom === null
+      ? null
+      : typeof raw.homeKingdom === 'string' && KINGDOM_ORDER.includes(raw.homeKingdom)
+        ? raw.homeKingdom
+        : STARTING_KINGDOM,
     stats,
     dailyFirstWinAt: num(raw.dailyFirstWinAt, 0, 0),
     gachaLog,

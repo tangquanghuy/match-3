@@ -55,8 +55,12 @@ export interface TributeCollect {
   hits: number;
   gold: number;
   souls: number;
+  glory: number;
   goldKeys: number;
 }
+
+/** 一键收取全部进贡的结果（tribute.collectAllTribute 的 haul） */
+export type TributeHaul = import('../systems/tribute').TributeTreasury;
 
 /** 弃赛结果 */
 export interface ArenaForfeit {
@@ -149,6 +153,10 @@ export interface MetaGateway {
   // —— 王国经营（M3） ——
   upgradeKingdomLevel(kingdom: string): Promise<GatewayUpdate<number | MetaFailure>>;
   collectKingdomTribute(kingdom: string, now: number): Promise<GatewayUpdate<TributeCollect>>;
+  /** 一键收取全部已开放王国的进贡（含多国同时进贡的宝石/金钥匙加成） */
+  collectAllTribute(now: number): Promise<GatewayUpdate<TributeHaul>>;
+  /** 设为主城（进贡翻倍）；null = 取消 */
+  setHomeKingdom(kingdom: string | null): Promise<GatewayUpdate<string | null | MetaFailure>>;
   setKingdomExploreTier(kingdom: string, tier: number): Promise<GatewayUpdate<number | MetaFailure>>;
 
   // —— 竞技场（M7） ——

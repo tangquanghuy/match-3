@@ -122,7 +122,35 @@ export function heroStatsAt(level: number): LeveledStats {
   };
 }
 
-/** 主角升到下一级所需经验（设计值：80×等级^1.35，就近取 10） */
+/**
+ * 主角每级的「目标场数」：按同级内容打一场胜利大约能拿多少经验来反推升级门槛。
+ *  - 1~10 级：0.45 → 1.85 场（首胜即升 2 级门槛；新手期几乎一场一级，王国一级开一个）
+ *  - 10~50 级：1.85 → 7 场（平缓爬升；Lv.42 全部王国开放）
+ *  - 50 级以后：每级 +0.36 场，到 99 级约 25 场（长线养成期）
+ * GoW 官方未公布主角经验表；社区观察是「需求按等级线性增长、每场经验基本恒定」，
+ * 所以前期快、后期慢。本项目等级上限 100，按上面三段压缩。
+ */
+function heroBattlesPerLevel(level: number): number {
+  const lv = Math.max(1, level);
+  if (lv <= 10) return 0.45 + 0.155 * (lv - 1);
+  if (lv <= 50) return 1.85 + 0.13 * (lv - 10);
+  return 7.05 + 0.36 * (lv - 50);
+}
+
+/** 同级主线一场胜利的参考经验：4 名敌人 ×（等级×10 + 稀有度加成）+ 胜利 40 + 主角 60 */
+function heroReferenceBattleXp(level: number): number {
+  return 40 * Math.max(1, level) + 180;
+}
+
+/** 主角升到下一级所需经验（设计值：目标场数 × 同级一场经验，就近取 10） */
 export function heroXpToNext(level: number): number {
-  return Math.max(10, Math.round((80 * Math.pow(Math.max(level, 1), 1.35)) / 10) * 10);
+  const raw = heroBattlesPerLevel(level) * heroReferenceBattleXp(level);
+  return Math.max(10, Math.round(raw / 10) * 10);
+}
+
+/** 从 1 级升到 level 级累计所需经验（经验曲线说明 / 测试用） */
+export function heroXpTotalTo(level: number): number {
+  let total = 0;
+  for (let lv = 1; lv < Math.max(1, Math.floor(level)); lv++) total += heroXpToNext(lv);
+  return total;
 }

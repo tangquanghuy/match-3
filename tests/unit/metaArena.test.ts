@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import type { BattleResult } from '../../src/session/contract';
 import { getTroopById } from '../../src/data/troops';
+import { heroXpToNext } from '../../src/meta/data/classes';
 import {
   ARENA,
   ARENA_REWARDS,
@@ -214,12 +215,13 @@ describe('限定编队与连战', () => {
       battleRewards: { gold: 60, souls: 30, xpGained: 100, heroLevelsGained: 1 } });
     expect(s.currencies.gold - before.gold).toBe(60);
     expect(s.currencies.souls - before.souls).toBe(30);
-    expect(s.hero.level).toBe(2); expect(s.hero.xp).toBe(20);
+    const carry = 100 - heroXpToNext(1);
+    expect(s.hero.level).toBe(2); expect(s.hero.xp).toBe(carry);
     const loss = settleArenaBattle(s, mkResult('enemy'));
     expect(loss).toMatchObject({ ok: true, runOver: false,
       battleRewards: { gold: 20, souls: 10, xpGained: 20 } });
     expect(s.currencies.gold - before.gold).toBe(80);
     expect(s.currencies.souls - before.souls).toBe(40);
-    expect(s.hero.xp).toBe(40);
+    expect(s.hero.xp).toBe(carry + 20);
   });
 });

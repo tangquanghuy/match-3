@@ -163,10 +163,15 @@ export const WIN_BONUS_XP = 40;
 // ---------------------------------------------------------------------------
 
 /**
- * 进贡（计划 §4.5 裁定口径）：每王国每小时掷 min(等级×5%, 75%)，命中产黄金+灵魂、
- * 概率金钥匙；离线累积上限 12 小时。
- * GoW 官方对照（gems-of-war.fandom/wiki Kingdoms）：每等级 +1%、上限 10%、无离线上限
- * ——官方节奏为长线网游设计，单机版按本表执行；要切换口径只改这里的常量。
+ * 进贡（GoW 口径 + 单机节奏）：
+ *  - 每王国每小时掷一次「进贡几率」= 等级 × 5%（GoW 为 1%/级、10 级 10%，但官方玩家
+ *    每小时上线收一次且有 30+ 王国，单机版放大到 5%/级）；离线最多累积 12 小时；
+ *  - 命中时按**该王国自己的进贡配比**产出黄金 / 灵魂 / 荣耀（GoW 每个王国配比不同：
+ *    破碎尖塔 200 金 8 魂、盖塔尔 40 魂、白盔国 10 荣耀…，见 data/kingdomTribute.ts）；
+ *  - 同一小时有多个王国一起进贡 → 额外宝石与金钥匙（GoW：「多个王国同时进贡会额外
+ *    给宝石和钥匙」，社区实测 2 国 2 宝石 1 钥匙 … 5 国以上 20 宝石 4 钥匙，这里按单机
+ *    经济压缩，见 TRIBUTE_MULTI_BONUS）；
+ *  - 主城（Home Kingdom）进贡翻倍（GoW 官方规则）。
  */
 export const TRIBUTE = {
   /** 每王国等级的每小时命中概率 */
@@ -175,29 +180,51 @@ export const TRIBUTE = {
   maxChance: 0.75,
   /** 离线累积上限（小时） */
   capHours: 12,
-  /** 命中一次的黄金：60 + 40×等级（设计值） */
-  goldBase: 60,
-  goldPerLevel: 40,
-  /** 命中一次的灵魂：15 + 10×等级（设计值） */
-  soulsBase: 15,
-  soulsPerLevel: 10,
-  /** 每次命中的金钥匙概率 */
-  goldKeyChance: 0.08,
+  /** 黄金/灵魂随王国等级放大：× (1 + 0.4 ×(等级−1))，10 级 ×4.6 */
+  amountPerLevel: 0.4,
+  /** 荣耀随王国等级放大得慢：× (1 + 0.1 ×(等级−1))，10 级 ×1.9 */
+  gloryPerLevel: 0.1,
+  /** 灵魂按官方基数 ×2（本项目部队升级更依赖灵魂，改前口径每次 25~115 魂） */
+  soulScale: 2,
+  /** 主城进贡倍率 */
+  homeMultiplier: 2,
 } as const;
 
-/** 每小时命中一次进贡的黄金 */
-export function tributeGold(level: number): number {
-  return TRIBUTE.goldBase + TRIBUTE.goldPerLevel * Math.max(level, 1);
-}
+/**
+ * 同一小时 N 个王国一起进贡的额外奖励（取满足 min 的最高一档）。
+ * GoW 社区实测：2 国 2 宝石/1 钥匙、3 国 10/2、4 国 15/3、5 国以上 20/4；
+ * 单机版没有商城与公会消耗，宝石与钥匙按约 1/3~1/2 压缩，另加 8 国一档给后期。
+ */
+export const TRIBUTE_MULTI_BONUS: readonly { min: number; gems: number; goldKeys: number }[] = [
+  { min: 2, gems: 1, goldKeys: 0 },
+  { min: 3, gems: 3, goldKeys: 1 },
+  { min: 4, gems: 5, goldKeys: 1 },
+  { min: 5, gems: 8, goldKeys: 1 },
+  { min: 8, gems: 12, goldKeys: 2 },
+];
 
-/** 每小时命中一次进贡的灵魂 */
-export function tributeSouls(level: number): number {
-  return TRIBUTE.soulsBase + TRIBUTE.soulsPerLevel * Math.max(level, 1);
+/** 某小时有 count 个王国同时进贡时的额外奖励（不足 2 国为 0） */
+export function tributeMultiBonus(count: number): { gems: number; goldKeys: number } {
+  let hit = { gems: 0, goldKeys: 0 };
+  for (const tier of TRIBUTE_MULTI_BONUS) {
+    if (count >= tier.min) hit = { gems: tier.gems, goldKeys: tier.goldKeys };
+  }
+  return hit;
 }
 
 /** 每小时进贡命中概率 */
 export function tributeChance(level: number): number {
   return Math.min(Math.max(level, 0) * TRIBUTE.chancePerLevel, TRIBUTE.maxChance);
+}
+
+/** 黄金/灵魂的等级倍率 */
+export function tributeAmountScale(level: number): number {
+  return 1 + TRIBUTE.amountPerLevel * (Math.max(level, 1) - 1);
+}
+
+/** 荣耀的等级倍率 */
+export function tributeGloryScale(level: number): number {
+  return 1 + TRIBUTE.gloryPerLevel * (Math.max(level, 1) - 1);
 }
 
 /**

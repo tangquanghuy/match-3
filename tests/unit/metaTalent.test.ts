@@ -25,6 +25,7 @@ import {
   type MetaSave,
 } from '../../src/meta';
 import type { BattleResult } from '../../src/session/contract';
+import { heroXpToNext } from '../../src/meta/data/classes';
 
 const KNIGHT = 'knight';
 const ELEMENTALIST = 'elementalist';
@@ -162,7 +163,7 @@ describe('战斗快照期加成', () => {
     expect(xpBonusPct(s)).toBe(10);
     expect(xpBonusPct(saveWithClass(KNIGHT, 100))).toBe(0);
 
-    // 结算联动：40（胜利）+60（主角胜场）=100 → 加成后 110 ≥ 首级 80 但 < 160
+    // 结算联动：40（胜利）+60（主角胜场）=100 → 加成后 110 ≥ 首级门槛，但不够再升一级
     s.kingdoms['破碎尖塔'] = { level: 1, questsDone: 1, exploreTier: 0, lastTributeAt: 0 };
     setTeamPreset(s, 0, {
       name: 't',
@@ -172,7 +173,7 @@ describe('战斗快照期加成', () => {
     const plan = planQuestEncounter('破碎尖塔', 2, 5);
     applySettlement(s, mkResult('player'), { plan, enemyByExternalId: new Map(), todayStart: 1000 });
     expect(s.hero.level).toBe(2);
-    expect(s.hero.xp).toBe(30); // 110 - 80
+    expect(s.hero.xp).toBe(110 - heroXpToNext(1));
   });
 });
 

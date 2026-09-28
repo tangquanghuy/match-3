@@ -53,11 +53,15 @@ export function kingdomTroopPool(
   return pool.filter((t) => t.rarityIdx >= rarityBand.min && t.rarityIdx <= rarityBand.max);
 }
 
-/** 敌人基数等级：1 + 王国序号 × 2，封顶 50（设计值；越靠后解锁的王国越硬） */
+/**
+ * 敌人基数等级 = 该王国的解锁等级（封顶 50）。
+ *
+ * GoW 4.5 起「任务难度随王国组缩放」：刚解锁的王国，主线第 1 关敌人与冒险者同级，
+ * 第 8 关高 7 级。改前是「1 + 序号 × 2」，与每级解锁一国的新节奏错位——冒险者 20 级
+ * 刚解锁的第 20 个王国会是 39 级敌人。
+ */
 export function kingdomBaseLevel(kingdom: string): number {
-  const idx = KINGDOM_ORDER.indexOf(kingdom);
-  if (idx < 0) return 1;
-  return Math.min(1 + idx * 2, 50);
+  return Math.min(kingdomUnlockLevel(kingdom), 50);
 }
 
 /** 出战双方固定 4 人（不存在 3v3） */
@@ -146,9 +150,32 @@ export function kingdomBonusStat(kingdom: string): (typeof BONUS_STATS)[number] 
 }
 
 /**
- * 王国解锁所需主角等级（设计值）：直接复用敌人基数等级表——越靠后的王国
- * 敌人越硬、解锁门槛越高，两张表天然一致，免维护第二份。
+ * 王国解锁所需冒险者等级：推进序第 n 个王国（0 起）在 Lv.n+1 开放——每升一级开一国，
+ * 42 国在 Lv.42 全部开放。
+ *
+ * 依据：GoW 官方数据（data/raw/gow-2026-09-18/kingdoms.en.json 的 LevelRequired）旧版口径
+ * 就是「按等级逐个开放」：破碎尖塔 1 → 阿达纳 8 → 卡拉考斯 9 → 蛛尔卡里 10 → 白盔国 12 …
+ * 大部分 25、最后一批 30。本项目推进序与官方顺序基本一致（按最小兵种 id），
+ * 等级上限 100 而官方上千，所以压成「一级一国、四十出头全开」。
+ * 未知王国按 1 级处理（不因数据缺口把内容锁死）。
  */
 export function kingdomUnlockLevel(kingdom: string): number {
-  return kingdomBaseLevel(kingdom);
+  const idx = KINGDOM_ORDER.indexOf(kingdom);
+  return idx < 0 ? 1 : idx + 1;
 }
+
+/** 冒险者达到 level 时已开放的王国（按推进序） */
+export function kingdomsUnlockedAt(level: number): string[] {
+  return KINGDOM_ORDER.filter((kingdom) => kingdomUnlockLevel(kingdom) <= level);
+}
+
+/** 冒险者从 fromLevel 升到 toLevel 时新开放的王国（结算升级页的「新王国开放」提示） */
+export function kingdomsUnlockedBetween(fromLevel: number, toLevel: number): string[] {
+  return KINGDOM_ORDER.filter((kingdom) => {
+    const need = kingdomUnlockLevel(kingdom);
+    return need > fromLevel && need <= toLevel;
+  });
+}
+
+/** 全部王国开放所需的冒险者等级 */
+export const ALL_KINGDOMS_UNLOCK_LEVEL = KINGDOM_ORDER.length;

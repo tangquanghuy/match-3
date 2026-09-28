@@ -25,8 +25,8 @@ import { claimWeapon, equipClass, equipWeapon, forgeCatalogWeapon as forgeCatalo
 import { clearTalent, pickTalent, unlockHeroTrait } from '../systems/talents';
 import { pickManaMastery } from '../systems/manaMastery';
 import { openGemChest, openGoldChest, openGloryChest } from '../systems/gacha';
-import { upgradeKingdom, setExploreTier, exploreUnlocked } from '../systems/kingdomOps';
-import { collectTribute } from '../systems/tribute';
+import { upgradeKingdom, setExploreTier, exploreUnlocked, setHomeKingdom } from '../systems/kingdomOps';
+import { collectAllTribute, collectTribute } from '../systems/tribute';
 import type { SettlementContext } from '../systems/settlement';
 import { temperWeaponOnSave } from '../systems/forgeOps';
 import { planEventEncounter, currentEventTheme, ensureEventWeek, eventBattleReady, buyEventGoods, applyEventBattleModifiers, abandonTowerRun } from '../systems/events';
@@ -317,6 +317,19 @@ export class MockGateway implements MetaGateway {
     const result: TributeCollect = collected;
     if (ok) this.persist();
     return { result, save: this.save };
+  }
+
+  async collectAllTribute(now: number) {
+    const { haul } = collectAllTribute(this.save, now);
+    this.persist();
+    return { result: haul, save: this.save };
+  }
+
+  async setHomeKingdom(kingdom: string | null) {
+    const result = setHomeKingdom(this.save, kingdom);
+    const normalized = result.ok ? result.home : result;
+    if (result.ok) this.persist();
+    return { result: normalized, save: this.save };
   }
 
   async setKingdomExploreTier(kingdom: string, tier: number) {

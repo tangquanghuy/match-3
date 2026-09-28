@@ -100,7 +100,8 @@ test('王国详情把战斗置于主行动并为锁定王国提供单一门禁�
     return {
       questArea: qr.width * qr.height,
       upgradeArea: ur.width * ur.height,
-      visualOrder: qr.top < tr.top && tr.top < ur.top,
+      // 王国等级与进贡两块并排放在主行动下方
+      visualOrder: qr.bottom <= tr.top + 1 && qr.bottom <= ur.top + 1,
       upgradeIsPrimary: upgrade.classList.contains('primary'),
       questBackground: getComputedStyle(quest).backgroundImage,
       upgradeBackground: getComputedStyle(upgrade).backgroundImage,

@@ -5,15 +5,52 @@
  */
 import { isFailure, todayStartOf, weekStartOf, type MetaGateway } from '../gateway';
 import type { MetaSave } from '../state/schema';
-import { KINGDOM_MAX_LEVEL, kingdomNodeState } from '../systems/kingdomOps';
-import { EXPLORE_MAX_TIER, kingdomBonusStat, kingdomTroopPool } from '../data/kingdoms';
+import {
+  KINGDOM_MAX_LEVEL,
+  kingdomBonusOf,
+  kingdomNodeState,
+  maxedKingdoms,
+  type KingdomFog,
+} from '../systems/kingdomOps';
+import { tributeTreasury, type TributeTreasury } from '../systems/tribute';
+import {
+  ALL_KINGDOMS_UNLOCK_LEVEL,
+  EXPLORE_MAX_TIER,
+  kingdomBonusStat,
+  kingdomsUnlockedAt,
+  kingdomsUnlockedBetween,
+  kingdomTroopPool,
+} from '../data/kingdoms';
+import { BANNERS } from '../data/banners';
 import { EVENT_MILESTONES, EVENT_TYPES, type EventTypeId } from '../data/events';
 import { anyWeaponById } from '../data/weaponCatalog';
 import { kingdomUpgradeCost, INVASION, TRIBUTE, KINGDOM_FIRST_CLEAR_GEMS } from '../data/economy';
 import { eventMetricOf, eventShopOf } from '../systems/events';
 import { bottomNavHtml, fitStage, mountIcons, toast, toastHtml, topbarHtml, $, $$ } from '../shell/chrome';
 import type { Screen, ShellCtx } from '../shell/screen';
+import { cssUrlVar, kingdomArt, resultArt } from '../shell/artAssets';
+import { BANNER_ART_CSS, bannerArtHtml, bannerBoostChips } from '../shell/bannerArt';
+import { bannerUnlocked } from '../systems/banners';
+import { prefersReducedMotion } from '../../preferences/playerPreferences';
 import { ART, KINGDOM_VIEWS, kingdomViewOf, type KingdomView } from './mapData';
+import { MapFog, fogSeenLevel, markFogSeen, type FogHole } from './mapFog';
+import {
+  currencyList,
+  levelPerksHtml,
+  levelPipsHtml,
+  multiBonusHint,
+  specialtyTagHtml,
+  STAT_NAME,
+  treasuryBodyHtml,
+  tributeYieldHtml,
+} from './kingdomSheet';
+import KINGDOM_SHEET_CSS from './kingdomSheet.css?inline';
+
+/** 地图屏用到的彩绘底板（CSS 变量挂在地图根节点上） */
+const MAP_CSS_ART = [
+  cssUrlVar('kg-art-crown', kingdomArt('home-crown')),
+  cssUrlVar('kg-art-button', resultArt('continue-button')),
+].filter(Boolean).join(';');
 
 const MAP_W = 5440;
 const MAP_H = 2920;
@@ -64,6 +101,11 @@ export interface NodeVm {
   view: KingdomView;
   level: number;
   locked: boolean;
+  /** 迷雾：open 已开放 / scouted 已探明（带锁可见）/ hidden 迷雾中（地图不渲染） */
+  fog: KingdomFog;
+  home: boolean;
+  tributeGlory: number;
+  tributeChance: number;
   unlockLevel: number;
   questsDone: number;
   nextNode: number | null;
@@ -95,6 +137,10 @@ function nodeVms(gateway: MetaGateway): NodeVm[] {
       view,
       level: save.kingdoms[view.name]?.level ?? 1,
       locked: state.locked,
+      fog: state.fog,
+      home: state.home,
+      tributeGlory: state.tributeGlory,
+      tributeChance: state.tributeChance,
       unlockLevel: state.unlockLevel,
       questsDone: state.questsDone,
       nextNode: state.nextNode,
@@ -698,11 +744,17 @@ export class MapScreen implements Screen {
   private listSort: 'progress' | 'tribute' | 'name' = 'progress';
   private listQuery = '';
   private labelJob = 0;
+  private ctx!: ShellCtx;
+  private fog: MapFog | null = null;
+  /** 本次进入地图时刚开放的王国（揭幕动画 + 金色光环） */
+  private justOpened = new Set<string>();
+  private collectTimer = 0;
   private listeners: Array<[EventTarget, string, EventListenerOrEventListenerObject, AddEventListenerOptions?]> = [];
 
   html(ctx: ShellCtx): string {
     return `
       <style id="mapScreenCss">${MAP_CSS}</style>
+      <style id="mapKingdomCss">#stage { ${MAP_CSS_ART} } ${KINGDOM_SHEET_CSS}${BANNER_ART_CSS}</style>
       ${topbarHtml()}
       <div class="map-shell">
         <aside class="rail left" aria-label="玩法入口">
@@ -727,12 +779,14 @@ export class MapScreen implements Screen {
           <div class="map-viewport" id="mapViewport">
             <div class="map-world" id="mapWorld">
               <img class="map-art" src="/meta/assets/world-map-mosaic-v2.webp" alt="克里斯塔拉大陆奇幻世界地图" draggable="false">
+              <canvas class="map-fog" id="mapFog" aria-hidden="true"></canvas>
               <div class="map-nodes" id="nodes"></div>
             </div>
             <div class="map-vignette" aria-hidden="true"></div>
           </div>
           <div class="map-tools">
-            <button class="chip" id="kingdomListBtn" type="button"><span data-icon="book"></span><span>王国列表 · 42</span></button>
+            <button class="chip kbonus" id="kingdomBonusBtn" type="button" title="满 10 级的王国给全体部队与主角的属性加成"><span data-icon="wing"></span><span id="kingdomBonusCopy">王国加成</span></button>
+            <button class="chip" id="kingdomListBtn" type="button"><span data-icon="book"></span><span id="kingdomListCopy">王国列表</span></button>
           </div>
           <button class="compass" id="compass" type="button" aria-label="重置视野">
             <svg viewBox="0 0 88 88" aria-hidden="true">
@@ -766,7 +820,7 @@ export class MapScreen implements Screen {
           <button class="chip" id="dailyHunt" type="button"><span data-icon="compass"></span><span id="dailyHuntCopy">寻宝</span></button>
         </div>
       </div>
-      ${bottomNavHtml('地图', `Lv.${ctx.save().hero.level} · 42 王国`)}
+      ${bottomNavHtml('地图', `Lv.${ctx.save().hero.level} · 王国 ${kingdomsUnlockedAt(ctx.save().hero.level).length}/${ALL_KINGDOMS_UNLOCK_LEVEL}`)}
       ${toastHtml()}
 
       <div class="modal-veil" id="kingdomVeil" hidden>
@@ -776,11 +830,24 @@ export class MapScreen implements Screen {
             <img id="kingdomPortrait" alt="">
             <div class="art-shade"></div>
             <div class="art-frame" aria-hidden="true"></div>
-            <div class="art-caption"><small id="kingdomEn">BROKEN SPIRE</small><b id="kingdomArtName">破碎尖塔</b></div>
+            <div class="kingdom-art-banner" id="kingdomArtBanner"></div>
+            <div class="art-caption">
+              <small id="kingdomEn">BROKEN SPIRE</small><b id="kingdomArtName">破碎尖塔</b>
+              <div class="kh-art-note" id="kingdomBannerNote"></div>
+            </div>
           </div>
           <div class="kingdom-info">
-            <h2 id="kingdomName">破碎尖塔</h2>
-            <p class="kingdom-blurb" id="kingdomBlurb"></p>
+            <div class="kh-head">
+              <div>
+                <h2 id="kingdomName">破碎尖塔</h2>
+                <p class="kingdom-blurb" id="kingdomBlurb"></p>
+              </div>
+              <div class="kh-shield" id="kingdomShield" title="王国等级">
+                <img src="${kingdomArt('kingdom-shield')}" alt="" draggable="false">
+                <b id="kingdomLevel">1</b>
+                <small>王国等级</small>
+              </div>
+            </div>
             <section class="kingdom-lock-panel" id="kingdomLockPanel" hidden>
               <div class="kingdom-lock-level">
                 <span data-icon="lock"></span>
@@ -795,20 +862,7 @@ export class MapScreen implements Screen {
               <button class="primary" id="kingdomLockedCta" type="button"><span data-icon="flag"></span><span>前往当前可推进的王国</span></button>
             </section>
             <div class="kingdom-open-body" id="kingdomOpenBody">
-              <div class="kv-grid">
-                <div class="kstat">
-                  <span class="kstat-mark" data-icon="flag"></span>
-                  <div><small>等级</small><b id="kingdomLevel"><em>1</em><i>/ 10</i></b></div>
-                </div>
-                <div class="kstat" id="kingdomStock">
-                  <span class="kstat-mark" data-icon="coin"></span>
-                  <div><small>进贡</small><b id="kingdomTribute">累积中</b></div>
-                </div>
-                <div class="kstat">
-                  <span class="kstat-mark" id="kingdomBonusIcon" data-icon="wing"></span>
-                  <div><small>满级</small><b id="kingdomBonus"><em>—</em></b></div>
-                </div>
-              </div>
+              <div class="kh-tags" id="kingdomTags"></div>
               <section class="kingdom-combat">
                 <div class="kingdom-section-kicker"><b>当前行动</b></div>
                 <button class="entry kingdom-main-entry" id="entryQuest" type="button">
@@ -821,17 +875,25 @@ export class MapScreen implements Screen {
                   <button class="entry" id="entryTroops" type="button"><span data-icon="book"></span><span><b>王国部队</b><small id="troopProgress">0 / 8</small></span></button>
                 </div>
               </section>
-              <div class="tribute-row" id="tributeRow">
-                <div class="tribute-meter">
-                  <div class="tribute-meter-head"><span data-icon="time"></span><span id="tributeCopy">累积中</span></div>
-                  <div class="tribute-track" aria-hidden="true"><i id="tributeFill"></i></div>
-                </div>
-                <button class="tribute-btn" id="kingdomCollect" type="button"><span data-icon="bag"></span><span id="collectLabel">收取</span></button>
-              </div>
-              <div class="upgrade-block" id="upgradeBlock">
-                <div class="section-line"><h3>王国升级</h3><span id="upgradeHint"></span></div>
-                <div class="growth-track"><i id="kingdomFill"></i></div>
-                <button class="secondary kingdom-upgrade" id="kingdomUpgrade" type="button"><span data-icon="chevrons"></span><span id="upgradeLabel">投入升级</span><span class="price"><span data-icon="coin"></span><b id="upgradeCost">0</b></span></button>
+              <div class="kh-panels">
+                <section class="kh-panel kh-level upgrade-block" id="upgradeBlock" aria-labelledby="kingdomLevelTitle">
+                  <header><b id="kingdomLevelTitle">王国等级</b><span id="upgradeHint"></span></header>
+                  <div class="kh-pips" id="kingdomPips" aria-hidden="true"></div>
+                  <p class="kh-rule">每升一级：<b>进贡几率 +5%</b> · <b>进贡产出 +0.4 倍</b> · <b>旗帜主色法力精通 +1</b>（提高战斗中法力涌动几率）</p>
+                  <ul class="kh-perks" id="kingdomPerks"></ul>
+                  <button class="secondary kingdom-upgrade" id="kingdomUpgrade" type="button"><span data-icon="chevrons"></span><span id="upgradeLabel">投入升级</span><span class="price"><span data-icon="coin"></span><b id="upgradeCost">0</b></span></button>
+                </section>
+                <section class="kh-panel kh-tribute tribute-row" id="tributeRow" aria-labelledby="kingdomTributeTitle">
+                  <header><b id="kingdomTributeTitle">进贡</b><span id="tributeSpecialty"></span></header>
+                  <div class="kh-yield" id="tributeYield"></div>
+                  <div class="tribute-meter">
+                    <div class="tribute-meter-head"><span data-icon="time"></span><span id="tributeCopy">累积中</span></div>
+                    <div class="tribute-track" aria-hidden="true"><i id="tributeFill"></i></div>
+                  </div>
+                  <p class="kh-stock" id="kingdomTribute">累积中</p>
+                  <p class="kh-rule" id="tributeRule"></p>
+                  <button class="tribute-btn" id="kingdomCollect" type="button"><span data-icon="bag"></span><span id="collectLabel">打开宝库</span></button>
+                </section>
               </div>
             </div>
           </div>
@@ -854,16 +916,28 @@ export class MapScreen implements Screen {
         </aside>
       </div>
 
-      <div class="modal-veil" id="tributeVeil" hidden>
-        <section class="tribute-sheet" role="dialog" aria-modal="true" aria-labelledby="tributeSheetTitle">
-          <div><h2 id="tributeSheetTitle">一键收取进贡</h2></div>
-          <p class="tb-total" id="tributeNote"></p>
-          <div class="tb-rows" id="tributeRows"></div>
-          <p class="tb-total" id="tributeTotal"></p>
-          <div class="tb-acts">
-            <button class="cancel" id="tributeCancel" type="button">取消</button>
-            <button class="primary" id="tributeConfirm" type="button"><span data-icon="coin"></span><span id="tributeConfirmLabel">确认收取</span></button>
+      <div class="modal-veil tribute-veil" id="tributeVeil" hidden>
+        <section class="tribute-sheet treasury" id="treasurySheet" role="dialog" aria-modal="true" aria-labelledby="tributeSheetTitle">
+          <button class="sheet-close" id="tributeClose" type="button" aria-label="关闭"><span data-icon="close"></span></button>
+          <div class="tr-hero">
+            <img src="${kingdomArt('treasury-hoard')}" alt="" draggable="false">
+            <p class="tr-sub">各王国每小时按自己的配比进贡黄金、灵魂与荣耀；多国同一小时进贡另给宝石与金钥匙。</p>
+            <h2 id="tributeSheetTitle">王国宝库</h2>
           </div>
+          <div class="tr-body" id="tributeRows"></div>
+          <div class="tb-acts">
+            <button class="cancel" id="tributeCancel" type="button">稍后再来</button>
+            <button class="tr-collect" id="tributeConfirm" type="button"><span id="tributeConfirmLabel">全部收取</span></button>
+          </div>
+        </section>
+      </div>
+
+      <div class="modal-veil tip-veil" id="kbonusVeil" hidden>
+        <section class="money-tip etched kbonus-sheet" role="dialog" aria-modal="true" aria-labelledby="kbonusTitle">
+          <h2 id="kbonusTitle">王国满级加成</h2>
+          <p class="kbonus-note">王国升到 10 级后，该王国绑定的属性对<b>全体部队与主角</b>永久 +1，任务、探索、活动与入侵都生效（竞技场统一数值，不计）。</p>
+          <ul id="kbonusRows"></ul>
+          <button class="cancel" id="kbonusClose" type="button">关闭</button>
         </section>
       </div>
 
@@ -880,11 +954,23 @@ export class MapScreen implements Screen {
     // `render()` mounts the screen before the shared chrome pass. Establish native map sizing
     // first so the initial camera uses the real viewport instead of the 1600px design canvas.
     fitStage();
+    this.ctx = ctx;
     const save = ctx.save();
     this.heroLevel = save.hero.level;
     this.nodes = nodeVms(ctx.gateway);
+    // 迷雾揭幕：上次看地图之后新开放的王国（首次进入不播，只记下当前等级）
+    const seen = fogSeenLevel();
+    this.justOpened = new Set(seen === null ? [] : kingdomsUnlockedBetween(seen, save.hero.level));
+    markFogSeen(save.hero.level);
     this.renderNodes(save);
     this.refreshDaily(save, ctx);
+    this.fog = new MapFog($('#mapFog') as HTMLCanvasElement, MAP_W, MAP_H);
+    this.paintFog();
+    if (this.justOpened.size) {
+      toast(`迷雾散去 · 新王国开放：${[...this.justOpened].join('、')}`);
+      const first = [...this.justOpened][0]!;
+      this.selected = first;
+    }
 
     this.focusKingdom(this.selected, this.homeScale());
 
@@ -901,7 +987,16 @@ export class MapScreen implements Screen {
       if (e.target === $('#kingdomVeil')) this.closeKingdom();
     });
     this.on($('#kingdomUpgrade'), 'click', () => void this.upgrade(ctx));
-    this.on($('#kingdomCollect'), 'click', () => void this.collect(ctx));
+    // 王国弹层的「打开宝库」：GoW 口径全部王国一起收（多国同一小时进贡才有宝石/钥匙加成）
+    this.on($('#kingdomCollect'), 'click', () => this.openTreasury(ctx));
+    this.on($('#kingdomTags'), 'click', (e) => {
+      if ((e.target as HTMLElement).closest('#kingdomHome')) void this.toggleHome(ctx);
+    });
+    this.on($('#kingdomBonusBtn'), 'click', () => this.openBonusSheet(ctx));
+    this.on($('#kbonusClose'), 'click', () => ($('#kbonusVeil').hidden = true));
+    this.on($('#kbonusVeil'), 'click', (e) => {
+      if (e.target === $('#kbonusVeil')) $('#kbonusVeil').hidden = true;
+    });
     this.on($('#entryQuest'), 'click', () => this.enterQuest(ctx));
     this.on($('#entryExplore'), 'click', () => this.enterExplore(ctx));
     this.on($('#entryTroops'), 'click', () => this.enterTroops(ctx));
@@ -913,15 +1008,13 @@ export class MapScreen implements Screen {
       const claimed = ctx.save().dailyFirstWinAt >= todayStartOf(Date.now());
       toast(claimed ? '今日首胜已领取，明天再来。' : '打赢任意一场战斗，结算时自动领取每日首胜宝石。');
     });
-    // M-9：不可撤销的批量结算改走二次确认层（改前点一下就把全服收干）
-    this.on($('#dailyTribute'), 'click', () => this.openTributeConfirm(ctx));
-    this.on($('#tributeCancel'), 'click', () => ($('#tributeVeil').hidden = true));
-    this.on($('#tributeConfirm'), 'click', () => {
-      $('#tributeVeil').hidden = true;
-      void this.collectAllTribute(ctx);
-    });
+    // M-9：批量结算先进宝库看清收什么，再点「全部收取」
+    this.on($('#dailyTribute'), 'click', () => this.openTreasury(ctx));
+    this.on($('#tributeCancel'), 'click', () => this.closeTreasury());
+    this.on($('#tributeClose'), 'click', () => this.closeTreasury());
+    this.on($('#tributeConfirm'), 'click', () => void this.collectAllTribute(ctx));
     this.on($('#tributeVeil'), 'click', (e) => {
-      if (e.target === $('#tributeVeil')) $('#tributeVeil').hidden = true;
+      if (e.target === $('#tributeVeil')) this.closeTreasury();
     });
     this.bindKingdomList();
     this.on($('#dailyArena'), 'click', () => ctx.navigate('#arena'));
@@ -944,10 +1037,10 @@ export class MapScreen implements Screen {
     }
 
     const ways: Record<string, Array<[string, string]>> = {
-      gold: [['战斗结算', '击杀与首胜'], ['王国进贡', '按小时累积，上限 12 小时'], ['分解多余卡', '不回收已投入养成']],
-      soul: [['战斗结算', '按敌人稀有度 × 等级'], ['幽魂宝石', '战斗内拾取'], ['王国进贡', '与黄金一并结算']],
-      gem: [['王国逐关首通', `普通 ${KINGDOM_FIRST_CLEAR_GEMS.normal} / 困难 ${KINGDOM_FIRST_CLEAR_GEMS.hard} / 非常困难 ${KINGDOM_FIRST_CLEAR_GEMS.veryHard} 宝石，每关仅一次`], ['竞技场胜场', '按最终胜场结算'], ['每日首胜', '本地日期判定'], ['每周活动', '里程碑与守土奖励']],
-      key: [['进贡概率', '随王国等级提高'], ['任务奖励', '章节节点'], ['成就', '长期目标']],
+      gold: [['战斗结算', '击杀与首胜'], ['王国进贡', '黄金之国产得最多，主城翻倍，最多攒 12 小时'], ['分解多余卡', '不回收已投入养成']],
+      soul: [['战斗结算', '按敌人稀有度 × 等级'], ['幽魂宝石', '战斗内拾取'], ['王国进贡', '灵魂之国（盖塔尔、迈纳杰之罪等）产得最多']],
+      gem: [['王国逐关首通', `普通 ${KINGDOM_FIRST_CLEAR_GEMS.normal} / 困难 ${KINGDOM_FIRST_CLEAR_GEMS.hard} / 非常困难 ${KINGDOM_FIRST_CLEAR_GEMS.veryHard} 宝石，每关仅一次`], ['多国同时进贡', '宝库一键收取，同一小时 2 国以上进贡'], ['竞技场胜场', '按最终胜场结算'], ['每日首胜', '本地日期判定'], ['每周活动', '里程碑与守土奖励']],
+      key: [['多国同时进贡', '宝库一键收取，同一小时 3 国以上进贡另给金钥匙'], ['任务奖励', '王国主线 8/8'], ['竞技场 / 活动', '里程碑奖励']],
     };
     const titles: Record<string, string> = { gold: '黄金', soul: '灵魂', gem: '宝石', key: '金钥匙' };
     $$('[data-currency]').forEach((btn) =>
@@ -971,7 +1064,8 @@ export class MapScreen implements Screen {
         this.closeKingdom();
         $('#moneyVeil').hidden = true;
         $('#kingdomListVeil').hidden = true;
-        $('#tributeVeil').hidden = true;
+        $('#kbonusVeil').hidden = true;
+        this.closeTreasury();
       }
     });
     // M-12（本屏局部）：底部提示的锁图标与「Lv.12 · 42 王国」毫无关系 → 换地图图标。
@@ -1012,13 +1106,17 @@ export class MapScreen implements Screen {
 
   private renderKingdomList(): void {
     const q = this.listQuery;
-    const rows = this.nodes
+    // 迷雾中的王国不列名字（GoW 4.5：看不见下一批之后的王国），只在末尾报数
+    const known = this.nodes.filter((n) => n.fog !== 'hidden');
+    const hidden = this.nodes.filter((n) => n.fog === 'hidden');
+    const tributeValue = (n: NodeVm): number => (n.tributeReady ? n.tributeGold + n.tributeSouls * 5 + n.tributeGlory * 20 + 1 : 0);
+    const rows = known
       .filter((n) => !q || n.view.name.toLowerCase().includes(q) || n.view.en.toLowerCase().includes(q))
       .sort((a, b) => {
         if (this.listSort === 'name') return a.view.name.localeCompare(b.view.name, 'zh-Hans-CN');
         if (this.listSort === 'tribute') {
-          const av = a.tributeReady ? a.tributeGold + 1 : 0;
-          const bv = b.tributeReady ? b.tributeGold + 1 : 0;
+          const av = tributeValue(a);
+          const bv = tributeValue(b);
           if (av !== bv) return bv - av;
         }
         // 推进度：可玩优先（未锁 > 锁），其中未打完的在前，再按门槛等级
@@ -1029,24 +1127,27 @@ export class MapScreen implements Screen {
         return a.unlockLevel - b.unlockLevel;
       });
     const el = $('#kingdomListRows');
+    const fogRow = !q && hidden.length
+      ? `<p class="kl-empty kl-fog">迷雾中还有 ${hidden.length} 个王国 · 冒险者每升一级探明一个（Lv.${ALL_KINGDOMS_UNLOCK_LEVEL} 全部开放）</p>`
+      : '';
     el.innerHTML = rows.length
       ? rows
           .map((n) => {
             const tag = n.locked
-              ? `<span class="kl-tag">冒险者 Lv.${n.unlockLevel}</span>`
+              ? `<span class="kl-tag">Lv.${n.unlockLevel} 开放</span>`
               : n.tributeReady
-                ? `<span class="kl-tag ${n.tributeOverflowing ? 'over' : 'gold'}">进贡 ${fmt(n.tributeGold)}${n.tributeOverflowing ? ' · 满溢' : ''}</span>`
+                ? `<span class="kl-tag ${n.tributeOverflowing ? 'over' : 'gold'}">可收进贡${n.tributeOverflowing ? ' · 已满' : ''}</span>`
                 : `<span class="kl-tag">任务 ${n.questsDone}/8</span>`;
             const sub = n.locked
-              ? `${n.view.en} · 未解锁`
-              : `${n.view.en} · Lv.${n.level} · 任务 ${n.questsDone}/8${n.exploreUnlocked ? ' · HARD' : ''}`;
+              ? `${n.view.en} · 已探明，尚未开放`
+              : `${n.view.en} · Lv.${n.level} · 任务 ${n.questsDone}/8${n.exploreUnlocked ? ' · HARD' : ''}${n.home ? ' · 主城' : ''}`;
             return `<button class="kl-row${n.locked ? ' locked' : ''}" type="button" data-id="${n.view.name}">
               <span class="kl-crest">${n.view.crest ? `<img src="${n.view.crest}" alt="">` : crestSvg(n.view)}</span>
               <span><b>${n.view.name}</b><small>${sub}</small></span>
               ${tag}
             </button>`;
           })
-          .join('')
+          .join('') + fogRow
       : '<p class="kl-empty">没有匹配的王国。</p>';
     $$('.kl-row', el).forEach((row) =>
       this.on(row, 'click', () => {
@@ -1056,43 +1157,45 @@ export class MapScreen implements Screen {
     );
   }
 
-  // —— M-9 一键收贡的二次确认（不可撤销的批量结算必须先看清收什么） ——
+  // —— 王国宝库（一键收取全部进贡；多国同一小时进贡另给宝石/金钥匙） ——
 
-  private openTributeConfirm(ctx: ShellCtx): void {
-    const ready = this.nodes.filter((n) => !n.locked && n.tributeReady);
-    if (!ready.length) {
-      toast('尚无可领取进贡。');
-      return;
-    }
-    const gold = ready.reduce((s, n) => s + n.tributeGold, 0);
-    const souls = ready.reduce((s, n) => s + n.tributeSouls, 0);
-    const keys = ready.reduce((s, n) => s + n.tributeKeys, 0);
-    // 「还没攒满就收」= 把计时器拨回 now，未满溢的部分等于白亏（M-9 的核心风险）
-    const early = ready.filter((n) => !n.tributeOverflowing && n.tributeHours < TRIBUTE.capHours);
-    $('#tributeNote').textContent = early.length
-      ? `收取会把该国的累积计时拨回现在。下面 ${early.length} 国还没攒满 ${TRIBUTE.capHours} 小时，现在收等于少拿后面的产出。`
-      : '收取会把累积计时拨回现在。';
-    $('#tributeRows').innerHTML = ready
-      .map((n) => {
-        const earlyOne = !n.tributeOverflowing && n.tributeHours < TRIBUTE.capHours;
-        const parts = [
-          n.tributeGold ? `黄金 ${fmt(n.tributeGold)}` : '',
-          n.tributeSouls ? `灵魂 ${n.tributeSouls}` : '',
-          n.tributeKeys ? `金钥匙 ${n.tributeKeys}` : '',
-        ].filter(Boolean).join(' · ');
-        const note = n.tributeOverflowing
-          ? `已满 ${TRIBUTE.capHours} 小时并溢出，建议立刻收`
-          : earlyOne
-            ? `只累计 ${n.tributeHours}/${TRIBUTE.capHours} 小时，${clockOf(n.tributeCapAt)} 才满`
-            : `已攒满 ${TRIBUTE.capHours} 小时`;
-        return `<div class="tb-row${earlyOne ? ' warn' : ''}"><span><b>${n.view.name}</b><small>${note}</small></span><span>${parts}</span></div>`;
-      })
-      .join('');
-    $('#tributeTotal').textContent = `合计：黄金 ${fmt(gold)} · 灵魂 ${souls}${keys ? ` · 金钥匙 ${keys}` : ''}（${ready.length} 国）`;
-    $('#tributeConfirmLabel').textContent = `确认收取 ${ready.length} 国`;
-    mountIcons($('#tributeVeil'));
+  private openTreasury(ctx: ShellCtx): void {
+    clearTimeout(this.collectTimer);
+    const treasury = tributeTreasury(ctx.save(), Date.now());
+    $('#treasurySheet').classList.remove('is-collected');
+    this.renderTreasury(treasury, false);
     $('#tributeVeil').hidden = false;
-    void ctx;
+  }
+
+  private renderTreasury(treasury: TributeTreasury, collected: boolean): void {
+    $('#tributeRows').innerHTML = treasuryBodyHtml(treasury, Date.now());
+    $$('#tributeRows .tr-total').forEach((el, i) => el.style.setProperty('--i', String(i)));
+    const btn = $('#tributeConfirm') as HTMLButtonElement;
+    btn.disabled = !collected && !treasury.ready;
+    btn.classList.toggle('is-done', collected);
+    $('#tributeConfirmLabel').textContent = collected ? '✓ 已入库' : treasury.ready ? `全部收取 · ${treasury.readyCount} 国` : '暂无进贡';
+    mountIcons($('#tributeVeil'));
+  }
+
+  private closeTreasury(): void {
+    clearTimeout(this.collectTimer);
+    const veil = document.getElementById('tributeVeil');
+    if (veil) veil.hidden = true;
+  }
+
+  /** 满级王国加成说明（全体部队与主角） */
+  private openBonusSheet(ctx: ShellCtx): void {
+    const save = ctx.save();
+    const bonus = kingdomBonusOf(save);
+    const maxed = maxedKingdoms(save);
+    const totals = (['health', 'armor', 'attack', 'magic'] as const)
+      .map((k) => `<li><span>全体${STAT_NAME[k]}</span><b>+${bonus[k]}</b></li>`)
+      .join('');
+    const list = maxed.length
+      ? maxed.map((k) => `<li><span>${k}</span><b>${STAT_NAME[kingdomBonusStat(k)]} +1</b></li>`).join('')
+      : `<li><span>还没有满 10 级的王国</span><b>在王国弹层投入黄金升级</b></li>`;
+    $('#kbonusRows').innerHTML = totals + list;
+    $('#kbonusVeil').hidden = false;
   }
 
   // —— M-5 标签防重叠（逐节点纵向让位；缩放时标签跟着缩） ——
@@ -1221,19 +1324,37 @@ export class MapScreen implements Screen {
     ctx.navigate('#quest/' + encodeURIComponent(target));
   }
 
+  /** 迷雾层：已开放王国大洞、已探明小洞；刚开放的做一次展开揭幕 */
+  private paintFog(): void {
+    if (!this.fog) return;
+    const holes: FogHole[] = this.nodes
+      .filter((n) => n.fog !== 'hidden')
+      .map((n) => ({ x: n.view.x, y: n.view.y, kind: n.fog === 'open' ? 'open' : 'scouted', reveal: this.justOpened.has(n.view.name) }));
+    void this.fog.render(holes, prefersReducedMotion());
+  }
+
   /** 外壳挂载后的二次刷新（战斗归来等场景直接复用） */
   private renderNodes(save: MetaSave): void {
     const nodesEl = $('#nodes');
     nodesEl.innerHTML = this.nodes
+      .filter((n) => n.fog !== 'hidden')
       .map((n) => {
         const locked = n.locked;
-        const cls = ['knode', n.view.hero ? 'hero' : 'far', n.view.name === this.selected ? 'sel' : '', locked ? 'locked' : '', !locked && n.tributeReady ? 'has-trib' : '']
+        const cls = [
+          'knode',
+          n.view.hero ? 'hero' : 'far',
+          n.view.name === this.selected ? 'sel' : '',
+          locked ? 'locked scouted' : '',
+          !locked && n.tributeReady ? 'has-trib' : '',
+          !locked && n.home ? 'home' : '',
+          this.justOpened.has(n.view.name) ? 'just-opened' : '',
+        ]
           .filter(Boolean)
           .join(' ');
         const mark = n.view.crest ? `<img src="${n.view.crest}" alt="" draggable="false">` : crestSvg(n.view);
         // M-2：锁态与王国等级不再共用一个「裸数字」槽位。
         //   解锁 → 主角是王国名 + 蓝签王国等级（+ 可收进贡角标）；
-        //   锁态 → 主角是门槛明文「🔒 冒险者 Lv.N 解锁」，王国名退为第二行。
+        //   已探明 → 主角是门槛明文「🔒 冒险者 Lv.N 解锁」，王国名退为第二行。
         const meta = locked
           ? `<span class="kmeta locked">
                <span class="kgate"><span data-icon="lock"></span>冒险者 Lv.${n.unlockLevel} 解锁</span>
@@ -1246,15 +1367,16 @@ export class MapScreen implements Screen {
         const tributeMark = n.tributeGold
           ? `<span data-icon="coin"></span>${fmt(n.tributeGold)}`
           : n.tributeSouls
-            ? `<span data-icon="soul"></span>${n.tributeSouls}`
-            : `<span data-icon="key"></span>${n.tributeKeys}`;
+            ? `<span data-icon="soul"></span>${fmt(n.tributeSouls)}`
+            : `<span data-icon="glory"></span>${fmt(n.tributeGlory)}`;
         const bubble = !locked && n.tributeReady
           ? `<span class="ktrib${n.tributeOverflowing ? ' over' : ''}" title="${n.tributeOverflowing ? '进贡已满，请收取' : '有进贡可收'}">${tributeMark}</span>`
           : '';
         const aria = locked
           ? `${n.view.name}，未解锁，需冒险者 ${n.unlockLevel} 级`
-          : `${n.view.name}，王国 ${n.level} 级${n.tributeReady ? '，有进贡可收' : ''}`;
+          : `${n.view.name}，王国 ${n.level} 级${n.home ? '，主城' : ''}${n.tributeReady ? '，有进贡可收' : ''}`;
         return `<button class="${cls}" data-id="${n.view.name}" style="left:${n.view.x}%;top:${n.view.y}%" aria-label="${aria}">
+          ${!locked && n.home ? '<i class="khome-crown" title="主城：进贡翻倍"></i>' : ''}
           <span class="crest">${mark}${bubble}</span>
           ${meta}
         </button>`;
@@ -1273,7 +1395,7 @@ export class MapScreen implements Screen {
     const winReady = save.dailyFirstWinAt < todayStartOf(now);
     $('#dailyWinCopy').textContent = winReady ? '每日首胜未领' : '每日首胜已领';
     $('#dailyWin').classList.toggle('hot', winReady);
-    // 底栏只说玩家要做的事：可收、已满、还在累积。国数和金额留在确认层。
+    // 底栏只说玩家要做的事：可收、已满、还在累积。国数和金额留在宝库里。
     const readyKingdoms = this.nodes.filter((n) => !n.locked && n.tributeReady);
     const urgent = readyKingdoms.some((n) => n.tributeOverflowing);
     $('#dailyTributeCopy').textContent = urgent
@@ -1291,6 +1413,17 @@ export class MapScreen implements Screen {
       : maps > 0
         ? `寻宝 ${maps.toLocaleString('en-US')}`
         : '寻宝';
+    // 王国数与满级加成：让「王国」本身在地图上有存在感
+    const open = this.nodes.filter((n) => !n.locked).length;
+    $('#kingdomListCopy').textContent = `王国 ${open}/${this.nodes.length}`;
+    const drawerTitle = $('.kingdom-drawer header h2');
+    if (drawerTitle) drawerTitle.textContent = `王国 ${open}/${this.nodes.length}`;
+    const bonus = kingdomBonusOf(save);
+    const parts = (['health', 'armor', 'attack', 'magic'] as const)
+      .filter((k) => bonus[k] > 0)
+      .map((k) => `${STAT_NAME[k]}<b>+${bonus[k]}</b>`);
+    $('#kingdomBonusCopy').innerHTML = parts.length ? `王国加成 ${parts.join(' ')}` : '王国加成 · 满级 0';
+    $('#kingdomBonusBtn').classList.toggle('zero', parts.length === 0);
     void ctx;
   }
 
@@ -1298,7 +1431,8 @@ export class MapScreen implements Screen {
 
   private openKingdom(name: string): void {
     const vm = this.nodes.find((n) => n.view.name === name);
-    if (!vm) return;
+    if (!vm || vm.fog === 'hidden') return;
+    const save = this.ctx.save();
     this.selected = name;
     this.openName = name;
     $$('.knode').forEach((n) => n.classList.toggle('sel', n.dataset.id === name));
@@ -1319,61 +1453,72 @@ export class MapScreen implements Screen {
     $('#kingdomBlurb').textContent = locked
       ? `冒险者达到 Lv.${vm.unlockLevel} 后开放此王国。`
       : view.blurb || `${view.name}的领地等待着你的旗帜。`;
-    $('#kingdomLevel').innerHTML = locked
-      ? '<em>—</em>'
-      : `<em>${vm.level}</em><i>/ ${KINGDOM_MAX_LEVEL}</i>`;
-    const loot = [
-      vm.tributeGold ? `<span class="loot"><span data-icon="coin"></span>${fmt(vm.tributeGold)}</span>` : '',
-      vm.tributeSouls ? `<span class="loot soul"><span data-icon="soul"></span>${vm.tributeSouls}</span>` : '',
-      vm.tributeKeys ? `<span class="loot key"><span data-icon="key"></span>${vm.tributeKeys}</span>` : '',
-    ].filter(Boolean);
-    $('#kingdomTribute').innerHTML = locked
-      ? '—'
-      : vm.tributeReady
-        ? loot.join('')
-        : vm.tributeHours > 0
-          ? '这轮没有'
-          : '累积中';
-    const statCn: Record<string, string> = { health: '生命', armor: '护甲', attack: '攻击', magic: '魔法' };
-    const statIcon: Record<string, string> = { health: 'soul', armor: 'gear', attack: 'swords', magic: 'crystal' };
+
+    // 等级盾徽
+    $('#kingdomLevel').textContent = locked ? '—' : String(vm.level);
+    $('#kingdomShield').classList.toggle('max', !locked && vm.level >= KINGDOM_MAX_LEVEL);
+    $('#kingdomShield').title = locked ? '王国未开放' : `王国等级 ${vm.level} / ${KINGDOM_MAX_LEVEL}`;
+
+    // 立绘上的旗帜 + 加成色签
+    const bannerOpen = bannerUnlocked(save, name);
+    $('#kingdomArtBanner').innerHTML = BANNERS[name] ? bannerArtHtml(name, { size: 200, locked: locked || !bannerOpen }) : '';
+    $('#kingdomBannerNote').innerHTML = BANNERS[name]
+      ? `<span class="kb-boosts">${bannerBoostChips(name)}</span><span>${bannerOpen ? '旗帜已解锁 · 编队页可挂' : '主线 8/8 解锁旗帜'}</span>`
+      : '';
+
     const bonusKey = kingdomBonusStat(view.name);
-    const bonusStat = statCn[bonusKey] ?? bonusKey;
-    $('#kingdomBonusIcon').dataset.icon = statIcon[bonusKey] ?? 'wing';
-    $('#kingdomBonus').innerHTML = vm.level >= KINGDOM_MAX_LEVEL
-      ? `<em>${bonusStat} +1</em><i>已生效</i>`
-      : `<em>${bonusStat} +1</em><i>${KINGDOM_MAX_LEVEL} 级</i>`;
-    $('#kingdomLockLevel').textContent = `冒险者 Lv.${vm.unlockLevel}`;
-    $('#kingdomLockGap').textContent = `你现在 Lv.${this.heroLevel}，还差 ${Math.max(0, vm.unlockLevel - this.heroLevel)} 级`;
-    $('#kingdomLockTroops').textContent = `${vm.poolSize} 名王国部队收藏`;
-    $('#kingdomLockBonus').textContent = `满级加成：全体${bonusStat} +1`;
-    $('#kingdomFill').style.width = locked ? '0%' : `${(vm.level / KINGDOM_MAX_LEVEL) * 100}%`;
+    const bonusStat = STAT_NAME[bonusKey] ?? bonusKey;
+    // 标签行：进贡专长 / 主城 / 满级加成
+    $('#kingdomTags').innerHTML = [
+      specialtyTagHtml(name),
+      `<button class="kh-home${vm.home ? ' on' : ''}" id="kingdomHome" type="button" aria-pressed="${vm.home}" title="${vm.home ? '主城进贡翻倍；再点一次取消' : '设为主城：该国进贡翻倍（同一时间只有一个主城）'}"><img src="${kingdomArt('home-crown')}" alt="" draggable="false">${vm.home ? '主城 · 进贡 ×2' : '设为主城'}</button>`,
+      `<span class="kh-tag">满级：全体${bonusStat} +1${vm.level >= KINGDOM_MAX_LEVEL ? ' · 已生效' : ''}</span>`,
+    ].join('');
+
+    // 王国等级轨道
+    $('#kingdomPips').innerHTML = levelPipsHtml(locked ? 0 : vm.level);
+    $('#kingdomPerks').innerHTML = levelPerksHtml(name, vm.level);
     let cost = 0;
     try {
       cost = kingdomUpgradeCost(vm.level);
     } catch {
       cost = 0;
     }
-    $('#upgradeHint').textContent = !locked && vm.level >= KINGDOM_MAX_LEVEL ? '已生效' : '';
+    $('#upgradeHint').textContent = !locked && vm.level >= KINGDOM_MAX_LEVEL ? '已满级 · 加成生效中' : `${vm.level} / ${KINGDOM_MAX_LEVEL}`;
     $('#upgradeCost').textContent = fmt(cost);
-    ($('#kingdomUpgrade') as HTMLButtonElement).disabled = locked || vm.level >= KINGDOM_MAX_LEVEL;
-    $('#upgradeLabel').textContent = locked ? '王国未解锁' : vm.level >= KINGDOM_MAX_LEVEL ? '已达满级' : '投入升级';
-    $('.price', $('#kingdomUpgrade')).hidden = locked || vm.level >= KINGDOM_MAX_LEVEL;
-    // M-4：收取按钮的可用性与库存同源（改前用小时数判，于是「0 袋 + 按钮可点 + 点了说没有」）
-    ($('#kingdomCollect') as HTMLButtonElement).disabled = locked || !vm.tributeReady;
-    $('#collectLabel').textContent = '收取';
+    const upgradeBtn = $('#kingdomUpgrade') as HTMLButtonElement;
+    upgradeBtn.disabled = locked || vm.level >= KINGDOM_MAX_LEVEL;
+    upgradeBtn.classList.toggle('cant-afford', !locked && vm.level < KINGDOM_MAX_LEVEL && save.currencies.gold < cost);
+    $('#upgradeLabel').textContent = locked ? '王国未解锁' : vm.level >= KINGDOM_MAX_LEVEL ? '已达满级' : `升到 ${vm.level + 1} 级`;
+    $('.price', upgradeBtn).hidden = locked || vm.level >= KINGDOM_MAX_LEVEL;
+
+    // 进贡：本国配比 + 库存 + 计时
+    $('#tributeSpecialty').textContent = vm.home ? '主城 ×2' : '';
+    $('#tributeYield').innerHTML = tributeYieldHtml(name, vm.level, vm.home, vm.tributeChance);
+    $('#kingdomTribute').innerHTML = locked
+      ? '开放后开始进贡'
+      : vm.tributeReady
+        ? `可收 ${currencyList({ gold: vm.tributeGold, souls: vm.tributeSouls, glory: vm.tributeGlory })}`
+        : vm.tributeHours > 0
+          ? `这 ${vm.tributeHours} 小时没有进贡`
+          : '累积中';
+    ($('#kingdomCollect') as HTMLButtonElement).disabled = locked;
+    $('#collectLabel').textContent = vm.tributeReady ? '打开宝库收取' : '打开宝库';
+    $('#tributeRule').textContent = multiBonusHint();
     $('#tributeRow').classList.toggle('over', !locked && vm.tributeOverflowing);
     $('#tributeFill').style.width = locked ? '0%' : `${Math.min(100, (vm.tributeHours / TRIBUTE.capHours) * 100)}%`;
     $('#tributeCopy').textContent = locked
       ? '解锁后开始'
       : vm.tributeOverflowing
-        ? '已满'
-        : `下一笔 ${clockOf(vm.tributeNextHourAt)}`;
-    $('#tributeRow').title = locked
-      ? ''
-      : vm.tributeOverflowing
-        ? '已经攒满，再等也不会变多'
-        : `最多攒 ${TRIBUTE.capHours} 小时`;
-    mountIcons($('#kingdomOpenBody'));
+        ? `已攒满 ${TRIBUTE.capHours} 小时`
+        : `已攒 ${vm.tributeHours}/${TRIBUTE.capHours} 小时 · 下一次 ${clockOf(vm.tributeNextHourAt)}`;
+    $('#tributeRow').title = locked ? '' : vm.tributeOverflowing ? '已经攒满，再等也不会变多' : `最多攒 ${TRIBUTE.capHours} 小时`;
+
+    $('#kingdomLockLevel').textContent = `冒险者 Lv.${vm.unlockLevel}`;
+    $('#kingdomLockGap').textContent = `你现在 Lv.${this.heroLevel}，还差 ${Math.max(0, vm.unlockLevel - this.heroLevel)} 级（每升一级开放一个王国）`;
+    $('#kingdomLockTroops').textContent = `${vm.poolSize} 名王国部队收藏`;
+    $('#kingdomLockBonus').textContent = `满级加成：全体部队与主角${bonusStat} +1`;
+    mountIcons($('#kingdomSheet'));
     // K-10：把「你卡在第几关、下一步点哪」写在卡上，而不是让玩家自己从 8/8 推断
     $('#questProgress').textContent = locked
       ? `需冒险者 Lv.${vm.unlockLevel}`
@@ -1404,45 +1549,55 @@ export class MapScreen implements Screen {
 
   private async upgrade(ctx: ShellCtx): Promise<void> {
     if (!this.openName) return;
-    const { result } = await ctx.gateway.upgradeKingdomLevel(this.openName);
+    const name = this.openName;
+    const { result } = await ctx.gateway.upgradeKingdomLevel(name);
     if (isFailure(result)) {
       toast(result.message);
     } else {
       toast(result >= KINGDOM_MAX_LEVEL
-        ? `${this.openName} 达到 10 级，全体部队${kingdomBonusStat(this.openName)} +1。`
-        : `${this.openName} 提升至 ${result} 级。`);
+        ? `${name} 达到 10 级！全体部队与主角${STAT_NAME[kingdomBonusStat(name)]} +1。`
+        : `${name} 提升至 ${result} 级：进贡几率与产出提高，旗帜主色法力精通 +1。`);
+      const shield = $('#kingdomShield');
+      shield.classList.remove('bump');
+      void shield.offsetWidth;
+      shield.classList.add('bump');
     }
     this.afterMutation(ctx);
   }
 
-  private async collect(ctx: ShellCtx): Promise<void> {
+  /** 主城：该国进贡翻倍；再点一次取消 */
+  private async toggleHome(ctx: ShellCtx): Promise<void> {
     if (!this.openName) return;
-    const { result } = await ctx.gateway.collectKingdomTribute(this.openName, Date.now());
-    toast(
-      result.hits > 0
-        ? `进贡已收取：黄金 +${fmt(result.gold)}，灵魂 +${result.souls}${result.goldKeys ? '，金钥匙 +1' : ''}`
-        : '暂无可领取的进贡。',
-    );
+    const target = ctx.save().homeKingdom === this.openName ? null : this.openName;
+    const { result } = await ctx.gateway.setHomeKingdom(target);
+    if (isFailure(result)) toast(result.message);
+    else toast(result ? `${result} 设为主城：进贡翻倍。` : '已取消主城。');
     this.afterMutation(ctx);
   }
 
   private async collectAllTribute(ctx: ShellCtx): Promise<void> {
-    const ready = this.nodes.filter((n) => !n.locked && n.tributeReady);
-    if (!ready.length) {
+    const btn = $('#tributeConfirm') as HTMLButtonElement;
+    if (btn.disabled || btn.classList.contains('is-done')) return;
+    btn.disabled = true;
+    const { result } = await ctx.gateway.collectAllTribute(Date.now());
+    if (!result.ready) {
       toast('尚无可领取进贡。');
+      this.renderTreasury(result, false);
       return;
     }
-    let gold = 0;
-    let souls = 0;
-    let keys = 0;
-    for (const n of ready) {
-      const { result } = await ctx.gateway.collectKingdomTribute(n.view.name, Date.now());
-      gold += result.gold;
-      souls += result.souls;
-      keys += result.goldKeys;
-    }
-    toast(`已收取 ${ready.length} 国进贡：黄金 +${fmt(gold)}，灵魂 +${souls}${keys ? `，金钥匙 +${keys}` : ''}`);
+    const t = result.totals;
+    const summary = [
+      t.gold ? `黄金 +${fmt(t.gold)}` : '',
+      t.souls ? `灵魂 +${fmt(t.souls)}` : '',
+      t.glory ? `荣耀 +${fmt(t.glory)}` : '',
+      t.gems ? `宝石 +${fmt(t.gems)}` : '',
+      t.goldKeys ? `金钥匙 +${fmt(t.goldKeys)}` : '',
+    ].filter(Boolean).join('，');
+    this.renderTreasury(result, true);
+    $('#treasurySheet').classList.add('is-collected');
+    toast(`已收取 ${result.readyCount} 国进贡：${summary}`);
     this.afterMutation(ctx);
+    this.collectTimer = window.setTimeout(() => this.closeTreasury(), 1800);
   }
 
   /**
@@ -1631,6 +1786,9 @@ export class MapScreen implements Screen {
   dispose(): void {
     cancelAnimationFrame(this.drag.inertia);
     cancelAnimationFrame(this.labelJob);
+    clearTimeout(this.collectTimer);
+    this.fog?.dispose();
+    this.fog = null;
     for (const [target, type, fn, opts] of this.listeners.splice(0)) {
       target.removeEventListener(type, fn, opts);
     }

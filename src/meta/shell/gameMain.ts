@@ -13,6 +13,7 @@ import './styles/extras.css';
 
 import { initMetaGateway } from '../gateway';
 import { heroXpToNext } from '../data/classes';
+import { ALL_KINGDOMS_UNLOCK_LEVEL, kingdomsUnlockedAt } from '../data/kingdoms';
 import { MapScreen } from '../screens/mapScreen';
 import { TeamScreen } from '../screens/teamScreen';
 import { TroopScreen } from '../screens/troopScreen';
@@ -188,7 +189,7 @@ function refreshPlayer(): void {
   if ($('#playerLevel')) $('#playerLevel').textContent = `Lv.${hero.level}`;
   const next = heroXpToNext(hero.level);
   if ($('#playerXpFill')) $('#playerXpFill').style.width = `${Math.min(100, (hero.xp / next) * 100)}%`;
-  if ($('#navHint')) $('#navHint').textContent = `Lv.${hero.level} · 42 王国`;
+  if ($('#navHint')) $('#navHint').textContent = `Lv.${hero.level} · 王国 ${kingdomsUnlockedAt(hero.level).length}/${ALL_KINGDOMS_UNLOCK_LEVEL}`;
 }
 
 function refreshMaterialsIndicator(): void {

@@ -1,4 +1,5 @@
 import { invasionVictoryVp } from '../../src/meta/systems/invasion';
+import { heroXpToNext } from '../../src/meta/data/classes';
 /**
  * 入侵 PvP（素材批 2026-09-19）：镜像榜单确定性、首次定级、VP 官方计分表、
  * 荣耀/每日首胜、周结升降级（含「不打不降」）、出战斗请求过校验、headless 真实对局。
@@ -358,7 +359,7 @@ expect(INVASION_ZONES).toHaveLength(10);
     expect(s.currencies.souls - before.souls).toBe(out.battleRewards.souls + 9);
     expect(s.currencies.gems - before.gems).toBe(2);
     expect(s.materials.treasureMaps - maps).toBe(1);
-    expect(s.hero.xp).toBe(20);
+    expect(s.hero.xp).toBe(winner === 'player' ? 100 - heroXpToNext(1) : 20);
     expect(s.hero.level).toBe(winner === 'player' ? 2 : 1);
     expect(s.stats.battlesWon).toBe(winner === 'player' ? 1 : 0);
     expect(s.stats.battlesLost).toBe(winner === 'enemy' ? 1 : 0);

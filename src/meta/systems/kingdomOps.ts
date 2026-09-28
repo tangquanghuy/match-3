@@ -7,24 +7,28 @@
  */
 import type { MetaSave } from '../state/schema';
 import { fail, type MetaFailure } from '../types';
-import { kingdomUpgradeCost } from '../data/economy';
+import { kingdomUpgradeCost, tributeAmountScale, tributeChance } from '../data/economy';
 import {
   EXPLORE_MAX_TIER,
   KINGDOM_ORDER,
   kingdomBonusStat,
   kingdomUnlockLevel,
 } from '../data/kingdoms';
+import { BANNERS } from '../data/banners';
 import { spend } from './wallet';
 import { planExploreEncounter, planQuestEncounter, questNodeUnlocked, type EncounterEnemy } from './encounter';
 import { tributePreview } from './tribute';
 
 export const KINGDOM_MAX_LEVEL = 10;
 
-/** 升王国一级（投黄金，成本随等级递增；10 级封顶） */
+/** 升王国一级（投黄金，成本随等级递增；10 级封顶；未开放的王国不能升级） */
 export function upgradeKingdom(save: MetaSave, kingdom: string): { ok: true; level: number; cost: number } | MetaFailure {
   const entry = save.kingdoms[kingdom] ?? { level: 1, questsDone: 0, exploreTier: 0, lastTributeAt: 0 };
   if (entry.level >= KINGDOM_MAX_LEVEL) return fail('MAXED', '王国已满级');
   if (!KINGDOM_ORDER.includes(kingdom)) return fail('UNKNOWN_TROOP', `未知王国：${kingdom}`);
+  if (save.hero.level < kingdomUnlockLevel(kingdom)) {
+    return fail('PREREQ_LOCKED', `冒险者 Lv.${kingdomUnlockLevel(kingdom)} 开放${kingdom}后才能升级`);
+  }
   let cost: number;
   try {
     cost = kingdomUpgradeCost(entry.level);
@@ -111,6 +115,68 @@ export function kingdomBonusOf(save: MetaSave): KingdomStatBonus {
   return bonus;
 }
 
+/** 已满 10 级的王国（按推进序），全局王国加成面板用 */
+export function maxedKingdoms(save: MetaSave): string[] {
+  return KINGDOM_ORDER.filter((k) => (save.kingdoms[k]?.level ?? 1) >= KINGDOM_MAX_LEVEL);
+}
+
+// ---------------------------------------------------------------------------
+// 迷雾（GoW 4.5：只看得见「当前可开放」与「下一批」王国，更远的藏在迷雾里）
+// ---------------------------------------------------------------------------
+
+/** 未来多少级内要开放的王国算「已探明」（地图上可见、带锁，能看到门槛与收益） */
+export const FOG_SCOUT_LEVELS = 3;
+
+/** open = 已开放；scouted = 已探明但未开放；hidden = 仍在迷雾中 */
+export type KingdomFog = 'open' | 'scouted' | 'hidden';
+
+export function kingdomFogOf(heroLevel: number, kingdom: string): KingdomFog {
+  const need = kingdomUnlockLevel(kingdom);
+  if (heroLevel >= need) return 'open';
+  if (need <= heroLevel + FOG_SCOUT_LEVELS) return 'scouted';
+  return 'hidden';
+}
+
+// ---------------------------------------------------------------------------
+// 王国等级收益轨道（GoW：每级 +进贡几率、+该国法力精通；10 级全体属性 +1）
+// ---------------------------------------------------------------------------
+
+export interface KingdomLevelPerk {
+  level: number;
+  /** 达到该级的黄金成本（1 级为 0） */
+  cost: number;
+  /** 每小时进贡几率 */
+  tributeChance: number;
+  /** 黄金/灵魂进贡倍率（相对 1 级） */
+  tributeScale: number;
+  /** 旗帜主色的法力精通加成（战斗涌动几率） */
+  mastery: number;
+  /** 满级：全体部队与主角 +1 绑定属性 */
+  statBonus: boolean;
+}
+
+/** 王国 1~10 级的收益轨道（纯数据；屏层画轨道、测试锁口径） */
+export function kingdomLevelTrack(): KingdomLevelPerk[] {
+  return Array.from({ length: KINGDOM_MAX_LEVEL }, (_, i) => {
+    const level = i + 1;
+    return {
+      level,
+      cost: level === 1 ? 0 : kingdomUpgradeCost(level - 1),
+      tributeChance: tributeChance(level),
+      tributeScale: tributeAmountScale(level),
+      mastery: level,
+      statBonus: level >= KINGDOM_MAX_LEVEL,
+    };
+  });
+}
+
+/** 该王国旗帜的正加成色（王国等级给这些颜色的法力精通 +等级） */
+export function kingdomMasteryColors(kingdom: string): string[] {
+  return Object.entries(BANNERS[kingdom]?.boosts ?? {})
+    .filter(([, v]) => (v ?? 0) > 0)
+    .map(([c]) => c);
+}
+
 /** 世界地图节点状态（v5 地图屏的逻辑部分；locked 判定需要主角等级） */
 export interface KingdomNodeState {
   kingdom: string;
@@ -118,6 +184,8 @@ export interface KingdomNodeState {
   unlockLevel: number;
   /** 主角等级不够 → 剪影显示 */
   locked: boolean;
+  /** 迷雾状态 */
+  fog: KingdomFog;
   questsDone: number;
   /** 下一关（全通为 null） */
   nextNode: number | null;
@@ -132,11 +200,16 @@ export interface KingdomNodeState {
    */
   tributeGold: number;
   tributeSouls: number;
+  tributeGlory: number;
   tributeKeys: number;
   tributeReady: boolean;
   tributeOverflowing: boolean;
   tributeCapAt: number;
   tributeNextHourAt: number;
+  /** 本国每小时进贡几率 */
+  tributeChance: number;
+  /** 是否主城 */
+  home: boolean;
 }
 
 export function kingdomNodeState(save: MetaSave, kingdom: string, now: number): KingdomNodeState {
@@ -149,6 +222,7 @@ export function kingdomNodeState(save: MetaSave, kingdom: string, now: number): 
     kingdom,
     unlockLevel,
     locked,
+    fog: kingdomFogOf(save.hero.level, kingdom),
     questsDone,
     nextNode: locked ? null : questNodeUnlocked(save, kingdom, questsDone + 1) ? questsDone + 1 : null,
     exploreUnlocked: !locked && exploreUnlocked(save, kingdom),
@@ -156,10 +230,27 @@ export function kingdomNodeState(save: MetaSave, kingdom: string, now: number): 
     tributeHits: locked ? 0 : tribute.hits,
     tributeGold: locked ? 0 : tribute.gold,
     tributeSouls: locked ? 0 : tribute.souls,
+    tributeGlory: locked ? 0 : tribute.glory,
     tributeKeys: locked ? 0 : tribute.goldKeys,
     tributeReady: locked ? false : tribute.ready,
     tributeOverflowing: locked ? false : tribute.overflowing,
     tributeCapAt: tribute.capAt,
     tributeNextHourAt: tribute.nextHourAt,
+    tributeChance: tribute.chance,
+    home: tribute.home,
   };
+}
+
+/** 设为主城（GoW Home Kingdom：进贡翻倍）。null = 取消主城。未开放王国拒绝。 */
+export function setHomeKingdom(save: MetaSave, kingdom: string | null): { ok: true; home: string | null } | MetaFailure {
+  if (kingdom === null) {
+    save.homeKingdom = null;
+    return { ok: true, home: null };
+  }
+  if (!KINGDOM_ORDER.includes(kingdom)) return fail('INVALID', `未知王国：${kingdom}`);
+  if (save.hero.level < kingdomUnlockLevel(kingdom)) {
+    return fail('PREREQ_LOCKED', `${kingdom}尚未开放：需冒险者 Lv.${kingdomUnlockLevel(kingdom)}`);
+  }
+  save.homeKingdom = kingdom;
+  return { ok: true, home: kingdom };
 }
