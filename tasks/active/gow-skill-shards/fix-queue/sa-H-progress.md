@@ -1,0 +1,6 @@
+# sa-H progress (lane L2 then L1, round 8; test file tests/unit/gowLaneL2H.test.ts)
+- troop:6658 accept (RandomPositiveStatusEffect@AllAllies = one positive roll per ally incl. caster)
+- troop:7047 fixed+accept (random status now on both last 2 enemies, split enemySecondLast + enemyLastN; was last only)
+- troop:6706 fixed+accept (2nd hit enemyRandomPrefNotPrev, R007-3)
+- troop:6159 accept (20% Treasure Map implemented as maps economy; not waived)
+- troop:6659 accept (ABC-DEF: damage both branches, 1/2 enemy|ally, 2nd status 50% single roll)

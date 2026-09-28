@@ -9,6 +9,16 @@
   "by": "sa-R6",
   "at": "2026-09-28T09:04:11.605Z"
  },
+ "troop:6159": {
+  "lines": {
+   "L10": "dmg E11 15 ; status E11 +curse  => E11:hp-5 arm-10 +curse",
+   "R10": "dmg E11 15 ; status E11 +curse  => E11:hp-5 arm-10 +curse",
+   "L0": "dmg E11 5 ; status E11 +curse  => E11:arm-5 +curse",
+   "K": "dmg E11 15 ; defeat E11  => E11:hp-1 DEAD"
+  },
+  "by": "sa-H",
+  "at": "2026-09-28T21:15:16.963Z"
+ },
  "troop:6163": {
   "lines": {
    "L10": "convert Yellow x1, Brown x1, skull x1, Blue x1, Red x1 -> Green x5 ; convert Green x18 -> Purple x18 ; buff C hp+12 max+12 ; ~cascade~ ; extra-turn match  => C:hp+12 max+12  extra:match  cascade",
@@ -218,6 +228,36 @@
   },
   "by": "sa-R6",
   "at": "2026-09-28T08:24:38.212Z"
+ },
+ "troop:6658": {
+  "lines": {
+   "L10": "dmg E11 14 ; status C +enraged ; status A1 +enchanted ; status A2 +submerged  => E11:hp-4 arm-10 | C:+enraged | A1:+enchanted | A2:+submerged",
+   "R10": "dmg E11 14 ; status C +enraged ; status A1 +enchanted ; status A2 +submerged  => E11:hp-4 arm-10 | C:+enraged | A1:+enchanted | A2:+submerged",
+   "L0": "dmg E11 4 ; status C +enraged ; status A1 +enchanted ; status A2 +submerged  => E11:arm-4 | C:+enraged | A1:+enchanted | A2:+submerged",
+   "K": "dmg E11 14 ; defeat E11 ; status C +enraged ; status A1 +enchanted ; status A2 +submerged  => E11:hp-1 DEAD | C:+enraged | A1:+enchanted | A2:+submerged"
+  },
+  "by": "sa-H",
+  "at": "2026-09-28T21:15:16.963Z"
+ },
+ "troop:6659": {
+  "lines": {
+   "L10": "dmg E10 14 (all) ; dmg E11 14 (all) ; dmg E12 14 (all) ; dmg E13 14 (all) ; status C +enchanted ; status A1 +submerged ; status A2 +reflect ; status C +enraged ; remove A1 -poison ; status A1 +blessed ; status A2 +enraged  => E10:hp-9 arm-5 | E11:hp-4 arm-10 | E12:hp-2 arm-12 | E13:hp-11 arm-3 | C:+enchanted+enraged | A1:+submerged+blessed -poison | A2:+reflect+enraged",
+   "R10": "dmg E10 14 (all) ; dmg E11 14 (all) ; dmg E12 14 (all) ; dmg E13 14 (all) ; status C +enchanted ; status A1 +submerged ; status A2 +reflect ; status C +enraged ; remove A1 -poison ; status A1 +blessed ; status A2 +enraged  => E10:hp-9 arm-5 | E11:hp-4 arm-10 | E12:hp-2 arm-12 | E13:hp-11 arm-3 | C:+enchanted+enraged | A1:+submerged+blessed -poison | A2:+reflect+enraged",
+   "L0": "dmg E10 4 (all) ; dmg E11 4 (all) ; dmg E12 4 (all) ; dmg E13 4 (all) ; status C +enchanted ; status A1 +submerged ; status A2 +reflect ; status C +enraged ; remove A1 -poison ; status A1 +blessed ; status A2 +enraged  => E10:arm-4 | E11:arm-4 | E12:arm-4 | E13:hp-1 arm-3 | C:+enchanted+enraged | A1:+submerged+blessed -poison | A2:+reflect+enraged",
+   "K": "dmg E10 14 (all) ; dmg E11 14 (all) ; dmg E12 14 (all) ; dmg E13 14 (all) ; defeat E10 ; defeat E11 ; defeat E12 ; defeat E13 ; status C +enchanted ; status A1 +submerged ; status A2 +reflect ; status C +enraged ; remove A1 -poison ; status A1 +blessed ; status A2 +enraged  => E10:hp-1 DEAD | E11:hp-1 DEAD | E12:hp-1 DEAD | E13:hp-1 DEAD | C:+enchanted+enraged | A1:+submerged+blessed -poison | A2:+reflect+enraged"
+  },
+  "by": "sa-H",
+  "at": "2026-09-28T21:15:16.963Z"
+ },
+ "troop:6706": {
+  "lines": {
+   "L10": "dmg E12 11 ; status E12 +entangle ; dmg E13 11 ; status E13 +death-mark  => E12:arm-11 +entangle | E13:hp-8 arm-3 +death-mark",
+   "R10": "dmg E12 11 ; status E12 +entangle ; dmg E13 11 ; status E13 +death-mark  => E12:arm-11 +entangle | E13:hp-8 arm-3 +death-mark",
+   "L0": "dmg E12 1 ; status E12 +entangle ; dmg E13 1 ; status E13 +death-mark  => E12:arm-1 +entangle | E13:arm-1 +death-mark",
+   "K": "dmg E12 11 ; defeat E12 ; dmg E11 11 ; defeat E11  => E12:hp-1 DEAD | E11:hp-1 DEAD"
+  },
+  "by": "sa-H",
+  "at": "2026-09-28T21:15:16.963Z"
  },
  "troop:6725": {
   "lines": {
@@ -458,6 +498,16 @@
   },
   "by": "sa-R6",
   "at": "2026-09-28T08:35:30.426Z"
+ },
+ "troop:7047": {
+  "lines": {
+   "L10": "dmg E12 11 (all) ; dmg E13 11 (all) ; status E12 +curse ; status E13 +entangle ; status E12 +poison ; status E13 +poison  => E12:arm-11 +curse+poison | E13:hp-8 arm-3 +entangle+poison",
+   "R10": "dmg E12 11 (all) ; dmg E13 11 (all) ; status E12 +curse ; status E13 +entangle ; status E12 +poison ; status E13 +poison  => E12:arm-11 +curse+poison | E13:hp-8 arm-3 +entangle+poison",
+   "L0": "dmg E12 1 (all) ; dmg E13 1 (all) ; status E12 +curse ; status E13 +entangle ; status E12 +poison ; status E13 +poison  => E12:arm-1 +curse+poison | E13:arm-1 +entangle+poison",
+   "K": "dmg E12 11 (all) ; dmg E13 11 (all) ; defeat E12 ; defeat E13 ; status E10 +curse ; status E11 +entangle ; status E10 +poison ; status E11 +poison  => E12:hp-1 DEAD | E13:hp-1 DEAD | E10:+curse+poison | E11:+entangle+poison"
+  },
+  "by": "sa-H",
+  "at": "2026-09-28T21:15:16.963Z"
  },
  "troop:7090": {
   "lines": {

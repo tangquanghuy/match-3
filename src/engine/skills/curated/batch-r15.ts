@@ -407,13 +407,13 @@ const SPELLS: CuratedBatch['spells'] = [
   {
     id: 8063,
     desc: '对 2 名随机敌人造成 [魔法 + 1] 点伤害。并使二者各陷入一个随机负面状态。',
-    // 官方步骤 Damage+RandomStatusEffect@FromPrevious ×2（第二步 RandomPrefNotPrevEnemy，
-    // 8499 先例按独立随机敌组装）；「随机状态」= inflictRandom（§11 阵营分池，敌方=负面池），
-    // 跨段绑定 lastTarget
+    // 官方步骤 Damage@RandomEnemy+RandomStatusEffect@FromPrevious，再 Damage@RandomPrefNotPrevEnemy
+    // +RandomStatusEffect@FromPrevious（R007-3：第二击只避开上一目标，仅剩一人时可重复）；
+    // 「随机状态」= inflictRandom（敌方=负面池），跨段绑定 lastTarget
     build: skill(
       dmg('enemyRandom', 1, 1),
       inflictRandom('lastTarget'),
-      dmg('enemyRandom', 1, 1),
+      dmg('enemyRandomPrefNotPrev', 1, 1),
       inflictRandom('lastTarget'),
     ),
   },

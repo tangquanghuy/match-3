@@ -1,6 +1,6 @@
 # GoW 技能改动留档
 
-自动生成（`node scripts/gow-changelog.mjs render`），源数据 [CHANGES.jsonl](CHANGES.jsonl)，共 538 条改动，涉及 990 个技能 ID。
+自动生成（`node scripts/gow-changelog.mjs render`），源数据 [CHANGES.jsonl](CHANGES.jsonl)，共 540 条改动，涉及 992 个技能 ID。
 
 ## 按时间
 
@@ -544,6 +544,8 @@
 | 2026-09-28T15:14 | sa-B | L4b-R6-B06 | data | 9220 | troop:7487 Takshaka | `src/engine/skills/curated/batch-r9.ts` | second hit enemyRandom (could repeat the chosen target) → native RandomPrefNotPrevEnemy (avoids the chosen target) |  |
 | 2026-09-28T15:14 | sa-B | L4b-R6-B06 | data | 8996 | weapon:1524 Gearslinger | `src/engine/skills/curated/batch-w03.ts`<br>`src/data/gowWeaponReviewedOverrides.json` | enemyRandomN n=2 → native RandomEnemy + RandomPrefNotPrevEnemy true damage (R007-3) |  |
 | 2026-09-28T15:44 | coord | R014-7000-count-before-create | assembler | 8503 | troop:7000 Baihu | `src/engine/skills/curated/batch-r20.ts`<br>`src/engine/skills/prototypes.ts`<br>`src/engine/skills/effects/secondary.ts`<br>`src/engine/skills/effects/context.ts` | Yellow counted after CreateGems 3 Yellow (created gems boosted the damage) → castStartBoardGems Yellow: counted before the create, CountSet 1 not added (R014) | new source castStartBoardGems; only 8503 uses it |
+| 2026-09-28T21:15 | sa-H | L2-H-7047-last2-random | assembler | 8572 | troop:7047 SisterOfNightmares | `src/engine/skills/curated/batch-r4.ts` | RandomStatusEffect@LastTwoEnemies approximated by one random status on the last enemy only → random status rolled separately on 2nd-last and last enemy (enemySecondLast + enemyLastN), then Poison both |  |
+| 2026-09-28T21:15 | sa-H | L2-H-6706-prefnotprev | assembler | 8063 | troop:6706 Rattigar | `src/engine/skills/curated/batch-r15.ts` | second hit plain enemyRandom (could repeat the first target) → second hit enemyRandomPrefNotPrev per native RandomPrefNotPrevEnemy (R007-3) |  |
 
 ## 按技能 ID
 
@@ -861,6 +863,7 @@
 | 8055 | 1 | L7-R1-random-chain-waves |
 | 8060 | 1 | P-R2-chosen-color-modifier |
 | 8062 | 1 | L5-C-1250-bleed-n |
+| 8063 | 1 | L2-H-6706-prefnotprev |
 | 8065 | 1 | L5-C-r4-6708 |
 | 8070 | 1 | P-R6-chosen-cell-counts |
 | 8073 | 1 | L7-R1-random-chain-waves |
@@ -1078,6 +1081,7 @@
 | 8563 | 2 | P-counter-per-step、L7-R1-board-special-counts |
 | 8569 | 1 | L4a-r3-7044 |
 | 8570 | 1 | L7-7045 |
+| 8572 | 1 | L2-H-7047-last2-random |
 | 8574 | 1 | L1-devour-first |
 | 8575 | 1 | L1-7050-order |
 | 8577 | 1 | B-L4b-1417-wildcard-tiers |
