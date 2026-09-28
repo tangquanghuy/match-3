@@ -491,9 +491,11 @@ const SPELLS: CuratedBatch['spells'] = [
     // 「打回末位」= reposition（§12.1）；「新的第一名」= 重定位后 enemyFront 执行时刻重解析；
     // 13+ 棕宝石 = boardAtLeast 全局条件辖吞噬段（Devour 家族回收）。
     build: skill(
+    // sa-I (R001): native ConsumeConditional@FrontEnemy [AddFor10BrownGems 50] runs BEFORE Damage@FrontEnemy
+    // (R003: threshold 13). A successful devour removes the new front enemy, so the hit lands on the next one.
     reposition('enemyFront', 'back'),
+    devour('enemyFront', { chance: 0.5, ifCond: { kind: 'boardAtLeast', color: BaseColor.Brown, n: 13 } }),
     dmg('enemyFront', 3, 1),
-    devour('lastTarget', { chance: 0.5, ifCond: { kind: 'boardAtLeast', color: BaseColor.Brown, n: 13 } }),
     ),
   },
   {

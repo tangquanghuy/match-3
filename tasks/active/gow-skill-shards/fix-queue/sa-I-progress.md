@@ -42,3 +42,9 @@ Lanes in order: L7, L6, L1, L3, L4b, L2. Tests: tests/unit/gowLaneMixI.test.ts
 - L6 exhausted (14 pending: 14 accept, 0 issue); next L1
 - troop:6268 fixed+accept (L1; AB-CD branch A = transform random enemy into Wraith 6206 BEFORE scatter; was scatter then 1 of 3 wraith variants)
 - L6 B04 + L1 B01 done: accept=5 fixed=1 issue=0
+- troop:6795 accept (L1; TransformSelfFromTarget + Curse the same target)
+- troop:6464 fixed+accept (L1; native ConsumeConditional@FrontEnemy 50% if 13+ Brown (R003) BEFORE Damage@FrontEnemy; was hit then devour)
+- troop:6701 accept (L1; ABC-DEF: true 18 first 2 + summon Wrath 6604 | Lust 6605, then Bless Daemon allies)
+- troop:7140 fixed+accept (L1; AB-CD-EF summon Hag 6147 | NightHag 6292 | HornedHag 7140; was 7-name witch pool)
+- troop:7289 accept (L1; Choose: true 15 all | summon VulpphireHunter 7288 x1 + 50% + 50%)
+- L1 B02 done: accept=5 fixed=2 issue=0

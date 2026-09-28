@@ -469,6 +469,16 @@
   "by": "sa-H",
   "at": "2026-09-28T22:10:52.737Z"
  },
+ "troop:6464": {
+  "lines": {
+   "L10": "move E10 back ; dmg E11 13  => E11:hp-3 arm-10",
+   "R10": "move E10 back ; dmg E11 13  => E11:hp-3 arm-10",
+   "L0": "move E10 back ; dmg E11 3  => E11:arm-3",
+   "K": "move E10 back ; dmg E11 13 ; defeat E11  => E11:hp-1 DEAD"
+  },
+  "by": "sa-I",
+  "at": "2026-09-28T23:32:56.290Z"
+ },
  "troop:6475": {
   "lines": {
    "L10": "summon mine troop:-1 ; status E12 +death-mark  => A14:new 地狱再生魔 hp24 atk15 arm9 mag9 | E12:+death-mark",
@@ -789,6 +799,16 @@
   "by": "sa-R5",
   "at": "2026-09-28T09:02:30.889Z"
  },
+ "troop:6701": {
+  "lines": {
+   "L10": "dmg E10 18 (all) ; dmg E11 18 (all) ; summon mine troop:-1 ; remove C -poison ; status C +blessed ; status A14 +blessed  => A14:new 色欲 hp28 atk17 arm15 mag0 | E10:hp-18 | E11:hp-18 | C:+blessed -poison",
+   "R10": "dmg E10 18 (all) ; dmg E11 18 (all) ; summon mine troop:-1 ; remove C -poison ; status C +blessed ; status A14 +blessed  => A14:new 色欲 hp28 atk17 arm15 mag0 | E10:hp-18 | E11:hp-18 | C:+blessed -poison",
+   "L0": "dmg E10 8 (all) ; dmg E11 8 (all) ; summon mine troop:-1 ; remove C -poison ; status C +blessed ; status A14 +blessed  => A14:new 色欲 hp28 atk17 arm15 mag0 | E10:hp-8 | E11:hp-8 | C:+blessed -poison",
+   "K": "dmg E10 18 (all) ; dmg E11 18 (all) ; defeat E10 ; defeat E11 ; summon mine troop:-1 ; remove C -poison ; status C +blessed ; status A14 +blessed  => A14:new 色欲 hp28 atk17 arm15 mag0 | E10:hp-1 DEAD | E11:hp-1 DEAD | C:+blessed -poison"
+  },
+  "by": "sa-I",
+  "at": "2026-09-28T23:33:04.952Z"
+ },
  "troop:6713": {
   "lines": {
    "L10": "dmg E10 12 (all) ; dmg E11 12 (all) ; dmg E12 12 (all) ; dmg E13 12 (all) ; summon mine troop:-1  => A14:new 骸骨魔像 hp13 atk19 arm19 mag3 | E10:hp-7 arm-5 | E11:hp-2 arm-10 | E12:arm-12 | E13:hp-9 arm-3",
@@ -858,6 +878,16 @@
   },
   "by": "sa-R5",
   "at": "2026-09-28T08:58:11.265Z"
+ },
+ "troop:6795": {
+  "lines": {
+   "L10": "transform C -> C11 ; status E11 +curse  => C:now C11 | E11:+curse",
+   "R10": "transform C -> C11 ; status E11 +curse  => C:now C11 | E11:+curse",
+   "L0": "transform C -> C11 ; status E11 +curse  => C:now C11 | E11:+curse",
+   "K": "transform C -> C11 ; status E11 +curse  => C:now C11 | E11:+curse"
+  },
+  "by": "sa-I",
+  "at": "2026-09-28T23:33:04.952Z"
  },
  "troop:6796": {
   "lines": {
@@ -1339,6 +1369,16 @@
   "by": "sa-R5",
   "at": "2026-09-28T09:06:03.338Z"
  },
+ "troop:7140": {
+  "lines": {
+   "L10": "dmg E11 14 ; summon mine troop:-1  => A14:new 夜巫 hp32 atk15 arm7 mag0 | E11:hp-14",
+   "R10": "dmg E11 14 ; summon mine troop:-1  => A14:new 夜巫 hp32 atk15 arm7 mag0 | E11:hp-14",
+   "L0": "dmg E11 4 ; summon mine troop:-1  => A14:new 夜巫 hp32 atk15 arm7 mag0 | E11:hp-4",
+   "K": "dmg E11 14 ; defeat E11 ; summon mine troop:-1  => A14:new 夜巫 hp32 atk15 arm7 mag0 | E11:hp-1 DEAD"
+  },
+  "by": "sa-I",
+  "at": "2026-09-28T23:32:56.290Z"
+ },
  "troop:7155": {
   "lines": {
    "L10": "destroy 13 (Green x13) ; convert skull x1, Brown x2, Red x2, Yellow x3, Purple x4, Green x1 -> Blue x13 ; dmg E12 312 devoured ; defeat E12 ; buff C attack+17 ; buff C armor+12 ; buff C hp+300 ; ~cascade~  => E12:hp-300 arm-12 DEAD | C:hp+300 arm+12 atk+17  cascade",
@@ -1398,6 +1438,16 @@
   },
   "by": "sa-R5",
   "at": "2026-09-28T05:52:06.635Z"
+ },
+ "troop:7289": {
+  "lines": {
+   "L10": "dmg E10 15 (all) ; dmg E11 15 (all) ; dmg E12 15 (all) ; dmg E13 15 (all)  => E10:hp-15 | E11:hp-15 | E12:hp-15 | E13:hp-15",
+   "R10": "dmg E10 15 (all) ; dmg E11 15 (all) ; dmg E12 15 (all) ; dmg E13 15 (all)  => E10:hp-15 | E11:hp-15 | E12:hp-15 | E13:hp-15",
+   "L0": "dmg E10 5 (all) ; dmg E11 5 (all) ; dmg E12 5 (all) ; dmg E13 5 (all)  => E10:hp-5 | E11:hp-5 | E12:hp-5 | E13:hp-5",
+   "K": "dmg E10 15 (all) ; dmg E11 15 (all) ; dmg E12 15 (all) ; dmg E13 15 (all) ; defeat E10 ; defeat E11 ; defeat E12 ; defeat E13  => E10:hp-1 DEAD | E11:hp-1 DEAD | E12:hp-1 DEAD | E13:hp-1 DEAD"
+  },
+  "by": "sa-I",
+  "at": "2026-09-28T23:33:04.952Z"
  },
  "troop:7295": {
   "lines": {

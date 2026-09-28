@@ -1,8 +1,8 @@
 // sa-I mixed-lane review (L7, L6, L1, L3, L4b, L2): behaviour the four standard golden scenarios cannot show.
 // Real TurnEngine casts through tests/helpers/gowCast.
 import { describe, it, expect } from 'vitest';
-import { castSpell, setupCast, summarize, type CastOpts } from '../helpers/gowCast';
-import { BaseColor } from '@engine/types';
+import { castSpell, setupCast, summarize, type CastOpts, type BoardFn } from '../helpers/gowCast';
+import { BaseColor, colorGem } from '@engine/types';
 
 const dmgLines = (o: CastOpts) => castSpell(o).summary.order.filter(s => s.startsWith('dmg '));
 const dmgs = (o: CastOpts) => dmgLines(o).map(s => Number(s.split(' ')[2]));
@@ -225,5 +225,37 @@ describe('sa-I L6 B04 + L1', () => {
       else { b++; expect(o[0]).toMatch(/^dmg /); expect(o.filter(s => s.includes('magic+3'))).toHaveLength(3); expect(o.some(s => s.startsWith('transform'))).toBe(false); }
     }
     expect(a).toBeGreaterThan(20); expect(b).toBeGreaterThan(20);
+  });
+});
+const summoned = (o: CastOpts) => (castSpell(o).summary.units.A14 ?? '').match(/new (\S+)/)?.[1];
+describe('sa-I L1 B02', () => {
+  it('troop:6464 knock front back, then devour (50%, 13+ Brown) the new front BEFORE the hit, so a devour moves the hit on', () => {
+    const brown: BoardFn = (r, c) => ((r + c) % 2 === 0 ? colorGem(BaseColor.Brown) : colorGem([BaseColor.Red, BaseColor.Blue, BaseColor.Green, BaseColor.Yellow, BaseColor.Purple][(r * 3 + c) % 5]));
+    let dev = 0;
+    for (let seed = 1; seed <= 80; seed++) {
+      const o = castSpell({ key: 'troop:6464', board: brown, seed }).summary.order.filter(s => !s.startsWith('buff ') && !s.startsWith('defeat'));
+      expect(o[0]).toBe('move E10 back');
+      if (o[1] === 'dmg E11 13') continue;
+      dev++;
+      expect(o[1]).toMatch(/^dmg E11 \d+ devoured$/);
+      expect(o[2]).toBe('dmg E12 13');
+    }
+    expect(dev).toBeGreaterThan(25); expect(dev).toBeLessThan(55);
+    for (let seed = 1; seed <= 30; seed++) expect(castSpell({ key: 'troop:6464', seed }).summary.order).toEqual(['move E10 back', 'dmg E11 13']);
+  });
+  it('troop:7140 true 14, then summons one of Hag 6147 / NightHag 6292 / HornedHag 7140 only', () => {
+    const seen = new Set<string>();
+    for (let seed = 1; seed <= 60; seed++) seen.add(summoned({ key: 'troop:7140', seed })!);
+    expect([...seen].sort()).toEqual(['夜巫', '女巫', '带角女巫'].sort());
+  });
+  it('troop:6701 true 18 on first 2, summons Wrath or Lust, then Blesses Daemon allies incl. the summon', () => {
+    const seen = new Set<string>();
+    for (let seed = 1; seed <= 30; seed++) {
+      const r = castSpell({ key: 'troop:6701', seed }).summary;
+      seen.add((r.units.A14 ?? '').match(/new (\S+)/)![1]);
+      expect(r.order.slice(-2)).toEqual(['status C +blessed', 'status A14 +blessed']);
+      expect(r.order.filter(s => s.startsWith('dmg '))).toEqual(['dmg E10 18 (all)', 'dmg E11 18 (all)']);
+    }
+    expect([...seen].sort()).toEqual(['愤怒', '色欲'].sort());
   });
 });

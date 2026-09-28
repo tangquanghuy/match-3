@@ -232,8 +232,9 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '对一名敌人造成 [魔法 + 4] 点真实伤害，再召唤一名随机女巫。',
     build: skill(
       trueDmg('enemyChosen', 4),
-      // 「女巫」非种族，按名称族列表（文件头备注；排除「女巫猎人」）
-      summonRandom(['Hag', 'FrostfireWitch', 'HornedHag', 'LightbornEnchantress', 'CourtWitch', 'DarkWitch', 'DuskWitch']),
+      // sa-I: native Randomize AB-CD-EF = TrueDamage + Summoning 6147 Hag | 6292 NightHag | 7140 HornedHag
+      // (equal thirds; was a 7-name 「女巫」 pool)
+      summonRandom(['Hag', 'NightHag', 'HornedHag']),
     ),
   },
   {

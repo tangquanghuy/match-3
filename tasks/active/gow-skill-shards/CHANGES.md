@@ -1,6 +1,6 @@
 # GoW 技能改动留档
 
-自动生成（`node scripts/gow-changelog.mjs render`），源数据 [CHANGES.jsonl](CHANGES.jsonl)，共 638 条改动，涉及 1090 个技能 ID。
+自动生成（`node scripts/gow-changelog.mjs render`），源数据 [CHANGES.jsonl](CHANGES.jsonl)，共 640 条改动，涉及 1092 个技能 ID。
 
 ## 按时间
 
@@ -644,6 +644,8 @@
 | 2026-09-28T23:11 | sa-I | L6-I-6603-steal-before-hit | assembler | 7812 | troop:6603 Pride | `src/engine/skills/curated/batch-r22.ts` | hit, then drain 3 Mana per beaten stat → native 4x StealMagic@FromTarget (AddForLess*OnTarget 3) before Damage: steal 3 Magic per beaten stat, then hit with raised Magic |  |
 | 2026-09-28T23:17 | sa-I | L6-I-6681-native-moves | assembler | 8027 | troop:6681 Bael | `src/engine/skills/curated/batch-r5.ts` | random full shuffleTeam enemy → native Jumble 0% + moves: SecondLast->front, Front->back 75%, Last->front 50%, Second->back 25% |  |
 | 2026-09-28T23:29 | sa-I | L1-I-6268-wraith-order | assembler | 7413 | troop:6268 SpookyImp | `src/engine/skills/curated/batch-r2.ts` | scatter first, then oneOf(random of 3 Wraith variants \| +3 Magic) → native AB-CD: [transform random enemy into Wraith 6206, then scatter] OR [scatter, then +3 Magic all allies] |  |
+| 2026-09-28T23:32 | sa-I | L1-I-6464-devour-first | assembler | 7642 | troop:6464 Bulette | `src/engine/skills/curated/batch-r22.ts` | hit new front, then 50% devour lastTarget → native ConsumeConditional@FrontEnemy (13+ Brown, 50%) BEFORE Damage@FrontEnemy |  |
+| 2026-09-28T23:32 | sa-I | L1-I-7140-hag-pool | assembler | 8689 | troop:7140 HornedHag | `src/engine/skills/curated/batch-03.ts` | summon 1 of 7 witch-named troops → native AB-CD-EF: summon Hag 6147 \| NightHag 6292 \| HornedHag 7140 |  |
 
 ## 按技能 ID
 
@@ -887,6 +889,7 @@
 | 7635 | 1 | F2-6457-dispel-self |
 | 7637 | 1 | L1-R2-consume-first |
 | 7640 | 1 | L3-F-6462 |
+| 7642 | 1 | L1-I-6464-devour-first |
 | 7643 | 1 | P-R5-summon-id-reuse |
 | 7644 | 2 | P-counter-per-step、P-counter-per-step |
 | 7645 | 1 | F2-6467-life-armor |
@@ -1315,6 +1318,7 @@
 | 8685 | 1 | L4a-R8-7136-column |
 | 8686 | 1 | P-random-stat-pool |
 | 8688 | 1 | L4a-r3-7139 |
+| 8689 | 1 | L1-I-7140-hag-pool |
 | 8691 | 1 | L5-C-r4-7142 |
 | 8692 | 1 | R3-B08-7143 |
 | 8694 | 1 | F2-7145-miss-branch |
