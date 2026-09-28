@@ -547,3 +547,73 @@ describe('L2 R2 batch 07', () => {
     expect(o[0]).toMatch(/-> Yellow x5$/); expect(o[1]).toMatch(/^convert Yellow x\d+ -> Red x\d+$/); expect(o[2]).toMatch(/^buff E11 /);
   });
 });
+
+describe('L2 R2 batch 08', () => {
+  it.each<Row>([
+    // 7320 AB-CD: [M+4] to a random enemy + Burn it OR + Disease it
+    { key: 'troop:6179', branches: Object.fromEntries(['E10', 'E11', 'E12', 'E13'].flatMap(e => ['burning', 'disease'].map(s => [`dmg ${e} 14 ; status ${e} +${s}`, 1 / 8]))) },
+    // 8492 AB-CD: 1 Stone Block + [M+1] Armor to all allies OR destroy 1 Stone Block + [M+1] to all enemies
+    { key: 'troop:6988', branches: { 'convert * -> stoneBlock x1 ; buff C armor+11 ; buff A1 armor+11 ; buff A2 armor+11': 1 / 2,
+      'dmg E10 11 (all) ; dmg E11 11 (all) ; dmg E12 11 (all) ; dmg E13 11 (all)': 1 / 2 } },
+  ])('$key branches and weights', o => checkRow({ ...o, norm: true }));
+
+  it('troop:7406 2 Wish + extra turn always; then true damage (C, F) 1/2, heal all 1/4, explode [M+1] Brown 1/4 -- fixed (was 1/3 each)', () => {
+    const t = { dmg: 0, heal: 0, explode: 0 };
+    for (let seed = 1; seed <= SEEDS; seed++) {
+      const o = castSpell({ key: 'troop:7406', seed }).summary.order;
+      expect(o.slice(0, 2).join(' ; ')).toMatch(/-> wish x2 ; extra-turn skill$/);
+      if (o[2] === 'dmg E12 11 (all)') { expect(o[3]).toBe('dmg E13 11 (all)'); t.dmg++; }
+      else if (o[2] === 'buff C hp+11 max+11') t.heal++;
+      else { expect(o[2]).toMatch(/^explode \d+$/); t.explode++; }
+    }
+    expect(t.dmg / SEEDS).toBeGreaterThan(0.4); expect(t.dmg / SEEDS).toBeLessThan(0.6);
+    expect(t.heal / SEEDS).toBeGreaterThan(0.15); expect(t.heal / SEEDS).toBeLessThan(0.35);
+    expect(t.explode / SEEDS).toBeGreaterThan(0.15); expect(t.explode / SEEDS).toBeLessThan(0.35);
+  });
+
+  it('troop:7483 5 Brown, then Armor | 2 Stone Blocks | Stun first 2 | explode the whole board at once (1/4 each) -- board branch fixed', () => {
+    const t = new Map<string, number>();
+    for (let seed = 1; seed <= SEEDS; seed++) {
+      const o = castSpell({ key: 'troop:7483', seed }).summary.order;
+      expect(o[0]).toMatch(/-> Brown x5$/);
+      const b = o[1] === 'buff C armor+11' ? 'armor' : o[1].endsWith('stoneBlock x2') ? 'block' : o[1] === 'status E10 +stun' ? 'stun' : o[1];
+      if (b.startsWith('explode')) expect(b).toBe('explode 64');
+      t.set(b.startsWith('explode') ? 'board' : b, (t.get(b.startsWith('explode') ? 'board' : b) ?? 0) + 1);
+    }
+    expect([...t.keys()].sort()).toEqual(['armor', 'block', 'board', 'stun']);
+    for (const n of t.values()) { expect(n / SEEDS).toBeGreaterThan(0.15); expect(n / SEEDS).toBeLessThan(0.35); }
+  });
+
+  it('troop:6988 destroy branch removes ONE Stone Block when there are several -- fixed (was all)', () => {
+    const board = withCells(reviewBoard, { '3,3': specialGem('stoneBlock'), '5,5': specialGem('stoneBlock') });
+    const o = choose({ key: 'troop:6988', board }, 1);
+    expect(o[0]).toMatch(/^destroy 1 \(stoneBlock x1\)$/);
+  });
+
+  it('weapon:1480 Either 4 Gargoyle gems (Good/Evil) OR explode [M+1] random gems', () => {
+    let garg = 0;
+    for (let seed = 1; seed <= SEEDS; seed++) {
+      const o = castSpell({ key: 'weapon:1480', seed }).summary.order;
+      if (/-> gargoyleGem x4$/.test(o[0])) garg++; else expect(o[0]).toMatch(/^explode \d+$/);
+    }
+    expect(garg / SEEDS).toBeGreaterThan(0.35); expect(garg / SEEDS).toBeLessThan(0.65);
+  });
+
+  it('weapon:1686 10 Poison gems, then one random negative status on every enemy + a second on all of them 50% of the time', () => {
+    const counts = new Set<number>();
+    for (let seed = 1; seed <= 60; seed++) {
+      const o = castSpell({ key: 'weapon:1686', seed }).summary.order; const i = o.indexOf('~cascade~');
+      const st = (i < 0 ? o : o.slice(0, i)).filter(x => x.startsWith('status E'));
+      counts.add(st.length);
+    }
+    expect([...counts].sort()).toEqual([4, 8]); // one roll for the 50% step, not one per enemy
+  });
+
+  it.each([
+    ['weapon:1508', 0, [/-> spiritGem\/Purple x8$/, /^extra-turn skill$/]], ['weapon:1508', 1, [/^dmg E1\d 23$/]],
+    ['weapon:1552', 0, [/-> lightningRow x8$/, /^dmg E11 13 \(splash\)$/]], ['weapon:1552', 1, [/-> lightningCol x8$/, /^dmg E11 13 \(splash\)$/]],
+  ] as const)('%s Choose branch %i', (key, b, res) => {
+    const o = choose({ key }, b);
+    res.forEach((re, i) => expect(o[i]).toMatch(re));
+  });
+});

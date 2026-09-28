@@ -31,8 +31,8 @@
 import type { CuratedBatch } from './index';
 import {
   skill, skillOnce, targetedSkill, dmg, dmgSplash, trueDmg, heal, armor, attack, magic, mana, reduce, steal,
-  cleanse, randomStat, createGems, createSpecialGems, destroySpecialGems, explodeSpecialGems, explodeRandomGems,
-  explodeColor, explodeSkulls, destroyRandomGems, destroyChosenRow, destroyChosenCol, destroyArea, transform, transformToSpecial,
+  cleanse, randomStat, createGems, createSpecialGems, destroyRandomSpecialGems, explodeSpecialGems, explodeRandomGems,
+  explodeColor, destroyRandomGems, destroyChosenRow, destroyChosenCol, destroyArea, transform, transformToSpecial,
   transformTroop, inflict,
   inflictRandom, shuffleBoard, extraTurn, oneOf, reposition, summonRandom, summonRef,
   transformTroopRandom, CHOSEN, CELL, explodeAt,
@@ -537,7 +537,8 @@ const SPELLS: CuratedBatch['spells'] = [
           armor('allyAll', 1, 1),
         ],
         [
-          destroySpecialGems('stoneBlock'),
+          // sa-R6：原生 DestroyColor Block Amount 1 = 只摧毁一个石墩（原为全部石墩）
+          destroyRandomSpecialGems('stoneBlock', 1),
           dmg('enemyAll', 1, 1, { range: 'all' }),
         ],
       ),
@@ -708,15 +709,9 @@ const SPELLS: CuratedBatch['spells'] = [
         armor('allySelf', 1, 1),
         createSpecialGems({ kind: 'stoneBlock' }, 2),
         inflict('stun', 'enemyFirstN', { n: 2 }),
-        [
-          explodeColor(BaseColor.Red),
-          explodeColor(BaseColor.Blue),
-          explodeColor(BaseColor.Green),
-          explodeColor(BaseColor.Yellow),
-          explodeColor(BaseColor.Purple),
-          explodeColor(BaseColor.Brown),
-          explodeSkulls(),
-        ],
+        // sa-R6 L2-7483-explode-board：原生 ExplodeGems Amount 100 = 一次爆破全棋盘（原为逐色 7 段爆破，
+        // 每段之间棋盘下落连锁，首段后就不再是「整个板面」）
+        explodeRandomGems(100, 0, 'all'),
       ),
     ),
   },

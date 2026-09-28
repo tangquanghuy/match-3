@@ -478,10 +478,12 @@ const SPELLS: CuratedBatch['spells'] = [
     build: skill(
       createSpecialGems({ kind: 'wish' }, 2),
       extraTurn(),
+      // sa-R6 L2-7406-branch-weights：原生 AB+(C-D-E-F)，C 与 F 都是末 2 名真实伤害 → 伤害 1/2、治疗 1/4、爆破 1/4（原为各 1/3）
       oneOf(
         [trueDmg('enemyLastN', 1, 1, { n: 2 })],
         [heal('allyAll', 1, 1)],
         [explodeRandomGems(1, 1, 'color', BaseColor.Brown)],
+        [trueDmg('enemyLastN', 1, 1, { n: 2 })],
       ),
     ),
   },

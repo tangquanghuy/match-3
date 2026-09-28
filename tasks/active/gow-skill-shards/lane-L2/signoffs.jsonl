@@ -96,3 +96,13 @@
 {"format":"compact","key":"troop:7702","decision":"accept","reviewer":"sa-R6","reviewedAt":"2026-09-28T08:47:27.692Z","tests":["tests/unit/gowCastGolden.test.ts"]}
 {"format":"compact","key":"troop:7265","decision":"accept","reviewer":"sa-R6","reviewedAt":"2026-09-28T08:47:27.693Z","tests":["tests/unit/gowCastGolden.test.ts"]}
 {"format":"compact","key":"troop:7294","decision":"accept","reviewer":"sa-R6","reviewedAt":"2026-09-28T08:47:27.693Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"weapon:1508","decision":"accept","reviewer":"sa-R6","reviewedAt":"2026-09-28T08:54:46.742Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:7406","decision":"accept","reviewer":"sa-R6","reviewedAt":"2026-09-28T08:54:46.743Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:7483","decision":"accept","reviewer":"sa-R6","reviewedAt":"2026-09-28T08:54:46.743Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:6988","decision":"accept","reviewer":"sa-R6","reviewedAt":"2026-09-28T08:54:46.743Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"weapon:1094","decision":"accept","reviewer":"sa-R6","reviewedAt":"2026-09-28T08:54:46.744Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"weapon:1686","decision":"accept","reviewer":"sa-R6","reviewedAt":"2026-09-28T08:54:46.744Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"weapon:1552","decision":"accept","reviewer":"sa-R6","reviewedAt":"2026-09-28T08:54:46.744Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"weapon:1480","decision":"accept","reviewer":"sa-R6","reviewedAt":"2026-09-28T08:54:46.744Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:6179","decision":"accept","reviewer":"sa-R6","reviewedAt":"2026-09-28T08:54:46.745Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"weapon:1461","decision":"issue","reviewer":"sa-R6","reviewedAt":"2026-09-28T08:54:46.934Z","issue":"P-R6-chosen-diagonal-transform","note":"native CreateGems Burning BoardTarget LeftDiagonal|RightDiagonal (Target Board, AB-CD) = diagonal through the chosen cell; runtime transform diagonal is fixed to the centre diagonals (no chosen-cell anchor). Scatter [M+8] and the 1/2 branch split match."}
