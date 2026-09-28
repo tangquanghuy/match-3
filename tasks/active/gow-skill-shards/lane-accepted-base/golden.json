@@ -31,13 +31,13 @@
  },
  "troop:6009": {
   "lines": {
-   "L10": "convert Green x3, Yellow x3, Blue x1, Purple x2 -> Brown x9 ; ~cascade~ ; buff C hp+10 max+10  => C:hp+10 max+10  cascade",
-   "R10": "convert Green x3, Yellow x3, Blue x1, Purple x2 -> Brown x9 ; ~cascade~ ; buff C hp+10 max+10  => C:hp+10 max+10  cascade",
+   "L10": "convert Green x3, Yellow x3, Blue x1, Purple x2 -> Brown x9 ; buff C armor+10 ; ~cascade~  => C:arm+10  cascade",
+   "R10": "convert Green x3, Yellow x3, Blue x1, Purple x2 -> Brown x9 ; buff C armor+10 ; ~cascade~  => C:arm+10  cascade",
    "L0": "convert Green x3, Yellow x3, Blue x1, Purple x2 -> Brown x9 ; ~cascade~  cascade",
-   "K": "convert Green x3, Yellow x3, Blue x1, Purple x2 -> Brown x9 ; ~cascade~ ; buff C hp+10 max+10  => C:hp+10 max+10  cascade"
+   "K": "convert Green x3, Yellow x3, Blue x1, Purple x2 -> Brown x9 ; buff C armor+10 ; ~cascade~  => C:arm+10  cascade"
   },
-  "by": "coord (accepted before golden)",
-  "at": "2026-09-27T23:48:12.361Z"
+  "by": "coord (re-lock after P-create-interleave/R007-3)",
+  "at": "2026-09-28T01:06:36.864Z"
  },
  "troop:6011": {
   "lines": {
@@ -191,13 +191,13 @@
  },
  "troop:6063": {
   "lines": {
-   "L10": "status E10 +poison ; status E11 +poison ; convert Yellow x2, Purple x3, Blue x2, Green x2 -> Red x9 ; ~cascade~ ; buff C hp+11 max+11  => E10:+poison | E11:+poison | A2:mana+3 | C:hp+11 max+11  cascade",
-   "R10": "status E10 +poison ; status E11 +poison ; convert Yellow x2, Purple x3, Blue x2, Green x2 -> Red x9 ; ~cascade~ ; buff C hp+11 max+11  => E10:+poison | E11:+poison | A2:mana+3 | C:hp+11 max+11  cascade",
-   "L0": "status E10 +poison ; status E11 +poison ; convert Yellow x2, Purple x3, Blue x2, Green x2 -> Red x9 ; ~cascade~ ; buff C hp+1 max+1  => E10:+poison | E11:+poison | A2:mana+3 | C:hp+1 max+1  cascade",
-   "K": "status E10 +poison ; status E11 +poison ; convert Yellow x2, Purple x3, Blue x2, Green x2 -> Red x9 ; ~cascade~ ; buff C hp+11 max+11  => E10:+poison | E11:+poison | A2:mana+3 | C:hp+11 max+11  cascade"
+   "L10": "status E10 +poison ; status E11 +poison ; convert Yellow x2, Purple x3, Blue x2, Green x2 -> Red x9 ; buff C hp+11 max+11 ; ~cascade~  => E10:+poison | E11:+poison | C:hp+11 max+11 | A2:mana+3  cascade",
+   "R10": "status E10 +poison ; status E11 +poison ; convert Yellow x2, Purple x3, Blue x2, Green x2 -> Red x9 ; buff C hp+11 max+11 ; ~cascade~  => E10:+poison | E11:+poison | C:hp+11 max+11 | A2:mana+3  cascade",
+   "L0": "status E10 +poison ; status E11 +poison ; convert Yellow x2, Purple x3, Blue x2, Green x2 -> Red x9 ; buff C hp+1 max+1 ; ~cascade~  => E10:+poison | E11:+poison | C:hp+1 max+1 | A2:mana+3  cascade",
+   "K": "status E10 +poison ; status E11 +poison ; convert Yellow x2, Purple x3, Blue x2, Green x2 -> Red x9 ; buff C hp+11 max+11 ; ~cascade~  => E10:+poison | E11:+poison | C:hp+11 max+11 | A2:mana+3  cascade"
   },
-  "by": "coord (accepted before golden)",
-  "at": "2026-09-27T23:48:12.361Z"
+  "by": "coord (re-lock after P-create-interleave/R007-3)",
+  "at": "2026-09-28T01:06:36.864Z"
  },
  "troop:6068": {
   "lines": {
@@ -911,13 +911,13 @@
  },
  "troop:6612": {
   "lines": {
-   "L10": "convert Green x13 -> Purple x13 ; ~cascade~ ; status C +enchanted ; extra-turn match  => C:+enchanted  extra:match  cascade",
-   "R10": "convert Green x13 -> Purple x13 ; ~cascade~ ; status C +enchanted ; extra-turn match  => C:+enchanted  extra:match  cascade",
-   "L0": "convert Green x13 -> Purple x13 ; ~cascade~ ; status C +enchanted ; extra-turn match  => C:+enchanted  extra:match  cascade",
-   "K": "convert Green x13 -> Purple x13 ; ~cascade~ ; status C +enchanted ; extra-turn match  => C:+enchanted  extra:match  cascade"
+   "L10": "convert Green x13 -> Purple x13 ; status C +enchanted ; ~cascade~ ; extra-turn match  => C:+enchanted  extra:match  cascade",
+   "R10": "convert Green x13 -> Purple x13 ; status C +enchanted ; ~cascade~ ; extra-turn match  => C:+enchanted  extra:match  cascade",
+   "L0": "convert Green x13 -> Purple x13 ; status C +enchanted ; ~cascade~ ; extra-turn match  => C:+enchanted  extra:match  cascade",
+   "K": "convert Green x13 -> Purple x13 ; status C +enchanted ; ~cascade~ ; extra-turn match  => C:+enchanted  extra:match  cascade"
   },
-  "by": "coord (accepted before golden)",
-  "at": "2026-09-27T23:48:12.361Z"
+  "by": "coord (re-lock after P-create-interleave/R007-3)",
+  "at": "2026-09-28T01:06:36.864Z"
  },
  "troop:6614": {
   "lines": {
@@ -1071,13 +1071,13 @@
  },
  "troop:6779": {
   "lines": {
-   "L10": "convert Purple x9 -> Green x9 ; ~cascade~ ; status E10 +marked ; extra-turn match  => E10:+marked  extra:match  cascade",
-   "R10": "convert Purple x9 -> Green x9 ; ~cascade~ ; status E10 +marked ; extra-turn match  => E10:+marked  extra:match  cascade",
-   "L0": "convert Purple x9 -> Green x9 ; ~cascade~ ; status E10 +marked ; extra-turn match  => E10:+marked  extra:match  cascade",
-   "K": "convert Purple x9 -> Green x9 ; ~cascade~ ; status E10 +marked ; extra-turn match  => E10:+marked  extra:match  cascade"
+   "L10": "convert Purple x9 -> Green x9 ; status E10 +marked ; ~cascade~ ; extra-turn match  => E10:+marked  extra:match  cascade",
+   "R10": "convert Purple x9 -> Green x9 ; status E10 +marked ; ~cascade~ ; extra-turn match  => E10:+marked  extra:match  cascade",
+   "L0": "convert Purple x9 -> Green x9 ; status E10 +marked ; ~cascade~ ; extra-turn match  => E10:+marked  extra:match  cascade",
+   "K": "convert Purple x9 -> Green x9 ; status E10 +marked ; ~cascade~ ; extra-turn match  => E10:+marked  extra:match  cascade"
   },
-  "by": "coord (accepted before golden)",
-  "at": "2026-09-27T23:48:12.361Z"
+  "by": "coord (re-lock after P-create-interleave/R007-3)",
+  "at": "2026-09-28T01:06:36.864Z"
  },
  "troop:6783": {
   "lines": {
@@ -1191,13 +1191,13 @@
  },
  "troop:6941": {
   "lines": {
-   "L10": "convert Green x3, Yellow x3, Blue x1, Purple x3 -> Brown x10 ; ~cascade~ ; status E12 +frozen ; extra-turn match  => E12:+frozen  extra:match  cascade",
-   "R10": "convert Green x3, Yellow x3, Blue x1, Purple x3 -> Brown x10 ; ~cascade~ ; status E12 +frozen ; extra-turn match  => E12:+frozen  extra:match  cascade",
-   "L0": "convert Green x3, Yellow x3, Blue x1, Purple x3 -> Brown x10 ; ~cascade~ ; status E12 +frozen ; extra-turn match  => E12:+frozen  extra:match  cascade",
-   "K": "convert Green x3, Yellow x3, Blue x1, Purple x3 -> Brown x10 ; ~cascade~ ; status E12 +frozen ; extra-turn match  => E12:+frozen  extra:match  cascade"
+   "L10": "convert Green x3, Yellow x3, Blue x1, Purple x3 -> Brown x10 ; status E10 +frozen ; ~cascade~ ; extra-turn match  => E10:+frozen  extra:match  cascade",
+   "R10": "convert Green x3, Yellow x3, Blue x1, Purple x3 -> Brown x10 ; status E10 +frozen ; ~cascade~ ; extra-turn match  => E10:+frozen  extra:match  cascade",
+   "L0": "convert Green x3, Yellow x3, Blue x1, Purple x3 -> Brown x10 ; status E10 +frozen ; ~cascade~ ; extra-turn match  => E10:+frozen  extra:match  cascade",
+   "K": "convert Green x3, Yellow x3, Blue x1, Purple x3 -> Brown x10 ; status E10 +frozen ; ~cascade~ ; extra-turn match  => E10:+frozen  extra:match  cascade"
   },
-  "by": "coord (accepted before golden)",
-  "at": "2026-09-27T23:48:12.361Z"
+  "by": "coord (re-lock after P-create-interleave/R007-3)",
+  "at": "2026-09-28T01:06:36.864Z"
  },
  "troop:6944": {
   "lines": {
@@ -1284,40 +1284,40 @@
    "L10": "status E11 +entangle ; dmg E11 13  => E11:hp-3 arm-10 +entangle",
    "R10": "status E11 +entangle ; dmg E11 13  => E11:hp-3 arm-10 +entangle",
    "L0": "status E11 +entangle ; dmg E11 3  => E11:arm-3 +entangle",
-   "K": "status E11 +entangle ; dmg E11 13 ; defeat E11 ; convert Purple x2 -> elementalStar x2 ; ~cascade~ ; trigger elementalStar ; destroy 4 (Blue x2, skull x1, Brown x1) ; trigger elementalStar ; destroy 2 (Yellow x1, Blue x1) ; skulls E10 1 ; defeat E10 ; extra-turn skill  => E11:hp-1 +entangle DEAD | A1:mana+5 | A2:mana+9 | E10:hp-1 DEAD  extra:skill  cascade"
+   "K": "status E11 +entangle ; dmg E11 13 ; defeat E11 ; convert Purple x2 -> elementalStar x2 ; extra-turn skill ; ~cascade~ ; trigger elementalStar ; destroy 4 (Blue x2, skull x1, Brown x1) ; trigger elementalStar ; destroy 2 (Yellow x1, Blue x1) ; skulls E10 1 ; defeat E10  => E11:hp-1 +entangle DEAD | A1:mana+5 | A2:mana+9 | E10:hp-1 DEAD  extra:skill  cascade"
   },
-  "by": "coord (accepted before golden)",
-  "at": "2026-09-27T23:48:12.361Z"
+  "by": "coord (re-lock after P-create-interleave/R007-3)",
+  "at": "2026-09-28T01:06:36.864Z"
  },
  "troop:7098": {
   "lines": {
    "L10": "status E11 +burning ; dmg E11 13  => E11:hp-3 arm-10 +burning",
    "R10": "status E11 +burning ; dmg E11 13  => E11:hp-3 arm-10 +burning",
    "L0": "status E11 +burning ; dmg E11 3  => E11:arm-3 +burning",
-   "K": "status E11 +burning ; dmg E11 13 ; defeat E11 ; convert Purple x2 -> elementalStar x2 ; ~cascade~ ; trigger elementalStar ; destroy 4 (Blue x2, skull x1, Brown x1) ; trigger elementalStar ; destroy 2 (Yellow x1, Blue x1) ; skulls E10 1 ; defeat E10 ; extra-turn skill  => E11:hp-1 +burning DEAD | A1:mana+5 | E10:hp-1 DEAD  extra:skill  cascade"
+   "K": "status E11 +burning ; dmg E11 13 ; defeat E11 ; convert Purple x2 -> elementalStar x2 ; extra-turn skill ; ~cascade~ ; trigger elementalStar ; destroy 4 (Blue x2, skull x1, Brown x1) ; trigger elementalStar ; destroy 2 (Yellow x1, Blue x1) ; skulls E10 1 ; defeat E10  => E11:hp-1 +burning DEAD | A1:mana+5 | E10:hp-1 DEAD  extra:skill  cascade"
   },
-  "by": "coord (accepted before golden)",
-  "at": "2026-09-27T23:48:12.361Z"
+  "by": "coord (re-lock after P-create-interleave/R007-3)",
+  "at": "2026-09-28T01:06:36.864Z"
  },
  "troop:7099": {
   "lines": {
    "L10": "status E11 +frozen ; dmg E11 13  => E11:hp-3 arm-10 +frozen",
    "R10": "status E11 +frozen ; dmg E11 13  => E11:hp-3 arm-10 +frozen",
    "L0": "status E11 +frozen ; dmg E11 3  => E11:arm-3 +frozen",
-   "K": "status E11 +frozen ; dmg E11 13 ; defeat E11 ; convert Purple x2 -> elementalStar x2 ; ~cascade~ ; trigger elementalStar ; destroy 4 (Blue x2, skull x1, Brown x1) ; trigger elementalStar ; destroy 2 (Yellow x1, Blue x1) ; skulls E10 1 ; defeat E10 ; extra-turn skill  => E11:hp-1 +frozen DEAD | A2:mana+11 | E10:hp-1 DEAD  extra:skill  cascade"
+   "K": "status E11 +frozen ; dmg E11 13 ; defeat E11 ; convert Purple x2 -> elementalStar x2 ; extra-turn skill ; ~cascade~ ; trigger elementalStar ; destroy 4 (Blue x2, skull x1, Brown x1) ; trigger elementalStar ; destroy 2 (Yellow x1, Blue x1) ; skulls E10 1 ; defeat E10  => E11:hp-1 +frozen DEAD | A2:mana+11 | E10:hp-1 DEAD  extra:skill  cascade"
   },
-  "by": "coord (accepted before golden)",
-  "at": "2026-09-27T23:48:12.361Z"
+  "by": "coord (re-lock after P-create-interleave/R007-3)",
+  "at": "2026-09-28T01:06:36.864Z"
  },
  "troop:7100": {
   "lines": {
    "L10": "status E11 +stun ; dmg E11 13  => E11:hp-3 arm-10 +stun",
    "R10": "status E11 +stun ; dmg E11 13  => E11:hp-3 arm-10 +stun",
    "L0": "status E11 +stun ; dmg E11 3  => E11:arm-3 +stun",
-   "K": "status E11 +stun ; dmg E11 13 ; defeat E11 ; convert Purple x2 -> elementalStar x2 ; ~cascade~ ; trigger elementalStar ; destroy 4 (Blue x2, skull x1, Brown x1) ; trigger elementalStar ; destroy 2 (Yellow x1, Blue x1) ; skulls E10 1 ; defeat E10 ; extra-turn skill  => E11:hp-1 +stun DEAD | A2:mana+11 | A1:mana+4 | E10:hp-1 DEAD  extra:skill  cascade"
+   "K": "status E11 +stun ; dmg E11 13 ; defeat E11 ; convert Purple x2 -> elementalStar x2 ; extra-turn skill ; ~cascade~ ; trigger elementalStar ; destroy 4 (Blue x2, skull x1, Brown x1) ; trigger elementalStar ; destroy 2 (Yellow x1, Blue x1) ; skulls E10 1 ; defeat E10  => E11:hp-1 +stun DEAD | A2:mana+11 | A1:mana+4 | E10:hp-1 DEAD  extra:skill  cascade"
   },
-  "by": "coord (accepted before golden)",
-  "at": "2026-09-27T23:48:12.361Z"
+  "by": "coord (re-lock after P-create-interleave/R007-3)",
+  "at": "2026-09-28T01:06:36.864Z"
  },
  "troop:7112": {
   "lines": {
@@ -1691,33 +1691,33 @@
  },
  "troop:7425": {
   "lines": {
-   "L10": "convert Green x3, Yellow x2, Blue x1, Purple x2 -> Brown x8 ; ~cascade~ ; convert Blue x1, Green x1, Purple x1, Brown x3, Red x1, skull x1 -> Yellow x8  cascade",
-   "R10": "convert Green x3, Yellow x2, Blue x1, Purple x2 -> Brown x8 ; ~cascade~ ; convert Blue x1, Green x1, Purple x1, Brown x3, Red x1, skull x1 -> Yellow x8  cascade",
-   "L0": "convert Green x3, Yellow x2, Blue x1, Purple x2 -> Brown x8 ; ~cascade~ ; convert Blue x1, Green x1, Purple x1, Brown x3, Red x1, skull x1 -> Yellow x8  cascade",
-   "K": "convert Green x3, Yellow x2, Blue x1, Purple x2 -> Brown x8 ; ~cascade~ ; convert Blue x1, Green x1, Purple x1, Brown x3, Red x1, skull x1 -> Yellow x8  cascade"
+   "L10": "convert Green x3, Yellow x2, Blue x1, Purple x2 -> Brown x8 ; convert skull x1, Brown x2, Green x3, Blue x1, Red x1 -> Yellow x8",
+   "R10": "convert Green x3, Yellow x2, Blue x1, Purple x2 -> Brown x8 ; convert skull x1, Brown x2, Green x3, Blue x1, Red x1 -> Yellow x8",
+   "L0": "convert Green x3, Yellow x2, Blue x1, Purple x2 -> Brown x8 ; convert skull x1, Brown x2, Green x3, Blue x1, Red x1 -> Yellow x8",
+   "K": "convert Green x3, Yellow x2, Blue x1, Purple x2 -> Brown x8 ; convert skull x1, Brown x2, Green x3, Blue x1, Red x1 -> Yellow x8"
   },
-  "by": "coord (accepted before golden)",
-  "at": "2026-09-27T23:48:12.361Z"
+  "by": "coord (re-lock after P-create-interleave/R007-3)",
+  "at": "2026-09-28T01:06:36.864Z"
  },
  "troop:7446": {
   "lines": {
-   "L10": "dmg E10 36 (all) ; dmg E11 36 (all) ; dmg E12 36 (all) ; dmg E13 36 (all) ; convert Purple x2, Yellow x1 -> elementalStar x3 ; ~cascade~ ; trigger elementalStar ; destroy 4 (Blue x2, skull x1, Brown x1) ; trigger elementalStar ; destroy 2 (Yellow x1, Blue x1) ; skulls E10 1 ; convert Green x1, Blue x1, Brown x1 -> umbralStar x3 ; trigger umbralStar ; destroy 12 (skull x1, Green x2, Yellow x3, Red x2, Purple x1, Brown x2, Blue x1) ; skulls E10 1 ; extra-turn skill  => E10:hp-33 arm-5 | E11:hp-26 arm-10 | E12:hp-24 arm-12 | E13:hp-33 arm-3 | A2:mana+14 | A1:mana+1  extra:skill  cascade",
-   "R10": "dmg E10 36 (all) ; dmg E11 36 (all) ; dmg E12 36 (all) ; dmg E13 36 (all) ; convert Purple x2, Yellow x1 -> elementalStar x3 ; ~cascade~ ; trigger elementalStar ; destroy 4 (Blue x2, skull x1, Brown x1) ; trigger elementalStar ; destroy 2 (Yellow x1, Blue x1) ; skulls E10 1 ; convert Green x1, Blue x1, Brown x1 -> umbralStar x3 ; trigger umbralStar ; destroy 12 (skull x1, Green x2, Yellow x3, Red x2, Purple x1, Brown x2, Blue x1) ; skulls E10 1 ; extra-turn skill  => E10:hp-33 arm-5 | E11:hp-26 arm-10 | E12:hp-24 arm-12 | E13:hp-33 arm-3 | A2:mana+14 | A1:mana+1  extra:skill  cascade",
-   "L0": "dmg E10 6 (all) ; dmg E11 6 (all) ; dmg E12 6 (all) ; dmg E13 6 (all) ; convert Purple x2, Yellow x1 -> elementalStar x3 ; ~cascade~ ; trigger elementalStar ; destroy 4 (Blue x2, skull x1, Brown x1) ; trigger elementalStar ; destroy 2 (Yellow x1, Blue x1) ; skulls E10 1 ; convert Green x1, Blue x1, Brown x1 -> umbralStar x3 ; trigger umbralStar ; destroy 12 (skull x1, Green x2, Yellow x3, Red x2, Purple x1, Brown x2, Blue x1) ; skulls E10 1 ; extra-turn skill  => E10:hp-3 arm-5 | E11:arm-6 | E12:arm-6 | E13:hp-3 arm-3 | A2:mana+14 | A1:mana+1  extra:skill  cascade",
-   "K": "dmg E10 36 (all) ; dmg E11 36 (all) ; dmg E12 36 (all) ; dmg E13 36 (all) ; defeat E10 ; defeat E11 ; defeat E12 ; defeat E13 ; convert Purple x2, Yellow x1 -> elementalStar x3 ; ~cascade~ ; trigger elementalStar ; destroy 4 (Blue x2, skull x1, Brown x1) ; trigger elementalStar ; destroy 2 (Yellow x1, Blue x1) ; create umbralStar x3 ; trigger umbralStar ; destroy 12 (Green x3, Blue x1, skull x2, Red x1, Yellow x2, Purple x1, Brown x2) ; extra-turn skill  => E10:hp-1 DEAD | E11:hp-1 DEAD | E12:hp-1 DEAD | E13:hp-1 DEAD | A1:mana+1 | A2:mana+3  extra:skill  cascade"
+   "L10": "dmg E10 36 (all) ; dmg E11 36 (all) ; dmg E12 36 (all) ; dmg E13 36 (all) ; convert Purple x2, Yellow x1 -> elementalStar x3 ; convert Brown x1, Green x2 -> umbralStar x3 ; extra-turn skill ; ~cascade~ ; trigger elementalStar ; destroy 4 (Blue x2, skull x1, Brown x1) ; trigger elementalStar ; destroy 2 (Yellow x1, Blue x1) ; skulls E10 1 ; trigger umbralStar ; destroy 10 (skull x2, Green x3, Brown x2, Purple x1, Blue x1, Yellow x1) ; skulls E10 2  => E10:hp-34 arm-5 | E11:hp-26 arm-10 | E12:hp-24 arm-12 | E13:hp-33 arm-3 | A1:mana+1 | A2:mana+4  extra:skill  cascade",
+   "R10": "dmg E10 36 (all) ; dmg E11 36 (all) ; dmg E12 36 (all) ; dmg E13 36 (all) ; convert Purple x2, Yellow x1 -> elementalStar x3 ; convert Brown x1, Green x2 -> umbralStar x3 ; extra-turn skill ; ~cascade~ ; trigger elementalStar ; destroy 4 (Blue x2, skull x1, Brown x1) ; trigger elementalStar ; destroy 2 (Yellow x1, Blue x1) ; skulls E10 1 ; trigger umbralStar ; destroy 10 (skull x2, Green x3, Brown x2, Purple x1, Blue x1, Yellow x1) ; skulls E10 2  => E10:hp-34 arm-5 | E11:hp-26 arm-10 | E12:hp-24 arm-12 | E13:hp-33 arm-3 | A1:mana+1 | A2:mana+4  extra:skill  cascade",
+   "L0": "dmg E10 6 (all) ; dmg E11 6 (all) ; dmg E12 6 (all) ; dmg E13 6 (all) ; convert Purple x2, Yellow x1 -> elementalStar x3 ; convert Brown x1, Green x2 -> umbralStar x3 ; extra-turn skill ; ~cascade~ ; trigger elementalStar ; destroy 4 (Blue x2, skull x1, Brown x1) ; trigger elementalStar ; destroy 2 (Yellow x1, Blue x1) ; skulls E10 1 ; trigger umbralStar ; destroy 10 (skull x2, Green x3, Brown x2, Purple x1, Blue x1, Yellow x1) ; skulls E10 2  => E10:hp-4 arm-5 | E11:arm-6 | E12:arm-6 | E13:hp-3 arm-3 | A1:mana+1 | A2:mana+4  extra:skill  cascade",
+   "K": "dmg E10 36 (all) ; dmg E11 36 (all) ; dmg E12 36 (all) ; dmg E13 36 (all) ; defeat E10 ; defeat E11 ; defeat E12 ; defeat E13 ; convert Purple x2, Yellow x1 -> elementalStar x3 ; convert Brown x1, Green x2 -> umbralStar x3 ; extra-turn skill ; ~cascade~ ; trigger elementalStar ; destroy 4 (Blue x2, skull x1, Brown x1) ; trigger elementalStar ; destroy 2 (Yellow x1, Blue x1)  => E10:hp-1 DEAD | E11:hp-1 DEAD | E12:hp-1 DEAD | E13:hp-1 DEAD  extra:skill  cascade"
   },
-  "by": "coord (accepted before golden)",
-  "at": "2026-09-27T23:48:12.361Z"
+  "by": "coord (re-lock after P-create-interleave/R007-3)",
+  "at": "2026-09-28T01:06:36.864Z"
  },
  "troop:7453": {
   "lines": {
-   "L10": "convert Green x13 -> terrorGem x13 ; ~cascade~ ; trigger terrorGem ; status E12 +terror ; trigger terrorGem ; status E11 +terror ; trigger terrorGem ; status E13 +terror ; dmg E12 12 ; extra-turn match  => E12:arm-12 +terror | E11:+terror | E13:+terror  extra:match  cascade",
-   "R10": "convert Green x13 -> terrorGem x13 ; ~cascade~ ; trigger terrorGem ; status E12 +terror ; trigger terrorGem ; status E11 +terror ; trigger terrorGem ; status E13 +terror ; dmg E12 12 ; extra-turn match  => E12:arm-12 +terror | E11:+terror | E13:+terror  extra:match  cascade",
-   "L0": "convert Green x13 -> terrorGem x13 ; ~cascade~ ; trigger terrorGem ; status E12 +terror ; trigger terrorGem ; status E11 +terror ; trigger terrorGem ; status E13 +terror ; dmg E12 2 ; extra-turn match  => E12:arm-2 +terror | E11:+terror | E13:+terror  extra:match  cascade",
-   "K": "convert Green x13 -> terrorGem x13 ; ~cascade~ ; trigger terrorGem ; status E12 +terror ; trigger terrorGem ; status E11 +terror ; trigger terrorGem ; status E13 +terror ; dmg E12 12 ; defeat E12 ; extra-turn match  => E12:hp-1 +terror DEAD | E11:+terror | E13:+terror  extra:match  cascade"
+   "L10": "convert Green x13 -> terrorGem x13 ; dmg E12 12 ; ~cascade~ ; trigger terrorGem ; status E11 +terror ; trigger terrorGem ; status E13 +terror ; trigger terrorGem ; status E12 +terror ; extra-turn match  => E12:arm-12 +terror | E11:+terror | E13:+terror  extra:match  cascade",
+   "R10": "convert Green x13 -> terrorGem x13 ; dmg E12 12 ; ~cascade~ ; trigger terrorGem ; status E11 +terror ; trigger terrorGem ; status E13 +terror ; trigger terrorGem ; status E12 +terror ; extra-turn match  => E12:arm-12 +terror | E11:+terror | E13:+terror  extra:match  cascade",
+   "L0": "convert Green x13 -> terrorGem x13 ; dmg E12 2 ; ~cascade~ ; trigger terrorGem ; status E11 +terror ; trigger terrorGem ; status E13 +terror ; trigger terrorGem ; status E12 +terror ; extra-turn match  => E12:arm-2 +terror | E11:+terror | E13:+terror  extra:match  cascade",
+   "K": "convert Green x13 -> terrorGem x13 ; dmg E12 12 ; defeat E12 ; ~cascade~ ; trigger terrorGem ; status E11 +terror ; trigger terrorGem ; status E13 +terror ; trigger terrorGem ; status E13 +terror ; extra-turn match  => E12:hp-1 DEAD | E11:+terror | E13:+terror  extra:match  cascade"
   },
-  "by": "coord (accepted before golden)",
-  "at": "2026-09-27T23:48:12.361Z"
+  "by": "coord (re-lock after P-create-interleave/R007-3)",
+  "at": "2026-09-28T01:06:36.864Z"
  },
  "troop:7459": {
   "lines": {

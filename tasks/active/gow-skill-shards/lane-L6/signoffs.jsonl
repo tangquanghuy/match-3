@@ -28,3 +28,4 @@
 {"format":"compact","key":"troop:7560","decision":"accept","reviewer":"sa-F3","reviewedAt":"2026-09-28T00:29:03.499Z","tests":["tests/unit/gowCastGolden.test.ts"],"waived":[{"part":"clause","id":"c2","mode":"boss"}]}
 {"format":"compact","key":"weapon:1272","decision":"accept","reviewer":"sa-F3","reviewedAt":"2026-09-28T00:29:05.713Z","tests":["tests/unit/gowCastGolden.test.ts"]}
 {"format":"compact","key":"troop:7101","decision":"accept","reviewer":"sa-F3","reviewedAt":"2026-09-28T00:29:26.760Z","tests":["tests/unit/gowCastGolden.test.ts"],"waived":[{"part":"clause","id":"c2","mode":"boss"}]}
+{"format":"compact","key":"troop:7738","decision":"accept","reviewer":"coord","reviewedAt":"2026-09-28T01:06:43.601Z","tests":["tests/unit/gowCastGolden.test.ts"],"note":"re-approved after R007-3"}

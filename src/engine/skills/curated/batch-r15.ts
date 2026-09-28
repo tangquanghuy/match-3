@@ -36,7 +36,6 @@ import {
   transformTroop, inflict,
   inflictRandom, shuffleBoard, extraTurn, oneOf, reposition, summonRandom, summonRef,
   transformTroopRandom, CHOSEN, CELL, explodeAt,
-  targetedSkill,
 } from '../builders';
 import { BaseColor } from '../../types';
 

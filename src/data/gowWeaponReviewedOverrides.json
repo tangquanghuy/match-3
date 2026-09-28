@@ -198,7 +198,8 @@
                 "kind": "destroyedGems",
                 "color": "Green"
               }
-            }
+            },
+            "lifeMode": "gain"
           },
           {
             "kind": "status",

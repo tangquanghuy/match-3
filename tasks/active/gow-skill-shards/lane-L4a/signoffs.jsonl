@@ -57,3 +57,5 @@
 {"format":"compact","key":"troop:7196","decision":"accept","reviewer":"sa-F2","reviewedAt":"2026-09-28T00:40:23.860Z","tests":["tests/unit/gowCastGolden.test.ts"]}
 {"format":"compact","key":"weapon:1120","decision":"accept","reviewer":"sa-F2","reviewedAt":"2026-09-28T00:42:02.090Z","tests":["tests/unit/gowCastGolden.test.ts"]}
 {"format":"compact","key":"weapon:1120","decision":"accept","reviewer":"sa-F2","reviewedAt":"2026-09-28T00:42:20.329Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:7576","decision":"accept","reviewer":"coord","reviewedAt":"2026-09-28T01:06:39.131Z","tests":["tests/unit/gowCastGolden.test.ts"],"note":"re-approved after R007-3 random-target change"}
+{"format":"compact","key":"troop:7727","decision":"accept","reviewer":"coord","reviewedAt":"2026-09-28T01:06:39.132Z","tests":["tests/unit/gowCastGolden.test.ts"],"note":"re-approved after R007-3 random-target change"}

@@ -77,9 +77,9 @@ describe('P-prefnotprev-semantics: ally chains (RandomAlly then RandomPrefNotPre
     const r = castSpell({ key: 'troop:7628', allies: [] });
     expect(buffs(r.events, 'magic').get(0)).toBe(6);
   });
-  it('troop:7830 spell 9874: caster alone -> Life +1 twice', () => {
+  it('troop:7830 spell 9874: caster alone -> Life [Magic + 1] twice (sa-F2: native SpellPowerMultiplier 1)', () => {
     const r = castSpell({ key: 'troop:7830', allies: [] });
-    expect(buffs(r.events, 'hp').get(0)).toBe(2);
+    expect(buffs(r.events, 'hp').get(0)).toBe(2 * (10 + 1));
   });
   it('troop:6627 spell 7945: second Submerged (PrefNotPrevAlly after Self) never lands on the caster while allies live', () => {
     for (const seed of SEEDS) {

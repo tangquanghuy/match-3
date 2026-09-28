@@ -221,13 +221,13 @@
  },
  "troop:7738": {
   "lines": {
-   "L10": "dmg E12 12 (all) ; dmg E11 12 (all) ; buff A2 hp+12 max+12 ; buff A1 hp+12 max+12  => E12:arm-12 | E11:hp-2 arm-10 | A2:hp+12 max+12 | A1:hp+12 max+12",
-   "R10": "dmg E12 12 (all) ; dmg E11 12 (all) ; buff A2 hp+12 max+12 ; buff A1 hp+12 max+12  => E12:arm-12 | E11:hp-2 arm-10 | A2:hp+12 max+12 | A1:hp+12 max+12",
-   "L0": "dmg E12 2 (all) ; dmg E11 2 (all) ; buff A2 hp+2 max+2 ; buff A1 hp+2 max+2  => E12:arm-2 | E11:arm-2 | A2:hp+2 max+2 | A1:hp+2 max+2",
-   "K": "dmg E12 12 (all) ; dmg E11 12 (all) ; defeat E12 ; defeat E11 ; buff A2 hp+12 max+12 ; buff A1 hp+12 max+12  => E12:hp-1 DEAD | E11:hp-1 DEAD | A2:hp+12 max+12 | A1:hp+12 max+12"
+   "L10": "dmg E11 12 (all) ; dmg E12 12 (all) ; buff C hp+12 max+12 ; buff A2 hp+12 max+12  => E11:hp-2 arm-10 | E12:arm-12 | C:hp+12 max+12 | A2:hp+12 max+12",
+   "R10": "dmg E11 12 (all) ; dmg E12 12 (all) ; buff C hp+12 max+12 ; buff A2 hp+12 max+12  => E11:hp-2 arm-10 | E12:arm-12 | C:hp+12 max+12 | A2:hp+12 max+12",
+   "L0": "dmg E11 2 (all) ; dmg E12 2 (all) ; buff C hp+2 max+2 ; buff A2 hp+2 max+2  => E11:arm-2 | E12:arm-2 | C:hp+2 max+2 | A2:hp+2 max+2",
+   "K": "dmg E11 12 (all) ; dmg E12 12 (all) ; defeat E11 ; defeat E12 ; buff C hp+12 max+12 ; buff A2 hp+12 max+12  => E11:hp-1 DEAD | E12:hp-1 DEAD | C:hp+12 max+12 | A2:hp+12 max+12"
   },
-  "by": "sa-F3",
-  "at": "2026-09-28T00:29:01.041Z"
+  "by": "coord",
+  "at": "2026-09-28T01:06:43.516Z"
  },
  "troop:7755": {
   "lines": {

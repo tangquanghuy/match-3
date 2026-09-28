@@ -47,3 +47,5 @@
 {"format":"compact","key":"weapon:1313","decision":"accept","reviewer":"sa-F2","reviewedAt":"2026-09-28T00:40:41.126Z","tests":["tests/unit/gowCastGolden.test.ts"]}
 {"format":"compact","key":"weapon:1313","decision":"accept","reviewer":"sa-F2","reviewedAt":"2026-09-28T00:42:04.634Z","tests":["tests/unit/gowCastGolden.test.ts"]}
 {"format":"compact","key":"weapon:1313","decision":"accept","reviewer":"sa-F2","reviewedAt":"2026-09-28T00:42:22.806Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:6025","decision":"accept","reviewer":"coord","reviewedAt":"2026-09-28T01:06:41.368Z","tests":["tests/unit/gowCastGolden.test.ts"],"note":"re-approved after P-create-interleave"}
+{"format":"compact","key":"troop:6265","decision":"accept","reviewer":"coord","reviewedAt":"2026-09-28T01:06:41.369Z","tests":["tests/unit/gowCastGolden.test.ts"],"note":"re-approved after P-create-interleave"}

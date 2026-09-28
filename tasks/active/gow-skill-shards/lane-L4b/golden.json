@@ -1,13 +1,13 @@
 {
  "troop:6025": {
   "lines": {
-   "L10": "buff A1 hp+5 max+5 ; buff A1 hp+11 ; convert Yellow x1, Brown x2, skull x2, Blue x1, Red x2 -> Green x8 ; ~cascade~ ; status A1 +barrier  => A1:hp+16 max+5 +barrier  cascade",
-   "R10": "buff A1 hp+5 max+5 ; buff A1 hp+11 ; convert Yellow x1, Brown x2, skull x2, Blue x1, Red x2 -> Green x8 ; ~cascade~ ; status A1 +barrier  => A1:hp+16 max+5 +barrier  cascade",
-   "L0": "buff A1 hp+5 max+5 ; buff A1 hp+1 ; convert Yellow x1, Brown x2, skull x2, Blue x1, Red x2 -> Green x8 ; ~cascade~ ; status A1 +barrier  => A1:hp+6 max+5 +barrier  cascade",
-   "K": "buff A1 hp+5 max+5 ; buff A1 hp+11 ; convert Yellow x1, Brown x2, skull x2, Blue x1, Red x2 -> Green x8 ; ~cascade~ ; status A1 +barrier  => A1:hp+16 max+5 +barrier  cascade"
+   "L10": "buff A1 hp+5 max+5 ; buff A1 hp+11 ; convert Yellow x1, Brown x2, skull x2, Blue x1, Red x2 -> Green x8 ; status A1 +barrier ; ~cascade~  => A1:hp+16 max+5 +barrier  cascade",
+   "R10": "buff A1 hp+5 max+5 ; buff A1 hp+11 ; convert Yellow x1, Brown x2, skull x2, Blue x1, Red x2 -> Green x8 ; status A1 +barrier ; ~cascade~  => A1:hp+16 max+5 +barrier  cascade",
+   "L0": "buff A1 hp+5 max+5 ; buff A1 hp+1 ; convert Yellow x1, Brown x2, skull x2, Blue x1, Red x2 -> Green x8 ; status A1 +barrier ; ~cascade~  => A1:hp+6 max+5 +barrier  cascade",
+   "K": "buff A1 hp+5 max+5 ; buff A1 hp+11 ; convert Yellow x1, Brown x2, skull x2, Blue x1, Red x2 -> Green x8 ; status A1 +barrier ; ~cascade~  => A1:hp+16 max+5 +barrier  cascade"
   },
-  "by": "sa-F2",
-  "at": "2026-09-28T00:30:48.972Z"
+  "by": "coord",
+  "at": "2026-09-28T01:06:41.281Z"
  },
  "troop:6037": {
   "lines": {
@@ -71,13 +71,13 @@
  },
  "troop:6265": {
   "lines": {
-   "L10": "convert Purple x3, skull x1, Red x2, Yellow x2, Brown x3, Green x4 -> Blue x6, Purple x9 ; ~cascade~ ; dmg A2 650 ; defeat A2 ; buff A1 magic+6  => A2:hp-650 DEAD | A1:mag+6  cascade",
-   "R10": "convert Purple x3, skull x1, Red x2, Yellow x2, Brown x3, Green x4 -> Blue x6, Purple x9 ; ~cascade~ ; dmg A2 650 ; defeat A2 ; buff A1 magic+6  => A2:hp-650 DEAD | A1:mag+6  cascade",
-   "L0": "convert Purple x3, skull x1, Red x2, Yellow x2, Brown x3, Green x4 -> Blue x6, Purple x9 ; ~cascade~ ; dmg A2 650 ; defeat A2 ; buff A1 magic+1  => A2:hp-650 DEAD | A1:mag+1  cascade",
-   "K": "convert Purple x3, skull x1, Red x2, Yellow x2, Brown x3, Green x4 -> Blue x6, Purple x9 ; ~cascade~ ; dmg A2 650 ; defeat A2 ; buff A1 magic+6  => A2:hp-650 DEAD | A1:mag+6  cascade"
+   "L10": "convert Purple x3, skull x1, Red x2, Yellow x2, Brown x3, Green x4 -> Blue x6, Purple x9 ; dmg A2 650 ; defeat A2 ; buff A1 magic+6 ; ~cascade~  => A2:hp-650 DEAD | A1:mag+6  cascade",
+   "R10": "convert Purple x3, skull x1, Red x2, Yellow x2, Brown x3, Green x4 -> Blue x6, Purple x9 ; dmg A2 650 ; defeat A2 ; buff A1 magic+6 ; ~cascade~  => A2:hp-650 DEAD | A1:mag+6  cascade",
+   "L0": "convert Purple x3, skull x1, Red x2, Yellow x2, Brown x3, Green x4 -> Blue x6, Purple x9 ; dmg A2 650 ; defeat A2 ; buff A1 magic+1 ; ~cascade~  => A2:hp-650 DEAD | A1:mag+1  cascade",
+   "K": "convert Purple x3, skull x1, Red x2, Yellow x2, Brown x3, Green x4 -> Blue x6, Purple x9 ; dmg A2 650 ; defeat A2 ; buff A1 magic+6 ; ~cascade~  => A2:hp-650 DEAD | A1:mag+6  cascade"
   },
-  "by": "sa-F2",
-  "at": "2026-09-28T00:30:58.987Z"
+  "by": "coord",
+  "at": "2026-09-28T01:06:41.281Z"
  },
  "troop:6288": {
   "lines": {
