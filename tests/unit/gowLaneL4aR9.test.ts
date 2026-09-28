@@ -270,3 +270,25 @@ describe('L4a R9 B10', () => {
     expect(ev[0].cells.some(c => c.gemType.color === BaseColor.Blue)).toBe(true);
   });
 });
+
+describe('L4a R9 B11', () => {
+  // weapon:1300/1301/1302 (8257-8259): same shape as 8254-8256; ExplodeGems 4 [+3 AddIfEnemyHasDoom] (Skulls eligible).
+  it.each([['weapon:1300'], ['weapon:1301'], ['weapon:1302']] as const)('%s explodes 4 gems, 3 more if the enemy team has a Doom; Skulls eligible', (key) => {
+    const base = castSpell({ key, board: noColour(BaseColor.Purple) }).summary.order.filter(o => o.startsWith('explode ')).length;
+    const doom = castSpell({ key, board: noColour(BaseColor.Purple), enemies: [{}, {}, {}, { troopTypes: ['Doom'] }] as never }).summary.order.filter(o => o.startsWith('explode ')).length;
+    expect(doom).toBeGreaterThan(base);
+    const ev = castSpell({ key, board: skullHeavy }).events.find(e => e.type === 'gem-explode') as unknown as Cells;
+    expect(ev.cells.some(c => c.gemType.kind === 'skull')).toBe(true);
+  });
+  // troop:6366 (7518): SplashHighDamage@RandomEnemy 10+M ; SplashHighDamage@RandomPrefNotPrevEnemy 10+M ; ExplodeGems 5.
+  it('troop:6366 hits a lone survivor twice (PrefNotPrev), two different primaries otherwise; Skulls eligible', () => {
+    const lone = castSpell({ key: 'troop:6366', board: noColour(BaseColor.Purple), enemies: [{ hp: 900, maxHp: 900, armor: 0 }] });
+    expect(lone.summary.order.filter(o => o.startsWith('dmg '))).toEqual(['dmg E10 20 (splash)', 'dmg E10 20 (splash)']);
+    for (let seed = 1; seed <= 8; seed++) {
+      const hits = castSpell({ key: 'troop:6366', seed, board: noColour(BaseColor.Purple) }).summary.order.filter(o => o.startsWith('dmg ') && o.includes(' 20 '));
+      expect(hits).toHaveLength(2); expect(hits[0].split(' ')[1]).not.toBe(hits[1].split(' ')[1]);
+    }
+    const ev = castSpell({ key: 'troop:6366', board: skullHeavy }).events.find(e => e.type === 'gem-explode') as unknown as Cells;
+    expect(ev.cells.some(c => c.gemType.kind === 'skull')).toBe(true);
+  });
+});

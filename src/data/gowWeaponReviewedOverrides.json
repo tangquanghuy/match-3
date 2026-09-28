@@ -4780,7 +4780,7 @@
                   "base": 4,
                   "mult": 0
                 },
-                "include": "color"
+                "include": "all"
               }
             }
           },
@@ -4795,7 +4795,7 @@
                   "base": 3,
                   "mult": 0
                 },
-                "include": "color"
+                "include": "all"
               }
             },
             "ifCond": {
@@ -4857,7 +4857,7 @@
                   "base": 4,
                   "mult": 0
                 },
-                "include": "color"
+                "include": "all"
               }
             }
           },
@@ -4872,7 +4872,7 @@
                   "base": 3,
                   "mult": 0
                 },
-                "include": "color"
+                "include": "all"
               }
             },
             "ifCond": {
@@ -4934,7 +4934,7 @@
                   "base": 4,
                   "mult": 0
                 },
-                "include": "color"
+                "include": "all"
               }
             }
           },
@@ -4949,7 +4949,7 @@
                   "base": 3,
                   "mult": 0
                 },
-                "include": "color"
+                "include": "all"
               }
             },
             "ifCond": {
@@ -7228,6 +7228,9 @@
           }
         ]
       }
+    },
+    "8512": {
+      "description": "对一名敌人造成 [魔法 + 3] 点溅射伤害。爆破 8 颗该敌人法力颜色之一的宝石。"
     },
     "8518": {
       "prototype": {

@@ -1,6 +1,6 @@
 # GoW 技能改动留档
 
-自动生成（`node scripts/gow-changelog.mjs render`），源数据 [CHANGES.jsonl](CHANGES.jsonl)，共 655 条改动，涉及 1114 个技能 ID。
+自动生成（`node scripts/gow-changelog.mjs render`），源数据 [CHANGES.jsonl](CHANGES.jsonl)，共 658 条改动，涉及 1118 个技能 ID。
 
 ## 按时间
 
@@ -661,6 +661,9 @@
 | 2026-09-28T22:52 | sa-A | L4a-R9-7254-skulls | assembler | 8840 | troop:7254 Stoneshell | `src/engine/skills/curated/batch-04.ts` | 8840 destroy 3 include color → include all (R013-5) |  |
 | 2026-09-28T22:57 | sa-A | L4a-R9-8254-skulls | assembler | 8254, 8255, 8256 | weapon:1297 DoomedHammer；weapon:1298 DoomedBreaker；weapon:1299 DoomedMaul | `src/engine/skills/curated/batch-w02.ts`<br>`src/data/gowWeaponReviewedOverrides.json`<br>`scripts/_weapon_pools.mjs` | explode 4 (+3 if enemy Doom) include color → include all (R013-5); override prototypes + generator strings updated |  |
 | 2026-09-28T22:57 | sa-A | L4a-R9-6770-zh | data | 8160 | troop:6770 Aquaticus | `src/engine/skills/curated/batch-r9.ts`<br>`src/data/gowSnapshotOverrides.json` | 8160 zh '溅射上海' → zh '溅射伤害' + snapshot override |  |
+| 2026-09-28T23:13 | sa-A | L4a-R9-8257-skulls | assembler | 8257, 8258, 8259 | weapon:1300 DoomedGavel；weapon:1301 DoomedRam；weapon:1302 DoomedSledge | `src/engine/skills/curated/batch-w02.ts`<br>`src/data/gowWeaponReviewedOverrides.json`<br>`scripts/_weapon_pools.mjs` | explode 4 (+3 if enemy Doom) include color → include all (R013-5); override prototypes + generator strings updated |  |
+| 2026-09-28T23:13 | sa-A | L4a-R9-6366-prefnotprev | assembler | 7518 | troop:6366 Infernus | `src/engine/skills/curated/batch-06.ts` | 7518 dmgSplash enemyRandomN n2; explode 5 include color → native SplashHighDamage@RandomEnemy + @RandomPrefNotPrevEnemy (R007-3); explode 5 include all (R013-5) |  |
+| 2026-09-28T23:13 | sa-A | L4a-R9-1409-zh | data | 8512 | weapon:1409 Facestick | `src/engine/skills/curated/batch-w03.ts`<br>`scripts/curated-pools/pool-w01.json`<br>`src/data/gowWeaponReviewedOverrides.json` | 8512 zh machine text '结果 [魔法 + 3] 给予一名敌人重击。摧毁8枚宝石的法力颜色之一。' → zh '对一名敌人造成 [魔法 + 3] 点溅射伤害。爆破 8 颗该敌人法力颜色之一的宝石。' + override description |  |
 
 ## 按技能 ID
 
@@ -866,7 +869,7 @@
 | 7507 | 1 | F2-6355-native-order |
 | 7511 | 1 | B5-L4b-6359-target |
 | 7513 | 1 | L4a-r3-6361 |
-| 7518 | 1 | P-prefnotprev-semantics |
+| 7518 | 2 | P-prefnotprev-semantics、L4a-R9-6366-prefnotprev |
 | 7520 | 1 | R3-B07-6368 |
 | 7521 | 1 | L2-6369-ratio |
 | 7526 | 1 | F1-items-62-75 |
@@ -1099,6 +1102,9 @@
 | 8254 | 1 | L4a-R9-8254-skulls |
 | 8255 | 1 | L4a-R9-8254-skulls |
 | 8256 | 1 | L4a-R9-8254-skulls |
+| 8257 | 1 | L4a-R9-8257-skulls |
+| 8258 | 1 | L4a-R9-8257-skulls |
+| 8259 | 1 | L4a-R9-8257-skulls |
 | 8260 | 1 | P-E-faction-kingdom |
 | 8261 | 1 | P-E-faction-kingdom |
 | 8262 | 1 | P-E-faction-kingdom |
@@ -1244,6 +1250,7 @@
 | 8506 | 1 | P-E-faction-kingdom |
 | 8508 | 2 | L5-C-r4-1405、L5-C-r4-1132 |
 | 8510 | 2 | L1-E-kingdom-summon-raw、P-E-faction-kingdom |
+| 8512 | 1 | L4a-R9-1409-zh |
 | 8513 | 2 | L1-E-kingdom-summon-raw、P-E-faction-kingdom |
 | 8514 | 2 | L1-E-kingdom-summon-raw、P-E-faction-kingdom |
 | 8515 | 2 | L1-E-kingdom-summon-raw、P-E-faction-kingdom |

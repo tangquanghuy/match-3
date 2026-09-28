@@ -977,17 +977,17 @@ const SPELLS: CuratedBatch['spells'] = [
   {
     id: 8257,
     desc: '对一名敌人造成 [魔法 + 5] 点重度溅射伤害，每锻炼 1 个武器段位则 +4 点伤害值。击晕所有黄色敌人并净化所有黄色盟友。爆破 4 颗宝石，如果敌方有劫数，则再爆破 3 颗宝石。',
-    build: skill(dmgSplash('enemyChosen', 5, 1, { range: 'splash', modifier: { mod: { kind: 'multiplier', a: 4 }, source: { kind: 'tempering' } } }), inflict('stun', 'enemyAll', { ifCond: { kind: 'targetColor', color: BaseColor.Yellow } }), cleanse('allyAll', undefined, { ifCond: { kind: 'targetColor', color: BaseColor.Yellow } }), explodeRandomGems(4, 0, 'color', undefined), explodeRandomGems(3, 0, 'color', undefined, { ifCond: { kind: 'targetHasDoom' } })),
+    build: skill(dmgSplash('enemyChosen', 5, 1, { range: 'splash', modifier: { mod: { kind: 'multiplier', a: 4 }, source: { kind: 'tempering' } } }), inflict('stun', 'enemyAll', { ifCond: { kind: 'targetColor', color: BaseColor.Yellow } }), cleanse('allyAll', undefined, { ifCond: { kind: 'targetColor', color: BaseColor.Yellow } }), explodeRandomGems(4, 0, 'all'), explodeRandomGems(3, 0, 'all', undefined, { ifCond: { kind: 'targetHasDoom' } })),
   },
   {
     id: 8258,
     desc: '对一名敌人造成 [魔法 + 5] 点重度溅射伤害，每锻炼 1 个武器段位则 +4 点伤害值。击晕所有紫色敌人并净化所有紫色盟友。爆破 4 颗宝石，如果敌方有劫数，则再爆破 3 颗宝石。',
-    build: skill(dmgSplash('enemyChosen', 5, 1, { range: 'splash', modifier: { mod: { kind: 'multiplier', a: 4 }, source: { kind: 'tempering' } } }), inflict('stun', 'enemyAll', { ifCond: { kind: 'targetColor', color: BaseColor.Purple } }), cleanse('allyAll', undefined, { ifCond: { kind: 'targetColor', color: BaseColor.Purple } }), explodeRandomGems(4, 0, 'color', undefined), explodeRandomGems(3, 0, 'color', undefined, { ifCond: { kind: 'targetHasDoom' } })),
+    build: skill(dmgSplash('enemyChosen', 5, 1, { range: 'splash', modifier: { mod: { kind: 'multiplier', a: 4 }, source: { kind: 'tempering' } } }), inflict('stun', 'enemyAll', { ifCond: { kind: 'targetColor', color: BaseColor.Purple } }), cleanse('allyAll', undefined, { ifCond: { kind: 'targetColor', color: BaseColor.Purple } }), explodeRandomGems(4, 0, 'all'), explodeRandomGems(3, 0, 'all', undefined, { ifCond: { kind: 'targetHasDoom' } })),
   },
   {
     id: 8259,
     desc: '对一名敌人造成 [魔法 + 5] 点重度溅射伤害，每锻炼 1 个武器段位则 +4 点伤害值。击晕所有棕色敌人并净化所有棕色盟友。爆破 4 颗宝石，如果敌方有劫数，则再爆破 3 颗宝石。',
-    build: skill(dmgSplash('enemyChosen', 5, 1, { range: 'splash', modifier: { mod: { kind: 'multiplier', a: 4 }, source: { kind: 'tempering' } } }), inflict('stun', 'enemyAll', { ifCond: { kind: 'targetColor', color: BaseColor.Brown } }), cleanse('allyAll', undefined, { ifCond: { kind: 'targetColor', color: BaseColor.Brown } }), explodeRandomGems(4, 0, 'color', undefined), explodeRandomGems(3, 0, 'color', undefined, { ifCond: { kind: 'targetHasDoom' } })),
+    build: skill(dmgSplash('enemyChosen', 5, 1, { range: 'splash', modifier: { mod: { kind: 'multiplier', a: 4 }, source: { kind: 'tempering' } } }), inflict('stun', 'enemyAll', { ifCond: { kind: 'targetColor', color: BaseColor.Brown } }), cleanse('allyAll', undefined, { ifCond: { kind: 'targetColor', color: BaseColor.Brown } }), explodeRandomGems(4, 0, 'all'), explodeRandomGems(3, 0, 'all', undefined, { ifCond: { kind: 'targetHasDoom' } })),
   },
   {
     id: 8260,

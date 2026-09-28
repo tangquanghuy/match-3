@@ -146,4 +146,8 @@
 - troop:6770 fix(zh '溅射上海' typo; override) accept convention:R006-C3
 - weapon:1297 fix(explode include all; override + generator)
 - weapon:1298 fix(explode include all; override + generator)
-- weapon:1299 fix(explode include all; override + generator)
+- weapon:1299 fix(explode include all; override + generator)- weapon:1300 fix(explode include all; override + generator)
+- weapon:1301 fix(explode include all; override + generator)
+- weapon:1302 fix(explode include all; override + generator)
+- troop:6366 fix(Random + PrefNotPrev splash hits, not enemyRandomN; explode 5 include all)
+- weapon:1409 fix(zh machine text; pool + override)

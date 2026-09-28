@@ -353,7 +353,7 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 8512,
-    desc: '结果 [魔法 + 3] 给予一名敌人重击。摧毁8枚宝石的法力颜色之一。',
+    desc: '对一名敌人造成 [魔法 + 3] 点溅射伤害。爆破 8 颗该敌人法力颜色之一的宝石。',
     build: skill(
       dmgSplash('enemyChosen', 3, 1, { range: 'splash' }),
       explodeRandomGems(8, 0, 'color', 'LAST_TARGET'),
