@@ -9,7 +9,7 @@
  */
 import { KINGDOM_MAX_LEVEL, kingdomLevelTrack, kingdomMasteryColors } from '../systems/kingdomOps';
 import type { TributeTreasury } from '../systems/tribute';
-import { tributeMultiBonus, TRIBUTE, TRIBUTE_MULTI_BONUS } from '../data/economy';
+import { tributeMultiBonus } from '../data/economy';
 import { tributeSpecialtyOf, tributeYield, type TributeSpecialty } from '../data/kingdomTribute';
 import { kingdomBonusStat } from '../data/kingdoms';
 import { gemSvg } from '../shell/chrome';
@@ -117,7 +117,6 @@ const clock = (ts: number): string => {
 export function treasuryBodyHtml(t: TributeTreasury, now: number): string {
   const totals = t.totals;
   const ready = t.kingdoms.filter((p) => p.ready);
-  const idle = t.kingdoms.filter((p) => !p.ready);
   const bigTotals = (['gold', 'souls', 'glory', 'gems', 'goldKeys'] as CurrencyKey[])
     .map((k) => `<div class="tr-total ${k}${totals[k] > 0 ? '' : ' zero'}">
         <img src="${CURRENCY_ICON[k]}" alt="" draggable="false">
@@ -125,42 +124,27 @@ export function treasuryBodyHtml(t: TributeTreasury, now: number): string {
         <small>${CURRENCY_NAME[k]}</small>
       </div>`)
     .join('');
-  const bonusRows = t.bonuses.length
-    ? t.bonuses.map((b) => `<li><span class="tr-bonus-time">${clock(b.at)}</span>
-        <span class="tr-bonus-crests">${b.kingdoms.slice(0, 6).map((k) => crestImg(k)).join('')}${b.kingdoms.length > 6 ? `<i>+${b.kingdoms.length - 6}</i>` : ''}</span>
-        <span class="tr-bonus-count">${b.kingdoms.length} 国同时进贡</span>
-        <span class="tr-bonus-gain">${currencyList({ gems: b.gems, goldKeys: b.goldKeys })}</span></li>`).join('')
-    : `<li class="tr-bonus-empty">这段时间没有两个以上王国在同一小时进贡。开放的王国越多、王国等级越高，越容易触发。</li>`;
+  // 只列事实：哪几国交了什么；同时进贡奖励有才显示，不解释规则
+  const bonusRows = t.bonuses.map((b) => `<li><span class="tr-bonus-time">${clock(b.at)}</span>
+      <span class="tr-bonus-crests">${b.kingdoms.slice(0, 6).map((k) => crestImg(k)).join('')}${b.kingdoms.length > 6 ? `<i>+${b.kingdoms.length - 6}</i>` : ''}</span>
+      <span class="tr-bonus-gain">${currencyList({ gems: b.gems, goldKeys: b.goldKeys })}</span></li>`).join('');
   const kingdomRows = ready
-    .map((p) => {
-      const view = kingdomViewOf(p.kingdom);
-      const note = p.overflowing
-        ? `<em class="warn">已攒满 ${TRIBUTE.capHours} 小时，超出部分作废</em>`
-        : `${p.hours} 小时里进贡 ${p.hits} 次`;
-      return `<li class="tr-row${p.home ? ' home' : ''}">
+    .map((p) => `<li class="tr-row${p.home ? ' home' : ''}">
         ${crestImg(p.kingdom)}
-        <span class="tr-row-name"><b>${view.name}${p.home ? '<i class="tr-home">主城</i>' : ''}</b><small>${note}</small></span>
+        <span class="tr-row-name"><b>${kingdomViewOf(p.kingdom).name}${p.home ? '<i class="tr-home">主城</i>' : ''}</b></span>
         <span class="tr-row-gain">${currencyList({ gold: p.gold, souls: p.souls, glory: p.glory })}</span>
-      </li>`;
-    })
+      </li>`)
     .join('');
-  const tierHint = TRIBUTE_MULTI_BONUS.map((tier) => `${tier.min} 国 ${tier.gems} 宝石${tier.goldKeys ? `+${tier.goldKeys} 钥匙` : ''}`).join(' · ');
-  const nextNote = t.ready
-    ? t.overflowing
-      ? '有王国已攒满 12 小时，建议现在收取。'
-      : `最早 ${clock(t.earliestCapAt)} 攒满 12 小时；现在收也不会吞掉正在累积的小时。`
-    : `下一次结算 ${clock(t.nextHourAt)}。`;
   void now;
   return `
     <div class="tr-totals">${bigTotals}</div>
-    <p class="tr-note">${nextNote}</p>
-    <section class="tr-block">
-      <header><b>多国同时进贡</b><small>${tierHint}</small></header>
+    ${bonusRows ? `<section class="tr-block">
+      <header><b>同时进贡奖励</b></header>
       <ul class="tr-bonus">${bonusRows}</ul>
-    </section>
+    </section>` : ''}
     <section class="tr-block">
-      <header><b>本次进贡的王国 · ${ready.length}</b><small>${idle.length ? `另有 ${idle.length} 国这段时间没有进贡` : '全部开放王国都有进贡'}</small></header>
-      <ul class="tr-rows">${kingdomRows || '<li class="tr-bonus-empty">暂时没有王国进贡。</li>'}</ul>
+      <header><b>进贡王国 · ${ready.length}</b></header>
+      <ul class="tr-rows">${kingdomRows || `<li class="tr-bonus-empty">下一次进贡 ${clock(t.nextHourAt)}</li>`}</ul>
     </section>`;
 }
 

@@ -931,7 +931,6 @@ export class MapScreen implements Screen {
           <button class="sheet-close" id="tributeClose" type="button" aria-label="关闭"><span data-icon="close"></span></button>
           <div class="tr-hero">
             <img src="${kingdomArt('treasury-hoard')}" alt="" draggable="false">
-            <p class="tr-sub">各王国每小时按自己的配比进贡黄金、灵魂与荣耀；多国同一小时进贡另给宝石与金钥匙。</p>
             <h2 id="tributeSheetTitle">王国宝库</h2>
           </div>
           <div class="tr-body" id="tributeRows"></div>
