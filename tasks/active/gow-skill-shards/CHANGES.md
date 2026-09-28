@@ -1,6 +1,6 @@
 # GoW 技能改动留档
 
-自动生成（`node scripts/gow-changelog.mjs render`），源数据 [CHANGES.jsonl](CHANGES.jsonl)，共 660 条改动，涉及 1120 个技能 ID。
+自动生成（`node scripts/gow-changelog.mjs render`），源数据 [CHANGES.jsonl](CHANGES.jsonl)，共 662 条改动，涉及 1122 个技能 ID。
 
 ## 按时间
 
@@ -666,6 +666,8 @@
 | 2026-09-28T23:13 | sa-A | L4a-R9-1409-zh | data | 8512 | weapon:1409 Facestick | `src/engine/skills/curated/batch-w03.ts`<br>`scripts/curated-pools/pool-w01.json`<br>`src/data/gowWeaponReviewedOverrides.json` | 8512 zh machine text '结果 [魔法 + 3] 给予一名敌人重击。摧毁8枚宝石的法力颜色之一。' → zh '对一名敌人造成 [魔法 + 3] 点溅射伤害。爆破 8 颗该敌人法力颜色之一的宝石。' + override description |  |
 | 2026-09-28T23:24 | sa-A | L4a-R9-7167-skulls | assembler | 8719 | troop:7167 TheSparkinator | `src/engine/skills/curated/batch-36.ts` | 8719 explode 1 random include color → include all (R013-5) |  |
 | 2026-09-28T23:24 | sa-A | L4a-R9-1681-trogolin-count | assembler | 9840 | weapon:1681 TrogolinsFlameKnife | `src/engine/skills/curated/batch-w04.ts`<br>`scripts/curated-pools/pool-w01.json`<br>`src/data/gowWeaponReviewedOverrides.json` | 9840 true dmg with sourceless x4 modifier; explode 4 Wish if troopPresent Trogolin; zh '不朽巨龟 ... 引爆4颗' → native CountArmyTroop 7800 x400: explode 4 Wish per Immortal Trogolin ally (alliesNamed); inert dmg modifier removed; zh '不朽的穴居人 ... 爆破 4 颗'; override description + prototype |  |
+| 2026-09-28T23:32 | sa-A | L4a-R9-6640-from-target | assembler | 7969 | troop:6640 WindArcher | `src/engine/skills/curated/batch-07.ts`<br>`src/data/gowSnapshotOverrides.json` | 7969 destroy 5 of CASTER colour; zh '与此军队法力颜色相同' → native DestroyColor FromTarget: destroy 5 of the damaged enemy's colour (LAST_TARGET); zh '该敌方军队法力颜色' + snapshot override |  |
+| 2026-09-28T23:32 | sa-A | L4a-R9-6202-skulls | assembler | 7344 | troop:6202 Marilith | `src/engine/skills/curated/batch-12.ts` | 7344 destroy M+3 include color → include all (R013-5) |  |
 
 ## 按技能 ID
 
@@ -799,6 +801,7 @@
 | 7339 | 1 | F1-items-62-75 |
 | 7340 | 2 | P-random-stat-pool、L2-H-6198-order |
 | 7343 | 1 | L1-6201-dispel |
+| 7344 | 1 | L4a-R9-6202-skulls |
 | 7345 | 1 | F2-6203-no-cleanse |
 | 7347 | 1 | R7-6205-steal-order |
 | 7348 | 2 | P-F1-oneof-chosen-target、P-F1-oneof-chosen-target |
@@ -993,6 +996,7 @@
 | 7963 | 4 | L3-015、L3-016、R7-doomed-count-order、P-R1-count-at-native-step |
 | 7964 | 1 | L4a-R1-7230-7964-count |
 | 7968 | 1 | L4a-R9-6639-magic-each |
+| 7969 | 1 | L4a-R9-6640-from-target |
 | 7973 | 4 | L3-015、L3-016、R7-doomed-count-order、P-R1-count-at-native-step |
 | 7975 | 3 | P-counter-per-step、L7-R1-attack-armor-life-pooled、P-counter-per-step |
 | 7976 | 1 | P-E-faction-kingdom |

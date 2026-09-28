@@ -141,6 +141,11 @@
       "reason": "sa-A r9: English 'Give all allies 4 Magic, with a 50% chance for each of the following'; stored Chinese says 4 mana (魔力值) and 'one of the following' (其一).",
       "spellDescription": "给予所有盟友 4 点魔法，并各有 50% 的几率触发以下效果：对所有敌人造成 [魔法 + 1] 点伤害；爆破 8 颗随机宝石；给予所有盟友 [魔法 + 1] 点生命值。"
     },
+    "6640": {
+      "spellId": 7969,
+      "reason": "sa-A r9: English 'Destroy 5 Gems of the troop's Mana Color' with native DestroyColor FromTarget = the targeted enemy; stored Chinese '此军队' read as the caster.",
+      "spellDescription": "对一名敌人造成 [魔法 + 2] 点真实伤害。摧毁 5 颗该敌方军队法力颜色的宝石。"
+    },
     "6652": {
       "spellId": 7987,
       "reason": "English source text specifies one random Skill; extracted native IncreaseRandom awards its complete amount to one Skill per recipient. Scoped display clarification, not whole-skill signoff.",

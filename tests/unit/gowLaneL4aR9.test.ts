@@ -317,3 +317,23 @@ describe('L4a R9 B12', () => {
     expect(castSpell({ key: 'weapon:1681', board }).summary.order.some(o => o.startsWith('explode'))).toBe(false);
   });
 });
+
+describe('L4a R9 B13', () => {
+  type DCells = { cells: { gemType: { kind: string; color?: string } }[] };
+  // troop:6640 (7969): TrueDamage 2+M ; DestroyColor 5 Color1=FromTarget (the damaged enemy's colour, not the caster's).
+  it('troop:6640 destroys gems of the target enemy colour', () => {
+    const board = withCells(noColour(BaseColor.Blue), { '0,0': colorGem(BaseColor.Blue), '7,7': colorGem(BaseColor.Blue) });
+    const r = castSpell({ key: 'troop:6640', board, enemies: [{ colors: [BaseColor.Red] }, { colors: [BaseColor.Blue] }, { colors: [BaseColor.Red] }, { colors: [BaseColor.Red] }] as never });
+    const ev = r.events.filter(e => e.type === 'gem-destroy') as unknown as DCells[];
+    const cells = ev.flatMap(e => e.cells);
+    expect(cells).toHaveLength(2);
+    expect(cells.every(c => c.gemType.color === BaseColor.Blue)).toBe(true);
+    const kill = castSpell({ key: 'troop:6640', enemies: [{ colors: [BaseColor.Red] }, { hp: 1, maxHp: 1, armor: 0, colors: [BaseColor.Blue] }, { colors: [BaseColor.Red] }, { colors: [BaseColor.Red] }] as never });
+    expect(kill.summary.order).toEqual(['dmg E11 12', 'defeat E11', 'destroy 5 (Blue x5)']);
+  });
+  // troop:6202 (7344): TrueDamage 6 @AllEnemies ; DestroyGems 3+M (Skulls eligible) ; IncreaseAttack@Self 6.
+  it('troop:6202 random destroy can take Skulls', () => {
+    const ev = castSpell({ key: 'troop:6202', board: skullHeavy }).events.find(e => e.type === 'gem-destroy') as unknown as Cells;
+    expect(ev.cells.some(c => c.gemType.kind === 'skull')).toBe(true);
+  });
+});

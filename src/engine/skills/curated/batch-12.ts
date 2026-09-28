@@ -262,7 +262,7 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '对所有敌人造成 6 点真实伤害。摧毁 [魔法 + 3] 颗随机宝石。获得 6 点攻击力。',
     build: skill(
       dmgAll(6, 0, true),
-      destroyRandomGems(3, 1, 'color'),
+      destroyRandomGems(3, 1, 'all'), // R013-5: Skulls are Gems
       attack('allySelf', 6, 0),
     ),
   },

@@ -156,3 +156,8 @@
 - troop:6337 accept (Lightstorm; +5 Attack AddForKill)
 - troop:6739 accept (knock back, explode (M/2)+1 of target colour)
 - weapon:1681 fix(4 Wish per Trogolin ally via alliesNamed; inert dmg modifier removed; zh name + override)
+- weapon:1538 accept
+- troop:6640 fix(DestroyColor FromTarget = target colour, not caster; zh + override)
+- weapon:1422 accept
+- troop:6202 fix(destroy M+3 include all)
+- troop:7580 accept (scatter 2.5M+8; Aidania region x2 inert regionPresent)
