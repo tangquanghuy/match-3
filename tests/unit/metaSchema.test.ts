@@ -31,7 +31,7 @@ describe('MetaSave schema v1', () => {
       expect(rec.traits).toEqual([false, false, false]);
     }
     expect(save.teams).toHaveLength(1);
-    expect(save.teams[0].members).toEqual([...STARTERS.map((troopId) => ({ kind: 'troop', troopId })), { kind: 'hero' }]);
+    expect(save.teams[0].members).toEqual([{ kind: 'hero' }, ...STARTERS.map((troopId) => ({ kind: 'troop', troopId }))]);
     expect(validateTeam(save, save.teams[0]).ok).toBe(true);
   });
 

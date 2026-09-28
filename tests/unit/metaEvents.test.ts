@@ -622,7 +622,7 @@ describe('六种玩法机制（玩法差异化批）', () => {
     expect(outcome.ok).toBe(true);
     applyEventBattleModifiers(s, outcome);
     expect(outcome.request.playerTeam).toHaveLength(3);
-    const hero = outcome.request.playerTeam.find((snap) => snap.externalId === 'p0-6000');
+    const hero = outcome.request.playerTeam.find((snap) => snap.externalId === 'p0-hero'); // 新手队主角在第一位
     expect(hero?.stats.hp).toBe(200);
     expect(hero?.initialHp).toBe(150);
     eventBattleProgress(s, plan2, fakeResult(s, plan2, false), false);

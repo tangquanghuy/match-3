@@ -149,6 +149,37 @@ export const ASSETS = {
   },
   // —— 馈赠页（2026-09-29）：顶部横幅 + 七个分组图标 ——
   'gift-hall': {
+  // —— 新手引导向导立绘 + 战斗加载页背景（2026-09-29） ——
+  'tutor-guide': {
+    size: '1024x1536',
+    out: 'src/assets/meta/tutorial/guide.webp',
+    longest: 900,
+    pad: 0.01,
+    prompt: 'Full body standing character illustration of a friendly young female guide mage for a fantasy match-3 RPG, '
+      + 'long silver-blonde hair with a small braid, warm amber eyes, gentle confident smile, one hand raised in a welcoming pointing gesture, '
+      + 'the other hand holding a small glowing golden lantern. Elegant deep navy and ivory robe with gold trim, a short crimson cape, '
+      + 'a leather satchel with scrolls. Modern anime gacha game character art, clean line art, polished cel shading with soft gradients, '
+      + 'vivid but harmonious colors. Isolated character on a fully transparent background, no ground shadow, no text, no logo, no frame.',
+  },
+  'tutor-frame': {
+    size: '1536x1024',
+    out: 'src/assets/meta/tutorial/frame.webp',
+    longest: 900,
+    pad: 0.01,
+    prompt: 'Ornate empty dialogue box frame for a modern anime fantasy RPG UI: a wide rounded rectangle panel, deep navy translucent-looking center filled with '
+      + 'a flat very dark navy color, slim polished gold filigree border with small sapphire gems at the four corners and a delicate crest at the top center. '
+      + 'Clean vector-like rendering, symmetric, the center area is completely empty and plain. Isolated on a fully transparent background, no text, no letters, no characters.',
+  },
+  'battle-loading': {
+    size: '1536x1024',
+    background: 'opaque',
+    out: 'src/assets/meta/tutorial/battle-loading.webp',
+    longest: 1600,
+    pad: 0,
+    prompt: 'Wide dramatic battlefield illustration at dusk: two armies facing each other across a wide valley of ancient ruins, '
+      + 'glowing colorful magic gems (red, blue, green, yellow, purple) floating in the air between them, crossed banners, '
+      + 'a huge glowing rune circle in the sky. The center of the image is calmer and darker so UI can overlay it. ' + KEY_ART,
+  },
     size: '1536x1024',
     background: 'opaque',
     out: 'src/assets/meta/gift/hall.webp',
@@ -167,6 +198,7 @@ export const ASSETS = {
     ['events', 'a small golden hourglass with glowing teal sand, surrounded by a thin ring of teal sparkles. Dominant teal and gold'],
     ['collection', 'a thick spellbook with an emerald-green leather cover, gold corner caps and a glowing card-shaped bookmark. Dominant emerald green and gold'],
   ].map(([id, subject]) => [`gift-${id}`, {
+    ['battles', 'a bright steel longsword planted point-down into a small mound, a crimson victory banner tied to its crossguard fluttering. Dominant crimson and steel silver'],
     size: '1024x1024',
     out: `src/assets/meta/gift/${id}.webp`,
     longest: 160,

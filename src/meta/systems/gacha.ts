@@ -150,6 +150,11 @@ function rollBatch(
   return { cards, pityUsed };
 }
 
+/** 按稀有度档随机发一张部队卡（与宝石宝箱同池；馈赠等奖励用，不写抽卡日志） */
+export function grantRandomTroop(save: MetaSave, rarityIdx: number, rng: SeededRNG): GachaCard {
+  return commit(save, pickTroopInBand(rarityIdx, rng));
+}
+
 /** 入册 + 重复标记（GoW：重复卡进升阶材料，语义一致） */
 function commit(save: MetaSave, troopId: number): GachaCard {
   const duplicate = reallyOwned(save, troopId);

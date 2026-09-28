@@ -411,7 +411,8 @@ export function newSave(options: NewSaveOptions = {}): MetaSave {
   if (starters.length >= 3 && options.starterTeamName !== null) {
     save.teams.push({
       name: options.starterTeamName ?? '先锋队',
-      members: [...starters.slice(0, 3).map((troopId) => ({ kind: 'troop' as const, troopId })), { kind: 'hero' }],
+      // 新手队：主角固定在第一位
+      members: [{ kind: 'hero' }, ...starters.slice(0, 3).map((troopId) => ({ kind: 'troop' as const, troopId }))],
       bannerKingdomId: null,
     });
   }

@@ -419,13 +419,13 @@ export class MockGateway implements MetaGateway {
   }
 
   async claimGift(id: string) {
-    const result = claimGift(this.save, id);
+    const result = claimGift(this.save, id, this.nextSeed());
     if (result.ok) this.persist();
     return { result, save: this.save };
   }
 
   async claimAllGifts() {
-    const result = claimAllGifts(this.save);
+    const result = claimAllGifts(this.save, this.nextSeed());
     if (result.ok) this.persist();
     return { result, save: this.save };
   }

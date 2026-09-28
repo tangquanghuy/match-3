@@ -4,7 +4,7 @@
 import { describe, expect, it } from 'vitest';
 import { newSave } from '../../src/meta/state/schema';
 import { hydrateSave } from '../../src/meta/state/save';
-import { GIFTS, GIFT_TOTAL_GEMS, GIFT_STARTER_ID } from '../../src/meta/data/gifts';
+import { GIFTS, GIFT_TOTAL_GEMS, GIFT_STARTER_ID, GIFT_TROOP_COUNTS } from '../../src/meta/data/gifts';
 import { claimAllGifts, claimGift, giftRows } from '../../src/meta/systems/gifts';
 import { openGemChest, gemMultiCost, pickNoviceVisitor, NOVICE_SUMMON_COST } from '../../src/meta/systems/gacha';
 import { GEM_CHEST } from '../../src/meta/data/economy';
@@ -16,24 +16,33 @@ import { MockGateway, memoryStorage } from '../../src/meta/gateway/mockGateway';
 const tutorialSave = () => newSave({ now: 0, starterTroopIds: [6000, 6097, 6457], tutorial: true });
 
 describe('馈赠里程碑', () => {
-  it('总额约一万出头、id 唯一，新手礼 1000', () => {
-    expect(GIFT_TOTAL_GEMS).toBe(11_600);
+  it('总额一万多、阶梯够长、id 唯一，新手礼 1000，带传说/史诗/神话部队卡', () => {
+    expect(GIFT_TOTAL_GEMS).toBeGreaterThan(12_000);
+    expect(GIFT_TOTAL_GEMS).toBeLessThan(16_000);
+    expect(GIFTS.length).toBeGreaterThanOrEqual(100);
     expect(new Set(GIFTS.map((g) => g.id)).size).toBe(GIFTS.length);
     expect(GIFTS.find((g) => g.id === GIFT_STARTER_ID)?.gems).toBe(1000);
+    expect(GIFT_TROOP_COUNTS[3]).toBeGreaterThan(0);
+    expect(GIFT_TROOP_COUNTS[4]).toBeGreaterThan(0);
+    expect(GIFT_TROOP_COUNTS[5]).toBeGreaterThan(0);
   });
 
-  it('未达成拒领，达成可领一次，一键领取只领已达成项', () => {
+  it('未达成拒领，达成可领一次；一键领取发宝石与对应稀有度的部队卡', () => {
     const s = tutorialSave();
     s.hero.level = 12;
     expect(claimGift(s, 'hero-15')).toMatchObject({ ok: false, code: 'PREREQ_LOCKED' });
+    expect(claimGift(s, 'hero-5', 1)).toMatchObject({ ok: true });
+    expect(claimGift(s, 'hero-5', 1)).toMatchObject({ ok: false });
+    const expected = giftRows(s).filter((r) => r.status === 'ready');
     const before = s.currencies.gems;
-    expect(claimGift(s, 'hero-5')).toMatchObject({ ok: true, gems: 100 });
-    expect(claimGift(s, 'hero-5')).toMatchObject({ ok: false });
-    const all = claimAllGifts(s);
+    const all = claimAllGifts(s, 42);
     expect(all).toMatchObject({ ok: true });
     if (!all.ok) return;
-    expect(all.ids.sort()).toEqual(['hero-10', GIFT_STARTER_ID].sort());
-    expect(s.currencies.gems - before).toBe(100 + 150 + 1000);
+    expect(all.ids.sort()).toEqual(expected.map((r) => r.gift.id).sort());
+    expect(s.currencies.gems - before).toBe(expected.reduce((sum, r) => sum + r.gift.gems, 0));
+    const troopGifts = expected.filter((r) => r.gift.troop);
+    expect(all.cards.map((c) => c.rarityIdx)).toEqual(troopGifts.map((r) => r.gift.troop));
+    for (const card of all.cards) expect(s.collection[String(card.troopId)]).toBeTruthy();
     expect(giftRows(s).filter((r) => r.status === 'ready')).toHaveLength(0);
   });
 
@@ -83,6 +92,7 @@ describe('新手引导', () => {
     await gw.load();
     const { save } = await gw.resetToNewGame();
     expect(save.onboarding).toEqual({ step: 'battle', noviceSummonUsed: false });
+    expect(save.teams[0]!.members[0]).toEqual({ kind: 'hero' }); // 新手队主角在第一位
     const plan = await gw.planTutorialBattle();
     expect(plan.ok).toBe(true);
     if (!plan.ok) return;

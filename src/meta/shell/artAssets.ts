@@ -12,6 +12,13 @@ const DAILY = import.meta.glob('../../assets/meta/daily/*.webp', { eager: true, 
 const SHOP = import.meta.glob('../../assets/meta/shop/*.webp', { eager: true, query: '?url', import: 'default' }) as Record<string, string>;
 const GIFT = import.meta.glob('../../assets/meta/gift/*.webp', { eager: true, query: '?url', import: 'default' }) as Record<string, string>;
 
+const TUTORIAL = import.meta.glob('../../assets/meta/tutorial/*.webp', { eager: true, query: '?url', import: 'default' }) as Record<string, string>;
+
+/** 新手引导 / 战斗加载页素材 URL（guide / frame / battle-loading） */
+export function tutorialArt(name: string): string {
+  return pick(TUTORIAL, name);
+}
+
 /** 馈赠页素材 URL（hall / 分组 id） */
 export function giftArt(name: string): string {
   return pick(GIFT, name);

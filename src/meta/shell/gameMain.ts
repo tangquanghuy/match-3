@@ -11,6 +11,7 @@ import './styles/style.css';
 import './styles/screens.css';
 import './styles/extras.css';
 import './styles/tutorial.css';
+import './styles/battle-loading.css';
 
 import { initMetaGateway } from '../gateway';
 import { heroXpToNext } from '../data/classes';

@@ -3,9 +3,13 @@
  * 左栏分组、右栏里程碑卡片（分页，不做长列表）；达成后手动领取宝石。
  */
 import { isFailure } from '../gateway';
-import { GIFT_GROUPS, GIFT_TOTAL_GEMS, type GiftGroupId } from '../data/gifts';
+import { GIFT_GROUPS, GIFT_STARTER_ID, GIFT_TOTAL_GEMS, type GiftGroupId } from '../data/gifts';
 import { giftRows, type GiftRow } from '../systems/gifts';
-import { bottomNavHtml, toast, toastHtml, topbarHtml } from '../shell/chrome';
+import type { GachaCard } from '../systems/gacha';
+import { rarityNameByIndex } from '../data/rarity';
+import { getTroopById } from '../../data/troops';
+import { troopImg } from './teamScreen';
+import { bottomNavHtml, mountIcons, toast, toastHtml, topbarHtml } from '../shell/chrome';
 import { cssUrlVar, giftArt } from '../shell/artAssets';
 import type { Screen, ShellCtx } from '../shell/screen';
 
@@ -68,7 +72,7 @@ export class GiftsScreen implements Screen {
         <header class="gift-hero" style='${cssUrlVar('gift-hall', giftArt('hall'))}'>
           <div class="gift-hero-copy">
             <h1>馈赠</h1>
-            <p><span data-icon="crystal"></span><b>${fmt(claimedGems)}</b><span>/ ${fmt(GIFT_TOTAL_GEMS)} 宝石已领取</span></p>
+            <p><span data-icon="crystal"></span><b>${fmt(claimedGems)}</b><span>/ ${fmt(GIFT_TOTAL_GEMS)} 宝石</span><span class="gift-hero-sep"></span><span data-icon="helmet"></span><b>${rows.filter((r) => r.gift.troop && r.status === 'claimed').length}</b><span>/ ${rows.filter((r) => r.gift.troop).length} 部队卡</span></p>
           </div>
           <button class="gift-claim-all" id="giftClaimAll" type="button"${ready.length ? '' : ' disabled'}>
             ${ready.length ? `一键领取<small><span data-icon="crystal"></span>${fmt(readyGems)}</small>` : '暂无可领取'}
@@ -92,11 +96,20 @@ export class GiftsScreen implements Screen {
       : status === 'claimed'
         ? '<span class="gift-state done"><span data-icon="check"></span>已领取</span>'
         : `<span class="gift-state">${fmt(Math.min(value, gift.target))} / ${fmt(gift.target)}</span>`;
+    const troopChip = gift.troop
+      ? `<span class="gift-troop r${gift.troop}"><span data-icon="helmet"></span>随机${rarityNameByIndex(gift.troop)}部队</span>`
+      : '';
+    const reward = gift.gems > 0
+      ? `<div class="gift-reward"><span data-icon="crystal"></span><b>${fmt(gift.gems)}</b></div>`
+      : `<div class="gift-reward troop r${gift.troop}"><span data-icon="helmet"></span><b>${rarityNameByIndex(gift.troop ?? 3)}</b></div>`;
+    const blurb = gift.id === GIFT_STARTER_ID ? '新冒险者专属，可直接用于一次新手十连'
+      : gift.metric === 'always' ? '补充一名传说部队，组建你的第一支队伍' : '';
     return `<article class="gift-card ${status}${gift.group === 'starter' ? ' starter' : ''}">
-        <div class="gift-reward"><span data-icon="crystal"></span><b>${fmt(gift.gems)}</b></div>
+        ${reward}
         <div class="gift-card-body">
           <h3>${gift.label}</h3>
-          ${gift.metric === 'always' ? '<p>新冒险者专属，可直接用于一次新手十连</p>' : `<div class="gift-bar"><i style="width:${pct}%"></i></div>`}
+          ${blurb ? `<p>${blurb}</p>` : `<div class="gift-bar"><i style="width:${pct}%"></i></div>`}
+          ${gift.gems > 0 ? troopChip : ''}
         </div>
         <div class="gift-action">${action}</div>
       </article>`;
@@ -107,7 +120,8 @@ export class GiftsScreen implements Screen {
       void promise.then(({ result }) => {
         if (isFailure(result)) { toast(result.message); return; }
         ctx.refresh();
-        setTimeout(() => toast(`已领取 ${result.ids.length} 项馈赠 · 宝石 +${fmt(result.gems)}`), 0);
+        if (result.cards.length) setTimeout(() => this.reveal(result.gems, result.cards), 0);
+        else setTimeout(() => toast(`已领取 ${result.ids.length} 项馈赠 · 宝石 +${fmt(result.gems)}`), 0);
       });
     };
     this.on(root, 'click', (event) => {
@@ -119,6 +133,30 @@ export class GiftsScreen implements Screen {
       const page = target.closest<HTMLButtonElement>('[data-gift-page]');
       if (page) { this.page = Number(page.dataset.giftPage); ctx.refresh(); }
     });
+  }
+
+  /** 领到部队卡时弹出获得展示（宝石另记在标题里） */
+  private reveal(gems: number, cards: GachaCard[]): void {
+    document.querySelector('#giftReveal')?.remove();
+    const veil = document.createElement('div');
+    veil.className = 'gift-reveal-veil';
+    veil.id = 'giftReveal';
+    veil.innerHTML = `<section class="gift-reveal" role="dialog" aria-modal="true" aria-labelledby="giftRevealTitle">
+        <h2 id="giftRevealTitle">获得馈赠</h2>
+        ${gems > 0 ? `<p class="gift-reveal-gems"><span data-icon="crystal"></span>宝石 +${fmt(gems)}</p>` : ''}
+        <div class="gift-reveal-cards">${cards.map((card) => {
+          const troop = getTroopById(card.troopId) ?? null;
+          return `<figure class="gift-reveal-card r${card.rarityIdx}">${troopImg(troop, false, 'alt=""')}<figcaption><b>${troop?.name ?? `部队 #${card.troopId}`}</b><small>${rarityNameByIndex(card.rarityIdx)}${card.duplicate ? ' · 重复转为副本' : ''}</small></figcaption></figure>`;
+        }).join('')}</div>
+        <button class="gift-claim" type="button" data-gift-reveal-close>收下</button>
+      </section>`;
+    document.querySelector('#stage')?.appendChild(veil);
+    mountIcons(veil);
+    const close = (): void => veil.remove();
+    veil.addEventListener('click', (event) => {
+      if (event.target === veil || (event.target as HTMLElement).closest('[data-gift-reveal-close]')) close();
+    });
+    veil.querySelector<HTMLButtonElement>('[data-gift-reveal-close]')?.focus();
   }
 
   private on(target: EventTarget, type: string, fn: EventListener): void {

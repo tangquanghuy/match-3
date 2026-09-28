@@ -87,8 +87,8 @@ describe('预设队保存', () => {
 
   it('activeTeam 取当前索引，越界回退 0 号', () => {
     const s = save();
-    expect(activeTeam(s)!.members).toEqual([...OWNED.map(troop), { kind: 'hero' }]);
+    expect(activeTeam(s)!.members).toEqual([{ kind: 'hero' }, ...OWNED.map(troop)]);
     s.activeTeamIndex = 99;
-    expect(activeTeam(s)!.members).toEqual([...OWNED.map(troop), { kind: 'hero' }]);
+    expect(activeTeam(s)!.members).toEqual([{ kind: 'hero' }, ...OWNED.map(troop)]);
   });
 });

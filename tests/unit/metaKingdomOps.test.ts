@@ -62,7 +62,8 @@ describe('王国黄金升级', () => {
     const baseline = troopStatsAtLevel(troop, 1);
     const outcome = buildBattleRequest(s, planQuestEncounter(KINGDOM, 1, 7));
     if (!outcome.ok) throw new Error(outcome.message);
-    expect(outcome.request.playerTeam[0]!.stats.hp).toBe(baseline.health + 1);
+    // 新手队主角在第一位，6000 在第二位
+    expect(outcome.request.playerTeam[1]!.stats.hp).toBe(baseline.health + 1);
   });
 });
 

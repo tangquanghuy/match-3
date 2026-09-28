@@ -14,8 +14,23 @@ import type { ArenaBridgeOutcome } from '../systems/arena';
 import type { InvasionBridgeOutcome } from '../systems/invasion';
 import type { ShellCtx } from './screen';
 import { toast } from './chrome';
+import { BattleLoadingScreen } from './battleLoading';
 
 export type BattleMode = 'quest' | 'explore' | 'arena' | 'event' | 'invasion';
+
+/** 加载页标题：战斗来源 + 地点 */
+function loadingTitle(plan: BridgeOutcome | ArenaBridgeOutcome | InvasionBridgeOutcome, mode: BattleMode): { title: string; subtitle?: string } {
+  if (mode === 'arena') return { title: '竞技场', subtitle: '现开赛对决' };
+  if (mode === 'invasion' && 'mirror' in plan) return { title: '入侵', subtitle: `对手 · ${plan.mirror.name}` };
+  if (!('plan' in plan)) return { title: '战斗' };
+  const source = plan.plan.source;
+  if (source.kind === 'quest') {
+    return source.tutorial ? { title: '新手试炼', subtitle: plan.plan.kingdom } : { title: plan.plan.kingdom, subtitle: `王国任务 · 第 ${source.node} 关` };
+  }
+  if (source.kind === 'explore') return { title: plan.plan.kingdom, subtitle: exploreNodeLabel(source.tier) };
+  const event = EVENT_TYPES.find((t) => t.id === source.typeId);
+  return { title: event?.name ?? '每周活动', subtitle: plan.plan.kingdom };
+}
 
 export class BattleLauncher {
   private running = false;
@@ -105,6 +120,10 @@ export class BattleLauncher {
   ): Promise<void> {
     if (this.running) return;
     this.running = true;
+
+    // 加载页：先把立绘/宝石/特效拉下来并解码，战斗层初始化完再淡出
+    const loading = new BattleLoadingScreen(plan.request, loadingTitle(plan, mode));
+    await loading.preload();
     this.root.hidden = false;
 
     const app = new App();
@@ -122,7 +141,9 @@ export class BattleLauncher {
 
     try {
       await app.init(this.root, plan.request, plan.registry);
+      await loading.finish();
     } catch (error: unknown) {
+      loading.dispose();
       settled = true;
       app.destroy();
       this.root.hidden = true;

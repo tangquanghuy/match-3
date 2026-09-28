@@ -7,6 +7,7 @@
 import type { OnboardingStep } from '../state/schema';
 import type { ShellCtx } from './screen';
 import { toast } from './chrome';
+import { tutorialArt } from './artAssets';
 
 interface GuideView {
   /** 聚光目标；null = 只压暗、气泡居中 */
@@ -101,12 +102,28 @@ export class TutorialGuide {
     if (!this.layer) {
       this.layer = document.createElement('div');
       this.layer.className = 'tut-layer';
-      this.layer.innerHTML = '<div class="tut-hole" aria-hidden="true"></div><section class="tut-bubble" role="dialog" aria-live="polite" aria-labelledby="tutTitle"><small>新手引导</small><h2 id="tutTitle"></h2><p></p><button class="tut-action" type="button" hidden></button></section>';
+      const guide = tutorialArt('guide');
+      this.layer.innerHTML = `<div class="tut-hole" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
+        <section class="tut-bubble" role="dialog" aria-live="polite" aria-labelledby="tutTitle">
+          ${guide ? `<img class="tut-guide" src="${guide}" alt="" aria-hidden="true">` : ''}
+          <div class="tut-card">
+            <header class="tut-name"><span>向导</span><b>艾琳</b><ol class="tut-steps" aria-label="引导进度"><li></li><li></li><li></li></ol></header>
+            <h2 id="tutTitle"></h2>
+            <p></p>
+            <button class="tut-action" type="button" hidden></button>
+          </div>
+        </section>`;
       document.body.appendChild(this.layer);
       this.layer.querySelector('.tut-action')!.addEventListener('click', () => this.view?.action?.run(this.ctx));
       this.timer = window.setInterval(() => this.place(), 150);
     }
     this.layer.classList.toggle('no-dim', !!view.noDim);
+    this.layer.classList.toggle('is-centered', !view.target);
+    const stepIndex = ({ battle: 0, gift: 1, summon: 2, done: 3 } as const)[this.lastStep];
+    this.layer.querySelectorAll('.tut-steps li').forEach((li, i) => {
+      li.classList.toggle('done', i < stepIndex);
+      li.classList.toggle('on', i === stepIndex);
+    });
     this.layer.querySelector('h2')!.textContent = view.title;
     this.layer.querySelector('p')!.textContent = view.text;
     const button = this.layer.querySelector<HTMLButtonElement>('.tut-action')!;
@@ -127,7 +144,8 @@ export class TutorialGuide {
     const hole = this.layer.querySelector<HTMLElement>('.tut-hole')!;
     const bubble = this.layer.querySelector<HTMLElement>('.tut-bubble')!;
     const el = this.view.target ? document.querySelector<HTMLElement>(this.view.target) : null;
-    const rect = el && el.offsetParent !== null ? el.getBoundingClientRect() : null;
+    const box = el?.getBoundingClientRect();
+    const rect = box && box.width > 0 && box.height > 0 ? box : null;
     this.layer.classList.toggle('has-hole', !!rect);
     const vw = window.innerWidth;
     const vh = window.innerHeight;

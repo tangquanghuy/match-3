@@ -113,3 +113,36 @@
   .gift-card.starter .gift-claim { width: 100%; }
   .gift-card.starter h3 { font-size: 18px; }
 }
+
+/* 部队卡奖励（稀有度色：3 传说金 / 4 史诗橙 / 5 神话青） */
+.gift-screen { --gf-r3: #ffe24a; --gf-r4: #e08a45; --gf-r5: #56d8ff; }
+.gift-hero-sep { width: 1px; height: 16px; margin: 0 6px; align-self: center; background: rgba(255, 255, 255, .18); }
+.gift-hero-copy p [data-icon="helmet"] { color: var(--gf-gold); }
+.gift-troop { display: inline-flex; align-self: flex-start; align-items: center; gap: 5px; min-height: 24px; padding: 0 9px; border: 1px solid currentColor; border-radius: 99px; background: rgba(0, 0, 0, .25); font-size: 12px; }
+.gift-troop [data-icon] { width: 14px; height: 14px; }
+.gift-troop.r3 { color: var(--gf-r3); }
+.gift-troop.r4 { color: var(--gf-r4); }
+.gift-troop.r5 { color: var(--gf-r5); }
+.gift-reward.troop.r3 { background: radial-gradient(circle at 50% 35%, rgba(255, 226, 74, .24), rgba(38, 32, 14, .9) 72%); }
+.gift-reward.troop.r4 { background: radial-gradient(circle at 50% 35%, rgba(224, 138, 69, .26), rgba(40, 24, 14, .9) 72%); }
+.gift-reward.troop [data-icon] { color: #fff1c8; }
+.gift-reward.troop b { font-size: 15px; }
+.gift-card-body .gift-troop { margin-top: 2px; }
+
+.gift-reveal-veil { position: absolute; inset: 0; z-index: 60; display: grid; place-items: center; padding: 16px; background: rgba(6, 6, 10, .78); }
+.gift-reveal { display: flex; flex-direction: column; align-items: center; gap: 14px; width: min(760px, 100%); padding: 26px 28px; border: 1px solid rgba(240, 207, 133, .5); border-radius: 16px; background: radial-gradient(90% 60% at 50% 0%, rgba(240, 207, 133, .16), transparent 70%), #1a1b23; color: #ece6d8; box-shadow: 0 24px 60px rgba(0, 0, 0, .55); }
+.gift-reveal h2 { font: 28px var(--display); color: #fbf2dc; letter-spacing: .12em; }
+.gift-reveal-gems { display: flex; align-items: center; gap: 6px; margin: 0; color: #dff4ff; font-size: 16px; }
+.gift-reveal-gems [data-icon] { width: 20px; height: 20px; color: #7fd1ff; }
+.gift-reveal-cards { display: flex; flex-wrap: wrap; justify-content: center; gap: 14px; max-height: 60vh; overflow-y: auto; }
+.gift-reveal-card { display: flex; flex-direction: column; width: 150px; margin: 0; overflow: hidden; border: 2px solid var(--gf-r3); border-radius: 12px; background: #111218; animation: gift-pop .45s ease-out both; }
+.gift-reveal-card.r4 { border-color: var(--gf-r4); }
+.gift-reveal-card.r5 { border-color: var(--gf-r5); box-shadow: 0 0 22px rgba(86, 216, 255, .35); }
+.gift-reveal-card img { width: 100%; aspect-ratio: 3 / 4; object-fit: cover; }
+.gift-reveal-card figcaption { display: flex; flex-direction: column; gap: 2px; padding: 8px 10px 10px; text-align: center; }
+.gift-reveal-card b { overflow: hidden; font-size: 14px; white-space: nowrap; text-overflow: ellipsis; }
+.gift-reveal-card small { color: #a7a194; font-size: 12px; }
+.gift-reveal .gift-claim { min-width: 160px; min-height: 46px; }
+@keyframes gift-pop { from { opacity: 0; transform: translateY(12px) scale(.94); } }
+@media (prefers-reduced-motion: reduce) { .gift-reveal-card { animation: none; } }
+@media (max-width: 599px) { .gift-reveal-card { width: 130px; } }
