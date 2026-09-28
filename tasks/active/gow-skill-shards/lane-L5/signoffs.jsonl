@@ -90,3 +90,23 @@
 {"format":"compact","key":"troop:7673","decision":"accept","reviewer":"sa-R3","reviewedAt":"2026-09-28T02:49:11.539Z","tests":["tests/unit/gowCastGolden.test.ts"],"note":"6038: Death Mark re-targets LastEnemy after a kill (native separate LastEnemy step)"}
 {"format":"compact","key":"troop:7128","decision":"accept","reviewer":"sa-R3","reviewedAt":"2026-09-28T02:49:11.539Z","tests":["tests/unit/gowCastGolden.test.ts"],"note":"6038: Death Mark re-targets LastEnemy after a kill (native separate LastEnemy step)"}
 {"format":"compact","key":"troop:7875","decision":"accept","reviewer":"sa-R3","reviewedAt":"2026-09-28T02:49:11.539Z","tests":["tests/unit/gowCastGolden.test.ts"],"note":"6038: Death Mark re-targets LastEnemy after a kill (native separate LastEnemy step)"}
+{"format":"compact","key":"troop:7627","decision":"issue","reviewer":"sa-R3","reviewedAt":"2026-09-28T02:51:38.363Z","issue":"P-R3-dragon-gem-count","note":"x6 boost counts all Red gems instead of Red Dragon gems; LastTwo true damage and Barrier self OK"}
+{"format":"compact","key":"troop:6407","decision":"accept","reviewer":"sa-R3","reviewedAt":"2026-09-28T02:51:48.465Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:7759","decision":"accept","reviewer":"sa-R3","reviewedAt":"2026-09-28T02:51:48.466Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:6368","decision":"accept","reviewer":"sa-R3","reviewedAt":"2026-09-28T02:51:48.466Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:7310","decision":"accept","reviewer":"sa-R3","reviewedAt":"2026-09-28T02:51:48.467Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"weapon:1279","decision":"accept","reviewer":"sa-R3","reviewedAt":"2026-09-28T02:51:48.467Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:7550","decision":"accept","reviewer":"sa-R3","reviewedAt":"2026-09-28T02:51:48.467Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:7464","decision":"accept","reviewer":"sa-R3","reviewedAt":"2026-09-28T02:51:48.467Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:6855","decision":"accept","reviewer":"sa-R3","reviewedAt":"2026-09-28T02:51:48.467Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"weapon:1352","decision":"accept","reviewer":"sa-R3","reviewedAt":"2026-09-28T02:51:48.467Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:6936","decision":"issue","reviewer":"sa-R3","reviewedAt":"2026-09-28T02:54:36.952Z","issue":"P-R3-target-status-count","note":"per-status bonus must count statuses on the target (one step each); curated counts enemies with the status / adds once"}
+{"format":"compact","key":"weapon:1427","decision":"issue","reviewer":"sa-R3","reviewedAt":"2026-09-28T02:54:36.954Z","issue":"P-R3-target-status-count","note":"per-status bonus must count statuses on the target (one step each); curated counts enemies with the status / adds once"}
+{"format":"compact","key":"troop:7533","decision":"issue","reviewer":"sa-R3","reviewedAt":"2026-09-28T02:54:37.073Z","issue":"P-R3-precast-compare","note":"Barrier-if-my-Armor-higher is compared after the hit (post-damage target armor); native compares before damage"}
+{"format":"compact","key":"troop:6985","decision":"accept","reviewer":"sa-R3","reviewedAt":"2026-09-28T02:54:59.614Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:6756","decision":"accept","reviewer":"sa-R3","reviewedAt":"2026-09-28T02:54:59.616Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:7279","decision":"accept","reviewer":"sa-R3","reviewedAt":"2026-09-28T02:54:59.616Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:7143","decision":"accept","reviewer":"sa-R3","reviewedAt":"2026-09-28T02:54:59.616Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:6986","decision":"accept","reviewer":"sa-R3","reviewedAt":"2026-09-28T02:54:59.617Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:6893","decision":"accept","reviewer":"sa-R3","reviewedAt":"2026-09-28T02:54:59.617Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:6952","decision":"accept","reviewer":"sa-R3","reviewedAt":"2026-09-28T02:54:59.617Z","tests":["tests/unit/gowCastGolden.test.ts"]}

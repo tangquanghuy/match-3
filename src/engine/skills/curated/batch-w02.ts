@@ -768,7 +768,9 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '对一名敌人造成 [魔法 + 4] 点重度溅射伤害，伤害值因骷髅头数而增强。击晕所有受到伤害的敌人。 [1:1]',
     build: skill(
       dmgSplash('enemyChosen', 4, 1, { range: 'splash', modifier: { mod: { kind: 'ratio', a: 1, b: 1 }, source: { kind: 'boardSkulls' } } }),
-      inflict('stun', 'enemyAll'),
+      // Native 8155: CauseStun@FromTarget + @AdjacentFromTarget = the splashed troops only (was all enemies).
+      inflict('stun', 'enemyChosen'),
+      inflict('stun', 'enemyChosenAndAdjacent'),
     ),
   },
   {

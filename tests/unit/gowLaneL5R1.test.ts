@@ -277,3 +277,69 @@ describe('L5 sa-R3 B06', () => {
     expect(castSpell({ key: 'troop:7875', enemies: enemies({ 1: { statuses: st('web') } }) }).summary.order[0]).toBe('dmg E11 26');
   });
 });
+
+describe('L5 sa-R3 B07', () => {
+  const A = (o: object) => [{ hp: 500, maxHp: 700, armor: 4, colors: [BaseColor.Blue], ...o }, { hp: 650, maxHp: 650, armor: 8, colors: [BaseColor.Red] }];
+  const st = (id: string) => [{ id, turns: 99 }];
+  const bleedMag = (u: { statuses: { id: string }[] }) => (u.statuses.find(s => s.id === 'bleed') as { magnitude?: number } | undefined)?.magnitude;
+  const reds = (() => { let n = 0; for (let r = 0; r < 8; r++) for (let c = 0; c < 8; c++) { const g = reviewBoard(r, c); if (g?.kind === 'color' && g.color === BaseColor.Red) n++; } return n; })();
+  it('troop:7759 x3 per Enrage gem; Barrier only if the ally is already Enraged', () => {
+    const r = castSpell({ key: 'troop:7759', allies: A({ statuses: st('rage') }), board: withCells(reviewBoard, { '0,1': specialGem('enrageGem') }) });
+    expect(r.summary.order).toEqual(['buff A1 hp+14 max+14', 'buff A1 armor+14', 'status A1 +barrier']);
+  });
+  it('troop:6368 Red gems [3:1] boost both Life and Attack', () => {
+    const b = 11 + Math.floor(reds * 34 / 100);
+    expect(castSpell({ key: 'troop:6368' }).summary.order).toEqual([`buff C hp+${b} max+${b}`, `buff C attack+${b}`, 'status C +rage']);
+  });
+  it('troop:7310 2 Magic + 1 per Spirit gem, Enchant, Red allies only', () => {
+    const r = castSpell({ key: 'troop:7310', board: withCells(reviewBoard, { '0,1': specialGem('spiritGem', undefined, BaseColor.Red), '5,5': specialGem('spiritGem', undefined, BaseColor.Blue) }) });
+    expect(r.summary.order).toEqual(['buff C magic+4', 'buff A2 magic+4', 'status C +enchanted', 'status A2 +enchanted']);
+  });
+  it('weapon:1279 Stuns only the splashed troops (target and its neighbours)', () => {
+    const r = castSpell({ key: 'weapon:1279' });
+    expect(r.summary.order.filter(x => x.startsWith('status')).sort()).toEqual(['status E10 +stun', 'status E11 +stun', 'status E12 +stun']);
+  });
+  it('troop:7550 x3 per Entangle gem, true damage, then Disease all', () => {
+    const r = castSpell({ key: 'troop:7550', board: withCells(reviewBoard, { '0,1': specialGem('entangleGem') }) });
+    expect(r.summary.order[0]).toBe('dmg E10 15 (all)');
+  });
+  it('troop:7464 25% per Lycanthropy gem to inflict 4 Bleed stacks on the first two (4 gems = certain)', () => {
+    const cells: Record<string, ReturnType<typeof specialGem>> = { '0,1': specialGem('lycanthropyGem'), '2,2': specialGem('lycanthropyGem'), '5,5': specialGem('lycanthropyGem'), '6,1': specialGem('lycanthropyGem') };
+    const r = castSpell({ key: 'troop:7464', board: withCells(reviewBoard, cells) });
+    expect(r.summary.order).toEqual(['dmg E10 13 (all)', 'dmg E11 13 (all)', 'status E10 +bleed', 'status E11 +bleed']);
+    expect(bleedMag(r.f.enemies[1])).toBe(4);
+  });
+  it('troop:6855 drain is capped by the target Life; weapon:1352 steal is capped by the target Magic', () => {
+    expect(castSpell({ key: 'weapon:1352', enemies: enemies({ 1: { magic: 4 } }) }).summary.order).toEqual(['buff E11 magic-4', 'buff C attack+4', 'status C +rage']);
+    expect(castSpell({ key: 'troop:6855', enemies: enemies({ 1: { hp: 3 } }) }).summary.units.C).toBe('arm+3');
+  });
+});
+
+describe('L5 sa-R3 B08', () => {
+  const A = (o: object) => [{ hp: 500, maxHp: 700, armor: 4, colors: [BaseColor.Blue], ...o }, { hp: 650, maxHp: 650, armor: 8, colors: [BaseColor.Red] }];
+  const st = (id: string) => [{ id, turns: 99 }];
+  it('troop:6985 Enrage self if my Attack is higher; -10 target Attack only if theirs is higher; ties do neither', () => {
+    expect(castSpell({ key: 'troop:6985' }).summary.order).toEqual(['dmg E11 13', 'status E11 +frozen']);
+    expect(castSpell({ key: 'troop:6985', caster: { attack: 30 } }).summary.order).toEqual(['dmg E11 13', 'status E11 +frozen', 'status C +enraged']); // alias of rage (RAGE_STATUS_IDS)
+    expect(castSpell({ key: 'troop:6985', caster: { attack: 5 } }).summary.order).toEqual(['dmg E11 13', 'status E11 +frozen', 'buff E11 attack-10']);
+  });
+  it('troop:6756 x2 per Diseased enemy', () => {
+    expect(castSpell({ key: 'troop:6756', enemies: enemies({ 0: { statuses: st('disease') }, 2: { statuses: st('disease') } }) }).summary.order).toEqual(['status C +rage', 'buff C attack+15']);
+  });
+  it('troop:7279 Faerie Fire first (spell damage x1.5), boosted x3 per Bleeding enemy', () => {
+    expect(castSpell({ key: 'troop:7279', enemies: enemies({ 0: { statuses: st('bleed') } }) }).summary.order).toEqual(['status E11 +faerie-fire', 'dmg E11 21']); // round((11 + 3) x 1.5)
+  });
+  it('troop:7143 x3 per Blue enemy (not Blue gems) and per Frozen enemy', () => {
+    expect(castSpell({ key: 'troop:7143' }).summary.order[0]).toBe('dmg E10 14 (all)');
+    expect(castSpell({ key: 'troop:7143', enemies: enemies({ 2: { statuses: st('frozen') } }) }).summary.order[0]).toBe('dmg E10 17 (all)');
+  });
+  it('troop:6986 x2 per Burning/Enraged ally and enemy', () => {
+    const r = castSpell({ key: 'troop:6986', allies: A({ statuses: st('burning') }) });
+    expect(r.summary.order[0]).toBe('dmg E10 17 (all)'); // 11 + 2 x (A1 burning, E10 + E13 enraged)
+  });
+  it('troop:6893 x6 per Burning and Diseased enemy; troop:6952 x5 per Burning and Faerie Fired enemy on the first two', () => {
+    const en = enemies({ 0: { statuses: st('burning') }, 3: { statuses: st('disease') } });
+    expect(castSpell({ key: 'troop:6893', enemies: en }).summary.order).toEqual(['dmg E11 27']);
+    expect(castSpell({ key: 'troop:6952', enemies: enemies({ 2: { statuses: st('burning') }, 3: { statuses: st('faerie-fire') } }) }).summary.order).toEqual(['dmg E10 24 (all)', 'dmg E11 24 (all)']);
+  });
+});

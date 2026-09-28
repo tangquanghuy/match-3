@@ -565,7 +565,8 @@ const SPELLS: CuratedBatch['spells'] = [
       dmg('enemyChosen', 3, 1),
       inflict('frozen', 'enemyChosen'),
       inflict('enraged', 'allySelf', { ifCond: { kind: 'casterStatBeatsTarget', stat: 'attack' } }),
-      reduce('lastTarget', 'attack', 10, 0, { ifCond: { kind: 'not', cond: { kind: 'casterStatBeatsTarget', stat: 'attack' } } }),
+      // Native 8495 step 4: DecreaseAttack [AddForMoreAttackOnTarget 10] = only if the target's Attack is strictly higher (ties: neither branch).
+      reduce('lastTarget', 'attack', 10, 0, { ifCond: { kind: 'targetStatBeatsCaster', stat: 'attack' } }),
     ),
   },
   {
