@@ -176,7 +176,8 @@ const SPELLS: CuratedBatch['spells'] = [
         modifier: { mod: { kind: 'multiplier', a: 5 }, source: { kind: 'enemyStatusCount', statusId: 'poison' } },
         condMult: { times: 2, cond: { kind: 'targetColor', color: BaseColor.Blue } },
       }),
-      dmg('enemyRandom', 3, 1, {
+      // Native: second hit Damage@RandomPrefNotPrevEnemy (never the chosen enemy while another lives; was enemyRandom).
+      dmg('enemyRandomPrefNotPrev', 3, 1, {
         modifier: { mod: { kind: 'multiplier', a: 5 }, source: { kind: 'enemyStatusCount', statusId: 'poison' } },
         condMult: { times: 2, cond: { kind: 'targetColor', color: BaseColor.Blue } },
       }),
@@ -190,7 +191,8 @@ const SPELLS: CuratedBatch['spells'] = [
         modifier: { mod: { kind: 'multiplier', a: 5 }, source: { kind: 'allyStatusCount', statusId: 'rage' } },
         condMult: { times: 2, cond: { kind: 'targetColor', color: BaseColor.Brown } },
       }),
-      dmg('enemyRandom', 3, 1, {
+      // Native: second hit Damage@RandomPrefNotPrevEnemy (never the chosen enemy while another lives; was enemyRandom).
+      dmg('enemyRandomPrefNotPrev', 3, 1, {
         modifier: { mod: { kind: 'multiplier', a: 5 }, source: { kind: 'allyStatusCount', statusId: 'rage' } },
         condMult: { times: 2, cond: { kind: 'targetColor', color: BaseColor.Brown } },
       }),

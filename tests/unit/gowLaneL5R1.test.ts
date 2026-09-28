@@ -401,3 +401,36 @@ describe('L5 sa-R3 B10', () => {
     expect(castSpell({ key: 'troop:7508', allies: A({ statuses: st('barrier') }) }).summary.order).toEqual(['dmg E11 23', 'status C +barrier']);
   });
 });
+
+describe('L5 sa-R3 B11', () => {
+  const A = (o: object, o2: object = {}) => [{ hp: 500, maxHp: 700, armor: 4, colors: [BaseColor.Blue], ...o }, { hp: 650, maxHp: 650, armor: 8, colors: [BaseColor.Red], ...o2 }];
+  const st = (id: string) => [{ id, turns: 99 }];
+  const kills = (o: Parameters<typeof castSpell>[0]) => { let n = 0; for (let seed = 1; seed <= 200; seed++) if (castSpell({ ...o, seed }).summary.order.includes('defeat E11')) n++; return n; };
+  it('ally-status boosts: 7770 x4 Barrier, 7813 x5 Blessed, 6412 x5 Enchanted, 6698 x2 Enraged, 1156 x7 Submerged', () => {
+    expect(castSpell({ key: 'troop:7770', allies: A({ statuses: st('barrier') }) }).summary.order[0]).toBe('dmg E11 17');
+    expect(castSpell({ key: 'troop:7813', allies: A({ statuses: st('blessed') }) }).summary.order[0]).toBe('dmg E11 18');
+    expect(castSpell({ key: 'troop:6412', allies: A({ statuses: st('enchanted') }) }).summary.order[0]).toBe('dmg E11 16');
+    expect(castSpell({ key: 'troop:6698', allies: A({ statuses: st('rage') }) }).summary.order[0]).toBe('dmg E11 16');
+    expect(castSpell({ key: 'troop:6953', enemies: enemies({ 0: { statuses: st('death-mark') } }) }).summary.order[0]).toBe('dmg E11 26');
+  });
+  it('weapon:1156 neighbours take the full [Magic + 4] (two native Damage steps, not splash)', () => {
+    expect(castSpell({ key: 'weapon:1156', allies: A({ statuses: st('submerged') }) }).summary.order.map(x => x.replace(/ \(\w+\)$/, ''))).toEqual(['dmg E11 21', 'dmg E10 21', 'dmg E12 21']);
+  });
+  it('troop:6502 only an already-Frozen target takes +5 and spreads Freeze to its neighbours', () => {
+    expect(castSpell({ key: 'troop:6502', enemies: enemies({ 1: { statuses: st('frozen') } }) }).summary.order).toEqual(['dmg E11 13', 'status E11 +frozen', 'dmg E11 5', 'status E10 +frozen', 'status E12 +frozen']);
+  });
+  it('weapon:1143 slay 10%, or 20% only if the target was already Poisoned (other Poisoned enemies do not count)', () => {
+    const others = enemies({ 0: { statuses: st('poison') }, 2: { statuses: st('poison') }, 3: { statuses: st('poison') } });
+    const base = kills({ key: 'weapon:1143', enemies: others });
+    const pre = kills({ key: 'weapon:1143', enemies: enemies({ 1: { statuses: st('poison') } }) });
+    expect(base).toBeGreaterThan(8); expect(base).toBeLessThan(35);
+    expect(pre).toBeGreaterThan(25); expect(pre).toBeLessThan(60);
+  });
+  it('troop:6831 / troop:6836 second hit never repeats the chosen enemy; double vs Blue / Brown users', () => {
+    for (let seed = 1; seed <= 30; seed++) {
+      const a = castSpell({ key: 'troop:6831', seed }).summary.order; expect(a[0]).toBe('dmg E11 26'); expect(a[1]).not.toMatch(/^dmg E11 /);
+      const b = castSpell({ key: 'troop:6836', seed }).summary.order; expect(b[1]).not.toMatch(/^dmg E11 /);
+    }
+    expect(castSpell({ key: 'troop:6836', target: 13, allies: A({ statuses: st('rage') }) }).summary.order[0]).toBe('dmg E13 36'); // (13 + 5) x 2
+  });
+});

@@ -130,3 +130,13 @@
 {"format":"compact","key":"troop:6823","decision":"accept","reviewer":"sa-R3","reviewedAt":"2026-09-28T02:59:32.689Z","tests":["tests/unit/gowCastGolden.test.ts"],"waived":[{"part":"clause","id":"c2","mode":"tower"}]}
 {"format":"compact","key":"weapon:1218","decision":"accept","reviewer":"sa-R3","reviewedAt":"2026-09-28T02:59:32.689Z","tests":["tests/unit/gowCastGolden.test.ts"]}
 {"format":"compact","key":"troop:7508","decision":"accept","reviewer":"sa-R3","reviewedAt":"2026-09-28T02:59:32.689Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:7770","decision":"accept","reviewer":"sa-R3","reviewedAt":"2026-09-28T03:03:21.315Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:7813","decision":"accept","reviewer":"sa-R3","reviewedAt":"2026-09-28T03:03:21.316Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:6953","decision":"accept","reviewer":"sa-R3","reviewedAt":"2026-09-28T03:03:21.316Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:6412","decision":"accept","reviewer":"sa-R3","reviewedAt":"2026-09-28T03:03:21.316Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:6698","decision":"accept","reviewer":"sa-R3","reviewedAt":"2026-09-28T03:03:21.317Z","tests":["tests/unit/gowCastGolden.test.ts"],"waived":[{"part":"clause","id":"c2","mode":"boss"}]}
+{"format":"compact","key":"troop:6502","decision":"accept","reviewer":"sa-R3","reviewedAt":"2026-09-28T03:03:21.317Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"weapon:1143","decision":"accept","reviewer":"sa-R3","reviewedAt":"2026-09-28T03:03:21.317Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:6831","decision":"accept","reviewer":"sa-R3","reviewedAt":"2026-09-28T03:03:21.317Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:6836","decision":"accept","reviewer":"sa-R3","reviewedAt":"2026-09-28T03:03:21.317Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"weapon:1156","decision":"accept","reviewer":"sa-R3","reviewedAt":"2026-09-28T03:03:21.317Z","tests":["tests/unit/gowCastGolden.test.ts"]}
