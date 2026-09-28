@@ -739,8 +739,11 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '造成 [魔法 + 10] 点散射伤害，伤害值因毒菇林盟友数而增强。每有一名毒菇林盟友，则爆破 3 颗宝石。召唤一名毒菇林军队。 [x3]',
     build: skill(
       dmg('enemyAll', 10, 1, { range: 'all', modifier: { mod: { kind: 'multiplier', a: 3 }, source: { kind: 'alliesOfKingdom', kingdom: '齐埃金' } } }),
-      explodeRandomGems(3, 0, 'color', undefined, { modifier: { mod: { kind: 'multiplier', a: 3 }, source: { kind: 'alliesOfKingdom', kingdom: '齐埃金' } } }),
-      summonRandomOfKingdom('齐埃金', undefined),
+      // sa-R5 L1-1274-amanithrax: native ExplodeGems UseCounterForAmount = 3 per Amanithrax ally only (0 allies -> none);
+      // SummoningKingdomNoError 3053 = raw Amanithrax roster (Deathcap 7865 is not in the roster). The ally COUNT still
+      // uses zh kingdom 齐埃金 (all of Zaejin): primitive-queue P-R5-faction-kingdom.
+      explodeRandomGems(0, 0, 'color', undefined, { modifier: { mod: { kind: 'multiplier', a: 3 }, source: { kind: 'alliesOfKingdom', kingdom: '齐埃金' } } }),
+      summonRandom(['Lifecap', 'KingGobtruffle', 'Exploadstool', 'Fungomancer', 'MushroomMan']),
     ),
   },
   {

@@ -58,3 +58,13 @@
 {"format":"compact","key":"troop:6538","decision":"accept","reviewer":"sa-R5","reviewedAt":"2026-09-28T05:52:06.989Z","tests":["tests/unit/gowCastGolden.test.ts"]}
 {"format":"compact","key":"troop:7273","decision":"accept","reviewer":"sa-R5","reviewedAt":"2026-09-28T05:52:06.989Z","tests":["tests/unit/gowCastGolden.test.ts"]}
 {"format":"compact","key":"troop:6801","decision":"accept","reviewer":"sa-R5","reviewedAt":"2026-09-28T05:52:06.990Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:6747","decision":"accept","reviewer":"sa-R5","reviewedAt":"2026-09-28T05:57:25.700Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"weapon:1602","decision":"accept","reviewer":"sa-R5","reviewedAt":"2026-09-28T05:57:25.701Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:6397","decision":"accept","reviewer":"sa-R5","reviewedAt":"2026-09-28T05:57:25.701Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:7414","decision":"accept","reviewer":"sa-R5","reviewedAt":"2026-09-28T05:57:25.702Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:6685","decision":"accept","reviewer":"sa-R5","reviewedAt":"2026-09-28T05:57:25.702Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:7014","decision":"accept","reviewer":"sa-R5","reviewedAt":"2026-09-28T05:57:25.702Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:7357","decision":"issue","reviewer":"sa-R5","reviewedAt":"2026-09-28T05:57:25.920Z","issue":"P-R5-faction-kingdom","note":"Wild Court 3048 / Amanithrax 3053 faction count uses zh parent kingdom (all Adana/Zaejin allies); primitive-queue/sa-R5.jsonl"}
+{"format":"compact","key":"weapon:1274","decision":"issue","reviewer":"sa-R5","reviewedAt":"2026-09-28T05:57:25.921Z","issue":"P-R5-faction-kingdom","note":"Wild Court 3048 / Amanithrax 3053 faction count uses zh parent kingdom (all Adana/Zaejin allies); primitive-queue/sa-R5.jsonl"}
+{"format":"compact","key":"troop:7173","decision":"issue","reviewer":"sa-R5","reviewedAt":"2026-09-28T05:57:26.034Z","issue":"P-R5-named-ally-count","note":"native 3 Doomskulls per Eldritch Minion ally; prototype 3 if any"}
+{"format":"compact","key":"weapon:1647","decision":"issue","reviewer":"sa-R5","reviewedAt":"2026-09-28T05:57:26.136Z","issue":"P-R5-special-gem-color","note":"native counts Green Dragon Gems only; boardSpecial counts all colours. Also native summon precedes damage (unobservable)"}

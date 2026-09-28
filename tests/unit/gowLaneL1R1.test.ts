@@ -156,6 +156,18 @@ describe('L1 R2 charm family (sa-R5)', () => {
     }
     expect([...seen].map(x => x.split(' ')[1]).sort()).toEqual(['SavageHunter', 'Gnoll', 'BaneJaw'].map(n => TROOPS.find(t => t.referenceName === n)!.name).sort());
   });
+  // troop:7014 explode 10 only if a Dragon Spirit was ALREADY on the team (counted before the summons); 1 + 2 x 50% summons.
+  it('troop:7014 explode depends on a pre-existing Dragon Spirit; summon count 25/50/25', () => {
+    const spirit = TROOPS.find(t => t.referenceName === 'DragonSpirit')!.name;
+    const none = castSpell({ key: 'troop:7014' }).summary.order;
+    expect(none.some(x => x.startsWith('explode'))).toBe(false);
+    const pre = castSpell({ key: 'troop:7014', allies: [{ name: spirit }] }).summary.order;
+    expect(pre[0]).toMatch(/^explode \d+$/);
+    const t = tally(Array.from({ length: 400 }, (_, i) => String(castSpell({ key: 'troop:7014', seed: i + 1, allies: [] }).summary.summons.length)));
+    expect(t['1']).toBeGreaterThan(65); expect(t['1']).toBeLessThan(140);
+    expect(t['2']).toBeGreaterThan(160); expect(t['2']).toBeLessThan(240);
+    expect(t['3']).toBeGreaterThan(65); expect(t['3']).toBeLessThan(140);
+  });
   // weapon:1310 independent 30% extra turn and 30% half mana (8 of 16); no Brown-gem boost (English + native).
   it('weapon:1310 independent 30% chances, half mana = 8', () => {
     let extra = 0, half = 0, both = 0;

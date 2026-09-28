@@ -159,6 +159,16 @@
   "by": "sa-F1",
   "at": "2026-09-28T00:51:37.275Z"
  },
+ "troop:6397": {
+  "lines": {
+   "L10": "status E12 +stun ; status E13 +stun ; dmg E12 19 (all) ; dmg E13 19 (all) ; summon mine troop:-1  => A14:new 深渊锻工 hp20 atk16 arm9 mag11 | E12:hp-7 arm-12 +stun | E13:hp-16 arm-3 +stun",
+   "R10": "status E12 +stun ; status E13 +stun ; dmg E12 19 (all) ; dmg E13 19 (all) ; summon mine troop:-1  => A14:new 深渊锻工 hp20 atk16 arm9 mag11 | E12:hp-7 arm-12 +stun | E13:hp-16 arm-3 +stun",
+   "L0": "status E12 +stun ; status E13 +stun ; dmg E12 9 (all) ; dmg E13 9 (all) ; summon mine troop:-1  => A14:new 深渊锻工 hp20 atk16 arm9 mag11 | E12:arm-9 +stun | E13:hp-6 arm-3 +stun",
+   "K": "status E12 +stun ; status E13 +stun ; dmg E12 19 (all) ; dmg E13 19 (all) ; defeat E12 ; defeat E13 ; summon mine troop:-1  => E12:hp-1 +stun DEAD | E13:hp-1 +stun DEAD"
+  },
+  "by": "sa-R5",
+  "at": "2026-09-28T05:57:25.574Z"
+ },
  "troop:6404": {
   "lines": {
    "L10": "dmg E11 14  => E11:hp-4 arm-10",
@@ -269,6 +279,26 @@
   "by": "sa-R5",
   "at": "2026-09-28T05:41:21.302Z"
  },
+ "troop:6685": {
+  "lines": {
+   "L10": "dmg E10 14 (all) ; dmg E11 14 (all) ; dmg E12 14 (all) ; dmg E13 14 (all) ; summon mine troop:-1  => A14:new 蔚蔓藤 hp24 atk13 arm13 mag12 | E10:hp-9 arm-5 | E11:hp-4 arm-10 | E12:hp-2 arm-12 | E13:hp-11 arm-3",
+   "R10": "dmg E10 14 (all) ; dmg E11 14 (all) ; dmg E12 14 (all) ; dmg E13 14 (all) ; summon mine troop:-1  => A14:new 蔚蔓藤 hp24 atk13 arm13 mag12 | E10:hp-9 arm-5 | E11:hp-4 arm-10 | E12:hp-2 arm-12 | E13:hp-11 arm-3",
+   "L0": "dmg E10 4 (all) ; dmg E11 4 (all) ; dmg E12 4 (all) ; dmg E13 4 (all) ; summon mine troop:-1  => A14:new 蔚蔓藤 hp24 atk13 arm13 mag12 | E10:arm-4 | E11:arm-4 | E12:arm-4 | E13:hp-1 arm-3",
+   "K": "dmg E10 14 (all) ; dmg E11 14 (all) ; dmg E12 14 (all) ; dmg E13 14 (all) ; defeat E10 ; defeat E11 ; defeat E12 ; defeat E13 ; summon mine troop:-1  => A3:new 蔚蔓藤 hp24 atk13 arm13 mag12 | E10:hp-1 DEAD | E11:hp-1 DEAD | E12:hp-1 DEAD | E13:hp-1 DEAD"
+  },
+  "by": "sa-R5",
+  "at": "2026-09-28T05:57:25.574Z"
+ },
+ "troop:6747": {
+  "lines": {
+   "L10": "dmg E11 43  => E11:hp-33 arm-10",
+   "R10": "dmg E11 43  => E11:hp-33 arm-10",
+   "L0": "dmg E11 33  => E11:hp-23 arm-10",
+   "K": "dmg E11 43 ; defeat E11 ; summon mine troop:6682  => A14:new 卓恩拳 hp24 atk17 arm11 mag8 | E11:hp-1 DEAD"
+  },
+  "by": "sa-R5",
+  "at": "2026-09-28T05:57:25.574Z"
+ },
  "troop:6769": {
   "lines": {
    "L10": "status E12 +charm ; convert Purple x3, skull x1, Red x1, Yellow x1, Brown x2, Green x1 -> Blue x9 ; ~cascade~  => E12:+charm | A1:mana+3  cascade",
@@ -349,6 +379,16 @@
   "by": "sa-F1",
   "at": "2026-09-28T00:19:26.339Z"
  },
+ "troop:7014": {
+  "lines": {
+   "L10": "summon mine troop:-1  => A14:new 龙魂 hp22 atk17 arm13 mag13",
+   "R10": "summon mine troop:-1  => A14:new 龙魂 hp22 atk17 arm13 mag13",
+   "L0": "summon mine troop:-1  => A14:new 龙魂 hp22 atk17 arm13 mag13",
+   "K": "summon mine troop:-1  => A14:new 龙魂 hp22 atk17 arm13 mag13"
+  },
+  "by": "sa-R5",
+  "at": "2026-09-28T05:57:25.574Z"
+ },
  "troop:7031": {
   "lines": {
    "L10": "convert Green x13 -> lycanthropyGem x13 ; convert Yellow x9 -> doomSkull x9 ; summon mine troop:6282 ; ~cascade~ ; trigger lycanthropyGem ; status E11 +lycanthropy ; trigger lycanthropyGem ; status E13 +lycanthropy ; trigger lycanthropyGem ; status E12 +lycanthropy ; extra-turn match  => A14:new 瓦格 hp22 atk16 arm7 mag9 | E11:+lycanthropy | E13:+lycanthropy | E12:+lycanthropy  extra:match  cascade",
@@ -398,6 +438,16 @@
   },
   "by": "sa-F1",
   "at": "2026-09-28T00:38:48.572Z"
+ },
+ "troop:7414": {
+  "lines": {
+   "L10": "status E12 +terror ; status E10 +terror ; dmg E12 19 (all) ; dmg E10 19 (all) ; summon mine troop:-1  => A14:new 虚空龙 hp16 atk22 arm25 mag5 | E12:hp-7 arm-12 +terror | E10:hp-14 arm-5 +terror",
+   "R10": "status E12 +terror ; status E10 +terror ; dmg E12 19 (all) ; dmg E10 19 (all) ; summon mine troop:-1  => A14:new 虚空龙 hp16 atk22 arm25 mag5 | E12:hp-7 arm-12 +terror | E10:hp-14 arm-5 +terror",
+   "L0": "status E12 +terror ; status E10 +terror ; dmg E12 9 (all) ; dmg E10 9 (all) ; summon mine troop:-1  => A14:new 虚空龙 hp16 atk22 arm25 mag5 | E12:arm-9 +terror | E10:hp-4 arm-5 +terror",
+   "K": "status E12 +terror ; status E11 +terror ; dmg E13 19 (all) ; dmg E12 19 (all) ; defeat E13 ; defeat E12 ; summon mine troop:-1  => E12:hp-1 +terror DEAD | E11:+terror | E13:hp-1 DEAD"
+  },
+  "by": "sa-R5",
+  "at": "2026-09-28T05:57:25.574Z"
  },
  "troop:7433": {
   "lines": {
@@ -488,5 +538,15 @@
   },
   "by": "sa-F1",
   "at": "2026-09-28T00:19:26.339Z"
+ },
+ "weapon:1602": {
+  "lines": {
+   "L10": "convert Green x1, Purple x1, skull x1, Red x1 -> dragonGem/Blue x4",
+   "R10": "convert Green x1, Purple x1, skull x1, Red x1 -> dragonGem/Blue x4",
+   "L0": "convert Green x1, Purple x1, skull x1, Red x1 -> dragonGem/Blue x4",
+   "K": "convert Green x1, Purple x1, skull x1, Red x1 -> dragonGem/Blue x4"
+  },
+  "by": "sa-R5",
+  "at": "2026-09-28T05:57:25.574Z"
  }
 }

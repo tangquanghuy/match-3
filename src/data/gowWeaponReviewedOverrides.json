@@ -2,18 +2,6 @@
   "sourceFingerprint": "0edc34ebe8fcfdab0ace4baafe552cb772574701d86c53b7cea97208844a5740",
   "notes": "Preserve pre-regeneration localized corrections and reviewed weapon prototypes recorded in the September 26 verification ledger; this is not original-game certification.",
   "entries": {
-    "8283": {
-      "description": "对一名敌人造成 [魔法 + 2] 点伤害，并魅惑敌人。有 30% 个别几率获得一个额外回合和半数法力值。",
-      "metadata": {"fidelity":"full","missingFeatures":[],"skippedClauses":[]},
-      "prototype": {
-        "segments": [
-          {"kind":"damage","target":"enemyChosen","scaling":{"base":2,"mult":1}},
-          {"kind":"status","target":"enemyChosen","statusId":"charm","turns":3},
-          {"kind":"extraTurn","chance":0.3},
-          {"kind":"buff","target":"allySelf","stat":"mana","scaling":{"base":0,"mult":0},"halve":true,"chance":0.3}
-        ]
-      }
-    },
     "7070": {
       "description": "对第一名敌人造成 [(魔法 / 2) + 4] 点轻度溅射伤害。",
       "metadata": {
@@ -3403,6 +3391,85 @@
         ]
       }
     },
+    "8140": {
+      "metadata": {
+        "fidelity": "full",
+        "missingFeatures": [],
+        "skippedClauses": []
+      },
+      "prototype": {
+        "segments": [
+          {
+            "kind": "damage",
+            "target": "enemyAll",
+            "scaling": {
+              "base": 10,
+              "mult": 1
+            },
+            "range": "scatter",
+            "modifier": {
+              "mod": {
+                "kind": "multiplier",
+                "a": 3
+              },
+              "source": {
+                "kind": "alliesOfKingdom",
+                "kingdom": "齐埃金"
+              }
+            }
+          },
+          {
+            "kind": "gem",
+            "params": {
+              "op": "clear",
+              "mode": "explode",
+              "target": {
+                "kind": "randomGems",
+                "count": {
+                  "base": 0,
+                  "mult": 0
+                },
+                "include": "color"
+              },
+              "modifier": {
+                "mod": {
+                  "kind": "multiplier",
+                  "a": 3
+                },
+                "source": {
+                  "kind": "alliesOfKingdom",
+                  "kingdom": "齐埃金"
+                }
+              }
+            },
+            "modifier": {
+              "mod": {
+                "kind": "multiplier",
+                "a": 3
+              },
+              "source": {
+                "kind": "alliesOfKingdom",
+                "kingdom": "齐埃金"
+              }
+            }
+          },
+          {
+            "kind": "summon",
+            "params": {
+              "source": {
+                "randomOf": [
+                  "Lifecap",
+                  "KingGobtruffle",
+                  "Exploadstool",
+                  "Fungomancer",
+                  "MushroomMan"
+                ]
+              }
+            }
+          }
+        ]
+      }
+    },
     "8145": {
       "description": "对最后一名敌人造成 [魔法 + 4] 点伤害。若敌人使用黄色法力值，则造成 3 倍伤害。召唤暗风暴。"
     },
@@ -3518,6 +3585,47 @@
     },
     "8259": {
       "description": "对一名敌人造成 [魔法 + 5] 点重度溅射伤害，每锻炼 1 个武器段位则 +4 点伤害值。击晕所有棕色敌人并净化所有棕色盟友。爆破 4 颗宝石，如果敌方有劫数，则再爆破 3 颗宝石。"
+    },
+    "8283": {
+      "description": "对一名敌人造成 [魔法 + 2] 点伤害，并魅惑敌人。有 30% 个别几率获得一个额外回合和半数法力值。",
+      "metadata": {
+        "fidelity": "full",
+        "missingFeatures": [],
+        "skippedClauses": []
+      },
+      "prototype": {
+        "segments": [
+          {
+            "kind": "damage",
+            "target": "enemyChosen",
+            "scaling": {
+              "base": 2,
+              "mult": 1
+            }
+          },
+          {
+            "kind": "status",
+            "target": "enemyChosen",
+            "statusId": "charm",
+            "turns": 3
+          },
+          {
+            "kind": "extraTurn",
+            "chance": 0.3
+          },
+          {
+            "kind": "buff",
+            "target": "allySelf",
+            "stat": "mana",
+            "scaling": {
+              "base": 0,
+              "mult": 0
+            },
+            "halve": true,
+            "chance": 0.3
+          }
+        ]
+      }
     },
     "8299": {
       "prototype": {
