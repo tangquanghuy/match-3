@@ -139,6 +139,16 @@
   "by": "sa-F1",
   "at": "2026-09-28T00:42:32.013Z"
  },
+ "troop:6230": {
+  "lines": {
+   "L10": "summon mine troop:6231 ; buff C hp+6 max+6  => A14:new 幼龙 hp17 atk10 arm10 mag4 | C:hp+6 max+6",
+   "R10": "summon mine troop:6231 ; buff C hp+6 max+6  => A14:new 幼龙 hp17 atk10 arm10 mag4 | C:hp+6 max+6",
+   "L0": "summon mine troop:6231 ; buff C hp+6 max+6  => A14:new 幼龙 hp17 atk10 arm10 mag4 | C:hp+6 max+6",
+   "K": "summon mine troop:6231 ; buff C hp+6 max+6  => A14:new 幼龙 hp17 atk10 arm10 mag4 | C:hp+6 max+6"
+  },
+  "by": "sa-H",
+  "at": "2026-09-28T22:10:52.737Z"
+ },
  "troop:6231": {
   "lines": {
    "L10": "dmg E12 11 ; transform C -> 尖角潜龙  => E12:arm-11 | C:now 尖角潜龙",
@@ -439,6 +449,26 @@
   "by": "sa-R5",
   "at": "2026-09-28T05:48:46.892Z"
  },
+ "troop:6463": {
+  "lines": {
+   "L10": "summon mine troop:6178 ; convert Blue x11 -> Purple x11  => A14:new 夸赛魔 hp17 atk12 arm7 mag7",
+   "R10": "summon mine troop:6178 ; convert Blue x11 -> Purple x11  => A14:new 夸赛魔 hp17 atk12 arm7 mag7",
+   "L0": "summon mine troop:6178 ; convert Blue x11 -> Purple x11  => A14:new 夸赛魔 hp17 atk12 arm7 mag7",
+   "K": "summon mine troop:6178 ; convert Blue x11 -> Purple x11  => A14:new 夸赛魔 hp17 atk12 arm7 mag7"
+  },
+  "by": "sa-H",
+  "at": "2026-09-28T22:10:52.737Z"
+ },
+ "troop:6475": {
+  "lines": {
+   "L10": "summon mine troop:-1 ; status E12 +death-mark  => A14:new 地狱再生魔 hp24 atk15 arm9 mag9 | E12:+death-mark",
+   "R10": "summon mine troop:-1 ; status E12 +death-mark  => A14:new 地狱再生魔 hp24 atk15 arm9 mag9 | E12:+death-mark",
+   "L0": "summon mine troop:-1 ; status E12 +death-mark  => A14:new 地狱再生魔 hp24 atk15 arm9 mag9 | E12:+death-mark",
+   "K": "summon mine troop:-1 ; status E12 +death-mark  => A14:new 地狱再生魔 hp24 atk15 arm9 mag9 | E12:+death-mark"
+  },
+  "by": "sa-H",
+  "at": "2026-09-28T22:10:52.737Z"
+ },
  "troop:6497": {
   "lines": {
    "L10": "destroy 9 (Yellow x9) ; ~cascade~ ; gold+20  => A2:mana+9  cascade  eco:{\"gold\":20,\"goldMine\":20}",
@@ -508,6 +538,16 @@
   },
   "by": "sa-R5",
   "at": "2026-09-28T08:36:41.866Z"
+ },
+ "troop:6532": {
+  "lines": {
+   "L10": "summon mine troop:6069 ; buff C hp+6 max+6 ; buff A1 hp+6 max+6 ; buff A2 hp+6 max+6 ; buff A14 hp+6 max+6  => A14:new 俄里翁 hp28 atk17 arm22 mag17 | C:hp+6 max+6 | A1:hp+6 max+6 | A2:hp+6 max+6",
+   "R10": "summon mine troop:6069 ; buff C hp+6 max+6 ; buff A1 hp+6 max+6 ; buff A2 hp+6 max+6 ; buff A14 hp+6 max+6  => A14:new 俄里翁 hp28 atk17 arm22 mag17 | C:hp+6 max+6 | A1:hp+6 max+6 | A2:hp+6 max+6",
+   "L0": "summon mine troop:6069 ; buff C hp+1 max+1 ; buff A1 hp+1 max+1 ; buff A2 hp+1 max+1 ; buff A14 hp+1 max+1  => A14:new 俄里翁 hp23 atk17 arm22 mag17 | C:hp+1 max+1 | A1:hp+1 max+1 | A2:hp+1 max+1",
+   "K": "summon mine troop:6069 ; buff C hp+6 max+6 ; buff A1 hp+6 max+6 ; buff A2 hp+6 max+6 ; buff A14 hp+6 max+6  => A14:new 俄里翁 hp28 atk17 arm22 mag17 | C:hp+6 max+6 | A1:hp+6 max+6 | A2:hp+6 max+6"
+  },
+  "by": "sa-H",
+  "at": "2026-09-28T22:10:52.737Z"
  },
  "troop:6534": {
   "lines": {
@@ -1598,6 +1638,16 @@
   },
   "by": "sa-R5",
   "at": "2026-09-28T09:02:30.889Z"
+ },
+ "troop:7606": {
+  "lines": {
+   "L10": "summon mine troop:-1  => A14:new 幽暗眼球 hp26 atk15 arm7 mag10",
+   "R10": "summon mine troop:-1  => A14:new 幽暗眼球 hp26 atk15 arm7 mag10",
+   "L0": "summon mine troop:-1  => A14:new 幽暗眼球 hp26 atk15 arm7 mag10",
+   "K": "summon mine troop:-1  => A14:new 幽暗眼球 hp26 atk15 arm7 mag10"
+  },
+  "by": "sa-H",
+  "at": "2026-09-28T22:10:52.737Z"
  },
  "troop:7609": {
   "lines": {

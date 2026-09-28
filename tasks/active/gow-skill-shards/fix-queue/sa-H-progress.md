@@ -70,3 +70,8 @@
 - troop:7376 fixed+accept (L1; RandomEnemy + 3 PrefNotPrev steals, was 4 distinct)
 - weapon:1224 accept (L1; 2 weakest life+armor R005, Undead type pool)
 - troop:6375 accept (L1; Bonestorm, dispel all positive statuses, Undead summon)
+- troop:7606 accept (L1; kingdom 3039 pool 6 = raw)
+- troop:6475 accept (L1; Hellspawn + Death Mark random enemy)
+- troop:6230 accept (L1; Baby Dragon + 6 Life)
+- troop:6532 accept (L1; Orion first, heal reaches it)
+- troop:6463 accept (L1; 2 Quasits, chosen colour -> Purple)

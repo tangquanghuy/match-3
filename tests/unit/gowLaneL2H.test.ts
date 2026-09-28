@@ -532,3 +532,15 @@ describe('sa-H L1 B03', () => {
     expect(orderOf({ key: 'troop:7376', enemies: [{ hp: 900, maxHp: 900 }] }).filter(l => l === 'dmg E10 12').length).toBe(4);
   });
 });
+
+describe('sa-H L1 B04', () => {
+  it('troop:6463 summons 2 Quasits when there is room, then converts the chosen colour to Purple', () => {
+    const o = orderOf({ key: 'troop:6463', allies: [] });
+    expect(o.filter(l => l === 'summon mine troop:6178').length).toBe(2);
+    expect(o[o.length - 1]).toMatch(/-> Purple x\d+$/);
+  });
+  it('troop:6532 summons Orion first, so the heal also reaches it', () => {
+    const o = orderOf({ key: 'troop:6532' });
+    expect(o[0]).toBe('summon mine troop:6069'); expect(o.filter(l => l.startsWith('buff ')).length).toBe(4);
+  });
+});
