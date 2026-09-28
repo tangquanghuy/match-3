@@ -1,6 +1,6 @@
 # GoW 技能改动留档
 
-自动生成（`node scripts/gow-changelog.mjs render`），源数据 [CHANGES.jsonl](CHANGES.jsonl)，共 190 条改动，涉及 385 个技能 ID。
+自动生成（`node scripts/gow-changelog.mjs render`），源数据 [CHANGES.jsonl](CHANGES.jsonl)，共 191 条改动，涉及 395 个技能 ID。
 
 ## 按时间
 
@@ -196,6 +196,7 @@
 | 2026-09-28T02:52 | sa-R4 | L7-R1-attack-armor-life-pooled | assembler | 7252, 9882, 8238, 7975, 7454, 7864 | troop:6138 Tauros；troop:7838 Creteus；troop:6833 Ferocity；troop:6644 Earthcaller；troop:6304 Minogor；weapon:1217 FireRubyStaff | `src/engine/skills/curated/batch-12.ts`<br>`src/engine/skills/curated/batch-25.ts`<br>`src/engine/skills/curated/batch-r15.ts`<br>`src/engine/skills/curated/batch-r18.ts`<br>`src/engine/skills/curated/batch-r7.ts`<br>`src/engine/skills/curated/batch-w02.ts` | CountAttackArmorLife split into 3 sources floored separately (R007 per-step path); 8238 second hit unboosted-pooling + plain random (could repeat target); 7864 counted Attack only → single native step: Attack+Life+Armor summed then floored once (pooled); 8238 second hit RandomPrefNotPrevEnemy; 7864 counts all three |  |
 | 2026-09-28T02:52 | sa-R4 | L7-R1-1571-native-gems | assembler | 9262 | weapon:1571 EmeraldCenser | `src/engine/skills/curated/batch-w04.ts` | boost x3 per Purple ally (English text) → boost x3 per Purple gem (native step 0 CountGems Purple, R001) plus per Mystic ally |  |
 | 2026-09-28T02:57 | sa-R4 | L7-R1-board-special-counts | assembler | 8815, 8674, 8563, 8630, 8639 | troop:7221 Obsidiaxas；troop:7130 ThornScout；troop:7039 Indrajit；troop:7095 Kalika；troop:7104 NatureWeird | `src/engine/skills/curated/batch-r8.ts`<br>`src/engine/skills/curated/batch-33.ts`<br>`src/engine/skills/curated/batch-r1.ts` | 8815/8630/8639 counted every colour gem (boardGems without colour); 8674 counted Web instead of Entangle gems; 8563/8630 rolled or targeted 4 random hits as one distinct-N pick → 8815 Stone Blocks + Gargoyle gems; 8630/8639 Elemental Stars; 8674 Entangle gems; 8563/8630 randomWaves 4 (RandomEnemy + 3 x RandomPrefNotPrev, per-hit roll) |  |
+| 2026-09-28T03:01 | sa-R4 | L7-R1-random-chain-waves | assembler | 7418, 8540, 9190, 9944, 9882, 9165, 8055, 9013, 9589, 9859, 8073 | troop:6272 ShipCannon；troop:7027 TuskRaider；troop:7473 Pandallista；troop:7869 DuskWitch；troop:7838 Creteus；troop:7455 FireJuggler；troop:6699 TINA-9000；troop:7373 MantaRaider；troop:7661 DagoNath；troop:7815 MotherMalice；weapon:1253 PlunderAndPeril | `src/engine/skills/curated/batch-01.ts`<br>`src/engine/skills/curated/batch-09.ts`<br>`src/engine/skills/curated/batch-10.ts`<br>`src/engine/skills/curated/batch-11.ts`<br>`src/engine/skills/curated/batch-25.ts`<br>`src/engine/skills/curated/batch-38.ts`<br>`src/engine/skills/curated/batch-r22.ts`<br>`src/engine/skills/curated/batch-r7.ts`<br>`src/engine/skills/curated/batch-r9.ts`<br>`src/engine/skills/curated/batch-w02.ts` | RandomEnemy + RandomPrefNotPrevEnemy chains resolved as N distinct random enemies (fewer hits when fewer enemies alive) → randomWaves N: N separate hits, each avoiding only the previous victim (R007-3), per-hit roll for ranged damage |  |
 
 ## 按技能 ID
 
@@ -289,6 +290,7 @@
 | 7396 | 1 | F3-q25 |
 | 7399 | 1 | P-chooser-native-restrictions |
 | 7408 | 1 | F2-6265-dispel-last |
+| 7418 | 1 | L7-R1-random-chain-waves |
 | 7431 | 1 | L3-002 |
 | 7434 | 1 | F2-R001-order |
 | 7438 | 1 | P-F1-oneof-chosen-target |
@@ -369,6 +371,8 @@
 | 8032 | 1 | F2-R001-order |
 | 8035 | 1 | F2-R001-order |
 | 8053 | 2 | L3-015、L3-016 |
+| 8055 | 1 | L7-R1-random-chain-waves |
+| 8073 | 1 | L7-R1-random-chain-waves |
 | 8077 | 2 | L3-015、L3-016 |
 | 8078 | 2 | L3-015、L3-016 |
 | 8084 | 1 | L5-007 |
@@ -423,6 +427,7 @@
 | 8499 | 1 | P-random-stat-pool |
 | 8500 | 1 | P-random-stat-pool |
 | 8528 | 1 | F2-R001-order |
+| 8540 | 1 | L7-R1-random-chain-waves |
 | 8549 | 1 | P-random-stat-pool |
 | 8557 | 1 | L4b-7030-dragon |
 | 8560 | 1 | P-counter-per-step |
@@ -488,6 +493,7 @@
 | 8970 | 1 | P-prefnotprev-semantics |
 | 8979 | 1 | F1-onkill-order |
 | 8987 | 1 | P-counter-per-step |
+| 9013 | 1 | L7-R1-random-chain-waves |
 | 9015 | 2 | L5-001、L5-002 |
 | 9025 | 1 | F2-7383-kill-gems |
 | 9051 | 1 | L3-008 |
@@ -497,7 +503,9 @@
 | 9138 | 1 | P-create-interleave |
 | 9139 | 1 | P-steal-to-life |
 | 9163 | 1 | P-create-interleave |
+| 9165 | 1 | L7-R1-random-chain-waves |
 | 9184 | 1 | P-counter-per-step |
+| 9190 | 1 | L7-R1-random-chain-waves |
 | 9197 | 1 | L2-singlegem-cell |
 | 9199 | 1 | P-prefnotprev-semantics |
 | 9223 | 1 | P-steal-to-life |
@@ -533,6 +541,7 @@
 | 9534 | 2 | L3-007、F1-items-62-75 |
 | 9547 | 1 | P-counter-per-step |
 | 9578 | 1 | L7-R1-weapon-colour-race |
+| 9589 | 1 | L7-R1-random-chain-waves |
 | 9591 | 1 | P-counter-per-step |
 | 9597 | 1 | P-counter-per-step |
 | 9602 | 1 | F1-7674-target |
@@ -563,13 +572,14 @@
 | 9849 | 1 | P-random-stat-pool |
 | 9851 | 1 | F3-q34 |
 | 9852 | 1 | P-counter-per-step |
+| 9859 | 1 | L7-R1-random-chain-waves |
 | 9861 | 1 | P-random-stat-pool |
 | 9869 | 1 | F1-7825-count |
 | 9874 | 2 | F2-7830-heal-mult、P-prefnotprev-semantics |
 | 9875 | 1 | L7-R1-teamsize-source |
 | 9879 | 1 | F3-q38 |
 | 9880 | 1 | P-prefnotprev-semantics |
-| 9882 | 2 | P-counter-per-step、L7-R1-attack-armor-life-pooled |
+| 9882 | 3 | P-counter-per-step、L7-R1-attack-armor-life-pooled、L7-R1-random-chain-waves |
 | 9909 | 1 | P-random-stat-pool |
 | 9915 | 1 | L7-R1-weapon-colour-race |
 | 9933 | 1 | P-prefnotprev-semantics |
@@ -577,6 +587,7 @@
 | 9936 | 1 | F3-q02 |
 | 9937 | 1 | P-prefnotprev-semantics |
 | 9942 | 1 | F3-q08 |
+| 9944 | 1 | L7-R1-random-chain-waves |
 | 9957 | 1 | L3-007 |
 | 9986 | 1 | F3-q22 |
 | 10003 | 1 | F1-doomed-random-skill |

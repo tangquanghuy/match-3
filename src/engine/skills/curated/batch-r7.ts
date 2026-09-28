@@ -602,7 +602,7 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 9013,
     desc: '对 2 名随机敌人造成 [魔法 + 3] 点伤害，并重组敌人队伍队列。',
     build: skill(
-      dmg('enemyRandomN', 3, 1, { n: 2 }),
+      dmg('enemyRandomN', 3, 1, { n: 2, randomWaves: 2 }),
       shuffleTeam('enemy'),
     ),
   },

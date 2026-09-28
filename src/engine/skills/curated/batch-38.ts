@@ -96,7 +96,7 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '对 4 名随机敌人造成 [魔法 + 3] 点伤害，伤害值因恐怖宝石数而增强。 [1:1]',
     build: skill(
       dmg('enemyRandomN', 3, 1, {
-        n: 4,
+        n: 4, randomWaves: 4,
         modifier: { mod: { kind: 'ratio', a: 1, b: 1 }, source: { kind: 'boardSpecial', gem: 'terrorGem' } },
       }),
     ),

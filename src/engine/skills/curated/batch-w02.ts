@@ -569,7 +569,7 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 8073,
     desc: '对 2 个随机敌人造成 [魔法 + 3] 点伤害，伤害值因敌我双方的黄金数而增强。 [2:1]',
     build: skill(
-      dmg('enemyRandomN', 3, 1, { n: 2, modifier: { mod: { kind: 'ratio', a: 2, b: 1 }, source: { kind: 'bothGold' } } }),
+      dmg('enemyRandomN', 3, 1, { n: 2, randomWaves: 2, modifier: { mod: { kind: 'ratio', a: 2, b: 1 }, source: { kind: 'bothGold' } } }),
     ),
   },
   {

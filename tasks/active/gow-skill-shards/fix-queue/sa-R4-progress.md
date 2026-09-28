@@ -11,3 +11,5 @@
 - B09 troop:6392,7473,6339,6333,6553,6132,7707,7876,weapon:1077,1135 approve=10 fixed=0 issue=0 waived boss c2 x2
 - B10 troop:6304,6644,6833,7838,6138,6115,7831,7123,7056,weapon:1571 approve=10 fixed=6 (CountAttackArmorLife pooled x5 + L6 weapon:1217; 6833 PrefNotPrev; 1571 native CountGems) issue=0 waived boss/tower c2 x2
 - B11 troop:7221,7643,7130,7154,7748,7811,7039,weapon:1482,troop:6683,6722 approve=9 fixed=3 (7221 blocks+gargoyles, 7130 entangle, 7039 per-hit rolls; pre-fixed 7095/7104 elemental stars) issue=1 (7643 P-R4-gargoyle-tier-count) waived boss c2 x3
+- B12 troop:7051,7087,7178,7230,7379,7423,7431,7469,7529,7559 approve=10 fixed=0 issue=0 waived boss/tower c2 x4
+- B13 troop:7665,7693,7880,weapon:1421,1439,1539,troop:7027,7095,7455,7815 approve=10 fixed=4 (random chains -> randomWaves: 7027/7455/7815 + 7095 in B11) issue=0; re-approved troop:7473,7838,7869,weapon:1253 after the same randomWaves fix (also L6 7373/7661/6699, L7 6272 pre-fixed); tests/unit/gowMultiTargetDamageAudit.test.ts 7418 assertion updated to R007-3

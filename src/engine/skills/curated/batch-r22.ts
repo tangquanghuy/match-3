@@ -637,7 +637,7 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '对 3 名随机敌人造成 [魔法 + 4] – [(魔法 x 2) + 8] 点真实伤害。获得 [魔法 + 4] – [(魔法 x 2) + 8] 点护甲值。 ',
     // 伤害侧 rangeSpec 既有；护甲区间 = buff rangeSpec（R22 新原语，四条 scaling 对号入座）。
     build: skill(
-    trueDmg('enemyRandomN', 0, 0, { n: 3, rangeSpec: { min: scale(4, 1), max: scale(8, 2) } }),
+    trueDmg('enemyRandomN', 0, 0, { n: 3, randomWaves: 3, rangeSpec: { min: scale(4, 1), max: scale(8, 2) } }),
     armor('allySelf', 0, 0, { rangeSpec: { min: scale(4, 1), max: scale(8, 2) } }),
     ),
   },

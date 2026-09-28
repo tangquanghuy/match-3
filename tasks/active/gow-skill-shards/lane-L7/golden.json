@@ -189,6 +189,16 @@
   "by": "sa-R4",
   "at": "2026-09-28T02:35:33.627Z"
  },
+ "troop:7027": {
+  "lines": {
+   "L10": "dmg E11 13 (all) ; dmg E12 13 (all)  => E11:hp-3 arm-10 | E12:hp-1 arm-12",
+   "R10": "dmg E11 13 (all) ; dmg E12 13 (all)  => E11:hp-3 arm-10 | E12:hp-1 arm-12",
+   "L0": "dmg E11 3 (all) ; dmg E12 3 (all)  => E11:arm-3 | E12:arm-3",
+   "K": "dmg E11 13 (all) ; dmg E12 13 (all) ; defeat E11 ; defeat E12  => E11:hp-1 DEAD | E12:hp-1 DEAD"
+  },
+  "by": "sa-R4",
+  "at": "2026-09-28T03:02:51.717Z"
+ },
  "troop:7039": {
   "lines": {
    "L10": "dmg E12 28 (all) ; dmg E11 28 (all) ; dmg E10 27 (all) ; dmg E12 31 (all)  => E12:hp-47 arm-12 | E11:hp-18 arm-10 | E10:hp-22 arm-5",
@@ -199,6 +209,16 @@
   "by": "sa-R4",
   "at": "2026-09-28T02:57:42.544Z"
  },
+ "troop:7051": {
+  "lines": {
+   "L10": "dmg E13 8  => E13:hp-5 arm-3",
+   "R10": "dmg E13 8  => E13:hp-5 arm-3",
+   "L0": "dmg E13 3  => E13:arm-3",
+   "K": "dmg E13 8 ; defeat E13  => E13:hp-1 DEAD"
+  },
+  "by": "sa-R4",
+  "at": "2026-09-28T02:58:59.719Z"
+ },
  "troop:7056": {
   "lines": {
    "L10": "dmg E11 14  => E11:hp-4 arm-10",
@@ -208,6 +228,26 @@
   },
   "by": "sa-R4",
   "at": "2026-09-28T02:53:19.059Z"
+ },
+ "troop:7087": {
+  "lines": {
+   "L10": "dmg E10 14 (all) ; dmg E11 14 (all) ; dmg E12 14 (all) ; dmg E13 14 (all)  => E10:hp-9 arm-5 | E11:hp-4 arm-10 | E12:hp-2 arm-12 | E13:hp-11 arm-3",
+   "R10": "dmg E10 14 (all) ; dmg E11 14 (all) ; dmg E12 14 (all) ; dmg E13 14 (all)  => E10:hp-9 arm-5 | E11:hp-4 arm-10 | E12:hp-2 arm-12 | E13:hp-11 arm-3",
+   "L0": "dmg E10 4 (all) ; dmg E11 4 (all) ; dmg E12 4 (all) ; dmg E13 4 (all)  => E10:arm-4 | E11:arm-4 | E12:arm-4 | E13:hp-1 arm-3",
+   "K": "dmg E10 14 (all) ; dmg E11 14 (all) ; dmg E12 14 (all) ; dmg E13 14 (all) ; defeat E10 ; defeat E11 ; defeat E12 ; defeat E13  => E10:hp-1 DEAD | E11:hp-1 DEAD | E12:hp-1 DEAD | E13:hp-1 DEAD"
+  },
+  "by": "sa-R4",
+  "at": "2026-09-28T02:58:59.719Z"
+ },
+ "troop:7095": {
+  "lines": {
+   "L10": "dmg E12 14 (all) ; dmg E13 14 (all) ; dmg E12 14 (all) ; dmg E13 14 (all)  => E12:hp-16 arm-12 | E13:hp-25 arm-3",
+   "R10": "dmg E12 14 (all) ; dmg E13 14 (all) ; dmg E12 14 (all) ; dmg E13 14 (all)  => E12:hp-16 arm-12 | E13:hp-25 arm-3",
+   "L0": "dmg E12 4 (all) ; dmg E13 4 (all) ; dmg E12 4 (all) ; dmg E13 4 (all)  => E12:arm-8 | E13:hp-5 arm-3",
+   "K": "dmg E12 14 (all) ; dmg E13 14 (all) ; dmg E11 14 (all) ; dmg E10 14 (all) ; defeat E12 ; defeat E13 ; defeat E11 ; defeat E10  => E12:hp-1 DEAD | E13:hp-1 DEAD | E11:hp-1 DEAD | E10:hp-1 DEAD"
+  },
+  "by": "sa-R4",
+  "at": "2026-09-28T03:02:51.717Z"
  },
  "troop:7113": {
   "lines": {
@@ -249,6 +289,16 @@
   "by": "sa-R4",
   "at": "2026-09-28T02:57:42.544Z"
  },
+ "troop:7178": {
+  "lines": {
+   "L10": "dmg E11 14  => E11:hp-4 arm-10",
+   "R10": "dmg E11 14  => E11:hp-4 arm-10",
+   "L0": "dmg E11 4  => E11:arm-4",
+   "K": "dmg E11 14 ; defeat E11  => E11:hp-1 DEAD"
+  },
+  "by": "sa-R4",
+  "at": "2026-09-28T02:58:59.719Z"
+ },
  "troop:7221": {
   "lines": {
    "L10": "dmg E10 11 (all) ; dmg E11 11 (all) ; dmg E12 11 (all) ; dmg E13 11 (all)  => E10:hp-6 arm-5 | E11:hp-1 arm-10 | E12:arm-11 | E13:hp-8 arm-3",
@@ -259,15 +309,95 @@
   "by": "sa-R4",
   "at": "2026-09-28T02:57:42.544Z"
  },
- "troop:7473": {
+ "troop:7230": {
   "lines": {
-   "L10": "dmg E12 15 (all) ; dmg E11 15 (all)  => E12:hp-15 | E11:hp-15",
-   "R10": "dmg E12 15 (all) ; dmg E11 15 (all)  => E12:hp-15 | E11:hp-15",
-   "L0": "dmg E12 5 (all) ; dmg E11 5 (all)  => E12:hp-5 | E11:hp-5",
-   "K": "dmg E12 15 (all) ; dmg E11 15 (all) ; defeat E12 ; defeat E11  => E12:hp-1 DEAD | E11:hp-1 DEAD"
+   "L10": "dmg E10 12 (all) ; dmg E11 12 (all) ; dmg E12 12 (all) ; dmg E13 12 (all)  => E10:hp-7 arm-5 | E11:hp-2 arm-10 | E12:arm-12 | E13:hp-9 arm-3",
+   "R10": "dmg E10 12 (all) ; dmg E11 12 (all) ; dmg E12 12 (all) ; dmg E13 12 (all)  => E10:hp-7 arm-5 | E11:hp-2 arm-10 | E12:arm-12 | E13:hp-9 arm-3",
+   "L0": "dmg E10 2 (all) ; dmg E11 2 (all) ; dmg E12 2 (all) ; dmg E13 2 (all)  => E10:arm-2 | E11:arm-2 | E12:arm-2 | E13:arm-2",
+   "K": "dmg E10 12 (all) ; dmg E11 12 (all) ; dmg E12 12 (all) ; dmg E13 12 (all) ; defeat E10 ; defeat E11 ; defeat E12 ; defeat E13  => E10:hp-1 DEAD | E11:hp-1 DEAD | E12:hp-1 DEAD | E13:hp-1 DEAD"
   },
   "by": "sa-R4",
-  "at": "2026-09-28T02:47:53.932Z"
+  "at": "2026-09-28T02:58:59.719Z"
+ },
+ "troop:7379": {
+  "lines": {
+   "L10": "dmg E11 17  => E11:hp-7 arm-10",
+   "R10": "dmg E11 17  => E11:hp-7 arm-10",
+   "L0": "dmg E11 7  => E11:arm-7",
+   "K": "dmg E11 17 ; defeat E11  => E11:hp-1 DEAD"
+  },
+  "by": "sa-R4",
+  "at": "2026-09-28T02:58:59.719Z"
+ },
+ "troop:7423": {
+  "lines": {
+   "L10": "dmg E11 22  => E11:hp-12 arm-10",
+   "R10": "dmg E11 22  => E11:hp-12 arm-10",
+   "L0": "dmg E11 12  => E11:hp-2 arm-10",
+   "K": "dmg E11 22 ; defeat E11  => E11:hp-1 DEAD"
+  },
+  "by": "sa-R4",
+  "at": "2026-09-28T02:58:59.719Z"
+ },
+ "troop:7431": {
+  "lines": {
+   "L10": "dmg E11 12  => E11:hp-2 arm-10",
+   "R10": "dmg E11 12  => E11:hp-2 arm-10",
+   "L0": "dmg E11 2  => E11:arm-2",
+   "K": "dmg E11 12 ; defeat E11  => E11:hp-1 DEAD"
+  },
+  "by": "sa-R4",
+  "at": "2026-09-28T02:58:59.719Z"
+ },
+ "troop:7455": {
+  "lines": {
+   "L10": "dmg E12 13 (all) ; dmg E13 13 (all) ; dmg E12 13 (all) ; dmg E13 13 (all)  => E12:hp-14 arm-12 | E13:hp-23 arm-3",
+   "R10": "dmg E12 13 (all) ; dmg E13 13 (all) ; dmg E12 13 (all) ; dmg E13 13 (all)  => E12:hp-14 arm-12 | E13:hp-23 arm-3",
+   "L0": "dmg E12 3 (all) ; dmg E13 3 (all) ; dmg E12 3 (all) ; dmg E13 3 (all)  => E12:arm-6 | E13:hp-3 arm-3",
+   "K": "dmg E12 13 (all) ; dmg E13 13 (all) ; dmg E11 13 (all) ; dmg E10 13 (all) ; defeat E12 ; defeat E13 ; defeat E11 ; defeat E10  => E12:hp-1 DEAD | E13:hp-1 DEAD | E11:hp-1 DEAD | E10:hp-1 DEAD"
+  },
+  "by": "sa-R4",
+  "at": "2026-09-28T03:02:51.717Z"
+ },
+ "troop:7469": {
+  "lines": {
+   "L10": "dmg E11 20  => E11:hp-10 arm-10",
+   "R10": "dmg E11 20  => E11:hp-10 arm-10",
+   "L0": "dmg E11 10  => E11:arm-10",
+   "K": "dmg E11 20 ; defeat E11  => E11:hp-1 DEAD"
+  },
+  "by": "sa-R4",
+  "at": "2026-09-28T02:58:59.719Z"
+ },
+ "troop:7473": {
+  "lines": {
+   "L10": "dmg E11 15 (all) ; dmg E12 15 (all)  => E11:hp-15 | E12:hp-15",
+   "R10": "dmg E11 15 (all) ; dmg E12 15 (all)  => E11:hp-15 | E12:hp-15",
+   "L0": "dmg E11 5 (all) ; dmg E12 5 (all)  => E11:hp-5 | E12:hp-5",
+   "K": "dmg E11 15 (all) ; dmg E12 15 (all) ; defeat E11 ; defeat E12  => E11:hp-1 DEAD | E12:hp-1 DEAD"
+  },
+  "by": "sa-R4",
+  "at": "2026-09-28T03:02:51.717Z"
+ },
+ "troop:7529": {
+  "lines": {
+   "L10": "dmg E11 12  => E11:hp-2 arm-10",
+   "R10": "dmg E11 12  => E11:hp-2 arm-10",
+   "L0": "dmg E11 2  => E11:arm-2",
+   "K": "dmg E11 12 ; defeat E11  => E11:hp-1 DEAD"
+  },
+  "by": "sa-R4",
+  "at": "2026-09-28T02:58:59.719Z"
+ },
+ "troop:7559": {
+  "lines": {
+   "L10": "dmg E10 15 ; dmg E13 15  => E10:hp-10 arm-5 | E13:hp-12 arm-3",
+   "R10": "dmg E10 15 ; dmg E13 15  => E10:hp-10 arm-5 | E13:hp-12 arm-3",
+   "L0": "dmg E10 5 ; dmg E13 5  => E10:arm-5 | E13:hp-2 arm-3",
+   "K": "dmg E10 15 ; defeat E10 ; dmg E13 15 ; defeat E13  => E10:hp-1 DEAD | E13:hp-1 DEAD"
+  },
+  "by": "sa-R4",
+  "at": "2026-09-28T02:58:59.719Z"
  },
  "troop:7592": {
   "lines": {
@@ -288,6 +418,26 @@
   },
   "by": "sa-R4",
   "at": "2026-09-28T02:35:33.627Z"
+ },
+ "troop:7665": {
+  "lines": {
+   "L10": "dmg E11 14  => E11:hp-4 arm-10",
+   "R10": "dmg E11 14  => E11:hp-4 arm-10",
+   "L0": "dmg E11 4  => E11:arm-4",
+   "K": "dmg E11 14 ; defeat E11  => E11:hp-1 DEAD"
+  },
+  "by": "sa-R4",
+  "at": "2026-09-28T03:02:51.717Z"
+ },
+ "troop:7693": {
+  "lines": {
+   "L10": "dmg E11 14  => E11:hp-4 arm-10",
+   "R10": "dmg E11 14  => E11:hp-4 arm-10",
+   "L0": "dmg E11 4  => E11:arm-4",
+   "K": "dmg E11 14 ; defeat E11  => E11:hp-1 DEAD"
+  },
+  "by": "sa-R4",
+  "at": "2026-09-28T03:02:51.717Z"
  },
  "troop:7707": {
   "lines": {
@@ -319,6 +469,16 @@
   "by": "sa-R4",
   "at": "2026-09-28T02:57:42.544Z"
  },
+ "troop:7815": {
+  "lines": {
+   "L10": "dmg E12 14 (all) ; dmg E13 14 (all) ; dmg E12 14 (all) ; dmg E13 14 (all)  => E12:hp-16 arm-12 | E13:hp-25 arm-3",
+   "R10": "dmg E12 14 (all) ; dmg E13 14 (all) ; dmg E12 14 (all) ; dmg E13 14 (all)  => E12:hp-16 arm-12 | E13:hp-25 arm-3",
+   "L0": "dmg E12 4 (all) ; dmg E13 4 (all) ; dmg E12 4 (all) ; dmg E13 4 (all)  => E12:arm-8 | E13:hp-5 arm-3",
+   "K": "dmg E12 14 (all) ; dmg E13 14 (all) ; dmg E11 14 (all) ; dmg E10 14 (all) ; defeat E12 ; defeat E13 ; defeat E11 ; defeat E10  => E12:hp-1 DEAD | E13:hp-1 DEAD | E11:hp-1 DEAD | E10:hp-1 DEAD"
+  },
+  "by": "sa-R4",
+  "at": "2026-09-28T03:02:51.717Z"
+ },
  "troop:7831": {
   "lines": {
    "L10": "dmg E11 38  => E11:hp-28 arm-10",
@@ -331,13 +491,13 @@
  },
  "troop:7838": {
   "lines": {
-   "L10": "dmg E12 242 (all) ; dmg E11 242 (all) ; dmg E13 242 (all)  => E12:hp-230 arm-12 | E11:hp-232 arm-10 | E13:hp-239 arm-3",
-   "R10": "dmg E12 242 (all) ; dmg E11 242 (all) ; dmg E13 242 (all)  => E12:hp-230 arm-12 | E11:hp-232 arm-10 | E13:hp-239 arm-3",
-   "L0": "dmg E12 232 (all) ; dmg E11 232 (all) ; dmg E13 232 (all)  => E12:hp-220 arm-12 | E11:hp-222 arm-10 | E13:hp-229 arm-3",
-   "K": "dmg E12 484 (all) ; dmg E11 484 (all) ; dmg E13 484 (all) ; defeat E12 ; defeat E11 ; defeat E13  => E12:hp-1 DEAD | E11:hp-1 DEAD | E13:hp-1 DEAD"
+   "L10": "dmg E13 242 (all) ; dmg E12 242 (all) ; dmg E13 242 (all)  => E13:hp-481 arm-3 | E12:hp-230 arm-12",
+   "R10": "dmg E13 242 (all) ; dmg E12 242 (all) ; dmg E13 242 (all)  => E13:hp-481 arm-3 | E12:hp-230 arm-12",
+   "L0": "dmg E13 232 (all) ; dmg E12 232 (all) ; dmg E13 232 (all)  => E13:hp-461 arm-3 | E12:hp-220 arm-12",
+   "K": "dmg E13 484 (all) ; dmg E12 484 (all) ; dmg E11 484 (all) ; defeat E13 ; defeat E12 ; defeat E11  => E13:hp-1 DEAD | E12:hp-1 DEAD | E11:hp-1 DEAD"
   },
   "by": "sa-R4",
-  "at": "2026-09-28T02:53:19.059Z"
+  "at": "2026-09-28T03:02:51.717Z"
  },
  "troop:7867": {
   "lines": {
@@ -351,13 +511,13 @@
  },
  "troop:7869": {
   "lines": {
-   "L10": "dmg E12 15 (all) ; dmg E11 15 (all)  => E12:hp-3 arm-12 | E11:hp-5 arm-10",
-   "R10": "dmg E12 15 (all) ; dmg E11 15 (all)  => E12:hp-3 arm-12 | E11:hp-5 arm-10",
-   "L0": "dmg E12 5 (all) ; dmg E11 5 (all)  => E12:arm-5 | E11:arm-5",
-   "K": "dmg E12 15 (all) ; dmg E11 15 (all) ; defeat E12 ; defeat E11  => E12:hp-1 DEAD | E11:hp-1 DEAD"
+   "L10": "dmg E11 15 (all) ; dmg E12 15 (all)  => E11:hp-5 arm-10 | E12:hp-3 arm-12",
+   "R10": "dmg E11 15 (all) ; dmg E12 15 (all)  => E11:hp-5 arm-10 | E12:hp-3 arm-12",
+   "L0": "dmg E11 5 (all) ; dmg E12 5 (all)  => E11:arm-5 | E12:arm-5",
+   "K": "dmg E11 15 (all) ; dmg E12 15 (all) ; defeat E11 ; defeat E12  => E11:hp-1 DEAD | E12:hp-1 DEAD"
   },
   "by": "sa-R4",
-  "at": "2026-09-28T02:46:42.662Z"
+  "at": "2026-09-28T03:02:51.717Z"
  },
  "troop:7876": {
   "lines": {
@@ -368,6 +528,16 @@
   },
   "by": "sa-R4",
   "at": "2026-09-28T02:47:53.932Z"
+ },
+ "troop:7880": {
+  "lines": {
+   "L10": "dmg E11 16  => E11:hp-6 arm-10",
+   "R10": "dmg E11 16  => E11:hp-6 arm-10",
+   "L0": "dmg E11 6  => E11:arm-6",
+   "K": "dmg E11 16 ; defeat E11  => E11:hp-1 DEAD"
+  },
+  "by": "sa-R4",
+  "at": "2026-09-28T03:02:51.717Z"
  },
  "weapon:1077": {
   "lines": {
@@ -419,6 +589,16 @@
   "by": "sa-R4",
   "at": "2026-09-28T02:45:30.181Z"
  },
+ "weapon:1253": {
+  "lines": {
+   "L10": "dmg E11 113 (all) ; dmg E12 113 (all)  => E11:hp-103 arm-10 | E12:hp-101 arm-12",
+   "R10": "dmg E11 113 (all) ; dmg E12 113 (all)  => E11:hp-103 arm-10 | E12:hp-101 arm-12",
+   "L0": "dmg E11 103 (all) ; dmg E12 103 (all)  => E11:hp-93 arm-10 | E12:hp-91 arm-12",
+   "K": "dmg E11 113 (all) ; dmg E12 113 (all) ; defeat E11 ; defeat E12  => E11:hp-1 DEAD | E12:hp-1 DEAD"
+  },
+  "by": "sa-R4",
+  "at": "2026-09-28T03:02:51.717Z"
+ },
  "weapon:1357": {
   "lines": {
    "L10": "dmg E11 14  => E11:hp-4 arm-10",
@@ -439,6 +619,16 @@
   "by": "sa-R4",
   "at": "2026-09-28T02:46:42.662Z"
  },
+ "weapon:1421": {
+  "lines": {
+   "L10": "dmg E10 15 (all) ; dmg E11 15 (all)  => E10:hp-10 arm-5 | E11:hp-5 arm-10",
+   "R10": "dmg E10 15 (all) ; dmg E11 15 (all)  => E10:hp-10 arm-5 | E11:hp-5 arm-10",
+   "L0": "dmg E10 5 (all) ; dmg E11 5 (all)  => E10:arm-5 | E11:arm-5",
+   "K": "dmg E10 15 (all) ; dmg E11 15 (all) ; defeat E10 ; defeat E11  => E10:hp-1 DEAD | E11:hp-1 DEAD"
+  },
+  "by": "sa-R4",
+  "at": "2026-09-28T03:02:51.717Z"
+ },
  "weapon:1431": {
   "lines": {
    "L10": "dmg E11 17  => E11:hp-7 arm-10",
@@ -448,6 +638,16 @@
   },
   "by": "sa-R4",
   "at": "2026-09-28T02:28:59.374Z"
+ },
+ "weapon:1439": {
+  "lines": {
+   "L10": "dmg E10 11 (all) ; dmg E11 11 (all) ; dmg E12 11 (all) ; dmg E13 11 (all)  => E10:hp-6 arm-5 | E11:hp-1 arm-10 | E12:arm-11 | E13:hp-8 arm-3",
+   "R10": "dmg E10 11 (all) ; dmg E11 11 (all) ; dmg E12 11 (all) ; dmg E13 11 (all)  => E10:hp-6 arm-5 | E11:hp-1 arm-10 | E12:arm-11 | E13:hp-8 arm-3",
+   "L0": "dmg E10 1 (all) ; dmg E11 1 (all) ; dmg E12 1 (all) ; dmg E13 1 (all)  => E10:arm-1 | E11:arm-1 | E12:arm-1 | E13:arm-1",
+   "K": "dmg E10 11 (all) ; dmg E11 11 (all) ; dmg E12 11 (all) ; dmg E13 11 (all) ; defeat E10 ; defeat E11 ; defeat E12 ; defeat E13  => E10:hp-1 DEAD | E11:hp-1 DEAD | E12:hp-1 DEAD | E13:hp-1 DEAD"
+  },
+  "by": "sa-R4",
+  "at": "2026-09-28T03:02:51.717Z"
  },
  "weapon:1466": {
   "lines": {
@@ -518,6 +718,16 @@
   },
   "by": "sa-R4",
   "at": "2026-09-28T02:28:59.374Z"
+ },
+ "weapon:1539": {
+  "lines": {
+   "L10": "dmg E11 13  => E11:hp-3 arm-10",
+   "R10": "dmg E11 13  => E11:hp-3 arm-10",
+   "L0": "dmg E11 3  => E11:arm-3",
+   "K": "dmg E11 13 ; defeat E11  => E11:hp-1 DEAD"
+  },
+  "by": "sa-R4",
+  "at": "2026-09-28T03:02:51.717Z"
  },
  "weapon:1540": {
   "lines": {

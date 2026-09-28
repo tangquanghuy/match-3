@@ -155,7 +155,7 @@ const SPELLS: CuratedBatch['spells'] = [
     build: skill(
       // 厄什卡 = Urska（troops.json 查询）
       trueDmg('enemyRandomN', 2, 1, {
-        n: 2,
+        n: 2, randomWaves: 2,
         modifier: { mod: { kind: 'multiplier', a: 3 }, source: { kind: 'alliesOfRace', race: 'Urska' } },
       }),
     ),

@@ -158,7 +158,7 @@ const SPELLS: CuratedBatch['spells'] = [
       // 回收：condMult 现支持 targetColor 条件倍率（按目标 manaColors 含该色判定，逐受击目标）；
       // 「我的攻击力、生命值和护甲值」三来源 → sources 计数相加（SOP §3）
       dmg('enemyRandomN', 3, 1, {
-        n: 3,
+        n: 3, randomWaves: 3,
         modifier: {
           mod: { kind: 'ratio', a: 4, b: 1 }, pooled: true, // 原生单步 CountAttackArmorLife：三项合计后一次取整
           sources: [{ kind: 'selfStat', stat: 'attack' }, { kind: 'selfStat', stat: 'hp' }, { kind: 'selfStat', stat: 'armor' }],

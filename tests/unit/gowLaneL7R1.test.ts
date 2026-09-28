@@ -182,6 +182,25 @@ describe('L7 sa-R4: gem-count boosts', () => {
   });
 });
 
+describe('L7 sa-R4: RandomEnemy + RandomPrefNotPrevEnemy chains are N separate hits (R007-3), not N distinct picks', () => {
+  const chains: [string, number][] = [
+    ['weapon:1253', 2], ['troop:7869', 2], ['troop:7473', 2], ['troop:7838', 3], ['troop:7027', 2], ['troop:7455', 4],
+    ['troop:7815', 4], ['troop:6272', 3], ['troop:7095', 4], ['troop:7039', 4],
+    ['troop:7661', 4], ['troop:7373', 2], ['troop:6699', 3], // L6
+  ];
+  it.each(chains)('%s: one enemy alive -> hit %i times; two alive -> never the same enemy twice in a row', (key, n) => {
+    const one = castSpell({ key, enemies: [{ ...DEFAULT_ENEMIES[1], hp: 5000, maxHp: 5000 }] });
+    const hits = one.summary.order.filter(s => /^dmg E10 /.test(s));
+    expect(hits).toHaveLength(n);
+    for (let seed = 1; seed <= 10; seed++) {
+      const two = castSpell({ key, seed, enemies: [{ ...DEFAULT_ENEMIES[1], hp: 5000, maxHp: 5000 }, { ...DEFAULT_ENEMIES[3], hp: 5000, maxHp: 5000 }] });
+      const ids = two.summary.order.filter(s => /^dmg E1[01] /.test(s) && !/splash/.test(s)).map(s => s.split(' ')[1]);
+      expect(ids).toHaveLength(n);
+      for (let i = 1; i < n; i++) expect(ids[i]).not.toBe(ids[i - 1]);
+    }
+  });
+});
+
 describe('L7 sa-R4: targets and race counts on both sides', () => {
   it('troop:6904 hits the chosen enemy and only the one directly below (NextDownFromTarget), x4 per Forest of Thorns ally', () => {
     const allies = [{ ...unit([Red]), kingdom: '荆棘森林' }, unit([Red])];
@@ -259,6 +278,44 @@ describe('L7 sa-R4: board gem counts (CountGems, one floor per step)', () => {
   it('troop:6722 [M+4] + floor(Yellow / 2); troop:6683 [M+4] x2 per Skull', () => {
     expect(dmgs(castSpell({ key: 'troop:6722', board: sixColourBoard }))).toEqual([14 + Math.floor(boardCount(Yellow) / 2)]);
     expect(dmgs(castSpell({ key: 'troop:6683' }))).toEqual([14 + 2 * 5]); // review board has 5 Skulls
+  });
+  const sp: [string, string, number, (n: number) => number, number][] = [ // key, gem kind, base, bonus(n), hits
+    ['troop:7051', 'lycanthropyGem', 8, n => 10 * n, 1], ['troop:7230', 'bomb', 12, n => n, 4],
+    ['troop:7431', 'freezeGem', 12, n => 3 * n, 1], ['troop:7529', 'ghost', 12, n => 6 * n, 1],
+  ];
+  it.each(sp)('%s: boosted per %s on the board', (key, kind, base, bonus, hits) => {
+    const board = withSpecials([0, 1, 2].map(() => specialGem(kind as never)));
+    expect(dmgs(castSpell({ key, board }))).toEqual(Array(hits).fill(base + bonus(3)));
+    expect(dmgs(castSpell({ key, board: sixColourBoard }))).toEqual(Array(hits).fill(base));
+  });
+  const sp2: [string, string, number, (n: number) => number, number][] = [
+    ['weapon:1439', 'umbralStar', 11, n => 4 * n, 4], ['weapon:1539', 'hourglass', 13, n => 8 * n, 1],
+    ['troop:7455', 'terrorGem', 13, n => n, 4], ['troop:7815', 'poisonGem', 14, n => n, 4],
+  ];
+  it.each(sp2)('%s: boosted per %s on the board', (key, kind, base, bonus, hits) => {
+    const board = withSpecials([0, 1, 2].map(() => specialGem(kind as never)));
+    const enemies = DEFAULT_ENEMIES.map(e => ({ ...e, statuses: [] }));
+    expect(dmgs(castSpell({ key, board, enemies }))).toEqual(Array(hits).fill(base + bonus(3)));
+  });
+  it('troop:7815 doubles on Poisoned enemies; troop:7665 doubles on Merlantis enemies; troop:7693 doubles when my Magic is greater', () => {
+    const poisoned = DEFAULT_ENEMIES.map(e => ({ ...e, statuses: [{ id: 'poison', turns: 99 }] as Character['statuses'] }));
+    expect(dmgs(castSpell({ key: 'troop:7815', board: sixColourBoard, enemies: poisoned }))).toEqual([28, 28, 28, 28]);
+    const merl = DEFAULT_ENEMIES.map((e, i) => (i === 1 ? { ...e, kingdom: '梅兰堤斯' } : e));
+    const blue = Math.floor(boardCount(Blue) * 0.34);
+    expect(dmgs(castSpell({ key: 'troop:7665', board: sixColourBoard, enemies: merl }))).toEqual([(11 + blue) * 2]);
+    expect(dmgs(castSpell({ key: 'troop:7665', board: sixColourBoard }))).toEqual([11 + blue]);
+    const purple = Math.floor(boardCount(Purple) * 0.34);
+    const weak = DEFAULT_ENEMIES.map((e, i) => (i === 1 ? { ...e, magic: 9 } : { ...e, magic: 10 }));
+    expect(dmgs(castSpell({ key: 'troop:7693', board: sixColourBoard, enemies: weak }))).toEqual([(11 + purple) * 2]);
+    expect(dmgs(castSpell({ key: 'troop:7693', board: sixColourBoard, enemies: weak, target: 10 }))).toEqual([11 + purple]);
+  });
+  it('troop:7178 [M+3] + 34% of Skulls, tripled against Divine', () => {
+    const enemies = DEFAULT_ENEMIES.map((e, i) => (i === 1 ? { ...e, troopTypes: ['Divine'] } : e));
+    expect(dmgs(castSpell({ key: 'troop:7178', enemies }))).toEqual([(13 + 1) * 3]); // 5 skulls -> 1
+  });
+  it('troop:7559 first and last enemy [M+2] + 34% of Purple gems', () => {
+    expect(castSpell({ key: 'troop:7559', board: sixColourBoard }).summary.order.filter(s => s.startsWith('dmg '))
+      .map(s => s.split(' ').slice(0, 3).join(' '))).toEqual([`dmg E10 ${12 + Math.floor(boardCount(Purple) * 0.34)}`, `dmg E13 ${12 + Math.floor(boardCount(Purple) * 0.34)}`]);
   });
   it('troop:7039 four independent [(M/2)+1]-[M+3] rolls + Red + Purple gems, avoiding only the previous victim', () => {
     const boost = boardCount(Red) + boardCount(Purple);
