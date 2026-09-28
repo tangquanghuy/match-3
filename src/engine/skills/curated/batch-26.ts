@@ -105,13 +105,14 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 7576,
     desc: '对前两名敌人造成 [魔法 + 2] 点伤害，伤害值因自身生命值而增强。窃取这两名敌人 4 点魔力值。将所有紫色宝石转换成红色。 [3:1]',
     build: skill(
+      // sa-F2 fix round A (R001): native StealMagic@FirstTwoEnemies 4 precedes the Damage step
+      // 「这两名敌人」回指「前两名敌人」；「魔力值」= magic 属性（batch-01 8278 同款）
+      steal('enemyFirstN', 'magic', 'magic', 4, 0, { n: 2 }),
       dmg('enemyFirstN', 2, 1, {
         n: 2,
         // 「因自身生命值」= selfStat hp 当前值（batch-08 8171 同款）
         modifier: { mod: { kind: 'ratio', a: 3, b: 1 }, source: { kind: 'selfStat', stat: 'hp' } },
       }),
-      // 「这两名敌人」回指「前两名敌人」；「魔力值」= magic 属性（batch-01 8278 同款）
-      steal('enemyFirstN', 'magic', 'magic', 4, 0, { n: 2 }),
       transform(BaseColor.Purple, BaseColor.Red),
     ),
   },
@@ -202,11 +203,13 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 8035,
     desc: '冻结一名敌人。创造 6 颗蓝色宝石，数量因被冻结的敌军数而增强。 [x3]',
     build: skill(
-      inflict('frozen', 'enemyChosen'),
+      // sa-F2 fix round A (R001): native CountSpecificStatusEffect frozen ; CreateGems ; CauseFrozen — the
+      // count is taken before this cast freezes the target
       // 「数量因…增强」点名创造段；「被冻结的敌军数」= enemyStatusCount('frozen')（batch-25 7488 同款）
       createGems(BaseColor.Blue, 6, 0, {
         modifier: { mod: { kind: 'multiplier', a: 3 }, source: { kind: 'enemyStatusCount', statusId: 'frozen' } },
       }),
+      inflict('frozen', 'enemyChosen'),
     ),
   },
   {

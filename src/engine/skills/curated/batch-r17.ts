@@ -69,11 +69,14 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '净化一名盟友，减除其 [魔法 + 2] 点生命值并将之转化为攻击力，赋予其屏障效果。创造 8 颗骷髅头。',
     // 「减除额转化为攻击力」= 来源 lastReduce（Wave4，前序 reduce 段实际削减额；§12.7 跨段绑定同族）
     build: skill(
+      // sa-F2 fix round A (R001): native order Cleanse ; CreateGems 8 Skull ; IncreaseAttack 2+M ; Damage 1 ;
+      // TrueDamage 2+M ; CauseBarrier — all @FromTarget (the chosen ally)
       cleanse('allyChosen'),
-      reduce('allyChosen', 'hp', 2, 1),
-      attack('allyChosen', 0, 0, { modifier: { mod: { kind: 'multiplier', a: 1 }, source: { kind: 'lastReduce' } } }),
-      inflict('barrier', 'allyChosen'),
       createSkulls(8),
+      attack('allyChosen', 2, 1),
+      dmg('allyChosen', 1, 0),
+      trueDmg('allyChosen', 2, 1),
+      inflict('barrier', 'allyChosen'),
     ),
   },
   {
@@ -175,7 +178,8 @@ const SPELLS: CuratedBatch['spells'] = [
         },
       }),
       attack('allySelf', 10, 0, { ifTargetDied: true }),
-      createSkulls(12, 0, { ifTargetDied: true }),
+      // sa-F2 fix round A: after the self-buff segment ifTargetDied looked at the caster -> skulls never created
+      createSkulls(12, 0, { ifCond: { kind: 'castEnemyDied' } }),
     ),
   },
   {

@@ -72,8 +72,9 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 8586,
     desc: '移除所有一个选定颜色的宝石。造成 [魔法 + 10] 点真实散射伤害，伤害值因移除的宝石数而增强。 [x10]',
     build: skill(
+      // sa-F2 fix round A (R001): native CountGems FromTarget ; TrueScatterDamage ; RemoveColor FromTarget
+      dmg('enemyAll', 10, 1, { range: 'all', trueDamage: true, modifier: { mod: { kind: 'multiplier', a: 10 }, source: { kind: 'boardGems', color: 'CHOSEN' } } }),
       destroyColor(CHOSEN),
-      dmg('enemyAll', 10, 1, { range: 'all', trueDamage: true, modifier: { mod: { kind: 'multiplier', a: 10 }, source: { kind: 'destroyedGems' } } }),
     ),
   },
   {

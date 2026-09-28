@@ -69,9 +69,10 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '将所有蓝色宝石转换成红色。赋予最强的盟友 [魔法 + 1] 点护甲值和屏障效果。',
     build: skill(
       transform(BaseColor.Blue, BaseColor.Red),
+      // sa-F2 fix round A (R001): native CauseBarrier@StrongestAlly ; IncreaseArmor@FromPrevious
       // 「最强的盟友」= allyHealthiest（目标措辞表「最健康的盟友」同义）
-      armor('allyHealthiest', 1),
       inflict('barrier', 'allyHealthiest'),
+      armor('lastTarget', 1),
     ),
   },
   {

@@ -55,6 +55,7 @@
       }
     },
     "7094": {
+      "description": "爆破一颗宝石，并给予所有盟友 2 点魔力值。",
       "prototype": {
         "segments": [
           {
@@ -66,6 +67,15 @@
                 "kind": "cell",
                 "cell": "CELL"
               }
+            }
+          },
+          {
+            "kind": "buff",
+            "target": "allyAll",
+            "stat": "magic",
+            "scaling": {
+              "base": 2,
+              "mult": 0
             }
           }
         ]
@@ -152,6 +162,49 @@
           },
           {
             "kind": "shuffleBoard"
+          }
+        ]
+      }
+    },
+    "7124": {
+      "prototype": {
+        "segments": [
+          {
+            "kind": "gem",
+            "params": {
+              "op": "clear",
+              "mode": "destroy",
+              "target": {
+                "kind": "color",
+                "color": "Green"
+              }
+            }
+          },
+          {
+            "kind": "buff",
+            "target": "allySelf",
+            "stat": "hp",
+            "scaling": {
+              "base": 1,
+              "mult": 1
+            },
+            "modifier": {
+              "mod": {
+                "kind": "ratio",
+                "a": 1,
+                "b": 1
+              },
+              "source": {
+                "kind": "destroyedGems",
+                "color": "Green"
+              }
+            }
+          },
+          {
+            "kind": "status",
+            "target": "allySelf",
+            "statusId": "barrier",
+            "turns": 3
           }
         ]
       }
@@ -639,6 +692,50 @@
         "skippedClauses": []
       }
     },
+    "7272": {
+      "prototype": {
+        "segments": [
+          {
+            "kind": "damage",
+            "target": "enemyFront",
+            "scaling": {
+              "base": 0,
+              "mult": 0
+            }
+          },
+          {
+            "kind": "gem",
+            "params": {
+              "op": "clear",
+              "mode": "destroy",
+              "target": {
+                "kind": "chosenLine",
+                "orientation": "col"
+              }
+            }
+          },
+          {
+            "kind": "damage",
+            "target": "enemyRandomPrefNotPrev",
+            "scaling": {
+              "base": 5,
+              "mult": 1
+            },
+            "modifier": {
+              "mod": {
+                "kind": "ratio",
+                "a": 1,
+                "b": 1
+              },
+              "source": {
+                "kind": "chosenColumnAtCastStart",
+                "skulls": true
+              }
+            }
+          }
+        ]
+      }
+    },
     "7282": {
       "description": "对 1 名敌人造成 [魔法 + 1] 点伤害。如果敌人已下潜则造成三倍伤害。"
     },
@@ -1089,6 +1186,50 @@
                 }
               ]
             ]
+          }
+        ]
+      }
+    },
+    "7577": {
+      "prototype": {
+        "segments": [
+          {
+            "kind": "damage",
+            "target": "enemyHealthiestN",
+            "scaling": {
+              "base": 1,
+              "mult": 1
+            },
+            "n": 2,
+            "modifier": {
+              "mod": {
+                "kind": "ratio",
+                "a": 4,
+                "b": 1
+              },
+              "source": {
+                "kind": "boardGems",
+                "color": "Purple"
+              }
+            },
+            "condMult": {
+              "times": 2,
+              "cond": {
+                "kind": "enemyRacePresent",
+                "race": "Daemon"
+              }
+            }
+          },
+          {
+            "kind": "gem",
+            "params": {
+              "op": "clear",
+              "mode": "destroy",
+              "target": {
+                "kind": "color",
+                "color": "Purple"
+              }
+            }
           }
         ]
       }
@@ -3137,6 +3278,68 @@
     "8259": {
       "description": "对一名敌人造成 [魔法 + 5] 点重度溅射伤害，每锻炼 1 个武器段位则 +4 点伤害值。击晕所有棕色敌人并净化所有棕色盟友。爆破 4 颗宝石，如果敌方有劫数，则再爆破 3 颗宝石。"
     },
+    "8299": {
+      "prototype": {
+        "segments": [
+          {
+            "kind": "reposition",
+            "target": "allySelf",
+            "to": "front"
+          },
+          {
+            "kind": "reduce",
+            "target": "enemyChosen",
+            "stat": "attack",
+            "scaling": {
+              "base": 0,
+              "mult": 0
+            }
+          },
+          {
+            "kind": "gem",
+            "params": {
+              "op": "create",
+              "gem": {
+                "kind": "skull"
+              },
+              "count": {
+                "base": 14,
+                "mult": 0
+              }
+            },
+            "ifCond": {
+              "kind": "casterStatBeatsTarget",
+              "stat": "hp"
+            }
+          },
+          {
+            "kind": "gem",
+            "params": {
+              "op": "create",
+              "gem": {
+                "kind": "skull"
+              },
+              "count": {
+                "base": 6,
+                "mult": 0
+              }
+            },
+            "ifCond": {
+              "kind": "not",
+              "cond": {
+                "kind": "casterStatBeatsTarget",
+                "stat": "hp"
+              }
+            }
+          },
+          {
+            "kind": "reposition",
+            "target": "enemyChosen",
+            "to": "front"
+          }
+        ]
+      }
+    },
     "8347": {
       "prototype": {
         "segments": [
@@ -4086,17 +4289,6 @@
       "prototype": {
         "segments": [
           {
-            "kind": "gem",
-            "params": {
-              "op": "clear",
-              "mode": "destroy",
-              "target": {
-                "kind": "color",
-                "color": "Brown"
-              }
-            }
-          },
-          {
             "kind": "damage",
             "target": "enemyChosen",
             "scaling": {
@@ -4110,7 +4302,8 @@
                 "b": 1
               },
               "source": {
-                "kind": "destroyedGems"
+                "kind": "boardGems",
+                "color": "Brown"
               }
             },
             "condMult": {
@@ -4128,6 +4321,17 @@
                     "kingdom": "地狱悬崖"
                   }
                 ]
+              }
+            }
+          },
+          {
+            "kind": "gem",
+            "params": {
+              "op": "clear",
+              "mode": "destroy",
+              "target": {
+                "kind": "color",
+                "color": "Brown"
               }
             }
           }

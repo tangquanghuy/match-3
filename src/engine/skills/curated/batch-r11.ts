@@ -147,10 +147,11 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: "对首位和末位敌人造成 [魔法 + 3] 点真实伤害，并使他们陷入沉默状态。爆破 5 颗自身队伍使用对多的颜色宝石。",
     // 「首位和末位」= enemyFront + enemyLast（7059 先例）；爆破 5 颗 = explode 随机取自 ALLY_MOST_USED 色池
     build: skill(
-      trueDmg('enemyFront', 3, 1),
-      trueDmg('enemyLast', 3, 1),
+      // sa-F2 fix round A (R001): native CauseSilence@FirstLastEnemies precedes TrueDamage@FirstLastEnemies
       inflict('silence', 'enemyFront'),
       inflict('silence', 'enemyLast'),
+      trueDmg('enemyFront', 3, 1),
+      trueDmg('enemyLast', 3, 1),
       explodeRandomGems(5, 0, 'color', 'ALLY_MOST_USED'),
     ),
   },
@@ -230,8 +231,9 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: "对 4 名敌人造成 [(魔法 x 0.6) + 2] 点真实轻量溅射伤害。若在迈纳杰大区使用，则伤害翻倍。爆破 5 颗选定颜色的宝石。",
     // 「4 名敌人」步骤为 RandomEnemy → enemyRandomN n:4（zh 省略「随机」按步骤补全）；轻量溅射同 dmgSplash；MultiplyForRegion4008（玛拉吉大区）；「爆破 5 颗选定颜色的宝石」= 选定色池随机爆破
     build: skill(
-      dmgSplash('enemyRandomN', 2, 0.6, { n: 4, trueDamage: true, condMult: REGION2('MarajiExpanse') }),
+      // sa-F2 fix round A (R001): native ExplodeColor 5 FromTarget precedes the four splash waves
       explodeRandomGems(5, 0, 'color', CHOSEN),
+      dmgSplash('enemyRandomN', 2, 0.6, { n: 4, trueDamage: true, condMult: REGION2('MarajiExpanse') }),
     ),
   },
   {
@@ -512,8 +514,9 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: "对5名随机敌人造成[(魔法 x 0.6) + 2]真实伤害。在星湾使用时，造成双倍伤害。摧毁X形宝石。",
     // 「摧毁X形宝石」= destroyArea x（并行 R12 面积原语）；MultiplyForRegion4007（星湾）
     build: skill(
-      trueDmg('enemyRandomN', 2, 0.6, { n: 5, randomWaves: 5, condMult: REGION2('BayOfStars') }),
+      // sa-F2 fix round A (R001): native DestroyGems (X shape) precedes the five true-damage waves
       destroyArea('x', 'destroy'),
+      trueDmg('enemyRandomN', 2, 0.6, { n: 5, randomWaves: 5, condMult: REGION2('BayOfStars') }),
     ),
   },
   {

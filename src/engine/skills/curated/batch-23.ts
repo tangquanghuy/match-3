@@ -93,7 +93,9 @@ const SPELLS: CuratedBatch['spells'] = [
       // 「他们」= 前 2 位敌人，enemyFirstN 确定性目标跨段复用（batch-06 7063 先例）
       reduce('enemyFirstN', 'attack', 7, 0, { n: 2 }),
       // 「若有敌人身亡」判最近产目标段（reduce）主目标（spell-rules.md §4，batch-12 7225 同款）
-      createGems(BaseColor.Purple, 10, 0, { ifTargetDied: true }),
+      // sa-F2 fix round A: "If an Enemy dies" = any kill this cast (ifTargetDied read the reduce targets, which
+      // retarget to living enemies after a kill -> never true)
+      createGems(BaseColor.Purple, 10, 0, { ifCond: { kind: 'castEnemyDied' } }),
     ),
   },
   {

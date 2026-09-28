@@ -82,8 +82,9 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 7024,
     desc: '对 1 个敌人造成 [魔法 + 1] 点伤害，并移除所有绿色宝石以增强伤害效果。 [3:1]',
     build: skill(
+      // sa-F2 fix round A (R001): native CountGems Green ; Damage ; RemoveColor Green
+      dmg('enemyChosen', 1, 1, { modifier: { mod: { kind: 'ratio', a: 3, b: 1 }, source: { kind: 'boardGems', color: BaseColor.Green } } }),
       destroyColor(BaseColor.Green),
-      dmg('enemyChosen', 1, 1, { modifier: { mod: { kind: 'ratio', a: 3, b: 1 }, source: { kind: 'destroyedGems' } } }),
     ),
   },
   {
@@ -92,8 +93,9 @@ const SPELLS: CuratedBatch['spells'] = [
     build: skill(
       heal('allyChosen', 5, 0),
       heal('allyChosen', 1), // Native Heal Target=FromTarget: same selected Ally as the Life gain.
-      inflict('barrier', 'allyChosen'), // 「其」= 前文盟友
+      // sa-F2 fix round A (R001): native CreateGems 8 Green before CauseBarrier@FromTarget
       createGems(BaseColor.Green, 8, 0),
+      inflict('barrier', 'allyChosen'), // 「其」= 前文盟友
     ),
   },
   {

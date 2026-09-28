@@ -475,7 +475,7 @@
   "weaponRef": "TomeOfWizardry",
   "weaponName": "魔法古卷",
   "spellName": "魔法古卷",
-  "desc": "爆破一颗宝石。",
+  "desc": "爆破一颗宝石，并给予所有盟友 2 点魔力值。",
   "scalings": [],
   "manaCost": 6,
   "colors": [

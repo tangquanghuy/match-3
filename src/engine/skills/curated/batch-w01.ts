@@ -208,8 +208,9 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 7094,
-    desc: '爆破一颗宝石。',
-    build: ({"segments":[{"kind":"gem","params":{"op":"clear","mode":"explode","target":{"kind":"cell","cell":"CELL"}}}]} as SkillPrototype),
+    desc: '爆破一颗宝石，并给予所有盟友 2 点魔力值。',
+    // sa-F2 fix round A: native 1:IncreaseSpellPower@AllAllies 2 was missing ("give 2 Magic to all Allies")
+    build: ({"segments":[{"kind":"gem","params":{"op":"clear","mode":"explode","target":{"kind":"cell","cell":"CELL"}}},{"kind":"buff","target":"allyAll","stat":"magic","scaling":{"base":2,"mult":0}}]} as SkillPrototype),
   },
   {
     id: 7095,
@@ -420,8 +421,10 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 7124,
     desc: '获得 [魔法 + 1] 点生命值，并移除所有绿色宝石以增强效果。获得屏障效果。 [1:1]',
     build: skill(
-      heal('allySelf', 1, 1, { modifier: { mod: { kind: 'ratio', a: 1, b: 1 } } }),
+      // sa-F2 fix round A (R001): native CountGems Green ; RemoveColor Green ; IncreaseHealth (counter 1:1) ; Barrier.
+      // The 1:1 boost had no source (removed gems never counted).
       destroyColor(BaseColor.Green),
+      heal('allySelf', 1, 1, { modifier: { mod: { kind: 'ratio', a: 1, b: 1 }, source: { kind: 'destroyedGems', color: BaseColor.Green } } }),
       inflict('barrier', 'allySelf'),
     ),
   },
@@ -831,8 +834,11 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 7272,
     desc: '摧毁 1 列。对 1 名随机敌人造成 [魔法 + 5] 点伤害，伤害值因被摧毁的骷髅头数而增强。 [1:1]',
     build: skill(
+      // sa-F2 fix round A: native 0:Damage@FrontEnemy (no Amount) only anchors the following
+      // RandomPrefNotPrevEnemy; 1:CountGems Skull BoardTarget Column counts the chosen column (was whole board).
+      dmg('enemyFront', 0, 0),
       destroyChosenCol(),
-      dmg('enemyRandom', 5, 1, { modifier: { mod: { kind: 'ratio', a: 1, b: 1 }, source: { kind: 'boardSkulls' } } }),
+      dmg('enemyRandomPrefNotPrev', 5, 1, { modifier: { mod: { kind: 'ratio', a: 1, b: 1 }, source: { kind: 'chosenColumnAtCastStart', skulls: true } } }),
     ),
   },
   {
@@ -1128,8 +1134,10 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 7577,
     desc: '对两名最强大的敌人造成 [魔法 + 1] 点伤害，并移除所有紫色宝石以增强效果。若任何一名敌人是恶魔军队，则造成双倍伤害。 [4:1]',
     build: skill(
+      // sa-F2 fix round A (R001): native CountGems 25 Purple ; Damage@TwoStrongestEnemies ; RemoveColor Purple.
+      // The boost had no source (Purple gems never counted).
+      dmg('enemyHealthiestN', 1, 1, { n: 2, condMult: { times: 2, cond: { kind: 'enemyRacePresent', race: 'Daemon' } }, modifier: { mod: { kind: 'ratio', a: 4, b: 1 }, source: { kind: 'boardGems', color: BaseColor.Purple } } }),
       destroyColor(BaseColor.Purple),
-      dmg('enemyHealthiestN', 1, 1, { n: 2, condMult: { times: 2, cond: { kind: 'enemyRacePresent', race: 'Daemon' } }, modifier: { mod: { kind: 'ratio', a: 4, b: 1 } } }),
     ),
   },
   {

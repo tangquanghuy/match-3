@@ -336,9 +336,10 @@ const SPELLS: CuratedBatch['spells'] = [
     // 「翻倍」= 创造数量 = 板面紫宝石数（boardGems Purple [1:1]）——R22 8355 官方口径同款
     //（CreateGems UseCounterForAmount）；尾缀 [1:1] 挂翻倍段。
     build: skill(
+    // sa-F2 fix round A (R001): native CreateGems (counter) ; GiveSouls 3+M ; Delay ; CreateGems 3 Purple
     createGems(BaseColor.Purple, 0, 0, { modifier: boostPer({ kind: 'boardGems', color: BaseColor.Purple }, 1) }),
-    createGems(BaseColor.Purple, 3),
     gainSouls(3, 1),
+    createGems(BaseColor.Purple, 3),
     ),
   },
   {
@@ -1001,11 +1002,14 @@ const SPELLS: CuratedBatch['spells'] = [
     // 8694 EN「eliminate 10 from all their Skills」四维口径）。
     build: skill(
     dmg('enemyChosen', 0, 0, { execute: true, chance: 0.01, chanceBoost: boostPer({ kind: 'selfStat', stat: 'magic' }, 1) }),
-    createSkulls(12, 0, { ifTargetDied: true }),
-    reduce('lastTarget', 'attack', 10, 0, { ifCond: { kind: 'lastTargetSurvived' } }),
-    reduce('lastTarget', 'armor', 10, 0, { ifCond: { kind: 'lastTargetSurvived' } }),
-    reduce('lastTarget', 'magic', 10, 0, { ifCond: { kind: 'lastTargetSurvived' } }),
-    reduce('lastTarget', 'hp', 10, 0, { ifCond: { kind: 'lastTargetSurvived' } }),
+    // sa-F2 fix round A: native steps 2-5 are unconditional @FromTarget (a dead target is simply skipped):
+    // DecreaseArmor 10 ; DecreaseAttack 10 ; DecreaseSpellPower 10 ; TrueDamage 10. The old lastTarget +
+    // lastTargetSurvived form did nothing when the execute roll missed (no tracked target).
+    createSkulls(12, 0, { ifCond: { kind: 'castEnemyDied' } }),
+    reduce('enemyChosen', 'armor', 10, 0),
+    reduce('enemyChosen', 'attack', 10, 0),
+    reduce('enemyChosen', 'magic', 10, 0),
+    trueDmg('enemyChosen', 10, 0),
     ),
   },
   {

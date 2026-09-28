@@ -14,8 +14,9 @@ import type { CuratedBatch } from './index';
 import { skill, dmg, dmgAll, trueDmg, armor, magic, inflict,
   reduce, drainMana, createGems, createSpecialGems, createMix, transform, transformToSpecial,
   destroyChosenCol, destroySpecialGems, explodeSpecialGems, explodeRandomGems,
-  createStorm, summonRef, extraTurn, sacrifice, reposition, CHOSEN } from '../builders';
+  createStorm, summonRef, extraTurn, sacrifice, reposition, CHOSEN, dispelStatus } from '../builders';
 import { BaseColor } from '../../types';
+import { POSITIVE_STATUS_IDS } from '../effects/status';
 
 const SKIPPED: { id: number; reason: string }[] = [
   { id: 9017, reason: '语义拿不准（「对其他所有敌人」无 enemyOthers 目标模式，enemyAll 会重复命中选定敌人）' },
@@ -41,6 +42,8 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '创造 15 颗宝石，所创造的宝石混合紫色和一种选定类型。杀死最后一名盟友。所有其他盟友获得 [(魔法 / 2) + 1] 点魔力值，点数因陷入死亡标记状态的敌军数量而增强。 [x4]',
     build: skill(
       createMix([BaseColor.Purple, CHOSEN], 15),
+      // sa-F2 fix round A: native 2:Dispel@LastAlly precedes 3:Damage@LastAlly 10000 (a Barrier must not save the ally)
+      ...POSITIVE_STATUS_IDS.map(statusId => dispelStatus(statusId, 'allyLast')),
       sacrifice('allyLast'),
       magic('allyOthers', 1, 0.5, { modifier: { mod: { kind: 'multiplier', a: 4 }, source: { kind: 'enemyStatusCount', statusId: 'death-mark' } } }),
     ),

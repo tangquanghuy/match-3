@@ -1,4 +1,4 @@
-﻿/**
+/**
  * 放弃桶回收批 R2（2026-09-17 用户裁定：献祭/兵种转化/随机状态/藏宝图/特定兵种在场五原语落地；
  * 加上状态宝石族（波A）清尾）。核对者：窗口 G，20 条。裁定依据 spell-rules §11。
  * 原批次 skipped 对应条目已同步剪除。
@@ -168,9 +168,10 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 9874,
-    desc: '随机给 2 名盟友赋予 1 点生命值。然后将 5 个绿色宝石转化为沉没宝石。',
+    desc: '随机给 2 名盟友赋予 [魔法 + 1] 点生命值。然后将 5 个绿色宝石转化为沉没宝石。',
     build: skill(
-      heal('allyRandomPrefNotPrevN', 1, 0, { n: 2 }),
+      // native IncreaseHealth Amount 1 SpellPowerMultiplier 1 = [Magic + 1] (sa-F2); RandomPrefNotPrevAlly target (sa-P R007-3)
+      heal('allyRandomPrefNotPrevN', 1, 1, { n: 2 }),
       transformToSpecial(BaseColor.Green, 'submergeGem', { count: 5 }),
     ),
   },

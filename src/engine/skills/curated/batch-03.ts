@@ -144,7 +144,8 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '爆破 4 颗宝石。窃取第一名敌人 [魔法 + 1] 点攻击力。',
     build: skill(
       explodeRandomGems(4, 0, 'color'),
-      steal('enemyFront', 'attack', 'attack', 1, 0),
+      // native StealAttack Amount 1 SpellPowerMultiplier 1 = [Magic + 1] (sa-F2 fix round A)
+      steal('enemyFront', 'attack', 'attack', 1, 1),
     ),
   },
   {

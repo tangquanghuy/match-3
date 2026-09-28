@@ -1,0 +1,68 @@
+# sa-F2 progress (fix round A, lanes L4a+L4b, queue F2.md 65 items)
+
+- 2026-09-28T08:20:00Z troop:6607 fixed steal Attack was mult 0 -> [Magic + 1]
+- 2026-09-28T08:20:00Z troop:6991 fixed explode count mult 0 -> [(Magic / 2) + 1]; zh corrected
+- 2026-09-28T08:20:00Z troop:7009 approved above-self ally not in default scenario; covered by gowLaneL4aFixF2.test.ts
+- 2026-09-28T08:20:00Z troop:7830 fixed Life mult 0 -> [Magic + 1]; zh corrected
+- 2026-09-28T08:20:00Z weapon:1092 approved ExplodeGems SpellPowerMultiplier has no Amount/English magic term (false positive)
+- 2026-09-28T08:20:00Z troop:6974 approved no Brown allies in default scenario; count/targets covered by gowLaneL4bFixF2.test.ts
+- 2026-09-28T08:20:00Z weapon:1028 fixed missing "give 2 Magic to all Allies"; override + zh synced
+- 2026-09-28T08:20:00Z troop:6265 fixed Dispel@LastAlly before the kill (Barrier blocked sacrifice); test in gowLaneL4bFixF2
+- 2026-09-28T08:40:00Z troop:6398 issue P-F2-precount-explode (random dispel target fixed; count-before-explode needs primitive/ruling)
+- 2026-09-28T08:20:00Z troop:6457 fixed Dispel@Self before self-kill; test in gowLaneL4aFixF2
+- 2026-09-28T08:20:00Z troop:6529 fixed Dispel@FromTarget before the kill; test in gowLaneL4bFixF2
+- 2026-09-28T08:20:00Z troop:7728 fixed dispel+true damage on chosen enemy (no damage before)
+- 2026-09-28T08:20:00Z troop:6355 fixed native step order (skulls, attack, damage 1, true damage, barrier)
+- 2026-09-28T08:20:00Z troop:6754 fixed chosen-ally input so the colour explode fires
+- 2026-09-28T08:20:00Z troop:7338 fixed row+column cross, boost per Skull destroyed; zh corrected
+- 2026-09-28T08:20:00Z weapon:1277 approved storm branch not in default scenario; covered by gowLaneL4aFixF2.test.ts
+- 2026-09-28T08:20:00Z troop:7321 fixed chosen-enemy input so explode + knock back fire (item #18, done early with #14)
+- 2026-09-28T09:10:00Z troop:7145 fixed miss branch (-10 Armor/Attack/Magic + 10 true dmg) and kill skulls; test in gowLaneL4bFixF2
+- 2026-09-28T09:10:00Z troop:7345 approved Death Mark explode on kill not visible on default board; test in gowLaneL4aFixF2
+- 2026-09-28T09:10:00Z troop:6826 issue P-counter-per-step (kill skulls fixed; Count steps flooring = primitive, note in primitive-queue/sa-F2.jsonl)
+- 2026-09-28T09:10:00Z troop:7383 fixed "If an Enemy dies" -> castEnemyDied (purple gems now created)
+- 2026-09-28T09:10:00Z troop:7597 issue P-F2-dead-target-colour (dead target removed -> its mana colour unresolved)
+- 2026-09-28T09:30:00Z troop:6467 fixed native armor-loss + true damage before removing Blue
+- 2026-09-28T09:30:00Z troop:6418 fixed R001 steal Magic before damage
+- 2026-09-28T09:30:00Z troop:6052 fixed R001 heal (cast-start skull count) before removing skulls
+- 2026-09-28T09:30:00Z troop:6504 fixed R001 armor (board count of chosen colour) before destroy
+- 2026-09-28T09:30:00Z troop:6623 fixed R001 heal before explode; chosen column (was random); zh 一列; silence test in gowLaneL4aFixF2
+- 2026-09-28T09:30:00Z troop:6055 fixed R001 heal before explode row
+- 2026-09-28T09:30:00Z troop:6215 fixed R001 attack before create
+- 2026-09-28T09:30:00Z troop:6559 fixed R001 armor loss (board Green count) before convert
+- 2026-09-28T09:30:00Z troop:6025 fixed R001 create before barrier
+- 2026-09-28T09:30:00Z troop:7312 fixed R001 attack (board Yellow count) before convert
+- 2026-09-28T09:30:00Z troop:6130 fixed R001 attack (board Green count) before convert
+- 2026-09-28T10:00:00Z troop:6024 fixed R001 damage (board Green count) before remove
+- 2026-09-28T10:00:00Z troop:6218 fixed R001 true damage (board chosen-colour count) before remove
+- 2026-09-28T10:00:00Z troop:6965 fixed R001 damage (board Blue count) before remove
+- 2026-09-28T10:00:00Z troop:7058 fixed R001 true scatter (board chosen-colour count) before remove
+- 2026-09-28T10:00:00Z weapon:1159 fixed boost had no source -> Purple on board 4:1; R001 order; override synced (Daemon x2 still any-enemy, unverified vs per-target)
+- 2026-09-28T10:00:00Z weapon:1479 fixed R001 damage (board Brown count) before remove; override synced
+- 2026-09-28T10:00:00Z troop:6064 fixed R001 destroy 6 before the stat loss
+- 2026-09-28T10:00:00Z troop:6054 fixed R001 true damage (board Red count) before remove, then Life
+- 2026-09-28T10:00:00Z weapon:1120 fixed column skull count (was whole board) + front-enemy anchor for RandomPrefNotPrev; override synced
+- 2026-09-28T10:30:00Z troop:6566 fixed R001 damage (board Blue count) before convert
+- 2026-09-28T10:30:00Z troop:6608 fixed R001 damage (board Brown count) before convert
+- 2026-09-28T10:30:00Z troop:6609 fixed R001 damage (board Yellow count) before convert
+- 2026-09-28T10:30:00Z troop:6686 fixed R001 splash (board Red count) before convert
+- 2026-09-28T10:30:00Z troop:6765 fixed R001 damage (board Brown count) before convert
+- 2026-09-28T10:30:00Z troop:7567 fixed R001 true damage (board Yellow count) before convert
+- 2026-09-28T10:30:00Z troop:6053 fixed R001 damage (board Blue count) before convert, souls last
+- 2026-09-28T10:30:00Z troop:6297 fixed R001 damage before convert, souls last
+- 2026-09-28T10:30:00Z troop:6426 fixed R001 damage (board Blue count) before convert, faerie fire last
+- 2026-09-28T10:30:00Z troop:6079 fixed R001 true damage (board Yellow count), convert, poison last
+- 2026-09-28T10:30:00Z troop:6240 fixed R001 damage + entangle before remove Red
+- 2026-09-28T10:30:00Z troop:6288 fixed R001 souls between the two creates
+- 2026-09-28T10:50:00Z weapon:1058 fixed boost had no source -> Green removed 1:1; native order remove, Life, Barrier; override synced
+- 2026-09-28T10:50:00Z troop:7576 fixed R001 explode before the splash waves
+- 2026-09-28T10:50:00Z troop:7727 fixed R001 X-shape destroy before the damage waves
+- 2026-09-28T10:50:00Z troop:6037 fixed R001 create Purple before steal Life
+- 2026-09-28T10:50:00Z troop:6689 fixed R001 Frozen count before the freeze; test in gowLaneL4bFixF2
+- 2026-09-28T10:50:00Z troop:6805 fixed R001 barrier then armor on the same ally
+- 2026-09-28T10:50:00Z weapon:1313 fixed R001 self front, skulls, enemy front; +8 Life check vs chosen enemy (was never true); test in gowLaneL4bFixF2; override synced
+- 2026-09-28T10:50:00Z troop:7021 fixed R001 silence before damage
+- 2026-09-28T10:50:00Z troop:7185 fixed R001 damage (board Red count) before convert
+- 2026-09-28T10:50:00Z troop:7196 fixed R001 curse+disease before destroy row
+- 2026-09-28T10:50:00Z troop:6203 fixed removed cleanse not in English/native
+- 2026-09-28T10:55:00Z queue done: 65/65; golden replay in one process is order-dependent until P-F2-harness-shared-statuses is fixed

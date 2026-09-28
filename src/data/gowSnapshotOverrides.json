@@ -61,6 +61,11 @@
       "reason": "English source text specifies one random Skill; extracted native IncreaseRandom awards its complete amount to one Skill per recipient. Scoped display clarification, not whole-skill signoff.",
       "spellDescription": "获得额外的一回合。爆破所有绿色宝石或使一名随机盟友的一项随机属性获得 [魔法 + 1] 点（若盟友为哥布林则增加两倍）。"
     },
+    "6623": {
+      "spellId": 7941,
+      "reason": "sa-F2 fix round A: English 'Explode a column' / native BoardTarget Column; old Chinese said row.",
+      "spellDescription": "爆破一列。获得 [魔法 + 1] 点生命值。若敌方有军队陷入沉默状态，则给予所有其他盟友法印效果。"
+    },
     "6630": {
       "spellId": 7954,
       "reason": "English source text specifies one random Skill; extracted native IncreaseRandom awards its complete amount to one Skill per recipient. Scoped display clarification, not whole-skill signoff.",
@@ -80,6 +85,11 @@
       "spellId": 8234,
       "reason": "L4b-6824-zh: English \"Barrier and Submerge a random Ally\" / native CauseBarrier RandomAlly then CauseSubmerged FromPrevious; stored Chinese says 一名盟友 (reads as a chosen ally) and reverses the order.",
       "spellDescription": "将选定颜色的宝石转换成棕色。赋予一名随机盟友屏障效果并使其下潜。"
+    },
+    "6991": {
+      "spellId": 8497,
+      "reason": "sa-F2 fix round A: English/native ExplodeGems Amount 1 SpellPowerMultiplier 0.5 = [(Magic / 2) + 1] Gems; old Chinese said one gem.",
+      "spellDescription": "创造 12 个厄运头骨。然后爆破 [(魔法 / 2) + 1] 颗宝石。"
     },
     "7138": {
       "spellId": 8687,
@@ -101,6 +111,11 @@
       "spellId": 8958,
       "manaCost": 6,
       "reason": "English ManaCost and native Cost agree; Chinese entity snapshot has 9"
+    },
+    "7338": {
+      "spellId": 8961,
+      "reason": "sa-F2 fix round A: English 'Destroy a row and column' (one cross), old Chinese said row or column.",
+      "spellDescription": "摧毁一行和一列。造成 [魔法 + 4] 点散射伤害，伤害值因摧毁的骷髅数而增强。 [x6]"
     },
     "7339": {
       "spellId": 8962,
@@ -142,6 +157,11 @@
       "spellId": 9725,
       "manaCost": 9,
       "reason": "English ManaCost and native Cost agree; Chinese entity snapshot has 11"
+    },
+    "7830": {
+      "spellId": 9874,
+      "reason": "sa-F2 fix round A: English/native IncreaseHealth Amount 1 SpellPowerMultiplier 1 = [Magic + 1] Life; old Chinese said 1.",
+      "spellDescription": "随机给 2 名盟友赋予 [魔法 + 1] 点生命值。然后将 5 个绿色宝石转化为沉没宝石。"
     }
   }
 }

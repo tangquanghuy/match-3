@@ -217,8 +217,9 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 7357,
     desc: '创造 8 颗蓝色宝石。获得 [魔法 + 1] 点攻击力。',
     build: skill(
-      createGems(BaseColor.Blue, 8, 0),
+      // sa-F2 fix round A (R001): native IncreaseAttack@Self before CreateGems 8 Blue
       attack('allySelf', 1),
+      createGems(BaseColor.Blue, 8, 0),
     ),
   },
   {

@@ -27,7 +27,7 @@ import type { CuratedBatch } from './index';
 import {
   skill, dmg, dmgSplash, trueDmg, heal, armor, attack, magic, mana, inflict, reduce, steal,
   randomStat, createGems, createSkulls, createMix, transform, transformToSpecial, createSpecialGems,
-  destroySpecialGems, destroyColor, destroyChosenRow, destroyChosenCol, destroySkulls,
+  destroySpecialGems, destroyColor, destroyChosenRow, destroyChosenCol, destroyChosenCross, destroySkulls,
   explodeRandomGems, oneOf, extraTurn, summonRandom, summonRef, reposition, shuffleTeam, CHOSEN,
   CELL, explodeAt,
   targetedSkill,
@@ -446,14 +446,16 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 8961,
-    desc: '摧毁一行或一列。造成 [魔法 + 4] 点散射伤害，伤害值因摧毁的骷髅数而增强。 [x6]',
+    desc: '摧毁一行和一列。造成 [魔法 + 4] 点散射伤害，伤害值因摧毁的骷髅数而增强。 [x6]',
     // 「一行或一列」= oneOf（§9.3）；「摧毁的骷髅数」= destroyedGems 无色（R8 9639 先例）；
     // ScatterDamage Target=AllEnemies → range all（8639 口径）
     build: skill(
-      oneOf([destroyChosenRow()], [destroyChosenCol()]),
+      // sa-F2 fix round A: English "Destroy a row and column" = one chosen cross (was oneOf row/col and destroyed
+      // nothing); boost counts Skulls destroyed only (native CountGems 600 Skull), not every destroyed gem
+      destroyChosenCross(),
       dmg('enemyAll', 4, 1, {
         range: 'all',
-        modifier: { mod: { kind: 'multiplier', a: 6 }, source: { kind: 'destroyedGems' } },
+        modifier: { mod: { kind: 'multiplier', a: 6 }, source: { kind: 'destroyedGems', skulls: true } },
       }),
     ),
   },

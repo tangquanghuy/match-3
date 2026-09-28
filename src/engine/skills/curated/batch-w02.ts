@@ -1017,10 +1017,14 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 8299,
     desc: '将一名敌人和自身拉到首位。创建 6 颗骷髅头。若自身生命值高于敌人，则再创造 8 颗骷髅头。',
     build: skill(
-      reposition('enemyChosen', 'front'),
+      // sa-F2 fix round A (R001): native TroopOrderFront@Self ; CreateGems@FromTarget 6 Skull [AddForLessLifeOnTarget 8] ;
+      // TroopOrderFront@FromTarget. One create of 6 or 14; the Life check compares with the chosen enemy (the old
+      // check read lastTarget = the caster after its own reposition, so the +8 never applied).
       reposition('allySelf', 'front'),
-      createSkulls(6, 0),
-      createSkulls(8, 0, { ifCond: { kind: 'casterStatBeatsTarget', stat: 'hp' } }),
+      reduce('enemyChosen', 'attack', 0, 0), // target anchor (native CreateGems@FromTarget reads the chosen enemy)
+      createSkulls(14, 0, { ifCond: { kind: 'casterStatBeatsTarget', stat: 'hp' } }),
+      createSkulls(6, 0, { ifCond: { kind: 'not', cond: { kind: 'casterStatBeatsTarget', stat: 'hp' } } }),
+      reposition('enemyChosen', 'front'),
     ),
   },
   {

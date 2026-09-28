@@ -53,10 +53,11 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '对 1 名敌人造成 [魔法 + 1] 点真实伤害，并移除所有红色宝石以增强伤害效果。获得 4 点生命值。 [2:1]',
     build: skill(
       // 「移除…以增强」句式：清除段先执行，destroyedGems 来源才数得到（batch-04 7010 同款，重排见头注）
-      destroyColor(BaseColor.Red),
+      // sa-F2 fix round A (R001): native CountGems Red ; TrueDamage ; RemoveColor Red ; IncreaseHealth 4
       trueDmg('enemyChosen', 1, 1, {
-        modifier: { mod: { kind: 'ratio', a: 2, b: 1 }, source: { kind: 'destroyedGems', color: BaseColor.Red } },
+        modifier: { mod: { kind: 'ratio', a: 2, b: 1 }, source: { kind: 'boardGems', color: BaseColor.Red } },
       }),
+      destroyColor(BaseColor.Red),
       heal('allySelf', 4, 0),
     ),
   },
@@ -201,10 +202,11 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '移除指定颜色的所有宝石。对第一名敌人造成 [魔法 + 2] 点真实伤害，伤害值因被移除的宝石数而增强。 [3:1]',
     build: skill(
       // 「被移除的宝石数」无色限定 → 来源不带色（batch-05 7052 同款）
-      destroyColor(CHOSEN),
+      // sa-F2 fix round A (R001): native CountGems FromTarget ; TrueDamage@FrontEnemy ; RemoveColor FromTarget
       trueDmg('enemyFront', 2, 1, {
-        modifier: { mod: { kind: 'ratio', a: 3, b: 1 }, source: { kind: 'destroyedGems' } },
+        modifier: { mod: { kind: 'ratio', a: 3, b: 1 }, source: { kind: 'boardGems', color: 'CHOSEN' } },
       }),
+      destroyColor(CHOSEN),
     ),
   },
   {

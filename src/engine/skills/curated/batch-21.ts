@@ -87,10 +87,11 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 8032,
     desc: '将所有红色宝石转换成绿色。对敌方造成 [魔法 + 3] 点溅射伤害，伤害值因被转换的宝石数而增强。 [1:1]',
     build: skill(
-      transform(BaseColor.Red, BaseColor.Green),
+      // sa-F2 fix round A (R001): native CountGems Red ; SplashHighDamage ; ConvertGems Red>Green
       dmgSplash('enemyChosen', 3, 1, {
-        modifier: { mod: { kind: 'ratio', a: 1, b: 1 }, source: { kind: 'transformedGems' } },
+        modifier: { mod: { kind: 'ratio', a: 1, b: 1 }, source: { kind: 'boardGems', color: BaseColor.Red } },
       }),
+      transform(BaseColor.Red, BaseColor.Green),
     ),
   },
   {
@@ -132,10 +133,11 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 8150,
     desc: '将棕色宝石转换成红色。对 1 名敌人造成 [魔法 + 5] 点伤害，伤害值因转换的宝石数而增强。 [2:1]',
     build: skill(
-      transform(BaseColor.Brown, BaseColor.Red),
+      // sa-F2 fix round A (R001): native CountGems Brown ; Damage ; ConvertGems Brown>Red
       dmg('enemyChosen', 5, 1, {
-        modifier: { mod: { kind: 'ratio', a: 2, b: 1 }, source: { kind: 'transformedGems' } },
+        modifier: { mod: { kind: 'ratio', a: 2, b: 1 }, source: { kind: 'boardGems', color: BaseColor.Brown } },
       }),
+      transform(BaseColor.Brown, BaseColor.Red),
     ),
   },
   {

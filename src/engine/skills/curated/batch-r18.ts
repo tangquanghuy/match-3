@@ -19,7 +19,8 @@
  * - 挽救候选复核后仍维持 SKIP 的 50 条记录保留在原批次文件（不重复计数），复核结论见批尾注记。
  */
 import type { CuratedBatch } from './index';
-import { skill, dmg, dmgSplash, trueDmg, heal, armor, attack, magic, mana, reduce, steal, cleanse, dispelStatus, randomStat, inflict, inflictRandom, createGems, createSkulls, createMix, createStorm, destroyColor, destroyRandomGems, destroyRandomRows, destroyRandomCols, explodeColor, explodeRandomGems, explodeRandomCols, transform, transformToSpecial, reposition, shuffleBoard, shuffleTeam, extraTurn, oneOf, summonRef, summonRandom, sacrifice, gainGold, gainSouls, gainMaps, escape, CHOSEN, CELL, explodeAt } from '../builders';
+import { explodeChosenCol } from '../builders';
+import { skill, targetedSkill, dmg, dmgSplash, trueDmg, heal, armor, attack, magic, mana, reduce, steal, cleanse, dispelStatus, randomStat, inflict, inflictRandom, createGems, createSkulls, createMix, createStorm, destroyColor, destroyRandomGems, destroyRandomRows, destroyRandomCols, explodeColor, explodeRandomGems, transform, transformToSpecial, reposition, shuffleBoard, shuffleTeam, extraTurn, oneOf, summonRef, summonRandom, sacrifice, gainGold, gainSouls, gainMaps, escape, CHOSEN, CELL, explodeAt } from '../builders';
 import type { SegmentOpts } from '../builders';
 import { BaseColor } from '../../types';
 import type { Condition, CondMult } from '../effects/secondary';
@@ -136,8 +137,9 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: "窃取 1 名敌军 [魔法 + 1] 点生命值。创造 5 颗紫色宝石。获得 [魔法 + 1] 个灵魂。",
     // 「窃取生命」= dmg + drain（7302 口径）；「获得灵魂」= gainSouls（§10）
     build: skill(
-      dmg('enemyChosen', 1, 1, { drain: true }),
+      // sa-F2 fix round A (R001): native CreateGems 5 Purple ; StealLife ; GiveSouls
       createGems(BaseColor.Purple, 5),
+      dmg('enemyChosen', 1, 1, { drain: true }),
       gainSouls(1, 1),
     ),
   },
@@ -155,10 +157,11 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: "对 1 名敌人造成 [魔法 + 2] 点伤害，并将所有蓝色宝石转换成红色以增强伤害效果。获得 [魔法 + 2] 个灵魂。  [2:1]",
     // 转换段前移供 transformedGems 计数（batch-25 清除段前移同口径）；[2:1] = ratio 2:1 transformedGems
     build: skill(
-      transform(BaseColor.Blue, BaseColor.Red),
+      // sa-F2 fix round A (R001): native CountGems Blue ; Damage ; ConvertGems Blue>Red ; GiveSouls
       dmg('enemyChosen', 2, 1, {
-    modifier: { mod: { kind: 'ratio', a: 2, b: 1 }, source: { kind: 'transformedGems' } },
+    modifier: { mod: { kind: 'ratio', a: 2, b: 1 }, source: { kind: 'boardGems', color: BaseColor.Blue } },
   }),
+      transform(BaseColor.Blue, BaseColor.Red),
       gainSouls(2, 1),
     ),
   },
@@ -323,10 +326,11 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: "将黄色宝石转换为紫色。对 1 名敌人造成 [魔法 + 1] 点伤害，伤害值因所获得的灵魂数量而增强。获得 20 个灵魂。 [1:1]",
     // 「因所获得的灵魂数 [1:1]」= battleSouls ratio 1:1；「获得 20 灵魂」= gainSouls
     build: skill(
-      transform(BaseColor.Yellow, BaseColor.Purple),
+      // sa-F2 fix round A (R001): native CountMySouls ; Damage ; ConvertGems Yellow>Purple ; GiveSouls 20
       dmg('enemyChosen', 1, 1, {
     modifier: { mod: { kind: 'ratio', a: 1, b: 1 }, source: { kind: 'battleSouls' } },
   }),
+      transform(BaseColor.Yellow, BaseColor.Purple),
       gainSouls(20),
     ),
   },
@@ -455,7 +459,9 @@ const SPELLS: CuratedBatch['spells'] = [
     // 「消除一名随机敌人…并对其造成」= lastTarget 跨段绑定；[x4] = destroyedGems Blue ×4
     build: skill(
       explodeAt(CELL),
-      ...dispelPositives('enemyRandom'),
+      // sa-F2 fix round A: one random enemy for Dispel + TrueDamage@FromPrevious (the old per-status
+      // dispelPositives('enemyRandom') re-rolled the target for every status and skipped holders)
+      ...POSITIVE_STATUSES.map((statusId, i) => dispelStatus(statusId, i === 0 ? 'enemyRandom' : 'lastTarget')),
       trueDmg('lastTarget', 4, 1, {
     modifier: { mod: { kind: 'multiplier', a: 4 }, source: { kind: 'destroyedGems', color: BaseColor.Blue } },
   }),
@@ -566,10 +572,11 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: "对 1 名敌人的生命值和护甲值造成 [魔法 + 1] 点伤害。移出所有蓝色宝石以增强伤害效果值。 [3:1]",
     // 【挽救】EN 原句「Remove all Blue Gems」在前（清除段前移供计数）；「对生命值和护甲值造成伤害」= 标准伤害口径（先甲后血，ZH 逐字直译）
     build: skill(
+      // sa-F2 fix round A (R001): native CountGems 34 Blue ; DecreaseArmor ; TrueDamage (both counter-boosted) ;
+      // RemoveColor Blue — damage to Life and Armor = armor loss + true Life damage, before the gems go
+      reduce('enemyChosen', 'armor', 1, 1, { modifier: { mod: { kind: 'ratio', a: 3, b: 1 }, source: { kind: 'boardGems', color: BaseColor.Blue } } }),
+      trueDmg('enemyChosen', 1, 1, { modifier: { mod: { kind: 'ratio', a: 3, b: 1 }, source: { kind: 'boardGems', color: BaseColor.Blue } } }),
       destroyColor(BaseColor.Blue),
-      dmg('enemyChosen', 1, 1, {
-    modifier: { mod: { kind: 'ratio', a: 3, b: 1 }, source: { kind: 'destroyedGems' } },
-  }),
     ),
   },
   {
@@ -889,11 +896,13 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 7941,
-    desc: "爆破一行。获得 [魔法 + 1] 点生命值。若敌方有军队陷入沉默状态，则给予所有其他盟友法印效果。",
+    desc: "爆破一列。获得 [魔法 + 1] 点生命值。若敌方有军队陷入沉默状态，则给予所有其他盟友法印效果。",
     // 「爆破一行（列）」EN=Explode a column → explodeRandomCols；「若任一敌人沉默」= anyEnemyStatus
     build: skill(
-      explodeRandomCols(1),
+      // sa-F2 fix round A (R001): native IncreaseHealth before ExplodeGems BoardTarget Column (chosen column,
+      // English "Explode a column"; was a random column)
       heal('allySelf', 1, 1),
+      explodeChosenCol(),
       inflict('enchanted', 'allyOthers', { ifCond: { kind: 'anyEnemyStatus', statusId: 'silence' } }),
     ),
   },
@@ -1227,9 +1236,10 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 8133,
     desc: "召唤尘风暴。再选一名盟友，爆破 [魔法 + 1] 颗盟友其中一个法力颜色的宝石。",
     // 【挽救】「爆破盟友其中一个法力颜色的宝石」= explodeRandomGems 限色 LAST_TARGET（首段回退 chosenTargetId，9745 同口径）；尘风暴 = createStorm Brown
-    build: skill(
+    // sa-F2 fix round A: explicit chosen-ally input (LAST_TARGET had no prior target -> nothing exploded)
+    build: targetedSkill('allyChosen',
       createStorm(BaseColor.Brown),
-      explodeRandomGems(1, 1, 'color', 'LAST_TARGET'),
+      explodeRandomGems(1, 1, 'color', 'CHOSEN_TARGET'),
     ),
   },
   {

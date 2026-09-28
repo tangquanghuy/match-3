@@ -59,16 +59,18 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '移除板面上所有的骷髅头，并获得 [魔法 + 1] 点生命值，点数因所移除的骷髅头数而增强。 [2:1]',
     build: skill(
       // 清除段先行，destroyedGems 来源才数得到（batch-04 口径）；骷髅限定由清除段承担
+      // sa-F2 fix round A (R001): native CountGems Skull ; IncreaseHealth ; RemoveColor Skull
+      heal('allySelf', 1, 1, { modifier: { mod: { kind: 'ratio', a: 2, b: 1 }, source: { kind: 'castStartBoardSkulls' } } }),
       destroySkulls(),
-      heal('allySelf', 1, 1, { modifier: { mod: { kind: 'ratio', a: 2, b: 1 }, source: { kind: 'destroyedGems' } } }),
     ),
   },
   {
     id: 7055,
     desc: '爆破一行。获得 [魔法 + 2] 点生命值，并减除所有敌人 1 点魔力值。',
     build: skill(
-      explodeChosenRow(),
+      // sa-F2 fix round A (R001): native IncreaseHealth ; ExplodeGems Row ; DecreaseSpellPower
       heal('allySelf', 2),
+      explodeChosenRow(),
       // 「魔力值」= magic 属性（SOP 措辞裁定）
       reduce('enemyAll', 'magic', 1, 0),
     ),
