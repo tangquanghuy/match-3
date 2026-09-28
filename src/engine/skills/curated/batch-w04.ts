@@ -788,18 +788,20 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 9584,
     desc: '对敌人造成 [魔法 + 3] 点伤害，每级回火 +4 点。如果他们使用紫色法力值，则引爆 3 颗紫色宝石。如果敌人有毁灭之力，则恢复我四分之一的法力值。',
     build: skill(
-      dmg('enemyChosen', 3, 1, { modifier: { mod: { kind: 'multiplier', a: 4 }, source: { kind: 'tempering' } } }),
-      explodeRandomGems(3, 0, 'color', BaseColor.Purple, { ifCond: { kind: 'targetColor', color: BaseColor.Purple } }),
+      // sa-F: native order ExplodeColor -> GenerateQuarterManaConditional -> Damage (R001)
+      explodeRandomGems(3, 0, 'color', BaseColor.Purple, { ifCond: { kind: 'chosenTargetColor', color: BaseColor.Purple } }),
       mana('allySelf', 0, 0, { fraction: 0.25, ifCond: { kind: 'targetHasDoom' } }),
+      dmg('enemyChosen', 3, 1, { modifier: { mod: { kind: 'multiplier', a: 4 }, source: { kind: 'tempering' } } }),
     ),
   },
   {
     id: 9585,
     desc: '对敌人造成 [魔法 + 3] 点伤害，每级回火 +4 点。如果他们使用棕色法力值，则引爆 3 颗棕色宝石。如果敌人有毁灭之力，则恢复我四分之一的法力值。',
     build: skill(
-      dmg('enemyChosen', 3, 1, { modifier: { mod: { kind: 'multiplier', a: 4 }, source: { kind: 'tempering' } } }),
-      explodeRandomGems(3, 0, 'color', BaseColor.Brown, { ifCond: { kind: 'targetColor', color: BaseColor.Brown } }),
+      // sa-F: native order ExplodeColor -> GenerateQuarterManaConditional -> Damage (R001)
+      explodeRandomGems(3, 0, 'color', BaseColor.Brown, { ifCond: { kind: 'chosenTargetColor', color: BaseColor.Brown } }),
       mana('allySelf', 0, 0, { fraction: 0.25, ifCond: { kind: 'targetHasDoom' } }),
+      dmg('enemyChosen', 3, 1, { modifier: { mod: { kind: 'multiplier', a: 4 }, source: { kind: 'tempering' } } }),
     ),
   },
   {

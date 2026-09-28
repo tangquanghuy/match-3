@@ -224,7 +224,8 @@ describe('sa-F B09: conditional steps before the damage (native order)', () => {
     expect(order(dry).filter(o => !o.startsWith('dmg') && !o.startsWith('remove'))).toEqual([]);
   });
   it('weapon:1632-1635 Doomed ranged weapons: explode 3 of the target colour and quarter Mana (enemy Doom) before the damage', () => {
-    const cases = [['weapon:1632', BaseColor.Blue], ['weapon:1633', BaseColor.Green], ['weapon:1634', BaseColor.Red], ['weapon:1635', BaseColor.Yellow]] as const;
+    const cases = [['weapon:1632', BaseColor.Blue], ['weapon:1633', BaseColor.Green], ['weapon:1634', BaseColor.Red], ['weapon:1635', BaseColor.Yellow],
+      ['weapon:1636', BaseColor.Purple], ['weapon:1637', BaseColor.Brown]] as const;
     for (const [key, c] of cases) {
       const cost = entitySkill(key).cost;
       const r = castSpell({ key, target: 10, enemies: [en({ hp: 500, maxHp: 500, colors: [c] }), en({ troopTypes: ['Doom'] })] });
@@ -232,7 +233,7 @@ describe('sa-F B09: conditional steps before the damage (native order)', () => {
       expect(o[0]).toMatch(/^explode /);
       expect(o.indexOf(`buff C mana+${Math.floor(cost / 4)}`)).toBeGreaterThan(0);
       expect(o.indexOf(`buff C mana+${Math.floor(cost / 4)}`)).toBeLessThan(o.findIndex(x => x.startsWith('dmg E10')));
-      const plain = castSpell({ key, target: 10, enemies: [en({ colors: [BaseColor.Purple] }), en()] });
+      const plain = castSpell({ key, target: 10, enemies: [en({ colors: [c === BaseColor.Red ? BaseColor.Blue : BaseColor.Red] }), en()] });
       expect(order(plain)).toEqual(['dmg E10 13']);
     }
   });

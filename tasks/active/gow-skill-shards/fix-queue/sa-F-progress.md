@@ -8,3 +8,4 @@
 - B07 troop:7040,troop:6180,troop:6975,troop:7372,troop:7882 approve=5 fixed=1 issue=0 (6975 ZH typo; storm check before own Darkstorm tested; 7882 random target colour tested)
 - B08 troop:6015,weapon:1085,troop:6967,troop:6911,troop:6789 approve=5 fixed=2 issue=0 (6015 native order drain->armor->web + ZH; 6789 ZH unit; chosen-colour targets tested)
 - B09 troop:7778,weapon:1632,weapon:1633,weapon:1634,weapon:1635 approve=5 fixed=5 issue=0 (7778 Dispel=positives not Bleed, all before damage + ZH; Doomed ranged x4 explode/mana before damage, chosenTargetColor, overrides synced)
+- B10 weapon:1636,weapon:1637,troop:6561,troop:7165,troop:7388 approve=5 fixed=2 issue=0 (Doomed Balliste/Sauterelle native order like B09; 7388 chosen row = native Target Board + BoardTarget Row)

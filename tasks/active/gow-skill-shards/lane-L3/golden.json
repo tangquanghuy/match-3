@@ -359,6 +359,16 @@
   "by": "sa-F",
   "at": "2026-09-28T21:20:33.480Z"
  },
+ "troop:6561": {
+  "lines": {
+   "L10": "explode 16 ; skulls E10 1 ; ~cascade~ ; status E10 +frozen ; extra-turn skill  => A2:mana+1 | E10:arm-1 +frozen  extra:skill  cascade",
+   "R10": "explode 16 ; skulls E10 1 ; ~cascade~ ; status E10 +frozen ; extra-turn skill  => A2:mana+1 | E10:arm-1 +frozen  extra:skill  cascade",
+   "L0": "explode 16 ; skulls E10 1 ; ~cascade~ ; status E10 +frozen ; extra-turn skill  => A2:mana+1 | E10:arm-1 +frozen  extra:skill  cascade",
+   "K": "explode 16 ; skulls E10 1 ; defeat E10 ; ~cascade~ ; status E11 +frozen ; extra-turn skill  => A2:mana+1 | E10:hp-1 DEAD | E11:+frozen  extra:skill  cascade"
+  },
+  "by": "sa-F",
+  "at": "2026-09-28T21:36:06.788Z"
+ },
  "troop:6569": {
   "lines": {
    "L10": "buff E11 mana-6 ; buff C mana+6 ; dmg E11 14  => E11:hp-4 arm-10 mana-6",
@@ -929,6 +939,16 @@
   "by": "sa-R7",
   "at": "2026-09-28T08:47:28.689Z"
  },
+ "troop:7165": {
+  "lines": {
+   "L10": "explode 23 ; skulls E10 2 ; extra-turn skill  => A1:mana+2 | A2:mana+1 | E10:arm-2  extra:skill",
+   "R10": "explode 23 ; skulls E10 2 ; extra-turn skill  => A1:mana+2 | A2:mana+1 | E10:arm-2  extra:skill",
+   "L0": "explode 23 ; skulls E10 2 ; extra-turn skill  => A1:mana+2 | A2:mana+1 | E10:arm-2  extra:skill",
+   "K": "explode 23 ; skulls E10 2 ; defeat E10 ; extra-turn skill  => A1:mana+2 | A2:mana+1 | E10:hp-1 DEAD  extra:skill"
+  },
+  "by": "sa-F",
+  "at": "2026-09-28T21:36:06.788Z"
+ },
  "troop:7168": {
   "lines": {
    "L10": "buff C armor+11 ; buff A1 armor+11 ; buff A2 armor+11 ; extra-turn skill  => C:arm+11 | A1:arm+11 | A2:arm+11  extra:skill",
@@ -1188,6 +1208,16 @@
   },
   "by": "sa-R7",
   "at": "2026-09-28T08:53:50.750Z"
+ },
+ "troop:7388": {
+  "lines": {
+   "L10": "explode 24 ; skulls E10 2 ; extra-turn skill  => A1:mana+2 | A2:mana+1 | E10:arm-2  extra:skill",
+   "R10": "explode 24 ; skulls E10 2 ; extra-turn skill  => A1:mana+2 | A2:mana+1 | E10:arm-2  extra:skill",
+   "L0": "explode 24 ; skulls E10 2 ; extra-turn skill  => A1:mana+2 | A2:mana+1 | E10:arm-2  extra:skill",
+   "K": "explode 24 ; skulls E10 2 ; defeat E10 ; extra-turn skill  => A1:mana+2 | A2:mana+1 | E10:hp-1 DEAD  extra:skill"
+  },
+  "by": "sa-F",
+  "at": "2026-09-28T21:36:06.788Z"
  },
  "troop:7405": {
   "lines": {
@@ -2208,6 +2238,26 @@
   },
   "by": "sa-F",
   "at": "2026-09-28T21:34:56.834Z"
+ },
+ "weapon:1636": {
+  "lines": {
+   "L10": "dmg E11 13  => E11:hp-3 arm-10",
+   "R10": "dmg E11 13  => E11:hp-3 arm-10",
+   "L0": "dmg E11 3  => E11:arm-3",
+   "K": "dmg E11 13 ; defeat E11  => E11:hp-1 DEAD"
+  },
+  "by": "sa-F",
+  "at": "2026-09-28T21:36:06.788Z"
+ },
+ "weapon:1637": {
+  "lines": {
+   "L10": "dmg E11 13  => E11:hp-3 arm-10",
+   "R10": "dmg E11 13  => E11:hp-3 arm-10",
+   "L0": "dmg E11 3  => E11:arm-3",
+   "K": "dmg E11 13 ; defeat E11  => E11:hp-1 DEAD"
+  },
+  "by": "sa-F",
+  "at": "2026-09-28T21:36:06.788Z"
  },
  "weapon:1656": {
   "lines": {
