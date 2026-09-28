@@ -841,7 +841,11 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 9647,
     desc: '对4名随机敌人造成流血效果。然后制造9颗激怒宝石。如果我的队伍中有不朽的安格拉克，则再制造4颗。 [x4]',
     build: skill(
-      inflict('bleed', 'enemyRandomN', { n: 4 }),
+      // Native CauseBleed@RandomEnemy + 3 x CauseBleed@RandomPrefNotPrevEnemy (R007-3: avoid only the previous pick).
+      inflict('bleed', 'enemyRandom'),
+      inflict('bleed', 'enemyRandomPrefNotPrev'),
+      inflict('bleed', 'enemyRandomPrefNotPrev'),
+      inflict('bleed', 'enemyRandomPrefNotPrev'),
       createSpecialGems({ kind: 'enrageGem' }, 9, 0),
       createSpecialGems({ kind: 'enrageGem' }, 4, 0, { ifCond: { kind: 'troopPresent', side: 'ally', name: '不朽的安格拉克' } }),
     ),
@@ -1122,8 +1126,9 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 9842,
     desc: '对所有敌人造成[魔法 + 2]点伤害，被蛛网束缚的敌人伤害加成。如果我方队伍中有不朽玛拉图斯，则将所有红色宝石转化为蛛网宝石。 [x3]',
     build: skill(
-      dmg('enemyAll', 2, 1, { range: 'all', modifier: { mod: { kind: 'multiplier', a: 3 }, source: { kind: 'enemyStatusCount', statusId: 'web' } } }),
+      // Native order: ConvertGems Red>Web (if Immortal Maratus) before the Webbed count and Damage.
       transformToSpecial(BaseColor.Red, 'web', { ifCond: { kind: 'troopPresent', side: 'ally', name: '不朽的马拉图斯' } }),
+      dmg('enemyAll', 2, 1, { range: 'all', modifier: { mod: { kind: 'multiplier', a: 3 }, source: { kind: 'enemyStatusCount', statusId: 'web' } } }),
     ),
   },
   {

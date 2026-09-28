@@ -76,3 +76,78 @@ describe('L4b B01', () => {
     expect(castSpell({ key, color: BaseColor.Red }).summary.order[0]).toBe(`convert Red x9 -> ${to} x9`);
   });
 });
+
+describe('L4b B03', () => {
+  // weapon:1488 / 1487: CountArmyColor@AllEnemies 100 ; CreateGems Giant<C> (count only) ; Damage@EnemyColor ; Cause*@EnemyColor
+  const four = (colors: BaseColor[][]) => colors.map(c => ({ hp: 500, maxHp: 500, armor: 0, colors: c }));
+  for (const [key, color, status] of [['weapon:1488', BaseColor.Red, 'burning'], ['weapon:1487', BaseColor.Blue, 'frozen']] as const) {
+    for (const n of [0, 1, 2, 3]) it(`${key}: ${n} ${color} enemies -> ${n} giant ${color}, each hit for 11 and +${status}`, () => {
+      const enemies = four([0, 1, 2, 3].map(i => i < n ? [color] : [BaseColor.Purple]));
+      const r = castSpell({ key, enemies });
+      const created = r.summary.order.find(x => x.startsWith('convert'));
+      if (n === 0) expect(created).toBeUndefined();
+      else expect(created).toMatch(new RegExp(`-> giantGem/${color} x${n}$`));
+      const ids = [10, 11, 12, 13].slice(0, n).map(i => `E${i}`);
+      expect(r.summary.order.filter(x => x.startsWith('dmg'))).toEqual(ids.map(e => `dmg ${e} 11 (all)`));
+      expect(r.summary.order.filter(x => x.startsWith('status'))).toEqual(ids.map(e => `status ${e} +${status}`));
+    });
+  }
+  // troop:6129: CountArmor@FromTarget 25 ; CountMax 6 ; CreateGems 9 Skull ; DecreaseArmor 25. Count-before-decrease is
+  // equivalent to counting the eliminated armor because the cap 6 = floor(25 / 4).
+  for (const [arm, skulls, left] of [[0, 9, 0], [3, 9, 0], [12, 12, 0], [25, 15, 0], [40, 15, 15]] as const) it(`troop:6129: target armor ${arm} -> ${skulls} Skulls, armor left ${left}`, () => {
+    const enemies = [0, 1, 2, 3].map(i => ({ hp: 500, maxHp: 500, armor: i === 1 ? arm : 0 }));
+    const r = castSpell({ key: 'troop:6129', enemies });
+    expect(r.summary.gems.created.skull).toBe(skulls);
+    if (arm > 0) expect(r.summary.order[0]).toBe(`buff E11 armor-${Math.min(arm, 25)}`);
+    expect(r.summary.order.at(-1)).toBe('buff C armor+10');
+  });
+});
+
+describe('L4b B04', () => {
+  // weapon:1180-1185 Doomed books: CountArmyColor@AllEnemies 600 -> 6 gems per enemy of the colour; +5 Magic if an enemy is a Doom
+  const DOOMED = [['weapon:1180', BaseColor.Blue], ['weapon:1181', BaseColor.Green], ['weapon:1182', BaseColor.Red],
+    ['weapon:1183', BaseColor.Yellow], ['weapon:1184', BaseColor.Purple], ['weapon:1185', BaseColor.Brown]] as const;
+  for (const [key, color] of DOOMED) it(`${key}: 2 ${color} enemies -> 12 ${color}/Skull gems; Doom enemy -> +8 Magic`, () => {
+    const enemies = [0, 1, 2, 3].map(i => ({ hp: 500, maxHp: 500, colors: i < 2 ? [color] : [color === BaseColor.Red ? BaseColor.Blue : BaseColor.Red], troopTypes: i === 3 ? ['Doom'] : [] }));
+    const r = castSpell({ key, enemies });
+    const g = r.summary.gems.created;
+    expect((g[color] ?? 0) + (g.skull ?? 0)).toBe(12);
+    expect(r.summary.order.filter(x => x.startsWith('buff'))).toEqual(['C', 'A1', 'A2'].map(u => `buff ${u} magic+8`));
+  });
+  // weapon:1193 / 1501: CountArmyKingdom@AllAllies 600 -> +6 damage and 6 mix gems per kingdom ally
+  for (const [key, kingdom, colors] of [['weapon:1193', '圣唐', [BaseColor.Red, BaseColor.Yellow]], ['weapon:1501', '沃尔帕克', [BaseColor.Blue, BaseColor.Green]]] as const) {
+    for (const n of [1, 2]) it(`${key}: ${n} ${kingdom} allies -> ${17 + 6 * n} damage, ${6 * n} gems`, () => {
+      const allies = [{ kingdom: n >= 1 ? kingdom : 'x' }, { kingdom: n >= 2 ? kingdom : 'x' }];
+      const r = castSpell({ key, allies });
+      expect(r.summary.order[0]).toBe(`dmg E11 ${17 + 6 * n}`);
+      const g = r.summary.gems.created;
+      expect((g[colors[0]] ?? 0) + (g[colors[1]] ?? 0)).toBe(6 * n);
+    });
+  }
+  // weapon:1646: CauseBleed@RandomEnemy + 3 x RandomPrefNotPrevEnemy; +4 Enrage Gems with Immortal Ang'Rak
+  it('weapon:1646: two enemies alive -> 4 Bleeds alternating between them', () => {
+    const enemies = [{ hp: 500, maxHp: 500 }, { hp: 500, maxHp: 500 }];
+    const st = castSpell({ key: 'weapon:1646', enemies }).summary.order.filter(x => x.startsWith('status') && x.includes('bleed')).map(x => x.split(' ')[1]);
+    expect(st).toHaveLength(4);
+    for (let i = 1; i < 4; i++) expect(st[i]).not.toBe(st[i - 1]);
+  });
+  it("weapon:1646: Immortal Ang'Rak ally -> 13 Enrage Gems", () => {
+    const r = castSpell({ key: 'weapon:1646', allies: [{ name: '不朽的安格拉克' }, {}] });
+    expect(r.summary.order.filter(x => x.startsWith('convert') && x.includes('enrageGem')).map(x => Number(x.match(/enrageGem x(\d+)/)![1])).reduce((a, b) => a + b, 0)).toBe(13);
+  });
+  // weapon:1682: Maratus -> Red>Web first; damage 2 + M + 3 per Webbed enemy
+  it('weapon:1682: Immortal Maratus + 2 Webbed enemies -> Red to Web, then 18 damage each', () => {
+    const web = [{ id: 'web', turns: 99 }] as never;
+    const enemies = [0, 1, 2, 3].map(i => ({ hp: 500, maxHp: 500, statuses: i < 2 ? web : [] }));
+    const r = castSpell({ key: 'weapon:1682', enemies, allies: [{ name: '不朽的马拉图斯' }, {}] });
+    expect(r.summary.order[0]).toBe('convert Red x9 -> web x9');
+    expect(r.summary.order.filter(x => x.startsWith('dmg'))).toEqual(['E10', 'E11', 'E12', 'E13'].map(e => `dmg ${e} 18 (all)`));
+  });
+  // troop:7267: Blue > DragonGreen; Krystenax present -> Dragon allies +4 Magic
+  it('troop:7267: Blue -> green dragon gems; Krystenax -> Dragon allies +4 Magic', () => {
+    const r = castSpell({ key: 'troop:7267', allies: [{ name: '克里斯坦纳斯', troopTypes: ['Dragon'] }, { troopTypes: ['Human'] }] });
+    expect(r.summary.order[0]).toBe('convert Blue x11 -> dragonGem/Green x11');
+    expect(r.summary.order.filter(x => x.startsWith('buff'))).toEqual(expect.arrayContaining(['buff A1 magic+4']));
+    expect(r.summary.order.filter(x => x.startsWith('buff A2'))).toEqual([]);
+  });
+});

@@ -195,7 +195,8 @@ const SPELLS: CuratedBatch['spells'] = [
     // [x4] = 官方 CountArmyTroop x400「每克里斯坦纳斯 +4」→ 引擎无按名计数来源，
     // 以 troopPresent 存在性 + 常数 4 表达（单队伍唯一 Krystenax，等价）
     build: skill(
-      transformToSpecial(BaseColor.Blue, 'dragonGem'),
+      // R009: DragonGreen = Green dragonGem special.
+      transformToSpecial(BaseColor.Blue, { kind: 'dragonGem', color: BaseColor.Green }),
       magic('allyAll', 4, 0, {
         targetRace: 'Dragon',
         ifCond: { kind: 'troopPresent', side: 'ally', name: '克里斯坦纳斯' },

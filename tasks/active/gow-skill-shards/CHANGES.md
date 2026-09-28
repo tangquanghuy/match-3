@@ -1,6 +1,6 @@
 # GoW 技能改动留档
 
-自动生成（`node scripts/gow-changelog.mjs render`），源数据 [CHANGES.jsonl](CHANGES.jsonl)，共 188 条改动，涉及 382 个技能 ID。
+自动生成（`node scripts/gow-changelog.mjs render`），源数据 [CHANGES.jsonl](CHANGES.jsonl)，共 192 条改动，涉及 387 个技能 ID。
 
 ## 按时间
 
@@ -194,6 +194,10 @@
 | 2026-09-28T02:36 | sa-R2 | L4b-1625-1674-any | data | 9573, 9831 | weapon:1625 LibramOfDecay；weapon:1674 SanguineDevotion | `src/engine/skills/curated/batch-w04.ts` | transformToSpecial('ANY', decayGem\|bleedGem): whole board incl. skulls converted → transformToSpecial(CHOSEN, ...): only the chosen colour (native ConvertGems 100 FromTarget>Decay\|Bleed) |  |
 | 2026-09-28T02:36 | sa-R2 | L4b-6842-prev | data | 8247 | troop:6842 Malcandessa | `src/engine/skills/curated/batch-14.ts` | Poison re-picked enemyWeakest (tie could split Web/Poison) → Poison on lastTarget (native CausePoison@FromPrevious) |  |
 | 2026-09-28T02:37 | sa-R2 | L4b-1548-steps | data | 9161 | weapon:1548 TheDecayingOrbit | `src/engine/skills/curated/batch-w04.ts` | Red>Doomskull only (Red>Cursed and Purple>Doomskull steps merged wrongly) → Red>curseGem then Purple>doomSkull, then jumble |  |
+| 2026-09-28T02:40 | sa-R2 | L4b-1487-1488 | data | 8872, 8873 | weapon:1487 RingOfCrystalIce；weapon:1488 RingOfCrystalFire | `src/engine/skills/curated/batch-w03.ts` | giant count 1 + enemies of colour; status only on lastTarget (one enemy) → giant count = enemies of colour (native CreateGems Giant<C> counter only); status on every enemy of that colour |  |
+| 2026-09-28T02:43 | sa-R2 | L4b-1646-prefnotprev | data | 9647 | weapon:1646 AngRaksEdge | `src/engine/skills/curated/batch-w04.ts` | Bleed on enemyRandomN 4 (distinct, fewer when <4 alive) → RandomEnemy + 3 x enemyRandomPrefNotPrev (R007-3) |  |
+| 2026-09-28T02:43 | sa-R2 | L4b-1682-order | data | 9842 | weapon:1682 MaratusGrimoire | `src/engine/skills/curated/batch-w04.ts` | damage then Red>Web → Red>Web (if Maratus) then damage (native order, R001) |  |
+| 2026-09-28T02:43 | sa-R2 | R009-7267-color | data | 8886 | troop:7267 HeraldOfKrystenax | `src/engine/skills/curated/batch-r14.ts` | dragonGem without colour → dragonGem color Green (DragonGreen) |  |
 
 ## 按技能 ID
 
@@ -471,7 +475,10 @@
 | 8849 | 1 | R009-giant |
 | 8854 | 1 | P-prefnotprev-semantics |
 | 8859 | 1 | P-random-stat-pool |
+| 8872 | 1 | L4b-1487-1488 |
+| 8873 | 1 | L4b-1487-1488 |
 | 8881 | 1 | P-prefnotprev-semantics |
+| 8886 | 1 | R009-7267-color |
 | 8887 | 1 | R009-giant-dragon-L4b |
 | 8889 | 1 | L4b-7270-dragon |
 | 8890 | 1 | L1-consume-first |
@@ -541,6 +548,7 @@
 | 9616 | 1 | F3-q24 |
 | 9640 | 1 | P-random-stat-pool |
 | 9641 | 1 | P-prefnotprev-semantics |
+| 9647 | 1 | L4b-1646-prefnotprev |
 | 9659 | 1 | P-prefnotprev-semantics |
 | 9661 | 1 | F3-q19 |
 | 9666 | 1 | P-chooser-native-restrictions |
@@ -556,6 +564,7 @@
 | 9784 | 1 | L3-007 |
 | 9816 | 1 | L3-012 |
 | 9831 | 1 | L4b-1625-1674-any |
+| 9842 | 1 | L4b-1682-order |
 | 9844 | 1 | F1-items-62-75 |
 | 9847 | 1 | L3-015 |
 | 9849 | 1 | P-random-stat-pool |
