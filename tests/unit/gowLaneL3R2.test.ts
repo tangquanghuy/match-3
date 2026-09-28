@@ -540,3 +540,63 @@ describe('L3 R2: B13 Guardians (mana potions, 50% extra turn if any enemy has <s
     expect(withGold('troop:7365', 40, { target: 10, enemies: [en([], { hp: 200, maxHp: 200 })] })).toEqual(['dmg E10 52', 'gold+10', 'extra-turn skill']);
   });
 });
+
+describe('L3 R2: B14 status-count boosts (counted before the hit)', () => {
+  const seeds = (n: number) => Array.from({ length: n }, (_, i) => i + 1);
+  const st = (...ids: string[]) => ids.map(id => ({ id, turns: 99 })) as Character['statuses'];
+  const weak = (s: Character['statuses']) => en([], { hp: 1, maxHp: 1, statuses: s });
+  it('troop:6759 King Gobtruffle: mix of 14 + 1 per Poisoned + 1 per Diseased enemy (killed ones count); damage unboosted', () => {
+    const r = castSpell({ key: 'troop:6759', enemies: [weak(st('poison', 'disease')), en([], { statuses: st('poison') }), en([])] });
+    const mix = order(r).find(o => o.startsWith('convert '))!;
+    const n = [...mix.split('->')[1].matchAll(/x(\d+)/g)].reduce((a, m) => a + Number(m[1]), 0);
+    expect(n).toBe(17);
+    expect(order(r).filter(o => o.startsWith('dmg '))).toEqual(['dmg E10 12 (all)', 'dmg E11 12 (all)', 'dmg E12 12 (all)']);
+    expect(order(r)).toContain('defeat E10');
+  });
+  it('troop:6984 Scourge of Honor: 2 Mana per Cursed and per Diseased enemy, even if the hit kills them', () => {
+    const r = castSpell({ key: 'troop:6984', enemies: [weak(st('curse', 'disease')), weak(st('curse')), en([])] });
+    expect(order(r)[0]).toBe('buff C mana+6');
+  });
+  it('troop:7359 Frostfire Goblin: explode 2 + 1 per Frozen + 1 per Burning enemy', () => {
+    const SP = [BaseColor.Red, BaseColor.Blue, BaseColor.Green, BaseColor.Yellow, BaseColor.Purple, BaseColor.Brown];
+    const sparse = (r: number, c: number) => (r % 2 === 0 && c % 2 === 0 ? colorGem(SP[(r + c / 2) % 6]) : null);
+    const r = castSpell({ key: 'troop:7359', board: sparse, enemies: [en([], { statuses: st('frozen', 'burning') }), en([], { statuses: st('frozen') })] });
+    expect(r.summary.gems.exploded).toBe(5);
+  });
+  it('weapon:1144 Spider Totem: extra turn only if the target was already Webbed (this spell\'s Web does not count)', () => {
+    const fresh = castSpell({ key: 'weapon:1144', target: 10, enemies: [en([], { mana: 5 }), en([], { statuses: st('web') })] });
+    expect(order(fresh)).toEqual(['dmg E10 14', 'buff E10 mana-5', 'status E10 +web']);
+    const webbed = castSpell({ key: 'weapon:1144', target: 10, enemies: [en([], { mana: 5, statuses: st('web') }), en([])] });
+    expect(webbed.summary.extraTurn).toBe('skill');
+  });
+  // P-R7-dead-last-target-cond: the status is counted at step 0, so a killed target still grants it
+  it.fails('weapon:1144: a Webbed target killed by the hit still grants the extra turn (primitive queue)', () => {
+    expect(castSpell({ key: 'weapon:1144', target: 10, enemies: [weak(st('web')), en([])] }).summary.extraTurn).toBe('skill');
+  });
+  it('troop:6386 Warhawk: Hunter\'s Mark -> +10 and an extra turn; unmarked -> neither', () => {
+    const m = castSpell({ key: 'troop:6386', target: 10, enemies: [en([], { statuses: st('marked') }), en([])] });
+    expect(order(m)).toEqual(['dmg E10 24', 'extra-turn skill']);
+    const u = castSpell({ key: 'troop:6386', target: 10, enemies: [en([]), en([], { statuses: st('marked') })] });
+    expect(order(u)).toEqual(['dmg E10 14']);
+  });
+  it.fails('troop:6386: a marked target killed by the hit still grants the extra turn (primitive queue)', () => {
+    expect(castSpell({ key: 'troop:6386', target: 10, enemies: [weak(st('marked')), en([])] }).summary.extraTurn).toBe('skill');
+  });
+  it('troop:7613 Blighted Husk: drain 4 + 2 per Diseased enemy, then Disease', () => {
+    const r = castSpell({ key: 'troop:7613', target: 10, enemies: [en([], { mana: 20 }), en([], { statuses: st('disease') })] });
+    expect(order(r)).toEqual(['buff E10 mana-6', 'status E10 +disease']);
+  });
+  it('troop:7812 Rattigar: extra turn if any enemy Cursed; + floor(Brown x 34%)', () => {
+    const board = (r: number, c: number) => colorGem(r * 8 + c < 10 ? BaseColor.Brown : BaseColor.Red);
+    const r = castSpell({ key: 'troop:7812', board, enemies: [en([], { statuses: st('curse') })] });
+    expect(order(r)).toEqual(['dmg E10 16', 'extra-turn skill']);
+  });
+  it('weapon:1559 Sands of Mydnight: 25% + 2% per Terrified enemy', () => {
+    const t = seeds(40).map(seed => castSpell({ key: 'weapon:1559', seed, enemies: [en([])] }).summary.extraTurn === 'skill');
+    expect(t.some(Boolean) && !t.every(Boolean)).toBe(true);
+  });
+  it('troop:7109 Leocorn: extra turn only if an ally was Enchanted before this spell\'s Enchant', () => {
+    expect(seeds(20).some(seed => castSpell({ key: 'troop:7109', seed }).summary.extraTurn === 'skill')).toBe(false);
+    expect(castSpell({ key: 'troop:7109', allies: [{ hp: 500, maxHp: 500, statuses: st('enchanted') }] }).summary.extraTurn).toBe('skill');
+  });
+});

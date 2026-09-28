@@ -1,6 +1,6 @@
 # GoW 技能改动留档
 
-自动生成（`node scripts/gow-changelog.mjs render`），源数据 [CHANGES.jsonl](CHANGES.jsonl)，共 301 条改动，涉及 548 个技能 ID。
+自动生成（`node scripts/gow-changelog.mjs render`），源数据 [CHANGES.jsonl](CHANGES.jsonl)，共 302 条改动，涉及 550 个技能 ID。
 
 ## 按时间
 
@@ -307,6 +307,7 @@
 | 2026-09-28T08:57 | sa-R7 | R7-7800-prefnotprev | assembler | 9839 | troop:7800 ImmortalTrogolin | `src/engine/skills/curated/batch-r11.ts` | enemyRandomN n:3 (three distinct enemies; lone enemy hit once) → RandomEnemy + 2 x RandomPrefNotPrevEnemy (R007-3): each hit avoids only the previous; lone enemy hit three times |  |
 | 2026-09-28T09:02 | sa-R7 | R7-guardian-potions | assembler | 8601, 8606, 8603, 8605 | troop:7073 JakalTheGuardian；troop:7078 AransiTheGuardian；troop:7075 UrielleTheGuardian；troop:7077 RokGarTheGuardian | `src/engine/skills/curated/batch-r8.ts` | 'Create 1-3 <colour> Mana Potions' created plain colour gems; 8606 poison uniform 1-3 distinct targets → manaPotionGem of that colour (native CreateGemsRange <Colour>ManaPotion, same as 8604); 8606 RandomEnemy + 2 x 50% RandomPrefNotPrevEnemy |  |
 | 2026-09-28T09:02 | sa-R7 | R7-1460-burning-gems | assembler | 8761 | weapon:1460 TheMoltenWard | `src/engine/skills/curated/batch-w03.ts` | Armor boosted by the number of Burning enemies → boosted by Burning gems on the board (native CountSet + CountGems Burning 100); extra-turn step before the armor (native order) |  |
+| 2026-09-28T09:07 | sa-R7 | R7-b14-status-counts | assembler | 8139, 8488, 7410 | troop:6759 KingGobtruffle；troop:6984 TheScourgeOfHonor；weapon:1144 SpiderTotem | `src/engine/skills/curated/batch-p38.ts`<br>`src/engine/skills/curated/batch-p37.ts`<br>`src/engine/skills/curated/batch-w01.ts` | 8139 damage boosted by Poisoned/Diseased enemies, mix fixed 14 (ZH too); 8488 mana counted after the true damage (killed enemies lost); 7410 extra turn if any enemy Webbed after this spell's Web (always) → 8139 mix 14 + poisoned + diseased, created before the unboosted damage; 8488 mana gain before the damage; 7410 extra turn iff the target was Webbed before this spell's Web |  |
 
 ## 按技能 ID
 
@@ -412,6 +413,7 @@
 | 7399 | 1 | P-chooser-native-restrictions |
 | 7402 | 1 | R7-6259-chosen-ally |
 | 7408 | 1 | F2-6265-dispel-last |
+| 7410 | 1 | R7-b14-status-counts |
 | 7415 | 1 | R7-6269-chosen-daemon |
 | 7418 | 1 | L7-R1-random-chain-waves |
 | 7431 | 1 | L3-002 |
@@ -533,7 +535,7 @@
 | 8113 | 1 | P-counter-per-step |
 | 8130 | 1 | F3-t1272 |
 | 8133 | 1 | F2-6754-no-explode |
-| 8139 | 1 | P-counter-per-step |
+| 8139 | 2 | P-counter-per-step、R7-b14-status-counts |
 | 8150 | 1 | F2-R001-order |
 | 8155 | 1 | R3-B07-1279 |
 | 8160 | 1 | P-prefnotprev-semantics |
@@ -590,6 +592,7 @@
 | 8468 | 1 | F2-R001-order |
 | 8472 | 2 | P-F1-oneof-chosen-target、P-F1-oneof-chosen-target |
 | 8473 | 1 | P-F1-remove-gems |
+| 8488 | 1 | R7-b14-status-counts |
 | 8491 | 1 | P-chooser-native-restrictions |
 | 8495 | 1 | R3-B08-6985 |
 | 8497 | 1 | F2-6991-explode-mult |

@@ -264,8 +264,10 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 8488,
     desc: '对所有敌人造成 [魔法 + 4] 点真实伤害。每有一名陷入诅咒或疾病效果的敌人，则收回 2 点法力值。 [x2]',
     build: skill(
-      dmgAll(4, 1, true),
+      // sa-R7: native counts Cursed / Diseased enemies at steps 0-1, before the true damage; the self-mana gain is
+      // placed first so enemies killed by the hit still count (the mana gain does not affect the damage).
       mana('allySelf', 0, 0, { modifier: { mod: { kind: 'multiplier', a: 2 }, sources: [{ kind: 'enemyStatusCount', statusId: 'curse' }, { kind: 'enemyStatusCount', statusId: 'disease' }] } }),
+      dmgAll(4, 1, true),
     ),
   },
   {

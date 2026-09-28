@@ -61,10 +61,13 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 8139,
-    desc: '对所有敌人造成 [魔法 + 2] 点伤害. 创造 14 颗宝石，所创造的宝石混合棕色宝石和绿色宝石，伤害值因陷入中毒和疾病状态的敌人而增强。获得一个额外的回合。 [1:1]',
+    desc: '对所有敌人造成 [魔法 + 2] 点伤害。创造 14 颗绿色和棕色的混合宝石，数量因陷入中毒和疾病状态的敌人而增强。获得一个额外的回合。 [1:1]',
     build: skill(
-      dmg('enemyAll', 2, 1, { range: 'all', modifier: { mod: { kind: 'ratio', a: 1, b: 1 }, sources: [{ kind: 'enemyStatusCount', statusId: 'poison' }, { kind: 'enemyStatusCount', statusId: 'disease' }] } }),
-      createMix([BaseColor.Brown, BaseColor.Green], 14),
+      // sa-R7: native counters (CountSpecificStatusEffect disease/poison, steps 0-1) feed CreateGems2Colors, not the
+      // Damage (no UseCounterForAmount); counted before the hit, so the mix is created first (a kill still counts;
+      // creating gems does not change the damage). Was: damage boosted, mix fixed at 14.
+      createMix([BaseColor.Brown, BaseColor.Green], 14, 0, { modifier: { mod: { kind: 'ratio', a: 1, b: 1 }, sources: [{ kind: 'enemyStatusCount', statusId: 'poison' }, { kind: 'enemyStatusCount', statusId: 'disease' }] } }),
+      dmg('enemyAll', 2, 1, { range: 'all' }),
       extraTurn(),
     ),
   },
