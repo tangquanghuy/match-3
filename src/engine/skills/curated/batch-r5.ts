@@ -144,8 +144,9 @@ const SPELLS: CuratedBatch['spells'] = [
       destroyChosenCol(),
       dmg('enemyLast', 3),
       inflict('stun', 'enemyLast'),
-      reposition('allySelf', 'front'),
+      // native order: TroopOrderFront@LastEnemy, then TroopOrderFront@Self
       reposition('enemyLast', 'front'),
+      reposition('allySelf', 'front'),
     ),
   },
   {

@@ -79,3 +79,8 @@
 - weapon:1452 fix(chosen column only, not cross; zh pool + override)
 - troop:6544 accept
 - troop:6676 fix(destroy 8 include all)
+- troop:7378 fix(destroy 8 include all)
+- troop:6774 accept
+- troop:7470 fix(native order: enemy to front, then self)
+- troop:6421 fix(destroy 7 include all)
+- troop:6254 accept

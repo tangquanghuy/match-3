@@ -1,6 +1,6 @@
 # GoW 技能改动留档
 
-自动生成（`node scripts/gow-changelog.mjs render`），源数据 [CHANGES.jsonl](CHANGES.jsonl)，共 555 条改动，涉及 1009 个技能 ID。
+自动生成（`node scripts/gow-changelog.mjs render`），源数据 [CHANGES.jsonl](CHANGES.jsonl)，共 557 条改动，涉及 1012 个技能 ID。
 
 ## 按时间
 
@@ -561,6 +561,8 @@
 | 2026-09-28T21:46 | sa-A | L4a-R8-random-any-gem | assembler | 7462 | troop:6312 Bogstrider | `src/engine/skills/curated/batch-01.ts` | 7462 destroy 1+M include color → include all (R013-5) |  |
 | 2026-09-28T21:50 | sa-A | L4a-R8-random-any-gem | assembler | 8823, 8022 | troop:7228 BORK-3000；troop:6676 Plainsjumper | `src/engine/skills/curated/batch-34.ts`<br>`src/engine/skills/curated/batch-03.ts` | 8823 / 8022 random destroy include color → include all (R013-5) |  |
 | 2026-09-28T21:50 | sa-A | L4a-R8-1452-column-only | data | 8721 | weapon:1452 ShockHammer | `src/engine/skills/curated/batch-w03.ts`<br>`scripts/curated-pools/pool-w01.json`<br>`src/data/gowWeaponReviewedOverrides.json` | 8721 chosenCross (row+column); zh '摧毁其行和列' → chosenLine col (native BoardTarget Column, English 'destroy its column'); zh '摧毁其所在的列'; override description+prototype |  |
+| 2026-09-28T21:52 | sa-A | L4a-R8-random-any-gem | assembler | 9020, 7594 | troop:7378 Ursky；troop:6421 Brownie | `src/engine/skills/curated/batch-04.ts`<br>`src/engine/skills/curated/batch-13.ts` | 9020 / 7594 random destroy include color → include all (R013-5) |  |
+| 2026-09-28T21:52 | sa-A | L4a-R8-7470-order | assembler | 9187 | troop:7470 GiantBadger | `src/engine/skills/curated/batch-r5.ts` | 9187 reposition self front, then last enemy front → native order: last enemy front, then self front (R001) |  |
 
 ## 按技能 ID
 
@@ -769,6 +771,7 @@
 | 7576 | 1 | F2-R001-order |
 | 7577 | 1 | F2-1159-boost-source |
 | 7586 | 1 | B-L4b-1167-fromprevious |
+| 7594 | 1 | L4a-R8-random-any-gem |
 | 7595 | 1 | L4a-r3-6422 |
 | 7596 | 3 | P-random-stat-pool、F1-remove-order、P-F1-remove-gems |
 | 7598 | 1 | L1-6425-dist |
@@ -1296,6 +1299,7 @@
 | 9008 | 1 | R009-giant-dragon-L4b |
 | 9013 | 1 | L7-R1-random-chain-waves |
 | 9015 | 2 | L5-001、L5-002 |
+| 9020 | 1 | L4a-R8-random-any-gem |
 | 9022 | 1 | P-R1-gargoyle-tier-filter,P-R2-gargoyle-tier,P-R4-gargoyle-tier-count,P-R3-dragon-gem-count |
 | 9023 | 1 | L4b-R6-B02 |
 | 9025 | 1 | F2-7383-kill-gems |
@@ -1331,6 +1335,7 @@
 | 9174 | 1 | L4a-r4-7457 |
 | 9181 | 1 | L1-E-7465-dist |
 | 9184 | 2 | P-counter-per-step、P-counter-per-step |
+| 9187 | 1 | L4a-R8-7470-order |
 | 9190 | 1 | L7-R1-random-chain-waves |
 | 9193 | 1 | L4a-R1-9193-random-explode |
 | 9197 | 1 | L2-singlegem-cell |

@@ -363,3 +363,26 @@ describe('L4a R8 B13', () => {
     expect(b.summary.order.filter(o => o.startsWith('dmg'))).toEqual(['dmg E10 13 (all)', 'dmg E11 13 (all)']);
   });
 });
+
+describe('L4a R8 B14', () => {
+  // troop:7378 (9020) DestroyGems 8 ; troop:6421 (7594) DestroyGems 7: any gem incl. Skulls.
+  it.each([['troop:7378', 8], ['troop:6421', 7]] as const)('%s destroys %i random gems, Skulls eligible', (key, n) => {
+    expect(castSpell({ key, board: skullBoard }).summary.order[0]).toMatch(new RegExp(`^destroy ${n} .*skull`));
+  });
+  // troop:7470 (9187): DestroyGems Column ; Damage@LastEnemy 3+M ; Stun ; TroopOrderFront@LastEnemy ; TroopOrderFront@Self.
+  it('troop:7470 pulls the last enemy to the front, then itself (native order)', () => {
+    const r = castSpell({ key: 'troop:7470', allies: [{}, {}], before: [{}] });
+    const moves = r.summary.order.filter(o => o.startsWith('move'));
+    expect(moves[0]).toMatch(/^move E13 /);
+    expect(moves[1]).toMatch(/^move C /);
+    expect(r.summary.order).toContain('status E13 +stun');
+  });
+  // troop:6774 (8164): DestroyGems Block5x5 ; Damage@RandomEnemy 3+M ; Stun@FromPrevious.  troop:6254 (7397): Row ; knock front back.
+  it('troop:6774 stuns the same random enemy it hit', () => {
+    for (let seed = 1; seed <= 8; seed++) {
+      const o = castSpell({ key: 'troop:6774', seed }).summary.order;
+      const hit = o.find(x => x.startsWith('dmg'))!.split(' ')[1];
+      expect(o).toContain(`status ${hit} +stun`);
+    }
+  });
+});
