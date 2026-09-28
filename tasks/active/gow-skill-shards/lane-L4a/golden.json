@@ -339,6 +339,26 @@
   "by": "sa-A",
   "at": "2026-09-28T21:17:21.478Z"
  },
+ "troop:6343": {
+  "lines": {
+   "L10": "dmg E11 39 ; storm Green set  => E11:hp-29 arm-10",
+   "R10": "dmg E11 39 ; storm Green set  => E11:hp-29 arm-10",
+   "L0": "dmg E11 9 ; storm Green set  => E11:arm-9",
+   "K": "dmg E11 39 ; defeat E11 ; storm Green set  => E11:hp-1 DEAD"
+  },
+  "by": "sa-A",
+  "at": "2026-09-28T21:19:06.927Z"
+ },
+ "troop:6346": {
+  "lines": {
+   "L10": "dmg E11 13 ; storm Purple set  => E11:hp-3 arm-10",
+   "R10": "dmg E11 13 ; storm Purple set  => E11:hp-3 arm-10",
+   "L0": "dmg E11 3 ; storm Purple set  => E11:arm-3",
+   "K": "dmg E11 13 ; defeat E11 ; storm Purple set  => E11:hp-1 DEAD"
+  },
+  "by": "sa-A",
+  "at": "2026-09-28T21:19:06.927Z"
+ },
  "troop:6347": {
   "lines": {
    "L10": "dmg E11 13 ; storm Brown set  => E11:hp-3 arm-10",
@@ -1868,6 +1888,36 @@
   },
   "by": "sa-A",
   "at": "2026-09-28T21:17:21.478Z"
+ },
+ "weapon:1161": {
+  "lines": {
+   "L10": "dmg E11 14 ; storm Green set  => E11:hp-4 arm-10",
+   "R10": "dmg E11 14 ; storm Green set  => E11:hp-4 arm-10",
+   "L0": "dmg E11 4 ; storm Green set  => E11:arm-4",
+   "K": "dmg E11 14 ; defeat E11 ; storm Green set  => E11:hp-1 DEAD"
+  },
+  "by": "sa-A",
+  "at": "2026-09-28T21:19:06.927Z"
+ },
+ "weapon:1164": {
+  "lines": {
+   "L10": "dmg E11 14 ; storm Purple set  => E11:hp-4 arm-10",
+   "R10": "dmg E11 14 ; storm Purple set  => E11:hp-4 arm-10",
+   "L0": "dmg E11 4 ; storm Purple set  => E11:arm-4",
+   "K": "dmg E11 14 ; defeat E11 ; storm Purple set  => E11:hp-1 DEAD"
+  },
+  "by": "sa-A",
+  "at": "2026-09-28T21:19:06.927Z"
+ },
+ "weapon:1165": {
+  "lines": {
+   "L10": "dmg E11 14 ; storm Brown set  => E11:hp-4 arm-10",
+   "R10": "dmg E11 14 ; storm Brown set  => E11:hp-4 arm-10",
+   "L0": "dmg E11 4 ; storm Brown set  => E11:arm-4",
+   "K": "dmg E11 14 ; defeat E11 ; storm Brown set  => E11:hp-1 DEAD"
+  },
+  "by": "sa-A",
+  "at": "2026-09-28T21:19:06.927Z"
  },
  "weapon:1202": {
   "lines": {

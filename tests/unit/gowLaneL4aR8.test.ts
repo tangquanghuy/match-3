@@ -84,3 +84,31 @@ describe('L4a R8 B02', () => {
     expect(summarize(g, g.cast()).order[0]).toBe('dmg E11 14');
   });
 });
+
+describe('L4a R8 B03-B04 storm family', () => {
+  // troop:6343/6344/6345/6346 (7495-7498): Damage 3+M [MultiplyFor10<C>Gems 3 = 13+ gems, R003] ; Storm<C>.
+  it.each([
+    ['troop:6343', BaseColor.Green], ['troop:6344', BaseColor.Red], ['troop:6345', BaseColor.Yellow], ['troop:6346', BaseColor.Purple],
+  ] as const)('%s triples at 13 %s gems and creates that storm', (key, color) => {
+    expect(castSpell({ key, board: exactly(color, 13) }).summary.order[0]).toBe('dmg E11 39');
+    expect(castSpell({ key, board: exactly(color, 12) }).summary.order[0]).toBe('dmg E11 13');
+    expect(castSpell({ key }).summary.order).toContain(`storm ${color} set`);
+  });
+  // weapon:1161-1165 (7579-7583): Damage 4+M [MultiplyForStorm<C> 2] ; Storm<C>.
+  it.each([
+    ['weapon:1161', BaseColor.Green, BaseColor.Red], ['weapon:1162', BaseColor.Red, BaseColor.Green], ['weapon:1163', BaseColor.Yellow, BaseColor.Blue],
+    ['weapon:1164', BaseColor.Purple, BaseColor.Yellow], ['weapon:1165', BaseColor.Brown, BaseColor.Purple],
+  ] as const)('%s doubles only under its own %s storm', (key, own, other) => {
+    const f = setupCast({ key }); f.engine.debugSetStorm(own, f.side);
+    expect(summarize(f, f.cast()).order).toEqual(['dmg E11 28', `storm ${own} replaced`]);
+    const g = setupCast({ key }); g.engine.debugSetStorm(other, g.side);
+    expect(summarize(g, g.cast()).order[0]).toBe('dmg E11 14');
+  });
+  // troop:6376 BoneDaemon (7530): Damage 4+M [MultiplyForStormSkull 2] ; StormSkull (Bonestorm).
+  it('troop:6376 doubles only under a Bonestorm', () => {
+    const f = setupCast({ key: 'troop:6376' }); f.engine.debugSetStorm(BaseColor.Brown, f.side, 8, 'skull');
+    expect(summarize(f, f.cast()).order[0]).toBe('dmg E11 28');
+    const g = setupCast({ key: 'troop:6376' }); g.engine.debugSetStorm(BaseColor.Brown, g.side);
+    expect(summarize(g, g.cast()).order[0]).toBe('dmg E11 14');
+  });
+});

@@ -24,3 +24,8 @@
 - weapon:1160 accept
 - troop:6347 accept
 - NOTE dispute: 18 already-accepted skills use randomGems include:'color' for native colourless DestroyGems/ExplodeGems (e.g. troop:6064,6146,6555,6607,6622,6758,6878,6991,7206,7359, weapon:1150,1157,1274,1472,1484); sa-A now fixes new ones to include:'all' (R013-5). Coordinator: rule on requeue.
+- weapon:1165 accept
+- troop:6343 accept
+- weapon:1161 accept
+- troop:6346 accept
+- weapon:1164 accept
