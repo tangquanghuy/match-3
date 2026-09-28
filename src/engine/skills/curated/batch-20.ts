@@ -48,6 +48,7 @@ const GIANTS = [
   'GhostOgre', 'MazeCyclops', 'GrimbornBloodeye', 'HeldrTheGrave', 'Polymetis',
   'SteamTroll', 'ScoriaGiant-born', 'VenomousTroll', 'LavaEttin', 'AbominableTroll',
   'StormOracle', 'ToxAndSion', 'StormGuard', 'AsbjornTheMountain',
+  'ImmortalGirthrok', // + raw TroopType Giant (sa-E L1)
 ];
 
 const SKIPPED: { id: number; reason: string }[] = [

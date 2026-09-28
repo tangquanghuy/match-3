@@ -265,13 +265,21 @@ describe('L1-E B06 AllyType status + SummoningType <race>: weapon:1393 / 1462 / 
     // B07
     ['weapon:1470', 'gw_KingsDagger', 'Rogue'], ['weapon:1495', 'gw_Wallhack', 'Orc'], ['weapon:1496', 'gw_Underminer', 'Dwarf'], ['weapon:1510', 'gw_EruptionOfRoses', 'Fey'],
     ['weapon:1512', 'gw_WingsOfDestruction', 'Dragon'], ['weapon:1533', 'gw_Rockstabba', 'Goblin'], ['weapon:1535', 'gw_Gatekeeper', 'Daemon'], ['weapon:1551', 'gw_TheEnor-mace', 'Giant'],
-    ['weapon:1555', 'gw_PandaskianWand', 'Urska'], ['weapon:1558', 'gw_Stonecutter', 'Monster']];
+    ['weapon:1555', 'gw_PandaskianWand', 'Urska'], ['weapon:1558', 'gw_Stonecutter', 'Monster'],
+    // B08
+    ['weapon:1575', 'gw_LostChant', 'Wildfolk'], ['weapon:1579', 'gw_BurningPride', 'Raksha'], ['weapon:1616', 'gw_GoldenTalon', 'Stryx'], ['weapon:1619', 'gw_BrokenStar', 'Centaur'],
+    ['weapon:1665', 'gw_VulpineFangs', 'Wargare'], ['weapon:1354', 'gw_ArborealCrystal', 'Elemental'], ['weapon:1375', 'gw_FistOfHeaven', 'Divine'], ['weapon:1386', 'gw_ScaleguardProtector', 'Naga'],
+    ['weapon:1392', 'gw_UrskineCleaver', 'Urska'], ['weapon:1401', 'gw_TheEngineersDrill', 'Mech'],
+    // B09
+    ['weapon:1406', 'gw_MysticManuscript', 'Mystic'], ['weapon:1416', 'gw_TwinClaws', 'Beast'], ['weapon:1424', 'gw_Sharpfang', 'Monster'], ['weapon:1425', 'gw_StaffOfStorms', 'Stryx'],
+    ['weapon:1448', 'gw_Gobsticker', 'Goblin'], ['weapon:1450', 'gw_GlowingCore', 'Construct'], ['weapon:1469', 'gw_CrownOfHorns', 'Giant'], ['weapon:1492', 'gw_MortalChain', 'Human'],
+    ['weapon:1493', 'gw_ToothOfTheWild', 'Wildfolk'], ['weapon:1692', 'gw_OceanStar', 'Merfolk']];
   for (const [key, skill, race] of cases) {
     it(`${skill}: summon pool = raw TroopType ${race} in roster`, () => {
       expect([...summonPool(skill)].sort()).toEqual(inRoster(rawByType(race)));
     });
     it(`${key}: only ${race} allies get the random positive status`, () => {
-      const r = castSpell({ key, allies: [{ troopTypes: [race] }, { troopTypes: ['Beast'] }] });
+      const r = castSpell({ key, allies: [{ troopTypes: [race] }, { troopTypes: [race === 'Beast' ? 'Mech' : 'Beast'] }] });
       const got = r.summary.order.filter(x => x.startsWith('status ')).map(x => x.split(' ')[1]);
       expect(got).toEqual(['A1']);
     });

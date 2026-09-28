@@ -586,7 +586,7 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 9508,
-    desc: '引爆 [魔法 + 1] 颗黄色宝石。为所有 Stryx 盟友赋予随机状态效果。然后召唤一支 Stryx 部队。',
+    desc: '爆破 [魔法 + 1] 颗黄色宝石。赋予所有鸟族盟友一个随机正面增益效果。再召唤一名鸟族军队。',
     build: skill(
       explodeRandomGems(1, 1, 'color', BaseColor.Yellow),
       inflictRandom('allyAll', { targetRace: 'Stryx', pool: 'positive' }),
@@ -990,7 +990,7 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 9754,
-    desc: '引爆[魔法 + 1]颗绿色宝石。赋予所有战神盟友随机状态效果。然后召唤一支战神部队。',
+    desc: '爆破 [魔法 + 1] 颗绿色宝石。赋予所有狼族盟友一个随机正面增益效果。再召唤一名狼族军队。',
     build: skill(
       explodeRandomGems(1, 1, 'color', BaseColor.Green),
       inflictRandom('allyAll', { targetRace: 'Wargare', pool: 'positive' }),
@@ -1215,7 +1215,7 @@ const SPELLS: CuratedBatch['spells'] = [
   {
     id: 9916,
     desc: '爆破 [魔法 + 1] 颗蓝色宝石。赋予所有美人鱼盟友一个随机正面增益效果。再召唤一名美人鱼军队。',
-    build: ({"segments":[{"kind":"gem","params":{"op":"clear","mode":"explode","target":{"kind":"randomGems","count":{"base":1,"mult":1},"include":"color","color":"Blue"}}},{"kind":"randomStatus","pool":"positive","target":"allyAll","targetRace":"Merfolk"},{"kind":"summon","params":{"source":{"randomOf":["Sharkey","Troglodyte","Hammerhead","Hippocampus","Kuotani","Merlion","Azura","Waverider","Leviathan","Scylla","Shocktopus","Undine","MantisShrimp","Megavore","Nimue","Mermaid","Mershark","Hammerclaw","SeaWitch","TheDeepKing","Mervorax","Merknight","Nereida","Axolotl","Tuskor","Cyrene","Piscea","Anglerfin","Triton","ClamLasher","SeaScavenger","SeaHag","MantaRaider","TritonGuardMera","Treviamus","DagoNath","BloomManatee","Caspian","MaelstromDagoNath","Jellymaid","Sironia","ToxicPuffer","TidalDancer","Balearic","Ipanema"]}}}]} as SkillPrototype),
+    build: ({"segments":[{"kind":"gem","params":{"op":"clear","mode":"explode","target":{"kind":"randomGems","count":{"base":1,"mult":1},"include":"color","color":"Blue"}}},{"kind":"randomStatus","pool":"positive","target":"allyAll","targetRace":"Merfolk"},{"kind":"summon","params":{"source":{"randomOf":["Sharkey","Troglodyte","Hammerhead","Hippocampus","Kuotani","Merlion","Azura","Waverider","Leviathan","Scylla","Shocktopus","Undine","MantisShrimp","Megavore","Nimue","Mermaid","Mershark","Hammerclaw","SeaWitch","TheDeepKing","Mervorax","Merknight","Nereida","Axolotl","Tuskor","Cyrene","Piscea","Anglerfin","Triton","ClamLasher","SeaScavenger","SeaHag","MantaRaider","TritonGuardMera","Treviamus","DagoNath","BloomManatee","Caspian","MaelstromDagoNath","Jellymaid","Sironia","ToxicPuffer","TidalDancer","Balearic","Ipanema","ImmortalThalassa"]}}}]} as SkillPrototype),
   },
   {
     id: 9934,

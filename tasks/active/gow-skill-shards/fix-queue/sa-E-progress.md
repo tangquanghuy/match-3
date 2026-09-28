@@ -5,3 +5,5 @@
 - B05 weapon:1569,1573,1576,1583,1587,1617,1629,1638,1388,1402 approve=0 fixed=10 (raw kingdom pools from B04; 1583/1617/1629/1638 zh kingdom names) issue=10 (P-E-faction-kingdom)
 - B06 weapon:1407,1411,1449,1453,1491,1675,1678,1393,1462,1463 approve=3 (1393/1462/1463 race family) fixed=8 (raw kingdom pools; 1675 zh name) issue=7 (P-E-faction-kingdom)
 - B07 weapon:1470,1495,1496,1510,1512,1533,1535,1551,1555,1558 approve=10 fixed=4 (1551 +ImmortalGirthrok; 1470/1555/1558 zh) issue=0
+- B08 weapon:1575,1579,1616,1619,1665,1354,1375,1386,1392,1401 approve=10 fixed=2 (1616/1665 zh race names) issue=0
+- B09 weapon:1406,1416,1424,1425,1448,1450,1469,1492,1493,1692 approve=10 fixed=3 (1469/1692 pool immortals, 1425 zh; also unreviewed troop:6507 +ImmortalGirthrok, troop:7105 +Murk,Lurk,AndDurk) issue=0

@@ -512,7 +512,7 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 8622,
-    desc: '爆炸[魔法 + 1]枚黄色宝石。赋予所有冥河盟友一个随机状态效果。然后召唤一支猎鹰军团。',
+    desc: '爆破 [魔法 + 1] 颗黄色宝石。赋予所有鸟族盟友一个随机正面增益效果。再召唤一名鸟族军队。',
     build: skill(
       explodeRandomGems(1, 1, 'color', BaseColor.Yellow),
       inflictRandom('allyAll', { targetRace: 'Stryx', pool: 'positive' }),
@@ -869,7 +869,7 @@ const SPELLS: CuratedBatch['spells'] = [
   {
     id: 8770,
     desc: '爆破 [魔法 + 1] 颗蓝色宝石。赋予所有巨人盟友一个随机正面增益效果。再召唤一名巨人军队。',
-    build: ({"segments":[{"kind":"gem","params":{"op":"clear","mode":"explode","target":{"kind":"randomGems","count":{"base":1,"mult":1},"include":"color","color":"Blue"}}},{"kind":"randomStatus","pool":"positive","target":"allyAll","targetRace":"Giant"},{"kind":"summon","params":{"source":{"randomOf":["Ogre","Ettin","StoneGiant","FrostGiant","Berserker","JarlFiremantle","Elf-Eater","Cyclops","Zephyros","Gob-Chomper","SeaTroll","DragonCruncher","RockTroll","DarkTroll","GogAndGud","JotnarStormshield","Ogryn","DesertTroll","ForestTroll","FireGiant","MonsterMuncher","FlameTroll","SkrymirTheLofty","HyndlaFrostcrown","IceTroll","Igneus","HalfgrimHalf-Giant","Sledgepaw","LavaTroll","Stone-Biter","CorruptTroll","Fomorian","FrostfireTroll","CrazedTroll","OgrakShaman","Bone-Biter","IllithianColossus","Smashedmouth","StormKnight","FlameMaiden","Kharybdis","Ogress","Baldr","VidarrTheVast","IcespireShaman","DarkForestTroll","TheOnyxGiant","TheSapphireGiant","TheEmeraldGiant","TheRubyGiant","TheAmethystGiant","TheTopazGiant","TheUmbralGiant","TheGraveGiant","Ogretaur","GiantSentinel","EarthGiant","Jordrin","Kolfrysti","Jarnvisa","GhostOgre","MazeCyclops","GrimbornBloodeye","HeldrTheGrave","Polymetis","SteamTroll","ScoriaGiant-born","VenomousTroll","LavaEttin","AbominableTroll","StormOracle","ToxAndSion","StormGuard","AsbjornTheMountain"]}}}]} as SkillPrototype),
+    build: ({"segments":[{"kind":"gem","params":{"op":"clear","mode":"explode","target":{"kind":"randomGems","count":{"base":1,"mult":1},"include":"color","color":"Blue"}}},{"kind":"randomStatus","pool":"positive","target":"allyAll","targetRace":"Giant"},{"kind":"summon","params":{"source":{"randomOf":["Ogre","Ettin","StoneGiant","FrostGiant","Berserker","JarlFiremantle","Elf-Eater","Cyclops","Zephyros","Gob-Chomper","SeaTroll","DragonCruncher","RockTroll","DarkTroll","GogAndGud","JotnarStormshield","Ogryn","DesertTroll","ForestTroll","FireGiant","MonsterMuncher","FlameTroll","SkrymirTheLofty","HyndlaFrostcrown","IceTroll","Igneus","HalfgrimHalf-Giant","Sledgepaw","LavaTroll","Stone-Biter","CorruptTroll","Fomorian","FrostfireTroll","CrazedTroll","OgrakShaman","Bone-Biter","IllithianColossus","Smashedmouth","StormKnight","FlameMaiden","Kharybdis","Ogress","Baldr","VidarrTheVast","IcespireShaman","DarkForestTroll","TheOnyxGiant","TheSapphireGiant","TheEmeraldGiant","TheRubyGiant","TheAmethystGiant","TheTopazGiant","TheUmbralGiant","TheGraveGiant","Ogretaur","GiantSentinel","EarthGiant","Jordrin","Kolfrysti","Jarnvisa","GhostOgre","MazeCyclops","GrimbornBloodeye","HeldrTheGrave","Polymetis","SteamTroll","ScoriaGiant-born","VenomousTroll","LavaEttin","AbominableTroll","StormOracle","ToxAndSion","StormGuard","AsbjornTheMountain","ImmortalGirthrok"]}}}]} as SkillPrototype),
   },
   {
     id: 8771,

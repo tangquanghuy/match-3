@@ -1,6 +1,6 @@
 # GoW 技能改动留档
 
-自动生成（`node scripts/gow-changelog.mjs render`），源数据 [CHANGES.jsonl](CHANGES.jsonl)，共 500 条改动，涉及 864 个技能 ID。
+自动生成（`node scripts/gow-changelog.mjs render`），源数据 [CHANGES.jsonl](CHANGES.jsonl)，共 503 条改动，涉及 871 个技能 ID。
 
 ## 按时间
 
@@ -506,6 +506,9 @@
 | 2026-09-28T12:07 | sa-E | L1-E-kingdom-desc | data | 9832 | weapon:1675 DeadEnd | `src/engine/skills/curated/batch-w04.ts`<br>`scripts/curated-pools/pool-w01.json`<br>`src/data/gowWeaponReviewedOverrides.json` | zh 扎金 (off-roster name), status wording → 齐埃金, family wording |  |
 | 2026-09-28T12:11 | sa-E | L1-E-race-desc | data | 8771, 9207, 9210 | weapon:1470 KingsDagger；weapon:1555 PandaskianWand；weapon:1558 Stonecutter | `src/engine/skills/curated/batch-w03.ts`<br>`src/engine/skills/curated/batch-w04.ts`<br>`scripts/curated-pools/pool-w01.json`<br>`src/data/gowWeaponReviewedOverrides.json` | 1470 zh 罗格 (transliterated Rogue); 1555/1558 'random' missing → 盗贼 + family wording; 一个随机正面增益状态效果 |  |
 | 2026-09-28T12:11 | sa-E | L1-E-1551-giant-pool | assembler | 9203 | weapon:1551 TheEnor-mace | `src/engine/skills/curated/batch-w04.ts` | Giant summon pool lacked ImmortalGirthrok → pool = raw TroopType Giant roster (74 -> 75) |  |
+| 2026-09-28T12:14 | sa-E | L1-E-race-desc | data | 9508, 9754 | weapon:1616 GoldenTalon；weapon:1665 VulpineFangs | `src/engine/skills/curated/batch-w04.ts`<br>`scripts/curated-pools/pool-w01.json`<br>`src/data/gowWeaponReviewedOverrides.json` | 1616 zh untranslated Stryx; 1665 Wargare as 战神 → 鸟族 / 狼族 (as in troop descs), family wording |  |
+| 2026-09-28T12:19 | sa-E | L1-E-race-pool-immortals | assembler | 7697, 8648, 8770, 9916 | troop:6507 HyndlaFrostcrown；troop:7105 FlamingOni；weapon:1469 CrownOfHorns；weapon:1692 OceanStar | `src/engine/skills/curated/batch-15.ts`<br>`src/engine/skills/curated/batch-20.ts`<br>`src/engine/skills/curated/batch-w03.ts`<br>`src/engine/skills/curated/batch-w04.ts`<br>`src/data/gowWeaponReviewedOverrides.json` | race summon pools missing newer roster troops (Giant: ImmortalGirthrok; Goblin: Murk,Lurk,AndDurk; Merfolk: ImmortalThalassa) → pools = raw TroopType roster (sweep over all native SummoningType* skills: no other diffs) |  |
+| 2026-09-28T12:19 | sa-E | L1-E-race-desc | data | 8622 | weapon:1425 StaffOfStorms | `src/engine/skills/curated/batch-w03.ts`<br>`scripts/curated-pools/pool-w01.json`<br>`src/data/gowWeaponReviewedOverrides.json` | zh Stryx as 冥河 / summon 猎鹰军团 → 鸟族, family wording |  |
 
 ## 按技能 ID
 
@@ -730,6 +733,7 @@
 | 7670 | 1 | P-F3-prehit-target-compare |
 | 7685 | 1 | L1-6498-summon-dist |
 | 7693 | 1 | F2-R001-order |
+| 7697 | 1 | L1-E-race-pool-immortals |
 | 7700 | 1 | B-L4b-6510-two-creates |
 | 7704 | 1 | L1-6513-sacrifice |
 | 7712 | 1 | R3-B03-6519 |
@@ -1010,6 +1014,7 @@
 | 8610 | 1 | B-L4b-7082-native-create |
 | 8614 | 1 | L4a-r3-7086 |
 | 8618 | 1 | L2-1420-branches |
+| 8622 | 1 | L1-E-race-desc |
 | 8624 | 2 | P-counter-per-step、L7-R1-teamsize-source |
 | 8625 | 1 | F1-items-54-60 |
 | 8626 | 2 | P-counter-per-step、L7-R1-teamsize-source |
@@ -1029,6 +1034,7 @@
 | 8642 | 1 | P-A-target-kingdom |
 | 8644 | 1 | L7-R1-weapon-colour-race |
 | 8646 | 1 | L4a-R1-8646-counters |
+| 8648 | 1 | L1-E-race-pool-immortals |
 | 8650 | 1 | P-prefnotprev-semantics |
 | 8651 | 1 | L4b-7108-purple-enemies |
 | 8654 | 2 | L3-008、L1-E-7111-dist |
@@ -1071,6 +1077,7 @@
 | 8765 | 1 | L1-E-kingdom-summon-raw |
 | 8766 | 1 | L1-E-kingdom-summon-raw |
 | 8767 | 1 | L7-R1-weapon-colour-race |
+| 8770 | 1 | L1-E-race-pool-immortals |
 | 8771 | 1 | L1-E-race-desc |
 | 8776 | 1 | R3-B03-1474 |
 | 8782 | 1 | L4b-7195-order |
@@ -1248,6 +1255,7 @@
 | 9494 | 1 | P-R1-gargoyle-tier-filter,P-R2-gargoyle-tier,P-R4-gargoyle-tier-count,P-R3-dragon-gem-count |
 | 9505 | 1 | B-L4b-1613-zh |
 | 9507 | 1 | L7-R1-weapon-colour-race |
+| 9508 | 1 | L1-E-race-desc |
 | 9509 | 2 | L1-E-kingdom-summon-raw、L1-E-kingdom-desc |
 | 9512 | 1 | P-counter-per-step |
 | 9513 | 1 | L3-007 |
@@ -1317,6 +1325,7 @@
 | 9723 | 1 | F2-7728-no-damage |
 | 9733 | 1 | P-counter-per-step |
 | 9739 | 1 | P-counter-per-step |
+| 9754 | 1 | L1-E-race-desc |
 | 9773 | 1 | L1-devour-first |
 | 9774 | 2 | P-counter-per-step、B-L4b-7768-mix-boost |
 | 9776 | 1 | P-prefnotprev-semantics |
@@ -1351,6 +1360,7 @@
 | 9882 | 4 | P-counter-per-step、L7-R1-attack-armor-life-pooled、P-counter-per-step、L7-R1-random-chain-waves |
 | 9909 | 2 | P-random-stat-pool、L2-7850-target |
 | 9915 | 1 | L7-R1-weapon-colour-race |
+| 9916 | 1 | L1-E-race-pool-immortals |
 | 9918 | 1 | P-R1-gargoyle-tier-filter,P-R2-gargoyle-tier,P-R4-gargoyle-tier-count,P-R3-dragon-gem-count |
 | 9933 | 1 | P-prefnotprev-semantics |
 | 9934 | 1 | L5-C-1695-lycanthropy |
