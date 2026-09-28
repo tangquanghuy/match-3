@@ -9,3 +9,8 @@
 - troop:6914 fixed: ZH 攻击力 -> 护甲值 (override 6914); native order Armor then Life; steal = min(M+1, enemy Magic) (test)
 - troop:7201 fixed: Armor first so both segments read the pre-hit all-Enemy-Magic count (K 30 -> 36) (test)
 - troop:6763 accepted: CountMyGold 20% (100 -> +20) to all four Skills
+- troop:7513 accepted: CountMyGold 50% Armor, +10 gold
+- troop:7557 accepted: maps x4, +1 map; tower/ascension x3-5 waived R000 (c2, step 1)
+- troop:6282 accepted: souls 50% dmg, +10 souls
+- troop:7647 accepted: souls 1:1 dmg, +5 souls; tower/ascension waived R000 (c2, step 1)
+- troop:7658 accepted: souls 34% Attack+Armor, below-self Magic 2 + 2@50% + 1@25%

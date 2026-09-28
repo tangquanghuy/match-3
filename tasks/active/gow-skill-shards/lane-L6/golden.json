@@ -59,6 +59,16 @@
   "by": "sa-F3",
   "at": "2026-09-28T00:29:01.041Z"
  },
+ "troop:6282": {
+  "lines": {
+   "L10": "dmg E11 14 ; souls+10  => E11:hp-4 arm-10  eco:{\"souls\":10}",
+   "R10": "dmg E11 14 ; souls+10  => E11:hp-4 arm-10  eco:{\"souls\":10}",
+   "L0": "dmg E11 4 ; souls+10  => E11:arm-4  eco:{\"souls\":10}",
+   "K": "dmg E11 14 ; defeat E11 ; souls+10  => E11:hp-1 DEAD  eco:{\"souls\":10}"
+  },
+  "by": "sa-G",
+  "at": "2026-09-28T21:19:45.197Z"
+ },
  "troop:6353": {
   "lines": {
    "L10": "dmg E11 14 ; gold+14  => E11:hp-4 arm-10  eco:{\"gold\":14,\"goldMine\":14,\"goldTheirs\":-14}",
@@ -209,6 +219,16 @@
   "by": "sa-F3",
   "at": "2026-09-28T00:26:09.800Z"
  },
+ "troop:7513": {
+  "lines": {
+   "L10": "buff C armor+61 ; gold+10  => C:arm+61  eco:{\"gold\":10,\"goldMine\":10}",
+   "R10": "buff C armor+61 ; gold+10  => C:arm+61  eco:{\"gold\":10,\"goldMine\":10}",
+   "L0": "buff C armor+51 ; gold+10  => C:arm+51  eco:{\"gold\":10,\"goldMine\":10}",
+   "K": "buff C armor+61 ; gold+10  => C:arm+61  eco:{\"gold\":10,\"goldMine\":10}"
+  },
+  "by": "sa-G",
+  "at": "2026-09-28T21:19:45.197Z"
+ },
  "troop:7549": {
   "lines": {
    "L10": "dmg E11 21 (splash) ; dmg E10 10 (splash) ; dmg E12 10 (splash) ; move E11 back  => E11:hp-11 arm-10 | E10:hp-5 arm-5 | E12:arm-10",
@@ -218,6 +238,16 @@
   },
   "by": "sa-F3",
   "at": "2026-09-28T00:26:09.800Z"
+ },
+ "troop:7557": {
+  "lines": {
+   "L10": "dmg E11 12 ; maps+1  => E11:hp-2 arm-10  eco:{\"maps\":1}",
+   "R10": "dmg E11 12 ; maps+1  => E11:hp-2 arm-10  eco:{\"maps\":1}",
+   "L0": "dmg E11 2 ; maps+1  => E11:arm-2  eco:{\"maps\":1}",
+   "K": "dmg E11 12 ; defeat E11 ; maps+1  => E11:hp-1 DEAD  eco:{\"maps\":1}"
+  },
+  "by": "sa-G",
+  "at": "2026-09-28T21:19:47.967Z"
  },
  "troop:7560": {
   "lines": {
@@ -249,6 +279,16 @@
   "by": "sa-F3",
   "at": "2026-09-28T00:26:09.800Z"
  },
+ "troop:7647": {
+  "lines": {
+   "L10": "dmg E11 12 ; souls+5  => E11:hp-2 arm-10  eco:{\"souls\":5}",
+   "R10": "dmg E11 12 ; souls+5  => E11:hp-2 arm-10  eco:{\"souls\":5}",
+   "L0": "dmg E11 2 ; souls+5  => E11:arm-2  eco:{\"souls\":5}",
+   "K": "dmg E11 12 ; defeat E11 ; souls+5  => E11:hp-1 DEAD  eco:{\"souls\":5}"
+  },
+  "by": "sa-G",
+  "at": "2026-09-28T21:19:47.967Z"
+ },
  "troop:7648": {
   "lines": {
    "L10": "buff A1 hp+15 max+15  => A1:hp+15 max+15",
@@ -268,6 +308,16 @@
   },
   "by": "sa-F3",
   "at": "2026-09-28T00:29:01.041Z"
+ },
+ "troop:7658": {
+  "lines": {
+   "L10": "buff C attack+11 ; buff C armor+11 ; buff A1 magic+2 ; buff A2 magic+2  => C:arm+11 atk+11 | A1:mag+2 | A2:mag+2",
+   "R10": "buff C attack+11 ; buff C armor+11 ; buff A1 magic+2 ; buff A2 magic+2  => C:arm+11 atk+11 | A1:mag+2 | A2:mag+2",
+   "L0": "buff C attack+1 ; buff C armor+1 ; buff A1 magic+2 ; buff A2 magic+2  => C:arm+1 atk+1 | A1:mag+2 | A2:mag+2",
+   "K": "buff C attack+11 ; buff C armor+11 ; buff A1 magic+2 ; buff A2 magic+2  => C:arm+11 atk+11 | A1:mag+2 | A2:mag+2"
+  },
+  "by": "sa-G",
+  "at": "2026-09-28T21:19:45.197Z"
  },
  "troop:7661": {
   "lines": {
