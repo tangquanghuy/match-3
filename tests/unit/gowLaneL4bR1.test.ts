@@ -291,3 +291,21 @@ describe('L4b B09', () => {
     expect(summarize(f, f.cast()).gems.created.Yellow).toBe(17);
   });
 });
+
+describe('L4b B10', () => {
+  it('troop:7634: Attack and Armor both boosted by the 13 converted Green (1 + 10 + 13 = 24)', () => {
+    const o = castSpell({ key: 'troop:7634' }).summary.order;
+    expect(o).toEqual(['convert Green x13 -> decayGem x13', 'buff C attack+24', 'buff C armor+24']);
+  });
+  it('troop:7639: 9 Decaying Gems -> 5 + floor(9 x 34%) = 8 Skulls', () => {
+    // row 0 and cols 0..0 of rows 1..? : put 9 decay gems on the diagonal-free cells of row 7 (8) + (6,0)
+    const decay = { kind: 'special', spec: { kind: 'decayGem' } } as never;
+    const cells: Record<string, never> = {};
+    for (let c = 0; c < 8; c++) cells[`7,${c}`] = decay;
+    cells['6,0'] = decay;
+    const base = (r: number, c: number) => (`${r},${c}` in cells ? cells[`${r},${c}`] : colorGem(OTHERS[(2 * r + c) % 5]));
+    const r = castSpell({ key: 'troop:7639', board: base });
+    expect(r.summary.order.slice(0, 2)).toEqual(['status E11 +disease', 'status E11 +poison']);
+    expect(r.summary.gems.created.skull).toBe(8);
+  });
+});

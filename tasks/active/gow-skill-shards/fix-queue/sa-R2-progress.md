@@ -9,3 +9,4 @@
 - 2026-09-28T10:48:05 B07 troop:7503,troop:7511,troop:7534,troop:7542,troop:7555,troop:7562,troop:7591,troop:7598,troop:7637,troop:7645 approve=10 fixed=0 issue=0 (race-ally create family, table test)
 - 2026-09-28T10:48:47 B08 troop:7664,troop:7672,troop:7686,troop:7709,troop:7717,troop:7750,troop:7758,troop:7776,troop:7785,troop:7819 approve=10 fixed=0 issue=0 (race-ally create family, table test)
 - 2026-09-28T10:50:46 B09 troop:7820,troop:7828,troop:7870,troop:7878,weapon:1359,weapon:1367,weapon:1373,weapon:1207,troop:6520,troop:7330 approve=10 fixed=0 issue=0 (race/weapon-race/steal cap/enemy deaths tests)
+- 2026-09-28T10:53:29 B10 troop:7639,troop:6281,troop:6749,troop:6123,troop:7149,troop:7769,troop:7371,troop:6100,troop:6903,troop:7634 approve=9 fixed=1 issue=0 (7634 attack counter; 34% counts hand-checked, floor(n/3) vs 34% only diverge at n>=50)

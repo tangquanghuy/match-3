@@ -396,7 +396,10 @@ const SPELLS: CuratedBatch['spells'] = [
     // 修饰子句未点名类别 → 挂最近数值段=护甲段（r8 9639 先例）
     build: skill(
       transformToSpecial(BaseColor.Green, 'decayGem'),
-      attack('allySelf', 1, 1),
+      // Native: both IncreaseAttack and IncreaseArmor carry UseCounterForAmount (sa-R2 L4b-7634-attack).
+      attack('allySelf', 1, 1, {
+        modifier: { mod: { kind: 'ratio', a: 1, b: 1 }, source: { kind: 'transformedGems' } },
+      }),
       armor('allySelf', 1, 1, {
         modifier: { mod: { kind: 'ratio', a: 1, b: 1 }, source: { kind: 'transformedGems' } },
       }),

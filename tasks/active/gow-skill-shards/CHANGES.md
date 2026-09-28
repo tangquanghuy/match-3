@@ -1,6 +1,6 @@
 # GoW 技能改动留档
 
-自动生成（`node scripts/gow-changelog.mjs render`），源数据 [CHANGES.jsonl](CHANGES.jsonl)，共 194 条改动，涉及 390 个技能 ID。
+自动生成（`node scripts/gow-changelog.mjs render`），源数据 [CHANGES.jsonl](CHANGES.jsonl)，共 195 条改动，涉及 391 个技能 ID。
 
 ## 按时间
 
@@ -200,6 +200,7 @@
 | 2026-09-28T02:43 | sa-R2 | R009-7267-color | data | 8886 | troop:7267 HeraldOfKrystenax | `src/engine/skills/curated/batch-r14.ts` | dragonGem without colour → dragonGem color Green (DragonGreen) |  |
 | 2026-09-28T02:46 | sa-R2 | L4b-1441-cursed-gems | data | 8697 | weapon:1441 DarkHammer | `src/engine/skills/curated/batch-w03.ts` | damage boosted by Cursed enemies; Drenza gems created after damage → Drenza Cursed Gems first, damage boosted by board Cursed Gems x4 (native CountGems 400 Cursed) |  |
 | 2026-09-28T02:46 | sa-R2 | L4b-1608-1611-order | data | 9388, 9488 | weapon:1608 GlayciasLattice；weapon:1611 ScopriosClaw | `src/engine/skills/curated/batch-w04.ts` | 1608 cleanse before Freeze gems (and stray sourceless x10 modifier); 1611 Scoprio skulls after base skulls → native order: 1608 create 9(+5) Freeze then cleanse; 1611 Scoprio 2 skulls then 4+2/poisoned |  |
+| 2026-09-28T02:53 | sa-R2 | L4b-7634-attack | data | 9538 | troop:7634 WoodRot | `src/engine/skills/curated/batch-r14.ts` | Attack [Magic+1] unboosted (only Armor boosted) → Attack and Armor both + converted gems (both native steps UseCounterForAmount) |  |
 
 ## 按技能 ID
 
@@ -545,6 +546,7 @@
 | 9530 | 1 | P-prefnotprev-semantics |
 | 9531 | 1 | P-prefnotprev-semantics |
 | 9534 | 2 | L3-007、F1-items-62-75 |
+| 9538 | 1 | L4b-7634-attack |
 | 9547 | 1 | P-counter-per-step |
 | 9573 | 1 | L4b-1625-1674-any |
 | 9591 | 1 | P-counter-per-step |
