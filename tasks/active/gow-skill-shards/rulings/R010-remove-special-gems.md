@@ -8,4 +8,15 @@
 
 实现现状与本裁定一致（P-F1-remove-gems：`remove` 模式跳过法力、骷髅伤害与特殊宝石摧毁链），无需改动。适用范围：`src/engine/skills/gowRemoveRules.ts` 列出的 85 个原生只有 Remove* 清除步骤的技能（32 兵种、53 武器），典型如 Warlock「移除所有紫色宝石，伤害因移除数增强」、Zombie「移除所有骷髅，生命因移除数增强」、Mecha Rat「移除所有黄色宝石，每颗获得金币」。
 
-来源：社区讨论（community.gemsofwar.com t/1807、t/82191、t/16857）说明移除不给法力、骷髅不伤害；特殊宝石部分按用户裁定。
+## 为什么不是翻译错误
+
+判定依据不是中文描述，而是英文快照与原生步骤类型：这 85 个技能的英文都写 “Remove …”，原生步骤类型是 `RemoveColor` / `RemoveGems`；同一份原生数据里另有 `DestroyColor`（36 个技能）、`DestroyGems`、`ExplodeColor` 等“摧毁／爆破”步骤，两者是原版刻意区分的不同操作。官方兵种列表同样使用 “Remove all Gems” 措辞。
+
+移除型技能的收益在技能本身：例如术士 Warlock（7010）原生为 `CountGems Purple` → `RemoveColor Purple` → `Damage [Magic]，按移除数 [2:1] 增强`，即清掉紫色宝石、不给对手留紫色、并按移除数加伤害；它本来就不靠清宝石回蓝或骷髅伤害。
+
+## 来源
+
+已入库 `artifacts/gow-skill-audit/gold-primary-sources/community-2026-09-28-remove-vs-destroy.json`：
+- t/70235：帖中引用游戏对“移除”的定义：宝石从棋盘拿走，没有任何效果（不造成伤害、不获得法力）；同帖报告 Abhorath 移除全部宝石时仍触发了狼人宝石，玩家认为这与定义不符、属于缺陷。
+- t/22488：Boar Rider 移除一行，GoW 术语中移除不获得法力、骷髅不造成伤害。
+- t/1807、t/82191：摧毁有效果（法力、骷髅伤害），移除只是拿走宝石；二者是游戏中含义不同的专门措辞。
