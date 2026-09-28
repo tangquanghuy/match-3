@@ -3,3 +3,4 @@
 - B02 troop:7872,troop:6863,weapon:1506,troop:6111,troop:6036,troop:6045,troop:6190,troop:7714,troop:7774,weapon:1251 approve=10 fixed=4 issue=0 (6111 selected gem only + Purple count after transform; 6863/7714/7774 ZH only)
 - B03 troop:6278,troop:6867,troop:6896,troop:6834,troop:6886 approve=5 fixed=3 issue=0 (6278 Entangle->Web order; 6867 ZH; 6834 RandomPrefNotPrev + ZH; 6896 shared 1-3 roll verified; 6886 R000 waived boss c2/step0)
 - B04 troop:7291,troop:6804,weapon:1095,troop:6128,troop:6214 approve=5 fixed=3 issue=0 (7291 drained Magic -> Mana, R000 waived boss c2/step0; 6128 RandomPrefNotPrev; 6214 Barrier no longer saves the self-kill)
+- B05 troop:6477,troop:6543,troop:6679,troop:6531,weapon:1087 approve=5 fixed=0 issue=0 (6543/6531 R000 waived boss c2/step0; 6477 either-kill extra turn tested)

@@ -149,3 +149,15 @@ describe('sa-F B04: mana drain / random second hit / self-sacrifice', () => {
     expect(order(r)).toContain('defeat C');
   });
 });
+
+describe('sa-F B05: kill-conditional extra turn', () => {
+  it('troop:6477 SisterOfShadows (7664): extra turn when either of the 2 weakest dies, none otherwise', () => {
+    const second = castSpell({ key: 'troop:6477', enemies: [en({ hp: 5, maxHp: 5 }), en({ hp: 1, maxHp: 1 }), en({ hp: 500, maxHp: 500 })] });
+    expect(order(second).filter(o => o.startsWith('dmg')).map(o => o.split(' ')[1])).toEqual(['E11', 'E10']);
+    expect(second.summary.extraTurn).toBe('skill');
+    const firstOnly = castSpell({ key: 'troop:6477', enemies: [en({ hp: 1, maxHp: 1 }), en({ hp: 50, maxHp: 50 }), en({ hp: 500, maxHp: 500 })] });
+    expect(firstOnly.summary.extraTurn).toBe('skill');
+    const none = castSpell({ key: 'troop:6477', enemies: [en({ hp: 50, maxHp: 50 }), en({ hp: 60, maxHp: 60 }), en()] });
+    expect(none.summary.extraTurn).toBeNull();
+  });
+});

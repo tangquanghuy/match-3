@@ -289,6 +289,16 @@
   "by": "sa-R7",
   "at": "2026-09-28T08:59:04.419Z"
  },
+ "troop:6477": {
+  "lines": {
+   "L10": "dmg E12 13 (all) ; dmg E10 13 (all)  => E12:hp-1 arm-12 | E10:hp-8 arm-5",
+   "R10": "dmg E12 13 (all) ; dmg E10 13 (all)  => E12:hp-1 arm-12 | E10:hp-8 arm-5",
+   "L0": "dmg E12 3 (all) ; dmg E10 3 (all)  => E12:arm-3 | E10:arm-3",
+   "K": "dmg E12 13 (all) ; dmg E11 13 (all) ; defeat E12 ; defeat E11 ; extra-turn skill  => E12:hp-1 DEAD | E11:hp-1 DEAD  extra:skill"
+  },
+  "by": "sa-F",
+  "at": "2026-09-28T21:20:33.480Z"
+ },
  "troop:6508": {
   "lines": {
    "L10": "buff C armor+13 ; buff A1 attack+5 ; buff A2 attack+5 ; buff A1 mana+5 ; buff A2 mana+5  => C:arm+13 | A1:atk+5 mana+5 | A2:atk+5 mana+5",
@@ -298,6 +308,26 @@
   },
   "by": "sa-R7",
   "at": "2026-09-28T05:49:19.936Z"
+ },
+ "troop:6531": {
+  "lines": {
+   "L10": "dmg E11 14 ; extra-turn skill  => E11:hp-4 arm-10  extra:skill",
+   "R10": "dmg E11 14 ; extra-turn skill  => E11:hp-4 arm-10  extra:skill",
+   "L0": "dmg E11 4 ; extra-turn skill  => E11:arm-4  extra:skill",
+   "K": "dmg E11 14 ; defeat E11 ; extra-turn skill  => E11:hp-1 DEAD  extra:skill"
+  },
+  "by": "sa-F",
+  "at": "2026-09-28T21:20:33.480Z"
+ },
+ "troop:6543": {
+  "lines": {
+   "L10": "dmg E11 14  => E11:hp-4 arm-10",
+   "R10": "dmg E11 14  => E11:hp-4 arm-10",
+   "L0": "dmg E11 4  => E11:arm-4",
+   "K": "dmg E11 14 ; defeat E11 ; buff C mana+12  => E11:hp-1 DEAD"
+  },
+  "by": "sa-F",
+  "at": "2026-09-28T21:20:33.480Z"
  },
  "troop:6569": {
   "lines": {
@@ -348,6 +378,16 @@
   },
   "by": "sa-R7",
   "at": "2026-09-28T05:49:19.936Z"
+ },
+ "troop:6679": {
+  "lines": {
+   "L10": "dmg E10 9 ; dmg E13 9 ; dmg E12 18  => E10:hp-4 arm-5 | E13:hp-6 arm-3 | E12:hp-6 arm-12",
+   "R10": "dmg E10 9 ; dmg E13 9 ; dmg E12 18  => E10:hp-4 arm-5 | E13:hp-6 arm-3 | E12:hp-6 arm-12",
+   "L0": "dmg E10 4 ; dmg E13 4 ; dmg E12 8  => E10:arm-4 | E13:hp-1 arm-3 | E12:arm-8",
+   "K": "dmg E10 9 ; defeat E10 ; dmg E13 9 ; defeat E13 ; dmg E12 18 ; defeat E12  => E10:hp-1 DEAD | E13:hp-1 DEAD | E12:hp-1 DEAD"
+  },
+  "by": "sa-F",
+  "at": "2026-09-28T21:20:33.480Z"
  },
  "troop:6691": {
   "lines": {
@@ -1638,6 +1678,16 @@
   },
   "by": "sa-F",
   "at": "2026-09-28T21:13:41.008Z"
+ },
+ "weapon:1087": {
+  "lines": {
+   "L10": "dmg E12 15 ; extra-turn skill  => E12:hp-3 arm-12  extra:skill",
+   "R10": "dmg E12 15 ; extra-turn skill  => E12:hp-3 arm-12  extra:skill",
+   "L0": "dmg E12 5 ; extra-turn skill  => E12:arm-5  extra:skill",
+   "K": "dmg E12 15 ; defeat E12 ; extra-turn skill  => E12:hp-1 DEAD  extra:skill"
+  },
+  "by": "sa-F",
+  "at": "2026-09-28T21:20:33.480Z"
  },
  "weapon:1095": {
   "lines": {
