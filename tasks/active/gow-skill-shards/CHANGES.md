@@ -1,6 +1,6 @@
 # GoW 技能改动留档
 
-自动生成（`node scripts/gow-changelog.mjs render`），源数据 [CHANGES.jsonl](CHANGES.jsonl)，共 553 条改动，涉及 1004 个技能 ID。
+自动生成（`node scripts/gow-changelog.mjs render`），源数据 [CHANGES.jsonl](CHANGES.jsonl)，共 554 条改动，涉及 1005 个技能 ID。
 
 ## 按时间
 
@@ -559,6 +559,7 @@
 | 2026-09-28T21:19 | sa-F | L3-F-7291 | assembler | 8865 | troop:7291 SableSpiritbane | `src/engine/skills/curated/batch-r19.ts` | drains 5 Magic → drains 5 Mana (native DecreaseMana 5) |  |
 | 2026-09-28T21:19 | sa-F | L3-F-6128 | assembler | 7229 | troop:6128 Hobgoblin | `src/engine/skills/curated/batch-r15.ts` | second hit plain random enemy → second hit RandomPrefNotPrevEnemy (native) |  |
 | 2026-09-28T21:19 | sa-F | L3-F-6214 | assembler | 7356 | troop:6214 DwarvenSlayer | `src/engine/skills/curated/batch-r7.ts` | one self-sacrifice: a Barrier saved the caster → two self-sacrifice steps (native two Damage@Self 10000): Barrier popped, then dies |  |
+| 2026-09-28T21:23 | sa-F | L3-F-6975 | data | 8478 | troop:6975 Metztli | `src/engine/skills/curated/batch-p39.ts`<br>`src/data/gowSnapshotOverrides.json` | ZH typo 在召唤 → ZH 再召唤; behaviour unchanged |  |
 
 ## 按技能 ID
 
@@ -1067,6 +1068,7 @@
 | 8472 | 2 | P-F1-oneof-chosen-target、P-F1-oneof-chosen-target |
 | 8473 | 1 | P-F1-remove-gems |
 | 8475 | 1 | L2-6972-order |
+| 8478 | 1 | L3-F-6975 |
 | 8481 | 1 | L4a-r3-6954 |
 | 8485 | 1 | P-R3-next-up-target |
 | 8487 | 1 | P-E-faction-kingdom |

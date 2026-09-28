@@ -184,7 +184,7 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 8478,
-    desc: '耗掉一名敌人所有法力值。若存在风暴，则使他陷入死亡标记效果。在召唤暗风暴。',
+    desc: '耗掉一名敌人所有法力值。若存在风暴，则使他陷入死亡标记效果。再召唤暗风暴。',
     build: skill(
       drainMana('enemyChosen'),
       inflict('death-mark', 'enemyChosen', { ifCond: { kind: 'stormPresent' } }),

@@ -246,3 +246,8 @@
 {"format":"compact","key":"troop:6761","decision":"accept","reviewer":"sa-F","reviewedAt":"2026-09-28T21:22:08.008Z","tests":["tests/unit/gowCastGolden.test.ts"],"note":"sa-F B06; 7675/6680 Tower/Ascension multiplier waived R000 tower"}
 {"format":"compact","key":"troop:7017","decision":"accept","reviewer":"sa-F","reviewedAt":"2026-09-28T21:22:08.009Z","tests":["tests/unit/gowCastGolden.test.ts"],"note":"sa-F B06; 7675/6680 Tower/Ascension multiplier waived R000 tower"}
 {"format":"compact","key":"troop:6155","decision":"accept","reviewer":"sa-F","reviewedAt":"2026-09-28T21:22:08.009Z","tests":["tests/unit/gowCastGolden.test.ts"],"note":"sa-F B06; 7675/6680 Tower/Ascension multiplier waived R000 tower"}
+{"format":"compact","key":"troop:7040","decision":"accept","reviewer":"sa-F","reviewedAt":"2026-09-28T21:23:10.084Z","tests":["tests/unit/gowCastGolden.test.ts"],"note":"sa-F B07"}
+{"format":"compact","key":"troop:6180","decision":"accept","reviewer":"sa-F","reviewedAt":"2026-09-28T21:23:10.086Z","tests":["tests/unit/gowCastGolden.test.ts"],"note":"sa-F B07"}
+{"format":"compact","key":"troop:6975","decision":"accept","reviewer":"sa-F","reviewedAt":"2026-09-28T21:23:10.086Z","tests":["tests/unit/gowCastGolden.test.ts"],"note":"sa-F B07"}
+{"format":"compact","key":"troop:7372","decision":"accept","reviewer":"sa-F","reviewedAt":"2026-09-28T21:23:10.086Z","tests":["tests/unit/gowCastGolden.test.ts"],"note":"sa-F B07"}
+{"format":"compact","key":"troop:7882","decision":"accept","reviewer":"sa-F","reviewedAt":"2026-09-28T21:23:10.086Z","tests":["tests/unit/gowCastGolden.test.ts"],"note":"sa-F B07"}

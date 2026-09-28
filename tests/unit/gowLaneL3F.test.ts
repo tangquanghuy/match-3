@@ -187,3 +187,18 @@ describe('sa-F B06: independent chance rolls', () => {
     expect(none.summary.economy.gold).toBeUndefined();
   });
 });
+
+describe('sa-F B07: mana drain + storms / target colours', () => {
+  it('troop:6975 Metztli (8478): Death Mark only if a Storm exists before its own Darkstorm', () => {
+    const f = setupCast({ key: 'troop:6975' });
+    f.state.teams.Right.storm = { color: BaseColor.Red, turns: 3, troopId: 0 };
+    const ev = f.cast();
+    expect(ev.some(e => e.type === 'status-apply' && e.statusId === 'death-mark' && e.targetId === 11)).toBe(true);
+    expect(order(castSpell({ key: 'troop:6975' })).filter(o => o.startsWith('status'))).toEqual([]);
+  });
+  it('troop:7882 Manasa (9957): converts one of the target\'s own colours, either one', () => {
+    const picked = new Set([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].map(seed =>
+      order(castSpell({ key: 'troop:7882', seed })).find(o => o.startsWith('convert'))!.split(' ')[1]));
+    expect([...picked].sort()).toEqual(['Blue', 'Yellow']);
+  });
+});
