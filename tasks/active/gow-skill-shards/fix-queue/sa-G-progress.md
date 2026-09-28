@@ -69,3 +69,8 @@
 - troop:7015 accepted: first 2 Attack; 2 weakest Life (A1, A2); 2 strongest Life+Armor (C, A2) +10 Magic
 - weapon:1070 accepted: all allies M+1 Life
 - troop:7741 accepted: Life then Armor, x2 when a Storm is active
+- troop:6740 accepted: Life then 5 Attack, x2 Human (test)
+- troop:6315 accepted: Life then 2 Magic, x2 Elemental (test)
+- troop:7354 accepted: Life then 3 Magic, x2 Fey (test)
+- troop:7747 accepted: Life then 2 Magic, x2 Centaur (test)
+- weapon:1419 accepted: self M+1 Life, chosen ally +2 Magic
