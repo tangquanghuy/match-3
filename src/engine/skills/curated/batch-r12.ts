@@ -219,12 +219,13 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 8358,
-    desc: '获得 [魔法 + 1] 点生命值，数值因陷入织网状态的敌人而增强。给予所有盟友 4 分之一的法力值。 [x6]',
+    desc: '获得 [魔法 + 1] 点生命值，数值因陷入织网状态的敌人而增强。给予所有其他盟友 4 分之一的法力值。 [x6]',
     build: skill(
       heal('allySelf', 1, 1, {
         modifier: { mod: { kind: 'multiplier', a: 6 }, source: { kind: 'enemyStatusCount', statusId: 'web' } },
       }),
-      mana('allyAll', 0, 0, { fraction: 0.25 }),
+      // sa-F: native GenerateQuarterMana@AllAlliesButNotSelf (was allyAll incl. the caster)
+      mana('allyOthers', 0, 0, { fraction: 0.25 }),
     ),
   },
   {

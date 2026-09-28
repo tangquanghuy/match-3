@@ -1,6 +1,6 @@
 # GoW 技能改动留档
 
-自动生成（`node scripts/gow-changelog.mjs render`），源数据 [CHANGES.jsonl](CHANGES.jsonl)，共 538 条改动，涉及 990 个技能 ID。
+自动生成（`node scripts/gow-changelog.mjs render`），源数据 [CHANGES.jsonl](CHANGES.jsonl)，共 543 条改动，涉及 994 个技能 ID。
 
 ## 按时间
 
@@ -544,6 +544,11 @@
 | 2026-09-28T15:14 | sa-B | L4b-R6-B06 | data | 9220 | troop:7487 Takshaka | `src/engine/skills/curated/batch-r9.ts` | second hit enemyRandom (could repeat the chosen target) → native RandomPrefNotPrevEnemy (avoids the chosen target) |  |
 | 2026-09-28T15:14 | sa-B | L4b-R6-B06 | data | 8996 | weapon:1524 Gearslinger | `src/engine/skills/curated/batch-w03.ts`<br>`src/data/gowWeaponReviewedOverrides.json` | enemyRandomN n=2 → native RandomEnemy + RandomPrefNotPrevEnemy true damage (R007-3) |  |
 | 2026-09-28T15:44 | coord | R014-7000-count-before-create | assembler | 8503 | troop:7000 Baihu | `src/engine/skills/curated/batch-r20.ts`<br>`src/engine/skills/prototypes.ts`<br>`src/engine/skills/effects/secondary.ts`<br>`src/engine/skills/effects/context.ts` | Yellow counted after CreateGems 3 Yellow (created gems boosted the damage) → castStartBoardGems Yellow: counted before the create, CountSet 1 not added (R014) | new source castStartBoardGems; only 8503 uses it |
+| 2026-09-28T16:28 | sa-F | L3-F-6454 | assembler | 7632 | troop:6454 Hind | `src/engine/skills/curated/batch-20.ts`<br>`src/data/gowSnapshotOverrides.json` | damage, then flat 2 Mana, then extra-turn 25%/Entangled → 2 Mana per Entangled enemy and 25%/Entangled extra-turn, both counted before the damage (native order); ZH fixed |  |
+| 2026-09-28T16:28 | sa-F | L3-F-1211 | assembler | 7806 | weapon:1211 StoneAegis | `src/engine/skills/curated/batch-w02.ts` | 8 Attack / 2 Mana base + 2 per enemy Barrier → 8 Attack and 2 Mana per enemy Barrier, no base (native CountStatus 800 / 200 counters) |  |
+| 2026-09-28T16:28 | sa-F | L3-F-7074 | assembler | 8602 | troop:7074 HelgorTheGuardian | `src/engine/skills/curated/batch-r8.ts` | creates 1-3 plain Red gems → creates 1-3 Red Mana Potions (native CreateGemsRange RedManaPotion) |  |
+| 2026-09-28T16:28 | sa-F | L3-F-6897 | assembler | 8358 | troop:6897 ArachnaeanWatcher | `src/engine/skills/curated/batch-r12.ts`<br>`src/data/gowSnapshotOverrides.json` | quarter Mana to all allies incl. caster → quarter Mana to all other allies (native AllAlliesButNotSelf); ZH fixed |  |
+| 2026-09-28T16:28 | sa-F | L3-F-7806 | assembler | 9847 | troop:7806 SetauriSkulk | `src/engine/skills/curated/batch-18.ts` | true damage, then 2 Mana per Bleeding enemy (killed target not counted) → Mana gain before the damage: count is native step 0 (R001) |  |
 
 ## 按技能 ID
 
@@ -758,6 +763,7 @@
 | 7625 | 1 | L5-C-1176-knight |
 | 7626 | 1 | F1-steal-before-damage |
 | 7631 | 1 | L1-6453-order |
+| 7632 | 1 | L3-F-6454 |
 | 7633 | 1 | F1-steal-before-damage |
 | 7635 | 1 | F2-6457-dispel-self |
 | 7637 | 1 | L1-R2-consume-first |
@@ -813,6 +819,7 @@
 | 7798 | 1 | L1-6594-prefnotprev |
 | 7804 | 1 | L4a-R1-no-base-7804-8423 |
 | 7805 | 1 | F3-t1210 |
+| 7806 | 1 | L3-F-1211 |
 | 7808 | 1 | R7-6599-full-or |
 | 7810 | 1 | L1-E-6601-target |
 | 7811 | 1 | L5-C-r4-6602 |
@@ -982,6 +989,7 @@
 | 8353 | 2 | P-A-target-kingdom、P-E-faction-kingdom |
 | 8354 | 2 | P-A-target-kingdom、P-E-faction-kingdom |
 | 8357 | 1 | L1-1351-pool |
+| 8358 | 1 | L3-F-6897 |
 | 8365 | 3 | L7-R1-6904-nextdown、P-R4-nextdown-default-range、P-E-faction-kingdom |
 | 8370 | 1 | L4a-r3-6909 |
 | 8371 | 1 | L1-E-6910-wraith |
@@ -1097,6 +1105,7 @@
 | 8598 | 4 | L3-007、L3-008、L3-009、R013-5 |
 | 8599 | 1 | L4b-7071-base |
 | 8601 | 1 | R7-guardian-potions |
+| 8602 | 1 | L3-F-7074 |
 | 8603 | 1 | R7-guardian-potions |
 | 8605 | 1 | R7-guardian-potions |
 | 8606 | 1 | R7-guardian-potions |
@@ -1488,7 +1497,7 @@
 | 9842 | 1 | L4b-1682-order |
 | 9844 | 1 | F1-items-62-75 |
 | 9846 | 1 | L2-board-chosen |
-| 9847 | 1 | L3-015 |
+| 9847 | 2 | L3-015、L3-F-7806 |
 | 9849 | 1 | P-random-stat-pool |
 | 9851 | 1 | F3-q34 |
 | 9852 | 1 | P-counter-per-step |

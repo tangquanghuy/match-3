@@ -307,6 +307,16 @@
       "spellId": 8813,
       "reason": "sa-B r6: English Onyx Gargoyle 'Deal [Magic + 3] splash damage' (native SplashHighDamage, not light splash); old Chinese said 轻微溅射.",
       "spellDescription": "对一名敌人造成 [魔法 + 3] 点溅射伤害。再创造 1-2 颗随机石像鬼宝石。"
+    },
+    "6454": {
+      "spellId": 7632,
+      "reason": "sa-F: English Hind 'Gain 2 mana back and a 25% chance for an extra turn for each Entangled enemy' (native CountSpecificStatusEffect 200 -> GenerateMana counter): the 2 Mana is per Entangled enemy, not flat.",
+      "spellDescription": "对 1 名敌人造成 [魔法 + 2] 点伤害。每有 1 名被缠绕的敌人，回复 2 点法力值，并增加 25% 获得额外回合的几率。"
+    },
+    "6897": {
+      "spellId": 8358,
+      "reason": "sa-F: English Arachnaean Watcher 'Give all other Allies one quarter of their Mana' (native GenerateQuarterMana AllAlliesButNotSelf); old Chinese omitted 'other'.",
+      "spellDescription": "获得 [魔法 + 1] 点生命值，数值因陷入织网状态的敌人而增强。给予所有其他盟友 4 分之一的法力值。 [x6]"
     }
   }
 }

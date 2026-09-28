@@ -188,14 +188,16 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 7632,
-    desc: '对 1 名敌人造成 [魔法 + 2] 点伤害。获得 2 点法力值。每个被缠绕的敌人可增加 25% 获得额外回合的几率。',
+    desc: '对 1 名敌人造成 [魔法 + 2] 点伤害。每有 1 名被缠绕的敌人，回复 2 点法力值，并增加 25% 获得额外回合的几率。',
+    // sa-F: native CountStatus entangle 200 -> GenerateMana [counter] -> CountStatus 2500 -> Damage -> ExtraTurnConditional
+    // [counter]: mana is 2 per Entangled enemy (no base) and both counts are taken before the damage (R001).
     build: skill(
-      dmg('enemyChosen', 2),
-      mana('allySelf', 2, 0),
+      mana('allySelf', 0, 0, { modifier: { mod: { kind: 'multiplier', a: 2 }, source: { kind: 'enemyStatusCount', statusId: 'entangle' } } }),
       // 回收：chanceBoost 现支持几率随来源增强——每个被缠绕敌人 +25 个百分点
       extraTurn({
         chanceBoost: { mod: { kind: 'multiplier', a: 25 }, source: { kind: 'enemyStatusCount', statusId: 'entangle' } },
       }),
+      dmg('enemyChosen', 2),
     ),
   },
   {

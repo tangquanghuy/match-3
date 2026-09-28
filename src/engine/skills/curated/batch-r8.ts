@@ -117,7 +117,7 @@ const SPELLS: CuratedBatch['spells'] = [
     build: skill(
       armor('allySelf', 1, 1),
       heal('allySelf', 1, 1),
-      createGems(BaseColor.Red, 1, 0, { countRange: { min: 1, max: 3 } }),
+      createSpecialGems({ kind: 'manaPotionGem', color: BaseColor.Red }, 1, 0, { countRange: { min: 1, max: 3 } }), // sa-F: native CreateGemsRange RedManaPotion (was plain Red gems)
       extraTurn({ chance: 0.5, ifCond: { kind: 'anyEnemyStatus', statusId: 'burning' } }),
     ),
   },
