@@ -568,7 +568,9 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '对最强大的两名敌人造成 [魔法 + 2] 点伤害，伤害值因生命值和法力值满值的敌军数而增强。 [x4]',
     // 「生命值和法力值满值的敌军数」= enemyFull{hp,mana}（R22 新来源，官方 CountEnemiesFullMana 族）。
     build: skill(
-    dmg('enemyHealthiestN', 2, 1, { n: 2, modifier: boostPer({ kind: 'enemyFull', hp: true, mana: true }, 4) }),
+    // sa-R7: native CountEnemiesFullHealth 400 + CountEnemiesFullMana 400 = two separate counts, each x4
+    // (English "full Life or full Mana"); was one count of enemies with both full.
+    dmg('enemyHealthiestN', 2, 1, { n: 2, modifier: { mod: { kind: 'multiplier', a: 4 }, sources: [{ kind: 'enemyFull', hp: true }, { kind: 'enemyFull', mana: true }] } }),
     ),
   },
   {
