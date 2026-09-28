@@ -82,3 +82,4 @@
 - 2026-09-28T19:50:00Z P-D-lethal-first-lasttarget fixed: prototypes.ts runSegment tracks the victim of a failed execute roll (resolveTargetsTracked, no extra rng for positional/chosen modes); batch-w03 8664 native order LethalDamageConditional@LastEnemy -> TrueDamage@LastEnemy (lastTarget); gowFixP-D-lethal-first-lasttarget.test.ts; golden diff 0 lines
   - accepted: L7 weapon:1435; troop:6470 (native Damage x2 then Lethal x2) was already accepted and is unchanged
   - re-review (situational, only when the execute roll fails and a later step reads lastTarget / ifTargetDied): troop:6252 troop:6460 troop:6585 troop:6753 troop:7016 troop:7145 troop:7252 troop:7797
+- 2026-09-28T20:00:00Z P-R5-special-gem-color + P-R6-count-before-kill confirmed closed (no runtime change): covered by P-R3-dragon-gem-count and P-R1-count-at-native-step; committed tests gowFixP-R5-special-gem-color / gowFixP-R6-count-before-kill pass on main 40e389e; done lines appended
