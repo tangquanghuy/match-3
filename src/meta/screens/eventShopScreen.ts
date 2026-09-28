@@ -16,6 +16,7 @@ import { bottomNavHtml, shopNavHtml, mountIcons, toast, toastHtml, topbarHtml } 
 import { ingotArt, materialImg, scrollArt, stoneMarkupForKey } from '../shell/materialArt';
 import type { Screen, ShellCtx } from '../shell/screen';
 import type { MetaSave } from '../state/schema';
+import { cssUrlVar, shopArt } from '../shell/artAssets';
 
 const TYPE_IDS: readonly EventTypeId[] = EVENT_ROTATION.map((type) => type.id);
 export const DEFAULT_EVENT_SHOP_TYPE: EventTypeId = 'invasion';
@@ -216,16 +217,20 @@ export class EventShopScreen implements Screen {
     const tabs = EVENT_ROTATION.map((tab) => {
       const tabShop = eventShopOf(save, weekStart, tab.id, now);
       const active = tab.id === typeId;
-      return `<a class="shop-tab${active ? ' active' : ''}" href="#shop/${tab.id}" style="--shop-accent:${tab.accent}"${active ? ' aria-current="page"' : ''}><span>${tab.shortName}</span><b><i data-icon="mark"></i>${fmt(tabShop.week.tokens)}</b></a>`;
+      return `<a class="shop-tab${active ? ' active' : ''}" href="#shop/${tab.id}" style='--shop-accent:${tab.accent};${cssUrlVar('tab-art', shopArt(`event-${tab.id}`))}'${active ? ' aria-current="page"' : ''}><span>${tab.shortName}</span><b><i data-icon="mark"></i>${fmt(tabShop.week.tokens)}</b></a>`;
     }).join('');
     return `
       ${topbarHtml()}
       <div class="screen event-shop-screen">
-        <section class="panel event-shop-panel shop-v2" style="--shop-accent:${def.accent}">
-          <header class="shop-page-head"><h1>商店</h1><div class="shop-page-meta">${tokenBalanceHtml(shop.week.tokens, def.tokenName)}<span class="shop-reset"><span data-icon="time"></span><span id="shopRefreshLabel">${remainingLabel(now, shop.period.end)}后刷新</span></span></div></header>
-          ${shopNavHtml('events')}
+        <section class="panel event-shop-panel shop-v2 shop-v3" style='--shop-accent:${def.accent};${cssUrlVar('shop-hero', shopArt(`event-${typeId}`))}'>
+          <header class="shop-page-head"><h1>商店</h1>${shopNavHtml('events')}</header>
           <nav class="shop-tabs" aria-label="活动商店页签">${tabs}</nav><label class="shop-mobile-picker"><span>活动兑换</span><select id="shopTypePicker" aria-label="选择活动商店">${EVENT_ROTATION.map(t=>`<option value="${t.id}" ${t.id===typeId?'selected':''}>${t.name}</option>`).join('')}</select></label>
-          <section class="shop-catalog"><div class="shop-section-head"><div><h2>${def.shortName}兑换</h2><span class="shop-catalog-count">本期 ${shop.rows.length-1} 款</span></div><a class="shop-earn-link" href="#events/${typeId}">前往活动 →</a></div>
+          <div class="shop-hero">
+            <div class="shop-hero-copy"><h2>${def.name}</h2><p>${def.brief}</p>
+              <div class="shop-page-meta">${tokenBalanceHtml(shop.week.tokens, def.tokenName)}<span class="shop-reset"><span data-icon="time"></span><span id="shopRefreshLabel">${remainingLabel(now, shop.period.end)}后刷新</span></span></div></div>
+            <a class="shop-earn-link" href="#events/${typeId}">前往活动 →</a>
+          </div>
+          <section class="shop-catalog"><div class="shop-section-head"><div><h2>本期货架</h2><span class="shop-catalog-count">${shop.rows.length-1} 款</span></div></div>
             <nav class="shop-categories" aria-label="商品分类">${SHOP_CATEGORIES.filter(category=>category.id==='all'||shop.rows.some(row=>row!==surplus&&goodsCategory(row.goods)===category.id)).map(category=>`<button type="button" data-shop-category="${category.id}" aria-pressed="${filter===category.id}"><span data-icon="${category.icon}"></span>${category.name}<span class="shop-category-count">${shop.rows.filter(row=>row!==surplus&&(category.id==='all'||goodsCategory(row.goods)===category.id)).length}</span></button>`).join('')}</nav>
             <div class="shop-grid">${[...(featuredRow?[featuredRow]:[]),...regularRows].map(row=>goodsCard(row, save, shop.week.tokens, row===featuredRow, capped, typeId, filter)).join('')}</div>
           </section>
