@@ -34,3 +34,8 @@
 - troop:7498 accepted: all allies +8 Armor; tower waived R000
 - troop:6881 fixed: native Armor then Life, kill doubling via castEnemyDied (was never applied); boss waived R000 (test)
 - troop:6545 accepted: +4 Attack; tower waived R000
+- weapon:1101 accepted: Magic dmg all + 2 Attack all allies
+- weapon:1116 accepted: +6 Attack iff wounded (test)
+- troop:7485 accepted: +6 Attack then Life; boss waived R000
+- troop:7474 accepted: +5 Attack/Life/Armor native order; tower waived R000 (ZH stray space only, left)
+- troop:6537 accepted: +6 Life; boss waived R000

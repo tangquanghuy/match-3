@@ -59,6 +59,10 @@ describe('L6 sa-G', () => {
     expect(castSpell({ key: 'troop:6308', caster: { armor: 20 } }).summary.order[0]).toBe('dmg E11 48');
     expect(castSpell({ key: 'troop:6308', caster: { armor: 10 } }).summary.order[0]).toBe('dmg E11 16');
   });
+  it('weapon:1116 +6 Attack only when I am wounded', () => {
+    expect(castSpell({ key: 'weapon:1116' }).summary.units.C).toBe('atk+6');
+    expect(castSpell({ key: 'weapon:1116', caster: { hp: 1000, maxHp: 1000 } }).summary.units.C).toBeUndefined();
+  });
   it('troop:7201 counts all Enemy Magic once before the hit (a kill does not shrink the Armor)', () => {
     const k = castSpell({ key: 'troop:7201', enemies: [0, 1, 2, 3].map(() => ({ hp: 1, maxHp: 1, armor: 0, mana: 5 })) });
     // 4 x 11 Magic / 2 = 22 -> 4 + 10 + 22 = 36 for both
