@@ -1,6 +1,6 @@
 # GoW 技能改动留档
 
-自动生成（`node scripts/gow-changelog.mjs render`），源数据 [CHANGES.jsonl](CHANGES.jsonl)，共 538 条改动，涉及 990 个技能 ID。
+自动生成（`node scripts/gow-changelog.mjs render`），源数据 [CHANGES.jsonl](CHANGES.jsonl)，共 540 条改动，涉及 991 个技能 ID。
 
 ## 按时间
 
@@ -544,6 +544,8 @@
 | 2026-09-28T15:14 | sa-B | L4b-R6-B06 | data | 9220 | troop:7487 Takshaka | `src/engine/skills/curated/batch-r9.ts` | second hit enemyRandom (could repeat the chosen target) → native RandomPrefNotPrevEnemy (avoids the chosen target) |  |
 | 2026-09-28T15:14 | sa-B | L4b-R6-B06 | data | 8996 | weapon:1524 Gearslinger | `src/engine/skills/curated/batch-w03.ts`<br>`src/data/gowWeaponReviewedOverrides.json` | enemyRandomN n=2 → native RandomEnemy + RandomPrefNotPrevEnemy true damage (R007-3) |  |
 | 2026-09-28T15:44 | coord | R014-7000-count-before-create | assembler | 8503 | troop:7000 Baihu | `src/engine/skills/curated/batch-r20.ts`<br>`src/engine/skills/prototypes.ts`<br>`src/engine/skills/effects/secondary.ts`<br>`src/engine/skills/effects/context.ts` | Yellow counted after CreateGems 3 Yellow (created gems boosted the damage) → castStartBoardGems Yellow: counted before the create, CountSet 1 not added (R014) | new source castStartBoardGems; only 8503 uses it |
+| 2026-09-28T21:14 | sa-G | G-6154-order | assembler | 7274 | troop:6154 Faunessa | `src/engine/skills/curated/batch-r22.ts` | damage first, then Life boosted by lastDamage 3:1 (0 through a Barrier) → native order: Life boosted by the chosen enemy Attack x34% first, then damage equal to its Attack |  |
+| 2026-09-28T21:14 | sa-G | G-7181-zh | data | 8751 | troop:7181 Tauraeus | `src/engine/skills/curated/batch-r7.ts`<br>`src/data/gowSnapshotOverrides.json` | ZH typo 二增强 → ZH 而增强 (troops override 7181) |  |
 
 ## 按技能 ID
 
@@ -634,6 +636,7 @@
 | 7269 | 1 | L4a-r3-1117 |
 | 7271 | 1 | D-b09-targets |
 | 7272 | 1 | F2-1120-column-skulls |
+| 7274 | 1 | G-6154-order |
 | 7280 | 1 | P-create-interleave |
 | 7281 | 1 | L1-R2-consume-first |
 | 7287 | 1 | F3-q26 |
@@ -1166,7 +1169,7 @@
 | 8744 | 1 | P-R5-named-ally-count |
 | 8745 | 1 | L4a-r4-7174 |
 | 8747 | 1 | L1-summon-dist |
-| 8751 | 2 | P-counter-per-step、P-counter-per-step |
+| 8751 | 3 | P-counter-per-step、P-counter-per-step、G-7181-zh |
 | 8752 | 2 | L5-008、R004 (L5-004,L5-005,L5-014,L4b-6340) |
 | 8755 | 1 | F2-R001-order |
 | 8758 | 1 | P-R1-count-at-native-step |

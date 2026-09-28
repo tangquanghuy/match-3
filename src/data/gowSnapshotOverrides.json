@@ -1,6 +1,11 @@
 {
   "baseline": "Stored GoW English entity + native spell snapshots; not a live official version claim",
   "troops": {
+    "7181": {
+      "spellId": 8751,
+      "reason": "sa-G L6: ZH typo 二增强 -> 而增强 (EN boosted by my Attack, Life and Armor)",
+      "spellDescription": "对所有敌人造成 [(魔法 x 0.75) + 1] 点伤害，伤害值因自身的攻击力、生命值和护甲值而增强。再将首位敌人打回末位。 [10:1]"
+    },
     "6009": {
       "spellId": 7009,
       "reason": "English source text specifies one random Skill; extracted native IncreaseRandom awards its complete amount to one Skill per recipient. Scoped display clarification, not whole-skill signoff.",
