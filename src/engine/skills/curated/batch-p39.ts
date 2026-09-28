@@ -137,8 +137,11 @@ const SPELLS: CuratedBatch['spells'] = [
     build: skill(
       createGems(BaseColor.Brown, 6, 0),
       transformToSpecial(BaseColor.Brown, 'doomSkull'),
-      inflict('bleed', 'enemyRandomN', { nRange: { min: 1, max: 2 } }),
-      inflict('death-mark', 'enemyRandomN', { nRange: { min: 1, max: 2 } }),
+      // Native 8316: Bleed@Random ; DeathMark@Random ; Bleed@Random 25% ; DeathMark@Random 25% (ResetTargets: fresh random each, may repeat).
+      inflict('bleed', 'enemyRandom'),
+      inflict('death-mark', 'enemyRandom'),
+      inflict('bleed', 'enemyRandom', { chance: 0.25 }),
+      inflict('death-mark', 'enemyRandom', { chance: 0.25 }),
     ),
   },
   {

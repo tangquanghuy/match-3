@@ -246,9 +246,11 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 7700,
-    desc: '创造 8 颗紫色和红色宝石。赋予一名随机盟友屏障效果。',
+    desc: '创造 8 颗紫色宝石和 8 颗红色宝石。赋予一名随机盟友屏障效果。',
     build: skill(
-      createMix([BaseColor.Purple, BaseColor.Red], 8, 0),
+      // EN "Create 8 Purple and 8 Red Gems" + native CreateGems 8 Purple ; CreateGems 8 Red (not a mix of 8).
+      createGems(BaseColor.Purple, 8, 0),
+      createGems(BaseColor.Red, 8, 0),
       inflict('barrier', 'allyRandom'),
     ),
   },

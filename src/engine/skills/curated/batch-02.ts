@@ -163,10 +163,11 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 7150,
-    desc: '创造 10 红色宝石和 10 黄色宝石，然后对 1 名敌人造成 [魔法 + 4] 点伤害。',
+    desc: '创造 9 颗红色宝石和 9 颗黄色宝石，然后对 1 名敌人造成 [魔法 + 4] 点伤害。',
     build: skill(
-      createGems(BaseColor.Red, 10, 0),
-      createGems(BaseColor.Yellow, 10, 0),
+      // EN + native CreateGems 9 Red ; CreateGems 9 Yellow (Chinese snapshot said 10).
+      createGems(BaseColor.Red, 9, 0),
+      createGems(BaseColor.Yellow, 9, 0),
       dmg('enemyChosen', 4),
     ),
   },

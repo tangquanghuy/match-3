@@ -1,0 +1,11 @@
+﻿# sa-B progress (lane L4b, review round 3)
+- 2026-09-28T18:14:28 B01 troop:7600,7635,7780,6869,7509,7538,7566,7590,7678,7757 approve=10 fixed=0 issue=0 (special-gem damage boosts + storm x2; boss/tower waived; test gowLaneL4bR3)
+- 2026-09-28T18:20:45 B02 troop:7873,weapon:1570,1613,troop:7568,7596,7716,weapon:1713,troop:6318,7595,7848 approve=10 fixed=5 issue=0 (7596/7716/1713 PrefNotPrev chain R007-3 + 7596 any-kill; 7595 R001 order; 1613 zh 噩梦->恶魔)
+- 2026-09-28T18:24:17 B03 troop:6167,7632,weapon:1585,troop:7790,7824,6104,7192,7046,weapon:1468,troop:7356 approve=10 fixed=2 issue=0 (6104 Blue not Yellow + zh; 1585 Entangle Gems not status; 6167 convert-first order equivalent)
+- 2026-09-28T18:29:22 B04 troop:6354,7490,6480,6762,7789,7751,6274,7903,7000,7641 approve=9 fixed=1(7000 zh, still issue) issue=1 (7000 L4b-7000-countset-order source-dispute; gold/souls/maps counters tested)
+- 2026-09-28T18:33:07 B05 troop:7257,6299,7729,7768,7814,7742,6568,6579,7408,6703 approve=10 fixed=2 issue=0 (7257 CountMax counter + zh; 7768 boost moved damage->mix + zh; status counter table tests)
+- 2026-09-28T18:38:50 B06 troop:6865,6266,6263,6262,6261,6338,7679,7832,6364,6692 approve=9 fixed=2 issue=1 (6261 Life boost; 7832 global entangle count + zh; 6692 P-B-action-status-self-count)
+- 2026-09-28T18:40:08 B07 troop:6933,7263,weapon:1231,troop:6661-6666,7325 approve=8 fixed=0 issue=2 (6933/7325 P-B-action-status-self-count)
+- 2026-09-28T18:42:55 B08 weapon:1151,troop:6408,7458,7053,7092,weapon:1526,troop:6362,7184,6697,weapon:1167 approve=9 fixed=2 issue=1 (1167 FromPrevious magic; 7092 SingleGem->CELL; 1151 P-B-action-status-self-count)
+- 2026-09-28T18:45:56 B09 troop:6223,6112,weapon:1074,troop:7199,7827,weapon:1507,troop:6890,7082,6302,7020 approve=10 fixed=2 issue=0 (6890 native 25% extra rolls; 7082 native CreateGems 2 Yellow + FromPrevious)
+- 2026-09-28T18:52:23 B10 troop:6510,7202,7079,7037,7308,6626,weapon:1428,1417,troop:6080,weapon:1371 approve=9 fixed=6 issue=1 (6510 two creates + zh; 6080 9 not 10 + zh; 6626 order; 1428 four creates; 1417 wildcard tiers; 1371 chosen-target status; 7308 L4b-7308-spirit-colour; 1585 override synced). Note: one accidental full vitest run (empty-string splat) - 14060/14060 passed.

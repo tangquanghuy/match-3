@@ -1767,7 +1767,7 @@
           },
           {
             "kind": "buff",
-            "target": "allySelf",
+            "target": "lastTarget",
             "stat": "magic",
             "scaling": {
               "base": 1,
@@ -5143,6 +5143,62 @@
         ]
       }
     },
+    "8432": {
+      "description": "对一名敌人造成 [魔法 + 3] 点伤害。若敌人已被诅咒，则创造 8 颗绿色宝石。若敌人已陷入织网状态，则创造 8 颗紫色宝石。",
+      "metadata": {
+        "fidelity": "full",
+        "missingFeatures": [],
+        "skippedClauses": []
+      },
+      "prototype": {
+        "segments": [
+          {
+            "kind": "damage",
+            "target": "enemyChosen",
+            "scaling": {
+              "base": 3,
+              "mult": 1
+            }
+          },
+          {
+            "kind": "gem",
+            "params": {
+              "op": "create",
+              "gem": {
+                "kind": "color",
+                "color": "Green"
+              },
+              "count": {
+                "base": 8,
+                "mult": 0
+              }
+            },
+            "ifCond": {
+              "kind": "lastTargetStatusAtCastStart",
+              "statusId": "curse"
+            }
+          },
+          {
+            "kind": "gem",
+            "params": {
+              "op": "create",
+              "gem": {
+                "kind": "color",
+                "color": "Purple"
+              },
+              "count": {
+                "base": 8,
+                "mult": 0
+              }
+            },
+            "ifCond": {
+              "kind": "lastTargetStatusAtCastStart",
+              "statusId": "web"
+            }
+          }
+        ]
+      }
+    },
     "8436": {
       "description": "对所有敌人造成 [魔法 + 2] 点伤害，伤害值因紫色盟友和敌人数而增强。使所有敌人陷入死亡标记状态。若有 13 或更多颗棕色宝石，则获得 2 点魔力值。 [x2]",
       "prototype": {
@@ -5326,6 +5382,125 @@
         ]
       }
     },
+    "8577": {
+      "description": "创建 3-8 颗拥有各种翻倍量的通配宝石。",
+      "metadata": {
+        "fidelity": "full",
+        "missingFeatures": [],
+        "skippedClauses": []
+      },
+      "prototype": {
+        "segments": [
+          {
+            "kind": "gem",
+            "params": {
+              "op": "create",
+              "gem": {
+                "kind": "special",
+                "spec": {
+                  "kind": "wildcard",
+                  "tier": 2
+                }
+              },
+              "count": {
+                "base": 3,
+                "mult": 0
+              }
+            }
+          },
+          {
+            "kind": "gem",
+            "params": {
+              "op": "create",
+              "gem": {
+                "kind": "special",
+                "spec": {
+                  "kind": "wildcard",
+                  "tier": 3
+                }
+              },
+              "count": {
+                "base": 1,
+                "mult": 0
+              }
+            },
+            "chance": 0.5
+          },
+          {
+            "kind": "gem",
+            "params": {
+              "op": "create",
+              "gem": {
+                "kind": "special",
+                "spec": {
+                  "kind": "wildcard",
+                  "tier": 4
+                }
+              },
+              "count": {
+                "base": 1,
+                "mult": 0
+              }
+            },
+            "chance": 0.5
+          },
+          {
+            "kind": "gem",
+            "params": {
+              "op": "create",
+              "gem": {
+                "kind": "special",
+                "spec": {
+                  "kind": "wildcard",
+                  "tier": 2
+                }
+              },
+              "count": {
+                "base": 1,
+                "mult": 0
+              }
+            },
+            "chance": 0.25
+          },
+          {
+            "kind": "gem",
+            "params": {
+              "op": "create",
+              "gem": {
+                "kind": "special",
+                "spec": {
+                  "kind": "wildcard",
+                  "tier": 3
+                }
+              },
+              "count": {
+                "base": 1,
+                "mult": 0
+              }
+            },
+            "chance": 0.25
+          },
+          {
+            "kind": "gem",
+            "params": {
+              "op": "create",
+              "gem": {
+                "kind": "special",
+                "spec": {
+                  "kind": "wildcard",
+                  "tier": 4
+                }
+              },
+              "count": {
+                "base": 1,
+                "mult": 0
+              }
+            },
+            "chance": 0.25
+          }
+        ]
+      }
+    },
     "8617": {
       "description": "获得 [魔法 + 1] 点生命值，并赋予一名选定盟友 2 点魔力值。",
       "prototype": {
@@ -5453,6 +5628,74 @@
                 }
               ]
             ]
+          }
+        ]
+      }
+    },
+    "8641": {
+      "description": "创建 8 颗绿色宝石，再创建 8 颗红色宝石，再创建 8 颗蓝色宝石，再创建 8 颗棕色宝石。",
+      "metadata": {
+        "fidelity": "full",
+        "missingFeatures": [],
+        "skippedClauses": []
+      },
+      "prototype": {
+        "segments": [
+          {
+            "kind": "gem",
+            "params": {
+              "op": "create",
+              "gem": {
+                "kind": "color",
+                "color": "Green"
+              },
+              "count": {
+                "base": 8,
+                "mult": 0
+              }
+            }
+          },
+          {
+            "kind": "gem",
+            "params": {
+              "op": "create",
+              "gem": {
+                "kind": "color",
+                "color": "Red"
+              },
+              "count": {
+                "base": 8,
+                "mult": 0
+              }
+            }
+          },
+          {
+            "kind": "gem",
+            "params": {
+              "op": "create",
+              "gem": {
+                "kind": "color",
+                "color": "Blue"
+              },
+              "count": {
+                "base": 8,
+                "mult": 0
+              }
+            }
+          },
+          {
+            "kind": "gem",
+            "params": {
+              "op": "create",
+              "gem": {
+                "kind": "color",
+                "color": "Brown"
+              },
+              "count": {
+                "base": 8,
+                "mult": 0
+              }
+            }
           }
         ]
       }
@@ -7868,6 +8111,53 @@
         ]
       }
     },
+    "9349": {
+      "description": "造成 [魔法 + 8] 点散射伤害，伤害值因缠绕宝石数而增强。再创造 8 颗缠绕宝石。 [x8]",
+      "metadata": {
+        "fidelity": "full",
+        "missingFeatures": [],
+        "skippedClauses": []
+      },
+      "prototype": {
+        "segments": [
+          {
+            "kind": "damage",
+            "target": "enemyAll",
+            "scaling": {
+              "base": 8,
+              "mult": 1
+            },
+            "range": "scatter",
+            "modifier": {
+              "mod": {
+                "kind": "multiplier",
+                "a": 8
+              },
+              "source": {
+                "kind": "boardSpecial",
+                "gem": "entangleGem"
+              }
+            }
+          },
+          {
+            "kind": "gem",
+            "params": {
+              "op": "create",
+              "gem": {
+                "kind": "special",
+                "spec": {
+                  "kind": "entangleGem"
+                }
+              },
+              "count": {
+                "base": 8,
+                "mult": 0
+              }
+            }
+          }
+        ]
+      }
+    },
     "9378": {
       "metadata": {
         "fidelity": "full",
@@ -8021,6 +8311,9 @@
           }
         ]
       }
+    },
+    "9505": {
+      "description": "对首位 2 名敌人造成 [魔法 + 3] 点伤害，伤害值因恶魔传送门宝石数而增强。创造 2 颗恶魔传送门宝石。 [x3]"
     },
     "9523": {
       "prototype": {
@@ -9554,12 +9847,47 @@
         "segments": [
           {
             "kind": "damage",
-            "target": "enemyRandomN",
+            "target": "enemyRandom",
             "scaling": {
               "base": 3,
               "mult": 1
             },
-            "n": 3,
+            "modifier": {
+              "mod": {
+                "kind": "multiplier",
+                "a": 4
+              },
+              "source": {
+                "kind": "boardSpecial",
+                "gem": "volcanoGem"
+              }
+            }
+          },
+          {
+            "kind": "damage",
+            "target": "enemyRandomPrefNotPrev",
+            "scaling": {
+              "base": 3,
+              "mult": 1
+            },
+            "modifier": {
+              "mod": {
+                "kind": "multiplier",
+                "a": 4
+              },
+              "source": {
+                "kind": "boardSpecial",
+                "gem": "volcanoGem"
+              }
+            }
+          },
+          {
+            "kind": "damage",
+            "target": "enemyRandomPrefNotPrev",
+            "scaling": {
+              "base": 3,
+              "mult": 1
+            },
             "modifier": {
               "mod": {
                 "kind": "multiplier",

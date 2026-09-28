@@ -106,8 +106,8 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '创造 15 颗宝石，所创造的宝石混合蓝色和一种选定类型。所有其他盟友获得 [(魔法 / 2) + 1] 点生命值和攻击力，点数因被冻结的敌军数量而增强。 [x4]',
     build: skill(
       createMix([BaseColor.Blue, CHOSEN], 15),
-      heal('allyOthers', 1, 0.5),
-      // 「点数因被冻结的敌军数量而增强」双属性共用 modifier → 挂最近数值段（batch-15 8614 同款）
+      // EN "Life and Attack ... boosted by Frozen Enemies"; native IncreaseHealth and IncreaseAttack both UseCounterForAmount.
+      heal('allyOthers', 1, 0.5, { modifier: { mod: { kind: 'multiplier', a: 4 }, source: { kind: 'enemyStatusCount', statusId: 'frozen' } } }),
       attack('allyOthers', 1, 0.5, { modifier: { mod: { kind: 'multiplier', a: 4 }, source: { kind: 'enemyStatusCount', statusId: 'frozen' } } }),
     ),
   },

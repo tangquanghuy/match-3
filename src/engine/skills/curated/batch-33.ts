@@ -107,8 +107,9 @@ const SPELLS: CuratedBatch['spells'] = [
       createGems(BaseColor.Blue, 8, 0),
       createGems(BaseColor.Brown, 8, 0),
       // 「一名盟友」= allyChosen（措辞表己方同构）；三段同目标
-      inflict('submerged', 'allyChosen'),
+      // Native order (R001): CauseEnraged ; CauseSubmerged ; IncreaseHealth (all FromTarget).
       inflict('rage', 'allyChosen'),
+      inflict('submerged', 'allyChosen'),
       heal('allyChosen', 1, 1),
     ),
   },
@@ -255,19 +256,17 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 9774,
-    desc: '对所有敌人造成[(魔法 x 1.5) + 3]点伤害。创造16颗绿色和红色宝石，伤害值会因敌人患病和中毒数量而增强。 [1:1]',
+    desc: '对所有敌人造成[(魔法 x 1.5) + 3]点伤害。创造16颗绿色和红色混合宝石，数量因患病和中毒的敌人数而增强。 [1:1]',
     build: skill(
-      // 修饰子句点名「伤害值」→ 挂伤害段（spell-rules §1 修饰段归属，点名跨子句有效）；
-      // 患病 = disease（2026-09-16 特殊状态批落地）；sources[] 双状态计数
-      dmg('enemyAll', 3, 1.5, {
-        range: 'all',
+      // EN + native 9774: Damage has no UseCounterForAmount; the Poisoned + Diseased enemy counters boost
+      // CreateGems2Colors 16 Green>Red (UseCounterForAmount). 患病 = disease
+      dmg('enemyAll', 3, 1.5, { range: 'all' }),
+      createMix([BaseColor.Green, BaseColor.Red], 16, 0, {
         modifier: {
           mod: { kind: 'ratio', a: 1, b: 1 },
-          sources: [{ kind: 'enemyStatusCount', statusId: 'disease' }, { kind: 'enemyStatusCount', statusId: 'poison' }],
+          sources: [{ kind: 'enemyStatusCount', statusId: 'poison' }, { kind: 'enemyStatusCount', statusId: 'disease' }],
         },
       }),
-      // 「16 颗绿色和红色宝石」= 绿红混色 16 颗（batch-21 8219 createMix 口径）
-      createMix([BaseColor.Green, BaseColor.Red], 16, 0),
     ),
   },
 ];

@@ -11,10 +11,20 @@
       "reason": "English source text specifies one random Skill; extracted native IncreaseRandom awards its complete amount to one Skill per recipient. Scoped display clarification, not whole-skill signoff.",
       "spellDescription": "对 1 名敌人造成 [魔法 + 3] 点伤害。如果该敌人身亡，自身一项随机属性获得 6 点。"
     },
+    "6080": {
+      "spellId": 7150,
+      "reason": "English Jarl Firemantle + native: CreateGems 9 Red ; CreateGems 9 Yellow. Chinese snapshot said 10.",
+      "spellDescription": "创造 9 颗红色宝石和 9 颗黄色宝石，然后对 1 名敌人造成 [魔法 + 4] 点伤害。"
+    },
     "6092": {
       "spellId": 7162,
       "reason": "English entity Brian the Lucky says all other Allies and a random Skill (singular); native IncreaseRandom targets AllAlliesButNotSelf with amount Magic+1. Correct older Chinese snapshot without rewriting provenance.",
       "spellDescription": "使所有其他盟友的一项随机属性获得 [魔法 + 1] 点。"
+    },
+    "6104": {
+      "spellId": 7169,
+      "reason": "English Sylvasi transforms all Blue Gems to Purple; native ConvertGems 100 Blue>Purple. Chinese snapshot said Yellow.",
+      "spellDescription": "窃取 1 名敌人 [魔法] 点攻击力，并将所有蓝色宝石转换成紫色以增强效果。 [3:1]"
     },
     "6117": {
       "spellId": 7209,
@@ -66,6 +76,11 @@
       "reason": "English source text specifies one random Skill; extracted native IncreaseRandom awards its complete amount to one Skill per recipient. Scoped display clarification, not whole-skill signoff.",
       "spellDescription": "获得额外的一回合。爆破所有绿色宝石或使一名随机盟友的一项随机属性获得 [魔法 + 1] 点（若盟友为哥布林则增加两倍）。"
     },
+    "6510": {
+      "spellId": 7700,
+      "reason": "English Pharaoh Hound + native: CreateGems 8 Purple ; CreateGems 8 Red (16 gems), not a mix of 8.",
+      "spellDescription": "创造 8 颗紫色宝石和 8 颗红色宝石。赋予一名随机盟友屏障效果。"
+    },
     "6599": {
       "spellId": 7808,
       "reason": "sa-R7 R7-6599-full-or: native counts enemies with full Life OR full Mana.",
@@ -116,6 +131,11 @@
       "reason": "sa-F2 fix round A: English/native ExplodeGems Amount 1 SpellPowerMultiplier 0.5 = [(Magic / 2) + 1] Gems; old Chinese said one gem.",
       "spellDescription": "创造 12 个厄运头骨。然后爆破 [(魔法 / 2) + 1] 颗宝石。"
     },
+    "7000": {
+      "spellId": 8503,
+      "reason": "English Baihu: Create 3 Yellow Gems, damage boosted by Yellow Gems, Enchant myself (native CauseEnchanted@Self). Chinese snapshot was garbled machine translation ('迷惑自己' = confuse).",
+      "spellDescription": "创造 3 颗黄色宝石。对一名敌人造成 [魔法 + 3] 点伤害，伤害值因黄色宝石数而增强。赋予自己法印效果。 [2:1]"
+    },
     "7067": {
       "spellId": 8595,
       "reason": "L3 terminology: English \"Magic\" (not Mana) is rendered ħ��ֵ per L3 ruling; curated desc is authoritative.",
@@ -140,6 +160,11 @@
       "spellId": 8824,
       "reason": "sa-R7 R7-not-board-misread: English \"for each Blue Gem on the board\"; snapshot ZH misreads as û��.",
       "spellDescription": "给予一名盟友 4 点护甲值。板面上每有一颗蓝色宝石，则有 7% 的几率获得一个额外回合。 [x7]"
+    },
+    "7257": {
+      "spellId": 8871,
+      "reason": "English Carmina: Create 4 Skulls, 4 Doomskulls, and 4 Uber Doomskulls; +1 of each if an Enemy is Death Marked. Chinese snapshot was truncated.",
+      "spellDescription": "创造 4 颗骷髅头、4 颗末日骷髅头和 4 颗超级末日骷髅头。如果有敌人陷入死亡标记状态，则每种骷髅头各多创造 1 颗。 [1:1]"
     },
     "7260": {
       "spellId": 8894,
@@ -218,10 +243,20 @@
       "manaCost": 9,
       "reason": "English ManaCost and native Cost agree; Chinese entity snapshot has 11"
     },
+    "7768": {
+      "spellId": 9774,
+      "reason": "English Champion of Rot: the mix of 16 Green and Red Gems (not the damage) is boosted by Diseased and Poisoned Enemies; native CreateGems2Colors UseCounterForAmount.",
+      "spellDescription": "对所有敌人造成[(魔法 x 1.5) + 3]点伤害。创造16颗绿色和红色混合宝石，数量因患病和中毒的敌人数而增强。 [1:1]"
+    },
     "7830": {
       "spellId": 9874,
       "reason": "sa-F2 fix round A: English/native IncreaseHealth Amount 1 SpellPowerMultiplier 1 = [Magic + 1] Life; old Chinese said 1.",
       "spellDescription": "随机给 2 名盟友赋予 [魔法 + 1] 点生命值。然后将 5 个绿色宝石转化为沉没宝石。"
+    },
+    "7832": {
+      "spellId": 9939,
+      "reason": "English Wisterina: damage boosted by Entangled Enemies [x2] (native CountSpecificStatusEffect 200 entangle), not extra damage per entangled target.",
+      "spellDescription": "对所有敌人造成[魔法 + 2]点伤害，伤害值因被纠缠的敌人数而增强。然后将所有棕色宝石转化为纠缠宝石。 [x2]"
     }
   }
 }

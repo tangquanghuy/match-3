@@ -160,10 +160,10 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 9677,
     desc: '对2名随机敌人造成[魔法 + 3]点伤害，伤害值因诅咒宝石数量而增强。然后制造4颗诅咒宝石。 [x3]',
     build: skill(
-      dmg('enemyRandomN', 3, 1, {
-        n: 2,
+      // Native Damage@RandomEnemy + Damage@RandomPrefNotPrevEnemy (R007-3): second hit reuses a lone enemy.
+      ...(['enemyRandom', 'enemyRandomPrefNotPrev'] as const).map(t => dmg(t, 3, 1, {
         modifier: { mod: { kind: 'multiplier', a: 3 }, source: { kind: 'boardSpecial', gem: 'curseGem' } },
-      }),
+      })),
       createSpecialGems({ kind: 'curseGem' }, 4, 0),
     ),
   },

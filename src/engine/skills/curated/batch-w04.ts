@@ -329,7 +329,8 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 9349,
     desc: '造成 [魔法 + 8] 点散射伤害，伤害值因缠绕宝石数而增强。再创造 8 颗缠绕宝石。 [x8]',
     build: skill(
-      dmg('enemyAll', 8, 1, { range: 'all', modifier: { mod: { kind: 'multiplier', a: 8 }, source: { kind: 'enemyStatusCount', statusId: 'entangle' } } }),
+      // Native CountGems 800 Entangle: Entangle Gems on the board, not Entangled enemies.
+      dmg('enemyAll', 8, 1, { range: 'all', modifier: { mod: { kind: 'multiplier', a: 8 }, source: { kind: 'boardSpecial', gem: 'entangleGem' } } }),
       createSpecialGems({ kind: 'entangleGem' }, 8, 0),
     ),
   },
@@ -562,7 +563,7 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 9505,
-    desc: '对首位 2 名敌人造成 [魔法 + 3] 点伤害，伤害值因噩梦传送门宝石数而增强。创造 2 颗恶魔传送门宝石。 [x3]',
+    desc: '对首位 2 名敌人造成 [魔法 + 3] 点伤害，伤害值因恶魔传送门宝石数而增强。创造 2 颗恶魔传送门宝石。 [x3]',
     build: skill(
       dmg('enemyFirstN', 3, 1, { n: 2, modifier: { mod: { kind: 'multiplier', a: 3 }, source: { kind: 'boardSpecial', gem: 'daemonicPortalGem' } } }),
       createSpecialGems({ kind: 'daemonicPortalGem' }, 2, 0),

@@ -788,11 +788,11 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 9475,
     desc: '对 2 名随机敌人造成 [魔法 + 3] 点伤害，伤害值因紫色宝石数量而增强。如果一名敌人死亡，则生成 2 颗恶魔传送门宝石。 [3:1]',
     build: skill(
-      dmg('enemyRandomN', 3, 1, {
-        n: 2,
+      // Native Damage@RandomEnemy + Damage@RandomPrefNotPrevEnemy (R007-3); AddForKill = any enemy killed by this cast.
+      ...(['enemyRandom', 'enemyRandomPrefNotPrev'] as const).map(t => dmg(t, 3, 1, {
         modifier: { mod: { kind: 'ratio', a: 3, b: 1 }, source: { kind: 'boardGems', color: BaseColor.Purple } },
-      }),
-      createSpecialGems({ kind: 'daemonicPortalGem' }, 2, 0, { ifTargetDied: true }),
+      })),
+      createSpecialGems({ kind: 'daemonicPortalGem' }, 2, 0, { ifCond: { kind: 'castEnemyDied' } }),
     ),
   },
   {

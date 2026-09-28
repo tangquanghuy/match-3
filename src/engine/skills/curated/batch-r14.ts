@@ -55,7 +55,8 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '将一颗法力宝石转换成一颗元素星。',
     // 官方 CreateGems x1（Color1=ElementalStar）→ 「一颗法力宝石」= 任意色 1 颗（'ANY' 排除已是元素星）
     build: skill(
-      transformToSpecial('ANY', 'elementalStar', { count: 1 }),
+      // Native CreateGems 1 ElementalStar BoardTarget SingleGem = the chosen cell (L4b-7276 / Explode-a-Gem convention).
+      transformToSpecial('CELL', 'elementalStar'),
     ),
   },
   {

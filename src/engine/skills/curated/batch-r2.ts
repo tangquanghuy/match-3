@@ -190,9 +190,10 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 9939,
-    desc: '对所有敌人造成[魔法 + 2]点伤害，被纠缠的敌人可获得额外伤害。然后将所有棕色宝石转化为纠缠宝石。 [x2]',
+    desc: '对所有敌人造成[魔法 + 2]点伤害，伤害值因被纠缠的敌人数而增强。然后将所有棕色宝石转化为纠缠宝石。 [x2]',
     build: skill(
-      dmg('enemyAll', 2, 1, { range: 'all', condMult: { times: 2, cond: { kind: 'targetStatus', statusId: 'entangle' } } }),
+      // Native CountSpecificStatusEffect 200 entangle -> +2 per Entangled enemy, applied to every enemy.
+      dmg('enemyAll', 2, 1, { range: 'all', modifier: { mod: { kind: 'multiplier', a: 2 }, source: { kind: 'enemyStatusCount', statusId: 'entangle' } } }),
       transformToSpecial(BaseColor.Brown, 'entangleGem'),
     ),
   },

@@ -63,9 +63,11 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 8432,
     desc: '对一名敌人造成 [魔法 + 3] 点伤害。若敌人已被诅咒，则创造 8 颗绿色宝石。若敌人已陷入织网状态，则创造 8 颗紫色宝石。',
     build: skill(
+      // Native 8432: CreateGems@FromTarget Green {AddForCursed 8} ; Purple {AddForWeb 8} ; then Damage@FromTarget.
+      // Condition = the chosen enemy's status before the cast (damage first is equivalent: creates never touch statuses).
       dmg('enemyChosen', 3, 1),
-      createGems(BaseColor.Green, 8, 0, { ifCond: { kind: 'anyEnemyStatus', statusId: 'curse' } }),
-      createGems(BaseColor.Purple, 8, 0, { ifCond: { kind: 'anyEnemyStatus', statusId: 'web' } }),
+      createGems(BaseColor.Green, 8, 0, { ifCond: { kind: 'lastTargetStatusAtCastStart', statusId: 'curse' } }),
+      createGems(BaseColor.Purple, 8, 0, { ifCond: { kind: 'lastTargetStatusAtCastStart', statusId: 'web' } }),
     ),
   },
   {
@@ -442,7 +444,13 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 8577,
     desc: '创建 3-8 颗拥有各种翻倍量的通配宝石。',
     build: skill(
-      createSpecialGems({ kind: 'wildcard' }, 3, 0),
+      // Native 8577: 3 x2 ; x3 50% ; x4 50% ; x2 25% ; x3 25% ; x4 25%  -> 3-8 Wildcards.
+      createSpecialGems({ kind: 'wildcard', tier: 2 }, 3, 0),
+      createSpecialGems({ kind: 'wildcard', tier: 3 }, 1, 0, { chance: 0.5 }),
+      createSpecialGems({ kind: 'wildcard', tier: 4 }, 1, 0, { chance: 0.5 }),
+      createSpecialGems({ kind: 'wildcard', tier: 2 }, 1, 0, { chance: 0.25 }),
+      createSpecialGems({ kind: 'wildcard', tier: 3 }, 1, 0, { chance: 0.25 }),
+      createSpecialGems({ kind: 'wildcard', tier: 4 }, 1, 0, { chance: 0.25 }),
     ),
   },
   {
@@ -525,7 +533,11 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 8641,
     desc: '创建 8 颗绿色宝石，再创建 8 颗红色宝石，再创建 8 颗蓝色宝石，再创建 8 颗棕色宝石。',
     build: skill(
+      // Native 8641: CreateGems 8 Green ; 8 Red ; 8 Blue ; 8 Brown (was Red only).
+      createGems(BaseColor.Green, 8, 0),
       createGems(BaseColor.Red, 8, 0),
+      createGems(BaseColor.Blue, 8, 0),
+      createGems(BaseColor.Brown, 8, 0),
     ),
   },
   {

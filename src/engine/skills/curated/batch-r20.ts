@@ -328,7 +328,7 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 8503,
-    desc: '创造三个黄色宝石。结果 [魔法 + 3] 伤害一名敌人，由黄色宝石激活。迷惑自己。 [2:1]',
+    desc: '创造 3 颗黄色宝石。对一名敌人造成 [魔法 + 3] 点伤害，伤害值因黄色宝石数而增强。赋予自己法印效果。 [2:1]',
     // 「迷惑自己」机翻，EN/ST = Enchant myself → 法印（R10 口径）；[2:1] = CountGems Yellow 50 → boardGems
     build: skill(
       createGems(BaseColor.Yellow, 3),
