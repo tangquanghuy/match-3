@@ -1,6 +1,6 @@
 # GoW 技能改动留档
 
-自动生成（`node scripts/gow-changelog.mjs render`），源数据 [CHANGES.jsonl](CHANGES.jsonl)，共 632 条改动，涉及 1084 个技能 ID。
+自动生成（`node scripts/gow-changelog.mjs render`），源数据 [CHANGES.jsonl](CHANGES.jsonl)，共 633 条改动，涉及 1085 个技能 ID。
 
 ## 按时间
 
@@ -638,6 +638,7 @@
 | 2026-09-28T22:12 | sa-H | L1-H-6908-four-branches | assembler | 8369 | troop:6908 BookOfSecrets | `src/engine/skills/curated/batch-r7.ts`<br>`src/data/gowSnapshotOverrides.json` | 3 branches 1/3; status branch hit enemies AND allies; zh said enemies and allies → native A-B-C-D 1/4 each: Daemon \| positive all allies \| negative all enemies \| [M+2] front; zh 或 + override |  |
 | 2026-09-28T22:30 | sa-I | L7-I-7337-single-hit | assembler | 8960 | troop:7337 Militiaman | `src/engine/skills/curated/batch-r5.ts` | front enemy, damage split in 2 hits → native RandomHighDamage@FromTarget: one hit on the chosen enemy ({2} is snapshot residue) |  |
 | 2026-09-28T22:30 | sa-I | L7-I-1078-fey | assembler | 7191 | weapon:1078 DreamCatcher | `src/engine/skills/curated/batch-w01.ts`<br>`scripts/curated-pools/pool-w01.json` | +10 if enemy has an Elf; zh 精灵 → native AddIfEnemyHasFey: +10 if enemy has a Fey; zh 妖仙 |  |
+| 2026-09-28T22:35 | sa-I | L7-I-6057-zh-target | data | 7057 | troop:6057 WolfKnight | `src/engine/skills/curated/batch-r7.ts`<br>`src/data/gowSnapshotOverrides.json` | zh: 造成 [魔法 + 1] 点真实伤害 (no target) → zh: 对一名敌人造成 ... (EN to an Enemy); override 6057 |  |
 
 ## 按技能 ID
 
@@ -671,6 +672,7 @@
 | 7053 | 1 | F2-R001-order |
 | 7054 | 1 | F2-R001-order |
 | 7055 | 1 | F2-R001-order |
+| 7057 | 1 | L7-I-6057-zh-target |
 | 7061 | 1 | F3-t6061 |
 | 7063 | 1 | P-create-interleave |
 | 7065 | 1 | F2-R001-order |

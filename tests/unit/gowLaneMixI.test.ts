@@ -1,7 +1,8 @@
 // sa-I mixed-lane review (L7, L6, L1, L3, L4b, L2): behaviour the four standard golden scenarios cannot show.
 // Real TurnEngine casts through tests/helpers/gowCast.
 import { describe, it, expect } from 'vitest';
-import { castSpell, type CastOpts } from '../helpers/gowCast';
+import { castSpell, setupCast, summarize, type CastOpts } from '../helpers/gowCast';
+import { BaseColor } from '@engine/types';
 
 const dmgLines = (o: CastOpts) => castSpell(o).summary.order.filter(s => s.startsWith('dmg '));
 const dmgs = (o: CastOpts) => dmgLines(o).map(s => Number(s.split(' ')[2]));
@@ -63,5 +64,43 @@ describe('sa-I L7 B02', () => {
     ['weapon:1016', 14, 3], ['weapon:1031', 16, 4], ['weapon:1046', 14, 3],
   ])('%s light splash on the chosen enemy (%i) and both neighbours (%i)', (key, main, side) => {
     expect(dmgLines({ key, target: 12 })).toEqual([`dmg E12 ${main} (splash)`, `dmg E11 ${side} (splash)`, `dmg E13 ${side} (splash)`]);
+  });
+});
+const st = (...ids: string[]) => ids.map(id => ({ id, turns: 99 })) as never;
+const withStorm = (o: CastOpts, side: 'Left' | 'Right') => {
+  const f = setupCast(o); f.state.teams[side].storm = { color: BaseColor.Red, turns: 3, troopId: 0 };
+  return summarize(f, f.cast()).order.filter(s => s.startsWith('dmg '));
+};
+describe('sa-I L7 B03', () => {
+  it('weapon:1097 light splash 14/3, +5 on the main hit when the target is Entangled', () => {
+    const ent = [{ hp: 900, maxHp: 900 }, { hp: 900, maxHp: 900, statuses: st('entangle') }, { hp: 900, maxHp: 900 }];
+    expect(dmgLines({ key: 'weapon:1097', enemies: ent })).toEqual(['dmg E11 19 (splash)', 'dmg E10 4 (splash)', 'dmg E12 4 (splash)']);
+    expect(dmgLines({ key: 'weapon:1097', enemies: ent, target: 10 })).toEqual(['dmg E10 14 (splash)', 'dmg E11 3 (splash)']);
+  });
+  it('troop:6116 two light splashes: RandomEnemy then RandomPrefNotPrev (a lone enemy is hit twice)', () => {
+    for (let seed = 1; seed <= 60; seed++) {
+      const mains = dmgLines({ key: 'troop:6116', seed }).filter(s => / 12 \(splash\)$/.test(s)).map(s => s.split(' ')[1]);
+      expect(mains).toHaveLength(2); expect(mains[0]).not.toBe(mains[1]);
+    }
+    expect(dmgLines({ key: 'troop:6116', enemies: ONE })).toEqual(['dmg E10 12 (splash)', 'dmg E10 12 (splash)']);
+  });
+  it('weapon:1561 heavy splash on the chosen enemy, then light splash on a plain RandomEnemy (may repeat)', () => {
+    expect(dmgLines({ key: 'weapon:1561', enemies: ONE })).toEqual(['dmg E10 13 (splash)', 'dmg E10 13 (splash)']);
+    let same = 0;
+    for (let seed = 1; seed <= 200; seed++) {
+      const l = dmgLines({ key: 'weapon:1561', seed, target: 12 });
+      expect(l.slice(0, 3)).toEqual(['dmg E12 13 (splash)', 'dmg E11 9 (splash)', 'dmg E13 9 (splash)']);
+      if (l[3].startsWith('dmg E12 13')) same++;
+    }
+    expect(same).toBeGreaterThan(20);
+  });
+  it('weapon:1273 splash 16/8, doubled with any storm (either side)', () => {
+    expect(withStorm({ key: 'weapon:1273' }, 'Left')).toEqual(['dmg E11 32 (splash)', 'dmg E10 16 (splash)', 'dmg E12 16 (splash)']);
+    expect(withStorm({ key: 'weapon:1273' }, 'Right')).toEqual(['dmg E11 32 (splash)', 'dmg E10 16 (splash)', 'dmg E12 16 (splash)']);
+  });
+  it('troop:6057 true damage 11 on the chosen enemy, 17 when it is wounded', () => {
+    const hurt = [{ hp: 900, maxHp: 900 }, { hp: 899, maxHp: 900 }];
+    expect(dmgLines({ key: 'troop:6057', enemies: hurt })).toEqual(['dmg E11 17']);
+    expect(dmgLines({ key: 'troop:6057', enemies: hurt, target: 10 })).toEqual(['dmg E10 11']);
   });
 });

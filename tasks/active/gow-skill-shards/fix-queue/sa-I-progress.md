@@ -10,3 +10,8 @@ Lanes in order: L7, L6, L1, L3, L4b, L2. Tests: tests/unit/gowLaneMixI.test.ts
 - weapon:1016 accept (L7; light splash chosen 14/3)
 - weapon:1031 accept (L7; light splash chosen 16/4)
 - weapon:1046 accept (L7; light splash chosen 14/3)
+- weapon:1097 accept (L7; native SplashDamage = light 14/3 (EN says splash, zh 轻度 matches native), +5 main hit vs Entangled)
+- troop:6116 accept (L7; RandomEnemy + PrefNotPrev light splash, lone enemy hit twice)
+- weapon:1561 accept (L7; heavy splash 13/9 chosen, light splash plain RandomEnemy may repeat)
+- weapon:1273 accept (L7; SplashHigh 16/8, x2 with any storm)
+- troop:6057 fixed+accept (L7; +6 vs wounded; zh added 对一名敌人 + override 6057)
