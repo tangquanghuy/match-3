@@ -737,8 +737,9 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 8721,
-    desc: '选择一宝石，摧毁其行和列。再创造 6 颗炸弹宝石，并造成 [魔法 + 6] 点散射伤害。',
-    build: ({"segments":[{"kind":"gem","params":{"op":"clear","mode":"destroy","target":{"kind":"chosenCross"}}},{"kind":"gem","params":{"op":"create","gem":{"kind":"special","spec":{"kind":"bomb"}},"count":{"base":6,"mult":0}}},{"kind":"damage","target":"enemyAll","scaling":{"base":6,"mult":1},"range":"scatter"}]} as SkillPrototype),
+    desc: '选择一颗宝石，摧毁其所在的列。再创造 6 颗炸弹宝石，并造成 [魔法 + 6] 点散射伤害。',
+    // native DestroyGems BoardTarget Column (English 'destroy its column'): column only, not row + column
+    build: ({"segments":[{"kind":"gem","params":{"op":"clear","mode":"destroy","target":{"kind":"chosenLine","orientation":"col"}}},{"kind":"gem","params":{"op":"create","gem":{"kind":"special","spec":{"kind":"bomb"}},"count":{"base":6,"mult":0}}},{"kind":"damage","target":"enemyAll","scaling":{"base":6,"mult":1},"range":"scatter"}]} as SkillPrototype),
   },
   {
     id: 8725,

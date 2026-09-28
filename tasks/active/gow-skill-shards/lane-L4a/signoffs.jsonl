@@ -390,3 +390,8 @@
 {"format":"compact","key":"troop:6709","decision":"accept","reviewer":"sa-A","reviewedAt":"2026-09-28T21:46:58.670Z","tests":["tests/unit/gowCastGolden.test.ts"]}
 {"format":"compact","key":"troop:6923","decision":"accept","reviewer":"sa-A","reviewedAt":"2026-09-28T21:46:58.671Z","tests":["tests/unit/gowCastGolden.test.ts"]}
 {"format":"compact","key":"troop:6312","decision":"accept","reviewer":"sa-A","reviewedAt":"2026-09-28T21:46:58.671Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:7228","decision":"accept","reviewer":"sa-A","reviewedAt":"2026-09-28T21:50:02.888Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:6042","decision":"accept","reviewer":"sa-A","reviewedAt":"2026-09-28T21:50:02.889Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"weapon:1452","decision":"accept","reviewer":"sa-A","reviewedAt":"2026-09-28T21:50:02.890Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:6544","decision":"accept","reviewer":"sa-A","reviewedAt":"2026-09-28T21:50:02.890Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:6676","decision":"accept","reviewer":"sa-A","reviewedAt":"2026-09-28T21:50:02.890Z","tests":["tests/unit/gowCastGolden.test.ts"]}

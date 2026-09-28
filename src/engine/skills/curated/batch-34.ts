@@ -192,8 +192,8 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 8823,
     desc: '摧毁 [魔法 + 1] 颗宝石。再创造 3 颗炸弹宝石。',
     build: skill(
-      // 「宝石」不含骷髅 → include 'color'（8614 口径）
-      destroyRandomGems(1, 1, 'color'),
+      // native DestroyGems 1+M: any gem, Skulls included (R013-5)
+      destroyRandomGems(1, 1, 'all'),
       createSpecialGems({ kind: 'bomb' }, 3, 0),
     ),
   },

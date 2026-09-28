@@ -152,8 +152,8 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 8022,
     desc: '摧毁 8 颗宝石。对第一位敌人造成 [魔法 + 3] 点伤害。',
     build: skill(
-      // batch-04 9020 同款句式 → 随机宝石
-      destroyRandomGems(8, 0, 'color'),
+      // native DestroyGems 8: 8 random gems, Skulls included (R013-5)
+      destroyRandomGems(8, 0, 'all'),
       dmg('enemyFront', 3),
     ),
   },

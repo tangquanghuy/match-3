@@ -74,3 +74,8 @@
 - troop:6709 accept (native Curse/Stun/Bleed order)
 - troop:6923 accept
 - troop:6312 fix(destroy 1+M include all)
+- troop:7228 fix(destroy 1+M include all)
+- troop:6042 accept
+- weapon:1452 fix(chosen column only, not cross; zh pool + override)
+- troop:6544 accept
+- troop:6676 fix(destroy 8 include all)

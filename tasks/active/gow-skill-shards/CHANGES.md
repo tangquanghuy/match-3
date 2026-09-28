@@ -1,6 +1,6 @@
 # GoW 技能改动留档
 
-自动生成（`node scripts/gow-changelog.mjs render`），源数据 [CHANGES.jsonl](CHANGES.jsonl)，共 553 条改动，涉及 1006 个技能 ID。
+自动生成（`node scripts/gow-changelog.mjs render`），源数据 [CHANGES.jsonl](CHANGES.jsonl)，共 555 条改动，涉及 1009 个技能 ID。
 
 ## 按时间
 
@@ -559,6 +559,8 @@
 | 2026-09-28T21:44 | sa-A | L4a-R8-7019-zh | data | 8526 | troop:7019 Cloakmantle | `src/engine/skills/curated/batch-r11.ts`<br>`src/data/gowSnapshotOverrides.json` | 8526 zh '敌人队伍使用对多的颜色宝石' → zh '敌方队伍使用最多的法力颜色的宝石' + snapshot override |  |
 | 2026-09-28T21:46 | sa-A | L4a-R8-6482-zh | data | 7669 | troop:6482 Shocktopus | `src/engine/skills/curated/batch-r18.ts`<br>`src/data/gowSnapshotOverrides.json` | 7669 zh '珠宝' and plain damage → zh '宝石' + '真实伤害' + snapshot override |  |
 | 2026-09-28T21:46 | sa-A | L4a-R8-random-any-gem | assembler | 7462 | troop:6312 Bogstrider | `src/engine/skills/curated/batch-01.ts` | 7462 destroy 1+M include color → include all (R013-5) |  |
+| 2026-09-28T21:50 | sa-A | L4a-R8-random-any-gem | assembler | 8823, 8022 | troop:7228 BORK-3000；troop:6676 Plainsjumper | `src/engine/skills/curated/batch-34.ts`<br>`src/engine/skills/curated/batch-03.ts` | 8823 / 8022 random destroy include color → include all (R013-5) |  |
+| 2026-09-28T21:50 | sa-A | L4a-R8-1452-column-only | data | 8721 | weapon:1452 ShockHammer | `src/engine/skills/curated/batch-w03.ts`<br>`scripts/curated-pools/pool-w01.json`<br>`src/data/gowWeaponReviewedOverrides.json` | 8721 chosenCross (row+column); zh '摧毁其行和列' → chosenLine col (native BoardTarget Column, English 'destroy its column'); zh '摧毁其所在的列'; override description+prototype |  |
 
 ## 按技能 ID
 
@@ -865,6 +867,7 @@
 | 7983 | 1 | P-counter-per-step |
 | 7984 | 1 | L1-R2-consume-first |
 | 7991 | 1 | L1-E-1238-pool |
+| 8022 | 1 | L4a-R8-random-any-gem |
 | 8024 | 1 | P-prefnotprev-semantics |
 | 8032 | 1 | F2-R001-order |
 | 8035 | 1 | F2-R001-order |
@@ -1182,6 +1185,7 @@
 | 8707 | 2 | L1-E-kingdom-summon-raw、P-E-faction-kingdom |
 | 8713 | 1 | P-counter-per-step |
 | 8715 | 1 | L1-7155-devour |
+| 8721 | 1 | L4a-R8-1452-column-only |
 | 8722 | 1 | L2-singlegem-cell |
 | 8723 | 1 | P-E-faction-kingdom |
 | 8725 | 2 | L1-E-kingdom-summon-raw、P-E-faction-kingdom |
@@ -1220,6 +1224,7 @@
 | 8816 | 1 | L1-E-kingdom-summon-raw |
 | 8817 | 1 | L1-7222-chance |
 | 8820 | 1 | P-counter-per-step |
+| 8823 | 1 | L4a-R8-random-any-gem |
 | 8824 | 1 | R7-not-board-misread |
 | 8830 | 1 | R009-giant-dragon-L4b |
 | 8832 | 1 | R009-giant-dragon-L4b |

@@ -336,3 +336,30 @@ describe('L4a R8 B12', () => {
     expect(r.summary.order[0]).toMatch(/^destroy 11 .*skull/);
   });
 });
+
+const destroyCells = (r: ReturnType<typeof castSpell>) =>
+  (r.events.find(e => e.type === 'gem-destroy') as unknown as { cells: { pos: { row: number; col: number } }[] }).cells.map(c => c.pos);
+
+describe('L4a R8 B13', () => {
+  // troop:7228 (8823) DestroyGems 1+M ; troop:6676 (8022) DestroyGems 8: any gem incl. Skulls (R013-5).
+  it.each([['troop:7228', 11], ['troop:6676', 8]] as const)('%s destroys %i random gems, Skulls eligible', (key, n) => {
+    const r = castSpell({ key, board: skullBoard });
+    expect(r.summary.order[0]).toMatch(new RegExp(`^destroy ${n} .*skull`));
+  });
+  // weapon:1452 Shock Hammer (8721): DestroyGems BoardTarget Column (chosen) ; CreateGems 6 Bomb ; ScatterDamage 6+M.
+  it('weapon:1452 destroys only the chosen column', () => {
+    const r = castSpell({ key: 'weapon:1452', cell: { row: 2, col: 5 } });
+    const cells = destroyCells(r);
+    expect(cells).toHaveLength(8);
+    expect(new Set(cells.map(c => c.col))).toEqual(new Set([5]));
+    expect(r.summary.gems.created.bomb).toBe(6);
+  });
+  // troop:6042 (7042) DestroyGems Column (chosen) ; 9 Brown ; +1+M Armor.  troop:6544 (7738) chosen Row ; FirstTwoEnemies 3+M.
+  it('troop:6042 / troop:6544 clear the chosen line', () => {
+    const a = castSpell({ key: 'troop:6042', cell: { row: 1, col: 2 } });
+    expect(new Set(destroyCells(a).map(c => c.col))).toEqual(new Set([2]));
+    const b = castSpell({ key: 'troop:6544', cell: { row: 6, col: 2 } });
+    expect(new Set(destroyCells(b).map(c => c.row))).toEqual(new Set([6]));
+    expect(b.summary.order.filter(o => o.startsWith('dmg'))).toEqual(['dmg E10 13 (all)', 'dmg E11 13 (all)']);
+  });
+});
