@@ -1,3 +1,4 @@
 # sa-F progress (lane L3 review round 7, branch gow/r7-L3)
 - B01 troop:6454,weapon:1211,troop:7074,troop:6897,troop:7806,weapon:1490,troop:7430,troop:7644,troop:7697,troop:7781 approve=10 fixed=5 issue=0 (6454 2 Mana/Entangled no base + counts before damage, ZH; 1211 8 Atk / 2 Mana per Barrier no base; 7074 Red Mana Potions; 6897 AllAlliesButNotSelf, ZH; 7806 count before true damage)
 - B02 troop:7872,troop:6863,weapon:1506,troop:6111,troop:6036,troop:6045,troop:6190,troop:7714,troop:7774,weapon:1251 approve=10 fixed=4 issue=0 (6111 selected gem only + Purple count after transform; 6863/7714/7774 ZH only)
+- B03 troop:6278,troop:6867,troop:6896,troop:6834,troop:6886 approve=5 fixed=3 issue=0 (6278 Entangle->Web order; 6867 ZH; 6834 RandomPrefNotPrev + ZH; 6896 shared 1-3 roll verified; 6886 R000 waived boss c2/step0)

@@ -196,7 +196,7 @@ const SPELLS: CuratedBatch['spells'] = [
   {
     // —— 比例法力 mana fraction（官方 GenerateQuarterMana） ——
     id: 8289,
-    desc: '对一名敌人造成 [魔法 + 3] 点伤害。若对方是不死族，则使对方陷入诅咒和死亡标记状态。再给予其他盟友敌人 4 分之一的法力值。',
+    desc: '对一名敌人造成 [魔法 + 3] 点伤害。若对方是不死族，则使对方陷入诅咒和死亡标记状态。再给予所有其他盟友 4 分之一的法力值。',
     // 「若对方是不死族」= targetRace Undead 目标相对条件；「其他盟友」= allyOthers（官方 AllAlliesButNotSelf）
     build: skill(
       dmg('enemyChosen', 3, 1),

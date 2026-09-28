@@ -1,6 +1,6 @@
 # GoW 技能改动留档
 
-自动生成（`node scripts/gow-changelog.mjs render`），源数据 [CHANGES.jsonl](CHANGES.jsonl)，共 547 条改动，涉及 998 个技能 ID。
+自动生成（`node scripts/gow-changelog.mjs render`），源数据 [CHANGES.jsonl](CHANGES.jsonl)，共 550 条改动，涉及 1001 个技能 ID。
 
 ## 按时间
 
@@ -553,6 +553,9 @@
 | 2026-09-28T21:13 | sa-F | L3-F-6863 | data | 8282 | troop:6863 QueenBeetrix | `src/engine/skills/curated/batch-r9.ts`<br>`src/data/gowSnapshotOverrides.json` | ZH: chance boosted by Brown Gems → ZH matches English/native (no Brown count step); behaviour unchanged |  |
 | 2026-09-28T21:13 | sa-F | L3-F-7714 | data | 9675 | troop:7714 DesertOx | `src/engine/skills/curated/batch-r17.ts`<br>`src/data/gowSnapshotOverrides.json` | ZH: use a mix of 10 Curse Gems and Doomskulls → ZH: create 10 (random mix); behaviour unchanged |  |
 | 2026-09-28T21:13 | sa-F | L3-F-7774 | data | 9780 | troop:7774 CountGobula | `src/engine/skills/curated/batch-r22.ts`<br>`src/data/gowSnapshotOverrides.json` | ZH: 14 Green and 14 Bleed → ZH: 14 Green/Bleed total (random mix); behaviour unchanged |  |
+| 2026-09-28T21:16 | sa-F | L3-F-6278 | assembler | 7424 | troop:6278 SirSnothelm | `src/engine/skills/curated/batch-13.ts` | Web then Entangle → Entangle then Web (native CauseEntangle -> CauseWeb, R001) |  |
+| 2026-09-28T21:16 | sa-F | L3-F-6867 | data | 8289 | troop:6867 Solari | `src/engine/skills/curated/batch-r12.ts`<br>`src/data/gowSnapshotOverrides.json` | ZH: other allies enemies → ZH: all other allies; behaviour unchanged |  |
+| 2026-09-28T21:16 | sa-F | L3-F-6834 | assembler | 8239 | troop:6834 Finesse | `src/engine/skills/curated/batch-p37.ts`<br>`src/data/gowSnapshotOverrides.json` | second hit plain random enemy (could re-hit the chosen one); ZH stray comma → second hit RandomPrefNotPrevEnemy (native); ZH punctuation fixed |  |
 
 ## 按技能 ID
 
@@ -704,6 +707,7 @@
 | 7410 | 2 | R7-b14-status-counts、P-R7-dead-last-target-cond |
 | 7415 | 1 | R7-6269-chosen-daemon |
 | 7418 | 1 | L7-R1-random-chain-waves |
+| 7424 | 1 | L3-F-6278 |
 | 7425 | 1 | L1-6279-chosen |
 | 7431 | 1 | L3-002 |
 | 7433 | 1 | L2-board-chosen |
@@ -937,6 +941,7 @@
 | 8236 | 1 | R3-B11-6831 |
 | 8237 | 1 | L1-6832-prefnotprev |
 | 8238 | 3 | P-counter-per-step、L7-R1-attack-armor-life-pooled、P-counter-per-step |
+| 8239 | 1 | L3-F-6834 |
 | 8241 | 1 | R3-B11-6831 |
 | 8243 | 1 | F1-items-54-60 |
 | 8245 | 1 | L5-001 |
@@ -953,6 +958,7 @@
 | 8283 | 1 | L1-1310-brown |
 | 8285 | 1 | P-E-faction-kingdom |
 | 8288 | 1 | P-prefnotprev-semantics |
+| 8289 | 1 | L3-F-6867 |
 | 8294 | 1 | P-prefnotprev-semantics |
 | 8297 | 2 | L4a-R1-8297-life-boost、R013-5 |
 | 8299 | 1 | F2-1313-order-life |

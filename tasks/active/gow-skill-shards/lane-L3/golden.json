@@ -139,6 +139,16 @@
   "by": "sa-R7",
   "at": "2026-09-28T05:57:15.234Z"
  },
+ "troop:6278": {
+  "lines": {
+   "L10": "dmg E11 13 ; status E11 +entangle ; status E11 +web ; extra-turn skill  => E11:hp-3 arm-10 +entangle+web  extra:skill",
+   "R10": "dmg E11 13 ; status E11 +entangle ; status E11 +web ; extra-turn skill  => E11:hp-3 arm-10 +entangle+web  extra:skill",
+   "L0": "dmg E11 3 ; status E11 +entangle ; status E11 +web ; extra-turn skill  => E11:arm-3 +entangle+web  extra:skill",
+   "K": "dmg E11 13 ; defeat E11 ; extra-turn skill  => E11:hp-1 DEAD  extra:skill"
+  },
+  "by": "sa-F",
+  "at": "2026-09-28T21:16:43.565Z"
+ },
  "troop:6307": {
   "lines": {
    "L10": "dmg E12 13 ; buff C mana+9  => E12:hp-13",
@@ -379,6 +389,16 @@
   "by": "sa-R7",
   "at": "2026-09-28T08:28:35.477Z"
  },
+ "troop:6834": {
+  "lines": {
+   "L10": "dmg E11 26 ; dmg E12 13  => E11:hp-16 arm-10 | E12:hp-1 arm-12",
+   "R10": "dmg E11 26 ; dmg E12 13  => E11:hp-16 arm-10 | E12:hp-1 arm-12",
+   "L0": "dmg E11 6 ; dmg E12 3  => E11:arm-6 | E12:arm-3",
+   "K": "dmg E11 13 ; defeat E11 ; dmg E12 13 ; defeat E12  => E11:hp-1 DEAD | E12:hp-1 DEAD"
+  },
+  "by": "sa-F",
+  "at": "2026-09-28T21:16:43.565Z"
+ },
  "troop:6852": {
   "lines": {
    "L10": "buff E11 mana-8 ; convert Green x3, Yellow x2, Blue x1, Purple x2 -> Brown x8 ; ~cascade~  => E11:mana-8  cascade",
@@ -419,6 +439,16 @@
   "by": "sa-F",
   "at": "2026-09-28T21:13:41.008Z"
  },
+ "troop:6867": {
+  "lines": {
+   "L10": "dmg E11 13 ; buff A1 mana+4 ; buff A2 mana+4  => E11:hp-3 arm-10 | A1:mana+4 | A2:mana+4",
+   "R10": "dmg E11 13 ; buff A1 mana+4 ; buff A2 mana+4  => E11:hp-3 arm-10 | A1:mana+4 | A2:mana+4",
+   "L0": "dmg E11 3 ; buff A1 mana+4 ; buff A2 mana+4  => E11:arm-3 | A1:mana+4 | A2:mana+4",
+   "K": "dmg E11 13 ; defeat E11 ; buff A1 mana+4 ; buff A2 mana+4  => E11:hp-1 DEAD | A1:mana+4 | A2:mana+4"
+  },
+  "by": "sa-F",
+  "at": "2026-09-28T21:16:43.565Z"
+ },
  "troop:6871": {
   "lines": {
    "L10": "convert Brown x2, Blue x1, Red x2, Green x3, Yellow x3 -> Purple x11 ; ~cascade~ ; extra-turn match  extra:match  cascade",
@@ -438,6 +468,26 @@
   },
   "by": "sa-R7",
   "at": "2026-09-28T05:59:17.597Z"
+ },
+ "troop:6886": {
+  "lines": {
+   "L10": "dmg E11 14 ; buff E10 mana-2 ; buff E11 mana-2 ; buff E12 mana-2 ; buff E13 mana-2  => E11:hp-4 arm-10 mana-2 | E10:mana-2 | E12:mana-2 | E13:mana-2",
+   "R10": "dmg E11 14 ; buff E10 mana-2 ; buff E11 mana-2 ; buff E12 mana-2 ; buff E13 mana-2  => E11:hp-4 arm-10 mana-2 | E10:mana-2 | E12:mana-2 | E13:mana-2",
+   "L0": "dmg E11 4 ; buff E10 mana-2 ; buff E11 mana-2 ; buff E12 mana-2 ; buff E13 mana-2  => E11:arm-4 mana-2 | E10:mana-2 | E12:mana-2 | E13:mana-2",
+   "K": "dmg E11 14 ; defeat E11 ; buff E10 mana-2 ; buff E12 mana-2 ; buff E13 mana-2  => E11:hp-1 DEAD | E10:mana-2 | E12:mana-2 | E13:mana-2"
+  },
+  "by": "sa-F",
+  "at": "2026-09-28T21:16:43.565Z"
+ },
+ "troop:6896": {
+  "lines": {
+   "L10": "dmg E12 12 (all) ; buff E12 mana-2  => E12:arm-12 mana-2",
+   "R10": "dmg E12 12 (all) ; buff E12 mana-2  => E12:arm-12 mana-2",
+   "L0": "dmg E12 2 (all) ; buff E12 mana-2  => E12:arm-2 mana-2",
+   "K": "(no spell events)"
+  },
+  "by": "sa-F",
+  "at": "2026-09-28T21:16:43.565Z"
  },
  "troop:6897": {
   "lines": {

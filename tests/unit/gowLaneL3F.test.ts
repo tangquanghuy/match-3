@@ -89,3 +89,38 @@ describe('sa-F B02: create gems + extra turn / mana', () => {
     }
   });
 });
+
+describe('sa-F B03: statuses / mana drain / storm mana', () => {
+  it('troop:6278 SirSnothelm (7424): Entangle then Web (native order), extra turn', () => {
+    const r = castSpell({ key: 'troop:6278' });
+    expect(order(r)).toEqual(['dmg E11 13', 'status E11 +entangle', 'status E11 +web', 'extra-turn skill']);
+  });
+  it('troop:6867 Solari (8289): Curse + Death Mark only on an Undead target, quarter Mana to the other allies last', () => {
+    const undead = castSpell({ key: 'troop:6867', target: 10, enemies: [en({ troopTypes: ['Undead'] }), en()] });
+    expect(order(undead).slice(0, 3)).toEqual(['dmg E10 13', 'status E10 +curse', 'status E10 +death-mark']);
+    expect(order(undead).slice(3).map(o => o.split(' ')[1])).toEqual(['A1', 'A2']);
+    const plain = castSpell({ key: 'troop:6867', target: 10, enemies: [en(), en()] });
+    expect(order(plain).filter(o => o.startsWith('status'))).toEqual([]);
+  });
+  it('troop:6896 Thaumataur (8356): only Purple enemies; one shared 1-3 roll for the drain', () => {
+    for (const seed of [1, 2, 3, 4, 5, 6, 7, 8]) {
+      const r = castSpell({ key: 'troop:6896', seed, enemies: [en({ mana: 9, colors: [BaseColor.Purple] }), en({ mana: 9 }), en({ mana: 9, colors: [BaseColor.Purple] })] });
+      const drains = order(r).filter(o => o.includes('mana'));
+      expect(drains.map(o => o.split(' ')[1])).toEqual(['E10', 'E12']);
+      expect(new Set(drains.map(o => o.split(' ')[2])).size).toBe(1);
+      expect(drains[0]).toMatch(/mana-[123]$/);
+    }
+  });
+  it('troop:6834 Finesse (8239): second hit prefers another enemy; Yellow target doubled; 6 Mana to other allies only with a Storm', () => {
+    for (const seed of [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]) {
+      const r = castSpell({ key: 'troop:6834', seed, target: 10, enemies: [en({ hp: 500, maxHp: 500, colors: [BaseColor.Yellow] }), en({ hp: 500, maxHp: 500 })] });
+      expect(order(r).filter(o => o.startsWith('dmg'))).toEqual(['dmg E10 26', 'dmg E11 13']);
+    }
+    const f = setupCast({ key: 'troop:6834' });
+    f.state.teams.Right.storm = { color: BaseColor.Red, turns: 3, troopId: 0 };
+    const ev = f.cast();
+    const buffs = ev.filter(e => e.type === 'buff' && e.stat === 'mana') as Array<{ targetId: number; amount: number }>;
+    expect(buffs.map(b => [b.targetId, b.amount])).toEqual([[1, 6], [2, 6]]);
+    expect(order(castSpell({ key: 'troop:6834' })).filter(o => o.includes('mana'))).toEqual([]);
+  });
+});

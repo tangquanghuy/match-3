@@ -332,6 +332,16 @@
       "spellId": 9780,
       "reason": "sa-F: English Count Gobula 'Create a mix of 14 Green and Bleed Gems' (native CreateGems2Colors 14 Green>Bleed = 14 total); old Chinese read as 14 + 14.",
       "spellDescription": "创造 14 颗绿色宝石和流血宝石（随机混合）。然后获得额外回合。"
+    },
+    "6867": {
+      "spellId": 8289,
+      "reason": "sa-F: English Solari 'Give all other Allies one quarter of their Mana' (native GenerateQuarterMana AllAlliesButNotSelf); old Chinese said 'other allies enemies'.",
+      "spellDescription": "对一名敌人造成 [魔法 + 3] 点伤害。若对方是不死族，则使对方陷入诅咒和死亡标记状态。再给予所有其他盟友 4 分之一的法力值。"
+    },
+    "6834": {
+      "spellId": 8239,
+      "reason": "sa-F: English Finesse text; old Chinese had a stray comma before the full stop.",
+      "spellDescription": "对一名敌人和一名随机敌人造成 [魔法 + 3] 点伤害。若敌人使用黄色法力值则造成双倍伤害。若存在任一风暴则给予所有其他盟友 6 点法力值。"
     }
   }
 }
