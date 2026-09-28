@@ -106,6 +106,11 @@
       "reason": "L4b-6751-zh: English \"Convert all Green Gems to Doomskulls\" and native ConvertGems Color2 Doomskull; the stored Chinese snapshot drops 末日 (Doomskull). Display correction only.",
       "spellDescription": "诅咒所有敌人。将所有绿色宝石转换成末日骷髅头。"
     },
+    "6757": {
+      "spellId": 8137,
+      "reason": "English Fungomancer: If the Enemy is Diseased (native TransformConditional@FromTarget AddForDisease); Chinese snapshot said any enemy.",
+      "spellDescription": "对一名敌人造成 [魔法 + 3] 伤害。若该敌人陷入疾病状态，则有 50% 的几率使其转化成一名蘑菇人。再使其陷入疾病状态。"
+    },
     "6759": {
       "spellId": 8139,
       "reason": "sa-R7 R7-b14-status-counts: gem count (not damage) is boosted by Poisoned/Diseased enemies per English/native.",

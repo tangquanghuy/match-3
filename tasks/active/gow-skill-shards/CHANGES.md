@@ -1,6 +1,6 @@
 # GoW 技能改动留档
 
-自动生成（`node scripts/gow-changelog.mjs render`），源数据 [CHANGES.jsonl](CHANGES.jsonl)，共 461 条改动，涉及 758 个技能 ID。
+自动生成（`node scripts/gow-changelog.mjs render`），源数据 [CHANGES.jsonl](CHANGES.jsonl)，共 467 条改动，涉及 763 个技能 ID。
 
 ## 按时间
 
@@ -467,6 +467,12 @@
 | 2026-09-28T10:52 | sa-B | B-L4b-1371-target-status | data | 8432 | weapon:1371 EldraziWand | `src/engine/skills/curated/batch-w03.ts`<br>`src/data/gowWeaponReviewedOverrides.json` | creates if ANY enemy is Cursed/Webbed → native CreateGems@FromTarget AddForCursed/AddForWeb: the chosen enemy's status at cast start |  |
 | 2026-09-28T10:52 | sa-B | B-L4b-1585-entangle-gems | data | 9349 | weapon:1585 BlackwoodsStaff | `src/data/gowWeaponReviewedOverrides.json` | no reviewed override (regeneration would restore the Entangled-enemy source) → override prototype synced with curated batch-w04 (boardSpecial entangleGem) |  |
 | 2026-09-28T10:53 | sa-A | L4a-r3-1138 | data | 7308 | weapon:1138 DragonOak | `src/engine/skills/curated/batch-w01.ts` | removed the weapon's own colour (CASTER); [2:1] boost had no source → removes one of the chosen enemy's mana colours (RemoveColor FromTarget); boosted 50% of gems removed |  |
+| 2026-09-28T11:08 | sa-E | L1-E-1394-pool | assembler | 8461 | weapon:1394 EmperinasTooth | `src/engine/skills/curated/batch-w03.ts` | summon branch pool Kobold,KoboldKnight,KoboldMagi,KoboldEmissary,KoboldThief → native SummoningKingdomNoError 3051 = raw KingdomId 3051: Kobold,KoboldKnight,KoboldMagi,KoboldThief,Emperinazara |  |
+| 2026-09-28T11:16 | sa-E | L1-E-1213-dist | assembler | 7816 | weapon:1213 TomeOfSin | `src/engine/skills/curated/batch-w02.ts` | summonRandomOfKingdom zh 迈纳杰之罪 uniform 1-3 → 3 independent summons 100/50/50% (>=13 Purple) from raw KingdomId 3037 list (33; zh kingdom added 5 non-3037) |  |
+| 2026-09-28T11:16 | sa-E | L1-E-1238-pool | assembler | 7991 | weapon:1238 Riftblade | `src/engine/skills/curated/batch-w02.ts` | 5 seasonal imps → raw KingdomId 3032: + ImpOfLove |  |
+| 2026-09-28T11:16 | sa-E | L1-E-6910-wraith | assembler | 8371 | troop:6910 GaelSpiritwhisperer | `src/engine/skills/curated/batch-r4.ts` | transform into random of Wraith/IceWraith/FrostfireWraith → native Data 6206 = Wraith only |  |
+| 2026-09-28T11:16 | sa-E | L1-E-6757-target | assembler | 8137 | troop:6757 Fungomancer | `src/engine/skills/curated/batch-p37.ts`<br>`src/data/gowSnapshotOverrides.json` | transform if ANY enemy Diseased; zh desc said any enemy → target itself Diseased (TransformConditional@FromTarget AddForDisease); zh desc + snapshot override |  |
+| 2026-09-28T11:16 | sa-E | L1-E-7111-dist | assembler | 8654 | troop:7111 Oneiros | `src/engine/skills/curated/batch-r5.ts` | Nightmare uniform 1-3 → 3 independent summons 100/50/25% |  |
 
 ## 按技能 ID
 
@@ -713,6 +719,7 @@
 | 7804 | 1 | L4a-R1-no-base-7804-8423 |
 | 7805 | 1 | F3-t1210 |
 | 7808 | 1 | R7-6599-full-or |
+| 7816 | 1 | L1-E-1213-dist |
 | 7864 | 1 | L7-R1-attack-armor-life-pooled |
 | 7866 | 1 | R7-1219-create-before-hit |
 | 7928 | 1 | L4a-R1-7928-allnegative |
@@ -736,6 +743,7 @@
 | 7982 | 1 | R7-doomed-support-counters |
 | 7983 | 1 | P-counter-per-step |
 | 7984 | 1 | L1-R2-consume-first |
+| 7991 | 1 | L1-E-1238-pool |
 | 8024 | 1 | P-prefnotprev-semantics |
 | 8032 | 1 | F2-R001-order |
 | 8035 | 1 | F2-R001-order |
@@ -766,6 +774,7 @@
 | 8113 | 1 | P-counter-per-step |
 | 8130 | 1 | F3-t1272 |
 | 8133 | 1 | F2-6754-no-explode |
+| 8137 | 1 | L1-E-6757-target |
 | 8139 | 2 | P-counter-per-step、R7-b14-status-counts |
 | 8140 | 1 | L1-1274-amanithrax |
 | 8150 | 1 | F2-R001-order |
@@ -815,6 +824,7 @@
 | 8357 | 1 | L1-1351-pool |
 | 8365 | 2 | L7-R1-6904-nextdown、P-R4-nextdown-default-range |
 | 8370 | 1 | L4a-r3-6909 |
+| 8371 | 1 | L1-E-6910-wraith |
 | 8373 | 1 | R3-B03-6912 |
 | 8377 | 1 | L2-6916-one-skill |
 | 8382 | 1 | L1-devour-first |
@@ -846,6 +856,7 @@
 | 8440 | 2 | P-random-stat-pool、F1-1377-target |
 | 8454 | 1 | P-R1-dual-storm |
 | 8458 | 1 | L2-6958-order |
+| 8461 | 1 | L1-E-1394-pool |
 | 8463 | 1 | D-b09-targets |
 | 8467 | 2 | L4a-R1-8467-target-count、P-R1-chosen-target-color-cond |
 | 8468 | 1 | F2-R001-order |
@@ -925,7 +936,7 @@
 | 8646 | 1 | L4a-R1-8646-counters |
 | 8650 | 1 | P-prefnotprev-semantics |
 | 8651 | 1 | L4b-7108-purple-enemies |
-| 8654 | 1 | L3-008 |
+| 8654 | 2 | L3-008、L1-E-7111-dist |
 | 8656 | 2 | P-prefnotprev-semantics、L7-R1-7113-enemy-colour |
 | 8660 | 1 | L7-R1-lethal-order-doomskull |
 | 8662 | 1 | L7-R1-lethal-order-doomskull |

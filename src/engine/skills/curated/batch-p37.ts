@@ -197,10 +197,11 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 8137,
-    desc: '对一名敌人造成 [魔法 + 3] 伤害。若有一名敌人陷入疾病状态，则有 50% 的几率使其转化成一名蘑菇人。再使其陷入疾病状态。',
+    desc: '对一名敌人造成 [魔法 + 3] 伤害。若该敌人陷入疾病状态，则有 50% 的几率使其转化成一名蘑菇人。再使其陷入疾病状态。',
     build: skill(
       dmg('enemyChosen', 3),
-      transformTroop('enemyChosen', 'MushroomMan', { chance: 0.5, ifCond: { kind: 'anyEnemyStatus', statusId: 'disease' } }),
+      // native TransformConditional@FromTarget [AddForDisease 50]: the target itself must be Diseased
+      transformTroop('enemyChosen', 'MushroomMan', { chance: 0.5, ifCond: { kind: 'targetStatus', statusId: 'disease' } }),
       inflict('disease', 'enemyChosen'),
     ),
   },

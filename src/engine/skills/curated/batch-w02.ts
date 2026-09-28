@@ -13,6 +13,9 @@ import { BaseColor } from '../../types';
 import type { SkillPrototype } from '../prototypes';
 import type { CuratedBatch } from './index';
 
+const SIN_OF_MARAJ_3037 = ['ImmortalZephaar', 'MaidenOfPain', 'FelineOfEnvy', 'BaneOfAmbition', 'TenOfWands', 'ImmortalAbaddon', 'TheBaneOfValor', 'StingBat', 'DarkHerald', 'Eklipsos', 'TheBaneOfMercy', 'WarMachine', 'AnimusOfEnvy', 'Despond', 'AbjectOfDespond', 'MaidOfEnvy', 'TheScourgeOfHonor', 'IndolatorOfSloth', 'GaelSpiritwhisperer', 'EnvoyOfPride', 'BrokerOfGreed', 'Glutmaw', 'QueenOfSin', 'SoldierOfWrath', 'SibylOfLust', 'Lust', 'Wrath', 'Pride', 'Barghast', 'Gluttony', 'Greed', 'Envy', 'Sloth'];
+const PURPLE13 = { kind: 'boardAtLeast', color: BaseColor.Purple, n: 13 } as const;
+
 const SKIPPED: { id: number; reason: string }[] = [];
 
 const SPELLS: CuratedBatch['spells'] = [
@@ -227,7 +230,11 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '对一名敌人造成 [魔法 + 4] 点伤害。如果板面上有 13 颗或更多紫色宝石，则召唤 1 到 3 名迈纳杰之罪军队。',
     build: skill(
       dmg('enemyChosen', 4, 1),
-      summonRandomOfKingdom('迈纳杰之罪', undefined, { countRange: { min: 1, max: 3 }, ifCond: { kind: 'boardAtLeast', color: BaseColor.Purple, n: 13 } }),
+      // native 3x SummoningKingdomConditional 3037 [AddFor10PurpleGems 100/50/50]: independent picks from raw KingdomId 3037
+      // (the zh kingdom name also holds Deminaga/TheInfernalMachine/Ironjaw/Tartarus/Hellborer, not in 3037)
+      summonRandom(SIN_OF_MARAJ_3037, undefined, { ifCond: PURPLE13 }),
+      summonRandom(SIN_OF_MARAJ_3037, undefined, { chance: 0.5, ifCond: PURPLE13 }),
+      summonRandom(SIN_OF_MARAJ_3037, undefined, { chance: 0.5, ifCond: PURPLE13 }),
     ),
   },
   {
@@ -472,7 +479,8 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '对一名敌人造成 [魔法 + 5] 点伤害。召唤一名随机小鬼。',
     build: skill(
       dmg('enemyChosen', 5, 1),
-      summonRandom(['SummerImp', 'AutumnalImp', 'WinterImp', 'SpringImp', 'SpookyImp'], undefined),
+      // native SummoningKingdomNoError 3032 = raw KingdomId 3032 (incl. ImpOfLove)
+      summonRandom(['SummerImp', 'AutumnalImp', 'WinterImp', 'SpringImp', 'SpookyImp', 'ImpOfLove'], undefined),
     ),
   },
   {
