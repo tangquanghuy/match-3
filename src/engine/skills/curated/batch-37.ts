@@ -175,8 +175,8 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '对所有敌人造成 [魔法 + 3] 点伤害。若存在一种风暴，则爆破 5 颗宝石。',
     build: skill(
       dmgAll(3, 1),
-      // 「宝石」不含骷髅 → include 'color'（batch-34 8823 口径）
-      explodeRandomGems(5, 0, 'color', undefined, { ifCond: { kind: 'stormPresent' } }),
+      // native ExplodeGems [AddForAnyStorm 5]: any gem, Skulls included (R013-5)
+      explodeRandomGems(5, 0, 'all', undefined, { ifCond: { kind: 'stormPresent' } }),
     ),
   },
   {

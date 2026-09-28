@@ -11,3 +11,88 @@
 - R4B01 troop:6059,weapon:1071,troop:6090,troop:7348,weapon:1408,troop:6961,troop:6461,weapon:1658,troop:6336,troop:7457 approve=10 fixed=2 issue=0 (1071 remove Skulls before damage + boost source + zh; 7457 count Burning on board, damage, then explode)
 - R4B02 troop:6990,troop:7612,troop:7318,troop:6875,troop:6973,troop:6907,weapon:1150,troop:6633,troop:6638,troop:7179 approve=10 fixed=2 issue=0 (6990/7318 zh only via snapshot overrides; 6990 Stone Block board test)
 - R4B03 troop:6316,troop:7682,troop:6787,troop:7239,troop:6758,troop:6372,troop:7692,troop:7174,troop:6066,troop:7206 approve=10 fixed=2 issue=0 (6758 native 100/50/25/25% Poison@RandomEnemy; 7174 RowAndColumn one cross; 6787 R000 waived c2 boss/ascension)
+
+# sa-A L4a progress (review round 8, branch gow/r7-L4a, tests tests/unit/gowLaneL4aR8.test.ts)
+- troop:7343 accept
+- weapon:1578 fix(explode 1 random gem, native Target None, not chosen cell)
+- troop:7528 accept
+- troop:7594 accept (R000 waived c2 tower+ascension; storm-present -5 Magic test)
+- troop:6476 accept
+- troop:6077 fix(DestroyGems 12 include all: Skulls are Gems, R013-5)
+- weapon:1055 fix(kill explode 1 include all + override entry)
+- troop:6342 accept
+- weapon:1160 accept
+- troop:6347 accept
+- NOTE dispute: 18 already-accepted skills use randomGems include:'color' for native colourless DestroyGems/ExplodeGems (e.g. troop:6064,6146,6555,6607,6622,6758,6878,6991,7206,7359, weapon:1150,1157,1274,1472,1484); sa-A now fixes new ones to include:'all' (R013-5). Coordinator: rule on requeue.
+- weapon:1165 accept
+- troop:6343 accept
+- weapon:1161 accept
+- troop:6346 accept
+- weapon:1164 accept
+- troop:6344 accept
+- weapon:1162 accept
+- troop:6376 accept (Bonestorm = dropKind skull)
+- troop:6345 accept
+- weapon:1163 accept
+- troop:7460 accept (R000 waived c2 tower+ascension)
+- troop:7704 fix(zh column not pillar, snapshot override; waived c2 tower+ascension; DISPUTE native step0 UseCounterForAmount without Count step, English Magic+2 kept)
+- troop:7426 fix(DestroyGems 7 include all; waived c2 boss+ascension)
+- troop:7585 fix(DestroyGems 8 include all; waived c2 tower+ascension)
+- troop:6533 accept (waived c2 tower+ascension)
+- troop:6234 accept
+- troop:6500 accept (waived c2 tower+ascension)
+- troop:6591 accept (waived c2 tower+ascension)
+- troop:6597 accept
+- troop:6768 accept (waived c2 tower+ascension)
+- troop:7166 accept
+- troop:7391 accept (waived c2 boss+ascension)
+- troop:7434 accept (waived c2 boss+ascension)
+- troop:7715 accept (waived c2 boss+ascension)
+- troop:7761 accept (waived c2 tower+ascension)
+- troop:7535 fix(4 native Ghost explode steps, 60/50/40% chances, not uniform 1-4)
+- troop:6755 fix(storm explode 5 include all)
+- troop:7213 accept (waived c2 boss+ascension)
+- troop:7884 issue(L4a-R8-7884-explode-count-dispute: native 2+1+1+1 no chances vs English 2-5)
+- weapon:1125 accept
+- weapon:1275 accept
+- troop:7667 accept (waived c2 tower+ascension)
+- troop:6641 accept (waived c2 tower+ascension)
+- troop:7561 fix(chosen column, spell Target Board; zh override)
+- troop:7652 fix(+10 storm bonus on the same all-enemy hit, not a separate chosen hit)
+- weapon:1370 fix(native order armor-before-damage R001; Electrostorm = Red+Yellow dual storm; override entry)
+- troop:7536 accept
+- troop:6979 accept
+- troop:6099 fix(explode 2 include all)
+- weapon:1052 accept
+- troop:7334 fix(destroy 8 random include all)
+- troop:7019 fix(zh most-used mana colour, snapshot override)
+- troop:6291 accept
+- troop:6040 accept
+- troop:6084 accept
+- troop:6485 accept
+- troop:6482 fix(zh gems + true damage, snapshot override)
+- troop:6709 accept (native Curse/Stun/Bleed order)
+- troop:6923 accept
+- troop:6312 fix(destroy 1+M include all)
+- troop:7228 fix(destroy 1+M include all)
+- troop:6042 accept
+- weapon:1452 fix(chosen column only, not cross; zh pool + override)
+- troop:6544 accept
+- troop:6676 fix(destroy 8 include all)
+- troop:7378 fix(destroy 8 include all)
+- troop:6774 accept
+- troop:7470 fix(native order: enemy to front, then self)
+- troop:6421 fix(destroy 7 include all)
+- troop:6254 accept
+- troop:6139 accept
+- troop:6802 accept
+- troop:6746 accept (native order: block before heavy splash)
+- troop:7136 fix(chosen column not row; zh override)
+- troop:7879 accept
+- weapon:1056 accept
+- troop:6707 fix(same 2 enemies get Disease then Poison, native FromPrevious chain)
+- troop:6021 accept
+- troop:6019 accept
+- troop:6540 accept
+- R8 summary: 80 reviewed; accepted 79, issued 1 (troop:7884), fixed 24 (12 of them randomGems include color->all). Primitive queue: none new.
+- R8 OPEN for coordinator: (a) include:'color' vs 'all' for colourless random DestroyGems/ExplodeGems (sa-A applies R013-5 "Skulls are Gems"; ~18 older accepts + ~15 unreviewed still use 'color'); (b) troop:7704 native UseCounterForAmount without a Count step (English Magic+2 kept); (c) troop:7884 native 2+1+1+1 vs English 2-5.

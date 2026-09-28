@@ -58,10 +58,9 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 9567,
     desc: '对所有敌人造成 [魔法 + 1] 点伤害，并打乱他们的队伍。如果发生风暴，则再造成 10 点伤害。然后制造冰风暴。',
     build: skill(
-      dmg('enemyAll', 1, 1, { range: 'all' }),
+      // native one step: Damage@AllEnemies 1+M [AddForAnyStorm 10] -> +10 on the same hit to every enemy when a Storm exists
+      dmg('enemyAll', 1, 1, { range: 'all', condBonus: { n: 10, cond: { kind: 'stormPresent' } } }),
       shuffleTeam('enemy'),
-      // 裸伤害句式裁定（§0）：「再造成 10 点伤害」无目标词 = enemyChosen
-      dmg('enemyChosen', 10, 0, { ifCond: { kind: 'stormPresent' } }),
       createStorm(BaseColor.Blue),
     ),
   },

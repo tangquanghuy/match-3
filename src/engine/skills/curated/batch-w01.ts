@@ -402,7 +402,7 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '对最后一名敌人造成 [魔法 + 6] 点伤害。如果该敌人身亡，则随机爆破 1 颗宝石。',
     build: skill(
       dmg('enemyLast', 6, 1),
-      explodeRandomGems(1, 0, 'color', undefined, { ifTargetDied: true }),
+      explodeRandomGems(1, 0, 'all', undefined, { ifTargetDied: true }), // native ExplodeGems [AddForKill 1]: any gem
     ),
   },
   {

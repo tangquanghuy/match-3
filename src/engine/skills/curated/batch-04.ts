@@ -151,7 +151,7 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 8957,
     desc: '随机摧毁 8 颗宝石。使首位盟友获得屏障。',
     build: skill(
-      destroyRandomGems(8, 0, 'color'),
+      destroyRandomGems(8, 0, 'all'), // English 'Destroy 8 random Gems' (native DestroyColor 8, no colour): any gem (R013-5)
       inflict('barrier', 'allyFront'),
     ),
   },
@@ -176,7 +176,7 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 9020,
     desc: '摧毁 8 颗宝石。再对一名敌人造成 [魔法 + 2] 点伤害。',
     build: skill(
-      destroyRandomGems(8, 0, 'color'),
+      destroyRandomGems(8, 0, 'all'), // native DestroyGems 8: any gem (R013-5)
       dmg('enemyChosen', 2),
     ),
   },

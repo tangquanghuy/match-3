@@ -135,9 +135,12 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '爆破 [魔法 + 1] 颗棕色宝石，再使 2 名随机敌人陷入中毒和疾病状态。',
     build: skill(
       explodeRandomGems(1, 1, 'color', BaseColor.Brown),
-      // 两组随机目标各自独立抽取（文本即「2 名随机敌人」两状态各自结算面）
-      inflict('poison', 'enemyRandomN', { n: 2 }),
-      inflict('disease', 'enemyRandomN', { n: 2 }),
+      // native: Disease@RandomEnemy ; Poison@FromPrevious ; Disease@RandomPrefNotPrevEnemy ; Poison@FromPrevious
+      // (the same 2 enemies get both statuses, Disease first)
+      inflict('disease', 'enemyRandom'),
+      inflict('poison', 'lastTarget'),
+      inflict('disease', 'enemyRandomPrefNotPrev'),
+      inflict('poison', 'lastTarget'),
     ),
   },
   {
@@ -192,8 +195,8 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 8823,
     desc: '摧毁 [魔法 + 1] 颗宝石。再创造 3 颗炸弹宝石。',
     build: skill(
-      // 「宝石」不含骷髅 → include 'color'（8614 口径）
-      destroyRandomGems(1, 1, 'color'),
+      // native DestroyGems 1+M: any gem, Skulls included (R013-5)
+      destroyRandomGems(1, 1, 'all'),
       createSpecialGems({ kind: 'bomb' }, 3, 0),
     ),
   },

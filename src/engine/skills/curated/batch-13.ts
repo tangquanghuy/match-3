@@ -205,8 +205,8 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 7594,
     desc: '随机摧毁 7 颗宝石。创造 7 颗紫色宝石。',
     build: skill(
-      // 「宝石」不含骷髅 → include 'color'
-      destroyRandomGems(7, 0, 'color'),
+      // native DestroyGems 7: 7 random gems, Skulls included (R013-5)
+      destroyRandomGems(7, 0, 'all'),
       createGems(BaseColor.Purple, 7, 0),
     ),
   },

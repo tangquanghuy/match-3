@@ -293,7 +293,7 @@ const SPELLS: CuratedBatch['spells'] = [
   {
     id: 9300,
     desc: '创造 16 颗混合鬼魂宝石和冻结宝石。再爆破一颗宝石。',
-    build: ({"segments":[{"kind":"gem","params":{"op":"create","gem":{"kind":"mixAny","entries":[{"kind":"ghost"},{"kind":"freezeGem"}]},"count":{"base":16,"mult":0}}},{"kind":"gem","params":{"op":"clear","mode":"explode","target":{"kind":"cell","cell":"CELL"}}}]} as SkillPrototype),
+    build: ({"segments":[{"kind":"gem","params":{"op":"create","gem":{"kind":"mixAny","entries":[{"kind":"ghost"},{"kind":"freezeGem"}]},"count":{"base":16,"mult":0}}},{"kind":"gem","params":{"op":"clear","mode":"explode","target":{"kind":"randomGems","count":{"base":1,"mult":0},"include":"all"}}}]} as SkillPrototype),
   },
   {
     id: 9301,

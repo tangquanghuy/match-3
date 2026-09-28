@@ -16,7 +16,7 @@
  *   列表做 summonRandom（排除「女巫猎人」——猎人不是女巫）。
  */
 import { skill, dmg, dmgAll, dmgSplash, trueDmg, heal, armor, attack,
-  cleanse, reduce, steal, createGems, transform, destroyChosenRow,
+  cleanse, reduce, steal, createGems, transform, destroyChosenRow, destroyChosenCol,
   explodeChosenCol, destroyRandomGems, explodeRandomGems, explodeColor,
   inflict, summonRandom } from '../builders';
 import { BaseColor } from '../../types';
@@ -152,8 +152,8 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 8022,
     desc: '摧毁 8 颗宝石。对第一位敌人造成 [魔法 + 3] 点伤害。',
     build: skill(
-      // batch-04 9020 同款句式 → 随机宝石
-      destroyRandomGems(8, 0, 'color'),
+      // native DestroyGems 8: 8 random gems, Skulls included (R013-5)
+      destroyRandomGems(8, 0, 'all'),
       dmg('enemyFront', 3),
     ),
   },
@@ -218,9 +218,10 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 8685,
-    desc: '摧毁一行。对末位敌人造成 [魔法 + 2] 点真实伤害，再使自身下潜。',
+    desc: '摧毁一列。对末位敌人造成 [魔法 + 2] 点真实伤害，再使自身下潜。',
+    // native DestroyGems BoardTarget Column (English 'Destroy a Column'), spell Target Board = chosen column
     build: skill(
-      destroyChosenRow(),
+      destroyChosenCol(),
       trueDmg('enemyLast', 2),
       inflict('submerged', 'allySelf'),
     ),

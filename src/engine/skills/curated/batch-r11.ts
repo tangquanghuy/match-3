@@ -129,7 +129,7 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 8526,
-    desc: "摧毁 [魔法 + 1] 颗敌人队伍使用对多的颜色宝石。使最强的敌人陷入织网状态。",
+    desc: "摧毁 [魔法 + 1] 颗敌方队伍使用最多的法力颜色的宝石。使最强的敌人陷入织网状态。",
     // 同 8525 口径；「最强的敌人」= enemyHealthiest（按当前 hp）
     build: skill(
       destroyRandomGems(1, 1, 'color', 'ENEMY_MOST_USED'),

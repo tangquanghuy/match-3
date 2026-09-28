@@ -14,11 +14,9 @@
  * 自我转化（「转化为X」主语缺省）= transformTroop('allySelf', …)，与诺斯费拉图/暗魄狼/
  * 蝙蝠群/狼人/村民的变身链一致（batch-r4 147 行同款）。
  */
-import { skill, dmg, dmgSplash, trueDmg, heal, armor, attack, magic, mana, cleanse, inflict, inflictRandom, reduce, steal, createGems, createSkulls, createSpecialGems, transform, transformToSpecial, destroyAllGems, destroyChosenRow, destroyChosenCross, destroyChosenCol, destroyRandomRows, destroyRandomCols, destroyRandomGems, explodeChosenRow, explodeChosenCol, explodeRandomGems, explodeSpecialGems, oneOf, summonRef, summonRandom, extraTurn, reposition, shuffleTeam, shuffleBoard, skillOnce, escape, sacrifice, transformTroop, transformTroopRandom, scale, flat, CASTER, CELL, explodeAt, dispelStatus, targetedSkill } from '../builders';
+import { skill, dmg, dmgSplash, trueDmg, heal, armor, attack, magic, mana, cleanse, inflict, inflictRandom, reduce, steal, createGems, createSkulls, createSpecialGems, transform, transformToSpecial, destroyAllGems, destroyChosenRow, destroyChosenCross, destroyChosenCol, destroyRandomRows, destroyRandomGems, explodeChosenRow, explodeChosenCol, explodeRandomGems, explodeSpecialGems, explodeRandomSpecialGems, oneOf, summonRef, summonRandom, extraTurn, reposition, shuffleTeam, shuffleBoard, skillOnce, escape, sacrifice, transformTroop, transformTroopRandom, scale, flat, CASTER, CELL, explodeAt, dispelStatus, targetedSkill } from '../builders';
 import { POSITIVE_STATUS_IDS } from '../effects/status';
 import { BaseColor } from '../../types';
-import type { SpecialGemKind } from '../../types';
-import type { GemSegment } from '../prototypes';
 import type { CuratedBatch } from './index';
 import { rawKingdomPool } from './gowKingdomPools';
 
@@ -27,25 +25,6 @@ const DAEMON_REFS = ["AncientHorror","SpiderQueen","Abhorath","Webspinner","Molo
 const DRAGON_REFS = ["Sheggra","Venoxia","ShadowDragon","Emperina","Celestasia","BoneDragon","DrakeRider","Dimetraxia","Wyvern","Venbarak","Borealis","DragonEggs","BabyDragon","Dragonette","Dragotaur","Dragonmoth","Visk","TheDragonSoul","Couatl","Sylvanimora","DRACOS-1337","DragonianRogue","DragonianMonk","SilverDrakon","Krystenax","Drake","Elemaugrim","DragonTurtle","Asha","Leviathan","Penglong","Glitterclaw","TheWorldbreaker","Divinia","LordEmber","LadyGarnetia","Tinseltail","Shimmerscale","Volthrenax","Thaumaris","Droggo","Sylfrostenath","MatronDragotani","UndeadDrake","FellDragonEgg","FellDragon","Nocturnia","Ishtara","DragonianSage","Obregonia","DragonSpirit","Essencia","Huanglong","Veneratus","HornedWyrm","NetherWyrm","TerraWyrm","TheGreatWyrm","Tihamata","RedAhriman","TwinkleBerry","MagmaDragon","Sabellius","Adakite","Obsidiaxas","Sapphirax","Emeraldrin","Rubirath","Topasarth","Amethialas","Garnetaerlin","Diamantina","Aquaria","TheElderDragon","HeraldOfKrystenax","TheGuardianDragon","CobaltDrake","HuntmasterArborius","CrystalEggs","DragonstoneGuardian","TheVoidDragon","Comethalas","Nebuladryx","Meteoridan","Solarithus","Lunarelleon","Eklipsos","Stellarix","DraconicSentinel","Tianlong","BrassDrake","Venerabilax","Chromaticea","Kukulkan","ImmortalAquaria","Leucithrax","TheSlimeDragon","Bahamata","Gingeraxia","Belcerulea","Gladius","Thornaressa","Narcithus","Orrissea","Orchidius","Chrysantherax","Chargrimax","Crackleleaf","Mistmother","DrakeEggs","ImmortalDrakkon","CrimsonWyrmling","Dragonhawk","Amethony","Creteus","Krakynos","Runethius","Hematrax","Vizinium","Demizerius","Amenhotrex","Pandemonia"];
 /** native SummoningKingdomNoError 3051 (raw KingdomId: incl. Emperinazara, not KoboldEmissary 3012) - sa-E L1 */
 const KOBOLD_REFS = rawKingdomPool(3051);
-
-/** 「爆破 N-M 颗(特殊)宝石」：clear 随机宝石支持 countRange（effects/gems.ts 原语，
- *  组装器暂无包装构造函数）→ 直接落段。 */
-function explodeRandomGemsRange(min: number, max: number, special?: SpecialGemKind): GemSegment {
-  return {
-    kind: 'gem',
-    params: {
-      op: 'clear',
-      mode: 'explode',
-      target: {
-        kind: 'randomGems',
-        count: flat(min),
-        include: 'all',
-        ...(special !== undefined ? { special } : {}),
-        countRange: { min, max },
-      },
-    },
-  };
-}
 
 const SKIPPED: { id: number; reason: string }[] = [];
 
@@ -673,7 +652,11 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '对一名敌人造成 [魔法 + 3] 点伤害。爆破 1-4 颗鬼魂宝石。',
     build: skill(
       dmg('enemyChosen', 3, 1),
-      explodeRandomGemsRange(1, 4, 'ghost'),
+      // native: ExplodeColor Ghost 1 ; then three more single Ghost explosions at 60% / 50% / 40% (independent rolls)
+      explodeRandomSpecialGems('ghost', 1),
+      explodeRandomSpecialGems('ghost', 1, 0, { chance: 0.6 }),
+      explodeRandomSpecialGems('ghost', 1, 0, { chance: 0.5 }),
+      explodeRandomSpecialGems('ghost', 1, 0, { chance: 0.4 }),
     ),
   },
   {
@@ -732,11 +715,12 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 9346,
-    desc: '对首位敌人造成 [魔法 + 3] 点伤害，再将他打回末位。摧毁一个随机列。',
+    desc: '对首位敌人造成 [魔法 + 3] 点伤害，再将他打回末位。摧毁一列宝石。',
+    // native spell Target Board ; DestroyGems BoardTarget Column = the chosen column (not random)
     build: skill(
       dmg('enemyFront', 3, 1),
       reposition('enemyFront', 'back'),
-      destroyRandomCols(1, 0),
+      destroyChosenCol(),
     ),
   },
   {
