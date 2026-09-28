@@ -1,6 +1,6 @@
 # GoW 技能改动留档
 
-自动生成（`node scripts/gow-changelog.mjs render`），源数据 [CHANGES.jsonl](CHANGES.jsonl)，共 557 条改动，涉及 1012 个技能 ID。
+自动生成（`node scripts/gow-changelog.mjs render`），源数据 [CHANGES.jsonl](CHANGES.jsonl)，共 558 条改动，涉及 1013 个技能 ID。
 
 ## 按时间
 
@@ -563,6 +563,7 @@
 | 2026-09-28T21:50 | sa-A | L4a-R8-1452-column-only | data | 8721 | weapon:1452 ShockHammer | `src/engine/skills/curated/batch-w03.ts`<br>`scripts/curated-pools/pool-w01.json`<br>`src/data/gowWeaponReviewedOverrides.json` | 8721 chosenCross (row+column); zh '摧毁其行和列' → chosenLine col (native BoardTarget Column, English 'destroy its column'); zh '摧毁其所在的列'; override description+prototype |  |
 | 2026-09-28T21:52 | sa-A | L4a-R8-random-any-gem | assembler | 9020, 7594 | troop:7378 Ursky；troop:6421 Brownie | `src/engine/skills/curated/batch-04.ts`<br>`src/engine/skills/curated/batch-13.ts` | 9020 / 7594 random destroy include color → include all (R013-5) |  |
 | 2026-09-28T21:52 | sa-A | L4a-R8-7470-order | assembler | 9187 | troop:7470 GiantBadger | `src/engine/skills/curated/batch-r5.ts` | 9187 reposition self front, then last enemy front → native order: last enemy front, then self front (R001) |  |
+| 2026-09-28T21:55 | sa-A | L4a-R8-7136-column | data | 8685 | troop:7136 Narwhale | `src/engine/skills/curated/batch-03.ts`<br>`src/data/gowSnapshotOverrides.json` | 8685 destroyChosenRow; zh '摧毁一行' → destroyChosenCol (native BoardTarget Column); zh '摧毁一列' + snapshot override |  |
 
 ## 按技能 ID
 
@@ -1176,6 +1177,7 @@
 | 8674 | 2 | P-counter-per-step、L7-R1-board-special-counts |
 | 8675 | 1 | L5-C-r4-7131 |
 | 8684 | 1 | P-random-stat-pool |
+| 8685 | 1 | L4a-R8-7136-column |
 | 8686 | 1 | P-random-stat-pool |
 | 8688 | 1 | L4a-r3-7139 |
 | 8691 | 1 | L5-C-r4-7142 |

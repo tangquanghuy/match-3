@@ -16,7 +16,7 @@
  *   列表做 summonRandom（排除「女巫猎人」——猎人不是女巫）。
  */
 import { skill, dmg, dmgAll, dmgSplash, trueDmg, heal, armor, attack,
-  cleanse, reduce, steal, createGems, transform, destroyChosenRow,
+  cleanse, reduce, steal, createGems, transform, destroyChosenRow, destroyChosenCol,
   explodeChosenCol, destroyRandomGems, explodeRandomGems, explodeColor,
   inflict, summonRandom } from '../builders';
 import { BaseColor } from '../../types';
@@ -218,9 +218,10 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 8685,
-    desc: '摧毁一行。对末位敌人造成 [魔法 + 2] 点真实伤害，再使自身下潜。',
+    desc: '摧毁一列。对末位敌人造成 [魔法 + 2] 点真实伤害，再使自身下潜。',
+    // native DestroyGems BoardTarget Column (English 'Destroy a Column'), spell Target Board = chosen column
     build: skill(
-      destroyChosenRow(),
+      destroyChosenCol(),
       trueDmg('enemyLast', 2),
       inflict('submerged', 'allySelf'),
     ),

@@ -219,6 +219,16 @@
   "by": "sa-A",
   "at": "2026-09-28T10:31:14.444Z"
  },
+ "troop:6139": {
+  "lines": {
+   "L10": "destroy 15 (Red x2, Blue x4, Green x2, Yellow x3, Purple x1, Brown x2, skull x1) ; skulls E10 1 ; buff A1 attack+1 ; buff A2 attack+1 ; buff A1 armor+1 ; buff A2 armor+1 ; buff A1 magic+1 ; buff A2 magic+1 ; buff A1 hp+1 max+1 ; buff A2 hp+1 max+1  => A2:hp+1 max+1 arm+1 atk+1 mag+1 mana+5 | A1:hp+1 max+1 arm+1 atk+1 mag+1 mana+4 | E10:arm-1",
+   "R10": "destroy 15 (Red x2, Blue x4, Green x2, Yellow x3, Purple x1, Brown x2, skull x1) ; skulls E10 1 ; buff A1 attack+1 ; buff A2 attack+1 ; buff A1 armor+1 ; buff A2 armor+1 ; buff A1 magic+1 ; buff A2 magic+1 ; buff A1 hp+1 max+1 ; buff A2 hp+1 max+1  => A2:hp+1 max+1 arm+1 atk+1 mag+1 mana+5 | A1:hp+1 max+1 arm+1 atk+1 mag+1 mana+4 | E10:arm-1",
+   "L0": "destroy 15 (Red x2, Blue x4, Green x2, Yellow x3, Purple x1, Brown x2, skull x1) ; skulls E10 1 ; buff A1 attack+1 ; buff A2 attack+1 ; buff A1 armor+1 ; buff A2 armor+1 ; buff A1 magic+1 ; buff A2 magic+1 ; buff A1 hp+1 max+1 ; buff A2 hp+1 max+1  => A2:hp+1 max+1 arm+1 atk+1 mag+1 mana+5 | A1:hp+1 max+1 arm+1 atk+1 mag+1 mana+4 | E10:arm-1",
+   "K": "destroy 15 (Red x2, Blue x4, Green x2, Yellow x3, Purple x1, Brown x2, skull x1) ; skulls E10 1 ; defeat E10 ; buff A1 attack+1 ; buff A2 attack+1 ; buff A1 armor+1 ; buff A2 armor+1 ; buff A1 magic+1 ; buff A2 magic+1 ; buff A1 hp+1 max+1 ; buff A2 hp+1 max+1  => A2:hp+1 max+1 arm+1 atk+1 mag+1 mana+5 | A1:hp+1 max+1 arm+1 atk+1 mag+1 mana+4 | E10:hp-1 DEAD"
+  },
+  "by": "sa-A",
+  "at": "2026-09-28T21:55:58.441Z"
+ },
  "troop:6166": {
   "lines": {
    "L10": "destroy 8 (Yellow x3, Green x1, Blue x2, Brown x1, skull x1) ; skulls E10 1 ; dmg E10 16 (scatter) ; dmg E11 10 (scatter) ; dmg E12 14 (scatter) ; dmg E13 8 (scatter)  => E10:hp-12 arm-5 | E11:arm-10 | E12:hp-2 arm-12 | E13:hp-5 arm-3",
@@ -889,6 +899,16 @@
   "by": "sa-A",
   "at": "2026-09-28T10:15:56.964Z"
  },
+ "troop:6746": {
+  "lines": {
+   "L10": "destroy 25 (Green x5, Purple x2, Red x4, Blue x5, Brown x4, skull x2, Yellow x3) ; skulls E10 2 ; ~cascade~ ; dmg E12 18 (splash) ; dmg E11 13 (splash) ; dmg E13 13 (splash) ; dmg E10 18 (splash) ; dmg E11 4 (splash)  => A1:mana+5 | A2:mana+3 | E10:hp-15 arm-5 | E12:hp-6 arm-12 | E11:hp-7 arm-10 | E13:hp-10 arm-3  cascade",
+   "R10": "destroy 25 (Green x5, Purple x2, Red x4, Blue x5, Brown x4, skull x2, Yellow x3) ; skulls E10 2 ; ~cascade~ ; dmg E12 18 (splash) ; dmg E11 13 (splash) ; dmg E13 13 (splash) ; dmg E10 18 (splash) ; dmg E11 4 (splash)  => A1:mana+5 | A2:mana+3 | E10:hp-15 arm-5 | E12:hp-6 arm-12 | E11:hp-7 arm-10 | E13:hp-10 arm-3  cascade",
+   "L0": "destroy 25 (Green x5, Purple x2, Red x4, Blue x5, Brown x4, skull x2, Yellow x3) ; skulls E10 2 ; ~cascade~ ; dmg E12 8 (splash) ; dmg E11 6 (splash) ; dmg E13 6 (splash) ; dmg E10 8 (splash) ; dmg E11 2 (splash)  => A1:mana+5 | A2:mana+3 | E10:hp-5 arm-5 | E12:arm-8 | E11:arm-8 | E13:hp-3 arm-3  cascade",
+   "K": "destroy 25 (Green x5, Purple x2, Red x4, Blue x5, Brown x4, skull x2, Yellow x3) ; skulls E10 2 ; defeat E10 ; ~cascade~ ; dmg E12 18 (splash) ; dmg E11 13 (splash) ; dmg E13 13 (splash) ; defeat E12 ; defeat E11 ; defeat E13  => A1:mana+5 | A2:mana+3 | E10:hp-1 DEAD | E12:hp-1 DEAD | E11:hp-1 DEAD | E13:hp-1 DEAD  cascade"
+  },
+  "by": "sa-A",
+  "at": "2026-09-28T21:55:58.441Z"
+ },
  "troop:6754": {
   "lines": {
    "L10": "storm Brown set ; explode 62 ; skulls E10 4 ; ~cascade~  => A1:mana+5 | E10:arm-4  cascade",
@@ -988,6 +1008,16 @@
   },
   "by": "sa-A",
   "at": "2026-09-28T10:41:06.754Z"
+ },
+ "troop:6802": {
+  "lines": {
+   "L10": "destroy 14 (skull x3, Red x4, Green x2, Blue x1, Yellow x3, Brown x1) ; skulls E10 3 ; buff C attack+11  => A2:mana+7 | A1:mana+1 | E10:arm-3 | C:atk+11",
+   "R10": "destroy 14 (skull x3, Red x4, Green x2, Blue x1, Yellow x3, Brown x1) ; skulls E10 3 ; buff C attack+11  => A2:mana+7 | A1:mana+1 | E10:arm-3 | C:atk+11",
+   "L0": "destroy 14 (skull x3, Red x4, Green x2, Blue x1, Yellow x3, Brown x1) ; skulls E10 3 ; buff C attack+1  => A2:mana+7 | A1:mana+1 | E10:arm-3 | C:atk+1",
+   "K": "destroy 14 (skull x3, Red x4, Green x2, Blue x1, Yellow x3, Brown x1) ; skulls E10 3 ; defeat E10 ; buff C attack+11  => A2:mana+7 | A1:mana+1 | E10:hp-1 DEAD | C:atk+11"
+  },
+  "by": "sa-A",
+  "at": "2026-09-28T21:55:58.441Z"
  },
  "troop:6807": {
   "lines": {
@@ -1368,6 +1398,16 @@
   },
   "by": "sa-A",
   "at": "2026-09-28T10:41:06.754Z"
+ },
+ "troop:7136": {
+  "lines": {
+   "L10": "destroy 8 (Yellow x3, Green x1, Blue x2, Brown x1, skull x1) ; skulls E10 1 ; dmg E13 12 ; status C +submerged  => A2:mana+3 | E10:arm-1 | E13:hp-12 | C:+submerged",
+   "R10": "destroy 8 (Yellow x3, Green x1, Blue x2, Brown x1, skull x1) ; skulls E10 1 ; dmg E13 12 ; status C +submerged  => A2:mana+3 | E10:arm-1 | E13:hp-12 | C:+submerged",
+   "L0": "destroy 8 (Yellow x3, Green x1, Blue x2, Brown x1, skull x1) ; skulls E10 1 ; dmg E13 2 ; status C +submerged  => A2:mana+3 | E10:arm-1 | E13:hp-2 | C:+submerged",
+   "K": "destroy 8 (Yellow x3, Green x1, Blue x2, Brown x1, skull x1) ; skulls E10 1 ; defeat E10 ; dmg E13 12 ; defeat E13 ; status C +submerged  => A2:mana+3 | E10:hp-1 DEAD | E13:hp-1 DEAD | C:+submerged"
+  },
+  "by": "sa-A",
+  "at": "2026-09-28T21:55:58.441Z"
  },
  "troop:7139": {
   "lines": {
@@ -2168,6 +2208,16 @@
   },
   "by": "sa-R1",
   "at": "2026-09-28T03:01:49.305Z"
+ },
+ "troop:7879": {
+  "lines": {
+   "L10": "destroy 24 (Green x5, Yellow x5, skull x2, Brown x2, Red x4, Blue x4, Purple x2) ; skulls E10 2 ; convert Red x1, Green x1, Brown x1 -> ghost x3 ; convert Purple x2, Green x1 -> barrierGem x3 ; ~cascade~ ; trigger barrierGem ; status A2 +barrier  => A2:mana+12 +barrier | E10:arm-2  cascade",
+   "R10": "destroy 24 (Green x5, Yellow x5, skull x2, Brown x2, Red x4, Blue x4, Purple x2) ; skulls E10 2 ; convert Red x1, Green x1, Brown x1 -> ghost x3 ; convert Purple x2, Green x1 -> barrierGem x3 ; ~cascade~ ; trigger barrierGem ; status A2 +barrier  => A2:mana+12 +barrier | E10:arm-2  cascade",
+   "L0": "destroy 24 (Green x5, Yellow x5, skull x2, Brown x2, Red x4, Blue x4, Purple x2) ; skulls E10 2 ; convert Red x1, Green x1, Brown x1 -> ghost x3 ; convert Purple x2, Green x1 -> barrierGem x3 ; ~cascade~ ; trigger barrierGem ; status A2 +barrier  => A2:mana+12 +barrier | E10:arm-2  cascade",
+   "K": "destroy 24 (Green x5, Yellow x5, skull x2, Brown x2, Red x4, Blue x4, Purple x2) ; skulls E10 2 ; defeat E10 ; convert Red x1, Green x1, Brown x1 -> ghost x3 ; convert Purple x2, Green x1 -> barrierGem x3 ; ~cascade~ ; trigger barrierGem ; status A2 +barrier  => A2:mana+12 +barrier | E10:hp-1 DEAD  cascade"
+  },
+  "by": "sa-A",
+  "at": "2026-09-28T21:55:58.441Z"
  },
  "troop:7883": {
   "lines": {

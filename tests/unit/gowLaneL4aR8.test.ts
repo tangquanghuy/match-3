@@ -386,3 +386,34 @@ describe('L4a R8 B14', () => {
     }
   });
 });
+
+describe('L4a R8 B15', () => {
+  // troop:6139 (7253): DestroyGems RowAndColumn (chosen Purple) ; IncreaseAllStats@AllAlliesButNotSelf 1.
+  it('troop:6139 clears one cross and gives +1 to every Skill of the other allies only', () => {
+    const r = castSpell({ key: 'troop:6139' });
+    expect(r.summary.order[0]).toMatch(/^destroy 15 /);
+    const buffs = r.summary.order.filter(o => o.startsWith('buff'));
+    expect(buffs.some(b => b.startsWith('buff C '))).toBe(false);
+    expect(buffs.filter(b => b.startsWith('buff A1 '))).toHaveLength(4);
+  });
+  // troop:6746 (8116): DestroyGems Block5x5 ; SplashHeavy@RandomEnemy 8+M ; 50% Splash@RandomPrefNotPrevEnemy 8+M (native order).
+  it('troop:6746 destroys the block before the heavy splash', () => {
+    const r = castSpell({ key: 'troop:6746' });
+    expect(r.summary.order[0]).toMatch(/^destroy 25 /);
+    const iDmg = r.summary.order.findIndex(o => o.startsWith('dmg '));
+    expect(iDmg).toBeGreaterThan(0);
+    expect(r.summary.order[iDmg]).toMatch(/^dmg E1\d 18 \(splash\)$/);
+  });
+  // troop:7136 (8685): DestroyGems BoardTarget Column (chosen) ; TrueDamage@LastEnemy 2+M ; Submerge self.
+  it('troop:7136 destroys the chosen column', () => {
+    const r = castSpell({ key: 'troop:7136', cell: { row: 4, col: 1 } });
+    expect(new Set(destroyCells(r).map(c => c.col))).toEqual(new Set([1]));
+    expect(r.summary.order).toContain('status C +submerged');
+  });
+  // troop:7879 (9954): DestroyRow 3 random ; 3 Ghost ; 3 Barrier Gems.
+  it('troop:7879 destroys 3 distinct random rows', () => {
+    const cells = destroyCells(castSpell({ key: 'troop:7879' }));
+    expect(new Set(cells.map(c => c.row)).size).toBe(3);
+    expect(cells).toHaveLength(24);
+  });
+});

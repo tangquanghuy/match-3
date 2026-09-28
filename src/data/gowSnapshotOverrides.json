@@ -171,6 +171,11 @@
       "reason": "English: 2 random Enemies, boosted by Blue Allies and Enemies; stored zh said random allies (review round 1, sa-R4).",
       "spellDescription": "对 2 名随机敌人造成 [(魔法 / 2) + 3] 点轻微散射伤害，伤害值因蓝色盟友和蓝色敌人数而增强。 [x3]"
     },
+    "7136": {
+      "spellId": 8685,
+      "reason": "sa-A r8: English 'Destroy a Column.' (native DestroyGems BoardTarget Column); stored Chinese '摧毁一行' says row.",
+      "spellDescription": "摧毁一列。对末位敌人造成 [魔法 + 2] 点真实伤害，再使自身下潜。"
+    },
     "7138": {
       "spellId": 8687,
       "reason": "L4b-7138-zh: stored Chinese snapshot typo 发力颜色 for 法力颜色 (\"one of their Mana Colors\"). Display correction only.",

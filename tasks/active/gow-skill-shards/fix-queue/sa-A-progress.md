@@ -84,3 +84,8 @@
 - troop:7470 fix(native order: enemy to front, then self)
 - troop:6421 fix(destroy 7 include all)
 - troop:6254 accept
+- troop:6139 accept
+- troop:6802 accept
+- troop:6746 accept (native order: block before heavy splash)
+- troop:7136 fix(chosen column not row; zh override)
+- troop:7879 accept
