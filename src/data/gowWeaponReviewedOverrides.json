@@ -4015,6 +4015,42 @@
         "skippedClauses": []
       }
     },
+    "8618": {
+      "prototype": {
+        "segments": [
+          {
+            "kind": "damage",
+            "target": "enemyChosen",
+            "scaling": {
+              "base": 1,
+              "mult": 1
+            }
+          },
+          {
+            "kind": "oneOf",
+            "options": [
+              [
+                {
+                  "kind": "status",
+                  "target": "lastTarget",
+                  "statusId": "poison",
+                  "turns": 3,
+                  "magnitude": 3
+                }
+              ],
+              [
+                {
+                  "kind": "status",
+                  "target": "lastTarget",
+                  "statusId": "death-mark",
+                  "turns": 3
+                }
+              ]
+            ]
+          }
+        ]
+      }
+    },
     "8623": {
       "description": "选择一项：创造 6 颗元素之星，祝福所有盟友；或创造 7 颗暗影之星，诅咒所有敌人。"
     },

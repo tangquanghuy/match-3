@@ -467,8 +467,9 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 8618,
     desc: '对一名敌人造成 [魔法 + 1] 点伤害。再使其陷入中毒或死亡标记状态。',
     build: skill(
+      // sa-R6 L2-1420-branches：原生 AB-CD = 伤害 + 中毒 或 伤害 + 死亡标记，各 1/2（原为只有死亡标记）
       dmg('enemyChosen', 1, 1),
-      inflict('death-mark', 'lastTarget'),
+      oneOf([inflict('poison', 'lastTarget')], [inflict('death-mark', 'lastTarget')]),
     ),
   },
   {

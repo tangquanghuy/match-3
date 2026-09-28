@@ -187,8 +187,11 @@ const SPELLS: CuratedBatch['spells'] = [
     // 「打错敌人」家族按 8108/8307 官方步骤实锤口径：两段伤害各自掷签（FromTarget +
     // RandomEnemy），ZH「50% 打错」为机翻合并；「对方使用棕色法力值三倍」= condMult targetColor。
     build: skill(
-    dmg('enemyChosen', 4, 1, { condMult: { times: 3, cond: { kind: 'targetColor', color: BaseColor.Brown } } }),
-    dmg('enemyRandom', 4, 1, { condMult: { times: 3, cond: { kind: 'targetColor', color: BaseColor.Brown } } }),
+    // sa-R6 L2-wrong-enemy-branches: native A-B = the chosen enemy OR (50%) a random enemy; was both hits in sequence
+    oneOf(
+      [dmg('enemyChosen', 4, 1, { condMult: { times: 3, cond: { kind: 'targetColor', color: BaseColor.Brown } } })],
+      [dmg('enemyRandom', 4, 1, { condMult: { times: 3, cond: { kind: 'targetColor', color: BaseColor.Brown } } })],
+    ),
     ),
   },
   {
@@ -291,8 +294,11 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '对 1 名敌人造成 [魔法 + 4] 点伤害，有 50% 的几率打错敌人。如果对方使用绿色法力值，则造成三倍伤害。',
     // 同 7254（绿色版）。
     build: skill(
-    dmg('enemyChosen', 4, 1, { condMult: { times: 3, cond: { kind: 'targetColor', color: BaseColor.Green } } }),
-    dmg('enemyRandom', 4, 1, { condMult: { times: 3, cond: { kind: 'targetColor', color: BaseColor.Green } } }),
+    // sa-R6 L2-wrong-enemy-branches: native A-B = the chosen enemy OR (50%) a random enemy; was both hits in sequence
+    oneOf(
+      [dmg('enemyChosen', 4, 1, { condMult: { times: 3, cond: { kind: 'targetColor', color: BaseColor.Green } } })],
+      [dmg('enemyRandom', 4, 1, { condMult: { times: 3, cond: { kind: 'targetColor', color: BaseColor.Green } } })],
+    ),
     ),
   },
   {
@@ -671,10 +677,12 @@ const SPELLS: CuratedBatch['spells'] = [
     // 官方步骤实锤（Bone Flail）：Damage FromTarget → CreateGems Skull 8 AddForKill →
     // Damage RandomEnemy → CreateGems Skull 8 AddForKill——「50% 打中另一名」为机翻合并。
     build: skill(
-    dmg('enemyChosen', 5, 1, { condMult: { times: 3, cond: { kind: 'targetColor', color: BaseColor.Purple } } }),
-    createSkulls(8, 0, { ifTargetDied: true }),
-    dmg('enemyRandom', 5, 1, { condMult: { times: 3, cond: { kind: 'targetColor', color: BaseColor.Purple } } }),
-    createSkulls(8, 0, { ifTargetDied: true }),
+    // sa-R6 L2-wrong-enemy-branches: native AB-CD = hit the chosen enemy OR (50%) a random enemy, each followed by
+    // 8 Skulls if it died; was both hits in sequence
+    oneOf(
+      [dmg('enemyChosen', 5, 1, { condMult: { times: 3, cond: { kind: 'targetColor', color: BaseColor.Purple } } }), createSkulls(8, 0, { ifTargetDied: true })],
+      [dmg('enemyRandom', 5, 1, { condMult: { times: 3, cond: { kind: 'targetColor', color: BaseColor.Purple } } }), createSkulls(8, 0, { ifTargetDied: true })],
+    ),
     ),
   },
   {

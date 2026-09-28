@@ -106,3 +106,13 @@
 {"format":"compact","key":"weapon:1480","decision":"accept","reviewer":"sa-R6","reviewedAt":"2026-09-28T08:54:46.744Z","tests":["tests/unit/gowCastGolden.test.ts"]}
 {"format":"compact","key":"troop:6179","decision":"accept","reviewer":"sa-R6","reviewedAt":"2026-09-28T08:54:46.745Z","tests":["tests/unit/gowCastGolden.test.ts"]}
 {"format":"compact","key":"weapon:1461","decision":"issue","reviewer":"sa-R6","reviewedAt":"2026-09-28T08:54:46.934Z","issue":"P-R6-chosen-diagonal-transform","note":"native CreateGems Burning BoardTarget LeftDiagonal|RightDiagonal (Target Board, AB-CD) = diagonal through the chosen cell; runtime transform diagonal is fixed to the centre diagonals (no chosen-cell anchor). Scatter [M+8] and the 1/2 branch split match."}
+{"format":"compact","key":"troop:6949","decision":"accept","reviewer":"sa-R6","reviewedAt":"2026-09-28T09:04:11.716Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:6851","decision":"accept","reviewer":"sa-R6","reviewedAt":"2026-09-28T09:04:11.717Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"weapon:1420","decision":"accept","reviewer":"sa-R6","reviewedAt":"2026-09-28T09:04:11.717Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:7798","decision":"accept","reviewer":"sa-R6","reviewedAt":"2026-09-28T09:04:11.717Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:7925","decision":"accept","reviewer":"sa-R6","reviewedAt":"2026-09-28T09:04:11.717Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:7523","decision":"accept","reviewer":"sa-R6","reviewedAt":"2026-09-28T09:04:11.717Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:6738","decision":"accept","reviewer":"sa-R6","reviewedAt":"2026-09-28T09:04:11.717Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:6140","decision":"accept","reviewer":"sa-R6","reviewedAt":"2026-09-28T09:04:11.718Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:6243","decision":"accept","reviewer":"sa-R6","reviewedAt":"2026-09-28T09:04:11.718Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:6864","decision":"issue","reviewer":"sa-R6","reviewedAt":"2026-09-28T09:04:11.876Z","issue":"L2-6864-random-repeat","note":"source-dispute: native CountRange 1..4 -> InflictEffectOnRandomTroops frozen (the engine models this step as independent picks with repeats: perCount/perDestroyed, golems B04); runtime uses enemyRandomN nRange 1-4 = distinct enemies (English 'Freeze 1-4 random Enemies'). Needs a ruling on whether InflictEffectOnRandomTroops can repeat a target; damage [M+1] to all matches."}

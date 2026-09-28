@@ -617,3 +617,65 @@ describe('L2 R2 batch 08', () => {
     res.forEach((re, i) => expect(o[i]).toMatch(re));
   });
 });
+
+describe('L2 R2 batch 09', () => {
+  const allE = (s: string) => [10, 11, 12, 13].map(e => `status E${e} +${s}`).join(' ; ');
+  it.each<Row>([
+    // 8430 AB-CD: [(M/2)+1] to all, then Curse all OR Web all -- fixed (was both)
+    { key: 'troop:6949', opts: { enemies: [0, 1, 2, 3].map(() => ({ hp: 500, maxHp: 500, armor: 0 })) },
+      branches: { [`${[10, 11, 12, 13].map(e => `dmg E${e} 6 (all)`).join(' ; ')} ; ${allE('curse')}`]: 1 / 2, [`${[10, 11, 12, 13].map(e => `dmg E${e} 6 (all)`).join(' ; ')} ; ${allE('web')}`]: 1 / 2 } },
+    // 8618 AB-CD: [M+1] to the target, then Poison OR Death Mark it -- fixed (was always Death Mark)
+    { key: 'weapon:1420', opts: { enemies: [{}, { hp: 500, maxHp: 500, armor: 0 }] }, branches: { 'dmg E11 11 ; status E11 +poison': 1 / 2, 'dmg E11 11 ; status E11 +death-mark': 1 / 2 } },
+    // 10057 AB+(C-D-E-F): [M+4] to all + 2 Elemental Stars, then Burn | Freeze | Entangle | Stun all
+    { key: 'troop:7925', opts: { enemies: [0, 1, 2, 3].map(() => ({ hp: 500, maxHp: 500, armor: 0 })) },
+      branches: Object.fromEntries(['burning', 'frozen', 'entangle', 'stun'].map(s => [`${[10, 11, 12, 13].map(e => `dmg E${e} 14 (all)`).join(' ; ')} ; convert * -> elementalStar x2 ; ${allE(s)}`, 1 / 4])) },
+    // 9313 A+(B-C-D-E-F): [M+2] to all, then 13 gems of ONE of five colours -- fixed (was a mix)
+    { key: 'troop:7523', opts: { enemies: [0, 1, 2, 3].map(() => ({ hp: 500, maxHp: 500, armor: 0 })) },
+      branches: Object.fromEntries(['Blue', 'Green', 'Red', 'Yellow', 'Purple'].map(c => [`${[10, 11, 12, 13].map(e => `dmg E${e} 12 (all)`).join(' ; ')} ; convert * -> ${c} x13`, 1 / 5])) },
+  ])('$key branches and weights', o => checkRow({ ...o, norm: true }));
+
+  it.each([
+    ['troop:6140', 'Brown', 4], ['troop:6243', 'Green', 4], ['troop:6738', 'Purple', 5],
+  ] as const)('%s ONE hit: the chosen enemy OR (50%%) a random one; x3 on %s users -- fixed (was both hits)', (key, colour, base) => {
+    const tough = [0, 1, 2, 3].map(() => ({ hp: 900, maxHp: 900, armor: 0, colors: ['Yellow'] })) as never;
+    let chosen = 0;
+    for (let seed = 1; seed <= SEEDS; seed++) {
+      const o = castSpell({ key, seed, enemies: tough }).summary.order.filter(x => x.startsWith('dmg '));
+      expect(o).toHaveLength(1);
+      expect(o[0]).toMatch(new RegExp(`^dmg E1\\d ${10 + base}$`));
+      if (o[0].startsWith('dmg E11 ')) chosen++;
+    }
+    // chosen branch 1/2 + random branch lands on E11 1/4 of the time -> 5/8
+    expect(chosen / SEEDS).toBeGreaterThan(0.5); expect(chosen / SEEDS).toBeLessThan(0.75);
+    // oneOf is a native random branch (not a player choice): scan seeds for the chosen-enemy hit on a ${colour} user
+    const users = [0, 1, 2, 3].map(i => ({ hp: 900, maxHp: 900, armor: 0, colors: [i === 1 ? colour : 'Yellow'] })) as never;
+    const hits = new Set<string>();
+    for (let seed = 1; seed <= 40; seed++) castSpell({ key, seed, enemies: users }).summary.order.filter(x => x.startsWith('dmg ')).forEach(x => hits.add(x));
+    expect(hits).toContain(`dmg E11 ${3 * (10 + base)}`);
+    expect([...hits].filter(x => !x.startsWith('dmg E11 ')).every(x => x.endsWith(` ${10 + base}`))).toBe(true);
+  });
+
+  it('troop:6738 8 Skulls only when the hit kills', () => {
+    const frail = [0, 1, 2, 3].map(i => ({ hp: i === 1 ? 5 : 900, maxHp: 900, armor: 0, colors: ['Yellow'] })) as never;
+    for (let seed = 1; seed <= 40; seed++) {
+      const k = castSpell({ key: 'troop:6738', seed, enemies: frail }).summary.order;
+      const killed = k.includes('defeat E11');
+      expect(k.some(x => /-> skull x8$/.test(x))).toBe(killed);
+    }
+  });
+
+  it('troop:6851 [M+4] (x3-5 on Bosses) then Enrage myself OR destroy a random row', () => {
+    const t = new Set<string>();
+    for (let seed = 1; seed <= 60; seed++) {
+      const o = castSpell({ key: 'troop:6851', seed }).summary.order;
+      expect(o[0]).toBe('dmg E11 14');
+      t.add(o[1] === 'status C +enraged' ? 'rage' : /^destroy 8 /.test(o[1]) ? 'row' : o[1]);
+    }
+    expect([...t].sort()).toEqual(['rage', 'row']);
+  });
+
+  it('troop:7798 Choose: first 2 + Green -> Doomskulls OR last 2 + Red -> Doomskulls', () => {
+    expect(choose({ key: 'troop:7798' }, 0).slice(0, 3).join(' ; ')).toMatch(/^dmg E10 14 \(all\) ; dmg E11 14 \(all\) ; convert Green x\d+ -> doomSkull x\d+$/);
+    expect(choose({ key: 'troop:7798' }, 1).slice(0, 3).join(' ; ')).toMatch(/^dmg E12 14 \(all\) ; dmg E13 14 \(all\) ; convert Red x\d+ -> doomSkull x\d+$/);
+  });
+});
