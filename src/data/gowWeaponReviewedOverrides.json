@@ -3569,6 +3569,59 @@
         ]
       }
     },
+    "8321": {
+      "prototype": {
+        "segments": [
+          {
+            "kind": "buff",
+            "target": "allySelf",
+            "stat": "armor",
+            "scaling": {
+              "base": 1,
+              "mult": 1
+            },
+            "modifier": {
+              "mod": {
+                "kind": "multiplier",
+                "a": 5
+              },
+              "sources": [
+                {
+                  "kind": "enemyStatusCount",
+                  "statusId": "burning"
+                },
+                {
+                  "kind": "enemyStatusCount",
+                  "statusId": "disease"
+                }
+              ]
+            }
+          },
+          {
+            "kind": "oneOf",
+            "options": [
+              [
+                {
+                  "kind": "status",
+                  "target": "enemyAll",
+                  "statusId": "burning",
+                  "turns": 3,
+                  "magnitude": 3
+                }
+              ],
+              [
+                {
+                  "kind": "status",
+                  "target": "enemyAll",
+                  "statusId": "disease",
+                  "turns": 3
+                }
+              ]
+            ]
+          }
+        ]
+      }
+    },
     "8347": {
       "prototype": {
         "segments": [

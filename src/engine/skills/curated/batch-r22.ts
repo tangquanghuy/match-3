@@ -1122,9 +1122,11 @@ const SPELLS: CuratedBatch['spells'] = [
     // 「每有 10 黄金则使随机敌人疾病」= perCount battleGold ratio 10:1（R22 新原语，
     // 官方 CountGold 步骤口径）。
     build: skill(
+    // sa-R6 L2-7556-gold-count：原生 CountMyGold 是第 0 步（获得黄金之前）→ 疾病段移到 gainGold 之前，
+    // 计数不含本次获得的 [魔法 + 1]（原为获得后计数）；转换、获得黄金与疾病互不影响，其余顺序不可观察。
     transform(BaseColor.Yellow, BaseColor.Brown),
-    gainGold(1, 1),
     inflict('disease', 'enemyAll', { perCount: { mod: { kind: 'ratio', a: 10, b: 1 }, source: { kind: 'battleGold' } } }),
+    gainGold(1, 1),
     ),
   },
   {

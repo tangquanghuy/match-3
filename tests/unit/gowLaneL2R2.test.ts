@@ -4,6 +4,7 @@ import { describe, it, expect } from 'vitest';
 import { castSpell, setupCast, summarize, reviewBoard, withCells, type CastOpts } from '../helpers/gowCast';
 import { FixedBranchChooser } from '@engine/skills/branchChooser';
 import { specialGem } from '@engine/types';
+import { setGoldForSide } from '@engine/battleGold';
 
 const SEEDS = 300;
 /** Spell-phase effect line (before the first cascade) per seed, tallied. */
@@ -394,5 +395,101 @@ describe('L2 R2 batch 05', () => {
     const s = choose({ key: 'troop:7288' }, 1);
     expect(s[0]).toBe('dmg E11 36 (splash)');
     expect(s.slice(1).sort()).toEqual(['dmg E10 18 (splash)', 'dmg E12 18 (splash)']);
+  });
+});
+
+describe('L2 R2 batch 06', () => {
+  /** Cast with my gold / souls preset. */
+  const castEco = (o: CastOpts, eco: { gold?: number; souls?: number }) => {
+    const f = setupCast(o);
+    if (eco.gold !== undefined) setGoldForSide(f.state, f.side, eco.gold);
+    if (eco.souls !== undefined) f.state.economy.souls = eco.souls;
+    return summarize(f, f.cast()).order;
+  };
+
+  it.each<Row>([
+    // 9316 ABC-DEF: [M+3] +50% of my Gold to the last enemy, then extra turn OR +20 Gold
+    { key: 'troop:7548', branches: { 'dmg E13 63 ; extra-turn skill': 1 / 2, 'dmg E13 63 ; gold+20': 1 / 2 } },
+    // 7460 ABC-DEF: [M+4] + all my Gold (spent) to the target OR [M+4] to all enemies + 80 Gold
+    { key: 'troop:6310', branches: { 'dmg E11 114': 1 / 2, 'dmg E10 14 (all) ; dmg E11 14 (all) ; dmg E12 14 (all) ; dmg E13 14 (all) ; gold+80': 1 / 2 } },
+    // 8321 AB+(CD-EF): [M+1] Armor (+5 per Burning and per Diseased enemy), then Burn all OR Disease all -- fixed (was always Burn)
+    { key: 'weapon:1317', branches: Object.fromEntries(['burning', 'disease'].map(s => [`buff C armor+11 ; ${[10, 11, 12, 13].map(e => `status E${e} +${s}`).join(' ; ')}`, 1 / 2])) },
+    // 8549 DecreaseRandom [M+1] on the target: R007 four-Skill pool
+    { key: 'troop:7022', branches: Object.fromEntries(['hp-11', 'attack-11', 'armor-10', 'magic-11'].map(s => [`buff E11 ${s} ; destroy 9 (Yellow x9)`, 1 / 4])) },
+  ])('$key branches and weights', o => checkRow({ ...o, norm: true }));
+
+  it('troop:7926 Choose: [M+2] + my Life to the last 2 enemies OR Entangle all, heal me to full, extra turn', () => {
+    expect(choose({ key: 'troop:7926' }, 0)).toEqual(['dmg E12 912 (all)', 'dmg E13 912 (all)', 'defeat E12', 'defeat E13']);
+    const b = choose({ key: 'troop:7926' }, 1);
+    expect(b.slice(0, 4)).toEqual(['status E10 +entangle', 'status E11 +entangle', 'status E12 +entangle', 'status E13 +entangle']);
+    expect(b).toContain('buff C hp+100');
+    expect(b).toContain('extra-turn skill');
+  });
+
+  it('troop:6916 steals min(target Magic, [M+1]) Magic; each ally gains it on ONE random Skill (R007) -- fixed (was spread per point)', () => {
+    const skills = new Set<string>();
+    for (let seed = 1; seed <= 60; seed++) {
+      const o = castSpell({ key: 'troop:6916', seed }).summary.order;
+      expect(o[0]).toBe('buff E11 magic-11');
+      const g = o.slice(1);
+      expect(g.map(x => x.split(' ')[1])).toEqual(['C', 'A1', 'A2']);
+      g.forEach(x => { expect(x).toMatch(/ (hp\+11 max\+11|attack\+11|armor\+11|magic\+11)$/); skills.add(x.split(' ')[2].replace(/[+-].*/, '')); });
+    }
+    expect([...skills].sort()).toEqual(['armor', 'attack', 'hp', 'magic']);
+    const low = castSpell({ key: 'troop:6916', enemies: [{}, { hp: 900, maxHp: 900, magic: 4 }] }).summary.order;
+    expect(low[0]).toBe('buff E11 magic-4');
+    expect(low.slice(1).every(x => /\+4( max\+4)?$/.test(x))).toBe(true);
+  });
+
+  it('troop:7556 one Disease per 10 Gold counted BEFORE the [M+1] Gold gain -- fixed (was after)', () => {
+    const n = (gold: number) => castEco({ key: 'troop:7556' }, { gold }).filter(x => x.endsWith('+disease')).length;
+    expect(n(100)).toBe(10);
+    expect(n(95)).toBe(9); // 95 + 11 = 106 would give 10
+    expect(n(9)).toBe(0);
+    expect(castEco({ key: 'troop:7556' }, { gold: 100 }).at(-1)).toBe('gold+11');
+  });
+
+  it('troop:7022 +50% of my Souls on the random Skill reduction; Yellow gems removed', () => {
+    const o = castEco({ key: 'troop:7022' }, { souls: 21 });
+    expect(o[0]).toMatch(/^buff E11 (hp|attack|armor|magic)-(21|10)$/); // 11 + floor(21 x 50%); Armor capped at its 10
+  });
+
+  it('troop:7850 chosen enemy: -[M+1] random Skill +2 per Cursed and per Webbed enemy, then Curse + Web it -- fixed (was a random enemy)', () => {
+    for (let seed = 1; seed <= 20; seed++) {
+      const o = castSpell({ key: 'troop:7850', seed, target: 12 }).summary.order;
+      expect(o[0]).toMatch(/^buff E12 /);
+      expect(o.slice(1)).toEqual(['status E12 +curse', 'status E12 +web']);
+    }
+    const cw = [{ statuses: [{ id: 'curse', turns: 3 }] }, { hp: 900, maxHp: 900, attack: 60, armor: 60, magic: 60, statuses: [{ id: 'web', turns: 3 }, { id: 'curse', turns: 3 }] }, {}, {}] as never;
+    expect(castSpell({ key: 'troop:7850', enemies: cw }).summary.order[0]).toMatch(/^buff E11 \w+-17$/); // 11 + 2 x (2 cursed + 1 webbed)
+  });
+
+  it('weapon:1317 Armor counts Burning AND Diseased enemies (+5 each)', () => {
+    const e = [{ statuses: [{ id: 'burning', turns: 3 }] }, { hp: 900, maxHp: 900, statuses: [{ id: 'disease', turns: 3 }] }, {}, {}] as never;
+    expect(castSpell({ key: 'weapon:1317', enemies: e }).summary.order[0]).toBe('buff C armor+21');
+  });
+
+  it('troop:6264 15 Yellow/chosen gems; each other ally +[M+2] (+4 per Silenced enemy) on one random Skill', () => {
+    const e = [{ statuses: [{ id: 'silence', turns: 3 }] }, {}, {}, {}] as never;
+    const o = castSpell({ key: 'troop:6264', enemies: e }).summary.order;
+    expect(o[0]).toMatch(/-> Blue x\d+, Yellow x\d+$/);
+    expect(o.slice(1).map(x => x.split(' ')[1])).toEqual(['A1', 'A2']);
+    expect(o.slice(1).every(x => / (hp\+16 max\+16|attack\+16|armor\+16|magic\+16)$/.test(x))).toBe(true);
+  });
+
+  it('troop:7496 two different random enemies (RandomEnemy + RandomPrefNotPrevEnemy); the same one twice if only one is alive (R007-3)', () => {
+    const pairs = new Set<string>();
+    for (let seed = 1; seed <= 100; seed++) {
+      const t = castSpell({ key: 'troop:7496', seed }).summary.order.map(x => x.split(' ')[1]);
+      expect(t).toHaveLength(2); expect(t[0]).not.toBe(t[1]); pairs.add(t.join());
+    }
+    expect(pairs.size).toBeGreaterThan(8);
+    const solo = [{ hp: 900, maxHp: 900, attack: 50, armor: 50, magic: 50 }, { hp: 0, maxHp: 900, defeated: true }] as never;
+    const o = castSpell({ key: 'troop:7496', enemies: solo }).summary.order;
+    expect(o.map(x => x.split(' ')[1])).toEqual(['E10', 'E10']);
+    const big = [0, 1, 2, 3].map(() => ({ hp: 900, maxHp: 900, attack: 60, armor: 60, magic: 60 }));
+    const enraged = castSpell({ key: 'troop:7496', enemies: big, allies: [{ statuses: [{ id: 'enraged', turns: 3 }] }, {}] as never }).summary.order;
+    expect(enraged).toHaveLength(2);
+    expect(enraged.every(x => /-14$/.test(x))).toBe(true); // 11 + 3 x 1 enraged ally
   });
 });

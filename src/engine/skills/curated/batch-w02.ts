@@ -8,7 +8,7 @@
  * src/data/weapon-skill-meta.json）。组装规则锚定 scripts/spell-rules.md 与
  * 既有部队批次先例；生成器 scripts/_weapon_pools.mjs gen。
  */
-import { armor, attack, cleanse, createGems, createMix, createSkulls, createSpecialGems, createStorm, destroyChosenCol, destroyColor, dispelStatus, dmg, dmgSplash, drainMana, explodeColor, explodeRandomGems, extraTurn, gainGold, heal, inflict, inflictRandom, magic, mana, reduce, reposition, skill, steal, summonRandom, summonRandomOfKingdom, transformToSpecial, trueDmg, CHOSEN } from '../builders';
+import { oneOf, armor, attack, cleanse, createGems, createMix, createSkulls, createSpecialGems, createStorm, destroyChosenCol, destroyColor, dispelStatus, dmg, dmgSplash, drainMana, explodeColor, explodeRandomGems, extraTurn, gainGold, heal, inflict, inflictRandom, magic, mana, reduce, reposition, skill, steal, summonRandom, summonRandomOfKingdom, transformToSpecial, trueDmg, CHOSEN } from '../builders';
 import { BaseColor } from '../../types';
 import type { SkillPrototype } from '../prototypes';
 import type { CuratedBatch } from './index';
@@ -1072,8 +1072,10 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 8321,
     desc: '获得 [魔法 + 1] 点护甲值，数值因陷入燃烧和疾病状态的敌人数而增强。再使所有敌人陷入燃烧或疾病状态。 [x5]',
     build: skill(
-      armor('allySelf', 1, 1, { modifier: { mod: { kind: 'multiplier', a: 5 }, source: { kind: 'enemyStatusCount', statusId: 'burning' } } }),
-      inflict('burning', 'enemyAll'),
+      // sa-R6 L2-1317-branches: native AB+(CD-EF): CountSpecificStatusEffect burning x5 + disease x5 (both counted),
+      // then [M+1] Armor + Burn all OR [M+1] Armor + Disease all, 1/2 each (was: burning count only, always Burn)
+      armor('allySelf', 1, 1, { modifier: { mod: { kind: 'multiplier', a: 5 }, sources: [{ kind: 'enemyStatusCount', statusId: 'burning' }, { kind: 'enemyStatusCount', statusId: 'disease' }] } }),
+      oneOf([inflict('burning', 'enemyAll')], [inflict('disease', 'enemyAll')]),
     ),
   },
   {
