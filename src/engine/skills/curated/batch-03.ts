@@ -111,7 +111,8 @@ const SPELLS: CuratedBatch['spells'] = [
     build: skill(
       // 「窃取生命」= 伤害 + drain；「窃取魔力值」= steal 同属性（文件头备注）
       dmg('enemyWeakestN', 3, 1, { n: 2, drain: true }),
-      steal('enemyHealthiestN', 'mana', 'mana', 8, 0, { n: 2 }),
+      // sa-I: native StealMagic@TwoStrongestEnemies 8 / EN "steal 8 Magic" = Magic stat (was Mana)
+      steal('enemyHealthiestN', 'magic', 'magic', 8, 0, { n: 2 }),
     ),
   },
   {

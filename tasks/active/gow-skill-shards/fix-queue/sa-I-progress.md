@@ -26,3 +26,6 @@ Lanes in order: L7, L6, L1, L3, L4b, L2. Tests: tests/unit/gowLaneMixI.test.ts
 - weapon:1522 accept (L6; +2 Magic all then [M+2] Armor Brown, +10 Attack iff Doom; Tempering 0)
 - troop:6699 accept (L6; 3 true hits 14..28 PrefNotPrev; armor EN range 14..28 vs native fixed [2M+8] = DISPUTE, EN kept)
 - weapon:1035 accept (L6; native DecreaseArmor PercentageChance 0 never fires)
+- troop:6554 fixed+accept (L6; native StealMagic@TwoStrongestEnemies = Magic stat, was Mana; weakest/strongest hp+armor R005)
+- troop:6603 fixed+accept (L6; native 4x StealMagic@FromTarget AddForLess*OnTarget 3 BEFORE Damage, Magic not Mana; hit uses raised Magic)
+- L6 B02 done (leftover): accept=2 fixed=2 issue=0

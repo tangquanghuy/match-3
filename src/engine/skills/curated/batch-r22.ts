@@ -592,10 +592,12 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 7812,
     desc: '对一名敌人造成 [魔法 + 3] 点伤害。自身每高于敌方一个技能即可窃取敌方 3 点魔力值。',
     // 「每高于敌方一个技能」= casterStatBeatsCount 四围比较计数（R22 新来源，randomStat 四维口径）
-    // ×3 驱动窃取法力。
+    // sa-I: native 4 x StealMagic@FromTarget 3 [AddForLess<Magic|Attack|Life|Armor>OnTarget] BEFORE Damage (R001);
+    // steals Magic (was drain Mana after the hit). The four comparisons are independent of the Magic moved, so one
+    // count taken before the steal equals the native per-step checks; the hit then uses the raised Magic.
     build: skill(
-    dmg('enemyChosen', 3, 1),
-    reduce('lastTarget', 'mana', 0, 0, { modifier: boostPer({ kind: 'casterStatBeatsCount' }, 3) }),
+    steal('enemyChosen', 'magic', 'magic', 0, 0, { modifier: boostPer({ kind: 'casterStatBeatsCount' }, 3) }),
+    dmg('lastTarget', 3, 1),
     ),
   },
   {

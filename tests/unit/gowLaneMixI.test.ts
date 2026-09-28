@@ -164,3 +164,19 @@ describe('sa-I L6 B01', () => {
     }
   });
 });
+describe('sa-I L6 B02', () => {
+  it('troop:6554 drains [M+3] Life from the 2 weakest (hp+armor), then steals 8 Magic stat (not Mana) from the 2 strongest', () => {
+    const o = castSpell({ key: 'troop:6554' }).summary.order;
+    expect(o).toEqual(['dmg E12 13 (all)', 'dmg E10 13 (all)', 'buff C hp+26 max+26',
+      'buff E11 magic-8', 'buff C magic+8', 'buff E13 magic-8', 'buff C magic+8']);
+    expect(o.some(s => s.includes('mana'))).toBe(false);
+  });
+  it('troop:6603 steals 3 Magic per beaten stat BEFORE the hit (native order), so the hit uses the raised Magic', () => {
+    const weak = [{ hp: 900, maxHp: 900 }, { hp: 100, maxHp: 100, armor: 0, attack: 1, magic: 20 }];
+    // caster Magic 10 < 20: beats Attack, Life, Armor only -> steal 9, hit [19 + 3]
+    expect(castSpell({ key: 'troop:6603', enemies: weak, caster: { attack: 20, armor: 10 } }).summary.order)
+      .toEqual(['buff E11 magic-9', 'buff C magic+9', 'dmg E11 22']);
+    const strong = [{ hp: 900, maxHp: 900 }, { hp: 2000, maxHp: 2000, armor: 50, attack: 50, magic: 50 }];
+    expect(castSpell({ key: 'troop:6603', enemies: strong, caster: { attack: 5, armor: 0 } }).summary.order).toEqual(['dmg E11 13']);
+  });
+});
