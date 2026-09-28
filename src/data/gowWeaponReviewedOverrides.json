@@ -173,7 +173,7 @@
             "kind": "gem",
             "params": {
               "op": "clear",
-              "mode": "destroy",
+              "mode": "remove",
               "target": {
                 "kind": "color",
                 "color": "Green"
@@ -523,7 +523,7 @@
             "kind": "gem",
             "params": {
               "op": "clear",
-              "mode": "destroy",
+              "mode": "remove",
               "target": {
                 "kind": "color",
                 "color": "Green"
@@ -1347,7 +1347,7 @@
             "kind": "gem",
             "params": {
               "op": "clear",
-              "mode": "destroy",
+              "mode": "remove",
               "target": {
                 "kind": "color",
                 "color": "Purple"
@@ -3540,7 +3540,7 @@
             "kind": "gem",
             "params": {
               "op": "clear",
-              "mode": "destroy",
+              "mode": "remove",
               "target": {
                 "kind": "color",
                 "color": "Purple"
@@ -4521,7 +4521,7 @@
             "kind": "gem",
             "params": {
               "op": "clear",
-              "mode": "destroy",
+              "mode": "remove",
               "target": {
                 "kind": "color",
                 "color": "Brown"
@@ -5094,7 +5094,7 @@
             "kind": "gem",
             "params": {
               "op": "clear",
-              "mode": "destroy",
+              "mode": "remove",
               "target": {
                 "kind": "color",
                 "color": "Brown"

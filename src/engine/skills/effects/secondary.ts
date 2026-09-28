@@ -174,7 +174,14 @@ export type ModifierSource =
    * 即 8 邻中的正下格，故按 3x3 邻域口径计数、不含锚格自身）。锚缺失（前序无成功创造段）
    * 按 0 计。只数基色宝石（boardGems 同口径，不含归属色特殊宝石）。
    */
-  | { kind: 'surroundingGems'; color: BaseColor; anchor: 'lastCreated' };
+  | { kind: 'surroundingGems'; color: BaseColor; anchor: 'lastCreated' }
+  /**
+   * 原生 CountGems <色> BoardTarget Block3x3（P-F2-precount-explode，7553「爆破一颗宝石……伤害值因
+   * 被摧毁的蓝色宝石数而增强」：计数是第 0 步，爆破是最后一步）：以本次选定格 ctx.chosenCell 为中心的
+   * 3x3 方块（含中心格，越界收边）内该基色宝石数，在判定时刻读棋盘——后续爆破同一格前即可预读。
+   * 未选格 → 0。
+   */
+  | { kind: 'chosenCellBlockGems'; color: BaseColor };
 
 /** 二次缩放规格：解析出的 [xN]/[N:M] + 来源，段定义里以纯数据存在（可 JSON 化） */
 export interface ModifierSpec {
@@ -184,13 +191,20 @@ export interface ModifierSpec {
   /** 多来源（与 source 二选一；两处都写时以 sources 为准） */
   sources?: ModifierSource[];
   /**
+   * 分组多来源（P-counter-per-step，8228 原生 CountAttackArmorLife 50 + CountMagic 50）：每组对应
+   * 一个原生 Count* 步骤——组内计数相加后 floor 一次，各组结果再相加（R007-1）。给出时优先于
+   * sources / source。
+   */
+  sourceGroups?: ModifierSource[][];
+  /**
    * 加成上限（batch-r28，官方 CountMax 步骤族——7667「上限为 14 颗宝石」/ 8141「上限
    * 16」/ 8142「上限 14」/ 10061「击杀几率最高可达 30%」）：给出时把**加成项**（bonus，
    * 非总值）夹到 ≤max——「6 颗、因黄金增强 [4:1]、上限 14」= 6 + min(floor(gold/4), 8)。
    */
   max?: number;
   /**
-   * 多来源 ratio 合并取整（仅社区自制兵种：「每有 4 颗红色或黄色宝石」= 单一合并计数）。
+   * 多来源 ratio 合并取整（单一原生计数步骤跨多项：原生 CountAttackArmorLife；社区自制兵种
+   * 「每有 4 颗红色或黄色宝石」= 单一合并计数）。
    * 缺省按 R007-1：原生每个 Count* 步骤独立 floor 后相加。multiplier 为线性，两者等价。
    */
   pooled?: boolean;
@@ -339,6 +353,18 @@ export type Condition =
   /** 最近目标段的主目标属性高于施法者（R22 批反向属性比较，7960「若其攻击力比较大」——
    *  §13.2 casterStatBeatsTarget 只支持施法者>目标正向，本条件为其对偶）。 */
   | { kind: 'targetStatBeatsCaster'; stat: 'attack' | 'armor' | 'magic' | 'hp' }
+  /**
+   * 原生 FromTarget（本次手动选定的目标 ctx.chosenTargetId）在**判定时刻**的属性高于施法者
+   *（P-F3-prehit-target-compare，7670 CountSet [AddForMoreLifeOnTarget] 在伤害前比较）。
+   * 与 targetStatBeatsCaster 的区别：不依赖跨段追踪，首个目标段之前也可判定。全局条件。
+   */
+  | { kind: 'chosenTargetStatBeatsCaster'; stat: 'attack' | 'armor' | 'magic' | 'hp' }
+  /**
+   * 原生 FromTarget（手动选定的目标）存活且生命未满（P-F3-lasttarget-damaged，7791
+   * CountSet@FromTarget [AddForDamaged] → Enrage@Self：命中后该敌受损则自身狂怒）。
+   * 挂在自身目标段上也按选定目标判定（全局条件）。
+   */
+  | { kind: 'chosenTargetDamaged' }
   /**
    * 战场经济池某币种 ≥n（batch-r28，7435「如果自身有 12 个或更多灵魂」——经济阈值条件
    * 缺口；读 GameState.economy 共用池现值，全局条件整段判定）。
@@ -540,6 +566,14 @@ export function conditionMet(
           return _never;
         }
       }
+    }
+    case 'chosenTargetStatBeatsCaster':
+    case 'chosenTargetDamaged': {
+      const chosen = ctx.chosenTargetId === undefined ? undefined : findCharacter(ctx.state, ctx.chosenTargetId);
+      if (!chosen || chosen.defeated) return false;
+      if (cond.kind === 'chosenTargetDamaged') return chosen.hp < chosen.maxHp;
+      const me = findCharacter(ctx.state, ctx.casterId);
+      return !!me && statOf(chosen, cond.stat) > statOf(me, cond.stat);
     }
     case 'castSacrificed': return ctx.castTracking?.sacrificeSucceeded === true;
     case 'castEnemyDied': return (ctx.castTracking?.enemyDeaths ?? 0) > 0;
@@ -892,6 +926,20 @@ export function resolveModifierCount(source: ModifierSource, ctx: EffectContext)
       }
       return n;
     }
+    case 'chosenCellBlockGems': {
+      const centre = ctx.chosenCell;
+      if (!centre) return 0;
+      let n = 0;
+      for (let dr = -1; dr <= 1; dr++) {
+        for (let dc = -1; dc <= 1; dc++) {
+          const pos = { row: centre.row + dr, col: centre.col + dc };
+          if (pos.row < 0 || pos.col < 0 || pos.row >= BoardModel.ROWS || pos.col >= BoardModel.COLS) continue;
+          const gem = ctx.state.board.get(pos);
+          if (gem && gem.type.kind === 'color' && gem.type.color === source.color) n += 1;
+        }
+      }
+      return n;
+    }
     default: {
       const _exhaustive: never = source;
       return _exhaustive;
@@ -942,7 +990,14 @@ function teamStatSum(
 export function modifierBonus(spec: ModifierSpec | undefined, ctx: EffectContext): number {
   if (!spec) return 0;
   let bonus = 0;
-  if (spec.sources && spec.mod.kind === 'ratio' && !spec.pooled) {
+  if (spec.sourceGroups) {
+    // One native Count* step per group: sum inside the group, floor once, then add the groups.
+    for (const group of spec.sourceGroups) {
+      let count = 0;
+      for (const s of group) count += resolveModifierCount(s, ctx);
+      bonus += scaledCount(spec.mod, count);
+    }
+  } else if (spec.sources && spec.mod.kind === 'ratio' && !spec.pooled) {
     // R007-1 (rulings/R007-counters-random-pools.md): one floor per native Count* step, then sum.
     for (const s of spec.sources) bonus += scaledCount(spec.mod, resolveModifierCount(s, ctx));
   } else {

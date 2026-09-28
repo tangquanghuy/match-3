@@ -1,6 +1,7 @@
 import { applyGowLifeRule } from './gowLifeRules';
 import { applyGowDamageRule } from './gowDamageRules';
 import { applyGowChoiceRule } from './gowChoiceRules';
+import { applyGowRemoveRule } from './gowRemoveRules';
 /**
  * 技能库（窗口 B · 组装器消费端）。
  *
@@ -60,7 +61,7 @@ const curated = collectCurated();
 /** 组装器全表：overrides 覆盖 curated（key = String(spellId)） */
 export const SKILL_LIBRARY: Record<number, SkillPrototype> = {};
 for (const [id, proto] of curated.byId) SKILL_LIBRARY[id] = proto;
-for (const [id, proto] of Object.entries(SKILL_OVERRIDES)) SKILL_LIBRARY[Number(id)] = applyGowChoiceRule(Number(id), applyGowLifeRule(Number(id), applyGowDamageRule(Number(id), proto)));
+for (const [id, proto] of Object.entries(SKILL_OVERRIDES)) SKILL_LIBRARY[Number(id)] = applyGowChoiceRule(Number(id), applyGowLifeRule(Number(id), applyGowDamageRule(Number(id), applyGowRemoveRule(Number(id), proto))));
 
 /** 核对后放弃的条目（覆盖率报告用） */
 export function curatedSkipped(): { id: number; batch: string; reason: string }[] {

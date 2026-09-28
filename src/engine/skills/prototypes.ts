@@ -911,10 +911,13 @@ function ensureCastTracking(ctx: EffectContext): CastTracking {
     // 在场角色采集一次生效状态 id 快照（只录有状态者）——首段的施加不影响后续段读
     // 「施法前」状态，时序绑定有了确定性锚点。
     const snapshot: Record<number, string[]> = {};
+    // P-F2-dead-target-colour: mana colours per unit, so a target killed mid-cast keeps "their Mana Color".
+    const colorsAtCastStart: Record<number, BaseColor[]> = {};
     for (const side of ['Left', 'Right'] as const) {
       for (const c of ctx.state.teams[side].characters) {
         const active = c.statuses.filter((s) => s.turns > 0).map((s) => s.id);
         if (active.length > 0) snapshot[c.id] = active;
+        colorsAtCastStart[c.id] = [...c.colors];
       }
     }
     const chosenColumnAtCastStart: GemType[] = [];
@@ -937,6 +940,7 @@ function ensureCastTracking(ctx: EffectContext): CastTracking {
       enemyDeaths: 0,
       allyDeaths: 0,
       statusesAtCastStart: snapshot,
+      colorsAtCastStart,
     };
   }
   return ctx.castTracking;

@@ -502,12 +502,14 @@ const SPELLS: CuratedBatch['spells'] = [
   {
     id: 7670,
     desc: '对 1 名敌人造成 [魔法 + 3] 点伤害。获得 10 个灵魂。如果敌方的生命值高于自身，则造成的伤害和获得的灵魂数翻三倍。',
-    // 「敌方生命值高于自身」= targetStatBeatsCaster hp（R22 新条件，全局读跨段主目标）；
-    // 伤害 ×3 = condMult；灵魂 ×3 = 10 + 20（条件段）拆段——经济段无 condMult 通道，语义等价。
+    // 原生 7670：CountSet@FromTarget [AddForMoreLifeOnTarget 20] → GiveSouls@Self 10（+计数）→ Damage
+    // [MultiplyForMoreLifeOnTarget 3]——生命比较在命中前（sa-P P-F3-prehit-target-compare：
+    // chosenTargetStatBeatsCaster 读选定目标现值，按原生顺序先灵魂后伤害）。
+    // 灵魂 ×3 = 10 + 20（条件段）拆段——经济段无 condMult 通道，语义等价。
     build: skill(
-    dmg('enemyChosen', 3, 1, { condMult: { times: 3, cond: { kind: 'targetStatBeatsCaster', stat: 'hp' } } }),
     gainSouls(10),
-    gainSouls(20, 0, { ifCond: { kind: 'targetStatBeatsCaster', stat: 'hp' } }),
+    gainSouls(20, 0, { ifCond: { kind: 'chosenTargetStatBeatsCaster', stat: 'hp' } }),
+    dmg('enemyChosen', 3, 1, { condMult: { times: 3, cond: { kind: 'chosenTargetStatBeatsCaster', stat: 'hp' } } }),
     ),
   },
   {

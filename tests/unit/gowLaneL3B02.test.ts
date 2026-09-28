@@ -200,7 +200,7 @@ describe('L3 troop:7070/spell:8598 Poison + drain 7 Mana from all enemies, remov
   expect(registry.prototypes.get('8598')).toEqual({segments:[
    {kind:'status',target:'enemyAll',statusId:'poison',turns:3,magnitude:3},
    {kind:'reduce',target:'enemyAll',stat:'mana',scaling:{base:7,mult:0}},
-   {kind:'gem',params:{op:'clear',mode:'destroy',target:{kind:'skulls'}}}],oncePerBattle:true});
+   {kind:'gem',params:{op:'clear',mode:'remove',target:{kind:'skulls'}}}],oncePerBattle:true});
  });
  for(const side of SIDES)for(const magic of [0,10])it(`real cast side=${side} magic=${magic}: all Poisoned, mana 20/5/7/0 -> 13/0/0/0 (fixed 7), caster not refilled, 5 skulls removed`,()=>{
   const f=setup({...base,side,magic,board});expect(skullsLeft(f)).toBe(5);const ev=f.cast();

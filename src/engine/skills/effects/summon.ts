@@ -250,7 +250,7 @@ function appendSummon(
 export function summonEffect(params: SummonParams): EffectPrimitive {
   return {
     apply(ctx: EffectContext): GameEvent[] {
-      const side = findSide(ctx.state, ctx.casterId);
+      const side = findSide(ctx.state, ctx.casterId) ?? ctx.casterSide ?? null; // P-F1-summon-after-caster-death: side captured at cast start
       if (side === null) return [];
 
       const template = resolveTemplate(params, ctx);
@@ -284,7 +284,7 @@ export interface SummonCopyParams {
 export function summonCopyEffect(params: SummonCopyParams): EffectPrimitive {
   return {
     apply(ctx: EffectContext): GameEvent[] {
-      const side = findSide(ctx.state, ctx.casterId);
+      const side = findSide(ctx.state, ctx.casterId) ?? ctx.casterSide ?? null; // P-F1-summon-after-caster-death: side captured at cast start
       if (side === null) return [];
       const source = params.targets.find((c) => !c.defeated);
       if (!source) return [];

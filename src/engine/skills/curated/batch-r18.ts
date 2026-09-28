@@ -457,14 +457,16 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 7553,
     desc: "爆破一颗宝石。消除一名随机敌人的所有正面增益效果并造成 [魔法 + 4] 点真实伤害，伤害值因被摧毁的蓝色宝石数而增强。 [x4]",
     // 「消除一名随机敌人…并对其造成」= lastTarget 跨段绑定；[x4] = destroyedGems Blue ×4
+    // sa-P P-F2-precount-explode: native CountGems Blue 400 Block3x3 (step 0) -> Dispel -> TrueDamage [counter]
+    // -> ExplodeGems SingleGem (last): count the Blue gems in the 3x3 around the chosen cell before the explosion.
     build: skill(
-      explodeAt(CELL),
       // sa-F2 fix round A: one random enemy for Dispel + TrueDamage@FromPrevious (the old per-status
       // dispelPositives('enemyRandom') re-rolled the target for every status and skipped holders)
       ...POSITIVE_STATUSES.map((statusId, i) => dispelStatus(statusId, i === 0 ? 'enemyRandom' : 'lastTarget')),
       trueDmg('lastTarget', 4, 1, {
-    modifier: { mod: { kind: 'multiplier', a: 4 }, source: { kind: 'destroyedGems', color: BaseColor.Blue } },
+    modifier: { mod: { kind: 'multiplier', a: 4 }, source: { kind: 'chosenCellBlockGems', color: BaseColor.Blue } },
   }),
+      explodeAt(CELL),
     ),
   },
   {
@@ -558,7 +560,7 @@ const SPELLS: CuratedBatch['spells'] = [
       dmg('lastTarget', 1, 1, {
     modifier: {
       mod: { kind: 'ratio', a: 3, b: 1 },
-      sources: [
+      pooled: true /* CountAttackArmorLife = one native Count step (R007-1) */, sources: [
         { kind: 'selfStat', stat: 'attack' },
         { kind: 'selfStat', stat: 'hp' },
         { kind: 'selfStat', stat: 'armor' },
@@ -1010,7 +1012,7 @@ const SPELLS: CuratedBatch['spells'] = [
       dmg('enemyChosen', 4, 1, {
     modifier: {
       mod: { kind: 'ratio', a: 3, b: 1 },
-      sources: [
+      pooled: true /* CountAttackArmorLife = one native Count step (R007-1) */, sources: [
         { kind: 'selfStat', stat: 'attack' },
         { kind: 'selfStat', stat: 'hp' },
         { kind: 'selfStat', stat: 'armor' },

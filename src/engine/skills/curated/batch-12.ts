@@ -176,7 +176,7 @@ const SPELLS: CuratedBatch['spells'] = [
       dmgSplash('enemyFront', 2, 1, {
         modifier: {
           mod: { kind: 'ratio', a: 10, b: 1 },
-          sources: [
+          pooled: true /* CountAttackArmorLife = one native Count step (R007-1) */, sources: [
             { kind: 'selfStat', stat: 'attack' },
             { kind: 'selfStat', stat: 'hp' },
             { kind: 'selfStat', stat: 'armor' },
