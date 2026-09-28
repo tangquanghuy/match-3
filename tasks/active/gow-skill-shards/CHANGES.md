@@ -1,6 +1,6 @@
 # GoW 技能改动留档
 
-自动生成（`node scripts/gow-changelog.mjs render`），源数据 [CHANGES.jsonl](CHANGES.jsonl)，共 277 条改动，涉及 503 个技能 ID。
+自动生成（`node scripts/gow-changelog.mjs render`），源数据 [CHANGES.jsonl](CHANGES.jsonl)，共 278 条改动，涉及 510 个技能 ID。
 
 ## 按时间
 
@@ -283,6 +283,7 @@
 | 2026-09-28T03:06 | sa-R1 | L4a-R1-7159-cross | data | 7159 | troop:6089 Elwyn | `src/engine/skills/curated/batch-19.ts` | row then column (16 cells) → destroyChosenCross (15 cells) |  |
 | 2026-09-28T03:06 | sa-R1 | L4a-R1-7388-chosen-row | data | 7388 | troop:6245 ArmoredBoar | `src/engine/skills/curated/batch-r22.ts` | random row → chosen row (Board-target spell, BoardTarget Row) |  |
 | 2026-09-28T05:44 | sa-P | R011 | primitive | 9661, 9594, 8469 | troop:7700 Gormungandr；troop:7666 WaterbornTemplar；troop:6966 SpringEmissary | `src/engine/skills/effects/status.ts`<br>`tests/unit/gowFixR011.test.ts` | applyStatus: a Blessed unit rejected every status except blessed/curse (positives too: Barrier, Enchanted, Reflect, Enraged, Submerged) → Blessed blocks only negative statuses (R004 resetting-negative set + negative cleanse set, curse family excluded: curse still cancels blessed); positives apply normally | every skill/trait/gem giving a positive status to a Blessed unit; bless-then-positive spells 9661 (troop:7700), 9594 (troop:7666), 8469 (troop:6966) |
+| 2026-09-28T05:55 | sa-P | R012 | primitive | 8414, 7563, 9385, 9862, 7790, 8590, 9258, 9371, 9162, 8248 | troop:6926 Smashedmouth；weapon:1156 Thingamabob；weapon:1605 SagittariansBow；troop:7818 TwistedHag；troop:6586 Umbraxis；troop:7062 Leanansidhe；troop:7512 FirebornLynx；troop:7575 ImmortalAquaria；weapon:1550 NightShear；troop:6843 MotherOfDarkness | `src/engine/skills/targeting.ts`<br>`src/engine/skills/prototypes.ts`<br>`src/engine/skills/effects/context.ts`<br>`src/engine/skills/effects/summon.ts`<br>`tests/unit/gowFixR012.test.ts` | BelowTarget/AboveTarget/NextDown/ChosenAndBelow/ChosenAndNextDown/Adjacent anchored on the chosen unit's current formation index and returned [] once an earlier step of the same cast killed it → castTracking.formationAtCastStart (ids per team at cast start); when the anchor left the roster, above/below = units before/after its cast-start slot (NextDown = first surviving below); Adjacent = its cast-start neighbours that are still alive (no shifting further); anchor alive: unchanged. troop:6843 8248 single-segment ChosenAndNextDown kept (equivalent) | every prototype using enemyBelowTarget/enemyAboveTarget/allyBelowTarget/enemyNextDown/enemyChosenAndNextDown/enemyChosenAndBelow/enemyChosenAndAdjacent (33 entities; 9 change in K) |
 
 ## 按技能 ID
 
@@ -417,7 +418,7 @@
 | 7558 | 1 | F3-q32 |
 | 7560 | 1 | P-random-stat-pool |
 | 7561 | 3 | L5-001、R004 (L5-004,L5-005,L5-014,L4b-6340)、R004-tests |
-| 7563 | 1 | R3-B11-1156 |
+| 7563 | 2 | R3-B11-1156、R012 |
 | 7568 | 2 | P-counter-per-step、L4a-R1-7568-random-gem |
 | 7574 | 1 | L2-6416-branch-weights |
 | 7576 | 1 | F2-R001-order |
@@ -456,6 +457,7 @@
 | 7773 | 1 | F1-steal-before-damage |
 | 7780 | 1 | F3-q04 |
 | 7786 | 1 | P-prefnotprev-semantics |
+| 7790 | 1 | R012 |
 | 7791 | 2 | F3-q21、P-F3-lasttarget-damaged |
 | 7797 | 1 | L4a-R1-7797-order |
 | 7804 | 1 | L4a-R1-no-base-7804-8423 |
@@ -519,7 +521,7 @@
 | 8245 | 1 | L5-001 |
 | 8246 | 1 | L4b-6841-prefnotprev |
 | 8247 | 1 | L4b-6842-prev |
-| 8248 | 1 | F1-onkill-order |
+| 8248 | 2 | F1-onkill-order、R012 |
 | 8250 | 2 | P-F1-oneof-chosen-target、P-F1-oneof-chosen-target |
 | 8251 | 1 | P-counter-per-step |
 | 8288 | 1 | P-prefnotprev-semantics |
@@ -537,7 +539,7 @@
 | 8404 | 3 | L5-001、L5-002、L5-003 |
 | 8407 | 2 | P-F1-oneof-chosen-target、P-F1-oneof-chosen-target |
 | 8410 | 1 | P-prefnotprev-semantics |
-| 8414 | 1 | F1-items-62-75 |
+| 8414 | 2 | F1-items-62-75、R012 |
 | 8415 | 1 | R3-B04-6934 |
 | 8420 | 1 | L4a-R1-8420-cross |
 | 8422 | 1 | P-create-interleave |
@@ -568,6 +570,7 @@
 | 8570 | 1 | L7-7045 |
 | 8580 | 1 | L3-015 |
 | 8586 | 1 | F2-R001-order |
+| 8590 | 1 | R012 |
 | 8596 | 1 | L4b-7068-potion-colour |
 | 8597 | 1 | P-steal-to-life |
 | 8598 | 3 | L3-007、L3-008、L3-009 |
@@ -672,6 +675,7 @@
 | 9138 | 1 | P-create-interleave |
 | 9139 | 1 | P-steal-to-life |
 | 9161 | 1 | L4b-1548-steps |
+| 9162 | 1 | R012 |
 | 9163 | 1 | P-create-interleave |
 | 9165 | 1 | L7-R1-random-chain-waves |
 | 9184 | 2 | P-counter-per-step、P-counter-per-step |
@@ -683,6 +687,7 @@
 | 9223 | 1 | P-steal-to-life |
 | 9241 | 1 | P-random-stat-pool |
 | 9244 | 1 | L4b-7499-dragon |
+| 9258 | 1 | R012 |
 | 9262 | 1 | L7-R1-1571-native-gems |
 | 9280 | 2 | P-prefnotprev-semantics、R3-B12-7262 |
 | 9281 | 1 | L7-7517 |
@@ -694,9 +699,11 @@
 | 9363 | 1 | F2-R001-order |
 | 9367 | 1 | P-prefnotprev-semantics |
 | 9370 | 1 | P-prefnotprev-semantics |
+| 9371 | 1 | R012 |
 | 9372 | 2 | P-prefnotprev-semantics、F2-R001-order |
 | 9377 | 1 | P-prefnotprev-semantics |
 | 9380 | 1 | L4a-R1-immortal-order |
+| 9385 | 1 | R012 |
 | 9387 | 1 | L4a-R1-immortal-order |
 | 9388 | 1 | L4b-1608-1611-order |
 | 9476 | 1 | P-F2-dead-target-colour |
@@ -765,6 +772,7 @@
 | 9852 | 1 | P-counter-per-step |
 | 9859 | 1 | L7-R1-random-chain-waves |
 | 9861 | 1 | P-random-stat-pool |
+| 9862 | 1 | R012 |
 | 9869 | 1 | F1-7825-count |
 | 9874 | 2 | F2-7830-heal-mult、P-prefnotprev-semantics |
 | 9875 | 1 | L7-R1-teamsize-source |

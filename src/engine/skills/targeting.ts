@@ -198,6 +198,47 @@ function columnSlice(
   return out;
 }
 
+/** 施法开始时两队编队顺序（角色 id；R012，castTracking.formationAtCastStart）。 */
+export type FormationSnapshot = Partial<Record<'Left' | 'Right', readonly number[]>>;
+
+/**
+ * R012：以选定目标为锚，把队伍中的存活角色分成锚位上方（更小索引）与下方（更大索引）两组，
+ * 均保持队伍索引序、不含锚自身。锚仍在编队里（含已阵亡但未移出）→ 按当前索引；
+ * 锚已离场（本次施法中被击杀移出编队）→ 按施法开始时的编队位置：施法开始时排在锚之前的
+ * 为上方，其余（含施法中新加入者）为下方。锚无从定位 → null。
+ */
+function splitAroundAnchor(
+  team: Team,
+  side: PlayerSide,
+  anchorId: number,
+  formation?: FormationSnapshot,
+): { above: Character[]; below: Character[] } | null {
+  const idx = team.characters.findIndex((c) => c.id === anchorId);
+  const start = formation?.[side];
+  const a = start ? start.indexOf(anchorId) : -1;
+  if (idx < 0 && a < 0) return null;
+  const above: Character[] = [];
+  const below: Character[] = [];
+  team.characters.forEach((c, i) => {
+    if (c.defeated || c.id === anchorId) return;
+    let isAbove: boolean;
+    if (idx >= 0) isAbove = i < idx;
+    else { const s = start!.indexOf(c.id); isAbove = s >= 0 && s < a; }
+    (isAbove ? above : below).push(c);
+  });
+  return { above, below };
+}
+
+/** R012：锚所在阵营（当前编队优先，锚已离场则查施法开始时的编队快照）。 */
+function anchorSide(state: GameState, anchorId: number, formation?: FormationSnapshot): PlayerSide | null {
+  const now = sideOf(state, anchorId);
+  if (now !== null) return now;
+  for (const side of [PlayerSide.Left, PlayerSide.Right]) {
+    if (formation?.[side]?.includes(anchorId)) return side;
+  }
+  return null;
+}
+
 /**
  * 依据目标模式解析出目标角色列表（需求 5.1–5.5）。
  *
@@ -216,6 +257,7 @@ export function selectTargets(
   n = 1,
   chosenId?: number,
   excludedId?: number,
+  formation?: FormationSnapshot,
 ): Character[] {
   const casterSide = sideOf(state, casterId);
   if (casterSide === null) return [];
@@ -251,33 +293,38 @@ export function selectTargets(
       return picked ? [picked] : [];
     }
 
-    case 'enemyChosenAndNextDown': {
-      if (chosenId === undefined) return [];
-      const start = alive.findIndex(c => c.id === chosenId);
-      return start < 0 ? [] : alive.slice(start, start + 2);
-    }
-
+    case 'enemyChosenAndNextDown':
     case 'enemyChosenAndBelow': {
-      // 「对一名敌人和其下方的所有敌人」：选定者 + 编队中更靠后的全部存活敌人
-      //（GoW 纵队 0=顶；「下方」= 更大的队伍索引）。未提供/越界 → 安全返回空。
+      // 「对一名敌人和其下方的（所有）敌人」：选定者（存活时）+ 其下方存活敌人（NextDown 只取
+      // 一名）。GoW 纵队 0=顶；「下方」= 更大的队伍索引。R012：选定者已被本次施法击杀离场时，
+      // 仍按其施法开始时的位置取下方。未提供/无从定位 → 安全返回空。
       if (chosenId === undefined) return [];
-      const start = alive.findIndex((c) => c.id === chosenId);
-      return start < 0 ? [] : alive.slice(start);
+      const split = splitAroundAnchor(state.teams[targetSide], targetSide, chosenId, formation);
+      if (!split) return [];
+      const self = alive.filter((c) => c.id === chosenId);
+      const below = split.below.filter((c) => alive.includes(c));
+      return [...self, ...(mode === 'enemyChosenAndNextDown' ? below.slice(0, 1) : below)];
     }
 
     case 'enemyChosenAndAdjacent': {
-      // 「上方和下方的敌人」「上下相邻」（R11 批）：选定者在编队中的前后各一位
-      //（不含选定者；贴边只取存在的一侧）。相邻按**编队伍索引**判定（aliveAll 全体存活，
-      // 不受隐匿过滤影响），再对邻居套用不可指定过滤（隐匿不选中）。
-      // 未提供选定 id / 选定者不在敌方存活列表 → 安全返回空。
+      // 「上方和下方的敌人」「上下相邻」（R11 批）：选定者在编队中的前后各一位存活者
+      //（不含选定者；贴边只取存在的一侧）。相邻按**编队伍索引**判定（全体存活，不受隐匿
+      // 过滤影响），再对邻居套用不可指定过滤（隐匿不选中）。R012：选定者已离场时按其施法
+      // 开始时的位置。未提供选定 id / 无从定位 → 安全返回空。
+      // 选定者已阵亡时取其施法开始时的上下邻位（仍存活者），不向更远处顺延——
+      // 「受法术波及的单位」（溅射后 AdjacentFromTarget）只能是原本相邻的两位。
       if (chosenId === undefined) return [];
-      const idx = aliveAll.findIndex((c) => c.id === chosenId);
-      if (idx < 0) return [];
-      const neighbor = (i: number): Character[] => {
-        const c = aliveAll[i];
-        return c && !isUntargetable(c) ? [c] : [];
-      };
-      return [...neighbor(idx - 1), ...neighbor(idx + 1)];
+      const anchorAlive = aliveAll.some((c) => c.id === chosenId);
+      const start = formation?.[targetSide];
+      if (!anchorAlive && start && start.includes(chosenId)) {
+        const a = start.indexOf(chosenId);
+        return [start[a - 1], start[a + 1]]
+          .map((id) => aliveAll.find((c) => c.id === id))
+          .filter((c): c is Character => !!c && !isUntargetable(c));
+      }
+      const split = splitAroundAnchor(state.teams[targetSide], targetSide, chosenId, formation);
+      if (!split) return [];
+      return [...split.above.slice(-1), ...split.below.slice(0, 1)].filter((c) => !isUntargetable(c));
     }
 
     case 'allyAboveSelf':
@@ -303,28 +350,31 @@ export function selectTargets(
       // 编队索引为锚取切片。锚 = 目标在其**自身**队伍中的索引（8894「使一名盟友…再对
       // 其下位所有敌人…」= 选定盟友的己方索引映射到敌方同位切片；9258 选定敌人 →
       // 敌方同队切片）。未提供选定 id / 找不到（含已阵亡被移出编队）→ 安全返回空。
+      // R012：锚已被本次施法击杀离场时，按其施法开始时的编队位置解析。
       if (chosenId === undefined) return [];
-      const refSide = sideOf(state, chosenId);
+      const refSide = anchorSide(state, chosenId, formation);
       if (refSide === null) return [];
-      const refIdx = state.teams[refSide].characters.findIndex((c) => c.id === chosenId);
-      if (refIdx < 0) return [];
+      const part = mode === 'enemyAboveTarget' ? 'above' : 'below';
       const enemySide = mode.startsWith('enemy');
-      return columnSlice(
-        state.teams[targetSide],
-        refIdx,
-        mode === 'enemyAboveTarget' ? 'above' : 'below',
-        false,
-        enemySide,
-      );
+      if (refSide === targetSide) {
+        const split = splitAroundAnchor(state.teams[targetSide], targetSide, chosenId, formation);
+        if (!split) return [];
+        return split[part].filter((c) => !enemySide || !isUntargetable(c));
+      }
+      // 跨队映射（选定盟友的己方索引 → 敌方同位切片）：锚离场时用施法开始时的索引。
+      let refIdx = state.teams[refSide].characters.findIndex((c) => c.id === chosenId);
+      if (refIdx < 0) refIdx = formation?.[refSide]?.indexOf(chosenId) ?? -1;
+      if (refIdx < 0) return [];
+      return columnSlice(state.teams[targetSide], refIdx, part, false, enemySide);
     }
 
     case 'enemyNextDown': {
-      // 选定目标正下方一名（R22 批，官方 NextDownFromTarget 单格）：选定者在存活编队中的
-      // 下一位存活敌人（更靠后、索引更大）。未提供选定 id / 无下方存活者 → 安全返回空。
+      // 选定目标正下方一名（R22 批，官方 NextDownFromTarget 单格）：选定者下方的下一位存活
+      // 可指定敌人。R012：选定者已离场时按其施法开始时的位置。无下方存活者 → 安全返回空。
       if (chosenId === undefined) return [];
-      const idx = alive.findIndex((c) => c.id === chosenId);
-      if (idx < 0 || idx + 1 >= alive.length) return [];
-      return [alive[idx + 1]];
+      const split = splitAroundAnchor(state.teams[targetSide], targetSide, chosenId, formation);
+      if (!split) return [];
+      return split.below.filter((c) => alive.includes(c)).slice(0, 1);
     }
 
     case 'enemyFront':

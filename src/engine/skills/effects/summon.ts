@@ -506,7 +506,7 @@ export function swapPositionsEffect(params: SwapPositionsParams): EffectPrimitiv
   return {
     apply(ctx: EffectContext): GameEvent[] {
       const pick = (mode: import('../targeting').TargetMode): Character | null => {
-        const targets = selectTargets(mode, ctx.state, ctx.casterId, ctx.rng, 1, ctx.chosenTargetId);
+        const targets = selectTargets(mode, ctx.state, ctx.casterId, ctx.rng, 1, ctx.chosenTargetId, undefined, ctx.castTracking?.formationAtCastStart);
         return targets.length > 0 ? targets[0] : null;
       };
       const a = pick(params.a);

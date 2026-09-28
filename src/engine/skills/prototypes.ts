@@ -598,6 +598,7 @@ function resolveTargets(
     n,
     ctx.chosenTargetId,
     ctx.castTracking?.lastTarget?.id,
+    ctx.castTracking?.formationAtCastStart,
   );
   return filterResolvedTargets(segment, ctx, picked);
 }
@@ -913,7 +914,10 @@ function ensureCastTracking(ctx: EffectContext): CastTracking {
     const snapshot: Record<number, string[]> = {};
     // P-F2-dead-target-colour: mana colours per unit, so a target killed mid-cast keeps "their Mana Color".
     const colorsAtCastStart: Record<number, BaseColor[]> = {};
+    // R012: formation order at cast start (anchor slot for relative targets after the anchor died).
+    const formationAtCastStart: Partial<Record<'Left' | 'Right', number[]>> = {};
     for (const side of ['Left', 'Right'] as const) {
+      formationAtCastStart[side] = ctx.state.teams[side].characters.map((c) => c.id);
       for (const c of ctx.state.teams[side].characters) {
         const active = c.statuses.filter((s) => s.turns > 0).map((s) => s.id);
         if (active.length > 0) snapshot[c.id] = active;
@@ -941,6 +945,7 @@ function ensureCastTracking(ctx: EffectContext): CastTracking {
       allyDeaths: 0,
       statusesAtCastStart: snapshot,
       colorsAtCastStart,
+      formationAtCastStart,
     };
   }
   return ctx.castTracking;

@@ -131,6 +131,12 @@ export interface CastTracking {
    * CHOSEN_TARGET 仍按此快照解析「其法力颜色」。仅在角色已不在编队时回退使用。
    */
   colorsAtCastStart?: Record<number, BaseColor[]>;
+  /**
+   * 施法开始时两队编队顺序（角色 id，R012）：以选定目标为锚的相对目标（BelowTarget /
+   * AboveTarget / NextDownFromTarget / NextUpFromTarget / 相邻）在锚已被本次施法击杀
+   * 离场后，按其施法开始时的位置解析上方／下方的存活单位。
+   */
+  formationAtCastStart?: Partial<Record<'Left' | 'Right', number[]>>;
 }
 
 /** 效果原语执行上下文（施法者、状态、随机源、宝石 id 分配器） */
