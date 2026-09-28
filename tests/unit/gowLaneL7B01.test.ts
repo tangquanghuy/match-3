@@ -110,11 +110,11 @@ describe('L7B01 troop:6320 spell 7470 true scatter boosted by all armor [3:1]',(
    modifier:{mod:{kind:'ratio',a:3,b:1},sources:[{kind:'allyStatSum',stat:'armor'},{kind:'enemyStatSum',stat:'armor'}]}}]});
   expect(t.spell.description).toBe('造成 8 点真实散射伤害，伤害值因敌我双方的护甲值而增强。 [3:1]');
  });
- for(const side of SIDES)for(const magic of [0,10])it(`real cast side=${side} magic=${magic}: pool 8 + floor(30 armor / 3), magic-independent, true`,()=>{
-  // ally armor 7 + 3, enemy armor 5 x 4 = 30 -> +10 -> pool 18
+ for(const side of SIDES)for(const magic of [0,10])it(`real cast side=${side} magic=${magic}: pool 8 + per-step floor(armor x 34%), magic-independent, true`,()=>{
+  // R007-1 (sa-P P-counter-per-step): ally armor 7 + 3 = 10 -> 3; enemy armor 5 x 4 = 20 -> 6; pool 8 + 9 = 17
   const f=setup({...C,side,magic,casterArmor:7,allies:[{armor:3}],enemies:[{armor:5},{armor:5},{armor:5},{armor:5}]});
   const ev=f.cast();
-  expect(f.loss().reduce((a,b)=>a+b,0)).toBe(18);
+  expect(f.loss().reduce((a,b)=>a+b,0)).toBe(17);
   expect(f.enemies.map(e=>e.armor)).toEqual([5,5,5,5]);
   expect(ev.filter(e=>e.type==='skill-damage').every(e=>(e as {range:string}).range==='scatter')).toBe(true);
   turnSpent(f);

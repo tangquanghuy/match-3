@@ -189,6 +189,11 @@ export interface ModifierSpec {
    * 非总值）夹到 ≤max——「6 颗、因黄金增强 [4:1]、上限 14」= 6 + min(floor(gold/4), 8)。
    */
   max?: number;
+  /**
+   * 多来源 ratio 合并取整（仅社区自制兵种：「每有 4 颗红色或黄色宝石」= 单一合并计数）。
+   * 缺省按 R007-1：原生每个 Count* 步骤独立 floor 后相加。multiplier 为线性，两者等价。
+   */
+  pooled?: boolean;
 }
 
 /** 某角色是否具有指定种族/类型 */
@@ -929,36 +934,45 @@ function teamStatSum(
  * 计算二次缩放加成（叠加项）：
  *   multiplier：a × count；ratio：floor(count × 百分比 / 100)（R003，[3:1]=34%）。
  * count 为 0 或 spec 缺省 → 0（DoD 边界：无资源退化）。
- * 多来源（sources）计数相加后按同一公式折算。
+ * 多来源（sources）：R007-1——原生每个 Count* 步骤独立计数并取整，再相加（ratio 按来源
+ * 分别 floor；multiplier 线性不受影响）。社区兵种单一合并计数用 pooled: true。
  * max（batch-r28，官方 CountMax 封顶族）：给出时把加成项夹到 ≤max（封的是加成、
  * 不是总值——「6 颗、[4:1]、上限 14」= 6 + min(floor(gold/4), 8)）。
  */
 export function modifierBonus(spec: ModifierSpec | undefined, ctx: EffectContext): number {
   if (!spec) return 0;
-  let count = 0;
-  if (spec.sources) {
-    for (const s of spec.sources) count += resolveModifierCount(s, ctx);
-  } else if (spec.source) {
-    count = resolveModifierCount(spec.source, ctx);
-  }
-  if (count <= 0) return 0;
-  let bonus: number;
-  if (spec.mod.kind === 'multiplier') {
-    bonus = spec.mod.a * count;
+  let bonus = 0;
+  if (spec.sources && spec.mod.kind === 'ratio' && !spec.pooled) {
+    // R007-1 (rulings/R007-counters-random-pools.md): one floor per native Count* step, then sum.
+    for (const s of spec.sources) bonus += scaledCount(spec.mod, resolveModifierCount(s, ctx));
   } else {
-    const per = Math.max(1, Math.floor(spec.mod.a));
-    const m = Math.max(0, Math.floor(spec.mod.b ?? 0));
-    // R003 (rulings/R003-count-threshold-labels.md): the native Count* Amount is a percentage and
-    // [N:M] is only its display label, so the counter is floor(count × Amount / 100). Exact labels
-    // ([1:1]=100, [2:1]=50, [4:1]=25, [20:3]=15, [1:2]=200) map to that percentage directly; the
-    // non-terminating [N:1] labels are stored natively as the rounded-up percentage
-    // ([3:1]=34, [6:1]=17, [8:1]=13), e.g. armor 50 at [3:1] -> 17, not floor(50 / 3) = 16.
-    const pct = (100 * m) / per;
-    if (Number.isInteger(pct)) bonus = Math.floor((count * pct) / 100);
-    else if (m === 1) bonus = Math.floor((count * Math.ceil(pct)) / 100);
-    else bonus = m * Math.floor(count / per);
+    let count = 0;
+    if (spec.sources) {
+      for (const s of spec.sources) count += resolveModifierCount(s, ctx);
+    } else if (spec.source) {
+      count = resolveModifierCount(spec.source, ctx);
+    }
+    bonus = scaledCount(spec.mod, count);
   }
+  if (bonus === 0) return 0;
   return spec.max !== undefined ? Math.min(bonus, Math.max(0, spec.max)) : bonus;
+}
+
+/** 单一计数的折算：multiplier = a × count；ratio = floor(count × 百分比 / 100)（R003） */
+function scaledCount(mod: SecondaryModifier, count: number): number {
+  if (count <= 0) return 0;
+  if (mod.kind === 'multiplier') return mod.a * count;
+  const per = Math.max(1, Math.floor(mod.a));
+  const m = Math.max(0, Math.floor(mod.b ?? 0));
+  // R003 (rulings/R003-count-threshold-labels.md): the native Count* Amount is a percentage and
+  // [N:M] is only its display label, so the counter is floor(count × Amount / 100). Exact labels
+  // ([1:1]=100, [2:1]=50, [4:1]=25, [20:3]=15, [1:2]=200) map to that percentage directly; the
+  // non-terminating [N:1] labels are stored natively as the rounded-up percentage
+  // ([3:1]=34, [6:1]=17, [8:1]=13), e.g. armor 50 at [3:1] -> 17, not floor(50 / 3) = 16.
+  const pct = (100 * m) / per;
+  if (Number.isInteger(pct)) return Math.floor((count * pct) / 100);
+  if (m === 1) return Math.floor((count * Math.ceil(pct)) / 100);
+  return m * Math.floor(count / per);
 }
 
 /** 求值「一次缩放 + 二次缩放」的最终数值（非负整数） */
