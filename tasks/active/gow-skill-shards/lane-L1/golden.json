@@ -109,6 +109,16 @@
   "by": "sa-F1",
   "at": "2026-09-28T00:42:32.013Z"
  },
+ "troop:6242": {
+  "lines": {
+   "L10": "convert Purple x9 -> Red x9",
+   "R10": "convert Purple x9 -> Red x9",
+   "L0": "convert Purple x9 -> Red x9",
+   "K": "convert Purple x9 -> Red x9"
+  },
+  "by": "sa-R5",
+  "at": "2026-09-28T08:36:41.866Z"
+ },
  "troop:6289": {
   "lines": {
    "L10": "(no spell events)",
@@ -128,6 +138,16 @@
   },
   "by": "sa-R5",
   "at": "2026-09-28T05:48:46.892Z"
+ },
+ "troop:6294": {
+  "lines": {
+   "L10": "convert Purple x9 -> Blue x9 ; dmg E11 25 ; transform C -> 村民  => E11:hp-15 arm-10 | C:now 村民",
+   "R10": "convert Purple x9 -> Blue x9 ; dmg E11 25 ; transform C -> 村民  => E11:hp-15 arm-10 | C:now 村民",
+   "L0": "convert Purple x9 -> Blue x9 ; dmg E11 15 ; transform C -> 村民  => E11:hp-5 arm-10 | C:now 村民",
+   "K": "convert Purple x9 -> Blue x9 ; dmg E11 25 ; defeat E11 ; transform C -> 村民  => E11:hp-1 DEAD | C:now 村民"
+  },
+  "by": "sa-R5",
+  "at": "2026-09-28T08:36:41.866Z"
  },
  "troop:6295": {
   "lines": {
@@ -269,6 +289,16 @@
   "by": "sa-R5",
   "at": "2026-09-28T05:41:21.302Z"
  },
+ "troop:6530": {
+  "lines": {
+   "L10": "convert Blue x11 -> Brown x11",
+   "R10": "convert Blue x11 -> Brown x11",
+   "L0": "convert Blue x11 -> Brown x11",
+   "K": "convert Blue x11 -> Brown x11"
+  },
+  "by": "sa-R5",
+  "at": "2026-09-28T08:36:41.866Z"
+ },
  "troop:6534": {
   "lines": {
    "L10": "status E11 +charm ; dmg E11 17 ; status E11 +poison  => E11:hp-7 arm-10 +charm+poison",
@@ -319,6 +349,16 @@
   "by": "sa-R5",
   "at": "2026-09-28T05:41:21.302Z"
  },
+ "troop:6606": {
+  "lines": {
+   "L10": "buff A1 hp+16 max+16 ; buff A2 hp+16 max+16 ; summon mine troop:-1 ; buff A1 hp+16 max+16 ; buff A2 hp+16 max+16 ; buff A14 hp+16 max+16  => A14:new 奥眼能血蛭 hp36 atk15 arm13 mag4 | A1:hp+32 max+32 | A2:hp+32 max+32",
+   "R10": "buff A1 hp+16 max+16 ; buff A2 hp+16 max+16 ; summon mine troop:-1 ; buff A1 hp+16 max+16 ; buff A2 hp+16 max+16 ; buff A14 hp+16 max+16  => A14:new 奥眼能血蛭 hp36 atk15 arm13 mag4 | A1:hp+32 max+32 | A2:hp+32 max+32",
+   "L0": "buff A1 hp+6 max+6 ; buff A2 hp+6 max+6 ; summon mine troop:-1 ; buff A1 hp+6 max+6 ; buff A2 hp+6 max+6 ; buff A14 hp+6 max+6  => A14:new 奥眼能血蛭 hp26 atk15 arm13 mag4 | A1:hp+12 max+12 | A2:hp+12 max+12",
+   "K": "buff A1 hp+16 max+16 ; buff A2 hp+16 max+16 ; summon mine troop:-1 ; buff A1 hp+16 max+16 ; buff A2 hp+16 max+16 ; buff A14 hp+16 max+16  => A14:new 奥眼能血蛭 hp36 atk15 arm13 mag4 | A1:hp+32 max+32 | A2:hp+32 max+32"
+  },
+  "by": "sa-R5",
+  "at": "2026-09-28T08:36:41.866Z"
+ },
  "troop:6647": {
   "lines": {
    "L10": "dmg E11 14 ; status E12 +charm  => E11:hp-4 arm-10 | E12:+charm",
@@ -368,6 +408,16 @@
   },
   "by": "sa-R5",
   "at": "2026-09-28T05:57:25.574Z"
+ },
+ "troop:6716": {
+  "lines": {
+   "L10": "status E11 +curse ; status E11 +stun  => E11:+curse+stun",
+   "R10": "status E11 +curse ; status E11 +stun  => E11:+curse+stun",
+   "L0": "status E11 +curse ; status E11 +stun  => E11:+curse+stun",
+   "K": "status E11 +curse ; status E11 +stun  => E11:+curse+stun"
+  },
+  "by": "sa-R5",
+  "at": "2026-09-28T08:36:41.866Z"
  },
  "troop:6732": {
   "lines": {
@@ -489,6 +539,16 @@
   "by": "sa-R5",
   "at": "2026-09-28T05:52:06.635Z"
  },
+ "troop:7032": {
+  "lines": {
+   "L10": "status E12 +lycanthropy ; status E11 +lycanthropy ; convert Red x1, Green x1 -> lycanthropyGem x2  => E12:+lycanthropy | E11:+lycanthropy",
+   "R10": "status E12 +lycanthropy ; status E11 +lycanthropy ; convert Red x1, Green x1 -> lycanthropyGem x2  => E12:+lycanthropy | E11:+lycanthropy",
+   "L0": "status E12 +lycanthropy ; status E11 +lycanthropy ; convert Red x1, Green x1 -> lycanthropyGem x2  => E12:+lycanthropy | E11:+lycanthropy",
+   "K": "status E12 +lycanthropy ; status E11 +lycanthropy ; convert Red x1, Green x1 -> lycanthropyGem x2  => E12:+lycanthropy | E11:+lycanthropy"
+  },
+  "by": "sa-R5",
+  "at": "2026-09-28T08:36:41.866Z"
+ },
  "troop:7048": {
   "lines": {
    "L10": "dmg E11 13  => E11:hp-3 arm-10",
@@ -499,6 +559,16 @@
   "by": "sa-R5",
   "at": "2026-09-28T05:48:46.892Z"
  },
+ "troop:7049": {
+  "lines": {
+   "L10": "buff E11 mana-8  => E11:mana-8",
+   "R10": "buff E11 mana-8  => E11:mana-8",
+   "L0": "buff E11 mana-8  => E11:mana-8",
+   "K": "buff E11 mana-5  => E11:mana-5"
+  },
+  "by": "sa-R5",
+  "at": "2026-09-28T08:36:41.866Z"
+ },
  "troop:7050": {
   "lines": {
    "L10": "dmg E13 12 ; status E13 +frozen  => E13:hp-9 arm-3 +frozen",
@@ -508,6 +578,16 @@
   },
   "by": "sa-R5",
   "at": "2026-09-28T05:48:46.892Z"
+ },
+ "troop:7054": {
+  "lines": {
+   "L10": "status E11 +bleed ; status E11 +bleed ; status E11 +bleed  => E11:+bleed",
+   "R10": "status E11 +bleed ; status E11 +bleed ; status E11 +bleed  => E11:+bleed",
+   "L0": "status E11 +bleed ; status E11 +bleed ; status E11 +bleed  => E11:+bleed",
+   "K": "status E11 +bleed  => E11:+bleed"
+  },
+  "by": "sa-R5",
+  "at": "2026-09-28T08:36:41.866Z"
  },
  "troop:7059": {
   "lines": {
@@ -558,6 +638,16 @@
   },
   "by": "sa-R5",
   "at": "2026-09-28T06:01:52.428Z"
+ },
+ "troop:7081": {
+  "lines": {
+   "L10": "dmg E11 14  => E11:hp-4 arm-10",
+   "R10": "dmg E11 14  => E11:hp-4 arm-10",
+   "L0": "dmg E11 4  => E11:arm-4",
+   "K": "dmg E11 14 ; defeat E11  => E11:hp-1 DEAD"
+  },
+  "by": "sa-R5",
+  "at": "2026-09-28T08:36:41.866Z"
  },
  "troop:7273": {
   "lines": {
@@ -678,6 +768,16 @@
   },
   "by": "sa-R5",
   "at": "2026-09-28T06:01:52.428Z"
+ },
+ "troop:7767": {
+  "lines": {
+   "L10": "dmg E11 52  => E11:hp-42 arm-10",
+   "R10": "dmg E11 52  => E11:hp-42 arm-10",
+   "L0": "dmg E11 42  => E11:hp-32 arm-10",
+   "K": "dmg E11 52 ; defeat E11  => E11:hp-1 DEAD"
+  },
+  "by": "sa-R5",
+  "at": "2026-09-28T08:36:41.866Z"
  },
  "troop:7793": {
   "lines": {

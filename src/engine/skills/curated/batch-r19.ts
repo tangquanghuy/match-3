@@ -1083,8 +1083,9 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 9773,
     desc: '对一名敌人造成[魔法 + 6]点伤害，伤害值因紫色宝石数量而增强。如果敌人使用红色法力值，则有60%的几率将其吞噬。 [x4]',
     build: skill(
+      // sa-R5 L1-devour-first (R001): native ConsumeConditional (60% if Red) is a real Devour and precedes the Damage.
+      devour('enemyChosen', { chance: 0.6, ifCond: { kind: 'targetColor', color: BaseColor.Red } }),
       dmg('enemyChosen', 6, 1, { modifier: { mod: { kind: 'multiplier', a: 4 }, source: { kind: 'boardGems', color: BaseColor.Purple } } }),
-      dmg('enemyChosen', 0, 0, { execute: true, chance: 0.6, ifCond: { kind: 'targetColor', color: BaseColor.Red } }),
     ),
   },
   {

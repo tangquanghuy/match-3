@@ -284,3 +284,56 @@ describe('L1 R2 B06 (sa-R5)', () => {
       expect(n).toBeGreaterThan(lo); expect(n).toBeLessThan(hi);
     });
 });
+
+// ---------------------------------------------------------------- B07
+describe('L1 R2 B07 (sa-R5)', () => {
+  const firstIs = (key: string, kinds: string[]) => {
+    const segs = (registry.prototypes.get(entitySkill(key).skill) as { segments: { kind: string; execute?: boolean }[] }).segments;
+    expect(segs.map(s => s.kind).slice(0, kinds.length)).toEqual(kinds);
+    expect(segs.some(s => s.execute)).toBe(false);
+  };
+  // Native ConsumeConditional first (R001) and it is a real Devour (caster gains stats), not an execute.
+  it.each([
+    { key: 'troop:7081', kinds: ['devour', 'damage'] }, { key: 'troop:7767', kinds: ['devour', 'damage'] },
+    { key: 'troop:7049', kinds: ['devour', 'reduce'] }, { key: 'troop:7054', kinds: ['devour', 'status'] },
+  ])('$key devour precedes $kinds.1', ({ key, kinds }) => firstIs(key, kinds));
+  it('troop:7081 10% + 4% per Blue gem; troop:7049 4% per Skull; devoured target takes no further effect', () => {
+    const a = devourRate('troop:7081', 400); expect(a).toBeGreaterThan(180); expect(a).toBeLessThan(250);
+    let b = 0;
+    for (let seed = 1; seed <= 400; seed++) {
+      const s = castSpell({ key: 'troop:7049', seed }).summary;
+      if (s.order[0].includes('devoured')) { b++; expect(s.order.some(x => x.startsWith('buff E11 mana'))).toBe(false); }
+      else expect(s.order[0]).toBe('buff E11 mana-8');
+    }
+    expect(b).toBeGreaterThan(55); expect(b).toBeLessThan(110);
+  });
+  it.each([{ c: 'Red', lo: 200, hi: 280 }, { c: 'Blue', lo: -1, hi: 1 }])('troop:7767 60% devour only if the target uses $c', ({ c, lo, hi }) => {
+    const n = devourRate('troop:7767', 400, { enemies: [{}, { hp: 900, maxHp: 900, colors: [c as never] }] });
+    expect(n).toBeGreaterThan(lo); expect(n).toBeLessThan(hi);
+  });
+  it('troop:7054 5% per Lycanthropy Gem (none on the board -> never), Blue target bled three times', () => {
+    expect(devourRate('troop:7054', 100)).toBe(0);
+    expect(castSpell({ key: 'troop:7054' }).summary.order).toEqual(['status E11 +bleed', 'status E11 +bleed', 'status E11 +bleed']);
+  });
+  it('troop:6294 Werewolf transforms into a Villager (native Transform 6295)', () => {
+    const r = castSpell({ key: 'troop:6294' });
+    expect(r.f.caster.name).toBe(TROOPS.find(t => t.referenceName === 'Villager')!.name);
+  });
+  // troop:6606 native heal -> summon 6607 Leech -> heal again (Leech included) -> summon 6608 Ocularen.
+  it('troop:6606 two heals and Leech-then-Ocularen summons', () => {
+    const leech = TROOPS.find(t => t.referenceName === 'OcularenLeech')!.name, ocu = TROOPS.find(t => t.referenceName === 'Ocularen')!.name;
+    const one = castSpell({ key: 'troop:6606' }).summary;
+    expect(one.units.A1).toBe('hp+32 max+32');
+    expect(one.units.A14).toContain(leech); expect(one.order.filter(x => x.startsWith('buff A14'))).toHaveLength(1);
+    const two = castSpell({ key: 'troop:6606', allies: [{ hp: 100, maxHp: 700 }] }).summary;
+    expect(two.units.A14).toContain(leech); expect(two.units.A15).toContain(ocu);
+  });
+  // troop:7032 extra turn 7% per Purple gem counted before the Lycanthropy Gems are created.
+  it('troop:7032 extra-turn roll precedes gem creation; ~7% per Purple gem', () => {
+    const segs = (registry.prototypes.get('8553') as { segments: { kind: string }[] }).segments.map(s => s.kind);
+    expect(segs.indexOf('extraTurn')).toBeLessThan(segs.indexOf('gem'));
+    let et = 0;
+    for (let seed = 1; seed <= 400; seed++) { const s = castSpell({ key: 'troop:7032', seed }).summary; if (s.extraTurn) et++; expect(s.gems.created.lycanthropyGem).toBe(2); }
+    expect(et).toBeGreaterThan(210); expect(et).toBeLessThan(290);
+  });
+});

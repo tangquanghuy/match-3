@@ -224,7 +224,8 @@ const SPELLS: CuratedBatch['spells'] = [
       // 「转换…以强化」句式：转化段先执行，transformedGems 来源才数得到（batch-12 7215 同款）
       transform(BaseColor.Purple, BaseColor.Blue),
       dmg('enemyChosen', 6, 1, { modifier: { mod: { kind: 'ratio', a: 1, b: 1 }, source: { kind: 'transformedGems' } } }),
-      transformTroop('allySelf', 'Werewolf'),
+      // sa-R5 L1-6294: native Transform@Self Data 6295 = Villager (English "Transform into a Villager").
+      transformTroop('allySelf', 'Villager'),
     ),
   },
   {

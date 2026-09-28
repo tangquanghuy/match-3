@@ -195,8 +195,16 @@ const SPELLS: CuratedBatch['spells'] = [
           sources: [{ kind: 'boardGems', color: BaseColor.Green }, { kind: 'boardSkulls' }],
         },
       }),
-      // 文本点名两选一 → randomOf 两项；「奥眼能」= Ocularen（batch-08 头注口径）
-      summonRandom(['OcularenLeech', 'Ocularen']),
+      // sa-R5 L1-6606 (R001): native IncreaseHealth -> SummoningNoError 6607 (Ocularen Leech) -> IncreaseHealth
+      // (same counter, now also the Leech) -> SummoningNoError 6608 (Ocularen). "Either" = only one free slot.
+      summonRef('OcularenLeech'),
+      heal('allyOthers', 1, 1, {
+        modifier: {
+          mod: { kind: 'ratio', a: 3, b: 1 },
+          sources: [{ kind: 'boardGems', color: BaseColor.Green }, { kind: 'boardSkulls' }],
+        },
+      }),
+      summonRef('Ocularen'),
     ),
   },
   {

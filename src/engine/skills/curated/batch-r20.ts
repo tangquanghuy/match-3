@@ -444,12 +444,9 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '耗掉一名敌人 8 点法力值。板面上每有一颗骷髅头则有 4%  的几率吞噬敌人。 [x4]',
     // 「每颗骷髅 +4% 吞噬几率」= chance 0 + chanceBoost boardSkulls ×4（8817 口径）
     build: skill(
+      // sa-R5 L1-devour-first (R001): native ConsumeConditional (4%/Skull, a real Devour) precedes DecreaseMana 8.
+      devour('enemyChosen', { chance: 0, chanceBoost: { mod: { kind: 'multiplier', a: 4 }, source: { kind: 'boardSkulls' } } }),
       reduce('enemyChosen', 'mana', 8, 0),
-      dmg('enemyChosen', 0, 0, {
-        execute: true,
-        chance: 0,
-        chanceBoost: { mod: { kind: 'multiplier', a: 4 }, source: { kind: 'boardSkulls' } },
-      }),
     ),
   },
   {
@@ -491,14 +488,11 @@ const SPELLS: CuratedBatch['spells'] = [
     // 「蓝色法力再叠 2 次」= AddForBlueTarget ×2 实锤 → 两段条件出血（叠层累加合并）；
     // 「每颗狼化宝石 +5%」= chance 0 + chanceBoost boardSpecial ×5
     build: skill(
+      // sa-R5 L1-devour-first (R001): native ConsumeConditional (5%/Lycanthropy Gem) is a real Devour and runs first.
+      devour('enemyChosen', { chance: 0, chanceBoost: { mod: { kind: 'multiplier', a: 5 }, source: { kind: 'boardSpecial', gem: 'lycanthropyGem' } } }),
       inflict('bleed', 'enemyChosen'),
       inflict('bleed', 'lastTarget', { ifCond: { kind: 'targetColor', color: BaseColor.Blue } }),
       inflict('bleed', 'lastTarget', { ifCond: { kind: 'targetColor', color: BaseColor.Blue } }),
-      dmg('lastTarget', 0, 0, {
-        execute: true,
-        chance: 0,
-        chanceBoost: { mod: { kind: 'multiplier', a: 5 }, source: { kind: 'boardSpecial', gem: 'lycanthropyGem' } },
-      }),
     ),
   },
   {
@@ -530,11 +524,8 @@ const SPELLS: CuratedBatch['spells'] = [
     // 「否则」为机翻噪声——官方步骤 Damage 无条件恒发（按 ST 组装，7652 口径）；
     // [x4] = CountGems Blue 400 → chanceBoost boardGems Blue ×4
     build: skill(
-      dmg('enemyChosen', 0, 0, {
-        execute: true,
-        chance: 0.1,
-        chanceBoost: { mod: { kind: 'multiplier', a: 4 }, source: { kind: 'boardGems', color: BaseColor.Blue } },
-      }),
+      // sa-R5 L1-devour-first: native ConsumeConditional = Devour (caster gains stats), not a plain execute.
+      devour('enemyChosen', { chance: 0.1, chanceBoost: { mod: { kind: 'multiplier', a: 4 }, source: { kind: 'boardGems', color: BaseColor.Blue } } }),
       dmg('enemyChosen', 4, 1),
     ),
   },

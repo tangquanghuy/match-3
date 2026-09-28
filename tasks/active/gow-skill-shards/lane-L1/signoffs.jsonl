@@ -88,3 +88,13 @@
 {"format":"compact","key":"troop:7059","decision":"accept","reviewer":"sa-R5","reviewedAt":"2026-09-28T08:29:52.857Z","tests":["tests/unit/gowCastGolden.test.ts"]}
 {"format":"compact","key":"troop:7424","decision":"accept","reviewer":"sa-R5","reviewedAt":"2026-09-28T08:29:52.857Z","tests":["tests/unit/gowCastGolden.test.ts"]}
 {"format":"compact","key":"troop:7116","decision":"issue","reviewer":"sa-R5","reviewedAt":"2026-09-28T08:29:53.024Z","issue":"R012-pending","note":"8659: AboveTarget damage after the chosen enemy is killed (K scenario: no second hit); resolve per R012 anchor position"}
+{"format":"compact","key":"troop:6716","decision":"accept","reviewer":"sa-R5","reviewedAt":"2026-09-28T08:36:41.967Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:7032","decision":"accept","reviewer":"sa-R5","reviewedAt":"2026-09-28T08:36:41.969Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:7054","decision":"accept","reviewer":"sa-R5","reviewedAt":"2026-09-28T08:36:41.969Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:7081","decision":"accept","reviewer":"sa-R5","reviewedAt":"2026-09-28T08:36:41.969Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:7767","decision":"accept","reviewer":"sa-R5","reviewedAt":"2026-09-28T08:36:41.969Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:7049","decision":"accept","reviewer":"sa-R5","reviewedAt":"2026-09-28T08:36:41.969Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:6530","decision":"accept","reviewer":"sa-R5","reviewedAt":"2026-09-28T08:36:41.969Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:6294","decision":"accept","reviewer":"sa-R5","reviewedAt":"2026-09-28T08:36:41.970Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:6242","decision":"accept","reviewer":"sa-R5","reviewedAt":"2026-09-28T08:36:41.970Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:6606","decision":"accept","reviewer":"sa-R5","reviewedAt":"2026-09-28T08:36:41.970Z","tests":["tests/unit/gowCastGolden.test.ts"]}
