@@ -1,6 +1,6 @@
 # GoW 技能改动留档
 
-自动生成（`node scripts/gow-changelog.mjs render`），源数据 [CHANGES.jsonl](CHANGES.jsonl)，共 464 条改动，涉及 800 个技能 ID。
+自动生成（`node scripts/gow-changelog.mjs render`），源数据 [CHANGES.jsonl](CHANGES.jsonl)，共 478 条改动，涉及 813 个技能 ID。
 
 ## 按时间
 
@@ -467,8 +467,22 @@
 | 2026-09-28T10:52 | sa-B | B-L4b-1371-target-status | data | 8432 | weapon:1371 EldraziWand | `src/engine/skills/curated/batch-w03.ts`<br>`src/data/gowWeaponReviewedOverrides.json` | creates if ANY enemy is Cursed/Webbed → native CreateGems@FromTarget AddForCursed/AddForWeb: the chosen enemy's status at cast start |  |
 | 2026-09-28T10:52 | sa-B | B-L4b-1585-entangle-gems | data | 9349 | weapon:1585 BlackwoodsStaff | `src/data/gowWeaponReviewedOverrides.json` | no reviewed override (regeneration would restore the Entangled-enemy source) → override prototype synced with curated batch-w04 (boardSpecial entangleGem) |  |
 | 2026-09-28T10:53 | sa-A | L4a-r3-1138 | data | 7308 | weapon:1138 DragonOak | `src/engine/skills/curated/batch-w01.ts` | removed the weapon's own colour (CASTER); [2:1] boost had no source → removes one of the chosen enemy's mana colours (RemoveColor FromTarget); boosted 50% of gems removed |  |
+| 2026-09-28T11:07 | sa-C | L5-C-r4-7432 | data | 9126 | troop:7432 LivingRime | `src/engine/skills/curated/batch-r4.ts` | 50% Freeze enemyChosenAndBelow (target included) → 50% Freeze enemyBelowTarget (native BelowTarget, target excluded, R012 pre-kill anchor) |  |
+| 2026-09-28T11:10 | sa-C | L5-C-r4-1132 | data | 7296 | weapon:1132 IceDagger | `src/engine/skills/curated/batch-w01.ts` | Freeze enemyChosen → Freeze lastTarget = the LastEnemy that was damaged (native LastEnemy) |  |
+| 2026-09-28T11:10 | sa-C | L5-C-r4-7131 | data | 8675 | troop:7131 VaultGuard | `src/engine/skills/curated/batch-37.ts`<br>`src/data/gowSnapshotOverrides.json` | oneOf(Freeze \| Death Mark); zh 'or' → Freeze and Death Mark (native both steps); zh override 'and' |  |
+| 2026-09-28T11:10 | sa-C | L5-C-r4-6051 | data | 7051 | troop:6051 Chimera | `src/engine/skills/curated/batch-02.ts` | Poison/Burn re-pick enemyHealthiest each step → Poison/Burn lastTarget (native FromPrevious); none after a kill |  |
+| 2026-09-28T11:10 | sa-C | L5-C-r4-6377 | data | 7532 | troop:6377 Parrot | `src/engine/skills/curated/batch-r11.ts` | one 50% roll for both adjacent enemies → NextUp and NextDown each own 50% roll (native two PercentageChance steps) |  |
 | 2026-09-28T11:10 | sa-P | P-A-target-kingdom | primitive | 8322, 8323, 8324, 8325, 8326, 8327, 8328, 8329, 8330, 8331, 8332, 8333, 8334, 8335, 8336, 8337, 8338, 8339, 8340, 8341, 8342, 8343, 8344, 8345, 8346, 8347, 8348, 8349, 8350, 8351, 8352, 8353, 8354, 8642, 8807, 8875, 9111, 9593 | weapon:1318 PistolOfAdana；weapon:1319 TomeOfKarakoth；weapon:1320 ChokerOfZhulKari；weapon:1321 StaffOfTheFields；weapon:1322 DaggerOfScales；weapon:1323 BowOfThorns；weapon:1324 StaffOfWhitehelm；weapon:1325 LuteOfTheVale；weapon:1326 HammerOfKhaziel；weapon:1327 ScytheOfKhetar；weapon:1328 DaggerOfZaejin；weapon:1329 SpearOfThePride；weapon:1330 MaceOfGhulvania；weapon:1331 ShieldOfTheEdge；weapon:1332 AxeOfTheStorm；weapon:1333 DaggerOfMaugrim；weapon:1334 MaceOfGrosh-Nak；weapon:1335 StaffOfTheWild；weapon:1336 IdolOfDarkstone；weapon:1337 DaggerOfTheSands；weapon:1338 ScytheOfTheBlight；weapon:1339 ChaliceOfThePeaks；weapon:1340 PendantOfTheEmpire；weapon:1341 TorcOfTheDragon；weapon:1342 FlintlockOfBlackhawk；weapon:1343 RunestoneOfSilverglade；weapon:1344 JavelinOfSuncrest；weapon:1345 AegisOfUrskaya；weapon:1346 TridentOfMerlantis；weapon:1347 StaffOfBrightForest；weapon:1348 HammerOfShentang；weapon:1349 AxeOfDhrak-Zum；weapon:1350 ScytheOfSin；weapon:1429 StarOfNexus；weapon:1479 AegisOfHellcrag；weapon:1499 OrbOfVulpacea；weapon:1560 MydnightsTerror；troop:7665 SeabornKnight | `src/engine/skills/effects/secondary.ts`<br>`src/engine/skills/curated/batch-w02.ts`<br>`src/engine/skills/curated/batch-w03.ts`<br>`src/engine/skills/curated/batch-r19.ts`<br>`src/data/gowWeaponReviewedOverrides.json`<br>`scripts/curated-pools/pool-w01.json`<br>`scripts/_weapon_pools.mjs`<br>`tests/unit/gowFixP-A-target-kingdom.test.ts`<br>`tests/unit/weaponNativeStepRepair.test.ts` | condMult kingdomOf side enemy: any living enemy from the kingdom doubled the hit on any target; zh desc 造成l → new target-relative condition targetKingdom (segment target, fallback chosen target); kingdom weapons anyOf(targetKingdom, kingdomPresent), 9593 targetKingdom; zh stray l removed (pool-w01 + override description/prototype for 34 spells); generator hKingdomCond emits targetKingdom | only kingdom weapons + 9593 used kingdomOf enemy |
+| 2026-09-28T11:13 | sa-C | L5-C-r4-1294 | data | 8221 | weapon:1294 FrostfireJewel | `src/engine/skills/curated/batch-w02.ts` | Curse/Death Mark if ANY enemy is Frozen/Burning → only if the damaged target itself is Frozen/Burning (native FromTarget AddForFrozen/AddForBurning) |  |
+| 2026-09-28T11:13 | sa-C | L5-C-r4-1405 | data | 8508 | weapon:1405 TheNightfallBlade | `src/engine/skills/curated/batch-w03.ts` | 4 Bleed on the chosen enemy if ANY enemy is Poisoned → 4 Bleed on the last enemy if it is Poisoned (native LastEnemy AddForPoison x4) |  |
+| 2026-09-28T11:15 | sa-C | L5-C-r4-1132 | data | 7296, 8508 | weapon:1132 IceDagger；weapon:1405 TheNightfallBlade | `src/engine/skills/curated/batch-w01.ts`<br>`src/engine/skills/curated/batch-w03.ts` | LastEnemy status step bound to the damaged enemy (lastTarget) → LastEnemy re-resolved at the step (enemyLast), consistent with native per-step targets and troop:6674 |  |
+| 2026-09-28T11:15 | sa-C | L5-C-r4-7142 | data | 8691 | troop:7142 SkyGoat | `src/engine/skills/curated/batch-r15.ts` | three independent enemyRandom waves → RandomEnemy then 2x RandomPrefNotPrevEnemy (R007-3) |  |
 | 2026-09-28T11:16 | sa-P | P-B-action-status-self-count | primitive | 8038, 8411, 8937, 7491, 7942 | troop:6692 Mervorax；troop:6933 Ishtara；troop:7325 Tuzi；weapon:1151 EmeraldTear；troop:6624 Mershark | `src/engine/TurnEngine.ts`<br>`src/engine/skills/effects/context.ts`<br>`src/engine/skills/effects/secondary.ts`<br>`src/engine/skills/prototypes.ts`<br>`tests/unit/gowFixP-B-action-status-self-count.test.ts` | TurnEngine.castSkill removed the caster's Enchanted/Submerged/Blessed before the spell body; allyStatusCount/selfStatus/anyAllyStatus never saw the caster's own status → removed ids kept in ctx.actionEndedStatusIds (and castTracking.statusesAtCastStart of the caster); allyStatusCount / selfStatus / anyAllyStatus count the caster; the status is still removed | self-including allyStatusCount/anyAllyStatus/selfStatus users of submerged/blessed/enchanted: troop:6412 6417 6519 6576 6713 6823 6968 7109 7262 7405 7650 7729 7813 weapon:1156 |
+| 2026-09-28T11:20 | sa-C | L5-C-r4-6819 | data | 8223 | troop:6819 Faemark | `src/engine/skills/curated/batch-r18.ts` | Dispel ifTargetDied after the cleanse segment (checked an ally, never fired) → Dispel all enemies gated by castEnemyDied |  |
+| 2026-09-28T11:20 | sa-C | L5-C-r4-6108 | data | 7177 | troop:6108 IceWitch | `src/engine/skills/curated/batch-12.ts`<br>`src/data/gowSnapshotOverrides.json` | +1 Magic to all allies on kill; zh 1 → +3 Magic (English/native StatusAmount 3); zh override |  |
+| 2026-09-28T11:20 | sa-C | L5-C-r4-6602 | data | 7811 | troop:6602 Barghast | `src/engine/skills/curated/batch-r4.ts` | target and ALL enemies below → target and the next enemy below only (native NextDownFromTarget) |  |
+| 2026-09-28T11:20 | sa-C | L5-C-r4-6708 | data | 8065 | troop:6708 HexRat | `src/engine/skills/curated/batch-37.ts` | double/Death Mark applied to every Cursed enemy in the column → only the chosen enemy is checked, doubled and Death Marked; below plain |  |
+| 2026-09-28T11:20 | sa-C | L5-C-r4-6937 | data | 8418 | troop:6937 SisterEbony | `src/engine/skills/curated/batch-r6.ts` | double if ANY enemy uses Blue → each of first/last doubled on its own Blue (MultiplyForBlueTarget); barrier still open (P-C-firstlast-army-color) |  |
 | 2026-09-28T11:21 | sa-P | P-D-lethal-first-lasttarget | primitive | 8664 | weapon:1435 BlackheartsHorn | `src/engine/skills/prototypes.ts`<br>`src/engine/skills/curated/batch-w03.ts`<br>`tests/unit/gowFixP-D-lethal-first-lasttarget.test.ts` | failed chance roll of an execute segment returned before target resolution (no lastTarget); 8664 wrote true damage before the slay roll → runSegment: failed roll of a damage execute segment still resolves/tracks its targets; 8664 native order execute enemyLast -> trueDmg lastTarget | execute+chance segments followed by lastTarget/ifTargetDied steps now see the (surviving) victim: troop:6252 6460 6585 6753 7016 7145 7252 7797 |
 
 ## 按技能 ID
@@ -495,6 +509,7 @@
 | 7037 | 1 | F2-R001-order |
 | 7047 | 1 | F1-6047-dispel |
 | 7050 | 1 | F3-q29 |
+| 7051 | 1 | L5-C-r4-6051 |
 | 7052 | 2 | F2-R001-order、R010 |
 | 7053 | 1 | F2-R001-order |
 | 7054 | 1 | F2-R001-order |
@@ -523,6 +538,7 @@
 | 7159 | 1 | L4a-R1-7159-cross |
 | 7162 | 1 | L4b-7138-onecolour |
 | 7169 | 2 | L4b-7276-singlegem、B-L4b-6104-blue |
+| 7177 | 1 | L5-C-r4-6108 |
 | 7185 | 2 | L5-012、R004 (L5-004,L5-005,L5-014,L4b-6340) |
 | 7192 | 1 | P-R3-precast-compare |
 | 7194 | 2 | P-F1-oneof-chosen-target、P-F1-oneof-chosen-target |
@@ -557,6 +573,7 @@
 | 7287 | 1 | F3-q26 |
 | 7293 | 1 | L1-consume-first |
 | 7295 | 1 | F3-q35 |
+| 7296 | 2 | L5-C-r4-1132、L5-C-r4-1132 |
 | 7297 | 1 | F3-q20 |
 | 7307 | 1 | F3-q27 |
 | 7308 | 1 | L4a-r3-1138 |
@@ -644,6 +661,7 @@
 | 7521 | 1 | L2-6369-ratio |
 | 7526 | 1 | F1-items-62-75 |
 | 7529 | 1 | L1-1154-egg |
+| 7532 | 1 | L5-C-r4-6377 |
 | 7533 | 1 | L1-6378-pool |
 | 7542 | 2 | F1-6387-rebirth、P-F1-summon-after-caster-death |
 | 7548 | 1 | R004-tests |
@@ -717,6 +735,7 @@
 | 7804 | 1 | L4a-R1-no-base-7804-8423 |
 | 7805 | 1 | F3-t1210 |
 | 7808 | 1 | R7-6599-full-or |
+| 7811 | 1 | L5-C-r4-6602 |
 | 7864 | 1 | L7-R1-attack-armor-life-pooled |
 | 7866 | 1 | R7-1219-create-before-hit |
 | 7928 | 1 | L4a-R1-7928-allnegative |
@@ -753,6 +772,7 @@
 | 8055 | 1 | L7-R1-random-chain-waves |
 | 8060 | 1 | P-R2-chosen-color-modifier |
 | 8062 | 1 | L5-C-1250-bleed-n |
+| 8065 | 1 | L5-C-r4-6708 |
 | 8073 | 1 | L7-R1-random-chain-waves |
 | 8076 | 1 | R3-B01-1256 |
 | 8077 | 4 | L3-015、L3-016、R7-doomed-count-order、P-R1-count-at-native-step |
@@ -793,6 +813,8 @@
 | 8215 | 1 | L4a-R1-8215-fromprevious |
 | 8218 | 2 | P-counter-per-step、L2-6814-branch-weights |
 | 8219 | 1 | P-counter-per-step |
+| 8221 | 1 | L5-C-r4-1294 |
+| 8223 | 1 | L5-C-r4-6819 |
 | 8226 | 1 | L4a-r3-6822 |
 | 8228 | 3 | P-counter-per-step、F2-6826-kill-skulls、P-counter-per-step |
 | 8229 | 1 | L1-6827-base |
@@ -874,6 +896,7 @@
 | 8414 | 2 | F1-items-62-75、R012 |
 | 8415 | 1 | R3-B04-6934 |
 | 8417 | 1 | P-R3-target-status-count,P-R3-ally-status-excl-self |
+| 8418 | 1 | L5-C-r4-6937 |
 | 8420 | 1 | L4a-R1-8420-cross |
 | 8422 | 1 | P-create-interleave |
 | 8423 | 1 | L4a-R1-no-base-7804-8423 |
@@ -905,6 +928,7 @@
 | 8500 | 2 | P-random-stat-pool、L1-6994-summons |
 | 8502 | 1 | R3-B12-6999 |
 | 8503 | 1 | B-L4b-7000-zh |
+| 8508 | 2 | L5-C-r4-1405、L5-C-r4-1132 |
 | 8525 | 1 | L4a-r3-7018 |
 | 8528 | 1 | F2-R001-order |
 | 8535 | 1 | R3-B02-7007 |
@@ -978,9 +1002,11 @@
 | 8668 | 2 | L5-007、R004 (L5-004,L5-005,L5-014,L4b-6340) |
 | 8672 | 1 | R3-B06-7128 |
 | 8674 | 2 | P-counter-per-step、L7-R1-board-special-counts |
+| 8675 | 1 | L5-C-r4-7131 |
 | 8684 | 1 | P-random-stat-pool |
 | 8686 | 1 | P-random-stat-pool |
 | 8688 | 1 | L4a-r3-7139 |
+| 8691 | 1 | L5-C-r4-7142 |
 | 8692 | 1 | R3-B08-7143 |
 | 8694 | 1 | F2-7145-miss-branch |
 | 8697 | 1 | L4b-1441-cursed-gems |
@@ -1079,6 +1105,7 @@
 | 9115 | 1 | R7-tarot-extra-turn |
 | 9118 | 1 | L1-drain-devour |
 | 9119 | 1 | P-create-interleave |
+| 9126 | 1 | L5-C-r4-7432 |
 | 9132 | 1 | R009-dragon |
 | 9133 | 1 | R009-dragon |
 | 9134 | 1 | R009-dragon |

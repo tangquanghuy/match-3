@@ -85,8 +85,11 @@ const SPELLS: CuratedBatch['spells'] = [
     // 修正（2026-09-18 官方复核）：官方 Damage@FirstLastEnemies 带条件倍率——补漏
     // 「若其中一个使用蓝色法力值，则双倍伤害」（anyEnemyColor Blue ×2 辖两段伤害，§13.3 超集口径）
     build: skill(
-      dmg('enemyFront', 2, 1, { condMult: { times: 2, cond: { kind: 'anyEnemyColor', color: BaseColor.Blue } } }),
-      dmg('enemyLast', 2, 1, { condMult: { times: 2, cond: { kind: 'anyEnemyColor', color: BaseColor.Blue } } }),
+      // native Damage@FirstLastEnemies MultiplyForBlueTarget: each of the two targets doubled on its own Blue mana
+      // (sa-C r4). Barrier (CountArmyColor@FirstLastEnemies Purple before the damage) still reads any enemy:
+      // primitive queued as P-C-firstlast-army-color.
+      dmg('enemyFront', 2, 1, { condMult: { times: 2, cond: { kind: 'targetColor', color: BaseColor.Blue } } }),
+      dmg('enemyLast', 2, 1, { condMult: { times: 2, cond: { kind: 'targetColor', color: BaseColor.Blue } } }),
       inflict('barrier', 'allySelf', { ifCond: { kind: 'anyEnemyColor', color: BaseColor.Purple } }),
     ),
   },

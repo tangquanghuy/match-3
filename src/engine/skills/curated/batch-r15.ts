@@ -612,9 +612,9 @@ const SPELLS: CuratedBatch['spells'] = [
     build: skill(
       dmg('enemyRandom', 3, 0.7),
       inflict('stun', 'lastTarget', { chance: 0.5 }),
-      dmg('enemyRandom', 3, 0.7),
+      dmg('enemyRandomPrefNotPrev', 3, 0.7), // native RandomPrefNotPrevEnemy (R007-3)
       inflict('stun', 'lastTarget', { chance: 0.5 }),
-      dmg('enemyRandom', 3, 0.7),
+      dmg('enemyRandomPrefNotPrev', 3, 0.7),
       inflict('stun', 'lastTarget', { chance: 0.5 }),
     ),
   },

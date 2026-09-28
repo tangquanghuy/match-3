@@ -105,8 +105,8 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '对最健康的敌人造成 [魔法 + 3] 点伤害，并使其陷入中毒和燃烧状态。',
     build: skill(
       dmg('enemyHealthiest', 3),
-      inflict('poison', 'enemyHealthiest'),
-      inflict('burning', 'enemyHealthiest'),
+      inflict('poison', 'lastTarget'), // native FromPrevious: the damaged enemy, no re-pick after a kill
+      inflict('burning', 'lastTarget'),
     ),
   },
   {

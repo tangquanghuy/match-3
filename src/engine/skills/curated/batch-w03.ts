@@ -312,7 +312,8 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '对最后一位敌人造成 [魔法 + 3] 点伤害。若对方已陷入中毒状态，则使其陷入叠加 4 倍的出血状态',
     build: skill(
       dmg('enemyLast', 3, 1),
-      inflict('bleed', 'enemyChosen', { stacks: 4, ifCond: { kind: 'anyEnemyStatus', statusId: 'poison' } }),
+      // native LastEnemy AddForPoison x4: the last enemy itself must be Poisoned, and it gets the Bleed
+      inflict('bleed', 'enemyLast', { stacks: 4, ifCond: { kind: 'targetStatus', statusId: 'poison' } }),
     ),
   },
   {

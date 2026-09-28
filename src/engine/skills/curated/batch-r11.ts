@@ -65,7 +65,9 @@ const SPELLS: CuratedBatch['spells'] = [
     build: skill(
       dmg('enemyChosen', 2, 1),
       inflict('silence', 'lastTarget'),
-      inflict('silence', 'enemyChosenAndAdjacent', { chance: 0.5 }),
+      // native NextUpFromTarget / NextDownFromTarget: two independent 50% steps
+      inflict('silence', 'enemyNextUp', { chance: 0.5 }),
+      inflict('silence', 'enemyNextDown', { chance: 0.5 }),
     ),
   },
   {
