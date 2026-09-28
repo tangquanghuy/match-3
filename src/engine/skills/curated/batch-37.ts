@@ -288,10 +288,10 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 8756,
-    desc: '耗掉一名盟友 7 点法力值，再使所有敌人陷入死亡标记，或沉默，或诅咒状态。',
+    desc: '耗掉一名敌人 7 点法力值，再使所有敌人陷入死亡标记，或沉默，或诅咒状态。',
     build: skill(
-      // 「一名盟友」= allyChosen（措辞表己方同构）
-      reduce('allyChosen', 'mana', 7, 0),
+      // 英文 Drain 7 Mana from an Enemy / 原生 DecreaseMana@FromTarget（施法目标 Enemy）：选定敌人；三分支共用，先耗蓝再上状态（sa-H：原 allyChosen 误）
+      reduce('enemyChosen', 'mana', 7, 0),
       oneOf(
         [inflict('death-mark', 'enemyAll')],
         [inflict('silence', 'enemyAll')],

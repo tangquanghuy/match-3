@@ -9,3 +9,8 @@
 - troop:7737 zh fixed+accept (Choose ABC-DEF; zh said [M+2] enemies; override 7737)
 - troop:7881 accept (FromManaColorEnemy attack loss both branches, AB-CD Purple|Terror 1/2)
 - troop:6947 accept (3 independent random statuses)
+- troop:7186 fixed+accept (drain was on a chosen ally; now chosen enemy per English/native; zh + override 7186)
+- weapon:1296 fixed+accept (Magic branch SPM 0.34 native instead of 1/3; weapon override synced)
+- troop:6198 fixed+accept (native order Disease before Poison)
+- troop:7605 accept (2 independent DecreaseRandom steps may repeat a Skill; Geheron x2 via state.region)
+- troop:6993 fixed+accept (repeats RandomPrefNotPrev; zh rewritten + override 6993; note: native ResetTargets flag on DestroyColor treated as presentation, like L3)

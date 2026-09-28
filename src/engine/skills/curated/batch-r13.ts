@@ -294,16 +294,16 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 8499,
-    desc: '消除一名敌人 [(魔法 / 2) + 1] 点随机技能值。摧毁8种宝石的法力颜色之一。可在任何敌人身上重复使用两次。',
+    desc: '消除一名敌人 [(魔法 / 2) + 1] 点随机技能值，并摧毁 8 颗该敌人某一种法力颜色的宝石。然后对随机敌人再重复 2 次。',
     // 官方三组 DecreaseRandom + DestroyColor(Color=目标法力色之一)：首段选定敌，后两组
-    // RandomPrefNotPrevEnemy = 独立随机敌；「其法力颜色之一」= LAST_TARGET（R12 选敌色口径，
-    // 多法力色时 rng 掷选其一）
+    // RandomPrefNotPrevEnemy（R007-3：只避开上一目标，可回到第一目标；仅剩一人时重复）；
+    // 「其法力颜色之一」= LAST_TARGET（R12 选敌色口径，多法力色时 rng 掷选其一）。sa-H：原为 enemyRandom；ZH 改
     build: skill(
       reduce('enemyChosen', 'random', 1, 0.5),
       destroyRandomGems(8, 0, 'color', 'LAST_TARGET'),
-      reduce('enemyRandom', 'random', 1, 0.5),
+      reduce('enemyRandomPrefNotPrev', 'random', 1, 0.5),
       destroyRandomGems(8, 0, 'color', 'LAST_TARGET'),
-      reduce('enemyRandom', 'random', 1, 0.5),
+      reduce('enemyRandomPrefNotPrev', 'random', 1, 0.5),
       destroyRandomGems(8, 0, 'color', 'LAST_TARGET'),
     ),
   },

@@ -105,3 +105,51 @@ describe('sa-H L2 B02', () => {
     }
   });
 });
+
+describe('sa-H L2 B03', () => {
+  it('troop:7186 drains 7 Mana from the chosen enemy, then 1/3 Death Mark | Silence | Curse on all enemies', () => {
+    const t: Record<string, number> = {};
+    for (let seed = 1; seed <= SEEDS; seed++) {
+      const o = orderOf({ key: 'troop:7186', seed, enemies: [{}, { mana: 20 }, {}] });
+      expect(o[0]).toBe('buff E11 mana-7');
+      const s = statusesOn(o, 'E10'); expect(s.length).toBe(1); expect(statusesOn(o, 'E12')).toEqual(s);
+      t[s[0]] = (t[s[0]] ?? 0) + 1;
+    }
+    expect(Object.keys(t).sort()).toEqual(['curse', 'death-mark', 'silence']);
+    for (const v of Object.values(t)) within(v / SEEDS, 1 / 3, '7186');
+  });
+  it('weapon:1296 A-B-C 1/3 each; Magic branch = round(Magic x 0.34) + 1 (native SpellPowerMultiplier 0.34)', () => {
+    const t = { drain: 0, magic: 0, create: 0 };
+    for (let seed = 1; seed <= SEEDS; seed++) {
+      const o = orderOf({ key: 'weapon:1296', seed });
+      if (o[0]?.includes('mana-5')) t.drain++; else if (o[0]?.includes('magic+')) t.magic++; else if (/-> Purple x12$/.test(o[0] ?? '')) t.create++;
+    }
+    for (const [k, v] of Object.entries(t)) within(v / SEEDS, 1 / 3, `1296 ${k}`);
+    const magicAt = (magic: number) => { for (let seed = 1; ; seed++) { const o = orderOf({ key: 'weapon:1296', seed, magic }); if (o[0]?.includes('magic+')) return o[0]; } };
+    expect(magicAt(10)).toBe('buff A1 magic+4');
+    expect(magicAt(25)).toBe('buff A1 magic+10'); // 1 + 8.5 -> 9.5 -> 10 (1/3 would give 9)
+  });
+  it('troop:6198 native order: random Skill loss, Disease, then Poison', () => {
+    const o = orderOf({ key: 'troop:6198' });
+    expect(o.findIndex(l => l === 'status E10 +disease')).toBeLessThan(o.findIndex(l => l === 'status E10 +poison'));
+  });
+  it('troop:7605 two independent [0.8M+1] random Skill rolls per enemy (x2 in Geheron), then one random negative status', () => {
+    const run = (region?: string) => { const f = setupCast({ key: 'troop:7605', enemies: [{ hp: 900, maxHp: 900, armor: 50, attack: 50, magic: 50 }] });
+      if (region) (f.state as { region?: string }).region = region; return summarize(f, f.cast()).order; };
+    const plain = run(); expect(plain.filter(l => l.startsWith('buff E10')).map(l => l.replace(/^buff E10 \w+/, ''))).toEqual(['-9', '-9']);
+    expect(statusesOn(plain, 'E10').length).toBe(1);
+    const geh = run('Geheron'); expect(geh.filter(l => l.startsWith('buff E10')).map(l => l.replace(/^buff E10 \w+/, ''))).toEqual(['-18', '-18']);
+  });
+  it('troop:6993 repeats are RandomPrefNotPrev (never the immediately previous enemy; may return to the first)', () => {
+    let back = 0;
+    const enemies = [0, 1, 2, 3].map(() => ({ hp: 900, maxHp: 900, armor: 50, attack: 50, magic: 50 }));
+    for (let seed = 1; seed <= 100; seed++) {
+      const who = castSpell({ key: 'troop:6993', seed, enemies }).summary.order.filter(l => l.startsWith('buff E')).map(l => l.split(' ')[1]);
+      expect(who.length).toBe(3); expect(who[0]).toBe('E11'); expect(who[1]).not.toBe(who[0]); expect(who[2]).not.toBe(who[1]);
+      if (who[2] === who[0]) back++;
+    }
+    expect(back).toBeGreaterThan(15);
+    const lone = castSpell({ key: 'troop:6993', enemies: [{ hp: 900, maxHp: 900, armor: 50, attack: 50, magic: 50 }] }).summary.order.filter(l => l.startsWith('buff E10'));
+    expect(lone.length).toBe(3);
+  });
+});

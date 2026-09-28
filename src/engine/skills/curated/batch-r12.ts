@@ -104,8 +104,9 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '减除全部敌人 [魔法 + 2] 点随机技能值。使他们陷入中毒和疾病状态。',
     build: skill(
       reduce('enemyAll', 'random', 2, 1),
-      inflict('poison', 'enemyAll'),
+      // 原生顺序 CauseDisease → CausePoison（R001，sa-H）
       inflict('disease', 'enemyAll'),
+      inflict('poison', 'enemyAll'),
     ),
   },
   {

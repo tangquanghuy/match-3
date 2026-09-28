@@ -4404,7 +4404,7 @@
                   "stat": "magic",
                   "scaling": {
                     "base": 1,
-                    "mult": 0.3333
+                    "mult": 0.34
                   }
                 }
               ],

@@ -1,6 +1,6 @@
 # GoW 技能改动留档
 
-自动生成（`node scripts/gow-changelog.mjs render`），源数据 [CHANGES.jsonl](CHANGES.jsonl)，共 541 条改动，涉及 992 个技能 ID。
+自动生成（`node scripts/gow-changelog.mjs render`），源数据 [CHANGES.jsonl](CHANGES.jsonl)，共 545 条改动，涉及 994 个技能 ID。
 
 ## 按时间
 
@@ -547,6 +547,10 @@
 | 2026-09-28T21:15 | sa-H | L2-H-7047-last2-random | assembler | 8572 | troop:7047 SisterOfNightmares | `src/engine/skills/curated/batch-r4.ts` | RandomStatusEffect@LastTwoEnemies approximated by one random status on the last enemy only → random status rolled separately on 2nd-last and last enemy (enemySecondLast + enemyLastN), then Poison both |  |
 | 2026-09-28T21:15 | sa-H | L2-H-6706-prefnotprev | assembler | 8063 | troop:6706 Rattigar | `src/engine/skills/curated/batch-r15.ts` | second hit plain enemyRandom (could repeat the first target) → second hit enemyRandomPrefNotPrev per native RandomPrefNotPrevEnemy (R007-3) |  |
 | 2026-09-28T21:18 | sa-H | L2-H-7737-zh | data | 9640 | troop:7737 CourtWitch | `src/engine/skills/curated/batch-r17.ts`<br>`src/data/gowSnapshotOverrides.json` | zh: 消除 [魔法 + 2] 个敌人的攻击 (reads [M+2] as number of enemies) → zh: 消除一名敌人 [魔法 + 2] 点攻击力 / 一项随机技能 [魔法 + 2] 点 (matches English one enemy) |  |
+| 2026-09-28T21:26 | sa-H | L2-H-7186-enemy-drain | assembler | 8756 | troop:7186 CryptHound | `src/engine/skills/curated/batch-37.ts`<br>`src/data/gowSnapshotOverrides.json` | drained 7 Mana from a chosen ALLY (zh said ally) → drains 7 Mana from the chosen enemy (English/native DecreaseMana FromTarget), zh fixed + override |  |
+| 2026-09-28T21:26 | sa-H | L2-H-1296-spm034 | assembler | 8253 | weapon:1296 StaffOfInsanity | `src/engine/skills/curated/batch-w02.ts`<br>`src/data/gowWeaponReviewedOverrides.json` | Magic branch mult 0.3333 (English Magic / 3) → mult 0.34 = native SpellPowerMultiplier (R001; differs e.g. at Magic 25: 10 vs 9) |  |
+| 2026-09-28T21:26 | sa-H | L2-H-6198-order | assembler | 7340 | troop:6198 Plague | `src/engine/skills/curated/batch-r12.ts` | Poison then Disease → native order Disease then Poison (R001) |  |
+| 2026-09-28T21:26 | sa-H | L2-H-6993-prefnotprev | assembler | 8499 | troop:6993 Dao | `src/engine/skills/curated/batch-r13.ts`<br>`src/data/gowSnapshotOverrides.json` | repeats used plain enemyRandom; zh mistranslated → repeats enemyRandomPrefNotPrev (native RandomPrefNotPrevEnemy, R007-3); zh rewritten + override |  |
 
 ## 按技能 ID
 
@@ -661,7 +665,7 @@
 | 7334 | 1 | L7-6193 |
 | 7338 | 2 | L5-006、R004 (L5-004,L5-005,L5-014,L4b-6340) |
 | 7339 | 1 | F1-items-62-75 |
-| 7340 | 1 | P-random-stat-pool |
+| 7340 | 2 | P-random-stat-pool、L2-H-6198-order |
 | 7343 | 1 | L1-6201-dispel |
 | 7345 | 1 | F2-6203-no-cleanse |
 | 7347 | 1 | R7-6205-steal-order |
@@ -937,6 +941,7 @@
 | 8248 | 2 | F1-onkill-order、R012 |
 | 8250 | 2 | P-F1-oneof-chosen-target、P-F1-oneof-chosen-target |
 | 8251 | 1 | P-counter-per-step |
+| 8253 | 1 | L2-H-1296-spm034 |
 | 8260 | 1 | P-E-faction-kingdom |
 | 8261 | 1 | P-E-faction-kingdom |
 | 8262 | 1 | P-E-faction-kingdom |
@@ -1055,7 +1060,7 @@
 | 8494 | 1 | L4a-r4-6990-zh |
 | 8495 | 1 | R3-B08-6985 |
 | 8497 | 1 | F2-6991-explode-mult |
-| 8499 | 1 | P-random-stat-pool |
+| 8499 | 2 | P-random-stat-pool、L2-H-6993-prefnotprev |
 | 8500 | 2 | P-random-stat-pool、L1-6994-summons |
 | 8502 | 1 | R3-B12-6999 |
 | 8503 | 2 | B-L4b-7000-zh、R014-7000-count-before-create |
@@ -1174,6 +1179,7 @@
 | 8751 | 2 | P-counter-per-step、P-counter-per-step |
 | 8752 | 2 | L5-008、R004 (L5-004,L5-005,L5-014,L4b-6340) |
 | 8755 | 1 | F2-R001-order |
+| 8756 | 1 | L2-H-7186-enemy-drain |
 | 8758 | 1 | P-R1-count-at-native-step |
 | 8761 | 1 | R7-1460-burning-gems |
 | 8762 | 1 | P-R6-chosen-diagonal-transform |

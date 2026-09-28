@@ -955,7 +955,7 @@ const SPELLS: CuratedBatch['spells'] = [
   {
     id: 8253,
     desc: '耗掉所有敌人 5 点法力值，或给予所有其他盟友 [(魔法 / 3) + 1] 点魔力值，或创造 12 颗紫色宝石。',
-    build: ({"segments":[{"kind":"oneOf","options":[[{"kind":"reduce","target":"enemyAll","stat":"mana","scaling":{"base":5,"mult":0}}],[{"kind":"buff","target":"allyOthers","stat":"magic","scaling":{"base":1,"mult":0.3333}}],[{"kind":"gem","params":{"op":"create","gem":{"kind":"color","color":"Purple"},"count":{"base":12,"mult":0}}}]]}]} as SkillPrototype),
+    build: ({"segments":[{"kind":"oneOf","options":[[{"kind":"reduce","target":"enemyAll","stat":"mana","scaling":{"base":5,"mult":0}}],[{"kind":"buff","target":"allyOthers","stat":"magic","scaling":{"base":1,"mult":0.34}}],[{"kind":"gem","params":{"op":"create","gem":{"kind":"color","color":"Purple"},"count":{"base":12,"mult":0}}}]]}]} as SkillPrototype),
   },
   {
     id: 8254,

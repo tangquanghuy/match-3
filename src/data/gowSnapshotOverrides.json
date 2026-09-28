@@ -312,6 +312,16 @@
       "spellId": 9640,
       "reason": "sa-H r8: English Court Witch 'Eliminate [Magic + 2] Attack from an Enemy' / '[Magic + 2] from a random Skill Point on an Enemy' (one enemy, amount [M+2]); old Chinese read [M+2] as a number of enemies.",
       "spellDescription": "&& 消除一名敌人 [魔法 + 2] 点攻击力，并诅咒该敌人。 && 消除一名敌人一项随机技能 [魔法 + 2] 点，并对其施加死亡标记。"
+    },
+    "7186": {
+      "spellId": 8756,
+      "reason": "sa-H r8: English Crypt Hound 'Drain 7 Mana from an Enemy' (native DecreaseMana FromTarget, spell Target Enemy); old Chinese said an ally.",
+      "spellDescription": "耗掉一名敌人 7 点法力值，再使所有敌人陷入死亡标记，或沉默，或诅咒状态。"
+    },
+    "6993": {
+      "spellId": 8499,
+      "reason": "sa-H r8: English Dao 'Destroy 8 Gems of one of their Mana Colors. Then repeat 2 more times for random Enemies.'; old Chinese mistranslated (8 kinds of gems / usable twice on any enemy).",
+      "spellDescription": "消除一名敌人 [(魔法 / 2) + 1] 点随机技能值，并摧毁 8 颗该敌人某一种法力颜色的宝石。然后对随机敌人再重复 2 次。"
     }
   }
 }
