@@ -17,7 +17,7 @@ function run(skill:string,cost:number,magic:number,enemy:Record<string,unknown>,
  e.castSkill(0);return f;
 }
 describe('repro L7-6550 troop:6550 spell 7744: native steals Attack->Magic BEFORE the damage step (R001)',()=>{
- it.fails('native expectation: target Attack 17 -> 13, Magic 10 -> 14, damage uses new Magic: 14 + 4 = 18',()=>{
+ it('native expectation: target Attack 17 -> 13, Magic 10 -> 14, damage uses new Magic: 14 + 4 = 18 (fixed sa-F3)',()=>{
   const f=run('7744',12,10,{attack:17});
   expect(f.enemies[2].attack).toBe(13);expect(f.caster.magic).toBe(14);expect(1000-f.enemies[2].hp).toBe(18);
  });

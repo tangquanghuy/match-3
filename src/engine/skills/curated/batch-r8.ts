@@ -187,7 +187,8 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '获得 [魔法 + 1] 点生命值，数值因石像鬼宝石数而增强。再将一名敌人拉至前方。 [x8]',
     build: skill(
       heal('allySelf', 1, 1, {
-        modifier: { mod: { kind: 'multiplier', a: 8 }, source: { kind: 'boardGems' } },
+        // sa-F3：原生 CountGems GoodGargoyle + BadGargoyle（各 x8）；无色 boardGems 数的是全盘宝石
+        modifier: { mod: { kind: 'multiplier', a: 8 }, source: { kind: 'boardSpecial', gem: 'gargoyleGem' } },
       }),
       reposition('enemyChosen', 'front'),
     ),

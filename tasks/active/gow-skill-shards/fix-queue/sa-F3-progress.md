@@ -36,3 +36,18 @@
 - 2026-09-28T00:20:36Z troop:6483 issue P-F3-prehit-target-compare
 - 2026-09-28T00:20:36Z troop:7525 fixed Curse/Freeze before Life steal; Barrier test
 - 2026-09-28T00:20:36Z troop:7835 fixed Bleed x4 before damage on two strongest
+- 2026-09-28T00:26:32Z troop:6717 approved gold steal capped 50, damage +gold stolen
+- 2026-09-28T00:26:32Z troop:7280 approved 
+- 2026-09-28T00:26:32Z troop:7777 approved 
+- 2026-09-28T00:26:32Z troop:6353 approved 
+- 2026-09-28T00:26:32Z troop:7755 approved 
+- 2026-09-28T00:26:32Z troop:7011 approved 
+- 2026-09-28T00:26:32Z weapon:1086 approved 
+- 2026-09-28T00:26:32Z troop:7549 approved 
+- 2026-09-28T00:26:32Z troop:7181 approved 
+- 2026-09-28T00:26:32Z troop:7615 approved 
+- 2026-09-28T00:26:32Z troop:6803 approved tower clause waived (R000)
+- 2026-09-28T00:26:32Z troop:6550 fixed steal Attack->Magic before damage (R001); boss waived; L7B08Repro it.fails -> it
+- 2026-09-28T00:26:32Z weapon:1210 fixed steal half Attack (was 0) before damage
+- 2026-09-28T00:26:32Z troop:7724 fixed all Skills incl. Life; kill triple via castEnemyDied
+- 2026-09-28T00:26:32Z troop:7215 fixed Gargoyle-gem count (was every board gem)

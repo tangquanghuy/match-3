@@ -1009,12 +1009,16 @@ const SPELLS: CuratedBatch['spells'] = [
           sources: [{ kind: 'boardGems', color: BaseColor.Yellow }, { kind: 'boardGems', color: BaseColor.Brown }],
         },
       }),
+      // sa-F3：原生 IncreaseAllStats = 四项技能（攻/甲/生命/魔，R007-2 四项定义）；自身增益段会改写
+      // lastTarget → 击杀追加 20 改判 castEnemyDied（只有选定敌人受伤害）
       attack('allySelf', 10, 0),
       armor('allySelf', 10, 0),
+      heal('allySelf', 10, 0),
       magic('allySelf', 10, 0),
-      attack('allySelf', 20, 0, { ifTargetDied: true }),
-      armor('allySelf', 20, 0, { ifTargetDied: true }),
-      magic('allySelf', 20, 0, { ifTargetDied: true }),
+      attack('allySelf', 20, 0, { ifCond: { kind: 'castEnemyDied' } }),
+      armor('allySelf', 20, 0, { ifCond: { kind: 'castEnemyDied' } }),
+      heal('allySelf', 20, 0, { ifCond: { kind: 'castEnemyDied' } }),
+      magic('allySelf', 20, 0, { ifCond: { kind: 'castEnemyDied' } }),
     ),
   },
   {

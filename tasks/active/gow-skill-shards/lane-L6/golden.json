@@ -9,6 +9,16 @@
   "by": "sa-F3",
   "at": "2026-09-28T00:20:10.232Z"
  },
+ "troop:6353": {
+  "lines": {
+   "L10": "dmg E11 14 ; gold+14  => E11:hp-4 arm-10  eco:{\"gold\":14,\"goldMine\":14,\"goldTheirs\":-14}",
+   "R10": "dmg E11 14 ; gold+14  => E11:hp-4 arm-10  eco:{\"gold\":14,\"goldMine\":14,\"goldTheirs\":-14}",
+   "L0": "dmg E11 4 ; gold+4  => E11:arm-4  eco:{\"gold\":4,\"goldMine\":4,\"goldTheirs\":-4}",
+   "K": "dmg E11 14 ; defeat E11 ; gold+14  => E11:hp-1 DEAD  eco:{\"gold\":14,\"goldMine\":14,\"goldTheirs\":-14}"
+  },
+  "by": "sa-F3",
+  "at": "2026-09-28T00:26:09.800Z"
+ },
  "troop:6499": {
   "lines": {
    "L10": "buff A1 attack+11 ; buff A1 magic+2  => A1:atk+11 mag+2",
@@ -18,6 +28,96 @@
   },
   "by": "sa-F3",
   "at": "2026-09-28T00:20:10.232Z"
+ },
+ "troop:6550": {
+  "lines": {
+   "L10": "buff E11 attack-4 ; buff C magic+4 ; dmg E11 18  => E11:hp-8 arm-10 atk-4 | C:mag+4",
+   "R10": "buff E11 attack-4 ; buff C magic+4 ; dmg E11 18  => E11:hp-8 arm-10 atk-4 | C:mag+4",
+   "L0": "buff E11 attack-4 ; buff C magic+4 ; dmg E11 8  => E11:arm-8 atk-4 | C:mag+4",
+   "K": "buff E11 attack-4 ; buff C magic+4 ; dmg E11 18 ; defeat E11  => E11:hp-1 atk-4 DEAD | C:mag+4"
+  },
+  "by": "sa-F3",
+  "at": "2026-09-28T00:26:16.555Z"
+ },
+ "troop:6717": {
+  "lines": {
+   "L10": "dmg E11 62 ; gold+50  => E11:hp-52 arm-10  eco:{\"gold\":50,\"goldMine\":50,\"goldTheirs\":-50}",
+   "R10": "dmg E11 62 ; gold+50  => E11:hp-52 arm-10  eco:{\"gold\":50,\"goldMine\":50,\"goldTheirs\":-50}",
+   "L0": "dmg E11 52 ; gold+50  => E11:hp-42 arm-10  eco:{\"gold\":50,\"goldMine\":50,\"goldTheirs\":-50}",
+   "K": "dmg E11 62 ; defeat E11 ; gold+50  => E11:hp-1 DEAD  eco:{\"gold\":50,\"goldMine\":50,\"goldTheirs\":-50}"
+  },
+  "by": "sa-F3",
+  "at": "2026-09-28T00:26:09.800Z"
+ },
+ "troop:6803": {
+  "lines": {
+   "L10": "buff E11 armor-4 ; buff C attack+4 ; dmg E11 14  => E11:hp-8 arm-10 | C:atk+4",
+   "R10": "buff E11 armor-4 ; buff C attack+4 ; dmg E11 14  => E11:hp-8 arm-10 | C:atk+4",
+   "L0": "buff E11 armor-4 ; buff C attack+4 ; dmg E11 4  => E11:arm-8 | C:atk+4",
+   "K": "dmg E11 14 ; defeat E11  => E11:hp-1 DEAD"
+  },
+  "by": "sa-F3",
+  "at": "2026-09-28T00:26:14.285Z"
+ },
+ "troop:7011": {
+  "lines": {
+   "L10": "dmg E11 12 ; buff C armor+20  => E11:hp-2 arm-10 | C:arm+20",
+   "R10": "dmg E11 12 ; buff C armor+20  => E11:hp-2 arm-10 | C:arm+20",
+   "L0": "dmg E11 2 ; buff C armor+10  => E11:arm-2 | C:arm+10",
+   "K": "dmg E11 12 ; defeat E11 ; buff C armor+20  => E11:hp-1 DEAD | C:arm+20"
+  },
+  "by": "sa-F3",
+  "at": "2026-09-28T00:26:09.800Z"
+ },
+ "troop:7181": {
+  "lines": {
+   "L10": "dmg E10 100 (all) ; dmg E11 100 (all) ; dmg E12 100 (all) ; dmg E13 100 (all) ; move E10 back  => E10:hp-95 arm-5 | E11:hp-90 arm-10 | E12:hp-88 arm-12 | E13:hp-97 arm-3",
+   "R10": "dmg E10 100 (all) ; dmg E11 100 (all) ; dmg E12 100 (all) ; dmg E13 100 (all) ; move E10 back  => E10:hp-95 arm-5 | E11:hp-90 arm-10 | E12:hp-88 arm-12 | E13:hp-97 arm-3",
+   "L0": "dmg E10 92 (all) ; dmg E11 92 (all) ; dmg E12 92 (all) ; dmg E13 92 (all) ; move E10 back  => E10:hp-87 arm-5 | E11:hp-82 arm-10 | E12:hp-80 arm-12 | E13:hp-89 arm-3",
+   "K": "dmg E10 100 (all) ; dmg E11 100 (all) ; dmg E12 100 (all) ; dmg E13 100 (all) ; defeat E10 ; defeat E11 ; defeat E12 ; defeat E13  => E10:hp-1 DEAD | E11:hp-1 DEAD | E12:hp-1 DEAD | E13:hp-1 DEAD"
+  },
+  "by": "sa-F3",
+  "at": "2026-09-28T00:26:09.800Z"
+ },
+ "troop:7215": {
+  "lines": {
+   "L10": "buff C hp+11 max+11 ; move E11 front  => C:hp+11 max+11",
+   "R10": "buff C hp+11 max+11 ; move E11 front  => C:hp+11 max+11",
+   "L0": "buff C hp+1 max+1 ; move E11 front  => C:hp+1 max+1",
+   "K": "buff C hp+11 max+11 ; move E11 front  => C:hp+11 max+11"
+  },
+  "by": "sa-F3",
+  "at": "2026-09-28T00:26:12.117Z"
+ },
+ "troop:7280": {
+  "lines": {
+   "L10": "gold+12 ; dmg E11 12  => E11:hp-2 arm-10  eco:{\"gold\":12,\"goldMine\":12,\"goldTheirs\":-12}",
+   "R10": "gold+12 ; dmg E11 12  => E11:hp-2 arm-10  eco:{\"gold\":12,\"goldMine\":12,\"goldTheirs\":-12}",
+   "L0": "gold+2 ; dmg E11 2  => E11:arm-2  eco:{\"gold\":2,\"goldMine\":2,\"goldTheirs\":-2}",
+   "K": "gold+12 ; dmg E11 12 ; defeat E11  => E11:hp-1 DEAD  eco:{\"gold\":12,\"goldMine\":12,\"goldTheirs\":-12}"
+  },
+  "by": "sa-F3",
+  "at": "2026-09-28T00:26:09.800Z"
+ },
+ "troop:7549": {
+  "lines": {
+   "L10": "dmg E11 21 (splash) ; dmg E10 10 (splash) ; dmg E12 10 (splash) ; move E11 back  => E11:hp-11 arm-10 | E10:hp-5 arm-5 | E12:arm-10",
+   "R10": "dmg E11 21 (splash) ; dmg E10 10 (splash) ; dmg E12 10 (splash) ; move E11 back  => E11:hp-11 arm-10 | E10:hp-5 arm-5 | E12:arm-10",
+   "L0": "dmg E11 11 (splash) ; dmg E10 5 (splash) ; dmg E12 5 (splash) ; move E11 back  => E11:hp-1 arm-10 | E10:arm-5 | E12:arm-5",
+   "K": "dmg E11 21 (splash) ; dmg E10 10 (splash) ; dmg E12 10 (splash) ; defeat E11 ; defeat E10 ; defeat E12  => E11:hp-1 DEAD | E10:hp-1 DEAD | E12:hp-1 DEAD"
+  },
+  "by": "sa-F3",
+  "at": "2026-09-28T00:26:09.800Z"
+ },
+ "troop:7615": {
+  "lines": {
+   "L10": "dmg E10 18 (all) ; dmg E11 18 (all) ; dmg E12 18 (all) ; dmg E13 18 (all) ; buff C hp+18 max+18 ; buff A1 hp+18 max+18 ; buff A2 hp+18 max+18  => E10:hp-13 arm-5 | E11:hp-8 arm-10 | E12:hp-6 arm-12 | E13:hp-15 arm-3 | C:hp+18 max+18 | A1:hp+18 max+18 | A2:hp+18 max+18",
+   "R10": "dmg E10 18 (all) ; dmg E11 18 (all) ; dmg E12 18 (all) ; dmg E13 18 (all) ; buff C hp+18 max+18 ; buff A1 hp+18 max+18 ; buff A2 hp+18 max+18  => E10:hp-13 arm-5 | E11:hp-8 arm-10 | E12:hp-6 arm-12 | E13:hp-15 arm-3 | C:hp+18 max+18 | A1:hp+18 max+18 | A2:hp+18 max+18",
+   "L0": "dmg E10 8 (all) ; dmg E11 8 (all) ; dmg E12 8 (all) ; dmg E13 8 (all) ; buff C hp+8 max+8 ; buff A1 hp+8 max+8 ; buff A2 hp+8 max+8  => E10:hp-3 arm-5 | E11:arm-8 | E12:arm-8 | E13:hp-5 arm-3 | C:hp+8 max+8 | A1:hp+8 max+8 | A2:hp+8 max+8",
+   "K": "dmg E10 18 (all) ; dmg E11 18 (all) ; dmg E12 18 (all) ; dmg E13 18 (all) ; defeat E10 ; defeat E11 ; defeat E12 ; defeat E13 ; buff C hp+18 max+18 ; buff A1 hp+18 max+18 ; buff A2 hp+18 max+18  => E10:hp-1 DEAD | E11:hp-1 DEAD | E12:hp-1 DEAD | E13:hp-1 DEAD | C:hp+18 max+18 | A1:hp+18 max+18 | A2:hp+18 max+18"
+  },
+  "by": "sa-F3",
+  "at": "2026-09-28T00:26:09.800Z"
  },
  "troop:7681": {
   "lines": {
@@ -29,6 +129,46 @@
   "by": "sa-F3",
   "at": "2026-09-28T00:20:12.542Z"
  },
+ "troop:7724": {
+  "lines": {
+   "L10": "dmg E11 48 ; buff C attack+10 ; buff C armor+10 ; buff C hp+10 ; buff C magic+10  => E11:hp-38 arm-10 | C:hp+10 arm+10 atk+10 mag+10",
+   "R10": "dmg E11 48 ; buff C attack+10 ; buff C armor+10 ; buff C hp+10 ; buff C magic+10  => E11:hp-38 arm-10 | C:hp+10 arm+10 atk+10 mag+10",
+   "L0": "dmg E11 38 ; buff C attack+10 ; buff C armor+10 ; buff C hp+10 ; buff C magic+10  => E11:hp-28 arm-10 | C:hp+10 arm+10 atk+10 mag+10",
+   "K": "dmg E11 48 ; defeat E11 ; buff C attack+10 ; buff C armor+10 ; buff C hp+10 ; buff C magic+10 ; buff C attack+20 ; buff C armor+20 ; buff C hp+20 ; buff C magic+20  => E11:hp-1 DEAD | C:hp+30 arm+30 atk+30 mag+30"
+  },
+  "by": "sa-F3",
+  "at": "2026-09-28T00:26:09.800Z"
+ },
+ "troop:7755": {
+  "lines": {
+   "L10": "buff E11 attack-6 ; buff C magic+6  => E11:atk-6 | C:mag+6",
+   "R10": "buff E11 attack-6 ; buff C magic+6  => E11:atk-6 | C:mag+6",
+   "L0": "buff E11 attack-1 ; buff C magic+1  => E11:atk-1 | C:mag+1",
+   "K": "buff E11 attack-6 ; buff C magic+6  => E11:atk-6 | C:mag+6"
+  },
+  "by": "sa-F3",
+  "at": "2026-09-28T00:26:09.800Z"
+ },
+ "troop:7777": {
+  "lines": {
+   "L10": "dmg E12 22 ; gold+5  => E12:hp-10 arm-12  eco:{\"gold\":5,\"goldMine\":5,\"goldTheirs\":-5}",
+   "R10": "dmg E12 22 ; gold+5  => E12:hp-10 arm-12  eco:{\"gold\":5,\"goldMine\":5,\"goldTheirs\":-5}",
+   "L0": "dmg E12 12 ; gold+5  => E12:arm-12  eco:{\"gold\":5,\"goldMine\":5,\"goldTheirs\":-5}",
+   "K": "dmg E12 22 ; defeat E12 ; gold+5  => E12:hp-1 DEAD  eco:{\"gold\":5,\"goldMine\":5,\"goldTheirs\":-5}"
+  },
+  "by": "sa-F3",
+  "at": "2026-09-28T00:26:09.800Z"
+ },
+ "weapon:1086": {
+  "lines": {
+   "L10": "buff A1 attack+17 ; buff A1 hp+11 max+11  => A1:hp+11 max+11 atk+17",
+   "R10": "buff A1 attack+17 ; buff A1 hp+11 max+11  => A1:hp+11 max+11 atk+17",
+   "L0": "buff A1 attack+17 ; buff A1 hp+1 max+1  => A1:hp+1 max+1 atk+17",
+   "K": "buff A1 attack+17 ; buff A1 hp+11 max+11  => A1:hp+11 max+11 atk+17"
+  },
+  "by": "sa-F3",
+  "at": "2026-09-28T00:26:09.800Z"
+ },
  "weapon:1126": {
   "lines": {
    "L10": "buff E10 armor-5 ; buff E11 armor-10 ; buff E12 armor-11 ; buff E13 armor-3 ; move E11 front  => E10:arm-5 | E11:arm-10 | E12:arm-11 | E13:arm-3",
@@ -38,5 +178,15 @@
   },
   "by": "sa-F3",
   "at": "2026-09-28T00:20:12.542Z"
+ },
+ "weapon:1210": {
+  "lines": {
+   "L10": "buff E11 attack-8 ; buff C attack+8 ; dmg E11 14  => E11:hp-4 arm-10 atk-8 | C:atk+8",
+   "R10": "buff E11 attack-8 ; buff C attack+8 ; dmg E11 14  => E11:hp-4 arm-10 atk-8 | C:atk+8",
+   "L0": "buff E11 attack-8 ; buff C attack+8 ; dmg E11 4  => E11:arm-4 atk-8 | C:atk+8",
+   "K": "buff E11 attack-8 ; buff C attack+8 ; dmg E11 14 ; defeat E11  => E11:hp-1 atk-8 DEAD | C:atk+8"
+  },
+  "by": "sa-F3",
+  "at": "2026-09-28T00:26:09.800Z"
  }
 }

@@ -1838,6 +1838,37 @@
         "skippedClauses": []
       }
     },
+    "7805": {
+      "description": "对一名敌人造成 [魔法 + 4] 点伤害，并窃取其半数攻击力。 [2:1]",
+      "metadata": {
+        "fidelity": "full",
+        "missingFeatures": [],
+        "skippedClauses": []
+      },
+      "prototype": {
+        "segments": [
+          {
+            "kind": "reduce",
+            "target": "enemyChosen",
+            "stat": "attack",
+            "scaling": {
+              "base": 0,
+              "mult": 0
+            },
+            "gainStat": "attack",
+            "fraction": 0.5
+          },
+          {
+            "kind": "damage",
+            "target": "enemyChosen",
+            "scaling": {
+              "base": 4,
+              "mult": 1
+            }
+          }
+        ]
+      }
+    },
     "7815": {
       "description": "对一名敌人造成 [魔法 + 4] 点伤害，伤害值因敌人所需的法力值而增强。若敌人是神祗，则再造成 10 点伤害。如果敌人使用黄色法力值，则再添 10 点伤害。 [1:1]",
       "metadata": {

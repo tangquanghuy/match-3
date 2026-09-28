@@ -201,8 +201,9 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 7805,
     desc: '对一名敌人造成 [魔法 + 4] 点伤害，并窃取其半数攻击力。 [2:1]',
     build: skill(
+      // sa-F3：原生 CountAttack 50 → StealAttack → Damage；无来源的 [2:1] 修饰让窃取量恒为 0
+      steal('enemyChosen', 'attack', 'attack', 0, 0, { fraction: 0.5 }),
       dmg('enemyChosen', 4, 1),
-      steal('lastTarget', 'attack', 'attack', 0, 0, { halve: true, modifier: { mod: { kind: 'ratio', a: 2, b: 1 } } }),
     ),
   },
   {
