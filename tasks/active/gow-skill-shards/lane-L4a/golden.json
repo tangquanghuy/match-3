@@ -419,6 +419,16 @@
   "by": "coord",
   "at": "2026-09-28T05:09:31.283Z"
  },
+ "troop:6476": {
+  "lines": {
+   "L10": "dmg E12 13  => E12:hp-1 arm-12",
+   "R10": "dmg E12 13  => E12:hp-1 arm-12",
+   "L0": "dmg E12 3  => E12:arm-3",
+   "K": "dmg E12 13 ; defeat E12 ; destroy 9 (Purple x9)  => E12:hp-1 DEAD"
+  },
+  "by": "sa-A",
+  "at": "2026-09-28T21:12:11.254Z"
+ },
  "troop:6504": {
   "lines": {
    "L10": "buff C armor+17 ; buff A1 armor+17 ; buff A2 armor+17 ; destroy 11 (Blue x11) ; ~cascade~  => C:arm+17 | A1:arm+17 mana+11 | A2:arm+17  cascade",
@@ -1229,6 +1239,16 @@
   "by": "sa-F2",
   "at": "2026-09-28T00:30:08.150Z"
  },
+ "troop:7343": {
+  "lines": {
+   "L10": "convert Green x1, Purple x1, skull x1, Red x1 -> angelGem x4 ; explode 28 ; trigger angelGem ; status A2 +blessed ; skulls E10 1 ; ~cascade~  => A2:mana+6 +blessed | A1:mana+5 | E10:arm-1  cascade",
+   "R10": "convert Green x1, Purple x1, skull x1, Red x1 -> angelGem x4 ; explode 28 ; trigger angelGem ; status A2 +blessed ; skulls E10 1 ; ~cascade~  => A2:mana+6 +blessed | A1:mana+5 | E10:arm-1  cascade",
+   "L0": "convert Green x1, Purple x1, skull x1, Red x1 -> angelGem x4 ; explode 28 ; trigger angelGem ; status A2 +blessed ; skulls E10 1 ; ~cascade~  => A2:mana+6 +blessed | A1:mana+5 | E10:arm-1  cascade",
+   "K": "convert Green x1, Purple x1, skull x1, Red x1 -> angelGem x4 ; explode 28 ; trigger angelGem ; status A2 +blessed ; skulls E10 1 ; defeat E10 ; ~cascade~  => A2:mana+6 +blessed | A1:mana+5 | E10:hp-1 DEAD  cascade"
+  },
+  "by": "sa-A",
+  "at": "2026-09-28T21:12:11.254Z"
+ },
  "troop:7345": {
   "lines": {
    "L10": "dmg E11 464  => E11:hp-464",
@@ -1339,6 +1359,16 @@
   "by": "sa-R1",
   "at": "2026-09-28T02:36:51.061Z"
  },
+ "troop:7528": {
+  "lines": {
+   "L10": "dmg E10 11 (all) ; dmg E11 11 (all) ; convert Green x1, Purple x1 -> ghost x2 ; destroy 8 (skull x1, Red x1, Purple x1, Yellow x2, Brown x1, Green x1, ghost x1) ; skulls E10 1 ; ~cascade~  => E10:hp-7 arm-5 | E11:hp-1 arm-10 | A2:mana+3  cascade",
+   "R10": "dmg E10 11 (all) ; dmg E11 11 (all) ; convert Green x1, Purple x1 -> ghost x2 ; destroy 8 (skull x1, Red x1, Purple x1, Yellow x2, Brown x1, Green x1, ghost x1) ; skulls E10 1 ; ~cascade~  => E10:hp-7 arm-5 | E11:hp-1 arm-10 | A2:mana+3  cascade",
+   "L0": "dmg E10 1 (all) ; dmg E11 1 (all) ; convert Green x1, Purple x1 -> ghost x2 ; destroy 8 (skull x1, Red x1, Purple x1, Yellow x2, Brown x1, Green x1, ghost x1) ; skulls E10 1 ; ~cascade~  => E10:arm-2 | E11:arm-1 | A2:mana+3  cascade",
+   "K": "dmg E10 11 (all) ; dmg E11 11 (all) ; defeat E10 ; defeat E11 ; convert Green x1, Purple x1 -> ghost x2 ; destroy 8 (skull x1, Red x1, Purple x1, Yellow x2, Brown x1, Green x1, ghost x1) ; skulls E12 1 ; defeat E12 ; ~cascade~  => E10:hp-1 DEAD | E11:hp-1 DEAD | A2:mana+3 | E12:hp-1 DEAD  cascade"
+  },
+  "by": "sa-A",
+  "at": "2026-09-28T21:12:11.254Z"
+ },
  "troop:7539": {
   "lines": {
    "L10": "dmg E11 13  => E11:hp-3 arm-10",
@@ -1398,6 +1428,16 @@
   },
   "by": "sa-A",
   "at": "2026-09-28T10:31:14.444Z"
+ },
+ "troop:7594": {
+  "lines": {
+   "L10": "dmg E11 12 ; storm Yellow set  => E11:hp-2 arm-10",
+   "R10": "dmg E11 12 ; storm Yellow set  => E11:hp-2 arm-10",
+   "L0": "dmg E11 2 ; storm Yellow set  => E11:arm-2",
+   "K": "dmg E11 12 ; defeat E11 ; storm Yellow set  => E11:hp-1 DEAD"
+  },
+  "by": "sa-A",
+  "at": "2026-09-28T21:12:11.254Z"
  },
  "troop:7612": {
   "lines": {
@@ -1928,6 +1968,16 @@
   },
   "by": "sa-R1",
   "at": "2026-09-28T02:58:52.154Z"
+ },
+ "weapon:1578": {
+  "lines": {
+   "L10": "convert Purple x3, skull x1, Red x2, Yellow x3, Brown x3, Green x4 -> freezeGem x6, ghost x10 ; explode 9 ; skulls E10 1  => E10:arm-1",
+   "R10": "convert Purple x3, skull x1, Red x2, Yellow x3, Brown x3, Green x4 -> freezeGem x6, ghost x10 ; explode 9 ; skulls E10 1  => E10:arm-1",
+   "L0": "convert Purple x3, skull x1, Red x2, Yellow x3, Brown x3, Green x4 -> freezeGem x6, ghost x10 ; explode 9 ; skulls E10 1  => E10:arm-1",
+   "K": "convert Purple x3, skull x1, Red x2, Yellow x3, Brown x3, Green x4 -> freezeGem x6, ghost x10 ; explode 9 ; skulls E10 1 ; defeat E10  => E10:hp-1 DEAD"
+  },
+  "by": "sa-A",
+  "at": "2026-09-28T21:12:11.254Z"
  },
  "weapon:1600": {
   "lines": {

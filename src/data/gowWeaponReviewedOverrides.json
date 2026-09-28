@@ -10748,8 +10748,12 @@
               "op": "clear",
               "mode": "explode",
               "target": {
-                "kind": "cell",
-                "cell": "CELL"
+                "kind": "randomGems",
+                "count": {
+                  "base": 1,
+                  "mult": 0
+                },
+                "include": "all"
               }
             }
           }

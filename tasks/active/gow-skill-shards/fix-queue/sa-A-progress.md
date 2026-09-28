@@ -11,3 +11,10 @@
 - R4B01 troop:6059,weapon:1071,troop:6090,troop:7348,weapon:1408,troop:6961,troop:6461,weapon:1658,troop:6336,troop:7457 approve=10 fixed=2 issue=0 (1071 remove Skulls before damage + boost source + zh; 7457 count Burning on board, damage, then explode)
 - R4B02 troop:6990,troop:7612,troop:7318,troop:6875,troop:6973,troop:6907,weapon:1150,troop:6633,troop:6638,troop:7179 approve=10 fixed=2 issue=0 (6990/7318 zh only via snapshot overrides; 6990 Stone Block board test)
 - R4B03 troop:6316,troop:7682,troop:6787,troop:7239,troop:6758,troop:6372,troop:7692,troop:7174,troop:6066,troop:7206 approve=10 fixed=2 issue=0 (6758 native 100/50/25/25% Poison@RandomEnemy; 7174 RowAndColumn one cross; 6787 R000 waived c2 boss/ascension)
+
+# sa-A L4a progress (review round 8, branch gow/r7-L4a, tests tests/unit/gowLaneL4aR8.test.ts)
+- troop:7343 accept
+- weapon:1578 fix(explode 1 random gem, native Target None, not chosen cell)
+- troop:7528 accept
+- troop:7594 accept (R000 waived c2 tower+ascension; storm-present -5 Magic test)
+- troop:6476 accept

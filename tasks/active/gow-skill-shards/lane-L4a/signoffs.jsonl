@@ -330,3 +330,8 @@
 {"format":"compact","key":"weapon:1404","decision":"accept","reviewer":"sa-B","reviewedAt":"2026-09-28T12:51:28.169Z","tests":["tests/unit/gowCastGolden.test.ts"]}
 {"format":"compact","key":"weapon:1404","decision":"accept","reviewer":"sa-B","reviewedAt":"2026-09-28T12:52:05.493Z","tests":["tests/unit/gowCastGolden.test.ts"],"note":"R013-4 resolves L4a-r3-1404-counter-accumulate: heal boost = Yellow on board only (current behaviour; test gowLaneL4bR5)"}
 {"format":"compact","key":"troop:7500","decision":"accept","reviewer":"sa-Q","reviewedAt":"2026-09-28T14:42:04.149Z","tests":["tests/unit/gowFixP-E-faction-kingdom.test.ts"],"note":"re-review after P-E-faction-kingdom"}
+{"format":"compact","key":"troop:7343","decision":"accept","reviewer":"sa-A","reviewedAt":"2026-09-28T21:12:11.371Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"weapon:1578","decision":"accept","reviewer":"sa-A","reviewedAt":"2026-09-28T21:12:11.372Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:7528","decision":"accept","reviewer":"sa-A","reviewedAt":"2026-09-28T21:12:11.372Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:7594","decision":"accept","reviewer":"sa-A","reviewedAt":"2026-09-28T21:12:11.372Z","tests":["tests/unit/gowCastGolden.test.ts"],"waived":[{"part":"clause","id":"c2","mode":"tower"},{"part":"clause","id":"c2","mode":"ascension"}]}
+{"format":"compact","key":"troop:6476","decision":"accept","reviewer":"sa-A","reviewedAt":"2026-09-28T21:12:11.373Z","tests":["tests/unit/gowCastGolden.test.ts"]}
