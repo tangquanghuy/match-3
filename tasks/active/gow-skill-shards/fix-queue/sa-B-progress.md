@@ -19,3 +19,4 @@
 - 2026-09-28T21:14:36 R5-B05 troop:7420,7537,7540,7544,7636,7670,7779,weapon:1280,1415,1451 approve=10 fixed=0 issue=0 (FromTarget colour tests; 7540/7670 boss, 7537/7779 tower waived R000)
 - 2026-09-28T21:32:00 R5-B05 verified (tsc + 5 suites + signoff check 0 problems) after throttle checkpoint a448c92
 - 2026-09-28T21:32:00 R5-B06 weapon:1485,1562,1683,troop:6034,6103,6382,6558,6977,6688,6922 approve=10 fixed=1 issue=0 (6034 create FromTarget colour not CASTER + zh override; 6688/6922 tower waived R000)
+- 2026-09-28T22:31:00 R6-B01 troop:7084,7106,7350,7389,7390,7477,7745,7788,weapon:1054,troop:7309 approve=9 fixed=0 issue=1 (7309 Spirit gem colour source-dispute same as 7308; 7389/7477 boss, 7390/7745/7788 tower waived R000) checkpoint f1ff67a
