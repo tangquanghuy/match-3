@@ -1,6 +1,6 @@
 # GoW 技能改动留档
 
-自动生成（`node scripts/gow-changelog.mjs render`），源数据 [CHANGES.jsonl](CHANGES.jsonl)，共 195 条改动，涉及 391 个技能 ID。
+自动生成（`node scripts/gow-changelog.mjs render`），源数据 [CHANGES.jsonl](CHANGES.jsonl)，共 198 条改动，涉及 395 个技能 ID。
 
 ## 按时间
 
@@ -201,6 +201,9 @@
 | 2026-09-28T02:46 | sa-R2 | L4b-1441-cursed-gems | data | 8697 | weapon:1441 DarkHammer | `src/engine/skills/curated/batch-w03.ts` | damage boosted by Cursed enemies; Drenza gems created after damage → Drenza Cursed Gems first, damage boosted by board Cursed Gems x4 (native CountGems 400 Cursed) |  |
 | 2026-09-28T02:46 | sa-R2 | L4b-1608-1611-order | data | 9388, 9488 | weapon:1608 GlayciasLattice；weapon:1611 ScopriosClaw | `src/engine/skills/curated/batch-w04.ts` | 1608 cleanse before Freeze gems (and stray sourceless x10 modifier); 1611 Scoprio skulls after base skulls → native order: 1608 create 9(+5) Freeze then cleanse; 1611 Scoprio 2 skulls then 4+2/poisoned |  |
 | 2026-09-28T02:53 | sa-R2 | L4b-7634-attack | data | 9538 | troop:7634 WoodRot | `src/engine/skills/curated/batch-r14.ts` | Attack [Magic+1] unboosted (only Armor boosted) → Attack and Armor both + converted gems (both native steps UseCounterForAmount) |  |
+| 2026-09-28T02:58 | sa-R2 | L4b-6152-attack | data | 7266 | troop:6152 AnointedOne | `src/engine/skills/curated/batch-05.ts` | Attack unboosted → Attack and Life both + floor(converted x 34%) |  |
+| 2026-09-28T02:58 | sa-R2 | L4b-7277-7094 | data | 8902, 8629 | troop:7277 QueenAsh；troop:7094 KingHeliodor | `src/engine/skills/curated/batch-r19.ts`<br>`src/engine/skills/curated/batch-r7.ts` | second source teamSize (all allies); 7277 enemyLastN 2 both main targets; 7094 missing 3 Elemental Stars → Brown allies (CountArmyColor Data 5); 7277 single enemySecondLast main; 7094 creates 3 Elemental Stars |  |
+| 2026-09-28T02:58 | sa-R2 | L4b-7108-purple-enemies | data | 8651 | troop:7108 MoonPhoenix | `src/engine/skills/curated/batch-p37.ts` | boost by Purple allies (desc 紫色盟友) → boost by Purple enemies (CountArmyColor@AllEnemies Data 4); desc 紫色敌人 |  |
 
 ## 按技能 ID
 
@@ -256,6 +259,7 @@
 | 7252 | 1 | P-counter-per-step |
 | 7260 | 1 | F1-items-62-75 |
 | 7265 | 1 | L3-008 |
+| 7266 | 1 | L4b-6152-attack |
 | 7272 | 1 | F2-1120-column-skulls |
 | 7280 | 1 | P-create-interleave |
 | 7287 | 1 | F3-q26 |
@@ -441,6 +445,7 @@
 | 8624 | 1 | P-counter-per-step |
 | 8625 | 1 | F1-items-54-60 |
 | 8626 | 1 | P-counter-per-step |
+| 8629 | 1 | L4b-7277-7094 |
 | 8632 | 2 | L3-001、P-create-interleave |
 | 8633 | 2 | L3-001、P-create-interleave |
 | 8634 | 2 | L3-001、P-create-interleave |
@@ -448,6 +453,7 @@
 | 8636 | 1 | F3-t7101 |
 | 8638 | 1 | L3-015 |
 | 8650 | 1 | P-prefnotprev-semantics |
+| 8651 | 1 | L4b-7108-purple-enemies |
 | 8654 | 1 | L3-008 |
 | 8656 | 1 | P-prefnotprev-semantics |
 | 8668 | 2 | L5-007、R004 (L5-004,L5-005,L5-014,L4b-6340) |
@@ -490,6 +496,7 @@
 | 8894 | 2 | L1-7260-target、L1-7260-target |
 | 8895 | 1 | F1-items-62-75 |
 | 8901 | 2 | L4b-7276-singlegem、P-chooser-native-restrictions |
+| 8902 | 1 | L4b-7277-7094 |
 | 8924 | 1 | F2-R001-order |
 | 8933 | 1 | F2-7321-no-events |
 | 8941 | 1 | P-F1-oneof-chosen-target |

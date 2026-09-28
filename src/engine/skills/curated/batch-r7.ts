@@ -519,10 +519,13 @@ const SPELLS: CuratedBatch['spells'] = [
       trueDmg('enemyFront', 4, 1, {
         modifier: {
           mod: { kind: 'multiplier', a: 2 },
-          sources: [{ kind: 'boardGems', color: BaseColor.Brown }, { kind: 'teamSize', side: 'ally' }],
+          // sa-R2 L4b-7094: CountArmyColor Data 5 = Brown allies (not team size).
+          sources: [{ kind: 'boardGems', color: BaseColor.Brown }, { kind: 'alliesOfColor', color: BaseColor.Brown }],
         },
       }),
       reposition('enemyFront', 'back'),
+      // Native CreateGems 3 ElementalStar (was missing).
+      createSpecialGems({ kind: 'elementalStar' }, 3),
     ),
   },
   {

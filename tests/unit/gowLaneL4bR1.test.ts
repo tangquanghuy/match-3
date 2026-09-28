@@ -309,3 +309,28 @@ describe('L4b B10', () => {
     expect(r.summary.gems.created.skull).toBe(8);
   });
 });
+
+describe('L4b B11', () => {
+  it('troop:6152: 13 Green converted -> Attack and Life both 1 + 10 + floor(13 x 34%) = 15', () => {
+    expect(castSpell({ key: 'troop:6152' }).summary.order.slice(1)).toEqual(['buff C attack+15', 'buff C hp+15 max+15']);
+  });
+  // troop:7277 / 7094: CountGems 200 Brown + CountArmyColor@AllAllies 200 Brown; 8 Brown gems on the review board
+  it('troop:7277: one main target (second last), 2 more Brown allies -> 4 + 10 + 16 + 2 x 3 = 36, heavy splash 27', () => {
+    const r = castSpell({ key: 'troop:7277', allies: [{ colors: [BaseColor.Brown] }, { colors: [BaseColor.Brown, BaseColor.Red] }] });
+    expect(r.summary.order.slice(0, 4)).toEqual(['dmg E12 36 (splash)', 'dmg E11 27 (splash)', 'dmg E13 27 (splash)', 'move E12 front']);
+    expect(r.summary.order[4]).toMatch(/-> elementalStar x3$/);
+  });
+  it('troop:7094: non-Brown allies do not count -> 32 true damage to the front enemy, knocked back, 3 Elemental Stars', () => {
+    const r = castSpell({ key: 'troop:7094', allies: [{ colors: [BaseColor.Blue] }, { colors: [BaseColor.Red] }, { colors: [BaseColor.Green] }] });
+    expect(r.summary.order.slice(0, 2)).toEqual(['dmg E10 32', 'move E10 back']);
+    expect(r.summary.order[2]).toMatch(/-> elementalStar x3$/);
+  });
+  it('troop:7108: 2 Purple enemies + 3 x2 Wildcards on board -> 8 + 10 + 8 + 12 = 38 scatter total', () => {
+    const wc = { kind: 'special', spec: { kind: 'wildcard', tier: 2 } } as never;
+    const board = (r: number, c: number) => (r === 7 && c < 3 ? wc : colorGem(OTHERS[(2 * r + c) % 5]));
+    const enemies = [0, 1, 2, 3].map(i => ({ hp: 500, maxHp: 500, armor: 0, colors: i < 2 ? [BaseColor.Purple] : [BaseColor.Red] }));
+    const r = castSpell({ key: 'troop:7108', enemies, board });
+    const dmg = r.summary.order.filter(x => x.startsWith('dmg')).map(x => Number(x.split(' ')[2])).reduce((a, b) => a + b, 0);
+    expect(dmg).toBe(38);
+  });
+});
