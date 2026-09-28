@@ -39,3 +39,8 @@
 - troop:7426 fix(DestroyGems 7 include all; waived c2 boss+ascension)
 - troop:7585 fix(DestroyGems 8 include all; waived c2 tower+ascension)
 - troop:6533 accept (waived c2 tower+ascension)
+- troop:6234 accept
+- troop:6500 accept (waived c2 tower+ascension)
+- troop:6591 accept (waived c2 tower+ascension)
+- troop:6597 accept
+- troop:6768 accept (waived c2 tower+ascension)

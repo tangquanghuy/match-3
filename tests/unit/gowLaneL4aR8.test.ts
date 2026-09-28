@@ -138,3 +138,23 @@ describe('L4a R8 B05', () => {
     expect(d).toContain('skull');
   });
 });
+
+describe('L4a R8 B06', () => {
+  // troop:6234 Dragon Moth (7375): Damage 1+M ; ExplodeColor Red [AddFor10RedGems 100 = 13+ Red, R003].
+  it('troop:6234 explodes all Red only with 13+ Red Gems', () => {
+    expect(castSpell({ key: 'troop:6234', board: exactly(BaseColor.Red, 12) }).summary.order.some(o => o.startsWith('explode'))).toBe(false);
+    const r = castSpell({ key: 'troop:6234', board: exactly(BaseColor.Red, 13) });
+    expect(r.summary.order[0]).toBe('dmg E11 11');
+    expect(r.summary.order[1]).toMatch(/^explode \d+$/);
+    expect(Number(r.summary.order[1].split(' ')[1])).toBeGreaterThanOrEqual(13);
+  });
+  // troop:6500 (7687) Brown / 6591 (7795) Red / 6768 (8158) Red: ExplodeColor <C> 3 ; troop:6597 (7927): ExplodeColor Blue 2.
+  it.each([['troop:6500', BaseColor.Brown, 'dmg E11 14'], ['troop:6591', BaseColor.Red, 'dmg E11 14'], ['troop:6768', BaseColor.Red, 'dmg E11 14'], ['troop:6597', BaseColor.Blue, 'dmg E11 12']] as const)(
+    '%s explodes only %s gems (none on the board -> no explosion)', (key, color, dmg) => {
+      const none = castSpell({ key, board: exactly(color, 0) });
+      expect(none.summary.order).toEqual([dmg]);
+      const r = castSpell({ key });
+      expect(r.summary.order[0]).toBe(dmg);
+      expect(r.summary.order[1]).toMatch(/^explode \d+$/);
+    });
+});
