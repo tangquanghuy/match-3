@@ -108,7 +108,7 @@ const KWS:KW[]=[
 ];
 const ALL=[BaseColor.Blue,BaseColor.Green,BaseColor.Red,BaseColor.Yellow,BaseColor.Purple,BaseColor.Brown];
 for(const w of KWS)describe(`L4b weapon:${w.id}/spell:${w.spell} [Magic+7] +6 per ${w.enName} ally to an enemy, then a mix of 6 ${w.mix.join('/')} per ${w.enName} ally`,()=>{
- const mod={mod:{kind:'multiplier',a:6},source:{kind:'alliesOfKingdom',kingdom:w.kingdom}};
+ const mod={mod:{kind:'multiplier',a:6},source:{kind:'alliesOfKingdom',kingdom:w.kid}}; // P-E-faction-kingdom: native CountArmyKingdom raw id
  // Prototype mix order may differ from native Color1/Color2 (per-gem uniform pick: order-insensitive, set asserted below).
  const proto={segments:[{kind:'damage',target:'enemyChosen',scaling:{base:7,mult:1},modifier:mod},
   {kind:'gem',params:{op:'create',gem:{kind:'mix',colors:[...w.protoMix]},count:{base:0,mult:0},modifier:mod},modifier:mod}]};

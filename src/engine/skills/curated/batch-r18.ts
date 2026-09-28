@@ -269,7 +269,7 @@ const SPELLS: CuratedBatch['spells'] = [
     modifier: {
       mod: { kind: 'multiplier', a: 5 },
       sources: [
-        { kind: 'alliesOfKingdom', kingdom: '白盔国' },
+        { kind: 'alliesOfKingdom', kingdom: 3014 },
         { kind: 'boardSpecial', gem: 'angelGem' },
       ],
     },

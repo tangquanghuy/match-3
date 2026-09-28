@@ -202,7 +202,8 @@ export function inspectKnownDiscrepancies(kind, spellId, original, prototype, na
       }
     }
     if ([9911,9914,10050].includes(spellId)) {
-      const kingdom = {9911:'黑石',9914:'沃尔帕克',10050:'聚沙之地'}[spellId];
+      // P-E-faction-kingdom: native AllyKingdom Data = raw KingdomId (黑石 3022 / 沃尔帕克 3084 / 聚沙之地 3024)
+      const kingdom = {9911:3022,9914:3084,10050:3024}[spellId];
       for (const seg of ss.filter(s => s.kind === 'buff' || (s.kind === 'status' && s.statusId === 'blessed'))) {
         check(`native-gain-kingdom-${spellId}-${seg.stat ?? 'blessed'}`,
           native?.SpellSteps?.some(s => s.Target === 'AllyKingdom'),

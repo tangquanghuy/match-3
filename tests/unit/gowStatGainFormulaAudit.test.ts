@@ -39,7 +39,7 @@ describe('lost magic scaling and leaked kingdom Bless targets (scoped)',()=>{
   f.state.teams[PlayerSide.Left].characters.push(matching,other,dead);Object.assign(f.enemies[0],group(spec));
   const proto=registry.prototypes.get(f.caster.skillId)!;
   expect(proto.segments.map(s=>s.kind)).toEqual(['buff','buff','status']);
-  expect(proto.segments.every(s=>spec.field in s && (s as unknown as Record<string,unknown>)[spec.field]===spec.value)).toBe(true);
+  expect(proto.segments.every(s=>spec.field in s && (s as unknown as Record<string,unknown>)[spec.field]===(spec.field==='targetKingdom'?Number(spec.nativeData):spec.value))).toBe(true); // P-E-faction-kingdom: kingdom filter = native raw id
   const engine=new TurnEngine(f.state,f.ctx.rng,f.ctx.nextGemId,registry);const ev=engine.castSkill(f.caster.id);
   const amount=magic+1;
   expect([matching.attack,matching.hp,matching.maxHp]).toEqual([17+amount,100+amount,100+amount]);

@@ -136,8 +136,8 @@
    "L0": "dmg E11 9 ; status C +barrier  => E11:arm-9 | C:+barrier",
    "K": "dmg E11 19 ; defeat E11 ; status C +barrier  => E11:hp-1 DEAD | C:+barrier"
   },
-  "by": "sa-R3",
-  "at": "2026-09-28T02:36:48.972Z"
+  "by": "sa-P",
+  "at": "2026-09-28T13:43:20.381Z"
  },
  "troop:6253": {
   "lines": {

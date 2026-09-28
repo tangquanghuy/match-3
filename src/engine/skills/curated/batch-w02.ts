@@ -24,8 +24,8 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 7662,
     desc: '对一名敌人造成 [魔法 + 7] 点伤害，伤害值因潘神之谷友数而增强。每有一名潘神之谷盟友，则创造混合绿色和黄色的 6 颗宝石。 [x6]',
     build: skill(
-      dmg('enemyChosen', 7, 1, { modifier: { mod: { kind: 'multiplier', a: 6 }, source: { kind: 'alliesOfKingdom', kingdom: '潘神之谷' } } }),
-      createMix([BaseColor.Green, BaseColor.Yellow], 0, 0, { modifier: { mod: { kind: 'multiplier', a: 6 }, source: { kind: 'alliesOfKingdom', kingdom: '潘神之谷' } } }),
+      dmg('enemyChosen', 7, 1, { modifier: { mod: { kind: 'multiplier', a: 6 }, source: { kind: 'alliesOfKingdom', kingdom: 3003 } } }),
+      createMix([BaseColor.Green, BaseColor.Yellow], 0, 0, { modifier: { mod: { kind: 'multiplier', a: 6 }, source: { kind: 'alliesOfKingdom', kingdom: 3003 } } }),
     ),
   },
   {
@@ -40,8 +40,8 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 7692,
     desc: '对一名敌人造成 [魔法 + 7] 点伤害，伤害值因冰峰之巅盟友数而增强。每有一名冰峰之巅盟友，则创造 6 颗宝石，所创造的宝石混合蓝色和紫色两种颜色。 [x6]',
     build: skill(
-      dmg('enemyChosen', 7, 1, { modifier: { mod: { kind: 'multiplier', a: 6 }, source: { kind: 'alliesOfKingdom', kingdom: '冰峰之巅' } } }),
-      createMix([BaseColor.Blue, BaseColor.Purple], 0, 0, { modifier: { mod: { kind: 'multiplier', a: 6 }, source: { kind: 'alliesOfKingdom', kingdom: '冰峰之巅' } } }),
+      dmg('enemyChosen', 7, 1, { modifier: { mod: { kind: 'multiplier', a: 6 }, source: { kind: 'alliesOfKingdom', kingdom: 3011 } } }),
+      createMix([BaseColor.Blue, BaseColor.Purple], 0, 0, { modifier: { mod: { kind: 'multiplier', a: 6 }, source: { kind: 'alliesOfKingdom', kingdom: 3011 } } }),
     ),
   },
   {
@@ -64,8 +64,8 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 7707,
     desc: '对一名敌人造成 [魔法 + 7] 点伤害，伤害值因剑锋崖盟友数而增强。每有一名剑锋崖盟友，则创造 6 颗宝石，所创造的宝石混合蓝色和黄色两种颜色。 [x6]',
     build: skill(
-      dmg('enemyChosen', 7, 1, { modifier: { mod: { kind: 'multiplier', a: 6 }, source: { kind: 'alliesOfKingdom', kingdom: '剑锋崖' } } }),
-      createMix([BaseColor.Blue, BaseColor.Yellow], 0, 0, { modifier: { mod: { kind: 'multiplier', a: 6 }, source: { kind: 'alliesOfKingdom', kingdom: '剑锋崖' } } }),
+      dmg('enemyChosen', 7, 1, { modifier: { mod: { kind: 'multiplier', a: 6 }, source: { kind: 'alliesOfKingdom', kingdom: 3006 } } }),
+      createMix([BaseColor.Blue, BaseColor.Yellow], 0, 0, { modifier: { mod: { kind: 'multiplier', a: 6 }, source: { kind: 'alliesOfKingdom', kingdom: 3006 } } }),
     ),
   },
   {
@@ -80,8 +80,8 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 7722,
     desc: '对一名敌人造成 [魔法 + 7] 点伤害，伤害值因盛唐盟友数而增强。每有一名盛唐盟友，则创造 6 颗宝石，所创造的宝石混合红色和黄色两种颜色。色 [x6]',
     build: skill(
-      dmg('enemyChosen', 7, 1, { modifier: { mod: { kind: 'multiplier', a: 6 }, source: { kind: 'alliesOfKingdom', kingdom: '圣唐' } } }),
-      createMix([BaseColor.Red, BaseColor.Yellow], 0, 0, { modifier: { mod: { kind: 'multiplier', a: 6 }, source: { kind: 'alliesOfKingdom', kingdom: '圣唐' } } }),
+      dmg('enemyChosen', 7, 1, { modifier: { mod: { kind: 'multiplier', a: 6 }, source: { kind: 'alliesOfKingdom', kingdom: 3030 } } }),
+      createMix([BaseColor.Red, BaseColor.Yellow], 0, 0, { modifier: { mod: { kind: 'multiplier', a: 6 }, source: { kind: 'alliesOfKingdom', kingdom: 3030 } } }),
     ),
   },
   {
@@ -451,8 +451,8 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 7976,
     desc: '对一名敌人造成 [魔法 + 7] 点伤害，伤害值因狂野平原盟友的数量而增强。每有一名狂野平原盟友，则创造混合绿色和红色的 6 颗宝石。 [x6]',
     build: skill(
-      dmg('enemyChosen', 7, 1, { modifier: { mod: { kind: 'multiplier', a: 6 }, source: { kind: 'alliesOfKingdom', kingdom: '狂野平原' } } }),
-      createMix([BaseColor.Green, BaseColor.Red], 0, 0, { modifier: { mod: { kind: 'multiplier', a: 6 }, source: { kind: 'alliesOfKingdom', kingdom: '狂野平原' } } }),
+      dmg('enemyChosen', 7, 1, { modifier: { mod: { kind: 'multiplier', a: 6 }, source: { kind: 'alliesOfKingdom', kingdom: 3027 } } }),
+      createMix([BaseColor.Green, BaseColor.Red], 0, 0, { modifier: { mod: { kind: 'multiplier', a: 6 }, source: { kind: 'alliesOfKingdom', kingdom: 3027 } } }),
     ),
   },
   {

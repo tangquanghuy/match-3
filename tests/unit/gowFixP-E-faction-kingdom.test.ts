@@ -35,7 +35,12 @@ describe('P-E-faction-kingdom', () => {
     expect(matchesKingdom(SHENTANG_FACTION, 3030)).toBe(false);
     expect(matchesKingdom(SHENTANG, 3030)).toBe(true);
     expect(matchesKingdom(SHENTANG_FACTION, '圣唐')).toBe(true);
-    expect(matchesKingdom({ kingdom: '圣唐' }, 3030)).toBe(false);
+    // name-only units (community troops, hand fixtures, old snapshots) derive the parent id from the zh name;
+    // they never match a faction id (the zh name is folded into the parent kingdom)
+    expect(matchesKingdom({ kingdom: '圣唐' }, 3030)).toBe(true);
+    expect(matchesKingdom({ kingdom: '圣唐' }, 3070)).toBe(false);
+    expect(matchesKingdom({ kingdom: '其他' }, 3030)).toBe(false);
+    expect(matchesKingdom({}, 3030)).toBe(false);
   });
 
   it('weapon:1364 (8399 RandomPositiveStatusEffect@AllyKingdom 3030): a 3070 faction ally gets nothing', () => {

@@ -1,6 +1,6 @@
 # GoW 技能改动留档
 
-自动生成（`node scripts/gow-changelog.mjs render`），源数据 [CHANGES.jsonl](CHANGES.jsonl)，共 512 条改动，涉及 938 个技能 ID。
+自动生成（`node scripts/gow-changelog.mjs render`），源数据 [CHANGES.jsonl](CHANGES.jsonl)，共 513 条改动，涉及 945 个技能 ID。
 
 ## 按时间
 
@@ -518,6 +518,7 @@
 | 2026-09-28T12:23 | sa-E | L1-E-7465-dist | assembler | 9181 | troop:7465 Theodorevich | `src/engine/skills/curated/batch-r22.ts` | 4 summons uniform 25% each → Randomize A+(B-C-D-E-F), B and F both Ragnagord: 40/20/20/20% |  |
 | 2026-09-28T12:24 | sa-P | P-R5-faction-kingdom | primitive | 8985, 8140 | troop:7357 FeyHound；weapon:1274 TomeOfSpores | `src/engine/skills/effects/secondary.ts`<br>`src/engine/skills/curated/batch-r19.ts`<br>`src/engine/skills/curated/batch-w02.ts`<br>`src/data/gowWeaponReviewedOverrides.json` | alliesOfKingdom zh parent kingdom (卜筮之原 / 齐埃金) counted every Adana / Zaejin ally → alliesNamed name[] = raw KingdomId 3048 / 3053 roster zh names (Wild Court 5, Amanithrax 5) |  |
 | 2026-09-28T13:09 | sa-P | P-E-faction-kingdom | primitive | 8111, 8365, 8556, 8607, 8723, 9245, 9249, 9588, 9593, 8045, 8048, 8051, 8054, 8119, 8121, 8123, 8125, 8176, 8178, 8197, 8199, 8201, 8260, 8261, 8262, 8263, 8285, 8313, 8322, 8323, 8324, 8325, 8326, 8327, 8328, 8329, 8330, 8331, 8332, 8333, 8334, 8335, 8336, 8337, 8338, 8339, 8340, 8341, 8342, 8343, 8344, 8345, 8346, 8347, 8348, 8349, 8350, 8351, 8352, 8353, 8354, 8383, 8385, 8399, 8434, 8451, 8452, 8453, 8487, 8505, 8506, 8510, 8513, 8514, 8515, 8620, 8642, 8645, 8669, 8670, 8707, 8725, 8765, 8766, 8807, 8809, 8905, 8911, 8875, 8877, 8955, 8971, 9034, 9036, 9142, 9145, 9205, 9208, 9111, 9235, 9264, 9267, 9302, 9305, 9351, 9354, 9506, 9509, 9574, 9577, 9628, 9632, 9635, 9689, 9692, 9749, 9752, 9832, 9835, 9911, 9914, 9876, 9974, 9977, 10047, 10050 | troop:6741 GeneralSuladin；troop:6904 LordBelanor；troop:7029 SkyMage；troop:7079 LadyEstelle；troop:7171 LordArchimedus；troop:7500 ManeCourser；troop:7504 Belladonnus；troop:7660 DugallRamhorn；troop:7665 SeabornKnight；weapon:1240 RoseBow；weapon:1243 SpikedMace；weapon:1246 CrystalPoint；weapon:1249 Razorclaw；weapon:1265 DrillShooter；weapon:1267 Grudgekeeper；weapon:1269 PlumedStaff；weapon:1271 SummerAegis；weapon:1282 KoragsInvention；weapon:1284 WolfHammer；weapon:1288 MedusaTome；weapon:1290 CatsPaw；weapon:1292 OakenCrown；weapon:1303 SickleOfSin；weapon:1304 StingingWind；weapon:1305 Soulreaper；weapon:1306 GuardianHammer；weapon:1312 StaffOfOtherworlds；weapon:1314 AmberPartizan；weapon:1318 PistolOfAdana；weapon:1319 TomeOfKarakoth；weapon:1320 ChokerOfZhulKari；weapon:1321 StaffOfTheFields；weapon:1322 DaggerOfScales；weapon:1323 BowOfThorns；weapon:1324 StaffOfWhitehelm；weapon:1325 LuteOfTheVale；weapon:1326 HammerOfKhaziel；weapon:1327 ScytheOfKhetar；weapon:1328 DaggerOfZaejin；weapon:1329 SpearOfThePride；weapon:1330 MaceOfGhulvania；weapon:1331 ShieldOfTheEdge；weapon:1332 AxeOfTheStorm；weapon:1333 DaggerOfMaugrim；weapon:1334 MaceOfGrosh-Nak；weapon:1335 StaffOfTheWild；weapon:1336 IdolOfDarkstone；weapon:1337 DaggerOfTheSands；weapon:1338 ScytheOfTheBlight；weapon:1339 ChaliceOfThePeaks；weapon:1340 PendantOfTheEmpire；weapon:1341 TorcOfTheDragon；weapon:1342 FlintlockOfBlackhawk；weapon:1343 RunestoneOfSilverglade；weapon:1344 JavelinOfSuncrest；weapon:1345 AegisOfUrskaya；weapon:1346 TridentOfMerlantis；weapon:1347 StaffOfBrightForest；weapon:1348 HammerOfShentang；weapon:1349 AxeOfDhrak-Zum；weapon:1350 ScytheOfSin；weapon:1353 AranaeanBloom；weapon:1355 Krys-hook；weapon:1364 CobaltineWand；weapon:1372 ScreamingTome；weapon:1388 EyeOfOrion；weapon:1389 DragonTales；weapon:1390 GinormousCleaver；weapon:1400 PiratesSignet；weapon:1402 WildCleaver；weapon:1403 Whump!；weapon:1407 IceSapphire；weapon:1410 FireGodsHeart；weapon:1411 King-Chopper；weapon:1412 OldMagusStaff；weapon:1423 AxeOfLeeching；weapon:1429 StarOfNexus；weapon:1432 VolcansMace；weapon:1437 HackJob；weapon:1438 EmeraldBlade；weapon:1449 TombLordsCrook；weapon:1453 Runegauge；weapon:1464 DaisysCudgel；weapon:1465 FlailOfGaard；weapon:1479 AegisOfHellcrag；weapon:1481 WatchfulBlade；weapon:1491 BaneOfGods；weapon:1497 ThornOfTheGods；weapon:1499 OrbOfVulpacea；weapon:1501 FoxfireTome；weapon:1511 RuthlessDefense；weapon:1527 AngelsFaith；weapon:1534 ElementalFury；weapon:1536 ThreeGraves；weapon:1541 EmeraldBaton；weapon:1544 WatchersBlade；weapon:1553 FoxFang；weapon:1556 KingCrusher；weapon:1560 MydnightsTerror；weapon:1569 ChampionsCleaver；weapon:1573 LionsReach；weapon:1576 ShieldOfVengeance；weapon:1580 MistyJournal；weapon:1583 Moonshard；weapon:1587 Bonecutter；weapon:1590 ShadowStaff；weapon:1614 TrickstersSlice；weapon:1617 BloodcrystalBlade；weapon:1626 CrystallianBlade；weapon:1629 GodsBloodRuby；weapon:1638 Stonecaller；weapon:1642 PoisonousBrew；weapon:1645 CoralBow；weapon:1651 TeslasWrench；weapon:1654 LostTreasure；weapon:1660 ArcaneComet；weapon:1663 JewelOfMischief；weapon:1675 DeadEnd；weapon:1678 Windfall；weapon:1687 MiasmicDirk；weapon:1690 Spiritflame；weapon:1694 Nightwatch；weapon:1700 SlayersCleaver；weapon:1703 BigBang；weapon:1715 GrimoireOfTheGrove；weapon:1718 DesertStar | `scripts/build_troops.mjs`<br>`src/data/troops.ts`<br>`src/engine/types.ts`<br>`src/engine/skills/effects/secondary.ts`<br>`src/engine/skills/prototypes.ts`<br>`src/engine/skills/effects/summon.ts`<br>`src/session/contract.ts`<br>`src/session/combatantMapping.ts`<br>`src/meta/systems/battleBridge.ts`<br>`scripts/_weapon_pools.mjs`<br>`src/engine/skills/curated/batch-w02.ts`<br>`src/engine/skills/curated/batch-w03.ts`<br>`src/engine/skills/curated/batch-w04.ts`<br>`src/engine/skills/curated/batch-r18.ts`<br>`src/engine/skills/curated/batch-r19.ts`<br>`src/engine/skills/curated/batch-r21.ts`<br>`src/data/gowWeaponReviewedOverrides.json` | kingdom filters (targetKingdom / alliesOfKingdom / kingdomOf) matched the zh kingdom name, which faction troops share with their parent kingdom (e.g. raw 3070 troops = 圣唐) → troops.json/Character carry raw native kingdomId; KingdomRef number matches kingdomId; curated users of native AllyKingdom / CountArmyKingdom / MultiplyForKingdom<id> switched to the id; kingdomPresent (battle kingdom) keeps the zh name | 126 skills with a native kingdom id step; only differs when a faction troop (or mis-assigned zh kingdom) is on the field |
+| 2026-09-28T13:43 | sa-P | P-E-faction-kingdom | primitive | 7241, 7662, 7692, 7707, 7722, 7976, 7391 | weapon:1105 BoneShield；weapon:1186 RadiantJewel；weapon:1188 GlacialCrystal；weapon:1191 TheEdgedBlade；weapon:1193 HookSword；weapon:1234 PrimalAxe；troop:6248 GrandInquisitor | `src/engine/types.ts`<br>`src/engine/skills/curated/batch-w01.ts`<br>`src/engine/skills/curated/batch-w02.ts`<br>`src/engine/skills/curated/batch-r18.ts`<br>`scripts/lib/gow-skill-audit.mjs` | numeric kingdom refs never matched units carrying only the zh kingdom name (community troops, hand fixtures, old host snapshots); 7 CountArmyKingdom users in w01/w02/r18 still used the zh name → matchesKingdom derives the parent native id from the zh name when kingdomId is absent (ZH_KINGDOM_PARENT_ID; exact for non-faction troops, never matches a faction id); 7241 7662 7692 7707 7722 7976 7391 alliesOfKingdom use the native CountArmyKingdom id | all numeric kingdom filters: name-only units match their parent kingdom again; 7 skills: only differ with a faction ally |
 
 ## 按技能 ID
 
@@ -591,6 +592,7 @@
 | 7237 | 2 | L1-6135-allies、P-R1-count-at-native-step |
 | 7239 | 1 | D-b09-targets |
 | 7240 | 2 | P-random-stat-pool、F1-steal-before-damage |
+| 7241 | 1 | P-E-faction-kingdom |
 | 7244 | 2 | P-random-stat-pool、F1-steal-before-damage |
 | 7245 | 1 | F1-onkill-order |
 | 7246 | 1 | D-1109-single-hit |
@@ -651,6 +653,7 @@
 | 7383 | 1 | F2-R001-order |
 | 7386 | 1 | L2-wrong-enemy-branches |
 | 7388 | 1 | L4a-R1-7388-chosen-row |
+| 7391 | 1 | P-E-faction-kingdom |
 | 7392 | 2 | L5-009、R004 (L5-004,L5-005,L5-014,L4b-6340) |
 | 7395 | 1 | L3-011 |
 | 7396 | 1 | F3-q25 |
@@ -739,16 +742,20 @@
 | 7658 | 1 | P-R1-count-at-native-step |
 | 7659 | 1 | P-R1-count-at-native-step |
 | 7660 | 1 | P-R1-count-at-native-step |
+| 7662 | 1 | P-E-faction-kingdom |
 | 7666 | 1 | P-prefnotprev-semantics |
 | 7668 | 1 | L3-010 |
 | 7670 | 1 | P-F3-prehit-target-compare |
 | 7685 | 1 | L1-6498-summon-dist |
+| 7692 | 1 | P-E-faction-kingdom |
 | 7693 | 1 | F2-R001-order |
 | 7697 | 1 | L1-E-race-pool-immortals |
 | 7700 | 1 | B-L4b-6510-two-creates |
 | 7704 | 1 | L1-6513-sacrifice |
+| 7707 | 1 | P-E-faction-kingdom |
 | 7712 | 1 | R3-B03-6519 |
 | 7720 | 1 | F3-q03 |
+| 7722 | 1 | P-E-faction-kingdom |
 | 7723 | 1 | F2-6529-dispel-kill |
 | 7728 | 2 | L1-6534-order、L1-charm-instant |
 | 7735 | 1 | P-chooser-native-restrictions |
@@ -798,6 +805,7 @@
 | 7964 | 1 | L4a-R1-7230-7964-count |
 | 7973 | 4 | L3-015、L3-016、R7-doomed-count-order、P-R1-count-at-native-step |
 | 7975 | 3 | P-counter-per-step、L7-R1-attack-armor-life-pooled、P-counter-per-step |
+| 7976 | 1 | P-E-faction-kingdom |
 | 7978 | 1 | L5-013 |
 | 7982 | 1 | R7-doomed-support-counters |
 | 7983 | 1 | P-counter-per-step |
