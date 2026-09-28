@@ -718,8 +718,9 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 9579,
+    // sa-R7: native DecreaseMana@FromTarget UseCounterForAmount, no Amount = 3 x Undead allies only (was 3 + 3 x count)
     desc: '对一名敌人造成 [魔法 + 3] 点伤害。每有一个亡灵盟友，则消耗 3 点法力值。 [x3]',
-    build: ({"segments":[{"kind":"damage","target":"enemyChosen","scaling":{"base":3,"mult":1}},{"kind":"reduce","target":"lastTarget","stat":"mana","scaling":{"base":3,"mult":0},"modifier":{"mod":{"kind":"multiplier","a":3},"sources":[{"kind":"alliesOfRace","race":"Undead"}]}}]} as SkillPrototype),
+    build: ({"segments":[{"kind":"damage","target":"enemyChosen","scaling":{"base":3,"mult":1}},{"kind":"reduce","target":"lastTarget","stat":"mana","scaling":{"base":0,"mult":0},"modifier":{"mod":{"kind":"multiplier","a":3},"sources":[{"kind":"alliesOfRace","race":"Undead"}]}}]} as SkillPrototype),
   },
   {
     id: 9580,
@@ -1007,8 +1008,9 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 9811,
     desc: '对一名敌人造成[魔法 + 2]点溅射伤害，伤害值因绿宝石数量而增强。如果我方队伍中有不朽的怪物，则吸取目标的所有法力值。 [x2]',
     build: skill(
+      // sa-R7 (R001): native DecreaseMana@FromTarget [CountArmyTroop Immortal Monstera] precedes SplashHighDamage
+      drainMana('enemyChosen', { ifCond: { kind: 'troopPresent', side: 'ally', name: '不朽的龟背竹' } }),
       dmgSplash('enemyChosen', 2, 1, { range: 'splash', modifier: { mod: { kind: 'multiplier', a: 2 }, source: { kind: 'boardGems', color: BaseColor.Green } } }),
-      drainMana('lastTarget', { ifCond: { kind: 'troopPresent', side: 'ally', name: '不朽的龟背竹' } }),
     ),
   },
   {

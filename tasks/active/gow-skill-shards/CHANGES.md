@@ -1,6 +1,6 @@
 # GoW 技能改动留档
 
-自动生成（`node scripts/gow-changelog.mjs render`），源数据 [CHANGES.jsonl](CHANGES.jsonl)，共 276 条改动，涉及 501 个技能 ID。
+自动生成（`node scripts/gow-changelog.mjs render`），源数据 [CHANGES.jsonl](CHANGES.jsonl)，共 282 条改动，涉及 511 个技能 ID。
 
 ## 按时间
 
@@ -282,6 +282,12 @@
 | 2026-09-28T03:06 | sa-R1 | L4a-R1-no-base-7804-8423 | data | 7804, 8423 | weapon:1209 SkyHero；troop:6942 BoneboundDredge | `src/engine/skills/curated/batch-w02.ts`<br>`src/engine/skills/curated/batch-p39.ts` | base 4 Red / 2 Doomskulls plus the per-gem amount → per-gem amount only (native CreateGems without Amount) |  |
 | 2026-09-28T03:06 | sa-R1 | L4a-R1-7159-cross | data | 7159 | troop:6089 Elwyn | `src/engine/skills/curated/batch-19.ts` | row then column (16 cells) → destroyChosenCross (15 cells) |  |
 | 2026-09-28T03:06 | sa-R1 | L4a-R1-7388-chosen-row | data | 7388 | troop:6245 ArmoredBoar | `src/engine/skills/curated/batch-r22.ts` | random row → chosen row (Board-target spell, BoardTarget Row) |  |
+| 2026-09-28T05:41 | sa-R7 | R7-doomed-count-order | assembler | 7952, 7963, 7973, 8053, 8077, 8078 | weapon:1226 DoomedBlade；weapon:1229 DoomedClub；weapon:1233 DoomedCrossbow；weapon:1248 DoomedGlaive；weapon:1257 DoomedAxe；weapon:1258 DoomedScythe | `src/engine/skills/curated/batch-w02.ts`<br>`src/data/gowWeaponReviewedOverrides.json` | damage, convert, create, then Gain 3 Mana per <colour> enemy counted after the damage (a counted enemy killed by the hit no longer counted) → native CountArmyColor is step 0: the self-mana segment runs first (R001; self mana gain independent of the damage), so killed enemies still count |  |
+| 2026-09-28T05:41 | sa-R7 | R7-doomed-support-counters | assembler | 7982, 8047, 8050, 8079, 8080, 8081 | weapon:1236 DoomedCauldron；weapon:1242 DoomedRunestones；weapon:1245 DoomedStatue；weapon:1259 DoomedMask；weapon:1260 DoomedPotions；weapon:1261 DoomedHelm | `src/engine/skills/curated/batch-w02.ts`<br>`src/data/gowWeaponReviewedOverrides.json` | Magic = 2 + 4 x <colour> enemies; other allies Mana 5 (+4 once if any Doom enemy); order hp, mana, magic → native: Magic = 2 x <colour> enemies (CountArmyColor 200 + counter, no base); Mana = 5 + 4 x Doom enemies (CountArmyType doom 400); order hp, magic, mana |  |
+| 2026-09-28T05:41 | sa-R7 | R7-6925-two-hits | assembler | 8413 | troop:6925 Rogueling | `src/engine/skills/curated/batch-14.ts` | enemyRandomN n:2 (a lone enemy is hit once) → native Damage@RandomEnemy + Damage@RandomPrefNotPrevEnemy: two hits, a lone enemy is hit twice (R007-3) |  |
+| 2026-09-28T05:41 | sa-R7 | R7-7646-target-colour | assembler | 9550 | troop:7646 ShadowWraith | `src/engine/skills/curated/batch-r7.ts` | half mana if any enemy uses Purple (anyEnemyColor) → half mana if the random enemy that was hit uses Purple (lastTargetColor; native CountArmyColor@RandomEnemy -> Damage@FromPrevious) |  |
+| 2026-09-28T05:48 | sa-R7 | R7-1631-counter-only-drain | assembler | 9579 | weapon:1631 DarkEngraver | `src/engine/skills/curated/batch-w04.ts`<br>`src/data/gowWeaponReviewedOverrides.json` | drain 3 + 3 x Undead allies → native DecreaseMana UseCounterForAmount, no Amount: drain 3 x Undead allies only (L3-015 pattern) |  |
+| 2026-09-28T05:48 | sa-R7 | R7-1667-drain-order | assembler | 9811 | weapon:1667 MonsterasHammer | `src/engine/skills/curated/batch-w04.ts` | splash damage, then drain all Mana if Immortal Monstera → native order (R001): DecreaseMana@FromTarget [Immortal Monstera] then SplashHighDamage |  |
 
 ## 按技能 ID
 
@@ -470,24 +476,30 @@
 | 7941 | 1 | F2-6623-column-order |
 | 7945 | 1 | P-prefnotprev-semantics |
 | 7947 | 1 | L1-1351-pool |
-| 7952 | 2 | L3-015、L3-016 |
-| 7963 | 2 | L3-015、L3-016 |
+| 7952 | 3 | L3-015、L3-016、R7-doomed-count-order |
+| 7963 | 3 | L3-015、L3-016、R7-doomed-count-order |
 | 7964 | 1 | L4a-R1-7230-7964-count |
-| 7973 | 2 | L3-015、L3-016 |
+| 7973 | 3 | L3-015、L3-016、R7-doomed-count-order |
 | 7975 | 3 | P-counter-per-step、L7-R1-attack-armor-life-pooled、P-counter-per-step |
 | 7978 | 1 | L5-013 |
+| 7982 | 1 | R7-doomed-support-counters |
 | 7983 | 1 | P-counter-per-step |
 | 8024 | 1 | P-prefnotprev-semantics |
 | 8032 | 1 | F2-R001-order |
 | 8035 | 1 | F2-R001-order |
 | 8039 | 1 | L4a-R1-cross-8039-9952 |
+| 8047 | 1 | R7-doomed-support-counters |
+| 8050 | 1 | R7-doomed-support-counters |
 | 8052 | 1 | R3-B03-1247 |
-| 8053 | 2 | L3-015、L3-016 |
+| 8053 | 3 | L3-015、L3-016、R7-doomed-count-order |
 | 8055 | 1 | L7-R1-random-chain-waves |
 | 8073 | 1 | L7-R1-random-chain-waves |
 | 8076 | 1 | R3-B01-1256 |
-| 8077 | 2 | L3-015、L3-016 |
-| 8078 | 2 | L3-015、L3-016 |
+| 8077 | 3 | L3-015、L3-016、R7-doomed-count-order |
+| 8078 | 3 | L3-015、L3-016、R7-doomed-count-order |
+| 8079 | 1 | R7-doomed-support-counters |
+| 8080 | 1 | R7-doomed-support-counters |
+| 8081 | 1 | R7-doomed-support-counters |
 | 8083 | 1 | L7-R1-lethal-order-doomskull |
 | 8084 | 1 | L5-007 |
 | 8097 | 1 | F3-q06 |
@@ -536,6 +548,7 @@
 | 8404 | 3 | L5-001、L5-002、L5-003 |
 | 8407 | 2 | P-F1-oneof-chosen-target、P-F1-oneof-chosen-target |
 | 8410 | 1 | P-prefnotprev-semantics |
+| 8413 | 1 | R7-6925-two-hits |
 | 8414 | 1 | F1-items-62-75 |
 | 8415 | 1 | R3-B04-6934 |
 | 8420 | 1 | L4a-R1-8420-cross |
@@ -718,9 +731,11 @@
 | 9538 | 1 | L4b-7634-attack |
 | 9542 | 1 | L4a-R1-9542-order |
 | 9547 | 1 | P-counter-per-step |
+| 9550 | 1 | R7-7646-target-colour |
 | 9563 | 1 | R3-B10-7650 |
 | 9573 | 1 | L4b-1625-1674-any |
 | 9578 | 1 | L7-R1-weapon-colour-race |
+| 9579 | 1 | R7-1631-counter-only-drain |
 | 9589 | 1 | L7-R1-random-chain-waves |
 | 9591 | 1 | P-counter-per-step |
 | 9597 | 1 | P-counter-per-step |
@@ -752,6 +767,7 @@
 | 9776 | 1 | P-prefnotprev-semantics |
 | 9784 | 1 | L3-007 |
 | 9809 | 1 | L4a-R1-immortal-order |
+| 9811 | 1 | R7-1667-drain-order |
 | 9816 | 1 | L3-012 |
 | 9831 | 1 | L4b-1625-1674-any |
 | 9842 | 1 | L4b-1682-order |

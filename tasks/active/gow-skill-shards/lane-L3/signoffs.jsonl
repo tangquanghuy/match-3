@@ -41,3 +41,27 @@
 {"format":"compact","key":"troop:7443","decision":"accept","reviewer":"sa-R2","reviewedAt":"2026-09-28T02:31:29.858Z","tests":["tests/unit/gowCastGolden.test.ts"]}
 {"format":"compact","key":"troop:7444","decision":"accept","reviewer":"sa-R2","reviewedAt":"2026-09-28T02:31:29.859Z","tests":["tests/unit/gowCastGolden.test.ts"]}
 {"format":"compact","key":"troop:7445","decision":"accept","reviewer":"sa-R2","reviewedAt":"2026-09-28T02:31:29.859Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"weapon:1229","decision":"accept","reviewer":"sa-R7","reviewedAt":"2026-09-28T05:45:06.569Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"weapon:1233","decision":"accept","reviewer":"sa-R7","reviewedAt":"2026-09-28T05:45:06.570Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"weapon:1248","decision":"accept","reviewer":"sa-R7","reviewedAt":"2026-09-28T05:45:06.571Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"weapon:1257","decision":"accept","reviewer":"sa-R7","reviewedAt":"2026-09-28T05:45:06.571Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"weapon:1258","decision":"accept","reviewer":"sa-R7","reviewedAt":"2026-09-28T05:45:06.571Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:6925","decision":"accept","reviewer":"sa-R7","reviewedAt":"2026-09-28T05:45:06.571Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"weapon:1236","decision":"accept","reviewer":"sa-R7","reviewedAt":"2026-09-28T05:45:06.571Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"weapon:1242","decision":"accept","reviewer":"sa-R7","reviewedAt":"2026-09-28T05:45:06.572Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"weapon:1245","decision":"accept","reviewer":"sa-R7","reviewedAt":"2026-09-28T05:45:06.572Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"weapon:1226","decision":"accept","reviewer":"sa-R7","reviewedAt":"2026-09-28T05:45:06.572Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"weapon:1259","decision":"accept","reviewer":"sa-R7","reviewedAt":"2026-09-28T05:45:06.572Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"weapon:1260","decision":"accept","reviewer":"sa-R7","reviewedAt":"2026-09-28T05:45:06.572Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"weapon:1261","decision":"accept","reviewer":"sa-R7","reviewedAt":"2026-09-28T05:45:06.572Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:7646","decision":"issue","reviewer":"sa-R7","reviewedAt":"2026-09-28T05:45:18.042Z","issue":"P-R7-dead-last-target-cond","note":"fixed target colour gate (lastTargetColor, was anyEnemyColor); remaining: a Purple target killed by the hit must still refund half mana (native CountArmyColor@RandomEnemy before Damage), lastTarget conditions go false after the kill; repro it.fails in tests/unit/gowLaneL3R2.test.ts"}
+{"format":"compact","key":"weapon:1606","decision":"accept","reviewer":"sa-R7","reviewedAt":"2026-09-28T05:49:20.040Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"weapon:1599","decision":"accept","reviewer":"sa-R7","reviewedAt":"2026-09-28T05:49:20.042Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"weapon:1667","decision":"accept","reviewer":"sa-R7","reviewedAt":"2026-09-28T05:49:20.042Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"weapon:1656","decision":"accept","reviewer":"sa-R7","reviewedAt":"2026-09-28T05:49:20.042Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"weapon:1475","decision":"accept","reviewer":"sa-R7","reviewedAt":"2026-09-28T05:49:20.043Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:6391","decision":"accept","reviewer":"sa-R7","reviewedAt":"2026-09-28T05:49:20.043Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:6508","decision":"accept","reviewer":"sa-R7","reviewedAt":"2026-09-28T05:49:20.043Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:6648","decision":"accept","reviewer":"sa-R7","reviewedAt":"2026-09-28T05:49:20.043Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"weapon:1631","decision":"accept","reviewer":"sa-R7","reviewedAt":"2026-09-28T05:49:20.043Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"weapon:1623","decision":"issue","reviewer":"sa-R7","reviewedAt":"2026-09-28T05:49:20.204Z","issue":"L3-005","note":"GenerateHalfManaConditional@AllAlliesButNotSelf (Immortal Selene): odd manaCost ally gets floor(cost/2) (13 -> 6); rounding unsourced, not in R006. Damage 2+M+4 x Purple gems and troopPresent gate verified."}

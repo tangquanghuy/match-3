@@ -200,11 +200,12 @@ describe('L3 weapon:1226/spell:7952 [Magic+3] to all (+1 per Tempering), Red -> 
    {Target:'Self',UseCounterForAmount:true,Type:'GenerateMana'}]);
   expect(w).toMatchObject({id:1226,referenceName:'DoomedBlade',manaCost:18,manaColors:['Blue'],spell:{id:7952}});
   expect(w.spell.description).toBe('对所有敌人造成 [魔法 + 3] 点伤害，每锻炼 1 个武器段位则 +1 点伤害值。将红色宝石转换成末日骷髅头。如果敌方有劫数，则再创造 5 颗。每有一名蓝色敌人则获得 3 点法力值。 [x3]');
+  // sa-R7 (R001): the counted self-mana runs first (native CountArmyColor is step 0, before the Damage)
   const proto={segments:[
+   {kind:'buff',target:'allySelf',stat:'mana',scaling:{base:0,mult:0},modifier:{mod:{kind:'multiplier',a:3},source:{kind:'enemiesOfColor',color:'Blue'}}},
    {kind:'damage',target:'enemyAll',scaling:{base:3,mult:1},range:'all',modifier:{mod:{kind:'multiplier',a:1},source:{kind:'tempering'}}},
    {kind:'gem',params:{op:'transform',from:'Red',to:'SKULL',toSpecial:'doomSkull'}},
-   {kind:'gem',params:{op:'create',gem:{kind:'special',spec:{kind:'doomSkull'}},count:{base:5,mult:0}},ifCond:{kind:'targetHasDoom'}},
-   {kind:'buff',target:'allySelf',stat:'mana',scaling:{base:0,mult:0},modifier:{mod:{kind:'multiplier',a:3},source:{kind:'enemiesOfColor',color:'Blue'}}}]};
+   {kind:'gem',params:{op:'create',gem:{kind:'special',spec:{kind:'doomSkull'}},count:{base:5,mult:0}},ifCond:{kind:'targetHasDoom'}}]};
   expect(registry.prototypes.get('7952')).toEqual(proto);expect(registry.prototypes.get('gw_DoomedBlade')).toEqual(proto);
  });
  for(const side of SIDES)for(const alias of ['7952','gw_DoomedBlade'])for(const magic of [0,10])

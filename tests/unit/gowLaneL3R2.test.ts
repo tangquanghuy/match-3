@@ -1,0 +1,142 @@
+/**
+ * Lane L3 review round 2 (sa-R7): table-driven checks for behaviour the default scenarios do not show.
+ */
+import { describe, expect, it } from 'vitest';
+import { castSpell } from '../helpers/gowCast';
+import { BaseColor, colorGem } from '@engine/types';
+import type { Character } from '@engine/types';
+type E = Partial<Character>;
+const en = (colors: BaseColor[], extra: E = {}): E => ({ hp: 100, maxHp: 100, armor: 0, mana: 0, colors, ...extra });
+const doom = (colors: BaseColor[], extra: E = {}): E => en(colors, { troopTypes: ['Doom'], ...extra });
+const order = (r: ReturnType<typeof castSpell>) => r.summary.order;
+
+describe('L3 R2: Doomed damage weapons (Gain 3 Mana per <colour> enemy, counted before the damage)', () => {
+  // native: CountArmyColor@AllEnemies 300 (step 0) -> Damage -> ConvertGems -> CreateGems Doomskull [AddIfEnemyHasDoom 5] -> GenerateMana [counter]
+  const fam: [string, BaseColor, BaseColor][] = [
+    ['weapon:1226', BaseColor.Blue, BaseColor.Red], ['weapon:1229', BaseColor.Brown, BaseColor.Green],
+    ['weapon:1233', BaseColor.Red, BaseColor.Blue], ['weapon:1248', BaseColor.Green, BaseColor.Brown],
+    ['weapon:1257', BaseColor.Yellow, BaseColor.Purple], ['weapon:1258', BaseColor.Purple, BaseColor.Yellow],
+  ];
+  it.each(fam)('%s: an enemy of the counted colour killed by the hit still counts', (key, counted) => {
+    const r = castSpell({ key, enemies: [en([counted], { hp: 1, maxHp: 1 }), en([counted]), en([BaseColor.Red === counted ? BaseColor.Blue : BaseColor.Red])] });
+    expect(order(r)).toContain('defeat E10');
+    expect(order(r)[0]).toBe('buff C mana+6'); // 2 counted enemies x 3
+    expect(order(r).filter(o => o.startsWith('dmg '))).toEqual(['dmg E10 13 (all)', 'dmg E11 13 (all)', 'dmg E12 13 (all)']);
+  });
+  it.each(fam)('%s: Doom enemy -> 5 extra Doomskulls; no Doom -> none', (key, _c, from) => {
+    const withDoom = castSpell({ key, enemies: [doom([BaseColor.Red]), en([BaseColor.Blue])] });
+    const created = order(withDoom).filter(o => o.startsWith('convert ') && !o.startsWith(`convert ${from} `));
+    expect(created).toHaveLength(1);
+    expect(created[0]).toMatch(/-> doomSkull x5$/);
+    const none = castSpell({ key, enemies: [en([BaseColor.Red]), en([BaseColor.Blue])] });
+    expect(order(none).filter(o => o.startsWith('convert ')).length).toBe(1);
+  });
+  it('R001 equivalence: moving the self-mana first leaves damage and conversion unchanged (default scenario)', () => {
+    const r = castSpell({ key: 'weapon:1229' });
+    expect(order(r)).toEqual(['buff C mana+3', 'dmg E10 13 (all)', 'dmg E11 13 (all)', 'dmg E12 13 (all)', 'dmg E13 13 (all)', 'convert Green x13 -> doomSkull x13']);
+  });
+});
+
+describe('L3 R2: Doomed support weapons (2 Magic per <colour> enemy, 5 Mana + 4 per Doom enemy)', () => {
+  // native: CountArmyColor 200 -> IncreaseHealth -> IncreaseSpellPower [counter] -> CountSet -> CountArmyType doom 400 -> GenerateMana@AllAlliesButNotSelf 5 [counter]
+  const fam: [string, BaseColor][] = [
+    ['weapon:1236', BaseColor.Purple], ['weapon:1242', BaseColor.Brown], ['weapon:1245', BaseColor.Yellow],
+    ['weapon:1259', BaseColor.Blue], ['weapon:1260', BaseColor.Green], ['weapon:1261', BaseColor.Red],
+  ];
+  it.each(fam)('%s: two %s Doom enemies -> Magic +4 to all, Mana +13 to the others', (key, c) => {
+    const r = castSpell({ key, enemies: [doom([c]), doom([c]), en([c === BaseColor.Red ? BaseColor.Blue : BaseColor.Red])] });
+    expect(order(r)).toEqual(['buff C hp+11 max+11', 'buff A1 hp+11 max+11', 'buff A2 hp+11 max+11',
+      'buff C magic+4', 'buff A1 magic+4', 'buff A2 magic+4', 'buff A1 mana+13', 'buff A2 mana+13']);
+  });
+  it.each(fam)('%s: no counted enemy and no Doom -> no Magic, Mana 5', (key, c) => {
+    const other = c === BaseColor.Red ? BaseColor.Blue : BaseColor.Red;
+    const r = castSpell({ key, enemies: [en([other]), en([other])] });
+    expect(order(r).filter(o => o.includes('magic'))).toEqual([]);
+    expect(order(r).filter(o => o.includes('mana'))).toEqual(['buff A1 mana+5', 'buff A2 mana+5']);
+  });
+});
+
+describe('L3 R2: troop:6925 Rogueling (8413) two random hits + extra turn', () => {
+  it('a lone enemy is hit twice (RandomEnemy, then RandomPrefNotPrevEnemy may repeat, R007-3)', () => {
+    const r = castSpell({ key: 'troop:6925', enemies: [en([BaseColor.Red])] });
+    expect(order(r)).toEqual(['dmg E10 15', 'dmg E10 15', 'extra-turn skill']);
+    expect(r.summary.turnKept).toBe(true);
+  });
+  it.each([1, 2, 3, 4, 5, 6])('seed %i: two different enemies while several are alive', (seed) => {
+    const r = castSpell({ key: 'troop:6925', seed });
+    const hits = order(r).filter(o => o.startsWith('dmg ')).map(o => o.split(' ')[1]);
+    expect(hits).toHaveLength(2);
+    expect(hits[0]).not.toBe(hits[1]);
+  });
+  it('boosted x3 per Green ally (caster included): extra Green ally -> 2 + 10 + 6', () => {
+    const r = castSpell({ key: 'troop:6925', allies: [{ hp: 500, maxHp: 500, colors: [BaseColor.Green] }], enemies: [en([BaseColor.Red], { hp: 300, maxHp: 300 })] });
+    expect(order(r)).toEqual(['dmg E10 18', 'dmg E10 18', 'extra-turn skill']);
+  });
+});
+
+describe('L3 R2: troop:7646 Shadow Wraith (9550) half mana if the hit enemy uses Purple', () => {
+  // seeds picked from the two-enemy board [Red E10, Purple E11]
+  it('Red enemy hit, Purple enemy elsewhere -> no mana', () => {
+    const r = castSpell({ key: 'troop:7646', seed: 7, enemies: [en([BaseColor.Red]), en([BaseColor.Purple])] });
+    expect(order(r)).toEqual(['dmg E10 13']);
+  });
+  it('Purple enemy hit -> half of 12 mana', () => {
+    const r = castSpell({ key: 'troop:7646', seed: 10, enemies: [en([BaseColor.Red]), en([BaseColor.Purple])] });
+    expect(order(r)).toEqual(['dmg E11 13', 'buff C mana+6']);
+  });
+  // P-R7-dead-last-target-cond: native counts the target colour before the hit (CountArmyColor@RandomEnemy step 0)
+  it.fails('Purple enemy killed by the hit still refunds half the mana (primitive queue)', () => {
+    const r = castSpell({ key: 'troop:7646', seed: 7, enemies: [en([BaseColor.Purple], { hp: 1, maxHp: 1 }), en([BaseColor.Red])] });
+    expect(order(r)).toEqual(['dmg E10 13', 'defeat E10', 'buff C mana+6']);
+  });
+});
+
+describe('L3 R2: Immortal-partner weapons (ExtraTurnConditional / conditional mana on CountArmyTroop)', () => {
+  const partner = (name: string): E => ({ name, hp: 500, maxHp: 500 });
+  it.each([
+    ['weapon:1606', '永生神维拉格', ['convert Green x13 -> faerieFireGem x13', 'buff C hp+12 max+12']],
+    ['weapon:1599', '永生神奥西弗', ['convert skull x5 -> uberDoomSkull x5', 'buff C attack+6']],
+    ['weapon:1475', '鳞光', ['buff C hp+11 max+11', 'buff A1 hp+11 max+11']],
+  ] as [string, string, string[]][])('%s: extra turn only with %s in my team', (key, name, effects) => {
+    const withIt = castSpell({ key, allies: [partner(name)] });
+    expect(order(withIt)).toEqual([...effects, 'extra-turn skill']);
+    expect(withIt.summary.turnKept).toBe(true);
+    const without = castSpell({ key, allies: [{ name: 'someone', hp: 500, maxHp: 500 }] });
+    expect(order(without)).toEqual(effects);
+    expect(without.summary.turnKept).toBe(false);
+  });
+  it('weapon:1667: Immortal Monstera -> drain all target Mana before the splash; without -> no drain', () => {
+    const withIt = castSpell({ key: 'weapon:1667', allies: [partner('不朽的龟背竹')] });
+    expect(order(withIt)).toEqual(['buff E11 mana-8', 'dmg E11 38 (splash)', 'dmg E10 19 (splash)', 'dmg E12 19 (splash)']);
+    const without = castSpell({ key: 'weapon:1667' });
+    expect(order(without)).toEqual(['dmg E11 38 (splash)', 'dmg E10 19 (splash)', 'dmg E12 19 (splash)']);
+  });
+  // Sparse board: gems only on even/even cells, so each explosion centre clears exactly one gem.
+  const SP = [BaseColor.Red, BaseColor.Blue, BaseColor.Green, BaseColor.Yellow, BaseColor.Purple, BaseColor.Brown];
+  const sparse = (r: number, c: number) => (r % 2 === 0 && c % 2 === 0 ? colorGem(SP[(r + c / 2) % 6]) : null);
+  it('weapon:1656: explode 5 + 1 per Barriered ally; Immortal Zachariel -> extra turn', () => {
+    const barrier = [{ id: 'barrier', turns: 99 }] as Character['statuses'];
+    const withIt = castSpell({ key: 'weapon:1656', board: sparse, allies: [{ ...partner('不朽的扎卡利尔'), statuses: barrier }, { hp: 500, maxHp: 500, statuses: barrier }] });
+    expect(withIt.summary.gems.exploded).toBe(7);
+    expect(withIt.summary.extraTurn).toBe('skill');
+    const without = castSpell({ key: 'weapon:1656', board: sparse });
+    expect(without.summary.gems.exploded).toBe(5);
+    expect(without.summary.extraTurn).toBeNull();
+  });
+});
+
+describe('L3 R2: race-count boosts (allies incl. caster + enemies)', () => {
+  it('troop:6391 Queen Grapplepot: caster + 2 enemy Goblins -> 1 + 10 + 3 x 3', () => {
+    const r = castSpell({ key: 'troop:6391', enemies: [en([], { troopTypes: ['Goblin'] }), en([], { troopTypes: ['Goblin'] })] });
+    expect(order(r)).toEqual(['dmg E10 20 (all)', 'dmg E11 20 (all)', 'extra-turn skill']);
+  });
+  it.each([['troop:6508', 'Undead', 'attack+5'], ['troop:6648', 'Daemon', 'magic+2']])('%s: caster + ally + enemy %s -> Armor 1 + 10 + 3 x 2; other allies %s, Mana 5', (key, race, buff) => {
+    const r = castSpell({ key, allies: [{ hp: 500, maxHp: 500, troopTypes: [race] }], enemies: [en([], { troopTypes: [race] })] });
+    expect(order(r)).toEqual(['buff C armor+17', `buff A1 ${buff}`, 'buff A1 mana+5']);
+  });
+  it('weapon:1631 Dark Engraver: drain 3 Mana per Undead ally only (no base)', () => {
+    const r = castSpell({ key: 'weapon:1631', allies: [{ hp: 500, maxHp: 500, troopTypes: ['Undead'] }, { hp: 500, maxHp: 500, troopTypes: ['Undead'] }] });
+    expect(order(r)).toEqual(['dmg E11 13', 'buff E11 mana-6']);
+    expect(order(castSpell({ key: 'weapon:1631' }))).toEqual(['dmg E11 13']);
+  });
+});

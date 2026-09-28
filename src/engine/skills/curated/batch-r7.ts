@@ -740,8 +740,9 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '对随机敌人造成 [魔法 + 3] 点伤害。如果他们使用紫色法力值，则恢复我一半的法力值。',
     build: skill(
       dmg('enemyRandom', 3, 1),
-      // 「他们使用紫色法力值」按 anyEnemyColor 超集口径（任一存活敌人带该色即真，spell-rules §13.3）
-      mana('allySelf', 0, 0, { halve: true, ifCond: { kind: 'anyEnemyColor', color: BaseColor.Purple } }),
+      // sa-R7: native CountArmyColor@RandomEnemy Purple -> Damage@FromPrevious -> GenerateHalfManaConditional:
+      // 「他们」= the random enemy that was hit (was anyEnemyColor: any Purple enemy on the team).
+      mana('allySelf', 0, 0, { halve: true, ifCond: { kind: 'lastTargetColor', color: BaseColor.Purple } }),
     ),
   },
   {
