@@ -588,7 +588,12 @@ export function conditionMet(
       // targetStatBeatsCaster falls back to the chosen target before the first targeting segment (P-R3-precast-compare).
       const last = ctx.castTracking?.lastTarget;
       const lastId = last?.id ?? (cond.kind === 'targetStatBeatsCaster' ? ctx.chosenTargetId : undefined);
-      const ch = lastId !== undefined ? findCharacter(ctx.state, lastId) : undefined;
+      // P-R7-dead-last-target-cond: a target the hit killed has left the roster; colour / race / status conditions
+      // read the tracked unit object (its state at death), matching native step-0 Count* before the Damage step.
+      // lastTargetSurvived / targetStatBeatsCaster keep "gone = false".
+      const deadOk = cond.kind === 'lastTargetStatus' || cond.kind === 'lastTargetRace' || cond.kind === 'lastTargetColor';
+      const ch = (lastId !== undefined ? findCharacter(ctx.state, lastId) : undefined)
+        ?? (deadOk && last?.unit && last.unit.id === lastId ? last.unit : undefined);
       if (!ch) return false;
       switch (cond.kind) {
         case 'lastTargetStatus':

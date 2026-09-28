@@ -1,6 +1,6 @@
 # GoW 技能改动留档
 
-自动生成（`node scripts/gow-changelog.mjs render`），源数据 [CHANGES.jsonl](CHANGES.jsonl)，共 492 条改动，涉及 827 个技能 ID。
+自动生成（`node scripts/gow-changelog.mjs render`），源数据 [CHANGES.jsonl](CHANGES.jsonl)，共 493 条改动，涉及 828 个技能 ID。
 
 ## 按时间
 
@@ -498,6 +498,7 @@
 | 2026-09-28T11:21 | sa-P | P-D-lethal-first-lasttarget | primitive | 8664 | weapon:1435 BlackheartsHorn | `src/engine/skills/prototypes.ts`<br>`src/engine/skills/curated/batch-w03.ts`<br>`tests/unit/gowFixP-D-lethal-first-lasttarget.test.ts` | failed chance roll of an execute segment returned before target resolution (no lastTarget); 8664 wrote true damage before the slay roll → runSegment: failed roll of a damage execute segment still resolves/tracks its targets; 8664 native order execute enemyLast -> trueDmg lastTarget | execute+chance segments followed by lastTarget/ifTargetDied steps now see the (surviving) victim: troop:6252 6460 6585 6753 7016 7145 7252 7797 |
 | 2026-09-28T11:47 | sa-P | P-R5-summon-id-reuse | primitive | 7602, 7643 | troop:6428 Xathenos；troop:6465 Hyena | `src/engine/teamRoster.ts`<br>`src/engine/GameState.ts`<br>`src/engine/TurnEngine.ts`<br>`src/engine/skills/effects/summon.ts` | summon id = max living id + 1: killing the highest-id unit made the next summon reuse its id, lastTarget resolved to the summon and later ifTargetDied summons skipped → monotonic allocateCharId (GameState.charIdHighWater records removed ids); dead ids never reused | every summon (ids after a kill now > highest removed id) |
 | 2026-09-28T11:55 | sa-P | P-R5-named-ally-count | primitive | 8744, 8658 | troop:7173 Uvhash-Ka；troop:7115 AbjectOfDespond | `src/engine/skills/effects/secondary.ts`<br>`src/engine/skills/curated/batch-r15.ts`<br>`src/engine/skills/curated/batch-r11.ts` | troopPresent boolean: 3 extra Doomskulls / 3 more Magic if any Eldritch Minion / Despond ally → modifier source alliesNamed {name, atCastStart}: 3 per matching ally (native CountArmyTroop step 0 counter) |  |
+| 2026-09-28T12:00 | sa-P | P-R7-dead-last-target-cond | primitive | 9550, 7410, 7541 | troop:7646 ShadowWraith；weapon:1144 SpiderTotem；troop:6386 Warhawk | `src/engine/skills/effects/context.ts`<br>`src/engine/skills/prototypes.ts`<br>`src/engine/skills/effects/secondary.ts` | lastTargetColor/Race/Status false once the hit killed the target (unit spliced, findCharacter undefined) → castTracking.lastTarget.unit keeps the picked Character; colour/race/status conditions read it after death | lastTargetColor/Race/Status users: 8925 8276 8533 8373 9550 7410 7541 |
 
 ## 按技能 ID
 
@@ -638,7 +639,7 @@
 | 7402 | 1 | R7-6259-chosen-ally |
 | 7404 | 1 | B-L4b-6261-life-boost |
 | 7408 | 1 | F2-6265-dispel-last |
-| 7410 | 1 | R7-b14-status-counts |
+| 7410 | 2 | R7-b14-status-counts、P-R7-dead-last-target-cond |
 | 7415 | 1 | R7-6269-chosen-daemon |
 | 7418 | 1 | L7-R1-random-chain-waves |
 | 7425 | 1 | L1-6279-chosen |
@@ -678,6 +679,7 @@
 | 7529 | 1 | L1-1154-egg |
 | 7532 | 1 | L5-C-r4-6377 |
 | 7533 | 1 | L1-6378-pool |
+| 7541 | 1 | P-R7-dead-last-target-cond |
 | 7542 | 2 | F1-6387-rebirth、P-F1-summon-after-caster-death |
 | 7548 | 1 | R004-tests |
 | 7553 | 2 | F2-6398-random-dispel、P-F2-precount-explode |
@@ -1232,7 +1234,7 @@
 | 9538 | 1 | L4b-7634-attack |
 | 9542 | 1 | L4a-R1-9542-order |
 | 9547 | 2 | P-counter-per-step、P-R1-gargoyle-tier-filter,P-R2-gargoyle-tier,P-R4-gargoyle-tier-count,P-R3-dragon-gem-count |
-| 9550 | 1 | R7-7646-target-colour |
+| 9550 | 2 | R7-7646-target-colour、P-R7-dead-last-target-cond |
 | 9563 | 1 | R3-B10-7650 |
 | 9569 | 1 | L1-7654-devour |
 | 9573 | 1 | L4b-1625-1674-any |

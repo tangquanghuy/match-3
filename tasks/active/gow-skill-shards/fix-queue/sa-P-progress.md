@@ -91,3 +91,7 @@
   - accepted (L1): troop:7173
   - re-review (golden-signed L4a, unchanged in the default scenarios, only with 2+ Despond allies): troop:7115
   - lane note (not changed): other CountArmyTroop counters without CountMax still use troopPresent (7476 Dragon Commander, 7267 Krystenax, weapon:1646 / 1441 / 1611 / 1612 / 1607 / 1609 / 1696 Immortal X); only differ with 2+ copies of that troop, can now use alliesNamed
+- 2026-09-28T21:00:00Z P-R7-dead-last-target-cond fixed: context.ts lastTarget.unit, prototypes.ts resolveTargetsTracked stores the picked Character, secondary.ts lastTargetColor / Race / Status read it once the killed target left the roster (native step-0 Count before the Damage); no curated change needed (9550 / 7410 / 7541 already use these conditions); gowFixP-R7-dead-last-target-cond.test.ts; gowLaneL3R2 3 it.fails -> it; golden diff 0 lines
+  - accepted (L3): troop:7646 weapon:1144 troop:6386
+  - re-review (situational: only when the hit kills the tracked target): troop:7313 (8925) troop:6857 (8276) troop:7005 (8533) troop:6912 (8373)
+  - note: damage.ts splash (l.342 / 396) and gems.ts l.103 set lastTarget without unit; they keep the old behaviour

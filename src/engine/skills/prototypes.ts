@@ -621,7 +621,7 @@ function resolveTargetsTracked(
     const ch = last ? findCharacter(ctx.state, last.id) : undefined;
     const targets = filterResolvedTargets(segment, ctx, ch && !ch.defeated ? [ch] : []);
     if (targets.length > 0 && ctx.castTracking) {
-      ctx.castTracking.lastTarget = { id: targets[0].id, aliveBefore: targets[0].defeated === false };
+      ctx.castTracking.lastTarget = { id: targets[0].id, aliveBefore: targets[0].defeated === false, unit: targets[0] };
     }
     return targets;
   }
@@ -645,7 +645,7 @@ function resolveTargetsTracked(
       .filter((c): c is Character => !!c && !c.defeated));
     if (targets.length > 0) {
       tracking.lastTargets = targets.map((c) => ({ id: c.id, aliveBefore: !c.defeated }));
-      tracking.lastTarget = { id: targets[0].id, aliveBefore: true };
+      tracking.lastTarget = { id: targets[0].id, aliveBefore: true, unit: targets[0] };
     }
     return targets;
   }
@@ -657,13 +657,13 @@ function resolveTargetsTracked(
     const ch = findCharacter(ctx.state, tracking.randomAllyId);
     const targets = filterResolvedTargets(segment, ctx, ch && !ch.defeated ? [ch] : []);
     if (targets.length > 0) {
-      tracking.lastTarget = { id: targets[0].id, aliveBefore: true };
+      tracking.lastTarget = { id: targets[0].id, aliveBefore: true, unit: targets[0] };
     }
     return targets;
   }
   const targets = resolveTargets(segment, ctx, overrideMode);
   if (targets.length > 0 && ctx.castTracking) {
-    ctx.castTracking.lastTarget = { id: targets[0].id, aliveBefore: !targets[0].defeated };
+    ctx.castTracking.lastTarget = { id: targets[0].id, aliveBefore: !targets[0].defeated, unit: targets[0] };
     // R22 批：全目标列表快照（'lastTargets' 族读最近一段；allTargets 跨段累积供 anyTrackedDied）
     const snapshot = targets.map((c) => ({ id: c.id, aliveBefore: !c.defeated }));
     ctx.castTracking.lastTargets = snapshot;

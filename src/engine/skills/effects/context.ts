@@ -70,7 +70,10 @@ export interface CastTracking {
    * 最近一个解析出目标的效果段：主目标 id + 该段执行前是否存活。
    * 「如果该敌人身亡」= 它 aliveBefore 且现在 defeated。
    */
-  lastTarget?: { id: number; aliveBefore: boolean };
+  /** unit: the picked Character object (P-R7-dead-last-target-cond) — once the hit kills it and it is spliced from
+   *  the roster, lastTargetColor / Race / Status still read its colours / types / statuses (native counts them at
+   *  the step-0 Count, before the hit). */
+  lastTarget?: { id: number; aliveBefore: boolean; unit?: Character };
   /**
    * 最近一个产目标段的**全目标列表**（R22 批，'lastTargets'/'lastTargetFirst'/'lastTargetLast'
    * 目标模式的解析源——「吸取其 8 点法力值」）。
