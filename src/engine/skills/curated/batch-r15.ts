@@ -455,7 +455,7 @@ const SPELLS: CuratedBatch['spells'] = [
         condMult: { times: 2, cond: { kind: 'targetColor', color: BaseColor.Red } },
         modifier: {
           mod: { kind: 'ratio', a: 8, b: 1 },
-          sources: [
+          pooled: true /* CountAttackArmorLife = one native Count step (R007-1) */, sources: [
             { kind: 'selfStat', stat: 'hp' },
             { kind: 'selfStat', stat: 'attack' },
             { kind: 'selfStat', stat: 'armor' },
@@ -466,7 +466,7 @@ const SPELLS: CuratedBatch['spells'] = [
         condMult: { times: 2, cond: { kind: 'targetColor', color: BaseColor.Red } },
         modifier: {
           mod: { kind: 'ratio', a: 8, b: 1 },
-          sources: [
+          pooled: true /* CountAttackArmorLife = one native Count step (R007-1) */, sources: [
             { kind: 'selfStat', stat: 'hp' },
             { kind: 'selfStat', stat: 'attack' },
             { kind: 'selfStat', stat: 'armor' },

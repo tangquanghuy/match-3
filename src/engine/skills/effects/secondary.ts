@@ -184,13 +184,20 @@ export interface ModifierSpec {
   /** 多来源（与 source 二选一；两处都写时以 sources 为准） */
   sources?: ModifierSource[];
   /**
+   * 分组多来源（P-counter-per-step，8228 原生 CountAttackArmorLife 50 + CountMagic 50）：每组对应
+   * 一个原生 Count* 步骤——组内计数相加后 floor 一次，各组结果再相加（R007-1）。给出时优先于
+   * sources / source。
+   */
+  sourceGroups?: ModifierSource[][];
+  /**
    * 加成上限（batch-r28，官方 CountMax 步骤族——7667「上限为 14 颗宝石」/ 8141「上限
    * 16」/ 8142「上限 14」/ 10061「击杀几率最高可达 30%」）：给出时把**加成项**（bonus，
    * 非总值）夹到 ≤max——「6 颗、因黄金增强 [4:1]、上限 14」= 6 + min(floor(gold/4), 8)。
    */
   max?: number;
   /**
-   * 多来源 ratio 合并取整（仅社区自制兵种：「每有 4 颗红色或黄色宝石」= 单一合并计数）。
+   * 多来源 ratio 合并取整（单一原生计数步骤跨多项：原生 CountAttackArmorLife；社区自制兵种
+   * 「每有 4 颗红色或黄色宝石」= 单一合并计数）。
    * 缺省按 R007-1：原生每个 Count* 步骤独立 floor 后相加。multiplier 为线性，两者等价。
    */
   pooled?: boolean;
@@ -942,7 +949,14 @@ function teamStatSum(
 export function modifierBonus(spec: ModifierSpec | undefined, ctx: EffectContext): number {
   if (!spec) return 0;
   let bonus = 0;
-  if (spec.sources && spec.mod.kind === 'ratio' && !spec.pooled) {
+  if (spec.sourceGroups) {
+    // One native Count* step per group: sum inside the group, floor once, then add the groups.
+    for (const group of spec.sourceGroups) {
+      let count = 0;
+      for (const s of group) count += resolveModifierCount(s, ctx);
+      bonus += scaledCount(spec.mod, count);
+    }
+  } else if (spec.sources && spec.mod.kind === 'ratio' && !spec.pooled) {
     // R007-1 (rulings/R007-counters-random-pools.md): one floor per native Count* step, then sum.
     for (const s of spec.sources) bonus += scaledCount(spec.mod, resolveModifierCount(s, ctx));
   } else {

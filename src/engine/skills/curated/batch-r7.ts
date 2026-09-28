@@ -243,7 +243,7 @@ const SPELLS: CuratedBatch['spells'] = [
         condMult: { times: 2, cond: { kind: 'casterStatBeatsTarget', stat: 'attack' } },
         modifier: {
           mod: { kind: 'ratio', a: 20, b: 3 },
-          sources: [{ kind: 'selfStat', stat: 'attack' }, { kind: 'selfStat', stat: 'hp' }, { kind: 'selfStat', stat: 'armor' }],
+          pooled: true /* CountAttackArmorLife = one native Count step (R007-1) */, sources: [{ kind: 'selfStat', stat: 'attack' }, { kind: 'selfStat', stat: 'hp' }, { kind: 'selfStat', stat: 'armor' }],
         },
       }),
     ),
@@ -564,7 +564,7 @@ const SPELLS: CuratedBatch['spells'] = [
         range: 'all',
         modifier: {
           mod: { kind: 'ratio', a: 10, b: 1 },
-          sources: [{ kind: 'selfStat', stat: 'attack' }, { kind: 'selfStat', stat: 'hp' }, { kind: 'selfStat', stat: 'armor' }],
+          pooled: true /* CountAttackArmorLife = one native Count step (R007-1) */, sources: [{ kind: 'selfStat', stat: 'attack' }, { kind: 'selfStat', stat: 'hp' }, { kind: 'selfStat', stat: 'armor' }],
         },
       }),
       reposition('enemyFront', 'back'),

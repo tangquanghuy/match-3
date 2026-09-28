@@ -40,7 +40,7 @@ const SPELLS: CuratedBatch['spells'] = [
         n: 2,
         modifier: {
           mod: { kind: 'ratio', a: 3, b: 1 },
-          sources: [{ kind: 'selfStat', stat: 'attack' }, { kind: 'selfStat', stat: 'hp' }, { kind: 'selfStat', stat: 'armor' }],
+          pooled: true /* CountAttackArmorLife = one native Count step (R007-1) */, sources: [{ kind: 'selfStat', stat: 'attack' }, { kind: 'selfStat', stat: 'hp' }, { kind: 'selfStat', stat: 'armor' }],
         },
       }),
       // 「所有闪电宝石」= 闪电族两种全量（lightningRow 蓝/清行 + lightningCol 黄/清列），拆两段精确覆盖

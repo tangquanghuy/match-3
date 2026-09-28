@@ -163,17 +163,20 @@ const SPELLS: CuratedBatch['spells'] = [
   {
     id: 8228,
     desc: '对 1 名敌人造成 [魔法 + 3] 点伤害，伤害值因其所有技能值而增强。若敌人身亡，则获得 10 点攻击力并创建 12 颗骷髅头。 [2:1]',
-    // 「所有技能值」= 官方 CountAttackArmorLife+CountMagic → targetStat 四围 sources 相加（ratio 2:1）；
+    // 「所有技能值」= 官方 CountAttackArmorLife 50 + CountMagic 50 → 两个原生计数步骤各自取整
+    //（sa-P P-counter-per-step：sourceGroups [攻击+护甲+生命] 与 [魔法]，R007-1）；
     // AddForKill = ifTargetDied（单一伤害主目标精确判定）
     build: skill(
       dmg('enemyChosen', 3, 1, {
         modifier: {
           mod: { kind: 'ratio', a: 2, b: 1 },
-          sources: [
-            { kind: 'targetStat', stat: 'attack' },
-            { kind: 'targetStat', stat: 'armor' },
-            { kind: 'targetStat', stat: 'hp' },
-            { kind: 'targetStat', stat: 'magic' },
+          sourceGroups: [
+            [
+              { kind: 'targetStat', stat: 'attack' },
+              { kind: 'targetStat', stat: 'armor' },
+              { kind: 'targetStat', stat: 'hp' },
+            ],
+            [{ kind: 'targetStat', stat: 'magic' }],
           ],
         },
       }),

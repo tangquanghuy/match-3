@@ -558,7 +558,7 @@ const SPELLS: CuratedBatch['spells'] = [
       dmg('lastTarget', 1, 1, {
     modifier: {
       mod: { kind: 'ratio', a: 3, b: 1 },
-      sources: [
+      pooled: true /* CountAttackArmorLife = one native Count step (R007-1) */, sources: [
         { kind: 'selfStat', stat: 'attack' },
         { kind: 'selfStat', stat: 'hp' },
         { kind: 'selfStat', stat: 'armor' },
@@ -1010,7 +1010,7 @@ const SPELLS: CuratedBatch['spells'] = [
       dmg('enemyChosen', 4, 1, {
     modifier: {
       mod: { kind: 'ratio', a: 3, b: 1 },
-      sources: [
+      pooled: true /* CountAttackArmorLife = one native Count step (R007-1) */, sources: [
         { kind: 'selfStat', stat: 'attack' },
         { kind: 'selfStat', stat: 'hp' },
         { kind: 'selfStat', stat: 'armor' },

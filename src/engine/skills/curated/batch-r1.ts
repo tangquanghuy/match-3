@@ -152,7 +152,7 @@ const SPELLS: CuratedBatch['spells'] = [
     build: skill(
       dmg('enemyChosen', 0, 0, {
         rangeSpec: { min: scale(1, 0.5), max: scale(3, 1) },
-        modifier: { mod: { kind: 'ratio', a: 3, b: 1 }, sources: [{ kind: 'selfStat', stat: 'attack' }, { kind: 'selfStat', stat: 'hp' }, { kind: 'selfStat', stat: 'armor' }] },
+        modifier: { mod: { kind: 'ratio', a: 3, b: 1 }, pooled: true /* CountAttackArmorLife = one native Count step (R007-1) */, sources: [{ kind: 'selfStat', stat: 'attack' }, { kind: 'selfStat', stat: 'hp' }, { kind: 'selfStat', stat: 'armor' }] },
       }),
       inflict('rage', 'allySelf', { ifTargetDied: true }),
     ),
