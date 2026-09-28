@@ -1002,8 +1002,9 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 7318,
     desc: '净化所有盟友并给予其 [魔法] 点生命值。',
     build: skill(
+      // Native 7318: Cleanse@AllAllies → IncreaseHealth@AllAllies [Magic] (was self only).
       cleanse('allyAll'),
-      heal('allySelf', 0, 1),
+      heal('allyAll', 0, 1),
     ),
   },
   {

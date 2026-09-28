@@ -87,7 +87,7 @@ const SPELLS: CuratedBatch['spells'] = [
   {
     id: 8436,
     desc: '对所有敌人造成 [魔法 + 2] 点伤害，伤害值因紫色盟友和敌人数而增强。使所有敌人陷入死亡标记状态。若有 13 或更多颗棕色宝石，则获得 2 点魔力值。 [x2]',
-    build: ({"segments":[{"kind":"damage","target":"enemyAll","scaling":{"base":2,"mult":1},"range":"all","modifier":{"mod":{"kind":"multiplier","a":2},"source":{"kind":"alliesOfColor","color":"Purple"}}},{"kind":"status","target":"enemyAll","statusId":"death-mark","turns":3},{"kind":"buff","target":"allySelf","stat":"magic","scaling":{"base":2,"mult":0},"ifCond":{"kind":"boardAtLeast","color":"Brown","n":13}}]} as SkillPrototype),
+    build: ({"segments":[{"kind":"damage","target":"enemyAll","scaling":{"base":2,"mult":1},"range":"all","modifier":{"mod":{"kind":"multiplier","a":2},"sources":[{"kind":"alliesOfColor","color":"Purple"},{"kind":"enemiesOfColor","color":"Purple"}]}},{"kind":"status","target":"enemyAll","statusId":"death-mark","turns":3},{"kind":"buff","target":"allySelf","stat":"magic","scaling":{"base":2,"mult":0},"ifCond":{"kind":"boardAtLeast","color":"Brown","n":13}}]} as SkillPrototype),
   },
   {
     id: 8437,

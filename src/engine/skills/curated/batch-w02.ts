@@ -587,7 +587,7 @@ const SPELLS: CuratedBatch['spells'] = [
   {
     id: 8076,
     desc: '对一名敌人造成 [魔法 + 5] 点重度溅射伤害，伤害值因所有蓝色盟友和敌人数而增强。若有敌人身亡，则给予所有盟友 3 点魔力值并使他们下潜。 [x4]',
-    build: ({"segments":[{"kind":"damage","target":"enemyChosen","scaling":{"base":5,"mult":1},"range":"splash","modifier":{"mod":{"kind":"multiplier","a":4},"source":{"kind":"alliesOfColor","color":"Blue"}},"splashRatio":0.75},{"kind":"buff","target":"allyAll","stat":"magic","scaling":{"base":3,"mult":0},"ifCond":{"kind":"anyTrackedDied"}},{"kind":"status","target":"allyAll","statusId":"submerged","turns":3,"ifCond":{"kind":"anyTrackedDied"}}]} as SkillPrototype),
+    build: ({"segments":[{"kind":"damage","target":"enemyChosen","scaling":{"base":5,"mult":1},"range":"splash","modifier":{"mod":{"kind":"multiplier","a":4},"sources":[{"kind":"alliesOfColor","color":"Blue"},{"kind":"enemiesOfColor","color":"Blue"}]},"splashRatio":0.75},{"kind":"buff","target":"allyAll","stat":"magic","scaling":{"base":3,"mult":0},"ifCond":{"kind":"anyTrackedDied"}},{"kind":"status","target":"allyAll","statusId":"submerged","turns":3,"ifCond":{"kind":"anyTrackedDied"}}]} as SkillPrototype),
   },
   {
     id: 8077,

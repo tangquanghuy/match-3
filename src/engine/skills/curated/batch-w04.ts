@@ -915,8 +915,9 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 9722,
     desc: '造成[魔法 + 6]点散射伤害，伤害值因暗影星辰而增强。如果我方队伍中有不朽雷奥，则对所有敌人施加2层流血效果。 [x8]',
     build: skill(
-      dmg('enemyAll', 6, 1, { range: 'all', modifier: { mod: { kind: 'multiplier', a: 8 }, source: { kind: 'boardSpecial', gem: 'umbralStar' } } }),
+      // Native 9722: conditional Bleed x2 (steps 1-2) before the scatter damage (step 5) (R001).
       inflict('bleed', 'enemyAll', { stacks: 2, ifCond: { kind: 'troopPresent', side: 'ally', name: '不朽的雷奥' } }),
+      dmg('enemyAll', 6, 1, { range: 'all', modifier: { mod: { kind: 'multiplier', a: 8 }, source: { kind: 'boardSpecial', gem: 'umbralStar' } } }),
     ),
   },
   {
