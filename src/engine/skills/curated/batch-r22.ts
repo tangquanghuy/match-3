@@ -714,7 +714,9 @@ const SPELLS: CuratedBatch['spells'] = [
     // 妖火 = faerie-fire（波A 状态本体）。
     build: skill(
     trueDmg('enemyChosen', 4, 1),
-    inflict('faerie-fire', 'enemyAll', { ifCond: { kind: 'lastTargetStatus', statusId: 'marked' } }),
+    // sa-C r3: native counts Hunter's Mark on the target at step 0 (before the damage), so a
+    // killed marked target still spreads Faerie Fire -> cast-start snapshot condition
+    inflict('faerie-fire', 'enemyAll', { ifCond: { kind: 'lastTargetStatusAtCastStart', statusId: 'marked' } }),
     ),
   },
   {

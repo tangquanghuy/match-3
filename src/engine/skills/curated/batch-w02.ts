@@ -571,7 +571,7 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '对首 2 位敌人造成 [魔法 + 4] 点伤害，并使其陷入出血状态。',
     build: skill(
       dmg('enemyFirstN', 4, 1, { n: 2 }),
-      inflict('bleed', 'enemyFirstN'),
+      inflict('bleed', 'enemyFirstN', { n: 2 }), // sa-C r3: native CauseBleed@FirstTwoEnemies
     ),
   },
   {

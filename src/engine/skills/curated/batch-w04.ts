@@ -1223,7 +1223,8 @@ const SPELLS: CuratedBatch['spells'] = [
       dmg('enemyChosen', 3, 2),
       inflict('bleed', 'lastTarget', { stacks: 2 }),
       inflict('bleed', 'lastTarget', { stacks: 1, ifCond: { kind: 'troopPresent', side: 'ally', name: '不朽的克维尔杜尔夫' } }),
-      inflict('curse', 'lastTarget', { stacks: 1, ifCond: { kind: 'troopPresent', side: 'ally', name: '不朽的克维尔杜尔夫' } }),
+      // sa-C r3: native CauseSpecificStatusEffectConditional Data lycanthropy (was Curse)
+      inflict('lycanthropy', 'lastTarget', { ifCond: { kind: 'troopPresent', side: 'ally', name: '不朽的克维尔杜尔夫' } }),
     ),
   },
   {

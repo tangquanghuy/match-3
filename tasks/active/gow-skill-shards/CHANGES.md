@@ -1,6 +1,6 @@
 # GoW 技能改动留档
 
-自动生成（`node scripts/gow-changelog.mjs render`），源数据 [CHANGES.jsonl](CHANGES.jsonl)，共 453 条改动，涉及 747 个技能 ID。
+自动生成（`node scripts/gow-changelog.mjs render`），源数据 [CHANGES.jsonl](CHANGES.jsonl)，共 461 条改动，涉及 758 个技能 ID。
 
 ## 按时间
 
@@ -399,6 +399,9 @@
 | 2026-09-28T10:15 | sa-A | L4a-r3-6224 | data | 7366 | troop:6224 LionPrince | `src/engine/skills/curated/batch-12.ts` | enemyFirstN 2 resolved once → native Damage@FrontEnemy then Damage@SecondEnemy resolved per step (front dies -> new second) |  |
 | 2026-09-28T10:15 | sa-A | L4a-r3-6736 | data | 8106 | troop:6736 HarpyEagle | `src/engine/skills/curated/batch-r18.ts` | random column; pull lastTarget (dead -> no move) → chosen column (Target Board); TroopOrderFront@LastEnemy resolved at its step |  |
 | 2026-09-28T10:15 | sa-A | L4a-r3-7685 | data | 9642 | troop:7685 LapinaLancer | `src/engine/skills/curated/batch-18.ts` | enemyRandomN 2 (lone enemy hit once) → Damage@RandomEnemy + Damage@RandomPrefNotPrevEnemy (R007.3 lone enemy hit twice) |  |
+| 2026-09-28T10:19 | sa-C | L5-C-7900-waves | assembler | 9982, 9374 | troop:7900 ImmortalZephaar；troop:7578 ImmortalSagittarian | `src/engine/skills/curated/batch-r11.ts` | 3 random hits as one enemyRandomN draw (3 distinct enemies; 7578 one damage roll shared by the 3 random hits) → randomWaves 3: native RandomEnemy + 2x RandomPrefNotPrevEnemy (avoid only previous, repeats allowed), per-step damage roll |  |
+| 2026-09-28T10:19 | sa-C | L5-C-7553-boss | assembler | 9338 | troop:7553 BarrowLord | `src/engine/skills/curated/batch-r19.ts`<br>`src/data/gowSnapshotOverrides.json` | zh + condMult said Tower (Castle x3) → Boss per English/native MultiplyForAscensionBoss (waived R000); zh override |  |
+| 2026-09-28T10:19 | sa-C | L5-C-6791-precount | assembler | 8182 | troop:6791 RedCap | `src/engine/skills/curated/batch-r22.ts` | Hunter's Mark checked on the target after the damage (killed marked target -> no Faerie Fire) → lastTargetStatusAtCastStart: native CountSpecificStatusEffect@FromTarget is step 0, before the damage |  |
 | 2026-09-28T10:19 | sa-D | D-1435-doomskull | assembler | 8664 | weapon:1435 BlackheartsHorn | `src/engine/skills/curated/batch-w03.ts` | slay chance boosted by all Skulls on the board (boardSkulls) → boosted by Doomskulls only (native CountGems Doomskull 600); order Lethal->TrueDamage still pending P-D-lethal-first-lasttarget |  |
 | 2026-09-28T10:19 | sa-A | L4a-r3-6777 | data | 8167 | troop:6777 GorThrum | `src/engine/skills/curated/batch-21.ts` | explode 2 + 2 x Yellow random colour gems → native ExplodeGems UseCounter no Amount: 2 x Yellow destroyed, no base, any gem |  |
 | 2026-09-28T10:19 | sa-A | L4a-r3-6361 | data | 7513 | troop:6361 MerchantPrince | `src/engine/skills/curated/batch-r18.ts` | random row + random column → chosen row and column (Target Board, BoardTarget RowAndColumn) |  |
@@ -413,11 +416,16 @@
 | 2026-09-28T10:23 | sa-D | D-7575-zh | data | 9371 | troop:7575 ImmortalAquaria | `src/engine/skills/curated/batch-r14.ts`<br>`scripts/curated-pools/pool-30.json`<br>`src/data/gowSnapshotOverrides.json` | zh: 并使其下方敌受到其所受伤害的一半 (no 'all') → zh: 并对其下方所有敌人造成该伤害的一半 (English 'all Enemies below them', native BelowTarget) |  |
 | 2026-09-28T10:24 | sa-B | B-L4b-6104-blue | data | 7169 | troop:6104 Sylvasi | `src/engine/skills/curated/batch-05.ts`<br>`scripts/curated-pools/pool-05.json`<br>`src/data/gowSnapshotOverrides.json` | converts Yellow->Purple (zh 黄色) → EN + native ConvertGems 100 Blue>Purple: converts Blue->Purple, zh 蓝色 |  |
 | 2026-09-28T10:24 | sa-B | B-L4b-1585-entangle-gems | data | 9349 | weapon:1585 BlackwoodsStaff | `src/engine/skills/curated/batch-w04.ts` | scatter boosted x8 per Entangled enemy → native CountGems 800 Entangle: boosted x8 per Entangle Gem on the board |  |
+| 2026-09-28T10:25 | sa-C | L5-C-1250-bleed-n | assembler | 8062 | weapon:1250 BloodthirstyAxe | `src/engine/skills/curated/batch-w02.ts`<br>`src/data/gowWeaponReviewedOverrides.json` | Bleed only on the first enemy (enemyFirstN without n) → Bleed on the first 2 enemies (native CauseBleed@FirstTwoEnemies) |  |
+| 2026-09-28T10:25 | sa-C | L5-C-1695-lycanthropy | assembler | 9934 | weapon:1695 KveldulfsMaw | `src/engine/skills/curated/batch-w04.ts`<br>`src/data/gowWeaponReviewedOverrides.json` | Kveldulf branch inflicted Curse → Kveldulf branch inflicts Lycanthropy (native Data lycanthropy) |  |
+| 2026-09-28T10:25 | sa-C | L5-C-cursebreaker-targets | assembler | 8698, 8699, 8700 | weapon:1442 CursebreakerSword；weapon:1443 CursebreakerBow；weapon:1444 CursebreakerAxe | `src/engine/skills/curated/batch-w03.ts`<br>`scripts/curated-pools/pool-w01.json`<br>`src/data/gowWeaponReviewedOverrides.json` | all three hit last + first; Tempering bonus only on the first-enemy hit; 1443/1444 zh said first and last → 1442 first + last, 1443 last 2, 1444 first 2 (native FirstLast/LastTwo/FirstTwo), +4 per Tempering on every hit; zh for 1443/1444 fixed |  |
+| 2026-09-28T10:25 | sa-C | L5-C-6007-random-burn | assembler | 7006 | troop:6007 FlameCannon | `src/engine/skills/curated/batch-04.ts` | 20% Burn on the chosen enemy → 20% Burn on a random enemy (native CauseBurning@RandomEnemy) |  |
 | 2026-09-28T10:25 | sa-D | D-6806-count20 | assembler | 8209 | troop:6806 Night-Slayer | `src/engine/skills/curated/batch-r18.ts`<br>`src/data/gowSnapshotOverrides.json` | damage boosted by target Life ratio 20:1 (5%): 59 vs E11 900 Life; zh did not say whose Life → native CountLife@FromTarget 20 = 20% = [5:1] (R003-2): 194; zh 因其生命值 |  |
 | 2026-09-28T10:25 | sa-A | L4a-r3-6303 | data | 7453 | troop:6303 RockSpirit | `src/engine/skills/curated/batch-13.ts` | chosen row then chosen column as two destroys (second includes refills) → one 15-cell RowAndColumn cross (native single DestroyGems step) |  |
 | 2026-09-28T10:25 | sa-A | L4a-r3-1117 | data | 7269 | weapon:1117 WardensGauntlets | `src/engine/skills/curated/batch-w01.ts` | row then column; boosted by every Green gem on the board → one 15-cell cross; boosted x3 per Green destroyed in it (native CountGems Green RowAndColumn) |  |
 | 2026-09-28T10:25 | sa-A | L4a-r3-6720 | data | 8090 | troop:6720 CorpseMare | `src/engine/skills/curated/batch-r9.ts` | boosted x2 by every destroyed gem in the row → boosted x2 by destroyed Skulls only (CountGems Skull 200 Row) |  |
 | 2026-09-28T10:25 | sa-A | L4a-r3-7539 | data | 9297 | troop:7539 FeyDragoon | `src/engine/skills/curated/batch-r7.ts` | boosted 1:1 by every gem cleared by the Freeze-gem explosions → boosted 1:1 by the number of Freeze gems (CountGems Freeze 100) |  |
+| 2026-09-28T10:27 | sa-C | L5-C-1176-knight | assembler | 7625 | weapon:1176 HeartOfXathenos | `src/engine/skills/curated/batch-w01.ts`<br>`src/data/gowWeaponReviewedOverrides.json` | Disease on Divine enemies → Disease on Knight enemies (native CauseDisease@EnemyType knight) |  |
 | 2026-09-28T10:29 | sa-B | B-L4b-7000-zh | data | 8503 | troop:7000 Baihu | `src/engine/skills/curated/batch-r20.ts`<br>`src/data/gowSnapshotOverrides.json` | zh garbled: 结果…伤害一名敌人，由黄色宝石激活。迷惑自己 → zh: 对一名敌人造成…伤害值因黄色宝石数而增强。赋予自己法印效果 (EN Enchant myself) |  |
 | 2026-09-28T10:30 | sa-D | D-6117-beast-triple | assembler | 7209 | troop:6117 Scarlett | `src/engine/skills/curated/batch-05.ts`<br>`scripts/curated-pools/pool-05.json`<br>`src/data/gowSnapshotOverrides.json` | x2 against Beasts (raceDouble default 2); zh 双倍 → x3 (native MultiplyForBeast StatusAmount 3, English triple); zh 三倍 |  |
 | 2026-09-28T10:31 | sa-A | L4a-r3-7304 | data | 8916 | troop:7304 KingOfRavens | `src/engine/skills/curated/batch-r14.ts` | boosted by Spirit gems left on the board after exploding them (always 0) → boosted x6 per Spirit gem cleared by the spell (native CountGems Spirit at step 0) |  |
@@ -472,6 +480,7 @@
 | 6548 | 1 | L4b-7200-rage-alias |
 | 6751 | 1 | L4b-6751-zh |
 | 6824 | 1 | L4b-6824-random-ally |
+| 7006 | 1 | L5-C-6007-random-burn |
 | 7009 | 1 | P-create-interleave |
 | 7014 | 1 | L4a-R1-7014-order |
 | 7022 | 1 | F3-q18 |
@@ -653,6 +662,7 @@
 | 7601 | 1 | L4a-R1-7601-targets |
 | 7602 | 1 | L1-6428-steal-summon |
 | 7624 | 1 | F1-items-54-60 |
+| 7625 | 1 | L5-C-1176-knight |
 | 7626 | 1 | F1-steal-before-damage |
 | 7631 | 1 | L1-6453-order |
 | 7633 | 1 | F1-steal-before-damage |
@@ -736,6 +746,7 @@
 | 8053 | 4 | L3-015、L3-016、R7-doomed-count-order、P-R1-count-at-native-step |
 | 8055 | 1 | L7-R1-random-chain-waves |
 | 8060 | 1 | P-R2-chosen-color-modifier |
+| 8062 | 1 | L5-C-1250-bleed-n |
 | 8073 | 1 | L7-R1-random-chain-waves |
 | 8076 | 1 | R3-B01-1256 |
 | 8077 | 4 | L3-015、L3-016、R7-doomed-count-order、P-R1-count-at-native-step |
@@ -765,6 +776,7 @@
 | 8167 | 1 | L4a-r3-6777 |
 | 8168 | 1 | L4a-r3-6778 |
 | 8169 | 1 | P-create-interleave |
+| 8182 | 1 | L5-C-6791-precount |
 | 8184 | 1 | L4a-r3-6793 |
 | 8193 | 1 | L1-6786-summons |
 | 8203 | 2 | P-counter-per-step、P-counter-per-step |
@@ -931,6 +943,9 @@
 | 8692 | 1 | R3-B08-7143 |
 | 8694 | 1 | F2-7145-miss-branch |
 | 8697 | 1 | L4b-1441-cursed-gems |
+| 8698 | 1 | L5-C-cursebreaker-targets |
+| 8699 | 1 | L5-C-cursebreaker-targets |
+| 8700 | 1 | L5-C-cursebreaker-targets |
 | 8713 | 1 | P-counter-per-step |
 | 8715 | 1 | L1-7155-devour |
 | 8722 | 1 | L2-singlegem-cell |
@@ -1066,6 +1081,7 @@
 | 9313 | 1 | L2-7523-one-colour |
 | 9318 | 1 | L4a-r3-7543 |
 | 9337 | 1 | R7-tarot-extra-turn |
+| 9338 | 1 | L5-C-7553-boss |
 | 9341 | 1 | L2-7556-gold-count |
 | 9349 | 2 | B-L4b-1585-entangle-gems、B-L4b-1585-entangle-gems |
 | 9352 | 1 | L7-R1-weapon-colour-race |
@@ -1075,6 +1091,7 @@
 | 9370 | 1 | P-prefnotprev-semantics |
 | 9371 | 3 | R012、P-R1-gargoyle-tier-filter,P-R2-gargoyle-tier,P-R4-gargoyle-tier-count,P-R3-dragon-gem-count、D-7575-zh |
 | 9372 | 2 | P-prefnotprev-semantics、F2-R001-order |
+| 9374 | 1 | L5-C-7900-waves |
 | 9377 | 1 | P-prefnotprev-semantics |
 | 9380 | 1 | L4a-R1-immortal-order |
 | 9385 | 1 | R012 |
@@ -1191,6 +1208,7 @@
 | 9915 | 1 | L7-R1-weapon-colour-race |
 | 9918 | 1 | P-R1-gargoyle-tier-filter,P-R2-gargoyle-tier,P-R4-gargoyle-tier-count,P-R3-dragon-gem-count |
 | 9933 | 1 | P-prefnotprev-semantics |
+| 9934 | 1 | L5-C-1695-lycanthropy |
 | 9935 | 1 | P-prefnotprev-semantics |
 | 9936 | 1 | F3-q02 |
 | 9937 | 1 | P-prefnotprev-semantics |
@@ -1201,6 +1219,7 @@
 | 9952 | 1 | L4a-R1-cross-8039-9952 |
 | 9957 | 1 | L3-007 |
 | 9958 | 1 | L4a-R1-9958-count-order |
+| 9982 | 1 | L5-C-7900-waves |
 | 9983 | 1 | L4a-R1-immortal-order |
 | 9986 | 1 | F3-q22 |
 | 10003 | 1 | F1-doomed-random-skill |

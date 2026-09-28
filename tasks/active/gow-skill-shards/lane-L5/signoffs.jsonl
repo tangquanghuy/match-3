@@ -151,3 +151,32 @@
 {"format":"compact","key":"troop:7516","decision":"accept","reviewer":"sa-R3","reviewedAt":"2026-09-28T03:05:13.105Z","tests":["tests/unit/gowCastGolden.test.ts"]}
 {"format":"compact","key":"troop:7607","decision":"accept","reviewer":"sa-R3","reviewedAt":"2026-09-28T03:05:13.105Z","tests":["tests/unit/gowCastGolden.test.ts"]}
 {"format":"compact","key":"weapon:1156","decision":"accept","reviewer":"coord","reviewedAt":"2026-09-28T10:00:32.862Z","tests":["tests/unit/gowCastGolden.test.ts"],"note":"post-merge r2: R012 pre-kill neighbours"}
+{"format":"compact","key":"troop:6800","decision":"accept","reviewer":"sa-C","reviewedAt":"2026-09-28T10:19:19.190Z","tests":["tests/unit/gowCastGolden.test.ts"],"note":"region doubling (7900/7581/7578/7901) not exercisable in standard battle"}
+{"format":"compact","key":"troop:6791","decision":"accept","reviewer":"sa-C","reviewedAt":"2026-09-28T10:19:19.191Z","tests":["tests/unit/gowCastGolden.test.ts"],"note":"region doubling (7900/7581/7578/7901) not exercisable in standard battle"}
+{"format":"compact","key":"troop:7900","decision":"accept","reviewer":"sa-C","reviewedAt":"2026-09-28T10:19:19.191Z","tests":["tests/unit/gowCastGolden.test.ts"],"note":"region doubling (7900/7581/7578/7901) not exercisable in standard battle"}
+{"format":"compact","key":"troop:7581","decision":"accept","reviewer":"sa-C","reviewedAt":"2026-09-28T10:19:19.192Z","tests":["tests/unit/gowCastGolden.test.ts"],"note":"region doubling (7900/7581/7578/7901) not exercisable in standard battle"}
+{"format":"compact","key":"troop:7578","decision":"accept","reviewer":"sa-C","reviewedAt":"2026-09-28T10:19:19.192Z","tests":["tests/unit/gowCastGolden.test.ts"],"note":"region doubling (7900/7581/7578/7901) not exercisable in standard battle"}
+{"format":"compact","key":"troop:7901","decision":"accept","reviewer":"sa-C","reviewedAt":"2026-09-28T10:19:19.192Z","tests":["tests/unit/gowCastGolden.test.ts"],"note":"region doubling (7900/7581/7578/7901) not exercisable in standard battle"}
+{"format":"compact","key":"troop:6414","decision":"accept","reviewer":"sa-C","reviewedAt":"2026-09-28T10:19:19.192Z","tests":["tests/unit/gowCastGolden.test.ts"],"note":"region doubling (7900/7581/7578/7901) not exercisable in standard battle","waived":[{"part":"clause","id":"c2","mode":"boss"}]}
+{"format":"compact","key":"troop:7553","decision":"accept","reviewer":"sa-C","reviewedAt":"2026-09-28T10:19:19.193Z","tests":["tests/unit/gowCastGolden.test.ts"],"note":"region doubling (7900/7581/7578/7901) not exercisable in standard battle","waived":[{"part":"clause","id":"c2","mode":"boss"}]}
+{"format":"compact","key":"troop:6748","decision":"accept","reviewer":"sa-C","reviewedAt":"2026-09-28T10:19:19.193Z","tests":["tests/unit/gowCastGolden.test.ts"],"note":"region doubling (7900/7581/7578/7901) not exercisable in standard battle"}
+{"format":"compact","key":"troop:6624","decision":"issue","reviewer":"sa-C","reviewedAt":"2026-09-28T10:19:19.390Z","issue":"L5-C-self-submerged-timing","note":"Definition matches EN/native (CountSpecificStatusEffect@AllAllies submerged x2). But engine removes the caster's own Submerged at cast start (R004 'holder acts') before the count, so a Submerged Mershark does not count itself. Source unclear whether GoW counts the caster's Submerged before it is removed."}
+{"format":"compact","key":"troop:7003","decision":"accept","reviewer":"sa-C","reviewedAt":"2026-09-28T10:25:20.852Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:7783","decision":"accept","reviewer":"sa-C","reviewedAt":"2026-09-28T10:25:20.853Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"weapon:1250","decision":"accept","reviewer":"sa-C","reviewedAt":"2026-09-28T10:25:20.854Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:7710","decision":"accept","reviewer":"sa-C","reviewedAt":"2026-09-28T10:25:20.854Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"weapon:1695","decision":"accept","reviewer":"sa-C","reviewedAt":"2026-09-28T10:25:20.854Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"weapon:1442","decision":"accept","reviewer":"sa-C","reviewedAt":"2026-09-28T10:25:20.854Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"weapon:1443","decision":"accept","reviewer":"sa-C","reviewedAt":"2026-09-28T10:25:20.855Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"weapon:1444","decision":"accept","reviewer":"sa-C","reviewedAt":"2026-09-28T10:25:20.855Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:6007","decision":"accept","reviewer":"sa-C","reviewedAt":"2026-09-28T10:25:20.855Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:6856","decision":"accept","reviewer":"sa-C","reviewedAt":"2026-09-28T10:27:03.173Z","tests":["tests/unit/gowCastGolden.test.ts"],"waived":[{"part":"clause","id":"c2","mode":"boss"}]}
+{"format":"compact","key":"troop:7512","decision":"accept","reviewer":"sa-C","reviewedAt":"2026-09-28T10:27:03.174Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"weapon:1124","decision":"accept","reviewer":"sa-C","reviewedAt":"2026-09-28T10:27:03.174Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:6744","decision":"accept","reviewer":"sa-C","reviewedAt":"2026-09-28T10:27:03.175Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:6788","decision":"accept","reviewer":"sa-C","reviewedAt":"2026-09-28T10:27:03.175Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"weapon:1550","decision":"accept","reviewer":"sa-C","reviewedAt":"2026-09-28T10:27:03.175Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:7331","decision":"accept","reviewer":"sa-C","reviewedAt":"2026-09-28T10:27:03.175Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"weapon:1176","decision":"accept","reviewer":"sa-C","reviewedAt":"2026-09-28T10:27:03.175Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:6184","decision":"accept","reviewer":"sa-C","reviewedAt":"2026-09-28T10:27:03.176Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:6389","decision":"accept","reviewer":"sa-C","reviewedAt":"2026-09-28T10:27:03.176Z","tests":["tests/unit/gowCastGolden.test.ts"]}

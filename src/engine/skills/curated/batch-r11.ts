@@ -258,8 +258,9 @@ const SPELLS: CuratedBatch['spells'] = [
         modifier: { mod: { kind: 'multiplier', a: 3 }, source: { kind: 'enemyStatusCount', statusId: 'bleed' } },
         condMult: REGION2('BrokenLands'),
       }),
+      // sa-C r3: native RandomEnemy + 2 x RandomPrefNotPrevEnemy, each step its own roll (R007-3)
       trueDmg('enemyRandomN', 2, 1.33, {
-        n: 3,
+        n: 3, randomWaves: 3,
         rangeSpec: { min: flat(3), max: scale(2, 1.33) },
         modifier: { mod: { kind: 'multiplier', a: 3 }, source: { kind: 'enemyStatusCount', statusId: 'bleed' } },
         condMult: REGION2('BrokenLands'),
@@ -653,7 +654,8 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: "对 3 个随机敌人造成 [魔法] 点真实伤害。若在玛拉吉广袤区域使用，则造成双倍伤害。有 20% 的几率击杀一个随机敌人，每有一个敌人被死亡标记，击杀几率额外提高 2%。 [x2]",
     // 「击杀一个随机敌人，每死亡标记敌人 +2% 几率」= execute + chance 0.2 + chanceBoost（§11 追加口径）
     build: skill(
-      trueDmg('enemyRandomN', 0, 1, { n: 3, condMult: REGION2('MarajiExpanse') }),
+      // sa-C r3: native RandomEnemy + 2 x RandomPrefNotPrevEnemy = 3 sequential waves (R007-3)
+      trueDmg('enemyRandomN', 0, 1, { n: 3, randomWaves: 3, condMult: REGION2('MarajiExpanse') }),
       dmg('enemyRandom', 0, 0, {
         execute: true,
         chance: 0.2,

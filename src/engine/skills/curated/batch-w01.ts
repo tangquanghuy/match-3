@@ -1292,7 +1292,7 @@ const SPELLS: CuratedBatch['spells'] = [
     build: skill(
       dmg('enemyAll', 4, 0.5, { range: 'all' }),
       inflict('death-mark', 'enemyAll', { targetRace: 'Divine' }),
-      inflict('disease', 'enemyAll', { targetRace: 'Divine' }),
+      inflict('disease', 'enemyAll', { targetRace: 'Knight' }), // sa-C r3: native CauseDisease@EnemyType knight (was Divine)
     ),
   },
   {
