@@ -102,8 +102,8 @@ const SPELLS: CuratedBatch['spells'] = [
     build: skill(
       explodeAt(CELL),
       dmg('enemyRandom', 1),
-      // 「燃烧敌人」=「燃烧(一名)敌人」→ enemyChosen（batch-04 7006 同口径，见文件头备注）
-      inflict('burning', 'enemyChosen', { chance: 0.3 }),
+      // native CauseBurning@FromPrevious 30%: the random enemy just damaged (spell Target Board has no chosen enemy)
+      inflict('burning', 'lastTarget', { chance: 0.3 }),
     ),
   },
   {

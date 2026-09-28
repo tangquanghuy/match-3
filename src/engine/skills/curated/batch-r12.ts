@@ -37,7 +37,7 @@ import type { CuratedBatch } from './index';
 import {
   skill, dmg, dmgSplash, heal, armor, attack, mana, reduce, steal, stealRandomStat,
   createGems, transform, destroyChosenRow, destroyColor, destroyRandomGems, destroyArea,
-  inflict, oneOf, extraTurn, createStorm, summonRandom, transformToSpecial, gainGold, targetedSkill,
+  inflict, oneOf, extraTurn, createStorm, summonRandom, transformToSpecial, gainGold, targetedSkill, CELL,
 } from '../builders';
 import { BaseColor } from '../../types';
 
@@ -234,7 +234,8 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '以 3x3 交叉队列方式爆破宝石。获得 [魔法 + 1] 点护甲值和屏障效果。',
     // 官方 ExplodeGems Block1x3 + Block3x1 = 横竖各 3 格的十字（5 格）；形状即目标集不辐射
     build: skill(
-      destroyArea('cross3', 'explode'),
+      // spell Target Board: the cross is centred on the chosen gem (was the fixed board centre)
+      destroyArea('cross3', 'explode', CELL),
       armor('allySelf', 1, 1),
       inflict('barrier', 'allySelf'),
     ),

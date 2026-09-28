@@ -83,7 +83,7 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 7649,
     desc: '爆破 18 颗板面上的宝石。对所有敌人造成 [魔法 + 5] 点伤害。',
     build: skill(
-      // 无颜色/选定字样 → 随机色宝石（文件头备注）
+      // native ExplodeGems 18 (colourless): any gem incl. Skulls (R013-5)
       explodeRandomGems(18, 0, 'all'),
       dmgAll(5),
     ),

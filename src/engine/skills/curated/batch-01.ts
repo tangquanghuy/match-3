@@ -79,6 +79,7 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 7145,
     desc: '随机爆破 [魔法 + 3] 颗宝石并净化自身。',
     build: skill(
+      // native ExplodeGems 3+M (colourless): any gem incl. Skulls (R013-5)
       explodeRandomGems(3, 1, 'all'),
       cleanse('allySelf'),
     ),

@@ -19,7 +19,7 @@
  * - 「狂怒/妖火/赐福」不在状态白名单；「末日骷髅头」为特殊宝石（厄运家族）。
  */
 import { skill, dmg, dmgSplash, trueDmg, heal, armor, attack, magic, mana, reduce, steal,
-  inflict, explodeRandomGems, destroyRandomGems, transform, transformToSpecial, CASTER } from '../builders';
+  inflict, explodeRandomGems, destroyRandomGems, transform, transformToSpecial } from '../builders';
 import { BaseColor } from '../../types';
 import type { CuratedBatch } from './index';
 
@@ -44,6 +44,7 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 7674,
     desc: '爆破 2 颗宝石。对第一名和最后一名敌人造成 [魔法 + 2] 点伤害。',
     build: skill(
+      // native ExplodeGems 2 (colourless): any gem incl. Skulls (R013-5)
       explodeRandomGems(2, 0, 'all'),
       // 「第一名和最后一名敌人」= enemyFront + enemyLast 两段共用同一缩放（文件头备注）
       dmg('enemyFront', 2),
@@ -182,11 +183,12 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 7969,
-    desc: '对一名敌人造成 [魔法 + 2] 点真实伤害。摧毁与此军队法力颜色相同的 5 颗宝石。',
+    desc: '对一名敌人造成 [魔法 + 2] 点真实伤害。摧毁 5 颗该敌方军队法力颜色的宝石。',
     build: skill(
       trueDmg('enemyChosen', 2),
       // 「此军队法力颜色」= CASTER 占位符；限定色 N 颗 = randomGems 从该色池随机取
-      destroyRandomGems(5, 0, 'color', CASTER),
+      // native DestroyColor Color1=FromTarget: "the troop" is the damaged enemy, not the caster
+      destroyRandomGems(5, 0, 'color', 'LAST_TARGET'),
     ),
   },
   {

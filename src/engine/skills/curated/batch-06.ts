@@ -182,7 +182,9 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 7518,
     desc: '对 2 名随机敌人造成 [魔法 + 10] 点溅射伤害。爆破 5 颗随机宝石。',
     build: skill(
-      dmgSplash('enemyRandomN', 10, 1, { n: 2 }),
+      // native SplashHighDamage@RandomEnemy + @RandomPrefNotPrevEnemy (R007-3: a lone survivor is hit twice)
+      dmgSplash('enemyRandom', 10, 1),
+      dmgSplash('enemyRandomPrefNotPrev', 10, 1),
       explodeRandomGems(5, 0, 'all'),
     ),
   },

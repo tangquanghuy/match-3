@@ -353,7 +353,7 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 8512,
-    desc: '结果 [魔法 + 3] 给予一名敌人重击。摧毁8枚宝石的法力颜色之一。',
+    desc: '对一名敌人造成 [魔法 + 3] 点溅射伤害。爆破 8 颗该敌人法力颜色之一的宝石。',
     build: skill(
       dmgSplash('enemyChosen', 3, 1, { range: 'splash' }),
       explodeRandomGems(8, 0, 'color', 'LAST_TARGET'),
@@ -422,8 +422,8 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 8521,
-    desc: '结果 [魔法 + 3] 给予一名敌人超级重击。如果敌人被打昏，炸毁四枚宝石。',
-    build: ({"segments":[{"kind":"damage","target":"enemyChosen","scaling":{"base":3,"mult":1},"range":"splash","splashRatio":0.75},{"kind":"gem","params":{"op":"clear","mode":"explode","target":{"kind":"randomGems","count":{"base":4,"mult":0},"include":"all"}},"ifCond":{"kind":"anyEnemyStatus","statusId":"stun"}}]} as SkillPrototype),
+    desc: '对一名敌人造成 [魔法 + 3] 点重度溅射伤害。若该敌人被击晕，则爆破 4 颗宝石。',
+    build: ({"segments":[{"kind":"damage","target":"enemyChosen","scaling":{"base":3,"mult":1},"range":"splash","splashRatio":0.75},{"kind":"gem","params":{"op":"clear","mode":"explode","target":{"kind":"randomGems","count":{"base":4,"mult":0},"include":"all"}},"ifCond":{"kind":"lastTargetStatus","statusId":"stun"}}]} as SkillPrototype),
   },
   {
     id: 8529,

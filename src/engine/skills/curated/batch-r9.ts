@@ -115,7 +115,7 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 8160,
-    desc: '对 3 名随机敌人造成 [魔法 + 8] 点轻微溅射上海。爆破板面上半数蓝色宝石。 [2:1]',
+    desc: '对 3 名随机敌人造成 [魔法 + 8] 点轻微溅射伤害。爆破板面上半数蓝色宝石。 [2:1]',
     // 机翻事故：「溅射上海」= 溅射伤害；[2:1] = 官方 CountGems Amount 50（每 2 颗爆破 1 颗）
     build: skill(
       // 3 x plain SplashDamage RandomEnemy (no PrefNotPrev step): R006-C3 prefer not-yet-hit

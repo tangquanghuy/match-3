@@ -136,6 +136,16 @@
       "reason": "English source text specifies one random Skill; extracted native IncreaseRandom awards its complete amount to one Skill per recipient. Scoped display clarification, not whole-skill signoff.",
       "spellDescription": "对一名敌人造成 [魔法 + 4] 点伤害，伤害值因自身的护甲值而增强。如果敌人是个魔头，则基于我已晋升的稀有度造成 3 到 5 倍伤害。自身一项随机属性获得 3 点。 [3:1]"
     },
+    "6639": {
+      "spellId": 7968,
+      "reason": "sa-A r9: English 'Give all allies 4 Magic, with a 50% chance for each of the following'; stored Chinese says 4 mana (魔力值) and 'one of the following' (其一).",
+      "spellDescription": "给予所有盟友 4 点魔法，并各有 50% 的几率触发以下效果：对所有敌人造成 [魔法 + 1] 点伤害；爆破 8 颗随机宝石；给予所有盟友 [魔法 + 1] 点生命值。"
+    },
+    "6640": {
+      "spellId": 7969,
+      "reason": "sa-A r9: English 'Destroy 5 Gems of the troop's Mana Color' with native DestroyColor FromTarget = the targeted enemy; stored Chinese '此军队' read as the caster.",
+      "spellDescription": "对一名敌人造成 [魔法 + 2] 点真实伤害。摧毁 5 颗该敌方军队法力颜色的宝石。"
+    },
     "6652": {
       "spellId": 7987,
       "reason": "English source text specifies one random Skill; extracted native IncreaseRandom awards its complete amount to one Skill per recipient. Scoped display clarification, not whole-skill signoff.",
@@ -160,6 +170,11 @@
       "spellId": 8139,
       "reason": "sa-R7 R7-b14-status-counts: gem count (not damage) is boosted by Poisoned/Diseased enemies per English/native.",
       "spellDescription": "对所有敌人造成 [魔法 + 2] 点伤害。创造 14 颗绿色和棕色的混合宝石，数量因陷入中毒和疾病状态的敌人而增强。获得一个额外的回合。 [1:1]"
+    },
+    "6770": {
+      "spellId": 8160,
+      "reason": "sa-A r9: English 'light splash damage'; stored Chinese typo '溅射上海' (Shanghai) for '溅射伤害'.",
+      "spellDescription": "对 3 名随机敌人造成 [魔法 + 8] 点轻微溅射伤害。爆破板面上半数蓝色宝石。 [2:1]"
     },
     "6789": {
       "spellId": 8180,
@@ -266,6 +281,11 @@
       "reason": "English Baihu: Create 3 Yellow Gems, damage boosted by Yellow Gems, Enchant myself (native CauseEnchanted@Self). Chinese snapshot was garbled machine translation ('迷惑自己' = confuse).",
       "spellDescription": "创造 3 颗黄色宝石。对一名敌人造成 [魔法 + 3] 点伤害，伤害值因黄色宝石数而增强。赋予自己法印效果。 [2:1]"
     },
+    "7001": {
+      "spellId": 8504,
+      "reason": "sa-A r9: English 'Explode 3 Skulls. Gain [(Magic / 2) + 1] Attack.'; stored Chinese '获得一次攻击' is a mistranslation (gain an attack) and drops the amount.",
+      "spellDescription": "爆破 3 颗骷髅。获得 [(魔法 / 2) + 1] 点攻击力。"
+    },
     "7019": {
       "spellId": 8526,
       "reason": "sa-A r8: English 'Destroy [Magic + 1] Gems of the most used Enemy Mana Color.'; stored Chinese '使用对多的颜色' is a typo (对多 -> 最多) and drops 'mana'.",
@@ -305,6 +325,11 @@
       "spellId": 8688,
       "reason": "sa-A r3: English Destroy a column / native DestroyGems BoardTarget Column; AllyType mystic = every Mystic ally. Old Chinese said row and one ally.",
       "spellDescription": "摧毁一列。给予所有盟友 [魔法 + 1] 点护甲值，数值因被摧毁的黄色宝石而增强。若有秘士盟友，则给予他们 3 点魔力值。 [x3]"
+    },
+    "7150": {
+      "spellId": 8718,
+      "reason": "sa-A r9: English '... Enchant all Fey Allies.'; stored Chinese '施魔法于所有的精灵同盟' (cast magic on Elf allies) mistranslates Enchant and Fey.",
+      "spellDescription": "给予所有盟友 [魔法 + 3] 点生命值和 5 点魔法。然后发起一场烈火风暴，并赋予所有仙灵盟友法印效果。"
     },
     "7181": {
       "spellId": 8751,
@@ -403,6 +428,36 @@
         "powerofstars": "星辰之力"
       }
     },
+    "7447": {
+      "spellId": 9168,
+      "reason": "sa-A r9: English 'If any Enemy is Cursed'; stored Chinese '若敌人被诅咒' reads as a single enemy.",
+      "spellDescription": "爆破一列。获得 [(魔法 x 1.5) + 1] 点生命值。若有任一敌人被诅咒，则创造 8 颗蓝色巨人宝石。"
+    },
+    "7448": {
+      "spellId": 9169,
+      "reason": "sa-A r9: English 'If any Enemy is Cursed'; stored Chinese '若敌人被诅咒' reads as a single enemy.",
+      "spellDescription": "爆破一列。获得 [(魔法 x 1.5) + 1] 点生命值。若有任一敌人被诅咒，则创造 8 颗绿色巨人宝石。"
+    },
+    "7449": {
+      "spellId": 9170,
+      "reason": "sa-A r9: English 'If any Enemy is Cursed'; stored Chinese '若敌人被诅咒' reads as a single enemy.",
+      "spellDescription": "爆破一列。获得 [(魔法 x 1.5) + 1] 点生命值。若有任一敌人被诅咒，则创造 8 颗红色巨人宝石。"
+    },
+    "7450": {
+      "spellId": 9171,
+      "reason": "sa-A r9: English 'If any Enemy is Cursed'; stored Chinese '若敌人被诅咒' reads as a single enemy.",
+      "spellDescription": "爆破一列。获得 [(魔法 x 1.5) + 1] 点生命值。若有任一敌人被诅咒，则创造 8 颗黄色巨人宝石。"
+    },
+    "7451": {
+      "spellId": 9172,
+      "reason": "sa-A r9: English 'If any Enemy is Cursed'; stored Chinese '若敌人被诅咒' reads as a single enemy.",
+      "spellDescription": "爆破一列。获得 [(魔法 x 1.5) + 1] 点生命值。若有任一敌人被诅咒，则创造 8 颗紫色巨人宝石。"
+    },
+    "7452": {
+      "spellId": 9173,
+      "reason": "sa-A r9: English 'If any Enemy is Cursed'; stored Chinese '若敌人被诅咒' reads as a single enemy.",
+      "spellDescription": "爆破一列。获得 [(魔法 x 1.5) + 1] 点生命值。若有任一敌人被诅咒，则创造 8 颗棕色巨人宝石。"
+    },
     "7506": {
       "spellId": 9251,
       "spellDescription": "对一名敌人造成 [魔法 + 2] 点伤害。如果敌人是个高塔，则基于我已晋升的稀有度造成 3 到 5 倍伤害。创造 1-3 颗 x3 通配宝石。",
@@ -446,7 +501,8 @@
     "7725": {
       "spellId": 9725,
       "manaCost": 9,
-      "reason": "English ManaCost and native Cost agree; Chinese entity snapshot has 11"
+      "reason": "English ManaCost and native Cost agree; Chinese entity snapshot has 11. sa-A r9: stored Chinese drops the clause 'Deal [(Magic / 2) + 4] damage to first Enemy.'",
+      "spellDescription": "爆破 2-4 颗宝石。对第一名敌人造成 [(魔法 / 2) + 4] 点伤害。"
     },
     "7737": {
       "spellId": 9640,
@@ -477,6 +533,11 @@
       "spellId": 9939,
       "reason": "English Wisterina: damage boosted by Entangled Enemies [x2] (native CountSpecificStatusEffect 200 entangle), not extra damage per entangled target.",
       "spellDescription": "对所有敌人造成[魔法 + 2]点伤害，伤害值因被纠缠的敌人数而增强。然后将所有棕色宝石转化为纠缠宝石。 [x2]"
+    },
+    "7861": {
+      "spellId": 9935,
+      "reason": "sa-A r9: English 'Explode a row.' (native ExplodeGems BoardTarget Row); stored Chinese '引爆一排敌人' said a row of enemies.",
+      "spellDescription": "对 3 个随机敌人造成 [(魔法 x 0.67) + 2] 点真实溅射伤害。若在中央尖塔内使用，则造成双倍伤害。爆破一行宝石。"
     }
   }
 }

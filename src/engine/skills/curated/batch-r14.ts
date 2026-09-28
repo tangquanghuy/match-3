@@ -193,7 +193,8 @@ const SPELLS: CuratedBatch['spells'] = [
     build: skill(
       shuffleBoard(),
       createSpecialGems({ kind: 'stoneBlock' }, 2),
-      createSpecialGems({ kind: 'gargoyleGem' }, 4),
+      // native CreateGems2Colors GoodGargoyle/BadGargoyle 4 = mix of tier 1 and tier 2 Gargoyle Gems
+      createSpecialGems2([{ kind: 'gargoyleGem', tier: 1 }, { kind: 'gargoyleGem', tier: 2 }], 4),
     ),
   },
   {

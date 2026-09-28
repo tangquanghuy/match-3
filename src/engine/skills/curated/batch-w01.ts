@@ -791,7 +791,8 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 7251,
     desc: '随机爆破 3 颗宝石。对所有敌人造成 [魔法 + 5] 点散射伤害。',
     build: skill(
-      explodeRandomGems(3, 0, 'all', undefined),
+      // native ExplodeGems 3 (colourless): any gem incl. Skulls (R013-5)
+      explodeRandomGems(3, 0, 'all'),
       dmg('enemyAll', 5, 1, { range: 'all' }),
     ),
   },

@@ -949,7 +949,7 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 8504,
-    desc: '炸毁三个骷髅头。获得一次攻击。',
+    desc: '爆破 3 颗骷髅。获得 [(魔法 / 2) + 1] 点攻击力。',
     // EN「Explode 3 Skulls. Gain [(Magic / 2) + 1] Attack.」= 定量骷髅爆破（R22 新原语）
     // + 半魔法缩放攻击（ZH「一次攻击」为机翻）。无方括号 → 常数缩放 scale(1, 0.5)。
     build: skill(
@@ -1106,8 +1106,9 @@ const SPELLS: CuratedBatch['spells'] = [
     // （R22 原语，7000 同款 explode 版）；缠绕+织网双施加。
     build: skill(
     destroyArea('row3', 'explode', CELL),
+    // native CauseEntangle@RandomEnemy ; CauseWeb@FromPrevious: the same random enemy gets both
     inflict('entangle', 'enemyRandom'),
-    inflict('web', 'enemyRandom'),
+    inflict('web', 'lastTarget'),
     ),
   },
   {

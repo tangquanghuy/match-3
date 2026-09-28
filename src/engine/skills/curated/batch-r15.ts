@@ -32,10 +32,10 @@ import type { CuratedBatch } from './index';
 import {
   skill, skillOnce, targetedSkill, dmg, dmgSplash, trueDmg, heal, gainLife, armor, attack, magic, mana, reduce, steal,
   cleanse, randomStat, createGems, createSpecialGems, destroyRandomSpecialGems, explodeSpecialGems, explodeRandomGems,
-  explodeColor, destroyRandomGems, destroyChosenRow, destroyChosenCol, destroyArea, transform, transformToSpecial,
+  explodeColor, destroyRandomGems, destroyArea, transform, transformToSpecial,
   transformTroop, inflict,
   inflictRandom, shuffleBoard, extraTurn, oneOf, reposition, summonRandom, summonRef,
-  transformTroopRandom, CHOSEN, CELL, explodeAt,
+  transformTroopRandom, CHOSEN, CELL, explodeAt, destroyChosenCross,
 } from '../builders';
 import { BaseColor } from '../../types';
 
@@ -699,8 +699,8 @@ const SPELLS: CuratedBatch['spells'] = [
     // 赃物宝石 = bootyGem（§10.3）
     build: skill(
       explodeAt(CELL),
-      destroyChosenRow(),
-      destroyChosenCol(),
+      // native DestroyGems BoardTarget RowAndColumn is one step (the chosen cell's cross), not row then column
+      destroyChosenCross(),
       createSpecialGems({ kind: 'bootyGem' }, 3),
     ),
   },

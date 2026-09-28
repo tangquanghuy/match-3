@@ -91,7 +91,7 @@
       }
     },
     "7071": {
-      "description": "?????????",
+      "description": "随机爆破一颗宝石。",
       "metadata": {
         "fidelity": "full",
         "missingFeatures": [],
@@ -7229,6 +7229,9 @@
         ]
       }
     },
+    "8512": {
+      "description": "对一名敌人造成 [魔法 + 3] 点溅射伤害。爆破 8 颗该敌人法力颜色之一的宝石。"
+    },
     "8518": {
       "prototype": {
         "segments": [
@@ -7262,6 +7265,7 @@
       }
     },
     "8521": {
+      "description": "对一名敌人造成 [魔法 + 3] 点重度溅射伤害。若该敌人被击晕，则爆破 4 颗宝石。",
       "prototype": {
         "segments": [
           {
@@ -7289,7 +7293,7 @@
               }
             },
             "ifCond": {
-              "kind": "anyEnemyStatus",
+              "kind": "lastTargetStatus",
               "statusId": "stun"
             }
           }
@@ -13041,6 +13045,65 @@
             "statusId": "blessed",
             "turns": 3,
             "targetRace": "Undead"
+          }
+        ]
+      }
+    },
+    "9840": {
+      "description": "对一名敌人造成[魔法 + 2]点真实伤害，并使其燃烧。如果我方队伍中有不朽的穴居人，则爆破 4 颗许愿宝石。 [x4]",
+      "prototype": {
+        "segments": [
+          {
+            "kind": "damage",
+            "target": "enemyChosen",
+            "scaling": {
+              "base": 2,
+              "mult": 1
+            },
+            "trueDamage": true
+          },
+          {
+            "kind": "status",
+            "target": "lastTarget",
+            "statusId": "burning",
+            "turns": 3,
+            "magnitude": 3
+          },
+          {
+            "kind": "gem",
+            "params": {
+              "op": "clear",
+              "mode": "explode",
+              "target": {
+                "kind": "randomGems",
+                "count": {
+                  "base": 0,
+                  "mult": 0
+                },
+                "include": "all",
+                "special": "wish"
+              },
+              "modifier": {
+                "mod": {
+                  "kind": "multiplier",
+                  "a": 4
+                },
+                "source": {
+                  "kind": "alliesNamed",
+                  "name": "不朽的穴居人"
+                }
+              }
+            },
+            "modifier": {
+              "mod": {
+                "kind": "multiplier",
+                "a": 4
+              },
+              "source": {
+                "kind": "alliesNamed",
+                "name": "不朽的穴居人"
+              }
+            }
           }
         ]
       }

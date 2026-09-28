@@ -34,8 +34,8 @@ import type { CuratedBatch } from './index';
 import {
   skill, dmg, dmgSplash, trueDmg, heal, armor, attack, magic, reduce, drainMana,
   inflict, inflictRandom, createGems, createSkulls, transform, transformToSpecial,
-  createSpecialGems, destroyColor, destroyRandomGems, destroyRandomCols, destroyChosenRow,
-  destroyChosenCol, explodeRandomGems, explodeChosenRow, explodeRandomSpecialGems,
+  createSpecialGems, destroyColor, destroyRandomGems, destroyRandomCols, destroyChosenCross,
+  explodeRandomGems, explodeChosenRow, explodeRandomSpecialGems,
   destroyArea, oneOf, extraTurn, scale, flat, CHOSEN,
 } from '../builders';
 import { BaseColor } from '../../types';
@@ -226,9 +226,12 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: "对 3 名随机敌人造成 [(魔法 x 0.6) + 2] 点真实严重溅射伤害。若在南荒使用，则伤害翻倍。摧毁一行和一列。",
     // 真实重度溅射 ×3 随机 = dmgSplash trueDamage（9881 先例）；MultiplyForRegion4003（南荒）；「摧毁一行和一列」= chosenLine 行+列共享选定格（8745 先例）
     build: skill(
-      dmgSplash('enemyRandomN', 2, 0.6, { n: 3, trueDamage: true, condMult: REGION2('Southwild') }),
-      destroyChosenRow(),
-      destroyChosenCol(),
+      // sa-A r9: native TrueSplashHeavyDamage@RandomEnemy + 2 x @RandomPrefNotPrevEnemy (R007-3), not 3 distinct picks
+      dmgSplash('enemyRandom', 2, 0.6, { splashRatio: 0.75, trueDamage: true, condMult: REGION2('Southwild') }),
+      dmgSplash('enemyRandomPrefNotPrev', 2, 0.6, { splashRatio: 0.75, trueDamage: true, condMult: REGION2('Southwild') }),
+      dmgSplash('enemyRandomPrefNotPrev', 2, 0.6, { splashRatio: 0.75, trueDamage: true, condMult: REGION2('Southwild') }),
+      // native DestroyGems BoardTarget RowAndColumn is one step (15 cells, no refill between row and column)
+      destroyChosenCross(),
     ),
   },
   {
@@ -356,9 +359,10 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: "获得 [(魔法 x 0.8) + 1] 点攻击力、生命值和护甲。如果在中央尖塔中使用，效果加倍。引爆 5 颗红宝石。",
     // Gain 攻/生/甲三段各挂 region 倍率（MultiplyForRegion4001 中央尖塔）；「引爆 5 颗红宝石」= 红色池随机爆破 5
     build: skill(
+      // native order: IncreaseAttack, IncreaseArmor, IncreaseHealth (R001)
       attack('allySelf', 1, 0.8, { condMult: REGION2('CentralSpire') }),
-      heal('allySelf', 1, 0.8, { condMult: REGION2('CentralSpire') }),
       armor('allySelf', 1, 0.8, { condMult: REGION2('CentralSpire') }),
+      heal('allySelf', 1, 0.8, { condMult: REGION2('CentralSpire') }),
       explodeRandomGems(5, 0, 'color', BaseColor.Red),
     ),
   },
@@ -638,10 +642,13 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 9935,
-    desc: "对 3 个随机敌人造成 [(魔法 x 0.67) + 2] 点真实溅射伤害。若在中央尖塔内使用，则造成双倍伤害。引爆一排敌人。",
+    desc: "对 3 个随机敌人造成 [(魔法 x 0.67) + 2] 点真实溅射伤害。若在中央尖塔内使用，则造成双倍伤害。爆破一行宝石。",
     // 「真实溅射」= TrueSplashHighDamage → dmgSplash trueDamage；MultiplyForRegion4001（中央尖塔）；「引爆一排」= explodeChosenRow（裸行列=选定，batch-r7 先例）
     build: skill(
-      dmgSplash('enemyRandomN', 2, 0.67, { n: 3, trueDamage: true, condMult: REGION2('CentralSpire') }),
+      // sa-A r9: native TrueSplashHighDamage@RandomEnemy + 2 x @RandomPrefNotPrevEnemy (R007-3), not 3 distinct picks
+      dmgSplash('enemyRandom', 2, 0.67, { trueDamage: true, condMult: REGION2('CentralSpire') }),
+      dmgSplash('enemyRandomPrefNotPrev', 2, 0.67, { trueDamage: true, condMult: REGION2('CentralSpire') }),
+      dmgSplash('enemyRandomPrefNotPrev', 2, 0.67, { trueDamage: true, condMult: REGION2('CentralSpire') }),
       explodeChosenRow(),
     ),
   },

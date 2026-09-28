@@ -96,3 +96,72 @@
 - troop:6540 accept
 - R8 summary: 80 reviewed; accepted 79, issued 1 (troop:7884), fixed 24 (12 of them randomGems include color->all). Primitive queue: none new.
 - R8 OPEN for coordinator: (a) include:'color' vs 'all' for colourless random DestroyGems/ExplodeGems (sa-A applies R013-5 "Skulls are Gems"; ~18 older accepts + ~15 unreviewed still use 'color'); (b) troop:7704 native UseCounterForAmount without a Count step (English Magic+2 kept); (c) troop:7884 native 2+1+1+1 vs English 2-5.
+# sa-A L4a progress (review round 9, branch gow/r9-L4a, tests tests/unit/gowLaneL4aR9.test.ts)
+- troop:7114 accept
+- weapon:1276 accept
+- troop:6857 issue(P-A-chosen-target-status-precast: native explode Red/Green before damage on chosen target status)
+- weapon:1098 accept
+- troop:7404 fix(explode 1+M Purple only, was any gem)
+- troop:7001 issue(P-A-random-skulls-variants: random Skull pool excludes Doom Skulls, R013-5) + zh fix (snapshot override)
+- troop:7380 accept
+- weapon:1064 fix(zh was '?????????'; pool + override entry)
+- troop:7402 fix(web the same random enemy, native FromPrevious)
+- troop:6536 fix(explode 4 include all)
+- troop:6075 fix(explode 3+M include all)
+- weapon:1440 fix(explode 3 include all; override prototype)
+- troop:6241 accept
+- troop:6487 fix(explode 2 include all)
+- troop:6041 fix(burning 30% on the damaged random enemy, native FromPrevious)
+- weapon:1136 accept
+- troop:6721 fix(Random + PrefNotPrev hits, not enemyRandomN)
+- troop:6471 fix(explode 18 include all)
+- troop:7364 fix(RowAndColumn one cross step)
+- troop:7573 accept (TrueRandomDamage shared roll; Summer Isle region inert regionPresent)
+- troop:7725 fix(zh missing damage clause; snapshot override)
+- troop:6943 fix(cross centred on chosen cell, not board centre; NOTE dead duplicate 8424 entry in batch-r9.ts)
+- troop:7447 fix(R009 Blue giantGem; zh 'any enemy' + override)
+- troop:7448 fix(R009 Green giantGem; zh + override)
+- troop:7449 fix(R009 Red giantGem; zh + override)
+- troop:7450 fix(R009 Yellow giantGem; zh + override)
+- troop:7451 fix(R009 Purple giantGem; zh + override)
+- troop:7452 fix(R009 Brown giantGem; zh + override)
+- weapon:1114 fix(explode 3 include all)
+- troop:7006 accept (native order: Construct explode, then two splashes)
+- weapon:1413 issue(P-A-chosen-target-status-precast: native explode before damage) + fix(target-stun not any-enemy, include all, zh pool + override)
+- troop:6141 accept
+- troop:6891 fix(explode 4 include all)
+- weapon:1227 accept (R000 waived c3 + step1 boss)
+- weapon:1152 accept (StormRandom = 6-colour oneOf, precedent)
+- troop:6705 accept
+- troop:7623 fix(native buff order attack/armor/health; Central Spire region inert)
+- troop:6632 accept
+- troop:7150 fix(Enchant Fey allies, was +5 Magic to Elf; zh + override)
+- troop:6938 accept (RemoveColor via gowRemoveRules; Green 0% step no-op)
+- troop:6639 fix(+4 Magic not mana; three independent 50% steps; zh + override)
+- troop:7220 fix(Good/Bad Gargoyle tier mix)
+- troop:7156 accept
+- troop:6153 fix(native order magic-on-kill before destroy; destroy 10 include all)
+- troop:7254 fix(destroy 3 include all)
+- weapon:1057 accept
+- troop:6770 fix(zh '溅射上海' typo; override) accept convention:R006-C3
+- weapon:1297 fix(explode include all; override + generator)
+- weapon:1298 fix(explode include all; override + generator)
+- weapon:1299 fix(explode include all; override + generator)- weapon:1300 fix(explode include all; override + generator)
+- weapon:1301 fix(explode include all; override + generator)
+- weapon:1302 fix(explode include all; override + generator)
+- troop:6366 fix(Random + PrefNotPrev splash hits, not enemyRandomN; explode 5 include all)
+- weapon:1409 fix(zh machine text; pool + override)
+- troop:7167 fix(explode 1 include all)
+- troop:6088 accept (StealLife = drain dmg; ExplodeColor Angel = all Angel Gems)
+- troop:6337 accept (Lightstorm; +5 Attack AddForKill)
+- troop:6739 accept (knock back, explode (M/2)+1 of target colour)
+- weapon:1681 fix(4 Wish per Trogolin ally via alliesNamed; inert dmg modifier removed; zh name + override)
+- weapon:1538 accept
+- troop:6640 fix(DestroyColor FromTarget = target colour, not caster; zh + override)
+- weapon:1422 accept
+- troop:6202 fix(destroy M+3 include all)
+- troop:7580 accept (scatter 2.5M+8; Aidania region x2 inert regionPresent)
+- troop:7574 fix(Random + 2 PrefNotPrev hits, not enemyRandomN; RowAndColumn one cross step; Southwild region inert)
+- troop:7224 accept (RemoveColor FromTarget = LAST_TARGET)
+- troop:7861 fix(Random + 2 PrefNotPrev hits; zh 'a row of enemies' -> gems + override; Central Spire region inert)
+- L4a lane exhausted (next returns empty)

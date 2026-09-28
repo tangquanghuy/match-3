@@ -4,7 +4,7 @@
  * 并列段共用 scaling、裸单颗宝石操作=随机、自毁=sacrifice allySelf）。
  */
 import type { CuratedBatch } from './index';
-import { skill, dmg, dmgSplash, dmgAll, trueDmg, heal, armor, attack, mana, inflict,
+import { skill, dmg, dmgSplash, dmgAll, trueDmg, heal, armor, attack, magic, mana, inflict,
   inflictRandom, reduce, steal, drainMana, createGems, createSkulls, createSpecialGems,
   createMix, transform, transformToSpecial, explodeRandomGems, explodeColor, explodeChosenRow,
   destroySpecialGems, destroyRandomGems, oneOf, summonRef, summonRandom, extraTurn, sacrifice, transformTroop,
@@ -110,10 +110,14 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 7968,
-    desc: '给予所有盟友 4 点魔力值。有 50% 的几率获得下列其一：对所有敌人造成 [魔法 + 1] 点伤害；爆破 8 颗随机宝石；给予所有盟友 [魔法 + 1] 点生命值。',
+    desc: '给予所有盟友 4 点魔法，并各有 50% 的几率触发以下效果：对所有敌人造成 [魔法 + 1] 点伤害；爆破 8 颗随机宝石；给予所有盟友 [魔法 + 1] 点生命值。',
+    // native: IncreaseSpellPower@AllAllies 4 (Magic, not mana) ; then three independent 50% steps
+    // (Damage@AllEnemies, ExplodeGems 8 incl. Skulls, IncreaseHealth@AllAllies), not one 50% oneOf
     build: skill(
-      mana('allyAll', 4),
-      { ...oneOf([dmgAll(1)], [explodeRandomGems(8, 0)], [heal('allyAll', 1, 1)]), chance: 0.5 },
+      magic('allyAll', 4, 0),
+      { ...dmgAll(1), chance: 0.5 },
+      { ...explodeRandomGems(8, 0, 'all'), chance: 0.5 },
+      { ...heal('allyAll', 1, 1), chance: 0.5 },
     ),
   },
   {
@@ -443,7 +447,8 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 9054,
     desc: '爆破 [魔法 + 1] 颗紫色宝石。再恢复全部生命值，并使所有敌人陷入恐怖状态。',
     build: skill(
-      explodeRandomGems(1, 1),
+      // native ExplodeColor Purple (1 + M): Purple gems only, not any gem
+      explodeRandomGems(1, 1, 'color', BaseColor.Purple),
       heal('allySelf', 0, 0, { full: true }),
       inflict('terror', 'enemyAll'),
     ),

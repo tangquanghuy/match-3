@@ -1102,7 +1102,7 @@
   "weaponRef": "CrudeClub",
   "weaponName": "粗糙棍棒",
   "spellName": "粗糙棍棒",
-  "desc": "?????????",
+  "desc": "随机爆破一颗宝石。",
   "scalings": [],
   "manaCost": 3,
   "colors": [
@@ -7889,7 +7889,7 @@
   "weaponRef": "Facestick",
   "weaponName": "面杖",
   "spellName": "面杖",
-  "desc": "结果 [魔法 + 3] 给予一名敌人重击。摧毁8枚宝石的法力颜色之一。",
+  "desc": "对一名敌人造成 [魔法 + 3] 点溅射伤害。爆破 8 颗该敌人法力颜色之一的宝石。",
   "scalings": [
    {
     "base": 3,
@@ -7961,7 +7961,7 @@
   "weaponRef": "FleurDeLeon",
   "weaponName": "利昂花",
   "spellName": "利昂花",
-  "desc": "结果 [魔法 + 3] 给予一名敌人超级重击。如果敌人被打昏，炸毁四枚宝石。",
+  "desc": "对一名敌人造成 [魔法 + 3] 点重度溅射伤害。若该敌人被击晕，则爆破 4 颗宝石。",
   "scalings": [
    {
     "base": 3,
@@ -13061,7 +13061,7 @@
   "weaponRef": "TrogolinsFlameKnife",
   "weaponName": "巨蜥火焰刀",
   "spellName": "巨蜥火焰刀",
-  "desc": "对一名敌人造成[魔法 + 2]点真实伤害，并使其燃烧。如果我方队伍中有不朽巨龟，则引爆4颗许愿宝石。 [x4]",
+  "desc": "对一名敌人造成[魔法 + 2]点真实伤害，并使其燃烧。如果我方队伍中有不朽的穴居人，则爆破 4 颗许愿宝石。 [x4]",
   "scalings": [
    {
     "base": 2,
