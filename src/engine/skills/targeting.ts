@@ -47,6 +47,7 @@ export type TargetMode =
   | 'enemyAboveTarget' // 选定目标编队位**上方**的全部存活敌人（官方 AboveTarget；R13 批）
   | 'enemyBelowTarget' // 选定目标编队位**下方**的全部存活敌人（官方 BelowTarget；R13 批）
   | 'enemyNextDown' // 选定目标编队位**正下方一名**（官方 NextDownFromTarget，单格；R22 批 8248）
+  | 'enemyNextUp' // 选定目标编队位**正上方一名**（官方 NextUpFromTarget，单格；P-R3-next-up-target 8485）
   | 'lastTarget' // 跨段追踪目标（「对随机敌人造成伤害，再使他陷入X」的「他」；2026-09-17 回收批）
   | 'lastTargets' // 跨段追踪目标**全列表**（最近产目标段解析出的全部目标，R22 批 9812「吸取其 8 点法力值」）
   | 'lastTargetFirst' // 跨段追踪目标列表**第一个**（R22 批 8220「燃烧第一组敌人」）
@@ -375,6 +376,15 @@ export function selectTargets(
       const split = splitAroundAnchor(state.teams[targetSide], targetSide, chosenId, formation);
       if (!split) return [];
       return split.below.filter((c) => alive.includes(c)).slice(0, 1);
+    }
+
+    case 'enemyNextUp': {
+      // P-R3-next-up-target: native NextUpFromTarget, the next living targetable enemy above the chosen one
+      // (R012: by its cast-start slot once it left the roster). None above -> empty.
+      if (chosenId === undefined) return [];
+      const split = splitAroundAnchor(state.teams[targetSide], targetSide, chosenId, formation);
+      if (!split) return [];
+      return split.above.filter((c) => alive.includes(c)).slice(-1);
     }
 
     case 'enemyFront':

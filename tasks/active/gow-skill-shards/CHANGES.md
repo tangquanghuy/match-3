@@ -1,6 +1,6 @@
 # GoW 技能改动留档
 
-自动生成（`node scripts/gow-changelog.mjs render`），源数据 [CHANGES.jsonl](CHANGES.jsonl)，共 284 条改动，涉及 542 个技能 ID。
+自动生成（`node scripts/gow-changelog.mjs render`），源数据 [CHANGES.jsonl](CHANGES.jsonl)，共 285 条改动，涉及 543 个技能 ID。
 
 ## 按时间
 
@@ -290,6 +290,7 @@
 | 2026-09-28T09:02 | sa-P | P-R4-nextdown-default-range | primitive | 8365 | troop:6904 LordBelanor | `src/engine/skills/prototypes.ts`<br>`tests/unit/gowFixP-R4-nextdown-default-range.test.ts` | damage on enemyChosenAndNextDown without range resolved 2 victims but hit only the first → enemyChosenAndNextDown defaults to range all like enemyChosenAndBelow (curated range:'all' workarounds now redundant) | no curated skill without explicit range (6904/8365 and r22 already pass range all) |
 | 2026-09-28T09:02 | sa-P | P-R3-target-status-count,P-R3-ally-status-excl-self | primitive | 8417, 8640, 9808 | troop:6936 RoyalAssassin；weapon:1427 ElementalReach；troop:7791 ImmortalKhaomani | `src/engine/skills/effects/secondary.ts`<br>`src/engine/skills/curated/batch-p37.ts`<br>`src/engine/skills/curated/batch-w03.ts`<br>`src/engine/skills/curated/batch-r11.ts`<br>`tests/unit/gowFixP-R3-status-counts.test.ts` | 8417 counted listed statuses across all enemies; 8640 condBonus anyOf added +12 once; 9808 allyStatusCount blessed included the caster → new source targetStatusCount {statusIds} = listed statuses on the chosen target at cast start (8417 x10, 8640 x12); allyStatusCount excludeSelf (9808 AllAlliesButNotSelf) | situational (statuses on target / Blessed caster) |
 | 2026-09-28T09:02 | sa-P | P-R3-precast-compare | primitive | 9291, 7454, 7458, 7960, 9651, 7192 | troop:7533 FirebornPaladin | `src/engine/skills/effects/secondary.ts`<br>`src/engine/skills/curated/batch-r7.ts`<br>`tests/unit/gowFixP-R3-status-counts.test.ts` | casterStatBeatsTarget / targetStatBeatsCaster read castTracking.lastTarget only (false before the first targeting segment); 9291 had to grant Barrier after the hit (post-damage Armor) → both fall back to the chosen target when no lastTarget exists; 9291 native order Barrier (Armor compare) then damage | also seg-0 damage condMult/condBonus using these conditions (7454 7458 7960 9651 7192 / Kingslayer) now evaluate against the chosen target pre-hit; golden diff 0 new lines |
+| 2026-09-28T09:07 | sa-P | P-R3-next-up-target | primitive | 8485 | troop:6982 Mechataur | `src/engine/skills/targeting.ts`<br>`src/render/App.ts`<br>`src/engine/skills/curated/batch-r13.ts`<br>`tests/unit/gowFixP-R3-next-up-target.test.ts` | no single-unit NextUpFromTarget mode; 8485 silenced both neighbours with one shared 30% roll (enemyChosenAndAdjacent) → new target mode enemyNextUp (living enemy right above the chosen one, R012 cast-start slot); 8485 silence chosen / enemyNextUp / enemyNextDown, three independent 30% rolls | troop:6982 only (random split) |
 
 ## 按技能 ID
 
@@ -573,6 +574,7 @@
 | 8469 | 1 | R011 |
 | 8472 | 2 | P-F1-oneof-chosen-target、P-F1-oneof-chosen-target |
 | 8473 | 1 | P-F1-remove-gems |
+| 8485 | 1 | P-R3-next-up-target |
 | 8491 | 1 | P-chooser-native-restrictions |
 | 8495 | 1 | R3-B08-6985 |
 | 8497 | 1 | F2-6991-explode-mult |

@@ -58,3 +58,6 @@
 - 2026-09-28T17:50:00Z P-R3-precast-compare fixed: casterStatBeatsTarget / targetStatBeatsCaster fall back to ctx.chosenTargetId without lastTarget; 9291 (troop:7533) Barrier before damage; golden diff 0 new lines
   - re-review (unsigned, situational): troop:6936 weapon:1427 troop:7791 troop:7533; seg-0 damage using these conditions now compare with the chosen target pre-hit: spells 7454 7458 7960 9651 7192 + gw_Kingslayer
   - process note: some earlier PowerShell [IO.File] edits used relative paths that resolved outside this worktree (D:\Code\match-3 secondary.ts, D:\Code\m3-gow-F2 secondary.ts / p37 / w03 / r11); all of those stray hunks were mine and have been reverted exactly (F2 keeps only sa-R7's own r11 / r15 hunks); all later edits use absolute paths
+- 2026-09-28T18:10:00Z P-R3-next-up-target fixed: targeting.ts mode enemyNextUp (R012 anchor slot), App.ts deferred-target note; 8485 (troop:6982) silence chosen / enemyNextUp / enemyNextDown each 30%; gowFixP-R3-next-up-target.test.ts; golden diff 0 new lines
+  - re-review (unsigned, random): troop:6982 / 8485
+  - lane note (not changed): troop:6410 native Consume@NextDownFromTarget then Consume@NextUpFromTarget and troop:6377 silence NextUp/NextDown may now be written with enemyNextUp / enemyNextDown

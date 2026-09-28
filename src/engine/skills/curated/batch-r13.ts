@@ -106,7 +106,9 @@ const SPELLS: CuratedBatch['spells'] = [
         modifier: { mod: { kind: 'ratio', a: 3, b: 1 }, source: { kind: 'selfStat', stat: 'armor' } },
       }),
       inflict('silence', 'enemyChosen', { chance: 0.3 }),
-      inflict('silence', 'enemyChosenAndAdjacent', { chance: 0.3 }),
+      // P-R3-next-up-target: native CauseSilence@NextUpFromTarget and @NextDownFromTarget are independent 30% rolls
+      inflict('silence', 'enemyNextUp', { chance: 0.3 }),
+      inflict('silence', 'enemyNextDown', { chance: 0.3 }),
     ),
   },
   {
