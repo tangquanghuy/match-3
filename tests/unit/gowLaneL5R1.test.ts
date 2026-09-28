@@ -1,6 +1,6 @@
 // sa-R3 lane review round 1, lane L5: conditions the standard golden scenarios cannot show. Real TurnEngine casts.
 import { describe, it, expect } from 'vitest';
-import { castSpell, DEFAULT_ENEMIES, reviewBoard, withCells } from '../helpers/gowCast';
+import { castSpell, setupCast, summarize, DEFAULT_ENEMIES, reviewBoard, withCells } from '../helpers/gowCast';
 import { BaseColor, colorGem, specialGem } from '@engine/types';
 
 const enemies = (over: Record<number, object>) => DEFAULT_ENEMIES.map((e, i) => ({ ...e, ...(over[i] ?? {}) }));
@@ -191,5 +191,89 @@ describe('L5 sa-R3 B04', () => {
     for (let r = 0; r < 8; r++) for (let c = 0; c < 8; c++) { const g = fn(r, c); if (g?.kind === 'color' && g.color === BaseColor.Blue) blue++; }
     const r = castSpell({ key: 'troop:7072', board: fn });
     expect(r.summary.order.at(-1)).toBe(`dmg E11 ${11 + Math.floor(blue * 34 / 100)}`);
+  });
+});
+
+describe('L5 sa-R3 B05', () => {
+  const A = (o: object) => [{ hp: 500, maxHp: 700, armor: 4, colors: [BaseColor.Blue], ...o }, { hp: 650, maxHp: 650, armor: 8, colors: [BaseColor.Red] }];
+  const st = (id: string) => [{ id, turns: 99 }];
+  const count = (fn: (r: number, c: number) => ReturnType<typeof colorGem> | null, pred: (g: ReturnType<typeof colorGem>) => boolean) => {
+    let n = 0; for (let r = 0; r < 8; r++) for (let c = 0; c < 8; c++) { const g = fn(r, c); if (g && pred(g)) n++; } return n;
+  };
+  const isColor = (col: BaseColor) => (g: ReturnType<typeof colorGem>) => g.kind === 'color' && g.color === col;
+  it('weapon:1363 Death Mark first, then damage boosted by Yellow gems [2:1]', () => {
+    const y = count(reviewBoard, isColor(BaseColor.Yellow));
+    expect(castSpell({ key: 'weapon:1363' }).summary.order).toEqual(['status E11 +death-mark', `dmg E11 ${13 + Math.floor(y / 2)}`]);
+  });
+  it('troop:7118 slay chance 4% + 4% per Doomskull (24 Doomskulls = certain, one random enemy)', () => {
+    const cells: Record<string, ReturnType<typeof colorGem>> = {};
+    for (let i = 0; i < 24; i++) cells[`${Math.floor(i / 8) + 4},${i % 8}`] = specialGem('doomSkull');
+    const r = castSpell({ key: 'troop:7118', board: withCells(reviewBoard, cells) });
+    expect(r.summary.order.slice(0, 4)).toEqual(['E10', 'E11', 'E12', 'E13'].map(e => `status ${e} +disease`));
+    expect(r.summary.order.filter(x => x.startsWith('defeat'))).toHaveLength(1);
+    expect(castSpell({ key: 'troop:7118' }).summary.order.some(x => x.startsWith('defeat'))).toBe(false);
+  });
+  it('troop:7712 scatter boosted 1:1 by Red and Skull gems; then Burn one random enemy', () => {
+    const n = count(reviewBoard, isColor(BaseColor.Red)) + count(reviewBoard, g => g.kind === 'skull');
+    const o = castSpell({ key: 'troop:7712' }).summary.order;
+    expect(o.filter(x => x.startsWith('dmg')).reduce((s, x) => s + Number(x.split(' ')[2]), 0)).toBe(14 + n);
+    expect(o.filter(x => x.endsWith('+burning'))).toHaveLength(1);
+  });
+  it('troop:7190 x3 per Burning gem, Burning ally and Burning enemy', () => {
+    const r = castSpell({ key: 'troop:7190', allies: A({ statuses: st('burning') }), enemies: enemies({ 0: { statuses: st('burning') } }),
+      board: withCells(reviewBoard, { '0,1': specialGem('burningGem') }) });
+    expect(r.summary.order).toEqual(['dmg E11 21']); // 12 + 3 x 3
+  });
+  it('troop:6649 boosted 1:1 by Red gems and Burning enemies; double under a Fire storm', () => {
+    const red = count(reviewBoard, isColor(BaseColor.Red));
+    const f = setupCast({ key: 'troop:6649', enemies: enemies({ 2: { statuses: st('burning') } }) });
+    f.state.teams[f.side].storm = { color: BaseColor.Red, turns: 3, troopId: 1 } as never;
+    const o = summarize(f, f.cast()).order;
+    expect(o[0]).toBe(`dmg E10 ${2 * (11 + red + 1)} (all)`);
+  });
+  it('weapon:1528 x5 per Angel gem and per Barriered ally', () => {
+    const r = castSpell({ key: 'weapon:1528', allies: A({ statuses: st('barrier') }), board: withCells(reviewBoard, { '0,1': specialGem('angelGem') }) });
+    expect(r.summary.order).toEqual(['dmg E11 25']);
+  });
+  it('troop:7792 x2 per Entangle gem and Entangled enemy on Attack, Life and Armor', () => {
+    const r = castSpell({ key: 'troop:7792', enemies: enemies({ 0: { statuses: st('entangle') } }), board: withCells(reviewBoard, { '0,1': specialGem('entangleGem') }) });
+    expect(r.summary.order).toEqual(['buff C attack+13', 'buff C hp+13 max+13', 'buff C armor+13']);
+  });
+  it('troop:6962 boosted by Yellow gems [2:1]; Bless only Yellow allies', () => {
+    const y = count(reviewBoard, isColor(BaseColor.Yellow));
+    const o = castSpell({ key: 'troop:6962' }).summary.order;
+    expect(o[0]).toBe(`dmg E10 ${11 + Math.floor(y / 2)} (all)`);
+    expect(o.filter(x => x.endsWith('+blessed'))).toEqual(['status C +blessed', 'status A2 +blessed']);
+  });
+});
+
+describe('L5 sa-R3 B06', () => {
+  const st = (id: string) => [{ id, turns: 99 }];
+  it('troop:7818 x3 per Poison gem; Curse then Bleed every enemy above and below the target', () => {
+    const r = castSpell({ key: 'troop:7818', board: withCells(reviewBoard, { '0,1': specialGem('poisonGem'), '5,5': specialGem('poisonGem') }) });
+    expect(r.summary.order[0]).toBe('dmg E11 20');
+    expect(r.summary.order.filter(x => x.startsWith('status'))).toEqual(['E10', 'E12', 'E13'].map(e => `status ${e} +curse`).concat(['E10', 'E12', 'E13'].map(e => `status ${e} +bleed`)));
+  });
+  it('weapon:1649 x3 per Curse gem (not Cursed enemies); double vs a Poisoned target; then Poison', () => {
+    expect(castSpell({ key: 'weapon:1649', enemies: enemies({ 0: { statuses: st('curse') } }) }).summary.order).toEqual(['dmg E11 13', 'status E11 +poison']);
+    expect(castSpell({ key: 'weapon:1649', board: withCells(reviewBoard, { '0,1': specialGem('curseGem') }) }).summary.order[0]).toBe('dmg E11 16');
+    expect(castSpell({ key: 'weapon:1649', enemies: enemies({ 1: { statuses: st('poison') } }) }).summary.order[0]).toBe('dmg E11 26');
+  });
+  it('troop:7653 double damage and Bleed only on a Purple target', () => {
+    expect(castSpell({ key: 'troop:7653', target: 12 }).summary.order).toEqual(['dmg E12 72', 'status E12 +bleed']);
+    expect(castSpell({ key: 'troop:7653' }).summary.order).toEqual(['dmg E11 36']);
+  });
+  it('troop:7673 double damage and Entangle only on a Daemon', () => {
+    expect(castSpell({ key: 'troop:7673', enemies: enemies({ 1: { troopTypes: ['Daemon'] } }) }).summary.order).toEqual(['dmg E11 34', 'status E11 +entangle']);
+  });
+  it('troop:7128 Entangle only if the target has strictly more Attack, Disease only if strictly more Armor', () => {
+    expect(castSpell({ key: 'troop:7128', caster: { attack: 17, armor: 10 } }).summary.order).toEqual(['dmg E11 16']); // ties
+    expect(castSpell({ key: 'troop:7128', caster: { attack: 16, armor: 20 } }).summary.order).toEqual(['dmg E11 16', 'status E11 +entangle']);
+    // compared after the hit (native order): E11 armor 30 - 16 = 14 > 9
+    expect(castSpell({ key: 'troop:7128', caster: { attack: 30, armor: 9 }, enemies: enemies({ 1: { armor: 30 } }) }).summary.order).toEqual(['dmg E11 16', 'status E11 +disease']);
+  });
+  it('troop:7875 x2 per Web gem; double vs a Webbed target', () => {
+    expect(castSpell({ key: 'troop:7875', board: withCells(reviewBoard, { '0,1': specialGem('web') }) }).summary.order[0]).toBe('dmg E11 15');
+    expect(castSpell({ key: 'troop:7875', enemies: enemies({ 1: { statuses: st('web') } }) }).summary.order[0]).toBe('dmg E11 26');
   });
 });

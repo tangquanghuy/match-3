@@ -189,8 +189,9 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '对一名敌人造成[魔法 + 3]点伤害，红色宝石可提升伤害。如果我的攻击力较低，则使其陷入纠缠状态。如果我的护甲值较低，则使其陷入疾病状态。 [3:1]',
     build: skill(
       dmg('enemyChosen', 3, 1, { modifier: { mod: { kind: 'ratio', a: 3, b: 1 }, source: { kind: 'boardGems', color: BaseColor.Red } } }),
-      inflict('entangle', 'enemyChosen', { ifCond: { kind: 'not', cond: { kind: 'casterStatBeatsTarget', stat: 'attack' } } }),
-      inflict('disease', 'enemyChosen', { ifCond: { kind: 'not', cond: { kind: 'casterStatBeatsTarget', stat: 'armor' } } }),
+      // Native 8672: AddForMoreAttackOnTarget / AddForMoreArmorOnTarget = target strictly higher (ties no longer fire).
+      inflict('entangle', 'enemyChosen', { ifCond: { kind: 'targetStatBeatsCaster', stat: 'attack' } }),
+      inflict('disease', 'enemyChosen', { ifCond: { kind: 'targetStatBeatsCaster', stat: 'armor' } }),
     ),
   },
   {

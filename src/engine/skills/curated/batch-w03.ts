@@ -1191,7 +1191,8 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 8972,
     desc: '对敌人造成 [魔法 + 5] 点伤害，伤害值因天使宝石和具有屏障的盟友的数量而增强。 [x5]',
     build: skill(
-      dmg('enemyChosen', 5, 1, { modifier: { mod: { kind: 'multiplier', a: 5 }, source: { kind: 'allyStatusCount', statusId: 'barrier' } } }),
+      // Native 8972: CountGems 500 Angel + CountSpecificStatusEffect@AllAllies 500 barrier (Angel gems were missing).
+      dmg('enemyChosen', 5, 1, { modifier: { mod: { kind: 'multiplier', a: 5 }, sources: [{ kind: 'boardSpecial', gem: 'angelGem' }, { kind: 'allyStatusCount', statusId: 'barrier' }] } }),
     ),
   },
   {

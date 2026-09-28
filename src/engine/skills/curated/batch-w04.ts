@@ -855,7 +855,8 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 9687,
     desc: '对一名敌人造成[魔法 + 3]点伤害，伤害值因诅咒宝石数量而增强。如果敌人已中毒，则造成双倍伤害。然后使其中毒。 [x3]',
     build: skill(
-      dmg('enemyChosen', 3, 1, { modifier: { mod: { kind: 'multiplier', a: 3 }, source: { kind: 'enemyStatusCount', statusId: 'curse' } }, condMult: { times: 2, cond: { kind: 'targetStatus', statusId: 'poison' } } }),
+      // Native 9687: CountGems 300 Cursed = Curse gems on the board (was Cursed enemies).
+      dmg('enemyChosen', 3, 1, { modifier: { mod: { kind: 'multiplier', a: 3 }, source: { kind: 'boardSpecial', gem: 'curseGem' } }, condMult: { times: 2, cond: { kind: 'targetStatus', statusId: 'poison' } } }),
       inflict('poison', 'lastTarget'),
     ),
   },
