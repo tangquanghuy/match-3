@@ -1,6 +1,6 @@
 # GoW 技能改动留档
 
-自动生成（`node scripts/gow-changelog.mjs render`），源数据 [CHANGES.jsonl](CHANGES.jsonl)，共 185 条改动，涉及 378 个技能 ID。
+自动生成（`node scripts/gow-changelog.mjs render`），源数据 [CHANGES.jsonl](CHANGES.jsonl)，共 188 条改动，涉及 382 个技能 ID。
 
 ## 按时间
 
@@ -191,6 +191,9 @@
 | 2026-09-28T02:31 | sa-R2 | R009-giant | data | 8844, 8845, 8846, 8847, 8848, 8849 | troop:7245 Sapphirax；troop:7246 Emeraldrin；troop:7247 Rubirath；troop:7248 Topasarth；troop:7249 Amethialas；troop:7250 Garnetaerlin | `src/engine/skills/curated/batch-r8.ts` | ConvertGems 5 C>GiantC compiled as same-colour transform (no-op); extraTurn after conversion → transformToSpecial(C, giantGem color C, count 5); extra-turn chance rolled before conversion (native CountGems step 0 precedes ConvertGems) |  |
 | 2026-09-28T02:31 | sa-R2 | R009-dragon | data | 9132, 9133, 9134, 9135, 9136, 9137 | troop:7440 Comethalas；troop:7441 Nebuladryx；troop:7442 Meteoridan；troop:7443 Solarithus；troop:7444 Lunarelleon；troop:7445 Eklipsos | `src/engine/skills/curated/batch-r8.ts` | ConvertGems 5 C>DragonC compiled as same-colour transform (no-op); extraTurn after conversion → transformToSpecial(C, dragonGem color C, count 5); extra-turn chance rolled before conversion |  |
 | 2026-09-28T02:31 | sa-R2 | R009-giant-dragon-L4b | data | 8830, 8832, 8887, 9008 | troop:7234 TheSapphireGiant；troop:7236 TheEmeraldGiant；troop:7268 SetauriGladius；troop:7368 CobaltDrake | `src/engine/skills/curated/batch-r8.ts` | Giant/Dragon targets compiled as plain colour gems (Red>Blue, Brown>Green, create 8 Red, Brown>Blue) → giantGem Blue / giantGem Green / createSpecialGems dragonGem Red 8 / dragonGem Blue (R009) |  |
+| 2026-09-28T02:36 | sa-R2 | L4b-1625-1674-any | data | 9573, 9831 | weapon:1625 LibramOfDecay；weapon:1674 SanguineDevotion | `src/engine/skills/curated/batch-w04.ts` | transformToSpecial('ANY', decayGem\|bleedGem): whole board incl. skulls converted → transformToSpecial(CHOSEN, ...): only the chosen colour (native ConvertGems 100 FromTarget>Decay\|Bleed) |  |
+| 2026-09-28T02:36 | sa-R2 | L4b-6842-prev | data | 8247 | troop:6842 Malcandessa | `src/engine/skills/curated/batch-14.ts` | Poison re-picked enemyWeakest (tie could split Web/Poison) → Poison on lastTarget (native CausePoison@FromPrevious) |  |
+| 2026-09-28T02:37 | sa-R2 | L4b-1548-steps | data | 9161 | weapon:1548 TheDecayingOrbit | `src/engine/skills/curated/batch-w04.ts` | Red>Doomskull only (Red>Cursed and Purple>Doomskull steps merged wrongly) → Red>curseGem then Purple>doomSkull, then jumble |  |
 
 ## 按技能 ID
 
@@ -388,6 +391,7 @@
 | 8243 | 1 | F1-items-54-60 |
 | 8245 | 1 | L5-001 |
 | 8246 | 1 | L4b-6841-prefnotprev |
+| 8247 | 1 | L4b-6842-prev |
 | 8248 | 1 | F1-onkill-order |
 | 8250 | 1 | P-F1-oneof-chosen-target |
 | 8251 | 1 | P-counter-per-step |
@@ -499,6 +503,7 @@
 | 9137 | 1 | R009-dragon |
 | 9138 | 1 | P-create-interleave |
 | 9139 | 1 | P-steal-to-life |
+| 9161 | 1 | L4b-1548-steps |
 | 9163 | 1 | P-create-interleave |
 | 9184 | 1 | P-counter-per-step |
 | 9197 | 1 | L2-singlegem-cell |
@@ -529,6 +534,7 @@
 | 9531 | 1 | P-prefnotprev-semantics |
 | 9534 | 2 | L3-007、F1-items-62-75 |
 | 9547 | 1 | P-counter-per-step |
+| 9573 | 1 | L4b-1625-1674-any |
 | 9591 | 1 | P-counter-per-step |
 | 9597 | 1 | P-counter-per-step |
 | 9602 | 1 | F1-7674-target |
@@ -549,6 +555,7 @@
 | 9776 | 1 | P-prefnotprev-semantics |
 | 9784 | 1 | L3-007 |
 | 9816 | 1 | L3-012 |
+| 9831 | 1 | L4b-1625-1674-any |
 | 9844 | 1 | F1-items-62-75 |
 | 9847 | 1 | L3-015 |
 | 9849 | 1 | P-random-stat-pool |

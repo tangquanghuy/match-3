@@ -8,7 +8,7 @@
  * src/data/weapon-skill-meta.json）。组装规则锚定 scripts/spell-rules.md 与
  * 既有部队批次先例；生成器 scripts/_weapon_pools.mjs gen。
  */
-import { armor, attack, chooseSkill, cleanse, createGems, createGemsMixAny, createSkulls, createSpecialGems, destroyRandomCols, destroyRandomRows, dmg, dmgSplash, drainMana, explodeRandomGems, explodeRandomSpecialGems, explodeSpecialGems, extraTurn, heal, inflict, inflictRandom, mana, randomStat, reduce, reposition, scale, shuffleTeam, skill, summonRandom, summonRandomOfKingdom, transform, transformToSpecial, trueDmg } from '../builders';
+import { CHOSEN, armor, attack, chooseSkill, cleanse, createGems, createGemsMixAny, createSkulls, createSpecialGems, destroyRandomCols, destroyRandomRows, dmg, dmgSplash, drainMana, explodeRandomGems, explodeRandomSpecialGems, explodeSpecialGems, extraTurn, heal, inflict, inflictRandom, mana, randomStat, reduce, reposition, scale, shuffleTeam, skill, summonRandom, summonRandomOfKingdom, transform, transformToSpecial, trueDmg } from '../builders';
 import { BaseColor } from '../../types';
 import type { SkillPrototype } from '../prototypes';
 import type { CuratedBatch } from './index';
@@ -66,7 +66,9 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 9161,
     desc: '将所有红色宝石转换成诅咒宝石，并将所有紫色宝石转换成末日骷髅头。打乱敌方队伍。',
     build: skill(
-      transformToSpecial(BaseColor.Red, 'doomSkull'),
+      // Native ConvertGems 100 Red>Cursed ; ConvertGems 100 Purple>Doomskull (sa-R2 L4b-1548-steps).
+      transformToSpecial(BaseColor.Red, 'curseGem'),
+      transformToSpecial(BaseColor.Purple, 'doomSkull'),
       shuffleTeam('enemy'),
     ),
   },
@@ -670,7 +672,8 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 9573,
     desc: '将所选颜色的所有宝石转换为腐烂宝石。',
     build: skill(
-      transformToSpecial('ANY', 'decayGem'),
+      // Native ConvertGems 100 FromTarget>Decay: only the chosen colour (sa-R2 L4b-1625-any).
+      transformToSpecial(CHOSEN, 'decayGem'),
     ),
   },
   {
@@ -1060,7 +1063,8 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 9831,
     desc: '将指定颜色的所有宝石转化为流血宝石。灼烧并流血所有该颜色的敌人。',
     build: skill(
-      transformToSpecial('ANY', 'bleedGem'),
+      // Native ConvertGems 100 FromTarget>Bleed: only the chosen colour (sa-R2 L4b-1674-any).
+      transformToSpecial(CHOSEN, 'bleedGem'),
       inflict('burning', 'enemyAll', { ifCond: { kind: 'targetColor', color: 'CHOSEN' } }),
       inflict('bleed', 'enemyAll', { ifCond: { kind: 'targetColor', color: 'CHOSEN' } }),
     ),

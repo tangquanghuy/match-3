@@ -45,3 +45,34 @@ describe('R009 dragon gem dragons (spells 9132-9137)', () => {
     }
   });
 });
+
+describe('L4b B01', () => {
+  // weapon:1625 / 1674: ConvertGems 100 FromTarget>Decay|Bleed converts only the chosen colour, not the whole board
+  for (const [key, kind] of [['weapon:1625', 'decayGem'], ['weapon:1674', 'bleedGem']] as const) it(`${key}: chosen Red -> only Red gems become ${kind}`, () => {
+    const r = castSpell({ key, color: BaseColor.Red });
+    expect(r.summary.order[0]).toBe(`convert Red x9 -> ${kind} x9`);
+  });
+  it('weapon:1674: Burn + Bleed only enemies of the chosen colour (Red -> E10)', () => {
+    const r = castSpell({ key: 'weapon:1674', color: BaseColor.Red });
+    expect(r.summary.order.slice(1, 3)).toEqual(['status E10 +burning', 'status E10 +bleed']);
+  });
+  // troop:6842: CauseWeb@WeakestEnemy ; CausePoison@FromPrevious -> same enemy even when all are tied
+  it('troop:6842: tied weakest -> Poison follows the Web target', () => {
+    for (let seed = 1; seed <= 8; seed++) {
+      const r = castSpell({ key: 'troop:6842', seed, enemies: [0, 1, 2, 3].map(() => ({ hp: 100, maxHp: 100, armor: 0 })) });
+      const st = r.summary.order.filter(x => x.startsWith('status'));
+      expect(st[1].split(' ')[1]).toBe(st[0].split(' ')[1]);
+    }
+  });
+  // troop:6399: ConvertGems 100 Blue>FromTarget
+  it('troop:6399: chosen Red -> all Blue become Red; random ally gets Enchanted + 3 Magic', () => {
+    const r = castSpell({ key: 'troop:6399', color: BaseColor.Red });
+    expect(r.summary.order[0]).toBe('convert Blue x11 -> Red x11');
+    const [s, b] = r.summary.order.slice(1, 3);
+    expect(b).toBe(`buff ${s.split(' ')[1]} magic+3`);
+  });
+  // troop:6124 / 6256 / 6824: FromTarget colour
+  for (const [key, to] of [['troop:6124', 'Green'], ['troop:6256', 'Brown'], ['troop:6824', 'Brown']] as const) it(`${key}: chosen Red -> Red x9 -> ${to}`, () => {
+    expect(castSpell({ key, color: BaseColor.Red }).summary.order[0]).toBe(`convert Red x9 -> ${to} x9`);
+  });
+});

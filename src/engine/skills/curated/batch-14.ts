@@ -137,7 +137,8 @@ const SPELLS: CuratedBatch['spells'] = [
     build: skill(
       transform(BaseColor.Yellow, BaseColor.Green),
       inflict('web', 'enemyWeakest'),
-      inflict('poison', 'enemyWeakest'),
+      // Native CausePoison@FromPrevious: same enemy as the Web even when weakest is tied (sa-R2 L4b-6842-prev).
+      inflict('poison', 'lastTarget'),
     ),
   },
   {
