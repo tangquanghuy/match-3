@@ -548,3 +548,40 @@ describe('L5 sa-C round 9 B17', () => {
     expect(kills).toBeGreaterThan(10); expect(kills).toBeLessThan(30);
   });
 });
+describe('L5 sa-C round 9 B18', () => {
+  const order = (o: Parameters<typeof castSpell>[0]) => castSpell(o).summary.order;
+  it('troop:6570 true damage, knock to last, Submerge self; no move on a kill', () => {
+    expect(order({ key: 'troop:6570' })).toEqual(['dmg E11 11', 'move E11 back', 'status C +submerged']);
+    expect(order({ key: 'troop:6570', enemies: enemies({ 1: { hp: 5 } }) })).toEqual(['dmg E11 11', 'defeat E11', 'status C +submerged']);
+  });
+  it('weapon:1445 two random TRUE hits (never the same enemy twice in a row), +4 per Tempering on both; Yellow Bless/Curse', () => {
+    for (const seed of seeds) {
+      const o = order({ key: 'weapon:1445', seed });
+      const d = dmgs(o);
+      expect(d.map(x => x.n)).toEqual([18, 18]); expect(d[0].who).not.toBe(d[1].who);
+      expect(o.filter(x => x.startsWith('status'))).toEqual(['status C +blessed', 'status A2 +blessed', 'status E11 +curse']);
+    }
+    const f = castSpell({ key: 'weapon:1445', seed: 1 });
+    for (const e of f.f.enemies) expect(e.armor).toBe(DEFAULT_ENEMIES[e.id - 10].armor); // true damage ignores armor
+    const one = order({ key: 'weapon:1445', enemies: [DEFAULT_ENEMIES[1]] });
+    expect(dmgs(one).map(x => x.who)).toEqual(['E10', 'E10']); // PrefNotPrev reuses the only enemy
+  });
+  it('troop:6882 50% second-last hit resolved BEFORE the last-enemy hit', () => {
+    let both = 0;
+    for (const seed of seeds) {
+      const o = order({ key: 'troop:6882', seed, enemies: enemies({ 3: { hp: 5 } }) });
+      const d = dmgs(o).map(x => x.who);
+      if (d.length === 2) { both++; expect(d).toEqual(['E12', 'E13']); } else expect(d).toEqual(['E13']);
+    }
+    expect(both).toBeGreaterThan(10); expect(both).toBeLessThan(30);
+  });
+  it('troop:6627 two true splashes (second prefers another centre); Submerge self + a random OTHER ally', () => {
+    for (const seed of seeds) {
+      const o = order({ key: 'troop:6627', seed });
+      const sub = o.filter(x => x.includes('+submerged'));
+      expect(sub[0]).toBe('status C +submerged'); expect(sub).toHaveLength(2); expect(sub[1]).not.toBe('status C +submerged');
+    }
+    const one = order({ key: 'troop:6627', enemies: [DEFAULT_ENEMIES[1]] });
+    expect(dmgs(one).map(x => `${x.who} ${x.n}`)).toEqual(['E10 12', 'E10 12']);
+  });
+});

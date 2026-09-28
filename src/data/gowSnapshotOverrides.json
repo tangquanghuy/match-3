@@ -201,6 +201,11 @@
       "reason": "sa-F: English Solari 'Give all other Allies one quarter of their Mana' (native GenerateQuarterMana AllAlliesButNotSelf); old Chinese said 'other allies enemies'.",
       "spellDescription": "对一名敌人造成 [魔法 + 3] 点伤害。若对方是不死族，则使对方陷入诅咒和死亡标记状态。再给予所有其他盟友 4 分之一的法力值。"
     },
+    "6882": {
+      "spellId": 8305,
+      "reason": "sa-C r9: English Swamp Rat '50% chance to deal [Magic + 1] true damage to the second last Enemy'; native TrueDamage@SecondLastEnemy PercentageChance 50; old Chinese said the 3rd enemy (第 3 位).",
+      "spellDescription": "对末位敌人造成 [魔法 + 1] 点真实伤害，有 50% 的几率也对倒数第二名敌人造成 [魔法 + 1] 点真实伤害。再使自身下潜。"
+    },
     "6897": {
       "spellId": 8358,
       "reason": "sa-F: English Arachnaean Watcher 'Give all other Allies one quarter of their Mana' (native GenerateQuarterMana AllAlliesButNotSelf); old Chinese omitted 'other'.",

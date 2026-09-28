@@ -407,12 +407,13 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 8305,
-    desc: '对末位敌人造成 [魔法 + 1] 点真实伤害，有 50% 的几率也对第 3 位敌人造成 [魔法 + 1] 点真实伤害。再使自身下潜。',
+    desc: '对末位敌人造成 [魔法 + 1] 点真实伤害，有 50% 的几率也对倒数第二名敌人造成 [魔法 + 1] 点真实伤害。再使自身下潜。',
     // Native SecondLastEnemy: the penultimate survivor only; the 50% chance
     // applies solely to this second hit, not to the guaranteed last-enemy hit.
     build: skill(
-      trueDmg('enemyLast', 1, 1),
+      // sa-C r9: native order SecondLastEnemy (50%) -> LastEnemy; zh 第 3 位 -> 倒数第二名 (English second last).
       trueDmg('enemySecondLast', 1, 1, { chance: 0.5 }),
+      trueDmg('enemyLast', 1, 1),
       inflict('submerged', 'allySelf'),
     ),
   },

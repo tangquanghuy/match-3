@@ -62,3 +62,8 @@
 - troop:6900 fixed (8361 true damage + zh 真实 override; native 4 race steps, Daemon Beast = 2 Bleed)
 - troop:7252 fixed (8851 kill roll before own Poison; native order 3 Bleed -> Poison)
 - B17 troop:7422,7314,weapon:1286,troop:6900,7252 approve=5 fixed=3 issue=0
+- troop:6570 accept (7774)
+- weapon:1445 fixed (8701 was first+last normal dmg: now 2 random TRUE hits RandomPrefNotPrev, Tempering both; zh + override)
+- troop:6882 fixed (8305 native order 50% SecondLast -> Last; zh 倒数第二名 + snapshot override)
+- troop:6627 accept (7945 two true splashes, Submerge self + other ally)
+- B18 troop:6570,weapon:1445,troop:6882,troop:6627 approve=4 fixed=2 issue=0

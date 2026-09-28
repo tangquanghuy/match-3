@@ -1,6 +1,6 @@
 # GoW 技能改动留档
 
-自动生成（`node scripts/gow-changelog.mjs render`），源数据 [CHANGES.jsonl](CHANGES.jsonl)，共 646 条改动，涉及 1098 个技能 ID。
+自动生成（`node scripts/gow-changelog.mjs render`），源数据 [CHANGES.jsonl](CHANGES.jsonl)，共 648 条改动，涉及 1100 个技能 ID。
 
 ## 按时间
 
@@ -652,6 +652,8 @@
 | 2026-09-28T23:34 | sa-C | L5-C-r9-6900-true | data | 8361 | troop:6900 FrekiTheWild | `src/engine/skills/curated/batch-p37.ts`<br>`scripts/curated-pools/pool-37.json`<br>`src/data/gowSnapshotOverrides.json` | normal damage (armor first), zh lacked 真实; Mark/Bleed as one anyOf(Daemon,Beast) step each → true damage (native TrueDamage), zh 真实伤害 + snapshot override; native 4 steps Mark Daemon/Beast, Bleed Daemon/Beast |  |
 | 2026-09-28T23:34 | sa-C | L5-C-r9-7252-order | assembler | 8851 | troop:7252 Scoprio | `src/engine/skills/curated/batch-27.ts` | Poison + Bleed before the kill roll (roll always saw its own Poison: 50% kill every cast) → native order TrueDamage -> kill roll on already Poisoned -> 3 Bleed -> Poison |  |
 | 2026-09-28T23:34 | sa-C | L5-C-r9-1286-zh | data | 8186 | weapon:1286 WildHunter | `src/engine/skills/curated/batch-w02.ts`<br>`scripts/curated-pools/pool-w01.json` | zh 再使其陷入陷入猎人标记状态 (doubled word) → zh 再使其陷入猎人标记状态 |  |
+| 2026-09-28T23:38 | sa-C | L5-C-r9-1445-random-true | data | 8701 | weapon:1445 CursebreakerJavelin | `src/engine/skills/curated/batch-w03.ts`<br>`scripts/curated-pools/pool-w01.json`<br>`src/data/gowWeaponReviewedOverrides.json` | normal damage to the first + last enemy, Tempering on one hit only; zh 首位和末位敌人 → native TrueDamage RandomEnemy -> RandomPrefNotPrevEnemy, Tempering on both; zh 2 名随机敌人 真实伤害; override entry |  |
+| 2026-09-28T23:38 | sa-C | L5-C-r9-6882-order | data | 8305 | troop:6882 SwampRat | `src/engine/skills/curated/batch-r7.ts`<br>`scripts/curated-pools/pool-14.json`<br>`src/data/gowSnapshotOverrides.json` | last hit first, then 50% second-last; zh 第 3 位敌人 → native order 50% SecondLastEnemy -> LastEnemy; zh 倒数第二名敌人 + snapshot override |  |
 
 ## 按技能 ID
 
@@ -1100,6 +1102,7 @@
 | 8299 | 1 | F2-1313-order-life |
 | 8302 | 1 | F1-steal-before-damage |
 | 8304 | 1 | G-6881-kill-double |
+| 8305 | 1 | L5-C-r9-6882-order |
 | 8307 | 1 | L2-wrong-enemy-branches |
 | 8313 | 1 | P-E-faction-kingdom |
 | 8316 | 1 | B-L4b-6890-native-chances |
@@ -1334,6 +1337,7 @@
 | 8698 | 1 | L5-C-cursebreaker-targets |
 | 8699 | 1 | L5-C-cursebreaker-targets |
 | 8700 | 1 | L5-C-cursebreaker-targets |
+| 8701 | 1 | L5-C-r9-1445-random-true |
 | 8707 | 2 | L1-E-kingdom-summon-raw、P-E-faction-kingdom |
 | 8713 | 1 | P-counter-per-step |
 | 8715 | 1 | L1-7155-devour |
