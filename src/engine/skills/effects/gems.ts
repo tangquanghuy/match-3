@@ -250,7 +250,8 @@ export type AreaShape = 'square5' | 'square3' | 'cross3' | 'x' | 'circle5' | 'ro
  *   - randomLines：随机 N 行 / N 列
  *   - color：某颜色全部（可 'CHOSEN'）
  *   - allColors：全部颜色宝石（不含骷髅）
- *   - skulls：全部骷髅
+ *   - skulls：全部骷髅（R013-5：含末日骷髅 / 至尊末日骷髅等骷髅变种，matchJoinKey 'skull'）
+ *   - allGems：棋盘上全部宝石（R013-5「移除／摧毁所有宝石」：颜色 + 骷髅及其变种 + 特殊宝石）
  *   - randomGems：随机 N 颗宝石（可限定仅颜色/含骷髅/仅普通骷髅/指定特殊宝石；双色并集池）
  *   - cell：以某格为中心（cell 可 'CELL'）；本身即单格，靠 explode 辐射成片
  *   - area：固定形状格集合（面积原语批）——形状本身即完整目标集，**不再辐射**
@@ -264,6 +265,7 @@ export type ClearTarget =
   | { kind: 'color'; color: ColorSpec }
   | { kind: 'allColors' }
   | { kind: 'skulls' }
+  | { kind: 'allGems' }
   /** tier: only that special tier (gargoyleGem 1 = Good / 2 = Bad; missing tier on the gem counts as 1) */
   | { kind: 'special'; gem: SpecialGemKind; tier?: number }
   | { kind: 'randomGems'; count: ScalingSpec; include?: 'color' | 'all' | 'skull'; color?: ColorSpec; colors?: ColorSpec[]; special?: SpecialGemKind; specialTier?: number; countRange?: { min: number; max: number } }
@@ -595,7 +597,15 @@ function resolveTargetCells(target: ClearTarget, ctx: EffectContext, modifier?: 
     }
     case 'skulls': {
       const cells: CellPos[] = [];
-      board.forEach((gem, pos) => { if (gem && gem.type.kind === 'skull') cells.push(pos); });
+      // R013-5: skull variants (doomSkull / uberDoomSkull) are Skulls too (native RemoveColor / DestroyColor Skull)
+      const skull = skullGem();
+      board.forEach((gem, pos) => { if (gem && isSameMatchType(gem.type, skull)) cells.push(pos); });
+      return cells;
+    }
+    case 'allGems': {
+      // R013-5: native RemoveGems / DestroyGems Amount 100 without a colour = every gem, Skulls and specials included
+      const cells: CellPos[] = [];
+      board.forEach((gem, pos) => { if (gem) cells.push(pos); });
       return cells;
     }
     case 'special': {

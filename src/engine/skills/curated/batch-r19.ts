@@ -29,7 +29,7 @@
  * 9364/9369/9492/9812/9959）移出本批 SKIPPED，避免覆盖率报告对同一 id 重复记弃。
  */
 import type { CuratedBatch } from './index';
-import { chooseSkill, skill, devour, dmg, dmgSplash, trueDmg, heal, armor, attack, magic, mana, reduce, steal, cleanse, randomStat, inflict, inflictRandom, createGems, createGemsMixAny, createMix, createSkulls, createSpecialGems, createSpecialGems2, transform, transformToSpecial, convertSpecial, destroyColor, destroyAllColors, destroyRandomCols, destroyChosenCol, destroyRandomGems, explodeRandomGems, explodeRandomSpecialGems, explodeSpecialGems, explodeSkulls, createStorm, shuffleBoard, extraTurn, oneOf, reposition, sacrifice, summonRandom, summonRef, gainGold, gainSouls, gainMaps, scale, CHOSEN, CELL, explodeAt } from '../builders';
+import { chooseSkill, skill, devour, dmg, dmgSplash, trueDmg, heal, armor, attack, magic, mana, reduce, steal, cleanse, randomStat, inflict, inflictRandom, createGems, createGemsMixAny, createMix, createSkulls, createSpecialGems, createSpecialGems2, transform, transformToSpecial, convertSpecial, destroyColor, destroyAllGems, destroyRandomCols, destroyChosenCol, destroyRandomGems, explodeRandomGems, explodeRandomSpecialGems, explodeSpecialGems, explodeSkulls, createStorm, shuffleBoard, extraTurn, oneOf, reposition, sacrifice, summonRandom, summonRef, gainGold, gainSouls, gainMaps, scale, CHOSEN, CELL, explodeAt } from '../builders';
 import { BaseColor } from '../../types';
 import type { Condition, CondMult } from '../effects/secondary';
 
@@ -207,12 +207,12 @@ const SPELLS: CuratedBatch['spells'] = [
   {
     id: 8861,
     desc: '移除所有宝石。获得 10 黄金。板面上每有一颗绿色宝石，则有 7% 的几率获得一个额外回合。 [x7]',
-    // 「移除所有宝石」= destroyAllColors（不含骷髅，batch-01 宝石/骷髅术语口径）
+    // 「移除所有宝石」= destroyAllGems（R013-5：含骷髅及末日骷髅等变种；remove 模式由 gowRemoveRules 按原生 RemoveGems 切换，R010）
     build: skill(
       // sa-R7: native CountGems Green 700 is step 0 -> chance counted on the board before the removal
       // (was counted on the refilled board after it; R001).
       extraTurn({ chanceBoost: { mod: { kind: 'multiplier', a: 7 }, source: { kind: 'boardGems', color: BaseColor.Green } } }),
-      destroyAllColors(),
+      destroyAllGems(),
       gainGold(10),
     ),
   },

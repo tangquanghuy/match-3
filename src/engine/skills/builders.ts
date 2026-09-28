@@ -621,6 +621,8 @@ export function destroyColor(color: ColorSpec, opts?: SegmentOpts): GemSegment {
 export function explodeColor(color: ColorSpec, opts?: SegmentOpts): GemSegment { return clearSeg('explode', { kind: 'color', color }, opts); }
 export function destroyAllColors(opts?: SegmentOpts): GemSegment { return clearSeg('destroy', { kind: 'allColors' }, opts); }
 export function destroySkulls(opts?: SegmentOpts): GemSegment { return clearSeg('destroy', { kind: 'skulls' }, opts); }
+/** R013-5「移除／摧毁所有宝石」：棋盘全部宝石（颜色 + 骷髅及末日骷髅等变种 + 特殊宝石） */
+export function destroyAllGems(opts?: SegmentOpts): GemSegment { return clearSeg('destroy', { kind: 'allGems' }, opts); }
 export function explodeSkulls(opts?: SegmentOpts): GemSegment { return clearSeg('explode', { kind: 'skulls' }, opts); }
 
 // 随机 N 颗宝石（include: 'color' 仅颜色 / 'all' 含骷髅 / 'skull' 仅普通骷髅，默认 all；

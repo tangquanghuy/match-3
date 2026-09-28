@@ -1,6 +1,6 @@
 # GoW 技能改动留档
 
-自动生成（`node scripts/gow-changelog.mjs render`），源数据 [CHANGES.jsonl](CHANGES.jsonl)，共 513 条改动，涉及 945 个技能 ID。
+自动生成（`node scripts/gow-changelog.mjs render`），源数据 [CHANGES.jsonl](CHANGES.jsonl)，共 514 条改动，涉及 948 个技能 ID。
 
 ## 按时间
 
@@ -519,6 +519,7 @@
 | 2026-09-28T12:24 | sa-P | P-R5-faction-kingdom | primitive | 8985, 8140 | troop:7357 FeyHound；weapon:1274 TomeOfSpores | `src/engine/skills/effects/secondary.ts`<br>`src/engine/skills/curated/batch-r19.ts`<br>`src/engine/skills/curated/batch-w02.ts`<br>`src/data/gowWeaponReviewedOverrides.json` | alliesOfKingdom zh parent kingdom (卜筮之原 / 齐埃金) counted every Adana / Zaejin ally → alliesNamed name[] = raw KingdomId 3048 / 3053 roster zh names (Wild Court 5, Amanithrax 5) |  |
 | 2026-09-28T13:09 | sa-P | P-E-faction-kingdom | primitive | 8111, 8365, 8556, 8607, 8723, 9245, 9249, 9588, 9593, 8045, 8048, 8051, 8054, 8119, 8121, 8123, 8125, 8176, 8178, 8197, 8199, 8201, 8260, 8261, 8262, 8263, 8285, 8313, 8322, 8323, 8324, 8325, 8326, 8327, 8328, 8329, 8330, 8331, 8332, 8333, 8334, 8335, 8336, 8337, 8338, 8339, 8340, 8341, 8342, 8343, 8344, 8345, 8346, 8347, 8348, 8349, 8350, 8351, 8352, 8353, 8354, 8383, 8385, 8399, 8434, 8451, 8452, 8453, 8487, 8505, 8506, 8510, 8513, 8514, 8515, 8620, 8642, 8645, 8669, 8670, 8707, 8725, 8765, 8766, 8807, 8809, 8905, 8911, 8875, 8877, 8955, 8971, 9034, 9036, 9142, 9145, 9205, 9208, 9111, 9235, 9264, 9267, 9302, 9305, 9351, 9354, 9506, 9509, 9574, 9577, 9628, 9632, 9635, 9689, 9692, 9749, 9752, 9832, 9835, 9911, 9914, 9876, 9974, 9977, 10047, 10050 | troop:6741 GeneralSuladin；troop:6904 LordBelanor；troop:7029 SkyMage；troop:7079 LadyEstelle；troop:7171 LordArchimedus；troop:7500 ManeCourser；troop:7504 Belladonnus；troop:7660 DugallRamhorn；troop:7665 SeabornKnight；weapon:1240 RoseBow；weapon:1243 SpikedMace；weapon:1246 CrystalPoint；weapon:1249 Razorclaw；weapon:1265 DrillShooter；weapon:1267 Grudgekeeper；weapon:1269 PlumedStaff；weapon:1271 SummerAegis；weapon:1282 KoragsInvention；weapon:1284 WolfHammer；weapon:1288 MedusaTome；weapon:1290 CatsPaw；weapon:1292 OakenCrown；weapon:1303 SickleOfSin；weapon:1304 StingingWind；weapon:1305 Soulreaper；weapon:1306 GuardianHammer；weapon:1312 StaffOfOtherworlds；weapon:1314 AmberPartizan；weapon:1318 PistolOfAdana；weapon:1319 TomeOfKarakoth；weapon:1320 ChokerOfZhulKari；weapon:1321 StaffOfTheFields；weapon:1322 DaggerOfScales；weapon:1323 BowOfThorns；weapon:1324 StaffOfWhitehelm；weapon:1325 LuteOfTheVale；weapon:1326 HammerOfKhaziel；weapon:1327 ScytheOfKhetar；weapon:1328 DaggerOfZaejin；weapon:1329 SpearOfThePride；weapon:1330 MaceOfGhulvania；weapon:1331 ShieldOfTheEdge；weapon:1332 AxeOfTheStorm；weapon:1333 DaggerOfMaugrim；weapon:1334 MaceOfGrosh-Nak；weapon:1335 StaffOfTheWild；weapon:1336 IdolOfDarkstone；weapon:1337 DaggerOfTheSands；weapon:1338 ScytheOfTheBlight；weapon:1339 ChaliceOfThePeaks；weapon:1340 PendantOfTheEmpire；weapon:1341 TorcOfTheDragon；weapon:1342 FlintlockOfBlackhawk；weapon:1343 RunestoneOfSilverglade；weapon:1344 JavelinOfSuncrest；weapon:1345 AegisOfUrskaya；weapon:1346 TridentOfMerlantis；weapon:1347 StaffOfBrightForest；weapon:1348 HammerOfShentang；weapon:1349 AxeOfDhrak-Zum；weapon:1350 ScytheOfSin；weapon:1353 AranaeanBloom；weapon:1355 Krys-hook；weapon:1364 CobaltineWand；weapon:1372 ScreamingTome；weapon:1388 EyeOfOrion；weapon:1389 DragonTales；weapon:1390 GinormousCleaver；weapon:1400 PiratesSignet；weapon:1402 WildCleaver；weapon:1403 Whump!；weapon:1407 IceSapphire；weapon:1410 FireGodsHeart；weapon:1411 King-Chopper；weapon:1412 OldMagusStaff；weapon:1423 AxeOfLeeching；weapon:1429 StarOfNexus；weapon:1432 VolcansMace；weapon:1437 HackJob；weapon:1438 EmeraldBlade；weapon:1449 TombLordsCrook；weapon:1453 Runegauge；weapon:1464 DaisysCudgel；weapon:1465 FlailOfGaard；weapon:1479 AegisOfHellcrag；weapon:1481 WatchfulBlade；weapon:1491 BaneOfGods；weapon:1497 ThornOfTheGods；weapon:1499 OrbOfVulpacea；weapon:1501 FoxfireTome；weapon:1511 RuthlessDefense；weapon:1527 AngelsFaith；weapon:1534 ElementalFury；weapon:1536 ThreeGraves；weapon:1541 EmeraldBaton；weapon:1544 WatchersBlade；weapon:1553 FoxFang；weapon:1556 KingCrusher；weapon:1560 MydnightsTerror；weapon:1569 ChampionsCleaver；weapon:1573 LionsReach；weapon:1576 ShieldOfVengeance；weapon:1580 MistyJournal；weapon:1583 Moonshard；weapon:1587 Bonecutter；weapon:1590 ShadowStaff；weapon:1614 TrickstersSlice；weapon:1617 BloodcrystalBlade；weapon:1626 CrystallianBlade；weapon:1629 GodsBloodRuby；weapon:1638 Stonecaller；weapon:1642 PoisonousBrew；weapon:1645 CoralBow；weapon:1651 TeslasWrench；weapon:1654 LostTreasure；weapon:1660 ArcaneComet；weapon:1663 JewelOfMischief；weapon:1675 DeadEnd；weapon:1678 Windfall；weapon:1687 MiasmicDirk；weapon:1690 Spiritflame；weapon:1694 Nightwatch；weapon:1700 SlayersCleaver；weapon:1703 BigBang；weapon:1715 GrimoireOfTheGrove；weapon:1718 DesertStar | `scripts/build_troops.mjs`<br>`src/data/troops.ts`<br>`src/engine/types.ts`<br>`src/engine/skills/effects/secondary.ts`<br>`src/engine/skills/prototypes.ts`<br>`src/engine/skills/effects/summon.ts`<br>`src/session/contract.ts`<br>`src/session/combatantMapping.ts`<br>`src/meta/systems/battleBridge.ts`<br>`scripts/_weapon_pools.mjs`<br>`src/engine/skills/curated/batch-w02.ts`<br>`src/engine/skills/curated/batch-w03.ts`<br>`src/engine/skills/curated/batch-w04.ts`<br>`src/engine/skills/curated/batch-r18.ts`<br>`src/engine/skills/curated/batch-r19.ts`<br>`src/engine/skills/curated/batch-r21.ts`<br>`src/data/gowWeaponReviewedOverrides.json` | kingdom filters (targetKingdom / alliesOfKingdom / kingdomOf) matched the zh kingdom name, which faction troops share with their parent kingdom (e.g. raw 3070 troops = 圣唐) → troops.json/Character carry raw native kingdomId; KingdomRef number matches kingdomId; curated users of native AllyKingdom / CountArmyKingdom / MultiplyForKingdom<id> switched to the id; kingdomPresent (battle kingdom) keeps the zh name | 126 skills with a native kingdom id step; only differs when a faction troop (or mis-assigned zh kingdom) is on the field |
 | 2026-09-28T13:43 | sa-P | P-E-faction-kingdom | primitive | 7241, 7662, 7692, 7707, 7722, 7976, 7391 | weapon:1105 BoneShield；weapon:1186 RadiantJewel；weapon:1188 GlacialCrystal；weapon:1191 TheEdgedBlade；weapon:1193 HookSword；weapon:1234 PrimalAxe；troop:6248 GrandInquisitor | `src/engine/types.ts`<br>`src/engine/skills/curated/batch-w01.ts`<br>`src/engine/skills/curated/batch-w02.ts`<br>`src/engine/skills/curated/batch-r18.ts`<br>`scripts/lib/gow-skill-audit.mjs` | numeric kingdom refs never matched units carrying only the zh kingdom name (community troops, hand fixtures, old host snapshots); 7 CountArmyKingdom users in w01/w02/r18 still used the zh name → matchesKingdom derives the parent native id from the zh name when kingdomId is absent (ZH_KINGDOM_PARENT_ID; exact for non-faction troops, never matches a faction id); 7241 7662 7692 7707 7722 7976 7391 alliesOfKingdom use the native CountArmyKingdom id | all numeric kingdom filters: name-only units match their parent kingdom again; 7 skills: only differ with a faction ally |
+| 2026-09-28T13:54 | sa-P | R013-5 | primitive | 8861, 7137, 7052, 8297, 7352, 8598, 8976, 7184 | troop:7287 TheWheelOfFortune；troop:6067 Abhorath；troop:6052 Zombie；troop:6873 Ironjaw；troop:6210 AnubiteWarrior；troop:7070 SkyScorpion；troop:7348 FallenSatyr；weapon:1071 Skullblade | `src/engine/skills/effects/gems.ts`<br>`src/engine/skills/builders.ts`<br>`src/engine/skills/curated/batch-r19.ts`<br>`src/engine/skills/curated/batch-r7.ts` | 'Remove all Gems' (8861, 7137) = allColors, Skulls / Doom Skulls / specials left on the board; clear target 'skulls' took only normal Skulls (Doom / Uber Doom Skulls left) → new clear target allGems (every gem incl. Skulls, skull variants, specials) + builder destroyAllGems for 8861 / 7137 (still remove mode, R010); target 'skulls' = matchJoinKey skull (normal + doomSkull + uberDoomSkull) | 8 skills; skulls target users only differ with Doom / Uber Doom Skulls on the board; golden diff 0 lines |
 
 ## 按技能 ID
 
@@ -545,7 +546,7 @@
 | 7047 | 1 | F1-6047-dispel |
 | 7050 | 1 | F3-q29 |
 | 7051 | 1 | L5-C-r4-6051 |
-| 7052 | 2 | F2-R001-order、R010 |
+| 7052 | 3 | F2-R001-order、R010、R013-5 |
 | 7053 | 1 | F2-R001-order |
 | 7054 | 1 | F2-R001-order |
 | 7055 | 1 | F2-R001-order |
@@ -563,6 +564,7 @@
 | 7116 | 1 | L4a-r3-1038 |
 | 7124 | 1 | F2-1058-boost-source |
 | 7133 | 1 | L4a-R1-7133-no-base |
+| 7137 | 1 | R013-5 |
 | 7138 | 2 | L4b-7138-zh、L4b-6068-order |
 | 7139 | 1 | F3-q28 |
 | 7143 | 1 | R004-tests |
@@ -574,7 +576,7 @@
 | 7162 | 1 | L4b-7138-onecolour |
 | 7169 | 2 | L4b-7276-singlegem、B-L4b-6104-blue |
 | 7177 | 1 | L5-C-r4-6108 |
-| 7184 | 1 | L4a-r4-1071 |
+| 7184 | 2 | L4a-r4-1071、R013-5 |
 | 7185 | 2 | L5-012、R004 (L5-004,L5-005,L5-014,L4b-6340) |
 | 7192 | 1 | P-R3-precast-compare |
 | 7194 | 2 | P-F1-oneof-chosen-target、P-F1-oneof-chosen-target |
@@ -635,6 +637,7 @@
 | 7347 | 1 | R7-6205-steal-order |
 | 7348 | 2 | P-F1-oneof-chosen-target、P-F1-oneof-chosen-target |
 | 7349 | 2 | F1-remove-order、P-F1-remove-gems |
+| 7352 | 1 | R013-5 |
 | 7353 | 1 | L7-6211 |
 | 7354 | 1 | F1-steal-before-damage |
 | 7357 | 1 | F2-R001-order |
@@ -907,7 +910,7 @@
 | 8285 | 1 | P-E-faction-kingdom |
 | 8288 | 1 | P-prefnotprev-semantics |
 | 8294 | 1 | P-prefnotprev-semantics |
-| 8297 | 1 | L4a-R1-8297-life-boost |
+| 8297 | 2 | L4a-R1-8297-life-boost、R013-5 |
 | 8299 | 1 | F2-1313-order-life |
 | 8302 | 1 | F1-steal-before-damage |
 | 8307 | 1 | L2-wrong-enemy-branches |
@@ -1054,7 +1057,7 @@
 | 8595 | 1 | R7-b11-defs |
 | 8596 | 1 | L4b-7068-potion-colour |
 | 8597 | 1 | P-steal-to-life |
-| 8598 | 3 | L3-007、L3-008、L3-009 |
+| 8598 | 4 | L3-007、L3-008、L3-009、R013-5 |
 | 8599 | 1 | L4b-7071-base |
 | 8601 | 1 | R7-guardian-potions |
 | 8603 | 1 | R7-guardian-potions |
@@ -1170,7 +1173,7 @@
 | 8854 | 1 | P-prefnotprev-semantics |
 | 8856 | 1 | L2-7282-pref-not-prev |
 | 8859 | 1 | P-random-stat-pool |
-| 8861 | 1 | R7-b11-defs |
+| 8861 | 2 | R7-b11-defs、R013-5 |
 | 8871 | 1 | B-L4b-7257-countmax |
 | 8872 | 1 | L4b-1487-1488 |
 | 8873 | 1 | L4b-1487-1488 |
@@ -1209,6 +1212,7 @@
 | 8971 | 1 | P-E-faction-kingdom |
 | 8972 | 1 | R3-B05-1528 |
 | 8974 | 1 | R7-tarot-extra-turn |
+| 8976 | 1 | R013-5 |
 | 8979 | 1 | F1-onkill-order |
 | 8985 | 1 | P-R5-faction-kingdom |
 | 8987 | 1 | P-counter-per-step |

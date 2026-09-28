@@ -66,8 +66,8 @@
    "L0": "buff C hp+3 max+3 ; destroy 5 (skull x5) ; ~cascade~  => C:hp+3 max+3  cascade",
    "K": "buff C hp+13 max+13 ; destroy 5 (skull x5) ; ~cascade~  => C:hp+13 max+13  cascade"
   },
-  "by": "coord",
-  "at": "2026-09-28T05:09:31.283Z"
+  "by": "sa-P",
+  "at": "2026-09-28T13:54:58.268Z"
  },
  "troop:6054": {
   "lines": {
@@ -128,6 +128,16 @@
   },
   "by": "sa-A",
   "at": "2026-09-28T11:21:07.693Z"
+ },
+ "troop:6067": {
+  "lines": {
+   "L10": "destroy 64 (skull x5, Blue x11, Green x13, Yellow x9, Purple x9, Brown x8, Red x9) ; ~cascade~ ; buff C hp+100 ; buff C attack+11  => A2:mana+9 | C:hp+100 atk+11  cascade",
+   "R10": "destroy 64 (skull x5, Blue x11, Green x13, Yellow x9, Purple x9, Brown x8, Red x9) ; ~cascade~ ; buff C hp+100 ; buff C attack+11  => A2:mana+9 | C:hp+100 atk+11  cascade",
+   "L0": "destroy 64 (skull x5, Blue x11, Green x13, Yellow x9, Purple x9, Brown x8, Red x9) ; ~cascade~ ; buff C hp+100 ; buff C attack+1  => A2:mana+9 | C:hp+100 atk+1  cascade",
+   "K": "destroy 64 (skull x5, Blue x11, Green x13, Yellow x9, Purple x9, Brown x8, Red x9) ; ~cascade~ ; buff C hp+100 ; buff C attack+11  => A2:mana+9 | C:hp+100 atk+11  cascade"
+  },
+  "by": "sa-P",
+  "at": "2026-09-28T13:54:58.268Z"
  },
  "troop:6089": {
   "lines": {
@@ -726,8 +736,8 @@
    "L0": "destroy 5 (skull x5) ; skulls E10 5 ; ~cascade~ ; buff C hp+6 max+6 ; buff C armor+6  => E10:arm-5 | C:hp+6 max+6 arm+6  cascade",
    "K": "destroy 5 (skull x5) ; skulls E10 5 ; defeat E10 ; ~cascade~ ; buff C hp+16 max+16 ; buff C armor+16  => E10:hp-1 DEAD | C:hp+16 max+16 arm+16  cascade"
   },
-  "by": "sa-R1",
-  "at": "2026-09-28T03:01:49.305Z"
+  "by": "sa-P",
+  "at": "2026-09-28T13:54:58.268Z"
  },
  "troop:6875": {
   "lines": {
@@ -1236,8 +1246,8 @@
    "L0": "destroy 5 (skull x5) ; ~cascade~ ; buff A1 magic+5 ; buff A2 magic+5 ; convert Blue x1, Brown x1, Yellow x1, Green x2 -> skull x5  => A1:mag+5 | A2:mag+5  cascade",
    "K": "destroy 5 (skull x5) ; ~cascade~ ; buff A1 magic+5 ; buff A2 magic+5 ; convert Blue x1, Brown x1, Yellow x1, Green x2 -> skull x5  => A1:mag+5 | A2:mag+5  cascade"
   },
-  "by": "sa-A",
-  "at": "2026-09-28T11:10:17.204Z"
+  "by": "sa-P",
+  "at": "2026-09-28T13:54:58.268Z"
  },
  "troop:7353": {
   "lines": {
@@ -1706,8 +1716,8 @@
    "L0": "destroy 5 (skull x5) ; ~cascade~ ; dmg E10 2 (all) ; dmg E11 2 (all)  => E10:arm-2 | E11:arm-2  cascade",
    "K": "destroy 5 (skull x5) ; ~cascade~ ; dmg E10 12 (all) ; dmg E11 12 (all) ; defeat E10 ; defeat E11  => E10:hp-1 DEAD | E11:hp-1 DEAD  cascade"
   },
-  "by": "sa-A",
-  "at": "2026-09-28T11:10:17.204Z"
+  "by": "sa-P",
+  "at": "2026-09-28T13:54:58.268Z"
  },
  "weapon:1092": {
   "lines": {
