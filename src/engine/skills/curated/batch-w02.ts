@@ -258,7 +258,8 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 7864,
     desc: '对所有敌人造成 [魔法 + 6] 点散射伤害，伤害值因自身的攻击力、生命值和护甲值而增强。所有盟友全部技能值增加 2 点。 [3:1]',
     build: skill(
-      dmg('enemyAll', 6, 1, { range: 'all', modifier: { mod: { kind: 'ratio', a: 3, b: 1 }, source: { kind: 'selfStat', stat: 'attack' } } }),
+      // 原生 CountAttackArmorLife@Self 34：攻击+生命+护甲合计后一次取整（pooled）
+      dmg('enemyAll', 6, 1, { range: 'all', modifier: { mod: { kind: 'ratio', a: 3, b: 1 }, pooled: true, sources: [{ kind: 'selfStat', stat: 'attack' }, { kind: 'selfStat', stat: 'hp' }, { kind: 'selfStat', stat: 'armor' }] } }),
       attack('allyAll', 2, 0),
       armor('allyAll', 2, 0),
       heal('allyAll', 2, 0),

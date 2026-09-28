@@ -8,3 +8,5 @@
 - B06 troop:6904,weapon:1545,1530,1542,1554,1557,1588,1591,troop:7592,weapon:1111 approve=10 fixed=1 (6904 below-all→next-down; 1588/1591/1111 fixed in B02) issue=0 queued=P-R4-nextdown-default-range
 - B07 weapon:1148,troop:6309,weapon:1205,1540,1543,1572,1582,1586,1589,1628 approve=10 fixed=0 issue=0
 - B08 weapon:1641,1644,1650,1662,1677,1689,1717,troop:7869,weapon:1357,1358 approve=10 fixed=0 (1650 fixed in B05) issue=0
+- B09 troop:6392,7473,6339,6333,6553,6132,7707,7876,weapon:1077,1135 approve=10 fixed=0 issue=0 waived boss c2 x2
+- B10 troop:6304,6644,6833,7838,6138,6115,7831,7123,7056,weapon:1571 approve=10 fixed=6 (CountAttackArmorLife pooled x5 + L6 weapon:1217; 6833 PrefNotPrev; 1571 native CountGems) issue=0 waived boss/tower c2 x2

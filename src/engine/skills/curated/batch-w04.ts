@@ -222,7 +222,8 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 9262,
     desc: '对一名敌人造成 [魔法 + 4] 点伤害，伤害值因紫色盟友和秘士盟友数而增强。 [x3]',
     build: skill(
-      dmg('enemyChosen', 4, 1, { modifier: { mod: { kind: 'multiplier', a: 3 }, sources: [{ kind: 'alliesOfColor', color: BaseColor.Purple }, { kind: 'alliesOfRace', race: 'Mystic' }] } }),
+      // 英文写「紫色盟友」，原生第 0 步为 CountGems Purple（R001：以原生步骤为准）→ 紫色宝石 + 秘士盟友
+      dmg('enemyChosen', 4, 1, { modifier: { mod: { kind: 'multiplier', a: 3 }, sources: [{ kind: 'boardGems', color: BaseColor.Purple }, { kind: 'alliesOfRace', race: 'Mystic' }] } }),
     ),
   },
   {

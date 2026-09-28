@@ -160,7 +160,7 @@ const SPELLS: CuratedBatch['spells'] = [
       dmg('enemyRandomN', 3, 1, {
         n: 3,
         modifier: {
-          mod: { kind: 'ratio', a: 4, b: 1 },
+          mod: { kind: 'ratio', a: 4, b: 1 }, pooled: true, // 原生单步 CountAttackArmorLife：三项合计后一次取整
           sources: [{ kind: 'selfStat', stat: 'attack' }, { kind: 'selfStat', stat: 'hp' }, { kind: 'selfStat', stat: 'armor' }],
         },
         condMult: { times: 2, cond: { kind: 'targetColor', color: BaseColor.Red } },

@@ -242,7 +242,7 @@ const SPELLS: CuratedBatch['spells'] = [
       dmg('enemyChosen', 3, 1, {
         condMult: { times: 2, cond: { kind: 'casterStatBeatsTarget', stat: 'attack' } },
         modifier: {
-          mod: { kind: 'ratio', a: 20, b: 3 },
+          mod: { kind: 'ratio', a: 20, b: 3 }, pooled: true, // 原生单步 CountAttackArmorLife：三项合计后一次取整
           sources: [{ kind: 'selfStat', stat: 'attack' }, { kind: 'selfStat', stat: 'hp' }, { kind: 'selfStat', stat: 'armor' }],
         },
       }),

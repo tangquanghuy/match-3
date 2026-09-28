@@ -175,7 +175,7 @@ const SPELLS: CuratedBatch['spells'] = [
       // 三来源（攻击力/生命值/护甲值）→ sources 计数相加（SOP §3；hp=当前生命，batch-08 8303 口径）
       dmgSplash('enemyFront', 2, 1, {
         modifier: {
-          mod: { kind: 'ratio', a: 10, b: 1 },
+          mod: { kind: 'ratio', a: 10, b: 1 }, pooled: true, // 原生单步 CountAttackArmorLife：三项合计后一次取整
           sources: [
             { kind: 'selfStat', stat: 'attack' },
             { kind: 'selfStat', stat: 'hp' },

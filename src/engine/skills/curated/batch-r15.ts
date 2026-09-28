@@ -454,7 +454,7 @@ const SPELLS: CuratedBatch['spells'] = [
       dmg('enemyChosen', 3, 1, {
         condMult: { times: 2, cond: { kind: 'targetColor', color: BaseColor.Red } },
         modifier: {
-          mod: { kind: 'ratio', a: 8, b: 1 },
+          mod: { kind: 'ratio', a: 8, b: 1 }, pooled: true, // 原生单步 CountAttackArmorLife：三项合计后一次取整
           sources: [
             { kind: 'selfStat', stat: 'hp' },
             { kind: 'selfStat', stat: 'attack' },
@@ -462,10 +462,11 @@ const SPELLS: CuratedBatch['spells'] = [
           ],
         },
       }),
-      dmg('enemyRandom', 3, 1, {
+      // 原生 Damage@RandomPrefNotPrevEnemy：避开上一目标（R007-3）
+      dmg('enemyRandomPrefNotPrev', 3, 1, {
         condMult: { times: 2, cond: { kind: 'targetColor', color: BaseColor.Red } },
         modifier: {
-          mod: { kind: 'ratio', a: 8, b: 1 },
+          mod: { kind: 'ratio', a: 8, b: 1 }, pooled: true,
           sources: [
             { kind: 'selfStat', stat: 'hp' },
             { kind: 'selfStat', stat: 'attack' },

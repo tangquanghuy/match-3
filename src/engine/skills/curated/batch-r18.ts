@@ -1009,7 +1009,7 @@ const SPELLS: CuratedBatch['spells'] = [
     build: skill(
       dmg('enemyChosen', 4, 1, {
     modifier: {
-      mod: { kind: 'ratio', a: 3, b: 1 },
+      mod: { kind: 'ratio', a: 3, b: 1 }, pooled: true, // 原生单步 CountAttackArmorLife：三项合计后一次取整
       sources: [
         { kind: 'selfStat', stat: 'attack' },
         { kind: 'selfStat', stat: 'hp' },

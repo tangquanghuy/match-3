@@ -1,6 +1,6 @@
 # GoW 技能改动留档
 
-自动生成（`node scripts/gow-changelog.mjs render`），源数据 [CHANGES.jsonl](CHANGES.jsonl)，共 187 条改动，涉及 380 个技能 ID。
+自动生成（`node scripts/gow-changelog.mjs render`），源数据 [CHANGES.jsonl](CHANGES.jsonl)，共 189 条改动，涉及 382 个技能 ID。
 
 ## 按时间
 
@@ -193,6 +193,8 @@
 | 2026-09-28T02:32 | sa-R4 | L7-R1-weapon-colour-race | assembler | 9303, 9306, 9352, 9355, 9507, 9578, 9630, 9633, 9636, 9915, 10048, 7248 | weapon:1581 LickOfFire；weapon:1584 SharpReef；weapon:1588 Bloodblight；weapon:1591 TheBeatenPath；weapon:1615 HolyPath；weapon:1630 BurningClaw；weapon:1640 TitanicCleaver；weapon:1643 FrozenFractal；weapon:1648 Haresplitter；weapon:1691 ClawOfTheNorth；weapon:1716 FeralDagger；weapon:1111 ShatteredBlade | `src/engine/skills/curated/batch-w04.ts`<br>`src/engine/skills/curated/batch-w01.ts` | boost counted only one of the two named sources (race only: 9303/9306/9352/9355; colour only: 9507/9578/9630/9633/9636/9915/10048; Divine only: 7248) → both native Count steps (CountArmyColor + CountArmyType, or 2x CountArmyType for 7248) summed per ally |  |
 | 2026-09-28T02:41 | sa-R4 | L7-R1-teamsize-source | assembler | 9635, 9688, 8624, 9875, 8626 | weapon:1645 CoralBow；weapon:1650 HolyBreeze；troop:7089 NaturebornWarden；troop:7831 Balearic；troop:7091 WaterbornPriestess | `src/engine/skills/curated/batch-w04.ts`<br>`src/engine/skills/curated/batch-r1.ts`<br>`src/engine/skills/curated/batch-r16.ts`<br>`src/engine/skills/curated/batch-33.ts` | boost counted every ally (teamSize) instead of the native Count source → native source: Merlantis allies (9635, CountArmyKingdom 3036), Divine allies (9688), Green/Blue allies (8624/9875/8626, CountArmyColor Data 1/0) alongside the gem count |  |
 | 2026-09-28T02:44 | sa-R4 | L7-R1-6904-nextdown | assembler | 8365 | troop:6904 LordBelanor | `src/engine/skills/curated/batch-r21.ts` | hit chosen enemy and every enemy below it (enemyChosenAndBelow) → hit chosen enemy and only the one directly below (native Damage@NextDownFromTarget; enemyChosenAndNextDown, range all) |  |
+| 2026-09-28T02:52 | sa-R4 | L7-R1-attack-armor-life-pooled | assembler | 7252, 9882, 8238, 7975, 7454, 7864 | troop:6138 Tauros；troop:7838 Creteus；troop:6833 Ferocity；troop:6644 Earthcaller；troop:6304 Minogor；weapon:1217 FireRubyStaff | `src/engine/skills/curated/batch-12.ts`<br>`src/engine/skills/curated/batch-25.ts`<br>`src/engine/skills/curated/batch-r15.ts`<br>`src/engine/skills/curated/batch-r18.ts`<br>`src/engine/skills/curated/batch-r7.ts`<br>`src/engine/skills/curated/batch-w02.ts` | CountAttackArmorLife split into 3 sources floored separately (R007 per-step path); 8238 second hit unboosted-pooling + plain random (could repeat target); 7864 counted Attack only → single native step: Attack+Life+Armor summed then floored once (pooled); 8238 second hit RandomPrefNotPrevEnemy; 7864 counts all three |  |
+| 2026-09-28T02:52 | sa-R4 | L7-R1-1571-native-gems | assembler | 9262 | weapon:1571 EmeraldCenser | `src/engine/skills/curated/batch-w04.ts` | boost x3 per Purple ally (English text) → boost x3 per Purple gem (native step 0 CountGems Purple, R001) plus per Mystic ally |  |
 
 ## 按技能 ID
 
@@ -246,7 +248,7 @@
 | 7244 | 2 | P-random-stat-pool、F1-steal-before-damage |
 | 7245 | 1 | F1-onkill-order |
 | 7248 | 1 | L7-R1-weapon-colour-race |
-| 7252 | 1 | P-counter-per-step |
+| 7252 | 2 | P-counter-per-step、L7-R1-attack-armor-life-pooled |
 | 7260 | 1 | F1-items-62-75 |
 | 7265 | 1 | L3-008 |
 | 7272 | 1 | F2-1120-column-skulls |
@@ -292,7 +294,7 @@
 | 7441 | 1 | F1-items-62-75 |
 | 7443 | 1 | F2-R001-order |
 | 7444 | 2 | L5-010、R004 (L5-004,L5-005,L5-014,L4b-6340) |
-| 7454 | 1 | P-counter-per-step |
+| 7454 | 2 | P-counter-per-step、L7-R1-attack-armor-life-pooled |
 | 7470 | 1 | P-counter-per-step |
 | 7473 | 1 | F1-items-62-75 |
 | 7478 | 1 | F1-remove-order |
@@ -347,6 +349,7 @@
 | 7786 | 1 | P-prefnotprev-semantics |
 | 7791 | 1 | F3-q21 |
 | 7805 | 1 | F3-t1210 |
+| 7864 | 1 | L7-R1-attack-armor-life-pooled |
 | 7930 | 1 | P-counter-per-step |
 | 7931 | 1 | F2-6607-steal-mult |
 | 7932 | 1 | F2-R001-order |
@@ -358,7 +361,7 @@
 | 7952 | 2 | L3-015、L3-016 |
 | 7963 | 2 | L3-015、L3-016 |
 | 7973 | 2 | L3-015、L3-016 |
-| 7975 | 1 | P-counter-per-step |
+| 7975 | 2 | P-counter-per-step、L7-R1-attack-armor-life-pooled |
 | 7978 | 1 | L5-013 |
 | 7983 | 1 | P-counter-per-step |
 | 8024 | 1 | P-prefnotprev-semantics |
@@ -387,7 +390,7 @@
 | 8219 | 1 | P-counter-per-step |
 | 8228 | 2 | P-counter-per-step、F2-6826-kill-skulls |
 | 8234 | 2 | L4b-6824-random-ally、P-chooser-native-restrictions |
-| 8238 | 1 | P-counter-per-step |
+| 8238 | 2 | P-counter-per-step、L7-R1-attack-armor-life-pooled |
 | 8243 | 1 | F1-items-54-60 |
 | 8245 | 1 | L5-001 |
 | 8246 | 1 | L4b-6841-prefnotprev |
@@ -496,6 +499,7 @@
 | 9223 | 1 | P-steal-to-life |
 | 9241 | 1 | P-random-stat-pool |
 | 9244 | 1 | L4b-7499-dragon |
+| 9262 | 1 | L7-R1-1571-native-gems |
 | 9280 | 1 | P-prefnotprev-semantics |
 | 9281 | 1 | L7-7517 |
 | 9282 | 1 | F3-q37 |
@@ -561,7 +565,7 @@
 | 9875 | 1 | L7-R1-teamsize-source |
 | 9879 | 1 | F3-q38 |
 | 9880 | 1 | P-prefnotprev-semantics |
-| 9882 | 1 | P-counter-per-step |
+| 9882 | 2 | P-counter-per-step、L7-R1-attack-armor-life-pooled |
 | 9909 | 1 | P-random-stat-pool |
 | 9915 | 1 | L7-R1-weapon-colour-race |
 | 9933 | 1 | P-prefnotprev-semantics |

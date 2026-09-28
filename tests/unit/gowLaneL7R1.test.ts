@@ -1,7 +1,7 @@
 // sa-R4 lane review round 1, lane L7: count boosts the standard golden scenarios cannot show. Real TurnEngine casts.
 import { describe, it, expect } from 'vitest';
-import { castSpell, DEFAULT_ENEMIES, sixColourBoard } from '../helpers/gowCast';
-import { BaseColor, type Character } from '@engine/types';
+import { castSpell, DEFAULT_ENEMIES, sixColourBoard, reviewBoard, withCells } from '../helpers/gowCast';
+import { BaseColor, specialGem, type Character } from '@engine/types';
 
 const { Red, Blue, Green, Yellow, Purple, Brown } = BaseColor;
 const unit = (colors: BaseColor[], troopTypes?: string[]): Partial<Character> => ({ hp: 500, maxHp: 500, armor: 0, colors, troopTypes });
@@ -105,6 +105,80 @@ describe('L7 sa-R4: instant-kill chance boosted by enemy race (LethalDamageCondi
     const four = rate(key, race, 4);
     expect(four).toBeGreaterThan(0.13);
     expect(four).toBeLessThan(0.28);
+  });
+});
+
+describe('L7 sa-R4: stat-count boosts (R003 percent, R007 per-step floor)', () => {
+  it('troop:6339 [M+4] + floor(atk/2) + floor(armor/2) + floor(life/2), each floored separately', () => {
+    const r = castSpell({ key: 'troop:6339', caster: { attack: 15, armor: 7, hp: 101 } });
+    expect(dmgs(r)[0]).toBe(14 + 7 + 3 + 50); // merged floor would give 61
+  });
+  it('troop:6333 scatter = my Attack + 10 per Brown enemy', () => {
+    const sum = (xs: number[]) => xs.reduce((a, b) => a + b, 0);
+    const enemies = DEFAULT_ENEMIES.map((e, i) => ({ ...e, colors: i < 3 ? [Brown] : [Red] }));
+    expect(sum(dmgs(castSpell({ key: 'troop:6333', caster: { attack: 20 }, enemies })))).toBe(50);
+  });
+  it('troop:6553 [M+2] + 17% of enemy Attack + 17% of ally Attack to the 2 weakest; if one dies the other dies too', () => {
+    const enemies = DEFAULT_ENEMIES.map((e, i) => ({ ...e, attack: 10 * (i + 1) })); // 100 -> 17
+    const r = castSpell({ key: 'troop:6553', caster: { attack: 30 }, allies: [{ ...unit([Red]), attack: 30 }], enemies }); // 60 -> 10
+    expect(r.summary.order).toEqual(['dmg E12 39 (all)', 'dmg E10 39 (all)']);
+    const low = DEFAULT_ENEMIES.map((e, i) => (i === 2 ? { ...e, hp: 20, maxHp: 300, armor: 0 } : e));
+    const k = castSpell({ key: 'troop:6553', enemies: low });
+    expect(k.summary.units.E12).toContain('DEAD');
+    expect(k.summary.units.E10).toContain('DEAD');
+    const none = castSpell({ key: 'troop:6553' });
+    expect(Object.values(none.summary.units).some(v => v.includes('DEAD'))).toBe(false);
+  });
+  it('troop:7707 +34% of the target Attack; troop:7876 +34% of my Attack', () => {
+    const enemies = DEFAULT_ENEMIES.map((e, i) => (i === 1 ? { ...e, attack: 50 } : e));
+    expect(dmgs(castSpell({ key: 'troop:7707', enemies }))).toEqual([14 + 17]);
+    expect(dmgs(castSpell({ key: 'troop:7876', caster: { attack: 50 } }))).toEqual([14 + 17]);
+  });
+});
+
+describe('L7 sa-R4: CountAttackArmorLife is one native step (sum, then one floor)', () => {
+  const caster = { attack: 5, armor: 5, hp: 7 }; // 17 total; per-stat floors would differ at every percentage below
+  const noRed = DEFAULT_ENEMIES.map(e => ({ ...e, colors: [Blue] }));
+  it('troop:6304 15%: 13 + 2, doubled when the target Attack is lower', () => {
+    expect(dmgs(castSpell({ key: 'troop:6304', caster }))).toEqual([15]);
+    const weak = DEFAULT_ENEMIES.map((e, i) => (i === 1 ? { ...e, attack: 3 } : e));
+    expect(dmgs(castSpell({ key: 'troop:6304', caster, enemies: weak }))).toEqual([30]);
+  });
+  it('troop:6644 34%: 14 + 5', () => expect(dmgs(castSpell({ key: 'troop:6644', caster }))).toEqual([19]));
+  it('troop:6833 13%: 13 + 2 on the chosen and a random other enemy, x2 on Red users', () => {
+    expect(dmgs(castSpell({ key: 'troop:6833', caster, enemies: noRed }))).toEqual([15, 15]);
+    const red = noRed.map((e, i) => (i === 1 ? { ...e, colors: [Red] } : e));
+    expect(dmgs(castSpell({ key: 'troop:6833', caster, enemies: red }))[0]).toBe(30);
+    for (let seed = 1; seed <= 40; seed++) { // RandomPrefNotPrevEnemy: never the chosen enemy again while others live
+      const o = castSpell({ key: 'troop:6833', caster, enemies: noRed, seed }).summary.order.filter(s => s.startsWith('dmg '));
+      expect(o[0].startsWith('dmg E11 ')).toBe(true);
+      expect(o[1].startsWith('dmg E11 ')).toBe(false);
+    }
+  });
+  it('troop:7838 25%: 13 + 4 on 3 random enemies', () => expect(dmgs(castSpell({ key: 'troop:7838', caster, enemies: noRed }))).toEqual([17, 17, 17]));
+  it('troop:6138 10%: light splash 12 + 1 on the first enemy', () => expect(dmgs(castSpell({ key: 'troop:6138', caster }))[0]).toBe(13));
+});
+
+describe('L7 sa-R4: gem-count boosts', () => {
+  it('troop:7123 scatter [M+8] x4 per Purple gem and Purple ally', () => {
+    const sum = (xs: number[]) => xs.reduce((a, b) => a + b, 0);
+    const r = castSpell({ key: 'troop:7123', caster: { colors: [Purple] }, allies: [unit([Purple]), unit([Red])], board: sixColourBoard });
+    expect(sum(dmgs(r))).toBe(18 + 4 * (boardCount(Purple) + 2));
+  });
+  it('weapon:1571 x3 per Purple gem (native CountGems, English says allies) and per Mystic ally', () => {
+    const r = castSpell({ key: 'weapon:1571', caster: { colors: [Red] }, allies: [unit([Purple], ['Mystic']), unit([Purple])], board: sixColourBoard });
+    expect(dmgs(r)).toEqual([14 + 3 * (boardCount(Purple) + 1)]);
+  });
+  it('troop:7056 x6 per Lycanthropy gem and per enemy Beast', () => {
+    const enemies = DEFAULT_ENEMIES.map((e, i) => ({ ...e, troopTypes: i < 2 ? ['Beast'] : ['Human'] }));
+    const board = withCells(reviewBoard, { '0,1': specialGem('lycanthropyGem'), '5,5': specialGem('lycanthropyGem'), '6,1': specialGem('lycanthropyGem') });
+    expect(dmgs(castSpell({ key: 'troop:7056', allies: [unit([Red], ['Beast'])], enemies, board }))).toEqual([14 + 6 * (3 + 2)]);
+  });
+  it('troop:6115 [M+4] to the target, then 8 scatter boosted x4 per living enemy', () => {
+    const sum = (xs: number[]) => xs.reduce((a, b) => a + b, 0);
+    const d = dmgs(castSpell({ key: 'troop:6115', enemies: DEFAULT_ENEMIES.slice(0, 3) }));
+    expect(d[0]).toBe(14);
+    expect(sum(d.slice(1))).toBe(8 + 4 * 3);
   });
 });
 
