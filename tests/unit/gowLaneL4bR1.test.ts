@@ -1,8 +1,8 @@
 // sa-R2 lane review round 1 (lane L4b + R009 giant/dragon items from L3): cases the four standard golden scenarios cannot show.
 // Real TurnEngine.castSkill through tests/helpers/gowCast.ts; each row has its own entity and expected values.
 import { describe, it, expect } from 'vitest';
-import { BaseColor } from '@engine/types';
-import { castSpell, type BoardFn } from '../helpers/gowCast';
+import { BaseColor, PlayerSide } from '@engine/types';
+import { castSpell, setupCast, summarize, type BoardFn } from '../helpers/gowCast';
 
 const colorGem = (color: BaseColor) => ({ kind: 'color', color }) as never;
 const OTHERS = [BaseColor.Red, BaseColor.Green, BaseColor.Yellow, BaseColor.Purple, BaseColor.Brown];
@@ -244,5 +244,50 @@ describe('L4b B07: same family as B06', () => {
     const r = castSpell({ key, allies: [{ troopTypes: [race] }, { troopTypes: [race] }] });
     expect(r.summary.order[0]).toBe('dmg E11 14');
     expect(r.summary.gems.created[color]).toBe(8);
+  });
+});
+
+describe('L4b B08: same family as B06', () => {
+  const ROWS = [['troop:7664', 'Giant', 'Brown'], ['troop:7672', 'Fey', 'Blue'], ['troop:7686', 'Wildfolk', 'Green'], ['troop:7709', 'Knight', 'Yellow'],
+    ['troop:7717', 'Dwarf', 'Brown'], ['troop:7750', 'Tauros', 'Brown'], ['troop:7758', 'Dragon', 'Purple'], ['troop:7776', 'Raksha', 'Red'],
+    ['troop:7785', 'Human', 'Blue']] as const;
+  for (const [key, race, color] of ROWS) it(`${key}: caster + 2 ${race} allies -> 14 damage, 8 ${color}`, () => {
+    const r = castSpell({ key, allies: [{ troopTypes: [race] }, { troopTypes: [race] }] });
+    expect(r.summary.order[0]).toBe('dmg E11 14');
+    expect(r.summary.gems.created[color]).toBe(8);
+  });
+  it('troop:7819: caster + 1 Orc ally -> 19 damage; 7 Skulls, +5 on kill', () => {
+    const r = castSpell({ key: 'troop:7819', allies: [{ troopTypes: ['Orc'] }, {}] });
+    expect(r.summary.order[0]).toBe('dmg E11 19');
+    expect(r.summary.gems.created.skull).toBe(7);
+  });
+});
+
+describe('L4b B09', () => {
+  const ROWS = [['troop:7820', 'Orc', 'Red'], ['troop:7828', 'Urska', 'Green'], ['troop:7870', 'Mystic', 'Green'], ['troop:7878', 'Mech', 'Yellow']] as const;
+  for (const [key, race, color] of ROWS) it(`${key}: caster + 2 ${race} allies -> 14 damage, 8 ${color}`, () => {
+    const r = castSpell({ key, allies: [{ troopTypes: [race] }, { troopTypes: [race] }] });
+    expect(r.summary.order[0]).toBe('dmg E11 14');
+    expect(r.summary.gems.created[color]).toBe(8);
+  });
+  // weapons: CountArmyType@AllAllies 600 -> +6 damage and 6 mix gems per race ally
+  for (const [key, race, colors] of [['weapon:1359', 'Raksha', ['Red', 'Brown']], ['weapon:1367', 'Dwarf', ['Blue', 'Brown']], ['weapon:1373', 'Tauros', ['Green', 'Brown']]] as const) it(`${key}: 2 ${race} allies -> 29 damage, 12 ${colors.join('/')}`, () => {
+    const r = castSpell({ key, allies: [{ troopTypes: [race] }, { troopTypes: [race] }] });
+    expect(r.summary.order[0]).toBe('dmg E11 29');
+    const g = r.summary.gems.created as Record<string, number>;
+    expect((g[colors[0]] ?? 0) + (g[colors[1]] ?? 0)).toBe(12);
+  });
+  it('weapon:1207: 2 Tauros allies -> 4 + 6 = 10 Red', () => {
+    expect(castSpell({ key: 'weapon:1207', allies: [{ troopTypes: ['Tauros'] }, { troopTypes: ['Tauros'] }] }).summary.gems.created.Red).toBe(10);
+  });
+  it('troop:6520: steal capped by the target Attack (8 < 15)', () => {
+    const enemies = [0, 1, 2, 3].map(i => ({ hp: 500, maxHp: 500, attack: i === 1 ? 8 : 20 }));
+    const o = castSpell({ key: 'troop:6520', enemies }).summary.order;
+    expect(o.slice(0, 2)).toEqual(['buff E11 attack-8', 'buff C attack+8']);
+  });
+  it('troop:7330: 2 enemy deaths this battle -> 9 + 8 = 17 Yellow', () => {
+    const f = setupCast({ key: 'troop:7330' });
+    (f.state as unknown as { battleDeaths: Record<string, number> }).battleDeaths = { [PlayerSide.Left]: 0, [PlayerSide.Right]: 2 };
+    expect(summarize(f, f.cast()).gems.created.Yellow).toBe(17);
   });
 });

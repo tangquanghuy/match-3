@@ -7,3 +7,5 @@
 - 2026-09-28T10:46:16 B05 weapon:1608,weapon:1598,weapon:1441,weapon:1611,weapon:1612,weapon:1624,troop:7242,troop:7275,troop:6853,troop:6963 approve=7 fixed=3 issue=0 (1441 board Cursed Gems source + order; 1608/1611 native order; immortal/race table tests)
 - 2026-09-28T10:47:10 B06 troop:7599,troop:7212,troop:7274,troop:7290,troop:7369,troop:7428,troop:7436,troop:7471,troop:7479,troop:7495 approve=10 fixed=0 issue=0 (race-ally create family, table test)
 - 2026-09-28T10:48:05 B07 troop:7503,troop:7511,troop:7534,troop:7542,troop:7555,troop:7562,troop:7591,troop:7598,troop:7637,troop:7645 approve=10 fixed=0 issue=0 (race-ally create family, table test)
+- 2026-09-28T10:48:47 B08 troop:7664,troop:7672,troop:7686,troop:7709,troop:7717,troop:7750,troop:7758,troop:7776,troop:7785,troop:7819 approve=10 fixed=0 issue=0 (race-ally create family, table test)
+- 2026-09-28T10:50:46 B09 troop:7820,troop:7828,troop:7870,troop:7878,weapon:1359,weapon:1367,weapon:1373,weapon:1207,troop:6520,troop:7330 approve=10 fixed=0 issue=0 (race/weapon-race/steal cap/enemy deaths tests)
