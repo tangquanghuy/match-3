@@ -4,3 +4,8 @@
 - troop:6706 fixed+accept (2nd hit enemyRandomPrefNotPrev, R007-3)
 - troop:6159 accept (20% Treasure Map implemented as maps economy; not waived)
 - troop:6659 accept (ABC-DEF: damage both branches, 1/2 enemy|ally, 2nd status 50% single roll)
+- troop:6232 accept (1 + 4 x 50% RandomStatusEffect)
+- troop:7147 accept (RandomStatusEffectConditional AddForKill -> all enemies, per-target roll)
+- troop:7737 zh fixed+accept (Choose ABC-DEF; zh said [M+2] enemies; override 7737)
+- troop:7881 accept (FromManaColorEnemy attack loss both branches, AB-CD Purple|Terror 1/2)
+- troop:6947 accept (3 independent random statuses)

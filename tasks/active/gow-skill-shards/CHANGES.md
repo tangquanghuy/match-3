@@ -1,6 +1,6 @@
 # GoW 技能改动留档
 
-自动生成（`node scripts/gow-changelog.mjs render`），源数据 [CHANGES.jsonl](CHANGES.jsonl)，共 540 条改动，涉及 992 个技能 ID。
+自动生成（`node scripts/gow-changelog.mjs render`），源数据 [CHANGES.jsonl](CHANGES.jsonl)，共 541 条改动，涉及 992 个技能 ID。
 
 ## 按时间
 
@@ -546,6 +546,7 @@
 | 2026-09-28T15:44 | coord | R014-7000-count-before-create | assembler | 8503 | troop:7000 Baihu | `src/engine/skills/curated/batch-r20.ts`<br>`src/engine/skills/prototypes.ts`<br>`src/engine/skills/effects/secondary.ts`<br>`src/engine/skills/effects/context.ts` | Yellow counted after CreateGems 3 Yellow (created gems boosted the damage) → castStartBoardGems Yellow: counted before the create, CountSet 1 not added (R014) | new source castStartBoardGems; only 8503 uses it |
 | 2026-09-28T21:15 | sa-H | L2-H-7047-last2-random | assembler | 8572 | troop:7047 SisterOfNightmares | `src/engine/skills/curated/batch-r4.ts` | RandomStatusEffect@LastTwoEnemies approximated by one random status on the last enemy only → random status rolled separately on 2nd-last and last enemy (enemySecondLast + enemyLastN), then Poison both |  |
 | 2026-09-28T21:15 | sa-H | L2-H-6706-prefnotprev | assembler | 8063 | troop:6706 Rattigar | `src/engine/skills/curated/batch-r15.ts` | second hit plain enemyRandom (could repeat the first target) → second hit enemyRandomPrefNotPrev per native RandomPrefNotPrevEnemy (R007-3) |  |
+| 2026-09-28T21:18 | sa-H | L2-H-7737-zh | data | 9640 | troop:7737 CourtWitch | `src/engine/skills/curated/batch-r17.ts`<br>`src/data/gowSnapshotOverrides.json` | zh: 消除 [魔法 + 2] 个敌人的攻击 (reads [M+2] as number of enemies) → zh: 消除一名敌人 [魔法 + 2] 点攻击力 / 一项随机技能 [魔法 + 2] 点 (matches English one enemy) |  |
 
 ## 按技能 ID
 
@@ -1440,7 +1441,7 @@
 | 9635 | 2 | L7-R1-teamsize-source、P-E-faction-kingdom |
 | 9636 | 1 | L7-R1-weapon-colour-race |
 | 9639 | 1 | L4a-R1-9639-block-gargoyle |
-| 9640 | 1 | P-random-stat-pool |
+| 9640 | 2 | P-random-stat-pool、L2-H-7737-zh |
 | 9641 | 1 | P-prefnotprev-semantics |
 | 9642 | 1 | L4a-r3-7685 |
 | 9646 | 1 | R3-B10-7688 |

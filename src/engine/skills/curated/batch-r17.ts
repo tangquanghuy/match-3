@@ -347,9 +347,9 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 9640,
-    desc: '&& 消除 [魔法 + 2] 个敌人的攻击，并诅咒他们。 && 消除 [魔法 + 2] 个敌人身上的随机技能点，并给他们施加死亡标记。',
+    desc: '&& 消除一名敌人 [魔法 + 2] 点攻击力，并诅咒该敌人。 && 消除一名敌人一项随机技能 [魔法 + 2] 点，并对其施加死亡标记。',
     // '&&' 为合法子句切分符（§13.1）；EN 原句 = Eliminate [M+2] Attack / from a random Skill Point
-    // （ZH「个敌人」机翻噪声）；随机技能点 = reduce stat 'random'（DecreaseRandom，R12 原语）
+    // （sa-H：旧 ZH「[魔法 + 2] 个敌人」误读为敌人数，已改并加 gowSnapshotOverrides 7737）；随机技能点 = reduce stat 'random'（DecreaseRandom，R12 原语）
     build: skill(chooseSkill(["削减一名敌人［魔法＋2］攻击并诅咒","削减一名敌人［魔法＋2］随机属性并施加死亡标记"], [reduce('enemyChosen', 'attack', 2, 1), inflict('curse', 'lastTarget')], [reduce('enemyChosen', 'random', 2, 1), inflict('death-mark', 'lastTarget')])),
   },
   {

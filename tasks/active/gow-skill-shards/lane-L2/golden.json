@@ -79,6 +79,16 @@
   "by": "sa-R6",
   "at": "2026-09-28T05:40:50.994Z"
  },
+ "troop:6232": {
+  "lines": {
+   "L10": "dmg E11 12 ; status E11 +curse ; status E11 +marked ; status E11 +web ; status E11 +curse  => E11:hp-2 arm-10 +curse+marked+web",
+   "R10": "dmg E11 12 ; status E11 +curse ; status E11 +marked ; status E11 +web ; status E11 +curse  => E11:hp-2 arm-10 +curse+marked+web",
+   "L0": "dmg E11 2 ; status E11 +curse ; status E11 +marked ; status E11 +web ; status E11 +curse  => E11:arm-2 +curse+marked+web",
+   "K": "dmg E11 12 ; defeat E11  => E11:hp-1 DEAD"
+  },
+  "by": "sa-H",
+  "at": "2026-09-28T21:18:53.690Z"
+ },
  "troop:6237": {
   "lines": {
    "L10": "convert Brown x3, skull x2, Red x4, Yellow x1, Purple x2 -> Green x12 ; ~cascade~ ; extra-turn match  extra:match  cascade",
@@ -419,6 +429,16 @@
   "by": "sa-R6",
   "at": "2026-09-28T08:47:27.533Z"
  },
+ "troop:6947": {
+  "lines": {
+   "L10": "buff E11 attack-11 ; status E11 +curse ; status E11 +entangle ; status E11 +marked  => E11:atk-11 +curse+entangle+marked",
+   "R10": "buff E11 attack-11 ; status E11 +curse ; status E11 +entangle ; status E11 +marked  => E11:atk-11 +curse+entangle+marked",
+   "L0": "buff E11 attack-1 ; status E11 +curse ; status E11 +entangle ; status E11 +marked  => E11:atk-1 +curse+entangle+marked",
+   "K": "buff E11 attack-11 ; status E11 +curse ; status E11 +entangle ; status E11 +marked  => E11:atk-11 +curse+entangle+marked"
+  },
+  "by": "sa-H",
+  "at": "2026-09-28T21:18:53.690Z"
+ },
  "troop:6949": {
   "lines": {
    "L10": "dmg E10 6 (all) ; dmg E11 6 (all) ; dmg E12 6 (all) ; dmg E13 6 (all) ; status E10 +web ; status E11 +web ; status E12 +web ; status E13 +web  => E10:hp-1 arm-5 +web | E11:arm-6 +web | E12:arm-6 +web | E13:hp-3 arm-3 +web",
@@ -538,6 +558,16 @@
   },
   "by": "sa-R6",
   "at": "2026-09-28T08:47:27.533Z"
+ },
+ "troop:7147": {
+  "lines": {
+   "L10": "dmg E11 13  => E11:hp-3 arm-10",
+   "R10": "dmg E11 13  => E11:hp-3 arm-10",
+   "L0": "dmg E11 3  => E11:arm-3",
+   "K": "dmg E11 13 ; defeat E11 ; status E10 +curse ; status E12 +entangle ; status E13 +marked  => E11:hp-1 DEAD | E10:+curse | E12:+entangle | E13:+marked"
+  },
+  "by": "sa-H",
+  "at": "2026-09-28T21:18:53.690Z"
  },
  "troop:7204": {
   "lines": {
@@ -809,6 +839,16 @@
   "by": "sa-R6",
   "at": "2026-09-28T08:47:27.533Z"
  },
+ "troop:7737": {
+  "lines": {
+   "L10": "buff E11 attack-12 ; status E11 +curse  => E11:atk-12 +curse",
+   "R10": "buff E11 attack-12 ; status E11 +curse  => E11:atk-12 +curse",
+   "L0": "buff E11 attack-2 ; status E11 +curse  => E11:atk-2 +curse",
+   "K": "buff E11 attack-12 ; status E11 +curse  => E11:atk-12 +curse"
+  },
+  "by": "sa-H",
+  "at": "2026-09-28T21:18:53.690Z"
+ },
  "troop:7798": {
   "lines": {
    "L10": "dmg E10 14 (all) ; dmg E11 14 (all) ; convert Green x13 -> doomSkull x13  => E10:hp-9 arm-5 | E11:hp-4 arm-10",
@@ -858,6 +898,16 @@
   },
   "by": "sa-R6",
   "at": "2026-09-28T08:35:30.426Z"
+ },
+ "troop:7881": {
+  "lines": {
+   "L10": "buff E11 attack-11 ; convert Blue x11 -> terrorGem x11  => E11:atk-11",
+   "R10": "buff E11 attack-11 ; convert Blue x11 -> terrorGem x11  => E11:atk-11",
+   "L0": "buff E11 attack-1 ; convert Blue x11 -> terrorGem x11  => E11:atk-1",
+   "K": "convert Blue x11 -> terrorGem x11"
+  },
+  "by": "sa-H",
+  "at": "2026-09-28T21:18:53.690Z"
  },
  "troop:7925": {
   "lines": {

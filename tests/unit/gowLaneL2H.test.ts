@@ -1,8 +1,11 @@
 // sa-H lane L2 (random branches / random statuses) review round 8: seed sweeps for the cases the four
 // standard golden scenarios cannot show (per-target rolls, PrefNotPrev with a lone enemy, chances, branch weights).
 import { describe, it, expect } from 'vitest';
-import { castSpell, type CastOpts } from '../helpers/gowCast';
+import { castSpell, setupCast, summarize, type CastOpts } from '../helpers/gowCast';
 import { RANDOM_NEGATIVE_STATUS_POOL, RANDOM_POSITIVE_STATUS_POOL } from '@engine/skills/effects/status';
+import { FixedBranchChooser } from '@engine/skills/branchChooser';
+import { BaseColor } from '@engine/types';
+const choose = (o: CastOpts, branch: number) => { const f = setupCast(o); f.engine.setBranchChooser(new FixedBranchChooser(branch)); return summarize(f, f.cast()).order; };
 const SEEDS = 300;
 const orderOf = (o: CastOpts) => { const s = castSpell(o).summary; const i = s.order.indexOf('~cascade~'); return i < 0 ? s.order : s.order.slice(0, i); };
 const statusesOn = (order: string[], who: string) => order.filter(l => l.startsWith(`status ${who} +`)).map(l => l.split('+')[1]);
@@ -55,5 +58,50 @@ describe('sa-H L2 B01', () => {
       if (e === 1) t.e1++; if (e === 2) t.e2++; if (a === 1) t.a1++; if (a === 2) t.a2++;
     }
     for (const [k, v] of Object.entries(t)) within(v / SEEDS, 0.25, `6659 ${k}`);
+  });
+});
+
+describe('sa-H L2 B02', () => {
+  it('troop:6232 1 sure + 4 x 50% random status rolls on the damaged enemy', () => {
+    const counts = [0, 0, 0, 0, 0, 0];
+    for (let seed = 1; seed <= SEEDS; seed++) {
+      // statuses applied = rolls; count status-apply lines, duplicates of the same id still emit a line
+      const f = setupCast({ key: 'troop:6232', seed }); const ev = f.cast();
+      const n = ev.filter(e => e.type === 'status-apply' && e.targetId === 11).length;
+      expect(n).toBeGreaterThanOrEqual(1); expect(n).toBeLessThanOrEqual(5); counts[n]++;
+    }
+    within(counts[1] / SEEDS, 1 / 16, '1'); within(counts[3] / SEEDS, 6 / 16, '3'); within(counts[5] / SEEDS, 1 / 16, '5');
+  });
+  it('troop:7147 random status on every enemy only when the target dies', () => {
+    expect(orderOf({ key: 'troop:7147' }).some(l => l.startsWith('status'))).toBe(false);
+    const o = orderOf({ key: 'troop:7147', enemies: [{ hp: 900, maxHp: 900 }, { hp: 1, maxHp: 1, armor: 0 }, { hp: 900, maxHp: 900 }] });
+    expect(statusesOn(o, 'E10').length).toBe(1); expect(statusesOn(o, 'E12').length).toBe(1); expect(statusesOn(o, 'E11').length).toBe(0);
+  });
+  it('troop:7737 Choose: A = -[M+2] Attack + Curse, B = -[M+2] random Skill + Death Mark', () => {
+    expect(choose({ key: 'troop:7737' }, 0)).toEqual(['buff E11 attack-12', 'status E11 +curse']);
+    const seen = new Set<string>();
+    for (let seed = 1; seed <= 60; seed++) {
+      const o = choose({ key: 'troop:7737', seed, enemies: [{}, { hp: 900, maxHp: 900, armor: 30, attack: 30, magic: 30 }] }, 1);
+      expect(o[1]).toBe('status E11 +death-mark'); seen.add(o[0].replace(/-?\d+$/, ''));
+      expect(o[0]).toMatch(/-12$/);
+    }
+    expect([...seen].sort()).toEqual(['buff E11 armor', 'buff E11 attack', 'buff E11 hp', 'buff E11 magic']);
+  });
+  it('troop:7881 -[M+1] Attack from enemies of the chosen colour, then 1/2 Purple | 1/2 Terror', () => {
+    const enemies = [{ colors: [BaseColor.Blue] }, { colors: [BaseColor.Red] }, { colors: [BaseColor.Blue, BaseColor.Green] }];
+    let terror = 0;
+    for (let seed = 1; seed <= SEEDS; seed++) {
+      const o = orderOf({ key: 'troop:7881', seed, enemies });
+      expect(o.slice(0, 2)).toEqual(['buff E10 attack-11', 'buff E12 attack-11']);
+      expect(o[2]).toMatch(/^convert Blue x\d+ -> (Purple|terrorGem) x\d+$/);
+      if (o[2].includes('terrorGem')) terror++;
+    }
+    within(terror / SEEDS, 0.5, 'terror');
+  });
+  it('troop:6947 -[M+1] Attack then three independent random statuses', () => {
+    for (let seed = 1; seed <= 30; seed++) {
+      const f = setupCast({ key: 'troop:6947', seed }); const ev = f.cast();
+      expect(ev.filter(e => e.type === 'status-apply' && e.targetId === 11).length).toBe(3);
+    }
   });
 });

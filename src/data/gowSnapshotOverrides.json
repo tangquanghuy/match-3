@@ -307,6 +307,11 @@
       "spellId": 8813,
       "reason": "sa-B r6: English Onyx Gargoyle 'Deal [Magic + 3] splash damage' (native SplashHighDamage, not light splash); old Chinese said 轻微溅射.",
       "spellDescription": "对一名敌人造成 [魔法 + 3] 点溅射伤害。再创造 1-2 颗随机石像鬼宝石。"
+    },
+    "7737": {
+      "spellId": 9640,
+      "reason": "sa-H r8: English Court Witch 'Eliminate [Magic + 2] Attack from an Enemy' / '[Magic + 2] from a random Skill Point on an Enemy' (one enemy, amount [M+2]); old Chinese read [M+2] as a number of enemies.",
+      "spellDescription": "&& 消除一名敌人 [魔法 + 2] 点攻击力，并诅咒该敌人。 && 消除一名敌人一项随机技能 [魔法 + 2] 点，并对其施加死亡标记。"
     }
   }
 }
