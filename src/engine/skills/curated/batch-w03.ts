@@ -591,10 +591,10 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 8664,
     desc: '对末位敌人造成 [魔法 + 3] 点真实伤害，有 6% 的几率将其杀戮。每有一颗末日骷髅头则几率增强 6%。 [x6]',
     build: skill(
-      // 原生 CountGems Doomskull → 只计末日骷髅头（sa-D）。原生顺序为先 Lethal 后 TrueDamage（R001），
-      // 但即杀段掷骰失败时不写 lastTarget，后段无法锁定同一名敌人 → 暂保留伤害在前（primitive-queue P-D-lethal-first-lasttarget）
-      trueDmg('enemyLast', 3, 1, { trueDamage: true }),
-      dmg('lastTarget', 0, 0, { execute: true, chance: 0.06, chanceBoost: { mod: { kind: 'multiplier', a: 6 }, source: { kind: 'boardSpecial', gem: 'doomSkull' } } }),
+      // 原生 CountGems Doomskull → 只计末日骷髅头（sa-D）。原生顺序 LethalDamageConditional@LastEnemy →
+      // TrueDamage@LastEnemy（R001）；掷骰失败也记录 lastTarget（P-D-lethal-first-lasttarget），被杀则伤害段无目标
+      dmg('enemyLast', 0, 0, { execute: true, chance: 0.06, chanceBoost: { mod: { kind: 'multiplier', a: 6 }, source: { kind: 'boardSpecial', gem: 'doomSkull' } } }),
+      trueDmg('lastTarget', 3, 1, { trueDamage: true }),
     ),
   },
   {

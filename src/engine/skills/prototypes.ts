@@ -1019,7 +1019,15 @@ function runSegment(
   if (segment.kind !== 'devour' && (segment.chance !== undefined || segment.chanceBoost)) {
     const boost = modifierBonus(segment.chanceBoost, ctx) / 100;
     const p = Math.min(1, Math.max(0, (segment.chance ?? 0) + boost));
-    if (!(ctx.rng.next() < p)) return [];
+    if (!(ctx.rng.next() < p)) {
+      // P-D-lethal-first-lasttarget: a native LethalDamageConditional@<Target> that fails its roll still resolves
+      // its victim, so a following Damage on the same unit ('lastTarget') has a target (R001 native order).
+      if (segment.kind === 'damage' && segment.execute === true) {
+        ensureCastTracking(ctx);
+        resolveTargetsTracked(segment, ctx);
+      }
+      return [];
+    }
   }
   // 通用条件（全局类）：整段判定，不成立 → 静默跳过（目标相对类在目标解析处过滤）
   if (segment.ifCond && !isTargetCondition(segment.ifCond) && !conditionMet(segment.ifCond, ctx)) {
