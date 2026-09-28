@@ -30,6 +30,7 @@ import {
   destroySpecialGems, destroyColor, destroyChosenRow, destroyChosenCol, destroySkulls,
   explodeRandomGems, oneOf, extraTurn, summonRandom, summonRef, reposition, shuffleTeam, CHOSEN,
   CELL, explodeAt,
+  targetedSkill,
 } from '../builders';
 import { BaseColor } from '../../types';
 
@@ -415,7 +416,8 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 8941,
     desc: '消除 4 点魔力值或耗掉 4 点法力值，或窃取一名敌人 [魔法 + 1] 点生命值，数值因织网宝石数而增强。 [x2]',
     // 三选一（官方三组 CountGems Web + UseCounter 变体）；「魔力值」= magic 属性、「法力值」= mana
-    build: skill(
+    // sa-F1: native Target Enemy; declare the chosen enemy (inputTarget) — oneOf branches are not scanned for it.
+    build: targetedSkill('enemyChosen',
       oneOf(
         [reduce('enemyChosen', 'magic', 4, 0, {
           modifier: { mod: { kind: 'multiplier', a: 2 }, source: { kind: 'boardSpecial', gem: 'web' } },

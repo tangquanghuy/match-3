@@ -16,3 +16,30 @@
 - 2026-09-28T00:19:38Z troop:6423 issue fixed order to native (count, DecreaseRandom, steal, then remove); remaining P-F1-remove-gems
 - 2026-09-28T00:19:38Z troop:6076 issue fixed order to native (count, life, remove, summon, extra); remaining P-F1-remove-gems
 - 2026-09-28T00:19:38Z troop:6328 issue fixed order to native (count, damage, remove, summon); remaining P-F1-remove-gems
+- 2026-09-28T00:25:54Z troop:6047 fixed hint was harness status leak; added native Dispel@FromTarget before devour (Barrier blocked it); approved + test
+- 2026-09-28T00:25:54Z troop:6326 approved fresh process: create 11 of ally colour, kill ally, summon knight (hint was harness status leak, queued P-F1-harness-status-leak)
+- 2026-09-28T00:25:54Z troop:7674 fixed no chosen target declared -> no gems destroyed; targetedSkill enemyChosen; approved + test (14 gems at 100 gold)
+- 2026-09-28T00:25:54Z troop:7245 queued P-F1-giant-dragon-gems: convert to Giant/Dragon gems is a no-op; damage/extra-turn ok
+- 2026-09-28T00:25:54Z troop:7246 queued P-F1-giant-dragon-gems: convert to Giant/Dragon gems is a no-op; damage/extra-turn ok
+- 2026-09-28T00:25:54Z troop:7247 queued P-F1-giant-dragon-gems: convert to Giant/Dragon gems is a no-op; damage/extra-turn ok
+- 2026-09-28T00:25:54Z troop:7248 queued P-F1-giant-dragon-gems: convert to Giant/Dragon gems is a no-op; damage/extra-turn ok
+- 2026-09-28T00:25:54Z troop:7249 queued P-F1-giant-dragon-gems: convert to Giant/Dragon gems is a no-op; damage/extra-turn ok
+- 2026-09-28T00:25:54Z troop:7250 queued P-F1-giant-dragon-gems: convert to Giant/Dragon gems is a no-op; damage/extra-turn ok
+- 2026-09-28T00:25:54Z troop:7440 queued P-F1-giant-dragon-gems: convert to Giant/Dragon gems is a no-op; damage/extra-turn ok
+- 2026-09-28T00:25:54Z troop:7441 queued P-F1-giant-dragon-gems: convert to Giant/Dragon gems is a no-op; damage/extra-turn ok
+- 2026-09-28T00:25:54Z troop:7442 queued P-F1-giant-dragon-gems: convert to Giant/Dragon gems is a no-op; damage/extra-turn ok
+- 2026-09-28T00:25:54Z troop:7443 queued P-F1-giant-dragon-gems: convert to Giant/Dragon gems is a no-op; damage/extra-turn ok
+- 2026-09-28T00:25:54Z troop:7444 queued P-F1-giant-dragon-gems: convert to Giant/Dragon gems is a no-op; damage/extra-turn ok
+- 2026-09-28T00:25:54Z troop:7445 queued P-F1-giant-dragon-gems: convert to Giant/Dragon gems is a no-op; damage/extra-turn ok
+- 2026-09-28T00:34:01Z troop:6387 issue fixed missing self-kill (native Damage@Self 1+10000); rebirth = in-place full revive until P-F1-summon-after-caster-death
+- 2026-09-28T00:34:01Z troop:6206 fixed chosen enemy only inside oneOf -> spell did nothing; targetedSkill enemyChosen; approved + branch test
+- 2026-09-28T00:34:01Z troop:6289 approved no Daemon allies / souls in default; +2 Magic to Daemons and 12-soul summon tested
+- 2026-09-28T00:34:01Z troop:6292 fixed oneOf chosen target declared; halve Attack/Magic/Giant Toad branches tested; approved
+- 2026-09-28T00:34:01Z troop:6845 fixed oneOf chosen target declared; 3 branches tested; approved
+- 2026-09-28T00:34:01Z troop:6929 fixed oneOf target declared + triple damage 3x[M+3] (was 3+3M); approved + test
+- 2026-09-28T00:34:01Z troop:6969 fixed oneOf target declared; true dmg+burn / destroy bombs branches tested; approved
+- 2026-09-28T00:34:01Z troop:7329 fixed oneOf target declared; Web [x2] boost tested; approved
+- 2026-09-28T00:34:01Z troop:7825 fixed one curse per Poison Gem (native count) instead of per gem in the blasts; approved + test
+- 2026-09-28T00:34:01Z weapon:1081 fixed oneOf target declared; armor removal now common to both branches (was poison branch only); approved + test
+- 2026-09-28T00:35:28Z troop:6047 issue golden dropped: gowCastGolden replay order leaks A1 Barrier (P-F1-harness-status-leak); fix + own test stay
+- 2026-09-28T00:35:28Z troop:6326 issue golden dropped for the same harness leak (P-F1-harness-status-leak)

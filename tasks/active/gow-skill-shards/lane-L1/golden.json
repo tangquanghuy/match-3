@@ -1,4 +1,24 @@
 {
+ "troop:6289": {
+  "lines": {
+   "L10": "(no spell events)",
+   "R10": "(no spell events)",
+   "L0": "(no spell events)",
+   "K": "(no spell events)"
+  },
+  "by": "sa-F1",
+  "at": "2026-09-28T00:33:47.937Z"
+ },
+ "troop:6292": {
+  "lines": {
+   "L10": "buff E11 magic-5  => E11:mag-5",
+   "R10": "buff E11 magic-5  => E11:mag-5",
+   "L0": "buff E11 magic-5  => E11:mag-5",
+   "K": "buff E11 magic-5  => E11:mag-5"
+  },
+  "by": "sa-F1",
+  "at": "2026-09-28T00:33:50.303Z"
+ },
  "troop:6931": {
   "lines": {
    "L10": "dmg E12 312 ; defeat E12 ; flee C  => E12:hp-300 arm-12 DEAD | C:FLED",

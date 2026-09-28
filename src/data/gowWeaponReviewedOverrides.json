@@ -216,6 +216,48 @@
         "skippedClauses": []
       }
     },
+    "7194": {
+      "description": "减除一名敌人全部护甲值，在使其中毒，或造成 [魔法 + 2] 点伤害。",
+      "prototype": {
+        "inputTarget": "enemyChosen",
+        "segments": [
+          {
+            "kind": "reduce",
+            "target": "enemyChosen",
+            "stat": "armor",
+            "scaling": {
+              "base": 0,
+              "mult": 0
+            },
+            "drainAll": true
+          },
+          {
+            "kind": "oneOf",
+            "options": [
+              [
+                {
+                  "kind": "status",
+                  "target": "enemyChosen",
+                  "statusId": "poison",
+                  "turns": 3,
+                  "magnitude": 3
+                }
+              ],
+              [
+                {
+                  "kind": "damage",
+                  "target": "enemyChosen",
+                  "scaling": {
+                    "base": 2,
+                    "mult": 1
+                  }
+                }
+              ]
+            ]
+          }
+        ]
+      }
+    },
     "7198": {
       "description": "耗尽第一名和最后一名敌人的法力值。为所有盟友提供 1 点魔力值。",
       "prototype": {

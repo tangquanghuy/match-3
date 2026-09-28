@@ -4,3 +4,10 @@
 {"format":"compact","key":"weapon:1711","decision":"accept","reviewer":"sa-F1","reviewedAt":"2026-09-28T00:09:29.370Z","tests":["tests/unit/gowCastGolden.test.ts"],"note":"fixed: chosen ally, [Magic+1] to one random Skill, tempering +3"}
 {"format":"compact","key":"troop:6423","decision":"issue","reviewer":"sa-F1","reviewedAt":"2026-09-28T00:17:28.411Z","issue":"P-F1-remove-gems","note":"RemoveColor treated as destroy: removed gems grant mana; step order fixed to native"}
 {"format":"compact","key":"weapon:1377","decision":"issue","reviewer":"sa-F1","reviewedAt":"2026-09-28T00:19:26.599Z","issue":"P-random-stat-pool","note":"target fixed to chosen enemy (was lastTarget = no-op); DecreaseRandom pool still lacks Life (R007-2, queued)"}
+{"format":"compact","key":"troop:6206","decision":"accept","reviewer":"sa-F1","reviewedAt":"2026-09-28T00:33:30.838Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:6845","decision":"accept","reviewer":"sa-F1","reviewedAt":"2026-09-28T00:33:33.087Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:6929","decision":"accept","reviewer":"sa-F1","reviewedAt":"2026-09-28T00:33:35.348Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:6969","decision":"accept","reviewer":"sa-F1","reviewedAt":"2026-09-28T00:33:37.889Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:7329","decision":"accept","reviewer":"sa-F1","reviewedAt":"2026-09-28T00:33:40.371Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:7825","decision":"accept","reviewer":"sa-F1","reviewedAt":"2026-09-28T00:33:42.842Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"weapon:1081","decision":"accept","reviewer":"sa-F1","reviewedAt":"2026-09-28T00:33:45.563Z","tests":["tests/unit/gowCastGolden.test.ts"]}

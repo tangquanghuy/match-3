@@ -29,6 +29,16 @@
   "by": "sa-F1",
   "at": "2026-09-28T00:19:23.772Z"
  },
+ "troop:7674": {
+  "lines": {
+   "L10": "destroy 11 (Blue x11) ; ~cascade~ ; gold+10 ; extra-turn skill  => A2:mana+3  extra:skill  cascade  eco:{\"gold\":10,\"goldMine\":10}",
+   "R10": "destroy 11 (Blue x11) ; ~cascade~ ; gold+10 ; extra-turn skill  => A2:mana+3  extra:skill  cascade  eco:{\"gold\":10,\"goldMine\":10}",
+   "L0": "destroy 11 (Blue x11) ; ~cascade~ ; gold+10 ; extra-turn skill  => A2:mana+3  extra:skill  cascade  eco:{\"gold\":10,\"goldMine\":10}",
+   "K": "destroy 13 (Green x13) ; gold+10 ; extra-turn skill  extra:skill  eco:{\"gold\":10,\"goldMine\":10}"
+  },
+  "by": "sa-F1",
+  "at": "2026-09-28T00:25:46.411Z"
+ },
  "troop:7749": {
   "lines": {
    "L10": "buff A1 attack+11 ; status A1 +barrier  => A1:atk+11 +barrier",

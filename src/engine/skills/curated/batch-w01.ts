@@ -8,7 +8,7 @@
  * src/data/weapon-skill-meta.json）。组装规则锚定 scripts/spell-rules.md 与
  * 既有部队批次先例；生成器 scripts/_weapon_pools.mjs gen。
  */
-import { armor, attack, cleanse, createGems, createMix, createSkulls, createSpecialGems, createStorm, destroyAt, destroyChosenCol, destroyChosenRow, destroyColor, destroyRandomGems, destroySkulls, devour, dmg, dmgSplash, drainMana, explodeRandomGems, extraTurn, flat, gainGold, gainMaps, gainSouls, heal, inflict, magic, mana, oneOf, reduce, reposition, scale, skill, steal, stealRandomStat, summonRandom, summonRef, transformTroop, trueDmg, CHOSEN, CASTER, CELL } from '../builders';
+import { armor, attack, cleanse, createGems, createMix, createSkulls, createSpecialGems, createStorm, destroyAt, destroyChosenCol, destroyChosenRow, destroyColor, destroyRandomGems, destroySkulls, devour, dmg, dmgSplash, drainMana, explodeRandomGems, extraTurn, flat, gainGold, gainMaps, gainSouls, heal, inflict, magic, mana, oneOf, reduce, reposition, scale, skill, steal, stealRandomStat, summonRandom, summonRef, targetedSkill, transformTroop, trueDmg, CHOSEN, CASTER, CELL } from '../builders';
 import { BaseColor } from '../../types';
 import type { SkillPrototype } from '../prototypes';
 import type { CuratedBatch } from './index';
@@ -562,8 +562,11 @@ const SPELLS: CuratedBatch['spells'] = [
   {
     id: 7194,
     desc: '减除一名敌人全部护甲值，在使其中毒，或造成 [魔法 + 2] 点伤害。',
-    build: skill(
-      oneOf([reduce('enemyChosen', 'armor', 0, 0, { drainAll: true }), inflict('poison', 'lastTarget')], [dmg('enemyChosen', 2, 1)]),
+    // sa-F1: native Randomize AB-CD — both branches start with DecreaseArmor 10001, so the armor removal is common;
+    // chosen enemy declared (inputTarget) because oneOf branches are not scanned for it.
+    build: targetedSkill('enemyChosen',
+      reduce('enemyChosen', 'armor', 0, 0, { drainAll: true }),
+      oneOf([inflict('poison', 'enemyChosen')], [dmg('enemyChosen', 2, 1)]),
     ),
   },
   {

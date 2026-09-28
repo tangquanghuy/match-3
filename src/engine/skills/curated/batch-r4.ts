@@ -8,7 +8,7 @@ import { skill, dmg, dmgSplash, dmgAll, trueDmg, heal, armor, attack, mana, infl
   inflictRandom, reduce, steal, drainMana, createGems, createSkulls, createSpecialGems,
   createMix, transform, transformToSpecial, explodeRandomGems, explodeColor, explodeChosenRow,
   destroySpecialGems, destroyRandomGems, oneOf, summonRef, summonRandom, extraTurn, sacrifice, transformTroop,
-  transformTroopRandom, CHOSEN } from '../builders';
+  transformTroopRandom, CHOSEN, targetedSkill } from '../builders';
 import { BaseColor } from '../../types';
 // 蜘蛛族引用池（生成器从 troops.json 内联）
 const WRAITH_REFS = ["Wraith","IceWraith","FrostfireWraith"];
@@ -207,7 +207,8 @@ const SPELLS: CuratedBatch['spells'] = [
   {
     id: 8250,
     desc: '耗尽一名敌人所有法力值，或窃取一名敌人 [魔法 + 1] 点攻击力，或使一名敌人陷入沉默状态。',
-    build: skill(oneOf(
+    // sa-F1: native Target Enemy; declare the chosen enemy (inputTarget) — oneOf branches are not scanned for it.
+    build: targetedSkill('enemyChosen', oneOf(
       [drainMana('enemyChosen')],
       [steal('enemyChosen', 'attack', 'attack', 1, 1)],
       [inflict('silence', 'enemyChosen')],
@@ -252,8 +253,10 @@ const SPELLS: CuratedBatch['spells'] = [
   {
     id: 8407,
     desc: '对一名敌人造成 [魔法 + 3] 点伤害，有 50% 的几率造成三倍伤害。有 15% 的几率自毁。',
-    build: skill(
-      oneOf([dmg('enemyChosen', 3, 3)], [dmg('enemyChosen', 3, 1)]),
+    // sa-F1: native Randomize AB-CD: A = Damage [Magic + 3]; B = the same Damage x3 (MultiplyIfIHaveMech 3), each followed by
+    // a 15% self LethalDamage. Triple damage is 3 x (Magic + 3) (was base 3 + 3 x Magic). Chosen enemy declared (inputTarget).
+    build: targetedSkill('enemyChosen',
+      oneOf([dmg('enemyChosen', 3, 1, { condMult: { times: 3, cond: { kind: 'allyRacePresent', race: 'Mech' } } })], [dmg('enemyChosen', 3, 1)]),
       sacrifice('allySelf', { chance: 0.15 }),
     ),
   },

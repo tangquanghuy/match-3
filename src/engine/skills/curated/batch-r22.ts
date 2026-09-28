@@ -63,8 +63,9 @@ import {
   destroyRandomRows, destroyRandomCols, destroyArea, destroyChosenCross, explodeRandomGems,
   explodeRandomGemsAny, explodeRandomSkulls, summonRef, summonRandom, extraTurn, sacrifice,
   devour, summonCopy, swapPositions, transformSelfFrom, boostPer, gainSouls, stealGold, gainGold, scale, flat,
-  oneOf, chooseSkill, randomStat, reposition, skillOnce, stealRandomStat, CELL, explodeAt,
+  oneOf, chooseSkill, randomStat, reposition, skillOnce, stealRandomStat, CELL, explodeAt, dispelStatus,
 } from '../builders';
+import { POSITIVE_STATUS_IDS } from '../effects/status';
 import { BaseColor } from '../../types';
 import type { CondMult } from '../effects/secondary';
 
@@ -119,7 +120,9 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 7047,
     desc: '吞噬一名盟友。治疗自身并创造 6 颗骷髅头。',
     // Devour 家族回收（R22 devour 原语）：吞噬选定盟友（即杀+官方成长额度）→ 回满生命 → 6 骷髅。
+    // sa-F1: native step 0 Dispel@FromTarget runs before Consume, so an ally's Barrier cannot block the devour.
     build: skill(
+    ...POSITIVE_STATUS_IDS.map((statusId) => dispelStatus(statusId, 'allyChosen')),
     devour('allyChosen', { chance: 1 }),
     heal('allySelf', 0, 0, { full: true }),
     createSkulls(6),

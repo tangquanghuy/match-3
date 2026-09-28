@@ -37,7 +37,7 @@
  * 狼化在场条件叶/晋升度 3-5 倍区间/泛指单体盟友来源/任意状态条件等引擎缺口逐条仍在，
  * 见 SKIPPED 刷新理由），不为凑数硬收（SOP §1.4）。
  */
-import { skill, dmg, inflict, createSpecialGems, extraTurn, selfRevive } from '../builders';
+import { skill, dmg, inflict, createSpecialGems, extraTurn, selfRevive, summonRef } from '../builders';
 import { BaseColor } from '../../types';
 import type { CuratedBatch } from './index';
 
@@ -88,6 +88,12 @@ const SPELLS: CuratedBatch['spells'] = [
         range: 'all',
         modifier: { mod: { kind: 'ratio', a: 1, b: 1 }, source: { kind: 'selfStat', stat: 'hp' } },
       }),
+      // sa-F1: native s2-s5 = Damage@Self 1, Damage@Self 10000 (the Sunbird really dies), SummoningNoError 6387
+      // (a fresh Sunbird). selfRevive never fired because nothing in the spell killed the caster. The engine cannot
+      // summon once the caster has left the roster (P-F1-summon-after-caster-death), so the rebirth stays a
+      // full-Life in-place revive for now.
+      dmg('allySelf', 1, 0),
+      dmg('allySelf', 0, 0, { execute: true }),
       selfRevive(0.5, { full: true }),
     ),
   },

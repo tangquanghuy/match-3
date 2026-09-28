@@ -1146,9 +1146,11 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '引爆所有毒宝石。每引爆一颗毒宝石，就诅咒一个随机敌人。 [1:1]',
     // EN 原句「for each Gem exploded」= 逐被摧毁宝石（perDestroyed 无色 = 全部，含爆破波及）；
     // 尾缀 [1:1] = perDestroyed 驱动比率序列化（r15 特例口径）
+    // sa-F1 (R001): native s0 CountGems Poison 100 → s1 ExplodeColor Poison → s2 InflictEffectOnRandomTroops UseCounter:
+    // one curse per Poison Gem (counted before the explosion), not per gem caught in the 3x3 blasts.
     build: skill(
       explodeSpecialGems('poisonGem'),
-      inflict('curse', 'enemyAll', { perDestroyed: {} }),
+      inflict('curse', 'enemyAll', { perCount: { mod: { kind: 'multiplier', a: 1 }, source: { kind: 'destroyedGems', special: 'poisonGem' } } }),
     ),
   },
   {

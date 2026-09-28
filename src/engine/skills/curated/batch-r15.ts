@@ -36,6 +36,7 @@ import {
   transformTroop, inflict,
   inflictRandom, shuffleBoard, extraTurn, oneOf, reposition, summonRandom, summonRef,
   transformTroopRandom, CHOSEN, CELL, explodeAt,
+  targetedSkill,
 } from '../builders';
 import { BaseColor } from '../../types';
 
@@ -202,7 +203,8 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '下列其一：将一名敌人的攻击力减半，或将一名敌人的魔力值减半，或将一名敌人转化为一只巨蟾蜍。 [2:1]',
     // 「下列其一」= oneOf 三支（§9.3）；「减半」= reduce halve（§9.6）；巨蟾蜍 = GiantToad
     //（troops.json referenceName）；尾缀 [2:1] = 「减半」比率序列化
-    build: skill(
+    // sa-F1: native Target Enemy; declare the chosen enemy (inputTarget) — oneOf branches are not scanned for it.
+    build: targetedSkill('enemyChosen',
       oneOf(
         reduce('enemyChosen', 'attack', 0, 0, { halve: true }),
         reduce('enemyChosen', 'magic', 0, 0, { halve: true }),

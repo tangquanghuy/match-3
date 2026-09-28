@@ -37,7 +37,7 @@ import type { CuratedBatch } from './index';
 import {
   skill, dmg, dmgSplash, heal, armor, attack, mana, reduce, steal, stealRandomStat,
   createGems, transform, destroyChosenRow, destroyColor, destroyRandomGems, destroyArea,
-  inflict, oneOf, extraTurn, createStorm, summonRandom, transformToSpecial, gainGold,
+  inflict, oneOf, extraTurn, createStorm, summonRandom, transformToSpecial, gainGold, targetedSkill,
 } from '../builders';
 import { BaseColor } from '../../types';
 
@@ -286,7 +286,9 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 9602,
     desc: '选择一名敌人。摧毁其4颗相同法力颜色的宝石，数量等于我的金币。之后获得10金币并获得额外回合。 [10:1]',
     // 「其…法力颜色」= LAST_TARGET（首段无跨段追踪 → 回退 chosenTargetId）；「数量等于我的金币 [10:1]」
-    build: skill(
+    // sa-F1: native Target Enemy — declare the chosen enemy (inputTarget), otherwise no target is picked and
+    // LAST_TARGET resolves to nothing (no gems destroyed).
+    build: targetedSkill('enemyChosen',
       destroyRandomGems(4, 0, 'color', 'LAST_TARGET', {
         modifier: { mod: { kind: 'ratio', a: 10, b: 1 }, source: { kind: 'battleGold' } },
       }),

@@ -1,4 +1,74 @@
 {
+ "troop:6206": {
+  "lines": {
+   "L10": "buff E11 mana-8 ; buff C mana+7  => E11:mana-8",
+   "R10": "buff E11 mana-8 ; buff C mana+7  => E11:mana-8",
+   "L0": "buff E11 mana-8 ; buff C mana+7  => E11:mana-8",
+   "K": "buff E11 mana-5 ; buff C mana+5  => E11:mana-5"
+  },
+  "by": "sa-F1",
+  "at": "2026-09-28T00:33:30.755Z"
+ },
+ "troop:6845": {
+  "lines": {
+   "L10": "buff E11 attack-11 ; buff C attack+11  => E11:atk-11 | C:atk+11",
+   "R10": "buff E11 attack-11 ; buff C attack+11  => E11:atk-11 | C:atk+11",
+   "L0": "buff E11 attack-1 ; buff C attack+1  => E11:atk-1 | C:atk+1",
+   "K": "buff E11 attack-11 ; buff C attack+11  => E11:atk-11 | C:atk+11"
+  },
+  "by": "sa-F1",
+  "at": "2026-09-28T00:33:33.002Z"
+ },
+ "troop:6929": {
+  "lines": {
+   "L10": "dmg E11 13  => E11:hp-3 arm-10",
+   "R10": "dmg E11 13  => E11:hp-3 arm-10",
+   "L0": "dmg E11 3  => E11:arm-3",
+   "K": "dmg E11 13 ; defeat E11  => E11:hp-1 DEAD"
+  },
+  "by": "sa-F1",
+  "at": "2026-09-28T00:33:35.253Z"
+ },
+ "troop:6969": {
+  "lines": {
+   "L10": "(no spell events)",
+   "R10": "(no spell events)",
+   "L0": "(no spell events)",
+   "K": "(no spell events)"
+  },
+  "by": "sa-F1",
+  "at": "2026-09-28T00:33:37.796Z"
+ },
+ "troop:7329": {
+  "lines": {
+   "L10": "buff E11 mana-4  => E11:mana-4",
+   "R10": "buff E11 mana-4  => E11:mana-4",
+   "L0": "buff E11 mana-4  => E11:mana-4",
+   "K": "buff E11 mana-4  => E11:mana-4"
+  },
+  "by": "sa-F1",
+  "at": "2026-09-28T00:33:40.285Z"
+ },
+ "troop:7825": {
+  "lines": {
+   "L10": "(no spell events)",
+   "R10": "(no spell events)",
+   "L0": "(no spell events)",
+   "K": "(no spell events)"
+  },
+  "by": "sa-F1",
+  "at": "2026-09-28T00:33:42.756Z"
+ },
+ "weapon:1081": {
+  "lines": {
+   "L10": "buff E11 armor-10 ; dmg E11 12  => E11:hp-12 arm-10",
+   "R10": "buff E11 armor-10 ; dmg E11 12  => E11:hp-12 arm-10",
+   "L0": "buff E11 armor-10 ; dmg E11 2  => E11:hp-2 arm-10",
+   "K": "dmg E11 12 ; defeat E11  => E11:hp-1 DEAD"
+  },
+  "by": "sa-F1",
+  "at": "2026-09-28T00:33:45.460Z"
+ },
  "weapon:1706": {
   "lines": {
    "L10": "buff A1 hp+11 max+11 ; remove C -poison ; status C +blessed ; remove A1 -poison ; status A1 +blessed ; status E11 +curse  => A1:hp+11 max+11 +blessed -poison | C:+blessed -poison | E11:+curse",

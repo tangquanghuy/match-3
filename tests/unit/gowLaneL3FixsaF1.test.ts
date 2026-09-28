@@ -17,6 +17,19 @@ describe('L3 fix sa-F1: colour / race gated mana', () => {
     expect(r.summary.order.filter(o => o.startsWith('buff A1 mana'))).toEqual(gain ? [`buff A1 mana+${gain}`] : []);
   });
 
+  // troop:7674 chosen enemy's colour: 4 + floor(gold x 10%) gems (gold 100 -> 14), then +10 gold.
+  it.each([
+    { target: 11, colours: ['Blue', 'Yellow'] },
+    { target: 10, colours: ['Red'] },
+  ])('troop:7674 destroys 14 gems of target $target colour', ({ target, colours }) => {
+    const plenty = (r: number, c: number) => ({ kind: 'color', color: (r + c) % 2 ? BaseColor.Blue : (r % 2 ? BaseColor.Red : BaseColor.Yellow) }) as never;
+    const r = castSpell({ key: 'troop:7674', target, board: plenty });
+    const d = r.summary.order.find(o => o.startsWith('destroy'))!;
+    expect(d).toMatch(/^destroy 14 \((\w+) x14\)$/);
+    expect(colours).toContain(/\((\w+) x14\)/.exec(d)![1]);
+    expect(r.summary.economy.gold).toBe(10);
+  });
+
   // troop:7749 GenerateHalfManaConditional AddForTauros: half the chosen ally's mana cost only if it is a Tauros.
   it.each([
     { types: ['Tauros'], gain: 8 },

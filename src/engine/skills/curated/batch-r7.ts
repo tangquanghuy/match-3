@@ -14,7 +14,7 @@
  * 自我转化（「转化为X」主语缺省）= transformTroop('allySelf', …)，与诺斯费拉图/暗魄狼/
  * 蝙蝠群/狼人/村民的变身链一致（batch-r4 147 行同款）。
  */
-import { skill, dmg, dmgSplash, trueDmg, heal, armor, attack, magic, mana, cleanse, inflict, inflictRandom, reduce, steal, createGems, createSkulls, createSpecialGems, transform, transformToSpecial, destroyAllColors, destroyChosenRow, destroyChosenCol, destroyRandomRows, destroyRandomCols, destroyRandomGems, explodeChosenRow, explodeChosenCol, explodeRandomGems, explodeSpecialGems, oneOf, summonRef, summonRandom, extraTurn, reposition, shuffleTeam, shuffleBoard, skillOnce, escape, sacrifice, transformTroop, transformTroopRandom, scale, flat, CASTER, CELL, explodeAt, dispelStatus } from '../builders';
+import { skill, dmg, dmgSplash, trueDmg, heal, armor, attack, magic, mana, cleanse, inflict, inflictRandom, reduce, steal, createGems, createSkulls, createSpecialGems, transform, transformToSpecial, destroyAllColors, destroyChosenRow, destroyChosenCol, destroyRandomRows, destroyRandomCols, destroyRandomGems, explodeChosenRow, explodeChosenCol, explodeRandomGems, explodeSpecialGems, oneOf, summonRef, summonRandom, extraTurn, reposition, shuffleTeam, shuffleBoard, skillOnce, escape, sacrifice, transformTroop, transformTroopRandom, scale, flat, CASTER, CELL, explodeAt, dispelStatus, targetedSkill } from '../builders';
 import { POSITIVE_STATUS_IDS } from '../effects/status';
 import { BaseColor } from '../../types';
 import type { SpecialGemKind } from '../../types';
@@ -136,7 +136,8 @@ const SPELLS: CuratedBatch['spells'] = [
   {
     id: 7348,
     desc: '窃取 1 名敌人 [魔法 + 2] 点生命值，或窃取其法力值。',
-    build: skill(
+    // sa-F1: native Target Enemy; the chosen target sits inside oneOf, so declare it (inputTarget) or no target is picked.
+    build: targetedSkill('enemyChosen',
       // 「窃取生命」= 窃取式伤害；「窃取其法力值」无数值 = 全部窃取（「耗尽其法力值」同族口径）
       oneOf(
         [dmg('enemyChosen', 2, 1, { drain: true })],
