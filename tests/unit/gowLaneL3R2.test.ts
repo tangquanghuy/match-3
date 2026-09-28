@@ -3,7 +3,7 @@
  */
 import { describe, expect, it } from 'vitest';
 import { castSpell } from '../helpers/gowCast';
-import { BaseColor, colorGem } from '@engine/types';
+import { BaseColor, colorGem, specialGem } from '@engine/types';
 import type { Character } from '@engine/types';
 type E = Partial<Character>;
 const en = (colors: BaseColor[], extra: E = {}): E => ({ hp: 100, maxHp: 100, armor: 0, mana: 0, colors, ...extra });
@@ -254,5 +254,46 @@ describe('L3 R2: B05 drained-mana / full-enemy / conditional extra-turn checks',
     expect(turn.some(Boolean) && !turn.every(Boolean)).toBe(true);
     expect(mana.some(Boolean) && !mana.every(Boolean)).toBe(true);
     expect(turn.some((t, i) => t !== mana[i])).toBe(true);
+  });
+});
+
+describe('L3 R2: B06 Tarot "7% extra-turn chance per <colour> gem" family (no base chance, counted at step 0)', () => {
+  const seeds = Array.from({ length: 30 }, (_, i) => i + 1);
+  const only = (c: BaseColor, n: number, other: BaseColor) => (r: number, col: number) => colorGem(r * 8 + col < n ? c : other);
+  const fam: [string, BaseColor][] = [
+    ['troop:7088', BaseColor.Red], ['troop:7107', BaseColor.Purple], ['troop:7244', BaseColor.Green], ['troop:7305', BaseColor.Yellow],
+    ['troop:7346', BaseColor.Purple], ['troop:7363', BaseColor.Blue], ['troop:7421', BaseColor.Yellow],
+  ];
+  it.each(fam)('%s: no %s gems -> never an extra turn', (key, c) => {
+    const other = c === BaseColor.Brown ? BaseColor.Red : BaseColor.Brown;
+    expect(seeds.some(seed => castSpell({ key, seed, board: only(c, 0, other) }).summary.extraTurn === 'skill')).toBe(false);
+  });
+  it.each(fam)('%s: 15 %s gems (105%%) -> always an extra turn, even if the cast replaces some of them', (key, c) => {
+    const other = c === BaseColor.Brown ? BaseColor.Red : BaseColor.Brown;
+    expect(seeds.every(seed => castSpell({ key, seed, board: only(c, 15, other) }).summary.extraTurn === 'skill')).toBe(true);
+  });
+  it.each(fam)('%s: 5 %s gems (35%%) -> sometimes', (key, c) => {
+    const other = c === BaseColor.Brown ? BaseColor.Red : BaseColor.Brown;
+    const got = seeds.map(seed => castSpell({ key, seed, board: only(c, 5, other) }).summary.extraTurn === 'skill');
+    expect(got.some(Boolean) && !got.every(Boolean)).toBe(true);
+  });
+});
+
+describe('L3 R2: B06 other checks', () => {
+  it('troop:7211 Tourmaline: drain 4 + 3 per Gargoyle gem (Good and Evil), not per gem on the board', () => {
+    const board = (r: number, c: number) => (r === 0 && c < 2 ? specialGem('gargoyleGem', c + 1) : colorGem(BaseColor.Red));
+    const r = castSpell({ key: 'troop:7211', board, enemies: [en([], { mana: 30 }), en([], { mana: 30 })] });
+    expect(order(r).filter(o => o.includes('mana'))).toEqual(['buff E10 mana-10', 'buff E11 mana-10']);
+    const none = castSpell({ key: 'troop:7211', board: () => colorGem(BaseColor.Red), enemies: [en([], { mana: 30 })] });
+    expect(order(none).filter(o => o.includes('mana'))).toEqual(['buff E10 mana-4']);
+  });
+  it('troop:7527 Gloomhob: +1 per Undead enemy (a killed Undead target still counts) + extra turn', () => {
+    const r = castSpell({ key: 'troop:7527', target: 10, board: () => colorGem(BaseColor.Red), enemies: [en([], { hp: 1, maxHp: 1, troopTypes: ['Undead'] }), en([], { troopTypes: ['Undead'] }), en([])] });
+    expect(order(r)).toEqual(['dmg E10 15', 'defeat E10', 'extra-turn skill']);
+  });
+  it('troop:6825 Tuliao: Enchant + 6 Mana + 1 per 4 gems of the chosen colour, only allies of that colour', () => {
+    const board = (r: number, c: number) => colorGem(r * 8 + c < 20 ? BaseColor.Green : BaseColor.Red);
+    const r = castSpell({ key: 'troop:6825', color: BaseColor.Green, board, allies: [{ hp: 500, maxHp: 500, colors: [BaseColor.Green], manaCost: 30 }, { hp: 500, maxHp: 500, colors: [BaseColor.Red], manaCost: 30 }] });
+    expect(order(r).filter(o => o.startsWith('buff ') || o.startsWith('status '))).toEqual(['status C +enchanted', 'status A1 +enchanted', 'buff C mana+11', 'buff A1 mana+11']);
   });
 });

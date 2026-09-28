@@ -219,6 +219,16 @@
   "by": "sa-R7",
   "at": "2026-09-28T05:59:17.597Z"
  },
+ "troop:6825": {
+  "lines": {
+   "L10": "status A1 +enchanted ; buff A1 mana+8  => A1:mana+8 +enchanted",
+   "R10": "status A1 +enchanted ; buff A1 mana+8  => A1:mana+8 +enchanted",
+   "L0": "status A1 +enchanted ; buff A1 mana+8  => A1:mana+8 +enchanted",
+   "K": "status A1 +enchanted ; buff A1 mana+8  => A1:mana+8 +enchanted"
+  },
+  "by": "sa-R7",
+  "at": "2026-09-28T08:28:35.477Z"
+ },
  "troop:6852": {
   "lines": {
    "L10": "buff E11 mana-8 ; convert Green x3, Yellow x2, Blue x1, Purple x2 -> Brown x8 ; ~cascade~  => E11:mana-8  cascade",
@@ -309,6 +319,46 @@
   "by": "sa-R7",
   "at": "2026-09-28T05:59:17.597Z"
  },
+ "troop:7088": {
+  "lines": {
+   "L10": "status E12 +curse ; status E11 +curse  => E12:+curse | E11:+curse",
+   "R10": "status E12 +curse ; status E11 +curse  => E12:+curse | E11:+curse",
+   "L0": "status E12 +curse ; status E11 +curse  => E12:+curse | E11:+curse",
+   "K": "status E12 +curse ; status E11 +curse  => E12:+curse | E11:+curse"
+  },
+  "by": "sa-R7",
+  "at": "2026-09-28T08:28:35.477Z"
+ },
+ "troop:7107": {
+  "lines": {
+   "L10": "status A1 +enchanted ; status C +enchanted  => A1:+enchanted | C:+enchanted",
+   "R10": "status A1 +enchanted ; status C +enchanted  => A1:+enchanted | C:+enchanted",
+   "L0": "status A1 +enchanted ; status C +enchanted  => A1:+enchanted | C:+enchanted",
+   "K": "status A1 +enchanted ; status C +enchanted  => A1:+enchanted | C:+enchanted"
+  },
+  "by": "sa-R7",
+  "at": "2026-09-28T08:28:35.477Z"
+ },
+ "troop:7211": {
+  "lines": {
+   "L10": "dmg E10 14 (all) ; dmg E11 14 (all) ; dmg E12 14 (all) ; dmg E13 14 (all) ; buff E10 mana-4 ; buff E11 mana-4 ; buff E12 mana-4 ; buff E13 mana-4  => E10:hp-9 arm-5 mana-4 | E11:hp-4 arm-10 mana-4 | E12:hp-2 arm-12 mana-4 | E13:hp-11 arm-3 mana-4",
+   "R10": "dmg E10 14 (all) ; dmg E11 14 (all) ; dmg E12 14 (all) ; dmg E13 14 (all) ; buff E10 mana-4 ; buff E11 mana-4 ; buff E12 mana-4 ; buff E13 mana-4  => E10:hp-9 arm-5 mana-4 | E11:hp-4 arm-10 mana-4 | E12:hp-2 arm-12 mana-4 | E13:hp-11 arm-3 mana-4",
+   "L0": "dmg E10 4 (all) ; dmg E11 4 (all) ; dmg E12 4 (all) ; dmg E13 4 (all) ; buff E10 mana-4 ; buff E11 mana-4 ; buff E12 mana-4 ; buff E13 mana-4  => E10:arm-4 mana-4 | E11:arm-4 mana-4 | E12:arm-4 mana-4 | E13:hp-1 arm-3 mana-4",
+   "K": "dmg E10 14 (all) ; dmg E11 14 (all) ; dmg E12 14 (all) ; dmg E13 14 (all) ; defeat E10 ; defeat E11 ; defeat E12 ; defeat E13  => E10:hp-1 DEAD | E11:hp-1 DEAD | E12:hp-1 DEAD | E13:hp-1 DEAD"
+  },
+  "by": "sa-R7",
+  "at": "2026-09-28T08:28:35.477Z"
+ },
+ "troop:7244": {
+  "lines": {
+   "L10": "status E11 +web ; extra-turn skill  => E11:+web  extra:skill",
+   "R10": "status E11 +web ; extra-turn skill  => E11:+web  extra:skill",
+   "L0": "status E11 +web ; extra-turn skill  => E11:+web  extra:skill",
+   "K": "status E11 +web ; extra-turn skill  => E11:+web  extra:skill"
+  },
+  "by": "sa-R7",
+  "at": "2026-09-28T08:28:35.477Z"
+ },
  "troop:7245": {
   "lines": {
    "L10": "dmg E10 43 (all) ; dmg E11 43 (all) ; dmg E12 43 (all) ; dmg E13 43 (all) ; convert Blue x5 -> giantGem/Blue x5  => E10:hp-38 arm-5 | E11:hp-33 arm-10 | E12:hp-31 arm-12 | E13:hp-40 arm-3",
@@ -369,6 +419,16 @@
   "by": "sa-R2",
   "at": "2026-09-28T02:31:29.756Z"
  },
+ "troop:7305": {
+  "lines": {
+   "L10": "extra-turn skill ; convert Brown x1 -> spiritGem/Purple x1  extra:skill",
+   "R10": "extra-turn skill ; convert Brown x1 -> spiritGem/Purple x1  extra:skill",
+   "L0": "extra-turn skill ; convert Brown x1 -> spiritGem/Purple x1  extra:skill",
+   "K": "extra-turn skill ; convert Brown x1 -> spiritGem/Purple x1  extra:skill"
+  },
+  "by": "sa-R7",
+  "at": "2026-09-28T08:28:35.477Z"
+ },
  "troop:7341": {
   "lines": {
    "L10": "buff A1 attack+2 ; extra-turn skill  => A1:atk+2  extra:skill",
@@ -378,6 +438,26 @@
   },
   "by": "sa-F1",
   "at": "2026-09-28T00:19:23.772Z"
+ },
+ "troop:7346": {
+  "lines": {
+   "L10": "extra-turn skill ; convert Purple x1, skull x1 -> deathMarkGem x2  extra:skill",
+   "R10": "extra-turn skill ; convert Purple x1, skull x1 -> deathMarkGem x2  extra:skill",
+   "L0": "extra-turn skill ; convert Purple x1, skull x1 -> deathMarkGem x2  extra:skill",
+   "K": "extra-turn skill ; convert Purple x1, skull x1 -> deathMarkGem x2  extra:skill"
+  },
+  "by": "sa-R7",
+  "at": "2026-09-28T08:28:35.477Z"
+ },
+ "troop:7421": {
+  "lines": {
+   "L10": "extra-turn skill ; convert Green x1, skull x1 -> hourglass x2  extra:skill",
+   "R10": "extra-turn skill ; convert Green x1, skull x1 -> hourglass x2  extra:skill",
+   "L0": "extra-turn skill ; convert Green x1, skull x1 -> hourglass x2  extra:skill",
+   "K": "extra-turn skill ; convert Green x1, skull x1 -> hourglass x2  extra:skill"
+  },
+  "by": "sa-R7",
+  "at": "2026-09-28T08:28:35.477Z"
  },
  "troop:7437": {
   "lines": {
@@ -458,6 +538,16 @@
   },
   "by": "sa-R7",
   "at": "2026-09-28T05:59:17.597Z"
+ },
+ "troop:7527": {
+  "lines": {
+   "L10": "dmg E11 13 ; extra-turn skill  => E11:hp-3 arm-10  extra:skill",
+   "R10": "dmg E11 13 ; extra-turn skill  => E11:hp-3 arm-10  extra:skill",
+   "L0": "dmg E11 3 ; extra-turn skill  => E11:arm-3  extra:skill",
+   "K": "dmg E11 13 ; defeat E11 ; extra-turn skill  => E11:hp-1 DEAD  extra:skill"
+  },
+  "by": "sa-R7",
+  "at": "2026-09-28T08:28:35.477Z"
  },
  "troop:7608": {
   "lines": {

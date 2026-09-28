@@ -1,6 +1,6 @@
 # GoW 技能改动留档
 
-自动生成（`node scripts/gow-changelog.mjs render`），源数据 [CHANGES.jsonl](CHANGES.jsonl)，共 288 条改动，涉及 517 个技能 ID。
+自动生成（`node scripts/gow-changelog.mjs render`），源数据 [CHANGES.jsonl](CHANGES.jsonl)，共 291 条改动，涉及 524 个技能 ID。
 
 ## 按时间
 
@@ -294,6 +294,9 @@
 | 2026-09-28T05:58 | sa-R7 | R7-1219-create-before-hit | assembler | 7866 | weapon:1219 SymbolOfAnu | `src/engine/skills/curated/batch-w02.ts` | drain, damage, then create gems of the target colour (after a kill) → native order (R001): DecreaseMana -> CreateGems FromTarget -> Damage |  |
 | 2026-09-28T08:22 | sa-R7 | R7-6599-full-or | assembler | 7808 | troop:6599 Envy | `src/engine/skills/curated/batch-r22.ts` | one count of enemies with both full Life and full Mana, x4 → native CountEnemiesFullHealth 400 + CountEnemiesFullMana 400: two separate counts (full Life or full Mana), x4 each; ZH desc 或 |  |
 | 2026-09-28T08:22 | sa-R7 | R7-6928-zh-count | data | 8406 | troop:6928 Detect-o-bot | `src/engine/skills/curated/batch-r22.ts` | ZH desc: 8 Red gems per full-Mana enemy → ZH desc: 7 (English/native CountEnemiesFullMana 700; runtime already x7) |  |
+| 2026-09-28T08:28 | sa-R7 | R7-tarot-extra-turn | assembler | 8667, 8974, 9003, 9115, 8917 | troop:7088 TheDevil；troop:7346 DeathTarot；troop:7363 TheHangedMan；troop:7421 TheHermit；troop:7305 TheHighPriestess | `src/engine/skills/curated/batch-p38.ts`<br>`src/engine/skills/curated/batch-r4.ts`<br>`src/engine/skills/curated/batch-p39.ts`<br>`src/engine/skills/curated/batch-r14.ts` | extra-turn chance 7% base + 7% per gem (8667/8974/9003/9115); counted after the gem creation (8974/9003/9115/8917) → native ExtraTurnConditional UseCounterForAmount, no Amount: 7% per gem only; CountGems step 0 so extra-turn roll placed before the creation (R001) |  |
+| 2026-09-28T08:28 | sa-R7 | R7-7211-gargoyle-count | assembler | 8798 | troop:7211 Tourmaline | `src/engine/skills/curated/batch-r8.ts` | drain 4 + 3 per gem on the board (boardGems any) → drain 4 + 3 per Gargoyle gem, Good + Evil (native CountGems GoodGargoyle/BadGargoyle 300) |  |
+| 2026-09-28T08:28 | sa-R7 | R7-6825-ratio | assembler | 8235 | troop:6825 Tuliao | `src/engine/skills/curated/batch-r22.ts` | 6 Mana + 4 per chosen-colour gem (x4) → 6 Mana + 1 per 4 chosen-colour gems (native CountGems Amount 25 = [4:1], R003) |  |
 
 ## 按技能 ID
 
@@ -533,6 +536,7 @@
 | 8219 | 1 | P-counter-per-step |
 | 8228 | 3 | P-counter-per-step、F2-6826-kill-skulls、P-counter-per-step |
 | 8234 | 2 | L4b-6824-random-ally、P-chooser-native-restrictions |
+| 8235 | 1 | R7-6825-ratio |
 | 8236 | 1 | R3-B11-6831 |
 | 8238 | 3 | P-counter-per-step、L7-R1-attack-armor-life-pooled、P-counter-per-step |
 | 8241 | 1 | R3-B11-6831 |
@@ -616,6 +620,7 @@
 | 8660 | 1 | L7-R1-lethal-order-doomskull |
 | 8662 | 1 | L7-R1-lethal-order-doomskull |
 | 8663 | 1 | L4a-R1-8663-deaths-order |
+| 8667 | 1 | R7-tarot-extra-turn |
 | 8668 | 2 | L5-007、R004 (L5-004,L5-005,L5-014,L4b-6340) |
 | 8672 | 1 | R3-B06-7128 |
 | 8674 | 2 | P-counter-per-step、L7-R1-board-special-counts |
@@ -637,6 +642,7 @@
 | 8788 | 1 | L7-7201 |
 | 8795 | 1 | L3-003 |
 | 8797 | 1 | L4b-7210-doomskull |
+| 8798 | 1 | R7-7211-gargoyle-count |
 | 8802 | 1 | F3-t7215 |
 | 8807 | 1 | F2-R001-order |
 | 8812 | 1 | L4a-R1-8812-no-base |
@@ -665,6 +671,7 @@
 | 8895 | 1 | F1-items-62-75 |
 | 8901 | 2 | L4b-7276-singlegem、P-chooser-native-restrictions |
 | 8902 | 1 | L4b-7277-7094 |
+| 8917 | 1 | R7-tarot-extra-turn |
 | 8924 | 1 | F2-R001-order |
 | 8933 | 1 | F2-7321-no-events |
 | 8939 | 1 | R3-B02-7327 |
@@ -675,8 +682,10 @@
 | 8969 | 1 | L7-7344 |
 | 8970 | 1 | P-prefnotprev-semantics |
 | 8972 | 1 | R3-B05-1528 |
+| 8974 | 1 | R7-tarot-extra-turn |
 | 8979 | 1 | F1-onkill-order |
 | 8987 | 1 | P-counter-per-step |
+| 9003 | 1 | R7-tarot-extra-turn |
 | 9008 | 1 | R009-giant-dragon-L4b |
 | 9013 | 1 | L7-R1-random-chain-waves |
 | 9015 | 2 | L5-001、L5-002 |
@@ -684,6 +693,7 @@
 | 9051 | 1 | L3-008 |
 | 9064 | 1 | P-counter-per-step |
 | 9067 | 1 | L3-008 |
+| 9115 | 1 | R7-tarot-extra-turn |
 | 9119 | 1 | P-create-interleave |
 | 9132 | 1 | R009-dragon |
 | 9133 | 1 | R009-dragon |

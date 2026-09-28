@@ -95,3 +95,13 @@
 {"format":"compact","key":"troop:6862","decision":"accept","reviewer":"sa-R7","reviewedAt":"2026-09-28T08:22:50.008Z","tests":["tests/unit/gowCastGolden.test.ts"]}
 {"format":"compact","key":"troop:7062","decision":"issue","reviewer":"sa-R7","reviewedAt":"2026-09-28T08:22:50.158Z","issue":"R012-pending","note":"8590 Damage@AboveTarget after the chosen target may be killed by the first hit; K scenario drops the AboveTarget hit. Wait for R012."}
 {"format":"compact","key":"troop:6928","decision":"issue","reviewer":"sa-R7","reviewedAt":"2026-09-28T08:22:50.244Z","issue":"L3-005","note":"8406 GenerateQuarterMana to other allies: floor(manaCost/4) rounding unsourced (L3-005). Rest verified: x7 Red gems per full-Mana enemy (test), 15% self destruct; ZH desc fixed 8->7."}
+{"format":"compact","key":"troop:7088","decision":"accept","reviewer":"sa-R7","reviewedAt":"2026-09-28T08:28:35.614Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:7107","decision":"accept","reviewer":"sa-R7","reviewedAt":"2026-09-28T08:28:35.615Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:6825","decision":"accept","reviewer":"sa-R7","reviewedAt":"2026-09-28T08:28:35.616Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:7244","decision":"accept","reviewer":"sa-R7","reviewedAt":"2026-09-28T08:28:35.616Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:7527","decision":"accept","reviewer":"sa-R7","reviewedAt":"2026-09-28T08:28:35.616Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:7211","decision":"accept","reviewer":"sa-R7","reviewedAt":"2026-09-28T08:28:35.616Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:7305","decision":"accept","reviewer":"sa-R7","reviewedAt":"2026-09-28T08:28:35.616Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:7346","decision":"accept","reviewer":"sa-R7","reviewedAt":"2026-09-28T08:28:35.617Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:7421","decision":"accept","reviewer":"sa-R7","reviewedAt":"2026-09-28T08:28:35.617Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:7363","decision":"issue","reviewer":"sa-R7","reviewedAt":"2026-09-28T08:28:35.795Z","issue":"L3-7363-booty-count","note":"9003 native CreateGems Booty Amount 1 vs English 'Create 2 Booty Gems' (ZH 2); runtime creates 2. Which wins? Rest verified: extra-turn 7% x Blue gems counted before creation (fixed, test)."}

@@ -235,8 +235,9 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 8917,
     desc: '创造一颗灵力宝石。板面上每有一颗黄色宝石，则有 7% 的几率获得一个额外回合。 [x7]',
     build: skill(
-      createSpecialGems({ kind: 'spiritGem', color: BaseColor.Purple }, 1),
+      // sa-R7: native CountGems Yellow 700 is step 0 -> chance counted before the Spirit gem replaces a gem (R001).
       extraTurn({ chanceBoost: { mod: { kind: 'multiplier', a: 7 }, source: { kind: 'boardGems', color: BaseColor.Yellow } } }),
+      createSpecialGems({ kind: 'spiritGem', color: BaseColor.Purple }, 1),
     ),
   },
   {

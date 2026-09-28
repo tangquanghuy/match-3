@@ -4,3 +4,4 @@
 - B03 troop:7804,6396,6269,7437,7691,7319,6259,6466,6114,6598 approve=7 fixed=3 issue=3 (6269 chosen-target Daemon judged pre-hit; 7691 CountAttack 150 floor; 6259 chosen ally not random; issues 7804 L3-005, 7319/6259 L3-013)
 - B04 troop:6317,6424,6710,6792,6852,7060,7085,7502,weapon:1219,troop:6878 approve=10 fixed=1 issue=0 (drain-up-to-N family caps verified; 1219 create before damage R001)
 - B05 troop:6906,6199,7608,7062,weapon:1362,troop:7657,6072,6599,6928,6862 approve=8 fixed=2 issue=2 (resumed after rate-limit checkpoint 573cdb8 = this batch's 6599 fix; 6599 full Life OR full Mana two counts x4; 6928 ZH 8->7; issues 7062 R012-pending, 6928 L3-005)
+- B06 troop:7088,7107,6825,7244,7527,7211,7305,7346,7363,7421 approve=9 fixed=7 issue=1 (Tarot family: ExtraTurnConditional no base 7% (7088/7346/7363/7421), count before creation (7305/7346/7363/7421); 7211 gargoyle-gem count not all gems; 6825 [4:1] not x4; issue 7363 L3-7363-booty-count native 1 vs EN 2)

@@ -180,7 +180,9 @@ const SPELLS: CuratedBatch['spells'] = [
     build: skill(
       dmg('enemyAll', 4, 1, { range: 'all' }),
       reduce('enemyAll', 'mana', 4, 0, {
-        modifier: { mod: { kind: 'multiplier', a: 3 }, source: { kind: 'boardGems' } },
+        // sa-R7: native CountGems GoodGargoyle 300 + BadGargoyle 300 = gargoyle gems (both tiers) x3;
+        // was boardGems{} (every gem on the board).
+        modifier: { mod: { kind: 'multiplier', a: 3 }, source: { kind: 'boardSpecial', gem: 'gargoyleGem' } },
       }),
     ),
   },

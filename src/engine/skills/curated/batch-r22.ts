@@ -767,7 +767,8 @@ const SPELLS: CuratedBatch['spells'] = [
     // 随 R22 收口；「法印」= enchanted（R10 落地）。
     build: skill(
     inflict('enchanted', 'allyAll', { ifCond: { kind: 'targetColor', color: 'CHOSEN' } }),
-    mana('allyAll', 6, 0, { ifCond: { kind: 'targetColor', color: 'CHOSEN' }, modifier: boostPer({ kind: 'boardGems', color: 'CHOSEN' }, 4) }),
+    // sa-R7: native CountGems FromTarget Amount 25 = [4:1] (floor(n x 25%), R003); was boostPer(..., 4) = x4.
+    mana('allyAll', 6, 0, { ifCond: { kind: 'targetColor', color: 'CHOSEN' }, modifier: { mod: { kind: 'ratio', a: 4, b: 1 }, source: { kind: 'boardGems', color: 'CHOSEN' } } }),
     ),
   },
   {

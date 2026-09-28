@@ -137,7 +137,8 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '诅咒 2 名随机敌人。板面上每有一颗红色宝石则有 7% 几率获得一个额外回合。 [x7]',
     build: skill(
       inflict('curse', 'enemyRandomN', { n: 2 }),
-      extraTurn({ chance: 0.07, chanceBoost: { mod: { kind: 'multiplier', a: 7 }, source: { kind: 'boardGems', color: BaseColor.Red } } }),
+      // sa-R7: ExtraTurnConditional has no base Amount -> chance = 7% x Red gems only (was 7% base + boost).
+      extraTurn({ chanceBoost: { mod: { kind: 'multiplier', a: 7 }, source: { kind: 'boardGems', color: BaseColor.Red } } }),
     ),
   },
   {
