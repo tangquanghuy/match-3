@@ -212,9 +212,10 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 9667,
     desc: '为最弱的盟友赋予[魔法 + 1]点生命值和护甲。然后为他们设置屏障。',
     build: skill(
-      heal('allyWeakest', 1),
+      // sa-C r9 native: IncreaseArmor@WeakestAlly -> IncreaseHealth@FromPrevious -> CauseBarrier@FromPrevious
       armor('allyWeakest', 1),
-      inflict('barrier', 'allyWeakest'),
+      heal('lastTarget', 1),
+      inflict('barrier', 'lastTarget'),
     ),
   },
   {

@@ -1,6 +1,6 @@
 # GoW 技能改动留档
 
-自动生成（`node scripts/gow-changelog.mjs render`），源数据 [CHANGES.jsonl](CHANGES.jsonl)，共 630 条改动，涉及 1082 个技能 ID。
+自动生成（`node scripts/gow-changelog.mjs render`），源数据 [CHANGES.jsonl](CHANGES.jsonl)，共 633 条改动，涉及 1085 个技能 ID。
 
 ## 按时间
 
@@ -636,6 +636,9 @@
 | 2026-09-28T22:06 | sa-H | L1-H-6507-freeze-affected | assembler | 7697 | troop:6507 HyndlaFrostcrown | `src/engine/skills/curated/batch-20.ts`<br>`src/data/gowSnapshotOverrides.json` | froze all enemies; zh said all enemies → freezes target + adjacent (native FromTarget + AdjacentFromTarget); zh + override |  |
 | 2026-09-28T22:08 | sa-H | L1-H-7376-prefnotprev | assembler | 9016 | troop:7376 MorthanisDarkness | `src/engine/skills/curated/batch-04.ts` | 4 distinct random enemies (enemyRandomN) → RandomEnemy + 3 x RandomPrefNotPrevEnemy Life steals (R007-3; repeats allowed, never twice in a row) |  |
 | 2026-09-28T22:12 | sa-H | L1-H-6908-four-branches | assembler | 8369 | troop:6908 BookOfSecrets | `src/engine/skills/curated/batch-r7.ts`<br>`src/data/gowSnapshotOverrides.json` | 3 branches 1/3; status branch hit enemies AND allies; zh said enemies and allies → native A-B-C-D 1/4 each: Daemon \| positive all allies \| negative all enemies \| [M+2] front; zh 或 + override |  |
+| 2026-09-28T22:36 | sa-C | L5-C-r9-7703 | assembler | 9664 | troop:7703 Xuanwu | `src/engine/skills/curated/batch-r10.ts` | Barrier/Enchant FromTarget used lastTarget = caster after the self armor step; chosen ally got nothing → Barrier + Enchant on allyChosen, then on self (native order) |  |
+| 2026-09-28T22:36 | sa-C | L5-C-r9-7706 | assembler | 9667 | troop:7706 WATTS-1927 | `src/engine/skills/curated/batch-04.ts` | heal/armor/barrier each re-resolved allyWeakest, heal first → native IncreaseArmor@WeakestAlly -> Health/Barrier @FromPrevious (lastTarget) |  |
+| 2026-09-28T22:36 | sa-C | L5-C-r9-6335 | assembler | 7485 | troop:6335 Tezca | `src/engine/skills/curated/batch-13.ts` | Life before Attack → native order Attack -> Life -> Cleanse -> Magic (Red) |  |
 
 ## 按技能 ID
 
@@ -829,6 +832,7 @@
 | 7480 | 2 | L4b-7276-singlegem、L1-R2-consume-first |
 | 7482 | 1 | P-random-stat-pool |
 | 7484 | 1 | G-6334-kill-order |
+| 7485 | 1 | L5-C-r9-6335 |
 | 7489 | 1 | P-counter-per-step |
 | 7491 | 1 | P-B-action-status-self-count |
 | 7501 | 1 | L1-summon-dist |
@@ -1625,8 +1629,10 @@
 | 9659 | 2 | P-prefnotprev-semantics、L4a-R1-9659-prefnotprev |
 | 9660 | 1 | R7-7691-count150-floor |
 | 9661 | 2 | F3-q19、R011 |
+| 9664 | 1 | L5-C-r9-7703 |
 | 9665 | 1 | L4a-R8-7704-zh-column |
 | 9666 | 1 | P-chooser-native-restrictions |
+| 9667 | 1 | L5-C-r9-7706 |
 | 9673 | 1 | P-counter-per-step |
 | 9675 | 1 | L3-F-7714 |
 | 9677 | 1 | B-L4b-prefnotprev |

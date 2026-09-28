@@ -26,3 +26,9 @@
 - troop:7191 accept (8772 others Barrier with any Storm)
 - troop:6980 accept (8483 RandomEnemy back)
 - B11 troop:6785,7203,weapon:1527,troop:7191,6980 approve=5 fixed=0 issue=0
+- troop:7703 fixed (9664 Barrier+Enchant the chosen ally, not the caster twice)
+- troop:7706 fixed (9667 armor@WeakestAlly first, Life/Barrier FromPrevious)
+- troop:7666 accept (9594 Bless+Barrier Elemental only; Blessed cleanses on apply)
+- troop:6695 accept (8041)
+- troop:6335 fixed (7485 native order Attack -> Life -> Cleanse -> Red Magic)
+- B12 troop:7703,7706,7666,6695,6335 approve=5 fixed=3 issue=0

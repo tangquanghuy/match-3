@@ -193,8 +193,9 @@ const SPELLS: CuratedBatch['spells'] = [
     build: skill(
       armor('allyChosen', 2, 1),
       armor('allySelf', 2, 1),
-      inflict('barrier', 'lastTarget'),
-      inflict('enchanted', 'lastTarget'),
+      // sa-C r9: FromTarget = the chosen ally (lastTarget here was the caster after the self armor step)
+      inflict('barrier', 'allyChosen'),
+      inflict('enchanted', 'allyChosen'),
       inflict('barrier', 'allySelf'),
       inflict('enchanted', 'allySelf'),
     ),

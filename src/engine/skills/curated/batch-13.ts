@@ -91,8 +91,9 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 7485,
     desc: '给予一名盟友 [魔法 + 1] 点生命值和攻击力。净化该盟友。如果盟友使用红色法力值，给予 3 点魔力值。',
     build: skill(
-      heal('allyChosen', 1),
+      // sa-C r9 native order: IncreaseAttack -> IncreaseHealth -> Cleanse -> IncreaseSpellPower [AddForRedTarget 3]
       attack('allyChosen', 1),
+      heal('allyChosen', 1),
       cleanse('allyChosen'),
       // 回收：ifCond 现支持条件触发（SOP「通用条件触发 / 条件加成」节）；targetColor 为
       // 目标相对条件、按该段自己的目标（该盟友）判定其法力色

@@ -367,3 +367,25 @@ describe('L5 sa-C round 9 B11', () => {
     expect(who.size).toBeGreaterThanOrEqual(3);
   });
 });
+describe('L5 sa-C round 9 B12', () => {
+  const order = (o: Parameters<typeof castSpell>[0]) => castSpell(o).summary.order;
+  it('troop:7703 Barrier + Enchant the chosen ally AND the caster, in native order', () => {
+    expect(order({ key: 'troop:7703' })).toEqual(['buff A1 armor+12', 'buff C armor+12', 'status A1 +barrier', 'status A1 +enchanted', 'status C +barrier', 'status C +enchanted']);
+  });
+  it('troop:7706 armor picks the weakest (Life+Armor), then Life and Barrier on that same ally', () => {
+    // A1 400 is weakest; after +11 armor A2 (405) would be weaker, but FromPrevious keeps A1
+    const o = order({ key: 'troop:7706', allies: allies({ 0: { hp: 400, maxHp: 700, armor: 0 }, 1: { hp: 405, maxHp: 700, armor: 0 } }) });
+    expect(o).toEqual(['buff A1 armor+11', 'buff A1 hp+11 max+11', 'status A1 +barrier']);
+  });
+  it('troop:7666 Bless and Barrier only an Elemental ally', () => {
+    expect(order({ key: 'troop:7666', allies: allies({ 0: { troopTypes: ['Elemental'] } }) })).toEqual(['buff A1 armor+11', 'buff A1 hp+11 max+11', 'remove A1 -poison', 'status A1 +blessed', 'status A1 +barrier']); // Blessed cleanses on apply (status.ts)
+    expect(order({ key: 'troop:7666' })).toEqual(['buff A1 armor+11', 'buff A1 hp+11 max+11']);
+  });
+  it('troop:6695 (M/2)+1 Attack and Armor, then Barrier', () => {
+    expect(order({ key: 'troop:6695' })).toEqual(['buff A1 attack+6', 'buff A1 armor+6', 'status A1 +barrier']);
+  });
+  it('troop:6335 native order Attack -> Life -> Cleanse; +3 Magic only for a Red ally', () => {
+    expect(order({ key: 'troop:6335' })).toEqual(['buff A1 attack+11', 'buff A1 hp+11 max+11', 'cleanse A1 -poison']);
+    expect(order({ key: 'troop:6335', allies: allies({ 0: { colors: [BaseColor.Red] } }) })).toEqual(['buff A1 attack+11', 'buff A1 hp+11 max+11', 'cleanse A1 -poison', 'buff A1 magic+3']);
+  });
+});

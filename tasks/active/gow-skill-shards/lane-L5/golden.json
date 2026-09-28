@@ -239,6 +239,16 @@
   "by": "sa-R3",
   "at": "2026-09-28T02:39:20.237Z"
  },
+ "troop:6335": {
+  "lines": {
+   "L10": "buff A1 attack+11 ; buff A1 hp+11 max+11 ; cleanse A1 -poison  => A1:hp+11 max+11 atk+11 -poison",
+   "R10": "buff A1 attack+11 ; buff A1 hp+11 max+11 ; cleanse A1 -poison  => A1:hp+11 max+11 atk+11 -poison",
+   "L0": "buff A1 attack+1 ; buff A1 hp+1 max+1 ; cleanse A1 -poison  => A1:hp+1 max+1 atk+1 -poison",
+   "K": "buff A1 attack+11 ; buff A1 hp+11 max+11 ; cleanse A1 -poison  => A1:hp+11 max+11 atk+11 -poison"
+  },
+  "by": "sa-C",
+  "at": "2026-09-28T22:36:23.474Z"
+ },
  "troop:6350": {
   "lines": {
    "L10": "dmg E10 3 (scatter) ; dmg E11 4 (scatter) ; dmg E12 6 (scatter) ; dmg E13 3 (scatter)  => E10:arm-3 | E11:arm-4 | E12:arm-6 | E13:arm-3",
@@ -588,6 +598,16 @@
   },
   "by": "sa-C",
   "at": "2026-09-28T11:15:58.667Z"
+ },
+ "troop:6695": {
+  "lines": {
+   "L10": "buff A1 attack+6 ; buff A1 armor+6 ; status A1 +barrier  => A1:arm+6 atk+6 +barrier",
+   "R10": "buff A1 attack+6 ; buff A1 armor+6 ; status A1 +barrier  => A1:arm+6 atk+6 +barrier",
+   "L0": "buff A1 attack+1 ; buff A1 armor+1 ; status A1 +barrier  => A1:arm+1 atk+1 +barrier",
+   "K": "buff A1 attack+6 ; buff A1 armor+6 ; status A1 +barrier  => A1:arm+6 atk+6 +barrier"
+  },
+  "by": "sa-C",
+  "at": "2026-09-28T22:36:23.474Z"
  },
  "troop:6698": {
   "lines": {
@@ -1489,6 +1509,16 @@
   "by": "sa-R3",
   "at": "2026-09-28T02:49:11.440Z"
  },
+ "troop:7666": {
+  "lines": {
+   "L10": "buff A1 armor+11 ; buff A1 hp+11 max+11  => A1:hp+11 max+11 arm+11",
+   "R10": "buff A1 armor+11 ; buff A1 hp+11 max+11  => A1:hp+11 max+11 arm+11",
+   "L0": "buff A1 armor+1 ; buff A1 hp+1 max+1  => A1:hp+1 max+1 arm+1",
+   "K": "buff A1 armor+11 ; buff A1 hp+11 max+11  => A1:hp+11 max+11 arm+11"
+  },
+  "by": "sa-C",
+  "at": "2026-09-28T22:36:23.474Z"
+ },
  "troop:7668": {
   "lines": {
    "L10": "dmg E11 17  => E11:hp-7 arm-10",
@@ -1518,6 +1548,26 @@
   },
   "by": "sa-R3",
   "at": "2026-09-28T02:59:32.592Z"
+ },
+ "troop:7703": {
+  "lines": {
+   "L10": "buff A1 armor+12 ; buff C armor+12 ; status A1 +barrier ; status A1 +enchanted ; status C +barrier ; status C +enchanted  => A1:arm+12 +barrier+enchanted | C:arm+12 +barrier+enchanted",
+   "R10": "buff A1 armor+12 ; buff C armor+12 ; status A1 +barrier ; status A1 +enchanted ; status C +barrier ; status C +enchanted  => A1:arm+12 +barrier+enchanted | C:arm+12 +barrier+enchanted",
+   "L0": "buff A1 armor+2 ; buff C armor+2 ; status A1 +barrier ; status A1 +enchanted ; status C +barrier ; status C +enchanted  => A1:arm+2 +barrier+enchanted | C:arm+2 +barrier+enchanted",
+   "K": "buff A1 armor+12 ; buff C armor+12 ; status A1 +barrier ; status A1 +enchanted ; status C +barrier ; status C +enchanted  => A1:arm+12 +barrier+enchanted | C:arm+12 +barrier+enchanted"
+  },
+  "by": "sa-C",
+  "at": "2026-09-28T22:36:23.474Z"
+ },
+ "troop:7706": {
+  "lines": {
+   "L10": "buff A1 armor+11 ; buff A1 hp+11 max+11 ; status A1 +barrier  => A1:hp+11 max+11 arm+11 +barrier",
+   "R10": "buff A1 armor+11 ; buff A1 hp+11 max+11 ; status A1 +barrier  => A1:hp+11 max+11 arm+11 +barrier",
+   "L0": "buff A1 armor+1 ; buff A1 hp+1 max+1 ; status A1 +barrier  => A1:hp+1 max+1 arm+1 +barrier",
+   "K": "buff A1 armor+11 ; buff A1 hp+11 max+11 ; status A1 +barrier  => A1:hp+11 max+11 arm+11 +barrier"
+  },
+  "by": "sa-C",
+  "at": "2026-09-28T22:36:23.474Z"
  },
  "troop:7710": {
   "lines": {
