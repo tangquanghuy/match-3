@@ -2020,14 +2020,18 @@ export class TurnEngine {
     destroyed: DestroyedGem[],
     events: GameEvent[],
     side: PlayerSide = this.state.activePlayer,
-    mode: 'destroy' | 'explode' = 'destroy',
+    mode: 'destroy' | 'explode' | 'remove' = 'destroy',
   ): void {
-    // 1. 特殊宝石摧毁触发链（可匹配宝石匹配时亦触发，单颗只处理一次）
     const manaPotions: BaseColor[] = [];
-    const chain = this.expandSpecialDestruction(destroyed, events, manaPotions);
+    // P-F1-remove-gems：原生 Remove 只把宝石拿走——不结算法力/骷髅/资源，也不触发特殊宝石
+    // 摧毁链（proposal rulings/R010-remove-special-gems.md）；重力补充与连锁照常。
+    if (mode !== 'remove') {
+      // 1. 特殊宝石摧毁触发链（可匹配宝石匹配时亦触发，单颗只处理一次）
+      const chain = this.expandSpecialDestruction(destroyed, events, manaPotions);
 
-    // 2. 被直接摧毁宝石的法力/骷髅结算：按类型归并数量（含链上新摧毁的）
-    this.settleDestroyed(destroyed, events, side, mode === 'explode', chain);
+      // 2. 被直接摧毁宝石的法力/骷髅结算：按类型归并数量（含链上新摧毁的）
+      this.settleDestroyed(destroyed, events, side, mode === 'explode', chain);
+    }
 
     // 2. 重力 + 补充（风暴激活时对应色加权）
     const result = this.gravity.apply(this.state.board, this.skullChance, this.stormDropWeights(), this.stormSkullDrop(), this.comboBias, this.state.actionLog);

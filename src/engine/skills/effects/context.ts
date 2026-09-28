@@ -125,6 +125,12 @@ export interface CastTracking {
    * 段循环前一次性采集（只录有状态者）。缺省（纯原语单测）时相关条件按不成立处理。
    */
   statusesAtCastStart?: Record<number, string[]>;
+  /**
+   * 施法开始时全部在场角色的法力色快照（P-F2-dead-target-colour，9476「如果敌人死亡，则将其
+   * 1 颗法力色宝石转换为恶魔传送门宝石」）：被本次施法击杀的目标出编队后，LAST_TARGET /
+   * CHOSEN_TARGET 仍按此快照解析「其法力颜色」。仅在角色已不在编队时回退使用。
+   */
+  colorsAtCastStart?: Record<number, BaseColor[]>;
 }
 
 /** 效果原语执行上下文（施法者、状态、随机源、宝石 id 分配器） */
@@ -143,7 +149,7 @@ export interface EffectContext {
    * 结算被直接摧毁宝石的法力/骷髅 → 重力补充 → 解析由此产生的连锁。
    * 由 TurnEngine 注入；缺省（纯原语单测）时宝石操作只改棋盘、不结算连锁。
    */
-  resolveBoardChange?: (destroyed: DestroyedGem[], events: GameEvent[], mode?: 'destroy' | 'explode') => void;
+  resolveBoardChange?: (destroyed: DestroyedGem[], events: GameEvent[], mode?: 'destroy' | 'explode' | 'remove') => void;
   /**
    * 额外回合信号（需求 10.2）：调用后当前玩家保留回合。
    * 由 TurnEngine 注入；缺省时额外回合原语只发事件、不改回合归属（供纯单测）。

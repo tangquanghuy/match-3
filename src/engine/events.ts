@@ -117,6 +117,8 @@ export interface GemTransformEvent {
 export interface GemDestroyEvent {
   type: 'gem-destroy';
   cells: { pos: CellPos; gemId: number; gemType: GemType }[];
+  /** 原生 Remove（只拿走、不结算法力/骷髅/资源，P-F1-remove-gems） */
+  removed?: boolean;
 }
 
 /** 爆破宝石（目标 + 辐射一圈，需求 7.1, 7.4）。cells 同上；表现层用向外冲击波区别于摧毁。 */

@@ -57,6 +57,16 @@ export type ColorSpec =
    *  集由同技能后段 allyChosen 驱动）；未选目标/无色 → null 整段跳过）。 */
   | 'CHOSEN_TARGET';
 
+/**
+ * 某角色的法力色：在编队中取现值；已出编队（本次施法中阵亡）回退施法开始快照
+ * （P-F2-dead-target-colour，「如果敌人死亡，则将其法力色宝石……」）。
+ */
+function unitColors(ctx: EffectContext, id: number): BaseColor[] {
+  const char = findCharacter(ctx.state, id);
+  if (char) return char.colors;
+  return ctx.castTracking?.colorsAtCastStart?.[id] ?? [];
+}
+
 /** 把 ColorSpec 解析为具体基础色；占位符取 ctx，缺省返回 null（'SKULL' 无对应基色） */
 function resolveColor(spec: ColorSpec, ctx: EffectContext): BaseColor | null {
   if (spec === 'CHOSEN') return ctx.chosenColor ?? null;
@@ -67,29 +77,26 @@ function resolveColor(spec: ColorSpec, ctx: EffectContext): BaseColor | null {
   if (spec === 'CHOSEN_TARGET') {
     // R22 批：手动选定目标（任意阵营）的一种法力色（多色 rng 掷选）
     if (ctx.chosenTargetId === undefined) return null;
-    const char = findCharacter(ctx.state, ctx.chosenTargetId);
-    if (!char || char.colors.length === 0) return null;
-    return char.colors[ctx.rng.nextInt(char.colors.length)];
+    const colors = unitColors(ctx, ctx.chosenTargetId);
+    if (colors.length === 0) return null;
+    return colors[ctx.rng.nextInt(colors.length)];
   }
   // 「指定/该敌人的一种法力颜色」（2026-09-17 回收批）：随机存活敌方 / 跨段追踪目标，
   // 多法力色时 rng 掷选其一（确定性）。LAST_TARGET 无跨段追踪时回退到玩家选定的敌人
   // （「选择一名敌人。摧毁其法力颜色的宝石」——清除段本身是首段，追踪尚无主目标）。
-  if (spec === 'ENEMY' || spec === 'TRACKED_ENEMY' || spec === 'LAST_TARGET') {
-    let char = undefined;
-    if (spec === 'LAST_TARGET') {
-      const last = ctx.castTracking?.lastTarget;
-      if (last) {
-        char = findCharacter(ctx.state, last.id);
-      } else if (ctx.chosenTargetId !== undefined) {
-        char = findCharacter(ctx.state, ctx.chosenTargetId);
-      }
-    } else {
-      const mySide = findSide(ctx.state, ctx.casterId);
-      if (mySide === null) return null;
-      const enemySide = mySide === PlayerSide.Left ? PlayerSide.Right : PlayerSide.Left;
-      const alive = ctx.state.teams[enemySide].characters.filter((c) => !c.defeated && c.colors.length > 0);
-      char = alive[ctx.rng.nextInt(alive.length)];
-    }
+  if (spec === 'LAST_TARGET') {
+    const id = ctx.castTracking?.lastTarget?.id ?? ctx.chosenTargetId;
+    if (id === undefined) return null;
+    const colors = unitColors(ctx, id);
+    if (colors.length === 0) return null;
+    return colors[ctx.rng.nextInt(colors.length)];
+  }
+  if (spec === 'ENEMY' || spec === 'TRACKED_ENEMY') {
+    const mySide = findSide(ctx.state, ctx.casterId);
+    if (mySide === null) return null;
+    const enemySide = mySide === PlayerSide.Left ? PlayerSide.Right : PlayerSide.Left;
+    const alive = ctx.state.teams[enemySide].characters.filter((c) => !c.defeated && c.colors.length > 0);
+    const char = alive[ctx.rng.nextInt(alive.length)];
     if (!char || char.colors.length === 0) return null;
     if (spec === 'TRACKED_ENEMY' && ctx.castTracking) {
       const snapshot = { id: char.id, aliveBefore: !char.defeated };
@@ -260,10 +267,14 @@ export type ClearTarget =
   | { kind: 'chosenCross' }
   | { kind: 'lastDestroyedLine'; orientation: 'row' | 'col' };
 
-/** 清除操作：destroy=仅目标本身；explode=目标并入每颗 8 邻格 */
+/**
+ * 清除操作：destroy=仅目标本身；explode=目标并入每颗 8 邻格；
+ * remove=仅目标本身、只从棋盘拿走（原生 RemoveColor / RemoveGems：不给法力、骷髅不造成伤害、
+ * 不结算特殊宝石与资源；仍计入「被移除的宝石数」并照常重力补充与连锁，P-F1-remove-gems）。
+ */
 export interface ClearGemParams {
   op: 'clear';
-  mode: 'destroy' | 'explode';
+  mode: 'destroy' | 'explode' | 'remove';
   target: ClearTarget;
   /** 二次缩放（随机 N 行列/颗的数量因来源而增强：「爆破 [M+1] 颗宝石，数量因X而增强」） */
   modifier?: ModifierSpec;
@@ -764,11 +775,14 @@ function doClear(params: ClearGemParams, ctx: EffectContext): GameEvent[] {
   // 记入跨段追踪：后续段的二次缩放来源「因被摧毁的 X 色宝石而增强」读这里
   if (ctx.castTracking) ctx.castTracking.destroyed.push(...destroyed);
 
-  // 事件按模式区分，供表现层放不同动画；两者都结算法力/骷髅 + 重力连锁
+  // 事件按模式区分，供表现层放不同动画；destroy/explode 结算法力/骷髅 + 重力连锁，
+  // remove 只走重力连锁（事件带 removed 标记）
   const events: GameEvent[] =
     params.mode === 'explode'
       ? [{ type: 'gem-explode', cells }]
-      : [{ type: 'gem-destroy', cells }];
+      : params.mode === 'remove'
+        ? [{ type: 'gem-destroy', cells, removed: true }]
+        : [{ type: 'gem-destroy', cells }];
   ctx.resolveBoardChange?.(destroyed, events, params.mode);
   return events;
 }
