@@ -222,8 +222,10 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '对 1 名敌人造成 [魔法 + 5] 点伤害。如果敌人身亡，则恢复自身原有生命值，并获得 8 点攻击力。',
     build: skill(
       dmg('enemyChosen', 5, 1),
-      heal('allySelf', 0, 0, { full: true, ifTargetDied: true }),
-      attack('allySelf', 8, 0, { ifTargetDied: true }),
+      // sa-G (R001): native IncreaseAttack AddForKill 8 -> Heal AddForKill 100; the Attack never applied after the
+      // self heal rewrote lastTarget -> castEnemyDied (7314 precedent), native order
+      attack('allySelf', 8, 0, { ifCond: { kind: 'castEnemyDied' } }),
+      heal('allySelf', 0, 0, { full: true, ifCond: { kind: 'castEnemyDied' } }),
     ),
   },
   {

@@ -41,6 +41,14 @@ describe('L6 sa-G', () => {
       expect(o.slice(2)).toEqual(['buff E11 magic-1', 'buff C magic+1']);
     }
   });
+  it('kill bonuses apply every Skill (6095 +4, 1130 +10, 6334 Attack then full heal); nothing without a kill', () => {
+    const K = { enemies: [0, 1, 2, 3].map(() => ({ hp: 1, maxHp: 1, armor: 0, mana: 5 })) };
+    expect(castSpell({ key: 'troop:6095', ...K }).summary.units.C).toBe('hp+4 max+4 arm+4 atk+4 mag+4');
+    expect(castSpell({ key: 'weapon:1130', ...K }).summary.units.C).toBe('hp+10 max+10 arm+10 atk+10 mag+10');
+    const j = castSpell({ key: 'troop:6334', ...K }).summary;
+    expect(j.order.slice(2)).toEqual(['buff C attack+8', 'buff C hp+100']);
+    for (const key of ['troop:6095', 'weapon:1130', 'troop:6334']) expect(castSpell({ key }).summary.units.C).toBeUndefined();
+  });
   it('troop:7201 counts all Enemy Magic once before the hit (a kill does not shrink the Armor)', () => {
     const k = castSpell({ key: 'troop:7201', enemies: [0, 1, 2, 3].map(() => ({ hp: 1, maxHp: 1, armor: 0, mana: 5 })) });
     // 4 x 11 Magic / 2 = 22 -> 4 + 10 + 22 = 36 for both

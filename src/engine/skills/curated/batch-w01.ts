@@ -919,10 +919,11 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '对 1 名敌人造成 [魔法 + 6] 点伤害。如果敌人身亡，所有技能值增加 10 点。',
     build: skill(
       dmg('enemyChosen', 6, 1),
-      attack('allySelf', 10, 0, { ifTargetDied: true }),
-      armor('allySelf', 10, 0, { ifTargetDied: true }),
-      heal('allySelf', 10, 0, { ifTargetDied: true }),
-      magic('allySelf', 10, 0, { ifTargetDied: true }),
+      // sa-G: all four Skills +10 on kill; ifTargetDied only held for the first -> castEnemyDied (7314 precedent)
+      attack('allySelf', 10, 0, { ifCond: { kind: 'castEnemyDied' } }),
+      armor('allySelf', 10, 0, { ifCond: { kind: 'castEnemyDied' } }),
+      heal('allySelf', 10, 0, { ifCond: { kind: 'castEnemyDied' } }),
+      magic('allySelf', 10, 0, { ifCond: { kind: 'castEnemyDied' } }),
     ),
   },
   {

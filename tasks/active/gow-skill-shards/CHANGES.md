@@ -1,6 +1,6 @@
 # GoW 技能改动留档
 
-自动生成（`node scripts/gow-changelog.mjs render`），源数据 [CHANGES.jsonl](CHANGES.jsonl)，共 543 条改动，涉及 993 个技能 ID。
+自动生成（`node scripts/gow-changelog.mjs render`），源数据 [CHANGES.jsonl](CHANGES.jsonl)，共 545 条改动，涉及 996 个技能 ID。
 
 ## 按时间
 
@@ -549,6 +549,8 @@
 | 2026-09-28T21:18 | sa-G | G-6914-zh-order | assembler | 8375 | troop:6914 IllithianColossus | `src/engine/skills/curated/batch-r17.ts`<br>`src/data/gowSnapshotOverrides.json` | ZH said Life and Attack; Life before Armor → ZH Life and Armor (override 6914); native order Armor then Life |  |
 | 2026-09-28T21:18 | sa-G | G-7201-count-before-hit | assembler | 8788 | troop:7201 Leio | `src/engine/skills/curated/batch-15.ts` | Armor counted all Enemy Magic after the hit (a kill shrank it: 30 instead of 36) → Armor segment first so both read the native step-0 count (pre-hit) |  |
 | 2026-09-28T21:21 | sa-G | G-1133-prefnotprev | assembler | 7299 | weapon:1133 SlayBells | `src/engine/skills/curated/batch-w01.ts`<br>`src/data/gowWeaponReviewedOverrides.json` | second hit plain enemyRandom → enemyRandomPrefNotPrev (native Damage@RandomPrefNotPrevEnemy, R007-3) |  |
+| 2026-09-28T21:25 | sa-G | G-kill-all-skills | assembler | 7165, 7294 | troop:6095 Tau；weapon:1130 RunicBlade | `src/engine/skills/curated/batch-05.ts`<br>`src/engine/skills/curated/batch-w01.ts` | on kill only Attack applied (ifTargetDied re-read lastTarget = caster after the first self buff) → all four Skills via ifCond castEnemyDied (7314 precedent) |  |
+| 2026-09-28T21:25 | sa-G | G-6334-kill-order | assembler | 7484 | troop:6334 JaguarWarrior | `src/engine/skills/curated/batch-r15.ts` | full heal then Attack +8 (Attack never applied after the heal rewrote lastTarget) → native order Attack +8 then full heal, both castEnemyDied |  |
 
 ## 按技能 ID
 
@@ -604,6 +606,7 @@
 | 7156 | 1 | F1-onkill-order |
 | 7159 | 1 | L4a-R1-7159-cross |
 | 7162 | 1 | L4b-7138-onecolour |
+| 7165 | 1 | G-kill-all-skills |
 | 7169 | 2 | L4b-7276-singlegem、B-L4b-6104-blue |
 | 7174 | 1 | B5-L4b-1067-singlegem |
 | 7177 | 1 | L5-C-r4-6108 |
@@ -644,6 +647,7 @@
 | 7281 | 1 | L1-R2-consume-first |
 | 7287 | 1 | F3-q26 |
 | 7293 | 1 | L1-consume-first |
+| 7294 | 1 | G-kill-all-skills |
 | 7295 | 1 | F3-q35 |
 | 7296 | 2 | L5-C-r4-1132、L5-C-r4-1132 |
 | 7297 | 1 | F3-q20 |
@@ -726,6 +730,7 @@
 | 7478 | 2 | F1-remove-order、P-F1-remove-gems |
 | 7480 | 2 | L4b-7276-singlegem、L1-R2-consume-first |
 | 7482 | 1 | P-random-stat-pool |
+| 7484 | 1 | G-6334-kill-order |
 | 7489 | 1 | P-counter-per-step |
 | 7491 | 1 | P-B-action-status-self-count |
 | 7501 | 1 | L1-summon-dist |

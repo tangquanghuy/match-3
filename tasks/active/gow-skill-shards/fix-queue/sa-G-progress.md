@@ -19,3 +19,8 @@
 - troop:6563 accepted: x3 Monster, -5 Attack
 - troop:6096 accepted: x3 Giant, -5 Magic
 - weapon:1133 fixed: second hit enemyRandom -> enemyRandomPrefNotPrev (curated + reviewed override); accepted (test)
+- troop:6095 fixed: kill bonus all four Skills +4 (only Attack applied) via castEnemyDied; queued P-G-ifTargetDied-after-self (test)
+- weapon:1130 fixed: same, +10 all Skills (test)
+- weapon:1059 accepted: first enemy, +7 Attack on kill
+- troop:6334 fixed: native order Attack +8 then full heal on kill (Attack was dropped) (test)
+- troop:6168 accepted: x2 Daemon, random ally +8 Life on kill
