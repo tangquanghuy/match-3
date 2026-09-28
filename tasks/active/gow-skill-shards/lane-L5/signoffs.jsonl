@@ -180,3 +180,4 @@
 {"format":"compact","key":"weapon:1176","decision":"accept","reviewer":"sa-C","reviewedAt":"2026-09-28T10:27:03.175Z","tests":["tests/unit/gowCastGolden.test.ts"]}
 {"format":"compact","key":"troop:6184","decision":"accept","reviewer":"sa-C","reviewedAt":"2026-09-28T10:27:03.176Z","tests":["tests/unit/gowCastGolden.test.ts"]}
 {"format":"compact","key":"troop:6389","decision":"accept","reviewer":"sa-C","reviewedAt":"2026-09-28T10:27:03.176Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:6624","decision":"accept","reviewer":"sa-P","reviewedAt":"2026-09-28T11:15:44.491Z","tests":["tests/unit/gowFixP-B-action-status-self-count.test.ts"],"note":"L5-C-self-submerged-timing closed by P-B-action-status-self-count: Submerged caster counts itself (R004 / t/80861 vanish after the cast); definition matched EN/native per sa-C"}

@@ -57,11 +57,11 @@ describe('L5 sa-C B01', () => {
     const r = castSpell({ key: 'troop:7901', enemies: enemies({ 0: { statuses: st('curse') }, 3: { statuses: st('curse') } }) });
     expect(dmgs(r.summary.order).reduce((a, x) => a + x.n, 0)).toBe(39); // 8 + 25 + 2 x 3
   });
-  it('troop:6624 true splash boosted x2 per Submerged ally; caster Submerged leaves before the count (issue L5-C-self-submerged-timing)', () => {
+  it('troop:6624 true splash boosted x2 per Submerged ally; a Submerged caster counts itself (P-B-action-status-self-count)', () => {
     const r = castSpell({ key: 'troop:6624', allies: allies({ 0: { statuses: st('submerged') }, 1: { statuses: st('submerged') } }) });
     expect(r.summary.order.slice(0, 3)).toEqual(['dmg E11 16 (splash)', 'dmg E10 8 (splash)', 'dmg E12 8 (splash)']);
     const self = castSpell({ key: 'troop:6624', caster: { statuses: st('submerged') } });
-    expect(self.summary.order).toEqual(['remove C -submerged', 'dmg E11 12 (splash)', 'dmg E10 6 (splash)', 'dmg E12 6 (splash)']);
+    expect(self.summary.order).toEqual(['remove C -submerged', 'dmg E11 14 (splash)', 'dmg E10 7 (splash)', 'dmg E12 7 (splash)']);
   });
 });
 

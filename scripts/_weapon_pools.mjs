@@ -603,7 +603,7 @@ class Compiler {
   }
 
   /** 王国条件倍率（K-E 第五轮接线）：「若敌人来自X，或战斗发生在X，则造成 N 倍伤害」＝
-   *  anyOf(kingdomOf enemy X, kingdomPresent X) condMult；单独「若战斗发生在X」→ kingdomPresent。
+   *  anyOf(targetKingdom X, kingdomPresent X) condMult；单独「若战斗发生在X」→ kingdomPresent。
    *  王国名用 zh 原文名（与 troops.json/CombatantSnapshot kingdom 字段同口径）。 */
   hKingdomCond(c, state) {
     // K-B 收官轮：尾段扩「则伤害翻倍」形（9111「若敌人来自午夜城市或战斗位于午夜城市，则伤害翻倍」——
@@ -611,7 +611,7 @@ class Compiler {
     let m = /^(?:如果|若)敌人来自([\u4e00-\u9fa5]+?)(?:，或战斗(?:发生在|位于)([\u4e00-\u9fa5]+?))?[，,]?(?:则造成\s*(双倍|三倍|\d+\s*倍)伤害|(?:则)?伤害(双倍|翻倍|三倍|\d+\s*倍))$/.exec(c);
     if (m) {
       const kg = normalizeGroupName(m[1]);
-      const of = [{ kind: 'kingdomOf', side: 'enemy', kingdom: kg }];
+      const of = [{ kind: 'targetKingdom', kingdom: kg }]; // P-A-target-kingdom: the damaged target's kingdom
       if (m[2]) of.push({ kind: 'kingdomPresent', kingdom: normalizeGroupName(m[2]) });
       const cond = of.length === 1 ? of[0] : { kind: 'anyOf', of };
       const w = m[3] ?? m[4];

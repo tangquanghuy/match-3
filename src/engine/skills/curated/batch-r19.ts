@@ -936,7 +936,7 @@ const SPELLS: CuratedBatch['spells'] = [
     build: skill(
       dmg('enemyChosen', 1, 1, {
         modifier: { mod: { kind: 'ratio', a: 3, b: 1 }, source: { kind: 'boardGems', color: BaseColor.Blue } },
-        condMult: { times: 2, cond: { kind: 'kingdomOf', side: 'enemy', kingdom: '梅兰堤斯' } },
+        condMult: { times: 2, cond: { kind: 'targetKingdom', kingdom: '梅兰堤斯' } },
       }),
     ),
   },
