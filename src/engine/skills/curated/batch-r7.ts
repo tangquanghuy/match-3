@@ -527,8 +527,9 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '对一名敌人造成 [魔法 + 4] 点溅射伤害。再使所有受伤害的敌人陷入中毒状态。',
     build: skill(
       dmgSplash('enemyChosen', 4, 1),
-      // 「所有受伤害的敌人」= enemyAll + targetHpDamaged（batch-r6 7985 同款）
-      inflict('poison', 'enemyAll', { ifCond: { kind: 'targetHpDamaged' } }),
+      // sa-C r9: native CausePoison FromTarget + AdjacentFromTarget = the whole splash group
+      // (armor-only hits included); was enemyAll + targetHpDamaged.
+      inflict('poison', 'lastDamaged'),
     ),
   },
   {

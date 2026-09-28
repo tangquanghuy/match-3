@@ -50,3 +50,9 @@
 - troop:6816 accept (8220 lastDamaged burn/freeze groups)
 - weapon:1153 accept (7527 Enrage front ally)
 - B15 troop:6194,6983,weapon:1447,troop:6816,weapon:1153 approve=5 fixed=2 issue=0
+- troop:7141 fixed (8690 Poison target + adjacent via lastDamaged, was Life-damaged only)
+- troop:6702 accept (8058)
+- troop:6402 accept (7557 Submerge self)
+- weapon:1278 fixed (8154 native two splashes; NextDown per step R012, Stun/Bleed chosen + NextDown)
+- weapon:1252 fixed (8072 Death Mark LastTwo n=2 + override)
+- B16 troop:7141,6702,6402,weapon:1278,1252 approve=5 fixed=3 issue=0

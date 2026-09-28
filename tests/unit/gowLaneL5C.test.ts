@@ -487,3 +487,30 @@ describe('L5 sa-C round 9 B15', () => {
     expect(order({ key: 'weapon:1153' }).filter(x => x.startsWith('status'))).toEqual(['status C +rage']);
   });
 });
+describe('L5 sa-C round 9 B16', () => {
+  const order = (o: Parameters<typeof castSpell>[0]) => castSpell(o).summary.order;
+  const sts = (o: string[]) => o.filter(x => x.startsWith('status'));
+  it('troop:7141 Poison the target and both adjacent enemies even on armor-only hits', () => {
+    expect(sts(order({ key: 'troop:7141' }))).toEqual(['status E11 +poison', 'status E10 +poison', 'status E12 +poison']);
+    expect(sts(order({ key: 'troop:7141', magic: 0 }))).toEqual(['status E11 +poison', 'status E10 +poison', 'status E12 +poison']);
+  });
+  it('troop:6702 Poison then Bleed the whole splash group', () => {
+    expect(sts(order({ key: 'troop:6702', magic: 0 }))).toEqual(['status E11 +poison', 'status E10 +poison', 'status E12 +poison', 'status E11 +bleed', 'status E10 +bleed', 'status E12 +bleed']);
+  });
+  it('troop:6402 Submerge self after the splash, also on a kill', () => {
+    expect(sts(order({ key: 'troop:6402', enemies: enemies({ 1: { hp: 1, armor: 0 } }) }))).toEqual(['status C +submerged']);
+  });
+  it('weapon:1278 second splash on the enemy below the target, R012 anchor position when the target dies', () => {
+    const o = order({ key: 'weapon:1278', enemies: enemies({ 1: { hp: 1, armor: 0 } }) });
+    // dead E11 leaves the line, so E10 is now adjacent to E12 for the second splash
+    expect(dmgs(o).map(x => `${x.who} ${x.n}`)).toEqual(['E11 11', 'E10 5', 'E12 5', 'E12 11', 'E10 5', 'E13 5']);
+    expect(sts(o)).toEqual(['status E12 +stun', 'status E12 +bleed']);
+    const both = order({ key: 'weapon:1278', enemies: enemies({ 1: { hp: 1, armor: 0 }, 2: { hp: 1, armor: 0 } }) });
+    expect(dmgs(both).map(x => x.who)).toEqual(['E11', 'E10', 'E12', 'E13', 'E10']);
+    expect(sts(both)).toEqual(['status E13 +stun', 'status E13 +bleed']);
+  });
+  it('weapon:1252 Steal from and Death Mark the last 2 enemies, then Bless self', () => {
+    const o = order({ key: 'weapon:1252' });
+    expect(sts(o)).toEqual(['status E12 +death-mark', 'status E13 +death-mark', 'status C +blessed']);
+  });
+});

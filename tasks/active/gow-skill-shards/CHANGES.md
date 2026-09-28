@@ -1,6 +1,6 @@
 # GoW 技能改动留档
 
-自动生成（`node scripts/gow-changelog.mjs render`），源数据 [CHANGES.jsonl](CHANGES.jsonl)，共 640 条改动，涉及 1092 个技能 ID。
+自动生成（`node scripts/gow-changelog.mjs render`），源数据 [CHANGES.jsonl](CHANGES.jsonl)，共 643 条改动，涉及 1095 个技能 ID。
 
 ## 按时间
 
@@ -646,6 +646,9 @@
 | 2026-09-28T22:44 | sa-C | L5-C-r9-6150-zh | data | 7264 | troop:6150 Dimetraxia | `src/engine/skills/curated/batch-05.ts`<br>`src/data/gowSnapshotOverrides.json` | zh 75% 的几率燃烧所有人 (everyone) → zh 燃烧所有敌人 (English all Enemies), snapshot override |  |
 | 2026-09-28T23:12 | sa-C | L5-C-r9-6983-stun | assembler | 8486 | troop:6983 KingMinos | `src/engine/skills/curated/batch-r7.ts` | Stun enemyAll only if Life was damaged (armor-only splash hits skipped) → Stun lastDamaged = target + adjacent (native CauseStun FromTarget + AdjacentFromTarget) |  |
 | 2026-09-28T23:12 | sa-C | L5-C-r9-6194-kill | assembler | 7335 | troop:6194 SpringImp | `src/engine/skills/curated/batch-12.ts` | +8 Magic ifTargetDied (only when the last target set, all enemies, died) → +8 Magic ifCond anyEnemyDied (native AddForKill: any enemy killed) |  |
+| 2026-09-28T23:23 | sa-C | L5-C-r9-7141-poison | assembler | 8690 | troop:7141 SteelCobra | `src/engine/skills/curated/batch-r7.ts` | Poison enemyAll only if Life was damaged (armor-only splash hits skipped) → Poison lastDamaged = target + adjacent (native CausePoison FromTarget + AdjacentFromTarget) |  |
+| 2026-09-28T23:23 | sa-C | L5-C-r9-1252-deathmark | assembler | 8072 | weapon:1252 LifeAndDeath | `src/engine/skills/curated/batch-w02.ts`<br>`src/data/gowWeaponReviewedOverrides.json` | Death Mark enemyLastN without n (last enemy only) → Death Mark enemyLastN n=2 (native LastTwoEnemies) |  |
+| 2026-09-28T23:23 | sa-C | L5-C-r9-1278-nextdown | assembler | 8154 | weapon:1278 SpikedManriki | `src/engine/skills/curated/batch-w02.ts` | one enemyChosenAndNextDown splash + lastTargets Stun/Bleed (below target fixed before the first splash) → native order: splash chosen, splash enemyNextDown (R012 per step), Stun chosen/NextDown, Bleed chosen/NextDown |  |
 
 ## 按技能 ID
 
@@ -999,6 +1002,7 @@
 | 8064 | 1 | L4a-R8-6707-same-targets |
 | 8065 | 1 | L5-C-r4-6708 |
 | 8070 | 1 | P-R6-chosen-cell-counts |
+| 8072 | 1 | L5-C-r9-1252-deathmark |
 | 8073 | 1 | L7-R1-random-chain-waves |
 | 8076 | 1 | R3-B01-1256 |
 | 8077 | 4 | L3-015、L3-016、R7-doomed-count-order、P-R1-count-at-native-step |
@@ -1031,6 +1035,7 @@
 | 8139 | 2 | P-counter-per-step、R7-b14-status-counts |
 | 8140 | 2 | L1-1274-amanithrax、P-R5-faction-kingdom |
 | 8150 | 1 | F2-R001-order |
+| 8154 | 1 | L5-C-r9-1278-nextdown |
 | 8155 | 1 | R3-B07-1279 |
 | 8160 | 1 | P-prefnotprev-semantics |
 | 8165 | 1 | P-random-stat-pool |
@@ -1316,6 +1321,7 @@
 | 8685 | 1 | L4a-R8-7136-column |
 | 8686 | 1 | P-random-stat-pool |
 | 8688 | 1 | L4a-r3-7139 |
+| 8690 | 1 | L5-C-r9-7141-poison |
 | 8691 | 1 | L5-C-r4-7142 |
 | 8692 | 1 | R3-B08-7143 |
 | 8694 | 1 | F2-7145-miss-branch |

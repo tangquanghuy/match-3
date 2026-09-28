@@ -3672,7 +3672,8 @@
             "kind": "status",
             "target": "enemyLastN",
             "statusId": "death-mark",
-            "turns": 3
+            "turns": 3,
+            "n": 2
           },
           {
             "kind": "status",
