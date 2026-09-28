@@ -419,6 +419,16 @@
   "by": "sa-R6",
   "at": "2026-09-28T08:24:38.212Z"
  },
+ "troop:6809": {
+  "lines": {
+   "L10": "buff C attack+11 ; buff A1 attack+11  => C:atk+11 | A1:atk+11",
+   "R10": "buff C attack+11 ; buff A1 attack+11  => C:atk+11 | A1:atk+11",
+   "L0": "buff C attack+1 ; buff A1 attack+1  => C:atk+1 | A1:atk+1",
+   "K": "buff C attack+11 ; buff A1 attack+11  => C:atk+11 | A1:atk+11"
+  },
+  "by": "sa-P",
+  "at": "2026-09-28T23:12:38.829Z"
+ },
  "troop:6814": {
   "lines": {
    "L10": "dmg E11 22 ; status E11 +burning  => E11:hp-12 arm-10 +burning",
@@ -686,8 +696,8 @@
    "L0": "dmg E12 1 (all) ; dmg E13 1 (all) ; status E12 +curse ; status E13 +entangle ; status E12 +poison ; status E13 +poison  => E12:arm-1 +curse+poison | E13:arm-1 +entangle+poison",
    "K": "dmg E12 11 (all) ; dmg E13 11 (all) ; defeat E12 ; defeat E13 ; status E10 +curse ; status E11 +entangle ; status E10 +poison ; status E11 +poison  => E12:hp-1 DEAD | E13:hp-1 DEAD | E10:+curse+poison | E11:+entangle+poison"
   },
-  "by": "sa-H",
-  "at": "2026-09-28T21:15:16.963Z"
+  "by": "sa-P",
+  "at": "2026-09-28T23:12:38.829Z"
  },
  "troop:7090": {
   "lines": {

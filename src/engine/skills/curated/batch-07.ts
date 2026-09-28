@@ -44,7 +44,7 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 7674,
     desc: '爆破 2 颗宝石。对第一名和最后一名敌人造成 [魔法 + 2] 点伤害。',
     build: skill(
-      explodeRandomGems(2, 0, 'color'),
+      explodeRandomGems(2, 0, 'all'),
       // 「第一名和最后一名敌人」= enemyFront + enemyLast 两段共用同一缩放（文件头备注）
       dmg('enemyFront', 2),
       dmg('enemyLast', 2),

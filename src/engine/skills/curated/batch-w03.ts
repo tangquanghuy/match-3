@@ -423,7 +423,7 @@ const SPELLS: CuratedBatch['spells'] = [
   {
     id: 8521,
     desc: '结果 [魔法 + 3] 给予一名敌人超级重击。如果敌人被打昏，炸毁四枚宝石。',
-    build: ({"segments":[{"kind":"damage","target":"enemyChosen","scaling":{"base":3,"mult":1},"range":"splash","splashRatio":0.75},{"kind":"gem","params":{"op":"clear","mode":"explode","target":{"kind":"randomGems","count":{"base":4,"mult":0},"include":"color"}},"ifCond":{"kind":"anyEnemyStatus","statusId":"stun"}}]} as SkillPrototype),
+    build: ({"segments":[{"kind":"damage","target":"enemyChosen","scaling":{"base":3,"mult":1},"range":"splash","splashRatio":0.75},{"kind":"gem","params":{"op":"clear","mode":"explode","target":{"kind":"randomGems","count":{"base":4,"mult":0},"include":"all"}},"ifCond":{"kind":"anyEnemyStatus","statusId":"stun"}}]} as SkillPrototype),
   },
   {
     id: 8529,
@@ -641,7 +641,7 @@ const SPELLS: CuratedBatch['spells'] = [
   {
     id: 8696,
     desc: '爆破 3 颗宝石，再创造一颗许愿宝石。',
-    build: ({"segments":[{"kind":"gem","params":{"op":"clear","mode":"explode","target":{"kind":"randomGems","count":{"base":3,"mult":0},"include":"color"}}},{"kind":"gem","params":{"op":"create","gem":{"kind":"special","spec":{"kind":"wish"}},"count":{"base":1,"mult":0}}}]} as SkillPrototype),
+    build: ({"segments":[{"kind":"gem","params":{"op":"clear","mode":"explode","target":{"kind":"randomGems","count":{"base":3,"mult":0},"include":"all"}}},{"kind":"gem","params":{"op":"create","gem":{"kind":"special","spec":{"kind":"wish"}},"count":{"base":1,"mult":0}}}]} as SkillPrototype),
   },
   {
     id: 8697,
@@ -902,7 +902,7 @@ const SPELLS: CuratedBatch['spells'] = [
   {
     id: 8774,
     desc: '造成 [魔法 + 7] 点散射伤害。若自身队伍中有泽菲罗斯，则爆破 5 颗宝石。 [x5]',
-    build: ({"segments":[{"kind":"damage","target":"enemyAll","scaling":{"base":7,"mult":1},"range":"scatter","modifier":{"mod":{"kind":"multiplier","a":5}}},{"kind":"gem","params":{"op":"clear","mode":"explode","target":{"kind":"randomGems","count":{"base":5,"mult":0},"include":"color"}},"ifCond":{"kind":"troopPresent","side":"ally","name":"泽菲罗斯"}}]} as SkillPrototype),
+    build: ({"segments":[{"kind":"damage","target":"enemyAll","scaling":{"base":7,"mult":1},"range":"scatter","modifier":{"mod":{"kind":"multiplier","a":5}}},{"kind":"gem","params":{"op":"clear","mode":"explode","target":{"kind":"randomGems","count":{"base":5,"mult":0},"include":"all"}},"ifCond":{"kind":"troopPresent","side":"ally","name":"泽菲罗斯"}}]} as SkillPrototype),
   },
   {
     id: 8775,
@@ -984,7 +984,7 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 8816,
     desc: '爆破 [魔法 + 1] 颗宝石。再召唤一名黑曜石深渊军队。',
     build: skill(
-      explodeRandomGems(1, 1, 'color'),
+      explodeRandomGems(1, 1, 'all'),
       summonRandom(rawKingdomPool(3083), undefined) /* native SummoningKingdom 3083 (zh '地狱悬崖' adds faction troops) */,
     ),
   },
@@ -1320,7 +1320,7 @@ const SPELLS: CuratedBatch['spells'] = [
   {
     id: 9018,
     desc: '对一名敌人造成 [魔法 + 3] 点伤害，伤害值因赃物宝石数而增强。再爆破 4 颗宝石。 [x5]',
-    build: ({"segments":[{"kind":"damage","target":"enemyChosen","scaling":{"base":3,"mult":1},"modifier":{"mod":{"kind":"multiplier","a":5},"source":{"kind":"boardSpecial","gem":"bootyGem"}}},{"kind":"gem","params":{"op":"clear","mode":"explode","target":{"kind":"randomGems","count":{"base":4,"mult":0},"include":"color"}}}]} as SkillPrototype),
+    build: ({"segments":[{"kind":"damage","target":"enemyChosen","scaling":{"base":3,"mult":1},"modifier":{"mod":{"kind":"multiplier","a":5},"source":{"kind":"boardSpecial","gem":"bootyGem"}}},{"kind":"gem","params":{"op":"clear","mode":"explode","target":{"kind":"randomGems","count":{"base":4,"mult":0},"include":"all"}}}]} as SkillPrototype),
   },
   {
     id: 9019,

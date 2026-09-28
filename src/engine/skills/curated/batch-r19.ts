@@ -990,10 +990,11 @@ const SPELLS: CuratedBatch['spells'] = [
       dmg('enemyChosen', 4, 2, {
         modifier: { mod: { kind: 'multiplier', a: 10 }, source: { kind: 'boardSpecial', gem: 'curseGem' } },
       }),
+      // sa-P P-G-ifTargetDied-after-self: native AddForKill -> ifTargetDied again (kill anchor survives self / gated steps)
       reduce('enemyAll', 'armor', 0, 0, { drainAll: true, ifTargetDied: true }),
       // 前一段 enemyAll 会改写 lastTarget → 祝福/附魔按「本次施法有敌人阵亡」判定（只有选定敌人受伤害）
-      inflict('blessed', 'allySelf', { ifCond: { kind: 'castEnemyDied' } }),
-      inflict('enchanted', 'allySelf', { ifCond: { kind: 'castEnemyDied' } }),
+      inflict('blessed', 'allySelf', { ifTargetDied: true }),
+      inflict('enchanted', 'allySelf', { ifTargetDied: true }),
     ),
   },
   {
@@ -1026,10 +1027,11 @@ const SPELLS: CuratedBatch['spells'] = [
       armor('allySelf', 10, 0),
       heal('allySelf', 10, 0),
       magic('allySelf', 10, 0),
-      attack('allySelf', 20, 0, { ifCond: { kind: 'castEnemyDied' } }),
-      armor('allySelf', 20, 0, { ifCond: { kind: 'castEnemyDied' } }),
-      heal('allySelf', 20, 0, { ifCond: { kind: 'castEnemyDied' } }),
-      magic('allySelf', 20, 0, { ifCond: { kind: 'castEnemyDied' } }),
+      // sa-P P-G-ifTargetDied-after-self: native AddForKill -> ifTargetDied again (kill anchor survives self / gated steps)
+      attack('allySelf', 20, 0, { ifTargetDied: true }),
+      armor('allySelf', 20, 0, { ifTargetDied: true }),
+      heal('allySelf', 20, 0, { ifTargetDied: true }),
+      magic('allySelf', 20, 0, { ifTargetDied: true }),
     ),
   },
   {

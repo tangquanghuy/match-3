@@ -76,6 +76,13 @@ export interface CastTracking {
    *  the roster, lastTargetColor / Race / Status still read its colours / types / statuses (native counts them at
    *  the step-0 Count, before the hit). */
   lastTarget?: { id: number; aliveBefore: boolean; unit?: Character };
+  /** P-G-ifTargetDied-after-self: the most recent tracked target on the ENEMY side of the caster. A later self / ally
+   *  segment rewrites lastTarget, but ifTargetDied / lastTargetSurvived keep judging this victim (native AddForKill on
+   *  consecutive self steps: every step sees the same kill). Written by setLastTarget. */
+  lastEnemyTarget?: { id: number; aliveBefore: boolean; unit?: Character };
+  /** Kill anchor: lastTarget as written by segments that are not themselves ifTargetDied-gated (runSegment restores
+   *  killTarget / lastEnemyTarget after a gated segment), so chained AddForKill steps judge one victim. */
+  killTarget?: { id: number; aliveBefore: boolean; unit?: Character };
   /**
    * 最近一个产目标段的**全目标列表**（R22 批，'lastTargets'/'lastTargetFirst'/'lastTargetLast'
    * 目标模式的解析源——「吸取其 8 点法力值」）。
@@ -239,6 +246,35 @@ export function findSide(state: GameState, id: number): PlayerSide | null {
     if (state.teams[side].characters.some((c) => c.id === id)) return side;
   }
   return null;
+}
+
+type TrackedTarget = NonNullable<CastTracking['lastTarget']>;
+
+/** Record the primary target of a targeting segment (lastTarget) and, when it stands on the enemy side of the
+ *  caster, also lastEnemyTarget (P-G-ifTargetDied-after-self). Call before the segment's effect runs. */
+export function setLastTarget(ctx: EffectContext, entry: TrackedTarget, onEnemySide?: boolean): void {
+  const tracking = ctx.castTracking;
+  if (!tracking) return;
+  tracking.lastTarget = entry;
+  tracking.killTarget = entry;
+  // onEnemySide: callers that record the victim after the hit (it may have left the roster) pass the side they saw.
+  const side = findSide(ctx.state, entry.id);
+  const enemy = onEnemySide ?? (side !== null && side !== effectCasterSide(ctx));
+  if (enemy) tracking.lastEnemyTarget = entry;
+}
+
+/** The tracked unit a kill condition (ifTargetDied / lastTargetSurvived) judges: lastTarget, except when lastTarget
+ *  is an ally-side unit that did not die (a self / ally step after the hit) -> the last enemy-side target. An ally that
+ *  the previous step killed (devour / sacrifice an ally, 8056) is still judged itself. */
+export function killCheckTarget(ctx: EffectContext): TrackedTarget | undefined {
+  const tracking = ctx.castTracking;
+  const last = tracking?.killTarget ?? tracking?.lastTarget;
+  if (!tracking || !last) return undefined;
+  const ch = findCharacter(ctx.state, last.id);
+  if (ch === undefined || ch.defeated) return last;
+  const enemy = tracking.lastEnemyTarget;
+  if (enemy && enemy.id !== last.id && findSide(ctx.state, last.id) === effectCasterSide(ctx)) return enemy;
+  return last;
 }
 
 /** Stable spell ownership, including later economy segments after caster defeat. */

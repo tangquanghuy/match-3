@@ -309,10 +309,9 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '对最后 2 位敌人造成 [魔法 + 1] 点伤害，并使他们陷入一个随机的状态效果。再使他们中毒。',
     build: skill(
       dmg('enemyLastN', 1, 1, { n: 2 }),
-      // 官方 RandomStatusEffect@LastTwoEnemies：最后 2 名各掷一个随机负面状态。randomStatus 段无 n，
-      // 拆成倒数第二名 + 末位两段（按编队顺序掷签；仅剩 1 名时倒数第二段为空、末位段命中）——sa-H
-      inflictRandom('enemySecondLast'),
-      inflictRandom('enemyLastN'),
+      // 官方 RandomStatusEffect@LastTwoEnemies：最后 2 名各掷一个随机负面状态
+      // （P-H-random-status-n：randomStatus 段支持 n，取代 sa-H 的倒数第二 + 末位两段拆分）
+      inflictRandom('enemyLastN', { n: 2 }),
       inflict('poison', 'enemyLastN', { n: 2 }),
     ),
   },

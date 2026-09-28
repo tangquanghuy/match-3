@@ -5,7 +5,7 @@ import { PlayerSide } from '../../types';
 import type { ScalingSpec } from '../scaling';
 import { evaluateScaling } from '../scaling';
 import type { EffectContext, EffectPrimitive } from './context';
-import { casterMagic, locate, findCharacter, findSide } from './context';
+import { casterMagic, locate, findCharacter, findSide, setLastTarget, effectCasterSide } from './context';
 import { hasTroopType, evaluateWithModifier, modifierBonus, DEFAULT_RACE_DOUBLE, condMultiplier, condBonusValue, isTargetCondition } from './secondary';
 import type { ModifierSpec, CondMult, CondBonus } from './secondary';
 import { passivesOf, eventDamageMultiplier, isImmuneToStatus } from '../../traits';
@@ -339,7 +339,7 @@ export function damageEffect(params: DamageParams): EffectPrimitive {
             const snapshot = { id: primary.id, aliveBefore: true };
             centres.push(snapshot);
             ctx.castTracking.lastTargets = centres;
-            ctx.castTracking.lastTarget = centres[0];
+            setLastTarget(ctx, centres[0], findSide(ctx.state, primary.id) !== effectCasterSide(ctx));
             const all = ctx.castTracking.allTargets ??= [];
             if (!all.some(t => t.id === primary.id)) all.push(snapshot);
           }
@@ -372,6 +372,8 @@ export function damageEffect(params: DamageParams): EffectPrimitive {
         const selected = new Set<number>();
         let prevId: number | undefined;
         const snapshots: { id: number; aliveBefore: boolean }[] = [];
+        const waveSide = targets.length ? findSide(ctx.state, targets[0].id) : null;
+        const waveEnemySide = waveSide !== null && waveSide !== effectCasterSide(ctx);
         const damageEvents: SkillDamageEvent[] = [];
         const tailEvents: GameEvent[] = [];
         for (let wave = 0; wave < params.randomDamageWaves; wave++) {
@@ -393,7 +395,7 @@ export function damageEffect(params: DamageParams): EffectPrimitive {
           }
         }
         if (ctx.castTracking && snapshots.length) {
-          ctx.castTracking.lastTarget = snapshots[0];
+          setLastTarget(ctx, snapshots[0], waveEnemySide);
           ctx.castTracking.lastTargets = snapshots;
           const tracked = ctx.castTracking.allTargets ??= [];
           for (const snapshot of snapshots) {

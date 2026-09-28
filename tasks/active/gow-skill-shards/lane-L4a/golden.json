@@ -151,13 +151,13 @@
  },
  "troop:6064": {
   "lines": {
-   "L10": "dmg E10 13 ; destroy 6 (Green x2, Purple x2, Brown x1, Red x1) ; buff E10 attack-1 ; buff E10 magic-1  => E10:hp-8 arm-5 atk-1 mag-1 | A2:mana+1",
-   "R10": "dmg E10 13 ; destroy 6 (Green x2, Purple x2, Brown x1, Red x1) ; buff E10 attack-1 ; buff E10 magic-1  => E10:hp-8 arm-5 atk-1 mag-1 | A2:mana+1",
-   "L0": "dmg E10 3 ; destroy 6 (Green x2, Purple x2, Brown x1, Red x1) ; buff E10 attack-1 ; buff E10 armor-1 ; buff E10 magic-1  => E10:arm-4 atk-1 mag-1 | A2:mana+1",
-   "K": "dmg E10 13 ; defeat E10 ; destroy 6 (Green x2, Purple x2, Brown x1, Red x1) ; buff E11 attack-1 ; buff E11 magic-1  => E10:hp-1 DEAD | A2:mana+1 | E11:atk-1 mag-1"
+   "L10": "dmg E10 13 ; destroy 6 (Green x1, Purple x2, skull x1, Red x1, Yellow x1) ; skulls E10 1 ; buff E10 attack-1 ; buff E10 magic-1  => E10:hp-9 arm-5 atk-1 mag-1 | A2:mana+2",
+   "R10": "dmg E10 13 ; destroy 6 (Green x1, Purple x2, skull x1, Red x1, Yellow x1) ; skulls E10 1 ; buff E10 attack-1 ; buff E10 magic-1  => E10:hp-9 arm-5 atk-1 mag-1 | A2:mana+2",
+   "L0": "dmg E10 3 ; destroy 6 (Green x1, Purple x2, skull x1, Red x1, Yellow x1) ; skulls E10 1 ; buff E10 attack-1 ; buff E10 armor-1 ; buff E10 magic-1  => E10:arm-5 atk-1 mag-1 | A2:mana+2",
+   "K": "dmg E10 13 ; defeat E10 ; destroy 6 (Green x1, Purple x2, skull x1, Red x1, Yellow x1) ; skulls E11 1 ; defeat E11 ; buff E12 attack-1 ; buff E12 magic-1  => E10:hp-1 DEAD | A2:mana+2 | E11:hp-1 DEAD | E12:atk-1 mag-1"
   },
-  "by": "sa-F2",
-  "at": "2026-09-28T00:34:08.295Z"
+  "by": "sa-P",
+  "at": "2026-09-28T23:25:49.658Z"
  },
  "troop:6066": {
   "lines": {
@@ -724,10 +724,10 @@
    "L10": "status E10 +web ; status E11 +web ; status E12 +web ; status E13 +web ; dmg E12 15 (all) ; dmg E13 15 (all)  => E10:+web | E11:+web | E12:hp-15 +web | E13:hp-15 +web",
    "R10": "status E10 +web ; status E11 +web ; status E12 +web ; status E13 +web ; dmg E12 15 (all) ; dmg E13 15 (all)  => E10:+web | E11:+web | E12:hp-15 +web | E13:hp-15 +web",
    "L0": "status E10 +web ; status E11 +web ; status E12 +web ; status E13 +web ; dmg E12 5 (all) ; dmg E13 5 (all)  => E10:+web | E11:+web | E12:hp-5 +web | E13:hp-5 +web",
-   "K": "status E10 +web ; status E11 +web ; status E12 +web ; status E13 +web ; dmg E12 15 (all) ; dmg E13 15 (all) ; defeat E12 ; defeat E13 ; explode 60 ; skulls E10 4 ; defeat E10 ; ~cascade~  => E10:hp-1 +web DEAD | E11:+web | E12:hp-1 +web DEAD | E13:hp-1 +web DEAD | A2:mana+7 | A1:mana+5  cascade"
+   "K": "status E10 +web ; status E11 +web ; status E12 +web ; status E13 +web ; dmg E12 15 (all) ; dmg E13 15 (all) ; defeat E12 ; defeat E13 ; explode 58 ; skulls E10 4 ; defeat E10 ; ~cascade~  => E10:hp-1 +web DEAD | E11:+web | E12:hp-1 +web DEAD | E13:hp-1 +web DEAD | A2:mana+9 | A1:mana+5  cascade"
   },
-  "by": "sa-R1",
-  "at": "2026-09-28T02:30:57.645Z"
+  "by": "sa-P",
+  "at": "2026-09-28T23:25:49.658Z"
  },
  "troop:6591": {
   "lines": {
@@ -751,13 +751,13 @@
  },
  "troop:6607": {
   "lines": {
-   "L10": "explode 31 ; skulls E10 3 ; buff E10 attack-11 ; buff C attack+11  => A1:mana+3 | A2:mana+2 | E10:arm-3 atk-11 | C:atk+11",
-   "R10": "explode 31 ; skulls E10 3 ; buff E10 attack-11 ; buff C attack+11  => A1:mana+3 | A2:mana+2 | E10:arm-3 atk-11 | C:atk+11",
-   "L0": "explode 31 ; skulls E10 3 ; buff E10 attack-1 ; buff C attack+1  => A1:mana+3 | A2:mana+2 | E10:arm-3 atk-1 | C:atk+1",
-   "K": "explode 31 ; skulls E10 3 ; defeat E10 ; buff E11 attack-11 ; buff C attack+11  => A1:mana+3 | A2:mana+2 | E10:hp-1 DEAD | E11:atk-11 | C:atk+11"
+   "L10": "explode 30 ; skulls E10 3 ; buff E10 attack-11 ; buff C attack+11  => A1:mana+3 | A2:mana+3 | E10:arm-3 atk-11 | C:atk+11",
+   "R10": "explode 30 ; skulls E10 3 ; buff E10 attack-11 ; buff C attack+11  => A1:mana+3 | A2:mana+3 | E10:arm-3 atk-11 | C:atk+11",
+   "L0": "explode 30 ; skulls E10 3 ; buff E10 attack-1 ; buff C attack+1  => A1:mana+3 | A2:mana+3 | E10:arm-3 atk-1 | C:atk+1",
+   "K": "explode 30 ; skulls E10 3 ; defeat E10 ; buff E11 attack-11 ; buff C attack+11  => A1:mana+3 | A2:mana+3 | E10:hp-1 DEAD | E11:atk-11 | C:atk+11"
   },
-  "by": "sa-F2",
-  "at": "2026-09-28T00:29:56.909Z"
+  "by": "sa-P",
+  "at": "2026-09-28T23:25:49.658Z"
  },
  "troop:6620": {
   "lines": {
@@ -776,8 +776,8 @@
    "L0": "dmg E11 21 (splash) ; dmg E10 10 (splash) ; dmg E12 10 (splash) ; explode 16 ; skulls E10 1 ; ~cascade~  => E11:hp-11 arm-10 | E10:hp-6 arm-5 | E12:arm-10 | A1:mana+1 | A2:mana+1  cascade",
    "K": "dmg E11 31 (splash) ; dmg E10 15 (splash) ; dmg E12 15 (splash) ; defeat E11 ; defeat E10 ; defeat E12 ; explode 16 ; skulls E13 1 ; defeat E13 ; ~cascade~  => E11:hp-1 DEAD | E10:hp-1 DEAD | E12:hp-1 DEAD | A1:mana+1 | A2:mana+1 | E13:hp-1 DEAD  cascade"
   },
-  "by": "sa-R1",
-  "at": "2026-09-28T02:49:48.433Z"
+  "by": "sa-P",
+  "at": "2026-09-28T23:25:49.658Z"
  },
  "troop:6623": {
   "lines": {
@@ -971,13 +971,13 @@
  },
  "troop:6758": {
   "lines": {
-   "L10": "explode 43 ; skulls E10 3  => A2:mana+3 | A1:mana+4 | E10:arm-3",
-   "R10": "explode 43 ; skulls E10 3  => A2:mana+3 | A1:mana+4 | E10:arm-3",
+   "L10": "explode 43 ; skulls E10 3 ; ~cascade~  => A2:mana+5 | A1:mana+4 | E10:arm-3  cascade",
+   "R10": "explode 43 ; skulls E10 3 ; ~cascade~  => A2:mana+5 | A1:mana+4 | E10:arm-3  cascade",
    "L0": "explode 9  => A1:mana+1",
-   "K": "explode 43 ; skulls E10 3 ; defeat E10  => A2:mana+3 | A1:mana+4 | E10:hp-1 DEAD"
+   "K": "explode 43 ; skulls E10 3 ; defeat E10 ; ~cascade~  => A2:mana+5 | A1:mana+4 | E10:hp-1 DEAD  cascade"
   },
-  "by": "sa-A",
-  "at": "2026-09-28T11:21:07.693Z"
+  "by": "sa-P",
+  "at": "2026-09-28T23:25:49.658Z"
  },
  "troop:6767": {
   "lines": {
@@ -1281,13 +1281,13 @@
  },
  "troop:6991": {
   "lines": {
-   "L10": "convert Green x4, Purple x4, Brown x1, Red x1, Yellow x2 -> doomSkull x12 ; explode 35 ; trigger doomSkull ; trigger doomSkull ; explode 1 ; trigger doomSkull ; explode 2 ; trigger doomSkull ; explode 1 ; trigger doomSkull ; explode 3 ; trigger doomSkull ; explode 1 ; skulls E10 34 ; ~cascade~  => A2:mana+2 | E10:hp-29 arm-5  cascade",
-   "R10": "convert Green x4, Purple x4, Brown x1, Red x1, Yellow x2 -> doomSkull x12 ; explode 35 ; trigger doomSkull ; trigger doomSkull ; explode 1 ; trigger doomSkull ; explode 2 ; trigger doomSkull ; explode 1 ; trigger doomSkull ; explode 3 ; trigger doomSkull ; explode 1 ; skulls E10 34 ; ~cascade~  => A2:mana+2 | E10:hp-29 arm-5  cascade",
+   "L10": "convert Green x4, Purple x4, Brown x1, Red x1, Yellow x2 -> doomSkull x12 ; explode 37 ; trigger doomSkull ; explode 1 ; trigger doomSkull ; explode 4 ; trigger doomSkull ; explode 1 ; trigger doomSkull ; trigger doomSkull ; trigger doomSkull ; explode 2 ; trigger doomSkull ; explode 3 ; skulls E10 38 ; ~cascade~ ; trigger doomSkull ; explode 3 ; trigger doomSkull ; trigger doomSkull ; explode 2 ; trigger doomSkull ; explode 4 ; skulls E10 11  => A2:mana+11 | E10:hp-71 arm-5  cascade",
+   "R10": "convert Green x4, Purple x4, Brown x1, Red x1, Yellow x2 -> doomSkull x12 ; explode 37 ; trigger doomSkull ; explode 1 ; trigger doomSkull ; explode 4 ; trigger doomSkull ; explode 1 ; trigger doomSkull ; trigger doomSkull ; trigger doomSkull ; explode 2 ; trigger doomSkull ; explode 3 ; skulls E10 38 ; ~cascade~ ; trigger doomSkull ; explode 3 ; trigger doomSkull ; trigger doomSkull ; explode 2 ; trigger doomSkull ; explode 4 ; skulls E10 11  => A2:mana+11 | E10:hp-71 arm-5  cascade",
    "L0": "convert Green x4, Purple x4, Brown x1, Red x1, Yellow x2 -> doomSkull x12 ; explode 6 ; trigger doomSkull ; explode 5 ; skulls E10 6  => E10:hp-1 arm-5",
-   "K": "convert Green x4, Purple x4, Brown x1, Red x1, Yellow x2 -> doomSkull x12 ; explode 35 ; trigger doomSkull ; trigger doomSkull ; explode 1 ; trigger doomSkull ; explode 2 ; trigger doomSkull ; explode 1 ; trigger doomSkull ; explode 3 ; trigger doomSkull ; explode 1 ; skulls E10 34 ; defeat E10 ; ~cascade~  => A2:mana+2 | E10:hp-1 DEAD  cascade"
+   "K": "convert Green x4, Purple x4, Brown x1, Red x1, Yellow x2 -> doomSkull x12 ; explode 37 ; trigger doomSkull ; explode 1 ; trigger doomSkull ; explode 4 ; trigger doomSkull ; explode 1 ; trigger doomSkull ; trigger doomSkull ; trigger doomSkull ; explode 2 ; trigger doomSkull ; explode 3 ; skulls E10 38 ; defeat E10 ; ~cascade~ ; defeat E11 ; trigger doomSkull ; explode 3 ; trigger doomSkull ; trigger doomSkull ; explode 2 ; trigger doomSkull ; explode 4 ; skulls E12 11 ; defeat E12  => A2:mana+11 | E10:hp-1 DEAD | E11:hp-1 DEAD | E12:hp-1 DEAD  cascade"
   },
-  "by": "sa-F2",
-  "at": "2026-09-28T00:29:59.146Z"
+  "by": "sa-P",
+  "at": "2026-09-28T23:25:49.658Z"
  },
  "troop:7009": {
   "lines": {
@@ -1541,13 +1541,13 @@
  },
  "troop:7206": {
   "lines": {
-   "L10": "convert Green x3, Yellow x3, Blue x1, Purple x3 -> Brown x10 ; explode 57 ; skulls E10 4 ; ~cascade~  => A2:mana+9 | A1:mana+4 | E10:arm-4  cascade",
-   "R10": "convert Green x3, Yellow x3, Blue x1, Purple x3 -> Brown x10 ; explode 57 ; skulls E10 4 ; ~cascade~  => A2:mana+9 | A1:mana+4 | E10:arm-4  cascade",
+   "L10": "convert Green x3, Yellow x3, Blue x1, Purple x3 -> Brown x10 ; explode 57 ; skulls E10 4 ; ~cascade~  => A2:mana+10 | A1:mana+4 | E10:arm-4  cascade",
+   "R10": "convert Green x3, Yellow x3, Blue x1, Purple x3 -> Brown x10 ; explode 57 ; skulls E10 4 ; ~cascade~  => A2:mana+10 | A1:mana+4 | E10:arm-4  cascade",
    "L0": "convert Green x3, Yellow x3, Blue x1, Purple x3 -> Brown x10 ; explode 6 ; ~cascade~ ; extra-turn match  extra:match  cascade",
-   "K": "convert Green x3, Yellow x3, Blue x1, Purple x3 -> Brown x10 ; explode 57 ; skulls E10 4 ; defeat E10 ; ~cascade~  => A2:mana+9 | A1:mana+4 | E10:hp-1 DEAD  cascade"
+   "K": "convert Green x3, Yellow x3, Blue x1, Purple x3 -> Brown x10 ; explode 57 ; skulls E10 4 ; defeat E10 ; ~cascade~  => A2:mana+10 | A1:mana+4 | E10:hp-1 DEAD  cascade"
   },
-  "by": "sa-A",
-  "at": "2026-09-28T11:21:07.693Z"
+  "by": "sa-P",
+  "at": "2026-09-28T23:25:49.658Z"
  },
  "troop:7213": {
   "lines": {
@@ -2451,13 +2451,13 @@
  },
  "weapon:1150": {
   "lines": {
-   "L10": "dmg E11 11 ; destroy 30 (Green x8, Purple x6, Brown x4, Red x4, Yellow x4, Blue x4) ; ~cascade~  => E11:hp-1 arm-10 | A2:mana+8  cascade",
-   "R10": "dmg E11 11 ; destroy 30 (Green x8, Purple x6, Brown x4, Red x4, Yellow x4, Blue x4) ; ~cascade~  => E11:hp-1 arm-10 | A2:mana+8  cascade",
-   "L0": "dmg E11 1 ; destroy 30 (Green x8, Purple x6, Brown x4, Red x4, Yellow x4, Blue x4) ; ~cascade~  => E11:arm-1 | A2:mana+8  cascade",
-   "K": "dmg E11 11 ; defeat E11 ; destroy 30 (Green x8, Purple x6, Brown x4, Red x4, Yellow x4, Blue x4) ; ~cascade~  => E11:hp-1 DEAD | A2:mana+8  cascade"
+   "L10": "dmg E11 11 ; destroy 30 (Green x6, Purple x4, skull x2, Red x3, Yellow x5, Brown x6, Blue x4) ; skulls E10 2 ; ~cascade~ ; extra-turn match  => E11:hp-1 arm-10 | A2:mana+8 | E10:arm-2  extra:match  cascade",
+   "R10": "dmg E11 11 ; destroy 30 (Green x6, Purple x4, skull x2, Red x3, Yellow x5, Brown x6, Blue x4) ; skulls E10 2 ; ~cascade~ ; extra-turn match  => E11:hp-1 arm-10 | A2:mana+8 | E10:arm-2  extra:match  cascade",
+   "L0": "dmg E11 1 ; destroy 30 (Green x6, Purple x4, skull x2, Red x3, Yellow x5, Brown x6, Blue x4) ; skulls E10 2 ; ~cascade~ ; extra-turn match  => E11:arm-1 | A2:mana+8 | E10:arm-2  extra:match  cascade",
+   "K": "dmg E11 11 ; defeat E11 ; destroy 30 (Green x6, Purple x4, skull x2, Red x3, Yellow x5, Brown x6, Blue x4) ; skulls E10 2 ; defeat E10 ; ~cascade~ ; extra-turn match  => E11:hp-1 DEAD | A2:mana+8 | E10:hp-1 DEAD  extra:match  cascade"
   },
-  "by": "sa-A",
-  "at": "2026-09-28T11:12:46.111Z"
+  "by": "sa-P",
+  "at": "2026-09-28T23:25:49.658Z"
  },
  "weapon:1159": {
   "lines": {
@@ -2646,8 +2646,8 @@
    "L0": "dmg E10 1 (scatter) ; dmg E11 2 (scatter) ; dmg E12 3 (scatter) ; dmg E13 1 (scatter)  => E10:arm-1 | E11:arm-2 | E12:arm-3 | E13:arm-1",
    "K": "dmg E10 4 (scatter) ; dmg E11 4 (scatter) ; dmg E12 6 (scatter) ; dmg E13 3 (scatter) ; defeat E10 ; defeat E11 ; defeat E12 ; defeat E13  => E10:hp-1 DEAD | E11:hp-1 DEAD | E12:hp-1 DEAD | E13:hp-1 DEAD"
   },
-  "by": "sa-R1",
-  "at": "2026-09-28T02:41:45.901Z"
+  "by": "sa-P",
+  "at": "2026-09-28T23:25:49.658Z"
  },
  "weapon:1477": {
   "lines": {
@@ -2701,13 +2701,13 @@
  },
  "weapon:1529": {
   "lines": {
-   "L10": "dmg E11 13 ; explode 31 ; skulls E10 3  => E11:hp-3 arm-10 | A2:mana+2 | E10:arm-3",
-   "R10": "dmg E11 13 ; explode 31 ; skulls E10 3  => E11:hp-3 arm-10 | A2:mana+2 | E10:arm-3",
-   "L0": "dmg E11 3 ; explode 31 ; skulls E10 3  => E11:arm-3 | A2:mana+2 | E10:arm-3",
-   "K": "dmg E11 13 ; defeat E11 ; explode 31 ; skulls E10 3 ; defeat E10  => E11:hp-1 DEAD | A2:mana+2 | E10:hp-1 DEAD"
+   "L10": "dmg E11 13 ; explode 30 ; skulls E10 3  => E11:hp-3 arm-10 | A2:mana+1 | E10:arm-3",
+   "R10": "dmg E11 13 ; explode 30 ; skulls E10 3  => E11:hp-3 arm-10 | A2:mana+1 | E10:arm-3",
+   "L0": "dmg E11 3 ; explode 30 ; skulls E10 3  => E11:arm-3 | A2:mana+1 | E10:arm-3",
+   "K": "dmg E11 13 ; defeat E11 ; explode 30 ; skulls E10 3 ; defeat E10  => E11:hp-1 DEAD | A2:mana+1 | E10:hp-1 DEAD"
   },
-  "by": "sa-R1",
-  "at": "2026-09-28T02:58:52.154Z"
+  "by": "sa-P",
+  "at": "2026-09-28T23:25:49.658Z"
  },
  "weapon:1578": {
   "lines": {
@@ -2726,8 +2726,8 @@
    "L0": "dmg E11 3  => E11:arm-3",
    "K": "dmg E11 23 ; defeat E11  => E11:hp-1 DEAD"
   },
-  "by": "sa-R1",
-  "at": "2026-09-28T02:41:45.901Z"
+  "by": "sa-P",
+  "at": "2026-09-28T23:25:49.658Z"
  },
  "weapon:1601": {
   "lines": {

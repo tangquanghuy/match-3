@@ -1,6 +1,6 @@
 # GoW 技能改动留档
 
-自动生成（`node scripts/gow-changelog.mjs render`），源数据 [CHANGES.jsonl](CHANGES.jsonl)，共 630 条改动，涉及 1082 个技能 ID。
+自动生成（`node scripts/gow-changelog.mjs render`），源数据 [CHANGES.jsonl](CHANGES.jsonl)，共 635 条改动，涉及 1112 个技能 ID。
 
 ## 按时间
 
@@ -636,6 +636,11 @@
 | 2026-09-28T22:06 | sa-H | L1-H-6507-freeze-affected | assembler | 7697 | troop:6507 HyndlaFrostcrown | `src/engine/skills/curated/batch-20.ts`<br>`src/data/gowSnapshotOverrides.json` | froze all enemies; zh said all enemies → freezes target + adjacent (native FromTarget + AdjacentFromTarget); zh + override |  |
 | 2026-09-28T22:08 | sa-H | L1-H-7376-prefnotprev | assembler | 9016 | troop:7376 MorthanisDarkness | `src/engine/skills/curated/batch-04.ts` | 4 distinct random enemies (enemyRandomN) → RandomEnemy + 3 x RandomPrefNotPrevEnemy Life steals (R007-3; repeats allowed, never twice in a row) |  |
 | 2026-09-28T22:12 | sa-H | L1-H-6908-four-branches | assembler | 8369 | troop:6908 BookOfSecrets | `src/engine/skills/curated/batch-r7.ts`<br>`src/data/gowSnapshotOverrides.json` | 3 branches 1/3; status branch hit enemies AND allies; zh said enemies and allies → native A-B-C-D 1/4 each: Daemon \| positive all allies \| negative all enemies \| [M+2] front; zh 或 + override |  |
+| 2026-09-28T22:34 | sa-P | P-G-ifTargetDied-after-self | primitive | 7165, 7294, 7484, 9731 | troop:6095 Tau；weapon:1130 RunicBlade；troop:6334 JaguarWarrior；troop:7746 Cascabel | `src/engine/skills/effects/context.ts`<br>`src/engine/skills/prototypes.ts`<br>`src/engine/skills/effects/secondary.ts`<br>`src/engine/skills/effects/damage.ts`<br>`src/engine/skills/effects/gems.ts`<br>`tests/unit/gowFixP-G-ifTargetDied-after-self.test.ts` | ifTargetDied / lastTargetSurvived read castTracking.lastTarget; any later self / ally / enemyAll step rewrote it, so chained kill-gated steps after a self step never fired → castTracking.killTarget (lastTarget of the last non-kill-gated targeting segment; runSegment restores it after an ifTargetDied segment) + lastEnemyTarget; killCheckTarget judges killTarget, or the last enemy-side target when killTarget is a surviving ally-side unit (an ally killed by the previous step, 8056 devour, is still judged itself) | every ifTargetDied / lastTargetSurvived user (~70 spells); golden diff 0 lines |
+| 2026-09-28T22:41 | sa-P | P-G-ifTargetDied-after-self | assembler | 7165, 7050, 7484, 8104, 8223, 9661, 9716, 8304, 7314, 7294, 9731, 7156, 8228 | troop:6095 Tau；troop:6050 RexWarrior；troop:6334 JaguarWarrior；troop:6734 Stone-Biter；troop:6819 Faemark；troop:7700 Gormungandr；troop:7724 TheSandstoneSentinel；troop:6881 EldritchGuardian；troop:6175 WildFang；weapon:1130 RunicBlade；troop:7746 Cascabel；troop:6086 Raven；troop:6826 Umenath | `src/engine/skills/curated/batch-05.ts`<br>`src/engine/skills/curated/batch-11.ts`<br>`src/engine/skills/curated/batch-r15.ts`<br>`src/engine/skills/curated/batch-r17.ts`<br>`src/engine/skills/curated/batch-r18.ts`<br>`src/engine/skills/curated/batch-r19.ts`<br>`src/engine/skills/curated/batch-r20.ts`<br>`src/engine/skills/curated/batch-r22.ts`<br>`src/engine/skills/curated/batch-w01.ts` | kill bonuses after a self / ally / enemyAll step gated by ifCond castEnemyDied (workaround for P-G) → back to ifTargetDied (native AddForKill on the damaged target); same behaviour for these single-target hits, golden diff 0 | 13 spells: 7165 7050 7484 8104 8223 9661 9716 8304 7314 7294 9731 7156 8228 |
+| 2026-09-28T23:11 | sa-P | P-H-random-status-n | primitive | 8212, 8572 | troop:6809 DireCub；troop:7047 SisterOfNightmares | `src/engine/skills/prototypes.ts`<br>`src/engine/skills/builders.ts`<br>`tests/unit/gowFixP-H-random-status-n.test.ts` | RandomStatusSegment had no n / nRange and inflictRandom dropped them, so FirstN / LastN random statuses hit one unit → RandomStatusSegment.n / nRange, set by inflictRandom and read by resolveTargets like status segments | randomStatus segments with FirstN / LastN targets (2 spells); golden diff 0 lines |
+| 2026-09-28T23:11 | sa-P | P-H-random-status-n | assembler | 8212, 8572 | troop:6809 DireCub；troop:7047 SisterOfNightmares | `src/engine/skills/curated/batch-r15.ts`<br>`src/engine/skills/curated/batch-r4.ts` | 8212 branch C inflictRandom allyFirstN (one ally); 8572 split into enemySecondLast + enemyLastN → 8212 inflictRandom allyFirstN n:2 (native @FirstTwoAllies); 8572 inflictRandom enemyLastN n:2 (native @LastTwoEnemies), same rolls, golden diff 0 | 2 spells: 8212 8572 |
+| 2026-09-28T23:24 | sa-P | R015-random-gems-include-skulls | assembler | 7065, 7145, 7260, 7273, 7344, 7518, 7649, 7674, 7730, 7749, 7763, 7931, 7940, 8138, 8301, 8317, 8497, 8740, 8719, 8793, 8840, 8987, 7251, 7447, 7567, 8140, 8254, 8255, 8256, 8257, 8258, 8259, 8521, 8696, 8774, 8816, 9018, 9380, 9720 | troop:6064 Ghoul；troop:6075 Gorgotha；troop:6146 Thrall；troop:6153 AutumnalImp；troop:6202 Marilith；troop:6366 Infernus；troop:6471 TheWorldbreaker；troop:6487 PandaskaGuard；troop:6536 Vargouille；troop:6555 ArachnaeanWeaver；troop:6561 IceGoblin；troop:6607 OcularenLeech；troop:6622 Gargoyle；troop:6758 Exploadstool；troop:6878 BlindGuardian；troop:6891 UndeadDrake；troop:6991 Ironhawk；troop:7165 GoblinBomber；troop:7167 TheSparkinator；troop:7206 Czernobog；troop:7254 Stoneshell；troop:7359 FrostfireGoblin；weapon:1114 Boom-Boom；weapon:1150 BronzelockPistol；weapon:1157 DragonsEye；weapon:1274 TomeOfSpores；weapon:1297 DoomedHammer；weapon:1298 DoomedBreaker；weapon:1299 DoomedMaul；weapon:1300 DoomedGavel；weapon:1301 DoomedRam；weapon:1302 DoomedSledge；weapon:1413 FleurDeLeon；weapon:1440 GobmothersWand；weapon:1472 ZephyrosBolt；weapon:1484 ObsidianLibram；weapon:1529 DreadArquebus；weapon:1600 LucifasBlade；weapon:1656 ZacharielsFlail | `src/engine/skills/curated/batch-01.ts`<br>`src/engine/skills/curated/batch-03.ts`<br>`src/engine/skills/curated/batch-04.ts`<br>`src/engine/skills/curated/batch-06.ts`<br>`src/engine/skills/curated/batch-07.ts`<br>`src/engine/skills/curated/batch-12.ts`<br>`src/engine/skills/curated/batch-15.ts`<br>`src/engine/skills/curated/batch-19.ts`<br>`src/engine/skills/curated/batch-20.ts`<br>`src/engine/skills/curated/batch-21.ts`<br>`src/engine/skills/curated/batch-26.ts`<br>`src/engine/skills/curated/batch-27.ts`<br>`src/engine/skills/curated/batch-28.ts`<br>`src/engine/skills/curated/batch-36.ts`<br>`src/engine/skills/curated/batch-37.ts`<br>`src/engine/skills/curated/batch-r15.ts`<br>`src/engine/skills/curated/batch-w01.ts`<br>`src/engine/skills/curated/batch-w02.ts`<br>`src/engine/skills/curated/batch-w03.ts`<br>`src/engine/skills/curated/batch-w04.ts`<br>`scripts/_weapon_pools.mjs`<br>`src/data/gowWeaponReviewedOverrides.json`<br>`tests/unit/gowFixR015-random-gems-include-skulls.test.ts` | colourless native DestroyGems / ExplodeGems as randomGems include color (Skulls never picked) → include all (any gem incl. Skulls and skull variants, R015 / R013-5); coloured steps keep include color; weapon generator colourless templates and reviewed overrides updated | 39 spells; golden changed for 14 keys (random pool now includes Skulls) |
 
 ## 按技能 ID
 
@@ -663,7 +668,7 @@
 | 7035 | 1 | L3-018 |
 | 7037 | 1 | F2-R001-order |
 | 7047 | 1 | F1-6047-dispel |
-| 7050 | 1 | F3-q29 |
+| 7050 | 2 | F3-q29、P-G-ifTargetDied-after-self |
 | 7051 | 1 | L5-C-r4-6051 |
 | 7052 | 3 | F2-R001-order、R010、R013-5 |
 | 7053 | 1 | F2-R001-order |
@@ -671,7 +676,7 @@
 | 7055 | 1 | F2-R001-order |
 | 7061 | 1 | F3-t6061 |
 | 7063 | 1 | P-create-interleave |
-| 7065 | 1 | F2-R001-order |
+| 7065 | 2 | F2-R001-order、R015-random-gems-include-skulls |
 | 7066 | 1 | D-1000-strongest |
 | 7092 | 1 | L4b-7276-singlegem |
 | 7094 | 1 | F2-1028-missing-magic |
@@ -688,14 +693,15 @@
 | 7138 | 2 | L4b-7138-zh、L4b-6068-order |
 | 7139 | 1 | F3-q28 |
 | 7143 | 1 | R004-tests |
+| 7145 | 1 | R015-random-gems-include-skulls |
 | 7146 | 2 | F1-remove-order、P-F1-remove-gems |
 | 7147 | 1 | L4a-R8-random-any-gem |
 | 7149 | 1 | F2-R001-order |
 | 7150 | 1 | B-L4b-6080-nine |
-| 7156 | 1 | F1-onkill-order |
+| 7156 | 2 | F1-onkill-order、P-G-ifTargetDied-after-self |
 | 7159 | 1 | L4a-R1-7159-cross |
 | 7162 | 1 | L4b-7138-onecolour |
-| 7165 | 1 | G-kill-all-skills |
+| 7165 | 3 | G-kill-all-skills、P-G-ifTargetDied-after-self、P-G-ifTargetDied-after-self |
 | 7169 | 2 | L4b-7276-singlegem、B-L4b-6104-blue |
 | 7174 | 1 | B5-L4b-1067-singlegem |
 | 7177 | 1 | L5-C-r4-6108 |
@@ -726,21 +732,23 @@
 | 7245 | 1 | F1-onkill-order |
 | 7246 | 1 | D-1109-single-hit |
 | 7248 | 1 | L7-R1-weapon-colour-race |
+| 7251 | 1 | R015-random-gems-include-skulls |
 | 7252 | 3 | P-counter-per-step、L7-R1-attack-armor-life-pooled、P-counter-per-step |
 | 7254 | 1 | L2-wrong-enemy-branches |
-| 7260 | 1 | F1-items-62-75 |
+| 7260 | 2 | F1-items-62-75、R015-random-gems-include-skulls |
 | 7265 | 1 | L3-008 |
 | 7266 | 1 | L4b-6152-attack |
 | 7269 | 1 | L4a-r3-1117 |
 | 7271 | 1 | D-b09-targets |
 | 7272 | 1 | F2-1120-column-skulls |
+| 7273 | 1 | R015-random-gems-include-skulls |
 | 7274 | 1 | G-6154-order |
 | 7277 | 1 | L2-H-6157-ally-colour |
 | 7280 | 1 | P-create-interleave |
 | 7281 | 1 | L1-R2-consume-first |
 | 7287 | 1 | F3-q26 |
 | 7293 | 1 | L1-consume-first |
-| 7294 | 1 | G-kill-all-skills |
+| 7294 | 3 | G-kill-all-skills、P-G-ifTargetDied-after-self、P-G-ifTargetDied-after-self |
 | 7295 | 1 | F3-q35 |
 | 7296 | 2 | L5-C-r4-1132、L5-C-r4-1132 |
 | 7297 | 1 | F3-q20 |
@@ -749,7 +757,7 @@
 | 7308 | 1 | L4a-r3-1138 |
 | 7310 | 2 | P-random-stat-pool、F1-steal-before-damage |
 | 7312 | 1 | F1-steal-before-damage |
-| 7314 | 1 | L2-wrong-enemy-branches |
+| 7314 | 2 | L2-wrong-enemy-branches、P-G-ifTargetDied-after-self |
 | 7316 | 1 | L1-charm-instant |
 | 7317 | 1 | F3-q05 |
 | 7318 | 1 | R3-B01-1141 |
@@ -764,6 +772,7 @@
 | 7339 | 1 | F1-items-62-75 |
 | 7340 | 2 | P-random-stat-pool、L2-H-6198-order |
 | 7343 | 1 | L1-6201-dispel |
+| 7344 | 1 | R015-random-gems-include-skulls |
 | 7345 | 1 | F2-6203-no-cleanse |
 | 7347 | 1 | R7-6205-steal-order |
 | 7348 | 2 | P-F1-oneof-chosen-target、P-F1-oneof-chosen-target |
@@ -813,6 +822,7 @@
 | 7442 | 1 | R3-B01-6296 |
 | 7443 | 1 | F2-R001-order |
 | 7444 | 2 | L5-010、R004 (L5-004,L5-005,L5-014,L4b-6340) |
+| 7447 | 1 | R015-random-gems-include-skulls |
 | 7453 | 1 | L4a-r3-6303 |
 | 7454 | 4 | P-counter-per-step、L7-R1-attack-armor-life-pooled、P-counter-per-step、P-R3-precast-compare |
 | 7455 | 1 | L1-6305-repeat |
@@ -828,7 +838,7 @@
 | 7478 | 2 | F1-remove-order、P-F1-remove-gems |
 | 7480 | 2 | L4b-7276-singlegem、L1-R2-consume-first |
 | 7482 | 1 | P-random-stat-pool |
-| 7484 | 1 | G-6334-kill-order |
+| 7484 | 3 | G-6334-kill-order、P-G-ifTargetDied-after-self、P-G-ifTargetDied-after-self |
 | 7489 | 1 | P-counter-per-step |
 | 7491 | 1 | P-B-action-status-self-count |
 | 7501 | 1 | L1-summon-dist |
@@ -836,7 +846,7 @@
 | 7507 | 1 | F2-6355-native-order |
 | 7511 | 1 | B5-L4b-6359-target |
 | 7513 | 1 | L4a-r3-6361 |
-| 7518 | 1 | P-prefnotprev-semantics |
+| 7518 | 2 | P-prefnotprev-semantics、R015-random-gems-include-skulls |
 | 7520 | 1 | R3-B07-6368 |
 | 7521 | 1 | L2-6369-ratio |
 | 7526 | 1 | F1-items-62-75 |
@@ -854,6 +864,7 @@
 | 7560 | 1 | P-random-stat-pool |
 | 7561 | 3 | L5-001、R004 (L5-004,L5-005,L5-014,L4b-6340)、R004-tests |
 | 7563 | 2 | R3-B11-1156、R012 |
+| 7567 | 1 | R015-random-gems-include-skulls |
 | 7568 | 3 | P-counter-per-step、L4a-R1-7568-random-gem、P-R1-count-at-native-step |
 | 7574 | 1 | L2-6416-branch-weights |
 | 7576 | 1 | F2-R001-order |
@@ -881,6 +892,7 @@
 | 7646 | 1 | F3-q07 |
 | 7647 | 1 | L1-6469-order |
 | 7648 | 1 | D-b09-targets |
+| 7649 | 1 | R015-random-gems-include-skulls |
 | 7654 | 1 | P-prefnotprev-semantics |
 | 7655 | 1 | P-R1-count-at-native-step |
 | 7656 | 1 | P-R1-count-at-native-step |
@@ -893,6 +905,7 @@
 | 7668 | 1 | L3-010 |
 | 7669 | 1 | L4a-R8-6482-zh |
 | 7670 | 1 | P-F3-prehit-target-compare |
+| 7674 | 1 | R015-random-gems-include-skulls |
 | 7685 | 1 | L1-6498-summon-dist |
 | 7692 | 1 | P-E-faction-kingdom |
 | 7693 | 1 | F2-R001-order |
@@ -906,13 +919,16 @@
 | 7722 | 1 | P-E-faction-kingdom |
 | 7723 | 1 | F2-6529-dispel-kill |
 | 7728 | 2 | L1-6534-order、L1-charm-instant |
+| 7730 | 1 | R015-random-gems-include-skulls |
 | 7735 | 1 | P-chooser-native-restrictions |
 | 7740 | 2 | L5-013、R004 (L5-004,L5-005,L5-014,L4b-6340) |
 | 7743 | 1 |  |
 | 7744 | 1 | F3-t6550 |
 | 7747 | 1 | P-counter-per-step |
+| 7749 | 1 | R015-random-gems-include-skulls |
 | 7752 | 1 |  |
 | 7761 | 1 | F2-R001-order |
+| 7763 | 1 | R015-random-gems-include-skulls |
 | 7765 | 1 | P-counter-per-step |
 | 7768 | 1 | F2-R001-order |
 | 7769 | 1 | L4a-R1-7769-column-count |
@@ -939,10 +955,11 @@
 | 7928 | 1 | L4a-R1-7928-allnegative |
 | 7929 | 1 | R3-B04-1221 |
 | 7930 | 2 | P-counter-per-step、L1-6606-native |
-| 7931 | 1 | F2-6607-steal-mult |
+| 7931 | 2 | F2-6607-steal-mult、R015-random-gems-include-skulls |
 | 7932 | 1 | F2-R001-order |
 | 7933 | 1 | F2-R001-order |
 | 7936 | 1 | P-create-interleave |
+| 7940 | 1 | R015-random-gems-include-skulls |
 | 7941 | 1 | F2-6623-column-order |
 | 7942 | 1 | P-B-action-status-self-count |
 | 7943 | 1 | P-R6-chosen-diagonal-transform |
@@ -998,7 +1015,7 @@
 | 8098 | 1 | G-6728-order |
 | 8101 | 1 | L2-6731-branches |
 | 8103 | 1 | P-counter-per-step |
-| 8104 | 1 | G-kill-all-skills |
+| 8104 | 2 | G-kill-all-skills、P-G-ifTargetDied-after-self |
 | 8106 | 1 | L4a-r3-6736 |
 | 8108 | 1 | L2-wrong-enemy-branches |
 | 8111 | 1 | P-E-faction-kingdom |
@@ -1012,9 +1029,9 @@
 | 8133 | 1 | F2-6754-no-explode |
 | 8134 | 1 | L4a-R8-random-any-gem |
 | 8137 | 1 | L1-E-6757-target |
-| 8138 | 1 | L4a-r4-6758 |
+| 8138 | 2 | L4a-r4-6758、R015-random-gems-include-skulls |
 | 8139 | 2 | P-counter-per-step、R7-b14-status-counts |
-| 8140 | 2 | L1-1274-amanithrax、P-R5-faction-kingdom |
+| 8140 | 3 | L1-1274-amanithrax、P-R5-faction-kingdom、R015-random-gems-include-skulls |
 | 8150 | 1 | F2-R001-order |
 | 8155 | 1 | R3-B07-1279 |
 | 8160 | 1 | P-prefnotprev-semantics |
@@ -1037,14 +1054,15 @@
 | 8208 | 1 | F2-R001-order |
 | 8209 | 1 | D-6806-count20 |
 | 8211 | 1 | L1-6808-branches |
+| 8212 | 2 | P-H-random-status-n、P-H-random-status-n |
 | 8215 | 1 | L4a-R1-8215-fromprevious |
 | 8216 | 1 | L2-H-6817-one-skill |
 | 8218 | 2 | P-counter-per-step、L2-6814-branch-weights |
 | 8219 | 1 | P-counter-per-step |
 | 8221 | 1 | L5-C-r4-1294 |
-| 8223 | 1 | L5-C-r4-6819 |
+| 8223 | 2 | L5-C-r4-6819、P-G-ifTargetDied-after-self |
 | 8226 | 1 | L4a-r3-6822 |
-| 8228 | 3 | P-counter-per-step、F2-6826-kill-skulls、P-counter-per-step |
+| 8228 | 4 | P-counter-per-step、F2-6826-kill-skulls、P-counter-per-step、P-G-ifTargetDied-after-self |
 | 8229 | 1 | L1-6827-base |
 | 8234 | 2 | L4b-6824-random-ally、P-chooser-native-restrictions |
 | 8235 | 1 | R7-6825-ratio |
@@ -1061,6 +1079,12 @@
 | 8250 | 2 | P-F1-oneof-chosen-target、P-F1-oneof-chosen-target |
 | 8251 | 1 | P-counter-per-step |
 | 8253 | 1 | L2-H-1296-spm034 |
+| 8254 | 1 | R015-random-gems-include-skulls |
+| 8255 | 1 | R015-random-gems-include-skulls |
+| 8256 | 1 | R015-random-gems-include-skulls |
+| 8257 | 1 | R015-random-gems-include-skulls |
+| 8258 | 1 | R015-random-gems-include-skulls |
+| 8259 | 1 | R015-random-gems-include-skulls |
 | 8260 | 1 | P-E-faction-kingdom |
 | 8261 | 1 | P-E-faction-kingdom |
 | 8262 | 1 | P-E-faction-kingdom |
@@ -1074,11 +1098,13 @@
 | 8294 | 1 | P-prefnotprev-semantics |
 | 8297 | 2 | L4a-R1-8297-life-boost、R013-5 |
 | 8299 | 1 | F2-1313-order-life |
+| 8301 | 1 | R015-random-gems-include-skulls |
 | 8302 | 1 | F1-steal-before-damage |
-| 8304 | 1 | G-6881-kill-double |
+| 8304 | 2 | G-6881-kill-double、P-G-ifTargetDied-after-self |
 | 8307 | 1 | L2-wrong-enemy-branches |
 | 8313 | 1 | P-E-faction-kingdom |
 | 8316 | 1 | B-L4b-6890-native-chances |
+| 8317 | 1 | R015-random-gems-include-skulls |
 | 8321 | 1 | L2-1317-branches |
 | 8322 | 2 | P-A-target-kingdom、P-E-faction-kingdom |
 | 8323 | 2 | P-A-target-kingdom、P-E-faction-kingdom |
@@ -1192,7 +1218,7 @@
 | 8492 | 1 | L2-6988-one-block |
 | 8494 | 1 | L4a-r4-6990-zh |
 | 8495 | 1 | R3-B08-6985 |
-| 8497 | 1 | F2-6991-explode-mult |
+| 8497 | 2 | F2-6991-explode-mult、R015-random-gems-include-skulls |
 | 8498 | 1 | L3-F-6992 |
 | 8499 | 2 | P-random-stat-pool、L2-H-6993-prefnotprev |
 | 8500 | 2 | P-random-stat-pool、L1-6994-summons |
@@ -1207,6 +1233,7 @@
 | 8514 | 2 | L1-E-kingdom-summon-raw、P-E-faction-kingdom |
 | 8515 | 2 | L1-E-kingdom-summon-raw、P-E-faction-kingdom |
 | 8517 | 1 | L2-H-1396-any-gem |
+| 8521 | 1 | R015-random-gems-include-skulls |
 | 8523 | 1 | L3-F-6996 |
 | 8525 | 1 | L4a-r3-7018 |
 | 8526 | 1 | L4a-R8-7019-zh |
@@ -1225,7 +1252,7 @@
 | 8563 | 2 | P-counter-per-step、L7-R1-board-special-counts |
 | 8569 | 1 | L4a-r3-7044 |
 | 8570 | 1 | L7-7045 |
-| 8572 | 1 | L2-H-7047-last2-random |
+| 8572 | 3 | L2-H-7047-last2-random、P-H-random-status-n、P-H-random-status-n |
 | 8574 | 1 | L1-devour-first |
 | 8575 | 1 | L1-7050-order |
 | 8577 | 1 | B-L4b-1417-wildcard-tiers |
@@ -1303,6 +1330,7 @@
 | 8691 | 1 | L5-C-r4-7142 |
 | 8692 | 1 | R3-B08-7143 |
 | 8694 | 1 | F2-7145-miss-branch |
+| 8696 | 1 | R015-random-gems-include-skulls |
 | 8697 | 1 | L4b-1441-cursed-gems |
 | 8698 | 1 | L5-C-cursebreaker-targets |
 | 8699 | 1 | L5-C-cursebreaker-targets |
@@ -1310,11 +1338,13 @@
 | 8707 | 2 | L1-E-kingdom-summon-raw、P-E-faction-kingdom |
 | 8713 | 1 | P-counter-per-step |
 | 8715 | 1 | L1-7155-devour |
+| 8719 | 1 | R015-random-gems-include-skulls |
 | 8721 | 1 | L4a-R8-1452-column-only |
 | 8722 | 1 | L2-singlegem-cell |
 | 8723 | 1 | P-E-faction-kingdom |
 | 8725 | 2 | L1-E-kingdom-summon-raw、P-E-faction-kingdom |
 | 8732 | 1 | L1-7157-devour |
+| 8740 | 1 | R015-random-gems-include-skulls |
 | 8744 | 1 | P-R5-named-ally-count |
 | 8745 | 1 | L4a-r4-7174 |
 | 8747 | 1 | L1-summon-dist |
@@ -1330,12 +1360,14 @@
 | 8767 | 1 | L7-R1-weapon-colour-race |
 | 8770 | 1 | L1-E-race-pool-immortals |
 | 8771 | 1 | L1-E-race-desc |
+| 8774 | 1 | R015-random-gems-include-skulls |
 | 8776 | 1 | R3-B03-1474 |
 | 8781 | 1 | G-zh-typos |
 | 8782 | 1 | L4b-7195-order |
 | 8783 | 1 | F2-R001-order |
 | 8785 | 1 | P-counter-per-step |
 | 8788 | 2 | L7-7201、G-7201-count-before-hit |
+| 8793 | 1 | R015-random-gems-include-skulls |
 | 8795 | 1 | L3-003 |
 | 8796 | 1 | L2-7209-gargoyle-branches |
 | 8797 | 2 | L4b-7210-doomskull、P-R1-gargoyle-tier-filter,P-R2-gargoyle-tier,P-R4-gargoyle-tier-count,P-R3-dragon-gem-count |
@@ -1348,7 +1380,7 @@
 | 8812 | 1 | L4a-R1-8812-no-base |
 | 8813 | 1 | L4b-R6-B06 |
 | 8815 | 1 | L7-R1-board-special-counts |
-| 8816 | 1 | L1-E-kingdom-summon-raw |
+| 8816 | 2 | L1-E-kingdom-summon-raw、R015-random-gems-include-skulls |
 | 8817 | 1 | L1-7222-chance |
 | 8820 | 1 | P-counter-per-step |
 | 8823 | 1 | L4a-R8-random-any-gem |
@@ -1360,6 +1392,7 @@
 | 8836 | 1 | B5-L4b-R009-giants |
 | 8837 | 1 | B5-L4b-R009-giants |
 | 8839 | 1 | B5-L4b-R009-giants |
+| 8840 | 1 | R015-random-gems-include-skulls |
 | 8841 | 1 | L4a-R1-8841-random-explode |
 | 8842 | 1 | L1-1486-order |
 | 8844 | 1 | R009-giant |
@@ -1420,7 +1453,7 @@
 | 8976 | 1 | R013-5 |
 | 8979 | 1 | F1-onkill-order |
 | 8985 | 1 | P-R5-faction-kingdom |
-| 8987 | 1 | P-counter-per-step |
+| 8987 | 2 | P-counter-per-step、R015-random-gems-include-skulls |
 | 8995 | 1 | L4a-r3-1523 |
 | 8996 | 1 | L4b-R6-B06 |
 | 9003 | 1 | R7-tarot-extra-turn |
@@ -1428,6 +1461,7 @@
 | 9013 | 1 | L7-R1-random-chain-waves |
 | 9015 | 2 | L5-001、L5-002 |
 | 9016 | 1 | L1-H-7376-prefnotprev |
+| 9018 | 1 | R015-random-gems-include-skulls |
 | 9020 | 1 | L4a-R8-random-any-gem |
 | 9022 | 1 | P-R1-gargoyle-tier-filter,P-R2-gargoyle-tier,P-R4-gargoyle-tier-count,P-R3-dragon-gem-count |
 | 9023 | 1 | L4b-R6-B02 |
@@ -1536,7 +1570,7 @@
 | 9372 | 2 | P-prefnotprev-semantics、F2-R001-order |
 | 9374 | 1 | L5-C-7900-waves |
 | 9377 | 1 | P-prefnotprev-semantics |
-| 9380 | 1 | L4a-R1-immortal-order |
+| 9380 | 2 | L4a-R1-immortal-order、R015-random-gems-include-skulls |
 | 9385 | 1 | R012 |
 | 9387 | 1 | L4a-R1-immortal-order |
 | 9388 | 1 | L4b-1608-1611-order |
@@ -1624,7 +1658,7 @@
 | 9651 | 1 | P-R3-precast-compare |
 | 9659 | 2 | P-prefnotprev-semantics、L4a-R1-9659-prefnotprev |
 | 9660 | 1 | R7-7691-count150-floor |
-| 9661 | 2 | F3-q19、R011 |
+| 9661 | 3 | F3-q19、R011、P-G-ifTargetDied-after-self |
 | 9665 | 1 | L4a-R8-7704-zh-column |
 | 9666 | 1 | P-chooser-native-restrictions |
 | 9673 | 1 | P-counter-per-step |
@@ -1635,12 +1669,13 @@
 | 9689 | 1 | P-E-faction-kingdom |
 | 9692 | 1 | P-E-faction-kingdom |
 | 9711 | 1 | L1-7719-random |
-| 9716 | 1 | F3-t7724 |
+| 9716 | 2 | F3-t7724、P-G-ifTargetDied-after-self |
 | 9719 | 1 | P-prefnotprev-semantics |
+| 9720 | 1 | R015-random-gems-include-skulls |
 | 9721 | 2 | P-prefnotprev-semantics、F2-R001-order |
 | 9722 | 1 | R3-B02-1657 |
 | 9723 | 1 | F2-7728-no-damage |
-| 9731 | 1 | L2-H-7746-kill-gate |
+| 9731 | 3 | L2-H-7746-kill-gate、P-G-ifTargetDied-after-self、P-G-ifTargetDied-after-self |
 | 9733 | 1 | P-counter-per-step |
 | 9739 | 1 | P-counter-per-step |
 | 9749 | 1 | P-E-faction-kingdom |

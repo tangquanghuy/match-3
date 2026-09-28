@@ -265,7 +265,7 @@ const SPELLS: CuratedBatch['spells'] = [
       inflict('web', 'enemyAll'),
       trueDmg('enemyLastN', 5, 1, { n: 2 }),
       // 「若有一名敌人身亡」= §4 死亡条件家族（batch-12 7225/7273/7335 同款），挂最近产目标段
-      explodeRandomGems(15, 0, 'color', undefined, { ifTargetDied: true }),
+      explodeRandomGems(15, 0, 'all', undefined, { ifTargetDied: true }),
     ),
   },
   {
@@ -284,7 +284,7 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '随机爆破 2 颗宝石。随机冻结一名敌人。获得一个额外回合。',
     build: skill(
       // 「宝石」不含骷髅 → include:'color'（batch-01 头注口径）
-      explodeRandomGems(2, 0, 'color'),
+      explodeRandomGems(2, 0, 'all'),
       inflict('frozen', 'enemyRandom'),
       extraTurn(),
     ),

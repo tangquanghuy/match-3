@@ -71,7 +71,7 @@ const SPELLS: CuratedBatch['spells'] = [
       dmgSplash('enemyChosen', 4, 1, {
         modifier: { mod: { kind: 'ratio', a: 3, b: 1 }, source: { kind: 'allyStatSum', stat: 'attack' } },
       }),
-      explodeRandomGems(2, 0, 'color'),
+      explodeRandomGems(2, 0, 'all'),
     ),
   },
   {

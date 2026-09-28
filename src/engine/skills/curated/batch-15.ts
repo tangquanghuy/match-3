@@ -81,7 +81,7 @@ const SPELLS: CuratedBatch['spells'] = [
       createSpecialGems({ kind: 'doomSkull' }, 12, 0),
       // 「宝石」不含骷髅 → include:'color'（batch-15 头注口径）
       // native ExplodeGems Amount 1 SpellPowerMultiplier 0.5 = [(Magic / 2) + 1] (sa-F2 fix round A)
-      explodeRandomGems(1, 0.5, 'color'),
+      explodeRandomGems(1, 0.5, 'all'),
     ),
   },
   {
@@ -201,7 +201,7 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 8740,
     desc: '随机爆破 3 颗宝石。获得一个额外回合。',
     build: skill(
-      explodeRandomGems(3, 0, 'color'),
+      explodeRandomGems(3, 0, 'all'),
       extraTurn(),
     ),
   },

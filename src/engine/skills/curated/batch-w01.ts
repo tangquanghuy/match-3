@@ -791,7 +791,7 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 7251,
     desc: '随机爆破 3 颗宝石。对所有敌人造成 [魔法 + 5] 点散射伤害。',
     build: skill(
-      explodeRandomGems(3, 0, 'color', undefined),
+      explodeRandomGems(3, 0, 'all', undefined),
       dmg('enemyAll', 5, 1, { range: 'all' }),
     ),
   },
@@ -920,10 +920,11 @@ const SPELLS: CuratedBatch['spells'] = [
     build: skill(
       dmg('enemyChosen', 6, 1),
       // sa-G: all four Skills +10 on kill; ifTargetDied only held for the first -> castEnemyDied (7314 precedent)
-      attack('allySelf', 10, 0, { ifCond: { kind: 'castEnemyDied' } }),
-      armor('allySelf', 10, 0, { ifCond: { kind: 'castEnemyDied' } }),
-      heal('allySelf', 10, 0, { ifCond: { kind: 'castEnemyDied' } }),
-      magic('allySelf', 10, 0, { ifCond: { kind: 'castEnemyDied' } }),
+      // sa-P P-G-ifTargetDied-after-self: native AddForKill -> ifTargetDied again (kill anchor survives self / gated steps)
+      attack('allySelf', 10, 0, { ifTargetDied: true }),
+      armor('allySelf', 10, 0, { ifTargetDied: true }),
+      heal('allySelf', 10, 0, { ifTargetDied: true }),
+      magic('allySelf', 10, 0, { ifTargetDied: true }),
     ),
   },
   {
@@ -1090,7 +1091,7 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '对 1 名敌人造成 [魔法 + 1] 点伤害。随机摧毁 5 颗宝石，摧毁数因收集到的黄金数量而增强。 [4:1]',
     build: skill(
       dmg('enemyChosen', 1, 1),
-      destroyRandomGems(5, 0, 'color', undefined, { modifier: { mod: { kind: 'ratio', a: 4, b: 1 }, source: { kind: 'battleGold' } } }),
+      destroyRandomGems(5, 0, 'all', undefined, { modifier: { mod: { kind: 'ratio', a: 4, b: 1 }, source: { kind: 'battleGold' } } }),
     ),
   },
   {
@@ -1146,7 +1147,7 @@ const SPELLS: CuratedBatch['spells'] = [
   {
     id: 7567,
     desc: '摧毁 [(魔法 / 2) + 1] 颗宝石。对最后一名敌人转化成一只为法力值满额的幼龙。',
-    build: skill(destroyRandomGems(1, 0.5, 'color'), transformTroop('enemyLast', 'BabyDragon', { fullMana: true })),
+    build: skill(destroyRandomGems(1, 0.5, 'all'), transformTroop('enemyLast', 'BabyDragon', { fullMana: true })),
   },
   {
     id: 7568,

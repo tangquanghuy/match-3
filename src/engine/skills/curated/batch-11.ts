@@ -123,7 +123,8 @@ const SPELLS: CuratedBatch['spells'] = [
       // 净化自身会改写 lastTarget → 击杀判定用 castEnemyDied（只有选定敌人受伤害）
       dmg('enemyChosen', 2),
       cleanse('allySelf'),
-      attack('allySelf', 4, 0, { ifCond: { kind: 'castEnemyDied' } }),
+      // sa-P P-G-ifTargetDied-after-self: native AddForKill -> ifTargetDied again (kill anchor survives self / gated steps)
+      attack('allySelf', 4, 0, { ifTargetDied: true }),
     ),
   },
   {

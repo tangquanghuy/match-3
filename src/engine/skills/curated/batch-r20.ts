@@ -178,9 +178,10 @@ const SPELLS: CuratedBatch['spells'] = [
       // sa-G (R001): native IncreaseArmor@Self 12 [AddForKill 12] -> IncreaseHealth@Self 12 [AddForKill 12]; the kill
       // halves never applied (ifTargetDied re-read lastTarget = caster) -> castEnemyDied (7314 precedent)
       armor('allySelf', 12, 0),
-      armor('allySelf', 12, 0, { ifCond: { kind: 'castEnemyDied' } }),
+      // sa-P P-G-ifTargetDied-after-self: native AddForKill -> ifTargetDied again (kill anchor survives self / gated steps)
+      armor('allySelf', 12, 0, { ifTargetDied: true }),
       heal('allySelf', 12, 0),
-      heal('allySelf', 12, 0, { ifCond: { kind: 'castEnemyDied' } }),
+      heal('allySelf', 12, 0, { ifTargetDied: true }),
     ),
   },
   {

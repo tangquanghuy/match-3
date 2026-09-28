@@ -78,7 +78,7 @@ const SPELLS: CuratedBatch['spells'] = [
     build: skill(
       reduce('enemyChosen', 'mana', 10, 0),
       // 「每耗掉 1 点法力值则爆破 1 颗宝石」= 基数 0 + [1:1] drainedMana（batch-25 7206 同款）
-      explodeRandomGems(0, 0, 'color', undefined, {
+      explodeRandomGems(0, 0, 'all', undefined, {
         modifier: { mod: { kind: 'ratio', a: 1, b: 1 }, source: { kind: 'drainedMana' } },
       }),
     ),

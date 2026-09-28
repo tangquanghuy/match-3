@@ -183,7 +183,7 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '对 2 名随机敌人造成 [魔法 + 10] 点溅射伤害。爆破 5 颗随机宝石。',
     build: skill(
       dmgSplash('enemyRandomN', 10, 1, { n: 2 }),
-      explodeRandomGems(5, 0, 'color'),
+      explodeRandomGems(5, 0, 'all'),
     ),
   },
   {

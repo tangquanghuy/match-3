@@ -1119,6 +1119,16 @@
   "by": "sa-R2",
   "at": "2026-09-28T02:36:52.836Z"
  },
+ "troop:6826": {
+  "lines": {
+   "L10": "dmg E11 481  => E11:hp-471 arm-10",
+   "R10": "dmg E11 481  => E11:hp-471 arm-10",
+   "L0": "dmg E11 471  => E11:hp-461 arm-10",
+   "K": "dmg E11 27 ; defeat E11 ; buff C attack+10 ; convert Green x4, Purple x4, Brown x1, Red x1, Yellow x2 -> skull x12  => E11:hp-1 DEAD | C:atk+10"
+  },
+  "by": "sa-P",
+  "at": "2026-09-28T22:42:35.963Z"
+ },
  "troop:6842": {
   "lines": {
    "L10": "convert Yellow x9 -> Green x9 ; status E12 +web ; status E12 +poison  => E12:+web+poison",

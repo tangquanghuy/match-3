@@ -220,7 +220,7 @@ const SPELLS: CuratedBatch['spells'] = [
     build: skill(
       dmgAll(3),
       // 「宝石」不含骷髅（batch-01 头注口径）→ include:'color'
-      destroyRandomGems(10, 0, 'color'),
+      destroyRandomGems(10, 0, 'all'),
       magic('allySelf', 8, 0, { ifTargetDied: true }),
     ),
   },
@@ -261,7 +261,7 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '对所有敌人造成 6 点真实伤害。摧毁 [魔法 + 3] 颗随机宝石。获得 6 点攻击力。',
     build: skill(
       dmgAll(6, 0, true),
-      destroyRandomGems(3, 1, 'color'),
+      destroyRandomGems(3, 1, 'all'),
       attack('allySelf', 6, 0),
     ),
   },

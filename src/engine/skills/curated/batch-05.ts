@@ -139,10 +139,11 @@ const SPELLS: CuratedBatch['spells'] = [
       // 「所有技能值」按技能值域（攻/甲/血/魔，spell-rules.md randomStat 口径）拆 4 段，共用常数 4
       // sa-G: native IncreaseAllStats AddForKill 4 = all four Skills; ifTargetDied only held for the first (each self
       // buff rewrites lastTarget) -> castEnemyDied (7314 / 9703 precedent)
-      attack('allySelf', 4, 0, { ifCond: { kind: 'castEnemyDied' } }),
-      armor('allySelf', 4, 0, { ifCond: { kind: 'castEnemyDied' } }),
-      heal('allySelf', 4, 0, { ifCond: { kind: 'castEnemyDied' } }),
-      magic('allySelf', 4, 0, { ifCond: { kind: 'castEnemyDied' } }),
+      // sa-P P-G-ifTargetDied-after-self: native AddForKill -> ifTargetDied again (kill anchor survives self / gated steps)
+      attack('allySelf', 4, 0, { ifTargetDied: true }),
+      armor('allySelf', 4, 0, { ifTargetDied: true }),
+      heal('allySelf', 4, 0, { ifTargetDied: true }),
+      magic('allySelf', 4, 0, { ifTargetDied: true }),
     ),
   },
   {

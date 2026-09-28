@@ -26,7 +26,7 @@ import type { ScalingSpec } from './scaling';
 import type { TargetMode, ChosenTargetMode } from './targeting';
 import { selectTargets } from './targeting';
 import type { EffectContext, EffectPrimitive, CastTracking } from './effects/context';
-import { findCharacter, findSide } from './effects/context';
+import { findCharacter, findSide, setLastTarget, killCheckTarget } from './effects/context';
 import { modifierBonus, conditionMet, isTargetCondition } from './effects/secondary';
 import { damageEffect } from './effects/damage';
 import type { DamageRange } from './effects/damage';
@@ -382,6 +382,10 @@ export interface SacrificeSegment extends SegmentOptions {
 export interface RandomStatusSegment extends SegmentOptions {
   kind: 'randomStatus';
   target: TargetMode;
+  /** enemyFirstN / allyFirstN / enemyLastN ... target count (P-H-random-status-n: native @FirstTwoAllies /
+   *  @LastTwoEnemies roll one status per unit); nRange as for status segments */
+  n?: number;
+  nRange?: NRangeSpec;
   turns?: number;
   /** 每目标连续施加个数（「陷入 3 个随机状态效果」） */
   times?: number;
@@ -621,7 +625,7 @@ function resolveTargetsTracked(
     const ch = last ? findCharacter(ctx.state, last.id) : undefined;
     const targets = filterResolvedTargets(segment, ctx, ch && !ch.defeated ? [ch] : []);
     if (targets.length > 0 && ctx.castTracking) {
-      ctx.castTracking.lastTarget = { id: targets[0].id, aliveBefore: targets[0].defeated === false, unit: targets[0] };
+      setLastTarget(ctx, { id: targets[0].id, aliveBefore: targets[0].defeated === false, unit: targets[0] });
     }
     return targets;
   }
@@ -645,7 +649,7 @@ function resolveTargetsTracked(
       .filter((c): c is Character => !!c && !c.defeated));
     if (targets.length > 0) {
       tracking.lastTargets = targets.map((c) => ({ id: c.id, aliveBefore: !c.defeated }));
-      tracking.lastTarget = { id: targets[0].id, aliveBefore: true, unit: targets[0] };
+      setLastTarget(ctx, { id: targets[0].id, aliveBefore: true, unit: targets[0] });
     }
     return targets;
   }
@@ -657,13 +661,13 @@ function resolveTargetsTracked(
     const ch = findCharacter(ctx.state, tracking.randomAllyId);
     const targets = filterResolvedTargets(segment, ctx, ch && !ch.defeated ? [ch] : []);
     if (targets.length > 0) {
-      tracking.lastTarget = { id: targets[0].id, aliveBefore: true, unit: targets[0] };
+      setLastTarget(ctx, { id: targets[0].id, aliveBefore: true, unit: targets[0] });
     }
     return targets;
   }
   const targets = resolveTargets(segment, ctx, overrideMode);
   if (targets.length > 0 && ctx.castTracking) {
-    ctx.castTracking.lastTarget = { id: targets[0].id, aliveBefore: !targets[0].defeated, unit: targets[0] };
+    setLastTarget(ctx, { id: targets[0].id, aliveBefore: !targets[0].defeated, unit: targets[0] });
     // R22 批：全目标列表快照（'lastTargets' 族读最近一段；allTargets 跨段累积供 anyTrackedDied）
     const snapshot = targets.map((c) => ({ id: c.id, aliveBefore: !c.defeated }));
     ctx.castTracking.lastTargets = snapshot;
@@ -678,7 +682,8 @@ function resolveTargetsTracked(
 /** 死亡条件判定：最近产目标段的主目标此前存活、现在阵亡。
  * 阵亡者会被 resolveDefeatEvents 从队伍移除——「找不到」同样视为身亡。 */
 function lastTargetDied(ctx: EffectContext): boolean {
-  const last = ctx.castTracking?.lastTarget;
+  // P-G-ifTargetDied-after-self: a surviving self / ally target of a later step does not replace the enemy victim.
+  const last = killCheckTarget(ctx);
   if (!last || !last.aliveBefore) return false;
   const ch = findCharacter(ctx.state, last.id);
   return ch === undefined || ch.defeated;
@@ -1045,7 +1050,25 @@ function runSegment(
   }
   // 死亡条件：前一个产目标段的主目标确实身亡才执行
   if (segment.ifTargetDied === true && !lastTargetDied(ctx)) return [];
+  // P-G-ifTargetDied-after-self: a kill-gated segment does not move the kill anchor, so chained native AddForKill
+  // steps (7746 enemyAll x3, self buffs x4) all judge the same victim.
+  const tracking = segment.ifTargetDied === true ? ctx.castTracking : undefined;
+  if (!tracking) return runSegmentBody(segment, ctx, castRevive);
+  const savedKill = tracking.killTarget;
+  const savedEnemy = tracking.lastEnemyTarget;
+  try {
+    return runSegmentBody(segment, ctx, castRevive);
+  } finally {
+    tracking.killTarget = savedKill;
+    tracking.lastEnemyTarget = savedEnemy;
+  }
+}
 
+function runSegmentBody(
+  segment: EffectSegment,
+  ctx: EffectContext,
+  castRevive?: { casterId: number } & import('./effects/summon').SelfReviveSpec,
+): GameEvent[] {
   // 随机多选一：rng 掷选一个分支，只执行该分支（未选中分支零执行、零事件、零随机消耗）
   if (segment.kind === 'oneOf') {
     const branches = segment.options;
