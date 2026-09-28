@@ -89,6 +89,16 @@
   "by": "sa-F",
   "at": "2026-09-28T21:38:31.043Z"
  },
+ "troop:6142": {
+  "lines": {
+   "L10": "buff A1 attack+12 ; buff A1 armor+12 ; buff A1 hp+12 max+12 ; buff A1 mana+6  => A1:hp+12 max+12 arm+12 atk+12 mana+6",
+   "R10": "buff A1 attack+12 ; buff A1 armor+12 ; buff A1 hp+12 max+12 ; buff A1 mana+6  => A1:hp+12 max+12 arm+12 atk+12 mana+6",
+   "L0": "buff A1 attack+2 ; buff A1 armor+2 ; buff A1 hp+2 max+2 ; buff A1 mana+6  => A1:hp+2 max+2 arm+2 atk+2 mana+6",
+   "K": "buff A1 attack+12 ; buff A1 armor+12 ; buff A1 hp+12 max+12 ; buff A1 mana+6  => A1:hp+12 max+12 arm+12 atk+12 mana+6"
+  },
+  "by": "sa-F",
+  "at": "2026-09-28T21:42:22.759Z"
+ },
  "troop:6146": {
   "lines": {
    "L10": "dmg C 2 ; destroy 14 (Green x4, Purple x4, Brown x2, Red x2, Yellow x2)  => C:hp-2 | A2:mana+4",
@@ -348,6 +358,16 @@
   },
   "by": "sa-F",
   "at": "2026-09-28T21:20:33.480Z"
+ },
+ "troop:6486": {
+  "lines": {
+   "L10": "buff C hp+30 max+30 ; buff C armor+30  => C:hp+30 max+30 arm+30",
+   "R10": "buff C hp+30 max+30 ; buff C armor+30  => C:hp+30 max+30 arm+30",
+   "L0": "buff C hp+20 max+20 ; buff C armor+20  => C:hp+20 max+20 arm+20",
+   "K": "buff C hp+30 max+30 ; buff C armor+30  => C:hp+30 max+30 arm+30"
+  },
+  "by": "sa-F",
+  "at": "2026-09-28T21:42:22.759Z"
  },
  "troop:6508": {
   "lines": {
@@ -749,6 +769,16 @@
   "by": "sa-R7",
   "at": "2026-09-28T09:07:29.218Z"
  },
+ "troop:6992": {
+  "lines": {
+   "L10": "buff A1 attack+33 ; buff A1 armor+33 ; buff A1 hp+33 max+33 ; buff A1 mana+16  => A1:hp+33 max+33 arm+33 atk+33 mana+16",
+   "R10": "buff A1 attack+33 ; buff A1 armor+33 ; buff A1 hp+33 max+33 ; buff A1 mana+16  => A1:hp+33 max+33 arm+33 atk+33 mana+16",
+   "L0": "buff A1 attack+3 ; buff A1 armor+3 ; buff A1 hp+3 max+3 ; buff A1 mana+16  => A1:hp+3 max+3 arm+3 atk+3 mana+16",
+   "K": "buff A1 attack+33 ; buff A1 armor+33 ; buff A1 hp+33 max+33 ; buff A1 mana+16  => A1:hp+33 max+33 arm+33 atk+33 mana+16"
+  },
+  "by": "sa-F",
+  "at": "2026-09-28T21:42:22.759Z"
+ },
  "troop:6996": {
   "lines": {
    "L10": "buff C attack+6 ; buff C armor+6 ; buff C hp+6 max+6 ; buff C magic+6 ; extra-turn skill  => C:hp+6 max+6 arm+6 atk+6 mag+6  extra:skill",
@@ -1148,6 +1178,16 @@
   },
   "by": "sa-R7",
   "at": "2026-09-28T08:44:13.787Z"
+ },
+ "troop:7269": {
+  "lines": {
+   "L10": "buff C hp+11 max+11 ; buff A1 hp+11 max+11 ; buff A2 hp+11 max+11 ; status C +barrier ; extra-turn skill  => C:hp+11 max+11 +barrier | A1:hp+11 max+11 | A2:hp+11 max+11  extra:skill",
+   "R10": "buff C hp+11 max+11 ; buff A1 hp+11 max+11 ; buff A2 hp+11 max+11 ; status C +barrier ; extra-turn skill  => C:hp+11 max+11 +barrier | A1:hp+11 max+11 | A2:hp+11 max+11  extra:skill",
+   "L0": "buff C hp+1 max+1 ; buff A1 hp+1 max+1 ; buff A2 hp+1 max+1 ; status C +barrier ; extra-turn skill  => C:hp+1 max+1 +barrier | A1:hp+1 max+1 | A2:hp+1 max+1  extra:skill",
+   "K": "buff C hp+11 max+11 ; buff A1 hp+11 max+11 ; buff A2 hp+11 max+11 ; status C +barrier ; extra-turn skill  => C:hp+11 max+11 +barrier | A1:hp+11 max+11 | A2:hp+11 max+11  extra:skill"
+  },
+  "by": "sa-F",
+  "at": "2026-09-28T21:42:22.759Z"
  },
  "troop:7287": {
   "lines": {
@@ -2218,6 +2258,16 @@
   },
   "by": "sa-R7",
   "at": "2026-09-28T09:03:04.469Z"
+ },
+ "weapon:1467": {
+  "lines": {
+   "L10": "buff C hp+11 max+11 ; buff A1 hp+11 max+11 ; buff A2 hp+11 max+11 ; convert Blue x3 -> gargoyleGem x3 ; extra-turn skill  => C:hp+11 max+11 | A1:hp+11 max+11 | A2:hp+11 max+11  extra:skill",
+   "R10": "buff C hp+11 max+11 ; buff A1 hp+11 max+11 ; buff A2 hp+11 max+11 ; convert Blue x3 -> gargoyleGem x3 ; extra-turn skill  => C:hp+11 max+11 | A1:hp+11 max+11 | A2:hp+11 max+11  extra:skill",
+   "L0": "buff C hp+1 max+1 ; buff A1 hp+1 max+1 ; buff A2 hp+1 max+1 ; convert Blue x3 -> gargoyleGem x3 ; extra-turn skill  => C:hp+1 max+1 | A1:hp+1 max+1 | A2:hp+1 max+1  extra:skill",
+   "K": "buff C hp+11 max+11 ; buff A1 hp+11 max+11 ; buff A2 hp+11 max+11 ; convert Blue x3 -> gargoyleGem x3 ; extra-turn skill  => C:hp+11 max+11 | A1:hp+11 max+11 | A2:hp+11 max+11  extra:skill"
+  },
+  "by": "sa-F",
+  "at": "2026-09-28T21:42:22.759Z"
  },
  "weapon:1475": {
   "lines": {

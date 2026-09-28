@@ -377,6 +377,11 @@
       "spellId": 8523,
       "reason": "sa-F: English The Emperor 'Give [(Magic / 2) + 1] to all Skills on the first Ally. There is a 7% chance of an extra turn for each Blue Gem' ; old Chinese was garbled machine translation.",
       "spellDescription": "给予第一名盟友 [(魔法 / 2) + 1] 点所有技能值。棋盘上每有一颗蓝色宝石，就有 7% 的几率获得一个额外回合。 [x7]"
+    },
+    "6992": {
+      "spellId": 8498,
+      "reason": "sa-F: English The Archdeva 'Give them [(Magic x 3) + 3] Attack, Life and Armor, and fill their Mana'; old Chinese was garbled and dropped the amount.",
+      "spellDescription": "选择一名盟友。给予其 [(魔法 x 3) + 3] 点攻击力、生命值和护甲值，并充满其法力值。只能施放一次。"
     }
   }
 }

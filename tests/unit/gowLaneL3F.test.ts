@@ -264,3 +264,19 @@ describe('sa-F B12: all Skills / per-gem extra-turn chance', () => {
     expect(seeds.every(seed => castSpell({ key: 'troop:6996', seed, board: allBlue }).summary.extraTurn === 'skill')).toBe(true);
   });
 });
+
+describe('sa-F B13: ally buffs', () => {
+  it('weapon:1467 TearsOfTheSisters (8768): the 3 converted gems are Good (tier 1) Gargoyle Gems', () => {
+    const r = castSpell({ key: 'weapon:1467' });
+    const tiers: unknown[] = [];
+    for (let row = 0; row < 8; row++) for (let col = 0; col < 8; col++) {
+      const g = r.f.board.get({ row, col });
+      if (g && g.type.kind === 'special' && g.type.spec.kind === 'gargoyleGem') tiers.push((g.type.spec as { tier?: number }).tier ?? 1);
+    }
+    expect(tiers).toEqual([1, 1, 1]);
+  });
+  it('troop:7269 PriestOfNilbog (8888): Barrier only on Goblin allies', () => {
+    const r = castSpell({ key: 'troop:7269', allies: [{ hp: 100, maxHp: 200, troopTypes: ['Goblin'] }, { hp: 100, maxHp: 200, troopTypes: ['Human'] }] });
+    expect(order(r).filter(o => o.startsWith('status'))).toEqual(['status C +barrier', 'status A1 +barrier']);
+  });
+});

@@ -276,3 +276,8 @@
 {"format":"compact","key":"weapon:1090","decision":"accept","reviewer":"sa-F","reviewedAt":"2026-09-28T21:40:39.862Z","tests":["tests/unit/gowCastGolden.test.ts"],"note":"sa-F B12"}
 {"format":"compact","key":"troop:6996","decision":"accept","reviewer":"sa-F","reviewedAt":"2026-09-28T21:40:39.863Z","tests":["tests/unit/gowCastGolden.test.ts"],"note":"sa-F B12"}
 {"format":"compact","key":"weapon:1395","decision":"accept","reviewer":"sa-F","reviewedAt":"2026-09-28T21:40:39.863Z","tests":["tests/unit/gowCastGolden.test.ts"],"note":"sa-F B12"}
+{"format":"compact","key":"troop:6486","decision":"accept","reviewer":"sa-F","reviewedAt":"2026-09-28T21:42:22.887Z","tests":["tests/unit/gowCastGolden.test.ts"],"note":"sa-F B13; 6486 Life/Armor order is not observable"}
+{"format":"compact","key":"troop:6992","decision":"accept","reviewer":"sa-F","reviewedAt":"2026-09-28T21:42:22.889Z","tests":["tests/unit/gowCastGolden.test.ts"],"note":"sa-F B13; 6486 Life/Armor order is not observable"}
+{"format":"compact","key":"troop:6142","decision":"accept","reviewer":"sa-F","reviewedAt":"2026-09-28T21:42:22.889Z","tests":["tests/unit/gowCastGolden.test.ts"],"note":"sa-F B13; 6486 Life/Armor order is not observable"}
+{"format":"compact","key":"troop:7269","decision":"accept","reviewer":"sa-F","reviewedAt":"2026-09-28T21:42:22.890Z","tests":["tests/unit/gowCastGolden.test.ts"],"note":"sa-F B13; 6486 Life/Armor order is not observable"}
+{"format":"compact","key":"weapon:1467","decision":"accept","reviewer":"sa-F","reviewedAt":"2026-09-28T21:42:22.890Z","tests":["tests/unit/gowCastGolden.test.ts"],"note":"sa-F B13; 6486 Life/Armor order is not observable"}

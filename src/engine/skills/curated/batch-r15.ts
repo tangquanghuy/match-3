@@ -581,7 +581,7 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 8498,
-    desc: '选择一个同盟。赠予他们一次攻击，一次生命值，和一件盔甲，并充满他们的法力值。此咒语只能使用一次。',
+    desc: '选择一名盟友。给予其 [(魔法 x 3) + 3] 点攻击力、生命值和护甲值，并充满其法力值。只能施放一次。',
     // English/native: (3 * Magic) + 3 Attack, Life and Armor; preserve one-shot and full Mana.
     build: skillOnce(
       attack('allyChosen', 3, 3),
