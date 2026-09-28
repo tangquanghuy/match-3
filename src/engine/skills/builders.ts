@@ -871,8 +871,11 @@ export function sacrifice(target: TargetMode, opts?: SegmentOpts): SacrificeSegm
  * 效果」，每条独立掷签）；opts.pool='positive' 强制正面全集（原语 Wave3 批，官方
  * RandomPositiveStatusEffect——Book of Secrets「…or Allies」分支，无视阵营）。
  */
-export function inflictRandom(target: TargetMode, opts?: SegmentOpts & { turns?: number; times?: number; pool?: 'positive' }): RandomStatusSegment {
+export function inflictRandom(target: TargetMode, opts?: SegmentOpts & NRangeOpts & { turns?: number; times?: number; pool?: 'positive'; n?: number }): RandomStatusSegment {
   const seg = attach({ kind: 'randomStatus', target } as RandomStatusSegment, opts);
+  // P-H-random-status-n: FirstN / LastN random statuses need the count (was dropped -> one unit)
+  if (opts?.n !== undefined) seg.n = opts.n;
+  if (opts?.nRange !== undefined) seg.nRange = opts.nRange;
   if (opts?.turns !== undefined) seg.turns = opts.turns;
   if (opts?.times !== undefined) seg.times = opts.times;
   if (opts?.pool !== undefined) seg.pool = opts.pool;

@@ -382,6 +382,10 @@ export interface SacrificeSegment extends SegmentOptions {
 export interface RandomStatusSegment extends SegmentOptions {
   kind: 'randomStatus';
   target: TargetMode;
+  /** enemyFirstN / allyFirstN / enemyLastN ... target count (P-H-random-status-n: native @FirstTwoAllies /
+   *  @LastTwoEnemies roll one status per unit); nRange as for status segments */
+  n?: number;
+  nRange?: NRangeSpec;
   turns?: number;
   /** 每目标连续施加个数（「陷入 3 个随机状态效果」） */
   times?: number;

@@ -434,15 +434,15 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     // —— 「或」三选一 = oneOf（§9.3）；「随机增益状态效果」= inflictRandom 盟友正面池
-    //（§11 补充：赋予盟友 = 正面池）。⚠️ randomStatus 段不支持 n（§11.3 引擎缺口）——
-    // 「前 2 位」第三支暂以单目标近似并注明（8572 同口径） ——
+    //（§11 补充：赋予盟友 = 正面池）。官方 RandomPositiveStatusEffect@FirstTwoAllies：
+    // 前 2 位各掷一个（P-H-random-status-n：randomStatus 段支持 n） ——
     id: 8212,
     desc: '给予前 2 位盟友 [魔法 + 1] 点生命值，或 [魔法 + 1] 点攻击力，或赋予一个随机增益状态效果。',
     build: skill(
       oneOf(
         heal('allyFirstN', 1, 1, { n: 2 }),
         attack('allyFirstN', 1, 1, { n: 2 }),
-        inflictRandom('allyFirstN'),
+        inflictRandom('allyFirstN', { n: 2 }),
       ),
     ),
   },
