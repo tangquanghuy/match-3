@@ -1374,14 +1374,15 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 8216,
-    desc: "给予一名盟友 [(魔法 / 2) + 1] 点随机技能值。创造 9 颗其法力颜色的宝石。为另外 2 名盟友重复相同操作。",
-    // 【挽救】「其法力颜色」= LAST_TARGET（randomStat buff 段更新跨段追踪）；「为另外 2 名盟友重复」= 官方三组步骤逐组组装（RandomAlly 独立掷签，8479 先例口径）
+    desc: "给予一名盟友 [(魔法 / 2) + 1] 点随机技能值。创造 9 颗其法力颜色的宝石。然后对随机盟友再重复 2 次。",
+    // 【挽救】「其法力颜色」= LAST_TARGET（randomStat buff 段更新跨段追踪）；「再重复 2 次」= 官方三组步骤逐组组装（RandomAlly 独立掷签，可重复）
+    // sa-H：原生 IncreaseRandom = 全额给一项随机技能（oneSkill，同 R007-2），原为拆分到多项；ZH「另外 2 名盟友」误，改并加 override 6817
     build: skill(
-      randomStat('allyChosen', 1, 0.5),
+      randomStat('allyChosen', 1, 0.5, { oneSkill: true }),
       createGems('LAST_TARGET', 9),
-      randomStat('allyRandom', 1, 0.5),
+      randomStat('allyRandom', 1, 0.5, { oneSkill: true }),
       createGems('LAST_TARGET', 9),
-      randomStat('allyRandom', 1, 0.5),
+      randomStat('allyRandom', 1, 0.5, { oneSkill: true }),
       createGems('LAST_TARGET', 9),
     ),
   },

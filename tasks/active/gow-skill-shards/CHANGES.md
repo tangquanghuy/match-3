@@ -1,6 +1,6 @@
 # GoW 技能改动留档
 
-自动生成（`node scripts/gow-changelog.mjs render`），源数据 [CHANGES.jsonl](CHANGES.jsonl)，共 554 条改动，涉及 1003 个技能 ID。
+自动生成（`node scripts/gow-changelog.mjs render`），源数据 [CHANGES.jsonl](CHANGES.jsonl)，共 555 条改动，涉及 1004 个技能 ID。
 
 ## 按时间
 
@@ -560,6 +560,7 @@
 | 2026-09-28T21:41 | sa-H | L2-H-1418-one-colour | assembler | 8578 | weapon:1418 CelestialFlask | `src/engine/skills/curated/batch-w03.ts`<br>`src/data/gowWeaponReviewedOverrides.json`<br>`scripts/curated-pools/pool-w01.json` | 3 potions from a 5-colour mixed pool; zh said 3 kinds of potion → A+(B-C-D-E-F): extra turn, then 3 potions of one colour (1/5 each); zh fixed in pool + weapon override |  |
 | 2026-09-28T21:46 | sa-H | L2-H-6157-ally-colour | assembler | 7277 | troop:6157 Djinn | `src/engine/skills/curated/batch-r7.ts` | created 6 gems of the CASTER's colour → 6 gems of the chosen ally's colour (native CreateGems FromTarget) |  |
 | 2026-09-28T21:46 | sa-H | L2-H-1396-any-gem | assembler | 8517 | weapon:1396 ExperimentalElixir | `src/engine/skills/curated/batch-w03.ts` | explode 1 random coloured gem → explode 1 random gem of any kind (native ExplodeGems 1); skill issued for Amount dispute |  |
+| 2026-09-28T21:49 | sa-H | L2-H-6817-one-skill | assembler | 8216 | troop:6817 ShahbanuVespera | `src/engine/skills/curated/batch-r18.ts`<br>`src/data/gowSnapshotOverrides.json` | each grant split [(M/2)+1] across several Skills; zh said 2 other allies → each native IncreaseRandom gives the whole amount to one random Skill (oneSkill); zh 'repeat 2 more times for random allies' + override |  |
 
 ## 按技能 ID
 
@@ -933,6 +934,7 @@
 | 8209 | 1 | D-6806-count20 |
 | 8211 | 1 | L1-6808-branches |
 | 8215 | 1 | L4a-R1-8215-fromprevious |
+| 8216 | 1 | L2-H-6817-one-skill |
 | 8218 | 2 | P-counter-per-step、L2-6814-branch-weights |
 | 8219 | 1 | P-counter-per-step |
 | 8221 | 1 | L5-C-r4-1294 |

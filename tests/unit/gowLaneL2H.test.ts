@@ -315,3 +315,40 @@ describe('sa-H L2 B07', () => {
     within(rows / SEEDS, 0.5, 'row');
   });
 });
+
+describe('sa-H L2 B08', () => {
+  it('troop:7226 every ally gains [M+1] Life and one positive status each', () => {
+    const o = orderOf({ key: 'troop:7226', seed: 3 });
+    for (const w of ['C', 'A1', 'A2']) expect(o).toContain(`buff ${w} hp+11 max+11`);
+    for (const w of ['C', 'A1', 'A2']) expect(RANDOM_POSITIVE_STATUS_POOL).toContain(statusesOn(o, w)[0]);
+  });
+  it('weapon:1146 chosen ally: one random Skill +[M+1], Barrier, 3-15 Mana', () => {
+    const seen = new Set<number>();
+    for (let seed = 1; seed <= SEEDS; seed++) {
+      const o = orderOf({ key: 'weapon:1146', seed, allies: [{ manaCost: 30 }, {}] });
+      expect(o.filter(l => /^buff A1 (hp|attack|armor|magic)\+/.test(l)).length).toBe(1);
+      expect(o).toContain('status A1 +barrier');
+      const m = Number(o.find(l => l.startsWith('buff A1 mana+'))!.split('+')[1]); expect(m).toBeGreaterThanOrEqual(3); expect(m).toBeLessThanOrEqual(15); seen.add(m);
+    }
+    expect(seen.has(3) && seen.has(15)).toBe(true);
+  });
+  it('troop:6817 each of the 3 grants gives the whole [(M/2)+1] to ONE random Skill', () => {
+    for (let seed = 1; seed <= 40; seed++) {
+      const buffs = castSpell({ key: 'troop:6817', seed }).summary.order.filter(l => /^buff \w+ (hp|attack|armor|magic)\+/.test(l));
+      // one line per grant (whole amount to one Skill); a grant can raise the caster's Magic before the next one
+      expect(buffs.length).toBe(3); expect(buffs[0]).toMatch(/^buff A1 \w+\+6( max\+6)?$/);
+    }
+  });
+  it('troop:7012 +4 Magic first, then 1/3 Life | damage all (uses boosted Magic) | +10 Magic', () => {
+    const t = { life: 0, dmg: 0, mag: 0 };
+    for (let seed = 1; seed <= SEEDS; seed++) {
+      const o = orderOf({ key: 'troop:7012', seed }); expect(o[0]).toBe('buff C magic+4');
+      if (o[1] === 'buff C hp+15 max+15') t.life++; else if (o[1] === 'dmg E10 15 (all)') t.dmg++; else if (o[1] === 'buff C magic+10') t.mag++;
+    }
+    for (const [k, v] of Object.entries(t)) within(v / SEEDS, 1 / 3, `7012 ${k}`);
+  });
+  it('troop:7286 Choose B: [M+6] scatter damage', () => {
+    const b = choose({ key: 'troop:7286' }, 1);
+    expect(b.filter(l => l.includes('(scatter)')).reduce((s, l) => s + Number(l.split(' ')[2]), 0)).toBe(16);
+  });
+});

@@ -34,3 +34,8 @@
 - troop:7283 accept (Choose; half = floor(manaCost/2))
 - troop:6625 accept (13+ Blue threshold, chosen row|col 1/2)
 - troop:6809 ISSUE P-H-random-status-n (branch C random status only on first ally; queued primitive)
+- troop:7226 accept (all allies [M+1] Life + one positive roll each)
+- weapon:1146 accept (one random Skill, Barrier, 3-15 Mana)
+- troop:6817 fixed+accept (IncreaseRandom whole amount to one Skill, was split; zh 'another 2 allies' fixed + override 6817)
+- troop:7012 accept (+4 Magic first, then 1/3 Life|damage|+10 Magic)
+- troop:7286 accept (Choose +3 Magic all | [M+6] scatter)

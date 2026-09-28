@@ -322,6 +322,11 @@
       "spellId": 8499,
       "reason": "sa-H r8: English Dao 'Destroy 8 Gems of one of their Mana Colors. Then repeat 2 more times for random Enemies.'; old Chinese mistranslated (8 kinds of gems / usable twice on any enemy).",
       "spellDescription": "消除一名敌人 [(魔法 / 2) + 1] 点随机技能值，并摧毁 8 颗该敌人某一种法力颜色的宝石。然后对随机敌人再重复 2 次。"
+    },
+    "6817": {
+      "spellId": 8216,
+      "reason": "sa-H r8: English Shahbanu Vespera 'Then repeat 2 more times for random Allies' (native RandomAlly x2, may repeat); old Chinese said 2 OTHER allies.",
+      "spellDescription": "给予一名盟友 [(魔法 / 2) + 1] 点随机技能值。创造 9 颗其法力颜色的宝石。然后对随机盟友再重复 2 次。"
     }
   }
 }
