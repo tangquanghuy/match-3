@@ -4,7 +4,8 @@ import { describe, it, expect } from 'vitest';
 // @ts-expect-error Node-only audit fixture
 import fs from 'node:fs';
 import { castSpell, sixColourBoard, registry, entitySkill, withCells, reviewBoard } from '../helpers/gowCast';
-import { skullGem } from '@engine/types';
+import { skullGem, BaseColor } from '@engine/types';
+const BaseColorRed = BaseColor.Red;
 import { TROOPS } from '../../src/data/troops';
 type St = { id: string; turns: number }[];
 const sub: St = [{ id: 'submerged', turns: 99 }];
@@ -472,6 +473,40 @@ describe('L1 R2 B10 (sa-R5)', () => {
       expect(n.length).toBeGreaterThanOrEqual(1); if (n.length === 2) { two++; differ ||= n[0] !== n[1]; }
     }
     expect(two).toBeGreaterThan(115); expect(two).toBeLessThan(185); expect(differ).toBe(true);
+  });
+  // ---- B13
+  it('B13 pools: Urska (1155), kingdoms 3080 / 3081 (7093 / 7124), Dragon type in both 7374 choices', () => {
+    expect(pools('gw_UrskayanCrown')).toEqual([{ chance: 1, pool: ofType('Urska') }]);
+    expect(pools('8628')).toEqual([{ chance: 1, pool: kingdom(3080) }]);
+    expect(pools('8679')).toEqual([{ chance: 1, pool: kingdom(3081) }]);
+    const ch = (registry.prototypes.get('9014') as { segments: { options: { kind: string; params?: { source: { randomOf?: string[] } } }[][] }[] }).segments[0].options;
+    for (const o of ch) expect([...o.find(s => s.kind === 'summon')!.params!.source.randomOf!].sort()).toEqual(ofType('Dragon'));
+  });
+  it('troop:6279 colour of the CHOSEN enemy and 20% transform of that enemy', () => {
+    const s = castSpell({ key: 'troop:6279', target: 13, enemies: [{}, {}, {}, { colors: [BaseColorRed] }] }).summary;
+    expect(s.gems.created.Red).toBe(7);
+    let tr = 0;
+    for (let seed = 1; seed <= 300; seed++) { const t = castSpell({ key: 'troop:6279', seed, target: 12 }).summary.order.filter(x => x.startsWith('transform')); if (t.length) { tr++; expect(t[0]).toMatch(/^transform E12 /); } }
+    expect(tr).toBeGreaterThan(35); expect(tr).toBeLessThan(90);
+  });
+  it('troop:7510 second hit RandomPrefNotPrevEnemy: a lone enemy is hit and poisoned twice; two enemies never repeated', () => {
+    expect(castSpell({ key: 'troop:7510', enemies: [{ hp: 900, maxHp: 900 }] }).summary.order.filter(x => x.startsWith('dmg'))).toEqual(['dmg E10 13', 'dmg E10 13']);
+    for (let seed = 1; seed <= 40; seed++) {
+      const d = castSpell({ key: 'troop:7510', seed }).summary.order.filter(x => x.startsWith('dmg')).map(x => x.split(' ')[1]);
+      expect(d[0]).not.toBe(d[1]);
+    }
+  });
+  it('troop:6808 exactly one of: Damage+Submerge | Transform+Back | Devour (damage only in the first)', () => {
+    const b: Record<string, number> = {};
+    for (let seed = 1; seed <= 300; seed++) {
+      const o = castSpell({ key: 'troop:6808', seed }).summary.order;
+      const k = o.some(x => x.includes('devoured')) ? 'dev' : o.some(x => x.startsWith('transform')) ? 'tr' : 'sub';
+      b[k] = (b[k] ?? 0) + 1;
+      if (k === 'sub') expect(o.slice(0, 2)).toEqual(['dmg E11 18', 'status E11 +submerged']);
+      else expect(o.some(x => x === 'dmg E11 18')).toBe(false);
+      if (k === 'tr') expect(o.some(x => x === 'move E11 back')).toBe(true);
+    }
+    for (const k of ['dev', 'tr', 'sub']) { expect(b[k]).toBeGreaterThan(70); expect(b[k]).toBeLessThan(135); }
   });
   // ---- B12
   it('B12 pools: Mech type (7349), kingdom 3035 (7659); troop:7438 Caribou 50/33/25% independent', () => {

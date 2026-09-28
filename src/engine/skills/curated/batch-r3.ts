@@ -3,7 +3,7 @@
  * 敌方颜色动态取色占位符 'ENEMY'（随机存活敌人的一种法力色）与 'LAST_TARGET'（跨段该敌人））。
  * 核对者：窗口 G，5 条。裁定依据 spell-rules §11 补充。
  */
-import { skill, dmg, heal, reduce, inflictRandom,
+import { skill, targetedSkill, dmg, heal, reduce, inflictRandom,
   createGems, transformToSpecial, transformTroop } from '../builders';
 import { BaseColor } from '../../types';
 import type { CuratedBatch } from './index';
@@ -38,9 +38,11 @@ const SPELLS: CuratedBatch['spells'] = [
   {
     id: 7425,
     desc: '创造 7 颗指定敌人的法力颜色的宝石。有 20% 的几率将敌人转化为一只巨大毒菌。',
-    build: skill(
-      createGems('ENEMY', 7),
-      { ...transformTroop('enemyRandom', 'GiantToadstool'), chance: 0.2 },
+    // sa-R5 L1-6279: native CreateGems FromTarget + TransformEnemy@FromTarget 20% = the CHOSEN enemy
+    // (was a random enemy's colour and a random enemy transformed). inputTarget: the colour source is an enemy.
+    build: targetedSkill('enemyChosen',
+      createGems('CHOSEN_TARGET', 7),
+      { ...transformTroop('enemyChosen', 'GiantToadstool'), chance: 0.2 },
     ),
   },
   {

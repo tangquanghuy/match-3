@@ -3,7 +3,7 @@
  * Krampus resolves exactly one alternative, never all three sequentially.
  */
 import type { CuratedBatch } from './index';
-import { skill, oneOf, dmg, armor, explodeRandomGems, inflictRandom,
+import { skill, targetedSkill, oneOf, dmg, armor, explodeRandomGems, inflictRandom,
   devour, inflict, transformTroopRandom, reposition, attack, magic, gainLife, dmgSplash } from '../builders';
 import { RACE_SUMMON_REFS } from '../data/raceRoster';
 import sourceTroops from '../../../data/troops.json';
@@ -26,10 +26,13 @@ export const BATCH_ACCEPTANCE: CuratedBatch = {
     { id: 7810, desc: '爆破 4 颗敌军法力颜色的宝石。有 20% 的几率吞噬敌军。', build: skill(
       explodeRandomGems(4, 0, 'color', 'TRACKED_ENEMY'), devour('lastTarget', { chance: 0.2 }),
     ) },
-    { id: 8211, desc: '对一名敌人造成 [魔法 + 8] 点伤害，并或使其下潜，或将其吞噬，或将其转化成一名恶魔并打回末位。', build: skill(
-      dmg('enemyChosen', 8, 1), oneOf(
-        inflict('submerged', 'lastTarget'), devour('lastTarget', { chance: 1 }),
-        [transformTroopRandom('lastTarget', [...RACE_SUMMON_REFS.Daemon]), reposition('lastTarget', 'back')],
+    // sa-R5 L1-6808: native Randomize AB-CD-EF = (Damage + Submerge) | (TransformType daemon + TroopOrderBack) |
+    // (Consume); the damage belongs to the first branch only (was dealt before every branch).
+    { id: 8211, desc: '对一名敌人造成 [魔法 + 8] 点伤害，并或使其下潜，或将其吞噬，或将其转化成一名恶魔并打回末位。', build: targetedSkill('enemyChosen',
+      oneOf(
+        [dmg('enemyChosen', 8, 1), inflict('submerged', 'lastTarget')],
+        [transformTroopRandom('enemyChosen', [...RACE_SUMMON_REFS.Daemon]), reposition('lastTarget', 'back')],
+        [devour('enemyChosen', { chance: 1 })],
       ),
     ) },
   ],

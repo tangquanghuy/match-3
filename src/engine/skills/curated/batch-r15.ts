@@ -745,7 +745,8 @@ const SPELLS: CuratedBatch['spells'] = [
     build: skill(
       dmg('enemyRandom', 3, 1),
       inflict('poison', 'lastTarget'),
-      dmg('enemyRandom', 3, 1),
+      // sa-R5 L1-7510: native second hit RandomPrefNotPrevEnemy (R007-3), was plain RandomEnemy (could repeat).
+      dmg('enemyRandomPrefNotPrev', 3, 1),
       inflict('poison', 'lastTarget'),
       transformTroop('allySelf', 'Basilisk', { chance: 0.3 }),
     ),

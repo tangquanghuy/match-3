@@ -71,25 +71,28 @@ describe('newly wired project spells: deterministic branch coverage', () => {
     const noEnemy = fixture(7810); noEnemy.ctx.state.teams.Right.characters = [];
     expect(noEnemy.run()).toEqual([]);
   });
-  it.each([0, 1, 2])('Krampus deals damage first then exactly one branch %i to the chosen enemy', branch => {
+  // sa-R5 L1-6808: native Randomize AB-CD-EF = (Damage + Submerge) | (TransformType daemon + TroopOrderBack) | (Consume):
+  // the damage belongs to branch 0 only.
+  it.each([0, 1, 2])('Krampus resolves exactly one native branch %i on the chosen enemy', branch => {
     const f = fixture(8211);
     vi.spyOn(f.ctx.rng, 'nextInt').mockReturnValueOnce(branch);
     const target = f.right[0];
     const events = f.run();
-    expect(events[0]).toMatchObject({type: 'skill-damage', targetId: 4, damage: 15});
-    expect(events.some(e => e.type === 'troop-transform')).toBe(branch === 2);
-    expect(events.some(e => e.type === 'defeat')).toBe(branch === 1);
+    if (branch === 0) expect(events[0]).toMatchObject({type: 'skill-damage', targetId: 4, damage: 15});
+    else expect(events.some(e => e.type === 'skill-damage' && !(e as {devoured?: boolean}).devoured)).toBe(false);
+    expect(events.some(e => e.type === 'troop-transform')).toBe(branch === 1);
+    expect(events.some(e => e.type === 'defeat')).toBe(branch === 2);
     expect(target.statuses.some(s => s.id === 'submerged')).toBe(branch === 0);
-    if (branch === 2) {
+    if (branch === 1) {
       expect(f.ctx.state.teams.Right.characters.at(-1)?.id).toBe(4);
       expect(target.troopTypes).toContain('Daemon');
       expect(target.kingdom).not.toBe('old-kingdom');
       expect(target.traitIds?.length).toBeGreaterThan(0);
     }
   });
-  it.each([0, 1, 2])('Krampus branch %i does not retarget after lethal initial damage', branch => {
+  it('Krampus damage branch does not retarget after lethal damage (no Submerge on another enemy)', () => {
     const f = fixture(8211); f.right[0].hp = 1;
-    vi.spyOn(f.ctx.rng, 'nextInt').mockReturnValueOnce(branch);
+    vi.spyOn(f.ctx.rng, 'nextInt').mockReturnValueOnce(0);
     const events = f.run();
     expect(events.some(e => e.type === 'defeat' && e.characterId === 4)).toBe(true);
     expect(f.ctx.state.teams.Right.characters.map(c => c.hp)).toEqual([50,50,50]);

@@ -149,6 +149,16 @@
   "by": "sa-R5",
   "at": "2026-09-28T08:53:48.435Z"
  },
+ "troop:6279": {
+  "lines": {
+   "L10": "convert Purple x3, skull x1, Red x1, Yellow x1, Brown x1 -> Blue x7 ; ~cascade~  => A1:mana+3  cascade",
+   "R10": "convert Purple x3, skull x1, Red x1, Yellow x1, Brown x1 -> Blue x7 ; ~cascade~  => A1:mana+3  cascade",
+   "L0": "convert Purple x3, skull x1, Red x1, Yellow x1, Brown x1 -> Blue x7 ; ~cascade~  => A1:mana+3  cascade",
+   "K": "convert Brown x2, skull x2, Red x3 -> Green x7 ; ~cascade~ ; extra-turn match  extra:match  cascade"
+  },
+  "by": "sa-R5",
+  "at": "2026-09-28T09:13:09.865Z"
+ },
  "troop:6289": {
   "lines": {
    "L10": "(no spell events)",
@@ -579,6 +589,16 @@
   "by": "sa-R5",
   "at": "2026-09-28T08:58:11.265Z"
  },
+ "troop:6796": {
+  "lines": {
+   "L10": "convert Purple x3, skull x1, Red x1, Yellow x1, Brown x2, Green x2 -> Blue x10 ; ~cascade~  => A1:mana+3  cascade",
+   "R10": "convert Purple x3, skull x1, Red x1, Yellow x1, Brown x2, Green x2 -> Blue x10 ; ~cascade~  => A1:mana+3  cascade",
+   "L0": "convert Purple x3, skull x1, Red x1, Yellow x1, Brown x2, Green x2 -> Blue x10 ; ~cascade~  => A1:mana+3  cascade",
+   "K": "convert Purple x3, skull x1, Red x1, Yellow x1, Brown x2, Green x2 -> Blue x10 ; ~cascade~  => A1:mana+3  cascade"
+  },
+  "by": "sa-R5",
+  "at": "2026-09-28T09:13:09.865Z"
+ },
  "troop:6798": {
   "lines": {
    "L10": "dmg E11 14  => E11:hp-4 arm-10",
@@ -598,6 +618,16 @@
   },
   "by": "sa-R5",
   "at": "2026-09-28T05:52:06.635Z"
+ },
+ "troop:6808": {
+  "lines": {
+   "L10": "transform E11 -> 夜龙 ; move E11 back  => E11:now 夜龙",
+   "R10": "transform E11 -> 夜龙 ; move E11 back  => E11:now 夜龙",
+   "L0": "transform E11 -> 夜龙 ; move E11 back  => E11:now 夜龙",
+   "K": "transform E11 -> 夜龙 ; move E11 back  => E11:now 夜龙"
+  },
+  "by": "sa-R5",
+  "at": "2026-09-28T09:13:09.865Z"
  },
  "troop:6827": {
   "lines": {
@@ -638,6 +668,16 @@
   },
   "by": "sa-F1",
   "at": "2026-09-28T00:38:55.702Z"
+ },
+ "troop:6844": {
+  "lines": {
+   "L10": "convert Brown x3, Purple x1, Green x1, Yellow x1, Blue x1 -> doomSkull x7 ; ~cascade~ ; trigger doomSkull ; explode 7 ; trigger doomSkull ; explode 2  => E10:hp-22 arm-5 | A2:mana+1 | A1:mana+1  cascade",
+   "R10": "convert Brown x3, Purple x1, Green x1, Yellow x1, Blue x1 -> doomSkull x7 ; ~cascade~ ; trigger doomSkull ; explode 7 ; trigger doomSkull ; explode 2  => E10:hp-22 arm-5 | A2:mana+1 | A1:mana+1  cascade",
+   "L0": "convert Brown x3, Purple x1, Green x1, Yellow x1, Blue x1 -> doomSkull x7 ; ~cascade~ ; trigger doomSkull ; explode 7 ; trigger doomSkull ; explode 2  => E10:hp-22 arm-5 | A2:mana+1 | A1:mana+1  cascade",
+   "K": "convert Brown x3, Purple x1, Green x1, Yellow x1, Blue x1 -> doomSkull x7 ; ~cascade~ ; defeat E10 ; trigger doomSkull ; explode 7 ; trigger doomSkull ; explode 2  => E10:hp-1 DEAD | A2:mana+1 | A1:mana+1  cascade"
+  },
+  "by": "sa-R5",
+  "at": "2026-09-28T09:13:09.865Z"
  },
  "troop:6849": {
   "lines": {
@@ -879,6 +919,26 @@
   "by": "sa-R5",
   "at": "2026-09-28T08:36:41.866Z"
  },
+ "troop:7093": {
+  "lines": {
+   "L10": "convert Yellow x3, Purple x2 -> elementalStar x5 ; summon mine troop:-1 ; ~cascade~ ; trigger elementalStar ; destroy 4 (Blue x2, Yellow x1, Brown x1) ; extra-turn match  => A14:new 火生战士 hp12 atk11 arm21 mag9 | A1:mana+3 | A2:mana+2  extra:match  cascade",
+   "R10": "convert Yellow x3, Purple x2 -> elementalStar x5 ; summon mine troop:-1 ; ~cascade~ ; trigger elementalStar ; destroy 4 (Blue x2, Yellow x1, Brown x1) ; extra-turn match  => A14:new 火生战士 hp12 atk11 arm21 mag9 | A1:mana+3 | A2:mana+2  extra:match  cascade",
+   "L0": "convert Yellow x3, Purple x2 -> elementalStar x5 ; summon mine troop:-1 ; ~cascade~ ; trigger elementalStar ; destroy 4 (Blue x2, Yellow x1, Brown x1) ; extra-turn match  => A14:new 火生战士 hp12 atk11 arm21 mag9 | A1:mana+3 | A2:mana+2  extra:match  cascade",
+   "K": "convert Yellow x3, Purple x2 -> elementalStar x5 ; summon mine troop:-1 ; ~cascade~ ; trigger elementalStar ; destroy 4 (Blue x2, Yellow x1, Brown x1) ; extra-turn match  => A14:new 火生战士 hp12 atk11 arm21 mag9 | A1:mana+3 | A2:mana+2  extra:match  cascade"
+  },
+  "by": "sa-R5",
+  "at": "2026-09-28T09:13:09.865Z"
+ },
+ "troop:7124": {
+  "lines": {
+   "L10": "convert Green x3, skull x1, Brown x2 -> umbralStar x6 ; summon mine troop:-1 ; ~cascade~ ; trigger umbralStar ; destroy 12 (Red x4, Blue x2, Brown x1, Green x2, Purple x2, skull x1) ; skulls E10 1 ; storm Purple set ; trigger umbralStar ; destroy 9 (Blue x4, Green x1, Yellow x2, Purple x1, Brown x1) ; trigger umbralStar ; destroy 11 (Green x4, Brown x2, Red x2, Blue x1, Yellow x1, skull x1) ; trigger umbralStar ; destroy 6 (Yellow x2, Green x2, Red x1, Blue x1) ; trigger umbralStar ; destroy 6 (Green x2, Blue x1, skull x1, Purple x1, Brown x1) ; skulls E10 2 ; extra-turn match  => A14:new 临界传送门 hp30 atk15 arm17 mag19 | A2:mana+16 | A1:mana+9 | E10:arm-3  extra:match  cascade",
+   "R10": "convert Green x3, skull x1, Brown x2 -> umbralStar x6 ; summon mine troop:-1 ; ~cascade~ ; trigger umbralStar ; destroy 12 (Red x4, Blue x2, Brown x1, Green x2, Purple x2, skull x1) ; skulls E10 1 ; storm Purple set ; trigger umbralStar ; destroy 9 (Blue x4, Green x1, Yellow x2, Purple x1, Brown x1) ; trigger umbralStar ; destroy 11 (Green x4, Brown x2, Red x2, Blue x1, Yellow x1, skull x1) ; trigger umbralStar ; destroy 6 (Yellow x2, Green x2, Red x1, Blue x1) ; trigger umbralStar ; destroy 6 (Green x2, Blue x1, skull x1, Purple x1, Brown x1) ; skulls E10 2 ; extra-turn match  => A14:new 临界传送门 hp30 atk15 arm17 mag19 | A2:mana+16 | A1:mana+9 | E10:arm-3  extra:match  cascade",
+   "L0": "convert Green x3, skull x1, Brown x2 -> umbralStar x6 ; summon mine troop:-1 ; ~cascade~ ; trigger umbralStar ; destroy 12 (Red x4, Blue x2, Brown x1, Green x2, Purple x2, skull x1) ; skulls E10 1 ; storm Purple set ; trigger umbralStar ; destroy 9 (Blue x4, Green x1, Yellow x2, Purple x1, Brown x1) ; trigger umbralStar ; destroy 11 (Green x4, Brown x2, Red x2, Blue x1, Yellow x1, skull x1) ; trigger umbralStar ; destroy 6 (Yellow x2, Green x2, Red x1, Blue x1) ; trigger umbralStar ; destroy 6 (Green x2, Blue x1, skull x1, Purple x1, Brown x1) ; skulls E10 2 ; extra-turn match  => A14:new 临界传送门 hp30 atk15 arm17 mag19 | A2:mana+16 | A1:mana+9 | E10:arm-3  extra:match  cascade",
+   "K": "convert Green x3, skull x1, Brown x2 -> umbralStar x6 ; summon mine troop:-1 ; ~cascade~ ; trigger umbralStar ; destroy 12 (Red x4, Blue x2, Brown x1, Green x2, Purple x2, skull x1) ; skulls E10 1 ; defeat E10 ; storm Purple set ; trigger umbralStar ; destroy 9 (Blue x4, Green x1, Yellow x2, Purple x1, Brown x1) ; trigger umbralStar ; destroy 11 (Green x4, Brown x2, Red x2, Blue x1, Yellow x1, skull x1) ; trigger umbralStar ; destroy 6 (Yellow x2, Green x2, Red x1, Blue x1) ; trigger umbralStar ; destroy 6 (Green x2, Blue x1, skull x1, Purple x1, Brown x1) ; skulls E11 2 ; defeat E11 ; extra-turn match  => A14:new 临界传送门 hp30 atk15 arm17 mag19 | A2:mana+16 | A1:mana+9 | E10:hp-1 DEAD | E11:hp-1 DEAD  extra:match  cascade"
+  },
+  "by": "sa-R5",
+  "at": "2026-09-28T09:13:09.865Z"
+ },
  "troop:7127": {
   "lines": {
    "L10": "convert Yellow x2, Brown x2, skull x2, Blue x1, Red x2, Purple x1 -> Green x10 ; summon mine troop:-1 ; ~cascade~  => A14:new 猫蝶 hp28 atk11 arm5 mag0  cascade",
@@ -949,6 +1009,16 @@
   "by": "sa-R5",
   "at": "2026-09-28T05:52:06.635Z"
  },
+ "troop:7307": {
+  "lines": {
+   "L10": "dmg E11 13 ; status C +reflect  => E11:hp-3 arm-10 | C:+reflect",
+   "R10": "dmg E11 13 ; status C +reflect  => E11:hp-3 arm-10 | C:+reflect",
+   "L0": "dmg E11 3 ; status C +reflect  => E11:arm-3 | C:+reflect",
+   "K": "dmg E11 13 ; defeat E11 ; status C +reflect  => E11:hp-1 DEAD | C:+reflect"
+  },
+  "by": "sa-R5",
+  "at": "2026-09-28T09:13:09.865Z"
+ },
  "troop:7349": {
   "lines": {
    "L10": "convert Green x1, Purple x1, skull x1 -> bomb x3 ; explode 27 ; skulls E10 1 ; ~cascade~ ; summon mine troop:-1  => A14:new 深钻工 hp16 atk11 arm16 mag5 | A2:mana+6 | E10:arm-1  cascade",
@@ -978,6 +1048,16 @@
   },
   "by": "sa-R5",
   "at": "2026-09-28T08:42:25.119Z"
+ },
+ "troop:7374": {
+  "lines": {
+   "L10": "convert Green x1, Purple x3, skull x1, Red x1, Yellow x1 -> dragonGem/Blue x7 ; summon mine troop:-1  => A14:new 钴蓝地龙 hp24 atk16 arm5 mag12",
+   "R10": "convert Green x1, Purple x3, skull x1, Red x1, Yellow x1 -> dragonGem/Blue x7 ; summon mine troop:-1  => A14:new 钴蓝地龙 hp24 atk16 arm5 mag12",
+   "L0": "convert Green x1, Purple x3, skull x1, Red x1, Yellow x1 -> dragonGem/Blue x7 ; summon mine troop:-1  => A14:new 钴蓝地龙 hp24 atk16 arm5 mag12",
+   "K": "convert Green x1, Purple x3, skull x1, Red x1, Yellow x1 -> dragonGem/Blue x7 ; summon mine troop:-1  => A14:new 钴蓝地龙 hp24 atk16 arm5 mag12"
+  },
+  "by": "sa-R5",
+  "at": "2026-09-28T09:13:09.865Z"
  },
  "troop:7382": {
   "lines": {
@@ -1068,6 +1148,16 @@
   },
   "by": "sa-R5",
   "at": "2026-09-28T08:42:25.119Z"
+ },
+ "troop:7510": {
+  "lines": {
+   "L10": "dmg E12 13 ; status E12 +poison ; dmg E11 13 ; status E11 +poison  => E12:hp-1 arm-12 +poison | E11:hp-3 arm-10 +poison",
+   "R10": "dmg E12 13 ; status E12 +poison ; dmg E11 13 ; status E11 +poison  => E12:hp-1 arm-12 +poison | E11:hp-3 arm-10 +poison",
+   "L0": "dmg E12 3 ; status E12 +poison ; dmg E11 3 ; status E11 +poison  => E12:arm-3 +poison | E11:arm-3 +poison",
+   "K": "dmg E12 13 ; defeat E12 ; dmg E11 13 ; defeat E11  => E12:hp-1 DEAD | E11:hp-1 DEAD"
+  },
+  "by": "sa-R5",
+  "at": "2026-09-28T09:13:09.865Z"
  },
  "troop:7515": {
   "lines": {
@@ -1248,6 +1338,16 @@
   },
   "by": "sa-R5",
   "at": "2026-09-28T09:02:30.889Z"
+ },
+ "weapon:1155": {
+  "lines": {
+   "L10": "convert Yellow x2, Purple x3, Blue x2, Green x2 -> Red x9 ; summon mine troop:-1 ; ~cascade~  => A14:new 莱拉斯扎 hp30 atk15 arm17 mag10 | A2:mana+3  cascade",
+   "R10": "convert Yellow x2, Purple x3, Blue x2, Green x2 -> Red x9 ; summon mine troop:-1 ; ~cascade~  => A14:new 莱拉斯扎 hp30 atk15 arm17 mag10 | A2:mana+3  cascade",
+   "L0": "convert Yellow x2, Purple x3, Blue x2, Green x2 -> Red x9 ; summon mine troop:-1 ; ~cascade~  => A14:new 莱拉斯扎 hp30 atk15 arm17 mag10 | A2:mana+3  cascade",
+   "K": "convert Yellow x2, Purple x3, Blue x2, Green x2 -> Red x9 ; summon mine troop:-1 ; ~cascade~  => A14:new 莱拉斯扎 hp30 atk15 arm17 mag10 | A2:mana+3  cascade"
+  },
+  "by": "sa-R5",
+  "at": "2026-09-28T09:13:09.865Z"
  },
  "weapon:1287": {
   "lines": {
