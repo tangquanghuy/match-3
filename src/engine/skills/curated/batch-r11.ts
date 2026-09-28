@@ -468,7 +468,8 @@ const SPELLS: CuratedBatch['spells'] = [
     // MultiplyForRegion4003（南荒）；「6 颗黄宝石→绿龙宝石」带色 → 基础色转换 count 6（R8 8830 先例）
     build: skill(
       trueDmg('enemyAll', 2, 0.8, { range: 'all', condMult: REGION2('Southwild') }),
-      transform(BaseColor.Yellow, BaseColor.Green, { count: 6 }),
+      // R009: native ConvertGems Yellow > DragonGreen = Green Dragon Gems, not plain Green
+      transformToSpecial(BaseColor.Yellow, { kind: 'dragonGem', color: BaseColor.Green }, { count: 6 }),
     ),
   },
   {

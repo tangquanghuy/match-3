@@ -179,10 +179,11 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 8813,
-    desc: '对一名敌人造成 [魔法 + 3] 点轻微溅射伤害。再创造 1-2 颗随机石像鬼宝石。',
+    desc: '对一名敌人造成 [魔法 + 3] 点溅射伤害。再创造 1-2 颗随机石像鬼宝石。',
+    // native SplashHighDamage (English "splash", not light); CreateGems2ColorsRange GoodGargoyle/BadGargoyle 1-2
     build: skill(
       dmgSplash('enemyChosen', 3),
-      createSpecialGems({ kind: 'gargoyleGem' }, 1, 0, { countRange: { min: 1, max: 2 } }),
+      createSpecialGems2([{ kind: 'gargoyleGem', tier: 1 }, { kind: 'gargoyleGem', tier: 2 }], 0, 0, { countRange: { min: 1, max: 2 } }),
     ),
   },
   {

@@ -14020,6 +14020,47 @@
           }
         ]
       }
+    },
+    "8996": {
+      "description": "对 2 名随机敌人造成 [魔法 + 2] 点真实伤害。再创造 5 颗炸弹宝石。",
+      "prototype": {
+        "segments": [
+          {
+            "kind": "damage",
+            "target": "enemyRandom",
+            "scaling": {
+              "base": 2,
+              "mult": 1
+            },
+            "trueDamage": true
+          },
+          {
+            "kind": "damage",
+            "target": "enemyRandomPrefNotPrev",
+            "scaling": {
+              "base": 2,
+              "mult": 1
+            },
+            "trueDamage": true
+          },
+          {
+            "kind": "gem",
+            "params": {
+              "op": "create",
+              "gem": {
+                "kind": "special",
+                "spec": {
+                  "kind": "bomb"
+                }
+              },
+              "count": {
+                "base": 5,
+                "mult": 0
+              }
+            }
+          }
+        ]
+      }
     }
   }
 }

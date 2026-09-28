@@ -1282,7 +1282,9 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 8996,
     desc: '对 2 名随机敌人造成 [魔法 + 2] 点真实伤害。再创造 5 颗炸弹宝石。',
     build: skill(
-      trueDmg('enemyRandomN', 2, 1, { trueDamage: true, n: 2 }),
+      // native TrueDamage@RandomEnemy → TrueDamage@RandomPrefNotPrevEnemy (R007-3)
+      trueDmg('enemyRandom', 2, 1),
+      trueDmg('enemyRandomPrefNotPrev', 2, 1),
       createSpecialGems({ kind: 'bomb' }, 5, 0),
     ),
   },

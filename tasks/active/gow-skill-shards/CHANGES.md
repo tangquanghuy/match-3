@@ -1,6 +1,6 @@
 # GoW 技能改动留档
 
-自动生成（`node scripts/gow-changelog.mjs render`），源数据 [CHANGES.jsonl](CHANGES.jsonl)，共 531 条改动，涉及 979 个技能 ID。
+自动生成（`node scripts/gow-changelog.mjs render`），源数据 [CHANGES.jsonl](CHANGES.jsonl)，共 535 条改动，涉及 983 个技能 ID。
 
 ## 按时间
 
@@ -537,6 +537,10 @@
 | 2026-09-28T14:50 | sa-B | L4b-R6-B03-prefnotprev | data | 8803, 9903, 8963 | troop:7216 Craghound；weapon:1684 FlailOfSuffering；troop:7340 TheCattauriKing | `src/engine/skills/curated/batch-r14.ts`<br>`src/engine/skills/curated/batch-w04.ts`<br>`src/engine/skills/curated/batch-r4.ts`<br>`src/data/gowWeaponReviewedOverrides.json` | enemyRandomN n=2/3 (distinct targets; lone survivor hit once) → native RandomEnemy + RandomPrefNotPrevEnemy chain (R007-3: avoid only previous; lone survivor hit every time; 3rd may return to 1st) |  |
 | 2026-09-28T14:55 | sa-B | L4b-R6-B04 | data | 9356, 9357, 9358, 9359, 9360, 9361 | weapon:1592 DoomedProtector；weapon:1593 DoomedBuckler；weapon:1594 DoomedWall；weapon:1595 DoomedBarrier；weapon:1596 DoomedShield；weapon:1597 DoomedAegis | `src/engine/skills/curated/batch-w04.ts`<br>`src/data/gowWeaponReviewedOverrides.json` | Doom branch converted to colourless giantGem → R009: giantGem carries its colour (Giant Blue/Green/Red/Yellow/Purple/Brown) |  |
 | 2026-09-28T14:55 | sa-B | L4b-R6-B04 | data | 7708 | troop:6516 WarCleric | `src/engine/skills/curated/batch-r15.ts` | one hit per Undead-or-Daemon enemy → native two steps: Damage Daemon enemies, then Damage Undead enemies (Daemon+Undead hit twice, R001) |  |
+| 2026-09-28T15:14 | sa-B | L4b-R6-B06 | data | 8813 | troop:7219 OnyxGargoyle | `src/engine/skills/curated/batch-r14.ts`<br>`src/data/gowSnapshotOverrides.json` | Good-only gargoyle (tier unset); zh light splash → CreateGems2ColorsRange Good/Evil tiers 1-2; zh splash (SplashHighDamage) + snapshot override |  |
+| 2026-09-28T15:14 | sa-B | L4b-R6-B06 | data | 9648 | troop:7689 ImmortalDrakkon | `src/engine/skills/curated/batch-r11.ts` | 6 Yellow -> plain Green → 6 Yellow -> Green Dragon Gems (R009) |  |
+| 2026-09-28T15:14 | sa-B | L4b-R6-B06 | data | 9220 | troop:7487 Takshaka | `src/engine/skills/curated/batch-r9.ts` | second hit enemyRandom (could repeat the chosen target) → native RandomPrefNotPrevEnemy (avoids the chosen target) |  |
+| 2026-09-28T15:14 | sa-B | L4b-R6-B06 | data | 8996 | weapon:1524 Gearslinger | `src/engine/skills/curated/batch-w03.ts`<br>`src/data/gowWeaponReviewedOverrides.json` | enemyRandomN n=2 → native RandomEnemy + RandomPrefNotPrevEnemy true damage (R007-3) |  |
 
 ## 按技能 ID
 
@@ -1185,6 +1189,7 @@
 | 8807 | 3 | F2-R001-order、P-A-target-kingdom、P-E-faction-kingdom |
 | 8809 | 1 | P-E-faction-kingdom |
 | 8812 | 1 | L4a-R1-8812-no-base |
+| 8813 | 1 | L4b-R6-B06 |
 | 8815 | 1 | L7-R1-board-special-counts |
 | 8816 | 1 | L1-E-kingdom-summon-raw |
 | 8817 | 1 | L1-7222-chance |
@@ -1254,6 +1259,7 @@
 | 8985 | 1 | P-R5-faction-kingdom |
 | 8987 | 1 | P-counter-per-step |
 | 8995 | 1 | L4a-r3-1523 |
+| 8996 | 1 | L4b-R6-B06 |
 | 9003 | 1 | R7-tarot-extra-turn |
 | 9008 | 1 | R009-giant-dragon-L4b |
 | 9013 | 1 | L7-R1-random-chain-waves |
@@ -1308,6 +1314,7 @@
 | 9214 | 2 | L2-1563-create-base、P-R1-count-at-native-step |
 | 9215 | 2 | L2-1563-create-base、P-R1-count-at-native-step |
 | 9216 | 2 | L2-1563-create-base、P-R1-count-at-native-step |
+| 9220 | 1 | L4b-R6-B06 |
 | 9221 | 1 | L4a-r3-7488 |
 | 9222 | 1 | R3-B12-6999 |
 | 9223 | 1 | P-steal-to-life |
@@ -1430,6 +1437,7 @@
 | 9642 | 1 | L4a-r3-7685 |
 | 9646 | 1 | R3-B10-7688 |
 | 9647 | 1 | L4b-1646-prefnotprev |
+| 9648 | 1 | L4b-R6-B06 |
 | 9649 | 1 | P-R1-gargoyle-tier-filter,P-R2-gargoyle-tier,P-R4-gargoyle-tier-count,P-R3-dragon-gem-count |
 | 9651 | 1 | P-R3-precast-compare |
 | 9659 | 2 | P-prefnotprev-semantics、L4a-R1-9659-prefnotprev |

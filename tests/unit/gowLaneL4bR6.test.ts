@@ -1,7 +1,7 @@
 // sa-B lane review round 6 (lane L4b, board create / convert).
 // Real TurnEngine.castSkill through tests/helpers/gowCast.ts; each row has its own entity and expected values.
 import { describe, it, expect } from 'vitest';
-import { castSpell, DEFAULT_ENEMIES } from '../helpers/gowCast';
+import { castSpell, setupCast, summarize, DEFAULT_ENEMIES } from '../helpers/gowCast';
 import { BaseColor } from '@engine/types';
 
 const dmgs = (o: string[]) => o.filter(x => x.startsWith('dmg'));
@@ -180,5 +180,52 @@ describe('L4b R6 B05', () => {
     const s = castSpell({ key: 'troop:7393' }).summary;
     expect(s.order.slice(0, 2)).toEqual(['dmg E11 910', 'defeat E11']);
     expect(s.order.filter(x => x.startsWith('convert')).map(x => x.split('-> ')[1])).toEqual(['curseGem x6', 'giantGem/Yellow x6', 'faerieFireGem x6']);
+  });
+});
+
+describe('L4b R6 B06', () => {
+  it('troop:7219: splash 13/6/6 (SplashHighDamage); 1-2 Gargoyle Gems, Good or Evil tiers', () => {
+    const tiers = new Set<number | undefined>(); const counts = new Set<number>();
+    for (const seed of [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 42]) {
+      const { f, summary } = castSpell({ key: 'troop:7219', seed });
+      expect(dmgs(summary.order)).toEqual(['dmg E11 13 (splash)', 'dmg E10 6 (splash)', 'dmg E12 6 (splash)']);
+      const n = summary.gems.created.gargoyleGem; counts.add(n);
+      expect(n).toBeGreaterThanOrEqual(1); expect(n).toBeLessThanOrEqual(2);
+      for (const t of cells(f).filter(t => t?.spec?.kind === 'gargoyleGem')) tiers.add(t?.spec?.tier);
+    }
+    expect([...counts].sort()).toEqual([1, 2]);
+    expect([...tiers].sort()).toEqual([1, 2]);
+  });
+  it('troop:7689: 10 true damage to all, 20 in Southwild; 6 Yellow -> Green Dragon Gems (R009)', () => {
+    const s = castSpell({ key: 'troop:7689' }).summary;
+    expect(dmgs(s.order)).toEqual(['dmg E10 10 (all)', 'dmg E11 10 (all)', 'dmg E12 10 (all)', 'dmg E13 10 (all)']);
+    expect(s.order).toContain('convert Yellow x6 -> dragonGem/Green x6');
+    const f = setupCast({ key: 'troop:7689' });
+    (f.state as { region?: string }).region = 'Southwild';
+    expect(dmgs(summarize(f, f.cast()).order)[0]).toBe('dmg E10 20 (all)');
+  });
+  const ONE = DEFAULT_ENEMIES.map((e, i) => (i === 1 ? { ...e } : { ...e, hp: 0, defeated: true })) as never;
+  it('weapon:1524: RandomEnemy then RandomPrefNotPrev true damage 12 (lone survivor hit twice); 5 Bombs', () => {
+    expect(dmgs(castSpell({ key: 'weapon:1524', enemies: ONE }).summary.order)).toEqual(['dmg E11 12', 'dmg E11 12']);
+    const s = castSpell({ key: 'weapon:1524' }).summary;
+    expect(s.gems.created.bomb).toBe(5);
+  });
+  it('troop:7487: 24 true to the chosen enemy and 24 to a random one that is never the chosen while others live', () => {
+    for (const seed of [1, 2, 3, 4, 5, 6, 7, 8]) {
+      const d = dmgs(castSpell({ key: 'troop:7487', seed }).summary.order);
+      expect(d[0]).toBe('dmg E11 24');
+      expect(d[1]).not.toBe('dmg E11 24');
+    }
+    expect(dmgs(castSpell({ key: 'troop:7487', enemies: ONE }).summary.order)).toEqual(['dmg E11 24', 'dmg E11 24']);
+  });
+  it('troop:6120: steals up to 13 Armor then 13 true damage; 1-2 Bombs', () => {
+    const s = castSpell({ key: 'troop:6120' }).summary;
+    expect(s.order.slice(0, 3)).toEqual(['buff E11 armor-10', 'buff C armor+10', 'dmg E11 13']);
+    const n = new Set([1, 2, 3, 4, 5, 6, 7, 8].map(seed => castSpell({ key: 'troop:6120', seed }).summary.gems.created.bomb));
+    expect([...n].sort()).toEqual([1, 2]);
+  });
+  it('weapon:1639: 7 Submerge, +4 when an enemy dies', () => {
+    expect(castSpell({ key: 'weapon:1639' }).summary.gems.created.submergeGem).toBe(7);
+    expect(castSpell({ key: 'weapon:1639', enemies: KILL }).summary.gems.created.submergeGem).toBe(11);
   });
 });
